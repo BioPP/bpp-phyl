@@ -103,9 +103,22 @@ VVVdouble DRTreeLikelihoodTools::getPosteriorProbabilitiesForEachStateForEachRat
 			}
 		}
 	} else {
-		Vdouble likelihoods = drl.getLikelihoodForEachSite();
 		VVVdouble larray = drl.computeLikelihoodAtNode(node);
+		
+		Vdouble likelihoods(nSites, 0);
 		Vdouble freqs = drl.getSubstitutionModel() -> getFrequencies();
+		Vdouble rcRates = rDist -> getCategories();
+		for(unsigned int i = 0; i < nSites; i++) {
+			VVdouble * larray_i = & larray[i];
+			for(unsigned int c = 0; c < nClasses; c++) {
+				Vdouble * larray_i_c = & (* larray_i)[c];
+				double rcp = rcProbs[c];
+				for(unsigned int s = 0; s < nStates; s++) {
+					likelihoods[i] += rcp * freqs[s] * (* larray_i_c)[s];
+				}
+			}
+		}
+		
 		for(unsigned int i = 0; i < nSites; i++) {
 			VVdouble * postProb_i = & postProb[i];
 			postProb_i -> resize(nClasses);
