@@ -12,6 +12,7 @@ JTT92.h\
 K80.h\
 MutationProcess.h\
 Newick.h\
+NewtonBrentMetaOptimizer.h\
 NonHomogeneousTreeLikelihood.h\
 NucleotideSubstitutionModel.h\
 OptimizationTools.h\
@@ -43,6 +44,7 @@ JTT92.cpp\
 K80.cpp\
 MutationProcess.cpp\
 Newick.cpp\
+NewtonBrentMetaOptimizer.cpp\
 NonHomogeneousTreeLikelihood.cpp\
 NucleotideSubstitutionModel.cpp\
 OptimizationTools.cpp\

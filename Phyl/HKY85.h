@@ -20,6 +20,7 @@ class HKY85 : public NucleotideSubstitutionModel
 	protected:
 		Constraint * piConstraint;
 		void updateMatrices();
+		double kappa, r, exp1, exp2, exp3;
 
 	public:
 		HKY85(

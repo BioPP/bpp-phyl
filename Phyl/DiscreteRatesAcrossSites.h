@@ -3,6 +3,7 @@
 
 // From the NumCalc library:
 #include <NumCalc/DiscreteDistribution.h>
+#include <NumCalc/ParameterList.h>
 
 /**
  * @brief Interface for RAS implementation.
@@ -97,6 +98,13 @@ class DiscreteRatesAcrossSites
 		 */
 		virtual Vdouble getPosteriorRateOfEachSite() const = 0;
 
+		/**
+		 * @brief Get the parameters associated to the rate distirbution.
+		 *
+		 * @return A ParameterList object with all rate distribution parameters.
+		 */
+		virtual ParameterList getRateDistributionParameters() const = 0;
+		
 };
 
 #endif //_DISCRETERATESACROSSSITES_H_

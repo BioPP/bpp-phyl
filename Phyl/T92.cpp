@@ -94,10 +94,10 @@ double T92::Pij_t(int i, int j, double d) const
 		//A
 		case 0 : {
 			switch(j) {
-				case 0 : return piA * (1. + exp1) + theta * exp(-l * l); //A
-				case 1 : return piC * (1. - exp1);                       //C
-				case 2 : return piG * (1. + exp1) - theta * exp(-l * l); //G
-				case 3 : return piT * (1. - exp1);                       //T, U
+				case 0 : return piA * (1. + exp1) + theta * exp2; //A
+				case 1 : return piC * (1. - exp1);                //C
+				case 2 : return piG * (1. + exp1) - theta * exp2; //G
+				case 3 : return piT * (1. - exp1);                //T, U
 			}
 		} 
 		//C
@@ -258,10 +258,10 @@ Matrix T92::getPij_t(double d) const {
 	double exp2 = exp(-k * l);
 
 	//A
-	p(0, 0) = piA * (1. + exp1) + theta * exp(-l * l); //A
-	p(0, 1) = piC * (1. - exp1);                       //C
-	p(0, 2) = piG * (1. + exp1) - theta * exp(-l * l); //G
-	p(0, 3) = piT * (1. - exp1);                       //T, U
+	p(0, 0) = piA * (1. + exp1) + theta * exp2; //A
+	p(0, 1) = piC * (1. - exp1);                //C
+	p(0, 2) = piG * (1. + exp1) - theta * exp2; //G
+	p(0, 3) = piT * (1. - exp1);                //T, U
 
 	//C
 	p(1, 0) = piA * (1. - exp1);                       //A

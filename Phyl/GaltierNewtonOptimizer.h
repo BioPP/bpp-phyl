@@ -124,7 +124,7 @@ class GaltierNewtonOptimizer : public AbstractOptimizer
 
 	public:
 
-		GaltierNewtonOptimizer(const DerivableSecondOrder * function);
+		GaltierNewtonOptimizer(DerivableSecondOrder * function);
 
 		virtual ~GaltierNewtonOptimizer();
 

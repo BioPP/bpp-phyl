@@ -70,6 +70,16 @@ class AbstractTreeLikelihood : public TreeLikelihood
 		 * @param node The root of the subtree.
 		 */
 		virtual void computeSubtreeLikelihood(Node * node) = 0; //Recursive method.			
+
+		/**
+		 * @brief Recompute _pxy, _dpxy and _d2pxy arrays.
+		 *
+		 * This method is called when some parameter has changed.
+		 *
+		 * @param params The parameters that changed.
+		 */
+		virtual void fireParameterChanged(const ParameterList & params) = 0;
+
 };
 
 

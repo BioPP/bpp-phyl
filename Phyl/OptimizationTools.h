@@ -8,6 +8,7 @@
 #define _OPTIMIZATIONTOOLS_H_
 
 #include "TreeLikelihood.h"
+#include "HomogeneousTreeLikelihood.h"
 
 // From the STL:
 #include <iostream>
@@ -23,7 +24,7 @@ using namespace std;
  * in the NumCalc library.
  *
  * Parameters of the optimization methods are set to work with TreeLikelihood
- * object. Some trivial parameters are left to the user choice (tolerance, maximum
+ * object. Some non trivial parameters are left to the user choice (tolerance, maximum
  * number of function evaluation, output streams).
  */
 class OptimizationTools
@@ -112,6 +113,26 @@ class OptimizationTools
 			ostream * profiler       = &cout)
 			throw (Exception);
 	
+		/**
+		 * @brief Optimize a TreeLikelihood object with Newton's method for branch length
+		 * and Brent's one dimensional method for other parameters.
+		 *
+		 * A condition over function values is used as a stop condition for the algorithm.
+		 *
+		 * @param tl             A pointer toward the TreeLikelihood object to optimize.
+		 * @param tolerance      The tolerance to use in the algorithm.
+		 * @param tlEvalMax      The maximum number of function evaluations.
+		 * @param messageHandler The massage handler.
+		 * @param profiler       The profiler.
+		 * @throw Exception any exception thrown by the Optimizer.
+		 */
+		static int optimizeWithNewtonBrentMethod(
+			HomogeneousTreeLikelihood * tl,
+			double tolerance = 0.000001,
+			int tlEvalMax = 1000000,
+			ostream * messageHandler = &cout,
+			ostream * profiler       = &cout)
+			throw (Exception);
 	
 		static int optimizeWithDownhillSimplexAndPowellMethod(
 			TreeLikelihood * tl,
@@ -135,7 +156,7 @@ class OptimizationTools
 				~ScaleFunction();
 				
 			public:
-				void setParameters(const ParameterList & lambda) const ;
+				void setParameters(const ParameterList & lambda) throw (ParameterNotFoundException, ConstraintException);
 				double getValue() const throw (ParameterException);
 				ParameterList getParameters() const throw (Exception) { return _lambda; }
 				double getParameter(const string & name) const throw (ParameterNotFoundException) { return _lambda.getParameter(name) -> getValue(); };

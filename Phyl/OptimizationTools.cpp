@@ -12,6 +12,7 @@
 #include <NumCalc/DownhillSimplexMethod.h>
 #include <NumCalc/BrentOneDimension.h>
 #include "GaltierNewtonOptimizer.h"
+#include "NewtonBrentMetaOptimizer.h"
 #include <NumCalc/OptimizationStopCondition.h>
 
 /******************************************************************************/
@@ -133,7 +134,8 @@ OptimizationTools::ScaleFunction::ScaleFunction(TreeLikelihood * tl): _tl(tl) {
 	
 OptimizationTools::ScaleFunction::~ScaleFunction() {}
 
-void OptimizationTools::ScaleFunction::setParameters(const ParameterList & lambda) const 
+void OptimizationTools::ScaleFunction::setParameters(const ParameterList & lambda)
+throw (ParameterNotFoundException, ConstraintException)
 {
 	if(lambda.size() != 1) throw Exception("OptimizationTools::ScaleFunction::f(). This is a one parameter function!");
 	_lambda.setParametersValues(lambda);
@@ -412,6 +414,41 @@ int OptimizationTools::optimizeWithNewtonMethod(
 {
 	// Build optimizer:
 	GaltierNewtonOptimizer * optimizer = new GaltierNewtonOptimizer(tl);
+	optimizer -> setProfiler(profiler);
+	optimizer -> setMessageHandler(messageHandler);
+	optimizer -> setMaximumNumberOfEvaluations(tlEvalMax);
+	optimizer -> getStopCondition() -> setTolerance(tolerance);
+	
+	// Optimize TreeLikelihood function:
+	try {
+		ParameterList pl = tl -> getParameters();
+		optimizer -> setConstraintPolicy(AbstractOptimizer::CONSTRAINTS_AUTO);
+		optimizer -> init(pl);
+		optimizer -> optimize();
+	} catch(Exception e) {
+		cout << e.what() << endl;
+		exit(-1);
+	}
+	// We're done.
+	int n = optimizer -> getNumberOfEvaluations(); 
+	// Delete optimizer:
+	delete optimizer;
+	// Send number of evaluations done:
+	return n;
+}
+	
+/******************************************************************************/	
+
+int OptimizationTools::optimizeWithNewtonBrentMethod(
+	HomogeneousTreeLikelihood * tl,
+	double tolerance,
+	int tlEvalMax,
+	ostream * messageHandler,
+	ostream * profiler)
+	throw (Exception)
+{
+	// Build optimizer:
+	NewtonBrentMetaOptimizer * optimizer = new NewtonBrentMetaOptimizer(tl);
 	optimizer -> setProfiler(profiler);
 	optimizer -> setMessageHandler(messageHandler);
 	optimizer -> setMaximumNumberOfEvaluations(tlEvalMax);

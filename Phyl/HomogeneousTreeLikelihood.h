@@ -55,6 +55,7 @@ class HomogeneousTreeLikelihood : public AbstractTreeLikelihood, public Discrete
 	protected:
 		SubstitutionModel * _model;
 		DiscreteDistribution * _rateDistribution;
+		ParameterList _brLenParameters;		
 
 		/**
 		 * @brief This contains all likelihood values used for computation.
@@ -119,7 +120,7 @@ class HomogeneousTreeLikelihood : public AbstractTreeLikelihood, public Discrete
 		 * likelihoods arrays and dLikelihoods arrays.
 		 */
 		//map< Node *, map< Node *, vector< VVdouble *> > > _patternLinks;
-		map< Node *, map< Node *, vector<int> > > _patternLinks;
+		map< Node *, map< Node *, vector<unsigned int> > > _patternLinks;
 		
 		/**
 		 * @brief As previous, but for the global container.
@@ -132,8 +133,7 @@ class HomogeneousTreeLikelihood : public AbstractTreeLikelihood, public Discrete
 		 * However, if this is not the case, some pointers may point toward the same
 		 * element in the likelihood array.
 		 */
-		//vector<VVdouble *> _rootPatternLinks;
-		vector<int> _rootPatternLinks;
+		vector<unsigned int> _rootPatternLinks;
 		
 		/**
 		 * @brief Pointer toward all nodes in the tree.
@@ -195,6 +195,7 @@ class HomogeneousTreeLikelihood : public AbstractTreeLikelihood, public Discrete
 		Vdouble  getRateWithMaxPostProbOfEachSite() const;
 		Vint     getRateClassWithMaxPostProbOfEachSite() const;
 		Vdouble  getPosteriorRateOfEachSite() const;
+		ParameterList getRateDistributionParameters() const;
 		/** @} */
 
 		/**
@@ -224,7 +225,7 @@ class HomogeneousTreeLikelihood : public AbstractTreeLikelihood, public Discrete
 		 *
 		 * @param parameters The parameter list to pass to the function.
 		 */
-		void setParameters(const ParameterList & parameters) const throw (Exception);
+		void setParameters(const ParameterList & parameters) throw (ParameterNotFoundException, ConstraintException);
 		double getValue() const throw(Exception);
 		
 		/**
@@ -278,8 +279,6 @@ class HomogeneousTreeLikelihood : public AbstractTreeLikelihood, public Discrete
 		 */
 		virtual void ignoreParameter(const string & name) throw (ParameterNotFoundException);
 
-		virtual ParameterList getRateDistributionParameters() const;
-	
 		virtual double getDLikelihoodForASiteForARateClass(unsigned int site, unsigned int rateClass) const;
 
 		virtual double getDLikelihoodForASite(unsigned int site) const;
@@ -348,6 +347,10 @@ class HomogeneousTreeLikelihood : public AbstractTreeLikelihood, public Discrete
 		 * to the rate distribution and to the branch lengths.
 		 */
 		virtual void applyParameters() throw (Exception);	
+
+		virtual void initBranchLengthsParameters();
+
+		void fireParameterChanged(const ParameterList & params);
 	
 		/**
 		 * @brief This method is mainly for debuggin purpose.

@@ -45,6 +45,7 @@ void AbstractTreeLikelihood::setAllParametersValues(const ParameterList & params
 throw (ParameterNotFoundException, ConstraintException)
 {
 	_parameters.setAllParametersValues(params);
+	fireParameterChanged(_parameters);
 }
 
 /******************************************************************************/
@@ -53,6 +54,7 @@ void AbstractTreeLikelihood::setParameterValue(const string & name, double value
 throw (ParameterNotFoundException, ConstraintException)
 {
 	_parameters.setParameterValue(name, value);
+	fireParameterChanged(_parameters.subList(name));
 }
 
 /******************************************************************************/
@@ -61,6 +63,7 @@ void AbstractTreeLikelihood::setParametersValues(const ParameterList & params)
 throw (ParameterNotFoundException, ConstraintException)
 {
 	_parameters.setParametersValues(params);
+	fireParameterChanged(params);
 }
 
 /******************************************************************************/
@@ -69,6 +72,7 @@ void AbstractTreeLikelihood::matchParametersValues(const ParameterList & params)
 throw (ConstraintException)
 {
 	_parameters.matchParametersValues(params);
+	fireParameterChanged(_parameters); //Conservative, should be the sublist...
 }
 
 /******************************************************************************/
@@ -92,3 +96,4 @@ Vdouble AbstractTreeLikelihood::getLogLikelihoodForEachSite() const {
 }
 
 /******************************************************************************/
+

@@ -50,38 +50,30 @@ Matrix AbstractSubstitutionModel::verticalRightEigenVectors() const { return _ri
 
 Matrix AbstractSubstitutionModel::getPij_t(double t) const
 {
-	return _rightEigenVectors * diag<Matrix, double>(exp(_eigenValues)) * _leftEigenVectors;
+	return _rightEigenVectors * diag<Matrix, double>(exp(_eigenValues*t)) * _leftEigenVectors;
 }
 
 Matrix AbstractSubstitutionModel::getdPij_dt(double t) const
 {
-	return _rightEigenVectors * diag<Matrix, double>(_eigenValues * exp(_eigenValues)) * _leftEigenVectors;
+	return _rightEigenVectors * diag<Matrix, double>(_eigenValues * exp(_eigenValues*t)) * _leftEigenVectors;
 }
 
 Matrix AbstractSubstitutionModel::getd2Pij_dt2(double t) const
 {
-	return _rightEigenVectors * diag<Matrix, double>(sqr(_eigenValues) * exp(_eigenValues)) * _leftEigenVectors;
+	return _rightEigenVectors * diag<Matrix, double>(sqr(_eigenValues) * exp(_eigenValues*t)) * _leftEigenVectors;
 }
 
 double AbstractSubstitutionModel::freq(int i) const { return _freq[i]; }
 
 double AbstractSubstitutionModel::Qij(int i, int j) const { return _generator(i, j); }
 
-double AbstractSubstitutionModel::Pij_t(int i, int j, double t) const
-{
-	return scalar(row<Matrix, Vector>(_rightEigenVectors, i) * exp(_eigenValues), col<Matrix, Vector>(_leftEigenVectors, j));
-}
 
-double AbstractSubstitutionModel::dPij_dt(int i, int j, double t) const
-{
-	return scalar(row<Matrix, Vector>(_rightEigenVectors, i) * _eigenValues * exp(_eigenValues), col<Matrix, Vector>(_leftEigenVectors, j));
-}
 
-double AbstractSubstitutionModel::d2Pij_dt2(int i, int j, double t) const
-{
-	return scalar(row<Matrix, Vector>(_rightEigenVectors, i) * sqr(_eigenValues) *exp(_eigenValues), col<Matrix, Vector>(_leftEigenVectors, j));
-}
-	
+double AbstractSubstitutionModel::Pij_t(int i, int j, double t) const {	return getPij_t(t)(i,j); }
+
+double AbstractSubstitutionModel::dPij_dt(int i, int j, double t) const { return getdPij_dt(t)(i,j); }
+
+double AbstractSubstitutionModel::d2Pij_dt2(int i, int j, double t) const { return getd2Pij_dt2(t)(i,j); }	
 
 /******************************************************************************/
 

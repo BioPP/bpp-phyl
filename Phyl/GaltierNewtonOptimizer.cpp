@@ -82,6 +82,9 @@ knowledge of the CeCILL license and that you accept its terms.
 // From NumCalc:
 #include <NumCalc/VectorTools.h>
 
+// From Utils:
+#include <Utils/TextTools.h>
+
 /**************************************************************************/
      
 GaltierNewtonOptimizer::GNStopCondition::GNStopCondition(GaltierNewtonOptimizer * gno):
@@ -98,7 +101,7 @@ bool GaltierNewtonOptimizer::GNStopCondition::isToleranceReached() const {
    
 /**************************************************************************/
 	
-GaltierNewtonOptimizer::GaltierNewtonOptimizer(const DerivableSecondOrder * function) :
+GaltierNewtonOptimizer::GaltierNewtonOptimizer(DerivableSecondOrder * function) :
   AbstractOptimizer(function)
 {
 	_defaultStopCondition = new GNStopCondition(this);
@@ -125,6 +128,9 @@ void GaltierNewtonOptimizer::init(const ParameterList & params) throw (Exception
 	}
 	profileln("Function");
 	printPoint(_parameters, _currentValue);
+
+	// Initialize stop condition:
+  //_stopCondition -> isToleranceReached();
 }
 
 /**************************************************************************/
@@ -148,13 +154,13 @@ inline double GaltierNewtonOptimizer::step() throw (Exception)
 	// Check newValue:
 	unsigned int count = 0;
 	while(newValue > _currentValue) {
-		printMessage("!!! Function at new point is greater than at current point. Applying Felsenstein-Churchill correction.");
+		printMessage("!!! Function at new point is greater than at current point: " + TextTools::toString(newValue) + ">" + TextTools::toString(_currentValue) + ". Applying Felsenstein-Churchill correction.");
 		for(unsigned int i = 0; i < _n; i++) {
 			movements[i] = movements[i] / 2;
 			newPoint.setParameterValue(_params[i], _parameters.getParameter(_params[i]) -> getValue() - movements[i]);
-			count++;
-			if(count > 1000) throw Exception("GaltierNewtonOptimizer::step(). Felsenstein-Churchill correction applied more than 1000 times.");
 		}
+		count++;
+		if(count > 10000) throw Exception("GaltierNewtonOptimizer::step(). Felsenstein-Churchill correction applied more than 10000 times.");
 		newValue = _function -> f(newPoint);
 	}
 
@@ -177,6 +183,7 @@ double GaltierNewtonOptimizer::optimize() throw (Exception)
 	for (_nbEval = 0; _nbEval < _nbEvalMax && ! _tolIsReached; _nbEval++) {
 		step();
 	}
+	return _currentValue;
 }
 
 /**************************************************************************/

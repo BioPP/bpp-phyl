@@ -180,37 +180,37 @@ double TN93::dPij_dt(int i, int j, double d) const
 		//A
 		case 0 : {
 			switch(j) {
-				case 0 : return r * (piA * (piY/piR) * exp1 + (piG/piR) * k2 * exp22); //A
-				case 1 : return r * (piC *             exp1);                          //C
-				case 2 : return r * (piG * (piY/piR) * exp1 - (piG/piR) * k2 * exp22); //G
-				case 3 : return r * (piT *             exp1);                          //T, U
+				case 0 : return r * (piA * -(piY/piR) * exp1 - (piG/piR) * k2 * exp22); //A
+				case 1 : return r * (piC *              exp1);                          //C
+				case 2 : return r * (piG * -(piY/piR) * exp1 + (piG/piR) * k2 * exp22); //G
+				case 3 : return r * (piT *              exp1);                          //T, U
 			}
 		} 
 		//C
 		case 1 : {
 			switch(j) {
-				case 0 : return r * (piA *             exp1);                          //A
-				case 1 : return r * (piC * (piR/piY) * exp1 + (piT/piY) * k1 * exp21); //C
-				case 2 : return r * (piG *             exp1);                          //G
-				case 3 : return r * (piT * (piR/piY) * exp1 - (piT/piY) * k1 * exp21); //T, U
+				case 0 : return r * (piA *              exp1);                          //A
+				case 1 : return r * (piC * -(piR/piY) * exp1 - (piT/piY) * k1 * exp21); //C
+				case 2 : return r * (piG *              exp1);                          //G
+				case 3 : return r * (piT * -(piR/piY) * exp1 + (piT/piY) * k1 * exp21); //T, U
 			}
 		}
 		//G
 		case 2 : {
 			switch(j) {
-				case 0 : return r * (piA * (piY/piR) * exp1 - (piA/piR) * k2 * exp22); //A
-				case 1 : return r * (piC *             exp1);                          //C
-				case 2 : return r * (piG * (piY/piR) * exp1 + (piA/piR) * k2 * exp22); //G
-				case 3 : return r * (piT *             exp1);                          //T, U
+				case 0 : return r * (piA * -(piY/piR) * exp1 + (piA/piR) * k2 * exp22); //A
+				case 1 : return r * (piC *              exp1);                          //C
+				case 2 : return r * (piG * -(piY/piR) * exp1 - (piA/piR) * k2 * exp22); //G
+				case 3 : return r * (piT *              exp1);                          //T, U
 			}
 		}
 		//T, U
 		case 3 : {
 			switch(j) {
-				case 0 : return r * (piA *             exp1);                          //A
-				case 1 : return r * (piC * (piR/piY) * exp1 - (piC/piY) * k1 * exp21); //C
-				case 2 : return r * (piG *             exp1);                          //G
-				case 3 : return r * (piT * (piR/piY) * exp1 + (piC/piY) * k1 * exp21); //T, U
+				case 0 : return r * (piA *              exp1);                          //A
+				case 1 : return r * (piC * -(piR/piY) * exp1 + (piC/piY) * k1 * exp21); //C
+				case 2 : return r * (piG *              exp1);                          //G
+				case 3 : return r * (piT * -(piR/piY) * exp1 - (piC/piY) * k1 * exp21); //T, U
 			}
 		}
 	}
@@ -245,17 +245,17 @@ double TN93::d2Pij_dt2(int i, int j, double d) const
 		case 0 : {
 			switch(j) {
 				case 0 : return r_2 * (piA * (piY/piR) * exp1 + (piG/piR) * k2_2 * exp22); //A
-				case 1 : return r_2 * (piC *             exp1);                            //C
+				case 1 : return r_2 * (piC *           - exp1);                            //C
 				case 2 : return r_2 * (piG * (piY/piR) * exp1 - (piG/piR) * k2_2 * exp22); //G
-				case 3 : return r_2 * (piT *             exp1);                            //T, U
+				case 3 : return r_2 * (piT *           - exp1);                            //T, U
 			}
 		}
 		//C
 		case 1 : {
 			switch(j) {
-				case 0 : return r_2 * (piA *             exp1);                            //A
+				case 0 : return r_2 * (piA *           - exp1);                            //A
 				case 1 : return r_2 * (piC * (piR/piY) * exp1 + (piT/piY) * k1_2 * exp21); //C
-				case 2 : return r_2 * (piG *             exp1);                            //G
+				case 2 : return r_2 * (piG *           - exp1);                            //G
 				case 3 : return r_2 * (piT * (piR/piY) * exp1 - (piT/piY) * k1_2 * exp21); //T, U
 			}
 		}
@@ -263,17 +263,17 @@ double TN93::d2Pij_dt2(int i, int j, double d) const
 		case 2 : {
 			switch(j) {
 				case 0 : return r_2 * (piA * (piY/piR) * exp1 - (piA/piR) * k2_2 * exp22); //A
-				case 1 : return r_2 * (piC *             exp1);                            //C
+				case 1 : return r_2 * (piC *           - exp1);                            //C
 				case 2 : return r_2 * (piG * (piY/piR) * exp1 + (piA/piR) * k2_2 * exp22); //G
-				case 3 : return r_2 * (piT *             exp1);                            //T, U
+				case 3 : return r_2 * (piT *           - exp1);                            //T, U
 			}
 		}
 		//T, U
 		case 3 : {
 			switch(j) {
-				case 0 : return r_2 * (piA *             exp1);                            //A
+				case 0 : return r_2 * (piA *           - exp1);                            //A
 				case 1 : return r_2 * (piC * (piR/piY) * exp1 - (piC/piY) * k1_2 * exp21); //C
-				case 2 : return r_2 * (piG *             exp1);                            //G
+				case 2 : return r_2 * (piG *           - exp1);                            //G
 				case 3 : return r_2 * (piT * (piR/piY) * exp1 + (piC/piY) * k1_2 * exp21); //T, U
 			}
 		}
@@ -347,28 +347,28 @@ Matrix TN93::getdPij_dt(double d) const {
 	double exp21 = exp(-k1 * l);
 
 	//A
-	p(0, 0) = r * (piA * (piY/piR) * exp1 + (piG/piR) * k2 * exp22); //A
-	p(0, 1) = r * (piC *             exp1);                          //C
-	p(0, 2) = r * (piG * (piY/piR) * exp1 - (piG/piR) * k2 * exp22); //G
-	p(0, 3) = r * (piT *             exp1);                          //T, U
+	p(0, 0) = r * (piA * -(piY/piR) * exp1 - (piG/piR) * k2 * exp22); //A
+	p(0, 1) = r * (piC *              exp1);                          //C
+	p(0, 2) = r * (piG * -(piY/piR) * exp1 + (piG/piR) * k2 * exp22); //G
+	p(0, 3) = r * (piT *              exp1);                          //T, U
 
 	//C
-	p(1, 0) = r * (piA *             exp1);                          //A
-	p(1, 1) = r * (piC * (piR/piY) * exp1 + (piT/piY) * k1 * exp21); //C
-	p(1, 2) = r * (piG *             exp1);                          //G
-	p(1, 3) = r * (piT * (piR/piY) * exp1 - (piT/piY) * k1 * exp21); //T, U
+	p(1, 0) = r * (piA *              exp1);                          //A
+	p(1, 1) = r * (piC * -(piR/piY) * exp1 - (piT/piY) * k1 * exp21); //C
+	p(1, 2) = r * (piG *              exp1);                          //G
+	p(1, 3) = r * (piT * -(piR/piY) * exp1 + (piT/piY) * k1 * exp21); //T, U
 
 	//G
-	p(2, 0) = r * (piA * (piY/piR) * exp1 - (piA/piR) * k2 * exp22); //A
-	p(2, 1) = r * (piC *             exp1);                          //C
-	p(2, 2) = r * (piG * (piY/piR) * exp1 + (piA/piR) * k2 * exp22); //G
-	p(2, 3) = r * (piT *             exp1);                          //T, U
+	p(2, 0) = r * (piA * -(piY/piR) * exp1 + (piA/piR) * k2 * exp22); //A
+	p(2, 1) = r * (piC *              exp1);                          //C
+	p(2, 2) = r * (piG * -(piY/piR) * exp1 - (piA/piR) * k2 * exp22); //G
+	p(2, 3) = r * (piT *              exp1);                          //T, U
 
 	//T, U
-	p(3, 0) = r * (piA *             exp1);                          //A
-	p(3, 1) = r * (piC * (piR/piY) * exp1 - (piC/piY) * k1 * exp21); //C
-	p(3, 2) = r * (piG *             exp1);                          //G
-	p(3, 3) = r * (piT * (piR/piY) * exp1 + (piC/piY) * k1 * exp21); //T, U
+	p(3, 0) = r * (piA *              exp1);                          //A
+	p(3, 1) = r * (piC * -(piR/piY) * exp1 + (piC/piY) * k1 * exp21); //C
+	p(3, 2) = r * (piG *              exp1);                          //G
+	p(3, 3) = r * (piT * -(piR/piY) * exp1 - (piC/piY) * k1 * exp21); //T, U
 
 	return p;
 }
@@ -396,26 +396,26 @@ Matrix TN93::getd2Pij_dt2(double d) const {
 
 	//A
 	p(0, 0) = r_2 * (piA * (piY/piR) * exp1 + (piG/piR) * k2_2 * exp22); //A
-	p(0, 1) = r_2 * (piC *             exp1);                            //C
+	p(0, 1) = r_2 * (piC *           - exp1);                            //C
 	p(0, 2) = r_2 * (piG * (piY/piR) * exp1 - (piG/piR) * k2_2 * exp22); //G
-	p(0, 3) = r_2 * (piT *             exp1);                            //T, U
+	p(0, 3) = r_2 * (piT *           - exp1);                            //T, U
 
 	//C
-	p(1, 0) = r_2 * (piA *             exp1);                            //A
+	p(1, 0) = r_2 * (piA *           - exp1);                            //A
 	p(1, 1) = r_2 * (piC * (piR/piY) * exp1 + (piT/piY) * k1_2 * exp21); //C
-	p(1, 2) = r_2 * (piG *             exp1);                            //G
+	p(1, 2) = r_2 * (piG *           - exp1);                            //G
 	p(1, 3) = r_2 * (piT * (piR/piY) * exp1 - (piT/piY) * k1_2 * exp21); //T, U
 
 	//G
 	p(2, 0) = r_2 * (piA * (piY/piR) * exp1 - (piA/piR) * k2_2 * exp22); //A
-	p(2, 1) = r_2 * (piC *             exp1);                            //C
+	p(2, 1) = r_2 * (piC *           - exp1);                            //C
 	p(2, 2) = r_2 * (piG * (piY/piR) * exp1 + (piA/piR) * k2_2 * exp22); //G
-	p(2, 3) = r_2 * (piT *             exp1);                            //T, U
+	p(2, 3) = r_2 * (piT *           - exp1);                            //T, U
 
 	//T, U
-	p(3, 0) = r_2 * (piA *             exp1);                            //A
+	p(3, 0) = r_2 * (piA *           - exp1);                            //A
 	p(3, 1) = r_2 * (piC * (piR/piY) * exp1 - (piC/piY) * k1_2 * exp21); //C
-	p(3, 2) = r_2 * (piG *             exp1);                            //G
+	p(3, 2) = r_2 * (piG *           - exp1);                            //G
 	p(3, 3) = r_2 * (piT * (piR/piY) * exp1 + (piC/piY) * k1_2 * exp21); //T, U
 
 	return p;

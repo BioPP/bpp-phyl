@@ -15,6 +15,7 @@
 #include "OptimizationTools.h"
 #include "Tree.h"
 #include "Newick.h"
+#include "HomogeneousTreeLikelihood.h"
 
 // From Utils:
 #include <Utils/FileTools.h>
@@ -708,6 +709,13 @@ void ApplicationTools::optimizeParameters(
 	} else if(optMet == "newton") {
 		n = OptimizationTools::optimizeWithNewtonMethod(
 			tl,
+			tolerance,
+			nbEvalMax,
+			messageHandler,
+			profiler);		
+	} else if(optMet == "metanewton") {
+		n = OptimizationTools::optimizeWithNewtonBrentMethod(
+			dynamic_cast<HomogeneousTreeLikelihood *>(tl),
 			tolerance,
 			nbEvalMax,
 			messageHandler,

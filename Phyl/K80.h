@@ -16,7 +16,7 @@
 class K80 : public NucleotideSubstitutionModel
 {
 	public:
-		K80(const NucleicAlphabet * alpha, double kappa = 2.);
+		K80(const NucleicAlphabet * alpha, double kappa = 1.);
 		~K80();
 
 		double Pij_t    (int i, int j, double d) const;
