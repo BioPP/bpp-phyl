@@ -1,0 +1,102 @@
+//
+// File: AbstractSubstitutionModel.h
+// Created by:  <@bogdanof>
+// Created on: Tue May 27 10:31:49 2003
+//
+
+#include "AbstractSubstitutionModel.h"
+
+// From Utils:
+#include <Utils/TextTools.h>
+
+AbstractSubstitutionModel::AbstractSubstitutionModel(const Alphabet * alpha): alphabet(alpha)
+{
+	_size = alpha -> getSize();
+	_generator         = Matrix(_size, _size);
+	_freq              = Vector(_size);
+	_eigenValues       = Vector(_size);
+	_leftEigenVectors  = Matrix(_size, _size);
+	_rightEigenVectors = Matrix(_size, _size);
+}
+
+/******************************************************************************/
+	
+const Alphabet * AbstractSubstitutionModel::getAlphabet() const { return alphabet; }
+
+/******************************************************************************/
+	
+Vector AbstractSubstitutionModel::freq() const { return _freq; }
+
+Matrix AbstractSubstitutionModel::getGenerator() const { return _generator; }
+
+Vector AbstractSubstitutionModel::eigenValues() const { return _eigenValues; }
+
+Matrix AbstractSubstitutionModel::leftEigenVector() const { return _leftEigenVectors; }
+
+Matrix AbstractSubstitutionModel::rightEigenVectors() const { return _rightEigenVectors; }
+
+double AbstractSubstitutionModel::freq(int i) const { return _freq[i]; }
+
+double AbstractSubstitutionModel::Qij(int i, int j) const { return _generator(i, j); }
+
+/******************************************************************************/
+
+double AbstractSubstitutionModel::getInitValue(int i, int state) const throw (BadIntException) {
+	if(i     < 0 || i     > (int)alphabet -> getSize()) throw BadIntException(i    , "AbstractSubstitutionModel::getInitValue");
+	if(state < 0 || state > (int)alphabet -> getSize()) throw BadIntException(state, "AbstractSubstitutionModel::getInitValue. Character " + alphabet -> intToChar(state) + " is not allowed in model.");
+	return i == state ? 1 : 0;
+}
+
+/******************************************************************************/
+
+ParameterList AbstractSubstitutionModel::getParameters() const {
+	return _parameters;
+}
+
+/******************************************************************************/
+
+double AbstractSubstitutionModel::getParameter(const string & name) const
+throw (ParameterNotFoundException)
+{
+	Parameter * p = _parameters.getParameter(name);
+	if(p == NULL) throw ParameterNotFoundException("AbstractSubstitutionModel::getParameter", name);
+	return p -> getValue();
+}
+
+/******************************************************************************/
+
+void AbstractSubstitutionModel::setAllParametersValues(const ParameterList & params)
+throw (ParameterNotFoundException, ConstraintException)
+{
+	_parameters.setAllParametersValues(params);
+	fillMatrices();
+}
+
+/******************************************************************************/
+
+void AbstractSubstitutionModel::setParameterValue(const string & name, double value)
+throw (ParameterNotFoundException, ConstraintException)
+{
+	_parameters.setParameterValue(name, value);
+	fillMatrices();
+}
+
+/******************************************************************************/
+
+void AbstractSubstitutionModel::setParametersValues(const ParameterList & params)
+throw (ParameterNotFoundException, ConstraintException)
+{ 
+	_parameters.setParametersValues(params);
+	fillMatrices();
+}
+
+/******************************************************************************/
+
+void AbstractSubstitutionModel::matchParametersValues(const ParameterList & params)
+throw (ConstraintException)
+{
+	_parameters.matchParametersValues(params);		
+	fillMatrices();
+}
+
+/******************************************************************************/

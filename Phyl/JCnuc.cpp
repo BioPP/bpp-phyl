@@ -1,0 +1,101 @@
+//
+// File: JCnuc.h
+// Created by:  <@bogdanof>
+// Created on: Tue May 27 16:04:36 2003
+//
+
+#include "JCnuc.h"
+
+
+#include <cmath>
+
+/******************************************************************************/
+
+JCnuc::JCnuc(const Alphabet * alpha): NucleotideSubstitutionModel(alpha)
+{
+	_parameters = ParameterList(); //no parameters for this model.	
+
+	// Generator:
+	for(int i = 0; i < 4; i++) {
+		for(int j = 0; j < 4; j++) {
+			_generator(i, j) = (i == j) ? -1. : 1./3.;
+		}
+	}
+	
+	// Frequences:
+	_freq[0] = _freq[1] = _freq[2] = _freq[3] = 1. / 4.;
+	
+	// Eigen values:
+	_eigenValues[0] = 0;
+	_eigenValues[1] = _eigenValues[2] = _eigenValues[3] = -4. / 3.;
+	
+	// Eigen vectors:
+	// todo!
+}
+
+JCnuc::~JCnuc() {}
+
+/******************************************************************************/
+	
+void JCnuc::fillMatrices() {}
+	
+/******************************************************************************/
+
+double JCnuc::Pij_t(int i, int j, double d) const {
+	if(i == j) return 1./4. + 3./4. * exp(- 4./3. * d);
+	else       return 1./4. - 1./4. * exp(- 4./3. * d);
+}
+
+/******************************************************************************/
+
+double JCnuc::dPij_dt(int i, int j, double d) const {
+	if(i == j) return -       exp(- 4./3. * d);
+	else       return 1./3. * exp(- 4./3. * d);
+}
+
+/******************************************************************************/
+
+double JCnuc::d2Pij_dt2(int i, int j, double d) const {
+	if(i == j) return   4./3. * exp(- 4./3. * d);
+	else       return - 4./9. * exp(- 4./3. * d);
+}
+
+/******************************************************************************/
+
+Matrix JCnuc::getPij_t(double d) const {
+	Matrix p(_size, _size);
+	for(unsigned int i = 0; i < _size; i++) {
+		for(unsigned int j = 0; j < _size; j++) {
+			p(i,j) = (i==j) ? 1./4. + 3./4. * exp(- 4./3. * d) : 1./4. - 1./4. * exp(- 4./3. * d);
+		}
+	}
+	return p;
+}
+
+Matrix JCnuc::getdPij_dt(double d) const {
+	Matrix p(_size, _size);
+	for(unsigned int i = 0; i < _size; i++) {
+		for(unsigned int j = 0; j < _size; j++) {
+			p(i,j) = (i==j) ? - exp(- 4./3. * d) : 1./3. * exp(- 4./3. * d);
+		}
+	}
+	return p;
+}
+
+Matrix JCnuc::getd2Pij_dt2(double d) const {
+	Matrix p(_size, _size);
+	for(unsigned int i = 0; i < _size; i++) {
+		for(unsigned int j = 0; j < _size; j++) {
+			p(i,j) = (i==j) ? 4./3. * exp(- 4./3. * d) : - 4./9. * exp(- 4./3. * d);
+		}
+	}
+	return p;
+}
+
+/******************************************************************************/
+
+string JCnuc::getName() const {
+	return string("Jukes and Cantor (1969) for nucleotides");
+}
+
+/******************************************************************************/
