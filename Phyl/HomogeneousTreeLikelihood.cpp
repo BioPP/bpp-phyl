@@ -117,6 +117,29 @@ double HomogeneousTreeLikelihood::getLogLikelihoodForASite(unsigned int site) co
 
 /******************************************************************************/
 
+double HomogeneousTreeLikelihood::getLikelihoodForASiteForAState(unsigned int site, int state) const
+{
+	double l = 0;
+	for(unsigned int i = 0; i < _nbClasses; i++) {
+		l += getLikelihoodForASiteForARateClassForAState(site, i, state) * _rateDistribution -> getProbability(i);
+	}
+	return l;
+}
+
+/******************************************************************************/
+
+double HomogeneousTreeLikelihood::getLogLikelihoodForASiteForAState(unsigned int site, int state) const
+{
+	double l = 0;
+	for(unsigned int i = 0; i < _nbClasses; i++) {
+		l += getLikelihoodForASiteForARateClassForAState(site, i, state) * _rateDistribution -> getProbability(i);
+	}
+	//if(l <= 0.) cerr << "WARNING!!! Negative likelihood." << endl;
+	return log(l);
+}
+
+/******************************************************************************/
+
 double HomogeneousTreeLikelihood::getLikelihoodForASiteForARateClass(unsigned int site, unsigned int rateClass) const
 {
 	double l = 0;
@@ -142,35 +165,24 @@ double HomogeneousTreeLikelihood::getLogLikelihoodForASiteForARateClass(unsigned
 
 /******************************************************************************/	
 
-VVdouble HomogeneousTreeLikelihood::getLikelihoodForEachSiteForEachRate() const
+double HomogeneousTreeLikelihood::getLikelihoodForASiteForARateClassForAState(unsigned int site, unsigned int rateClass, int state) const
 {
-	VVdouble l(_nbSites);
-	for(unsigned int i = 0; i < _nbSites; i++) {
-		l[i].resize(_nbClasses);
-		for(unsigned int j = 0; j < _nbClasses; j++)
-			l[i][j] = getLikelihoodForASiteForARateClass(i, j);
-	}
-	return l;
+	return _likelihoods[_tree -> getRootNode()][_rootPatternLinks[site]][rateClass][state];
 }
 
 /******************************************************************************/
 
-VVdouble HomogeneousTreeLikelihood::getLogLikelihoodForEachSiteForEachRate() const
+double HomogeneousTreeLikelihood::getLogLikelihoodForASiteForARateClassForAState(unsigned int site, unsigned int rateClass, int state) const
 {
-	VVdouble l(_nbSites);
-	for(unsigned int i = 0; i < _nbSites; i++) {
-		l[i] = Vdouble(_nbClasses);
-		for(unsigned int j = 0; j < _nbClasses; j++)
-			l[i][j] = getLogLikelihoodForASiteForARateClass(i, j);
-	}
-	return l;
+	return log(_likelihoods[_tree -> getRootNode()][_rootPatternLinks[site]][rateClass][state]);
 }
 
-/******************************************************************************/
+/******************************************************************************/	
+
 
 VVdouble HomogeneousTreeLikelihood::getPosteriorProbabilitiesOfEachRate() const
 {
-	VVdouble pb = getLikelihoodForEachSiteForEachRate();
+	VVdouble pb = getLikelihoodForEachSiteForEachRateClass();
 	Vdouble  l  = getLikelihoodForEachSite();
 	for(unsigned int i = 0; i < _nbSites; i++) {
 		for(unsigned int j = 0; j < _nbClasses; j++) pb[i][j] = pb[i][j] * _rateDistribution -> getProbability(j) / l[i]; 
@@ -182,7 +194,7 @@ VVdouble HomogeneousTreeLikelihood::getPosteriorProbabilitiesOfEachRate() const
 
 Vint HomogeneousTreeLikelihood::getRateClassWithMaxPostProbOfEachSite() const
 {
-	VVdouble l = getLikelihoodForEachSiteForEachRate();
+	VVdouble l = getLikelihoodForEachSiteForEachRateClass();
 	Vint classes(_nbSites);
 	for(unsigned int i = 0; i < _nbSites; i++) classes[i] = posmax<double>(l[i]);
 	return classes;
@@ -192,7 +204,7 @@ Vint HomogeneousTreeLikelihood::getRateClassWithMaxPostProbOfEachSite() const
 
 Vdouble HomogeneousTreeLikelihood::getRateWithMaxPostProbOfEachSite() const
 {
-	VVdouble l = getLikelihoodForEachSiteForEachRate();
+	VVdouble l = getLikelihoodForEachSiteForEachRateClass();
 	Vdouble rates(_nbSites);
 	for(unsigned int i = 0; i < _nbSites; i++) {
 		rates[i] = _rateDistribution -> getCategory(posmax<double>(l[i]));
@@ -204,7 +216,7 @@ Vdouble HomogeneousTreeLikelihood::getRateWithMaxPostProbOfEachSite() const
 
 Vdouble HomogeneousTreeLikelihood::getPosteriorRateOfEachSite() const
 {
-	VVdouble lr = getLikelihoodForEachSiteForEachRate();
+	VVdouble lr = getLikelihoodForEachSiteForEachRateClass();
 	Vdouble  l  = getLikelihoodForEachSite();
 	Vdouble rates(_nbSites, 0.);
 	for(unsigned int i = 0; i < _nbSites; i++) {

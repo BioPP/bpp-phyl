@@ -8,6 +8,7 @@ GaltierNewtonOptimizer.h\
 HKY85.h\
 HomogeneousTreeLikelihood.h\
 DRHomogeneousTreeLikelihood.h\
+DRTreeLikelihoodTools.h\
 IOTree.h\
 JCnuc.h\
 JTT92.h\
@@ -42,6 +43,7 @@ GaltierNewtonOptimizer.cpp\
 HKY85.cpp\
 HomogeneousTreeLikelihood.cpp\
 DRHomogeneousTreeLikelihood.cpp\
+DRTreeLikelihoodTools.cpp\
 IOTree.cpp\
 JCnuc.cpp\
 JTT92.cpp\

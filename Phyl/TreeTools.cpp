@@ -126,6 +126,18 @@ vector<string> TreeTools::getLeavesNames(const Node & node)
 
 /******************************************************************************/
 
+unsigned int TreeTools::getDepth(const Node & node)
+{
+	unsigned int d = 0;
+	for(unsigned int i = 0; i < node.getNumberOfSons(); i++) {
+		unsigned int c = getDepth(* node[i]) + 1;
+		if( c > d) d = c;
+	}
+	return d;
+}
+
+/******************************************************************************/
+
 TreeTools::Element TreeTools::getElement(string elt) throw (IOException)
 {
 	Element element;
@@ -460,6 +472,14 @@ Tree * TreeTools::getRandomTree(vector<string> & leavesNames)
   // Return tree with last node as root node:
   return new Tree(* nodes[0]);
 }
+
+/******************************************************************************/
+
+// @TODO
+//void TreeTools::displayTree(const Node * node)
+//{
+//
+//}
 
 /******************************************************************************/
 

@@ -84,26 +84,62 @@ ParameterList AbstractHomogeneousTreeLikelihood::getRateDistributionParameters()
 
 /******************************************************************************/
 
-const DiscreteDistribution * AbstractHomogeneousTreeLikelihood::getRateDistribution() const {
-	return _rateDistribution;
+VVdouble AbstractHomogeneousTreeLikelihood::getLikelihoodForEachSiteForEachRateClass() const
+{
+	VVdouble l(_nbSites);
+	for(unsigned int i = 0; i < _nbSites; i++) {
+		l[i].resize(_nbClasses);
+		for(unsigned int j = 0; j < _nbClasses; j++)
+			l[i][j] = getLikelihoodForASiteForARateClass(i, j);
+	}
+	return l;
 }
 
 /******************************************************************************/
 
-DiscreteDistribution * AbstractHomogeneousTreeLikelihood::getRateDistribution() {
-	return _rateDistribution;
+VVdouble AbstractHomogeneousTreeLikelihood::getLogLikelihoodForEachSiteForEachRateClass() const
+{
+	VVdouble l(_nbSites);
+	for(unsigned int i = 0; i < _nbSites; i++) {
+		l[i] = Vdouble(_nbClasses);
+		for(unsigned int j = 0; j < _nbClasses; j++)
+			l[i][j] = getLogLikelihoodForASiteForARateClass(i, j);
+	}
+	return l;
 }
 
 /******************************************************************************/
 
-const SubstitutionModel * AbstractHomogeneousTreeLikelihood::getSubstitutionModel() const {
-	return _model;
+VVVdouble AbstractHomogeneousTreeLikelihood::getLikelihoodForEachSiteForEachRateClassForEachState() const
+{
+	VVVdouble l(_nbSites);
+	for(unsigned int i = 0; i < _nbSites; i++) {
+		l[i].resize(_nbClasses);
+		for(unsigned int j = 0; j < _nbClasses; j++) {
+			l[i][j].resize(_nbStates);
+			for(int x = 0; x < _nbStates; x++) {
+				l[i][j][x] = getLikelihoodForASiteForARateClassForAState(i, j, x);
+			}
+		}
+	}
+	return l;
 }
 
 /******************************************************************************/
 
-SubstitutionModel * AbstractHomogeneousTreeLikelihood::getSubstitutionModel() {
-	return _model;
+VVVdouble AbstractHomogeneousTreeLikelihood::getLogLikelihoodForEachSiteForEachRateClassForEachState() const
+{
+	VVVdouble l(_nbSites);
+	for(unsigned int i = 0; i < _nbSites; i++) {
+		l[i].resize(_nbClasses);
+		for(unsigned int j = 0; j < _nbClasses; j++) {
+			l[i][j].resize(_nbStates);
+			for(int x = 0; x < _nbStates; x++) {
+				l[i][j][x] = getLogLikelihoodForASiteForARateClassForAState(i, j, x);
+			}
+		}
+	}
+	return l;
 }
 
 /******************************************************************************/

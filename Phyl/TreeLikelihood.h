@@ -55,6 +55,24 @@ class TreeLikelihood: public DerivableSecondOrder
 		virtual double getLogLikelihoodForASite(unsigned int site) const = 0;
 
 		/**
+		 * @brief Get the likelihood for a site and for a state.
+		 *
+		 * @param site The site index to analyse.
+		 * @param state The state to consider.
+		 * @return The likelihood for site <i>site</i> and state <i>state</i>.
+		 */
+		virtual double getLikelihoodForASiteForAState(unsigned int site, int state) const = 0;
+
+		/**
+		 * @brief Get the logarithm of the likelihood for a site and for a state.
+		 *
+		 * @param site The site index to analyse.
+		 * @param state The state to consider.
+		 * @return The logarithm of the likelihood for site <i>site</i> and state <i>state</i>.
+		 */
+		virtual double getLogLikelihoodForASiteForAState(unsigned int site, int state) const = 0;
+
+		/**
 		 * @brief Get the likelihood for each site.
 		 *
 		 * @return A vector with all likelihoods for each site.
@@ -68,6 +86,20 @@ class TreeLikelihood: public DerivableSecondOrder
 		 */
 		virtual Vdouble getLogLikelihoodForEachSite() const = 0;
 
+		/**
+		 * @brief Get the likelihood for each site and for each state.
+		 *
+		 * @return A 2d vector with all likelihoods for each site and for each state.
+		 */
+		virtual VVdouble getLikelihoodForEachSiteForEachState() const = 0;
+
+		/**
+		 * @brief Get the logarithm of the likelihood for each site and for each state.
+		 *
+		 * @return A 2d vector with all log likelihoods for each site and for each state.
+		 */
+		virtual VVdouble getLogLikelihoodForEachSiteForEachState() const = 0;
+		
 		/**
 		 * @brief Get the likelihood for the whole dataset.
 		 *
@@ -88,6 +120,20 @@ class TreeLikelihood: public DerivableSecondOrder
 		 * @return The tree of this TreeLikelihood object.
 	 	 */
 		virtual Tree * getTree() const = 0;
+
+		/**
+		 * @brief Get the number of sites in the dataset.
+		 *
+		 * @return the number of sites in the dataset.
+		 */
+		virtual unsigned int getNumberOfSites() const = 0;
+
+		/**
+		 * @brief Get the number of states in the alphabet associated to the dataset.
+		 *
+		 * @return the number of states in the alphabet associated to the dataset.
+		 */		
+		virtual unsigned int getNumberOfStates() const = 0;
 		
 		/**
 		 * @name Retrieve some particular parameters subsets.

@@ -51,11 +51,31 @@ class DiscreteRatesAcrossSites
 		virtual double getLogLikelihoodForASiteForARateClass(unsigned int site, unsigned int rateClass) const = 0;
 	
 		/**
+		 * @brief Get the likelihood for a site knowing its rate class and its ancestral state.
+		 *
+		 * @param site      The site index.
+		 * @param rateClass The rate class index.
+		 * @param state     The ancestral state.
+		 * @return The likelihood for the specified site and rate class and ancestral state.
+		 */
+		virtual double getLikelihoodForASiteForARateClassForAState(unsigned int site, unsigned int rateClass, int state) const = 0;
+		
+		/**
+		 * @brief Get the logarithm of the likelihood for a site knowing its rate class and its ancestral state.
+		 *
+		 * @param site      The site index.
+		 * @param rateClass The rate class index.
+		 * @param state     The ancestral state.
+		 * @return The logarithm of the likelihood for the specified site and rate class and ancestral state..
+		 */
+		virtual double getLogLikelihoodForASiteForARateClassForAState(unsigned int site, unsigned int rateClass, int state) const = 0;
+
+		/**
 		 * @brief Get the likelihood for each site and each rate class.
 		 *
 		 * @return A two-dimension vector with all likelihoods.
 		 */
-		virtual VVdouble getLikelihoodForEachSiteForEachRate() const = 0;
+		virtual VVdouble getLikelihoodForEachSiteForEachRateClass() const = 0;
 		
 		/**
 		 * @brief Get the logarithm of the likelihood for each site and each rate class.
@@ -63,8 +83,23 @@ class DiscreteRatesAcrossSites
 		 * @return A two-dimension vector with all log likelihoods:
 		 * <code>V[i][j] =</code> likelihood of site i and rate class j.
 		 */
-		virtual VVdouble getLogLikelihoodForEachSiteForEachRate() const = 0;
+		virtual VVdouble getLogLikelihoodForEachSiteForEachRateClass() const = 0;
 		
+		/**
+		 * @brief Get the likelihood for each site and each rate class and each state.
+		 *
+		 * @return A three-dimension vector with all likelihoods.
+		 */
+		virtual VVVdouble getLikelihoodForEachSiteForEachRateClassForEachState() const = 0;
+		
+		/**
+		 * @brief Get the logarithm of the likelihood for each site and each rate class and each state.
+		 *
+		 * @return A three-dimension vector with all log likelihoods:
+		 * <code>V[i][j][k} =</code> likelihood of site i and rate class j and state k.
+		 */
+		virtual VVVdouble getLogLikelihoodForEachSiteForEachRateClassForEachState() const = 0;
+
 		/**
 		 * @brief Get the posterior probability for each site of belonging to a
 		 * particular rate class.
@@ -104,6 +139,13 @@ class DiscreteRatesAcrossSites
 		 * @return A ParameterList object with all rate distribution parameters.
 		 */
 		virtual ParameterList getRateDistributionParameters() const = 0;
+
+		/**
+		 * @brief Get the number of classes.
+		 *
+		 * @return The Number of classes.
+		 */
+		virtual unsigned int getNumberOfClasses() const = 0;
 		
 };
 

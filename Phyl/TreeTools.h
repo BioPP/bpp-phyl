@@ -83,6 +83,24 @@ class TreeTools
 		static vector<string> getLeavesNames(const Node & node);
 
 		/**
+		 * @brief Get the depth of the subtree defined by node 'node', i.e. the maximum
+		 * number of sons 'generations'.
+		 *
+		 * ex:
+		 * <code>
+		 *    +----------A
+		 *    |
+		 * ---+ N1     +-------B
+		 *    |        |
+		 *    +--------+ N2
+		 *             |
+		 *             +------C
+		 * </code>
+		 * Depth of node 'N1' id 2, depth of node 'N2' is 1, depth of leaves is 0.
+		 */
+		static unsigned int getDepth(const Node & node);
+
+		/**
 		 * @name Conversion tools.
 		 *
 		 * Convert from Newick standard tree description.
@@ -184,7 +202,7 @@ class TreeTools
 		/**
 		 * @brief Get the total length (sum of all branch lengths) of a tree.
 		 *
-		 * @param node The tree.
+		 * @param tree The tree.
 		 * @return The total length of the subtree.
 		 * @throw NodeException If a branch length is lacking.
 		 */
@@ -201,7 +219,7 @@ class TreeTools
 		/**
 		 * @brief Set all the branch lengths of a tree.
 		 *
-		 * @param tree  The tree.
+		 * @param node  The node.
 		 * @param brLen The branch length to apply.
 		 */
 		static void setBranchLengths(Tree & node, double brLen);
@@ -217,7 +235,7 @@ class TreeTools
 		/**
 		 * @brief Give a length to branches that don't have one in a tree.
 		 *
-		 * @param tree  The tree.
+		 * @param node  The node.
 		 * @param brLen The branch length to apply.
 		 */
 		static void setVoidBranchLengths(Tree & node, double brLen);

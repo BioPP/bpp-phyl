@@ -82,9 +82,14 @@ class AbstractHomogeneousTreeLikelihood: public AbstractTreeLikelihood, public D
 		 *
 		 * @{
 		 */
-		const DiscreteDistribution * getRateDistribution() const;
-		      DiscreteDistribution * getRateDistribution();
+		const DiscreteDistribution * getRateDistribution() const { return _rateDistribution; }
+		      DiscreteDistribution * getRateDistribution()       { return _rateDistribution; }
+		unsigned int getNumberOfClasses() const { return _rateDistribution -> getNumberOfCategories(); } 
 		ParameterList getRateDistributionParameters() const;
+		VVdouble getLikelihoodForEachSiteForEachRateClass() const;
+		VVdouble getLogLikelihoodForEachSiteForEachRateClass() const;
+		VVVdouble getLikelihoodForEachSiteForEachRateClassForEachState() const;
+		VVVdouble getLogLikelihoodForEachSiteForEachRateClassForEachState() const;
 		/** @} */
 
 		/**
@@ -92,14 +97,14 @@ class AbstractHomogeneousTreeLikelihood: public AbstractTreeLikelihood, public D
 		 *
 		 * @return A const pointer toward the substitution model of this instance.
 		 */
-		virtual const SubstitutionModel * getSubstitutionModel() const;
+		virtual const SubstitutionModel * getSubstitutionModel() const { return _model; }
 		
 		/**
 		 * @brief Get the substitution model used for the computation.
 		 *
 		 * @return A pointer toward the substitution model of this instance.
 		 */
-		virtual SubstitutionModel * getSubstitutionModel();
+		virtual SubstitutionModel * getSubstitutionModel() { return _model; }
 		
 	public: //Specific methods:
 		/**

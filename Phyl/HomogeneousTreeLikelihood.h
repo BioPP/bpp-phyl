@@ -148,6 +148,8 @@ class HomogeneousTreeLikelihood : public AbstractHomogeneousTreeLikelihood
 		double getLogLikelihood() const;
 		double getLikelihoodForASite (unsigned int site) const;
 		double getLogLikelihoodForASite(unsigned int site) const;
+		double getLikelihoodForASiteForAState (unsigned int site, int state) const;
+		double getLogLikelihoodForASiteForAState(unsigned int site, int state) const;
 		/** @} */
 
 		
@@ -158,8 +160,8 @@ class HomogeneousTreeLikelihood : public AbstractHomogeneousTreeLikelihood
 		 */
 		double getLikelihoodForASiteForARateClass(unsigned int site, unsigned int rateClass) const;
 		double getLogLikelihoodForASiteForARateClass(unsigned int site, unsigned int rateClass) const;
-		VVdouble getLikelihoodForEachSiteForEachRate() const;
-		VVdouble getLogLikelihoodForEachSiteForEachRate() const;
+		double getLikelihoodForASiteForARateClassForAState(unsigned int site, unsigned int rateClass, int state) const;
+		double getLogLikelihoodForASiteForARateClassForAState(unsigned int site, unsigned int rateClass, int state) const;
 		VVdouble getPosteriorProbabilitiesOfEachRate() const;
 		Vdouble  getRateWithMaxPostProbOfEachSite() const;
 		Vint     getRateClassWithMaxPostProbOfEachSite() const;
@@ -183,36 +185,21 @@ class HomogeneousTreeLikelihood : public AbstractHomogeneousTreeLikelihood
 		double getValue() const throw(Exception);
 		
 		/**
-		 * @brief Implements the DerivableFirstOrder interface.
+		 * @name DerivableFirstOrder interface.
 		 *
-		 * Update the parameter list and call the applyParameters() method.
-		 * Then compute the likelihoods at each node (computeLikelihood() method),
-		 * compute the first order derivatives and call the getDLogLikelihood() method.
-		 *
-		 * If a subset of the whole parameter list is passed to the function,
-		 * only these parameters are updated and the other remain constant (i.e.
-		 * equal to their last value).
-		 *
-		 * @param parameters The parameter list to pass to the function.
+		 * @{
 		 */
 		double getFirstOrderDerivative(const string & variable) const throw (Exception);
+		/** @} */
 
 		/**
-		 * @brief Implements the DerivableSecondOrder interface.
+		 * @name DerivableSecondOrder interface.
 		 *
-		 * Update the parameter list and call the applyParameters() method.
-		 * Then compute the likelihoods at each node (computeLikelihood() method),
-		 * compute the first and second order derivatives and call
-		 * the getD2LogLikelihood() method.
-		 *
-		 * If a subset of the whole parameter list is passed to the function,
-		 * only these parameters are updated and the other remain constant (i.e.
-		 * equal to their last value).
-		 *
-		 * @param parameters The parameter list to pass to the function.
+		 * @{
 		 */
 		double getSecondOrderDerivative(const string & variable) const throw (Exception);
 		double getSecondOrderDerivative(const string & variable1, const string & variable2) const throw (Exception) { return 0; } // Not implemented for now.
+		/** @} */
 	
 		
 	public:	// Specific methods:

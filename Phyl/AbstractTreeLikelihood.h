@@ -56,8 +56,12 @@ class AbstractTreeLikelihood : public TreeLikelihood
 			
 		/** @} */
 	
-		Vdouble getLikelihoodForEachSite()    const;
-		Vdouble getLogLikelihoodForEachSite() const;
+		Vdouble getLikelihoodForEachSite()                 const;
+		Vdouble getLogLikelihoodForEachSite()              const;
+		VVdouble getLikelihoodForEachSiteForEachState()    const;
+		VVdouble getLogLikelihoodForEachSiteForEachState() const;
+		unsigned int getNumberOfSites() const { return _data -> getNumberOfSites(); }
+		unsigned int getNumberOfStates() const { return _data -> getAlphabet() -> getSize(); }
 
 		Tree * getTree() const;
 	

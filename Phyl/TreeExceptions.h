@@ -62,15 +62,17 @@ class UnrootedTreeException : public Exception {
 
 		/**
 		 * @brief Build a new UnrootedTreeException.
+		 * 
 		 * @param text A message to be passed to the exception hierarchy.
-		 * @param node A const pointer toward the tree that threw the exception.
+		 * @param tree A const pointer toward the tree that threw the exception.
 		 */
 		UnrootedTreeException(const char *   text, const Tree * tree = NULL);
 	
 		/**
 		 * @brief Build a new UnrootedTreeException.
+		 * 
 		 * @param text A message to be passed to the exception hierarchy.
-		 * @param node A const pointer toward the tree that threw the exception.
+		 * @param tree A const pointer toward the tree that threw the exception.
 		 */
 		UnrootedTreeException(const string & text, const Tree * tree = NULL);
 	

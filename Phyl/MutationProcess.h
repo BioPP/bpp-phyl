@@ -47,7 +47,7 @@ class MutationPath {
 		vector<double> _times;
 		
 		/**
-		 * @biref The intial state.
+		 * @brief The initial state.
 		 */
 		int _initialState;
 
@@ -133,14 +133,14 @@ class MutationProcess {
     /**
      * @brief Mutate a character in state i.
 		 *
-		 * @param i The current state of the character.
+		 * @param state The current state of the character.
      */
     virtual int mutate(int state) const = 0;
 
     /**
      * @brief Mutate a character in state i n times.
      * 
-		 * @param i The current state of the character.
+		 * @param state The current state of the character.
 		 * @param n The number of mutations to perform.
      */
     virtual int mutate(int state, int n) const = 0;
@@ -271,6 +271,7 @@ class SimpleMutationProcess : public AbstractMutationProcess {
  * It allow "self" mutation of the kind i->i;
  */
 class SelfMutationProcess : public AbstractMutationProcess {
+
   	public:
   		SelfMutationProcess(int alphabetSize);
 	

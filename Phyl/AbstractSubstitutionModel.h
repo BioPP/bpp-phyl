@@ -114,7 +114,7 @@ class AbstractSubstitutionModel : public SubstitutionModel
 
 	protected:
 		/**
-		 * @brief Compute and diagonalize the $\$Q\f$ matrix and fill the _eigenValues,
+		 * @brief Compute and diagonalize the \f$Q\f$ matrix and fill the _eigenValues,
 		 * _leftEigenVectors and _rightEigenVectors fields.
 		 *
 		 * This routine uses the MTL interface to Lapack to compute eigen values

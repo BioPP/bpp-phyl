@@ -175,30 +175,31 @@ class ApplicationTools
 		 *
 		 * @param parameterName    The name of the corresponding parameter.
 		 * @param params           The attribute map where options may be found.
+		 * @param separator        The character used to delimit values.
 		 * @param defaultValue     The default value to use if the parameter is not found.
 		 * @param suffix           A suffix to be applied to the parameter name.
 		 * @param suffixIsOptional Tell if the suffix is absolutely required.
 		 * @param warn             Tell if a warning must be sent in case the parameter is not found.
 		 * @return The corresponding value.
-         */
+     */
 		 template<class T> static vector<T> getVectorParameter(
 			const string & parameterName,
 			map<string, string> & params,
-            char separator,
+      char separator,
 			const string & defaultValue,
 			const string & suffix = "",
 			bool suffixIsOptional = true,
 			bool warn = true)
 		{
-            string s = getStringParameter(parameterName, params, defaultValue, suffix, suffixIsOptional, warn);
-            StringTokenizer st(s, TextTools::toString(separator));
-            unsigned int n = st.numberOfRemainingTokens();
-            vector<T> v(n);
-            for(unsigned int i = 0; i < n; i++) {
-                v[i] = TextTools::fromString<T>(st.nextToken());
-            }
-            return v;
-        }
+      string s = getStringParameter(parameterName, params, defaultValue, suffix, suffixIsOptional, warn);
+      StringTokenizer st(s, TextTools::toString(separator));
+      unsigned int n = st.numberOfRemainingTokens();
+      vector<T> v(n);
+      for(unsigned int i = 0; i < n; i++) {
+        v[i] = TextTools::fromString<T>(st.nextToken());
+      }
+      return v;
+    }
 
 		
 		/**
@@ -241,8 +242,6 @@ class ApplicationTools
 		 * @brief Print a task ended message.
 		 *
 		 * Print "Done." and go to next line.
-		 *
-		 * @param text The text of the message.
 		 */
 		static void displayTaskDone();
 		
@@ -310,6 +309,7 @@ class ApplicationTools
 		 * - If Mase format is to be used:
 		 *   - sequence.format_mase.site_selection = name of the selection.
 		 *
+		 * @param alpha   The alphabet to use in the container.
 		 * @param params  The attribute map where options may be found.
 		 * @param suffix  A suffix to be applied to each attribute name.
 		 * @param suffixIsOptional Tell if the suffix is absolutely required.
@@ -324,7 +324,7 @@ class ApplicationTools
 			bool verbose = true);
 			
 		/**
-		 * @brief retrieves sites suitable for the analysis.
+		 * @brief Retrieves sites suitable for the analysis.
 		 *
 		 * Options used are:
 		 * - sequence.sites_to_use = [complete|nogap].
@@ -334,8 +334,9 @@ class ApplicationTools
 		 * If the 'nogap' option is used, only sites without gap will be taken into
 		 * account.
 		 *
-		 * @param params  The attribute map where options may be found.
-		 * @param suffix  A suffix to be applied to each attribute name.
+		 * @param allSites The site container from which sites must be retrieved.
+		 * @param params   The attribute map where options may be found.
+		 * @param suffix   A suffix to be applied to each attribute name.
 		 * @param suffixIsOptional Tell if the suffix is absolutely required.
 		 * @param verbose Print some info to the 'message' output stream.
 		 * @return A new VectorSiteContainer object containing sites of interest.

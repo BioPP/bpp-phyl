@@ -160,19 +160,26 @@ class HomogeneousSequenceSimulator: public PreciseSequenceSimulator
 		vector<const Node *> _leaves;
 	
 		vector<string> _seqNames;
+
+		unsigned int _nbNodes;
+		unsigned int _nbClasses;
+		unsigned int _nbStates;
 	
 		/**
 		 * @brief Stores intermediate results.
 		 */
 		mutable map<const Node *, int> _states;
+		mutable map<const Node *, Vint *> _multipleStates;
 		mutable HomogeneousSequenceSimulationResult * _hssr;
+		mutable map<const Node *, VVVdouble> _cumpxy;
 	
 	public:
 		
 		HomogeneousSequenceSimulator(
 			const MutationProcess * process,
 			const DiscreteDistribution * rate,
-			const Tree * tree
+			const Tree * tree,
+			bool verbose = true
 		);
 			
 		virtual ~HomogeneousSequenceSimulator() {}
@@ -189,7 +196,9 @@ class HomogeneousSequenceSimulator: public PreciseSequenceSimulator
 		/** @} */
 
 		/**
-		 * @names the PreciseSequenceSimulator interface.
+		 * @name the PreciseSequenceSimulator interface.
+		 *
+		 * @{
 		 */
 		SequenceSimulationResult * preciseSimulate() const;
 		/** @} */
@@ -223,10 +232,14 @@ class HomogeneousSequenceSimulator: public PreciseSequenceSimulator
 		const Tree * getTree() const;
 	
 	protected:
-		Site * evolve(int initialState, double rate = 1.) const;
-		void preciseEvolve(int initialState, double rate = 1.) const;
-		void evolveInternal(const Node * node, double rate) const;
-		void preciseEvolveInternal(const Node * node, double rate) const;
+		int evolve(int initialState, const Node * node, int rateClass) const;
+		void multipleEvolve(Vint & initialState, const Node * node, Vint & rateClasses, Vint & finalStates) const;
+		Site * evolve(int initialState, int rateClass) const;
+		SiteContainer * multipleEvolve(Vint & initialStates, Vint & rateClasses) const;
+		void preciseEvolve(int initialState, int rateClass) const;
+		void evolveInternal(const Node * node, int rateClass) const;
+		void multipleEvolveInternal(const Node * node, Vint & rateClasses) const;
+		void preciseEvolveInternal(const Node * node, int rateClass) const;
 
 };
 

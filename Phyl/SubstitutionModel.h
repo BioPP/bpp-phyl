@@ -69,12 +69,14 @@ class SubstitutionModelException : public Exception {
  * What we want from a substitution model is to compute the probabilities that
  * one particular state \f$i\f$ mutate into state \f$j\f$ after a time \f$t\f$
  * (\f$P_{i,j}(t)\f$).
- * Typically, tis is computed using the formula
- * \f[ P(t) = e^{t \times Q}, \f]
- * where \f$P(t)\f$ is the matrix with all probabilities $\fP_{i,j}(t)\f$.
- * For some models, such $\fP_{i,j}(t)\f$ may be computed analytically.
+ * Typically, this is computed using the formula
+ * \f[
+ * P(t) = e^{t \times Q},
+ * \f]
+ * where \f$P(t)\f$ is the matrix with all probabilities \f$P_{i,j}(t)\f$.
+ * For some models, such \f$P_{i,j}(t)\f$ may be computed analytically.
  * For more complexe models, we need to use a eigen-decomposition of \f$Q\f$:
- * \f[Q = U \times D \times U^{-1},\f]
+ * \f[ Q = U \times D \times U^{-1}, \f]
  * where \f$D\f$ is a diagonal matrix.
  * Hence
  * \f[ P(t) = e^{t \times Q} = U \times e^{D} \times U^{-1}, \f]
