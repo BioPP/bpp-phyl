@@ -9,6 +9,7 @@
 
 #include "TreeLikelihood.h"
 #include "HomogeneousTreeLikelihood.h"
+#include "AbstractHomogeneousTreeLikelihood.h"
 
 // From the STL:
 #include <iostream>
@@ -127,7 +128,7 @@ class OptimizationTools
 		 * @throw Exception any exception thrown by the Optimizer.
 		 */
 		static int optimizeWithNewtonBrentMethod(
-			HomogeneousTreeLikelihood * tl,
+			AbstractHomogeneousTreeLikelihood * tl,
 			double tolerance = 0.000001,
 			int tlEvalMax = 1000000,
 			ostream * messageHandler = &cout,

@@ -612,7 +612,7 @@ void ApplicationTools::optimizeParameters(
 	StringTokenizer st(paramListDesc, ",");
 	while(st.hasMoreToken()) {
 		try {
-			dynamic_cast<HomogeneousTreeLikelihood *>(tl) -> ignoreParameter(st.nextToken());
+			dynamic_cast<AbstractHomogeneousTreeLikelihood *>(tl) -> ignoreParameter(st.nextToken());
 		} catch(ParameterNotFoundException pnfe) {
 			displayError("Parameter '" + pnfe.getParameter() + "' not found, and so can't be ignored!");
 		} catch(exception e) {
@@ -715,7 +715,7 @@ void ApplicationTools::optimizeParameters(
 			profiler);		
 	} else if(optMet == "metanewton") {
 		n = OptimizationTools::optimizeWithNewtonBrentMethod(
-			dynamic_cast<HomogeneousTreeLikelihood *>(tl),
+			dynamic_cast<AbstractHomogeneousTreeLikelihood *>(tl),
 			tolerance,
 			nbEvalMax,
 			messageHandler,

@@ -25,6 +25,9 @@
 // From NumCalc:
 #include <NumCalc/RandomTools.h>
 
+// From Utils:
+#include <Utils/TextTools.h>
+
 /******************************************************************************/
 
 AbstractMutationProcess::AbstractMutationProcess(const SubstitutionModel * model):
@@ -146,7 +149,7 @@ int SimpleMutationProcess::evolve(int initialState, double time) const
 	for(unsigned int i = 0; i < s; i++) {
 		if(rand < pijt[i]) return i;
 	}
-	throw Exception("SimpleSimulationProcess::evolve(intialState, time): error all pijt do not sum to one.");
+	throw Exception("SimpleSimulationProcess::evolve(intialState, time): error all pijt do not sum to one (total sum = " + TextTools::toString(pijt[s - 1]) + ").");
 }
 
 /******************************************************************************/

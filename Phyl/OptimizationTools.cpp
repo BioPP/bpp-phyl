@@ -440,7 +440,7 @@ int OptimizationTools::optimizeWithNewtonMethod(
 /******************************************************************************/	
 
 int OptimizationTools::optimizeWithNewtonBrentMethod(
-	HomogeneousTreeLikelihood * tl,
+	AbstractHomogeneousTreeLikelihood * tl,
 	double tolerance,
 	int tlEvalMax,
 	ostream * messageHandler,

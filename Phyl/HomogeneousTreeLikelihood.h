@@ -7,8 +7,7 @@
 #ifndef _HOMOGENEOUSTREELIKELIHOOD_H_
 #define _HOMOGENEOUSTREELIKELIHOOD_H_
 
-#include "AbstractTreeLikelihood.h"
-#include "DiscreteRatesAcrossSites.h"
+#include "AbstractHomogeneousTreeLikelihood.h"
 #include "SubstitutionModel.h"
 
 // From NumCalc:
@@ -50,12 +49,9 @@ using namespace std;
  * estimation), we set this as the default method for now. We provide the second method for topology estimation
  * methods (far from achieved!)
  */
-class HomogeneousTreeLikelihood : public AbstractTreeLikelihood, public DiscreteRatesAcrossSites
+class HomogeneousTreeLikelihood : public AbstractHomogeneousTreeLikelihood
 {
 	protected:
-		SubstitutionModel * _model;
-		DiscreteDistribution * _rateDistribution;
-		ParameterList _brLenParameters;		
 
 		/**
 		 * @brief This contains all likelihood values used for computation.
@@ -69,7 +65,7 @@ class HomogeneousTreeLikelihood : public AbstractTreeLikelihood, public Discrete
 		 * </pre> 
 		 * We call this the <i>likelihood array</i> for each node.
 		 */
-		mutable map<Node *, VVVdouble> _likelihoods;
+		mutable map<const Node *, VVVdouble> _likelihoods;
 	
 		/**
 		 * @brief This contains all likelihood first order derivatives values used for computation.
@@ -83,7 +79,7 @@ class HomogeneousTreeLikelihood : public AbstractTreeLikelihood, public Discrete
 		 * </pre> 
 		 * We call this the <i>dLikelihood array</i> for each node.
 		 */
-		mutable map<Node *, VVVdouble> _dLikelihoods;
+		mutable map<const Node *, VVVdouble> _dLikelihoods;
 	
 		/**
 		 * @brief This contains all likelihood second order derivatives values used for computation.
@@ -97,13 +93,7 @@ class HomogeneousTreeLikelihood : public AbstractTreeLikelihood, public Discrete
 		 * </pre> 
 		 * We call this the <i>d2Likelihood array</i> for each node.
 		 */
-		mutable map<Node *, VVVdouble> _d2Likelihoods;
-
-		mutable map<Node *, VVVdouble> _pxy;
-
-		mutable map<Node *, VVVdouble> _dpxy;
-
-		mutable map<Node *, VVVdouble> _d2pxy;
+		mutable map<const Node *, VVVdouble> _d2Likelihoods;
 		
 		/**
 		 * @brief This map defines the pattern network.
@@ -119,8 +109,7 @@ class HomogeneousTreeLikelihood : public AbstractTreeLikelihood, public Discrete
 		 * Pointer are no longer used, since the pattern network is used for both
 		 * likelihoods arrays and dLikelihoods arrays.
 		 */
-		//map< Node *, map< Node *, vector< VVdouble *> > > _patternLinks;
-		map< Node *, map< Node *, vector<unsigned int> > > _patternLinks;
+		map< const Node *, map< const Node *, vector<unsigned int> > > _patternLinks;
 		
 		/**
 		 * @brief As previous, but for the global container.
@@ -134,22 +123,6 @@ class HomogeneousTreeLikelihood : public AbstractTreeLikelihood, public Discrete
 		 * element in the likelihood array.
 		 */
 		vector<unsigned int> _rootPatternLinks;
-		
-		/**
-		 * @brief Pointer toward all nodes in the tree.
-		 *
-		 * This is used for parameters estimation only, not for likelihood computation.
-		 * The order of the nodes in the vector if the order of the named branches and
-		 * is initalized once for all in the constructor. It then depends of the tree
-		 * topology. This may lead to some problems when we'll act on tree topology...
-		 */
-		 vector<Node *> _nodes;
-			
-		//some values we'll need:
-		unsigned int _nbSites,   //the number of sites in the container
-		             _nbClasses, //the number of rate classes
-		             _nbStates,  //the number of states in the alphabet
-		             _nbNodes;   //the number of nodes in the tree
 		
 	public:
 		HomogeneousTreeLikelihood(
@@ -167,7 +140,7 @@ class HomogeneousTreeLikelihood : public AbstractTreeLikelihood, public Discrete
 		/**
 		 * @name The TreeLikelihood interface.
 		 *
-		 * Other methods are implemented in the AbstractTreeLikelihood class.
+		 * Other methods are implemented in the AbstractHomogeneousTreeLikelihood class.
 		 *
 		 * @{
 		 */
@@ -175,8 +148,6 @@ class HomogeneousTreeLikelihood : public AbstractTreeLikelihood, public Discrete
 		double getLogLikelihood() const;
 		double getLikelihoodForASite (unsigned int site) const;
 		double getLogLikelihoodForASite(unsigned int site) const;
-		ParameterList getBranchLengthsParameters() const;
-		ParameterList getSubstitutionModelParameters() const;
 		/** @} */
 
 		
@@ -185,8 +156,6 @@ class HomogeneousTreeLikelihood : public AbstractTreeLikelihood, public Discrete
 		 *
 		 * @{
 		 */
-		const DiscreteDistribution * getRateDistribution() const;
-		      DiscreteDistribution * getRateDistribution();
 		double getLikelihoodForASiteForARateClass(unsigned int site, unsigned int rateClass) const;
 		double getLogLikelihoodForASiteForARateClass(unsigned int site, unsigned int rateClass) const;
 		VVdouble getLikelihoodForEachSiteForEachRate() const;
@@ -195,23 +164,8 @@ class HomogeneousTreeLikelihood : public AbstractTreeLikelihood, public Discrete
 		Vdouble  getRateWithMaxPostProbOfEachSite() const;
 		Vint     getRateClassWithMaxPostProbOfEachSite() const;
 		Vdouble  getPosteriorRateOfEachSite() const;
-		ParameterList getRateDistributionParameters() const;
 		/** @} */
 
-		/**
-		 * @brief Get the substitution model used for the computation.
-		 *
-		 * @return A const pointer toward the substitution model of this instance.
-		 */
-		virtual const SubstitutionModel * getSubstitutionModel() const;
-		
-		/**
-		 * @brief Get the substitution model used for the computation.
-		 *
-		 * @return A pointer toward the substitution model of this instance.
-		 */
-		virtual SubstitutionModel * getSubstitutionModel();
-	
 		/**
 		 * @brief Implements the Function interface.
 		 *
@@ -263,23 +217,7 @@ class HomogeneousTreeLikelihood : public AbstractTreeLikelihood, public Discrete
 		
 	public:	// Specific methods:
 	
-		/**
-		 * @brief This builds the <i>parameters</i> list from all parametrizable objects,
-		 * <i>i.e.</i> substitution model, rate distribution and tree.
-		 */
-		virtual void initParameters();
-
 		void computeTreeLikelihood();
-
-		/**
-		 * @brief This removes a particular parameter from the list.
-		 *
-		 * This method may be used to not estimate a parameter after having
-		 * fixed its value. The previous method reset all calls of thos one.
-		 *
-		 * @param name The name of the parameter to ignore.
-		 */
-		virtual void ignoreParameter(const string & name) throw (ParameterNotFoundException);
 
 		virtual double getDLikelihoodForASiteForARateClass(unsigned int site, unsigned int rateClass) const;
 
@@ -317,7 +255,7 @@ class HomogeneousTreeLikelihood : public AbstractTreeLikelihood, public Discrete
 		 * @param node      The node defining the subtree to analyse.
 		 * @param sequences The data to be used for initialization.
 		 */
-		virtual void initTreeLikelihoods(Node * node, const SiteContainer & sequences) throw (Exception);
+		virtual void initTreeLikelihoods(const Node * node, const SiteContainer & sequences) throw (Exception);
 
 		/**
 		 * @brief This method initializes the leaves according to a sequence file.
@@ -334,30 +272,19 @@ class HomogeneousTreeLikelihood : public AbstractTreeLikelihood, public Discrete
 		 * @param sequences The data to be used for initialization.
 		 * @return The shrunk sub-dataset for the subtree defined by <i>node</i>.
 		 */
-		virtual SiteContainer * initTreeLikelihoodsWithPatterns(Node * node, const SiteContainer & sequences) throw (Exception);
+		virtual SiteContainer * initTreeLikelihoodsWithPatterns(const Node * node, const SiteContainer & sequences) throw (Exception);
 		
 		/**
 		 * @brief Compute the likelihood for a subtree defined by the Tree::Node <i>node</i>.
 		 *
 		 * @param node The root of the subtree.
 		 */
-		virtual void computeSubtreeLikelihood(Node * node); //Recursive method.			
+		virtual void computeSubtreeLikelihood(const Node * node); //Recursive method.			
 
-		virtual void computeDownSubtreeDLikelihood(Node *);
+		virtual void computeDownSubtreeDLikelihood(const Node *);
 		
-		virtual void computeDownSubtreeD2Likelihood(Node *);
+		virtual void computeDownSubtreeD2Likelihood(const Node *);
 	
-
-		/**
-		 * @brief All parameters are stores in a parameter list.
-		 *
-		 * This function apply these parameters to the substitution model,
-		 * to the rate distribution and to the branch lengths.
-		 */
-		virtual void applyParameters() throw (Exception);	
-
-		virtual void initBranchLengthsParameters();
-
 		void fireParameterChanged(const ParameterList & params);
 	
 		/**
@@ -365,7 +292,8 @@ class HomogeneousTreeLikelihood : public AbstractTreeLikelihood, public Discrete
 		 *
 		 * @param node The node at which likelihood values must be displayed.
 		 */
-		virtual void displayLikelihood(Node * node);
+		virtual void displayLikelihood(const Node * node);
+
 };
 
 

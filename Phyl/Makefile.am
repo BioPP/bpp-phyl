@@ -1,6 +1,7 @@
 H_FILES = \
 AbstractSubstitutionModel.h\
 AbstractTreeLikelihood.h\
+AbstractHomogeneousTreeLikelihood.h\
 ApplicationTools.h\
 DSO78.h\
 GaltierNewtonOptimizer.h\
@@ -34,6 +35,7 @@ RASTools.h
 CPP_FILES = \
 AbstractSubstitutionModel.cpp\
 AbstractTreeLikelihood.cpp\
+AbstractHomogeneousTreeLikelihood.cpp\
 ApplicationTools.cpp\
 DSO78.cpp\
 GaltierNewtonOptimizer.cpp\
