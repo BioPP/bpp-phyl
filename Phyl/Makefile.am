@@ -35,16 +35,12 @@ AbstractSubstitutionModel.cpp\
 AbstractTreeLikelihood.cpp\
 ApplicationTools.cpp\
 DSO78.cpp\
-DSO78FrequenciesCode.cpp\
-DSO78ExchangeabilityCode.cpp\
 GaltierNewtonOptimizer.cpp\
 HKY85.cpp\
 HomogeneousTreeLikelihood.cpp\
 IOTree.cpp\
 JCnuc.cpp\
 JTT92.cpp\
-JTT92FrequenciesCode.cpp\
-JTT92ExchangeabilityCode.cpp\
 K80.cpp\
 MutationProcess.cpp\
 Newick.cpp\
@@ -64,9 +60,15 @@ TreeLikelihood.cpp\
 TreeTools.cpp\
 RASTools.cpp
 
+CPP_EXTRA = \
+DSO78FrequenciesCode.cpp\
+DSO78ExchangeabilityCode.cpp\
+JTT92FrequenciesCode.cpp\
+JTT92ExchangeabilityCode.cpp
 
 lib_LTLIBRARIES = libphyl.la
 libphyl_la_SOURCES = $(H_FILES) $(CPP_FILES)
+EXTRA_libphyl_la_SOURCES = $(CPP_EXTRA)
 libphyl_la_LDFLAGS = -version-info 1:0:0
 
 library_includedir=$(includedir)/Phyl
