@@ -231,6 +231,10 @@ class Node {
 		virtual void removeSons();
 				
 		virtual void swap(unsigned int branch1, unsigned int branch2);
+
+		virtual vector<const Node *> getNeighbors() const;
+		
+		virtual vector<Node *> getNeighbors();
 		
 		/*
 		 * Operators:

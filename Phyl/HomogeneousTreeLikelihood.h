@@ -269,6 +269,8 @@ class HomogeneousTreeLikelihood : public AbstractTreeLikelihood, public Discrete
 		 */
 		virtual void initParameters();
 
+		void computeTreeLikelihood();
+
 		/**
 		 * @brief This removes a particular parameter from the list.
 		 *
@@ -289,8 +291,6 @@ class HomogeneousTreeLikelihood : public AbstractTreeLikelihood, public Discrete
 		
 		virtual void computeTreeDLikelihood(const string & variable);
 
-		virtual void computeDownSubtreeDLikelihood(Node *);
-
 		virtual double getD2LikelihoodForASiteForARateClass(unsigned int site, unsigned int rateClass) const;
 
 		virtual double getD2LikelihoodForASite(unsigned int site) const;
@@ -301,8 +301,6 @@ class HomogeneousTreeLikelihood : public AbstractTreeLikelihood, public Discrete
 		
 		virtual void computeTreeD2Likelihood(const string & variable);
 
-		virtual void computeDownSubtreeD2Likelihood(Node *);
-		
 	
 	protected:
 		
@@ -338,7 +336,17 @@ class HomogeneousTreeLikelihood : public AbstractTreeLikelihood, public Discrete
 		 */
 		virtual SiteContainer * initTreeLikelihoodsWithPatterns(Node * node, const SiteContainer & sequences) throw (Exception);
 		
-		void computeSubtreeLikelihood(Node * node); //Recursive method.
+		/**
+		 * @brief Compute the likelihood for a subtree defined by the Tree::Node <i>node</i>.
+		 *
+		 * @param node The root of the subtree.
+		 */
+		virtual void computeSubtreeLikelihood(Node * node); //Recursive method.			
+
+		virtual void computeDownSubtreeDLikelihood(Node *);
+		
+		virtual void computeDownSubtreeD2Likelihood(Node *);
+	
 
 		/**
 		 * @brief All parameters are stores in a parameter list.
@@ -353,7 +361,7 @@ class HomogeneousTreeLikelihood : public AbstractTreeLikelihood, public Discrete
 		void fireParameterChanged(const ParameterList & params);
 	
 		/**
-		 * @brief This method is mainly for debuggin purpose.
+		 * @brief This method is mainly for debugging purpose.
 		 *
 		 * @param node The node at which likelihood values must be displayed.
 		 */

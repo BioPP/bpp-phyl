@@ -97,7 +97,7 @@ HomogeneousTreeLikelihood::~HomogeneousTreeLikelihood() { delete _data; }
 
 /******************************************************************************/
 
-inline double HomogeneousTreeLikelihood::getLikelihood() const
+double HomogeneousTreeLikelihood::getLikelihood() const
 {
 	double l = 1.;
 	for(unsigned int i = 0; i < _nbSites; i++) {
@@ -108,7 +108,7 @@ inline double HomogeneousTreeLikelihood::getLikelihood() const
 
 /******************************************************************************/
 
-inline double HomogeneousTreeLikelihood::getLogLikelihood() const
+double HomogeneousTreeLikelihood::getLogLikelihood() const
 {
 	double ll = 0;
 	for(unsigned int i = 0; i < _nbSites; i++) {
@@ -119,7 +119,7 @@ inline double HomogeneousTreeLikelihood::getLogLikelihood() const
 
 /******************************************************************************/
 
-inline double HomogeneousTreeLikelihood::getLikelihoodForASite(unsigned int site) const
+double HomogeneousTreeLikelihood::getLikelihoodForASite(unsigned int site) const
 {
 	double l = 0;
 	for(unsigned int i = 0; i < _nbClasses; i++) {
@@ -130,7 +130,7 @@ inline double HomogeneousTreeLikelihood::getLikelihoodForASite(unsigned int site
 
 /******************************************************************************/
 
-inline double HomogeneousTreeLikelihood::getLogLikelihoodForASite(unsigned int site) const
+double HomogeneousTreeLikelihood::getLogLikelihoodForASite(unsigned int site) const
 {
 	double l = 0;
 	for(unsigned int i = 0; i < _nbClasses; i++) {
@@ -142,7 +142,7 @@ inline double HomogeneousTreeLikelihood::getLogLikelihoodForASite(unsigned int s
 
 /******************************************************************************/
 
-inline double HomogeneousTreeLikelihood::getLikelihoodForASiteForARateClass(unsigned int site, unsigned int rateClass) const
+double HomogeneousTreeLikelihood::getLikelihoodForASiteForARateClass(unsigned int site, unsigned int rateClass) const
 {
 	double l = 0;
 	for(unsigned int i = 0; i < _nbStates; i++) {
@@ -154,7 +154,7 @@ inline double HomogeneousTreeLikelihood::getLikelihoodForASiteForARateClass(unsi
 
 /******************************************************************************/
 
-inline double HomogeneousTreeLikelihood::getLogLikelihoodForASiteForARateClass(unsigned int site, unsigned int rateClass) const
+double HomogeneousTreeLikelihood::getLogLikelihoodForASiteForARateClass(unsigned int site, unsigned int rateClass) const
 {
 	double l = 0;
 	for(unsigned int i = 0; i < _nbStates; i++) {
@@ -260,46 +260,52 @@ void HomogeneousTreeLikelihood::fireParameterChanged(const ParameterList & param
 		Node * son = _nodes[l];
 		double l = son -> getDistanceToFather(); 
 	
-		//Computes all pxy once for all:
+		//Computes all pxy and pyx once for all:
 		VVVdouble * _pxy_son = & _pxy[son];
-		(* _pxy_son) = VVVdouble(_nbClasses);
+		_pxy_son -> resize(_nbClasses);
 		for(unsigned int c = 0; c < _nbClasses; c++) {
-			(* _pxy_son)[c] = VVdouble(_nbStates);
+			VVdouble * _pxy_son_c = & (* _pxy_son)[c];
+			_pxy_son_c -> resize(_nbStates);
 			Matrix Q = _model -> getPij_t(l * _rateDistribution -> getCategory(c));
 			for(unsigned int x = 0; x < _nbStates; x++) {
-				(* _pxy_son)[c][x] = Vdouble(_nbStates);
+				Vdouble * _pxy_son_c_x = & (* _pxy_son_c)[x];
+				_pxy_son_c_x -> resize(_nbStates);
 				for(unsigned int y = 0; y < _nbStates; y++) {
-					(* _pxy_son)[c][x][y] = Q(x, y);
+					(* _pxy_son_c_x)[y] = Q(x, y);
 				}
 			}
 		}
 
 		//Computes all dpxy/dt once for all:
 		VVVdouble * _dpxy_son = & _dpxy[son];
-		(* _dpxy_son) = VVVdouble(_nbClasses);
+		_dpxy_son -> resize(_nbClasses);
 		for(unsigned int c = 0; c < _nbClasses; c++) {
-			(* _dpxy_son)[c] = VVdouble(_nbStates);
+			VVdouble * _dpxy_son_c = & (* _dpxy_son)[c];
+			_dpxy_son_c -> resize(_nbStates);
 			double rc = _rateDistribution -> getCategory(c);
 			Matrix dQ = _model -> getdPij_dt(l * rc);  
 			for(unsigned int x = 0; x < _nbStates; x++) {
-				(* _dpxy_son)[c][x] = Vdouble(_nbStates);
+				Vdouble * _dpxy_son_c_x = & (* _dpxy_son_c)[x];
+				_dpxy_son_c_x -> resize(_nbStates);
 				for(unsigned int y = 0; y < _nbStates; y++) {
-					(* _dpxy_son)[c][x][y] =  rc * dQ(x, y); 
+					(* _dpxy_son_c_x)[y] =  rc * dQ(x, y); 
 				}
 			}
 		}
 		
 		//Computes all d2pxy/dt2 once for all:
 		VVVdouble * _d2pxy_son = & _d2pxy[son];
-		(* _d2pxy_son) = VVVdouble(_nbClasses);
+		_d2pxy_son -> resize(_nbClasses);
 		for(unsigned int c = 0; c < _nbClasses; c++) {
-			(* _d2pxy_son)[c] = VVdouble(_nbStates);
+			VVdouble * _d2pxy_son_c = & (* _d2pxy_son)[c];
+			_d2pxy_son_c -> resize(_nbStates);
 			double rc =  _rateDistribution -> getCategory(c);
 			Matrix d2Q = _model -> getd2Pij_dt2(l * rc);
 			for(unsigned int x = 0; x < _nbStates; x++) {
-				(* _d2pxy_son)[c][x] = Vdouble(_nbStates);
+				Vdouble * _d2pxy_son_c_x = & (* _d2pxy_son_c)[x];
+				_d2pxy_son_c_x -> resize(_nbStates);
 				for(unsigned int y = 0; y < _nbStates; y++) {
-					(* _d2pxy_son)[c][x][y] =  rc * rc * d2Q(x, y);
+					(* _d2pxy_son_c_x)[y] =  rc * rc * d2Q(x, y);
 				}
 			}
 		}
@@ -323,7 +329,7 @@ throw (Exception)
  *                           First Order Derivatives                          *
  ******************************************************************************/	
 
-inline double HomogeneousTreeLikelihood::getDLikelihoodForASiteForARateClass(
+double HomogeneousTreeLikelihood::getDLikelihoodForASiteForARateClass(
 	unsigned int site,
 	unsigned int rateClass) const
 {
@@ -336,7 +342,7 @@ inline double HomogeneousTreeLikelihood::getDLikelihoodForASiteForARateClass(
 
 /******************************************************************************/	
 
-inline double HomogeneousTreeLikelihood::getDLikelihoodForASite(unsigned int site) const
+double HomogeneousTreeLikelihood::getDLikelihoodForASite(unsigned int site) const
 {
 	// Derivative of the sum is the sum of derivatives:
 	double dl = 0;
@@ -347,7 +353,7 @@ inline double HomogeneousTreeLikelihood::getDLikelihoodForASite(unsigned int sit
 
 /******************************************************************************/	
 
-inline double HomogeneousTreeLikelihood::getDLogLikelihoodForASite(unsigned int site) const
+double HomogeneousTreeLikelihood::getDLogLikelihoodForASite(unsigned int site) const
 {
 	// d(f(g(x)))/dx = dg(x)/dx . df(g(x))/dg :
 	return getDLikelihoodForASite(site) / getLikelihoodForASite(site);
@@ -355,7 +361,7 @@ inline double HomogeneousTreeLikelihood::getDLogLikelihoodForASite(unsigned int 
 
 /******************************************************************************/	
 
-inline double HomogeneousTreeLikelihood::getDLogLikelihood() const
+double HomogeneousTreeLikelihood::getDLogLikelihood() const
 {
 	// Derivative of the sum is the sum of derivatives:
 	double dl = 0;
@@ -540,7 +546,7 @@ void HomogeneousTreeLikelihood::computeDownSubtreeDLikelihood(Node * node)
  *                           Second Order Derivatives                         *
  ******************************************************************************/	
 
-inline double HomogeneousTreeLikelihood::getD2LikelihoodForASiteForARateClass(
+double HomogeneousTreeLikelihood::getD2LikelihoodForASiteForARateClass(
 	unsigned int site,
 	unsigned int rateClass) const
 {
@@ -553,7 +559,7 @@ inline double HomogeneousTreeLikelihood::getD2LikelihoodForASiteForARateClass(
 
 /******************************************************************************/	
 
-inline double HomogeneousTreeLikelihood::getD2LikelihoodForASite(unsigned int site) const
+double HomogeneousTreeLikelihood::getD2LikelihoodForASite(unsigned int site) const
 {
 	// Derivative of the sum is the sum of derivatives:
 	double d2l = 0;
@@ -564,7 +570,7 @@ inline double HomogeneousTreeLikelihood::getD2LikelihoodForASite(unsigned int si
 
 /******************************************************************************/	
 
-inline double HomogeneousTreeLikelihood::getD2LogLikelihoodForASite(unsigned int site) const
+double HomogeneousTreeLikelihood::getD2LogLikelihoodForASite(unsigned int site) const
 {
 	return getD2LikelihoodForASite(site) / getLikelihoodForASite(site)
 	- pow( getDLikelihoodForASite(site) / getLikelihoodForASite(site), 2);
@@ -572,7 +578,7 @@ inline double HomogeneousTreeLikelihood::getD2LogLikelihoodForASite(unsigned int
 
 /******************************************************************************/	
 
-inline double HomogeneousTreeLikelihood::getD2LogLikelihood() const
+double HomogeneousTreeLikelihood::getD2LogLikelihood() const
 {
 	// Derivative of the sum is the sum of derivatives:
 	double dl = 0;
@@ -1026,6 +1032,12 @@ SiteContainer * HomogeneousTreeLikelihood::initTreeLikelihoodsWithPatterns( Node
 }
 
 /******************************************************************************/
+	
+void HomogeneousTreeLikelihood::computeTreeLikelihood() {
+	computeSubtreeLikelihood(_tree -> getRootNode());
+}
+
+/******************************************************************************/	
 
 void HomogeneousTreeLikelihood::computeSubtreeLikelihood(Node * node)
 {

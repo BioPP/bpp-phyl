@@ -6,6 +6,7 @@ DSO78.h\
 GaltierNewtonOptimizer.h\
 HKY85.h\
 HomogeneousTreeLikelihood.h\
+DRHomogeneousTreeLikelihood.h\
 IOTree.h\
 JCnuc.h\
 JTT92.h\
@@ -38,6 +39,7 @@ DSO78.cpp\
 GaltierNewtonOptimizer.cpp\
 HKY85.cpp\
 HomogeneousTreeLikelihood.cpp\
+DRHomogeneousTreeLikelihood.cpp\
 IOTree.cpp\
 JCnuc.cpp\
 JTT92.cpp\

@@ -10,12 +10,6 @@
 
 AbstractTreeLikelihood::~AbstractTreeLikelihood() {}
 
-/******************************************************************************/	
-	
-void AbstractTreeLikelihood::computeTreeLikelihood() {
-	computeSubtreeLikelihood(_tree -> getRootNode());
-}
-
 /******************************************************************************/
 
 const SiteContainer * AbstractTreeLikelihood::getData() const { return _data; }

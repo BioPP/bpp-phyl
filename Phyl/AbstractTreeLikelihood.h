@@ -30,7 +30,6 @@ class AbstractTreeLikelihood : public TreeLikelihood
 		virtual ~AbstractTreeLikelihood();
 	
 	public:
-		void computeTreeLikelihood();
 		const SiteContainer * getData() const;
 	
 		/**
@@ -64,13 +63,6 @@ class AbstractTreeLikelihood : public TreeLikelihood
 	
 	protected:
 		
-		/**
-		 * @brief Compute the likelihood for a subtree defined by the Tree::Node <i>node</i>.
-		 *
-		 * @param node The root of the subtree.
-		 */
-		virtual void computeSubtreeLikelihood(Node * node) = 0; //Recursive method.			
-
 		/**
 		 * @brief Recompute _pxy, _dpxy and _d2pxy arrays.
 		 *

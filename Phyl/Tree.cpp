@@ -170,6 +170,20 @@ void Node::swap(unsigned int branch1, unsigned int branch2) {
     addSon(branch2, *node1);
 }
 
+vector<const Node *> Node::getNeighbors() const {
+	vector<const Node *> neighbors(_sons.size() + 1);
+	neighbors[0] = _father;
+	for(unsigned int i = 0; i < _sons.size(); i++) neighbors[i+1] = _sons[i];
+	return neighbors;
+}
+		
+vector<Node *> Node::getNeighbors() {
+	vector<Node *> neighbors(_sons.size() + 1);
+	neighbors[0] = _father;
+	for(unsigned int i = 0; i < _sons.size(); i++) neighbors[i+1] = _sons[i];
+	return neighbors;
+}
+
 /** Properties: ***************************************************************/
 				
 void Node::setProperty(const string & name, Clonable * property) { _properties[name] = property; }
