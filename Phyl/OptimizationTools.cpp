@@ -11,6 +11,7 @@
 #include <NumCalc/PowellMultiDimensions.h>
 #include <NumCalc/DownhillSimplexMethod.h>
 #include <NumCalc/BrentOneDimension.h>
+#include "GaltierNewtonOptimizer.h"
 #include <NumCalc/OptimizationStopCondition.h>
 
 /******************************************************************************/
@@ -131,13 +132,20 @@ OptimizationTools::ScaleFunction::ScaleFunction(TreeLikelihood * tl): _tl(tl) {
 }
 	
 OptimizationTools::ScaleFunction::~ScaleFunction() {}
-	
-double OptimizationTools::ScaleFunction::f(const ParameterList & pl) const throw (ParameterException){
-	if(pl.size() != 1) throw Exception("OptimizationTools::ScaleFunction::f(). This is a one parameter function!");
+
+void OptimizationTools::ScaleFunction::setParameters(const ParameterList & lambda) const 
+{
+	if(lambda.size() != 1) throw Exception("OptimizationTools::ScaleFunction::f(). This is a one parameter function!");
+	_lambda.setParametersValues(lambda);
+}
+
+double OptimizationTools::ScaleFunction::getValue() const
+throw (ParameterException)
+{
 	// Scale the tree:
 	ParameterList brLen = _brLen;
 	for(unsigned int i = 0; i < brLen.size(); i++) {
-		brLen[i] -> setValue(brLen[i] -> getValue() * pl[0] -> getValue());
+		brLen[i] -> setValue(brLen[i] -> getValue() * _lambda[0] -> getValue());
 	}
 	return _tl -> f(brLen);
 }
@@ -393,3 +401,39 @@ int OptimizationTools::optimizeWithPowellMethodAlphaSeparately(
 }
 
 /******************************************************************************/
+	
+int OptimizationTools::optimizeWithNewtonMethod(
+	TreeLikelihood * tl,
+	double tolerance,
+	int tlEvalMax,
+	ostream * messageHandler,
+	ostream * profiler)
+	throw (Exception)
+{
+	// Build optimizer:
+	GaltierNewtonOptimizer * optimizer = new GaltierNewtonOptimizer(tl);
+	optimizer -> setProfiler(profiler);
+	optimizer -> setMessageHandler(messageHandler);
+	optimizer -> setMaximumNumberOfEvaluations(tlEvalMax);
+	optimizer -> getStopCondition() -> setTolerance(tolerance);
+	
+	// Optimize TreeLikelihood function:
+	try {
+		ParameterList pl = tl -> getParameters();
+		optimizer -> setConstraintPolicy(AbstractOptimizer::CONSTRAINTS_AUTO);
+		optimizer -> init(pl);
+		optimizer -> optimize();
+	} catch(Exception e) {
+		cout << e.what() << endl;
+		exit(-1);
+	}
+	// We're done.
+	int n = optimizer -> getNumberOfEvaluations(); 
+	// Delete optimizer:
+	delete optimizer;
+	// Send number of evaluations done:
+	return n;
+}
+	
+/******************************************************************************/	
+

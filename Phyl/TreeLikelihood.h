@@ -26,7 +26,7 @@
  * This interface separates the computation itself (computeLikelihood() method) and the
  * result (getLikelihood() methods).
  */ 
-class TreeLikelihood: public Parametrizable, public Function
+class TreeLikelihood: public DerivableSecondOrder
 {
 	public:
 		virtual ~TreeLikelihood();

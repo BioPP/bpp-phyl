@@ -23,7 +23,9 @@ const SiteContainer * AbstractTreeLikelihood::getData() const { return _data; }
 
 /******************************************************************************/
 
-ParameterList AbstractTreeLikelihood::getParameters() const {
+ParameterList AbstractTreeLikelihood::getParameters() const 
+throw (Exception)
+{
 	return _parameters;
 }
 

@@ -38,11 +38,11 @@ class AbstractTreeLikelihood : public TreeLikelihood
 		 *
 		 * @{
 		 */
-		ParameterList getParameters() const ;
+		ParameterList getParameters() const throw (Exception);
 	
 		double getParameter(const string & name) const
 			throw (ParameterNotFoundException);
-	
+
 		void setAllParametersValues(const ParameterList & params)
 			throw (ParameterNotFoundException, ConstraintException);
 	

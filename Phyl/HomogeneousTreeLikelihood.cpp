@@ -241,15 +241,64 @@ Vdouble HomogeneousTreeLikelihood::getPosteriorRateOfEachSite() const
 
 /******************************************************************************/
 
-double HomogeneousTreeLikelihood::f(const ParameterList & parameters) const
+inline void HomogeneousTreeLikelihood::setParameters(const ParameterList & parameters) const
+	throw (Exception)
 {
-	try { 
-		const_cast<HomogeneousTreeLikelihood *>(this) -> setParametersValues(parameters);
-	} catch(ConstraintException ce) {
-		return -log(0.); // (+inf if unlikely!)
-	}
+	const_cast<HomogeneousTreeLikelihood *>(this) -> setParametersValues(parameters);
 	const_cast<HomogeneousTreeLikelihood *>(this) -> applyParameters();
+	
+	for(unsigned int l = 0; l < _nbNodes; l++) {
+		//For each son node,
+		Node * son = _nodes[l];
+	
+		//Computes all pxy once for all:
+		_pxy[son] = VVVdouble(_nbClasses);
+		for(unsigned int c = 0; c < _nbClasses; c++) {
+			_pxy[son][c] = VVdouble(_nbStates);
+			for(unsigned int x = 0; x < _nbStates; x++) {
+				_pxy[son][c][x] = Vdouble(_nbStates);
+				for(unsigned int y = 0; y < _nbStates; y++) {
+					_pxy[son][c][x][y] = _model -> Pij_t(x, y, son -> getDistanceToFather() * _rateDistribution -> getCategory(c));
+				}
+			}
+		}
+
+		//Computes all dpxy/dt once for all:
+		_dpxy[son] = VVVdouble(_nbClasses);
+		for(unsigned int c = 0; c < _nbClasses; c++) {
+			_dpxy[son][c] = VVdouble(_nbStates);
+			double rc =  _rateDistribution -> getCategory(c);
+			for(unsigned int x = 0; x < _nbStates; x++) {
+				_dpxy[son][c][x] = Vdouble(_nbStates);
+				for(unsigned int y = 0; y < _nbStates; y++) {
+					_dpxy[son][c][x][y] =  rc * _model -> dPij_dt(x, y, son -> getDistanceToFather() * rc);
+				}
+			}
+		}
+		
+		//Computes all d2pxy/dt2 once for all:
+		_d2pxy[son] = VVVdouble(_nbClasses);
+		for(unsigned int c = 0; c < _nbClasses; c++) {
+			_d2pxy[son][c] = VVdouble(_nbStates);
+			double rc =  _rateDistribution -> getCategory(c);
+			for(unsigned int x = 0; x < _nbStates; x++) {
+				_d2pxy[son][c][x] = Vdouble(_nbStates);
+				for(unsigned int y = 0; y < _nbStates; y++) {
+					_d2pxy[son][c][x][y] =  rc * rc * _model -> d2Pij_dt2(x, y, son -> getDistanceToFather() * rc);
+				}
+			}
+		}
+
+	}
+
 	const_cast<HomogeneousTreeLikelihood *>(this) -> computeTreeLikelihood();
+}
+
+/******************************************************************************/
+
+double HomogeneousTreeLikelihood::getValue() const
+throw (Exception)
+{
 	//double f = - getLogLikelihood(); // For minimization.
 	//if(isnan(f)) f = -log(0.); // (+inf if unlikely!)
 	//return f;
@@ -266,8 +315,7 @@ double HomogeneousTreeLikelihood::getDLikelihoodForASiteForARateClass(
 {
 	double dl = 0;
 	for(unsigned int i = 0; i < _nbStates; i++) {
-		//dl += _rootPatternLinks[site] -> operator[](rateClass)[i] * _model -> freq(i);
-		dl += _likelihoods[_tree -> getRootNode()][_rootPatternLinks[site]][rateClass][i] * _model -> freq(i);
+		dl += _dLikelihoods[_tree -> getRootNode()][_rootPatternLinks[site]][rateClass][i] * _model -> freq(i);
 	}
 	return dl;
 }
@@ -288,7 +336,7 @@ double HomogeneousTreeLikelihood::getDLikelihoodForASite(unsigned int site) cons
 double HomogeneousTreeLikelihood::getDLogLikelihoodForASite(unsigned int site) const
 {
 	// d(f(g(x)))/dx = dg(x)/dx . df(g(x))/dg :
-	return 1. / getLikelihoodForASite(site) * getDLikelihoodForASite(site);
+	return getDLikelihoodForASite(site) / getLikelihoodForASite(site);
 }
 
 /******************************************************************************/	
@@ -304,9 +352,8 @@ double HomogeneousTreeLikelihood::getDLogLikelihood() const
 
 /******************************************************************************/
 
-double HomogeneousTreeLikelihood::df (
-	const string & variable,
-	const ParameterList & parameters) const
+double HomogeneousTreeLikelihood::getFirstOrderDerivative(const string & variable) const
+throw (Exception)
 { 
 	Parameter * p = _parameters.getParameter(variable);
 	if(p == NULL) throw ParameterNotFoundException("HomogeneousTreeLikelihood::df", variable);
@@ -323,21 +370,90 @@ double HomogeneousTreeLikelihood::df (
 	return - getDLogLikelihood();
 }
 	
+/******************************************************************************
+ *                           Second Order Derivatives                         *
+ ******************************************************************************/	
+
+double HomogeneousTreeLikelihood::getD2LikelihoodForASiteForARateClass(
+	unsigned int site,
+	unsigned int rateClass) const
+{
+	double d2l = 0;
+	for(unsigned int i = 0; i < _nbStates; i++) {
+		d2l += _d2Likelihoods[_tree -> getRootNode()][_rootPatternLinks[site]][rateClass][i] * _model -> freq(i);
+	}
+	return d2l;
+}
+
+/******************************************************************************/	
+
+double HomogeneousTreeLikelihood::getD2LikelihoodForASite(unsigned int site) const
+{
+	// Derivative of the sum is the sum of derivatives:
+	double d2l = 0;
+	for(unsigned int i = 0; i < _nbClasses; i++)
+		d2l += getD2LikelihoodForASiteForARateClass(site, i) * _rateDistribution -> getProbability(i);
+	return d2l;
+}
+
+/******************************************************************************/	
+
+double HomogeneousTreeLikelihood::getD2LogLikelihoodForASite(unsigned int site) const
+{
+	return getD2LikelihoodForASite(site) / getLikelihoodForASite(site)
+	- pow( getDLikelihoodForASite(site) / getLikelihoodForASite(site), 2);
+}
+
+/******************************************************************************/	
+
+double HomogeneousTreeLikelihood::getD2LogLikelihood() const
+{
+	// Derivative of the sum is the sum of derivatives:
+	double dl = 0;
+	for(unsigned int i = 0; i < _nbSites; i++)
+		dl += getD2LogLikelihoodForASite(i);
+	return dl;
+}
+
 /******************************************************************************/
 
-void HomogeneousTreeLikelihood::computeTreeDLikelihood(const string & variable) {
+double HomogeneousTreeLikelihood::getSecondOrderDerivative(const string & variable) const
+throw (Exception)
+{
+	Parameter * p = _parameters.getParameter(variable);
+	if(p == NULL) throw ParameterNotFoundException("HomogeneousTreeLikelihood::df", variable);
+	if(getRateDistributionParameters().getParameter(variable) != NULL) {
+		cout << "DEBUB: WARNING!!! Derivatives respective to rate distribution parameter are not implemented." << endl;
+		return log(-1.);
+	}
+	if(getSubstitutionModelParameters().getParameter(variable) != NULL) {
+		cout << "DEBUB: WARNING!!! Derivatives respective to substitution model parameters are not implemented." << endl;
+		return log(-1.);
+	}
+	
+	const_cast<HomogeneousTreeLikelihood *>(this) -> computeTreeD2Likelihood(variable);
+	return - getD2LogLikelihood();
+}
+
+/******************************************************************************/
+
+inline void HomogeneousTreeLikelihood::computeTreeDLikelihood(const string & variable)
+{
+	// We compute all likelihoods first:
+	//computeTreeLikelihood();
+	// We assume that likelihood are computed for this point.
 
 	// First reset all dLikelihoods arrays to 0:
-	for(unsigned int l = 0; l < _nbNodes; l++) {
-		unsigned int nbSites = _likelihoods[_nodes[l]].size();
-		for(unsigned int i = 0; i < nbSites; i++) {
-			for(unsigned int c = 0; c < _nbClasses; c++) {
-				for(unsigned int s = 0; s < _nbStates; s++) {
-					_dLikelihoods[_nodes[l]][i][c][s] = 0;
-				}
-			}
-		}
-	}
+	//for(unsigned int l = 0; l < _nbNodes; l++) {
+	//	unsigned int nbSites = _likelihoods[_nodes[l]].size();
+	//	for(unsigned int i = 0; i < nbSites; i++) {
+	//		for(unsigned int c = 0; c < _nbClasses; c++) {
+	//			for(unsigned int s = 0; s < _nbStates; s++) {
+	//				_dLikelihoods[_nodes[l]][i][c][s] = 0;
+	//			}
+	//		}
+	//	}
+	//}
 	
 	// Then get the node with the branch whose length must be derivated:
 	int brI = TextTools::toInt(variable.substr(5));
@@ -357,38 +473,15 @@ void HomogeneousTreeLikelihood::computeTreeDLikelihood(const string & variable) 
 
 	unsigned int nbNodes = father -> getNumberOfSons();
 	for(unsigned int l = 0; l < nbNodes; l++) {
+		
 		Node * son = father -> getSon(l);
-
-		//Computes all pxy once for all:
-		VVVdouble pxy = VVVdouble(_nbClasses);
-		for(unsigned int c = 0; c < _nbClasses; c++) {
-			pxy[c] = VVdouble(_nbStates);
-			for(unsigned int x = 0; x < _nbStates; x++) {
-				pxy[c][x] = Vdouble(_nbStates);
-				for(unsigned int y = 0; y < _nbStates; y++) {
-					pxy[c][x][y] = _model -> Pij_t(x, y, son -> getDistanceToFather() * _rateDistribution -> getCategory(c));
-				}
-			}
-		}
-
-		//Computes all dpxy/dt once for all:
-		VVVdouble dpxy = VVVdouble(_nbClasses);
-		for(unsigned int c = 0; c < _nbClasses; c++) {
-			dpxy[c] = VVdouble(_nbStates);
-			for(unsigned int x = 0; x < _nbStates; x++) {
-				dpxy[c][x] = Vdouble(_nbStates);
-				for(unsigned int y = 0; y < _nbStates; y++) {
-					dpxy[c][x][y] = _model -> dPij_dt(x, y, son -> getDistanceToFather() * _rateDistribution -> getCategory(c));
-				}
-			}
-		}
 
 		for(unsigned int i = 0; i < nbSites; i++) {
 			for(unsigned int c = 0; c < _nbClasses; c++) {
 				for(unsigned int x = 0; x < _nbStates; x++) {
 					double dl = 0;
 					for(unsigned int y = 0; y < _nbStates; y++) {
-						dl += (son == branch ?	dpxy[c][x][y] : pxy[c][x][y])
+						dl += (son == branch ?	_dpxy[son][c][x][y] : _pxy[son][c][x][y])
 						   * _likelihoods[son][_patternLinks[father][son][i]][c][y];
 					}
 					_dLikelihoods[father][i][c][x] *= dl;
@@ -396,14 +489,19 @@ void HomogeneousTreeLikelihood::computeTreeDLikelihood(const string & variable) 
 			}
 		}
 	}
+
+	// Now we go down the tree toward the root node:
 	computeDownSubtreeDLikelihood(father);
 }
 
 /******************************************************************************/
 
-void HomogeneousTreeLikelihood::computeDownSubtreeDLikelihood(Node * node) {
+inline void HomogeneousTreeLikelihood::computeDownSubtreeDLikelihood(Node * node)
+{
 	Node * father = node -> getFather();
-	if(father == NULL) return;
+	// We assume that the _dLikelihoods array has been filled for the current node 'node'.
+	// We will evaluate the array for the father node.
+	if(father == NULL) return; // We reached the root!
 		
 	// Compute dLikelihoods array for the father node.
 	// Fist initialize to 1:
@@ -420,24 +518,12 @@ void HomogeneousTreeLikelihood::computeDownSubtreeDLikelihood(Node * node) {
 	for(unsigned int l = 0; l < nbNodes; l++) {
 		Node * son = father -> getSon(l);
 
-		//Computes all pxy once for all:
-		VVVdouble pxy = VVVdouble(_nbClasses);
-		for(unsigned int c = 0; c < _nbClasses; c++) {
-			pxy[c] = VVdouble(_nbStates);
-			for(unsigned int x = 0; x < _nbStates; x++) {
-				pxy[c][x] = Vdouble(_nbStates);
-				for(unsigned int y = 0; y < _nbStates; y++) {
-					pxy[c][x][y] = _model -> Pij_t(x, y, son -> getDistanceToFather() * _rateDistribution -> getCategory(c));
-				}
-			}
-		}
-
 		for(unsigned int i = 0; i < nbSites; i++) {
 			for(unsigned int c = 0; c < _nbClasses; c++) {
 				for(unsigned int x = 0; x < _nbStates; x++) {
 					double dl = 0;
 					for(unsigned int y = 0; y < _nbStates; y++) {
-						dl += pxy[c][x][y] * (son == node ?
+						dl += _pxy[son][c][x][y] * (son == node ?
 							_dLikelihoods[son][_patternLinks[father][son][i]][c][y] :
 							 _likelihoods[son][_patternLinks[father][son][i]][c][y]);
 					}
@@ -446,7 +532,111 @@ void HomogeneousTreeLikelihood::computeDownSubtreeDLikelihood(Node * node) {
 			}
 		}
 	}
+
+	//Next step: move toward grand father...
 	computeDownSubtreeDLikelihood(father);
+}
+
+/******************************************************************************/
+
+inline void HomogeneousTreeLikelihood::computeTreeD2Likelihood(const string & variable)
+{
+	// We compute all dlikelihoods first:
+	//computeTreeDLikelihood(variable);
+	//We assume that all dLikelihood are computed for this point.
+
+	// First reset all d2Likelihoods arrays to 0:
+	//for(unsigned int l = 0; l < _nbNodes; l++) {
+	//	unsigned int nbSites = _likelihoods[_nodes[l]].size();
+	//	for(unsigned int i = 0; i < nbSites; i++) {
+	//		for(unsigned int c = 0; c < _nbClasses; c++) {
+	//			for(unsigned int s = 0; s < _nbStates; s++) {
+	//				_d2Likelihoods[_nodes[l]][i][c][s] = 0;
+	//			}
+	//		}
+	//	}
+	//}
+	
+	// Then get the node with the branch whose length must be derivated:
+	int brI = TextTools::toInt(variable.substr(5));
+	Node * branch = _nodes[brI];
+	Node * father = branch -> getFather();
+	
+	// Compute dLikelihoods array for the father node.
+	// Fist initialize to 1:
+	unsigned int nbSites = _likelihoods[father].size();
+	for(unsigned int i = 0; i < nbSites; i++) {
+		for(unsigned int c = 0; c < _nbClasses; c++) {
+			for(unsigned int s = 0; s < _nbStates; s++) {
+				_d2Likelihoods[father][i][c][s] = 1.;	
+			}
+		}
+	}
+
+	unsigned int nbNodes = father -> getNumberOfSons();
+	for(unsigned int l = 0; l < nbNodes; l++) {
+		
+		Node * son = father -> getSon(l);
+
+		for(unsigned int i = 0; i < nbSites; i++) {
+			for(unsigned int c = 0; c < _nbClasses; c++) {
+				for(unsigned int x = 0; x < _nbStates; x++) {
+					double d2l = 0;
+					for(unsigned int y = 0; y < _nbStates; y++) {
+						d2l += (son == branch ?	_d2pxy[son][c][x][y] : _pxy[son][c][x][y])
+						   * _likelihoods[son][_patternLinks[father][son][i]][c][y];
+					}
+					_d2Likelihoods[father][i][c][x] *= d2l;
+				}
+			}
+		}
+	}
+
+	// Now we go down the tree toward the root node:
+	computeDownSubtreeD2Likelihood(father);
+}
+
+/******************************************************************************/
+
+inline void HomogeneousTreeLikelihood::computeDownSubtreeD2Likelihood(Node * node)
+{
+	Node * father = node -> getFather();
+	// We assume that the _dLikelihoods array has been filled for the current node 'node'.
+	// We will evaluate the array for the father node.
+	if(father == NULL) return; // We reached the root!
+		
+	// Compute dLikelihoods array for the father node.
+	// Fist initialize to 1:
+	unsigned int nbSites = _likelihoods[father].size();
+	for(unsigned int i = 0; i < nbSites; i++) {
+		for(unsigned int c = 0; c < _nbClasses; c++) {
+			for(unsigned int s = 0; s < _nbStates; s++) {
+				_d2Likelihoods[father][i][c][s] = 1.;	
+			}
+		}
+	}
+
+	unsigned int nbNodes = father -> getNumberOfSons();
+	for(unsigned int l = 0; l < nbNodes; l++) {
+		Node * son = father -> getSon(l);
+
+		for(unsigned int i = 0; i < nbSites; i++) {
+			for(unsigned int c = 0; c < _nbClasses; c++) {
+				for(unsigned int x = 0; x < _nbStates; x++) {
+					double dl = 0;
+					for(unsigned int y = 0; y < _nbStates; y++) {
+						dl += _pxy[son][c][x][y] * (son == node ?
+							_d2Likelihoods[son][_patternLinks[father][son][i]][c][y] :
+							  _likelihoods[son][_patternLinks[father][son][i]][c][y]);
+					}
+					_d2Likelihoods[father][i][c][x] *= dl;
+				}
+			}
+		}
+	}
+
+	//Next step: move toward grand father...
+	computeDownSubtreeD2Likelihood(father);
 }
 
 /******************************************************************************/
@@ -550,16 +740,20 @@ void HomogeneousTreeLikelihood::initTreeLikelihoods(Node * node, const SiteConta
 	//Initialize likelihood vector:
 	_likelihoods[node].resize(nbSites);
 	_dLikelihoods[node].resize(nbSites);
+	_d2Likelihoods[node].resize(nbSites);
 
 	for(unsigned int i = 0; i < nbSites; i++) {
 		_likelihoods[node][i].resize(_nbClasses);
 		_dLikelihoods[node][i].resize(_nbClasses);
+		_d2Likelihoods[node][i].resize(_nbClasses);
 		for(unsigned int c = 0; c < _nbClasses; c++) {
 			_likelihoods[node][i][c].resize(_nbStates);
 			_dLikelihoods[node][i][c].resize(_nbStates);
+			_d2Likelihoods[node][i][c].resize(_nbStates);
 			for(unsigned int s = 0; s < _nbStates; s++) {
 				_likelihoods[node][i][c][s] = 1; //All likelihoods are initialized to 1.
 				_dLikelihoods[node][i][c][s] = 0; //All dLikelihoods are initialized to 0.
+				_d2Likelihoods[node][i][c][s] = 0; //All d2Likelihoods are initialized to 0.
 			}
 		}
 	}
@@ -615,16 +809,20 @@ SiteContainer * HomogeneousTreeLikelihood::initTreeLikelihoodsWithPatterns( Node
 	//Initialize likelihood vector:
 	_likelihoods[node].resize(nbSites);
 	_dLikelihoods[node].resize(nbSites);
+	_d2Likelihoods[node].resize(nbSites);
 
 	for(unsigned int i = 0; i < nbSites; i++) {
 		_likelihoods[node][i].resize(_nbClasses);
 		_dLikelihoods[node][i].resize(_nbClasses);
+		_d2Likelihoods[node][i].resize(_nbClasses);
 		for(unsigned int c = 0; c < _nbClasses; c++) {
 			_likelihoods[node][i][c].resize(_nbStates);
 			_dLikelihoods[node][i][c].resize(_nbStates);
+			_d2Likelihoods[node][i][c].resize(_nbStates);
 			for(unsigned int s = 0; s < _nbStates; s++) {
 				_likelihoods[node][i][c][s] = 1; //All likelihoods are initialized to 1.
 				_dLikelihoods[node][i][c][s] = 0; //All dLikelihoods are initialized to 0.
+				_d2Likelihoods[node][i][c][s] = 0; //All dLikelihoods are initialized to 0.
 			}
 		}
 	}
@@ -708,18 +906,6 @@ void HomogeneousTreeLikelihood::computeSubtreeLikelihood(Node * node)
 		Node * son = node -> getSon(l);
 		computeSubtreeLikelihood(son); //Recursive method:
 
-		//Computes all pxy once for all:
-		VVVdouble pxy = VVVdouble(_nbClasses);
-		for(unsigned int c = 0; c < _nbClasses; c++) {
-			pxy[c] = VVdouble(_nbStates);
-			for(unsigned int x = 0; x < _nbStates; x++) {
-				pxy[c][x] = Vdouble(_nbStates);
-				for(unsigned int y = 0; y < _nbStates; y++) {
-					pxy[c][x][y] = _model -> Pij_t(x, y, son -> getDistanceToFather() * _rateDistribution -> getCategory(c));
-				}
-			}
-		}
-
 		for(unsigned int i = 0; i < nbSites; i++) {
 			//For each site in the sequence,
 			for(unsigned int c = 0; c < _nbClasses; c++) {
@@ -729,7 +915,7 @@ void HomogeneousTreeLikelihood::computeSubtreeLikelihood(Node * node)
 					double likelihood = 0;
 					for(unsigned int y = 0; y < _nbStates; y++) {
 						//likelihood += pxy[c][x][y] * (* _patternLinks[node][son][i])[c][y];
-						likelihood += pxy[c][x][y] * _likelihoods[son][_patternLinks[node][son][i]][c][y];
+						likelihood += _pxy[son][c][x][y] * _likelihoods[son][_patternLinks[node][son][i]][c][y];
 					}
 					//cout << "Node " << node -> getName() << ", x = " << x << ", L = " << likelihood << endl;
 					_likelihoods[node][i][c][x] *= likelihood;

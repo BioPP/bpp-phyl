@@ -87,6 +87,31 @@ class OptimizationTools
 			ostream * messageHandler = &cout,
 			ostream * profiler       = &cout)
 			throw (Exception);
+		
+		/**
+		 * @brief Optimize a TreeLikelihood object with Newton's method.
+		 *
+		 * This method optimize all parameters with Galtier's modified Newton's method.
+		 * The constraint mode is set to 'AUTO', meaning that all constraints on
+		 * parameters are taken into acount (see the AutoParameter class).
+		 *
+		 * A condition over function values is used as a stop condition for the algorithm.
+		 *
+		 * @param tl             A pointer toward the TreeLikelihood object to optimize.
+		 * @param tolerance      The tolerance to use in the algorithm.
+		 * @param tlEvalMax      The maximum number of function evaluations.
+		 * @param messageHandler The massage handler.
+		 * @param profiler       The profiler.
+		 * @throw Exception any exception thrown by the Optimizer.
+		 */
+		static int optimizeWithNewtonMethod(
+			TreeLikelihood * tl,
+			double tolerance = 0.000001,
+			int tlEvalMax = 1000000,
+			ostream * messageHandler = &cout,
+			ostream * profiler       = &cout)
+			throw (Exception);
+	
 	
 		static int optimizeWithDownhillSimplexAndPowellMethod(
 			TreeLikelihood * tl,
@@ -103,14 +128,25 @@ class OptimizationTools
 				
 			protected:
 				TreeLikelihood * _tl;
-				ParameterList _brLen;
+				mutable ParameterList _brLen, _lambda;
 				
 			public:
 				ScaleFunction(TreeLikelihood * tl);
 				~ScaleFunction();
 				
 			public:
-				double f(const ParameterList & parameters) const throw (ParameterException);
+				void setParameters(const ParameterList & lambda) const ;
+				double getValue() const throw (ParameterException);
+				ParameterList getParameters() const throw (Exception) { return _lambda; }
+				double getParameter(const string & name) const throw (ParameterNotFoundException) { return _lambda.getParameter(name) -> getValue(); };
+				void setAllParametersValues(const ParameterList & params) 
+					throw (ParameterNotFoundException, ConstraintException) {}
+				void setParameterValue(const string & name, double value) 
+					throw (ParameterNotFoundException, ConstraintException) {}
+				void setParametersValues(const ParameterList & params)
+					throw (ParameterNotFoundException, ConstraintException) {}
+				void matchParametersValues(const ParameterList & params)
+					throw (ConstraintException) {};
 		};
 	
 	public:

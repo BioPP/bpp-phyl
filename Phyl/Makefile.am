@@ -3,6 +3,7 @@ AbstractSubstitutionModel.h\
 AbstractTreeLikelihood.h\
 ApplicationTools.h\
 DSO78.h\
+GaltierNewtonOptimizer.h\
 HKY85.h\
 HomogeneousTreeLikelihood.h\
 IOTree.h\
@@ -33,6 +34,7 @@ AbstractSubstitutionModel.cpp\
 AbstractTreeLikelihood.cpp\
 ApplicationTools.cpp\
 DSO78.cpp\
+GaltierNewtonOptimizer.cpp\
 HKY85.cpp\
 HomogeneousTreeLikelihood.cpp\
 IOTree.cpp\

@@ -71,7 +71,7 @@ class HomogeneousTreeLikelihood : public AbstractTreeLikelihood, public Discrete
 		mutable map<Node *, VVVdouble> _likelihoods;
 	
 		/**
-		 * @brief This contains all likelihood derivatives values used for computation.
+		 * @brief This contains all likelihood first order derivatives values used for computation.
 		 *
 		 * <pre>
 		 * x[n][i][c][s]
@@ -84,6 +84,26 @@ class HomogeneousTreeLikelihood : public AbstractTreeLikelihood, public Discrete
 		 */
 		mutable map<Node *, VVVdouble> _dLikelihoods;
 	
+		/**
+		 * @brief This contains all likelihood second order derivatives values used for computation.
+		 *
+		 * <pre>
+		 * x[n][i][c][s]
+		 *   |------------> Node n (pointer)
+		 *      |---------> Site i
+		 *         |------> Rate class c
+		 *            |---> Ancestral state s
+		 * </pre> 
+		 * We call this the <i>d2Likelihood array</i> for each node.
+		 */
+		mutable map<Node *, VVVdouble> _d2Likelihoods;
+
+		mutable map<Node *, VVVdouble> _pxy;
+
+		mutable map<Node *, VVVdouble> _dpxy;
+
+		mutable map<Node *, VVVdouble> _d2pxy;
+		
 		/**
 		 * @brief This map defines the pattern network.
 		 *
@@ -204,12 +224,46 @@ class HomogeneousTreeLikelihood : public AbstractTreeLikelihood, public Discrete
 		 *
 		 * @param parameters The parameter list to pass to the function.
 		 */
-		double f(const ParameterList & parameters) const;
+		void setParameters(const ParameterList & parameters) const throw (Exception);
+		double getValue() const throw(Exception);
+		
+		/**
+		 * @brief Implements the DerivableFirstOrder interface.
+		 *
+		 * Update the parameter list and call the applyParameters() method.
+		 * Then compute the likelihoods at each node (computeLikelihood() method),
+		 * compute the first order derivatives and call the getDLogLikelihood() method.
+		 *
+		 * If a subset of the whole parameter list is passed to the function,
+		 * only these parameters are updated and the other remain constant (i.e.
+		 * equal to their last value).
+		 *
+		 * @param parameters The parameter list to pass to the function.
+		 */
+		double getFirstOrderDerivative(const string & variable) const throw (Exception);
+
+		/**
+		 * @brief Implements the DerivableSecondOrder interface.
+		 *
+		 * Update the parameter list and call the applyParameters() method.
+		 * Then compute the likelihoods at each node (computeLikelihood() method),
+		 * compute the first and second order derivatives and call
+		 * the getD2LogLikelihood() method.
+		 *
+		 * If a subset of the whole parameter list is passed to the function,
+		 * only these parameters are updated and the other remain constant (i.e.
+		 * equal to their last value).
+		 *
+		 * @param parameters The parameter list to pass to the function.
+		 */
+		double getSecondOrderDerivative(const string & variable) const throw (Exception);
+		double getSecondOrderDerivative(const string & variable1, const string & variable2) const throw (Exception) { return 0; } // Not implemented for now.
+	
 		
 	public:	// Specific methods:
 	
 		/**
-		 * @brief This builds the <i>parameters</i> list from all paramtrizable objects,
+		 * @brief This builds the <i>parameters</i> list from all parametrizable objects,
 		 * <i>i.e.</i> substitution model, rate distribution and tree.
 		 */
 		virtual void initParameters();
@@ -237,9 +291,19 @@ class HomogeneousTreeLikelihood : public AbstractTreeLikelihood, public Discrete
 		virtual void computeTreeDLikelihood(const string & variable);
 
 		virtual void computeDownSubtreeDLikelihood(Node *);
+
+		virtual double getD2LikelihoodForASiteForARateClass(unsigned int site, unsigned int rateClass) const;
+
+		virtual double getD2LikelihoodForASite(unsigned int site) const;
+
+		virtual double getD2LogLikelihoodForASite(unsigned int site) const;
 		
-		virtual double df(const string & variable, const ParameterList & parameters) const;
-	
+		virtual double getD2LogLikelihood() const;
+		
+		virtual void computeTreeD2Likelihood(const string & variable);
+
+		virtual void computeDownSubtreeD2Likelihood(Node *);
+		
 	
 	protected:
 		

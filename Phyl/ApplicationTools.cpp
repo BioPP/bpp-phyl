@@ -368,7 +368,7 @@ SubstitutionModel * ApplicationTools::getSubstitutionModel(
 	bool suffixIsOptional,
 	bool verbose)
 {
-	string modelName = getStringParameter("model", params, "nucJC", suffix, suffixIsOptional);
+	string modelName = getStringParameter("model", params, "JCnuc", suffix, suffixIsOptional);
 	SubstitutionModel * model = NULL;
 
 	if(data.getAlphabet() -> getAlphabetType() == "DNA alphabet"
@@ -705,6 +705,13 @@ void ApplicationTools::optimizeParameters(
 				profiler,
 				profilerAlpha);
 		}
+	} else if(optMet == "newton") {
+		n = OptimizationTools::optimizeWithNewtonMethod(
+			tl,
+			tolerance,
+			nbEvalMax,
+			messageHandler,
+			profiler);		
 	} else {
 		displayError("Method '" + optMet + "' unknown.");
 		exit(-1);
