@@ -1,6 +1,6 @@
 //
 // File: NucleicSubstitutionModel.h
-// Created by:  <@bogdanof>
+// Created by:  <Julien.Dutheil@univ-montp2.fr>
 // Created on: Tue May 27 11:03:53 2003
 //
 
@@ -9,10 +9,13 @@
 
 #include "AbstractSubstitutionModel.h"
 
+// From SeqLib:
+#include <Seq/NucleicAlphabet.h>
+
 class NucleotideSubstitutionModel : public AbstractSubstitutionModel
 {
 	public:
-		NucleotideSubstitutionModel(const Alphabet * alpha);
+		NucleotideSubstitutionModel(const NucleicAlphabet * alpha);
 		virtual ~NucleotideSubstitutionModel();
 };
 

@@ -10,6 +10,8 @@
 #include "T92.h"
 #include "HKY85.h"
 #include "TN93.h"
+#include "DSO78.h"
+#include "JTT92.h"
 #include "OptimizationTools.h"
 #include "Tree.h"
 #include "Newick.h"
@@ -22,6 +24,7 @@
 // From SeqLib:
 #include <Seq/DNA.h>
 #include <Seq/RNA.h>
+#include <Seq/NucleicAlphabet.h>
 #include <Seq/ProteicAlphabet.h>
 #include <Seq/ISequence.h>
 #include <Seq/Fasta.h>
@@ -208,7 +211,7 @@ Alphabet * ApplicationTools::getAlphabet(
 	bool suffixIsOptional,
 	bool verbose)
 {
-  	Alphabet * chars;
+	Alphabet * chars;
 	string alphabet = getStringParameter("alphabet", params, "DNA", suffix, suffixIsOptional);
 	if(alphabet == "DNA") {
 		chars = new DNA();
@@ -237,7 +240,7 @@ Tree * ApplicationTools::getTree(
 	//Read the tree file:
 	Newick newick(true);
 	Tree * tree = newick.read(treeFilePath);
-  	if(verbose) displayResult("Tree file", treeFilePath);
+	if(verbose) displayResult("Tree file", treeFilePath);
 	return tree;
 }
 
@@ -365,107 +368,125 @@ SubstitutionModel * ApplicationTools::getSubstitutionModel(
 	bool suffixIsOptional,
 	bool verbose)
 {
-	const Alphabet * alpha = data.getAlphabet();
-	
 	string modelName = getStringParameter("model", params, "nucJC", suffix, suffixIsOptional);
+	SubstitutionModel * model = NULL;
 
-  	SubstitutionModel * model = NULL;
-	if(modelName == "TN93") {
-		double piA = 0.25, piC = 0.25, piG = 0.25, piT = 0.25;
-    	double kappa1 = getDoubleParameter("kappa1", params, 2, suffix, suffixIsOptional);
-    	double kappa2 = getDoubleParameter("kappa2", params, 2, suffix, suffixIsOptional);
-		bool useObsFreq = getBooleanParameter("model.use_observed_freq", params, false, suffix, suffixIsOptional);
-		if(useObsFreq) {
-			model = new TN93(alpha, kappa1, kappa2);
-			dynamic_cast<TN93 *>(model) -> setFreqFromData(data);
-			piA = model -> getParameter("piA");
-			piC = model -> getParameter("piC");
-			piG = model -> getParameter("piG");
-			piT = model -> getParameter("piT");
-		} else {
-			piA = getDoubleParameter("piA", params, 0.25, suffix, suffixIsOptional);
-			piC = getDoubleParameter("piC", params, 0.25, suffix, suffixIsOptional);
-			piG = getDoubleParameter("piG", params, 0.25, suffix, suffixIsOptional);
-			piT = getDoubleParameter("piT", params, 0.25, suffix, suffixIsOptional);
-			if( fabs(1-(piA + piT + piG + piC)) > 0.00000000000001 ) {
-				displayError("Equilibrium base frequencies must equal 1. Aborting...");
-				exit(-1);
+	if(data.getAlphabet() -> getAlphabetType() == "DNA alphabet"
+	|| data.getAlphabet() -> getAlphabetType() == "RNA alphabet") {
+
+		const NucleicAlphabet * alpha = dynamic_cast<const NucleicAlphabet *>(data.getAlphabet());
+
+		if(modelName == "TN93") {
+			double piA = 0.25, piC = 0.25, piG = 0.25, piT = 0.25;
+				double kappa1 = getDoubleParameter("kappa1", params, 2, suffix, suffixIsOptional);
+				double kappa2 = getDoubleParameter("kappa2", params, 2, suffix, suffixIsOptional);
+			bool useObsFreq = getBooleanParameter("model.use_observed_freq", params, false, suffix, suffixIsOptional);
+			if(useObsFreq) {
+				model = new TN93(alpha, kappa1, kappa2);
+				dynamic_cast<TN93 *>(model) -> setFreqFromData(data);
+				piA = model -> getParameter("piA");
+				piC = model -> getParameter("piC");
+				piG = model -> getParameter("piG");
+				piT = model -> getParameter("piT");
+			} else {
+				piA = getDoubleParameter("piA", params, 0.25, suffix, suffixIsOptional);
+				piC = getDoubleParameter("piC", params, 0.25, suffix, suffixIsOptional);
+				piG = getDoubleParameter("piG", params, 0.25, suffix, suffixIsOptional);
+				piT = getDoubleParameter("piT", params, 0.25, suffix, suffixIsOptional);
+				if( fabs(1-(piA + piT + piG + piC)) > 0.00000000000001 ) {
+					displayError("Equilibrium base frequencies must equal 1. Aborting...");
+					exit(-1);
+				}
+				model = new TN93(alpha, kappa1, kappa2, piA, piC, piG, piT);
 			}
-			model = new TN93(alpha, kappa1, kappa2, piA, piC, piG, piT);
-		}
-		if(verbose) {
-			displayResult("model" , modelName);
-			displayResult("kappa1", TextTools::toString(kappa1));
-			displayResult("kappa2", TextTools::toString(kappa2));
-			displayResult("piA"   , TextTools::toString(piA));
-			displayResult("piC"   , TextTools::toString(piC));
-			displayResult("piG"   , TextTools::toString(piG));
-			displayResult("piT"   , TextTools::toString(piT));
-		}
-	} else if(modelName == "HKY85") {
-		double piA = 0.25, piC = 0.25, piG = 0.25, piT = 0.25;
-    	double kappa = getDoubleParameter("kappa", params, 2, suffix, suffixIsOptional);
-		bool useObsFreq = getBooleanParameter("model.use_observed_freq", params, false, suffix, suffixIsOptional);
-		if(useObsFreq) {
-			model = new HKY85(alpha, kappa);
-			dynamic_cast<HKY85 *>(model) -> setFreqFromData(data);
-			piA = model -> getParameter("piA");
-			piC = model -> getParameter("piC");
-			piG = model -> getParameter("piG");
-			piT = model -> getParameter("piT");
-		} else {
-			piA = getDoubleParameter("piA", params, 0.25, suffix, suffixIsOptional);
-			piC = getDoubleParameter("piC", params, 0.25, suffix, suffixIsOptional);
-			piG = getDoubleParameter("piG", params, 0.25, suffix, suffixIsOptional);
-			piT = getDoubleParameter("piT", params, 0.25, suffix, suffixIsOptional);
-			if( fabs(1-(piA + piT + piG + piC)) > 0.00000000000001 ) {
-				displayError("Equilibrium base frequencies must equal 1. Aborting...");
-				exit(-1);
+			if(verbose) {
+				displayResult("model" , modelName);
+				displayResult("kappa1", TextTools::toString(kappa1));
+				displayResult("kappa2", TextTools::toString(kappa2));
+				displayResult("piA"   , TextTools::toString(piA));
+				displayResult("piC"   , TextTools::toString(piC));
+				displayResult("piG"   , TextTools::toString(piG));
+				displayResult("piT"   , TextTools::toString(piT));
 			}
-			model = new HKY85(alpha, kappa, piA, piC, piG, piT);
-		}
-		if(verbose) {
-			displayResult("model", modelName);
-			displayResult("kappa", TextTools::toString(kappa));
-			displayResult("piA"  , TextTools::toString(piA));
-			displayResult("piC"  , TextTools::toString(piC));
-			displayResult("piG"  , TextTools::toString(piG));
-			displayResult("piT"  , TextTools::toString(piT));
-		}
-	} else if(modelName == "T92") {
-		double kappa = getDoubleParameter("kappa", params, 2, suffix, suffixIsOptional);
-		double theta = 0.5;
-		bool useObsFreq = getBooleanParameter("model.use_observed_freq", params, false, suffix, suffixIsOptional);
-		if(useObsFreq) {
-			model = new T92(alpha, kappa);
-			dynamic_cast<T92 *>(model) -> setThetaFromData(data);
-			theta = model -> getParameter("theta");
-		} else {
-			theta = getDoubleParameter("theta", params, 0.5, suffix, suffixIsOptional);
-			model = new T92(alpha, kappa, theta);
-		}
-  		if(verbose) {
-			displayResult("model", modelName);
-			displayResult("kappa", TextTools::toString(kappa));
-			displayResult("theta", TextTools::toString(theta));
-		}
-	} else if(modelName == "K80") {
+		} else if(modelName == "HKY85") {
+			double piA = 0.25, piC = 0.25, piG = 0.25, piT = 0.25;
+			double kappa = getDoubleParameter("kappa", params, 2, suffix, suffixIsOptional);
+			bool useObsFreq = getBooleanParameter("model.use_observed_freq", params, false, suffix, suffixIsOptional);
+			if(useObsFreq) {
+				model = new HKY85(alpha, kappa);
+				dynamic_cast<HKY85 *>(model) -> setFreqFromData(data);
+				piA = model -> getParameter("piA");
+				piC = model -> getParameter("piC");
+				piG = model -> getParameter("piG");
+				piT = model -> getParameter("piT");
+			} else {
+				piA = getDoubleParameter("piA", params, 0.25, suffix, suffixIsOptional);
+				piC = getDoubleParameter("piC", params, 0.25, suffix, suffixIsOptional);
+				piG = getDoubleParameter("piG", params, 0.25, suffix, suffixIsOptional);
+				piT = getDoubleParameter("piT", params, 0.25, suffix, suffixIsOptional);
+				if( fabs(1-(piA + piT + piG + piC)) > 0.00000000000001 ) {
+					displayError("Equilibrium base frequencies must equal 1. Aborting...");
+					exit(-1);
+				}
+				model = new HKY85(alpha, kappa, piA, piC, piG, piT);
+			}
+			if(verbose) {
+				displayResult("model", modelName);
+				displayResult("kappa", TextTools::toString(kappa));
+				displayResult("piA"  , TextTools::toString(piA));
+				displayResult("piC"  , TextTools::toString(piC));
+				displayResult("piG"  , TextTools::toString(piG));
+				displayResult("piT"  , TextTools::toString(piT));
+			}
+		} else if(modelName == "T92") {
+			double kappa = getDoubleParameter("kappa", params, 2, suffix, suffixIsOptional);
+			double theta = 0.5;
+			bool useObsFreq = getBooleanParameter("model.use_observed_freq", params, false, suffix, suffixIsOptional);
+			if(useObsFreq) {
+				model = new T92(alpha, kappa);
+				dynamic_cast<T92 *>(model) -> setFreqFromData(data);
+				theta = model -> getParameter("theta");
+			} else {
+				theta = getDoubleParameter("theta", params, 0.5, suffix, suffixIsOptional);
+				model = new T92(alpha, kappa, theta);
+			}
+			if(verbose) {
+				displayResult("model", modelName);
+				displayResult("kappa", TextTools::toString(kappa));
+				displayResult("theta", TextTools::toString(theta));
+			}
+		} else if(modelName == "K80") {
     	double kappa = getDoubleParameter("kappa", params, 2, suffix, suffixIsOptional);
-		model = new K80(alpha, kappa);
+			model = new K80(alpha, kappa);
   		if(verbose) {
-			displayResult("model", modelName);
-			displayResult("kappa", TextTools::toString(kappa));
-		}
+				displayResult("model", modelName);
+				displayResult("kappa", TextTools::toString(kappa));
+			}
   	} else if(modelName == "JCnuc") {
-		model = new JCnuc(alpha);
+			model = new JCnuc(alpha);
   		if(verbose) {
-			displayResult("model", modelName);
+				displayResult("model", modelName);
+			}
+		} else {
+			displayError("Model '" + modelName + "' unknown. Aborting..."); //It would be better to throw an exception!
+			exit(-1);
 		}
-	} else {
-		displayError("Model '" + modelName + "' unknown. Aborting...");
-		exit(-1);
+	} else { // Alphabet supposed to be proteic!
+		const ProteicAlphabet * alpha = dynamic_cast<const ProteicAlphabet *>(data.getAlphabet());
+		bool useObsFreq = getBooleanParameter("model.use_observed_freq", params, false, suffix, suffixIsOptional);
+		if(modelName == "DSO78") {
+			model = new DSO78(alpha);
+			if(useObsFreq) dynamic_cast<DSO78 *>(model) -> setFreqFromData(data);
+		} else if(modelName == "JTT92") {
+			model = new JTT92(alpha);
+			if(useObsFreq) dynamic_cast<JTT92 *>(model) -> setFreqFromData(data);	
+		} else {
+			displayError("Model '" + modelName + "' unknown. Aborting...");
+		}
+ 		if(verbose) {
+			displayResult("model", modelName + (useObsFreq ? "-F" : ""));
+		}
 	}
-
 	return model;
 }
 

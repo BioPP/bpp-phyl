@@ -18,7 +18,7 @@
 /******************************************************************************/
 
 TN93::TN93(
-	const Alphabet * alpha,
+	const NucleicAlphabet * alpha,
 	double kappa1,
 	double kappa2,
 	double piA,
@@ -34,7 +34,7 @@ TN93::TN93(
 	_parameters.addParameter(Parameter("piC", piC, piConstraint));
 	_parameters.addParameter(Parameter("piG", piG, piConstraint));
 	_parameters.addParameter(Parameter("piT", piT, piConstraint));
-	fillMatrices();
+	updateMatrices();
 }
 
 /******************************************************************************/
@@ -43,7 +43,7 @@ TN93::~TN93() { delete piConstraint; }
 	
 /******************************************************************************/
 
-void TN93::fillMatrices()
+void TN93::updateMatrices()
 {
 	double kappa1 = _parameters.getParameter("kappa1") -> getValue();
 	double kappa2 = _parameters.getParameter("kappa2") -> getValue();
@@ -427,12 +427,11 @@ string TN93::getName() const { return string("Tamura and Nei (1993)"); }
 /******************************************************************************/
 
 void TN93::setFreqFromData(const SequenceContainer & data) {
-	map<int, double> freqs = SequenceContainerTools::getFrequencies(data);
-	double t = freqs[0] + freqs[1] + freqs[2] + freqs[3];
-	setParameterValue("piA", freqs[0] / t);
-	setParameterValue("piC", freqs[1] / t);
-	setParameterValue("piG", freqs[2] / t);
-	setParameterValue("piT", freqs[3] / t);
+	AbstractSubstitutionModel::setFreqFromData(data);
+	setParameterValue("piA", _freq[0]);
+	setParameterValue("piC", _freq[1]);
+	setParameterValue("piG", _freq[2]);
+	setParameterValue("piT", _freq[3]);
 }
 
 /******************************************************************************/

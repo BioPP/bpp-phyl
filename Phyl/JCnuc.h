@@ -12,7 +12,7 @@
 class JCnuc : public NucleotideSubstitutionModel
 {
 	public:
-		JCnuc(const Alphabet * alpha);
+		JCnuc(const NucleicAlphabet * alpha);
 		~JCnuc();
 	
 		double Pij_t    (int i, int j, double d) const;
@@ -25,7 +25,12 @@ class JCnuc : public NucleotideSubstitutionModel
 		string getName() const;
 	
 	protected:
-		void fillMatrices();
+		/**
+		 * In the case of the model of Jukes & Cantor, this method is useless since
+		 * the generator is fixed! No matrice can be changed... This method is only
+		 * used in the constructor of the class.
+		 */
+		void updateMatrices();
 };
 
 

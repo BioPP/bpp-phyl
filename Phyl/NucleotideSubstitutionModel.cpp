@@ -6,7 +6,7 @@
 
 #include "NucleotideSubstitutionModel.h"
 
-NucleotideSubstitutionModel::NucleotideSubstitutionModel(const Alphabet * alpha):
+NucleotideSubstitutionModel::NucleotideSubstitutionModel(const NucleicAlphabet * alpha):
 	AbstractSubstitutionModel(alpha) {}
 	
 NucleotideSubstitutionModel::~NucleotideSubstitutionModel() {}

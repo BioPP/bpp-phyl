@@ -2,11 +2,12 @@ H_FILES = \
 AbstractSubstitutionModel.h\
 AbstractTreeLikelihood.h\
 ApplicationTools.h\
+DSO78.h\
 HKY85.h\
 HomogeneousTreeLikelihood.h\
 IOTree.h\
 JCnuc.h\
-JTT.h\
+JTT92.h\
 K80.h\
 MutationProcess.h\
 Newick.h\
@@ -31,11 +32,12 @@ CPP_FILES = \
 AbstractSubstitutionModel.cpp\
 AbstractTreeLikelihood.cpp\
 ApplicationTools.cpp\
+DSO78.cpp\
 HKY85.cpp\
 HomogeneousTreeLikelihood.cpp\
 IOTree.cpp\
 JCnuc.cpp\
-JTT.cpp\
+JTT92.cpp\
 K80.cpp\
 MutationProcess.cpp\
 Newick.cpp\

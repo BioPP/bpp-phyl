@@ -13,17 +13,17 @@
 #include <NumCalc/Constraints.h>
 
 // From SeqLib:
-#include <Seq/SequenceContainer.h>
+#include <Seq/NucleicAlphabet.h>
 
 class HKY85 : public NucleotideSubstitutionModel
 {
 	protected:
 		Constraint * piConstraint;
-		void fillMatrices();
+		void updateMatrices();
 
 	public:
 		HKY85(
-			const Alphabet * alpha,
+			const NucleicAlphabet * alpha,
 			double kappa = 1.,
 			double piA = 0.25,
 			double piC = 0.25,
@@ -40,12 +40,11 @@ class HKY85 : public NucleotideSubstitutionModel
 		Matrix getd2Pij_dt2(double d) const;
 
 		string getName() const;
-	
-	public:
-		//specific method:
+
+		/**
+		 * @brief This method is over-defined to actualize the corresponding parameters piA, piT, piG and piC too.
+		 */
 		void setFreqFromData(const SequenceContainer & data);
-
 };
-
 
 #endif	//_HKY85_H_

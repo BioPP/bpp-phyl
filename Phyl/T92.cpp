@@ -1,6 +1,6 @@
 //
 // File: T92.h
-// Created by:  <@bogdanof>
+// Created by:  <Julien.Dutheil@univ-montp2.fr>
 // Created on: Mon May 26 14:41:24 2003
 //
 
@@ -17,13 +17,13 @@
 
 /******************************************************************************/
 
-T92::T92(const Alphabet * alpha, double kappa, double theta):
+T92::T92(const NucleicAlphabet * alpha, double kappa, double theta):
 	NucleotideSubstitutionModel(alpha)
 {
 	thetaConstraint = new IncludingInterval(0, 1);
 	_parameters.addParameter(Parameter("kappa", kappa, &Parameter::R_PLUS));
 	_parameters.addParameter(Parameter("theta", theta, thetaConstraint));
-	fillMatrices();
+	updateMatrices();
 }
 
 /******************************************************************************/
@@ -34,7 +34,7 @@ T92::~T92() {
 
 /******************************************************************************/
 
-void T92::fillMatrices() {
+void T92::updateMatrices() {
 	double kappa = _parameters.getParameter("kappa") -> getValue();
 	double theta = _parameters.getParameter("theta") -> getValue();
 	
@@ -369,10 +369,15 @@ string T92::getName() const { return string("Tamura (1992)"); }
 
 /******************************************************************************/
 
-void T92::setThetaFromData(const SequenceContainer & data) {
+void T92::setFreqFromData(const SequenceContainer & data) {
 	map<int, double> freqs = SequenceContainerTools::getFrequencies(data);
 	double f = (freqs[1] + freqs[2]) / (freqs[0] + freqs[1] + freqs[2] + freqs[3]);
 	setParameterValue("theta", f);
+	_freq[0] = (1 - f) / 2;
+	_freq[1] = f / 2;
+	_freq[2] = f / 2;
+	_freq[3] = (1 - f) / 2;
+	updateMatrices();
 }
 
 /******************************************************************************/

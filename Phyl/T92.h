@@ -1,6 +1,6 @@
 //
 // File: T92.h
-// Created by:  <@bogdanof>
+// Created by:  <Julien.Dutheil@univ-montp2.fr>
 // Created on: Mon May 26 14:41:24 2003
 //
 
@@ -13,16 +13,17 @@
 #include <NumCalc/Constraints.h>
 
 // From SeqLib:
+#include <Seq/NucleicAlphabet.h>
 #include <Seq/SequenceContainer.h>
 
 class T92 : public NucleotideSubstitutionModel
 {
 	protected:
 		Constraint * thetaConstraint;
-		void fillMatrices();
+		void updateMatrices();
 
 	public:
-		T92(const Alphabet * alpha, double kappa = 1., double theta = 0.5);
+		T92(const NucleicAlphabet * alpha, double kappa = 1., double theta = 0.5);
 		~T92();
 
 		double Pij_t    (int i, int j, double d) const;
@@ -34,9 +35,10 @@ class T92 : public NucleotideSubstitutionModel
 
 		string getName() const;
 	
-	public:
-		//specific method:
-		void setThetaFromData(const SequenceContainer & data);
+		/**
+		 * @brief This method is over-defined to actualize the 'theta' parameter too.
+		 */
+		void setFreqFromData(const SequenceContainer & data);
 };
 
 #endif	//_T92_H_

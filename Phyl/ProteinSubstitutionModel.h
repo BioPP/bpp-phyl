@@ -18,6 +18,10 @@ class ProteinSubstitutionModel : public AbstractSubstitutionModel
 		ProteinSubstitutionModel(const Alphabet * alpha);
 
 		virtual ~ProteinSubstitutionModel();
+		
+	protected:
+		void updateMatrices();
+
 };
 
 

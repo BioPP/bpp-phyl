@@ -11,10 +11,18 @@
 
 /******************************************************************************/
 
-JCnuc::JCnuc(const Alphabet * alpha): NucleotideSubstitutionModel(alpha)
+JCnuc::JCnuc(const NucleicAlphabet * alpha): NucleotideSubstitutionModel(alpha)
 {
 	_parameters = ParameterList(); //no parameters for this model.	
+	updateMatrices();
+}
 
+JCnuc::~JCnuc() {}
+
+/******************************************************************************/
+	
+void JCnuc::updateMatrices()
+{
 	// Generator:
 	for(int i = 0; i < 4; i++) {
 		for(int j = 0; j < 4; j++) {
@@ -32,12 +40,6 @@ JCnuc::JCnuc(const Alphabet * alpha): NucleotideSubstitutionModel(alpha)
 	// Eigen vectors:
 	// todo!
 }
-
-JCnuc::~JCnuc() {}
-
-/******************************************************************************/
-	
-void JCnuc::fillMatrices() {}
 	
 /******************************************************************************/
 

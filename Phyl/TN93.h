@@ -13,17 +13,18 @@
 #include <NumCalc/Constraints.h>
 
 // From SeqLib:
+#include <Seq/NucleicAlphabet.h>
 #include <Seq/SequenceContainer.h>
 
 class TN93 : public NucleotideSubstitutionModel
 {
 	protected:
 		Constraint * piConstraint;
-		void fillMatrices();
+		void updateMatrices();
 
 	public:
 		TN93(
-			const Alphabet * alpha,
+			const NucleicAlphabet * alpha,
 			double kappa1 = 1.,
 			double kappa2 = 1.,
 			double piA = 0.25,
@@ -42,8 +43,9 @@ class TN93 : public NucleotideSubstitutionModel
 
 		string getName() const;
 	
-	public:
-		//specific method:
+		/**
+		 * @brief This method is over-defined to actualize the corresponding parameters piA, piT, piG and piC too.
+		 */
 		void setFreqFromData(const SequenceContainer & data);
 
 };

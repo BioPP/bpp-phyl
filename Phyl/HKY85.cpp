@@ -18,7 +18,7 @@
 /******************************************************************************/
 
 HKY85::HKY85(
-	const Alphabet * alpha,
+	const NucleicAlphabet * alpha,
 	double kappa,
 	double piA,
 	double piC,
@@ -32,7 +32,7 @@ HKY85::HKY85(
 	_parameters.addParameter(Parameter("piC", piC, piConstraint));
 	_parameters.addParameter(Parameter("piG", piG, piConstraint));
 	_parameters.addParameter(Parameter("piT", piT, piConstraint));
-	fillMatrices();
+	updateMatrices();
 }
 
 /******************************************************************************/
@@ -41,7 +41,7 @@ HKY85::~HKY85() { delete piConstraint; }
 	
 /******************************************************************************/
 
-void HKY85::fillMatrices()
+void HKY85::updateMatrices()
 {
 	double kappa = _parameters.getParameter("kappa") -> getValue();
 	double piA = _parameters.getParameter("piA") -> getValue();
@@ -418,12 +418,12 @@ string HKY85::getName() const { return string("Hasegawa, Kishino and Yano (1985)
 /******************************************************************************/
 
 void HKY85::setFreqFromData(const SequenceContainer & data) {
-	map<int, double> freqs = SequenceContainerTools::getFrequencies(data);
-	double t = freqs[0] + freqs[1] + freqs[2] + freqs[3];
-	setParameterValue("piA", freqs[0] / t);
-	setParameterValue("piC", freqs[1] / t);
-	setParameterValue("piG", freqs[2] / t);
-	setParameterValue("piT", freqs[3] / t);
+	AbstractSubstitutionModel::setFreqFromData(data);
+	// In this model, frequencies may be parameters:
+	setParameterValue("piA", _freq[0]);
+	setParameterValue("piC", _freq[1]);
+	setParameterValue("piG", _freq[2]);
+	setParameterValue("piT", _freq[3]);
 }
 
 /******************************************************************************/
