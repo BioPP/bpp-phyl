@@ -43,8 +43,13 @@ double AbstractSubstitutionModel::Qij(int i, int j) const { return _generator(i,
 
 double AbstractSubstitutionModel::getInitValue(int i, int state) const throw (BadIntException) {
 	if(i     < 0 || i     > (int)alphabet -> getSize()) throw BadIntException(i    , "AbstractSubstitutionModel::getInitValue");
-	if(state < 0 || state > (int)alphabet -> getSize()) throw BadIntException(state, "AbstractSubstitutionModel::getInitValue. Character " + alphabet -> intToChar(state) + " is not allowed in model.");
-	return i == state ? 1 : 0;
+	//Old method: do not care about generic characters:
+	//if(state < 0 || state > (int)alphabet -> getSize()) throw BadIntException(state, "AbstractSubstitutionModel::getInitValue. Character " + alphabet -> intToChar(state) + " is not allowed in model.");
+	//return i == state ? 1 : 0;
+	if(state < 0 || !alphabet -> isIntInAlphabet(state)) throw BadIntException(state, "AbstractSubstitutionModel::getInitValue. Character " + alphabet -> intToChar(state) + " is not allowed in model.");
+	vector<int> states = alphabet -> getAlias(state);
+	for(unsigned int j = 0; j < states.size(); j++) if(i == states[j]) return 1;
+	return 0;
 }
 
 /******************************************************************************/

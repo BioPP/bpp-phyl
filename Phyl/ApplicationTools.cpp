@@ -28,6 +28,7 @@
 #include <Seq/Mase.h>
 #include <Seq/MaseTools.h>
 #include <Seq/Phylip.h>
+#include <Seq/Clustal.h>
 #include <Seq/SiteContainerTools.h>
 
 // From NumCalc:
@@ -275,6 +276,7 @@ VectorSiteContainer * ApplicationTools::getSiteContainer(
 		} else displayWarning("Argument 'sequence.format_phylip.ext' not found. Default used instead: extended.");
 		iSeq = new Phylip(extended, sequential);
 	} else if(sequenceFormat == "Fasta") iSeq = new Fasta();
+	else if(sequenceFormat == "Clustal") iSeq = new Clustal();
 	else {
 		displayError("Unknown sequence format.");
 		exit(-1);
