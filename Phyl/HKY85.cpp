@@ -32,6 +32,13 @@ HKY85::HKY85(
 	_parameters.addParameter(Parameter("piC", piC, piConstraint));
 	_parameters.addParameter(Parameter("piG", piG, piConstraint));
 	_parameters.addParameter(Parameter("piT", piT, piConstraint));
+
+	// Frequences:
+	_freq[0] = piA;
+	_freq[1] = piC;
+	_freq[2] = piG;
+	_freq[3] = piT;
+
 	updateMatrices();
 }
 
@@ -74,12 +81,6 @@ void HKY85::updateMatrices()
 	double r = 1. / (2. * (piA * piC + piC * piG + piA * piT + piG * piT + kappa * (piC * piT + piA * piG)));
 	scale(_generator, r);
 	
-	// Frequences:
-	_freq[0] = piA;
-	_freq[1] = piC;
-	_freq[2] = piG;
-	_freq[3] = piT;
-
 	// Eigen values:
 	_eigenValues[0] = 0;
 	_eigenValues[1] = -r;

@@ -23,6 +23,11 @@ T92::T92(const NucleicAlphabet * alpha, double kappa, double theta):
 	thetaConstraint = new IncludingInterval(0, 1);
 	_parameters.addParameter(Parameter("kappa", kappa, &Parameter::R_PLUS));
 	_parameters.addParameter(Parameter("theta", theta, thetaConstraint));
+	
+	// Frequences:
+	_freq[0] = _freq[3] = (1. - theta) / 2.;
+	_freq[1] = _freq[2] = theta /2.;
+
 	updateMatrices();
 }
 
@@ -61,10 +66,6 @@ void T92::updateMatrices() {
 	double r = 1. / (1. + 2. * theta * kappa - 2. * theta * theta * kappa);
 	scale(_generator, r);
 	
-	// Frequences:
-	_freq[0] = _freq[3] = (1. - theta) / 2.;
-	_freq[1] = _freq[2] = theta /2.;
-
 	// Eigen values:
 	_eigenValues[0] = 0;
 	_eigenValues[1] = -r * 2.;

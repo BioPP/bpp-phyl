@@ -109,6 +109,12 @@ void AbstractSubstitutionModel::setFreqFromData(const SequenceContainer & data) 
 
 /******************************************************************************/
 
+double AbstractSubstitutionModel::getScale() const {
+	return -scalar(diag<Matrix, double>(_generator), _freq);
+}
+
+/******************************************************************************/
+
 ParameterList AbstractSubstitutionModel::getParameters() const {
 	return _parameters;
 }

@@ -17,6 +17,10 @@
 K80::K80(const NucleicAlphabet * alpha, double kappa): NucleotideSubstitutionModel(alpha)
 {
 	_parameters.addParameter(Parameter("kappa", kappa, &Parameter::R_PLUS));
+
+	// Frequences:
+	_freq[0] = _freq[1] = _freq[2] = _freq[3] = 1. / 4.;
+
 	updateMatrices();
 }
 
@@ -50,9 +54,6 @@ void K80::updateMatrices() {
 	// Normalization:
 	double r = 1. / 2. + kappa;
 	scale(_generator, r);
-
-	// Frequences:
-	_freq[0] = _freq[1] = _freq[2] = _freq[3] = 1. / 4.;
 
 	// Eigen values:
 	_eigenValues[0] = 0;

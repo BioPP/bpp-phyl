@@ -125,6 +125,15 @@ class AbstractSubstitutionModel : public SubstitutionModel
 		 */
 		virtual void updateMatrices() = 0;
 
+		/**
+		 * @brief Get the scalar product of diagonal elements of the generator
+		 * and the frequencies vector.
+		 * If the generator is normalized, then scale=1. Otherwise each element
+		 * must be multiplied by 1/scale.
+		 *
+		 * @return Minus the scalar product of diagonal elements and the frequencies vector.
+		 */
+		double getScale() const;
 };
 
 

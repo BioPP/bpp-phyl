@@ -14,6 +14,10 @@
 JCnuc::JCnuc(const NucleicAlphabet * alpha): NucleotideSubstitutionModel(alpha)
 {
 	_parameters = ParameterList(); //no parameters for this model.	
+	
+	// Frequences:
+	_freq[0] = _freq[1] = _freq[2] = _freq[3] = 1. / 4.;
+	
 	updateMatrices();
 }
 
@@ -29,9 +33,6 @@ void JCnuc::updateMatrices()
 			_generator(i, j) = (i == j) ? -1. : 1./3.;
 		}
 	}
-	
-	// Frequences:
-	_freq[0] = _freq[1] = _freq[2] = _freq[3] = 1. / 4.;
 	
 	// Eigen values:
 	_eigenValues[0] = 0;
