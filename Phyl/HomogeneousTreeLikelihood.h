@@ -8,6 +8,7 @@
 #define _HOMOGENEOUSTREELIKELIHOOD_H_
 
 #include "AbstractTreeLikelihood.h"
+#include "DiscreteRatesAcrossSites.h"
 #include "SubstitutionModel.h"
 
 // From NumCalc:
@@ -49,7 +50,7 @@ using namespace std;
  * estimation), we set this as the default method for now. We provide the second method for topology estimation
  * methods (far from achieved!)
  */
-class HomogeneousTreeLikelihood : public AbstractTreeLikelihood
+class HomogeneousTreeLikelihood : public AbstractTreeLikelihood, public DiscreteRatesAcrossSites
 {
 	protected:
 		SubstitutionModel * _model;
@@ -142,6 +143,7 @@ class HomogeneousTreeLikelihood : public AbstractTreeLikelihood
 		virtual ~HomogeneousTreeLikelihood();
 	
 	public:
+
 		/**
 		 * @name The TreeLikelihood interface.
 		 *
@@ -157,65 +159,23 @@ class HomogeneousTreeLikelihood : public AbstractTreeLikelihood
 		ParameterList getSubstitutionModelParameters() const;
 		/** @} */
 
-		// Add this one:
 		
 		/**
-		 * @brief Get the likelihood for a site knowing its rate class.
+		 * @name The DiscreteRatesAcrossSites interface implementation:
 		 *
-		 * @param site      The site index.
-		 * @param rateClass The rate class index.
-		 * @return The likelihood for the specified site and rate class.
+		 * @{
 		 */
-		virtual double getLikelihoodForASiteForARateClass(unsigned int site, unsigned int rateClass) const;
-		
-		/**
-		 * @brief Get the logarithm of the likelihood for a site knowing its rate class.
-		 *
-		 * @param site      The site index.
-		 * @param rateClass The rate class index.
-		 * @return The logarithm of the likelihood for the specified site and rate class.
-		 */
-		virtual double getLogLikelihoodForASiteForARateClass(unsigned int site, unsigned int rateClass) const;
-	
-		/**
-		 * @brief Get the likelihood for each site and each rate class.
-		 *
-		 * @return A two-dimension vector with all likelihoods.
-		 */
-		virtual VVdouble getLikelihoodForEachSiteForEachRate() const;
-		
-		/**
-		 * @brief Get the logarithm of the likelihood for each site and each rate class.
-		 *
-		 * @return A two-dimension vector with all log likelihoods:
-		 * <code>V[i][j] =</code> likelihood of site i and rate class j.
-		 */
-		virtual VVdouble getLogLikelihoodForEachSiteForEachRate() const;
-		
-		/**
-		 * @brief Get the posterior probability for each site of belonging to a
-		 * particular rate class.
-		 *
-		 * @return A two-dimension vector with all posterior probabilities:
-		 * <code>V[i][j] =</code> probablity for site i of belonging to rate class j.
-		 */
-		virtual VVdouble getPosteriorProbabilitiesOfEachRate() const;
-		
-		/**
-		 * @brief Get the posterior rate class (the one with maximum posterior
-		 * probability) for each site.
-		 *
-		 * @return A vector with all rate classes indexes.
-		 */
-		virtual Vint getPosteriorRateClassOfEachSite() const;
-	
-		/**
-		 * @brief Get the posterior rate (the one with maximum posterior
-		 * probability) for each site.
-		 *
-		 * @return A vector with all rates.
-		 */
-		virtual Vdouble getPosteriorRateOfEachSite() const;
+		const DiscreteDistribution * getRateDistribution() const;
+		      DiscreteDistribution * getRateDistribution();
+		double getLikelihoodForASiteForARateClass(unsigned int site, unsigned int rateClass) const;
+		double getLogLikelihoodForASiteForARateClass(unsigned int site, unsigned int rateClass) const;
+		VVdouble getLikelihoodForEachSiteForEachRate() const;
+		VVdouble getLogLikelihoodForEachSiteForEachRate() const;
+		VVdouble getPosteriorProbabilitiesOfEachRate() const;
+		Vdouble  getRateWithMaxPostProbOfEachSite() const;
+		Vint     getRateClassWithMaxPostProbOfEachSite() const;
+		Vdouble  getPosteriorRateOfEachSite() const;
+		/** @} */
 
 		/**
 		 * @brief Get the substitution model used for the computation.
@@ -231,22 +191,6 @@ class HomogeneousTreeLikelihood : public AbstractTreeLikelihood
 		 */
 		virtual SubstitutionModel * getSubstitutionModel();
 	
-		/**
-		 * @brief Get the rate distribution used for the computation.
-		 *
-		 * @return A const pointer toward the rate distribution of this instance.
-		 */
-		virtual const DiscreteDistribution * getRateDistribution() const;
-		
-		/**
-		 * @brief Get the rate distribution used for the computation.
-		 *
-		 * @return A pointer toward the rate distribution of this instance.
-		 */
-		virtual DiscreteDistribution * getRateDistribution();
-			  
-		//The Optimizable interface is implemented here:
-		
 		/**
 		 * @brief Implements the Function interface.
 		 *

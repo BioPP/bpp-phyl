@@ -22,7 +22,9 @@ TN93.h\
 TreeExceptions.h\
 Tree.h\
 TreeLikelihood.h\
-TreeTools.h
+TreeTools.h\
+DiscreteRatesAcrossSites.h\
+RASTools.h
 
 
 CPP_FILES = \
@@ -49,7 +51,8 @@ TN93.cpp\
 Tree.cpp\
 TreeExceptions.cpp\
 TreeLikelihood.cpp\
-TreeTools.cpp
+TreeTools.cpp\
+RASTools.cpp
 
 
 lib_LTLIBRARIES = libphyl.la

@@ -42,8 +42,11 @@ HomogeneousTreeLikelihood::HomogeneousTreeLikelihood(
 	//Sequences will be in the same order than in the tree:
 	_data = PatternTools::getSequenceSubset(data, * _tree -> getRootNode());
 	_model = model;
-	if(_data -> getAlphabet() -> getAlphabetType() != _model -> getAlphabet() -> getAlphabetType())
-		throw AlphabetMismatchException("HomogeneousTreeLikelihood::HomogeneousTreeLikelihood. Data and model must have the same alphabet type.", _data -> getAlphabet(), _model -> getAlphabet());
+	if(_data -> getAlphabet() -> getAlphabetType()
+			!= _model -> getAlphabet() -> getAlphabetType())
+		throw AlphabetMismatchException("HomogeneousTreeLikelihood::HomogeneousTreeLikelihood. Data and model must have the same alphabet type.",
+				_data -> getAlphabet(),
+				_model -> getAlphabet());
 
 	_rateDistribution = rDist;
 	
@@ -59,10 +62,12 @@ HomogeneousTreeLikelihood::HomogeneousTreeLikelihood(
 	//Init _likelihoods:
 	if(verbose) ApplicationTools::message << "Homogeneous Tree Likelihood" << endl;	
 	if(verbose) ApplicationTools::displayTask("Init likelihoods arrays recursively");
-	const SiteContainer * subSubSequencesShrunk = initTreeLikelihoodsWithPatterns(_tree -> getRootNode(), *_data);
+	const SiteContainer * subSubSequencesShrunk =
+		initTreeLikelihoodsWithPatterns(_tree -> getRootNode(), *_data);
 	if(verbose) ApplicationTools::displayTaskDone();
 	
-	if(verbose) ApplicationTools::displayResult("Number of distinct sites", TextTools::toString(subSubSequencesShrunk -> getNumberOfSites()));
+	if(verbose) ApplicationTools::displayResult("Number of distinct sites",
+			TextTools::toString(subSubSequencesShrunk -> getNumberOfSites()));
 	
 	//Initialize root patterns:
 	if(verbose) ApplicationTools::displayTask("Init root patterns");
@@ -190,16 +195,16 @@ VVdouble HomogeneousTreeLikelihood::getLogLikelihoodForEachSiteForEachRate() con
 VVdouble HomogeneousTreeLikelihood::getPosteriorProbabilitiesOfEachRate() const
 {
 	VVdouble pb = getLikelihoodForEachSiteForEachRate();
+	Vdouble  l  = getLikelihoodForEachSite();
 	for(unsigned int i = 0; i < _nbSites; i++) {
-		double s = sum(pb[i]);
-		for(unsigned int j = 0; j < _nbClasses; j++) pb[i][j] /= s; 
+		for(unsigned int j = 0; j < _nbClasses; j++) pb[i][j] = pb[i][j] * _rateDistribution -> getProbability(j) / l[i]; 
 	}
 	return pb;
 }
 	
 /******************************************************************************/
 
-Vint HomogeneousTreeLikelihood::getPosteriorRateClassOfEachSite() const
+Vint HomogeneousTreeLikelihood::getRateClassWithMaxPostProbOfEachSite() const
 {
 	VVdouble l = getLikelihoodForEachSiteForEachRate();
 	Vint classes(_nbSites);
@@ -209,17 +214,27 @@ Vint HomogeneousTreeLikelihood::getPosteriorRateClassOfEachSite() const
 
 /******************************************************************************/
 
-Vdouble HomogeneousTreeLikelihood::getPosteriorRateOfEachSite() const
+Vdouble HomogeneousTreeLikelihood::getRateWithMaxPostProbOfEachSite() const
 {
 	VVdouble l = getLikelihoodForEachSiteForEachRate();
 	Vdouble rates(_nbSites);
-	//cout << "***************************************" << endl;
 	for(unsigned int i = 0; i < _nbSites; i++) {
-    //for(unsigned int j = 0; j < l[i].size(); j++) {
-		//	cout << "L[" << j << "] = " << l[i][j] << endl;
-		//}
 		rates[i] = _rateDistribution -> getCategory(posmax<double>(l[i]));
-    //cout << posmax<double>(l[i]) << "\t" << rates[i] << endl;
+	}
+	return rates;
+}
+
+/******************************************************************************/
+
+Vdouble HomogeneousTreeLikelihood::getPosteriorRateOfEachSite() const
+{
+	VVdouble lr = getLikelihoodForEachSiteForEachRate();
+	Vdouble  l  = getLikelihoodForEachSite();
+	Vdouble rates(_nbSites, 0.);
+	for(unsigned int i = 0; i < _nbSites; i++) {
+		for(unsigned int j = 0; j < _nbClasses; j++) {
+			rates[i] += (lr[i][j] / l[i]) * _rateDistribution -> getProbability(j) *  _rateDistribution -> getCategory(j);
+		}
 	}
 	return rates;
 }
