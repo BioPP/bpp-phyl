@@ -24,6 +24,7 @@ HomogeneousSequenceSimulator::HomogeneousSequenceSimulator(
 	_alphabet = _model   -> getAlphabet();
 	_seqNames.resize(_leaves.size());
 	for(unsigned int i = 0; i < _seqNames.size(); i++) _seqNames[i] = _leaves[i] -> getName();
+	_hssr = NULL;
 }
 
 /******************************************************************************/
@@ -38,7 +39,25 @@ void HomogeneousSequenceSimulator::evolveInternal(const Node * node, double rate
 		evolveInternal(node -> getSon(i), rate);
 	}
 }
-	
+
+/******************************************************************************/
+
+void HomogeneousSequenceSimulator::preciseEvolveInternal(const Node * node, double rate) const
+{
+	if(!node -> hasFather()) { cerr << "DEBUG: HomogeneousSequenceSimulator::evolveInternal. Forbidden call of method on root node." << endl; return; }
+	int initialState = _states[node -> getFather()];
+	MutationPath mp = _process -> detailedEvolve(initialState, node -> getDistanceToFather() * rate);
+	_states[node] = mp.getFinalState();
+
+	// Now append infos in _ssr:
+	_hssr -> addNode(node, mp);
+
+	// Now jump to son nodes:
+	for(unsigned int i = 0; i < node -> getNumberOfSons(); i++) {
+		preciseEvolveInternal(node -> getSon(i), rate);
+	}
+}
+		
 /******************************************************************************/
 	
 Site * HomogeneousSequenceSimulator::evolve(int initialState, double rate) const
@@ -58,12 +77,24 @@ Site * HomogeneousSequenceSimulator::evolve(int initialState, double rate) const
 }
 
 /******************************************************************************/
+	
+void HomogeneousSequenceSimulator::preciseEvolve(int initialState, double rate) const
+{
+	// Launch recursion:
+	const Node * root = _tree -> getRootNode();
+	_states[root] = initialState;
+	for(unsigned int i = 0; i < root -> getNumberOfSons(); i++) {
+		preciseEvolveInternal(root -> getSon(i), rate);
+	}
+}
+
+/******************************************************************************/
 
 Site * HomogeneousSequenceSimulator::simulate() const
 {
 	// Draw an initial state randomly according to equilibrum frequencies:
 	int initialState = 0;
-	double r = RandomTools::giveRandomNumberBetweenZeroAndEntry(1);
+	double r = RandomTools::giveRandomNumberBetweenZeroAndEntry(1.);
 	double cumprob = 0;
 	for(unsigned int i = 0; i < _alphabet -> getSize(); i++)	{
 		cumprob += _model -> freq(i);
@@ -93,6 +124,29 @@ SiteContainer * HomogeneousSequenceSimulator::simulate(unsigned int numberOfSite
 	// Freeing memory:
 	for(unsigned int i = 0; i < numberOfSites; i++) delete vs[i];
 	return sites;
+}
+
+/******************************************************************************/
+
+SequenceSimulationResult * HomogeneousSequenceSimulator::preciseSimulate() const
+{
+	// Draw an initial state randomly according to equilibrum frequencies:
+	int initialState = 0;
+	double r = RandomTools::giveRandomNumberBetweenZeroAndEntry(1.);
+	double cumprob = 0;
+	for(unsigned int i = 0; i < _alphabet -> getSize(); i++)	{
+		cumprob += _model -> freq(i);
+		if(r <= cumprob) {
+			initialState = i;
+			break;
+		}
+	}
+	// Draw a random rate:
+	double rate = _rate -> rand();
+	// Make this state evolve:
+	_hssr = new HomogeneousSequenceSimulationResult(_tree, initialState, rate);
+	preciseEvolve(initialState, rate);
+	return _hssr;
 }
 
 /******************************************************************************/

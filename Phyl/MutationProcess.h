@@ -29,6 +29,93 @@
 #include <NumCalc/VectorTools.h>
 
 /**
+ * @brief This class is used by MutationProcess to store detailed results of simulations.
+ */
+class MutationPath {
+	
+	protected:
+
+		/**
+		 * @brief The states taken, without intiial state.
+		 */
+		vector<int>    _states;
+
+		/**
+		 * @brief Times between states.
+		 * The first element in array is the time between the initial state and the first state in _states.
+		 */
+		vector<double> _times;
+		
+		/**
+		 * @biref The intial state.
+		 */
+		int _initialState;
+
+		/**
+		 * @brief Total time of evolution.
+		 * Typically, this is a branch length.
+		 */
+		double _totalTime;
+
+	public:
+
+		/**
+		 * @brief Builds a new MutationPath object with initial state 'initialState' and total time 'time'.
+		 *
+		 * @param initialState The initial state.
+		 * @param time         The total time of evolution.
+		 */
+		MutationPath(int initialState, double time):
+			_initialState(initialState), _totalTime(time) {};
+
+		~MutationPath() {};
+
+	public:
+		
+		/**
+		 * @brief Add a new mutation event.
+		 *
+		 * @param state The new state after mutation event.
+		 * @param time  The time between this mutation and previous mutation (or initial state).
+		 */
+		void addEvent(int state, double time) {
+			_states.push_back(state);
+			_times.push_back(time);
+		}
+
+		/**
+		 * @brief Retrieve the initial state.
+		 *
+		 * @return The initial state of this path.
+		 */
+		int getInitialState() const { return _initialState; }
+
+		/**
+		 * @brief Retrieve the total time of evolution.
+		 *
+		 * @return The total time of evolution.
+		 */
+		double getTotalTime() const { return _totalTime; }
+		
+		/**
+		 * @brief Retrieve the number of mutation events.
+		 *
+		 * @return The numbe rof mutation events, i.e. the numer of states (without initial state).
+		 */
+		unsigned int getNumberOfEvents() const { return _states.size(); }
+
+		/**
+		 * @brief Retrieve the final state of this path.
+		 *
+		 * @return The initial state if no mutation occured, otherwise sends the state after last mutation event.
+		 */
+		int getFinalState() const {
+			if(_states.size() == 0) return _initialState;
+			else return _states[_states.size() - 1];
+		}
+};
+
+/**
  * @brief Base class for simulations.
  *
  * A mutation process defines the rules for mutations to occure.
@@ -42,20 +129,21 @@ class MutationProcess {
 		virtual ~MutationProcess() {};
 	
 	public:
-    	/**
-     	 * @brief Mutate a character in state i.
+		
+    /**
+     * @brief Mutate a character in state i.
 		 *
 		 * @param i The current state of the character.
-     	 */
-    	virtual int mutate(int state) const = 0;
+     */
+    virtual int mutate(int state) const = 0;
 
-    	/**
-     	 * @brief Mutate a character in state i n times.
-     	 * 
+    /**
+     * @brief Mutate a character in state i n times.
+     * 
 		 * @param i The current state of the character.
 		 * @param n The number of mutations to perform.
-     	 */
-     	virtual int mutate(int state, int n) const = 0;
+     */
+    virtual int mutate(int state, int n) const = 0;
 	
 		/**
 		 * @brief Get the time before next mutation event.
@@ -75,6 +163,17 @@ class MutationProcess {
 		 */
 		virtual int evolve(int initialState, double time) const = 0;
 	
+		/**
+		 * @brief Simulation a character evolution during a specified time
+		 * according to the given substitution model and send the total path
+		 * with all intermediate states and times between mutation events.
+		 *
+		 * @param initialState The state before beginning evolution.
+		 * @param time         The time during which evolution must occure.
+		 * @return The resulting mutation path.
+		 */
+		virtual MutationPath detailedEvolve(int initialState, double time) const = 0;
+
 		/**
 		 * @brief Get the substitution model associated to the mutation process.
 		 *
@@ -108,7 +207,7 @@ class AbstractMutationProcess: public MutationProcess {
 		/**
 		 * @brief The number of states allowed for the character to mutate.
 		 */
-    	int _size;
+    int _size;
 	
 		/**
 		 * @brief The repartition function for states probabilities.
@@ -116,17 +215,18 @@ class AbstractMutationProcess: public MutationProcess {
 		 * _repartition[i][j] = probability that, being in state i at time t,
 		 * we'll be in state <= j at time t+1.
 		 */
-    	VVdouble _repartition;
+    VVdouble _repartition;
 	
 	public:
 		AbstractMutationProcess(const SubstitutionModel * model);
 		virtual ~AbstractMutationProcess();
 	
 	public:
-    	int mutate(int state) const;
-     	int mutate(int state, int n) const;
+    int mutate(int state) const;
+    int mutate(int state, int n) const;
 		double getTimeBeforeNextMutationEvent(int state) const;
 		int evolve(int initialState, double time) const;
+		MutationPath detailedEvolve(int initialState, double time) const;
 		const SubstitutionModel * getSubstitutionModel() const;
 };
 
@@ -152,7 +252,7 @@ class SimpleMutationProcess : public AbstractMutationProcess {
 		 *
 		 * @param model The substitution model to use.
 		 */
-  		SimpleMutationProcess(const SubstitutionModel * model);
+  	SimpleMutationProcess(const SubstitutionModel * model);
 	
 		~SimpleMutationProcess();
 
@@ -174,7 +274,7 @@ class SelfMutationProcess : public AbstractMutationProcess {
   	public:
   		SelfMutationProcess(int alphabetSize);
 	
-		~SelfMutationProcess();
+			~SelfMutationProcess();
 };
 
 #endif	//_MUTATIONPROCESS_H_

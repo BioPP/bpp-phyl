@@ -35,12 +35,16 @@ AbstractSubstitutionModel.cpp\
 AbstractTreeLikelihood.cpp\
 ApplicationTools.cpp\
 DSO78.cpp\
+DSO78FrequenciesCode.cpp\
+DSO78ExchangeabilityCode.cpp\
 GaltierNewtonOptimizer.cpp\
 HKY85.cpp\
 HomogeneousTreeLikelihood.cpp\
 IOTree.cpp\
 JCnuc.cpp\
 JTT92.cpp\
+JTT92FrequenciesCode.cpp\
+JTT92ExchangeabilityCode.cpp\
 K80.cpp\
 MutationProcess.cpp\
 Newick.cpp\

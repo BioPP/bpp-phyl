@@ -39,7 +39,7 @@ SiteContainer * PatternTools::getSequenceSubset(const SiteContainer & sequenceSe
 {
 	VectorSiteContainer * sequenceSubset = new VectorSiteContainer(sequenceSet.getAlphabet());
 	vector<const Node *> leaves = TreeTools::getLeaves(node);
-	for(vector<const Node *>::iterator i = leaves.begin(); i < leaves.end() ;i++) {
+	for(vector<const Node *>::iterator i = leaves.begin(); i < leaves.end(); i++) {
 		const Sequence * newSeq = sequenceSet.getSequence((* i) -> getName());
 		if(newSeq == NULL) throw SequenceNotFoundException("PatternToolsERROR: leaf name not found in sequence file: ", (* i) -> getName());
 		sequenceSubset -> addSequence(* newSeq);

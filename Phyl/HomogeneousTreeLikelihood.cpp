@@ -88,6 +88,7 @@ HomogeneousTreeLikelihood::HomogeneousTreeLikelihood(
 	
 	// Now initializes all parameters:
 	initParameters();
+	fireParameterChanged(_parameters);
 }
 
 /******************************************************************************/
