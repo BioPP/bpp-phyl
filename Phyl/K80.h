@@ -22,9 +22,9 @@ class K80 : public NucleotideSubstitutionModel
 		double Pij_t    (int i, int j, double d) const;
 		double dPij_dt  (int i, int j, double d) const;
 		double d2Pij_dt2(int i, int j, double d) const;
-		Matrix getPij_t    (double d) const;
-		Matrix getdPij_dt  (double d) const;
-		Matrix getd2Pij_dt2(double d) const;
+		Mat getPij_t    (double d) const;
+		Mat getdPij_dt  (double d) const;
+		Mat getd2Pij_dt2(double d) const;
 
 		string getName() const;
 	

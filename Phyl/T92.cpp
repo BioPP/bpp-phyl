@@ -13,7 +13,8 @@
 #include <cmath>
 
 // From the MTL:
-#include <mtl/mtl.h>
+//#include <mtl/mtl.h>
+#include <NumCalc/MatrixTools.h>
 
 /******************************************************************************/
 
@@ -64,7 +65,7 @@ void T92::updateMatrices() {
 	
 	// Normalization:
 	double r = 1. / (1. + 2. * theta * kappa - 2. * theta * theta * kappa);
-	scale(_generator, r);
+	MatrixTools::scale(_generator, r);
 	
 	// Eigen values:
 	_eigenValues[0] = 0;
@@ -245,8 +246,8 @@ double T92::d2Pij_dt2(int i, int j, double d) const
 
 /******************************************************************************/
 
-Matrix T92::getPij_t(double d) const {
-	Matrix p(_size, _size);
+Mat T92::getPij_t(double d) const {
+	Mat p(_size, _size);
 	double kappa = _parameters.getParameter("kappa") -> getValue();
 	double theta = _parameters.getParameter("theta") -> getValue();
 	double piA, piT = piA = (1. - theta)/2.;
@@ -284,8 +285,8 @@ Matrix T92::getPij_t(double d) const {
 	return p;
 }
 
-Matrix T92::getdPij_dt(double d) const {
-	Matrix p(_size, _size);
+Mat T92::getdPij_dt(double d) const {
+	Mat p(_size, _size);
 	double kappa = _parameters.getParameter("kappa") -> getValue();
 	double theta = _parameters.getParameter("theta") -> getValue();
 	double piA, piT = piA = (1. - theta)/2.;
@@ -323,8 +324,8 @@ Matrix T92::getdPij_dt(double d) const {
 	return p;
 }
 
-Matrix T92::getd2Pij_dt2(double d) const {
-	Matrix p(_size, _size);
+Mat T92::getd2Pij_dt2(double d) const {
+	Mat p(_size, _size);
 	double kappa = _parameters.getParameter("kappa") -> getValue();
 	double theta = _parameters.getParameter("theta") -> getValue();
 	double piA, piT = piA = (1. - theta)/2.;

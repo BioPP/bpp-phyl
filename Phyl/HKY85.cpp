@@ -13,7 +13,8 @@
 #include <cmath>
 
 // From the MTL:
-#include <mtl/mtl.h>
+//#include <mtl/mtl.h>
+#include <NumCalc/MatrixTools.h>
 
 /******************************************************************************/
 
@@ -79,7 +80,7 @@ void HKY85::updateMatrices()
 	
 	// Normalization:
 	double r = 1. / (2. * (piA * piC + piC * piG + piA * piT + piG * piT + kappa * (piC * piT + piA * piG)));
-	scale(_generator, r);
+	MatrixTools::scale(_generator, r);
 	
 	// Eigen values:
 	_eigenValues[0] = 0;
@@ -277,8 +278,8 @@ double HKY85::d2Pij_dt2(int i, int j, double d) const
 
 /******************************************************************************/
 
-Matrix HKY85::getPij_t(double d) const {
-	Matrix p(_size, _size);
+Mat HKY85::getPij_t(double d) const {
+	Mat p(_size, _size);
 	double kappa = _parameters.getParameter("kappa") -> getValue();
 	double piA = _parameters.getParameter("piA") -> getValue();
 	double piC = _parameters.getParameter("piC") -> getValue();
@@ -321,8 +322,8 @@ Matrix HKY85::getPij_t(double d) const {
 	return p;
 }
 
-Matrix HKY85::getdPij_dt(double d) const {
-	Matrix p(_size, _size);
+Mat HKY85::getdPij_dt(double d) const {
+	Mat p(_size, _size);
 	double kappa = _parameters.getParameter("kappa") -> getValue();
 	double piA = _parameters.getParameter("piA") -> getValue();
 	double piC = _parameters.getParameter("piC") -> getValue();
@@ -365,8 +366,8 @@ Matrix HKY85::getdPij_dt(double d) const {
 	return p;
 }
 
-Matrix HKY85::getd2Pij_dt2(double d) const {
-	Matrix p(_size, _size);
+Mat HKY85::getd2Pij_dt2(double d) const {
+	Mat p(_size, _size);
 	double kappa = _parameters.getParameter("kappa") -> getValue();
 	double piA = _parameters.getParameter("piA") -> getValue();
 	double piC = _parameters.getParameter("piC") -> getValue();

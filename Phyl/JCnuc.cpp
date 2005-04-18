@@ -170,8 +170,8 @@ double JCnuc::d2Pij_dt2(int i, int j, double d) const {
 
 /******************************************************************************/
 
-Matrix JCnuc::getPij_t(double d) const {
-	Matrix p(_size, _size);
+Mat JCnuc::getPij_t(double d) const {
+	Mat p(_size, _size);
 	for(unsigned int i = 0; i < _size; i++) {
 		for(unsigned int j = 0; j < _size; j++) {
 			p(i,j) = (i==j) ? 1./4. + 3./4. * exp(- 4./3. * d) : 1./4. - 1./4. * exp(- 4./3. * d);
@@ -180,8 +180,8 @@ Matrix JCnuc::getPij_t(double d) const {
 	return p;
 }
 
-Matrix JCnuc::getdPij_dt(double d) const {
-	Matrix p(_size, _size);
+Mat JCnuc::getdPij_dt(double d) const {
+	Mat p(_size, _size);
 	for(unsigned int i = 0; i < _size; i++) {
 		for(unsigned int j = 0; j < _size; j++) {
 			p(i,j) = (i==j) ? - exp(- 4./3. * d) : 1./3. * exp(- 4./3. * d);
@@ -190,8 +190,8 @@ Matrix JCnuc::getdPij_dt(double d) const {
 	return p;
 }
 
-Matrix JCnuc::getd2Pij_dt2(double d) const {
-	Matrix p(_size, _size);
+Mat JCnuc::getd2Pij_dt2(double d) const {
+	Mat p(_size, _size);
 	for(unsigned int i = 0; i < _size; i++) {
 		for(unsigned int j = 0; j < _size; j++) {
 			p(i,j) = (i==j) ? 4./3. * exp(- 4./3. * d) : - 4./9. * exp(- 4./3. * d);

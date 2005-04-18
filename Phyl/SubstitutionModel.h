@@ -23,14 +23,15 @@
 #include <NumCalc/ParameterList.h>
 #include <NumCalc/Parametrizable.h>
 #include <NumCalc/VectorTools.h>
+#include <NumCalc/Matrix.h>
 
 // From the MTL:
-#include <mtl/matrix.h>
+//#include <mtl/matrix.h>
+//using namespace mtl;
+//typedef matrix<double>::type Matrix;
 
-using namespace mtl;
-
-typedef matrix<double>::type Matrix;
-typedef Vdouble Vector;
+typedef RowMatrix<double> Mat;
+typedef Vdouble Vec;
 
 class SubstitutionModel;
 
@@ -126,23 +127,23 @@ class SubstitutionModel: public Parametrizable {
 		
 		virtual double d2Pij_dt2(int i, int j, double t) const = 0;
 	
-		virtual Vector getFrequencies() const = 0;
+		virtual Vec getFrequencies() const = 0;
 		
-		virtual Matrix getExchangeabilityMatrix() const = 0;
+		virtual Mat getExchangeabilityMatrix() const = 0;
 
-		virtual Matrix getGenerator() const = 0;
+		virtual Mat getGenerator() const = 0;
 
-		virtual Matrix getPij_t(double t) const = 0;
+		virtual Mat getPij_t(double t) const = 0;
 	
-		virtual Matrix getdPij_dt(double t) const = 0;
+		virtual Mat getdPij_dt(double t) const = 0;
 
-		virtual Matrix getd2Pij_dt2(double t) const = 0;
+		virtual Mat getd2Pij_dt2(double t) const = 0;
 
-		virtual Vector eigenValues() const = 0;
+		virtual Vec eigenValues() const = 0;
 
-		virtual Matrix horizontalLeftEigenVectors() const = 0;
+		virtual Mat horizontalLeftEigenVectors() const = 0;
 
-		virtual Matrix verticalRightEigenVectors() const = 0;
+		virtual Mat verticalRightEigenVectors() const = 0;
 
 		virtual const Alphabet * getAlphabet() const = 0;
 

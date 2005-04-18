@@ -114,7 +114,7 @@ AbstractMutationProcess(model) {
   // Each element contains the probabilities concerning each character in the alphabet.
 
   // We will now initiate each of these probability vector.
-	Matrix Q = model -> getGenerator();
+	Mat Q = model -> getGenerator();
   for(int i = 0; i < _size; i++) {
    	_repartition[i] = Vdouble(_size);
    	double cum = 0;

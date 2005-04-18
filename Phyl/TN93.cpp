@@ -13,7 +13,8 @@
 #include <cmath>
 
 // From the MTL:
-#include <mtl/mtl.h>
+//#include <mtl/mtl.h>
+#include <NumCalc/MatrixTools.h>
 
 /******************************************************************************/
 
@@ -82,7 +83,7 @@ void TN93::updateMatrices()
 	
 	// Normalization:
 	double r = 1. / (2. * (piA * piC + piC * piG + piA * piT + piG * piT + kappa2 * piC * piT + kappa1 * piA * piG));
-	scale(_generator, r);
+	MatrixTools::scale(_generator, r);
 	
 	// Eigen values:
 	_eigenValues[0] = 0;
@@ -283,8 +284,8 @@ double TN93::d2Pij_dt2(int i, int j, double d) const
 
 /******************************************************************************/
 
-Matrix TN93::getPij_t(double d) const {
-	Matrix p(_size, _size);
+Mat TN93::getPij_t(double d) const {
+	Mat p(_size, _size);
 	double kappa1 = _parameters.getParameter("kappa1") -> getValue();
 	double kappa2 = _parameters.getParameter("kappa2") -> getValue();
 	double piA = _parameters.getParameter("piA") -> getValue();
@@ -328,8 +329,8 @@ Matrix TN93::getPij_t(double d) const {
 	return p;
 }
 
-Matrix TN93::getdPij_dt(double d) const {
-	Matrix p(_size, _size);
+Mat TN93::getdPij_dt(double d) const {
+	Mat p(_size, _size);
 	double kappa1 = _parameters.getParameter("kappa1") -> getValue();
 	double kappa2 = _parameters.getParameter("kappa2") -> getValue();
 	double piA = _parameters.getParameter("piA") -> getValue();
@@ -373,8 +374,8 @@ Matrix TN93::getdPij_dt(double d) const {
 	return p;
 }
 
-Matrix TN93::getd2Pij_dt2(double d) const {
-	Matrix p(_size, _size);
+Mat TN93::getd2Pij_dt2(double d) const {
+	Mat p(_size, _size);
 	double kappa1 = _parameters.getParameter("kappa1") -> getValue();
 	double kappa2 = _parameters.getParameter("kappa2") -> getValue();
 	double piA = _parameters.getParameter("piA") -> getValue();

@@ -46,7 +46,7 @@ HomogeneousSequenceSimulator::HomogeneousSequenceSimulator(
 		for(unsigned int c = 0; c < _nbClasses; c++) {
 			VVdouble * _cumpxy_node_c = & (* _cumpxy_node)[c];
 			_cumpxy_node_c -> resize(_nbStates);
-			Matrix P = _model -> getPij_t(d * _rate -> getCategory(c));
+			Mat P = _model -> getPij_t(d * _rate -> getCategory(c));
 			for(unsigned int x = 0; x < _nbStates; x++) {
 				Vdouble * _cumpxy_node_c_x = & (* _cumpxy_node_c)[x];
 				_cumpxy_node_c_x -> resize(_nbStates);

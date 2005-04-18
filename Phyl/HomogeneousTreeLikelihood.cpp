@@ -253,7 +253,7 @@ void HomogeneousTreeLikelihood::fireParameterChanged(const ParameterList & param
 		for(unsigned int c = 0; c < _nbClasses; c++) {
 			VVdouble * _pxy_son_c = & (* _pxy_son)[c];
 			_pxy_son_c -> resize(_nbStates);
-			Matrix Q = _model -> getPij_t(l * _rateDistribution -> getCategory(c));
+			Mat Q = _model -> getPij_t(l * _rateDistribution -> getCategory(c));
 			for(unsigned int x = 0; x < _nbStates; x++) {
 				Vdouble * _pxy_son_c_x = & (* _pxy_son_c)[x];
 				_pxy_son_c_x -> resize(_nbStates);
@@ -270,7 +270,7 @@ void HomogeneousTreeLikelihood::fireParameterChanged(const ParameterList & param
 			VVdouble * _dpxy_son_c = & (* _dpxy_son)[c];
 			_dpxy_son_c -> resize(_nbStates);
 			double rc = _rateDistribution -> getCategory(c);
-			Matrix dQ = _model -> getdPij_dt(l * rc);  
+			Mat dQ = _model -> getdPij_dt(l * rc);  
 			for(unsigned int x = 0; x < _nbStates; x++) {
 				Vdouble * _dpxy_son_c_x = & (* _dpxy_son_c)[x];
 				_dpxy_son_c_x -> resize(_nbStates);
@@ -287,7 +287,7 @@ void HomogeneousTreeLikelihood::fireParameterChanged(const ParameterList & param
 			VVdouble * _d2pxy_son_c = & (* _d2pxy_son)[c];
 			_d2pxy_son_c -> resize(_nbStates);
 			double rc =  _rateDistribution -> getCategory(c);
-			Matrix d2Q = _model -> getd2Pij_dt2(l * rc);
+			Mat d2Q = _model -> getd2Pij_dt2(l * rc);
 			for(unsigned int x = 0; x < _nbStates; x++) {
 				Vdouble * _d2pxy_son_c_x = & (* _d2pxy_son_c)[x];
 				_d2pxy_son_c_x -> resize(_nbStates);

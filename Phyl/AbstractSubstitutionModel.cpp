@@ -11,7 +11,7 @@
 
 // From NumCalc:
 #include <NumCalc/MatrixTools.h>
-using namespace MatrixTools;
+using namespace MatrixOperators;
 #include <NumCalc/VectorTools.h>
 using namespace VectorFunctions;
 using namespace VectorOperators;
@@ -22,12 +22,12 @@ using namespace VectorOperators;
 AbstractSubstitutionModel::AbstractSubstitutionModel(const Alphabet * alpha): alphabet(alpha)
 {
 	_size = alpha -> getSize();
-	_generator         = Matrix(_size, _size);
-	_exchangeability   = Matrix(_size, _size);
-	_freq              = Vector(_size);
-	_eigenValues       = Vector(_size);
-	_leftEigenVectors  = Matrix(_size, _size);
-	_rightEigenVectors = Matrix(_size, _size);
+	_generator         = Mat(_size, _size);
+	_exchangeability   = Mat(_size, _size);
+	_freq              = Vec(_size);
+	_eigenValues       = Vec(_size);
+	_leftEigenVectors  = Mat(_size, _size);
+	_rightEigenVectors = Mat(_size, _size);
 }
 
 /******************************************************************************/
@@ -36,31 +36,31 @@ const Alphabet * AbstractSubstitutionModel::getAlphabet() const { return alphabe
 
 /******************************************************************************/
 	
-Vector AbstractSubstitutionModel::getFrequencies() const { return _freq; }
+Vec AbstractSubstitutionModel::getFrequencies() const { return _freq; }
 
-Matrix AbstractSubstitutionModel::getExchangeabilityMatrix() const { return _exchangeability; }
+Mat AbstractSubstitutionModel::getExchangeabilityMatrix() const { return _exchangeability; }
 
-Matrix AbstractSubstitutionModel::getGenerator() const { return _generator; }
+Mat AbstractSubstitutionModel::getGenerator() const { return _generator; }
 
-Vector AbstractSubstitutionModel::eigenValues() const { return _eigenValues; }
+Vec AbstractSubstitutionModel::eigenValues() const { return _eigenValues; }
 
-Matrix AbstractSubstitutionModel::horizontalLeftEigenVectors() const { return _leftEigenVectors; }
+Mat AbstractSubstitutionModel::horizontalLeftEigenVectors() const { return _leftEigenVectors; }
 
-Matrix AbstractSubstitutionModel::verticalRightEigenVectors() const { return _rightEigenVectors; }
+Mat AbstractSubstitutionModel::verticalRightEigenVectors() const { return _rightEigenVectors; }
 
-Matrix AbstractSubstitutionModel::getPij_t(double t) const
+Mat AbstractSubstitutionModel::getPij_t(double t) const
 {
-	return _rightEigenVectors * diag<Matrix, double>(exp(_eigenValues*t)) * _leftEigenVectors;
+	return MatrixTools::mult(_rightEigenVectors, exp(_eigenValues*t), _leftEigenVectors);
 }
 
-Matrix AbstractSubstitutionModel::getdPij_dt(double t) const
+Mat AbstractSubstitutionModel::getdPij_dt(double t) const
 {
-	return _rightEigenVectors * diag<Matrix, double>(_eigenValues * exp(_eigenValues*t)) * _leftEigenVectors;
+	return MatrixTools::mult(_rightEigenVectors, _eigenValues * exp(_eigenValues*t), _leftEigenVectors);
 }
 
-Matrix AbstractSubstitutionModel::getd2Pij_dt2(double t) const
+Mat AbstractSubstitutionModel::getd2Pij_dt2(double t) const
 {
-	return _rightEigenVectors * diag<Matrix, double>(sqr(_eigenValues) * exp(_eigenValues*t)) * _leftEigenVectors;
+	return MatrixTools::mult(_rightEigenVectors, sqr(_eigenValues) * exp(_eigenValues*t), _leftEigenVectors);
 }
 
 double AbstractSubstitutionModel::freq(int i) const { return _freq[i]; }
@@ -102,7 +102,7 @@ void AbstractSubstitutionModel::setFreqFromData(const SequenceContainer & data) 
 /******************************************************************************/
 
 double AbstractSubstitutionModel::getScale() const {
-	return -scalar(diag<Matrix, double>(_generator), _freq);
+	return -scalar(MatrixTools::diag<Mat, double>(_generator), _freq);
 }
 
 /******************************************************************************/

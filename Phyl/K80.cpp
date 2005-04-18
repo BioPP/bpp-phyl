@@ -10,7 +10,8 @@
 #include <cmath>
 
 // From the MTL:
-#include <mtl/mtl.h>
+//#include <mtl/mtl.h>
+#include <NumCalc/MatrixTools.h>
 
 /******************************************************************************/
 
@@ -53,7 +54,7 @@ void K80::updateMatrices() {
 	
 	// Normalization:
 	double r = 1. / (2. + kappa);
-	scale(_generator, r);
+	MatrixTools::scale(_generator, r);
 
 	// Eigen values:
 	_eigenValues[0] = 0;
@@ -598,8 +599,8 @@ double K80::d2Pij_dt2(int i, int j, double d) const {
 
 /******************************************************************************/
 
-Matrix K80::getPij_t(double d) const {
-	Matrix p(_size, _size);
+Mat K80::getPij_t(double d) const {
+	Mat p(_size, _size);
 	double kappa = _parameters.getParameter("kappa") -> getValue();
 	double k = (kappa + 1.) / 2.;
 	double r = 4. / (kappa + 2.);
@@ -634,8 +635,8 @@ Matrix K80::getPij_t(double d) const {
 	return p;
 }
 
-Matrix K80::getdPij_dt(double d) const {
-	Matrix p(_size, _size);
+Mat K80::getdPij_dt(double d) const {
+	Mat p(_size, _size);
 	double kappa = _parameters.getParameter("kappa") -> getValue();
 	double k = (kappa + 1.) / 2.;
 	double r = 4. / (kappa + 2.);
@@ -669,8 +670,8 @@ Matrix K80::getdPij_dt(double d) const {
 	return p;
 }
 
-Matrix K80::getd2Pij_dt2(double d) const {
-	Matrix p(_size, _size);
+Mat K80::getd2Pij_dt2(double d) const {
+	Mat p(_size, _size);
 	double kappa = _parameters.getParameter("kappa") -> getValue();
 	double k = (kappa + 1.) / 2.;
 	double k_2 = k * k;

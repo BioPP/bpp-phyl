@@ -29,32 +29,32 @@ class AbstractSubstitutionModel : public SubstitutionModel
 		/**
 		 * @brief The generator matrix \f$Q\f$ of the model.
 		 */
-		Matrix _generator;
+		Mat _generator;
 
 		/**
 		 * @brief The exchangeability matrix \f$S\f$ of the model.
 		 */
-		Matrix _exchangeability;
+		Mat _exchangeability;
 
 		/**
 		 * @brief The \f$U^{-1}\f$ matrix made of horizontal left eigen vectors.
 		 */
-		Matrix _leftEigenVectors;
+		Mat _leftEigenVectors;
 
 		/**
 		 * @brief The \f$U\f$ matrix made of vertical right eigen vectors.
 		 */
-		Matrix _rightEigenVectors;
+		Mat _rightEigenVectors;
 
 		/**
 		 * @brief The vector of eigen values.
 		 */
-		Vector _eigenValues;
+		Vec _eigenValues;
 
 		/**
 		 * @brief The vector of equilibrium frequencies.
 		 */
-		Vector _freq;
+		Vec _freq;
 
 		/**
 		 * @brief The parameters of this model (needed for the Parametrizable interface).
@@ -69,15 +69,15 @@ class AbstractSubstitutionModel : public SubstitutionModel
 	public:
 		const Alphabet * getAlphabet() const;
 
-		Vector getFrequencies() const;
-		Matrix getExchangeabilityMatrix() const;
-		Matrix getGenerator() const;
-		Matrix getPij_t(double t) const;
-		Matrix getdPij_dt(double t) const;
-		Matrix getd2Pij_dt2(double t) const;
-		Vector eigenValues() const;
-		Matrix horizontalLeftEigenVectors() const;
-		Matrix verticalRightEigenVectors() const;
+		Vec getFrequencies() const;
+		Mat getExchangeabilityMatrix() const;
+		Mat getGenerator() const;
+		Mat getPij_t(double t) const;
+		Mat getdPij_dt(double t) const;
+		Mat getd2Pij_dt2(double t) const;
+		Vec eigenValues() const;
+		Mat horizontalLeftEigenVectors() const;
+		Mat verticalRightEigenVectors() const;
 		double freq(int i) const;
 		double Qij(int i, int j) const;
 		double Pij_t    (int i, int j, double t) const;
