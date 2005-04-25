@@ -11,6 +11,7 @@ DRHomogeneousTreeLikelihood.h\
 DRTreeLikelihoodTools.h\
 IOTree.h\
 JCnuc.h\
+JCprot.h\
 JTT92.h\
 K80.h\
 MutationProcess.h\
@@ -46,6 +47,7 @@ DRHomogeneousTreeLikelihood.cpp\
 DRTreeLikelihoodTools.cpp\
 IOTree.cpp\
 JCnuc.cpp\
+JCprot.cpp\
 JTT92.cpp\
 K80.cpp\
 MutationProcess.cpp\

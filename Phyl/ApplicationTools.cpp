@@ -12,6 +12,7 @@
 #include "TN93.h"
 #include "DSO78.h"
 #include "JTT92.h"
+#include "JCprot.h"
 #include "OptimizationTools.h"
 #include "Tree.h"
 #include "Newick.h"
@@ -46,7 +47,7 @@ using namespace std;
 
 /******************************************************************************/
 
-ostream & ApplicationTools::error  = cerr;
+ostream & ApplicationTools::error   = cerr;
 ostream & ApplicationTools::message = cout;
 ostream & ApplicationTools::warning = cout;
 
@@ -475,7 +476,9 @@ SubstitutionModel * ApplicationTools::getSubstitutionModel(
 	} else { // Alphabet supposed to be proteic!
 		const ProteicAlphabet * alpha = dynamic_cast<const ProteicAlphabet *>(data.getAlphabet());
 		bool useObsFreq = getBooleanParameter("model.use_observed_freq", params, false, suffix, suffixIsOptional);
-		if(modelName == "DSO78") {
+		if(modelName == "JCprot") {
+			model = new JCprot(alpha);
+		}	else if(modelName == "DSO78") {
 			model = new DSO78(alpha);
 			if(useObsFreq) dynamic_cast<DSO78 *>(model) -> setFreqFromData(data);
 		} else if(modelName == "JTT92") {

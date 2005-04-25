@@ -27,7 +27,7 @@ void ProteinSubstitutionModel::updateMatrices()
 {
 	// Now computes eigen values and vectors:
 	Mat Pi = MatrixTools::diag<Mat, double>(_freq);
-	_generator = Pi * _exchangeability;
+	_generator = _exchangeability * Pi;
 	// Normalization:
 	double scale = getScale();
 	MatrixTools::scale(_generator, 1/scale);
