@@ -107,7 +107,7 @@ class SequenceSimulator
  *
  * Instances of this class should be used when a detailed output of the simulation is needed.
  */
-class PreciseSequenceSimulator
+class PreciseSequenceSimulator: public SequenceSimulator
 {
 	public:
 		PreciseSequenceSimulator() {}
