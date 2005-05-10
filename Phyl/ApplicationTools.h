@@ -151,6 +151,37 @@ class ApplicationTools
 			bool warn = true);
 
 		/**
+		 * @brief Get a parameter.
+		 *
+		 * @param parameterName    The name of the corresponding parameter.
+		 * @param params           The attribute map where options may be found.
+		 * @param defaultValue     The default value to use if the parameter is not found.
+		 * @param suffix           A suffix to be applied to the parameter name.
+		 * @param suffixIsOptional Tell if the suffix is absolutely required.
+		 * @param warn             Tell if a warning must be sent in case the parameter is not found.
+		 * @return The corresponding value.
+		 */
+		template<class T> static T getParameter(
+			const string & parameterName,
+			map<string, string> & params,
+			T defaultValue,
+			const string & suffix = "",
+			bool suffixIsOptional = true,
+			bool warn = true)
+		{
+			T tParam = defaultValue;
+			if(parameterExists(parameterName + suffix, params)) {
+				tParam = TextTools::to<T>(params[parameterName + suffix]);
+			} else if(suffixIsOptional && parameterExists(parameterName, params)) {
+				tParam = TextTools::to<T>(params[parameterName]);
+			} else if(warn) {
+				displayWarning("Parameter " + parameterName + suffix + " not specified. Default used instead: " + TextTools::toString(defaultValue));
+			}
+			return tParam;
+		}
+	
+
+		/**
 		 * @brief Get a file path.
 		 *
 		 * @param parameter        The name of the corresponding parameter.
@@ -365,15 +396,19 @@ class ApplicationTools
 		 * - If TN93, HKY85 or T92 is to be used:
 		 *   - model.use_observed_freq Tell if we must use the observed frequences. 
 		 *
-		 * @param data    The SiteContainer for which the substitution model is designed.
-		 * @param params  The attribute map where options may be found.
-		 * @param suffix  A suffix to be applied to each attribute name.
+		 * @param alphabet The alpbaet to use in the model.
+		 * @param data     A pointer toward the SiteContainer for which the substitution model is designed.
+		 * 								 The alphabet associated to the data must be of the same type as the one specified for the model.
+		 *                 May be equal to NULL, but in this cas use_observed_freq option will be unavailable.
+		 * @param params   The attribute map where options may be found.
+		 * @param suffix   A suffix to be applied to each attribute name.
 		 * @param suffixIsOptional Tell if the suffix is absolutely required.
 		 * @param verbose Print some info to the 'message' output stream.
 		 * @return A new SubstitutionModel object according to options specified.
 		 */
 		static SubstitutionModel * getSubstitutionModel(
-			const SiteContainer & data, 
+			const Alphabet * alphabet,
+			const SiteContainer * data, 
 			map<string, string> & params,
 			const string & suffix = "",
 			bool suffixIsOptional = true,

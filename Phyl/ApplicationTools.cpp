@@ -364,7 +364,8 @@ VectorSiteContainer * ApplicationTools::getSitesToAnalyse(
 /******************************************************************************/
 
 SubstitutionModel * ApplicationTools::getSubstitutionModel(
-	const SiteContainer & data,
+	const Alphabet * alphabet,
+	const SiteContainer * data,
 	map<string, string> & params,
 	const string & suffix,
 	bool suffixIsOptional,
@@ -373,19 +374,19 @@ SubstitutionModel * ApplicationTools::getSubstitutionModel(
 	string modelName = getStringParameter("model", params, "JCnuc", suffix, suffixIsOptional);
 	SubstitutionModel * model = NULL;
 
-	if(data.getAlphabet() -> getAlphabetType() == "DNA alphabet"
-	|| data.getAlphabet() -> getAlphabetType() == "RNA alphabet") {
+	if(alphabet -> getAlphabetType() == "DNA alphabet"
+	|| alphabet -> getAlphabetType() == "RNA alphabet") {
 
-		const NucleicAlphabet * alpha = dynamic_cast<const NucleicAlphabet *>(data.getAlphabet());
+		const NucleicAlphabet * alpha = dynamic_cast<const NucleicAlphabet *>(alphabet);
 
 		if(modelName == "TN93") {
 			double piA = 0.25, piC = 0.25, piG = 0.25, piT = 0.25;
 				double kappa1 = getDoubleParameter("kappa1", params, 2, suffix, suffixIsOptional);
 				double kappa2 = getDoubleParameter("kappa2", params, 2, suffix, suffixIsOptional);
 			bool useObsFreq = getBooleanParameter("model.use_observed_freq", params, false, suffix, suffixIsOptional);
-			if(useObsFreq) {
+			if(useObsFreq && data != NULL) {
 				model = new TN93(alpha, kappa1, kappa2);
-				dynamic_cast<TN93 *>(model) -> setFreqFromData(data);
+				dynamic_cast<TN93 *>(model) -> setFreqFromData(*data);
 				piA = model -> getParameter("piA");
 				piC = model -> getParameter("piC");
 				piG = model -> getParameter("piG");
@@ -414,9 +415,9 @@ SubstitutionModel * ApplicationTools::getSubstitutionModel(
 			double piA = 0.25, piC = 0.25, piG = 0.25, piT = 0.25;
 			double kappa = getDoubleParameter("kappa", params, 2, suffix, suffixIsOptional);
 			bool useObsFreq = getBooleanParameter("model.use_observed_freq", params, false, suffix, suffixIsOptional);
-			if(useObsFreq) {
+			if(useObsFreq && data != NULL) {
 				model = new HKY85(alpha, kappa);
-				dynamic_cast<HKY85 *>(model) -> setFreqFromData(data);
+				dynamic_cast<HKY85 *>(model) -> setFreqFromData(*data);
 				piA = model -> getParameter("piA");
 				piC = model -> getParameter("piC");
 				piG = model -> getParameter("piG");
@@ -444,9 +445,9 @@ SubstitutionModel * ApplicationTools::getSubstitutionModel(
 			double kappa = getDoubleParameter("kappa", params, 2, suffix, suffixIsOptional);
 			double theta = 0.5;
 			bool useObsFreq = getBooleanParameter("model.use_observed_freq", params, false, suffix, suffixIsOptional);
-			if(useObsFreq) {
+			if(useObsFreq && data != NULL) {
 				model = new T92(alpha, kappa);
-				dynamic_cast<T92 *>(model) -> setFreqFromData(data);
+				dynamic_cast<T92 *>(model) -> setFreqFromData(*data);
 				theta = model -> getParameter("theta");
 			} else {
 				theta = getDoubleParameter("theta", params, 0.5, suffix, suffixIsOptional);
@@ -474,21 +475,21 @@ SubstitutionModel * ApplicationTools::getSubstitutionModel(
 			exit(-1);
 		}
 	} else { // Alphabet supposed to be proteic!
-		const ProteicAlphabet * alpha = dynamic_cast<const ProteicAlphabet *>(data.getAlphabet());
+		const ProteicAlphabet * alpha = dynamic_cast<const ProteicAlphabet *>(alphabet);
 		bool useObsFreq = getBooleanParameter("model.use_observed_freq", params, false, suffix, suffixIsOptional);
 		if(modelName == "JCprot") {
 			model = new JCprot(alpha);
 		}	else if(modelName == "DSO78") {
 			model = new DSO78(alpha);
-			if(useObsFreq) dynamic_cast<DSO78 *>(model) -> setFreqFromData(data);
+			if(useObsFreq && data != NULL) dynamic_cast<DSO78 *>(model) -> setFreqFromData(*data);
 		} else if(modelName == "JTT92") {
 			model = new JTT92(alpha);
-			if(useObsFreq) dynamic_cast<JTT92 *>(model) -> setFreqFromData(data);	
+			if(useObsFreq && data != NULL) dynamic_cast<JTT92 *>(model) -> setFreqFromData(*data);	
 		} else {
 			displayError("Model '" + modelName + "' unknown. Aborting...");
 		}
  		if(verbose) {
-			displayResult("model", modelName + (useObsFreq ? "-F" : ""));
+			displayResult("model", modelName + (useObsFreq && (model != NULL) ? "-F" : ""));
 		}
 	}
 	return model;
