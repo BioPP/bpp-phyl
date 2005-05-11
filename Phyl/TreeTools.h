@@ -248,7 +248,7 @@ class TreeTools
 		}
 		
 		template<class N>
-		static N * cloneSubtree(const N & node) 
+		static N * cloneSubtree(const Node & node) 
 		{
 			//First we copy this node using default copy constuctor:
 			N * clone = new N(node);

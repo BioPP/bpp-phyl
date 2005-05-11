@@ -441,6 +441,13 @@ class NodeTemplate : public Node {
 		 * 
 		 * @param node The node to copy.
 		 */
+		NodeTemplate(const Node & node) : Node(node) {}
+
+		/**
+		 * @brief Copy constructor.
+		 * 
+		 * @param node The node to copy.
+		 */
 		NodeTemplate(const NodeTemplate<NodeInfos> & node)
 		{
 			_id               = node._id;
