@@ -222,31 +222,7 @@ class TreeTools
 
 		//The following methods are adapted from the tree class of the SEMPHY library:
 		vector<Node *> getPathBetweenAnyTwoNodes(Node & node1, Node & node2);
-
-		template<class N>
-		static const N * getSon(const N & node, unsigned int i)
-		{
-			return dynamic_cast<const N *>(node.getSon(i));
-		}
-		
-		template<class N>
-		static N * getSon(N & node, unsigned int i)
-		{
-			return dynamic_cast<N *>(node.getSon(i));
-		}
-		
-		template<class N>
-		static const N * getFather(const N & node)
-		{
-			return dynamic_cast<const N *>(node.getFather());
-		}
-		
-		template<class N>
-		static N * getFather(N & node)
-		{
-			return dynamic_cast<N *>(node.getFather());
-		}
-		
+	
 		template<class N>
 		static N * cloneSubtree(const Node & node) 
 		{

@@ -356,9 +356,11 @@ class Node {
 
 		/** @} */
 
-		virtual vector<const Node *> getNeighbors() const;
+		// These functions must not be declared as virtual!!
 		
-		virtual vector<Node *> getNeighbors();
+		vector<const Node *> getNeighbors() const;
+		
+		vector<Node *> getNeighbors();
 		
 		/**
 		 * @name Operators:
@@ -498,6 +500,47 @@ class NodeTemplate : public Node {
 		}
 
 		virtual ~NodeTemplate() {}
+
+		const NodeTemplate<NodeInfos> * getFather() const { return dynamic_cast<const NodeTemplate<NodeInfos> *>(_father); }
+ 
+		NodeTemplate<NodeInfos> * getFather() { return dynamic_cast<NodeTemplate<NodeInfos> *>(_father); }
+				
+		NodeTemplate<NodeInfos> * removeFather() { NodeTemplate<NodeInfos> * f = dynamic_cast<NodeTemplate<NodeInfos> *>(_father); _father = NULL; return f; }
+
+		const NodeTemplate<NodeInfos> * getSon(unsigned int i) const { return dynamic_cast<NodeTemplate<NodeInfos> *>(_sons[i]); }
+				
+		NodeTemplate<NodeInfos> * getSon(unsigned int i) { return dynamic_cast<NodeTemplate<NodeInfos> *>(_sons[i]); }
+				
+		vector<const NodeTemplate<NodeInfos> *> getNeighbors() const
+		{
+			vector<const Node *> neighbors = Node::getNeighbors();
+			vector<const NodeTemplate<NodeInfos> *> neighbors2(neighbors.size());
+			for(unsigned int i=0; i < neighbors.size(); i++)
+				neighbors2[i] = dynamic_cast<const NodeTemplate<NodeInfos> *>(neighbors[i]);
+			return neighbors2;
+		}
+		
+		vector<NodeTemplate<NodeInfos> *> getNeighbors()
+		{
+			vector<Node *> neighbors = Node::getNeighbors();
+			vector<NodeTemplate<NodeInfos> *> neighbors2(neighbors.size());
+			for(unsigned int i=0; i < neighbors.size(); i++)
+				neighbors2[i] = dynamic_cast<NodeTemplate<NodeInfos> *>(neighbors[i]);
+			return neighbors2;
+		}
+		
+		NodeTemplate<NodeInfos> * operator[](int i) { return dynamic_cast<NodeTemplate<NodeInfos> *>((i < 0) ? _father : _sons[i]); }
+				
+		const NodeTemplate<NodeInfos> * operator[](int i) const { return dynamic_cast<const NodeTemplate<NodeInfos> *>((i < 0) ? _father : _sons[i]); }
+
+
+		// Specific methods:
+
+		virtual const NodeInfos getInfos() const { return _infos; }
+		
+		virtual NodeInfos getInfos() { return _infos; }
+
+		virtual void setInfos(const NodeInfos & info) { _infos = infos; }
 
 };
 
