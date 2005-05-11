@@ -35,11 +35,11 @@ class SequenceSimulationResult
 		unsigned int _currentIndex;
 		vector<MutationPath> _paths;
 		vector<int> _ancestralStates;
-		const Tree * _tree;
+		const Tree<Node> * _tree;
 		vector<const Node *> _leaves;
 		
 	public:
-		SequenceSimulationResult(const Tree * tree, int ancestralState):
+		SequenceSimulationResult(const Tree<Node> * tree, int ancestralState):
 			_currentIndex(0) {
 			_tree = tree;
 			_indexes[tree -> getRootNode()] = 0;
@@ -132,7 +132,7 @@ class HomogeneousSequenceSimulationResult: public SequenceSimulationResult
 		double _rate;
 		
 	public:
-		HomogeneousSequenceSimulationResult(const Tree * tree, int ancestralState, double rate):
+		HomogeneousSequenceSimulationResult(const Tree<Node> * tree, int ancestralState, double rate):
 			SequenceSimulationResult(tree, ancestralState),
 			_rate(rate) {}
 
@@ -151,7 +151,7 @@ class HomogeneousSequenceSimulator: public PreciseSequenceSimulator
 		const Alphabet * _alphabet;
 		const SubstitutionModel * _model;
 		const DiscreteDistribution * _rate;
-		const Tree * _tree;
+		const Tree<Node> * _tree;
 	
 		/**
 		 * @brief This stores once for all all leaves in a given order.
@@ -178,7 +178,7 @@ class HomogeneousSequenceSimulator: public PreciseSequenceSimulator
 		HomogeneousSequenceSimulator(
 			const MutationProcess * process,
 			const DiscreteDistribution * rate,
-			const Tree * tree,
+			const Tree<Node> * tree,
 			bool verbose = true
 		);
 			
@@ -229,7 +229,7 @@ class HomogeneousSequenceSimulator: public PreciseSequenceSimulator
 		 *
 		 * @return The Tree object associated to this instance.
 		 */
-		const Tree * getTree() const;
+		const Tree<Node> * getTree() const;
 	
 	protected:
 		int evolve(int initialState, const Node * node, int rateClass) const;

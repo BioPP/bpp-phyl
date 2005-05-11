@@ -28,14 +28,16 @@ const string Newick::getFormatName() const { return "Newick"; }
 
 /******************************************************************************/
 
-const string Newick::getFormatDescription() const {
+const string Newick::getFormatDescription() const
+{
 	return string("New hampshire parenthesis format. ") +
 		"See http://evolution.genetics.washington.edu/phylip/newicktree.html for more info.";
 }
 
 /******************************************************************************/
 
-Tree * Newick::read(const string & path) const throw (Exception) {
+Tree<Node> * Newick::read(const string & path) const throw (Exception)
+{
 	// Checking the existence of specified file
 	ifstream file(path.c_str(), ios::in);
 	if (! file) { throw IOException ("Newick::read : failed to open file"); }
@@ -58,7 +60,8 @@ Tree * Newick::read(const string & path) const throw (Exception) {
 
 /******************************************************************************/
 
-void Newick::write(const Tree & tree, const string & path, bool overwrite) const throw (Exception) {
+void Newick::write(const Tree<Node> & tree, const string & path, bool overwrite) const throw (Exception)
+{
 	// Open file in specified mode
 	ofstream file(path.c_str(), overwrite ? (ios::out) : (ios::out|ios::app));
 

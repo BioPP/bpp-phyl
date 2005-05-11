@@ -119,7 +119,7 @@ class TreeLikelihood: public DerivableSecondOrder
 		 *
 		 * @return The tree of this TreeLikelihood object.
 	 	 */
-		virtual Tree * getTree() const = 0;
+		virtual Tree<Node> * getTree() const = 0;
 
 		/**
 		 * @brief Get the number of sites in the dataset.

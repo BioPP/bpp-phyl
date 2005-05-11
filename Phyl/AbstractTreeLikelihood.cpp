@@ -71,7 +71,7 @@ throw (ConstraintException)
 
 /******************************************************************************/
 
-Tree * AbstractTreeLikelihood::getTree() const { return _tree; }
+Tree<Node> * AbstractTreeLikelihood::getTree() const { return _tree; }
 
 /******************************************************************************/
 Vdouble AbstractTreeLikelihood::getLikelihoodForEachSite() const {

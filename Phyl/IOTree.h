@@ -35,7 +35,7 @@ class ITree: public IOTree
 		virtual ~ITree();
 
 	public:
-		virtual Tree * read(const string & path) const throw (Exception) = 0;
+		virtual Tree<Node> * read(const string & path) const throw (Exception) = 0;
 };
 
 class OTree: public IOTree
@@ -45,7 +45,7 @@ class OTree: public IOTree
 		virtual ~OTree();
 
 	public:
-		virtual void write(const Tree & tree, const string & path, bool overwrite) const throw (Exception) = 0;
+		virtual void write(const Tree<Node> & tree, const string & path, bool overwrite) const throw (Exception) = 0;
 };
 
 #endif	//_IOTREE_H_

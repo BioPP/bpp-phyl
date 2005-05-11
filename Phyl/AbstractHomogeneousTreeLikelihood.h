@@ -56,7 +56,7 @@ class AbstractHomogeneousTreeLikelihood: public AbstractTreeLikelihood, public D
 
 	public:
 		AbstractHomogeneousTreeLikelihood(
-			Tree & tree,
+			Tree<Node> & tree,
 			const SiteContainer & data,
 			SubstitutionModel * model,
 			DiscreteDistribution * rDist,

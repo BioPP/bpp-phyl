@@ -25,16 +25,3 @@ const Node * NodeException::getNode() const { return node; }
 
 /******************************************************************************/
 
-UnrootedTreeException::UnrootedTreeException(const char *   text, const Tree * tree) :
-	Exception("UnrootedTreeException: " + string(text) + (tree != NULL ? "(" + tree -> getName() + ")" : "")),
-	tree(tree) {};
-		
-UnrootedTreeException::UnrootedTreeException(const string & text, const Tree * tree) :
-	Exception("UnrootedTreeException: " + text + (tree != NULL ? "(" + tree -> getName() + ")" : "")),
-	tree(tree) {};
-		
-UnrootedTreeException::~UnrootedTreeException() throw() {};
-	
-const Tree * UnrootedTreeException::getTree() const { return tree; }
-
-/******************************************************************************/

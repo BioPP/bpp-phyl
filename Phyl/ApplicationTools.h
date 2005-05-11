@@ -321,7 +321,7 @@ class ApplicationTools
 		 * @param verbose Print some info to the 'message' output stream.
 		 * @return A new Tree object according to options specified.
 		 */
-		static Tree * getTree(
+		static Tree<Node> * getTree(
 			map<string, string> & params,
 			const string & suffix = "",
 			bool suffixIsOptional = true,
@@ -508,7 +508,7 @@ class ApplicationTools
 		 * @param verbose Print some info to the 'message' output stream.
 		 */
 		static void writeTree(
-			const Tree & tree,
+			const Tree<Node> & tree,
 			map<string, string> & params,
 			const string & suffix = "",
 			bool verbose = true);

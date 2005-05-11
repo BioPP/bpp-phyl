@@ -7,7 +7,8 @@
 #ifndef _TREETOOLS_H_
 #define _TREETOOLS_H_
 
-#include "Tree.h"
+//#include "Tree.h"
+#include "TreeExceptions.h" // Include a declaration of classes Node and Tree<Node>.
 
 // From Utils:
 #include <Utils/Exceptions.h>
@@ -137,7 +138,7 @@ class TreeTools
 		 * @param description the string to parse;
 		 * @return A pointer toward a dynamically created tree.
 		 */
-		static Tree * parenthesisToTree(const string & description);
+		static Tree<Node> * parenthesisToTree(const string & description);
 		
 		/**
 		 * @brief Get the parenthesis description of a subtree.
@@ -153,7 +154,7 @@ class TreeTools
 		 * @param tree The tree to convert.
 		 * @return A string in the parenthesis format.
 		 */
-		static string treeToParenthesis(const Tree & tree);
+		static string treeToParenthesis(const Tree<Node> & tree);
 		
 		/** @} */
 		
@@ -182,15 +183,6 @@ class TreeTools
 		static Vdouble getBranchLengths(const Node & node) throw (NodeException);
 		
 		/**
-		 * @brief Get all the branch lengths of a tree.
-		 *
-		 * @param tree The tree.
-		 * @return A vector with all branch lengths.
-		 * @throw NodeException If a branch length is lacking.
-		 */
-		static Vdouble getBranchLengths(const Tree & tree) throw (NodeException);
-
-		/**
 		 * @brief Get the total length (sum of all branch lengths) of a subtree.
 		 *
 		 * @param node The root node of the subtree.
@@ -198,15 +190,6 @@ class TreeTools
 		 * @throw NodeException If a branch length is lacking.
 		 */
 		static double getTotalLength(const Node & node) throw (NodeException);
-
-		/**
-		 * @brief Get the total length (sum of all branch lengths) of a tree.
-		 *
-		 * @param tree The tree.
-		 * @return The total length of the subtree.
-		 * @throw NodeException If a branch length is lacking.
-		 */
-		static double getTotalLength(const Tree & tree) throw (NodeException);
 
 		/**
 		 * @brief Set all the branch lengths of a subtree.
@@ -217,29 +200,13 @@ class TreeTools
 		static void setBranchLengths(Node & node, double brLen);
 		
 		/**
-		 * @brief Set all the branch lengths of a tree.
-		 *
-		 * @param node  The node.
-		 * @param brLen The branch length to apply.
-		 */
-		static void setBranchLengths(Tree & node, double brLen);
-		
-		/**
 		 * @brief Give a length to branches that don't have one in a subtree.
 		 *
 		 * @param node  The root node of the subtree.
 		 * @param brLen The branch length to apply.
 		 */
 		static void setVoidBranchLengths(Node & node, double brLen);
-		
-		/**
-		 * @brief Give a length to branches that don't have one in a tree.
-		 *
-		 * @param node  The node.
-		 * @param brLen The branch length to apply.
-		 */
-		static void setVoidBranchLengths(Tree & node, double brLen);
-		
+				
 		/**
 		 * @brief Scale a given tree.
 		 *
@@ -250,20 +217,51 @@ class TreeTools
 		 * @throw NodeException If a branch length is lacking.
 		 */
 		static void scaleTree(Node & node, double factor) throw (NodeException);
-		
-		/**
-		 * @brief Scale a given tree.
-		 *
-		 * Multiply all branch lengths by a given factor.
-		 *
-		 * @param tree   The tree to scale.
-		 * @param factor The factor to multiply all branch lengths with.
-		 * @throw NodeException If a branch length is lacking.
-		 */
-		static void scaleTree(Tree & tree, double factor) throw (NodeException);
 				
 		/** @} */
 
+		//The following methods are adapted from the tree class of the SEMPHY library:
+		vector<Node *> getPathBetweenAnyTwoNodes(Node & node1, Node & node2);
+
+		template<class N>
+		static const N * getSon(const N & node, unsigned int i)
+		{
+			return dynamic_cast<const N *>(node.getSon(i));
+		}
+		
+		template<class N>
+		static N * getSon(N & node, unsigned int i)
+		{
+			return dynamic_cast<N *>(node.getSon(i));
+		}
+		
+		template<class N>
+		static const N * getFather(const N & node)
+		{
+			return dynamic_cast<const N *>(node.getFather());
+		}
+		
+		template<class N>
+		static N * getFather(N & node)
+		{
+			return dynamic_cast<N *>(node.getFather());
+		}
+		
+		template<class N>
+		static N * cloneSubtree(const N & node) 
+		{
+			//First we copy this node using default copy constuctor:
+			N * clone = new N(node);
+			//Remove all sons. This is possible since Tree is a friend of Node:
+			//clone -> sons.resize(0);
+			//Now we perform a hard copy:
+			for(unsigned int i = 0; i < node.getNumberOfSons(); i++) {
+				//clone -> addSon(* cloneSubtree<N>(* node[i]));
+				clone -> setSon(i, * cloneSubtree<N>(* node[i]));
+			}
+			return clone;
+		}
+		
 		/**
 		 * @name Random trees
 		 *
@@ -276,7 +274,7 @@ class TreeTools
 		 * @param leavesNames A list of taxa.
 		 * @return A random tree with all corresponding taxa.
 		 */
-		static Tree * getRandomTree(vector<string> & leavesNames);
+		static Tree<Node> * getRandomTree(vector<string> & leavesNames);
 
 		/** @} */
 		

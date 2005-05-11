@@ -11,7 +11,7 @@
 #include <Utils/Exceptions.h>
 
 class Node;
-class Tree;
+template<class N> class Tree;
 
 /******************************************************************************
  *                            Tree exceptions:                                *
@@ -53,10 +53,11 @@ class NodeException : public Exception {
 
 /******************************************************************************/
 
+template<class N>
 class UnrootedTreeException : public Exception {
 
 	protected:
-		const Tree * tree;
+		const Tree<N> * tree;
 			
 	public: // Class constructors and destructor:
 
@@ -66,24 +67,29 @@ class UnrootedTreeException : public Exception {
 		 * @param text A message to be passed to the exception hierarchy.
 		 * @param tree A const pointer toward the tree that threw the exception.
 		 */
-		UnrootedTreeException(const char *   text, const Tree * tree = NULL);
-	
+		UnrootedTreeException(const char *   text, const Tree<N> * tree = NULL) :
+			Exception("UnrootedTreeException: " + string(text) + (tree != NULL ? "(" + tree -> getName() + ")" : "")),
+			tree(tree) {};
+			
 		/**
 		 * @brief Build a new UnrootedTreeException.
 		 * 
 		 * @param text A message to be passed to the exception hierarchy.
 		 * @param tree A const pointer toward the tree that threw the exception.
 		 */
-		UnrootedTreeException(const string & text, const Tree * tree = NULL);
-	
-		virtual ~UnrootedTreeException() throw ();
+		UnrootedTreeException(const string & text, const Tree<N> * tree = NULL) :
+			Exception("UnrootedTreeException: " + text + (tree != NULL ? "(" + tree -> getName() + ")" : "")),
+			tree(tree) {};
+
+		virtual ~UnrootedTreeException() throw () {}
 	
 	public:
 		/**
-		 * @brief <p>Get the tree that threw the exception.</p>
-		 * @return The faulty tree/
+		 * @brief Get the tree that threw the exception.
+		 * 
+		 * @return The faulty tree
 		 */
-		virtual const Tree * getTree() const;
+		virtual const Tree<N> * getTree() const { return tree; }
 };
 
 /******************************************************************************/

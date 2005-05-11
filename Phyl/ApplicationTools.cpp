@@ -231,7 +231,7 @@ Alphabet * ApplicationTools::getAlphabet(
 
 /******************************************************************************/
 
-Tree * ApplicationTools::getTree(
+Tree<Node> * ApplicationTools::getTree(
 	map<string, string> & params,
 	const string & suffix,
 	bool suffixIsOptional,
@@ -241,7 +241,7 @@ Tree * ApplicationTools::getTree(
 	
 	//Read the tree file:
 	Newick newick(true);
-	Tree * tree = newick.read(treeFilePath);
+	Tree<Node> * tree = newick.read(treeFilePath);
 	if(verbose) displayResult("Tree file", treeFilePath);
 	return tree;
 }
@@ -744,7 +744,7 @@ void ApplicationTools::printOptimizationHelp() {
 /******************************************************************************/
 
 void ApplicationTools::writeTree(
-	const Tree & tree,
+	const Tree<Node> & tree,
 	map<string, string> & params,
 	const string & suffix,
 	bool verbose)

@@ -24,7 +24,7 @@ class AbstractTreeLikelihood : public TreeLikelihood
 	protected:
 		const SiteContainer * _data;
 		mutable ParameterList _parameters;
-		mutable Tree *        _tree;
+		mutable Tree<Node> *  _tree;
 
 	public:
 		virtual ~AbstractTreeLikelihood();
@@ -63,7 +63,7 @@ class AbstractTreeLikelihood : public TreeLikelihood
 		unsigned int getNumberOfSites() const { return _data -> getNumberOfSites(); }
 		unsigned int getNumberOfStates() const { return _data -> getAlphabet() -> getSize(); }
 
-		Tree * getTree() const;
+		Tree<Node> * getTree() const;
 	
 	protected:
 		

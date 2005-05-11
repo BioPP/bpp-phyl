@@ -27,11 +27,11 @@ using namespace std;
  *
  * The Felsenstein recursive algorithm is used for conputation.
  * As in the HomogeneousTreeLikelihood class, a likelihood tensor is defined:
- * <ul>
- * <li>Site</li>
- * <li>Rate class</li>
- * <li>Ancestral state</li>
- * </ul>
+ * 
+ * -Site
+ * -Rate class
+ * -Ancestral state
+ * 
  * However in this class, a node will be attached a set of tensor instead of one single tensor,
  * one tensor for each subtree it defines.
  * These tensors are stored into a map of map, with each node as a primary key and each neighbor
@@ -96,7 +96,7 @@ class DRHomogeneousTreeLikelihood : public AbstractHomogeneousTreeLikelihood
 		
 	public:
 		DRHomogeneousTreeLikelihood(
-			Tree & tree,
+			Tree<Node> & tree,
 			const SiteContainer & data,
 			SubstitutionModel * model,
 			DiscreteDistribution * rDist,

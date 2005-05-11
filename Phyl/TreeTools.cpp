@@ -5,6 +5,7 @@
 //
 
 #include "TreeTools.h"
+#include "Tree.h"
 
 // From Utils:
 #include <Utils/TextTools.h>
@@ -266,7 +267,7 @@ Node * TreeTools::parenthesisToNode(const string & description)
 
 /******************************************************************************/
 
-Tree * TreeTools::parenthesisToTree(const string & description)
+Tree<Node> * TreeTools::parenthesisToTree(const string & description)
 {
 	int lastP  = description.rfind(')');
 	int firstP = description.find('(');
@@ -291,7 +292,7 @@ Tree * TreeTools::parenthesisToTree(const string & description)
 			node -> addSon(* son);
 		}
 	}
-	Tree * tree = new Tree();
+	Tree<Node> * tree = new Tree<Node>();
 	tree -> setRootNode(* node);
 	tree -> resetNodesId();
 	return tree;
@@ -299,7 +300,8 @@ Tree * TreeTools::parenthesisToTree(const string & description)
 
 /******************************************************************************/
 
-string TreeTools::nodeToParenthesis(const Node & node) {
+string TreeTools::nodeToParenthesis(const Node & node)
+{
 	ostringstream s;
 	if(node.isLeaf()) {
 		s << node.getName();
@@ -318,7 +320,8 @@ string TreeTools::nodeToParenthesis(const Node & node) {
 
 /******************************************************************************/
 
-string TreeTools::treeToParenthesis(const Tree & tree) {
+string TreeTools::treeToParenthesis(const Tree<Node> & tree)
+{
 	ostringstream s;
 	s << "(";
 	const Node * node = tree.getRootNode();
@@ -336,7 +339,8 @@ string TreeTools::treeToParenthesis(const Tree & tree) {
 
 /******************************************************************************/
 
-bool TreeTools::isMultifurcating(const Node & node) {
+bool TreeTools::isMultifurcating(const Node & node)
+{
 	if(node.getNumberOfSons() > 2) return true;
 	else {
 		bool b = false;
@@ -363,19 +367,6 @@ Vdouble TreeTools::getBranchLengths(const Node & node) throw (NodeException)
 
 /******************************************************************************/
 
-Vdouble TreeTools::getBranchLengths(const Tree & tree) throw (NodeException)
-{
-	Vdouble brLen(1);
-	const Node * root = tree.getRootNode();
-	for(unsigned int i = 0; i < root -> getNumberOfSons(); i++) {
-		Vdouble sonBrLen = getBranchLengths(* root -> getSon(i));
-		for(unsigned int j = 0; j < sonBrLen.size(); j++) brLen.push_back(sonBrLen[j]);
-	}
-	return brLen;
-}
-
-/******************************************************************************/
-
 double TreeTools::getTotalLength(const Node & node) throw (NodeException)
 {
 	if(!node.hasDistanceToFather()) throw NodeException("TreeTools::getTotalLength(). No branch length.", &node);
@@ -388,14 +379,8 @@ double TreeTools::getTotalLength(const Node & node) throw (NodeException)
 
 /******************************************************************************/
 
-double TreeTools::getTotalLength(const Tree & tree) throw (NodeException)
+void TreeTools::setBranchLengths(Node & node, double brLen)
 {
-	return getTotalLength(* tree.getRootNode());
-}
-
-/******************************************************************************/
-
-void TreeTools::setBranchLengths(Node & node, double brLen) {
 	node.setDistanceToFather(brLen);
 	for(unsigned int i = 0; i < node.getNumberOfSons(); i++) {
 		setBranchLengths(* node.getSon(i), brLen);
@@ -404,23 +389,12 @@ void TreeTools::setBranchLengths(Node & node, double brLen) {
 
 /******************************************************************************/
 
-void TreeTools::setBranchLengths(Tree & tree, double brLen) {
-	setBranchLengths(* tree.getRootNode(), brLen);
-}
-
-/******************************************************************************/
-
-void TreeTools::setVoidBranchLengths(Node & node, double brLen) {
+void TreeTools::setVoidBranchLengths(Node & node, double brLen)
+{
 	if(!node.hasDistanceToFather()) node.setDistanceToFather(brLen);
 	for(unsigned int i = 0; i < node.getNumberOfSons(); i++) {
 		setVoidBranchLengths(* node.getSon(i), brLen);
 	}
-}
-
-/******************************************************************************/
-
-void TreeTools::setVoidBranchLengths(Tree & tree, double brLen) {
-	setVoidBranchLengths(* tree.getRootNode(), brLen);
 }
 
 /******************************************************************************/
@@ -436,14 +410,7 @@ void TreeTools::scaleTree(Node & node, double factor) throw (NodeException)
 		
 /******************************************************************************/
 
-void TreeTools::scaleTree(Tree & tree, double factor) throw (NodeException)
-{
-	scaleTree(* tree.getRootNode(), factor);
-}
-
-/******************************************************************************/
-
-Tree * TreeTools::getRandomTree(vector<string> & leavesNames)
+Tree<Node> * TreeTools::getRandomTree(vector<string> & leavesNames)
 {
   if(leavesNames.size() == 0) return NULL; // No taxa.
   // This vector will contain all nodes.
@@ -470,7 +437,46 @@ Tree * TreeTools::getRandomTree(vector<string> & leavesNames)
 		nodes.push_back(parent);
 	}
   // Return tree with last node as root node:
-  return new Tree(* nodes[0]);
+  return new Tree<Node>(* nodes[0]);
+}
+
+/******************************************************************************/
+
+vector<Node *> TreeTools::getPathBetweenAnyTwoNodes(Node & node1, Node & node2)
+{
+	vector<Node *> path;
+	vector<Node *> pathMatrix1;
+	vector<Node *> pathMatrix2;
+
+	Node * nodeUp = & node1;
+	while(nodeUp -> hasFather())	{ // while(nodeUp != root)
+		pathMatrix1.push_back(nodeUp);
+		nodeUp = nodeUp -> getFather();
+	}
+	pathMatrix1.push_back(nodeUp); // The root.
+
+	nodeUp = & node2;
+	while(nodeUp -> hasFather())	{
+		pathMatrix2.push_back(nodeUp);
+		nodeUp = nodeUp -> getFather();
+	}
+	pathMatrix2.push_back(nodeUp); // The root.
+	// Must check that the two nodes have the same root!!!
+
+	int tmp1 = pathMatrix1.size() - 1;
+	int tmp2 = pathMatrix2.size() - 1;
+
+	while((tmp1 >= 0) && (tmp2 >= 0)) {
+		if (pathMatrix1[tmp1] != pathMatrix2[tmp2]) break;
+		tmp1--; tmp2--;
+	}
+
+	for (int y = 0; y <= tmp1; ++y) path.push_back(pathMatrix1[y]);
+	path.push_back(pathMatrix1[tmp1 + 1]); // pushing once, the Node that was common to both.
+	for (int j = tmp2; j >= 0; --j) {
+		path.push_back(pathMatrix2[j]);
+	}
+	return path;
 }
 
 /******************************************************************************/

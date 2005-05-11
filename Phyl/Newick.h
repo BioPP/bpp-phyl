@@ -26,7 +26,7 @@
  * 
  * Newick * newickReader = new Newick(false); //No comment allowed!
  * try {
- * 	Tree * tree = newickReader -> read("MyTestTree.dnd"); // Tree in file MyTestTree.dnd
+ * 	Tree<Node> * tree = newickReader -> read("MyTestTree.dnd"); // Tree in file MyTestTree.dnd
  * 	cout << "Tree has " << tree -> getNumberOfLeaves() << " leaves." << endl;
  * } catch (Exception e) {
  *	cout << "Error when reading tree." << endl;
@@ -41,6 +41,7 @@ class Newick: public ITree, public OTree
 		bool _allowComments;
 	
 	public:
+		
 		/**
 		 * @brief Build a new Newick reader/writer.
 		 *
@@ -67,7 +68,7 @@ class Newick: public ITree, public OTree
 		 *
 		 * @{
 		 */
-		Tree * read(const string & path) const throw (Exception);
+		Tree<Node> * read(const string & path) const throw (Exception);
 		/** @} */
 
 		/**
@@ -75,7 +76,7 @@ class Newick: public ITree, public OTree
 		 *
 		 * @{
 		 */
-		void write(const Tree & tree, const string & path, bool overwrite = true) const throw (Exception);
+		void write(const Tree<Node> & tree, const string & path, bool overwrite = true) const throw (Exception);
 		/** @} */
 };
 

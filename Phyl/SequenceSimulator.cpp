@@ -19,7 +19,7 @@ using namespace VectorOperators;
 HomogeneousSequenceSimulator::HomogeneousSequenceSimulator(
 	const MutationProcess * process,
 	const DiscreteDistribution * rate,
-	const Tree * tree,
+	const Tree<Node> * tree,
 	bool verbose):
 	_process(process),
 	_rate(rate),
@@ -213,7 +213,8 @@ Site * HomogeneousSequenceSimulator::simulate() const
 
 /******************************************************************************/
 
-	#include <Seq/Mase.h>
+#include <Seq/Mase.h>
+
 SiteContainer * HomogeneousSequenceSimulator::simulate(unsigned int numberOfSites) const
 {
 	// really unefficient!
@@ -289,7 +290,7 @@ HomogeneousSequenceSimulator::getSubstitutionModel() const {
 const DiscreteDistribution * 
 HomogeneousSequenceSimulator::getRateDistribution() const { return _rate; }
 
-const Tree * 
+const Tree<Node> * 
 HomogeneousSequenceSimulator::getTree() const { return _tree; }
 
 /******************************************************************************/
