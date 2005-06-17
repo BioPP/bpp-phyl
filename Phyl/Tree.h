@@ -1,6 +1,6 @@
 //
 // File: Tree.h
-// Created by: jdutheil <julien.dutheil@ens-lyon.fr>
+// Created by: Julien Dutheil
 // Created on: Thu Mar 13 12:03:18 2003
 //
 
@@ -361,6 +361,8 @@ class Node {
 		vector<const Node *> getNeighbors() const;
 		
 		vector<Node *> getNeighbors();
+
+		unsigned int degree() const { return getNumberOfSons() + (hasFather() ? 1 : 0); }
 		
 		/**
 		 * @name Operators:
@@ -405,7 +407,7 @@ class Node {
 				
 		// Tests:
 
-		bool isLeaf() const { return _sons.size() == 0; }
+		bool isLeaf() const { return degree() == 1; }
 			
 	friend class Tree<Node>;
 };
@@ -415,9 +417,10 @@ class NodeTemplate : public Node {
 	
 	protected:
 
-		NodeInfos * _infos;
+		NodeInfos _infos;
 
 	public:
+		
 		/**	
 		 * @brief Build a new void NodeTemplate object.
 		 */
@@ -460,24 +463,6 @@ class NodeTemplate : public Node {
 			for(map<string, Clonable *>::iterator i = node._properties.begin(); i != node._properties.end(); i++)
 				_properties[i -> first] = i -> second -> clone();
 			_infos            = node._infos;
-		}
-
-		/**
-		 * @brief Copy constructor with a different template.
-		 * 
-		 * @param node The node to copy.
-		 */
-		template<class AnotherNodeInfos>
-		NodeTemplate(const NodeTemplate<AnotherNodeInfos> & node)
-		{
-			_id               = node._id;
-			_name             = node.hasName() ? new string(* node._name) : NULL;
-			_father           = node._father;
-			_distanceToFather = node.hasDistanceToFather() ? new double(* node._distanceToFather) : NULL;
-			_sons             = node._sons;
-			for(map<string, Clonable *>::iterator i = node._properties.begin(); i != node._properties.end(); i++)
-				_properties[i -> first] = i -> second -> clone();
-			_infos            = node._infos; // This operator must be defined!
 		}
 
 		/**
@@ -540,7 +525,7 @@ class NodeTemplate : public Node {
 		
 		virtual NodeInfos getInfos() { return _infos; }
 
-		virtual void setInfos(const NodeInfos & info) { _infos = infos; }
+		virtual void setInfos(const NodeInfos & infos) { _infos = infos; }
 
 };
 
@@ -561,7 +546,17 @@ class NodeTemplate : public Node {
  * hence the root node appears to be trifurcated. This is the way unrooted trees are
  * described in the parenthetic description, the so called Newick format.
  * 
+ * To clone a tree from from another tree with a different template,
+ * consider using the TreeTools::cloneSutree<N>() method:
+ * <code>
+ * Tree * t = new Tree<Node>(...)
+ * NodeTemplate<int> * newRoot = TreeTools::cloneSubtree< NodeTemplate<int> >(* (t -> getRootNode()))
+ * Tree< NodeTemplate<int> > * tt = new Tree< NodeTemplate<int> >(* newRoot);
+ * </code>
+ * 
  * @see Node
+ * @see NodeTemplate
+ * @see TreeTools
  */
 template<class N=Node>
 class Tree {
@@ -581,13 +576,6 @@ class Tree {
 		{
 			//Perform a hard copy of the nodes:
 			_root = TreeTools::cloneSubtree<N>(* t.getRootNode());
-		}
-
-		template<class AnotherNodeType>
-		Tree(const Tree<AnotherNodeType> & t)
-		{
-			//Perform a hard copy of the nodes:
-			_root = TreeTools::cloneSubtree<AnotherNodeType>(* t.getRootNode());
 		}
 
 		Tree(N & root) { _root = &root; }
@@ -740,7 +728,6 @@ class Tree {
 		/**
 		 * @brief Get all the branch lengths of a tree.
 		 *
-		 * @param tree The tree.
 		 * @return A vector with all branch lengths.
 		 * @throw NodeException If a branch length is lacking.
 		 */
@@ -757,7 +744,6 @@ class Tree {
 		/**
 		 * @brief Get the total length (sum of all branch lengths) of a tree.
 		 *
-		 * @param tree The tree.
 		 * @return The total length of the subtree.
 		 * @throw NodeException If a branch length is lacking.
 		 */
@@ -769,7 +755,6 @@ class Tree {
 		/**
 		 * @brief Set all the branch lengths of a tree.
 		 *
-		 * @param node  The node.
 		 * @param brLen The branch length to apply.
 		 */
 		void setBranchLengths(double brLen)
@@ -780,7 +765,6 @@ class Tree {
 		/**
 		 * @brief Give a length to branches that don't have one in a tree.
 		 *
-		 * @param node  The node.
 		 * @param brLen The branch length to apply.
 		 */
 		void setVoidBranchLengths(double brLen)
@@ -793,7 +777,6 @@ class Tree {
 		 *
 		 * Multiply all branch lengths by a given factor.
 		 *
-		 * @param tree   The tree to scale.
 		 * @param factor The factor to multiply all branch lengths with.
 		 * @throw NodeException If a branch length is lacking.
 		 */
@@ -806,11 +789,9 @@ class Tree {
 		
 		void destroyNode(const N & node)
 		{
-			if(!node.isLeaf()) {
-				for(unsigned int i = 0; i < node.getNumberOfSons(); i++) {
-					destroyNode(* node[i]);
-					delete node[i];
-				}
+			for(unsigned int i = 0; i < node.getNumberOfSons(); i++) {
+				destroyNode(* node[i]);
+				delete node[i];
 			}
 		}
 		

@@ -31,12 +31,11 @@ vector<const Node *> TreeTools::getLeaves(const Node & node)
 	vector<const Node *> leaves;
 	if(node.isLeaf()) {
 		leaves.push_back(& node);
-	} else {
-		for(unsigned int i = 0; i < node.getNumberOfSons(); i++) {
-			vector<const Node *> sonLeaves = getLeaves(* node[i]);
-			for(unsigned int j = 0; j < sonLeaves.size(); j++) {
-				leaves.push_back(sonLeaves[j]);
-			}
+	}
+	for(unsigned int i = 0; i < node.getNumberOfSons(); i++) {
+		vector<const Node *> sonLeaves = getLeaves(* node[i]);
+		for(unsigned int j = 0; j < sonLeaves.size(); j++) {
+			leaves.push_back(sonLeaves[j]);
 		}
 	}
 	return leaves;
@@ -49,12 +48,11 @@ vector<Node *> TreeTools::getLeaves(Node & node)
 	vector<Node *> leaves;
 	if(node.isLeaf()) {
 		leaves.push_back(& node);
-	} else {
-		for(unsigned int i = 0; i < node.getNumberOfSons(); i++) {
-			vector<Node *> sonLeaves = getLeaves(* node[i]);
-			for(unsigned int j = 0; j < sonLeaves.size(); j++) {
-				leaves.push_back(sonLeaves[j]);
-			}
+	}
+	for(unsigned int i = 0; i < node.getNumberOfSons(); i++) {
+		vector<Node *> sonLeaves = getLeaves(* node[i]);
+		for(unsigned int j = 0; j < sonLeaves.size(); j++) {
+			leaves.push_back(sonLeaves[j]);
 		}
 	}
 	return leaves;
@@ -101,10 +99,9 @@ unsigned int TreeTools::getNumberOfLeaves(const Node & node)
 	unsigned int nbLeaves = 0;
 	if(node.isLeaf()) {
 		nbLeaves++;
-	} else {
-		for(unsigned int i = 0; i < node.getNumberOfSons(); i++) {
-			nbLeaves += getNumberOfLeaves(* node[i]);
-		}
+	} 
+	for(unsigned int i = 0; i < node.getNumberOfSons(); i++) {
+		nbLeaves += getNumberOfLeaves(* node[i]);
 	}
 	return nbLeaves;
 }
@@ -116,11 +113,10 @@ vector<string> TreeTools::getLeavesNames(const Node & node)
 	vector<string> names;
 	if(node.isLeaf()) {
     names.push_back(node.getName());
-  } else {
-		for(unsigned int i = 0; i < node.getNumberOfSons(); i++) {
-			vector<string> subNames = getLeavesNames(* node.getSon(i));
-			for(unsigned int j = 0; j < subNames.size(); j++) names.push_back(subNames[j]);
-		}
+  }
+	for(unsigned int i = 0; i < node.getNumberOfSons(); i++) {
+		vector<string> subNames = getLeavesNames(* node.getSon(i));
+		for(unsigned int j = 0; j < subNames.size(); j++) names.push_back(subNames[j]);
 	}
 	return names;	 
 }
@@ -327,6 +323,9 @@ string TreeTools::treeToParenthesis(const Tree<Node> & tree)
 	const Node * node = tree.getRootNode();
 	if(node -> isLeaf()) {
 		s << node -> getName();
+		for(unsigned int i = 0; i < node -> getNumberOfSons(); i++) {
+			s << "," << nodeToParenthesis(* node -> getSon(i));
+		}
 	} else {
 		s << nodeToParenthesis(* node -> getSon(0));
 		for(unsigned int i = 1; i < node -> getNumberOfSons(); i++) {

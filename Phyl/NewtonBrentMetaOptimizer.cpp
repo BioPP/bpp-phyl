@@ -1,11 +1,11 @@
 //
 // File: NewtonBrentMetaOptimizer.cpp
-// Created by; jdutheil <Julien.Dutheil@univ-montp2.fr>
+// Created by: Julien Dutheil <Julien.Dutheil@univ-montp2.fr>
 // Created on: ue Nov 17 17:22 2004
 //
 
 /*
-Copyright ou © ou Copr. Julien Dutheil, (17 Novembre 2004) 
+Copyright ou © ou Copr. CNRS, (17 Novembre 2004) 
 
 Julien.Dutheil@univ-montp2.fr
 
@@ -41,7 +41,7 @@ termes.
 */
 
 /*
-Copyright or © or Copr. Julien Dutheil, (November 17, 2004)
+Copyright or © or Copr. CNRS, (November 17, 2004)
 
 Julien.Dutheil@univ-montp2.fr
 
@@ -87,14 +87,15 @@ double NewtonBrentMetaOptimizer::SUBSTITUTION_MODEL_TOL = 0.01;
 
 /**************************************************************************/
 
-NewtonBrentMetaOptimizer::NewtonBrentMetaOptimizer(AbstractHomogeneousTreeLikelihood * tl):
-	AbstractOptimizer(tl), _tl(tl)
+NewtonBrentMetaOptimizer::NewtonBrentMetaOptimizer(DiscreteRatesAcrossSitesTreeLikelihood * tl):
+	AbstractOptimizer(tl)
 {
 	_defaultStopCondition = new FunctionStopCondition(this);
 	_stopCondition = _defaultStopCondition;
 	_rateDistributionOptimizer = NULL;
 	_substitutionModelOptimizer = NULL;
 	_branchLengthsOptimizer = NULL;
+	_rough=true;
 }
 
 /**************************************************************************/
@@ -113,6 +114,8 @@ NewtonBrentMetaOptimizer::~NewtonBrentMetaOptimizer()
 void NewtonBrentMetaOptimizer::init(const ParameterList & parameters)
 	throw (Exception)
 {
+	DiscreteRatesAcrossSitesTreeLikelihood * tl = dynamic_cast<DiscreteRatesAcrossSitesTreeLikelihood *>(_function);
+	_stopCondition -> init();
 	_parameters = parameters;
 	unsigned int nbParams = _parameters.size();
 
@@ -123,7 +126,7 @@ void NewtonBrentMetaOptimizer::init(const ParameterList & parameters)
 	delete _branchLengthsOptimizer;
 	
 	// Check parameters class:
-	ParameterList rateDistParams = _tl -> getRateDistributionParameters();
+	ParameterList rateDistParams = tl -> getRateDistributionParameters();
 	_nbRateDistParams = 0;
 	_rateDistributionParameters.reset();
 	for(unsigned int i = 0; i < rateDistParams.size(); i++) {
@@ -134,7 +137,7 @@ void NewtonBrentMetaOptimizer::init(const ParameterList & parameters)
 		}
 	}
 
-	ParameterList subsModParams = _tl -> getSubstitutionModelParameters();
+	ParameterList subsModParams = tl -> getSubstitutionModelParameters();
 	_nbSubsModParams = 0;
 	_substitutionModelParameters.reset();
 	for(unsigned int i = 0; i < subsModParams.size(); i++) {
@@ -145,7 +148,7 @@ void NewtonBrentMetaOptimizer::init(const ParameterList & parameters)
 		}
 	}
 
-	ParameterList branchLengthParams = _tl -> getBranchLengthsParameters();
+	ParameterList branchLengthParams = tl -> getBranchLengthsParameters();
 	_nbBranchLengths = 0;
 	_branchLengthsParameters.reset();
 	for(unsigned int i = 0; i < branchLengthParams.size(); i++) {
@@ -158,22 +161,30 @@ void NewtonBrentMetaOptimizer::init(const ParameterList & parameters)
 
 	
 	// Initialize optimizers:
-	_rateDistributionOptimizer = new SimpleMultiDimensions(_tl);
-	_rateDistributionOptimizer -> setProfiler(_profiler);
-	_rateDistributionOptimizer -> setMessageHandler(_messageHandler);
-	_rateDistributionOptimizer -> setConstraintPolicy(_constraintPolicy);
-	//_rateDistributionOptimizer -> setConstraintPolicy(AbstractOptimizer::CONSTRAINTS_IGNORE);
-
-	_substitutionModelOptimizer = new SimpleMultiDimensions(_tl);
-	_substitutionModelOptimizer -> setProfiler(_profiler);
-	_substitutionModelOptimizer -> setMessageHandler(_messageHandler);
-	_substitutionModelOptimizer -> setConstraintPolicy(_constraintPolicy);
+	if(_nbRateDistParams > 0) {
+		_rateDistributionOptimizer = new SimpleMultiDimensions(tl);
+		_rateDistributionOptimizer -> setProfiler(_profiler);
+		_rateDistributionOptimizer -> setMessageHandler(_messageHandler);
+		_rateDistributionOptimizer -> setConstraintPolicy(_constraintPolicy);
+		_rateDistributionOptimizer -> setVerbose(_verbose > 1 ? 1 : 0);
+		//_rateDistributionOptimizer -> setConstraintPolicy(AbstractOptimizer::CONSTRAINTS_IGNORE);
+	}
 	
-	_branchLengthsOptimizer = new GaltierNewtonOptimizer(_tl);
-	_branchLengthsOptimizer -> setProfiler(_profiler);
-	_branchLengthsOptimizer -> setMessageHandler(_messageHandler);
-	_branchLengthsOptimizer -> setConstraintPolicy(_constraintPolicy);
+	if(_nbSubsModParams > 0) {
+		_substitutionModelOptimizer = new SimpleMultiDimensions(tl);
+		_substitutionModelOptimizer -> setProfiler(_profiler);
+		_substitutionModelOptimizer -> setMessageHandler(_messageHandler);
+		_substitutionModelOptimizer -> setConstraintPolicy(_constraintPolicy);
+		_substitutionModelOptimizer -> setVerbose(_verbose > 1 ? 1 : 0);
+	}
 
+	if(_nbBranchLengths > 0) {
+		_branchLengthsOptimizer = new PseudoNewtonOptimizer(tl);
+		_branchLengthsOptimizer -> setProfiler(_profiler);
+		_branchLengthsOptimizer -> setMessageHandler(_messageHandler);
+		_branchLengthsOptimizer -> setConstraintPolicy(_constraintPolicy);
+		_branchLengthsOptimizer -> setVerbose(_verbose > 1 ? 1 : 0);
+	}
 	
 	// Dump to profile:
 	for(unsigned int i = 0; i < nbParams; i++) {
@@ -193,80 +204,112 @@ void NewtonBrentMetaOptimizer::init(const ParameterList & parameters)
 double NewtonBrentMetaOptimizer::optimize()
 	throw (Exception)
 {
+	DiscreteRatesAcrossSitesTreeLikelihood * tl = dynamic_cast<DiscreteRatesAcrossSitesTreeLikelihood *>(_function);
 	_nbEval = 0;
 	
-	// First adjust roughly the branch lengths:
-	cout << endl << "Branch lengths (rough):" << endl;
-	cout.flush();
-	_branchLengthsOptimizer -> getStopCondition() -> setTolerance(BRANCH_LENGTHS_TOL);
-	_branchLengthsOptimizer -> init(_branchLengthsParameters);
-	_branchLengthsOptimizer -> optimize();
-	_nbEval += _branchLengthsOptimizer -> getNumberOfEvaluations();
-	
-	// Then adjust rate distribution parameters:
-	cout << endl << "Rate distribution (rough):" << endl;
-	cout.flush();
-	_rateDistributionOptimizer -> getStopCondition() -> setTolerance(RATE_DISTRIBUTION_TOL);
-	_rateDistributionOptimizer -> init(_rateDistributionParameters);
-	_rateDistributionOptimizer -> optimize();
-	_nbEval += _rateDistributionOptimizer -> getNumberOfEvaluations();
-	
-	// Now adjust substitution parameters:
-	cout << endl << "Substitution model (rough):" << endl;
-	cout.flush();
-	_substitutionModelOptimizer -> getStopCondition() -> setTolerance(SUBSTITUTION_MODEL_TOL);
-	_substitutionModelOptimizer -> init(_substitutionModelParameters);
-	_substitutionModelOptimizer -> optimize();
-	_nbEval += _substitutionModelOptimizer -> getNumberOfEvaluations();	
+	if(_rough) {
+		// First adjust roughly the branch lengths:
+		if(_nbBranchLengths > 0) {
+			if(_verbose > 0) {
+				cout << endl << "Branch lengths (rough):" << endl;
+				cout.flush();
+			}
+			tl -> setComputeDerivatives(true);
+			_branchLengthsOptimizer -> getStopCondition() -> setTolerance(BRANCH_LENGTHS_TOL);
+			_branchLengthsOptimizer -> init(_branchLengthsParameters);
+			_branchLengthsOptimizer -> optimize();
+			_nbEval += _branchLengthsOptimizer -> getNumberOfEvaluations();
+			tl -> setComputeDerivatives(false);
+		}
+		
+		// Then adjust rate distribution parameters:
+		if(_nbRateDistParams > 0) {
+			if(_verbose > 0) {
+				cout << endl << "Rate distribution (rough):" << endl;
+				cout.flush();
+			}
+			_rateDistributionOptimizer -> getStopCondition() -> setTolerance(RATE_DISTRIBUTION_TOL);
+			_rateDistributionOptimizer -> init(_rateDistributionParameters);
+			_rateDistributionOptimizer -> optimize();
+			_nbEval += _rateDistributionOptimizer -> getNumberOfEvaluations();
+		}
+		
+		// Now adjust substitution parameters:
+		if(_nbSubsModParams > 0) {
+			if(_verbose > 0) {
+				cout << endl << "Substitution model (rough):" << endl;
+				cout.flush();
+			}
+			_substitutionModelOptimizer -> getStopCondition() -> setTolerance(SUBSTITUTION_MODEL_TOL);
+			_substitutionModelOptimizer -> init(_substitutionModelParameters);
+			_substitutionModelOptimizer -> optimize();
+			_nbEval += _substitutionModelOptimizer -> getNumberOfEvaluations();	
+		}
+		
+	}
 	
 	// Finally adjust all in one until precision:
 	double tol = _stopCondition -> getTolerance();
-	_branchLengthsOptimizer     -> getStopCondition() -> setTolerance(tol);
-	_rateDistributionOptimizer  -> getStopCondition() -> setTolerance(tol);
-	_substitutionModelOptimizer -> getStopCondition() -> setTolerance(tol);
+	if(_nbBranchLengths  > 0) _branchLengthsOptimizer     -> getStopCondition() -> setTolerance(tol);
+	if(_nbRateDistParams > 0) _rateDistributionOptimizer  -> getStopCondition() -> setTolerance(tol);
+	if(_nbSubsModParams  > 0) _substitutionModelOptimizer -> getStopCondition() -> setTolerance(tol);
 
 	// Actualize parameters:
-	_parameters.matchParametersValues(_tl -> getParameters());
+	_parameters.matchParametersValues(tl -> getParameters());
 	
 	_tolIsReached = false;
-		while(_nbEval < _nbEvalMax && !_tolIsReached) {
+	while(_nbEval < _nbEvalMax && !_tolIsReached) {
 		
-		cout << endl << "Branch lengths:" << endl;
-		cout.flush();
-		_branchLengthsParameters.matchParametersValues(_parameters);
-		_branchLengthsOptimizer  -> init(_branchLengthsParameters);
-		_branchLengthsOptimizer  -> optimize();
-		_nbEval += _branchLengthsOptimizer -> getNumberOfEvaluations();
-		
-		cout << endl << "Rate distribution:" << endl;
-		cout.flush();
-		_rateDistributionParameters.matchParametersValues(_parameters);
-		_rateDistributionOptimizer -> init(_rateDistributionParameters);
-		_rateDistributionOptimizer -> optimize();
-		_nbEval += _rateDistributionOptimizer -> getNumberOfEvaluations();
-		
-		cout << endl << "Substitution model:" << endl;
-		cout.flush();
-		_substitutionModelParameters.matchParametersValues(_parameters);
-		_substitutionModelOptimizer -> init(_substitutionModelParameters);
-		_substitutionModelOptimizer -> optimize();
-		_nbEval += _substitutionModelOptimizer -> getNumberOfEvaluations();
+		if(_nbBranchLengths > 0) {
+			if(_verbose > 0) {
+				cout << endl << "Branch lengths:" << endl;
+				cout.flush();
+			}
+			tl -> setComputeDerivatives(true);
+			_branchLengthsParameters.matchParametersValues(_parameters);
+			_branchLengthsOptimizer  -> init(_branchLengthsParameters);
+			_branchLengthsOptimizer  -> optimize();
+			_nbEval += _branchLengthsOptimizer -> getNumberOfEvaluations();
+			tl -> setComputeDerivatives(false);
+		}
+
+		if(_nbRateDistParams > 0) {
+			if(_verbose > 0) {
+				cout << endl << "Rate distribution:" << endl;
+				cout.flush();
+			}
+			_rateDistributionParameters.matchParametersValues(_parameters);
+			_rateDistributionOptimizer -> init(_rateDistributionParameters);
+			_rateDistributionOptimizer -> optimize();
+			_nbEval += _rateDistributionOptimizer -> getNumberOfEvaluations();
+		}
+
+		if(_nbSubsModParams > 0) {
+			if(_verbose > 0) {
+				cout << endl << "Substitution model:" << endl;
+				cout.flush();
+			}
+			_substitutionModelParameters.matchParametersValues(_parameters);
+			_substitutionModelOptimizer -> init(_substitutionModelParameters);
+			_substitutionModelOptimizer -> optimize();
+			_nbEval += _substitutionModelOptimizer -> getNumberOfEvaluations();
+		}
 		
 		// Actualize parameters:
-		_parameters.matchParametersValues(_tl -> getParameters());
+		_parameters.matchParametersValues(tl -> getParameters());
 
 		_tolIsReached = _stopCondition -> isToleranceReached();
 	}
 
-	return _tl -> getValue();
+	return tl -> getValue();
 }
 
 /**************************************************************************/
 
-double NewtonBrentMetaOptimizer::getFunctionValue() const
-{
-	return _tl -> getValue();
-}
+//double NewtonBrentMetaOptimizer::getFunctionValue() const
+//{
+//	return _tl -> getValue();
+//}
 
 /**************************************************************************/
 

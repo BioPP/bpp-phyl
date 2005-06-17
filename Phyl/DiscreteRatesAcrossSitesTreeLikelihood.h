@@ -1,5 +1,7 @@
-#ifndef _DISCRETERATESACROSSSITES_H_
-#define _DISCRETERATESACROSSSITES_H_
+#ifndef _DISCRETERATESACROSSSITESTREELIKELIHOOD_H_
+#define _DISCRETERATESACROSSSITESTREELIKELIHOOD_H_
+
+#include "TreeLikelihood.h"
 
 // From the NumCalc library:
 #include <NumCalc/DiscreteDistribution.h>
@@ -10,11 +12,11 @@
  *
  * This interface provides methods for dealing with RAS models.
  */
-class DiscreteRatesAcrossSites
+class DiscreteRatesAcrossSitesTreeLikelihood: public virtual TreeLikelihood
 {
 	public:
-		DiscreteRatesAcrossSites() {}
-		~DiscreteRatesAcrossSites() {}
+		DiscreteRatesAcrossSitesTreeLikelihood() {}
+		~DiscreteRatesAcrossSitesTreeLikelihood() {}
 
 	public:
 
@@ -149,4 +151,4 @@ class DiscreteRatesAcrossSites
 		
 };
 
-#endif //_DISCRETERATESACROSSSITES_H_
+#endif //_DISCRETERATESACROSSSITESTREELIKELIHOOD_H_

@@ -4,6 +4,77 @@
 // Created on: Thr Dec 23 12:03 2004
 //
 
+/*
+Copyright ou © ou Copr. CNRS, (16 Novembre 2004) 
+
+Julien.Dutheil@univ-montp2.fr
+
+Ce logiciel est un programme informatique servant à fournir des classes
+pour l'analyse de données phylogénétiques.
+
+Ce logiciel est régi par la licence CeCILL soumise au droit français et
+respectant les principes de diffusion des logiciels libres. Vous pouvez
+utiliser, modifier et/ou redistribuer ce programme sous les conditions
+de la licence CeCILL telle que diffusée par le CEA, le CNRS et l'INRIA 
+sur le site "http://www.cecill.info".
+
+En contrepartie de l'accessibilité au code source et des droits de copie,
+de modification et de redistribution accordés par cette licence, il n'est
+offert aux utilisateurs qu'une garantie limitée.  Pour les mêmes raisons,
+seule une responsabilité restreinte pèse sur l'auteur du programme,  le
+titulaire des droits patrimoniaux et les concédants successifs.
+
+A cet égard  l'attention de l'utilisateur est attirée sur les risques
+associés au chargement,  à l'utilisation,  à la modification et/ou au
+développement et à la reproduction du logiciel par l'utilisateur étant 
+donné sa spécificité de logiciel libre, qui peut le rendre complexe à 
+manipuler et qui le réserve donc à des développeurs et des professionnels
+avertis possédant  des  connaissances  informatiques approfondies.  Les
+utilisateurs sont donc invités à charger  et  tester  l'adéquation  du
+logiciel à leurs besoins dans des conditions permettant d'assurer la
+sécurité de leurs systèmes et ou de leurs données et, plus généralement, 
+à l'utiliser et l'exploiter dans les mêmes conditions de sécurité. 
+
+Le fait que vous puissiez accéder à cet en-tête signifie que vous avez 
+pris connaissance de la licence CeCILL, et que vous en avez accepté les
+termes.
+*/
+
+/*
+Copyright or © or Copr. CNRS, (November 16, 2004)
+
+Julien.Dutheil@univ-montp2.fr
+
+This software is a computer program whose purpose is to provide classes
+for phylogenetic data analysis.
+
+This software is governed by the CeCILL  license under French law and
+abiding by the rules of distribution of free software.  You can  use, 
+modify and/ or redistribute the software under the terms of the CeCILL
+license as circulated by CEA, CNRS and INRIA at the following URL
+"http://www.cecill.info". 
+
+As a counterpart to the access to the source code and  rights to copy,
+modify and redistribute granted by the license, users are provided only
+with a limited warranty  and the software's author,  the holder of the
+economic rights,  and the successive licensors  have only  limited
+liability. 
+
+In this respect, the user's attention is drawn to the risks associated
+with loading,  using,  modifying and/or developing or reproducing the
+software by the user in light of its specific status of free software,
+that may mean  that it is complicated to manipulate,  and  that  also
+therefore means  that it is reserved for developers  and  experienced
+professionals having in-depth computer knowledge. Users are therefore
+encouraged to load and test the software's suitability as regards their
+requirements in conditions enabling the security of their systems and/or 
+data to be ensured and,  more generally, to use and operate it in the 
+same conditions as regards security. 
+
+The fact that you are presently reading this means that you have had
+knowledge of the CeCILL license and that you accept its terms.
+*/
+
 #include "AbstractHomogeneousTreeLikelihood.h"
 #include "PatternTools.h"
 #include "ApplicationTools.h"
@@ -28,7 +99,8 @@ AbstractHomogeneousTreeLikelihood::AbstractHomogeneousTreeLikelihood(
 	DiscreteDistribution * rDist,
 	bool verbose)
 	throw (Exception):
-	AbstractTreeLikelihood()
+	AbstractDiscreteRatesAcrossSitesTreeLikelihood(rDist, verbose),
+	AbstractTreeLikelihood(true) // We must do this since AbstractTreeLikelihood is virtual
 {
 	_tree = &tree;
 	if(_tree -> isRooted()) {
@@ -37,6 +109,8 @@ AbstractHomogeneousTreeLikelihood::AbstractHomogeneousTreeLikelihood(
 	}
 	//Sequences will be in the same order than in the tree:
 	_data = PatternTools::getSequenceSubset(data, * _tree -> getRootNode());
+	if(_data -> getNumberOfSequences() == 1) throw Exception("Error, only 1 sequence!");
+	if(_data -> getNumberOfSequences() == 0) throw Exception("Error, no sequence!");
 	_model = model;
 	if(_data -> getAlphabet() -> getAlphabetType()
 			!= _model -> getAlphabet() -> getAlphabetType())
@@ -44,8 +118,6 @@ AbstractHomogeneousTreeLikelihood::AbstractHomogeneousTreeLikelihood(
 				_data -> getAlphabet(),
 				_model -> getAlphabet());
 
-	_rateDistribution = rDist;
-	
 	_nodes = _tree -> getNodes();
 	
 	_nodes.pop_back(); //Remove the root node (the last added!).
@@ -66,80 +138,16 @@ AbstractHomogeneousTreeLikelihood::~AbstractHomogeneousTreeLikelihood()
 
 /******************************************************************************/
 
-ParameterList AbstractHomogeneousTreeLikelihood::getBranchLengthsParameters() const {
+ParameterList AbstractHomogeneousTreeLikelihood::getBranchLengthsParameters() const
+{
 	return _brLenParameters.getCommonParametersWith(_parameters);
 }
 
 /******************************************************************************/
 
-ParameterList AbstractHomogeneousTreeLikelihood::getSubstitutionModelParameters() const {
+ParameterList AbstractHomogeneousTreeLikelihood::getSubstitutionModelParameters() const
+{
 	return _model -> getParameters().getCommonParametersWith(_parameters);
-}
-
-/******************************************************************************/
-
-ParameterList AbstractHomogeneousTreeLikelihood::getRateDistributionParameters() const {
-	return _rateDistribution -> getParameters().getCommonParametersWith(_parameters);
-}
-
-/******************************************************************************/
-
-VVdouble AbstractHomogeneousTreeLikelihood::getLikelihoodForEachSiteForEachRateClass() const
-{
-	VVdouble l(_nbSites);
-	for(unsigned int i = 0; i < _nbSites; i++) {
-		l[i].resize(_nbClasses);
-		for(unsigned int j = 0; j < _nbClasses; j++)
-			l[i][j] = getLikelihoodForASiteForARateClass(i, j);
-	}
-	return l;
-}
-
-/******************************************************************************/
-
-VVdouble AbstractHomogeneousTreeLikelihood::getLogLikelihoodForEachSiteForEachRateClass() const
-{
-	VVdouble l(_nbSites);
-	for(unsigned int i = 0; i < _nbSites; i++) {
-		l[i] = Vdouble(_nbClasses);
-		for(unsigned int j = 0; j < _nbClasses; j++)
-			l[i][j] = getLogLikelihoodForASiteForARateClass(i, j);
-	}
-	return l;
-}
-
-/******************************************************************************/
-
-VVVdouble AbstractHomogeneousTreeLikelihood::getLikelihoodForEachSiteForEachRateClassForEachState() const
-{
-	VVVdouble l(_nbSites);
-	for(unsigned int i = 0; i < _nbSites; i++) {
-		l[i].resize(_nbClasses);
-		for(unsigned int j = 0; j < _nbClasses; j++) {
-			l[i][j].resize(_nbStates);
-			for(int x = 0; x < _nbStates; x++) {
-				l[i][j][x] = getLikelihoodForASiteForARateClassForAState(i, j, x);
-			}
-		}
-	}
-	return l;
-}
-
-/******************************************************************************/
-
-VVVdouble AbstractHomogeneousTreeLikelihood::getLogLikelihoodForEachSiteForEachRateClassForEachState() const
-{
-	VVVdouble l(_nbSites);
-	for(unsigned int i = 0; i < _nbSites; i++) {
-		l[i].resize(_nbClasses);
-		for(unsigned int j = 0; j < _nbClasses; j++) {
-			l[i][j].resize(_nbStates);
-			for(int x = 0; x < _nbStates; x++) {
-				l[i][j][x] = getLogLikelihoodForASiteForARateClassForAState(i, j, x);
-			}
-		}
-	}
-	return l;
 }
 
 /******************************************************************************/

@@ -156,6 +156,22 @@ class TreeLikelihood: public DerivableSecondOrder
 		virtual ParameterList getSubstitutionModelParameters() const = 0;
 		
 		/** @} */
+
+		/**
+		 * @brief Tell if the derivatives must be computed.
+		 *
+		 * @param Yes or no.
+		 */
+		virtual void setComputeDerivatives(bool yn) = 0;
+
+		/**
+		 * @brief Tell if the derivatives must be computed.
+		 *
+		 * @return Yes or no.
+		 */
+		virtual bool computeDerivatives() const = 0;
+
+
 };
 
 

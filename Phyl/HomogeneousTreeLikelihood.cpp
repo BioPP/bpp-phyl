@@ -1,6 +1,6 @@
 //
 // File: HomogeneousTreeLikelihood.h
-// Created by: jdutheil <Julien.Dutheil@univ-montp2.fr>
+// Created by: Julien Dutheil <Julien.Dutheil@univ-montp2.fr>
 // Created on: Fri Oct 17 18:14:51 2003
 //
 
@@ -30,8 +30,10 @@ HomogeneousTreeLikelihood::HomogeneousTreeLikelihood(
 	const SiteContainer & data,
 	SubstitutionModel * model,
 	DiscreteDistribution * rDist,
-	bool verbose)
-	throw (Exception):
+	bool verbose
+)	throw (Exception):
+	AbstractTreeLikelihood(true), // We must do this since AbstractTreeLikelihood is virtual
+	AbstractDiscreteRatesAcrossSitesTreeLikelihood(rDist, verbose), // We must do this since AbstractTreeLikelihood is virtual
 	AbstractHomogeneousTreeLikelihood(tree, data, model, rDist, verbose)
 {
 	//Init _likelihoods:

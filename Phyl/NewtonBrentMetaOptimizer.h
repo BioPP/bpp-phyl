@@ -1,11 +1,11 @@
 //
 // File: NewtonBrentMetaOptimizer.h
-// Created by; jdutheil <Julien.Dutheil@univ-montp2.fr>
+// Created by; Julien Dutheil <Julien.Dutheil@univ-montp2.fr>
 // Created on: ue Nov 17 17:22 2004
 //
 
 /*
-Copyright ou © ou Copr. Julien Dutheil, (17 Novembre 2004) 
+Copyright ou © ou Copr. CNRS, (17 Novembre 2004) 
 
 Julien.Dutheil@univ-montp2.fr
 
@@ -41,7 +41,7 @@ termes.
 */
 
 /*
-Copyright or © or Copr. Julien Dutheil, (November 17, 2004)
+Copyright or © or Copr. CNRS, (November 17, 2004)
 
 Julien.Dutheil@univ-montp2.fr
 
@@ -79,7 +79,7 @@ knowledge of the CeCILL license and that you accept its terms.
 #define _NEWTONBRENTMETAOPTIMIZER_H_
 
 #include "AbstractHomogeneousTreeLikelihood.h"
-#include "GaltierNewtonOptimizer.h"
+#include "PseudoNewtonOptimizer.h"
 
 // From NumCalc:
 #include <NumCalc/SimpleMultiDimensions.h>
@@ -89,7 +89,7 @@ knowledge of the CeCILL license and that you accept its terms.
 #include <vector>
 using namespace std;
 
-class NewtonBrentMetaOptimizer: public AbstractOptimizer
+class NewtonBrentMetaOptimizer: public virtual AbstractOptimizer
 {
 	public:
 		static double BRANCH_LENGTHS_TOL;
@@ -97,19 +97,19 @@ class NewtonBrentMetaOptimizer: public AbstractOptimizer
 		static double SUBSTITUTION_MODEL_TOL;
 	
 	protected:
-		AbstractHomogeneousTreeLikelihood * _tl; // Point toward _function!
 		ParameterList _rateDistributionParameters;
 		ParameterList _substitutionModelParameters;
 		ParameterList _branchLengthsParameters;
 		SimpleMultiDimensions  * _rateDistributionOptimizer;
 		SimpleMultiDimensions  * _substitutionModelOptimizer;
-		GaltierNewtonOptimizer * _branchLengthsOptimizer;
+		PseudoNewtonOptimizer * _branchLengthsOptimizer;
 		unsigned int _nbRateDistParams;
 		unsigned int _nbSubsModParams;
 		unsigned int _nbBranchLengths;
+		bool _rough;
 		
 	public:
-		NewtonBrentMetaOptimizer(AbstractHomogeneousTreeLikelihood * tl);
+		NewtonBrentMetaOptimizer(DiscreteRatesAcrossSitesTreeLikelihood * tl);
 		virtual ~NewtonBrentMetaOptimizer();
 
 	public:
@@ -117,7 +117,13 @@ class NewtonBrentMetaOptimizer: public AbstractOptimizer
 		void init(const ParameterList & parameters) throw (Exception);
 		double optimize() throw (Exception);
 		double step() throw (Exception) {}
-		double getFunctionValue() const;
+//		double getFunctionValue() const;
+		void setFunction(Function * function)
+		{
+			AbstractOptimizer::setFunction(dynamic_cast<DiscreteRatesAcrossSitesTreeLikelihood *>(function));
+		}
+		void setRoughEstimationEnabled(bool yn) { _rough = yn; }
+		bool isRoughEstimationEnabled() const { return _rough; }
 };
 
 #endif //_NEWTONBRENTMETAOPTIMIZER_H_

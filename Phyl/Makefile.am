@@ -1,14 +1,18 @@
 H_FILES = \
 AbstractSubstitutionModel.h\
 AbstractTreeLikelihood.h\
+AbstractDiscreteRatesAcrossSitesTreeLikelihood.h\
 AbstractHomogeneousTreeLikelihood.h\
 ApplicationTools.h\
+DistanceEstimation.h\
+DistanceMatrix.h\
 DSO78.h\
-GaltierNewtonOptimizer.h\
+PseudoNewtonOptimizer.h\
 HKY85.h\
 HomogeneousTreeLikelihood.h\
 DRHomogeneousTreeLikelihood.h\
 DRTreeLikelihoodTools.h\
+IODistanceMatrix.h\
 IOTree.h\
 JCnuc.h\
 JCprot.h\
@@ -21,6 +25,7 @@ NonHomogeneousTreeLikelihood.h\
 NucleotideSubstitutionModel.h\
 OptimizationTools.h\
 PatternTools.h\
+PhylipDistanceMatrixFormat.h\
 ProteinSubstitutionModel.h\
 SequenceSimulator.h\
 SubstitutionModel.h\
@@ -30,22 +35,23 @@ TreeExceptions.h\
 Tree.h\
 TreeLikelihood.h\
 TreeTools.h\
-DiscreteRatesAcrossSites.h\
+DiscreteRatesAcrossSitesTreeLikelihood.h\
 RASTools.h
 
 
 CPP_FILES = \
 AbstractSubstitutionModel.cpp\
 AbstractTreeLikelihood.cpp\
+AbstractDiscreteRatesAcrossSitesTreeLikelihood.cpp\
 AbstractHomogeneousTreeLikelihood.cpp\
 ApplicationTools.cpp\
+DistanceEstimation.cpp\
 DSO78.cpp\
-GaltierNewtonOptimizer.cpp\
+PseudoNewtonOptimizer.cpp\
 HKY85.cpp\
 HomogeneousTreeLikelihood.cpp\
 DRHomogeneousTreeLikelihood.cpp\
 DRTreeLikelihoodTools.cpp\
-IOTree.cpp\
 JCnuc.cpp\
 JCprot.cpp\
 JTT92.cpp\
@@ -57,6 +63,7 @@ NonHomogeneousTreeLikelihood.cpp\
 NucleotideSubstitutionModel.cpp\
 OptimizationTools.cpp\
 PatternTools.cpp\
+PhylipDistanceMatrixFormat.cpp\
 ProteinSubstitutionModel.cpp\
 SequenceSimulator.cpp\
 SubstitutionModel.cpp\
