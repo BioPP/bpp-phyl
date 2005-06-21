@@ -1,0 +1,12 @@
+#include "SubstitutionModel.h"
+#include "AbstractSubstitutionModel.h"
+#include "ProteinSubstitutionModel.h"
+#include "NucleotideSubstitutionModel.h"
+#include "JCnuc.h"
+#include "K80.h"
+#include "T92.h"
+#include "HKY85.h"
+#include "TN93.h"
+#include "DSO78.h"
+#include "JTT92.h"
+
