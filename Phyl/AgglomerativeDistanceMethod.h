@@ -77,6 +77,7 @@ knowledge of the CeCILL license and that you accept its terms.
 */
 
 class DistanceMatrix;
+class Node;
 template<class NodeInfos> class NodeTemplate;
 template<class Node> class Tree;
 typedef NodeTemplate<unsigned int> N;
@@ -90,7 +91,7 @@ class AgglomerativeDistanceMethod
 
 	public:
 		virtual void setDistanceMatrix(const DistanceMatrix & matrix) = 0;
-		virtual Tree<N> getTree() const = 0;
+		virtual Tree<Node> * getTree() const = 0;
 		virtual void computeTree(bool rooted) = 0;
 	
 };

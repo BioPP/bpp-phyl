@@ -81,20 +81,26 @@ knowledge of the CeCILL license and that you accept its terms.
 #include <iostream>
 using namespace std;
 
+AbstractAgglomerativeDistanceMethod::~AbstractAgglomerativeDistanceMethod()
+{
+	delete _tree;
+}
+
 void AbstractAgglomerativeDistanceMethod::setDistanceMatrix(const DistanceMatrix & matrix)
 {
 	_matrix = matrix;
 	if(_tree != NULL) delete _tree;
 }
 	
-Tree<N> AbstractAgglomerativeDistanceMethod::getTree() const
+Tree<Node> * AbstractAgglomerativeDistanceMethod::getTree() const
 {
-	return * _tree;
+	Node * root = TreeTools::cloneSubtree<Node>(* _tree -> getRootNode());
+	return new Tree<Node>(* root);
 }
 			
 void AbstractAgglomerativeDistanceMethod::computeTree(bool rooted)
 {
-  // Initialization:
+	// Initialization:
 	for(unsigned int i = 0; i < _matrix.size(); i++) {
 		N * leaf = new N(i, _matrix.getName(i));
 		leaf -> setInfos(1);

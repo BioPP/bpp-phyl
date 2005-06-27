@@ -95,11 +95,12 @@ class AbstractAgglomerativeDistanceMethod : public virtual AgglomerativeDistance
 	
 	public:
 		AbstractAgglomerativeDistanceMethod(): _matrix(0), _tree(NULL) {}
-		~AbstractAgglomerativeDistanceMethod() {}
+		AbstractAgglomerativeDistanceMethod(const DistanceMatrix & matrix): _matrix(matrix) {}
+		~AbstractAgglomerativeDistanceMethod();
 
 	public:
 		void setDistanceMatrix(const DistanceMatrix & matrix);
-		Tree<N> getTree() const;
+		Tree<Node> * getTree() const;
 		void computeTree(bool rooted);
 	
 

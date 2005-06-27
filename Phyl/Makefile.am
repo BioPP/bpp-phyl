@@ -21,6 +21,7 @@ JCnuc.h\
 JCprot.h\
 JTT92.h\
 K80.h\
+models\
 MutationProcess.h\
 Newick.h\
 NewtonBrentMetaOptimizer.h\
