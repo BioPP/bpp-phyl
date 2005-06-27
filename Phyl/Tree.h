@@ -362,7 +362,7 @@ class Node {
 		
 		vector<Node *> getNeighbors();
 
-		unsigned int degree() const { return getNumberOfSons() + (hasFather() ? 1 : 0); }
+		virtual unsigned int degree() const { return getNumberOfSons() + (hasFather() ? 1 : 0); }
 		
 		/**
 		 * @name Operators:
@@ -407,7 +407,7 @@ class Node {
 				
 		// Tests:
 
-		bool isLeaf() const { return degree() == 1; }
+		virtual bool isLeaf() const { return degree() == 1; }
 			
 	friend class Tree<Node>;
 };
@@ -596,30 +596,30 @@ class Tree {
 	
 	public:
 		
-		N * getRootNode() { return _root; }
+		virtual N * getRootNode() { return _root; }
 
-		const N * getRootNode() const { return _root; }
+		virtual const N * getRootNode() const { return _root; }
 
-		void setRootNode(N & root) { _root = & root; }
+		virtual void setRootNode(N & root) { _root = & root; }
 	
-		string getName() const { return _name; }
+		virtual string getName() const { return _name; }
 	
-		void setName(const string & name) { _name = name; }
+		virtual void setName(const string & name) { _name = name; }
 
-		unsigned int getNumberOfLeaves() const { return TreeTools::getNumberOfLeaves(* const_cast<const N *>( _root)); }
+		virtual unsigned int getNumberOfLeaves() const { return TreeTools::getNumberOfLeaves(* _root); }
 
-		vector<const N *> getLeaves() const { return TreeTools::getLeaves(* const_cast<const N *>(_root)); }
+		virtual vector<const N *> getLeaves() const { return TreeTools::getLeaves(* const_cast<const N *>(_root)); }
 
-		vector<      N *> getLeaves()       { return TreeTools::getLeaves(* _root); }
+		virtual vector<      N *> getLeaves()       { return TreeTools::getLeaves(* _root); }
 
 
-		vector<const N *> getNodes() const { return TreeTools::getNodes (* const_cast<const N *>(_root)); }
+		virtual vector<const N *> getNodes() const { return TreeTools::getNodes (* const_cast<const N *>(_root)); }
 
-		vector<      N *> getNodes()       { return TreeTools::getNodes (* _root); }
+		virtual vector<      N *> getNodes()       { return TreeTools::getNodes (* _root); }
 
-		vector<double> getBranchLengths() const { return TreeTools::getBranchLengths(* _root); }
+		virtual vector<double> getBranchLengths() const { return TreeTools::getBranchLengths(* _root); }
 
-		vector<string> getLeavesNames() const { return TreeTools::getLeavesNames(* const_cast<const N *>( _root)); }
+		virtual vector<string> getLeavesNames() const { return TreeTools::getLeavesNames(* const_cast<const N *>( _root)); }
 
 		//void setNewOutgroup(Tree::N & node);
 
@@ -638,13 +638,15 @@ class Tree {
 
 			for (unsigned int i = 0; i < pathMatrix.size() - 1 ; i++) {
 				pathMatrix[i] -> _father = pathMatrix[i + 1];
+				//pathMatrix[i] -> setFather(*pathMatrix[i + 1]);
 				pathMatrix[i] -> setDistanceToFather(pathMatrix[i + 1] -> getDistanceToFather());
-				vector<Node *>::iterator vec_iter;
+				typename vector<Node *>::iterator vec_iter;
 				vec_iter = remove(pathMatrix[i] -> _sons.begin(), pathMatrix[i] -> _sons.end(), pathMatrix[i + 1]);
 				pathMatrix[i] -> _sons.erase(vec_iter, pathMatrix[i] -> _sons.end()); // pg 1170, primer.
 	
 				pathMatrix[i+1] -> _sons.push_back(pathMatrix[i + 1] -> getFather());
 				pathMatrix[i+1] -> _father = NULL;
+				//pathMatrix[i+1] -> deleteFather();
 			}
 			_root = & p_iNewRoot;
 		}
@@ -655,7 +657,7 @@ class Tree {
 		 * 
 		 * @return True if the tree is rooted.
 		 */
-		bool isRooted() const { return _root -> getNumberOfSons() == 2; }
+		virtual bool isRooted() const { return _root -> getNumberOfSons() == 2; }
 		
 		/**
 		 * @brief Unroot a rooted tree.
@@ -663,7 +665,7 @@ class Tree {
 		 * @return True if the tree has been unrooted.
 		 * @throw UnrootedTreeException If the tree is already rooted.
 		 */
-		bool unroot() throw (UnrootedTreeException<N>)
+		virtual bool unroot() throw (UnrootedTreeException<N>)
 		{
 			if(!isRooted()) throw UnrootedTreeException<N>("Tree::unroot", this);
 
@@ -703,9 +705,9 @@ class Tree {
 		/**
 		 * @brief Number nodes.
 		 */
-		void resetNodesId()
+		virtual void resetNodesId()
 		{
-			vector<Node *> nodes = getNodes();
+			vector<N *> nodes = getNodes();
 			for(unsigned int i = 0; i < nodes.size(); i++) nodes[i] -> setId(i);
 		}
 		
@@ -716,7 +718,7 @@ class Tree {
 		 * 
 		 * @return True if the tree is multifurcating.
 		 */
-		bool isMultifurcating() const
+		virtual bool isMultifurcating() const
 		{
 			bool b = false;
 			for(unsigned int i = 0; i < _root -> getNumberOfSons(); i++) {
@@ -731,11 +733,11 @@ class Tree {
 		 * @return A vector with all branch lengths.
 		 * @throw NodeException If a branch length is lacking.
 		 */
-		Vdouble getBranchLengths() throw (NodeException)
+		virtual Vdouble getBranchLengths() throw (NodeException)
 		{
 			Vdouble brLen(1);
 			for(unsigned int i = 0; i < _root -> getNumberOfSons(); i++) {
-				Vdouble sonBrLen = getBranchLengths(* _root -> getSon(i));
+				Vdouble sonBrLen = TreeTools::getBranchLengths(* _root -> getSon(i));
 				for(unsigned int j = 0; j < sonBrLen.size(); j++) brLen.push_back(sonBrLen[j]);
 			}
 			return brLen;
@@ -747,7 +749,7 @@ class Tree {
 		 * @return The total length of the subtree.
 		 * @throw NodeException If a branch length is lacking.
 		 */
-		double getTotalLength() throw (NodeException)
+		virtual double getTotalLength() throw (NodeException)
 		{
 			return TreeTools::getTotalLength(*_root);
 		}
@@ -757,7 +759,7 @@ class Tree {
 		 *
 		 * @param brLen The branch length to apply.
 		 */
-		void setBranchLengths(double brLen)
+		virtual void setBranchLengths(double brLen)
 		{
 			TreeTools::setBranchLengths(*_root, brLen);
 		}
@@ -767,7 +769,7 @@ class Tree {
 		 *
 		 * @param brLen The branch length to apply.
 		 */
-		void setVoidBranchLengths(double brLen)
+		virtual void setVoidBranchLengths(double brLen)
 		{
 			TreeTools::setVoidBranchLengths(*_root, brLen);
 		}
@@ -780,14 +782,14 @@ class Tree {
 		 * @param factor The factor to multiply all branch lengths with.
 		 * @throw NodeException If a branch length is lacking.
 		 */
-		void scaleTree(double factor) throw (NodeException)
+		virtual void scaleTree(double factor) throw (NodeException)
 		{
 			TreeTools::scaleTree(* _root, factor);
 		}
 
 	protected:
 		
-		void destroyNode(const N & node)
+		virtual void destroyNode(const N & node)
 		{
 			for(unsigned int i = 0; i < node.getNumberOfSons(); i++) {
 				destroyNode(* node[i]);

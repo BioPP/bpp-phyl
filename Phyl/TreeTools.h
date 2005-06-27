@@ -97,21 +97,28 @@ class TreeTools
 		 ~TreeTools();
 	
 	public:
+		 
 		/**
 		 * @brief Retrieve all leaves from a subtree.
 		 *
 		 * @param node The node that defines the subtree.
 		 * @return A vector of pointers toward each leaf in the subtree.
 		 */
-		static vector<const Node *> getLeaves(const Node & node);
-
-		/**
-		 * @brief Retrieve all leaves from a subtree.
-		 *
-		 * @param node The node that defines the subtree.
-		 * @return A vector of pointers toward each leaf in the subtree.
-		 */
-		static vector<Node *> getLeaves(Node & node);
+		template<class N>
+		static vector<N *> getLeaves(N & node)
+		{
+			vector<N *> leaves;
+			if(node.isLeaf()) {
+				leaves.push_back(& node);
+			}
+			for(unsigned int i = 0; i < node.getNumberOfSons(); i++) {
+				vector<N *> sonLeaves = getLeaves(* node[i]);
+				for(unsigned int j = 0; j < sonLeaves.size(); j++) {
+					leaves.push_back(sonLeaves[j]);
+				}
+			}
+			return leaves;
+		}
 
 		/**
 		 * @brief Retrieve all son nodes from a subtree.
@@ -119,15 +126,19 @@ class TreeTools
 		 * @param node The node that defines the subtree.
 		 * @return A vector of pointers toward each son node in the subtree.
 		 */
-		static vector<const Node *> getNodes(const Node & node);
-
-		/**
-		 * @brief Retrieve all son nodes from a subtree.
-		 *
-		 * @param node The node that defines the subtree.
-		 * @return A vector of pointers toward each son node in the subtree.
-		 */
-		static vector<Node *> getNodes(Node & node);
+		template<class N>
+		static vector<N *> getNodes(N & node)
+		{
+			vector<N *> nodes;
+			for(unsigned int i = 0; i < node.getNumberOfSons(); i++) {
+				vector<N *> sonNodes = getNodes(* node[i]);
+				for(unsigned int j = 0; j < sonNodes.size(); j++) {
+					nodes.push_back(sonNodes[j]);
+				}
+			}
+			nodes.push_back(& node);
+			return nodes;
+		}
 
 		/**
 		 * @brief Tell if a particular node is the root of a tree

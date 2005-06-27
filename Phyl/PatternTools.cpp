@@ -50,6 +50,7 @@ termes.
 
 // From the STL:
 #include <iostream>
+#include <map>
 #include <algorithm>
 
 using namespace std;
@@ -102,7 +103,7 @@ SiteContainer * PatternTools::shrinkSiteSet(const SiteContainer & siteSet) throw
 
 /******************************************************************************/
 
-/* // O(n2)
+ // O(n2)
 const Pattern PatternTools::countSites(const SiteContainer & siteSet)
 {
 	Pattern pattern;
@@ -126,10 +127,11 @@ const Pattern PatternTools::countSites(const SiteContainer & siteSet)
 	pattern.names = siteSet.getSequencesNames();
 	return pattern;
 }
-*/
+
 
 /******************************************************************************/
-// o(n.log(n))
+ // o(n.log(n))
+/*
 const Pattern PatternTools::countSites(const SiteContainer & siteSet)
 {
 	unsigned int nbSites = siteSet.getNumberOfSites();
@@ -172,9 +174,39 @@ const Pattern PatternTools::countSites(const SiteContainer & siteSet)
 		previousSite = currentSite;
 		pattern.indices.push_back(currentPos);
 	}
+	delete ss[nbSites - 1];
 	pattern.names = siteSet.getSequencesNames();
 	return pattern;
 }
+*/
+
+/******************************************************************************/
+
+/*
+const Pattern PatternTools::countSites(const SiteContainer & siteSet)
+{
+	unsigned int nbSites = siteSet.getNumberOfSites();
+	Pattern pattern;
+	map<string, unsigned int> ss;
+	unsigned int currentPos = 0;
+	for(unsigned int i = 0; i < nbSites; i++) {
+		pattern.indices.push_back(currentPos);
+		const Site * currentSite = siteSet.getSite(i);
+		unsigned int * c = & ss[currentSite -> toString()];
+		if(*c > 0) {
+			pattern.weights[*c]++;
+		} else {
+			pattern.sites.push_back(currentSite);
+			pattern.weights.push_back(1);
+			*c=currentPos;
+			currentPos++;
+		}
+	}
+	
+	pattern.names = siteSet.getSequencesNames();
+	return pattern;
+}
+*/
 
 /******************************************************************************/
 

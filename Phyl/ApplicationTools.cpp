@@ -458,10 +458,10 @@ SubstitutionModel * ApplicationTools::getSubstitutionModel(
 			if(useObsFreq && data != NULL) {
 				model = new TN93(alpha, kappa1, kappa2);
 				dynamic_cast<TN93 *>(model) -> setFreqFromData(*data);
-				piA = model -> getParameter("piA");
-				piC = model -> getParameter("piC");
-				piG = model -> getParameter("piG");
-				piT = model -> getParameter("piT");
+				piA = model -> getParameterValue("piA");
+				piC = model -> getParameterValue("piC");
+				piG = model -> getParameterValue("piG");
+				piT = model -> getParameterValue("piT");
 			} else {
 				piA = getDoubleParameter("piA", params, 0.25, suffix, suffixIsOptional);
 				piC = getDoubleParameter("piC", params, 0.25, suffix, suffixIsOptional);
@@ -489,10 +489,10 @@ SubstitutionModel * ApplicationTools::getSubstitutionModel(
 			if(useObsFreq && data != NULL) {
 				model = new HKY85(alpha, kappa);
 				dynamic_cast<HKY85 *>(model) -> setFreqFromData(*data);
-				piA = model -> getParameter("piA");
-				piC = model -> getParameter("piC");
-				piG = model -> getParameter("piG");
-				piT = model -> getParameter("piT");
+				piA = model -> getParameterValue("piA");
+				piC = model -> getParameterValue("piC");
+				piG = model -> getParameterValue("piG");
+				piT = model -> getParameterValue("piT");
 			} else {
 				piA = getDoubleParameter("piA", params, 0.25, suffix, suffixIsOptional);
 				piC = getDoubleParameter("piC", params, 0.25, suffix, suffixIsOptional);
@@ -519,7 +519,7 @@ SubstitutionModel * ApplicationTools::getSubstitutionModel(
 			if(useObsFreq && data != NULL) {
 				model = new T92(alpha, kappa);
 				dynamic_cast<T92 *>(model) -> setFreqFromData(*data);
-				theta = model -> getParameter("theta");
+				theta = model -> getParameterValue("theta");
 			} else {
 				theta = getDoubleParameter("theta", params, 0.5, suffix, suffixIsOptional);
 				model = new T92(alpha, kappa, theta);
@@ -609,7 +609,7 @@ DiscreteDistribution * ApplicationTools::getRateDistribution(
 			rDist = new GammaDiscreteDistribution(nbClasses, alpha);
 			if(verbose) {
 				displayResult("Rate distribution", distributionType);
-				displayResult("shape", TextTools::toString(((GammaDiscreteDistribution *)rDist) -> getParameter("alpha")));
+				displayResult("shape", TextTools::toString((dynamic_cast<GammaDiscreteDistribution *>(rDist)) -> getParameterValue("alpha")));
 				displayResult("# classes", TextTools::toString(rDist -> getNumberOfCategories()));
 				for(unsigned int c = 0; c < rDist -> getNumberOfCategories(); c++) {
 					displayResult("* Category " + TextTools::toString(c)

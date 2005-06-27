@@ -3,6 +3,8 @@ AbstractSubstitutionModel.h\
 AbstractTreeLikelihood.h\
 AbstractDiscreteRatesAcrossSitesTreeLikelihood.h\
 AbstractHomogeneousTreeLikelihood.h\
+AbstractAgglomerativeDistanceMethod.h\
+AgglomerativeDistanceMethod.h\
 ApplicationTools.h\
 DistanceEstimation.h\
 DistanceMatrix.h\
@@ -14,6 +16,7 @@ DRHomogeneousTreeLikelihood.h\
 DRTreeLikelihoodTools.h\
 IODistanceMatrix.h\
 IOTree.h\
+iotree\
 JCnuc.h\
 JCprot.h\
 JTT92.h\
@@ -23,6 +26,7 @@ Newick.h\
 NewtonBrentMetaOptimizer.h\
 NonHomogeneousTreeLikelihood.h\
 NucleotideSubstitutionModel.h\
+NeighborJoining.h\
 OptimizationTools.h\
 PatternTools.h\
 PhylipDistanceMatrixFormat.h\
@@ -44,6 +48,7 @@ AbstractSubstitutionModel.cpp\
 AbstractTreeLikelihood.cpp\
 AbstractDiscreteRatesAcrossSitesTreeLikelihood.cpp\
 AbstractHomogeneousTreeLikelihood.cpp\
+AbstractAgglomerativeDistanceMethod.cpp\
 ApplicationTools.cpp\
 DistanceEstimation.cpp\
 DSO78.cpp\
@@ -57,6 +62,7 @@ JCprot.cpp\
 JTT92.cpp\
 K80.cpp\
 MutationProcess.cpp\
+NeighborJoining.cpp\
 Newick.cpp\
 NewtonBrentMetaOptimizer.cpp\
 NonHomogeneousTreeLikelihood.cpp\

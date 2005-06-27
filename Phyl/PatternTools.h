@@ -114,6 +114,7 @@ class SortableSite
 		string siteS; 
 		const Site * siteP;
 		unsigned int originalPosition;
+
 };
 
 struct SSComparator : binary_function<SortableSite, SortableSite, bool>

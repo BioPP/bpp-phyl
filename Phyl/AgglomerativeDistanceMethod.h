@@ -1,7 +1,8 @@
 //
-// File: NucleicSubstitutionModel.h
+// File: AgglomerativeDistanceMethod.h
 // Created by: Julien Dutheil
-// Created on: Tue May 27 11:03:53 2003
+//             Vincent Ranwez
+// Created on: Wed jun 22 10:00 2005
 //
 
 /*
@@ -75,20 +76,22 @@ The fact that you are presently reading this means that you have had
 knowledge of the CeCILL license and that you accept its terms.
 */
 
-#ifndef _NUCLEICSUBSTITUTIONMODEL_H_
-#define _NUCLEICSUBSTITUTIONMODEL_H_
+class DistanceMatrix;
+template<class NodeInfos> class NodeTemplate;
+template<class Node> class Tree;
+typedef NodeTemplate<unsigned int> N;
 
-#include "AbstractSubstitutionModel.h"
 
-// From SeqLib:
-#include <Seq/NucleicAlphabet.h>
-
-class NucleotideSubstitutionModel : public virtual AbstractSubstitutionModel
+class AgglomerativeDistanceMethod
 {
 	public:
-		NucleotideSubstitutionModel(const NucleicAlphabet * alpha);
-		virtual ~NucleotideSubstitutionModel();
+		AgglomerativeDistanceMethod() {}
+		~AgglomerativeDistanceMethod() {}
+
+	public:
+		virtual void setDistanceMatrix(const DistanceMatrix & matrix) = 0;
+		virtual Tree<N> getTree() const = 0;
+		virtual void computeTree(bool rooted) = 0;
+	
 };
 
-
-#endif	//_NUCLEICSUBSTITUTIONMODEL_H_

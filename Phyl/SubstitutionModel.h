@@ -102,7 +102,7 @@ class SubstitutionModelException : public Exception {
  * These methods may be useful for optimization processes.
  */
 
-class SubstitutionModel: public Parametrizable {
+class SubstitutionModel: public virtual Parametrizable {
 	
 	public:
 		//Destructor:

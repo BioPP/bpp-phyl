@@ -118,7 +118,7 @@ void NewtonBrentMetaOptimizer::init(const ParameterList & parameters)
 	_stopCondition -> init();
 	_parameters = parameters;
 	unsigned int nbParams = _parameters.size();
-
+	
 	// Some cleaning first.
 	// This is useful only if the MetaOptimizer have been initialized once before this time.
 	delete _rateDistributionOptimizer;
@@ -186,6 +186,7 @@ void NewtonBrentMetaOptimizer::init(const ParameterList & parameters)
 		_branchLengthsOptimizer -> setVerbose(_verbose > 1 ? 1 : 0);
 	}
 	
+	if(_nbRateDistParams == 0 || _nbSubsModParams == 0 || _nbBranchLengths == 0) _rough = false;
 	// Dump to profile:
 	for(unsigned int i = 0; i < nbParams; i++) {
 		profile(_parameters[i] -> getName() + "\t"); 
@@ -193,9 +194,6 @@ void NewtonBrentMetaOptimizer::init(const ParameterList & parameters)
 	profileln("Function");
 
 	printPoint(_parameters, _function -> f(_parameters));
-
-	// Initialize stop condition:
- _stopCondition -> isToleranceReached();
 
 }
 

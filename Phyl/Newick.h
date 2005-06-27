@@ -106,7 +106,7 @@ knowledge of the CeCILL license and that you accept its terms.
  * delete newickReader;
  * @endcode
  */
-class Newick: public virtual ITree, public virtual OTree
+class Newick: public virtual AbstractITree, public virtual AbstractOTree
 {
 	protected:
 		bool _allowComments;
@@ -139,7 +139,11 @@ class Newick: public virtual ITree, public virtual OTree
 		 *
 		 * @{
 		 */
-		Tree<Node> * read(const string & path) const throw (Exception);
+		Tree<Node> * read(const string & path) const throw (Exception)
+		{
+			return AbstractITree::read(path);
+		}
+		Tree<Node> * read(istream & in) const throw (Exception);
 		/** @} */
 
 		/**
@@ -147,7 +151,11 @@ class Newick: public virtual ITree, public virtual OTree
 		 *
 		 * @{
 		 */
-		void write(const Tree<Node> & tree, const string & path, bool overwrite = true) const throw (Exception);
+		void write(const Tree<Node> & tree, const string & path, bool overwrite = true) const throw (Exception)
+		{
+			AbstractOTree::write(tree, path, overwrite);
+		}
+		void write(const Tree<Node> & tree, ostream & out) const throw (Exception);
 		/** @} */
 };
 

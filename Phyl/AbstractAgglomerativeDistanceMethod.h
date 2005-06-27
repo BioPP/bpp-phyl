@@ -1,7 +1,8 @@
 //
-// File: NucleicSubstitutionModel.h
+// File: AbstractAgglomerativeDistanceMethod.h
 // Created by: Julien Dutheil
-// Created on: Tue May 27 11:03:53 2003
+//             Vincent Ranwez
+// Created on: Wed jun 22 10:00 2005
 //
 
 /*
@@ -75,20 +76,38 @@ The fact that you are presently reading this means that you have had
 knowledge of the CeCILL license and that you accept its terms.
 */
 
-#ifndef _NUCLEICSUBSTITUTIONMODEL_H_
-#define _NUCLEICSUBSTITUTIONMODEL_H_
+#include "AgglomerativeDistanceMethod.h"
+#include "DistanceMatrix.h"
+#include <map>
+using namespace std;
 
-#include "AbstractSubstitutionModel.h"
-
-// From SeqLib:
-#include <Seq/NucleicAlphabet.h>
-
-class NucleotideSubstitutionModel : public virtual AbstractSubstitutionModel
+class AbstractAgglomerativeDistanceMethod : public virtual AgglomerativeDistanceMethod
 {
+	protected:
+		DistanceMatrix _matrix;
+		Tree<N> * _tree;
+		/**
+		 * @brief key: indice of the node in the distance matrix.
+		 *        value: number of species represented by this node.
+		 */
+		
+		map<unsigned int, N *> _currentNodes;
+	
 	public:
-		NucleotideSubstitutionModel(const NucleicAlphabet * alpha);
-		virtual ~NucleotideSubstitutionModel();
+		AbstractAgglomerativeDistanceMethod(): _matrix(0), _tree(NULL) {}
+		~AbstractAgglomerativeDistanceMethod() {}
+
+	public:
+		void setDistanceMatrix(const DistanceMatrix & matrix);
+		Tree<N> getTree() const;
+		void computeTree(bool rooted);
+	
+
+	protected:
+		virtual vector<unsigned int> getBestPair() = 0;
+		virtual vector<double> computeBranchLengthsForPair(const vector<unsigned int> & pair) = 0;
+		virtual double computeDistancesFromPair(const vector<unsigned int> & pair, const vector<double> & branchLengths, unsigned int pos) = 0;
+		virtual void finalStep(int idRoot) = 0;
+		
 };
 
-
-#endif	//_NUCLEICSUBSTITUTIONMODEL_H_

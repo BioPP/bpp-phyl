@@ -1,7 +1,8 @@
 //
-// File: NucleicSubstitutionModel.h
+// File: AbstractAgglomerativeDistanceMethod.cpp
 // Created by: Julien Dutheil
-// Created on: Tue May 27 11:03:53 2003
+//             Vincent Ranwez
+// Created on: Wed jun 22 10:00 2005
 //
 
 /*
@@ -75,20 +76,65 @@ The fact that you are presently reading this means that you have had
 knowledge of the CeCILL license and that you accept its terms.
 */
 
-#ifndef _NUCLEICSUBSTITUTIONMODEL_H_
-#define _NUCLEICSUBSTITUTIONMODEL_H_
+#include "AbstractAgglomerativeDistanceMethod.h"
+#include "Tree.h"
+#include <iostream>
+using namespace std;
 
-#include "AbstractSubstitutionModel.h"
-
-// From SeqLib:
-#include <Seq/NucleicAlphabet.h>
-
-class NucleotideSubstitutionModel : public virtual AbstractSubstitutionModel
+void AbstractAgglomerativeDistanceMethod::setDistanceMatrix(const DistanceMatrix & matrix)
 {
-	public:
-		NucleotideSubstitutionModel(const NucleicAlphabet * alpha);
-		virtual ~NucleotideSubstitutionModel();
-};
+	_matrix = matrix;
+	if(_tree != NULL) delete _tree;
+}
+	
+Tree<N> AbstractAgglomerativeDistanceMethod::getTree() const
+{
+	return * _tree;
+}
+			
+void AbstractAgglomerativeDistanceMethod::computeTree(bool rooted)
+{
+  // Initialization:
+	for(unsigned int i = 0; i < _matrix.size(); i++) {
+		N * leaf = new N(i, _matrix.getName(i));
+		leaf -> setInfos(1);
+		_currentNodes[i] = leaf;
+	}
+	unsigned int idNextNode = _matrix.size();
+	vector<double> newDist(_matrix.size());
+	
+	// Build tree:
+	while(_currentNodes.size() > (rooted ? 2 : 3)) {
+		vector<unsigned int> bestPair = getBestPair();
+		vector<double> distances = computeBranchLengthsForPair(bestPair);
+//cout << bestPair[0] << "\t" << bestPair[1] << endl;
+		N * best1 = _currentNodes[bestPair[0]];
+		N * best2 = _currentNodes[bestPair[1]];
+//cout << "id\t" << best1 -> getId() << "\t" << best2 -> getId() << endl;
+		N * parent = new N(idNextNode++);
+		parent -> addSon(* best1);
+		parent -> addSon(* best2);
+		best1  -> setDistanceToFather(distances[0]);
+		best2  -> setDistanceToFather(distances[1]);
+		parent -> setInfos(best1 -> getInfos() + best2 -> getInfos());
+		for(map<unsigned int, N *>::iterator i = _currentNodes.begin(); i != _currentNodes.end(); i++) {
+			unsigned int id = i -> first;
+			if(id != bestPair[0] && id != bestPair[1]) {
+				newDist[id] = computeDistancesFromPair(bestPair, distances, id);
+			} else {
+				newDist[id] = 0;
+			}
+		}
+		// Actualize _currentNodes:
+		_currentNodes[bestPair[0]] = parent;
+		_currentNodes.erase(bestPair[1]);
+		for(map<unsigned int, N *>::iterator i = _currentNodes.begin(); i != _currentNodes.end(); i++) {
+			unsigned int id = i -> first;
+			_matrix(bestPair[0], id) = _matrix(id, bestPair[0]) = newDist[id];
+		}
+		
+	}
+	finalStep(idNextNode);
+}
 
 
-#endif	//_NUCLEICSUBSTITUTIONMODEL_H_

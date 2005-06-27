@@ -226,7 +226,7 @@ class OptimizationTools
 		
 	private:
 		
-		class ScaleFunction: public Function {
+		class ScaleFunction: public virtual Function {
 				
 			protected:
 				TreeLikelihood * _tl;
@@ -240,7 +240,7 @@ class OptimizationTools
 				void setParameters(const ParameterList & lambda) throw (ParameterNotFoundException, ConstraintException);
 				double getValue() const throw (ParameterException);
 				ParameterList getParameters() const throw (Exception) { return _lambda; }
-				double getParameter(const string & name) const throw (ParameterNotFoundException) { return _lambda.getParameter(name) -> getValue(); };
+				double getParameterValue(const string & name) const throw (ParameterNotFoundException) { return _lambda.getParameter(name) -> getValue(); };
 				void setAllParametersValues(const ParameterList & params) 
 					throw (ParameterNotFoundException, ConstraintException) {}
 				void setParameterValue(const string & name, double value) 

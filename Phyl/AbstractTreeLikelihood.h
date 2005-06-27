@@ -94,11 +94,10 @@ knowledge of the CeCILL license and that you accept its terms.
  * 
  * It also adds an abstract method for recursive computations.
  */
-class AbstractTreeLikelihood : public virtual TreeLikelihood
+class AbstractTreeLikelihood : public virtual TreeLikelihood, public virtual AbstractParametrizable
 {
 	protected:
 		const SiteContainer * _data;
-		mutable ParameterList _parameters;
 		mutable Tree<Node> *  _tree;
 		bool _computeDerivatives;
 
@@ -108,30 +107,6 @@ class AbstractTreeLikelihood : public virtual TreeLikelihood
 	
 	public:
 		const SiteContainer * getData() const;
-	
-		/**
-		 * @name The Parametrizable interface.
-		 *
-		 * @{
-		 */
-		ParameterList getParameters() const throw (Exception);
-	
-		double getParameter(const string & name) const
-			throw (ParameterNotFoundException);
-
-		void setAllParametersValues(const ParameterList & params)
-			throw (ParameterNotFoundException, ConstraintException);
-	
-		void setParameterValue(const string & name, double value)
-			throw (ParameterNotFoundException, ConstraintException);
-	
-		void setParametersValues(const ParameterList & params)
-			throw (ParameterNotFoundException, ConstraintException);
-	
-		void matchParametersValues(const ParameterList & params)
-			throw (ConstraintException);
-			
-		/** @} */
 	
 		Vdouble getLikelihoodForEachSite()                 const;
 		Vdouble getLogLikelihoodForEachSite()              const;

@@ -84,60 +84,6 @@ const SiteContainer * AbstractTreeLikelihood::getData() const { return _data; }
 
 /******************************************************************************/
 
-ParameterList AbstractTreeLikelihood::getParameters() const 
-throw (Exception)
-{
-	return _parameters;
-}
-
-/******************************************************************************/
-
-double AbstractTreeLikelihood::getParameter(const string & name) const
-throw (ParameterNotFoundException)
-{
-	Parameter * p = _parameters.getParameter(name);
-	if(p == NULL) throw ParameterNotFoundException("AbstractTreeLikelihood::getParameter", name);
-	return p -> getValue();
-}
-
-/******************************************************************************/
-
-void AbstractTreeLikelihood::setAllParametersValues(const ParameterList & params)
-throw (ParameterNotFoundException, ConstraintException)
-{
-	_parameters.setAllParametersValues(params);
-	fireParameterChanged(_parameters);
-}
-
-/******************************************************************************/
-
-void AbstractTreeLikelihood::setParameterValue(const string & name, double value)
-throw (ParameterNotFoundException, ConstraintException)
-{
-	_parameters.setParameterValue(name, value);
-	fireParameterChanged(_parameters.subList(name));
-}
-
-/******************************************************************************/
-
-void AbstractTreeLikelihood::setParametersValues(const ParameterList & params)
-throw (ParameterNotFoundException, ConstraintException)
-{
-	_parameters.setParametersValues(params);
-	fireParameterChanged(params);
-}
-
-/******************************************************************************/
-
-void AbstractTreeLikelihood::matchParametersValues(const ParameterList & params)
-throw (ConstraintException)
-{
-	_parameters.matchParametersValues(params);
-	fireParameterChanged(_parameters); //Conservative, should be the sublist...
-}
-
-/******************************************************************************/
-
 Tree<Node> * AbstractTreeLikelihood::getTree() const { return _tree; }
 
 /******************************************************************************/
