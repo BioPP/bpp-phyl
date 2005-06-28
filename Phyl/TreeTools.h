@@ -78,8 +78,8 @@ knowledge of the CeCILL license and that you accept its terms.
 #ifndef _TREETOOLS_H_
 #define _TREETOOLS_H_
 
-//#include "Tree.h"
-#include "TreeExceptions.h" // Include a declaration of classes Node and Tree<Node>.
+#include "TreeExceptions.h"
+#include "Node.h"
 
 // From Utils:
 #include <Utils/Exceptions.h>

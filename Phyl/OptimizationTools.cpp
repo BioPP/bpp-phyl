@@ -250,7 +250,6 @@ int OptimizationTools::optimizeTreeScale(
 	bod.init(singleParameter);
 	ParametersStopCondition * PS = new ParametersStopCondition(&bod, tolerance);
 	bod.setStopCondition(PS);
-	bod.setTolerance(tolerance);
 	bod.setMaximumNumberOfEvaluations(tlEvalMax);
 	bod.optimize();
 	delete PS;
@@ -282,7 +281,7 @@ int OptimizationTools::optimizeWithDownhillSimplexMethodAlphaSeparately(
 	optimizer2 -> setProfiler(profilerAlpha);
 	optimizer2 -> setMessageHandler(messageHandler);
 	optimizer2 -> setMaximumNumberOfEvaluations(tlEvalMax);
-	optimizer2 -> setTolerance(tolerance);
+	optimizer2 -> getStopCondition() -> setTolerance(tolerance);
 	optimizer2 -> setInitialInterval(0.1, 0.6);
 	
 	ParametersStopCondition * PS1 = NULL, * PS2 = NULL;
@@ -397,7 +396,7 @@ int OptimizationTools::optimizeWithPowellMethodAlphaSeparately(
 	optimizer2 -> setProfiler(profilerAlpha);
 	optimizer2 -> setMessageHandler(messageHandler);
 	optimizer2 -> setMaximumNumberOfEvaluations(tlEvalMax);
-	optimizer2 -> setTolerance(tolerance);
+	optimizer2 -> getStopCondition() -> setTolerance(tolerance);
 	optimizer2 -> setInitialInterval(0.1, 0.6);
 	
 	ParametersStopCondition * PS1 = NULL, * PS2 = NULL;

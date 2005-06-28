@@ -155,7 +155,7 @@ void NeighborJoining::finalStep(int idRoot)
 		root -> addSon(*n3);
 		n1 -> setDistanceToFather(d1);
 		n2 -> setDistanceToFather(d2);
-		n2 -> setDistanceToFather(d3);
+		n3 -> setDistanceToFather(d3);
 	}
 	_tree = new Tree<N>(*root);
 }

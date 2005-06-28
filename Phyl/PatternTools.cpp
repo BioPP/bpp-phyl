@@ -103,7 +103,7 @@ SiteContainer * PatternTools::shrinkSiteSet(const SiteContainer & siteSet) throw
 
 /******************************************************************************/
 
- // O(n2)
+/* // O(n2)
 const Pattern PatternTools::countSites(const SiteContainer & siteSet)
 {
 	Pattern pattern;
@@ -127,7 +127,7 @@ const Pattern PatternTools::countSites(const SiteContainer & siteSet)
 	pattern.names = siteSet.getSequencesNames();
 	return pattern;
 }
-
+*/
 
 /******************************************************************************/
  // o(n.log(n))
@@ -182,7 +182,7 @@ const Pattern PatternTools::countSites(const SiteContainer & siteSet)
 
 /******************************************************************************/
 
-/*
+
 const Pattern PatternTools::countSites(const SiteContainer & siteSet)
 {
 	unsigned int nbSites = siteSet.getNumberOfSites();
@@ -206,7 +206,7 @@ const Pattern PatternTools::countSites(const SiteContainer & siteSet)
 	pattern.names = siteSet.getSequencesNames();
 	return pattern;
 }
-*/
+
 
 /******************************************************************************/
 

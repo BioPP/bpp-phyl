@@ -78,6 +78,12 @@ knowledge of the CeCILL license and that you accept its terms.
 
 #include "AgglomerativeDistanceMethod.h"
 #include "DistanceMatrix.h"
+#include "Tree.h"
+#include "Node.h"
+#include "NodeTemplate.h"
+typedef NodeTemplate<unsigned int> N;
+
+// From the STL:
 #include <map>
 using namespace std;
 

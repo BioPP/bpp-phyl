@@ -37,6 +37,8 @@ SubstitutionModel.h\
 T92.h\
 TN93.h\
 TreeExceptions.h\
+Node.h\
+NodeTemplate.h\
 Tree.h\
 TreeLikelihood.h\
 TreeTools.h\

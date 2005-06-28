@@ -1,11 +1,11 @@
 //
 // File: TreeLikelihood.h
-// Created by: jdutheil <Julien.Dutheil@univ-montp2.fr>
+// Created by: Julien Dutheil
 // Created on: Fri Oct 17 17:36:44 2003
 //
 
 /*
-Copyright ou © ou Copr. Julien Dutheil, (16 Novembre 2004) 
+Copyright ou © ou Copr. CNRS, (16 Novembre 2004) 
 
 Julien.Dutheil@univ-montp2.fr
 
@@ -41,7 +41,7 @@ termes.
 */
 
 /*
-Copyright or © or Copr. Julien Dutheil, (November 16, 2004)
+Copyright or © or Copr. CNRS, (November 16, 2004)
 
 Julien.Dutheil@univ-montp2.fr
 
@@ -79,6 +79,7 @@ knowledge of the CeCILL license and that you accept its terms.
 #define _TREELIKELIHOOD_H_
 
 #include "Tree.h"
+#include "Node.h"
 
 // From NumCalc:
 #include <NumCalc/ParameterList.h>

@@ -78,10 +78,7 @@ knowledge of the CeCILL license and that you accept its terms.
 
 class DistanceMatrix;
 class Node;
-template<class NodeInfos> class NodeTemplate;
 template<class Node> class Tree;
-typedef NodeTemplate<unsigned int> N;
-
 
 class AgglomerativeDistanceMethod
 {

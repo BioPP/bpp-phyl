@@ -166,7 +166,7 @@ void NewtonBrentMetaOptimizer::init(const ParameterList & parameters)
 		_rateDistributionOptimizer -> setProfiler(_profiler);
 		_rateDistributionOptimizer -> setMessageHandler(_messageHandler);
 		_rateDistributionOptimizer -> setConstraintPolicy(_constraintPolicy);
-		_rateDistributionOptimizer -> setVerbose(_verbose > 1 ? 1 : 0);
+		_rateDistributionOptimizer -> setVerbose(_verbose > 0 ? _verbose - 1 : 0);
 		//_rateDistributionOptimizer -> setConstraintPolicy(AbstractOptimizer::CONSTRAINTS_IGNORE);
 	}
 	
@@ -175,7 +175,7 @@ void NewtonBrentMetaOptimizer::init(const ParameterList & parameters)
 		_substitutionModelOptimizer -> setProfiler(_profiler);
 		_substitutionModelOptimizer -> setMessageHandler(_messageHandler);
 		_substitutionModelOptimizer -> setConstraintPolicy(_constraintPolicy);
-		_substitutionModelOptimizer -> setVerbose(_verbose > 1 ? 1 : 0);
+		_substitutionModelOptimizer -> setVerbose(_verbose > 0 ? _verbose - 1 : 0);
 	}
 
 	if(_nbBranchLengths > 0) {
@@ -183,7 +183,7 @@ void NewtonBrentMetaOptimizer::init(const ParameterList & parameters)
 		_branchLengthsOptimizer -> setProfiler(_profiler);
 		_branchLengthsOptimizer -> setMessageHandler(_messageHandler);
 		_branchLengthsOptimizer -> setConstraintPolicy(_constraintPolicy);
-		_branchLengthsOptimizer -> setVerbose(_verbose > 1 ? 1 : 0);
+		_branchLengthsOptimizer -> setVerbose(_verbose > 0 ? _verbose - 1 : 0);
 	}
 	
 	if(_nbRateDistParams == 0 || _nbSubsModParams == 0 || _nbBranchLengths == 0) _rough = false;
