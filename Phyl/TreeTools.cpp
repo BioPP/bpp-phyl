@@ -1,6 +1,6 @@
 //
 // File: TreeTools.h
-// Created by:  <@bogdanof>
+// Created by: Julien Dutheil
 // Created on: Wed Aug  6 13:45:28 2003
 //
 

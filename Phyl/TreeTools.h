@@ -112,7 +112,7 @@ class TreeTools
 				leaves.push_back(& node);
 			}
 			for(unsigned int i = 0; i < node.getNumberOfSons(); i++) {
-				vector<N *> sonLeaves = getLeaves(* node[i]);
+				vector<N *> sonLeaves = getLeaves(* node.getSon(i));
 				for(unsigned int j = 0; j < sonLeaves.size(); j++) {
 					leaves.push_back(sonLeaves[j]);
 				}
@@ -131,7 +131,7 @@ class TreeTools
 		{
 			vector<N *> nodes;
 			for(unsigned int i = 0; i < node.getNumberOfSons(); i++) {
-				vector<N *> sonNodes = getNodes(* node[i]);
+				vector<N *> sonNodes = getNodes(* node.getSon(i));
 				for(unsigned int j = 0; j < sonNodes.size(); j++) {
 					nodes.push_back(sonNodes[j]);
 				}

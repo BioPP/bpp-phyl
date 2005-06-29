@@ -352,8 +352,9 @@ class Tree {
 		virtual void destroyNode(const N & node)
 		{
 			for(unsigned int i = 0; i < node.getNumberOfSons(); i++) {
-				destroyNode(* node[i]);
-				delete node[i];
+				const N * son = node.getSon(i);
+				destroyNode(* son);
+				delete son;
 			}
 		}
 		
