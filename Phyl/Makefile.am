@@ -4,6 +4,8 @@ AbstractTreeLikelihood.h\
 AbstractDiscreteRatesAcrossSitesTreeLikelihood.h\
 AbstractHomogeneousTreeLikelihood.h\
 AbstractAgglomerativeDistanceMethod.h\
+AncestralStateReconstruction.h\
+MarginalAncestralStateReconstruction.h\
 AgglomerativeDistanceMethod.h\
 ApplicationTools.h\
 DistanceEstimation.h\
@@ -64,6 +66,7 @@ JCnuc.cpp\
 JCprot.cpp\
 JTT92.cpp\
 K80.cpp\
+MarginalAncestralStateReconstruction.cpp\
 MutationProcess.cpp\
 NeighborJoining.cpp\
 Newick.cpp\

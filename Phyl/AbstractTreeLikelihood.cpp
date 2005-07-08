@@ -79,15 +79,6 @@ knowledge of the CeCILL license and that you accept its terms.
 
 /******************************************************************************/
 
-const SiteContainer * AbstractTreeLikelihood::getData() const { return _data; }
-
-
-/******************************************************************************/
-
-Tree<Node> * AbstractTreeLikelihood::getTree() const { return _tree; }
-
-/******************************************************************************/
-
 Vdouble AbstractTreeLikelihood::getLikelihoodForEachSite() const
 {
 	Vdouble l(getNumberOfSites());

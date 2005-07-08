@@ -1,11 +1,11 @@
 //
-// File: AbstractSubstitutionModel.h
+// File: AbstractSubstitutionModel.cpp
 // Created by: Julien Dutheil
 // Created on: Tue May 27 10:31:49 2003
 //
 
 /*
-Copyright ou © ou Copr. Julien Dutheil, (16 Novembre 2004) 
+Copyright ou © ou Copr. CNRS, (16 Novembre 2004) 
 
 Julien.Dutheil@univ-montp2.fr
 
@@ -41,7 +41,7 @@ termes.
 */
 
 /*
-Copyright or © or Copr. Julien Dutheil, (November 16, 2004)
+Copyright or © or Copr. CNRS, (November 16, 2004)
 
 Julien.Dutheil@univ-montp2.fr
 
@@ -93,12 +93,12 @@ using namespace VectorOperators;
 AbstractSubstitutionModel::AbstractSubstitutionModel(const Alphabet * alpha): alphabet(alpha)
 {
 	_size = alpha -> getSize();
-	_generator         = Mat(_size, _size);
-	_exchangeability   = Mat(_size, _size);
-	_freq              = Vec(_size);
-	_eigenValues       = Vec(_size);
-	_leftEigenVectors  = Mat(_size, _size);
-	_rightEigenVectors = Mat(_size, _size);
+	_generator.resize(_size, _size);
+	_exchangeability.resize(_size, _size);
+	_freq.resize(_size);
+	_eigenValues.resize(_size);
+	_leftEigenVectors.resize(_size, _size);
+	_rightEigenVectors.resize(_size, _size);
 }
 
 /******************************************************************************/

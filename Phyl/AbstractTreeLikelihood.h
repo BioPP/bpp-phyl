@@ -106,21 +106,23 @@ class AbstractTreeLikelihood : public virtual TreeLikelihood, public virtual Abs
 		virtual ~AbstractTreeLikelihood() {}
 	
 	public:
-		const SiteContainer * getData() const;
-	
+		/**
+		 * @name The TreeLikelihood interface.
+		 *
+		 * @{
+		 */
+		const SiteContainer * getData() const { return _data; }
+		const Alphabet * getAlphabet() const { return _data -> getAlphabet(); }	
 		Vdouble getLikelihoodForEachSite()                 const;
 		Vdouble getLogLikelihoodForEachSite()              const;
 		VVdouble getLikelihoodForEachSiteForEachState()    const;
 		VVdouble getLogLikelihoodForEachSiteForEachState() const;
 		unsigned int getNumberOfSites() const { return _data -> getNumberOfSites(); }
 		unsigned int getNumberOfStates() const { return _data -> getAlphabet() -> getSize(); }
-
-		Tree<Node> * getTree() const;
-		
+		Tree<Node> * getTree() const { return _tree; }
 		void setComputeDerivatives(bool yn) { _computeDerivatives = yn; }
-
 		bool computeDerivatives() const { return _computeDerivatives; }
-
+		/** @} */
 
 	protected:
 		

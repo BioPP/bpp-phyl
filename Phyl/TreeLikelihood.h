@@ -87,6 +87,9 @@ knowledge of the CeCILL license and that you accept its terms.
 #include <NumCalc/Functions.h>
 #include <NumCalc/VectorTools.h>
 
+// From SeqLib:
+#include <Seq/Alphabet.h>
+
 /**
  * @brief The TreeLikelihood interface.
  
@@ -98,18 +101,13 @@ knowledge of the CeCILL license and that you accept its terms.
  * This interface separates the computation itself (computeLikelihood() method) and the
  * result (getLikelihood() methods).
  */ 
-class TreeLikelihood: public DerivableSecondOrder
+class TreeLikelihood: public virtual DerivableSecondOrder
 {
 	public:
 		virtual ~TreeLikelihood();
 	
 	public:
 		
-		/**
-		 * @brief Compute likelihood.
-		 */
-		virtual void computeTreeLikelihood() = 0;
-
 		/**
 		 * @brief Get the likelihood for a site.
 		 *
@@ -206,6 +204,13 @@ class TreeLikelihood: public DerivableSecondOrder
 		 * @return the number of states in the alphabet associated to the dataset.
 		 */		
 		virtual unsigned int getNumberOfStates() const = 0;
+		
+		/**
+		 * @brief Get the alphabet associated to the dataset.
+		 *
+		 * @return the alphabet associated to the dataset.
+		 */		
+		virtual const Alphabet * getAlphabet() const = 0;
 		
 		/**
 		 * @name Retrieve some particular parameters subsets.
