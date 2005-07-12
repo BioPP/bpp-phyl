@@ -1,6 +1,6 @@
 //
 // File: Newick.h
-// Created by: Julien Dutheil <Julien.Dutheil@univ-montp2.fr>
+// Created by: Julien Dutheil
 // Created on: Thu Oct 23 15:35:03 2003
 //
 
@@ -139,11 +139,25 @@ class Newick: public virtual AbstractITree, public virtual AbstractOTree
 		 *
 		 * @{
 		 */
-		Tree<Node> * read(const string & path) const throw (Exception)
+		
+#if defined(VIRTUAL_COV)
+		TreeTemplate<Node> * read(const string & path) const throw (Exception)
+		{
+			return dynamic_cast<TreeTempate<Node>(AbstractITree::read(path));
+		}
+#else
+		Tree * read(const string & path) const throw (Exception)
 		{
 			return AbstractITree::read(path);
 		}
-		Tree<Node> * read(istream & in) const throw (Exception);
+#endif
+		
+#if defined(VIRTUAL_COV)
+		TreeTemplate<Node> * 
+#else
+		Tree *
+#endif
+		read(istream & in) const throw (Exception);
 		/** @} */
 
 		/**
@@ -151,11 +165,11 @@ class Newick: public virtual AbstractITree, public virtual AbstractOTree
 		 *
 		 * @{
 		 */
-		void write(const Tree<Node> & tree, const string & path, bool overwrite = true) const throw (Exception)
+		void write(const Tree & tree, const string & path, bool overwrite = true) const throw (Exception)
 		{
 			AbstractOTree::write(tree, path, overwrite);
 		}
-		void write(const Tree<Node> & tree, ostream & out) const throw (Exception);
+		void write(const Tree & tree, ostream & out) const throw (Exception);
 		/** @} */
 };
 

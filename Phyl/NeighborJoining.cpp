@@ -6,7 +6,7 @@
 //
 
 /*
-Copyright ou © ou Copr. Julien Dutheil, (16 Novembre 2004) 
+Copyright ou © ou Copr. CNRS, (16 Novembre 2004) 
 
 Julien.Dutheil@univ-montp2.fr
 
@@ -42,7 +42,7 @@ termes.
 */
 
 /*
-Copyright or © or Copr. Julien Dutheil, (November 16, 2004)
+Copyright or © or Copr. CNRS, (November 16, 2004)
 
 Julien.Dutheil@univ-montp2.fr
 
@@ -84,10 +84,10 @@ using namespace std;
 
 vector<unsigned int> NeighborJoining::getBestPair()
 {
-	for(map<unsigned int, N *>::iterator i = _currentNodes.begin(); i != _currentNodes.end(); i++) {
+	for(map<unsigned int, Node *>::iterator i = _currentNodes.begin(); i != _currentNodes.end(); i++) {
 		unsigned int id = i -> first;
 		_sumDist[id] = 0;
-		for(map<unsigned int, N *>::iterator j = _currentNodes.begin(); j != _currentNodes.end(); j++) {
+		for(map<unsigned int, Node *>::iterator j = _currentNodes.begin(); j != _currentNodes.end(); j++) {
 			unsigned int jd = j -> first;
 			_sumDist[id] += _matrix(id, jd);
 		}
@@ -95,9 +95,9 @@ vector<unsigned int> NeighborJoining::getBestPair()
 
 	vector<unsigned int> bestPair(2);
 	double critMax = std::log(0.);
-	for(map<unsigned int, N *>::iterator i = _currentNodes.begin(); i != _currentNodes.end(); i++) {
+	for(map<unsigned int, Node *>::iterator i = _currentNodes.begin(); i != _currentNodes.end(); i++) {
 		unsigned int id = i -> first;
-		map<unsigned int, N *>::iterator j = i;
+		map<unsigned int, Node *>::iterator j = i;
 		j++;
 		for(; j != _currentNodes.end(); j++) {
 			unsigned int jd = j -> first;
@@ -130,13 +130,13 @@ double NeighborJoining::computeDistancesFromPair(const vector<unsigned int> & pa
 
 void NeighborJoining::finalStep(int idRoot)
 {
-	N * root = new N(idRoot);
-	map<unsigned int, N* >::iterator it = _currentNodes.begin();
+	Node * root = new Node(idRoot);
+	map<unsigned int, Node* >::iterator it = _currentNodes.begin();
 	unsigned int i1 = it -> first;
-	N * n1          = it -> second;
+	Node * n1       = it -> second;
 	it++;
 	unsigned int i2 = it -> first;
-	N * n2          = it -> second;
+	Node * n2       = it -> second;
 	if(_currentNodes.size() == 2) { //Rooted
 		double d = _matrix(i1, i2) / 2;
 		root -> addSon(*n1);
@@ -146,7 +146,7 @@ void NeighborJoining::finalStep(int idRoot)
 	} else { //Unrooted
 		it++;
 		unsigned int i3 = it -> first;
-		N * n3          = it -> second;
+		Node * n3       = it -> second;
 		double d1 = std::max(_matrix(i1, i2) + _matrix(i1, i3) - _matrix(i2, i3), 0.);
 		double d2 = std::max(_matrix(i2, i1) + _matrix(i2, i3) - _matrix(i1, i3), 0.);
 		double d3 = std::max(_matrix(i3, i1) + _matrix(i3, i2) - _matrix(i1, i2), 0.);
@@ -157,6 +157,6 @@ void NeighborJoining::finalStep(int idRoot)
 		n2 -> setDistanceToFather(d2);
 		n3 -> setDistanceToFather(d3);
 	}
-	_tree = new Tree<N>(*root);
+	_tree = new TreeTemplate<Node>(*root);
 }
 

@@ -1,6 +1,6 @@
 //
 // File: Newick.h
-// Created by: jdutheil <Julien.Dutheil@univ-montp2.fr>
+// Created by: Julien Dutheil
 // Created on: Thu Oct 23 15:35:03 2003
 //
 
@@ -77,6 +77,8 @@ knowledge of the CeCILL license and that you accept its terms.
 
 #include "Newick.h"
 #include "TreeTools.h"
+#include "Tree.h"
+#include "TreeTemplate.h"
 
 // From Utils:
 #include <Utils/TextTools.h>
@@ -107,7 +109,12 @@ const string Newick::getFormatDescription() const
 
 /******************************************************************************/
 
-Tree<Node> * Newick::read(istream & in) const throw (Exception)
+#if defined(VIRTUAL_COV)
+		TreeTemplate<Node> * 
+#else
+		Tree *
+#endif
+Newick::read(istream & in) const throw (Exception)
 {
 	// Checking the existence of specified file
 	if (! in) { throw IOException ("Newick::read : failed to read from stream"); }
@@ -129,7 +136,7 @@ Tree<Node> * Newick::read(istream & in) const throw (Exception)
 
 /******************************************************************************/
 
-void Newick::write(const Tree<Node> & tree, ostream & out) const throw (Exception)
+void Newick::write(const Tree & tree, ostream & out) const throw (Exception)
 {
 	// Checking the existence of specified file, and possibility to open it in write mode
 	if (! out) { throw IOException ("Newick::write : failed to write to stream"); }
@@ -137,3 +144,4 @@ void Newick::write(const Tree<Node> & tree, ostream & out) const throw (Exceptio
 }
 
 /******************************************************************************/
+

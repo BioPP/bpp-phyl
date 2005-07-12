@@ -5,7 +5,7 @@
 //
 
 /*
-Copyright ou © ou Copr. Julien Dutheil, (16 Novembre 2004) 
+Copyright ou © ou Copr. CNRS, (16 Novembre 2004) 
 
 Julien.Dutheil@univ-montp2.fr
 
@@ -41,7 +41,7 @@ termes.
 */
 
 /*
-Copyright or © or Copr. Julien Dutheil, (November 16, 2004)
+Copyright or © or Copr. CNRS, (November 16, 2004)
 
 Julien.Dutheil@univ-montp2.fr
 
@@ -77,6 +77,7 @@ knowledge of the CeCILL license and that you accept its terms.
 
 #include "TreeTools.h"
 #include "Tree.h"
+#include "TreeTemplate.h"
 
 // From Utils:
 #include <Utils/TextTools.h>
@@ -270,7 +271,7 @@ Node * TreeTools::parenthesisToNode(const string & description)
 
 /******************************************************************************/
 
-Tree<Node> * TreeTools::parenthesisToTree(const string & description)
+TreeTemplate<Node> * TreeTools::parenthesisToTree(const string & description)
 {
 	int lastP  = description.rfind(')');
 	int firstP = description.find('(');
@@ -295,7 +296,7 @@ Tree<Node> * TreeTools::parenthesisToTree(const string & description)
 			node -> addSon(* son);
 		}
 	}
-	Tree<Node> * tree = new Tree<Node>();
+	TreeTemplate<Node> * tree = new TreeTemplate<Node>();
 	tree -> setRootNode(* node);
 	tree -> resetNodesId();
 	return tree;
@@ -323,7 +324,28 @@ string TreeTools::nodeToParenthesis(const Node & node)
 
 /******************************************************************************/
 
-string TreeTools::treeToParenthesis(const Tree<Node> & tree)
+string TreeTools::nodeToParenthesis(const Tree & tree, int nodeId)
+{
+	ostringstream s;
+	if(tree.isLeaf(nodeId)) {
+		s << tree.getNodeName(nodeId);
+	} else {
+		s << "(";
+		vector<int> sonsId = tree.getSonsId(nodeId);
+		s << nodeToParenthesis(tree, sonsId[0]);
+		for(unsigned int i = 1; i < sonsId.size(); i++) {
+			s << "," << nodeToParenthesis(tree, sonsId[i]);
+		}
+		s << ")";
+	}
+	if(tree.hasProperty(nodeId, BOOTSTRAP)) s << (dynamic_cast<const Number<double> *>(tree.getProperty(nodeId, BOOTSTRAP)) -> getValue());
+	if(tree.hasDistanceToFather(nodeId)) s << ":" << tree.getDistanceToFather(nodeId);
+	return s.str();	
+}
+
+/******************************************************************************/
+
+string TreeTools::treeToParenthesis(const TreeTemplate<Node> & tree)
 {
 	ostringstream s;
 	s << "(";
@@ -337,6 +359,29 @@ string TreeTools::treeToParenthesis(const Tree<Node> & tree)
 		s << nodeToParenthesis(* node -> getSon(0));
 		for(unsigned int i = 1; i < node -> getNumberOfSons(); i++) {
 			s << "," << nodeToParenthesis(* node -> getSon(i));
+		}
+	}
+	s << ");" << endl;
+	return s.str();	
+}
+
+/******************************************************************************/
+
+string TreeTools::treeToParenthesis(const Tree & tree)
+{
+	ostringstream s;
+	s << "(";
+	int rootId = tree.getRootId();
+	vector<int> sonsId = tree.getSonsId(rootId);
+	if(tree.isLeaf(rootId)) {
+		s << tree.getNodeName(rootId);
+		for(unsigned int i = 0; i < sonsId.size(); i++) {
+			s << "," << nodeToParenthesis(tree, sonsId[i]);
+		}
+	} else {
+		s << nodeToParenthesis(tree, tree.getSonsId(rootId)[0]);
+		for(unsigned int i = 1; i < sonsId.size(); i++) {
+			s << "," << nodeToParenthesis(tree, sonsId[i]);
 		}
 	}
 	s << ");" << endl;
@@ -416,7 +461,7 @@ void TreeTools::scaleTree(Node & node, double factor) throw (NodeException)
 		
 /******************************************************************************/
 
-Tree<Node> * TreeTools::getRandomTree(vector<string> & leavesNames)
+TreeTemplate<Node> * TreeTools::getRandomTree(vector<string> & leavesNames)
 {
   if(leavesNames.size() == 0) return NULL; // No taxa.
   // This vector will contain all nodes.
@@ -443,7 +488,7 @@ Tree<Node> * TreeTools::getRandomTree(vector<string> & leavesNames)
 		nodes.push_back(parent);
 	}
   // Return tree with last node as root node:
-  return new Tree<Node>(* nodes[0]);
+  return new TreeTemplate<Node>(* nodes[0]);
 }
 
 /******************************************************************************/

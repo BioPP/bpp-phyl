@@ -79,6 +79,8 @@ knowledge of the CeCILL license and that you accept its terms.
 #define _ABSTRACTTREELIKELIHOOD_H_
 
 #include "TreeLikelihood.h"
+#include "Tree.h"
+#include "TreeTemplate.h"
 
 //From SeqLib:
 #include <Seq/SiteContainer.h>
@@ -98,7 +100,7 @@ class AbstractTreeLikelihood : public virtual TreeLikelihood, public virtual Abs
 {
 	protected:
 		const SiteContainer * _data;
-		mutable Tree<Node> *  _tree;
+		mutable TreeTemplate<Node> *  _tree;
 		bool _computeDerivatives;
 
 	public:
@@ -119,7 +121,7 @@ class AbstractTreeLikelihood : public virtual TreeLikelihood, public virtual Abs
 		VVdouble getLogLikelihoodForEachSiteForEachState() const;
 		unsigned int getNumberOfSites() const { return _data -> getNumberOfSites(); }
 		unsigned int getNumberOfStates() const { return _data -> getAlphabet() -> getSize(); }
-		Tree<Node> * getTree() const { return _tree; }
+		Tree * getTree() const { return _tree; }
 		void setComputeDerivatives(bool yn) { _computeDerivatives = yn; }
 		bool computeDerivatives() const { return _computeDerivatives; }
 		/** @} */

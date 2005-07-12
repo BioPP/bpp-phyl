@@ -93,7 +93,7 @@ using namespace std;
 /******************************************************************************/
 
 AbstractHomogeneousTreeLikelihood::AbstractHomogeneousTreeLikelihood(
-	Tree<Node> & tree,
+	TreeTemplate<Node> & tree,
 	const SiteContainer & data,
 	SubstitutionModel * model,
 	DiscreteDistribution * rDist,

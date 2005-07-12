@@ -1,6 +1,6 @@
 //
 // File: HomogeneousTreeLikelihood.cpp
-// Created by: Julien Dutheil <Julien.Dutheil@univ-montp2.fr>
+// Created by: Julien Dutheil
 // Created on: Fri Oct 17 18:14:51 2003
 //
 
@@ -97,7 +97,7 @@ using namespace std;
 /******************************************************************************/
 
 DRHomogeneousTreeLikelihood::DRHomogeneousTreeLikelihood(
-	Tree<Node> & tree,
+	TreeTemplate<Node> & tree,
 	const SiteContainer & data,
 	SubstitutionModel * model,
 	DiscreteDistribution * rDist,

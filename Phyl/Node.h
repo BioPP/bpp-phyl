@@ -127,7 +127,7 @@ class Node {
 
 	public: // Class constructor and destructor:
 	
-		/**	
+		/**	i
 		 * @brief Build a new void Node object.
 		 */
 		Node() : _id(0), _name(NULL), _father(NULL), _distanceToFather(NULL) {}
@@ -185,6 +185,15 @@ class Node {
 		 * @param id The new identity tag.
 		 */
 		virtual void setId(int id) { _id = id; }
+
+		virtual vector<int> getSonsId() const
+		{
+			vector<int> sonsId(_sons.size());
+			for(unsigned int i = 0; i < _sons.size(); i++) {
+				sonsId[i] = _sons[i] -> getId();
+			}
+			return sonsId;
+		}
 
 		/** @} */
 
@@ -285,6 +294,8 @@ class Node {
 		 * @return A pointer toward the father node, NULL if there is not.
 		 */		 
 		virtual Node * getFather() { return _father; }
+		
+		virtual int getFatherId() const { return _father -> getId(); }
 				
 		/**
 		 * @brief Set the father node of this node.
@@ -389,9 +400,9 @@ class Node {
 				
 		virtual const Clonable * getProperty(const string & name) const { return const_cast<const Clonable *>(_properties[name]); }
 				
-		virtual void * removeProperty(const string & name)
+		virtual Clonable * removeProperty(const string & name)
 		{
-			void * removed = _properties[name];
+			Clonable * removed = _properties[name];
 			_properties.erase(name);
 			return removed;
 		}	
@@ -408,7 +419,7 @@ class Node {
 
 		virtual bool isLeaf() const { return degree() == 1; }
 			
-	friend class Tree<Node>;
+//	friend class TreeTemplate<Node>;
 };
 
 #endif	//_NODE_H_

@@ -5,7 +5,7 @@
 //
 
 /*
-Copyright ou © ou Copr. Julien Dutheil, (16 Novembre 2004) 
+Copyright ou © ou Copr. CNRS, (16 Novembre 2004) 
 
 Julien.Dutheil@univ-montp2.fr
 
@@ -41,7 +41,7 @@ termes.
 */
 
 /*
-Copyright or © or Copr. Julien Dutheil, (November 16, 2004)
+Copyright or © or Copr. CNRS, (November 16, 2004)
 
 Julien.Dutheil@univ-montp2.fr
 
@@ -93,131 +93,84 @@ using namespace std;
 /**
  * @brief The phylogenetic tree class.
  * 
- * This class is part of the object implementation of phylogenetic trees. Tree are made
- * made of nodes, instances of the class Node.
- * 
- * Trees are oriented (rooted), i.e. each node has one <i>father node</i> and possibly
- * many <i>son nodes</i>. Leaves are nodes without descendant and root is defined has the without
- * father. Inner nodes will generally contain two descendants (the tree is then called
- * <i>bifurcating</i>), but mutlifurcating trees are also allowed with this kind of description.
- * In the rooted case, each inner node also defines a <i>subtree</i>.
- * This allows to work recursively on trees, which is very convenient in most cases.
- * To deal with non-rooted trees, we place an artificial root at a particular node:
- * hence the root node appears to be trifurcated. This is the way unrooted trees are
- * described in the parenthetic description, the so called Newick format.
- * 
- * To clone a tree from from another tree with a different template,
- * consider using the TreeTools::cloneSutree<N>() method:
- * <code>
- * Tree * t = new Tree<Node>(...)
- * NodeTemplate<int> * newRoot = TreeTools::cloneSubtree< NodeTemplate<int> >(* (t -> getRootNode()))
- * Tree< NodeTemplate<int> > * tt = new Tree< NodeTemplate<int> >(* newRoot);
- * </code>
- * 
- * @see Node
- * @see NodeTemplate
- * @see TreeTools
  */
-template<class N=Node>
 class Tree {
-
-	/**
-	 * Fields:
-	 */
-	protected:
-		N * _root;
-		string _name;
 
 	public: // Constructors and destructor:
 		
-		Tree() { _root = NULL; }
+		Tree() {}
+		virtual ~Tree() {}
 
-		Tree(const Tree<N> & t)
-		{
-			//Perform a hard copy of the nodes:
-			_root = TreeTools::cloneSubtree<N>(* t.getRootNode());
-		}
-
-		Tree(N & root) { _root = &root; }
-
-		Tree<N> & operator=(const Tree<N> & t)
-		{
-			//Perform a hard copy of the nodes:
-			_root = TreeTools::cloneSubtree<N>(* t.getRootNode());
-    	return *this;
-		}
-
-		virtual ~Tree() { destroyNode(* _root); delete _root; }
-
-			
-	/**
-	 * Methods:
- 	 */
-	
 	public:
 		
-		virtual N * getRootNode() { return _root; }
-
-		virtual const N * getRootNode() const { return _root; }
-
-		virtual void setRootNode(N & root) { _root = & root; }
-	
-		virtual string getName() const { return _name; }
-	
-		virtual void setName(const string & name) { _name = name; }
-
-		virtual unsigned int getNumberOfLeaves() const { return TreeTools::getNumberOfLeaves(* _root); }
-
-		virtual vector<const N *> getLeaves() const { return TreeTools::getLeaves(* const_cast<const N *>(_root)); }
-
-		virtual vector<      N *> getLeaves()       { return TreeTools::getLeaves(* _root); }
-
-
-		virtual vector<const N *> getNodes() const { return TreeTools::getNodes (* const_cast<const N *>(_root)); }
-
-		virtual vector<      N *> getNodes()       { return TreeTools::getNodes (* _root); }
-
-		virtual vector<double> getBranchLengths() const { return TreeTools::getBranchLengths(* _root); }
-
-		virtual vector<string> getLeavesNames() const { return TreeTools::getLeavesNames(* const_cast<const N *>( _root)); }
-
-		//void setNewOutgroup(Tree::N & node);
-
-		// Works on root:
+		virtual string getName() const = 0;
 		
-		/**
-		 * @brief <p></p>
-		 * @param p_iNewRoot The node to be considered as the new root, i.e.
-		 * defining the subtree to be considered as the new outgroup.
-		 */
-		void rootAt(N & p_iNewRoot)
-	  {
-			if (* _root == p_iNewRoot) return;
-			vector<Node *> pathMatrix = TreeTools::getPathBetweenAnyTwoNodes(* _root, p_iNewRoot);
-			//pathMatrix size is always bigger than 2.
-
-			for (unsigned int i = 0; i < pathMatrix.size() - 1 ; i++) {
-				pathMatrix[i] -> _father = pathMatrix[i + 1];
-				//pathMatrix[i] -> setFather(*pathMatrix[i + 1]);
-				pathMatrix[i] -> setDistanceToFather(pathMatrix[i + 1] -> getDistanceToFather());
-				typename vector<Node *>::iterator vec_iter;
-				vec_iter = remove(pathMatrix[i] -> _sons.begin(), pathMatrix[i] -> _sons.end(), pathMatrix[i + 1]);
-				pathMatrix[i] -> _sons.erase(vec_iter, pathMatrix[i] -> _sons.end()); // pg 1170, primer.
+		virtual void setName(const string & name) = 0;
+		
+		virtual int getRootId() const = 0;
 	
-				pathMatrix[i+1] -> _sons.push_back(pathMatrix[i + 1] -> getFather());
-				pathMatrix[i+1] -> _father = NULL;
-				//pathMatrix[i+1] -> deleteFather();
-			}
-			_root = & p_iNewRoot;
-		}
+		virtual unsigned int getNumberOfLeaves() const = 0;
 
+		virtual vector<int> getLeavesId() const = 0;
+
+		virtual vector<int> getNodesId() const = 0;
+
+		virtual vector<double> getBranchLengths() const = 0;
+
+		virtual vector<string> getLeavesNames() const = 0;
+
+		virtual vector<int> getSonsId(int parentId) const = 0;
+
+		virtual int getFatherId(int parentId) const = 0;
+
+		virtual string getNodeName(int nodeId) const throw (NodeException) = 0;
+		
+		virtual bool hasNodeName(int nodeId) const = 0;
+
+		virtual bool isLeaf(int nodeId) const = 0;
+
+		virtual bool isRoot(int nodeId) const = 0;
+
+		virtual double getDistanceToFather(int nodeId) const = 0;
+		
+		virtual bool hasDistanceToFather(int nodeId) const = 0;
+
+		virtual bool hasProperty(int nodeId, const string & name) const = 0;
+		
+		virtual void setProperty(int nodeId, const string & name, Clonable * property) = 0;
+				
+		virtual Clonable * getProperty(int nodeId, const string & name) = 0;
+				
+		virtual const Clonable * getProperty(int nodeId, const string & name) const = 0;
+				
+		virtual Clonable * removeProperty(int nodeId, const string & name) = 0;
+
+		/**
+		 * @brief Change the root node.
+		 *
+		 * Works on unrooted tree.
+		 * If the tree is rooted, the method unroots it first.
+		 *
+		 * @param nodeId The id of the node that will be the new root.
+		 */
+		virtual void rootAt(int nodeId) = 0;
+
+		/**
+		 * @brief Root a tree by specifying an outgroup.
+		 *
+		 * If the tree is rooted, unroot it first, change the root node and then reroot the tree using the previous root id.
+		 * If the tree is unrooted, change the root node and then create a new root node.
+		 *
+		 * @param nodeId The id of the node that will be the new root.
+		 */
+		virtual void newOutGroup(int nodeId) = 0;
 		
 		/**
 		 * @brief Tell if the tree is rooted.
 		 * 
 		 * @return True if the tree is rooted.
 		 */
-		virtual bool isRooted() const { return _root -> getNumberOfSons() == 2; }
+		virtual bool isRooted() const = 0;
 		
 		/**
 		 * @brief Unroot a rooted tree.
@@ -225,51 +178,12 @@ class Tree {
 		 * @return True if the tree has been unrooted.
 		 * @throw UnrootedTreeException If the tree is already rooted.
 		 */
-		virtual bool unroot() throw (UnrootedTreeException<N>)
-		{
-			if(!isRooted()) throw UnrootedTreeException<N>("Tree::unroot", this);
+		virtual bool unroot() throw (UnrootedTreeException) = 0;
 
-    		if(_root -> getNumberOfSons() == 2) {
-				N* son1 = _root -> getSon(0);
-				N* son2 = _root -> getSon(1);
-				if(son1 -> isLeaf() && son2 -> isLeaf()) return false; // We can't unroot a single branch!
-					// We manage to have a subtree in position 0:
-					if(son1 -> isLeaf()) {
-						_root -> swap(0, 1);
-						son1 = _root -> getSon(0);
-						son2 = _root -> getSon(1);
-					}
-
-					// Take care of branch lengths:
-					if(son1 -> hasDistanceToFather()) {
-						if(son2 -> hasDistanceToFather()) {
-						// Both nodes have lengths, we sum them:
-						son2 -> setDistanceToFather(son1 -> getDistanceToFather() + son2 -> getDistanceToFather());
-					} else {
-						// Only node 1 has length, we set it to node 2:
-						son2 -> setDistanceToFather(son1 -> getDistanceToFather());
-					}
-					son1 -> deleteDistanceToFather();
-				} // Else node 2 may or may not have a branch length, we do not care!
-
-				// Remove the root:
-				_root -> removeSons();
-				son1 -> addSon(*son2);
-				setRootNode(*son1);
-				return true;
-			} else return false; // Tree is already rooted.
-		}
-
-
-		
 		/**
 		 * @brief Number nodes.
 		 */
-		virtual void resetNodesId()
-		{
-			vector<N *> nodes = getNodes();
-			for(unsigned int i = 0; i < nodes.size(); i++) nodes[i] -> setId(i);
-		}
+		virtual void resetNodesId() = 0;
 		
 		// Works on (multi)furcations:
 		
@@ -278,14 +192,7 @@ class Tree {
 		 * 
 		 * @return True if the tree is multifurcating.
 		 */
-		virtual bool isMultifurcating() const
-		{
-			bool b = false;
-			for(unsigned int i = 0; i < _root -> getNumberOfSons(); i++) {
-				b = b || TreeTools::isMultifurcating(* _root -> getSon(i));
-			}
-			return b;
-		}
+		virtual bool isMultifurcating() const = 0;
 		
 		/**
 		 * @brief Get all the branch lengths of a tree.
@@ -293,15 +200,7 @@ class Tree {
 		 * @return A vector with all branch lengths.
 		 * @throw NodeException If a branch length is lacking.
 		 */
-		virtual Vdouble getBranchLengths() throw (NodeException)
-		{
-			Vdouble brLen(1);
-			for(unsigned int i = 0; i < _root -> getNumberOfSons(); i++) {
-				Vdouble sonBrLen = TreeTools::getBranchLengths(* _root -> getSon(i));
-				for(unsigned int j = 0; j < sonBrLen.size(); j++) brLen.push_back(sonBrLen[j]);
-			}
-			return brLen;
-		}
+		virtual vector<double> getBranchLengths() throw (NodeException) = 0;
 
 		/**
 		 * @brief Get the total length (sum of all branch lengths) of a tree.
@@ -309,30 +208,21 @@ class Tree {
 		 * @return The total length of the subtree.
 		 * @throw NodeException If a branch length is lacking.
 		 */
-		virtual double getTotalLength() throw (NodeException)
-		{
-			return TreeTools::getTotalLength(*_root);
-		}
+		virtual double getTotalLength() throw (NodeException) = 0;
 
 		/**
 		 * @brief Set all the branch lengths of a tree.
 		 *
 		 * @param brLen The branch length to apply.
 		 */
-		virtual void setBranchLengths(double brLen)
-		{
-			TreeTools::setBranchLengths(*_root, brLen);
-		}
+		virtual void setBranchLengths(double brLen) = 0;
 		
 		/**
 		 * @brief Give a length to branches that don't have one in a tree.
 		 *
 		 * @param brLen The branch length to apply.
 		 */
-		virtual void setVoidBranchLengths(double brLen)
-		{
-			TreeTools::setVoidBranchLengths(*_root, brLen);
-		}
+		virtual void setVoidBranchLengths(double brLen) = 0;
 	
 		/**
 		 * @brief Scale a given tree.
@@ -342,22 +232,8 @@ class Tree {
 		 * @param factor The factor to multiply all branch lengths with.
 		 * @throw NodeException If a branch length is lacking.
 		 */
-		virtual void scaleTree(double factor) throw (NodeException)
-		{
-			TreeTools::scaleTree(* _root, factor);
-		}
+		virtual void scaleTree(double factor) throw (NodeException) = 0;
 
-	protected:
-		
-		virtual void destroyNode(const N & node)
-		{
-			for(unsigned int i = 0; i < node.getNumberOfSons(); i++) {
-				const N * son = node.getSon(i);
-				destroyNode(* son);
-				delete son;
-			}
-		}
-		
 };
 
 #endif	//_TREE_H_

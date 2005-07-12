@@ -78,8 +78,8 @@ knowledge of the CeCILL license and that you accept its terms.
 #ifndef _TREELIKELIHOOD_H_
 #define _TREELIKELIHOOD_H_
 
-#include "Tree.h"
 #include "Node.h"
+#include "Tree.h"
 
 // From NumCalc:
 #include <NumCalc/ParameterList.h>
@@ -189,7 +189,7 @@ class TreeLikelihood: public virtual DerivableSecondOrder
 		 *
 		 * @return The tree of this TreeLikelihood object.
 	 	 */
-		virtual Tree<Node> * getTree() const = 0;
+		virtual Tree * getTree() const = 0;
 
 		/**
 		 * @brief Get the number of sites in the dataset.

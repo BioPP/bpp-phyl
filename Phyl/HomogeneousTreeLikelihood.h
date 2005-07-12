@@ -1,6 +1,6 @@
 //
 // File: HomogeneousTreeLikelihood.h
-// Created by: Julien Dutheil <Julien.Dutheil@univ-montp2.fr>
+// Created by: Julien Dutheil
 // Created on: Fri Oct 17 18:14:51 2003
 //
 
@@ -197,7 +197,7 @@ class HomogeneousTreeLikelihood : public virtual AbstractHomogeneousTreeLikeliho
 		
 	public:
 		HomogeneousTreeLikelihood(
-			Tree<Node> & tree,
+			TreeTemplate<Node> & tree,
 			const SiteContainer & data,
 			SubstitutionModel * model,
 			DiscreteDistribution * rDist,

@@ -130,7 +130,7 @@ class AbstractHomogeneousTreeLikelihood: public virtual AbstractDiscreteRatesAcr
 
 	public:
 		AbstractHomogeneousTreeLikelihood(
-			Tree<Node> & tree,
+			TreeTemplate<Node> & tree,
 			const SiteContainer & data,
 			SubstitutionModel * model,
 			DiscreteDistribution * rDist,

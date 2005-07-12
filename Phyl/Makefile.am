@@ -32,6 +32,7 @@ NucleotideSubstitutionModel.h\
 NeighborJoining.h\
 OptimizationTools.h\
 PatternTools.h\
+PGMA.h\
 PhylipDistanceMatrixFormat.h\
 ProteinSubstitutionModel.h\
 SequenceSimulator.h\
@@ -42,6 +43,7 @@ TreeExceptions.h\
 Node.h\
 NodeTemplate.h\
 Tree.h\
+TreeTemplate.h\
 TreeLikelihood.h\
 TreeTools.h\
 DiscreteRatesAcrossSitesTreeLikelihood.h\
@@ -75,6 +77,7 @@ NonHomogeneousTreeLikelihood.cpp\
 NucleotideSubstitutionModel.cpp\
 OptimizationTools.cpp\
 PatternTools.cpp\
+PGMA.cpp\
 PhylipDistanceMatrixFormat.cpp\
 ProteinSubstitutionModel.cpp\
 SequenceSimulator.cpp\

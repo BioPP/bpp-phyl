@@ -6,7 +6,7 @@
 //
 
 /*
-Copyright ou © ou Copr. Julien Dutheil, (16 Novembre 2004) 
+Copyright ou © ou Copr. CNRS, (16 Novembre 2004) 
 
 Julien.Dutheil@univ-montp2.fr
 
@@ -42,7 +42,7 @@ termes.
 */
 
 /*
-Copyright or © or Copr. Julien Dutheil, (November 16, 2004)
+Copyright or © or Copr. CNRS, (November 16, 2004)
 
 Julien.Dutheil@univ-montp2.fr
 
@@ -78,7 +78,7 @@ knowledge of the CeCILL license and that you accept its terms.
 
 class DistanceMatrix;
 class Node;
-template<class Node> class Tree;
+class Tree;
 
 class AgglomerativeDistanceMethod
 {
@@ -88,7 +88,7 @@ class AgglomerativeDistanceMethod
 
 	public:
 		virtual void setDistanceMatrix(const DistanceMatrix & matrix) = 0;
-		virtual Tree<Node> * getTree() const = 0;
+		virtual Tree * getTree() const = 0;
 		virtual void computeTree(bool rooted) = 0;
 	
 };

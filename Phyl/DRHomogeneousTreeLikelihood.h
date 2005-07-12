@@ -165,7 +165,7 @@ class DRHomogeneousTreeLikelihood : public virtual AbstractHomogeneousTreeLikeli
 		
 	public:
 		DRHomogeneousTreeLikelihood(
-			Tree<Node> & tree,
+			TreeTemplate<Node> & tree,
 			const SiteContainer & data,
 			SubstitutionModel * model,
 			DiscreteDistribution * rDist,

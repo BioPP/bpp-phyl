@@ -5,7 +5,7 @@
 //
 
 /*
-Copyright ou © ou Copr. Julien Dutheil, (16 Novembre 2004) 
+Copyright ou © ou Copr. CNRS, (16 Novembre 2004) 
 
 Julien.Dutheil@univ-montp2.fr
 
@@ -41,7 +41,7 @@ termes.
 */
 
 /*
-Copyright or © or Copr. Julien Dutheil, (November 16, 2004)
+Copyright or © or Copr. CNRS, (November 16, 2004)
 
 Julien.Dutheil@univ-montp2.fr
 
@@ -80,6 +80,7 @@ knowledge of the CeCILL license and that you accept its terms.
 
 #include "TreeExceptions.h"
 #include "Node.h"
+template<class N> class TreeTemplate;
 
 // From Utils:
 #include <Utils/Exceptions.h>
@@ -108,16 +109,42 @@ class TreeTools
 		static vector<N *> getLeaves(N & node)
 		{
 			vector<N *> leaves;
+			getLeaves<N>(node, leaves);
+			return leaves;
+		}
+
+		template<class N>
+		static void getLeaves(N & node, vector<N *> & leaves)
+		{
 			if(node.isLeaf()) {
 				leaves.push_back(& node);
 			}
 			for(unsigned int i = 0; i < node.getNumberOfSons(); i++) {
-				vector<N *> sonLeaves = getLeaves(* node.getSon(i));
-				for(unsigned int j = 0; j < sonLeaves.size(); j++) {
-					leaves.push_back(sonLeaves[j]);
-				}
+				getLeaves<N>(* node.getSon(i), leaves);
 			}
-			return leaves;
+		}
+
+		/**
+		 * @brief Retrieve all leaves ids from a subtree.
+		 *
+		 * @param node The node that defines the subtree.
+		 * @return A vector of ids.
+		 */
+		static vector<int> getLeavesId(const Node & node)
+		{
+			vector<int> ids;
+			getLeavesId(node, ids);
+			return ids;
+		}
+
+		static void getLeavesId(const Node & node, vector<int> & ids)
+		{
+			if(node.isLeaf()) {
+				ids.push_back(node.getId());
+			}
+			for(unsigned int i = 0; i < node.getNumberOfSons(); i++) {
+				getLeavesId(* node.getSon(i), ids);
+			}
 		}
 
 		/**
@@ -130,14 +157,55 @@ class TreeTools
 		static vector<N *> getNodes(N & node)
 		{
 			vector<N *> nodes;
+			getNodes<N>(node, nodes);
+			return nodes;
+		}
+
+		template<class N>
+		static void getNodes(N & node, vector<N *> & nodes)
+		{
 			for(unsigned int i = 0; i < node.getNumberOfSons(); i++) {
-				vector<N *> sonNodes = getNodes(* node.getSon(i));
-				for(unsigned int j = 0; j < sonNodes.size(); j++) {
-					nodes.push_back(sonNodes[j]);
-				}
+				getNodes<N>(* node.getSon(i), nodes);
 			}
 			nodes.push_back(& node);
-			return nodes;
+		}
+
+		/**
+		 * @brief Retrieve all son nodes ids from a subtree.
+		 *
+		 * @param node The node that defines the subtree.
+		 * @return A vector of ids.
+		 */
+		static vector<int> getNodesId(const Node & node)
+		{
+			vector<int> ids;
+			getNodesId(node, ids);
+			return ids;
+		}
+
+		static void getNodesId(const Node & node, vector<int> & ids)
+		{
+			for(unsigned int i = 0; i < node.getNumberOfSons(); i++) {
+				getNodesId(* node.getSon(i), ids);
+			}
+			ids.push_back(node.getId());
+		}
+
+		template<class N>
+		static vector<N *> searchNodeWithId(N & node, int id)
+		{
+			vector<N *> nodes;
+			searchNodeWithId<N>(node, id, nodes);
+			return nodes;		
+		}
+
+		template<class N>
+		static void searchNodeWithId(N & node, int id, vector<N *> & nodes)
+		{
+			for(unsigned int i = 0; i < node.getNumberOfSons(); i++) {
+				searchNodeWithId<N>(* node.getSon(i), id, nodes);
+			}
+			if(node.getId() == id) nodes.push_back(& node);
 		}
 
 		/**
@@ -220,7 +288,7 @@ class TreeTools
 		 * @param description the string to parse;
 		 * @return A pointer toward a dynamically created tree.
 		 */
-		static Tree<Node> * parenthesisToTree(const string & description);
+		static TreeTemplate<Node> * parenthesisToTree(const string & description);
 		
 		/**
 		 * @brief Get the parenthesis description of a subtree.
@@ -229,6 +297,7 @@ class TreeTools
 		 * @return A string in the parenthesis format.
 		 */
 		static string nodeToParenthesis(const Node & node);
+		static string nodeToParenthesis(const Tree & tree, int nodeId);
 
 		/**
 		 * @brief Get the parenthesis description of a tree.
@@ -236,7 +305,8 @@ class TreeTools
 		 * @param tree The tree to convert.
 		 * @return A string in the parenthesis format.
 		 */
-		static string treeToParenthesis(const Tree<Node> & tree);
+		static string treeToParenthesis(const TreeTemplate<Node> & tree);
+		static string treeToParenthesis(const Tree & tree);
 		
 		/** @} */
 		
@@ -332,7 +402,7 @@ class TreeTools
 		 * @param leavesNames A list of taxa.
 		 * @return A random tree with all corresponding taxa.
 		 */
-		static Tree<Node> * getRandomTree(vector<string> & leavesNames);
+		static TreeTemplate<Node> * getRandomTree(vector<string> & leavesNames);
 
 		/** @} */
 		
@@ -352,3 +422,4 @@ class TreeTools
 
 
 #endif	//_TREETOOLS_H_
+

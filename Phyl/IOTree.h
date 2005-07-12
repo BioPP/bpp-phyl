@@ -108,8 +108,8 @@ class ITree: public virtual IOTree
 		virtual ~ITree() {}
 
 	public:
-		virtual Tree<Node> * read(istream & in) const throw (Exception) = 0;
-		virtual Tree<Node> * read(const string & path) const throw (Exception) = 0;
+		virtual Tree * read(istream & in) const throw (Exception) = 0;
+		virtual Tree * read(const string & path) const throw (Exception) = 0;
 };
 
 class OTree: public virtual IOTree
@@ -119,8 +119,8 @@ class OTree: public virtual IOTree
 		virtual ~OTree() {}
 
 	public:
-		virtual void write(const Tree<Node> & tree, const string & path, bool overwrite) const throw (Exception) = 0;
-		virtual void write(const Tree<Node> & tree, ostream & out) const throw (Exception) = 0;
+		virtual void write(const Tree & tree, const string & path, bool overwrite) const throw (Exception) = 0;
+		virtual void write(const Tree & tree, ostream & out) const throw (Exception) = 0;
 };
 
 class AbstractITree: public virtual ITree
@@ -130,11 +130,11 @@ class AbstractITree: public virtual ITree
 		virtual ~AbstractITree() {}
 
 	public:
-		virtual Tree<Node> * read(istream & in) const throw (Exception) = 0;
-		virtual Tree<Node> * read(const string & path) const throw (Exception)
+		virtual Tree * read(istream & in) const throw (Exception) = 0;
+		virtual Tree * read(const string & path) const throw (Exception)
 		{
 			ifstream input(path.c_str(), ios::in);
-			Tree<Node> * tree = read(input);
+			Tree * tree = read(input);
 			input.close();
 			return tree;
 		}
@@ -148,8 +148,8 @@ class AbstractOTree: public virtual OTree
 		virtual ~AbstractOTree() {}
 
 	public:
-		void write(const Tree<Node> & tree, ostream & out) const throw (Exception) = 0;
-		virtual void write(const Tree<Node> & tree, const string & path, bool overwrite) const throw (Exception)
+		void write(const Tree & tree, ostream & out) const throw (Exception) = 0;
+		virtual void write(const Tree & tree, const string & path, bool overwrite) const throw (Exception)
 		{
 			// Open file in specified mode
 			ofstream output(path.c_str(), overwrite ? (ios::out) : (ios::out|ios::app));
@@ -159,3 +159,4 @@ class AbstractOTree: public virtual OTree
 };
 
 #endif	//_IOTREE_H_
+

@@ -1,8 +1,7 @@
 //
-// File: AbstractAgglomerativeDistanceMethod.h
+// File: PGMA.h
 // Created by: Julien Dutheil
-//             Vincent Ranwez
-// Created on: Wed jun 22 10:00 2005
+// Created on: Mon jul 11 11:41 2005
 //
 
 /*
@@ -76,34 +75,44 @@ The fact that you are presently reading this means that you have had
 knowledge of the CeCILL license and that you accept its terms.
 */
 
-#include "AgglomerativeDistanceMethod.h"
-#include "DistanceMatrix.h"
-#include "Node.h"
+#include "AbstractAgglomerativeDistanceMethod.h"
+#include "Tree.h"
 #include "TreeTemplate.h"
 
-// From the STL:
-#include <map>
-using namespace std;
+struct PGMAInfos
+{
+	unsigned int numberOfLeaves;
+	double time;
+};
 
-class AbstractAgglomerativeDistanceMethod : public virtual AgglomerativeDistanceMethod
+/**
+ * @brief Compute WPGMA and UPGMA trees from a distance matrix.
+ * 
+ * WPGMA = Weighted pair group method using arithmetic averaging,
+ * is equivalent to the average linkegage hierarchical clustering method.
+ * The distance between two taxa is the average distance between all individuals in each taxa.
+ * The unweighted version (named UPGMA), uses a weighted average, with the number of individuals in a group as a weight.
+ */
+class PGMA : public virtual AbstractAgglomerativeDistanceMethod
 {
 	protected:
-		DistanceMatrix _matrix;
-		Tree * _tree;
-		/**
-		 * @brief key: indice of the node in the distance matrix.
-		 *        value: number of species represented by this node.
-		 */
-	
-		map<unsigned int, Node *> _currentNodes;
-	
+		bool _weighted;
+		
 	public:
-		AbstractAgglomerativeDistanceMethod(): _matrix(0), _tree(NULL) {}
-		AbstractAgglomerativeDistanceMethod(const DistanceMatrix & matrix): _matrix(matrix) {}
-		~AbstractAgglomerativeDistanceMethod();
+		PGMA() {}
+		PGMA(const DistanceMatrix & matrix, bool weighted = true): AbstractAgglomerativeDistanceMethod(matrix) 
+		{
+			_weighted = weighted;
+			computeTree(true);
+		}
+		~PGMA() {}
 
 	public:
-		void setDistanceMatrix(const DistanceMatrix & matrix);
+		void setDistanceMatrix(const DistanceMatrix & matrix)
+		{ 
+			_weighted = true;
+			AbstractAgglomerativeDistanceMethod::setDistanceMatrix(matrix);
+		}
 
 #if defined(VIRTUAL_COV)
 		TreeTemplate<Node> * 
@@ -112,16 +121,16 @@ class AbstractAgglomerativeDistanceMethod : public virtual AgglomerativeDistance
 #endif
 		getTree() const;
 		
-		void computeTree(bool rooted);
+		void setWeighted(bool weighted) { _weighted = weighted; }
+		bool isWeighted() const { return _weighted; }
 	
-
 	protected:
-		virtual vector<unsigned int> getBestPair() = 0;
-		virtual vector<double> computeBranchLengthsForPair(const vector<unsigned int> & pair) = 0;
-		virtual double computeDistancesFromPair(const vector<unsigned int> & pair, const vector<double> & branchLengths, unsigned int pos) = 0;
-		virtual void finalStep(int idRoot) = 0;
+		vector<unsigned int> getBestPair();
+		vector<double> computeBranchLengthsForPair(const vector<unsigned int> & pair);
+		double computeDistancesFromPair(const vector<unsigned int> & pair, const vector<double> & branchLengths, unsigned int pos);
+		void finalStep(int idRoot);	
 		virtual Node * getLeafNode(int id, const string & name);
 		virtual Node * getParentNode(int id, Node * son1, Node * son2);
-		
+
 };
 

@@ -8,4 +8,15 @@ AC_PROG_CC
 AC_PROG_CXX
 AC_PROG_INSTALL
 AC_PROG_LIBTOOL
+AC_ARG_WITH(
+	[virtual-cov],
+	[  --with-virtual-cov      Enable covariant return type with
+	                  virtual inheritance (GCC >= 3.4)],
+	[$with_virtual_cov=yes]
+)
+if test "$with_virtual_cov" == "yes"
+then
+	AC_MSG_WARN([Covariant return type with virtual inheritance enabled.]);
+	AC_DEFINE(VIRTUAL_COV, yes)
+fi
 AC_OUTPUT(Makefile Phyl/Makefile)

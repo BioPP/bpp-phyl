@@ -1,6 +1,6 @@
 //
 // File: ApplicationTools.h
-// Created by: Julien Dutheil <Julien.Dutheil@univ-montp2.fr>
+// Created by: Julien Dutheil
 // Created on: Sun Dec 14 09:36:26 2003
 //
 
@@ -302,7 +302,7 @@ Alphabet * ApplicationTools::getAlphabet(
 
 /******************************************************************************/
 
-Tree<Node> * ApplicationTools::getTree(
+TreeTemplate<Node> * ApplicationTools::getTree(
 	map<string, string> & params,
 	const string & suffix,
 	bool suffixIsOptional,
@@ -312,7 +312,7 @@ Tree<Node> * ApplicationTools::getTree(
 	
 	//Read the tree file:
 	Newick newick(true);
-	Tree<Node> * tree = newick.read(treeFilePath);
+	TreeTemplate<Node> * tree = dynamic_cast<TreeTemplate<Node> *>(newick.read(treeFilePath));
 	if(verbose) displayResult("Tree file", treeFilePath);
 	return tree;
 }
@@ -826,7 +826,7 @@ void ApplicationTools::printOptimizationHelp() {
 /******************************************************************************/
 
 void ApplicationTools::writeTree(
-	const Tree<Node> & tree,
+	const TreeTemplate<Node> & tree,
 	map<string, string> & params,
 	const string & suffix,
 	bool verbose)

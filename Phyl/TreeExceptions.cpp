@@ -1,10 +1,11 @@
 //
 // File: TreeExceptions.h
-// Created by: jdutheil <Julien.Dutheil@univ-montp2.fr>
+// Created by: Julien Dutheil
 // Created on: Mon Nov  3 17:04:46 2003
 //
 
 #include "TreeExceptions.h"
+#include "Node.h"
 #include "Tree.h"
 
 /******************************************************************************
@@ -22,6 +23,16 @@ NodeException::NodeException(const string & text, const Node * node) :
 NodeException::~NodeException() throw() {};
 	
 const Node * NodeException::getNode() const { return node; }
+
+/******************************************************************************/
+
+UnrootedTreeException::UnrootedTreeException(const char *   text, const Tree * tree) :
+			Exception("UnrootedTreeException: " + string(text) + (tree != NULL ? "(" + tree -> getName() + ")" : "")),
+			tree(tree) {};
+
+UnrootedTreeException::UnrootedTreeException(const string & text, const Tree * tree) :
+			Exception("UnrootedTreeException: " + text + (tree != NULL ? "(" + tree -> getName() + ")" : "")),
+			tree(tree) {};
 
 /******************************************************************************/
 

@@ -26,7 +26,7 @@ using namespace std;
 /******************************************************************************/
 
 HomogeneousTreeLikelihood::HomogeneousTreeLikelihood(
-	Tree<Node> & tree,
+	TreeTemplate<Node> & tree,
 	const SiteContainer & data,
 	SubstitutionModel * model,
 	DiscreteDistribution * rDist,

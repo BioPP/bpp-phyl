@@ -77,6 +77,8 @@ knowledge of the CeCILL license and that you accept its terms.
 */
 
 #include "AbstractAgglomerativeDistanceMethod.h"
+#include "Node.h"
+
 // From the STL:
 #include <iostream>
 using namespace std;
@@ -92,19 +94,22 @@ void AbstractAgglomerativeDistanceMethod::setDistanceMatrix(const DistanceMatrix
 	if(_tree != NULL) delete _tree;
 }
 	
-Tree<Node> * AbstractAgglomerativeDistanceMethod::getTree() const
+#if defined(VIRTUAL_COV)
+		TreeTemplate<Node> * 
+#else
+		Tree *
+#endif
+AbstractAgglomerativeDistanceMethod::getTree() const
 {
-	Node * root = TreeTools::cloneSubtree<Node>(* _tree -> getRootNode());
-	return new Tree<Node>(* root);
+	Node * root = TreeTools::cloneSubtree<Node>(* dynamic_cast<TreeTemplate<Node> *>(_tree) -> getRootNode());
+	return new TreeTemplate<Node>(* root);
 }
 			
 void AbstractAgglomerativeDistanceMethod::computeTree(bool rooted)
 {
 	// Initialization:
 	for(unsigned int i = 0; i < _matrix.size(); i++) {
-		N * leaf = new N(i, _matrix.getName(i));
-		leaf -> setInfos(1);
-		_currentNodes[i] = leaf;
+		_currentNodes[i] = getLeafNode(i, _matrix.getName(i));
 	}
 	unsigned int idNextNode = _matrix.size();
 	vector<double> newDist(_matrix.size());
@@ -113,17 +118,13 @@ void AbstractAgglomerativeDistanceMethod::computeTree(bool rooted)
 	while(_currentNodes.size() > (rooted ? 2 : 3)) {
 		vector<unsigned int> bestPair = getBestPair();
 		vector<double> distances = computeBranchLengthsForPair(bestPair);
-//cout << bestPair[0] << "\t" << bestPair[1] << endl;
-		N * best1 = _currentNodes[bestPair[0]];
-		N * best2 = _currentNodes[bestPair[1]];
-//cout << "id\t" << best1 -> getId() << "\t" << best2 -> getId() << endl;
-		N * parent = new N(idNextNode++);
-		parent -> addSon(* best1);
-		parent -> addSon(* best2);
+		Node * best1 = _currentNodes[bestPair[0]];
+		Node * best2 = _currentNodes[bestPair[1]];
+		Node * parent = getParentNode(idNextNode++, best1, best2);
 		best1  -> setDistanceToFather(distances[0]);
 		best2  -> setDistanceToFather(distances[1]);
-		parent -> setInfos(best1 -> getInfos() + best2 -> getInfos());
-		for(map<unsigned int, N *>::iterator i = _currentNodes.begin(); i != _currentNodes.end(); i++) {
+		//parent -> setInfos(best1 -> getInfos() + best2 -> getInfos());
+		for(map<unsigned int, Node *>::iterator i = _currentNodes.begin(); i != _currentNodes.end(); i++) {
 			unsigned int id = i -> first;
 			if(id != bestPair[0] && id != bestPair[1]) {
 				newDist[id] = computeDistancesFromPair(bestPair, distances, id);
@@ -134,7 +135,7 @@ void AbstractAgglomerativeDistanceMethod::computeTree(bool rooted)
 		// Actualize _currentNodes:
 		_currentNodes[bestPair[0]] = parent;
 		_currentNodes.erase(bestPair[1]);
-		for(map<unsigned int, N *>::iterator i = _currentNodes.begin(); i != _currentNodes.end(); i++) {
+		for(map<unsigned int, Node *>::iterator i = _currentNodes.begin(); i != _currentNodes.end(); i++) {
 			unsigned int id = i -> first;
 			_matrix(bestPair[0], id) = _matrix(id, bestPair[0]) = newDist[id];
 		}
@@ -143,4 +144,16 @@ void AbstractAgglomerativeDistanceMethod::computeTree(bool rooted)
 	finalStep(idNextNode);
 }
 
+Node * AbstractAgglomerativeDistanceMethod::getLeafNode(int id, const string & name)
+{
+	return new Node(id, name);
+}
+
+Node * AbstractAgglomerativeDistanceMethod::getParentNode(int id, Node * son1, Node * son2)
+{
+	Node * parent = new Node(id);
+	parent -> addSon(* son1);
+	parent -> addSon(* son2);
+	return parent;
+}
 
