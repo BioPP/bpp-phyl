@@ -220,7 +220,7 @@ class Node {
 		 * 
 		 * @param name The name to give to the node.
 		 */
-		virtual void setName(string & name) { delete _name; _name = new string(name); }
+		virtual void setName(const string & name) { delete _name; _name = new string(name); }
 		
 		/**
 		 * @brief Delete the name associated to this node (do nothing if there is no name).

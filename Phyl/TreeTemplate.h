@@ -157,67 +157,178 @@ class TreeTemplate: public virtual Tree
 	
 	public:
 		
+		string getName() const { return _name; }
+	
+		void setName(const string & name) { _name = name; }
+
+		int getRootId() const { return _root -> getId(); }
+
+		unsigned int getNumberOfLeaves() const { return TreeTools::getNumberOfLeaves(* _root); }
+	
+		vector<int> getLeavesId() const { return TreeTools::getLeavesId(* _root); }
+
+		vector<int> getNodesId() const { return TreeTools::getNodesId(* _root); }
+
+		vector<double> getBranchLengths() const { return TreeTools::getBranchLengths(* _root); }
+
+		vector<string> getLeavesNames() const { return TreeTools::getLeavesNames(* const_cast<const N *>( _root)); }
+
+		vector<int> getSonsId(int parentId) const throw (NodeNotFoundException)	{ return getNode(parentId) -> getSonsId(); }
+
+		int getFatherId(int parentId) const throw (NodeNotFoundException) { return getNode(parentId) -> getFatherId(); }
+
+		string getNodeName(int nodeId) const throw (NodeNotFoundException) { return getNode(nodeId) -> getName(); }
+
+		bool hasNodeName(int nodeId) const throw (NodeNotFoundException) { return getNode(nodeId) -> hasName(); }
+		
+		void setNodeName(int nodeId, const string & name) throw (NodeNotFoundException) { getNode(nodeId) -> setName(name); }
+		
+		void deleteNodeName(int nodeId) throw (NodeNotFoundException) { return getNode(nodeId) -> deleteName(); }
+
+		bool isLeaf(int nodeId) const throw (NodeNotFoundException) { return getNode(nodeId) -> isLeaf(); }
+
+		bool isRoot(int nodeId) const throw (NodeNotFoundException) { return TreeTools::isRoot(* getNode(nodeId)); }
+
+		double getDistanceToFather(int nodeId) const throw (NodeNotFoundException) { return getNode(nodeId) -> getDistanceToFather(); }
+		
+		void setDistanceToFather(int nodeId, double length) throw (NodeNotFoundException) { getNode(nodeId) -> setDistanceToFather(length); }
+		
+		void deleteDistanceToFather(int nodeId) throw (NodeNotFoundException) { getNode(nodeId) -> deleteDistanceToFather(); }
+		
+		bool hasDistanceToFather(int nodeId) const throw (NodeNotFoundException) { return getNode(nodeId) -> hasDistanceToFather(); }
+
+		bool hasProperty(int nodeId, const string & name) const throw (NodeNotFoundException) { return getNode(nodeId) -> hasProperty(name); }
+	
+		void setProperty(int nodeId, const string & name, Clonable * property) throw (NodeNotFoundException) { getNode(nodeId) -> setProperty(name, property); }
+				
+		Clonable * getProperty(int nodeId, const string & name) throw (NodeNotFoundException) { return getNode(nodeId) -> getProperty(name); }
+				
+		const Clonable * getProperty(int nodeId, const string & name) const throw (NodeNotFoundException) { return getNode(nodeId) -> getProperty(name); }
+				
+		Clonable * removeProperty(int nodeId, const string & name) throw (NodeNotFoundException) { return getNode(nodeId) -> removeProperty(name); }
+		void rootAt(int rootId) throw (NodeNotFoundException)	{	rootAt(* getNode(rootId)); }
+		
+		void newOutGroup(int rootId) throw (NodeNotFoundException) {	newOutGroup(* getNode(rootId)); }
+
+		bool isRooted() const { return _root -> getNumberOfSons() == 2; }
+		
+		bool unroot() throw (UnrootedTreeException)
+		{
+			if(!isRooted()) throw UnrootedTreeException("Tree::unroot", this);
+
+    	if(_root -> getNumberOfSons() == 2) {
+				N* son1 = _root -> getSon(0);
+				N* son2 = _root -> getSon(1);
+				if(son1 -> isLeaf() && son2 -> isLeaf()) return false; // We can't unroot a single branch!
+					// We manage to have a subtree in position 0:
+					if(son1 -> isLeaf()) {
+						_root -> swap(0, 1);
+						son1 = _root -> getSon(0);
+						son2 = _root -> getSon(1);
+					}
+
+					// Take care of branch lengths:
+					if(son1 -> hasDistanceToFather()) {
+						if(son2 -> hasDistanceToFather()) {
+						// Both nodes have lengths, we sum them:
+						son2 -> setDistanceToFather(son1 -> getDistanceToFather() + son2 -> getDistanceToFather());
+					} else {
+						// Only node 1 has length, we set it to node 2:
+						son2 -> setDistanceToFather(son1 -> getDistanceToFather());
+					}
+					son1 -> deleteDistanceToFather();
+				} // Else node 2 may or may not have a branch length, we do not care!
+
+				// Remove the root:
+				_root -> removeSons();
+				son1 -> addSon(*son2);
+				setRootNode(*son1);
+				return true;
+			} else return false; // Tree is already rooted.
+		}
+
+		void resetNodesId()
+		{
+			vector<N *> nodes = getNodes();
+			for(unsigned int i = 0; i < nodes.size(); i++) nodes[i] -> setId(i);
+		}
+		
+		bool isMultifurcating() const
+		{
+			bool b = false;
+			for(unsigned int i = 0; i < _root -> getNumberOfSons(); i++) {
+				b = b || TreeTools::isMultifurcating(* _root -> getSon(i));
+			}
+			return b;
+		}
+		
+		vector<double> getBranchLengths() throw (NodeException)
+		{
+			Vdouble brLen(1);
+			for(unsigned int i = 0; i < _root -> getNumberOfSons(); i++) {
+				Vdouble sonBrLen = TreeTools::getBranchLengths(* _root -> getSon(i));
+				for(unsigned int j = 0; j < sonBrLen.size(); j++) brLen.push_back(sonBrLen[j]);
+			}
+			return brLen;
+		}
+
+		double getTotalLength() throw (NodeException)
+		{
+			return TreeTools::getTotalLength(*_root);
+		}
+
+		void setBranchLengths(double brLen)
+		{
+			TreeTools::setBranchLengths(*_root, brLen);
+		}
+		
+		void setVoidBranchLengths(double brLen)
+		{
+			TreeTools::setVoidBranchLengths(*_root, brLen);
+		}
+	
+		void scaleTree(double factor) throw (NodeException)
+		{
+			TreeTools::scaleTree(* _root, factor);
+		}
+
+
+
+		/**
+		 * @name Specific methods
+		 *
+		 * @{
+		 */
+		virtual void setRootNode(N & root) { _root = & root; }
+	
 		virtual N * getRootNode() { return _root; }
 		
 		virtual const N * getRootNode() const { return _root; }
 		
-		virtual int getRootId() const { return _root -> getId(); }
-
-		virtual void setRootNode(N & root) { _root = & root; }
-	
-		virtual string getName() const { return _name; }
-	
-		virtual void setName(const string & name) { _name = name; }
-
-		virtual unsigned int getNumberOfLeaves() const { return TreeTools::getNumberOfLeaves(* _root); }
-
 		virtual vector<const N *> getLeaves() const { return TreeTools::getLeaves(* const_cast<const N *>(_root)); }
 
 		virtual vector<N *> getLeaves() { return TreeTools::getLeaves(* _root); }
-		
-		virtual vector<int> getLeavesId() const { return TreeTools::getLeavesId(* _root); }
-
+	
 		virtual vector<const N *> getNodes() const { return TreeTools::getNodes(* const_cast<const N *>(_root)); }
 
 		virtual vector<N *> getNodes() { return TreeTools::getNodes(* _root); }
 		
-		virtual vector<int> getNodesId() const { return TreeTools::getNodesId(* _root); }
-
-		virtual vector<double> getBranchLengths() const { return TreeTools::getBranchLengths(* _root); }
-
-		virtual vector<string> getLeavesNames() const { return TreeTools::getLeavesNames(* const_cast<const N *>( _root)); }
-
-		virtual vector<int> getSonsId(int parentId) const	{ return getNode(parentId) -> getSonsId(); }
-
-		virtual int getFatherId(int parentId) const { return getNode(parentId) -> getFatherId(); }
-
-		virtual string getNodeName(int nodeId) const throw (NodeException) { return getNode(nodeId) -> getName(); }
-
-		virtual bool hasNodeName(int nodeId) const { return getNode(nodeId) -> hasName(); }
-
-		virtual bool isLeaf(int nodeId) const { return getNode(nodeId) -> isLeaf(); }
-
-		virtual bool isRoot(int nodeId) const { return TreeTools::isRoot(* getNode(nodeId)); }
-
-		virtual double getDistanceToFather(int nodeId) const { return getNode(nodeId) -> getDistanceToFather(); }
+		virtual N * getNode(int id) throw (NodeNotFoundException, Exception)
+		{
+			vector<N *> nodes = TreeTools::searchNodeWithId<N>(*_root, id);
+			if(nodes.size() > 1) throw Exception("TemplateTree::rootAt(): Non-unique id!");
+			if(nodes.size() == 0) throw NodeNotFoundException("TemplateTree::rootAt(): Node with id not found.", "" + id);
+			return nodes[0];
+		}
 		
-		virtual bool hasDistanceToFather(int nodeId) const { return getNode(nodeId) -> hasDistanceToFather(); }
+		virtual const N * getNode(int id) const throw (NodeNotFoundException, Exception)
+		{
+			vector<const N *> nodes = TreeTools::searchNodeWithId<const N>(*_root, id);
+			if(nodes.size() > 1) throw Exception("TemplateTree::rootAt(): Non-unique id!");
+			if(nodes.size() == 0) throw NodeNotFoundException("TemplateTree::rootAt(): Node with id not found.", "" + id);
+			return nodes[0];
+		}
 
-		virtual bool hasProperty(int nodeId, const string & name) const { return getNode(nodeId) -> hasProperty(name); }
-	
-		virtual void setProperty(int nodeId, const string & name, Clonable * property) { getNode(nodeId) -> setProperty(name, property); }
-				
-		virtual Clonable * getProperty(int nodeId, const string & name) { return getNode(nodeId) -> getProperty(name); }
-				
-		virtual const Clonable * getProperty(int nodeId, const string & name) const { return getNode(nodeId) -> getProperty(name); }
-				
-		virtual Clonable * removeProperty(int nodeId, const string & name) { return getNode(nodeId) -> removeProperty(name); }
-
-		/**
-		 * @brief <p></p>
-		 * @param p_iNewRoot The node to be considered as the new root, i.e.
-		 * defining the subtree to be considered as the new outgroup.
-		 */
 		void rootAt(N & newRoot)
 	  {
 			if (* _root == newRoot) return;
@@ -257,161 +368,9 @@ class TreeTemplate: public virtual Tree
 			_root -> addSon(outGroup);
 		}
 
-		N * getNode(int id) throw (Exception)
-		{
-			vector<N *> nodes = TreeTools::searchNodeWithId<N>(*_root, id);
-			if(nodes.size() > 1) throw Exception("TemplateTree::rootAt(): Non-unique id!");
-			if(nodes.size() == 0) throw Exception("TemplateTree::rootAt(): Node with id not found.");
-			return nodes[0];
-		}
-		
-		const N * getNode(int id) const throw (Exception)
-		{
-			vector<const N *> nodes = TreeTools::searchNodeWithId<const N>(*_root, id);
-			if(nodes.size() > 1) throw Exception("TemplateTree::rootAt(): Non-unique id!");
-			if(nodes.size() == 0) throw Exception("TemplateTree::rootAt(): Node with id not found.");
-			return nodes[0];
-		}
-
-		void rootAt(int rootId)	{	rootAt(* getNode(rootId)); }
-		
-		void newOutGroup(int rootId)	{	newOutGroup(* getNode(rootId)); }
-		
-		/**
-		 * @brief Tell if the tree is rooted.
-		 * 
-		 * @return True if the tree is rooted.
-		 */
-		virtual bool isRooted() const { return _root -> getNumberOfSons() == 2; }
-		
-		/**
-		 * @brief Unroot a rooted tree.
-		 *
-		 * @return True if the tree has been unrooted.
-		 * @throw UnrootedTreeException If the tree is already rooted.
-		 */
-		virtual bool unroot() throw (UnrootedTreeException)
-		{
-			if(!isRooted()) throw UnrootedTreeException("Tree::unroot", this);
-
-    	if(_root -> getNumberOfSons() == 2) {
-				N* son1 = _root -> getSon(0);
-				N* son2 = _root -> getSon(1);
-				if(son1 -> isLeaf() && son2 -> isLeaf()) return false; // We can't unroot a single branch!
-					// We manage to have a subtree in position 0:
-					if(son1 -> isLeaf()) {
-						_root -> swap(0, 1);
-						son1 = _root -> getSon(0);
-						son2 = _root -> getSon(1);
-					}
-
-					// Take care of branch lengths:
-					if(son1 -> hasDistanceToFather()) {
-						if(son2 -> hasDistanceToFather()) {
-						// Both nodes have lengths, we sum them:
-						son2 -> setDistanceToFather(son1 -> getDistanceToFather() + son2 -> getDistanceToFather());
-					} else {
-						// Only node 1 has length, we set it to node 2:
-						son2 -> setDistanceToFather(son1 -> getDistanceToFather());
-					}
-					son1 -> deleteDistanceToFather();
-				} // Else node 2 may or may not have a branch length, we do not care!
-
-				// Remove the root:
-				_root -> removeSons();
-				son1 -> addSon(*son2);
-				setRootNode(*son1);
-				return true;
-			} else return false; // Tree is already rooted.
-		}
-
-
-		
-		/**
-		 * @brief Number nodes.
-		 */
-		virtual void resetNodesId()
-		{
-			vector<N *> nodes = getNodes();
-			for(unsigned int i = 0; i < nodes.size(); i++) nodes[i] -> setId(i);
-		}
-		
-		// Works on (multi)furcations:
-		
-		/**
-		 * @brief Tell if the tree is multifurcating.
-		 * 
-		 * @return True if the tree is multifurcating.
-		 */
-		virtual bool isMultifurcating() const
-		{
-			bool b = false;
-			for(unsigned int i = 0; i < _root -> getNumberOfSons(); i++) {
-				b = b || TreeTools::isMultifurcating(* _root -> getSon(i));
-			}
-			return b;
-		}
-		
-		/**
-		 * @brief Get all the branch lengths of a tree.
-		 *
-		 * @return A vector with all branch lengths.
-		 * @throw NodeException If a branch length is lacking.
-		 */
-		virtual vector<double> getBranchLengths() throw (NodeException)
-		{
-			Vdouble brLen(1);
-			for(unsigned int i = 0; i < _root -> getNumberOfSons(); i++) {
-				Vdouble sonBrLen = TreeTools::getBranchLengths(* _root -> getSon(i));
-				for(unsigned int j = 0; j < sonBrLen.size(); j++) brLen.push_back(sonBrLen[j]);
-			}
-			return brLen;
-		}
-
-		/**
-		 * @brief Get the total length (sum of all branch lengths) of a tree.
-		 *
-		 * @return The total length of the subtree.
-		 * @throw NodeException If a branch length is lacking.
-		 */
-		virtual double getTotalLength() throw (NodeException)
-		{
-			return TreeTools::getTotalLength(*_root);
-		}
-
-		/**
-		 * @brief Set all the branch lengths of a tree.
-		 *
-		 * @param brLen The branch length to apply.
-		 */
-		virtual void setBranchLengths(double brLen)
-		{
-			TreeTools::setBranchLengths(*_root, brLen);
-		}
-		
-		/**
-		 * @brief Give a length to branches that don't have one in a tree.
-		 *
-		 * @param brLen The branch length to apply.
-		 */
-		virtual void setVoidBranchLengths(double brLen)
-		{
-			TreeTools::setVoidBranchLengths(*_root, brLen);
-		}
+		/** @} */
 	
-		/**
-		 * @brief Scale a given tree.
-		 *
-		 * Multiply all branch lengths by a given factor.
-		 *
-		 * @param factor The factor to multiply all branch lengths with.
-		 * @throw NodeException If a branch length is lacking.
-		 */
-		virtual void scaleTree(double factor) throw (NodeException)
-		{
-			TreeTools::scaleTree(* _root, factor);
-		}
-
+		
 	protected:
 		
 		virtual void destroyNode(const N & node)

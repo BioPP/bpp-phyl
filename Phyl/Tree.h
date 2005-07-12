@@ -103,48 +103,92 @@ class Tree {
 
 	public:
 		
+		/**
+		 * @brief Tree name.
+		 *
+		 * @{
+		 */
 		virtual string getName() const = 0;
 		
 		virtual void setName(const string & name) = 0;
+		/** @} */
 		
-		virtual int getRootId() const = 0;
-	
 		virtual unsigned int getNumberOfLeaves() const = 0;
-
-		virtual vector<int> getLeavesId() const = 0;
-
-		virtual vector<int> getNodesId() const = 0;
 
 		virtual vector<double> getBranchLengths() const = 0;
 
 		virtual vector<string> getLeavesNames() const = 0;
 
-		virtual vector<int> getSonsId(int parentId) const = 0;
+		/**
+		 * @name Retrieving ids.
+		 *
+		 * @{
+		 */
+		virtual int getRootId() const = 0;
+	
+		virtual vector<int> getLeavesId() const = 0;
 
-		virtual int getFatherId(int parentId) const = 0;
+		virtual vector<int> getNodesId() const = 0;
 
-		virtual string getNodeName(int nodeId) const throw (NodeException) = 0;
+		virtual vector<int> getSonsId(int parentId) const throw (NodeNotFoundException) = 0;
+
+		virtual int getFatherId(int parentId) const throw (NodeNotFoundException) = 0;
+		/** @} */
+
+		/**
+		 * @name Dealing with node names.
+		 *
+		 * @{
+		 */
+		virtual string getNodeName(int nodeId) const throw (NodeNotFoundException) = 0;
 		
-		virtual bool hasNodeName(int nodeId) const = 0;
-
-		virtual bool isLeaf(int nodeId) const = 0;
-
-		virtual bool isRoot(int nodeId) const = 0;
-
-		virtual double getDistanceToFather(int nodeId) const = 0;
+		virtual void setNodeName(int nodeId, const string & name) throw (NodeNotFoundException) = 0;
 		
-		virtual bool hasDistanceToFather(int nodeId) const = 0;
-
-		virtual bool hasProperty(int nodeId, const string & name) const = 0;
+		virtual void deleteNodeName(int nodeId) throw (NodeNotFoundException) = 0;
 		
-		virtual void setProperty(int nodeId, const string & name, Clonable * property) = 0;
-				
-		virtual Clonable * getProperty(int nodeId, const string & name) = 0;
-				
-		virtual const Clonable * getProperty(int nodeId, const string & name) const = 0;
-				
-		virtual Clonable * removeProperty(int nodeId, const string & name) = 0;
+		virtual bool hasNodeName(int nodeId) const throw (NodeNotFoundException) = 0;
+		/** @} */
+		
+		/**
+		 * @name Several tests.
+		 *
+		 * @{
+		 */
+		virtual bool isLeaf(int nodeId) const throw (NodeNotFoundException) = 0;
 
+		virtual bool isRoot(int nodeId) const throw (NodeNotFoundException) = 0;
+		/** @} */
+
+		/**
+		 * @name Dealing with branch lengths.
+		 *
+		 * @{
+		 */
+		virtual double getDistanceToFather(int nodeId) const throw (NodeNotFoundException) = 0;
+		
+		virtual void setDistanceToFather(int nodeId, double length) throw (NodeNotFoundException) = 0;
+		
+		virtual void deleteDistanceToFather(int nodeId) throw (NodeNotFoundException) = 0;
+		
+		virtual bool hasDistanceToFather(int nodeId) const throw (NodeNotFoundException) = 0;
+		/** @} */
+
+		/**
+		 * @name Node properties.
+		 *
+		 * @{
+		 */
+		virtual bool hasProperty(int nodeId, const string & name) const throw (NodeNotFoundException) = 0;
+		
+		virtual void setProperty(int nodeId, const string & name, Clonable * property) throw (NodeNotFoundException) = 0;
+				
+		virtual Clonable * getProperty(int nodeId, const string & name) throw (NodeNotFoundException) = 0;
+				
+		virtual const Clonable * getProperty(int nodeId, const string & name) const throw (NodeNotFoundException) = 0;
+				
+		virtual Clonable * removeProperty(int nodeId, const string & name) throw (NodeNotFoundException) = 0;
+		/** @} */
+		
 		/**
 		 * @brief Change the root node.
 		 *
@@ -153,7 +197,7 @@ class Tree {
 		 *
 		 * @param nodeId The id of the node that will be the new root.
 		 */
-		virtual void rootAt(int nodeId) = 0;
+		virtual void rootAt(int nodeId) throw (NodeNotFoundException) = 0;
 
 		/**
 		 * @brief Root a tree by specifying an outgroup.
@@ -163,7 +207,7 @@ class Tree {
 		 *
 		 * @param nodeId The id of the node that will be the new root.
 		 */
-		virtual void newOutGroup(int nodeId) = 0;
+		virtual void newOutGroup(int nodeId) throw (NodeNotFoundException) = 0;
 		
 		/**
 		 * @brief Tell if the tree is rooted.

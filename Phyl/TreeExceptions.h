@@ -84,12 +84,8 @@ knowledge of the CeCILL license and that you accept its terms.
 class Node;
 class Tree;
 
-/******************************************************************************
- *                            Tree exceptions:                                *
- ******************************************************************************/
-
 /**
- * @brief <p>Exception thrown when something is wrong with a particular node.</p>
+ * @brief Exception thrown when something is wrong with a particular node.
  */
 class NodeException : public Exception {
 
@@ -122,7 +118,41 @@ class NodeException : public Exception {
 		virtual const Node * getNode() const;
 };
 
-/******************************************************************************/
+/**
+ * @brief Exception thrown when something is wrong with a particular node.
+ */
+class NodeNotFoundException : public Exception {
+
+	protected:
+		string _id;
+			
+	public:
+		
+		/**
+		 * @brief Build a new NodeNotFoundException.
+		 * 
+		 * @param text A message to be passed to the exception hierarchy.
+		 * @param id   A string describing the node.
+		 */
+		NodeNotFoundException(const char * text, const string & id);
+
+		/**
+		 * @brief Build a new NodeNotFoundException.
+		 * @param text A message to be passed to the exception hierarchy.
+		 * @param id   A string describing the node.
+		 */
+		NodeNotFoundException(const string & text, const string & id);
+	
+		virtual ~NodeNotFoundException() throw ();
+	
+	public:
+		/**
+		 * @brief Get the node id that threw the exception.
+		 * 
+		 * @return The id of the node.
+		 */
+		virtual string getId() const;
+};
 
 class UnrootedTreeException : public Exception {
 

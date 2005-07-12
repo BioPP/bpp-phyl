@@ -26,6 +26,18 @@ const Node * NodeException::getNode() const { return node; }
 
 /******************************************************************************/
 
+NodeNotFoundException::NodeNotFoundException(const char *   text, const string & id) :
+	Exception("NodeNotFoundException: " + string(text) + "(" + id + ")"), _id(id) {};
+		
+NodeNotFoundException::NodeNotFoundException(const string & text, const string & id) :
+	Exception("NodeNotFoundException: " + text + "(" + id + ")"), _id(id) {};
+		
+NodeNotFoundException::~NodeNotFoundException() throw() {};
+	
+string NodeNotFoundException::getId() const { return _id; }
+
+/******************************************************************************/
+
 UnrootedTreeException::UnrootedTreeException(const char *   text, const Tree * tree) :
 			Exception("UnrootedTreeException: " + string(text) + (tree != NULL ? "(" + tree -> getName() + ")" : "")),
 			tree(tree) {};
