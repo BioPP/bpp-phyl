@@ -120,10 +120,10 @@ void AbstractAgglomerativeDistanceMethod::computeTree(bool rooted)
 		vector<double> distances = computeBranchLengthsForPair(bestPair);
 		Node * best1 = _currentNodes[bestPair[0]];
 		Node * best2 = _currentNodes[bestPair[1]];
-		Node * parent = getParentNode(idNextNode++, best1, best2);
+		// Distances may be used by getParentNodes (PGMA for instance).
 		best1  -> setDistanceToFather(distances[0]);
 		best2  -> setDistanceToFather(distances[1]);
-		//parent -> setInfos(best1 -> getInfos() + best2 -> getInfos());
+		Node * parent = getParentNode(idNextNode++, best1, best2);
 		for(map<unsigned int, Node *>::iterator i = _currentNodes.begin(); i != _currentNodes.end(); i++) {
 			unsigned int id = i -> first;
 			if(id != bestPair[0] && id != bestPair[1]) {

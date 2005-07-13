@@ -80,6 +80,7 @@ knowledge of the CeCILL license and that you accept its terms.
 
 #include "TreeExceptions.h"
 #include "Node.h"
+#include "DistanceMatrix.h"
 template<class N> class TreeTemplate;
 
 // From Utils:
@@ -144,6 +145,39 @@ class TreeTools
 			}
 			for(unsigned int i = 0; i < node.getNumberOfSons(); i++) {
 				getLeavesId(* node.getSon(i), ids);
+			}
+		}
+
+		/**
+		 * @brief Get the id of a leaf given its name in a subtree.
+		 *
+		 * @param node The node defining the subtree to search.
+		 * @param name The name of the node.
+		 * @return The id of the node.
+		 * @throw NodeNotFoundException If the node is not found.
+		 */
+		static int getLeafId(const Node & node, const string & name) throw (NodeNotFoundException)
+		{
+			int * id = NULL;
+			searchLeaf(node, name, id);
+			if(id == NULL) throw NodeNotFoundException("TreeTools::getLeafId().", name);
+			else {
+				int i = *id;
+				delete id;
+				return i;
+			}
+		}
+
+		static void searchLeaf(const Node & node, const string & name, int * & id) throw (NodeNotFoundException)
+		{
+			if(node.isLeaf()) {
+				if(node.getName() == name) {
+					id = new int(node.getId());
+					return;
+				}
+			}
+			for(unsigned int i = 0; i < node.getNumberOfSons(); i++) {
+				searchLeaf(* node.getSon(i), name, id);
 			}
 		}
 
@@ -373,7 +407,11 @@ class TreeTools
 		/** @} */
 
 		//The following methods are adapted from the tree class of the SEMPHY library:
-		static vector<Node *> getPathBetweenAnyTwoNodes(Node & node1, Node & node2);
+		static vector<Node *> getPathBetweenAnyTwoNodes(Node & node1, Node & node2, bool includeAncestor = true);
+		
+		static vector<const Node *> getPathBetweenAnyTwoNodes(const Node & node1, const Node & node2, bool includeAncestor = true);
+		
+		static vector<int> getPathBetweenAnyTwoNodes(const Tree & tree, int nodeId1, int nodeId2, bool includeAncestor = true);
 	
 		template<class N>
 		static N * cloneSubtree(const Node & node) 
@@ -418,6 +456,34 @@ class TreeTools
 		static string BOOTSTRAP;
 		
 		/** @} */
+
+		static double getDistanceBetweenAnyTwoNodes(const Node & node1, const Node & node2);
+		/**
+		 * @brief Get the total distance between two nodes.
+		 *
+		 * Sum all branch lengths between two nodes.
+		 *
+		 * @param tree The tree to consider.
+		 * @param nodeId1 First node id.
+		 * @param nodeId2 Second node id.
+		 * @return The sum of all branch lengths
+		 */
+		static double getDistanceBetweenAnyTwoNodes(const Tree & tree, int nodeId1, int nodeId2);
+		
+		/**
+		 * @brief Compute a distance matrix from a tree.
+		 *
+		 * Compute all distances between each leaves and store them in a matrix.
+		 * A new DistanceMatrix object is created, and a pointer toward it is returned.
+		 * The destruction of this matrix is left up to the user.
+		 *
+		 * @see getDistanceBetweenAnyTwoNodes
+		 *
+		 * @param tree The tree to use.
+		 * @return The distance matrix computed from tree.
+		 */
+		static DistanceMatrix * getDistanceMatrix(const Tree & tree); 	
+
 };
 
 

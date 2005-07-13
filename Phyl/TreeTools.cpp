@@ -493,7 +493,9 @@ TreeTemplate<Node> * TreeTools::getRandomTree(vector<string> & leavesNames)
 
 /******************************************************************************/
 
-vector<Node *> TreeTools::getPathBetweenAnyTwoNodes(Node & node1, Node & node2)
+/******************************************************************************/
+
+vector<Node *> TreeTools::getPathBetweenAnyTwoNodes(Node & node1, Node & node2, bool includeAncestor)
 {
 	vector<Node *> path;
 	vector<Node *> pathMatrix1;
@@ -523,13 +525,87 @@ vector<Node *> TreeTools::getPathBetweenAnyTwoNodes(Node & node1, Node & node2)
 	}
 
 	for (int y = 0; y <= tmp1; ++y) path.push_back(pathMatrix1[y]);
-	path.push_back(pathMatrix1[tmp1 + 1]); // pushing once, the Node that was common to both.
+	if(includeAncestor) path.push_back(pathMatrix1[tmp1 + 1]); // pushing once, the Node that was common to both.
 	for (int j = tmp2; j >= 0; --j) {
 		path.push_back(pathMatrix2[j]);
 	}
 	return path;
 }
 
+vector<const Node *> TreeTools::getPathBetweenAnyTwoNodes(const Node & node1, const Node & node2, bool includeAncestor)
+{
+	vector<const Node *> path;
+	vector<const Node *> pathMatrix1;
+	vector<const Node *> pathMatrix2;
+
+	const Node * nodeUp = & node1;
+	while(nodeUp -> hasFather())	{ // while(nodeUp != root)
+		pathMatrix1.push_back(nodeUp);
+		nodeUp = nodeUp -> getFather();
+	}
+	pathMatrix1.push_back(nodeUp); // The root.
+
+	nodeUp = & node2;
+	while(nodeUp -> hasFather())	{
+		pathMatrix2.push_back(nodeUp);
+		nodeUp = nodeUp -> getFather();
+	}
+	pathMatrix2.push_back(nodeUp); // The root.
+	// Must check that the two nodes have the same root!!!
+
+	int tmp1 = pathMatrix1.size() - 1;
+	int tmp2 = pathMatrix2.size() - 1;
+
+	while((tmp1 >= 0) && (tmp2 >= 0)) {
+		if (pathMatrix1[tmp1] != pathMatrix2[tmp2]) break;
+		tmp1--; tmp2--;
+	}
+
+	for (int y = 0; y <= tmp1; ++y) path.push_back(pathMatrix1[y]);
+	if(includeAncestor) path.push_back(pathMatrix1[tmp1 + 1]); // pushing once, the Node that was common to both.
+	for (int j = tmp2; j >= 0; --j) {
+		path.push_back(pathMatrix2[j]);
+	}
+	return path;
+}
+
+vector<int> TreeTools::getPathBetweenAnyTwoNodes(const Tree & tree, int nodeId1, int nodeId2, bool includeAncestor)
+{
+	vector<int> path;
+	vector<int> pathMatrix1;
+	vector<int> pathMatrix2;
+
+	int nodeUp = nodeId1;
+	while(tree.hasFather(nodeUp))	{
+		pathMatrix1.push_back(nodeUp);
+		nodeUp = tree.getFatherId(nodeUp);
+	}
+	pathMatrix1.push_back(nodeUp); // The root.
+
+	nodeUp = nodeId2;
+	while(tree.hasFather(nodeUp))	{
+		pathMatrix2.push_back(nodeUp);
+		nodeUp = tree.getFatherId(nodeUp);
+	}
+	pathMatrix2.push_back(nodeUp); // The root.
+	// Must check that the two nodes have the same root!!!
+
+	int tmp1 = pathMatrix1.size() - 1;
+	int tmp2 = pathMatrix2.size() - 1;
+
+	while((tmp1 >= 0) && (tmp2 >= 0)) {
+		if (pathMatrix1[tmp1] != pathMatrix2[tmp2]) break;
+		tmp1--; tmp2--;
+	}
+
+	for (int y = 0; y <= tmp1; ++y) path.push_back(pathMatrix1[y]);
+	if(includeAncestor) path.push_back(pathMatrix1[tmp1 + 1]); // pushing once, the Node that was common to both.
+	for (int j = tmp2; j >= 0; --j) {
+		path.push_back(pathMatrix2[j]);
+	}
+	return path;
+}
+	
 /******************************************************************************/
 
 // @TODO
@@ -543,3 +619,43 @@ vector<Node *> TreeTools::getPathBetweenAnyTwoNodes(Node & node1, Node & node2)
 string TreeTools::BOOTSTRAP = "bootstrap";
 
 /******************************************************************************/
+
+double TreeTools::getDistanceBetweenAnyTwoNodes(const Node & node1, const Node & node2)
+{
+	vector<const Node *> path = getPathBetweenAnyTwoNodes(node1, node2, false);
+	double d = 0;
+	for(unsigned int i = 0; i < path.size(); i++) {
+		d += path[i] -> getDistanceToFather();
+	}
+	return d;
+}
+	
+/******************************************************************************/
+
+double TreeTools::getDistanceBetweenAnyTwoNodes(const Tree & tree, int nodeId1, int nodeId2)
+{
+	vector<int> path = getPathBetweenAnyTwoNodes(tree, nodeId1, nodeId2, false);
+	double d = 0;
+	for(unsigned int i = 0; i < path.size(); i++) {
+		d += tree.getDistanceToFather(path[i]);
+	}
+	return d;
+}
+	
+/******************************************************************************/
+
+DistanceMatrix * TreeTools::getDistanceMatrix(const Tree & tree)
+{
+	vector<string> names = tree.getLeavesNames();
+	DistanceMatrix * mat = new DistanceMatrix(names);
+	for(unsigned int i = 0; i < names.size(); i++) {
+		(* mat)(i, i) = 0;
+		for(unsigned int j = 0; j < i; j++) {
+			(* mat)(i, j) = (* mat)(j, i) = getDistanceBetweenAnyTwoNodes(tree, tree.getLeafId(names[i]), tree.getLeafId(names[j]));
+		}
+	}
+	return mat;
+}
+
+/******************************************************************************/
+

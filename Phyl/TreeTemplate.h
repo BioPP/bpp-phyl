@@ -164,7 +164,9 @@ class TreeTemplate: public virtual Tree
 		int getRootId() const { return _root -> getId(); }
 
 		unsigned int getNumberOfLeaves() const { return TreeTools::getNumberOfLeaves(* _root); }
-	
+		
+		int getLeafId(const string & name) const throw (NodeNotFoundException) { return TreeTools::getLeafId(* _root, name); }
+		
 		vector<int> getLeavesId() const { return TreeTools::getLeavesId(* _root); }
 
 		vector<int> getNodesId() const { return TreeTools::getNodesId(* _root); }
@@ -177,6 +179,8 @@ class TreeTemplate: public virtual Tree
 
 		int getFatherId(int parentId) const throw (NodeNotFoundException) { return getNode(parentId) -> getFatherId(); }
 
+		bool hasFather(int nodeId) const throw (NodeNotFoundException) { return getNode(nodeId) -> hasFather(); }
+	
 		string getNodeName(int nodeId) const throw (NodeNotFoundException) { return getNode(nodeId) -> getName(); }
 
 		bool hasNodeName(int nodeId) const throw (NodeNotFoundException) { return getNode(nodeId) -> hasName(); }

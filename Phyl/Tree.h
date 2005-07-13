@@ -125,6 +125,8 @@ class Tree {
 		 * @{
 		 */
 		virtual int getRootId() const = 0;
+
+		virtual int getLeafId(const string & name) const throw (NodeNotFoundException)= 0;
 	
 		virtual vector<int> getLeavesId() const = 0;
 
@@ -133,6 +135,8 @@ class Tree {
 		virtual vector<int> getSonsId(int parentId) const throw (NodeNotFoundException) = 0;
 
 		virtual int getFatherId(int parentId) const throw (NodeNotFoundException) = 0;
+
+		virtual bool hasFather(int nodeId) const throw (NodeNotFoundException) = 0;
 		/** @} */
 
 		/**

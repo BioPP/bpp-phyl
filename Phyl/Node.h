@@ -256,6 +256,10 @@ class Node {
 				
 		/**
 		 * @brief Set or update the distance toward the father node.
+		 *
+		 * Warning: a distance to the father node may be set even if no father node is specified.
+		 * This is used by several tree reconstruction methods.
+		 * It may also be useful for manipulating subtrees.
 		 * 
 		 * @param distance The new distance to the father node.
 		 */
