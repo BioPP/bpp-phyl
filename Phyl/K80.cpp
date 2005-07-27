@@ -80,8 +80,6 @@ knowledge of the CeCILL license and that you accept its terms.
 // From the STL:
 #include <cmath>
 
-// From the MTL:
-//#include <mtl/mtl.h>
 #include <NumCalc/MatrixTools.h>
 
 /******************************************************************************/
@@ -100,7 +98,8 @@ K80::~K80() {}
 	
 /******************************************************************************/
 
-void K80::updateMatrices() {
+void K80::updateMatrices()
+{
 	double kappa = _parameters.getParameter("kappa") -> getValue();
 	
 	// Generator:
@@ -122,7 +121,7 @@ void K80::updateMatrices() {
 	_generator(1, 3) = kappa;
 	_generator(2, 0) = kappa;
 	_generator(3, 1) = kappa;
-	
+
 	// Normalization:
 	double r = 1. / (2. + kappa);
 	MatrixTools::scale(_generator, r);

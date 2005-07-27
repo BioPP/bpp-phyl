@@ -51,6 +51,110 @@ knowledge of the CeCILL license and that you accept its terms.
 
 using namespace std;
 
+class DRASDRTreeLikelihoodData :
+	public virtual AbstractTreeLikelihoodData
+{
+	friend class DRHomogeneousTreeLikelihood;
+
+	protected:
+
+		TreeTemplate<Node> * _tree;
+		
+		/**
+		 * @brief This contains all likelihood values used for computation.
+		 *
+		 * <pre>
+		 * x[n][b][i][c][s]
+		 *   |---------------> Node n (pointer)
+		 *      |------------> Neighbor node of n (pointer)
+		 *         |---------> Site i
+		 *            |------> Rate class c
+		 *               |---> Ancestral state s
+		 * </pre> 
+		 * We call this the <i>likelihood array</i> for each node.
+		 */
+		mutable map<const Node *, map<const Node *, VVVdouble> > _likelihoods;
+
+		/**
+		 * @brief This contains all likelihood first order derivatives values used for computation.
+		 *
+		 * <pre>
+		 * x[n][i]
+		 *   |------------> Node n (pointer)
+		 *      |---------> Site i
+		 * </pre> 
+		 * We call this the <i>dLikelihood array</i> for each node.
+		 */
+		mutable map<const Node *, Vdouble> _dLikelihoods;
+	
+		/**
+		 * @brief This contains all likelihood second order derivatives values used for computation.
+		 *
+		 * <pre>
+		 * x[n][i]
+		 *   |------------> Node n (pointer)
+		 *      |---------> Site i
+		 * </pre> 
+		 * We call this the <i>d2Likelihood array</i> for each node.
+		 */
+		mutable map<const Node *, Vdouble> _d2Likelihoods;
+	
+		mutable map<const Node *, VVdouble> _leavesLikelihoods;
+
+	public:
+		DRASDRTreeLikelihoodData() {}
+		~DRASDRTreeLikelihoodData() {}
+
+	public:
+		const TreeTemplate<Node> * getTree() const { return _tree; }  
+		TreeTemplate<Node> * getTree() { return _tree; }
+		unsigned int getArrayPosition(const Node* parent, const Node* son, unsigned int currentPosition) const
+		{
+			return currentPosition;
+		}
+
+		map<const Node *, VVVdouble> & getLikelihoodArrays(const Node *node)
+		{
+			return _likelihoods[node];
+		}
+		
+		VVVdouble & getLikelihoodArray(const Node *parent, const Node *neighbor)
+		{
+			return _likelihoods[parent][neighbor];
+		}
+		
+		Vdouble & getDLikelihoodArray(const Node * node)
+		{
+			return _dLikelihoods[node];
+		}
+		
+		const Vdouble & getDLikelihoodArray(const Node * node) const
+		{
+			return _dLikelihoods[node];
+		}
+		
+		Vdouble & getD2LikelihoodArray(const Node * node)
+		{
+			return _d2Likelihoods[node];
+		}
+
+		const Vdouble & getD2LikelihoodArray(const Node * node) const
+		{
+			return _d2Likelihoods[node];
+		}
+
+		VVdouble & getLeafLikelihoods(const Node * node)
+		{
+			return _leavesLikelihoods[node];
+		}
+		const VVdouble & getLeafLikelihoods(const Node * node) const
+		{
+			return _leavesLikelihoods[node];
+		}
+};
+
+
+
 /**
  * @brief This class implement the computation of likelihood for a tree using the double-recursive
  * method.
@@ -77,47 +181,8 @@ class DRHomogeneousTreeLikelihood : public virtual AbstractHomogeneousTreeLikeli
 	protected:
 		SiteContainer * _shrunkData;
 
-		/**
-		 * @brief This contains all likelihood values used for computation.
-		 *
-		 * <pre>
-		 * x[n][b][i][c][s]
-		 *   |---------------> Node n (pointer)
-		 *      |------------> Neighbor node of n (pointer)
-		 *         |---------> Site i
-		 *            |------> Rate class c
-		 *               |---> Ancestral state s
-		 * </pre> 
-		 * We call this the <i>likelihood array</i> for each node.
-		 */
-		mutable map<const Node *, map<const Node *, VVVdouble> > _likelihoods;
-
-		/**
-		 * @brief This contains all likelihood first order derivatives values used for computation.
-		 *
-		 * <pre>
-		 * x[b][i]
-		 *   |------------> Neighbor node of n (pointer)
-		 *      |---------> Site i
-		 * </pre> 
-		 * We call this the <i>dLikelihood array</i> for each node.
-		 */
-		mutable map<const Node *, Vdouble> _dLikelihoods;
-	
-		/**
-		 * @brief This contains all likelihood second order derivatives values used for computation.
-		 *
-		 * <pre>
-		 * x[b][i]
-		 *   |------------> Neighbor node of n (pointer)
-		 *      |---------> Site i
-		 * </pre> 
-		 * We call this the <i>d2Likelihood array</i> for each node.
-		 */
-		mutable map<const Node *, Vdouble> _d2Likelihoods;
-	
-		mutable map<const Node *, VVdouble> _leavesLikelihoods;
-
+		mutable DRASDRTreeLikelihoodData _likelihoodData;
+		
 		mutable VVVdouble _rootLikelihoods;
 		mutable VVdouble  _rootLikelihoodsS;
 		mutable Vdouble   _rootLikelihoodsSR;
@@ -201,13 +266,13 @@ class DRHomogeneousTreeLikelihood : public virtual AbstractHomogeneousTreeLikeli
 	public:	// Specific methods:
 	
 		virtual map<const Node *, VVVdouble> getLikelihoodArraysForNode(const Node * node)
-	  { return _likelihoods[node]; }
+	  { return _likelihoodData.getLikelihoodArrays(node); }
 
 		virtual VVVdouble getTransitionProbabilitiesForNode(const Node * node)
 		{ return _pxy[node]; }
 
 		virtual vector<unsigned int> getRootPatternLinks() const
-		{ return _rootPatternLinks; }
+		{ return _likelihoodData._rootPatternLinks; }
 
 		virtual VVVdouble getRootLikelihoods() const
 		{ return _rootLikelihoods; }
@@ -218,7 +283,7 @@ class DRHomogeneousTreeLikelihood : public virtual AbstractHomogeneousTreeLikeli
 		virtual VVVdouble computeLikelihoodAtNode(const Node * node) const;
 		
 		virtual VVdouble getLeafLikelihoods(const Node * node) const
-		{ return _leavesLikelihoods[node]; }
+		{ return _likelihoodData.getLeafLikelihoods(node); }
 
 		virtual const SiteContainer * getShrunkData() const
 		{ return _shrunkData; }

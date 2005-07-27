@@ -48,6 +48,25 @@ knowledge of the CeCILL license and that you accept its terms.
 #include <Seq/SiteContainer.h>
 
 /**
+ * @brief Likelihood computation data structure.
+ *
+ * This class is under test.
+ * For now it is only used as a inner storage.
+ * Its goal is to be exported for other methods that need detailed likeihood
+ * computation, for instance ancestral states reconstruction.
+ * 
+ */
+class TreeLikelihoodData
+{
+	public:
+		virtual const TreeTemplate<Node> * getTree() const = 0;  
+		virtual TreeTemplate<Node> * getTree() = 0;
+		virtual unsigned int getArrayPosition(const Node* parent, const Node* son, unsigned int currentPosition) const = 0;
+		virtual unsigned int getRootArrayPosition(const unsigned int site) const = 0;
+};
+
+
+/**
  * @brief Low-level implementatoin of the TreeLikelihood interface. 
  *
  * This class implements a few methods useful for most of likelihood

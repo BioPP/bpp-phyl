@@ -57,11 +57,6 @@ knowledge of the CeCILL license and that you accept its terms.
  *
  * This interface defines the methods needed for computing the likelihood
  * of a phylogenetic tree, given a dataset.
- *
- * Likelihood computing isvery often memory and CPU expensive,
- * hence many algorithms try to store as information as possible to save computations.
- * This interface separates the computation itself (computeLikelihood() method) and the
- * result (getLikelihood() methods).
  */ 
 class TreeLikelihood: public virtual DerivableSecondOrder
 {

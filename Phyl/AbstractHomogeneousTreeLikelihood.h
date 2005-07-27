@@ -43,18 +43,10 @@ knowledge of the CeCILL license and that you accept its terms.
 #include "AbstractDiscreteRatesAcrossSitesTreeLikelihood.h"
 #include "SubstitutionModel.h"
 
-class AbstractHomogeneousTreeLikelihood: public virtual AbstractDiscreteRatesAcrossSitesTreeLikelihood
+class AbstractTreeLikelihoodData :
+	public virtual TreeLikelihoodData
 {
 	protected:
-		SubstitutionModel * _model;
-		ParameterList _brLenParameters;
-		
-		mutable map<const Node *, VVVdouble> _pxy;
-
-		mutable map<const Node *, VVVdouble> _dpxy;
-
-		mutable map<const Node *, VVVdouble> _d2pxy;
-		
 		/**
 		 * @brief As previous, but for the global container.
 		 *
@@ -72,7 +64,27 @@ class AbstractHomogeneousTreeLikelihood: public virtual AbstractDiscreteRatesAcr
 		 * @brief The frequency of each site.
 		 */
 		vector<unsigned int> _rootWeights;
+
+	public:
+		unsigned int getRootArrayPosition(const unsigned int site) const
+		{
+			return _rootPatternLinks[site];
+		}
+
+};
+
+class AbstractHomogeneousTreeLikelihood: public virtual AbstractDiscreteRatesAcrossSitesTreeLikelihood
+{
+	protected:
+		SubstitutionModel * _model;
+		ParameterList _brLenParameters;
 		
+		mutable map<const Node *, VVVdouble> _pxy;
+
+		mutable map<const Node *, VVVdouble> _dpxy;
+
+		mutable map<const Node *, VVVdouble> _d2pxy;
+				
 		/**
 		 * @brief Pointer toward all nodes in the tree.
 		 *

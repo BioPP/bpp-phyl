@@ -52,43 +52,15 @@ knowledge of the CeCILL license and that you accept its terms.
 
 using namespace std;
 
-/**
- * @brief This class implement the 'traditional' way of computing likelihood for a tree.
- *
- * The substitution model is constant over the tree (homogeneous model).
- * A non uniform distribution of rates among the sites is allowed (ASRV models).</p>
- *
- * The Felsenstein recursive algorithm is used for conputation.
- * For each node, a likelihood tensor is defined, containing all likelihoods values for
- * for the substree defined by this node. The likelihood tensor dimension are defined as below:
- * <ul>
- * <li>Site</li>
- * <li>Rate class</li>
- * <li>Ancestral state</li>
- * </ul>
- * These tensors are stored into a map with each node as a key (cf. _likelihoods).
- *
- * The computation use <i>site patterns</i> for more efficiency.
- * Following N. Galtier (personal communication ;-), we define a Pattern as a distinct site
- * in a sub-dataset corresponding to the dataset with sequences associated to a particular subtree.
- * The likelihood computation is the same for a given site, hence the idea is to save time from
- * performing many times the same coputation.
- * The network between all patterns is defined by the _patternLinks double map, initialized in the
- * initLikelihoodsWithPatterns() method. This initialisation takes more time than the classic
- * initTreeLikelihood one, where all likelihoods for a given site <i>i</i> are at the <i>i</i> coordinate
- * in the likelihood tensor, but is really faster when computing the likelihood (computeLikelihoods() method).
- * Hence, if you have to compute likelihood many times while holding the tree topology unchanged,
- * you should use patterns. And since this is what you'll have to do in most case (for instance for parameter
- * estimation), we set this as the default method for now.
- * The second method is for testing purpose only.
- *
- * For topology estimation, consider using the DRHomogeneousTreeLikelihood class.
- */
-class HomogeneousTreeLikelihood :
-	public virtual AbstractHomogeneousTreeLikelihood
+class DRASRTreeLikelihoodData :
+	public virtual AbstractTreeLikelihoodData
 {
+	friend class HomogeneousTreeLikelihood;
+
 	protected:
 
+		TreeTemplate<Node> * _tree;
+		
 		/**
 		 * @brief This contains all likelihood values used for computation.
 		 *
@@ -143,20 +115,74 @@ class HomogeneousTreeLikelihood :
 		 * The double map contains the position of the site to use (second dimension)
 		 * of the likelihoods array.
 		 */
-		map< const Node *, map< const Node *, vector<unsigned int> > > _patternLinks;
+		mutable map< const Node *, map< const Node *, vector<unsigned int> > > _patternLinks;
 		
-		/**
-		 * @brief As previous, but for the global container.
-		 *
-		 * The size of this vector is equal to the number of sites in the container,
-		 * each element corresponds to a site in the container and points to the
-		 * corresponding column in the likelihood array of the root node.
-		 * If the container contains no repeated site, there will be a strict
-		 * equivalence between each site and the likelihood array of the root node.
-		 * However, if this is not the case, some pointers may point toward the same
-		 * element in the likelihood array.
-		 */
-		vector<unsigned int> _rootPatternLinks;
+	public:
+		DRASRTreeLikelihoodData() {}
+		~DRASRTreeLikelihoodData() {}
+
+	public:
+		const TreeTemplate<Node> * getTree() const { return _tree; }  
+		TreeTemplate<Node> * getTree() { return _tree; }
+		unsigned int getArrayPosition(const Node* parent, const Node* son, unsigned int currentPosition) const
+		{
+			return _patternLinks[parent][son][currentPosition];
+		}
+
+		VVVdouble & getLikelihoodArray(const Node *node)
+		{
+			return _likelihoods[node];
+		}
+		
+		VVVdouble & getDLikelihoodArray(const Node *node)
+		{
+			return _dLikelihoods[node];
+		}
+		
+		VVVdouble & getD2LikelihoodArray(const Node *node)
+		{
+			return _d2Likelihoods[node];
+		}
+};
+
+/**
+ * @brief This class implement the 'traditional' way of computing likelihood for a tree.
+ *
+ * The substitution model is constant over the tree (homogeneous model).
+ * A non uniform distribution of rates among the sites is allowed (ASRV models).</p>
+ *
+ * The Felsenstein recursive algorithm is used for conputation.
+ * For each node, a likelihood tensor is defined, containing all likelihoods values for
+ * for the substree defined by this node. The likelihood tensor dimension are defined as below:
+ * <ul>
+ * <li>Site</li>
+ * <li>Rate class</li>
+ * <li>Ancestral state</li>
+ * </ul>
+ * These tensors are stored into a map with each node as a key (cf. _likelihoods).
+ *
+ * The computation use <i>site patterns</i> for more efficiency.
+ * Following N. Galtier (personal communication ;-), we define a Pattern as a distinct site
+ * in a sub-dataset corresponding to the dataset with sequences associated to a particular subtree.
+ * The likelihood computation is the same for a given site, hence the idea is to save time from
+ * performing many times the same coputation.
+ * The network between all patterns is defined by the _patternLinks double map, initialized in the
+ * initLikelihoodsWithPatterns() method. This initialisation takes more time than the classic
+ * initTreeLikelihood one, where all likelihoods for a given site <i>i</i> are at the <i>i</i> coordinate
+ * in the likelihood tensor, but is really faster when computing the likelihood (computeLikelihoods() method).
+ * Hence, if you have to compute likelihood many times while holding the tree topology unchanged,
+ * you should use patterns. And since this is what you'll have to do in most case (for instance for parameter
+ * estimation), we set this as the default method for now.
+ * The second method is for testing purpose only.
+ *
+ * For topology estimation, consider using the DRHomogeneousTreeLikelihood class.
+ */
+class HomogeneousTreeLikelihood :
+	public virtual AbstractHomogeneousTreeLikelihood
+{
+	protected:
+
+		mutable DRASRTreeLikelihoodData _likelihoodData;
 		
 	public:
 		HomogeneousTreeLikelihood(
