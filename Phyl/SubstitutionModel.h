@@ -150,8 +150,13 @@ class SubstitutionModel: public virtual Parametrizable {
 		/**
 		 * This method is used to initialize likelihoods in reccurence.
 		 * Traditionaly, it sends 1 if i = state, 0 else, where
-		 * i is one of the possible states if the alphabet allowed in the model
+		 * i is one of the possible states of the alphabet allowed in the model
 		 * and state is the observed state in the sequence.
+		 *
+		 * @param i one of the possible states of the alphabet.
+		 * @param state An observed state in the sequence.
+		 * @return 1 or 0 dpeendeing if two states are compatible.
+		 * @throw BadIntException if states are not allowed in the associated alphabet.
 		 */
 		virtual double getInitValue(int i, int state) const throw (BadIntException) = 0;
 

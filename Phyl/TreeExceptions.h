@@ -5,42 +5,6 @@
 //
 
 /*
-Copyright ou © ou Copr. CNRS, (16 Novembre 2004) 
-
-Julien.Dutheil@univ-montp2.fr
-
-Ce logiciel est un programme informatique servant à fournir des classes
-pour l'analyse de données phylogénétiques.
-
-Ce logiciel est régi par la licence CeCILL soumise au droit français et
-respectant les principes de diffusion des logiciels libres. Vous pouvez
-utiliser, modifier et/ou redistribuer ce programme sous les conditions
-de la licence CeCILL telle que diffusée par le CEA, le CNRS et l'INRIA 
-sur le site "http://www.cecill.info".
-
-En contrepartie de l'accessibilité au code source et des droits de copie,
-de modification et de redistribution accordés par cette licence, il n'est
-offert aux utilisateurs qu'une garantie limitée.  Pour les mêmes raisons,
-seule une responsabilité restreinte pèse sur l'auteur du programme,  le
-titulaire des droits patrimoniaux et les concédants successifs.
-
-A cet égard  l'attention de l'utilisateur est attirée sur les risques
-associés au chargement,  à l'utilisation,  à la modification et/ou au
-développement et à la reproduction du logiciel par l'utilisateur étant 
-donné sa spécificité de logiciel libre, qui peut le rendre complexe à 
-manipuler et qui le réserve donc à des développeurs et des professionnels
-avertis possédant  des  connaissances  informatiques approfondies.  Les
-utilisateurs sont donc invités à charger  et  tester  l'adéquation  du
-logiciel à leurs besoins dans des conditions permettant d'assurer la
-sécurité de leurs systèmes et ou de leurs données et, plus généralement, 
-à l'utiliser et l'exploiter dans les mêmes conditions de sécurité. 
-
-Le fait que vous puissiez accéder à cet en-tête signifie que vous avez 
-pris connaissance de la licence CeCILL, et que vous en avez accepté les
-termes.
-*/
-
-/*
 Copyright or © or Copr. CNRS, (November 16, 2004)
 
 Julien.Dutheil@univ-montp2.fr
@@ -85,21 +49,14 @@ class Node;
 class Tree;
 
 /**
- * @brief Exception thrown when something is wrong with a particular node.
+ * @brief General exception thrown when something is wrong with a particular node.
  */
 class NodeException : public Exception {
 
 	protected:
-		const Node * node;
+		const Node * _node;
 			
-	public:	// Class constructors and destructor:
-
-		/**
-		 * @brief Build a new NodeException.
-		 * @param text A message to be passed to the exception hierarchy.
-		 * @param node A const pointer toward the node that threw the exception.
-		 */
-		NodeException(const char * text, const Node * node = NULL);
+	public:
 
 		/**
 		 * @brief Build a new NodeException.
@@ -111,8 +68,10 @@ class NodeException : public Exception {
 		virtual ~NodeException() throw ();
 	
 	public:
+
 		/**
-		 * @brief <p>Get the node that threw the exception.</p>
+		 * @brief Get the node that threw the exception.
+		 * 
 		 * @return A pointer toward the faulty node.
 		 */
 		virtual const Node * getNode() const;
@@ -134,18 +93,12 @@ class NodeNotFoundException : public Exception {
 		 * @param text A message to be passed to the exception hierarchy.
 		 * @param id   A string describing the node.
 		 */
-		NodeNotFoundException(const char * text, const string & id);
-
-		/**
-		 * @brief Build a new NodeNotFoundException.
-		 * @param text A message to be passed to the exception hierarchy.
-		 * @param id   A string describing the node.
-		 */
 		NodeNotFoundException(const string & text, const string & id);
 	
 		virtual ~NodeNotFoundException() throw ();
 	
 	public:
+		
 		/**
 		 * @brief Get the node id that threw the exception.
 		 * 
@@ -154,21 +107,44 @@ class NodeNotFoundException : public Exception {
 		virtual string getId() const;
 };
 
-class UnrootedTreeException : public Exception {
+/**
+ * @brief General exception thrown when something wrong happened in a tree.
+ */
+class TreeException : public Exception {
 
 	protected:
-		const Tree * tree;
+		const Tree * _tree;
 			
-	public: // Class constructors and destructor:
+	public:
 
 		/**
-		 * @brief Build a new UnrootedTreeException.
+		 * @brief Build a new TreeException.
 		 * 
 		 * @param text A message to be passed to the exception hierarchy.
 		 * @param tree A const pointer toward the tree that threw the exception.
 		 */
-		UnrootedTreeException(const char *   text, const Tree * tree = NULL);
-			
+		TreeException(const string & text, const Tree * tree = NULL);
+		
+		virtual ~TreeException() throw () {}
+	
+	public:
+		
+		/**
+		 * @brief Get the tree that threw the exception.
+		 * 
+		 * @return The faulty tree
+		 */
+		virtual const Tree * getTree() const;
+		
+};
+
+/**
+ * @brief Exception thrown when a tree is expected to be rooted.
+ */
+class UnrootedTreeException : public TreeException {
+
+	public:
+
 		/**
 		 * @brief Build a new UnrootedTreeException.
 		 * 
@@ -176,19 +152,10 @@ class UnrootedTreeException : public Exception {
 		 * @param tree A const pointer toward the tree that threw the exception.
 		 */
 		UnrootedTreeException(const string & text, const Tree * tree = NULL);
-
+		
 		virtual ~UnrootedTreeException() throw () {}
 	
-	public:
-		/**
-		 * @brief Get the tree that threw the exception.
-		 * 
-		 * @return The faulty tree
-		 */
-		virtual const Tree * getTree() const { return tree; }
 };
-
-/******************************************************************************/
 
 #endif	//_TREEEXCEPTIONS_H_
 

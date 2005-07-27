@@ -5,45 +5,7 @@
 //
 
 /*
-Copyright ou © ou Copr. CNRS, (16 Novembre 2004) 
-
-Julien.Dutheil@univ-montp2.fr
-
-Ce logiciel est un programme informatique servant à fournir des classes
-pour l'analyse de données phylogénétiques.
-
-Ce logiciel est régi par la licence CeCILL soumise au droit français et
-respectant les principes de diffusion des logiciels libres. Vous pouvez
-utiliser, modifier et/ou redistribuer ce programme sous les conditions
-de la licence CeCILL telle que diffusée par le CEA, le CNRS et l'INRIA 
-sur le site "http://www.cecill.info".
-
-En contrepartie de l'accessibilité au code source et des droits de copie,
-de modification et de redistribution accordés par cette licence, il n'est
-offert aux utilisateurs qu'une garantie limitée.  Pour les mêmes raisons,
-seule une responsabilité restreinte pèse sur l'auteur du programme,  le
-titulaire des droits patrimoniaux et les concédants successifs.
-
-A cet égard  l'attention de l'utilisateur est attirée sur les risques
-associés au chargement,  à l'utilisation,  à la modification et/ou au
-développement et à la reproduction du logiciel par l'utilisateur étant 
-donné sa spécificité de logiciel libre, qui peut le rendre complexe à 
-manipuler et qui le réserve donc à des développeurs et des professionnels
-avertis possédant  des  connaissances  informatiques approfondies.  Les
-utilisateurs sont donc invités à charger  et  tester  l'adéquation  du
-logiciel à leurs besoins dans des conditions permettant d'assurer la
-sécurité de leurs systèmes et ou de leurs données et, plus généralement, 
-à l'utiliser et l'exploiter dans les mêmes conditions de sécurité. 
-
-Le fait que vous puissiez accéder à cet en-tête signifie que vous avez 
-pris connaissance de la licence CeCILL, et que vous en avez accepté les
-termes.
-*/
-
-/*
 Copyright or © or Copr. CNRS, (November 16, 2004)
-
-Julien.Dutheil@univ-montp2.fr
 
 This software is a computer program whose purpose is to provide classes
 for phylogenetic data analysis.
@@ -117,10 +79,13 @@ using namespace std;
  * in the likelihood tensor, but is really faster when computing the likelihood (computeLikelihoods() method).
  * Hence, if you have to compute likelihood many times while holding the tree topology unchanged,
  * you should use patterns. And since this is what you'll have to do in most case (for instance for parameter
- * estimation), we set this as the default method for now. We provide the second method for topology estimation
- * methods (far from achieved!)
+ * estimation), we set this as the default method for now.
+ * The second method is for testing purpose only.
+ *
+ * For topology estimation, consider using the DRHomogeneousTreeLikelihood class.
  */
-class HomogeneousTreeLikelihood : public virtual AbstractHomogeneousTreeLikelihood
+class HomogeneousTreeLikelihood :
+	public virtual AbstractHomogeneousTreeLikelihood
 {
 	protected:
 
@@ -177,8 +142,6 @@ class HomogeneousTreeLikelihood : public virtual AbstractHomogeneousTreeLikeliho
 		 *
 		 * The double map contains the position of the site to use (second dimension)
 		 * of the likelihoods array.
-		 * Pointer are no longer used, since the pattern network is used for both
-		 * likelihoods arrays and dLikelihoods arrays.
 		 */
 		map< const Node *, map< const Node *, vector<unsigned int> > > _patternLinks;
 		
@@ -272,7 +235,6 @@ class HomogeneousTreeLikelihood : public virtual AbstractHomogeneousTreeLikeliho
 		double getSecondOrderDerivative(const string & variable1, const string & variable2) const throw (Exception) { return 0; } // Not implemented for now.
 		/** @} */
 	
-		
 	public:	// Specific methods:
 	
 		void computeTreeLikelihood();

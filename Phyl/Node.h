@@ -5,42 +5,6 @@
 //
 
 /*
-Copyright ou © ou Copr. Julien Dutheil, (16 Novembre 2004) 
-
-Julien.Dutheil@univ-montp2.fr
-
-Ce logiciel est un programme informatique servant à fournir des classes
-pour l'analyse de données phylogénétiques.
-
-Ce logiciel est régi par la licence CeCILL soumise au droit français et
-respectant les principes de diffusion des logiciels libres. Vous pouvez
-utiliser, modifier et/ou redistribuer ce programme sous les conditions
-de la licence CeCILL telle que diffusée par le CEA, le CNRS et l'INRIA 
-sur le site "http://www.cecill.info".
-
-En contrepartie de l'accessibilité au code source et des droits de copie,
-de modification et de redistribution accordés par cette licence, il n'est
-offert aux utilisateurs qu'une garantie limitée.  Pour les mêmes raisons,
-seule une responsabilité restreinte pèse sur l'auteur du programme,  le
-titulaire des droits patrimoniaux et les concédants successifs.
-
-A cet égard  l'attention de l'utilisateur est attirée sur les risques
-associés au chargement,  à l'utilisation,  à la modification et/ou au
-développement et à la reproduction du logiciel par l'utilisateur étant 
-donné sa spécificité de logiciel libre, qui peut le rendre complexe à 
-manipuler et qui le réserve donc à des développeurs et des professionnels
-avertis possédant  des  connaissances  informatiques approfondies.  Les
-utilisateurs sont donc invités à charger  et  tester  l'adéquation  du
-logiciel à leurs besoins dans des conditions permettant d'assurer la
-sécurité de leurs systèmes et ou de leurs données et, plus généralement, 
-à l'utiliser et l'exploiter dans les mêmes conditions de sécurité. 
-
-Le fait que vous puissiez accéder à cet en-tête signifie que vous avez 
-pris connaissance de la licence CeCILL, et que vous en avez accepté les
-termes.
-*/
-
-/*
 Copyright or © or Copr. Julien Dutheil, (November 16, 2004)
 
 Julien.Dutheil@univ-montp2.fr
@@ -92,26 +56,27 @@ using namespace std;
 #include <Utils/Clonable.h>
 
 /**
- * @brief <p>The phylogenetic node class.</p>
- * <p>This class is part of the object implementation of phylogenetic trees. Tree are made
- * made of nodes, instances of this class.</p>
- * <p>Since trees are oriented (rooted), each node has one <i>father node</i> and possibly
+ * @brief The phylogenetic node class.
+ * 
+ * This class is for use with the TreeTemplate class, an implementation of the Tree interface.
+ * TreeTemplates are made made of nodes, instances of this class.
+ * Since trees are oriented (rooted), each node has one <i>father node</i> and possibly
  * many <i>son nodes</i>. Leaves are nodes without descendant and root is defined has the without
  * father. Inner nodes will generally contain two descendants (the tree is then called
  * <i>bifurcating</i>), but mutlifurcating trees are also allowed with this kind of description.
  * In the rooted case, each inner node also defines a <i>subtree</i>.
  * This allows to work recursively on trees, which is very convenient in most cases.</p>
- * <p>This class is made the more general as possible, while keeping it very simple. It contains:</p>
- * <ul>
- * <li>An identity tag, to identity it in the tree;</li>
- * <li>A name, necessary for leaf nodes, optionnal else;</li>
- * <li>A pointer toward the father node;</li>
- * <li>A vector of pointer toward son nodes;</li>
- * <li>The distance from the father node:</li>
- * <li>A property map, that may contain any information to link to each node, e.g. bootastrap
- * value or GC content.</li>
- * </ul>
- * @see Tree
+ * 
+ * This class is made the more general as possible, while keeping it very simple. It contains:</p>
+ * - An identity tag, to identity it in the tree;
+ * - A name, necessary for leaf nodes, optionnal else;
+ * - A pointer toward the father node;
+ * - A vector of pointer toward son nodes;
+ * - The distance from the father node:
+ * - A property map, that may contain any information to link to each node, e.g. bootastrap
+ * value or GC content.
+ * 
+ * @see Tree, TreeTemplate
  */
 
 class Node {
@@ -125,9 +90,9 @@ class Node {
 		double                        * _distanceToFather;
 		mutable map<string, Clonable *> _properties;
 
-	public: // Class constructor and destructor:
+	public:
 	
-		/**	i
+		/**
 		 * @brief Build a new void Node object.
 		 */
 		Node() : _id(0), _name(NULL), _father(NULL), _distanceToFather(NULL) {}
@@ -423,7 +388,6 @@ class Node {
 
 		virtual bool isLeaf() const { return degree() == 1; }
 			
-//	friend class TreeTemplate<Node>;
 };
 
 #endif	//_NODE_H_
