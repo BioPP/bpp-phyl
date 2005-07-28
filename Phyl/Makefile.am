@@ -30,6 +30,7 @@ NewtonBrentMetaOptimizer.h\
 NonHomogeneousTreeLikelihood.h\
 NucleotideSubstitutionModel.h\
 NeighborJoining.h\
+NNISearchable.h\
 OptimizationTools.h\
 PatternTools.h\
 PGMA.h\
