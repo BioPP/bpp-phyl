@@ -1,7 +1,7 @@
 //
-// File: DRTreeLikelihoodTools.h
+// File: AbstractTreeParsimonyScore.cpp
 // Created by: Julien Dutheil
-// Created on: Mon Janv 17 09:56 2005
+// Created on: Thu Jul 29 18:11 2005
 //
 
 /*
@@ -37,18 +37,36 @@ The fact that you are presently reading this means that you have had
 knowledge of the CeCILL license and that you accept its terms.
 */
 
-#ifndef _DRTREELIKELIHOODTOOLS_H_
-#define _DRTREELIKELIHOODTOOLS_H_
+#include "AbstractTreeParsimonyScore.h"
+#include "PatternTools.h"
+#include "ApplicationTools.h"
 
-#include "DRHomogeneousTreeLikelihood.h"
-#include <Seq/AlignedSequenceContainer.h>
+AbstractTreeParsimonyScore::AbstractTreeParsimonyScore(
+	TreeTemplate<Node> & tree,
+	const SiteContainer & data,
+	bool verbose)
+	throw (Exception)
+{
+	_tree = &tree;
+	if(_tree -> isRooted()) {
+		if(verbose) ApplicationTools::displayWarning("Tree has been unrooted.");
+		_tree -> unroot();
+	}
+	
+	//Sequences will be in the same order than in the tree:
+	_data = PatternTools::getSequenceSubset(data, * _tree -> getRootNode());
+	if(_data -> getNumberOfSequences() == 1) throw Exception("Error, only 1 sequence!");
+	if(_data -> getNumberOfSequences() == 0) throw Exception("Error, no sequence!");
+	if(_data -> getAlphabet() -> getSize() > 20) throw Exception("Error, only alphabet with size <= 20 are supported. See the source file of AbstractTreeParsimonyScore.");
+	_alphabet = _data -> getAlphabet();
+}
 
-class DRTreeLikelihoodTools {
-
-	public: static VVVdouble getPosteriorProbabilitiesForEachStateForEachRate(
-							DRHomogeneousTreeLikelihood & drl,
-							const Node * node);
-};
-
-#endif //_DRTREELIKELIHOODTOOLS_H_
+vector<unsigned int> AbstractTreeParsimonyScore::getScoreForEachSite() const
+{
+	vector<unsigned int> scores(_data -> getNumberOfSites());
+	for(unsigned int i = 0; i < scores.size(); i++) {
+		scores[i] = getScoreForSite(i);
+	}
+	return scores;
+}
 

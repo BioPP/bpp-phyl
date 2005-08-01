@@ -48,7 +48,10 @@ TreeTemplate.h\
 TreeLikelihood.h\
 TreeTools.h\
 DiscreteRatesAcrossSitesTreeLikelihood.h\
-RASTools.h
+RASTools.h\
+TreeParsimonyScore.h\
+AbstractTreeParsimonyScore.h\
+DRTreeParsimonyScore.h
 
 
 CPP_FILES = \
@@ -74,6 +77,7 @@ MutationProcess.cpp\
 NeighborJoining.cpp\
 Newick.cpp\
 NewtonBrentMetaOptimizer.cpp\
+Node.cpp\
 NonHomogeneousTreeLikelihood.cpp\
 NucleotideSubstitutionModel.cpp\
 OptimizationTools.cpp\
@@ -85,11 +89,12 @@ SequenceSimulator.cpp\
 SubstitutionModel.cpp\
 T92.cpp\
 TN93.cpp\
-Tree.cpp\
 TreeExceptions.cpp\
 TreeLikelihood.cpp\
 TreeTools.cpp\
-RASTools.cpp
+RASTools.cpp\
+AbstractTreeParsimonyScore.cpp\
+DRTreeParsimonyScore.cpp
 
 CPP_EXTRA = \
 DSO78FrequenciesCode.cpp\

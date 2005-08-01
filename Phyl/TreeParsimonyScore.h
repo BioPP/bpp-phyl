@@ -1,7 +1,7 @@
 //
-// File: DRTreeLikelihoodTools.h
+// File: TreeParsimonyScore.h
 // Created by: Julien Dutheil
-// Created on: Mon Janv 17 09:56 2005
+// Created on: Thu Jul 28 17:15 2005
 //
 
 /*
@@ -37,18 +37,61 @@ The fact that you are presently reading this means that you have had
 knowledge of the CeCILL license and that you accept its terms.
 */
 
-#ifndef _DRTREELIKELIHOODTOOLS_H_
-#define _DRTREELIKELIHOODTOOLS_H_
+#ifndef _TREEPARSIMONYSCORE_H_
+#define _TREEPARSIMONYSCORE_H_
 
-#include "DRHomogeneousTreeLikelihood.h"
-#include <Seq/AlignedSequenceContainer.h>
+#include "TreeTemplate.h"
 
-class DRTreeLikelihoodTools {
+// From the STL:
+#include <vector>
 
-	public: static VVVdouble getPosteriorProbabilitiesForEachStateForEachRate(
-							DRHomogeneousTreeLikelihood & drl,
-							const Node * node);
+/**
+ * @brief Compute a parsimony score using Fitch algorithm.
+ */
+class TreeParsimonyScore
+{
+	public:
+		TreeParsimonyScore() {}
+		virtual ~TreeParsimonyScore() {}
+
+	public:
+		
+		/**
+		 * @brief Get the score for the current tree, i.e. the total minimum number of changes in the tree.
+		 *
+		 * @return The minimum total number of changes in the tree.
+		 */
+		virtual unsigned int getScore() const = 0;
+		
+		/**
+		 * @brief Get the score for a given site for the current tree, i.e. the total minimum number of changes in the tree for this site.
+		 *
+		 * @param site The corresponding site.
+		 * @return The minimum total number of changes in the tree for site 'site'. 
+		 */
+		virtual unsigned int getScoreForSite(unsigned int site) const = 0;
+
+		/**
+		 * @brief Get the score for each site for the current tree, i.e. the total minimum number of changes in the tree for each site.
+		 *
+		 * @return The minimum total number of changes in the tree for each site.
+		 */
+		virtual vector<unsigned int> getScoreForEachSite() const = 0;
+
+		/**
+		 * @brief Get the tree for wich scores are computed.
+		 *
+		 * @return The tree associated to this object.
+		 */
+		virtual Tree * getTree() = 0;
+		/**
+		 * @brief Get the tree for wich scores are computed.
+		 *
+		 * @return The tree associated to this object.
+		 */
+		virtual const Tree * getTree() const = 0;
 };
 
-#endif //_DRTREELIKELIHOODTOOLS_H_
+#endif //_TREEPARSIMONYSCORE_H_
+
 
