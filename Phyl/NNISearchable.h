@@ -49,6 +49,7 @@ knowledge of the CeCILL license and that you accept its terms.
  * NNISearchable objects are supposed to work with TreeTemplate objects.
  * NNI are defined as follow:
  * <pre>
+ * --------->
  *D      C
  * \    /
  *  \  /
@@ -71,6 +72,26 @@ knowledge of the CeCILL license and that you accept its terms.
  * - swaping A<->C, which is the same as D<->B
  * Because of the rooted representation, we'll consider B<->C and A<->C,
  * which are simpler to perform.
+ *
+ * For the root node we have:
+ * <pre>
+ * --------->
+ *       D
+ *      /
+ *     /
+ *    /____C
+ *   X\    /B
+ *     \  /
+ *      \/
+ *      F\
+ *        \
+ *         \A
+ * 
+ * </pre>
+ * In this case, we swap A or B with one of C or D.
+ * Which one of C or D depends on the implementation, but will always be the same,
+ * so that swapping A or B involve 2 distinct NNI.
+ * 
  */
 class NNISearchable
 {
@@ -97,7 +118,7 @@ class NNISearchable
 		 * @param son    The son node.
 		 * @throw NodeException If 'son' is not a son of 'parent'.
 		 */
-		virtual void doNNI(const Node * parent, const Node * son) throw (NodeException) = 0;
+		virtual void doNNI(Node * parent, Node * son) throw (NodeException) = 0;
 };
 
 #endif //_NNISEARCHABLE_H_

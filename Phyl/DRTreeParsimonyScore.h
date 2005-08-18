@@ -41,6 +41,7 @@ knowledge of the CeCILL license and that you accept its terms.
 #define _DRTREEPARSIMONYSCORE_H_
 
 #include "AbstractTreeParsimonyScore.h"
+#include "NNISearchable.h"
 
 // From the STL:
 #include <bitset>
@@ -205,7 +206,8 @@ class DRTreeParsimonyData :
  * Uses a DRTreeParsimonyData object for data storage.
  */
 class DRTreeParsimonyScore :
-	public virtual AbstractTreeParsimonyScore
+	public virtual AbstractTreeParsimonyScore,
+	public virtual NNISearchable
 {
 	protected:
 		DRTreeParsimonyData *_parsimonyData;
@@ -272,6 +274,34 @@ class DRTreeParsimonyScore :
 		 * @param rScores  The score array where to write the resulting scores.
 		 */
 		static void computeScoresForNode(const DRTreeParsimonyNodeData & pData, vector<Bitset> & rBitsets, vector<unsigned int> & rScores); 
+
+		/**
+		 * @brief Compute bitsets and scores from an array of arrays.
+		 *
+		 * This method is the more general score computation.
+		 * Depending on what is passed as input, it may computes scroes fo a subtree
+		 * or the whole tree.
+		 *
+		 * @param oBitsets The vector of bitset arrays to use.
+		 * @param oScores  The vector of score arrays to use.
+		 * @param oBitsets The bitset array where to store the resulting bitsets.
+		 * @param oScores  The score array where to write the resulting scores.
+		 */
+		static void computeScoresFromArrays(
+				const vector< const vector<Bitset>       *> & iBitsets,
+				const vector< const vector<unsigned int> *> & iScores,
+				vector<Bitset> & oBitsets,
+				vector<unsigned int> & oScores); 
+
+		/**
+		 * @name Thee NNISearchable interface.
+		 *
+		 * @{
+		 */
+		double testNNI(const Node * parent, const Node * son) const throw (NodeException);
+
+		void doNNI(Node * parent, Node * son) throw (NodeException);
+		/**@} */
 
 };
 

@@ -621,3 +621,16 @@ DistanceMatrix * TreeTools::getDistanceMatrix(const Tree & tree)
 
 /******************************************************************************/
 
+vector<const Node *> TreeTools::getRemainingNeighbors(const Node * node1, const Node * node2, const Node * node3)
+{
+	vector<const Node *> neighbors = node1->getNeighbors();
+	vector<const Node *> neighbors2;
+	for(unsigned int k = 0; k < neighbors.size(); k++) {
+		const Node * n = neighbors[k];
+		if(n != node1 && n != node2) neighbors2.push_back(n);
+	}
+	return neighbors2;
+}
+
+/******************************************************************************/
+

@@ -7,8 +7,6 @@
 /*
 Copyright or © or Copr. Julien Dutheil, (November 16, 2004)
 
-Julien.Dutheil@univ-montp2.fr
-
 This software is a computer program whose purpose is to provide classes
 for phylogenetic data analysis.
 
@@ -333,6 +331,8 @@ class Node {
 				
 		virtual void swap(unsigned int branch1, unsigned int branch2);
 
+		virtual unsigned int getSonPosition(const Node & son) const;
+
 		/** @} */
 
 		// These functions must not be declared as virtual!!
@@ -345,7 +345,8 @@ class Node {
 		
 		/**
 		 * @name Operators:
-		 * - a positive value send the corresponding son
+		 * 
+		 * - a positive value send the corresponding son;
 		 * - a negative value send the father.
 		 *
 		 * @{

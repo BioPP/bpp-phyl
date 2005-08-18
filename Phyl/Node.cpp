@@ -101,6 +101,13 @@ vector<Node *> Node::getNeighbors()
 	for(unsigned int i = 0; i < _sons.size(); i++) neighbors.push_back(_sons[i]);
 	return neighbors;
 }
-	
+
+unsigned int Node::getSonPosition(const Node & son) const
+{
+	for(unsigned int i = 0; i < _sons.size(); i++) {
+		if(_sons[i] == &son) return i;
+	}
+}
+
 /******************************************************************************/
 
