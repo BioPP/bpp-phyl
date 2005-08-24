@@ -1,7 +1,7 @@
 //
-// File: SequenceSimulator.h
+// File: SiteSimulator.h
 // Created by: Julien Dutheil
-// Created on: Wed Feb  4 16:30:51 2004
+// created on: wed aug  24 15:20 2005
 //
 
 /*
@@ -37,26 +37,30 @@ The fact that you are presently reading this means that you have had
 knowledge of the CeCILL license and that you accept its terms.
 */
 
-#ifndef _SEQUENCESIMULATOR_H_
-#define _SEQUENCESIMULATOR_H_
+#ifndef _SITESIMULATOR_H_
+#define _SITESIMULATOR_H_
 
 // From SeqLib:
-#include <Seq/SiteContainer.h>
+#include <Seq/Site.h>
 
 /**
- * @brief The SequenceSimulator interface.
- * SequenceSimulator classes can simulate whole datasets.
+ * @brief The SiteSimulator interface.
+ * SiteSimulator classes can simulate single sites.
+ *
+ * @see SequenceSimulator interface for simulating whole sequence sets.
  */
-class SequenceSimulator
+class SiteSimulator
 {
 	public:
-		SequenceSimulator() {}
-		virtual ~SequenceSimulator() {}
-	
+		SiteSimulator() {}
+		~SiteSimulator() {}
+		
 	public:
-		virtual SiteContainer * simulate(unsigned int numberOfSites) const = 0;
-	
+		virtual Site * simulate() const = 0;
+		virtual Site * simulate(int ancestralState) const = 0;
+		virtual Site * simulate(int ancestralState, double rate) const = 0;
+		virtual Site * simulate(double rate) const = 0;
 };
 
-#endif	//_SEQUENCESIMULATOR_H_
+#endif // _SITESIMULATOR_H_
 

@@ -37,6 +37,9 @@ PGMA.h\
 PhylipDistanceMatrixFormat.h\
 ProteinSubstitutionModel.h\
 SequenceSimulator.h\
+SiteSimulator.h\
+PreciseSequenceSimulator.h\
+HomogeneousSequenceSimulator.h\
 SubstitutionModel.h\
 T92.h\
 TN93.h\
@@ -85,7 +88,7 @@ PatternTools.cpp\
 PGMA.cpp\
 PhylipDistanceMatrixFormat.cpp\
 ProteinSubstitutionModel.cpp\
-SequenceSimulator.cpp\
+HomogeneousSequenceSimulator.cpp\
 SubstitutionModel.cpp\
 T92.cpp\
 TN93.cpp\
