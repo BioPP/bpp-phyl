@@ -228,16 +228,6 @@ VVdouble HomogeneousTreeLikelihood::getPosteriorProbabilitiesOfEachRate() const
 	
 /******************************************************************************/
 
-Vint HomogeneousTreeLikelihood::getRateClassWithMaxPostProbOfEachSite() const
-{
-	VVdouble l = getLikelihoodForEachSiteForEachRateClass();
-	Vint classes(_nbSites);
-	for(unsigned int i = 0; i < _nbSites; i++) classes[i] = posmax<double>(l[i]);
-	return classes;
-}
-
-/******************************************************************************/
-
 Vdouble HomogeneousTreeLikelihood::getRateWithMaxPostProbOfEachSite() const
 {
 	VVdouble l = getLikelihoodForEachSiteForEachRateClass();

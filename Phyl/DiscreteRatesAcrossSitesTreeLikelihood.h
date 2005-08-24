@@ -156,7 +156,7 @@ class DiscreteRatesAcrossSitesTreeLikelihood: public virtual TreeLikelihood
 		 *
 		 * @return A vector with all rate classes indexes.
 		 */
-		virtual Vint getRateClassWithMaxPostProbOfEachSite() const = 0;
+		virtual vector<unsigned int> getRateClassWithMaxPostProbOfEachSite() const = 0;
 
 		/**
 		 * @brief Get the posterior rate (the one with maximum posterior

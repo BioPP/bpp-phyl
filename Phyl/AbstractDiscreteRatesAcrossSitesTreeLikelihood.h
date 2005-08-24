@@ -87,7 +87,7 @@ class AbstractDiscreteRatesAcrossSitesTreeLikelihood:
 		VVVdouble getLogLikelihoodForEachSiteForEachRateClassForEachState() const;
 		VVdouble getPosteriorProbabilitiesOfEachRate() const;
 		Vdouble  getRateWithMaxPostProbOfEachSite() const;
-		Vint     getRateClassWithMaxPostProbOfEachSite() const;
+		vector<unsigned int> getRateClassWithMaxPostProbOfEachSite() const;
 		Vdouble  getPosteriorRateOfEachSite() const;
 		/** @} */
 

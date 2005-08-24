@@ -5,45 +5,7 @@
 //
 
 /*
-Copyright ou © ou Copr. CNRS, (16 Novembre 2004) 
-
-Julien.Dutheil@univ-montp2.fr
-
-Ce logiciel est un programme informatique servant à fournir des classes
-pour l'analyse de données phylogénétiques.
-
-Ce logiciel est régi par la licence CeCILL soumise au droit français et
-respectant les principes de diffusion des logiciels libres. Vous pouvez
-utiliser, modifier et/ou redistribuer ce programme sous les conditions
-de la licence CeCILL telle que diffusée par le CEA, le CNRS et l'INRIA 
-sur le site "http://www.cecill.info".
-
-En contrepartie de l'accessibilité au code source et des droits de copie,
-de modification et de redistribution accordés par cette licence, il n'est
-offert aux utilisateurs qu'une garantie limitée.  Pour les mêmes raisons,
-seule une responsabilité restreinte pèse sur l'auteur du programme,  le
-titulaire des droits patrimoniaux et les concédants successifs.
-
-A cet égard  l'attention de l'utilisateur est attirée sur les risques
-associés au chargement,  à l'utilisation,  à la modification et/ou au
-développement et à la reproduction du logiciel par l'utilisateur étant 
-donné sa spécificité de logiciel libre, qui peut le rendre complexe à 
-manipuler et qui le réserve donc à des développeurs et des professionnels
-avertis possédant  des  connaissances  informatiques approfondies.  Les
-utilisateurs sont donc invités à charger  et  tester  l'adéquation  du
-logiciel à leurs besoins dans des conditions permettant d'assurer la
-sécurité de leurs systèmes et ou de leurs données et, plus généralement, 
-à l'utiliser et l'exploiter dans les mêmes conditions de sécurité. 
-
-Le fait que vous puissiez accéder à cet en-tête signifie que vous avez 
-pris connaissance de la licence CeCILL, et que vous en avez accepté les
-termes.
-*/
-
-/*
 Copyright or © or Copr. CNRS, (November 16, 2004)
-
-Julien.Dutheil@univ-montp2.fr
 
 This software is a computer program whose purpose is to provide classes
 for phylogenetic data analysis.
@@ -96,6 +58,20 @@ knowledge of the CeCILL license and that you accept its terms.
 #include <vector>
 using namespace std;
 
+//---------------------------------------------------------------------------
+
+class SiteSimulator
+{
+	public:
+		SiteSimulator() {}
+		~SiteSimulator() {}
+		
+	public:
+		virtual Site * simulate() const = 0;
+		virtual Site * simulate(int ancestralState) const = 0;
+		virtual Site * simulate(int ancestralState, double rate) const = 0;
+		virtual Site * simulate(double rate) const = 0;
+};
 
 //---------------------------------------------------------------------------
 
@@ -165,7 +141,6 @@ class SequenceSimulator
 		virtual ~SequenceSimulator() {}
 	
 	public:
-		virtual Site * simulate() const = 0;
 		virtual SiteContainer * simulate(unsigned int numberOfSites) const = 0;
 		virtual SequenceSimulationResult * preciseSimulate() const = 0;
 	
@@ -178,7 +153,7 @@ class SequenceSimulator
  *
  * Instances of this class should be used when a detailed output of the simulation is needed.
  */
-class PreciseSequenceSimulator: public SequenceSimulator
+class PreciseSequenceSimulator: public virtual SequenceSimulator
 {
 	public:
 		PreciseSequenceSimulator() {}
@@ -215,7 +190,7 @@ class HomogeneousSequenceSimulationResult: public SequenceSimulationResult
 
 //---------------------------------------------------------------------------
 
-class HomogeneousSequenceSimulator: public PreciseSequenceSimulator
+class HomogeneousSequenceSimulator: public virtual PreciseSequenceSimulator, public virtual SiteSimulator
 {
 	protected:
 		const MutationProcess * _process;
@@ -240,7 +215,7 @@ class HomogeneousSequenceSimulator: public PreciseSequenceSimulator
 		 * @brief Stores intermediate results.
 		 */
 		mutable map<const Node *, int> _states;
-		mutable map<const Node *, Vint *> _multipleStates;
+		mutable map<const Node *, const Vint *> _multipleStates;
 		mutable HomogeneousSequenceSimulationResult * _hssr;
 		mutable map<const Node *, VVVdouble> _cumpxy;
 	
@@ -263,8 +238,12 @@ class HomogeneousSequenceSimulator: public PreciseSequenceSimulator
 		 * @{
 		 */
 		Site * simulate() const;
+		Site * simulate(int ancestralState) const;
+		Site * simulate(int ancestralState, double rate) const;
+		Site * simulate(double rate) const;
 		SiteContainer * simulate(unsigned int numberOfSites) const;
 		/** @} */
+		virtual Site * simulate(int ancestralState, unsigned int rateClass) const;
 
 		/**
 		 * @name the PreciseSequenceSimulator interface.
@@ -303,14 +282,30 @@ class HomogeneousSequenceSimulator: public PreciseSequenceSimulator
 		const TreeTemplate<Node> * getTree() const;
 	
 	protected:
-		int evolve(int initialState, const Node * node, int rateClass) const;
-		void multipleEvolve(Vint & initialState, const Node * node, Vint & rateClasses, Vint & finalStates) const;
-		Site * evolve(int initialState, int rateClass) const;
-		SiteContainer * multipleEvolve(Vint & initialStates, Vint & rateClasses) const;
-		void preciseEvolve(int initialState, int rateClass) const;
-		void evolveInternal(const Node * node, int rateClass) const;
-		void multipleEvolveInternal(const Node * node, Vint & rateClasses) const;
-		void preciseEvolveInternal(const Node * node, int rateClass) const;
+		
+		/**
+		 * @brief Evolve from an initial state along a branch, knowing the evolutionary rate class.
+		 *
+		 * This method is fast since all pijt have been computed in the constructor of the class.
+		 */
+		int evolve(int initialState, const Node * node, unsigned int rateClass) const;
+		
+		/**
+		 * @brief Evolve from an initial state along a branch, knowing the evolutionary rate.
+		 *
+		 * This method is slower than the privious one since exponential terms must be computed.
+		 */
+		int evolve(int initialState, const Node * node, double rate) const;
+		
+		void evolveInternal(const Node * node, unsigned int rateClass) const;
+		void evolveInternal(const Node * node, double rate) const;
+		
+		void multipleEvolve(const Vint & initialState, const Node * node, const vector<unsigned int> & rateClasses, Vint & finalStates) const;
+		void multipleEvolveInternal(const Node * node, const vector<unsigned int> & rateClasses) const;
+		SiteContainer * multipleEvolve(const Vint & initialStates, const vector<unsigned int> & rateClasses) const;
+		
+		void preciseEvolve(int initialState, unsigned int rateClass) const;
+		void preciseEvolveInternal(const Node * node, unsigned int rateClass) const;
 
 };
 

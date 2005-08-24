@@ -224,7 +224,6 @@ class HomogeneousTreeLikelihood :
 		double getLogLikelihoodForASiteForARateClassForAState(unsigned int site, unsigned int rateClass, int state) const;
 		VVdouble getPosteriorProbabilitiesOfEachRate() const;
 		Vdouble  getRateWithMaxPostProbOfEachSite() const;
-		Vint     getRateClassWithMaxPostProbOfEachSite() const;
 		Vdouble  getPosteriorRateOfEachSite() const;
 		/** @} */
 
