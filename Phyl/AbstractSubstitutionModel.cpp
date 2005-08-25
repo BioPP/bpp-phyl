@@ -101,11 +101,11 @@ double AbstractSubstitutionModel::Qij(int i, int j) const { return _generator(i,
 
 
 
-double AbstractSubstitutionModel::Pij_t(int i, int j, double t) const {	return getPij_t(t)(i,j); }
+double AbstractSubstitutionModel::Pij_t(int i, int j, double t) const {	return getPij_t(t)(i, j); }
 
-double AbstractSubstitutionModel::dPij_dt(int i, int j, double t) const { return getdPij_dt(t)(i,j); }
+double AbstractSubstitutionModel::dPij_dt(int i, int j, double t) const { return getdPij_dt(t)(i, j); }
 
-double AbstractSubstitutionModel::d2Pij_dt2(int i, int j, double t) const { return getd2Pij_dt2(t)(i,j); }	
+double AbstractSubstitutionModel::d2Pij_dt2(int i, int j, double t) const { return getd2Pij_dt2(t)(i, j); }	
 
 /******************************************************************************/
 

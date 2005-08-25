@@ -82,7 +82,9 @@ class HomogeneousSequenceSimulationResult: public SequenceSimulationResult
  *
  * Rate across sites variation is supported, using a DiscreteDistribution object or by specifying explicitely the rate of the sites to simulate.
  */
-class HomogeneousSequenceSimulator: public virtual PreciseSequenceSimulator, public virtual SiteSimulator
+class HomogeneousSequenceSimulator:
+	public virtual PreciseSequenceSimulator,
+	public virtual SiteSimulator
 {
 	protected:
 		const MutationProcess * _process;
@@ -133,8 +135,23 @@ class HomogeneousSequenceSimulator: public virtual PreciseSequenceSimulator, pub
 		Site * simulate(int ancestralState) const;
 		Site * simulate(int ancestralState, double rate) const;
 		Site * simulate(double rate) const;
+		vector<string> getSequencesNames() const { return _seqNames; }
+		/** @} */
+		/**
+		 * @name The SequenceSimulator interface
+		 *
+		 * @{
+		 */
 		SiteContainer * simulate(unsigned int numberOfSites) const;
 		/** @} */
+		/**
+		 * @name SiteSimulator and SequenceSimulator interface
+		 *
+		 * @{
+		 */
+		const Alphabet * getAlphabet() const { return _alphabet; }
+		/** @} */
+
 		virtual Site * simulate(int ancestralState, unsigned int rateClass) const;
 
 		/**

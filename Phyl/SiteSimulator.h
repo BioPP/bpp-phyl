@@ -60,6 +60,8 @@ class SiteSimulator
 		virtual Site * simulate(int ancestralState) const = 0;
 		virtual Site * simulate(int ancestralState, double rate) const = 0;
 		virtual Site * simulate(double rate) const = 0;
+		virtual vector<string> getSequencesNames() const = 0;
+		virtual const Alphabet * getAlphabet() const = 0;
 };
 
 #endif // _SITESIMULATOR_H_

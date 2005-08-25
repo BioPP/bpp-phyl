@@ -55,7 +55,7 @@ class SequenceSimulator
 	
 	public:
 		virtual SiteContainer * simulate(unsigned int numberOfSites) const = 0;
-	
+		virtual const Alphabet * getAlphabet() const = 0;	
 };
 
 #endif	//_SEQUENCESIMULATOR_H_

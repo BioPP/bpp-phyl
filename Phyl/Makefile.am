@@ -54,7 +54,8 @@ DiscreteRatesAcrossSitesTreeLikelihood.h\
 RASTools.h\
 TreeParsimonyScore.h\
 AbstractTreeParsimonyScore.h\
-DRTreeParsimonyScore.h
+DRTreeParsimonyScore.h\
+SequenceSimulationTools.h
 
 
 CPP_FILES = \
@@ -97,13 +98,14 @@ TreeLikelihood.cpp\
 TreeTools.cpp\
 RASTools.cpp\
 AbstractTreeParsimonyScore.cpp\
-DRTreeParsimonyScore.cpp
+DRTreeParsimonyScore.cpp\
+SequenceSimulationTools.cpp
 
 CPP_EXTRA = \
-DSO78FrequenciesCode.cpp\
-DSO78ExchangeabilityCode.cpp\
-JTT92FrequenciesCode.cpp\
-JTT92ExchangeabilityCode.cpp
+__DSO78FrequenciesCode\
+__DSO78ExchangeabilityCode\
+__JTT92FrequenciesCode\
+__JTT92ExchangeabilityCode
 
 lib_LTLIBRARIES = libphyl.la
 libphyl_la_SOURCES = $(H_FILES) $(CPP_FILES)
