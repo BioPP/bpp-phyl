@@ -38,14 +38,7 @@ knowledge of the CeCILL license and that you accept its terms.
 */
 
 #include "ApplicationTools.h"
-#include "JCnuc.h"
-#include "K80.h"
-#include "T92.h"
-#include "HKY85.h"
-#include "TN93.h"
-#include "DSO78.h"
-#include "JTT92.h"
-#include "JCprot.h"
+#include "models"
 #include "OptimizationTools.h"
 #include "Tree.h"
 #include "Newick.h"
@@ -518,7 +511,11 @@ SubstitutionModel * ApplicationTools::getSubstitutionModel(
 		} else if(modelName == "JTT92") {
 			model = new JTT92(alpha);
 			if(useObsFreq && data != NULL) dynamic_cast<JTT92 *>(model) -> setFreqFromData(*data);	
-		} else {
+		} else if(modelName == "empirical") {
+			string file = ApplicationTools::getAFilePath("model_empirical.file", params, true, true, suffix, true);
+			model = new UserProteinSubstitutionModel(alpha, file);
+			if(useObsFreq && data != NULL) dynamic_cast<UserProteinSubstitutionModel *>(model) -> setFreqFromData(*data);	
+			} else {
 			displayError("Model '" + modelName + "' unknown. Aborting...");
 		}
  		if(verbose) {

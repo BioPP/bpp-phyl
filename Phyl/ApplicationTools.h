@@ -416,18 +416,20 @@ class ApplicationTools
 		 * @brief Build a SubstitutionModel object according to options.
 		 *
 		 * Options used are:
-		 * - model = [JCnuc|K80|T92|HKY85|TN93|JCprot|DSO78|JTT92], the substitution model to use.
+		 * - model = [JCnuc|K80|T92|HKY85|TN93|JCprot|DSO78|JTT92|empirical], the substitution model to use.
 		 * Options depending on the model specified:
 		 * - If K80, T92 or HKY85 is to be used:
-		 *   - kappa The transition/transversion ratio.
+		 *   + kappa The transition/transversion ratio.
 		 * - If T92 format is to be used:
-		 *   - theta The GC ratio, or
+		 *   + theta The GC ratio, or
 		 * - If HKY or TN93 is to be used:
-		 *   - piA, piT, piC and piG: equilibrum frequencies.
+		 *   + piA, piT, piC and piG: equilibrum frequencies.
 		 * - If TN93 is to be used:
-		 *   - kappa1, kappa2 The transition/transversion ratios.
-		 * - If TN93, HKY85 or T92 is to be used:
-		 *   - model.use_observed_freq Tell if we must use the observed frequences. 
+		 *   + kappa1, kappa2 The transition/transversion ratios.
+		 * - If TN93, HKY85, T92, JTT92, DSO78 or empirical is to be used:
+		 *   + model.use_observed_freq Tell if we must use the observed frequences. 
+		 * - If empirical is to be used;
+		 *   + model_empirical.file Give the path toward the data file to use, in PAML format.
 		 *
 		 * @param alphabet The alpbaet to use in the model.
 		 * @param data     A pointer toward the SiteContainer for which the substitution model is designed.

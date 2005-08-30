@@ -1,6 +1,6 @@
 //
 // File: JTT92.cpp
-// Created by: jdutheil <Julien.Dutheil@univ-montp2.fr>
+// Created by: Julien Dutheil>
 // Created on: Wed Jan 21 14:09:43 2004
 //
 
@@ -38,8 +38,6 @@ knowledge of the CeCILL license and that you accept its terms.
 */
 
 #include "JTT92.h"
-
-using namespace std;
 
 /******************************************************************************/
 

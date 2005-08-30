@@ -837,6 +837,9 @@ void DRHomogeneousTreeLikelihood::computeRootLikelihood()
 			}
 			_rootLikelihoodsSR[i] += p[c] * (* _rootLikelihoodsS_i)[c];
 		}
+
+		//Final checking (for numerical errors):
+		if(_rootLikelihoodsSR[i] < 0) _rootLikelihoodsSR[i] = 0.;
 	}
 
 	

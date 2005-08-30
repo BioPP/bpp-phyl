@@ -1,7 +1,7 @@
 //
-// File: DSO78.h
-// Created by: jdutheil <Julien.Dutheil@univ-montp2.fr>
-// Created on: Tue Oct 05 18:49:44 2004
+// File: UserProteinSubstitutionModel.h
+// Created by: Julien Dutheil
+// Created on: Wed Aug 26 16:27 2005
 //
 
 /*
@@ -37,24 +37,38 @@ The fact that you are presently reading this means that you have had
 knowledge of the CeCILL license and that you accept its terms.
 */
 
-#ifndef _DSO78_H_
-#define _DSO78_H_
+#ifndef _USERPROTEINSUBSTITUTIONMODEL_H_
+#define _USERPROTEINSUBSTITUTIONMODEL_H_
 
 #include "ProteinSubstitutionModel.h"
 
 // From SeqLib:
 #include <Seq/ProteicAlphabet.h>
 
-class DSO78 : public virtual ProteinSubstitutionModel
+/**
+ * @brief Build an empirical protein substitution model from a file.
+ * The file must follow PAML's format, and contain the symetric component (S(i,j))
+ * and all equilibrium frequencies (F(i)).
+ * The generator is build so that Q(i,j) = F(i)*S(i,j), and is normalized
+ * so that sum_i Q(i,i)*F(i) = -1.
+ */
+class UserProteinSubstitutionModel: public virtual ProteinSubstitutionModel
 {
+	protected:
+		const string _path;
+	
 	public:
-		DSO78(const ProteicAlphabet * alpha);
-		virtual ~DSO78() {}
-		
+		UserProteinSubstitutionModel(const ProteicAlphabet * alpha, const string & path);
+		virtual ~UserProteinSubstitutionModel() {}
+			
 	public:
 		string getName() const;
 
+	protected:
+		void readFromFile();
+
 };
 
+#endif //_USERPROTEINSUBSTITUTIONMODEL_H_
 
-#endif	//_DSO78_H_
+

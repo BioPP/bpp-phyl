@@ -159,12 +159,12 @@ void AbstractHomogeneousTreeLikelihood::initBranchLengthsParameters()
 {
 	for(unsigned int i = 0; i < _nbNodes; i++) {
 		double d = _nodes[i] -> getDistanceToFather();
-		if (d <= 0) {
-			cout << "WARNING!!! Branch length " << i << " is <=0. Value is set to 0.000001." << endl;
-			_nodes[i] -> setDistanceToFather(0.000001);
-			d = 0.000001;
+		if (d < 0) {
+			cout << "WARNING!!! Branch length " << i << " is <0. Value is set to 0." << endl;
+			_nodes[i] -> setDistanceToFather(0.);
+			d = 0.;
 		}
-		_brLenParameters.addParameter(Parameter("BrLen" + TextTools::toString(i), d, & Parameter::R_PLUS_STAR));
+		_brLenParameters.addParameter(Parameter("BrLen" + TextTools::toString(i), d, & Parameter::R_PLUS));
 	}
 }
 

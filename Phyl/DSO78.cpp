@@ -1,6 +1,6 @@
 //
 // File: DSO78.cpp
-// Created by: jdutheil <Julien.Dutheil@univ-montp2.fr>
+// Created by: Julien Dutheil
 // Created on: Tue Oct 05 18:48:19 2004
 //
 

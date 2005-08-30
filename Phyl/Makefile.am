@@ -55,7 +55,8 @@ RASTools.h\
 TreeParsimonyScore.h\
 AbstractTreeParsimonyScore.h\
 DRTreeParsimonyScore.h\
-SequenceSimulationTools.h
+SequenceSimulationTools.h\
+UserProteinSubstitutionModel.h
 
 
 CPP_FILES = \
@@ -99,7 +100,8 @@ TreeTools.cpp\
 RASTools.cpp\
 AbstractTreeParsimonyScore.cpp\
 DRTreeParsimonyScore.cpp\
-SequenceSimulationTools.cpp
+SequenceSimulationTools.cpp\
+UserProteinSubstitutionModel.cpp
 
 CPP_EXTRA = \
 __DSO78FrequenciesCode\

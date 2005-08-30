@@ -9,4 +9,6 @@
 #include "TN93.h"
 #include "DSO78.h"
 #include "JTT92.h"
+#include "JCprot.h"
+#include "UserProteinSubstitutionModel.h"
 

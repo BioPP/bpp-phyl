@@ -146,6 +146,7 @@ double HomogeneousTreeLikelihood::getLogLikelihoodForASite(unsigned int site) co
 		l += getLikelihoodForASiteForARateClass(site, i) * _rateDistribution -> getProbability(i);
 	}
 	//if(l <= 0.) cerr << "WARNING!!! Negative likelihood." << endl;
+	if(l<0) l=0; //May happen because of numerical errors.
 	return log(l);
 }
 

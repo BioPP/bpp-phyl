@@ -53,7 +53,15 @@ void ProteinSubstitutionModel::updateMatrices()
 {
 	// Now computes eigen values and vectors:
 	Mat Pi = MatrixTools::diag<Mat, double>(_freq);
-	_generator = MatrixTools::mult(Pi, _exchangeability);
+	_generator = MatrixTools::mult(_exchangeability, Pi);
+	// Compute diagonal elements:
+	for(unsigned int i = 0; i < _size; i++) {
+		double lambda = 0;
+		for(unsigned int j = 0; j < _size; j++) {
+			if(j!=i) lambda += _generator(i,j);
+		}
+		_generator(i,i) = -lambda;
+	}
 	// Normalization:
 	double scale = getScale();
 	MatrixTools::scale(_generator, 1/scale);
