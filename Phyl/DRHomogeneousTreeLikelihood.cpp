@@ -828,12 +828,13 @@ void DRHomogeneousTreeLikelihood::computeRootLikelihood()
 		Vdouble * _rootLikelihoodsS_i = & _rootLikelihoodsS[i];
 		_rootLikelihoodsSR[i] = 0;
 		for(unsigned int c = 0; c < _nbClasses; c++) {
-			(* _rootLikelihoodsS_i)[c] = 0;
 			//For each rate classe,
 			Vdouble * _rootLikelihoods_i_c = & (* _rootLikelihoods_i)[c];
+			double * _rootLikelihoodsS_i_c = & (* _rootLikelihoodsS_i)[c];
+			(* _rootLikelihoodsS_i_c) = 0;
 			for(unsigned int x = 0; x < _nbStates; x++) {
 				//For each initial state,
-				(* _rootLikelihoodsS_i)[c] += f[x] * (* _rootLikelihoods_i_c)[x];
+				(* _rootLikelihoodsS_i_c) += f[x] * (* _rootLikelihoods_i_c)[x];
 			}
 			_rootLikelihoodsSR[i] += p[c] * (* _rootLikelihoodsS_i)[c];
 		}
