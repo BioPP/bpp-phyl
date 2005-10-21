@@ -67,7 +67,7 @@ AbstractAgglomerativeDistanceMethod::getTree() const
 	return new TreeTemplate<Node>(* root);
 }
 			
-void AbstractAgglomerativeDistanceMethod::computeTree(bool rooted)
+void AbstractAgglomerativeDistanceMethod::computeTree(bool rooted) throw (Exception)
 {
 	// Initialization:
 	for(unsigned int i = 0; i < _matrix.size(); i++) {

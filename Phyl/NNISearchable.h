@@ -41,6 +41,32 @@ knowledge of the CeCILL license and that you accept its terms.
 #ifndef _NNISEARCHABLE_H_
 #define _NNISEARCHABLE_H_
 
+#include "Node.h"
+#include "TreeTemplate.h"
+
+/**
+ * @brief Class for notifying new toplogy change events.
+ */
+class TopologyChangeEvent
+{
+	protected:
+		string _message;
+		
+	public:
+		TopologyChangeEvent(): _message("") {}
+		TopologyChangeEvent(const string & message): _message(message) {}
+		virtual ~TopologyChangeEvent() {}
+
+	public:
+		/**
+		 * @brief Get the message associated to this event.
+		 *
+		 * @return The message associated to this event.
+		 */
+		virtual string getMessage() const { return _message; }
+
+};
+
 /**
  * @brief Interface for Nearest Neighbor Interchanged algorithms.
  *
@@ -66,14 +92,13 @@ knowledge of the CeCILL license and that you accept its terms.
  * -F is the focuse (parent) node,
  * -A and B are the son of F
  * -X is the parent of F and so on.
- * We work on rooted trees, whether this root as a biological sens or not.
  * Two NNI's are possible for branch (XF):
  * - swaping B<->C, which is the same as D<->A
  * - swaping A<->C, which is the same as D<->B
  * Because of the rooted representation, we'll consider B<->C and A<->C,
  * which are simpler to perform.
  *
- * For the root node we have:
+ * For unrooted tree, we have at the 'root' node:
  * <pre>
  * --------->
  *       D
@@ -97,16 +122,21 @@ class NNISearchable
 {
 	public:
 		NNISearchable() {}
-		~NNISearchable() {}
+		virtual ~NNISearchable() {}
 
 	public:
 
 		/**
 		 * @brief Send the score of a NNI movement, without performing it.
 		 *
+		 * This methods sends the score variation.
+		 * This variation must be negative if the new point is better,
+		 * i.e. the object is to be used with a minimizing optimization
+		 * (for consistence with Optimizer objects).
+		 *
 		 * @param parent The focus node.
 		 * @param son    The son node.
-		 * @return The score of the NNI.
+		 * @return The score variation of the NNI.
 		 * @throw NodeException If 'son' is not a son of 'parent'.
 		 */
 		virtual double testNNI(const Node * parent, const Node * son) const throw (NodeException) = 0;
@@ -119,6 +149,30 @@ class NNISearchable
 		 * @throw NodeException If 'son' is not a son of 'parent'.
 		 */
 		virtual void doNNI(Node * parent, Node * son) throw (NodeException) = 0;
+
+		/**
+		 * @brief Get the tree associated to this NNISearchable object.
+		 *
+		 * @return The tree associated to this instance.
+		 */
+		virtual Tree * getTree() = 0;
+
+		/**
+		 * @brief Get the tree associated to this NNISearchable object.
+		 *
+		 * @return The tree associated to this instance.
+		 */
+		virtual const Tree * getTree() const = 0;
+
+		/**
+		 * @brief notify a topology change event.
+		 *
+		 * This method is to be invoked after one or several NNI are performed.
+		 * It allows appropriate recomputations.
+		 *
+		 * @param event The topology change event.
+		 */
+		virtual void topologyChangePerformed(const TopologyChangeEvent & event) = 0;
 };
 
 #endif //_NNISEARCHABLE_H_

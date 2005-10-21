@@ -7,7 +7,7 @@ AbstractAgglomerativeDistanceMethod.h\
 AncestralStateReconstruction.h\
 MarginalAncestralStateReconstruction.h\
 AgglomerativeDistanceMethod.h\
-ApplicationTools.h\
+PhylogeneticsApplicationTools.h\
 DistanceEstimation.h\
 DistanceMatrix.h\
 DSO78.h\
@@ -56,7 +56,9 @@ TreeParsimonyScore.h\
 AbstractTreeParsimonyScore.h\
 DRTreeParsimonyScore.h\
 SequenceSimulationTools.h\
-UserProteinSubstitutionModel.h
+UserProteinSubstitutionModel.h\
+TopologySearch.h\
+NNITopologySearch.h
 
 
 CPP_FILES = \
@@ -65,7 +67,7 @@ AbstractTreeLikelihood.cpp\
 AbstractDiscreteRatesAcrossSitesTreeLikelihood.cpp\
 AbstractHomogeneousTreeLikelihood.cpp\
 AbstractAgglomerativeDistanceMethod.cpp\
-ApplicationTools.cpp\
+PhylogeneticsApplicationTools.cpp\
 DistanceEstimation.cpp\
 DSO78.cpp\
 PseudoNewtonOptimizer.cpp\
@@ -101,7 +103,8 @@ RASTools.cpp\
 AbstractTreeParsimonyScore.cpp\
 DRTreeParsimonyScore.cpp\
 SequenceSimulationTools.cpp\
-UserProteinSubstitutionModel.cpp
+UserProteinSubstitutionModel.cpp\
+NNITopologySearch.cpp
 
 CPP_EXTRA = \
 __DSO78FrequenciesCode\

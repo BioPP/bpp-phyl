@@ -39,7 +39,9 @@ knowledge of the CeCILL license and that you accept its terms.
 */
 
 #include "HomogeneousSequenceSimulator.h"
-#include "ApplicationTools.h"
+
+// From Utils:
+#include <Utils/ApplicationTools.h>
 
 // From SeqLib:
 #include <Seq/VectorSiteContainer.h>

@@ -39,7 +39,6 @@ knowledge of the CeCILL license and that you accept its terms.
 
 #include "AbstractHomogeneousTreeLikelihood.h"
 #include "PatternTools.h"
-#include "ApplicationTools.h"
 
 //From SeqLib:
 #include <Seq/SiteTools.h>
@@ -47,6 +46,7 @@ knowledge of the CeCILL license and that you accept its terms.
 
 // From Utils:
 #include <Utils/TextTools.h>
+#include <Utils/ApplicationTools.h>
 
 // From the STL:
 #include <iostream>

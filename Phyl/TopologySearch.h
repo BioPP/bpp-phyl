@@ -1,8 +1,7 @@
 //
-// File: NeighborJoining.h
+// File: TopologySearch.h
 // Created by: Julien Dutheil
-//             Vincent Ranwez
-// Created on: Thu jun 23 10:39 2005
+// Created on: Wed Oct 12 10:18 2005
 //
 
 /*
@@ -38,34 +37,35 @@ The fact that you are presently reading this means that you have had
 knowledge of the CeCILL license and that you accept its terms.
 */
 
-#include "AbstractAgglomerativeDistanceMethod.h"
+#ifndef _TOPOLOGYSEARCH_H_
+#define _TOPOLOGYSEARCH_H_
 
-class NeighborJoining : public virtual AbstractAgglomerativeDistanceMethod
+// From Utils:
+#include <Utils/Exceptions.h>
+
+// From the STL:
+#include <string>
+#include <vector>
+using namespace std;
+
+/**
+ * @brief Interface for topology search methods.
+ */
+class TopologySearch
 {
-	protected:
-		vector<double> _sumDist;
-		
 	public:
-		NeighborJoining() {}
-		NeighborJoining(const DistanceMatrix & matrix, bool rooted) throw (Exception): AbstractAgglomerativeDistanceMethod(matrix) 
-		{
-			_sumDist.resize(matrix.size());
-			computeTree(rooted);
-		}
-		~NeighborJoining() {}
+		TopologySearch() {}
+		virtual ~TopologySearch() {}
 
 	public:
-		void setDistanceMatrix(const DistanceMatrix & matrix)
-		{ 
-			AbstractAgglomerativeDistanceMethod::setDistanceMatrix(matrix);
-			_sumDist.resize(matrix.size());
-		}
-	
-	protected:
-		vector<unsigned int> getBestPair() throw (Exception);
-		vector<double> computeBranchLengthsForPair(const vector<unsigned int> & pair);
-		double computeDistancesFromPair(const vector<unsigned int> & pair, const vector<double> & branchLengths, unsigned int pos);
-		void finalStep(int idRoot);	
 
+		/**
+		 * @brief Performs the search.
+		 */
+		virtual void search() throw (Exception) = 0;
+			
 };
+
+
+#endif //_TOPOLOGYSEARCH_H_
 

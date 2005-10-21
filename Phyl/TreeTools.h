@@ -187,6 +187,53 @@ class TreeTools
 			ids.push_back(node.getId());
 		}
 
+		/**
+		 * @brief Retrieve all inner son nodes from a subtree.
+		 *
+		 * @param node The node that defines the subtree.
+		 * @return A vector of pointers toward each inner son node in the subtree.
+		 */
+		template<class N>
+		static vector<N *> getInnerNodes(N & node)
+		{
+			vector<N *> nodes;
+			getInnerNodes<N>(node, nodes);
+			return nodes;
+		}
+
+		template<class N>
+		static void getInnerNodes(N & node, vector<N *> & nodes)
+		{
+			if(node.isLeaf()) return; //Do not add leaves!
+			for(unsigned int i = 0; i < node.getNumberOfSons(); i++) {
+				getInnerNodes<N>(* node.getSon(i), nodes);
+			}
+			nodes.push_back(& node);
+		}
+
+		/**
+		 * @brief Retrieve all inner son nodes ids from a subtree.
+		 *
+		 * @param node The node that defines the subtree.
+		 * @return A vector of ids.
+		 */
+		static vector<int> getInnerNodesId(const Node & node)
+		{
+			vector<int> ids;
+			getInnerNodesId(node, ids);
+			return ids;
+		}
+
+		static void getInnerNodesId(const Node & node, vector<int> & ids)
+		{
+			if(node.isLeaf()) return; //Do not add leaves!
+			for(unsigned int i = 0; i < node.getNumberOfSons(); i++) {
+				getInnerNodesId(* node.getSon(i), ids);
+			}
+			ids.push_back(node.getId());
+		}
+
+
 		template<class N>
 		static vector<N *> searchNodeWithId(N & node, int id)
 		{
@@ -221,7 +268,15 @@ class TreeTools
 		 */
 		static unsigned int getNumberOfLeaves(const Node & node);
 
-    /**
+		/**
+		 * @brief Get the number of nodes of a subtree defined by a particular node.
+		 *
+		 * @param node The node defining the subtree to check.
+		 * @return The number of leaves.
+		 */
+		static unsigned int getNumberOfNodes(const Node & node);
+
+		/**
      * @brief Get the leaves names of a subtree defined by a particular node.
      *
 		 * @param node The node defining the subtree to check.
@@ -290,19 +345,25 @@ class TreeTools
 		 * @brief Get the parenthesis description of a subtree.
 		 *
 		 * @param node The node defining the subtree.
+		 * @param writeId Tells if node ids must be printed.
+		 *                This will overwrite bootstrap values if there are ones.
+		 *                Leaves id will be added to the leave names, separated by a '_' character.
 		 * @return A string in the parenthesis format.
 		 */
-		static string nodeToParenthesis(const Node & node);
-		static string nodeToParenthesis(const Tree & tree, int nodeId);
+		static string nodeToParenthesis(const Node & node, bool writeId = false);
+		static string nodeToParenthesis(const Tree & tree, int nodeId, bool writeId = false);
 
 		/**
 		 * @brief Get the parenthesis description of a tree.
 		 *
 		 * @param tree The tree to convert.
+		 * @param writeId Tells if node ids must be printed.
+		 *                This will overwrite bootstrap values if there are ones.
+		 *                Leaves id will be added to the leave names, separated by a '_' character.
 		 * @return A string in the parenthesis format.
 		 */
-		static string treeToParenthesis(const TreeTemplate<Node> & tree);
-		static string treeToParenthesis(const Tree & tree);
+		static string treeToParenthesis(const TreeTemplate<Node> & tree, bool writeId = false);
+		static string treeToParenthesis(const Tree & tree, bool writeId = false);
 		
 		/** @} */
 		

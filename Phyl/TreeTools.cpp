@@ -78,6 +78,17 @@ unsigned int TreeTools::getNumberOfLeaves(const Node & node)
 
 /******************************************************************************/
 
+unsigned int TreeTools::getNumberOfNodes(const Node & node)
+{
+	unsigned int nbNodes = 1;
+	for(unsigned int i = 0; i < node.getNumberOfSons(); i++) {
+		nbNodes += getNumberOfNodes(* node[i]);
+	}
+	return nbNodes;
+}
+
+/******************************************************************************/
+
 vector<string> TreeTools::getLeavesNames(const Node & node)
 {
 	vector<string> names;
@@ -266,27 +277,30 @@ TreeTemplate<Node> * TreeTools::parenthesisToTree(const string & description)
 
 /******************************************************************************/
 
-string TreeTools::nodeToParenthesis(const Node & node)
+string TreeTools::nodeToParenthesis(const Node & node, bool writeId)
 {
 	ostringstream s;
 	if(node.isLeaf()) {
 		s << node.getName();
 	} else {
 		s << "(";
-		s << nodeToParenthesis(* node[0]);
+		s << nodeToParenthesis(* node[0], writeId);
 		for(unsigned int i = 1; i < node.getNumberOfSons(); i++) {
-			s << "," << nodeToParenthesis(* node[i]);
+			s << "," << nodeToParenthesis(* node[i], writeId);
 		}
 		s << ")";
 	}
-	if(node.hasProperty(BOOTSTRAP)) s << * (const double *)(node.getProperty(BOOTSTRAP));
+	if(writeId) {
+		if(node.isLeaf()) s << "_";
+		s << node.getId();
+	} else if(node.hasProperty(BOOTSTRAP)) s << (dynamic_cast<const Number<double> *>(node.getProperty(BOOTSTRAP)) -> getValue());
 	if(node.hasDistanceToFather()) s << ":" << node.getDistanceToFather();
 	return s.str();	
 }
 
 /******************************************************************************/
 
-string TreeTools::nodeToParenthesis(const Tree & tree, int nodeId)
+string TreeTools::nodeToParenthesis(const Tree & tree, int nodeId, bool writeId)
 {
 	ostringstream s;
 	if(tree.isLeaf(nodeId)) {
@@ -294,20 +308,23 @@ string TreeTools::nodeToParenthesis(const Tree & tree, int nodeId)
 	} else {
 		s << "(";
 		vector<int> sonsId = tree.getSonsId(nodeId);
-		s << nodeToParenthesis(tree, sonsId[0]);
+		s << nodeToParenthesis(tree, sonsId[0], writeId);
 		for(unsigned int i = 1; i < sonsId.size(); i++) {
-			s << "," << nodeToParenthesis(tree, sonsId[i]);
+			s << "," << nodeToParenthesis(tree, sonsId[i], writeId);
 		}
 		s << ")";
 	}
-	if(tree.hasProperty(nodeId, BOOTSTRAP)) s << (dynamic_cast<const Number<double> *>(tree.getProperty(nodeId, BOOTSTRAP)) -> getValue());
+	if(writeId) {
+		if(tree.isLeaf(nodeId)) s << "_";
+		s << nodeId;
+	} else if(tree.hasProperty(nodeId, BOOTSTRAP)) s << (dynamic_cast<const Number<double> *>(tree.getProperty(nodeId, BOOTSTRAP)) -> getValue());
 	if(tree.hasDistanceToFather(nodeId)) s << ":" << tree.getDistanceToFather(nodeId);
 	return s.str();	
 }
 
 /******************************************************************************/
 
-string TreeTools::treeToParenthesis(const TreeTemplate<Node> & tree)
+string TreeTools::treeToParenthesis(const TreeTemplate<Node> & tree, bool writeId)
 {
 	ostringstream s;
 	s << "(";
@@ -315,12 +332,12 @@ string TreeTools::treeToParenthesis(const TreeTemplate<Node> & tree)
 	if(node -> isLeaf()) {
 		s << node -> getName();
 		for(unsigned int i = 0; i < node -> getNumberOfSons(); i++) {
-			s << "," << nodeToParenthesis(* node -> getSon(i));
+			s << "," << nodeToParenthesis(* node -> getSon(i), writeId);
 		}
 	} else {
-		s << nodeToParenthesis(* node -> getSon(0));
+		s << nodeToParenthesis(* node -> getSon(0), writeId);
 		for(unsigned int i = 1; i < node -> getNumberOfSons(); i++) {
-			s << "," << nodeToParenthesis(* node -> getSon(i));
+			s << "," << nodeToParenthesis(* node -> getSon(i), writeId);
 		}
 	}
 	s << ");" << endl;
@@ -329,7 +346,7 @@ string TreeTools::treeToParenthesis(const TreeTemplate<Node> & tree)
 
 /******************************************************************************/
 
-string TreeTools::treeToParenthesis(const Tree & tree)
+string TreeTools::treeToParenthesis(const Tree & tree, bool writeId)
 {
 	ostringstream s;
 	s << "(";
@@ -338,12 +355,12 @@ string TreeTools::treeToParenthesis(const Tree & tree)
 	if(tree.isLeaf(rootId)) {
 		s << tree.getNodeName(rootId);
 		for(unsigned int i = 0; i < sonsId.size(); i++) {
-			s << "," << nodeToParenthesis(tree, sonsId[i]);
+			s << "," << nodeToParenthesis(tree, sonsId[i], writeId);
 		}
 	} else {
 		s << nodeToParenthesis(tree, tree.getSonsId(rootId)[0]);
 		for(unsigned int i = 1; i < sonsId.size(); i++) {
-			s << "," << nodeToParenthesis(tree, sonsId[i]);
+			s << "," << nodeToParenthesis(tree, sonsId[i], writeId);
 		}
 	}
 	s << ");" << endl;
@@ -627,7 +644,7 @@ vector<const Node *> TreeTools::getRemainingNeighbors(const Node * node1, const 
 	vector<const Node *> neighbors2;
 	for(unsigned int k = 0; k < neighbors.size(); k++) {
 		const Node * n = neighbors[k];
-		if(n != node1 && n != node2) neighbors2.push_back(n);
+		if(n != node2 && n != node3) neighbors2.push_back(n);
 	}
 	return neighbors2;
 }

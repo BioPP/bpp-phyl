@@ -42,11 +42,14 @@ knowledge of the CeCILL license and that you accept its terms.
 #include "DistanceMatrix.h"
 #include "Tree.h"
 #include "PatternTools.h"
-#include "ApplicationTools.h"
+
+// From Utils:
+#include <Utils/ApplicationTools.h>
 
 // From SeqLib:
 #include <Seq/SiteTools.h>
 #include <Seq/Sequence.h>
+#include <Seq/AlignedSequenceContainer.h>
 
 // From the STL:
 #include <vector>

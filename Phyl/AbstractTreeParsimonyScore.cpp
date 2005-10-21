@@ -39,7 +39,9 @@ knowledge of the CeCILL license and that you accept its terms.
 
 #include "AbstractTreeParsimonyScore.h"
 #include "PatternTools.h"
-#include "ApplicationTools.h"
+
+// From Utils:
+#include <Utils/ApplicationTools.h>
 
 AbstractTreeParsimonyScore::AbstractTreeParsimonyScore(
 	TreeTemplate<Node> & tree,

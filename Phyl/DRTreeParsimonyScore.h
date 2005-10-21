@@ -42,6 +42,7 @@ knowledge of the CeCILL license and that you accept its terms.
 
 #include "AbstractTreeParsimonyScore.h"
 #include "NNISearchable.h"
+#include "TreeTools.h"
 
 // From the STL:
 #include <bitset>
@@ -87,6 +88,17 @@ class DRTreeParsimonyNodeData :
 		const vector<unsigned int> & getScoresArrayForNeighbor(const Node * neighbor) const
 		{
 			return _nodeScores[neighbor];
+		}
+
+		bool isNeighbor(const Node * neighbor) const
+		{
+			return _nodeBitsets.find(neighbor) != _nodeBitsets.end();
+		}
+
+		void eraseNeighborArrays()
+		{
+			_nodeBitsets.erase(_nodeBitsets.begin(), _nodeBitsets.end());
+			_nodeScores.erase(_nodeScores.begin(), _nodeScores.end());
 		}
 };
 
@@ -198,6 +210,8 @@ class DRTreeParsimonyData :
 		
 		void init(const SiteContainer & sites) throw (Exception);
 		void init(const Node * node, const SiteContainer & sites) throw (Exception);
+		void reInit() throw (Exception);
+		void reInit(const Node * node) throw (Exception);
 };
 
 /**
@@ -223,8 +237,6 @@ class DRTreeParsimonyScore :
 			throw (Exception);
 				
 		virtual ~DRTreeParsimonyScore();
-
-	public:
 
 	protected:
 		/**
@@ -301,6 +313,16 @@ class DRTreeParsimonyScore :
 		double testNNI(const Node * parent, const Node * son) const throw (NodeException);
 
 		void doNNI(Node * parent, Node * son) throw (NodeException);
+
+		Tree * getTree() { return _tree; }
+		
+		const Tree * getTree() const { return _tree; }
+		
+		void topologyChangePerformed(const TopologyChangeEvent & event)
+		{
+			_parsimonyData->reInit();
+			computeScores();
+		}
 		/**@} */
 
 };

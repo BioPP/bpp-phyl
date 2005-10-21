@@ -58,7 +58,7 @@ PGMA::getTree() const
 	return new TreeTemplate<Node>(* root);
 }
 	
-vector<unsigned int> PGMA::getBestPair()
+vector<unsigned int> PGMA::getBestPair() throw (Exception)
 {
 	vector<unsigned int> bestPair(2);
 	double distMin = -std::log(0.);
@@ -75,6 +75,10 @@ vector<unsigned int> PGMA::getBestPair()
 				bestPair[1] = jd;
 			}
 		}
+	}
+
+	if(distMin == -std::log(0.)) {
+		throw Exception("Unexpected error: no minimum found in the distance matrix.");
 	}
 
 	return bestPair;	

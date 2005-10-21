@@ -62,7 +62,7 @@ class PGMA : public virtual AbstractAgglomerativeDistanceMethod
 		
 	public:
 		PGMA() {}
-		PGMA(const DistanceMatrix & matrix, bool weighted = true): AbstractAgglomerativeDistanceMethod(matrix) 
+		PGMA(const DistanceMatrix & matrix, bool weighted = true) throw (Exception): AbstractAgglomerativeDistanceMethod(matrix) 
 		{
 			_weighted = weighted;
 			computeTree(true);
@@ -87,7 +87,7 @@ class PGMA : public virtual AbstractAgglomerativeDistanceMethod
 		bool isWeighted() const { return _weighted; }
 	
 	protected:
-		vector<unsigned int> getBestPair();
+		vector<unsigned int> getBestPair() throw (Exception);
 		vector<double> computeBranchLengthsForPair(const vector<unsigned int> & pair);
 		double computeDistancesFromPair(const vector<unsigned int> & pair, const vector<double> & branchLengths, unsigned int pos);
 		void finalStep(int idRoot);	

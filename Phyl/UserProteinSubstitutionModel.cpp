@@ -38,11 +38,11 @@ knowledge of the CeCILL license and that you accept its terms.
 */
 
 #include "UserProteinSubstitutionModel.h"
-#include "ApplicationTools.h"
 
 // From Utils:
 #include <Utils/FileTools.h>
 #include <Utils/TextTools.h>
+#include <Utils/ApplicationTools.h>
 #include <Utils/StringTokenizer.h>
 
 // From NumCalc:

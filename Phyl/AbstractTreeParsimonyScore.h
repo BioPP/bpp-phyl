@@ -98,9 +98,9 @@ class AbstractTreeParsimonyScore :
 		virtual ~AbstractTreeParsimonyScore() {}
 
 	public:
-		Tree * getTree() { return _tree; }
-		const Tree * getTree() const { return _tree; }
-		vector<unsigned int> getScoreForEachSite() const;
+		virtual Tree * getTree() { return _tree; }
+		virtual const Tree * getTree() const { return _tree; }
+		virtual vector<unsigned int> getScoreForEachSite() const;
 
 };
 

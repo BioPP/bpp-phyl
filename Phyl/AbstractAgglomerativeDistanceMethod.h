@@ -74,11 +74,11 @@ class AbstractAgglomerativeDistanceMethod : public virtual AgglomerativeDistance
 #endif
 		getTree() const;
 		
-		void computeTree(bool rooted);
+		void computeTree(bool rooted) throw (Exception);
 	
 
 	protected:
-		virtual vector<unsigned int> getBestPair() = 0;
+		virtual vector<unsigned int> getBestPair() throw (Exception) = 0;
 		virtual vector<double> computeBranchLengthsForPair(const vector<unsigned int> & pair) = 0;
 		virtual double computeDistancesFromPair(const vector<unsigned int> & pair, const vector<double> & branchLengths, unsigned int pos) = 0;
 		virtual void finalStep(int idRoot) = 0;

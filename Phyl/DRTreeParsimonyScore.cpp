@@ -38,12 +38,18 @@ knowledge of the CeCILL license and that you accept its terms.
 */
 
 #include "DRTreeParsimonyScore.h"
-#include "ApplicationTools.h"
 #include "PatternTools.h"
 #include "TreeTools.h" //Needed for NNIs
-//From NumCalc:
+
+// From Utils:
+#include <Utils/ApplicationTools.h>
+
+// From NumCalc:
 #include <NumCalc/VectorTools.h>
 using namespace VectorFunctions;
+
+// From SeqLib:
+#include <Seq/AlignedSequenceContainer.h>
 
 /******************************************************************************/
 
@@ -97,6 +103,7 @@ void DRTreeParsimonyData::init(const Node * node, const SiteContainer & sites) t
 	} else {
 		DRTreeParsimonyNodeData * nodeData = & _nodeData[node];
 		nodeData -> setNode(node);
+		nodeData -> eraseNeighborArrays();
 	
 		int nbSons = node -> getNumberOfSons();
 	
@@ -115,6 +122,40 @@ void DRTreeParsimonyData::init(const Node * node, const SiteContainer & sites) t
 	for(unsigned int l = 0; l < nbSonNodes; l++) {
 		//For each son node,
 		init(node -> getSon(l), sites);
+	}
+}
+
+void DRTreeParsimonyData::reInit() throw (Exception)
+{
+  reInit(_tree -> getRootNode());
+}
+
+void DRTreeParsimonyData::reInit(const Node * node) throw (Exception)
+{
+	if(node -> isLeaf()) {
+		return;
+	} else {
+		DRTreeParsimonyNodeData * nodeData = & _nodeData[node];
+		nodeData -> setNode(node);
+		nodeData -> eraseNeighborArrays();
+	
+		int nbSons = node -> getNumberOfSons();
+	
+		for(int n = (node -> hasFather() ? -1 : 0); n < nbSons; n++) {
+			const Node * neighbor = (* node)[n];
+			vector<Bitset> * neighborData_bitsets       = & nodeData -> getBitsetsArrayForNeighbor(neighbor);
+			vector<unsigned int> * neighborData_scores  = & nodeData -> getScoresArrayForNeighbor(neighbor);
+		
+			neighborData_bitsets -> resize(_nbDistinctSites);
+			neighborData_scores  -> resize(_nbDistinctSites);
+		}
+	}
+
+	// We initialize each son node:
+	unsigned int nbSonNodes = node -> getNumberOfSons();
+	for(unsigned int l = 0; l < nbSonNodes; l++) {
+		//For each son node,
+		reInit(node -> getSon(l));
 	}
 }
 
@@ -181,108 +222,75 @@ void DRTreeParsimonyScore::computeScoresPostorder(const Node * node)
 
 void DRTreeParsimonyScore::computeScoresPostorderForNode(const DRTreeParsimonyNodeData & pData, vector<Bitset> & rBitsets, vector<unsigned int> & rScores)
 {
-	const Node * node   = pData.getNode();
-	unsigned int nbSons = node -> getNumberOfSons();
-	if(nbSons != 2) throw Exception("DRTreeParsimonyScore::computeScoresPostorderForNode. Unimplemented for multifurcations.");
-	unsigned int nbPos  = rBitsets.size();
-	
-	const Node * node1 = node -> getSon(0);
-	const Node * node2 = node -> getSon(1);
-	const vector<Bitset> * son1Bitsets = & pData.getBitsetsArrayForNeighbor(node1);
-	const vector<Bitset> * son2Bitsets = & pData.getBitsetsArrayForNeighbor(node2);
-	const vector<unsigned int> * son1Scores = & pData.getScoresArrayForNeighbor(node1);
-	const vector<unsigned int> * son2Scores = & pData.getScoresArrayForNeighbor(node2);
-	for(unsigned int i = 0; i < nbPos; i++) {
-		rBitsets[i] = (*son1Bitsets)[i] & (*son2Bitsets)[i];
-		rScores[i]  = (*son1Scores)[i] + (*son2Scores)[i]; 
-		if(rBitsets[i] == 0) {
-			rBitsets[i] = (*son1Bitsets)[i] | (*son2Bitsets)[i];
-			rScores[i]++;
+	//First initialize the vectors from input:
+	const Node * node = pData.getNode();
+	const Node * source = node -> getFather();
+	vector<const Node *> neighbors = node -> getNeighbors();
+	unsigned int nbNeighbors = node -> degree();
+	vector< const vector<Bitset>       *> iBitsets; 
+	vector< const vector<unsigned int> *> iScores;
+	for(unsigned int k = 0; k < nbNeighbors; k++) {
+		const Node * n = neighbors[k];
+		if(n != source) {
+			iBitsets.push_back(& pData.getBitsetsArrayForNeighbor(n));
+			iScores.push_back(& pData.getScoresArrayForNeighbor(n));
 		}
 	}
+	//Then call the general method on these arrays:
+	computeScoresFromArrays(iBitsets, iScores, rBitsets, rScores);
 }
 
 void DRTreeParsimonyScore::computeScoresPreorder(const Node * node)
 {
-	if(!node -> hasFather() || node -> getNumberOfSons() == 0) return;
+	if(node -> getNumberOfSons() == 0) return;
 	DRTreeParsimonyNodeData * pData = & _parsimonyData -> getNodeData(node);
-	const Node * father = node -> getFather();
-	vector<Bitset> * bitsets      = &pData -> getBitsetsArrayForNeighbor(father);
-	vector<unsigned int> * scores = &pData -> getScoresArrayForNeighbor(father);		
-	if(father -> isLeaf()) { // Means that the tree is rooted by a leaf... dunno if we must allow that! Let it be for now.
-		// son has no NodeData associated, must use LeafData instead
-		vector<Bitset> * sonBitsets = & _parsimonyData -> getLeafData(father).getBitsetsArray();
-		for(unsigned int i = 0; i < sonBitsets -> size(); i++) {
-			(*bitsets)[i] = (*sonBitsets)[i];
-			(*scores)[i]  = 0; 
+	if(node -> hasFather()) {
+		const Node * father = node -> getFather();
+		vector<Bitset> * bitsets      = &pData -> getBitsetsArrayForNeighbor(father);
+		vector<unsigned int> * scores = &pData -> getScoresArrayForNeighbor(father);		
+		if(father -> isLeaf()) { // Means that the tree is rooted by a leaf... dunno if we must allow that! Let it be for now.
+			// son has no NodeData associated, must use LeafData instead
+			vector<Bitset> * sonBitsets = & _parsimonyData -> getLeafData(father).getBitsetsArray();
+			for(unsigned int i = 0; i < sonBitsets -> size(); i++) {
+				(*bitsets)[i] = (*sonBitsets)[i];
+				(*scores)[i]  = 0; 
+			}
+		} else {
+			computeScoresPreorderForNode(
+					_parsimonyData -> getNodeData(father),
+					node,
+					*bitsets,
+					*scores);		
 		}
-	} else {
-		computeScoresPreorderForNode(
-				_parsimonyData -> getNodeData(father),
-				node,
-				*bitsets,
-				*scores);		
 	}
+	// Recurse call:
 	for(unsigned int k = 0; k < node -> getNumberOfSons(); k++) computeScoresPreorder(node -> getSon(k));
 }
 
 void DRTreeParsimonyScore::computeScoresPreorderForNode(const DRTreeParsimonyNodeData & pData, const Node * source, vector<Bitset> & rBitsets, vector<unsigned int> & rScores)
 {
-	const Node * node   = pData.getNode();
-	unsigned int nbSons = node -> getNumberOfSons();
-	if(nbSons != 2) throw Exception("DRTreeParsimonyScore::computeScoresPreorderForNode. Unimplemented for multifurcations.");
-	unsigned int nbPos  = rBitsets.size();
-
-	const Node * node1 = node -> getSon(0);
-	const Node * node2 = node -> getSon(1);
-	if(node1 == source) node1 = node -> getFather();
-	else                node2 = node -> getFather(); // node2 == source
-	const vector<Bitset> * son1Bitsets = & pData.getBitsetsArrayForNeighbor(node1);
-	const vector<Bitset> * son2Bitsets = & pData.getBitsetsArrayForNeighbor(node2);
-	const vector<unsigned int> * son1Scores = & pData.getScoresArrayForNeighbor(node1);
-	const vector<unsigned int> * son2Scores = & pData.getScoresArrayForNeighbor(node2);
-	for(unsigned int i = 0; i < nbPos; i++) {
-		rBitsets[i] = (*son1Bitsets)[i] & (*son2Bitsets)[i];
-		rScores[i]  = (*son1Scores)[i] + (*son2Scores)[i]; 
-		if(rBitsets[i] == 0) {
-			rBitsets[i] = (*son1Bitsets)[i] | (*son2Bitsets)[i];
-			rScores[i]++;
+	//First initialize the vectors from input:
+	const Node * node = pData.getNode();
+	vector<const Node *> neighbors = node -> getNeighbors();
+	unsigned int nbNeighbors = node -> degree();
+	vector< const vector<Bitset>       *> iBitsets; 
+	vector< const vector<unsigned int> *> iScores;
+	for(unsigned int k = 0; k < nbNeighbors; k++) {
+		const Node * n = neighbors[k];
+		if(n != source) {
+			iBitsets.push_back(& pData.getBitsetsArrayForNeighbor(n));
+			iScores.push_back(& pData.getScoresArrayForNeighbor(n));
 		}
 	}
+	//Then call the general method on these arrays:
+	computeScoresFromArrays(iBitsets, iScores, rBitsets, rScores);
 }
 
 void DRTreeParsimonyScore::computeScoresForNode(const DRTreeParsimonyNodeData & pData, vector<Bitset> & rBitsets, vector<unsigned int> & rScores)
 {
 	const Node * node   = pData.getNode();
 	unsigned int nbNeighbors = node -> degree();
-//	if(nbNeighbors != 3) throw Exception("DRTreeParsimonyScore::computeScoresForNode. Unimplemented for multifurcations.");
 	vector<const Node *> neighbors = node -> getNeighbors();
-//	unsigned int nbPos  = rBitsets.size();
-	
-//	const Node * node1 = neighbors[0];
-//	const Node * node2 = neighbors[1];
-//	const Node * node3 = neighbors[2];
-//	const vector<Bitset> * son1Bitsets = & pData.getBitsetsArrayForNeighbor(node1);
-//	const vector<Bitset> * son2Bitsets = & pData.getBitsetsArrayForNeighbor(node2);
-//	const vector<Bitset> * son3Bitsets = & pData.getBitsetsArrayForNeighbor(node3);
-//	const vector<unsigned int> * son1Scores = & pData.getScoresArrayForNeighbor(node1);
-//	const vector<unsigned int> * son2Scores = & pData.getScoresArrayForNeighbor(node2);
-//	const vector<unsigned int> * son3Scores = & pData.getScoresArrayForNeighbor(node3);
-//	for(unsigned int i = 0; i < nbPos; i++) {
-//		rBitsets[i] = (*son1Bitsets)[i] & (*son2Bitsets)[i];
-//		rScores[i]  = (*son1Scores)[i] + (*son2Scores)[i]; 
-//		if(rBitsets[i] == 0) {
-//			rBitsets[i] = (*son1Bitsets)[i] | (*son2Bitsets)[i];
-//			rScores[i] += 1;
-//		}
-//		rBitsets[i] &= (*son3Bitsets)[i];
-//		rScores[i] += (*son3Scores)[i]; 
-//		if(rBitsets[i] == 0) {
-//			rBitsets[i] |= (*son3Bitsets)[i];
-//			rScores[i] += 1;
-//		}
-//	}
-	//New method, use general function (and hence can work on multifurcations).
 	//First initialize the vectors fro input:
 	vector< const vector<Bitset>       *> iBitsets(nbNeighbors); 
 	vector< const vector<unsigned int> *> iScores(nbNeighbors);
@@ -337,12 +345,13 @@ void DRTreeParsimonyScore::computeScoresFromArrays(
 		const vector<Bitset> * bitsetsk = iBitsets[k];
 		const vector<unsigned int> * scoresk = iScores[k];
 		for(unsigned int i = 0; i < nbPos; i++) {
-			oBitsets[i] &= (*bitsetsk)[i];
+			Bitset bs = oBitsets[i] & (*bitsetsk)[i];
 			oScores[i] += (*scoresk)[i]; 
-			if(oBitsets[i] == 0) {
-				oBitsets[i] |= (*bitsetsk)[i];
+			if(bs == 0) {
+				bs = oBitsets[i] | (*bitsetsk)[i];
 				oScores[i] += 1;
 			}
+			oBitsets[i] = bs;
 		}
 	}
 }
@@ -357,7 +366,10 @@ double DRTreeParsimonyScore::testNNI(const Node * parent, const Node * son) cons
 	
 	const Node * grandFather = parent->getFather();
 	//From here: Bifurcation assumed.
-	const Node * uncle = grandFather->getSon(1 - grandFather->getSonPosition(*parent));
+	//In case of multifurcation, an arbitrary uncle is chosen.
+	//If we are at root node with a trifurcation, this does not matter, since 2 NNI are possible (see doc of the NNISearchable interface).
+	unsigned int parentPosition = grandFather->getSonPosition(*parent);
+	const Node * uncle = grandFather->getSon(parentPosition > 1 ? parentPosition -1 : 1 - parentPosition);
 	
 	//Retrieving arrays of interest:
 	const DRTreeParsimonyNodeData * parentData = & _parsimonyData->getNodeData(parent);
@@ -372,7 +384,7 @@ double DRTreeParsimonyScore::testNNI(const Node * parent, const Node * son) cons
 		parentBitsets[k] = & parentData->getBitsetsArrayForNeighbor(n); 
 		parentScores[k] = & parentData->getScoresArrayForNeighbor(n); 
 	}
-
+	
 	const DRTreeParsimonyNodeData * grandFatherData = & _parsimonyData->getNodeData(grandFather);
 	const vector<Bitset>          * uncleBitsets = & grandFatherData->getBitsetsArrayForNeighbor(uncle); 
 	const vector<unsigned int>    * uncleScores  = & grandFatherData->getScoresArrayForNeighbor(uncle); 
@@ -407,9 +419,11 @@ double DRTreeParsimonyScore::testNNI(const Node * parent, const Node * son) cons
 	computeScoresFromArrays(parentBitsets, parentScores, pBitsets, pScores);
 
 	//Final computation:
-	unsigned int score = sum<unsigned int>(pScores);
-
-	return (double)score;
+	unsigned int score = 0;
+	for(unsigned int i = 0; i < _nbDistinctSites; i++) {
+		score += pScores[i] * _parsimonyData -> getWeight(i);
+	}
+	return (double)score - (double)getScore();
 }
 
 /******************************************************************************/
@@ -421,14 +435,15 @@ void DRTreeParsimonyScore::doNNI(Node * parent, Node * son) throw (NodeException
 	if(son->getFather() != parent) throw NodeException("DRTreeParsimonyScore::doNNI(). Node 'son' must be a son of node 'parent'.", son);
 	Node * grandFather = parent->getFather();
 	//From here: Bifurcation assumed.
-	Node * uncle = grandFather->getSon(1 - grandFather->getSonPosition(*parent));
+	//In case of multifurcation, an arbitrary uncle is chosen.
+	//If we are at root node with a trifurcation, this does not matter, since 2 NNI are possible (see doc of the NNISearchable interface).
+	unsigned int parentPosition = grandFather->getSonPosition(*parent);
+	Node * uncle = grandFather->getSon(parentPosition > 1 ? parentPosition -1 : 1 - parentPosition);
 	//Swap nodes:
 	parent->removeSon(*son);
 	grandFather->removeSon(*uncle);
 	parent->addSon(*uncle);
 	grandFather->addSon(*son);
-	//Recompute scores and bitsets:
-	computeScores();
 }
 
 /******************************************************************************/
