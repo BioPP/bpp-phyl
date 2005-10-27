@@ -5,7 +5,7 @@
 //
 
 /*
-Copyright or © or Copr. Julien Dutheil, (November 16, 2004)
+Copyright or © or Copr. CNRS, (November 16, 2004)
 
 This software is a computer program whose purpose is to provide classes
 for phylogenetic data analysis.
@@ -48,14 +48,12 @@ knowledge of the CeCILL license and that you accept its terms.
 class ProteinSubstitutionModel : public virtual AbstractSubstitutionModel
 {
 	public:
-		ProteinSubstitutionModel(const Alphabet * alpha);
+		ProteinSubstitutionModel(const Alphabet * alpha): AbstractSubstitutionModel(alpha) {}
 
-		virtual ~ProteinSubstitutionModel();
+		virtual ~ProteinSubstitutionModel() {}
 		
-	protected:
-		void updateMatrices();
-
 };
 
 
 #endif	//_PROTEINSUBSTITUTIONMODEL_H_
+

@@ -48,8 +48,14 @@ JCnuc::JCnuc(const NucleicAlphabet * alpha): NucleotideSubstitutionModel(alpha),
 {
 	_parameters = ParameterList(); //no parameters for this model.	
 	
-	// Frequences:
+	// Frequencies:
 	_freq[0] = _freq[1] = _freq[2] = _freq[3] = 1. / 4.;
+	// Echangeability:
+	for(int i = 0; i < 4; i++) {
+		for(int j = 0; j < 4; j++) {
+			_exchangeability(i, j) = (i == j) ? -3. : 1.;
+		}
+	}
 	
 	updateMatrices();
 }
@@ -72,7 +78,23 @@ void JCnuc::updateMatrices()
 	_eigenValues[1] = _eigenValues[2] = _eigenValues[3] = -4. / 3.;
 	
 	// Eigen vectors:
-	// todo!
+	for(unsigned int i = 0; i < 4; i++) _leftEigenVectors(0,i) = 1./4.;
+	for(unsigned int i = 1; i < 4; i++) 
+		for(unsigned int j = 0; j < 4; j++)
+			_leftEigenVectors(i,j) = -1./4.;
+	_leftEigenVectors(1,0) = 3./4.;
+	_leftEigenVectors(2,1) = 3./4.;
+	_leftEigenVectors(3,2) = 3./4.;
+
+	for(unsigned int i = 0; i < 4; i++) _rightEigenVectors(i,0) = 1.;
+	for(unsigned int i = 1; i < 4; i++) _rightEigenVectors(3,i) = -1.;
+	for(unsigned int i = 1; i < 4; i++) 
+		for(unsigned int j = 1; j < 4; j++)
+			_rightEigenVectors(i,j) = 0.;
+	_rightEigenVectors(0,1) = 1.;
+	_rightEigenVectors(1,2) = 1.;
+	_rightEigenVectors(2,3) = 1.;
+
 }
 	
 /******************************************************************************/
@@ -240,3 +262,4 @@ string JCnuc::getName() const {
 }
 
 /******************************************************************************/
+

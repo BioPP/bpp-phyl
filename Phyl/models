@@ -7,6 +7,7 @@
 #include "T92.h"
 #include "HKY85.h"
 #include "TN93.h"
+#include "GTR.h"
 #include "DSO78.h"
 #include "JTT92.h"
 #include "JCprot.h"

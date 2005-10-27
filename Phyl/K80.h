@@ -66,5 +66,5 @@ class K80 : public virtual NucleotideSubstitutionModel
 
 };
 
-
 #endif	//_K80_H_
+

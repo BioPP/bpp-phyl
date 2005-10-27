@@ -106,8 +106,8 @@ class AbstractSubstitutionModel :
 		Mat getdPij_dt(double t) const;
 		Mat getd2Pij_dt2(double t) const;
 		Vec eigenValues() const;
-		Mat horizontalLeftEigenVectors() const;
-		Mat verticalRightEigenVectors() const;
+		Mat verticalLeftEigenVectors() const;
+		Mat horizontalRightEigenVectors() const;
 		double freq(int i) const;
 		double Qij(int i, int j) const;
 		double Pij_t    (int i, int j, double t) const;
@@ -117,20 +117,35 @@ class AbstractSubstitutionModel :
 		double getInitValue(int i, int state) const throw (BadIntException);
 		void setFreqFromData(const SequenceContainer & data);
 
-		void fireParameterChanged(const ParameterList & parameters) {}
+		void fireParameterChanged(const ParameterList & parameters)
+		{
+			updateMatrices();
+		}
 		
 	protected:
+
 		/**
 		 * @brief Compute and diagonalize the \f$Q\f$ matrix and fill the _eigenValues,
 		 * _leftEigenVectors and _rightEigenVectors fields.
 		 *
-		 * This routine uses the MTL interface to Lapack to compute eigen values
-		 * and vectors. However, the inverse of the right eigen vectors is used
-		 * as left eigen vectors, since the left eigen vectors sent by the lapack
-		 * geev routine is not exactly the inverse of the right eigen vectors.
-		 * (Dunno why though...)
+		 * The _exchangeability matrix and _freq vector must be initialized.
+		 * This function computes the _generator matrix with the formula
+		 * \f[
+		 * Q = S \times \Pi
+		 * \f]
+		 * where \f$Q\f$ is the genrator matrix, \f$S\f$ is the exchangeability matrix and
+		 * \f$Pi\f$ the diagonal matrix with frequencies.
+		 *
+		 * The generator is then scaled so that
+		 * \f[
+		 * \sum_i Q_{i,i} \times f_i = -1
+		 * \f]
+		 * (\f$f_i\f$ are the equilibrium frequencies).
+		 * 
+		 * Eigen values and vectors are computed from the scaled generator and assigned to the
+		 * _eigenValues, _rightEigenVectors and _leftEigenVectors variables.
 		 */
-		virtual void updateMatrices() = 0;
+		virtual void updateMatrices();
 
 		/**
 		 * @brief Get the scalar product of diagonal elements of the generator
@@ -145,3 +160,4 @@ class AbstractSubstitutionModel :
 
 
 #endif	//_ABSTRACTSUBSTITUTIONMODEL_H_
+

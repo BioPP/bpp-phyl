@@ -45,8 +45,7 @@ knowledge of the CeCILL license and that you accept its terms.
 // From the STL:
 #include <cmath>
 
-// From the MTL:
-//#include <mtl/mtl.h>
+// From NumCalc:
 #include <NumCalc/MatrixTools.h>
 
 /******************************************************************************/
@@ -118,13 +117,50 @@ void HKY85::updateMatrices()
 	
 	// Eigen values:
 	_eigenValues[0] = 0;
-	_eigenValues[1] = -r;
-	_eigenValues[2] = -r * (kappa * piY + piR);
-	_eigenValues[3] = -r * (kappa * piR + piY); 
+	_eigenValues[1] = -r * (kappa * piR + piY); 
+	_eigenValues[2] = -r;
+	_eigenValues[3] = -r * (kappa * piY + piR);
 	
 	// Eigen vectors:
-	//TODO!!!
+	_leftEigenVectors(0,0) = piA;
+	_leftEigenVectors(0,1) = piC;
+	_leftEigenVectors(0,2) = piG;
+	_leftEigenVectors(0,3) = piT;
 
+	_leftEigenVectors(1,0) = piG / piR;
+	_leftEigenVectors(1,1) = 0.;
+	_leftEigenVectors(1,2) = -piG / piR;
+	_leftEigenVectors(1,3) = 0.;
+
+	_leftEigenVectors(2,0) = piA*piY / piR;
+	_leftEigenVectors(2,1) = -piC;
+	_leftEigenVectors(2,2) = piG*piY / piR;
+	_leftEigenVectors(2,3) = -piT;
+
+	_leftEigenVectors(3,0) = 0.;
+	_leftEigenVectors(3,1) = piT / piY;
+	_leftEigenVectors(3,2) = 0.;
+	_leftEigenVectors(3,3) = -piT / piY;
+
+	_rightEigenVectors(0,0) = 1.;
+	_rightEigenVectors(0,1) = 1.;
+	_rightEigenVectors(0,2) = 1.;
+	_rightEigenVectors(0,3) = 0.;
+	
+	_rightEigenVectors(1,0) = 1.;
+	_rightEigenVectors(1,1) = 0.;
+	_rightEigenVectors(1,2) = -piR / piY;
+	_rightEigenVectors(1,3) = 1.;
+
+	_rightEigenVectors(2,0) = 1.;
+	_rightEigenVectors(2,1) = -piA / piG;
+	_rightEigenVectors(2,2) = 1.;
+	_rightEigenVectors(2,3) = 0.;
+
+	_rightEigenVectors(3,0) = 1.;
+	_rightEigenVectors(3,1) = 0.;
+	_rightEigenVectors(3,2) = -piR / piY;
+	_rightEigenVectors(3,3) = -piC / piT;
 }
 	
 /******************************************************************************/
@@ -463,3 +499,4 @@ void HKY85::setFreqFromData(const SequenceContainer & data) {
 }
 
 /******************************************************************************/
+

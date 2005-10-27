@@ -58,7 +58,8 @@ DRTreeParsimonyScore.h\
 SequenceSimulationTools.h\
 UserProteinSubstitutionModel.h\
 TopologySearch.h\
-NNITopologySearch.h
+NNITopologySearch.h\
+GTR.h
 
 
 CPP_FILES = \
@@ -86,12 +87,10 @@ Newick.cpp\
 NewtonBrentMetaOptimizer.cpp\
 Node.cpp\
 NonHomogeneousTreeLikelihood.cpp\
-NucleotideSubstitutionModel.cpp\
 OptimizationTools.cpp\
 PatternTools.cpp\
 PGMA.cpp\
 PhylipDistanceMatrixFormat.cpp\
-ProteinSubstitutionModel.cpp\
 HomogeneousSequenceSimulator.cpp\
 SubstitutionModel.cpp\
 T92.cpp\
@@ -104,7 +103,8 @@ AbstractTreeParsimonyScore.cpp\
 DRTreeParsimonyScore.cpp\
 SequenceSimulationTools.cpp\
 UserProteinSubstitutionModel.cpp\
-NNITopologySearch.cpp
+NNITopologySearch.cpp\
+GTR.cpp
 
 CPP_EXTRA = \
 __DSO78FrequenciesCode\
@@ -112,10 +112,10 @@ __DSO78ExchangeabilityCode\
 __JTT92FrequenciesCode\
 __JTT92ExchangeabilityCode
 
-lib_LTLIBRARIES = libphyl.la
-libphyl_la_SOURCES = $(H_FILES) $(CPP_FILES)
-EXTRA_libphyl_la_SOURCES = $(CPP_EXTRA)
-libphyl_la_LDFLAGS = -version-info 1:0:0
+lib_LTLIBRARIES = libbpp-phyl.la
+libbpp_phyl_la_SOURCES = $(H_FILES) $(CPP_FILES)
+EXTRA_libbpp_phyl_la_SOURCES = $(CPP_EXTRA)
+libbpp_phyl_la_LDFLAGS = -version-info 1:0:0
 
 library_includedir=$(includedir)/Phyl
 library_include_HEADERS = $(H_FILES)

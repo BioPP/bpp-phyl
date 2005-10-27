@@ -1,6 +1,6 @@
 //
 // File: TN93.cpp
-// Created by: jdutheil <Julien.Dutheil@univ-montp2.fr>
+// Created by: Julien Dutheil
 // Created on: Thu Jan 22 10:26:51 2004
 //
 
@@ -45,9 +45,9 @@ knowledge of the CeCILL license and that you accept its terms.
 // From the STL:
 #include <cmath>
 
-// From the MTL:
-//#include <mtl/mtl.h>
+// From NumCalc:
 #include <NumCalc/MatrixTools.h>
+#include <NumCalc/EigenValue.h>
 
 /******************************************************************************/
 
@@ -126,8 +126,9 @@ void TN93::updateMatrices()
 	_eigenValues[3] = -r * (kappa1 * piR + piY); 
 	
 	// Eigen vectors:
-	//TODO!!!
-
+	EigenValue<double> ev(_generator);
+	_rightEigenVectors = ev.getV();
+	_leftEigenVectors = MatrixTools::inv(_rightEigenVectors);
 }
 	
 /******************************************************************************/

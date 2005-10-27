@@ -1,6 +1,6 @@
 //
-// File: T92.h
-// Created by:  <Julien.Dutheil@univ-montp2.fr>
+// File: T92.cpp
+// Created by:  Julien Dutheil
 // Created on: Mon May 26 14:41:24 2003
 //
 
@@ -74,7 +74,8 @@ T92::~T92() {
 
 /******************************************************************************/
 
-void T92::updateMatrices() {
+void T92::updateMatrices()
+{
 	double kappa = _parameters.getParameter("kappa") -> getValue();
 	double theta = _parameters.getParameter("theta") -> getValue();
 	
@@ -103,11 +104,50 @@ void T92::updateMatrices() {
 	
 	// Eigen values:
 	_eigenValues[0] = 0;
-	_eigenValues[1] = -r * 2.;
-	_eigenValues[2] = _eigenValues[3] = -r * (1. + kappa); 
+	_eigenValues[1] = _eigenValues[2] = -r * (1. + kappa); 
+	_eigenValues[3] = -r * 2.;
 	
 	// Eigen vectors:
-	//TODO!!!
+	_leftEigenVectors(0,0) = - (theta - 1.)/2.;
+	_leftEigenVectors(0,1) = theta/2.;
+	_leftEigenVectors(0,2) = theta/2.;
+	_leftEigenVectors(0,3) = - (theta - 1.)/2.;
+	
+	_leftEigenVectors(1,0) = 0.;
+	_leftEigenVectors(1,1) = - (theta - 1.);
+	_leftEigenVectors(1,2) = 0.;
+	_leftEigenVectors(1,3) = theta - 1.;
+	
+	_leftEigenVectors(2,0) = theta;
+	_leftEigenVectors(2,1) = 0.;
+	_leftEigenVectors(2,2) = -theta;
+	_leftEigenVectors(2,3) = 0.;
+	
+	_leftEigenVectors(3,0) = - (theta - 1.)/2.;
+	_leftEigenVectors(3,1) = - theta/2.;
+	_leftEigenVectors(3,2) = theta/2.;
+	_leftEigenVectors(3,3) = (theta - 1.)/2.;
+
+
+	_rightEigenVectors(0,0) = 1.;
+	_rightEigenVectors(0,1) = 0.;
+	_rightEigenVectors(0,2) = 1.;
+	_rightEigenVectors(0,3) = 1.;
+	
+	_rightEigenVectors(1,0) = 1.;
+	_rightEigenVectors(1,1) = 1.;
+	_rightEigenVectors(1,2) = 0.;
+	_rightEigenVectors(1,3) = -1.;
+
+	_rightEigenVectors(2,0) = 1.;
+	_rightEigenVectors(2,1) = 0.;
+	_rightEigenVectors(2,2) = (theta-1.)/theta;
+	_rightEigenVectors(2,3) = 1.;
+	
+	_rightEigenVectors(3,0) = 1.;
+	_rightEigenVectors(3,1) = theta/(theta - 1.);
+	_rightEigenVectors(3,2) = 0;
+	_rightEigenVectors(3,3) = -1.;
 
 }
 	
@@ -417,3 +457,4 @@ void T92::setFreqFromData(const SequenceContainer & data) {
 }
 
 /******************************************************************************/
+

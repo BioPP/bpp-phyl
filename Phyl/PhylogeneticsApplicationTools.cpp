@@ -95,10 +95,50 @@ SubstitutionModel * PhylogeneticsApplicationTools::getSubstitutionModel(
 
 		const NucleicAlphabet * alpha = dynamic_cast<const NucleicAlphabet *>(alphabet);
 
-		if(modelName == "TN93") {
+		if(modelName == "GTR") {
 			double piA = 0.25, piC = 0.25, piG = 0.25, piT = 0.25;
-				double kappa1 = ApplicationTools::getDoubleParameter("kappa1", params, 2, suffix, suffixIsOptional);
-				double kappa2 = ApplicationTools::getDoubleParameter("kappa2", params, 2, suffix, suffixIsOptional);
+			double a = ApplicationTools::getDoubleParameter("a", params, 1, suffix, suffixIsOptional);
+			double b = ApplicationTools::getDoubleParameter("b", params, 1, suffix, suffixIsOptional);
+			double c = ApplicationTools::getDoubleParameter("c", params, 1, suffix, suffixIsOptional);
+			double d = ApplicationTools::getDoubleParameter("d", params, 1, suffix, suffixIsOptional);
+			double e = ApplicationTools::getDoubleParameter("e", params, 1, suffix, suffixIsOptional);
+			double f = ApplicationTools::getDoubleParameter("f", params, 1, suffix, suffixIsOptional);
+			bool useObsFreq = ApplicationTools::getBooleanParameter("model.use_observed_freq", params, false, suffix, suffixIsOptional);
+			if(useObsFreq && data != NULL) {
+				model = new GTR(alpha, a, b, c, d, e, f);
+				dynamic_cast<TN93 *>(model) -> setFreqFromData(*data);
+				piA = model -> getParameterValue("piA");
+				piC = model -> getParameterValue("piC");
+				piG = model -> getParameterValue("piG");
+				piT = model -> getParameterValue("piT");
+			} else {
+				piA = ApplicationTools::getDoubleParameter("piA", params, 0.25, suffix, suffixIsOptional);
+				piC = ApplicationTools::getDoubleParameter("piC", params, 0.25, suffix, suffixIsOptional);
+				piG = ApplicationTools::getDoubleParameter("piG", params, 0.25, suffix, suffixIsOptional);
+				piT = ApplicationTools::getDoubleParameter("piT", params, 0.25, suffix, suffixIsOptional);
+				if( fabs(1-(piA + piT + piG + piC)) > 0.00000000000001 ) {
+					ApplicationTools::displayError("Equilibrium base frequencies must equal 1. Aborting...");
+					exit(-1);
+				}
+				model = new GTR(alpha, a, b, c, d, e, f, piA, piC, piG, piT);
+			}
+			if(verbose) {
+				ApplicationTools::displayResult("model" , modelName);
+				ApplicationTools::displayResult("a", TextTools::toString(a));
+				ApplicationTools::displayResult("b", TextTools::toString(b));
+				ApplicationTools::displayResult("c", TextTools::toString(c));
+				ApplicationTools::displayResult("d", TextTools::toString(d));
+				ApplicationTools::displayResult("e", TextTools::toString(e));
+				ApplicationTools::displayResult("f", TextTools::toString(f));
+				ApplicationTools::displayResult("piA"   , TextTools::toString(piA));
+				ApplicationTools::displayResult("piC"   , TextTools::toString(piC));
+				ApplicationTools::displayResult("piG"   , TextTools::toString(piG));
+				ApplicationTools::displayResult("piT"   , TextTools::toString(piT));
+			}
+		} else if(modelName == "TN93") {
+			double piA = 0.25, piC = 0.25, piG = 0.25, piT = 0.25;
+			double kappa1 = ApplicationTools::getDoubleParameter("kappa1", params, 2, suffix, suffixIsOptional);
+			double kappa2 = ApplicationTools::getDoubleParameter("kappa2", params, 2, suffix, suffixIsOptional);
 			bool useObsFreq = ApplicationTools::getBooleanParameter("model.use_observed_freq", params, false, suffix, suffixIsOptional);
 			if(useObsFreq && data != NULL) {
 				model = new TN93(alpha, kappa1, kappa2);
@@ -220,16 +260,19 @@ SubstitutionModel * PhylogeneticsApplicationTools::getSubstitutionModel(
 void PhylogeneticsApplicationTools::printSubstitutionModelHelp()
 {
 	ApplicationTools::message << "Substitution Model:" << endl;
-	ApplicationTools::message << "model               | [JCnuc, K80, T92, HKY85, TN93] Model to use (default to JC)" << endl;
-  ApplicationTools::message << "kappa               | kappa parameter in Q matrix" << endl;
-  ApplicationTools::message << "kappa1              | kappa1 parameter in Q matrix" << endl;
-  ApplicationTools::message << "kappa2              | kappa2 parameter in Q matrix" << endl;
-  ApplicationTools::message << "theta               | theta parameter in Q matrix" << endl;
-  ApplicationTools::message << "piA                 | piA   parameter in Q matrix" << endl;
-  ApplicationTools::message << "pi²T                | piT   parameter in Q matrix" << endl;
-  ApplicationTools::message << "piC                 | piC   parameter in Q matrix" << endl;
-  ApplicationTools::message << "piG                 | piG   parameter in Q matrix" << endl;
-	ApplicationTools::message << "use_observed_freq   | Tell if the observed frequencies must be used." << endl; 
+	ApplicationTools::message << "model               | Nucleotides (N): [JCnuc, K80, T92, HKY85, TN93]" << endl;
+  ApplicationTools::message << "                    | Proteins (P): [JCprot, DSO78, JTT92, empirical]" << endl;
+  ApplicationTools::message << "kappa               | kappa(N)  parameter in Q matrix" << endl;
+  ApplicationTools::message << "kappa1              | kappa1(N) parameter in Q matrix" << endl;
+  ApplicationTools::message << "kappa2              | kappa2(N) parameter in Q matrix" << endl;
+  ApplicationTools::message << "a,b,c,d,e,f         | GTR rates parameter in Q matrix" << endl;
+  ApplicationTools::message << "theta               | theta(N)  parameter in Q matrix" << endl;
+  ApplicationTools::message << "piA                 | piA(N)    parameter in Q matrix" << endl;
+  ApplicationTools::message << "piT                 | piT(N)    parameter in Q matrix" << endl;
+  ApplicationTools::message << "piC                 | piC(N)    parameter in Q matrix" << endl;
+  ApplicationTools::message << "piG                 | piG(N)    parameter in Q matrix" << endl;
+	ApplicationTools::message << "use_observed_freq   | (N,P) Tell if the observed frequencies must be used." << endl; 
+	ApplicationTools::message << "model_empirical.file| (P) The path toward data file to use (PAML format)." << endl; 
 }
 
 /******************************************************************************/
@@ -281,7 +324,7 @@ DiscreteDistribution * PhylogeneticsApplicationTools::getRateDistribution(
 void PhylogeneticsApplicationTools::printRateDistributionHelp()
 {
  	ApplicationTools::message << "rate_distribution   | uniform or gamma." << endl;
-	ApplicationTools::message << "shape               | the gamma law's alpha parameter or -1 for estimate (default to -1)." << endl;
+	ApplicationTools::message << "shape               | the gamma law's alpha parameter." << endl;
 	ApplicationTools::message << "classes_number      | discrete approximation: number of categories (default to 4)." << endl;
 }
 
@@ -298,9 +341,6 @@ void PhylogeneticsApplicationTools::optimizeParameters(
 	bool optimize = ApplicationTools::getBooleanParameter("optimization", params, true, suffix, suffixIsOptional, false);
 	if(!optimize) return;
 		
-	string optMet = ApplicationTools::getStringParameter("optimization.method", params, "downhill+simplex", suffix, suffixIsOptional);
-	if(verbose) ApplicationTools::displayResult("Optimization method", optMet);
-
 	unsigned int optVerbose = ApplicationTools::getParameter<unsigned int>("optimization.verbose", params, 2, suffix, suffixIsOptional);
 	
 	string mhPath = ApplicationTools::getAFilePath("optimization.message_handler", params, false, false, suffix, suffixIsOptional);
@@ -322,9 +362,9 @@ void PhylogeneticsApplicationTools::optimizeParameters(
 	if(scaleFirst) {
 		// We scale the tree before optimizing each branch length separately:
 		if(verbose) ApplicationTools::displayMessage("Scaling the tree before optimizing each branch length separately.");
-		double tolerance = ApplicationTools::getDoubleParameter("scale_opt.tolerance", params, .0001, suffix, suffixIsOptional, true);
+		double tolerance = ApplicationTools::getDoubleParameter("optimization.scale_first.tolerance", params, .0001, suffix, suffixIsOptional, true);
 		if(verbose) ApplicationTools::displayResult("Scaling tolerance", TextTools::toString(tolerance));
-		int nbEvalMax = ApplicationTools::getIntParameter("scale_opt.max_number_f_eval", params, 1000000, suffix, suffixIsOptional, true);
+		int nbEvalMax = ApplicationTools::getIntParameter("optimization.scale_first.max_number_f_eval", params, 1000000, suffix, suffixIsOptional, true);
 		if(verbose) ApplicationTools::displayResult("Scaling max # f eval", TextTools::toString(nbEvalMax));
 		int n = OptimizationTools::optimizeTreeScale(
 			tl,
@@ -354,124 +394,33 @@ void PhylogeneticsApplicationTools::optimizeParameters(
 	double tolerance = ApplicationTools::getDoubleParameter("optimization.tolerance", params, .000001, suffix, suffixIsOptional);
 	if(verbose) ApplicationTools::displayResult("Tolerance", TextTools::toString(tolerance));
 	
-	int n = 0;	
-	if(optMet == "simplex+powell") {
-		double sTol = ApplicationTools::getDoubleParameter("sp_tol", params, 0., suffix, suffixIsOptional);
-		if(verbose) ApplicationTools::displayResult("Simplex tolerance", TextTools::toString(sTol));
-
-		n = OptimizationTools::optimizeWithDownhillSimplexAndPowellMethod(
-			tl,
-			sTol,
-			tolerance,
-			nbEvalMax,
-			messageHandler,
-			profiler,
-			optVerbose);
-	} else if(optMet == "powell") {
-		n = OptimizationTools::optimizeWithPowellMethod(
-			tl,
-			tolerance,
-			nbEvalMax,
-			messageHandler,
-			profiler,
-			optVerbose);
-	} else if(optMet == "simplex") {
-		n = OptimizationTools::optimizeWithDownhillSimplexMethod(
-			tl,
-			tolerance,
-			nbEvalMax,
-			messageHandler,
-			profiler,
-			optVerbose);
-	} else if(optMet == "simplex+brent") {
-		if(tl -> getParameters().getParameter("alpha") == NULL) {
-			ApplicationTools::displayWarning("Simplex+Brent method can only be used with a gamma-distributed rate across sites.");
-			ApplicationTools::displayWarning("Switch to Simplex method instead.");
-			optMet == "simplex";
-			n = OptimizationTools::optimizeWithDownhillSimplexMethod(
-				tl,
-				tolerance,
-				nbEvalMax,
-				messageHandler,
-				profiler,
-				optVerbose);
-		} else {
-			string prAlphaPath = ApplicationTools::getAFilePath("alpha_profiler", params, false, false, suffix, suffixIsOptional);
-			ostream * profilerAlpha = 
-				(prAlphaPath == "none") ? NULL :
-					(prAlphaPath == "std") ? &cout :
-						new ofstream(prAlphaPath.c_str(), ios::out);
-			if(profilerAlpha != NULL) (*profilerAlpha) << setprecision(20);
-			if(verbose) ApplicationTools::displayResult("Alpha profiler", prAlphaPath);
-			n = OptimizationTools::optimizeWithDownhillSimplexMethodAlphaSeparately(
-				tl,
-				tolerance,
-				nbEvalMax,
-				messageHandler,
-				profiler,
-				profilerAlpha,
-				optVerbose);
-		}
-	} else if(optMet == "powell+brent") {
-		if(tl -> getParameters().getParameter("alpha") == NULL) {
-			ApplicationTools::displayWarning("Powell+Brent method can only be used with a gamma-distributed rate across sites.");
-			ApplicationTools::displayWarning("Switch to Powell method instead.");
-			optMet == "powell";
-			n = OptimizationTools::optimizeWithPowellMethod(
-				tl,
-				tolerance,
-				nbEvalMax,
-				messageHandler,
-				profiler,
-				optVerbose);
-		} else {
-			string prAlphaPath = ApplicationTools::getAFilePath("alpha_profiler", params, false, false, suffix, suffixIsOptional);
-			ostream * profilerAlpha = 
-				(prAlphaPath == "none") ? NULL :
-					(prAlphaPath == "std") ? &cout :
-						new ofstream(prAlphaPath.c_str(), ios::out);
-			if(profilerAlpha != NULL) (*profilerAlpha) << setprecision(20);
-			if(verbose) ApplicationTools::displayResult("Alpha profiler", prAlphaPath);
-			n = OptimizationTools::optimizeWithPowellMethodAlphaSeparately(
-				tl,
-				tolerance,
-				nbEvalMax,
-				messageHandler,
-				profiler,
-				profilerAlpha,
-				optVerbose);
-		}
-	} else if(optMet == "newton") {
-		n = OptimizationTools::optimizeWithNewtonMethod(
-			tl,
-			tolerance,
-			nbEvalMax,
-			messageHandler,
-			profiler,
-			optVerbose);		
-	} else if(optMet == "metanewton") {
-		n = OptimizationTools::optimizeWithNewtonBrentMethod(
+	int n = OptimizationTools::optimizeNumericalParameters(
 			dynamic_cast<AbstractHomogeneousTreeLikelihood *>(tl),
 			tolerance,
 			nbEvalMax,
 			messageHandler,
 			profiler,
 			optVerbose);		
-	} else {
-		ApplicationTools::displayError("Method '" + optMet + "' unknown.");
-		exit(-1);
-	}
 	if(verbose) ApplicationTools::displayResult("Performed", TextTools::toString(n) + " function evaluations.");
 }
 
 /******************************************************************************/
 
 void PhylogeneticsApplicationTools::printOptimizationHelp() {
-	ApplicationTools::message << "Parameter optimization: keep or redo" << endl;
-	ApplicationTools::message << "____________________________________________________________________" << endl;
-	ApplicationTools::message << "branches_lengths| branches lengths." << endl;
-	ApplicationTools::message << "subs_params     | parameters of the substitution model." << endl;
-	ApplicationTools::message << "rate_dist       | rate distribution." << endl;
+	ApplicationTools::message << "optimization                  | [yes/no] optimize parameters?" << endl;
+	ApplicationTools::message << "optimization.verbose          | [0,1,2] level of verbose" << endl;
+	ApplicationTools::message << "optimization.message_handler  | [none, std ot file path] where to dislay optimization messages" << endl;
+	ApplicationTools::message << "                              | (if std, uses 'cout' to display messages)." << endl;
+	ApplicationTools::message << "optimization.profiler         | [none, std ot file path] where to display optimization steps" << endl;
+	ApplicationTools::message << "                              | (if std, uses 'cout' to display optimization steps)." << endl;
+	ApplicationTools::message << "optimization.tolerance        | [double] tolerance parameter for stopping the estimation." << endl;
+	ApplicationTools::message << "optimization.max_number_f_eval| [int] maximum number of likelihood computations." << endl;
+	ApplicationTools::message << "optimization.ignore_parameter | [list] parameters to ignore during optimization." << endl;
+	ApplicationTools::message << "optimization.scale_first      | [yes, no] tell if a global scale optimization must be done" << endl;
+	ApplicationTools::message << "                              | prior to separate estimation of branch lengths." << endl;
+	ApplicationTools::message << "optimization.scale_first      | " << endl;
+	ApplicationTools::message << " .tolerance                   | [double] tolerance parameter for global scale optimization." << endl;
+	ApplicationTools::message << " .max_number_f_eval           | [int] maximum number of computation for global scale optimization." << endl;
 }
 
 /******************************************************************************/

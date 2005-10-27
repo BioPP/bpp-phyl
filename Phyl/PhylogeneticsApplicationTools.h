@@ -107,7 +107,7 @@ class PhylogeneticsApplicationTools
 		 * @brief Build a SubstitutionModel object according to options.
 		 *
 		 * Options used are:
-		 * - model = [JCnuc|K80|T92|HKY85|TN93|JCprot|DSO78|JTT92|empirical], the substitution model to use.
+		 * - model = [JCnuc|K80|T92|HKY85|TN93|GTR|JCprot|DSO78|JTT92|empirical], the substitution model to use.
 		 * Options depending on the model specified:
 		 * - If K80, T92 or HKY85 is to be used:
 		 *   + kappa The transition/transversion ratio.
@@ -117,12 +117,14 @@ class PhylogeneticsApplicationTools
 		 *   + piA, piT, piC and piG: equilibrum frequencies.
 		 * - If TN93 is to be used:
 		 *   + kappa1, kappa2 The transition/transversion ratios.
-		 * - If TN93, HKY85, T92, JTT92, DSO78 or empirical is to be used:
+		 * - If GTR is to be used:
+		 *   + a, b, c, d, e, f rate parameters.
+		 * - If GTR, TN93, HKY85, T92, JTT92, DSO78 or empirical is to be used:
 		 *   + model.use_observed_freq Tell if we must use the observed frequences. 
 		 * - If empirical is to be used;
 		 *   + model_empirical.file Give the path toward the data file to use, in PAML format.
 		 *
-		 * @param alphabet The alpbaet to use in the model.
+		 * @param alphabet The alpabet to use in the model.
 		 * @param data     A pointer toward the SiteContainer for which the substitution model is designed.
 		 * 								 The alphabet associated to the data must be of the same type as the one specified for the model.
 		 *                 May be equal to NULL, but in this cas use_observed_freq option will be unavailable.
@@ -166,7 +168,6 @@ class PhylogeneticsApplicationTools
 		 * @brief Optimize parameters according to options.
 		 *
 		 * Options used are:
-		 * - optimization.method = [simplex|powell|simplex+powell|simplex+brent|powell+brent], the kind of optimization to perform.
 		 * - optimization.message_handler = [std, file_path]
 		 *   A path to a specific path (existing will be overwritten) or std for use
 		 *   of the standard output.
@@ -178,17 +179,10 @@ class PhylogeneticsApplicationTools
 		 * - optimization.ignore_parameter = A coma-separated list of parameter
 		 *   names to ignore in the optimizing process.
 		 * Options depending on other options:
-		 * - 'simplex+powell' method additional options:
-		 *   - sp_tol = Tolerance for the downhill simplex method. 
-		 *     When this tolerance is reached, then switch to Powell' method,
-		 *     if max_number_f_eval has not been reached before.
-		 *     The general tolerance parameter is used for powell's method.
 		 * - If optimization.scale_first is set to true:
-		 *   - scale_opt.tolerance = The tolerance of the scaling alogrithm.
-		 *   - scale_opt.max_number_f_eval = the maximum number of function evaluations
+		 *   - optimization.scale_first.tolerance = The tolerance of the scaling alogrithm.
+		 *   - optimization.scale_first.max_number_f_eval = the maximum number of function evaluations
 		 *     for the scaling algorithm.
-		 * - If 'simplex+brent' and 'powell+brent' additional option:
-		 *   - alpha_profiler = The profiler for the alpha parameter which is estimated separately.
 		 *
 		 * @param tl      The TreeLikelihood function to optimize.
 		 * @param params  The attribute map where options may be found.

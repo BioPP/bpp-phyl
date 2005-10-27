@@ -1,7 +1,7 @@
 //
-// File: ProteinSubstitutionModel.cpp
+// File: GTR.h
 // Created by: Julien Dutheil
-// Created on: Wed Jan 21 13:59:18 2004
+// Created on: Tue Oct 25 10:17 2005
 //
 
 /*
@@ -37,38 +37,76 @@ The fact that you are presently reading this means that you have had
 knowledge of the CeCILL license and that you accept its terms.
 */
 
-#include "ProteinSubstitutionModel.h"
+#ifndef _GTR_H_
+#define _GTR_H_
 
+#include "NucleotideSubstitutionModel.h"
 
 // From NumCalc:
-#include <NumCalc/MatrixTools.h>
-#include <NumCalc/EigenValue.h>
+#include <NumCalc/Constraints.h>
 
-ProteinSubstitutionModel::ProteinSubstitutionModel(const Alphabet * alpha) :
-	AbstractSubstitutionModel(alpha) {}
+// From SeqLib:
+#include <Seq/NucleicAlphabet.h>
 
-ProteinSubstitutionModel::~ProteinSubstitutionModel() {}
-
-void ProteinSubstitutionModel::updateMatrices()
+/**
+ * @brief General Time-Reversible model for nucleotides.
+ *
+ * Parametrization:
+ *
+ * - Exchangeability matrix:
+ *
+ *   \f[
+ *   	 \left(
+ *     \begin{array}{cccc}
+ *     --- & a   & b   & c   \\
+ *     a   & --- & d   & e   \\
+ *     b   & d   & --- & f   \\
+ *     c   & e   & f   & --- \\
+ *     \end{array}
+ *     \right)
+ *   \f]
+ *
+ * - Frequencies:
+ *   \f[
+ *     \left(
+ *   	 \begin{array}{c}
+ *   	 \pi_A \\
+ *   	 \pi_C \\
+ *   	 \pi_G \\
+ *   	 \pi_T \\
+ *   	 \end{array}
+ *   	 \right)
+ *   \f]
+ */
+class GTR : public virtual NucleotideSubstitutionModel
 {
-	// Now computes eigen values and vectors:
-	Mat Pi = MatrixTools::diag<Mat, double>(_freq);
-	_generator = MatrixTools::mult(_exchangeability, Pi);
-	// Compute diagonal elements:
-	for(unsigned int i = 0; i < _size; i++) {
-		double lambda = 0;
-		for(unsigned int j = 0; j < _size; j++) {
-			if(j!=i) lambda += _generator(i,j);
-		}
-		_generator(i,i) = -lambda;
-	}
-	// Normalization:
-	double scale = getScale();
-	MatrixTools::scale(_generator, 1/scale);
-	EigenValue<double> ev(_generator);
-	_rightEigenVectors = ev.getV();
-	_leftEigenVectors = MatrixTools::inv(_rightEigenVectors);
-	_eigenValues = ev.getRealEigenValues();
-}
+	protected:
+		Constraint * piConstraint;
+		double _a, _b, _c, _d, _e, _f;
 
+	public:
+		GTR(
+			const NucleicAlphabet * alpha,
+			double a = 1.,
+			double b = 1.,
+			double c = 1.,
+			double d = 1.,
+			double e = 1.,
+			double f = 1.,
+			double piA = 0.25,
+			double piC = 0.25,
+			double piG = 0.25,
+			double piT = 0.25);
+	
+		virtual ~GTR();
+
+		string getName() const;
+
+		/**
+		 * @brief This method is over-defined to actualize the corresponding parameters piA, piT, piG and piC too.
+		 */
+		void setFreqFromData(const SequenceContainer & data);
+};
+
+#endif	//_GTR_H_
 

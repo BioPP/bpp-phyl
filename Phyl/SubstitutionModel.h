@@ -58,11 +58,6 @@ knowledge of the CeCILL license and that you accept its terms.
 #include <NumCalc/VectorTools.h>
 #include <NumCalc/Matrix.h>
 
-// From the MTL:
-//#include <mtl/matrix.h>
-//using namespace mtl;
-//typedef matrix<double>::type Matrix;
-
 typedef RowMatrix<double> Mat;
 typedef Vdouble Vec;
 
@@ -110,14 +105,14 @@ class SubstitutionModelException : public Exception {
  * where \f$P(t)\f$ is the matrix with all probabilities \f$P_{i,j}(t)\f$.
  * For some models, such \f$P_{i,j}(t)\f$ may be computed analytically.
  * For more complexe models, we need to use a eigen-decomposition of \f$Q\f$:
- * \f[ Q = U \times D \times U^{-1}, \f]
+ * \f[ Q = U^{-1} \times D \times U, \f]
  * where \f$D\f$ is a diagonal matrix.
  * Hence
- * \f[ P(t) = e^{t \times Q} = U \times e^{D} \times U^{-1}, \f]
- * where \f$e^{D}\f$ is a diagonal matrix with all terms equal to exp the terms
+ * \f[ P(t) = e^{t \times Q} = U^{-1} \times e^{D \times t} \times U, \f]
+ * where \f$e^{D \times t}\f$ is a diagonal matrix with all terms equal to exp the terms
  * in \f$D\f$.
- * \f$U\f$ is the matrix of vertical right eigen vectors, and \f$U^{-1}\f$ is the matrix
- * of vertical left eigen vectors.
+ * \f$U\f$ is the matrix of vertical left eigen vectors, and \f$U^{-1}\f$ is the matrix
+ * of vertical right eigen vectors.
  * The values on the diagonal of \f$D\f$ are the eigen values of \f$Q\f$.
  * All \f$Q,U,U^{-1}\f$ and \f$D\f$ (its diagonal) may be retrieved from the
  * class.
@@ -135,7 +130,8 @@ class SubstitutionModelException : public Exception {
  * These methods may be useful for optimization processes.
  */
 
-class SubstitutionModel: public virtual Parametrizable {
+class SubstitutionModel: public virtual Parametrizable
+{
 	
 	public:
 		//Destructor:
@@ -174,9 +170,9 @@ class SubstitutionModel: public virtual Parametrizable {
 
 		virtual Vec eigenValues() const = 0;
 
-		virtual Mat horizontalLeftEigenVectors() const = 0;
+		virtual Mat verticalLeftEigenVectors() const = 0;
 
-		virtual Mat verticalRightEigenVectors() const = 0;
+		virtual Mat horizontalRightEigenVectors() const = 0;
 
 		virtual const Alphabet * getAlphabet() const = 0;
 
@@ -198,7 +194,8 @@ class SubstitutionModel: public virtual Parametrizable {
 		 * from the data.
 		 */
 		virtual void setFreqFromData(const SequenceContainer & data) = 0;
-
+		
 };
 
 #endif	//_SUBSTITUTIONMODEL_H_
+

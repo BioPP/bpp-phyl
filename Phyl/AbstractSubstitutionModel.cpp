@@ -47,6 +47,7 @@ knowledge of the CeCILL license and that you accept its terms.
 #include <NumCalc/VectorTools.h>
 using namespace VectorFunctions;
 using namespace VectorOperators;
+#include <NumCalc/EigenValue.h>
 
 // From SeqLib:
 #include <Seq/SequenceContainerTools.h>
@@ -68,6 +69,30 @@ const Alphabet * AbstractSubstitutionModel::getAlphabet() const { return alphabe
 
 /******************************************************************************/
 	
+void AbstractSubstitutionModel::updateMatrices()
+{
+	// Now computes eigen values and vectors:
+	Mat Pi = MatrixTools::diag<Mat, double>(_freq);
+	_generator = MatrixTools::mult(_exchangeability, Pi);
+	// Compute diagonal elements:
+	for(unsigned int i = 0; i < _size; i++) {
+		double lambda = 0;
+		for(unsigned int j = 0; j < _size; j++) {
+			if(j!=i) lambda += _generator(i,j);
+		}
+		_generator(i,i) = -lambda;
+	}
+	// Normalization:
+	double scale = getScale();
+	MatrixTools::scale(_generator, 1/scale);
+	EigenValue<double> ev(_generator);
+	_rightEigenVectors = ev.getV();
+	_leftEigenVectors = MatrixTools::inv(_rightEigenVectors);
+	_eigenValues = ev.getRealEigenValues();
+}
+
+/******************************************************************************/
+
 Vec AbstractSubstitutionModel::getFrequencies() const { return _freq; }
 
 Mat AbstractSubstitutionModel::getExchangeabilityMatrix() const { return _exchangeability; }
@@ -76,9 +101,9 @@ Mat AbstractSubstitutionModel::getGenerator() const { return _generator; }
 
 Vec AbstractSubstitutionModel::eigenValues() const { return _eigenValues; }
 
-Mat AbstractSubstitutionModel::horizontalLeftEigenVectors() const { return _leftEigenVectors; }
+Mat AbstractSubstitutionModel::verticalLeftEigenVectors() const { return _leftEigenVectors; }
 
-Mat AbstractSubstitutionModel::verticalRightEigenVectors() const { return _rightEigenVectors; }
+Mat AbstractSubstitutionModel::horizontalRightEigenVectors() const { return _rightEigenVectors; }
 
 Mat AbstractSubstitutionModel::getPij_t(double t) const
 {
