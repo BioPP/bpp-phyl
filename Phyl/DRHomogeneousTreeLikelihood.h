@@ -396,9 +396,16 @@ class DRHomogeneousTreeLikelihood : public virtual AbstractHomogeneousTreeLikeli
 		const DRASDRTreeLikelihoodData * getLikelihoodData() const { return _likelihoodData; }
 	
 		virtual VVVdouble computeLikelihoodAtNode(const Node * node) const;
+
+		/**
+		 * @brief Retrieves all Pij(t) for a particular node.
+		 *
+		 * These intermediate results may be used by other methods.
+		 */
+		virtual const VVVdouble & getTransitionProbabilitiesForNode(const Node * node) const { return _pxy[node]; }
 		
 	protected:
-		
+	
 		/**
 		 * Initialize the arrays corresponding to each son node for the node passed as argument.
 		 * The method is called for each son node and the result stored in the corresponding array.
