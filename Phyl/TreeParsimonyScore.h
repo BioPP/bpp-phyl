@@ -46,7 +46,7 @@ knowledge of the CeCILL license and that you accept its terms.
 #include <vector>
 
 /**
- * @brief Compute a parsimony score using Fitch algorithm.
+ * @brief Compute a parsimony score.
  */
 class TreeParsimonyScore
 {

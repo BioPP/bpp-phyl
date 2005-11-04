@@ -1,13 +1,11 @@
 //
-// File: PatternTools.h
+// File: PatternTools.cpp
 // Created by: Julien Dutheil
 // Created on: Thu Mar 20 13:36:54 2003
 //
 
 /*
 Copyright or © or Copr. CNRS, (November 16, 2004)
-
-Julien.Dutheil@univ-montp2.fr
 
 This software is a computer program whose purpose is to provide classes
 for phylogenetic data analysis.
@@ -130,7 +128,7 @@ const Pattern PatternTools::countSites(const SiteContainer & siteSet)
 
 /******************************************************************************/
  // o(n.log(n))
-/*
+
 const Pattern PatternTools::countSites(const SiteContainer & siteSet)
 {
 	unsigned int nbSites = siteSet.getNumberOfSites();
@@ -152,7 +150,7 @@ const Pattern PatternTools::countSites(const SiteContainer & siteSet)
 	SortableSite * ss0 = ss[0];
 	const Site * previousSite = ss0 -> siteP;
 	pattern.indices.resize(nbSites);
-	pattern.indices[ss0 -> originalPosition] = 1;
+	pattern.indices[ss0 -> originalPosition] = 0;
 	pattern.sites.push_back(previousSite);
 	pattern.weights.push_back(1);
 	
@@ -160,7 +158,6 @@ const Pattern PatternTools::countSites(const SiteContainer & siteSet)
 	for(unsigned int i = 1; i < nbSites; i++) {
 		SortableSite * ssi = ss[i];
 		const Site * currentSite = ssi -> siteP;
-		pattern.indices[ssi -> originalPosition] = currentPos;
 		bool siteExists = SiteTools::areSitesIdentical(* currentSite, * previousSite);
 		if(siteExists) {
 			pattern.weights[currentPos]++;
@@ -169,52 +166,14 @@ const Pattern PatternTools::countSites(const SiteContainer & siteSet)
 			pattern.weights.push_back(1);
 			currentPos++;
 		}
+		pattern.indices[ssi -> originalPosition] = currentPos;
 		delete ss[i - 1];
 		previousSite = currentSite;
-		pattern.indices.push_back(currentPos);
 	}
 	delete ss[nbSites - 1];
 	pattern.names = siteSet.getSequencesNames();
 	return pattern;
 }
-*/
-
-/******************************************************************************/
-
-
-const Pattern PatternTools::countSites(const SiteContainer & siteSet)
-{
-	unsigned int nbSites = siteSet.getNumberOfSites();
-	Pattern pattern;
-	map<string, unsigned int> ss;
-	unsigned int currentPos = 0;
-	// Add first site:
-	pattern.indices.push_back(0);
-	const Site * currentSite = siteSet.getSite(0);
-	pattern.sites.push_back(currentSite);
-	ss[currentSite -> toString()] = 1;
-	pattern.weights.push_back(1);
-	// Check other sites:
-	for(unsigned int i = 1; i < nbSites; i++) {
-		const Site * currentSite = siteSet.getSite(i);
-		unsigned int * c = & ss[currentSite -> toString()];
-		if(*c > 0) {
-			// Pattern already found
-			pattern.weights[*c]++;
-		} else {
-			// New pattern
-			pattern.sites.push_back(currentSite);
-			pattern.weights.push_back(1);
-			(*c)++;
-			currentPos++;
-		}
-		pattern.indices.push_back(currentPos);
-	}
-	
-	pattern.names = siteSet.getSequencesNames();
-	return pattern;
-}
-
 
 /******************************************************************************/
 

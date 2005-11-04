@@ -78,6 +78,12 @@ void DRTreeParsimonyData::init(const Node * node, const SiteContainer & sites) t
 {
 	const Alphabet * alphabet = sites.getAlphabet();
 	if(node -> isLeaf()) {
+		const Sequence * seq;
+		try {
+			seq = sites.getSequence(node -> getName());
+		} catch (SequenceNotFoundException & snfe) {
+			throw SequenceNotFoundException("DRTreeParsimonyData:init(node, sites). Leaf name in tree not found in site container: ", (node -> getName()));
+		}
 		DRTreeParsimonyLeafData * leafData    = & _leafData[node];
 		vector<Bitset> * leafData_bitsets     = & leafData -> getBitsetsArray();
 		leafData -> setNode(node);
@@ -89,14 +95,10 @@ void DRTreeParsimonyData::init(const Node * node, const SiteContainer & sites) t
 			for(unsigned int s = 0; s < _nbStates; s++) {
 				//Leaves bitset are set to 1 if the char correspond to the site in the sequence,
 				//otherwise value set to 0:
-				try {
-					int state = sites.getSequence(node -> getName()) -> getValue(i);
-					vector<int> states = alphabet -> getAlias(state);
-					for(unsigned int j = 0; j < states.size(); j++)
-						if(s == states[j]) (* leafData_bitsets_i)[s].flip();
-				} catch (SequenceNotFoundException & snfe) {
-					throw SequenceNotFoundException("DRTreeParsimonyData:init(node, sites). Leaf name in tree not found in site container: ", (node -> getName()));
-				}
+				int state = seq -> getValue(i);
+				vector<int> states = alphabet -> getAlias(state);
+				for(unsigned int j = 0; j < states.size(); j++)
+					if(s == states[j]) (* leafData_bitsets_i)[s].flip();
 			}
 		}
 
@@ -178,6 +180,7 @@ DRTreeParsimonyScore::DRTreeParsimonyScore(
 	_rootBitsets.resize(_nbDistinctSites);
 	computeScores();
 	if(verbose) ApplicationTools::displayTaskDone();
+	
 	if(verbose) ApplicationTools::displayResult("Number of distinct sites",
 			TextTools::toString(_nbDistinctSites));
 }

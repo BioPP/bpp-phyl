@@ -48,23 +48,121 @@ knowledge of the CeCILL license and that you accept its terms.
 #include <Seq/SiteContainer.h>
 
 /**
- * @brief Likelihood computation data structure.
+ * @brief TreeLikelihood partial data structure.
  *
- * This class is under test.
- * For now it is only used as a inner storage.
- * Its goal is to be exported for other methods that need detailed likeihood
- * computation, for instance ancestral states reconstruction.
+ * Stores inner computation for a given node.
+ *
+ * @see TreeLikelihoodData
+ */
+class TreeLikelihoodNodeData
+{
+	public:
+		TreeLikelihoodNodeData() {}
+		~TreeLikelihoodNodeData() {}
+
+	public:
+		/**
+		 * @brief Get the node associated to this data structure.
+		 *
+		 * @return The node associated to this structure.
+		 */
+		virtual const Node * getNode() const = 0;
+};
+
+/**
+ * @brief TreeLikelihood data structure.
+ *
+ * Stores all the inner computations:
+ * - conditionnal likelihoods for each node,
+ * - correspondance between sites in the dataset and array indices.
  * 
+ * @see TreeLikelihoodNodeData
  */
 class TreeLikelihoodData
 {
 	public:
+		TreeLikelihoodData() {}
+		virtual ~TreeLikelihoodData() {}
+
+	public:
+		virtual const Alphabet * getAlphabet() const = 0;
 		virtual const TreeTemplate<Node> * getTree() const = 0;  
 		virtual TreeTemplate<Node> * getTree() = 0;
 		virtual unsigned int getArrayPosition(const Node* parent, const Node* son, unsigned int currentPosition) const = 0;
 		virtual unsigned int getRootArrayPosition(const unsigned int site) const = 0;
+		virtual TreeLikelihoodNodeData & getNodeData(const Node * node) = 0;
+		virtual const TreeLikelihoodNodeData & getNodeData(const Node * node) const = 0;
 };
 
+
+/**
+ * @brief Partial implementation of the TreeLikelihoodData interface.
+ *
+ * This data structure provides a simple compression, by performing and storing computations
+ * only one time per identical sites.
+ *
+ * The compression is achieved by the TreeLikelihood object.
+ * The correspondance between sites in the dataset and the arrays in the structures is given
+ * by the _rootPatternLinks array: the array indice for site @f$i@f$ if given by:
+ * @code
+ * _rootPatternLinks[i]
+ * @endcode
+ *
+ * Finally, the _rootWeights array gives for each array position, the number of sites with this
+ * pattern.
+ * The global likelihood is then given by the product of all likelihoods for each array position,
+ * weighted by the corresponding number of sites.
+ */
+class AbstractTreeLikelihoodData :
+	public virtual TreeLikelihoodData
+{
+	public:
+		AbstractTreeLikelihoodData() {}
+		virtual ~AbstractTreeLikelihoodData() {}
+
+	protected:
+		/**
+		 * @brief Links between sites and patterns.
+		 * 
+		 * The size of this vector is equal to the number of sites in the container,
+		 * each element corresponds to a site in the container and points to the
+		 * corresponding column in the likelihood array of the root node.
+		 * If the container contains no repeated site, there will be a strict
+		 * equivalence between each site and the likelihood array of the root node.
+		 * However, if this is not the case, some pointers may point toward the same
+		 * element in the likelihood array.
+		 */
+		vector<unsigned int> _rootPatternLinks;
+
+		/**
+		 * @brief The frequency of each site.
+		 */
+		vector<unsigned int> _rootWeights;
+
+		TreeTemplate<Node> * _tree;
+
+		const Alphabet * _alphabet;
+
+	public:
+		vector<unsigned int> & getRootArrayPositions() { return _rootPatternLinks; }
+		const vector<unsigned int> & getRootArrayPositions() const { return _rootPatternLinks; }
+		unsigned int getRootArrayPosition(const unsigned int site) const
+		{
+			return _rootPatternLinks[site];
+		}
+		unsigned int getWeight(unsigned int pos) const
+		{
+			return _rootWeights[pos];
+		}
+		const vector<unsigned int> & getWeights() const
+		{ 
+			return _rootWeights;
+		}
+
+		const Alphabet * getAlphabet() const { return _alphabet; }
+		const TreeTemplate<Node> * getTree() const { return _tree; }  
+		TreeTemplate<Node> * getTree() { return _tree; }
+};
 
 /**
  * @brief Low-level implementatoin of the TreeLikelihood interface. 

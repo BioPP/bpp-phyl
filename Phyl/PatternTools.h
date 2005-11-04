@@ -7,8 +7,6 @@
 /*
 Copyright or © or Copr. CNRS, (November 16, 2004)
 
-Julien.Dutheil@univ-montp2.fr
-
 This software is a computer program whose purpose is to provide classes
 for phylogenetic data analysis.
 
@@ -107,3 +105,4 @@ class PatternTools
 
 
 #endif	//_PATTERNTOOLS_H_
+

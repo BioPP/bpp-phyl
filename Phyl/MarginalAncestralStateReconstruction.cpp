@@ -45,7 +45,7 @@ vector<int> MarginalAncestralStateReconstruction::getAncestralStatesForNode(cons
 {
 	vector<int> ancestors(_nDistinctSites);
 	if(node -> isLeaf()) {
-		VVdouble larray = _likelihood -> getLeafLikelihoods(node);
+		VVdouble larray = _likelihood -> getLikelihoodData() -> getLeafLikelihoods(node);
 		for(unsigned int i = 0; i < _nDistinctSites; i++) {
 			ancestors[i] = (int)posmax(larray[i]);
 		}
@@ -73,7 +73,7 @@ map<const Node *, vector<int> > MarginalAncestralStateReconstruction::getAllAnce
 {
 	map<const Node *, vector<int> > ancestors;
 	// Clone the data into a AlignedSequenceContainer for more efficiency:
-	AlignedSequenceContainer * data = new AlignedSequenceContainer(* _likelihood -> getShrunkData());
+	AlignedSequenceContainer * data = new AlignedSequenceContainer(* _likelihood -> getLikelihoodData() -> getShrunkData());
 	recursiveMarginalAncestralStates(dynamic_cast<TreeTemplate<Node> *>(_likelihood -> getTree()) -> getRootNode(), ancestors, *data);
 	delete data;
 	return ancestors;
@@ -84,8 +84,9 @@ Sequence * MarginalAncestralStateReconstruction::getAncestralSequenceForNode(con
 	string name = node -> hasName() ? node -> getName() : "" + node -> getId();
 	vector<int> states = getAncestralStatesForNode(node);
 	vector<int> allStates(_nSites);
+	const vector<unsigned int> * rootPatternLinks = &_likelihood -> getLikelihoodData() -> getRootArrayPositions();
 	for(unsigned int i = 0; i < _nSites; i++) {
-		allStates[i] = states[_rootPatternLinks[i]];
+		allStates[i] = states[(* rootPatternLinks)[i]];
 	}
 	return new Sequence(name, allStates, _alphabet);
 }

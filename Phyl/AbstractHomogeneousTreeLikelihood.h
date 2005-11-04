@@ -43,36 +43,6 @@ knowledge of the CeCILL license and that you accept its terms.
 #include "AbstractDiscreteRatesAcrossSitesTreeLikelihood.h"
 #include "SubstitutionModel.h"
 
-class AbstractTreeLikelihoodData :
-	public virtual TreeLikelihoodData
-{
-	protected:
-		/**
-		 * @brief As previous, but for the global container.
-		 *
-		 * The size of this vector is equal to the number of sites in the container,
-		 * each element corresponds to a site in the container and points to the
-		 * corresponding column in the likelihood array of the root node.
-		 * If the container contains no repeated site, there will be a strict
-		 * equivalence between each site and the likelihood array of the root node.
-		 * However, if this is not the case, some pointers may point toward the same
-		 * element in the likelihood array.
-		 */
-		vector<unsigned int> _rootPatternLinks;
-
-		/**
-		 * @brief The frequency of each site.
-		 */
-		vector<unsigned int> _rootWeights;
-
-	public:
-		unsigned int getRootArrayPosition(const unsigned int site) const
-		{
-			return _rootPatternLinks[site];
-		}
-
-};
-
 class AbstractHomogeneousTreeLikelihood: public virtual AbstractDiscreteRatesAcrossSitesTreeLikelihood
 {
 	protected:

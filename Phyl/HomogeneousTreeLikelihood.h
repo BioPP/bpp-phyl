@@ -52,57 +52,60 @@ knowledge of the CeCILL license and that you accept its terms.
 
 using namespace std;
 
+/**
+ * @brief Likelihood data structure for a node.
+ * 
+ * This class is for use with the DRASRTreeParsimonyData class.
+ * 
+ * Store all conditionnal likelihoods:
+ * <pre>
+ * x[i][c][s]
+ *   |---------> Site i
+ *      |------> Rate class c
+ *         |---> Ancestral state s
+ * </pre> 
+ * We call this the <i>likelihood array</i> for each node.
+ * In the same way, we store first and second order derivatives.
+ *
+ * @see DRASRTreeLikelihoodData
+ */
+class DRASRTreeLikelihoodNodeData :
+	public TreeLikelihoodNodeData
+{
+	protected:
+		mutable VVVdouble _nodeLikelihoods;
+		mutable VVVdouble _nodeDLikelihoods;
+		mutable VVVdouble _nodeD2Likelihoods;
+		const Node * _node;
+
+	public:
+		const Node * getNode() const { return _node; }
+		void setNode(const Node * node) { _node = node; }
+
+		VVVdouble & getLikelihoodArray() { return _nodeLikelihoods; }
+		const VVVdouble & getLikelihoodArray() const { return _nodeLikelihoods; }
+		
+		VVVdouble & getDLikelihoodArray() { return _nodeDLikelihoods; }
+		const VVVdouble & getDLikelihoodArray() const { return _nodeDLikelihoods; }
+
+		VVVdouble & getD2LikelihoodArray() { return _nodeD2Likelihoods; }
+		const VVVdouble & getD2LikelihoodArray() const { return _nodeD2Likelihoods; }
+};
+
+/**
+ * @brief discrete Rate Across Sites, (simple) Recursive likelihood data structure.
+ */
 class DRASRTreeLikelihoodData :
 	public virtual AbstractTreeLikelihoodData
 {
-	friend class HomogeneousTreeLikelihood;
-
 	protected:
 
-		TreeTemplate<Node> * _tree;
-		
 		/**
 		 * @brief This contains all likelihood values used for computation.
 		 *
-		 * <pre>
-		 * x[n][i][c][s]
-		 *   |------------> Node n (pointer)
-		 *      |---------> Site i
-		 *         |------> Rate class c
-		 *            |---> Ancestral state s
-		 * </pre> 
-		 * We call this the <i>likelihood array</i> for each node.
 		 */
-		mutable map<const Node *, VVVdouble> _likelihoods;
-	
-		/**
-		 * @brief This contains all likelihood first order derivatives values used for computation.
-		 *
-		 * <pre>
-		 * x[n][i][c][s]
-		 *   |------------> Node n (pointer)
-		 *      |---------> Site i
-		 *         |------> Rate class c
-		 *            |---> Ancestral state s
-		 * </pre> 
-		 * We call this the <i>dLikelihood array</i> for each node.
-		 */
-		mutable map<const Node *, VVVdouble> _dLikelihoods;
-	
-		/**
-		 * @brief This contains all likelihood second order derivatives values used for computation.
-		 *
-		 * <pre>
-		 * x[n][i][c][s]
-		 *   |------------> Node n (pointer)
-		 *      |---------> Site i
-		 *         |------> Rate class c
-		 *            |---> Ancestral state s
-		 * </pre> 
-		 * We call this the <i>d2Likelihood array</i> for each node.
-		 */
-		mutable map<const Node *, VVVdouble> _d2Likelihoods;
-		
+		mutable map<const Node *, DRASRTreeLikelihoodNodeData> _nodeData;
+			
 		/**
 		 * @brief This map defines the pattern network.
 		 *
@@ -116,33 +119,103 @@ class DRASRTreeLikelihoodData :
 		 * of the likelihoods array.
 		 */
 		mutable map< const Node *, map< const Node *, vector<unsigned int> > > _patternLinks;
-		
-	public:
-		DRASRTreeLikelihoodData() {}
-		~DRASRTreeLikelihoodData() {}
+		SiteContainer * _shrunkData;
+		unsigned int _nbSites; 
+		unsigned int _nbStates;
+		unsigned int _nbClasses;
+		unsigned int _nbDistinctSites; 
 
 	public:
-		const TreeTemplate<Node> * getTree() const { return _tree; }  
-		TreeTemplate<Node> * getTree() { return _tree; }
+		DRASRTreeLikelihoodData(TreeTemplate<Node> & tree, unsigned int nbClasses) : _nbClasses(nbClasses) { _tree = &tree; }
+		virtual ~DRASRTreeLikelihoodData() { delete _shrunkData; }
+
+	public:
+		DRASRTreeLikelihoodNodeData & getNodeData(const Node * node)
+		{ 
+			return _nodeData[node];
+		}
+		const DRASRTreeLikelihoodNodeData & getNodeData(const Node * node) const
+		{ 
+			return _nodeData[node];
+		}
 		unsigned int getArrayPosition(const Node* parent, const Node* son, unsigned int currentPosition) const
 		{
 			return _patternLinks[parent][son][currentPosition];
 		}
+		unsigned int getRootArrayPosition(unsigned int currentPosition) const
+		{
+			return _rootPatternLinks[currentPosition];
+		}
+		const vector<unsigned int> & getArrayPositions(const Node* parent, const Node* son) const
+		{
+			return _patternLinks[parent][son];
+		}
+		vector<unsigned int> & getArrayPositions(const Node* parent, const Node* son)
+		{
+			return _patternLinks[parent][son];
+		}
+		unsigned int getArrayPosition(const Node* parent, const Node* son, unsigned int currentPosition)
+		{
+			return _patternLinks[parent][son][currentPosition];
+		}
+
 
 		VVVdouble & getLikelihoodArray(const Node *node)
 		{
-			return _likelihoods[node];
+			return _nodeData[node].getLikelihoodArray();
 		}
 		
 		VVVdouble & getDLikelihoodArray(const Node *node)
 		{
-			return _dLikelihoods[node];
+			return _nodeData[node].getDLikelihoodArray();
 		}
 		
 		VVVdouble & getD2LikelihoodArray(const Node *node)
 		{
-			return _d2Likelihoods[node];
+			return _nodeData[node].getD2LikelihoodArray();
 		}
+
+		unsigned int getNumberOfDistinctSites() const { return _nbDistinctSites; }
+		unsigned int getNumberOfSites() const { return _nbSites; }
+		unsigned int getNumberOfStates() const { return _nbStates; }
+		unsigned int getNumberOfClasses() const { return _nbClasses; }
+		
+		void init(const SiteContainer & sites, const SubstitutionModel & model) throw (Exception);
+		//void reInit() throw (Exception);
+
+	protected:
+		/**
+		 * @brief This method initializes the leaves according to a sequence file.
+		 * likelihood is set to 1 for the state corresponding to the sequence site,
+		 * otherwise it is set to 0.
+		 *
+		 * All likelihood arrays at each nodes are initialized according to alphabet
+		 * size and sequences length, and filled with 1.
+		 *
+		 * NB: This method is recursive.
+		 *
+		 * @param node      The node defining the subtree to analyse.
+		 * @param sequences The data to be used for initialization.
+		 */
+		virtual void initTreeLikelihoods(const Node * node, const SiteContainer & sequences, const SubstitutionModel & model) throw (Exception);
+
+		/**
+		 * @brief This method initializes the leaves according to a sequence file.
+		 *
+		 * likelihood is set to 1 for the state corresponding to the sequence site,
+		 * otherwise it is set to 0.
+		 *
+		 * All likelihood arrays at each nodes are initialized according to alphabet
+		 * size and sequences length, and filled with 1.
+		 *
+		 * NB: This method is recursive.
+		 *
+		 * @param node      The node defining the subtree to analyse.
+		 * @param sequences The data to be used for initialization.
+		 * @return The shrunk sub-dataset for the subtree defined by <i>node</i>.
+		 */
+		virtual SiteContainer * initTreeLikelihoodsWithPatterns(const Node * node, const SiteContainer & sequences, const SubstitutionModel & model) throw (Exception);
+		
 };
 
 /**
@@ -182,7 +255,7 @@ class HomogeneousTreeLikelihood :
 {
 	protected:
 
-		mutable DRASRTreeLikelihoodData _likelihoodData;
+		mutable DRASRTreeLikelihoodData *_likelihoodData;
 		
 	public:
 		HomogeneousTreeLikelihood(
@@ -286,39 +359,7 @@ class HomogeneousTreeLikelihood :
 
 	
 	protected:
-		
-		/**
-		 * @brief This method initializes the leaves according to a sequence file.
-		 * likelihood is set to 1 for the state corresponding to the sequence site,
-		 * otherwise it is set to 0.
-		 *
-		 * All likelihood arrays at each nodes are initialized according to alphabet
-		 * size and sequences length, and filled with 1.
-		 *
-		 * NB: This method is recursive.
-		 *
-		 * @param node      The node defining the subtree to analyse.
-		 * @param sequences The data to be used for initialization.
-		 */
-		virtual void initTreeLikelihoods(const Node * node, const SiteContainer & sequences) throw (Exception);
-
-		/**
-		 * @brief This method initializes the leaves according to a sequence file.
-		 *
-		 * likelihood is set to 1 for the state corresponding to the sequence site,
-		 * otherwise it is set to 0.
-		 *
-		 * All likelihood arrays at each nodes are initialized according to alphabet
-		 * size and sequences length, and filled with 1.
-		 *
-		 * NB: This method is recursive.
-		 *
-		 * @param node      The node defining the subtree to analyse.
-		 * @param sequences The data to be used for initialization.
-		 * @return The shrunk sub-dataset for the subtree defined by <i>node</i>.
-		 */
-		virtual SiteContainer * initTreeLikelihoodsWithPatterns(const Node * node, const SiteContainer & sequences) throw (Exception);
-		
+			
 		/**
 		 * @brief Compute the likelihood for a subtree defined by the Tree::Node <i>node</i>.
 		 *
@@ -343,3 +384,4 @@ class HomogeneousTreeLikelihood :
 
 
 #endif	//_HOMOGENEOUSTREELIKELIHOOD_H_
+

@@ -205,8 +205,8 @@ class TreeLikelihood: public virtual DerivableSecondOrder
 		 */
 		virtual bool computeDerivatives() const = 0;
 
-
 };
 
 
 #endif	//_TREELIKELIHOOD_H_
+

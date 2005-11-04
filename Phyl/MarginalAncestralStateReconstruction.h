@@ -67,11 +67,11 @@ class MarginalAncestralStateReconstruction: public AncestralStateReconstruction
 		MarginalAncestralStateReconstruction(const DRHomogeneousTreeLikelihood & drl): _likelihood(& drl)
 		{
 			_alphabet         = _likelihood -> getAlphabet();
-			_nSites           = _likelihood -> getNumberOfSites();
-			_nDistinctSites   = _likelihood -> getNumberOfDistinctSites();
-			_nClasses         = _likelihood -> getNumberOfClasses();
-			_nStates          = _likelihood -> getNumberOfStates();
-			_rootPatternLinks = _likelihood -> getRootPatternLinks();
+			_nSites           = _likelihood -> getLikelihoodData() -> getNumberOfSites();
+			_nDistinctSites   = _likelihood -> getLikelihoodData() -> getNumberOfDistinctSites();
+			_nClasses         = _likelihood -> getLikelihoodData() -> getNumberOfClasses();
+			_nStates          = _likelihood -> getLikelihoodData() -> getNumberOfStates();
+			_rootPatternLinks = _likelihood -> getLikelihoodData() -> getRootArrayPositions();
 		}
 
 		virtual ~MarginalAncestralStateReconstruction() {}

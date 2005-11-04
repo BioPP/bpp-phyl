@@ -55,7 +55,7 @@ typedef bitset<20> Bitset;
  * 
  * This class is for use with the DRTreeParsimonyData class.
  * 
- * We store for each neighbor node
+ * Store for each neighbor node
  * - a vector of bitsets,
  * - a vector of score for the corresponding subtree.
  *
@@ -107,7 +107,7 @@ class DRTreeParsimonyNodeData :
  * 
  * This class is for use with the DRTreeParsimonyData class.
  * 
- * We store the vector of bitsets associated to this leaf.
+ * Store the vector of bitsets associated to a leaf.
  *
  * @see DRTreeParsimonyData
  */
@@ -147,7 +147,6 @@ class DRTreeParsimonyData :
 	public virtual AbstractTreeParsimonyData
 {
 	protected:
-		TreeTemplate<Node> * _tree;
 		mutable map<const Node *, DRTreeParsimonyNodeData> _nodeData;
 		mutable map<const Node *, DRTreeParsimonyLeafData> _leafData;
 		mutable vector<Bitset> _rootBitsets;
@@ -158,7 +157,8 @@ class DRTreeParsimonyData :
 		unsigned int _nbDistinctSites; 
 
 	public:
-		DRTreeParsimonyData(TreeTemplate<Node> & tree) : _tree(& tree) {}
+		DRTreeParsimonyData(TreeTemplate<Node> & tree) { _tree = &tree; }
+		virtual ~DRTreeParsimonyData() { delete _shrunkData; }
 
 	public:
 		DRTreeParsimonyNodeData & getNodeData(const Node * node)
@@ -202,16 +202,17 @@ class DRTreeParsimonyData :
 			return currentPosition;
 		}
 
-		const TreeTemplate<Node> * getTree() const { return _tree; } 
-
 		unsigned int getNumberOfDistinctSites() const { return _nbDistinctSites; }
 		unsigned int getNumberOfSites() const { return _nbSites; }
-		unsigned int getNumberOfStatees() const { return _nbStates; }
+		unsigned int getNumberOfStates() const { return _nbStates; }
 		
 		void init(const SiteContainer & sites) throw (Exception);
-		void init(const Node * node, const SiteContainer & sites) throw (Exception);
 		void reInit() throw (Exception);
+
+	protected:
+		void init(const Node * node, const SiteContainer & sites) throw (Exception);
 		void reInit(const Node * node) throw (Exception);
+		
 };
 
 /**

@@ -85,7 +85,7 @@ VVVdouble DRTreeLikelihoodTools::getPosteriorProbabilitiesForEachStateForEachRat
 							DRHomogeneousTreeLikelihood & drl,
 							const Node * node)
 {
-	unsigned int nSites   = drl.getNumberOfDistinctSites();
+	unsigned int nSites   = drl.getLikelihoodData()->getNumberOfDistinctSites();
 	unsigned int nClasses = drl.getNumberOfClasses();
 	unsigned int nStates  = drl.getNumberOfStates();
 	VVVdouble postProb(nSites);
@@ -93,7 +93,7 @@ VVVdouble DRTreeLikelihoodTools::getPosteriorProbabilitiesForEachStateForEachRat
 	const DiscreteDistribution * rDist = drl.getRateDistribution();
 	Vdouble rcProbs = rDist -> getProbabilities();
 	if(node -> isLeaf()) {
-		VVdouble larray = drl.getLeafLikelihoods(node);
+		VVdouble larray = drl.getLikelihoodData()->getLeafLikelihoods(node);
 		for(unsigned int i = 0; i < nSites; i++) {
 			VVdouble * postProb_i = & postProb[i];
 			postProb_i -> resize(nClasses);

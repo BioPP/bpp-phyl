@@ -46,6 +46,13 @@ knowledge of the CeCILL license and that you accept its terms.
 // From SeqLib:
 #include <Seq/SiteContainer.h>
 
+/**
+ * @brief TreeParsimonyScore partial data structure.
+ *
+ * Stores inner computation for a given node.
+ *
+ * @see TreeParsimonyData
+ */
 class TreeParsimonyNodeData
 {
 	public:
@@ -53,27 +60,70 @@ class TreeParsimonyNodeData
 		~TreeParsimonyNodeData() {}
 
 	public:
+		/**
+		 * @brief Get the node associated to this data structure.
+		 *
+		 * @return The node associated to this structure.
+		 */
 		virtual const Node * getNode() const = 0;
 };
 
+/**
+ * @brief TreeParsimonyScore data structure.
+ *
+ * Stores all the inner computations:
+ * - subtree scores and ancestral states for each node,
+ * - correspondance between sites in the dataset and array indices.
+ *
+ * @see TreeParsimonyNodeData
+ */
 class TreeParsimonyData
 {
 	public:
+		virtual const TreeTemplate<Node> * getTree() const = 0;  
+		virtual TreeTemplate<Node> * getTree() = 0;
 		virtual unsigned int getArrayPosition(const Node * parent, const Node * son, unsigned int currentPosition) const = 0;
 		virtual unsigned int getRootArrayPosition(const unsigned int site) const = 0;
 		virtual TreeParsimonyNodeData & getNodeData(const Node * node) = 0;
 		virtual const TreeParsimonyNodeData & getNodeData(const Node * node) const = 0;
 };
 
-class AbstractTreeParsimonyData
+/**
+ * @brief Partial implementation of the TreeParsimonyData interface.
+ *
+ * This data structure provides a simple compression, by performing and storing computations
+ * only one time per identical sites.
+ *
+ * The compression is achieved by the TreeParsimonyScore object.
+ * The correspondance between sites in the dataset and the arrays in the structures is given
+ * by the _rootPatternLinks array: the array indice for site @f$i@f$ if given by:
+ * @code
+ * _rootPatternLinks[i]
+ * @endcode
+ *
+ * Finally, the _rootWeights array gives for each array position, the number of sites with this
+ * pattern.
+ * The global parsimony score is then given by the sum of all scores for each array position,
+ * weighted by the corresponding number of sites.
+ */
+class AbstractTreeParsimonyData : public TreeParsimonyData
 {
 	protected:
 		vector<unsigned int> _rootPatternLinks;
 		vector<unsigned int> _rootWeights;
+		TreeTemplate<Node> * _tree;
 
 	public:
-		unsigned int getRootArrayPosition(const unsigned int site) const { return _rootPatternLinks[site]; }
-		unsigned int getWeight(unsigned int pos) const { return _rootWeights[pos]; }
+		unsigned int getRootArrayPosition(const unsigned int site) const
+		{
+			return _rootPatternLinks[site];
+		}
+		unsigned int getWeight(unsigned int pos) const
+		{ 
+			return _rootWeights[pos];
+		}
+		const TreeTemplate<Node> * getTree() const { return _tree; }  
+		TreeTemplate<Node> * getTree() { return _tree; }
 };
 
 /**
@@ -105,5 +155,4 @@ class AbstractTreeParsimonyScore :
 };
 
 #endif //_ABSTRACTTREEPARSIMONYSCORE_H_
-
 
