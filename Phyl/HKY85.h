@@ -48,11 +48,118 @@ knowledge of the CeCILL license and that you accept its terms.
 // From SeqLib:
 #include <Seq/NucleicAlphabet.h>
 
+/**
+ * @Brief The Hasegawa M, Kishino H and Yano T (1985) substitution model for nucleotides.
+ *
+ * This model is the same as the one of Kimura (see K80),
+ * but allows distinct equilibrium frequencies between A, C, G and T.
+ * This models hence includes five parameters, the transition / transversion
+ * relative rate \f$\kappa\f$ and four frequencies \f$\pi_A, \pi_C, \pi_G, \pi_T\f$.
+ * These four frequencies are not independent parameters, since they have the constraint to
+ * sum to 1. Usually, these parameters are measured from the data and not optimized.
+ * \f[
+ * \begin{pmatrix}
+ * \cdots & r & \kappa r & r \\ 
+ * r & \cdots & r & \kappa r \\ 
+ * \kappa r & r & \cdots & r \\ 
+ * r & \kappa r & r & \cdots \\ 
+ * \end{pmatrix}
+ * \f]
+ * \f[
+ * \pi = \left(\pi_A, \pi_C, \pi_G, \pi_T\right)
+ * \f]
+ * Normalization: \f$r\f$ is set so that \f$\sum_i Q_{i,i}\pi_i = -1\f$:
+ * \f[
+ * S = \frac{1}{P}\begin{pmatrix}
+ * \frac{-\pi_T-\kappa\pi_G-\pi_C}{\pi_A} & 1 & \kappa & 1 \\ 
+ * 1 & \frac{-\kappa\pi_T-\pi_G-\pi_A}{\pi_C} & 1 & \kappa \\ 
+ * \kappa & 1 & \frac{-\pi_T-\pi_C-\kappa\pi_A}{\pi_G} & 1 \\ 
+ * 1 & \kappa & 1 & \frac{-\pi_G-\kappa\pi_C-\pi_A}{\pi_T} \\ 
+ * \end{pmatrix}
+ * \f]
+ * with \f$P=2\left(\pi_A * \pi_C + \pi_C * \pi_G + \pi_A * \pi_T + \pi_G * \pi_T + kappa * \left(\pi_C * \pi_T + \pi_A * \pi_G\right)\right)\f$.
+ *
+ * The normalized generator is obtained by taking the dot product of \f$S\f$ and \f$\pi\f$:
+ * \f[
+ * Q = S . \pi = \frac{1}{P}\begin{pmatrix}
+ * -\pi_T-\kappa\pi_G-\pi_C & \pi_C & \kappa\pi_G & \pi_T \\ 
+ * \pi_A & -\kappa\pi_T-\pi_G-\pi_A & \pi_G & \kappa\pi_T \\ 
+ * \kappa\pi_A & \pi_C & -\pi_T-\pi_C-\kappa\pi_A & \pi_T \\ 
+ * \pi_A & \kappa\pi_C & \pi_G & -\pi_G-\kappa\pi_C-\pi_A \\ 
+ * \end{pmatrix}
+ * \f]
+ *  
+ * The eigen values are \f$\left(0, -\frac{\pi_R + \kappa\pi_Y}{P}, -\frac{\pi_Y + \kappa\pi_R}{P}, -\frac{1}{P}\right)\f$,
+ * with \f$\pi_R=\pi_A+\pi_G\f$ and \f$\pi_Y=\pi_C+\pi_G\f$.
+ * The left eigen vectors are, by row:
+ * \f[
+ * U = \begin{pmatrix}
+ *                    \pi_A &               \pi_C &                    \pi_G & \pi_T \\
+ *                        0 & \frac{\pi_T}{\pi_Y} &                        0 & -\frac{\pi_T}{\pi_Y} \\
+ *      \frac{\pi_G}{\pi_R} &                   0 &     -\frac{\pi_G}{\pi_R} & 0 \\
+ * \frac{\pi_A\pi_Y}{\pi_R} &              -\pi_C & \frac{\pi_G\pi_Y}{\pi_R} & -\pi_T \\
+ * \end{pmatrix}
+ * \f]
+ * and the right eigen vectors are, by column:
+ * \f[
+ * U^-1 = \begin{pmatrix}
+ * 1 &  0 &  1 &  1 \\
+ * 1 &  1 &  0 & -\frac{\pi_R}{\pi_Y} \\
+ * 1 &  0 & \frac{\pi_A}{\pi_G} &  1 \\
+ * 1 & -\frac{\pi_C}{\pi_T} &  0 & -\frac{\pi_R}{\pi_Y} \\
+ * \end{pmatrix}
+ * \f]
+ *
+ * The probabilities of changes are computed analytically using the formulas:
+ * \f{multline*}
+ * P_{i,j}(t) = \\
+ * \begin{pmatrix}
+ * \frac{\pi_G}{\pi_R}A + \frac{\pi_A\pi_Y}{\pi_R}B + \pi_A & \pi_C - \pi_CB & -\frac{\pi_G}{\pi_R}A + \frac{\pi_G\pi_Y}{\pi_R}B + \pi_G & \pi_T - \pi_TB \\
+ * \pi_A - \pi_AB & \frac{\pi_T}{\pi_Y}A + \frac{\pi_C\pi_R}{\pi_Y}B + \pi_C & \pi_G - \pi_GB & -\frac{\pi_T}{\pi_Y}A + \frac{\pi_T\pi_R}{\pi_Y}B + \pi_T \\
+ * -\frac{\pi_A}{\pi_R}A + \frac{\pi_A\pi_Y}{\pi_R}B + \pi_A & \pi_C - \pi_CB & \frac{\pi_A}{\pi_R}A + \frac{\pi_G\pi_Y}{\pi_R}B + \pi_G & \pi_T - \pi_TB \\
+ * \pi_A - \pi_AB & -\frac{\pi_C}{\pi_Y}A + \frac{\pi_C\pi_R}{\pi_Y}B + \pi_C & \pi_G - \pi_GB & \frac{\pi_C}{\pi_Y}A + \frac{\pi_R\pi_T}{\pi_Y}B + \pi_T \\
+ * \end{pmatrix}
+ * \f}
+ * with \f$A=e^{-\frac{(\pi_Y+\kappa\pi_R)t}{P}}\f$ and \f$B = e^{-\frac{t}{P}}\f$. 
+ *
+ * First and second order derivatives are also computed analytically using the formulas:
+ * \f{multline*}
+ * \frac{\partial P_{i,j}(t)}{\partial t} = \\
+ * \frac{1}{P}
+ * \footnotesize
+ * \begin{pmatrix}
+ * -\frac{\pi_G(\pi_Y+\kappa\pi_R)}{\pi_R}A - \frac{\pi_A\pi_Y}{\pi_R}B & \pi_CB & \frac{\pi_G(\pi_Y+\kappa\pi_R)}{\pi_R}A - \frac{\pi_G\pi_Y}{\pi_R}B & \pi_TB \\
+ * \pi_AB & -\frac{\pi_T(\pi_R+\kappa\pi_Y)}{\pi_Y}A - \frac{\pi_C\pi_R}{\pi_Y}B & \pi_GB & \frac{\pi_T(\pi_R+\kappa\pi_Y)}{\pi_Y}A - \frac{\pi_T\pi_R}{\pi_Y}B \\
+ * \frac{\pi_A(\pi_Y+\kappa\pi_R)}{\pi_R}A - \frac{\pi_A\pi_Y}{\pi_R}B & \pi_CB & -\frac{\pi_A(\pi_Y+\kappa\pi_R)}{\pi_R}A - \frac{\pi_G\pi_Y}{\pi_R}B & \pi_TB \\
+ * \pi_AB & \frac{\pi_C(\pi_R+\kappa\pi_Y)}{\pi_Y}A - \frac{\pi_C\pi_R}{\pi_Y}B & \pi_GB & -\frac{\pi_C(\pi_R+\kappa\pi_Y)}{\pi_Y}A - \frac{\pi_R\pi_T}{\pi_Y}B \\
+ * \end{pmatrix}
+ * \f}
+ * \f{multline*}
+ * \frac{\partial^2 P_{i,j}(t)}{\partial t^2} = \\
+ * \frac{1}{P^2}
+ * \footnotesize
+ * \begin{pmatrix}
+ * \frac{\pi_G{(\pi_Y+\kappa\pi_R)}^2}{\pi_R}A + \frac{\pi_A\pi_Y}{\pi_R}B & -\pi_CB & -\frac{\pi_G{(\pi_Y+\kappa\pi_R)}^2}{\pi_R}A + \frac{\pi_G\pi_Y}{\pi_R}B & -\pi_TB \\
+ * -\pi_AB & \frac{\pi_T{(\pi_R+\kappa\pi_Y)}^2}{\pi_Y}A + \frac{\pi_C\pi_R}{\pi_Y}B & -\pi_GB & -\frac{\pi_T{(\pi_R+\kappa\pi_Y)}^2}{\pi_Y}A + \frac{\pi_T\pi_R}{\pi_Y}B \\
+ * -\frac{\pi_A{(\pi_Y+\kappa\pi_R)}^2}{\pi_R}A + \frac{\pi_A\pi_Y}{\pi_R}B & -\pi_CB & \frac{\pi_A{(\pi_Y+\kappa\pi_R)}^2}{\pi_R}A + \frac{\pi_G\pi_Y}{\pi_R}B & -\pi_TB \\
+ * -\pi_AB & -\frac{\pi_C{(\pi_R+\kappa\pi_Y)}^2}{\pi_Y}A + \frac{\pi_C\pi_R}{\pi_Y}B & -\pi_GB & \frac{\pi_C{(\pi_R+\kappa\pi_Y)}^2}{\pi_Y}A + \frac{\pi_R\pi_T}{\pi_Y}B \\
+  * \end{pmatrix}
+ * \f}
+ *
+ * The parameters are named \c "kappa", \c "piA", \c "piC", \c "piG" and \c "piT"
+ * and their values may be retrieve with the command 
+ * \code
+ * getParameterValue("kappa")
+ * \endcode
+ * for instance.
+ *
+ * Reference:
+ * - Hasegawa M, Kishino H and Yano T (1985), _Molecular Biology And Evolution_ 22(2) 160-74. 
+ */
 class HKY85 : public virtual NucleotideSubstitutionModel
 {
 	protected:
 		Constraint * piConstraint;
-		void updateMatrices();
 		double kappa, r, exp1, exp2, exp3;
 
 	public:
@@ -64,21 +171,24 @@ class HKY85 : public virtual NucleotideSubstitutionModel
 			double piG = 0.25,
 			double piT = 0.25);
 	
-		~HKY85();
+		virtual ~HKY85();
 
 		double Pij_t    (int i, int j, double d) const;
 		double dPij_dt  (int i, int j, double d) const;
 		double d2Pij_dt2(int i, int j, double d) const;
-		Mat getPij_t    (double d) const;
-		Mat getdPij_dt  (double d) const;
-		Mat getd2Pij_dt2(double d) const;
+		RowMatrix<double> getPij_t    (double d) const;
+		RowMatrix<double> getdPij_dt  (double d) const;
+		RowMatrix<double> getd2Pij_dt2(double d) const;
 
 		string getName() const;
 
 		/**
-		 * @brief This method is over-defined to actualize the corresponding parameters piA, piT, piG and piC too.
+		 * @brief This method is redefined to actualize the corresponding parameters piA, piT, piG and piC too.
 		 */
 		void setFreqFromData(const SequenceContainer & data);
+	
+	protected:
+		void updateMatrices();
 };
 
 #endif	//_HKY85_H_

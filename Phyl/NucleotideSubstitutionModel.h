@@ -45,10 +45,14 @@ knowledge of the CeCILL license and that you accept its terms.
 // From SeqLib:
 #include <Seq/NucleicAlphabet.h>
 
+/**
+ * @brief Basal class for nucleotide substitution model.
+ */
 class NucleotideSubstitutionModel : public virtual AbstractSubstitutionModel
 {
 	public:
 		NucleotideSubstitutionModel(const NucleicAlphabet * alpha) : AbstractSubstitutionModel(alpha) {}
+
 		virtual ~NucleotideSubstitutionModel() {}
 };
 

@@ -1,7 +1,7 @@
 //
 // File: HomogeneousSequenceSimulator.cpp
 //       (previously SequenceSimulator.cpp)
-// Created by: Julien.Dutheil
+// Created by: Julien Dutheil
 // Created on: Wed Feb  4 16:30:51 2004
 //
 
@@ -83,7 +83,7 @@ HomogeneousSequenceSimulator::HomogeneousSequenceSimulator(
 		for(unsigned int c = 0; c < _nbClasses; c++) {
 			VVdouble * _cumpxy_node_c = & (* _cumpxy_node)[c];
 			_cumpxy_node_c -> resize(_nbStates);
-			Mat P = _model -> getPij_t(d * _rate -> getCategory(c));
+			RowMatrix<double> P = _model -> getPij_t(d * _rate -> getCategory(c));
 			for(unsigned int x = 0; x < _nbStates; x++) {
 				Vdouble * _cumpxy_node_c_x = & (* _cumpxy_node_c)[x];
 				_cumpxy_node_c_x -> resize(_nbStates);

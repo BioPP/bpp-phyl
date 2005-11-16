@@ -57,7 +57,6 @@ GTR::GTR(
 	double c,
 	double d,
 	double e,
-	double f,
 	double piA,
 	double piC,
 	double piG,
@@ -71,7 +70,6 @@ GTR::GTR(
 	_parameters.addParameter(Parameter("c", c, &Parameter::R_PLUS));
 	_parameters.addParameter(Parameter("d", d, &Parameter::R_PLUS));
 	_parameters.addParameter(Parameter("e", e, &Parameter::R_PLUS));
-	_parameters.addParameter(Parameter("f", f, &Parameter::R_PLUS));
 	_parameters.addParameter(Parameter("piA", piA, piConstraint));
 	_parameters.addParameter(Parameter("piC", piC, piConstraint));
 	_parameters.addParameter(Parameter("piG", piG, piConstraint));
@@ -83,23 +81,28 @@ GTR::GTR(
 	_freq[2] = piG;
 	_freq[3] = piT;
 
+	double p = piG*(c*piT+e*piC+  piA)
+		       + piC*(b*piT+  piG+d*piA)
+					 + piA*(a*piT+e*piG+d*piC)
+					 + piT*(c*piG+a*piC+b*piA);
+		
 	// Exchangeability matrix:
-	_exchangeability(0,0) = 0.;
-	_exchangeability(1,0) = a;
-	_exchangeability(0,1) = a;
-	_exchangeability(2,0) = b;
-	_exchangeability(0,2) = b;
-	_exchangeability(3,0) = c;
-	_exchangeability(0,3) = c;
-	_exchangeability(1,1) = 0.;
-	_exchangeability(1,2) = d;
-	_exchangeability(2,1) = d;
-	_exchangeability(1,3) = e;
-	_exchangeability(3,1) = e;
-	_exchangeability(2,2) = 0.;
-	_exchangeability(2,3) = f;
-	_exchangeability(3,2) = f;
-	_exchangeability(3,3) = 0.;
+	_exchangeability(0,0) = (-b*piT-  piG-d*piC)/(piA * p);
+	_exchangeability(1,0) = d/p;
+	_exchangeability(0,1) = d/p;
+	_exchangeability(2,0) = 1/p;
+	_exchangeability(0,2) = 1/p;
+	_exchangeability(3,0) = b/p;
+	_exchangeability(0,3) = b/p;
+	_exchangeability(1,1) = (-a*piT-e*piG-d*piA)/(piC * p);
+	_exchangeability(1,2) = e/p;
+	_exchangeability(2,1) = e/p;
+	_exchangeability(1,3) = a/p;
+	_exchangeability(3,1) = a/p;
+	_exchangeability(2,2) = (-c*piT-e*piC-  piA)/(piG * p);
+	_exchangeability(2,3) = c/p;
+	_exchangeability(3,2) = c/p;
+	_exchangeability(3,3) = (-c*piG-a*piC-b*piA)/(piT * p);
 
 	updateMatrices();
 }
@@ -114,7 +117,8 @@ string GTR::getName() const { return string("General Time-Reversible"); }
 
 /******************************************************************************/
 
-void GTR::setFreqFromData(const SequenceContainer & data) {
+void GTR::setFreqFromData(const SequenceContainer & data)
+{
 	AbstractSubstitutionModel::setFreqFromData(data);
 	// In this model, frequencies may be parameters:
 	setParameterValue("piA", _freq[0]);

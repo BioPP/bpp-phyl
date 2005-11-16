@@ -47,10 +47,11 @@ knowledge of the CeCILL license and that you accept its terms.
 
 /**
  * @brief Build an empirical protein substitution model from a file.
- * The file must follow PAML's format, and contain the symetric component (S(i,j))
- * and all equilibrium frequencies (F(i)).
- * The generator is build so that Q(i,j) = F(i)*S(i,j), and is normalized
- * so that sum_i Q(i,i)*F(i) = -1.
+ * 
+ * The file must follow PAML's format, and contain the exchangeabilities components (\f$S_{i,j}\f$)
+ * and all equilibrium frequencies (\f$\pi_{i}\f$).
+ * The generator is build so that \f$Q_{i,j} = \pi_i . S_{i,j}\f$, and is normalized
+ * so that \f$\sum_i Q_{i,i} \times \pi_i = -1\f$.
  */
 class UserProteinSubstitutionModel: public virtual ProteinSubstitutionModel
 {
@@ -70,5 +71,4 @@ class UserProteinSubstitutionModel: public virtual ProteinSubstitutionModel
 };
 
 #endif //_USERPROTEINSUBSTITUTIONMODEL_H_
-
 

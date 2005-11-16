@@ -115,11 +115,32 @@ void HKY85::updateMatrices()
 	double r = 1. / (2. * (piA * piC + piC * piG + piA * piT + piG * piT + kappa * (piC * piT + piA * piG)));
 	MatrixTools::scale(_generator, r);
 	
+	// Exchangeability:
+	_exchangeability(0,0) = _generator(0,0) / piA;
+	_exchangeability(0,1) = _generator(0,1) / piC; 
+	_exchangeability(0,2) = _generator(0,2) / piG; 
+	_exchangeability(0,3) = _generator(0,3) / piT;
+
+	_exchangeability(1,0) = _generator(1,0) / piA; 
+	_exchangeability(1,1) = _generator(1,1) / piC; 
+	_exchangeability(1,2) = _generator(1,2) / piG; 
+	_exchangeability(1,3) = _generator(1,3) / piT; 
+	
+	_exchangeability(2,0) = _generator(2,0) / piA; 
+	_exchangeability(2,1) = _generator(2,1) / piC; 
+	_exchangeability(2,2) = _generator(2,2) / piG; 
+	_exchangeability(2,3) = _generator(2,3) / piT; 
+	
+	_exchangeability(3,0) = _generator(3,0) / piA;
+	_exchangeability(3,1) = _generator(3,1) / piC; 
+	_exchangeability(3,2) = _generator(3,2) / piG; 
+	_exchangeability(3,3) = _generator(3,3) / piT;
+
 	// Eigen values:
 	_eigenValues[0] = 0;
-	_eigenValues[1] = -r * (kappa * piR + piY); 
-	_eigenValues[2] = -r;
-	_eigenValues[3] = -r * (kappa * piY + piR);
+	_eigenValues[1] = -r * (kappa * piY + piR);
+	_eigenValues[2] = -r * (kappa * piR + piY); 
+	_eigenValues[3] = -r;
 	
 	// Eigen vectors:
 	_leftEigenVectors(0,0) = piA;
@@ -127,40 +148,40 @@ void HKY85::updateMatrices()
 	_leftEigenVectors(0,2) = piG;
 	_leftEigenVectors(0,3) = piT;
 
-	_leftEigenVectors(1,0) = piG / piR;
-	_leftEigenVectors(1,1) = 0.;
-	_leftEigenVectors(1,2) = -piG / piR;
-	_leftEigenVectors(1,3) = 0.;
+	_leftEigenVectors(1,0) = 0.;
+	_leftEigenVectors(1,1) = piT / piY;
+	_leftEigenVectors(1,2) = 0.;
+	_leftEigenVectors(1,3) = -piT / piY;
 
-	_leftEigenVectors(2,0) = piA*piY / piR;
-	_leftEigenVectors(2,1) = -piC;
-	_leftEigenVectors(2,2) = piG*piY / piR;
-	_leftEigenVectors(2,3) = -piT;
+	_leftEigenVectors(2,0) = piG / piR;
+	_leftEigenVectors(2,1) = 0.;
+	_leftEigenVectors(2,2) = -piG / piR;
+	_leftEigenVectors(2,3) = 0.;
 
-	_leftEigenVectors(3,0) = 0.;
-	_leftEigenVectors(3,1) = piT / piY;
-	_leftEigenVectors(3,2) = 0.;
-	_leftEigenVectors(3,3) = -piT / piY;
+	_leftEigenVectors(3,0) = piA*piY / piR;
+	_leftEigenVectors(3,1) = -piC;
+	_leftEigenVectors(3,2) = piG*piY / piR;
+	_leftEigenVectors(3,3) = -piT;
 
 	_rightEigenVectors(0,0) = 1.;
-	_rightEigenVectors(0,1) = 1.;
+	_rightEigenVectors(0,1) = 0.;
 	_rightEigenVectors(0,2) = 1.;
-	_rightEigenVectors(0,3) = 0.;
+	_rightEigenVectors(0,3) = 1.;
 	
 	_rightEigenVectors(1,0) = 1.;
-	_rightEigenVectors(1,1) = 0.;
-	_rightEigenVectors(1,2) = -piR / piY;
-	_rightEigenVectors(1,3) = 1.;
+	_rightEigenVectors(1,1) = 1.;
+	_rightEigenVectors(1,2) = 0.;;
+	_rightEigenVectors(1,3) = -piR / piY;
 
 	_rightEigenVectors(2,0) = 1.;
-	_rightEigenVectors(2,1) = -piA / piG;
-	_rightEigenVectors(2,2) = 1.;
-	_rightEigenVectors(2,3) = 0.;
+	_rightEigenVectors(2,1) = 0.;
+	_rightEigenVectors(2,2) = -piA / piG;
+	_rightEigenVectors(2,3) = 1.;
 
 	_rightEigenVectors(3,0) = 1.;
-	_rightEigenVectors(3,1) = 0.;
-	_rightEigenVectors(3,2) = -piR / piY;
-	_rightEigenVectors(3,3) = -piC / piT;
+	_rightEigenVectors(3,1) = -piC / piT;
+	_rightEigenVectors(3,2) = 0.;
+	_rightEigenVectors(3,3) = -piR / piY;
 }
 	
 /******************************************************************************/
@@ -348,8 +369,9 @@ double HKY85::d2Pij_dt2(int i, int j, double d) const
 
 /******************************************************************************/
 
-Mat HKY85::getPij_t(double d) const {
-	Mat p(_size, _size);
+RowMatrix<double> HKY85::getPij_t(double d) const
+{
+	RowMatrix<double> p(_size, _size);
 	double kappa = _parameters.getParameter("kappa") -> getValue();
 	double piA = _parameters.getParameter("piA") -> getValue();
 	double piC = _parameters.getParameter("piC") -> getValue();
@@ -392,8 +414,9 @@ Mat HKY85::getPij_t(double d) const {
 	return p;
 }
 
-Mat HKY85::getdPij_dt(double d) const {
-	Mat p(_size, _size);
+RowMatrix<double> HKY85::getdPij_dt(double d) const
+{
+	RowMatrix<double> p(_size, _size);
 	double kappa = _parameters.getParameter("kappa") -> getValue();
 	double piA = _parameters.getParameter("piA") -> getValue();
 	double piC = _parameters.getParameter("piC") -> getValue();
@@ -436,8 +459,9 @@ Mat HKY85::getdPij_dt(double d) const {
 	return p;
 }
 
-Mat HKY85::getd2Pij_dt2(double d) const {
-	Mat p(_size, _size);
+RowMatrix<double> HKY85::getd2Pij_dt2(double d) const
+{
+	RowMatrix<double> p(_size, _size);
 	double kappa = _parameters.getParameter("kappa") -> getValue();
 	double piA = _parameters.getParameter("piA") -> getValue();
 	double piC = _parameters.getParameter("piC") -> getValue();
@@ -489,7 +513,8 @@ string HKY85::getName() const { return string("Hasegawa, Kishino and Yano (1985)
 
 /******************************************************************************/
 
-void HKY85::setFreqFromData(const SequenceContainer & data) {
+void HKY85::setFreqFromData(const SequenceContainer & data)
+{
 	AbstractSubstitutionModel::setFreqFromData(data);
 	// In this model, frequencies may be parameters:
 	setParameterValue("piA", _freq[0]);

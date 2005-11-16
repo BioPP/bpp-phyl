@@ -5,45 +5,7 @@
 //
 
 /*
-Copyright ou © ou Copr. Julien Dutheil, (16 Novembre 2004) 
-
-Julien.Dutheil@univ-montp2.fr
-
-Ce logiciel est un programme informatique servant à fournir des classes
-pour l'analyse de données phylogénétiques.
-
-Ce logiciel est régi par la licence CeCILL soumise au droit français et
-respectant les principes de diffusion des logiciels libres. Vous pouvez
-utiliser, modifier et/ou redistribuer ce programme sous les conditions
-de la licence CeCILL telle que diffusée par le CEA, le CNRS et l'INRIA 
-sur le site "http://www.cecill.info".
-
-En contrepartie de l'accessibilité au code source et des droits de copie,
-de modification et de redistribution accordés par cette licence, il n'est
-offert aux utilisateurs qu'une garantie limitée.  Pour les mêmes raisons,
-seule une responsabilité restreinte pèse sur l'auteur du programme,  le
-titulaire des droits patrimoniaux et les concédants successifs.
-
-A cet égard  l'attention de l'utilisateur est attirée sur les risques
-associés au chargement,  à l'utilisation,  à la modification et/ou au
-développement et à la reproduction du logiciel par l'utilisateur étant 
-donné sa spécificité de logiciel libre, qui peut le rendre complexe à 
-manipuler et qui le réserve donc à des développeurs et des professionnels
-avertis possédant  des  connaissances  informatiques approfondies.  Les
-utilisateurs sont donc invités à charger  et  tester  l'adéquation  du
-logiciel à leurs besoins dans des conditions permettant d'assurer la
-sécurité de leurs systèmes et ou de leurs données et, plus généralement, 
-à l'utiliser et l'exploiter dans les mêmes conditions de sécurité. 
-
-Le fait que vous puissiez accéder à cet en-tête signifie que vous avez 
-pris connaissance de la licence CeCILL, et que vous en avez accepté les
-termes.
-*/
-
-/*
-Copyright or © or Copr. Julien Dutheil, (November 16, 2004)
-
-Julien.Dutheil@univ-montp2.fr
+Copyright or © or Copr. CNRS, (November 16, 2004)
 
 This software is a computer program whose purpose is to provide classes
 for phylogenetic data analysis.
@@ -87,11 +49,64 @@ knowledge of the CeCILL license and that you accept its terms.
 #include <Seq/NucleicAlphabet.h>
 #include <Seq/SequenceContainer.h>
 
+/**
+ * @Brief The Tamura and Nei (1993) substitution model for nucleotides.
+ *
+ * This model has two rate of transitions and one rate of transversion.
+ * It also allows distinct equilibrium frequencies between A, C, G and T.
+ * This models hence includes six parameters, two transition / transversion
+ * relative rates \f$\kappa_1\f$ and \f$\kappa_2\f$, and four frequencies \f$\pi_A, \pi_C, \pi_G, \pi_T\f$.
+ * These four frequencies are not independent parameters, since they have the constraint to
+ * sum to 1. Usually, these parameters are measured from the data and not optimized.
+ * \f[
+ * \begin{pmatrix}
+ * \cdots & r & \kappa_1 r & r \\ 
+ * r & \cdots & r & \kappa_2 r \\ 
+ * \kappa_1 r & r & \cdots & r \\ 
+ * r & \kappa_2 r & r & \cdots \\ 
+ * \end{pmatrix}
+ * \f]
+ * \f[
+ * \pi = \left(\pi_A, \pi_C, \pi_G, \pi_T\right)
+ * \f]
+ * Normalization: \f$r\f$ is set so that \f$\sum_i Q_{i,i}\pi_i = -1\f$:
+ * \f[
+ * S = \frac{1}{P}\begin{pmatrix}
+ * \frac{-\pi_T-\kappa_1\pi_G-\pi_C}{\pi_A} & 1 & \kappa_1 & 1 \\ 
+ * 1 & \frac{-\kappa_2\pi_T-\pi_G-\pi_A}{\pi_C} & 1 & \kappa_2 \\ 
+ * \kappa_1 & 1 & \frac{-\pi_T-\pi_C-\kappa_1\pi_A}{\pi_G} & 1 \\ 
+ * 1 & \kappa_2 & 1 & \frac{-\pi_G-\kappa_2\pi_C-\pi_A}{\pi_T} \\ 
+ * \end{pmatrix}
+ * \f]
+ * with \f$P=2\left(\pi_A * \pi_C + \pi_C * \pi_G + \pi_A * \pi_T + \pi_G * \pi_T + kappa_2 * \pi_C * \pi_T + \kappa_1 * \pi_A * \pi_G\right)\f$.
+ *
+ * The normalized generator is obtained by taking the dot product of \f$S\f$ and \f$\pi\f$:
+ * \f[
+ * Q = S . \pi = \frac{1}{P}\begin{pmatrix}
+ * -\pi_T-\kappa_1\pi_G-\pi_C & \pi_C & \kappa_1\pi_G & \pi_T \\ 
+ * \pi_A & -\kappa_2\pi_T-\pi_G-\pi_A & \pi_G & \kappa_2\pi_T \\ 
+ * \kappa_1\pi_A & \pi_C & -\pi_T-\pi_C-\kappa_1\pi_A & \pi_T \\ 
+ * \pi_A & \kappa_2\pi_C & \pi_G & -\pi_G-\kappa_2\pi_C-\pi_A \\ 
+ * \end{pmatrix}
+ * \f]
+ *
+ * For now, the generator of this model is diagonalized numericaly.
+ * See AbstractSubstitutionModel for details of how the porbabilities are computed.
+ *
+ * The parameters are named \c "kappa1", \c "kappa2", \c "piA", \c "piC", \c "piG" and \c "piT"
+ * and their values may be retrieve with the command 
+ * \code
+ * getParameterValue("kappa1")
+ * \endcode
+ * for instance.
+ *
+ * Reference:
+ * - Tamura N and Nei K (1993), _Molecular Biology And Evolution_ 10(3) 512-26. 
+  */
 class TN93 : public virtual NucleotideSubstitutionModel
 {
 	protected:
 		Constraint * piConstraint;
-		void updateMatrices();
 
 	public:
 		TN93(
@@ -103,14 +118,14 @@ class TN93 : public virtual NucleotideSubstitutionModel
 			double piG = 0.25,
 			double piT = 0.25);
 	
-		~TN93();
+		virtual ~TN93();
 
 		double Pij_t    (int i, int j, double d) const;
 		double dPij_dt  (int i, int j, double d) const;
 		double d2Pij_dt2(int i, int j, double d) const;
-		Mat getPij_t    (double d) const;
-		Mat getdPij_dt  (double d) const;
-		Mat getd2Pij_dt2(double d) const;
+		RowMatrix<double> getPij_t    (double d) const;
+		RowMatrix<double> getdPij_dt  (double d) const;
+		RowMatrix<double> getd2Pij_dt2(double d) const;
 
 		string getName() const;
 	
@@ -119,7 +134,10 @@ class TN93 : public virtual NucleotideSubstitutionModel
 		 */
 		void setFreqFromData(const SequenceContainer & data);
 
+	protected:
+		void updateMatrices();
+
 };
 
-
 #endif	//_TN93_H_
+

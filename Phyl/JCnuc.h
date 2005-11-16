@@ -42,30 +42,109 @@ knowledge of the CeCILL license and that you accept its terms.
 
 #include "NucleotideSubstitutionModel.h"
 
+/**
+ * @Brief The Jukes-Cantor substitution model for nucleotides.
+ *
+ * All rates equal:
+ * \f[
+ * \begin{pmatrix}
+ * \cdots & r & r & r \\ 
+ * r & \cdots & r & r \\ 
+ * r & r & \cdots & r \\ 
+ * r & r & r & \cdots \\ 
+ * \end{pmatrix}
+ * \f]
+ * \f[
+ * \pi = diag\left(\frac{1}{4}, \frac{1}{4}, \frac{1}{4}, \frac{1}{4}\right)
+ * \f]
+ * Normalization: \f$r\f$ is set so that \f$\sum_i Q_{i,i}\pi_i = -1\f$:
+ * \f[
+ * S = \begin{pmatrix}
+ * -4 & \frac{4}{3} & \frac{4}{3} & \frac{4}{3} \\ 
+ * \frac{4}{3} & -4 & \frac{4}{3} & \frac{4}{3} \\ 
+ * \frac{4}{3} & \frac{4}{3} & -4 & \frac{4}{3} \\ 
+ * \frac{4}{3} & \frac{4}{3} & \frac{4}{3} & -4 \\ 
+ * \end{pmatrix}
+ * \f]
+ * The normalized generator is obtained by taking the dot product of \f$S\f$ and \f$pi\f$:
+ * \f[
+ * Q = S . \Pi = \begin{pmatrix}
+ * -1 & \frac{1}{3} & \frac{1}{3} & \frac{1}{3} \\ 
+ * \frac{1}{3} & -1 & \frac{1}{3} & \frac{1}{3} \\ 
+ * \frac{1}{3} & \frac{1}{3} & -1 & \frac{1}{3} \\ 
+ * \frac{1}{3} & \frac{1}{3} & \frac{1}{3} & -1 \\ 
+ * \end{pmatrix}
+ * \f]
+ *
+ * The eigen values are \f$\left(0, -\frac{4}{3}, -\frac{4}{3}, -\frac{4}{3}\right)\f$, 
+ * the left eigen vectors are, by row:
+ * \f[
+ * U = \begin{pmatrix}
+ *  \frac{1}{4} &  \frac{1}{4} &  \frac{1}{4} &  \frac{1}{4} \\
+ * -\frac{1}{4} & -\frac{1}{4} &  \frac{3}{4} & -\frac{1}{4} \\
+ * -\frac{1}{4} &  \frac{3}{4} & -\frac{1}{4} & -\frac{1}{4} \\
+ *  \frac{3}{4} & -\frac{1}{4} & -\frac{1}{4} & -\frac{1}{4} \\
+ * \end{pmatrix}
+ * \f]
+ * and the right eigen vectors are, by column:
+ * \f[
+ * U^-1 = \begin{pmatrix}
+ * 1 &  0 &  0 &  1 \\
+ * 1 &  0 &  1 &  0 \\
+ * 1 &  1 &  0 &  0 \\
+ * 1 & -1 & -1 & -1 \\
+ * \end{pmatrix}
+ * \f]
+ *
+ * The probabilities of changes are computed analytically using the formulas:
+ * \f[
+ * P_{i,j}(t) = \begin{cases}
+ * \frac{3}{4}e^{-\frac{4}{3}t}               & \text{if $i=j$}, \\
+ * \frac{1}{4} - \frac{1}{4}e^{-\frac{4}{3}t} & \text{otherwise}.
+ * \end{cases}
+ * \f]
+ *
+ * First and second order derivatives are also computed analytically using the formulas:
+ * \f[
+ * \frac{\partial P_{i,j}(t)}{\partial t} = \begin{cases}
+ * -e^{-\frac{4}{3}t}           & \text{if $i=j$}, \\
+ * \frac{1}{3}e^{-\frac{4}{3}t} & \text{otherwise}.
+ * \end{cases}
+ * \f]
+ * \f[
+ * \frac{\partial^2 P_{i,j}(t)}{\partial t^2} = \begin{cases}
+ * \frac{4}{3}e^{-\frac{4}{3}t}  & \text{if $i=j$}, \\
+ * -\frac{4}{9}e^{-\frac{4}{3}t} & \text{otherwise}.
+ * \end{cases}
+ * \f]
+ *
+ * Reference:
+ * - Jukes TH and Cantor CR (1969), _Evolution of proteins molecules_, 121-123, in _Mammalian protein metabolism_. 
+ */
 class JCnuc : public virtual NucleotideSubstitutionModel
 {
 	public:
 		JCnuc(const NucleicAlphabet * alpha);
-		~JCnuc();
+		virtual ~JCnuc() {}
 	
 		double Pij_t    (int i, int j, double d) const;
 		double dPij_dt  (int i, int j, double d) const;
 		double d2Pij_dt2(int i, int j, double d) const;
-		Mat getPij_t    (double d) const;
-		Mat getdPij_dt  (double d) const;
-		Mat getd2Pij_dt2(double d) const;
+		RowMatrix<double> getPij_t    (double d) const;
+		RowMatrix<double> getdPij_dt  (double d) const;
+		RowMatrix<double> getd2Pij_dt2(double d) const;
 
 		string getName() const;
 	
 	protected:
+
 		/**
-		 * In the case of the model of Jukes & Cantor, this method is useless since
-		 * the generator is fixed! No matrice can be changed... This method is only
+		 * In the case of the model of Jukes & Cantor, this method is not usefull since
+		 * the generator is fully determined. No matrice can be changed... This method is only
 		 * used in the constructor of the class.
 		 */
 		void updateMatrices();
 };
-
 
 #endif	//_JCNUC_H_
 

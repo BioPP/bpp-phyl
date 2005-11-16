@@ -1,7 +1,7 @@
 //
 // File: DistanceEstimation.cpp
 // Created by: Julien Dutheil
-//             vincent Ranwez
+//             Vincent Ranwez
 // Created on: Wed jun 08 10:39 2005
 //
 
@@ -266,7 +266,7 @@ void TwoTreeLikelihood::fireParameterChanged(const ParameterList & params)
 	for(unsigned int c = 0; c < _nbClasses; c++) {
 		VVdouble * _pxy_c = & _pxy[c];
 		_pxy_c -> resize(_nbStates);
-		Mat Q = _model -> getPij_t(_brLen * _rateDistribution -> getCategory(c));
+		RowMatrix<double> Q = _model -> getPij_t(_brLen * _rateDistribution -> getCategory(c));
 		for(unsigned int x = 0; x < _nbStates; x++) {
 			Vdouble * _pxy_c_x = & (* _pxy_c)[x];
 			_pxy_c_x -> resize(_nbStates);
@@ -283,7 +283,7 @@ void TwoTreeLikelihood::fireParameterChanged(const ParameterList & params)
 				VVdouble * _dpxy_c = & _dpxy[c];
 				_dpxy_c -> resize(_nbStates);
 				double rc = _rateDistribution -> getCategory(c);
-				Mat dQ = _model -> getdPij_dt(_brLen * rc);  
+				RowMatrix<double> dQ = _model -> getdPij_dt(_brLen * rc);  
 				for(unsigned int x = 0; x < _nbStates; x++) {
 					Vdouble * _dpxy_c_x = & (* _dpxy_c)[x];
 					_dpxy_c_x -> resize(_nbStates);
@@ -299,7 +299,7 @@ void TwoTreeLikelihood::fireParameterChanged(const ParameterList & params)
 				VVdouble * _d2pxy_c = & _d2pxy[c];
 				_d2pxy_c -> resize(_nbStates);
 				double rc =  _rateDistribution -> getCategory(c);
-				Mat d2Q = _model -> getd2Pij_dt2(_brLen * rc);
+				RowMatrix<double> d2Q = _model -> getd2Pij_dt2(_brLen * rc);
 				for(unsigned int x = 0; x < _nbStates; x++) {
 					Vdouble * _d2pxy_c_x = & (* _d2pxy_c)[x];
 					_d2pxy_c_x -> resize(_nbStates);

@@ -52,7 +52,7 @@ knowledge of the CeCILL license and that you accept its terms.
  * - Better algortihm: loop over all nodes, check all NNIS.
  *   Then choose the NNI corresponding to the best improvement and perform it.
  *   Then re-loop over all nodes.
- * - PhyML algorithm (not fooly tested, use with care): as the previous one, but perform all NNI improving the score at the same time.
+ * - PhyML algorithm (not fully tested, use with care): as the previous one, but perform all NNI improving the score at the same time.
  *   Leads to faster convergence.
  */
 class NNITopologySearch : public virtual TopologySearch

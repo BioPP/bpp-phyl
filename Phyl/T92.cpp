@@ -68,7 +68,8 @@ T92::T92(const NucleicAlphabet * alpha, double kappa, double theta):
 
 /******************************************************************************/
 
-T92::~T92() {
+T92::~T92()
+{
 	delete thetaConstraint;
 }
 
@@ -101,7 +102,28 @@ void T92::updateMatrices()
 	// Normalization:
 	double r = 1. / (1. + 2. * theta * kappa - 2. * theta * theta * kappa);
 	MatrixTools::scale(_generator, r);
+
+	// Exchangeability:
+	_exchangeability(0,0) = _generator(0,0) * 2./(1.-theta);
+	_exchangeability(0,1) = _generator(0,1) * 2./theta; 
+	_exchangeability(0,2) = _generator(0,2) * 2./theta; 
+	_exchangeability(0,3) = _generator(0,3) * 2./(1.-theta);
+
+	_exchangeability(1,0) = _generator(1,0) * 2./(1.-theta); 
+	_exchangeability(1,1) = _generator(1,1) * 2/theta; 
+	_exchangeability(1,2) = _generator(1,2) * 2/theta; 
+	_exchangeability(1,3) = _generator(1,3) * 2/(1-theta); 
 	
+	_exchangeability(2,0) = _generator(2,0) * 2./(1.-theta); 
+	_exchangeability(2,1) = _generator(2,1) * 2/theta; 
+	_exchangeability(2,2) = _generator(2,2) * 2/theta; 
+	_exchangeability(2,3) = _generator(2,3) * 2/(1-theta); 
+	
+	_exchangeability(3,0) = _generator(3,0) * 2./(1.-theta);
+	_exchangeability(3,1) = _generator(3,1) * 2./theta; 
+	_exchangeability(3,2) = _generator(3,2) * 2./theta; 
+	_exchangeability(3,3) = _generator(3,3) * 2./(1.-theta);
+
 	// Eigen values:
 	_eigenValues[0] = 0;
 	_eigenValues[1] = _eigenValues[2] = -r * (1. + kappa); 
@@ -148,7 +170,6 @@ void T92::updateMatrices()
 	_rightEigenVectors(3,1) = theta/(theta - 1.);
 	_rightEigenVectors(3,2) = 0;
 	_rightEigenVectors(3,3) = -1.;
-
 }
 	
 /******************************************************************************/
@@ -320,8 +341,9 @@ double T92::d2Pij_dt2(int i, int j, double d) const
 
 /******************************************************************************/
 
-Mat T92::getPij_t(double d) const {
-	Mat p(_size, _size);
+RowMatrix<double> T92::getPij_t(double d) const
+{
+	RowMatrix<double> p(_size, _size);
 	double kappa = _parameters.getParameter("kappa") -> getValue();
 	double theta = _parameters.getParameter("theta") -> getValue();
 	double piA, piT = piA = (1. - theta)/2.;
@@ -359,8 +381,9 @@ Mat T92::getPij_t(double d) const {
 	return p;
 }
 
-Mat T92::getdPij_dt(double d) const {
-	Mat p(_size, _size);
+RowMatrix<double> T92::getdPij_dt(double d) const
+{
+	RowMatrix<double> p(_size, _size);
 	double kappa = _parameters.getParameter("kappa") -> getValue();
 	double theta = _parameters.getParameter("theta") -> getValue();
 	double piA, piT = piA = (1. - theta)/2.;
@@ -398,8 +421,9 @@ Mat T92::getdPij_dt(double d) const {
 	return p;
 }
 
-Mat T92::getd2Pij_dt2(double d) const {
-	Mat p(_size, _size);
+RowMatrix<double> T92::getd2Pij_dt2(double d) const
+{
+	RowMatrix<double> p(_size, _size);
 	double kappa = _parameters.getParameter("kappa") -> getValue();
 	double theta = _parameters.getParameter("theta") -> getValue();
 	double piA, piT = piA = (1. - theta)/2.;
@@ -445,7 +469,8 @@ string T92::getName() const { return string("Tamura (1992)"); }
 
 /******************************************************************************/
 
-void T92::setFreqFromData(const SequenceContainer & data) {
+void T92::setFreqFromData(const SequenceContainer & data)
+{
 	map<int, double> freqs = SequenceContainerTools::getFrequencies(data);
 	double f = (freqs[1] + freqs[2]) / (freqs[0] + freqs[1] + freqs[2] + freqs[3]);
 	setParameterValue("theta", f);

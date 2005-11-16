@@ -118,7 +118,7 @@ class PhylogeneticsApplicationTools
 		 * - If TN93 is to be used:
 		 *   + kappa1, kappa2 The transition/transversion ratios.
 		 * - If GTR is to be used:
-		 *   + a, b, c, d, e, f rate parameters.
+		 *   + a, b, c, d, e rate parameters.
 		 * - If GTR, TN93, HKY85, T92, JTT92, DSO78 or empirical is to be used:
 		 *   + model.use_observed_freq Tell if we must use the observed frequences. 
 		 * - If empirical is to be used;
@@ -234,7 +234,6 @@ class PhylogeneticsApplicationTools
 			bool verbose = true);
 		
 };
-
 
 #endif	//_PHYLOGENETICSAPPLICATIONTOOLS_H_
 

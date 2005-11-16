@@ -46,18 +46,113 @@ knowledge of the CeCILL license and that you accept its terms.
 // From SeqLib:
 #include <Seq/NucleicAlphabet.h>
 
+/**
+ * @Brief The Kimura 2-rates substitution model for nucleotides.
+ *
+ * All two rates: one for transitions and one for transversions.
+ * This models include one parameter, the transition / transversion
+ * relative rate \f$\kappa\f$.
+ * \f[
+ * \begin{pmatrix}
+ * \cdots & r & \kappa r & r \\ 
+ * r & \cdots & r & \kappa r \\ 
+ * \kappa r & r & \cdots & r \\ 
+ * r & \kappa r & r & \cdots \\ 
+ * \end{pmatrix}
+ * \f]
+ * \f[
+ * \pi = \left(\frac{1}{4}, \frac{1}{4}, \frac{1}{4}, \frac{1}{4}\right)
+ * \f]
+ * Normalization: \f$r\f$ is set so that \f$\sum_i Q_{i,i}\pi_i = -1\f$:
+ * \f[
+ * S = \begin{pmatrix}
+ * -4 & \frac{4}{\kappa+2} & \frac{4\kappa}{\kappa+2} & \frac{4}{\kappa+2} \\ 
+ * \frac{4}{\kappa+2} & -4 & \frac{4}{\kappa+2} & \frac{4\kappa}{\kappa+2} \\ 
+ * \frac{4\kappa}{\kappa+2} & \frac{4}{\kappa+2} & -4 & \frac{4}{\kappa+2} \\ 
+ * \frac{4}{\kappa+2} & \frac{4\kappa}{\kappa+2} & \frac{4}{\kappa+2} & -4 \\ 
+ * \end{pmatrix}
+ * \f]
+ * The normalized generator is obtained by taking the dot product of \f$S\f$ and \f$\pi\f$:
+ * \f[
+ * Q = S . \pi = \begin{pmatrix}
+ * -1 & \frac{4}{\kappa+2} & \frac{\kappa}{\kappa+2} & \frac{1}{\kappa+2} \\ 
+ * \frac{1}{\kappa+2} & -1 & \frac{1}{\kappa+2} & \frac{\kappa}{\kappa+2} \\ 
+ * \frac{\kappa}{\kappa+2} & \frac{1}{\kappa+2} & -1 & \frac{1}{\kappa+2} \\ 
+ * \frac{1}{\kappa+2} & \frac{\kappa}{\kappa+2} & \frac{1}{\kappa+2} & -1 \\ 
+ * \end{pmatrix}
+ * \f]
+ *  
+ * The eigen values are \f$\left(0, -\frac{2\kappa+2}{\kappa+2}, -\frac{2\kappa+2}{\kappa+2}, -\frac{4}{\kappa+2}\right)\f$, 
+ * the left eigen vectors are, by row:
+ * \f[
+ * U = \begin{pmatrix}
+ * \frac{1}{4} &  \frac{1}{4} &  \frac{1}{4} &  \frac{1}{4} \\
+ *           0 &  \frac{1}{2} &            0 & -\frac{1}{2} \\
+ * \frac{1}{2} &            0 & -\frac{1}{2} &            0 \\
+ * \frac{1}{4} & -\frac{1}{4} &  \frac{1}{4} & -\frac{1}{4} \\
+ * \end{pmatrix}
+ * \f]
+ * and the right eigen vectors are, by column:
+ * \f[
+ * U^-1 = \begin{pmatrix}
+ * 1 &  0 &  1 &  1 \\
+ * 1 &  1 &  0 & -1 \\
+ * 1 &  0 & -1 &  1 \\
+ * 1 & -1 &  0 & -1 \\
+ * \end{pmatrix}
+ * \f]
+ *
+ * The probabilities of changes are computed analytically using the formulas:
+ * \f[
+ * P_{i,j}(t) = \begin{pmatrix}
+ * \frac{1}{2}A + \frac{1}{4}B + \frac{1}{4} & \frac{1}{4} - \frac{1}{4}B & -\frac{1}{2}A + \frac{1}{4}B + \frac{1}{4} & \frac{1}{4} - \frac{1}{4}B \\
+ * \frac{1}{4} - \frac{1}{4}B & \frac{1}{2}A + \frac{1}{4}B + \frac{1}{4} & \frac{1}{4} - \frac{1}{4}B & -\frac{1}{2}A + \frac{1}{4}B + \frac{1}{4} \\
+ * -\frac{1}{2}A + \frac{1}{4}B + \frac{1}{4} & \frac{1}{4} - \frac{1}{4}B & \frac{1}{2}A + \frac{1}{4}B + \frac{1}{4} & \frac{1}{4} - \frac{1}{4}B \\
+ * \frac{1}{4} - \frac{1}{4}B & -\frac{1}{2}A + \frac{1}{4}B + \frac{1}{4} & \frac{1}{4} - \frac{1}{4}B & \frac{1}{2}A + \frac{1}{4}B + \frac{1}{4} \\
+ * \end{pmatrix}
+ * \f]
+ * with \f$A=e^{-\frac{(2\kappa+2)t}{\kappa+2}}\f$ and \f$B = e^{-\frac{4t}{\kappa+2}}\f$. 
+ *
+ * First and second order derivatives are also computed analytically using the formulas:
+ * \f[
+ * \frac{\partial P_{i,j}(t)}{\partial t} = \begin{pmatrix}
+ * -\frac{2\kappa+2}{2(\kappa+2)}A - \frac{1}{\kappa+2}B & \frac{1}{\kappa+2}B & \frac{2\kappa+2}{2(\kappa+2)}A - \frac{1}{\kappa+2}B & \frac{1}{\kappa+2}B \\
+ * \frac{1}{\kappa+2}B & -\frac{2\kappa+2}{2(\kappa+2)}A - \frac{1}{\kappa+2}B & \frac{1}{\kappa+2}B & \frac{2\kappa+2}{2(\kappa+2)}A - \frac{1}{\kappa+2}B \\
+ * \frac{2\kappa+2}{2(\kappa+2)}A - \frac{1}{\kappa+2}B & \frac{1}{\kappa+2}B & -\frac{2\kappa+2}{2(\kappa+2)}A - \frac{1}{\kappa+2}B & \frac{1}{\kappa+2}B \\
+ * \frac{1}{\kappa+2}B & \frac{2\kappa+2}{2(\kappa+2)}A - \frac{1}{\kappa+2}B & \frac{1}{\kappa+2}B & -\frac{2\kappa+2}{2(\kappa+2)}A - \frac{1}{\kappa+2}B \\
+ * \end{pmatrix}
+ * \f]
+ * \f{multline*}
+ * \frac{\partial^2 P_{i,j}(t)}{\partial t^2} = \\
+ * \begin{pmatrix}
+ * \frac{{(2\kappa+2)}^2}{2{(\kappa+2)}^2}A - \frac{4}{{(\kappa+2)}^2}B & -\frac{4}{{(\kappa+2)}^2}B & -\frac{{(2\kappa+2)}^2}{2{(\kappa+2)}^2}A + \frac{4}{{(\kappa+2)}^2}B & -\frac{4}{{(\kappa+2)}^2}B \\
+ * -\frac{4}{{(\kappa+2)}^2}B & \frac{{(2\kappa+2)}^2}{2{(\kappa+2)}^2}A + \frac{4}{{(\kappa+2)}^2}B & -\frac{4}{{(\kappa+2)}^2}B & -\frac{{(2\kappa+2)}^2}{2{(\kappa+2)}^2}A + \frac{4}{{(\kappa+2)}^2}B \\
+ * -\frac{{(2\kappa+2)}^2}{2{(\kappa+2)}^2}A + \frac{4}{{(\kappa+2)}^2}B & -\frac{4}{{(\kappa+2)}^2}B & \frac{{(2\kappa+2)}^2}{2{(\kappa+2)}^2}A + \frac{4}{{(\kappa+2)}^2}B & -\frac{4}{{(\kappa+2)}^2}B \\
+ * -\frac{4}{{(\kappa+2)}^2}B & -\frac{2{(\kappa+2)}^2}{2{(\kappa+2)}^2}A + \frac{4}{{(\kappa+2)}^2}B & -\frac{4}{{(\kappa+2)}^2}B & \frac{2{(\kappa+2)}^2}{{(2\kappa+2)}^2}A + \frac{4}{{(\kappa+2)}^2}B \\
+ * \end{pmatrix}
+ * \f}
+ *
+ * The parameter is named \c "kappa"
+ * and its value may be retrieve with the command 
+ * \code
+ * getParameterValue("kappa")
+ * \endcode
+ * 
+ * Reference:
+ * - Kimura M (1980), _Journal Of Molecular Evolution_ 16(2) 111-20. 
+ */
 class K80 : public virtual NucleotideSubstitutionModel
 {
 	public:
 		K80(const NucleicAlphabet * alpha, double kappa = 1.);
-		~K80();
+		virtual ~K80() {}
 
 		double Pij_t    (int i, int j, double d) const;
 		double dPij_dt  (int i, int j, double d) const;
 		double d2Pij_dt2(int i, int j, double d) const;
-		Mat getPij_t    (double d) const;
-		Mat getdPij_dt  (double d) const;
-		Mat getd2Pij_dt2(double d) const;
+		RowMatrix<double> getPij_t    (double d) const;
+		RowMatrix<double> getdPij_dt  (double d) const;
+		RowMatrix<double> getd2Pij_dt2(double d) const;
 
 		string getName() const;
 	

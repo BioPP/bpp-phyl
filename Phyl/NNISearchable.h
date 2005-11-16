@@ -75,43 +75,37 @@ class TopologyChangeEvent
  * NNISearchable objects are supposed to work with TreeTemplate objects.
  * NNI are defined as follow:
  * <pre>
- * --------->
- *D      C
- * \    /
- *  \  /
- *   \/
- *   X\    /B
- *     \  /
- *      \/
- *      F\
- *        \
- *         \A
- * 
+ * ------------->
+ *     +------- C
+ *     |
+ * D --+ X  +-- B
+ *     |    |
+ *     +----+ F
+ *          |
+ *          +-- A
  * </pre>
  * Where:
  * -F is the focuse (parent) node,
  * -A and B are the son of F
  * -X is the parent of F and so on.
  * Two NNI's are possible for branch (XF):
- * - swaping B<->C, which is the same as D<->A
- * - swaping A<->C, which is the same as D<->B
- * Because of the rooted representation, we'll consider B<->C and A<->C,
+ * - swaping B and C, which is the same as D and A
+ * - swaping A and C, which is the same as D and B
+ * Because of the rooted representation, we'll consider B \f$\leftrightarrow\f$C and A\f$\leftrightarrow\f$C,
  * which are simpler to perform.
  *
  * For unrooted tree, we have at the 'root' node:
  * <pre>
- * --------->
- *       D
- *      /
- *     /
- *    /____C
- *   X\    /B
- *     \  /
- *      \/
- *      F\
- *        \
- *         \A
- * 
+ * ------------->
+ *   +------- D
+ *   |
+ * X +------- C
+ *   |
+ *   |    +-- B
+ *   |    |
+ *   +----+ F
+ *        |
+ *        +-- A
  * </pre>
  * In this case, we swap A or B with one of C or D.
  * Which one of C or D depends on the implementation, but will always be the same,

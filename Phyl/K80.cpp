@@ -56,8 +56,6 @@ K80::K80(const NucleicAlphabet * alpha, double kappa): NucleotideSubstitutionMod
 	updateMatrices();
 }
 
-K80::~K80() {}
-	
 /******************************************************************************/
 
 void K80::updateMatrices()
@@ -88,11 +86,15 @@ void K80::updateMatrices()
 	double r = 1. / (2. + kappa);
 	MatrixTools::scale(_generator, r);
 
+	// Exchangeability:
+	_exchangeability = _generator;
+	MatrixTools::scale(_exchangeability, 4.);
+
 	// Eigen values:
 	_eigenValues[0] = 0;
-	_eigenValues[1] = -4. * r;
+	_eigenValues[1] = -2. * (1. + kappa) * r;
 	_eigenValues[2] = -2. * (1. + kappa) * r;
-	_eigenValues[3] = -2. * (1. + kappa) * r;
+	_eigenValues[3] = -4. * r;
 	
 	// Eigen vectors:
 	_leftEigenVectors(0,0) = 1. / 4.;
@@ -107,10 +109,10 @@ void K80::updateMatrices()
 	_leftEigenVectors(2,1) = 0.;
 	_leftEigenVectors(2,2) = -1. / 2.;
 	_leftEigenVectors(2,3) = 0.;
-	_leftEigenVectors(0,0) = 1. / 4.;
-	_leftEigenVectors(0,1) = -1. / 4.;
-	_leftEigenVectors(0,2) = 1. / 4.;
-	_leftEigenVectors(0,3) = -1. / 4.;
+	_leftEigenVectors(3,0) = 1. / 4.;
+	_leftEigenVectors(3,1) = -1. / 4.;
+	_leftEigenVectors(3,2) = 1. / 4.;
+	_leftEigenVectors(3,3) = -1. / 4.;
 
 	_rightEigenVectors(0,0) = 1.;
 	_rightEigenVectors(0,1) = 0.;
@@ -132,137 +134,8 @@ void K80::updateMatrices()
 	
 /******************************************************************************/
 
-// Generator matrix: Q = 
-//                [                1        KAPPA        1     ]
-//                [    - 1     ---------  ---------  --------- ]
-//                [            KAPPA + 2  KAPPA + 2  KAPPA + 2 ]
-//                [                                            ]
-//                [     1                     1        KAPPA   ]
-//                [ ---------     - 1     ---------  --------- ]
-//                [ KAPPA + 2             KAPPA + 2  KAPPA + 2 ]
-//                [                                            ]
-//                [   KAPPA        1                     1     ]
-//                [ ---------  ---------     - 1     --------- ]
-//                [ KAPPA + 2  KAPPA + 2             KAPPA + 2 ]
-//                [                                            ]
-//                [     1        KAPPA        1                ]
-//                [ ---------  ---------  ---------     - 1    ]
-//                [ KAPPA + 2  KAPPA + 2  KAPPA + 2            ]
-
-// Exp(Q) = 
-//         [      (2 KAPPA + 2) t          4 t         ]
-//         [    - ---------------     - ---------      ]
-//         [         KAPPA + 2          KAPPA + 2      ]
-//         [  %E                    %E              1  ]
-//         [  ------------------- + ------------- + -  ]
-//         [           2                  4         4  ]
-//         [                                           ]
-//         [                        4 t                ]
-//         [                   - ---------             ]
-//         [                     KAPPA + 2             ]
-//         [             1   %E                        ]
-//         [             - - -------------             ]
-//         [             4         4                   ]
-// Col 1 = [                                           ]
-//         [       (2 KAPPA + 2) t          4 t        ]
-//         [     - ---------------     - ---------     ]
-//         [          KAPPA + 2          KAPPA + 2     ]
-//         [   %E                    %E              1 ]
-//         [ - ------------------- + ------------- + - ]
-//         [            2                  4         4 ]
-//         [                                           ]
-//         [                        4 t                ]
-//         [                   - ---------             ]
-//         [                     KAPPA + 2             ]
-//         [             1   %E                        ]
-//         [             - - -------------             ]
-//         [             4         4                   ]
-
-//         [                        4 t                ]
-//         [                   - ---------             ]
-//         [                     KAPPA + 2             ]
-//         [             1   %E                        ]
-//         [             - - -------------             ]
-//         [             4         4                   ]
-//         [                                           ]
-//         [      (2 KAPPA + 2) t          4 t         ]
-//         [    - ---------------     - ---------      ]
-//         [         KAPPA + 2          KAPPA + 2      ]
-//         [  %E                    %E              1  ]
-//         [  ------------------- + ------------- + -  ]
-//         [           2                  4         4  ]
-// Col 2 = [                                           ]
-//         [                        4 t                ]
-//         [                   - ---------             ]
-//         [                     KAPPA + 2             ]
-//         [             1   %E                        ]
-//         [             - - -------------             ]
-//         [             4         4                   ]
-//         [                                           ]
-//         [       (2 KAPPA + 2) t          4 t        ]
-//         [     - ---------------     - ---------     ]
-//         [          KAPPA + 2          KAPPA + 2     ]
-//         [   %E                    %E              1 ]
-//         [ - ------------------- + ------------- + - ]
-//         [            2                  4         4 ]
-
-//         [       (2 KAPPA + 2) t          4 t        ]
-//         [     - ---------------     - ---------     ]
-//         [          KAPPA + 2          KAPPA + 2     ]
-//         [   %E                    %E              1 ]
-//         [ - ------------------- + ------------- + - ]
-//         [            2                  4         4 ]
-//         [                                           ]
-//         [                        4 t                ]
-//         [                   - ---------             ]
-//         [                     KAPPA + 2             ]
-//         [             1   %E                        ]
-//         [             - - -------------             ]
-//         [             4         4                   ]
-// Col 3 = [                                           ]
-//         [      (2 KAPPA + 2) t          4 t         ]
-//         [    - ---------------     - ---------      ]
-//         [         KAPPA + 2          KAPPA + 2      ]
-//         [  %E                    %E              1  ]
-//         [  ------------------- + ------------- + -  ]
-//         [           2                  4         4  ]
-//         [                                           ]
-//         [                        4 t                ]
-//         [                   - ---------             ]
-//         [                     KAPPA + 2             ]
-//         [             1   %E                        ]
-//         [             - - -------------             ]
-//         [             4         4                   ]
-
-//         [                        4 t                ]
-//         [                   - ---------             ]
-//         [                     KAPPA + 2             ]
-//         [             1   %E                        ]
-//         [             - - -------------             ]
-//         [             4         4                   ]
-//         [                                           ]
-//         [       (2 KAPPA + 2) t          4 t        ]
-//         [     - ---------------     - ---------     ]
-//         [          KAPPA + 2          KAPPA + 2     ]
-//         [   %E                    %E              1 ]
-//         [ - ------------------- + ------------- + - ]
-//         [            2                  4         4 ]
-// Col 4 = [                                           ]
-//         [                        4 t                ]
-//         [                   - ---------             ]
-//         [                     KAPPA + 2             ]
-//         [             1   %E                        ]
-//         [             - - -------------             ]
-//         [             4         4                   ]
-//         [                                           ]
-//         [      (2 KAPPA + 2) t          4 t         ]
-//         [    - ---------------     - ---------      ]
-//         [         KAPPA + 2          KAPPA + 2      ]
-//         [  %E                    %E              1  ]
-//         [  ------------------- + ------------- + -  ]
-//         [           2                  4         4  ]
-
-double K80::Pij_t(int i, int j, double d) const {
+double K80::Pij_t(int i, int j, double d) const
+{
 	double kappa = _parameters.getParameter("kappa") -> getValue();
 	double k = (kappa + 1.) / 2.;
 	double r = 4. / (kappa + 2.);
@@ -313,122 +186,8 @@ double K80::Pij_t(int i, int j, double d) const {
 
 /******************************************************************************/
 
-// d(Exp(Q,t))/dt = 
-/*
-         [                     (2 KAPPA + 2) t          4 t    ]
-         [                   - ---------------     - --------- ]
-         [                        KAPPA + 2          KAPPA + 2 ]
-         [   (2 KAPPA + 2) %E                    %E            ]
-         [ - --------------------------------- - ------------- ]
-         [             2 (KAPPA + 2)               KAPPA + 2   ]
-         [                                                     ]
-         [                           4 t                       ]
-         [                      - ---------                    ]
-         [                        KAPPA + 2                    ]
-         [                    %E                               ]
-         [                    -------------                    ]
-         [                      KAPPA + 2                      ]
- Col 1 = [                                                     ]
-         [                    (2 KAPPA + 2) t          4 t     ]
-         [                  - ---------------     - ---------  ]
-         [                       KAPPA + 2          KAPPA + 2  ]
-         [  (2 KAPPA + 2) %E                    %E             ]
-         [  --------------------------------- - -------------  ]
-         [            2 (KAPPA + 2)               KAPPA + 2    ]
-         [                                                     ]
-         [                           4 t                       ]
-         [                      - ---------                    ]
-         [                        KAPPA + 2                    ]
-         [                    %E                               ]
-         [                    -------------                    ]
-         [                      KAPPA + 2                      ]
-
-         [                           4 t                       ]
-         [                      - ---------                    ]
-         [                        KAPPA + 2                    ]
-         [                    %E                               ]
-         [                    -------------                    ]
-         [                      KAPPA + 2                      ]
-         [                                                     ]
-         [                     (2 KAPPA + 2) t          4 t    ]
-         [                   - ---------------     - --------- ]
-         [                        KAPPA + 2          KAPPA + 2 ]
-         [   (2 KAPPA + 2) %E                    %E            ]
-         [ - --------------------------------- - ------------- ]
-         [             2 (KAPPA + 2)               KAPPA + 2   ]
- Col 2 = [                                                     ]
-         [                           4 t                       ]
-         [                      - ---------                    ]
-         [                        KAPPA + 2                    ]
-         [                    %E                               ]
-         [                    -------------                    ]
-         [                      KAPPA + 2                      ]
-         [                                                     ]
-         [                    (2 KAPPA + 2) t          4 t     ]
-         [                  - ---------------     - ---------  ]
-         [                       KAPPA + 2          KAPPA + 2  ]
-         [  (2 KAPPA + 2) %E                    %E             ]
-         [  --------------------------------- - -------------  ]
-         [            2 (KAPPA + 2)               KAPPA + 2    ]
-
-         [                    (2 KAPPA + 2) t          4 t     ]
-         [                  - ---------------     - ---------  ]
-         [                       KAPPA + 2          KAPPA + 2  ]
-         [  (2 KAPPA + 2) %E                    %E             ]
-         [  --------------------------------- - -------------  ]
-         [            2 (KAPPA + 2)               KAPPA + 2    ]
-         [                                                     ]
-         [                           4 t                       ]
-         [                      - ---------                    ]
-         [                        KAPPA + 2                    ]
-         [                    %E                               ]
-         [                    -------------                    ]
-         [                      KAPPA + 2                      ]
- Col 3 = [                                                     ]
-         [                     (2 KAPPA + 2) t          4 t    ]
-         [                   - ---------------     - --------- ]
-         [                        KAPPA + 2          KAPPA + 2 ]
-         [   (2 KAPPA + 2) %E                    %E            ]
-         [ - --------------------------------- - ------------- ]
-         [             2 (KAPPA + 2)               KAPPA + 2   ]
-         [                                                     ]
-         [                           4 t                       ]
-         [                      - ---------                    ]
-         [                        KAPPA + 2                    ]
-         [                    %E                               ]
-         [                    -------------                    ]
-         [                      KAPPA + 2                      ]
-
-         [                           4 t                       ]
-         [                      - ---------                    ]
-         [                        KAPPA + 2                    ]
-         [                    %E                               ]
-         [                    -------------                    ]
-         [                      KAPPA + 2                      ]
-         [                                                     ]
-         [                    (2 KAPPA + 2) t          4 t     ]
-         [                  - ---------------     - ---------  ]
-         [                       KAPPA + 2          KAPPA + 2  ]
-         [  (2 KAPPA + 2) %E                    %E             ]
-         [  --------------------------------- - -------------  ]
-         [            2 (KAPPA + 2)               KAPPA + 2    ]
- Col 4 = [                                                     ]
-         [                           4 t                       ]
-         [                      - ---------                    ]
-         [                        KAPPA + 2                    ]
-         [                    %E                               ]
-         [                    -------------                    ]
-         [                      KAPPA + 2                      ]
-         [                                                     ]
-         [                     (2 KAPPA + 2) t          4 t    ]
-         [                   - ---------------     - --------- ]
-         [                        KAPPA + 2          KAPPA + 2 ]
-         [   (2 KAPPA + 2) %E                    %E            ]
-         [ - --------------------------------- - ------------- ]
-         [             2 (KAPPA + 2)               KAPPA + 2   ]
-*/
-
-double K80::dPij_dt(int i, int j, double d) const {
+double K80::dPij_dt(int i, int j, double d) const
+{
 	double kappa = _parameters.getParameter("kappa") -> getValue();
 	double k = (kappa + 1.) / 2.;
 	double r = 4. / (kappa + 2.);
@@ -479,138 +238,8 @@ double K80::dPij_dt(int i, int j, double d) const {
 
 /******************************************************************************/
 
-// d2(exp(Q,t))/dt2 = 
-/*
-         [                    (2 KAPPA + 2) t            4 t    ]
-         [                  - ---------------       - --------- ]
-         [              2        KAPPA + 2            KAPPA + 2 ]
-         [ (2 KAPPA + 2)  %E                    4 %E            ]
-         [ ---------------------------------- + --------------- ]
-         [                        2                         2   ]
-         [           2 (KAPPA + 2)               (KAPPA + 2)    ]
-         [                                                      ]
-         [                             4 t                      ]
-         [                        - ---------                   ]
-         [                          KAPPA + 2                   ]
-         [                    4 %E                              ]
-         [                  - ---------------                   ]
-         [                                2                     ]
-         [                     (KAPPA + 2)                      ]
- Col 1 = [                                                      ]
-         [          4 t                         (2 KAPPA + 2) t ]
-         [     - ---------                    - --------------- ]
-         [       KAPPA + 2                2        KAPPA + 2    ]
-         [ 4 %E              (2 KAPPA + 2)  %E                  ]
-         [ --------------- - ---------------------------------- ]
-         [             2                            2           ]
-         [  (KAPPA + 2)                2 (KAPPA + 2)            ]
-         [                                                      ]
-         [                             4 t                      ]
-         [                        - ---------                   ]
-         [                          KAPPA + 2                   ]
-         [                    4 %E                              ]
-         [                  - ---------------                   ]
-         [                                2                     ]
-         [                     (KAPPA + 2)                      ]
-
-         [                             4 t                      ]
-         [                        - ---------                   ]
-         [                          KAPPA + 2                   ]
-         [                    4 %E                              ]
-         [                  - ---------------                   ]
-         [                                2                     ]
-         [                     (KAPPA + 2)                      ]
-         [                                                      ]
-         [                    (2 KAPPA + 2) t            4 t    ]
-         [                  - ---------------       - --------- ]
-         [              2        KAPPA + 2            KAPPA + 2 ]
-         [ (2 KAPPA + 2)  %E                    4 %E            ]
-         [ ---------------------------------- + --------------- ]
-         [                        2                         2   ]
-         [           2 (KAPPA + 2)               (KAPPA + 2)    ]
- Col 2 = [                                                      ]
-         [                             4 t                      ]
-         [                        - ---------                   ]
-         [                          KAPPA + 2                   ]
-         [                    4 %E                              ]
-         [                  - ---------------                   ]
-         [                                2                     ]
-         [                     (KAPPA + 2)                      ]
-         [                                                      ]
-         [          4 t                         (2 KAPPA + 2) t ]
-         [     - ---------                    - --------------- ]
-         [       KAPPA + 2                2        KAPPA + 2    ]
-         [ 4 %E              (2 KAPPA + 2)  %E                  ]
-         [ --------------- - ---------------------------------- ]
-         [             2                            2           ]
-         [  (KAPPA + 2)                2 (KAPPA + 2)            ]
-
-         [          4 t                         (2 KAPPA + 2) t ]
-         [     - ---------                    - --------------- ]
-         [       KAPPA + 2                2        KAPPA + 2    ]
-         [ 4 %E              (2 KAPPA + 2)  %E                  ]
-         [ --------------- - ---------------------------------- ]
-         [             2                            2           ]
-         [  (KAPPA + 2)                2 (KAPPA + 2)            ]
-         [                                                      ]
-         [                             4 t                      ]
-         [                        - ---------                   ]
-         [                          KAPPA + 2                   ]
-         [                    4 %E                              ]
-         [                  - ---------------                   ]
-         [                                2                     ]
-         [                     (KAPPA + 2)                      ]
- Col 3 = [                                                      ]
-         [                    (2 KAPPA + 2) t            4 t    ]
-         [                  - ---------------       - --------- ]
-         [              2        KAPPA + 2            KAPPA + 2 ]
-         [ (2 KAPPA + 2)  %E                    4 %E            ]
-         [ ---------------------------------- + --------------- ]
-         [                        2                         2   ]
-         [           2 (KAPPA + 2)               (KAPPA + 2)    ]
-         [                                                      ]
-         [                             4 t                      ]
-         [                        - ---------                   ]
-         [                          KAPPA + 2                   ]
-         [                    4 %E                              ]
-         [                  - ---------------                   ]
-         [                                2                     ]
-         [                     (KAPPA + 2)                      ]
-
-         [                             4 t                      ]
-         [                        - ---------                   ]
-         [                          KAPPA + 2                   ]
-         [                    4 %E                              ]
-         [                  - ---------------                   ]
-         [                                2                     ]
-         [                     (KAPPA + 2)                      ]
-         [                                                      ]
-         [          4 t                         (2 KAPPA + 2) t ]
-         [     - ---------                    - --------------- ]
-         [       KAPPA + 2                2        KAPPA + 2    ]
-         [ 4 %E              (2 KAPPA + 2)  %E                  ]
-         [ --------------- - ---------------------------------- ]
-         [             2                            2           ]
-         [  (KAPPA + 2)                2 (KAPPA + 2)            ]
- Col 4 = [                                                      ]
-         [                             4 t                      ]
-         [                        - ---------                   ]
-         [                          KAPPA + 2                   ]
-         [                    4 %E                              ]
-         [                  - ---------------                   ]
-         [                                2                     ]
-         [                     (KAPPA + 2)                      ]
-         [                                                      ]
-         [                    (2 KAPPA + 2) t            4 t    ]
-         [                  - ---------------       - --------- ]
-         [              2        KAPPA + 2            KAPPA + 2 ]
-         [ (2 KAPPA + 2)  %E                    4 %E            ]
-         [ ---------------------------------- + --------------- ]
-         [                        2                         2   ]
-         [           2 (KAPPA + 2)               (KAPPA + 2)    ]
-*/
-
-double K80::d2Pij_dt2(int i, int j, double d) const {
+double K80::d2Pij_dt2(int i, int j, double d) const
+{
 	double kappa = _parameters.getParameter("kappa") -> getValue();
 	double k = (kappa + 1.) / 2.;
 	double k_2 = k * k;
@@ -663,8 +292,9 @@ double K80::d2Pij_dt2(int i, int j, double d) const {
 
 /******************************************************************************/
 
-Mat K80::getPij_t(double d) const {
-	Mat p(_size, _size);
+RowMatrix<double> K80::getPij_t(double d) const
+{
+	RowMatrix<double> p(_size, _size);
 	double kappa = _parameters.getParameter("kappa") -> getValue();
 	double k = (kappa + 1.) / 2.;
 	double r = 4. / (kappa + 2.);
@@ -699,8 +329,9 @@ Mat K80::getPij_t(double d) const {
 	return p;
 }
 
-Mat K80::getdPij_dt(double d) const {
-	Mat p(_size, _size);
+RowMatrix<double> K80::getdPij_dt(double d) const
+{
+	RowMatrix<double> p(_size, _size);
 	double kappa = _parameters.getParameter("kappa") -> getValue();
 	double k = (kappa + 1.) / 2.;
 	double r = 4. / (kappa + 2.);
@@ -734,8 +365,9 @@ Mat K80::getdPij_dt(double d) const {
 	return p;
 }
 
-Mat K80::getd2Pij_dt2(double d) const {
-	Mat p(_size, _size);
+RowMatrix<double> K80::getd2Pij_dt2(double d) const
+{
+	RowMatrix<double> p(_size, _size);
 	double kappa = _parameters.getParameter("kappa") -> getValue();
 	double k = (kappa + 1.) / 2.;
 	double k_2 = k * k;

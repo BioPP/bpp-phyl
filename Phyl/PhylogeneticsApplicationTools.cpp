@@ -102,10 +102,9 @@ SubstitutionModel * PhylogeneticsApplicationTools::getSubstitutionModel(
 			double c = ApplicationTools::getDoubleParameter("c", params, 1, suffix, suffixIsOptional);
 			double d = ApplicationTools::getDoubleParameter("d", params, 1, suffix, suffixIsOptional);
 			double e = ApplicationTools::getDoubleParameter("e", params, 1, suffix, suffixIsOptional);
-			double f = ApplicationTools::getDoubleParameter("f", params, 1, suffix, suffixIsOptional);
 			bool useObsFreq = ApplicationTools::getBooleanParameter("model.use_observed_freq", params, false, suffix, suffixIsOptional);
 			if(useObsFreq && data != NULL) {
-				model = new GTR(alpha, a, b, c, d, e, f);
+				model = new GTR(alpha, a, b, c, d, e);
 				dynamic_cast<TN93 *>(model) -> setFreqFromData(*data);
 				piA = model -> getParameterValue("piA");
 				piC = model -> getParameterValue("piC");
@@ -120,7 +119,7 @@ SubstitutionModel * PhylogeneticsApplicationTools::getSubstitutionModel(
 					ApplicationTools::displayError("Equilibrium base frequencies must equal 1. Aborting...");
 					exit(-1);
 				}
-				model = new GTR(alpha, a, b, c, d, e, f, piA, piC, piG, piT);
+				model = new GTR(alpha, a, b, c, d, e, piA, piC, piG, piT);
 			}
 			if(verbose) {
 				ApplicationTools::displayResult("model" , modelName);
@@ -129,7 +128,6 @@ SubstitutionModel * PhylogeneticsApplicationTools::getSubstitutionModel(
 				ApplicationTools::displayResult("c", TextTools::toString(c));
 				ApplicationTools::displayResult("d", TextTools::toString(d));
 				ApplicationTools::displayResult("e", TextTools::toString(e));
-				ApplicationTools::displayResult("f", TextTools::toString(f));
 				ApplicationTools::displayResult("piA"   , TextTools::toString(piA));
 				ApplicationTools::displayResult("piC"   , TextTools::toString(piC));
 				ApplicationTools::displayResult("piG"   , TextTools::toString(piG));

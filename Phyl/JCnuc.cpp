@@ -60,8 +60,6 @@ JCnuc::JCnuc(const NucleicAlphabet * alpha): NucleotideSubstitutionModel(alpha),
 	updateMatrices();
 }
 
-JCnuc::~JCnuc() {}
-
 /******************************************************************************/
 	
 void JCnuc::updateMatrices()
@@ -70,6 +68,7 @@ void JCnuc::updateMatrices()
 	for(int i = 0; i < 4; i++) {
 		for(int j = 0; j < 4; j++) {
 			_generator(i, j) = (i == j) ? -1. : 1./3.;
+			_exchangeability(i, j) = _generator(i, j) * 4.;
 		}
 	}
 	
@@ -82,151 +81,49 @@ void JCnuc::updateMatrices()
 	for(unsigned int i = 1; i < 4; i++) 
 		for(unsigned int j = 0; j < 4; j++)
 			_leftEigenVectors(i,j) = -1./4.;
-	_leftEigenVectors(1,0) = 3./4.;
+	_leftEigenVectors(1,2) = 3./4.;
 	_leftEigenVectors(2,1) = 3./4.;
-	_leftEigenVectors(3,2) = 3./4.;
+	_leftEigenVectors(3,0) = 3./4.;
 
 	for(unsigned int i = 0; i < 4; i++) _rightEigenVectors(i,0) = 1.;
 	for(unsigned int i = 1; i < 4; i++) _rightEigenVectors(3,i) = -1.;
-	for(unsigned int i = 1; i < 4; i++) 
+	for(unsigned int i = 0; i < 3; i++) 
 		for(unsigned int j = 1; j < 4; j++)
 			_rightEigenVectors(i,j) = 0.;
-	_rightEigenVectors(0,1) = 1.;
+	_rightEigenVectors(2,1) = 1.;
 	_rightEigenVectors(1,2) = 1.;
-	_rightEigenVectors(2,3) = 1.;
-
+	_rightEigenVectors(0,3) = 1.;
 }
 	
 /******************************************************************************/
 
-// Generator matrix: Q =
-//                            [       1    1    1  ]
-//                            [ - 1   -    -    -  ]
-//                            [       3    3    3  ]
-//                            [                    ]
-//                            [  1         1    1  ]
-//                            [  -   - 1   -    -  ]
-//                            [  3         3    3  ]
-//                            [                    ]
-//                            [  1    1         1  ]
-//                            [  -    -   - 1   -  ]
-//                            [  3    3         3  ]
-//                            [                    ]
-//                            [  1    1    1       ]
-//                            [  -    -    -   - 1 ]
-//                            [  3    3    3       ]
-
-// Exp(Q.t) = 
-// 
-//        [       4 t               4 t            4 t            4 t  ]
-//        [     - ---             - ---          - ---          - ---  ]
-//        [        3                 3              3              3   ]
-//        [ 3 %E        1   1   %E         1   %E         1   %E       ]
-//        [ --------- + -   - - -------    - - -------    - - -------  ]
-//        [     4       4   4      4       4      4       4      4     ]
-//        [                                                            ]
-//        [          4 t         4 t               4 t            4 t  ]
-//        [        - ---       - ---             - ---          - ---  ]
-//        [           3           3                 3              3   ]
-//        [  1   %E        3 %E        1   1   %E         1   %E       ]
-//        [  - - -------   --------- + -   - - -------    - - -------  ]
-//        [  4      4          4       4   4      4       4      4     ]
-//        [                                                            ]
-//        [          4 t            4 t         4 t               4 t  ]
-//        [        - ---          - ---       - ---             - ---  ]
-//        [           3              3           3                 3   ]
-//        [  1   %E         1   %E        3 %E        1   1   %E       ]
-//        [  - - -------    - - -------   --------- + -   - - -------  ]
-//        [  4      4       4      4          4       4   4      4     ]
-//        [                                                            ]
-//        [          4 t            4 t            4 t         4 t     ]
-//        [        - ---          - ---          - ---       - ---     ]
-//        [           3              3              3           3      ]
-//        [  1   %E         1   %E         1   %E        3 %E        1 ]
-//        [  - - -------    - - -------    - - -------   --------- + - ]
-//        [  4      4       4      4       4      4          4       4 ]
-
-double JCnuc::Pij_t(int i, int j, double d) const {
+double JCnuc::Pij_t(int i, int j, double d) const
+{
 	if(i == j) return 1./4. + 3./4. * exp(- 4./3. * d);
 	else       return 1./4. - 1./4. * exp(- 4./3. * d);
 }
 
 /******************************************************************************/
 
-// d(Exp(Q,t))/dt = 
-//                [                 4 t        4 t        4 t  ]
-//                [       4 t     - ---      - ---      - ---  ]
-//                [     - ---        3          3          3   ]
-//                [        3    %E         %E         %E       ]
-//                [ - %E        -------    -------    -------  ]
-//                [                3          3          3     ]
-//                [                                            ]
-//                [      4 t                   4 t        4 t  ]
-//                [    - ---         4 t     - ---      - ---  ]
-//                [       3        - ---        3          3   ]
-//                [  %E               3    %E         %E       ]
-//                [  -------   - %E        -------    -------  ]
-//                [     3                     3          3     ]
-//                [                                            ]
-//                [      4 t        4 t                   4 t  ]
-//                [    - ---      - ---         4 t     - ---  ]
-//                [       3          3        - ---        3   ]
-//                [  %E         %E               3    %E       ]
-//                [  -------    -------   - %E        -------  ]
-//                [     3          3                     3     ]
-//                [                                            ]
-//                [      4 t        4 t        4 t             ]
-//                [    - ---      - ---      - ---         4 t ]
-//                [       3          3          3        - --- ]
-//                [  %E         %E         %E               3  ]
-//                [  -------    -------    -------   - %E      ]
-//                [     3          3          3                ]
-
-double JCnuc::dPij_dt(int i, int j, double d) const {
+double JCnuc::dPij_dt(int i, int j, double d) const
+{
 	if(i == j) return -       exp(- 4./3. * d);
 	else       return 1./3. * exp(- 4./3. * d);
 }
 
 /******************************************************************************/
 
-// d2(Exp(Q,t))/dt2 = 
-//            [        4 t           4 t          4 t          4 t ]
-//            [      - ---         - ---        - ---        - --- ]
-//            [         3             3            3            3  ]
-//            [  4 %E          4 %E         4 %E         4 %E      ]
-//            [  ---------   - ---------  - ---------  - --------- ]
-//            [      3             9            9            9     ]
-//            [                                                    ]
-//            [         4 t         4 t           4 t          4 t ]
-//            [       - ---       - ---         - ---        - --- ]
-//            [          3           3             3            3  ]
-//            [   4 %E        4 %E          4 %E         4 %E      ]
-//            [ - ---------   ---------   - ---------  - --------- ]
-//            [       9           3             9            9     ]
-//            [                                                    ]
-//            [         4 t          4 t         4 t           4 t ]
-//            [       - ---        - ---       - ---         - --- ]
-//            [          3            3           3             3  ]
-//            [   4 %E         4 %E        4 %E          4 %E      ]
-//            [ - ---------  - ---------   ---------   - --------- ]
-//            [       9            9           3             9     ]
-//            [                                                    ]
-//            [         4 t          4 t          4 t         4 t  ]
-//            [       - ---        - ---        - ---       - ---  ]
-//            [          3            3            3           3   ]
-//            [   4 %E         4 %E         4 %E        4 %E       ]
-//            [ - ---------  - ---------  - ---------   ---------  ]
-//            [       9            9            9           3      ]
-
-double JCnuc::d2Pij_dt2(int i, int j, double d) const {
+double JCnuc::d2Pij_dt2(int i, int j, double d) const
+{
 	if(i == j) return   4./3. * exp(- 4./3. * d);
 	else       return - 4./9. * exp(- 4./3. * d);
 }
 
 /******************************************************************************/
 
-Mat JCnuc::getPij_t(double d) const {
-	Mat p(_size, _size);
+RowMatrix<double> JCnuc::getPij_t(double d) const
+{
+	RowMatrix<double> p(_size, _size);
 	for(unsigned int i = 0; i < _size; i++) {
 		for(unsigned int j = 0; j < _size; j++) {
 			p(i,j) = (i==j) ? 1./4. + 3./4. * exp(- 4./3. * d) : 1./4. - 1./4. * exp(- 4./3. * d);
@@ -235,8 +132,9 @@ Mat JCnuc::getPij_t(double d) const {
 	return p;
 }
 
-Mat JCnuc::getdPij_dt(double d) const {
-	Mat p(_size, _size);
+RowMatrix<double> JCnuc::getdPij_dt(double d) const
+{
+	RowMatrix<double> p(_size, _size);
 	for(unsigned int i = 0; i < _size; i++) {
 		for(unsigned int j = 0; j < _size; j++) {
 			p(i,j) = (i==j) ? - exp(- 4./3. * d) : 1./3. * exp(- 4./3. * d);
@@ -245,8 +143,9 @@ Mat JCnuc::getdPij_dt(double d) const {
 	return p;
 }
 
-Mat JCnuc::getd2Pij_dt2(double d) const {
-	Mat p(_size, _size);
+RowMatrix<double> JCnuc::getd2Pij_dt2(double d) const
+{
+	RowMatrix<double> p(_size, _size);
 	for(unsigned int i = 0; i < _size; i++) {
 		for(unsigned int j = 0; j < _size; j++) {
 			p(i,j) = (i==j) ? 4./3. * exp(- 4./3. * d) : - 4./9. * exp(- 4./3. * d);
@@ -257,7 +156,8 @@ Mat JCnuc::getd2Pij_dt2(double d) const {
 
 /******************************************************************************/
 
-string JCnuc::getName() const {
+string JCnuc::getName() const
+{
 	return string("Jukes and Cantor (1969) for nucleotides");
 }
 

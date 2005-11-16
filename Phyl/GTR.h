@@ -49,40 +49,72 @@ knowledge of the CeCILL license and that you accept its terms.
 #include <Seq/NucleicAlphabet.h>
 
 /**
- * @brief General Time-Reversible model for nucleotides.
+ * @Brief The General Time-Reversible substitution model for nucleotides.
  *
- * Parametrization:
+ * This model is sometimes called the REV model, following Yang (1994), see references.
+ * It was used in Lanave et al (1984), described in Tavare et al. 1886 and Rodriguez et al. 1990.
+ * It is the most general reversible one, it has 6 substitution rates and 4 frequency
+ * parameters.
+ * We used the parametrization proposed by Yang (1994):
+ * \f[
+ * \begin{pmatrix}
+ * \cdots & d & f & b \\ 
+ * d & \cdots & e & a \\ 
+ * f & e & \cdots & c \\ 
+ * b & a & c & \cdots \\ 
+ * \end{pmatrix}
+ * \f]
+ * \f[
+ * \pi = \left(\pi_A, \pi_C, \pi_G, \pi_T\right)
+ * \f]
+ * Normalization: we set \f$f\f$ to 1, and scale the matrix so that \f$\sum_i Q_{i,i}\pi_i = -1\f$.
+ * Parameters \f$a,b,c,d,e\f$ are hence relative rates.
+ * \f[
+ * S = \frac{1}{P}\begin{pmatrix}
+ * \frac{-b\pi_T-\pi_G-d\pi_C}{\pi_A} & d & 1 & b \\ 
+ * d & \frac{-a\pi_T-e\pi_G-d\pi_A}{\pi_C} & e & a \\ 
+ * 1 & e & \frac{-c\pi_T-e\pi_C-\pi_A}{\pi_G} & 1 \\ 
+ * b & a & 1 & \frac{-c\pi_G-a\pi_C-b\pi_A}{\pi_T} \\ 
+ * \end{pmatrix}
+ * \f]
+ * with \f{eqnarray}
+ *  P &=& \pi_G\left(c\pi_T+e\pi_C+ \pi_A\right)\\
+ *    &+& \pi_C\left(b\pi_T+ \pi_G+d\pi_A\right)\\
+ *    &+& \pi_A\left(a\pi_T+e\pi_G+d\pi_C\right)\\
+ *    &+& \pi_T\left(c\pi_G+a\pi_C+b\pi_A\right)
+ * \f}
  *
- * - Exchangeability matrix:
+ * The normalized generator is obtained by taking the dot product of \f$S\f$ and \f$\pi\f$:
+ * \f[
+ * Q = S . \pi = \frac{1}{P}\begin{pmatrix}
+ * -b\pi_T-\pi_G-d\pi_C & d\pi_C & \pi_G & b\pi_T \\ 
+ * d\pi_A & -a\pi_T-e\pi_G-d\pi_A & e\pi_G & a\pi_T \\ 
+ * \pi_A & e\pi_C & -c\pi_T-e\pi_C-\pi_A & c\pi_T \\ 
+ * b\pi_A & a\pi_C & c\pi_G & -c\pi_G-a\pi_C-b\pi_A \\ 
+ * \end{pmatrix}
+ * \f]
  *
- *   \f[
- *   	 \left(
- *     \begin{array}{cccc}
- *     --- & a   & b   & c   \\
- *     a   & --- & d   & e   \\
- *     b   & d   & --- & f   \\
- *     c   & e   & f   & --- \\
- *     \end{array}
- *     \right)
- *   \f]
+ * For now, the generator of this model is diagonalized numericaly.
+ * See AbstractSubstitutionModel for details of how the porbabilities are computed.
  *
- * - Frequencies:
- *   \f[
- *     \left(
- *   	 \begin{array}{c}
- *   	 \pi_A \\
- *   	 \pi_C \\
- *   	 \pi_G \\
- *   	 \pi_T \\
- *   	 \end{array}
- *   	 \right)
- *   \f]
+ * The parameters are named \c "a", \c "b", \c "c", \c "d", \c "e", \c "piA", \c "piC",
+ * \c "piG" and \c "piT" and their values may be retrieve with the command 
+ * \code
+ * getParameterValue("a")
+ * \endcode
+ * for instance.
+ * 
+ * Reference:
+ * - Yang Z (1994), _Journal Of Molecular Evolution_ 39(1) 105-11.
+ * - Lanave C, Preparata G, Saccone C and Serio G (1984), _Journal Of Molecular Evolution_ 20 86-93.
+ * - Tavaré S (1986), _Lect. Math. Life Sci._ 17 57-86.
+ * - Rodriguez F (1990, _Journal Of Theoretical Biology_ 142(4) 485-501.
  */
 class GTR : public virtual NucleotideSubstitutionModel
 {
 	protected:
 		Constraint * piConstraint;
-		double _a, _b, _c, _d, _e, _f;
+		double _a, _b, _c, _d, _e;
 
 	public:
 		GTR(
@@ -92,7 +124,6 @@ class GTR : public virtual NucleotideSubstitutionModel
 			double c = 1.,
 			double d = 1.,
 			double e = 1.,
-			double f = 1.,
 			double piA = 0.25,
 			double piC = 0.25,
 			double piG = 0.25,
@@ -103,7 +134,7 @@ class GTR : public virtual NucleotideSubstitutionModel
 		string getName() const;
 
 		/**
-		 * @brief This method is over-defined to actualize the corresponding parameters piA, piT, piG and piC too.
+		 * @brief This method is redefined to actualize the corresponding parameters piA, piT, piG and piC too.
 		 */
 		void setFreqFromData(const SequenceContainer & data);
 };

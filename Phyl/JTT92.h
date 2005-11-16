@@ -45,6 +45,17 @@ knowledge of the CeCILL license and that you accept its terms.
 // From SeqLib:
 #include <Seq/ProteicAlphabet.h>
 
+/**
+ * @Brief The Jones, Taylor and Thornton substitution model for proteins.
+ *
+ * Exchangeabilities have been computed using the DCMut method of Kosiol and Goldman.
+ * The exchangability matrix is normalized so that \f$Q = S . \pi\f$ and \f$\sum_i Q_{i,i}\pi_i = -1\f$.
+ * Eigen values and vectors are obtained numerically.
+ * 
+ * References:
+ * - Jones DT, Taylor WR and Thornton JM (1992), _Computer Applications In The Biosciences_, 8(3) 275-82. 
+ * - Kosiol C and Goldman N (2005), _Molecular Biology And Evolution_ 22(2) 193-9. 
+ */
 class JTT92: public virtual ProteinSubstitutionModel
 {
 	public:
@@ -53,8 +64,7 @@ class JTT92: public virtual ProteinSubstitutionModel
 			
 	public:
 		string getName() const;
-
 };
 
-
 #endif	//_JTT92_H_
+

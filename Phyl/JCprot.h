@@ -42,19 +42,99 @@ knowledge of the CeCILL license and that you accept its terms.
 
 #include <Seq/ProteicAlphabet.h>
 #include "ProteinSubstitutionModel.h"
-
+/**
+ * @Brief The Jukes-Cantor substitution model for nucleotides.
+ *
+ * All rates equal:
+ * \f[
+ * \begin{pmatrix}
+ * \ddots & r      & \ldots & r \\ 
+ * r      & \ddots & \ddots & \vdots \\ 
+ * \vdots & \ddots & \ddots & r \\
+ * r      & \ldots & r      & \ddots \\ 
+ * \end{pmatrix}
+ * \f]
+ * \f[
+ * \pi = diag\left(\frac{1}{20}, \ldots, \frac{1}{20}\right)
+ * \f]
+ * Normalization: \f$r\f$ is set so that \f$\sum_i Q_{i,i}\pi_i = -1\f$:
+ * \f[
+ * S = \begin{pmatrix}
+ * -20           & \frac{20}{19} & \ldots        & \frac{20}{19} \\ 
+ * \frac{20}{19} &           -20 & \ddots        & \vdots \\ 
+ * \vdots        & \ddots        & \ddots        & \frac{20}{19} \\
+ * \frac{20}{19} & \ldots        & \frac{20}{19} & -20 \\ 
+ * \end{pmatrix}
+ * \f]
+ * The normalized generator is obtained by taking the dot product of \f$S\f$ and \f$pi\f$:
+ * \f[
+ * Q = S . \pi = \begin{pmatrix}
+ * -1 & \frac{1}{19}     & \ldots & \frac{1}{19} \\ 
+ * \frac{1}{19} & -1     & \ddots & \vdots \\ 
+ * \vdots       & \ddots & \ddots & \frac{1}{19} \\ 
+ * \frac{1}{19} & \ldots & \frac{1}{19} & -1 \\ 
+ * \end{pmatrix}
+ * \f]
+ *
+ * The eigen values are \f$\left(0, -\frac{20}{19}, \ldots, -\frac{20}{19}\right)\f$, 
+ * the left eigen vectors are, by row:
+ * \f[
+ * U = \begin{pmatrix}
+ *   \frac{1}{20} &        \ldots &  \frac{1}{20} &   \frac{1}{20} &  \frac{1}{20} \\
+ *  -\frac{1}{20} &        \ldots & -\frac{1}{20} &  \frac{19}{20} & -\frac{1}{20} \\
+ *         \vdots &        \ddots & \frac{19}{20} & -\frac{1}{20}  & -\frac{1}{20} \\
+ *  -\frac{1}{20} &        \ddots &        \ddots &         \vdots &        \vdots \\
+ *  \frac{19}{20} & -\frac{1}{20} &        \ldots &  -\frac{1}{20} & -\frac{1}{20} \\
+ * \end{pmatrix}
+ * \f]
+ * and the right eigen vectors are, by column:
+ * \f[
+ * U^-1 = \begin{pmatrix}
+ *      1 &      0 &  \ldots &      0 &  1 \\
+ * \vdots & \vdots &  \ddots & \ddots &  0 \\
+ *      1 &      0 &       1 & \ddots & \vdots \\
+ *      1 &      1 &       0 & \ldots &  0 \\
+ *      1 &     -1 &      -1 & \ldots & -1 \\
+ * \end{pmatrix}
+ * \f]
+ *
+ * The probabilities of changes are computed analytically using the formulas:
+ * \f[
+ * P_{i,j}(t) = \begin{cases}
+ * \frac{19}{20}e^{-\frac{20}{19}t}               & \text{if $i=j$}, \\
+ * \frac{1}{20} - \frac{1}{20}e^{-\frac{20}{19}t} & \text{otherwise}.
+ * \end{cases}
+ * \f]
+ *
+ * First and second order derivatives are also computed analytically using the formulas:
+ * \f[
+ * \frac{\partial P_{i,j}(t)}{\partial t} = \begin{cases}
+ * -e^{-\frac{20}{19}t}           & \text{if $i=j$}, \\
+ * \frac{1}{19}e^{-\frac{20}{19}t} & \text{otherwise}.
+ * \end{cases}
+ * \f]
+ * \f[
+ * \frac{\partial^2 P_{i,j}(t)}{\partial t^2} = \begin{cases}
+ * \frac{20}{19}e^{-\frac{20}{19}t}  & \text{if $i=j$}, \\
+ * -\frac{20}{361}e^{-\frac{20}{19}t} & \text{otherwise}.
+ * \end{cases}
+ * \f]
+ *
+ * Reference:
+ * - Jukes TH and Cantor CR (1969), _Evolution of proteins molecules_, 121-123, in _Mammalian protein metabolism_. 
+ */
 class JCprot : public virtual ProteinSubstitutionModel
 {
 	public:
 		JCprot(const ProteicAlphabet * alpha);
-		~JCprot();
+		virtual ~JCprot() {}
 	
 		double Pij_t    (int i, int j, double d) const;
 		double dPij_dt  (int i, int j, double d) const;
 		double d2Pij_dt2(int i, int j, double d) const;
-		Mat getPij_t    (double d) const;
-		Mat getdPij_dt  (double d) const;
-		Mat getd2Pij_dt2(double d) const;
+		RowMatrix<double> getPij_t    (double d) const;
+		RowMatrix<double> getdPij_dt  (double d) const;
+		RowMatrix<double> getd2Pij_dt2(double d) const;
 
 		string getName() const;
 	
@@ -66,7 +146,6 @@ class JCprot : public virtual ProteinSubstitutionModel
 		 */
 		void updateMatrices();
 };
-
 
 #endif	//_JCPROT_H_
 

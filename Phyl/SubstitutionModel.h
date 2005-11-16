@@ -1,6 +1,6 @@
 //
 // File: SubstitutionModel.h
-// Created by:  Julien.Dutheil
+// Created by:  Julien Dutheil
 // Created on: Mon May 26 14:52:34 2003
 //
 
@@ -58,83 +58,94 @@ knowledge of the CeCILL license and that you accept its terms.
 #include <NumCalc/VectorTools.h>
 #include <NumCalc/Matrix.h>
 
-typedef RowMatrix<double> Mat;
-typedef Vdouble Vec;
-
 class SubstitutionModel;
 
-/******************************************************************************
- *                        SubstitutionModel exceptions:                       *
- ******************************************************************************/
-
+/**
+ * @brief Exception that may be thrown by susbstitution models.
+ *
+ * @see SubstitutionModel
+ */
 class SubstitutionModelException : public Exception {
 
 	protected:
 		const SubstitutionModel * sm;
 			
 	public:
-		// Class constructor
 		SubstitutionModelException(const char *   text, const SubstitutionModel * sm = NULL);
 		SubstitutionModelException(const string & text, const SubstitutionModel * sm = NULL);
 	
-		// Class destructor
 		~SubstitutionModelException() throw ();
+		
 	public:
+		/**
+		 * @brief Get the model that throw the exception.
+		 *
+		 * @return The model that throw the exception.
+		 */
 		virtual const SubstitutionModel * getSubstitutionModel() const;
 };
-
-/******************************************************************************
- *                        SubstitutionModel class:                            *
- ******************************************************************************/
 
 /**
  * @brief Interface for all substitution models.
  * 
  * A substitution model is based on a Markov generator \f$Q\f$, the size of
  * which depends on the alphabet used (4 for nucleotides, 20 for proteins, etc.).
- * Each SubstitutionModel will hence include a pointer toward an alphabet, and
- * provides a method to know which alphabet is used (getAlphabet() method).
+ * Each SubstitutionModel object hence includes a pointer toward an alphabet,
+ * and provides a method to retrieve the alphabet used (getAlphabet() method).
  *
- * What we want from a substitution model is to compute the probabilities that
- * one particular state \f$i\f$ mutate into state \f$j\f$ after a time \f$t\f$
- * (\f$P_{i,j}(t)\f$).
+ * What we want from a substitution model is to compute the probabilities of state
+ * j at time t geven state j at time 0 (\f$P_{i,j}(t)\f$).
  * Typically, this is computed using the formula
  * \f[
  * P(t) = e^{t \times Q},
  * \f]
  * where \f$P(t)\f$ is the matrix with all probabilities \f$P_{i,j}(t)\f$.
- * For some models, such \f$P_{i,j}(t)\f$ may be computed analytically.
+ * For some models, the \f$P_{i,j}(t)\f$'s can be computed analytically.
  * For more complexe models, we need to use a eigen-decomposition of \f$Q\f$:
- * \f[ Q = U^{-1} \times D \times U, \f]
- * where \f$D\f$ is a diagonal matrix.
+ * \f[ Q = U^{-1} . D . U, \f]
+ * where \f$D = diag(\lambda_i)\f$ is a diagonal matrix.
  * Hence
- * \f[ P(t) = e^{t \times Q} = U^{-1} \times e^{D \times t} \times U, \f]
- * where \f$e^{D \times t}\f$ is a diagonal matrix with all terms equal to exp the terms
- * in \f$D\f$.
- * \f$U\f$ is the matrix of vertical left eigen vectors, and \f$U^{-1}\f$ is the matrix
- * of vertical right eigen vectors.
- * The values on the diagonal of \f$D\f$ are the eigen values of \f$Q\f$.
+ * \f[
+ * P(t) = e^{t \times Q} = U^{-1} . e^{D \times t} . U,
+ * \f]
+ * where \f$e^{D \times t} = diag\left(e^{\lambda_i \times t}\right)\f$ is a
+ * diagonal matrix with all terms equal to exp the terms in \f$D\f$.
+ * \f$U\f$ is the matrix of left eigen vectors (by row), and \f$U^{-1}\f$ is the matrix
+ * of right eigen vectors (by column).
+ * The values in \f$D\f$ are the eigen values of \f$Q\f$.
  * All \f$Q,U,U^{-1}\f$ and \f$D\f$ (its diagonal) may be retrieved from the
- * class.
+ * class (getEigenValues(), getRowRightEigenVectors() and getColumnLeftEigenVectors()
+ * functions).
  *
  * Moreover, for reversible models, we can write:
- * \f[ Q = S \times \pi, \f]
- * where \f$S\f$ is a symetric matrix and \f$\pi\f$ the diagonal matrix with
- * all equilibrium frequencies.
- * The frequences may be retrieved as a vector by the getFrequencies() method
+ * \f[ Q = S . \pi, \f]
+ * where \f$S\f$ is a symetric matrix called the exchangeability matrix, and
+ * \f$\Pi\f$ the diagonal matrix with all equilibrium frequencies.
+ * The frequencies may be retrieved as a vector by the getFrequencies() method
  * or individually by the freq() method.
  * The \f$S\f$ matrix may be obtained by the getExchangeabilityMatrix().
  *
- * Moreover, the equilibrium frequencies may also be retrieved, and first and
- * second order derivatives of \f$P(t)\f$ according to \f$t\f$.
+ * First and second order derivatives of \f$P(t)\f$ with respect to \f$t\f$
+ * can also be retrieved.
  * These methods may be useful for optimization processes.
+ * Derivatives may be computed analytically, or using the general formulas:
+ * \f[
+ * \frac{\partial P(t)}{\partial t} = 
+ * U^{-1} . diag\left(\lambda_i \times e^{\lambda_i \times t}\right) . U
+ * \f]
+ * and
+ * \f[
+ * \frac{\partial^2 P(t)}{\partial t^2} = 
+ * U^{-1} . diag\left(\lambda_i^2 \times e^{\lambda_i \times t}\right) . U
+ * \f]
+ * 
  */
 
 class SubstitutionModel: public virtual Parametrizable
 {
 	
 	public:
-		//Destructor:
+		SubstitutionModel() {}
 		virtual ~SubstitutionModel() {};
 
 	public:
@@ -146,45 +157,114 @@ class SubstitutionModel: public virtual Parametrizable
 		 */
 		virtual string getName() const = 0;
 	
+		/**
+		 * @return Equilibrium frequency associated to character i.
+		 * @see getFrequencies()
+		 */
 		virtual double freq(int i) const = 0;
 
+		/**
+		 * @return The rate of change from state i to state j.
+		 */
 		virtual double Qij(int i, int j) const = 0;
 
+		/**
+		 * @return The probability of change from state i to state j during time t.
+		 * @see getPij_t()
+		 */
 		virtual double Pij_t(int i, int j, double t) const = 0;
 
+		/**
+		 * @return The first order derivative of the probability of change from state
+		 * i to state j with respect to time t, at time t.
+		 * @see getdPij_dt()
+		 */
 		virtual double dPij_dt(int i, int j, double t) const = 0;
 		
+		/**
+		 * @return The second order derivative of the probability of change from state
+		 * i to state j with respect to time t, at time t.
+		 * @see getd2Pij_dt2()
+		 */
 		virtual double d2Pij_dt2(int i, int j, double t) const = 0;
 	
-		virtual Vec getFrequencies() const = 0;
+		/**
+		 * @return A vector of all equilibrium frequencies.
+		 * @see freq()
+		 */
+		virtual Vdouble getFrequencies() const = 0;
 		
-		virtual Mat getExchangeabilityMatrix() const = 0;
+		/**
+		 * @return The matrix of exchangeability terms.
+		 * It is recommended that exchangeability matrix be normalized so that the normalized 
+		 * generator be obtained directly by the dot product \f$S . \pi\f$.
+		 */
+		virtual RowMatrix<double> getExchangeabilityMatrix() const = 0;
 
-		virtual Mat getGenerator() const = 0;
+		/**
+		 * @return The Markov generator matrix, i.e. all rates of changes from state i
+		 * to state j. Usually, the generator is normalized so that
+		 * (i) \f$ \forall j; \sum_i Q_{i,j} = 0 \f$, meaning that $\f$ \forall j; Q_{j,j} = -\sum_{i \neq j}Q_{i,j}\f$,
+		 * and (ii) \f$ \sum_i Q_{i,i} \times \pi_i = -1\f$.
+		 * This means that the mean rate of replacement at equilibrium is 1 and that time \f$t\f$ are measured
+		 * in units of expected number of changes per site.
+		 * 
+		 * See Kosiol and Goldman (2005), Molecular Biology And Evolution 22(2) 193-9.
+		 * @see Qij()
+		 */ 
+		virtual RowMatrix<double> getGenerator() const = 0;
 
-		virtual Mat getPij_t(double t) const = 0;
+		/**
+		 * @return All probabilities of change from state i to state j during time t.
+		 * @see Pij_t()
+		 */
+		virtual RowMatrix<double> getPij_t(double t) const = 0;
 	
-		virtual Mat getdPij_dt(double t) const = 0;
+		/**
+		 * @return Get all first order derivatives of the probability of change from state
+		 * i to state j with respect to time t, at time t.
+		 * @see dPij_dt()
+		 */
+		virtual RowMatrix<double> getdPij_dt(double t) const = 0;
 
-		virtual Mat getd2Pij_dt2(double t) const = 0;
+		/**
+		 * @return All second order derivatives of the probability of change from state
+		 * i to state j with respect to time t, at time t.
+		 * @see d2Pij_dt2()
+		 */
+		virtual RowMatrix<double> getd2Pij_dt2(double t) const = 0;
 
-		virtual Vec eigenValues() const = 0;
+		/**
+		 * @return A vector with all eigen values of the generator of this model;
+		 */
+		virtual Vdouble getEigenValues() const = 0;
 
-		virtual Mat verticalLeftEigenVectors() const = 0;
+		/**
+		 * @return A matrix with left eigen vectors.
+		 * Each row in the matrix stands for an eigen vector.
+		 */
+		virtual RowMatrix<double> getRowLeftEigenVectors() const = 0;
 
-		virtual Mat horizontalRightEigenVectors() const = 0;
+		/**
+		 * @return A matrix with right eigen vectors.
+		 * Each column in the matrix stands for an eigen vector.
+		 */
+		virtual RowMatrix<double> getColumnRightEigenVectors() const = 0;
 
+		/**
+		 * @return Get the alphabet associated to this model.
+		 */
 		virtual const Alphabet * getAlphabet() const = 0;
 
 		/**
 		 * This method is used to initialize likelihoods in reccurence.
-		 * Traditionaly, it sends 1 if i = state, 0 else, where
+		 * It typically sends 1 if i = state, 0 otherwise, where
 		 * i is one of the possible states of the alphabet allowed in the model
-		 * and state is the observed state in the sequence.
+		 * and state is the observed state in the considered sequence/site.
 		 *
 		 * @param i one of the possible states of the alphabet.
-		 * @param state An observed state in the sequence.
-		 * @return 1 or 0 dpeendeing if two states are compatible.
+		 * @param state An observed state in the sequence/site.
+		 * @return 1 or 0 depending if the two states are compatible.
 		 * @throw BadIntException if states are not allowed in the associated alphabet.
 		 */
 		virtual double getInitValue(int i, int state) const throw (BadIntException) = 0;
@@ -192,6 +272,8 @@ class SubstitutionModel: public virtual Parametrizable
 		/**
 		 * @brief Set equilibrium frequencies equal to the frequencies estimated
 		 * from the data.
+		 *
+		 * @data The sequences to use.
 		 */
 		virtual void setFreqFromData(const SequenceContainer & data) = 0;
 		

@@ -44,6 +44,26 @@ knowledge of the CeCILL license and that you accept its terms.
 
 /**
  * @brief Low level implementation of the SubstitutionModel interface.
+ *
+ * This abstract class provides some fields, namely:
+ * - _alphabet: a pointer toward the alphabet,
+ * - _size: the size of the alphabet, a parameter frequenctly called during various computations,
+ * - _generator, _exchangeability, _leftEigenVectors, _rightEigenVectors: usefull matrices,
+ * - _eigenValues, _freq: usefull vectors.
+ *
+ * Access methods for these fields are implemented.
+ *
+ * This class also provides the updateMatrices() method, which updates
+ * the _generator matrix from the _exchangeability matrix and _freq vector.
+ * It then computes eigen values and vectors and fills the corresponding vector (_eigenValues)
+ * and matrices (_leftEigenVectors and _rightEigenVectors).
+ *
+ * The _freq vector and _exchangeability matrices are hence the only things to provide to
+ * create a substitution model.
+ * It is also possible to redefine one of these methods for better efficiency.
+ * The Pij_t, dPij_dt and d2Pij_dt2 are particularly inefficient since the matrix formula
+ * is used to compute all probabilities, and then the result for the initial and final state
+ * of interest is retrieved.
  */
 class AbstractSubstitutionModel :
 	public virtual SubstitutionModel,
@@ -52,9 +72,9 @@ class AbstractSubstitutionModel :
 	protected:
 
 		/**
-		 * @brief The alphabet this model is to use with.
+		 * @brief The alphabet relevant to this model.
 		 */
-		const Alphabet * alphabet;
+		const Alphabet * _alphabet;
 
 		/**
 		 * @brief The size of the alphabet.
@@ -64,32 +84,32 @@ class AbstractSubstitutionModel :
 		/**
 		 * @brief The generator matrix \f$Q\f$ of the model.
 		 */
-		Mat _generator;
+		RowMatrix<double> _generator;
 
 		/**
 		 * @brief The exchangeability matrix \f$S\f$ of the model.
 		 */
-		Mat _exchangeability;
+		RowMatrix<double> _exchangeability;
 
 		/**
-		 * @brief The \f$U^{-1}\f$ matrix made of horizontal left eigen vectors.
+		 * @brief The \f$U\f$ matrix made of left eigen vectors (by row).
 		 */
-		Mat _leftEigenVectors;
+		RowMatrix<double> _leftEigenVectors;
 
 		/**
-		 * @brief The \f$U\f$ matrix made of vertical right eigen vectors.
+		 * @brief The \f$U^-1\f$ matrix made of right eigen vectors (by column).
 		 */
-		Mat _rightEigenVectors;
+		RowMatrix<double> _rightEigenVectors;
 
 		/**
 		 * @brief The vector of eigen values.
 		 */
-		Vec _eigenValues;
+		Vdouble _eigenValues;
 
 		/**
 		 * @brief The vector of equilibrium frequencies.
 		 */
-		Vec _freq;
+		Vdouble _freq;
 
 	public:
 		AbstractSubstitutionModel(const Alphabet * alpha);
@@ -97,19 +117,19 @@ class AbstractSubstitutionModel :
 		virtual ~AbstractSubstitutionModel() {}
 	
 	public:
-		const Alphabet * getAlphabet() const;
+		const Alphabet * getAlphabet() const { return _alphabet; }
 
-		Vec getFrequencies() const;
-		Mat getExchangeabilityMatrix() const;
-		Mat getGenerator() const;
-		Mat getPij_t(double t) const;
-		Mat getdPij_dt(double t) const;
-		Mat getd2Pij_dt2(double t) const;
-		Vec eigenValues() const;
-		Mat verticalLeftEigenVectors() const;
-		Mat horizontalRightEigenVectors() const;
-		double freq(int i) const;
-		double Qij(int i, int j) const;
+		Vdouble getFrequencies() const { return _freq; }
+		RowMatrix<double> getExchangeabilityMatrix() const { return _exchangeability; }
+		RowMatrix<double> getGenerator() const { return _generator; }
+		RowMatrix<double> getPij_t(double t) const;
+		RowMatrix<double> getdPij_dt(double t) const;
+		RowMatrix<double> getd2Pij_dt2(double t) const;
+		Vdouble getEigenValues() const { return _eigenValues; }
+		RowMatrix<double> getRowLeftEigenVectors() const { return _leftEigenVectors; }
+		RowMatrix<double> getColumnRightEigenVectors() const { return _rightEigenVectors; }
+		double freq(int i) const { return _freq[i]; }
+		double Qij(int i, int j) const { return _generator(i, j); }
 		double Pij_t    (int i, int j, double t) const;
 		double dPij_dt  (int i, int j, double t) const;
 		double d2Pij_dt2(int i, int j, double t) const;
@@ -117,6 +137,11 @@ class AbstractSubstitutionModel :
 		double getInitValue(int i, int state) const throw (BadIntException);
 		void setFreqFromData(const SequenceContainer & data);
 
+		/**
+		 * @brief Tells the model that a parameter value has changed.
+		 *
+		 * This updates the matrices consequently.
+		 */
 		void fireParameterChanged(const ParameterList & parameters)
 		{
 			updateMatrices();
@@ -125,22 +150,24 @@ class AbstractSubstitutionModel :
 	protected:
 
 		/**
-		 * @brief Compute and diagonalize the \f$Q\f$ matrix and fill the _eigenValues,
-		 * _leftEigenVectors and _rightEigenVectors fields.
+		 * @brief Compute and diagonalize the \f$Q\f$ matrix, and fill the _eigenValues,
+		 * _leftEigenVectors and _rightEigenVectors matrices.
 		 *
 		 * The _exchangeability matrix and _freq vector must be initialized.
 		 * This function computes the _generator matrix with the formula
 		 * \f[
-		 * Q = S \times \Pi
+		 * Q = S \times \pi
 		 * \f]
-		 * where \f$Q\f$ is the genrator matrix, \f$S\f$ is the exchangeability matrix and
+		 * where \f$Q\f$ is the generator matrix, \f$S\f$ is the exchangeability matrix and
 		 * \f$Pi\f$ the diagonal matrix with frequencies.
 		 *
 		 * The generator is then scaled so that
 		 * \f[
-		 * \sum_i Q_{i,i} \times f_i = -1
+		 * \sum_i Q_{i,i} \times \pi_i = -1
 		 * \f]
-		 * (\f$f_i\f$ are the equilibrium frequencies).
+		 * (\f$\pi_i\f$ are the equilibrium frequencies).
+		 *
+		 * WARNING!!! The exchangeability matrix is not scaled, only the generator matrix.
 		 * 
 		 * Eigen values and vectors are computed from the scaled generator and assigned to the
 		 * _eigenValues, _rightEigenVectors and _leftEigenVectors variables.
@@ -157,7 +184,6 @@ class AbstractSubstitutionModel :
 		 */
 		double getScale() const;
 };
-
 
 #endif	//_ABSTRACTSUBSTITUTIONMODEL_H_
 

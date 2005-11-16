@@ -45,6 +45,18 @@ knowledge of the CeCILL license and that you accept its terms.
 // From SeqLib:
 #include <Seq/ProteicAlphabet.h>
 
+/**
+ * @Brief The Dayhoff, Schwartz and Orcutt substitution model for proteins.
+ *
+ * Exchangeabilities have been computed using the DCMut method of Kosiol and Goldman.
+ * The exchangability matrix is normalized so that \f$Q = S . \pi\f$ and \f$\sum_i Q_{i,i}\pi_i = -1\f$.
+ * Eigen values and vectors are obtained numerically.
+ * 
+ * References:
+ * - Dayhoff MO, Schwartz RM and Orcutt BC (1978), _A model of evolutionary change in proteins_, 5(3) 345-352, in _Atlas of Protein Sequence and Structure_. 
+ * - Kosiol C and Goldman N (2005), _Molecular Biology And Evolution_ 22(2) 193-9. 
+ */
+
 class DSO78 : public virtual ProteinSubstitutionModel
 {
 	public:
@@ -56,5 +68,5 @@ class DSO78 : public virtual ProteinSubstitutionModel
 
 };
 
-
 #endif	//_DSO78_H_
+
