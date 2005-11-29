@@ -1,5 +1,5 @@
 //
-// File: PreciseSequenceSimulator.h
+// File: DetailedSequenceSimulator.h
 // Created by: Julien Dutheil
 // Created on: Wed Aug  24 15:20 2005
 //
@@ -37,8 +37,8 @@ The fact that you are presently reading this means that you have had
 knowledge of the CeCILL license and that you accept its terms.
 */
 
-#ifndef _PRECISESEQUENCESIMULATOR_H_
-#define _PRECISESEQUENCESIMULATOR_H_
+#ifndef _DETAILEDSEQUENCESIMULATOR_H_
+#define _DETAILEDSEQUENCESIMULATOR_H_
 
 #include "SequenceSimulator.h"
 #include "TreeTemplate.h"
@@ -49,6 +49,11 @@ knowledge of the CeCILL license and that you accept its terms.
 #include <vector>
 using namespace std;
 
+/**
+ * @brief Data structure to store the result of a DetailedSequenceSimulator.
+ *
+ * This data structure stores each transitional state, and the time when it occured.
+ */
 class SequenceSimulationResult
 {
 	protected:
@@ -109,15 +114,15 @@ class SequenceSimulationResult
 //---------------------------------------------------------------------------
 
 /**
- * @brief This interface adds the preciseSimulate method to the SequenceSimulator interface.
+ * @brief This interface adds the dSimulate method to the SequenceSimulator interface.
  *
  * Instances of this class should be used when a detailed output of the simulation is needed.
  */
-class PreciseSequenceSimulator: public virtual SequenceSimulator
+class DetailedSequenceSimulator: public virtual SequenceSimulator
 {
 	public:
-		PreciseSequenceSimulator() {}
-		virtual ~PreciseSequenceSimulator() {}
+		DetailedSequenceSimulator() {}
+		virtual ~DetailedSequenceSimulator() {}
 	
 	public:
 		/**
@@ -126,9 +131,9 @@ class PreciseSequenceSimulator: public virtual SequenceSimulator
 		 * @return A SequenceSimulationResult object with all ancestral
 		 * states for all nodes and branches.
 		 */
-		virtual SequenceSimulationResult * preciseSimulate() const = 0;
+		virtual SequenceSimulationResult * dSimulate() const = 0;
 		
 };
 
-#endif // _PRECISESEQUENCESIMULATOR_H_
+#endif // _DETAILEDSEQUENCESIMULATOR_H_
 

@@ -108,6 +108,7 @@ int HomogeneousSequenceSimulator::evolve(int initialState, const Node * node, un
 	}
 	cerr << "DEBUG: This message should never happen! (HomogeneousSequenceSimulator::evolve)" << endl;
 	cout << "   rand = " << rand << endl;
+  return -1;
 }
 
 /******************************************************************************/
@@ -125,6 +126,7 @@ int HomogeneousSequenceSimulator::evolve(int initialState, const Node * node, do
 	cout << "   rand = " << rand << endl;
 	cout << "_cumpxy = " << _cumpxy << endl;
 	MatrixTools::print(_model->getPij_t(l));
+  return -1;
 }
 
 /******************************************************************************/
@@ -195,7 +197,7 @@ void HomogeneousSequenceSimulator::multipleEvolveInternal(const Node * node, con
 
 /******************************************************************************/
 
-void HomogeneousSequenceSimulator::preciseEvolveInternal(const Node * node, unsigned int rateClass) const
+void HomogeneousSequenceSimulator::dEvolveInternal(const Node * node, unsigned int rateClass) const
 {
 	if(!node -> hasFather()) { cerr << "DEBUG: HomogeneousSequenceSimulator::evolveInternal. Forbidden call of method on root node." << endl; return; }
 	int initialState = _states[node -> getFather()];
@@ -207,7 +209,7 @@ void HomogeneousSequenceSimulator::preciseEvolveInternal(const Node * node, unsi
 
 	// Now jump to son nodes:
 	for(unsigned int i = 0; i < node -> getNumberOfSons(); i++) {
-		preciseEvolveInternal(node -> getSon(i), rateClass);
+		dEvolveInternal(node -> getSon(i), rateClass);
 	}
 }
 		
@@ -232,13 +234,13 @@ SiteContainer * HomogeneousSequenceSimulator::multipleEvolve(const Vint & initia
 
 /******************************************************************************/
 	
-void HomogeneousSequenceSimulator::preciseEvolve(int initialState, unsigned int rateClass) const
+void HomogeneousSequenceSimulator::dEvolve(int initialState, unsigned int rateClass) const
 {
 	// Launch recursion:
 	const Node * root = _tree -> getRootNode();
 	_states[root] = initialState;
 	for(unsigned int i = 0; i < root -> getNumberOfSons(); i++) {
-		preciseEvolveInternal(root -> getSon(i), rateClass);
+		dEvolveInternal(root -> getSon(i), rateClass);
 	}
 }
 
@@ -371,7 +373,7 @@ SiteContainer * HomogeneousSequenceSimulator::simulate(unsigned int numberOfSite
 
 /******************************************************************************/
 
-SequenceSimulationResult * HomogeneousSequenceSimulator::preciseSimulate() const
+SequenceSimulationResult * HomogeneousSequenceSimulator::dSimulate() const
 {
 	// Draw an initial state randomly according to equilibrum frequencies:
 	int initialState = 0;
@@ -388,7 +390,7 @@ SequenceSimulationResult * HomogeneousSequenceSimulator::preciseSimulate() const
 	int rateClass = RandomTools::giveIntRandomNumberBetweenZeroAndEntry(_rate -> getNumberOfCategories());
 	// Make this state evolve:
 	_hssr = new HomogeneousSequenceSimulationResult(_tree, initialState, rateClass);
-	preciseEvolve(initialState, rateClass);
+	dEvolve(initialState, rateClass);
 	return _hssr;
 }
 

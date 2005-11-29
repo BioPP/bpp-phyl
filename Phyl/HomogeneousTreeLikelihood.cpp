@@ -1,5 +1,5 @@
 //
-// File: HomogeneousTreeLikelihood.h
+// File: HomogeneousTreeLikelihood.cpp
 // Created by: Julien Dutheil
 // Created on: Fri Oct 17 18:14:51 2003
 //
@@ -144,7 +144,7 @@ void DRASRTreeLikelihoodData::initTreeLikelihoods(const Node * node, const SiteC
 			//For each son node,
 			const Node * son = (* node)[l];
 			initTreeLikelihoods(son, sequences, model);
-			vector<unsigned int> * _patternLinks_node_son = & _patternLinks[node][son];
+			vector<unsigned int> * _patternLinks_node_son = & (* _patternLinks_node)[son];
 
 			//Init map:
 			_patternLinks_node_son -> resize(_nbSites);
@@ -229,7 +229,7 @@ SiteContainer * DRASRTreeLikelihoodData::initTreeLikelihoodsWithPatterns(const N
 			//For each son node,
 			const Node * son = (* node)[l];
 
-			vector<unsigned int> * _patternLinks_node_son = & _patternLinks[node][son];
+			vector<unsigned int> * _patternLinks_node_son = & (* _patternLinks_node)[son];
 			
 			//Init map:
 			_patternLinks_node_son -> resize(nbSites);
@@ -415,7 +415,7 @@ Vdouble HomogeneousTreeLikelihood::getRateWithMaxPostProbOfEachSite() const
 	VVdouble l = getLikelihoodForEachSiteForEachRateClass();
 	Vdouble rates(_nbSites);
 	for(unsigned int i = 0; i < _nbSites; i++) {
-		rates[i] = _rateDistribution -> getCategory(posmax<double>(l[i]));
+		rates[i] = _rateDistribution -> getCategory(whichmax<double>(l[i]));
 	}
 	return rates;
 }

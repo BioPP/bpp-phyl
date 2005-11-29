@@ -132,7 +132,7 @@ VVVdouble AbstractDiscreteRatesAcrossSitesTreeLikelihood::getLikelihoodForEachSi
 		l[i].resize(nbClasses);
 		for(unsigned int j = 0; j < nbClasses; j++) {
 			l[i][j].resize(nbStates);
-			for(int x = 0; x < nbStates; x++) {
+			for(unsigned int x = 0; x < nbStates; x++) {
 				l[i][j][x] = getLikelihoodForASiteForARateClassForAState(i, j, x);
 			}
 		}
@@ -152,7 +152,7 @@ VVVdouble AbstractDiscreteRatesAcrossSitesTreeLikelihood::getLogLikelihoodForEac
 		l[i].resize(nbClasses);
 		for(unsigned int j = 0; j < nbClasses; j++) {
 			l[i][j].resize(nbStates);
-			for(int x = 0; x < nbStates; x++) {
+			for(unsigned int x = 0; x < nbStates; x++) {
 				l[i][j][x] = getLogLikelihoodForASiteForARateClassForAState(i, j, x);
 			}
 		}
@@ -198,7 +198,7 @@ vector<unsigned int> AbstractDiscreteRatesAcrossSitesTreeLikelihood::getRateClas
 	unsigned int nbSites   = getNumberOfSites();
 	VVdouble l = getLikelihoodForEachSiteForEachRateClass();
 	vector<unsigned int>classes(nbSites);
-	for(unsigned int i = 0; i < nbSites; i++) classes[i] = posmax<double>(l[i]);
+	for(unsigned int i = 0; i < nbSites; i++) classes[i] = whichmax<double>(l[i]);
 	return classes;
 }
 
@@ -210,7 +210,7 @@ Vdouble AbstractDiscreteRatesAcrossSitesTreeLikelihood::getRateWithMaxPostProbOf
 	VVdouble l = getLikelihoodForEachSiteForEachRateClass();
 	Vdouble rates(nbSites);
 	for(unsigned int i = 0; i < nbSites; i++) {
-		rates[i] = _rateDistribution -> getCategory(posmax<double>(l[i]));
+		rates[i] = _rateDistribution -> getCategory(whichmax<double>(l[i]));
 	}
 	return rates;
 }

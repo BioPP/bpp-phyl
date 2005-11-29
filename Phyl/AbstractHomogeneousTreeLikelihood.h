@@ -43,6 +43,11 @@ knowledge of the CeCILL license and that you accept its terms.
 #include "AbstractDiscreteRatesAcrossSitesTreeLikelihood.h"
 #include "SubstitutionModel.h"
 
+/**
+ * @brief Partial implementation for homogeneous model of the TreeLikelihood interface.
+ *
+ * This class provides a pointer toward a single substitution model + several utilitary variables.
+ */
 class AbstractHomogeneousTreeLikelihood: public virtual AbstractDiscreteRatesAcrossSitesTreeLikelihood
 {
 	protected:
@@ -67,7 +72,6 @@ class AbstractHomogeneousTreeLikelihood: public virtual AbstractDiscreteRatesAcr
 		             _nbClasses,       //the number of rate classes
 		             _nbStates,        //the number of states in the alphabet
 		             _nbNodes;         //the number of nodes in the tree
-
 
 	public:
 		AbstractHomogeneousTreeLikelihood(

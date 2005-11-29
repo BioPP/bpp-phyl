@@ -44,7 +44,9 @@ knowledge of the CeCILL license and that you accept its terms.
 
 /******************************************************************************/
 
-JCnuc::JCnuc(const NucleicAlphabet * alpha): NucleotideSubstitutionModel(alpha), AbstractSubstitutionModel(alpha)
+JCnuc::JCnuc(const NucleicAlphabet * alpha) :
+  AbstractSubstitutionModel(alpha),
+  NucleotideSubstitutionModel(alpha)
 {
 	_parameters = ParameterList(); //no parameters for this model.	
 	

@@ -5,45 +5,7 @@
 //
 
 /*
-Copyright ou © ou Copr. CNRS, (16 Novembre 2004) 
-
-Julien.Dutheil@univ-montp2.fr
-
-Ce logiciel est un programme informatique servant à fournir des classes
-pour l'analyse de données phylogénétiques.
-
-Ce logiciel est régi par la licence CeCILL soumise au droit français et
-respectant les principes de diffusion des logiciels libres. Vous pouvez
-utiliser, modifier et/ou redistribuer ce programme sous les conditions
-de la licence CeCILL telle que diffusée par le CEA, le CNRS et l'INRIA 
-sur le site "http://www.cecill.info".
-
-En contrepartie de l'accessibilité au code source et des droits de copie,
-de modification et de redistribution accordés par cette licence, il n'est
-offert aux utilisateurs qu'une garantie limitée.  Pour les mêmes raisons,
-seule une responsabilité restreinte pèse sur l'auteur du programme,  le
-titulaire des droits patrimoniaux et les concédants successifs.
-
-A cet égard  l'attention de l'utilisateur est attirée sur les risques
-associés au chargement,  à l'utilisation,  à la modification et/ou au
-développement et à la reproduction du logiciel par l'utilisateur étant 
-donné sa spécificité de logiciel libre, qui peut le rendre complexe à 
-manipuler et qui le réserve donc à des développeurs et des professionnels
-avertis possédant  des  connaissances  informatiques approfondies.  Les
-utilisateurs sont donc invités à charger  et  tester  l'adéquation  du
-logiciel à leurs besoins dans des conditions permettant d'assurer la
-sécurité de leurs systèmes et ou de leurs données et, plus généralement, 
-à l'utiliser et l'exploiter dans les mêmes conditions de sécurité. 
-
-Le fait que vous puissiez accéder à cet en-tête signifie que vous avez 
-pris connaissance de la licence CeCILL, et que vous en avez accepté les
-termes.
-*/
-
-/*
 Copyright or © or Copr. CNRS, (November 16, 2004)
-
-Julien.Dutheil@univ-montp2.fr
 
 This software is a computer program whose purpose is to provide classes
 for phylogenetic data analysis.
@@ -91,6 +53,9 @@ using namespace std;
 #include <Utils/Exceptions.h>
 #include <Utils/IOFormat.h>
 
+/**
+ * @brief General interface for tree I/O.
+ */
 class IOTree: public virtual IOFormat
 {
 	public:
@@ -101,6 +66,9 @@ class IOTree: public virtual IOFormat
 		virtual const string getDataType() const { return "Tree"; }
 };
 
+/**
+ * @brief General interface for tree readers.
+ */
 class ITree: public virtual IOTree
 {
 	public:
@@ -108,10 +76,27 @@ class ITree: public virtual IOTree
 		virtual ~ITree() {}
 
 	public:
-		virtual Tree * read(istream & in) const throw (Exception) = 0;
+    /**
+     * @brief Read a tree from a file.
+     *
+     * @param path The file path.
+     * @return A new tree object.
+     * @throw Exception If an error occured.
+     */
 		virtual Tree * read(const string & path) const throw (Exception) = 0;
+    /**
+     * @brief Read a tree from a stream.
+     *
+     * @param in The input stream.
+     * @return A new tree object.
+     * @throw Exception If an error occured.
+     */
+		virtual Tree * read(istream & in) const throw (Exception) = 0;
 };
 
+/**
+ * @brief General interface for tree writers.
+ */
 class OTree: public virtual IOTree
 {
 	public:
@@ -119,10 +104,29 @@ class OTree: public virtual IOTree
 		virtual ~OTree() {}
 
 	public:
+    /**
+     * @brief Write a tree to a file.
+     *
+     * @param tree A tree object.
+     * @param path The file path.
+     * @param overwrite Tell if existing file must be overwritten.
+     * Otherwise append to the file.
+     * @throw Exception If an error occured.
+     */
 		virtual void write(const Tree & tree, const string & path, bool overwrite) const throw (Exception) = 0;
+    /**
+     * @brief Write a tree to a stream.
+     *
+     * @param tree A tree object.
+     * @param out The output stream.
+     * @throw Exception If an error occured.
+     */
 		virtual void write(const Tree & tree, ostream & out) const throw (Exception) = 0;
 };
 
+/**
+ * @brief Partial implementation of the ITree interface.
+ */
 class AbstractITree: public virtual ITree
 {
 	public:
@@ -141,6 +145,9 @@ class AbstractITree: public virtual ITree
 
 };
 
+/**
+ * @brief Partial implementation of the OTree interface.
+ */
 class AbstractOTree: public virtual OTree
 {
 	public:

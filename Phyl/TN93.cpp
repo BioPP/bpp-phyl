@@ -59,8 +59,8 @@ TN93::TN93(
 	double piC,
 	double piG,
 	double piT):
-	NucleotideSubstitutionModel(alpha),
-	AbstractSubstitutionModel(alpha)
+	AbstractSubstitutionModel(alpha),
+	NucleotideSubstitutionModel(alpha)
 {
 	piConstraint = new IncludingInterval(0, 1);
 	_parameters.addParameter(Parameter("kappa1", kappa1, &Parameter::R_PLUS));
@@ -93,8 +93,8 @@ void TN93::updateMatrices()
 	double piC = _parameters.getParameter("piC") -> getValue();
 	double piG = _parameters.getParameter("piG") -> getValue();
 	double piT = _parameters.getParameter("piT") -> getValue();
-	double piR = piA + piG;
-	double piY = piT + piC;
+	//double piR = piA + piG;
+	//double piY = piT + piC;
 	
 	_generator(0, 0) = -(                    piC + kappa1*piG +        piT);
 	_generator(1, 1) = -(       piA +                     piG + kappa2*piT); 

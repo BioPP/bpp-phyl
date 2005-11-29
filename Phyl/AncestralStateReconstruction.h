@@ -50,6 +50,9 @@ using namespace std;
 
 class Node;
 
+/**
+ * @brief Interface for ancestral states reconstruction methods.
+ */
 class AncestralStateReconstruction
 {
 	public:

@@ -136,5 +136,5 @@ class Newick: public virtual AbstractITree, public virtual AbstractOTree
 		/** @} */
 };
 
-
 #endif	//_NEWICK_H_
+

@@ -39,6 +39,7 @@ knowledge of the CeCILL license and that you accept its terms.
 
 #include "DRTreeParsimonyScore.h"
 #include "PatternTools.h"
+#include "SitePatterns.h"
 #include "TreeTools.h" //Needed for NNIs
 
 // From Utils:
@@ -57,10 +58,10 @@ void DRTreeParsimonyData::init(const SiteContainer & sites) throw (Exception)
 {
 	_nbStates = sites.getAlphabet() -> getSize();
  	_nbSites  = sites.getNumberOfSites();
-	Pattern pattern = PatternTools::countSites(sites);
-	_shrunkData = PatternTools::getSites(pattern, sites.getAlphabet());
-	_rootWeights = PatternTools::getWeights(pattern);
-	_rootPatternLinks = PatternTools::getIndices(pattern);
+	SitePatterns pattern(sites);
+	_shrunkData = pattern.getSites();
+	_rootWeights = pattern.getWeights();
+	_rootPatternLinks = pattern.getIndices();
 	_nbDistinctSites = _shrunkData -> getNumberOfSites();
 		
 	//Init data:
@@ -98,7 +99,7 @@ void DRTreeParsimonyData::init(const Node * node, const SiteContainer & sites) t
 				int state = seq -> getValue(i);
 				vector<int> states = alphabet -> getAlias(state);
 				for(unsigned int j = 0; j < states.size(); j++)
-					if(s == states[j]) (* leafData_bitsets_i)[s].flip();
+					if((int)s == states[j]) (* leafData_bitsets_i)[s].flip();
 			}
 		}
 

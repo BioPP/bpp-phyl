@@ -241,7 +241,7 @@ class TwoTreeLikelihood: public virtual AbstractDiscreteRatesAcrossSitesTreeLike
 };
 
 /**
- * @brief Compute distance matrix using optimization.
+ * @brief Estimate a distance matrix from sequence data, according to a given model.
  */
 class DistanceEstimation {
 
@@ -290,7 +290,7 @@ class DistanceEstimation {
 		 */
 		DistanceEstimation(unsigned int verbose);
 
-		~DistanceEstimation()
+		virtual ~DistanceEstimation()
 		{
 			delete _dist;
 			delete _defaultOptimizer;

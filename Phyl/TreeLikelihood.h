@@ -194,7 +194,7 @@ class TreeLikelihood: public virtual DerivableSecondOrder
 		/**
 		 * @brief Tell if the derivatives must be computed.
 		 *
-		 * @param Yes or no.
+		 * @param yn Yes or no.
 		 */
 		virtual void setComputeDerivatives(bool yn) = 0;
 

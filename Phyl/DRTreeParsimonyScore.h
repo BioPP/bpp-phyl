@@ -295,8 +295,8 @@ class DRTreeParsimonyScore :
 		 * Depending on what is passed as input, it may computes scroes fo a subtree
 		 * or the whole tree.
 		 *
-		 * @param oBitsets The vector of bitset arrays to use.
-		 * @param oScores  The vector of score arrays to use.
+		 * @param iBitsets The vector of bitset arrays to use.
+		 * @param iScores  The vector of score arrays to use.
 		 * @param oBitsets The bitset array where to store the resulting bitsets.
 		 * @param oScores  The score array where to write the resulting scores.
 		 */

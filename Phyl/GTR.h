@@ -49,7 +49,7 @@ knowledge of the CeCILL license and that you accept its terms.
 #include <Seq/NucleicAlphabet.h>
 
 /**
- * @Brief The General Time-Reversible substitution model for nucleotides.
+ * @brief The General Time-Reversible substitution model for nucleotides.
  *
  * This model is sometimes called the REV model, following Yang (1994), see references.
  * It was used in Lanave et al (1984), described in Tavare et al. 1886 and Rodriguez et al. 1990.

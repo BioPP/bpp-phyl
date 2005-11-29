@@ -52,8 +52,8 @@ knowledge of the CeCILL license and that you accept its terms.
 /******************************************************************************/
 
 T92::T92(const NucleicAlphabet * alpha, double kappa, double theta):
-	NucleotideSubstitutionModel(alpha),
-	AbstractSubstitutionModel(alpha)
+	AbstractSubstitutionModel(alpha),
+	NucleotideSubstitutionModel(alpha)
 {
 	thetaConstraint = new IncludingInterval(0, 1);
 	_parameters.addParameter(Parameter("kappa", kappa, &Parameter::R_PLUS));

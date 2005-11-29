@@ -161,6 +161,9 @@ class DRASDRTreeLikelihoodNodeData :
 		}
 };
 
+/**
+ * @brief Likelihood data structure for rate across sites models, using a double-recursive algorithm.
+ */
 class DRASDRTreeLikelihoodData :
 	public virtual AbstractTreeLikelihoodData
 {
@@ -289,11 +292,11 @@ class DRASDRTreeLikelihoodData :
 
 
 /**
- * @brief This class implement the computation of likelihood for a tree using the double-recursive
- * method.
+ * @brief This class implements the likelihood computation for a tree using the double-recursive
+ * algorithm.
  *
- * The substitution model is constant over the tree (homogeneous model).
- * A non uniform distribution of rates among the sites is allowed (ASRV models).</p>
+ * The substitution model is the same over the tree (homogeneous model).
+ * A non-uniform distribution of rates among the sites is allowed (ASRV models).</p>
  *
  * The Felsenstein recursive algorithm is used for conputation.
  * As in the HomogeneousTreeLikelihood class, a likelihood tensor is defined:
@@ -302,12 +305,12 @@ class DRASDRTreeLikelihoodData :
  * -Rate class
  * -Ancestral state
  * 
- * However in this class, a node will be attached a set of tensor instead of one single tensor,
+ * However, in this class, a node will be attached a set of tensor instead of one single tensor,
  * one tensor for each subtree it defines.
  * These tensors are stored into a map of map, with each node as a primary key and each neighbor
  * of the node (sons + father) a a secondary key.
  *
- * No pattern are used here.
+ * All nodes share the same site patterns.
  */
 class DRHomogeneousTreeLikelihood : public virtual AbstractHomogeneousTreeLikelihood
 {
@@ -438,7 +441,6 @@ class DRHomogeneousTreeLikelihood : public virtual AbstractHomogeneousTreeLikeli
 		virtual void displayLikelihood(const Node * node);
 
 };
-
 
 #endif	//_DRHOMOGENEOUSTREELIKELIHOOD_H_
 

@@ -1,7 +1,8 @@
 //
-// File: PatternTools.h
+// File: SitePatterns.h
 // Created by: Julien Dutheil
-// Created on: Thu Mar 20 13:36:53 2003
+// Created on: Tue Nov 29 15:37 2005
+//  from file PatternTools.h
 //
 
 /*
@@ -37,8 +38,8 @@ The fact that you are presently reading this means that you have had
 knowledge of the CeCILL license and that you accept its terms.
 */
  
-#ifndef _PATTERNTOOLS_H_
-#define _PATTERNTOOLS_H_
+#ifndef _SITEPATTERNS_H_
+#define _SITEPATTERNS_H_
 
 #include "Tree.h"
 
@@ -53,52 +54,73 @@ knowledge of the CeCILL license and that you accept its terms.
 #include <map>
 
 /**
- * @brief Utilitary methods to compute site patterns.
- *
- * Theses methods are mainly designed to save computation in likelihood
- * and parsimony methods.
+ * @brief Data structure for site patterns.
+ * 
+ * 'names' are the sequence names
+ * 'sites' points toward a unique site
+ * 'weights' is the number of sites identical to this sites
+ * 'indices' are the positions in the original container
  */
-class PatternTools
+class SitePatterns
 {
-	public:
+  private:
     /**
-     * @brief Extract the sequences corresponding to a given subtree.
-     *
-     * @param sequenceSet The container to look in.
-     * @param node        The root node of the subtree to check.
-     * @return A new site container with corresponding sequences.
-     * @throw Exception if an error occured.
+     * @brief Class used for site pattern sorting.
      */
-		static SiteContainer * getSequenceSubset(const SiteContainer & sequenceSet, const Node & node) throw (Exception);
-    /**
-     * @brief Extract the sequences corresponding to a given set of names.
-     *
-     * @param sequenceSet The container to look in.
-     * @param names       The names of the sequences to look for.
-     * @return A new site container with corresponding sequences.
-     * @throw Exception if an error occured.
-     */
-		static SiteContainer * getSequenceSubset(const SiteContainer & sequenceSet, const vector<string> & names) throw (Exception);
-		/**
-     * @brief Compress a site container by removing duplicated sites.
-     *
-     * @param sequenceSet The container to look in.
-     * @return A new site container with unique sites.
-     * @throw Exception if an error occured.
-     */
-    static SiteContainer * shrinkSiteSet(const SiteContainer & sequenceSet) throw (Exception);
+    class SortableSite
+    {
+	    public:
+		    SortableSite() {}
+		    virtual ~SortableSite() {}
+		
+	    public:
+		    string siteS; 
+		    const Site * siteP;
+		    unsigned int originalPosition;
+    };
 
-		/**
-     * @brief Look for the occurence of each site in sequences1 in sequences2 and send the
-     * position of the first occurence, or -1 if not found.
-     *
-     * @param sequences1 First container.
-     * @param sequences2 Second container.
-     * @return A vecotr of positions.
+    /**
+     * @brief Class used for site pattern sorting.
      */
-		static Vint getIndexes(const SiteContainer & sequences1, const SiteContainer & sequences2);
+    struct SSComparator : binary_function<SortableSite, SortableSite, bool>
+    {
+	    bool operator()(SortableSite * ss1, SortableSite * ss2) const { return ss1 -> siteS < ss2 -> siteS; }
+    };
+
+  protected: 
+  	vector<string> _names;
+	  vector<const Site *> _sites;
+	  vector<unsigned int> _weights;
+	  vector<unsigned int> _indices;
+    const Alphabet * _alpha;
+
+  public:
+   /**
+     * @brief Build a new SitePattern object.
+     *
+     * Look for patterns (unique sites) within a site container.
+     *
+     * @param sequenceSet The container to look in.
+     */
+    SitePatterns(const SiteContainer & sequences);
+    virtual ~SitePatterns() {}
+
+  public:
+    /**
+     * @return The number of times each unique site was found.
+     */
+		const vector<unsigned int> getWeights() const { return _weights; }
+    /**
+     * @return The position of each unique site.
+     */
+		const vector<unsigned int> getIndices() const { return _indices; }
+
+    /**
+     * @return A new container with each unique site.
+     */
+		SiteContainer * getSites() const;
+    
 };
 
-
-#endif	//_PATTERNTOOLS_H_
+#endif // _SITEPATTERNS_H_
 

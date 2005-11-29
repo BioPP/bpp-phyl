@@ -1,51 +1,13 @@
 //
 // File: NewtonBrentMetaOptimizer.h
-// Created by; Julien Dutheil <Julien.Dutheil@univ-montp2.fr>
+// Created by; Julien Dutheil
 // Created on: ue Nov 17 17:22 2004
 //
-
-/*
-Copyright ou © ou Copr. CNRS, (17 Novembre 2004) 
-
-Julien.Dutheil@univ-montp2.fr
-
-Ce logiciel est un programme informatique servant à fournir des classes
-pour l'analyse de données phylogénétiques.
-
-Ce logiciel est régi par la licence CeCILL soumise au droit français et
-respectant les principes de diffusion des logiciels libres. Vous pouvez
-utiliser, modifier et/ou redistribuer ce programme sous les conditions
-de la licence CeCILL telle que diffusée par le CEA, le CNRS et l'INRIA 
-sur le site "http://www.cecill.info".
-
-En contrepartie de l'accessibilité au code source et des droits de copie,
-de modification et de redistribution accordés par cette licence, il n'est
-offert aux utilisateurs qu'une garantie limitée.  Pour les mêmes raisons,
-seule une responsabilité restreinte pèse sur l'auteur du programme,  le
-titulaire des droits patrimoniaux et les concédants successifs.
-
-A cet égard  l'attention de l'utilisateur est attirée sur les risques
-associés au chargement,  à l'utilisation,  à la modification et/ou au
-développement et à la reproduction du logiciel par l'utilisateur étant 
-donné sa spécificité de logiciel libre, qui peut le rendre complexe à 
-manipuler et qui le réserve donc à des développeurs et des professionnels
-avertis possédant  des  connaissances  informatiques approfondies.  Les
-utilisateurs sont donc invités à charger  et  tester  l'adéquation  du
-logiciel à leurs besoins dans des conditions permettant d'assurer la
-sécurité de leurs systèmes et ou de leurs données et, plus généralement, 
-à l'utiliser et l'exploiter dans les mêmes conditions de sécurité. 
-
-Le fait que vous puissiez accéder à cet en-tête signifie que vous avez 
-pris connaissance de la licence CeCILL, et que vous en avez accepté les
-termes.
-*/
 
 /*
 Copyright or © or Copr. CNRS, (November 17, 2004)
 
 Julien.Dutheil@univ-montp2.fr
-
-This software is a computer program whose purpose is to provide classes
 for phylogenetic data analysis.
 
 This software is governed by the CeCILL  license under French law and
@@ -89,6 +51,26 @@ knowledge of the CeCILL license and that you accept its terms.
 #include <vector>
 using namespace std;
 
+/**
+ * @brief Phylogenetic optimizer.
+ *
+ * This optimizer uses a pseudo-newton algorithm for estimating branch lengths,
+ * and Brent's one-dimensional estimation algorithm for rate distribution and 
+ * substitution model parameters.
+ *
+ * One step of optimization concists of the following:
+ * 1) Estimate branch lengths (pseudo-newton),
+ * 2) Estimate rate distribution parameters (loop over each parameter using Brent's method),
+ * 3) Estimate substitution model parameters (loop over each parameter using Brent's method).
+ * 
+ * A PseudoNewtonOptimizer object is used for branch lengths estimations, a SimpleMultiDimensions
+ * optimizer for rate distribution, and another for substitution model parameters.
+ *
+ * Furthermore, it is possible to roughly estimate all parameters before starting to loop
+ * over all parameters (see setRoughEstimationEnabled).
+ * 
+ * @see PseudoNewtonOptimizer, SimpleMultiDimensions
+ */
 class NewtonBrentMetaOptimizer: public virtual AbstractOptimizer
 {
 	public:
@@ -100,8 +82,8 @@ class NewtonBrentMetaOptimizer: public virtual AbstractOptimizer
 		ParameterList _rateDistributionParameters;
 		ParameterList _substitutionModelParameters;
 		ParameterList _branchLengthsParameters;
-		SimpleMultiDimensions  * _rateDistributionOptimizer;
-		SimpleMultiDimensions  * _substitutionModelOptimizer;
+		SimpleMultiDimensions * _rateDistributionOptimizer;
+		SimpleMultiDimensions * _substitutionModelOptimizer;
 		PseudoNewtonOptimizer * _branchLengthsOptimizer;
 		unsigned int _nbRateDistParams;
 		unsigned int _nbSubsModParams;
@@ -116,13 +98,32 @@ class NewtonBrentMetaOptimizer: public virtual AbstractOptimizer
 		
 		void init(const ParameterList & parameters) throw (Exception);
 		double optimize() throw (Exception);
-		double step() throw (Exception) {}
+		double step() throw (Exception) { return 0.; }
 //		double getFunctionValue() const;
 		void setFunction(Function * function)
 		{
 			AbstractOptimizer::setFunction(dynamic_cast<DiscreteRatesAcrossSitesTreeLikelihood *>(function));
 		}
+
+    /**
+     * @brief Enable rough estimation prior to final estimation.
+     *
+     * This generally speeds up the global estimation.
+     * Branch lengths estimation is generally time-consuming, and
+     * estimates highly depends on the shape of the rate distribution.
+     * Roughly estimating the rate distribution parameters hence
+     * save some time during the branch length estimation.
+     *
+     * The tolerance of rough estimation is fixed by the
+     * BRANCH_LENGTHS_TOL, RATE_DISTRIBUTION_TOL and SUBSTITUTION_MODEL_TOL
+     * static variables.
+     *
+     * @param yn A boolean.
+     */
 		void setRoughEstimationEnabled(bool yn) { _rough = yn; }
+    /**
+     * @return True If rough estimation is enabled.
+     */
 		bool isRoughEstimationEnabled() const { return _rough; }
 };
 

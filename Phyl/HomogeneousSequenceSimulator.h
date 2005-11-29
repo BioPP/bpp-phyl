@@ -40,7 +40,7 @@ knowledge of the CeCILL license and that you accept its terms.
 #ifndef _HOMOGENEOUSSEQUENCESIMULATOR_H_
 #define _HOMOGENEOUSSEQUENCESIMULATOR_H_
 
-#include "PreciseSequenceSimulator.h"
+#include "DetailedSequenceSimulator.h"
 #include "SiteSimulator.h"
 #include "TreeTemplate.h"
 #include "SubstitutionModel.h"
@@ -59,6 +59,12 @@ knowledge of the CeCILL license and that you accept its terms.
 #include <vector>
 using namespace std;
 
+/**
+ * @brief Data structure to store the results of the HomogeneousSequenceSimulator class.
+ *
+ * This sructure inherits from the SequenceSimulationResult class, and add support for
+ * rate variation across sites.
+ */
 class HomogeneousSequenceSimulationResult: public SequenceSimulationResult
 {
 	protected:
@@ -72,6 +78,9 @@ class HomogeneousSequenceSimulationResult: public SequenceSimulationResult
 		virtual ~HomogeneousSequenceSimulationResult() {}
 	
 	public:
+    /**
+     * @return The rate of this simulation.
+     */
 		virtual double getRate() const { return _rate; }
 };
 
@@ -83,7 +92,7 @@ class HomogeneousSequenceSimulationResult: public SequenceSimulationResult
  * Rate across sites variation is supported, using a DiscreteDistribution object or by specifying explicitely the rate of the sites to simulate.
  */
 class HomogeneousSequenceSimulator:
-	public virtual PreciseSequenceSimulator,
+	public virtual DetailedSequenceSimulator,
 	public virtual SiteSimulator
 {
 	protected:
@@ -159,7 +168,7 @@ class HomogeneousSequenceSimulator:
 		 *
 		 * @{
 		 */
-		SequenceSimulationResult * preciseSimulate() const;
+		SequenceSimulationResult * dSimulate() const;
 		/** @} */
 	
 		/**
@@ -213,8 +222,8 @@ class HomogeneousSequenceSimulator:
 		void multipleEvolveInternal(const Node * node, const vector<unsigned int> & rateClasses) const;
 		SiteContainer * multipleEvolve(const Vint & initialStates, const vector<unsigned int> & rateClasses) const;
 		
-		void preciseEvolve(int initialState, unsigned int rateClass) const;
-		void preciseEvolveInternal(const Node * node, unsigned int rateClass) const;
+		void dEvolve(int initialState, unsigned int rateClass) const;
+		void dEvolveInternal(const Node * node, unsigned int rateClass) const;
 
 };
 

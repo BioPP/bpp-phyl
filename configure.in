@@ -1,5 +1,5 @@
 AC_INIT(Phyl/SubstitutionModel.h)
-AM_INIT_AUTOMAKE(Phyl,0.1)
+AM_INIT_AUTOMAKE(Bpp-Phyl,1.0)
 AC_LANG_CPLUSPLUS
 AC_CHECK_LIB(bpp-utils,   main, , [AC_MSG_ERROR([Library bpp-utils not found.])])
 AC_CHECK_LIB(bpp-numcalc, main, , [AC_MSG_ERROR([Library bpp-numcalc not found.])])

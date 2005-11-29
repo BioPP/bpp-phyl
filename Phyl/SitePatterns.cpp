@@ -1,7 +1,8 @@
 //
-// File: DSO78.cpp
+// File: SitePatterns.cpp
 // Created by: Julien Dutheil
-// Created on: Tue Oct 05 18:48:19 2004
+// Created on: Tue Nov 29 15:37 2005
+//  from file PatternTools.cpp
 //
 
 /*
@@ -37,25 +38,66 @@ The fact that you are presently reading this means that you have had
 knowledge of the CeCILL license and that you accept its terms.
 */
 
-#include "DSO78.h"
+#include "SitePatterns.h"
 
-using namespace std;
+// From the SeqLib library:
+#include <Seq/SiteTools.h>
+#include <Seq/VectorSiteContainer.h>
 
 /******************************************************************************/
 
-DSO78::DSO78(const ProteicAlphabet * alpha) :
-  AbstractSubstitutionModel(alpha),
-  ProteinSubstitutionModel(alpha)
+SitePatterns::SitePatterns(const SiteContainer & siteSet)
 {
-  #include "__DSO78ExchangeabilityCode"
-	#include "__DSO78FrequenciesCode"
-	updateMatrices();
+  _alpha = siteSet.getAlphabet();
+	unsigned int nbSites = siteSet.getNumberOfSites();
+	vector<SortableSite *> ss(nbSites);
+	for(unsigned int i = 0; i < nbSites; i++) {
+		const Site * currentSite = siteSet.getSite(i);
+		SortableSite * ssi = new SortableSite();
+		ss[i] = ssi;
+		ssi -> siteS = currentSite -> toString();
+		ssi -> siteP = currentSite;
+		ssi -> originalPosition = i;
+	}
+
+	// Quick sort according to site contents:
+	sort(ss.begin(), ss.end(), SSComparator());
+	
+	// Now build patterns:
+	SortableSite * ss0 = ss[0];
+	const Site * previousSite = ss0 -> siteP;
+	_indices.resize(nbSites);
+	_indices[ss0 -> originalPosition] = 0;
+	_sites.push_back(previousSite);
+	_weights.push_back(1);
+	
+	unsigned int currentPos = 0;
+	for(unsigned int i = 1; i < nbSites; i++) {
+		SortableSite * ssi = ss[i];
+		const Site * currentSite = ssi -> siteP;
+		bool siteExists = SiteTools::areSitesIdentical(* currentSite, * previousSite);
+		if(siteExists) {
+			_weights[currentPos]++;
+		} else {
+			_sites.push_back(currentSite);
+			_weights.push_back(1);
+			currentPos++;
+		}
+		_indices[ssi -> originalPosition] = currentPos;
+		delete ss[i - 1];
+		previousSite = currentSite;
+	}
+	delete ss[nbSites - 1];
+	_names = siteSet.getSequencesNames();
 }
 
 /******************************************************************************/
 
-string DSO78::getName() const {
-	return "Dayhoff et al. (1978) protein substitution model";
+SiteContainer * SitePatterns::getSites() const
+{
+	SiteContainer * sites = new VectorSiteContainer(_sites, _alpha);
+	sites -> setSequencesNames(_names, false);
+	return sites;
 }
 
 /******************************************************************************/

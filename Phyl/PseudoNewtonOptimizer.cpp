@@ -161,7 +161,3 @@ double PseudoNewtonOptimizer::optimize() throw (Exception)
 
 /**************************************************************************/
 
-double PseudoNewtonOptimizer::getFunctionValue() const throw (Exception) { return _currentValue; }
-
-/**************************************************************************/
-

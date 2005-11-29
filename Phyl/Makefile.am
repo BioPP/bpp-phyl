@@ -27,7 +27,6 @@ models\
 MutationProcess.h\
 Newick.h\
 NewtonBrentMetaOptimizer.h\
-NonHomogeneousTreeLikelihood.h\
 NucleotideSubstitutionModel.h\
 NeighborJoining.h\
 NNISearchable.h\
@@ -38,7 +37,7 @@ PhylipDistanceMatrixFormat.h\
 ProteinSubstitutionModel.h\
 SequenceSimulator.h\
 SiteSimulator.h\
-PreciseSequenceSimulator.h\
+DetailedSequenceSimulator.h\
 HomogeneousSequenceSimulator.h\
 SubstitutionModel.h\
 T92.h\
@@ -59,7 +58,9 @@ SequenceSimulationTools.h\
 UserProteinSubstitutionModel.h\
 TopologySearch.h\
 NNITopologySearch.h\
-GTR.h
+GTR.h\
+trees\
+SitePatterns.h
 
 
 CPP_FILES = \
@@ -86,7 +87,6 @@ NeighborJoining.cpp\
 Newick.cpp\
 NewtonBrentMetaOptimizer.cpp\
 Node.cpp\
-NonHomogeneousTreeLikelihood.cpp\
 OptimizationTools.cpp\
 PatternTools.cpp\
 PGMA.cpp\
@@ -104,7 +104,8 @@ DRTreeParsimonyScore.cpp\
 SequenceSimulationTools.cpp\
 UserProteinSubstitutionModel.cpp\
 NNITopologySearch.cpp\
-GTR.cpp
+GTR.cpp\
+SitePatterns.cpp
 
 CPP_EXTRA = \
 __DSO78FrequenciesCode\

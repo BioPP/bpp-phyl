@@ -41,6 +41,9 @@ knowledge of the CeCILL license and that you accept its terms.
 #include "Tree.h"
 #include "TreeTemplate.h"
 
+/**
+ * @brief Inner data structure for WPGMA and UPGMA distance methods.
+ */
 struct PGMAInfos
 {
 	unsigned int numberOfLeaves;

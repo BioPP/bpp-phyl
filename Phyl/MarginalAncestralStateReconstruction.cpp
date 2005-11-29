@@ -47,7 +47,7 @@ vector<int> MarginalAncestralStateReconstruction::getAncestralStatesForNode(cons
 	if(node -> isLeaf()) {
 		VVdouble larray = _likelihood -> getLikelihoodData() -> getLeafLikelihoods(node);
 		for(unsigned int i = 0; i < _nDistinctSites; i++) {
-			ancestors[i] = (int)posmax(larray[i]);
+			ancestors[i] = (int)whichmax(larray[i]);
 		}
 	} else {
 		VVVdouble larray = _likelihood -> computeLikelihoodAtNode(node);
@@ -63,7 +63,7 @@ vector<int> MarginalAncestralStateReconstruction::getAncestralStatesForNode(cons
 					likelihoods[x] += (* larray_i_c)[x] * freqs[x] * rcp;
 				}
 			}
-			ancestors[i] = (int)posmax(likelihoods);
+			ancestors[i] = (int)whichmax(likelihoods);
 		}
 	}
 	return ancestors;

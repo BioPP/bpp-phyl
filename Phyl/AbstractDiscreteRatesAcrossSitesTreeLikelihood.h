@@ -44,6 +44,9 @@ knowledge of the CeCILL license and that you accept its terms.
 #include "DiscreteRatesAcrossSitesTreeLikelihood.h"
 #include "SubstitutionModel.h"
 
+/**
+ * @brief Partial implementation of the DiscreteRatesAcrossSitesTreeLikelihood interface.
+ */
 class AbstractDiscreteRatesAcrossSitesTreeLikelihood:
 	public virtual AbstractTreeLikelihood,
 	public virtual DiscreteRatesAcrossSitesTreeLikelihood

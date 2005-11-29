@@ -4,45 +4,7 @@
 //
 
 /*
-Copyright ou © ou Copr. CNRS, (16 Novembre 2004) 
-
-Julien.Dutheil@univ-montp2.fr
-
-Ce logiciel est un programme informatique servant à fournir des classes
-pour l'analyse de données phylogénétiques.
-
-Ce logiciel est régi par la licence CeCILL soumise au droit français et
-respectant les principes de diffusion des logiciels libres. Vous pouvez
-utiliser, modifier et/ou redistribuer ce programme sous les conditions
-de la licence CeCILL telle que diffusée par le CEA, le CNRS et l'INRIA 
-sur le site "http://www.cecill.info".
-
-En contrepartie de l'accessibilité au code source et des droits de copie,
-de modification et de redistribution accordés par cette licence, il n'est
-offert aux utilisateurs qu'une garantie limitée.  Pour les mêmes raisons,
-seule une responsabilité restreinte pèse sur l'auteur du programme,  le
-titulaire des droits patrimoniaux et les concédants successifs.
-
-A cet égard  l'attention de l'utilisateur est attirée sur les risques
-associés au chargement,  à l'utilisation,  à la modification et/ou au
-développement et à la reproduction du logiciel par l'utilisateur étant 
-donné sa spécificité de logiciel libre, qui peut le rendre complexe à 
-manipuler et qui le réserve donc à des développeurs et des professionnels
-avertis possédant  des  connaissances  informatiques approfondies.  Les
-utilisateurs sont donc invités à charger  et  tester  l'adéquation  du
-logiciel à leurs besoins dans des conditions permettant d'assurer la
-sécurité de leurs systèmes et ou de leurs données et, plus généralement, 
-à l'utiliser et l'exploiter dans les mêmes conditions de sécurité. 
-
-Le fait que vous puissiez accéder à cet en-tête signifie que vous avez 
-pris connaissance de la licence CeCILL, et que vous en avez accepté les
-termes.
-*/
-
-/*
 Copyright or © or Copr. CNRS, (November 16, 2004)
-
-Julien.Dutheil@univ-montp2.fr
 
 This software is a computer program whose purpose is to provide classes
 for phylogenetic data analysis.
@@ -87,24 +49,42 @@ knowledge of the CeCILL license and that you accept its terms.
 // From NumCalc
 #include <NumCalc/Matrix.h>
 
+/**
+ * @brief A Matrix class to store phylogenetic distances.
+ */
 class DistanceMatrix: public virtual RowMatrix<double> {
 
 	private:
 		vector<string> _names;
 
 	public:
+
+    /**
+     * @brief Build a new distance matrix with specified names.
+     *
+     * The dimension of the matrix will be equal to the number of names
+     *
+     * @param names The names to use.
+     */
 		DistanceMatrix(const vector<string> & names): RowMatrix<double>(names.size(), names.size()), _names(names)
 		{
 			reset();
 		}
 
-		DistanceMatrix(unsigned int n): RowMatrix<double>(n, n)
+		/**
+     * @brief Build a new distance matrix with specified size.
+     *
+     * Row names will be named 'Taxon 0', 'Taxon 1', and so on.
+     *
+     * @param n The size of the matrix.
+     */
+    DistanceMatrix(unsigned int n): RowMatrix<double>(n, n)
 		{
 			_names.resize(n);
 			for(unsigned int i = 0; i < n; i++) _names[i] = "Taxon " + i;
 		}
 
-		~DistanceMatrix() {}
+		virtual ~DistanceMatrix() {}
 
 		DistanceMatrix(const DistanceMatrix & dist): RowMatrix<double>(dist), _names(dist._names)	{}
 
@@ -123,6 +103,9 @@ class DistanceMatrix: public virtual RowMatrix<double> {
 		
 	public:
 
+    /**
+     * @brief Reset the distance matrix: all distances are set to 0.
+     */
 		void reset()
 		{
 			unsigned int n = size();
@@ -133,17 +116,41 @@ class DistanceMatrix: public virtual RowMatrix<double> {
 			}
 		}
 		
+    /**
+     * @return The dimension of the matrix.
+     */
 		unsigned int size() const { return _names.size(); }
+
+    /**
+     * @return The names associated to the matrix.
+     */
 		vector<string> getNames() const { return _names; }
-		string getName(unsigned int i) const { return _names[i]; }
+
+    /**
+     * @return The ith name.
+     * @param i Name index.
+     * @throw IndexOutOfBoundsException If i is not a valid index.
+     */
+		string getName(unsigned int i) const throw (IndexOutOfBoundsException)
+    { 
+      if(i >= size()) throw IndexOutOfBoundsException("DistanceMatrix::getName. Invalid indice.", i, 0, size());
+      return _names[i];
+    }
+    
+    /**
+     * @brief Set the ith name.
+     * 
+     * @param i Name index.
+     * @param name The new name.
+     * @throw IndexOutOfBoundsException If i is not a valid index.
+     */
 		void setName(unsigned int i, const string & name) throw (IndexOutOfBoundsException)
 		{
-			if(i >= size()) throw IndexOutOfBoundsException("DistanceMatrix::setName()", i, 0, size());
+			if(i >= size()) throw IndexOutOfBoundsException("DistanceMatrix::setName. Invalid indice.", i, 0, size());
 			_names[i] = name;
 		}
 
 };
 
 #endif //_DISTANCEMATRIX_H_
-
 

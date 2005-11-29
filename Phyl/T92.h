@@ -50,9 +50,9 @@ knowledge of the CeCILL license and that you accept its terms.
 #include <Seq/SequenceContainer.h>
 
 /**
- * @Brief The Tamura (1992) substitution model for nucleotides.
+ * @brief The Tamura (1992) substitution model for nucleotides.
  *
- * This model is the same as the one of Kimura (see K80),
+ * This model is similar to the K80 model,
  * but allows distinct equilibrium frequencies between GC and AT.
  * This models hence includes two parameters, the transition / transversion
  * relative rate \f$\kappa\f$ and the frequency of GC, \f$\theta\f$.

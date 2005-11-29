@@ -53,7 +53,7 @@ knowledge of the CeCILL license and that you accept its terms.
 using namespace std;
 
 /**
- * @brief The phylogenetic tree class.
+ * @brief Interface for phylogenetic tree objects.
  * 
  */
 class Tree {

@@ -53,7 +53,7 @@ class SiteSimulator
 {
 	public:
 		SiteSimulator() {}
-		~SiteSimulator() {}
+		virtual ~SiteSimulator() {}
 		
 	public:
 		virtual Site * simulate() const = 0;

@@ -42,6 +42,7 @@ knowledge of the CeCILL license and that you accept its terms.
 #include "DistanceMatrix.h"
 #include "Tree.h"
 #include "PatternTools.h"
+#include "SitePatterns.h"
 
 // From Utils:
 #include <Utils/ApplicationTools.h>
@@ -88,10 +89,10 @@ TwoTreeLikelihood::TwoTreeLikelihood(
 	_brLen = 0.000001;
 
 	//Initialize root patterns:
-	Pattern pattern = PatternTools::countSites(* _data);
-	_shrunkData = PatternTools::getSites(pattern, _data -> getAlphabet());
-	_rootWeights = PatternTools::getWeights(pattern);
-	_rootPatternLinks = PatternTools::getIndices(pattern);
+	SitePatterns pattern(* _data);
+	_shrunkData = pattern.getSites();
+	_rootWeights = pattern.getWeights();
+	_rootPatternLinks = pattern.getIndices();
 	_nbDistinctSites = _shrunkData -> getNumberOfSites();
 	if(verbose) ApplicationTools::displayResult("Number of distinct sites",	TextTools::toString(_nbDistinctSites));
 	

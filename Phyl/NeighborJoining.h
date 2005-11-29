@@ -38,8 +38,17 @@ The fact that you are presently reading this means that you have had
 knowledge of the CeCILL license and that you accept its terms.
 */
 
+#ifndef _NEIGHBORJOINING_H_
+#define _NEIGHBORJOINING_H_
+
 #include "AbstractAgglomerativeDistanceMethod.h"
 
+/**
+ * @brief The neighbor joining distance method.
+ *
+ * Reference:
+ * N Saitou and M Nei (1987), _Molecular Biology and Evolution_ 4(4) 406-25.
+ */ 
 class NeighborJoining : public virtual AbstractAgglomerativeDistanceMethod
 {
 	protected:
@@ -52,7 +61,7 @@ class NeighborJoining : public virtual AbstractAgglomerativeDistanceMethod
 			_sumDist.resize(matrix.size());
 			computeTree(rooted);
 		}
-		~NeighborJoining() {}
+		virtual ~NeighborJoining() {}
 
 	public:
 		void setDistanceMatrix(const DistanceMatrix & matrix)
@@ -68,4 +77,6 @@ class NeighborJoining : public virtual AbstractAgglomerativeDistanceMethod
 		void finalStep(int idRoot);	
 
 };
+
+#endif //_NEIGHBORJOINING_H_
 

@@ -47,7 +47,7 @@ knowledge of the CeCILL license and that you accept its terms.
 #include <Seq/NucleicAlphabet.h>
 
 /**
- * @Brief The Kimura 2-rates substitution model for nucleotides.
+ * @brief The Kimura 2-rates substitution model for nucleotides.
  *
  * All two rates: one for transitions and one for transversions.
  * This models include one parameter, the transition / transversion

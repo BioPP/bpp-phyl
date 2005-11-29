@@ -43,9 +43,20 @@ knowledge of the CeCILL license and that you accept its terms.
 #include "DRHomogeneousTreeLikelihood.h"
 #include <Seq/AlignedSequenceContainer.h>
 
+/**
+ * @brief Utilitary methods dealing with DRTreeLikelihood objects.
+ */
 class DRTreeLikelihoodTools {
 
-	public: static VVVdouble getPosteriorProbabilitiesForEachStateForEachRate(
+	public:
+    /**
+     * @brief Compute the posterior probabilities for each state and each rate of each site.
+     *
+     * @param drl A homogeneous DR tree likelihood object.
+     * @param node The node at which probabilities must be computed.
+     * @return A 3-dimensional array, with probabilities for each site, each rate and each state.
+     */
+    static VVVdouble getPosteriorProbabilitiesForEachStateForEachRate(
 							DRHomogeneousTreeLikelihood & drl,
 							const Node * node);
 };

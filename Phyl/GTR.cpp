@@ -61,8 +61,8 @@ GTR::GTR(
 	double piC,
 	double piG,
 	double piT):
-	NucleotideSubstitutionModel(alpha),
-	AbstractSubstitutionModel(alpha)
+	AbstractSubstitutionModel(alpha),
+	NucleotideSubstitutionModel(alpha)
 {
 	piConstraint = new IncludingInterval(0, 1);
 	_parameters.addParameter(Parameter("a", a, &Parameter::R_PLUS));

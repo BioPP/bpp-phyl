@@ -56,10 +56,6 @@ using namespace std;
 
 /******************************************************************************/
 
-TreeTools::~TreeTools() {}
-
-/******************************************************************************/
-
 bool TreeTools::isRoot(const Node & node) { return !node.hasFather(); }
 
 /******************************************************************************/
@@ -161,44 +157,6 @@ TreeTools::Element TreeTools::getElement(string elt) throw (IOException)
 	}
 	return element;
 }	
-
-/******************************************************************************/
-
-class NodeTokenizer
-{
-	protected:
-		vector<string> tokens;
-		mutable unsigned int currentPosition;
-	
-	public:
-		NodeTokenizer(const string & description) throw (IOException)
-		{
-			//cout << "NODETOENIZER: " << description << endl;
-			unsigned int tokCount = 0;
-			int parCount = 0;
-			unsigned int i;
-			for(i = 0; i < description.size(); i++) {
-				if(description[i] == '(') parCount++; //Another open parenthesis
-				if(description[i] == ')') parCount--; //Another close parenthesis
-				if(parCount < 0) throw IOException("Invalid tree description: closing parenthesis with no opening one, in " + description);
-				if(description[i] == ',' && parCount == 0) {
-					//New token found:
-					//cout << "NODETOENIZER: NEWTOKEN " << description.substr(tokCount, i - tokCount - 1) << endl;
-					tokens.push_back(description.substr(tokCount, i - tokCount));
-					tokCount = i + 1;
-				}					
-			}
-			//Add last token:
-			//cout << "NODETOENIZER: NEWTOKEN " << description.substr(tokCount) << endl;
-			tokens.push_back(description.substr(tokCount));
-			
-			currentPosition = 0;
-		}
-		
-	public:
-		string next() const { string s = tokens[currentPosition]; currentPosition++; return s; }
-		bool hasNext() const { return currentPosition < tokens.size(); }
-};
 
 /******************************************************************************/
 Node * TreeTools::parenthesisToNode(const string & description)
@@ -467,7 +425,9 @@ TreeTemplate<Node> * TreeTools::getRandomTree(vector<string> & leavesNames)
 		nodes.push_back(parent);
 	}
   // Return tree with last node as root node:
-  return new TreeTemplate<Node>(* nodes[0]);
+  TreeTemplate<Node> * tree = new TreeTemplate<Node>(* nodes[0]);
+	tree->resetNodesId();
+	return tree;
 }
 
 /******************************************************************************/

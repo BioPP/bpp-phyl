@@ -47,7 +47,7 @@ knowledge of the CeCILL license and that you accept its terms.
 #include <Seq/SiteContainer.h>
 
 /**
- * @brief TreeParsimonyScore partial data structure.
+ * @brief TreeParsimonyScore node data structure.
  *
  * Stores inner computation for a given node.
  *
@@ -57,7 +57,7 @@ class TreeParsimonyNodeData
 {
 	public:
 		TreeParsimonyNodeData() {}
-		~TreeParsimonyNodeData() {}
+		virtual ~TreeParsimonyNodeData() {}
 
 	public:
 		/**
@@ -79,6 +79,10 @@ class TreeParsimonyNodeData
  */
 class TreeParsimonyData
 {
+  public:
+    TreeParsimonyData() {}
+    virtual ~TreeParsimonyData() {}
+    
 	public:
 		virtual const TreeTemplate<Node> * getTree() const = 0;  
 		virtual TreeTemplate<Node> * getTree() = 0;
@@ -112,7 +116,11 @@ class AbstractTreeParsimonyData : public TreeParsimonyData
 		vector<unsigned int> _rootPatternLinks;
 		vector<unsigned int> _rootWeights;
 		TreeTemplate<Node> * _tree;
-
+    
+  public:
+    AbstractTreeParsimonyData() {}
+    virtual ~AbstractTreeParsimonyData() {}
+    
 	public:
 		unsigned int getRootArrayPosition(const unsigned int site) const
 		{
@@ -127,7 +135,7 @@ class AbstractTreeParsimonyData : public TreeParsimonyData
 };
 
 /**
- * @brief Low-level implementation of interface TreeParsimonyScore.
+ * @brief Partial implementation of the TreeParsimonyScore interface.
  */
 class AbstractTreeParsimonyScore :
 	public virtual TreeParsimonyScore

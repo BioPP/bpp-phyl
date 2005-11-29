@@ -50,7 +50,7 @@ knowledge of the CeCILL license and that you accept its terms.
 #include <Seq/SequenceContainer.h>
 
 /**
- * @Brief The Tamura and Nei (1993) substitution model for nucleotides.
+ * @brief The Tamura and Nei (1993) substitution model for nucleotides.
  *
  * This model has two rate of transitions and one rate of transversion.
  * It also allows distinct equilibrium frequencies between A, C, G and T.

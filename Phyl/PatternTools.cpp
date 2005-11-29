@@ -100,108 +100,8 @@ SiteContainer * PatternTools::shrinkSiteSet(const SiteContainer & siteSet) throw
 
 /******************************************************************************/
 
-/* // O(n2)
-const Pattern PatternTools::countSites(const SiteContainer & siteSet)
+Vint PatternTools::getIndexes(const SiteContainer & sequences1, const SiteContainer & sequences2)
 {
-	Pattern pattern;
-	unsigned int currentPos = 0;
-	for(unsigned int i = 0; i < siteSet.getNumberOfSites(); i++) {
-		pattern.indices.push_back(currentPos);
-		const Site * currentSite = siteSet.getSite(i);
-		bool siteExists = false;
-		for(unsigned int j = 0; !siteExists && j < pattern.sites.size(); j++) {
-			if(SiteTools::areSitesIdentical(* currentSite, * pattern.sites[j])) {
-				siteExists = true;
-				pattern.weights[j]++;
-			}
-		}
-		if(!siteExists)	{
-			pattern.sites.push_back(currentSite);
-			pattern.weights.push_back(1);
-			currentPos++;
-		}
-	}
-	pattern.names = siteSet.getSequencesNames();
-	return pattern;
-}
-*/
-
-/******************************************************************************/
- // o(n.log(n))
-
-const Pattern PatternTools::countSites(const SiteContainer & siteSet)
-{
-	unsigned int nbSites = siteSet.getNumberOfSites();
-	vector<SortableSite *> ss(nbSites);
-	for(unsigned int i = 0; i < nbSites; i++) {
-		const Site * currentSite = siteSet.getSite(i);
-		SortableSite * ssi = new SortableSite();
-		ss[i] = ssi;
-		ssi -> siteS = currentSite -> toString();
-		ssi -> siteP = currentSite;
-		ssi -> originalPosition = i;
-	}
-
-	// Quick sort according to site contents:
-	sort(ss.begin(), ss.end(), SSComparator());
-	
-	// Now build patterns:
-	Pattern pattern;
-	SortableSite * ss0 = ss[0];
-	const Site * previousSite = ss0 -> siteP;
-	pattern.indices.resize(nbSites);
-	pattern.indices[ss0 -> originalPosition] = 0;
-	pattern.sites.push_back(previousSite);
-	pattern.weights.push_back(1);
-	
-	unsigned int currentPos = 0;
-	for(unsigned int i = 1; i < nbSites; i++) {
-		SortableSite * ssi = ss[i];
-		const Site * currentSite = ssi -> siteP;
-		bool siteExists = SiteTools::areSitesIdentical(* currentSite, * previousSite);
-		if(siteExists) {
-			pattern.weights[currentPos]++;
-		} else {
-			pattern.sites.push_back(currentSite);
-			pattern.weights.push_back(1);
-			currentPos++;
-		}
-		pattern.indices[ssi -> originalPosition] = currentPos;
-		delete ss[i - 1];
-		previousSite = currentSite;
-	}
-	delete ss[nbSites - 1];
-	pattern.names = siteSet.getSequencesNames();
-	return pattern;
-}
-
-/******************************************************************************/
-
-const vector<unsigned int> PatternTools::getWeights(const Pattern & pattern)
-{
-	return pattern.weights;
-}
-
-/******************************************************************************/
-
-const vector<unsigned int> PatternTools::getIndices(const Pattern & pattern)
-{
-	return pattern.indices;
-}
-
-/******************************************************************************/
-
-
-SiteContainer * PatternTools::getSites(const Pattern & pattern, const Alphabet * alpha)
-{
-	SiteContainer * sites = new VectorSiteContainer(pattern.sites, alpha);
-	sites -> setSequencesNames(pattern.names, false);
-	return sites;
-}
-
-/******************************************************************************/
-
-Vint PatternTools::getIndexes(const SiteContainer & sequences1, const SiteContainer & sequences2) {
 	int nbSites = sequences1.getNumberOfSites(); 
 	Vint indexes(nbSites);
 	for(int i = 0; i < nbSites; i++) {
@@ -219,3 +119,4 @@ Vint PatternTools::getIndexes(const SiteContainer & sequences1, const SiteContai
 }
 
 /******************************************************************************/
+

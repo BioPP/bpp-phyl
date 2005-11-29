@@ -39,6 +39,7 @@ knowledge of the CeCILL license and that you accept its terms.
 
 #include "DRHomogeneousTreeLikelihood.h"
 #include "PatternTools.h"
+#include "SitePatterns.h"
 
 //From SeqLib:
 #include <Seq/SiteTools.h>
@@ -63,10 +64,10 @@ void DRASDRTreeLikelihoodData::init(const SiteContainer & sites, const Substitut
 	_alphabet = sites.getAlphabet();
 	_nbStates = sites.getAlphabet() -> getSize();
  	_nbSites  = sites.getNumberOfSites();
-	Pattern pattern = PatternTools::countSites(sites);
-	_shrunkData = PatternTools::getSites(pattern, sites.getAlphabet());
-	_rootWeights = PatternTools::getWeights(pattern);
-	_rootPatternLinks = PatternTools::getIndices(pattern);
+	SitePatterns pattern(sites);
+	_shrunkData = pattern.getSites();
+	_rootWeights = pattern.getWeights();
+	_rootPatternLinks = pattern.getIndices();
 	_nbDistinctSites = _shrunkData -> getNumberOfSites();
 	
 	//Init data:

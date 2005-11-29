@@ -52,6 +52,12 @@ knowledge of the CeCILL license and that you accept its terms.
 #include <vector>
 using namespace std;
 
+/**
+ * @brief Likelihood ancestral states reconstruction: marginal method.
+ *
+ * Reference:
+ * Z Yang, S Kumar and M Nei (1995), _Genetics_ 141(4) 1641-50.
+ */
 class MarginalAncestralStateReconstruction: public AncestralStateReconstruction
 {
 	protected:

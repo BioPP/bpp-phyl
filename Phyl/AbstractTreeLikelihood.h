@@ -58,7 +58,7 @@ class TreeLikelihoodNodeData
 {
 	public:
 		TreeLikelihoodNodeData() {}
-		~TreeLikelihoodNodeData() {}
+		virtual ~TreeLikelihoodNodeData() {}
 
 	public:
 		/**
@@ -165,7 +165,7 @@ class AbstractTreeLikelihoodData :
 };
 
 /**
- * @brief Low-level implementatoin of the TreeLikelihood interface. 
+ * @brief Partial implementatoin of the TreeLikelihood interface. 
  *
  * This class implements a few methods useful for most of likelihood
  * computation methods.

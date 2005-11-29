@@ -57,8 +57,8 @@ HKY85::HKY85(
 	double piC,
 	double piG,
 	double piT):
-	NucleotideSubstitutionModel(alpha),
-	AbstractSubstitutionModel(alpha)
+	AbstractSubstitutionModel(alpha),
+	NucleotideSubstitutionModel(alpha)
 {
 	piConstraint = new IncludingInterval(0, 1);
 	_parameters.addParameter(Parameter("kappa", kappa, &Parameter::R_PLUS));

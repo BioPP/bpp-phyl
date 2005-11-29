@@ -196,6 +196,7 @@ class DRASRTreeLikelihoodData :
 		 *
 		 * @param node      The node defining the subtree to analyse.
 		 * @param sequences The data to be used for initialization.
+     * @param model     The model to use.
 		 */
 		virtual void initTreeLikelihoods(const Node * node, const SiteContainer & sequences, const SubstitutionModel & model) throw (Exception);
 
@@ -212,6 +213,7 @@ class DRASRTreeLikelihoodData :
 		 *
 		 * @param node      The node defining the subtree to analyse.
 		 * @param sequences The data to be used for initialization.
+     * @param model     The model to use.
 		 * @return The shrunk sub-dataset for the subtree defined by <i>node</i>.
 		 */
 		virtual SiteContainer * initTreeLikelihoodsWithPatterns(const Node * node, const SiteContainer & sequences, const SubstitutionModel & model) throw (Exception);

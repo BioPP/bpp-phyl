@@ -47,7 +47,7 @@ knowledge of the CeCILL license and that you accept its terms.
 #include <NumCalc/ParameterList.h>
 
 /**
- * @brief Interface for RAS implementation.
+ * @brief Interface for rate across sites (RAS) implementation.
  *
  * This interface provides methods for dealing with RAS models.
  */
@@ -191,3 +191,4 @@ class DiscreteRatesAcrossSitesTreeLikelihood: public virtual TreeLikelihood
 };
 
 #endif //_DISCRETERATESACROSSSITESTREELIKELIHOOD_H_
+

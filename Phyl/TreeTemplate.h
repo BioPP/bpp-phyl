@@ -174,9 +174,10 @@ class TreeTemplate: public virtual Tree
 		const Clonable * getProperty(int nodeId, const string & name) const throw (NodeNotFoundException) { return getNode(nodeId) -> getProperty(name); }
 				
 		Clonable * removeProperty(int nodeId, const string & name) throw (NodeNotFoundException) { return getNode(nodeId) -> removeProperty(name); }
-		void rootAt(int rootId) throw (NodeNotFoundException)	{	rootAt(* getNode(rootId)); }
 		
-		void newOutGroup(int rootId) throw (NodeNotFoundException) {	newOutGroup(* getNode(rootId)); }
+    void rootAt(int nodeId) throw (NodeNotFoundException)	{	rootAt(* getNode(nodeId)); }
+		
+		void newOutGroup(int nodeId) throw (NodeNotFoundException) {	newOutGroup(* getNode(nodeId)); }
 
 		bool isRooted() const { return _root -> getNumberOfSons() == 2; }
 		

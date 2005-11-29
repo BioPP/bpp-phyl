@@ -133,7 +133,7 @@ class MutationPath
 };
 
 /**
- * @brief Base class for simulations.
+ * @brief Interface for simulations.
  *
  * A mutation process defines the rules for mutations to occure.
  * The MutationProcess interface provides two methods, one for mutating a character in
@@ -201,12 +201,12 @@ class MutationProcess
 };
 
 /**
- * @brief Low implementation of the MutationProcess class.
+ * @brief Partial implmentation of the MutationProcess interface.
  *
  * This class provides an implementation of the MutationProcess interface.
  * It assumes that there are _size states allowed for the character of interest,
  * and that the distribution of probabilities are in _repartition.
- * As a matter of facts, probabilities must be cumulative ones, so that _repartition
+ * As a matter of facts, probabilities must be cumulative, so that _repartition
  * contains values of the repartition function.
  * The mutate function hence draws a random number between 0 and 1 and gives the
  * corresponding character using the bijection of the repartition function.
@@ -256,8 +256,8 @@ class AbstractMutationProcess: public MutationProcess
  * <ol>
  * <li>Draw a random time @f$ t @f$ from an exponential law with parameter
  * @f$ - \lambda_i @f$,</li>
- * <li> Mutate the initial state. The probability of mutating state @f$ i @f$ 
- * to state @f$ j @f$ is:
+ * <li> Mutate the initial state. The probability of mutating state @f$i@f$ 
+ * to state @f$j@f$ is:
  * @f[ \frac{Q_{i,j}}{\sum_k Q_{i,k}}. @f]</li>
  * </ol>
  */
@@ -272,7 +272,7 @@ class SimpleMutationProcess : public AbstractMutationProcess
 		 */
   	SimpleMutationProcess(const SubstitutionModel * model);
 	
-		~SimpleMutationProcess();
+		virtual ~SimpleMutationProcess();
 
     /**
      * @brief Method redefinition for better performance.
@@ -285,7 +285,7 @@ class SimpleMutationProcess : public AbstractMutationProcess
 };
 
 /**
- * This class is for testing purpose.
+ * @brief This class is mainly for testing purpose.
  * It allow "self" mutation of the kind i->i;
  */
 class SelfMutationProcess : public AbstractMutationProcess
@@ -293,7 +293,7 @@ class SelfMutationProcess : public AbstractMutationProcess
   	public:
   		SelfMutationProcess(int alphabetSize);
 	
-			~SelfMutationProcess();
+			virtual ~SelfMutationProcess();
 };
 
 #endif	//_MUTATIONPROCESS_H_

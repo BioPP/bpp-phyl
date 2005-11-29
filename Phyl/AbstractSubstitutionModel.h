@@ -43,7 +43,7 @@ knowledge of the CeCILL license and that you accept its terms.
 #include "SubstitutionModel.h"
 
 /**
- * @brief Low level implementation of the SubstitutionModel interface.
+ * @brief Partial implementation of the SubstitutionModel interface.
  *
  * This abstract class provides some fields, namely:
  * - _alphabet: a pointer toward the alphabet,

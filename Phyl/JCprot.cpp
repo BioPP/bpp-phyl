@@ -43,7 +43,9 @@ knowledge of the CeCILL license and that you accept its terms.
 
 /******************************************************************************/
 
-JCprot::JCprot(const ProteicAlphabet * alpha): ProteinSubstitutionModel(alpha), AbstractSubstitutionModel(alpha)
+JCprot::JCprot(const ProteicAlphabet * alpha) :
+  AbstractSubstitutionModel(alpha),
+  ProteinSubstitutionModel(alpha)
 {
 	_parameters = ParameterList(); //no parameters for this model.	
 	

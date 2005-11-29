@@ -42,16 +42,32 @@ class DistanceMatrix;
 class Node;
 class Tree;
 
+/**
+ * @brief Interface for agglomerative distance methods.
+ */
 class AgglomerativeDistanceMethod
 {
 	public:
 		AgglomerativeDistanceMethod() {}
-		~AgglomerativeDistanceMethod() {}
+		virtual ~AgglomerativeDistanceMethod() {}
 
 	public:
+    /**
+     * @brief Set the distance matrix to use.
+     *
+     * @param matrix The matrix to use.
+     */
 		virtual void setDistanceMatrix(const DistanceMatrix & matrix) = 0;
+		/**
+     * @brief Perform the clustering.
+     *
+     * @param rooted Tell is the final tree must be rooted.
+     */
+    virtual void computeTree(bool rooted) = 0;
+    /**
+     * @return The computed tree.
+     */
 		virtual Tree * getTree() const = 0;
-		virtual void computeTree(bool rooted) = 0;
 	
 };
 

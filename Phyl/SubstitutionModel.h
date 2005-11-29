@@ -273,7 +273,7 @@ class SubstitutionModel: public virtual Parametrizable
 		 * @brief Set equilibrium frequencies equal to the frequencies estimated
 		 * from the data.
 		 *
-		 * @data The sequences to use.
+		 * @param data The sequences to use.
 		 */
 		virtual void setFreqFromData(const SequenceContainer & data) = 0;
 		

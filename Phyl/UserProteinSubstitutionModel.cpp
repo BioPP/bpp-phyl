@@ -57,8 +57,8 @@ using namespace std;
 /******************************************************************************/
 
 UserProteinSubstitutionModel::UserProteinSubstitutionModel(const ProteicAlphabet * alpha, const string & path) : 
-	ProteinSubstitutionModel(alpha),
 	AbstractSubstitutionModel(alpha),
+	ProteinSubstitutionModel(alpha),
 	_path(path)
 {
 	

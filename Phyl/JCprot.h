@@ -43,7 +43,7 @@ knowledge of the CeCILL license and that you accept its terms.
 #include <Seq/ProteicAlphabet.h>
 #include "ProteinSubstitutionModel.h"
 /**
- * @Brief The Jukes-Cantor substitution model for nucleotides.
+ * @brief The Jukes-Cantor substitution model for proteins.
  *
  * All rates equal:
  * \f[
