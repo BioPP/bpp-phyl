@@ -1,4 +1,4 @@
-%define name Bpp-PopGen
+%define name Bpp-Phyl
 %define version 1.0
 %define release 1
 %define _prefix /usr/local

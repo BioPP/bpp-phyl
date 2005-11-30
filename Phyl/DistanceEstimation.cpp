@@ -239,11 +239,11 @@ void TwoTreeLikelihood::applyParameters() throw (Exception)
 void TwoTreeLikelihood::initBranchLengthsParameters()
 {
 	if (_brLen <= 0) {
-		cout << "WARNING!!! Branch length is <=0. Value is set to 0.000001." << endl;
-		_brLen = 0.000001;
+		cout << "WARNING!!! Branch length is < 0. Value is set to 0." << endl;
+		_brLen = 0.;
 	}
 	_brLenParameters.reset();
-	_brLenParameters.addParameter(Parameter("BrLen", _brLen, & Parameter::R_PLUS_STAR));
+	_brLenParameters.addParameter(Parameter("BrLen", _brLen, & Parameter::R_PLUS));
 }
 
 /******************************************************************************/
