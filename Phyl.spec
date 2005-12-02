@@ -13,7 +13,7 @@ License: CeCILL 2
 Group: System Environment/Libraries
 BuildRoot: %{_builddir}/%{name}-root
 Packager: Julien Dutheil
-Prefix: %{_prefix}
+AutoReqProv: no
 Requires: Bpp-Utils = %{version}
 Requires: Bpp-NumCalc = %{version}
 Requires: Bpp-Seq = %{version}
@@ -38,7 +38,7 @@ building applications which use %{name}.
 %setup -q
 
 %build
-CFLAGS="-I%{_prefix}/include $RPM_OPT_FLAGS" ./configure --prefix=%{_prefix}
+CFLAGS="$RPM_OPT_FLAGS" ./configure --prefix=%{_prefix}
 make
 
 %install
@@ -55,6 +55,7 @@ rm -rf $RPM_BUILD_ROOT
 %files
 %defattr(-,root,root)
 %doc AUTHORS COPYING INSTALL NEWS README ChangeLog
+%{_prefix}/lib/lib*.so
 %{_prefix}/lib/lib*.so.*
 
 %files devel

@@ -100,7 +100,7 @@ class SitePatterns
      *
      * Look for patterns (unique sites) within a site container.
      *
-     * @param sequenceSet The container to look in.
+     * @param sequences The container to look in.
      */
     SitePatterns(const SiteContainer & sequences);
     virtual ~SitePatterns() {}
