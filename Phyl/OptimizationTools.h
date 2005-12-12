@@ -103,7 +103,7 @@ class OptimizationTools
 				
 			public:
 				ScaleFunction(TreeLikelihood * tl);
-				~ScaleFunction();
+				virtual ~ScaleFunction();
 				
 			public:
 				void setParameters(const ParameterList & lambda) throw (ParameterNotFoundException, ConstraintException);

@@ -79,6 +79,15 @@ TreeTemplate<Node> * PhylogeneticsApplicationTools::getTree(
 
 /******************************************************************************/
 
+void PhylogeneticsApplicationTools::printInputTreeHelp()
+{
+	ApplicationTools::message << "Input tree parameters:" << endl;
+	ApplicationTools::message << "tree.file                     | file where to write the tree" << endl;
+  ApplicationTools::message << "______________________________|___________________________________________" << endl;
+}
+
+/******************************************************************************/
+
 SubstitutionModel * PhylogeneticsApplicationTools::getSubstitutionModel(
 	const Alphabet * alphabet,
 	const SiteContainer * data,
@@ -257,8 +266,8 @@ SubstitutionModel * PhylogeneticsApplicationTools::getSubstitutionModel(
 
 void PhylogeneticsApplicationTools::printSubstitutionModelHelp()
 {
-	ApplicationTools::message << "Substitution Model:" << endl;
-	ApplicationTools::message << "model               | Nucleotides (N): [JCnuc, K80, T92, HKY85, TN93]" << endl;
+  ApplicationTools::message << "Substitution Model:" << endl;
+	ApplicationTools::message << "model               | Nucleotides (N): [JCnuc, K80, T92, HKY85, TN93, GTR]" << endl;
   ApplicationTools::message << "                    | Proteins (P): [JCprot, DSO78, JTT92, empirical]" << endl;
   ApplicationTools::message << "kappa               | kappa(N)  parameter in Q matrix" << endl;
   ApplicationTools::message << "kappa1              | kappa1(N) parameter in Q matrix" << endl;
@@ -271,6 +280,7 @@ void PhylogeneticsApplicationTools::printSubstitutionModelHelp()
   ApplicationTools::message << "piG                 | piG(N)    parameter in Q matrix" << endl;
 	ApplicationTools::message << "use_observed_freq   | (N,P) Tell if the observed frequencies must be used." << endl; 
 	ApplicationTools::message << "model_empirical.file| (P) The path toward data file to use (PAML format)." << endl; 
+  ApplicationTools::message << "____________________|_____________________________________________________" << endl;
 }
 
 /******************************************************************************/
@@ -321,9 +331,12 @@ DiscreteDistribution * PhylogeneticsApplicationTools::getRateDistribution(
 
 void PhylogeneticsApplicationTools::printRateDistributionHelp()
 {
- 	ApplicationTools::message << "rate_distribution   | uniform or gamma." << endl;
-	ApplicationTools::message << "shape               | the gamma law's alpha parameter." << endl;
-	ApplicationTools::message << "classes_number      | discrete approximation: number of categories (default to 4)." << endl;
+  ApplicationTools::message << "Rate distribution parameters:" << endl;
+ 	ApplicationTools::message << "rate_distribution               | uniform or gamma." << endl;
+ 	ApplicationTools::message << "rate_distribution_gamma.alpha   | the gamma law's alpha parameter." << endl;
+ 	ApplicationTools::message << "rate_distribution.classes_number| discrete approximation: number of" << endl;
+  ApplicationTools::message << "                                | categories (default to 4)." << endl;
+  ApplicationTools::message << "________________________________|_________________________________________" << endl;
 }
 
 /******************************************************************************/
@@ -356,7 +369,7 @@ void PhylogeneticsApplicationTools::optimizeParameters(
 	if(profiler != NULL) (*profiler) << setprecision(20);
 	if(verbose) ApplicationTools::displayResult("Profiler", prPath);
 
-	bool scaleFirst = ApplicationTools::getBooleanParameter("optimization.scale_first", params, true, suffix, suffixIsOptional, true);
+	bool scaleFirst = ApplicationTools::getBooleanParameter("optimization.scale_first", params, false, suffix, suffixIsOptional, false);
 	if(scaleFirst) {
 		// We scale the tree before optimizing each branch length separately:
 		if(verbose) ApplicationTools::displayMessage("Scaling the tree before optimizing each branch length separately.");
@@ -404,21 +417,29 @@ void PhylogeneticsApplicationTools::optimizeParameters(
 
 /******************************************************************************/
 
-void PhylogeneticsApplicationTools::printOptimizationHelp() {
+void PhylogeneticsApplicationTools::printOptimizationHelp()
+{
 	ApplicationTools::message << "optimization                  | [yes/no] optimize parameters?" << endl;
 	ApplicationTools::message << "optimization.verbose          | [0,1,2] level of verbose" << endl;
-	ApplicationTools::message << "optimization.message_handler  | [none, std ot file path] where to dislay optimization messages" << endl;
+	ApplicationTools::message << "optimization.message_handler  | [none, std ot file path] where to dislay" << endl;
+  ApplicationTools::message << "                              | optimization messages" << endl;
 	ApplicationTools::message << "                              | (if std, uses 'cout' to display messages)." << endl;
-	ApplicationTools::message << "optimization.profiler         | [none, std ot file path] where to display optimization steps" << endl;
-	ApplicationTools::message << "                              | (if std, uses 'cout' to display optimization steps)." << endl;
-	ApplicationTools::message << "optimization.tolerance        | [double] tolerance parameter for stopping the estimation." << endl;
-	ApplicationTools::message << "optimization.max_number_f_eval| [int] maximum number of likelihood computations." << endl;
+	ApplicationTools::message << "optimization.profiler         | [none, std ot file path] where to display" << endl;
+  ApplicationTools::message << "                              | optimization steps (if std, uses 'cout'" << endl;
+	ApplicationTools::message << "                              | to display optimization steps)." << endl;
+	ApplicationTools::message << "optimization.tolerance        | [double] tolerance parameter for stopping" << endl;
+  ApplicationTools::message << "                              | the estimation." << endl;
+	ApplicationTools::message << "optimization.max_number_f_eval| [int] max. # of likelihood computations." << endl;
 	ApplicationTools::message << "optimization.ignore_parameter | [list] parameters to ignore during optimization." << endl;
-	ApplicationTools::message << "optimization.scale_first      | [yes, no] tell if a global scale optimization must be done" << endl;
-	ApplicationTools::message << "                              | prior to separate estimation of branch lengths." << endl;
+	ApplicationTools::message << "optimization.scale_first      | [yes, no] tell if a global scale" << endl;
+  ApplicationTools::message << "                              | optimization must be done prior to" << endl;
+	ApplicationTools::message << "                              | separate estimation of branch lengths." << endl;
 	ApplicationTools::message << "optimization.scale_first      | " << endl;
-	ApplicationTools::message << " .tolerance                   | [double] tolerance parameter for global scale optimization." << endl;
-	ApplicationTools::message << " .max_number_f_eval           | [int] maximum number of computation for global scale optimization." << endl;
+	ApplicationTools::message << "                    .tolerance| [double] tolerance parameter for global" << endl;
+  ApplicationTools::message << "                              | scale optimization." << endl;
+	ApplicationTools::message << "            .max_number_f_eval| [int] maximum number of computation for" << endl;
+  ApplicationTools::message << "                              | global scale optimization." << endl;
+  ApplicationTools::message << "______________________________|___________________________________________" << endl;
 }
 
 /******************************************************************************/
@@ -429,7 +450,7 @@ void PhylogeneticsApplicationTools::writeTree(
 	const string & suffix,
 	bool verbose)
 {
-	string file = ApplicationTools::getAFilePath("output.tree", params, true, false, suffix, false);
+	string file = ApplicationTools::getAFilePath("output.tree.file", params, true, false, suffix, false);
 	Newick newick;
 	newick.write(tree, file, true);
 	if(verbose) ApplicationTools::displayMessage("Wrote tree to file '" + file + "'.");
@@ -437,4 +458,12 @@ void PhylogeneticsApplicationTools::writeTree(
 
 /******************************************************************************/
 
+void PhylogeneticsApplicationTools::printOutputTreeHelp()
+{
+	ApplicationTools::message << "Output tree parameters:" << endl;
+	ApplicationTools::message << "output.tree.file              | file where to write the tree" << endl;
+  ApplicationTools::message << "______________________________|___________________________________________" << endl;
+}
+
+/******************************************************************************/
 

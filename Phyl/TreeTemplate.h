@@ -243,22 +243,32 @@ class TreeTemplate: public virtual Tree
 
 		double getTotalLength() throw (NodeException)
 		{
-			return TreeTools::getTotalLength(*_root);
+			double length = 0;
+			for(unsigned int i = 0; i < _root->getNumberOfSons(); i++) {
+        length += TreeTools::getTotalLength(*_root->getSon(i));
+      }
+      return length;
 		}
 
 		void setBranchLengths(double brLen)
 		{
-			TreeTools::setBranchLengths(*_root, brLen);
+			for(unsigned int i = 0; i < _root->getNumberOfSons(); i++) {
+        TreeTools::setBranchLengths(*_root->getSon(i), brLen);
+      }
 		}
 		
 		void setVoidBranchLengths(double brLen)
 		{
-			TreeTools::setVoidBranchLengths(*_root, brLen);
+			for(unsigned int i = 0; i < _root->getNumberOfSons(); i++) {
+			  TreeTools::setVoidBranchLengths(*_root->getSon(i), brLen);
+      }
 		}
 	
 		void scaleTree(double factor) throw (NodeException)
 		{
-			TreeTools::scaleTree(* _root, factor);
+			for(unsigned int i = 0; i < _root->getNumberOfSons(); i++) {
+			  TreeTools::scaleTree(*_root->getSon(i), factor);
+      }
 		}
 
 

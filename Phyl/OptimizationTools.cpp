@@ -1,6 +1,6 @@
 //
 // File: OptimizationTools.cpp
-// Created by: Julien Dutheil <Julien.Dutheil@univ-montp2.fr>
+// Created by: Julien Dutheil
 // Created on: Sun Dec 14 09:43:32 2003
 //
 
@@ -59,6 +59,7 @@ OptimizationTools::~OptimizationTools() {}
 OptimizationTools::ScaleFunction::ScaleFunction(TreeLikelihood * tl): _tl(tl) {
 	// We work only on the branch lengths:
 	_brLen = tl -> getBranchLengthsParameters();
+  _lambda.addParameter(Parameter("scale factor", 1)); 
 }
 	
 OptimizationTools::ScaleFunction::~ScaleFunction() {}
@@ -99,7 +100,7 @@ int OptimizationTools::optimizeTreeScale(
 	bod.setConstraintPolicy(AbstractOptimizer::CONSTRAINTS_IGNORE);
 	bod.setInitialInterval(0.5, 1.5);
 	ParameterList singleParameter;
-	singleParameter.addParameter(Parameter("scale factor", 0));
+	singleParameter.addParameter(Parameter("scale factor", 1.));
 	bod.init(singleParameter);
 	ParametersStopCondition * PS = new ParametersStopCondition(&bod, tolerance);
 	bod.setStopCondition(PS);

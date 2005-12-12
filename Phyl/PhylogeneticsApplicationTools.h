@@ -104,6 +104,11 @@ class PhylogeneticsApplicationTools
 			bool verbose = true);
 	
 		/**
+		 * @brief This function prints the options available for tree reading.
+		 */
+		static void printInputTreeHelp();
+
+    /**
 		 * @brief Build a SubstitutionModel object according to options.
 		 *
 		 * Options used are:
@@ -218,7 +223,7 @@ class PhylogeneticsApplicationTools
 		 * @brief Write a tree according to options.
 		 *
 		 * Options used are:
-		 * - output.tree = file_path, the file where to put the tree.
+		 * - output.tree.file = file_path, the file where to put the tree.
 		 *
 		 * NB: only Newick format is supported for now. 
 		 *
@@ -232,6 +237,11 @@ class PhylogeneticsApplicationTools
 			map<string, string> & params,
 			const string & suffix = "",
 			bool verbose = true);
+		
+		/**
+		 * @brief This function prints the options available for tree writing.
+		 */
+		static void printOutputTreeHelp();
 		
 };
 
