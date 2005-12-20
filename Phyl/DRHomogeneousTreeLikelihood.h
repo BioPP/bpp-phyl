@@ -321,12 +321,25 @@ class DRHomogeneousTreeLikelihood : public virtual AbstractHomogeneousTreeLikeli
 		unsigned int _nbDistinctSites; //the number of distinct sites in the container
 		
 	public:
+    /**
+     * @brief Build a new DRHomogeneousTreeLikelihood object.
+     *
+     * @param tree The tree to use.
+     * @param data Sequences to use.
+     * @param model The substitution model to use.
+     * @param rDist The rate across sites distribution to use.
+     * @param checkRoot Tell if we have to check for the tree to be unrooted.
+     * If true, any rooted tree will be unrooted before likelihood computation.
+     * @param verbose Should I display some info?
+     * @throw Exception in an error occured.
+     */
 		DRHomogeneousTreeLikelihood(
 			TreeTemplate<Node> & tree,
 			const SiteContainer & data,
 			SubstitutionModel * model,
 			DiscreteDistribution * rDist,
-			bool verbose = true)
+			bool checkRooted = true,
+      bool verbose = true)
 			throw (Exception);
 	
 		virtual ~DRHomogeneousTreeLikelihood();

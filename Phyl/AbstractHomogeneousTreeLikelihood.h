@@ -79,6 +79,7 @@ class AbstractHomogeneousTreeLikelihood: public virtual AbstractDiscreteRatesAcr
 			const SiteContainer & data,
 			SubstitutionModel * model,
 			DiscreteDistribution * rDist,
+      bool checkRooted = true,
 			bool verbose = true
 			)	throw (Exception);
 

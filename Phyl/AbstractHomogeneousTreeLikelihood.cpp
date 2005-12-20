@@ -59,12 +59,13 @@ AbstractHomogeneousTreeLikelihood::AbstractHomogeneousTreeLikelihood(
 	const SiteContainer & data,
 	SubstitutionModel * model,
 	DiscreteDistribution * rDist,
+  bool checkRooted,
 	bool verbose)
 	throw (Exception):
 	AbstractDiscreteRatesAcrossSitesTreeLikelihood(rDist, verbose)
 {
 	_tree = &tree;
-	if(_tree -> isRooted()) {
+	if(checkRooted && _tree -> isRooted()) {
 		if(verbose) ApplicationTools::displayWarning("Tree has been unrooted.");
 		_tree -> unroot();
 	}
