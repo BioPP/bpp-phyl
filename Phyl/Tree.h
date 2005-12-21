@@ -170,7 +170,8 @@ class Tree {
 		/**
 		 * @brief Root a tree by specifying an outgroup.
 		 *
-		 * If the tree is rooted, unroot it first, change the root node and then reroot the tree using the previous root id.
+		 * If the tree is rooted, unroot it first, change the root node and then
+     * reroot the tree using the previous root id.
 		 * If the tree is unrooted, change the root node and then create a new root node.
 		 *
 		 * @param nodeId The id of the node that will be the new root.
@@ -245,6 +246,13 @@ class Tree {
 		 * @throw NodeException If a branch length is lacking.
 		 */
 		virtual void scaleTree(double factor) throw (NodeException) = 0;
+
+    /**
+     * @brief Get an id.
+     *
+     * @return an unused node id.
+     */
+    virtual int getNextId() = 0;
 
 };
 

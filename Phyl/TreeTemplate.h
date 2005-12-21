@@ -90,6 +90,7 @@ class TreeTemplate: public virtual Tree
 	protected:
 		N * _root;
 		string _name;
+    int _nextNodeId;
 
 	public: // Constructors and destructor:
 		
@@ -219,7 +220,11 @@ class TreeTemplate: public virtual Tree
 		void resetNodesId()
 		{
 			vector<N *> nodes = getNodes();
-			for(unsigned int i = 0; i < nodes.size(); i++) nodes[i] -> setId(i);
+      _nextNodeId = 0;
+			for(unsigned int i = 0; i < nodes.size(); i++) {
+        nodes[i] -> setId(i);
+        _nextNodeId++;
+      }
 		}
 		
 		bool isMultifurcating() const
@@ -271,7 +276,7 @@ class TreeTemplate: public virtual Tree
       }
 		}
 
-
+    int getNextId() { return _nextNodeId++; }
 
 		/**
 		 * @name Specific methods
@@ -340,7 +345,7 @@ class TreeTemplate: public virtual Tree
 				rootId = getRootId();
 				unroot();
 			} else {
-				rootId = -1;//TODO
+				rootId = getNextId();
 			}
 			rootAt(* outGroup.getFather());
 			N* oldRoot = _root;
@@ -349,6 +354,12 @@ class TreeTemplate: public virtual Tree
 			_root -> setId(rootId);
 			_root -> addSon(*oldRoot);
 			_root -> addSon(outGroup);
+      // Check lengths:
+      if(outGroup.hasDistanceToFather()) {
+        double l = outGroup.getDistanceToFather();
+        outGroup.setDistanceToFather(l);
+        oldRoot->setDistanceToFather(l);
+      }
 		}
 
 		/** @} */
