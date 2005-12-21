@@ -190,31 +190,33 @@ class TreeTemplate: public virtual Tree
 				N* son1 = _root -> getSon(0);
 				N* son2 = _root -> getSon(1);
 				if(son1 -> isLeaf() && son2 -> isLeaf()) return false; // We can't unroot a single branch!
-					// We manage to have a subtree in position 0:
-					if(son1 -> isLeaf()) {
-						_root -> swap(0, 1);
-						son1 = _root -> getSon(0);
-						son2 = _root -> getSon(1);
-					}
+				
+        // We manage to have a subtree in position 0:
+				if(son1 -> isLeaf()) {
+				  _root -> swap(0, 1);
+				  son1 = _root -> getSon(0);
+				  son2 = _root -> getSon(1);
+				}
 
-					// Take care of branch lengths:
-					if(son1 -> hasDistanceToFather()) {
-						if(son2 -> hasDistanceToFather()) {
-						// Both nodes have lengths, we sum them:
-						son2 -> setDistanceToFather(son1 -> getDistanceToFather() + son2 -> getDistanceToFather());
-					} else {
-						// Only node 1 has length, we set it to node 2:
-						son2 -> setDistanceToFather(son1 -> getDistanceToFather());
-					}
-					son1 -> deleteDistanceToFather();
+				// Take care of branch lengths:
+				if(son1 -> hasDistanceToFather()) {
+					if(son2 -> hasDistanceToFather()) {
+					  // Both nodes have lengths, we sum them:
+					  son2 -> setDistanceToFather(son1 -> getDistanceToFather() + son2 -> getDistanceToFather());
+				  } else {
+					  // Only node 1 has length, we set it to node 2:
+					  son2 -> setDistanceToFather(son1 -> getDistanceToFather());
+				  }
+				  son1 -> deleteDistanceToFather();
 				} // Else node 2 may or may not have a branch length, we do not care!
 
 				// Remove the root:
 				_root -> removeSons();
 				son1 -> addSon(*son2);
 				setRootNode(*son1);
+        delete _root;
 				return true;
-			} else return false; // Tree is already rooted.
+			} else return false; // Tree is already unrooted.
 		}
 
 		void resetNodesId()
@@ -332,8 +334,11 @@ class TreeTemplate: public virtual Tree
 				//pathMatrix[i+1] -> _sons.push_back(pathMatrix[i + 1] -> getFather());
 				//pathMatrix[i+1] -> _father = NULL;
 				path[i] -> removeSon(* path[i+1]);
+        if(path[i+1]->hasDistanceToFather()) path[i]->setDistanceToFather(path[i+1]->getDistanceToFather());
+        else path[i]->deleteDistanceToFather();
 				path[i+1] -> addSon(* path[i]);
 			}
+      newRoot.deleteDistanceToFather();
 			_root = & newRoot;
 		}
 
@@ -356,7 +361,7 @@ class TreeTemplate: public virtual Tree
 			_root -> addSon(outGroup);
       // Check lengths:
       if(outGroup.hasDistanceToFather()) {
-        double l = outGroup.getDistanceToFather();
+        double l = outGroup.getDistanceToFather() / 2.;
         outGroup.setDistanceToFather(l);
         oldRoot->setDistanceToFather(l);
       }
