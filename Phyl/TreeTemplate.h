@@ -213,8 +213,8 @@ class TreeTemplate: public virtual Tree
 				// Remove the root:
 				_root -> removeSons();
 				son1 -> addSon(*son2);
-				setRootNode(*son1);
         delete _root;
+				setRootNode(*son1);
 				return true;
 			} else return false; // Tree is already unrooted.
 		}
