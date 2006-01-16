@@ -43,6 +43,7 @@ knowledge of the CeCILL license and that you accept its terms.
 #include "TreeExceptions.h"
 #include "Node.h"
 #include "DistanceMatrix.h"
+#include "Tree.h"
 template<class N> class TreeTemplate;
 
 // From Utils:
@@ -480,17 +481,27 @@ class TreeTools
 		{
 			//First we copy this node using default copy constuctor:
 			N * clone = new N(node);
-			//Remove all sons. This is possible since Tree is a friend of Node:
-			//clone -> sons.resize(0);
 			//Now we perform a hard copy:
 			for(unsigned int i = 0; i < node.getNumberOfSons(); i++) {
-				//clone -> addSon(* cloneSubtree<N>(* node[i]));
 				clone -> setSon(i, * cloneSubtree<N>(* node[i]));
 			}
 			return clone;
 		}
 		
-		/**
+		template<class N>
+		static N * cloneSubtree(const Tree & tree, int nodeId) 
+		{
+			//First we copy this node using default copy constuctor:
+			N * clone = tree.hasNodeName(nodeId) ? new N(tree.getNodeName(nodeId), nodeId) : new N(nodeId);
+			//Now we copy all sons:
+      vector<int> sonsId = tree.getSonsId(nodeId);
+			for(unsigned int i = 0; i < sonsId.size(); i++) {
+				clone -> setSon(i, * cloneSubtree<N>(tree, sonsId[i]));
+			}
+			return clone;
+		}
+
+    /**
 		 * @name Random trees
 		 *
 		 * @{

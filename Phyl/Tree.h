@@ -41,8 +41,9 @@ knowledge of the CeCILL license and that you accept its terms.
 #define _TREE_H_
 
 #include "TreeExceptions.h"
-#include "TreeTools.h"
 
+// From Utils:
+#include <Utils/Clonable.h>
 
 // From the STL:
 #include <string>

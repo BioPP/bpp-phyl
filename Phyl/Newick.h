@@ -73,6 +73,7 @@ class Newick: public virtual AbstractITree, public virtual AbstractOTree
 {
 	protected:
 		bool _allowComments;
+    bool _writeId;
 	
 	public:
 		
@@ -82,9 +83,10 @@ class Newick: public virtual AbstractITree, public virtual AbstractOTree
 		 * Some newick format allow comments between hooks ('[' ']').
 		 * 
 		 * @param allowComments Tell if comments between [] are allowed in file.
+		 * @param writeId       If true, nodes ids will be written in place of bootstrap values.
 		 */
-		Newick(bool allowComments = false);
-		virtual ~Newick();
+		Newick(bool allowComments = false, bool writeId = false): _allowComments(allowComments), _writeId(writeId) {}
+		virtual ~Newick() {}
 	
 	public:
 

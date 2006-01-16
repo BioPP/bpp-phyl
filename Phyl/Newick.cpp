@@ -53,12 +53,6 @@ using namespace std;
 
 /******************************************************************************/
 
-Newick::Newick(bool allowComments): _allowComments(allowComments) {}
-
-Newick::~Newick() {}
-	
-/******************************************************************************/
-
 const string Newick::getFormatName() const { return "Newick"; }
 
 /******************************************************************************/
@@ -102,7 +96,7 @@ void Newick::write(const Tree & tree, ostream & out) const throw (Exception)
 {
 	// Checking the existence of specified file, and possibility to open it in write mode
 	if (! out) { throw IOException ("Newick::write : failed to write to stream"); }
-	out << TreeTools::treeToParenthesis(tree);
+	out << TreeTools::treeToParenthesis(tree, _writeId);
 }
 
 /******************************************************************************/

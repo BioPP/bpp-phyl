@@ -102,6 +102,12 @@ class TreeTemplate: public virtual Tree
 			_root = TreeTools::cloneSubtree<N>(* t.getRootNode());
 		}
 
+		TreeTemplate(const Tree & t)
+		{
+			//Create new nodes from an existing tree:
+			_root = TreeTools::cloneSubtree<N>(t, t.getRootId());
+		}
+
 		TreeTemplate(N & root) { _root = &root; }
 
 		TreeTemplate<N> & operator=(const TreeTemplate<N> & t)

@@ -316,7 +316,7 @@ string TreeTools::treeToParenthesis(const Tree & tree, bool writeId)
 			s << "," << nodeToParenthesis(tree, sonsId[i], writeId);
 		}
 	} else {
-		s << nodeToParenthesis(tree, tree.getSonsId(rootId)[0]);
+		s << nodeToParenthesis(tree, sonsId[0], writeId);
 		for(unsigned int i = 1; i < sonsId.size(); i++) {
 			s << "," << nodeToParenthesis(tree, sonsId[i], writeId);
 		}
