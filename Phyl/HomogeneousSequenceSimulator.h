@@ -136,7 +136,7 @@ class HomogeneousSequenceSimulator:
 	public:
 	
 		/**
-		 * @name The SequenceSimulator interface
+		 * @name The SiteSimulator interface
 		 *
 		 * @{
 		 */
@@ -146,6 +146,7 @@ class HomogeneousSequenceSimulator:
 		Site * simulate(double rate) const;
 		vector<string> getSequencesNames() const { return _seqNames; }
 		/** @} */
+    
 		/**
 		 * @name The SequenceSimulator interface
 		 *
@@ -153,6 +154,7 @@ class HomogeneousSequenceSimulator:
 		 */
 		SiteContainer * simulate(unsigned int numberOfSites) const;
 		/** @} */
+    
 		/**
 		 * @name SiteSimulator and SequenceSimulator interface
 		 *

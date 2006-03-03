@@ -492,11 +492,11 @@ class TreeTools
 		static N * cloneSubtree(const Tree & tree, int nodeId) 
 		{
 			//First we copy this node using default copy constuctor:
-			N * clone = tree.hasNodeName(nodeId) ? new N(tree.getNodeName(nodeId), nodeId) : new N(nodeId);
+			N * clone = tree.hasNodeName(nodeId) ? new N(nodeId, tree.getNodeName(nodeId)) : new N(nodeId);
 			//Now we copy all sons:
       vector<int> sonsId = tree.getSonsId(nodeId);
 			for(unsigned int i = 0; i < sonsId.size(); i++) {
-				clone -> setSon(i, * cloneSubtree<N>(tree, sonsId[i]));
+				clone -> addSon(* cloneSubtree<N>(tree, sonsId[i]));
 			}
 			return clone;
 		}
