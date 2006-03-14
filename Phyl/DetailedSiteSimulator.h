@@ -1,6 +1,8 @@
 //
-// File: DetailedSequenceSimulator.h
+// File: DetailedSiteSimulator.h
 // Created by: Julien Dutheil
+// Created on: Tue Mar  14 10:51 2006
+// from old file DetailedSequenceSimulator.h
 // Created on: Wed Aug  24 15:20 2005
 //
 
@@ -37,10 +39,10 @@ The fact that you are presently reading this means that you have had
 knowledge of the CeCILL license and that you accept its terms.
 */
 
-#ifndef _DETAILEDSEQUENCESIMULATOR_H_
-#define _DETAILEDSEQUENCESIMULATOR_H_
+#ifndef _DETAILEDSITESIMULATOR_H_
+#define _DETAILEDSITESIMULATOR_H_
 
-#include "SequenceSimulator.h"
+#include "SiteSimulator.h"
 #include "TreeTemplate.h"
 #include "MutationProcess.h"
 
@@ -50,11 +52,11 @@ knowledge of the CeCILL license and that you accept its terms.
 using namespace std;
 
 /**
- * @brief Data structure to store the result of a DetailedSequenceSimulator.
+ * @brief Data structure to store the result of a DetailedSiteSimulator.
  *
  * This data structure stores each transitional state, and the time when it occured.
  */
-class SequenceSimulationResult
+class SiteSimulationResult
 {
 	protected:
 		mutable map<const Node *, unsigned int> _indexes;
@@ -63,20 +65,28 @@ class SequenceSimulationResult
 		vector<int> _ancestralStates;
 		const TreeTemplate<Node> * _tree;
 		vector<const Node *> _leaves;
+    const Alphabet * _alphabet;
 		
 	public:
-		SequenceSimulationResult(const TreeTemplate<Node> * tree, int ancestralState):
+		SiteSimulationResult(const TreeTemplate<Node> * tree, const Alphabet * alphabet, int ancestralState):
 			_currentIndex(0) {
 			_tree = tree;
+      _alphabet = alphabet;
 			_indexes[tree -> getRootNode()] = 0;
 			_ancestralStates.push_back(ancestralState);
 			_leaves = tree -> getLeaves();
 		}
 
-		virtual ~SequenceSimulationResult() {}
+		virtual ~SiteSimulationResult() {}
 	
 	public:
-		virtual void addNode(const Node * node, MutationPath path) {
+    /**
+     * @return The alphabet associated to this simulation.
+     */
+    virtual const Alphabet * getAlphabet() const { return _alphabet; }
+    
+		virtual void addNode(const Node * node, MutationPath path)
+    {
 			_currentIndex++;
 			_indexes[node] = _currentIndex;
 			_paths.push_back(path);
@@ -99,6 +109,9 @@ class SequenceSimulationResult
 			return counts;
 		}
 
+    /**
+     * @return The states at the leaves.
+     */
 		virtual vector<int> getFinalStates() const
 		{
 			unsigned int n = _leaves.size(); 
@@ -109,31 +122,52 @@ class SequenceSimulationResult
 			return states;
 		}
 
+    /**
+     * @return The site correspodning to this simulation.
+     */
+    virtual Site * getSite() const { return new Site(getFinalStates(), _alphabet); }
+
+    /**
+     * @return A vectro with the leaves names.
+     */
+    virtual vector<string> getLeaveNames() const
+    {
+			unsigned int n = _leaves.size(); 
+			vector<string> names(n);
+			for(unsigned int i = 0; i < n; i++) {
+				names[i] = _leaves[i] -> getName();
+			}
+			return names;
+    }
+
 };
 
 //---------------------------------------------------------------------------
 
 /**
- * @brief This interface adds the dSimulate method to the SequenceSimulator interface.
+ * @brief This interface adds the dSimulate method to the SiteSimulator interface.
  *
  * Instances of this class should be used when a detailed output of the simulation is needed.
  */
-class DetailedSequenceSimulator: public virtual SequenceSimulator
+class DetailedSiteSimulator: public virtual SiteSimulator
 {
 	public:
-		DetailedSequenceSimulator() {}
-		virtual ~DetailedSequenceSimulator() {}
+		DetailedSiteSimulator() {}
+		virtual ~DetailedSiteSimulator() {}
 	
 	public:
 		/**
 		 * @brief Get a detailed simulation result for one site.
 		 *
-		 * @return A SequenceSimulationResult object with all ancestral
+		 * @return A SiteSimulationResult object with all ancestral
 		 * states for all nodes and branches.
 		 */
-		virtual SequenceSimulationResult * dSimulate() const = 0;
+		virtual SiteSimulationResult * dSimulate() const = 0;
+		virtual SiteSimulationResult * dSimulate(int ancestralState) const = 0;
+		virtual SiteSimulationResult * dSimulate(int ancestralState, double rate) const = 0;
+		virtual SiteSimulationResult * dSimulate(double rate) const = 0;
 		
 };
 
-#endif // _DETAILEDSEQUENCESIMULATOR_H_
+#endif // _DETAILEDSITESIMULATOR_H_
 

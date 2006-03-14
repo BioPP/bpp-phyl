@@ -59,12 +59,21 @@ using namespace std;
 
 /******************************************************************************/
 
-void DRASDRTreeLikelihoodData::init(const SiteContainer & sites, const SubstitutionModel & model) throw (Exception)
-{
+void DRASDRTreeLikelihoodData::initLikelihoods(const SiteContainer & sites, const SubstitutionModel & model) throw (Exception)
+{	
+	if(sites.getNumberOfSequences() == 1) throw Exception("Error, only 1 sequence!");
+	if(sites.getNumberOfSequences() == 0) throw Exception("Error, no sequence!");
+	if(sites.getAlphabet() -> getAlphabetType()
+	    != model.getAlphabet() -> getAlphabetType())
+		throw AlphabetMismatchException("DRASDRTreeLikelihoodData::initLikelihoods. Data and model must have the same alphabet type.",
+				sites.getAlphabet(),
+				model.getAlphabet());
 	_alphabet = sites.getAlphabet();
-	_nbStates = sites.getAlphabet() -> getSize();
+	_nbStates = _alphabet -> getSize();
  	_nbSites  = sites.getNumberOfSites();
-	SitePatterns pattern(sites);
+	
+  SitePatterns pattern(sites);
+  if(_shrunkData != NULL) delete _shrunkData;
 	_shrunkData = pattern.getSites();
 	_rootWeights = pattern.getWeights();
 	_rootPatternLinks = pattern.getIndices();
@@ -73,7 +82,7 @@ void DRASDRTreeLikelihoodData::init(const SiteContainer & sites, const Substitut
 	//Init data:
 	// Clone data for more efficiency on sequences access:
 	const SiteContainer * sequences = new AlignedSequenceContainer(* _shrunkData);
-	initTreeLikelihoods(_tree -> getRootNode(), * sequences, model);
+	initLikelihoods(_tree -> getRootNode(), * sequences, model);
 	delete sequences;
 
 	// Now initialize root likelihoods and derivatives:
@@ -97,16 +106,15 @@ void DRASDRTreeLikelihoodData::init(const SiteContainer & sites, const Substitut
 
 /******************************************************************************/
 
-void DRASDRTreeLikelihoodData::initTreeLikelihoods(const Node * node, const SequenceContainer & sequences, const SubstitutionModel & model) throw (Exception)
+void DRASDRTreeLikelihoodData::initLikelihoods(const Node * node, const SiteContainer & sites, const SubstitutionModel & model) throw (Exception)
 {
 	if(node -> isLeaf()) {
 		// Init leaves likelihoods:
-		//cout << "Leaf:\t" << node -> getName() << endl;
 		const Sequence * seq;
 		try {
-			seq = sequences.getSequence(node -> getName());
+			seq = sites.getSequence(node -> getName());
 		} catch (SequenceNotFoundException & snfe) {
-			throw SequenceNotFoundException("DRHomogeneousTreeLikelihood::initTreelikelihoods. Leaf name in tree not found in site container: ", (node -> getName()));
+			throw SequenceNotFoundException("DRASDRTreeLikelihoodData::initlikelihoods. Leaf name in tree not found in site container: ", (node -> getName()));
 		}
 		VVdouble * leavesLikelihoods_leaf = & _leafData[node].getLikelihoodArray();
 		leavesLikelihoods_leaf -> resize(_nbDistinctSites);
@@ -128,7 +136,7 @@ void DRASDRTreeLikelihoodData::initTreeLikelihoods(const Node * node, const Sequ
 	unsigned int nbSonNodes = node -> getNumberOfSons();
 	for(unsigned int l = 0; l < nbSonNodes; l++) {
 		//For each son node,
-		initTreeLikelihoods(node -> getSon(l), sequences, model);
+		initLikelihoods(node -> getSon(l), sites, model);
 	}
 
 	//Initialize likelihood vector:
@@ -182,7 +190,28 @@ void DRASDRTreeLikelihoodData::initTreeLikelihoods(const Node * node, const Sequ
 /******************************************************************************/
 
 DRHomogeneousTreeLikelihood::DRHomogeneousTreeLikelihood(
-	TreeTemplate<Node> & tree,
+	TreeTemplate<Node> * tree,
+	SubstitutionModel * model,
+	DiscreteDistribution * rDist,
+  bool checkRooted,
+	bool verbose
+)	throw (Exception):
+	AbstractDiscreteRatesAcrossSitesTreeLikelihood(rDist, verbose), // We must do this since AbstractTreeLikelihood is virtual
+	AbstractHomogeneousTreeLikelihood(tree, model, rDist, checkRooted, verbose)
+{
+	if(verbose) ApplicationTools::message << "Double-Recursive Homogeneous Tree Likelihood" << endl;	
+	_likelihoodData = new DRASDRTreeLikelihoodData(*_tree, rDist -> getNumberOfCategories());
+		
+	// Now initializes all parameters:
+	initParameters();
+  computeAllTransitionProbabilities();
+	//fireParameterChanged(_parameters);
+}
+
+/******************************************************************************/
+
+DRHomogeneousTreeLikelihood::DRHomogeneousTreeLikelihood(
+	TreeTemplate<Node> * tree,
 	const SiteContainer & data,
 	SubstitutionModel * model,
 	DiscreteDistribution * rDist,
@@ -190,21 +219,16 @@ DRHomogeneousTreeLikelihood::DRHomogeneousTreeLikelihood(
 	bool verbose
 )	throw (Exception):
 	AbstractDiscreteRatesAcrossSitesTreeLikelihood(rDist, verbose), // We must do this since AbstractTreeLikelihood is virtual
-	AbstractHomogeneousTreeLikelihood(tree, data, model, rDist, checkRooted, verbose)
+	AbstractHomogeneousTreeLikelihood(tree, model, rDist, checkRooted, verbose)
 {
 	if(verbose) ApplicationTools::message << "Double-Recursive Homogeneous Tree Likelihood" << endl;	
 	_likelihoodData = new DRASDRTreeLikelihoodData(*_tree, rDist -> getNumberOfCategories());
+		
+  setData(data);
 	
-	if(verbose) ApplicationTools::displayTask("Initializing data structure");
-	_likelihoodData -> init(* _data, * _model);
-	if(verbose) ApplicationTools::displayTaskDone();
-
-	_nbDistinctSites = _likelihoodData -> getNumberOfDistinctSites();
-	if(verbose) ApplicationTools::displayResult("Number of distinct sites",
-			TextTools::toString(_nbDistinctSites));
-	
-	// Now initializes all parameters:
+  // Now initializes all parameters:
 	initParameters();
+  
 	fireParameterChanged(_parameters);
 }
 
@@ -213,6 +237,24 @@ DRHomogeneousTreeLikelihood::DRHomogeneousTreeLikelihood(
 DRHomogeneousTreeLikelihood::~DRHomogeneousTreeLikelihood()
 {
 	delete _likelihoodData;
+  delete _data;
+}
+
+/******************************************************************************/
+
+void DRHomogeneousTreeLikelihood::setData(const SiteContainer & sites) throw (Exception)
+{
+  _data = PatternTools::getSequenceSubset(sites, * _tree -> getRootNode());
+   if(_verbose) ApplicationTools::displayTask("Initializing data structure");
+  _likelihoodData -> initLikelihoods(*_data, *_model);
+	if(_verbose) ApplicationTools::displayTaskDone();
+
+  _nbSites = _likelihoodData -> getNumberOfSites();
+  _nbDistinctSites = _likelihoodData -> getNumberOfDistinctSites();
+  _nbStates = _likelihoodData -> getNumberOfStates();
+	
+  if(_verbose) ApplicationTools::displayResult("Number of distinct sites",
+			TextTools::toString(_nbDistinctSites));
 }
 
 /******************************************************************************/
@@ -322,64 +364,7 @@ void DRHomogeneousTreeLikelihood::fireParameterChanged(const ParameterList & par
 	applyParameters();
 
 	// For now we ignore the parameter that changed and we recompute all arrays...
-	for(unsigned int l = 0; l < _nbNodes; l++) {
-		//For each son node,
-		Node * son = _nodes[l];
-		double l = son -> getDistanceToFather(); 
-
-		//Computes all pxy and pyx once for all:
-		VVVdouble * _pxy_son = & _pxy[son];
-		_pxy_son -> resize(_nbClasses);
-		for(unsigned int c = 0; c < _nbClasses; c++) {
-			VVdouble * _pxy_son_c = & (* _pxy_son)[c];
-			_pxy_son_c -> resize(_nbStates);
-			RowMatrix<double> Q = _model -> getPij_t(l * _rateDistribution -> getCategory(c));
-			for(unsigned int x = 0; x < _nbStates; x++) {
-				Vdouble * _pxy_son_c_x = & (* _pxy_son_c)[x];
-				_pxy_son_c_x -> resize(_nbStates);
-				for(unsigned int y = 0; y < _nbStates; y++) {
-					(* _pxy_son_c_x)[y] = Q(x, y);
-				}
-			}
-		}
-	
-		if(_computeDerivatives) {
-
-			//Computes all dpxy/dt once for all:
-			VVVdouble * _dpxy_son = & _dpxy[son];
-			_dpxy_son -> resize(_nbClasses);
-			for(unsigned int c = 0; c < _nbClasses; c++) {
-				VVdouble * _dpxy_son_c = & (* _dpxy_son)[c];
-				_dpxy_son_c -> resize(_nbStates);
-				double rc = _rateDistribution -> getCategory(c);
-				RowMatrix<double> dQ = _model -> getdPij_dt(l * rc);  
-				for(unsigned int x = 0; x < _nbStates; x++) {
-					Vdouble * _dpxy_son_c_x = & (* _dpxy_son_c)[x];
-					_dpxy_son_c_x -> resize(_nbStates);
-					for(unsigned int y = 0; y < _nbStates; y++) {
-						(* _dpxy_son_c_x)[y] =  rc * dQ(x, y); 
-					}
-				}
-			}
-			
-			//Computes all d2pxy/dt2 once for all:
-			VVVdouble * _d2pxy_son = & _d2pxy[son];
-			_d2pxy_son -> resize(_nbClasses);
-			for(unsigned int c = 0; c < _nbClasses; c++) {
-				VVdouble * _d2pxy_son_c = & (* _d2pxy_son)[c];
-				_d2pxy_son_c -> resize(_nbStates);
-				double rc =  _rateDistribution -> getCategory(c);
-				RowMatrix<double> d2Q = _model -> getd2Pij_dt2(l * rc);
-				for(unsigned int x = 0; x < _nbStates; x++) {
-					Vdouble * _d2pxy_son_c_x = & (* _d2pxy_son_c)[x];
-					_d2pxy_son_c_x -> resize(_nbStates);
-					for(unsigned int y = 0; y < _nbStates; y++) {
-						(* _d2pxy_son_c_x)[y] =  rc * rc * d2Q(x, y);
-					}
-				}
-			}
-		}
-	}
+  computeAllTransitionProbabilities();
 
 	computeTreeLikelihood();
 	if(_computeDerivatives) {

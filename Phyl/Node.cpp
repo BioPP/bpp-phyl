@@ -41,6 +41,7 @@ knowledge of the CeCILL license and that you accept its terms.
 
 //From Utils:
 #include <Utils/Exceptions.h>
+#include <Utils/TextTools.h>
 
 //from the STL:
 #include <algorithm>
@@ -102,11 +103,12 @@ vector<Node *> Node::getNeighbors()
 	return neighbors;
 }
 
-unsigned int Node::getSonPosition(const Node & son) const
+unsigned int Node::getSonPosition(const Node & son) const throw (NodeNotFoundException)
 {
 	for(unsigned int i = 0; i < _sons.size(); i++) {
 		if(_sons[i] == &son) return i;
 	}
+  throw NodeNotFoundException("Son not found", TextTools::toString(son.getId()));
 }
 
 /******************************************************************************/

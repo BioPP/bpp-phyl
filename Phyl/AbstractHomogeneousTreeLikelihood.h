@@ -69,14 +69,16 @@ class AbstractHomogeneousTreeLikelihood: public virtual AbstractDiscreteRatesAcr
 
 		//some values we'll need:
 		unsigned int _nbSites,         //the number of sites in the container
+                 _nbDistinctSites, //the number of distinct sites
 		             _nbClasses,       //the number of rate classes
 		             _nbStates,        //the number of states in the alphabet
 		             _nbNodes;         //the number of nodes in the tree
 
+    bool _verbose;
+
 	public:
 		AbstractHomogeneousTreeLikelihood(
-			TreeTemplate<Node> & tree,
-			const SiteContainer & data,
+			TreeTemplate<Node> * tree,
 			SubstitutionModel * model,
 			DiscreteDistribution * rDist,
       bool checkRooted = true,
@@ -131,7 +133,7 @@ class AbstractHomogeneousTreeLikelihood: public virtual AbstractDiscreteRatesAcr
 		virtual void ignoreParameter(const string & name) throw (ParameterNotFoundException);
 
 		/**
-		 * @brief All parameters are stores in a parameter list.
+		 * @brief All parameters are stored in a parameter list.
 		 *
 		 * This function apply these parameters to the substitution model,
 		 * to the rate distribution and to the branch lengths.
@@ -143,6 +145,12 @@ class AbstractHomogeneousTreeLikelihood: public virtual AbstractDiscreteRatesAcr
 		void resetLikelihoodArray(VVVdouble & likelihoodArray);
 
 		static void displayLikelihoodArray(const VVVdouble & likelihoodArray);
+
+  protected:
+    /**
+     * @brief Fill the _pxy, _dpxy and _d2pxy arrays.
+     */
+    void computeAllTransitionProbabilities();
 
 };
 

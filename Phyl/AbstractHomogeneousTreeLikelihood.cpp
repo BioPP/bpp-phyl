@@ -55,8 +55,7 @@ using namespace std;
 /******************************************************************************/
 
 AbstractHomogeneousTreeLikelihood::AbstractHomogeneousTreeLikelihood(
-	TreeTemplate<Node> & tree,
-	const SiteContainer & data,
+	TreeTemplate<Node> * tree,
 	SubstitutionModel * model,
 	DiscreteDistribution * rDist,
   bool checkRooted,
@@ -64,39 +63,29 @@ AbstractHomogeneousTreeLikelihood::AbstractHomogeneousTreeLikelihood(
 	throw (Exception):
 	AbstractDiscreteRatesAcrossSitesTreeLikelihood(rDist, verbose)
 {
-	_tree = &tree;
+	_tree = tree;
 	if(checkRooted && _tree -> isRooted()) {
 		if(verbose) ApplicationTools::displayWarning("Tree has been unrooted.");
 		_tree -> unroot();
 	}
-	//Sequences will be in the same order than in the tree:
-	_data = PatternTools::getSequenceSubset(data, * _tree -> getRootNode());
-	if(_data -> getNumberOfSequences() == 1) throw Exception("Error, only 1 sequence!");
-	if(_data -> getNumberOfSequences() == 0) throw Exception("Error, no sequence!");
-	_model = model;
-	if(_data -> getAlphabet() -> getAlphabetType()
-			!= _model -> getAlphabet() -> getAlphabetType())
-		throw AlphabetMismatchException("AbstractHomogeneousTreeLikelihood::AbstractHomogeneousTreeLikelihood. Data and model must have the same alphabet type.",
-				_data -> getAlphabet(),
-				_model -> getAlphabet());
-	_alphabet = _data -> getAlphabet();
-
 	_nodes = _tree -> getNodes();
-	
-	_nodes.pop_back(); //Remove the root node (the last added!).
-	
-	_nbSites   = _data -> getNumberOfSites();
-	_nbClasses = _rateDistribution -> getNumberOfCategories();
-	_nbStates  = _alphabet -> getSize();
+	_nodes.pop_back(); //Remove the root node (the last added!).	
 	_nbNodes   = _nodes.size();
 	
+  _model = model;
+
+  _nbStates = model -> getAlphabet() -> getSize();
+  
+	_nbClasses = _rateDistribution -> getNumberOfCategories();
+
+  _verbose = verbose;
 }
 
 /******************************************************************************/
 
 AbstractHomogeneousTreeLikelihood::~AbstractHomogeneousTreeLikelihood()
 {
-	delete _data; 
+	//delete _data; 
 }
 
 /******************************************************************************/
@@ -212,3 +201,68 @@ void AbstractHomogeneousTreeLikelihood::displayLikelihoodArray(const VVVdouble &
 }
 
 /*******************************************************************************/
+
+void AbstractHomogeneousTreeLikelihood::computeAllTransitionProbabilities()
+{
+	for(unsigned int l = 0; l < _nbNodes; l++) {
+		//For each son node,
+		Node * son = _nodes[l];
+		double l = son -> getDistanceToFather(); 
+
+		//Computes all pxy and pyx once for all:
+		VVVdouble * _pxy_son = & _pxy[son];
+		_pxy_son -> resize(_nbClasses);
+		for(unsigned int c = 0; c < _nbClasses; c++) {
+			VVdouble * _pxy_son_c = & (* _pxy_son)[c];
+			_pxy_son_c -> resize(_nbStates);
+			RowMatrix<double> Q = _model -> getPij_t(l * _rateDistribution -> getCategory(c));
+			for(unsigned int x = 0; x < _nbStates; x++) {
+				Vdouble * _pxy_son_c_x = & (* _pxy_son_c)[x];
+				_pxy_son_c_x -> resize(_nbStates);
+				for(unsigned int y = 0; y < _nbStates; y++) {
+					(* _pxy_son_c_x)[y] = Q(x, y);
+				}
+			}
+		}
+	
+		if(_computeDerivatives) {
+
+			//Computes all dpxy/dt once for all:
+			VVVdouble * _dpxy_son = & _dpxy[son];
+			_dpxy_son -> resize(_nbClasses);
+			for(unsigned int c = 0; c < _nbClasses; c++) {
+				VVdouble * _dpxy_son_c = & (* _dpxy_son)[c];
+				_dpxy_son_c -> resize(_nbStates);
+				double rc = _rateDistribution -> getCategory(c);
+				RowMatrix<double> dQ = _model -> getdPij_dt(l * rc);  
+				for(unsigned int x = 0; x < _nbStates; x++) {
+					Vdouble * _dpxy_son_c_x = & (* _dpxy_son_c)[x];
+					_dpxy_son_c_x -> resize(_nbStates);
+					for(unsigned int y = 0; y < _nbStates; y++) {
+						(* _dpxy_son_c_x)[y] =  rc * dQ(x, y); 
+					}
+				}
+			}
+			
+			//Computes all d2pxy/dt2 once for all:
+			VVVdouble * _d2pxy_son = & _d2pxy[son];
+			_d2pxy_son -> resize(_nbClasses);
+			for(unsigned int c = 0; c < _nbClasses; c++) {
+				VVdouble * _d2pxy_son_c = & (* _d2pxy_son)[c];
+				_d2pxy_son_c -> resize(_nbStates);
+				double rc =  _rateDistribution -> getCategory(c);
+				RowMatrix<double> d2Q = _model -> getd2Pij_dt2(l * rc);
+				for(unsigned int x = 0; x < _nbStates; x++) {
+					Vdouble * _d2pxy_son_c_x = & (* _d2pxy_son_c)[x];
+					_d2pxy_son_c_x -> resize(_nbStates);
+					for(unsigned int y = 0; y < _nbStates; y++) {
+						(* _d2pxy_son_c_x)[y] =  rc * rc * d2Q(x, y);
+					}
+				}
+			}
+		}
+	}
+}
+
+/*******************************************************************************/
+

@@ -126,7 +126,11 @@ class DRASRTreeLikelihoodData :
 		unsigned int _nbDistinctSites; 
 
 	public:
-		DRASRTreeLikelihoodData(TreeTemplate<Node> & tree, unsigned int nbClasses) : _nbClasses(nbClasses) { _tree = &tree; }
+		DRASRTreeLikelihoodData(TreeTemplate<Node> & tree, unsigned int nbClasses) : _nbClasses(nbClasses)
+    {
+      _tree = &tree;
+      _shrunkData = NULL;
+    }
 		virtual ~DRASRTreeLikelihoodData() { delete _shrunkData; }
 
 	public:
@@ -180,8 +184,7 @@ class DRASRTreeLikelihoodData :
 		unsigned int getNumberOfStates() const { return _nbStates; }
 		unsigned int getNumberOfClasses() const { return _nbClasses; }
 		
-		void init(const SiteContainer & sites, const SubstitutionModel & model) throw (Exception);
-		//void reInit() throw (Exception);
+		void initLikelihoods(const SiteContainer & sites, const SubstitutionModel & model) throw (Exception);
 
 	protected:
 		/**
@@ -198,7 +201,7 @@ class DRASRTreeLikelihoodData :
 		 * @param sequences The data to be used for initialization.
      * @param model     The model to use.
 		 */
-		virtual void initTreeLikelihoods(const Node * node, const SiteContainer & sequences, const SubstitutionModel & model) throw (Exception);
+		virtual void initLikelihoods(const Node * node, const SiteContainer & sequences, const SubstitutionModel & model) throw (Exception);
 
 		/**
 		 * @brief This method initializes the leaves according to a sequence file.
@@ -216,7 +219,7 @@ class DRASRTreeLikelihoodData :
      * @param model     The model to use.
 		 * @return The shrunk sub-dataset for the subtree defined by <i>node</i>.
 		 */
-		virtual SiteContainer * initTreeLikelihoodsWithPatterns(const Node * node, const SiteContainer & sequences, const SubstitutionModel & model) throw (Exception);
+		virtual SiteContainer * initLikelihoodsWithPatterns(const Node * node, const SiteContainer & sequences, const SubstitutionModel & model) throw (Exception);
 		
 };
 
@@ -258,8 +261,27 @@ class HomogeneousTreeLikelihood :
 	protected:
 
 		mutable DRASRTreeLikelihoodData *_likelihoodData;
-		
+
 	public:
+    /**
+     * @brief Build a new HomogeneousTreeLikelihood object.
+     *
+     * @param tree The tree to use.
+     * @param model The substitution model to use.
+     * @param rDist The rate across sites distribution to use.
+     * @param checkRoot Tell if we have to check for the tree to be unrooted.
+     * If true, any rooted tree will be unrooted before likelihood computation.
+     * @param verbose Should I display some info?
+     * @throw Exception in an error occured.
+     */
+		HomogeneousTreeLikelihood(
+			TreeTemplate<Node> * tree,
+			SubstitutionModel * model,
+			DiscreteDistribution * rDist,
+      bool checkRooted = true,
+			bool verbose = true)
+			throw (Exception);
+	
     /**
      * @brief Build a new HomogeneousTreeLikelihood object.
      *
@@ -273,15 +295,15 @@ class HomogeneousTreeLikelihood :
      * @throw Exception in an error occured.
      */
 		HomogeneousTreeLikelihood(
-			TreeTemplate<Node> & tree,
+			TreeTemplate<Node> * tree,
 			const SiteContainer & data,
 			SubstitutionModel * model,
 			DiscreteDistribution * rDist,
       bool checkRooted = true,
 			bool verbose = true)
 			throw (Exception);
-	
-		virtual ~HomogeneousTreeLikelihood();
+
+    virtual ~HomogeneousTreeLikelihood();
 	
 	public:
 
@@ -292,7 +314,8 @@ class HomogeneousTreeLikelihood :
 		 *
 		 * @{
 		 */
-		double getLikelihood () const;
+    void setData(const SiteContainer & sites) throw (Exception);
+  	double getLikelihood () const;
 		double getLogLikelihood() const;
 		double getLikelihoodForASite (unsigned int site) const;
 		double getLogLikelihoodForASite(unsigned int site) const;

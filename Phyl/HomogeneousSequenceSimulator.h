@@ -40,8 +40,7 @@ knowledge of the CeCILL license and that you accept its terms.
 #ifndef _HOMOGENEOUSSEQUENCESIMULATOR_H_
 #define _HOMOGENEOUSSEQUENCESIMULATOR_H_
 
-#include "DetailedSequenceSimulator.h"
-#include "SiteSimulator.h"
+#include "DetailedSiteSimulator.h"
 #include "TreeTemplate.h"
 #include "SubstitutionModel.h"
 
@@ -65,17 +64,17 @@ using namespace std;
  * This sructure inherits from the SequenceSimulationResult class, and add support for
  * rate variation across sites.
  */
-class HomogeneousSequenceSimulationResult: public SequenceSimulationResult
+class HomogeneousSiteSimulationResult: public SiteSimulationResult
 {
 	protected:
 		double _rate;
 		
 	public:
-		HomogeneousSequenceSimulationResult(const TreeTemplate<Node> * tree, int ancestralState, double rate):
-			SequenceSimulationResult(tree, ancestralState),
+		HomogeneousSiteSimulationResult(const TreeTemplate<Node> * tree, const Alphabet * alphabet, int ancestralState, double rate):
+			SiteSimulationResult(tree, alphabet, ancestralState),
 			_rate(rate) {}
 
-		virtual ~HomogeneousSequenceSimulationResult() {}
+		virtual ~HomogeneousSiteSimulationResult() {}
 	
 	public:
     /**
@@ -91,9 +90,7 @@ class HomogeneousSequenceSimulationResult: public SequenceSimulationResult
  *
  * Rate across sites variation is supported, using a DiscreteDistribution object or by specifying explicitely the rate of the sites to simulate.
  */
-class HomogeneousSequenceSimulator:
-	public virtual DetailedSequenceSimulator,
-	public virtual SiteSimulator
+class HomogeneousSequenceSimulator:	public virtual DetailedSiteSimulator
 {
 	protected:
 		const MutationProcess * _process;
@@ -115,12 +112,26 @@ class HomogeneousSequenceSimulator:
 		unsigned int _nbStates;
 	
 		/**
-		 * @brief Stores intermediate results.
+		 * @name Stores intermediate results.
+     *
+     * @{
 		 */
-		mutable map<const Node *, int> _states;
-		mutable map<const Node *, const Vint *> _multipleStates;
-		mutable HomogeneousSequenceSimulationResult * _hssr;
+
+    /**
+     * @brief All transition probabilities.
+     */
 		mutable map<const Node *, VVVdouble> _cumpxy;
+
+    /**
+     * @brief Ancestral states storage, used for the implementation of the SiteSimulator interface.
+     */
+		mutable map<const Node *, int> _states;
+    
+    /**
+     * @brief Ancestral states storage, used for the implementation of the SequenceSimulator interface.
+     */
+		mutable map<const Node *, vector<int> > _multipleStates;
+    /** @} */
 	
 	public:
 		
@@ -148,6 +159,40 @@ class HomogeneousSequenceSimulator:
 		/** @} */
     
 		/**
+		 * @name The PreciseSiteSimulator interface.
+		 *
+		 * @{
+		 */
+    #if defined(VIRTUAL_COV)
+    HomogeneousSiteSimulationResult *
+    #else
+    SiteSimulationResult *
+    #endif
+    dSimulate() const;
+    
+    #if defined(VIRTUAL_COV)
+    HomogeneousSiteSimulationResult *
+    #else
+    SiteSimulationResult *
+    #endif
+		dSimulate(int ancestralState) const;
+    
+    #if defined(VIRTUAL_COV)
+    HomogeneousSiteSimulationResult *
+    #else
+    SiteSimulationResult *
+    #endif
+		dSimulate(int ancestralState, double rate) const;
+
+    #if defined(VIRTUAL_COV)
+    HomogeneousSiteSimulationResult *
+    #else
+    SiteSimulationResult *
+    #endif
+		dSimulate(double rate) const;
+		/** @} */
+
+    /**
 		 * @name The SequenceSimulator interface
 		 *
 		 * @{
@@ -163,43 +208,48 @@ class HomogeneousSequenceSimulator:
 		const Alphabet * getAlphabet() const { return _alphabet; }
 		/** @} */
 
+    /**
+     * @name Functions with rate classes instead of absolute rates.
+     *
+     * @{
+     */
 		virtual Site * simulate(int ancestralState, unsigned int rateClass) const;
-
-		/**
-		 * @name the PreciseSequenceSimulator interface.
-		 *
-		 * @{
-		 */
-		SequenceSimulationResult * dSimulate() const;
-		/** @} */
+    virtual
+    #if defined(VIRTUAL_COV)
+		HomogeneousSiteSimulationResult *
+    #else 
+    SiteSimulationResult *
+    #endif 
+    dSimulate(int ancestralState, unsigned int rateClass) const;
+    /** @} */
 	
 		/**
 		 * @brief Get the mutation process associated to this instance.
 		 *
 		 * @return The MutationProcess object associated to this instance.
 		 */
-		const MutationProcess * getMutationProcess() const;
+		const MutationProcess * getMutationProcess() const { return _process; }
 		
 		/**
 		 * @brief Get the substitution model associated to this instance.
 		 *
 		 * @return The SubstitutionModel object associated to this instance.
 		 */
-		const SubstitutionModel * getSubstitutionModel() const;
+		const SubstitutionModel * getSubstitutionModel() const { return _process -> getSubstitutionModel(); }
 		
 		/**
 		 * @brief Get the rate distribution associated to this instance.
 		 *
 		 * @return The DiscreteDistribution object associated to this instance.
 		 */
-		const DiscreteDistribution * getRateDistribution() const;
+		const DiscreteDistribution * getRateDistribution() const { return _rate; }
 
 		/**
 		 * @brief Get the tree associated to this instance.
 		 *
 		 * @return The Tree object associated to this instance.
 		 */
-		const TreeTemplate<Node> * getTree() const;
+		const TreeTemplate<Node> * getTree() const { return _tree; }
 	
 	protected:
 		
@@ -207,25 +257,52 @@ class HomogeneousSequenceSimulator:
 		 * @brief Evolve from an initial state along a branch, knowing the evolutionary rate class.
 		 *
 		 * This method is fast since all pijt have been computed in the constructor of the class.
+     * This method is used for the implementation of the SiteSimulator interface.
 		 */
-		int evolve(int initialState, const Node * node, unsigned int rateClass) const;
+		int evolve(const Node * node, int initialState, unsigned int rateClass) const;
 		
 		/**
 		 * @brief Evolve from an initial state along a branch, knowing the evolutionary rate.
 		 *
-		 * This method is slower than the privious one since exponential terms must be computed.
+		 * This method is slower than the previous one since exponential terms must be computed.
+     * This method is used for the implementation of the SiteSimulator interface.
 		 */
-		int evolve(int initialState, const Node * node, double rate) const;
+		int evolve(const Node * node, int initialState, double rate) const;
 		
-		void evolveInternal(const Node * node, unsigned int rateClass) const;
-		void evolveInternal(const Node * node, double rate) const;
-		
-		void multipleEvolve(const Vint & initialState, const Node * node, const vector<unsigned int> & rateClasses, Vint & finalStates) const;
-		void multipleEvolveInternal(const Node * node, const vector<unsigned int> & rateClasses) const;
+    /**
+     * @brief The same as the evolve(initialState, rateClass) function, but for several sites at a time.
+     *
+     * This method is used for the implementation of the SequenceSimulator interface.
+     */
+		void multipleEvolve(const Node * node, const Vint & initialState, const vector<unsigned int> & rateClasses, Vint & finalStates) const;
 		SiteContainer * multipleEvolve(const Vint & initialStates, const vector<unsigned int> & rateClasses) const;
 		
-		void dEvolve(int initialState, unsigned int rateClass) const;
-		void dEvolveInternal(const Node * node, unsigned int rateClass) const;
+    void dEvolve(int initialState, double rate, HomogeneousSiteSimulationResult & hssr) const;
+		
+    /**
+     * @name The 'Internal' methods.
+     *
+     * @{
+     */
+
+    /**
+     * This method uses the _states variable for saving ancestral states.
+     */
+    void evolveInternal(const Node * node, unsigned int rateClass) const;
+    /**
+     * This method uses the _states variable for saving ancestral states.
+     */
+		void evolveInternal(const Node * node, double rate) const;
+    /**
+     * This method uses the _multipleStates variable for saving ancestral states.
+     */
+ 		void multipleEvolveInternal(const Node * node, const vector<unsigned int> & rateClasses) const;
+
+    /**
+     * This method uses the _states variable for saving ancestral states.
+     */
+		void dEvolveInternal(const Node * node, double rate, HomogeneousSiteSimulationResult & hssr) const;
+    /** @} */
 
 };
 

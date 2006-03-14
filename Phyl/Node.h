@@ -331,7 +331,7 @@ class Node {
 				
 		virtual void swap(unsigned int branch1, unsigned int branch2);
 
-		virtual unsigned int getSonPosition(const Node & son) const;
+		virtual unsigned int getSonPosition(const Node & son) const throw (NodeNotFoundException);
 
 		/** @} */
 

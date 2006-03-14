@@ -130,6 +130,10 @@ class TwoTreeLikelihood: public virtual AbstractDiscreteRatesAcrossSitesTreeLike
 		double getLogLikelihoodForASite(unsigned int site) const;
 		ParameterList getBranchLengthsParameters() const;
 		ParameterList getSubstitutionModelParameters() const;
+    /**
+     * @brief This method is not applicable for this object.
+     */
+    void setData(const SiteContainer & site) throw (Exception) {}
 		/** @} */
 
 		/**

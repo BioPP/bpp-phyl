@@ -51,6 +51,7 @@ knowledge of the CeCILL license and that you accept its terms.
 
 // From SeqLib:
 #include <Seq/Alphabet.h>
+#include <Seq/SiteContainer.h>
 
 /**
  * @brief The TreeLikelihood interface.
@@ -61,11 +62,26 @@ knowledge of the CeCILL license and that you accept its terms.
 class TreeLikelihood: public virtual DerivableSecondOrder
 {
 	public:
-		virtual ~TreeLikelihood();
+    TreeLikelihood() {}
+		virtual ~TreeLikelihood() {}
 	
 	public:
+
+    /**
+     * @brief Set the dataset for which the likelihood must be evaluated.
+     *
+     * @param sites The data set to use.
+     */
+    virtual void setData(const SiteContainer & sites) = 0;
 		
-		/**
+    /**
+     * @brief Get the dataset for which the likelihood must be evaluated.
+     *
+     * @return A pointer toward the site container where the sequences are stored.
+     */
+		virtual const SiteContainer * getData() const = 0;
+
+    /**
 		 * @brief Get the likelihood for a site.
 		 *
 		 * @param site The site index to analyse.

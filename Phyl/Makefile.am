@@ -37,7 +37,7 @@ PhylipDistanceMatrixFormat.h\
 ProteinSubstitutionModel.h\
 SequenceSimulator.h\
 SiteSimulator.h\
-DetailedSequenceSimulator.h\
+DetailedSiteSimulator.h\
 HomogeneousSequenceSimulator.h\
 SubstitutionModel.h\
 T92.h\
@@ -96,7 +96,6 @@ SubstitutionModel.cpp\
 T92.cpp\
 TN93.cpp\
 TreeExceptions.cpp\
-TreeLikelihood.cpp\
 TreeTools.cpp\
 RASTools.cpp\
 AbstractTreeParsimonyScore.cpp\

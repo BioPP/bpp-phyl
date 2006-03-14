@@ -90,8 +90,9 @@ class TreeLikelihoodData
 		virtual TreeTemplate<Node> * getTree() = 0;
 		virtual unsigned int getArrayPosition(const Node* parent, const Node* son, unsigned int currentPosition) const = 0;
 		virtual unsigned int getRootArrayPosition(const unsigned int site) const = 0;
-		virtual TreeLikelihoodNodeData & getNodeData(const Node * node) = 0;
+		virtual       TreeLikelihoodNodeData & getNodeData(const Node * node) = 0;
 		virtual const TreeLikelihoodNodeData & getNodeData(const Node * node) const = 0;
+    
 };
 
 
@@ -161,7 +162,7 @@ class AbstractTreeLikelihoodData :
 
 		const Alphabet * getAlphabet() const { return _alphabet; }
 		const TreeTemplate<Node> * getTree() const { return _tree; }  
-		TreeTemplate<Node> * getTree() { return _tree; }
+		      TreeTemplate<Node> * getTree()       { return _tree; }
 };
 
 /**
@@ -180,7 +181,7 @@ class AbstractTreeLikelihood :
 	public virtual AbstractParametrizable
 {
 	protected:
-		const Alphabet * _alphabet;
+		//const Alphabet * _alphabet;
 		const SiteContainer * _data;
 		mutable TreeTemplate<Node> *  _tree;
 		bool _computeDerivatives;
