@@ -38,6 +38,9 @@ The fact that you are presently reading this means that you have had
 knowledge of the CeCILL license and that you accept its terms.
 */
 
+#ifndef _AGGLOMERATIVEDISTANCEMETHOD_H_
+#define _AGGLOMERATIVEDISTANCEMETHOD_H_
+
 class DistanceMatrix;
 class Node;
 class Tree;
@@ -70,4 +73,6 @@ class AgglomerativeDistanceMethod
 		virtual Tree * getTree() const = 0;
 	
 };
+
+#endif //_AGGLOMERATIVEDISTANCEMETHOD_H_
 
