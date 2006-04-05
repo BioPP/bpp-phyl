@@ -60,7 +60,14 @@ TopologySearch.h\
 NNITopologySearch.h\
 GTR.h\
 trees\
-SitePatterns.h
+SitePatterns.h\
+SubstitutionMapping.h\
+ProbabilisticSubstitutionMapping.h\
+SubstitutionCount.h\
+AnalyticalSubstitutionCount.h\
+SimpleSubstitutionCount.h\
+IndexToCount.h\
+SubstitutionMappingTools.h
 
 
 CPP_FILES = \
@@ -104,7 +111,10 @@ SequenceSimulationTools.cpp\
 UserProteinSubstitutionModel.cpp\
 NNITopologySearch.cpp\
 GTR.cpp\
-SitePatterns.cpp
+SitePatterns.cpp\
+ProbabilisticSubstitutionMapping.cpp\
+AnalyticalSubstitutionCount.cpp\
+SubstitutionMappingTools.cpp
 
 CPP_EXTRA = \
 __DSO78FrequenciesCode\
@@ -119,3 +129,4 @@ libbpp_phyl_la_LDFLAGS = -version-info 1:0:0
 
 library_includedir=$(includedir)/Phyl
 library_include_HEADERS = $(H_FILES)
+

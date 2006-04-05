@@ -1,7 +1,7 @@
 //
-// File: SubstitutionModel.cpp
-// Created by:  Julien Dutheil
-// Created on: Mon May 26 14:52:34 2003
+// File: SubstitutionCount.h
+// Created by: Julien Dutheil
+// Created on: Wed Apr 5 11:08 2006
 //
 
 /*
@@ -37,18 +37,44 @@ The fact that you are presently reading this means that you have had
 knowledge of the CeCILL license and that you accept its terms.
 */
 
-#include "SubstitutionModel.h"
+#ifndef _SUBSTITUTIONCOUNT_H_
+#define _SUBSTITUTIONCOUNT_H_
 
-/******************************************************************************
- *                        SubstitutionModel exceptions:                       *
- ******************************************************************************/
+// From NumCalc:
+#include <NumCalc/Matrix.h>
 
-SubstitutionModelException::SubstitutionModelException(const char *   text, const SubstitutionModel * sm) :
-	Exception("SubstitutionModelException: " + string(text) + (sm != NULL ? "(" + sm -> getName() + ")" : "")),
-	sm(sm) {};
-SubstitutionModelException::SubstitutionModelException(const string & text, const SubstitutionModel * sm) :
-	Exception("SubstitutionModelException: " + text + (sm != NULL ? "(" + sm -> getName() + ")" : "")),
-	sm(sm) {};
-SubstitutionModelException::~SubstitutionModelException() throw() {};
-const SubstitutionModel * SubstitutionModelException::getSubstitutionModel() const { return sm; }
+/**
+ * @brief The SubstitutionsCount interface.
+ *
+ * Provide the @f$ n_{x,y}(t) = @f$ stands for the number of
+ * substitutions on a branch of length @f$t@f$, with initial state @f$x@f$ and final state @f$y@f$.
+ */
+class SubstitutionCount
+{
+	public:
+		SubstitutionCount() {}
+		virtual ~SubstitutionCount() {}
+	
+	public:
+		/**
+		 * @brief Get the number of susbstitutions on a branch, given the initial and final states, and the branch length.
+		 *
+		 * @param initialState The intial state.
+		 * @param finalState   The final state.
+		 * @param length       The length of the branch.
+		 * @return The number of substitutions on a branch of specified length and
+		 * according to initial and final states.
+		 */
+		virtual double getNumberOfSubstitutions(int initialState, int finalState, double length) const = 0;
+		
+		/**
+		 * @brief Get the numbers of susbstitutions on a branch, for each initial and final states, and given the branch length.
+		 *
+		 * @param length       The length of the branch.
+		 * @return A matrix with all numbers of substitutions for each initial and final states.
+		 */
+    virtual Matrix<double> * getAllNumbersOfSubstitutions(double length) const = 0;
+};
+
+#endif //_SUBSTITUTIONCOUNT_H_
 

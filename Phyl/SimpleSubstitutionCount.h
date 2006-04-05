@@ -1,7 +1,7 @@
 //
-// File: SubstitutionModel.cpp
-// Created by:  Julien Dutheil
-// Created on: Mon May 26 14:52:34 2003
+// File: SimpleSubstitutionCount.h
+// Created by: Julien Dutheil
+// Created on: Wed Apr 5 11:08 2006
 //
 
 /*
@@ -37,18 +37,40 @@ The fact that you are presently reading this means that you have had
 knowledge of the CeCILL license and that you accept its terms.
 */
 
-#include "SubstitutionModel.h"
+#ifndef _SUBSTITUTIONCOUNT_H_
+#define _SUBSTITUTIONCOUNT_H_
 
-/******************************************************************************
- *                        SubstitutionModel exceptions:                       *
- ******************************************************************************/
+#include "SubstitutionCount.h"
 
-SubstitutionModelException::SubstitutionModelException(const char *   text, const SubstitutionModel * sm) :
-	Exception("SubstitutionModelException: " + string(text) + (sm != NULL ? "(" + sm -> getName() + ")" : "")),
-	sm(sm) {};
-SubstitutionModelException::SubstitutionModelException(const string & text, const SubstitutionModel * sm) :
-	Exception("SubstitutionModelException: " + text + (sm != NULL ? "(" + sm -> getName() + ")" : "")),
-	sm(sm) {};
-SubstitutionModelException::~SubstitutionModelException() throw() {};
-const SubstitutionModel * SubstitutionModelException::getSubstitutionModel() const { return sm; }
+// From NumCalc:
+#include <NumCalc/Matrix.h>
+
+class SimpleSubstitutionCount: public SubstitutionCount
+{
+  protected:
+    const Alphabet * _alphabet;
+    
+	public:
+		SimpleSubstitutionCount(const Alphabet * alphabet): _alphabet(alphabet) {}				
+		virtual ~SimpleSubstitutionCount() {}
+			
+	public:
+		double nijt(int initialState, int finalState, double length) const {
+			return initialState == finalState ? 0. : 1.;
+		}
+    virtual Matrix<double> * nijt(double length) const
+    { 
+      unsigned int n = _alphabet->getSize();
+      RowMatrix<double> * mat = new RowMatrix<double>(n, n);
+      for(unsigned int i = 0; i < n; i++) {
+        (*mat)(i,i) = 0.;
+        for(unsigned int j = 0; j < i; j++) {
+          (*mat)(i,j) = (*mat)(j,i) = 1.;
+        }
+      }
+      return mat;
+    }
+};
+
+#endif // _SIMPLESUBSTITUTIONCOUNT_H_
 

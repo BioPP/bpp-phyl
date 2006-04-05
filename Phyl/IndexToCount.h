@@ -1,7 +1,7 @@
 //
-// File: SubstitutionModel.cpp
-// Created by:  Julien Dutheil
-// Created on: Mon May 26 14:52:34 2003
+// File: IndexToCount.h
+// Created by: Julien Dutheil
+// Created on: Wed Apr 5 15:12 2006
 //
 
 /*
@@ -37,18 +37,46 @@ The fact that you are presently reading this means that you have had
 knowledge of the CeCILL license and that you accept its terms.
 */
 
-#include "SubstitutionModel.h"
+#ifndef _INDEXTOCOUNT_H_
+#define _INDEXTOCOUNT_H_
 
-/******************************************************************************
- *                        SubstitutionModel exceptions:                       *
- ******************************************************************************/
+#include "SubstitutionCount.h"
 
-SubstitutionModelException::SubstitutionModelException(const char *   text, const SubstitutionModel * sm) :
-	Exception("SubstitutionModelException: " + string(text) + (sm != NULL ? "(" + sm -> getName() + ")" : "")),
-	sm(sm) {};
-SubstitutionModelException::SubstitutionModelException(const string & text, const SubstitutionModel * sm) :
-	Exception("SubstitutionModelException: " + text + (sm != NULL ? "(" + sm -> getName() + ")" : "")),
-	sm(sm) {};
-SubstitutionModelException::~SubstitutionModelException() throw() {};
-const SubstitutionModel * SubstitutionModelException::getSubstitutionModel() const { return sm; }
+// From SeqLib:
+#include <Seq/Alphabet.h>
+#include <Seq/AlphabetIndex2.h>
+
+class IndexToCount: public SubstitutionCount
+{
+	private:
+		const AlphabetIndex2<double> * _dist;
+		bool _deleteDist;
+	
+	public:
+		Index2Count(const AlphabetIndex2<double> * ai2, bool deleteDistance)
+    {
+			_dist = ai2;
+			_deleteDist = deleteDistance;
+		}				
+		
+		virtual ~IndexToCount()
+    {
+			if(_deleteDist) delete _dist;
+		}
+			
+	public:
+		double getNumberOfsubstitutions(int initialState, int finalState, double length) const
+    {
+			return _dist -> getIndex(initialState, finalState);
+		}
+		Matrix<double> * getAllNumbersOfSubstitutions(double length) const
+    {
+      return _dist -> getIndexMatrix();
+    }
+
+	public:
+		const AlphabetIndex2<double> * getAlphabetIndex2() const { return _dist; }
+};
+
+#endif //_INDEXTOCOUNT_H_
 

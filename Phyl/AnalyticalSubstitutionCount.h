@@ -1,7 +1,7 @@
 //
-// File: SubstitutionModel.cpp
-// Created by:  Julien Dutheil
-// Created on: Mon May 26 14:52:34 2003
+// File: AnalyticalSubstitutionCount.h
+// Created by: Julien Dutheil
+// Created on: Wed Apr 5 11:21 2006
 //
 
 /*
@@ -37,18 +37,29 @@ The fact that you are presently reading this means that you have had
 knowledge of the CeCILL license and that you accept its terms.
 */
 
+#ifndef _ANALYTICALSUBSTITUTIONCOUNT_H_
+#define _ANALYTICALSUBSTITUTIONCOUNT_H_
+
+#include "SubstitutionCount.h"
 #include "SubstitutionModel.h"
 
-/******************************************************************************
- *                        SubstitutionModel exceptions:                       *
- ******************************************************************************/
+class AnalyticalSubstitutionCount: public SubstitutionCount
+{
+	protected:
+		const SubstitutionModel * _model;
+		int _cuttOff;
+		mutable double _currentLength;
+		mutable RowMatrix<double> M;
+	
+	public:
+		AnalyticalSubstitutionCount(const SubstitutionModel * model, int cutOff);
+				
+		~AnalyticalSubstitutionCount() {}
+			
+	public:
+		double getNumberOfSubstitutions(int initialState, int finalState, double length) const;
+    virtual Matrix<double> * getAllNumbersOfSubstitutions(double length) const;
+};
 
-SubstitutionModelException::SubstitutionModelException(const char *   text, const SubstitutionModel * sm) :
-	Exception("SubstitutionModelException: " + string(text) + (sm != NULL ? "(" + sm -> getName() + ")" : "")),
-	sm(sm) {};
-SubstitutionModelException::SubstitutionModelException(const string & text, const SubstitutionModel * sm) :
-	Exception("SubstitutionModelException: " + text + (sm != NULL ? "(" + sm -> getName() + ")" : "")),
-	sm(sm) {};
-SubstitutionModelException::~SubstitutionModelException() throw() {};
-const SubstitutionModel * SubstitutionModelException::getSubstitutionModel() const { return sm; }
+#endif //_ANALYTICALSUBSTITUTIONCOUNT_H_
 

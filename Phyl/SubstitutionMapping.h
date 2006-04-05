@@ -1,7 +1,7 @@
 //
-// File: SubstitutionModel.cpp
-// Created by:  Julien Dutheil
-// Created on: Mon May 26 14:52:34 2003
+// File: SubstitutionMapping.h
+// Created by: Julien Dutheil
+// Created on: Wed Apr 5 09:51 2005
 //
 
 /*
@@ -37,18 +37,61 @@ The fact that you are presently reading this means that you have had
 knowledge of the CeCILL license and that you accept its terms.
 */
 
-#include "SubstitutionModel.h"
+#ifndef _SUBSTITUTIONMAPPING_H_
+#define _SUBSTITUTIONMAPPING_H_
 
-/******************************************************************************
- *                        SubstitutionModel exceptions:                       *
- ******************************************************************************/
+#include "Tree.h"
+#include "TreeTemplate.h"
 
-SubstitutionModelException::SubstitutionModelException(const char *   text, const SubstitutionModel * sm) :
-	Exception("SubstitutionModelException: " + string(text) + (sm != NULL ? "(" + sm -> getName() + ")" : "")),
-	sm(sm) {};
-SubstitutionModelException::SubstitutionModelException(const string & text, const SubstitutionModel * sm) :
-	Exception("SubstitutionModelException: " + text + (sm != NULL ? "(" + sm -> getName() + ")" : "")),
-	sm(sm) {};
-SubstitutionModelException::~SubstitutionModelException() throw() {};
-const SubstitutionModel * SubstitutionModelException::getSubstitutionModel() const { return sm; }
+/**
+ * @brief General interface for storing mapping data.
+ *
+ * There are several kinds of mapping:
+ * - Exact mapping, storing the positions of each substitution onto each branch,
+ * - Probabilistic mapping, storing the number of substitutions onto each branch.
+ *
+ * Since only probabilistic substitution mapping is implemented for now, the basal 
+ * interfac only contains one method.
+ * More methods are expected to be added later.
+ */
+class SubstitutionMapping
+{
+
+  public:
+    SubstitutionMapping() {}
+    virtual ~SubstitutionMapping() {}
+
+  public:
+    
+    /**
+     * @return Get the phylogenetic tree associated to this mapping.
+     */
+    virtual const Tree * getTree() const = 0;
+    virtual unsigned int getNumberOfSites() const = 0;
+    virtual unsigned int getNumberOfBranches() const = 0;
+    
+};
+
+class AbstractSubstitutionMapping : public SubstitutionMapping
+{
+  protected:
+    const TreeTemplate<Node> * _tree;
+
+  public:
+    AbstractSubstitutionMapping() {}
+    virtual ~AbstractSubstitutionMapping() {}
+
+  public:
+
+		virtual const
+#if defined(VIRTUAL_COV)
+		TreeTemplate<Node> *
+#else
+		Tree *
+#endif
+    getTree() const { return _tree; }
+ 
+};
+
+#endif //_SUBSTITUTIONMAPPING_H_
 

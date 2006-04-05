@@ -1,7 +1,7 @@
 //
-// File: SubstitutionModel.cpp
-// Created by:  Julien Dutheil
-// Created on: Mon May 26 14:52:34 2003
+// File: ProbabilisticSubstitutionMapping.cpp
+// Created by: Julien Dutheil
+// Created on: Wed Apr 5 10:47 2006
 //
 
 /*
@@ -37,18 +37,39 @@ The fact that you are presently reading this means that you have had
 knowledge of the CeCILL license and that you accept its terms.
 */
 
-#include "SubstitutionModel.h"
+#include "ProbabilisticSubstitutionMapping.h"
 
-/******************************************************************************
- *                        SubstitutionModel exceptions:                       *
- ******************************************************************************/
+ProbabilisticSubstitutionMapping::ProbabilisticSubstitutionMapping(const Tree & tree, unsigned int numberOfSites)
+{
+  _nbSites = numberOfSites;
+  setTree(tree);
+}
 
-SubstitutionModelException::SubstitutionModelException(const char *   text, const SubstitutionModel * sm) :
-	Exception("SubstitutionModelException: " + string(text) + (sm != NULL ? "(" + sm -> getName() + ")" : "")),
-	sm(sm) {};
-SubstitutionModelException::SubstitutionModelException(const string & text, const SubstitutionModel * sm) :
-	Exception("SubstitutionModelException: " + text + (sm != NULL ? "(" + sm -> getName() + ")" : "")),
-	sm(sm) {};
-SubstitutionModelException::~SubstitutionModelException() throw() {};
-const SubstitutionModel * SubstitutionModelException::getSubstitutionModel() const { return sm; }
+ProbabilisticSubstitutionMapping::ProbabilisticSubstitutionMapping(const Tree & tree)
+{
+  setTree(tree);
+}
 
+void ProbabilisticSubstitutionMapping::setTree(const Tree & tree)
+{
+  if(_tree != NULL) delete _tree;
+  _tree = new TreeTemplate<Node>(tree);
+  _nodes = _tree->getNodes();
+  _nodes.pop_back(); // remove root node.
+  _nbBranches = _nodes.size();
+  for(unsigned int i = 0; i < _nbSites; i++)
+  {
+    _mapping[i].resize(_nbBranches);
+  }
+}
+
+void ProbabilisticSubstitutionMapping::setNumberOfSites(unsigned int numberOfSites)
+{
+  _nbSites = numberOfSites;
+  _mapping.resize(_nbSites);  
+  for(unsigned int i = 0; i < _nbSites; i++)
+  {
+    _mapping[i].resize(_nbBranches);
+  }
+}
+ 
