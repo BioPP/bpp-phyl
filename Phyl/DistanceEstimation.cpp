@@ -573,21 +573,21 @@ void DistanceEstimation::computeMatrix() throw (NullPointerException)
 			if(_verbose > 1) { cout << "."; cout.flush(); }
 			TwoTreeLikelihood * lik = 
 				new TwoTreeLikelihood(names[i], names[j], *_sites, _model, _rateDist, _verbose > 3);
-			lik -> setComputeDerivatives(true);
+			lik->setComputeDerivatives(true);
 			const Sequence * seqi = _sites -> getSequence(names[i]);
 			const Sequence * seqj = _sites -> getSequence(names[j]);
 			unsigned int d = SymbolListTools::getNumberOfDistinctPositions(* seqi, * seqj);
 			unsigned int g = SymbolListTools::getNumberOfPositionsWithoutGap(* seqi, * seqj);
 			lik -> setParameterValue("BrLen", g == 0 ? 0 : (double)d/(double)g);
 			// Optimization:
-			_optimizer -> setConstraintPolicy(AbstractOptimizer::CONSTRAINTS_AUTO);
-			_optimizer -> setFunction(lik);
-			ParameterList params = lik -> getBranchLengthsParameters();
+			_optimizer->setConstraintPolicy(AbstractOptimizer::CONSTRAINTS_AUTO);
+			_optimizer->setFunction(lik);
+			ParameterList params = lik->getBranchLengthsParameters();
 			params.addParameters(_parameters);
-			_optimizer -> init(params);
-			_optimizer -> optimize();
+			_optimizer->init(params);
+			_optimizer->optimize();
 			// Store results:
-			(* _dist)(i, j) = (* _dist)(j, i) = lik -> getParameterValue("BrLen");
+			(* _dist)(i, j) = (* _dist)(j, i) = lik->getParameterValue("BrLen");
 			delete lik;
 		}
 	}

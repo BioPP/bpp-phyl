@@ -68,7 +68,8 @@ AnalyticalSubstitutionCount.h\
 SimpleSubstitutionCount.h\
 IndexToCount.h\
 SubstitutionMappingTools.h\
-BioNJ.h
+BioNJ.h\
+SubstitutionModelFactory.h
 
 
 CPP_FILES = \
@@ -116,7 +117,8 @@ SitePatterns.cpp\
 ProbabilisticSubstitutionMapping.cpp\
 AnalyticalSubstitutionCount.cpp\
 SubstitutionMappingTools.cpp\
-BioNJ.cpp
+BioNJ.cpp\
+SubstitutionModelFactory.cpp
 
 CPP_EXTRA = \
 __DSO78FrequenciesCode\
