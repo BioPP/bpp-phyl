@@ -12,4 +12,5 @@
 #include "JTT92.h"
 #include "JCprot.h"
 #include "UserProteinSubstitutionModel.h"
+#include "SubstitutionModelFactory.h"
 
