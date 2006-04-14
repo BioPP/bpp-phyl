@@ -66,10 +66,31 @@ protected:
   const Alphabet * _alphabet;
   
 public:
+  /**
+   * @brief Creates a new factory object with the given alphabet.
+   *
+   * @param alphabet The alphabet for wich models must be instanciated.
+   *
+   * Example:
+   * @code
+   * const Alphabet * alphabet = new DNA();
+   * SubstitutionModel * model = SubstitutionModelFactory(alphabet)
+   *     .createInstanceOf(SubstitutionModelFactory::TAMURA);
+   * // model can be used in any object dealing with a nucleotide substitution models.
+   * @endcode
+   */
   SubstitutionModelFactory(const Alphabet * alphabet): _alphabet(alphabet) {}
   virtual ~SubstitutionModelFactory() {}
 
 public:
+  /**
+   * @brief Get a new dynamically created SubstitutionModel object.
+   *
+   * @param modelName The name of the model to use.
+   * @return A pointer toward a new substitution model, with default parameter values.
+   * @throw AlphabetException If the model is not compatible with the given alphabet.
+   * @throw Exception If the model name do nt match any possible model.
+   */
   SubstitutionModel * createInstanceOf(const string& modelName) throw (AlphabetException, Exception);
 
 };
