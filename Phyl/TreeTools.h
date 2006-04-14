@@ -493,6 +493,7 @@ class TreeTools
 		{
 			//First we copy this node using default copy constuctor:
 			N * clone = tree.hasNodeName(nodeId) ? new N(nodeId, tree.getNodeName(nodeId)) : new N(nodeId);
+      if(tree.hasDistanceToFather(nodeId)) clone->setDistanceToFather(tree.getDistanceToFather(nodeId));
 			//Now we copy all sons:
       vector<int> sonsId = tree.getSonsId(nodeId);
 			for(unsigned int i = 0; i < sonsId.size(); i++) {

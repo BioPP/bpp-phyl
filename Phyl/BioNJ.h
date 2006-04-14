@@ -1,7 +1,7 @@
 //
-// File: SimpleSubstitutionCount.h
-// Created by: Julien Dutheil
-// Created on: Wed Apr 5 11:08 2006
+// File: BioNJ.cpp
+// Created by: Vincent Ranwez
+// Created on: Tue Apr 11 14:23 2006
 //
 
 /*
@@ -37,40 +37,54 @@ The fact that you are presently reading this means that you have had
 knowledge of the CeCILL license and that you accept its terms.
 */
 
-#ifndef _SIMPLESUBSTITUTIONCOUNT_H_
-#define _SIMPLESUBSTITUTIONCOUNT_H_
+#ifndef _BIONJ_H_
+#define _BIONJ_H_
 
-#include "SubstitutionCount.h"
+#include "NeighborJoining.h"
+#include "DistanceMatrix.h"
 
-// From NumCalc:
-#include <NumCalc/Matrix.h>
-
-class SimpleSubstitutionCount: public SubstitutionCount
+class BioNJ : public  virtual NeighborJoining
 {
-  protected:
-    const Alphabet * _alphabet;
-    
-	public:
-		SimpleSubstitutionCount(const Alphabet * alphabet): _alphabet(alphabet) {}				
-		virtual ~SimpleSubstitutionCount() {}
-			
-	public:
-		double getNumberOfSubstitutions(int initialState, int finalState, double length) const {
-			return initialState == finalState ? 0. : 1.;
-		}
-    virtual Matrix<double> * getAllNumbersOfSubstitutions(double length) const
-    { 
-      unsigned int n = _alphabet->getSize();
-      RowMatrix<double> * mat = new RowMatrix<double>(n, n);
-      for(unsigned int i = 0; i < n; i++) {
-        (*mat)(i,i) = 0.;
-        for(unsigned int j = 0; j < i; j++) {
-          (*mat)(i,j) = (*mat)(j,i) = 1.;
-        }
-      }
-      return mat;
-    }
+protected:
+	DistanceMatrix _variance;
+	double _lambda;
+  
+public:
+  
+  BioNJ(): NeighborJoining(), _variance(0) {}
+  
+	BioNJ(const DistanceMatrix & matrix, bool rooted = false, bool positiveLengths = false) throw (Exception):
+    AbstractAgglomerativeDistanceMethod(matrix), 
+    NeighborJoining(),
+    _variance(matrix)
+	{
+		_sumDist.resize(matrix.size());
+    _positiveLengths = positiveLengths;
+		computeTree(rooted);
+  }
+
+  BioNJ(const BioNJ & bionj): NeighborJoining(bionj), _variance(bionj._variance), _lambda(bionj._lambda) {}
+  BioNJ & operator=(const BioNJ & bionj)
+  {
+    NeighborJoining::operator=(bionj);
+    _variance = bionj._variance;
+    _lambda   = bionj._lambda;
+    return *this;
+  }
+  
+	virtual ~BioNJ() {};
+	
+public:
+  
+	virtual void setDistanceMatrix(const DistanceMatrix & matrix)
+  { 
+		NeighborJoining::setDistanceMatrix(matrix);
+		_variance = matrix;
+	}
+	virtual void computeTree(bool rooted) throw (Exception);
+	virtual double computeDistancesFromPair(const vector<unsigned int> & pair, const vector<double> & branchLengths, unsigned int pos);
+  
 };
 
-#endif // _SIMPLESUBSTITUTIONCOUNT_H_
+#endif //_BIONJ_H_
 

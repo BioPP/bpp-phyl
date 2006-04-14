@@ -63,6 +63,7 @@ class ProbabilisticSubstitutionMapping : public AbstractSubstitutionMapping
     unsigned int _nbBranches;
   
   public:
+    
     /**
      * @brief Build a new ProbabilisticSubstitutionMapping object.
      *
@@ -94,6 +95,14 @@ class ProbabilisticSubstitutionMapping : public AbstractSubstitutionMapping
     }
     
     virtual const Node * getNode(unsigned int nodeIndex) const { return _nodes[nodeIndex]; }
+
+    virtual vector<double> getBranchLengths() const
+    {
+      vector<double> brLen(_nbBranches);
+      for(unsigned int i = 0; i < _nbBranches; i++)
+        brLen[i] = _nodes[i]->getDistanceToFather();
+      return brLen;
+    }
 
     virtual unsigned int getNodeIndex(int nodeId) const throw (NodeNotFoundException)
     {
@@ -130,7 +139,26 @@ class ProbabilisticSubstitutionMapping : public AbstractSubstitutionMapping
     {
       return _mapping[siteIndex][nodeIndex];
     }
-        
+     
+    /**
+     * @brief Direct access to substitution numbers.
+     *
+     * @warning No index checking is performed, use with care!
+     */
+    vector<double> & operator[](unsigned int siteIndex)
+    {
+      return _mapping[siteIndex];
+    }
+
+    /**
+     * @brief Direct access to substitution numbers.
+     *
+     * @warning No index checking is performed, use with care!
+     */
+    const vector<double> & operator[](unsigned int siteIndex) const
+    {
+      return _mapping[siteIndex];
+    }
 };
 
 #endif //_PROBABILISTICSUBSTITUTIONMAPPING_H_

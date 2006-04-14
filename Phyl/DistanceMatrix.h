@@ -45,6 +45,7 @@ knowledge of the CeCILL license and that you accept its terms.
 
 // From Utils
 #include <Utils/Exceptions.h>
+#include <NumCalc/VectorExceptions.h> //DimensionException
 
 // From NumCalc
 #include <NumCalc/Matrix.h>
@@ -150,6 +151,17 @@ class DistanceMatrix: public virtual RowMatrix<double> {
 			_names[i] = name;
 		}
 
+    /**
+     * @brief Set the names associated to the matrix.
+     * 
+     * @param names Matrix names.
+     * @throw DimensionException If 'names' have not the same size as the matrix.
+     */
+		void setNames(const vector<string> & names) throw (DimensionException)
+		{
+			if(names.size() != _names.size()) throw DimensionException("DistanceMatrix::setNames. Invalid number of names.", names.size(), _names.size());
+			_names = names;
+		}
 };
 
 #endif //_DISTANCEMATRIX_H_

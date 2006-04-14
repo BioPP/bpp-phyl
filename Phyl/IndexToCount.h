@@ -53,7 +53,7 @@ class IndexToCount: public SubstitutionCount
 		bool _deleteDist;
 	
 	public:
-		Index2Count(const AlphabetIndex2<double> * ai2, bool deleteDistance)
+		IndexToCount(const AlphabetIndex2<double> * ai2, bool deleteDistance)
     {
 			_dist = ai2;
 			_deleteDist = deleteDistance;
@@ -65,7 +65,7 @@ class IndexToCount: public SubstitutionCount
 		}
 			
 	public:
-		double getNumberOfsubstitutions(int initialState, int finalState, double length) const
+		double getNumberOfSubstitutions(int initialState, int finalState, double length) const
     {
 			return _dist -> getIndex(initialState, finalState);
 		}

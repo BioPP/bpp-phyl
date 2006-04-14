@@ -73,9 +73,11 @@ void AbstractSubstitutionModel::updateMatrices()
 	RowMatrix<double> Pi = MatrixTools::diag<RowMatrix<double>, double>(_freq);
 	_generator = MatrixTools::mult(_exchangeability, Pi);
 	// Compute diagonal elements:
-	for(unsigned int i = 0; i < _size; i++) {
+	for(unsigned int i = 0; i < _size; i++)
+  {
 		double lambda = 0;
-		for(unsigned int j = 0; j < _size; j++) {
+		for(unsigned int j = 0; j < _size; j++)
+    {
 			if(j!=i) lambda += _generator(i,j);
 		}
 		_generator(i,i) = -lambda;
@@ -85,7 +87,8 @@ void AbstractSubstitutionModel::updateMatrices()
 	MatrixTools::scale(_generator, 1/scale);
 
 	MatrixTools::scale(_exchangeability, 1/scale);
-	for(unsigned int i = 0; i < _size; i++) {
+	for(unsigned int i = 0; i < _size; i++)
+  {
 		_exchangeability(i,i) = _generator(i,i) / _freq[i];
 	}
 	
@@ -101,7 +104,8 @@ void AbstractSubstitutionModel::updateMatrices()
 
 RowMatrix<double> AbstractSubstitutionModel::getPij_t(double t) const
 {
-	return MatrixTools::mult(_rightEigenVectors, exp(_eigenValues*t), _leftEigenVectors);
+	if(t==0) return MatrixTools::getId< RowMatrix<double> >(20);
+  return MatrixTools::mult(_rightEigenVectors, exp(_eigenValues*t), _leftEigenVectors);
 }
 
 RowMatrix<double> AbstractSubstitutionModel::getdPij_dt(double t) const
@@ -132,8 +136,8 @@ double AbstractSubstitutionModel::getInitValue(int i, int state) const throw (Ba
 	//return i == state ? 1 : 0;
 	if(state < 0 || !_alphabet -> isIntInAlphabet(state)) throw BadIntException(state, "AbstractSubstitutionModel::getInitValue. Character " + _alphabet -> intToChar(state) + " is not allowed in model.");
 	vector<int> states = _alphabet -> getAlias(state);
-	for(unsigned int j = 0; j < states.size(); j++) if(i == states[j]) return 1;
-	return 0;
+	for(unsigned int j = 0; j < states.size(); j++) if(i == states[j]) return 1.;
+	return 0.;
 }
 
 /******************************************************************************/

@@ -246,6 +246,15 @@ class TwoTreeLikelihood: public virtual AbstractDiscreteRatesAcrossSitesTreeLike
 
 /**
  * @brief Estimate a distance matrix from sequence data, according to a given model.
+ *
+ * By default, the parameters of the model are fixed to there given values.
+ * It is possible to estimate one or several parameters by setting them with the
+ * setAdditionalParameters() method.
+ * Parameters will be estimated separately for each pair of sequence.
+ *
+ * For now it is not possible to retrieve estimated values.
+ * You'll have to specify a 'profiler' to the optimizer and then look at the file
+ * if you want to do so.
  */
 class DistanceEstimation {
 
@@ -276,7 +285,15 @@ class DistanceEstimation {
 		 *  - 4=3 + likelihood object verbose enabled
 		 *  @param computeMat if true the computeMatrix() method is called.
 		 */
-		DistanceEstimation(SubstitutionModel * model, DiscreteDistribution * rateDist, const SiteContainer * sites, unsigned int verbose = 1, bool computeMat = true);
+		DistanceEstimation(SubstitutionModel * model, DiscreteDistribution * rateDist, const SiteContainer * sites, unsigned int verbose = 1, bool computeMat = true)
+    {
+    	//_defaultOptimizer = new SimpleMultiDimensions(NULL);
+	    _defaultOptimizer = new NewtonBrentMetaOptimizer(NULL);
+	    _defaultOptimizer -> setMessageHandler(NULL);
+	    _defaultOptimizer -> setProfiler(NULL);
+	    _optimizer = _defaultOptimizer;
+	    if(computeMat) computeMatrix();
+    }
 		
 	  /**
 		 * @brief Create a new "void" DistanceEstimation object.
@@ -292,11 +309,83 @@ class DistanceEstimation {
 		 *  - 3=2 + optimization verbose enabled
 		 *  - 4=3 + likelihood object verbose enabled
 		 */
-		DistanceEstimation(unsigned int verbose);
+		DistanceEstimation(unsigned int verbose)
+    {
+    	//_defaultOptimizer = new SimpleMultiDimensions(NULL);
+	    _defaultOptimizer = new NewtonBrentMetaOptimizer(NULL);
+	    _defaultOptimizer -> setMessageHandler(NULL);
+	    _defaultOptimizer -> setProfiler(NULL);
+	    _optimizer = _defaultOptimizer;
+    }
+
+	  /**
+		 * @brief Default constructor. Creates a new "void" DistanceEstimation object.
+		 *
+		 * All pointers are set to NULL and no computation is  performed.
+		 * You'll have to set the substitution model, rate distribution and data
+		 * and call the computeMatrix() method.
+		 */
+		DistanceEstimation()
+    {
+    	_defaultOptimizer = new NewtonBrentMetaOptimizer(NULL);
+	    _defaultOptimizer -> setMessageHandler(NULL);
+	    _defaultOptimizer -> setProfiler(NULL);
+	    _optimizer = _defaultOptimizer;
+    }
+
+    /**
+     * @brief Copy constructor.
+     *
+     * Only the distance matrix is hard-copied, if there is one.
+     *
+     * @param distanceEstimation The object to copy.
+     */
+    DistanceEstimation(const DistanceEstimation & distanceEstimation):
+      _model(distanceEstimation._model),
+      _rateDist(distanceEstimation._rateDist),
+      _sites(distanceEstimation._sites),
+      _dist(NULL),
+      _optimizer(distanceEstimation._optimizer),
+      _defaultOptimizer(NULL),
+      _verbose(distanceEstimation._verbose),
+      _parameters(distanceEstimation._parameters)
+    {
+    	_defaultOptimizer = new NewtonBrentMetaOptimizer(NULL);
+	    _defaultOptimizer -> setMessageHandler(NULL);
+	    _defaultOptimizer -> setProfiler(NULL);
+      if(distanceEstimation._dist != NULL)
+        _dist = new DistanceMatrix(*distanceEstimation._dist);
+      else
+        _dist = NULL;
+    }
+
+    /**
+     * @brief Assigment operator.
+     *
+     * Only the distance matrix is hard-copied, if there is one.
+     * 
+     * @param distanceEstimation The object to copy.
+     * @return A reference toward this object.
+     */
+    DistanceEstimation & operator=(const DistanceEstimation & distanceEstimation)
+    {
+      _model = distanceEstimation._model;
+      _rateDist = distanceEstimation._rateDist;
+      _sites = distanceEstimation._sites;
+      if(distanceEstimation._dist != NULL)
+        _dist = new DistanceMatrix(*distanceEstimation._dist);
+      else
+        _dist = NULL;
+      _optimizer = distanceEstimation._optimizer;
+      // _defaultOptimizer has already been initialized since the default constructor has been called.
+      _verbose = distanceEstimation._verbose;
+      _parameters = distanceEstimation._parameters;
+      return *this;
+    }
 
 		virtual ~DistanceEstimation()
 		{
-			delete _dist;
+			if(_dist != NULL) delete _dist;
 			delete _defaultOptimizer;
 		}
 			
@@ -318,7 +407,7 @@ class DistanceEstimation {
 		 *
 		 * @return A pointer toward the computed distance matrix.
 		 */
-		DistanceMatrix * getMatrix() const;
+		DistanceMatrix * getMatrix() const { return _dist == NULL ? NULL : new DistanceMatrix(* _dist); }
 
 		void setModel(SubstitutionModel * model) { _model = model; }
 		SubstitutionModel * getModel() const { return _model; }
@@ -347,6 +436,14 @@ class DistanceEstimation {
 		{
       _parameters = parameters;
 		}
+
+    /**
+     * @brief Reset all additional parameters.
+     */
+    void resetAdditionalParameters()
+    {
+      _parameters.reset();
+    }
 };
 
 #endif //_DISTANCEESTIMATION_H_

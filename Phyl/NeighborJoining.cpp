@@ -83,14 +83,22 @@ vector<double> NeighborJoining::computeBranchLengthsForPair(const vector<unsigne
 {
 	double ratio = (_sumDist[pair[0]] - _sumDist[pair[1]]) / (_currentNodes.size() - 2);
 	vector<double> d(2);
-	d[0] = std::max(.5 * (_matrix(pair[0], pair[1]) + ratio), 0.); 
-	d[1] = std::max(.5 * (_matrix(pair[0], pair[1]) - ratio), 0.); 
+	if(_positiveLengths) {
+    d[0] = std::max(.5 * (_matrix(pair[0], pair[1]) + ratio), 0.); 
+	  d[1] = std::max(.5 * (_matrix(pair[0], pair[1]) - ratio), 0.); 
+  } else {
+    d[0] = .5 * (_matrix(pair[0], pair[1]) + ratio); 
+	  d[1] = .5 * (_matrix(pair[0], pair[1]) - ratio); 
+  }
 	return d;
 }
 
 double NeighborJoining::computeDistancesFromPair(const vector<unsigned int> & pair, const vector<double> & branchLengths, unsigned int pos)
 {
-	return std::max(.5 * (_matrix(pair[0], pos) - branchLengths[0] + _matrix(pair[1], pos) - branchLengths[1]), 0.); 
+	return 
+    _positiveLengths ?
+      std::max(.5 * (_matrix(pair[0], pos) - branchLengths[0] + _matrix(pair[1], pos) - branchLengths[1]), 0.)
+    :          .5 * (_matrix(pair[0], pos) - branchLengths[0] + _matrix(pair[1], pos) - branchLengths[1]); 
 }
 
 void NeighborJoining::finalStep(int idRoot)
@@ -112,15 +120,21 @@ void NeighborJoining::finalStep(int idRoot)
 		it++;
 		unsigned int i3 = it -> first;
 		Node * n3       = it -> second;
-		double d1 = std::max(_matrix(i1, i2) + _matrix(i1, i3) - _matrix(i2, i3), 0.);
-		double d2 = std::max(_matrix(i2, i1) + _matrix(i2, i3) - _matrix(i1, i3), 0.);
-		double d3 = std::max(_matrix(i3, i1) + _matrix(i3, i2) - _matrix(i1, i2), 0.);
+		double d1 = _positiveLengths ?
+        std::max(_matrix(i1, i2) + _matrix(i1, i3) - _matrix(i2, i3), 0.)
+      :          _matrix(i1, i2) + _matrix(i1, i3) - _matrix(i2, i3);
+		double d2 = _positiveLengths ?
+        std::max(_matrix(i2, i1) + _matrix(i2, i3) - _matrix(i1, i3), 0.)
+      :          _matrix(i2, i1) + _matrix(i2, i3) - _matrix(i1, i3);
+		double d3 = _positiveLengths ?
+        std::max(_matrix(i3, i1) + _matrix(i3, i2) - _matrix(i1, i2), 0.)
+      :          _matrix(i3, i1) + _matrix(i3, i2) - _matrix(i1, i2);
 		root -> addSon(*n1);
 		root -> addSon(*n2);
 		root -> addSon(*n3);
-		n1 -> setDistanceToFather(d1);
-		n2 -> setDistanceToFather(d2);
-		n3 -> setDistanceToFather(d3);
+		n1 -> setDistanceToFather(d1/2.);
+		n2 -> setDistanceToFather(d2/2.);
+		n3 -> setDistanceToFather(d3/2.);
 	}
 	_tree = new TreeTemplate<Node>(*root);
 }

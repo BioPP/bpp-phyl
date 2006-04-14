@@ -335,20 +335,25 @@ void TwoTreeLikelihood::initTreeLikelihoods(const SequenceContainer & sequences)
 	const Sequence * seq2 = sequences.getSequence(_seqnames[1]);
 	_leafLikelihoods1.resize(_nbDistinctSites);
 	_leafLikelihoods2.resize(_nbDistinctSites);
-	for(unsigned int i = 0; i < _nbDistinctSites; i++) {
+	for(unsigned int i = 0; i < _nbDistinctSites; i++)
+  {
 		Vdouble * _leafLikelihoods1_i = & _leafLikelihoods1[i];
 		Vdouble * _leafLikelihoods2_i = & _leafLikelihoods2[i];
 		_leafLikelihoods1_i -> resize(_nbStates);
 		_leafLikelihoods2_i -> resize(_nbStates);
-		for(unsigned int s = 0; s < _nbStates; s++) {
+		int state1 = seq1->getValue(i);
+		int state2 = seq2->getValue(i);
+		for(unsigned int s = 0; s < _nbStates; s++)
+    {
 			//Leaves likelihood are set to 1 if the char correspond to the site in the sequence,
 			//otherwise value set to 0:
-			try {
-				int state1 = seq1 -> getValue(i);
-				int state2 = seq2 -> getValue(i);
-				(* _leafLikelihoods1_i)[s] = _model -> getInitValue(s, state1);
-				(* _leafLikelihoods2_i)[s] = _model -> getInitValue(s, state2);
-			} catch (SequenceNotFoundException & snfe) {
+			try
+      {
+				(* _leafLikelihoods1_i)[s] = _model->getInitValue(s, state1);
+				(* _leafLikelihoods2_i)[s] = _model->getInitValue(s, state2);
+			}
+      catch (SequenceNotFoundException & snfe)
+      {
 				throw SequenceNotFoundException("TwoTreeLikelihood::initTreelikelihoods. Leaf name in tree not found in site conainer: ", snfe.getSequenceId());
 			}
 		}
@@ -358,15 +363,18 @@ void TwoTreeLikelihood::initTreeLikelihoods(const SequenceContainer & sequences)
 	_rootLikelihoods.resize(_nbDistinctSites);
 	_rootLikelihoodsS.resize(_nbDistinctSites);
 	_rootLikelihoodsSR.resize(_nbDistinctSites);
-	for(unsigned int i = 0; i < _nbDistinctSites; i++) {
+	for(unsigned int i = 0; i < _nbDistinctSites; i++)
+  {
 		VVdouble * _rootLikelihoods_i = & _rootLikelihoods[i];
 		Vdouble * _rootLikelihoodsS_i = & _rootLikelihoodsS[i];
 		_rootLikelihoods_i -> resize(_nbClasses);
 		_rootLikelihoodsS_i -> resize(_nbClasses);
-		for(unsigned int c = 0; c < _nbClasses; c++) {
+		for(unsigned int c = 0; c < _nbClasses; c++)
+    {
 			Vdouble * _rootLikelihoods_i_c = & (* _rootLikelihoods_i)[c];
 			_rootLikelihoods_i_c -> resize(_nbStates);
-			for(unsigned int s = 0; s < _nbStates; s++) {
+			for(unsigned int s = 0; s < _nbStates; s++)
+      {
 				(* _rootLikelihoods_i_c)[s] = 1.; //All likelihoods are initialized to 1.
 			}
 		}
@@ -381,18 +389,22 @@ void TwoTreeLikelihood::initTreeLikelihoods(const SequenceContainer & sequences)
 
 void TwoTreeLikelihood::computeTreeLikelihood()
 {
-	for(unsigned int i = 0; i < _nbDistinctSites; i++) {
+	for(unsigned int i = 0; i < _nbDistinctSites; i++)
+  {
 		VVdouble * _rootLikelihoods_i = & _rootLikelihoods[i];
 		Vdouble * _leafLikelihoods1_i = & _leafLikelihoods1[i];
 		Vdouble * _leafLikelihoods2_i = & _leafLikelihoods2[i];
-		for(unsigned int c = 0; c < _nbClasses; c++) {
+		for(unsigned int c = 0; c < _nbClasses; c++)
+    {
 			Vdouble * _rootLikelihoods_i_c = & (* _rootLikelihoods_i)[c];
 			VVdouble * _pxy_c = & _pxy[c];
-			for(unsigned int x = 0; x < _nbStates; x++) {
+			for(unsigned int x = 0; x < _nbStates; x++)
+      {
 				Vdouble * _pxy_c_x = & (* _pxy_c)[x];
 				double l = 0;
 				double l1 = (* _leafLikelihoods1_i)[x];
-				for(unsigned int y = 0; y < _nbStates; y++) {
+				for(unsigned int y = 0; y < _nbStates; y++)
+        {
 					double l2 = (* _leafLikelihoods2_i)[y];
 					l += l1 * l2 * (* _pxy_c_x)[y];
 				}
@@ -403,16 +415,19 @@ void TwoTreeLikelihood::computeTreeLikelihood()
 	
 	Vdouble f = _model -> getFrequencies();
 	Vdouble p = _rateDistribution -> getProbabilities();
-	for(unsigned int i = 0; i < _nbDistinctSites; i++) {
+	for(unsigned int i = 0; i < _nbDistinctSites; i++)
+  {
 		//For each site in the sequence,
 		VVdouble * _rootLikelihoods_i = & _rootLikelihoods[i];
 		Vdouble * _rootLikelihoodsS_i = & _rootLikelihoodsS[i];
 		_rootLikelihoodsSR[i] = 0;
-		for(unsigned int c = 0; c < _nbClasses; c++) {
+		for(unsigned int c = 0; c < _nbClasses; c++)
+    {
 			(* _rootLikelihoodsS_i)[c] = 0;
 			//For each rate classe,
 			Vdouble * _rootLikelihoods_i_c = & (* _rootLikelihoods_i)[c];
-			for(unsigned int x = 0; x < _nbStates; x++) {
+			for(unsigned int x = 0; x < _nbStates; x++)
+      {
 				//For each initial state,
 				(* _rootLikelihoodsS_i)[c] += f[x] * (* _rootLikelihoods_i_c)[x];
 			}
@@ -425,18 +440,22 @@ void TwoTreeLikelihood::computeTreeLikelihood()
 
 void TwoTreeLikelihood::computeTreeDLikelihood()
 {
-	for(unsigned int i = 0; i < _nbDistinctSites; i++) {
+	for(unsigned int i = 0; i < _nbDistinctSites; i++)
+  {
 		Vdouble * _leafLikelihoods1_i = & _leafLikelihoods1[i];
 		Vdouble * _leafLikelihoods2_i = & _leafLikelihoods2[i];
 		double dli = 0;
-		for(unsigned int c = 0; c < _nbClasses; c++) {
+		for(unsigned int c = 0; c < _nbClasses; c++)
+    {
 			VVdouble * _dpxy_c = & _dpxy[c];
 			double dlic = 0;
-			for(unsigned int x = 0; x < _nbStates; x++) {
+			for(unsigned int x = 0; x < _nbStates; x++)
+      {
 				Vdouble * _dpxy_c_x = & (* _dpxy_c)[x];
 				double l1 = (* _leafLikelihoods1_i)[x];
 				double dlicx = 0;
-				for(unsigned int y = 0; y < _nbStates; y++) {
+				for(unsigned int y = 0; y < _nbStates; y++)
+        {
 					double l2 = (* _leafLikelihoods2_i)[y];
 					dlicx += l1 * l2 * (* _dpxy_c_x)[y];
 				}
@@ -452,18 +471,22 @@ void TwoTreeLikelihood::computeTreeDLikelihood()
 
 void TwoTreeLikelihood::computeTreeD2Likelihood()
 {
-	for(unsigned int i = 0; i < _nbDistinctSites; i++) {
+	for(unsigned int i = 0; i < _nbDistinctSites; i++)
+  {
 		Vdouble * _leafLikelihoods1_i = & _leafLikelihoods1[i];
 		Vdouble * _leafLikelihoods2_i = & _leafLikelihoods2[i];
 		double d2li = 0;
-		for(unsigned int c = 0; c < _nbClasses; c++) {
+		for(unsigned int c = 0; c < _nbClasses; c++)
+    {
 			VVdouble * _d2pxy_c = & _d2pxy[c];
 			double d2lic = 0;
-			for(unsigned int x = 0; x < _nbStates; x++) {
+			for(unsigned int x = 0; x < _nbStates; x++)
+      {
 				Vdouble * _d2pxy_c_x = & (* _d2pxy_c)[x];
 				double l1 = (* _leafLikelihoods1_i)[x];
 				double d2licx = 0;
-				for(unsigned int y = 0; y < _nbStates; y++) {
+				for(unsigned int y = 0; y < _nbStates; y++)
+        {
 					double l2 = (* _leafLikelihoods2_i)[y];
 					d2licx += l1 * l2 * (* _d2pxy_c_x)[y];
 				}
@@ -482,11 +505,13 @@ throw (Exception)
 { 
 	Parameter * p = _parameters.getParameter(variable);
 	if(p == NULL) throw ParameterNotFoundException("TwoTreeLikelihood::getFirstOrderDerivative", variable);
-	if(getRateDistributionParameters().getParameter(variable) != NULL) {
+	if(getRateDistributionParameters().getParameter(variable) != NULL)
+  {
 		cout << "DEBUB: WARNING!!! Derivatives respective to rate distribution parameter are not implemented." << endl;
 		return log(-1.);
 	}
-	if(getSubstitutionModelParameters().getParameter(variable) != NULL) {
+	if(getSubstitutionModelParameters().getParameter(variable) != NULL)
+  {
 		cout << "DEBUB: WARNING!!! Derivatives respective to substitution model parameters are not implemented." << endl;
 		return log(-1.);
 	}
@@ -508,11 +533,13 @@ throw (Exception)
 {
 	Parameter * p = _parameters.getParameter(variable);
 	if(p == NULL) throw ParameterNotFoundException("TwoTreeLikelihood::getSecondOrderDerivative", variable);
-	if(getRateDistributionParameters().getParameter(variable) != NULL) {
+	if(getRateDistributionParameters().getParameter(variable) != NULL)
+  {
 		cout << "DEBUB: WARNING!!! Derivatives respective to rate distribution parameter are not implemented." << endl;
 		return log(-1.);
 	}
-	if(getSubstitutionModelParameters().getParameter(variable) != NULL) {
+	if(getSubstitutionModelParameters().getParameter(variable) != NULL)
+  {
 		cout << "DEBUB: WARNING!!! Derivatives respective to substitution model parameters are not implemented." << endl;
 		return log(-1.);
 	}
@@ -529,60 +556,21 @@ throw (Exception)
 
 /******************************************************************************/
 
-DistanceEstimation::DistanceEstimation(SubstitutionModel * model, DiscreteDistribution * rateDist, const SiteContainer * sites, unsigned int verbose, bool computeMat) :
-	_model(model),
-	_rateDist(rateDist),
-	_sites(sites),
-	_verbose(verbose)
-{
-	//_defaultOptimizer = new SimpleMultiDimensions(NULL);
-	_defaultOptimizer = new NewtonBrentMetaOptimizer(NULL);
-	_defaultOptimizer -> setMessageHandler(NULL);
-	_defaultOptimizer -> setProfiler(NULL);
-	_optimizer = _defaultOptimizer;
-	if(computeMat) computeMatrix();
-}
-
-DistanceEstimation::DistanceEstimation(unsigned int verbose) :
-	_model(NULL),
-	_rateDist(NULL),
-	_sites(NULL),
-	_verbose(verbose)
-{
-	//_defaultOptimizer = new SimpleMultiDimensions(NULL);
-	_defaultOptimizer = new NewtonBrentMetaOptimizer(NULL);
-	_defaultOptimizer -> setMessageHandler(NULL);
-	_defaultOptimizer -> setProfiler(NULL);
-	_optimizer = _defaultOptimizer;
-}
-
-/******************************************************************************/
-
-DistanceMatrix * DistanceEstimation::getMatrix() const { return new DistanceMatrix(* _dist); }
-
-/******************************************************************************/
-
 void DistanceEstimation::computeMatrix() throw (NullPointerException)
 {	
-	unsigned int n = _sites -> getNumberOfSequences();
-	vector<string> names = _sites -> getSequencesNames();
+	unsigned int n = _sites->getNumberOfSequences();
+	vector<string> names = _sites->getSequencesNames();
+  if(_dist != NULL) delete _dist;
 	_dist = new DistanceMatrix(names);
-	_optimizer -> getStopCondition() -> setTolerance(0.0001);
-	_optimizer -> setVerbose(max(_verbose - 2, 0));
-	for(unsigned int i = 0; i < n; i++) {
+	_optimizer->getStopCondition() -> setTolerance(0.0001);
+	_optimizer->setVerbose(max(_verbose - 2, 0));
+	for(unsigned int i = 0; i < n; i++)
+  {
 		(* _dist)(i, i) = 0;
 		if(_verbose > 0) { cout << "*"; cout.flush(); }
-		for(unsigned int j = i + 1; j < n; j++) {
+		for(unsigned int j = i + 1; j < n; j++)
+    {
 			if(_verbose > 1) { cout << "."; cout.flush(); }
-			//Node * n0 = new Node(0, names[i]);
-			//Node * n1 = new Node(1, names[j]);
-			//n1 -> setDistanceToFather(0.1);
-			//n0 -> addSon(*n1);
-			//Tree<Node> * tree = new Tree<Node>(*n0);
-
-			// Likelihood function:
-			//DRHomogeneousTreeLikelihood * lik = 
-			//	new DRHomogeneousTreeLikelihood(*tree, *_sites, _model, _rateDist, _verbose > 3);
 			TwoTreeLikelihood * lik = 
 				new TwoTreeLikelihood(names[i], names[j], *_sites, _model, _rateDist, _verbose > 3);
 			lik -> setComputeDerivatives(true);
@@ -599,10 +587,8 @@ void DistanceEstimation::computeMatrix() throw (NullPointerException)
 			_optimizer -> init(params);
 			_optimizer -> optimize();
 			// Store results:
-			//(* _dist)(i, j) = (* _dist)(j, i) = lik -> getParameter("BrLen0");
 			(* _dist)(i, j) = (* _dist)(j, i) = lik -> getParameterValue("BrLen");
 			delete lik;
-			//delete tree;
 		}
 	}
 }

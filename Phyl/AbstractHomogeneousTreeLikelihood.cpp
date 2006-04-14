@@ -147,7 +147,9 @@ void AbstractHomogeneousTreeLikelihood::applyParameters() throw (Exception)
 
 void AbstractHomogeneousTreeLikelihood::initBranchLengthsParameters()
 {
-	for(unsigned int i = 0; i < _nbNodes; i++) {
+  _brLenParameters.reset();
+	for(unsigned int i = 0; i < _nbNodes; i++)
+  {
     double d = 0;
     if(!_nodes[i] -> hasDistanceToFather()) {
 			cout << "WARNING!!! Missing branch length " << i << ". Value is set to 0." << endl;

@@ -688,7 +688,7 @@ void SubstitutionMappingTools::writeToStream(
   
 	for(unsigned int j = 0; j < substitutions.getNumberOfBranches(); j++)
   {
-		out << substitutions.getNode(j)->getId();
+		out << substitutions.getNode(j)->getId() << "\t" << substitutions.getNode(j)->getDistanceToFather();
 		for(unsigned int i = 0; i < substitutions.getNumberOfSites(); i++)
     {
 			out << "\t" << substitutions(j, i);

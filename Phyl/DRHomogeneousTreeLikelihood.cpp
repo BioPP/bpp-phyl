@@ -108,33 +108,42 @@ void DRASDRTreeLikelihoodData::initLikelihoods(const SiteContainer & sites, cons
 
 void DRASDRTreeLikelihoodData::initLikelihoods(const Node * node, const SiteContainer & sites, const SubstitutionModel & model) throw (Exception)
 {
-	if(node -> isLeaf()) {
+	if(node -> isLeaf())
+  {
 		// Init leaves likelihoods:
 		const Sequence * seq;
-		try {
+		try
+    {
 			seq = sites.getSequence(node -> getName());
-		} catch (SequenceNotFoundException & snfe) {
+		}
+    catch (SequenceNotFoundException & snfe)
+    {
 			throw SequenceNotFoundException("DRASDRTreeLikelihoodData::initlikelihoods. Leaf name in tree not found in site container: ", (node -> getName()));
 		}
 		VVdouble * leavesLikelihoods_leaf = & _leafData[node].getLikelihoodArray();
 		leavesLikelihoods_leaf -> resize(_nbDistinctSites);
-		for(unsigned int i = 0; i < _nbDistinctSites; i++) {
+		for(unsigned int i = 0; i < _nbDistinctSites; i++)
+    {
 			Vdouble * leavesLikelihoods_leaf_i = & (* leavesLikelihoods_leaf)[i];
 			leavesLikelihoods_leaf_i -> resize(_nbStates);
-			for(unsigned int s = 0; s < _nbStates; s++) {
+		  int state = seq -> getValue(i);
+      double test = 0.;
+			for(unsigned int s = 0; s < _nbStates; s++)
+      {
 				//Leaves likelihood are set to 1 if the char correspond to the site in the sequence,
 				//otherwise value set to 0:
-				int state = seq -> getValue(i);
 				( * leavesLikelihoods_leaf_i)[s] = model.getInitValue(s, state);
+				test += ( * leavesLikelihoods_leaf_i)[s];
 			}
-		}
-
+      if(test < 0.000001) cerr << "WARNING!!! Likelihood will be 0 for this site." << endl;
+	  }
 	}
 
 	//cout << "Node:\t" << node -> getId() << endl;
 	// We initialize each son node first:
 	unsigned int nbSonNodes = node -> getNumberOfSons();
-	for(unsigned int l = 0; l < nbSonNodes; l++) {
+	for(unsigned int l = 0; l < nbSonNodes; l++)
+  {
 		//For each son node,
 		initLikelihoods(node -> getSon(l), sites, model);
 	}
@@ -144,34 +153,44 @@ void DRASDRTreeLikelihoodData::initLikelihoods(const Node * node, const SiteCont
 	
 	int nbSons = node -> getNumberOfSons();
 	
-	for(int n = (node -> hasFather() ? -1 : 0); n < nbSons; n++) {
+	for(int n = (node -> hasFather() ? -1 : 0); n < nbSons; n++)
+  {
 		const Node * neighbor = (* node)[n];
 		VVVdouble * _likelihoods_node_neighbor = & (* _likelihoods_node)[neighbor];
 		
 		_likelihoods_node_neighbor -> resize(_nbDistinctSites);
 
-		if(neighbor -> isLeaf()) {
+		if(neighbor -> isLeaf())
+    {
 			VVdouble * _leavesLikelihoods_leaf = & _leafData[neighbor].getLikelihoodArray();
-			for(unsigned int i = 0; i < _nbDistinctSites; i++) {
+			for(unsigned int i = 0; i < _nbDistinctSites; i++)
+      {
 				Vdouble  * _leavesLikelihoods_leaf_i = & (* _leavesLikelihoods_leaf)[i];
 				VVdouble * _likelihoods_node_neighbor_i = & (* _likelihoods_node_neighbor)[i];
 				_likelihoods_node_neighbor_i -> resize(_nbClasses);
-				for(unsigned int c = 0; c < _nbClasses; c++) {
+				for(unsigned int c = 0; c < _nbClasses; c++)
+        {
 					Vdouble * _likelihoods_node_neighbor_i_c = & (* _likelihoods_node_neighbor_i)[c];
 					_likelihoods_node_neighbor_i_c -> resize(_nbStates);
-					for(unsigned int s = 0; s < _nbStates; s++) {
+					for(unsigned int s = 0; s < _nbStates; s++)
+          {
 						(* _likelihoods_node_neighbor_i_c)[s] = (* _leavesLikelihoods_leaf_i)[s];
 					}
 				}
 			}
-		} else {
-			for(unsigned int i = 0; i < _nbDistinctSites; i++) {
+		}
+    else
+    {
+			for(unsigned int i = 0; i < _nbDistinctSites; i++)
+      {
 				VVdouble * _likelihoods_node_neighbor_i = & (* _likelihoods_node_neighbor)[i];
 				_likelihoods_node_neighbor_i -> resize(_nbClasses);
-				for(unsigned int c = 0; c < _nbClasses; c++) {
+				for(unsigned int c = 0; c < _nbClasses; c++)
+        {
 					Vdouble * _likelihoods_node_neighbor_i_c = & (* _likelihoods_node_neighbor_i)[c];
 					_likelihoods_node_neighbor_i_c -> resize(_nbStates);
-					for(unsigned int s = 0; s < _nbStates; s++) {
+					for(unsigned int s = 0; s < _nbStates; s++)
+          {
 						(* _likelihoods_node_neighbor_i_c)[s] = 1.; //All likelihoods are initialized to 1.
 					}
 				}

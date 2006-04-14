@@ -38,6 +38,9 @@ The fact that you are presently reading this means that you have had
 knowledge of the CeCILL license and that you accept its terms.
 */
 
+#ifndef _ABSTRACTAGGLOMERATIVEDISTANCEMETHOD_H_
+#define _ABSTRACTAGGLOMERATIVEDISTANCEMETHOD_H_
+
 #include "AgglomerativeDistanceMethod.h"
 #include "DistanceMatrix.h"
 #include "Node.h"
@@ -65,18 +68,49 @@ class AbstractAgglomerativeDistanceMethod : public virtual AgglomerativeDistance
 	
 	public:
 		AbstractAgglomerativeDistanceMethod(): _matrix(0), _tree(NULL) {}
-		AbstractAgglomerativeDistanceMethod(const DistanceMatrix & matrix): _matrix(matrix) {}
-		virtual ~AbstractAgglomerativeDistanceMethod();
+		AbstractAgglomerativeDistanceMethod(const DistanceMatrix & matrix): _matrix(0), _tree(NULL)
+    {
+      setDistanceMatrix(matrix);
+    }
+		virtual ~AbstractAgglomerativeDistanceMethod()
+    {
+      delete _tree;
+    }
+    AbstractAgglomerativeDistanceMethod(const AbstractAgglomerativeDistanceMethod & a): _matrix(a._matrix)
+    {
+      // Hard copy of inner tree:
+      if(a._tree != NULL) _tree = new TreeTemplate<Node>(* a._tree);
+      else _tree = NULL;
+    }
+    AbstractAgglomerativeDistanceMethod & operator=(const AbstractAgglomerativeDistanceMethod & a)
+    {
+      _matrix = a._matrix;
+      // Hard copy of inner tree:
+      if(a._tree != NULL) _tree = new TreeTemplate<Node>(* a._tree);
+      else _tree = NULL;
+      return *this;
+    }
 
 	public:
-		void setDistanceMatrix(const DistanceMatrix & matrix);
+		virtual void setDistanceMatrix(const DistanceMatrix & matrix);
 
+    /**
+     * @brief Get the computed tree, if there is one.
+     *
+     * @return A copy of the computed tree if there is one, NULL otherwise.
+     */
+    virtual
 #if defined(VIRTUAL_COV)
 		TreeTemplate<Node> * 
 #else
 		Tree *
 #endif
-		getTree() const;
+		getTree() const
+    {
+    	//Node * root = TreeTools::cloneSubtree<Node>(* dynamic_cast<TreeTemplate<Node> *>(_tree) -> getRootNode());
+	    //return new TreeTemplate<Node>(* root);
+      return _tree == NULL ? NULL : new TreeTemplate<Node>(*_tree);
+    }
 		
     /**
      * @brief Compute the tree corresponding to the distance matrix.
@@ -92,7 +126,7 @@ class AbstractAgglomerativeDistanceMethod : public virtual AgglomerativeDistance
      * 
      * @param rooted Tell if the final tree must be rooted or not.
      */
-		void computeTree(bool rooted) throw (Exception);
+		virtual void computeTree(bool rooted) throw (Exception);
 	
 
 	protected:
@@ -170,4 +204,6 @@ class AbstractAgglomerativeDistanceMethod : public virtual AgglomerativeDistance
     /** @} */
 		
 };
+
+#endif //_ABSTRACTAGGLOMERATIVEDISTANCEMETHOD_H_
 

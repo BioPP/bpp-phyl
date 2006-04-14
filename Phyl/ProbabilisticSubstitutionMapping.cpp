@@ -41,12 +41,15 @@ knowledge of the CeCILL license and that you accept its terms.
 
 ProbabilisticSubstitutionMapping::ProbabilisticSubstitutionMapping(const Tree & tree, unsigned int numberOfSites)
 {
+  _tree = NULL;
   _nbSites = numberOfSites;
+  _mapping.resize(_nbSites);
   setTree(tree);
 }
 
 ProbabilisticSubstitutionMapping::ProbabilisticSubstitutionMapping(const Tree & tree)
 {
+  _tree = NULL;
   setTree(tree);
 }
 

@@ -53,28 +53,42 @@ class NeighborJoining : public virtual AbstractAgglomerativeDistanceMethod
 {
 	protected:
 		vector<double> _sumDist;
+    bool _positiveLengths;
 		
 	public:
-		NeighborJoining() {}
-		NeighborJoining(const DistanceMatrix & matrix, bool rooted) throw (Exception): AbstractAgglomerativeDistanceMethod(matrix) 
+		NeighborJoining(): _positiveLengths(false) {}
+		NeighborJoining(const DistanceMatrix & matrix, bool rooted=false, bool positiveLengths=false) throw (Exception):
+      AbstractAgglomerativeDistanceMethod(matrix),
+      _positiveLengths(positiveLengths) 
 		{
 			_sumDist.resize(matrix.size());
 			computeTree(rooted);
 		}
+    NeighborJoining(const NeighborJoining & nj): AbstractAgglomerativeDistanceMethod(nj), _sumDist(nj._sumDist), _positiveLengths(nj._positiveLengths) {}
+    NeighborJoining & operator=(const NeighborJoining & nj)
+    {
+      AbstractAgglomerativeDistanceMethod::operator=(nj);
+      _sumDist = nj._sumDist;
+      _positiveLengths = nj._positiveLengths;
+      return *this;
+    }
+    
 		virtual ~NeighborJoining() {}
 
 	public:
-		void setDistanceMatrix(const DistanceMatrix & matrix)
+		virtual void setDistanceMatrix(const DistanceMatrix & matrix)
 		{ 
 			AbstractAgglomerativeDistanceMethod::setDistanceMatrix(matrix);
 			_sumDist.resize(matrix.size());
 		}
+
+    virtual void outputPositiveLengths(bool yn) { _positiveLengths = yn; }
 	
 	protected:
-		vector<unsigned int> getBestPair() throw (Exception);
-		vector<double> computeBranchLengthsForPair(const vector<unsigned int> & pair);
-		double computeDistancesFromPair(const vector<unsigned int> & pair, const vector<double> & branchLengths, unsigned int pos);
-		void finalStep(int idRoot);	
+		virtual vector<unsigned int> getBestPair() throw (Exception);
+		virtual vector<double> computeBranchLengthsForPair(const vector<unsigned int> & pair);
+		virtual double computeDistancesFromPair(const vector<unsigned int> & pair, const vector<double> & branchLengths, unsigned int pos);
+		virtual void finalStep(int idRoot);	
 
 };
 
