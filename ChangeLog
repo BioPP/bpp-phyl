@@ -1,0 +1,30 @@
+18/04/06 -*- Version 1.1.0 -*-
+
+18/04/06 Julien Dutheil
+* New Factory classes: SubstitutionModelFactory, IOTreeFactory, IOMatrixFactory.
+13/04/06 Vincent Ranwez
+* Bug fixed in NeighborJoining: finalStep now produces correct branch lengths.
+* New BioNJ distance method.
+13/04/06 Julien Dutheil
+* DistanceEstimation improved: copy constructor and assignment operator + resetAdditionalParameters() method.
+10/04/06 Julien Dutheil
+* TreeTemplate<N>(Tree) now properly clone branch lengths.
+06/04/06 Julien Dutheil 
+* New substitution mapping classes.
+14/03/06 Julien Dutheil
+* Simulation classes redesigned. More simulation methods added.
+09/03/06 Julien Dutheil
+* TreeLikelihood classes have now the setData() method to compute likelihood of a new dataset without changing parameters.
+Constructors now have a tree pointer as argument, and a new constructor without dataset has been added.
+02/03/06 Julien Dutheil
+* Bug fixed in TreeTools::cloneSubtree(), bad contructor call for class Node.
+16/01/06 Julien Dutheil
+* TreeTemplate(Tree) copy constructor.
+16/01/06 Julien Dutheil
+* writeId option in Newick TreeIO.
+21/12/05 Julien Dutheil
+* newOutGroup fixed in class TreeTemplate.
+Branch lengths are now properly updated. Root id is also corrected.
+New function getNextId in class tree.
+12/12/05 Julien Dutheil
+* getTotalLength, setBranchLengths, setVoidBranchLengths and scaleTree in TreeTemplate: now work when root node has no length.

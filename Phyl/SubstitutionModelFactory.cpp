@@ -42,18 +42,18 @@ knowledge of the CeCILL license and that you accept its terms.
 
 #include <Seq/AlphabetTools.h>
 
-const string JUKES_CANTOR            = "JC69";
-const string KIMURA_2P               = "K80";
-const string HASEGAWA_KISHINO_YANO   = "HKY85";
-const string TAMURA_NEI              = "TN93";
-const string GENERAL_TIME_REVERSIBLE = "HKY85";
-const string TAMURA                  = "T92";
-const string JOHN_TAYLOR_THORNTON    = "JTT92";
-const string DAYHOFF_SCHWARTZ_ORCUTT = "DSO78";
+const string SubstitutionModelFactory::JUKES_CANTOR            = "JC69";
+const string SubstitutionModelFactory::KIMURA_2P               = "K80";
+const string SubstitutionModelFactory::HASEGAWA_KISHINO_YANO   = "HKY85";
+const string SubstitutionModelFactory::TAMURA_NEI              = "TN93";
+const string SubstitutionModelFactory::GENERAL_TIME_REVERSIBLE = "HKY85";
+const string SubstitutionModelFactory::TAMURA                  = "T92";
+const string SubstitutionModelFactory::JOHN_TAYLOR_THORNTON    = "JTT92";
+const string SubstitutionModelFactory::DAYHOFF_SCHWARTZ_ORCUTT = "DSO78";
 
-SubstitutionModel * SubstitutionModelFactory::createInstanceOf(const string& modelName) throw (AlphabetException, Exception)
+SubstitutionModel * SubstitutionModelFactory::createModel(const string& modelName) throw (AlphabetException, Exception)
 {
-   if(modelName == JUKES_CANTOR)
+  if(modelName == JUKES_CANTOR)
   {
     if(AlphabetTools::isNucleicAlphabet(_alphabet))
       return new JCnuc(dynamic_cast<const NucleicAlphabet *>(_alphabet));
@@ -116,6 +116,6 @@ SubstitutionModel * SubstitutionModelFactory::createInstanceOf(const string& mod
       throw AlphabetException("SubstitutionModelFactory::createInstanceOf(). DSO78 model requires a protein alphabet.", _alphabet);
     }
   }
-  else throw Exception("Unknown model: " + modelName);
+  else throw Exception("SubstitutionModelFactory::createModel(). Unknown model: " + modelName);
 }
 

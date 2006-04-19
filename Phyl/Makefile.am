@@ -69,7 +69,10 @@ SimpleSubstitutionCount.h\
 IndexToCount.h\
 SubstitutionMappingTools.h\
 BioNJ.h\
-SubstitutionModelFactory.h
+SubstitutionModelFactory.h\
+RateDistributionFactory.h\
+IOTreeFactory.h\
+IODistanceMatrixFactory.h
 
 
 CPP_FILES = \
@@ -118,7 +121,10 @@ ProbabilisticSubstitutionMapping.cpp\
 AnalyticalSubstitutionCount.cpp\
 SubstitutionMappingTools.cpp\
 BioNJ.cpp\
-SubstitutionModelFactory.cpp
+SubstitutionModelFactory.cpp\
+RateDistributionFactory.cpp\
+IOTreeFactory.cpp\
+IODistanceMatrixFactory.cpp
 
 CPP_EXTRA = \
 __DSO78FrequenciesCode\
@@ -129,7 +135,7 @@ __JTT92ExchangeabilityCode
 lib_LTLIBRARIES = libbpp-phyl.la
 libbpp_phyl_la_SOURCES = $(H_FILES) $(CPP_FILES)
 EXTRA_libbpp_phyl_la_SOURCES = $(CPP_EXTRA)
-libbpp_phyl_la_LDFLAGS = -version-info 1:0:0
+libbpp_phyl_la_LDFLAGS = -version-info 1:1:0
 
 library_includedir=$(includedir)/Phyl
 library_include_HEADERS = $(H_FILES)

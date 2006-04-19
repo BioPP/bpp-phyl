@@ -75,7 +75,7 @@ public:
    * @code
    * const Alphabet * alphabet = new DNA();
    * SubstitutionModel * model = SubstitutionModelFactory(alphabet)
-   *     .createInstanceOf(SubstitutionModelFactory::TAMURA);
+   *     .createModel(SubstitutionModelFactory::TAMURA);
    * // model can be used in any object dealing with a nucleotide substitution models.
    * @endcode
    */
@@ -89,9 +89,9 @@ public:
    * @param modelName The name of the model to use.
    * @return A pointer toward a new substitution model, with default parameter values.
    * @throw AlphabetException If the model is not compatible with the given alphabet.
-   * @throw Exception If the model name do nt match any possible model.
+   * @throw Exception If the model name do not match any available model.
    */
-  SubstitutionModel * createInstanceOf(const string& modelName) throw (AlphabetException, Exception);
+  virtual SubstitutionModel * createModel(const string& modelName) throw (AlphabetException, Exception);
 
 };
 
