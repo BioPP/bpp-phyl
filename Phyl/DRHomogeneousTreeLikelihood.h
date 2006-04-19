@@ -167,7 +167,7 @@ class DRASDRTreeLikelihoodNodeData :
 class DRASDRTreeLikelihoodData :
 	public virtual AbstractTreeLikelihoodData
 {
-	protected:i
+	protected:
 
 		mutable map<const Node *, DRASDRTreeLikelihoodNodeData> _nodeData;
 		mutable map<const Node *, DRASDRTreeLikelihoodLeafData> _leafData;
