@@ -42,6 +42,9 @@ knowledge of the CeCILL license and that you accept its terms.
 
 #include "iodistance"
 
+//From the STL:
+#include <string>
+
 class IODistanceMatrixFactory
 {
 public:

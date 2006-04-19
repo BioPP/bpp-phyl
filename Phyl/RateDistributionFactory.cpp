@@ -40,8 +40,8 @@ knowledge of the CeCILL license and that you accept its terms.
 
 #include "RateDistributionFactory.h"
 
-const string CONSTANT_DISTRIBUTION = "Constant";
-const string    GAMMA_DISTRIBUTION = "Gamma";
+const string RateDistributionFactory::CONSTANT_DISTRIBUTION = "Constant";
+const string RateDistributionFactory::GAMMA_DISTRIBUTION = "Gamma";
 
 DiscreteDistribution * RateDistributionFactory::createDiscreteDistribution(const string& distName, unsigned int nbClasses) throw (Exception)
 {

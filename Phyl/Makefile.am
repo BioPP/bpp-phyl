@@ -17,6 +17,7 @@ HomogeneousTreeLikelihood.h\
 DRHomogeneousTreeLikelihood.h\
 DRTreeLikelihoodTools.h\
 IODistanceMatrix.h\
+iodistance\
 IOTree.h\
 iotree\
 JCnuc.h\
