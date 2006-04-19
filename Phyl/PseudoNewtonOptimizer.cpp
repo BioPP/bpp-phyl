@@ -87,7 +87,7 @@ void PseudoNewtonOptimizer::init(const ParameterList & params) throw (Exception)
 	_currentValue = _function -> getValue();
 	_n = _parameters.size();
 	_params = _parameters.getParameterNames();
-	for (int j = 0; j < _n; j++) {
+	for (unsigned int j = 0; j < _n; j++) {
 		profile(_parameters[j] -> getName() + "\t"); 
 	}
 	profileln("Function");
