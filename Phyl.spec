@@ -14,9 +14,10 @@ Group: System Environment/Libraries
 BuildRoot: %{_builddir}/%{name}-root
 Packager: Julien Dutheil
 AutoReqProv: no
-Requires: Bpp-Utils = %{version}
-Requires: Bpp-NumCalc = %{version}
-Requires: Bpp-Seq = %{version}
+Requires: libstdc++6
+Requires: Bpp-Utils >= 1.0.0
+Requires: Bpp-NumCalc >= 1.0.0
+Requires: Bpp-Seq >= 1.1.0
 
 %description
 This library contains utilitary and classes for phylogenetics and molecular evolution analysis.
@@ -26,9 +27,9 @@ It is part of the Bio++ project.
 Summary: Libraries, includes to develop applications with %{name}.
 Group: Development/Libraries
 Requires: %{name} = %{version}
-Requires: Bpp-Utils-devel = %{version}
-Requires: Bpp-NumCalc-devel = %{version}
-Requires: Bpp-Seq-devel = %{version}
+Requires: Bpp-Utils-devel >= 1.0.0 
+Requires: Bpp-NumCalc-devel >= 1.0.0
+Requires: Bpp-Seq-devel >= 1.1.0
 
 %description devel
 The %{name}-devel package contains the header files and static libraries for
