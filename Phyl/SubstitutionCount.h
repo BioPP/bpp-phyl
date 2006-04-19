@@ -46,8 +46,13 @@ knowledge of the CeCILL license and that you accept its terms.
 /**
  * @brief The SubstitutionsCount interface.
  *
- * Provide the @f$ n_{x,y}(t) = @f$ stands for the number of
- * substitutions on a branch of length @f$t@f$, with initial state @f$x@f$ and final state @f$y@f$.
+ * Provide a method to compute the @f$n_{x,y}(t)@f$ function,
+ * namely the number of substitutions on a branch of length @f$t@f$, with initial state @f$x@f$ and final state @f$y@f$.
+ * 
+ * See:
+ * Dutheil J, Pupko T, Jean-Marie A, Galtier N.
+ * A model-based approach for detecting coevolving positions in a molecule.
+ * Mol Biol Evol. 2005 Sep;22(9):1919-28. Epub 2005 Jun 8.
  */
 class SubstitutionCount
 {

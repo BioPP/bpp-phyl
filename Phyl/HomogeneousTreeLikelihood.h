@@ -269,7 +269,7 @@ class HomogeneousTreeLikelihood :
      * @param tree The tree to use.
      * @param model The substitution model to use.
      * @param rDist The rate across sites distribution to use.
-     * @param checkRoot Tell if we have to check for the tree to be unrooted.
+     * @param checkRooted Tell if we have to check for the tree to be unrooted.
      * If true, any rooted tree will be unrooted before likelihood computation.
      * @param verbose Should I display some info?
      * @throw Exception in an error occured.
@@ -289,7 +289,7 @@ class HomogeneousTreeLikelihood :
      * @param data Sequences to use.
      * @param model The substitution model to use.
      * @param rDist The rate across sites distribution to use.
-     * @param checkRoot Tell if we have to check for the tree to be unrooted.
+     * @param checkRooted Tell if we have to check for the tree to be unrooted.
      * If true, any rooted tree will be unrooted before likelihood computation.
      * @param verbose Should I display some info?
      * @throw Exception in an error occured.

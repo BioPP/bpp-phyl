@@ -91,7 +91,7 @@ class TopologyChangeEvent
  * Two NNI's are possible for branch (XF):
  * - swaping B and C, which is the same as D and A
  * - swaping A and C, which is the same as D and B
- * Because of the rooted representation, we'll consider B \f$\leftrightarrow\f$C and A\f$\leftrightarrow\f$C,
+ * Because of the rooted representation, we'll consider B \f$\leftrightarrow\f$ C and A \f$\leftrightarrow\f$ C,
  * which are simpler to perform.
  *
  * For unrooted tree, we have at the 'root' node:

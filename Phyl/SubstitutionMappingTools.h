@@ -44,6 +44,16 @@ knowledge of the CeCILL license and that you accept its terms.
 #include "SubstitutionCount.h"
 #include "DRHomogeneousTreeLikelihood.h"
 
+/**
+ * @brief Provide methods to compute substitution mappings.
+ *
+ * For now, only 4 methods are implemented, and provide probabilistic substitution mappings.
+ *
+ * See:
+ * Dutheil J, Pupko T, Jean-Marie A, Galtier N.
+ * A model-based approach for detecting coevolving positions in a molecule.
+ * Mol Biol Evol. 2005 Sep;22(9):1919-28. Epub 2005 Jun 8.
+ */
 class SubstitutionMappingTools
 {
   public:
@@ -80,9 +90,9 @@ class SubstitutionMappingTools
 		 * This function is mainly for testing purpose (see Dutheil et al. 2005).
 		 * For practical use, consider using the 'getSubstitutionVectors' method instead.
 		 *
-		 * @param drhtl              A DRHomogeneousTreeLikelihood object.
-		 * @param substitutionsCount The substitutionsCount to use.
-		 * @param verbose            Print info to screen.
+		 * @param drhtl             A DRHomogeneousTreeLikelihood object.
+		 * @param substitutionCount The substitutionsCount to use.
+		 * @param verbose           Print info to screen.
 		 * @return A vector of substitutions vectors (one for each site).
 		 */
 		static ProbabilisticSubstitutionMapping * computeSubstitutionVectorsNoAveraging(
@@ -102,9 +112,9 @@ class SubstitutionMappingTools
 		 *
 		 * Use with another substitution count objet is in most cases irrelevent.
 		 * 
-		 * @param drhtl              A DRHomogeneousTreeLikelihood object.
-		 * @param substitutionsCount The substitutionsCount to use.
-		 * @param verbose            Print info to screen.
+		 * @param drhtl             A DRHomogeneousTreeLikelihood object.
+		 * @param substitutionCount The substitutionsCount to use.
+		 * @param verbose           Print info to screen.
 		 * @return A vector of substitutions vectors (one for each site).
 		 */
 		static ProbabilisticSubstitutionMapping * computeSubstitutionVectorsNoAveragingMarginal(
@@ -121,9 +131,9 @@ class SubstitutionMappingTools
 		 * This function is mainly for testing purpose (see Dutheil et al. 2005).
 		 * For practical use, consider using the 'getSubstitutionVectors' method instead.
 		 *
-		 * @param drhtl              A DRHomogeneousTreeLikelihood object.
-		 * @param substitutionsCount The substitutionsCount to use.
-		 * @param verbose            Print info to screen.
+		 * @param drhtl             A DRHomogeneousTreeLikelihood object.
+		 * @param substitutionCount The substitutionsCount to use.
+		 * @param verbose           Print info to screen.
 		 * @return A vector of substitutions vectors (one for each site).
 		 */
 		static ProbabilisticSubstitutionMapping * computeSubstitutionVectorsMarginal(

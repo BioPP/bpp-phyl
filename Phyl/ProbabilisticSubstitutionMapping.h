@@ -49,6 +49,11 @@ knowledge of the CeCILL license and that you accept its terms.
 // From Utils:
 #include <Utils/TextTools.h>
 
+/**
+ * @brief Data storage class for probabilistic substitution mappings.
+ *
+ * A 'probabilistic' mapping contains the expected number of substitutions for all branches and all sites.
+ */
 class ProbabilisticSubstitutionMapping : public AbstractSubstitutionMapping
 {
   protected:
@@ -114,7 +119,7 @@ class ProbabilisticSubstitutionMapping : public AbstractSubstitutionMapping
     /**
      * @brief (Re)-set the phylogenetic tree associated to this mapping.
      *
-     * @param The new tree.
+     * @param tree The new tree.
      */
     virtual void setTree(const Tree & tree);
 

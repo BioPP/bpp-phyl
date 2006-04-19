@@ -167,7 +167,7 @@ class DRASDRTreeLikelihoodNodeData :
 class DRASDRTreeLikelihoodData :
 	public virtual AbstractTreeLikelihoodData
 {
-	protected:
+	protected:i
 
 		mutable map<const Node *, DRASDRTreeLikelihoodNodeData> _nodeData;
 		mutable map<const Node *, DRASDRTreeLikelihoodLeafData> _leafData;
@@ -290,9 +290,9 @@ class DRASDRTreeLikelihoodData :
 		 *
 		 * NB: This method is recursive.
 		 *
-		 * @param node      The node defining the subtree to analyse.
-		 * @param sequences The sequence container to use.
-		 * @param model     The model, used for initializing leaves' likelihoods.
+		 * @param node  The node defining the subtree to analyse.
+		 * @param sites The sequence container to use.
+		 * @param model The model, used for initializing leaves' likelihoods.
 		 */
 		void initLikelihoods(const Node * node, const SiteContainer & sites, const SubstitutionModel & model) throw (Exception);
 
@@ -333,7 +333,7 @@ class DRHomogeneousTreeLikelihood : public virtual AbstractHomogeneousTreeLikeli
      * @param tree The tree to use.
      * @param model The substitution model to use.
      * @param rDist The rate across sites distribution to use.
-     * @param checkRoot Tell if we have to check for the tree to be unrooted.
+     * @param checkRooted Tell if we have to check for the tree to be unrooted.
      * If true, any rooted tree will be unrooted before likelihood computation.
      * @param verbose Should I display some info?
      * @throw Exception in an error occured.
@@ -353,7 +353,7 @@ class DRHomogeneousTreeLikelihood : public virtual AbstractHomogeneousTreeLikeli
      * @param data Sequences to use.
      * @param model The substitution model to use.
      * @param rDist The rate across sites distribution to use.
-     * @param checkRoot Tell if we have to check for the tree to be unrooted.
+     * @param checkRooted Tell if we have to check for the tree to be unrooted.
      * If true, any rooted tree will be unrooted before likelihood computation.
      * @param verbose Should I display some info?
      * @throw Exception in an error occured.
