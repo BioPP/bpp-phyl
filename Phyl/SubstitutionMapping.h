@@ -72,6 +72,9 @@ class SubstitutionMapping
     
 };
 
+/**
+ * @brief Partial implementation of the substitution mapping interface.
+ */
 class AbstractSubstitutionMapping : public SubstitutionMapping
 {
   protected:

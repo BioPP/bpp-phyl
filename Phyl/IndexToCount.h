@@ -46,6 +46,11 @@ knowledge of the CeCILL license and that you accept its terms.
 #include <Seq/Alphabet.h>
 #include <Seq/AlphabetIndex2.h>
 
+/**
+ * @brief Naive substitution count weighted by amino-acids properties.
+ *
+ * This class uses a AlphabetIndex2 object to weight substitutions.
+ */
 class IndexToCount: public SubstitutionCount
 {
 	private:

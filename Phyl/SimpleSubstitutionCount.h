@@ -45,6 +45,18 @@ knowledge of the CeCILL license and that you accept its terms.
 // From NumCalc:
 #include <NumCalc/Matrix.h>
 
+/**
+ * @brief Naive substitution count.
+ *
+ * This subsitution count is defined as follow:
+ * - 0 if @f$i = j@f$,
+ * - 1 if @f$i \neq j @f$.
+ *
+ * Reference (for instance):
+ * Tufféry P, Darlu P.
+ * Exploring a phylogenetic approach for the detection of correlated substitutions in proteins.
+ * Mol Biol Evol. 2000 Nov;17(11):1753-9
+ */
 class SimpleSubstitutionCount: public SubstitutionCount
 {
   protected:

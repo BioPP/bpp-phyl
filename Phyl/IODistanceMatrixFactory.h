@@ -45,6 +45,12 @@ knowledge of the CeCILL license and that you accept its terms.
 //From the STL:
 #include <string>
 
+/**
+ * @brief Utilitary class for creating distance matrix readers and writers.
+ *
+ * @see IOSequenceFactory
+ * @see IOTreeFactory
+ */
 class IODistanceMatrixFactory
 {
 public:

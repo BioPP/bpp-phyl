@@ -43,6 +43,14 @@ knowledge of the CeCILL license and that you accept its terms.
 #include "SubstitutionCount.h"
 #include "SubstitutionModel.h"
 
+/**
+ * @brief Analytical estimate of the substitution count.
+ *
+ * This method uses Laplace transforms, as described in 
+ * Dutheil J, Pupko T, Jean-Marie A, Galtier N.
+ * A model-based approach for detecting coevolving positions in a molecule.
+ * Mol Biol Evol. 2005 Sep;22(9):1919-28.
+ */
 class AnalyticalSubstitutionCount: public SubstitutionCount
 {
 	protected:

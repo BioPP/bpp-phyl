@@ -42,6 +42,12 @@ knowledge of the CeCILL license and that you accept its terms.
 
 #include "iotree"
 
+/**
+ * @brief Utilitary class for creating tree readers and writers.
+ *
+ * @see IOSequenceFactory
+ * @see IODistanceMatrixFactory
+ */
 class IOTreeFactory
 {
 public:
