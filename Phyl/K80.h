@@ -53,7 +53,7 @@ knowledge of the CeCILL license and that you accept its terms.
  * This models include one parameter, the transition / transversion
  * relative rate \f$\kappa\f$.
  * \f[
- * \begin{pmatrix}
+ * S = \begin{pmatrix}
  * \cdots & r & \kappa r & r \\ 
  * r & \cdots & r & \kappa r \\ 
  * \kappa r & r & \cdots & r \\ 
@@ -75,7 +75,7 @@ knowledge of the CeCILL license and that you accept its terms.
  * The normalized generator is obtained by taking the dot product of \f$S\f$ and \f$\pi\f$:
  * \f[
  * Q = S . \pi = \begin{pmatrix}
- * -1 & \frac{4}{\kappa+2} & \frac{\kappa}{\kappa+2} & \frac{1}{\kappa+2} \\ 
+ * -1 & \frac{1}{\kappa+2} & \frac{\kappa}{\kappa+2} & \frac{1}{\kappa+2} \\ 
  * \frac{1}{\kappa+2} & -1 & \frac{1}{\kappa+2} & \frac{\kappa}{\kappa+2} \\ 
  * \frac{\kappa}{\kappa+2} & \frac{1}{\kappa+2} & -1 & \frac{1}{\kappa+2} \\ 
  * \frac{1}{\kappa+2} & \frac{\kappa}{\kappa+2} & \frac{1}{\kappa+2} & -1 \\ 

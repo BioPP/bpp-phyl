@@ -73,7 +73,8 @@ BioNJ.h\
 SubstitutionModelFactory.h\
 RateDistributionFactory.h\
 IOTreeFactory.h\
-IODistanceMatrixFactory.h
+IODistanceMatrixFactory.h\
+F84.h
 
 
 CPP_FILES = \
@@ -125,7 +126,8 @@ BioNJ.cpp\
 SubstitutionModelFactory.cpp\
 RateDistributionFactory.cpp\
 IOTreeFactory.cpp\
-IODistanceMatrixFactory.cpp
+IODistanceMatrixFactory.cpp\
+F84.cpp
 
 CPP_EXTRA = \
 __DSO78FrequenciesCode\

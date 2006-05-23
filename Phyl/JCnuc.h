@@ -47,7 +47,7 @@ knowledge of the CeCILL license and that you accept its terms.
  *
  * All rates equal:
  * \f[
- * \begin{pmatrix}
+ * S = \begin{pmatrix}
  * \cdots & r & r & r \\ 
  * r & \cdots & r & r \\ 
  * r & r & \cdots & r \\ 
@@ -68,7 +68,7 @@ knowledge of the CeCILL license and that you accept its terms.
  * \f]
  * The normalized generator is obtained by taking the dot product of \f$S\f$ and \f$pi\f$:
  * \f[
- * Q = S . \Pi = \begin{pmatrix}
+ * Q = S . \pi = \begin{pmatrix}
  * -1 & \frac{1}{3} & \frac{1}{3} & \frac{1}{3} \\ 
  * \frac{1}{3} & -1 & \frac{1}{3} & \frac{1}{3} \\ 
  * \frac{1}{3} & \frac{1}{3} & -1 & \frac{1}{3} \\ 

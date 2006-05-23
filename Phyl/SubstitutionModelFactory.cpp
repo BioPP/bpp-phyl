@@ -48,6 +48,7 @@ const string SubstitutionModelFactory::HASEGAWA_KISHINO_YANO   = "HKY85";
 const string SubstitutionModelFactory::TAMURA_NEI              = "TN93";
 const string SubstitutionModelFactory::GENERAL_TIME_REVERSIBLE = "HKY85";
 const string SubstitutionModelFactory::TAMURA                  = "T92";
+const string SubstitutionModelFactory::FELSENSTEIN84           = "F84";
 const string SubstitutionModelFactory::JOHN_TAYLOR_THORNTON    = "JTT92";
 const string SubstitutionModelFactory::DAYHOFF_SCHWARTZ_ORCUTT = "DSO78";
 
@@ -72,6 +73,14 @@ SubstitutionModel * SubstitutionModelFactory::createModel(const string& modelNam
   {
     try { 
       return new T92(dynamic_cast<const NucleicAlphabet *>(_alphabet));
+    } catch(Exception & e) {
+      throw AlphabetException("SubstitutionModelFactory::createInstanceOf(). T92 model requires a nucleotide alphabet.", _alphabet);
+    }
+  }
+  else if(modelName == FELSENSTEIN84)
+  {
+    try { 
+      return new F84(dynamic_cast<const NucleicAlphabet *>(_alphabet));
     } catch(Exception & e) {
       throw AlphabetException("SubstitutionModelFactory::createInstanceOf(). T92 model requires a nucleotide alphabet.", _alphabet);
     }

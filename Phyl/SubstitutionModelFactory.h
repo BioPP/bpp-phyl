@@ -62,6 +62,7 @@ public:
   static const string TAMURA_NEI;
   static const string GENERAL_TIME_REVERSIBLE;
   static const string TAMURA;
+  static const string FELSENSTEIN84;
   static const string JOHN_TAYLOR_THORNTON;
   static const string DAYHOFF_SCHWARTZ_ORCUTT;
   

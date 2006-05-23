@@ -59,7 +59,7 @@ knowledge of the CeCILL license and that you accept its terms.
  * These four frequencies are not independent parameters, since they have the constraint to
  * sum to 1. Usually, these parameters are measured from the data and not optimized.
  * \f[
- * \begin{pmatrix}
+ * S = \begin{pmatrix}
  * \cdots & r & \kappa_1 r & r \\ 
  * r & \cdots & r & \kappa_2 r \\ 
  * \kappa_1 r & r & \cdots & r \\ 

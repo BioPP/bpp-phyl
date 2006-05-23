@@ -87,7 +87,7 @@ Newick::read(istream & in) const throw (Exception)
 		} else description += temp;
 	}
 	if(_allowComments) description = TextTools::removeSubstrings(description, '[', ']');
-	return TreeTools::parenthesisToTree(description);
+	return TreeTools::parenthesisToTree(description, _useBootstrap, _bootstrapPropertyName);
 }
 
 /******************************************************************************/

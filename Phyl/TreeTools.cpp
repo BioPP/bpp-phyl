@@ -43,7 +43,9 @@ knowledge of the CeCILL license and that you accept its terms.
 
 // From Utils:
 #include <Utils/TextTools.h>
+#include <Utils/StringTokenizer.h>
 #include <Utils/Number.h>
+#include <Utils/String.h>
 
 // From NumCalc:
 #include <NumCalc/RandomTools.h>
@@ -115,117 +117,170 @@ unsigned int TreeTools::getDepth(const Node & node)
 TreeTools::Element TreeTools::getElement(string elt) throw (IOException)
 {
 	Element element;
-	element.length    = NULL; //default
-	element.bootstrap = NULL; //default
+	element.length    = ""; //default
+	element.bootstrap = ""; //default
 	
-	int colon = elt.rfind(':');
+  string::size_type colon = elt.rfind(':');
 	try {
 		string elt2;
-		if(colon >= 0 && colon < (int)elt.size()) {
+		if(colon != string::npos)
+    {
 			//this is an element with length:
 			elt2 = elt.substr(0, colon);
-			istringstream iss(elt.substr(colon + 1));
-			double length;
-			iss >> length;
-			element.length = new double(length);
-		} else {
+			element.length = elt.substr(colon + 1);
+		}
+    else
+    {
 			//this is an element without length;
 			elt2 = elt;
 		}
 	
-		unsigned int  lastP = elt2.rfind(')');
-		unsigned int firstP = elt2.find('(');
-		if(firstP > elt2.size()) {
+    string::size_type lastP = elt2.rfind(')');
+    string::size_type firstP = elt2.find('(');
+		if(firstP == string::npos)
+    {
 			//This is a leaf:
 			element.content = elt2;
-		} else {
+		}
+    else
+    {
 			//This is a node:
 			if(lastP < firstP) throw IOException("Invalid format: bad closing parenthesis in " + elt2);
 			element.content = elt2.substr(firstP + 1, lastP - firstP - 1);
 			string bootstrap = elt2.substr(lastP + 1);
 			//cout << "ELEMENT: BOOTSTRAP: " << bootstrap << endl;
-			if(!TextTools::isEmpty(bootstrap)) {
-				//this a node with a bootstrap value:
-				istringstream iss(bootstrap);
-				double bootstrapValue;
-				iss >> bootstrapValue;
-				element.bootstrap = new double(bootstrapValue);
+			if(!TextTools::isEmpty(bootstrap))
+      {
+				element.bootstrap = bootstrap;
 			}
 		}
-	} catch(exception e) {
+	}
+  catch(exception e)
+  {
 		throw IOException("Bad tree description: " + elt);
 	}
 	return element;
 }	
 
 /******************************************************************************/
-Node * TreeTools::parenthesisToNode(const string & description)
+Node * TreeTools::parenthesisToNode(const string & description, bool bootstrap, const string & propertyName)
 {
 	//cout << "NODE: " << description << endl;
 	Element elt = getElement(description);
 
 	//New node:
 	Node * node = new Node();
-	if(elt.length != NULL) {
-		node -> setDistanceToFather(* elt.length);
+	if(!TextTools::isEmpty(elt.length))
+  {
+		node->setDistanceToFather(TextTools::toDouble(elt.length));
 		//cout << "NODE: LENGTH: " << * elt.length << endl;
 	}
-	if(elt.bootstrap != NULL) {
-		node -> setProperty(BOOTSTRAP, new Number<double>(* elt.bootstrap));
-		//cout << "NODE: BOOTSTRAP: " << * elt.bootstrap << endl;
+	if(!TextTools::isEmpty(elt.bootstrap))
+  {
+    if(bootstrap)
+    {
+		  node->setProperty(BOOTSTRAP, new Number<double>(TextTools::toDouble(elt.bootstrap)));
+		  //cout << "NODE: BOOTSTRAP: " << * elt.bootstrap << endl;
+    }
+    else
+    {
+      node->setProperty(propertyName, new String(elt.bootstrap));
+    }
 	}
 	
 	NodeTokenizer nt(elt.content);
 	vector<string> elements;
-	while(nt.hasNext()) {
+	while(nt.hasNext())
+  {
 		elements.push_back(nt.next());
 	}
 
-	if(elements.size() == 1) {
+	if(elements.size() == 1)
+  {
 		//This is a leaf:
 		//cout << "NODE: LEAF: " << elements[0] << endl;
 		string name = TextTools::removeSurroundingWhiteSpaces(elements[0]);
 		node -> setName(name);
-	} else {
+	}
+  else
+  {
 		//This is a node:
-		for(unsigned int i = 0; i < elements.size(); i++) {
+		for(unsigned int i = 0; i < elements.size(); i++)
+    {
 			//cout << "NODE: SUBNODE: " << i << ", " << elements[i] << endl;
-			Node * son = parenthesisToNode(elements[i]);
+			Node * son = parenthesisToNode(elements[i], bootstrap, propertyName);
 			node -> addSon(* son);
 		}
 	}
-	//Must delete the element:
-	delete elt.length;
-	delete elt.bootstrap;
 	return node;
 }
 
 /******************************************************************************/
 
-TreeTemplate<Node> * TreeTools::parenthesisToTree(const string & description)
+TreeTemplate<Node> * TreeTools::parenthesisToTree(const string & description, bool bootstrap, const string & propertyName)
 {
-	int lastP  = description.rfind(')');
-	int firstP = description.find('(');
+  string::size_type lastP  = description.rfind(')');
+  string::size_type firstP = description.find('(');
+  string::size_type semi = description.rfind(';');
 	string content = description.substr(firstP + 1, lastP - firstP - 1);
+  string element = semi == string::npos ? description.substr(lastP+1) : description.substr(lastP+1, semi - lastP - 1);
 	//cout << "TREE: " << content << endl;
 	//New root node:
 	Node * node = new Node();
 	
 	NodeTokenizer nt(content);
 	vector<string> elements;
-	while(nt.hasNext()) {
+	while(nt.hasNext())
+  {
 		elements.push_back(nt.next());
 	}
 
-	if(elements.size() == 1) {
+	if(elements.size() == 1)
+  {
 		//This is a leaf:
 		node -> setName(elements[0]);
-	} else {
+	}
+  else
+  {
 		//This is a node:
-		for(unsigned int i = 0; i < elements.size(); i++) {
-			Node * son = parenthesisToNode(elements[i]);
+		for(unsigned int i = 0; i < elements.size(); i++)
+    {
+			Node * son = parenthesisToNode(elements[i], bootstrap, propertyName);
 			node -> addSon(* son);
 		}
+    if(! TextTools::isEmpty(element))
+    {
+      StringTokenizer st(element, ":");
+      string lengthS = "";
+      string bootstrapS = "";
+      if(st.numberOfRemainingTokens() == 1)
+      { 
+        bootstrapS=st.nextToken();
+      }
+      else
+      {
+        bootstrapS=st.nextToken();
+        lengthS=st.nextToken();
+      }
+    	if(!TextTools::isEmpty(lengthS))
+      {
+		    node->setDistanceToFather(TextTools::toDouble(lengthS));
+		    //cout << "NODE: LENGTH: " << * elt.length << endl;
+	    }
+	    if(!TextTools::isEmpty(bootstrapS))
+      {
+        
+        if(bootstrap)
+        {
+		      node->setProperty(BOOTSTRAP, new Number<double>(TextTools::toDouble(bootstrapS)));
+		      //cout << "NODE: BOOTSTRAP: " << * elt.bootstrap << endl;
+        }
+        else
+        {
+          node->setProperty(propertyName, new String(bootstrapS));
+        }
+	    }
+    }
 	}
 	TreeTemplate<Node> * tree = new TreeTemplate<Node>();
 	tree -> setRootNode(* node);

@@ -68,12 +68,22 @@ knowledge of the CeCILL license and that you accept its terms.
  * delete tree;
  * delete newickReader;
  * @endcode
+ *
+ * Bootstrap values are stored as node properties, as Number<double> objects and with the tag TreeTools::BOOTSTRAP.
+ *
+ * This is also possible to read a "tagged" tree, where additional info is provided in place of bootstrap values:
+ * ((A,B)N2,(C,D)N3)N1;
+ * This is achieved by calling the enableExtendedBootstrapProperty method, and porviding a property name to use.
+ * The additional information will be stored at each node as a property, in a String object.
+ * The disableExtendedBootstrapProperty method restores the default behavior.
  */
 class Newick: public virtual AbstractITree, public virtual AbstractOTree
 {
 	protected:
 		bool _allowComments;
     bool _writeId;
+    bool _useBootstrap;
+    string _bootstrapPropertyName;
 	
 	public:
 		
@@ -85,10 +95,21 @@ class Newick: public virtual AbstractITree, public virtual AbstractOTree
 		 * @param allowComments Tell if comments between [] are allowed in file.
 		 * @param writeId       If true, nodes ids will be written in place of bootstrap values.
 		 */
-		Newick(bool allowComments = false, bool writeId = false): _allowComments(allowComments), _writeId(writeId) {}
+		Newick(bool allowComments = false, bool writeId = false): _allowComments(allowComments), _writeId(writeId), _useBootstrap(true), _bootstrapPropertyName(TreeTools::BOOTSTRAP) {}
 		virtual ~Newick() {}
 	
 	public:
+
+    void enableExtendedBootstrapProperty(const string & propertyName)
+    {
+      _useBootstrap = false;
+      _bootstrapPropertyName = propertyName;
+    }
+    void disableExtendedBootstrapProperty()
+    {
+      _useBootstrap = true;
+      _bootstrapPropertyName = TreeTools::BOOTSTRAP;
+    }
 
 		/**
 		 * @name The IOTree interface

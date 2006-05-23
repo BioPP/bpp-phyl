@@ -57,7 +57,7 @@ knowledge of the CeCILL license and that you accept its terms.
  * parameters.
  * We used the parametrization proposed by Yang (1994):
  * \f[
- * \begin{pmatrix}
+ * S = \begin{pmatrix}
  * \cdots & d & f & b \\ 
  * d & \cdots & e & a \\ 
  * f & e & \cdots & c \\ 

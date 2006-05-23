@@ -346,8 +346,8 @@ class TreeTools
 		 * @name Conversion tools.
 		 *
 		 * Convert from Newick standard tree description.
-		 * The description is for a node, and hence is to be rounded with
-		 * parenthesis. ex: (A:0.001, (B:0.001, C:0.02):0.005):0.0005
+		 * The description is for a node, and hence is to be surrounded with
+		 * parenthesis. ex: (A:0.001, (B:0.001, C:0.02)90:0.005)50:0.0005
 		 *
 		 * @{
 		 */
@@ -356,8 +356,8 @@ class TreeTools
 		struct Element
 		{
 			string content;
-			double * length;
-			double * bootstrap;
+			string length;
+			string bootstrap;
 		};
 
 		static Element getElement(string elt) throw (IOException);
@@ -368,18 +368,24 @@ class TreeTools
 		 * a subtree.
 		 *
 		 * @param description the string to parse;
+     * @param bootstrap Tell is real bootstrap values are expected. If so, a property with name TreeTools::BOOTSTRAP will be created and stored at the corresponding node.
+     * The property value will be of type Number<double>. Otherwise, an object of type String will be created and stored with the property name propertyName.
+     * @param propertyName The name of the property to store. Only used if bootstrap = false.
 		 * @return A pointer toward a dynamically created subtree.
 		 */
-		static Node * parenthesisToNode(const string & description);
+		static Node * parenthesisToNode(const string & description, bool bootstrap=true, const string & propertyName=BOOTSTRAP);
 	
 		/**
 		 * @brief Parse a string in the parenthesis format and convert it to
 		 * a tree.
 		 *
 		 * @param description the string to parse;
+     * @param bootstrap Tell is real bootstrap values are expected. If so, a property with name TreeTools::BOOTSTRAP will be created and stored at the corresponding node.
+     * The property value will be of type Number<double>. Otherwise, an object of type String will be created and stored with the property name propertyName.
+     * @param propertyName The name of the property to store. Only used if bootstrap = false.
 		 * @return A pointer toward a dynamically created tree.
 		 */
-		static TreeTemplate<Node> * parenthesisToTree(const string & description);
+		static TreeTemplate<Node> * parenthesisToTree(const string & description, bool bootstrap=true, const string & propertyName=BOOTSTRAP);
 		
 		/**
 		 * @brief Get the parenthesis description of a subtree.

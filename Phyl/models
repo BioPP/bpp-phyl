@@ -6,6 +6,7 @@
 #include "K80.h"
 #include "T92.h"
 #include "HKY85.h"
+#include "F84.h"
 #include "TN93.h"
 #include "GTR.h"
 #include "DSO78.h"

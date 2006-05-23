@@ -57,7 +57,7 @@ knowledge of the CeCILL license and that you accept its terms.
  * This models hence includes two parameters, the transition / transversion
  * relative rate \f$\kappa\f$ and the frequency of GC, \f$\theta\f$.
  * \f[
- * \begin{pmatrix}
+ * S = \begin{pmatrix}
  * \cdots & r & \kappa r & r \\ 
  * r & \cdots & r & \kappa r \\ 
  * \kappa r & r & \cdots & r \\ 

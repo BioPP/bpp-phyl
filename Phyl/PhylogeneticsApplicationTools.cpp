@@ -204,6 +204,36 @@ SubstitutionModel * PhylogeneticsApplicationTools::getSubstitutionModel(
 				ApplicationTools::displayResult("piG"  , TextTools::toString(piG));
 				ApplicationTools::displayResult("piT"  , TextTools::toString(piT));
 			}
+		} else if(modelName == "F84") {
+			double piA = 0.25, piC = 0.25, piG = 0.25, piT = 0.25;
+			double kappa = ApplicationTools::getDoubleParameter("kappa", params, 2, suffix, suffixIsOptional);
+			bool useObsFreq = ApplicationTools::getBooleanParameter("model.use_observed_freq", params, false, suffix, suffixIsOptional);
+			if(useObsFreq && data != NULL) {
+				model = new F84(alpha, kappa);
+				dynamic_cast<F84 *>(model) -> setFreqFromData(*data);
+				piA = model -> getParameterValue("piA");
+				piC = model -> getParameterValue("piC");
+				piG = model -> getParameterValue("piG");
+				piT = model -> getParameterValue("piT");
+			} else {
+				piA = ApplicationTools::getDoubleParameter("piA", params, 0.25, suffix, suffixIsOptional);
+				piC = ApplicationTools::getDoubleParameter("piC", params, 0.25, suffix, suffixIsOptional);
+				piG = ApplicationTools::getDoubleParameter("piG", params, 0.25, suffix, suffixIsOptional);
+				piT = ApplicationTools::getDoubleParameter("piT", params, 0.25, suffix, suffixIsOptional);
+				if( fabs(1-(piA + piT + piG + piC)) > 0.00000000000001 ) {
+					ApplicationTools::displayError("Equilibrium base frequencies must equal 1. Aborting...");
+					exit(-1);
+				}
+				model = new F84(alpha, kappa, piA, piC, piG, piT);
+			}
+			if(verbose) {
+				ApplicationTools::displayResult("model", modelName);
+				ApplicationTools::displayResult("kappa", TextTools::toString(kappa));
+				ApplicationTools::displayResult("piA"  , TextTools::toString(piA));
+				ApplicationTools::displayResult("piC"  , TextTools::toString(piC));
+				ApplicationTools::displayResult("piG"  , TextTools::toString(piG));
+				ApplicationTools::displayResult("piT"  , TextTools::toString(piT));
+			}
 		} else if(modelName == "T92") {
 			double kappa = ApplicationTools::getDoubleParameter("kappa", params, 2, suffix, suffixIsOptional);
 			double theta = 0.5;

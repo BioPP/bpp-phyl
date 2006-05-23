@@ -1,3 +1,9 @@
+23/05/06 Julien Dutheil
+* New F84 model.
+
+04/05/06 Julien Dutheil
+* Improved TreeTools::parenthesisToNode[Tree] method and Newick parser.
+
 18/04/06 -*- Version 1.1.0 -*-
 
 18/04/06 Julien Dutheil
