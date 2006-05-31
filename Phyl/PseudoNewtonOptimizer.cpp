@@ -112,8 +112,9 @@ inline double PseudoNewtonOptimizer::step() throw (Exception)
 		double secondOrderDerivative = dynamic_cast<const DerivableSecondOrder *>(_function) -> getSecondOrderDerivative(_params[i]);
 		if(secondOrderDerivative <= 0) {
 			printMessage("!!! Second order derivative is negative for parameter " + _params[i] + "(" + TextTools::toString(_parameters[i]->getValue()) + "). No move performed.");
-			movements[i] = 0;  // We want to reach a minimum, not a maximum!
-		  //movements[i] = -firstOrderDerivative / secondOrderDerivative;
+			//movements[i] = 0;  // We want to reach a minimum, not a maximum!
+		  // My personnal improvement:
+      movements[i] = -firstOrderDerivative / secondOrderDerivative;
 		}
 		else movements[i] = firstOrderDerivative / secondOrderDerivative;
 		if(isnan(movements[i])) {
