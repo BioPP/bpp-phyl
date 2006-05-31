@@ -240,7 +240,7 @@ DRHomogeneousTreeLikelihood::DRHomogeneousTreeLikelihood(
 	AbstractDiscreteRatesAcrossSitesTreeLikelihood(rDist, verbose), // We must do this since AbstractTreeLikelihood is virtual
 	AbstractHomogeneousTreeLikelihood(tree, model, rDist, checkRooted, verbose)
 {
-	if(verbose) ApplicationTools::message << "Double-Recursive Homogeneous Tree Likelihood" << endl;	
+  if(verbose) ApplicationTools::message << "Double-Recursive Homogeneous Tree Likelihood" << endl;	
 	_likelihoodData = new DRASDRTreeLikelihoodData(*_tree, rDist -> getNumberOfCategories());
 		
   setData(data);

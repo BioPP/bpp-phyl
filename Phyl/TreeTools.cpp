@@ -293,20 +293,30 @@ TreeTemplate<Node> * TreeTools::parenthesisToTree(const string & description, bo
 string TreeTools::nodeToParenthesis(const Node & node, bool writeId)
 {
 	ostringstream s;
-	if(node.isLeaf()) {
+	if(node.isLeaf())
+  {
 		s << node.getName();
-	} else {
+	}
+  else
+  {
 		s << "(";
 		s << nodeToParenthesis(* node[0], writeId);
-		for(unsigned int i = 1; i < node.getNumberOfSons(); i++) {
+		for(unsigned int i = 1; i < node.getNumberOfSons(); i++)
+    {
 			s << "," << nodeToParenthesis(* node[i], writeId);
 		}
 		s << ")";
 	}
-	if(writeId) {
+	if(writeId)
+  {
 		if(node.isLeaf()) s << "_";
 		s << node.getId();
-	} else if(node.hasProperty(BOOTSTRAP)) s << (dynamic_cast<const Number<double> *>(node.getProperty(BOOTSTRAP)) -> getValue());
+	}
+  else
+  {
+    if(node.hasProperty(BOOTSTRAP))
+      s << (dynamic_cast<const Number<double> *>(node.getProperty(BOOTSTRAP))->getValue());
+  }
 	if(node.hasDistanceToFather()) s << ":" << node.getDistanceToFather();
 	return s.str();	
 }
@@ -316,22 +326,101 @@ string TreeTools::nodeToParenthesis(const Node & node, bool writeId)
 string TreeTools::nodeToParenthesis(const Tree & tree, int nodeId, bool writeId)
 {
 	ostringstream s;
-	if(tree.isLeaf(nodeId)) {
+	if(tree.isLeaf(nodeId))
+  {
 		s << tree.getNodeName(nodeId);
-	} else {
+	}
+  else
+  {
 		s << "(";
 		vector<int> sonsId = tree.getSonsId(nodeId);
 		s << nodeToParenthesis(tree, sonsId[0], writeId);
-		for(unsigned int i = 1; i < sonsId.size(); i++) {
+		for(unsigned int i = 1; i < sonsId.size(); i++)
+    {
 			s << "," << nodeToParenthesis(tree, sonsId[i], writeId);
 		}
 		s << ")";
 	}
-	if(writeId) {
+	if(writeId)
+  {
 		if(tree.isLeaf(nodeId)) s << "_";
 		s << nodeId;
-	} else if(tree.hasProperty(nodeId, BOOTSTRAP)) s << (dynamic_cast<const Number<double> *>(tree.getProperty(nodeId, BOOTSTRAP)) -> getValue());
+	}
+  else
+  {
+    if(tree.hasProperty(nodeId, BOOTSTRAP))
+      s << (dynamic_cast<const Number<double> *>(tree.getProperty(nodeId, BOOTSTRAP))->getValue());
+  }
 	if(tree.hasDistanceToFather(nodeId)) s << ":" << tree.getDistanceToFather(nodeId);
+	return s.str();	
+}
+
+/******************************************************************************/
+
+string TreeTools::nodeToParenthesis(const Node & node, bool bootstrap, const string & propertyName)
+{
+	ostringstream s;
+	if(node.isLeaf())
+  {
+		s << node.getName();
+	}
+  else
+  {
+		s << "(";
+		s << nodeToParenthesis(* node[0], bootstrap, propertyName);
+		for(unsigned int i = 1; i < node.getNumberOfSons(); i++)
+    {
+			s << "," << nodeToParenthesis(* node[i], bootstrap, propertyName);
+		}
+		s << ")";
+	
+    if(bootstrap)
+    {
+      if(node.hasProperty(BOOTSTRAP))
+        s << (dynamic_cast<const Number<double> *>(node.getProperty(BOOTSTRAP))->getValue());
+    }
+    else
+    {
+      if(node.hasProperty(propertyName))
+        s << (dynamic_cast<const String *>(node.getProperty(propertyName)));
+    }
+  }
+	if(node.hasDistanceToFather()) s << ":" << node.getDistanceToFather();
+	return s.str();	
+}
+
+/******************************************************************************/
+
+string TreeTools::nodeToParenthesis(const Tree & tree, int nodeId, bool bootstrap, const string & propertyName)
+{
+	ostringstream s;
+	if(tree.isLeaf(nodeId))
+  {
+		s << tree.getNodeName(nodeId);
+	}
+  else
+  {
+		s << "(";
+		vector<int> sonsId = tree.getSonsId(nodeId);
+		s << nodeToParenthesis(tree, sonsId[0], bootstrap, propertyName);
+		for(unsigned int i = 1; i < sonsId.size(); i++)
+    {
+			s << "," << nodeToParenthesis(tree, sonsId[i], bootstrap, propertyName);
+		}
+		s << ")";
+   
+    if(bootstrap)
+    {
+      if(tree.hasProperty(nodeId, BOOTSTRAP))
+        s << (dynamic_cast<const Number<double> *>(tree.getProperty(nodeId, BOOTSTRAP))->getValue());
+    }
+    else
+    {
+      if(tree.hasProperty(nodeId, propertyName))
+        s << (dynamic_cast<const String *>(tree.getProperty(nodeId, propertyName)));
+    }
+	}
+  if(tree.hasDistanceToFather(nodeId)) s << ":" << tree.getDistanceToFather(nodeId);
 	return s.str();	
 }
 
@@ -342,15 +431,20 @@ string TreeTools::treeToParenthesis(const TreeTemplate<Node> & tree, bool writeI
 	ostringstream s;
 	s << "(";
 	const Node * node = tree.getRootNode();
-	if(node -> isLeaf()) {
+	if(node->isLeaf())
+  {
 		s << node -> getName();
-		for(unsigned int i = 0; i < node -> getNumberOfSons(); i++) {
+		for(unsigned int i = 0; i < node -> getNumberOfSons(); i++)
+    {
 			s << "," << nodeToParenthesis(* node -> getSon(i), writeId);
 		}
-	} else {
-		s << nodeToParenthesis(* node -> getSon(0), writeId);
-		for(unsigned int i = 1; i < node -> getNumberOfSons(); i++) {
-			s << "," << nodeToParenthesis(* node -> getSon(i), writeId);
+	}
+  else
+  {
+		s << nodeToParenthesis(* node->getSon(0), writeId);
+		for(unsigned int i = 1; i < node->getNumberOfSons(); i++)
+    {
+			s << "," << nodeToParenthesis(* node->getSon(i), writeId);
 		}
 	}
 	s << ");" << endl;
@@ -365,15 +459,74 @@ string TreeTools::treeToParenthesis(const Tree & tree, bool writeId)
 	s << "(";
 	int rootId = tree.getRootId();
 	vector<int> sonsId = tree.getSonsId(rootId);
-	if(tree.isLeaf(rootId)) {
+	if(tree.isLeaf(rootId))
+  {
 		s << tree.getNodeName(rootId);
 		for(unsigned int i = 0; i < sonsId.size(); i++) {
 			s << "," << nodeToParenthesis(tree, sonsId[i], writeId);
 		}
-	} else {
+	}
+  else
+  {
 		s << nodeToParenthesis(tree, sonsId[0], writeId);
-		for(unsigned int i = 1; i < sonsId.size(); i++) {
+		for(unsigned int i = 1; i < sonsId.size(); i++)
+    {
 			s << "," << nodeToParenthesis(tree, sonsId[i], writeId);
+		}
+	}
+	s << ");" << endl;
+	return s.str();	
+}
+
+/******************************************************************************/
+
+string TreeTools::treeToParenthesis(const TreeTemplate<Node> & tree, bool bootstrap, const string & propertyName)
+{
+	ostringstream s;
+	s << "(";
+	const Node * node = tree.getRootNode();
+	if(node->isLeaf())
+  {
+		s << node -> getName();
+		for(unsigned int i = 0; i < node->getNumberOfSons(); i++)
+    {
+			s << "," << nodeToParenthesis(* node->getSon(i), bootstrap, propertyName);
+		}
+	}
+  else
+  {
+		s << nodeToParenthesis(* node->getSon(0), bootstrap, propertyName);
+		for(unsigned int i = 1; i < node->getNumberOfSons(); i++)
+    {
+			s << "," << nodeToParenthesis(* node->getSon(i), bootstrap, propertyName);
+		}
+	}
+	s << ");" << endl;
+	return s.str();	
+}
+
+/******************************************************************************/
+
+string TreeTools::treeToParenthesis(const Tree & tree, bool bootstrap, const string & propertyName)
+{
+	ostringstream s;
+	s << "(";
+	int rootId = tree.getRootId();
+	vector<int> sonsId = tree.getSonsId(rootId);
+	if(tree.isLeaf(rootId))
+  {
+		s << tree.getNodeName(rootId);
+		for(unsigned int i = 0; i < sonsId.size(); i++)
+    {
+			s << "," << nodeToParenthesis(tree, sonsId[i], bootstrap, propertyName);
+		}
+	}
+  else
+  {
+		s << nodeToParenthesis(tree, sonsId[0], bootstrap, propertyName);
+		for(unsigned int i = 1; i < sonsId.size(); i++)
+    {
+			s << "," << nodeToParenthesis(tree, sonsId[i], bootstrap, propertyName);
 		}
 	}
 	s << ");" << endl;

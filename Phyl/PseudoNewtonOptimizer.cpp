@@ -110,16 +110,17 @@ inline double PseudoNewtonOptimizer::step() throw (Exception)
 	for(unsigned int i = 0; i < _n; i++) {
 	  double  firstOrderDerivative = dynamic_cast<const DerivableSecondOrder *>(_function) -> getFirstOrderDerivative(_params[i]);
 		double secondOrderDerivative = dynamic_cast<const DerivableSecondOrder *>(_function) -> getSecondOrderDerivative(_params[i]);
-		if(secondOrderDerivative < 0) {
-			printMessage("!!! Second order derivative is negative for parameter " + _params[i] + ". No move performed.");
+		if(secondOrderDerivative <= 0) {
+			printMessage("!!! Second order derivative is negative for parameter " + _params[i] + "(" + TextTools::toString(_parameters[i]->getValue()) + "). No move performed.");
 			movements[i] = 0;  // We want to reach a minimum, not a maximum!
+		  //movements[i] = -firstOrderDerivative / secondOrderDerivative;
 		}
 		else movements[i] = firstOrderDerivative / secondOrderDerivative;
 		if(isnan(movements[i])) {
 			printMessage("!!! Non derivable point at " + _params[i] + ". No move performed.");
 			movements[i] = 0;  // Either first or second order derivative is infinity. This may happen when the function == inf at this point.
 		}
-		//DEBUG: cout << "PN[" << i << "]=" << movements[i] << "\t " << firstOrderDerivative << "\t" << secondOrderDerivative << endl;
+		//DEBUG: cout << "PN[" << i << "]=" << _parameters.getParameter(_params[i])->getValue() << "\t" << movements[i] << "\t " << firstOrderDerivative << "\t" << secondOrderDerivative << endl;
 		newPoint.setParameterValue(_params[i], _parameters.getParameter(_params[i]) -> getValue() - movements[i]);
 	}
 	newValue = _function -> f(newPoint);

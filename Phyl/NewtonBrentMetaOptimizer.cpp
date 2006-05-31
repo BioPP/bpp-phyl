@@ -95,7 +95,7 @@ NewtonBrentMetaOptimizer::NewtonBrentMetaOptimizer(DiscreteRatesAcrossSitesTreeL
 	_rateDistributionOptimizer = NULL;
 	_substitutionModelOptimizer = NULL;
 	_branchLengthsOptimizer = NULL;
-	_rough=true;
+	_rough = true;
 }
 
 /**************************************************************************/
@@ -263,12 +263,12 @@ double NewtonBrentMetaOptimizer::optimize()
 				cout << endl << "Branch lengths:" << endl;
 				cout.flush();
 			}
-			tl -> setComputeDerivatives(true);
+			//tl -> setComputeDerivatives(true);
 			_branchLengthsParameters.matchParametersValues(_parameters);
 			_branchLengthsOptimizer  -> init(_branchLengthsParameters);
 			_branchLengthsOptimizer  -> optimize();
 			_nbEval += _branchLengthsOptimizer -> getNumberOfEvaluations();
-			tl -> setComputeDerivatives(false);
+			//tl -> setComputeDerivatives(false);
 		}
 
 		if(_nbRateDistParams > 0) {

@@ -78,13 +78,16 @@ Newick::read(istream & in) const throw (Exception)
 	//We concatenate all line in file till we reach the ending semi colon:
 	string temp, description;// Initialization
 	// Main loop : for all file lines
-	while (! in.eof()) {
+	while (! in.eof())
+  {
 		getline(in, temp, '\n');  // Copy current line in temporary string
 		int index = temp.find(";");
-		if(index >= 0 && index < (int)temp.size()) {
+		if(index >= 0 && index < (int)temp.size())
+    {
 			description += temp.substr(0, index + 1);
 			break;
-		} else description += temp;
+		}
+    else description += temp;
 	}
 	if(_allowComments) description = TextTools::removeSubstrings(description, '[', ']');
 	return TreeTools::parenthesisToTree(description, _useBootstrap, _bootstrapPropertyName);
@@ -96,7 +99,14 @@ void Newick::write(const Tree & tree, ostream & out) const throw (Exception)
 {
 	// Checking the existence of specified file, and possibility to open it in write mode
 	if (! out) { throw IOException ("Newick::write : failed to write to stream"); }
-	out << TreeTools::treeToParenthesis(tree, _writeId);
+	if(_useBootstrap)
+  {
+    out << TreeTools::treeToParenthesis(tree, false, _bootstrapPropertyName);
+  }
+  else
+  {
+    out << TreeTools::treeToParenthesis(tree, _writeId);
+  }
 }
 
 /******************************************************************************/

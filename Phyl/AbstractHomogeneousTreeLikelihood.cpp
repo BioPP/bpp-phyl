@@ -79,6 +79,9 @@ AbstractHomogeneousTreeLikelihood::AbstractHomogeneousTreeLikelihood(
 	_nbClasses = _rateDistribution -> getNumberOfCategories();
 
   _verbose = verbose;
+
+  _minimumBrLen = 0.000001;
+  _brLenConstraint = new IncludingPositiveReal(_minimumBrLen);
 }
 
 /******************************************************************************/
@@ -106,7 +109,7 @@ ParameterList AbstractHomogeneousTreeLikelihood::getSubstitutionModelParameters(
 
 void AbstractHomogeneousTreeLikelihood::initParameters()
 {
-	// Reset parameters:
+  // Reset parameters:
 	_parameters.reset();
 	
 	// Branch lengths:
@@ -150,19 +153,19 @@ void AbstractHomogeneousTreeLikelihood::initBranchLengthsParameters()
   _brLenParameters.reset();
 	for(unsigned int i = 0; i < _nbNodes; i++)
   {
-    double d = 0;
-    if(!_nodes[i] -> hasDistanceToFather()) {
-			cout << "WARNING!!! Missing branch length " << i << ". Value is set to 0." << endl;
-			_nodes[i] -> setDistanceToFather(0.);
+    double d = _minimumBrLen;
+    if(!_nodes[i]->hasDistanceToFather()) {
+			cout << "WARNING!!! Missing branch length " << i << ". Value is set to " << _minimumBrLen << endl;
+			_nodes[i]->setDistanceToFather(_minimumBrLen);
     } else {
-  		d = _nodes[i] -> getDistanceToFather();
-	  	if (d < 0) {
-		  	cout << "WARNING!!! Branch length " << i << " is <0. Value is set to 0." << endl;
-			  _nodes[i] -> setDistanceToFather(0.);
-			  d = 0.;
+  		d = _nodes[i]->getDistanceToFather();
+	  	if (d <= 0) {
+		  	cout << "WARNING!!! Branch length " << i << " is <0. Value is set to " << _minimumBrLen << endl;
+			  _nodes[i]->setDistanceToFather(_minimumBrLen);
+			  d = _minimumBrLen;
 		  }
     }
-		_brLenParameters.addParameter(Parameter("BrLen" + TextTools::toString(i), d, & Parameter::R_PLUS));
+		_brLenParameters.addParameter(Parameter("BrLen" + TextTools::toString(i), d, _brLenConstraint));
 	}
 }
 

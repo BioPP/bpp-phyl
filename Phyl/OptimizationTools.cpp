@@ -123,6 +123,43 @@ int OptimizationTools::optimizeNumericalParameters(
 {
 	// Build optimizer:
 	NewtonBrentMetaOptimizer * optimizer = new NewtonBrentMetaOptimizer(tl);
+	optimizer->setVerbose(verbose);
+	optimizer->setProfiler(profiler);
+	optimizer->setMessageHandler(messageHandler);
+	optimizer->setMaximumNumberOfEvaluations(tlEvalMax);
+	optimizer->getStopCondition()->setTolerance(tolerance);
+	
+	// Optimize TreeLikelihood function:
+	try {
+		ParameterList pl = tl->getParameters();
+		optimizer->setConstraintPolicy(AbstractOptimizer::CONSTRAINTS_AUTO);
+		optimizer->init(pl);
+		optimizer->optimize();
+	} catch(Exception e) {
+		cout << e.what() << endl;
+		exit(-1);
+	}
+	// We're done.
+	int n = optimizer->getNumberOfEvaluations(); 
+	// Delete optimizer:
+	delete optimizer;
+	// Send number of evaluations done:
+	return n;
+}
+	
+/******************************************************************************/
+
+int OptimizationTools::optimizeBranchLengthsParameters(
+	DiscreteRatesAcrossSitesTreeLikelihood * tl,
+	double tolerance,
+	int tlEvalMax,
+	ostream * messageHandler,
+	ostream * profiler,
+	unsigned int verbose
+	)	throw (Exception)
+{
+	// Build optimizer:
+	PseudoNewtonOptimizer * optimizer = new PseudoNewtonOptimizer(tl);
 	optimizer -> setVerbose(verbose);
 	optimizer -> setProfiler(profiler);
 	optimizer -> setMessageHandler(messageHandler);
@@ -131,7 +168,7 @@ int OptimizationTools::optimizeNumericalParameters(
 	
 	// Optimize TreeLikelihood function:
 	try {
-		ParameterList pl = tl -> getParameters();
+		ParameterList pl = tl -> getBranchLengthsParameters();
 		optimizer -> setConstraintPolicy(AbstractOptimizer::CONSTRAINTS_AUTO);
 		optimizer -> init(pl);
 		optimizer -> optimize();

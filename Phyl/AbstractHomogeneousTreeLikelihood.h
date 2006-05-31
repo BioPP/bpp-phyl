@@ -76,6 +76,9 @@ class AbstractHomogeneousTreeLikelihood: public virtual AbstractDiscreteRatesAcr
 
     bool _verbose;
 
+    double _minimumBrLen;
+    Constraint * _brLenConstraint;
+
 	public:
 		AbstractHomogeneousTreeLikelihood(
 			TreeTemplate<Node> * tree,
@@ -145,6 +148,16 @@ class AbstractHomogeneousTreeLikelihood: public virtual AbstractDiscreteRatesAcr
 		void resetLikelihoodArray(VVVdouble & likelihoodArray);
 
 		static void displayLikelihoodArray(const VVVdouble & likelihoodArray);
+
+    void setMinimumBranchLength(double minimum)
+    {
+      _minimumBrLen = minimum;
+      if(_brLenConstraint != NULL) delete _brLenConstraint;
+      _brLenConstraint = new IncludingPositiveReal(_minimumBrLen);
+      initBranchLengthsParameters();
+    }
+
+    double getMinimumBranchLength() const { return _minimumBrLen; }
 
   protected:
     /**

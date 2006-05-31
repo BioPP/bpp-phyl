@@ -92,6 +92,31 @@ class OptimizationTools
 			unsigned int verbose = 1)
 			throw (Exception);
 	
+		/**
+		 * @brief Optimize branch lengths parameters of a TreeLikelihood function.
+		 *
+		 * Uses Newton's method.
+		 *
+		 * A condition over function values is used as a stop condition for the algorithm.
+		 *
+		 * @see NewtonBrentMetaOptimizer
+		 *
+		 * @param tl             A pointer toward the TreeLikelihood object to optimize.
+		 * @param tolerance      The tolerance to use in the algorithm.
+		 * @param tlEvalMax      The maximum number of function evaluations.
+		 * @param messageHandler The massage handler.
+		 * @param profiler       The profiler.
+		 * @param verbose        The verbose level.
+		 * @throw Exception any exception thrown by the Optimizer.
+		 */
+		static int optimizeBranchLengthsParameters(
+			DiscreteRatesAcrossSitesTreeLikelihood * tl,
+			double tolerance = 0.000001,
+			int tlEvalMax = 1000000,
+			ostream * messageHandler = &cout,
+			ostream * profiler       = &cout,
+			unsigned int verbose = 1)
+			throw (Exception);
 		
 	private:
 		

@@ -187,7 +187,7 @@ class AbstractTreeLikelihood :
 		bool _computeDerivatives;
 
 	public:
-		AbstractTreeLikelihood() {}
+		AbstractTreeLikelihood(): _computeDerivatives(true) {}
 		virtual ~AbstractTreeLikelihood() {}
 	
 	public:
