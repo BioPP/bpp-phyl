@@ -1,3 +1,6 @@
+06/06/06 Julien Dutheil
+* Bug fixed in F84. Substitution matrix is now correct!
+
 31/05/06 Julien Dutheil
 * HomogeneousTreeLikelihood classes now have a minimum for branch length, the default being 0.000001 (included).
 * Improved PseudoNewtonOptimizer, faster and no more stucked in local maximum (B. Nabohlz data test).

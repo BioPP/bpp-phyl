@@ -269,7 +269,6 @@ TreeTemplate<Node> * TreeTools::parenthesisToTree(const string & description, bo
 	    }
 	    if(!TextTools::isEmpty(bootstrapS))
       {
-        
         if(bootstrap)
         {
 		      node->setProperty(BOOTSTRAP, new Number<double>(TextTools::toDouble(bootstrapS)));
@@ -382,7 +381,7 @@ string TreeTools::nodeToParenthesis(const Node & node, bool bootstrap, const str
     else
     {
       if(node.hasProperty(propertyName))
-        s << (dynamic_cast<const String *>(node.getProperty(propertyName)));
+        s << *(dynamic_cast<const String *>(node.getProperty(propertyName)));
     }
   }
 	if(node.hasDistanceToFather()) s << ":" << node.getDistanceToFather();
@@ -417,7 +416,7 @@ string TreeTools::nodeToParenthesis(const Tree & tree, int nodeId, bool bootstra
     else
     {
       if(tree.hasProperty(nodeId, propertyName))
-        s << (dynamic_cast<const String *>(tree.getProperty(nodeId, propertyName)));
+        s << *(dynamic_cast<const String *>(tree.getProperty(nodeId, propertyName)));
     }
 	}
   if(tree.hasDistanceToFather(nodeId)) s << ":" << tree.getDistanceToFather(nodeId);
@@ -501,7 +500,18 @@ string TreeTools::treeToParenthesis(const TreeTemplate<Node> & tree, bool bootst
 			s << "," << nodeToParenthesis(* node->getSon(i), bootstrap, propertyName);
 		}
 	}
-	s << ");" << endl;
+	s << ")";
+  if(bootstrap)
+  {
+    if(node->hasProperty(BOOTSTRAP))
+      s << (dynamic_cast<const Number<double> *>(node->getProperty(BOOTSTRAP))->getValue());
+  }
+  else
+  {
+    if(node->hasProperty(propertyName))
+      s << *(dynamic_cast<const String *>(node->getProperty(propertyName)));
+  }
+  s << ";" << endl;
 	return s.str();	
 }
 
@@ -509,7 +519,7 @@ string TreeTools::treeToParenthesis(const TreeTemplate<Node> & tree, bool bootst
 
 string TreeTools::treeToParenthesis(const Tree & tree, bool bootstrap, const string & propertyName)
 {
-	ostringstream s;
+  ostringstream s;
 	s << "(";
 	int rootId = tree.getRootId();
 	vector<int> sonsId = tree.getSonsId(rootId);
@@ -529,7 +539,18 @@ string TreeTools::treeToParenthesis(const Tree & tree, bool bootstrap, const str
 			s << "," << nodeToParenthesis(tree, sonsId[i], bootstrap, propertyName);
 		}
 	}
-	s << ");" << endl;
+	s << ")";
+  if(bootstrap)
+  {
+    if(tree.hasProperty(rootId, BOOTSTRAP))
+      s << (dynamic_cast<const Number<double> *>(tree.getProperty(rootId, BOOTSTRAP))->getValue());
+  }
+  else
+  {
+    if(tree.hasProperty(rootId, propertyName))
+      s << *(dynamic_cast<const String *>(tree.getProperty(rootId, propertyName)));
+  }
+  s << ";" << endl;
 	return s.str();	
 }
 

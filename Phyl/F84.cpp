@@ -92,10 +92,10 @@ void F84::updateMatrices()
 	double piR = piA + piG;
 	double piY = piT + piC;
 	
-	_generator(0, 0) = -(                  piC + kappa*piG +       piT);
-	_generator(1, 1) = -(      piA +                   piG + kappa*piT); 
-	_generator(2, 2) = -(kappa*piA +       piC             +       piT);
-	_generator(3, 3) = -(      piA + kappa*piC +       piG            );
+	_generator(0, 0) = -(                  piC + (1 + kappa / piR) * piG +       piT);
+	_generator(1, 1) = -(      piA +                   piG + (1 + kappa / piY) * piT); 
+	_generator(2, 2) = -((1 + kappa / piR) * piA +       piC             +       piT);
+	_generator(3, 3) = -(      piA + (1 + kappa / piY) * piC +       piG            );
 
 	_generator(1, 0) = piA;
 	_generator(3, 0) = piA;
@@ -106,13 +106,13 @@ void F84::updateMatrices()
 	_generator(0, 3) = piT;
 	_generator(2, 3) = piT;
 	
-	_generator(2, 0) = kappa * piA;
-	_generator(3, 1) = kappa * piC;
-	_generator(0, 2) = kappa * piG;
-	_generator(1, 3) = kappa * piT;
+	_generator(2, 0) = (1 + kappa / piR) * piA;
+	_generator(3, 1) = (1 + kappa / piY) * piC;
+	_generator(0, 2) = (1 + kappa / piR) * piG;
+	_generator(1, 3) = (1 + kappa / piY) * piT;
 	
 	// Normalization:
-	double r = 1. / (2. * (piA * piC + piC * piG + piA * piT + piG * piT + kappa * (piC * piT / piY + piA * piG / piR)));
+	double r = 1. / (1 - piA * piA - piC * piC - piG * piG - piT*piT + 2. * kappa * (piC * piT / piY + piA * piG / piR));
 	MatrixTools::scale(_generator, r);
 	
 	// Exchangeability:
@@ -195,7 +195,7 @@ double F84::Pij_t(int i, int j, double d) const
 	double piT = _parameters.getParameter("piT") -> getValue();
 	double piR = piA + piG;
 	double piY = piT + piC;
-	double r = 1. / (2. * (piA * piC + piC * piG + piA * piT + piG * piT + kappa * (piC * piT / piY + piA * piG / piR)));
+	double r = 1. / (1 - piA * piA - piC * piC - piG * piG - piT*piT + 2. * kappa * (piC * piT / piY + piA * piG / piR));
 	double l = r * d;
 	double k1 = 1;
 	double k2 = kappa + 1;
@@ -254,7 +254,7 @@ double F84::dPij_dt(int i, int j, double d) const
 	double piT = _parameters.getParameter("piT") -> getValue();
 	double piR = piA + piG;
 	double piY = piT + piC;
-	double r = 1. / (2. * (piA * piC + piC * piG + piA * piT + piG * piT + kappa * (piC * piT / piY + piA * piG / piR)));
+	double r = 1. / (1 - piA * piA - piC * piC - piG * piG - piT*piT + 2. * kappa * (piC * piT / piY + piA * piG / piR));
 	double l = r * d;
 	double k1 = 1;
 	double k2 = kappa + 1;
@@ -275,9 +275,9 @@ double F84::dPij_dt(int i, int j, double d) const
 		case 1 : {
 			switch(j) {
 				case 0 : return r * (piA *              exp1);                         //A
-				case 1 : return r * (piC * -(piR/piY) * exp1 - (piT/piY) * k1 * exp2); //C
+				case 1 : return r * (piC * -(piR/piY) * exp1 - (piT/piY) * k2 * exp2); //C
 				case 2 : return r * (piG *              exp1);                         //G
-				case 3 : return r * (piT * -(piR/piY) * exp1 + (piT/piY) * k1 * exp2); //T, U
+				case 3 : return r * (piT * -(piR/piY) * exp1 + (piT/piY) * k2 * exp2); //T, U
 			}
 		}
 		//G
@@ -293,9 +293,9 @@ double F84::dPij_dt(int i, int j, double d) const
 		case 3 : {
 			switch(j) {
 				case 0 : return r * (piA *              exp1);                         //A
-				case 1 : return r * (piC * -(piR/piY) * exp1 + (piC/piY) * k1 * exp2); //C
+				case 1 : return r * (piC * -(piR/piY) * exp1 + (piC/piY) * k2 * exp2); //C
 				case 2 : return r * (piG *              exp1);                         //G
-				case 3 : return r * (piT * -(piR/piY) * exp1 - (piC/piY) * k1 * exp2); //T, U
+				case 3 : return r * (piT * -(piR/piY) * exp1 - (piC/piY) * k2 * exp2); //T, U
 			}
 		}
 	}
@@ -313,7 +313,7 @@ double F84::d2Pij_dt2(int i, int j, double d) const
 	double piT = _parameters.getParameter("piT") -> getValue();
 	double piR = piA + piG;
 	double piY = piT + piC;
-  double r = 1. / (2. * (piA * piC + piC * piG + piA * piT + piG * piT + kappa * (piC * piT / piY + piA * piG / piR)));
+	double r = 1. / (1 - piA * piA - piC * piC - piG * piG - piT*piT + 2. * kappa * (piC * piT / piY + piA * piG / piR));
 	double r_2 = r * r;
 	double l = r * d;
 	double k1 = 1;
@@ -337,9 +337,9 @@ double F84::d2Pij_dt2(int i, int j, double d) const
 		case 1 : {
 			switch(j) {
 				case 0 : return r_2 * (piA *           - exp1);                           //A
-				case 1 : return r_2 * (piC * (piR/piY) * exp1 + (piT/piY) * k1_2 * exp2); //C
+				case 1 : return r_2 * (piC * (piR/piY) * exp1 + (piT/piY) * k2_2 * exp2); //C
 				case 2 : return r_2 * (piG *           - exp1);                           //G
-				case 3 : return r_2 * (piT * (piR/piY) * exp1 - (piT/piY) * k1_2 * exp2); //T, U
+				case 3 : return r_2 * (piT * (piR/piY) * exp1 - (piT/piY) * k2_2 * exp2); //T, U
 			}
 		}
 		//G
@@ -355,9 +355,9 @@ double F84::d2Pij_dt2(int i, int j, double d) const
 		case 3 : {
 			switch(j) {
 				case 0 : return r_2 * (piA *           - exp1);                           //A
-				case 1 : return r_2 * (piC * (piR/piY) * exp1 - (piC/piY) * k1_2 * exp2); //C
+				case 1 : return r_2 * (piC * (piR/piY) * exp1 - (piC/piY) * k2_2 * exp2); //C
 				case 2 : return r_2 * (piG *           - exp1);                           //G
-				case 3 : return r_2 * (piT * (piR/piY) * exp1 + (piC/piY) * k1_2 * exp2); //T, U
+				case 3 : return r_2 * (piT * (piR/piY) * exp1 + (piC/piY) * k2_2 * exp2); //T, U
 			}
 		}
 	}
@@ -376,7 +376,7 @@ RowMatrix<double> F84::getPij_t(double d) const
 	double piT = _parameters.getParameter("piT") -> getValue();
 	double piR = piA + piG;
 	double piY = piT + piC;
-	double r = 1. / (2. * (piA * piC + piC * piG + piA * piT + piG * piT + kappa * (piC * piT / piY + piA * piG / piR)));
+	double r = 1. / (1 - piA * piA - piC * piC - piG * piG - piT*piT + 2. * kappa * (piC * piT / piY + piA * piG / piR));
 	double l = r * d;
 	double k1 = 1;
 	double k2 = kappa + 1;
@@ -420,7 +420,7 @@ RowMatrix<double> F84::getdPij_dt(double d) const
 	double piT = _parameters.getParameter("piT") -> getValue();
 	double piR = piA + piG;
 	double piY = piT + piC;
-	double r = 1. / (2. * (piA * piC + piC * piG + piA * piT + piG * piT + kappa * (piC * piT / piY + piA * piG / piR)));
+	double r = 1. / (1 - piA * piA - piC * piC - piG * piG - piT*piT + 2. * kappa * (piC * piT / piY + piA * piG / piR));
 	double l = r * d;
 	double k1 = 1;
 	double k2 = kappa + 1;
@@ -435,9 +435,9 @@ RowMatrix<double> F84::getdPij_dt(double d) const
 
 	//C
 	p(1, 0) = r * (piA *             exp1);                         //A
-	p(1, 1) = r * (piC * -(piR/piY) * exp1 - (piT/piY) * k1 * exp2); //C
+	p(1, 1) = r * (piC * -(piR/piY) * exp1 - (piT/piY) * k2 * exp2); //C
 	p(1, 2) = r * (piG *             exp1);                         //G
-	p(1, 3) = r * (piT * -(piR/piY) * exp1 + (piT/piY) * k1 * exp2); //T, U
+	p(1, 3) = r * (piT * -(piR/piY) * exp1 + (piT/piY) * k2 * exp2); //T, U
 
 	//G
 	p(2, 0) = r * (piA * -(piY/piR) * exp1 + (piA/piR) * k2 * exp2); //A
@@ -447,9 +447,9 @@ RowMatrix<double> F84::getdPij_dt(double d) const
 
 	//T, U
 	p(3, 0) = r * (piA *              exp1);                         //A
-	p(3, 1) = r * (piC * -(piR/piY) * exp1 + (piC/piY) * k1 * exp2); //C
+	p(3, 1) = r * (piC * -(piR/piY) * exp1 + (piC/piY) * k2 * exp2); //C
 	p(3, 2) = r * (piG *              exp1);                         //G
-	p(3, 3) = r * (piT * -(piR/piY) * exp1 - (piC/piY) * k1 * exp2); //T, U
+	p(3, 3) = r * (piT * -(piR/piY) * exp1 - (piC/piY) * k2 * exp2); //T, U
 
 	return p;
 }
@@ -464,7 +464,7 @@ RowMatrix<double> F84::getd2Pij_dt2(double d) const
 	double piT = _parameters.getParameter("piT") -> getValue();
 	double piR = piA + piG;
 	double piY = piT + piC;
-  double r = 1. / (2. * (piA * piC + piC * piG + piA * piT + piG * piT + kappa * (piC * piT / piY + piA * piG / piR)));
+	double r = 1. / (1 - piA * piA - piC * piC - piG * piG - piT*piT + 2. * kappa * (piC * piT / piY + piA * piG / piR));
 	double r_2 = r * r;
 	double l = r * d;
 	double k1 = 1;
@@ -482,21 +482,21 @@ RowMatrix<double> F84::getd2Pij_dt2(double d) const
 
 	//C
 	p(1, 0) = r_2 * (piA *           - exp1);                           //A
-	p(1, 1) = r_2 * (piC * (piR/piY) * exp1 + (piT/piY) * k1_2 * exp2); //C
+	p(1, 1) = r_2 * (piC * (piR/piY) * exp1 + (piT/piY) * k2_2 * exp2); //C
 	p(1, 2) = r_2 * (piG *           - exp1);                           //G
-	p(1, 3) = r_2 * (piT * (piR/piY) * exp1 - (piT/piY) * k1_2 * exp2); //T, U
+	p(1, 3) = r_2 * (piT * (piR/piY) * exp1 - (piT/piY) * k2_2 * exp2); //T, U
 
 	//G
 	p(2, 0) = r_2 * (piA * (piY/piR) * exp1 - (piA/piR) * k2_2 * exp2); //A
-	p(2, 1) = r_2 * (piC *           - exp1);                            //C
+	p(2, 1) = r_2 * (piC *           - exp1);                           //C
 	p(2, 2) = r_2 * (piG * (piY/piR) * exp1 + (piA/piR) * k2_2 * exp2); //G
 	p(2, 3) = r_2 * (piT *           - exp1);                           //T, U
 
 	//T, U
 	p(3, 0) = r_2 * (piA *           - exp1);                           //A
-	p(3, 1) = r_2 * (piC * (piR/piY) * exp1 - (piC/piY) * k1_2 * exp2); //C
+	p(3, 1) = r_2 * (piC * (piR/piY) * exp1 - (piC/piY) * k2_2 * exp2); //C
 	p(3, 2) = r_2 * (piG *           - exp1);                           //G
-	p(3, 3) = r_2 * (piT * (piR/piY) * exp1 + (piC/piY) * k1_2 * exp2); //T, U
+	p(3, 3) = r_2 * (piT * (piR/piY) * exp1 + (piC/piY) * k2_2 * exp2); //T, U
 
 	return p;
 }

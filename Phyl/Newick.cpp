@@ -99,13 +99,13 @@ void Newick::write(const Tree & tree, ostream & out) const throw (Exception)
 {
 	// Checking the existence of specified file, and possibility to open it in write mode
 	if (! out) { throw IOException ("Newick::write : failed to write to stream"); }
-	if(_useBootstrap)
+  if(_useBootstrap)
   {
-    out << TreeTools::treeToParenthesis(tree, false, _bootstrapPropertyName);
+    out << TreeTools::treeToParenthesis(tree, _writeId);
   }
   else
   {
-    out << TreeTools::treeToParenthesis(tree, _writeId);
+    out << TreeTools::treeToParenthesis(tree, false, _bootstrapPropertyName);
   }
 }
 
