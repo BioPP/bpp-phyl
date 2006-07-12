@@ -317,7 +317,6 @@ double F84::d2Pij_dt2(int i, int j, double d) const
 	double r_2 = r * r;
 	double l = r * d;
 	double k1 = 1;
-	double k1_2 = 1;
 	double k2 = kappa + 1;
 	double k2_2 = k2 * k2;
 	double exp1 = exp(-k1*l);
@@ -468,7 +467,6 @@ RowMatrix<double> F84::getd2Pij_dt2(double d) const
 	double r_2 = r * r;
 	double l = r * d;
 	double k1 = 1;
-	double k1_2 = 1;
 	double k2 = kappa + 1;
 	double k2_2 = k2 * k2;
 	double exp1 = exp(-k1*l);
