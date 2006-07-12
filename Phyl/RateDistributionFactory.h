@@ -66,9 +66,9 @@ public:
    *
    * Example:
    * @code
-   * DiscreteDistribution * dist = RateDistributionFactory().createDistribution(RateDistributionFactory::GAMMA_DISTRIBUTION);
-   * // or DiscreteDistribution * dist = RateDistributionFactory(10).createDistribution(RateDistributionFactory::GAMMA_DISTRIBUTION);
-   * // or DiscreteDistribution * dist = RateDistributionFactory().createDistribution(RateDistributionFactory::GAMMA_DISTRIBUTION, 10);
+   * DiscreteDistribution * dist = RateDistributionFactory().createDiscreteDistribution(RateDistributionFactory::GAMMA_DISTRIBUTION);
+   * // or DiscreteDistribution * dist = RateDistributionFactory(10).createDiscreteDistribution(RateDistributionFactory::GAMMA_DISTRIBUTION);
+   * // or DiscreteDistribution * dist = RateDistributionFactory().createDiscreteDistribution(RateDistributionFactory::GAMMA_DISTRIBUTION, 10);
    * // dist can be used in any object dealing with rate distributions.
    * @endcode
    */

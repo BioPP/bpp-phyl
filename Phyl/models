@@ -14,4 +14,5 @@
 #include "JCprot.h"
 #include "UserProteinSubstitutionModel.h"
 #include "SubstitutionModelFactory.h"
+#include "RateDistributionFactory.h"
 

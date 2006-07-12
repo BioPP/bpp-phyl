@@ -43,7 +43,7 @@ knowledge of the CeCILL license and that you accept its terms.
 #include "AbstractSubstitutionModel.h"
 
 // From SeqLib:
-#include <Seq/Alphabet.h>
+#include <Seq/ProteicAlphabet.h>
 
 /**
  * @brief Basal class for protein substitution model.
@@ -51,7 +51,7 @@ knowledge of the CeCILL license and that you accept its terms.
 class ProteinSubstitutionModel : public virtual AbstractSubstitutionModel
 {
 	public:
-		ProteinSubstitutionModel(const Alphabet * alpha): AbstractSubstitutionModel(alpha) {}
+		ProteinSubstitutionModel(const ProteicAlphabet * alpha): AbstractSubstitutionModel(alpha) {}
 
 		virtual ~ProteinSubstitutionModel() {}
 		

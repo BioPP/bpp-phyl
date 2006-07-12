@@ -708,7 +708,7 @@ void SubstitutionMappingTools::readFromStream(istream & in, ProbabilisticSubstit
     data->deleteColumn(0);//Remove ids
     data->deleteColumn(0);//Remove means
     //Now parse the table:
-    unsigned int nbSites    = data->getNumberOfColumns();
+    unsigned int nbSites = data->getNumberOfColumns();
     substitutions.setNumberOfSites(nbSites);
     unsigned int nbBranches = data->getNumberOfRows();
 		for(unsigned int i = 0; i < nbBranches; i++)

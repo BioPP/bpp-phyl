@@ -265,7 +265,7 @@ class DistanceEstimation {
 		DistanceMatrix * _dist;
 		Optimizer * _optimizer;
 		Optimizer * _defaultOptimizer;
-		unsigned int  _verbose;
+		unsigned int _verbose;
 		ParameterList _parameters;
 
 	public:
@@ -285,12 +285,13 @@ class DistanceEstimation {
 		 *  - 4=3 + likelihood object verbose enabled
 		 *  @param computeMat if true the computeMatrix() method is called.
 		 */
-		DistanceEstimation(SubstitutionModel * model, DiscreteDistribution * rateDist, const SiteContainer * sites, unsigned int verbose = 1, bool computeMat = true)
+		DistanceEstimation(SubstitutionModel * model, DiscreteDistribution * rateDist, const SiteContainer * sites, unsigned int verbose = 1, bool computeMat = true):
+      _model(model), _rateDist(rateDist), _sites(sites), _dist(NULL), _verbose(verbose)
     {
     	//_defaultOptimizer = new SimpleMultiDimensions(NULL);
 	    _defaultOptimizer = new NewtonBrentMetaOptimizer(NULL);
-	    _defaultOptimizer -> setMessageHandler(NULL);
-	    _defaultOptimizer -> setProfiler(NULL);
+	    _defaultOptimizer->setMessageHandler(NULL);
+	    _defaultOptimizer->setProfiler(NULL);
 	    _optimizer = _defaultOptimizer;
 	    if(computeMat) computeMatrix();
     }
@@ -309,12 +310,13 @@ class DistanceEstimation {
 		 *  - 3=2 + optimization verbose enabled
 		 *  - 4=3 + likelihood object verbose enabled
 		 */
-		DistanceEstimation(unsigned int verbose)
+		DistanceEstimation(unsigned int verbose):
+      _model(NULL), _rateDist(NULL), _sites(NULL), _dist(NULL), _verbose(verbose)
     {
     	//_defaultOptimizer = new SimpleMultiDimensions(NULL);
 	    _defaultOptimizer = new NewtonBrentMetaOptimizer(NULL);
-	    _defaultOptimizer -> setMessageHandler(NULL);
-	    _defaultOptimizer -> setProfiler(NULL);
+	    _defaultOptimizer->setMessageHandler(NULL);
+	    _defaultOptimizer->setProfiler(NULL);
 	    _optimizer = _defaultOptimizer;
     }
 
@@ -325,11 +327,12 @@ class DistanceEstimation {
 		 * You'll have to set the substitution model, rate distribution and data
 		 * and call the computeMatrix() method.
 		 */
-		DistanceEstimation()
+		DistanceEstimation():
+      _model(NULL), _rateDist(NULL), _sites(NULL), _dist(NULL), _verbose(1)
     {
     	_defaultOptimizer = new NewtonBrentMetaOptimizer(NULL);
-	    _defaultOptimizer -> setMessageHandler(NULL);
-	    _defaultOptimizer -> setProfiler(NULL);
+	    _defaultOptimizer->setMessageHandler(NULL);
+	    _defaultOptimizer->setProfiler(NULL);
 	    _optimizer = _defaultOptimizer;
     }
 
@@ -351,8 +354,8 @@ class DistanceEstimation {
       _parameters(distanceEstimation._parameters)
     {
     	_defaultOptimizer = new NewtonBrentMetaOptimizer(NULL);
-	    _defaultOptimizer -> setMessageHandler(NULL);
-	    _defaultOptimizer -> setProfiler(NULL);
+	    _defaultOptimizer->setMessageHandler(NULL);
+	    _defaultOptimizer->setProfiler(NULL);
       if(distanceEstimation._dist != NULL)
         _dist = new DistanceMatrix(*distanceEstimation._dist);
       else

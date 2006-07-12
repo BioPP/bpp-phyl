@@ -183,11 +183,11 @@ class AbstractTreeLikelihood :
 	protected:
 		//const Alphabet * _alphabet;
 		const SiteContainer * _data;
-		mutable TreeTemplate<Node> *  _tree;
+		mutable TreeTemplate<Node> * _tree;
 		bool _computeDerivatives;
 
 	public:
-		AbstractTreeLikelihood(): _computeDerivatives(true) {}
+		AbstractTreeLikelihood(): _data(NULL), _tree(NULL), _computeDerivatives(true) {}
 		virtual ~AbstractTreeLikelihood() {}
 	
 	public:
