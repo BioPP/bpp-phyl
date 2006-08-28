@@ -73,15 +73,16 @@ knowledge of the CeCILL license and that you accept its terms.
  * S = \frac{1}{P}\begin{pmatrix}
  * \frac{-b\pi_T-\pi_G-d\pi_C}{\pi_A} & d & 1 & b \\ 
  * d & \frac{-a\pi_T-e\pi_G-d\pi_A}{\pi_C} & e & a \\ 
- * 1 & e & \frac{-c\pi_T-e\pi_C-\pi_A}{\pi_G} & 1 \\ 
- * b & a & 1 & \frac{-c\pi_G-a\pi_C-b\pi_A}{\pi_T} \\ 
+ * 1 & e & \frac{-c\pi_T-e\pi_C-\pi_A}{\pi_G} & c \\ 
+ * b & a & c & \frac{-c\pi_G-a\pi_C-b\pi_A}{\pi_T} \\ 
  * \end{pmatrix}
  * \f]
- * with \f{eqnarray}
- *  P &=& \pi_G\left(c\pi_T+e\pi_C+ \pi_A\right)\\
- *    &+& \pi_C\left(b\pi_T+ \pi_G+d\pi_A\right)\\
- *    &+& \pi_A\left(a\pi_T+e\pi_G+d\pi_C\right)\\
- *    &+& \pi_T\left(c\pi_G+a\pi_C+b\pi_A\right)
+ * with \f{eqnarray*}
+ * P &=& \pi_A(d\pi_C+ \pi_G+b\pi_T)\\
+ *	 &+& \pi_C(d\pi_A+e\pi_G+a\pi_T)\\
+ *   &+& \pi_G( \pi_A+e\pi_C+c\pi_T)\\
+ *	 &+& \pi_T(b\pi_A+a\pi_C+c\pi_G)\\
+ *   &=& 2*(a*\pi_C*\pi_T+b*\pi_A*\pi_T+c*\pi_G*\pi_T+d*\pi_A*\pi_C+e*\pi_C*\pi_G+\pi_A*\pi_G)
  * \f}
  *
  * The normalized generator is obtained by taking the dot product of \f$S\f$ and \f$\pi\f$:

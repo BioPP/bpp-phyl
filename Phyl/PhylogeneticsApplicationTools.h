@@ -43,6 +43,7 @@ knowledge of the CeCILL license and that you accept its terms.
 
 #include "Tree.h"
 #include "SubstitutionModel.h"
+#include "MarkovModulatedSubstitutionModel.h"
 #include "HomogeneousTreeLikelihood.h"
 
 // From Utils:
@@ -96,12 +97,13 @@ class PhylogeneticsApplicationTools
 		 * @param suffixIsOptional Tell if the suffix is absolutely required.
 		 * @param verbose Print some info to the 'message' output stream.
 		 * @return A new Tree object according to options specified.
+     * @throw Exception if an error occured.
 		 */
 		static TreeTemplate<Node> * getTree(
 			map<string, string> & params,
 			const string & suffix = "",
 			bool suffixIsOptional = true,
-			bool verbose = true);
+			bool verbose = true) throw (Exception);
 	
 		/**
 		 * @brief This function prints the options available for tree reading.
@@ -138,6 +140,7 @@ class PhylogeneticsApplicationTools
 		 * @param suffixIsOptional Tell if the suffix is absolutely required.
 		 * @param verbose Print some info to the 'message' output stream.
 		 * @return A new SubstitutionModel object according to options specified.
+     * @throw Exception if an error occured.
 		 */
 		static SubstitutionModel * getSubstitutionModel(
 			const Alphabet * alphabet,
@@ -145,7 +148,7 @@ class PhylogeneticsApplicationTools
 			map<string, string> & params,
 			const string & suffix = "",
 			bool suffixIsOptional = true,
-			bool verbose = true);
+			bool verbose = true) throw (Exception);
 	
 		/**
 		 * @brief Build a DiscreteDistribution object according to options.
@@ -162,13 +165,40 @@ class PhylogeneticsApplicationTools
 		 * @param suffixIsOptional Tell if the suffix is absolutely required.
 		 * @param verbose Print some info to the 'message' output stream.
 		 * @return A new DiscreteDistribution object according to options specified.
+     * @throw Exception if an error occured.
 		 */
 		static DiscreteDistribution * getRateDistribution(
 			map<string, string> & params,
 			string suffix = "",
 			bool suffixIsOptional = true,
-			bool verbose = true);
+			bool verbose = true) throw (Exception);
 	
+    /**
+     * @brief Build a MarkovModulatedSubstitutionModel object, according to options.
+     *
+     * - covarion = [none|G2001|TS98]
+     * - for the G2001 model, parameter of the rate distribution are the same as for getRateDistribution() function.
+     *   The distribution must not be uniform.
+     * - covarion_G2001.nu = the nu paremeter.
+     * - covarion_TS98.s1, covarion_TS98.s2 = T&S rate change parameters.
+     *   
+     * @param model   The substitution model to use.
+     * @param rDist   The rate distribution to use. Depending on the model, this may not be used.
+  	 * @param params  The attribute map where options may be found.
+		 * @param suffix  A suffix to be applied to each attribute name.
+		 * @param suffixIsOptional Tell if the suffix is absolutely required.
+		 * @param verbose Print some info to the 'message' output stream.
+		 * @return A new MarkovModulatedSubstitutionModel object according to options specified.
+     * @throw Exception if an error occured.
+     */
+    static MarkovModulatedSubstitutionModel * getCovarionProcess(
+      SubstitutionModel * model,
+      DiscreteDistribution * rDist,
+			map<string, string> & params,
+			string suffix = "",
+			bool suffixIsOptional = true,
+			bool verbose = true) throw (Exception); 
+    
 		/**
 		 * @brief Optimize parameters according to options.
 		 *
@@ -231,12 +261,13 @@ class PhylogeneticsApplicationTools
 		 * @param params  The attribute map where options may be found.
 		 * @param suffix  A suffix to be applied to each attribute name.
 		 * @param verbose Print some info to the 'message' output stream.
+     * @throw Exception if an error occured.
 		 */
 		static void writeTree(
 			const TreeTemplate<Node> & tree,
 			map<string, string> & params,
 			const string & suffix = "",
-			bool verbose = true);
+			bool verbose = true) throw (Exception);
 		
 		/**
 		 * @brief This function prints the options available for tree writing.

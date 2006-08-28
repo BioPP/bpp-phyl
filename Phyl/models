@@ -13,6 +13,9 @@
 #include "JTT92.h"
 #include "JCprot.h"
 #include "UserProteinSubstitutionModel.h"
+#include "MarkovModulatedSubstitutionModel.h"
+#include "G2001.h"
+#include "TS98.h"
 #include "SubstitutionModelFactory.h"
 #include "RateDistributionFactory.h"
 

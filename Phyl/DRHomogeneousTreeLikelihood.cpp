@@ -69,7 +69,7 @@ void DRASDRTreeLikelihoodData::initLikelihoods(const SiteContainer & sites, cons
         sites.getAlphabet(),
         model.getAlphabet());
   _alphabet = sites.getAlphabet();
-  _nbStates = _alphabet->getSize();
+  _nbStates = model.getNumberOfStates();
   _nbSites  = sites.getNumberOfSites();
   
   SitePatterns pattern(sites);
@@ -250,7 +250,6 @@ DRHomogeneousTreeLikelihood::DRHomogeneousTreeLikelihood(
   
   // Now initializes all parameters:
   initParameters();
-  
   fireParameterChanged(_parameters);
 }
 
@@ -298,15 +297,12 @@ double DRHomogeneousTreeLikelihood::getLikelihood() const
 double DRHomogeneousTreeLikelihood::getLogLikelihood() const
 {
   double ll = 0;
-//  for(unsigned int i = 0; i < _nbSites; i++)
-//  {
-//    ll += getLogLikelihoodForASite(i);
-//  }
   Vdouble * lik = & _likelihoodData->getRootRateSiteLikelihoodArray(); 
   const vector<unsigned int> * w = & _likelihoodData->getWeights();
   for(unsigned int i = 0; i < _nbDistinctSites; i++)
   {
     ll += (* w)[i] * log((* lik)[i]);
+    //cout << i << "\t" << (* w)[i] << "\t" << log((* lik)[i]) << endl;
   }
   return ll;
 }
@@ -408,7 +404,7 @@ void DRHomogeneousTreeLikelihood::fireParameterChanged(const ParameterList & par
 double DRHomogeneousTreeLikelihood::getValue() const
 throw (Exception)
 {
-  //double f = - getLogLikelihood(); // For minimization.
+  //double f = - geitLogLikelihood(); // For minimization.
   //if(isnan(f)) f = -log(0.); // (+inf if unlikely!)
   //return f;
   return - getLogLikelihood();
@@ -480,13 +476,11 @@ throw (Exception)
   if(p == NULL) throw ParameterNotFoundException("HomogeneousTreeLikelihood::df", variable);
   if(getRateDistributionParameters().getParameter(variable) != NULL)
   {
-    cout << "DEBUB: WARNING!!! Derivatives respective to rate distribution parameter are not implemented." << endl;
-    return log(-1.);
+    throw Exception("Derivatives respective to rate distribution parameter are not implemented.");
   }
   if(getSubstitutionModelParameters().getParameter(variable) != NULL)
   {
-    cout << "DEBUB: WARNING!!! Derivatives respective to substitution model parameters are not implemented." << endl;
-    return log(-1.);
+    throw Exception("Derivatives respective to substitution model parameters are not implemented.");
   }
   
   //
@@ -570,12 +564,11 @@ throw (Exception)
   if(p == NULL) throw ParameterNotFoundException("HomogeneousTreeLikelihood::df", variable);
   if(getRateDistributionParameters().getParameter(variable) != NULL)
   {
-    cout << "DEBUB: WARNING!!! Derivatives respective to rate distribution parameter are not implemented." << endl;
-    return log(-1.);
+    throw Exception("Derivatives respective to rate distribution parameter are not implemented.");
   }
-  if(getSubstitutionModelParameters().getParameter(variable) != NULL) {
-    cout << "DEBUB: WARNING!!! Derivatives respective to substitution model parameters are not implemented." << endl;
-    return log(-1.);
+  if(getSubstitutionModelParameters().getParameter(variable) != NULL)
+  {
+    throw Exception("Derivatives respective to substitution model parameters are not implemented.");
   }
   
   //
@@ -624,6 +617,7 @@ void DRHomogeneousTreeLikelihood::computeTreeLikelihood()
 void DRHomogeneousTreeLikelihood::computeSubtreeLikelihoodPostfix(const Node * node)
 {
 //  if(node->isLeaf()) return;
+  //cout << node->getId() << "\t" << (node->hasName()?node->getName():"") << endl;
   if(node->getNumberOfSons() == 0) return;
 
   // Set all likelihood arrays to 1 for a start:
@@ -886,6 +880,7 @@ void DRHomogeneousTreeLikelihood::computeRootLikelihood()
           for(unsigned int y = 0; y < _nbStates; y++)
           {
             likelihood += (* _pxy_son_c_x)[y] * (* likelihoods_root_son_i_c)[y];
+            //cout << i << "\t" << c << "\t" << x << "\t" << y << "\t" <<  (* _pxy_son_c_x)[y] << "\t" << (* likelihoods_root_son_i_c)[y] << endl;
           }
           // We store this conditionnal likelihood into the corresponding array:
           (* rootLikelihoods_i_c)[x] *= likelihood;
@@ -914,6 +909,7 @@ void DRHomogeneousTreeLikelihood::computeRootLikelihood()
       {
         //For each initial state,
         (* rootLikelihoodsS_i_c) += f[x] * (* rootLikelihoods_i_c)[x];
+        //cout << i << "\t" << c << "\t" << x << "\t" << f[x] << "\t" << (* rootLikelihoods_i_c)[x] << endl;
       }
       (* rootLikelihoodsSR)[i] += p[c] * (* rootLikelihoodsS_i)[c];
     }

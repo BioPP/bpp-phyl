@@ -54,6 +54,9 @@ class NucleotideSubstitutionModel : public virtual AbstractSubstitutionModel
 		NucleotideSubstitutionModel(const NucleicAlphabet * alpha) : AbstractSubstitutionModel(alpha) {}
 
 		virtual ~NucleotideSubstitutionModel() {}
+
+    virtual unsigned int getNumberOfStates() const { return 4; }
+
 };
 
 #endif	//_NUCLEICSUBSTITUTIONMODEL_H_

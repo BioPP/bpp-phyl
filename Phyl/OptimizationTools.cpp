@@ -38,15 +38,17 @@ knowledge of the CeCILL license and that you accept its terms.
 */
 
 #include "OptimizationTools.h"
+#include "PseudoNewtonOptimizer.h"
+#include "NewtonBrentMetaOptimizer.h"
 
 // From NumCalc:
 #include <NumCalc/ParameterList.h>
 #include <NumCalc/PowellMultiDimensions.h>
 #include <NumCalc/DownhillSimplexMethod.h>
 #include <NumCalc/BrentOneDimension.h>
-#include "PseudoNewtonOptimizer.h"
-#include "NewtonBrentMetaOptimizer.h"
 #include <NumCalc/OptimizationStopCondition.h>
+#include <NumCalc/FivePointsNumericalDerivative.h>
+#include <NumCalc/ThreePointsNumericalDerivative.h>
 
 /******************************************************************************/
 
@@ -114,6 +116,7 @@ int OptimizationTools::optimizeTreeScale(
 
 int OptimizationTools::optimizeNumericalParameters(
 	DiscreteRatesAcrossSitesTreeLikelihood * tl,
+  unsigned int nstep,
 	double tolerance,
 	int tlEvalMax,
 	ostream * messageHandler,
@@ -122,7 +125,7 @@ int OptimizationTools::optimizeNumericalParameters(
 	)	throw (Exception)
 {
 	// Build optimizer:
-	NewtonBrentMetaOptimizer * optimizer = new NewtonBrentMetaOptimizer(tl);
+	NewtonBrentMetaOptimizer * optimizer = new NewtonBrentMetaOptimizer(tl, nstep);
 	optimizer->setVerbose(verbose);
 	optimizer->setProfiler(profiler);
 	optimizer->setMessageHandler(messageHandler);
@@ -147,6 +150,74 @@ int OptimizationTools::optimizeNumericalParameters(
 	return n;
 }
 	
+/******************************************************************************/
+
+int OptimizationTools::optimizeNumericalParameters2(
+	DiscreteRatesAcrossSitesTreeLikelihood * tl,
+  string method,
+	double tolerance,
+	int tlEvalMax,
+	ostream * messageHandler,
+	ostream * profiler,
+	unsigned int verbose
+	)	throw (Exception)
+{
+  AbstractNumericalDerivative * fun = NULL;
+  if(method == "3points")
+  {
+    fun = new ThreePointsNumericalDerivative(tl);
+  }
+  else if(method == "5points")
+  {
+    fun = new FivePointsNumericalDerivative(tl);
+  }
+  else throw Exception("Unknow numerical derivative method: " + method + ".");
+
+  int n = 0;
+  
+  //Numerical derivatives:
+  vector<string> variables;
+  ParameterList subs = tl->getSubstitutionModelParameters();
+  ParameterList dist = tl->getRateDistributionParameters();
+  for(unsigned int i = 0; i < subs.size(); i++)
+  {
+    variables.push_back(subs[i]->getName());
+  }
+  for(unsigned int i = 0; i < dist.size(); i++)
+  {
+    variables.push_back(dist[i]->getName());
+  }
+  fun->setParametersToDerivate(variables);
+  
+  // Build optimizer:
+	PseudoNewtonOptimizer * optimizer = new PseudoNewtonOptimizer(fun);
+	optimizer->setVerbose(verbose);
+	optimizer->setProfiler(profiler);
+	optimizer->setMessageHandler(messageHandler);
+	optimizer->setMaximumNumberOfEvaluations(tlEvalMax);
+	optimizer->getStopCondition()->setTolerance(tolerance);
+	
+	// Optimize TreeLikelihood function:
+	try {
+		ParameterList pl = tl->getParameters();
+		optimizer->setConstraintPolicy(AbstractOptimizer::CONSTRAINTS_AUTO);
+		optimizer->init(pl);
+		optimizer->optimize();
+	} catch(Exception e) {
+    cout << "Error in optimization process." << endl;
+		cout << e.what() << endl;
+		exit(-1);
+	}
+  //Set function at the best point:
+  tl->f(optimizer->getParameters());
+	// We're done.
+	n += optimizer->getNumberOfEvaluations(); 
+	// Delete optimizer:
+	delete optimizer;
+	// Send number of evaluations done:
+	return n;
+}
+
 /******************************************************************************/
 
 int OptimizationTools::optimizeBranchLengthsParameters(

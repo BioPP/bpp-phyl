@@ -69,8 +69,8 @@ void DRASRTreeLikelihoodData::initLikelihoods(const SiteContainer & sites, const
         sites.getAlphabet(),
         model.getAlphabet());
   _alphabet = sites.getAlphabet();
-  _nbStates = _alphabet->getSize();
-   _nbSites  = sites.getNumberOfSites();
+  _nbStates = model.getNumberOfStates();
+   _nbSites = sites.getNumberOfSites();
   if(_shrunkData != NULL) delete _shrunkData;
   _shrunkData =  initLikelihoodsWithPatterns(_tree->getRootNode(), sites, model);
   //_shrunkData = new VectorSiteContainer(sites);  
@@ -615,13 +615,11 @@ throw (Exception)
   if(p == NULL) throw ParameterNotFoundException("HomogeneousTreeLikelihood::df", variable);
   if(getRateDistributionParameters().getParameter(variable) != NULL)
   {
-    cout << "DEBUB: WARNING!!! Derivatives respective to rate distribution parameter are not implemented." << endl;
-    return log(-1.);
+    throw Exception("Derivatives respective to rate distribution parameter are not implemented.");
   }
   if(getSubstitutionModelParameters().getParameter(variable) != NULL)
   {
-    cout << "DEBUB: WARNING!!! Derivatives respective to substitution model parameters are not implemented." << endl;
-    return log(-1.);
+    throw Exception("Derivatives respective to substitution model parameters are not implemented.");
   }
   
   const_cast<HomogeneousTreeLikelihood *>(this)->computeTreeDLikelihood(variable);
@@ -864,13 +862,11 @@ throw (Exception)
   if(p == NULL) throw ParameterNotFoundException("HomogeneousTreeLikelihood::df", variable);
   if(getRateDistributionParameters().getParameter(variable) != NULL)
   {
-    cout << "DEBUB: WARNING!!! Derivatives respective to rate distribution parameter are not implemented." << endl;
-    return log(-1.);
+    throw Exception("Derivatives respective to rate distribution parameter are not implemented.");
   }
   if(getSubstitutionModelParameters().getParameter(variable) != NULL)
   {
-    cout << "DEBUB: WARNING!!! Derivatives respective to substitution model parameters are not implemented." << endl;
-    return log(-1.);
+    throw Exception("Derivatives respective to substitution model parameters are not implemented.");
   }
   
   const_cast<HomogeneousTreeLikelihood *>(this)->computeTreeD2Likelihood(variable);

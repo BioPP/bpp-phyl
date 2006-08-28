@@ -1,6 +1,6 @@
 //
 // File: SubstitutionModel.h
-// Created by:  Julien Dutheil
+// Created by: Julien Dutheil
 // Created on: Mon May 26 14:52:34 2003
 //
 
@@ -256,8 +256,17 @@ class SubstitutionModel: public virtual Parametrizable
 		 */
 		virtual const Alphabet * getAlphabet() const = 0;
 
+    /**
+     * @brief Get the number of states.
+     *
+     * For most models, this equals the size of the alphabet.
+     * 
+     * @return The number of different states in the model.
+     */
+    virtual unsigned int getNumberOfStates() const = 0;
+
 		/**
-		 * This method is used to initialize likelihoods in reccurence.
+		 * This method is used to initialize likelihoods in reccursions.
 		 * It typically sends 1 if i = state, 0 otherwise, where
 		 * i is one of the possible states of the alphabet allowed in the model
 		 * and state is the observed state in the considered sequence/site.

@@ -54,77 +54,60 @@ using namespace std;
 /**
  * @brief Phylogenetic optimizer.
  *
- * This optimizer uses a pseudo-newton algorithm for estimating branch lengths,
- * and Brent's one-dimensional estimation algorithm for rate distribution and 
- * substitution model parameters.
- *
- * One step of optimization concists of the following:
- * 1) Estimate branch lengths (pseudo-newton),
- * 2) Estimate rate distribution parameters (loop over each parameter using Brent's method),
- * 3) Estimate substitution model parameters (loop over each parameter using Brent's method).
+ * This optimizer is a combination of Newton-Raphson (NR) and Brent (B) algorithm.
+ * Parameters are splitted in two kinds: some to be optimized with NS (type 1), the other with B (type 2).
  * 
- * A PseudoNewtonOptimizer object is used for branch lengths estimations, a SimpleMultiDimensions
- * optimizer for rate distribution, and another for substitution model parameters.
+ * One step of optimization consists of the following:
+ * 1) Estimate type 1 parameters jointly with NR,
+ * 2) Estimate separately each type 2 parameter with B.
+ * 
+ * A PseudoNewtonOptimizer object is used for type 1 parameters, a SimpleMultiDimensions
+ * optimizer for type 2 parameters.
  *
- * Furthermore, it is possible to roughly estimate all parameters before starting to loop
- * over all parameters (see setRoughEstimationEnabled).
+ * For now, type 1 parameters are branch lengths, type 2 are other parameters (substitution model and rate distribution).
+ * 
+ * To decrease the optimization time, the precision of the two optimizers can be increased progressively:
+ * if @f$\varepsilon@f$ is the final precision required, one may consider using a precision increment of @f$\sigma=\log_10(\varepsilon/n)@f$, where @f$n@f$ is the number of progressive steps.
+ * During the first step optimization step, the precisions of type 1 and 2 optimizers are set to @f$10^{\sigma}@f$, @f$10^{2\sigma}@f$ for step 2, ... until precision @f$10^{n\sigma}=\varepsilon@f$ at step @f$n@f$ and later.
+ * This saves some time spending in the first steps of the estimation.
+ * The number of steps @f$n@f$ is set in the constructor of the optimizer.
  * 
  * @see PseudoNewtonOptimizer, SimpleMultiDimensions
  */
 class NewtonBrentMetaOptimizer: public virtual AbstractOptimizer
 {
-	public:
-		static double BRANCH_LENGTHS_TOL;
-		static double RATE_DISTRIBUTION_TOL;
-		static double SUBSTITUTION_MODEL_TOL;
 	
 	protected:
-		ParameterList _rateDistributionParameters;
-		ParameterList _substitutionModelParameters;
-		ParameterList _branchLengthsParameters;
-		SimpleMultiDimensions * _rateDistributionOptimizer;
-		SimpleMultiDimensions * _substitutionModelOptimizer;
-		PseudoNewtonOptimizer * _branchLengthsOptimizer;
-		unsigned int _nbRateDistParams;
-		unsigned int _nbSubsModParams;
-		unsigned int _nbBranchLengths;
-		bool _rough;
+		ParameterList _newtonParameters;
+		ParameterList _brentParameters;
+		PseudoNewtonOptimizer * _newtonOptimizer;
+		SimpleMultiDimensions * _brentOptimizer;
+		unsigned int _nbNewtonParameters;
+		unsigned int _nbBrentParameters;
+    unsigned int _n;
+    double _precisionStep;
+    unsigned int _stepCount;
 		
 	public:
-		NewtonBrentMetaOptimizer(DiscreteRatesAcrossSitesTreeLikelihood * tl);
+    /**
+     * @brief Build a new NewtonBrentMetaOptimizer object.
+     *
+     * @param tl A likelihood function.
+     * @param n  The number of progressive steps to use in optimization.
+     */
+		NewtonBrentMetaOptimizer(DiscreteRatesAcrossSitesTreeLikelihood * tl, unsigned int n = 1);
 		virtual ~NewtonBrentMetaOptimizer();
 
 	public:
 		
 		void init(const ParameterList & parameters) throw (Exception);
 		double optimize() throw (Exception);
-		double step() throw (Exception) { return 0.; }
-//		double getFunctionValue() const;
+    double step() throw (Exception);
 		void setFunction(Function * function)
 		{
 			AbstractOptimizer::setFunction(dynamic_cast<DiscreteRatesAcrossSitesTreeLikelihood *>(function));
 		}
 
-    /**
-     * @brief Enable rough estimation prior to final estimation.
-     *
-     * This generally speeds up the global estimation.
-     * Branch lengths estimation is generally time-consuming, and
-     * estimates highly depends on the shape of the rate distribution.
-     * Roughly estimating the rate distribution parameters hence
-     * save some time during the branch length estimation.
-     *
-     * The tolerance of rough estimation is fixed by the
-     * BRANCH_LENGTHS_TOL, RATE_DISTRIBUTION_TOL and SUBSTITUTION_MODEL_TOL
-     * static variables.
-     *
-     * @param yn A boolean.
-     */
-		void setRoughEstimationEnabled(bool yn) { _rough = yn; }
-    /**
-     * @return True If rough estimation is enabled.
-     */
-		bool isRoughEstimationEnabled() const { return _rough; }
 };
 
 #endif //_NEWTONBRENTMETAOPTIMIZER_H_

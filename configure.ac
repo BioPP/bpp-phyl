@@ -1,6 +1,6 @@
-AC_INIT(Bio++ PhylLib, 1.1.0, Julien.Dutheil@univ-montp2.fr, Bpp-Phyl)
+AC_INIT(Bio++ PhylLib, 1.2.0, Julien.Dutheil@univ-montp2.fr, Bpp-Phyl)
 AC_CONFIG_SRCDIR(Phyl/SubstitutionModel.h)
-AM_INIT_AUTOMAKE(Bpp-Phyl,1.1.0)
+AM_INIT_AUTOMAKE()
 AC_LANG_CPLUSPLUS
 AC_CHECK_LIB(bpp-utils,   main, , [AC_MSG_ERROR([Library bpp-utils not found.])])
 AC_CHECK_LIB(bpp-numcalc, main, , [AC_MSG_ERROR([Library bpp-numcalc not found.])])

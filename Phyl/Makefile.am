@@ -74,7 +74,10 @@ SubstitutionModelFactory.h\
 RateDistributionFactory.h\
 IOTreeFactory.h\
 IODistanceMatrixFactory.h\
-F84.h
+F84.h\
+MarkovModulatedSubstitutionModel.h\
+G2001.h\
+TS98.h
 
 
 CPP_FILES = \
@@ -127,7 +130,8 @@ SubstitutionModelFactory.cpp\
 RateDistributionFactory.cpp\
 IOTreeFactory.cpp\
 IODistanceMatrixFactory.cpp\
-F84.cpp
+F84.cpp\
+MarkovModulatedSubstitutionModel.cpp
 
 CPP_EXTRA = \
 __DSO78FrequenciesCode\
@@ -138,7 +142,8 @@ __JTT92ExchangeabilityCode
 lib_LTLIBRARIES = libbpp-phyl.la
 libbpp_phyl_la_SOURCES = $(H_FILES) $(CPP_FILES)
 EXTRA_libbpp_phyl_la_SOURCES = $(CPP_EXTRA)
-libbpp_phyl_la_LDFLAGS = -version-info 1:1:0
+# CURRENT:REVISION:AGE => file.so.(C-A).A.R
+libbpp_phyl_la_LDFLAGS = -version-info 2:0:1
 
 library_includedir=$(includedir)/Phyl
 library_include_HEADERS = $(H_FILES)

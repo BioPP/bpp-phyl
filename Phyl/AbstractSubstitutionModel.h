@@ -64,6 +64,9 @@ knowledge of the CeCILL license and that you accept its terms.
  * The Pij_t, dPij_dt and d2Pij_dt2 are particularly inefficient since the matrix formula
  * is used to compute all probabilities, and then the result for the initial and final state
  * of interest is retrieved.
+ *
+ * @note This class is dedicated to "simple" substitution models, for which the number of states is equivalent to the number of characters in the alphabet.
+ * Consider using the MarkovModulatedSubstitutionModel for more complexe cases.
  */
 class AbstractSubstitutionModel :
 	public virtual SubstitutionModel,
@@ -77,7 +80,7 @@ class AbstractSubstitutionModel :
 		const Alphabet * _alphabet;
 
 		/**
-		 * @brief The size of the alphabet.
+		 * @brief The size of the generator, i.e. the number of states.
 		 */
 		unsigned int _size;
 
@@ -118,23 +121,32 @@ class AbstractSubstitutionModel :
 	
 	public:
 		const Alphabet * getAlphabet() const { return _alphabet; }
-
+    
 		Vdouble getFrequencies() const { return _freq; }
+    
 		RowMatrix<double> getExchangeabilityMatrix() const { return _exchangeability; }
+    
 		RowMatrix<double> getGenerator() const { return _generator; }
+    
 		RowMatrix<double> getPij_t(double t) const;
 		RowMatrix<double> getdPij_dt(double t) const;
 		RowMatrix<double> getd2Pij_dt2(double t) const;
+    
 		Vdouble getEigenValues() const { return _eigenValues; }
+    
 		RowMatrix<double> getRowLeftEigenVectors() const { return _leftEigenVectors; }
 		RowMatrix<double> getColumnRightEigenVectors() const { return _rightEigenVectors; }
+    
 		double freq(int i) const { return _freq[i]; }
+    
 		double Qij(int i, int j) const { return _generator(i, j); }
-		double Pij_t    (int i, int j, double t) const;
-		double dPij_dt  (int i, int j, double t) const;
-		double d2Pij_dt2(int i, int j, double t) const;
+    
+		double Pij_t    (int i, int j, double t) const { return getPij_t(t)(i, j); }
+		double dPij_dt  (int i, int j, double t) const { return getdPij_dt(t)(i, j); }
+		double d2Pij_dt2(int i, int j, double t) const { return getd2Pij_dt2(t)(i, j); }
 
 		double getInitValue(int i, int state) const throw (BadIntException);
+
 		void setFreqFromData(const SequenceContainer & data);
 
 		/**
@@ -146,6 +158,7 @@ class AbstractSubstitutionModel :
 		{
 			updateMatrices();
 		}
+
 		
 	protected:
 

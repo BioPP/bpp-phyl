@@ -1,15 +1,31 @@
+28/08/06 -*- Version 1.2.0 -*-
+
+28/08/06 Julien Dutheil
+* SubstitutionModel: new methods getNumberOfStates().
+* Covarion process:
+  + New MarkovModulatedSubstitutionModel abstract class,
+  + New SSRVSubstitution model implementatio.
+* PhylogeneticsApplicationTools:
+  + No more exit(-1) in functions, Exception thrown instead.
+  + New method getCovarionProcess().
+* Optimization: rough optimization now applies when other parameters than branch length are found.
+* New copy constructor and assignation operator in ProbabilisticSubstitutionMapping class.
+
+01/08/06 Julien Dutheil
+* Bug fixed in GTR model: normalization constant was incorrect.
+
 12/07/06 Julien Dutheil
 * Bug fixed in DistanceEstimation constructor.
 
 06/06/06 Julien Dutheil
-* Bug fixed in F84. Substitution matrix is now correct!
+* Bug fixed in F84 model. Substitution matrix is now correct!
 
 31/05/06 Julien Dutheil
 * HomogeneousTreeLikelihood classes now have a minimum for branch length, the default being 0.000001 (included).
 * Improved PseudoNewtonOptimizer, faster and no more stucked in local maximum (B. Nabohlz data test).
 
 30/05/06 Julien Dutheil
-* Improved TreeTools::nodeToParenthesis[Tree] method and Newick parser for writing.
+* Improved TreeTools::nodeToParenthesis[Tree] method and Newick parser for writting.
 
 23/05/06 Julien Dutheil
 * New F84 model.

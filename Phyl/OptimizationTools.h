@@ -76,6 +76,7 @@ class OptimizationTools
 		 * @see NewtonBrentMetaOptimizer
 		 *
 		 * @param tl             A pointer toward the TreeLikelihood object to optimize.
+     * @param nstep          The number of progressive step to perform (see NewtonBrentMetaOptimizer). 1 means full precision from start.
 		 * @param tolerance      The tolerance to use in the algorithm.
 		 * @param tlEvalMax      The maximum number of function evaluations.
 		 * @param messageHandler The massage handler.
@@ -85,6 +86,7 @@ class OptimizationTools
 		 */
 		static int optimizeNumericalParameters(
 			DiscreteRatesAcrossSitesTreeLikelihood * tl,
+      unsigned int nstep = 1,
 			double tolerance = 0.000001,
 			int tlEvalMax = 1000000,
 			ostream * messageHandler = &cout,
@@ -93,6 +95,34 @@ class OptimizationTools
 			throw (Exception);
 	
 		/**
+		 * @brief Optimize numerical parameters (branch length, substitution model & rate distribution) of a TreeLikelihood function.
+		 *
+		 * Uses Newton's method for all parameters, branch length derivatives are computed analytically, derivatives for other parameters numerically.
+		 *
+		 * @see PseudoNewtonOptimizer
+		 * @see ThreePointsNumericalDerivative
+		 * @see FivePointsNumericalDerivative
+		 *
+		 * @param tl             A pointer toward the TreeLikelihood object to optimize.
+     * @param method         Numerical derivative computation method. Must be one of "3points" or "5points", otherwise an exception is thrown.
+		 * @param tolerance      The tolerance to use in the algorithm.
+		 * @param tlEvalMax      The maximum number of function evaluations.
+		 * @param messageHandler The massage handler.
+		 * @param profiler       The profiler.
+		 * @param verbose        The verbose level.
+		 * @throw Exception any exception thrown by the Optimizer.
+		 */
+		static int optimizeNumericalParameters2(
+			DiscreteRatesAcrossSitesTreeLikelihood * tl,
+      string method = "3points",
+			double tolerance = 0.000001,
+			int tlEvalMax = 1000000,
+			ostream * messageHandler = &cout,
+			ostream * profiler       = &cout,
+			unsigned int verbose = 1)
+			throw (Exception);
+
+    /**
 		 * @brief Optimize branch lengths parameters of a TreeLikelihood function.
 		 *
 		 * Uses Newton's method.

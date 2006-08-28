@@ -55,6 +55,8 @@ class ProteinSubstitutionModel : public virtual AbstractSubstitutionModel
 
 		virtual ~ProteinSubstitutionModel() {}
 		
+    virtual unsigned int getNumberOfStates() const { return 20; };
+
 };
 
 

@@ -82,6 +82,40 @@ class ProbabilisticSubstitutionMapping : public AbstractSubstitutionMapping
      * @param tree The tree object to use. It will be cloned for internal use.
      */
     ProbabilisticSubstitutionMapping(const Tree & tree);
+    
+    /**
+     * @brief Copy constructor: clone tree.
+     */
+    ProbabilisticSubstitutionMapping(const ProbabilisticSubstitutionMapping & psm):
+      _mapping(psm._mapping),
+      _nbSites(psm._nbSites),
+      _nbBranches(psm._nbBranches)
+    {
+      if(psm._tree == NULL)
+      {
+        _tree = NULL;
+      } else { 
+        _tree = new TreeTemplate<Node>(*psm._tree);
+        _nodes = _tree->getNodes();
+        _nodes.pop_back(); // remove root node.
+      }
+    }
+
+    ProbabilisticSubstitutionMapping & operator=(const ProbabilisticSubstitutionMapping & psm)
+    {
+      _mapping    = psm._mapping;
+      _nbSites    = psm._nbSites;
+      _nbBranches = psm._nbBranches;
+      if(psm._tree == NULL)
+      {
+        _tree = NULL;
+      } else {
+        _tree = new TreeTemplate<Node>(*psm._tree);
+        _nodes = _tree->getNodes();
+        _nodes.pop_back(); // remove root node.
+      }
+      return *this;
+    }
 
     virtual ~ProbabilisticSubstitutionMapping()
     {

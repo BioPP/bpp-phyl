@@ -77,7 +77,7 @@ knowledge of the CeCILL license and that you accept its terms.
  * 1 & \kappa & 1 & \frac{-\pi_G-\kappa\pi_C-\pi_A}{\pi_T} \\ 
  * \end{pmatrix}
  * \f]
- * with \f$P=2\left(\pi_A * \pi_C + \pi_C * \pi_G + \pi_A * \pi_T + \pi_G * \pi_T + \kappa * \left(\pi_C * \pi_T + \pi_A * \pi_G\right)\right)\f$.
+ * with \f$P=2\left(\pi_A \pi_C + \pi_C \pi_G + \pi_A \pi_T + \pi_G \pi_T + \kappa \left(\pi_C \pi_T + \pi_A \pi_G\right)\right)\f$.
  *
  * The normalized generator is obtained by taking the dot product of \f$S\f$ and \f$\pi\f$:
  * \f[

@@ -1,5 +1,5 @@
 %define name Bpp-Phyl
-%define version 1.1.0
+%define version 1.2.0
 %define release 1
 %define _prefix /usr/local
 
@@ -15,8 +15,8 @@ BuildRoot: %{_builddir}/%{name}-root
 Packager: Julien Dutheil
 AutoReqProv: no
 Requires: libstdc++6
-Requires: Bpp-Utils >= 1.0.0
-Requires: Bpp-NumCalc >= 1.0.0
+Requires: Bpp-Utils >= 1.0.2
+Requires: Bpp-NumCalc >= 1.1.0
 Requires: Bpp-Seq >= 1.1.0
 
 %description
@@ -27,8 +27,8 @@ It is part of the Bio++ project.
 Summary: Libraries, includes to develop applications with %{name}.
 Group: Development/Libraries
 Requires: %{name} = %{version}
-Requires: Bpp-Utils-devel >= 1.0.0 
-Requires: Bpp-NumCalc-devel >= 1.0.0
+Requires: Bpp-Utils-devel >= 1.0.2 
+Requires: Bpp-NumCalc-devel >= 1.1.0
 Requires: Bpp-Seq-devel >= 1.1.0
 
 %description devel
@@ -67,6 +67,8 @@ rm -rf $RPM_BUILD_ROOT
 %{_prefix}/include/*
 
 %changelog
+* Mon Aug 28 2006 Julien Dutheil <Julien.Dutheil@univ-montp2.fr>
+- Version 1.2.0
 * Tue Apr 18 2006 Julien Dutheil <Julien.Dutheil@univ-montp2.fr>
 - Version 1.1.0
 * Fri Nov 16 2005 Julien Dutheil <Julien.Dutheil@univ-montp2.fr>

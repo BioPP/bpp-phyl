@@ -81,12 +81,14 @@ GTR::GTR(
 	_freq[2] = piG;
 	_freq[3] = piT;
 
-	double p = piG*(c*piT+e*piC+  piA)
-		       + piC*(b*piT+  piG+d*piA)
-					 + piA*(a*piT+e*piG+d*piC)
-					 + piT*(c*piG+a*piC+b*piA);
+	//double p = piG*(c*piT+e*piC+  piA)
+	//	       + piC*(b*piT+  piG+d*piA)
+	//				 + piA*(a*piT+e*piG+d*piC)
+	//				 + piT*(c*piG+a*piC+b*piA);
 		
-	// Exchangeability matrix:
+  double p = 2*(a*piC*piT+b*piA*piT+c*piG*piT+d*piA*piC+e*piC*piG+piA*piG);
+	
+  // Exchangeability matrix:
 	_exchangeability(0,0) = (-b*piT-  piG-d*piC)/(piA * p);
 	_exchangeability(1,0) = d/p;
 	_exchangeability(0,1) = d/p;

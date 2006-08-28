@@ -99,52 +99,59 @@ void PseudoNewtonOptimizer::init(const ParameterList & params) throw (Exception)
 
 /**************************************************************************/
 
-inline double PseudoNewtonOptimizer::step() throw (Exception)
+double PseudoNewtonOptimizer::step() throw (Exception)
 {
 	if(_verbose > 0) { cout << "*"; cout.flush(); }
 	// Compute derivative at current point:
 	Vdouble movements(_n);
 	ParameterList newPoint = _parameters;
 	double newValue;
-	_function -> setParameters(_parameters);
-	for(unsigned int i = 0; i < _n; i++) {
-	  double  firstOrderDerivative = dynamic_cast<const DerivableSecondOrder *>(_function) -> getFirstOrderDerivative(_params[i]);
-		double secondOrderDerivative = dynamic_cast<const DerivableSecondOrder *>(_function) -> getSecondOrderDerivative(_params[i]);
-		if(secondOrderDerivative <= 0) {
+	//Not necessary!
+  //_function->setParameters(_parameters);
+	for(unsigned int i = 0; i < _n; i++)
+  {
+	  double  firstOrderDerivative = dynamic_cast<const DerivableSecondOrder *>(_function)->getFirstOrderDerivative(_params[i]);
+		double secondOrderDerivative = dynamic_cast<const DerivableSecondOrder *>(_function)->getSecondOrderDerivative(_params[i]);
+		if(secondOrderDerivative <= 0)
+    {
 			printMessage("!!! Second order derivative is negative for parameter " + _params[i] + "(" + TextTools::toString(_parameters[i]->getValue()) + "). No move performed.");
 			//movements[i] = 0;  // We want to reach a minimum, not a maximum!
 		  // My personnal improvement:
       movements[i] = -firstOrderDerivative / secondOrderDerivative;
 		}
 		else movements[i] = firstOrderDerivative / secondOrderDerivative;
-		if(isnan(movements[i])) {
-			printMessage("!!! Non derivable point at " + _params[i] + ". No move performed.");
+		if(isnan(movements[i]))
+    {
+			printMessage("!!! Non derivable point at " + _params[i] + ". No move performed. (f=" + TextTools::toString(_currentValue) + ", d1=" + TextTools::toString(firstOrderDerivative) + ", d2=" + TextTools::toString(secondOrderDerivative) + ").");
 			movements[i] = 0;  // Either first or second order derivative is infinity. This may happen when the function == inf at this point.
 		}
-		//DEBUG: cout << "PN[" << i << "]=" << _parameters.getParameter(_params[i])->getValue() << "\t" << movements[i] << "\t " << firstOrderDerivative << "\t" << secondOrderDerivative << endl;
-		newPoint.setParameterValue(_params[i], _parameters.getParameter(_params[i]) -> getValue() - movements[i]);
+		//DEBUG:
+    //cout << "PN[" << i << "]=" << _parameters.getParameter(_params[i])->getValue() << "\t" << movements[i] << "\t " << firstOrderDerivative << "\t" << secondOrderDerivative << endl;
+		newPoint.setParameterValue(_params[i], _parameters.getParameter(_params[i])->getValue() - movements[i]);
 	}
-	newValue = _function -> f(newPoint);
+	newValue = _function->f(newPoint);
 
 	// Check newValue:
 	unsigned int count = 0;
-	while(newValue > _currentValue) {
+	while(newValue > _currentValue)
+  {
 		printMessage("!!! Function at new point is greater than at current point: " + TextTools::toString(newValue) + ">" + TextTools::toString(_currentValue) + ". Applying Felsenstein-Churchill correction.");
-		for(unsigned int i = 0; i < _n; i++) {
+    for(unsigned int i = 0; i < _n; i++)
+    {
 			movements[i] = movements[i] / 2;
-			newPoint.setParameterValue(_params[i], _parameters.getParameter(_params[i]) -> getValue() - movements[i]);
+			newPoint.setParameterValue(_params[i], _parameters.getParameter(_params[i])->getValue() - movements[i]);
 		}
 		count++;
-		if(count > 10000) throw Exception("PseudoNewtonOptimizer::step(). Felsenstein-Churchill correction applied more than 10000 times.");
-		newValue = _function -> f(newPoint);
+    if(count > 10000) throw Exception("PseudoNewtonOptimizer::step(). Felsenstein-Churchill correction applied more than 10000 times.");
+		newValue = _function->f(newPoint);
 	}
 
 	_previousPoint = _parameters;
 	_previousValue = _currentValue;
-	_parameters   = newPoint; // Function as been set to newPoint by the call of f(newPoint).
-	_currentValue = newValue;
+	_parameters    = newPoint; // Function as been set to newPoint by the call of f(newPoint).
+	_currentValue  = newValue;
 
-	_tolIsReached = _stopCondition -> isToleranceReached();
+	_tolIsReached = _stopCondition->isToleranceReached();
 
 	printPoint(_parameters, _currentValue);
 	return _currentValue;
