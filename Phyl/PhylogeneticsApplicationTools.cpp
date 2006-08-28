@@ -349,6 +349,28 @@ SubstitutionModel * PhylogeneticsApplicationTools::getSubstitutionModel(
 
 /******************************************************************************/
 
+void PhylogeneticsApplicationTools::printSubstitutionModelHelp()
+{
+  ApplicationTools::message << "Substitution Model:" << endl;
+	ApplicationTools::message << "model               | Nucleotides (N): [JCnuc, K80, T92, F84, HKY85, TN93," << endl;
+  ApplicationTools::message << "                    | GTR]" << endl;
+  ApplicationTools::message << "                    | Proteins (P): [JCprot, DSO78, JTT92, empirical]" << endl;
+  ApplicationTools::message << "kappa               | kappa(N)  parameter in Q matrix" << endl;
+  ApplicationTools::message << "kappa1              | kappa1(N) parameter in Q matrix" << endl;
+  ApplicationTools::message << "kappa2              | kappa2(N) parameter in Q matrix" << endl;
+  ApplicationTools::message << "a,b,c,d,e,f         | GTR rates parameter in Q matrix" << endl;
+  ApplicationTools::message << "theta               | theta(N)  parameter in Q matrix" << endl;
+  ApplicationTools::message << "piA                 | piA(N)    parameter in Q matrix" << endl;
+  ApplicationTools::message << "piT                 | piT(N)    parameter in Q matrix" << endl;
+  ApplicationTools::message << "piC                 | piC(N)    parameter in Q matrix" << endl;
+  ApplicationTools::message << "piG                 | piG(N)    parameter in Q matrix" << endl;
+	ApplicationTools::message << "use_observed_freq   | (N,P) Tell if the observed frequencies must be used." << endl; 
+	ApplicationTools::message << "model_empirical.file| (P) The path toward data file to use (PAML format)." << endl; 
+  ApplicationTools::message << "____________________|_____________________________________________________" << endl;
+}
+
+/******************************************************************************/
+
 MarkovModulatedSubstitutionModel * PhylogeneticsApplicationTools::getCovarionProcess(
   SubstitutionModel * model,
   DiscreteDistribution * rDist,
@@ -388,22 +410,13 @@ MarkovModulatedSubstitutionModel * PhylogeneticsApplicationTools::getCovarionPro
 
 /******************************************************************************/
 
-void PhylogeneticsApplicationTools::printSubstitutionModelHelp()
+void PhylogeneticsApplicationTools::printCovarionModelHelp()
 {
-  ApplicationTools::message << "Substitution Model:" << endl;
-	ApplicationTools::message << "model               | Nucleotides (N): [JCnuc, K80, T92, HKY85, TN93, GTR]" << endl;
-  ApplicationTools::message << "                    | Proteins (P): [JCprot, DSO78, JTT92, empirical]" << endl;
-  ApplicationTools::message << "kappa               | kappa(N)  parameter in Q matrix" << endl;
-  ApplicationTools::message << "kappa1              | kappa1(N) parameter in Q matrix" << endl;
-  ApplicationTools::message << "kappa2              | kappa2(N) parameter in Q matrix" << endl;
-  ApplicationTools::message << "a,b,c,d,e,f         | GTR rates parameter in Q matrix" << endl;
-  ApplicationTools::message << "theta               | theta(N)  parameter in Q matrix" << endl;
-  ApplicationTools::message << "piA                 | piA(N)    parameter in Q matrix" << endl;
-  ApplicationTools::message << "piT                 | piT(N)    parameter in Q matrix" << endl;
-  ApplicationTools::message << "piC                 | piC(N)    parameter in Q matrix" << endl;
-  ApplicationTools::message << "piG                 | piG(N)    parameter in Q matrix" << endl;
-	ApplicationTools::message << "use_observed_freq   | (N,P) Tell if the observed frequencies must be used." << endl; 
-	ApplicationTools::message << "model_empirical.file| (P) The path toward data file to use (PAML format)." << endl; 
+  ApplicationTools::message << "Covarion Model:" << endl;
+	ApplicationTools::message << "covarion            | [none|G2001|TS98]" << endl;
+  ApplicationTools::message << "covarion_G2001.nu   | covarion rate parameter in G2001 model." << endl;
+  ApplicationTools::message << "covarion_TS98.s1    | covarion rate parameter in TS98 model." << endl;
+  ApplicationTools::message << "covarion_TS98.s2    | covarion rate parameter in TS98 model." << endl;
   ApplicationTools::message << "____________________|_____________________________________________________" << endl;
 }
 
@@ -576,6 +589,8 @@ void PhylogeneticsApplicationTools::optimizeParameters(
 void PhylogeneticsApplicationTools::printOptimizationHelp()
 {
 	ApplicationTools::message << "optimization                  | [yes/no] optimize parameters?" << endl;
+	ApplicationTools::message << "optimization.method           | [NB/NND] method to use" << endl;
+	ApplicationTools::message << "optimization.method_NB.step   | Number of progressive step to perform (NB)." << endl;
 	ApplicationTools::message << "optimization.verbose          | [0,1,2] level of verbose" << endl;
 	ApplicationTools::message << "optimization.message_handler  | [none, std ot file path] where to dislay" << endl;
   ApplicationTools::message << "                              | optimization messages" << endl;

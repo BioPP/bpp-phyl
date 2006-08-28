@@ -239,6 +239,11 @@ class PhylogeneticsApplicationTools
 		 */
 		static void printSubstitutionModelHelp();
 		
+    /**
+		 * @brief This function prints the options available for covarion models.
+		 */
+		static void printCovarionModelHelp();
+		
 		/**
 		 * @brief This function prints the options available for rate distributions.
 		 */
