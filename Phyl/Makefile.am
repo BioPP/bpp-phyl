@@ -50,6 +50,7 @@ Tree.h\
 TreeTemplate.h\
 TreeLikelihood.h\
 TreeTools.h\
+TreeTemplateTools.h\
 DiscreteRatesAcrossSitesTreeLikelihood.h\
 RASTools.h\
 TreeParsimonyScore.h\
@@ -114,6 +115,7 @@ T92.cpp\
 TN93.cpp\
 TreeExceptions.cpp\
 TreeTools.cpp\
+TreeTemplateTools.cpp\
 RASTools.cpp\
 AbstractTreeParsimonyScore.cpp\
 DRTreeParsimonyScore.cpp\

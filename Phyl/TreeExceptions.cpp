@@ -42,27 +42,31 @@ knowledge of the CeCILL license and that you accept its terms.
 #include "TreeExceptions.h"
 #include "Node.h"
 #include "Tree.h"
-
+#include <Utils/TextTools.h>
 
 /******************************************************************************/
 
 NodeException::NodeException(const string & text, const Node * node) :
 	Exception("NodeException: " + text + (node != NULL ? "(" + node -> getName() + ")" : "")),
-	_node(node) {};
+	_node(node), _nodeId(node->getId()) {};
+NodeException::NodeException(const string & text, int nodeId) :
+	Exception("NodeException: " + text + "(id:" + TextTools::toString(nodeId) + ")"),
+	_node(NULL), _nodeId(nodeId) {};
 		
-NodeException::~NodeException() throw() {};
-	
 const Node * NodeException::getNode() const { return _node; }
+int NodeException::getNodeId() const { return _nodeId; }
 
 /******************************************************************************/
 
 NodeNotFoundException::NodeNotFoundException(const string & text, const string & id) :
-	Exception("NodeNotFoundException: " + text + "(" + id + ")"), _id(id) {};
-		
-NodeNotFoundException::~NodeNotFoundException() throw() {};
-	
-string NodeNotFoundException::getId() const { return _id; }
+	Exception("NodeNotFoundException: " + text + "(" + id + ")"), _id(id) {}
 
+NodeNotFoundException::NodeNotFoundException(const string & text, int id) :
+	Exception("NodeNotFoundException: " + text + "(" + TextTools::toString(id) + ")")
+{
+  _id = TextTools::toString(id);
+}
+			
 /******************************************************************************/
 
 TreeException::TreeException(const string & text, const Tree * tree) :

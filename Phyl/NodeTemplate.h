@@ -146,9 +146,9 @@ class NodeTemplate : public Node {
 				
 		NodeTemplate<NodeInfos> * removeFather() { NodeTemplate<NodeInfos> * f = dynamic_cast<NodeTemplate<NodeInfos> *>(_father); _father = NULL; return f; }
 
-		const NodeTemplate<NodeInfos> * getSon(unsigned int i) const { return dynamic_cast<NodeTemplate<NodeInfos> *>(_sons[i]); }
+		const NodeTemplate<NodeInfos> * getSon(unsigned int i) const throw (IndexOutOfBoundsException) { return dynamic_cast<NodeTemplate<NodeInfos> *>(_sons[i]); }
 				
-		NodeTemplate<NodeInfos> * getSon(unsigned int i) { return dynamic_cast<NodeTemplate<NodeInfos> *>(_sons[i]); }
+		NodeTemplate<NodeInfos> * getSon(unsigned int i) throw (IndexOutOfBoundsException) { return dynamic_cast<NodeTemplate<NodeInfos> *>(_sons[i]); }
 				
 		vector<const NodeTemplate<NodeInfos> *> getNeighbors() const
 		{
@@ -175,10 +175,21 @@ class NodeTemplate : public Node {
 
 		// Specific methods:
 
-		virtual const NodeInfos getInfos() const { return _infos; }
+    /**
+     * @return A reference toward the information object associated to this node.
+     */
+		virtual const NodeInfos & getInfos() const { return _infos; }
 		
-		virtual NodeInfos getInfos() { return _infos; }
+    /**
+     * @return A reference toward the information object associated to this node.
+     */
+		virtual NodeInfos & getInfos() { return _infos; }
 
+    /**
+     * @brief Set the information to be associated to this node.
+     * 
+     * @param An information object.
+     */
 		virtual void setInfos(const NodeInfos & infos) { _infos = infos; }
 
 };

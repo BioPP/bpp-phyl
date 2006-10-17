@@ -68,11 +68,13 @@ class NodeTokenizer
       unsigned int tokCount = 0;
       int parCount = 0;
       unsigned int i;
-      for(i = 0; i < description.size(); i++) {
+      for(i = 0; i < description.size(); i++)
+      {
         if(description[i] == '(') parCount++; //Another open parenthesis
         if(description[i] == ')') parCount--; //Another close parenthesis
         if(parCount < 0) throw IOException("Invalid tree description: closing parenthesis with no opening one, in " + description);
-        if(description[i] == ',' && parCount == 0) {
+        if(description[i] == ',' && parCount == 0)
+        {
           //New token found:
           //cout << "NODETOENIZER: NEWTOKEN " << description.substr(tokCount, i - tokCount - 1) << endl;
           tokens.push_back(description.substr(tokCount, i - tokCount));
@@ -87,12 +89,25 @@ class NodeTokenizer
     }
     
   public:
-    string next() const { string s = tokens[currentPosition]; currentPosition++; return s; }
-    bool hasNext() const { return currentPosition < tokens.size(); }
+    string next() const
+    {
+      string s = tokens[currentPosition];
+      currentPosition++;
+      return s;
+    }
+    bool hasNext() const
+    { 
+      return currentPosition < tokens.size();
+    }
 };
 
 /**
- * @brief Utilitary methods dealing with trees.
+ * @brief Generic utilitary methods dealing with trees.
+ *
+ * These methods work with all Tree object.
+ * However, depending on the tree implementation, they may not be the most efficient.
+ *
+ * @see TreeTemplateTools
  */
 class TreeTools
 {
@@ -101,229 +116,87 @@ class TreeTools
     virtual ~TreeTools() {}
   
   public:
-     
+
+    /**
+     * @name Retrieve topology information
+     *
+     * @{
+     */
+    
     /**
      * @brief Retrieve all leaves from a subtree.
      *
-     * @param node The node that defines the subtree.
-     * @return A vector of pointers toward each leaf in the subtree.
+     * @param Tree The tree
+     * @param nodeId The id of node defining the subtree.
+     * @return A vector with the ids of all leaves in the subtree.
+     * @throw NodeNotFoundException If the node is not found.
      */
-    template<class N>
-    static vector<N *> getLeaves(N & node)
-    {
-      vector<N *> leaves;
-      getLeaves<N>(node, leaves);
-      return leaves;
-    }
-
-    template<class N>
-    static void getLeaves(N & node, vector<N *> & leaves)
-    {
-      if(node.isLeaf()) {
-        leaves.push_back(& node);
-      }
-      for(unsigned int i = 0; i < node.getNumberOfSons(); i++) {
-        getLeaves<N>(* node.getSon(i), leaves);
-      }
-    }
+    static vector<int> getLeavesId(const Tree & tree, int nodeId) throw (NodeNotFoundException);
 
     /**
-     * @brief Retrieve all leaves ids from a subtree.
+     * @brief Retrieve all leaves from a subtree.
      *
-     * @param node The node that defines the subtree.
-     * @return A vector of ids.
+     * @param Tree The tree
+     * @param nodeId The id of node defining the subtree.
+     * @param A vector with the ids of all leaves in the subtree.
+     * @throw NodeNotFoundException If the node is not found.
      */
-    static vector<int> getLeavesId(const Node & node)
-    {
-      vector<int> ids;
-      getLeavesId(node, ids);
-      return ids;
-    }
-
-    static void getLeavesId(const Node & node, vector<int> & ids)
-    {
-      if(node.isLeaf()) {
-        ids.push_back(node.getId());
-      }
-      for(unsigned int i = 0; i < node.getNumberOfSons(); i++) {
-        getLeavesId(* node.getSon(i), ids);
-      }
-    }
-
+    static void getLeavesId(const Tree & tree, int nodeId, vector<int> & leaves) throw (NodeNotFoundException);
+ 
     /**
      * @brief Get the id of a leaf given its name in a subtree.
      *
-     * @param node The node defining the subtree to search.
+     * @param Tree The tree
+     * @param nodeId The id of node defining the subtree.
      * @param name The name of the node.
      * @return The id of the node.
      * @throw NodeNotFoundException If the node is not found.
      */
-    static int getLeafId(const Node & node, const string & name) throw (NodeNotFoundException)
-    {
-      int * id = NULL;
-      searchLeaf(node, name, id);
-      if(id == NULL) throw NodeNotFoundException("TreeTools::getLeafId().", name);
-      else {
-        int i = *id;
-        delete id;
-        return i;
-      }
-    }
+    static int getLeafId(const Tree & tree, int nodeId, const string & name) throw (NodeNotFoundException);
 
-    static void searchLeaf(const Node & node, const string & name, int * & id) throw (NodeNotFoundException)
-    {
-      if(node.isLeaf()) {
-        if(node.getName() == name) {
-          id = new int(node.getId());
-          return;
-        }
-      }
-      for(unsigned int i = 0; i < node.getNumberOfSons(); i++) {
-        searchLeaf(* node.getSon(i), name, id);
-      }
-    }
+    /**
+     * @brief Get the id of a leaf given its name in a subtree.
+     *
+     * @param Tree The tree
+     * @param nodeId The id of node defining the subtree.
+     * @param name The name of the node.
+     * @param id The id of the node.
+     * @throw NodeNotFoundException If the node is not found.
+     */
+    static void searchLeaf(const Tree & tree, int nodeId, const string & name, int * & id) throw (NodeNotFoundException);
 
     /**
      * @brief Retrieve all son nodes from a subtree.
      *
-     * @param node The node that defines the subtree.
-     * @return A vector of pointers toward each son node in the subtree.
+     * @param Tree The tree
+     * @param nodeId The id of node defining the subtree.
+     * @return A vector of ids of each son node in the subtree.
+     * @throw NodeNotFoundException If the node is not found.
      */
-    template<class N>
-    static vector<N *> getNodes(N & node)
-    {
-      vector<N *> nodes;
-      getNodes<N>(node, nodes);
-      return nodes;
-    }
-
-    template<class N>
-    static void getNodes(N & node, vector<N *> & nodes)
-    {
-      for(unsigned int i = 0; i < node.getNumberOfSons(); i++) {
-        getNodes<N>(* node.getSon(i), nodes);
-      }
-      nodes.push_back(& node);
-    }
+    static vector<int> getNodesId(const Tree & tree, int nodeId) throw (NodeNotFoundException);
 
     /**
-     * @brief Retrieve all son nodes ids from a subtree.
+     * @brief Retrieve all son nodes from a subtree.
      *
-     * @param node The node that defines the subtree.
-     * @return A vector of ids.
+     * @param Tree The tree
+     * @param nodeId The id of node defining the subtree.
+     * @param nodes A vector of ids of each son node in the subtree.
+     * @throw NodeNotFoundException If the node is not found.
      */
-    static vector<int> getNodesId(const Node & node)
-    {
-      vector<int> ids;
-      getNodesId(node, ids);
-      return ids;
-    }
-
-    static void getNodesId(const Node & node, vector<int> & ids)
-    {
-      for(unsigned int i = 0; i < node.getNumberOfSons(); i++) {
-        getNodesId(* node.getSon(i), ids);
-      }
-      ids.push_back(node.getId());
-    }
+    static void getNodesId(const Tree & tree, int nodeId, vector<int> & nodes) throw (NodeNotFoundException);
 
     /**
-     * @brief Retrieve all inner son nodes from a subtree.
+     * @brief Get a vector of ancestor nodes between to nodes.
      *
-     * @param node The node that defines the subtree.
-     * @return A vector of pointers toward each inner son node in the subtree.
+     * @param tree The tree to use.
+     * @param nodeId1 Id of first node.
+     * @param nodeId2 Id of second node.
+     * @param includeAncestor Tell if the common ancestor must be included in the vector.
+     * @return A vector of ancestor nodes ids.
+     * @throw NodeNotFoundException If the node is not found.
      */
-    template<class N>
-    static vector<N *> getInnerNodes(N & node)
-    {
-      vector<N *> nodes;
-      getInnerNodes<N>(node, nodes);
-      return nodes;
-    }
-
-    template<class N>
-    static void getInnerNodes(N & node, vector<N *> & nodes)
-    {
-      if(node.isLeaf()) return; //Do not add leaves!
-      for(unsigned int i = 0; i < node.getNumberOfSons(); i++) {
-        getInnerNodes<N>(* node.getSon(i), nodes);
-      }
-      nodes.push_back(& node);
-    }
-
-    /**
-     * @brief Retrieve all inner son nodes ids from a subtree.
-     *
-     * @param node The node that defines the subtree.
-     * @return A vector of ids.
-     */
-    static vector<int> getInnerNodesId(const Node & node)
-    {
-      vector<int> ids;
-      getInnerNodesId(node, ids);
-      return ids;
-    }
-
-    static void getInnerNodesId(const Node & node, vector<int> & ids)
-    {
-      if(node.isLeaf()) return; //Do not add leaves!
-      for(unsigned int i = 0; i < node.getNumberOfSons(); i++) {
-        getInnerNodesId(* node.getSon(i), ids);
-      }
-      ids.push_back(node.getId());
-    }
-
-
-    template<class N>
-    static vector<N *> searchNodeWithId(N & node, int id)
-    {
-      vector<N *> nodes;
-      searchNodeWithId<N>(node, id, nodes);
-      return nodes;    
-    }
-
-    template<class N>
-    static void searchNodeWithId(N & node, int id, vector<N *> & nodes)
-    {
-      for(unsigned int i = 0; i < node.getNumberOfSons(); i++) {
-        searchNodeWithId<N>(* node.getSon(i), id, nodes);
-      }
-      if(node.getId() == id) nodes.push_back(& node);
-    }
-
-    /**
-     * @brief Tell if a particular node is the root of a tree
-     * i.e. if it has a father node.
-     *
-     * @param node The node to check.
-     * @return True if node has a father.
-     */
-    static bool isRoot(const Node & node);
-
-    /**
-     * @brief Get the number of leaves of a subtree defined by a particular node.
-     *
-     * @param node The node defining the subtree to check.
-     * @return The number of leaves.
-     */
-    static unsigned int getNumberOfLeaves(const Node & node);
-
-    /**
-     * @brief Get the number of nodes of a subtree defined by a particular node.
-     *
-     * @param node The node defining the subtree to check.
-     * @return The number of leaves.
-     */
-    static unsigned int getNumberOfNodes(const Node & node);
-
-    /**
-     * @brief Get the leaves names of a subtree defined by a particular node.
-     *
-     * @param node The node defining the subtree to check.
-     * @return The lst of all leaves names.
-     */
-    static vector<string> getLeavesNames(const Node & node);
-
+    static vector<int> getPathBetweenAnyTwoNodes(const Tree & tree, int nodeId1, int nodeId2, bool includeAncestor = true) throw (NodeNotFoundException);
+  
     /**
      * @brief Get the depth of the subtree defined by node 'node', i.e. the maximum
      * number of sons 'generations'.
@@ -339,235 +212,149 @@ class TreeTools
      *             +------C
      * </code>
      * Depth of node 'N1' id 2, depth of node 'N2' is 1, depth of leaves is 0.
+     *
+     * @param Tree The tree.
+     * @param nodeId The id of node defining the subtree.
+     * @return The depth of the subtree.
+     * @throw NodeNotFoundException If the node is not found.
      */
-    static unsigned int getDepth(const Node & node);
+    static unsigned int getDepth(const Tree & tree, int nodeId) throw (NodeNotFoundException);
 
     /**
-     * @name Conversion tools.
+     * @brief Get the height of the subtree defined by node 'node', i.e. the maximum
+     * distance between leaves and the root of the subtree.
      *
-     * Convert from Newick standard tree description.
-     * The description is for a node, and hence is to be surrounded with
-     * parenthesis. ex: (A:0.001, (B:0.001, C:0.02)90:0.005)50:0.0005
+     * The distance do not include the branch length of the subtree root node.
+     * The height of a leaf is hence 0.
      *
-     * @{
-     */
-
-  private: 
-    struct Element
-    {
-      string content;
-      string length;
-      string bootstrap;
-    };
-
-    static Element getElement(string elt) throw (IOException);
-
-  public:
-    /**
-     * @brief Parse a string in the parenthesis format and convert it to
-     * a subtree.
-     *
-     * @param description the string to parse;
-     * @param bootstrap Tell is real bootstrap values are expected. If so, a property with name TreeTools::BOOTSTRAP will be created and stored at the corresponding node.
-     * The property value will be of type Number<double>. Otherwise, an object of type String will be created and stored with the property name propertyName.
-     * @param propertyName The name of the property to store. Only used if bootstrap = false.
-     * @return A pointer toward a dynamically created subtree.
-     */
-    static Node * parenthesisToNode(const string & description, bool bootstrap=true, const string & propertyName=BOOTSTRAP);
-  
-    /**
-     * @brief Parse a string in the parenthesis format and convert it to
-     * a tree.
-     *
-     * @param description the string to parse;
-     * @param bootstrap Tell is real bootstrap values are expected. If so, a property with name TreeTools::BOOTSTRAP will be created and stored at the corresponding node.
-     * The property value will be of type Number<double>. Otherwise, an object of type String will be created and stored with the property name propertyName.
-     * @param propertyName The name of the property to store. Only used if bootstrap = false.
-     * @return A pointer toward a dynamically created tree.
-     */
-    static TreeTemplate<Node> * parenthesisToTree(const string & description, bool bootstrap=true, const string & propertyName=BOOTSTRAP);
-    
-    /**
-     * @brief Get the parenthesis description of a subtree.
-     *
-     * @param node The node defining the subtree.
-     * @param writeId Tells if node ids must be printed.
-     *                This will overwrite bootstrap values if there are ones.
-     *                Leaves id will be added to the leave names, separated by a '_' character.
-     * @return A string in the parenthesis format.
-     */
-    static string nodeToParenthesis(const Node & node, bool writeId = false);
-    static string nodeToParenthesis(const Tree & tree, int nodeId, bool writeId = false);
-
-    /**
-     * @brief Get the parenthesis description of a subtree.
-     *
-     * @param node The node defining the subtree.
-     * @param bootstrap Tell is bootstrap values must be writen.
-     * If so, the content of the property with name TreeTools::BOOTSTRAP will be written as bootstrap value.
-     * The property should be a Number<double> object.
-     * Otherwise, the content of the property with name 'propertyName' will be written.
-     * In this later case, the property should be a String object.
-     * @param propertyName The name of the property to use. Only used if bootstrap = false.
-     * @return A string in the parenthesis format.
-     */
-    static string nodeToParenthesis(const Node & node, bool bootstrap, const string & propertyName);
-    static string nodeToParenthesis(const Tree & tree, int nodeId, bool bootstrap, const string & propertyName);
-
-    /**
-     * @brief Get the parenthesis description of a tree.
-     *
-     * @param tree The tree to convert.
-     * @param writeId Tells if node ids must be printed.
-     *                This will overwrite bootstrap values if there are ones.
-     *                Leaves id will be added to the leave names, separated by a '_' character.
-     * @return A string in the parenthesis format.
-     */
-    static string treeToParenthesis(const TreeTemplate<Node> & tree, bool writeId = false);
-    static string treeToParenthesis(const Tree & tree, bool writeId = false);
-    
-    /**
-     * @brief Get the parenthesis description of a tree.
-     *
-     * @param tree The tree to convert.
-     * @param bootstrap Tell is bootstrap values must be writen.
-     * If so, the content of the property with name TreeTools::BOOTSTRAP will be written as bootstrap value.
-     * The property should be a Number<double> object.
-     * Otherwise, the content of the property with name 'propertyName' will be written.
-     * In this later case, the property should be a String object.
-     * @param propertyName The name of the property to use. Only used if bootstrap = false.
-     * @return A string in the parenthesis format.
-     */
-    static string treeToParenthesis(const TreeTemplate<Node> & tree, bool bootstrap, const string & propertyName);
-    static string treeToParenthesis(const Tree & tree, bool bootstrap, const string & propertyName);
-    
+     * @param Tree The tree.
+     * @param nodeId The id of node defining the subtree.
+     * @return The height of the subtree.
+     * @throw NodeNotFoundException If the node is not found.
+     * @throw NodeException If a branch length is lacking.
+     */ 
+    static double getHeight(const Tree & tree, int nodeId) throw (NodeNotFoundException,NodeException);
     /** @} */
-    
-    /**
-     * @brief Tell is a subtree is multifurcating.
-     *
-     * @param node The root node of the subtree.
-     * @return True is the subtree contains at least one multifurcating
-     * node (including the root node).
-     */
-    static bool isMultifurcating(const Node & node);
-    
+
     /**
      * @name Act on branch lengths.
      *
      * @{
      */
     
-    /**
+     /**
      * @brief Get all the branch lengths of a subtree.
      *
-     * @param node The root node of the subtree.
+     * @param tree The tree.
+     * @param nodeId The node defining the subtree.
      * @return A vector with all branch lengths.
+     * @throw NodeNotFoundException If the node is not found.
      * @throw NodeException If a branch length is lacking.
      */
-    static Vdouble getBranchLengths(const Node & node) throw (NodeException);
+    static Vdouble getBranchLengths(const Tree & tree, int nodeId) throw (NodeNotFoundException,NodeException);
     
     /**
      * @brief Get the total length (sum of all branch lengths) of a subtree.
      *
-     * @param node The root node of the subtree.
+     * @param tree The tree.
+     * @param nodeId The node defining the subtree.
      * @return The total length of the subtree.
+     * @throw NodeNotFoundException If the node is not found.
      * @throw NodeException If a branch length is lacking.
      */
-    static double getTotalLength(const Node & node) throw (NodeException);
+    static double getTotalLength(const Tree & tree, int nodeId) throw (NodeNotFoundException,NodeException);
 
     /**
      * @brief Set all the branch lengths of a subtree.
      *
-     * @param node  The root node of the subtree.
+     * @param tree The tree.
+     * @param nodeId The node defining the subtree.
      * @param brLen The branch length to apply.
+     * @throw NodeNotFoundException If the node is not found.
      */
-    static void setBranchLengths(Node & node, double brLen);
-    
+    static void setBranchLengths(Tree & tree, int nodeId, double brLen) throw (NodeNotFoundException);
+          
     /**
      * @brief Give a length to branches that don't have one in a subtree.
      *
-     * @param node  The root node of the subtree.
+     * @param tree The tree.
+     * @param nodeId The node defining the subtree.
      * @param brLen The branch length to apply.
+     * @throw NodeNotFoundException If the node is not found.
      */
-    static void setVoidBranchLengths(Node & node, double brLen);
+    static void setVoidBranchLengths(Tree & tree, int nodeId, double brLen) throw (NodeNotFoundException);
         
     /**
      * @brief Scale a given tree.
      *
      * Multiply all branch lengths by a given factor.
      *
-     * @param node   The root node of the subtree to scale.
+     * @param tree The tree.
+     * @param nodeId The node defining the subtree.
      * @param factor The factor to multiply all branch lengths with.
+     * @throw NodeNotFoundException If the node is not found.
      * @throw NodeException If a branch length is lacking.
      */
-    static void scaleTree(Node & node, double factor) throw (NodeException);
-        
-    /** @} */
-
-    //The following methods are adapted from the tree class of the SEMPHY library:
-    static vector<Node *> getPathBetweenAnyTwoNodes(Node & node1, Node & node2, bool includeAncestor = true);
-    
-    static vector<const Node *> getPathBetweenAnyTwoNodes(const Node & node1, const Node & node2, bool includeAncestor = true);
-    
-    static vector<int> getPathBetweenAnyTwoNodes(const Tree & tree, int nodeId1, int nodeId2, bool includeAncestor = true);
-  
-    template<class N>
-    static N * cloneSubtree(const Node & node) 
-    {
-      //First we copy this node using default copy constuctor:
-      N * clone = new N(node);
-      //Now we perform a hard copy:
-      for(unsigned int i = 0; i < node.getNumberOfSons(); i++) {
-        clone -> setSon(i, * cloneSubtree<N>(* node[i]));
-      }
-      return clone;
-    }
-    
-    template<class N>
-    static N * cloneSubtree(const Tree & tree, int nodeId) 
-    {
-      //First we copy this node using default copy constuctor:
-      N * clone = tree.hasNodeName(nodeId) ? new N(nodeId, tree.getNodeName(nodeId)) : new N(nodeId);
-      if(tree.hasDistanceToFather(nodeId)) clone->setDistanceToFather(tree.getDistanceToFather(nodeId));
-      //Now we copy all sons:
-      vector<int> sonsId = tree.getSonsId(nodeId);
-      for(unsigned int i = 0; i < sonsId.size(); i++) {
-        clone -> addSon(* cloneSubtree<N>(tree, sonsId[i]));
-      }
-      return clone;
-    }
+    static void scaleTree(Tree & tree, int nodeId, double factor) throw (NodeNotFoundException,NodeException);
 
     /**
-     * @name Random trees
+     * @brief Grafen's method to initialize branch lengths.
      *
-     * @{
-     */
-
-    /**
-     * @brief Draw a random tree from a list of taxa.
-     *
-     * @param leavesNames A list of taxa.
-     * @return A random tree with all corresponding taxa.
-     */
-    static TreeTemplate<Node> * getRandomTree(vector<string> & leavesNames);
-
-    /** @} */
+     * Each height of the node (toatl distance from the leaves) is set equal to the number of
+     * leaf nodes for the corresponding subtrees - 1 for inner nodes, 0 for leaves.
+     * 
+     * If the tree already has branch lengths, they will be ignored.
+     * 
+     * Reference:
+     * Grafen A. The phylogenetic regression. Philos Trans R Soc Lond B Biol Sci. 1989; 326(1233):119-57
+     * 
+     * @param tree The tree.
+     */ 
+    static void initBranchLengthsGrafen(Tree & tree);
     
     /**
-     * @name Some properties.
+     * @brief Compute branch lengths using Grafen's method.
      *
-     * @{
+     * The 'height' of each node is devided by the total height of the tree, and the ratio is raised at power 'rho'.
+     * A value of rho=0 hence returns a star tree.
+     *
+     * Reference:
+     * Grafen A. The phylogenetic regression. Philos Trans R Soc Lond B Biol Sci. 1989; 326(1233):119-57
+     * 
+     * @param tree The tree to use.
+     * @param power The rho parameter.
+     * @param init Tell if the height must be initialized by calling the initBranchLengthsGrafen() method.
+     *             Otherwise use branch lengths.
+     * @throw NodeException If init=false and one branch length is lacking.
      */
-     
-    /**
-     * @brief Bootstrap tag.
-     */
-    static string BOOTSTRAP;
-    
-    /** @} */
+    static void computeBranchLengthsGrafen(Tree & tree, double power=1, bool init=true) throw (NodeException);
+   
+  private:
+    static unsigned int initBranchLengthsGrafen(Tree & tree, int nodeId) throw (NodeNotFoundException);
+    static void computeBranchLengthsGrafen(Tree & tree, int nodeId, double power, double total, double & height, double & heightRaised) throw (NodeNotFoundException,NodeException);
 
-    static double getDistanceBetweenAnyTwoNodes(const Node & node1, const Node & node2);
+  public:
+    /**
+     * @brief Modify a tree's branch lengths to make a clock tree.
+     *
+     * The height of each node is set to the mean height of all son nodes.
+     * This may however lead to negative branch lengths, since the mean heigth
+     * may be inferior to one of the son heights, due to short branch lengths.
+     * If the 'noneg' is set to yes, the mean height is checked against all son
+     * heights. If it is inferior to one of the son heights, the maximum son
+     * height is used instead. This results in a multifurcation.
+     * 
+     * This method is recursive and will be applied on all sons nodes.
+     * 
+     * @param tree The tree to use.
+     * @param nodeId The node defining the subtree.
+     * @return The modified height of the node.
+     * @throw NodeNotFoundException If the node is not found.
+     * @throw NodeException If one branch length is lacking.
+     */
+    static double convertToClockTree(Tree & tree, int nodeId, bool noneg=false) throw (NodeNotFoundException,NodeException);
+    
+  public:
     /**
      * @brief Get the total distance between two nodes.
      *
@@ -576,9 +363,10 @@ class TreeTools
      * @param tree The tree to consider.
      * @param nodeId1 First node id.
      * @param nodeId2 Second node id.
-     * @return The sum of all branch lengths
+     * @return The sum of all branch lengths between the two nodes.
+     * @throw NodeNotFoundException If the node is not found.
      */
-    static double getDistanceBetweenAnyTwoNodes(const Tree & tree, int nodeId1, int nodeId2);
+    static double getDistanceBetweenAnyTwoNodes(const Tree & tree, int nodeId1, int nodeId2) throw (NodeNotFoundException);
     
     /**
      * @brief Compute a distance matrix from a tree.
@@ -593,22 +381,97 @@ class TreeTools
      * @return The distance matrix computed from tree.
      */
     static DistanceMatrix * getDistanceMatrix(const Tree & tree); 
+    /** @} */
 
     /**
-     * @brief Get a subset of node neighbors.
+     * @name Conversion tools.
      *
-     * Get all neighbors of node node1 that are neither node1 nor node2.
-     * This method is useful for topology manipulations, like NNI.
+     * Convert from Newick standard tree description.
+     * The description is for a node, and hence is to be surrounded with
+     * parenthesis. ex: (A:0.001, (B:0.001, C:0.02)90:0.005)50:0.0005
      *
-     * @param node1 The node whose neighbors must be retrieved.
-     * @param node2 One neighbor to exclude.
-     * @param node3 Another neighbor to exclude.
-     * @return A vector of neighbors.
+     * @{
      */
-    static vector<const Node *> getRemainingNeighbors(const Node * node1, const Node * node2, const Node * node3);
+
+    struct Element
+    {
+      string content;
+      string length;
+      string bootstrap;
+    };
+
+    static Element getElement(string elt) throw (IOException);
+
+    
+    /**
+     * @brief Get the parenthesis description of a subtree.
+     *
+     * @param Tree The tree
+     * @param nodeId The id of node defining the subtree.
+     * @param writeId Tells if node ids must be printed.
+     *                This will overwrite bootstrap values if there are ones.
+     *                Leaves id will be added to the leave names, separated by a '_' character.
+     * @return A string in the parenthesis format.
+     * @throw NodeNotFoundException If the node is not found.
+     */
+    static string nodeToParenthesis(const Tree & tree, int nodeId, bool writeId = false) throw (NodeNotFoundException);
+
+    /**
+     * @brief Get the parenthesis description of a subtree.
+     *
+     * @param tree The tree
+     * @param nodeId The node defining the subtree.
+     * @param bootstrap Tell is bootstrap values must be writen.
+     * If so, the content of the property with name TreeTools::BOOTSTRAP will be written as bootstrap value.
+     * The property should be a Number<double> object.
+     * Otherwise, the content of the property with name 'propertyName' will be written.
+     * In this later case, the property should be a String object.
+     * @param propertyName The name of the property to use. Only used if bootstrap = false.
+     * @return A string in the parenthesis format.
+     * @throw NodeNotFoundException If the node is not found.
+     */
+    static string nodeToParenthesis(const Tree & tree, int nodeId, bool bootstrap, const string & propertyName) throw (NodeNotFoundException);
+
+    /**
+     * @brief Get the parenthesis description of a tree.
+     *
+     * @param tree The tree to convert.
+     * @param writeId Tells if node ids must be printed.
+     *                This will overwrite bootstrap values if there are ones.
+     *                Leaves id will be added to the leave names, separated by a '_' character.
+     * @return A string in the parenthesis format.
+     */
+    static string treeToParenthesis(const Tree & tree, bool writeId = false);
+    
+    /**
+     * @brief Get the parenthesis description of a tree.
+     *
+     * @param tree The tree to convert.
+     * @param bootstrap Tell is bootstrap values must be writen.
+     * If so, the content of the property with name TreeTools::BOOTSTRAP will be written as bootstrap value.
+     * The property should be a Number<double> object.
+     * Otherwise, the content of the property with name 'propertyName' will be written.
+     * In this later case, the property should be a String object.
+     * @param propertyName The name of the property to use. Only used if bootstrap = false.
+     * @return A string in the parenthesis format.
+     */
+    static string treeToParenthesis(const Tree & tree, bool bootstrap, const string & propertyName);
+    
+    /** @} */
+    
+    /**
+     * @name Some properties.
+     *
+     * @{
+     */
+     
+    /**
+     * @brief Bootstrap tag.
+     */
+    static string BOOTSTRAP;   
+    /** @} */
 
 };
-
 
 #endif  //_TREETOOLS_H_
 

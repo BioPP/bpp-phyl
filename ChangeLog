@@ -1,3 +1,12 @@
+13/10/06 Julien Dutheil
+* TreeTools class was reorganized, augmented, more documented and splitted into TreeTools and TreeTemplateTools.
+* Tree, TreeTemplate and Node imporved (Exception support, etc.).
+* Small bugs fixed in TreeTemplate.
+
+04/10/06 Julien Dutheil
+* New function TreeTools::getHeight(Node).
+* "trees" file now includes TreeTemplate.h
+
 28/08/06 -*- Version 1.2.0 -*-
 
 28/08/06 Julien Dutheil

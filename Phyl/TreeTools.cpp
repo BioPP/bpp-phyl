@@ -1,5 +1,5 @@
 //
-// File: TreeTools.h
+// File: TreeTools.cpp
 // Created by: Julien Dutheil
 // Created on: Wed Aug  6 13:45:28 2003
 //
@@ -39,7 +39,6 @@ knowledge of the CeCILL license and that you accept its terms.
 
 #include "TreeTools.h"
 #include "Tree.h"
-#include "TreeTemplate.h"
 
 // From Utils:
 #include <Utils/TextTools.h>
@@ -48,7 +47,8 @@ knowledge of the CeCILL license and that you accept its terms.
 #include <Utils/String.h>
 
 // From NumCalc:
-#include <NumCalc/RandomTools.h>
+#include <NumCalc/VectorTools.h>
+using namespace VectorFunctions;
 
 // From the STL:
 #include <iostream>
@@ -58,355 +58,223 @@ using namespace std;
 
 /******************************************************************************/
 
-bool TreeTools::isRoot(const Node & node) { return !node.hasFather(); }
+string TreeTools::BOOTSTRAP = "bootstrap";
 
 /******************************************************************************/
 
-unsigned int TreeTools::getNumberOfLeaves(const Node & node)
+vector<int> TreeTools::getLeavesId(const Tree & tree, int nodeId) throw (NodeNotFoundException)
 {
-	unsigned int nbLeaves = 0;
-	if(node.isLeaf()) {
-		nbLeaves++;
-	} 
-	for(unsigned int i = 0; i < node.getNumberOfSons(); i++) {
-		nbLeaves += getNumberOfLeaves(* node[i]);
-	}
-	return nbLeaves;
+  vector<int> leaves;
+  getLeavesId(tree, nodeId, leaves);
+  return leaves;
 }
 
-/******************************************************************************/
-
-unsigned int TreeTools::getNumberOfNodes(const Node & node)
+void TreeTools::getLeavesId(const Tree & tree, int nodeId, vector<int> & leaves) throw (NodeNotFoundException)
 {
-	unsigned int nbNodes = 1;
-	for(unsigned int i = 0; i < node.getNumberOfSons(); i++) {
-		nbNodes += getNumberOfNodes(* node[i]);
-	}
-	return nbNodes;
-}
-
-/******************************************************************************/
-
-vector<string> TreeTools::getLeavesNames(const Node & node)
-{
-	vector<string> names;
-	if(node.isLeaf()) {
-    names.push_back(node.getName());
+  if(!tree.hasNode(nodeId)) throw NodeNotFoundException("TreeTools::getLeavesId", nodeId);
+  if(tree.isLeaf(nodeId))
+  {
+    leaves.push_back(nodeId);
   }
-	for(unsigned int i = 0; i < node.getNumberOfSons(); i++) {
-		vector<string> subNames = getLeavesNames(* node.getSon(i));
-		for(unsigned int j = 0; j < subNames.size(); j++) names.push_back(subNames[j]);
-	}
-	return names;	 
+  vector<int> sons = tree.getSonsId(nodeId);
+  for(unsigned int i = 0; i < sons.size(); i++)
+  {
+    getLeavesId(tree, sons[i], leaves);
+  }
 }
 
 /******************************************************************************/
 
-unsigned int TreeTools::getDepth(const Node & node)
+int TreeTools::getLeafId(const Tree & tree, int nodeId, const string & name)
+throw (NodeNotFoundException)
 {
-	unsigned int d = 0;
-	for(unsigned int i = 0; i < node.getNumberOfSons(); i++) {
-		unsigned int c = getDepth(* node[i]) + 1;
-		if( c > d) d = c;
-	}
-	return d;
+  int * id = NULL;
+  searchLeaf(tree, nodeId, name, id);
+  if(id == NULL) throw NodeNotFoundException("TreeTools::getLeafId().", name);
+  else
+  {
+    int i = *id;
+    delete id;
+    return i;
+  }
+}
+
+void TreeTools::searchLeaf(const Tree & tree, int nodeId, const string & name, int * & id)
+throw (NodeNotFoundException)
+{
+  if(tree.isLeaf(nodeId))
+  {
+    if(tree.getNodeName(nodeId) == name)
+    {
+      id = new int(nodeId);
+      return;
+    }
+  }
+  vector<int> sons;
+  for(unsigned int i = 0; i < sons.size(); i++)
+  {
+    searchLeaf(tree, nodeId, name, id);
+  }
+}
+
+/******************************************************************************/
+
+vector<int> TreeTools::getNodesId(const Tree & tree, int nodeId) throw (NodeNotFoundException)
+{
+  vector<int> nodes;
+  getNodesId(tree, nodeId, nodes);
+  return nodes;
+}
+
+void TreeTools::getNodesId(const Tree & tree, int nodeId, vector<int> & nodes) throw (NodeNotFoundException)
+{
+  if(!tree.hasNode(nodeId)) throw NodeNotFoundException("TreeTools::getNodesId", nodeId);
+  vector<int> sons = tree.getSonsId(nodeId);
+  for(unsigned int i = 0; i < sons.size(); i++)
+  {
+    getNodesId(tree, nodeId, nodes);
+  }
+  nodes.push_back(nodeId);
+}
+
+/******************************************************************************/
+
+unsigned int TreeTools::getDepth(const Tree & tree, int nodeId) throw (NodeNotFoundException)
+{
+  if(!tree.hasNode(nodeId)) throw NodeNotFoundException("TreeTools::getDepth", nodeId);
+  unsigned int d = 0;
+  vector<int> sons = tree.getSonsId(nodeId);
+  for(unsigned int i = 0; i < sons.size(); i++)
+  {
+    unsigned int c = getDepth(tree, sons[i]) + 1;
+    if( c > d) d = c;
+  }
+  return d;
+}
+
+/******************************************************************************/
+
+double TreeTools::getHeight(const Tree & tree, int nodeId) throw (NodeNotFoundException,NodeException)
+{
+  if(!tree.hasNode(nodeId)) throw NodeNotFoundException("TreeTools::getHeight", nodeId);
+  double d = 0;
+  vector<int> sons = tree.getSonsId(nodeId);
+  for(unsigned int i = 0; i < sons.size(); i++)
+  {
+    double dist = 0;
+    if(tree.hasDistanceToFather(sons[i])) dist = tree.getDistanceToFather(sons[i]);
+    else throw NodeException("Node without branch length.", sons[i]);
+    double c = getHeight(tree, sons[i]) + dist;
+    if(c > d) d = c;
+  }
+  return d;
 }
 
 /******************************************************************************/
 
 TreeTools::Element TreeTools::getElement(string elt) throw (IOException)
 {
-	Element element;
-	element.length    = ""; //default
-	element.bootstrap = ""; //default
-	
+  Element element;
+  element.length    = ""; //default
+  element.bootstrap = ""; //default
+  
   string::size_type colon = elt.rfind(':');
-	try {
-		string elt2;
-		if(colon != string::npos)
+  try {
+    string elt2;
+    if(colon != string::npos)
     {
-			//this is an element with length:
-			elt2 = elt.substr(0, colon);
-			element.length = elt.substr(colon + 1);
-		}
+      //this is an element with length:
+      elt2 = elt.substr(0, colon);
+      element.length = elt.substr(colon + 1);
+    }
     else
     {
-			//this is an element without length;
-			elt2 = elt;
-		}
-	
+      //this is an element without length;
+      elt2 = elt;
+    }
+  
     string::size_type lastP = elt2.rfind(')');
     string::size_type firstP = elt2.find('(');
-		if(firstP == string::npos)
+    if(firstP == string::npos)
     {
-			//This is a leaf:
-			element.content = elt2;
-		}
+      //This is a leaf:
+      element.content = elt2;
+    }
     else
     {
-			//This is a node:
-			if(lastP < firstP) throw IOException("Invalid format: bad closing parenthesis in " + elt2);
-			element.content = elt2.substr(firstP + 1, lastP - firstP - 1);
-			string bootstrap = elt2.substr(lastP + 1);
-			//cout << "ELEMENT: BOOTSTRAP: " << bootstrap << endl;
-			if(!TextTools::isEmpty(bootstrap))
+      //This is a node:
+      if(lastP < firstP) throw IOException("Invalid format: bad closing parenthesis in " + elt2);
+      element.content = elt2.substr(firstP + 1, lastP - firstP - 1);
+      string bootstrap = elt2.substr(lastP + 1);
+      //cout << "ELEMENT: BOOTSTRAP: " << bootstrap << endl;
+      if(!TextTools::isEmpty(bootstrap))
       {
-				element.bootstrap = bootstrap;
-			}
-		}
-	}
+        element.bootstrap = bootstrap;
+      }
+    }
+  }
   catch(exception e)
   {
-		throw IOException("Bad tree description: " + elt);
-	}
-	return element;
-}	
-
-/******************************************************************************/
-Node * TreeTools::parenthesisToNode(const string & description, bool bootstrap, const string & propertyName)
-{
-	//cout << "NODE: " << description << endl;
-	Element elt = getElement(description);
-
-	//New node:
-	Node * node = new Node();
-	if(!TextTools::isEmpty(elt.length))
-  {
-		node->setDistanceToFather(TextTools::toDouble(elt.length));
-		//cout << "NODE: LENGTH: " << * elt.length << endl;
-	}
-	if(!TextTools::isEmpty(elt.bootstrap))
-  {
-    if(bootstrap)
-    {
-		  node->setProperty(BOOTSTRAP, new Number<double>(TextTools::toDouble(elt.bootstrap)));
-		  //cout << "NODE: BOOTSTRAP: " << * elt.bootstrap << endl;
-    }
-    else
-    {
-      node->setProperty(propertyName, new String(elt.bootstrap));
-    }
-	}
-	
-	NodeTokenizer nt(elt.content);
-	vector<string> elements;
-	while(nt.hasNext())
-  {
-		elements.push_back(nt.next());
-	}
-
-	if(elements.size() == 1)
-  {
-		//This is a leaf:
-		//cout << "NODE: LEAF: " << elements[0] << endl;
-		string name = TextTools::removeSurroundingWhiteSpaces(elements[0]);
-		node -> setName(name);
-	}
-  else
-  {
-		//This is a node:
-		for(unsigned int i = 0; i < elements.size(); i++)
-    {
-			//cout << "NODE: SUBNODE: " << i << ", " << elements[i] << endl;
-			Node * son = parenthesisToNode(elements[i], bootstrap, propertyName);
-			node -> addSon(* son);
-		}
-	}
-	return node;
-}
-
-/******************************************************************************/
-
-TreeTemplate<Node> * TreeTools::parenthesisToTree(const string & description, bool bootstrap, const string & propertyName)
-{
-  string::size_type lastP  = description.rfind(')');
-  string::size_type firstP = description.find('(');
-  string::size_type semi = description.rfind(';');
-	string content = description.substr(firstP + 1, lastP - firstP - 1);
-  string element = semi == string::npos ? description.substr(lastP+1) : description.substr(lastP+1, semi - lastP - 1);
-	//cout << "TREE: " << content << endl;
-	//New root node:
-	Node * node = new Node();
-	
-	NodeTokenizer nt(content);
-	vector<string> elements;
-	while(nt.hasNext())
-  {
-		elements.push_back(nt.next());
-	}
-
-	if(elements.size() == 1)
-  {
-		//This is a leaf:
-		node -> setName(elements[0]);
-	}
-  else
-  {
-		//This is a node:
-		for(unsigned int i = 0; i < elements.size(); i++)
-    {
-			Node * son = parenthesisToNode(elements[i], bootstrap, propertyName);
-			node -> addSon(* son);
-		}
-    if(! TextTools::isEmpty(element))
-    {
-      StringTokenizer st(element, ":");
-      string lengthS = "";
-      string bootstrapS = "";
-      if(st.numberOfRemainingTokens() == 1)
-      { 
-        bootstrapS=st.nextToken();
-      }
-      else
-      {
-        bootstrapS=st.nextToken();
-        lengthS=st.nextToken();
-      }
-    	if(!TextTools::isEmpty(lengthS))
-      {
-		    node->setDistanceToFather(TextTools::toDouble(lengthS));
-		    //cout << "NODE: LENGTH: " << * elt.length << endl;
-	    }
-	    if(!TextTools::isEmpty(bootstrapS))
-      {
-        if(bootstrap)
-        {
-		      node->setProperty(BOOTSTRAP, new Number<double>(TextTools::toDouble(bootstrapS)));
-		      //cout << "NODE: BOOTSTRAP: " << * elt.bootstrap << endl;
-        }
-        else
-        {
-          node->setProperty(propertyName, new String(bootstrapS));
-        }
-	    }
-    }
-	}
-	TreeTemplate<Node> * tree = new TreeTemplate<Node>();
-	tree -> setRootNode(* node);
-	tree -> resetNodesId();
-	return tree;
-}
-
-/******************************************************************************/
-
-string TreeTools::nodeToParenthesis(const Node & node, bool writeId)
-{
-	ostringstream s;
-	if(node.isLeaf())
-  {
-		s << node.getName();
-	}
-  else
-  {
-		s << "(";
-		s << nodeToParenthesis(* node[0], writeId);
-		for(unsigned int i = 1; i < node.getNumberOfSons(); i++)
-    {
-			s << "," << nodeToParenthesis(* node[i], writeId);
-		}
-		s << ")";
-	}
-	if(writeId)
-  {
-		if(node.isLeaf()) s << "_";
-		s << node.getId();
-	}
-  else
-  {
-    if(node.hasProperty(BOOTSTRAP))
-      s << (dynamic_cast<const Number<double> *>(node.getProperty(BOOTSTRAP))->getValue());
+    throw IOException("Bad tree description: " + elt);
   }
-	if(node.hasDistanceToFather()) s << ":" << node.getDistanceToFather();
-	return s.str();	
-}
+  return element;
+}  
 
 /******************************************************************************/
 
-string TreeTools::nodeToParenthesis(const Tree & tree, int nodeId, bool writeId)
+string TreeTools::nodeToParenthesis(const Tree & tree, int nodeId, bool writeId) throw (NodeNotFoundException)
 {
-	ostringstream s;
-	if(tree.isLeaf(nodeId))
+  if(!tree.hasNode(nodeId)) throw NodeNotFoundException("TreeTools::nodeToParenthesis", nodeId);
+  ostringstream s;
+  if(tree.isLeaf(nodeId))
   {
-		s << tree.getNodeName(nodeId);
-	}
+    s << tree.getNodeName(nodeId);
+  }
   else
   {
-		s << "(";
-		vector<int> sonsId = tree.getSonsId(nodeId);
-		s << nodeToParenthesis(tree, sonsId[0], writeId);
-		for(unsigned int i = 1; i < sonsId.size(); i++)
+    s << "(";
+    vector<int> sonsId = tree.getSonsId(nodeId);
+    s << nodeToParenthesis(tree, sonsId[0], writeId);
+    for(unsigned int i = 1; i < sonsId.size(); i++)
     {
-			s << "," << nodeToParenthesis(tree, sonsId[i], writeId);
-		}
-		s << ")";
-	}
-	if(writeId)
+      s << "," << nodeToParenthesis(tree, sonsId[i], writeId);
+    }
+    s << ")";
+  }
+  if(writeId)
   {
-		if(tree.isLeaf(nodeId)) s << "_";
-		s << nodeId;
-	}
+    if(tree.isLeaf(nodeId)) s << "_";
+    s << nodeId;
+  }
   else
   {
     if(tree.hasProperty(nodeId, BOOTSTRAP))
       s << (dynamic_cast<const Number<double> *>(tree.getProperty(nodeId, BOOTSTRAP))->getValue());
   }
-	if(tree.hasDistanceToFather(nodeId)) s << ":" << tree.getDistanceToFather(nodeId);
-	return s.str();	
+  if(tree.hasDistanceToFather(nodeId)) s << ":" << tree.getDistanceToFather(nodeId);
+  return s.str();  
 }
 
 /******************************************************************************/
 
-string TreeTools::nodeToParenthesis(const Node & node, bool bootstrap, const string & propertyName)
+string TreeTools::nodeToParenthesis(const Tree & tree, int nodeId, bool bootstrap, const string & propertyName) throw (NodeNotFoundException)
 {
-	ostringstream s;
-	if(node.isLeaf())
+  if(!tree.hasNode(nodeId)) throw NodeNotFoundException("TreeTools::nodeToParenthesis", nodeId);
+  ostringstream s;
+  if(tree.isLeaf(nodeId))
   {
-		s << node.getName();
-	}
-  else
-  {
-		s << "(";
-		s << nodeToParenthesis(* node[0], bootstrap, propertyName);
-		for(unsigned int i = 1; i < node.getNumberOfSons(); i++)
-    {
-			s << "," << nodeToParenthesis(* node[i], bootstrap, propertyName);
-		}
-		s << ")";
-	
-    if(bootstrap)
-    {
-      if(node.hasProperty(BOOTSTRAP))
-        s << (dynamic_cast<const Number<double> *>(node.getProperty(BOOTSTRAP))->getValue());
-    }
-    else
-    {
-      if(node.hasProperty(propertyName))
-        s << *(dynamic_cast<const String *>(node.getProperty(propertyName)));
-    }
+    s << tree.getNodeName(nodeId);
   }
-	if(node.hasDistanceToFather()) s << ":" << node.getDistanceToFather();
-	return s.str();	
-}
-
-/******************************************************************************/
-
-string TreeTools::nodeToParenthesis(const Tree & tree, int nodeId, bool bootstrap, const string & propertyName)
-{
-	ostringstream s;
-	if(tree.isLeaf(nodeId))
-  {
-		s << tree.getNodeName(nodeId);
-	}
   else
   {
-		s << "(";
-		vector<int> sonsId = tree.getSonsId(nodeId);
-		s << nodeToParenthesis(tree, sonsId[0], bootstrap, propertyName);
-		for(unsigned int i = 1; i < sonsId.size(); i++)
+    s << "(";
+    vector<int> sonsId = tree.getSonsId(nodeId);
+    s << nodeToParenthesis(tree, sonsId[0], bootstrap, propertyName);
+    for(unsigned int i = 1; i < sonsId.size(); i++)
     {
-			s << "," << nodeToParenthesis(tree, sonsId[i], bootstrap, propertyName);
-		}
-		s << ")";
+      s << "," << nodeToParenthesis(tree, sonsId[i], bootstrap, propertyName);
+    }
+    s << ")";
    
     if(bootstrap)
     {
@@ -418,101 +286,36 @@ string TreeTools::nodeToParenthesis(const Tree & tree, int nodeId, bool bootstra
       if(tree.hasProperty(nodeId, propertyName))
         s << *(dynamic_cast<const String *>(tree.getProperty(nodeId, propertyName)));
     }
-	}
+  }
   if(tree.hasDistanceToFather(nodeId)) s << ":" << tree.getDistanceToFather(nodeId);
-	return s.str();	
-}
-
-/******************************************************************************/
-
-string TreeTools::treeToParenthesis(const TreeTemplate<Node> & tree, bool writeId)
-{
-	ostringstream s;
-	s << "(";
-	const Node * node = tree.getRootNode();
-	if(node->isLeaf())
-  {
-		s << node -> getName();
-		for(unsigned int i = 0; i < node -> getNumberOfSons(); i++)
-    {
-			s << "," << nodeToParenthesis(* node -> getSon(i), writeId);
-		}
-	}
-  else
-  {
-		s << nodeToParenthesis(* node->getSon(0), writeId);
-		for(unsigned int i = 1; i < node->getNumberOfSons(); i++)
-    {
-			s << "," << nodeToParenthesis(* node->getSon(i), writeId);
-		}
-	}
-	s << ");" << endl;
-	return s.str();	
+  return s.str();  
 }
 
 /******************************************************************************/
 
 string TreeTools::treeToParenthesis(const Tree & tree, bool writeId)
 {
-	ostringstream s;
-	s << "(";
-	int rootId = tree.getRootId();
-	vector<int> sonsId = tree.getSonsId(rootId);
-	if(tree.isLeaf(rootId))
+  ostringstream s;
+  s << "(";
+  int rootId = tree.getRootId();
+  vector<int> sonsId = tree.getSonsId(rootId);
+  if(tree.isLeaf(rootId))
   {
-		s << tree.getNodeName(rootId);
-		for(unsigned int i = 0; i < sonsId.size(); i++) {
-			s << "," << nodeToParenthesis(tree, sonsId[i], writeId);
-		}
-	}
-  else
-  {
-		s << nodeToParenthesis(tree, sonsId[0], writeId);
-		for(unsigned int i = 1; i < sonsId.size(); i++)
-    {
-			s << "," << nodeToParenthesis(tree, sonsId[i], writeId);
-		}
-	}
-	s << ");" << endl;
-	return s.str();	
-}
-
-/******************************************************************************/
-
-string TreeTools::treeToParenthesis(const TreeTemplate<Node> & tree, bool bootstrap, const string & propertyName)
-{
-	ostringstream s;
-	s << "(";
-	const Node * node = tree.getRootNode();
-	if(node->isLeaf())
-  {
-		s << node -> getName();
-		for(unsigned int i = 0; i < node->getNumberOfSons(); i++)
-    {
-			s << "," << nodeToParenthesis(* node->getSon(i), bootstrap, propertyName);
-		}
-	}
-  else
-  {
-		s << nodeToParenthesis(* node->getSon(0), bootstrap, propertyName);
-		for(unsigned int i = 1; i < node->getNumberOfSons(); i++)
-    {
-			s << "," << nodeToParenthesis(* node->getSon(i), bootstrap, propertyName);
-		}
-	}
-	s << ")";
-  if(bootstrap)
-  {
-    if(node->hasProperty(BOOTSTRAP))
-      s << (dynamic_cast<const Number<double> *>(node->getProperty(BOOTSTRAP))->getValue());
+    s << tree.getNodeName(rootId);
+    for(unsigned int i = 0; i < sonsId.size(); i++) {
+      s << "," << nodeToParenthesis(tree, sonsId[i], writeId);
+    }
   }
   else
   {
-    if(node->hasProperty(propertyName))
-      s << *(dynamic_cast<const String *>(node->getProperty(propertyName)));
+    s << nodeToParenthesis(tree, sonsId[0], writeId);
+    for(unsigned int i = 1; i < sonsId.size(); i++)
+    {
+      s << "," << nodeToParenthesis(tree, sonsId[i], writeId);
+    }
   }
-  s << ";" << endl;
-	return s.str();	
+  s << ");" << endl;
+  return s.str();  
 }
 
 /******************************************************************************/
@@ -520,26 +323,26 @@ string TreeTools::treeToParenthesis(const TreeTemplate<Node> & tree, bool bootst
 string TreeTools::treeToParenthesis(const Tree & tree, bool bootstrap, const string & propertyName)
 {
   ostringstream s;
-	s << "(";
-	int rootId = tree.getRootId();
-	vector<int> sonsId = tree.getSonsId(rootId);
-	if(tree.isLeaf(rootId))
+  s << "(";
+  int rootId = tree.getRootId();
+  vector<int> sonsId = tree.getSonsId(rootId);
+  if(tree.isLeaf(rootId))
   {
-		s << tree.getNodeName(rootId);
-		for(unsigned int i = 0; i < sonsId.size(); i++)
+    s << tree.getNodeName(rootId);
+    for(unsigned int i = 0; i < sonsId.size(); i++)
     {
-			s << "," << nodeToParenthesis(tree, sonsId[i], bootstrap, propertyName);
-		}
-	}
+      s << "," << nodeToParenthesis(tree, sonsId[i], bootstrap, propertyName);
+    }
+  }
   else
   {
-		s << nodeToParenthesis(tree, sonsId[0], bootstrap, propertyName);
-		for(unsigned int i = 1; i < sonsId.size(); i++)
+    s << nodeToParenthesis(tree, sonsId[0], bootstrap, propertyName);
+    for(unsigned int i = 1; i < sonsId.size(); i++)
     {
-			s << "," << nodeToParenthesis(tree, sonsId[i], bootstrap, propertyName);
-		}
-	}
-	s << ")";
+      s << "," << nodeToParenthesis(tree, sonsId[i], bootstrap, propertyName);
+    }
+  }
+  s << ")";
   if(bootstrap)
   {
     if(tree.hasProperty(rootId, BOOTSTRAP))
@@ -551,291 +354,257 @@ string TreeTools::treeToParenthesis(const Tree & tree, bool bootstrap, const str
       s << *(dynamic_cast<const String *>(tree.getProperty(rootId, propertyName)));
   }
   s << ";" << endl;
-	return s.str();	
+  return s.str();  
 }
 
 /******************************************************************************/
-
-bool TreeTools::isMultifurcating(const Node & node)
-{
-	if(node.getNumberOfSons() > 2) return true;
-	else {
-		bool b = false;
-		for(unsigned int i = 0; i < node.getNumberOfSons(); i++) {
-			b = b || isMultifurcating(* node.getSon(i));
-		}
-		return b;
-	}		
-}
-
-/******************************************************************************/
-
-Vdouble TreeTools::getBranchLengths(const Node & node) throw (NodeException)
-{
-	Vdouble brLen(1);
-	if(node.hasDistanceToFather()) brLen[0] = node.getDistanceToFather();
-	else throw NodeException("TreeTools::getbranchLengths(). No branch length.", &node);
-	for(unsigned int i = 0; i < node.getNumberOfSons(); i++) {
-		Vdouble sonBrLen = getBranchLengths(* node.getSon(i));
-		for(unsigned int j = 0; j < sonBrLen.size(); j++) brLen.push_back(sonBrLen[j]);
-	}
-	return brLen;
-}
-
-/******************************************************************************/
-
-double TreeTools::getTotalLength(const Node & node) throw (NodeException)
-{
-	if(!node.hasDistanceToFather()) throw NodeException("TreeTools::getTotalLength(). No branch length.", &node);
-	double length = node.getDistanceToFather();
-	for(unsigned int i = 0; i < node.getNumberOfSons(); i++) {
-		length += getTotalLength(* node.getSon(i));
-	}
-	return length;
-}
-
-/******************************************************************************/
-
-void TreeTools::setBranchLengths(Node & node, double brLen)
-{
-	node.setDistanceToFather(brLen);
-	for(unsigned int i = 0; i < node.getNumberOfSons(); i++) {
-		setBranchLengths(* node.getSon(i), brLen);
-	}
-}
-
-/******************************************************************************/
-
-void TreeTools::setVoidBranchLengths(Node & node, double brLen)
-{
-	if(!node.hasDistanceToFather()) node.setDistanceToFather(brLen);
-	for(unsigned int i = 0; i < node.getNumberOfSons(); i++) {
-		setVoidBranchLengths(* node.getSon(i), brLen);
-	}
-}
-
-/******************************************************************************/
-
-void TreeTools::scaleTree(Node & node, double factor) throw (NodeException)
-{
-	if(!node.hasDistanceToFather()) throw NodeException("TreeTools::scaleTree(). Branch with no length", &node);
-	node.setDistanceToFather(node.getDistanceToFather() * factor);
-	for(unsigned int i = 0; i < node.getNumberOfSons(); i++) {
-		scaleTree(* node.getSon(i), factor);
-	}
-}
-		
-/******************************************************************************/
-
-TreeTemplate<Node> * TreeTools::getRandomTree(vector<string> & leavesNames)
-{
-  if(leavesNames.size() == 0) return NULL; // No taxa.
-  // This vector will contain all nodes.
-  // Start with all leaves, and then group nodes randomly 2 by 2.
-  // Att the end, contains only the root node of the tree.
-	vector<Node *> nodes(leavesNames.size());
-	// Create all leaves nodes:
-	for(unsigned int i = 0; i < leavesNames.size(); i++) {
-		nodes[i] = new Node(leavesNames[i]);
-	}
-	// Now group all nodes:
-	while(nodes.size() > 1) {
-		// Select random nodes:
-		int pos1 = RandomTools::giveIntRandomNumberBetweenZeroAndEntry(nodes.size());
-		Node * node1 = nodes[pos1];
-		nodes.erase(nodes.begin() + pos1);
-		int pos2 = RandomTools::giveIntRandomNumberBetweenZeroAndEntry(nodes.size());
-		Node * node2 = nodes[pos2];
-		nodes.erase(nodes.begin() + pos2);
-		// Add new node:
-		Node * parent = new Node();
-		parent -> addSon(* node1);
-		parent -> addSon(* node2);
-		nodes.push_back(parent);
-	}
-  // Return tree with last node as root node:
-  TreeTemplate<Node> * tree = new TreeTemplate<Node>(* nodes[0]);
-	tree->resetNodesId();
-	return tree;
-}
-
-/******************************************************************************/
-
-/******************************************************************************/
-
-vector<Node *> TreeTools::getPathBetweenAnyTwoNodes(Node & node1, Node & node2, bool includeAncestor)
-{
-	vector<Node *> path;
-	vector<Node *> pathMatrix1;
-	vector<Node *> pathMatrix2;
-
-	Node * nodeUp = & node1;
-	while(nodeUp -> hasFather())	{ // while(nodeUp != root)
-		pathMatrix1.push_back(nodeUp);
-		nodeUp = nodeUp -> getFather();
-	}
-	pathMatrix1.push_back(nodeUp); // The root.
-
-	nodeUp = & node2;
-	while(nodeUp -> hasFather())	{
-		pathMatrix2.push_back(nodeUp);
-		nodeUp = nodeUp -> getFather();
-	}
-	pathMatrix2.push_back(nodeUp); // The root.
-	// Must check that the two nodes have the same root!!!
-
-	int tmp1 = pathMatrix1.size() - 1;
-	int tmp2 = pathMatrix2.size() - 1;
-
-	while((tmp1 >= 0) && (tmp2 >= 0)) {
-		if (pathMatrix1[tmp1] != pathMatrix2[tmp2]) break;
-		tmp1--; tmp2--;
-	}
-
-	for (int y = 0; y <= tmp1; ++y) path.push_back(pathMatrix1[y]);
-	if(includeAncestor) path.push_back(pathMatrix1[tmp1 + 1]); // pushing once, the Node that was common to both.
-	for (int j = tmp2; j >= 0; --j) {
-		path.push_back(pathMatrix2[j]);
-	}
-	return path;
-}
-
-vector<const Node *> TreeTools::getPathBetweenAnyTwoNodes(const Node & node1, const Node & node2, bool includeAncestor)
-{
-	vector<const Node *> path;
-	vector<const Node *> pathMatrix1;
-	vector<const Node *> pathMatrix2;
-
-	const Node * nodeUp = & node1;
-	while(nodeUp -> hasFather())	{ // while(nodeUp != root)
-		pathMatrix1.push_back(nodeUp);
-		nodeUp = nodeUp -> getFather();
-	}
-	pathMatrix1.push_back(nodeUp); // The root.
-
-	nodeUp = & node2;
-	while(nodeUp -> hasFather())	{
-		pathMatrix2.push_back(nodeUp);
-		nodeUp = nodeUp -> getFather();
-	}
-	pathMatrix2.push_back(nodeUp); // The root.
-	// Must check that the two nodes have the same root!!!
-
-	int tmp1 = pathMatrix1.size() - 1;
-	int tmp2 = pathMatrix2.size() - 1;
-
-	while((tmp1 >= 0) && (tmp2 >= 0)) {
-		if (pathMatrix1[tmp1] != pathMatrix2[tmp2]) break;
-		tmp1--; tmp2--;
-	}
-
-	for (int y = 0; y <= tmp1; ++y) path.push_back(pathMatrix1[y]);
-	if(includeAncestor) path.push_back(pathMatrix1[tmp1 + 1]); // pushing once, the Node that was common to both.
-	for (int j = tmp2; j >= 0; --j) {
-		path.push_back(pathMatrix2[j]);
-	}
-	return path;
-}
 
 vector<int> TreeTools::getPathBetweenAnyTwoNodes(const Tree & tree, int nodeId1, int nodeId2, bool includeAncestor)
+  throw (NodeNotFoundException)
 {
-	vector<int> path;
-	vector<int> pathMatrix1;
-	vector<int> pathMatrix2;
+  if(!tree.hasNode(nodeId1)) throw NodeNotFoundException("TreeTools::getPathBetweenAnyTwoNodes", nodeId1);
+  if(!tree.hasNode(nodeId2)) throw NodeNotFoundException("TreeTools::getPathBetweenAnyTwoNodes", nodeId2);
+  vector<int> path;
+  vector<int> pathMatrix1;
+  vector<int> pathMatrix2;
 
-	int nodeUp = nodeId1;
-	while(tree.hasFather(nodeUp))	{
-		pathMatrix1.push_back(nodeUp);
-		nodeUp = tree.getFatherId(nodeUp);
-	}
-	pathMatrix1.push_back(nodeUp); // The root.
+  int nodeUp = nodeId1;
+  while(tree.hasFather(nodeUp))
+  {
+    pathMatrix1.push_back(nodeUp);
+    nodeUp = tree.getFatherId(nodeUp);
+  }
+  pathMatrix1.push_back(nodeUp); // The root.
 
-	nodeUp = nodeId2;
-	while(tree.hasFather(nodeUp))	{
-		pathMatrix2.push_back(nodeUp);
-		nodeUp = tree.getFatherId(nodeUp);
-	}
-	pathMatrix2.push_back(nodeUp); // The root.
-	// Must check that the two nodes have the same root!!!
+  nodeUp = nodeId2;
+  while(tree.hasFather(nodeUp))
+  {
+    pathMatrix2.push_back(nodeUp);
+    nodeUp = tree.getFatherId(nodeUp);
+  }
+  pathMatrix2.push_back(nodeUp); // The root.
+  // Must check that the two nodes have the same root!!!
 
-	int tmp1 = pathMatrix1.size() - 1;
-	int tmp2 = pathMatrix2.size() - 1;
+  int tmp1 = pathMatrix1.size() - 1;
+  int tmp2 = pathMatrix2.size() - 1;
 
-	while((tmp1 >= 0) && (tmp2 >= 0)) {
-		if (pathMatrix1[tmp1] != pathMatrix2[tmp2]) break;
-		tmp1--; tmp2--;
-	}
+  while((tmp1 >= 0) && (tmp2 >= 0))
+  {
+    if (pathMatrix1[tmp1] != pathMatrix2[tmp2]) break;
+    tmp1--; tmp2--;
+  }
 
-	for (int y = 0; y <= tmp1; ++y) path.push_back(pathMatrix1[y]);
-	if(includeAncestor) path.push_back(pathMatrix1[tmp1 + 1]); // pushing once, the Node that was common to both.
-	for (int j = tmp2; j >= 0; --j) {
-		path.push_back(pathMatrix2[j]);
-	}
-	return path;
+  for (int y = 0; y <= tmp1; ++y) path.push_back(pathMatrix1[y]);
+  if(includeAncestor) path.push_back(pathMatrix1[tmp1 + 1]); // pushing once, the Node that was common to both.
+  for (int j = tmp2; j >= 0; --j)
+  {
+    path.push_back(pathMatrix2[j]);
+  }
+  return path;
 }
-	
+  
 /******************************************************************************/
 
-// @TODO
-//void TreeTools::displayTree(const Node * node)
-//{
-//
-//}
-
-/******************************************************************************/
-
-string TreeTools::BOOTSTRAP = "bootstrap";
-
-/******************************************************************************/
-
-double TreeTools::getDistanceBetweenAnyTwoNodes(const Node & node1, const Node & node2)
+double TreeTools::getDistanceBetweenAnyTwoNodes(const Tree & tree, int nodeId1, int nodeId2) throw (NodeNotFoundException)
 {
-	vector<const Node *> path = getPathBetweenAnyTwoNodes(node1, node2, false);
-	double d = 0;
-	for(unsigned int i = 0; i < path.size(); i++) {
-		d += path[i] -> getDistanceToFather();
-	}
-	return d;
+  if(!tree.hasNode(nodeId1)) throw NodeNotFoundException("TreeTools::getDistanceBetweenAnyTwoNodes", nodeId1);
+  if(!tree.hasNode(nodeId2)) throw NodeNotFoundException("TreeTools::getDistanceBetweenAnyTwoNodes", nodeId2);
+  vector<int> path = getPathBetweenAnyTwoNodes(tree, nodeId1, nodeId2, false);
+  double d = 0;
+  for(unsigned int i = 0; i < path.size(); i++)
+  {
+    d += tree.getDistanceToFather(path[i]);
+  }
+  return d;
 }
-	
+  
 /******************************************************************************/
 
-double TreeTools::getDistanceBetweenAnyTwoNodes(const Tree & tree, int nodeId1, int nodeId2)
+Vdouble TreeTools::getBranchLengths(const Tree & tree, int nodeId) throw (NodeNotFoundException,NodeException)
 {
-	vector<int> path = getPathBetweenAnyTwoNodes(tree, nodeId1, nodeId2, false);
-	double d = 0;
-	for(unsigned int i = 0; i < path.size(); i++) {
-		d += tree.getDistanceToFather(path[i]);
-	}
-	return d;
-}
-	
+  if(!tree.hasNode(nodeId)) throw NodeNotFoundException("TreeTools::getBranchLengths", nodeId);
+  Vdouble brLen(1);
+  if(tree.hasDistanceToFather(nodeId)) brLen[0] = tree.getDistanceToFather(nodeId);
+  else throw NodeException("TreeTools::getbranchLengths(). No branch length.", nodeId);
+  vector<int> sons = tree.getSonsId(nodeId);
+  for(unsigned int i = 0; i < sons.size(); i++)
+  {
+    Vdouble sonBrLen = getBranchLengths(tree, sons[i]);
+    for(unsigned int j = 0; j < sonBrLen.size(); j++) brLen.push_back(sonBrLen[j]);
+  }
+  return brLen;
+}  
+
 /******************************************************************************/
 
+double TreeTools::getTotalLength(const Tree & tree, int nodeId) throw (NodeNotFoundException,NodeException)
+{
+  if(!tree.hasNode(nodeId)) throw NodeNotFoundException("TreeTools::getTotalLength", nodeId);
+  if(!tree.hasDistanceToFather(nodeId)) throw NodeException("TreeTools::getTotalLength(). No branch length.", nodeId);
+  double length = tree.getDistanceToFather(nodeId);
+  vector<int> sons = tree.getSonsId(nodeId);
+  for(unsigned int i = 0; i < sons.size(); i++)
+  {
+    length += getTotalLength(tree, sons[i]);
+  }
+  return length;
+}
+
+/******************************************************************************/
+
+void TreeTools::setBranchLengths(Tree & tree, int nodeId, double brLen) throw (NodeNotFoundException)
+{
+  if(!tree.hasNode(nodeId)) throw NodeNotFoundException("TreeTools::setBranchLengths", nodeId);
+  vector<int> nodes = getNodesId(tree, nodeId);
+  for(unsigned int i = 0; i < nodes.size(); i++)
+  {
+    tree.setDistanceToFather(nodes[i], brLen);
+  }
+}
+ 
+/******************************************************************************/
+
+void TreeTools::setVoidBranchLengths(Tree & tree, int nodeId, double brLen) throw (NodeNotFoundException)
+{
+  if(!tree.hasNode(nodeId)) throw NodeNotFoundException("TreeTools::setVoidBranchLengths", nodeId);
+  vector<int> nodes = getNodesId(tree, nodeId);
+  for(unsigned int i = 0; i < nodes.size(); i++)
+  {
+    if(!tree.hasDistanceToFather(nodes[i])) tree.setDistanceToFather(nodes[i], brLen);
+  }
+}
+   
+/******************************************************************************/
+
+void TreeTools::scaleTree(Tree & tree, int nodeId, double factor) throw (NodeNotFoundException,NodeException)
+{
+  if(!tree.hasNode(nodeId)) throw NodeNotFoundException("TreeTools::scaleTree", nodeId);
+  vector<int> nodes = getNodesId(tree, nodeId);
+  for(unsigned int i = 0; i < nodes.size(); i++)
+  {
+    double brLen = tree.getDistanceToFather(nodes[i]) * factor;
+    tree.setDistanceToFather(nodes[i], brLen);
+  }
+}
+
+/******************************************************************************/
+
+unsigned int TreeTools::initBranchLengthsGrafen(Tree & tree, int nodeId) throw (NodeNotFoundException)
+{
+  if(!tree.hasNode(nodeId)) throw NodeNotFoundException("TreeTools::initBranchLengthsGrafen", nodeId);
+  vector<int> sons = tree.getSonsId(nodeId);
+  vector<unsigned int> h(sons.size());
+  for(unsigned int i = 0; i < sons.size(); i++)
+  {
+    h[i] = initBranchLengthsGrafen(tree, sons[i]);
+  }
+  unsigned int thish = sons.size() == 0 ? 0 : sum<unsigned int>(h) + sons.size() - 1;
+  for(unsigned int i = 0; i < sons.size(); i++)
+  {
+    tree.setDistanceToFather(sons[i], (double)(thish-h[i]));
+  }
+  return thish;
+}
+
+void TreeTools::initBranchLengthsGrafen(Tree & tree)
+{
+  initBranchLengthsGrafen(tree, tree.getRootId());
+}
+
+/******************************************************************************/
+
+void TreeTools::computeBranchLengthsGrafen(
+    Tree & tree,
+    int nodeId,
+    double power,
+    double total,
+    double & height,
+    double & heightRaised)
+  throw (NodeNotFoundException,NodeException)
+{
+  if(!tree.hasNode(nodeId)) throw NodeNotFoundException("TreeTools::computeBranchLengthsGrafen", nodeId);
+  vector<int> sons = tree.getSonsId(nodeId);
+  vector<double> hr(sons.size());
+  height = 0;
+  for(unsigned int i = 0; i < sons.size(); i++)
+  {
+    int son = sons[i];
+    if(tree.hasDistanceToFather(son))
+    {
+      double h;
+      computeBranchLengthsGrafen(tree, sons[i], power, total, h, hr[i]);
+      double d = h + tree.getDistanceToFather(son);
+      if(d > height) height = d;
+    }
+    else throw NodeException ("TreeTools::computeBranchLengthsGrafen. Branch length lacking.", son);
+  }
+  heightRaised = pow(height/total, power) * total;
+  for(unsigned int i = 0; i < sons.size(); i++)
+  {
+    tree.setDistanceToFather(sons[i], heightRaised - hr[i]);
+  }
+}
+
+void TreeTools::computeBranchLengthsGrafen(Tree & tree, double power, bool init)
+throw (NodeException)
+{
+  int rootId = tree.getRootId();
+  if(init)
+  {
+    initBranchLengthsGrafen(tree);
+  }
+  //Scale by total heigth:
+  double totalHeight = getHeight(tree, rootId);
+  double h, hr;
+  computeBranchLengthsGrafen(tree, rootId, power, totalHeight, h, hr);
+}
+
+/******************************************************************************/
+
+double TreeTools::convertToClockTree(Tree & tree, int nodeId, bool noneg)
+throw (NodeNotFoundException,NodeException)
+{
+  if(!tree.hasNode(nodeId)) throw NodeNotFoundException("TreeTools::convertToClockTree", nodeId);
+  vector<int> sons = tree.getSonsId(nodeId);
+  vector<double> h(sons.size());
+  //We compute the mean height:
+  double l = 0;
+  double maxh = -1.;
+  for(unsigned int i = 0; i < sons.size(); i++)
+  {
+    int son = sons[i];
+    if(tree.hasDistanceToFather(son))
+    {
+      h[i] = convertToClockTree(tree, son);
+      if(h[i] > maxh) maxh = h[i];
+      l += h[i] + tree.getDistanceToFather(son);
+    }
+    else throw NodeException ("TreeTools::convertToClockTree. Branch length lacking.", son);
+  }
+  if(sons.size() > 0) l /= (double)sons.size();
+  if(l < maxh) l = maxh;
+  for(unsigned int i = 0; i < sons.size(); i++)
+  {
+    tree.setDistanceToFather(sons[i], l - h[i]);
+  }
+  return l;
+}
+
+/******************************************************************************/
+ 
 DistanceMatrix * TreeTools::getDistanceMatrix(const Tree & tree)
 {
-	vector<string> names = tree.getLeavesNames();
-	DistanceMatrix * mat = new DistanceMatrix(names);
-	for(unsigned int i = 0; i < names.size(); i++) {
-		(* mat)(i, i) = 0;
-		for(unsigned int j = 0; j < i; j++) {
-			(* mat)(i, j) = (* mat)(j, i) = getDistanceBetweenAnyTwoNodes(tree, tree.getLeafId(names[i]), tree.getLeafId(names[j]));
-		}
-	}
-	return mat;
-}
-
-/******************************************************************************/
-
-vector<const Node *> TreeTools::getRemainingNeighbors(const Node * node1, const Node * node2, const Node * node3)
-{
-	vector<const Node *> neighbors = node1->getNeighbors();
-	vector<const Node *> neighbors2;
-	for(unsigned int k = 0; k < neighbors.size(); k++) {
-		const Node * n = neighbors[k];
-		if(n != node2 && n != node3) neighbors2.push_back(n);
-	}
-	return neighbors2;
+  vector<string> names = tree.getLeavesNames();
+  DistanceMatrix * mat = new DistanceMatrix(names);
+  for(unsigned int i = 0; i < names.size(); i++)
+  {
+    (* mat)(i, i) = 0;
+    for(unsigned int j = 0; j < i; j++)
+    {
+      (* mat)(i, j) = (* mat)(j, i) = getDistanceBetweenAnyTwoNodes(tree, tree.getLeafId(names[i]), tree.getLeafId(names[j]));
+    }
+  }
+  return mat;
 }
 
 /******************************************************************************/

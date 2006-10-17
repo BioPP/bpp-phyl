@@ -291,9 +291,17 @@ class Node {
 				 
 		virtual unsigned int getNumberOfSons() const { return _sons.size(); }
 
-		virtual const Node * getSon(unsigned int i) const { return _sons[i]; }
+		virtual const Node * getSon(unsigned int i) const throw (IndexOutOfBoundsException)
+    {
+      if(i >= _sons.size()) throw IndexOutOfBoundsException("Node::getSon().",i,0,_sons.size()-1);
+      return _sons[i];
+    }
 				
-		virtual Node * getSon(unsigned int i) { return _sons[i]; }
+		virtual Node * getSon(unsigned int i) throw (IndexOutOfBoundsException)
+    {
+      if(i >= _sons.size()) throw IndexOutOfBoundsException("Node::getSon().",i,0,_sons.size()-1);
+      return _sons[i];
+    }
 				
 		virtual void addSon(unsigned int pos, Node & node)
 		{
@@ -329,7 +337,7 @@ class Node {
 		
 		virtual void removeSons() {	while(_sons.size() != 0) removeSon(0); }
 				
-		virtual void swap(unsigned int branch1, unsigned int branch2);
+		virtual void swap(unsigned int branch1, unsigned int branch2) throw (IndexOutOfBoundsException);
 
 		virtual unsigned int getSonPosition(const Node & son) const throw (NodeNotFoundException);
 

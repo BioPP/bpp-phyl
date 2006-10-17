@@ -49,10 +49,12 @@ class Tree;
 /**
  * @brief General exception thrown when something is wrong with a particular node.
  */
-class NodeException : public Exception {
+class NodeException : public Exception
+{
 
 	protected:
 		const Node * _node;
+    int _nodeId;
 			
 	public:
 
@@ -62,8 +64,15 @@ class NodeException : public Exception {
 		 * @param node A const pointer toward the node that threw the exception.
 		 */
 		NodeException(const string & text, const Node * node = NULL);
+
+		/**
+		 * @brief Build a new NodeException.
+		 * @param text A message to be passed to the exception hierarchy.
+		 * @param nodeId The id of the node that threw the exception.
+		 */
+		NodeException(const string & text, int nodeId);
 	
-		virtual ~NodeException() throw ();
+		virtual ~NodeException() throw () {}
 	
 	public:
 
@@ -73,12 +82,19 @@ class NodeException : public Exception {
 		 * @return A pointer toward the faulty node.
 		 */
 		virtual const Node * getNode() const;
+		/**
+		 * @brief Get the id of node that threw the exception.
+		 * 
+		 * @return The id of the faulty node.
+		 */
+		virtual int getNodeId() const;
 };
 
 /**
  * @brief Exception thrown when something is wrong with a particular node.
  */
-class NodeNotFoundException : public Exception {
+class NodeNotFoundException : public Exception
+{
 
 	protected:
 		string _id;
@@ -92,8 +108,15 @@ class NodeNotFoundException : public Exception {
 		 * @param id   A string describing the node.
 		 */
 		NodeNotFoundException(const string & text, const string & id);
+		/**
+		 * @brief Build a new NodeNotFoundException.
+		 * 
+		 * @param text A message to be passed to the exception hierarchy.
+		 * @param id   A node identifier.
+		 */
+		NodeNotFoundException(const string & text, int id);
 	
-		virtual ~NodeNotFoundException() throw ();
+		virtual ~NodeNotFoundException() throw () {}
 	
 	public:
 		
@@ -102,13 +125,14 @@ class NodeNotFoundException : public Exception {
 		 * 
 		 * @return The id of the node.
 		 */
-		virtual string getId() const;
+		virtual string getId() const { return _id; }
 };
 
 /**
  * @brief General exception thrown when something wrong happened in a tree.
  */
-class TreeException : public Exception {
+class TreeException : public Exception
+{
 
 	protected:
 		const Tree * _tree;
@@ -139,7 +163,8 @@ class TreeException : public Exception {
 /**
  * @brief Exception thrown when a tree is expected to be rooted.
  */
-class UnrootedTreeException : public TreeException {
+class UnrootedTreeException : public TreeException
+{
 
 	public:
 

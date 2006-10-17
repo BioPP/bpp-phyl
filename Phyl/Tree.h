@@ -123,10 +123,31 @@ class Tree {
 		 *
 		 * @{
 		 */
+    virtual bool hasNode(int nodeId) const = 0;
+
 		virtual bool isLeaf(int nodeId) const throw (NodeNotFoundException) = 0;
 
 		virtual bool isRoot(int nodeId) const throw (NodeNotFoundException) = 0;
 		/** @} */
+
+    /**
+     * @name Acting on topology.
+     *
+     * @{
+     */
+
+    /**
+     * @brief Swap two son nodes.
+     *
+     * @param parentId The node.
+     * @param i1 First son node index.
+     * @param i2 Second son node index.
+     * @throw NodeNotFoundException If the node is not found.
+     * @throw IndexOutOfBoundsException If one node index is not valid, or if the node
+     */
+    void swapNodes(const Tree & tree, int nodeId, unsigned int i1=0, unsigned int i2=1) throw (NodeNotFoundException,IndexOutOfBoundsException);
+  
+    /** @} */
 
 		/**
 		 * @name Dealing with branch lengths.

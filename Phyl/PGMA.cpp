@@ -41,6 +41,7 @@ knowledge of the CeCILL license and that you accept its terms.
 #include "NodeTemplate.h"
 #include "Tree.h"
 #include "TreeTemplate.h"
+#include "TreeTemplateTools.h"
 
 // From the STL:
 #include <cmath>
@@ -54,7 +55,7 @@ using namespace std;
 #endif
 PGMA::getTree() const
 {
-	Node * root = TreeTools::cloneSubtree<Node>(* dynamic_cast<TreeTemplate<NodeTemplate<PGMAInfos> > *>(_tree) -> getRootNode());
+	Node * root = TreeTemplateTools::cloneSubtree<Node>(* dynamic_cast<TreeTemplate<NodeTemplate<PGMAInfos> > *>(_tree) -> getRootNode());
 	return new TreeTemplate<Node>(* root);
 }
 	

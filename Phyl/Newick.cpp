@@ -38,9 +38,9 @@ knowledge of the CeCILL license and that you accept its terms.
 */
 
 #include "Newick.h"
-#include "TreeTools.h"
 #include "Tree.h"
 #include "TreeTemplate.h"
+#include "TreeTemplateTools.h"
 
 // From Utils:
 #include <Utils/TextTools.h>
@@ -90,7 +90,7 @@ Newick::read(istream & in) const throw (Exception)
     else description += temp;
 	}
 	if(_allowComments) description = TextTools::removeSubstrings(description, '[', ']');
-	return TreeTools::parenthesisToTree(description, _useBootstrap, _bootstrapPropertyName);
+	return TreeTemplateTools::parenthesisToTree(description, _useBootstrap, _bootstrapPropertyName);
 }
 
 /******************************************************************************/

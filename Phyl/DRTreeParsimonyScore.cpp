@@ -40,7 +40,7 @@ knowledge of the CeCILL license and that you accept its terms.
 #include "DRTreeParsimonyScore.h"
 #include "PatternTools.h"
 #include "SitePatterns.h"
-#include "TreeTools.h" //Needed for NNIs
+#include "TreeTemplateTools.h" //Needed for NNIs
 
 // From Utils:
 #include <Utils/ApplicationTools.h>
@@ -379,7 +379,7 @@ double DRTreeParsimonyScore::testNNI(const Node * parent, const Node * son) cons
 	const DRTreeParsimonyNodeData * parentData = & _parsimonyData->getNodeData(parent);
 	const vector<Bitset>          * sonBitsets = & parentData->getBitsetsArrayForNeighbor(son); 
 	const vector<unsigned int>    * sonScores  = & parentData->getScoresArrayForNeighbor(son); 
-	vector<const Node *> parentNeighbors = TreeTools::getRemainingNeighbors(parent, grandFather, son);
+	vector<const Node *> parentNeighbors = TreeTemplateTools::getRemainingNeighbors(parent, grandFather, son);
 	unsigned int nbParentNeighbors = parentNeighbors.size();
 	vector< const vector<Bitset>       *> parentBitsets(nbParentNeighbors);
 	vector< const vector<unsigned int> *> parentScores(nbParentNeighbors);
@@ -392,7 +392,7 @@ double DRTreeParsimonyScore::testNNI(const Node * parent, const Node * son) cons
 	const DRTreeParsimonyNodeData * grandFatherData = & _parsimonyData->getNodeData(grandFather);
 	const vector<Bitset>          * uncleBitsets = & grandFatherData->getBitsetsArrayForNeighbor(uncle); 
 	const vector<unsigned int>    * uncleScores  = & grandFatherData->getScoresArrayForNeighbor(uncle); 
-	vector<const Node *> grandFatherNeighbors = TreeTools::getRemainingNeighbors(grandFather, parent, uncle);
+	vector<const Node *> grandFatherNeighbors = TreeTemplateTools::getRemainingNeighbors(grandFather, parent, uncle);
 	unsigned int nbGrandFatherNeighbors = grandFatherNeighbors.size();
 	vector< const vector<Bitset>       *> grandFatherBitsets(nbGrandFatherNeighbors);
 	vector< const vector<unsigned int> *> grandFatherScores(nbGrandFatherNeighbors);

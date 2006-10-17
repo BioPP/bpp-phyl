@@ -77,7 +77,7 @@ Node & Node::operator=(const Node & node)
 			
 /** Sons: *********************************************************************/
 			
-void Node::swap(unsigned int branch1, unsigned int branch2)
+void Node::swap(unsigned int branch1, unsigned int branch2) throw (IndexOutOfBoundsException)
 {
     Node* node1 = getSon(branch1);
     Node* node2 = getSon(branch2);

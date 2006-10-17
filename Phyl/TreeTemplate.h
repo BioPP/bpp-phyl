@@ -41,7 +41,7 @@ knowledge of the CeCILL license and that you accept its terms.
 #define _TREETEMPLATE_H_
 
 #include "TreeExceptions.h"
-#include "TreeTools.h"
+#include "TreeTemplateTools.h"
 #include "Tree.h"
 
 // From the STL:
@@ -83,7 +83,6 @@ using namespace std;
 template<class N>
 class TreeTemplate: public virtual Tree
 {
-
 	/**
 	 * Fields:
 	 */
@@ -99,13 +98,16 @@ class TreeTemplate: public virtual Tree
 		TreeTemplate(const TreeTemplate<N> & t)
 		{
 			//Perform a hard copy of the nodes:
-			_root = TreeTools::cloneSubtree<N>(* t.getRootNode());
+			_root = TreeTemplateTools::cloneSubtree<N>(* t.getRootNode());
+      _name = t._name;
+      _nextNodeId = t._nextNodeId;
 		}
 
 		TreeTemplate(const Tree & t)
 		{
 			//Create new nodes from an existing tree:
-			_root = TreeTools::cloneSubtree<N>(t, t.getRootId());
+			_root = TreeTemplateTools::cloneSubtree<N>(t, t.getRootId());
+      _name = t.getName();
 		}
 
 		TreeTemplate(N & root) { _root = &root; }
@@ -113,12 +115,15 @@ class TreeTemplate: public virtual Tree
 		TreeTemplate<N> & operator=(const TreeTemplate<N> & t)
 		{
 			//Perform a hard copy of the nodes:
-			_root = TreeTools::cloneSubtree<N>(* t.getRootNode());
+			_root = TreeTemplateTools::cloneSubtree<N>(* t.getRootNode());
     	return *this;
 		}
 
-		virtual ~TreeTemplate() { destroyNode(* _root); delete _root; }
-
+		virtual ~TreeTemplate()
+    {
+      destroyNode(* _root);
+      delete _root;
+    }
 			
 	/**
 	 * Methods:
@@ -130,95 +135,103 @@ class TreeTemplate: public virtual Tree
 	
 		void setName(const string & name) { _name = name; }
 
-		int getRootId() const { return _root -> getId(); }
+		int getRootId() const { return _root->getId(); }
 
-		unsigned int getNumberOfLeaves() const { return TreeTools::getNumberOfLeaves(* _root); }
+		unsigned int getNumberOfLeaves() const { return TreeTemplateTools::getNumberOfLeaves(* _root); }
 		
-		unsigned int getNumberOfNodes() const { return TreeTools::getNumberOfNodes(* _root); }
+		unsigned int getNumberOfNodes() const { return TreeTemplateTools::getNumberOfNodes(* _root); }
 		
-		int getLeafId(const string & name) const throw (NodeNotFoundException) { return TreeTools::getLeafId(* _root, name); }
+		int getLeafId(const string & name) const throw (NodeNotFoundException) { return TreeTemplateTools::getLeafId(* _root, name); }
 		
-		vector<int> getLeavesId() const { return TreeTools::getLeavesId(* _root); }
+		vector<int> getLeavesId() const { return TreeTemplateTools::getLeavesId(* _root); }
 
-		vector<int> getNodesId() const { return TreeTools::getNodesId(* _root); }
+		vector<int> getNodesId() const { return TreeTemplateTools::getNodesId(* _root); }
 
-		vector<double> getBranchLengths() const { return TreeTools::getBranchLengths(* _root); }
+		vector<double> getBranchLengths() const { return TreeTemplateTools::getBranchLengths(* _root); }
 
-		vector<string> getLeavesNames() const { return TreeTools::getLeavesNames(* const_cast<const N *>( _root)); }
+		vector<string> getLeavesNames() const { return TreeTemplateTools::getLeavesNames(* const_cast<const N *>( _root)); }
 
-		vector<int> getSonsId(int parentId) const throw (NodeNotFoundException)	{ return getNode(parentId) -> getSonsId(); }
+		vector<int> getSonsId(int parentId) const throw (NodeNotFoundException)	{ return getNode(parentId)->getSonsId(); }
 
-		int getFatherId(int parentId) const throw (NodeNotFoundException) { return getNode(parentId) -> getFatherId(); }
+		int getFatherId(int parentId) const throw (NodeNotFoundException) { return getNode(parentId)->getFatherId(); }
 
-		bool hasFather(int nodeId) const throw (NodeNotFoundException) { return getNode(nodeId) -> hasFather(); }
+		bool hasFather(int nodeId) const throw (NodeNotFoundException) { return getNode(nodeId)->hasFather(); }
 	
-		string getNodeName(int nodeId) const throw (NodeNotFoundException) { return getNode(nodeId) -> getName(); }
+		string getNodeName(int nodeId) const throw (NodeNotFoundException) { return getNode(nodeId)->getName(); }
 
-		bool hasNodeName(int nodeId) const throw (NodeNotFoundException) { return getNode(nodeId) -> hasName(); }
+		bool hasNodeName(int nodeId) const throw (NodeNotFoundException) { return getNode(nodeId)->hasName(); }
 		
-		void setNodeName(int nodeId, const string & name) throw (NodeNotFoundException) { getNode(nodeId) -> setName(name); }
+		void setNodeName(int nodeId, const string & name) throw (NodeNotFoundException) { getNode(nodeId)->setName(name); }
 		
-		void deleteNodeName(int nodeId) throw (NodeNotFoundException) { return getNode(nodeId) -> deleteName(); }
+		void deleteNodeName(int nodeId) throw (NodeNotFoundException) { return getNode(nodeId)->deleteName(); }
 
-		bool isLeaf(int nodeId) const throw (NodeNotFoundException) { return getNode(nodeId) -> isLeaf(); }
+    bool hasNode(int nodeId) const { return TreeTemplateTools::hasNodeWithId(*_root, nodeId); }
 
-		bool isRoot(int nodeId) const throw (NodeNotFoundException) { return TreeTools::isRoot(* getNode(nodeId)); }
+		bool isLeaf(int nodeId) const throw (NodeNotFoundException) { return getNode(nodeId)->isLeaf(); }
 
-		double getDistanceToFather(int nodeId) const throw (NodeNotFoundException) { return getNode(nodeId) -> getDistanceToFather(); }
-		
-		void setDistanceToFather(int nodeId, double length) throw (NodeNotFoundException) { getNode(nodeId) -> setDistanceToFather(length); }
-		
-		void deleteDistanceToFather(int nodeId) throw (NodeNotFoundException) { getNode(nodeId) -> deleteDistanceToFather(); }
-		
-		bool hasDistanceToFather(int nodeId) const throw (NodeNotFoundException) { return getNode(nodeId) -> hasDistanceToFather(); }
+		bool isRoot(int nodeId) const throw (NodeNotFoundException) { return TreeTemplateTools::isRoot(* getNode(nodeId)); }
 
-		bool hasProperty(int nodeId, const string & name) const throw (NodeNotFoundException) { return getNode(nodeId) -> hasProperty(name); }
+		double getDistanceToFather(int nodeId) const throw (NodeNotFoundException) { return getNode(nodeId)->getDistanceToFather(); }
+		
+		void setDistanceToFather(int nodeId, double length) throw (NodeNotFoundException) { getNode(nodeId)->setDistanceToFather(length); }
+		
+		void deleteDistanceToFather(int nodeId) throw (NodeNotFoundException) { getNode(nodeId)->deleteDistanceToFather(); }
+		
+		bool hasDistanceToFather(int nodeId) const throw (NodeNotFoundException) { return getNode(nodeId)->hasDistanceToFather(); }
+
+		bool hasProperty(int nodeId, const string & name) const throw (NodeNotFoundException) { return getNode(nodeId)->hasProperty(name); }
 	
-		void setProperty(int nodeId, const string & name, Clonable * property) throw (NodeNotFoundException) { getNode(nodeId) -> setProperty(name, property); }
+		void setProperty(int nodeId, const string & name, Clonable * property) throw (NodeNotFoundException) { getNode(nodeId)->setProperty(name, property); }
 				
-		Clonable * getProperty(int nodeId, const string & name) throw (NodeNotFoundException) { return getNode(nodeId) -> getProperty(name); }
+		Clonable * getProperty(int nodeId, const string & name) throw (NodeNotFoundException) { return getNode(nodeId)->getProperty(name); }
 				
-		const Clonable * getProperty(int nodeId, const string & name) const throw (NodeNotFoundException) { return getNode(nodeId) -> getProperty(name); }
+		const Clonable * getProperty(int nodeId, const string & name) const throw (NodeNotFoundException) { return getNode(nodeId)->getProperty(name); }
 				
-		Clonable * removeProperty(int nodeId, const string & name) throw (NodeNotFoundException) { return getNode(nodeId) -> removeProperty(name); }
+		Clonable * removeProperty(int nodeId, const string & name) throw (NodeNotFoundException) { return getNode(nodeId)->removeProperty(name); }
 		
     void rootAt(int nodeId) throw (NodeNotFoundException)	{	rootAt(* getNode(nodeId)); }
 		
 		void newOutGroup(int nodeId) throw (NodeNotFoundException) {	newOutGroup(* getNode(nodeId)); }
 
-		bool isRooted() const { return _root -> getNumberOfSons() == 2; }
+		bool isRooted() const { return _root->getNumberOfSons() == 2; }
 		
 		bool unroot() throw (UnrootedTreeException)
 		{
 			if(!isRooted()) throw UnrootedTreeException("Tree::unroot", this);
 
-    	if(_root -> getNumberOfSons() == 2) {
-				N* son1 = _root -> getSon(0);
-				N* son2 = _root -> getSon(1);
-				if(son1 -> isLeaf() && son2 -> isLeaf()) return false; // We can't unroot a single branch!
+    	if(_root -> getNumberOfSons() == 2)
+      {
+				N* son1 = _root->getSon(0);
+				N* son2 = _root->getSon(1);
+				if(son1->isLeaf() && son2->isLeaf()) return false; // We can't unroot a single branch!
 				
         // We manage to have a subtree in position 0:
-				if(son1 -> isLeaf()) {
-				  _root -> swap(0, 1);
-				  son1 = _root -> getSon(0);
-				  son2 = _root -> getSon(1);
+				if(son1->isLeaf())
+        {
+				  _root->swap(0, 1);
+				  son1 = _root->getSon(0);
+				  son2 = _root->getSon(1);
 				}
 
 				// Take care of branch lengths:
-				if(son1 -> hasDistanceToFather()) {
-					if(son2 -> hasDistanceToFather()) {
+				if(son1->hasDistanceToFather())
+        {
+					if(son2->hasDistanceToFather())
+          {
 					  // Both nodes have lengths, we sum them:
-					  son2 -> setDistanceToFather(son1 -> getDistanceToFather() + son2 -> getDistanceToFather());
-				  } else {
-					  // Only node 1 has length, we set it to node 2:
-					  son2 -> setDistanceToFather(son1 -> getDistanceToFather());
+					  son2->setDistanceToFather(son1->getDistanceToFather() + son2->getDistanceToFather());
 				  }
-				  son1 -> deleteDistanceToFather();
+          else
+          {
+					  // Only node 1 has length, we set it to node 2:
+					  son2->setDistanceToFather(son1->getDistanceToFather());
+				  }
+				  son1->deleteDistanceToFather();
 				} // Else node 2 may or may not have a branch length, we do not care!
 
 				// Remove the root:
-				_root -> removeSons();
-				son1 -> addSon(*son2);
+				_root->removeSons();
+				son1->addSon(*son2);
         delete _root;
 				setRootNode(*son1);
 				return true;
@@ -229,8 +242,9 @@ class TreeTemplate: public virtual Tree
 		{
 			vector<N *> nodes = getNodes();
       _nextNodeId = 0;
-			for(unsigned int i = 0; i < nodes.size(); i++) {
-        nodes[i] -> setId(i);
+			for(unsigned int i = 0; i < nodes.size(); i++)
+      {
+        nodes[i]->setId(_nextNodeId);
         _nextNodeId++;
       }
 		}
@@ -238,8 +252,9 @@ class TreeTemplate: public virtual Tree
 		bool isMultifurcating() const
 		{
 			bool b = false;
-			for(unsigned int i = 0; i < _root -> getNumberOfSons(); i++) {
-				b = b || TreeTools::isMultifurcating(* _root -> getSon(i));
+			for(unsigned int i = 0; i < _root -> getNumberOfSons(); i++)
+      {
+				b = b || TreeTemplateTools::isMultifurcating(* _root->getSon(i));
 			}
 			return b;
 		}
@@ -247,8 +262,9 @@ class TreeTemplate: public virtual Tree
 		vector<double> getBranchLengths() throw (NodeException)
 		{
 			Vdouble brLen(1);
-			for(unsigned int i = 0; i < _root -> getNumberOfSons(); i++) {
-				Vdouble sonBrLen = TreeTools::getBranchLengths(* _root -> getSon(i));
+			for(unsigned int i = 0; i < _root->getNumberOfSons(); i++)
+      {
+				Vdouble sonBrLen = TreeTemplateTools::getBranchLengths(* _root->getSon(i));
 				for(unsigned int j = 0; j < sonBrLen.size(); j++) brLen.push_back(sonBrLen[j]);
 			}
 			return brLen;
@@ -257,34 +273,46 @@ class TreeTemplate: public virtual Tree
 		double getTotalLength() throw (NodeException)
 		{
 			double length = 0;
-			for(unsigned int i = 0; i < _root->getNumberOfSons(); i++) {
-        length += TreeTools::getTotalLength(*_root->getSon(i));
+			for(unsigned int i = 0; i < _root->getNumberOfSons(); i++)
+      {
+        length += TreeTemplateTools::getTotalLength(*_root->getSon(i));
       }
       return length;
 		}
 
 		void setBranchLengths(double brLen)
 		{
-			for(unsigned int i = 0; i < _root->getNumberOfSons(); i++) {
-        TreeTools::setBranchLengths(*_root->getSon(i), brLen);
+			for(unsigned int i = 0; i < _root->getNumberOfSons(); i++)
+      {
+        TreeTemplateTools::setBranchLengths(*_root->getSon(i), brLen);
       }
 		}
 		
 		void setVoidBranchLengths(double brLen)
 		{
-			for(unsigned int i = 0; i < _root->getNumberOfSons(); i++) {
-			  TreeTools::setVoidBranchLengths(*_root->getSon(i), brLen);
+			for(unsigned int i = 0; i < _root->getNumberOfSons(); i++)
+      {
+			  TreeTemplateTools::setVoidBranchLengths(*_root->getSon(i), brLen);
       }
 		}
 	
 		void scaleTree(double factor) throw (NodeException)
 		{
-			for(unsigned int i = 0; i < _root->getNumberOfSons(); i++) {
-			  TreeTools::scaleTree(*_root->getSon(i), factor);
+			for(unsigned int i = 0; i < _root->getNumberOfSons(); i++)
+      {
+			  TreeTemplateTools::scaleTree(*_root->getSon(i), factor);
       }
 		}
 
     int getNextId() { return _nextNodeId++; }
+
+    void swapNodes(int parentId, unsigned int i1, unsigned int i2) throw (NodeNotFoundException,IndexOutOfBoundsException)
+    {
+			vector<N *> nodes = TreeTemplateTools::searchNodeWithId<N>(*_root, parentId);
+			if(nodes.size() == 0) throw NodeNotFoundException("TreeTemplate:swapNodes(): Node with id not found.", "" + parentId);
+      for(unsigned int i = 0; i < nodes.size(); i++) nodes[i]->swap(i1, i2); 
+    }
+ 
 
 		/**
 		 * @name Specific methods
@@ -297,31 +325,31 @@ class TreeTemplate: public virtual Tree
 		
 		virtual const N * getRootNode() const { return _root; }
 		
-		virtual vector<const N *> getLeaves() const { return TreeTools::getLeaves(* const_cast<const N *>(_root)); }
+		virtual vector<const N *> getLeaves() const { return TreeTemplateTools::getLeaves(* const_cast<const N *>(_root)); }
 
-		virtual vector<N *> getLeaves() { return TreeTools::getLeaves(* _root); }
+		virtual vector<N *> getLeaves() { return TreeTemplateTools::getLeaves(* _root); }
 	
-		virtual vector<const N *> getNodes() const { return TreeTools::getNodes(* const_cast<const N *>(_root)); }
+		virtual vector<const N *> getNodes() const { return TreeTemplateTools::getNodes(* const_cast<const N *>(_root)); }
 
-		virtual vector<N *> getNodes() { return TreeTools::getNodes(* _root); }
+		virtual vector<N *> getNodes() { return TreeTemplateTools::getNodes(* _root); }
 		
-		virtual vector<const N *> getInnerNodes() const { return TreeTools::getInnerNodes(* const_cast<const N *>(_root)); }
+		virtual vector<const N *> getInnerNodes() const { return TreeTemplateTools::getInnerNodes(* const_cast<const N *>(_root)); }
 
-		virtual vector<N *> getInnerNodes() { return TreeTools::getInnerNodes(* _root); }
+		virtual vector<N *> getInnerNodes() { return TreeTemplateTools::getInnerNodes(* _root); }
 	
 		virtual N * getNode(int id) throw (NodeNotFoundException, Exception)
 		{
-			vector<N *> nodes = TreeTools::searchNodeWithId<N>(*_root, id);
-			if(nodes.size() > 1) throw Exception("TemplateTree::rootAt(): Non-unique id!");
-			if(nodes.size() == 0) throw NodeNotFoundException("TemplateTree::rootAt(): Node with id not found.", "" + id);
+			vector<N *> nodes = TreeTemplateTools::searchNodeWithId<N>(*_root, id);
+			if(nodes.size() > 1) throw Exception("TreeTemplate::getNode(): Non-unique id! (" + TextTools::toString(id) + ").");
+			if(nodes.size() == 0) throw NodeNotFoundException("TreeTemplate::getNode(): Node with id not found.", "" + id);
 			return nodes[0];
 		}
 		
 		virtual const N * getNode(int id) const throw (NodeNotFoundException, Exception)
 		{
-			vector<const N *> nodes = TreeTools::searchNodeWithId<const N>(*_root, id);
-			if(nodes.size() > 1) throw Exception("TemplateTree::rootAt(): Non-unique id!");
-			if(nodes.size() == 0) throw NodeNotFoundException("TemplateTree::rootAt(): Node with id not found.", "" + id);
+			vector<const N *> nodes = TreeTemplateTools::searchNodeWithId<const N>(*_root, id);
+			if(nodes.size() > 1) throw Exception("TreeTemplate::getNode(): Non-unique id! (" + TextTools::toString(id) + ").");
+			if(nodes.size() == 0) throw NodeNotFoundException("TreeTemplate::getNode(): Node with id not found.", "" + id);
 			return nodes[0];
 		}
 
@@ -329,9 +357,10 @@ class TreeTemplate: public virtual Tree
 	  {
 			if (* _root == newRoot) return;
 			if(isRooted()) unroot();
-			vector<Node *> path = TreeTools::getPathBetweenAnyTwoNodes(* _root, newRoot);
+			vector<Node *> path = TreeTemplateTools::getPathBetweenAnyTwoNodes(* _root, newRoot);
 
-			for (unsigned int i = 0; i < path.size() - 1 ; i++) {
+			for (unsigned int i = 0; i < path.size() - 1 ; i++)
+      {
 				//pathMatrix[i] -> _father = pathMatrix[i + 1];
 				//pathMatrix[i] -> setDistanceToFather(pathMatrix[i + 1] -> getDistanceToFather());
 				//typename vector<Node *>::iterator vec_iter;
@@ -339,10 +368,10 @@ class TreeTemplate: public virtual Tree
 				//pathMatrix[i] -> _sons.erase(vec_iter, pathMatrix[i] -> _sons.end()); // pg 1170, primer.	
 				//pathMatrix[i+1] -> _sons.push_back(pathMatrix[i + 1] -> getFather());
 				//pathMatrix[i+1] -> _father = NULL;
-				path[i] -> removeSon(* path[i+1]);
+				path[i]->removeSon(* path[i+1]);
         if(path[i+1]->hasDistanceToFather()) path[i]->setDistanceToFather(path[i+1]->getDistanceToFather());
         else path[i]->deleteDistanceToFather();
-				path[i+1] -> addSon(* path[i]);
+				path[i+1]->addSon(* path[i]);
 			}
       newRoot.deleteDistanceToFather();
 			_root = & newRoot;
@@ -352,21 +381,25 @@ class TreeTemplate: public virtual Tree
 		{
 			if(* _root == outGroup) return;
 			int rootId;
-			if(isRooted()) {
+			if(isRooted())
+      {
 				rootId = getRootId();
 				unroot();
-			} else {
+			}
+      else
+      {
 				rootId = getNextId();
 			}
 			rootAt(* outGroup.getFather());
 			N* oldRoot = _root;
-			oldRoot -> removeSon(outGroup);
+			oldRoot->removeSon(outGroup);
 			_root = new N();
-			_root -> setId(rootId);
-			_root -> addSon(*oldRoot);
-			_root -> addSon(outGroup);
+			_root->setId(rootId);
+			_root->addSon(*oldRoot);
+			_root->addSon(outGroup);
       // Check lengths:
-      if(outGroup.hasDistanceToFather()) {
+      if(outGroup.hasDistanceToFather())
+      {
         double l = outGroup.getDistanceToFather() / 2.;
         outGroup.setDistanceToFather(l);
         oldRoot->setDistanceToFather(l);
@@ -374,13 +407,13 @@ class TreeTemplate: public virtual Tree
 		}
 
 		/** @} */
-	
 		
 	protected:
 		
 		virtual void destroyNode(const N & node)
 		{
-			for(unsigned int i = 0; i < node.getNumberOfSons(); i++) {
+			for(unsigned int i = 0; i < node.getNumberOfSons(); i++)
+      {
 				const N * son = node.getSon(i);
 				destroyNode(* son);
 				delete son;

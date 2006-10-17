@@ -1,5 +1,8 @@
 #include "Tree.h"
 #include "Node.h"
 #include "NodeTemplate.h"
+#include "TreeTemplate.h"
 #include "TreeExceptions.h"
+#include "TreeTools.h"
+#include "TreeTemplateTools.h"
 
