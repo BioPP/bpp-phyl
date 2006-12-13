@@ -88,9 +88,9 @@ ProbabilisticSubstitutionMapping * SubstitutionMappingTools::computeSubstitution
 	// Store likelihood for each rate for each site:
 	VVVdouble l = drhtl.computeLikelihoodAtNode(tree->getRootNode());
 	Vdouble Lr(nbDistinctSites, 0);
-	Vdouble freqs   = model -> getFrequencies();
-	Vdouble rcProbs = rDist -> getProbabilities();
-	Vdouble rcRates = rDist -> getCategories();
+	Vdouble freqs   = model->getFrequencies();
+	Vdouble rcProbs = rDist->getProbabilities();
+	Vdouble rcRates = rDist->getCategories();
 	for(unsigned int i = 0; i < nbDistinctSites; i++)
   {
 		VVdouble * l_i = & l[i];
@@ -107,7 +107,7 @@ ProbabilisticSubstitutionMapping * SubstitutionMappingTools::computeSubstitution
 
 
 	// Compute the number of substitutions for each class and each branch in the tree:
-	if(verbose) ApplicationTools::displayTask("Compute joint node-pairs likelihood");
+	if(verbose) ApplicationTools::displayTask("Compute joint node-pairs likelihood", true);
 	
 	for(unsigned int l = 0; l < nbNodes; l++)
   {
@@ -117,8 +117,7 @@ ProbabilisticSubstitutionMapping * SubstitutionMappingTools::computeSubstitution
 		double d = currentNode->getDistanceToFather();
 		
 		//For each node,
-		if(verbose) ApplicationTools::message << ".";
-		if(verbose) ApplicationTools::message.flush();
+    if(verbose) ApplicationTools::displayGauge(l, nbNodes-1, '>');
 		Vdouble substitutionsForCurrentNode(nbDistinctSites, 0);
 
 		//compute all nxy first:
@@ -267,7 +266,11 @@ ProbabilisticSubstitutionMapping * SubstitutionMappingTools::computeSubstitution
 			(*substitutions)(l, i) = substitutionsForCurrentNode[(* rootPatternLinks)[i]] / Lr[(* rootPatternLinks)[i]];
 		}
 	}
-	if(verbose) ApplicationTools::displayTaskDone();
+	if(verbose)
+  {
+    ApplicationTools::message << " ";
+    ApplicationTools::displayTaskDone();
+  }
 	return substitutions;
 }
 
@@ -278,7 +281,7 @@ ProbabilisticSubstitutionMapping * SubstitutionMappingTools::computeSubstitution
 	const SubstitutionCount & substitutionCount,
 	bool verbose)
 {
-	//Preamble:
+	//Preamble:i
 																   
 	//A few variables we'll need:
 	const TreeTemplate<Node> *    tree = dynamic_cast<TreeTemplate<Node> *>(drhtl.getTree());
@@ -303,7 +306,7 @@ ProbabilisticSubstitutionMapping * SubstitutionMappingTools::computeSubstitution
 	Vdouble rcRates = rDist->getCategories();
 
 	// Compute the number of substitutions for each class and each branch in the tree:
-	if(verbose) ApplicationTools::displayTask("Compute joint node-pairs likelihood");
+	if(verbose) ApplicationTools::displayTask("Compute joint node-pairs likelihood", true);
 	
 	for(unsigned int l = 0; l < nbNodes; l++)
   {
@@ -313,8 +316,7 @@ ProbabilisticSubstitutionMapping * SubstitutionMappingTools::computeSubstitution
 
 		double d = currentNode->getDistanceToFather();
 		
-		if(verbose) ApplicationTools::message << ".";
-		if(verbose) ApplicationTools::message.flush();
+    if(verbose) ApplicationTools::displayGauge(l, nbNodes-1, '>');
 		Vdouble substitutionsForCurrentNode(nbDistinctSites, 0);
 
 		// Compute all nxy first:
@@ -468,7 +470,11 @@ ProbabilisticSubstitutionMapping * SubstitutionMappingTools::computeSubstitution
 			(*substitutions)(l, i) = substitutionsForCurrentNode[(* rootPatternLinks)[i]];
 		}
 	}
-	if(verbose) ApplicationTools::displayTaskDone();
+	if(verbose)
+  {
+    ApplicationTools::message << " ";
+    ApplicationTools::displayTaskDone();
+  }
 	return substitutions;
 }
 
@@ -503,7 +509,7 @@ ProbabilisticSubstitutionMapping * SubstitutionMappingTools::computeSubstitution
 	
   // Compute the whole likelihood of the tree according to the specified model:
 	
-	Vdouble rcRates = rDist -> getCategories();
+	Vdouble rcRates = rDist->getCategories();
 
 	// Compute the number of substitutions for each class and each branch in the tree:
 	if(verbose) ApplicationTools::displayTask("Compute marginal ancestral states");
@@ -512,7 +518,7 @@ ProbabilisticSubstitutionMapping * SubstitutionMappingTools::computeSubstitution
 	if(verbose) ApplicationTools::displayTaskDone();
 
 	// Now we just have to compute the substitution vectors:
-	if(verbose) ApplicationTools::displayTask("Compute substitution vectors");
+	if(verbose) ApplicationTools::displayTask("Compute substitution vectors", true);
 	
 	for(unsigned int l = 0; l < nbNodes; l++)
   {
@@ -525,8 +531,7 @@ ProbabilisticSubstitutionMapping * SubstitutionMappingTools::computeSubstitution
 		vector<int> fatherStates = ancestors[father];
 		
 		//For each node,
-		if(verbose) ApplicationTools::message << ".";
-		if(verbose) ApplicationTools::message.flush();
+    if(verbose) ApplicationTools::displayGauge(l, nbNodes-1, '>');
 		Vdouble substitutionsForCurrentNode(nbDistinctSites, 0.);
 
 		//compute all nxy first:
@@ -552,7 +557,11 @@ ProbabilisticSubstitutionMapping * SubstitutionMappingTools::computeSubstitution
 			(*substitutions)(l,i) = substitutionsForCurrentNode[(* rootPatternLinks)[i]];
 		}
 	}
-	if(verbose) ApplicationTools::displayTaskDone();
+	if(verbose)
+  {
+    ApplicationTools::message << " ";
+    ApplicationTools::displayTaskDone();
+  }
 	return substitutions;
 }
 
@@ -593,7 +602,7 @@ ProbabilisticSubstitutionMapping * SubstitutionMappingTools::computeSubstitution
 	Vdouble rcRates = rDist->getCategories();
 
 	//II) Compute the number of substitutions for each class and each branch in the tree:
-	if(verbose) ApplicationTools::displayTask("Compute marginal node-pairs likelihoods");
+	if(verbose) ApplicationTools::displayTask("Compute marginal node-pairs likelihoods", true);
 	
 	for(unsigned int l = 0; l < nbNodes; l++)
   {
@@ -603,8 +612,7 @@ ProbabilisticSubstitutionMapping * SubstitutionMappingTools::computeSubstitution
 		double d = currentNode->getDistanceToFather();
 		
 		//For each node,
-		if(verbose) ApplicationTools::message << ".";
-		if(verbose) ApplicationTools::message.flush();
+    if(verbose) ApplicationTools::displayGauge(l, nbNodes-1, '>');
 		Vdouble substitutionsForCurrentNode(nbDistinctSites, 0);
 
 		//compute all nxy first:
@@ -665,7 +673,11 @@ ProbabilisticSubstitutionMapping * SubstitutionMappingTools::computeSubstitution
 			(*substitutions)(l,i) = substitutionsForCurrentNode[(* rootPatternLinks)[i]];
 		}
 	}
-	if(verbose) ApplicationTools::displayTaskDone();
+	if(verbose)
+  {
+    ApplicationTools::message << " ";
+    ApplicationTools::displayTaskDone();
+  }
 	return substitutions;
 }
 
@@ -703,7 +715,7 @@ void SubstitutionMappingTools::readFromStream(istream & in, ProbabilisticSubstit
 	throw (IOException)
 {
 	try {
-    DataTable * data = DataTable::read(in, "\t", true, 1);
+    DataTable * data = DataTable::read(in, "\t", true, -1);
     vector<string> ids = data->getColumn(0);
     data->deleteColumn(0);//Remove ids
     data->deleteColumn(0);//Remove means
@@ -717,12 +729,24 @@ void SubstitutionMappingTools::readFromStream(istream & in, ProbabilisticSubstit
       unsigned int br = substitutions.getNodeIndex(id);
       for(unsigned int j = 0; j < nbSites; j++)
       {
-			  substitutions(br, j) = TextTools::toDouble((*data)(i, j));
+        substitutions(br, j) = TextTools::toDouble((*data)(i, j));
       }
 		}
+    //Parse the header:
+    for(unsigned int i = 0; i < nbSites; i++)
+    {
+      string siteTxt = data->getColumnName(i);
+      int site = 0;
+      if(siteTxt.substr(0,4) == "Site") site = TextTools::to<int>(siteTxt.substr(4));
+      else site = TextTools::to<int>(siteTxt);
+      substitutions.setSitePosition(i, site);
+    }
+    
     delete data;
-  } catch(Exception & e) {
-    throw IOException("Bad input file.");
+  }
+  catch(Exception & e)
+  {
+    throw IOException(string("Bad input file. ") + e.what());
   }
 }
 

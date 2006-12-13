@@ -177,6 +177,8 @@ class Tree {
 		virtual const Clonable * getProperty(int nodeId, const string & name) const throw (NodeNotFoundException) = 0;
 				
 		virtual Clonable * removeProperty(int nodeId, const string & name) throw (NodeNotFoundException) = 0;
+
+    virtual vector<string> getPropertyNames(int nodeId) const throw (NodeNotFoundException) = 0;
 		/** @} */
 		
 		/**

@@ -145,10 +145,6 @@ class AbstractHomogeneousTreeLikelihood: public virtual AbstractDiscreteRatesAcr
 
 		virtual void initBranchLengthsParameters();
 
-		void resetLikelihoodArray(VVVdouble & likelihoodArray);
-
-		static void displayLikelihoodArray(const VVVdouble & likelihoodArray);
-
     void setMinimumBranchLength(double minimum)
     {
       _minimumBrLen = minimum;

@@ -445,7 +445,7 @@ class DRHomogeneousTreeLikelihood : public virtual AbstractHomogeneousTreeLikeli
      * These intermediate results may be used by other methods.
      */
     virtual const VVVdouble & getTransitionProbabilitiesForNode(const Node * node) const { return _pxy[node]; }
-    
+       
   protected:
   
     /**
@@ -478,6 +478,25 @@ class DRHomogeneousTreeLikelihood : public virtual AbstractHomogeneousTreeLikeli
      * @param node The node at which likelihood values must be displayed.
      */
     virtual void displayLikelihood(const Node * node);
+
+    /**
+     * @brief Compute conditional likelihoods.
+     *
+     * This method is the "core" likelihood computation function, performing all the product uppon all nodes, the summation for each ancestral state and each rate class.
+     * It is designed for inner usage, and a maximum efficiency, so no checking is performed on the input parameters.
+     * Use with care!
+     * 
+     * @param iLik A vector of likelihood arrays, one for each conditional node.
+     * @param tProb A vector of transition probabilities, one for each node.
+     * @param oLik The likelihood array to store the computed likelihoods.
+     * @param nbNodes The number of nodes = the size of the input vectors.
+     * @param nbDistinctSites The number of distinct sites (the first dimension of the likelihood array).
+     * @param nbClasses The number of rate classes (the second dimension of the likelihood array).
+     * @param nbStates The number of states (the third dimension of the likelihood array).
+     * @param reset Tell if the outpu likelihood array must be initalized prior to computation.
+     * If true, the resetLikelihoodArray method will be called.
+     */
+    static void computeLikelihoodFromArrays(const vector<const VVVdouble *> & iLik, const vector<const VVVdouble *> & tProb, VVVdouble & oLik, unsigned int nbNodes, unsigned int nbDistinctSites, unsigned int nbClasses, unsigned int nbStates, bool reset = true);
 
 };
 

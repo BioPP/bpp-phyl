@@ -1,5 +1,5 @@
 //
-// File: AbstractDiscreteRateAcrossSitesTreeLikelihood.h
+// File: AbstractDiscreteRatesAcrossSitesTreeLikelihood.h
 // Created by: Julien Dutheil
 // Created on: Wed Jun 15 09:42 2005
 //
@@ -94,6 +94,28 @@ class AbstractDiscreteRatesAcrossSitesTreeLikelihood:
 		Vdouble getPosteriorRateOfEachSite() const;
 		/** @} */
 
+		/**
+     * @name Generic tools to deal with likelihood arrays
+     *
+     * @{
+     */
+    
+    /**
+     * @brief Set all conditional likelihoods to 1.
+     *
+     * @param likelihoodArray the likelihood array.
+     */
+    static void resetLikelihoodArray(VVVdouble & likelihoodArray);
+
+    /**
+     * @brief Print the likelihood array to terminal (debugging tool).
+     * 
+     * @param likelihoodArray the likelihood array.
+     */
+		static void displayLikelihoodArray(const VVVdouble & likelihoodArray);
+
+    /** @} */
+    
 };
 
 #endif //_ABSTRACTDISCRETERATEACROSSSITESTREELIKELIHOOD_H_

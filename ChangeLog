@@ -1,3 +1,7 @@
+24/11/06 Julien Dutheil
+* HomogeneousSiteSimulator now properly inherits from SequenceSimulator interface.
+* New continuous rate simulation option in HomogeneousSiteSimulator.
+
 13/10/06 Julien Dutheil
 * TreeTools class was reorganized, augmented, more documented and splitted into TreeTools and TreeTemplateTools.
 * Tree, TreeTemplate and Node imporved (Exception support, etc.).
@@ -13,7 +17,7 @@
 * SubstitutionModel: new methods getNumberOfStates().
 * Covarion process:
   + New MarkovModulatedSubstitutionModel abstract class,
-  + New SSRVSubstitution model implementatio.
+  + New SSRVSubstitution model implementation.
 * PhylogeneticsApplicationTools:
   + No more exit(-1) in functions, Exception thrown instead.
   + New method getCovarionProcess().

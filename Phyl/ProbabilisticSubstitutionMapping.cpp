@@ -50,6 +50,8 @@ ProbabilisticSubstitutionMapping::ProbabilisticSubstitutionMapping(const Tree & 
 ProbabilisticSubstitutionMapping::ProbabilisticSubstitutionMapping(const Tree & tree)
 {
   _tree = NULL;
+  _nbSites = 0;
+  _mapping.resize(_nbSites); 
   setTree(tree);
 }
 
@@ -69,9 +71,11 @@ void ProbabilisticSubstitutionMapping::setTree(const Tree & tree)
 void ProbabilisticSubstitutionMapping::setNumberOfSites(unsigned int numberOfSites)
 {
   _nbSites = numberOfSites;
-  _mapping.resize(_nbSites);  
+  _mapping.resize(_nbSites);
+  _sitesPostions.resize(_nbSites);
   for(unsigned int i = 0; i < _nbSites; i++)
   {
+    _sitesPostions[i] = i + 1; //Default: all sizes numbered for 1 to n.
     _mapping[i].resize(_nbBranches);
   }
 }

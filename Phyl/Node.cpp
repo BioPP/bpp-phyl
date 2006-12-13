@@ -49,34 +49,34 @@ knowledge of the CeCILL license and that you accept its terms.
 using namespace std;
 
 /** Copy constructor: *********************************************************/
-	
+  
 Node::Node(const Node & node)
 {
-	_id               = node._id;
-	_name             = node.hasName() ? new string(* node._name) : NULL;
-	_father           = node._father;
-	_distanceToFather = node.hasDistanceToFather() ? new double(* node._distanceToFather) : NULL;
-	_sons             = node._sons;
-	for(map<string, Clonable *>::iterator i = node._properties.begin(); i != node._properties.end(); i++)
-		_properties[i -> first] = i -> second -> clone();
+  _id               = node._id;
+  _name             = node.hasName() ? new string(* node._name) : NULL;
+  _father           = node._father;
+  _distanceToFather = node.hasDistanceToFather() ? new double(* node._distanceToFather) : NULL;
+  _sons             = node._sons;
+  for(map<string, Clonable *>::iterator i = node._properties.begin(); i != node._properties.end(); i++)
+    _properties[i->first] = i->second->clone();
 }
 
 /** Assignation operator: *****************************************************/
 
 Node & Node::operator=(const Node & node)
 {
-	_id               = node._id;
-	_name             = node.hasName() ? new string(* node._name) : NULL;
-	_father           = node._father;
-	_distanceToFather = node.hasDistanceToFather() ? new double(* node._distanceToFather) : NULL;
-	_sons             = node._sons;
-	for(map<string, Clonable *>::iterator i = node._properties.begin(); i != node._properties.end(); i++)
-		_properties[i -> first] = i -> second -> clone();
-	return * this;
+  _id               = node._id;
+  _name             = node.hasName() ? new string(* node._name) : NULL;
+  _father           = node._father;
+  _distanceToFather = node.hasDistanceToFather() ? new double(* node._distanceToFather) : NULL;
+  _sons             = node._sons;
+  for(map<string, Clonable *>::iterator i = node._properties.begin(); i != node._properties.end(); i++)
+    _properties[i->first] = i->second->clone();
+  return * this;
 }
-			
+      
 /** Sons: *********************************************************************/
-			
+      
 void Node::swap(unsigned int branch1, unsigned int branch2) throw (IndexOutOfBoundsException)
 {
     Node* node1 = getSon(branch1);
@@ -89,25 +89,25 @@ void Node::swap(unsigned int branch1, unsigned int branch2) throw (IndexOutOfBou
 
 vector<const Node *> Node::getNeighbors() const
 {
-	vector<const Node *> neighbors;
-	if(hasFather()) neighbors.push_back(_father);
-	for(unsigned int i = 0; i < _sons.size(); i++) neighbors.push_back(_sons[i]);
-	return neighbors;
+  vector<const Node *> neighbors;
+  if(hasFather()) neighbors.push_back(_father);
+  for(unsigned int i = 0; i < _sons.size(); i++) neighbors.push_back(_sons[i]);
+  return neighbors;
 }
-		
+    
 vector<Node *> Node::getNeighbors()
 {
-	vector<Node *> neighbors;
-	if(hasFather()) neighbors.push_back(_father);
-	for(unsigned int i = 0; i < _sons.size(); i++) neighbors.push_back(_sons[i]);
-	return neighbors;
+  vector<Node *> neighbors;
+  if(hasFather()) neighbors.push_back(_father);
+  for(unsigned int i = 0; i < _sons.size(); i++) neighbors.push_back(_sons[i]);
+  return neighbors;
 }
 
 unsigned int Node::getSonPosition(const Node & son) const throw (NodeNotFoundException)
 {
-	for(unsigned int i = 0; i < _sons.size(); i++) {
-		if(_sons[i] == &son) return i;
-	}
+  for(unsigned int i = 0; i < _sons.size(); i++) {
+    if(_sons[i] == &son) return i;
+  }
   throw NodeNotFoundException("Son not found", TextTools::toString(son.getId()));
 }
 

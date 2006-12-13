@@ -198,6 +198,15 @@ class ProbabilisticSubstitutionMapping : public AbstractSubstitutionMapping
     {
       return _mapping[siteIndex];
     }
+
+    /**
+     * @brief Set the position of a given site.
+     *
+     * @warning No index checking is performed, use with care!
+     * @param index The site index.
+     * @param position The position of the site.
+     */
+    void setSitePosition(unsigned int index, int position) { _sitesPostions[index] = position; }
 };
 
 #endif //_PROBABILISTICSUBSTITUTIONMAPPING_H_

@@ -62,32 +62,38 @@ HomogeneousSequenceSimulator::HomogeneousSequenceSimulator(
 	_rate(rate),
 	_tree(tree)
 {
-	_leaves   = _tree    -> getLeaves();
-	_model    = _process -> getSubstitutionModel();
-	_alphabet = _model   -> getAlphabet();
+	_leaves   = _tree   ->getLeaves();
+	_model    = _process->getSubstitutionModel();
+	_alphabet = _model  ->getAlphabet();
 	_seqNames.resize(_leaves.size());
-	for(unsigned int i = 0; i < _seqNames.size(); i++) _seqNames[i] = _leaves[i] -> getName();
+	for(unsigned int i = 0; i < _seqNames.size(); i++)
+    _seqNames[i] = _leaves[i]->getName();
 	// Initialize cumulative pxy:
 	if(verbose) ApplicationTools::displayTask("Initializing probabilities");
-	vector<const Node *> nodes = _tree -> getNodes();
+	vector<const Node *> nodes = _tree->getNodes();
 	nodes.pop_back(); //remove root
 	_nbNodes = nodes.size();
-	_nbClasses = _rate -> getNumberOfCategories();
-	_nbStates = _alphabet -> getSize();
-	for(unsigned int i = 0; i < nodes.size(); i++) {
+	_nbClasses = _rate->getNumberOfCategories();
+	_nbStates = _alphabet->getSize();
+  _continuousRates = false;
+	for(unsigned int i = 0; i < nodes.size(); i++)
+  {
 		const Node * node = nodes[i];
-		double d = node -> getDistanceToFather();
+		double d = node->getDistanceToFather();
 		VVVdouble * _cumpxy_node = & _cumpxy[node];
-		_cumpxy_node -> resize(_nbClasses);
-		for(unsigned int c = 0; c < _nbClasses; c++) {
+		_cumpxy_node->resize(_nbClasses);
+		for(unsigned int c = 0; c < _nbClasses; c++)
+    {
 			VVdouble * _cumpxy_node_c = & (* _cumpxy_node)[c];
-			_cumpxy_node_c -> resize(_nbStates);
-			RowMatrix<double> P = _model -> getPij_t(d * _rate -> getCategory(c));
-			for(unsigned int x = 0; x < _nbStates; x++) {
+			_cumpxy_node_c->resize(_nbStates);
+			RowMatrix<double> P = _model->getPij_t(d * _rate->getCategory(c));
+			for(unsigned int x = 0; x < _nbStates; x++)
+      {
 				Vdouble * _cumpxy_node_c_x = & (* _cumpxy_node_c)[x];
-				_cumpxy_node_c_x -> resize(_nbStates);
+				_cumpxy_node_c_x->resize(_nbStates);
 				(* _cumpxy_node_c_x)[0] = P(x, 0);
-				for(unsigned int y = 1; y < _nbStates; y++) {
+				for(unsigned int y = 1; y < _nbStates; y++)
+        {
 					(* _cumpxy_node_c_x)[y] = (* _cumpxy_node_c_x)[y - 1] + P(x, y);
 				}
 			}
@@ -104,9 +110,11 @@ Site * HomogeneousSequenceSimulator::simulate() const
 	int initialState = 0;
 	double r = RandomTools::giveRandomNumberBetweenZeroAndEntry(1.);
 	double cumprob = 0;
-	for(unsigned int i = 0; i < _alphabet -> getSize(); i++)	{
-		cumprob += _model -> freq(i);
-		if(r <= cumprob) {
+	for(unsigned int i = 0; i < _alphabet->getSize(); i++)
+  {
+		cumprob += _model->freq(i);
+		if(r <= cumprob)
+    {
 			initialState = i;
 			break;
 		}
@@ -132,14 +140,16 @@ Site * HomogeneousSequenceSimulator::simulate(int initialState) const
 Site * HomogeneousSequenceSimulator::simulate(int initialState, unsigned int rateClass) const
 {
 	// Launch recursion:
-	const Node * root = _tree -> getRootNode();
+	const Node * root = _tree->getRootNode();
 	_states[root] = initialState;
-	for(unsigned int i = 0; i < root -> getNumberOfSons(); i++) {
-		evolveInternal(root -> getSon(i), rateClass);
+	for(unsigned int i = 0; i < root->getNumberOfSons(); i++)
+  {
+		evolveInternal(root->getSon(i), rateClass);
 	}
 	// Now create a Site object:
 	Vint site(_leaves.size());
-	for(unsigned int i = 0; i < _leaves.size(); i++) {
+	for(unsigned int i = 0; i < _leaves.size(); i++)
+  {
 		site[i] = _states[_leaves[i]];
 	}
 	return new Site(site, _alphabet);
@@ -150,14 +160,16 @@ Site * HomogeneousSequenceSimulator::simulate(int initialState, unsigned int rat
 Site * HomogeneousSequenceSimulator::simulate(int initialState, double rate) const
 {
 	// Launch recursion:
-	const Node * root = _tree -> getRootNode();
+	const Node * root = _tree->getRootNode();
 	_states[root] = initialState;
-	for(unsigned int i = 0; i < root -> getNumberOfSons(); i++) {
-		evolveInternal(root -> getSon(i), rate);
+	for(unsigned int i = 0; i < root->getNumberOfSons(); i++)
+  {
+		evolveInternal(root->getSon(i), rate);
 	}
 	// Now create a Site object:
 	Vint site(_leaves.size());
-	for(unsigned int i = 0; i < _leaves.size(); i++) {
+	for(unsigned int i = 0; i < _leaves.size(); i++)
+  {
 		site[i] = _states[_leaves[i]];
 	}
 	return new Site(site, _alphabet);
@@ -171,9 +183,11 @@ Site * HomogeneousSequenceSimulator::simulate(double rate) const
 	int initialState = 0;
 	double r = RandomTools::giveRandomNumberBetweenZeroAndEntry(1.);
 	double cumprob = 0;
-	for(unsigned int i = 0; i < _alphabet -> getSize(); i++)	{
-		cumprob += _model -> freq(i);
-		if(r <= cumprob) {
+	for(unsigned int i = 0; i < _alphabet->getSize(); i++)
+  {
+		cumprob += _model->freq(i);
+		if(r <= cumprob)
+    {
 			initialState = i;
 			break;
 		}
@@ -186,26 +200,16 @@ Site * HomogeneousSequenceSimulator::simulate(double rate) const
 		
 SiteContainer * HomogeneousSequenceSimulator::simulate(unsigned int numberOfSites) const
 {
-	// really unefficient!
-	//vector<const Site *> vs(numberOfSites);
-	//for(unsigned int i = 0; i < numberOfSites; i++) {
-	//	Site * s = simulate();
-	//	s -> setPosition((int)i);
-	//	vs[i] = s;
-	//}
-	//SiteContainer * sites = new VectorSiteContainer(vs, _alphabet);
-	//sites -> setSequencesNames(_seqNames, false);
-	// Freeing memory:
-	//for(unsigned int i = 0; i < numberOfSites; i++) delete vs[i];
-	//return sites;
-	// Draw an initial state randomly according to equilibrum frequencies:
 	Vint * initialStates = new Vint(numberOfSites, 0);
-	for(unsigned int j = 0; j < numberOfSites; j++) { 
+	for(unsigned int j = 0; j < numberOfSites; j++)
+  { 
 		double r = RandomTools::giveRandomNumberBetweenZeroAndEntry(1.);
 		double cumprob = 0;
-		for(unsigned int i = 0; i < _alphabet -> getSize(); i++)	{
-			cumprob += _model -> freq(i);
-			if(r <= cumprob) {
+		for(unsigned int i = 0; i < _alphabet->getSize(); i++)
+    {
+			cumprob += _model->freq(i);
+			if(r <= cumprob)
+      {
 				(* initialStates)[j] = i;
 				break;
 			}
@@ -213,14 +217,12 @@ SiteContainer * HomogeneousSequenceSimulator::simulate(unsigned int numberOfSite
 	}
 	// Draw random rates:
 	vector<unsigned int> rateClasses(numberOfSites);
-	unsigned int nCat = _rate -> getNumberOfCategories();
-	for(unsigned int j = 0; j < numberOfSites; j++) rateClasses[j] = (unsigned int)RandomTools::giveIntRandomNumberBetweenZeroAndEntry(nCat);
+	unsigned int nCat = _rate->getNumberOfCategories();
+	for(unsigned int j = 0; j < numberOfSites; j++)
+    rateClasses[j] = (unsigned int)RandomTools::giveIntRandomNumberBetweenZeroAndEntry(nCat);
 	// Make these states evolve:
 	SiteContainer * sites = multipleEvolve(* initialStates, rateClasses);
-	//Mase mase;
-	//mase.write(string("tmp.mase"), *sites, true);
 	return sites;
-	//return multipleEvolve(* initialStates, rateClasses);
 }
 
 /******************************************************************************/
@@ -236,9 +238,11 @@ HomogeneousSequenceSimulator::dSimulate() const
 	int initialState = 0;
 	double r = RandomTools::giveRandomNumberBetweenZeroAndEntry(1.);
 	double cumprob = 0;
-	for(unsigned int i = 0; i < _alphabet -> getSize(); i++)	{
-		cumprob += _model -> freq(i);
-		if(r <= cumprob) {
+	for(unsigned int i = 0; i < _alphabet->getSize(); i++)
+  {
+		cumprob += _model->freq(i);
+		if(r <= cumprob)
+    {
 			initialState = i;
 			break;
 		}
@@ -257,9 +261,17 @@ SiteSimulationResult *
 HomogeneousSequenceSimulator::dSimulate(int initialState) const
 {
 	// Draw a random rate:
-	unsigned int rateClass = (unsigned int)RandomTools::giveIntRandomNumberBetweenZeroAndEntry(_rate -> getNumberOfCategories());
-	
-  return dSimulate(initialState, rateClass);
+	if(_continuousRates)
+  {
+    double rate = _rate->randC();
+	  return dSimulate(initialState, rate);
+  }
+  else
+  {
+    unsigned int rateClass = (unsigned int)RandomTools::giveIntRandomNumberBetweenZeroAndEntry(_rate->getNumberOfCategories());
+	  return dSimulate(initialState, rateClass);
+    //NB: this is more efficient than dSimulate(initialState, _rDist->rand())
+  }
 }
 
 /******************************************************************************/
@@ -302,9 +314,11 @@ HomogeneousSequenceSimulator::dSimulate(double rate) const
 	int initialState = 0;
 	double r = RandomTools::giveRandomNumberBetweenZeroAndEntry(1.);
 	double cumprob = 0;
-	for(unsigned int i = 0; i < _alphabet -> getSize(); i++)	{
-		cumprob += _model -> freq(i);
-		if(r <= cumprob) {
+	for(unsigned int i = 0; i < _alphabet->getSize(); i++)
+  {
+		cumprob += _model->freq(i);
+		if(r <= cumprob)
+    {
 			initialState = i;
 			break;
 		}
@@ -319,7 +333,8 @@ int HomogeneousSequenceSimulator::evolve(const Node * node, int initialState, un
 {
 	Vdouble * _cumpxy_node_c_x = & _cumpxy[node][rateClass][initialState];
 	double rand = RandomTools::giveRandomNumberBetweenZeroAndEntry(1.);
-	for(int y = 0; y < (int)_nbStates; y++) {
+	for(int y = 0; y < (int)_nbStates; y++)
+  {
 		if(rand < (* _cumpxy_node_c_x)[y]) return y;
 	}
 	cerr << "DEBUG: This message should never happen! (HomogeneousSequenceSimulator::evolve)" << endl;
@@ -333,8 +348,9 @@ int HomogeneousSequenceSimulator::evolve(const Node * node, int initialState, do
 {
 	double _cumpxy = 0;
 	double rand = RandomTools::giveRandomNumberBetweenZeroAndEntry(1.);
-	double l = rate * node -> getDistanceToFather();
-	for(int y = 0; y < (int)_nbStates; y++) {
+	double l = rate * node->getDistanceToFather();
+	for(int y = 0; y < (int)_nbStates; y++)
+  {
 		_cumpxy += _model->Pij_t(initialState, y, l);
 		if(rand < _cumpxy) return y;
 	}
@@ -350,11 +366,14 @@ int HomogeneousSequenceSimulator::evolve(const Node * node, int initialState, do
 void HomogeneousSequenceSimulator::multipleEvolve(const Node * node, const Vint & initialStates, const vector<unsigned int> & rateClasses, Vint & finalStates) const
 {
 	VVVdouble * _cumpxy_node = & _cumpxy[node];
-	for(unsigned int i = 0; i < initialStates.size(); i++) {
+	for(unsigned int i = 0; i < initialStates.size(); i++)
+  {
 		Vdouble * _cumpxy_node_c_x = & (* _cumpxy_node)[rateClasses[i]][initialStates[i]];
 		double rand = RandomTools::giveRandomNumberBetweenZeroAndEntry(1.);
-		for(unsigned int y = 0; y < _nbStates; y++) {
-			if(rand < (* _cumpxy_node_c_x)[y]) {
+		for(unsigned int y = 0; y < _nbStates; y++)
+    {
+			if(rand < (* _cumpxy_node_c_x)[y])
+      {
 				finalStates[i] = y;
 				break;
 			}
@@ -366,12 +385,17 @@ void HomogeneousSequenceSimulator::multipleEvolve(const Node * node, const Vint 
 
 void HomogeneousSequenceSimulator::evolveInternal(const Node * node, unsigned int rateClass) const
 {
-	if(!node -> hasFather()) { cerr << "DEBUG: HomogeneousSequenceSimulator::evolveInternal. Forbidden call of method on root node." << endl; return; }
-	int initialState = _states[node -> getFather()];
+	if(!node -> hasFather())
+  { 
+    cerr << "DEBUG: HomogeneousSequenceSimulator::evolveInternal. Forbidden call of method on root node." << endl;
+    return;
+  }
+	int initialState = _states[node->getFather()];
 	int   finalState = evolve(node, initialState, rateClass);
 	_states[node] = finalState;
-	for(unsigned int i = 0; i < node -> getNumberOfSons(); i++) {
-		evolveInternal(node -> getSon(i), rateClass);
+	for(unsigned int i = 0; i < node->getNumberOfSons(); i++)
+  {
+		evolveInternal(node->getSon(i), rateClass);
 	}
 }
 
@@ -379,12 +403,17 @@ void HomogeneousSequenceSimulator::evolveInternal(const Node * node, unsigned in
 
 void HomogeneousSequenceSimulator::evolveInternal(const Node * node, double rate) const
 {
-	if(!node -> hasFather()) { cerr << "DEBUG: HomogeneousSequenceSimulator::evolveInternal. Forbidden call of method on root node." << endl; return; }
-	int initialState = _states[node -> getFather()];
+	if(!node->hasFather())
+  { 
+    cerr << "DEBUG: HomogeneousSequenceSimulator::evolveInternal. Forbidden call of method on root node." << endl;
+    return;
+  }
+	int initialState = _states[node->getFather()];
 	int finalState = evolve(node, initialState, rate);
 	_states[node] = finalState;
-	for(unsigned int i = 0; i < node -> getNumberOfSons(); i++) {
-		evolveInternal(node -> getSon(i), rate);
+	for(unsigned int i = 0; i < node->getNumberOfSons(); i++)
+  {
+		evolveInternal(node->getSon(i), rate);
 	}
 }
 
@@ -392,13 +421,18 @@ void HomogeneousSequenceSimulator::evolveInternal(const Node * node, double rate
 
 void HomogeneousSequenceSimulator::multipleEvolveInternal(const Node * node, const vector<unsigned int> & rateClasses) const
 {
-	if(!node -> hasFather()) { cerr << "DEBUG: HomogeneousSequenceSimulator::multipleEvolveInternal. Forbidden call of method on root node." << endl; return; }
+	if(!node->hasFather())
+  { 
+    cerr << "DEBUG: HomogeneousSequenceSimulator::multipleEvolveInternal. Forbidden call of method on root node." << endl;
+    return;
+  }
 	const vector<int> * initialStates = &_multipleStates[node -> getFather()];
-	unsigned int n = initialStates -> size();
+	unsigned int n = initialStates->size();
 	_multipleStates[node].resize(n); //allocation.
 	multipleEvolve(node, *initialStates, rateClasses, _multipleStates[node]);
-	for(unsigned int i = 0; i < node -> getNumberOfSons(); i++) {
-		multipleEvolveInternal(node -> getSon(i), rateClasses);
+	for(unsigned int i = 0; i < node->getNumberOfSons(); i++)
+  {
+		multipleEvolveInternal(node->getSon(i), rateClasses);
 	}
 }
 
@@ -407,16 +441,18 @@ void HomogeneousSequenceSimulator::multipleEvolveInternal(const Node * node, con
 SiteContainer * HomogeneousSequenceSimulator::multipleEvolve(const Vint & initialStates, const vector<unsigned int> & rateClasses) const
 {
 	// Launch recursion:
-	const Node * root = _tree -> getRootNode();
+	const Node * root = _tree->getRootNode();
 	_multipleStates[root] = initialStates;
-	for(unsigned int i = 0; i < root -> getNumberOfSons(); i++) {
-		multipleEvolveInternal(root -> getSon(i), rateClasses);
+	for(unsigned int i = 0; i < root->getNumberOfSons(); i++)
+  {
+		multipleEvolveInternal(root->getSon(i), rateClasses);
 	}
 	// Now create a Site object:
 	AlignedSequenceContainer * sites = new AlignedSequenceContainer(_alphabet);
 	unsigned int n = _leaves.size();
-	for(unsigned int i = 0; i < n; i++) {
-		sites -> addSequence(Sequence(_leaves[i] -> getName(), _multipleStates[_leaves[i]], _alphabet), false);
+	for(unsigned int i = 0; i < n; i++)
+  {
+		sites->addSequence(Sequence(_leaves[i]->getName(), _multipleStates[_leaves[i]], _alphabet), false);
 	}
 	return sites;
 }
@@ -426,10 +462,11 @@ SiteContainer * HomogeneousSequenceSimulator::multipleEvolve(const Vint & initia
 void HomogeneousSequenceSimulator::dEvolve(int initialState, double rate, HomogeneousSiteSimulationResult & hssr) const
 {
 	// Launch recursion:
-	const Node * root = _tree -> getRootNode();
+	const Node * root = _tree->getRootNode();
 	_states[root] = initialState;
-	for(unsigned int i = 0; i < root -> getNumberOfSons(); i++) {
-		dEvolveInternal(root -> getSon(i), rate, hssr);
+	for(unsigned int i = 0; i < root->getNumberOfSons(); i++)
+  {
+		dEvolveInternal(root->getSon(i), rate, hssr);
 	}
 }
 
@@ -437,17 +474,22 @@ void HomogeneousSequenceSimulator::dEvolve(int initialState, double rate, Homoge
 
 void HomogeneousSequenceSimulator::dEvolveInternal(const Node * node, double rate, HomogeneousSiteSimulationResult & hssr) const
 {
-	if(!node -> hasFather()) { cerr << "DEBUG: HomogeneousSequenceSimulator::evolveInternal. Forbidden call of method on root node." << endl; return; }
-	int initialState = _states[node -> getFather()];
-	MutationPath mp = _process -> detailedEvolve(initialState, node -> getDistanceToFather() * rate);
+	if(!node -> hasFather())
+  { 
+    cerr << "DEBUG: HomogeneousSequenceSimulator::evolveInternal. Forbidden call of method on root node." << endl;
+    return;
+  }
+	int initialState = _states[node->getFather()];
+	MutationPath mp = _process->detailedEvolve(initialState, node->getDistanceToFather() * rate);
 	_states[node] = mp.getFinalState();
 
 	// Now append infos in _ssr:
 	hssr.addNode(node, mp);
 
 	// Now jump to son nodes:
-	for(unsigned int i = 0; i < node -> getNumberOfSons(); i++) {
-		dEvolveInternal(node -> getSon(i), rate, hssr);
+	for(unsigned int i = 0; i < node->getNumberOfSons(); i++)
+  {
+		dEvolveInternal(node->getSon(i), rate, hssr);
 	}
 }
 

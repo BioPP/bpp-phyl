@@ -41,6 +41,7 @@ knowledge of the CeCILL license and that you accept its terms.
 #define _HOMOGENEOUSSEQUENCESIMULATOR_H_
 
 #include "DetailedSiteSimulator.h"
+#include "SequenceSimulator.h"
 #include "TreeTemplate.h"
 #include "SubstitutionModel.h"
 
@@ -90,7 +91,7 @@ class HomogeneousSiteSimulationResult: public SiteSimulationResult
  *
  * Rate across sites variation is supported, using a DiscreteDistribution object or by specifying explicitely the rate of the sites to simulate.
  */
-class HomogeneousSequenceSimulator:	public virtual DetailedSiteSimulator
+class HomogeneousSequenceSimulator:	public virtual DetailedSiteSimulator, public virtual SequenceSimulator
 {
 	protected:
 		const MutationProcess * _process;
@@ -110,6 +111,8 @@ class HomogeneousSequenceSimulator:	public virtual DetailedSiteSimulator
 		unsigned int _nbNodes;
 		unsigned int _nbClasses;
 		unsigned int _nbStates;
+
+    bool _continuousRates;
 	
 		/**
 		 * @name Stores intermediate results.
@@ -250,6 +253,15 @@ class HomogeneousSequenceSimulator:	public virtual DetailedSiteSimulator
 		 * @return The Tree object associated to this instance.
 		 */
 		const TreeTemplate<Node> * getTree() const { return _tree; }
+
+    /**
+     * @brief Enable the use of continuous rates instead of discrete rates.
+     *
+     * To work, the DiscreteDistribution object used should implement the randC method.
+     *
+     * @param yn Tell if we should use continuous rates.
+     */
+    void enableContinuousRates(bool yn) { _continuousRates = yn; }
 	
 	protected:
 		

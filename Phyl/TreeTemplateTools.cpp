@@ -186,7 +186,7 @@ Node * TreeTemplateTools::parenthesisToNode(const string & description, bool boo
     //This is a leaf:
     //cout << "NODE: LEAF: " << elements[0] << endl;
     string name = TextTools::removeSurroundingWhiteSpaces(elements[0]);
-    node -> setName(name);
+    node->setName(name);
   }
   else
   {
@@ -195,7 +195,7 @@ Node * TreeTemplateTools::parenthesisToNode(const string & description, bool boo
     {
       //cout << "NODE: SUBNODE: " << i << ", " << elements[i] << endl;
       Node * son = parenthesisToNode(elements[i], bootstrap, propertyName);
-      node -> addSon(* son);
+      node->addSon(* son);
     }
   }
   return node;
@@ -224,7 +224,7 @@ TreeTemplate<Node> * TreeTemplateTools::parenthesisToTree(const string & descrip
   if(elements.size() == 1)
   {
     //This is a leaf:
-    node -> setName(elements[0]);
+    node->setName(elements[0]);
   }
   else
   {
@@ -232,7 +232,7 @@ TreeTemplate<Node> * TreeTemplateTools::parenthesisToTree(const string & descrip
     for(unsigned int i = 0; i < elements.size(); i++)
     {
       Node * son = parenthesisToNode(elements[i], bootstrap, propertyName);
-      node -> addSon(* son);
+      node->addSon(* son);
     }
     if(! TextTools::isEmpty(element))
     {
@@ -349,10 +349,10 @@ string TreeTemplateTools::treeToParenthesis(const TreeTemplate<Node> & tree, boo
   const Node * node = tree.getRootNode();
   if(node->isLeaf())
   {
-    s << node -> getName();
-    for(unsigned int i = 0; i < node -> getNumberOfSons(); i++)
+    s << node->getName();
+    for(unsigned int i = 0; i < node->getNumberOfSons(); i++)
     {
-      s << "," << nodeToParenthesis(* node -> getSon(i), writeId);
+      s << "," << nodeToParenthesis(* node->getSon(i), writeId);
     }
   }
   else

@@ -189,6 +189,8 @@ class TreeTemplate: public virtual Tree
 				
 		Clonable * removeProperty(int nodeId, const string & name) throw (NodeNotFoundException) { return getNode(nodeId)->removeProperty(name); }
 		
+    vector<string> getPropertyNames(int nodeId) const throw (NodeNotFoundException) { return getNode(nodeId)->getPropertyNames(); }
+		
     void rootAt(int nodeId) throw (NodeNotFoundException)	{	rootAt(* getNode(nodeId)); }
 		
 		void newOutGroup(int nodeId) throw (NodeNotFoundException) {	newOutGroup(* getNode(nodeId)); }

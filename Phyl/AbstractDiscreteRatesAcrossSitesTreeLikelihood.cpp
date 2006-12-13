@@ -1,5 +1,5 @@
 //
-// File: AbstractDiscreteRateAcrossSitesTreeLikelihood.cpp
+// File: AbstractDiscreteRatesAcrossSitesTreeLikelihood.cpp
 // Created by: Julien Dutheil
 // Created on: Wue Jun 15 09:42 2005
 //
@@ -213,6 +213,50 @@ Vdouble AbstractDiscreteRatesAcrossSitesTreeLikelihood::getRateWithMaxPostProbOf
 		rates[i] = _rateDistribution -> getCategory(whichmax<double>(l[i]));
 	}
 	return rates;
+}
+
+/******************************************************************************/
+
+void AbstractDiscreteRatesAcrossSitesTreeLikelihood::resetLikelihoodArray(
+    VVVdouble & likelihoodArray)
+{
+  unsigned int nbSites   = likelihoodArray.size();
+  unsigned int nbClasses = likelihoodArray[0].size();
+  unsigned int nbStates  = likelihoodArray[0][0].size();
+  for(unsigned int i = 0; i < nbSites; i++)
+  {
+    for(unsigned int c = 0; c < nbClasses; c++)
+    {
+      for(unsigned int s = 0; s < nbStates; s++)
+      {
+        likelihoodArray[i][c][s] = 1.;
+      }
+    }
+  }
+}
+
+/******************************************************************************/
+
+void AbstractDiscreteRatesAcrossSitesTreeLikelihood::displayLikelihoodArray(
+    const VVVdouble & likelihoodArray)
+{
+  unsigned int nbSites   = likelihoodArray.size();
+  unsigned int nbClasses = likelihoodArray[0].size();
+  unsigned int nbStates  = likelihoodArray[0][0].size();
+  for(unsigned int i = 0; i < nbSites; i++)
+  {
+    cout << "Site " << i << ":" << endl;
+    for(unsigned int c = 0; c < nbClasses; c++)
+    {
+      cout << "Rate class " << c;
+      for(unsigned int s = 0; s < nbStates; s++)
+      {
+        cout << "\t" << likelihoodArray[i][c][s];
+      }
+      cout << endl;
+    }
+    cout << endl;
+  }
 }
 
 /******************************************************************************/

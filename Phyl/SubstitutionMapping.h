@@ -67,9 +67,20 @@ class SubstitutionMapping
      * @return Get the phylogenetic tree associated to this mapping.
      */
     virtual const Tree * getTree() const = 0;
+    /**
+     * @return The number of sites mapped.
+     */
     virtual unsigned int getNumberOfSites() const = 0;
+    /**
+     * @return The number of branches mapped.
+     */
     virtual unsigned int getNumberOfBranches() const = 0;
     
+    /**
+     * @param index The site index.
+     * @return The site position corresponding to the index.
+     */
+    virtual int getSitePosition(unsigned int index) const = 0;
 };
 
 /**
@@ -79,6 +90,7 @@ class AbstractSubstitutionMapping : public SubstitutionMapping
 {
   protected:
     const TreeTemplate<Node> * _tree;
+    vector<int> _sitesPostions;
 
   public:
     AbstractSubstitutionMapping() {}
@@ -94,6 +106,7 @@ class AbstractSubstitutionMapping : public SubstitutionMapping
 #endif
     getTree() const { return _tree; }
  
+    int getSitePosition(unsigned int index) const { return _sitesPostions[index]; }
 };
 
 #endif //_SUBSTITUTIONMAPPING_H_
