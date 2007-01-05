@@ -40,6 +40,11 @@ knowledge of the CeCILL license and that you accept its terms.
 #include "OptimizationTools.h"
 #include "PseudoNewtonOptimizer.h"
 #include "NewtonBrentMetaOptimizer.h"
+#include "NNISearchable.h"
+#include "NNITopologySearch.h"
+
+// From Utils:
+#include <Utils/ApplicationTools.h>
 
 // From NumCalc:
 #include <NumCalc/ParameterList.h>
@@ -104,11 +109,10 @@ int OptimizationTools::optimizeTreeScale(
 	ParameterList singleParameter;
 	singleParameter.addParameter(Parameter("scale factor", 1.));
 	bod.init(singleParameter);
-	ParametersStopCondition * PS = new ParametersStopCondition(&bod, tolerance);
+	ParametersStopCondition PS(&bod, tolerance);
 	bod.setStopCondition(PS);
 	bod.setMaximumNumberOfEvaluations(tlEvalMax);
 	bod.optimize();
-	delete PS;
 	return bod.getNumberOfEvaluations();
 }
 
@@ -238,22 +242,70 @@ int OptimizationTools::optimizeBranchLengthsParameters(
 	optimizer -> getStopCondition() -> setTolerance(tolerance);
 	
 	// Optimize TreeLikelihood function:
-	try {
-		ParameterList pl = tl -> getBranchLengthsParameters();
-		optimizer -> setConstraintPolicy(AbstractOptimizer::CONSTRAINTS_AUTO);
-		optimizer -> init(pl);
-		optimizer -> optimize();
-	} catch(Exception e) {
+	try
+  {
+		ParameterList pl = tl->getBranchLengthsParameters();
+		optimizer->setConstraintPolicy(AbstractOptimizer::CONSTRAINTS_AUTO);
+		optimizer->init(pl);
+		optimizer->optimize();
+	}
+  catch(Exception e)
+  {
 		cout << e.what() << endl;
 		exit(-1);
 	}
 	// We're done.
-	int n = optimizer -> getNumberOfEvaluations(); 
+	int n = optimizer->getNumberOfEvaluations(); 
 	// Delete optimizer:
 	delete optimizer;
 	// Send number of evaluations done:
 	return n;
 }
 	
+/******************************************************************************/	
+
+void NNITopologyListener::topologyChangeTested(const TopologyChangeEvent & event)
+{
+}
+
+/******************************************************************************/	
+
+void NNITopologyListener::topologyChangeSuccessful(const TopologyChangeEvent & event)
+{
+  _optimizeCounter++;
+  if(_optimizeCounter == _optimizeNumerical)
+  {
+    DiscreteRatesAcrossSitesTreeLikelihood * likelihood = dynamic_cast<DiscreteRatesAcrossSitesTreeLikelihood *>(_topoSearch->getSearchableObject());
+    OptimizationTools::optimizeNumericalParameters(likelihood, 1, _tolerance, 1000000, _messenger, _profiler, _verbose);
+    _optimizeCounter = 0;
+  }
+}
+
+/******************************************************************************/	
+
+DiscreteRatesAcrossSitesTreeLikelihood * OptimizationTools::optimizeTreeNNI(
+    DiscreteRatesAcrossSitesTreeLikelihood * tl,
+		double tolBefore,
+		double tolDuring,
+		int tlEvalMax,
+    unsigned int numStep,
+		ostream * messageHandler,
+		ostream * profiler,
+		unsigned int verbose)
+  throw (Exception)
+{
+  //Roughly optimize parameter
+  OptimizationTools::optimizeNumericalParameters(tl, 1, tolBefore, 1000000, messageHandler, profiler, verbose);
+  //Begin topo search:
+  NNISearchable *topo = dynamic_cast<NNISearchable *>(tl);
+  NNITopologySearch topoSearch(*topo, NNITopologySearch::PHYML, verbose);
+  NNITopologyListener *topoListener = new NNITopologyListener(&topoSearch, tolDuring, messageHandler, profiler, verbose);
+  topoListener->setNumericalOptimizationCounter(numStep);
+  topoSearch.addTopologyListener(*topoListener);
+  topoSearch.search();
+  delete topoListener;
+  return dynamic_cast<DiscreteRatesAcrossSitesTreeLikelihood *>(topoSearch.getSearchableObject());
+}
+
 /******************************************************************************/	
 

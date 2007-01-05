@@ -41,261 +41,99 @@ knowledge of the CeCILL license and that you accept its terms.
 #define _DRHOMOGENEOUSTREELIKELIHOOD_H_
 
 #include "AbstractHomogeneousTreeLikelihood.h"
+#include "DRASDRTreeLikelihoodData.h"
+#include "NNISearchable.h"
 
 // From NumCalc:
 #include <NumCalc/VectorTools.h>
 #include <NumCalc/DiscreteDistribution.h>
-
-// From the STL:
-#include <map>
-
-using namespace std;
+#include <NumCalc/BrentOneDimension.h>
 
 /**
- * @brief Likelihood data structure for a leaf.
- * 
- * This class is for use with the DRASDRTreeParsimonyData class.
- * 
- * Store the likelihoods arrays associated to a leaf.
- * 
- * @see DRASDRTreeLikelihoodData
- */
-class DRASDRTreeLikelihoodLeafData :
-  public TreeLikelihoodNodeData
-{
-  protected:
-    mutable VVdouble _leafLikelihood;
-    const Node * _leaf;
-
-  public:
-    const Node * getNode() const { return _leaf; }
-    void setNode(const Node * node) { _leaf = node; }
-
-    VVdouble & getLikelihoodArray()  {  return _leafLikelihood;  }
-};
-
-/**
- * @brief Likelihood data structure for a node.
- * 
- * This class is for use with the DRASDRTreeParsimonyData class.
- * 
- * Store for each neighbor node an array with conditionnal likelihoods.
+ * @brief Compute likelihood for a 4-tree.
  *
- * @see DRASDRTreeLikelihoodData
+ * This class is used internally by DRHomogeneousTreeLikelihood to test NNI movements.
+ * This function needs:
+ * - two likelihood arrays corresponding to the conditional likelihoods at top and bottom nodes,
+ * - a substitution model and a rate distribution, whose parameters will not be estimated but taken "as is",
+ * It takes only one parameter, the branch length.
  */
-class DRASDRTreeLikelihoodNodeData :
-  public TreeLikelihoodNodeData
+class BranchLikelihood :
+  public virtual Function,
+  public virtual AbstractParametrizable
 {
   protected:
-    /**
-     * @brief This contains all likelihood values used for computation.
-     *
-     * <pre>
-     * x[b][i][c][s]
-     *   |------------> Neighbor node of n (pointer)
-      *      |---------> Site i
-     *         |------> Rate class c
-     *            |---> Ancestral state s
-     * </pre>
-     * We call this the <i>likelihood array</i> for each node.
-     */
-
-    mutable map<const Node *, VVVdouble > _nodeLikelihoods;
-    /**
-     * @brief This contains all likelihood first order derivatives values used for computation.
-     *
-     * <pre>
-     * x[i]
-     *   |---------> Site i
-     * </pre> 
-     * We call this the <i>dLikelihood array</i> for each node.
-     */
-    mutable Vdouble _nodeDLikelihoods;
-  
-    /**
-     * @brief This contains all likelihood second order derivatives values used for computation.
-     *
-     * <pre>
-     * x[i]
-         |---------> Site i
-     * </pre> 
-     * We call this the <i>d2Likelihood array</i> for each node.
-     */
-    mutable Vdouble _nodeD2Likelihoods;
-    
-    const Node * _node;
+    const VVVdouble *_array1, *_array2;
+    VVVdouble _arrayTmp;
+    const SubstitutionModel * _model;
+    const DiscreteDistribution * _rDist;
+    unsigned int _nbStates, _nbClasses;
+    VVVdouble _pxy;
+    double _lnL;
+    vector<unsigned int> _weights;
 
   public:
-    DRASDRTreeLikelihoodNodeData() {}
-    virtual ~DRASDRTreeLikelihoodNodeData() {}
+    BranchLikelihood(const vector<unsigned int> & weights): _lnL(log(0.)), _weights(weights)
+    {
+      _parameters.addParameter(Parameter("BrLen", 1, NULL));
+    }
+    virtual ~BranchLikelihood() {}
+
+#if defined(VIRTUAL_COV)
+    BranchLikelihood * clone() const { return new BranchLikelihood(*this); }
+#else
+    Clonable * clone() const { return new BranchLikelihood(*this); }
+#endif
 
   public:
-    const Node * getNode() const { return _node; }
-    void setNode(const Node * node) { _node = node; }
-
-    const map<const Node *, VVVdouble> & getLikelihoodArrays() const { return _nodeLikelihoods; }
-    map<const Node *, VVVdouble> & getLikelihoodArrays() { return _nodeLikelihoods; }
-    VVVdouble & getLikelihoodArrayForNeighbor(const Node * neighbor)
+    void initModel(const SubstitutionModel *model, const DiscreteDistribution *rDist)
     {
-      return _nodeLikelihoods[neighbor];
+      _model = model;
+      _rDist = rDist;
+      _nbStates = model->getNumberOfStates();
+      _nbClasses  = rDist->getNumberOfCategories();
+      _pxy.resize(_nbClasses);
+      for(unsigned int i = 0; i < _nbClasses; i++)
+      {
+        _pxy[i].resize(_nbStates);
+        for(unsigned int j = 0; j < _nbStates; j++)
+          _pxy[i][j].resize(_nbStates);
+      }
     }
-    const VVVdouble & getLikelihoodArrayForNeighbor(const Node * neighbor) const
+    /**
+     * @warning No checking on alphabet size or number of rate classes is performed,
+     * use with care!
+     */
+    void initLikelihoods(const VVVdouble *array1, const VVVdouble *array2)
     {
-      return _nodeLikelihoods[neighbor];
+      _array1 = array1;
+      _array2 = array2;
     }
-    Vdouble & getDLikelihoodArray() { return _nodeDLikelihoods;  }
-    const Vdouble & getDLikelihoodArray() const  {  return _nodeDLikelihoods;  }
-    Vdouble & getD2LikelihoodArray()  {  return _nodeD2Likelihoods; }
-    const Vdouble & getD2LikelihoodArrayForNeighbor() const  { return _nodeD2Likelihoods; }
 
-    bool isNeighbor(const Node * neighbor) const
+    void resetLikelihoods()
     {
-      return _nodeLikelihoods.find(neighbor) != _nodeLikelihoods.end();
+      _array1 = NULL;
+      _array2 = NULL;
     }
 
-    void eraseNeighborArrays()
+    void setParameters(const ParameterList &parameters)
+      throw (ParameterNotFoundException, ConstraintException)
     {
-      _nodeLikelihoods.erase(_nodeLikelihoods.begin(), _nodeLikelihoods.end());
-      _nodeDLikelihoods.erase(_nodeDLikelihoods.begin(), _nodeDLikelihoods.end());
-      _nodeD2Likelihoods.erase(_nodeD2Likelihoods.begin(), _nodeD2Likelihoods.end());
+      _parameters.setParametersValues(parameters);
+      fireParameterChanged(parameters);
     }
-};
 
-/**
- * @brief Likelihood data structure for rate across sites models, using a double-recursive algorithm.
- */
-class DRASDRTreeLikelihoodData :
-  public virtual AbstractTreeLikelihoodData
-{
+    double getValue() const throw (Exception) { return _lnL; }
+
+    void fireParameterChanged(const ParameterList & parameters)
+    {
+      computeAllTransitionProbabilities();
+      computeLogLikelihood();
+    }
+
   protected:
-
-    mutable map<const Node *, DRASDRTreeLikelihoodNodeData> _nodeData;
-    mutable map<const Node *, DRASDRTreeLikelihoodLeafData> _leafData;
-    mutable VVVdouble _rootLikelihoods;
-    mutable VVdouble  _rootLikelihoodsS;
-    mutable Vdouble   _rootLikelihoodsSR;
-
-    SiteContainer * _shrunkData;
-    unsigned int _nbSites; 
-    unsigned int _nbStates;
-    unsigned int _nbClasses;
-    unsigned int _nbDistinctSites; 
-
-  public:
-    DRASDRTreeLikelihoodData(TreeTemplate<Node> & tree, unsigned int nbClasses) : _nbClasses(nbClasses)
-    {
-      _tree = &tree;
-      _shrunkData = NULL;
-    }
-    virtual ~DRASDRTreeLikelihoodData() { delete _shrunkData; }
-
-  public:
-    DRASDRTreeLikelihoodNodeData & getNodeData(const Node * node)
-    { 
-      return _nodeData[node];
-    }
-    const DRASDRTreeLikelihoodNodeData & getNodeData(const Node * node) const
-    { 
-      return _nodeData[node];
-    }
-    DRASDRTreeLikelihoodLeafData & getLeafData(const Node * node)
-    { 
-      return _leafData[node];
-    }
-    const DRASDRTreeLikelihoodLeafData & getLeafData(const Node * node) const
-    { 
-      return _leafData[node];
-    }
-    unsigned int getArrayPosition(const Node* parent, const Node* son, unsigned int currentPosition) const
-    {
-      return currentPosition;
-    }
-
-    const map<const Node *, VVVdouble> & getLikelihoodArrays(const Node *node) const 
-    {
-      return _nodeData[node].getLikelihoodArrays();
-    }
-    map<const Node *, VVVdouble> & getLikelihoodArrays(const Node *node)
-    {
-      return _nodeData[node].getLikelihoodArrays();
-    }
-
-    VVVdouble & getLikelihoodArray(const Node *parent, const Node *neighbor)
-    {
-      return _nodeData[parent].getLikelihoodArrayForNeighbor(neighbor);
-    }
-    const VVVdouble & getLikelihoodArray(const Node *parent, const Node *neighbor) const
-    {
-      return _nodeData[parent].getLikelihoodArrayForNeighbor(neighbor);
-    }
-    
-    Vdouble & getDLikelihoodArray(const Node * node)
-    {
-      return _nodeData[node].getDLikelihoodArray();
-    }
-    
-    const Vdouble & getDLikelihoodArray(const Node * node) const
-    {
-      return _nodeData[node].getDLikelihoodArray();
-    }
-    
-    Vdouble & getD2LikelihoodArray(const Node * node)
-    {
-      return _nodeData[node].getD2LikelihoodArray();
-    }
-
-    const Vdouble & getD2LikelihoodArray(const Node * node) const
-    {
-      return _nodeData[node].getD2LikelihoodArray();
-    }
-
-    VVdouble & getLeafLikelihoods(const Node * node)
-    {
-      return _leafData[node].getLikelihoodArray();
-    }
-    const VVdouble & getLeafLikelihoods(const Node * node) const
-    {
-      return _leafData[node].getLikelihoodArray();
-    }
-    VVVdouble & getRootLikelihoodArray() { return _rootLikelihoods; }
-    VVdouble  & getRootSiteLikelihoodArray() { return _rootLikelihoodsS; }
-    Vdouble   & getRootRateSiteLikelihoodArray() { return _rootLikelihoodsSR; }
-
-    unsigned int getNumberOfDistinctSites() const { return _nbDistinctSites; }
-    unsigned int getNumberOfSites() const { return _nbSites; }
-    unsigned int getNumberOfStates() const { return _nbStates; }
-    unsigned int getNumberOfClasses() const { return _nbClasses; }
-
-    const SiteContainer * getShrunkData() const { return _shrunkData; }
-    
-    /**
-     * @brief Resize and initialize all likelihood arrays according to the given data set and substitution model.
-     *
-     * @param sites The sequences to use as data.
-     * @param model The substitution model to use.
-     * @throw Exception if an error occures.
-     */
-    void initLikelihoods(const SiteContainer & sites, const SubstitutionModel & model) throw (Exception);
-    
-  protected:
-    /**
-     * @brief This method initializes the leaves according to a sequence container.
-     *
-     * Here the container _shrunkData is used.
-     * Likelihood is set to 1 for the state corresponding to the sequence site,
-     * otherwise it is set to 0.
-     *
-     * All likelihood arrays at each nodes are initialized according to alphabet
-     * size and sequences length, and filled with 1.
-     *
-     * NB: This method is recursive.
-     *
-     * @param node  The node defining the subtree to analyse.
-     * @param sites The sequence container to use.
-     * @param model The model, used for initializing leaves' likelihoods.
-     */
-    void initLikelihoods(const Node * node, const SiteContainer & sites, const SubstitutionModel & model) throw (Exception);
-
+    void computeAllTransitionProbabilities();
+    void computeLogLikelihood();
 };
 
 
@@ -321,10 +159,24 @@ class DRASDRTreeLikelihoodData :
  *
  * All nodes share the same site patterns.
  */
-class DRHomogeneousTreeLikelihood : public virtual AbstractHomogeneousTreeLikelihood
+class DRHomogeneousTreeLikelihood :
+  public virtual AbstractHomogeneousTreeLikelihood,
+  public virtual NNISearchable
 {
   protected:
     mutable DRASDRTreeLikelihoodData *_likelihoodData;
+    BranchLikelihood * _brLikFunction;
+    /**
+     * @brief Optimizer used for testing NNI.
+     */
+    BrentOneDimension * _brentOptimizer;
+
+    /**
+     * @brief Hash used for backing up branch lengths when testing NNIs.
+     */
+    mutable map<int, double> _brLenNNIValues;
+
+    ParameterList _brLenNNIParams;
     
   public:
     /**
@@ -339,7 +191,7 @@ class DRHomogeneousTreeLikelihood : public virtual AbstractHomogeneousTreeLikeli
      * @throw Exception in an error occured.
      */
     DRHomogeneousTreeLikelihood(
-      TreeTemplate<Node> * tree,
+      const Tree & tree,
       SubstitutionModel * model,
       DiscreteDistribution * rDist,
       bool checkRooted = true,
@@ -359,7 +211,7 @@ class DRHomogeneousTreeLikelihood : public virtual AbstractHomogeneousTreeLikeli
      * @throw Exception in an error occured.
      */
     DRHomogeneousTreeLikelihood(
-      TreeTemplate<Node> * tree,
+      const Tree & tree,
       const SiteContainer & data,
       SubstitutionModel * model,
       DiscreteDistribution * rDist,
@@ -367,8 +219,21 @@ class DRHomogeneousTreeLikelihood : public virtual AbstractHomogeneousTreeLikeli
       bool verbose = true)
       throw (Exception);
 
+    /**
+     * @brief Copy constructor.
+     */ 
+    DRHomogeneousTreeLikelihood(const DRHomogeneousTreeLikelihood & lik);
+    
+    DRHomogeneousTreeLikelihood & operator=(const DRHomogeneousTreeLikelihood & lik);
+
     virtual ~DRHomogeneousTreeLikelihood();
-  
+
+#if defined(VIRTUAL_COV)
+    DRHomogeneousTreeLikelihood * clone() const { return new DRHomogeneousTreeLikelihood(*this); }
+#else
+    Clonable * clone() const { return new DRHomogeneousTreeLikelihood(*this); }
+#endif
+
   public:
 
     /**
@@ -383,6 +248,15 @@ class DRHomogeneousTreeLikelihood : public virtual AbstractHomogeneousTreeLikeli
     double getLogLikelihood() const;
     double getLikelihoodForASite (unsigned int site) const;
     double getLogLikelihoodForASite(unsigned int site) const;
+    //We need to redefine these methods to solve a linker problem (gcc 4.1.2)
+    ParameterList getSubstitutionModelParameters() const
+    {
+      return AbstractHomogeneousTreeLikelihood::getSubstitutionModelParameters();
+    }
+    ParameterList getBranchLengthsParameters() const
+    {
+      return AbstractHomogeneousTreeLikelihood::getBranchLengthsParameters();
+    }
     /** @} */
 
     void computeTreeLikelihood();
@@ -402,9 +276,7 @@ class DRHomogeneousTreeLikelihood : public virtual AbstractHomogeneousTreeLikeli
     /**
      * @brief Implements the Function interface.
      *
-     * Update the parameter list and call the applyParameters() method.
-     * Then compute the likelihoods at each node (computeLikelihood() method)
-     * and call the getLogLikelihood() method.
+     * Update the parameter list and call the fireParameterChanged() method.
      *
      * If a subset of the whole parameter list is passed to the function,
      * only these parameters are updated and the other remain constant (i.e.
@@ -413,7 +285,11 @@ class DRHomogeneousTreeLikelihood : public virtual AbstractHomogeneousTreeLikeli
      * @param parameters The parameter list to pass to the function.
      */
     void setParameters(const ParameterList & parameters) throw (ParameterNotFoundException, ConstraintException);
-    double getValue() const throw(Exception);
+    
+    /**
+     * @brief Function and NNISearchable interface.
+     */
+    double getValue() const throw (Exception);
     
     /**
      * @name DerivableFirstOrder interface.
@@ -431,6 +307,38 @@ class DRHomogeneousTreeLikelihood : public virtual AbstractHomogeneousTreeLikeli
     double getSecondOrderDerivative(const string & variable) const throw (Exception);
     double getSecondOrderDerivative(const string & variable1, const string & variable2) const throw (Exception) { return 0; } // Not implemented for now.
     /** @} */
+
+    /**
+     * @name The NNISearchable interface.
+     *
+     * Current implementation:
+     * When testing a particular NNI, only the branch length of the parent node is optimized (and roughly).
+     * All other parameters (substitution model, rate distribution and other branch length are kept at there current value.
+     * When performing a NNI, only the topology change is performed.
+     * This is up to the user to re-initialize the underlying likelihood data to match the new topology.
+     * Usually, this is achieved by calling the topologyChangePerformed() method, which call the reInit() method of the LikelihoodData object.
+     * @{
+     */
+		Tree * getTree() { return AbstractHomogeneousTreeLikelihood::getTree(); }
+		
+		const Tree * getTree() const { return AbstractHomogeneousTreeLikelihood::getTree(); }
+
+    double testNNI(int nodeId) const throw (NodeException);
+    
+    void doNNI(int nodeId) throw (NodeException);
+
+    void topologyChangeTested(const TopologyChangeEvent & event)
+    {
+      _likelihoodData->reInit();
+      //if(_brLenNNIParams.size() > 0)
+        fireParameterChanged(_brLenNNIParams);
+      _brLenNNIParams.reset();
+    }
+    void topologyChangeSuccessful(const TopologyChangeEvent & event)
+    {
+      _brLenNNIValues.clear();
+    }
+    /** @} */
     
   public:  // Specific methods:
 
@@ -444,7 +352,7 @@ class DRHomogeneousTreeLikelihood : public virtual AbstractHomogeneousTreeLikeli
      *
      * These intermediate results may be used by other methods.
      */
-    virtual const VVVdouble & getTransitionProbabilitiesForNode(const Node * node) const { return _pxy[node]; }
+    virtual const VVVdouble & getTransitionProbabilitiesForNode(const Node * node) const { return _pxy[node->getId()]; }
        
   protected:
   
@@ -454,7 +362,7 @@ class DRHomogeneousTreeLikelihood : public virtual AbstractHomogeneousTreeLikeli
      */
     virtual void computeSubtreeLikelihoodPostfix(const Node * node); //Recursive method.
     /**
-     * This method initilize the remaining lieklihood arrays, corresponding to father nodes.
+     * This method initilize the remaining likelihood arrays, corresponding to father nodes.
      * It must be called after the postfix method because it requires that the arrays for
      * son nodes to be be computed.
      */
@@ -493,7 +401,7 @@ class DRHomogeneousTreeLikelihood : public virtual AbstractHomogeneousTreeLikeli
      * @param nbDistinctSites The number of distinct sites (the first dimension of the likelihood array).
      * @param nbClasses The number of rate classes (the second dimension of the likelihood array).
      * @param nbStates The number of states (the third dimension of the likelihood array).
-     * @param reset Tell if the outpu likelihood array must be initalized prior to computation.
+     * @param reset Tell if the output likelihood array must be initalized prior to computation.
      * If true, the resetLikelihoodArray method will be called.
      */
     static void computeLikelihoodFromArrays(const vector<const VVVdouble *> & iLik, const vector<const VVVdouble *> & tProb, VVVdouble & oLik, unsigned int nbNodes, unsigned int nbDistinctSites, unsigned int nbClasses, unsigned int nbStates, bool reset = true);

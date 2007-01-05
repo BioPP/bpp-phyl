@@ -46,6 +46,9 @@ knowledge of the CeCILL license and that you accept its terms.
 
 /**
  * @brief Partial implementation of the DiscreteRatesAcrossSitesTreeLikelihood interface.
+ *
+ * It contains a pointer toward a DiscreteDistribution object.
+ * This object may be shared by several instances of the class.
  */
 class AbstractDiscreteRatesAcrossSitesTreeLikelihood:
 	public virtual AbstractTreeLikelihood,

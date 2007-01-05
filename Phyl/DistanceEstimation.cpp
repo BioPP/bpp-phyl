@@ -113,9 +113,66 @@ TwoTreeLikelihood::TwoTreeLikelihood(
 
 /******************************************************************************/
 
+TwoTreeLikelihood::TwoTreeLikelihood(const TwoTreeLikelihood & lik):
+	AbstractDiscreteRatesAcrossSitesTreeLikelihood(lik)
+{
+	_seqnames          = lik._seqnames;
+	_data              = dynamic_cast<SiteContainer *>(lik._data->clone());
+	_model             = lik._model;
+	_nbSites           = lik._nbSites;
+	_nbClasses         = lik._nbClasses;
+	_nbStates          = lik._nbStates;	
+	_brLen             = lik._brLen;
+	_shrunkData        = dynamic_cast<SiteContainer *>(lik._shrunkData->clone());
+	_rootWeights       = lik._rootWeights;
+	_rootPatternLinks  = lik._rootPatternLinks;
+	_nbDistinctSites   = lik._nbDistinctSites;
+  _pxy               = lik._pxy;
+  _dpxy              = lik._dpxy;
+  _d2pxy             = lik._d2pxy;
+	_rootLikelihoods   = lik._rootLikelihoods;
+	_rootLikelihoodsS  = lik._rootLikelihoodsS;
+	_rootLikelihoodsSR = lik._rootLikelihoodsSR;
+	_dLikelihoods      = lik._dLikelihoods;
+	_d2Likelihoods     = lik._d2Likelihoods;
+	_leafLikelihoods1  = lik._leafLikelihoods1;
+  _leafLikelihoods2  = lik._leafLikelihoods2;
+}
+
+/******************************************************************************/
+
+TwoTreeLikelihood & TwoTreeLikelihood::operator=(const TwoTreeLikelihood & lik)
+{
+	AbstractDiscreteRatesAcrossSitesTreeLikelihood::operator=(lik);
+  _seqnames          = lik._seqnames;
+	_data              = dynamic_cast<SiteContainer *>(lik._data->clone());
+	_model             = lik._model;
+	_nbSites           = lik._nbSites;
+	_nbClasses         = lik._nbClasses;
+	_nbStates          = lik._nbStates;	
+	_brLen             = lik._brLen;
+	_shrunkData        = dynamic_cast<SiteContainer *>(lik._shrunkData->clone());
+	_rootWeights       = lik._rootWeights;
+	_rootPatternLinks  = lik._rootPatternLinks;
+	_nbDistinctSites   = lik._nbDistinctSites;
+  _pxy               = lik._pxy;
+  _dpxy              = lik._dpxy;
+  _d2pxy             = lik._d2pxy;
+	_rootLikelihoods   = lik._rootLikelihoods;
+	_rootLikelihoodsS  = lik._rootLikelihoodsS;
+	_rootLikelihoodsSR = lik._rootLikelihoodsSR;
+	_dLikelihoods      = lik._dLikelihoods;
+	_d2Likelihoods     = lik._d2Likelihoods;
+	_leafLikelihoods1  = lik._leafLikelihoods1;
+  _leafLikelihoods2  = lik._leafLikelihoods2;
+  return *this;
+}
+
+/******************************************************************************/
+
 TwoTreeLikelihood::~TwoTreeLikelihood()
 {
-	delete _data; 
+	delete _shrunkData; 
 }
 
 /******************************************************************************/
@@ -208,10 +265,10 @@ void TwoTreeLikelihood::initParameters()
 	_parameters.addParameters(_brLenParameters);
 	
 	// Substitution model:
-	_parameters.addParameters(_model -> getParameters());
+	_parameters.addParameters(_model->getParameters());
 	
 	// Rate distribution:
-	_parameters.addParameters(_rateDistribution -> getParameters());
+	_parameters.addParameters(_rateDistribution->getParameters());
 }
 
 /******************************************************************************/
@@ -227,18 +284,19 @@ throw (ParameterNotFoundException)
 void TwoTreeLikelihood::applyParameters() throw (Exception)
 {
 	//Apply branch length:
-	_brLen = _parameters.getParameter(string("BrLen")) -> getValue();
+	_brLen = _parameters.getParameter(string("BrLen"))->getValue();
 	//Apply substitution model parameters:
-	_model -> matchParametersValues(_parameters);
+	_model->matchParametersValues(_parameters);
 	//Apply rate distribution parameters:
-	_rateDistribution -> matchParametersValues(_parameters);
+	_rateDistribution->matchParametersValues(_parameters);
 }
 
 /******************************************************************************/
 
 void TwoTreeLikelihood::initBranchLengthsParameters()
 {
-	if (_brLen <= 0) {
+	if (_brLen <= 0)
+  {
 		cout << "WARNING!!! Branch length is < 0. Value is set to 0." << endl;
 		_brLen = 0.;
 	}
@@ -264,48 +322,57 @@ void TwoTreeLikelihood::fireParameterChanged(const ParameterList & params)
 
 	//Computes all pxy and pyx once for all:
 	_pxy.resize(_nbClasses);
-	for(unsigned int c = 0; c < _nbClasses; c++) {
+	for(unsigned int c = 0; c < _nbClasses; c++)
+  {
 		VVdouble * _pxy_c = & _pxy[c];
-		_pxy_c -> resize(_nbStates);
-		RowMatrix<double> Q = _model -> getPij_t(_brLen * _rateDistribution -> getCategory(c));
-		for(unsigned int x = 0; x < _nbStates; x++) {
+		_pxy_c->resize(_nbStates);
+		RowMatrix<double> Q = _model->getPij_t(_brLen * _rateDistribution -> getCategory(c));
+		for(unsigned int x = 0; x < _nbStates; x++)
+    {
 			Vdouble * _pxy_c_x = & (* _pxy_c)[x];
-			_pxy_c_x -> resize(_nbStates);
-			for(unsigned int y = 0; y < _nbStates; y++) {
+			_pxy_c_x->resize(_nbStates);
+			for(unsigned int y = 0; y < _nbStates; y++)
+      {
 				(* _pxy_c_x)[y] = Q(x, y);
 			}
 		}
 		
-		if(_computeDerivatives) {
-
+		if(_computeDerivatives)
+    {
 			//Computes all dpxy/dt once for all:
 			_dpxy.resize(_nbClasses);
-			for(unsigned int c = 0; c < _nbClasses; c++) {
+			for(unsigned int c = 0; c < _nbClasses; c++)
+      {
 				VVdouble * _dpxy_c = & _dpxy[c];
-				_dpxy_c -> resize(_nbStates);
-				double rc = _rateDistribution -> getCategory(c);
-				RowMatrix<double> dQ = _model -> getdPij_dt(_brLen * rc);  
-				for(unsigned int x = 0; x < _nbStates; x++) {
+				_dpxy_c->resize(_nbStates);
+				double rc = _rateDistribution->getCategory(c);
+				RowMatrix<double> dQ = _model->getdPij_dt(_brLen * rc);  
+				for(unsigned int x = 0; x < _nbStates; x++)
+        {
 					Vdouble * _dpxy_c_x = & (* _dpxy_c)[x];
-					_dpxy_c_x -> resize(_nbStates);
-					for(unsigned int y = 0; y < _nbStates; y++) {
-						(* _dpxy_c_x)[y] =  rc * dQ(x, y); 
+					_dpxy_c_x->resize(_nbStates);
+					for(unsigned int y = 0; y < _nbStates; y++)
+          {
+						(* _dpxy_c_x)[y] = rc * dQ(x, y); 
 					}
 				}
 			}
 			
 			//Computes all d2pxy/dt2 once for all:
 			_d2pxy.resize(_nbClasses);
-			for(unsigned int c = 0; c < _nbClasses; c++) {
+			for(unsigned int c = 0; c < _nbClasses; c++)
+      {
 				VVdouble * _d2pxy_c = & _d2pxy[c];
-				_d2pxy_c -> resize(_nbStates);
-				double rc =  _rateDistribution -> getCategory(c);
-				RowMatrix<double> d2Q = _model -> getd2Pij_dt2(_brLen * rc);
-				for(unsigned int x = 0; x < _nbStates; x++) {
+				_d2pxy_c->resize(_nbStates);
+				double rc = _rateDistribution->getCategory(c);
+				RowMatrix<double> d2Q = _model->getd2Pij_dt2(_brLen * rc);
+				for(unsigned int x = 0; x < _nbStates; x++)
+        {
 					Vdouble * _d2pxy_c_x = & (* _d2pxy_c)[x];
-					_d2pxy_c_x -> resize(_nbStates);
-					for(unsigned int y = 0; y < _nbStates; y++) {
-						(* _d2pxy_c_x)[y] =  rc * rc * d2Q(x, y);
+					_d2pxy_c_x->resize(_nbStates);
+					for(unsigned int y = 0; y < _nbStates; y++)
+          {
+						(* _d2pxy_c_x)[y] = rc * rc * d2Q(x, y);
 					}
 				}
 			}
@@ -313,7 +380,8 @@ void TwoTreeLikelihood::fireParameterChanged(const ParameterList & params)
 	}
 
 	computeTreeLikelihood();
-	if(_computeDerivatives) {
+	if(_computeDerivatives)
+  {
 		computeTreeDLikelihood();	
 		computeTreeD2Likelihood();
 	}
@@ -567,7 +635,7 @@ void DistanceEstimation::computeMatrix() throw (NullPointerException)
 	for(unsigned int i = 0; i < n; i++)
   {
 		(* _dist)(i, i) = 0;
-		if(_verbose > 0) { cout << "*"; cout.flush(); }
+		if(_verbose > 0) { ApplicationTools::displayGauge(i, n-1, '>'); }
 		for(unsigned int j = i + 1; j < n; j++)
     {
 			if(_verbose > 1) { cout << "."; cout.flush(); }

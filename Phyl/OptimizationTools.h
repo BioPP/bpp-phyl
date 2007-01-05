@@ -43,10 +43,40 @@ knowledge of the CeCILL license and that you accept its terms.
 #include "TreeLikelihood.h"
 #include "HomogeneousTreeLikelihood.h"
 #include "AbstractHomogeneousTreeLikelihood.h"
+#include "NNITopologySearch.h"
 
 // From the STL:
 #include <iostream>
 using namespace std;
+
+/**
+ * @brief Listener used internally by the optimizeTreeNNI method.
+ */
+class NNITopologyListener: public TopologyListener
+{
+  protected:
+    NNITopologySearch * _topoSearch;
+    double _tolerance;
+    ostream *_messenger;
+    ostream *_profiler;
+    unsigned int _verbose;
+    unsigned int _optimizeCounter;
+    unsigned int _optimizeNumerical;
+
+  public:
+    NNITopologyListener(NNITopologySearch * ts, double tolerance, ostream *messenger, ostream *profiler, unsigned int verbose):
+      _topoSearch(ts), _tolerance(tolerance),
+      _messenger(messenger), _profiler(profiler),
+      _verbose(verbose),
+      _optimizeCounter(0), _optimizeNumerical(1) {}
+    virtual ~NNITopologyListener() {}
+
+  public:
+    void topologyChangeTested(const TopologyChangeEvent & event);
+    void topologyChangeSuccessful(const TopologyChangeEvent & event);
+    void setNumericalOptimizationCounter(unsigned int c) { _optimizeNumerical = c; }
+
+};
 
 /**
  * @brief Optimization methods for phylogenetic inference.
@@ -63,7 +93,6 @@ class OptimizationTools
 		virtual ~OptimizationTools();
 	
 	public:
-		
 		
 		/**
 		 * @brief Optimize numerical parameters (branch length, substitution model & rate distribution) of a TreeLikelihood function.
@@ -159,6 +188,12 @@ class OptimizationTools
 			public:
 				ScaleFunction(TreeLikelihood * tl);
 				virtual ~ScaleFunction();
+
+#if defined(VIRTUAL_COV)
+        ScaleFunction * clone() const { return new ScaleFunction(*this); }
+#else
+        Clonable * clone() const { return new ScaleFunction(*this); }
+#endif
 				
 			public:
 				void setParameters(const ParameterList & lambda) throw (ParameterNotFoundException, ConstraintException);
@@ -197,16 +232,59 @@ class OptimizationTools
 		 * @param messageHandler The massage handler.
 		 * @param profiler       The profiler.
 		 * @param verbose        The verbose level.
-		 * @throw Exception any exception thrown by the Optimizer.
+		 * @throw Exception any exception thrown by the optimizer.
 		 */
 		static int optimizeTreeScale(
-			TreeLikelihood * tl,
-			double tolerance = 0.000001,
-			int tlEvalMax = 1000000,
-			ostream * messageHandler = &cout,
-			ostream * profiler       = &cout,
-			unsigned int verbose = 1
-			)	throw (Exception);
+			  TreeLikelihood * tl,
+			  double tolerance = 0.000001,
+			  int tlEvalMax = 1000000,
+			  ostream * messageHandler = &cout,
+			  ostream * profiler       = &cout,
+			  unsigned int verbose = 1)
+      throw (Exception);
+
+    /**
+     * @brief Optimize all parameters from a TreeLikelihood object, including tree topology using Nearest Neighbor Interchanges.
+     *
+     * This function takes as input a TreeLikelihood object implementing the NNISearchable interface.
+     *
+     * Details:
+     * A NNITopologySearch object is instanciated and is associated an additional TopologyListener.
+     * This listener is used to re-estimate numerical parameters after one or several topology change.
+     * By default, the PHYML option is used for the NNITopologySearch object, and numerical parameters are re-estimated
+     * every 4 NNI runs (as in the phyml software).
+     *
+     * The optimizeNumericalParameters method is used for estimating numerical parameters.
+     * The tolerance passed to this function is specified as input parameters.
+     * They are generally very high to avoid local optima.
+     *
+		 * @param tl             A pointer toward the TreeLikelihood object to optimize.
+		 * @param tolBefore      The tolerance to use when estimating numerical parameters before topology search.
+		 * @param tolDuring      The tolerance to use when estimating numerical parameters during the topology search.
+		 * @param tlEvalMax      The maximum number of function evaluations.
+     * @param numStep        Number of NNI rounds before re-estimating numerical parameters.
+		 * @param messageHandler The massage handler.
+		 * @param profiler       The profiler.
+		 * @param verbose        The verbose level.
+     * @return A pointer toward the final likelihood object.
+     * This pointer may be the same as passed in argument (tl), but in some cases the algorithm
+     * clone this object. We may change this bahavior in the future...
+     * You hence should write something like
+     * @code
+     * tl = OptimizationTools::optimizeTreeNNI(tl, ...);
+     * @endcode
+		 * @throw Exception if tl does not implement the NNISearchable interface, and any exception thrown by the optimizer.
+     */
+    static DiscreteRatesAcrossSitesTreeLikelihood * optimizeTreeNNI(
+        DiscreteRatesAcrossSitesTreeLikelihood * tl,
+			  double tolBefore = 100,
+			  double tolDuring = 100,
+			  int tlEvalMax = 1000000,
+        unsigned int numStep = 1,
+			  ostream * messageHandler = &cout,
+			  ostream * profiler       = &cout,
+			  unsigned int verbose = 1)
+      throw (Exception);
 	
 };
 

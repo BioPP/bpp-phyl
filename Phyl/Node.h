@@ -77,7 +77,8 @@ using namespace std;
  * 
  * @see Tree, TreeTemplate
  */
-class Node {
+class Node
+{
       
   protected:
     

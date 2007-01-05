@@ -203,6 +203,7 @@ class PhylogeneticsApplicationTools
 		 * @brief Optimize parameters according to options.
 		 *
 		 * Options used are:
+     * - optimization = Tell if optimization must be performed.
 		 * - optimization.message_handler = [std, file_path]
 		 *   A path to a specific path (existing will be overwritten) or std for use
 		 *   of the standard output.
@@ -213,11 +214,19 @@ class PhylogeneticsApplicationTools
 		 * - optimization.scale_first = Tell if we must scale the tree first.
 		 * - optimization.ignore_parameter = A coma-separated list of parameter
 		 *   names to ignore in the optimizing process.
+     * - optimization.method = [NB|NND] Algorithm to use: Newton-Brent or Newton with Numerical Derivatives.
+     *   This option is only available whent optimization.topology is set to no, otherwise the NB algorithm is used.
+     * - optimization.topology = Tell if we must optimize tree topology as well.
 		 * Options depending on other options:
 		 * - If optimization.scale_first is set to true:
 		 *   - optimization.scale_first.tolerance = The tolerance of the scaling alogrithm.
 		 *   - optimization.scale_first.max_number_f_eval = the maximum number of function evaluations
 		 *     for the scaling algorithm.
+     *   - optimization.method_NB.nstep = number of progressive steps to use in NB algorithm.
+     *   - optimization.topology.algorithm = [nni] algorithm to use (for now, only Nearest Neighbor Interchanges (NNI) are implemented). 
+     *   - optimization.topology.nstep = Estimate numerical parameters every 'n' NNI rounds.
+     *   - optimization.topology.tolerance.before = Numerical parameters estimation prior to topology search.
+     *   - optimization.topology.tolerance.during = Numerical parameters estimation during topology search.
 		 *
 		 * @param tl      The TreeLikelihood function to optimize.
 		 * @param params  The attribute map where options may be found.

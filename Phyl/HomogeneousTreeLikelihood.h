@@ -42,186 +42,11 @@ knowledge of the CeCILL license and that you accept its terms.
 
 #include "AbstractHomogeneousTreeLikelihood.h"
 #include "SubstitutionModel.h"
+#include "DRASRTreeLikelihoodData.h"
 
 // From NumCalc:
 #include <NumCalc/VectorTools.h>
 #include <NumCalc/DiscreteDistribution.h>
-
-// From the STL:
-#include <map>
-
-using namespace std;
-
-/**
- * @brief Likelihood data structure for a node.
- * 
- * This class is for use with the DRASRTreeParsimonyData class.
- * 
- * Store all conditionnal likelihoods:
- * <pre>
- * x[i][c][s]
- *   |---------> Site i
- *      |------> Rate class c
- *         |---> Ancestral state s
- * </pre> 
- * We call this the <i>likelihood array</i> for each node.
- * In the same way, we store first and second order derivatives.
- *
- * @see DRASRTreeLikelihoodData
- */
-class DRASRTreeLikelihoodNodeData :
-	public TreeLikelihoodNodeData
-{
-	protected:
-		mutable VVVdouble _nodeLikelihoods;
-		mutable VVVdouble _nodeDLikelihoods;
-		mutable VVVdouble _nodeD2Likelihoods;
-		const Node * _node;
-
-	public:
-		const Node * getNode() const { return _node; }
-		void setNode(const Node * node) { _node = node; }
-
-		VVVdouble & getLikelihoodArray() { return _nodeLikelihoods; }
-		const VVVdouble & getLikelihoodArray() const { return _nodeLikelihoods; }
-		
-		VVVdouble & getDLikelihoodArray() { return _nodeDLikelihoods; }
-		const VVVdouble & getDLikelihoodArray() const { return _nodeDLikelihoods; }
-
-		VVVdouble & getD2LikelihoodArray() { return _nodeD2Likelihoods; }
-		const VVVdouble & getD2LikelihoodArray() const { return _nodeD2Likelihoods; }
-};
-
-/**
- * @brief discrete Rate Across Sites, (simple) Recursive likelihood data structure.
- */
-class DRASRTreeLikelihoodData :
-	public virtual AbstractTreeLikelihoodData
-{
-	protected:
-
-		/**
-		 * @brief This contains all likelihood values used for computation.
-		 *
-		 */
-		mutable map<const Node *, DRASRTreeLikelihoodNodeData> _nodeData;
-			
-		/**
-		 * @brief This map defines the pattern network.
-		 *
-		 * Let n1 be a node in the tree, and n11 and n12 its sons.
-		 * Providing the likelihood array is known for nodes n11 and n12,
-		 * the likelihood array for node n1 and site <i>i</i> (_likelihood[n1][i]) must be computed	
-		 * using arrays _patternLinks[n1][n11][i] and _patternLinks[n1][n12][i].
-		 * This network is intialized once for all in the constructor of this class.
-		 *
-		 * The double map contains the position of the site to use (second dimension)
-		 * of the likelihoods array.
-		 */
-		mutable map< const Node *, map< const Node *, vector<unsigned int> > > _patternLinks;
-		SiteContainer * _shrunkData;
-		unsigned int _nbSites; 
-		unsigned int _nbStates;
-		unsigned int _nbClasses;
-		unsigned int _nbDistinctSites; 
-
-	public:
-		DRASRTreeLikelihoodData(TreeTemplate<Node> & tree, unsigned int nbClasses) : _nbClasses(nbClasses)
-    {
-      _tree = &tree;
-      _shrunkData = NULL;
-    }
-		virtual ~DRASRTreeLikelihoodData() { delete _shrunkData; }
-
-	public:
-		DRASRTreeLikelihoodNodeData & getNodeData(const Node * node)
-		{ 
-			return _nodeData[node];
-		}
-		const DRASRTreeLikelihoodNodeData & getNodeData(const Node * node) const
-		{ 
-			return _nodeData[node];
-		}
-		unsigned int getArrayPosition(const Node* parent, const Node* son, unsigned int currentPosition) const
-		{
-			return _patternLinks[parent][son][currentPosition];
-		}
-		unsigned int getRootArrayPosition(unsigned int currentPosition) const
-		{
-			return _rootPatternLinks[currentPosition];
-		}
-		const vector<unsigned int> & getArrayPositions(const Node* parent, const Node* son) const
-		{
-			return _patternLinks[parent][son];
-		}
-		vector<unsigned int> & getArrayPositions(const Node* parent, const Node* son)
-		{
-			return _patternLinks[parent][son];
-		}
-		unsigned int getArrayPosition(const Node* parent, const Node* son, unsigned int currentPosition)
-		{
-			return _patternLinks[parent][son][currentPosition];
-		}
-
-
-		VVVdouble & getLikelihoodArray(const Node *node)
-		{
-			return _nodeData[node].getLikelihoodArray();
-		}
-		
-		VVVdouble & getDLikelihoodArray(const Node *node)
-		{
-			return _nodeData[node].getDLikelihoodArray();
-		}
-		
-		VVVdouble & getD2LikelihoodArray(const Node *node)
-		{
-			return _nodeData[node].getD2LikelihoodArray();
-		}
-
-		unsigned int getNumberOfDistinctSites() const { return _nbDistinctSites; }
-		unsigned int getNumberOfSites() const { return _nbSites; }
-		unsigned int getNumberOfStates() const { return _nbStates; }
-		unsigned int getNumberOfClasses() const { return _nbClasses; }
-		
-		void initLikelihoods(const SiteContainer & sites, const SubstitutionModel & model) throw (Exception);
-
-	protected:
-		/**
-		 * @brief This method initializes the leaves according to a sequence file.
-		 * likelihood is set to 1 for the state corresponding to the sequence site,
-		 * otherwise it is set to 0.
-		 *
-		 * All likelihood arrays at each nodes are initialized according to alphabet
-		 * size and sequences length, and filled with 1.
-		 *
-		 * NB: This method is recursive.
-		 *
-		 * @param node      The node defining the subtree to analyse.
-		 * @param sequences The data to be used for initialization.
-     * @param model     The model to use.
-		 */
-		virtual void initLikelihoods(const Node * node, const SiteContainer & sequences, const SubstitutionModel & model) throw (Exception);
-
-		/**
-		 * @brief This method initializes the leaves according to a sequence file.
-		 *
-		 * likelihood is set to 1 for the state corresponding to the sequence site,
-		 * otherwise it is set to 0.
-		 *
-		 * All likelihood arrays at each nodes are initialized according to alphabet
-		 * size and sequences length, and filled with 1.
-		 *
-		 * NB: This method is recursive.
-		 *
-		 * @param node      The node defining the subtree to analyse.
-		 * @param sequences The data to be used for initialization.
-     * @param model     The model to use.
-		 * @return The shrunk sub-dataset for the subtree defined by <i>node</i>.
-		 */
-		virtual SiteContainer * initLikelihoodsWithPatterns(const Node * node, const SiteContainer & sequences, const SubstitutionModel & model) throw (Exception);
-		
-};
 
 /**
  * @brief This class implement the 'traditional' way of computing likelihood for a tree.
@@ -275,7 +100,7 @@ class HomogeneousTreeLikelihood :
      * @throw Exception in an error occured.
      */
 		HomogeneousTreeLikelihood(
-			TreeTemplate<Node> * tree,
+			const Tree & tree,
 			SubstitutionModel * model,
 			DiscreteDistribution * rDist,
       bool checkRooted = true,
@@ -295,7 +120,7 @@ class HomogeneousTreeLikelihood :
      * @throw Exception in an error occured.
      */
 		HomogeneousTreeLikelihood(
-			TreeTemplate<Node> * tree,
+			const Tree & tree,
 			const SiteContainer & data,
 			SubstitutionModel * model,
 			DiscreteDistribution * rDist,
@@ -303,7 +128,17 @@ class HomogeneousTreeLikelihood :
 			bool verbose = true)
 			throw (Exception);
 
+    HomogeneousTreeLikelihood(const HomogeneousTreeLikelihood & lik);
+    
+    HomogeneousTreeLikelihood & operator=(const HomogeneousTreeLikelihood & lik);
+
     virtual ~HomogeneousTreeLikelihood();
+
+#if defined(VIRTUAL_COV)
+    HomogeneousTreeLikelihood * clone() const { return new HomogeneousTreeLikelihood(*this); }
+#else
+    Clonable * clone() const { return new HomogeneousTreeLikelihood(*this); }
+#endif
 	
 	public:
 

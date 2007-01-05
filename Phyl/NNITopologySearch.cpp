@@ -47,9 +47,34 @@ knowledge of the CeCILL license and that you accept its terms.
 #include <NumCalc/VectorTools.h>
 using namespace VectorFunctions;
 
+// From the STL:
+#include <cmath>
+using namespace std;
+
 const string NNITopologySearch::FAST   = "Fast";
 const string NNITopologySearch::BETTER = "Better";
 const string NNITopologySearch::PHYML  = "PhyML";
+
+void NNITopologySearch::notifyAllPerformed(const TopologyChangeEvent & event)
+{
+  _searchableTree->topologyChangePerformed(event);
+  for(unsigned int i = 0; i < _topoListeners.size(); i++)
+    _topoListeners[i]->topologyChangePerformed(event);
+}
+
+void NNITopologySearch::notifyAllTested(const TopologyChangeEvent & event)
+{
+  _searchableTree->topologyChangeTested(event);
+  for(unsigned int i = 0; i < _topoListeners.size(); i++)
+    _topoListeners[i]->topologyChangeTested(event);
+}
+	
+void NNITopologySearch::notifyAllSuccessful(const TopologyChangeEvent & event)
+{
+  _searchableTree->topologyChangeSuccessful(event);
+  for(unsigned int i = 0; i < _topoListeners.size(); i++)
+    _topoListeners[i]->topologyChangeSuccessful(event);
+}
 
 void NNITopologySearch::search() throw (Exception)
 {
@@ -65,39 +90,43 @@ void NNITopologySearch::searchFast() throw (Exception)
 	vector<Node *> nodes = tree->getNodes();
 
 	bool test = true;
-	do { 
-		
+	do
+  { 
 		vector<Node *> nodesSub = nodes;
-		for(unsigned int i = nodesSub.size(); i>0; i--) {// !!! must not reach i==0 because of unsigned int
+		for(unsigned int i = nodesSub.size(); i>0; i--)
+    {// !!! must not reach i==0 because of unsigned int
 			if(!(nodesSub[i-1]->hasFather())) nodesSub.erase(nodesSub.begin()+i-1);//Remove root node.	
 			else if(!(nodesSub[i-1]->getFather()->hasFather())) nodesSub.erase(nodesSub.begin()+i-1);//Remove son of root node.	
 		}
 		
 		// Test all NNIs:
 		test = false;
-		for(unsigned int i = 0; !test && i < nodesSub.size(); i++) {
+		for(unsigned int i = 0; !test && i < nodesSub.size(); i++)
+    {
 			Node * node = nodesSub[i];
-			double diff = _searchableTree->testNNI(node->getFather(), node);
-			if(_verbose >= 2) {
-				ApplicationTools::displayMessage(TextTools::toString(node->getId())
-						                    + "->" + TextTools::toString(node->getFather()->getId())
-																+ ": " + TextTools::toString(diff));
+			double diff = _searchableTree->testNNI(node->getId());
+			if(_verbose >= 2)
+      {
+				ApplicationTools::displayResult("   Testing node " + TextTools::toString(node->getId())
+						                    + " at " + TextTools::toString(node->getFather()->getId()),
+																TextTools::toString(diff));
 			}
 			
-			if(diff < 0.) { //Good NNI found...
-				if(_verbose == 1) {
-					ApplicationTools::displayMessage(TextTools::toString(node->getId())
-							                    + "->" + TextTools::toString(node->getFather()->getId())
-																	+ ": " + TextTools::toString(diff));
+			if(diff < 0.)
+      { //Good NNI found...
+				if(_verbose == 1)
+        {
+					ApplicationTools::displayResult("   Swapping node " + TextTools::toString(node->getId())
+							                    + " at " + TextTools::toString(node->getFather()->getId()),
+																	TextTools::toString(diff));
 				}
-				_searchableTree->doNNI(node->getFather(), node);
+				_searchableTree->doNNI(node->getId());
 				// Notify:
-				_searchableTree->topologyChangePerformed(TopologyChangeEvent());
+				notifyAllPerformed(TopologyChangeEvent());
 				test = true;
 			}
 		}
-		if(_verbose >= 2) ApplicationTools::displayTaskDone();
-		
+		if(_verbose >= 2) ApplicationTools::displayTaskDone();	
 	} while(test);
 }
 
@@ -107,11 +136,13 @@ void NNITopologySearch::searchBetter() throw (Exception)
 	vector<Node *> nodes = tree->getNodes();
 
 	bool test = true;
-	do { 
+	do
+  { 
 		if(_verbose >= 2) ApplicationTools::displayTask("Test all possible NNIs...");
 		
 		vector<Node *> nodesSub = nodes;
-		for(unsigned int i = nodesSub.size(); i>0; i--) {// !!! must not reach i==0 because of unsigned int
+		for(unsigned int i = nodesSub.size(); i>0; i--)
+    {// !!! must not reach i==0 because of unsigned int
 			if(!(nodesSub[i-1]->hasFather())) nodesSub.erase(nodesSub.begin()+i-1);//Remove root node.	
 			else if(!(nodesSub[i-1]->getFather()->hasFather())) nodesSub.erase(nodesSub.begin()+i-1);//Remove son of root node.	
 		}
@@ -120,98 +151,180 @@ void NNITopologySearch::searchBetter() throw (Exception)
 		vector<Node *> improving;
 		vector<double> improvement;
 		if(_verbose >= 2) ApplicationTools::message << endl;
-		for(unsigned int i = 0; i < nodesSub.size(); i++) {
+		for(unsigned int i = 0; i < nodesSub.size(); i++)
+    {
 			Node * node = nodesSub[i];
-			double diff = _searchableTree->testNNI(node->getFather(), node);
-			if(_verbose >= 2) {
-				ApplicationTools::displayMessage(TextTools::toString(node->getId())
-						                    + "->" + TextTools::toString(node->getFather()->getId())
-																+ ": " + TextTools::toString(diff));
+			double diff = _searchableTree->testNNI(node->getId());
+			if(_verbose >= 2)
+      {
+				ApplicationTools::displayResult("   Testing node " + TextTools::toString(node->getId())
+						                    + " at " + TextTools::toString(node->getFather()->getId()),
+																TextTools::toString(diff));
 			}
 			
-			if(diff < 0.) {
+			if(diff < 0.)
+      {
 				improving.push_back(node);
 				improvement.push_back(diff);
 			}
 		}
 		if(_verbose >= 2) ApplicationTools::displayTaskDone();
 		test = improving.size() > 0;
-		if(test) {
+		if(test)
+    {
 			unsigned int nodeMin = posmin(improvement);
 			Node * node = improving[nodeMin];
-			if(_verbose >= 1) {
-				ApplicationTools::displayMessage(TextTools::toString(node->getId()) + ": " + TextTools::toString(improvement[nodeMin]));
+			if(_verbose >= 1)
+      {
+				ApplicationTools::displayResult(string("   Swapping node ") + TextTools::toString(node->getId())
+            + string(" at ") + TextTools::toString(node->getFather()->getId()),
+            TextTools::toString(improvement[nodeMin]));
 			}
-			_searchableTree->doNNI(node->getFather(), node);
+			_searchableTree->doNNI(node->getId());
 			
 			// Notify:
-			_searchableTree->topologyChangePerformed(TopologyChangeEvent());
+			notifyAllPerformed(TopologyChangeEvent());
 		}
-	} while(test);
-	
+	} while(test);	
 }
 
 void NNITopologySearch::searchPhyML() throw (Exception)
 {
-	TreeTemplate<Node> * tree = dynamic_cast<TreeTemplate<Node> *>(_searchableTree->getTree());
-	vector<Node *> nodes = tree->getNodes();
-
 	bool test = true;
-	do { 
+	do
+  { 
 		if(_verbose >= 2) ApplicationTools::displayTask("Test all possible NNIs...");
-		
+	  TreeTemplate<Node> * tree = dynamic_cast<TreeTemplate<Node> *>(_searchableTree->getTree());
+	  vector<Node *> nodes = tree->getNodes();
 		vector<Node *> nodesSub = nodes;
-		for(unsigned int i = nodesSub.size(); i>0; i--) {// !!! must not reach i==0 because of unsigned int
+		for(unsigned int i = nodesSub.size(); i > 0; i--)
+    {// !!! must not reach i==0 because of unsigned int
 			if(!(nodesSub[i-1]->hasFather())) nodesSub.erase(nodesSub.begin()+i-1);//Remove root node.	
 			else if(!(nodesSub[i-1]->getFather()->hasFather())) nodesSub.erase(nodesSub.begin()+i-1);//Remove son of root node.	
 		}
 		
 		// Test all NNIs:
-		vector<Node *> improving;
+		vector<int> improving;
+		vector<Node *> improvingNodes;
 		vector<double> improvement;
 		if(_verbose >= 2) ApplicationTools::message << endl;
-		for(unsigned int i = 0; i < nodesSub.size(); i++) {
+		for(unsigned int i = 0; i < nodesSub.size(); i++)
+    {
 			Node * node = nodesSub[i];
-			double diff = _searchableTree->testNNI(node->getFather(), node);
-			if(_verbose >= 2) {
-				ApplicationTools::displayMessage(TextTools::toString(node->getId())
-						                    + "->" + TextTools::toString(node->getFather()->getId())
-																+ ": " + TextTools::toString(diff));
+			double diff = _searchableTree->testNNI(node->getId());
+			if(_verbose >= 2)
+      {
+				ApplicationTools::displayResult("   Testing node " + TextTools::toString(node->getId())
+						                    + " at " + TextTools::toString(node->getFather()->getId()),
+																TextTools::toString(diff));
 			}
 			
-			if(diff < 0.) {
-				// Must test for brother NNIs...
+			if(diff < 0.)
+      {
 				bool ok = true;
-				for(unsigned int j = 0; j < improving.size(); j++) {
-					if(improving[j]->getFather() == node->getFather()) {
-						//These are brother NNIs. We only keep the best:
-						if(diff < improvement[j]) { //Replace node
-							improving[j] = node;
-							improvement[j] = diff;
-						} //Otherwise forget about this NNI.
-						ok = false;
+				// Must test for incompatible NNIs...
+				for(unsigned int j = improving.size(); j > 0; j--)
+        {
+ 					if(improvingNodes[j-1]->getFather()->getId() == node->getFather()->getId()
+ 					|| improvingNodes[j-1]->getFather()->getFather()->getId() == node->getFather()->getFather()->getId()
+          || improvingNodes[j-1]->getId() == node->getFather()->getId()                           || improvingNodes[j-1]->getFather()->getId() == node->getId()
+ 					|| improvingNodes[j-1]->getId() == node->getFather()->getFather()->getId()              || improvingNodes[j-1]->getFather()->getFather()->getId() == node->getId()
+          || improvingNodes[j-1]->getFather()->getId() == node->getFather()->getFather()->getId() || improvingNodes[j-1]->getFather()->getFather()->getId() == node->getFather()->getId())
+          {
+						//These are incompatible NNIs. We only keep the best:
+						if(diff < improvement[j-1])
+            { //Erase previous node
+              improvingNodes.erase(improvingNodes.begin() + j - 1);
+              improving.erase(improving.begin() + j - 1);
+              improvement.erase(improvement.begin() + j - 1);
+            } //Otherwise forget about this NNI.
+            else 
+            {
+              ok = false;
+            }
 					}
 				}
-				if(ok) {//No brother NNI found. We add this NNI to the list.
-					improving.push_back(node);
-					improvement.push_back(diff);
-				}
+				if(ok)
+        { //We add this NNI to the list,
+          //by decreasing improvement:
+          unsigned int pos = improvement.size();
+          for(unsigned int j = 0; j < improvement.size(); j++)
+					  if(diff < improvement[j]) { pos = j; break; }
+          if(pos < improvement.size())
+          {
+            improvingNodes.insert(improvingNodes.begin() + pos, node);
+            improving.insert(improving.begin() + pos, node->getId());
+					  improvement.insert(improvement.begin() + pos, diff);
+          }
+          else
+          {
+            improvingNodes.insert(improvingNodes.end(), node);
+            improving.insert(improving.end(), node->getId());
+					  improvement.insert(improvement.end(), diff);
+          }
+        }
 			}
 		}
+    //This array is no more useful.
+    //Moreover, if a backward movement is performed,
+    //the underlying node will not exist anymore...
+    improvingNodes.clear();
 		if(_verbose >= 2) ApplicationTools::displayTaskDone();
 		test = improving.size() > 0;
-		if(_verbose >= 1 && test)
-			ApplicationTools::displayMessage(TextTools::toString<unsigned int>(improving.size())+" rearrangements:");
-		for(unsigned int i = 0; i < improving.size(); i++) {
-			Node * node = improving[i];
-			if(_verbose >= 1) {
-				ApplicationTools::displayMessage("\t" + TextTools::toString(node->getId()) + ": " + TextTools::toString(improvement[i]));
-			}
-			_searchableTree->doNNI(node->getFather(), node);
-		}
+		if(test)
+    {
+      double currentValue = _searchableTree->getValue();
+      //ApplicationTools::displayResult("Current value1: -lnL=", TextTools::toString(currentValue,10));
+      bool test2 = true;
+      //Make a backup copy:
+      NNISearchable * backup = dynamic_cast<NNISearchable *>(_searchableTree->clone());
+      do
+      {
+        //ApplicationTools::displayResult("Current value (before NNI): -lnL=", TextTools::toString(_searchableTree->getValue(),10));
+        //ApplicationTools::displayResult("Current backup value (before NNI): -lnL=", TextTools::toString(backup->getValue(),10));
+        if(_verbose >= 1) ApplicationTools::displayMessage("Trying to perform " + TextTools::toString(improving.size()) + " NNI(s).");
+        for(unsigned int i = 0; i < improving.size(); i++)
+        {
+			    int nodeId = improving[i];
+			    if(_verbose >= 1)
+          {
+				    ApplicationTools::displayResult(string("   Swapping node ") + TextTools::toString(nodeId)
+                + string(" at ") + TextTools::toString(_searchableTree->getTree()->getFatherId(nodeId)),
+                TextTools::toString(improvement[i]));
+			    }
+			    _searchableTree->doNNI(nodeId);
+		    }
 		
-		// Notify:
-		_searchableTree->topologyChangePerformed(TopologyChangeEvent());
-	} while(test);
+		    // Notify:
+		    notifyAllTested(TopologyChangeEvent());
+        if(_verbose >= 1)
+          ApplicationTools::displayResult("   Current value: -ln(lk)=", TextTools::toString(_searchableTree->getValue(),10));
+        if(_searchableTree->getValue() > currentValue)
+        {
+          //No improvement!
+			    if(_verbose >= 1)
+          {
+				    ApplicationTools::displayMessage("Likelihood decreases! Moving backward...");
+			    }
+          //Restore backup:
+          delete _searchableTree;
+          _searchableTree = dynamic_cast<NNISearchable *>(backup->clone());
+          //And try doing half of the movements:
+          unsigned int n = (unsigned int)ceil((double)improving.size() / 2.);
+          improving.erase(improving.begin() + n, improving.end());
+          improvement.erase(improvement.begin() + n, improvement.end());
+        }
+        else
+        {
+          test2 = false;
+          delete backup;
+        }
+      }
+      while(test2);
+		  // Notify:
+		  notifyAllSuccessful(TopologyChangeEvent());
+    }
+	}
+  while(test);
 }
 

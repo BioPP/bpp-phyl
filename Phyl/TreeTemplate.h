@@ -81,7 +81,7 @@ using namespace std;
  * @see TreeTools
  */
 template<class N>
-class TreeTemplate: public virtual Tree
+class TreeTemplate: public Tree
 {
 	/**
 	 * Fields:
@@ -115,15 +115,20 @@ class TreeTemplate: public virtual Tree
 		TreeTemplate<N> & operator=(const TreeTemplate<N> & t)
 		{
 			//Perform a hard copy of the nodes:
-			_root = TreeTemplateTools::cloneSubtree<N>(* t.getRootNode());
+			if(_root) { destroySubtree(_root); delete _root; }
+      _root = TreeTemplateTools::cloneSubtree<N>(* t.getRootNode());
+      _name = t._name;
+      _nextNodeId = t._nextNodeId;
     	return *this;
 		}
 
 		virtual ~TreeTemplate()
     {
-      destroyNode(* _root);
+      destroySubtree(* _root);
       delete _root;
     }
+
+    TreeTemplate<N> * clone() const { return new TreeTemplate<N>(*this); }
 			
 	/**
 	 * Methods:
@@ -412,12 +417,12 @@ class TreeTemplate: public virtual Tree
 		
 	protected:
 		
-		virtual void destroyNode(const N & node)
+		virtual void destroySubtree(const N & node)
 		{
 			for(unsigned int i = 0; i < node.getNumberOfSons(); i++)
       {
 				const N * son = node.getSon(i);
-				destroyNode(* son);
+				destroySubtree(* son);
 				delete son;
 			}
 		}

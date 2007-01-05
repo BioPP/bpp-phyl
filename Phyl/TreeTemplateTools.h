@@ -44,6 +44,12 @@ knowledge of the CeCILL license and that you accept its terms.
 
 #include "TreeTools.h"
 
+//From the STL:
+#include <vector>
+using namespace std;
+
+template<class N> class TreeTemplate;
+
 /**
  * @brief Utilitary methods working with TreeTemplate and Node objects.
  *

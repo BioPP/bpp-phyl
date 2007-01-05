@@ -5,7 +5,7 @@
 //
 
 /*
-Copyright or © or Copr. CNRS, (November 16, 2004)
+Copyright or Â© or Copr. CNRS, (November 16, 2004)
 
 This software is a computer program whose purpose is to provide classes
 for phylogenetic data analysis.
@@ -48,24 +48,25 @@ knowledge of the CeCILL license and that you accept its terms.
  *
  * This class provides a pointer toward a single substitution model + several utilitary variables.
  */
-class AbstractHomogeneousTreeLikelihood: public virtual AbstractDiscreteRatesAcrossSitesTreeLikelihood
+class AbstractHomogeneousTreeLikelihood:
+  public virtual AbstractDiscreteRatesAcrossSitesTreeLikelihood
 {
 	protected:
 		SubstitutionModel * _model;
 		ParameterList _brLenParameters;
 		
-		mutable map<const Node *, VVVdouble> _pxy;
+		mutable map<int, VVVdouble> _pxy;
 
-		mutable map<const Node *, VVVdouble> _dpxy;
+		mutable map<int, VVVdouble> _dpxy;
 
-		mutable map<const Node *, VVVdouble> _d2pxy;
+		mutable map<int, VVVdouble> _d2pxy;
 				
 		/**
 		 * @brief Pointer toward all nodes in the tree.
 		 *
 		 * The order of the nodes in the vector if the order of the named branches.
 		 */
-		 vector<Node *> _nodes;
+		vector<Node *> _nodes;
 
 		//some values we'll need:
 		unsigned int _nbSites,         //the number of sites in the container
@@ -81,13 +82,27 @@ class AbstractHomogeneousTreeLikelihood: public virtual AbstractDiscreteRatesAcr
 
 	public:
 		AbstractHomogeneousTreeLikelihood(
-			TreeTemplate<Node> * tree,
+			const Tree & tree,
 			SubstitutionModel * model,
 			DiscreteDistribution * rDist,
       bool checkRooted = true,
 			bool verbose = true
 			)	throw (Exception);
 
+    /**
+     * @brief Copy constructor
+     *
+     * This constructor is to be called by the derived class copy constructor.
+     */
+    AbstractHomogeneousTreeLikelihood(const AbstractHomogeneousTreeLikelihood & lik);
+    
+    /**
+     * @brief Assignation operator
+     *
+     * This operator is to be called by the derived class operator.
+     */
+    AbstractHomogeneousTreeLikelihood & operator=(const AbstractHomogeneousTreeLikelihood & lik);
+ 
 		virtual ~AbstractHomogeneousTreeLikelihood();
 		
 	public:
@@ -150,16 +165,20 @@ class AbstractHomogeneousTreeLikelihood: public virtual AbstractDiscreteRatesAcr
       _minimumBrLen = minimum;
       if(_brLenConstraint != NULL) delete _brLenConstraint;
       _brLenConstraint = new IncludingPositiveReal(_minimumBrLen);
-      initBranchLengthsParameters();
+      initParameters();
     }
 
     double getMinimumBranchLength() const { return _minimumBrLen; }
 
   protected:
     /**
-     * @brief Fill the _pxy, _dpxy and _d2pxy arrays.
+     * @brief Fill the _pxy, _dpxy and _d2pxy arrays for all nodes.
      */
     void computeAllTransitionProbabilities();
+    /**
+     * @brief Fill the _pxy, _dpxy and _d2pxy arrays for one node.
+     */
+    void computeTransitionProbabilitiesForNode(const Node * node);
 
 };
 

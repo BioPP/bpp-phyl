@@ -140,7 +140,7 @@ ProbabilisticSubstitutionMapping * SubstitutionMappingTools::computeSubstitution
       delete nijt;
 		}
 		
-		map<const Node *, VVVdouble> * likelihoodsFather = & drhtl.getLikelihoodData()->getLikelihoodArrays(father);
+		map<int, VVVdouble> * likelihoodsFather = & drhtl.getLikelihoodData()->getLikelihoodArrays(father);
 
 		// Now we've got to compute likelihoods in a smart manner... ;)
 
@@ -165,12 +165,12 @@ ProbabilisticSubstitutionMapping * SubstitutionMappingTools::computeSubstitution
 		unsigned int nbSons =  father->getNumberOfSons();
 		for(unsigned int n = 0; n < nbSons; n++)
     {
-			const Node * currentSon = father -> getSon(n);
+			const Node * currentSon = father->getSon(n);
 			
-			if(currentSon -> getId() != currentNode -> getId())
+			if(currentSon->getId() != currentNode->getId())
       {
 				VVVdouble pxy = drhtl.getTransitionProbabilitiesForNode(currentSon);
-				VVVdouble * likelihoodsFather_son = & (* likelihoodsFather)[currentSon];
+				VVVdouble * likelihoodsFather_son = & (* likelihoodsFather)[currentSon->getId()];
 				for(unsigned int i = 0; i < nbDistinctSites; i++)
         {
 					VVdouble * likelihoodsFather_son_i = & (* likelihoodsFather_son)[i];
@@ -198,7 +198,7 @@ ProbabilisticSubstitutionMapping * SubstitutionMappingTools::computeSubstitution
     {
 			const Node * currentSon = father->getFather();
 			VVVdouble pxy = drhtl.getTransitionProbabilitiesForNode(father);
-			VVVdouble * likelihoodsFather_son = & (* likelihoodsFather)[currentSon];
+			VVVdouble * likelihoodsFather_son = & (* likelihoodsFather)[currentSon->getId()];
 			for(unsigned int i = 0; i < nbDistinctSites; i++)
       {
 				VVdouble * likelihoodsFather_son_i = & (* likelihoodsFather_son)[i];
@@ -226,7 +226,7 @@ ProbabilisticSubstitutionMapping * SubstitutionMappingTools::computeSubstitution
 		// We first average uppon 'y' to save computations, and then uppon 'x'.
 		// ('y' is the state at 'node' and 'x' the state at 'father'.)
 		const VVVdouble * pxy = & drhtl.getTransitionProbabilitiesForNode(currentNode);
-		VVVdouble * likelihoodsFather_node = & (* likelihoodsFather)[currentNode];
+		VVVdouble * likelihoodsFather_node = & (* likelihoodsFather)[currentNode->getId()];
 		for(unsigned int i = 0; i < nbDistinctSites; i++)
     {
 			VVdouble * likelihoodsFather_node_i = & (* likelihoodsFather_node)[i];
@@ -281,7 +281,7 @@ ProbabilisticSubstitutionMapping * SubstitutionMappingTools::computeSubstitution
 	const SubstitutionCount & substitutionCount,
 	bool verbose)
 {
-	//Preamble:i
+	//Preamble:
 																   
 	//A few variables we'll need:
 	const TreeTemplate<Node> *    tree = dynamic_cast<TreeTemplate<Node> *>(drhtl.getTree());
@@ -339,7 +339,7 @@ ProbabilisticSubstitutionMapping * SubstitutionMappingTools::computeSubstitution
       delete nijt;
 		}
 		
-		map<const Node *, VVVdouble> likelihoodsFather = drhtl.getLikelihoodData()->getLikelihoodArrays(father);
+		map<int, VVVdouble> likelihoodsFather = drhtl.getLikelihoodData()->getLikelihoodArrays(father);
 
 		// Now we've got to compute likelihoods in a smart manner... ;)
 
@@ -369,7 +369,7 @@ ProbabilisticSubstitutionMapping * SubstitutionMappingTools::computeSubstitution
 			if(currentSon->getId() != currentNode->getId())
       {
 				VVVdouble pxy = drhtl.getTransitionProbabilitiesForNode(currentSon);
-				VVVdouble * likelihoodsFather_son = & likelihoodsFather[currentSon];
+				VVVdouble * likelihoodsFather_son = & likelihoodsFather[currentSon->getId()];
 				for(unsigned int i = 0; i < nbDistinctSites; i++)
         {
 					VVdouble * likelihoodsFather_son_i = & (* likelihoodsFather_son)[i];
@@ -395,9 +395,9 @@ ProbabilisticSubstitutionMapping * SubstitutionMappingTools::computeSubstitution
 		}
 		if(father -> hasFather())
     {
-			const Node * currentSon = father -> getFather();
+			const Node * currentSon = father->getFather();
 			VVVdouble pxy = drhtl.getTransitionProbabilitiesForNode(father);
-			VVVdouble * likelihoodsFather_son = & likelihoodsFather[currentSon];
+			VVVdouble * likelihoodsFather_son = & likelihoodsFather[currentSon->getId()];
 			for(unsigned int i = 0; i < nbDistinctSites; i++)
       {
 				VVdouble * likelihoodsFather_son_i = & (* likelihoodsFather_son)[i];
@@ -425,7 +425,7 @@ ProbabilisticSubstitutionMapping * SubstitutionMappingTools::computeSubstitution
 		// We first average uppon 'y' to save computations, and then uppon 'x'.
 		// ('y' is the state at 'node' and 'x' the state at 'father'.)
 		VVVdouble pxy = drhtl.getTransitionProbabilitiesForNode(currentNode);
-		VVVdouble * likelihoodsFather_node = & likelihoodsFather[currentNode];
+		VVVdouble * likelihoodsFather_node = & likelihoodsFather[currentNode->getId()];
 		for(unsigned int i = 0; i < nbDistinctSites; i++)
     {
 			VVdouble * likelihoodsFather_node_i = & (* likelihoodsFather_node)[i];

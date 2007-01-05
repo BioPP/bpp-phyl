@@ -49,6 +49,10 @@ NodeTemplate.h\
 Tree.h\
 TreeTemplate.h\
 TreeLikelihood.h\
+TreeLikelihoodData.h\
+AbstractTreeLikelihoodData.h\
+DRASRTreeLikelihoodData.h\
+DRASDRTreeLikelihoodData.h\
 TreeTools.h\
 TreeTemplateTools.h\
 DiscreteRatesAcrossSitesTreeLikelihood.h\
@@ -93,7 +97,9 @@ DSO78.cpp\
 PseudoNewtonOptimizer.cpp\
 HKY85.cpp\
 HomogeneousTreeLikelihood.cpp\
+DRASRTreeLikelihoodData.cpp\
 DRHomogeneousTreeLikelihood.cpp\
+DRASDRTreeLikelihoodData.cpp\
 DRTreeLikelihoodTools.cpp\
 JCnuc.cpp\
 JCprot.cpp\

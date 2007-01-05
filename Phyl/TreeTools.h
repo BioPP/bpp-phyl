@@ -44,7 +44,6 @@ knowledge of the CeCILL license and that you accept its terms.
 #include "Node.h"
 #include "DistanceMatrix.h"
 #include "Tree.h"
-template<class N> class TreeTemplate;
 
 // From Utils:
 #include <Utils/Exceptions.h>

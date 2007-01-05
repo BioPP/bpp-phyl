@@ -121,7 +121,6 @@ double MarkovModulatedSubstitutionModel::getInitValue(int i, int state) const th
 	if(state < 0 || !_model->getAlphabet()->isIntInAlphabet(state)) throw BadIntException(state, "MarkovModulatedSubstitutionModel::getInitValue. Character " + _model->getAlphabet()->intToChar(state) + " is not allowed in model.");
 	vector<int> states = _model->getAlphabet()->getAlias(state);
   int x = i % _nbStates;
-  int y = i / _nbStates;
 	for(unsigned int j = 0; j < states.size(); j++) if(x == states[j]) return 1.;
 	return 0.;
 }

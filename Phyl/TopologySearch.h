@@ -49,6 +49,77 @@ knowledge of the CeCILL license and that you accept its terms.
 using namespace std;
 
 /**
+ * @brief Class for notifying new toplogy change events.
+ */
+class TopologyChangeEvent
+{
+	protected:
+		string _message;
+		
+	public:
+		TopologyChangeEvent(): _message("") {}
+		TopologyChangeEvent(const string & message): _message(message) {}
+		virtual ~TopologyChangeEvent() {}
+
+	public:
+		/**
+		 * @brief Get the message associated to this event.
+		 *
+		 * @return The message associated to this event.
+		 */
+		virtual string getMessage() const { return _message; }
+
+};
+
+
+
+/**
+ * @brief Implement this interface to be notified when the topology of a tree
+ * has changed during topology search.
+ */
+class TopologyListener
+{
+  public:
+    TopologyListener() {}
+    virtual ~TopologyListener() {}
+
+  public:
+		/**
+		 * @brief Notify a topology change event.
+		 *
+		 * This method is to be invoked after one or several NNI are performed.
+		 * It allows appropriate recomputations.
+     *
+     * In most case, this is the same as
+     * topologyChangeTested() + topologyChangeSuccessful().
+		 *
+		 * @param event The topology change event.
+		 */
+    virtual void topologyChangePerformed(const TopologyChangeEvent & event)
+    {
+      topologyChangeTested(event);
+      topologyChangeSuccessful(event);
+    }
+		/**
+		 * @brief Notify a topology change event.
+		 *
+		 * @param event The topology change event.
+		 */
+    virtual void topologyChangeTested(const TopologyChangeEvent & event) = 0;
+
+    /**
+     * @brief Tell that a topology change is definitive.
+     *
+     * This method is called after the topologyChangeTested() method.
+     *
+		 * @param event The topology change event.
+     */
+    virtual void topologyChangeSuccessful(const TopologyChangeEvent & event) = 0;
+};
+
+
+
+/**
  * @brief Interface for topology search methods.
  */
 class TopologySearch
@@ -63,9 +134,14 @@ class TopologySearch
 		 * @brief Performs the search.
 		 */
 		virtual void search() throw (Exception) = 0;
-			
-};
 
+    /**
+     * @brief Add a topology listener to this class.
+     *
+     * TopologyListeners will be notified when the topology of the tree is modified. 
+     */
+    virtual void addTopologyListener(TopologyListener & listener) = 0;			
+};
 
 #endif //_TOPOLOGYSEARCH_H_
 

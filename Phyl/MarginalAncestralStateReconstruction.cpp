@@ -73,19 +73,20 @@ map<const Node *, vector<int> > MarginalAncestralStateReconstruction::getAllAnce
 {
 	map<const Node *, vector<int> > ancestors;
 	// Clone the data into a AlignedSequenceContainer for more efficiency:
-	AlignedSequenceContainer * data = new AlignedSequenceContainer(* _likelihood -> getLikelihoodData() -> getShrunkData());
-	recursiveMarginalAncestralStates(dynamic_cast<TreeTemplate<Node> *>(_likelihood -> getTree()) -> getRootNode(), ancestors, *data);
+	AlignedSequenceContainer * data = new AlignedSequenceContainer(* _likelihood->getLikelihoodData()->getShrunkData());
+	recursiveMarginalAncestralStates(dynamic_cast<const TreeTemplate<Node> *>(_likelihood->getTree())->getRootNode(), ancestors, *data);
 	delete data;
 	return ancestors;
 }
 
 Sequence * MarginalAncestralStateReconstruction::getAncestralSequenceForNode(const Node * node) const
 {
-	string name = node -> hasName() ? node -> getName() : "" + node -> getId();
+	string name = node->hasName() ? node->getName() : "" + node->getId();
 	vector<int> states = getAncestralStatesForNode(node);
 	vector<int> allStates(_nSites);
-	const vector<unsigned int> * rootPatternLinks = &_likelihood -> getLikelihoodData() -> getRootArrayPositions();
-	for(unsigned int i = 0; i < _nSites; i++) {
+	const vector<unsigned int> * rootPatternLinks = &_likelihood->getLikelihoodData()->getRootArrayPositions();
+	for(unsigned int i = 0; i < _nSites; i++)
+  {
 		allStates[i] = states[(* rootPatternLinks)[i]];
 	}
 	return new Sequence(name, allStates, _alphabet);
@@ -96,12 +97,16 @@ void MarginalAncestralStateReconstruction::recursiveMarginalAncestralStates(
 			map<const Node *, vector<int> > & ancestors,
 			AlignedSequenceContainer & data) const
 {
-	if(node -> isLeaf()) {
-		ancestors[node] = data.getSequence(node -> getName()) -> getContent();
-	} else {
+	if(node->isLeaf())
+  {
+		ancestors[node] = data.getSequence(node->getName())->getContent();
+	}
+  else
+  {
 		ancestors[node] = getAncestralStatesForNode(node);
-		for(unsigned int i = 0; i < node -> getNumberOfSons(); i++) {
-			recursiveMarginalAncestralStates(node -> getSon(i), ancestors, data);
+		for(unsigned int i = 0; i < node->getNumberOfSons(); i++)
+    {
+			recursiveMarginalAncestralStates(node->getSon(i), ancestors, data);
 		}
 	}
 }

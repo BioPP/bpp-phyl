@@ -311,6 +311,8 @@ class DRTreeParsimonyScore :
 		 *
 		 * @{
 		 */
+    double getValue() const throw (Exception) { return getScore(); }
+
 		double testNNI(const Node * parent, const Node * son) const throw (NodeException);
 
 		void doNNI(Node * parent, Node * son) throw (NodeException);

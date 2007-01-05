@@ -64,7 +64,11 @@ class TreeLikelihood: public virtual DerivableSecondOrder
 	public:
     TreeLikelihood() {}
 		virtual ~TreeLikelihood() {}
-	
+
+#if defined(VIRTUAL_COV)
+    TreeLikelihood * clone() const = 0;
+#endif
+
 	public:
 
     /**
@@ -162,7 +166,7 @@ class TreeLikelihood: public virtual DerivableSecondOrder
 		 *
 		 * @return The tree of this TreeLikelihood object.
 	 	 */
-		virtual Tree * getTree() const = 0;
+		virtual const Tree * getTree() const = 0;
 
 		/**
 		 * @brief Get the number of sites in the dataset.
@@ -222,7 +226,6 @@ class TreeLikelihood: public virtual DerivableSecondOrder
 		virtual bool computeDerivatives() const = 0;
 
 };
-
 
 #endif	//_TREELIKELIHOOD_H_
 

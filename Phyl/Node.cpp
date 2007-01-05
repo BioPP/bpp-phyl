@@ -66,12 +66,18 @@ Node::Node(const Node & node)
 Node & Node::operator=(const Node & node)
 {
   _id               = node._id;
+  if(_name) delete _name;
   _name             = node.hasName() ? new string(* node._name) : NULL;
   _father           = node._father;
+  if(_distanceToFather) delete _distanceToFather;
   _distanceToFather = node.hasDistanceToFather() ? new double(* node._distanceToFather) : NULL;
   _sons             = node._sons;
   for(map<string, Clonable *>::iterator i = node._properties.begin(); i != node._properties.end(); i++)
+  {
+    Clonable * p = _properties[i->first];
+    if(p) delete p;
     _properties[i->first] = i->second->clone();
+  }
   return * this;
 }
       

@@ -49,7 +49,7 @@ knowledge of the CeCILL license and that you accept its terms.
  * Several algorithm are implemented:
  * - Fast algorithm: loop over all nodes, check all NNIs and perform the corresponding change if it improve the score.
  *   When a NNI is done, reloop from the first node without checking the remaining ones.
- * - Better algortihm: loop over all nodes, check all NNIS.
+ * - Better algorithm: loop over all nodes, check all NNIS.
  *   Then choose the NNI corresponding to the best improvement and perform it.
  *   Then re-loop over all nodes.
  * - PhyML algorithm (not fully tested, use with care): as the previous one, but perform all NNI improving the score at the same time.
@@ -66,13 +66,27 @@ class NNITopologySearch : public virtual TopologySearch
 		NNISearchable * _searchableTree;
 		string _algorithm;
 		unsigned int _verbose;
+    vector<TopologyListener *> _topoListeners;
 		
 	public:
-		NNITopologySearch(NNISearchable & tree, const string & algorithm = FAST, unsigned int verbose=2): _searchableTree(&tree), _algorithm(algorithm), _verbose(verbose) {}
+		NNITopologySearch(NNISearchable & tree, const string & algorithm = FAST, unsigned int verbose = 2):
+      _searchableTree(&tree), _algorithm(algorithm), _verbose(verbose) {}
+
 		virtual ~NNITopologySearch() {}
 
 	public:
 		void search() throw (Exception);
+    
+    /**
+     * @brief Add a listener to the list.
+     *
+     * All listeners will be notified in the order of the list.
+     * The first listener to be notified is the NNISearchable object itself.
+     */
+    void addTopologyListener(TopologyListener & listener)
+    {
+      _topoListeners.push_back(&listener);
+    }
 
 	public:
 		/**
@@ -89,10 +103,32 @@ class NNITopologySearch : public virtual TopologySearch
 		 */
 		Tree * getTree() { return _searchableTree->getTree(); }
 
+    /**
+     * @return The NNISearchable object associated to this instance.
+     */
+    NNISearchable * getSearchableObject() { return _searchableTree; }
+    /**
+     * @return The NNISearchable object associated to this instance.
+     */
+    const NNISearchable * getSearchableObject() const { return _searchableTree; }
+
 	protected:
-		void searchFast() throw (Exception);
+		void searchFast()   throw (Exception);
 		void searchBetter() throw (Exception);
-		void searchPhyML() throw (Exception);
+		void searchPhyML()  throw (Exception);
+
+    /**
+     * @brief Process a TopologyChangeEvent to all listeners.
+     */
+    void notifyAllPerformed(const TopologyChangeEvent & event);
+    /**
+     * @brief Process a TopologyChangeEvent to all listeners.
+     */
+    void notifyAllTested(const TopologyChangeEvent & event);
+    /**
+     * @brief Process a TopologyChangeEvent to all listeners.
+     */
+    void notifyAllSuccessful(const TopologyChangeEvent & event);
 		
 };
 

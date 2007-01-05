@@ -57,12 +57,16 @@ using namespace std;
  * @brief Interface for phylogenetic tree objects.
  * 
  */
-class Tree {
+class Tree:
+  public Clonable
+{
 
 	public: // Constructors and destructor:
 		
 		Tree() {}
 		virtual ~Tree() {}
+
+    Tree * clone() const = 0;
 
 	public:
 		

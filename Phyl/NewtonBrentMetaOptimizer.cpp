@@ -47,7 +47,7 @@ NewtonBrentMetaOptimizer::NewtonBrentMetaOptimizer(DiscreteRatesAcrossSitesTreeL
   AbstractOptimizer(tl)
 {
   _defaultStopCondition = new FunctionStopCondition(this);
-  _stopCondition = _defaultStopCondition;
+  _stopCondition = _defaultStopCondition->clone();
   _newtonOptimizer = NULL;
   _brentOptimizer = NULL;
   _n = n;
@@ -57,12 +57,46 @@ NewtonBrentMetaOptimizer::NewtonBrentMetaOptimizer(DiscreteRatesAcrossSitesTreeL
 
 /**************************************************************************/
 
+NewtonBrentMetaOptimizer::NewtonBrentMetaOptimizer(
+    const NewtonBrentMetaOptimizer & opt):
+  AbstractOptimizer(opt)
+{
+  _newtonParameters   = opt._newtonParameters;
+  _brentParameters    = opt._brentParameters;
+  _newtonOptimizer    = opt._newtonOptimizer->clone();
+  _brentOptimizer     = opt._brentOptimizer->clone();
+  _nbNewtonParameters = opt._nbNewtonParameters;
+  _nbBrentParameters  = opt._nbBrentParameters;
+  _n                  = opt._n;
+  _precisionStep      = opt._precisionStep;
+  _stepCount          = opt._stepCount;
+}
+
+/**************************************************************************/
+
+NewtonBrentMetaOptimizer & NewtonBrentMetaOptimizer::operator=(
+    const NewtonBrentMetaOptimizer & opt)
+{
+  AbstractOptimizer::operator=(opt);
+  _newtonParameters   = opt._newtonParameters;
+  _brentParameters    = opt._brentParameters;
+  _newtonOptimizer    = opt._newtonOptimizer->clone();
+  _brentOptimizer     = opt._brentOptimizer->clone();
+  _nbNewtonParameters = opt._nbNewtonParameters;
+  _nbBrentParameters  = opt._nbBrentParameters;
+  _n                  = opt._n;
+  _precisionStep      = opt._precisionStep;
+  _stepCount          = opt._stepCount;
+  return *this;
+}
+
+/**************************************************************************/
+
 NewtonBrentMetaOptimizer::~NewtonBrentMetaOptimizer()
 {
   // Delete all optimizers:
   delete _newtonOptimizer;
   delete _brentOptimizer;
-  delete _defaultStopCondition;
 }
 
 /**************************************************************************/

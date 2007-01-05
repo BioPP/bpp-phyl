@@ -1,3 +1,15 @@
+03/01/07 Julien Dutheil
+* --enable-virtual-cov option in configure script is now set by default.
+* The Tree interface inherits from Clonable.
+* TreeLikelihood and TreeParsimonyScore now implement the Clonable interface.
+* Use node ids instead of node pointers in all Data structure (likelihood and
+		parsimony).
+* NNISearchable interface rewritten, now use nodes id instead of pointers.
+  It now also inherits from Clonable and a new method getValue() was added.
+* PhyML option in NNITopologySearch now properly implemented (check if
+		multiple NNI really improve score).
+* DRHomogeneousTreeLikelihood now implements the NNISearchable interface!
+
 24/11/06 Julien Dutheil
 * HomogeneousSiteSimulator now properly inherits from SequenceSimulator interface.
 * New continuous rate simulation option in HomogeneousSiteSimulator.

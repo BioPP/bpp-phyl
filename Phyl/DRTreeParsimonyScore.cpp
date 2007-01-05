@@ -56,18 +56,18 @@ using namespace VectorFunctions;
 
 void DRTreeParsimonyData::init(const SiteContainer & sites) throw (Exception)
 {
-	_nbStates = sites.getAlphabet() -> getSize();
+	_nbStates = sites.getAlphabet()->getSize();
  	_nbSites  = sites.getNumberOfSites();
 	SitePatterns pattern(sites);
 	_shrunkData = pattern.getSites();
 	_rootWeights = pattern.getWeights();
 	_rootPatternLinks = pattern.getIndices();
-	_nbDistinctSites = _shrunkData -> getNumberOfSites();
+	_nbDistinctSites = _shrunkData->getNumberOfSites();
 		
 	//Init data:
 	// Clone data for more efficiency on sequences access:
 	const SiteContainer * sequences = new AlignedSequenceContainer(* _shrunkData);
-	init(_tree -> getRootNode(), *sequences);
+	init(_tree->getRootNode(), *sequences);
 	delete sequences;
 
 	// Now initialize root arrays:
@@ -78,87 +78,99 @@ void DRTreeParsimonyData::init(const SiteContainer & sites) throw (Exception)
 void DRTreeParsimonyData::init(const Node * node, const SiteContainer & sites) throw (Exception)
 {
 	const Alphabet * alphabet = sites.getAlphabet();
-	if(node -> isLeaf()) {
+	if(node->isLeaf())
+  {
 		const Sequence * seq;
 		try {
-			seq = sites.getSequence(node -> getName());
+			seq = sites.getSequence(node->getName());
 		} catch (SequenceNotFoundException & snfe) {
 			throw SequenceNotFoundException("DRTreeParsimonyData:init(node, sites). Leaf name in tree not found in site container: ", (node -> getName()));
 		}
 		DRTreeParsimonyLeafData * leafData    = & _leafData[node];
-		vector<Bitset> * leafData_bitsets     = & leafData -> getBitsetsArray();
-		leafData -> setNode(node);
+		vector<Bitset> * leafData_bitsets     = & leafData->getBitsetsArray();
+		leafData->setNode(node);
 		
-		leafData_bitsets -> resize(_nbDistinctSites);
+		leafData_bitsets->resize(_nbDistinctSites);
 		
-		for(unsigned int i = 0; i < _nbDistinctSites; i++) {
+		for(unsigned int i = 0; i < _nbDistinctSites; i++)
+    {
 			Bitset * leafData_bitsets_i = & (* leafData_bitsets)[i];
-			for(unsigned int s = 0; s < _nbStates; s++) {
+			for(unsigned int s = 0; s < _nbStates; s++)
+      {
 				//Leaves bitset are set to 1 if the char correspond to the site in the sequence,
 				//otherwise value set to 0:
-				int state = seq -> getValue(i);
-				vector<int> states = alphabet -> getAlias(state);
+				int state = seq->getValue(i);
+				vector<int> states = alphabet->getAlias(state);
 				for(unsigned int j = 0; j < states.size(); j++)
 					if((int)s == states[j]) (* leafData_bitsets_i)[s].flip();
 			}
 		}
 
-	} else {
+	}
+  else
+  {
 		DRTreeParsimonyNodeData * nodeData = & _nodeData[node];
-		nodeData -> setNode(node);
-		nodeData -> eraseNeighborArrays();
+		nodeData->setNode(node);
+		nodeData->eraseNeighborArrays();
 	
-		int nbSons = node -> getNumberOfSons();
+		int nbSons = node->getNumberOfSons();
 	
-		for(int n = (node -> hasFather() ? -1 : 0); n < nbSons; n++) {
+		for(int n = (node->hasFather() ? -1 : 0); n < nbSons; n++)
+    {
 			const Node * neighbor = (* node)[n];
-			vector<Bitset> * neighborData_bitsets       = & nodeData -> getBitsetsArrayForNeighbor(neighbor);
-			vector<unsigned int> * neighborData_scores  = & nodeData -> getScoresArrayForNeighbor(neighbor);
+			vector<Bitset> * neighborData_bitsets       = & nodeData->getBitsetsArrayForNeighbor(neighbor);
+			vector<unsigned int> * neighborData_scores  = & nodeData->getScoresArrayForNeighbor(neighbor);
 		
-			neighborData_bitsets -> resize(_nbDistinctSites);
-			neighborData_scores  -> resize(_nbDistinctSites);
+			neighborData_bitsets->resize(_nbDistinctSites);
+			neighborData_scores->resize(_nbDistinctSites);
 		}
 	}
 
 	// We initialize each son node:
-	unsigned int nbSonNodes = node -> getNumberOfSons();
-	for(unsigned int l = 0; l < nbSonNodes; l++) {
+	unsigned int nbSonNodes = node->getNumberOfSons();
+	for(unsigned int l = 0; l < nbSonNodes; l++)
+  {
 		//For each son node,
-		init(node -> getSon(l), sites);
+		init(node->getSon(l), sites);
 	}
 }
 
 void DRTreeParsimonyData::reInit() throw (Exception)
 {
-  reInit(_tree -> getRootNode());
+  reInit(_tree->getRootNode());
 }
 
 void DRTreeParsimonyData::reInit(const Node * node) throw (Exception)
 {
-	if(node -> isLeaf()) {
+	if(node->isLeaf())
+  {
 		return;
-	} else {
+	}
+  else
+  {
 		DRTreeParsimonyNodeData * nodeData = & _nodeData[node];
-		nodeData -> setNode(node);
-		nodeData -> eraseNeighborArrays();
+		nodeData->setNode(node);
+		nodeData->eraseNeighborArrays();
 	
-		int nbSons = node -> getNumberOfSons();
+		int nbSons = node->getNumberOfSons();
 	
-		for(int n = (node -> hasFather() ? -1 : 0); n < nbSons; n++) {
+		for(int n = (node->hasFather() ? -1 : 0); n < nbSons; n++)
+    {
 			const Node * neighbor = (* node)[n];
-			vector<Bitset> * neighborData_bitsets       = & nodeData -> getBitsetsArrayForNeighbor(neighbor);
-			vector<unsigned int> * neighborData_scores  = & nodeData -> getScoresArrayForNeighbor(neighbor);
+			vector<Bitset> * neighborData_bitsets       = & nodeData->getBitsetsArrayForNeighbor(neighbor);
+			vector<unsigned int> * neighborData_scores  = & nodeData->getScoresArrayForNeighbor(neighbor);
 		
-			neighborData_bitsets -> resize(_nbDistinctSites);
-			neighborData_scores  -> resize(_nbDistinctSites);
+			neighborData_bitsets->resize(_nbDistinctSites);
+			neighborData_scores->resize(_nbDistinctSites);
 		}
 	}
 
 	// We initialize each son node:
-	unsigned int nbSonNodes = node -> getNumberOfSons();
-	for(unsigned int l = 0; l < nbSonNodes; l++) {
+	unsigned int nbSonNodes = node->getNumberOfSons();
+	for(unsigned int l = 0; l < nbSonNodes; l++)
+  {
 		//For each son node,
-		reInit(node -> getSon(l));
+		reInit(node->getSon(l));
 	}
 }
 
@@ -175,8 +187,8 @@ DRTreeParsimonyScore::DRTreeParsimonyScore(
 	_parsimonyData = new DRTreeParsimonyData(*_tree);
 	
 	if(verbose) ApplicationTools::displayTask("Initializing data structure");
-	_parsimonyData -> init(data);
-	_nbDistinctSites = _parsimonyData -> getNumberOfDistinctSites();
+	_parsimonyData->init(data);
+	_nbDistinctSites = _parsimonyData->getNumberOfDistinctSites();
 	_rootScores.resize(_nbDistinctSites);
 	_rootBitsets.resize(_nbDistinctSites);
 	computeScores();
@@ -194,30 +206,37 @@ DRTreeParsimonyScore::~DRTreeParsimonyScore() { delete _parsimonyData; }
 
 void DRTreeParsimonyScore::computeScores()
 {
-	computeScoresPostorder(_tree -> getRootNode());
-	computeScoresPreorder(_tree -> getRootNode());
-	computeScoresForNode(_parsimonyData -> getNodeData(_tree -> getRootNode()), _rootBitsets, _rootScores);
+	computeScoresPostorder(_tree->getRootNode());
+	computeScoresPreorder(_tree->getRootNode());
+	computeScoresForNode(
+      _parsimonyData->getNodeData(_tree->getRootNode()),
+      _rootBitsets, _rootScores);
 }
 
 void DRTreeParsimonyScore::computeScoresPostorder(const Node * node)
 {
-	if(node -> isLeaf()) return;
-	DRTreeParsimonyNodeData * pData = & _parsimonyData -> getNodeData(node);
-	for(unsigned int k = 0; k < node -> getNumberOfSons(); k++) {
-		const Node * son = node -> getSon(k);
+	if(node->isLeaf()) return;
+	DRTreeParsimonyNodeData * pData = & _parsimonyData->getNodeData(node);
+	for(unsigned int k = 0; k < node->getNumberOfSons(); k++)
+  {
+		const Node * son = node->getSon(k);
 		computeScoresPostorder(son);
-		vector<Bitset> * bitsets      = & pData -> getBitsetsArrayForNeighbor(son);
-		vector<unsigned int> * scores = & pData -> getScoresArrayForNeighbor(son);		
-		if(son -> isLeaf()) {
+		vector<Bitset> * bitsets      = & pData->getBitsetsArrayForNeighbor(son);
+		vector<unsigned int> * scores = & pData->getScoresArrayForNeighbor(son);		
+		if(son->isLeaf())
+    {
 			// son has no NodeData associated, must use LeafData instead
-			vector<Bitset> * sonBitsets = & _parsimonyData -> getLeafData(son).getBitsetsArray();
-			for(unsigned int i = 0; i < sonBitsets -> size(); i++) {
+			vector<Bitset> * sonBitsets = & _parsimonyData->getLeafData(son).getBitsetsArray();
+			for(unsigned int i = 0; i < sonBitsets->size(); i++)
+      {
 				(*bitsets)[i] = (*sonBitsets)[i];
 				(*scores)[i]  = 0; 
 			}
-		} else {
+		}
+    else
+    {
 			computeScoresPostorderForNode(
-					_parsimonyData -> getNodeData(son), 
+					_parsimonyData->getNodeData(son), 
 					*bitsets,
 					*scores);		
 		}
@@ -228,14 +247,16 @@ void DRTreeParsimonyScore::computeScoresPostorderForNode(const DRTreeParsimonyNo
 {
 	//First initialize the vectors from input:
 	const Node * node = pData.getNode();
-	const Node * source = node -> getFather();
-	vector<const Node *> neighbors = node -> getNeighbors();
-	unsigned int nbNeighbors = node -> degree();
+	const Node * source = node->getFather();
+	vector<const Node *> neighbors = node->getNeighbors();
+	unsigned int nbNeighbors = node->degree();
 	vector< const vector<Bitset>       *> iBitsets; 
 	vector< const vector<unsigned int> *> iScores;
-	for(unsigned int k = 0; k < nbNeighbors; k++) {
+	for(unsigned int k = 0; k < nbNeighbors; k++)
+  {
 		const Node * n = neighbors[k];
-		if(n != source) {
+		if(n != source)
+    {
 			iBitsets.push_back(& pData.getBitsetsArrayForNeighbor(n));
 			iScores.push_back(& pData.getScoresArrayForNeighbor(n));
 		}
@@ -246,42 +267,50 @@ void DRTreeParsimonyScore::computeScoresPostorderForNode(const DRTreeParsimonyNo
 
 void DRTreeParsimonyScore::computeScoresPreorder(const Node * node)
 {
-	if(node -> getNumberOfSons() == 0) return;
-	DRTreeParsimonyNodeData * pData = & _parsimonyData -> getNodeData(node);
-	if(node -> hasFather()) {
-		const Node * father = node -> getFather();
-		vector<Bitset> * bitsets      = &pData -> getBitsetsArrayForNeighbor(father);
-		vector<unsigned int> * scores = &pData -> getScoresArrayForNeighbor(father);		
-		if(father -> isLeaf()) { // Means that the tree is rooted by a leaf... dunno if we must allow that! Let it be for now.
+	if(node->getNumberOfSons() == 0) return;
+	DRTreeParsimonyNodeData * pData = & _parsimonyData->getNodeData(node);
+	if(node->hasFather())
+  {
+		const Node * father = node->getFather();
+		vector<Bitset> * bitsets      = &pData->getBitsetsArrayForNeighbor(father);
+		vector<unsigned int> * scores = &pData->getScoresArrayForNeighbor(father);		
+		if(father->isLeaf())
+    { // Means that the tree is rooted by a leaf... dunno if we must allow that! Let it be for now.
 			// son has no NodeData associated, must use LeafData instead
-			vector<Bitset> * sonBitsets = & _parsimonyData -> getLeafData(father).getBitsetsArray();
-			for(unsigned int i = 0; i < sonBitsets -> size(); i++) {
+			vector<Bitset> * sonBitsets = & _parsimonyData->getLeafData(father).getBitsetsArray();
+			for(unsigned int i = 0; i < sonBitsets->size(); i++)
+      {
 				(*bitsets)[i] = (*sonBitsets)[i];
 				(*scores)[i]  = 0; 
 			}
-		} else {
+		}
+    else
+    {
 			computeScoresPreorderForNode(
-					_parsimonyData -> getNodeData(father),
+					_parsimonyData->getNodeData(father),
 					node,
 					*bitsets,
 					*scores);		
 		}
 	}
 	// Recurse call:
-	for(unsigned int k = 0; k < node -> getNumberOfSons(); k++) computeScoresPreorder(node -> getSon(k));
+	for(unsigned int k = 0; k < node->getNumberOfSons(); k++)
+    computeScoresPreorder(node->getSon(k));
 }
 
 void DRTreeParsimonyScore::computeScoresPreorderForNode(const DRTreeParsimonyNodeData & pData, const Node * source, vector<Bitset> & rBitsets, vector<unsigned int> & rScores)
 {
 	//First initialize the vectors from input:
 	const Node * node = pData.getNode();
-	vector<const Node *> neighbors = node -> getNeighbors();
-	unsigned int nbNeighbors = node -> degree();
+	vector<const Node *> neighbors = node->getNeighbors();
+	unsigned int nbNeighbors = node->degree();
 	vector< const vector<Bitset>       *> iBitsets; 
 	vector< const vector<unsigned int> *> iScores;
-	for(unsigned int k = 0; k < nbNeighbors; k++) {
+	for(unsigned int k = 0; k < nbNeighbors; k++)
+  {
 		const Node * n = neighbors[k];
-		if(n != source) {
+		if(n != source)
+    {
 			iBitsets.push_back(& pData.getBitsetsArrayForNeighbor(n));
 			iScores.push_back(& pData.getScoresArrayForNeighbor(n));
 		}
@@ -293,12 +322,13 @@ void DRTreeParsimonyScore::computeScoresPreorderForNode(const DRTreeParsimonyNod
 void DRTreeParsimonyScore::computeScoresForNode(const DRTreeParsimonyNodeData & pData, vector<Bitset> & rBitsets, vector<unsigned int> & rScores)
 {
 	const Node * node   = pData.getNode();
-	unsigned int nbNeighbors = node -> degree();
-	vector<const Node *> neighbors = node -> getNeighbors();
+	unsigned int nbNeighbors = node->degree();
+	vector<const Node *> neighbors = node->getNeighbors();
 	//First initialize the vectors fro input:
 	vector< const vector<Bitset>       *> iBitsets(nbNeighbors); 
 	vector< const vector<unsigned int> *> iScores(nbNeighbors);
-	for(unsigned int k = 0; k < nbNeighbors; k++) {
+	for(unsigned int k = 0; k < nbNeighbors; k++)
+  {
 		const Node * n = neighbors[k];
 		iBitsets[k] =  & pData.getBitsetsArrayForNeighbor(n);
 		iScores [k] =  & pData.getScoresArrayForNeighbor(n);
@@ -312,7 +342,8 @@ void DRTreeParsimonyScore::computeScoresForNode(const DRTreeParsimonyNodeData & 
 unsigned int DRTreeParsimonyScore::getScore() const
 {
 	unsigned int score = 0;
-	for(unsigned int i = 0; i < _nbDistinctSites; i++) {
+	for(unsigned int i = 0; i < _nbDistinctSites; i++)
+  {
 		score += _rootScores[i] * _parsimonyData -> getWeight(i);
 	}
 	return score;
@@ -322,7 +353,7 @@ unsigned int DRTreeParsimonyScore::getScore() const
 
 unsigned int DRTreeParsimonyScore::getScoreForSite(unsigned int site) const
 {
-	return _rootScores[_parsimonyData -> getRootArrayPosition(site)];
+	return _rootScores[_parsimonyData->getRootArrayPosition(site)];
 }
 	
 /******************************************************************************/
@@ -341,17 +372,21 @@ void DRTreeParsimonyScore::computeScoresFromArrays(
 		throw Exception("DRTreeParsimonyScore::computeScores(); Error, input arrays must have a size >= 1.");
 	const vector<Bitset> * bitsets0 = iBitsets[0];
 	const vector<unsigned int> * scores0 = iScores[0];
-	for(unsigned int i = 0; i < nbPos; i++) {
+	for(unsigned int i = 0; i < nbPos; i++)
+  {
 		oBitsets[i] = (*bitsets0)[i];
 		oScores[i]  = (*scores0)[i]; 
 	}
-	for(unsigned int k = 1; k < nbNodes; k++) {
+	for(unsigned int k = 1; k < nbNodes; k++)
+  {
 		const vector<Bitset> * bitsetsk = iBitsets[k];
 		const vector<unsigned int> * scoresk = iScores[k];
-		for(unsigned int i = 0; i < nbPos; i++) {
+		for(unsigned int i = 0; i < nbPos; i++)
+    {
 			Bitset bs = oBitsets[i] & (*bitsetsk)[i];
 			oScores[i] += (*scoresk)[i]; 
-			if(bs == 0) {
+			if(bs == 0)
+      {
 				bs = oBitsets[i] | (*bitsetsk)[i];
 				oScores[i] += 1;
 			}
@@ -383,7 +418,8 @@ double DRTreeParsimonyScore::testNNI(const Node * parent, const Node * son) cons
 	unsigned int nbParentNeighbors = parentNeighbors.size();
 	vector< const vector<Bitset>       *> parentBitsets(nbParentNeighbors);
 	vector< const vector<unsigned int> *> parentScores(nbParentNeighbors);
-	for(unsigned int k = 0; k < nbParentNeighbors; k++) {
+	for(unsigned int k = 0; k < nbParentNeighbors; k++)
+  {
 		const Node * n = parentNeighbors[k]; // This neighbor
 		parentBitsets[k] = & parentData->getBitsetsArrayForNeighbor(n); 
 		parentScores[k] = & parentData->getScoresArrayForNeighbor(n); 
@@ -396,7 +432,8 @@ double DRTreeParsimonyScore::testNNI(const Node * parent, const Node * son) cons
 	unsigned int nbGrandFatherNeighbors = grandFatherNeighbors.size();
 	vector< const vector<Bitset>       *> grandFatherBitsets(nbGrandFatherNeighbors);
 	vector< const vector<unsigned int> *> grandFatherScores(nbGrandFatherNeighbors);
-	for(unsigned int k = 0; k < nbGrandFatherNeighbors; k++) {
+	for(unsigned int k = 0; k < nbGrandFatherNeighbors; k++)
+  {
 		const Node * n = grandFatherNeighbors[k]; // This neighbor
 		grandFatherBitsets[k] = & grandFatherData->getBitsetsArrayForNeighbor(n); 
 		grandFatherScores[k] = & grandFatherData->getScoresArrayForNeighbor(n); 
@@ -424,7 +461,8 @@ double DRTreeParsimonyScore::testNNI(const Node * parent, const Node * son) cons
 
 	//Final computation:
 	unsigned int score = 0;
-	for(unsigned int i = 0; i < _nbDistinctSites; i++) {
+	for(unsigned int i = 0; i < _nbDistinctSites; i++)
+  {
 		score += pScores[i] * _parsimonyData -> getWeight(i);
 	}
 	return (double)score - (double)getScore();

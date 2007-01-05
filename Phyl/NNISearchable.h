@@ -43,32 +43,10 @@ knowledge of the CeCILL license and that you accept its terms.
 
 #include "Node.h"
 #include "TreeTemplate.h"
+#include "TopologySearch.h"
 
 /**
- * @brief Class for notifying new toplogy change events.
- */
-class TopologyChangeEvent
-{
-	protected:
-		string _message;
-		
-	public:
-		TopologyChangeEvent(): _message("") {}
-		TopologyChangeEvent(const string & message): _message(message) {}
-		virtual ~TopologyChangeEvent() {}
-
-	public:
-		/**
-		 * @brief Get the message associated to this event.
-		 *
-		 * @return The message associated to this event.
-		 */
-		virtual string getMessage() const { return _message; }
-
-};
-
-/**
- * @brief Interface for Nearest Neighbor Interchanged algorithms.
+ * @brief Interface for Nearest Neighbor Interchanges algorithms.
  *
  * This interface defines the methods to work with NNI algorithms.
  * 
@@ -112,11 +90,18 @@ class TopologyChangeEvent
  * so that swapping A or B involve 2 distinct NNI.
  * 
  */
-class NNISearchable
+class NNISearchable:
+  public TopologyListener,
+  public virtual Clonable
 {
 	public:
 		NNISearchable() {}
 		virtual ~NNISearchable() {}
+
+//This leads to a seg error! Bizarre...
+//#if defined(VIRTUAL_COV)
+//    virtual NNISearchable * clone() const = 0;
+//#endif
 
 	public:
 
@@ -128,21 +113,19 @@ class NNISearchable
 		 * i.e. the object is to be used with a minimizing optimization
 		 * (for consistence with Optimizer objects).
 		 *
-		 * @param parent The focus node.
-		 * @param son    The son node.
+		 * @param nodeId The id of the node defining the NNI movement.
 		 * @return The score variation of the NNI.
-		 * @throw NodeException If 'son' is not a son of 'parent'.
+		 * @throw NodeException If the node does not define a valid NNI.
 		 */
-		virtual double testNNI(const Node * parent, const Node * son) const throw (NodeException) = 0;
+		virtual double testNNI(int nodeId) const throw (NodeException) = 0;
 
 		/**
 		 * @brief Perform a NNI movement.
 		 *
-		 * @param parent The focus node.
-		 * @param son    The son node.
-		 * @throw NodeException If 'son' is not a son of 'parent'.
+		 * @param nodeId The id of the node defining the NNI movement.
+		 * @throw NodeException If the node does not define a valid NNI.
 		 */
-		virtual void doNNI(Node * parent, Node * son) throw (NodeException) = 0;
+		virtual void doNNI(int nodeId) throw (NodeException) = 0;
 
 		/**
 		 * @brief Get the tree associated to this NNISearchable object.
@@ -157,16 +140,14 @@ class NNISearchable
 		 * @return The tree associated to this instance.
 		 */
 		virtual const Tree * getTree() const = 0;
+    
+    /**
+     * @brief Get the current score of this NNISearchable object.
+     *
+     * @return The current score of this instance.
+     */
+    virtual double getValue() const throw (Exception) = 0;
 
-		/**
-		 * @brief notify a topology change event.
-		 *
-		 * This method is to be invoked after one or several NNI are performed.
-		 * It allows appropriate recomputations.
-		 *
-		 * @param event The topology change event.
-		 */
-		virtual void topologyChangePerformed(const TopologyChangeEvent & event) = 0;
 };
 
 #endif //_NNISEARCHABLE_H_

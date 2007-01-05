@@ -74,9 +74,8 @@ using namespace std;
  * 
  * @see PseudoNewtonOptimizer, SimpleMultiDimensions
  */
-class NewtonBrentMetaOptimizer: public virtual AbstractOptimizer
+class NewtonBrentMetaOptimizer: public AbstractOptimizer
 {
-	
 	protected:
 		ParameterList _newtonParameters;
 		ParameterList _brentParameters;
@@ -97,6 +96,12 @@ class NewtonBrentMetaOptimizer: public virtual AbstractOptimizer
      */
 		NewtonBrentMetaOptimizer(DiscreteRatesAcrossSitesTreeLikelihood * tl, unsigned int n = 1);
 		virtual ~NewtonBrentMetaOptimizer();
+
+    NewtonBrentMetaOptimizer(const NewtonBrentMetaOptimizer & opt);
+
+    NewtonBrentMetaOptimizer & operator=(const NewtonBrentMetaOptimizer & opt);
+
+    NewtonBrentMetaOptimizer * clone() const { return new NewtonBrentMetaOptimizer(*this); }
 
 	public:
 		

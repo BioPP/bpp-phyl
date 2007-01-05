@@ -48,12 +48,7 @@ knowledge of the CeCILL license and that you accept its terms.
 #include <Utils/TextTools.h>
 
 /**************************************************************************/
-     
-PseudoNewtonOptimizer::PNStopCondition::PNStopCondition(PseudoNewtonOptimizer * pno):
-	AbstractOptimizationStopCondition(pno) {}
-
-PseudoNewtonOptimizer::PNStopCondition::~PNStopCondition() {}
-          
+           
 bool PseudoNewtonOptimizer::PNStopCondition::isToleranceReached() const
 {
 	return abs<double>(
@@ -68,14 +63,7 @@ PseudoNewtonOptimizer::PseudoNewtonOptimizer(DerivableSecondOrder * function) :
   AbstractOptimizer(function)
 {
 	_defaultStopCondition = new PNStopCondition(this);
-	_stopCondition = _defaultStopCondition;
-}
-
-/**************************************************************************/
-
-PseudoNewtonOptimizer::~PseudoNewtonOptimizer()
-{
-	delete _defaultStopCondition;
+	_stopCondition = _defaultStopCondition->clone();
 }
 
 /**************************************************************************/
@@ -83,8 +71,8 @@ PseudoNewtonOptimizer::~PseudoNewtonOptimizer()
 void PseudoNewtonOptimizer::init(const ParameterList & params) throw (Exception)
 {
 	AbstractOptimizer::init(params);
-	_function -> setParameters(_parameters);
-	_currentValue = _function -> getValue();
+	_function->setParameters(_parameters);
+	_currentValue = _function->getValue();
 	_n = _parameters.size();
 	_params = _parameters.getParameterNames();
 	for (unsigned int j = 0; j < _n; j++) {
@@ -162,7 +150,8 @@ double PseudoNewtonOptimizer::step() throw (Exception)
 double PseudoNewtonOptimizer::optimize() throw (Exception)
 {
 	_tolIsReached = false;
-	for (_nbEval = 0; _nbEval < _nbEvalMax && ! _tolIsReached; _nbEval++) {
+	for (_nbEval = 0; _nbEval < _nbEvalMax && ! _tolIsReached; _nbEval++)
+  {
 		step();
 	}
 	return _currentValue;

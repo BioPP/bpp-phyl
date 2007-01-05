@@ -96,14 +96,14 @@ SubstitutionModel * PhylogeneticsApplicationTools::getSubstitutionModel(
 	bool suffixIsOptional,
 	bool verbose) throw (Exception)
 {
-	string modelName = ApplicationTools::getStringParameter("model", params, "JCnuc", suffix, suffixIsOptional);
 	SubstitutionModel * model = NULL;
 
 	if(alphabet->getAlphabetType() == "DNA alphabet"
 	|| alphabet->getAlphabetType() == "RNA alphabet")
   {
-
+	  string modelName = ApplicationTools::getStringParameter("model", params, "JCnuc", suffix, suffixIsOptional);
 		const NucleicAlphabet * alpha = dynamic_cast<const NucleicAlphabet *>(alphabet);
+    if(verbose) ApplicationTools::displayResult("Substitution model", modelName);
 
 		if(modelName == "GTR")
     {
@@ -137,7 +137,6 @@ SubstitutionModel * PhylogeneticsApplicationTools::getSubstitutionModel(
 			}
 			if(verbose)
       {
-				ApplicationTools::displayResult("model", modelName);
 				ApplicationTools::displayResult("a"  , TextTools::toString(a));
 				ApplicationTools::displayResult("b"  , TextTools::toString(b));
 				ApplicationTools::displayResult("c"  , TextTools::toString(c));
@@ -179,7 +178,6 @@ SubstitutionModel * PhylogeneticsApplicationTools::getSubstitutionModel(
 			}
 			if(verbose)
       {
-				ApplicationTools::displayResult("model" , modelName);
 				ApplicationTools::displayResult("kappa1", TextTools::toString(kappa1));
 				ApplicationTools::displayResult("kappa2", TextTools::toString(kappa2));
 				ApplicationTools::displayResult("piA"   , TextTools::toString(piA));
@@ -217,7 +215,6 @@ SubstitutionModel * PhylogeneticsApplicationTools::getSubstitutionModel(
 			}
 			if(verbose)
       {
-				ApplicationTools::displayResult("model", modelName);
 				ApplicationTools::displayResult("kappa", TextTools::toString(kappa));
 				ApplicationTools::displayResult("piA"  , TextTools::toString(piA));
 				ApplicationTools::displayResult("piC"  , TextTools::toString(piC));
@@ -254,7 +251,6 @@ SubstitutionModel * PhylogeneticsApplicationTools::getSubstitutionModel(
 			}
 			if(verbose)
       {
-				ApplicationTools::displayResult("model", modelName);
 				ApplicationTools::displayResult("kappa", TextTools::toString(kappa));
 				ApplicationTools::displayResult("piA"  , TextTools::toString(piA));
 				ApplicationTools::displayResult("piC"  , TextTools::toString(piC));
@@ -280,7 +276,6 @@ SubstitutionModel * PhylogeneticsApplicationTools::getSubstitutionModel(
 			}
 			if(verbose)
       {
-				ApplicationTools::displayResult("model", modelName);
 				ApplicationTools::displayResult("kappa", TextTools::toString(kappa));
 				ApplicationTools::displayResult("theta", TextTools::toString(theta));
 			}
@@ -291,17 +286,12 @@ SubstitutionModel * PhylogeneticsApplicationTools::getSubstitutionModel(
 			model = new K80(alpha, kappa);
   		if(verbose)
       {
-				ApplicationTools::displayResult("model", modelName);
 				ApplicationTools::displayResult("kappa", TextTools::toString(kappa));
 			}
   	}
     else if(modelName == "JCnuc")
     {
 			model = new JCnuc(alpha);
-  		if(verbose)
-      {
-				ApplicationTools::displayResult("model", modelName);
-			}
 		}
     else
     {
@@ -311,6 +301,7 @@ SubstitutionModel * PhylogeneticsApplicationTools::getSubstitutionModel(
   else
   { 
     // Alphabet supposed to be proteic!
+	  string modelName = ApplicationTools::getStringParameter("model", params, "JCprot", suffix, suffixIsOptional);
 		const ProteicAlphabet * alpha = dynamic_cast<const ProteicAlphabet *>(alphabet);
 		bool useObsFreq = ApplicationTools::getBooleanParameter("model.use_observed_freq", params, false, suffix, suffixIsOptional);
 		if(modelName == "JCprot")
@@ -340,7 +331,7 @@ SubstitutionModel * PhylogeneticsApplicationTools::getSubstitutionModel(
 		}
  		if(verbose)
     {
-			ApplicationTools::displayResult("model", modelName + (useObsFreq && (model != NULL) ? "-F" : ""));
+			ApplicationTools::displayResult("Substitution model", modelName + (useObsFreq && (model != NULL) ? "-F" : ""));
 		}
 	}
   
@@ -435,7 +426,7 @@ DiscreteDistribution * PhylogeneticsApplicationTools::getRateDistribution(
 		rDist = new ConstantDistribution(1.);
 		if(verbose)
     {
-			ApplicationTools::displayResult("rate_distribution", distributionType);
+			ApplicationTools::displayResult("Rate distribution", distributionType);
 		}
 	}
   else if(distributionType == "gamma")
@@ -537,11 +528,16 @@ void PhylogeneticsApplicationTools::optimizeParameters(
 	StringTokenizer st(paramListDesc, ",");
 	while(st.hasMoreToken())
   {
-		try {
-			dynamic_cast<AbstractHomogeneousTreeLikelihood *>(tl) -> ignoreParameter(st.nextToken());
-		} catch(ParameterNotFoundException pnfe) {
+		try
+    {
+			dynamic_cast<AbstractHomogeneousTreeLikelihood *>(tl)->ignoreParameter(st.nextToken());
+		} 
+    catch(ParameterNotFoundException pnfe)
+    {
 			ApplicationTools::displayError("Parameter '" + pnfe.getParameter() + "' not found, and so can't be ignored!");
-		} catch(exception e) {
+		}
+    catch(exception e)
+    {
 			ApplicationTools::error << "DEBUB: ERROR!!! This functionality can only be used with HomogeneousTreeLikelihood for now." << endl;
 		}
 	}
@@ -554,14 +550,25 @@ void PhylogeneticsApplicationTools::optimizeParameters(
 	
   string method = ApplicationTools::getStringParameter("optimization.method", params, "NB", suffix, suffixIsOptional, false);
 	if(verbose) ApplicationTools::displayResult("Optimization method", method);
-	int n = 0;
+	
+  bool optimizeTopo = ApplicationTools::getBooleanParameter("optimization.topology", params, false, suffix, suffixIsOptional, false);
+  if(optimizeTopo)
+  {
+    unsigned int n = ApplicationTools::getParameter<unsigned int>("optimization.topology.nstep", params, 1, "", true, false);
+	  double tolBefore = ApplicationTools::getDoubleParameter("optimization.topology.tolerance.before", params, 100, suffix, suffixIsOptional);
+	  double tolDuring = ApplicationTools::getDoubleParameter("optimization.topology.tolerance.during", params, 100, suffix, suffixIsOptional);
+    tl = OptimizationTools::optimizeTreeNNI(
+			  dynamic_cast<AbstractHomogeneousTreeLikelihood *>(tl),
+        tolBefore, tolDuring, nbEvalMax, n, messageHandler, profiler, 1);
+  }
+  int n = 0;
   if(method == "NB")
   {
     //Uses Newton-Brent method:
 	  int nstep = ApplicationTools::getIntParameter("optimization.method_NB.nstep", params, 1, suffix, suffixIsOptional, false);
-		if(verbose && nstep > 1) ApplicationTools::displayResult("# of precision steps", TextTools::toString(nstep));
+	  if(verbose && nstep > 1) ApplicationTools::displayResult("# of precision steps", TextTools::toString(nstep));
     n = OptimizationTools::optimizeNumericalParameters(
-			dynamic_cast<AbstractHomogeneousTreeLikelihood *>(tl),
+		  dynamic_cast<AbstractHomogeneousTreeLikelihood *>(tl),
       nstep,
 			tolerance,
 			nbEvalMax,
@@ -580,7 +587,8 @@ void PhylogeneticsApplicationTools::optimizeParameters(
 			messageHandler,
 			profiler,
 			optVerbose);		   
-  } else throw Exception("Unknown optimization method: " + method);
+  }
+  else throw Exception("Unknown optimization method: " + method);
 	if(verbose) ApplicationTools::displayResult("Performed", TextTools::toString(n) + " function evaluations.");
 }
 

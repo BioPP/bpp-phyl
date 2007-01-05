@@ -62,7 +62,7 @@ AbstractDiscreteRatesAcrossSitesTreeLikelihood::AbstractDiscreteRatesAcrossSites
 
 ParameterList AbstractDiscreteRatesAcrossSitesTreeLikelihood::getRateDistributionParameters() const
 {
-	return _rateDistribution -> getParameters().getCommonParametersWith(_parameters);
+	return _rateDistribution->getParameters().getCommonParametersWith(_parameters);
 }
 
 /******************************************************************************/
@@ -72,7 +72,8 @@ VVdouble AbstractDiscreteRatesAcrossSitesTreeLikelihood::getLikelihoodForEachSit
 	unsigned int nbSites   = getNumberOfSites();
 	unsigned int nbClasses = getNumberOfClasses();
 	VVdouble l(nbSites);
-	for(unsigned int i = 0; i < nbSites; i++) {
+	for(unsigned int i = 0; i < nbSites; i++)
+  {
 		l[i].resize(nbClasses);
 		for(unsigned int j = 0; j < nbClasses; j++)
 			l[i][j] = getLikelihoodForASiteForARateClass(i, j);
@@ -86,7 +87,8 @@ double AbstractDiscreteRatesAcrossSitesTreeLikelihood::getLikelihoodForASiteForA
 {
 	unsigned int nbClasses = getNumberOfClasses();
 	double l = 0;
-	for(unsigned int i = 0; i < nbClasses; i++) {
+	for(unsigned int i = 0; i < nbClasses; i++)
+  {
 		l += getLikelihoodForASiteForARateClassForAState(site, i, state) * _rateDistribution -> getProbability(i);
 	}
 	return l;
@@ -98,7 +100,8 @@ double AbstractDiscreteRatesAcrossSitesTreeLikelihood::getLogLikelihoodForASiteF
 {
 	unsigned int nbClasses = getNumberOfClasses();
 	double l = 0;
-	for(unsigned int i = 0; i < nbClasses; i++) {
+	for(unsigned int i = 0; i < nbClasses; i++)
+  {
 		l += getLikelihoodForASiteForARateClassForAState(site, i, state) * _rateDistribution -> getProbability(i);
 	}
 	//if(l <= 0.) cerr << "WARNING!!! Negative likelihood." << endl;
@@ -112,7 +115,8 @@ VVdouble AbstractDiscreteRatesAcrossSitesTreeLikelihood::getLogLikelihoodForEach
 	unsigned int nbSites   = getNumberOfSites();
 	unsigned int nbClasses = getNumberOfClasses();
 	VVdouble l(nbSites);
-	for(unsigned int i = 0; i < nbSites; i++) {
+	for(unsigned int i = 0; i < nbSites; i++)
+  {
 		l[i] = Vdouble(nbClasses);
 		for(unsigned int j = 0; j < nbClasses; j++)
 			l[i][j] = getLogLikelihoodForASiteForARateClass(i, j);
@@ -128,11 +132,14 @@ VVVdouble AbstractDiscreteRatesAcrossSitesTreeLikelihood::getLikelihoodForEachSi
 	unsigned int nbClasses = getNumberOfClasses();
 	unsigned int nbStates  = getNumberOfStates();
 	VVVdouble l(nbSites);
-	for(unsigned int i = 0; i < nbSites; i++) {
+	for(unsigned int i = 0; i < nbSites; i++)
+  {
 		l[i].resize(nbClasses);
-		for(unsigned int j = 0; j < nbClasses; j++) {
+		for(unsigned int j = 0; j < nbClasses; j++)
+    {
 			l[i][j].resize(nbStates);
-			for(unsigned int x = 0; x < nbStates; x++) {
+			for(unsigned int x = 0; x < nbStates; x++)
+      {
 				l[i][j][x] = getLikelihoodForASiteForARateClassForAState(i, j, x);
 			}
 		}
@@ -148,11 +155,14 @@ VVVdouble AbstractDiscreteRatesAcrossSitesTreeLikelihood::getLogLikelihoodForEac
 	unsigned int nbClasses = getNumberOfClasses();
 	unsigned int nbStates  = getNumberOfStates();
 	VVVdouble l(nbSites);
-	for(unsigned int i = 0; i < nbSites; i++) {
+	for(unsigned int i = 0; i < nbSites; i++)
+  {
 		l[i].resize(nbClasses);
-		for(unsigned int j = 0; j < nbClasses; j++) {
+		for(unsigned int j = 0; j < nbClasses; j++)
+    {
 			l[i][j].resize(nbStates);
-			for(unsigned int x = 0; x < nbStates; x++) {
+			for(unsigned int x = 0; x < nbStates; x++)
+      {
 				l[i][j][x] = getLogLikelihoodForASiteForARateClassForAState(i, j, x);
 			}
 		}
@@ -168,8 +178,10 @@ VVdouble AbstractDiscreteRatesAcrossSitesTreeLikelihood::getPosteriorProbabiliti
 	unsigned int nbClasses = getNumberOfClasses();
 	VVdouble pb = getLikelihoodForEachSiteForEachRateClass();
 	Vdouble  l  = getLikelihoodForEachSite();
-	for(unsigned int i = 0; i < nbSites; i++) {
-		for(unsigned int j = 0; j < nbClasses; j++) pb[i][j] = pb[i][j] * _rateDistribution -> getProbability(j) / l[i]; 
+	for(unsigned int i = 0; i < nbSites; i++)
+  {
+		for(unsigned int j = 0; j < nbClasses; j++)
+      pb[i][j] = pb[i][j] * _rateDistribution -> getProbability(j) / l[i]; 
 	}
 	return pb;
 }
@@ -183,8 +195,10 @@ Vdouble AbstractDiscreteRatesAcrossSitesTreeLikelihood::getPosteriorRateOfEachSi
 	VVdouble lr = getLikelihoodForEachSiteForEachRateClass();
 	Vdouble  l  = getLikelihoodForEachSite();
 	Vdouble rates(nbSites, 0.);
-	for(unsigned int i = 0; i < nbSites; i++) {
-		for(unsigned int j = 0; j < nbClasses; j++) {
+	for(unsigned int i = 0; i < nbSites; i++)
+  {
+		for(unsigned int j = 0; j < nbClasses; j++)
+    {
 			rates[i] += (lr[i][j] / l[i]) * _rateDistribution -> getProbability(j) *  _rateDistribution -> getCategory(j);
 		}
 	}
@@ -198,7 +212,8 @@ vector<unsigned int> AbstractDiscreteRatesAcrossSitesTreeLikelihood::getRateClas
 	unsigned int nbSites   = getNumberOfSites();
 	VVdouble l = getLikelihoodForEachSiteForEachRateClass();
 	vector<unsigned int>classes(nbSites);
-	for(unsigned int i = 0; i < nbSites; i++) classes[i] = whichmax<double>(l[i]);
+	for(unsigned int i = 0; i < nbSites; i++)
+    classes[i] = whichmax<double>(l[i]);
 	return classes;
 }
 
@@ -209,8 +224,9 @@ Vdouble AbstractDiscreteRatesAcrossSitesTreeLikelihood::getRateWithMaxPostProbOf
 	unsigned int nbSites   = getNumberOfSites();
 	VVdouble l = getLikelihoodForEachSiteForEachRateClass();
 	Vdouble rates(nbSites);
-	for(unsigned int i = 0; i < nbSites; i++) {
-		rates[i] = _rateDistribution -> getCategory(whichmax<double>(l[i]));
+	for(unsigned int i = 0; i < nbSites; i++)
+  {
+		rates[i] = _rateDistribution->getCategory(whichmax<double>(l[i]));
 	}
 	return rates;
 }

@@ -59,8 +59,11 @@ class PseudoNewtonOptimizer : public AbstractOptimizer
     class PNStopCondition: public AbstractOptimizationStopCondition
     {
       public:
-        PNStopCondition(PseudoNewtonOptimizer * pno);
-        ~PNStopCondition();
+        PNStopCondition(PseudoNewtonOptimizer * pno):
+          AbstractOptimizationStopCondition(pno) {}
+        virtual ~PNStopCondition() {}
+
+        PNStopCondition * clone() const { return new PNStopCondition(*this); }
           
       public:
 				void init() {}
@@ -83,7 +86,9 @@ class PseudoNewtonOptimizer : public AbstractOptimizer
 
 		PseudoNewtonOptimizer(DerivableSecondOrder * function);
 
-		virtual ~PseudoNewtonOptimizer();
+		virtual ~PseudoNewtonOptimizer() {}
+
+    PseudoNewtonOptimizer * clone() const { return new PseudoNewtonOptimizer(*this); }
 
 	public:
 		/**
