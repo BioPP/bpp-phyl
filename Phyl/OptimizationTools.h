@@ -258,14 +258,15 @@ class OptimizationTools
      * The tolerance passed to this function is specified as input parameters.
      * They are generally very high to avoid local optima.
      *
-		 * @param tl             A pointer toward the TreeLikelihood object to optimize.
-		 * @param tolBefore      The tolerance to use when estimating numerical parameters before topology search.
-		 * @param tolDuring      The tolerance to use when estimating numerical parameters during the topology search.
-		 * @param tlEvalMax      The maximum number of function evaluations.
-     * @param numStep        Number of NNI rounds before re-estimating numerical parameters.
-		 * @param messageHandler The massage handler.
-		 * @param profiler       The profiler.
-		 * @param verbose        The verbose level.
+		 * @param tl               A pointer toward the TreeLikelihood object to optimize.
+     * @param optimizeNumFirst Tell if we must optimize numerical parameters before searching topology.
+		 * @param tolBefore        The tolerance to use when estimating numerical parameters before topology search (if optimizeNumFirst is set to 'true').
+		 * @param tolDuring        The tolerance to use when estimating numerical parameters during the topology search.
+		 * @param tlEvalMax        The maximum number of function evaluations.
+     * @param numStep          Number of NNI rounds before re-estimating numerical parameters.
+		 * @param messageHandler   The massage handler.
+		 * @param profiler         The profiler.
+		 * @param verbose          The verbose level.
      * @return A pointer toward the final likelihood object.
      * This pointer may be the same as passed in argument (tl), but in some cases the algorithm
      * clone this object. We may change this bahavior in the future...
@@ -277,6 +278,7 @@ class OptimizationTools
      */
     static DiscreteRatesAcrossSitesTreeLikelihood * optimizeTreeNNI(
         DiscreteRatesAcrossSitesTreeLikelihood * tl,
+        bool optimizeNumFirst = true,
 			  double tolBefore = 100,
 			  double tolDuring = 100,
 			  int tlEvalMax = 1000000,

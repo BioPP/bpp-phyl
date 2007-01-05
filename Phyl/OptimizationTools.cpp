@@ -285,6 +285,7 @@ void NNITopologyListener::topologyChangeSuccessful(const TopologyChangeEvent & e
 
 DiscreteRatesAcrossSitesTreeLikelihood * OptimizationTools::optimizeTreeNNI(
     DiscreteRatesAcrossSitesTreeLikelihood * tl,
+    bool optimizeNumFirst,
 		double tolBefore,
 		double tolDuring,
 		int tlEvalMax,
@@ -295,7 +296,8 @@ DiscreteRatesAcrossSitesTreeLikelihood * OptimizationTools::optimizeTreeNNI(
   throw (Exception)
 {
   //Roughly optimize parameter
-  OptimizationTools::optimizeNumericalParameters(tl, 1, tolBefore, 1000000, messageHandler, profiler, verbose);
+  if(optimizeNumFirst)
+    OptimizationTools::optimizeNumericalParameters(tl, 1, tolBefore, 1000000, messageHandler, profiler, verbose);
   //Begin topo search:
   NNISearchable *topo = dynamic_cast<NNISearchable *>(tl);
   NNITopologySearch topoSearch(*topo, NNITopologySearch::PHYML, verbose);

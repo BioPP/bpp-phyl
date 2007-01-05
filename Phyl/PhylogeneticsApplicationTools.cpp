@@ -554,12 +554,13 @@ void PhylogeneticsApplicationTools::optimizeParameters(
   bool optimizeTopo = ApplicationTools::getBooleanParameter("optimization.topology", params, false, suffix, suffixIsOptional, false);
   if(optimizeTopo)
   {
+    bool optNumFirst = ApplicationTools::getBooleanParameter("optimization.topology.numfirst", params, true, suffix, suffixIsOptional, false);
     unsigned int n = ApplicationTools::getParameter<unsigned int>("optimization.topology.nstep", params, 1, "", true, false);
 	  double tolBefore = ApplicationTools::getDoubleParameter("optimization.topology.tolerance.before", params, 100, suffix, suffixIsOptional);
 	  double tolDuring = ApplicationTools::getDoubleParameter("optimization.topology.tolerance.during", params, 100, suffix, suffixIsOptional);
     tl = OptimizationTools::optimizeTreeNNI(
 			  dynamic_cast<AbstractHomogeneousTreeLikelihood *>(tl),
-        tolBefore, tolDuring, nbEvalMax, n, messageHandler, profiler, 1);
+        optNumFirst, tolBefore, tolDuring, nbEvalMax, n, messageHandler, profiler, 1);
   }
   int n = 0;
   if(method == "NB")

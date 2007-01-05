@@ -225,6 +225,7 @@ class PhylogeneticsApplicationTools
      *   - optimization.method_NB.nstep = number of progressive steps to use in NB algorithm.
      *   - optimization.topology.algorithm = [nni] algorithm to use (for now, only Nearest Neighbor Interchanges (NNI) are implemented). 
      *   - optimization.topology.nstep = Estimate numerical parameters every 'n' NNI rounds.
+     *   - optimization.topology.numfirst = Tell if numerical parameters must be estimated prior to topology search.
      *   - optimization.topology.tolerance.before = Numerical parameters estimation prior to topology search.
      *   - optimization.topology.tolerance.during = Numerical parameters estimation during topology search.
 		 *
