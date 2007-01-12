@@ -67,7 +67,8 @@ knowledge of the CeCILL license and that you accept its terms.
  * @see Node, TreeTemplate
  */
 template<class NodeInfos>
-class NodeTemplate : public Node {
+class NodeTemplate : public Node
+{
 	
 	protected:
 
@@ -107,16 +108,10 @@ class NodeTemplate : public Node {
 		 * 
 		 * @param node The node to copy.
 		 */
-		NodeTemplate(const NodeTemplate<NodeInfos> & node)
+		NodeTemplate(const NodeTemplate<NodeInfos> & node):
+      Node(node)
 		{
-			_id               = node._id;
-			_name             = node.hasName() ? new string(* node._name) : NULL;
-			_father           = node._father;
-			_distanceToFather = node.hasDistanceToFather() ? new double(* node._distanceToFather) : NULL;
-			_sons             = node._sons;
-			for(map<string, Clonable *>::iterator i = node._properties.begin(); i != node._properties.end(); i++)
-				_properties[i -> first] = i -> second -> clone();
-			_infos            = node._infos;
+			_infos = node._infos;
 		}
 
 		/**
@@ -127,18 +122,16 @@ class NodeTemplate : public Node {
 		 */
 		NodeTemplate<NodeInfos> & operator=(const NodeTemplate<NodeInfos> & node)
 		{
-			_id               = node._id;
-			_name             = node.hasName() ? new string(* node._name) : NULL;
-			_father           = node._father;
-			_distanceToFather = node.hasDistanceToFather() ? new double(* node._distanceToFather) : NULL;
-			_sons             = node._sons;
-			_infos            = node._infos;
-			for(map<string, Clonable *>::iterator i = node._properties.begin(); i != node._properties.end(); i++)
-				_properties[i -> first] = i -> second -> clone();
+      Node::operator=(node);
+			_infos = node._infos;
 			return * this;
 		}
 
 		virtual ~NodeTemplate() {}
+
+    NodeTemplate<NodeInfos> * clone() const { return new NodeTemplate<NodeInfos>(*this); }
+
+  public:
 
 		const NodeTemplate<NodeInfos> * getFather() const { return dynamic_cast<const NodeTemplate<NodeInfos> *>(_father); }
  

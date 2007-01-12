@@ -1,3 +1,6 @@
+10/01/07 Julien Dutheil
+* Parsimony classes updated to match the new NNISearchable implementation.
+
 03/01/07 Julien Dutheil
 * --enable-virtual-cov option in configure script is now set by default.
 * The Tree interface inherits from Clonable.

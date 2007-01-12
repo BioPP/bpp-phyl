@@ -76,7 +76,7 @@ AbstractHomogeneousTreeLikelihood::AbstractHomogeneousTreeLikelihood(
   
   _model = model;
 
-  _nbStates = model->getAlphabet()->getSize();
+  _nbStates = model->getNumberOfStates();
   
   _nbClasses = _rateDistribution->getNumberOfCategories();
 

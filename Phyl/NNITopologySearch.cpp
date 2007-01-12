@@ -193,7 +193,7 @@ void NNITopologySearch::searchPhyML() throw (Exception)
 	bool test = true;
 	do
   { 
-		if(_verbose >= 2) ApplicationTools::displayTask("Test all possible NNIs...");
+		if(_verbose >= 3) ApplicationTools::displayTask("Test all possible NNIs...");
 	  TreeTemplate<Node> * tree = dynamic_cast<TreeTemplate<Node> *>(_searchableTree->getTree());
 	  vector<Node *> nodes = tree->getNodes();
 		vector<Node *> nodesSub = nodes;
@@ -212,7 +212,7 @@ void NNITopologySearch::searchPhyML() throw (Exception)
     {
 			Node * node = nodesSub[i];
 			double diff = _searchableTree->testNNI(node->getId());
-			if(_verbose >= 2)
+			if(_verbose >= 3)
       {
 				ApplicationTools::displayResult("   Testing node " + TextTools::toString(node->getId())
 						                    + " at " + TextTools::toString(node->getFather()->getId()),
@@ -269,24 +269,21 @@ void NNITopologySearch::searchPhyML() throw (Exception)
     //Moreover, if a backward movement is performed,
     //the underlying node will not exist anymore...
     improvingNodes.clear();
-		if(_verbose >= 2) ApplicationTools::displayTaskDone();
+		if(_verbose >= 3) ApplicationTools::displayTaskDone();
 		test = improving.size() > 0;
 		if(test)
     {
       double currentValue = _searchableTree->getValue();
-      //ApplicationTools::displayResult("Current value1: -lnL=", TextTools::toString(currentValue,10));
       bool test2 = true;
       //Make a backup copy:
       NNISearchable * backup = dynamic_cast<NNISearchable *>(_searchableTree->clone());
       do
       {
-        //ApplicationTools::displayResult("Current value (before NNI): -lnL=", TextTools::toString(_searchableTree->getValue(),10));
-        //ApplicationTools::displayResult("Current backup value (before NNI): -lnL=", TextTools::toString(backup->getValue(),10));
         if(_verbose >= 1) ApplicationTools::displayMessage("Trying to perform " + TextTools::toString(improving.size()) + " NNI(s).");
         for(unsigned int i = 0; i < improving.size(); i++)
         {
 			    int nodeId = improving[i];
-			    if(_verbose >= 1)
+			    if(_verbose >= 2)
           {
 				    ApplicationTools::displayResult(string("   Swapping node ") + TextTools::toString(nodeId)
                 + string(" at ") + TextTools::toString(_searchableTree->getTree()->getFatherId(nodeId)),
@@ -298,7 +295,7 @@ void NNITopologySearch::searchPhyML() throw (Exception)
 		    // Notify:
 		    notifyAllTested(TopologyChangeEvent());
         if(_verbose >= 1)
-          ApplicationTools::displayResult("   Current value: -ln(lk)=", TextTools::toString(_searchableTree->getValue(),10));
+          ApplicationTools::displayResult("   Current value", TextTools::toString(_searchableTree->getValue(),10));
         if(_searchableTree->getValue() > currentValue)
         {
           //No improvement!

@@ -963,9 +963,9 @@ void BranchLikelihood::computeAllTransitionProbabilities()
 double DRHomogeneousTreeLikelihood::testNNI(int nodeId) const throw (NodeException)
 {
   const Node * son    = _tree->getNode(nodeId);
+	if(!son->hasFather()) throw NodeException("DRHomogeneousTreeLikelihood::testNNI(). Node 'son' must not be the root node.", son);
   const Node * parent = son->getFather();
 	if(!parent->hasFather()) throw NodeException("DRHomogeneousTreeLikelihood::testNNI(). Node 'parent' must not be the root node.", parent);
-	
 	const Node * grandFather = parent->getFather();
 	//From here: Bifurcation assumed.
 	//In case of multifurcation, an arbitrary uncle is chosen.
@@ -1054,6 +1054,7 @@ void DRHomogeneousTreeLikelihood::doNNI(int nodeId) throw (NodeException)
 {
   //Perform the topological move, the likelihood array will have to be recomputed...
   Node * son    = _tree->getNode(nodeId);
+	if(!son->hasFather()) throw NodeException("DRHomogeneousTreeLikelihood::testNNI(). Node 'son' must not be the root node.", son);
   Node * parent = son->getFather();
 	if(!parent->hasFather()) throw NodeException("DRHomogeneousTreeLikelihood::testNNI(). Node 'parent' must not be the root node.", parent);
 	Node * grandFather = parent->getFather();

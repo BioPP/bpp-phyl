@@ -44,29 +44,31 @@ knowledge of the CeCILL license and that you accept its terms.
 #include <Utils/ApplicationTools.h>
 
 AbstractTreeParsimonyScore::AbstractTreeParsimonyScore(
-	TreeTemplate<Node> & tree,
+	const TreeTemplate<Node> & tree,
 	const SiteContainer & data,
 	bool verbose)
 	throw (Exception)
 {
-	_tree = &tree;
-	if(_tree -> isRooted()) {
+	_tree = tree.clone();
+	if(_tree->isRooted())
+  {
 		if(verbose) ApplicationTools::displayWarning("Tree has been unrooted.");
-		_tree -> unroot();
+		_tree->unroot();
 	}
 	
 	//Sequences will be in the same order than in the tree:
-	_data = PatternTools::getSequenceSubset(data, * _tree -> getRootNode());
-	if(_data -> getNumberOfSequences() == 1) throw Exception("Error, only 1 sequence!");
-	if(_data -> getNumberOfSequences() == 0) throw Exception("Error, no sequence!");
-	if(_data -> getAlphabet() -> getSize() > 20) throw Exception("Error, only alphabet with size <= 20 are supported. See the source file of AbstractTreeParsimonyScore.");
-	_alphabet = _data -> getAlphabet();
+	_data = PatternTools::getSequenceSubset(data, * _tree->getRootNode());
+	if(_data->getNumberOfSequences() == 1) throw Exception("Error, only 1 sequence!");
+	if(_data->getNumberOfSequences() == 0) throw Exception("Error, no sequence!");
+	if(_data->getAlphabet()->getSize() > 20) throw Exception("Error, only alphabet with size <= 20 are supported. See the source file of AbstractTreeParsimonyScore.");
+	_alphabet = _data->getAlphabet();
 }
 
 vector<unsigned int> AbstractTreeParsimonyScore::getScoreForEachSite() const
 {
-	vector<unsigned int> scores(_data -> getNumberOfSites());
-	for(unsigned int i = 0; i < scores.size(); i++) {
+	vector<unsigned int> scores(_data->getNumberOfSites());
+	for(unsigned int i = 0; i < scores.size(); i++)
+  {
 		scores[i] = getScoreForSite(i);
 	}
 	return scores;

@@ -477,7 +477,7 @@ void PhylogeneticsApplicationTools::printRateDistributionHelp()
 
 /******************************************************************************/
 
-void PhylogeneticsApplicationTools::optimizeParameters(
+TreeLikelihood * PhylogeneticsApplicationTools::optimizeParameters(
 	TreeLikelihood * tl,
 	map<string, string> & params,
 	const string & suffix,
@@ -486,7 +486,7 @@ void PhylogeneticsApplicationTools::optimizeParameters(
 	throw (Exception)
 {
 	bool optimize = ApplicationTools::getBooleanParameter("optimization", params, true, suffix, suffixIsOptional, false);
-	if(!optimize) return;
+	if(!optimize) return tl;
 	
 	unsigned int optVerbose = ApplicationTools::getParameter<unsigned int>("optimization.verbose", params, 2, suffix, suffixIsOptional);
 	
@@ -555,12 +555,12 @@ void PhylogeneticsApplicationTools::optimizeParameters(
   if(optimizeTopo)
   {
     bool optNumFirst = ApplicationTools::getBooleanParameter("optimization.topology.numfirst", params, true, suffix, suffixIsOptional, false);
-    unsigned int n = ApplicationTools::getParameter<unsigned int>("optimization.topology.nstep", params, 1, "", true, false);
+    unsigned int n   = ApplicationTools::getParameter<unsigned int>("optimization.topology.nstep", params, 1, "", true, false);
 	  double tolBefore = ApplicationTools::getDoubleParameter("optimization.topology.tolerance.before", params, 100, suffix, suffixIsOptional);
 	  double tolDuring = ApplicationTools::getDoubleParameter("optimization.topology.tolerance.during", params, 100, suffix, suffixIsOptional);
     tl = OptimizationTools::optimizeTreeNNI(
-			  dynamic_cast<AbstractHomogeneousTreeLikelihood *>(tl),
-        optNumFirst, tolBefore, tolDuring, nbEvalMax, n, messageHandler, profiler, 1);
+			  dynamic_cast<DRHomogeneousTreeLikelihood *>(tl),
+        optNumFirst, tolBefore, tolDuring, nbEvalMax, n, messageHandler, profiler, optVerbose);
   }
   int n = 0;
   if(method == "NB")
@@ -591,6 +591,7 @@ void PhylogeneticsApplicationTools::optimizeParameters(
   }
   else throw Exception("Unknown optimization method: " + method);
 	if(verbose) ApplicationTools::displayResult("Performed", TextTools::toString(n) + " function evaluations.");
+  return tl;
 }
 
 /******************************************************************************/

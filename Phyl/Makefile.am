@@ -58,8 +58,11 @@ TreeTemplateTools.h\
 DiscreteRatesAcrossSitesTreeLikelihood.h\
 RASTools.h\
 TreeParsimonyScore.h\
+TreeParsimonyData.h\
 AbstractTreeParsimonyScore.h\
+AbstractTreeParsimonyData.h\
 DRTreeParsimonyScore.h\
+DRTreeParsimonyData.h\
 SequenceSimulationTools.h\
 UserProteinSubstitutionModel.h\
 TopologySearch.h\
@@ -125,6 +128,7 @@ TreeTemplateTools.cpp\
 RASTools.cpp\
 AbstractTreeParsimonyScore.cpp\
 DRTreeParsimonyScore.cpp\
+DRTreeParsimonyData.cpp\
 SequenceSimulationTools.cpp\
 UserProteinSubstitutionModel.cpp\
 NNITopologySearch.cpp\

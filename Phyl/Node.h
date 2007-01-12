@@ -77,7 +77,7 @@ using namespace std;
  * 
  * @see Tree, TreeTemplate
  */
-class Node
+class Node: public Clonable
 {
       
   protected:
@@ -133,6 +133,8 @@ class Node
       for(map<string, Clonable *>::iterator i = _properties.begin(); i != _properties.end(); i++)
         delete i->second;
     }
+
+    Node * clone() const { return new Node(*this); }
 
   public:        
         

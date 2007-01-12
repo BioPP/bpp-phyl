@@ -43,177 +43,7 @@ knowledge of the CeCILL license and that you accept its terms.
 #include "AbstractTreeParsimonyScore.h"
 #include "NNISearchable.h"
 #include "TreeTools.h"
-
-// From the STL:
-#include <bitset>
-using namespace std;
-
-typedef bitset<20> Bitset;
-
-/**
- * @brief Parsimony data structure for a node.
- * 
- * This class is for use with the DRTreeParsimonyData class.
- * 
- * Store for each neighbor node
- * - a vector of bitsets,
- * - a vector of score for the corresponding subtree.
- *
- * @see DRTreeParsimonyData
- */
-class DRTreeParsimonyNodeData :
-	public TreeParsimonyNodeData
-{
-	protected:
-		mutable map<const Node *, vector<Bitset> > _nodeBitsets;
-		mutable map<const Node *, vector<unsigned int> > _nodeScores;
-		const Node * _node;
-
-	public:
-		const Node * getNode() const { return _node; }
-		void setNode(const Node * node) { _node = node; }
-
-		vector<Bitset> & getBitsetsArrayForNeighbor(const Node * neighbor)
-		{
-			return _nodeBitsets[neighbor];
-		}
-		const vector<Bitset> & getBitsetsArrayForNeighbor(const Node * neighbor) const
-		{
-			return _nodeBitsets[neighbor];
-		}
-		vector<unsigned int> & getScoresArrayForNeighbor(const Node * neighbor)
-		{
-			return _nodeScores[neighbor];
-		}
-		const vector<unsigned int> & getScoresArrayForNeighbor(const Node * neighbor) const
-		{
-			return _nodeScores[neighbor];
-		}
-
-		bool isNeighbor(const Node * neighbor) const
-		{
-			return _nodeBitsets.find(neighbor) != _nodeBitsets.end();
-		}
-
-		void eraseNeighborArrays()
-		{
-			_nodeBitsets.erase(_nodeBitsets.begin(), _nodeBitsets.end());
-			_nodeScores.erase(_nodeScores.begin(), _nodeScores.end());
-		}
-};
-
-/**
- * @brief Parsimony data structure for a leaf.
- * 
- * This class is for use with the DRTreeParsimonyData class.
- * 
- * Store the vector of bitsets associated to a leaf.
- *
- * @see DRTreeParsimonyData
- */
-class DRTreeParsimonyLeafData :
-	public TreeParsimonyNodeData
-{
-	protected:
-		mutable vector<Bitset> _leafBitsets;
-		const Node * _leaf;
-
-	public:
-		const Node * getNode() const { return _leaf; }
-		void setNode(const Node * node) { _leaf = node; }
-
-		vector<Bitset> & getBitsetsArray()
-		{
-			return _leafBitsets;
-		}
-		const vector<Bitset> & getBitsetsArray() const
-		{
-			return _leafBitsets;
-		}
-};
-
-/**
- * @brief Parsimony data structure for double-recursive (DR) algorithm.
- *
- * States are coded using bitsets for faster computing (@see AbstractTreeParsimonyData).
- * For each inner node in the tree, we store a DRTreeParsimonyNodeData object in _nodeData.
- * For each leaf node in the tree, we store a DRTreeParsimonyLeafData object in _leafData.
- * 
- * The dataset is first compressed, removing all identical sites.
- * The resulting dataset is stored in _shrunkData.
- * The corresponding positions are stored in _rootPatternLinks, inherited from AbstractTreeParsimonyData.
- */
-class DRTreeParsimonyData :
-	public virtual AbstractTreeParsimonyData
-{
-	protected:
-		mutable map<const Node *, DRTreeParsimonyNodeData> _nodeData;
-		mutable map<const Node *, DRTreeParsimonyLeafData> _leafData;
-		mutable vector<Bitset> _rootBitsets;
-		mutable vector<unsigned int> _rootScores;
-		SiteContainer * _shrunkData;
-		unsigned int _nbSites; 
-		unsigned int _nbStates;
-		unsigned int _nbDistinctSites; 
-
-	public:
-		DRTreeParsimonyData(TreeTemplate<Node> & tree) { _tree = &tree; }
-		virtual ~DRTreeParsimonyData() { delete _shrunkData; }
-
-	public:
-		DRTreeParsimonyNodeData & getNodeData(const Node * node)
-		{ 
-			return _nodeData[node];
-		}
-		const DRTreeParsimonyNodeData & getNodeData(const Node * node) const
-		{ 
-			return _nodeData[node];
-		}
-		
-		DRTreeParsimonyLeafData & getLeafData(const Node * node)
-		{ 
-			return _leafData[node];
-		}
-		const DRTreeParsimonyLeafData & getLeafData(const Node * node) const
-		{ 
-			return _leafData[node];
-		}
-		
-		vector<Bitset> & getBitsetsArray(const Node * node, const Node * neighbor)
-		{ 
-			return _nodeData[node].getBitsetsArrayForNeighbor(neighbor);
-		}
-		const vector<Bitset> & getBitsetsArray(const Node * node, const Node * neighbor) const
-		{ 
-			return _nodeData[node].getBitsetsArrayForNeighbor(neighbor);
-		}
-		
-		vector<unsigned int> & getScoresArray(const Node * node, const Node * neighbor)
-		{ 
-			return _nodeData[node].getScoresArrayForNeighbor(neighbor);
-		}
-		const vector<unsigned int> & getScoresArray(const Node * node, const Node * neighbor) const 
-		{
-			return _nodeData[node].getScoresArrayForNeighbor(neighbor);
-		}
-
-		unsigned int getArrayPosition(const Node* parent, const Node* son, unsigned int currentPosition) const
-		{ 
-			return currentPosition;
-		}
-
-		unsigned int getNumberOfDistinctSites() const { return _nbDistinctSites; }
-		unsigned int getNumberOfSites() const { return _nbSites; }
-		unsigned int getNumberOfStates() const { return _nbStates; }
-		
-		void init(const SiteContainer & sites) throw (Exception);
-		void reInit() throw (Exception);
-
-	protected:
-		void init(const Node * node, const SiteContainer & sites) throw (Exception);
-		void reInit(const Node * node) throw (Exception);
-		
-};
+#include "DRTreeParsimonyData.h"
 
 /**
  * @brief Double recursive implementation of interface TreeParsimonyScore.
@@ -226,8 +56,8 @@ class DRTreeParsimonyScore :
 {
 	protected:
 		DRTreeParsimonyData *_parsimonyData;
-		vector<unsigned int> _rootScores;
-		vector<Bitset>       _rootBitsets;
+		//vector<unsigned int> _rootScores;
+		//vector<Bitset>       _rootBitsets;
 		unsigned int         _nbDistinctSites;
 			
 	public:
@@ -236,8 +66,18 @@ class DRTreeParsimonyScore :
 			const SiteContainer & data,
 			bool verbose = true)
 			throw (Exception);
+
+    DRTreeParsimonyScore(const DRTreeParsimonyScore & tp);
+    
+    DRTreeParsimonyScore& operator=(const DRTreeParsimonyScore & tp);
 				
 		virtual ~DRTreeParsimonyScore();
+
+#if defined(VIRTUAL_COV)
+    DRTreeParsimonyScore * clone() const { return new DRTreeParsimonyScore(* this); }
+#else
+    Clonable * clone() const { return new DRTreeParsimonyScore(* this); }
+#endif
 
 	protected:
 		/**
@@ -313,19 +153,21 @@ class DRTreeParsimonyScore :
 		 */
     double getValue() const throw (Exception) { return getScore(); }
 
-		double testNNI(const Node * parent, const Node * son) const throw (NodeException);
+		double testNNI(int nodeId) const throw (NodeException);
 
-		void doNNI(Node * parent, Node * son) throw (NodeException);
+		void doNNI(int nodeId) throw (NodeException);
 
 		Tree * getTree() { return _tree; }
 		
 		const Tree * getTree() const { return _tree; }
 		
-		void topologyChangePerformed(const TopologyChangeEvent & event)
+		void topologyChangeTested(const TopologyChangeEvent & event)
 		{
 			_parsimonyData->reInit();
 			computeScores();
 		}
+
+    void topologyChangeSuccessful(const TopologyChangeEvent & event) {}
 		/**@} */
 
 };

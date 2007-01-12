@@ -283,8 +283,8 @@ void NNITopologyListener::topologyChangeSuccessful(const TopologyChangeEvent & e
 
 /******************************************************************************/	
 
-DiscreteRatesAcrossSitesTreeLikelihood * OptimizationTools::optimizeTreeNNI(
-    DiscreteRatesAcrossSitesTreeLikelihood * tl,
+DRHomogeneousTreeLikelihood * OptimizationTools::optimizeTreeNNI(
+    DRHomogeneousTreeLikelihood * tl,
     bool optimizeNumFirst,
 		double tolBefore,
 		double tolDuring,
@@ -300,14 +300,26 @@ DiscreteRatesAcrossSitesTreeLikelihood * OptimizationTools::optimizeTreeNNI(
     OptimizationTools::optimizeNumericalParameters(tl, 1, tolBefore, 1000000, messageHandler, profiler, verbose);
   //Begin topo search:
   NNISearchable *topo = dynamic_cast<NNISearchable *>(tl);
-  NNITopologySearch topoSearch(*topo, NNITopologySearch::PHYML, verbose);
+  NNITopologySearch topoSearch(*topo, NNITopologySearch::PHYML, verbose > 2 ? verbose - 2 : 0);
   NNITopologyListener *topoListener = new NNITopologyListener(&topoSearch, tolDuring, messageHandler, profiler, verbose);
   topoListener->setNumericalOptimizationCounter(numStep);
   topoSearch.addTopologyListener(*topoListener);
   topoSearch.search();
   delete topoListener;
-  return dynamic_cast<DiscreteRatesAcrossSitesTreeLikelihood *>(topoSearch.getSearchableObject());
+  return dynamic_cast<DRHomogeneousTreeLikelihood *>(topoSearch.getSearchableObject());
 }
+
+/******************************************************************************/	
+
+DRTreeParsimonyScore * OptimizationTools::optimizeTreeNNI(
+        DRTreeParsimonyScore * tp,
+        unsigned int verbose)	
+{
+  NNISearchable *topo = dynamic_cast<NNISearchable *>(tp);
+  NNITopologySearch topoSearch(*topo, NNITopologySearch::PHYML, verbose);
+  topoSearch.search();
+  return dynamic_cast<DRTreeParsimonyScore *>(topoSearch.getSearchableObject());
+};
 
 /******************************************************************************/	
 

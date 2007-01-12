@@ -1,11 +1,12 @@
 //
-// File: AbstractTreeParsimonyScore.h
+// File: AbstractTreeParsimonyData.h
 // Created by: Julien Dutheil
-// Created on: Thu Jul 28 17:25 2005
+// Created on: Tue Jan 09 17:15 2007
+// From file AbstractTreeParsimonyScore.h
 //
 
 /*
-Copyright or © or Copr. CNRS, (November 16, 2004)
+Copyright or Â© or Copr. CNRS, (November 16, 2004)
 
 This software is a computer program whose purpose is to provide classes
 for phylogenetic data analysis.
@@ -37,62 +38,52 @@ The fact that you are presently reading this means that you have had
 knowledge of the CeCILL license and that you accept its terms.
 */
 
-#ifndef _ABSTRACTTREEPARSIMONYSCORE_H_
-#define _ABSTRACTTREEPARSIMONYSCORE_H_
+#ifndef _ABSTRACTTREEPARSIMONYDATA_H_
+#define _ABSTRACTTREEPARSIMONYDATA_H_
 
-#include "TreeParsimonyScore.h"
-#include "Node.h"
-
-// From SeqLib:
-#include <Seq/SiteContainer.h>
+#include "TreeParsimonyData.h"
 
 /**
- * @brief Partial implementation of the TreeParsimonyScore interface.
+ * @brief Partial implementation of the TreeParsimonyData interface.
+ *
+ * This data structure provides a simple compression, by performing and storing computations
+ * only one time per identical sites.
+ *
+ * The compression is achieved by the TreeParsimonyScore object.
+ * The correspondance between sites in the dataset and the arrays in the structures is given
+ * by the _rootPatternLinks array: the array indice for site @f$i@f$ if given by:
+ * @code
+ * _rootPatternLinks[i]
+ * @endcode
+ *
+ * Finally, the _rootWeights array gives for each array position, the number of sites with this
+ * pattern.
+ * The global parsimony score is then given by the sum of all scores for each array position,
+ * weighted by the corresponding number of sites.
  */
-class AbstractTreeParsimonyScore :
-	public virtual TreeParsimonyScore
+class AbstractTreeParsimonyData : public TreeParsimonyData
 {
 	protected:
+		vector<unsigned int> _rootPatternLinks;
+		vector<unsigned int> _rootWeights;
 		TreeTemplate<Node> * _tree;
-		const SiteContainer * _data;
-		const Alphabet * _alphabet;
-		unsigned int _nbStates;
-		
-	public:
-		AbstractTreeParsimonyScore(
-			const TreeTemplate<Node> & tree,
-			const SiteContainer & data,
-			bool verbose)
-			throw (Exception);
-
-    AbstractTreeParsimonyScore(const AbstractTreeParsimonyScore & tp)
-    {
-      _tree     = tp._tree->clone();
-      _data     = dynamic_cast<SiteContainer *>(tp._data->clone());
-      _alphabet = tp._alphabet;
-      _nbStates = tp._nbStates;
-    }
     
-    AbstractTreeParsimonyScore & operator=(const AbstractTreeParsimonyScore & tp)
-    {
-      _tree     = tp._tree->clone();
-      _data     = dynamic_cast<SiteContainer *>(tp._data->clone());
-      _alphabet = tp._alphabet;
-      _nbStates = tp._nbStates;
-      return *this;
-    }
-
-		virtual ~AbstractTreeParsimonyScore()
-    {
-      delete _tree;
-      delete _data;
-    }
-
+  public:
+    AbstractTreeParsimonyData() {}
+    virtual ~AbstractTreeParsimonyData() {}
+    
 	public:
-		virtual Tree * getTree() { return _tree; }
-		virtual const Tree * getTree() const { return _tree; }
-		virtual vector<unsigned int> getScoreForEachSite() const;
+		unsigned int getRootArrayPosition(const unsigned int site) const
+		{
+			return _rootPatternLinks[site];
+		}
+		unsigned int getWeight(unsigned int pos) const
+		{ 
+			return _rootWeights[pos];
+		}
+		const TreeTemplate<Node> * getTree() const { return _tree; }  
+		TreeTemplate<Node> * getTree() { return _tree; }
 };
 
-#endif //_ABSTRACTTREEPARSIMONYSCORE_H_
+#endif //_ABSTRACTTREEPARSIMONYDATA_H_
 

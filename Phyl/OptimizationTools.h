@@ -43,7 +43,9 @@ knowledge of the CeCILL license and that you accept its terms.
 #include "TreeLikelihood.h"
 #include "HomogeneousTreeLikelihood.h"
 #include "AbstractHomogeneousTreeLikelihood.h"
+#include "DRHomogeneousTreeLikelihood.h"
 #include "NNITopologySearch.h"
+#include "DRTreeParsimonyScore.h"
 
 // From the STL:
 #include <iostream>
@@ -274,10 +276,10 @@ class OptimizationTools
      * @code
      * tl = OptimizationTools::optimizeTreeNNI(tl, ...);
      * @endcode
-		 * @throw Exception if tl does not implement the NNISearchable interface, and any exception thrown by the optimizer.
+		 * @throw Exception any exception thrown by the optimizer.
      */
-    static DiscreteRatesAcrossSitesTreeLikelihood * optimizeTreeNNI(
-        DiscreteRatesAcrossSitesTreeLikelihood * tl,
+    static DRHomogeneousTreeLikelihood * optimizeTreeNNI(
+        DRHomogeneousTreeLikelihood * tl,
         bool optimizeNumFirst = true,
 			  double tolBefore = 100,
 			  double tolDuring = 100,
@@ -287,7 +289,10 @@ class OptimizationTools
 			  ostream * profiler       = &cout,
 			  unsigned int verbose = 1)
       throw (Exception);
-	
+
+    static DRTreeParsimonyScore * optimizeTreeNNI(
+        DRTreeParsimonyScore * tp,
+        unsigned int verbose = 1);	
 };
 
 

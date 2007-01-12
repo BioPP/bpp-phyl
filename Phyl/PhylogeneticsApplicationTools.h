@@ -235,8 +235,15 @@ class PhylogeneticsApplicationTools
 		 * @param suffixIsOptional Tell if the suffix is absolutely required.
 		 * @param verbose Print some info to the 'message' output stream.
 		 * @throw Exception Any exception that may happen during the optimization process.
+     * @return A pointer toward the final likelihood object.
+     * This pointer may be the same as passed in argument (tl), but in some cases the algorithm
+     * clone this object. We may change this bahavior in the future...
+     * You hence should write something like
+     * @code
+     * tl = PhylogeneticsApplicationTools::optimizeParameters(tl, ...);
+     * @endcode
 		 */
-		static void optimizeParameters(
+		static TreeLikelihood * optimizeParameters(
 			TreeLikelihood * tl,
 			map<string, string> & params,
 			const string & suffix = "",

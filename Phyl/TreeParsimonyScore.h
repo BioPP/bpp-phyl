@@ -42,17 +42,27 @@ knowledge of the CeCILL license and that you accept its terms.
 
 #include "TreeTemplate.h"
 
+// Fom utils:
+#include <Utils/Clonable.h>
+
 // From the STL:
 #include <vector>
 
 /**
  * @brief Compute a parsimony score.
  */
-class TreeParsimonyScore
+class TreeParsimonyScore:
+  public virtual Clonable
 {
 	public:
 		TreeParsimonyScore() {}
 		virtual ~TreeParsimonyScore() {}
+
+#if defined(VIRTUAL_COV)
+    TreeParsimonyScore * clone() const = 0;
+#else
+    Clonable * clone() const = 0;
+#endif
 
 	public:
 		
