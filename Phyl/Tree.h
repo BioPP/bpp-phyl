@@ -70,7 +70,7 @@ class Tree:
 
 	public:
 		
-		/**
+		/**i
 		 * @brief Tree name.
 		 *
 		 * @{
@@ -143,7 +143,8 @@ class Tree:
     /**
      * @brief Swap two son nodes.
      *
-     * @param parentId The node.
+     * @param tree The tree.
+     * @param nodeId The node.
      * @param i1 First son node index.
      * @param i2 Second son node index.
      * @throw NodeNotFoundException If the node is not found.

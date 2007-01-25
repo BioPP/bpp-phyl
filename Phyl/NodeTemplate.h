@@ -181,7 +181,7 @@ class NodeTemplate : public Node
     /**
      * @brief Set the information to be associated to this node.
      * 
-     * @param An information object.
+     * @param infos An information object.
      */
 		virtual void setInfos(const NodeInfos & infos) { _infos = infos; }
 

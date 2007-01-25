@@ -75,7 +75,7 @@ class TreeParsimonyNodeData: public Clonable
      *
      * A pointer toward this node will be created and associated to this data.
      *
-     * @param The node to be associated to this data.
+     * @param node The node to be associated to this data.
      */
     virtual void setNode(const Node & node) = 0;
 };

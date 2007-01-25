@@ -76,7 +76,7 @@ class TreeLikelihoodNodeData: public Clonable
      *
      * A pointer toward this node will be created and associated to this data.
      *
-     * @param The node to be associated to this data.
+     * @param node The node to be associated to this data.
      */
     virtual void setNode(const Node & node) = 0;
 };
@@ -109,7 +109,7 @@ class TreeLikelihoodData: public Clonable
      * @warning: the old tree and the new tree must be two clones! And particularly, they have to share the
      * same topology and nodes id.
      *
-     * @param The node to be associated to this data.
+     * @param tree The tree to be associated to this data.
      */
     virtual void setTree(TreeTemplate<Node> & tree) = 0;
 		virtual TreeTemplate<Node> * getTree() = 0;

@@ -125,7 +125,7 @@ class TreeTools
     /**
      * @brief Retrieve all leaves from a subtree.
      *
-     * @param Tree The tree
+     * @param tree The tree
      * @param nodeId The id of node defining the subtree.
      * @return A vector with the ids of all leaves in the subtree.
      * @throw NodeNotFoundException If the node is not found.
@@ -135,9 +135,9 @@ class TreeTools
     /**
      * @brief Retrieve all leaves from a subtree.
      *
-     * @param Tree The tree
+     * @param tree The tree
      * @param nodeId The id of node defining the subtree.
-     * @param A vector with the ids of all leaves in the subtree.
+     * @param leaves A vector with the ids of all leaves in the subtree.
      * @throw NodeNotFoundException If the node is not found.
      */
     static void getLeavesId(const Tree & tree, int nodeId, vector<int> & leaves) throw (NodeNotFoundException);
@@ -145,7 +145,7 @@ class TreeTools
     /**
      * @brief Get the id of a leaf given its name in a subtree.
      *
-     * @param Tree The tree
+     * @param tree The tree
      * @param nodeId The id of node defining the subtree.
      * @param name The name of the node.
      * @return The id of the node.
@@ -156,7 +156,7 @@ class TreeTools
     /**
      * @brief Get the id of a leaf given its name in a subtree.
      *
-     * @param Tree The tree
+     * @param tree The tree
      * @param nodeId The id of node defining the subtree.
      * @param name The name of the node.
      * @param id The id of the node.
@@ -167,7 +167,7 @@ class TreeTools
     /**
      * @brief Retrieve all son nodes from a subtree.
      *
-     * @param Tree The tree
+     * @param tree The tree
      * @param nodeId The id of node defining the subtree.
      * @return A vector of ids of each son node in the subtree.
      * @throw NodeNotFoundException If the node is not found.
@@ -177,7 +177,7 @@ class TreeTools
     /**
      * @brief Retrieve all son nodes from a subtree.
      *
-     * @param Tree The tree
+     * @param tree The tree
      * @param nodeId The id of node defining the subtree.
      * @param nodes A vector of ids of each son node in the subtree.
      * @throw NodeNotFoundException If the node is not found.
@@ -212,7 +212,7 @@ class TreeTools
      * </code>
      * Depth of node 'N1' id 2, depth of node 'N2' is 1, depth of leaves is 0.
      *
-     * @param Tree The tree.
+     * @param tree The tree.
      * @param nodeId The id of node defining the subtree.
      * @return The depth of the subtree.
      * @throw NodeNotFoundException If the node is not found.
@@ -226,7 +226,7 @@ class TreeTools
      * The distance do not include the branch length of the subtree root node.
      * The height of a leaf is hence 0.
      *
-     * @param Tree The tree.
+     * @param tree The tree.
      * @param nodeId The id of node defining the subtree.
      * @return The height of the subtree.
      * @throw NodeNotFoundException If the node is not found.
@@ -347,6 +347,7 @@ class TreeTools
      * 
      * @param tree The tree to use.
      * @param nodeId The node defining the subtree.
+     * @param noneg Tell if the correction for non negative branch lengths must be used.
      * @return The modified height of the node.
      * @throw NodeNotFoundException If the node is not found.
      * @throw NodeException If one branch length is lacking.
@@ -405,7 +406,7 @@ class TreeTools
     /**
      * @brief Get the parenthesis description of a subtree.
      *
-     * @param Tree The tree
+     * @param tree The tree
      * @param nodeId The id of node defining the subtree.
      * @param writeId Tells if node ids must be printed.
      *                This will overwrite bootstrap values if there are ones.

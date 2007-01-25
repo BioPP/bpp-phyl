@@ -78,7 +78,7 @@ class TreeTemplateTools
     template<class N>
     static vector<N *> getLeaves(N & node)
     {
-      vector<N *> leaves;
+      vector<iN *> leaves;
       getLeaves<N>(node, leaves);
       return leaves;
     }
@@ -87,7 +87,7 @@ class TreeTemplateTools
      * @brief Retrieve all leaves from a subtree.
      *
      * @param node The node that defines the subtree.
-     * @param A vector of pointers toward each leaf in the subtree.
+     * @param leaves A vector of pointers toward each leaf in the subtree.
      */
     template<class N>
     static void getLeaves(N & node, vector<N *> & leaves)
