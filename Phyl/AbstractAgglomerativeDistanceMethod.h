@@ -67,8 +67,8 @@ class AbstractAgglomerativeDistanceMethod : public virtual AgglomerativeDistance
  		map<unsigned int, Node *> _currentNodes;
 	
 	public:
-		AbstractAgglomerativeDistanceMethod(): _matrix(0), _tree(NULL) {}
-		AbstractAgglomerativeDistanceMethod(const DistanceMatrix & matrix): _matrix(0), _tree(NULL)
+		AbstractAgglomerativeDistanceMethod(): _matrix(0), _tree(NULL), _currentNodes() {}
+		AbstractAgglomerativeDistanceMethod(const DistanceMatrix & matrix): _matrix(0), _tree(NULL), _currentNodes()
     {
       setDistanceMatrix(matrix);
     }
@@ -76,11 +76,10 @@ class AbstractAgglomerativeDistanceMethod : public virtual AgglomerativeDistance
     {
       delete _tree;
     }
-    AbstractAgglomerativeDistanceMethod(const AbstractAgglomerativeDistanceMethod & a): _matrix(a._matrix)
+    AbstractAgglomerativeDistanceMethod(const AbstractAgglomerativeDistanceMethod & a): _matrix(a._matrix), _tree(NULL), _currentNodes()
     {
       // Hard copy of inner tree:
       if(a._tree != NULL) _tree = new TreeTemplate<Node>(* a._tree);
-      else _tree = NULL;
     }
     AbstractAgglomerativeDistanceMethod & operator=(const AbstractAgglomerativeDistanceMethod & a)
     {

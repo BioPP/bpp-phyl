@@ -50,13 +50,12 @@ using namespace std;
 
 /** Copy constructor: *********************************************************/
   
-Node::Node(const Node & node)
+Node::Node(const Node & node):
+  _id(node._id), _name(NULL), _sons(node._sons), _father(node._father),
+  _distanceToFather(NULL), _properties()
 {
-  _id               = node._id;
   _name             = node.hasName() ? new string(* node._name) : NULL;
-  _father           = node._father;
   _distanceToFather = node.hasDistanceToFather() ? new double(* node._distanceToFather) : NULL;
-  _sons             = node._sons;
   for(map<string, Clonable *>::iterator i = node._properties.begin(); i != node._properties.end(); i++)
     _properties[i->first] = i->second->clone();
 }

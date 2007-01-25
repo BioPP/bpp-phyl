@@ -69,7 +69,7 @@ class AbstractTreeParsimonyData : public TreeParsimonyData
 		TreeTemplate<Node> * _tree;
     
   public:
-    AbstractTreeParsimonyData() {}
+    AbstractTreeParsimonyData(): _rootPatternLinks(), _rootWeights(), _tree(NULL) {}
     virtual ~AbstractTreeParsimonyData() {}
     
 	public:

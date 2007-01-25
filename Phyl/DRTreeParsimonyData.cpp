@@ -47,16 +47,17 @@ knowledge of the CeCILL license and that you accept its terms.
 /******************************************************************************/
 
 DRTreeParsimonyData::DRTreeParsimonyData(const DRTreeParsimonyData & data):
-  AbstractTreeParsimonyData(data)
+  AbstractTreeParsimonyData(data), 
+  _nodeData(data._nodeData),
+  _leafData(data._leafData),
+  _rootBitsets(data._rootBitsets),
+  _rootScores(data._rootScores),
+  _shrunkData(NULL),
+  _nbSites(data._nbSites),
+  _nbStates(data._nbStates),
+  _nbDistinctSites(data._nbDistinctSites)
 {
-  _nodeData        = data._nodeData;
-  _leafData        = data._leafData;
-  _rootBitsets     = data._rootBitsets;
-  _rootScores      = data._rootScores;
   _shrunkData      = dynamic_cast<SiteContainer *>(data._shrunkData->clone());
-  _nbSites         = data._nbSites;
-  _nbStates        = data._nbStates;
-  _nbDistinctSites = data._nbDistinctSites;
 }
     
 /******************************************************************************/

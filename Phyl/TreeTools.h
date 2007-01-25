@@ -61,9 +61,9 @@ class NodeTokenizer
     mutable unsigned int currentPosition;
   
   public:
-    NodeTokenizer(const string & description) throw (IOException)
+    NodeTokenizer(const string & description) throw (IOException): tokens(), currentPosition(0)
     {
-      //cout << "NODETOENIZER: " << description << endl;
+      //cout << "NODETOKENIZER: " << description << endl;
       unsigned int tokCount = 0;
       int parCount = 0;
       unsigned int i;
@@ -81,7 +81,7 @@ class NodeTokenizer
         }          
       }
       //Add last token:
-      //cout << "NODETOENIZER: NEWTOKEN " << description.substr(tokCount) << endl;
+      //cout << "NODETOKENIZER: NEWTOKEN " << description.substr(tokCount) << endl;
       tokens.push_back(description.substr(tokCount));
       
       currentPosition = 0;

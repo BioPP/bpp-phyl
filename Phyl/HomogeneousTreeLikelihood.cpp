@@ -58,10 +58,11 @@ HomogeneousTreeLikelihood::HomogeneousTreeLikelihood(
   SubstitutionModel * model,
   DiscreteDistribution * rDist,
   bool checkRooted,
-  bool verbose
-)  throw (Exception):
-  AbstractDiscreteRatesAcrossSitesTreeLikelihood(rDist, verbose), // We must do this since AbstractTreeLikelihood is virtual
-  AbstractHomogeneousTreeLikelihood(tree, model, rDist, checkRooted, verbose)
+  bool verbose)
+throw (Exception):
+  //AbstractDiscreteRatesAcrossSitesTreeLikelihood(rDist, verbose), // We must do this since AbstractTreeLikelihood is virtual
+  AbstractHomogeneousTreeLikelihood(tree, model, rDist, checkRooted, verbose),
+  _likelihoodData(NULL)
 {
   if(verbose) ApplicationTools::message << "Homogeneous Tree Likelihood" << endl;  
   _likelihoodData = new DRASRTreeLikelihoodData(*_tree, rDist->getNumberOfCategories());
@@ -80,10 +81,11 @@ HomogeneousTreeLikelihood::HomogeneousTreeLikelihood(
   SubstitutionModel * model,
   DiscreteDistribution * rDist,
   bool checkRooted,
-  bool verbose
-)  throw (Exception):
-  AbstractDiscreteRatesAcrossSitesTreeLikelihood(rDist, verbose), // We must do this since AbstractTreeLikelihood is virtual
-  AbstractHomogeneousTreeLikelihood(tree, model, rDist, checkRooted, verbose)
+  bool verbose)
+throw (Exception):
+  //AbstractDiscreteRatesAcrossSitesTreeLikelihood(rDist, verbose), // We must do this since AbstractTreeLikelihood is virtual
+  AbstractHomogeneousTreeLikelihood(tree, model, rDist, checkRooted, verbose),
+  _likelihoodData(NULL)
 {
   if(verbose) ApplicationTools::message << "Homogeneous Tree Likelihood" << endl;  
   _likelihoodData = new DRASRTreeLikelihoodData(*_tree, rDist->getNumberOfCategories());
@@ -101,9 +103,10 @@ HomogeneousTreeLikelihood::HomogeneousTreeLikelihood(
 HomogeneousTreeLikelihood::HomogeneousTreeLikelihood(
     const HomogeneousTreeLikelihood & lik):
   AbstractParametrizable(lik),
-  AbstractTreeLikelihood(lik),
-  AbstractDiscreteRatesAcrossSitesTreeLikelihood(lik),
-  AbstractHomogeneousTreeLikelihood(lik)
+  //AbstractTreeLikelihood(lik),
+  //AbstractDiscreteRatesAcrossSitesTreeLikelihood(lik),
+  AbstractHomogeneousTreeLikelihood(lik),
+  _likelihoodData(NULL)
 {
   _likelihoodData = lik._likelihoodData->clone();
   _likelihoodData->setTree(*_tree);
@@ -199,30 +202,6 @@ double HomogeneousTreeLikelihood::getLogLikelihoodForASite(unsigned int site) co
 
 /******************************************************************************/
 
-double HomogeneousTreeLikelihood::getLikelihoodForASiteForAState(unsigned int site, int state) const
-{
-  double l = 0;
-  for(unsigned int i = 0; i < _nbClasses; i++)
-  {
-    l += getLikelihoodForASiteForARateClassForAState(site, i, state) * _rateDistribution->getProbability(i);
-  }
-  return l;
-}
-
-/******************************************************************************/
-
-double HomogeneousTreeLikelihood::getLogLikelihoodForASiteForAState(unsigned int site, int state) const
-{
-  double l = 0;
-  for(unsigned int i = 0; i < _nbClasses; i++) {
-    l += getLikelihoodForASiteForARateClassForAState(site, i, state) * _rateDistribution->getProbability(i);
-  }
-  //if(l <= 0.) cerr << "WARNING!!! Negative likelihood." << endl;
-  return log(l);
-}
-
-/******************************************************************************/
-
 double HomogeneousTreeLikelihood::getLikelihoodForASiteForARateClass(unsigned int site, unsigned int rateClass) const
 {
   double l = 0;
@@ -259,47 +238,6 @@ double HomogeneousTreeLikelihood::getLikelihoodForASiteForARateClassForAState(un
 double HomogeneousTreeLikelihood::getLogLikelihoodForASiteForARateClassForAState(unsigned int site, unsigned int rateClass, int state) const
 {
   return log(_likelihoodData->getLikelihoodArray(_tree->getRootNode())[_likelihoodData->getRootArrayPosition(site)][rateClass][state]);
-}
-
-/******************************************************************************/  
-
-
-VVdouble HomogeneousTreeLikelihood::getPosteriorProbabilitiesOfEachRate() const
-{
-  VVdouble pb = getLikelihoodForEachSiteForEachRateClass();
-  Vdouble  l  = getLikelihoodForEachSite();
-  for(unsigned int i = 0; i < _nbSites; i++) {
-    for(unsigned int j = 0; j < _nbClasses; j++)
-      pb[i][j] = pb[i][j] * _rateDistribution->getProbability(j) / l[i]; 
-  }
-  return pb;
-}
-  
-/******************************************************************************/
-
-Vdouble HomogeneousTreeLikelihood::getRateWithMaxPostProbOfEachSite() const
-{
-  VVdouble l = getLikelihoodForEachSiteForEachRateClass();
-  Vdouble rates(_nbSites);
-  for(unsigned int i = 0; i < _nbSites; i++) {
-    rates[i] = _rateDistribution->getCategory(whichmax<double>(l[i]));
-  }
-  return rates;
-}
-
-/******************************************************************************/
-
-Vdouble HomogeneousTreeLikelihood::getPosteriorRateOfEachSite() const
-{
-  VVdouble lr = getLikelihoodForEachSiteForEachRateClass();
-  Vdouble  l  = getLikelihoodForEachSite();
-  Vdouble rates( _nbSites, 0.);
-  for(unsigned int i = 0; i <  _nbSites; i++) {
-    for(unsigned int j = 0; j < _nbClasses; j++) {
-      rates[i] += (lr[i][j] / l[i]) * _rateDistribution->getProbability(j) *  _rateDistribution->getCategory(j);
-    }
-  }
-  return rates;
 }
 
 /******************************************************************************/

@@ -1,3 +1,9 @@
+19/01/07 -*- Version 1.3 -*-
+
+19/01/07 Julien Dutheil
+* Removed duplicated functions in HomogeneousTreeLikelihood.
+* Code update
+
 10/01/07 Julien Dutheil
 * Parsimony classes updated to match the new NNISearchable implementation.
 

@@ -116,12 +116,12 @@ class MarkovModulatedSubstitutionModel: public SubstitutionModel
     /**
      * @brief Build a new MarkovModulatedSubstitutionModel object.
      *
-     * @param model The substitution model to use. can e of any alphabet type.
+     * @param model The substitution model to use. Can be of any alphabet type.
      */
-    MarkovModulatedSubstitutionModel(SubstitutionModel * model)
-    {
-      _model = model;
-    }
+    MarkovModulatedSubstitutionModel(SubstitutionModel * model):
+      _model(model), _nbStates(0), _nbRates(0), _rates(), _ratesExchangeability(),
+      _ratesFreq(), _ratesGenerator(), _ratesParameters(), _generator(), _exchangeability(),
+      _leftEigenVectors(), _rightEigenVectors(), _eigenValues(), _freq() {}
     
     virtual ~MarkovModulatedSubstitutionModel() {}
 

@@ -133,7 +133,7 @@ AbstractHomogeneousTreeLikelihood::AbstractHomogeneousTreeLikelihood(
 
 AbstractHomogeneousTreeLikelihood::AbstractHomogeneousTreeLikelihood(
     const AbstractHomogeneousTreeLikelihood & lik) :
-  AbstractTreeLikelihood(lik),
+  //AbstractTreeLikelihood(lik),
   AbstractDiscreteRatesAcrossSitesTreeLikelihood(lik)
 {
   _model           = lik._model;

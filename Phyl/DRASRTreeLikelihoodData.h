@@ -130,21 +130,20 @@ class DRASRTreeLikelihoodData :
 
 	public:
 		DRASRTreeLikelihoodData(TreeTemplate<Node> & tree, unsigned int nbClasses):
-      _nbClasses(nbClasses)
+      _nodeData(), _patternLinks(), _shrunkData(NULL), _nbSites(0), _nbStates(0),
+      _nbClasses(nbClasses), _nbDistinctSites(0)
     {
       _tree = &tree;
-      _shrunkData = NULL;
     }
 
 		DRASRTreeLikelihoodData(const DRASRTreeLikelihoodData & data):
-      AbstractTreeLikelihoodData(data)
+      AbstractTreeLikelihoodData(data),
+      _nodeData(data._nodeData),
+      _patternLinks(data._patternLinks),
+      _shrunkData(NULL),
+      _nbSites(data._nbSites), _nbStates(data._nbStates),
+      _nbClasses(data._nbClasses), _nbDistinctSites(data._nbDistinctSites)
     {
-      _nodeData          = data._nodeData;
-      _patternLinks      = data._patternLinks;
-      _nbSites           = data._nbSites;
-      _nbStates          = data._nbStates;
-      _nbClasses         = data._nbClasses;
-      _nbDistinctSites   = data._nbDistinctSites;
       _tree              = data._tree;
       _shrunkData        = dynamic_cast<SiteContainer *>(data._shrunkData->clone());
     }

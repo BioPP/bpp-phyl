@@ -70,10 +70,6 @@ using namespace std;
 class AbstractTreeLikelihoodData :
 	public virtual TreeLikelihoodData
 {
-	public:
-		AbstractTreeLikelihoodData() {}
-		virtual ~AbstractTreeLikelihoodData() {}
-
 	protected:
 		/**
 		 * @brief Links between sites and patterns.
@@ -96,6 +92,12 @@ class AbstractTreeLikelihoodData :
 		TreeTemplate<Node> * _tree;
 
 		const Alphabet * _alphabet;
+
+  public:
+		AbstractTreeLikelihoodData():
+      _rootPatternLinks(), _rootWeights(), _tree(NULL), _alphabet(NULL) {}
+
+		virtual ~AbstractTreeLikelihoodData() {}
 
 	public:
 		vector<unsigned int> & getRootArrayPositions() { return _rootPatternLinks; }

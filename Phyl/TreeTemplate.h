@@ -93,24 +93,23 @@ class TreeTemplate: public Tree
 
 	public: // Constructors and destructor:
 		
-		TreeTemplate() { _root = NULL; }
+		TreeTemplate(): _root(NULL), _name(), _nextNodeId(0) {}
 
-		TreeTemplate(const TreeTemplate<N> & t)
+		TreeTemplate(const TreeTemplate<N> & t):
+      _root(NULL), _name(t._name), _nextNodeId(t._nextNodeId)
 		{
 			//Perform a hard copy of the nodes:
 			_root = TreeTemplateTools::cloneSubtree<N>(* t.getRootNode());
-      _name = t._name;
-      _nextNodeId = t._nextNodeId;
 		}
 
-		TreeTemplate(const Tree & t)
+		TreeTemplate(const Tree & t):
+      _root(NULL), _name(t.getName()), _nextNodeId(0)
 		{
 			//Create new nodes from an existing tree:
 			_root = TreeTemplateTools::cloneSubtree<N>(t, t.getRootId());
-      _name = t.getName();
 		}
 
-		TreeTemplate(N & root) { _root = &root; }
+		TreeTemplate(N & root): _root(&root), _name(), _nextNodeId(0) {}
 
 		TreeTemplate<N> & operator=(const TreeTemplate<N> & t)
 		{

@@ -49,7 +49,7 @@ knowledge of the CeCILL license and that you accept its terms.
  * This class provides a pointer toward a single substitution model + several utilitary variables.
  */
 class AbstractHomogeneousTreeLikelihood:
-  public virtual AbstractDiscreteRatesAcrossSitesTreeLikelihood
+  public AbstractDiscreteRatesAcrossSitesTreeLikelihood
 {
 	protected:
 		SubstitutionModel * _model;
@@ -86,8 +86,8 @@ class AbstractHomogeneousTreeLikelihood:
 			SubstitutionModel * model,
 			DiscreteDistribution * rDist,
       bool checkRooted = true,
-			bool verbose = true
-			)	throw (Exception);
+			bool verbose = true)
+      throw (Exception);
 
     /**
      * @brief Copy constructor

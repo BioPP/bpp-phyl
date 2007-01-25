@@ -73,7 +73,11 @@ class BranchLikelihood :
     vector<unsigned int> _weights;
 
   public:
-    BranchLikelihood(const vector<unsigned int> & weights): _lnL(log(0.)), _weights(weights)
+    BranchLikelihood(const vector<unsigned int> & weights):
+      _array1(NULL), _array2(NULL), _arrayTmp(),
+      _model(NULL), _rDist(NULL),
+      _nbStates(0), _nbClasses(0),
+      _pxy(), _lnL(log(0.)), _weights(weights)
     {
       _parameters.addParameter(Parameter("BrLen", 1, NULL));
     }
@@ -160,7 +164,7 @@ class BranchLikelihood :
  * All nodes share the same site patterns.
  */
 class DRHomogeneousTreeLikelihood :
-  public virtual AbstractHomogeneousTreeLikelihood,
+  public AbstractHomogeneousTreeLikelihood,
   public virtual NNISearchable
 {
   protected:
@@ -258,6 +262,7 @@ class DRHomogeneousTreeLikelihood :
       return AbstractHomogeneousTreeLikelihood::getBranchLengthsParameters();
     }
     /** @} */
+
 
     void computeTreeLikelihood();
 

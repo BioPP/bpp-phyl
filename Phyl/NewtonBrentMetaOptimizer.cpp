@@ -174,7 +174,7 @@ void NewtonBrentMetaOptimizer::init(const ParameterList & parameters)
   {
     profile(_parameters[i]->getName() + "\t"); 
   }
-  profileln("Function");
+  profileln("Function\tTime");
 
   printPoint(_parameters, _function->f(_parameters));
   

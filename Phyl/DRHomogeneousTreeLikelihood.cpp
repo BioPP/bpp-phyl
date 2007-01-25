@@ -63,10 +63,15 @@ DRHomogeneousTreeLikelihood::DRHomogeneousTreeLikelihood(
   SubstitutionModel * model,
   DiscreteDistribution * rDist,
   bool checkRooted,
-  bool verbose
-)  throw (Exception):
-  AbstractDiscreteRatesAcrossSitesTreeLikelihood(rDist, verbose), // We must do this since AbstractTreeLikelihood is virtual
-  AbstractHomogeneousTreeLikelihood(tree, model, rDist, checkRooted, verbose)
+  bool verbose)
+throw (Exception):
+  //AbstractDiscreteRatesAcrossSitesTreeLikelihood(rDist, verbose),
+  AbstractHomogeneousTreeLikelihood(tree, model, rDist, checkRooted, verbose),
+  _likelihoodData(NULL),
+  _brLikFunction(NULL),
+  _brentOptimizer(NULL),
+  _brLenNNIValues(),
+  _brLenNNIParams()
 {
   if(verbose) ApplicationTools::message << "Double-Recursive Homogeneous Tree Likelihood" << endl;  
   _likelihoodData = new DRASDRTreeLikelihoodData(*_tree, rDist->getNumberOfCategories());
@@ -75,8 +80,6 @@ DRHomogeneousTreeLikelihood::DRHomogeneousTreeLikelihood(
   initParameters();
   computeAllTransitionProbabilities();
   //fireParameterChanged(_parameters);
-  
-  _brLikFunction = NULL;
   
   _brentOptimizer = new BrentOneDimension();
   _brentOptimizer->setConstraintPolicy(AbstractOptimizer::CONSTRAINTS_AUTO);
@@ -93,15 +96,19 @@ DRHomogeneousTreeLikelihood::DRHomogeneousTreeLikelihood(
   SubstitutionModel * model,
   DiscreteDistribution * rDist,
   bool checkRooted,
-  bool verbose
-)  throw (Exception):
-  AbstractDiscreteRatesAcrossSitesTreeLikelihood(rDist, verbose), // We must do this since AbstractTreeLikelihood is virtual
-  AbstractHomogeneousTreeLikelihood(tree, model, rDist, checkRooted, verbose)
+  bool verbose)
+throw (Exception):
+  //AbstractDiscreteRatesAcrossSitesTreeLikelihood(rDist, verbose),
+  AbstractHomogeneousTreeLikelihood(tree, model, rDist, checkRooted, verbose),
+  _likelihoodData(NULL),
+  _brLikFunction(NULL),
+  _brentOptimizer(NULL),
+  _brLenNNIValues(),
+  _brLenNNIParams()
 {
   if(verbose) ApplicationTools::message << "Double-Recursive Homogeneous Tree Likelihood" << endl;  
   _likelihoodData = new DRASDRTreeLikelihoodData(*_tree, rDist->getNumberOfCategories());
   
-  _brLikFunction = NULL;
   _brentOptimizer = new BrentOneDimension();
   _brentOptimizer->setConstraintPolicy(AbstractOptimizer::CONSTRAINTS_AUTO);
   _brentOptimizer->setProfiler(NULL);
@@ -119,9 +126,10 @@ DRHomogeneousTreeLikelihood::DRHomogeneousTreeLikelihood(
 
 DRHomogeneousTreeLikelihood::DRHomogeneousTreeLikelihood(const DRHomogeneousTreeLikelihood & lik):
   AbstractParametrizable(lik),
-  AbstractTreeLikelihood(lik),
-  AbstractDiscreteRatesAcrossSitesTreeLikelihood(lik),
-  AbstractHomogeneousTreeLikelihood(lik)
+  //AbstractTreeLikelihood(lik),
+  //AbstractDiscreteRatesAcrossSitesTreeLikelihood(lik),
+  AbstractHomogeneousTreeLikelihood(lik),
+  _likelihoodData(NULL)
 {
   _likelihoodData = lik._likelihoodData->clone();
   _likelihoodData->setTree(*_tree);

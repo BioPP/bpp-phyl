@@ -94,22 +94,22 @@ class Node: public Clonable
     /**
      * @brief Build a new void Node object.
      */
-    Node() : _id(0), _name(NULL), _father(NULL), _distanceToFather(NULL) {}
+    Node() : _id(0), _name(NULL), _sons(), _father(NULL), _distanceToFather(NULL), _properties() {}
       
     /**
      * @brief Build a new Node with specified id.
      */
-    Node(int id) : _id(id), _name(NULL), _father(NULL), _distanceToFather(NULL) {}
+    Node(int id) : _id(id), _name(NULL), _sons(), _father(NULL), _distanceToFather(NULL), _properties() {}
 
     /**
      * @brief Build a new Node with specified name.
      */
-    Node(const string & name) : _id(0), _name(new string(name)), _father(NULL), _distanceToFather(NULL) {}
+    Node(const string & name) : _id(0), _name(new string(name)), _sons(), _father(NULL), _distanceToFather(NULL), _properties() {}
 
     /**
      * @brief Build a new Node with specified id and name.
      */
-    Node(int id, const string & name) : _id(id), _name(new string(name)), _father(NULL), _distanceToFather(NULL) {}
+    Node(int id, const string & name) : _id(id), _name(new string(name)), _sons(), _father(NULL), _distanceToFather(NULL), _properties() {}
 
     /**
      * @brief Copy constructor.

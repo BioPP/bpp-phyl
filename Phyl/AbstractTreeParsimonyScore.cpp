@@ -47,7 +47,9 @@ AbstractTreeParsimonyScore::AbstractTreeParsimonyScore(
 	const TreeTemplate<Node> & tree,
 	const SiteContainer & data,
 	bool verbose)
-	throw (Exception)
+	throw (Exception):
+    _tree(NULL), _data(NULL), _alphabet(_data->getAlphabet()), _nbStates(_alphabet->getSize())
+
 {
 	_tree = tree.clone();
 	if(_tree->isRooted())
@@ -61,7 +63,6 @@ AbstractTreeParsimonyScore::AbstractTreeParsimonyScore(
 	if(_data->getNumberOfSequences() == 1) throw Exception("Error, only 1 sequence!");
 	if(_data->getNumberOfSequences() == 0) throw Exception("Error, no sequence!");
 	if(_data->getAlphabet()->getSize() > 20) throw Exception("Error, only alphabet with size <= 20 are supported. See the source file of AbstractTreeParsimonyScore.");
-	_alphabet = _data->getAlphabet();
 }
 
 vector<unsigned int> AbstractTreeParsimonyScore::getScoreForEachSite() const

@@ -1,4 +1,4 @@
-AC_INIT(Bio++ PhylLib, 1.2.0, Julien.Dutheil@univ-montp2.fr, Bpp-Phyl)
+AC_INIT(Bio++ PhylLib, 1.3.0, Julien.Dutheil@univ-montp2.fr, Bpp-Phyl)
 AC_CONFIG_SRCDIR(Phyl/SubstitutionModel.h)
 AM_INIT_AUTOMAKE()
 AC_LANG_CPLUSPLUS
@@ -13,7 +13,7 @@ AC_MSG_CHECKING([Covariant return with virtual inheritance])
 AC_ARG_WITH(
 	[virtual-cov],
 	[  --with-virtual-cov      Enable covariant return type with
-	                  virtual inheritance (GCC < 3.4)],
+	                  virtual inheritance (GCC >= 3.4)],
   ,
   with_virtual_cov="yes"
 )

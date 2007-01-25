@@ -205,26 +205,24 @@ class DRASDRTreeLikelihoodData :
 
   public:
     DRASDRTreeLikelihoodData(TreeTemplate<Node> & tree, unsigned int nbClasses):
-      _nbClasses(nbClasses)
+      _nodeData(), _leafData(), _rootLikelihoods(), _rootLikelihoodsS(), _rootLikelihoodsSR(),
+      _shrunkData(NULL), _nbSites(0), _nbStates(0), _nbClasses(nbClasses), _nbDistinctSites(0)
     {
       _tree = &tree;
-      _shrunkData = NULL;
     }
 
     DRASDRTreeLikelihoodData(const DRASDRTreeLikelihoodData & data):
-      AbstractTreeLikelihoodData(data)
+      AbstractTreeLikelihoodData(data),
+      _nodeData(data._nodeData), _leafData(data._leafData),
+      _rootLikelihoods(data._rootLikelihoods),
+      _rootLikelihoodsS(data._rootLikelihoodsS),
+      _rootLikelihoodsSR(data._rootLikelihoodsSR),
+      _shrunkData(NULL),
+      _nbSites(data._nbSites), _nbStates(data._nbStates),
+      _nbClasses(data._nbClasses), _nbDistinctSites(data._nbDistinctSites)
     {
-      _nodeData          = data._nodeData;
-      _leafData          = data._leafData;
-      _rootLikelihoods   = data._rootLikelihoods;
-      _rootLikelihoodsS  = data._rootLikelihoodsS;
-      _rootLikelihoodsSR = data._rootLikelihoodsSR;
-      _nbSites           = data._nbSites;
-      _nbStates          = data._nbStates;
-      _nbClasses         = data._nbClasses;
-      _nbDistinctSites   = data._nbDistinctSites;
-      _tree              = data._tree;
-      _shrunkData        = dynamic_cast<SiteContainer *>(data._shrunkData->clone());
+      _tree       = data._tree;
+      _shrunkData = dynamic_cast<SiteContainer *>(data._shrunkData->clone());
     }
 
     DRASDRTreeLikelihoodData & operator=(const DRASDRTreeLikelihoodData & data)

@@ -181,7 +181,7 @@ VVdouble AbstractDiscreteRatesAcrossSitesTreeLikelihood::getPosteriorProbabiliti
 	for(unsigned int i = 0; i < nbSites; i++)
   {
 		for(unsigned int j = 0; j < nbClasses; j++)
-      pb[i][j] = pb[i][j] * _rateDistribution -> getProbability(j) / l[i]; 
+      pb[i][j] = pb[i][j] * _rateDistribution->getProbability(j) / l[i]; 
 	}
 	return pb;
 }
@@ -199,7 +199,7 @@ Vdouble AbstractDiscreteRatesAcrossSitesTreeLikelihood::getPosteriorRateOfEachSi
   {
 		for(unsigned int j = 0; j < nbClasses; j++)
     {
-			rates[i] += (lr[i][j] / l[i]) * _rateDistribution -> getProbability(j) *  _rateDistribution -> getCategory(j);
+			rates[i] += (lr[i][j] / l[i]) * _rateDistribution->getProbability(j) *  _rateDistribution->getCategory(j);
 		}
 	}
 	return rates;
@@ -209,7 +209,7 @@ Vdouble AbstractDiscreteRatesAcrossSitesTreeLikelihood::getPosteriorRateOfEachSi
 
 vector<unsigned int> AbstractDiscreteRatesAcrossSitesTreeLikelihood::getRateClassWithMaxPostProbOfEachSite() const
 {
-	unsigned int nbSites   = getNumberOfSites();
+  unsigned int nbSites = getNumberOfSites();
 	VVdouble l = getLikelihoodForEachSiteForEachRateClass();
 	vector<unsigned int>classes(nbSites);
 	for(unsigned int i = 0; i < nbSites; i++)

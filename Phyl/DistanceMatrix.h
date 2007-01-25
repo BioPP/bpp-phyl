@@ -79,9 +79,8 @@ class DistanceMatrix: public virtual RowMatrix<double> {
      *
      * @param n The size of the matrix.
      */
-    DistanceMatrix(unsigned int n): RowMatrix<double>(n, n)
+    DistanceMatrix(unsigned int n): RowMatrix<double>(n, n), _names(n)
 		{
-			_names.resize(n);
 			for(unsigned int i = 0; i < n; i++) _names[i] = "Taxon " + i;
 		}
 

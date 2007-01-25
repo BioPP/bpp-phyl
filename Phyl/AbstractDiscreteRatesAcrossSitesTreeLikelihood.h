@@ -51,8 +51,8 @@ knowledge of the CeCILL license and that you accept its terms.
  * This object may be shared by several instances of the class.
  */
 class AbstractDiscreteRatesAcrossSitesTreeLikelihood:
-	public virtual AbstractTreeLikelihood,
-	public virtual DiscreteRatesAcrossSitesTreeLikelihood
+	public AbstractTreeLikelihood,
+	public DiscreteRatesAcrossSitesTreeLikelihood
 {
 	protected:
 		DiscreteDistribution * _rateDistribution;

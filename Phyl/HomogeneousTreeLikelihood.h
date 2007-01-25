@@ -81,7 +81,7 @@ knowledge of the CeCILL license and that you accept its terms.
  * For topology estimation, consider using the DRHomogeneousTreeLikelihood class.
  */
 class HomogeneousTreeLikelihood :
-	public virtual AbstractHomogeneousTreeLikelihood
+	public AbstractHomogeneousTreeLikelihood
 {
 	protected:
 
@@ -154,8 +154,15 @@ class HomogeneousTreeLikelihood :
 		double getLogLikelihood() const;
 		double getLikelihoodForASite (unsigned int site) const;
 		double getLogLikelihoodForASite(unsigned int site) const;
-		double getLikelihoodForASiteForAState (unsigned int site, int state) const;
-		double getLogLikelihoodForASiteForAState(unsigned int site, int state) const;
+    //We need to redefine these methods to solve a linker problem (gcc 4.1.2)
+    ParameterList getSubstitutionModelParameters() const
+    {
+      return AbstractHomogeneousTreeLikelihood::getSubstitutionModelParameters();
+    }
+    ParameterList getBranchLengthsParameters() const
+    {
+      return AbstractHomogeneousTreeLikelihood::getBranchLengthsParameters();
+    }
 		/** @} */
 
 		
@@ -168,9 +175,6 @@ class HomogeneousTreeLikelihood :
 		double getLogLikelihoodForASiteForARateClass(unsigned int site, unsigned int rateClass) const;
 		double getLikelihoodForASiteForARateClassForAState(unsigned int site, unsigned int rateClass, int state) const;
 		double getLogLikelihoodForASiteForARateClassForAState(unsigned int site, unsigned int rateClass, int state) const;
-		VVdouble getPosteriorProbabilitiesOfEachRate() const;
-		Vdouble  getRateWithMaxPostProbOfEachSite() const;
-		Vdouble  getPosteriorRateOfEachSite() const;
 		/** @} */
 
 		/**

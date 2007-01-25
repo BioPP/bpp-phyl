@@ -48,7 +48,7 @@ knowledge of the CeCILL license and that you accept its terms.
 #include <Seq/SiteContainer.h>
 
 /**
- * @brief Partial implementatoin of the TreeLikelihood interface. 
+ * @brief Partial implementation of the TreeLikelihood interface. 
  *
  * This class implements a few methods useful for most of likelihood
  * computation methods.
@@ -74,13 +74,10 @@ class AbstractTreeLikelihood :
 		AbstractTreeLikelihood(): _data(NULL), _tree(NULL), _computeDerivatives(true) {}
 
     AbstractTreeLikelihood(const AbstractTreeLikelihood & lik):
-      AbstractParametrizable(lik)
+      AbstractParametrizable(lik), _data(NULL), _tree(NULL), _computeDerivatives(lik._computeDerivatives) 
     {
       if(lik._data) _data = dynamic_cast<SiteContainer *>(lik._data->clone());
-      else          _data = NULL;
       if(lik._tree) _tree = lik._tree->clone();
-      else          _tree = NULL;
-      _computeDerivatives = lik._computeDerivatives;
     }
 
     AbstractTreeLikelihood & operator=(const AbstractTreeLikelihood & lik)

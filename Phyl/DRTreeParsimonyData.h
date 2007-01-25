@@ -166,12 +166,18 @@ class DRTreeParsimonyData :
 		unsigned int _nbDistinctSites; 
 
 	public:
-		DRTreeParsimonyData(TreeTemplate<Node> & tree) { _tree = &tree; }
-		virtual ~DRTreeParsimonyData() { delete _shrunkData; }
+		DRTreeParsimonyData(TreeTemplate<Node> & tree):
+      _nodeData(), _leafData(), _rootBitsets(), _rootScores(), _shrunkData(NULL),
+      _nbSites(0), _nbStates(0), _nbDistinctSites(0)
+    {
+      _tree = &tree;
+    }
 
     DRTreeParsimonyData(const DRTreeParsimonyData & data);
     
     DRTreeParsimonyData & operator=(const DRTreeParsimonyData & data);
+		
+    virtual ~DRTreeParsimonyData() { delete _shrunkData; }
 
     DRTreeParsimonyData * clone() const { return new DRTreeParsimonyData(*this); }
 

@@ -60,8 +60,9 @@ DiscreteDistribution * RASTools::getPosteriorRateDistribution(
 	// Now compute the distribution:
 	const DiscreteDistribution * rDist = treeLikelihood.getRateDistribution();
 	map<double, double> distribution;
-	for(map<unsigned int, unsigned int>::iterator i = counts.begin(); i != counts.end(); i++) {
-		distribution[rDist -> getCategory(i -> first)] = (double)i -> second / (double)classes.size();
+	for(map<unsigned int, unsigned int>::iterator i = counts.begin(); i != counts.end(); i++)
+  {
+		distribution[rDist->getCategory(i->first)] = (double)i->second / (double)classes.size();
 	}
 
 	// Build a new distribution and return it:

@@ -60,7 +60,8 @@ bool PseudoNewtonOptimizer::PNStopCondition::isToleranceReached() const
 /**************************************************************************/
 	
 PseudoNewtonOptimizer::PseudoNewtonOptimizer(DerivableSecondOrder * function) :
-  AbstractOptimizer(function)
+  AbstractOptimizer(function), _previousPoint(), _currentValue(0), _previousValue(0),
+  _n(0), _params()
 {
 	_defaultStopCondition = new PNStopCondition(this);
 	_stopCondition = _defaultStopCondition->clone();
@@ -75,10 +76,11 @@ void PseudoNewtonOptimizer::init(const ParameterList & params) throw (Exception)
 	_currentValue = _function->getValue();
 	_n = _parameters.size();
 	_params = _parameters.getParameterNames();
-	for (unsigned int j = 0; j < _n; j++) {
+	for (unsigned int j = 0; j < _n; j++)
+  {
 		profile(_parameters[j] -> getName() + "\t"); 
 	}
-	profileln("Function");
+	profileln("Function\tTime");
 	printPoint(_parameters, _currentValue);
 
 	// Initialize stop condition:

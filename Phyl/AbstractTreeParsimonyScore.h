@@ -65,12 +65,11 @@ class AbstractTreeParsimonyScore :
 			bool verbose)
 			throw (Exception);
 
-    AbstractTreeParsimonyScore(const AbstractTreeParsimonyScore & tp)
+    AbstractTreeParsimonyScore(const AbstractTreeParsimonyScore & tp):
+      _tree(NULL), _data(NULL), _alphabet(tp._alphabet), _nbStates(tp._nbStates)
     {
       _tree     = tp._tree->clone();
       _data     = dynamic_cast<SiteContainer *>(tp._data->clone());
-      _alphabet = tp._alphabet;
-      _nbStates = tp._nbStates;
     }
     
     AbstractTreeParsimonyScore & operator=(const AbstractTreeParsimonyScore & tp)

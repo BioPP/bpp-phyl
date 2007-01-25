@@ -51,11 +51,12 @@ knowledge of the CeCILL license and that you accept its terms.
  *
  * This interface provides methods for dealing with RAS models.
  */
-class DiscreteRatesAcrossSitesTreeLikelihood: public virtual TreeLikelihood
+class DiscreteRatesAcrossSitesTreeLikelihood:
+  public virtual TreeLikelihood
 {
 	public:
 		DiscreteRatesAcrossSitesTreeLikelihood() {}
-		~DiscreteRatesAcrossSitesTreeLikelihood() {}
+		virtual ~DiscreteRatesAcrossSitesTreeLikelihood() {}
 
 	public:
 
