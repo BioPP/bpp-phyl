@@ -78,7 +78,7 @@ class TreeTemplateTools
     template<class N>
     static vector<N *> getLeaves(N & node)
     {
-      vector<iN *> leaves;
+      vector<N *> leaves;
       getLeaves<N>(node, leaves);
       return leaves;
     }
