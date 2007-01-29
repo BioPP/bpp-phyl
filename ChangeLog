@@ -1,3 +1,13 @@
+28/01/07 -*- Version 1.3.1 -*-
+
+27/01/07 Julien Dutheil
+* Change getTree method in NNISearchable interface to getTopology, and
+getValue to getTopologyValue.
+  This solve a bug in DRHomogeneousTreeLikelihood and avoid confusion with
+	TreeLikelihood::getTree method, although both methods are identical.
+* No more dynamic_cast in NNITopologySearch + bug solved in methods FAST and BETTER.
+* Remove non required virtual inheritence to solve linker errors.
+
 19/01/07 -*- Version 1.3 -*-
 
 19/01/07 Julien Dutheil

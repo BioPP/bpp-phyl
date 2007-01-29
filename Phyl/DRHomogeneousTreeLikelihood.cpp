@@ -65,6 +65,8 @@ DRHomogeneousTreeLikelihood::DRHomogeneousTreeLikelihood(
   bool checkRooted,
   bool verbose)
 throw (Exception):
+  //AbstractParametrizable(),
+  //AbstractTreeLikelihood(),
   //AbstractDiscreteRatesAcrossSitesTreeLikelihood(rDist, verbose),
   AbstractHomogeneousTreeLikelihood(tree, model, rDist, checkRooted, verbose),
   _likelihoodData(NULL),
@@ -98,6 +100,8 @@ DRHomogeneousTreeLikelihood::DRHomogeneousTreeLikelihood(
   bool checkRooted,
   bool verbose)
 throw (Exception):
+  //AbstractParametrizable(),
+  //AbstractTreeLikelihood(),
   //AbstractDiscreteRatesAcrossSitesTreeLikelihood(rDist, verbose),
   AbstractHomogeneousTreeLikelihood(tree, model, rDist, checkRooted, verbose),
   _likelihoodData(NULL),
@@ -125,7 +129,7 @@ throw (Exception):
 /******************************************************************************/
 
 DRHomogeneousTreeLikelihood::DRHomogeneousTreeLikelihood(const DRHomogeneousTreeLikelihood & lik):
-  AbstractParametrizable(lik),
+  //AbstractParametrizable(lik),
   //AbstractTreeLikelihood(lik),
   //AbstractDiscreteRatesAcrossSitesTreeLikelihood(lik),
   AbstractHomogeneousTreeLikelihood(lik),

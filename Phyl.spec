@@ -1,5 +1,5 @@
 %define name Bpp-Phyl
-%define version 1.3.0
+%define version 1.3.1
 %define release 1
 %define _prefix /usr/local
 
@@ -67,6 +67,8 @@ rm -rf $RPM_BUILD_ROOT
 %{_prefix}/include/*
 
 %changelog
+* Sat Jan 27 2007 Julien Dutheil <Julien.Dutheil@univ-montp2.fr>
+- Version 1.3.1
 * Fri Jan 19 2007 Julien Dutheil <Julien.Dutheil@univ-montp2.fr>
 - Version 1.3.0
 * Mon Aug 28 2006 Julien Dutheil <Julien.Dutheil@univ-montp2.fr>

@@ -63,7 +63,7 @@ knowledge of the CeCILL license and that you accept its terms.
  */
 class AbstractTreeLikelihood :
 	public virtual TreeLikelihood,
-	public virtual AbstractParametrizable
+	public AbstractParametrizable
 {
 	protected:
 		const SiteContainer * _data;

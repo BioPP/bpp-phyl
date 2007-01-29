@@ -116,6 +116,10 @@ class AbstractHomogeneousTreeLikelihood:
 		 */
 		ParameterList getBranchLengthsParameters() const;
 		ParameterList getSubstitutionModelParameters() const;
+		ParameterList getRateDistributionParameters() const
+    {
+      return AbstractDiscreteRatesAcrossSitesTreeLikelihood::getRateDistributionParameters();
+    }
 		/** @} */
 
 		/**

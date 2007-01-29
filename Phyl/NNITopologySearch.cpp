@@ -86,15 +86,16 @@ void NNITopologySearch::search() throw (Exception)
 
 void NNITopologySearch::searchFast() throw (Exception)
 {
-	TreeTemplate<Node> * tree = dynamic_cast<TreeTemplate<Node> *>(_searchableTree->getTree());
-	vector<Node *> nodes = tree->getNodes();
-
 	bool test = true;
 	do
   { 
+	  TreeTemplate<Node> tree(*_searchableTree->getTopology());
+	  vector<Node *> nodes = tree.getNodes();
+
 		vector<Node *> nodesSub = nodes;
 		for(unsigned int i = nodesSub.size(); i>0; i--)
-    {// !!! must not reach i==0 because of unsigned int
+    {
+      // !!! must not reach i==0 because of unsigned int
 			if(!(nodesSub[i-1]->hasFather())) nodesSub.erase(nodesSub.begin()+i-1);//Remove root node.	
 			else if(!(nodesSub[i-1]->getFather()->hasFather())) nodesSub.erase(nodesSub.begin()+i-1);//Remove son of root node.	
 		}
@@ -127,17 +128,18 @@ void NNITopologySearch::searchFast() throw (Exception)
 			}
 		}
 		if(_verbose >= 2) ApplicationTools::displayTaskDone();	
-	} while(test);
+	}
+  while(test);
 }
 
 void NNITopologySearch::searchBetter() throw (Exception)
 {
-	TreeTemplate<Node> * tree = dynamic_cast<TreeTemplate<Node> *>(_searchableTree->getTree());
-	vector<Node *> nodes = tree->getNodes();
-
 	bool test = true;
 	do
   { 
+	  TreeTemplate<Node> tree(*_searchableTree->getTopology());
+	  vector<Node *> nodes = tree.getNodes();
+
 		if(_verbose >= 2) ApplicationTools::displayTask("Test all possible NNIs...");
 		
 		vector<Node *> nodesSub = nodes;
@@ -194,11 +196,12 @@ void NNITopologySearch::searchPhyML() throw (Exception)
 	do
   { 
 		if(_verbose >= 3) ApplicationTools::displayTask("Test all possible NNIs...");
-	  TreeTemplate<Node> * tree = dynamic_cast<TreeTemplate<Node> *>(_searchableTree->getTree());
-	  vector<Node *> nodes = tree->getNodes();
+	  TreeTemplate<Node> tree(*_searchableTree->getTopology());
+	  vector<Node *> nodes = tree.getNodes();
 		vector<Node *> nodesSub = nodes;
 		for(unsigned int i = nodesSub.size(); i > 0; i--)
-    {// !!! must not reach i==0 because of unsigned int
+    {
+      // !!! must not reach i==0 because of unsigned int
 			if(!(nodesSub[i-1]->hasFather())) nodesSub.erase(nodesSub.begin()+i-1);//Remove root node.	
 			else if(!(nodesSub[i-1]->getFather()->hasFather())) nodesSub.erase(nodesSub.begin()+i-1);//Remove son of root node.	
 		}
@@ -273,7 +276,7 @@ void NNITopologySearch::searchPhyML() throw (Exception)
 		test = improving.size() > 0;
 		if(test)
     {
-      double currentValue = _searchableTree->getValue();
+      double currentValue = _searchableTree->getTopologyValue();
       bool test2 = true;
       //Make a backup copy:
       NNISearchable * backup = dynamic_cast<NNISearchable *>(_searchableTree->clone());
@@ -286,7 +289,7 @@ void NNITopologySearch::searchPhyML() throw (Exception)
 			    if(_verbose >= 2)
           {
 				    ApplicationTools::displayResult(string("   Swapping node ") + TextTools::toString(nodeId)
-                + string(" at ") + TextTools::toString(_searchableTree->getTree()->getFatherId(nodeId)),
+                + string(" at ") + TextTools::toString(_searchableTree->getTopology()->getFatherId(nodeId)),
                 TextTools::toString(improvement[i]));
 			    }
 			    _searchableTree->doNNI(nodeId);
@@ -295,8 +298,8 @@ void NNITopologySearch::searchPhyML() throw (Exception)
 		    // Notify:
 		    notifyAllTested(TopologyChangeEvent());
         if(_verbose >= 1)
-          ApplicationTools::displayResult("   Current value", TextTools::toString(_searchableTree->getValue(),10));
-        if(_searchableTree->getValue() > currentValue)
+          ApplicationTools::displayResult("   Current value", TextTools::toString(_searchableTree->getTopologyValue(),10));
+        if(_searchableTree->getTopologyValue() > currentValue)
         {
           //No improvement!
 			    if(_verbose >= 1)

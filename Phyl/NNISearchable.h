@@ -63,7 +63,7 @@ knowledge of the CeCILL license and that you accept its terms.
  *          +-- A
  * </pre>
  * Where:
- * -F is the focuse (parent) node,
+ * -F is the focus (parent) node,
  * -A and B are the son of F
  * -X is the parent of F and so on.
  * Two NNI's are possible for branch (XF):
@@ -132,21 +132,21 @@ class NNISearchable:
 		 *
 		 * @return The tree associated to this instance.
 		 */
-		virtual Tree * getTree() = 0;
+		virtual Tree * getTopology() = 0;
 
 		/**
 		 * @brief Get the tree associated to this NNISearchable object.
 		 *
 		 * @return The tree associated to this instance.
 		 */
-		virtual const Tree * getTree() const = 0;
+		virtual const Tree * getTopology() const = 0;
     
     /**
      * @brief Get the current score of this NNISearchable object.
      *
      * @return The current score of this instance.
      */
-    virtual double getValue() const throw (Exception) = 0;
+    virtual double getTopologyValue() const throw (Exception) = 0;
 
 };
 

@@ -154,16 +154,7 @@ class HomogeneousTreeLikelihood :
 		double getLogLikelihood() const;
 		double getLikelihoodForASite (unsigned int site) const;
 		double getLogLikelihoodForASite(unsigned int site) const;
-    //We need to redefine these methods to solve a linker problem (gcc 4.1.2)
-    ParameterList getSubstitutionModelParameters() const
-    {
-      return AbstractHomogeneousTreeLikelihood::getSubstitutionModelParameters();
-    }
-    ParameterList getBranchLengthsParameters() const
-    {
-      return AbstractHomogeneousTreeLikelihood::getBranchLengthsParameters();
-    }
-		/** @} */
+ 		/** @} */
 
 		
 		/**

@@ -102,7 +102,7 @@ throw (Exception):
 
 HomogeneousTreeLikelihood::HomogeneousTreeLikelihood(
     const HomogeneousTreeLikelihood & lik):
-  AbstractParametrizable(lik),
+  //AbstractParametrizable(lik),
   //AbstractTreeLikelihood(lik),
   //AbstractDiscreteRatesAcrossSitesTreeLikelihood(lik),
   AbstractHomogeneousTreeLikelihood(lik),

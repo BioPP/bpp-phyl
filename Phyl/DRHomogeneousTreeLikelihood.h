@@ -165,7 +165,7 @@ class BranchLikelihood :
  */
 class DRHomogeneousTreeLikelihood :
   public AbstractHomogeneousTreeLikelihood,
-  public virtual NNISearchable
+  public NNISearchable
 {
   protected:
     mutable DRASDRTreeLikelihoodData *_likelihoodData;
@@ -252,15 +252,6 @@ class DRHomogeneousTreeLikelihood :
     double getLogLikelihood() const;
     double getLikelihoodForASite (unsigned int site) const;
     double getLogLikelihoodForASite(unsigned int site) const;
-    //We need to redefine these methods to solve a linker problem (gcc 4.1.2)
-    ParameterList getSubstitutionModelParameters() const
-    {
-      return AbstractHomogeneousTreeLikelihood::getSubstitutionModelParameters();
-    }
-    ParameterList getBranchLengthsParameters() const
-    {
-      return AbstractHomogeneousTreeLikelihood::getBranchLengthsParameters();
-    }
     /** @} */
 
 
@@ -324,9 +315,11 @@ class DRHomogeneousTreeLikelihood :
      * Usually, this is achieved by calling the topologyChangePerformed() method, which call the reInit() method of the LikelihoodData object.
      * @{
      */
-		Tree * getTree() { return AbstractHomogeneousTreeLikelihood::getTree(); }
+		Tree * getTopology() { return AbstractHomogeneousTreeLikelihood::getTree(); }
 		
-		const Tree * getTree() const { return AbstractHomogeneousTreeLikelihood::getTree(); }
+		const Tree * getTopology() const { return getTree(); }
+
+    double getTopologyValue() const throw (Exception) { return getValue(); }
 
     double testNNI(int nodeId) const throw (NodeException);
     
