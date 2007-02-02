@@ -196,7 +196,7 @@ double NewtonBrentMetaOptimizer::step() throw (Exception)
   DiscreteRatesAcrossSitesTreeLikelihood * tl = dynamic_cast<DiscreteRatesAcrossSitesTreeLikelihood *>(_function);
   _stepCount++;
   
-  if(_verbose == 0) { cout << "*"; cout.flush(); }
+  if(_verbose > 0) { cout << "*"; cout.flush(); }
 
   double tol = _stopCondition->getTolerance();
   if(_stepCount < _n)
@@ -206,29 +206,31 @@ double NewtonBrentMetaOptimizer::step() throw (Exception)
   
   if(_nbNewtonParameters > 0)
   {
-    if(_verbose - 1 > 0)
+    if(_verbose > 1)
     {
       cout << endl << "Branch lengths: ";
       cout.flush();
     }
     tl->setComputeDerivatives(true);
     _newtonParameters.matchParametersValues(_parameters);
+    _newtonOptimizer->setVerbose(max((int)_verbose - 1, 0));
     _newtonOptimizer->getStopCondition()->setTolerance(tol);
     _newtonOptimizer->init(_newtonParameters);
     _newtonOptimizer->optimize();
     _nbEval += _newtonOptimizer->getNumberOfEvaluations();
      tl->setComputeDerivatives(false);
-     if(_verbose - 1 > 0) cout << endl;
+     if(_verbose > 1) cout << endl;
   }
 
   if(_nbBrentParameters > 0)
   {
     _brentParameters.matchParametersValues(_parameters);
+    _brentOptimizer->setVerbose(max((int)_verbose - 1, 0));
     _brentOptimizer->getStopCondition()->setTolerance(tol);
     _brentOptimizer->init(_brentParameters);
     _brentOptimizer->step();
     _nbEval += _brentOptimizer->getNumberOfEvaluations();
-     if(_verbose - 1 > 0) cout << endl;
+     if(_verbose > 1) cout << endl;
   }
     
   // Actualize parameters:

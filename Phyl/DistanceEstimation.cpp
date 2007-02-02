@@ -630,8 +630,8 @@ void DistanceEstimation::computeMatrix() throw (NullPointerException)
 	vector<string> names = _sites->getSequencesNames();
   if(_dist != NULL) delete _dist;
 	_dist = new DistanceMatrix(names);
-	_optimizer->getStopCondition() -> setTolerance(0.0001);
-	_optimizer->setVerbose(max(_verbose - 2, 0));
+	_optimizer->getStopCondition()->setTolerance(0.0001);
+	_optimizer->setVerbose((unsigned int)max((int)_verbose - 2, 0));
 	for(unsigned int i = 0; i < n; i++)
   {
 		(* _dist)(i, i) = 0;
@@ -642,11 +642,11 @@ void DistanceEstimation::computeMatrix() throw (NullPointerException)
 			TwoTreeLikelihood * lik = 
 				new TwoTreeLikelihood(names[i], names[j], *_sites, _model, _rateDist, _verbose > 3);
 			lik->setComputeDerivatives(true);
-			const Sequence * seqi = _sites -> getSequence(names[i]);
-			const Sequence * seqj = _sites -> getSequence(names[j]);
+			const Sequence * seqi = _sites->getSequence(names[i]);
+			const Sequence * seqj = _sites->getSequence(names[j]);
 			unsigned int d = SymbolListTools::getNumberOfDistinctPositions(* seqi, * seqj);
 			unsigned int g = SymbolListTools::getNumberOfPositionsWithoutGap(* seqi, * seqj);
-			lik -> setParameterValue("BrLen", g == 0 ? 0 : (double)d/(double)g);
+			lik->setParameterValue("BrLen", g == 0 ? 0 : (double)d/(double)g);
 			// Optimization:
 			_optimizer->setConstraintPolicy(AbstractOptimizer::CONSTRAINTS_AUTO);
 			_optimizer->setFunction(lik);
