@@ -1,3 +1,8 @@
+05/02/07 Bastien Boussau & Julien Dutheil
+* Node properties are now splitted into NodeProperties and BranchProperties.
+  Bootstrap values belong to the last category, and are now properly updated
+	when rerooting a tree.
+
 28/01/07 -*- Version 1.3.1 -*-
 
 27/01/07 Julien Dutheil

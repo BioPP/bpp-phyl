@@ -165,12 +165,12 @@ Node * TreeTemplateTools::parenthesisToNode(const string & description, bool boo
   {
     if(bootstrap)
     {
-      node->setProperty(TreeTools::BOOTSTRAP, new Number<double>(TextTools::toDouble(elt.bootstrap)));
+      node->setBranchProperty(TreeTools::BOOTSTRAP, new Number<double>(TextTools::toDouble(elt.bootstrap)));
       //cout << "NODE: BOOTSTRAP: " << * elt.bootstrap << endl;
     }
     else
     {
-      node->setProperty(propertyName, new String(elt.bootstrap));
+      node->setBranchProperty(propertyName, new String(elt.bootstrap));
     }
   }
   
@@ -257,12 +257,12 @@ TreeTemplate<Node> * TreeTemplateTools::parenthesisToTree(const string & descrip
       {
         if(bootstrap)
         {
-          node->setProperty(TreeTools::BOOTSTRAP, new Number<double>(TextTools::toDouble(bootstrapS)));
+          node->setBranchProperty(TreeTools::BOOTSTRAP, new Number<double>(TextTools::toDouble(bootstrapS)));
           //cout << "NODE: BOOTSTRAP: " << * elt.bootstrap << endl;
         }
         else
         {
-          node->setProperty(propertyName, new String(bootstrapS));
+          node->setBranchProperty(propertyName, new String(bootstrapS));
         }
       }
     }
@@ -299,8 +299,8 @@ string TreeTemplateTools::nodeToParenthesis(const Node & node, bool writeId)
   }
   else
   {
-    if(node.hasProperty(TreeTools::BOOTSTRAP))
-      s << (dynamic_cast<const Number<double> *>(node.getProperty(TreeTools::BOOTSTRAP))->getValue());
+    if(node.hasBranchProperty(TreeTools::BOOTSTRAP))
+      s << (dynamic_cast<const Number<double> *>(node.getBranchProperty(TreeTools::BOOTSTRAP))->getValue());
   }
   if(node.hasDistanceToFather()) s << ":" << node.getDistanceToFather();
   return s.str();  
@@ -327,13 +327,13 @@ string TreeTemplateTools::nodeToParenthesis(const Node & node, bool bootstrap, c
   
     if(bootstrap)
     {
-      if(node.hasProperty(TreeTools::BOOTSTRAP))
-        s << (dynamic_cast<const Number<double> *>(node.getProperty(TreeTools::BOOTSTRAP))->getValue());
+      if(node.hasBranchProperty(TreeTools::BOOTSTRAP))
+        s << (dynamic_cast<const Number<double> *>(node.getBranchProperty(TreeTools::BOOTSTRAP))->getValue());
     }
     else
     {
-      if(node.hasProperty(propertyName))
-        s << *(dynamic_cast<const String *>(node.getProperty(propertyName)));
+      if(node.hasBranchProperty(propertyName))
+        s << *(dynamic_cast<const String *>(node.getBranchProperty(propertyName)));
     }
   }
   if(node.hasDistanceToFather()) s << ":" << node.getDistanceToFather();
@@ -393,13 +393,13 @@ string TreeTemplateTools::treeToParenthesis(const TreeTemplate<Node> & tree, boo
   s << ")";
   if(bootstrap)
   {
-    if(node->hasProperty(TreeTools::BOOTSTRAP))
-      s << (dynamic_cast<const Number<double> *>(node->getProperty(TreeTools::BOOTSTRAP))->getValue());
+    if(node->hasBranchProperty(TreeTools::BOOTSTRAP))
+      s << (dynamic_cast<const Number<double> *>(node->getBranchProperty(TreeTools::BOOTSTRAP))->getValue());
   }
   else
   {
-    if(node->hasProperty(propertyName))
-      s << *(dynamic_cast<const String *>(node->getProperty(propertyName)));
+    if(node->hasBranchProperty(propertyName))
+      s << *(dynamic_cast<const String *>(node->getBranchProperty(propertyName)));
   }
   s << ";" << endl;
   return s.str();  

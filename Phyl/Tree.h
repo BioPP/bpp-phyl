@@ -70,7 +70,7 @@ class Tree:
 
 	public:
 		
-		/**i
+		/**
 		 * @brief Tree name.
 		 *
 		 * @{
@@ -173,19 +173,37 @@ class Tree:
 		 *
 		 * @{
 		 */
-		virtual bool hasProperty(int nodeId, const string & name) const throw (NodeNotFoundException) = 0;
+		virtual bool hasNodeProperty(int nodeId, const string & name) const throw (NodeNotFoundException) = 0;
 		
-		virtual void setProperty(int nodeId, const string & name, Clonable * property) throw (NodeNotFoundException) = 0;
+		virtual void setNodeProperty(int nodeId, const string & name, Clonable * property) throw (NodeNotFoundException) = 0;
 				
-		virtual Clonable * getProperty(int nodeId, const string & name) throw (NodeNotFoundException) = 0;
+		virtual Clonable * getNodeProperty(int nodeId, const string & name) throw (NodeNotFoundException) = 0;
 				
-		virtual const Clonable * getProperty(int nodeId, const string & name) const throw (NodeNotFoundException) = 0;
+		virtual const Clonable * getNodeProperty(int nodeId, const string & name) const throw (NodeNotFoundException) = 0;
 				
-		virtual Clonable * removeProperty(int nodeId, const string & name) throw (NodeNotFoundException) = 0;
+		virtual Clonable * removeNodeProperty(int nodeId, const string & name) throw (NodeNotFoundException) = 0;
 
-    virtual vector<string> getPropertyNames(int nodeId) const throw (NodeNotFoundException) = 0;
+    virtual vector<string> getNodePropertyNames(int nodeId) const throw (NodeNotFoundException) = 0;
 		/** @} */
 		
+		/**
+		 * @name Branch properties.
+		 *
+		 * @{
+		 */
+		virtual bool hasBranchProperty(int nodeId, const string & name) const throw (NodeNotFoundException) = 0;
+		
+		virtual void setBranchProperty(int nodeId, const string & name, Clonable * property) throw (NodeNotFoundException) = 0;
+				
+		virtual Clonable * getBranchProperty(int nodeId, const string & name) throw (NodeNotFoundException) = 0;
+				
+		virtual const Clonable * getBranchProperty(int nodeId, const string & name) const throw (NodeNotFoundException) = 0;
+				
+		virtual Clonable * removeBranchProperty(int nodeId, const string & name) throw (NodeNotFoundException) = 0;
+
+    virtual vector<string> getBranchPropertyNames(int nodeId) const throw (NodeNotFoundException) = 0;
+		/** @} */
+
 		/**
 		 * @brief Change the root node.
 		 *

@@ -248,8 +248,8 @@ string TreeTools::nodeToParenthesis(const Tree & tree, int nodeId, bool writeId)
   }
   else
   {
-    if(tree.hasProperty(nodeId, BOOTSTRAP))
-      s << (dynamic_cast<const Number<double> *>(tree.getProperty(nodeId, BOOTSTRAP))->getValue());
+    if(tree.hasBranchProperty(nodeId, BOOTSTRAP))
+      s << (dynamic_cast<const Number<double> *>(tree.getBranchProperty(nodeId, BOOTSTRAP))->getValue());
   }
   if(tree.hasDistanceToFather(nodeId)) s << ":" << tree.getDistanceToFather(nodeId);
   return s.str();  
@@ -278,13 +278,13 @@ string TreeTools::nodeToParenthesis(const Tree & tree, int nodeId, bool bootstra
    
     if(bootstrap)
     {
-      if(tree.hasProperty(nodeId, BOOTSTRAP))
-        s << (dynamic_cast<const Number<double> *>(tree.getProperty(nodeId, BOOTSTRAP))->getValue());
+      if(tree.hasBranchProperty(nodeId, BOOTSTRAP))
+        s << (dynamic_cast<const Number<double> *>(tree.getBranchProperty(nodeId, BOOTSTRAP))->getValue());
     }
     else
     {
-      if(tree.hasProperty(nodeId, propertyName))
-        s << *(dynamic_cast<const String *>(tree.getProperty(nodeId, propertyName)));
+      if(tree.hasBranchProperty(nodeId, propertyName))
+        s << *(dynamic_cast<const String *>(tree.getBranchProperty(nodeId, propertyName)));
     }
   }
   if(tree.hasDistanceToFather(nodeId)) s << ":" << tree.getDistanceToFather(nodeId);
@@ -345,13 +345,13 @@ string TreeTools::treeToParenthesis(const Tree & tree, bool bootstrap, const str
   s << ")";
   if(bootstrap)
   {
-    if(tree.hasProperty(rootId, BOOTSTRAP))
-      s << (dynamic_cast<const Number<double> *>(tree.getProperty(rootId, BOOTSTRAP))->getValue());
+    if(tree.hasBranchProperty(rootId, BOOTSTRAP))
+      s << (dynamic_cast<const Number<double> *>(tree.getBranchProperty(rootId, BOOTSTRAP))->getValue());
   }
   else
   {
-    if(tree.hasProperty(rootId, propertyName))
-      s << *(dynamic_cast<const String *>(tree.getProperty(rootId, propertyName)));
+    if(tree.hasBranchProperty(rootId, propertyName))
+      s << *(dynamic_cast<const String *>(tree.getBranchProperty(rootId, propertyName)));
   }
   s << ";" << endl;
   return s.str();  

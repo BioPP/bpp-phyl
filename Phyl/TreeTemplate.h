@@ -183,17 +183,29 @@ class TreeTemplate: public Tree
 		
 		bool hasDistanceToFather(int nodeId) const throw (NodeNotFoundException) { return getNode(nodeId)->hasDistanceToFather(); }
 
-		bool hasProperty(int nodeId, const string & name) const throw (NodeNotFoundException) { return getNode(nodeId)->hasProperty(name); }
+		bool hasNodeProperty(int nodeId, const string & name) const throw (NodeNotFoundException) { return getNode(nodeId)->hasNodeProperty(name); }
 	
-		void setProperty(int nodeId, const string & name, Clonable * property) throw (NodeNotFoundException) { getNode(nodeId)->setProperty(name, property); }
+		void setNodeProperty(int nodeId, const string & name, Clonable * property) throw (NodeNotFoundException) { getNode(nodeId)->setNodeProperty(name, property); }
 				
-		Clonable * getProperty(int nodeId, const string & name) throw (NodeNotFoundException) { return getNode(nodeId)->getProperty(name); }
+		Clonable * getNodeProperty(int nodeId, const string & name) throw (NodeNotFoundException) { return getNode(nodeId)->getNodeProperty(name); }
 				
-		const Clonable * getProperty(int nodeId, const string & name) const throw (NodeNotFoundException) { return getNode(nodeId)->getProperty(name); }
+		const Clonable * getNodeProperty(int nodeId, const string & name) const throw (NodeNotFoundException) { return getNode(nodeId)->getNodeProperty(name); }
 				
-		Clonable * removeProperty(int nodeId, const string & name) throw (NodeNotFoundException) { return getNode(nodeId)->removeProperty(name); }
+		Clonable * removeNodeProperty(int nodeId, const string & name) throw (NodeNotFoundException) { return getNode(nodeId)->removeNodeProperty(name); }
 		
-    vector<string> getPropertyNames(int nodeId) const throw (NodeNotFoundException) { return getNode(nodeId)->getPropertyNames(); }
+    vector<string> getNodePropertyNames(int nodeId) const throw (NodeNotFoundException) { return getNode(nodeId)->getNodePropertyNames(); }
+		
+		bool hasBranchProperty(int nodeId, const string & name) const throw (NodeNotFoundException) { return getNode(nodeId)->hasBranchProperty(name); }
+	
+		void setBranchProperty(int nodeId, const string & name, Clonable * property) throw (NodeNotFoundException) { getNode(nodeId)->setBranchProperty(name, property); }
+				
+		Clonable * getBranchProperty(int nodeId, const string & name) throw (NodeNotFoundException) { return getNode(nodeId)->getBranchProperty(name); }
+				
+		const Clonable * getBranchProperty(int nodeId, const string & name) const throw (NodeNotFoundException) { return getNode(nodeId)->getBranchProperty(name); }
+				
+		Clonable * removeBranchProperty(int nodeId, const string & name) throw (NodeNotFoundException) { return getNode(nodeId)->removeBranchProperty(name); }
+		
+    vector<string> getBranchPropertyNames(int nodeId) const throw (NodeNotFoundException) { return getNode(nodeId)->getBranchPropertyNames(); }
 		
     void rootAt(int nodeId) throw (NodeNotFoundException)	{	rootAt(* getNode(nodeId)); }
 		
@@ -378,8 +390,16 @@ class TreeTemplate: public Tree
         if(path[i+1]->hasDistanceToFather()) path[i]->setDistanceToFather(path[i+1]->getDistanceToFather());
         else path[i]->deleteDistanceToFather();
 				path[i+1]->addSon(* path[i]);
-			}
+
+        vector<string> names = path[i+1]->getBranchPropertyNames();
+        for(unsigned int j = 0; j < names.size(); j++)
+        {
+          path[i]->setBranchProperty(names[j], path[i+1]->getBranchProperty(names[j]));
+        }
+        path[i+1]->deleteBranchProperties();
+      }
       newRoot.deleteDistanceToFather();
+      newRoot.deleteBranchProperties();
 			_root = & newRoot;
 		}
 

@@ -77,39 +77,40 @@ using namespace std;
  * 
  * @see Tree, TreeTemplate
  */
-class Node: public Clonable
+class Node:
+  public Clonable
 {
       
   protected:
-    
     int                             _id;
     string                        * _name;
     vector<Node *>                  _sons;
     Node                          * _father;
     double                        * _distanceToFather;
-    mutable map<string, Clonable *> _properties;
+    mutable map<string, Clonable *> _nodeProperties;
+    mutable map<string, Clonable *> _branchProperties;
 
   public:
   
     /**
      * @brief Build a new void Node object.
      */
-    Node() : _id(0), _name(NULL), _sons(), _father(NULL), _distanceToFather(NULL), _properties() {}
+    Node() : _id(0), _name(NULL), _sons(), _father(NULL), _distanceToFather(NULL), _nodeProperties(), _branchProperties() {}
       
     /**
      * @brief Build a new Node with specified id.
      */
-    Node(int id) : _id(id), _name(NULL), _sons(), _father(NULL), _distanceToFather(NULL), _properties() {}
+    Node(int id) : _id(id), _name(NULL), _sons(), _father(NULL), _distanceToFather(NULL), _nodeProperties(), _branchProperties() {}
 
     /**
      * @brief Build a new Node with specified name.
      */
-    Node(const string & name) : _id(0), _name(new string(name)), _sons(), _father(NULL), _distanceToFather(NULL), _properties() {}
+    Node(const string & name) : _id(0), _name(new string(name)), _sons(), _father(NULL), _distanceToFather(NULL), _nodeProperties(), _branchProperties() {}
 
     /**
      * @brief Build a new Node with specified id and name.
      */
-    Node(int id, const string & name) : _id(id), _name(new string(name)), _sons(), _father(NULL), _distanceToFather(NULL), _properties() {}
+    Node(int id, const string & name) : _id(id), _name(new string(name)), _sons(), _father(NULL), _distanceToFather(NULL), _nodeProperties(), _branchProperties() {}
 
     /**
      * @brief Copy constructor.
@@ -130,7 +131,9 @@ class Node: public Clonable
     {  
       delete _name;
       delete _distanceToFather;
-      for(map<string, Clonable *>::iterator i = _properties.begin(); i != _properties.end(); i++)
+      for(map<string, Clonable *>::iterator i = _nodeProperties.begin(); i != _nodeProperties.end(); i++)
+        delete i->second;
+      for(map<string, Clonable *>::iterator i = _branchProperties.begin(); i != _branchProperties.end(); i++)
         delete i->second;
     }
 
@@ -376,30 +379,106 @@ class Node: public Clonable
     /** @} */
     
     /**
-     * @name Properties:
+     * @name Node properties:
      *
      * @{
      */
         
-    virtual void setProperty(const string & name, const Clonable * property) { _properties[name] = property->clone(); }
+    virtual void setNodeProperty(const string & name, const Clonable * property) { _nodeProperties[name] = property->clone(); }
         
-    virtual Clonable * getProperty(const string & name) { return _properties[name]; }
+    virtual Clonable * getNodeProperty(const string & name) { return _nodeProperties[name]; }
         
-    virtual const Clonable * getProperty(const string & name) const { return const_cast<const Clonable *>(_properties[name]); }
+    virtual const Clonable * getNodeProperty(const string & name) const { return const_cast<const Clonable *>(_nodeProperties[name]); }
         
-    virtual Clonable * removeProperty(const string & name)
+    virtual Clonable * removeNodeProperty(const string & name)
     {
-      Clonable * removed = _properties[name];
-      _properties.erase(name);
+      Clonable * removed = _nodeProperties[name];
+      _nodeProperties.erase(name);
       return removed;
     }  
         
-    virtual bool hasProperty(const string & name) const { return _properties.find(name) != _properties.end(); }
+    virtual void deleteNodeProperty(const string & name)
+    {
+      delete _nodeProperties[name];
+      _nodeProperties.erase(name);
+    }  
+     
+    /**
+     * @brief Remove all node properties.
+     *
+     * Attached objects will not be deleted.
+     */
+    virtual void removeNodeProperties()
+    {
+      _nodeProperties.clear();
+    }  
 
-    virtual vector<string> getPropertyNames() const { return MapTools::getKeys(_properties); }
+    /**
+     * @brief Delete all node properties.
+     */
+    virtual void deleteNodeProperties()
+    {
+      for(map<string, Clonable *>::iterator i = _nodeProperties.begin(); i != _nodeProperties.end(); i++)
+        delete i->second; 
+      _nodeProperties.clear();
+    }  
+                
+    virtual bool hasNodeProperty(const string & name) const { return _nodeProperties.find(name) != _nodeProperties.end(); }
+
+    virtual vector<string> getNodePropertyNames() const { return MapTools::getKeys(_nodeProperties); }
     
     /** @} */
     
+    /**
+     * @name Branch properties:
+     *
+     * @{
+     */
+        
+    virtual void setBranchProperty(const string & name, const Clonable * property) { _branchProperties[name] = property->clone(); }
+        
+    virtual Clonable * getBranchProperty(const string & name) { return _branchProperties[name]; }
+        
+    virtual const Clonable * getBranchProperty(const string & name) const { return const_cast<const Clonable *>(_branchProperties[name]); }
+        
+    virtual Clonable * removeBranchProperty(const string & name)
+    {
+      Clonable * removed = _branchProperties[name];
+      _branchProperties.erase(name);
+      return removed;
+    }  
+    
+    virtual void deleteBranchProperty(const string & name)
+    {
+      delete _branchProperties[name];
+      _branchProperties.erase(name);
+    }  
+    
+    /**
+     * @brief Remove all branch properties.
+     *
+     * Attached objects will not be deleted.
+     */
+    virtual void removeBranchProperties()
+    {
+      _branchProperties.clear();
+    }  
+
+    /**
+     * @brief Delete all branch properties.
+     */
+    virtual void deleteBranchProperties()
+    {
+      for(map<string, Clonable *>::iterator i = _branchProperties.begin(); i != _branchProperties.end(); i++)
+        delete i->second; 
+      _branchProperties.clear();
+    }  
+        
+    virtual bool hasBranchProperty(const string & name) const { return _branchProperties.find(name) != _branchProperties.end(); }
+
+    virtual vector<string> getBranchPropertyNames() const { return MapTools::getKeys(_branchProperties); }
+    
+    /** @} */
     // Equality operator:
 
     virtual bool operator==(const Node & node) const { return _id == node._id; }  

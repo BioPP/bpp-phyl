@@ -52,12 +52,14 @@ using namespace std;
   
 Node::Node(const Node & node):
   _id(node._id), _name(NULL), _sons(node._sons), _father(node._father),
-  _distanceToFather(NULL), _properties()
+  _distanceToFather(NULL), _nodeProperties(), _branchProperties()
 {
   _name             = node.hasName() ? new string(* node._name) : NULL;
   _distanceToFather = node.hasDistanceToFather() ? new double(* node._distanceToFather) : NULL;
-  for(map<string, Clonable *>::iterator i = node._properties.begin(); i != node._properties.end(); i++)
-    _properties[i->first] = i->second->clone();
+  for(map<string, Clonable *>::iterator i = node._nodeProperties.begin(); i != node._nodeProperties.end(); i++)
+    _nodeProperties[i->first] = i->second->clone();
+  for(map<string, Clonable *>::iterator i = node._branchProperties.begin(); i != node._branchProperties.end(); i++)
+    _branchProperties[i->first] = i->second->clone();
 }
 
 /** Assignation operator: *****************************************************/
@@ -71,11 +73,17 @@ Node & Node::operator=(const Node & node)
   if(_distanceToFather) delete _distanceToFather;
   _distanceToFather = node.hasDistanceToFather() ? new double(* node._distanceToFather) : NULL;
   _sons             = node._sons;
-  for(map<string, Clonable *>::iterator i = node._properties.begin(); i != node._properties.end(); i++)
+  for(map<string, Clonable *>::iterator i = node._nodeProperties.begin(); i != node._nodeProperties.end(); i++)
   {
-    Clonable * p = _properties[i->first];
+    Clonable * p = _nodeProperties[i->first];
     if(p) delete p;
-    _properties[i->first] = i->second->clone();
+    _nodeProperties[i->first] = i->second->clone();
+  }
+  for(map<string, Clonable *>::iterator i = node._branchProperties.begin(); i != node._branchProperties.end(); i++)
+  {
+    Clonable * p = _branchProperties[i->first];
+    if(p) delete p;
+    _branchProperties[i->first] = i->second->clone();
   }
   return * this;
 }
