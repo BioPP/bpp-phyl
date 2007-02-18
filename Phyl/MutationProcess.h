@@ -161,7 +161,7 @@ class MutationProcess
 		 * @param state The current state of the character.
 		 * @param n The number of mutations to perform.
      */
-    virtual int mutate(int state, int n) const = 0;
+    virtual int mutate(int state, unsigned int n) const = 0;
 	
 		/**
 		 * @brief Get the time before next mutation event.
@@ -225,7 +225,7 @@ class AbstractMutationProcess: public MutationProcess
 		/**
 		 * @brief The number of states allowed for the character to mutate.
 		 */
-    int _size;
+    unsigned int _size;
 	
 		/**
 		 * @brief The repartition function for states probabilities.
@@ -241,7 +241,7 @@ class AbstractMutationProcess: public MutationProcess
 	
 	public:
     int mutate(int state) const;
-    int mutate(int state, int n) const;
+    int mutate(int state, unsigned int n) const;
 		double getTimeBeforeNextMutationEvent(int state) const;
 		int evolve(int initialState, double time) const;
 		MutationPath detailedEvolve(int initialState, double time) const;

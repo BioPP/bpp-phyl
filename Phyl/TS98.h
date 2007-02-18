@@ -81,8 +81,8 @@ class TS98: public MarkovModulatedSubstitutionModel
      * @param s1    First rate parameter.
      * @param s2    Second rate parameter.
      */
-    TS98(SubstitutionModel * model, double s1 = 1., double s2 = 1.):
-      MarkovModulatedSubstitutionModel(model)
+    TS98(SubstitutionModel * model, double s1 = 1., double s2 = 1., bool normalizeRateChanges = false):
+      MarkovModulatedSubstitutionModel(model, normalizeRateChanges)
     {
       _nbRates = 2;
       _ratesExchangeability.resize(2, 2);

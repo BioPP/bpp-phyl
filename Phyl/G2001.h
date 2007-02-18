@@ -71,8 +71,8 @@ class G2001: public MarkovModulatedSubstitutionModel
      * @param rDist The discrete distribution for rates.
      * @param nu    The rate matrix parameter.
      */
-    G2001(SubstitutionModel * model, DiscreteDistribution * rDist, double nu = 1.):
-      MarkovModulatedSubstitutionModel(model), _rDist(rDist)
+    G2001(SubstitutionModel * model, DiscreteDistribution * rDist, double nu = 1., bool normalizeRateChanges = false):
+      MarkovModulatedSubstitutionModel(model, normalizeRateChanges), _rDist(rDist)
     {
       _nbRates = _rDist->getNumberOfCategories();
       _ratesExchangeability.resize(_nbRates, _nbRates);

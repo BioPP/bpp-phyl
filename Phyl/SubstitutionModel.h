@@ -285,6 +285,16 @@ class SubstitutionModel: public virtual Parametrizable
 		 * @param data The sequences to use.
 		 */
 		virtual void setFreqFromData(const SequenceContainer & data) = 0;
+
+    /**
+     * @brief Get the state in the alphabet corresponding to a given state in the model.
+     *
+     * In most cases, this method will return i.
+     * @param i The state.
+     * @return The corresponding state in the alphabet.
+     * @see MarkovModulatedMarkovModels
+     */
+    virtual int getState(int i) const = 0;
 		
 };
 

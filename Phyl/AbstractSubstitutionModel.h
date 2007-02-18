@@ -149,7 +149,9 @@ class AbstractSubstitutionModel :
 
 		void setFreqFromData(const SequenceContainer & data);
 
-		/**
+    int getState(int i) const { return i; }
+		
+    /**
 		 * @brief Tells the model that a parameter value has changed.
 		 *
 		 * This updates the matrices consequently.

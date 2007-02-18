@@ -84,10 +84,10 @@ void AbstractSubstitutionModel::updateMatrices()
 	}
 	// Normalization:
 	double scale = getScale();
-	MatrixTools::scale(_generator, 1/scale);
+	MatrixTools::scale(_generator, 1./scale);
 
   // Normalize exchangeability matrix too:
-	MatrixTools::scale(_exchangeability, 1/scale);
+	MatrixTools::scale(_exchangeability, 1./scale);
   // Compute diagonal elements of the exchangeability matrix:
 	for(unsigned int i = 0; i < _size; i++)
   {

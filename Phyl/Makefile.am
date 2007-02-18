@@ -96,6 +96,7 @@ AbstractHomogeneousTreeLikelihood.cpp\
 AbstractAgglomerativeDistanceMethod.cpp\
 PhylogeneticsApplicationTools.cpp\
 DistanceEstimation.cpp\
+DistanceMatrix.cpp\
 DSO78.cpp\
 PseudoNewtonOptimizer.cpp\
 HKY85.cpp\

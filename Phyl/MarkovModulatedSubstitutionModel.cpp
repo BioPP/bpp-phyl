@@ -61,8 +61,17 @@ void MarkovModulatedSubstitutionModel::updateMatrices()
   _exchangeability = MatrixTools::kroneckerMult(MatrixTools::mult(_rates, MatrixTools::diag< RowMatrix<double> >(1./_ratesFreq)),_model->getExchangeabilityMatrix());
   MatrixTools::add(_exchangeability, MatrixTools::kroneckerMult(_ratesExchangeability, MatrixTools::diag< RowMatrix<double> >(1/_model->getFrequencies())));
   _freq            = VectorFunctions::kroneckerMult(_ratesFreq, _model->getFrequencies());
-  
-	// Compute eigen values and vectors:
+	if(_normalizeRateChanges)
+  {
+    // Normalization:
+	  double scale = -scalar(MatrixTools::diag<RowMatrix<double>, double>(_generator), _freq);
+    MatrixTools::scale(_generator, 1./scale);
+
+    // Normalize exchangeability matrix too:
+	  MatrixTools::scale(_exchangeability, 1./scale);
+  }
+
+  // Compute eigen values and vectors:
   _eigenValues.resize(_nbRates*_nbStates);
   _rightEigenVectors.resize(_nbStates*_nbRates, _nbStates*_nbRates);
   

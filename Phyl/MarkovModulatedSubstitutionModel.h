@@ -59,6 +59,10 @@ knowledge of the CeCILL license and that you accept its terms.
  * @f]
  * where @f$D_R@f$ is the diagonal matrix of all rates, and @f$I_m@f$ is the identity matrix of size @f$m@f$.
  *
+ * This generator is normalized so that branch lengths are measured in unit of mean number of substitutions per site,
+ * where susbstitution here means "change of alphabet state".
+ * Rate changes are not counted.
+ *
  * Galtier N. and Jean-Marie A., Markov-modulated Markov chains and the covarion process of molecular evolution (2004).
  * _Journal of Computational Biology_, 11:727-33.
  */
@@ -112,16 +116,21 @@ class MarkovModulatedSubstitutionModel: public SubstitutionModel
 		 */
 		Vdouble _freq;
 
+    bool _normalizeRateChanges;
+
   public:
     /**
      * @brief Build a new MarkovModulatedSubstitutionModel object.
      *
      * @param model The substitution model to use. Can be of any alphabet type.
+     * @param normalizeRateChanges Tells if the branch lengths must be computed in terms of rate and state
+     * changes instead of state change only.
+     * NB: In most cases, this parameter should be set to false.
      */
-    MarkovModulatedSubstitutionModel(SubstitutionModel * model):
+    MarkovModulatedSubstitutionModel(SubstitutionModel * model, bool normalizeRateChanges):
       _model(model), _nbStates(0), _nbRates(0), _rates(), _ratesExchangeability(),
       _ratesFreq(), _ratesGenerator(), _ratesParameters(), _generator(), _exchangeability(),
-      _leftEigenVectors(), _rightEigenVectors(), _eigenValues(), _freq() {}
+      _leftEigenVectors(), _rightEigenVectors(), _eigenValues(), _freq(), _normalizeRateChanges(normalizeRateChanges) {}
     
     virtual ~MarkovModulatedSubstitutionModel() {}
 
@@ -160,6 +169,23 @@ class MarkovModulatedSubstitutionModel: public SubstitutionModel
     {
       _model->setFreqFromData(data);
       updateMatrices();
+    }
+
+    int getState(int i) const
+    {
+      return i % _nbStates; 
+    }
+    
+    /**
+     * @brief Get the rate category corresponding to a particular state in the compound model.
+     *
+     * @param i The state.
+     * @return The corresponding rate category.
+     * @see getState;
+     */
+    int getRate(int i) const
+    {
+      return i / _nbStates; 
     }
 
     /**
@@ -256,6 +282,7 @@ class MarkovModulatedSubstitutionModel: public SubstitutionModel
   protected:
     
     virtual void updateMatrices();
+
     /**
      * @brief Update the rates vector, generator and equilibrium frequencies.
      *

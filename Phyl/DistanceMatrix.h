@@ -92,8 +92,10 @@ class DistanceMatrix: public virtual RowMatrix<double> {
 		{
 			unsigned int n = dist.size();
 			resize(n, n);
-			for(unsigned int i = 0; i < n; i++) {
-				for(unsigned int j = 0; j < n; j++) {
+			for(unsigned int i = 0; i < n; i++)
+      {
+				for(unsigned int j = 0; j < n; j++)
+        {
 					operator()(i, j) = dist(i, j);
 				}
 			}
@@ -103,7 +105,7 @@ class DistanceMatrix: public virtual RowMatrix<double> {
 		
 	public:
 
-    /**
+    /**i
      * @brief Reset the distance matrix: all distances are set to 0.
      */
 		void reset()
@@ -161,6 +163,62 @@ class DistanceMatrix: public virtual RowMatrix<double> {
 			if(names.size() != _names.size()) throw DimensionException("DistanceMatrix::setNames. Invalid number of names.", names.size(), _names.size());
 			_names = names;
 		}
+
+    /**
+     * @brief Get the index of a given name.
+     *
+     * @param name The name to look for.
+     * @return The position of the name.
+     * @throw Exception If no names are attached to this matrix, or if the name was not found.
+     */
+    unsigned int getNameIndex(const string & name) const throw (Exception);
+
+    /**
+     * @brief Access by name.
+     *
+     * @param iName Name 1 (row)
+     * @param jName Name 2 (column)
+     * @return A reference toward the specified distance.
+     * @throw Exception if the matrix has no name of if one of the name do not match existing names.
+     */
+    virtual const double & operator()(const string & iName, const string & jName) const throw (Exception)
+    {
+      unsigned int i = getNameIndex(iName);
+      unsigned int j = getNameIndex(jName);
+      return operator()(i,j);
+    }
+
+    /**
+     * @brief Access by name.
+     *
+     * @param iName Name 1 (row)
+     * @param jName Name 2 (column)
+     * @return A reference toward the specified distance.
+     * @throw Exception if the matrix has no name of if one of the name do not match existing names.
+     */
+    virtual double & operator()(const string & iName, const string & jName) throw (Exception)
+    {
+      unsigned int i = getNameIndex(iName);
+      unsigned int j = getNameIndex(jName);
+      return operator()(i,j);
+    }
+
+    virtual const double & operator()(unsigned int i, unsigned int j) const
+    {
+      return RowMatrix<double>::operator()(i, j);
+    }
+    virtual double & operator()(unsigned int i, unsigned int j)
+    {
+      return RowMatrix<double>::operator()(i, j);
+    }
+    virtual const double & operator()(int i, int j) const
+    {
+      return RowMatrix<double>::operator()(i, j);
+    }
+    virtual double & operator()(int i, int j)
+    {
+      return RowMatrix<double>::operator()(i, j);
+    }
 };
 
 #endif //_DISTANCEMATRIX_H_
