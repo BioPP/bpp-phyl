@@ -58,7 +58,8 @@ knowledge of the CeCILL license and that you accept its terms.
  * Galtier N., Maximum-likelihood phylogenetic analysis under a covarion-like model (2001).
  * _Molecular Biology and Evolution_, 18:866-73.
  */
-class G2001: public MarkovModulatedSubstitutionModel
+class G2001:
+  public MarkovModulatedSubstitutionModel
 {
   protected:
     DiscreteDistribution * _rDist;
@@ -83,7 +84,14 @@ class G2001: public MarkovModulatedSubstitutionModel
       updateRatesModel();
       updateMatrices();
     }
+
     virtual ~G2001() {}
+
+#if defined(VIRTUAL_COV)
+    G2001 * clone() const { return new G2001(*this); }
+#else
+    Clonable * clone() const { return new G2001(*this); }
+#endif
 
   public:
     string getName() const { return "Galtier 2001 Covarion Model (Galtier 2001)"; }

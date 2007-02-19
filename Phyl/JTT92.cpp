@@ -42,7 +42,7 @@ knowledge of the CeCILL license and that you accept its terms.
 /******************************************************************************/
 
 JTT92::JTT92(const ProteicAlphabet * alpha) :
-  AbstractSubstitutionModel(alpha),
+  //AbstractSubstitutionModel(alpha),
   ProteinSubstitutionModel(alpha)
 {
   #include "__JTT92ExchangeabilityCode"

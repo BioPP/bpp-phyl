@@ -2,6 +2,7 @@
 * New (string,string) operator in DistanceMatrix.
 * New methods getState in SubstitutionModel and getRate in MarkovModulatedSubstitutionModel.
 * Simulations now work correctly with a MarkovModulatedSubstitutionModel.
+* SubstitutionModel are now clonable.
 
 05/02/07 Bastien Boussau & Julien Dutheil
 * Node properties are now splitted into NodeProperties and BranchProperties.

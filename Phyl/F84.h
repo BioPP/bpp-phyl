@@ -151,7 +151,8 @@ knowledge of the CeCILL license and that you accept its terms.
  * Reference:
  * - Felsenstein (1984), Phylip version 2.6. 
  */
-class F84 : public virtual NucleotideSubstitutionModel
+class F84:
+  public NucleotideSubstitutionModel
 {
 	protected:
 		Constraint * piConstraint;
@@ -167,6 +168,14 @@ class F84 : public virtual NucleotideSubstitutionModel
 			double piT = 0.25);
 	
 		virtual ~F84();
+
+#if defined(VIRTUAL_COV)
+    F84 * clone() const { return new F84(*this); }
+#else
+    Clonable * clone() const { return new F84(*this); }
+#endif
+
+  public:
 
 		double Pij_t    (int i, int j, double d) const;
 		double dPij_dt  (int i, int j, double d) const;

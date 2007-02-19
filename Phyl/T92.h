@@ -154,14 +154,25 @@ knowledge of the CeCILL license and that you accept its terms.
  * Reference:
  * - Tamura K (1992), _Molecular Biology And Evolution_ 9(5) 814-25. 
  */
-class T92 : public virtual NucleotideSubstitutionModel
+class T92:
+  public NucleotideSubstitutionModel
 {
 	protected:
 		Constraint * thetaConstraint;
 
 	public:
 		T92(const NucleicAlphabet * alpha, double kappa = 1., double theta = 0.5);
+
 		virtual ~T92();
+
+#if defined(VIRTUAL_COV)
+    T92 * clone() const { return new T92(*this); }
+#else
+    Clonable * clone() const { return new T92(*this); }
+#endif
+
+
+  public:
 
 		double Pij_t    (int i, int j, double d) const;
 		double dPij_dt  (int i, int j, double d) const;

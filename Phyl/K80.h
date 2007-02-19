@@ -141,12 +141,22 @@ knowledge of the CeCILL license and that you accept its terms.
  * Reference:
  * - Kimura M (1980), _Journal Of Molecular Evolution_ 16(2) 111-20. 
  */
-class K80 : public virtual NucleotideSubstitutionModel
+class K80:
+  public NucleotideSubstitutionModel
 {
 	public:
 		K80(const NucleicAlphabet * alpha, double kappa = 1.);
-		virtual ~K80() {}
 
+    virtual ~K80() {}
+
+#if defined(VIRTUAL_COV)
+    K80 * clone() const { return new K80(*this); }
+#else
+    Clonable * clone() const { return new K80(*this); }
+#endif
+
+
+  public:
 		double Pij_t    (int i, int j, double d) const;
 		double dPij_dt  (int i, int j, double d) const;
 		double d2Pij_dt2(int i, int j, double d) const;

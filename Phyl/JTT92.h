@@ -56,12 +56,20 @@ knowledge of the CeCILL license and that you accept its terms.
  * - Jones DT, Taylor WR and Thornton JM (1992), _Computer Applications In The Biosciences_, 8(3) 275-82. 
  * - Kosiol C and Goldman N (2005), _Molecular Biology And Evolution_ 22(2) 193-9. 
  */
-class JTT92: public virtual ProteinSubstitutionModel
+class JTT92:
+  public ProteinSubstitutionModel
 {
 	public:
 		JTT92(const ProteicAlphabet * alpha);
+
 		virtual ~JTT92() {}
-			
+
+#if defined(VIRTUAL_COV)
+    JTT92 * clone() const { return new JTT92(*this); }
+#else
+    Clonable * clone() const { return new JTT92(*this); }
+#endif
+
 	public:
 		string getName() const;
 };

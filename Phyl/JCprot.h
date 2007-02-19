@@ -123,12 +123,21 @@ knowledge of the CeCILL license and that you accept its terms.
  * Reference:
  * - Jukes TH and Cantor CR (1969), _Evolution of proteins molecules_, 121-123, in _Mammalian protein metabolism_. 
  */
-class JCprot : public virtual ProteinSubstitutionModel
+class JCprot:
+  public ProteinSubstitutionModel
 {
 	public:
 		JCprot(const ProteicAlphabet * alpha);
+
 		virtual ~JCprot() {}
 	
+#if defined(VIRTUAL_COV)
+    JCprot * clone() const { return new JCprot(*this); }
+#else
+    Clonable * clone() const { return new JCprot(*this); }
+#endif
+
+  public:
 		double Pij_t    (int i, int j, double d) const;
 		double dPij_dt  (int i, int j, double d) const;
 		double d2Pij_dt2(int i, int j, double d) const;

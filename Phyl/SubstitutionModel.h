@@ -141,12 +141,17 @@ class SubstitutionModelException : public Exception {
  * 
  */
 
-class SubstitutionModel: public virtual Parametrizable
+class SubstitutionModel:
+  public virtual Parametrizable
 {
 	
 	public:
 		SubstitutionModel() {}
 		virtual ~SubstitutionModel() {};
+
+#if defined(VIRTUAL_COV)
+    SubstitutionModel * clone() const = 0;
+#endif
 
 	public:
 		

@@ -156,7 +156,8 @@ knowledge of the CeCILL license and that you accept its terms.
  * Reference:
  * - Hasegawa M, Kishino H and Yano T (1985), _Molecular Biology And Evolution_ 22(2) 160-74. 
  */
-class HKY85 : public virtual NucleotideSubstitutionModel
+class HKY85:
+  public NucleotideSubstitutionModel
 {
 	protected:
 		Constraint * piConstraint;
@@ -173,6 +174,13 @@ class HKY85 : public virtual NucleotideSubstitutionModel
 	
 		virtual ~HKY85();
 
+#if defined(VIRTUAL_COV)
+    HKY85 * clone() const { return new HKY85(*this); }
+#else
+    Clonable * clone() const { return new HKY85(*this); }
+#endif
+
+  public:
 		double Pij_t    (int i, int j, double d) const;
 		double dPij_dt  (int i, int j, double d) const;
 		double d2Pij_dt2(int i, int j, double d) const;

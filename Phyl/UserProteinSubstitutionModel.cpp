@@ -56,12 +56,11 @@ using namespace std;
 
 /******************************************************************************/
 
-UserProteinSubstitutionModel::UserProteinSubstitutionModel(const ProteicAlphabet * alpha, const string & path) : 
-	AbstractSubstitutionModel(alpha),
+UserProteinSubstitutionModel::UserProteinSubstitutionModel(const ProteicAlphabet * alpha, const string & path): 
+	//AbstractSubstitutionModel(alpha),
 	ProteinSubstitutionModel(alpha),
 	_path(path)
 {
-	
 	readFromFile();
 	updateMatrices();	
 }

@@ -44,7 +44,7 @@ using namespace std;
 /******************************************************************************/
 
 DSO78::DSO78(const ProteicAlphabet * alpha) :
-  AbstractSubstitutionModel(alpha),
+  //AbstractSubstitutionModel(alpha),
   ProteinSubstitutionModel(alpha)
 {
   #include "__DSO78ExchangeabilityCode"
@@ -54,7 +54,8 @@ DSO78::DSO78(const ProteicAlphabet * alpha) :
 
 /******************************************************************************/
 
-string DSO78::getName() const {
+string DSO78::getName() const
+{
 	return "Dayhoff et al. (1978) protein substitution model";
 }
 

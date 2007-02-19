@@ -57,7 +57,7 @@ F84::F84(
 	double piC,
 	double piG,
 	double piT):
-	AbstractSubstitutionModel(alpha),
+	//AbstractSubstitutionModel(alpha),
 	NucleotideSubstitutionModel(alpha)
 {
 	piConstraint = new IncludingInterval(0, 1);

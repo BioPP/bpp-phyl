@@ -71,7 +71,8 @@ knowledge of the CeCILL license and that you accept its terms.
  * Tuffley C. and Steel M. A., Modelling the covarion hypothesis of nucleotide substitution (1998),
  * _Math. Biosci._, 147:63-91.
  */
-class TS98: public MarkovModulatedSubstitutionModel
+class TS98:
+  public MarkovModulatedSubstitutionModel
 {
   public:
     /**
@@ -93,7 +94,14 @@ class TS98: public MarkovModulatedSubstitutionModel
       updateRatesModel();
       updateMatrices();
     }
+
     virtual ~TS98() {}
+
+#if defined(VIRTUAL_COV)
+    TS98 * clone() const { return new TS98(*this); }
+#else
+    Clonable * clone() const { return new TS98(*this); }
+#endif
 
   public:
     string getName() const { return "Tuffley and Steel Covarion Model (Tuffley and Steel 1998)"; }

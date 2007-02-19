@@ -118,6 +118,12 @@ class AbstractSubstitutionModel :
 		AbstractSubstitutionModel(const Alphabet * alpha);
 	
 		virtual ~AbstractSubstitutionModel() {}
+
+#if defined(VIRTUAL_COV)
+    SubstitutionModel * clone() const = 0;
+#else
+    Clonable * clone() const = 0;
+#endif
 	
 	public:
 		const Alphabet * getAlphabet() const { return _alphabet; }

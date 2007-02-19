@@ -48,13 +48,19 @@ knowledge of the CeCILL license and that you accept its terms.
 /**
  * @brief Basal class for nucleotide substitution model.
  */
-class NucleotideSubstitutionModel : public virtual AbstractSubstitutionModel
+class NucleotideSubstitutionModel :
+  public AbstractSubstitutionModel
 {
 	public:
 		NucleotideSubstitutionModel(const NucleicAlphabet * alpha) : AbstractSubstitutionModel(alpha) {}
 
 		virtual ~NucleotideSubstitutionModel() {}
 
+#if defined(VIRTUAL_COV)
+    NucleotideSubstitutionModel * clone() const = 0;
+#endif
+
+  public:
     virtual unsigned int getNumberOfStates() const { return 4; }
 
 };

@@ -53,14 +53,22 @@ knowledge of the CeCILL license and that you accept its terms.
  * The generator is build so that \f$Q_{i,j} = \pi_i . S_{i,j}\f$, and is normalized
  * so that \f$\sum_i Q_{i,i} \times \pi_i = -1\f$.
  */
-class UserProteinSubstitutionModel: public virtual ProteinSubstitutionModel
+class UserProteinSubstitutionModel:
+  public ProteinSubstitutionModel
 {
 	protected:
 		const string _path;
 	
 	public:
 		UserProteinSubstitutionModel(const ProteicAlphabet * alpha, const string & path);
+
 		virtual ~UserProteinSubstitutionModel() {}
+
+#if defined(VIRTUAL_COV)
+    UserProteinSubstitutionModel * clone() const { return new UserProteinSubstitutionModel(*this); }
+#else
+    Clonable * clone() const { return new UserProteinSubstitutionModel(*this); }
+#endif
 			
 	public:
 		string getName() const;

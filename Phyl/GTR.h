@@ -111,7 +111,7 @@ knowledge of the CeCILL license and that you accept its terms.
  * - Tavaré S (1986), _Lect. Math. Life Sci._ 17 57-86.
  * - Rodriguez F (1990, _Journal Of Theoretical Biology_ 142(4) 485-501.
  */
-class GTR : public virtual NucleotideSubstitutionModel
+class GTR : public NucleotideSubstitutionModel
 {
 	protected:
 		Constraint * piConstraint;
@@ -132,6 +132,13 @@ class GTR : public virtual NucleotideSubstitutionModel
 	
 		virtual ~GTR();
 
+#if defined(VIRTUAL_COV)
+    GTR * clone() const { return new GTR(*this); }
+#else
+    Clonable * clone() const { return new GTR(*this); }
+#endif
+
+  public:
 		string getName() const;
 
 		/**

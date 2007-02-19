@@ -103,7 +103,8 @@ knowledge of the CeCILL license and that you accept its terms.
  * Reference:
  * - Tamura N and Nei K (1993), _Molecular Biology And Evolution_ 10(3) 512-26. 
   */
-class TN93 : public virtual NucleotideSubstitutionModel
+class TN93:
+  public NucleotideSubstitutionModel
 {
 	protected:
 		Constraint * piConstraint;
@@ -119,6 +120,15 @@ class TN93 : public virtual NucleotideSubstitutionModel
 			double piT = 0.25);
 	
 		virtual ~TN93();
+
+#if defined(VIRTUAL_COV)
+    TN93 * clone() const { return new TN93(*this); }
+#else
+    Clonable * clone() const { return new TN93(*this); }
+#endif
+
+
+  public:
 
 		double Pij_t    (int i, int j, double d) const;
 		double dPij_dt  (int i, int j, double d) const;

@@ -47,7 +47,7 @@ knowledge of the CeCILL license and that you accept its terms.
 /******************************************************************************/
 
 K80::K80(const NucleicAlphabet * alpha, double kappa) :
-  AbstractSubstitutionModel(alpha),
+  //AbstractSubstitutionModel(alpha),
   NucleotideSubstitutionModel(alpha)
 {
 	_parameters.addParameter(Parameter("kappa", kappa, &Parameter::R_PLUS));

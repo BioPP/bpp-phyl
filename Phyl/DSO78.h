@@ -60,8 +60,15 @@ class DSO78 : public virtual ProteinSubstitutionModel
 {
 	public:
 		DSO78(const ProteicAlphabet * alpha);
+
 		virtual ~DSO78() {}
-		
+
+#if defined(VIRTUAL_COV)
+    DSO78 * clone() const { return new DSO78(*this); }
+#else
+    Clonable * clone() const { return new DSO78(*this); }
+#endif
+    
 	public:
 		string getName() const;
 

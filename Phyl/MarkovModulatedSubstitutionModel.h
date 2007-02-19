@@ -66,7 +66,8 @@ knowledge of the CeCILL license and that you accept its terms.
  * Galtier N. and Jean-Marie A., Markov-modulated Markov chains and the covarion process of molecular evolution (2004).
  * _Journal of Computational Biology_, 11:727-33.
  */
-class MarkovModulatedSubstitutionModel: public SubstitutionModel
+class MarkovModulatedSubstitutionModel:
+  public SubstitutionModel
 {
 
   protected:
@@ -133,6 +134,10 @@ class MarkovModulatedSubstitutionModel: public SubstitutionModel
       _leftEigenVectors(), _rightEigenVectors(), _eigenValues(), _freq(), _normalizeRateChanges(normalizeRateChanges) {}
     
     virtual ~MarkovModulatedSubstitutionModel() {}
+
+#if defined(VIRTUAL_COV)
+    MarkovModulatedSubstitutionModel * clone() const = 0;
+#endif
 
   public:
 	  

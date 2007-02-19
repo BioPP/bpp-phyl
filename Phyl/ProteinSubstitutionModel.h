@@ -48,13 +48,19 @@ knowledge of the CeCILL license and that you accept its terms.
 /**
  * @brief Basal class for protein substitution model.
  */
-class ProteinSubstitutionModel : public virtual AbstractSubstitutionModel
+class ProteinSubstitutionModel:
+  public AbstractSubstitutionModel
 {
 	public:
 		ProteinSubstitutionModel(const ProteicAlphabet * alpha): AbstractSubstitutionModel(alpha) {}
 
 		virtual ~ProteinSubstitutionModel() {}
+
+#if defined(VIRTUAL_COV)
+    ProteinSubstitutionModel * clone() const = 0;
+#endif
 		
+  public:
     virtual unsigned int getNumberOfStates() const { return 20; };
 
 };
