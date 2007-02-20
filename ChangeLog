@@ -3,6 +3,8 @@
 * New methods getState in SubstitutionModel and getRate in MarkovModulatedSubstitutionModel.
 * Simulations now work correctly with a MarkovModulatedSubstitutionModel.
 * SubstitutionModel are now clonable.
+* PhylogeneticsApplicationTools: now one may chose to not re-estimate branch
+lengths.
 
 05/02/07 Bastien Boussau & Julien Dutheil
 * Node properties are now splitted into NodeProperties and BranchProperties.

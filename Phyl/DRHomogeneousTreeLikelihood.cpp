@@ -147,9 +147,9 @@ DRHomogeneousTreeLikelihood::DRHomogeneousTreeLikelihood(const DRHomogeneousTree
 
 DRHomogeneousTreeLikelihood & DRHomogeneousTreeLikelihood::operator=(const DRHomogeneousTreeLikelihood & lik)
 {
-  AbstractParametrizable::operator=(lik);
-  AbstractTreeLikelihood::operator=(lik);
-  AbstractDiscreteRatesAcrossSitesTreeLikelihood::operator=(lik);
+  //AbstractParametrizable::operator=(lik);
+  //AbstractTreeLikelihood::operator=(lik);
+  //AbstractDiscreteRatesAcrossSitesTreeLikelihood::operator=(lik);
   AbstractHomogeneousTreeLikelihood::operator=(lik);
   if(_likelihoodData) delete _likelihoodData;
   _likelihoodData = lik._likelihoodData->clone();

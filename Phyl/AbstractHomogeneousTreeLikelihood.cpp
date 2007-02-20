@@ -133,6 +133,7 @@ AbstractHomogeneousTreeLikelihood::AbstractHomogeneousTreeLikelihood(
 
 AbstractHomogeneousTreeLikelihood::AbstractHomogeneousTreeLikelihood(
     const AbstractHomogeneousTreeLikelihood & lik) :
+  //AbstractParametrizable(lik),
   //AbstractTreeLikelihood(lik),
   AbstractDiscreteRatesAcrossSitesTreeLikelihood(lik)
 {
@@ -159,7 +160,7 @@ AbstractHomogeneousTreeLikelihood::AbstractHomogeneousTreeLikelihood(
 AbstractHomogeneousTreeLikelihood & AbstractHomogeneousTreeLikelihood::operator=(
     const AbstractHomogeneousTreeLikelihood & lik)
 {
-  AbstractTreeLikelihood::operator=(lik);
+  //AbstractTreeLikelihood::operator=(lik);
   AbstractDiscreteRatesAcrossSitesTreeLikelihood::operator=(lik);
   _model           = lik._model;
   _pxy             = lik._pxy;
@@ -235,7 +236,7 @@ void AbstractHomogeneousTreeLikelihood::applyParameters() throw (Exception)
   for(unsigned int i = 0; i < _nbNodes; i++)
   {
     const Parameter * brLen = _parameters.getParameter(string("BrLen") + TextTools::toString(_nodes[i]->getId()));
-    _nodes[i]->setDistanceToFather(brLen->getValue());
+    if(brLen != NULL) _nodes[i]->setDistanceToFather(brLen->getValue());
   }
   //Apply substitution model parameters:
   _model->matchParametersValues(_parameters);

@@ -137,12 +137,15 @@ int OptimizationTools::optimizeNumericalParameters(
 	optimizer->getStopCondition()->setTolerance(tolerance);
 	
 	// Optimize TreeLikelihood function:
-	try {
+	try
+  {
 		ParameterList pl = tl->getParameters();
 		optimizer->setConstraintPolicy(AbstractOptimizer::CONSTRAINTS_AUTO);
 		optimizer->init(pl);
 		optimizer->optimize();
-	} catch(Exception e) {
+	}
+  catch(Exception e)
+  {
 		cout << e.what() << endl;
 		exit(-1);
 	}

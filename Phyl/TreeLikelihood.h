@@ -59,7 +59,8 @@ knowledge of the CeCILL license and that you accept its terms.
  * This interface defines the methods needed for computing the likelihood
  * of a phylogenetic tree, given a dataset.
  */ 
-class TreeLikelihood: public virtual DerivableSecondOrder
+class TreeLikelihood:
+  public virtual DerivableSecondOrder
 {
 	public:
     TreeLikelihood() {}

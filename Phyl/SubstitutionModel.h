@@ -65,8 +65,9 @@ class SubstitutionModel;
  *
  * @see SubstitutionModel
  */
-class SubstitutionModelException : public Exception {
-
+class SubstitutionModelException:
+  public Exception
+{
 	protected:
 		const SubstitutionModel * sm;
 			
@@ -144,7 +145,6 @@ class SubstitutionModelException : public Exception {
 class SubstitutionModel:
   public virtual Parametrizable
 {
-	
 	public:
 		SubstitutionModel() {}
 		virtual ~SubstitutionModel() {};

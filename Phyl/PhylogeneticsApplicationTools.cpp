@@ -530,7 +530,16 @@ TreeLikelihood * PhylogeneticsApplicationTools::optimizeParameters(
   {
 		try
     {
-			dynamic_cast<AbstractHomogeneousTreeLikelihood *>(tl)->ignoreParameter(st.nextToken());
+      string param = st.nextToken();
+      if(param == "BrLen")
+      {
+        vector<string> vs = tl->getBranchLengthsParameters().getParameterNames();
+        for(unsigned int i = 0; i < vs.size(); i++)
+        {
+          dynamic_cast<AbstractHomogeneousTreeLikelihood *>(tl)->ignoreParameter(vs[i]);
+        }
+      }
+      else dynamic_cast<AbstractHomogeneousTreeLikelihood *>(tl)->ignoreParameter(param);
 		} 
     catch(ParameterNotFoundException pnfe)
     {
