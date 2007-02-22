@@ -108,7 +108,7 @@ void MarkovModulatedSubstitutionModel::updateMatrices()
 
 RowMatrix<double> MarkovModulatedSubstitutionModel::getPij_t(double t) const
 {
-	if(t==0) return MatrixTools::getId< RowMatrix<double> >(_nbStates);
+	if(t==0) return MatrixTools::getId< RowMatrix<double> >(_nbStates * _nbRates);
   return MatrixTools::mult(_rightEigenVectors, exp(_eigenValues*t), _leftEigenVectors);
 }
 

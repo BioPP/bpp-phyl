@@ -1,3 +1,7 @@
+22/02/07 Julien Dutheil
+* Distance estimation now works properly with
+MarkovModulatedSubstitutionModel.
+
 17/02/07 Julien Dutheil
 * New (string,string) operator in DistanceMatrix.
 * New methods getState in SubstitutionModel and getRate in MarkovModulatedSubstitutionModel.

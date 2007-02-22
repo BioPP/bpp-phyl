@@ -561,6 +561,7 @@ TreeLikelihood * PhylogeneticsApplicationTools::optimizeParameters(
 	if(verbose) ApplicationTools::displayResult("Optimization method", method);
 	
   bool optimizeTopo = ApplicationTools::getBooleanParameter("optimization.topology", params, false, suffix, suffixIsOptional, false);
+  ApplicationTools::displayResult("Optimize topology", optimizeTopo ? "yes" : "no");
   if(optimizeTopo)
   {
     bool optNumFirst = ApplicationTools::getBooleanParameter("optimization.topology.numfirst", params, true, suffix, suffixIsOptional, false);
