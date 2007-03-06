@@ -165,26 +165,6 @@ class TreeTools
     static void searchLeaf(const Tree & tree, int nodeId, const string & name, int * & id) throw (NodeNotFoundException);
 
     /**
-     * @brief Retrieve all son nodes from a subtree.
-     *
-     * @param tree The tree
-     * @param nodeId The id of node defining the subtree.
-     * @return A vector of ids of each son node in the subtree.
-     * @throw NodeNotFoundException If the node is not found.
-     */
-    static vector<int> getNodesId(const Tree & tree, int nodeId) throw (NodeNotFoundException);
-
-    /**
-     * @brief Retrieve all son nodes from a subtree.
-     *
-     * @param tree The tree
-     * @param nodeId The id of node defining the subtree.
-     * @param nodes A vector of ids of each son node in the subtree.
-     * @throw NodeNotFoundException If the node is not found.
-     */
-    static void getNodesId(const Tree & tree, int nodeId, vector<int> & nodes) throw (NodeNotFoundException);
-
-    /**
      * @brief Get a vector of ancestor nodes between to nodes.
      *
      * @param tree The tree to use.
@@ -458,7 +438,59 @@ class TreeTools
     static string treeToParenthesis(const Tree & tree, bool bootstrap, const string & propertyName);
     
     /** @} */
-    
+
+    /**
+     * @name Deal with identifiers
+     *
+     * @{
+     */
+
+    /**
+     * @brief Retrieve all son nodes from a subtree.
+     *
+     * @param tree The tree
+     * @param nodeId The id of node defining the subtree.
+     * @return A vector of ids of each son node in the subtree.
+     * @throw NodeNotFoundException If the node is not found.
+     */
+    static vector<int> getNodesId(const Tree & tree, int nodeId) throw (NodeNotFoundException);
+
+    /**
+     * @brief Retrieve all son nodes from a subtree.
+     *
+     * @param tree The tree
+     * @param nodeId The id of node defining the subtree.
+     * @param nodes A vector of ids of each son node in the subtree.
+     * @throw NodeNotFoundException If the node is not found.
+     */
+    static void getNodesId(const Tree & tree, int nodeId, vector<int> & nodes) throw (NodeNotFoundException);
+
+    /**
+     * @brief Get the maximum identifier used in a (sub)tree.
+     *
+     * This is a recursive method.
+     *
+     * @param tree The tree to check.
+     * @param id The identifier of the subtree from which the recursion will be performed.
+     * Use id=tree.getRootNodeId() to search for the whole tree.
+     * @return The identifier number with maximum value.
+     */
+    static int getMaxId(const Tree & tree, int id);
+
+    /**
+     * @brief Get the minimum positive non-used identifier in a (sub)tree.
+     *
+     * This method uses the recursive method getNodesId, and then sort the ids.
+     *
+     * @param tree The tree to check.
+     * @param id The identifier of the subtree from which the recursion will be performed.
+     * Use id=tree.getRootNodeId() to search for the whole tree.
+     * @return A non-used identifier number.
+     */
+    static int getMPNUId(const Tree & tree, int id);
+
+    /** @} */
+
     /**
      * @name Some properties.
      *

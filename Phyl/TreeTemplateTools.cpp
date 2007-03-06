@@ -610,3 +610,14 @@ vector<const Node *> TreeTemplateTools::getRemainingNeighbors(const Node * node1
 
 /******************************************************************************/
 
+void TreeTemplateTools::incrementAllIds(Node * node, int increment)
+{
+  node->setId(node->getId() + increment);
+  for(unsigned int i = 0; i < node->getNumberOfSons(); i++)
+  {
+    incrementAllIds(node->getSon(i), increment);
+  }
+}
+
+/******************************************************************************/
+

@@ -609,3 +609,32 @@ DistanceMatrix * TreeTools::getDistanceMatrix(const Tree & tree)
 
 /******************************************************************************/
 
+int TreeTools::getMaxId(const Tree & tree, int id)
+{
+  int maxId = id;
+  vector<int> sonsId = tree.getSonsId(id);
+  for(unsigned int i = 0; i < sonsId.size(); i++)
+  {
+    int subMax = getMaxId(tree, sonsId[i]);
+    if(subMax > maxId) maxId = subMax;
+  }
+  return maxId;
+}
+
+/******************************************************************************/
+
+int TreeTools::getMPNUId(const Tree & tree, int id)
+{
+  vector<int> ids = getNodesId(tree, id);
+  sort(ids.begin(), ids.end());
+  //Check if some id is "missing" in the subtree:
+  for(unsigned int i = 0; i < ids.size(); i++)
+  {
+    if(ids[i] != (int)i) return (int)i;
+  }
+  //Well, all ids are from 0 to n, so send n+1: 
+  return (int)ids.size();
+}
+
+/******************************************************************************/
+

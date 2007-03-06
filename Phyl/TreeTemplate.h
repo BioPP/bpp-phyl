@@ -75,6 +75,13 @@ using namespace std;
  * NodeTemplate<int> * newRoot = TreeTools::cloneSubtree< NodeTemplate<int> >(* (t -> getRootNode()))
  * Tree< NodeTemplate<int> > * tt = new Tree< NodeTemplate<int> >(* newRoot);
  * </code>
+ *
+ * The getNextId() method sends a id value which is not used in the tree.
+ * In the current implementation, it uses the TreeTools::getMPNUId() method.
+ * This avoids to use duplicated ids, but is time consuming.
+ * In most cases, it is of better efficiency if the user deal with the ids himself, by using the Node::setId() method.
+ * The TreeTools::getMaxId() method may also prove useful in this respect.
+ * The resetNodesId() method can also be used to re-initialize all ids.
  * 
  * @see Node
  * @see NodeTemplate
@@ -89,27 +96,26 @@ class TreeTemplate: public Tree
 	protected:
 		N * _root;
 		string _name;
-    int _nextNodeId;
 
 	public: // Constructors and destructor:
 		
-		TreeTemplate(): _root(NULL), _name(), _nextNodeId(0) {}
+		TreeTemplate(): _root(NULL), _name() {}
 
 		TreeTemplate(const TreeTemplate<N> & t):
-      _root(NULL), _name(t._name), _nextNodeId(t._nextNodeId)
+      _root(NULL), _name(t._name)
 		{
 			//Perform a hard copy of the nodes:
 			_root = TreeTemplateTools::cloneSubtree<N>(* t.getRootNode());
 		}
 
 		TreeTemplate(const Tree & t):
-      _root(NULL), _name(t.getName()), _nextNodeId(0)
+      _root(NULL), _name(t.getName())
 		{
 			//Create new nodes from an existing tree:
 			_root = TreeTemplateTools::cloneSubtree<N>(t, t.getRootId());
 		}
 
-		TreeTemplate(N & root): _root(&root), _name(), _nextNodeId(0) {}
+		TreeTemplate(N & root): _root(&root), _name() {}
 
 		TreeTemplate<N> & operator=(const TreeTemplate<N> & t)
 		{
@@ -117,7 +123,6 @@ class TreeTemplate: public Tree
 			if(_root) { destroySubtree(_root); delete _root; }
       _root = TreeTemplateTools::cloneSubtree<N>(* t.getRootNode());
       _name = t._name;
-      _nextNodeId = t._nextNodeId;
     	return *this;
 		}
 
@@ -259,11 +264,9 @@ class TreeTemplate: public Tree
 		void resetNodesId()
 		{
 			vector<N *> nodes = getNodes();
-      _nextNodeId = 0;
 			for(unsigned int i = 0; i < nodes.size(); i++)
       {
-        nodes[i]->setId(_nextNodeId);
-        _nextNodeId++;
+        nodes[i]->setId(i);
       }
 		}
 		
@@ -322,7 +325,10 @@ class TreeTemplate: public Tree
       }
 		}
 
-    int getNextId() { return _nextNodeId++; }
+    int getNextId()
+    { 
+      return TreeTools::getMPNUId(*this, _root->getId());
+    }
 
     void swapNodes(int parentId, unsigned int i1, unsigned int i2) throw (NodeNotFoundException,IndexOutOfBoundsException)
     {

@@ -613,7 +613,15 @@ class TreeTemplateTools
      * @return A vector of neighbors.
      */
     static vector<const Node *> getRemainingNeighbors(const Node * node1, const Node * node2, const Node * node3);
-     
+ 
+    /**
+     * @brief This method will add a given value (possibly negative) to all identifiers in a (sub)tree.
+     *
+     * @param node The root node of the (sub)tree to use.
+     * @param increment The value to add.
+     */
+    static void incrementAllIds(Node * node, int increment);
+    
 };
 
 #endif //_TREETEMPLATETOOLS_H_

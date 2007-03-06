@@ -230,6 +230,7 @@ SiteContainer * HomogeneousSequenceSimulator::simulate(unsigned int numberOfSite
     for(unsigned int j = 0; j < numberOfSites; j++)
     {
       Site * site = simulate();
+      site->setPosition(j);
       sites->addSite(*site);
       delete site;
     }

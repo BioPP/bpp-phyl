@@ -1,3 +1,11 @@
+06/03/07 Julien Dutheil
+* New Id gestion in TreeTemplate.
+  New tools to deal with ids in TreeTools and TreeTemplateTools.
+
+03/03/07 Julien Dutheil
+* Bug fixed in simulation with continuous rate (no more exception thrown for
+		duplicate site position).
+
 22/02/07 Julien Dutheil
 * Distance estimation now works properly with
 MarkovModulatedSubstitutionModel.
