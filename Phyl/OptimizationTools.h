@@ -54,7 +54,8 @@ using namespace std;
 /**
  * @brief Listener used internally by the optimizeTreeNNI method.
  */
-class NNITopologyListener: public TopologyListener
+class NNITopologyListener:
+  public TopologyListener
 {
   protected:
     NNITopologySearch * _topoSearch;
@@ -181,7 +182,9 @@ class OptimizationTools
 		
 	private:
 		
-		class ScaleFunction: public virtual Function {
+		class ScaleFunction:
+      public Function
+    {
 				
 			protected:
 				TreeLikelihood * _tl;
@@ -191,11 +194,7 @@ class OptimizationTools
 				ScaleFunction(TreeLikelihood * tl);
 				virtual ~ScaleFunction();
 
-#if defined(VIRTUAL_COV)
         ScaleFunction * clone() const { return new ScaleFunction(*this); }
-#else
-        Clonable * clone() const { return new ScaleFunction(*this); }
-#endif
 				
 			public:
 				void setParameters(const ParameterList & lambda) throw (ParameterNotFoundException, ConstraintException);

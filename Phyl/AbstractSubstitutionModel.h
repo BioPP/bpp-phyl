@@ -119,10 +119,10 @@ class AbstractSubstitutionModel :
 	
 		virtual ~AbstractSubstitutionModel() {}
 
-#if defined(VIRTUAL_COV)
-    SubstitutionModel * clone() const = 0;
-#else
+#if defined(NO_VIRTUAL_COV)
     Clonable * clone() const = 0;
+#else
+    SubstitutionModel * clone() const = 0;
 #endif
 	
 	public:

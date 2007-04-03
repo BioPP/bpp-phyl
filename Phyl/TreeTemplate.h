@@ -120,7 +120,7 @@ class TreeTemplate: public Tree
 		TreeTemplate<N> & operator=(const TreeTemplate<N> & t)
 		{
 			//Perform a hard copy of the nodes:
-			if(_root) { destroySubtree(_root); delete _root; }
+			if(_root) { destroySubtree(*_root); delete _root; }
       _root = TreeTemplateTools::cloneSubtree<N>(* t.getRootNode());
       _name = t._name;
     	return *this;

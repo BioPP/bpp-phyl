@@ -58,10 +58,10 @@ class TreeParsimonyScore:
 		TreeParsimonyScore() {}
 		virtual ~TreeParsimonyScore() {}
 
-#if defined(VIRTUAL_COV)
-    TreeParsimonyScore * clone() const = 0;
-#else
+#if defined(NO_VIRTUAL_COV)
     Clonable * clone() const = 0;
+#else
+    TreeParsimonyScore * clone() const = 0;
 #endif
 
 	public:

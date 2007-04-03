@@ -25,7 +25,6 @@ then
 |Covariant return type with virtual inheritance disabled.|
 +--------------------------------------------------------+
 ]);
-else
-	AC_DEFINE(VIRTUAL_COV, yes)
+	AC_DEFINE(NO_VIRTUAL_COV, yes)
 fi
 AC_OUTPUT(Makefile Phyl/Makefile)

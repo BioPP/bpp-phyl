@@ -65,10 +65,10 @@ const string Newick::getFormatDescription() const
 
 /******************************************************************************/
 
-#if defined(VIRTUAL_COV)
-		TreeTemplate<Node> * 
-#else
+#if defined(NO_VIRTUAL_COV)
 		Tree *
+#else
+		TreeTemplate<Node> * 
 #endif
 Newick::read(istream & in) const throw (Exception)
 {

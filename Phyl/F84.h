@@ -169,11 +169,7 @@ class F84:
 	
 		virtual ~F84();
 
-#if defined(VIRTUAL_COV)
     F84 * clone() const { return new F84(*this); }
-#else
-    Clonable * clone() const { return new F84(*this); }
-#endif
 
   public:
 

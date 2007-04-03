@@ -98,10 +98,9 @@ class NNISearchable:
 		NNISearchable() {}
 		virtual ~NNISearchable() {}
 
-//This leads to a seg error! Bizarre...
-//#if defined(VIRTUAL_COV)
-//    virtual NNISearchable * clone() const = 0;
-//#endif
+#ifndef NO_VIRTUAL_COV
+    virtual NNISearchable * clone() const = 0;
+#endif
 
 	public:
 

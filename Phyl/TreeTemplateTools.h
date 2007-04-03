@@ -416,6 +416,7 @@ class TreeTemplateTools
       vector<int> sonsId = tree.getSonsId(nodeId);
       for(unsigned int i = 0; i < sonsId.size(); i++)
       {
+        cout << sonsId[i] << endl;
         clone->addSon(* cloneSubtree<N>(tree, sonsId[i]));
       }
       //Must copy all properties too:

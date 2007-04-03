@@ -87,11 +87,7 @@ class G2001:
 
     virtual ~G2001() {}
 
-#if defined(VIRTUAL_COV)
     G2001 * clone() const { return new G2001(*this); }
-#else
-    Clonable * clone() const { return new G2001(*this); }
-#endif
 
   public:
     string getName() const { return "Galtier 2001 Covarion Model (Galtier 2001)"; }

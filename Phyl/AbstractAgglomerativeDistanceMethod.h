@@ -58,7 +58,8 @@ using namespace std;
  *
  * Several methods, commons to several algorithm are provided.
  */
-class AbstractAgglomerativeDistanceMethod : public virtual AgglomerativeDistanceMethod
+class AbstractAgglomerativeDistanceMethod:
+  public virtual AgglomerativeDistanceMethod
 {
 	protected:
 		DistanceMatrix _matrix;
@@ -99,10 +100,10 @@ class AbstractAgglomerativeDistanceMethod : public virtual AgglomerativeDistance
      * @return A copy of the computed tree if there is one, NULL otherwise.
      */
     virtual
-#if defined(VIRTUAL_COV)
-		TreeTemplate<Node> * 
-#else
+#if defined(NO_VIRTUAL_COV)
 		Tree *
+#else
+		TreeTemplate<Node> * 
 #endif
 		getTree() const
     {

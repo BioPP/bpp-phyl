@@ -97,10 +97,10 @@ class TS98:
 
     virtual ~TS98() {}
 
-#if defined(VIRTUAL_COV)
-    TS98 * clone() const { return new TS98(*this); }
-#else
+#if defined(NO_VIRTUAL_COV)
     Clonable * clone() const { return new TS98(*this); }
+#else
+    TS98 * clone() const { return new TS98(*this); }
 #endif
 
   public:

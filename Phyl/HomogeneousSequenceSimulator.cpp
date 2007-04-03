@@ -251,12 +251,7 @@ SiteContainer * HomogeneousSequenceSimulator::simulate(unsigned int numberOfSite
 
 /******************************************************************************/
 
-#if defined(VIRTUAL_COV)
-HomogeneousSiteSimulationResult *
-#else
-SiteSimulationResult *
-#endif
-HomogeneousSequenceSimulator::dSimulate() const
+HomogeneousSiteSimulationResult * HomogeneousSequenceSimulator::dSimulate() const
 {
 	// Draw an initial state randomly according to equilibrum frequencies:
 	int initialState = 0;
@@ -277,12 +272,7 @@ HomogeneousSequenceSimulator::dSimulate() const
 
 /******************************************************************************/
 
-#if defined(VIRTUAL_COV)
-HomogeneousSiteSimulationResult *
-#else
-SiteSimulationResult *
-#endif
-HomogeneousSequenceSimulator::dSimulate(int initialState) const
+HomogeneousSiteSimulationResult * HomogeneousSequenceSimulator::dSimulate(int initialState) const
 {
 	// Draw a random rate:
 	if(_continuousRates)
@@ -300,12 +290,7 @@ HomogeneousSequenceSimulator::dSimulate(int initialState) const
 
 /******************************************************************************/
 
-#if defined(VIRTUAL_COV)
-HomogeneousSiteSimulationResult *
-#else
-SiteSimulationResult *
-#endif
-HomogeneousSequenceSimulator::dSimulate(int initialState, double rate) const
+HomogeneousSiteSimulationResult * HomogeneousSequenceSimulator::dSimulate(int initialState, double rate) const
 {
 	// Make this state evolve:
 	HomogeneousSiteSimulationResult * hssr = new HomogeneousSiteSimulationResult(_tree, _process->getSubstitutionModel()->getAlphabet(), initialState, rate);
@@ -315,24 +300,14 @@ HomogeneousSequenceSimulator::dSimulate(int initialState, double rate) const
 
 /******************************************************************************/
 
-#if defined(VIRTUAL_COV)
-HomogeneousSiteSimulationResult *
-#else
-SiteSimulationResult *
-#endif
-HomogeneousSequenceSimulator::dSimulate(int initialState, unsigned int rateClass) const
+HomogeneousSiteSimulationResult * HomogeneousSequenceSimulator::dSimulate(int initialState, unsigned int rateClass) const
 {
 	return dSimulate(initialState, _rate->getCategory(rateClass));
 }
 
 /******************************************************************************/
 
-#if defined(VIRTUAL_COV)
-HomogeneousSiteSimulationResult *
-#else
-SiteSimulationResult *
-#endif
-HomogeneousSequenceSimulator::dSimulate(double rate) const
+HomogeneousSiteSimulationResult * HomogeneousSequenceSimulator::dSimulate(double rate) const
 {
 	// Draw an initial state randomly according to equilibrum frequencies:
 	int initialState = 0;

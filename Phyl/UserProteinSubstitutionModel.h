@@ -64,11 +64,7 @@ class UserProteinSubstitutionModel:
 
 		virtual ~UserProteinSubstitutionModel() {}
 
-#if defined(VIRTUAL_COV)
     UserProteinSubstitutionModel * clone() const { return new UserProteinSubstitutionModel(*this); }
-#else
-    Clonable * clone() const { return new UserProteinSubstitutionModel(*this); }
-#endif
 			
 	public:
 		string getName() const;

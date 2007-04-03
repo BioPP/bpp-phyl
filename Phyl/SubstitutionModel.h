@@ -149,7 +149,7 @@ class SubstitutionModel:
 		SubstitutionModel() {}
 		virtual ~SubstitutionModel() {};
 
-#if defined(VIRTUAL_COV)
+#ifndef NO_VIRTUAL_COV
     SubstitutionModel * clone() const = 0;
 #endif
 

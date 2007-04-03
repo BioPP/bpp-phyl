@@ -129,11 +129,7 @@ class JCnuc:
 
 		virtual ~JCnuc() {}
 
-#if defined(VIRTUAL_COV)
     JCnuc * clone() const { return new JCnuc(*this); }
-#else
-    Clonable * clone() const { return new JCnuc(*this); }
-#endif
 
   public:
 	

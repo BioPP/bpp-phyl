@@ -1,5 +1,5 @@
 //
-// File: NNITopologySearch.h
+// File: NNITopologySearch.cpp
 // Created by: Julien Dutheil
 // Created on: Wed Oct 12 10:52 2005
 //

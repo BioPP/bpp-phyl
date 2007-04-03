@@ -134,11 +134,7 @@ class HomogeneousTreeLikelihood :
 
     virtual ~HomogeneousTreeLikelihood();
 
-#if defined(VIRTUAL_COV)
     HomogeneousTreeLikelihood * clone() const { return new HomogeneousTreeLikelihood(*this); }
-#else
-    Clonable * clone() const { return new HomogeneousTreeLikelihood(*this); }
-#endif
 	
 	public:
 

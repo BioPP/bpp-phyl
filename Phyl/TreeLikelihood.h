@@ -66,7 +66,7 @@ class TreeLikelihood:
     TreeLikelihood() {}
 		virtual ~TreeLikelihood() {}
 
-#if defined(VIRTUAL_COV)
+#ifndef NO_VIRTUAL_COV
     TreeLikelihood * clone() const = 0;
 #endif
 

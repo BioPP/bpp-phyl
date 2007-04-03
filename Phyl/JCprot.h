@@ -131,11 +131,7 @@ class JCprot:
 
 		virtual ~JCprot() {}
 	
-#if defined(VIRTUAL_COV)
     JCprot * clone() const { return new JCprot(*this); }
-#else
-    Clonable * clone() const { return new JCprot(*this); }
-#endif
 
   public:
 		double Pij_t    (int i, int j, double d) const;

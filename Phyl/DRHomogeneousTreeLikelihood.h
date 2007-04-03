@@ -59,8 +59,8 @@ knowledge of the CeCILL license and that you accept its terms.
  * It takes only one parameter, the branch length.
  */
 class BranchLikelihood :
-  public virtual Function,
-  public virtual AbstractParametrizable
+  public Function,
+  public AbstractParametrizable
 {
   protected:
     const VVVdouble *_array1, *_array2;
@@ -83,11 +83,7 @@ class BranchLikelihood :
     }
     virtual ~BranchLikelihood() {}
 
-#if defined(VIRTUAL_COV)
     BranchLikelihood * clone() const { return new BranchLikelihood(*this); }
-#else
-    Clonable * clone() const { return new BranchLikelihood(*this); }
-#endif
 
   public:
     void initModel(const SubstitutionModel *model, const DiscreteDistribution *rDist)
@@ -163,7 +159,7 @@ class BranchLikelihood :
  *
  * All nodes share the same site patterns.
  */
-class DRHomogeneousTreeLikelihood :
+class DRHomogeneousTreeLikelihood:
   public AbstractHomogeneousTreeLikelihood,
   public NNISearchable
 {
@@ -232,11 +228,7 @@ class DRHomogeneousTreeLikelihood :
 
     virtual ~DRHomogeneousTreeLikelihood();
 
-#if defined(VIRTUAL_COV)
     DRHomogeneousTreeLikelihood * clone() const { return new DRHomogeneousTreeLikelihood(*this); }
-#else
-    Clonable * clone() const { return new DRHomogeneousTreeLikelihood(*this); }
-#endif
 
   public:
 

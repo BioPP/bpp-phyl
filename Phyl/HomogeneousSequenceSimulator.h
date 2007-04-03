@@ -65,7 +65,8 @@ using namespace std;
  * This sructure inherits from the SequenceSimulationResult class, and add support for
  * rate variation across sites.
  */
-class HomogeneousSiteSimulationResult: public SiteSimulationResult
+class HomogeneousSiteSimulationResult:
+  public SiteSimulationResult
 {
 	protected:
 		double _rate;
@@ -91,7 +92,9 @@ class HomogeneousSiteSimulationResult: public SiteSimulationResult
  *
  * Rate across sites variation is supported, using a DiscreteDistribution object or by specifying explicitely the rate of the sites to simulate.
  */
-class HomogeneousSequenceSimulator:	public virtual DetailedSiteSimulator, public virtual SequenceSimulator
+class HomogeneousSequenceSimulator:
+  public DetailedSiteSimulator,
+  public SequenceSimulator
 {
 	protected:
 		const MutationProcess * _process;
@@ -136,8 +139,7 @@ class HomogeneousSequenceSimulator:	public virtual DetailedSiteSimulator, public
 		mutable map<const Node *, vector<int> > _multipleStates;
     /** @} */
 	
-	public:
-		
+	public:		
 		HomogeneousSequenceSimulator(
 			const MutationProcess * process,
 			const DiscreteDistribution * rate,
@@ -166,33 +168,13 @@ class HomogeneousSequenceSimulator:	public virtual DetailedSiteSimulator, public
 		 *
 		 * @{
 		 */
-    #if defined(VIRTUAL_COV)
-    HomogeneousSiteSimulationResult *
-    #else
-    SiteSimulationResult *
-    #endif
-    dSimulate() const;
+    HomogeneousSiteSimulationResult * dSimulate() const;
     
-    #if defined(VIRTUAL_COV)
-    HomogeneousSiteSimulationResult *
-    #else
-    SiteSimulationResult *
-    #endif
-		dSimulate(int ancestralState) const;
+    HomogeneousSiteSimulationResult *	dSimulate(int ancestralState) const;
     
-    #if defined(VIRTUAL_COV)
-    HomogeneousSiteSimulationResult *
-    #else
-    SiteSimulationResult *
-    #endif
-		dSimulate(int ancestralState, double rate) const;
+    HomogeneousSiteSimulationResult * dSimulate(int ancestralState, double rate) const;
 
-    #if defined(VIRTUAL_COV)
-    HomogeneousSiteSimulationResult *
-    #else
-    SiteSimulationResult *
-    #endif
-		dSimulate(double rate) const;
+    HomogeneousSiteSimulationResult *	dSimulate(double rate) const;
 		/** @} */
 
     /**
@@ -217,13 +199,7 @@ class HomogeneousSequenceSimulator:	public virtual DetailedSiteSimulator, public
      * @{
      */
 		virtual Site * simulate(int ancestralState, unsigned int rateClass) const;
-    virtual
-    #if defined(VIRTUAL_COV)
-		HomogeneousSiteSimulationResult *
-    #else 
-    SiteSimulationResult *
-    #endif 
-    dSimulate(int ancestralState, unsigned int rateClass) const;
+    virtual	HomogeneousSiteSimulationResult * dSimulate(int ancestralState, unsigned int rateClass) const;
     /** @} */
 	
 		/**

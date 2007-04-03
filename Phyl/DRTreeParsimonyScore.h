@@ -73,10 +73,10 @@ class DRTreeParsimonyScore :
 				
 		virtual ~DRTreeParsimonyScore();
 
-#if defined(VIRTUAL_COV)
-    DRTreeParsimonyScore * clone() const { return new DRTreeParsimonyScore(* this); }
-#else
+#if defined(NO_VIRTUAL_COV)
     Clonable * clone() const { return new DRTreeParsimonyScore(* this); }
+#else
+    DRTreeParsimonyScore * clone() const { return new DRTreeParsimonyScore(* this); }
 #endif
 
 	protected:

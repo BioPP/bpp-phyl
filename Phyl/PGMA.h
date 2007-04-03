@@ -58,7 +58,8 @@ struct PGMAInfos
  * The distance between two taxa is the average distance between all individuals in each taxa.
  * The unweighted version (named UPGMA), uses a weighted average, with the number of individuals in a group as a weight.
  */
-class PGMA : public virtual AbstractAgglomerativeDistanceMethod
+class PGMA:
+  public AbstractAgglomerativeDistanceMethod
 {
 	protected:
 		bool _weighted;
@@ -70,7 +71,7 @@ class PGMA : public virtual AbstractAgglomerativeDistanceMethod
 			_weighted = weighted;
 			computeTree(true);
 		}
-		~PGMA() {}
+		virtual ~PGMA() {}
 
 	public:
 		void setDistanceMatrix(const DistanceMatrix & matrix)
@@ -79,12 +80,7 @@ class PGMA : public virtual AbstractAgglomerativeDistanceMethod
 			AbstractAgglomerativeDistanceMethod::setDistanceMatrix(matrix);
 		}
 
-#if defined(VIRTUAL_COV)
-		TreeTemplate<Node> * 
-#else
-		Tree *
-#endif
-		getTree() const;
+		TreeTemplate<Node> * getTree() const;
 		
 		void setWeighted(bool weighted) { _weighted = weighted; }
 		bool isWeighted() const { return _weighted; }

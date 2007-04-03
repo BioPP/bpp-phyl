@@ -60,8 +60,8 @@ knowledge of the CeCILL license and that you accept its terms.
  * 
  * Newick * newickReader = new Newick(false); //No comment allowed!
  * try {
- * 	Tree<Node> * tree = newickReader -> read("MyTestTree.dnd"); // Tree in file MyTestTree.dnd
- * 	cout << "Tree has " << tree -> getNumberOfLeaves() << " leaves." << endl;
+ * 	Tree * tree = newickReader->read("MyTestTree.dnd"); // Tree in file MyTestTree.dnd
+ * 	cout << "Tree has " << tree->getNumberOfLeaves() << " leaves." << endl;
  * } catch (Exception e) {
  *	cout << "Error when reading tree." << endl;
  * }
@@ -77,7 +77,9 @@ knowledge of the CeCILL license and that you accept its terms.
  * The additional information will be stored at each node as a property, in a String object.
  * The disableExtendedBootstrapProperty method restores the default behavior.
  */
-class Newick: public virtual AbstractITree, public virtual AbstractOTree
+class Newick:
+  public virtual AbstractITree,
+  public virtual AbstractOTree
 {
 	protected:
 		bool _allowComments;
@@ -126,22 +128,22 @@ class Newick: public virtual AbstractITree, public virtual AbstractOTree
 		 * @{
 		 */
 		
-#if defined(VIRTUAL_COV)
-		TreeTemplate<Node> * read(const string & path) const throw (Exception)
-		{
-			return dynamic_cast<TreeTemplate<Node> *>(AbstractITree::read(path));
-		}
-#else
+#if defined(NO_VIRTUAL_COV)
 		Tree * read(const string & path) const throw (Exception)
 		{
 			return AbstractITree::read(path);
 		}
+#else
+		TreeTemplate<Node> * read(const string & path) const throw (Exception)
+		{
+			return dynamic_cast<TreeTemplate<Node> *>(AbstractITree::read(path));
+		}
 #endif
 		
-#if defined(VIRTUAL_COV)
-		TreeTemplate<Node> * 
-#else
+#if defined(NO_VIRTUAL_COV)
 		Tree *
+#else
+		TreeTemplate<Node> * 
 #endif
 		read(istream & in) const throw (Exception);
 		/** @} */

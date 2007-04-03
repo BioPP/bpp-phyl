@@ -118,10 +118,10 @@ class TwoTreeLikelihood:
     
     TwoTreeLikelihood & operator=(const TwoTreeLikelihood & lik);
 
-#if defined(VIRTUAL_COV)
-    TwoTreeLikelihood * clone() const { return new TwoTreeLikelihood(*this); } 
-#else
+#if defined(NO_VIRTUAL_COV)
     Clonable * clone() const { return new TwoTreeLikelihood(*this); } 
+#else
+    TwoTreeLikelihood * clone() const { return new TwoTreeLikelihood(*this); } 
 #endif
 
 		virtual ~TwoTreeLikelihood();

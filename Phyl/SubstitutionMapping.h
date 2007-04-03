@@ -86,7 +86,8 @@ class SubstitutionMapping
 /**
  * @brief Partial implementation of the substitution mapping interface.
  */
-class AbstractSubstitutionMapping : public SubstitutionMapping
+class AbstractSubstitutionMapping:
+  public SubstitutionMapping
 {
   protected:
     const TreeTemplate<Node> * _tree;
@@ -98,13 +99,7 @@ class AbstractSubstitutionMapping : public SubstitutionMapping
 
   public:
 
-		virtual const
-#if defined(VIRTUAL_COV)
-		TreeTemplate<Node> *
-#else
-		Tree *
-#endif
-    getTree() const { return _tree; }
+		virtual const	TreeTemplate<Node> * getTree() const { return _tree; }
  
     int getSitePosition(unsigned int index) const { return _sitesPostions[index]; }
 };

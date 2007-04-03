@@ -135,9 +135,7 @@ class MarkovModulatedSubstitutionModel:
     
     virtual ~MarkovModulatedSubstitutionModel() {}
 
-#if defined(VIRTUAL_COV)
     MarkovModulatedSubstitutionModel * clone() const = 0;
-#endif
 
   public:
 	  

@@ -121,12 +121,7 @@ class TN93:
 	
 		virtual ~TN93();
 
-#if defined(VIRTUAL_COV)
     TN93 * clone() const { return new TN93(*this); }
-#else
-    Clonable * clone() const { return new TN93(*this); }
-#endif
-
 
   public:
 

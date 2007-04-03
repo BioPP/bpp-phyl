@@ -56,18 +56,15 @@ knowledge of the CeCILL license and that you accept its terms.
  * - Dayhoff MO, Schwartz RM and Orcutt BC (1978), _A model of evolutionary change in proteins_, 5(3) 345-352, in _Atlas of Protein Sequence and Structure_. 
  * - Kosiol C and Goldman N (2005), _Molecular Biology And Evolution_ 22(2) 193-9. 
  */
-class DSO78 : public virtual ProteinSubstitutionModel
+class DSO78:
+  public ProteinSubstitutionModel
 {
 	public:
 		DSO78(const ProteicAlphabet * alpha);
 
 		virtual ~DSO78() {}
 
-#if defined(VIRTUAL_COV)
     DSO78 * clone() const { return new DSO78(*this); }
-#else
-    Clonable * clone() const { return new DSO78(*this); }
-#endif
     
 	public:
 		string getName() const;

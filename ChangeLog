@@ -1,10 +1,21 @@
+03/04/07 Julien Dutheil
+* VIRTUAL_COV variable changed to NO_VIRTUAL_COV. configure.ac file updated.
+  => Default behaviour is now /really/ to use covariant return type with
+	virtual inheritence, even when importing the files in an IDE. To use the old
+	compilers behaviour, one must set the NO_VIRTUAL_COV preproc variable.
+* Several useless 'VIRTUAL_COV' test removed.
+* A few more virtual inheritences removed for optimization sake. 
+
+02/04/07 Nicolas Galtier
+* Bug fixed in TreeTemplate assignment operator.
+
 06/03/07 Julien Dutheil
 * New Id gestion in TreeTemplate.
   New tools to deal with ids in TreeTools and TreeTemplateTools.
 
 03/03/07 Julien Dutheil
 * Bug fixed in simulation with continuous rate (no more exception thrown for
-		duplicate site position).
+  duplicate site position).
 
 22/02/07 Julien Dutheil
 * Distance estimation now works properly with

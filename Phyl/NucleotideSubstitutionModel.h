@@ -56,9 +56,7 @@ class NucleotideSubstitutionModel :
 
 		virtual ~NucleotideSubstitutionModel() {}
 
-#if defined(VIRTUAL_COV)
     NucleotideSubstitutionModel * clone() const = 0;
-#endif
 
   public:
     virtual unsigned int getNumberOfStates() const { return 4; }

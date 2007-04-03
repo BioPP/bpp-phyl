@@ -165,12 +165,7 @@ class T92:
 
 		virtual ~T92();
 
-#if defined(VIRTUAL_COV)
     T92 * clone() const { return new T92(*this); }
-#else
-    Clonable * clone() const { return new T92(*this); }
-#endif
-
 
   public:
 

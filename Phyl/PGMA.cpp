@@ -48,12 +48,7 @@ knowledge of the CeCILL license and that you accept its terms.
 #include <iostream>
 using namespace std;
 
-#if defined(VIRTUAL_COV)
-		TreeTemplate<Node> * 
-#else
-		Tree *
-#endif
-PGMA::getTree() const
+TreeTemplate<Node> * PGMA::getTree() const
 {
 	Node * root = TreeTemplateTools::cloneSubtree<Node>(* dynamic_cast<TreeTemplate<NodeTemplate<PGMAInfos> > *>(_tree) -> getRootNode());
 	return new TreeTemplate<Node>(* root);
