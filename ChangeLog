@@ -5,6 +5,7 @@
 	compilers behaviour, one must set the NO_VIRTUAL_COV preproc variable.
 * Several useless 'VIRTUAL_COV' test removed.
 * A few more virtual inheritences removed for optimization sake. 
+* setMinimumBranchLength now reinitializes only the branch lengths parameters.
 
 02/04/07 Nicolas Galtier
 * Bug fixed in TreeTemplate assignment operator.

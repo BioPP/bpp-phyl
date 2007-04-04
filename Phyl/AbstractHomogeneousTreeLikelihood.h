@@ -169,7 +169,7 @@ class AbstractHomogeneousTreeLikelihood:
       _minimumBrLen = minimum;
       if(_brLenConstraint != NULL) delete _brLenConstraint;
       _brLenConstraint = new IncludingPositiveReal(_minimumBrLen);
-      initParameters();
+      initBranchLengthsParameters();
     }
 
     double getMinimumBranchLength() const { return _minimumBrLen; }
