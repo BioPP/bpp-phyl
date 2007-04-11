@@ -69,12 +69,13 @@ class AbstractTreeLikelihood :
 		const SiteContainer * _data;
 		mutable TreeTemplate<Node> * _tree;
 		bool _computeDerivatives;
+    bool _initialized;
 
 	public:
-		AbstractTreeLikelihood(): _data(NULL), _tree(NULL), _computeDerivatives(true) {}
+		AbstractTreeLikelihood(): _data(NULL), _tree(NULL), _computeDerivatives(true), _initialized(false) {}
 
     AbstractTreeLikelihood(const AbstractTreeLikelihood & lik):
-      AbstractParametrizable(lik), _data(NULL), _tree(NULL), _computeDerivatives(lik._computeDerivatives) 
+      AbstractParametrizable(lik), _data(NULL), _tree(NULL), _computeDerivatives(lik._computeDerivatives), _initialized(lik._initialized) 
     {
       if(lik._data) _data = dynamic_cast<SiteContainer *>(lik._data->clone());
       if(lik._tree) _tree = lik._tree->clone();
@@ -90,6 +91,7 @@ class AbstractTreeLikelihood :
       if(lik._tree) _tree = lik._tree->clone();
       else          _tree = NULL;
       _computeDerivatives = lik._computeDerivatives;
+      _initialized        = lik._initialized;
       return *this;
     }
 
@@ -122,6 +124,8 @@ class AbstractTreeLikelihood :
 		Tree * getTree() { return _tree; }
 		void setComputeDerivatives(bool yn) { _computeDerivatives = yn; }
 		bool computeDerivatives() const { return _computeDerivatives; }
+    bool isInitialized() const { return _initialized; }
+    void initialize() throw (Exception) { _initialized = true; }
 		/** @} */
 
 	protected:

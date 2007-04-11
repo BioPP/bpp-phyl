@@ -105,10 +105,6 @@ TwoTreeLikelihood::TwoTreeLikelihood(
 	delete sequences;
 
 	if(verbose) ApplicationTools::displayTaskDone();
-	
-	// Now initializes all parameters:
-	initParameters();
-	fireParameterChanged(_parameters);
 }
 
 /******************************************************************************/
@@ -177,15 +173,26 @@ TwoTreeLikelihood::~TwoTreeLikelihood()
 
 /******************************************************************************/
 
+void TwoTreeLikelihood::initialize() throw (Exception)
+{
+	initParameters();
+  _initialized = true;
+	fireParameterChanged(_parameters);
+}
+
+/******************************************************************************/
+
 ParameterList TwoTreeLikelihood::getBranchLengthsParameters() const
 {
-	return _brLenParameters.getCommonParametersWith(_parameters);
+  if(!_initialized) throw Exception("TwoTreeLikelihood::getBranchLengthsParameters(). Object is not initialized.");
+  return _brLenParameters.getCommonParametersWith(_parameters);
 }
 
 /******************************************************************************/
 
 ParameterList TwoTreeLikelihood::getSubstitutionModelParameters() const
 {
+  if(!_initialized) throw Exception("TwoTreeLikelihood::getSubstitutionModelParameters(). Object is not initialized.");
 	return _model->getParameters().getCommonParametersWith(_parameters);
 }
 
@@ -643,6 +650,7 @@ void DistanceEstimation::computeMatrix() throw (NullPointerException)
 			if(_verbose > 1) { cout << "."; cout.flush(); }
 			TwoTreeLikelihood * lik = 
 				new TwoTreeLikelihood(names[i], names[j], *_sites, _model, _rateDist, _verbose > 3);
+      lik->initialize();
 			lik->setComputeDerivatives(true);
 			const Sequence * seqi = _sites->getSequence(names[i]);
 			const Sequence * seqj = _sites->getSequence(names[j]);

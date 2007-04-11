@@ -85,7 +85,9 @@ IODistanceMatrixFactory.h\
 F84.h\
 MarkovModulatedSubstitutionModel.h\
 G2001.h\
-TS98.h
+TS98.h\
+NNIHomogeneousTreeLikelihood.h\
+ClockTreeLikelihood.h
 
 
 CPP_FILES = \
@@ -144,7 +146,9 @@ RateDistributionFactory.cpp\
 IOTreeFactory.cpp\
 IODistanceMatrixFactory.cpp\
 F84.cpp\
-MarkovModulatedSubstitutionModel.cpp
+MarkovModulatedSubstitutionModel.cpp\
+NNIHomogeneousTreeLikelihood.cpp\
+ClockTreeLikelihood.cpp
 
 CPP_EXTRA = \
 __DSO78FrequenciesCode\

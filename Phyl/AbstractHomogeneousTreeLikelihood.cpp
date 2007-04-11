@@ -63,6 +63,83 @@ AbstractHomogeneousTreeLikelihood::AbstractHomogeneousTreeLikelihood(
   throw (Exception):
   AbstractDiscreteRatesAcrossSitesTreeLikelihood(rDist, verbose)
 {
+  init(tree, model, rDist, checkRooted, verbose);
+}
+
+/******************************************************************************/
+
+AbstractHomogeneousTreeLikelihood::AbstractHomogeneousTreeLikelihood(
+    const AbstractHomogeneousTreeLikelihood & lik) :
+  //AbstractParametrizable(lik),
+  //AbstractTreeLikelihood(lik),
+  AbstractDiscreteRatesAcrossSitesTreeLikelihood(lik)
+{
+  _model           = lik._model;
+  _pxy             = lik._pxy;
+  _dpxy            = lik._dpxy;
+  _d2pxy           = lik._d2pxy;
+  _nodes = _tree->getNodes();
+  _nodes.pop_back(); //Remove the root node (the last added!).  
+	_nbSites         = lik._nbSites;
+  _nbDistinctSites = lik._nbDistinctSites;
+	_nbClasses       = lik._nbClasses;
+	_nbStates        = lik._nbStates;
+	_nbNodes         = lik._nbNodes;
+  _verbose         = lik._verbose;
+  _minimumBrLen    = lik._minimumBrLen;
+  _brLenParameters = lik._brLenParameters;
+  _brLenConstraint = lik._brLenConstraint->clone();
+  //Update the constraints on branch lengths:
+  for(unsigned int i = 0; i < _brLenParameters.size(); i++)
+  {
+    _brLenParameters[i]->setConstraint(_brLenConstraint);
+  }
+}
+
+/******************************************************************************/
+
+AbstractHomogeneousTreeLikelihood & AbstractHomogeneousTreeLikelihood::operator=(
+    const AbstractHomogeneousTreeLikelihood & lik)
+{
+  AbstractDiscreteRatesAcrossSitesTreeLikelihood::operator=(lik);
+  _model           = lik._model;
+  _pxy             = lik._pxy;
+  _dpxy            = lik._dpxy;
+  _d2pxy           = lik._d2pxy;
+  _nodes = _tree->getNodes();
+  _nodes.pop_back(); //Remove the root node (the last added!).  
+	_nbSites         = lik._nbSites;
+  _nbDistinctSites = lik._nbDistinctSites;
+	_nbClasses       = lik._nbClasses;
+	_nbStates        = lik._nbStates;
+	_nbNodes         = lik._nbNodes;
+  _verbose         = lik._verbose;
+  _minimumBrLen    = lik._minimumBrLen;
+  _brLenParameters = lik._brLenParameters;
+  _brLenConstraint = lik._brLenConstraint->clone();
+  //Update the constraints on branch lengths:
+  for(unsigned int i = 0; i < _brLenParameters.size(); i++)
+  {
+    _brLenParameters[i]->setConstraint(_brLenConstraint);
+  }
+  return *this;
+}
+
+/******************************************************************************/
+
+AbstractHomogeneousTreeLikelihood::~AbstractHomogeneousTreeLikelihood()
+{
+  delete _brLenConstraint;
+}
+
+/******************************************************************************/
+
+void AbstractHomogeneousTreeLikelihood::init(const Tree & tree,
+			SubstitutionModel * model,
+			DiscreteDistribution * rDist,
+      bool checkRooted,
+			bool verbose) throw (Exception)
+{
   _tree = new TreeTemplate<Node>(tree);
   if(checkRooted && _tree->isRooted())
   {
@@ -131,67 +208,20 @@ AbstractHomogeneousTreeLikelihood::AbstractHomogeneousTreeLikelihood(
 
 /******************************************************************************/
 
-AbstractHomogeneousTreeLikelihood::AbstractHomogeneousTreeLikelihood(
-    const AbstractHomogeneousTreeLikelihood & lik) :
-  //AbstractParametrizable(lik),
-  //AbstractTreeLikelihood(lik),
-  AbstractDiscreteRatesAcrossSitesTreeLikelihood(lik)
+void AbstractHomogeneousTreeLikelihood::initialize() throw (Exception)
 {
-  _model           = lik._model;
-  _pxy             = lik._pxy;
-  _dpxy            = lik._dpxy;
-  _d2pxy           = lik._d2pxy;
-  _nodes = _tree->getNodes();
-  _nodes.pop_back(); //Remove the root node (the last added!).  
-	_nbSites         = lik._nbSites;
-  _nbDistinctSites = lik._nbDistinctSites;
-	_nbClasses       = lik._nbClasses;
-	_nbStates        = lik._nbStates;
-	_nbNodes         = lik._nbNodes;
-  _verbose         = lik._verbose;
-  _minimumBrLen    = lik._minimumBrLen;
-  _brLenParameters = lik._brLenParameters;
-  _brLenConstraint = lik._brLenConstraint->clone();
-  initParameters(); //Required to update the constraints on branch lengths.
-}
-
-/******************************************************************************/
-
-AbstractHomogeneousTreeLikelihood & AbstractHomogeneousTreeLikelihood::operator=(
-    const AbstractHomogeneousTreeLikelihood & lik)
-{
-  //AbstractTreeLikelihood::operator=(lik);
-  AbstractDiscreteRatesAcrossSitesTreeLikelihood::operator=(lik);
-  _model           = lik._model;
-  _pxy             = lik._pxy;
-  _dpxy            = lik._dpxy;
-  _d2pxy           = lik._d2pxy;
-  _nodes = _tree->getNodes();
-  _nodes.pop_back(); //Remove the root node (the last added!).  
-	_nbSites         = lik._nbSites;
-  _nbDistinctSites = lik._nbDistinctSites;
-	_nbClasses       = lik._nbClasses;
-	_nbStates        = lik._nbStates;
-	_nbNodes         = lik._nbNodes;
-  _verbose         = lik._verbose;
-  _minimumBrLen    = lik._minimumBrLen;
-  _brLenParameters = lik._brLenParameters;
-  _brLenConstraint = lik._brLenConstraint->clone();
-  initParameters(); //Required to update the constraints on branch lengths.
-  return *this;
-}
-
-/******************************************************************************/
-
-AbstractHomogeneousTreeLikelihood::~AbstractHomogeneousTreeLikelihood()
-{
-  delete _brLenConstraint;
+  if(_initialized) throw Exception("AbstractHomogeneousTreeLikelihood::initialize(). Object is already initialized.");
+  if(_data == NULL) throw Exception("AbstractHomogeneousTreeLikelihood::initialize(). Data are no set.");
+  initParameters();
+  _initialized = true;
+  fireParameterChanged(_parameters);
 }
 
 /******************************************************************************/
 
 ParameterList AbstractHomogeneousTreeLikelihood::getBranchLengthsParameters() const
 {
+  if(!_initialized) throw Exception("AbstractHomogeneousTreeLikelihood::getBranchLengthsParameters(). Object is not initialized.");
   return _brLenParameters.getCommonParametersWith(_parameters);
 }
 
@@ -199,6 +229,7 @@ ParameterList AbstractHomogeneousTreeLikelihood::getBranchLengthsParameters() co
 
 ParameterList AbstractHomogeneousTreeLikelihood::getSubstitutionModelParameters() const
 {
+  if(!_initialized) throw Exception("AbstractHomogeneousTreeLikelihood::getSubstitutionModelParameters(). Object is not initialized.");
   return _model->getParameters().getCommonParametersWith(_parameters);
 }
 
@@ -232,7 +263,8 @@ throw (ParameterNotFoundException)
 
 void AbstractHomogeneousTreeLikelihood::applyParameters() throw (Exception)
 {
-  //Apply branch lengtihs:
+  if(!_initialized) throw Exception("AbstractHomogeneousTreeLikelihood::applyParameters(). Object not initialized.");
+  //Apply branch lengths:
   for(unsigned int i = 0; i < _nbNodes; i++)
   {
     const Parameter * brLen = _parameters.getParameter(string("BrLen") + TextTools::toString(_nodes[i]->getId()));

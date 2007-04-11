@@ -88,7 +88,8 @@ using namespace std;
  * @see TreeTools
  */
 template<class N>
-class TreeTemplate: public Tree
+class TreeTemplate:
+  public Tree
 {
 	/**
 	 * Fields:

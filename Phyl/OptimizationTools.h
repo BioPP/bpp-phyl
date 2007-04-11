@@ -44,6 +44,7 @@ knowledge of the CeCILL license and that you accept its terms.
 #include "HomogeneousTreeLikelihood.h"
 #include "AbstractHomogeneousTreeLikelihood.h"
 #include "DRHomogeneousTreeLikelihood.h"
+#include "NNIHomogeneousTreeLikelihood.h"
 #include "NNITopologySearch.h"
 #include "DRTreeParsimonyScore.h"
 
@@ -277,8 +278,8 @@ class OptimizationTools
      * @endcode
 		 * @throw Exception any exception thrown by the optimizer.
      */
-    static DRHomogeneousTreeLikelihood * optimizeTreeNNI(
-        DRHomogeneousTreeLikelihood * tl,
+    static NNIHomogeneousTreeLikelihood * optimizeTreeNNI(
+        NNIHomogeneousTreeLikelihood * tl,
         bool optimizeNumFirst = true,
 			  double tolBefore = 100,
 			  double tolDuring = 100,

@@ -1,3 +1,9 @@
+07/04/07 Benoît Nabholz and Julien Dutheil
+* New ClockTreeLikelihood class.
+* New NNIHomogeneousTreeLikelihood class, splitted appart from DRHomogeneousTreeLikelihood.
+* DRHomogeneousTreeLikelihood a little bit improved (derivatives computation).
+* New method initialize() in TreeLikelihood classes.
+
 03/04/07 Julien Dutheil
 * VIRTUAL_COV variable changed to NO_VIRTUAL_COV. configure.ac file updated.
   => Default behaviour is now /really/ to use covariant return type with

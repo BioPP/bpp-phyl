@@ -89,7 +89,10 @@ class HomogeneousTreeLikelihood :
 
 	public:
     /**
-     * @brief Build a new HomogeneousTreeLikelihood object.
+     * @brief Build a new HomogeneousTreeLikelihood object without data.
+     *
+     * This constructor only initialize the parameters.
+     * To compute a likelihood, you will need to call the setData() and the computeTreeLikelihood() methods.
      *
      * @param tree The tree to use.
      * @param model The substitution model to use.
@@ -108,7 +111,9 @@ class HomogeneousTreeLikelihood :
 			throw (Exception);
 	
     /**
-     * @brief Build a new HomogeneousTreeLikelihood object.
+     * @brief Build a new HomogeneousTreeLikelihood object and compute the corresponding likelihood.
+     *
+     * This constructor initializes all parameters, data, and likelihood arrays.
      *
      * @param tree The tree to use.
      * @param data Sequences to use.
@@ -137,6 +142,11 @@ class HomogeneousTreeLikelihood :
     HomogeneousTreeLikelihood * clone() const { return new HomogeneousTreeLikelihood(*this); }
 	
 	public:
+
+    /**
+     * @brief Method called by constructors.
+     */
+    void init() throw (Exception);
 
 		/**
 		 * @name The TreeLikelihood interface.

@@ -87,6 +87,21 @@ class TreeLikelihood:
 		virtual const SiteContainer * getData() const = 0;
 
     /**
+     * @brief Init the likelihood object.
+     *
+     * This method is used to initialize all parameters.
+     * It is typically called after the constructor and the setData method.
+     * It contains virtual methods that can't be called in the constructor.
+     * @throw Exception if something bad happened, for instance if no data are associated to the likelihood function.
+     */
+    virtual void initialize() throw (Exception) = 0;
+
+    /**
+     * @return 'true' is the likelihood function has been initialized.
+     */
+    virtual bool isInitialized() const = 0;
+
+    /**
 		 * @brief Get the likelihood for a site.
 		 *
 		 * @param site The site index to analyse.

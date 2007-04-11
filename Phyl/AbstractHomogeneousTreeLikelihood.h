@@ -106,6 +106,16 @@ class AbstractHomogeneousTreeLikelihood:
 		virtual ~AbstractHomogeneousTreeLikelihood();
 		
 	public:
+
+    /**
+     * @brief Method called by constructor.
+     */
+    void init(const Tree & tree,
+			SubstitutionModel * model,
+			DiscreteDistribution * rDist,
+      bool checkRooted,
+			bool verbose) throw (Exception);
+
 		
 		/**
 		 * @name The TreeLikelihood interface.
@@ -114,6 +124,7 @@ class AbstractHomogeneousTreeLikelihood:
 		 *
 		 * @{
 		 */
+    void initialize() throw(Exception);
 		ParameterList getBranchLengthsParameters() const;
 		ParameterList getSubstitutionModelParameters() const;
 		ParameterList getRateDistributionParameters() const

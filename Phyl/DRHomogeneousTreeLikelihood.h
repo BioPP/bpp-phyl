@@ -42,101 +42,10 @@ knowledge of the CeCILL license and that you accept its terms.
 
 #include "AbstractHomogeneousTreeLikelihood.h"
 #include "DRASDRTreeLikelihoodData.h"
-#include "NNISearchable.h"
 
 // From NumCalc:
 #include <NumCalc/VectorTools.h>
 #include <NumCalc/DiscreteDistribution.h>
-#include <NumCalc/BrentOneDimension.h>
-
-/**
- * @brief Compute likelihood for a 4-tree.
- *
- * This class is used internally by DRHomogeneousTreeLikelihood to test NNI movements.
- * This function needs:
- * - two likelihood arrays corresponding to the conditional likelihoods at top and bottom nodes,
- * - a substitution model and a rate distribution, whose parameters will not be estimated but taken "as is",
- * It takes only one parameter, the branch length.
- */
-class BranchLikelihood :
-  public Function,
-  public AbstractParametrizable
-{
-  protected:
-    const VVVdouble *_array1, *_array2;
-    VVVdouble _arrayTmp;
-    const SubstitutionModel * _model;
-    const DiscreteDistribution * _rDist;
-    unsigned int _nbStates, _nbClasses;
-    VVVdouble _pxy;
-    double _lnL;
-    vector<unsigned int> _weights;
-
-  public:
-    BranchLikelihood(const vector<unsigned int> & weights):
-      _array1(NULL), _array2(NULL), _arrayTmp(),
-      _model(NULL), _rDist(NULL),
-      _nbStates(0), _nbClasses(0),
-      _pxy(), _lnL(log(0.)), _weights(weights)
-    {
-      _parameters.addParameter(Parameter("BrLen", 1, NULL));
-    }
-    virtual ~BranchLikelihood() {}
-
-    BranchLikelihood * clone() const { return new BranchLikelihood(*this); }
-
-  public:
-    void initModel(const SubstitutionModel *model, const DiscreteDistribution *rDist)
-    {
-      _model = model;
-      _rDist = rDist;
-      _nbStates = model->getNumberOfStates();
-      _nbClasses  = rDist->getNumberOfCategories();
-      _pxy.resize(_nbClasses);
-      for(unsigned int i = 0; i < _nbClasses; i++)
-      {
-        _pxy[i].resize(_nbStates);
-        for(unsigned int j = 0; j < _nbStates; j++)
-          _pxy[i][j].resize(_nbStates);
-      }
-    }
-    /**
-     * @warning No checking on alphabet size or number of rate classes is performed,
-     * use with care!
-     */
-    void initLikelihoods(const VVVdouble *array1, const VVVdouble *array2)
-    {
-      _array1 = array1;
-      _array2 = array2;
-    }
-
-    void resetLikelihoods()
-    {
-      _array1 = NULL;
-      _array2 = NULL;
-    }
-
-    void setParameters(const ParameterList &parameters)
-      throw (ParameterNotFoundException, ConstraintException)
-    {
-      _parameters.setParametersValues(parameters);
-      fireParameterChanged(parameters);
-    }
-
-    double getValue() const throw (Exception) { return _lnL; }
-
-    void fireParameterChanged(const ParameterList & parameters)
-    {
-      computeAllTransitionProbabilities();
-      computeLogLikelihood();
-    }
-
-  protected:
-    void computeAllTransitionProbabilities();
-    void computeLogLikelihood();
-};
-
-
 
 /**
  * @brief This class implements the likelihood computation for a tree using the double-recursive
@@ -160,27 +69,17 @@ class BranchLikelihood :
  * All nodes share the same site patterns.
  */
 class DRHomogeneousTreeLikelihood:
-  public AbstractHomogeneousTreeLikelihood,
-  public NNISearchable
+  public AbstractHomogeneousTreeLikelihood
 {
   protected:
     mutable DRASDRTreeLikelihoodData *_likelihoodData;
-    BranchLikelihood * _brLikFunction;
-    /**
-     * @brief Optimizer used for testing NNI.
-     */
-    BrentOneDimension * _brentOptimizer;
-
-    /**
-     * @brief Hash used for backing up branch lengths when testing NNIs.
-     */
-    mutable map<int, double> _brLenNNIValues;
-
-    ParameterList _brLenNNIParams;
     
   public:
     /**
-     * @brief Build a new DRHomogeneousTreeLikelihood object.
+     * @brief Build a new DRHomogeneousTreeLikelihood object without data.
+     *
+     * This constructor only initialize the parameters.
+     * To compute a likelihood, you will need to call the setData() and the computeTreeLikelihood() methods.
      *
      * @param tree The tree to use.
      * @param model The substitution model to use.
@@ -199,7 +98,9 @@ class DRHomogeneousTreeLikelihood:
       throw (Exception);
   
     /**
-     * @brief Build a new DRHomogeneousTreeLikelihood object.
+     * @brief Build a new DRHomogeneousTreeLikelihood object and compute the corresponding likelihood.
+     *
+     * This constructor initializes all parameters, data, and likelihood arrays.
      *
      * @param tree The tree to use.
      * @param data Sequences to use.
@@ -231,6 +132,11 @@ class DRHomogeneousTreeLikelihood:
     DRHomogeneousTreeLikelihood * clone() const { return new DRHomogeneousTreeLikelihood(*this); }
 
   public:
+
+    /**
+     * @brief Method called by constructors.
+     */
+    void init() throw (Exception);
 
     /**
      * @name The TreeLikelihood interface.
@@ -294,40 +200,6 @@ class DRHomogeneousTreeLikelihood:
      */
     double getSecondOrderDerivative(const string & variable) const throw (Exception);
     double getSecondOrderDerivative(const string & variable1, const string & variable2) const throw (Exception) { return 0; } // Not implemented for now.
-    /** @} */
-
-    /**
-     * @name The NNISearchable interface.
-     *
-     * Current implementation:
-     * When testing a particular NNI, only the branch length of the parent node is optimized (and roughly).
-     * All other parameters (substitution model, rate distribution and other branch length are kept at there current value.
-     * When performing a NNI, only the topology change is performed.
-     * This is up to the user to re-initialize the underlying likelihood data to match the new topology.
-     * Usually, this is achieved by calling the topologyChangePerformed() method, which call the reInit() method of the LikelihoodData object.
-     * @{
-     */
-		Tree * getTopology() { return AbstractHomogeneousTreeLikelihood::getTree(); }
-		
-		const Tree * getTopology() const { return getTree(); }
-
-    double getTopologyValue() const throw (Exception) { return getValue(); }
-
-    double testNNI(int nodeId) const throw (NodeException);
-    
-    void doNNI(int nodeId) throw (NodeException);
-
-    void topologyChangeTested(const TopologyChangeEvent & event)
-    {
-      _likelihoodData->reInit();
-      //if(_brLenNNIParams.size() > 0)
-        fireParameterChanged(_brLenNNIParams);
-      _brLenNNIParams.reset();
-    }
-    void topologyChangeSuccessful(const TopologyChangeEvent & event)
-    {
-      _brLenNNIValues.clear();
-    }
     /** @} */
     
   public:  // Specific methods:

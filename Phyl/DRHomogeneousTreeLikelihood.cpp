@@ -65,29 +65,10 @@ DRHomogeneousTreeLikelihood::DRHomogeneousTreeLikelihood(
   bool checkRooted,
   bool verbose)
 throw (Exception):
-  //AbstractParametrizable(),
-  //AbstractTreeLikelihood(),
-  //AbstractDiscreteRatesAcrossSitesTreeLikelihood(rDist, verbose),
   AbstractHomogeneousTreeLikelihood(tree, model, rDist, checkRooted, verbose),
-  _likelihoodData(NULL),
-  _brLikFunction(NULL),
-  _brentOptimizer(NULL),
-  _brLenNNIValues(),
-  _brLenNNIParams()
+  _likelihoodData(NULL)
 {
-  if(verbose) ApplicationTools::message << "Double-Recursive Homogeneous Tree Likelihood" << endl;  
-  _likelihoodData = new DRASDRTreeLikelihoodData(*_tree, rDist->getNumberOfCategories());
-    
-  // Now initializes all parameters:
-  initParameters();
-  computeAllTransitionProbabilities();
-  //fireParameterChanged(_parameters);
-  
-  _brentOptimizer = new BrentOneDimension();
-  _brentOptimizer->setConstraintPolicy(AbstractOptimizer::CONSTRAINTS_AUTO);
-  _brentOptimizer->setProfiler(NULL);
-  _brentOptimizer->setMessageHandler(NULL);
-  _brentOptimizer->setVerbose(0);
+  init();
 }
 
 /******************************************************************************/
@@ -100,67 +81,39 @@ DRHomogeneousTreeLikelihood::DRHomogeneousTreeLikelihood(
   bool checkRooted,
   bool verbose)
 throw (Exception):
-  //AbstractParametrizable(),
-  //AbstractTreeLikelihood(),
-  //AbstractDiscreteRatesAcrossSitesTreeLikelihood(rDist, verbose),
   AbstractHomogeneousTreeLikelihood(tree, model, rDist, checkRooted, verbose),
-  _likelihoodData(NULL),
-  _brLikFunction(NULL),
-  _brentOptimizer(NULL),
-  _brLenNNIValues(),
-  _brLenNNIParams()
+  _likelihoodData(NULL)
 {
-  if(verbose) ApplicationTools::message << "Double-Recursive Homogeneous Tree Likelihood" << endl;  
-  _likelihoodData = new DRASDRTreeLikelihoodData(*_tree, rDist->getNumberOfCategories());
-  
-  _brentOptimizer = new BrentOneDimension();
-  _brentOptimizer->setConstraintPolicy(AbstractOptimizer::CONSTRAINTS_AUTO);
-  _brentOptimizer->setProfiler(NULL);
-  _brentOptimizer->setMessageHandler(NULL);
-  _brentOptimizer->setVerbose(0);
-    
+  init(); 
   setData(data);
-  
-  // Now initializes all parameters:
-  initParameters();
-  fireParameterChanged(_parameters);  
+}
+
+/******************************************************************************/
+
+void DRHomogeneousTreeLikelihood::init() throw (Exception)
+{
+  if(_verbose) ApplicationTools::message << "Double-Recursive Homogeneous Tree Likelihood" << endl;  
+  _likelihoodData = new DRASDRTreeLikelihoodData(*_tree, _rateDistribution->getNumberOfCategories());
 }
 
 /******************************************************************************/
 
 DRHomogeneousTreeLikelihood::DRHomogeneousTreeLikelihood(const DRHomogeneousTreeLikelihood & lik):
-  //AbstractParametrizable(lik),
-  //AbstractTreeLikelihood(lik),
-  //AbstractDiscreteRatesAcrossSitesTreeLikelihood(lik),
   AbstractHomogeneousTreeLikelihood(lik),
   _likelihoodData(NULL)
 {
   _likelihoodData = lik._likelihoodData->clone();
   _likelihoodData->setTree(*_tree);
-  _brLikFunction  = dynamic_cast<BranchLikelihood *>(lik._brLikFunction->clone());
-  _brentOptimizer = dynamic_cast<BrentOneDimension *>(lik._brentOptimizer->clone());
-  _brLenNNIValues = lik._brLenNNIValues;
-  _brLenNNIParams = lik._brLenNNIParams;
 }
 
 /******************************************************************************/
 
 DRHomogeneousTreeLikelihood & DRHomogeneousTreeLikelihood::operator=(const DRHomogeneousTreeLikelihood & lik)
 {
-  //AbstractParametrizable::operator=(lik);
-  //AbstractTreeLikelihood::operator=(lik);
-  //AbstractDiscreteRatesAcrossSitesTreeLikelihood::operator=(lik);
   AbstractHomogeneousTreeLikelihood::operator=(lik);
   if(_likelihoodData) delete _likelihoodData;
   _likelihoodData = lik._likelihoodData->clone();
   _likelihoodData->setTree(*_tree);
-  if(_brLikFunction) delete _brLikFunction;
-  _brLikFunction  = dynamic_cast<BranchLikelihood *>(lik._brLikFunction->clone());
-  if(_brentOptimizer) delete _brentOptimizer;
-  _brentOptimizer = dynamic_cast<BrentOneDimension *>(lik._brentOptimizer->clone());
-  _brLenNNIValues = lik._brLenNNIValues;
-  _brLenNNIParams = lik._brLenNNIParams;
-  _parameters = lik._parameters;
   return *this;
 }
 
@@ -169,8 +122,6 @@ DRHomogeneousTreeLikelihood & DRHomogeneousTreeLikelihood::operator=(const DRHom
 DRHomogeneousTreeLikelihood::~DRHomogeneousTreeLikelihood()
 {
   delete _likelihoodData;
-  if(_brLikFunction) delete _brLikFunction;
-  delete _brentOptimizer;
 }
 
 /******************************************************************************/
@@ -188,9 +139,6 @@ void DRHomogeneousTreeLikelihood::setData(const SiteContainer & sites) throw (Ex
   
   if(_verbose) ApplicationTools::displayResult("Number of distinct sites",
       TextTools::toString(_nbDistinctSites));
-  
-  if(_brLikFunction) delete _brLikFunction;
-  _brLikFunction = new BranchLikelihood(_likelihoodData->getWeights());
 }
 
 /******************************************************************************/
@@ -311,19 +259,18 @@ void DRHomogeneousTreeLikelihood::fireParameterChanged(const ParameterList & par
   }
   else if(params.size() > 0)
   {
-    ////We may save some computations:
-    //for(unsigned int i = 0; i < params.size(); i++)
-    //{
-    //  string s = params[i]->getName();
-    //  cout << s << endl;
-    //  if(s.substr(0,5) == "BrLen")
-    //  {
-    //    //Branch length parameter:
-    //    computeTransitionProbabilitiesForNode(_tree->getNode(TextTools::toInt(s.substr(5))));
-    //  }
-    //}
+    //We may save some computations:
+    for(unsigned int i = 0; i < params.size(); i++)
+    {
+      string s = params[i]->getName();
+      cout << s << endl;
+      if(s.substr(0,5) == "BrLen")
+      {
+        //Branch length parameter:
+        computeTransitionProbabilitiesForNode(_tree->getNode(TextTools::toInt(s.substr(5))));
+      }
+    }
   }
-  computeAllTransitionProbabilities();
 
   computeTreeLikelihood();
   if(_computeDerivatives)
@@ -358,25 +305,26 @@ void DRHomogeneousTreeLikelihood::computeTreeDLikelihoodAtNode(const Node * node
   VVVdouble larray = computeLikelihoodAtNode(father);
   Vdouble * rootLikelihoodsSR = & _likelihoodData->getRootRateSiteLikelihoodArray();
 
+  double dLi, dLic, dLicx, numerator, denominator;
   for(unsigned int i = 0; i < _nbDistinctSites; i++)
   {
     VVdouble * _likelihoods_father_node_i = & (* _likelihoods_father_node)[i];
     VVdouble * larray_i = & larray[i];
-    double dLi = 0;
+    dLi = 0;
     for(unsigned int c = 0; c < _nbClasses; c++)
     {
       Vdouble * _likelihoods_father_node_i_c = & (* _likelihoods_father_node_i)[c];
       Vdouble * larray_i_c = & (* larray_i)[c];
       VVdouble *  _pxy_node_c = & (*  _pxy_node)[c];
       VVdouble * _dpxy_node_c = & (* _dpxy_node)[c];
-      double dLic = 0;
+      dLic = 0;
       for(unsigned int x = 0; x < _nbStates; x++)
       {
-        double numerator = 0;
-        double denominator = 0;
+        numerator = 0;
+        denominator = 0;
         Vdouble *  _pxy_node_c_x = & (*  _pxy_node_c)[x];
         Vdouble * _dpxy_node_c_x = & (* _dpxy_node_c)[x];
-        double dLicx = 0;
+        dLicx = 0;
         for(unsigned int y = 0; y < _nbStates; y++)
         {
           numerator   += (* _dpxy_node_c_x)[y] * (* _likelihoods_father_node_i_c)[y];
@@ -407,10 +355,10 @@ double DRHomogeneousTreeLikelihood::getFirstOrderDerivative(const string & varia
 throw (Exception)
 { 
   Parameter * p = _parameters.getParameter(variable);
-  if(p == NULL) throw ParameterNotFoundException("HomogeneousTreeLikelihood::df", variable);
+  if(p == NULL) throw ParameterNotFoundException("DRHomogeneousTreeLikelihood::getFirstOrderDerivative", variable);
   if(getRateDistributionParameters().getParameter(variable) != NULL)
   {
-    throw Exception("Derivatives respective to rate distribution parameter are not implemented.");
+    throw Exception("Derivatives respective to rate distribution parameters are not implemented.");
   }
   if(getSubstitutionModelParameters().getParameter(variable) != NULL)
   {
@@ -426,7 +374,6 @@ throw (Exception)
   Node * branch = _nodes[brI];
   Vdouble * _dLikelihoods_branch = & _likelihoodData->getDLikelihoodArray(branch);
   double d = 0;
-  //for(unsigned int i = 0; i < _nbSites; i++) d += (* _dLikelihoods_branch)[_rootPatternLinks[i]];
   const vector<unsigned int> * w = & _likelihoodData->getWeights();
   for(unsigned int i = 0; i < _nbDistinctSites; i++) d += (* w)[i] * (* _dLikelihoods_branch)[i];
   return -d;
@@ -446,25 +393,26 @@ void DRHomogeneousTreeLikelihood::computeTreeD2LikelihoodAtNode(const Node * nod
   VVVdouble larray = computeLikelihoodAtNode(father);
   Vdouble * rootLikelihoodsSR = & _likelihoodData->getRootRateSiteLikelihoodArray();
   
+  double d2Li, d2Lic, d2Licx, numerator, denominator;
   for(unsigned int i = 0; i < _nbDistinctSites; i++)
   {
     VVdouble * _likelihoods_father_node_i = & (* _likelihoods_father_node)[i];
     VVdouble * larray_i = & larray[i];
-    double d2Li = 0;
+    d2Li = 0;
     for(unsigned int c = 0; c < _nbClasses; c++)
     {
       Vdouble * _likelihoods_father_node_i_c = & (* _likelihoods_father_node_i)[c];
       Vdouble * larray_i_c = & (* larray_i)[c];
       VVdouble *   _pxy_node_c = & (*   _pxy_node)[c];
       VVdouble * _d2pxy_node_c = & (* _d2pxy_node)[c];
-      double d2Lic = 0;
+      d2Lic = 0;
       for(unsigned int x = 0; x < _nbStates; x++)
       {
-        double numerator = 0;
-        double denominator = 0;
+        numerator = 0;
+        denominator = 0;
         Vdouble *   _pxy_node_c_x = & (*   _pxy_node_c)[x];
         Vdouble * _d2pxy_node_c_x = & (* _d2pxy_node_c)[x];
-        double d2Licx = 0;
+        d2Licx = 0;
         for(unsigned int y = 0; y < _nbStates; y++)
         {
           numerator   += (* _d2pxy_node_c_x)[y] * (* _likelihoods_father_node_i_c)[y];
@@ -495,10 +443,10 @@ double DRHomogeneousTreeLikelihood::getSecondOrderDerivative(const string & vari
 throw (Exception)
 {
   Parameter * p = _parameters.getParameter(variable);
-  if(p == NULL) throw ParameterNotFoundException("HomogeneousTreeLikelihood::df", variable);
+  if(p == NULL) throw ParameterNotFoundException("DRHomogeneousTreeLikelihood::getSecondOrderDerivative", variable);
   if(getRateDistributionParameters().getParameter(variable) != NULL)
   {
-    throw Exception("Derivatives respective to rate distribution parameter are not implemented.");
+    throw Exception("Derivatives respective to rate distribution parameters are not implemented.");
   }
   if(getSubstitutionModelParameters().getParameter(variable) != NULL)
   {
@@ -515,7 +463,6 @@ throw (Exception)
   Vdouble * _dLikelihoods_branch = & _likelihoodData->getDLikelihoodArray(branch);
   Vdouble * _d2Likelihoods_branch = & _likelihoodData->getD2LikelihoodArray(branch);
   double d2 = 0;
-  //for(unsigned int i = 0; i < _nbSites; i++) d2 += (* _d2Likelihoods_branch)[_rootPatternLinks[i]] - pow((* _dLikelihoods_branch)[_rootPatternLinks[i]], 2);
   const vector<unsigned int> * w = & _likelihoodData->getWeights();
   for(unsigned int i = 0; i < _nbDistinctSites; i++) d2 += (* w)[i] * ((* _d2Likelihoods_branch)[i] - pow((* _dLikelihoods_branch)[i], 2));
   return -d2;
@@ -889,7 +836,8 @@ void DRHomogeneousTreeLikelihood::computeLikelihoodFromArrays(
 void DRHomogeneousTreeLikelihood::displayLikelihood(const Node * node)
 {
   cout << "Likelihoods at node " << node->getId() << ": " << endl;
-  for(unsigned int n = 0; n < node->getNumberOfSons(); n++) {
+  for(unsigned int n = 0; n < node->getNumberOfSons(); n++)
+  {
     const Node * subNode = node->getSon(n);
     cout << "Array for sub-node " << subNode->getId() << endl;
     displayLikelihoodArray(_likelihoodData->getLikelihoodArray(node, subNode));
@@ -901,205 +849,6 @@ void DRHomogeneousTreeLikelihood::displayLikelihood(const Node * node)
     displayLikelihoodArray(_likelihoodData->getLikelihoodArray(node, father));
   }
   cout << "                                         ***" << endl;
-}
-
-/*******************************************************************************/
-
-void BranchLikelihood::computeLogLikelihood()
-{
-  _arrayTmp = *_array1;
-  _lnL = 0;
-  for(unsigned int i = 0; i < _array1->size(); i++)
-  {
-    VVdouble * arrayTmp_i = & _arrayTmp[i];
-    const VVdouble * array2_i = & (*_array2)[i];
-    for(unsigned int c = 0; c < _nbClasses; c++)
-    {
-      Vdouble * arrayTmp_i_c = & (*arrayTmp_i)[c];
-      const Vdouble * array2_i_c = & (*array2_i)[c];
-      VVdouble *_pxy_c = & _pxy[c];
-      for(unsigned int x = 0; x < _nbStates; x++)
-      {
-        Vdouble *_pxy_c_x = & (*_pxy_c)[x];
-        double likelihood = 0;
-        for(unsigned int y = 0; y < _nbStates; y++)
-        {
-          likelihood += (*_pxy_c_x)[y] * (*array2_i_c)[y];
-        }
-        (*arrayTmp_i_c)[x] *= likelihood;
-      }
-    }
-  }
-
-  for(unsigned int i = 0; i < _array1->size(); i++)
-  {
-    VVdouble * arrayTmp_i = & _arrayTmp[i];
-    double Li = 0;
-    for(unsigned int c = 0; c < _nbClasses; c++)
-    {
-      Vdouble * arrayTmp_i_c = & (*arrayTmp_i)[c];
-      double rc = _rDist->getProbability(c);
-      for(unsigned int x = 0; x < _nbStates; x++)
-      {
-        Li += rc * _model->freq(x) * (* arrayTmp_i_c)[x];
-      }
-    }
-    _lnL -= _weights[i] * log(Li);
-  }
-}
-
-/*******************************************************************************/
-
-void BranchLikelihood::computeAllTransitionProbabilities()
-{
-  double l = _parameters.getParameter("BrLen")->getValue(); 
-
-  //Computes all pxy once for all:
-  for(unsigned int c = 0; c < _nbClasses; c++)
-  {
-    VVdouble * _pxy_c = & _pxy[c];
-    RowMatrix<double> Q = _model->getPij_t(l * _rDist->getCategory(c));
-    for(unsigned int x = 0; x < _nbStates; x++)
-    {
-      Vdouble * _pxy_c_x = & (* _pxy_c)[x];
-      for(unsigned int y = 0; y < _nbStates; y++)
-      {
-        (* _pxy_c_x)[y] = Q(x, y);
-      }
-    }
-  } 
-}
-
-/*******************************************************************************/
-
-double DRHomogeneousTreeLikelihood::testNNI(int nodeId) const throw (NodeException)
-{
-  const Node * son    = _tree->getNode(nodeId);
-	if(!son->hasFather()) throw NodeException("DRHomogeneousTreeLikelihood::testNNI(). Node 'son' must not be the root node.", son);
-  const Node * parent = son->getFather();
-	if(!parent->hasFather()) throw NodeException("DRHomogeneousTreeLikelihood::testNNI(). Node 'parent' must not be the root node.", parent);
-	const Node * grandFather = parent->getFather();
-	//From here: Bifurcation assumed.
-	//In case of multifurcation, an arbitrary uncle is chosen.
-	//If we are at root node with a trifurcation, this does not matter, since 2 NNI are possible (see doc of the NNISearchable interface).
-	unsigned int parentPosition = grandFather->getSonPosition(*parent);
-	//const Node * uncle = grandFather->getSon(parentPosition > 1 ? parentPosition - 1 : 1 - parentPosition);
-	const Node * uncle = grandFather->getSon(parentPosition > 1 ? 0 : 1 - parentPosition);
-		
-	//Retrieving arrays of interest:
-	const DRASDRTreeLikelihoodNodeData * parentData = & _likelihoodData->getNodeData(parent);
-	const VVVdouble                    * sonArray   = & parentData->getLikelihoodArrayForNeighbor(son);
-	vector<const Node *> parentNeighbors = TreeTemplateTools::getRemainingNeighbors(parent, grandFather, son);
-	unsigned int nbParentNeighbors = parentNeighbors.size();
-	vector<const VVVdouble *> parentArrays(nbParentNeighbors);
-	vector<const VVVdouble *> parentTProbs(nbParentNeighbors);
-	for(unsigned int k = 0; k < nbParentNeighbors; k++)
-  {
-		const Node * n = parentNeighbors[k]; // This neighbor
-		parentArrays[k] = & parentData->getLikelihoodArrayForNeighbor(n); 
-    //if(n != grandFather) parentTProbs[k] = & _pxy[n->getId()];
-    //else                 parentTProbs[k] = & _pxy[parent->getId()];
-    parentTProbs[k] = & _pxy[n->getId()];
-	}
-	
-	const DRASDRTreeLikelihoodNodeData * grandFatherData = & _likelihoodData->getNodeData(grandFather);
-	const VVVdouble                    * uncleArray      = & grandFatherData->getLikelihoodArrayForNeighbor(uncle); 
-	vector<const Node *> grandFatherNeighbors = TreeTemplateTools::getRemainingNeighbors(grandFather, parent, uncle);
-	unsigned int nbGrandFatherNeighbors = grandFatherNeighbors.size();
-	vector<const VVVdouble *> grandFatherArrays(nbGrandFatherNeighbors);
-	vector<const VVVdouble *> grandFatherTProbs(nbGrandFatherNeighbors);
-	for(unsigned int k = 0; k < nbGrandFatherNeighbors; k++)
-  {
-		const Node * n = grandFatherNeighbors[k]; // This neighbor
-		grandFatherArrays[k] = & grandFatherData->getLikelihoodArrayForNeighbor(n); 
-    if(grandFather->getFather() == NULL || n != grandFather->getFather())
-    {
-      grandFatherTProbs[k] = & _pxy[n->getId()];
-    }
-    else
-    {
-      grandFatherTProbs[k] = & _pxy[grandFather->getId()];
-    }
-	}
-
-  //Compute array 1: grand father array
-  VVVdouble array1 = *sonArray;
-  resetLikelihoodArray(array1);
-	grandFatherArrays.push_back(sonArray);
-	grandFatherTProbs.push_back(& _pxy[son->getId()]);
-  computeLikelihoodFromArrays(grandFatherArrays, grandFatherTProbs, array1, nbGrandFatherNeighbors + 1, _nbDistinctSites, _nbClasses, _nbStates, false); 
-  
-  //Compute array 2: parent array
-  VVVdouble array2 = *uncleArray;
-  resetLikelihoodArray(array2);
-	parentArrays.push_back(uncleArray);
-	parentTProbs.push_back(& _pxy[uncle->getId()]);
-  computeLikelihoodFromArrays(parentArrays, parentTProbs, array2, nbParentNeighbors + 1, _nbDistinctSites, _nbClasses, _nbStates, false); 
-
-  //Initialize BranchLikelihood:
-  _brLikFunction->initModel(_model, _rateDistribution);
-  _brLikFunction->initLikelihoods(&array1, &array2);
-  ParameterList parameters;
-  Parameter brLen = *_parameters.getParameter("BrLen" + TextTools::toString(parent->getId()));
-  brLen.setName("BrLen");
-  parameters.addParameter(brLen);
-  _brLikFunction->setParameters(parameters);
-  
-  //Re-estimate branch length:
-  _brentOptimizer->setFunction(_brLikFunction);
-  _brentOptimizer->getStopCondition()->setTolerance(0.1);
-  _brentOptimizer->setInitialInterval(brLen.getValue(), brLen.getValue()+0.01);
-  _brentOptimizer->init(parameters);
-  _brentOptimizer->optimize();
-  //_brLenNNIValues[nodeId] = _brLikFunction->getParameterValue("BrLen");
-  _brLenNNIValues[nodeId] = _brentOptimizer->getParameters().getParameter("BrLen")->getValue();
-  _brLikFunction->resetLikelihoods(); //Array1 and Array2 will be destroyed after this function call.
-                                      //We should not keep pointers towards them...
-
-  //Return the resulting likelihood:
-  return _brLikFunction->getValue() - getValue();
-}
-    
-/*******************************************************************************/
-
-void DRHomogeneousTreeLikelihood::doNNI(int nodeId) throw (NodeException)
-{
-  //Perform the topological move, the likelihood array will have to be recomputed...
-  Node * son    = _tree->getNode(nodeId);
-	if(!son->hasFather()) throw NodeException("DRHomogeneousTreeLikelihood::testNNI(). Node 'son' must not be the root node.", son);
-  Node * parent = son->getFather();
-	if(!parent->hasFather()) throw NodeException("DRHomogeneousTreeLikelihood::testNNI(). Node 'parent' must not be the root node.", parent);
-	Node * grandFather = parent->getFather();
-	//From here: Bifurcation assumed.
-	//In case of multifurcation, an arbitrary uncle is chosen.
-	//If we are at root node with a trifurcation, this does not matter, since 2 NNI are possible (see doc of the NNISearchable interface).
-	unsigned int parentPosition = grandFather->getSonPosition(*parent);
-	Node * uncle = grandFather->getSon(parentPosition > 1 ? 0 : 1 - parentPosition);
-	//Swap nodes:
-	parent->removeSon(*son);
-	grandFather->removeSon(*uncle);
-	parent->addSon(*uncle);
-	grandFather->addSon(*son);
-  string name = "BrLen" + TextTools::toString(parent->getId());
-  if(_brLenNNIValues.find(nodeId) != _brLenNNIValues.end())
-  {
-    double length = _brLenNNIValues[nodeId];
-    _brLenParameters.setParameterValue(name, length);
-    _parameters.setParameterValue(name, length);
-    parent->setDistanceToFather(length);
-  }
-  else cerr << "ERROR, branch not found: " << nodeId << endl;
-  try { _brLenNNIParams.addParameter(*_brLenParameters.getParameter(name)); }
-  catch(ParameterException & ex)
-  {
-    cerr << "DEBUG:" << endl;
-    _brLenNNIParams.printParameters(cerr);
-    cerr << "DEBUG:" << name << endl;
-  }
-  //In case of copy of this object, we must remove the constraint associated to this stored parameter:
-  //(It should be also possible to update the pointer in the copy constructor,
-  //but we do not need the constraint info here...).
-  (*_brLenNNIParams.rbegin())->removeConstraint();
 }
 
 /*******************************************************************************/

@@ -292,7 +292,8 @@ class TreeTemplateTools
     template<class N>
     static void searchNodeWithId(N & node, int id, vector<N *> & nodes)
     {
-      for(unsigned int i = 0; i < node.getNumberOfSons(); i++) {
+      for(unsigned int i = 0; i < node.getNumberOfSons(); i++)
+      {
         searchNodeWithId<N>(* node.getSon(i), id, nodes);
       }
       if(node.getId() == id) nodes.push_back(& node);
@@ -380,6 +381,19 @@ class TreeTemplateTools
     static double getHeight(const Node & node) throw (NodeException);
 
     /**
+     * @brief Get the heights of all nodes within a subtree defined by node 'node', i.e. the maximum
+     * distance between leaves and the root of the subtree.
+     *
+     * The height of a leaf is 0.
+     *
+     * @param node The node defining the subtree to check.
+     * @param heights The map that will contain all the heights of the nodes, with node pointers as keys.
+     * @return The height of the subtree.
+     * @throw NodeException If a branch length is lacking.
+     */ 
+    static double getHeights(const Node & node, map<const Node *, double> & heights) throw (NodeException);
+
+    /**
      * @brief Tell is a subtree is multifurcating.
      *
      * @param node The root node of the subtree.
@@ -416,7 +430,6 @@ class TreeTemplateTools
       vector<int> sonsId = tree.getSonsId(nodeId);
       for(unsigned int i = 0; i < sonsId.size(); i++)
       {
-        cout << sonsId[i] << endl;
         clone->addSon(* cloneSubtree<N>(tree, sonsId[i]));
       }
       //Must copy all properties too:

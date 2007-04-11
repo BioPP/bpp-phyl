@@ -60,7 +60,7 @@ knowledge of the CeCILL license and that you accept its terms.
  * @brief This class is a simplified version of DRHomogeneousTreeLikelihood for 2-Trees.
  */
 class TwoTreeLikelihood:
-  public virtual AbstractDiscreteRatesAcrossSitesTreeLikelihood  
+  public AbstractDiscreteRatesAcrossSitesTreeLikelihood  
 {
 	protected:
 		SiteContainer * _shrunkData;
@@ -118,11 +118,7 @@ class TwoTreeLikelihood:
     
     TwoTreeLikelihood & operator=(const TwoTreeLikelihood & lik);
 
-#if defined(NO_VIRTUAL_COV)
-    Clonable * clone() const { return new TwoTreeLikelihood(*this); } 
-#else
     TwoTreeLikelihood * clone() const { return new TwoTreeLikelihood(*this); } 
-#endif
 
 		virtual ~TwoTreeLikelihood();
 
@@ -145,6 +141,7 @@ class TwoTreeLikelihood:
      * @brief This method is not applicable for this object.
      */
     void setData(const SiteContainer & site) throw (Exception) {}
+    void initialize() throw(Exception);
 		/** @} */
 
 		/**

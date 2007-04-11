@@ -60,17 +60,10 @@ HomogeneousTreeLikelihood::HomogeneousTreeLikelihood(
   bool checkRooted,
   bool verbose)
 throw (Exception):
-  //AbstractDiscreteRatesAcrossSitesTreeLikelihood(rDist, verbose), // We must do this since AbstractTreeLikelihood is virtual
   AbstractHomogeneousTreeLikelihood(tree, model, rDist, checkRooted, verbose),
   _likelihoodData(NULL)
 {
-  if(verbose) ApplicationTools::message << "Homogeneous Tree Likelihood" << endl;  
-  _likelihoodData = new DRASRTreeLikelihoodData(*_tree, rDist->getNumberOfCategories());
-  
-  // Now initializes all parameters:
-  initParameters();
-  computeAllTransitionProbabilities();
-  //fireParameterChanged(_parameters);
+  init();
 }
 
 /******************************************************************************/
@@ -83,28 +76,25 @@ HomogeneousTreeLikelihood::HomogeneousTreeLikelihood(
   bool checkRooted,
   bool verbose)
 throw (Exception):
-  //AbstractDiscreteRatesAcrossSitesTreeLikelihood(rDist, verbose), // We must do this since AbstractTreeLikelihood is virtual
   AbstractHomogeneousTreeLikelihood(tree, model, rDist, checkRooted, verbose),
   _likelihoodData(NULL)
 {
-  if(verbose) ApplicationTools::message << "Homogeneous Tree Likelihood" << endl;  
-  _likelihoodData = new DRASRTreeLikelihoodData(*_tree, rDist->getNumberOfCategories());
-      
+  init();
   setData(data);
-  
-  // Now initializes all parameters:
-  initParameters();
+}
 
-  fireParameterChanged(_parameters);
+/******************************************************************************/
+
+void HomogeneousTreeLikelihood::init() throw (Exception)
+{
+  if(_verbose) ApplicationTools::message << "Homogeneous Tree Likelihood" << endl;  
+  _likelihoodData = new DRASRTreeLikelihoodData(*_tree, _rateDistribution->getNumberOfCategories());
 }
 
 /******************************************************************************/
 
 HomogeneousTreeLikelihood::HomogeneousTreeLikelihood(
     const HomogeneousTreeLikelihood & lik):
-  //AbstractParametrizable(lik),
-  //AbstractTreeLikelihood(lik),
-  //AbstractDiscreteRatesAcrossSitesTreeLikelihood(lik),
   AbstractHomogeneousTreeLikelihood(lik),
   _likelihoodData(NULL)
 {
@@ -117,9 +107,6 @@ HomogeneousTreeLikelihood::HomogeneousTreeLikelihood(
 HomogeneousTreeLikelihood & HomogeneousTreeLikelihood::operator=(
     const HomogeneousTreeLikelihood & lik)
 {
-  //AbstractParametrizable::operator=(lik);
-  //AbstractTreeLikelihood::operator=(lik);
-  //AbstractDiscreteRatesAcrossSitesTreeLikelihood::operator=(lik);
   AbstractHomogeneousTreeLikelihood::operator=(lik);
   _likelihoodData = lik._likelihoodData->clone();
   _likelihoodData->setTree(*_tree);

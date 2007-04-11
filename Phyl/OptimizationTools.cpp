@@ -286,8 +286,8 @@ void NNITopologyListener::topologyChangeSuccessful(const TopologyChangeEvent & e
 
 /******************************************************************************/	
 
-DRHomogeneousTreeLikelihood * OptimizationTools::optimizeTreeNNI(
-    DRHomogeneousTreeLikelihood * tl,
+NNIHomogeneousTreeLikelihood * OptimizationTools::optimizeTreeNNI(
+    NNIHomogeneousTreeLikelihood * tl,
     bool optimizeNumFirst,
 		double tolBefore,
 		double tolDuring,
@@ -302,14 +302,13 @@ DRHomogeneousTreeLikelihood * OptimizationTools::optimizeTreeNNI(
   if(optimizeNumFirst)
     OptimizationTools::optimizeNumericalParameters(tl, 1, tolBefore, 1000000, messageHandler, profiler, verbose);
   //Begin topo search:
-  NNISearchable *topo = dynamic_cast<NNISearchable *>(tl);
-  NNITopologySearch topoSearch(*topo, NNITopologySearch::PHYML, verbose > 2 ? verbose - 2 : 0);
+  NNITopologySearch topoSearch(*tl, NNITopologySearch::PHYML, verbose > 2 ? verbose - 2 : 0);
   NNITopologyListener *topoListener = new NNITopologyListener(&topoSearch, tolDuring, messageHandler, profiler, verbose);
   topoListener->setNumericalOptimizationCounter(numStep);
   topoSearch.addTopologyListener(*topoListener);
   topoSearch.search();
   delete topoListener;
-  return dynamic_cast<DRHomogeneousTreeLikelihood *>(topoSearch.getSearchableObject());
+  return dynamic_cast<NNIHomogeneousTreeLikelihood *>(topoSearch.getSearchableObject());
 }
 
 /******************************************************************************/	

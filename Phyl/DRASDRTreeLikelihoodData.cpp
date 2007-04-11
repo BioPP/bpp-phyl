@@ -131,7 +131,6 @@ void DRASDRTreeLikelihoodData::initLikelihoods(const Node * node, const SiteCont
     }
   }
 
-  //cout << "Node:\t" << node->getId() << endl;
   // We initialize each son node first:
   unsigned int nbSonNodes = node->getNumberOfSons();
   for(unsigned int l = 0; l < nbSonNodes; l++)

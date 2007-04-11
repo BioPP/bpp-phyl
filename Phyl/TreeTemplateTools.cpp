@@ -149,6 +149,24 @@ double TreeTemplateTools::getHeight(const Node & node) throw (NodeException)
 
 /******************************************************************************/
 
+double TreeTemplateTools::getHeights(const Node & node, map<const Node *, double> & heights) throw (NodeException)
+{
+  double d = 0;
+  for(unsigned int i = 0; i < node.getNumberOfSons(); i++)
+  {
+    const Node * son = node[i];
+    double dist = 0;
+    if(son->hasDistanceToFather()) dist = son->getDistanceToFather();
+    else throw NodeException("Node without branch length.", son);
+    double c = getHeights(* son, heights) + dist;
+    if(c > d) d = c;
+  }
+  heights[&node] = d;
+  return d;
+}
+
+/******************************************************************************/
+
 Node * TreeTemplateTools::parenthesisToNode(const string & description, bool bootstrap, const string & propertyName)
 {
   //cout << "NODE: " << description << endl;

@@ -62,7 +62,8 @@ throw (Exception)
 
 ParameterList AbstractDiscreteRatesAcrossSitesTreeLikelihood::getRateDistributionParameters() const
 {
-	return _rateDistribution->getParameters().getCommonParametersWith(_parameters);
+  if(!_initialized) throw Exception("AbstractDiscreteRatesAcrossSitesTreeLikelihood::getRateDistributionParameters(). Object is not initialized.");
+ 	return _rateDistribution->getParameters().getCommonParametersWith(_parameters);
 }
 
 /******************************************************************************/

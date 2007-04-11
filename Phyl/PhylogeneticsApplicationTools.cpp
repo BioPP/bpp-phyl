@@ -569,7 +569,7 @@ TreeLikelihood * PhylogeneticsApplicationTools::optimizeParameters(
 	  double tolBefore = ApplicationTools::getDoubleParameter("optimization.topology.tolerance.before", params, 100, suffix, suffixIsOptional);
 	  double tolDuring = ApplicationTools::getDoubleParameter("optimization.topology.tolerance.during", params, 100, suffix, suffixIsOptional);
     tl = OptimizationTools::optimizeTreeNNI(
-			  dynamic_cast<DRHomogeneousTreeLikelihood *>(tl),
+			  dynamic_cast<NNIHomogeneousTreeLikelihood *>(tl),
         optNumFirst, tolBefore, tolDuring, nbEvalMax, n, messageHandler, profiler, optVerbose);
   }
   int n = 0;
