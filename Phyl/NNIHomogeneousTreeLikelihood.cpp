@@ -43,6 +43,9 @@ knowledge of the CeCILL license and that you accept its terms.
 #include <Utils/TextTools.h>
 #include <Utils/ApplicationTools.h>
 
+// From NumCalc:
+#include <NumCalc/AutoParameter.h>
+
 // From the STL:
 #include <iostream>
 using namespace std;
@@ -147,7 +150,7 @@ throw (Exception):
   _brLenNNIParams()
 {
   _brentOptimizer = new BrentOneDimension();
-  _brentOptimizer->setConstraintPolicy(AbstractOptimizer::CONSTRAINTS_AUTO);
+  _brentOptimizer->setConstraintPolicy(AutoParameter::CONSTRAINTS_AUTO);
   _brentOptimizer->setProfiler(NULL);
   _brentOptimizer->setMessageHandler(NULL);
   _brentOptimizer->setVerbose(0);
@@ -170,7 +173,7 @@ throw (Exception):
   _brLenNNIParams()
 {
   _brentOptimizer = new BrentOneDimension();
-  _brentOptimizer->setConstraintPolicy(AbstractOptimizer::CONSTRAINTS_AUTO);
+  _brentOptimizer->setConstraintPolicy(AutoParameter::CONSTRAINTS_AUTO);
   _brentOptimizer->setProfiler(NULL);
   _brentOptimizer->setMessageHandler(NULL);
   _brentOptimizer->setVerbose(0);

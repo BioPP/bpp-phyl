@@ -82,6 +82,7 @@ void ClockTreeLikelihood::init()
   //Check is the tree is rooted:
   if(!_tree->isRooted()) throw Exception("ClockTreeLikelihood::init(). Tree is unrooted!");
   if(TreeTemplateTools::isMultifurcating(*_tree->getRootNode())) throw Exception("ClockTreeLikelihood::init(). Tree is multifurcating.");
+  TreeTools::convertToClockTree(*_tree, _tree->getRootId(), true);
 }
 
 /******************************************************************************/
@@ -90,6 +91,8 @@ void ClockTreeLikelihood::applyParameters() throw (Exception)
 {
   if(!_initialized) throw Exception("ClockTreeLikelihood::applyParameters(). Object not initialized.");
    //Apply branch lengths:
+  TreeTemplateTools::getHeights(* _tree->getRootNode(), _previousHeights);
+  _previousTotalHeight = _previousHeights[_tree->getRootNode()];
   computeBranchLengthsFromHeights(_tree->getRootNode());
   //Apply substitution model parameters:
   _model->matchParametersValues(_parameters);
@@ -123,50 +126,75 @@ void ClockTreeLikelihood::initBranchLengthsParameters()
   }
 
   _brLenParameters.reset();
+  _totalHeightParameter.reset();
   map<const Node *, double> heights;
   TreeTemplateTools::getHeights(*_tree->getRootNode(), heights);
-  for(map<const Node *, double>::iterator it = heights.begin(); it != heights.end(); it++)
+  double totalHeight = heights[_tree->getRootNode()];
+  _totalHeightParameter.addParameter(Parameter("TotalHeight", totalHeight, _brLenConstraint)); 
+   for(map<const Node *, double>::iterator it = heights.begin(); it != heights.end(); it++)
   {
-    if(!it->first->isLeaf())
+    if(!it->first->isLeaf() && it->first->hasFather())
     {
-      _brLenParameters.addParameter(Parameter("Height" + TextTools::toString(it->first->getId()), it->second, _brLenConstraint));
+      _brLenParameters.addParameter(Parameter("HeightP" + TextTools::toString(it->first->getId()), it->second / totalHeight, &PERCENT_CONSTRAINT));
     }
   }
 }
 
 /******************************************************************************/
 
-void ClockTreeLikelihood::computeBranchLengthsFromHeights(Node * node) throw (Exception)
+double ClockTreeLikelihood::computeBranchLengthsFromHeights(Node * node) throw (Exception)
 {
-  if(node->isLeaf()) return;
-  const Parameter * pp = _parameters.getParameter(string("Height") + TextTools::toString(node->getId()));
-  if(pp == NULL) throw Exception("ClockTreeLikelihood::computeBranchLengthsFromHeights(). Parameter " + string("Height") + TextTools::toString(node->getId()) + " was not found."); 
-  double nodeHeight = pp->getValue();
-
-  for (unsigned int i = 0; i < node->getNumberOfSons(); i++)
+  double minimumBrLenP = _minimumBrLen / _previousTotalHeight;
+  if(node->isLeaf()) return minimumBrLenP;
+  double totalHeight = _parameters.getParameter("TotalHeight")->getValue();
+  //Compute bounds:
+  double previousFatherHeightP = 1.;
+  if(node->hasFather())
   {
-    Node * son = node->getSon(i);
-    if(son->isLeaf())
+    Node * father = node->getFather();
+    previousFatherHeightP = _previousHeights[father] / _previousTotalHeight;
+  }
+  double nodeHeightP = 1.;
+
+  //This parameter:
+  if(node->hasFather())
+  {
+    Parameter * p = _parameters.getParameter(string("HeightP") + TextTools::toString(node->getId()));
+    if(p == NULL) throw Exception("ClockTreeLikelihood::computeBranchLengthsFromHeights(). Parameter " + string("HeightP") + TextTools::toString(node->getId()) + " was not found."); 
+    nodeHeightP = p->getValue();
+
+    if(nodeHeightP > previousFatherHeightP - minimumBrLenP)
     {
-      son->setDistanceToFather(nodeHeight);
+      p->setValue(previousFatherHeightP - minimumBrLenP);
+      //cout << "TOO LARGE: " << node->getId() << "\t" << nodeHeight << "\t" << previousFatherHeight << endl;
+      nodeHeightP = previousFatherHeightP - minimumBrLenP;
     }
-    else
+    double maxSonHeightP = minimumBrLenP;
+    for(unsigned int i = 0; i < node->getNumberOfSons(); i++)
     {
-      Parameter * p = _parameters.getParameter(string("Height") + TextTools::toString(son->getId()));
-      double sonHeight = p->getValue();
-      if(p == NULL)
+      Node * son = node->getSon(i);
+      if(!son->isLeaf())
       {
-        cerr << "Problem!" << string("Height") + TextTools::toString(son->getId()) << " not found." << endl;
+        double previousSonHeightP = _previousHeights[son] / _previousTotalHeight;
+        if(previousSonHeightP > maxSonHeightP) maxSonHeightP = previousSonHeightP;
       }
-      if(sonHeight > nodeHeight) 
-      { 
-        sonHeight = nodeHeight;
-        p->setValue(sonHeight); //Correcting parameter value.
-      }
-      son->setDistanceToFather(nodeHeight-sonHeight);
-      computeBranchLengthsFromHeights(son);
+    }
+    if(nodeHeightP < maxSonHeightP + minimumBrLenP)
+    {
+      p->setValue(maxSonHeightP + minimumBrLenP);
+      //cout << "TOO SMALL: " << node->getId() << "\t" << nodeHeight << "\t" << maxSonHeight << endl;
+      nodeHeightP = maxSonHeightP + minimumBrLenP;
     }
   }
+
+  //Recursive call:
+  for(unsigned int i = 0; i < node->getNumberOfSons(); i++)
+  {
+    Node * son = node->getSon(i);
+    double sonHeightP = computeBranchLengthsFromHeights(son);
+    son->setDistanceToFather(std::max(_minimumBrLen, (nodeHeightP - sonHeightP) * totalHeight));
+  }
+  return nodeHeightP;
 }
 
 /******************************************************************************/
@@ -175,23 +203,56 @@ void ClockTreeLikelihood::fireParameterChanged(const ParameterList & params)
 {
   applyParameters();
 
-  if(_rateDistribution->getParameters().getCommonParametersWith(params).size() > 0
-  || _model->getParameters().getCommonParametersWith(params).size() > 0)
-  {
-    //Rate parameter changed, need to recompute all probs:
-    computeAllTransitionProbabilities();
-  }
-  else if(params.size() > 0)
-  {
-    computeAllTransitionProbabilities();
-  }
+  computeAllTransitionProbabilities();
 
   computeTreeLikelihood();
-  if(_computeDerivatives)
+  if(_computeFirstOrderDerivatives)
   {
     computeTreeDLikelihoods();  
+  }
+  if(_computeSecondOrderDerivatives)
+  {
     computeTreeD2Likelihoods();
   }
+}
+
+/******************************************************************************/
+
+ParameterList ClockTreeLikelihood::getNonDerivableParameters() const throw (Exception)
+{
+  if(!_initialized) throw Exception("ClockTreeLikelihood::getNonDerivableParameters(). Object is not initialized.");
+  ParameterList tmp = DRHomogeneousTreeLikelihood::getNonDerivableParameters();
+  tmp.addParameters(getTotalHeightParameter());
+  return tmp;
+}
+
+/******************************************************************************/
+
+ParameterList ClockTreeLikelihood::getTotalHeightParameter() const throw (Exception)
+{
+  if(!_initialized) throw Exception("ClockTreeLikelihood::getTotalHeightParameter(). Object is not initialized.");
+  return _parameters.getCommonParametersWith(_totalHeightParameter);
+}
+
+/******************************************************************************/
+
+void ClockTreeLikelihood::initParameters()
+{
+  // Reset parameters:
+  _parameters.reset();
+  
+  // Branch lengths:
+  initBranchLengthsParameters();
+  _parameters.addParameters(_brLenParameters);
+
+  // Total height:
+  _parameters.addParameters(_totalHeightParameter);
+  
+  // Substitution model:
+  _parameters.addParameters(_model->getParameters());
+  
+  // Rate distribution:
+  _parameters.addParameters(_rateDistribution->getParameters());
 }
 
 /******************************************************************************
@@ -201,6 +262,7 @@ void ClockTreeLikelihood::fireParameterChanged(const ParameterList & params)
 void ClockTreeLikelihood::computeTreeDLikelihoodAtNode(const Node * node)
 {
   if(node->isLeaf()) return; //The height of a leaf is always 0!
+  double totalHeight  = _parameters.getParameter("TotalHeight")->getValue();
   const Node * father = node->getFather();
   const Node * son1   = node->getSon(0);
   const Node * son2   = node->getSon(1);
@@ -259,72 +321,11 @@ void ClockTreeLikelihood::computeTreeDLikelihoodAtNode(const Node * node)
           l0 += (* _pxy_node0_c_x)[y] * (* _likelihoods_node_father_i_c)[y];
           l1 += (* _pxy_node1_c_x)[y] * (* _likelihoods_node_son1_i_c)[y];
           l2 += (* _pxy_node2_c_x)[y] * (* _likelihoods_node_son2_i_c)[y];
-          dl0 += -(* _dpxy_node0_c_x)[y] * (* _likelihoods_node_father_i_c)[y];
-          dl1 += (* _dpxy_node1_c_x)[y] * (* _likelihoods_node_son1_i_c)[y];
-          dl2 += (* _dpxy_node2_c_x)[y] * (* _likelihoods_node_son2_i_c)[y];
+          dl0 += - totalHeight * (* _dpxy_node0_c_x)[y] * (* _likelihoods_node_father_i_c)[y];
+          dl1 += totalHeight * (* _dpxy_node1_c_x)[y] * (* _likelihoods_node_son1_i_c)[y];
+          dl2 += totalHeight * (* _dpxy_node2_c_x)[y] * (* _likelihoods_node_son2_i_c)[y];
         }
         dLicx = dl0 * l1 * l2 + l0 * dl1 * l2 + l0 * l1 * dl2;
-        dLic += _model->freq(x) * dLicx;  
-      }
-      dLi += _rateDistribution->getProbability(c) * dLic;
-    }
-    (* _dLikelihoods_node)[i] = dLi / (* rootLikelihoodsSR)[i]; 
-  }
-}
-
-/******************************************************************************/
-
-void ClockTreeLikelihood::computeTreeDLikelihoodAtRoot()
-{
-  const Node * root = _tree->getRootNode();
-  const Node * son1 = root->getSon(0);
-  const Node * son2 = root->getSon(1);
-  Vdouble * _dLikelihoods_node = & _likelihoodData->getDLikelihoodArray(root);
-  //Branch length toward son 1:
-  VVVdouble * _likelihoods_node_son1   = & _likelihoodData->getLikelihoodArray(root, son1);
-  VVVdouble * _pxy_node1 = & _pxy[son1->getId()];
-  VVVdouble * _dpxy_node1 = & _dpxy[son1->getId()];
-  //Branch length toward son 2:
-  VVVdouble * _likelihoods_node_son2   = & _likelihoodData->getLikelihoodArray(root, son2);
-  VVVdouble * _pxy_node2 = & _pxy[son2->getId()];
-  VVVdouble * _dpxy_node2 = & _dpxy[son2->getId()];
-  Vdouble * rootLikelihoodsSR = & _likelihoodData->getRootRateSiteLikelihoodArray();
- 
-  double dLi, dLic, dLicx;
-  double l1, dl1; //Son 1
-  double l2, dl2; //Son 2
-
-  for(unsigned int i = 0; i < _nbDistinctSites; i++)
-  {
-    VVdouble * _likelihoods_node_son1_i = & (* _likelihoods_node_son1)[i];
-    VVdouble * _likelihoods_node_son2_i = & (* _likelihoods_node_son2)[i];
-    dLi = 0;
-    for(unsigned int c = 0; c < _nbClasses; c++)
-    {
-      Vdouble * _likelihoods_node_son1_i_c = & (* _likelihoods_node_son1_i)[c];
-      Vdouble * _likelihoods_node_son2_i_c = & (* _likelihoods_node_son2_i)[c];
-      VVdouble * _pxy_node1_c = & (* _pxy_node1)[c];
-      VVdouble * _pxy_node2_c = & (* _pxy_node2)[c];
-      VVdouble * _dpxy_node1_c = & (* _dpxy_node1)[c];
-      VVdouble * _dpxy_node2_c = & (* _dpxy_node2)[c];
-      dLic = 0;
-      for(unsigned int x = 0; x < _nbStates; x++)
-      {
-        l1 = 0; dl1 = 0;
-        l2 = 0; dl2 = 0;
-        Vdouble * _pxy_node1_c_x = & (* _pxy_node1_c)[x];
-        Vdouble * _pxy_node2_c_x = & (* _pxy_node2_c)[x];
-        Vdouble * _dpxy_node1_c_x = & (* _dpxy_node1_c)[x];
-        Vdouble * _dpxy_node2_c_x = & (* _dpxy_node2_c)[x];
-        dLicx = 0;
-        for(unsigned int y = 0; y < _nbStates; y++)
-        {
-          l1 += (* _pxy_node1_c_x)[y] * (* _likelihoods_node_son1_i_c)[y];
-          l2 += (* _pxy_node2_c_x)[y] * (* _likelihoods_node_son2_i_c)[y];
-          dl1 += (* _dpxy_node1_c_x)[y] * (* _likelihoods_node_son1_i_c)[y];
-          dl2 += (* _dpxy_node2_c_x)[y] * (* _likelihoods_node_son2_i_c)[y];
-        }
-        dLicx = dl1 * l2 + l1 * dl2;
         dLic += _model->freq(x) * dLicx;  
       }
       dLi += _rateDistribution->getProbability(c) * dLic;
@@ -341,7 +342,6 @@ void ClockTreeLikelihood::computeTreeDLikelihoods()
   {
     computeTreeDLikelihoodAtNode(_nodes[k]);
   }
-  computeTreeDLikelihoodAtRoot();
 }
 
 /******************************************************************************/
@@ -359,13 +359,17 @@ throw (Exception)
   {
     throw Exception("Derivatives respective to substitution model parameters are not implemented.");
   }
+  if(variable == "TotalHeight")
+  {
+    throw Exception("Derivative respective to 'TotalHeight' not implemented.");
+  }
   
   //
   // Computation for branch lengths:
   //
   
   // Get the node with the branch whose length must be derivated:
-  int brI = TextTools::toInt(variable.substr(6));
+  int brI = TextTools::toInt(variable.substr(7));
   Node * branch = _nodes[brI];
   Vdouble * _dLikelihoods_branch = & _likelihoodData->getDLikelihoodArray(branch);
   double d = 0;
@@ -382,6 +386,7 @@ throw (Exception)
 void ClockTreeLikelihood::computeTreeD2LikelihoodAtNode(const Node * node)
 {
   if(node->isLeaf()) return; //The height of a leaf is always 0!
+  double totalHeight  = _parameters.getParameter("TotalHeight")->getValue();
   const Node * father = node->getFather();
   const Node * son1   = node->getSon(0);
   const Node * son2   = node->getSon(1);
@@ -449,12 +454,12 @@ void ClockTreeLikelihood::computeTreeD2LikelihoodAtNode(const Node * node)
           l0 += (* _pxy_node0_c_x)[y] * (* _likelihoods_node_father_i_c)[y];
           l1 += (* _pxy_node1_c_x)[y] * (* _likelihoods_node_son1_i_c)[y];
           l2 += (* _pxy_node2_c_x)[y] * (* _likelihoods_node_son2_i_c)[y];
-          dl0 += -(* _dpxy_node0_c_x)[y] * (* _likelihoods_node_father_i_c)[y];
-          dl1 += (* _dpxy_node1_c_x)[y] * (* _likelihoods_node_son1_i_c)[y];
-          dl2 += (* _dpxy_node2_c_x)[y] * (* _likelihoods_node_son2_i_c)[y];
-          d2l0 += (* _d2pxy_node0_c_x)[y] * (* _likelihoods_node_father_i_c)[y];
-          d2l1 += (* _d2pxy_node1_c_x)[y] * (* _likelihoods_node_son1_i_c)[y];
-          d2l2 += (* _d2pxy_node2_c_x)[y] * (* _likelihoods_node_son2_i_c)[y];
+          dl0 += - totalHeight * (* _dpxy_node0_c_x)[y] * (* _likelihoods_node_father_i_c)[y];
+          dl1 += totalHeight * (* _dpxy_node1_c_x)[y] * (* _likelihoods_node_son1_i_c)[y];
+          dl2 += totalHeight * (* _dpxy_node2_c_x)[y] * (* _likelihoods_node_son2_i_c)[y];
+          d2l0 += totalHeight * totalHeight * (* _d2pxy_node0_c_x)[y] * (* _likelihoods_node_father_i_c)[y];
+          d2l1 += totalHeight * totalHeight * (* _d2pxy_node1_c_x)[y] * (* _likelihoods_node_son1_i_c)[y];
+          d2l2 += totalHeight * totalHeight * (* _d2pxy_node2_c_x)[y] * (* _likelihoods_node_son2_i_c)[y];
         }
         d2Licx = d2l0 * l1 * l2 
                + l0 * d2l1 * l2
@@ -472,82 +477,12 @@ void ClockTreeLikelihood::computeTreeD2LikelihoodAtNode(const Node * node)
 
 /******************************************************************************/
 
-void ClockTreeLikelihood::computeTreeD2LikelihoodAtRoot()
-{
-  const Node * root = _tree->getRootNode();
-  const Node * son1 = root->getSon(0);
-  const Node * son2 = root->getSon(1);
-  Vdouble * _d2Likelihoods_node = & _likelihoodData->getD2LikelihoodArray(root);
-  //Branch length toward son 1:
-  VVVdouble * _likelihoods_node_son1   = & _likelihoodData->getLikelihoodArray(root, son1);
-  VVVdouble * _pxy_node1 = & _pxy[son1->getId()];
-  VVVdouble * _dpxy_node1 = & _dpxy[son1->getId()];
-  VVVdouble * _d2pxy_node1 = & _d2pxy[son1->getId()];
-  //Branch length toward son 2:
-  VVVdouble * _likelihoods_node_son2   = & _likelihoodData->getLikelihoodArray(root, son2);
-  VVVdouble * _pxy_node2 = & _pxy[son2->getId()];
-  VVVdouble * _dpxy_node2 = & _dpxy[son2->getId()];
-  VVVdouble * _d2pxy_node2 = & _d2pxy[son2->getId()];
-  Vdouble * rootLikelihoodsSR = & _likelihoodData->getRootRateSiteLikelihoodArray();
- 
-  double d2Li, d2Lic, d2Licx;
-  double l1, dl1, d2l1; //Son 1
-  double l2, dl2, d2l2; //Son 2
-
-  for(unsigned int i = 0; i < _nbDistinctSites; i++)
-  {
-    VVdouble * _likelihoods_node_son1_i = & (* _likelihoods_node_son1)[i];
-    VVdouble * _likelihoods_node_son2_i = & (* _likelihoods_node_son2)[i];
-    d2Li = 0;
-    for(unsigned int c = 0; c < _nbClasses; c++)
-    {
-      Vdouble * _likelihoods_node_son1_i_c = & (* _likelihoods_node_son1_i)[c];
-      Vdouble * _likelihoods_node_son2_i_c = & (* _likelihoods_node_son2_i)[c];
-      VVdouble * _pxy_node1_c = & (* _pxy_node1)[c];
-      VVdouble * _pxy_node2_c = & (* _pxy_node2)[c];
-      VVdouble * _dpxy_node1_c = & (* _dpxy_node1)[c];
-      VVdouble * _dpxy_node2_c = & (* _dpxy_node2)[c];
-      VVdouble * _d2pxy_node1_c = & (* _d2pxy_node1)[c];
-      VVdouble * _d2pxy_node2_c = & (* _d2pxy_node2)[c];
-      d2Lic = 0;
-      for(unsigned int x = 0; x < _nbStates; x++)
-      {
-        l1 = 0; dl1 = 0; d2l1 = 0;
-        l2 = 0; dl2 = 0; d2l2 = 0;
-        Vdouble * _pxy_node1_c_x = & (* _pxy_node1_c)[x];
-        Vdouble * _pxy_node2_c_x = & (* _pxy_node2_c)[x];
-        Vdouble * _dpxy_node1_c_x = & (* _dpxy_node1_c)[x];
-        Vdouble * _dpxy_node2_c_x = & (* _dpxy_node2_c)[x];
-        Vdouble * _d2pxy_node1_c_x = & (* _d2pxy_node1_c)[x];
-        Vdouble * _d2pxy_node2_c_x = & (* _d2pxy_node2_c)[x];
-        d2Licx = 0;
-        for(unsigned int y = 0; y < _nbStates; y++)
-        {
-          l1 += (* _pxy_node1_c_x)[y] * (* _likelihoods_node_son1_i_c)[y];
-          l2 += (* _pxy_node2_c_x)[y] * (* _likelihoods_node_son2_i_c)[y];
-          dl1 += (* _dpxy_node1_c_x)[y] * (* _likelihoods_node_son1_i_c)[y];
-          dl2 += (* _dpxy_node2_c_x)[y] * (* _likelihoods_node_son2_i_c)[y];
-          d2l1 += (* _d2pxy_node1_c_x)[y] * (* _likelihoods_node_son1_i_c)[y];
-          d2l2 += (* _d2pxy_node2_c_x)[y] * (* _likelihoods_node_son2_i_c)[y];
-        }
-        d2Licx = d2l1 * l2 + 2 * dl1 * dl2 + l1 * d2l2; 
-        d2Lic += _model->freq(x) * d2Licx;  
-      }
-      d2Li += _rateDistribution->getProbability(c) * d2Lic;
-    }
-    (* _d2Likelihoods_node)[i] = d2Li / (* rootLikelihoodsSR)[i]; 
-  }
-}
-
-/******************************************************************************/
-
 void ClockTreeLikelihood::computeTreeD2Likelihoods()
 {
   for(unsigned int k = 0; k < _nbNodes; k++)
   {
     computeTreeD2LikelihoodAtNode(_nodes[k]);
   }
-  computeTreeD2LikelihoodAtRoot();
 }
 
 /******************************************************************************/
@@ -565,13 +500,17 @@ throw (Exception)
   {
     throw Exception("Derivatives respective to substitution model parameters are not implemented.");
   }
+  if(variable == "TotalHeight")
+  {
+    throw Exception("Derivative respective to 'TotalHeight' not implemented.");
+  }
   
   //
   // Computation for branch lengths:
   //
   
   // Get the node with the branch whose length must be derivated:
-  int brI = TextTools::toInt(variable.substr(6));
+  int brI = TextTools::toInt(variable.substr(7));
   Node * branch = _nodes[brI];
   Vdouble * _dLikelihoods_branch = & _likelihoodData->getDLikelihoodArray(branch);
   Vdouble * _d2Likelihoods_branch = & _likelihoodData->getD2LikelihoodArray(branch);

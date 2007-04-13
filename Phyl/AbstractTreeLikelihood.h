@@ -68,14 +68,25 @@ class AbstractTreeLikelihood :
 	protected:
 		const SiteContainer * _data;
 		mutable TreeTemplate<Node> * _tree;
-		bool _computeDerivatives;
+		bool _computeFirstOrderDerivatives;
+		bool _computeSecondOrderDerivatives;
     bool _initialized;
 
 	public:
-		AbstractTreeLikelihood(): _data(NULL), _tree(NULL), _computeDerivatives(true), _initialized(false) {}
+		AbstractTreeLikelihood():
+      _data(NULL),
+      _tree(NULL),
+      _computeFirstOrderDerivatives(true),
+      _computeSecondOrderDerivatives(true),
+      _initialized(false) {}
 
     AbstractTreeLikelihood(const AbstractTreeLikelihood & lik):
-      AbstractParametrizable(lik), _data(NULL), _tree(NULL), _computeDerivatives(lik._computeDerivatives), _initialized(lik._initialized) 
+      AbstractParametrizable(lik),
+      _data(NULL),
+      _tree(NULL),
+      _computeFirstOrderDerivatives(lik._computeFirstOrderDerivatives),
+      _computeSecondOrderDerivatives(lik._computeSecondOrderDerivatives),
+      _initialized(lik._initialized) 
     {
       if(lik._data) _data = dynamic_cast<SiteContainer *>(lik._data->clone());
       if(lik._tree) _tree = lik._tree->clone();
@@ -90,7 +101,8 @@ class AbstractTreeLikelihood :
       if(_tree) delete _tree;
       if(lik._tree) _tree = lik._tree->clone();
       else          _tree = NULL;
-      _computeDerivatives = lik._computeDerivatives;
+      _computeFirstOrderDerivatives = lik._computeFirstOrderDerivatives;
+      _computeSecondOrderDerivatives = lik._computeSecondOrderDerivatives;
       _initialized        = lik._initialized;
       return *this;
     }
@@ -122,8 +134,11 @@ class AbstractTreeLikelihood :
 		unsigned int getNumberOfStates() const { return _data->getAlphabet()->getSize(); }
 		const Tree * getTree() const { return _tree; }
 		Tree * getTree() { return _tree; }
-		void setComputeDerivatives(bool yn) { _computeDerivatives = yn; }
-		bool computeDerivatives() const { return _computeDerivatives; }
+		void enableDerivatives(bool yn) { _computeFirstOrderDerivatives = _computeSecondOrderDerivatives = yn; }
+		void enableFirstOrderDerivatives(bool yn) { _computeFirstOrderDerivatives = yn; }
+		void enableSecondOrderDerivatives(bool yn) { _computeFirstOrderDerivatives = _computeSecondOrderDerivatives = yn; }
+		bool enableFirstOrderDerivatives() const { return _computeFirstOrderDerivatives; }
+		bool enableSecondOrderDerivatives() const { return _computeSecondOrderDerivatives; }
     bool isInitialized() const { return _initialized; }
     void initialize() throw (Exception) { _initialized = true; }
 		/** @} */

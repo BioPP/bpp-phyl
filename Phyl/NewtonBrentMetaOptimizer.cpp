@@ -129,27 +129,8 @@ void NewtonBrentMetaOptimizer::init(const ParameterList & parameters)
   }
 
   _nbBrentParameters = 0;
-  _brentParameters.reset();
-  ParameterList rateDistParams = tl->getRateDistributionParameters();
-  for(unsigned int i = 0; i < rateDistParams.size(); i++)
-  {
-    Parameter * rateDistParam = rateDistParams[i];
-    if(parameters.getParameter(rateDistParam->getName()) != NULL)
-    {
-      _brentParameters.addParameter(* rateDistParam);
-      _nbBrentParameters++;
-    }
-  }
-  ParameterList subsModParams = tl->getSubstitutionModelParameters();
-  for(unsigned int i = 0; i < subsModParams.size(); i++)
-  {
-    Parameter * subsModParam = subsModParams[i];
-    if(parameters.getParameter(subsModParam->getName()) != NULL)
-    {
-      _brentParameters.addParameter(* subsModParam);
-      _nbBrentParameters++;
-    }
-  }
+  _brentParameters = tl->getNonDerivableParameters();
+  _nbBrentParameters = _brentParameters.size();
   
   // Initialize optimizers:
   if(_nbNewtonParameters > 0)
@@ -201,7 +182,7 @@ double NewtonBrentMetaOptimizer::step() throw (Exception)
   double tol = _stopCondition->getTolerance();
   if(_stepCount < _n)
   {
-    tol = pow(10, _stepCount*_precisionStep);
+    tol = pow(10, _stepCount * _precisionStep);
   }
   
   if(_nbNewtonParameters > 0)
@@ -211,15 +192,15 @@ double NewtonBrentMetaOptimizer::step() throw (Exception)
       cout << endl << "Branch lengths: ";
       cout.flush();
     }
-    tl->setComputeDerivatives(true);
+    tl->enableDerivatives(true);
     _newtonParameters.matchParametersValues(_parameters);
     _newtonOptimizer->setVerbose(max((int)_verbose - 1, 0));
     _newtonOptimizer->getStopCondition()->setTolerance(tol);
     _newtonOptimizer->init(_newtonParameters);
     _newtonOptimizer->optimize();
     _nbEval += _newtonOptimizer->getNumberOfEvaluations();
-     tl->setComputeDerivatives(false);
-     if(_verbose > 1) cout << endl;
+    tl->enableDerivatives(false);
+    if(_verbose > 1) cout << endl;
   }
 
   if(_nbBrentParameters > 0)

@@ -131,7 +131,7 @@ class AbstractHomogeneousTreeLikelihood:
     {
       return AbstractDiscreteRatesAcrossSitesTreeLikelihood::getRateDistributionParameters();
     }
-		/** @} */
+    /** @} */
 
 		/**
 		 * @brief Get the substitution model used for the computation.

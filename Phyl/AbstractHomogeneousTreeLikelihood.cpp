@@ -337,7 +337,7 @@ void AbstractHomogeneousTreeLikelihood::computeTransitionProbabilitiesForNode(co
     }
   }
   
-  if(_computeDerivatives)
+  if(_computeFirstOrderDerivatives)
   {
     //Computes all dpxy/dt once for all:
     VVVdouble * _dpxy_node = & _dpxy[node->getId()];
@@ -355,7 +355,10 @@ void AbstractHomogeneousTreeLikelihood::computeTransitionProbabilitiesForNode(co
         }
       }
     }
+  }
       
+  if(_computeSecondOrderDerivatives)
+  {
     //Computes all d2pxy/dt2 once for all:
     VVVdouble * _d2pxy_node = & _d2pxy[node->getId()];
     for(unsigned int c = 0; c < _nbClasses; c++)

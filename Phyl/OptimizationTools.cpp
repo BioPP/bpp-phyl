@@ -54,6 +54,7 @@ knowledge of the CeCILL license and that you accept its terms.
 #include <NumCalc/OptimizationStopCondition.h>
 #include <NumCalc/FivePointsNumericalDerivative.h>
 #include <NumCalc/ThreePointsNumericalDerivative.h>
+#include <NumCalc/ConjugateGradientMultiDimensions.h>
 
 /******************************************************************************/
 
@@ -65,8 +66,8 @@ OptimizationTools::~OptimizationTools() {}
 
 OptimizationTools::ScaleFunction::ScaleFunction(TreeLikelihood * tl): _tl(tl) {
 	// We work only on the branch lengths:
-	_brLen = tl -> getBranchLengthsParameters();
-  _lambda.addParameter(Parameter("scale factor", 1)); 
+	_brLen = tl->getBranchLengthsParameters();
+  _lambda.addParameter(Parameter("scale factor", 1, &Parameter::R_PLUS_STAR)); 
 }
 	
 OptimizationTools::ScaleFunction::~ScaleFunction() {}
@@ -83,10 +84,11 @@ throw (ParameterException)
 {
 	// Scale the tree:
 	ParameterList brLen = _brLen;
-	for(unsigned int i = 0; i < brLen.size(); i++) {
-		brLen[i] -> setValue(brLen[i] -> getValue() * _lambda[0] -> getValue());
+	for(unsigned int i = 0; i < brLen.size(); i++)
+  {
+		brLen[i]->setValue(brLen[i]->getValue() * _lambda[0]->getValue());
 	}
-	return _tl -> f(brLen);
+	return _tl->f(brLen);
 }
 
 /******************************************************************************/
@@ -104,14 +106,14 @@ int OptimizationTools::optimizeTreeScale(
 	BrentOneDimension bod(&sf);
 	bod.setMessageHandler(messageHandler);
 	bod.setProfiler(profiler);
-	bod.setConstraintPolicy(AbstractOptimizer::CONSTRAINTS_IGNORE);
-	bod.setInitialInterval(0.5, 1.5);
+	bod.setConstraintPolicy(AutoParameter::CONSTRAINTS_AUTO);
+	bod.setInitialInterval(0.99, 1.01);
 	ParameterList singleParameter;
 	singleParameter.addParameter(Parameter("scale factor", 1.));
-	bod.init(singleParameter);
 	ParametersStopCondition PS(&bod, tolerance);
 	bod.setStopCondition(PS);
 	bod.setMaximumNumberOfEvaluations(tlEvalMax);
+	bod.init(singleParameter);
 	bod.optimize();
 	return bod.getNumberOfEvaluations();
 }
@@ -140,7 +142,7 @@ int OptimizationTools::optimizeNumericalParameters(
 	try
   {
 		ParameterList pl = tl->getParameters();
-		optimizer->setConstraintPolicy(AbstractOptimizer::CONSTRAINTS_AUTO);
+		optimizer->setConstraintPolicy(AutoParameter::CONSTRAINTS_AUTO);
 		optimizer->init(pl);
 		optimizer->optimize();
 	}
@@ -169,6 +171,8 @@ int OptimizationTools::optimizeNumericalParameters2(
 	unsigned int verbose
 	)	throw (Exception)
 {
+  tl->enableFirstOrderDerivatives(true);
+  tl->enableSecondOrderDerivatives(true);
   AbstractNumericalDerivative * fun = NULL;
   if(method == "3points")
   {
@@ -183,17 +187,7 @@ int OptimizationTools::optimizeNumericalParameters2(
   int n = 0;
   
   //Numerical derivatives:
-  vector<string> variables;
-  ParameterList subs = tl->getSubstitutionModelParameters();
-  ParameterList dist = tl->getRateDistributionParameters();
-  for(unsigned int i = 0; i < subs.size(); i++)
-  {
-    variables.push_back(subs[i]->getName());
-  }
-  for(unsigned int i = 0; i < dist.size(); i++)
-  {
-    variables.push_back(dist[i]->getName());
-  }
+  vector<string> variables = tl->getNonDerivableParameters().getParameterNames();
   fun->setParametersToDerivate(variables);
   
   // Build optimizer:
@@ -205,12 +199,15 @@ int OptimizationTools::optimizeNumericalParameters2(
 	optimizer->getStopCondition()->setTolerance(tolerance);
 	
 	// Optimize TreeLikelihood function:
-	try {
+	try
+  {
 		ParameterList pl = tl->getParameters();
-		optimizer->setConstraintPolicy(AbstractOptimizer::CONSTRAINTS_AUTO);
+		optimizer->setConstraintPolicy(AutoParameter::CONSTRAINTS_AUTO);
 		optimizer->init(pl);
 		optimizer->optimize();
-	} catch(Exception e) {
+	}
+  catch(Exception e)
+  {
     cout << "Error in optimization process." << endl;
 		cout << e.what() << endl;
 		exit(-1);
@@ -248,7 +245,7 @@ int OptimizationTools::optimizeBranchLengthsParameters(
 	try
   {
 		ParameterList pl = tl->getBranchLengthsParameters();
-		optimizer->setConstraintPolicy(AbstractOptimizer::CONSTRAINTS_AUTO);
+		optimizer->setConstraintPolicy(AutoParameter::CONSTRAINTS_AUTO);
 		optimizer->init(pl);
 		optimizer->optimize();
 	}

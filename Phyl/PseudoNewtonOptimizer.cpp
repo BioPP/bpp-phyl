@@ -78,7 +78,7 @@ void PseudoNewtonOptimizer::init(const ParameterList & params) throw (Exception)
 	_params = _parameters.getParameterNames();
 	for (unsigned int j = 0; j < _n; j++)
   {
-		profile(_parameters[j] -> getName() + "\t"); 
+		profile(_parameters[j]->getName() + "\t"); 
 	}
 	profileln("Function\tTime");
 	printPoint(_parameters, _currentValue);
@@ -135,6 +135,9 @@ double PseudoNewtonOptimizer::step() throw (Exception)
     if(count > 10000) throw Exception("PseudoNewtonOptimizer::step(). Felsenstein-Churchill correction applied more than 10000 times.");
 		newValue = _function->f(newPoint);
 	}
+  
+  //In case of global constraint:
+  newPoint.matchParametersValues(_function->getParameters());
 
 	_previousPoint = _parameters;
 	_previousValue = _currentValue;

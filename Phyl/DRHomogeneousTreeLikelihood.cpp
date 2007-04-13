@@ -263,7 +263,6 @@ void DRHomogeneousTreeLikelihood::fireParameterChanged(const ParameterList & par
     for(unsigned int i = 0; i < params.size(); i++)
     {
       string s = params[i]->getName();
-      cout << s << endl;
       if(s.substr(0,5) == "BrLen")
       {
         //Branch length parameter:
@@ -273,9 +272,12 @@ void DRHomogeneousTreeLikelihood::fireParameterChanged(const ParameterList & par
   }
 
   computeTreeLikelihood();
-  if(_computeDerivatives)
+  if(_computeFirstOrderDerivatives)
   {
     computeTreeDLikelihoods();  
+  }
+  if(_computeSecondOrderDerivatives)
+  {
     computeTreeD2Likelihoods();
   }
 }

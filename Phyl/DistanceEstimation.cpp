@@ -47,6 +47,9 @@ knowledge of the CeCILL license and that you accept its terms.
 // From Utils:
 #include <Utils/ApplicationTools.h>
 
+// From NumCalc:
+#include <NumCalc/AutoParameter.h>
+
 // From SeqLib:
 #include <Seq/SiteTools.h>
 #include <Seq/Sequence.h>
@@ -346,7 +349,7 @@ void TwoTreeLikelihood::fireParameterChanged(const ParameterList & params)
 			}
 		}
 		
-		if(_computeDerivatives)
+		if(_computeFirstOrderDerivatives)
     {
 			//Computes all dpxy/dt once for all:
 			_dpxy.resize(_nbClasses);
@@ -366,7 +369,10 @@ void TwoTreeLikelihood::fireParameterChanged(const ParameterList & params)
 					}
 				}
 			}
-			
+    }
+
+		if(_computeSecondOrderDerivatives)
+    {
 			//Computes all d2pxy/dt2 once for all:
 			_d2pxy.resize(_nbClasses);
 			for(unsigned int c = 0; c < _nbClasses; c++)
@@ -389,9 +395,12 @@ void TwoTreeLikelihood::fireParameterChanged(const ParameterList & params)
 	}
 
 	computeTreeLikelihood();
-	if(_computeDerivatives)
+	if(_computeFirstOrderDerivatives)
   {
 		computeTreeDLikelihood();	
+  }
+  if(_computeSecondOrderDerivatives)
+  {
 		computeTreeD2Likelihood();
 	}
 }
@@ -651,14 +660,14 @@ void DistanceEstimation::computeMatrix() throw (NullPointerException)
 			TwoTreeLikelihood * lik = 
 				new TwoTreeLikelihood(names[i], names[j], *_sites, _model, _rateDist, _verbose > 3);
       lik->initialize();
-			lik->setComputeDerivatives(true);
+			lik->enableDerivatives(true);
 			const Sequence * seqi = _sites->getSequence(names[i]);
 			const Sequence * seqj = _sites->getSequence(names[j]);
 			unsigned int d = SymbolListTools::getNumberOfDistinctPositions(* seqi, * seqj);
 			unsigned int g = SymbolListTools::getNumberOfPositionsWithoutGap(* seqi, * seqj);
 			lik->setParameterValue("BrLen", g == 0 ? 0 : (double)d/(double)g);
 			// Optimization:
-			_optimizer->setConstraintPolicy(AbstractOptimizer::CONSTRAINTS_AUTO);
+			_optimizer->setConstraintPolicy(AutoParameter::CONSTRAINTS_AUTO);
 			_optimizer->setFunction(lik);
 			ParameterList params = lik->getBranchLengthsParameters();
 			params.addParameters(_parameters);

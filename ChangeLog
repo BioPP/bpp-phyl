@@ -1,3 +1,8 @@
+13/04/07 Julien Dutheil
+* New parametrization in ClockTreeLikelihood.
+* Optimizers improved.
+* TreeLikelihood interface a little bit modified for compatibility with NumCalc.
+
 07/04/07 Benoît Nabholz and Julien Dutheil
 * New ClockTreeLikelihood class.
 * New NNIHomogeneousTreeLikelihood class, splitted appart from DRHomogeneousTreeLikelihood.

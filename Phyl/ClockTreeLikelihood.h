@@ -59,6 +59,11 @@ class ClockTreeLikelihood:
   public:
     static IncludingInterval PERCENT_CONSTRAINT;
 
+  protected:
+    map<const Node *, double> _previousHeights;
+    double _previousTotalHeight;
+    ParameterList _totalHeightParameter;
+
   public:
     /**
      * @brief Build a new ClockTreeLikelihood object.
@@ -114,7 +119,7 @@ class ClockTreeLikelihood:
 
   public:
 
-    /**
+    /**i
      * @brief Method called by constructor.
      */
     void init();
@@ -125,8 +130,10 @@ class ClockTreeLikelihood:
      * @{
      */
     void applyParameters() throw (Exception);
-		void initBranchLengthsParameters();
+    void initParameters();
+    void initBranchLengthsParameters();
     void fireParameterChanged(const ParameterList & params);
+    ParameterList getNonDerivableParameters() const throw (Exception);
     double getFirstOrderDerivative(const string & variable) const throw (Exception);
     double getSecondOrderDerivative(const string & variable) const throw (Exception);
     double getSecondOrderDerivative(const string & variable1, const string & variable2) const throw (Exception) { return 0; } // Not implemented for now.
@@ -135,8 +142,7 @@ class ClockTreeLikelihood:
     void computeTreeD2LikelihoodAtNode(const Node * node);
     void computeTreeD2Likelihoods();
     /** @} */
-    void computeTreeDLikelihoodAtRoot();
-    void computeTreeD2LikelihoodAtRoot();
+    ParameterList getTotalHeightParameter() const throw (Exception);
 
   protected:
 
@@ -146,7 +152,7 @@ class ClockTreeLikelihood:
      * @param node ...
      * @param outputParameters ...
      */
-    void computeBranchLengthsFromHeights(Node * node) throw (Exception);
+    double computeBranchLengthsFromHeights(Node * node) throw (Exception);
 
 };
 

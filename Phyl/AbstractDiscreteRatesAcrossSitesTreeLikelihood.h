@@ -76,7 +76,9 @@ class AbstractDiscreteRatesAcrossSitesTreeLikelihood:
 		 */
 		double getLikelihoodForASiteForAState (unsigned int site, int state) const;
 		double getLogLikelihoodForASiteForAState(unsigned int site, int state) const;
-		/** @} */
+		ParameterList getDerivableParameters() const;
+		ParameterList getNonDerivableParameters() const;
+ 		/** @} */
 
 		/**
 		 * @name The DiscreteRatesAcrossSites interface implementation:
