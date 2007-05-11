@@ -41,7 +41,6 @@ knowledge of the CeCILL license and that you accept its terms.
 
 // From NumCalc:
 #include <NumCalc/VectorTools.h>
-using namespace VectorFunctions;
 
 // From the STL:
 #include <iostream>
@@ -232,7 +231,7 @@ vector<unsigned int> AbstractDiscreteRatesAcrossSitesTreeLikelihood::getRateClas
 	VVdouble l = getLikelihoodForEachSiteForEachRateClass();
 	vector<unsigned int>classes(nbSites);
 	for(unsigned int i = 0; i < nbSites; i++)
-    classes[i] = whichmax<double>(l[i]);
+    classes[i] = VectorTools::whichmax<double>(l[i]);
 	return classes;
 }
 
@@ -240,12 +239,12 @@ vector<unsigned int> AbstractDiscreteRatesAcrossSitesTreeLikelihood::getRateClas
 
 Vdouble AbstractDiscreteRatesAcrossSitesTreeLikelihood::getRateWithMaxPostProbOfEachSite() const
 {
-	unsigned int nbSites   = getNumberOfSites();
+	unsigned int nbSites = getNumberOfSites();
 	VVdouble l = getLikelihoodForEachSiteForEachRateClass();
 	Vdouble rates(nbSites);
 	for(unsigned int i = 0; i < nbSites; i++)
   {
-		rates[i] = _rateDistribution->getCategory(whichmax<double>(l[i]));
+		rates[i] = _rateDistribution->getCategory(VectorTools::whichmax<double>(l[i]));
 	}
 	return rates;
 }

@@ -39,31 +39,37 @@ knowledge of the CeCILL license and that you accept its terms.
 
 #include "MarginalAncestralStateReconstruction.h"
 #include <NumCalc/VectorTools.h>
-using namespace VectorFunctions;
 
 vector<int> MarginalAncestralStateReconstruction::getAncestralStatesForNode(const Node * node) const
 {
 	vector<int> ancestors(_nDistinctSites);
-	if(node -> isLeaf()) {
-		VVdouble larray = _likelihood -> getLikelihoodData() -> getLeafLikelihoods(node);
-		for(unsigned int i = 0; i < _nDistinctSites; i++) {
-			ancestors[i] = (int)whichmax(larray[i]);
+	if(node->isLeaf())
+  {
+		VVdouble larray = _likelihood->getLikelihoodData()->getLeafLikelihoods(node);
+		for(unsigned int i = 0; i < _nDistinctSites; i++)
+    {
+			ancestors[i] = (int)VectorTools::whichmax(larray[i]);
 		}
-	} else {
-		VVVdouble larray = _likelihood -> computeLikelihoodAtNode(node);
-		Vdouble freqs    = _likelihood -> getSubstitutionModel() -> getFrequencies();
-		Vdouble rcProbs  = _likelihood -> getRateDistribution() -> getProbabilities(); 
-		for(unsigned int i = 0; i < _nDistinctSites; i++) {
+	}
+  else
+  {
+		VVVdouble larray = _likelihood->computeLikelihoodAtNode(node);
+		Vdouble freqs    = _likelihood->getSubstitutionModel()->getFrequencies();
+		Vdouble rcProbs  = _likelihood->getRateDistribution()->getProbabilities(); 
+		for(unsigned int i = 0; i < _nDistinctSites; i++)
+    {
 			Vdouble likelihoods(_nStates, 0);
 			VVdouble * larray_i = & larray[i];
-			for(unsigned int c = 0; c < _nClasses; c++) {
+			for(unsigned int c = 0; c < _nClasses; c++)
+      {
 				Vdouble * larray_i_c = & (* larray_i)[c];
 				double rcp = rcProbs[c];
-				for(unsigned int x = 0; x < _nStates; x++) {
+				for(unsigned int x = 0; x < _nStates; x++)
+        {
 					likelihoods[x] += (* larray_i_c)[x] * freqs[x] * rcp;
 				}
 			}
-			ancestors[i] = (int)whichmax(likelihoods);
+			ancestors[i] = (int)VectorTools::whichmax(likelihoods);
 		}
 	}
 	return ancestors;

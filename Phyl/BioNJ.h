@@ -51,7 +51,7 @@ knowledge of the CeCILL license and that you accept its terms.
  * BIONJ: an improved version of the NJ algorithm based on a simple model of sequence data.
  * Mol Biol Evol. 1997 Jul;14(7):685-95.
  */
-class BioNJ : public  virtual NeighborJoining
+class BioNJ : public NeighborJoining
 {
 protected:
 	DistanceMatrix _variance;
@@ -62,7 +62,7 @@ public:
   BioNJ(): NeighborJoining(), _variance(0) {}
   
 	BioNJ(const DistanceMatrix & matrix, bool rooted = false, bool positiveLengths = false) throw (Exception):
-    AbstractAgglomerativeDistanceMethod(matrix), 
+//    AbstractAgglomerativeDistanceMethod(matrix), 
     NeighborJoining(),
     _variance(matrix)
 	{

@@ -47,7 +47,6 @@ knowledge of the CeCILL license and that you accept its terms.
 
 // From NumCalc:
 #include <NumCalc/VectorTools.h>
-using namespace VectorFunctions;
 
 // From the STL:
 #include <iostream>
@@ -88,24 +87,29 @@ void UserProteinSubstitutionModel::readFromFile()
 	}
 	//Read frequencies:
 	unsigned int fCount = 0;
-	while(in && fCount < 20) {
+	while(in && fCount < 20)
+  {
 		string line = FileTools::getNextLine(in);
 		StringTokenizer st(line);
-		while(st.hasMoreToken() && fCount < 20) {
+		while(st.hasMoreToken() && fCount < 20)
+    {
 			_freq[fCount] = TextTools::toDouble(st.nextToken());
 			fCount++;
 		}
 	}
-	double sf = sum(_freq);
-	if(sf - 1 > 0.000001) {
+	double sf = VectorTools::sum(_freq);
+	if(sf - 1 > 0.000001)
+  {
 		ApplicationTools::displayMessage("WARNING!!! Frequencies sum to " + TextTools::toString(sf) + ", frequencies have been scaled.");
 		sf *= 1./sf;
 	}
 
 	//Now build diagonal of the exchangeability matrix:
-	for(unsigned int i = 0; i < 20; i++) {
+	for(unsigned int i = 0; i < 20; i++)
+  {
 		double sum = 0;
-		for(unsigned int j = 0; j < 20; j++) {
+		for(unsigned int j = 0; j < 20; j++)
+    {
 			if(j!=i) sum += _exchangeability(i,j);
 		}
 		_exchangeability(i,i) = -sum;

@@ -264,15 +264,15 @@ class TwoTreeLikelihood:
  * You'll have to specify a 'profiler' to the optimizer and then look at the file
  * if you want to do so.
  */
-class DistanceEstimation {
-
+class DistanceEstimation
+{
 	protected:
 		SubstitutionModel * _model;
 		DiscreteDistribution * _rateDist;
 		const SiteContainer * _sites;
 		DistanceMatrix * _dist;
 		Optimizer * _optimizer;
-		Optimizer * _defaultOptimizer;
+		NewtonBrentMetaOptimizer * _defaultOptimizer;
 		unsigned int _verbose;
 		ParameterList _parameters;
 
@@ -296,12 +296,8 @@ class DistanceEstimation {
 		DistanceEstimation(SubstitutionModel * model, DiscreteDistribution * rateDist, const SiteContainer * sites, unsigned int verbose = 1, bool computeMat = true):
       _model(model), _rateDist(rateDist), _sites(sites), _dist(NULL), _verbose(verbose)
     {
-    	//_defaultOptimizer = new SimpleMultiDimensions(NULL);
-	    _defaultOptimizer = new NewtonBrentMetaOptimizer(NULL);
-	    _defaultOptimizer->setMessageHandler(NULL);
-	    _defaultOptimizer->setProfiler(NULL);
-	    _optimizer = _defaultOptimizer;
-	    if(computeMat) computeMatrix();
+	    _init();
+      if(computeMat) computeMatrix();
     }
 		
 	  /**
@@ -321,11 +317,7 @@ class DistanceEstimation {
 		DistanceEstimation(unsigned int verbose):
       _model(NULL), _rateDist(NULL), _sites(NULL), _dist(NULL), _verbose(verbose)
     {
-    	//_defaultOptimizer = new SimpleMultiDimensions(NULL);
-	    _defaultOptimizer = new NewtonBrentMetaOptimizer(NULL);
-	    _defaultOptimizer->setMessageHandler(NULL);
-	    _defaultOptimizer->setProfiler(NULL);
-	    _optimizer = _defaultOptimizer;
+	    _init();
     }
 
 	  /**
@@ -338,10 +330,7 @@ class DistanceEstimation {
 		DistanceEstimation():
       _model(NULL), _rateDist(NULL), _sites(NULL), _dist(NULL), _verbose(1)
     {
-    	_defaultOptimizer = new NewtonBrentMetaOptimizer(NULL);
-	    _defaultOptimizer->setMessageHandler(NULL);
-	    _defaultOptimizer->setProfiler(NULL);
-	    _optimizer = _defaultOptimizer;
+      _init();
     }
 
     /**
@@ -356,14 +345,11 @@ class DistanceEstimation {
       _rateDist(distanceEstimation._rateDist),
       _sites(distanceEstimation._sites),
       _dist(NULL),
-      _optimizer(distanceEstimation._optimizer),
-      _defaultOptimizer(NULL),
+      _optimizer(distanceEstimation._optimizer->clone()),
+      _defaultOptimizer(_defaultOptimizer->clone()),
       _verbose(distanceEstimation._verbose),
       _parameters(distanceEstimation._parameters)
     {
-    	_defaultOptimizer = new NewtonBrentMetaOptimizer(NULL);
-	    _defaultOptimizer->setMessageHandler(NULL);
-	    _defaultOptimizer->setProfiler(NULL);
       if(distanceEstimation._dist != NULL)
         _dist = new DistanceMatrix(*distanceEstimation._dist);
       else
@@ -387,7 +373,7 @@ class DistanceEstimation {
         _dist = new DistanceMatrix(*distanceEstimation._dist);
       else
         _dist = NULL;
-      _optimizer = distanceEstimation._optimizer;
+      _optimizer = distanceEstimation._optimizer->clone();
       // _defaultOptimizer has already been initialized since the default constructor has been called.
       _verbose = distanceEstimation._verbose;
       _parameters = distanceEstimation._parameters;
@@ -398,8 +384,23 @@ class DistanceEstimation {
 		{
 			if(_dist != NULL) delete _dist;
 			delete _defaultOptimizer;
+      delete _optimizer;
 		}
-			
+		
+  protected:
+    void _init()
+    {
+    	_defaultOptimizer = new NewtonBrentMetaOptimizer(NULL);
+      vector<string> name;
+      name[0] = "BrLen";
+      _defaultOptimizer->setDerivableParameters(name);
+      ParameterList tmp = _model->getParameters();
+      tmp.addParameters(_rateDist->getParameters());
+      _defaultOptimizer->setNonDerivableParameters(tmp.getParameterNames());
+      _defaultOptimizer->setMessageHandler(NULL);
+	    _defaultOptimizer->setProfiler(NULL);
+	    _optimizer = _defaultOptimizer->clone();
+    }
 
 	public:
 
@@ -430,11 +431,16 @@ class DistanceEstimation {
 
 		void setData(const SiteContainer * sites) { _sites = sites; }
 		const SiteContainer * getData() const { return _sites; }
-		void resetData() { _sites=NULL; }
+		void resetData() { _sites = NULL; }
 		
-		void setOptimizer(Optimizer * optimizer) { _optimizer = optimizer; }
-		Optimizer * getOptimizer() const { return _optimizer; }
-		void resetOptimizer() { _optimizer = _defaultOptimizer; }
+		void setOptimizer(const Optimizer * optimizer)
+    { 
+      if(_optimizer) delete _optimizer;
+      _optimizer = optimizer->clone();
+    }
+		const Optimizer * getOptimizer() const { return _optimizer; }
+		Optimizer * getOptimizer() { return _optimizer; }
+		void resetOptimizer() { _optimizer = _defaultOptimizer->clone(); }
 
 		/**
 		 * @brief Specify a list of parameters to be estimated.
@@ -455,6 +461,15 @@ class DistanceEstimation {
     {
       _parameters.reset();
     }
+
+    /**
+     * @param verbose Verbose level.
+     */
+    void setVerbose(unsigned int verbose) { _verbose = verbose; }
+    /**
+     * @return Verbose level.
+     */
+    unsigned int getVerbose() const { return _verbose; }
 };
 
 #endif //_DISTANCEESTIMATION_H_

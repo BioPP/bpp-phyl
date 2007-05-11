@@ -1,7 +1,7 @@
 //
 // File: NewtonBrentMetaOptimizer.cpp
 // Created by: Julien Dutheil
-// Created on: ue Nov 17 17:22 2004
+// Created on: Tue Nov 17 17:22 2004
 //
 
 /*
@@ -43,16 +43,28 @@ knowledge of the CeCILL license and that you accept its terms.
 
 /**************************************************************************/
 
-NewtonBrentMetaOptimizer::NewtonBrentMetaOptimizer(DiscreteRatesAcrossSitesTreeLikelihood * tl, unsigned int n):
-  AbstractOptimizer(tl)
+string NewtonBrentMetaOptimizer::TYPE_SIMPLENEWTON= "simple";
+string NewtonBrentMetaOptimizer::TYPE_PSEUDONEWTON= "pseudo";
+string NewtonBrentMetaOptimizer::IT_TYPE_STEP= "step";
+string NewtonBrentMetaOptimizer::IT_TYPE_FULL= "full";
+
+/**************************************************************************/
+
+NewtonBrentMetaOptimizer::NewtonBrentMetaOptimizer(DerivableSecondOrder * function, const string & type, const string & itType, unsigned int n):
+  AbstractOptimizer(function)
 {
   _defaultStopCondition = new FunctionStopCondition(this);
   _stopCondition = _defaultStopCondition->clone();
   _newtonOptimizer = NULL;
   _brentOptimizer = NULL;
+  _nbNewtonParameters = 0;
+  _nbBrentParameters = 0;
   _n = n;
   _precisionStep = log10(_stopCondition->getTolerance()) / _n;
   _stepCount = 0;
+  _type = type;
+  _itType = itType;
+  _stepChar = "";
 }
 
 /**************************************************************************/
@@ -63,13 +75,15 @@ NewtonBrentMetaOptimizer::NewtonBrentMetaOptimizer(
 {
   _newtonParameters   = opt._newtonParameters;
   _brentParameters    = opt._brentParameters;
-  _newtonOptimizer    = opt._newtonOptimizer->clone();
-  _brentOptimizer     = opt._brentOptimizer->clone();
+  _newtonOptimizer    = opt._newtonOptimizer ? opt._newtonOptimizer->clone() : NULL;
+  _brentOptimizer     = opt._brentOptimizer? opt._brentOptimizer->clone() : NULL;
   _nbNewtonParameters = opt._nbNewtonParameters;
   _nbBrentParameters  = opt._nbBrentParameters;
   _n                  = opt._n;
   _precisionStep      = opt._precisionStep;
   _stepCount          = opt._stepCount;
+  _type               = opt._type;
+  _itType             = opt._itType;
 }
 
 /**************************************************************************/
@@ -80,13 +94,15 @@ NewtonBrentMetaOptimizer & NewtonBrentMetaOptimizer::operator=(
   AbstractOptimizer::operator=(opt);
   _newtonParameters   = opt._newtonParameters;
   _brentParameters    = opt._brentParameters;
-  _newtonOptimizer    = opt._newtonOptimizer->clone();
-  _brentOptimizer     = opt._brentOptimizer->clone();
+  _newtonOptimizer    = opt._newtonOptimizer ? opt._newtonOptimizer->clone() : NULL;
+  _brentOptimizer     = opt._brentOptimizer? opt._brentOptimizer->clone() : NULL;
   _nbNewtonParameters = opt._nbNewtonParameters;
   _nbBrentParameters  = opt._nbBrentParameters;
   _n                  = opt._n;
   _precisionStep      = opt._precisionStep;
   _stepCount          = opt._stepCount;
+  _type               = opt._type;
+  _itType             = opt._itType;
   return *this;
 }
 
@@ -101,41 +117,39 @@ NewtonBrentMetaOptimizer::~NewtonBrentMetaOptimizer()
 
 /**************************************************************************/
 
-void NewtonBrentMetaOptimizer::init(const ParameterList & parameters)
+void NewtonBrentMetaOptimizer::doInit(const ParameterList & parameters)
   throw (Exception)
 {
-  DiscreteRatesAcrossSitesTreeLikelihood * tl = dynamic_cast<DiscreteRatesAcrossSitesTreeLikelihood *>(_function);
-  _stopCondition->init();
-  _parameters = parameters;
-  unsigned int nbParams = _parameters.size();
-  
   // Some cleaning first.
   // This is useful only if the MetaOptimizer have been initialized once before this time.
-  delete _newtonOptimizer;
-  delete _brentOptimizer;
-  
-  // Check parameters class:
-  ParameterList branchLengthParams = tl->getBranchLengthsParameters();
-  _nbNewtonParameters = 0;
-  _newtonParameters.reset();
-  for(unsigned int i = 0; i < branchLengthParams.size(); i++)
-  {
-    Parameter * branchLengthParam = branchLengthParams[i];
-    if(parameters.getParameter(branchLengthParam->getName()) != NULL)
-    {
-      _newtonParameters.addParameter(* branchLengthParam);
-      _nbNewtonParameters++;
-    }
-  }
+  if(_newtonOptimizer) delete _newtonOptimizer;
+  if(_brentOptimizer)  delete _brentOptimizer;
 
-  _nbBrentParameters = 0;
-  _brentParameters = tl->getNonDerivableParameters();
+  for(unsigned int i = 0; i < _newtonParametersNames.size(); i++)
+  {
+    const Parameter *p = parameters.getParameter(_newtonParametersNames[i]);
+    if(p) _newtonParameters.addParameter(*p);
+  }
+  _nbNewtonParameters = _newtonParameters.size();
+  for(unsigned int i = 0; i < _brentParametersNames.size(); i++)
+  {
+    const Parameter *p = parameters.getParameter(_brentParametersNames[i]);
+    if(p) _brentParameters.addParameter(*p);
+  }
   _nbBrentParameters = _brentParameters.size();
   
   // Initialize optimizers:
+  if(_nbNewtonParameters == 0 && _nbBrentParameters == 0)
+    throw Exception("NewtonBrentMetaOptimizer::init(). No derivable and non-derivable parameter set.");
   if(_nbNewtonParameters > 0)
   {
-    _newtonOptimizer = new PseudoNewtonOptimizer(tl);
+    if(_type == TYPE_PSEUDONEWTON) 
+      _newtonOptimizer = new PseudoNewtonOptimizer(dynamic_cast<DerivableSecondOrder *>(_function));
+    else if(_type == TYPE_SIMPLENEWTON)
+      _newtonOptimizer = new SimpleNewtonMultiDimensions(dynamic_cast<DerivableSecondOrder *>(_function));
+    else throw Exception("NewtonBrentMetaOptimizer::init. Unknown type of newton optimizer.");
+
+    dynamic_cast<AbstractOptimizer *>(_newtonOptimizer)->updateParameters(_updateParameters);
     _newtonOptimizer->setProfiler(_profiler);
     _newtonOptimizer->setMessageHandler(_messageHandler);
     _newtonOptimizer->setConstraintPolicy(_constraintPolicy);
@@ -143,26 +157,17 @@ void NewtonBrentMetaOptimizer::init(const ParameterList & parameters)
   }
   if(_nbBrentParameters > 0)
   {
-    _brentOptimizer = new SimpleMultiDimensions(tl);
+    _brentOptimizer = new SimpleMultiDimensions(_function);
+    dynamic_cast<AbstractOptimizer *>(_brentOptimizer)->updateParameters(_updateParameters);
     _brentOptimizer->setProfiler(_profiler);
     _brentOptimizer->setMessageHandler(_messageHandler);
     _brentOptimizer->setConstraintPolicy(_constraintPolicy);
     _brentOptimizer->setVerbose(_verbose > 0 ? _verbose - 1 : 0);
+    dynamic_cast<SimpleNewtonMultiDimensions *>(_brentOptimizer)->getOneDimensionOptimizer()->setStopCondition(*_stopCondition);
   }
-  
-  // Dump to profile:
-  for(unsigned int i = 0; i < nbParams; i++)
-  {
-    profile(_parameters[i]->getName() + "\t"); 
-  }
-  profileln("Function\tTime");
-
-  printPoint(_parameters, _function->f(_parameters));
   
   // Actualize parameters:
-  _parameters.matchParametersValues(tl->getParameters());
-  
-  _tolIsReached = false;
+  _parameters.matchParametersValues(_function->getParameters());
   
   // Reset counter:
   _stepCount = 0;
@@ -172,13 +177,10 @@ void NewtonBrentMetaOptimizer::init(const ParameterList & parameters)
 
 /**************************************************************************/
 
-double NewtonBrentMetaOptimizer::step() throw (Exception)
+double NewtonBrentMetaOptimizer::doStep() throw (Exception)
 {
-  DiscreteRatesAcrossSitesTreeLikelihood * tl = dynamic_cast<DiscreteRatesAcrossSitesTreeLikelihood *>(_function);
-  _stepCount++;
+   _stepCount++;
   
-  if(_verbose > 0) { cout << "*"; cout.flush(); }
-
   double tol = _stopCondition->getTolerance();
   if(_stepCount < _n)
   {
@@ -189,24 +191,30 @@ double NewtonBrentMetaOptimizer::step() throw (Exception)
   {
     if(_verbose > 1)
     {
-      cout << endl << "Branch lengths: ";
+      cout << endl << "Derivable parameters:";
       cout.flush();
     }
-    tl->enableDerivatives(true);
+    dynamic_cast<DerivableSecondOrder *>(_function)->enableSecondOrderDerivatives(true);
     _newtonParameters.matchParametersValues(_parameters);
-    _newtonOptimizer->setVerbose(max((int)_verbose - 1, 0));
     _newtonOptimizer->getStopCondition()->setTolerance(tol);
     _newtonOptimizer->init(_newtonParameters);
-    _newtonOptimizer->optimize();
+    if(_itType == IT_TYPE_STEP)
+      _newtonOptimizer->step();
+    else if(_itType == IT_TYPE_FULL)
+      _newtonOptimizer->optimize();
+    else throw Exception("NewtonBrentMetaOptimizer::step. Unknown iteration type specified.");
     _nbEval += _newtonOptimizer->getNumberOfEvaluations();
-    tl->enableDerivatives(false);
+    dynamic_cast<DerivableSecondOrder *>(_function)->enableSecondOrderDerivatives(false);
     if(_verbose > 1) cout << endl;
   }
 
   if(_nbBrentParameters > 0)
   {
+    if(_verbose > 1)
+    {
+      cout << endl << "Non-derivable parameters:" << endl;
+    }
     _brentParameters.matchParametersValues(_parameters);
-    _brentOptimizer->setVerbose(max((int)_verbose - 1, 0));
     _brentOptimizer->getStopCondition()->setTolerance(tol);
     _brentOptimizer->init(_brentParameters);
     _brentOptimizer->step();
@@ -215,26 +223,8 @@ double NewtonBrentMetaOptimizer::step() throw (Exception)
   }
     
   // Actualize parameters:
-  _parameters.matchParametersValues(tl->getParameters());
-
-  _tolIsReached = _stopCondition->isToleranceReached();
-  return tl->getValue();
-}
-
-/**************************************************************************/
-
-double NewtonBrentMetaOptimizer::optimize()
-  throw (Exception)
-{
-  DiscreteRatesAcrossSitesTreeLikelihood * tl = dynamic_cast<DiscreteRatesAcrossSitesTreeLikelihood *>(_function);
-  _nbEval = 0;
-  
-  while(_nbEval < _nbEvalMax && !_tolIsReached)
-  {  
-    step();
-  }
-
-  return tl->getValue();
+  _parameters.matchParametersValues(_function->getParameters());
+  return _function->getValue();
 }
 
 /**************************************************************************/

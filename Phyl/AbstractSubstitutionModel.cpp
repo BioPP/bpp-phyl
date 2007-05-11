@@ -45,7 +45,6 @@ knowledge of the CeCILL license and that you accept its terms.
 // From NumCalc:
 #include <NumCalc/MatrixTools.h>
 #include <NumCalc/VectorTools.h>
-using namespace VectorFunctions;
 using namespace VectorOperators;
 #include <NumCalc/EigenValue.h>
 
@@ -105,18 +104,18 @@ void AbstractSubstitutionModel::updateMatrices()
 
 RowMatrix<double> AbstractSubstitutionModel::getPij_t(double t) const
 {
-	if(t==0) return MatrixTools::getId< RowMatrix<double> >(_size);
-  return MatrixTools::mult(_rightEigenVectors, exp(_eigenValues*t), _leftEigenVectors);
+	if(t == 0) return MatrixTools::getId< RowMatrix<double> >(_size);
+  return MatrixTools::mult(_rightEigenVectors, VectorTools::exp(_eigenValues * t), _leftEigenVectors);
 }
 
 RowMatrix<double> AbstractSubstitutionModel::getdPij_dt(double t) const
 {
-	return MatrixTools::mult(_rightEigenVectors, _eigenValues * exp(_eigenValues*t), _leftEigenVectors);
+	return MatrixTools::mult(_rightEigenVectors, _eigenValues * VectorTools::exp(_eigenValues * t), _leftEigenVectors);
 }
 
 RowMatrix<double> AbstractSubstitutionModel::getd2Pij_dt2(double t) const
 {
-	return MatrixTools::mult(_rightEigenVectors, sqr(_eigenValues) * exp(_eigenValues*t), _leftEigenVectors);
+	return MatrixTools::mult(_rightEigenVectors, sqr(_eigenValues) * VectorTools::exp(_eigenValues * t), _leftEigenVectors);
 }
 
 /******************************************************************************/
@@ -149,7 +148,7 @@ void AbstractSubstitutionModel::setFreqFromData(const SequenceContainer & data)
 
 double AbstractSubstitutionModel::getScale() const
 {
-	return -scalar(MatrixTools::diag<RowMatrix<double>, double>(_generator), _freq);
+	return -VectorTools::scalar(MatrixTools::diag<RowMatrix<double>, double>(_generator), _freq);
 }
 
 /******************************************************************************/

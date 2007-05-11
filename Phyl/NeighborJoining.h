@@ -49,7 +49,8 @@ knowledge of the CeCILL license and that you accept its terms.
  * Reference:
  * N Saitou and M Nei (1987), _Molecular Biology and Evolution_ 4(4) 406-25.
  */ 
-class NeighborJoining : public virtual AbstractAgglomerativeDistanceMethod
+class NeighborJoining :
+  public AbstractAgglomerativeDistanceMethod
 {
 	protected:
 		vector<double> _sumDist;

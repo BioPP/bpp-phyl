@@ -39,6 +39,7 @@ knowledge of the CeCILL license and that you accept its terms.
 
 #include "TreeTools.h"
 #include "Tree.h"
+#include "BipartitionTools.h"
 
 // From Utils:
 #include <Utils/TextTools.h>
@@ -48,7 +49,6 @@ knowledge of the CeCILL license and that you accept its terms.
 
 // From NumCalc:
 #include <NumCalc/VectorTools.h>
-using namespace VectorFunctions;
 
 // From the STL:
 #include <iostream>
@@ -385,20 +385,21 @@ vector<int> TreeTools::getPathBetweenAnyTwoNodes(const Tree & tree, int nodeId1,
   pathMatrix2.push_back(nodeUp); // The root.
   // Must check that the two nodes have the same root!!!
 
-  int tmp1 = pathMatrix1.size() - 1;
-  int tmp2 = pathMatrix2.size() - 1;
+  unsigned int tmp1 = pathMatrix1.size();
+  unsigned int tmp2 = pathMatrix2.size();
 
-  while((tmp1 >= 0) && (tmp2 >= 0))
+  while((tmp1 > 0) && (tmp2 > 0))
   {
-    if (pathMatrix1[tmp1] != pathMatrix2[tmp2]) break;
+    if (pathMatrix1[tmp1 - 1] != pathMatrix2[tmp2 - 1]) break;
     tmp1--; tmp2--;
   }
+  //(tmp1 - 1) and (tmp2 - 1) now point toward the first non-common nodes
 
-  for (int y = 0; y <= tmp1; ++y) path.push_back(pathMatrix1[y]);
-  if(includeAncestor) path.push_back(pathMatrix1[tmp1 + 1]); // pushing once, the Node that was common to both.
-  for (int j = tmp2; j >= 0; --j)
+  for (unsigned int y = 0; y < tmp1; ++y) path.push_back(pathMatrix1[y]);
+  if(includeAncestor) path.push_back(pathMatrix1[tmp1]); // pushing once, the Node that was common to both.
+  for (unsigned int j = tmp2; j > 0; --j)
   {
-    path.push_back(pathMatrix2[j]);
+    path.push_back(pathMatrix2[j - 1]);
   }
   return path;
 }
@@ -482,6 +483,7 @@ void TreeTools::scaleTree(Tree & tree, int nodeId, double factor) throw (NodeNot
   vector<int> nodes = getNodesId(tree, nodeId);
   for(unsigned int i = 0; i < nodes.size(); i++)
   {
+    if(!tree.hasDistanceToFather(nodes[i])) throw NodeException("TreeTools::scaleTree(). Branch with no length", nodes[i]);
     double brLen = tree.getDistanceToFather(nodes[i]) * factor;
     tree.setDistanceToFather(nodes[i], brLen);
   }
@@ -498,7 +500,7 @@ unsigned int TreeTools::initBranchLengthsGrafen(Tree & tree, int nodeId) throw (
   {
     h[i] = initBranchLengthsGrafen(tree, sons[i]);
   }
-  unsigned int thish = sons.size() == 0 ? 0 : sum<unsigned int>(h) + sons.size() - 1;
+  unsigned int thish = sons.size() == 0 ? 0 : VectorTools::sum<unsigned int>(h) + sons.size() - 1;
   for(unsigned int i = 0; i < sons.size(); i++)
   {
     tree.setDistanceToFather(sons[i], (double)(thish-h[i]));
@@ -634,6 +636,245 @@ int TreeTools::getMPNUId(const Tree & tree, int id)
   }
   //Well, all ids are from 0 to n, so send n+1: 
   return (int)ids.size();
+}
+
+/******************************************************************************/
+
+VectorSiteContainer* TreeTools::MRPEncode(const vector<Tree*> & vecTr)
+{
+  vector<BipartitionList*> vecBipL;
+
+  for(unsigned int i = 0; i < vecTr.size(); i++)
+    vecBipL.push_back(new BipartitionList(*(vecTr[i])));
+  return BipartitionTools::MRPEncode(vecBipL);
+}
+
+/******************************************************************************/
+
+bool TreeTools::haveSameTopology(const Tree & tr1, const Tree & tr2)
+{
+  unsigned int jj, nbbip;
+  BipartitionList *bipL1, *bipL2;
+  vector<int> size1, size2;
+
+	/* compare sets of leaves */
+  if(!VectorTools::haveSameElements(tr1.getLeavesNames(), tr2.getLeavesNames())) return false;
+
+	/* construct bipartitions */
+  bipL1 = new BipartitionList(tr1, true);
+  bipL1->removeTrivialBipartitions();
+  bipL1->removeRedundantBipartitions();
+  bipL1->sortByPartitionSize();
+  bipL2 = new BipartitionList(tr2, true);
+  bipL2->removeTrivialBipartitions();
+  bipL2->removeRedundantBipartitions();
+  bipL2->sortByPartitionSize();
+
+	/* compare numbers of bipartitions */
+  if(bipL1->getNumberOfBipartitions() != bipL2->getNumberOfBipartitions())
+    return false;
+  nbbip = bipL1->getNumberOfBipartitions();
+
+	/* compare partition sizes */
+  for(unsigned int i = 0; i < nbbip; i++)
+  {
+    size1.push_back(bipL1->getPartitionSize(i));
+    size2.push_back(bipL1->getPartitionSize(i));
+    if(size1[i] != size2[i]) return false;
+  }
+
+	/* compare bipartitions */
+  for(unsigned int i = 0; i < nbbip; i++)
+  {
+    for(jj = 0; jj < nbbip; jj++)
+    {
+      if(size1[i] == size2[jj] && BipartitionTools::areIdentical(*bipL1, i, *bipL2,jj))
+        break;
+    }
+    if(jj == nbbip) return false;
+  }
+
+  return true;
+}
+
+/******************************************************************************/
+
+int TreeTools::robinsonFouldsDistance(const Tree & tr1, const Tree & tr2, int* missing_in_tr2, int* missing_in_tr1, bool checkNames) throw (Exception)
+{
+  BipartitionList *bipL1, *bipL2;
+  unsigned int jj;
+  vector<int> size1, size2;
+  vector<bool> bipOK2;
+
+
+  if(checkNames && !VectorTools::haveSameElements(tr1.getLeavesNames(), tr2.getLeavesNames()))
+    throw Exception("Distinct leaf sets between trees ");
+
+	/* prepare things */
+  *missing_in_tr2 = 0;
+
+  bipL1 = new BipartitionList(tr1, true);
+  bipL1->removeTrivialBipartitions();
+  bipL1->sortByPartitionSize();
+  bipL2 = new BipartitionList(tr2, true);
+  bipL2->removeTrivialBipartitions();
+  bipL2->sortByPartitionSize();
+
+
+  for(unsigned int i = 0; i < bipL1->getNumberOfBipartitions(); i++)
+    size1.push_back(bipL1->getPartitionSize(i));
+  for(unsigned int i = 0; i < bipL2->getNumberOfBipartitions(); i++)
+    size2.push_back(bipL2->getPartitionSize(i));
+
+  for(unsigned int i = 0; i < bipL2->getNumberOfBipartitions(); i++)
+     bipOK2.push_back(false);
+
+	/* main loops */
+
+  for(unsigned int i = 0; i < bipL1->getNumberOfBipartitions(); i++)
+  {
+    for(jj = 0; jj < bipL2->getNumberOfBipartitions(); jj++)
+    {
+      if(bipOK2[jj]) continue;
+      if(size1[i] == size2[jj] && BipartitionTools::areIdentical(*bipL1, i, *bipL2, jj))
+      {
+        bipOK2[jj] = true;
+        break;
+	    }
+    }
+    if(jj == bipL2->getNumberOfBipartitions())
+      (*missing_in_tr2)++;
+  }
+
+  *missing_in_tr1 = bipL2->getNumberOfBipartitions() - bipL1->getNumberOfBipartitions() + *missing_in_tr2;
+
+  return *missing_in_tr1 + *missing_in_tr2;
+}
+
+/******************************************************************************/
+
+BipartitionList * TreeTools::bipartitionOccurrences(const vector<Tree *> & vecTr, vector<int> & bipScore)
+{
+  vector<BipartitionList *> vecBipL;
+  BipartitionList * mergedBipL;
+  vector<int> bipSize;
+  unsigned int nbBip;
+
+	/*  build and merge bipartitions */
+  for(unsigned int i = 0; i < vecTr.size(); i++)
+    vecBipL.push_back(new BipartitionList(*(vecTr[i])));
+  mergedBipL = BipartitionTools::mergeBipartitionLists(vecBipL);
+  mergedBipL->removeTrivialBipartitions();
+  nbBip=mergedBipL->getNumberOfBipartitions();
+  bipScore.clear();
+  for(unsigned int i = 0; i < nbBip; i++)
+  {
+    bipSize.push_back(mergedBipL->getPartitionSize(i));
+    bipScore.push_back(1);
+  }
+
+	/* compare bipartitions */
+  for(unsigned int i = nbBip; i > 0; i--)
+  {
+	  if(bipScore[i - 1] == 0) continue;
+    for(unsigned int j = i; j > 0; j--)
+    {
+	    if(bipScore[j - 1] && bipSize[i - 1] == bipSize[j - 1] && mergedBipL->areIdentical(i - 1, j - 1))
+      {
+        bipScore[i - 1]++;
+        bipScore[j - 1] = 0;
+      }
+    }
+  }
+
+	/* keep only distinct bipartitions */
+  for(unsigned int i = nbBip; i > 0; i--)
+  {
+    if(bipScore[i - 1] == 0)
+    {
+      bipScore.erase(bipScore.begin() + i - 1);
+      mergedBipL->deleteBipartition(i - 1);
+    }
+  }
+
+	/* add terminal branches */
+  mergedBipL->addTrivialBipartitions(false);
+  for(unsigned int i = 0; i < mergedBipL->getNumberOfElements(); i++)
+    bipScore.push_back(vecTr.size());
+
+  for(unsigned int i = 0; i < vecTr.size(); i++)
+    delete vecBipL[i];
+
+  return mergedBipL;
+}
+
+/******************************************************************************/
+
+TreeTemplate<Node> * TreeTools::thresholdConsensus(const vector<Tree *> & vecTr, double threshold, bool checkNames) throw (Exception)
+{
+  vector<int> bipScore;
+  vector<string> tr0leaves;
+  BipartitionList * bipL;
+  double score;
+
+  if(vecTr.size() == 0)
+    throw Exception("Empty vector passed");
+
+	/* check names */
+  if(checkNames)
+  {
+    tr0leaves = vecTr[0] -> getLeavesNames();
+    for(unsigned int i = 1; i < vecTr.size(); i++)
+      if(!VectorTools::haveSameElements(vecTr[i]->getLeavesNames(), tr0leaves))
+        throw Exception("Distinct leaf sets between trees");
+  }
+
+  bipL = bipartitionOccurrences(vecTr, bipScore);
+
+  for(unsigned int i = bipL->getNumberOfBipartitions(); i > 0; i--)
+  {
+    if(bipL->getPartitionSize(i - 1) == 1) continue;
+    score=(double)bipScore[i - 1] / vecTr.size();
+    if(score <= threshold && score != 1.)
+    {
+      bipL->deleteBipartition(i - 1);
+      continue;
+    }
+    if(score > 0.5) continue;
+    for(unsigned int j = bipL->getNumberOfBipartitions(); j > i; j--)
+    {
+      if(!bipL->areCompatible(i - 1, j - 1))
+      {
+        bipL->deleteBipartition(i - 1);
+        break;
+      }
+    }
+  }
+
+  TreeTemplate<Node> * tr = bipL->toTree();
+  delete bipL;
+  return tr;
+}
+
+/******************************************************************************/
+
+TreeTemplate<Node> * TreeTools::fullyResolvedConsensus(const vector<Tree *> & vecTr, bool checkNames)
+{
+  return thresholdConsensus(vecTr, 0., checkNames);
+}
+
+/******************************************************************************/
+
+TreeTemplate<Node> * TreeTools::majorityConsensus(const vector<Tree *> & vecTr, bool checkNames)
+{
+  return thresholdConsensus(vecTr, 0.5, checkNames);
+}
+
+/******************************************************************************/
+
+TreeTemplate<Node> * TreeTools::strictConsensus(const vector<Tree *> & vecTr, bool checkNames)
+{
+  return thresholdConsensus(vecTr, 1., checkNames);
 }
 
 /******************************************************************************/

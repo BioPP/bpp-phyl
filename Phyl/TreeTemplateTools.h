@@ -208,7 +208,7 @@ class TreeTemplateTools
     }
 
     /**
-     * @brief Retrieve all son nodes ids from a subtree.
+     * @brief Retrieve all nodes ids from a subtree.
      *
      * @param node The node that defines the subtree.
      * @return A vector of ids.
@@ -221,14 +221,15 @@ class TreeTemplateTools
     }
 
     /**
-     * @brief Retrieve all son nodes ids from a subtree.
+     * @brief Retrieve all nodes ids from a subtree.
      *
      * @param node The node that defines the subtree.
      * @param ids A vector of ids.
      */
     static void getNodesId(const Node & node, vector<int> & ids)
     {
-      for(unsigned int i = 0; i < node.getNumberOfSons(); i++) {
+      for(unsigned int i = 0; i < node.getNumberOfSons(); i++)
+      {
         getNodesId(* node.getSon(i), ids);
       }
       ids.push_back(node.getId());

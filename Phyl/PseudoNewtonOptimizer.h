@@ -1,7 +1,7 @@
 //
 // File: PseudoNewtonOptimizer.h
 // Created by; Julien Dutheil
-// Created on: ue Nov 16 11:52 2004
+// Created on: Tue Nov 16 11:52 2004
 //
 
 /*
@@ -53,10 +53,12 @@ knowledge of the CeCILL license and that you accept its terms.
  * Felsenstein and Churchill's (1996) correction is applied when new trial as a likelihood
  * lower than the starting point.
  */
-class PseudoNewtonOptimizer : public AbstractOptimizer
+class PseudoNewtonOptimizer:
+  public AbstractOptimizer
 {
   public:
-    class PNStopCondition: public AbstractOptimizationStopCondition
+    class PNStopCondition:
+      public AbstractOptimizationStopCondition
     {
       public:
         PNStopCondition(PseudoNewtonOptimizer * pno):
@@ -76,11 +78,15 @@ class PseudoNewtonOptimizer : public AbstractOptimizer
 
 		ParameterList _previousPoint; // Current point is in _parameters
 
-		double _currentValue, _previousValue;
+		double _previousValue;
 
 		unsigned int _n; // Number of parameters
 
 		vector<string> _params; // All parameter names
+
+    string _mode;
+
+    double _maxCorrection;
 
 	public:
 
@@ -96,14 +102,15 @@ class PseudoNewtonOptimizer : public AbstractOptimizer
 		 *
 		 * @{
 		 */
-		void init(const ParameterList & params) throw (Exception);
-
-		double step() throw (Exception);
-
-		double optimize() throw (Exception);
-
 		double getFunctionValue() const throw (NullPointerException) { return _currentValue; }
 		/** @} */
+
+		void doInit(const ParameterList & params) throw (Exception);
+
+		double doStep() throw (Exception);
+
+    void setMaximumNumberOfCorrections(unsigned int mx) { _maxCorrection = mx; }
+
 };
 
 #endif //_PSEUDONEWTONOPTIMIZER_H_

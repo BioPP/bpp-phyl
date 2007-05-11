@@ -45,8 +45,15 @@ knowledge of the CeCILL license and that you accept its terms.
 #include "AbstractHomogeneousTreeLikelihood.h"
 #include "DRHomogeneousTreeLikelihood.h"
 #include "NNIHomogeneousTreeLikelihood.h"
+#include "ClockTreeLikelihood.h"
 #include "NNITopologySearch.h"
 #include "DRTreeParsimonyScore.h"
+#include "TreeTemplate.h"
+#include "DistanceEstimation.h"
+#include "AgglomerativeDistanceMethod.h"
+
+// From NumCalc:
+#include <NumCalc/SimpleNewtonMultiDimensions.h>
 
 // From the STL:
 #include <iostream>
@@ -82,6 +89,45 @@ class NNITopologyListener:
 
 };
 
+
+
+
+
+
+/**
+ * @brief Listener used internally by the optimizeNumericalParametersWithGlobalClock method.
+ */
+class ClockOptimizationListener:
+  public OptimizationListener
+{
+  protected:
+    ClockTreeLikelihood * _likelihood;
+
+  public:
+    ClockOptimizationListener(ClockTreeLikelihood * lk): _likelihood(lk) {}
+    virtual ~ClockOptimizationListener() {}
+
+  public:
+
+    void optimizationInitializationPerformed(const OptimizationEvent & event)
+    {
+      _likelihood->updateHeightsConstraints();
+    }
+
+    void optimizationStepPerformed(const OptimizationEvent & event)
+    {
+      _likelihood->updateHeightsConstraints();
+    }
+
+    bool listenerModifiesParameters() const { return false; }
+
+};
+
+
+
+
+
+
 /**
  * @brief Optimization methods for phylogenetic inference.
  *
@@ -109,7 +155,8 @@ class OptimizationTools
 		 * @see NewtonBrentMetaOptimizer
 		 *
 		 * @param tl             A pointer toward the TreeLikelihood object to optimize.
-     * @param nstep          The number of progressive step to perform (see NewtonBrentMetaOptimizer). 1 means full precision from start.
+     * @param listener       A pointer toward an optimization listener, if needed.
+     * @param nstep          The number of progressive steps to perform (see NewtonBrentMetaOptimizer). 1 means full precision from start.
 		 * @param tolerance      The tolerance to use in the algorithm.
 		 * @param tlEvalMax      The maximum number of function evaluations.
 		 * @param messageHandler The massage handler.
@@ -119,6 +166,7 @@ class OptimizationTools
 		 */
 		static int optimizeNumericalParameters(
 			DiscreteRatesAcrossSitesTreeLikelihood * tl,
+      OptimizationListener * listener = NULL,
       unsigned int nstep = 1,
 			double tolerance = 0.000001,
 			int tlEvalMax = 1000000,
@@ -137,6 +185,7 @@ class OptimizationTools
 		 * @see FivePointsNumericalDerivative
 		 *
 		 * @param tl             A pointer toward the TreeLikelihood object to optimize.
+     * @param listener       A pointer toward an optimization listener, if needed.
      * @param method         Numerical derivative computation method. Must be one of "3points" or "5points", otherwise an exception is thrown.
 		 * @param tolerance      The tolerance to use in the algorithm.
 		 * @param tlEvalMax      The maximum number of function evaluations.
@@ -147,6 +196,7 @@ class OptimizationTools
 		 */
 		static int optimizeNumericalParameters2(
 			DiscreteRatesAcrossSitesTreeLikelihood * tl,
+      OptimizationListener * listener = NULL,
       string method = "3points",
 			double tolerance = 0.000001,
 			int tlEvalMax = 1000000,
@@ -181,6 +231,69 @@ class OptimizationTools
 			unsigned int verbose = 1)
 			throw (Exception);
 		
+		/**
+		 * @brief Optimize numerical parameters assuming a global clock (branch heights, substitution model & rate distribution) of a ClockTreeLikelihood function.
+		 *
+		 * Uses the special ClockMetaOptimizer.
+		 *
+		 * @see ClockMetaOptimizer
+		 * @see ThreePointsNumericalDerivative
+		 * @see FivePointsNumericalDerivative
+		 *
+		 * @param cl             A pointer toward the ClockTreeLikelihood object to optimize.
+     * @param nstep          The number of progressive steps to perform (see NewtonBrentMetaOptimizer). 1 means full precision from start.
+     * @param method         Numerical derivative computation method. Must be one of "3points" or "5points", otherwise an exception is thrown.
+		 * @param tolerance      The tolerance to use in the algorithm.
+		 * @param tlEvalMax      The maximum number of function evaluations.
+		 * @param messageHandler The massage handler.
+		 * @param profiler       The profiler.
+		 * @param verbose        The verbose level.
+		 * @throw Exception any exception thrown by the Optimizer.
+		 */
+		static int optimizeNumericalParametersWithGlobalClock(
+			ClockTreeLikelihood * tl,
+      unsigned int nstep = 1,
+      string method = "3points",
+			double tolerance = 0.000001,
+			int tlEvalMax = 1000000,
+			ostream * messageHandler = &cout,
+			ostream * profiler       = &cout,
+			unsigned int verbose = 1)
+			throw (Exception);
+
+    /**
+		 * @brief Optimize numerical parameters assuming a global clock (branch heights, substitution model & rate distribution) of a ClockTreeLikelihood function.
+		 *
+		 * Uses Newton's method for node heights parameters (numerical derivative for total height)
+		 * and Brent's one dimensional method for other parameters.
+     * Due to global constraint on heights however, the algorithm may not converge and depends on the initial tree.
+     * This may happen if the final tree has branch lengths < 0.000001.
+		 *
+		 * @see PseudoNewtonOptimizer
+		 * @see ThreePointsNumericalDerivative
+		 * @see FivePointsNumericalDerivative
+		 *
+		 * @param cl             A pointer toward the ClockTreeLikelihood object to optimize.
+     * @param nstep          The number of progressive steps to perform (see NewtonBrentMetaOptimizer). 1 means full precision from start.
+     * @param method         Numerical derivative computation method. Must be one of "3points" or "5points", otherwise an exception is thrown.
+		 * @param tolerance      The tolerance to use in the algorithm.
+		 * @param tlEvalMax      The maximum number of function evaluations.
+		 * @param messageHandler The massage handler.
+		 * @param profiler       The profiler.
+		 * @param verbose        The verbose level.
+		 * @throw Exception any exception thrown by the Optimizer.
+		 */
+		static int optimizeNumericalParametersWithGlobalClock2(
+			ClockTreeLikelihood * tl,
+      unsigned int nstep = 1,
+      string method = "3points",
+			double tolerance = 0.000001,
+			int tlEvalMax = 1000000,
+			ostream * messageHandler = &cout,
+			ostream * profiler       = &cout,
+			unsigned int verbose = 1)
+			throw (Exception);
+
 	private:
 		
 		class ScaleFunction:
@@ -292,7 +405,50 @@ class OptimizationTools
 
     static DRTreeParsimonyScore * optimizeTreeNNI(
         DRTreeParsimonyScore * tp,
-        unsigned int verbose = 1);	
+        unsigned int verbose = 1);
+
+    /**
+     * @brief Build a tree using a distance method.
+     *
+     * This method estimate a distance matrix using a DistanceEstimation object, and then builds the phylogenetic tree using a AgglomerativeDistanceMethod object.
+     * The main issue here is to estimate non-branch lengths parameters, as substitution model and rate distribution parameters.
+     * Three options are provideed here:
+     * - DISTANCEMETHOD_INIT (default) keep parameters to there initial value,
+     * - DISTANCEMETHOD_PAIRWISE estimated parameters in a pairwise manner, which is standard but not good at all...
+     * - DISTANCEMETHOD_ITERATIONS uses Ninio et al's iterative algorithm, which uses Maximum Likelihood to estimate these parameters, and then update the distance matrix.
+     * Ninio M, Privman E, Pupko T, Friedman N.	
+     * Phylogeny reconstruction: increasing the accuracy of pairwise distance estimation using Bayesian inference of evolutionary rates.
+     * Bioinformatics. 2007 Jan 15;23(2):e136-41.
+     *
+     * @param estimationMethod The distance estimation object to use.
+     * @param reconstructionMethod The tree reconstruction object to use.
+     * @param parametersToIgnore A list of parameters to ignore while optimizing parameters.
+     * @param optimizeBrLen Tell if branch lengths should be optimized together with other parameters. This may lead to more accurate parameter estimation, but is slower.
+     * @param rooted Tell if rooted trees must be produced.
+     * @param param String describing the type of optimization to use.
+     * @param tolerance Threshold on likelihood for stopping the iterative procedure. Used only with param=DISTANCEMETHOD_ITERATIONS.
+     * @param tlEvalMax Maximum number of likelihood computations to perform when optimizing parameters. Used only with param=DISTANCEMETHOD_ITERATIONS.
+     * @param profiler Output stream used by optimizer. Used only with param=DISTANCEMETHOD_ITERATIONS.
+     * @param messenger Output stream used by optimizer. Used only with param=DISTANCEMETHOD_ITERATIONS.
+     * @param verbose Verbose level.
+     */
+    static TreeTemplate<Node> * buildDistanceTree(
+        DistanceEstimation & estimationMethod,
+        AgglomerativeDistanceMethod & reconstructionMethod,
+        const ParameterList & parametersToIgnore,
+        bool optimizeBrLen = false,
+        bool rooted = false,
+        const string & param = DISTANCEMETHOD_INIT,
+        double tolerance = 0.000001,
+        unsigned int tlEvalMax = 1000000,
+        ostream * profiler = NULL,
+        ostream * messenger = NULL,
+        unsigned int verbose = 0) throw (Exception);
+
+  public:
+    static string DISTANCEMETHOD_INIT;
+    static string DISTANCEMETHOD_PAIRWISE;
+    static string DISTANCEMETHOD_ITERATIONS;
 };
 
 

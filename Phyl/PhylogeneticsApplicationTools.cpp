@@ -444,11 +444,11 @@ DiscreteDistribution * PhylogeneticsApplicationTools::getRateDistribution(
 			if(verbose)
       {
 				ApplicationTools::displayResult("Rate distribution", distributionType);
-				ApplicationTools::displayResult("shape", TextTools::toString((dynamic_cast<GammaDiscreteDistribution *>(rDist)) -> getParameterValue("alpha")));
-				ApplicationTools::displayResult("# classes", TextTools::toString(rDist -> getNumberOfCategories()));
+				ApplicationTools::displayResult("Shape (alpha)", TextTools::toString((dynamic_cast<GammaDiscreteDistribution *>(rDist)) -> getParameterValue("alpha")));
+				ApplicationTools::displayResult("Number of classes", TextTools::toString(rDist -> getNumberOfCategories()));
 				for(unsigned int c = 0; c < rDist -> getNumberOfCategories(); c++)
         {
-					ApplicationTools::displayResult("* Category " + TextTools::toString(c)
+					ApplicationTools::displayResult("- Category " + TextTools::toString(c)
 					+ "(rate = " + TextTools::toString(rDist -> getCategory(c))
 					+ "), prob = ", TextTools::toString(rDist -> getProbability(c)));
 				}
@@ -580,6 +580,7 @@ TreeLikelihood * PhylogeneticsApplicationTools::optimizeParameters(
 	  if(verbose && nstep > 1) ApplicationTools::displayResult("# of precision steps", TextTools::toString(nstep));
     n = OptimizationTools::optimizeNumericalParameters(
 		  dynamic_cast<AbstractHomogeneousTreeLikelihood *>(tl),
+      NULL,
       nstep,
 			tolerance,
 			nbEvalMax,
@@ -592,6 +593,7 @@ TreeLikelihood * PhylogeneticsApplicationTools::optimizeParameters(
     //Uses Newton-raphson alogrithm with numerical derivatives when required.
     n = OptimizationTools::optimizeNumericalParameters2(
 			dynamic_cast<AbstractHomogeneousTreeLikelihood *>(tl),
+      NULL,
       "3points",
 			tolerance,
 			nbEvalMax,

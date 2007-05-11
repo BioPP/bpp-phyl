@@ -42,7 +42,6 @@ knowledge of the CeCILL license and that you accept its terms.
 //From NumCalc:
 #include <NumCalc/MatrixTools.h>
 #include <NumCalc/VectorTools.h>
-using namespace VectorFunctions;
 using namespace VectorOperators;
 #include <NumCalc/EigenValue.h>
 
@@ -60,11 +59,11 @@ void MarkovModulatedSubstitutionModel::updateMatrices()
   MatrixTools::add(_generator, MatrixTools::kroneckerMult(_ratesGenerator, MatrixTools::getId< RowMatrix<double> >(_nbStates))      );
   _exchangeability = MatrixTools::kroneckerMult(MatrixTools::mult(_rates, MatrixTools::diag< RowMatrix<double> >(1./_ratesFreq)),_model->getExchangeabilityMatrix());
   MatrixTools::add(_exchangeability, MatrixTools::kroneckerMult(_ratesExchangeability, MatrixTools::diag< RowMatrix<double> >(1/_model->getFrequencies())));
-  _freq            = VectorFunctions::kroneckerMult(_ratesFreq, _model->getFrequencies());
+  _freq            = VectorTools::kroneckerMult(_ratesFreq, _model->getFrequencies());
 	if(_normalizeRateChanges)
   {
     // Normalization:
-	  double scale = -scalar(MatrixTools::diag<RowMatrix<double>, double>(_generator), _freq);
+	  double scale = -VectorTools::scalar(MatrixTools::diag<RowMatrix<double>, double>(_generator), _freq);
     MatrixTools::scale(_generator, 1./scale);
 
     // Normalize exchangeability matrix too:
@@ -108,25 +107,25 @@ void MarkovModulatedSubstitutionModel::updateMatrices()
 
 RowMatrix<double> MarkovModulatedSubstitutionModel::getPij_t(double t) const
 {
-	if(t==0) return MatrixTools::getId< RowMatrix<double> >(_nbStates * _nbRates);
-  return MatrixTools::mult(_rightEigenVectors, exp(_eigenValues*t), _leftEigenVectors);
+	if(t == 0) return MatrixTools::getId< RowMatrix<double> >(_nbStates * _nbRates);
+  return MatrixTools::mult(_rightEigenVectors, VectorTools::exp(_eigenValues*t), _leftEigenVectors);
 }
 
 RowMatrix<double> MarkovModulatedSubstitutionModel::getdPij_dt(double t) const
 {
-	return MatrixTools::mult(_rightEigenVectors, _eigenValues * exp(_eigenValues*t), _leftEigenVectors);
+	return MatrixTools::mult(_rightEigenVectors, _eigenValues * VectorTools::exp(_eigenValues*t), _leftEigenVectors);
 }
 
 RowMatrix<double> MarkovModulatedSubstitutionModel::getd2Pij_dt2(double t) const
 {
-	return MatrixTools::mult(_rightEigenVectors, sqr(_eigenValues) * exp(_eigenValues*t), _leftEigenVectors);
+	return MatrixTools::mult(_rightEigenVectors, sqr(_eigenValues) * VectorTools::exp(_eigenValues*t), _leftEigenVectors);
 }
 
 /******************************************************************************/
 
 double MarkovModulatedSubstitutionModel::getInitValue(int i, int state) const throw (BadIntException)
 {
-	if(i < 0 || i > (int)(_nbStates*_nbRates)) throw BadIntException(i, "AbstractSubstitutionModel::getInitValue");
+	if(i < 0 || i > (int)(_nbStates*_nbRates)) throw BadIntException(i, "MarkovModulatedSubstitutionModel::getInitValue");
 	if(state < 0 || !_model->getAlphabet()->isIntInAlphabet(state)) throw BadIntException(state, "MarkovModulatedSubstitutionModel::getInitValue. Character " + _model->getAlphabet()->intToChar(state) + " is not allowed in model.");
 	vector<int> states = _model->getAlphabet()->getAlias(state);
   int x = i % _nbStates;

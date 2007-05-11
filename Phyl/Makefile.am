@@ -87,7 +87,10 @@ MarkovModulatedSubstitutionModel.h\
 G2001.h\
 TS98.h\
 NNIHomogeneousTreeLikelihood.h\
-ClockTreeLikelihood.h
+ClockTreeLikelihood.h\
+ClockMetaOptimizer.h\
+BipartitionList.h\
+BipartitionTools.h
 
 
 CPP_FILES = \
@@ -148,7 +151,10 @@ IODistanceMatrixFactory.cpp\
 F84.cpp\
 MarkovModulatedSubstitutionModel.cpp\
 NNIHomogeneousTreeLikelihood.cpp\
-ClockTreeLikelihood.cpp
+ClockTreeLikelihood.cpp\
+ClockMetaOptimizer.cpp\
+BipartitionList.cpp\
+BipartitionTools.cpp
 
 CPP_EXTRA = \
 __DSO78FrequenciesCode\

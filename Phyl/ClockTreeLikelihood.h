@@ -45,24 +45,33 @@ knowledge of the CeCILL license and that you accept its terms.
 #include <NumCalc/ParameterList.h>
 
 /**
- *@brief This class...
+ *@brief Likelihood computation with a global clock.
  *
  * This class overrides the DRHomogeneousTreeLikelihood class, and change the branch length parameters
  * wich are the heights of the ancestral nodes.
- * First and second order derivatives for these parameters are provided.
+ * Heights are coded as percentage (HeightP) of the total height (TotalHeight).
+ * First and second order derivatives for HeightP parameters are provided.
  * The tree must be rooted and fully resolved (no multifurcation).
  *
+ * Constraint on parameters HeightP are of clas IncludingInterval, initially set to [0,1].
+ * A given height however has to be lower than the height of father node, and higher than the
+ * height of is nearest son.
+ * In case of 'conflict' between heights, they will be resolved by the computeBranchLengthsFromHeights method,
+ * which is called by the re-defined applyParameters method, or by the adjustHeights method, if only
+ * one height is modified.
+ * Modifiying one height may hence modify other height parameters, which forbids the use of one-dimension optimizers.
+ * Constraints may also be set to the [nearest son, father] interval to inhibate this behavior.
+ * This is done by calling the updateHeightsConstraints method.
+ * This method is typically embded in a OptimizationListener, to be called after each optimization step. 
+ * Initial constraints ([0,1]) may be restored by calling the resetHeightsConstraints method.
  */
 class ClockTreeLikelihood:
   public DRHomogeneousTreeLikelihood
 {
-  public:
-    static IncludingInterval PERCENT_CONSTRAINT;
-
   protected:
-    map<const Node *, double> _previousHeights;
-    double _previousTotalHeight;
     ParameterList _totalHeightParameter;
+    vector<Interval *> _heightConstraints;
+    mutable ParameterList _conflictingParameters;
 
   public:
     /**
@@ -115,11 +124,11 @@ class ClockTreeLikelihood:
 
     ClockTreeLikelihood * clone() const { return new ClockTreeLikelihood(* this); }
 
-    virtual ~ClockTreeLikelihood() {}
+    virtual ~ClockTreeLikelihood();
 
   public:
 
-    /**i
+    /**
      * @brief Method called by constructor.
      */
     void init();
@@ -143,16 +152,36 @@ class ClockTreeLikelihood:
     void computeTreeD2Likelihoods();
     /** @} */
     ParameterList getTotalHeightParameter() const throw (Exception);
+    void updateHeightsConstraints();
+    void resetHeightsConstraints();
+    ParameterList getConflictingParameters() const
+    {
+      _conflictingParameters.matchParametersValues(_parameters);
+      return _conflictingParameters;
+    }
 
   protected:
 
     /**
-     * @brief
+     * @brief Update all lengths according to parameter values.
+     * 
+     * Conflicting heights will be resolved arbitrarily.
      *
-     * @param node ...
-     * @param outputParameters ...
+     * NB: This is a recursive method.
+     * @param node Current node.
+     * @return Current height.
+     * @throw Exception If something unexpected happened.
      */
     double computeBranchLengthsFromHeights(Node * node) throw (Exception);
+
+    //[0,1]
+    void resetHeightsConstraints(const Node * node);
+    double updateHeightsConstraints(const Node * node);
+    
+    void adjustHeightsUp(const Node * node, double height);
+    void adjustHeightsDown(const Node * node, double height);
+    void adjustHeightsUp2(const Node * node, double ratio);
+    void adjustHeightsDown2(const Node * node, double ratio);
 
 };
 

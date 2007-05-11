@@ -309,11 +309,11 @@ void TwoTreeLikelihood::initBranchLengthsParameters()
 {
 	if (_brLen <= 0)
   {
-		cout << "WARNING!!! Branch length is < 0. Value is set to 0." << endl;
-		_brLen = 0.;
+		cout << "WARNING!!! Branch length is < 0. Value is set to 0.000001" << endl;
+		_brLen = 0.000001;
 	}
 	_brLenParameters.reset();
-	_brLenParameters.addParameter(Parameter("BrLen", _brLen, & Parameter::R_PLUS));
+	_brLenParameters.addParameter(Parameter("BrLen", _brLen, & Parameter::R_PLUS_STAR));
 }
 
 /******************************************************************************/
@@ -653,10 +653,10 @@ void DistanceEstimation::computeMatrix() throw (NullPointerException)
 	for(unsigned int i = 0; i < n; i++)
   {
 		(* _dist)(i, i) = 0;
-		if(_verbose > 0) { ApplicationTools::displayGauge(i, n-1, '>'); }
+		if(_verbose == 1) { ApplicationTools::displayGauge(i, n-1, '='); }
 		for(unsigned int j = i + 1; j < n; j++)
     {
-			if(_verbose > 1) { cout << "."; cout.flush(); }
+			if(_verbose > 1) { ApplicationTools::displayGauge(i, n-1, '='); }
 			TwoTreeLikelihood * lik = 
 				new TwoTreeLikelihood(names[i], names[j], *_sites, _model, _rateDist, _verbose > 3);
       lik->initialize();
@@ -667,8 +667,8 @@ void DistanceEstimation::computeMatrix() throw (NullPointerException)
 			unsigned int g = SymbolListTools::getNumberOfPositionsWithoutGap(* seqi, * seqj);
 			lik->setParameterValue("BrLen", g == 0 ? 0 : (double)d/(double)g);
 			// Optimization:
-			_optimizer->setConstraintPolicy(AutoParameter::CONSTRAINTS_AUTO);
 			_optimizer->setFunction(lik);
+			_optimizer->setConstraintPolicy(AutoParameter::CONSTRAINTS_AUTO);
 			ParameterList params = lik->getBranchLengthsParameters();
 			params.addParameters(_parameters);
 			_optimizer->init(params);

@@ -45,7 +45,6 @@ knowledge of the CeCILL license and that you accept its terms.
 
 //From NumCalc:
 #include <NumCalc/VectorTools.h>
-using namespace VectorFunctions;
 
 // From the STL:
 #include <cmath>
@@ -143,7 +142,7 @@ void NNITopologySearch::searchBetter() throw (Exception)
 		if(_verbose >= 2) ApplicationTools::displayTask("Test all possible NNIs...");
 		
 		vector<Node *> nodesSub = nodes;
-		for(unsigned int i = nodesSub.size(); i>0; i--)
+		for(unsigned int i = nodesSub.size(); i > 0; i--)
     {// !!! must not reach i==0 because of unsigned int
 			if(!(nodesSub[i-1]->hasFather())) nodesSub.erase(nodesSub.begin()+i-1);//Remove root node.	
 			else if(!(nodesSub[i-1]->getFather()->hasFather())) nodesSub.erase(nodesSub.begin()+i-1);//Remove son of root node.	
@@ -174,7 +173,7 @@ void NNITopologySearch::searchBetter() throw (Exception)
 		test = improving.size() > 0;
 		if(test)
     {
-			unsigned int nodeMin = posmin(improvement);
+			unsigned int nodeMin = VectorTools::posmin(improvement);
 			Node * node = improving[nodeMin];
 			if(_verbose >= 1)
       {

@@ -477,7 +477,7 @@ void TreeTemplateTools::setVoidBranchLengths(Node & node, double brLen)
 
 void TreeTemplateTools::scaleTree(Node & node, double factor) throw (NodeException)
 {
-  if(!node.hasDistanceToFather()) throw NodeException("TreeTools::scaleTree(). Branch with no length", &node);
+  if(!node.hasDistanceToFather()) throw NodeException("TreeTemplateTools::scaleTree(). Branch with no length", &node);
   node.setDistanceToFather(node.getDistanceToFather() * factor);
   for(unsigned int i = 0; i < node.getNumberOfSons(); i++)
   {

@@ -44,10 +44,6 @@ using namespace std;
 
 /******************************************************************************/
 
-IncludingInterval ClockTreeLikelihood::PERCENT_CONSTRAINT(0.0,1.0);
-
-/******************************************************************************/
-
 ClockTreeLikelihood::ClockTreeLikelihood(
   const Tree & tree,
   SubstitutionModel * model,
@@ -77,12 +73,19 @@ throw (Exception):
 
 /******************************************************************************/
 
+ClockTreeLikelihood::~ClockTreeLikelihood()
+{
+  //Delete previous contraints:
+  for(unsigned int i = 0; i < _heightConstraints.size(); i++) delete _heightConstraints[i];
+}
+
+/******************************************************************************/
+
 void ClockTreeLikelihood::init()
 {
-  //Check is the tree is rooted:
+  //Check is ithe tree is rooted:
   if(!_tree->isRooted()) throw Exception("ClockTreeLikelihood::init(). Tree is unrooted!");
   if(TreeTemplateTools::isMultifurcating(*_tree->getRootNode())) throw Exception("ClockTreeLikelihood::init(). Tree is multifurcating.");
-  TreeTools::convertToClockTree(*_tree, _tree->getRootId(), true);
 }
 
 /******************************************************************************/
@@ -91,9 +94,13 @@ void ClockTreeLikelihood::applyParameters() throw (Exception)
 {
   if(!_initialized) throw Exception("ClockTreeLikelihood::applyParameters(). Object not initialized.");
    //Apply branch lengths:
-  TreeTemplateTools::getHeights(* _tree->getRootNode(), _previousHeights);
-  _previousTotalHeight = _previousHeights[_tree->getRootNode()];
+  _conflictingParameters.reset();
+  _brLenParameters.matchParametersValues(_parameters);
+  _totalHeightParameter.matchParametersValues(_parameters);
   computeBranchLengthsFromHeights(_tree->getRootNode());
+  //Update parameters in cas of global constraints:
+  _parameters.matchParametersValues(_brLenParameters);
+
   //Apply substitution model parameters:
   _model->matchParametersValues(_parameters);
   //Apply rate distribution parameters:
@@ -120,22 +127,28 @@ void ClockTreeLikelihood::initBranchLengthsParameters()
       {
         cout << "WARNING!!! Branch length " << i << " is too small: " << d << ". Value is set to " << _minimumBrLen << endl;
         _nodes[i]->setDistanceToFather(_minimumBrLen);
-        d = _minimumBrLen;
       }
     }
   }
 
   _brLenParameters.reset();
   _totalHeightParameter.reset();
+
+  //Delete previous contraints:
+  for(unsigned int i = 0; i < _heightConstraints.size(); i++) delete _heightConstraints[i];
+  _heightConstraints.clear();
+
   map<const Node *, double> heights;
   TreeTemplateTools::getHeights(*_tree->getRootNode(), heights);
   double totalHeight = heights[_tree->getRootNode()];
   _totalHeightParameter.addParameter(Parameter("TotalHeight", totalHeight, _brLenConstraint)); 
-   for(map<const Node *, double>::iterator it = heights.begin(); it != heights.end(); it++)
+  for(map<const Node *, double>::iterator it = heights.begin(); it != heights.end(); it++)
   {
     if(!it->first->isLeaf() && it->first->hasFather())
     {
-      _brLenParameters.addParameter(Parameter("HeightP" + TextTools::toString(it->first->getId()), it->second / totalHeight, &PERCENT_CONSTRAINT));
+      Interval * constraint =  new IncludingInterval(0.,1.);
+      _heightConstraints.push_back(constraint);
+      _brLenParameters.addParameter(Parameter("HeightP" + TextTools::toString(it->first->getId()), it->second / totalHeight, constraint, false));
     }
   }
 }
@@ -144,56 +157,237 @@ void ClockTreeLikelihood::initBranchLengthsParameters()
 
 double ClockTreeLikelihood::computeBranchLengthsFromHeights(Node * node) throw (Exception)
 {
-  double minimumBrLenP = _minimumBrLen / _previousTotalHeight;
-  if(node->isLeaf()) return minimumBrLenP;
-  double totalHeight = _parameters.getParameter("TotalHeight")->getValue();
-  //Compute bounds:
-  double previousFatherHeightP = 1.;
-  if(node->hasFather())
-  {
-    Node * father = node->getFather();
-    previousFatherHeightP = _previousHeights[father] / _previousTotalHeight;
-  }
+  if(node->isLeaf()) return 0.;
+  
+  double totalHeight = _totalHeightParameter[0]->getValue();
   double nodeHeightP = 1.;
-
-  //This parameter:
-  if(node->hasFather())
+  if(node->hasFather()) //Not the root node
   {
-    Parameter * p = _parameters.getParameter(string("HeightP") + TextTools::toString(node->getId()));
-    if(p == NULL) throw Exception("ClockTreeLikelihood::computeBranchLengthsFromHeights(). Parameter " + string("HeightP") + TextTools::toString(node->getId()) + " was not found."); 
+    double fatherHeightP = 1.;
+    if(node->getFather()->hasFather())
+    {
+      Node * father = node->getFather();
+      Parameter * pp = _brLenParameters.getParameter(string("HeightP") + TextTools::toString(father->getId()));
+      if(pp == NULL) throw Exception("ClockTreeLikelihood::computeBranchLengthsFromHeights(). Parameter HeightP" + TextTools::toString(father->getId()) + " was not found."); 
+      fatherHeightP = pp->getValue();
+    }
+
+    //This parameter:
+    Parameter * p = _brLenParameters.getParameter(string("HeightP") + TextTools::toString(node->getId()));
+    if(p == NULL) throw Exception("ClockTreeLikelihood::computeBranchLengthsFromHeights(). Parameter HeightP" + TextTools::toString(node->getId()) + " was not found."); 
     nodeHeightP = p->getValue();
 
-    if(nodeHeightP > previousFatherHeightP - minimumBrLenP)
-    {
-      p->setValue(previousFatherHeightP - minimumBrLenP);
-      //cout << "TOO LARGE: " << node->getId() << "\t" << nodeHeight << "\t" << previousFatherHeight << endl;
-      nodeHeightP = previousFatherHeightP - minimumBrLenP;
-    }
-    double maxSonHeightP = minimumBrLenP;
+    double maxSonHeightP = 0.;
     for(unsigned int i = 0; i < node->getNumberOfSons(); i++)
     {
       Node * son = node->getSon(i);
       if(!son->isLeaf())
       {
-        double previousSonHeightP = _previousHeights[son] / _previousTotalHeight;
-        if(previousSonHeightP > maxSonHeightP) maxSonHeightP = previousSonHeightP;
+        Parameter * ps = _brLenParameters.getParameter(string("HeightP") + TextTools::toString(son->getId()));
+        if(ps == NULL) throw Exception("ClockTreeLikelihood::computeBranchLengthsFromHeights(). Parameter " + string("HeightP") + TextTools::toString(son->getId()) + " was not found."); 
+        double sonHeightP = ps->getValue();
+        if(sonHeightP > maxSonHeightP)
+          maxSonHeightP = sonHeightP;
       }
     }
-    if(nodeHeightP < maxSonHeightP + minimumBrLenP)
+    if(nodeHeightP < maxSonHeightP)
     {
-      p->setValue(maxSonHeightP + minimumBrLenP);
-      //cout << "TOO SMALL: " << node->getId() << "\t" << nodeHeight << "\t" << maxSonHeight << endl;
-      nodeHeightP = maxSonHeightP + minimumBrLenP;
+      //throw Exception("ClockTreeLikelihood::computeBranchLengthsFromHeights(). Height " + TextTools::toString(node->getId()) + " is to small: " + TextTools::toString(nodeHeightP));
+      //Conflict: setting height in between...
+      //Height of son will be adjusted after recursive call.
+      nodeHeightP = (maxSonHeightP + nodeHeightP) / 2.;
+      p->setValue(nodeHeightP);
+      if(_conflictingParameters.getParameter(p->getName()) == NULL)
+        _conflictingParameters.addParameter(*p);
+    }
+    if(nodeHeightP > fatherHeightP)
+    {
+      //throw Exception("ClockTreeLikelihood::computeBranchLengthsFromHeights(). Height " + TextTools::toString(node->getId()) + " is to large:" + TextTools::toString(nodeHeightP));
+      nodeHeightP = fatherHeightP;
+      p->setValue(nodeHeightP);
+      if(_conflictingParameters.getParameter(p->getName()) == NULL)
+        _conflictingParameters.addParameter(*p);
     }
   }
-
-  //Recursive call:
+  
   for(unsigned int i = 0; i < node->getNumberOfSons(); i++)
   {
     Node * son = node->getSon(i);
+    //Recursive call
     double sonHeightP = computeBranchLengthsFromHeights(son);
-    son->setDistanceToFather(std::max(_minimumBrLen, (nodeHeightP - sonHeightP) * totalHeight));
+    double d = (nodeHeightP - sonHeightP) * totalHeight;
+    if(d < _minimumBrLen) 
+    {
+      //cerr << "DEBUG: node=" << son->getId() << "\t" << d << endl;
+      d = _minimumBrLen;
+    }
+    son->setDistanceToFather(d);
   }
+
+  //Return the height for this node
+  return nodeHeightP;
+}
+
+/******************************************************************************/
+
+void ClockTreeLikelihood::adjustHeightsUp(const Node *node, double height)
+{
+  if(!node->hasFather()) return;
+  if(!node->getFather()->hasFather()) return;
+  const Node *father = node->getFather();
+
+  //Father parameter:
+  Parameter * pp = _brLenParameters.getParameter(string("HeightP") + TextTools::toString(father->getId()));
+  if(pp == NULL) throw Exception("ClockTreeLikelihood::adjustHeightsUp(). Parameter HeightP" + TextTools::toString(father->getId()) + " was not found."); 
+  double fatherHeightP = pp->getValue();
+  if(fatherHeightP < height)
+  {
+    fatherHeightP = height;
+    pp->setValue(fatherHeightP);
+  }
+  adjustHeightsUp(father, fatherHeightP);
+}
+
+void ClockTreeLikelihood::adjustHeightsDown(const Node *node, double height)
+{
+  for(unsigned int i = 0; i < node->getNumberOfSons(); i++)
+  {
+    const Node *son = node->getSon(i);
+    if(!son->isLeaf())
+    {
+      Parameter * ps = _brLenParameters.getParameter(string("HeightP") + TextTools::toString(son->getId()));
+      if(ps == NULL) throw Exception("ClockTreeLikelihood::adjustHeightsUp(). Parameter HeightP" + TextTools::toString(son->getId()) + " was not found."); 
+      double sonHeightP = ps->getValue();
+
+      if(sonHeightP > height)
+      {
+        sonHeightP = height;
+        ps->setValue(sonHeightP);
+      }
+      adjustHeightsDown(son, sonHeightP);
+    }
+  }
+}
+
+void ClockTreeLikelihood::adjustHeightsUp2(const Node *node, double ratio)
+{
+  if(!node->hasFather()) return;
+  if(!node->getFather()->hasFather()) return;
+  const Node *father = node->getFather();
+
+  //Father parameter:
+  Parameter * pp = _brLenParameters.getParameter(string("HeightP") + TextTools::toString(father->getId()));
+  if(pp == NULL) throw Exception("ClockTreeLikelihood::adjustHeightsUp(). Parameter HeightP" + TextTools::toString(father->getId()) + " was not found."); 
+  double fatherHeightP = pp->getValue();
+  fatherHeightP = 1. - (1. - fatherHeightP) * ratio; 
+  pp->setValue(fatherHeightP);
+  adjustHeightsUp2(father, ratio);
+}
+
+void ClockTreeLikelihood::adjustHeightsDown2(const Node *node, double ratio)
+{
+  for(unsigned int i = 0; i < node->getNumberOfSons(); i++)
+  {
+    const Node *son = node->getSon(i);
+    if(!son->isLeaf())
+    {
+      //Son parameter:
+      Parameter * ps = _brLenParameters.getParameter(string("HeightP") + TextTools::toString(son->getId()));
+      if(ps == NULL) throw Exception("ClockTreeLikelihood::adjustHeightsUp(). Parameter HeightP" + TextTools::toString(son->getId()) + " was not found."); 
+      double sonHeightP = ps->getValue();
+      sonHeightP = sonHeightP * ratio; 
+      ps->setValue(sonHeightP);
+      adjustHeightsDown2(son, ratio);
+    }
+  }
+}
+
+/******************************************************************************/
+
+void ClockTreeLikelihood::resetHeightsConstraints()
+{
+  resetHeightsConstraints(_tree->getRootNode());
+}
+
+/******************************************************************************/
+
+void ClockTreeLikelihood::updateHeightsConstraints()
+{
+  updateHeightsConstraints(_tree->getRootNode());
+}
+
+/******************************************************************************/
+
+void ClockTreeLikelihood::resetHeightsConstraints(const Node * node)
+{
+  if(node->isLeaf()) return;
+
+  for(unsigned int i = 0; i < node->getNumberOfSons(); i++)
+  {
+    //Recursive call
+    const Node * son = node->getSon(i);
+    resetHeightsConstraints(son);
+  }
+
+  if(node->hasFather()) //Not the root node
+  {
+    Parameter * p = _brLenParameters.getParameter(string("HeightP") + TextTools::toString(node->getId()));
+    if(p == NULL) throw Exception("ClockTreeLikelihood::updateHeightsConstraints(). Parameter HeightP" + TextTools::toString(node->getId()) + " was not found."); 
+    //Height is bound by the height of the father node from one side,
+    //and the height of the closest descendant from the other side.
+    //For optimization reason however, we allow them a minimum range of 2%.
+    //Additionally, heights must be within range [0,1] (proportion of total height).
+    Interval * constraint = dynamic_cast<Interval *>(p->getConstraint());
+    constraint->setLowerBound(0.);
+    constraint->setUpperBound(1.);
+  }
+}
+
+/******************************************************************************/
+
+double ClockTreeLikelihood::updateHeightsConstraints(const Node * node)
+{
+  if(node->isLeaf()) return _minimumBrLen;
+
+  double maxSonHeightP = 0.;
+  for(unsigned int i = 0; i < node->getNumberOfSons(); i++)
+  {
+    //Recursive call
+    const Node * son = node->getSon(i);
+    double sonHeightP = updateHeightsConstraints(son);
+    if(sonHeightP > maxSonHeightP) maxSonHeightP = sonHeightP;
+  }
+
+  double nodeHeightP = 1.;
+  if(node->hasFather()) //Not the root node
+  {
+    Parameter * p = _brLenParameters.getParameter(string("HeightP") + TextTools::toString(node->getId()));
+    if(p == NULL) throw Exception("ClockTreeLikelihood::updateHeightsConstraints(). Parameter HeightP" + TextTools::toString(node->getId()) + " was not found."); 
+    nodeHeightP = p->getValue();
+    double fatherHeightP = 1.;
+    if(node->getFather()->hasFather())
+    {
+      const Node * grandFather = node->getFather();
+      Parameter * pp = _brLenParameters.getParameter(string("HeightP") + TextTools::toString(grandFather->getId()));
+      if(pp == NULL) throw Exception("ClockTreeLikelihood::updateHeightsConstraints(). Parameter HeightP" + TextTools::toString(grandFather->getId()) + " was not found."); 
+      fatherHeightP = pp->getValue();
+    }
+    //Height is bound by the height of the father node from one side,
+    //and the height of the closest descendant from the other side.
+    //For optimization reason however, we allow them a minimum range of 2%.
+    //Additionally, heights must be within range [0,1] (proportion of total height).
+    double minBound = maxSonHeightP;
+    double maxBound = fatherHeightP;
+    if(nodeHeightP - maxSonHeightP < 0.01) minBound = nodeHeightP - 0.01; 
+    if(fatherHeightP - nodeHeightP < 0.01) maxBound = nodeHeightP + 0.01;
+    if(minBound < 0.) minBound = 0.;
+    if(maxBound > 1.) maxBound = 1.;
+    Interval * constraint = dynamic_cast<Interval *>(p->getConstraint());
+    constraint->setLowerBound(minBound);
+    constraint->setUpperBound(maxBound);
+  }
+
+  //Return the height of this node
   return nodeHeightP;
 }
 
@@ -201,6 +395,43 @@ double ClockTreeLikelihood::computeBranchLengthsFromHeights(Node * node) throw (
 
 void ClockTreeLikelihood::fireParameterChanged(const ParameterList & params)
 {
+  if(params.size() == 1 && params[0]->getName().substr(0,7) == "HeightP")
+  {
+    //Only one branch length:
+    
+    //First method:
+    //string focusHeight = params[0]->getName();
+    //double oldHeightP = _brLenParameters.getParameter(focusHeight)->getValue();
+    //_brLenParameters.matchParametersValues(_parameters);
+    //double newHeightP = _brLenParameters.getParameter(focusHeight)->getValue();
+    //const Node *focusNode = _tree->getNode(TextTools::toInt(focusHeight.substr(7)));
+    //if(newHeightP > oldHeightP)
+    //{
+    //  adjustHeightsUp(focusNode, newHeightP);
+    //}
+    //else
+    //{
+    //  adjustHeightsDown(focusNode, newHeightP);
+    //}
+    
+    //Second method:
+    string focusHeight = params[0]->getName();
+    double oldHeightP = _brLenParameters.getParameter(focusHeight)->getValue();
+    _brLenParameters.matchParametersValues(_parameters);
+    double newHeightP = _brLenParameters.getParameter(focusHeight)->getValue();
+    const Node *focusNode = _tree->getNode(TextTools::toInt(focusHeight.substr(7)));
+    if(newHeightP > oldHeightP)
+    {
+      double ratio = (1. - newHeightP) / (1. - oldHeightP);
+      adjustHeightsUp2(focusNode, ratio);
+    }
+    else
+    {
+      double ratio = newHeightP / oldHeightP;
+      adjustHeightsDown2(focusNode, ratio);
+    }
+    _parameters.matchParametersValues(_brLenParameters);
+  }
   applyParameters();
 
   computeAllTransitionProbabilities();
@@ -244,6 +475,7 @@ void ClockTreeLikelihood::initParameters()
   // Branch lengths:
   initBranchLengthsParameters();
   _parameters.addParameters(_brLenParameters);
+  //updateHeightsConstraints();
 
   // Total height:
   _parameters.addParameters(_totalHeightParameter);
@@ -262,7 +494,7 @@ void ClockTreeLikelihood::initParameters()
 void ClockTreeLikelihood::computeTreeDLikelihoodAtNode(const Node * node)
 {
   if(node->isLeaf()) return; //The height of a leaf is always 0!
-  double totalHeight  = _parameters.getParameter("TotalHeight")->getValue();
+  double totalHeight  = _totalHeightParameter[0]->getValue();
   const Node * father = node->getFather();
   const Node * son1   = node->getSon(0);
   const Node * son2   = node->getSon(1);
@@ -386,7 +618,7 @@ throw (Exception)
 void ClockTreeLikelihood::computeTreeD2LikelihoodAtNode(const Node * node)
 {
   if(node->isLeaf()) return; //The height of a leaf is always 0!
-  double totalHeight  = _parameters.getParameter("TotalHeight")->getValue();
+  double totalHeight  = _totalHeightParameter[0]->getValue();
   const Node * father = node->getFather();
   const Node * son1   = node->getSon(0);
   const Node * son2   = node->getSon(1);

@@ -48,10 +48,8 @@ AbstractTreeParsimonyScore::AbstractTreeParsimonyScore(
 	const SiteContainer & data,
 	bool verbose)
 	throw (Exception):
-    _tree(NULL), _data(NULL), _alphabet(_data->getAlphabet()), _nbStates(_alphabet->getSize())
-
+    _tree(tree.clone()), _data(NULL), _alphabet(data.getAlphabet()), _nbStates(_alphabet->getSize())
 {
-	_tree = tree.clone();
 	if(_tree->isRooted())
   {
 		if(verbose) ApplicationTools::displayWarning("Tree has been unrooted.");

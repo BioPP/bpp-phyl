@@ -49,9 +49,6 @@ knowledge of the CeCILL license and that you accept its terms.
 #include <Utils/TextTools.h>
 #include <Utils/ApplicationTools.h>
 
-// From NumCalc:
-using namespace VectorFunctions;
-
 // From the STL:
 #include <iostream>
 using namespace std;

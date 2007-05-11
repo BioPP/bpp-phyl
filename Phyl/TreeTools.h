@@ -44,12 +44,16 @@ knowledge of the CeCILL license and that you accept its terms.
 #include "Node.h"
 #include "DistanceMatrix.h"
 #include "Tree.h"
+#include "BipartitionList.h"
 
 // From Utils:
 #include <Utils/Exceptions.h>
 
 // From NumCalc:
 #include <NumCalc/VectorTools.h>
+
+// From SeqLib:
+#include <Seq/VectorSiteContainer.h>
 
 /**
  * @brief Inner class for parsing strings in Newick format.
@@ -279,7 +283,7 @@ class TreeTools
     /**
      * @brief Grafen's method to initialize branch lengths.
      *
-     * Each height of the node (toatl distance from the leaves) is set equal to the number of
+     * Each height of the node (total distance from the leaves) is set equal to the number of
      * leaf nodes for the corresponding subtrees - 1 for inner nodes, 0 for leaves.
      * 
      * If the tree already has branch lengths, they will be ignored.
@@ -446,21 +450,21 @@ class TreeTools
      */
 
     /**
-     * @brief Retrieve all son nodes from a subtree.
+     * @brief Retrieve all nodes ids nodes from a subtree.
      *
      * @param tree The tree
-     * @param nodeId The id of node defining the subtree.
-     * @return A vector of ids of each son node in the subtree.
+     * @param nodeId The id of the node that defines the subtree.
+     * @return A vector of ids of each node in the subtree.
      * @throw NodeNotFoundException If the node is not found.
      */
     static vector<int> getNodesId(const Tree & tree, int nodeId) throw (NodeNotFoundException);
 
     /**
-     * @brief Retrieve all son nodes from a subtree.
+     * @brief Retrieve all nodes ids from a subtree.
      *
      * @param tree The tree
-     * @param nodeId The id of node defining the subtree.
-     * @param nodes A vector of ids of each son node in the subtree.
+     * @param nodeId The id of the node that defines the subtree.
+     * @param nodes A vector of ids of each node in the subtree.
      * @throw NodeNotFoundException If the node is not found.
      */
     static void getNodesId(const Tree & tree, int nodeId, vector<int> & nodes) throw (NodeNotFoundException);
@@ -472,7 +476,7 @@ class TreeTools
      *
      * @param tree The tree to check.
      * @param id The identifier of the subtree from which the recursion will be performed.
-     * Use id=tree.getRootNodeId() to search for the whole tree.
+     * Use id=tree.getRootId() to search for the whole tree.
      * @return The identifier number with maximum value.
      */
     static int getMaxId(const Tree & tree, int id);
@@ -484,12 +488,115 @@ class TreeTools
      *
      * @param tree The tree to check.
      * @param id The identifier of the subtree from which the recursion will be performed.
-     * Use id=tree.getRootNodeId() to search for the whole tree.
+     * Use id=tree.getRootId() to search for the whole tree.
      * @return A non-used identifier number.
      */
     static int getMPNUId(const Tree & tree, int id);
 
     /** @} */
+
+
+    /**
+     * @name Topology methods
+     *
+     * @{
+     */
+
+    /**
+     * @brief Creates a sequence data set corresponding to the Matrix Representation of the input trees
+     *
+     * @author Nicolas Galtier
+     * Trees can have distinct sets of elements - missing data will be represented as 'N'.
+     * The output alignment (DNA sequences including only A, C and N)) is ready for maximum parsimony analysis
+     * according to the MRP supertree method.
+     */
+    VectorSiteContainer* MRPEncode(const vector<Tree *> & vecTr);
+
+    /**
+     * @brief Tells whether two trees have the same unrooted topology
+     *
+     * @author Nicolas Galtier
+     * Note that the location of the root, if any, is ignored.
+     */
+    bool haveSameTopology(const Tree & tr1, const Tree & tr2);
+
+    /**
+     * @brief Calculates the Robinson-Foulds topological distance between two trees
+     *
+     * The two trees must chare a common set of leaves (checked if checkNames is true)
+     * Three numbers are calculated:
+     *
+     * @author Nicolas Galtier
+     * @param missing_in_tr2 Output as the number of bipartitions occurring in the first tree but not the second
+     * @param missing_in_tr1 Output as the number of bipartitions occurring in the second tree but not the first
+     * @return Robinson-Foulds distance = *missing_in_tr1 + *missing_in_tr2
+     */
+    int robinsonFouldsDistance(const Tree & tr1, const Tree & tr2, int* missing_in_tr2, int* missing_in_tr1, bool checkNames=true) throw (Exception);
+
+    /**
+     * @brief Counts the total number of occurrences of every bipartition from the input trees
+     *
+     * Returns the list of distinct bipartitions found at least once in the set of input trees,
+     * and writes the number of occurrence of each of these bipartitions in vector bipScore.
+     *
+     * @author Nicolas Galtier
+     * @param vecTr Vector of input trees (must share a common set of leaves - not checked in this function)
+     * @param bipScore Output as the numbers of occurrences of the returned distinct bipartitions
+     * @return A BipartitionList object including only distinct bipartitions
+     */
+    BipartitionList * bipartitionOccurrences(const vector<Tree *> & vecTr, vector<int> & bipScore);
+
+    /**
+     * @brief General greedy consensus tree method
+     *
+     * Calculates the consensus tree of a set of trees defined from the number of occurrences
+     * of bipartitions. Bipartitions are considered in decreasing score order.
+     * A bipartition is included if it is compatible with all previously included bipartitions, and if its score
+     * is higher than a threshold.
+     *
+     * @author Nicolas Galtier
+     * @param vecTr Vector of input trees (must share a common set of leaves - checked if checkNames is true)
+     * @param threshold Minimal acceptable score =number of occurrence of a bipartition/number of trees (0.<=threshold<=1.)
+     */
+    TreeTemplate<Node>* thresholdConsensus(const vector<Tree *> & vecTr, double threshold, bool checkNames = true) throw (Exception);
+
+    /**
+     * @brief Fully-resolved greedy consensus tree method
+     *
+     * Calls thresholdConsensus with threshold=0, i.e. no constraint on the number of occurrence of bipartitions.
+     * The resulting tree is fully resolved.
+     *
+     * @author Nicolas Galtier
+     * @param vecTr Vector of input trees (must share a common set of leaves - checked if checkNames is true)
+     */
+    TreeTemplate<Node>* fullyResolvedConsensus(const vector<Tree *> & vecTr, bool checkNames = true);
+
+    /**
+     * @brief Majority consensus tree method
+     *
+     * Calls thresholdConsensus with threshold=0.5: internal branches present in a majority of trees are kept.
+     *
+     * @author Nicolas Galtier
+     * @param vecTr Vector of input trees (must share a common set of leaves - checked if checkNames is true)
+     */
+    TreeTemplate<Node>* majorityConsensus(const vector<Tree *> & vecTr, bool checkNames = true);
+
+    /**
+     * @brief Strict consensus tree method
+     *
+     * Calls thresholdConsensus with threshold=1: only internal branches present in all trees are kept.
+     *
+     * @author Nicolas Galtier
+     * @param vecTr Vector of input trees (must share a common set of leaves - checked if checkNames is true)
+     */
+    TreeTemplate<Node>* strictConsensus(const vector<Tree *> & vecTr, bool checkNames = true);
+
+    /** @} */
+
+
+
+
+
 
     /**
      * @name Some properties.

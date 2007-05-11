@@ -167,7 +167,6 @@ class AbstractHomogeneousTreeLikelihood:
 
 		/**
 		 * @brief All parameters are stored in a parameter list.
-		 *
 		 * This function apply these parameters to the substitution model,
 		 * to the rate distribution and to the branch lengths.
 		 */
