@@ -76,6 +76,7 @@ void PseudoNewtonOptimizer::doInit(const ParameterList & params) throw (Exceptio
 {
   _n = _parameters.size();
   _params = _parameters.getParameterNames();
+  _function->setParameters(_parameters);
 }
 
 /**************************************************************************/

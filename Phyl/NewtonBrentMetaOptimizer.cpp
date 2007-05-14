@@ -125,12 +125,15 @@ void NewtonBrentMetaOptimizer::doInit(const ParameterList & parameters)
   if(_newtonOptimizer) delete _newtonOptimizer;
   if(_brentOptimizer)  delete _brentOptimizer;
 
+  _newtonParameters.reset();
   for(unsigned int i = 0; i < _newtonParametersNames.size(); i++)
   {
     const Parameter *p = parameters.getParameter(_newtonParametersNames[i]);
     if(p) _newtonParameters.addParameter(*p);
   }
   _nbNewtonParameters = _newtonParameters.size();
+
+  _brentParameters.reset();
   for(unsigned int i = 0; i < _brentParametersNames.size(); i++)
   {
     const Parameter *p = parameters.getParameter(_brentParametersNames[i]);
@@ -163,7 +166,6 @@ void NewtonBrentMetaOptimizer::doInit(const ParameterList & parameters)
     _brentOptimizer->setMessageHandler(_messageHandler);
     _brentOptimizer->setConstraintPolicy(_constraintPolicy);
     _brentOptimizer->setVerbose(_verbose > 0 ? _verbose - 1 : 0);
-    dynamic_cast<SimpleNewtonMultiDimensions *>(_brentOptimizer)->getOneDimensionOptimizer()->setStopCondition(*_stopCondition);
   }
   
   // Actualize parameters:
@@ -173,6 +175,7 @@ void NewtonBrentMetaOptimizer::doInit(const ParameterList & parameters)
   _stepCount = 0;
   // Recompute step if precision has changed:
   _precisionStep = log10(_stopCondition->getTolerance()) / _n;
+  _function->setParameters(_parameters);
 }
 
 /**************************************************************************/
