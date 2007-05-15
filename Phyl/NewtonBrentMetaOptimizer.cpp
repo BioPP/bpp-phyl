@@ -73,17 +73,19 @@ NewtonBrentMetaOptimizer::NewtonBrentMetaOptimizer(
     const NewtonBrentMetaOptimizer & opt):
   AbstractOptimizer(opt)
 {
-  _newtonParameters   = opt._newtonParameters;
-  _brentParameters    = opt._brentParameters;
-  _newtonOptimizer    = opt._newtonOptimizer ? opt._newtonOptimizer->clone() : NULL;
-  _brentOptimizer     = opt._brentOptimizer? opt._brentOptimizer->clone() : NULL;
-  _nbNewtonParameters = opt._nbNewtonParameters;
-  _nbBrentParameters  = opt._nbBrentParameters;
-  _n                  = opt._n;
-  _precisionStep      = opt._precisionStep;
-  _stepCount          = opt._stepCount;
-  _type               = opt._type;
-  _itType             = opt._itType;
+  _newtonParameters      = opt._newtonParameters;
+  _brentParameters       = opt._brentParameters;
+  _newtonParametersNames = opt._newtonParametersNames;
+  _brentParametersNames  = opt._brentParametersNames;
+  _newtonOptimizer       = opt._newtonOptimizer ? opt._newtonOptimizer->clone() : NULL;
+  _brentOptimizer        = opt._brentOptimizer? opt._brentOptimizer->clone() : NULL;
+  _nbNewtonParameters    = opt._nbNewtonParameters;
+  _nbBrentParameters     = opt._nbBrentParameters;
+  _n                     = opt._n;
+  _precisionStep         = opt._precisionStep;
+  _stepCount             = opt._stepCount;
+  _type                  = opt._type;
+  _itType                = opt._itType;
 }
 
 /**************************************************************************/
@@ -92,17 +94,19 @@ NewtonBrentMetaOptimizer & NewtonBrentMetaOptimizer::operator=(
     const NewtonBrentMetaOptimizer & opt)
 {
   AbstractOptimizer::operator=(opt);
-  _newtonParameters   = opt._newtonParameters;
-  _brentParameters    = opt._brentParameters;
-  _newtonOptimizer    = opt._newtonOptimizer ? opt._newtonOptimizer->clone() : NULL;
-  _brentOptimizer     = opt._brentOptimizer? opt._brentOptimizer->clone() : NULL;
-  _nbNewtonParameters = opt._nbNewtonParameters;
-  _nbBrentParameters  = opt._nbBrentParameters;
-  _n                  = opt._n;
-  _precisionStep      = opt._precisionStep;
-  _stepCount          = opt._stepCount;
-  _type               = opt._type;
-  _itType             = opt._itType;
+  _newtonParameters      = opt._newtonParameters;
+  _brentParameters       = opt._brentParameters;
+  _newtonParametersNames = opt._newtonParametersNames;
+  _brentParametersNames  = opt._brentParametersNames;
+  _newtonOptimizer       = opt._newtonOptimizer ? opt._newtonOptimizer->clone() : NULL;
+  _brentOptimizer        = opt._brentOptimizer? opt._brentOptimizer->clone() : NULL;
+  _nbNewtonParameters    = opt._nbNewtonParameters;
+  _nbBrentParameters     = opt._nbBrentParameters;
+  _n                     = opt._n;
+  _precisionStep         = opt._precisionStep;
+  _stepCount             = opt._stepCount;
+  _type                  = opt._type;
+  _itType                = opt._itType;
   return *this;
 }
 

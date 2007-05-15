@@ -63,7 +63,7 @@ AbstractHomogeneousTreeLikelihood::AbstractHomogeneousTreeLikelihood(
   throw (Exception):
   AbstractDiscreteRatesAcrossSitesTreeLikelihood(rDist, verbose)
 {
-  init(tree, model, rDist, checkRooted, verbose);
+  _init(tree, model, rDist, checkRooted, verbose);
 }
 
 /******************************************************************************/
@@ -132,7 +132,7 @@ AbstractHomogeneousTreeLikelihood::~AbstractHomogeneousTreeLikelihood()
 
 /******************************************************************************/
 
-void AbstractHomogeneousTreeLikelihood::init(const Tree & tree,
+void AbstractHomogeneousTreeLikelihood::_init(const Tree & tree,
 			SubstitutionModel * model,
 			DiscreteDistribution * rDist,
       bool checkRooted,

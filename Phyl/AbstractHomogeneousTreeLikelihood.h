@@ -105,17 +105,18 @@ class AbstractHomogeneousTreeLikelihood:
  
 		virtual ~AbstractHomogeneousTreeLikelihood();
 		
-	public:
+	private:
 
     /**
      * @brief Method called by constructor.
      */
-    void init(const Tree & tree,
+    void _init(const Tree & tree,
 			SubstitutionModel * model,
 			DiscreteDistribution * rDist,
       bool checkRooted,
 			bool verbose) throw (Exception);
 
+	public:
 		
 		/**
 		 * @name The TreeLikelihood interface.

@@ -131,12 +131,14 @@ class DRHomogeneousTreeLikelihood:
 
     DRHomogeneousTreeLikelihood * clone() const { return new DRHomogeneousTreeLikelihood(*this); }
 
-  public:
+  private:
 
     /**
      * @brief Method called by constructors.
      */
-    void init() throw (Exception);
+    void _init() throw (Exception);
+
+  public:
 
     /**
      * @name The TreeLikelihood interface.

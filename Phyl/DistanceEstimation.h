@@ -387,7 +387,7 @@ class DistanceEstimation
       delete _optimizer;
 		}
 		
-  protected:
+  private:
     void _init()
     {
     	_defaultOptimizer = new NewtonBrentMetaOptimizer(NULL);

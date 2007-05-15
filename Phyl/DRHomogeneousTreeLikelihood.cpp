@@ -65,7 +65,7 @@ throw (Exception):
   AbstractHomogeneousTreeLikelihood(tree, model, rDist, checkRooted, verbose),
   _likelihoodData(NULL)
 {
-  init();
+  _init();
 }
 
 /******************************************************************************/
@@ -81,13 +81,13 @@ throw (Exception):
   AbstractHomogeneousTreeLikelihood(tree, model, rDist, checkRooted, verbose),
   _likelihoodData(NULL)
 {
-  init(); 
+  _init(); 
   setData(data);
 }
 
 /******************************************************************************/
 
-void DRHomogeneousTreeLikelihood::init() throw (Exception)
+void DRHomogeneousTreeLikelihood::_init() throw (Exception)
 {
   if(_verbose) ApplicationTools::message << "Double-Recursive Homogeneous Tree Likelihood" << endl;  
   _likelihoodData = new DRASDRTreeLikelihoodData(*_tree, _rateDistribution->getNumberOfCategories());
