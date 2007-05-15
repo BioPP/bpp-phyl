@@ -39,21 +39,25 @@ knowledge of the CeCILL license and that you accept its terms.
 
 #include "BipartitionList.h"
 #include "BipartitionTools.h"
+#include "TreeTemplate.h"
 
-
+// From Utils:
 #include <Utils/exceptions>
 #include <Utils/TextTools.h>
 #include <Utils/FileTools.h>
+
+// From SeqLib
 #include <Seq/alphabets>
 #include <Seq/containers>
 #include <Seq/ioseq>
+
+// From NumCalc
 #include <NumCalc/random>
-#include <Phyl/TreeTemplate.h>
-#include <Phyl/iotree>
+
+// From STL
 #include <iostream>
 #include <algorithm>
 using namespace std;
-
 
 /******************************************************************************/
 

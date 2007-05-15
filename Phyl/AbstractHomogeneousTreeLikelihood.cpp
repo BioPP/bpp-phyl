@@ -70,8 +70,6 @@ AbstractHomogeneousTreeLikelihood::AbstractHomogeneousTreeLikelihood(
 
 AbstractHomogeneousTreeLikelihood::AbstractHomogeneousTreeLikelihood(
     const AbstractHomogeneousTreeLikelihood & lik) :
-  //AbstractParametrizable(lik),
-  //AbstractTreeLikelihood(lik),
   AbstractDiscreteRatesAcrossSitesTreeLikelihood(lik)
 {
   _model           = lik._model;
@@ -265,6 +263,7 @@ void AbstractHomogeneousTreeLikelihood::applyParameters() throw (Exception)
 {
   if(!_initialized) throw Exception("AbstractHomogeneousTreeLikelihood::applyParameters(). Object not initialized.");
   //Apply branch lengths:
+  //_brLenParameters.matchParametersValues(_parameters); Not necessary!
   for(unsigned int i = 0; i < _nbNodes; i++)
   {
     const Parameter * brLen = _parameters.getParameter(string("BrLen") + TextTools::toString(_nodes[i]->getId()));
