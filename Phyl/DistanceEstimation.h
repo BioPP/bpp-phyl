@@ -392,7 +392,7 @@ class DistanceEstimation
     {
     	_defaultOptimizer = new NewtonBrentMetaOptimizer(NULL);
       vector<string> name;
-      name[0] = "BrLen";
+      name.push_back("BrLen");
       _defaultOptimizer->setDerivableParameters(name);
       ParameterList tmp = _model->getParameters();
       tmp.addParameters(_rateDist->getParameters());
