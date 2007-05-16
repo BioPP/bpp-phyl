@@ -510,7 +510,7 @@ class TreeTools
      * The output alignment (DNA sequences including only A, C and N)) is ready for maximum parsimony analysis
      * according to the MRP supertree method.
      */
-    VectorSiteContainer* MRPEncode(const vector<Tree *> & vecTr);
+    static VectorSiteContainer* MRPEncode(const vector<Tree *> & vecTr);
 
     /**
      * @brief Tells whether two trees have the same unrooted topology
@@ -518,20 +518,22 @@ class TreeTools
      * @author Nicolas Galtier
      * Note that the location of the root, if any, is ignored.
      */
-    bool haveSameTopology(const Tree & tr1, const Tree & tr2);
+    static bool haveSameTopology(const Tree & tr1, const Tree & tr2);
 
     /**
      * @brief Calculates the Robinson-Foulds topological distance between two trees
      *
-     * The two trees must chare a common set of leaves (checked if checkNames is true)
+     * The two trees must share a common set of leaves (checked if checkNames is true)
      * Three numbers are calculated:
      *
      * @author Nicolas Galtier
      * @param missing_in_tr2 Output as the number of bipartitions occurring in the first tree but not the second
      * @param missing_in_tr1 Output as the number of bipartitions occurring in the second tree but not the first
+     * @param checkNames Tell whether we should check the trees first.
      * @return Robinson-Foulds distance = *missing_in_tr1 + *missing_in_tr2
+     * @throw Exception If checkNames is set to true and trees do not share the same leaves names.
      */
-    int robinsonFouldsDistance(const Tree & tr1, const Tree & tr2, int* missing_in_tr2, int* missing_in_tr1, bool checkNames=true) throw (Exception);
+    static int robinsonFouldsDistance(const Tree & tr1, const Tree & tr2, bool checkNames=true, int* missing_in_tr2 = NULL, int* missing_in_tr1 = NULL) throw (Exception);
 
     /**
      * @brief Counts the total number of occurrences of every bipartition from the input trees
@@ -544,7 +546,7 @@ class TreeTools
      * @param bipScore Output as the numbers of occurrences of the returned distinct bipartitions
      * @return A BipartitionList object including only distinct bipartitions
      */
-    BipartitionList * bipartitionOccurrences(const vector<Tree *> & vecTr, vector<int> & bipScore);
+    static BipartitionList * bipartitionOccurrences(const vector<Tree *> & vecTr, vector<int> & bipScore);
 
     /**
      * @brief General greedy consensus tree method
@@ -558,7 +560,7 @@ class TreeTools
      * @param vecTr Vector of input trees (must share a common set of leaves - checked if checkNames is true)
      * @param threshold Minimal acceptable score =number of occurrence of a bipartition/number of trees (0.<=threshold<=1.)
      */
-    TreeTemplate<Node>* thresholdConsensus(const vector<Tree *> & vecTr, double threshold, bool checkNames = true) throw (Exception);
+    static TreeTemplate<Node>* thresholdConsensus(const vector<Tree *> & vecTr, double threshold, bool checkNames = true) throw (Exception);
 
     /**
      * @brief Fully-resolved greedy consensus tree method
@@ -569,7 +571,7 @@ class TreeTools
      * @author Nicolas Galtier
      * @param vecTr Vector of input trees (must share a common set of leaves - checked if checkNames is true)
      */
-    TreeTemplate<Node>* fullyResolvedConsensus(const vector<Tree *> & vecTr, bool checkNames = true);
+    static TreeTemplate<Node>* fullyResolvedConsensus(const vector<Tree *> & vecTr, bool checkNames = true);
 
     /**
      * @brief Majority consensus tree method
@@ -579,7 +581,7 @@ class TreeTools
      * @author Nicolas Galtier
      * @param vecTr Vector of input trees (must share a common set of leaves - checked if checkNames is true)
      */
-    TreeTemplate<Node>* majorityConsensus(const vector<Tree *> & vecTr, bool checkNames = true);
+    static TreeTemplate<Node>* majorityConsensus(const vector<Tree *> & vecTr, bool checkNames = true);
 
     /**
      * @brief Strict consensus tree method
@@ -589,7 +591,7 @@ class TreeTools
      * @author Nicolas Galtier
      * @param vecTr Vector of input trees (must share a common set of leaves - checked if checkNames is true)
      */
-    TreeTemplate<Node>* strictConsensus(const vector<Tree *> & vecTr, bool checkNames = true);
+    static TreeTemplate<Node>* strictConsensus(const vector<Tree *> & vecTr, bool checkNames = true);
 
     /** @} */
 

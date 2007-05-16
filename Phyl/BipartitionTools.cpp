@@ -70,7 +70,7 @@ unsigned int BipartitionTools::LWORD = 64;  //must be a multiple of CHAR_BIT*siz
 
 void BipartitionTools::bit1(int *plist, int num)
 {
-  num--;
+  //num--;
   plist += (num/LWORD);
   *plist |= (1 << (num % LWORD));
 }
@@ -79,9 +79,9 @@ void BipartitionTools::bit1(int *plist, int num)
 
 void BipartitionTools::bit0(int *plist, int num)
 {
-  num--;
+  //num--;
   plist += (num/LWORD);
-  *plist &=  ~(1<<(num%LWORD));
+  *plist &=  ~(1<<(num % LWORD));
 }
 
 /******************************************************************************/
@@ -104,13 +104,13 @@ void BipartitionTools::bitOr(int *listou, int *list1, int *list2, unsigned int l
 void BipartitionTools::bitNot(int *listnon, int *list, unsigned int len)
 {
   for(unsigned int i = 0; i < len; i++)
-  listnon[i]= ~list[i];
+    listnon[i]= ~list[i];
 }
 
 /******************************************************************************/
 bool BipartitionTools::testBit(int *plist, int num)
 {
-  num--;
+  //num--;
   plist += (num/LWORD);
   return (*plist) & (1<<(num%LWORD));
 }

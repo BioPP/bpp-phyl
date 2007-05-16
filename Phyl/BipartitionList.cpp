@@ -513,9 +513,9 @@ unsigned int BipartitionList::getPartitionSize(unsigned int k) throw (Exception)
 void BipartitionList::removeTrivialBipartitions()
 {
   unsigned int size = _bitBipartitionList.size();
-  for(unsigned int i = size - 1; i >= 0; i--)
-    if(BipartitionList::getPartitionSize(i) < 2)
-      BipartitionList::deleteBipartition(i);
+  for(unsigned int i = size; i > 0; i--)
+    if(BipartitionList::getPartitionSize(i - 1) < 2)
+      BipartitionList::deleteBipartition(i - 1);
 }
 
 /******************************************************************************/

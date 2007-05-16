@@ -699,10 +699,10 @@ bool TreeTools::haveSameTopology(const Tree & tr1, const Tree & tr2)
 
 /******************************************************************************/
 
-int TreeTools::robinsonFouldsDistance(const Tree & tr1, const Tree & tr2, int* missing_in_tr2, int* missing_in_tr1, bool checkNames) throw (Exception)
+int TreeTools::robinsonFouldsDistance(const Tree & tr1, const Tree & tr2, bool checkNames, int* missing_in_tr2, int* missing_in_tr1) throw (Exception)
 {
   BipartitionList *bipL1, *bipL2;
-  unsigned int jj;
+  unsigned int i, j;
   vector<int> size1, size2;
   vector<bool> bipOK2;
 
@@ -711,7 +711,8 @@ int TreeTools::robinsonFouldsDistance(const Tree & tr1, const Tree & tr2, int* m
     throw Exception("Distinct leaf sets between trees ");
 
 	/* prepare things */
-  *missing_in_tr2 = 0;
+  int missing1 = 0;
+  int missing2 = 0;
 
   bipL1 = new BipartitionList(tr1, true);
   bipL1->removeTrivialBipartitions();
@@ -721,34 +722,36 @@ int TreeTools::robinsonFouldsDistance(const Tree & tr1, const Tree & tr2, int* m
   bipL2->sortByPartitionSize();
 
 
-  for(unsigned int i = 0; i < bipL1->getNumberOfBipartitions(); i++)
+  for(i = 0; i < bipL1->getNumberOfBipartitions(); i++)
     size1.push_back(bipL1->getPartitionSize(i));
-  for(unsigned int i = 0; i < bipL2->getNumberOfBipartitions(); i++)
+  for(i = 0; i < bipL2->getNumberOfBipartitions(); i++)
     size2.push_back(bipL2->getPartitionSize(i));
 
-  for(unsigned int i = 0; i < bipL2->getNumberOfBipartitions(); i++)
+  for(i = 0; i < bipL2->getNumberOfBipartitions(); i++)
      bipOK2.push_back(false);
 
 	/* main loops */
 
-  for(unsigned int i = 0; i < bipL1->getNumberOfBipartitions(); i++)
+  for(i = 0; i < bipL1->getNumberOfBipartitions(); i++)
   {
-    for(jj = 0; jj < bipL2->getNumberOfBipartitions(); jj++)
+    for(j = 0; j < bipL2->getNumberOfBipartitions(); j++)
     {
-      if(bipOK2[jj]) continue;
-      if(size1[i] == size2[jj] && BipartitionTools::areIdentical(*bipL1, i, *bipL2, jj))
+      if(bipOK2[j]) continue;
+      if(size1[i] == size2[j] && BipartitionTools::areIdentical(*bipL1, i, *bipL2, j))
       {
-        bipOK2[jj] = true;
+        bipOK2[j] = true;
         break;
 	    }
     }
-    if(jj == bipL2->getNumberOfBipartitions())
-      (*missing_in_tr2)++;
+    if(j == bipL2->getNumberOfBipartitions())
+      missing2++;
   }
 
-  *missing_in_tr1 = bipL2->getNumberOfBipartitions() - bipL1->getNumberOfBipartitions() + *missing_in_tr2;
+  missing1 = bipL2->getNumberOfBipartitions() - bipL1->getNumberOfBipartitions() + missing2;
 
-  return *missing_in_tr1 + *missing_in_tr2;
+  if(missing_in_tr1) *missing_in_tr1 = missing1;
+  if(missing_in_tr2) *missing_in_tr2 = missing2;
+  return missing1 + missing2;
 }
 
 /******************************************************************************/

@@ -106,6 +106,9 @@ class TwoTreeLikelihood:
 		mutable Vdouble _d2Likelihoods;
 		mutable VVdouble _leafLikelihoods1, _leafLikelihoods2;
 	
+    double _minimumBrLen;
+    Constraint * _brLenConstraint;
+
 	public:
 		TwoTreeLikelihood(
 			const string & seq1, const string & seq2,	
@@ -202,6 +205,18 @@ class TwoTreeLikelihood:
 		double getSecondOrderDerivative(const string & variable1, const string & variable2) const throw (Exception) { return 0; } // Not implemented for now.
 		/** @} */
 
+		virtual void initBranchLengthsParameters();
+
+    virtual void setMinimumBranchLength(double minimum)
+    {
+      _minimumBrLen = minimum;
+      if(_brLenConstraint != NULL) delete _brLenConstraint;
+      _brLenConstraint = new IncludingPositiveReal(_minimumBrLen);
+      initBranchLengthsParameters();
+    }
+
+    virtual double getMinimumBranchLength() const { return _minimumBrLen; }
+
 	protected:
 		
 		/**
@@ -247,8 +262,6 @@ class TwoTreeLikelihood:
 		 * to the rate distribution and to the branch lengths.
 		 */
 		virtual void applyParameters() throw (Exception);	
-
-		virtual void initBranchLengthsParameters();
 
 };
 

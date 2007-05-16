@@ -186,7 +186,7 @@ void NewtonBrentMetaOptimizer::doInit(const ParameterList & parameters)
 
 double NewtonBrentMetaOptimizer::doStep() throw (Exception)
 {
-   _stepCount++;
+  _stepCount++;
   
   double tol = _stopCondition->getTolerance();
   if(_stepCount < _n)
@@ -231,6 +231,7 @@ double NewtonBrentMetaOptimizer::doStep() throw (Exception)
     
   // Actualize parameters:
   _parameters.matchParametersValues(_function->getParameters());
+  _tolIsReached = _nbNewtonParameters == 0 || _nbBrentParameters == 0;
   return _function->getValue();
 }
 

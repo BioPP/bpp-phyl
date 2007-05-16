@@ -467,6 +467,7 @@ TreeTemplate<Node> * OptimizationTools::buildDistanceTree(
     estimationMethod.setAdditionalParameters(tmp);
   }
   TreeTemplate<Node> * tree = NULL;
+  TreeTemplate<Node> * previousTree = NULL;
   bool test = true;
   double previousLL = -log(0.);
   double currentLL = -log(0.);
@@ -485,15 +486,21 @@ TreeTemplate<Node> * OptimizationTools::buildDistanceTree(
       ApplicationTools::displayTask("Building tree");
     reconstructionMethod.setDistanceMatrix(*matrix);
     reconstructionMethod.computeTree(rooted);
-    if(tree) delete tree;
+    previousTree = tree;
     delete matrix;
     tree = dynamic_cast<TreeTemplate<Node> *>(reconstructionMethod.getTree());
     if(verbose > 0)
       ApplicationTools::displayTaskDone();
+    if(previousTree && verbose > 0)
+    {
+      int rf = TreeTools::robinsonFouldsDistance(*previousTree, *tree, false);
+      ApplicationTools::displayResult("R&F topological distance with previous iteration", TextTools::toString(rf));
+      delete previousTree;
+    }
     if(param != DISTANCEMETHOD_ITERATIONS) break; //Ends here.
     
     //Now, re-estimate parameters:
-    DRHomogeneousTreeLikelihood tl(*tree, *estimationMethod.getData(), estimationMethod.getModel(), estimationMethod.getRateDistribution(), true, verbose > 2);
+    DRHomogeneousTreeLikelihood tl(*tree, *estimationMethod.getData(), estimationMethod.getModel(), estimationMethod.getRateDistribution(), true, verbose > 0);
     tl.initialize();
     if(!optimizeBrLen)
     {
@@ -508,6 +515,15 @@ TreeTemplate<Node> * OptimizationTools::buildDistanceTree(
     optimizeNumericalParameters(&tl, NULL, 0, tolerance, tlEvalMax, messenger, profiler, verbose - 1);
     previousLL = currentLL;
     currentLL = tl.getLogLikelihood();
+    if(verbose > 0)
+    {
+      ParameterList tmp = tl.getSubstitutionModelParameters();
+      for(unsigned int i = 0; i < tmp.size(); i++)
+        ApplicationTools::displayResult(tmp[i]->getName(), TextTools::toString(tmp[i]->getValue()));
+      tmp = tl.getRateDistributionParameters();
+      for(unsigned int i = 0; i < tmp.size(); i++)
+        ApplicationTools::displayResult(tmp[i]->getName(), TextTools::toString(tmp[i]->getValue()));
+    }
     test = (std::abs(currentLL - previousLL) > tolerance);
   }
   return tree;

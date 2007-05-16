@@ -107,6 +107,9 @@ TwoTreeLikelihood::TwoTreeLikelihood(
 	initTreeLikelihoods(* sequences);
 	delete sequences;
 
+  _minimumBrLen = 0.000001;
+  _brLenConstraint = new IncludingPositiveReal(_minimumBrLen);
+
 	if(verbose) ApplicationTools::displayTaskDone();
 }
 
@@ -171,7 +174,8 @@ TwoTreeLikelihood & TwoTreeLikelihood::operator=(const TwoTreeLikelihood & lik)
 
 TwoTreeLikelihood::~TwoTreeLikelihood()
 {
-	delete _shrunkData; 
+	delete _shrunkData;
+  if(_brLenConstraint) delete _brLenConstraint;
 }
 
 /******************************************************************************/
@@ -313,7 +317,7 @@ void TwoTreeLikelihood::initBranchLengthsParameters()
 		_brLen = 0.000001;
 	}
 	_brLenParameters.reset();
-	_brLenParameters.addParameter(Parameter("BrLen", _brLen, & Parameter::R_PLUS_STAR));
+	_brLenParameters.addParameter(Parameter("BrLen", _brLen, _brLenConstraint));
 }
 
 /******************************************************************************/
@@ -653,10 +657,10 @@ void DistanceEstimation::computeMatrix() throw (NullPointerException)
 	for(unsigned int i = 0; i < n; i++)
   {
 		(* _dist)(i, i) = 0;
-		if(_verbose == 1) { ApplicationTools::displayGauge(i, n-1, '='); }
+		if(_verbose == 1) { ApplicationTools::displayGauge(i, n - 1, '='); }
 		for(unsigned int j = i + 1; j < n; j++)
     {
-			if(_verbose > 1) { ApplicationTools::displayGauge(i, n-1, '='); }
+			if(_verbose > 1) { ApplicationTools::displayGauge(j - i - 1, n - i - 2, '='); }
 			TwoTreeLikelihood * lik = 
 				new TwoTreeLikelihood(names[i], names[j], *_sites, _model, _rateDist, _verbose > 3);
       lik->initialize();
@@ -665,7 +669,7 @@ void DistanceEstimation::computeMatrix() throw (NullPointerException)
 			const Sequence * seqj = _sites->getSequence(names[j]);
 			unsigned int d = SymbolListTools::getNumberOfDistinctPositions(* seqi, * seqj);
 			unsigned int g = SymbolListTools::getNumberOfPositionsWithoutGap(* seqi, * seqj);
-			lik->setParameterValue("BrLen", g == 0 ? 0 : (double)d/(double)g);
+			lik->setParameterValue("BrLen", g == 0 ? lik->getMinimumBranchLength() : std::max(lik->getMinimumBranchLength(),(double)d/(double)g));
 			// Optimization:
 			_optimizer->setFunction(lik);
 			_optimizer->setConstraintPolicy(AutoParameter::CONSTRAINTS_AUTO);
@@ -677,6 +681,7 @@ void DistanceEstimation::computeMatrix() throw (NullPointerException)
 			(* _dist)(i, j) = (* _dist)(j, i) = lik->getParameterValue("BrLen");
 			delete lik;
 		}
+	  if(_verbose > 1) ApplicationTools::message << endl;
 	}
 }
 

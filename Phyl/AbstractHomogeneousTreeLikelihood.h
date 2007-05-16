@@ -175,7 +175,7 @@ class AbstractHomogeneousTreeLikelihood:
 
 		virtual void initBranchLengthsParameters();
 
-    void setMinimumBranchLength(double minimum)
+    virtual void setMinimumBranchLength(double minimum)
     {
       _minimumBrLen = minimum;
       if(_brLenConstraint != NULL) delete _brLenConstraint;
@@ -183,7 +183,7 @@ class AbstractHomogeneousTreeLikelihood:
       initBranchLengthsParameters();
     }
 
-    double getMinimumBranchLength() const { return _minimumBrLen; }
+    virtual double getMinimumBranchLength() const { return _minimumBrLen; }
 
   protected:
     /**
