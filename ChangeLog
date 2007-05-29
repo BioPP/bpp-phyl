@@ -1,3 +1,6 @@
+29/05/07 Julien Dutheil
+* Optimization improved, with new options.
+
 07/05/07 Julien Dutheil
 * New method 'buildDistanceTree' in OptimizationTools, with iterative
   estimation procedure of Ninio et al 2007.

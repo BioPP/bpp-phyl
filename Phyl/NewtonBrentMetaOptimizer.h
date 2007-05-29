@@ -44,8 +44,6 @@ knowledge of the CeCILL license and that you accept its terms.
 #include "PseudoNewtonOptimizer.h"
 
 // From NumCalc:
-#include <NumCalc/SimpleMultiDimensions.h>
-#include <NumCalc/SimpleNewtonMultiDimensions.h>
 #include <NumCalc/AbstractOptimizer.h>
 
 // From the STL:
@@ -86,12 +84,13 @@ using namespace std;
  *
  * This optimizer can be used with numerical derivatives.
  * 
- * @see PseudoNewtonOptimizer, SimpleMultiDimensions, ThreePointsNumericalDerivative, FivePointsNumericalDerivative.
+ * @see ConjugateGradientMultiDimensions, PseudoNewtonOptimizer, SimpleMultiDimensions, ThreePointsNumericalDerivative, FivePointsNumericalDerivative.
  */
 class NewtonBrentMetaOptimizer:
   public AbstractOptimizer
 {
   public:
+    static string TYPE_CONJUGATEGRADIENT;
     static string TYPE_SIMPLENEWTON;
     static string TYPE_PSEUDONEWTON;
     static string IT_TYPE_STEP;

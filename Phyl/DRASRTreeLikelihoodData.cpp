@@ -63,9 +63,13 @@ void DRASRTreeLikelihoodData::initLikelihoods(const SiteContainer & sites, const
   _nbStates = model.getNumberOfStates();
    _nbSites = sites.getNumberOfSites();
   if(_shrunkData != NULL) delete _shrunkData;
-  _shrunkData =  initLikelihoodsWithPatterns(_tree->getRootNode(), sites, model);
-  //_shrunkData = new VectorSiteContainer(sites);  
-  //initLikelihoods(_tree->getRootNode(), sites, model);
+  if(_usePatterns)
+    _shrunkData =  initLikelihoodsWithPatterns(_tree->getRootNode(), sites, model);
+  else
+  {
+    _shrunkData = new VectorSiteContainer(sites);  
+    initLikelihoods(_tree->getRootNode(), sites, model);
+  }
   _nbDistinctSites = _shrunkData->getNumberOfSites();
   //Initialize root patterns:
   _rootPatternLinks.resize(_nbSites);
@@ -135,7 +139,7 @@ void DRASRTreeLikelihoodData::initLikelihoods(const Node * node, const SiteConta
     }
     catch (SequenceNotFoundException snfe)
     {
-      throw SequenceNotFoundException("HomogeneousTreeLikelihood::initTreelikelihoods. Leaf name in tree not found in site conainer: ", (node->getName()));
+      throw SequenceNotFoundException("DRASRTreeLikelihoodData::initTreelikelihoods. Leaf name in tree not found in site conainer: ", (node->getName()));
     }  
     for(unsigned int i = 0; i < _nbSites; i++)
     {

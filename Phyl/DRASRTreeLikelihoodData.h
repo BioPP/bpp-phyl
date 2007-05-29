@@ -127,11 +127,12 @@ class DRASRTreeLikelihoodData :
 		unsigned int _nbStates;
 		unsigned int _nbClasses;
 		unsigned int _nbDistinctSites; 
+    bool _usePatterns;
 
 	public:
-		DRASRTreeLikelihoodData(TreeTemplate<Node> & tree, unsigned int nbClasses):
+		DRASRTreeLikelihoodData(TreeTemplate<Node> & tree, unsigned int nbClasses, bool usePatterns = true):
       _nodeData(), _patternLinks(), _shrunkData(NULL), _nbSites(0), _nbStates(0),
-      _nbClasses(nbClasses), _nbDistinctSites(0)
+      _nbClasses(nbClasses), _nbDistinctSites(0), _usePatterns(usePatterns)
     {
       _tree = &tree;
     }

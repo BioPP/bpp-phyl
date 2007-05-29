@@ -50,6 +50,9 @@ using namespace std;
 // From Utils:
 #include <Utils/MapTools.h>
 
+// From NumCalc:
+#include <NumCalc/Matrix.h>
+
 class Node;
 template<class N> class TreeTemplate;
 /**
@@ -78,7 +81,8 @@ template<class N> class TreeTemplate;
  * @see TreeTools
  */
 
-class BipartitionList
+class BipartitionList:
+  public virtual Clonable
 {
   protected:
 
@@ -112,37 +116,44 @@ class BipartitionList
     /**
      * @brief Copy-constructor
      */
-    BipartitionList(BipartitionList* bipl) throw(NullPointerException);
+    BipartitionList(const BipartitionList & bipl);
+
+    /**
+     * @brief Assignment operator
+     */
+    BipartitionList& operator=(const BipartitionList & bipl);
 
     virtual ~BipartitionList();
 
+    BipartitionList * clone() const { return new BipartitionList(*this); }
+
   public:
 
-    unsigned int getNumberOfElements() { return _elements.size(); }
+    unsigned int getNumberOfElements() const { return _elements.size(); }
 
-    vector<string> getElementNames() { return _elements; }
+    vector<string> getElementNames() const { return _elements; }
 
-    unsigned int getNumberOfBipartitions() { return _bitBipartitionList.size(); }
+    unsigned int getNumberOfBipartitions() const { return _bitBipartitionList.size(); }
 
-    vector<int*> getBitBipartitionList() { return _bitBipartitionList; }
+    vector<int*> getBitBipartitionList() const { return _bitBipartitionList; }
 
-    map<string, bool> getBipartition(unsigned int i) throw (Exception);
+    map<string, bool> getBipartition(unsigned int i) const throw (Exception);
 
     int* getBitBipartition(unsigned int i) throw (Exception);
 
-    bool haveSameElementsThan(map <string, bool> bipart);
+    bool haveSameElementsThan(map <string, bool> bipart) const;
 
     void addBipartition(map<string, bool> & bipart, bool checkElements = 1) throw(Exception);
 
     void deleteBipartition(unsigned int i) throw(Exception);
 
-    bool isSorted() { return _sorted; }
+    bool isSorted() const { return _sorted; }
 
     void sortElements();
 
-    bool containsBipartition(map<string, bool> & bipart, bool checkElements = 1) throw(Exception);
+    bool containsBipartition(map<string, bool> & bipart, bool checkElements = 1) const throw(Exception);
 
-    bool areIdentical(unsigned int k1, unsigned int k2) throw(Exception);
+    bool areIdentical(unsigned int k1, unsigned int k2) const throw(Exception);
 
     void removeRedundantBipartitions();
 
@@ -154,19 +165,19 @@ class BipartitionList
      * and B1 contains A2) or (B1 contains A1 and A2 contains B2) or (B2 contains A1 and A2
      * contains B1). Only compatible bipartitions can belong to the same tree.
      */
-    bool areCompatible(unsigned int k1, unsigned int k2) throw(Exception);
+    bool areCompatible(unsigned int k1, unsigned int k2) const throw(Exception);
 
     /**
      * @brief Tells whether all bipartitions in the list are compatible with each other
      */
-    bool areAllCompatible();
+    bool areAllCompatible() const;
 
     /**
      * @brief Tells whether all bipartitions in the list are compatible with a given bipartition
      *
      * @param checkElements Check the correspondance of element sets or not
      */
-    bool areAllCompatibleWith(map<string, bool> & bipart, bool checkElements=1) throw(Exception);
+    bool areAllCompatibleWith(map<string, bool> & bipart, bool checkElements = 1) throw(Exception);
 
     /**
      * @brief Removes bipartitions corresponding to external branches (1 vs n-1)
@@ -187,7 +198,7 @@ class BipartitionList
     /**
      * @brief Returns the size of the smallest of the two partitions (e.g. 1 for external branches)
      */
-    unsigned int getPartitionSize(unsigned int i) throw(Exception);
+    unsigned int getPartitionSize(unsigned int i) const throw(Exception);
 
     /**
      * @brief Sort bipartitions by partition size
@@ -197,11 +208,22 @@ class BipartitionList
     /**
      * @brief Translate into a tree
      */
-    TreeTemplate<Node>* toTree() throw(Exception);
+    TreeTemplate<Node>* toTree() const throw(Exception);
+
+    /**
+     * @brief Create a matrix representation of the bifurcations.
+     *
+     * Each row corresponds to an element, each column to a bipartition.
+     *
+     * NB: using RowMatrix<bool> leads to unexplained compilation error...
+     *
+     * @return A boolean matrix.
+     */
+    RowMatrix<int> toMatrix() const;
 
   protected:
 
-    vector<string> buildBitBipartitions(const Node* nd, vector<int*> & bitbip, const vector<string> & elements, unsigned int* cpt);
+    vector<string> buildBitBipartitions(const Node* nd, vector<int*> & bitbip, const vector<string> & elements, unsigned int* cpt) const;
 
 };
 

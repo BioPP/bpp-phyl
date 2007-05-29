@@ -68,7 +68,7 @@ using namespace std;
  * weighted by the corresponding number of sites.
  */
 class AbstractTreeLikelihoodData :
-	public virtual TreeLikelihoodData
+	public TreeLikelihoodData
 {
 	protected:
 		/**

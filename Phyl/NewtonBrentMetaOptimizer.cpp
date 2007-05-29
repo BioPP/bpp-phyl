@@ -41,12 +41,18 @@ knowledge of the CeCILL license and that you accept its terms.
 
 #include "NewtonBrentMetaOptimizer.h"
 
+// From NumCalc:
+#include <NumCalc/SimpleMultiDimensions.h>
+#include <NumCalc/SimpleNewtonMultiDimensions.h>
+#include <NumCalc/ConjugateGradientMultiDimensions.h>
+#
 /**************************************************************************/
 
-string NewtonBrentMetaOptimizer::TYPE_SIMPLENEWTON= "simple";
-string NewtonBrentMetaOptimizer::TYPE_PSEUDONEWTON= "pseudo";
-string NewtonBrentMetaOptimizer::IT_TYPE_STEP= "step";
-string NewtonBrentMetaOptimizer::IT_TYPE_FULL= "full";
+string NewtonBrentMetaOptimizer::TYPE_CONJUGATEGRADIENT = "conjugate gradient";
+string NewtonBrentMetaOptimizer::TYPE_SIMPLENEWTON = "simple";
+string NewtonBrentMetaOptimizer::TYPE_PSEUDONEWTON = "pseudo";
+string NewtonBrentMetaOptimizer::IT_TYPE_STEP = "step";
+string NewtonBrentMetaOptimizer::IT_TYPE_FULL = "full";
 
 /**************************************************************************/
 
@@ -150,7 +156,9 @@ void NewtonBrentMetaOptimizer::doInit(const ParameterList & parameters)
     throw Exception("NewtonBrentMetaOptimizer::init(). No derivable and non-derivable parameter set.");
   if(_nbNewtonParameters > 0)
   {
-    if(_type == TYPE_PSEUDONEWTON) 
+    if(_type == TYPE_CONJUGATEGRADIENT)
+      _newtonOptimizer = new ConjugateGradientMultiDimensions(dynamic_cast<DerivableFirstOrder *>(_function));
+    else if(_type == TYPE_PSEUDONEWTON) 
       _newtonOptimizer = new PseudoNewtonOptimizer(dynamic_cast<DerivableSecondOrder *>(_function));
     else if(_type == TYPE_SIMPLENEWTON)
       _newtonOptimizer = new SimpleNewtonMultiDimensions(dynamic_cast<DerivableSecondOrder *>(_function));

@@ -56,7 +56,7 @@ DRTreeParsimonyScore::DRTreeParsimonyScore(
 	throw (Exception) :
 	AbstractTreeParsimonyScore(tree, data, verbose)
 {
-	if(verbose) ApplicationTools::message << "Double-Recursive Tree Parsimony Score" << endl;	
+	if(verbose) ApplicationTools::displayMessage("Double-Recursive Tree Parsimony Score");	
 	_parsimonyData = new DRTreeParsimonyData(*_tree);
 	
 	if(verbose) ApplicationTools::displayTask("Initializing data structure");

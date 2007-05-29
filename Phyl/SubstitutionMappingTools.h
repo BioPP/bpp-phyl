@@ -70,11 +70,12 @@ class SubstitutionMappingTools
 		 * @param substitutionCount The SubstitutionCount to use.
 		 * @param verbose           Print info to screen.
 		 * @return A vector of substitutions vectors (one for each site).
+     * @throw Exception If the likelihood object is not initialized.
 		 */
 		static ProbabilisticSubstitutionMapping * computeSubstitutionVectors(
 			DRHomogeneousTreeLikelihood & drhtl,
 			const SubstitutionCount & substitutionCount,
-			bool verbose = true);
+			bool verbose = true) throw (Exception);
 		
 		/**
 		 * @brief Compute the substitutions vectors for a particular dataset using the
@@ -94,11 +95,12 @@ class SubstitutionMappingTools
 		 * @param substitutionCount The substitutionsCount to use.
 		 * @param verbose           Print info to screen.
 		 * @return A vector of substitutions vectors (one for each site).
+     * @throw Exception If the likelihood object is not initialized.
 		 */
 		static ProbabilisticSubstitutionMapping * computeSubstitutionVectorsNoAveraging(
 			DRHomogeneousTreeLikelihood & drhtl,
 			const SubstitutionCount & substitutionCount,
-			bool verbose = true);
+			bool verbose = true) throw (Exception);
 		
 		/**
 		 * @brief Compute the substitutions vectors for a particular dataset using the
@@ -116,11 +118,12 @@ class SubstitutionMappingTools
 		 * @param substitutionCount The substitutionsCount to use.
 		 * @param verbose           Print info to screen.
 		 * @return A vector of substitutions vectors (one for each site).
+     * @throw Exception If the likelihood object is not initialized.
 		 */
 		static ProbabilisticSubstitutionMapping * computeSubstitutionVectorsNoAveragingMarginal(
 			DRHomogeneousTreeLikelihood & drhtl,
 			const SubstitutionCount & substitutionCount,
-			bool verbose = true);
+			bool verbose = true) throw (Exception);
 		
 		/**
 		 * @brief Compute the substitutions vectors for a particular dataset using the
@@ -135,11 +138,12 @@ class SubstitutionMappingTools
 		 * @param substitutionCount The substitutionsCount to use.
 		 * @param verbose           Print info to screen.
 		 * @return A vector of substitutions vectors (one for each site).
+     * @throw Exception If the likelihood object is not initialized.
 		 */
 		static ProbabilisticSubstitutionMapping * computeSubstitutionVectorsMarginal(
 			DRHomogeneousTreeLikelihood & drhtl,
 			const SubstitutionCount & substitutionCount,
-			bool verbose = true);
+			bool verbose = true) throw (Exception);
 	
 		/**
 		 * @brief Write the substitutions vectors to a stream.

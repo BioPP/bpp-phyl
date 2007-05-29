@@ -61,38 +61,6 @@ knowledge of the CeCILL license and that you accept its terms.
 #include <iostream>
 using namespace std;
 
-/******************************************************************************/
-
-/******************************/
-/* for debugging purpose only */
-/******************************/
-
-/* print_bipl */
-void print_bipl(BipartitionList & bipl)
-{
-  vector< map<string,bool> > my_bipl;
-  vector<string> el;
-
-  el = bipl.getElementNames();
-  for(unsigned int i = 0; i < bipl.getNumberOfBipartitions(); i++)
-  {
-    my_bipl.push_back(bipl.getBipartition(i));
-  }
-
-  cout << endl;
-  for(unsigned int j = 0; j < el.size(); j++)
-  {
-    cout << el[j] << "\t";
-    for(unsigned int i = 0; i < bipl.getNumberOfBipartitions(); i++)
-      if(my_bipl[i][el[j]]) cout << "1";
-      else cout << "0";
-    cout << endl;
-  }
-  cout << endl;
-}
-
-/******************************************************************************/
-
 /****************************************************************/
 /* utilitary classes required for sorting elements/bipartitions */
 /****************************************************************/
@@ -196,19 +164,16 @@ BipartitionList::BipartitionList(const vector<string> & elements, const vector<i
 
 /******************************************************************************/
 
-/* copy constructor */
-BipartitionList::BipartitionList(BipartitionList* bipL) throw(NullPointerException)
+BipartitionList::BipartitionList(const BipartitionList & bipL)
 {
-  if(bipL == NULL)
-    throw NullPointerException("Null pointer passed to BipartitionList constructor");
 
   unsigned int lword  = BipartitionTools::LWORD;
-  unsigned int nbword = (bipL->getNumberOfElements() + lword - 1) / lword;
+  unsigned int nbword = (bipL.getNumberOfElements() + lword - 1) / lword;
   unsigned int nbint  = nbword * lword / (CHAR_BIT * sizeof(int));
 
-  _bitBipartitionList.resize(bipL->getNumberOfBipartitions());
-  vector<int*> bitBipL = bipL->getBitBipartitionList();
-  for(unsigned int i = 0; i < bipL->getNumberOfBipartitions(); i++)
+  _bitBipartitionList.resize(bipL.getNumberOfBipartitions());
+  vector<int*> bitBipL = bipL.getBitBipartitionList();
+  for(unsigned int i = 0; i < bipL.getNumberOfBipartitions(); i++)
   {
     _bitBipartitionList[i] = new int[nbint];
     for(unsigned int j = 0; j < nbint; j++)
@@ -217,13 +182,37 @@ BipartitionList::BipartitionList(BipartitionList* bipL) throw(NullPointerExcepti
     }
   }
 
-  _elements = bipL->getElementNames();
-  _sorted = bipL->isSorted();
+  _elements = bipL._elements;
+  _sorted = bipL._sorted;
 }
 
 /******************************************************************************/
 
-//Destructeur:
+BipartitionList & BipartitionList::operator=(const BipartitionList & bipL)
+{
+  unsigned int lword  = BipartitionTools::LWORD;
+  unsigned int nbword = (bipL.getNumberOfElements() + lword - 1) / lword;
+  unsigned int nbint  = nbword * lword / (CHAR_BIT * sizeof(int));
+
+  for(unsigned int i = 0; i < _bitBipartitionList.size(); i++)
+    delete _bitBipartitionList[i];
+  _bitBipartitionList.resize(bipL.getNumberOfBipartitions());
+  vector<int*> bitBipL = bipL.getBitBipartitionList();
+  for(unsigned int i = 0; i < bipL.getNumberOfBipartitions(); i++)
+  {
+    _bitBipartitionList[i] = new int[nbint];
+    for(unsigned int j = 0; j < nbint; j++)
+    {
+      _bitBipartitionList[i][j] = bitBipL[i][j];
+    }
+  }
+
+  _elements = bipL._elements;
+  _sorted = bipL._sorted;
+  return *this;
+}
+
+/******************************************************************************/
 
 BipartitionList::~BipartitionList()
 {
@@ -233,7 +222,7 @@ BipartitionList::~BipartitionList()
 
 /******************************************************************************/
 
-map<string, bool> BipartitionList::getBipartition(unsigned int i) throw (Exception)
+map<string, bool> BipartitionList::getBipartition(unsigned int i) const throw (Exception)
 {
   map<string, bool> bip;
 
@@ -262,7 +251,7 @@ int* BipartitionList::getBitBipartition(unsigned int i) throw (Exception)
 
 /******************************************************************************/
 
-bool BipartitionList::haveSameElementsThan(map <string, bool> bipart)
+bool BipartitionList::haveSameElementsThan(map <string, bool> bipart) const
 {
   vector<string> elements = _elements;
   vector<string> keys;
@@ -318,7 +307,7 @@ void BipartitionList::deleteBipartition(unsigned int i) throw(Exception)
 
 /******************************************************************************/
 
-bool BipartitionList::containsBipartition(map<string, bool> & bipart, bool checkElements) throw (Exception)
+bool BipartitionList::containsBipartition(map<string, bool> & bipart, bool checkElements) const throw (Exception)
 {
   unsigned int i, j;
   bool dac, padac;
@@ -351,7 +340,7 @@ bool BipartitionList::containsBipartition(map<string, bool> & bipart, bool check
 
 /******************************************************************************/
 
-bool BipartitionList::areIdentical(unsigned int k1, unsigned int k2) throw (Exception)
+bool BipartitionList::areIdentical(unsigned int k1, unsigned int k2) const throw (Exception)
 {
   bool dac, padac;
 
@@ -380,7 +369,7 @@ bool BipartitionList::areIdentical(unsigned int k1, unsigned int k2) throw (Exce
 
 /******************************************************************************/
 
-bool BipartitionList::areCompatible(unsigned int k1, unsigned int k2) throw (Exception)
+bool BipartitionList::areCompatible(unsigned int k1, unsigned int k2) const throw (Exception)
 {
   bool uu, uz, zu, zz;
 
@@ -411,7 +400,7 @@ bool BipartitionList::areCompatible(unsigned int k1, unsigned int k2) throw (Exc
 
 /******************************************************************************/
 
-bool BipartitionList::areAllCompatible()
+bool BipartitionList::areAllCompatible() const
 {
   for(unsigned int i = 0; i < _bitBipartitionList.size(); i++)
   {
@@ -428,20 +417,20 @@ bool BipartitionList::areAllCompatible()
 
 bool BipartitionList::areAllCompatibleWith(map<string, bool> & bipart, bool checkElements) throw (Exception)
 {
-  if(checkElements && !BipartitionList::haveSameElementsThan(bipart))
+  if(checkElements && !haveSameElementsThan(bipart))
     throw Exception("Distinct bipartition element sets");
   unsigned int nbBip = _bitBipartitionList.size();
-  BipartitionList::addBipartition(bipart, false);
+  addBipartition(bipart, false);
 
   for(unsigned int i = 0; i < nbBip; i++)
   {
-    if(!BipartitionList::areCompatible(i, nbBip))
+    if(!areCompatible(i, nbBip))
     {
-      BipartitionList::deleteBipartition(nbBip);
+      deleteBipartition(nbBip);
       return false;
     }
   }
-  BipartitionList::deleteBipartition(nbBip);
+  deleteBipartition(nbBip);
   return true;
 }
 
@@ -494,7 +483,7 @@ void BipartitionList::sortElements()
 
 /******************************************************************************/
 
-unsigned int BipartitionList::getPartitionSize(unsigned int k) throw (Exception)
+unsigned int BipartitionList::getPartitionSize(unsigned int k) const throw (Exception)
 {
   unsigned int size = 0;
   if(k >= _bitBipartitionList.size())
@@ -602,7 +591,7 @@ void BipartitionList::removeRedundantBipartitions()
 
 /******************************************************************************/
 
-TreeTemplate<Node>* BipartitionList::toTree() throw (Exception)
+TreeTemplate<Node>* BipartitionList::toTree() const throw (Exception)
 {
   BipartitionList* sortedBipL;
   vector<int*> sortedBitBipL;
@@ -616,7 +605,7 @@ TreeTemplate<Node>* BipartitionList::toTree() throw (Exception)
   if(!BipartitionList::areAllCompatible())
     throw Exception("Trying to build a tree from incompatible bipartitions");
 
-  sortedBipL = new BipartitionList(this);
+  sortedBipL = clone();
   for(unsigned int i = 0; i < sortedBipL->getNumberOfBipartitions(); i++)
   {
     if(sortedBipL->getPartitionSize(i) > sortedBipL->getNumberOfElements() / 2)
@@ -688,7 +677,7 @@ TreeTemplate<Node>* BipartitionList::toTree() throw (Exception)
 
 /******************************************************************************/
 
-vector<string> BipartitionList::buildBitBipartitions(const Node * nd, vector<int*> & bitbip, const vector<string> & elements, unsigned int* cpt)
+vector<string> BipartitionList::buildBitBipartitions(const Node * nd, vector<int*> & bitbip, const vector<string> & elements, unsigned int* cpt) const
 {
   vector<string> under_elements, ret_elements;
 
@@ -733,6 +722,30 @@ vector<string> BipartitionList::buildBitBipartitions(const Node * nd, vector<int
   (*cpt)++;
 
   return under_elements;
+}
+
+/******************************************************************************/
+
+RowMatrix<int> BipartitionList::toMatrix() const
+{
+  vector< map<string, bool> > bipl;
+  for(unsigned int i = 0; i < getNumberOfBipartitions(); i++)
+  {
+    bipl.push_back(getBipartition(i));
+  }
+
+  vector<string> el = getElementNames();
+  
+  RowMatrix<int> mat(el.size(), getNumberOfBipartitions());
+
+  for(unsigned int j = 0; j < el.size(); j++)
+  {
+    for(unsigned int i = 0; i < getNumberOfBipartitions(); i++)
+    {
+      mat(j, i) = bipl[i][el[j]];
+    }
+  }
+  return mat;
 }
 
 /******************************************************************************/

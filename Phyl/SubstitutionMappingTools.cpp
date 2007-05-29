@@ -59,9 +59,10 @@ using namespace std;
 ProbabilisticSubstitutionMapping * SubstitutionMappingTools::computeSubstitutionVectors(
 	DRHomogeneousTreeLikelihood & drhtl,
 	const SubstitutionCount & substitutionCount,
-	bool verbose)
+	bool verbose) throw (Exception)
 {
   //Preamble:
+  if(!drhtl.isInitialized()) throw Exception("SubstitutionMappingTools::computeSubstitutionVectors(). Likelihood object is not initialized.");
 																   
 	//A few variables we'll need:
 	
@@ -268,7 +269,7 @@ ProbabilisticSubstitutionMapping * SubstitutionMappingTools::computeSubstitution
 	}
 	if(verbose)
   {
-    ApplicationTools::message << " ";
+    if(ApplicationTools::message) *ApplicationTools::message << " ";
     ApplicationTools::displayTaskDone();
   }
 	return substitutions;
@@ -279,9 +280,10 @@ ProbabilisticSubstitutionMapping * SubstitutionMappingTools::computeSubstitution
 ProbabilisticSubstitutionMapping * SubstitutionMappingTools::computeSubstitutionVectorsNoAveraging(
 	DRHomogeneousTreeLikelihood & drhtl,
 	const SubstitutionCount & substitutionCount,
-	bool verbose)
+	bool verbose) throw (Exception)
 {
 	//Preamble:
+  if(!drhtl.isInitialized()) throw Exception("SubstitutionMappingTools::computeSubstitutionVectorsNoAveraging(). Likelihood object is not initialized.");
 																   
 	//A few variables we'll need:
 	const TreeTemplate<Node> *    tree = dynamic_cast<TreeTemplate<Node> *>(drhtl.getTree());
@@ -472,7 +474,7 @@ ProbabilisticSubstitutionMapping * SubstitutionMappingTools::computeSubstitution
 	}
 	if(verbose)
   {
-    ApplicationTools::message << " ";
+    if(ApplicationTools::message) *ApplicationTools::message << " ";
     ApplicationTools::displayTaskDone();
   }
 	return substitutions;
@@ -483,9 +485,10 @@ ProbabilisticSubstitutionMapping * SubstitutionMappingTools::computeSubstitution
 ProbabilisticSubstitutionMapping * SubstitutionMappingTools::computeSubstitutionVectorsNoAveragingMarginal(
 	DRHomogeneousTreeLikelihood & drhtl,
 	const SubstitutionCount & substitutionCount,
-	bool verbose)
+	bool verbose) throw (Exception)
 {
 	//Preamble:
+  if(!drhtl.isInitialized()) throw Exception("SubstitutionMappingTools::computeSubstitutionVectorsNoAveragingMarginal(). Likelihood object is not initialized.");
 																   
 	//A few variables we'll need:
 	
@@ -559,7 +562,7 @@ ProbabilisticSubstitutionMapping * SubstitutionMappingTools::computeSubstitution
 	}
 	if(verbose)
   {
-    ApplicationTools::message << " ";
+    if(ApplicationTools::message) *ApplicationTools::message << " ";
     ApplicationTools::displayTaskDone();
   }
 	return substitutions;
@@ -570,9 +573,10 @@ ProbabilisticSubstitutionMapping * SubstitutionMappingTools::computeSubstitution
 ProbabilisticSubstitutionMapping * SubstitutionMappingTools::computeSubstitutionVectorsMarginal(
 	DRHomogeneousTreeLikelihood & drhtl,
 	const SubstitutionCount & substitutionCount,
-	bool verbose)
+	bool verbose) throw (Exception)
 {
 	//Preamble:
+  if(!drhtl.isInitialized()) throw Exception("SubstitutionMappingTools::computeSubstitutionVectorsMarginal(). Likelihood object is not initialized.");
 																   
 	//A few variables we'll need:
 	
@@ -675,7 +679,7 @@ ProbabilisticSubstitutionMapping * SubstitutionMappingTools::computeSubstitution
 	}
 	if(verbose)
   {
-    ApplicationTools::message << " ";
+    if(ApplicationTools::message) *ApplicationTools::message << " ";
     ApplicationTools::displayTaskDone();
   }
 	return substitutions;

@@ -87,7 +87,7 @@ TwoTreeLikelihood::TwoTreeLikelihood(
 	_nbSites   = _data->getNumberOfSites();
 	_nbClasses = _rateDistribution->getNumberOfCategories();
 	_nbStates  = _model->getNumberOfStates();	
-	if(verbose) ApplicationTools::message << "Double-Recursive Homogeneous Tree Likelihood" << endl;	
+	if(verbose) ApplicationTools::displayMessage("Double-Recursive Homogeneous Tree Likelihood");	
 	
 	_brLen = 0.000001;
 
@@ -311,10 +311,10 @@ void TwoTreeLikelihood::applyParameters() throw (Exception)
 
 void TwoTreeLikelihood::initBranchLengthsParameters()
 {
-	if (_brLen <= 0)
+	if (_brLen <= _minimumBrLen)
   {
-		cout << "WARNING!!! Branch length is < 0. Value is set to 0.000001" << endl;
-		_brLen = 0.000001;
+    ApplicationTools::displayWarning("Branch length is too small: " + TextTools::toString(_brLen) + ". Value is set to " + TextTools::toString(_minimumBrLen));
+		_brLen = _minimumBrLen;
 	}
 	_brLenParameters.reset();
 	_brLenParameters.addParameter(Parameter("BrLen", _brLen, _brLenConstraint));
@@ -681,7 +681,7 @@ void DistanceEstimation::computeMatrix() throw (NullPointerException)
 			(* _dist)(i, j) = (* _dist)(j, i) = lik->getParameterValue("BrLen");
 			delete lik;
 		}
-	  if(_verbose > 1) ApplicationTools::message << endl;
+	  if(_verbose > 1 && ApplicationTools::message) *ApplicationTools::message << endl;
 	}
 }
 

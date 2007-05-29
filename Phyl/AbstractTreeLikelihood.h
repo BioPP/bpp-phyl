@@ -114,8 +114,8 @@ class AbstractTreeLikelihood :
      */
 		virtual ~AbstractTreeLikelihood()
     {
-      delete _data;
-      delete _tree;
+      if(_data) delete _data;
+      if(_tree) delete _tree;
     }
 	
 	public:

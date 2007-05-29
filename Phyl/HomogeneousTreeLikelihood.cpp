@@ -55,12 +55,13 @@ HomogeneousTreeLikelihood::HomogeneousTreeLikelihood(
   SubstitutionModel * model,
   DiscreteDistribution * rDist,
   bool checkRooted,
-  bool verbose)
+  bool verbose,
+  bool usePatterns)
 throw (Exception):
   AbstractHomogeneousTreeLikelihood(tree, model, rDist, checkRooted, verbose),
   _likelihoodData(NULL)
 {
-  init();
+  _init(usePatterns);
 }
 
 /******************************************************************************/
@@ -71,21 +72,22 @@ HomogeneousTreeLikelihood::HomogeneousTreeLikelihood(
   SubstitutionModel * model,
   DiscreteDistribution * rDist,
   bool checkRooted,
-  bool verbose)
+  bool verbose,
+  bool usePatterns)
 throw (Exception):
   AbstractHomogeneousTreeLikelihood(tree, model, rDist, checkRooted, verbose),
   _likelihoodData(NULL)
 {
-  init();
+  _init(usePatterns);
   setData(data);
 }
 
 /******************************************************************************/
 
-void HomogeneousTreeLikelihood::init() throw (Exception)
+void HomogeneousTreeLikelihood::_init(bool usePatterns) throw (Exception)
 {
-  if(_verbose) ApplicationTools::message << "Homogeneous Tree Likelihood" << endl;  
-  _likelihoodData = new DRASRTreeLikelihoodData(*_tree, _rateDistribution->getNumberOfCategories());
+  if(_verbose) ApplicationTools::displayMessage("Homogeneous Tree Likelihood");  
+  _likelihoodData = new DRASRTreeLikelihoodData(*_tree, _rateDistribution->getNumberOfCategories(), usePatterns);
 }
 
 /******************************************************************************/

@@ -81,9 +81,10 @@ TreeTemplate<Node> * PhylogeneticsApplicationTools::getTree(
 
 void PhylogeneticsApplicationTools::printInputTreeHelp()
 {
-	ApplicationTools::message << "Input tree parameters:" << endl;
-	ApplicationTools::message << "tree.file                     | file where to write the tree" << endl;
-  ApplicationTools::message << "______________________________|___________________________________________" << endl;
+  if(!ApplicationTools::message) return;
+	*ApplicationTools::message << "Input tree parameters:" << endl;
+	*ApplicationTools::message << "tree.file                     | file where to write the tree" << endl;
+  *ApplicationTools::message << "______________________________|___________________________________________" << endl;
 }
 
 /******************************************************************************/
@@ -342,22 +343,23 @@ SubstitutionModel * PhylogeneticsApplicationTools::getSubstitutionModel(
 
 void PhylogeneticsApplicationTools::printSubstitutionModelHelp()
 {
-  ApplicationTools::message << "Substitution Model:" << endl;
-	ApplicationTools::message << "model               | Nucleotides (N): [JCnuc, K80, T92, F84, HKY85, TN93," << endl;
-  ApplicationTools::message << "                    | GTR]" << endl;
-  ApplicationTools::message << "                    | Proteins (P): [JCprot, DSO78, JTT92, empirical]" << endl;
-  ApplicationTools::message << "kappa               | kappa(N)  parameter in Q matrix" << endl;
-  ApplicationTools::message << "kappa1              | kappa1(N) parameter in Q matrix" << endl;
-  ApplicationTools::message << "kappa2              | kappa2(N) parameter in Q matrix" << endl;
-  ApplicationTools::message << "a,b,c,d,e,f         | GTR rates parameter in Q matrix" << endl;
-  ApplicationTools::message << "theta               | theta(N)  parameter in Q matrix" << endl;
-  ApplicationTools::message << "piA                 | piA(N)    parameter in Q matrix" << endl;
-  ApplicationTools::message << "piT                 | piT(N)    parameter in Q matrix" << endl;
-  ApplicationTools::message << "piC                 | piC(N)    parameter in Q matrix" << endl;
-  ApplicationTools::message << "piG                 | piG(N)    parameter in Q matrix" << endl;
-	ApplicationTools::message << "use_observed_freq   | (N,P) Tell if the observed frequencies must be used." << endl; 
-	ApplicationTools::message << "model_empirical.file| (P) The path toward data file to use (PAML format)." << endl; 
-  ApplicationTools::message << "____________________|_____________________________________________________" << endl;
+  if(!ApplicationTools::message) return;
+  *ApplicationTools::message << "Substitution Model:" << endl;
+	*ApplicationTools::message << "model               | Nucleotides (N): [JCnuc, K80, T92, F84, HKY85, TN93," << endl;
+  *ApplicationTools::message << "                    | GTR]" << endl;
+  *ApplicationTools::message << "                    | Proteins (P): [JCprot, DSO78, JTT92, empirical]" << endl;
+  *ApplicationTools::message << "kappa               | kappa(N)  parameter in Q matrix" << endl;
+  *ApplicationTools::message << "kappa1              | kappa1(N) parameter in Q matrix" << endl;
+  *ApplicationTools::message << "kappa2              | kappa2(N) parameter in Q matrix" << endl;
+  *ApplicationTools::message << "a,b,c,d,e,f         | GTR rates parameter in Q matrix" << endl;
+  *ApplicationTools::message << "theta               | theta(N)  parameter in Q matrix" << endl;
+  *ApplicationTools::message << "piA                 | piA(N)    parameter in Q matrix" << endl;
+  *ApplicationTools::message << "piT                 | piT(N)    parameter in Q matrix" << endl;
+  *ApplicationTools::message << "piC                 | piC(N)    parameter in Q matrix" << endl;
+  *ApplicationTools::message << "piG                 | piG(N)    parameter in Q matrix" << endl;
+	*ApplicationTools::message << "use_observed_freq   | (N,P) Tell if the observed frequencies must be used." << endl; 
+	*ApplicationTools::message << "model_empirical.file| (P) The path toward data file to use (PAML format)." << endl; 
+  *ApplicationTools::message << "____________________|_____________________________________________________" << endl;
 }
 
 /******************************************************************************/
@@ -403,12 +405,13 @@ MarkovModulatedSubstitutionModel * PhylogeneticsApplicationTools::getCovarionPro
 
 void PhylogeneticsApplicationTools::printCovarionModelHelp()
 {
-  ApplicationTools::message << "Covarion Model:" << endl;
-	ApplicationTools::message << "covarion            | [none|G2001|TS98]" << endl;
-  ApplicationTools::message << "covarion_G2001.nu   | covarion rate parameter in G2001 model." << endl;
-  ApplicationTools::message << "covarion_TS98.s1    | covarion rate parameter in TS98 model." << endl;
-  ApplicationTools::message << "covarion_TS98.s2    | covarion rate parameter in TS98 model." << endl;
-  ApplicationTools::message << "____________________|_____________________________________________________" << endl;
+  if(!ApplicationTools::message) return;
+  *ApplicationTools::message << "Covarion Model:" << endl;
+	*ApplicationTools::message << "covarion            | [none|G2001|TS98]" << endl;
+  *ApplicationTools::message << "covarion_G2001.nu   | covarion rate parameter in G2001 model." << endl;
+  *ApplicationTools::message << "covarion_TS98.s1    | covarion rate parameter in TS98 model." << endl;
+  *ApplicationTools::message << "covarion_TS98.s2    | covarion rate parameter in TS98 model." << endl;
+  *ApplicationTools::message << "____________________|_____________________________________________________" << endl;
 }
 
 /******************************************************************************/
@@ -467,12 +470,13 @@ DiscreteDistribution * PhylogeneticsApplicationTools::getRateDistribution(
 
 void PhylogeneticsApplicationTools::printRateDistributionHelp()
 {
-  ApplicationTools::message << "Rate distribution parameters:" << endl;
- 	ApplicationTools::message << "rate_distribution               | uniform or gamma." << endl;
- 	ApplicationTools::message << "rate_distribution_gamma.alpha   | the gamma law's alpha parameter." << endl;
- 	ApplicationTools::message << "rate_distribution.classes_number| discrete approximation: number of" << endl;
-  ApplicationTools::message << "                                | categories (default to 4)." << endl;
-  ApplicationTools::message << "________________________________|_________________________________________" << endl;
+  if(!ApplicationTools::message) return;
+  *ApplicationTools::message << "Rate distribution parameters:" << endl;
+ 	*ApplicationTools::message << "rate_distribution               | uniform or gamma." << endl;
+ 	*ApplicationTools::message << "rate_distribution_gamma.alpha   | the gamma law's alpha parameter." << endl;
+ 	*ApplicationTools::message << "rate_distribution.classes_number| discrete approximation: number of" << endl;
+  *ApplicationTools::message << "                                | categories (default to 4)." << endl;
+  *ApplicationTools::message << "________________________________|_________________________________________" << endl;
 }
 
 /******************************************************************************/
@@ -520,7 +524,7 @@ TreeLikelihood * PhylogeneticsApplicationTools::optimizeParameters(
 			nbEvalMax,
 			messageHandler,
 			profiler);
-		if(verbose) ApplicationTools::message << "Performed " << n << " function evaluations." << endl;
+		if(verbose) ApplicationTools::displayMessage("Performed " + TextTools::toString(n) + " function evaluations.");
 	}
 	
 	// Should I ignore some parameters?
@@ -547,7 +551,7 @@ TreeLikelihood * PhylogeneticsApplicationTools::optimizeParameters(
 		}
     catch(exception e)
     {
-			ApplicationTools::error << "DEBUB: ERROR!!! This functionality can only be used with HomogeneousTreeLikelihood for now." << endl;
+			ApplicationTools::displayError("DEBUB: ERROR!!! This functionality can only be used with HomogeneousTreeLikelihood for now.");
 		}
 	}
 	
@@ -594,7 +598,7 @@ TreeLikelihood * PhylogeneticsApplicationTools::optimizeParameters(
     n = OptimizationTools::optimizeNumericalParameters2(
 			dynamic_cast<AbstractHomogeneousTreeLikelihood *>(tl),
       NULL,
-      "3points",
+      "2points",
 			tolerance,
 			nbEvalMax,
 			messageHandler,
@@ -610,29 +614,30 @@ TreeLikelihood * PhylogeneticsApplicationTools::optimizeParameters(
 
 void PhylogeneticsApplicationTools::printOptimizationHelp()
 {
-	ApplicationTools::message << "optimization                  | [yes/no] optimize parameters?" << endl;
-	ApplicationTools::message << "optimization.method           | [NB/NND] method to use" << endl;
-	ApplicationTools::message << "optimization.method_NB.step   | Number of progressive step to perform (NB)." << endl;
-	ApplicationTools::message << "optimization.verbose          | [0,1,2] level of verbose" << endl;
-	ApplicationTools::message << "optimization.message_handler  | [none, std ot file path] where to dislay" << endl;
-  ApplicationTools::message << "                              | optimization messages" << endl;
-	ApplicationTools::message << "                              | (if std, uses 'cout' to display messages)." << endl;
-	ApplicationTools::message << "optimization.profiler         | [none, std ot file path] where to display" << endl;
-  ApplicationTools::message << "                              | optimization steps (if std, uses 'cout'" << endl;
-	ApplicationTools::message << "                              | to display optimization steps)." << endl;
-	ApplicationTools::message << "optimization.tolerance        | [double] tolerance parameter for stopping" << endl;
-  ApplicationTools::message << "                              | the estimation." << endl;
-	ApplicationTools::message << "optimization.max_number_f_eval| [int] max. # of likelihood computations." << endl;
-	ApplicationTools::message << "optimization.ignore_parameter | [list] parameters to ignore during optimization." << endl;
-	ApplicationTools::message << "optimization.scale_first      | [yes, no] tell if a global scale" << endl;
-  ApplicationTools::message << "                              | optimization must be done prior to" << endl;
-	ApplicationTools::message << "                              | separate estimation of branch lengths." << endl;
-	ApplicationTools::message << "optimization.scale_first      | " << endl;
-	ApplicationTools::message << "                    .tolerance| [double] tolerance parameter for global" << endl;
-  ApplicationTools::message << "                              | scale optimization." << endl;
-	ApplicationTools::message << "            .max_number_f_eval| [int] maximum number of computation for" << endl;
-  ApplicationTools::message << "                              | global scale optimization." << endl;
-  ApplicationTools::message << "______________________________|___________________________________________" << endl;
+  if(!ApplicationTools::message) return;
+	*ApplicationTools::message << "optimization                  | [yes/no] optimize parameters?" << endl;
+	*ApplicationTools::message << "optimization.method           | [NB/NND] method to use" << endl;
+	*ApplicationTools::message << "optimization.method_NB.step   | Number of progressive step to perform (NB)." << endl;
+	*ApplicationTools::message << "optimization.verbose          | [0,1,2] level of verbose" << endl;
+	*ApplicationTools::message << "optimization.message_handler  | [none, std ot file path] where to dislay" << endl;
+  *ApplicationTools::message << "                              | optimization messages" << endl;
+	*ApplicationTools::message << "                              | (if std, uses 'cout' to display messages)." << endl;
+	*ApplicationTools::message << "optimization.profiler         | [none, std ot file path] where to display" << endl;
+  *ApplicationTools::message << "                              | optimization steps (if std, uses 'cout'" << endl;
+	*ApplicationTools::message << "                              | to display optimization steps)." << endl;
+	*ApplicationTools::message << "optimization.tolerance        | [double] tolerance parameter for stopping" << endl;
+  *ApplicationTools::message << "                              | the estimation." << endl;
+	*ApplicationTools::message << "optimization.max_number_f_eval| [int] max. # of likelihood computations." << endl;
+	*ApplicationTools::message << "optimization.ignore_parameter | [list] parameters to ignore during optimization." << endl;
+	*ApplicationTools::message << "optimization.scale_first      | [yes, no] tell if a global scale" << endl;
+  *ApplicationTools::message << "                              | optimization must be done prior to" << endl;
+	*ApplicationTools::message << "                              | separate estimation of branch lengths." << endl;
+	*ApplicationTools::message << "optimization.scale_first      | " << endl;
+	*ApplicationTools::message << "                    .tolerance| [double] tolerance parameter for global" << endl;
+  *ApplicationTools::message << "                              | scale optimization." << endl;
+	*ApplicationTools::message << "            .max_number_f_eval| [int] maximum number of computation for" << endl;
+  *ApplicationTools::message << "                              | global scale optimization." << endl;
+  *ApplicationTools::message << "______________________________|___________________________________________" << endl;
 }
 
 /******************************************************************************/
@@ -653,9 +658,10 @@ void PhylogeneticsApplicationTools::writeTree(
 
 void PhylogeneticsApplicationTools::printOutputTreeHelp()
 {
-	ApplicationTools::message << "Output tree parameters:" << endl;
-	ApplicationTools::message << "output.tree.file              | file where to write the tree" << endl;
-  ApplicationTools::message << "______________________________|___________________________________________" << endl;
+  if(!ApplicationTools::message) return;
+	*ApplicationTools::message << "Output tree parameters:" << endl;
+	*ApplicationTools::message << "output.tree.file              | file where to write the tree" << endl;
+  *ApplicationTools::message << "______________________________|___________________________________________" << endl;
 }
 
 /******************************************************************************/

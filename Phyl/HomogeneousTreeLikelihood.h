@@ -64,7 +64,9 @@ knowledge of the CeCILL license and that you accept its terms.
  * </ul>
  * These tensors are stored into a map with each node as a key (cf. _likelihoods).
  *
- * The computation use <i>site patterns</i> for more efficiency.
+ * This class can use simple or recursive site compression.
+ * In the simple case, computations for identical sites are not duplicated.
+ * In the recursive case, computations for identical sub-sites (<i>site patterns </i>) are also not duplicated:
  * Following N. Galtier (personal communication ;-), we define a Pattern as a distinct site
  * in a sub-dataset corresponding to the dataset with sequences associated to a particular subtree.
  * The likelihood computation is the same for a given site, hence the idea is to save time from
@@ -74,9 +76,14 @@ knowledge of the CeCILL license and that you accept its terms.
  * initTreeLikelihood one, where all likelihoods for a given site <i>i</i> are at the <i>i</i> coordinate
  * in the likelihood tensor, but is really faster when computing the likelihood (computeLikelihoods() method).
  * Hence, if you have to compute likelihood many times while holding the tree topology unchanged,
- * you should use patterns. And since this is what you'll have to do in most case (for instance for parameter
- * estimation), we set this as the default method for now.
- * The second method is for testing purpose only.
+ * you should use patterns.
+ * This decreases the likelihood computation time, but at a cost: some time is spent to establish the patterns
+ * relationships. Whether to use or not patterns depends on what you actllay need:
+ * - The more you compute likelihoods without changing the data or topology, the more patterns are interesting
+ *   (this divides the cost of computing patterns by the number of computation performed).
+ *   Patterns are hence usefull when you have a high number of computation to perform, while optimizing numerical
+ *   parameters for instance).
+ * - Patterns are more likely to occur whith small alphabet (nucleotides).
  *
  * For topology estimation, consider using the DRHomogeneousTreeLikelihood class.
  */
@@ -100,6 +107,7 @@ class HomogeneousTreeLikelihood :
      * @param checkRooted Tell if we have to check for the tree to be unrooted.
      * If true, any rooted tree will be unrooted before likelihood computation.
      * @param verbose Should I display some info?
+     * @param usePatterns Tell if recursive site compression should be performed.
      * @throw Exception in an error occured.
      */
 		HomogeneousTreeLikelihood(
@@ -107,7 +115,8 @@ class HomogeneousTreeLikelihood :
 			SubstitutionModel * model,
 			DiscreteDistribution * rDist,
       bool checkRooted = true,
-			bool verbose = true)
+			bool verbose = true,
+      bool usePatterns = true)
 			throw (Exception);
 	
     /**
@@ -122,6 +131,7 @@ class HomogeneousTreeLikelihood :
      * @param checkRooted Tell if we have to check for the tree to be unrooted.
      * If true, any rooted tree will be unrooted before likelihood computation.
      * @param verbose Should I display some info?
+     * @param usePatterns Tell if recursive site compression should be performed.
      * @throw Exception in an error occured.
      */
 		HomogeneousTreeLikelihood(
@@ -130,7 +140,8 @@ class HomogeneousTreeLikelihood :
 			SubstitutionModel * model,
 			DiscreteDistribution * rDist,
       bool checkRooted = true,
-			bool verbose = true)
+			bool verbose = true,
+      bool usePatterns = true)
 			throw (Exception);
 
     HomogeneousTreeLikelihood(const HomogeneousTreeLikelihood & lik);
@@ -141,12 +152,14 @@ class HomogeneousTreeLikelihood :
 
     HomogeneousTreeLikelihood * clone() const { return new HomogeneousTreeLikelihood(*this); }
 	
-	public:
+	private:
 
     /**
      * @brief Method called by constructors.
      */
-    void init() throw (Exception);
+    void _init(bool usePatterns) throw (Exception);
+	
+  public:
 
 		/**
 		 * @name The TreeLikelihood interface.

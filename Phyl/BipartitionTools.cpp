@@ -61,7 +61,7 @@ using namespace std;
 
 /******************************************************************************/
 
-unsigned int BipartitionTools::LWORD = 64;  //must be a multiple of CHAR_BIT*sizeof(int)
+unsigned int BipartitionTools::LWORD = 32;  //must be a equal to CHAR_BIT*sizeof(int)
 
 /******************************************************************************/
 

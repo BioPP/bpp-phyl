@@ -548,7 +548,7 @@ void TreeTools::computeBranchLengthsGrafen(
 }
 
 void TreeTools::computeBranchLengthsGrafen(Tree & tree, double power, bool init)
-throw (NodeException)
+  throw (NodeException)
 {
   int rootId = tree.getRootId();
   if(init)
@@ -564,7 +564,7 @@ throw (NodeException)
 /******************************************************************************/
 
 double TreeTools::convertToClockTree(Tree & tree, int nodeId, bool noneg)
-throw (NodeNotFoundException,NodeException)
+  throw (NodeNotFoundException,NodeException)
 {
   if(!tree.hasNode(nodeId)) throw NodeNotFoundException("TreeTools::convertToClockTree", nodeId);
   vector<int> sons = tree.getSonsId(nodeId);
@@ -588,6 +588,36 @@ throw (NodeNotFoundException,NodeException)
   for(unsigned int i = 0; i < sons.size(); i++)
   {
     tree.setDistanceToFather(sons[i], l - h[i]);
+  }
+  return l;
+}
+
+/******************************************************************************/
+
+double TreeTools::convertToClockTree2(Tree & tree, int nodeId)
+  throw (NodeNotFoundException,NodeException)
+{
+  if(!tree.hasNode(nodeId)) throw NodeNotFoundException("TreeTools::convertToClockTree2", nodeId);
+  vector<int> sons = tree.getSonsId(nodeId);
+  vector<double> h(sons.size());
+  //We compute the mean height:
+  double l = 0;
+  double maxh = -1.;
+  for(unsigned int i = 0; i < sons.size(); i++)
+  {
+    int son = sons[i];
+    if(tree.hasDistanceToFather(son))
+    {
+      h[i] = convertToClockTree2(tree, son);
+      if(h[i] > maxh) maxh = h[i];
+      l += h[i] + tree.getDistanceToFather(son);
+    }
+    else throw NodeException ("TreeTools::convertToClockTree2. Branch length lacking.", son);
+  }
+  if(sons.size() > 0) l /= (double)sons.size();
+  for(unsigned int i = 0; i < sons.size(); i++)
+  {
+    scaleTree(tree, sons[i], h[i] > 0 ? l / h[i] : 0);
   }
   return l;
 }
@@ -780,7 +810,7 @@ BipartitionList * TreeTools::bipartitionOccurrences(const vector<Tree *> & vecTr
   for(unsigned int i = nbBip; i > 0; i--)
   {
 	  if(bipScore[i - 1] == 0) continue;
-    for(unsigned int j = i; j > 0; j--)
+    for(unsigned int j = i - 1; j > 0; j--)
     {
 	    if(bipScore[j - 1] && bipSize[i - 1] == bipSize[j - 1] && mergedBipL->areIdentical(i - 1, j - 1))
       {

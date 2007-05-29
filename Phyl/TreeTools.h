@@ -318,7 +318,7 @@ class TreeTools
 
   public:
     /**
-     * @brief Modify a tree's branch lengths to make a clock tree.
+     * @brief Modify a tree's branch lengths to make a clock tree, by rebalancing branch lengths.
      *
      * The height of each node is set to the mean height of all son nodes.
      * This may however lead to negative branch lengths, since the mean heigth
@@ -338,6 +338,23 @@ class TreeTools
      */
     static double convertToClockTree(Tree & tree, int nodeId, bool noneg=false) throw (NodeNotFoundException,NodeException);
     
+    /**
+     * @brief Modify a tree's branch lengths to make a clock tree, by rescaling subtrees.
+     *
+     * The height of each node is set to the mean height of all son nodes.
+     * All branch lengths of the corresponding subtrees are updated proportionally.
+     * This algorithm is smaller than the convertToClockTree method, but may be more accurate.
+     * 
+     * This method is recursive and will be applied on all sons nodes.
+     * 
+     * @param tree The tree to use.
+     * @param nodeId The node defining the subtree.
+     * @return The modified height of the node.
+     * @throw NodeNotFoundException If the node is not found.
+     * @throw NodeException If one branch length is lacking.
+     */
+    static double convertToClockTree2(Tree & tree, int nodeId) throw (NodeNotFoundException,NodeException);
+ 
   public:
     /**
      * @brief Get the total distance between two nodes.

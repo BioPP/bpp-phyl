@@ -95,40 +95,6 @@ class NNITopologyListener:
 
 
 /**
- * @brief Listener used internally by the optimizeNumericalParametersWithGlobalClock method.
- */
-class ClockOptimizationListener:
-  public OptimizationListener
-{
-  protected:
-    ClockTreeLikelihood * _likelihood;
-
-  public:
-    ClockOptimizationListener(ClockTreeLikelihood * lk): _likelihood(lk) {}
-    virtual ~ClockOptimizationListener() {}
-
-  public:
-
-    void optimizationInitializationPerformed(const OptimizationEvent & event)
-    {
-      _likelihood->updateHeightsConstraints();
-    }
-
-    void optimizationStepPerformed(const OptimizationEvent & event)
-    {
-      _likelihood->updateHeightsConstraints();
-    }
-
-    bool listenerModifiesParameters() const { return false; }
-
-};
-
-
-
-
-
-
-/**
  * @brief Optimization methods for phylogenetic inference.
  *
  * This class provides optimization methods for phylogenetics.
@@ -143,6 +109,12 @@ class OptimizationTools
 		virtual ~OptimizationTools();
 	
 	public:
+
+    static string OPTIMIZATION_GRADIENT;
+    static string OPTIMIZATION_NEWTON;
+    static string OPTIMIZATION_2POINTS;
+    static string OPTIMIZATION_3POINTS;
+    static string OPTIMIZATION_5POINTS;
 		
 		/**
 		 * @brief Optimize numerical parameters (branch length, substitution model & rate distribution) of a TreeLikelihood function.
@@ -162,17 +134,20 @@ class OptimizationTools
 		 * @param messageHandler The massage handler.
 		 * @param profiler       The profiler.
 		 * @param verbose        The verbose level.
+     * @param optMethod      Optimization type for derivable parameters (first or second order derivatives).
+     * @see OPTIMIZATION_NEWTON, OPTIMIZATION_GRADIENT
 		 * @throw Exception any exception thrown by the Optimizer.
 		 */
-		static int optimizeNumericalParameters(
+		static unsigned int optimizeNumericalParameters(
 			DiscreteRatesAcrossSitesTreeLikelihood * tl,
       OptimizationListener * listener = NULL,
       unsigned int nstep = 1,
 			double tolerance = 0.000001,
-			int tlEvalMax = 1000000,
+			unsigned int tlEvalMax = 1000000,
 			ostream * messageHandler = &cout,
 			ostream * profiler       = &cout,
-			unsigned int verbose = 1)
+			unsigned int verbose = 1,
+      const string & method = OPTIMIZATION_NEWTON)
 			throw (Exception);
 	
 		/**
@@ -186,23 +161,26 @@ class OptimizationTools
 		 *
 		 * @param tl             A pointer toward the TreeLikelihood object to optimize.
      * @param listener       A pointer toward an optimization listener, if needed.
-     * @param method         Numerical derivative computation method. Must be one of "3points" or "5points", otherwise an exception is thrown.
+     * @param derMethod      Numerical derivative computation method. Must be one of "3points" or "5points", otherwise an exception is thrown.
 		 * @param tolerance      The tolerance to use in the algorithm.
 		 * @param tlEvalMax      The maximum number of function evaluations.
 		 * @param messageHandler The massage handler.
 		 * @param profiler       The profiler.
 		 * @param verbose        The verbose level.
+     * @param optMethod      Optimization type for derivable parameters (first or second order derivatives).
+     * @see OPTIMIZATION_3POINTS, OPTIMIZATION_3POINTS, OPTIMIZATION_5POINTS, OPTIMIZATION_NEWTON, OPTIMIZATION_GRADIENT
 		 * @throw Exception any exception thrown by the Optimizer.
 		 */
-		static int optimizeNumericalParameters2(
+		static unsigned int optimizeNumericalParameters2(
 			DiscreteRatesAcrossSitesTreeLikelihood * tl,
       OptimizationListener * listener = NULL,
-      string method = "3points",
+      const string & derMethod = OPTIMIZATION_3POINTS,
 			double tolerance = 0.000001,
-			int tlEvalMax = 1000000,
+			unsigned int tlEvalMax = 1000000,
 			ostream * messageHandler = &cout,
 			ostream * profiler       = &cout,
-			unsigned int verbose = 1)
+			unsigned int verbose = 1,
+      const string & optMethod = OPTIMIZATION_NEWTON)
 			throw (Exception);
 
     /**
@@ -215,84 +193,101 @@ class OptimizationTools
 		 * @see NewtonBrentMetaOptimizer
 		 *
 		 * @param tl             A pointer toward the TreeLikelihood object to optimize.
+     * @param listener       A pointer toward an optimization listener, if needed.
 		 * @param tolerance      The tolerance to use in the algorithm.
 		 * @param tlEvalMax      The maximum number of function evaluations.
 		 * @param messageHandler The massage handler.
 		 * @param profiler       The profiler.
 		 * @param verbose        The verbose level.
+     * @param optMethod      Optimization type for derivable parameters (first or second order derivatives).
+     * @see OPTIMIZATION_NEWTON, OPTIMIZATION_GRADIENT
 		 * @throw Exception any exception thrown by the Optimizer.
 		 */
-		static int optimizeBranchLengthsParameters(
+		static unsigned int optimizeBranchLengthsParameters(
 			DiscreteRatesAcrossSitesTreeLikelihood * tl,
+      OptimizationListener * listener = NULL,
 			double tolerance = 0.000001,
-			int tlEvalMax = 1000000,
+			unsigned int tlEvalMax = 1000000,
 			ostream * messageHandler = &cout,
 			ostream * profiler       = &cout,
-			unsigned int verbose = 1)
+			unsigned int verbose = 1,
+      const string & optMethod = OPTIMIZATION_NEWTON)
 			throw (Exception);
 		
 		/**
 		 * @brief Optimize numerical parameters assuming a global clock (branch heights, substitution model & rate distribution) of a ClockTreeLikelihood function.
 		 *
-		 * Uses the special ClockMetaOptimizer.
+		 * Uses Newton or conjugate gradient method for branch length and Brent's one dimensional method for other parameters
+		 * (NewtonBrentMetaOptimizer).
+     * Derivatives are computed analytically.
 		 *
-		 * @see ClockMetaOptimizer
+		 * A condition over function values is used as a stop condition for the algorithm.
+		 *
+		 * @see NewtonBrentMetaOptimizer
+		 * @see TwoPointsNumericalDerivative
 		 * @see ThreePointsNumericalDerivative
 		 * @see FivePointsNumericalDerivative
 		 *
 		 * @param cl             A pointer toward the ClockTreeLikelihood object to optimize.
+     * @param listener       A pointer toward an optimization listener, if needed.
      * @param nstep          The number of progressive steps to perform (see NewtonBrentMetaOptimizer). 1 means full precision from start.
-     * @param method         Numerical derivative computation method. Must be one of "3points" or "5points", otherwise an exception is thrown.
+     * @param derMethod      Numerical derivative computation method. Must be one of "2points", "3points" or "5points", otherwise an exception is thrown.
 		 * @param tolerance      The tolerance to use in the algorithm.
 		 * @param tlEvalMax      The maximum number of function evaluations.
 		 * @param messageHandler The massage handler.
 		 * @param profiler       The profiler.
 		 * @param verbose        The verbose level.
+     * @param optMethod      Optimization type for derivable parameters (first or second order derivatives).
+     * @see OPTIMIZATION_2POINTS, OPTIMIZATION_3POINTS, OPTIMIZATION_5POINTS, OPTIMIZATION_NEWTON, OPTIMIZATION_GRADIENT
 		 * @throw Exception any exception thrown by the Optimizer.
 		 */
-		static int optimizeNumericalParametersWithGlobalClock(
-			ClockTreeLikelihood * tl,
+		static unsigned int optimizeNumericalParametersWithGlobalClock(
+			ClockTreeLikelihood * cl,
+      OptimizationListener * listener = NULL,
       unsigned int nstep = 1,
-      string method = "3points",
+      const string & method = OPTIMIZATION_3POINTS,
 			double tolerance = 0.000001,
-			int tlEvalMax = 1000000,
+			unsigned int tlEvalMax = 1000000,
 			ostream * messageHandler = &cout,
 			ostream * profiler       = &cout,
-			unsigned int verbose = 1)
+			unsigned int verbose = 1,
+      const string & optMethod = OPTIMIZATION_GRADIENT)
 			throw (Exception);
 
     /**
 		 * @brief Optimize numerical parameters assuming a global clock (branch heights, substitution model & rate distribution) of a ClockTreeLikelihood function.
 		 *
-		 * Uses Newton's method for node heights parameters (numerical derivative for total height)
-		 * and Brent's one dimensional method for other parameters.
-     * Due to global constraint on heights however, the algorithm may not converge and depends on the initial tree.
-     * This may happen if the final tree has branch lengths < 0.000001.
+		 * Uses Newton or conjugate gradient method for all parameters, branch length derivatives are computed analytically, derivatives for other parameters numerically.
 		 *
 		 * @see PseudoNewtonOptimizer
+		 * @see TwoPointsNumericalDerivative
 		 * @see ThreePointsNumericalDerivative
 		 * @see FivePointsNumericalDerivative
 		 *
 		 * @param cl             A pointer toward the ClockTreeLikelihood object to optimize.
-     * @param nstep          The number of progressive steps to perform (see NewtonBrentMetaOptimizer). 1 means full precision from start.
-     * @param method         Numerical derivative computation method. Must be one of "3points" or "5points", otherwise an exception is thrown.
+     * @param derMethod      Numerical derivative computation method. Must be one of "2points", "3points" or "5points", otherwise an exception is thrown.
 		 * @param tolerance      The tolerance to use in the algorithm.
 		 * @param tlEvalMax      The maximum number of function evaluations.
 		 * @param messageHandler The massage handler.
 		 * @param profiler       The profiler.
 		 * @param verbose        The verbose level.
+     * @param optMethod      Optimization type for derivable parameters (first or second order derivatives).
+     * @see OPTIMIZATION_2POINTS, OPTIMIZATION_3POINTS, OPTIMIZATION_5POINTS, OPTIMIZATION_NEWTON, OPTIMIZATION_GRADIENT
 		 * @throw Exception any exception thrown by the Optimizer.
 		 */
-		static int optimizeNumericalParametersWithGlobalClock2(
-			ClockTreeLikelihood * tl,
-      unsigned int nstep = 1,
-      string method = "3points",
+		static unsigned int optimizeNumericalParametersWithGlobalClock2(
+			ClockTreeLikelihood * cl,
+      OptimizationListener * listener = NULL,
+      const string & method = OPTIMIZATION_3POINTS,
 			double tolerance = 0.000001,
-			int tlEvalMax = 1000000,
+			unsigned int tlEvalMax = 1000000,
 			ostream * messageHandler = &cout,
 			ostream * profiler       = &cout,
-			unsigned int verbose = 1)
+			unsigned int verbose = 1,
+      const string & optMethod = OPTIMIZATION_GRADIENT
+      )
 			throw (Exception);
+
 
 	private:
 		
@@ -349,7 +344,7 @@ class OptimizationTools
 		 * @param verbose        The verbose level.
 		 * @throw Exception any exception thrown by the optimizer.
 		 */
-		static int optimizeTreeScale(
+		static unsigned int optimizeTreeScale(
 			  TreeLikelihood * tl,
 			  double tolerance = 0.000001,
 			  int tlEvalMax = 1000000,

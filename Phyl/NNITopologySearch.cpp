@@ -151,7 +151,7 @@ void NNITopologySearch::searchBetter() throw (Exception)
 		// Test all NNIs:
 		vector<Node *> improving;
 		vector<double> improvement;
-		if(_verbose >= 2) ApplicationTools::message << endl;
+		if(_verbose >= 2 && ApplicationTools::message) *ApplicationTools::message << endl;
 		for(unsigned int i = 0; i < nodesSub.size(); i++)
     {
 			Node * node = nodesSub[i];
@@ -209,7 +209,7 @@ void NNITopologySearch::searchPhyML() throw (Exception)
 		vector<int> improving;
 		vector<Node *> improvingNodes;
 		vector<double> improvement;
-		if(_verbose >= 2) ApplicationTools::message << endl;
+		if(_verbose >= 2 && ApplicationTools::message) *ApplicationTools::message << endl;
 		for(unsigned int i = 0; i < nodesSub.size(); i++)
     {
 			Node * node = nodesSub[i];

@@ -285,7 +285,7 @@ void AbstractHomogeneousTreeLikelihood::initBranchLengthsParameters()
     double d = _minimumBrLen;
     if(!_nodes[i]->hasDistanceToFather())
     {
-      cout << "WARNING!!! Missing branch length " << i << ". Value is set to " << _minimumBrLen << endl;
+      ApplicationTools::displayWarning("Missing branch length " + TextTools::toString(i) + ". Value is set to " + TextTools::toString(_minimumBrLen));
       _nodes[i]->setDistanceToFather(_minimumBrLen);
     }
     else
@@ -293,7 +293,7 @@ void AbstractHomogeneousTreeLikelihood::initBranchLengthsParameters()
       d = _nodes[i]->getDistanceToFather();
       if (d < _minimumBrLen)
       {
-        cout << "WARNING!!! Branch length " << i << " is too small: " << d << ". Value is set to " << _minimumBrLen << endl;
+        ApplicationTools::displayWarning("Branch length " + TextTools::toString(i) + " is too small: " + TextTools::toString(d) + ". Value is set to " + TextTools::toString(_minimumBrLen));
         _nodes[i]->setDistanceToFather(_minimumBrLen);
         d = _minimumBrLen;
       }

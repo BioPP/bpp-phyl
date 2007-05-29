@@ -88,7 +88,6 @@ G2001.h\
 TS98.h\
 NNIHomogeneousTreeLikelihood.h\
 ClockTreeLikelihood.h\
-ClockMetaOptimizer.h\
 BipartitionList.h\
 BipartitionTools.h
 
@@ -152,7 +151,6 @@ F84.cpp\
 MarkovModulatedSubstitutionModel.cpp\
 NNIHomogeneousTreeLikelihood.cpp\
 ClockTreeLikelihood.cpp\
-ClockMetaOptimizer.cpp\
 BipartitionList.cpp\
 BipartitionTools.cpp
 
