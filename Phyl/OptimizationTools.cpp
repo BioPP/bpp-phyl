@@ -316,7 +316,7 @@ unsigned int OptimizationTools::optimizeNumericalParametersWithGlobalClock(
   string method;
   if(optMethod == OPTIMIZATION_GRADIENT)
   {
-    fun->setInterval(0.0000001);
+    fun->setInterval(0.0001);
     method = NewtonBrentMetaOptimizer::TYPE_CONJUGATEGRADIENT;
   }
   else if(optMethod == OPTIMIZATION_NEWTON) 
@@ -342,8 +342,23 @@ unsigned int OptimizationTools::optimizeNumericalParametersWithGlobalClock(
   optimizer.init(pl);
   optimizer.optimize();
   
+  unsigned int n = optimizer.getNumberOfEvaluations(); 
+
+  // Final step without derivatives:
+  PowellMultiDimensions optimizer2(cl);
+  optimizer2.setVerbose(verbose);
+  optimizer2.setProfiler(profiler);
+  optimizer2.setMessageHandler(messageHandler);
+  optimizer2.setMaximumNumberOfEvaluations(tlEvalMax);
+  optimizer2.getStopCondition()->setTolerance(tolerance);
+  pl = cl->getParameters();
+  optimizer2.setConstraintPolicy(AutoParameter::CONSTRAINTS_AUTO);
+  if(listener) optimizer2.addOptimizationListener(listener);
+  optimizer2.init(pl);
+  optimizer2.optimize();
+
   // We're done.
-  return optimizer.getNumberOfEvaluations(); 
+  return n + optimizer2.getNumberOfEvaluations(); 
 }
 
 /******************************************************************************/
@@ -383,7 +398,7 @@ unsigned int OptimizationTools::optimizeNumericalParametersWithGlobalClock2(
   Optimizer * optimizer = NULL;
   if(optMethod == OPTIMIZATION_GRADIENT)
   {
-    fun->setInterval(0.0000001);
+    fun->setInterval(0.0001);
     optimizer = new ConjugateGradientMultiDimensions(fun);
   }
   else if(optMethod == OPTIMIZATION_NEWTON)
@@ -407,9 +422,24 @@ unsigned int OptimizationTools::optimizeNumericalParametersWithGlobalClock2(
   optimizer->optimize();
   
   // We're done.
-  unsigned int n = optimizer->getNumberOfEvaluations();
+  unsigned int n = optimizer->getNumberOfEvaluations(); 
   delete optimizer;
-  return n;
+
+  // Final step without derivatives:
+  PowellMultiDimensions optimizer2(cl);
+  optimizer2.setVerbose(verbose);
+  optimizer2.setProfiler(profiler);
+  optimizer2.setMessageHandler(messageHandler);
+  optimizer2.setMaximumNumberOfEvaluations(tlEvalMax);
+  optimizer2.getStopCondition()->setTolerance(tolerance);
+  pl = cl->getParameters();
+  optimizer2.setConstraintPolicy(AutoParameter::CONSTRAINTS_AUTO);
+  if(listener) optimizer2.addOptimizationListener(listener);
+  optimizer2.init(pl);
+  optimizer2.optimize();
+
+  // We're done.
+  return n + optimizer2.getNumberOfEvaluations(); 
 }
 
 /******************************************************************************/

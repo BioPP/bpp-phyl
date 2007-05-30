@@ -83,6 +83,7 @@ void ClockTreeLikelihood::_init()
   //Check is ithe tree is rooted:
   if(!_tree->isRooted()) throw Exception("ClockTreeLikelihood::init(). Tree is unrooted!");
   if(TreeTemplateTools::isMultifurcating(*_tree->getRootNode())) throw Exception("ClockTreeLikelihood::init(). Tree is multifurcating.");
+  setMinimumBranchLength(0.);
 }
 
 /******************************************************************************/
