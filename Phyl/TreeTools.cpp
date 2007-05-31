@@ -132,7 +132,7 @@ void TreeTools::getNodesId(const Tree & tree, int nodeId, vector<int> & nodes) t
   vector<int> sons = tree.getSonsId(nodeId);
   for(unsigned int i = 0; i < sons.size(); i++)
   {
-    getNodesId(tree, nodeId, nodes);
+    getNodesId(tree, sons[i], nodes);
   }
   nodes.push_back(nodeId);
 }
