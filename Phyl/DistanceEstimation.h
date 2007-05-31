@@ -313,39 +313,6 @@ class DistanceEstimation
       if(computeMat) computeMatrix();
     }
 		
-	  /**
-		 * @brief Create a new "void" DistanceEstimation object.
-		 *
-		 * All pointers are set to NULL and no computation is  performed.
-		 * You'll have to set the substitution model, rate distribution and data
-		 * and call the computeMatrix() method.
-		 *
-		 * @param verbose  The verbose level:
-		 *  - 0=Off,
-		 *  - 1=one * by row computation
-		 *  - 2=one * by row computation and one . by column computation
-		 *  - 3=2 + optimization verbose enabled
-		 *  - 4=3 + likelihood object verbose enabled
-		 */
-		DistanceEstimation(unsigned int verbose):
-      _model(NULL), _rateDist(NULL), _sites(NULL), _dist(NULL), _verbose(verbose)
-    {
-	    _init();
-    }
-
-	  /**
-		 * @brief Default constructor. Creates a new "void" DistanceEstimation object.
-		 *
-		 * All pointers are set to NULL and no computation is  performed.
-		 * You'll have to set the substitution model, rate distribution and data
-		 * and call the computeMatrix() method.
-		 */
-		DistanceEstimation():
-      _model(NULL), _rateDist(NULL), _sites(NULL), _dist(NULL), _verbose(1)
-    {
-      _init();
-    }
-
     /**
      * @brief Copy constructor.
      *
@@ -434,11 +401,9 @@ class DistanceEstimation
 		 */
 		DistanceMatrix * getMatrix() const { return _dist == NULL ? NULL : new DistanceMatrix(* _dist); }
 
-		void setModel(SubstitutionModel * model) { _model = model; }
 		SubstitutionModel * getModel() const { return _model; }
 		void resetModel() { _model = NULL; }
 
-		void setRateDistribution(DiscreteDistribution * rateDist) { _rateDist = rateDist; }
 		DiscreteDistribution * getRateDistribution() const { return _rateDist; }
 		void resetRateDistribution() { _rateDist = NULL; }
 

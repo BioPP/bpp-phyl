@@ -316,7 +316,7 @@ unsigned int OptimizationTools::optimizeNumericalParametersWithGlobalClock(
   string method;
   if(optMethod == OPTIMIZATION_GRADIENT)
   {
-    fun->setInterval(0.0001);
+    fun->setInterval(0.0000001);
     method = NewtonBrentMetaOptimizer::TYPE_CONJUGATEGRADIENT;
   }
   else if(optMethod == OPTIMIZATION_NEWTON) 
@@ -398,7 +398,7 @@ unsigned int OptimizationTools::optimizeNumericalParametersWithGlobalClock2(
   Optimizer * optimizer = NULL;
   if(optMethod == OPTIMIZATION_GRADIENT)
   {
-    fun->setInterval(0.0001);
+    fun->setInterval(0.0000001);
     optimizer = new ConjugateGradientMultiDimensions(fun);
   }
   else if(optMethod == OPTIMIZATION_NEWTON)
