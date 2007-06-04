@@ -102,8 +102,9 @@ class BipartitionList:
      *
      * @param tr The tree to be coded as bipartitions
      * @param sorted Tells whether leave names should be alphabetically sorted (recommended)
+     * @param index An output optional vector to keep trace of the nodes id underlying each bipartition.
      */
-    BipartitionList(const Tree & tr, bool sorted = true);
+    BipartitionList(const Tree & tr, bool sorted = true, vector<int> * index = NULL);
 
     /**
      * @brief An alternative constructor in which elements and bipartitions are passed directly
@@ -177,7 +178,7 @@ class BipartitionList:
      *
      * @param checkElements Check the correspondance of element sets or not
      */
-    bool areAllCompatibleWith(map<string, bool> & bipart, bool checkElements = 1) throw(Exception);
+    bool areAllCompatibleWith(map<string, bool> & bipart, bool checkElements = 1) const throw (Exception);
 
     /**
      * @brief Removes bipartitions corresponding to external branches (1 vs n-1)
@@ -221,9 +222,9 @@ class BipartitionList:
      */
     RowMatrix<int> toMatrix() const;
 
-  protected:
+  private:
 
-    vector<string> buildBitBipartitions(const Node* nd, vector<int*> & bitbip, const vector<string> & elements, unsigned int* cpt) const;
+    vector<string> buildBitBipartitions(const Node* nd, vector<int*> & bitbip, const vector<string> & elements, unsigned int* cpt, vector<int> * index) const;
 
 };
 

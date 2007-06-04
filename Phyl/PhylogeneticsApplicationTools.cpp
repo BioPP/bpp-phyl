@@ -555,14 +555,11 @@ TreeLikelihood * PhylogeneticsApplicationTools::optimizeParameters(
 		}
 	}
 	
-	int nbEvalMax = ApplicationTools::getIntParameter("optimization.max_number_f_eval", params, 1000000, suffix, suffixIsOptional);
+	unsigned int nbEvalMax = ApplicationTools::getParameter<unsigned int>("optimization.max_number_f_eval", params, 1000000, suffix, suffixIsOptional);
 	if(verbose) ApplicationTools::displayResult("Max # ML evaluations", TextTools::toString(nbEvalMax));
 	
 	double tolerance = ApplicationTools::getDoubleParameter("optimization.tolerance", params, .000001, suffix, suffixIsOptional);
 	if(verbose) ApplicationTools::displayResult("Tolerance", TextTools::toString(tolerance));
-	
-  string method = ApplicationTools::getStringParameter("optimization.method", params, "NB", suffix, suffixIsOptional, false);
-	if(verbose) ApplicationTools::displayResult("Optimization method", method);
 	
   bool optimizeTopo = ApplicationTools::getBooleanParameter("optimization.topology", params, false, suffix, suffixIsOptional, false);
   ApplicationTools::displayResult("Optimize topology", optimizeTopo ? "yes" : "no");
@@ -576,11 +573,21 @@ TreeLikelihood * PhylogeneticsApplicationTools::optimizeParameters(
 			  dynamic_cast<NNIHomogeneousTreeLikelihood *>(tl),
         optNumFirst, tolBefore, tolDuring, nbEvalMax, n, messageHandler, profiler, optVerbose);
   }
-  int n = 0;
-  if(method == "NB")
+
+  string method = ApplicationTools::getStringParameter("optimization.method", params, "DB", suffix, suffixIsOptional, false);
+  string order  = ApplicationTools::getStringParameter("optimization.method.derivatives", params, "newton", suffix, suffixIsOptional, false);
+	string optMethod;
+  if(order == "gradient") optMethod = OptimizationTools::OPTIMIZATION_GRADIENT;
+  else if(order == "newton")   optMethod = OptimizationTools::OPTIMIZATION_NEWTON;
+  else throw Exception("Option '" + order + "' is not known for 'optimization.method.derivatives'.");
+  if(verbose) ApplicationTools::displayResult("Optimization method", method);
+  if(verbose) ApplicationTools::displayResult("Algorithm used for derivable parameters", order);
+	
+  unsigned int n = 0;
+  if(method == "DB")
   {
     //Uses Newton-Brent method:
-	  int nstep = ApplicationTools::getIntParameter("optimization.method_NB.nstep", params, 1, suffix, suffixIsOptional, false);
+	  int nstep = ApplicationTools::getIntParameter("optimization.method_DB.nstep", params, 1, suffix, suffixIsOptional, false);
 	  if(verbose && nstep > 1) ApplicationTools::displayResult("# of precision steps", TextTools::toString(nstep));
     n = OptimizationTools::optimizeNumericalParameters(
 		  dynamic_cast<AbstractHomogeneousTreeLikelihood *>(tl),
@@ -590,20 +597,22 @@ TreeLikelihood * PhylogeneticsApplicationTools::optimizeParameters(
 			nbEvalMax,
 			messageHandler,
 			profiler,
-			optVerbose);		
+			optVerbose,
+      optMethod);		
   }
-  else if(method == "NND")
+  else if(method == "fullD")
   {
     //Uses Newton-raphson alogrithm with numerical derivatives when required.
     n = OptimizationTools::optimizeNumericalParameters2(
 			dynamic_cast<AbstractHomogeneousTreeLikelihood *>(tl),
       NULL,
-      "2points",
+      OptimizationTools::OPTIMIZATION_2POINTS,
 			tolerance,
 			nbEvalMax,
 			messageHandler,
 			profiler,
-			optVerbose);		   
+			optVerbose,
+      optMethod);		   
   }
   else throw Exception("Unknown optimization method: " + method);
 	if(verbose) ApplicationTools::displayResult("Performed", TextTools::toString(n) + " function evaluations.");
@@ -612,32 +621,158 @@ TreeLikelihood * PhylogeneticsApplicationTools::optimizeParameters(
 
 /******************************************************************************/
 
-void PhylogeneticsApplicationTools::printOptimizationHelp()
+void PhylogeneticsApplicationTools::optimizeParameters(
+	ClockTreeLikelihood * tl,
+	map<string, string> & params,
+	const string & suffix,
+	bool suffixIsOptional,
+	bool verbose)
+	throw (Exception)
+{
+	bool optimize = ApplicationTools::getBooleanParameter("optimization", params, true, suffix, suffixIsOptional, false);
+	if(!optimize) return;
+	
+	unsigned int optVerbose = ApplicationTools::getParameter<unsigned int>("optimization.verbose", params, 2, suffix, suffixIsOptional);
+	
+	string mhPath = ApplicationTools::getAFilePath("optimization.message_handler", params, false, false, suffix, suffixIsOptional);
+	ostream * messageHandler = 
+		(mhPath == "none") ? NULL :
+			(mhPath == "std") ? &cout :
+				new ofstream(mhPath.c_str(), ios::out);
+	if(verbose) ApplicationTools::displayResult("Message handler", mhPath);
+
+	string prPath = ApplicationTools::getAFilePath("optimization.profiler", params, false, false, suffix, suffixIsOptional);
+	ostream * profiler = 
+		(prPath == "none") ? NULL :
+			(prPath == "std") ? &cout :
+				new ofstream(prPath.c_str(), ios::out);
+	if(profiler != NULL) (*profiler) << setprecision(20);
+	if(verbose) ApplicationTools::displayResult("Profiler", prPath);
+
+	// Should I ignore some parameters?
+	string paramListDesc = ApplicationTools::getStringParameter("optimization.ignore_parameter", params, "", suffix, suffixIsOptional, false);
+	StringTokenizer st(paramListDesc, ",");
+	while(st.hasMoreToken())
+  {
+		try
+    {
+      string param = st.nextToken();
+      if(param == "BrLen")
+      {
+        vector<string> vs = tl->getBranchLengthsParameters().getParameterNames();
+        for(unsigned int i = 0; i < vs.size(); i++)
+        {
+          dynamic_cast<AbstractHomogeneousTreeLikelihood *>(tl)->ignoreParameter(vs[i]);
+        }
+      }
+      else dynamic_cast<AbstractHomogeneousTreeLikelihood *>(tl)->ignoreParameter(param);
+		} 
+    catch(ParameterNotFoundException pnfe)
+    {
+			ApplicationTools::displayError("Parameter '" + pnfe.getParameter() + "' not found, and so can't be ignored!");
+		}
+    catch(exception e)
+    {
+			ApplicationTools::displayError("DEBUB: ERROR!!! This functionality can only be used with HomogeneousTreeLikelihood for now.");
+		}
+	}
+	
+	unsigned int nbEvalMax = ApplicationTools::getParameter<unsigned int>("optimization.max_number_f_eval", params, 1000000, suffix, suffixIsOptional);
+	if(verbose) ApplicationTools::displayResult("Max # ML evaluations", TextTools::toString(nbEvalMax));
+	
+	double tolerance = ApplicationTools::getDoubleParameter("optimization.tolerance", params, .000001, suffix, suffixIsOptional);
+	if(verbose) ApplicationTools::displayResult("Tolerance", TextTools::toString(tolerance));
+	
+  string method = ApplicationTools::getStringParameter("optimization.method", params, "DB", suffix, suffixIsOptional, false);
+  string order  = ApplicationTools::getStringParameter("optimization.method.derivatives", params, "gradient", suffix, suffixIsOptional, false);
+	string optMethod;
+  if(order == "gradient") optMethod = OptimizationTools::OPTIMIZATION_GRADIENT;
+  else if(order == "newton")   optMethod = OptimizationTools::OPTIMIZATION_NEWTON;
+  else throw Exception("Option '" + order + "' is not known for 'optimization.method.derivatives'.");
+  if(verbose) ApplicationTools::displayResult("Optimization method", method);
+  if(verbose) ApplicationTools::displayResult("Algorithm used for derivable parameters", order);
+	
+  unsigned int n = 0;
+  if(method == "DB")
+  {
+    //Uses Newton-Brent method:
+	  int nstep = ApplicationTools::getIntParameter("optimization.method_DB.nstep", params, 1, suffix, suffixIsOptional, false);
+	  if(verbose && nstep > 1) ApplicationTools::displayResult("# of precision steps", TextTools::toString(nstep));
+    n = OptimizationTools::optimizeNumericalParametersWithGlobalClock(
+		  tl,
+      NULL,
+      nstep,
+      OptimizationTools::OPTIMIZATION_2POINTS,
+			tolerance,
+			nbEvalMax,
+			messageHandler,
+			profiler,
+			optVerbose,
+      optMethod);		
+  }
+  else if(method == "fullD")
+  {
+    //Uses Newton-raphson alogrithm with numerical derivatives when required.
+    n = OptimizationTools::optimizeNumericalParametersWithGlobalClock2(
+			tl,
+      NULL,
+      OptimizationTools::OPTIMIZATION_2POINTS,
+			tolerance,
+			nbEvalMax,
+			messageHandler,
+			profiler,
+			optVerbose,
+      optMethod);		   
+  }
+  else throw Exception("Unknown optimization method: " + method);
+	if(verbose) ApplicationTools::displayResult("Performed", TextTools::toString(n) + " function evaluations.");
+}
+
+/******************************************************************************/
+
+void PhylogeneticsApplicationTools::printOptimizationHelp(bool topo, bool clock)
 {
   if(!ApplicationTools::message) return;
-	*ApplicationTools::message << "optimization                  | [yes/no] optimize parameters?" << endl;
-	*ApplicationTools::message << "optimization.method           | [NB/NND] method to use" << endl;
-	*ApplicationTools::message << "optimization.method_NB.step   | Number of progressive step to perform (NB)." << endl;
-	*ApplicationTools::message << "optimization.verbose          | [0,1,2] level of verbose" << endl;
-	*ApplicationTools::message << "optimization.message_handler  | [none, std ot file path] where to dislay" << endl;
-  *ApplicationTools::message << "                              | optimization messages" << endl;
-	*ApplicationTools::message << "                              | (if std, uses 'cout' to display messages)." << endl;
-	*ApplicationTools::message << "optimization.profiler         | [none, std ot file path] where to display" << endl;
-  *ApplicationTools::message << "                              | optimization steps (if std, uses 'cout'" << endl;
-	*ApplicationTools::message << "                              | to display optimization steps)." << endl;
-	*ApplicationTools::message << "optimization.tolerance        | [double] tolerance parameter for stopping" << endl;
-  *ApplicationTools::message << "                              | the estimation." << endl;
-	*ApplicationTools::message << "optimization.max_number_f_eval| [int] max. # of likelihood computations." << endl;
-	*ApplicationTools::message << "optimization.ignore_parameter | [list] parameters to ignore during optimization." << endl;
-	*ApplicationTools::message << "optimization.scale_first      | [yes, no] tell if a global scale" << endl;
-  *ApplicationTools::message << "                              | optimization must be done prior to" << endl;
-	*ApplicationTools::message << "                              | separate estimation of branch lengths." << endl;
-	*ApplicationTools::message << "optimization.scale_first      | " << endl;
-	*ApplicationTools::message << "                    .tolerance| [double] tolerance parameter for global" << endl;
-  *ApplicationTools::message << "                              | scale optimization." << endl;
-	*ApplicationTools::message << "            .max_number_f_eval| [int] maximum number of computation for" << endl;
-  *ApplicationTools::message << "                              | global scale optimization." << endl;
-  *ApplicationTools::message << "______________________________|___________________________________________" << endl;
+	*ApplicationTools::message << "optimization                   | [yes/no] optimize parameters?" << endl;
+	*ApplicationTools::message << "optimization.method            | [DB/fullD] method to use" << endl;
+	*ApplicationTools::message << "optimization.method.derivatives| [gradient/newton] use Conjugate gradient" << endl;
+  *ApplicationTools::message << "                               | or Newton-Raphson" << endl;
+	*ApplicationTools::message << "optimization.method_DB.step    | Number of progressive step to perform." << endl;
+	*ApplicationTools::message << "optimization.verbose           | [0,1,2] level of verbose" << endl;
+	*ApplicationTools::message << "optimization.message_handler   | [none, std ot file path] where to dislay" << endl;
+  *ApplicationTools::message << "                               | optimization messages" << endl;
+	*ApplicationTools::message << "                               | (if std, uses 'cout' to display messages)." << endl;
+	*ApplicationTools::message << "optimization.profiler          | [none, std ot file path] where to display" << endl;
+  *ApplicationTools::message << "                               | optimization steps (if std, uses 'cout'" << endl;
+	*ApplicationTools::message << "                               | to display optimization steps)." << endl;
+	*ApplicationTools::message << "optimization.tolerance         | [double] tolerance parameter for stopping" << endl;
+  *ApplicationTools::message << "                               | the estimation." << endl;
+	*ApplicationTools::message << "optimization.max_number_f_eval | [int] max. # of likelihood computations." << endl;
+	*ApplicationTools::message << "optimization.ignore_parameter  | [list] parameters to ignore during optimization." << endl;
+  if(!clock)
+  {
+	*ApplicationTools::message << "optimization.scale_first       | [yes, no] tell if a global scale" << endl;
+  *ApplicationTools::message << "                               | optimization must be done prior to" << endl;
+	*ApplicationTools::message << "                               | separate estimation of branch lengths." << endl;
+	*ApplicationTools::message << "optimization.scale_first       | " << endl;
+	*ApplicationTools::message << "                     .tolerance| [double] tolerance parameter for global" << endl;
+  *ApplicationTools::message << "                               | scale optimization." << endl;
+	*ApplicationTools::message << "             .max_number_f_eval| [int] maximum number of computation for" << endl;
+  *ApplicationTools::message << "                               | global scale optimization." << endl;
+  *ApplicationTools::message << "_______________________________|__________________________________________" << endl;
+  }
+  if(topo && !clock)
+  {
+	*ApplicationTools::message << "optimization.topology          | [yes/no] Optimize tree topology?" << endl;
+	*ApplicationTools::message << "optimization.topology.algorithm| [nni] Topology movements to use." << endl;
+	*ApplicationTools::message << "optimization.topology.nstep    | estimate numerical parameters every 'n'" << endl;
+  *ApplicationTools::message << "                               | topology movement rounds." << endl;
+	*ApplicationTools::message << "optimization.topology.numfirst | [yes/no] Optimize num. parameters first?" << endl;
+	*ApplicationTools::message << "optimization.topology.tolerance| " << endl;
+	*ApplicationTools::message << "                        .before| Tolerance for prior estimation." << endl;
+	*ApplicationTools::message << "                        .during| Tolerance during estimation." << endl;
+  *ApplicationTools::message << "_______________________________|__________________________________________" << endl;
+  }
 }
 
 /******************************************************************************/

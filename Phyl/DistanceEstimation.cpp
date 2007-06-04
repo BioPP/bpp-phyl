@@ -89,8 +89,6 @@ TwoTreeLikelihood::TwoTreeLikelihood(
 	_nbStates  = _model->getNumberOfStates();	
 	if(verbose) ApplicationTools::displayMessage("Double-Recursive Homogeneous Tree Likelihood");	
 	
-	_brLen = 0.000001;
-
 	//Initialize root patterns:
 	SitePatterns pattern(* _data);
 	_shrunkData = pattern.getSites();
@@ -108,6 +106,8 @@ TwoTreeLikelihood::TwoTreeLikelihood(
 	delete sequences;
 
   _minimumBrLen = 0.000001;
+	_brLen = _minimumBrLen;
+
   _brLenConstraint = new IncludingPositiveReal(_minimumBrLen);
 
 	if(verbose) ApplicationTools::displayTaskDone();
@@ -311,7 +311,7 @@ void TwoTreeLikelihood::applyParameters() throw (Exception)
 
 void TwoTreeLikelihood::initBranchLengthsParameters()
 {
-	if (_brLen <= _minimumBrLen)
+	if (_brLen < _minimumBrLen)
   {
     ApplicationTools::displayWarning("Branch length is too small: " + TextTools::toString(_brLen) + ". Value is set to " + TextTools::toString(_minimumBrLen));
 		_brLen = _minimumBrLen;

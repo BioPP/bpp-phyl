@@ -191,7 +191,7 @@ class TreeTemplate:
 
 		bool hasNodeProperty(int nodeId, const string & name) const throw (NodeNotFoundException) { return getNode(nodeId)->hasNodeProperty(name); }
 	
-		void setNodeProperty(int nodeId, const string & name, Clonable * property) throw (NodeNotFoundException) { getNode(nodeId)->setNodeProperty(name, property); }
+		void setNodeProperty(int nodeId, const string & name, const Clonable & property) throw (NodeNotFoundException) { getNode(nodeId)->setNodeProperty(name, property); }
 				
 		Clonable * getNodeProperty(int nodeId, const string & name) throw (NodeNotFoundException) { return getNode(nodeId)->getNodeProperty(name); }
 				
@@ -203,7 +203,7 @@ class TreeTemplate:
 		
 		bool hasBranchProperty(int nodeId, const string & name) const throw (NodeNotFoundException) { return getNode(nodeId)->hasBranchProperty(name); }
 	
-		void setBranchProperty(int nodeId, const string & name, Clonable * property) throw (NodeNotFoundException) { getNode(nodeId)->setBranchProperty(name, property); }
+		void setBranchProperty(int nodeId, const string & name, const Clonable & property) throw (NodeNotFoundException) { getNode(nodeId)->setBranchProperty(name, property); }
 				
 		Clonable * getBranchProperty(int nodeId, const string & name) throw (NodeNotFoundException) { return getNode(nodeId)->getBranchProperty(name); }
 				
@@ -401,7 +401,7 @@ class TreeTemplate:
         vector<string> names = path[i+1]->getBranchPropertyNames();
         for(unsigned int j = 0; j < names.size(); j++)
         {
-          path[i]->setBranchProperty(names[j], path[i+1]->getBranchProperty(names[j]));
+          path[i]->setBranchProperty(names[j], *path[i+1]->getBranchProperty(names[j]));
         }
         path[i+1]->deleteBranchProperties();
       }

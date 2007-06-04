@@ -175,7 +175,7 @@ class Tree:
 		 */
 		virtual bool hasNodeProperty(int nodeId, const string & name) const throw (NodeNotFoundException) = 0;
 		
-		virtual void setNodeProperty(int nodeId, const string & name, Clonable * property) throw (NodeNotFoundException) = 0;
+		virtual void setNodeProperty(int nodeId, const string & name, const Clonable & property) throw (NodeNotFoundException) = 0;
 				
 		virtual Clonable * getNodeProperty(int nodeId, const string & name) throw (NodeNotFoundException) = 0;
 				
@@ -193,7 +193,7 @@ class Tree:
 		 */
 		virtual bool hasBranchProperty(int nodeId, const string & name) const throw (NodeNotFoundException) = 0;
 		
-		virtual void setBranchProperty(int nodeId, const string & name, Clonable * property) throw (NodeNotFoundException) = 0;
+		virtual void setBranchProperty(int nodeId, const string & name, const Clonable & property) throw (NodeNotFoundException) = 0;
 				
 		virtual Clonable * getBranchProperty(int nodeId, const string & name) throw (NodeNotFoundException) = 0;
 				

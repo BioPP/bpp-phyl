@@ -183,12 +183,12 @@ Node * TreeTemplateTools::parenthesisToNode(const string & description, bool boo
   {
     if(bootstrap)
     {
-      node->setBranchProperty(TreeTools::BOOTSTRAP, new Number<double>(TextTools::toDouble(elt.bootstrap)));
+      node->setBranchProperty(TreeTools::BOOTSTRAP, Number<double>(TextTools::toDouble(elt.bootstrap)));
       //cout << "NODE: BOOTSTRAP: " << * elt.bootstrap << endl;
     }
     else
     {
-      node->setBranchProperty(propertyName, new String(elt.bootstrap));
+      node->setBranchProperty(propertyName, String(elt.bootstrap));
     }
   }
   
@@ -275,12 +275,12 @@ TreeTemplate<Node> * TreeTemplateTools::parenthesisToTree(const string & descrip
       {
         if(bootstrap)
         {
-          node->setBranchProperty(TreeTools::BOOTSTRAP, new Number<double>(TextTools::toDouble(bootstrapS)));
+          node->setBranchProperty(TreeTools::BOOTSTRAP, Number<double>(TextTools::toDouble(bootstrapS)));
           //cout << "NODE: BOOTSTRAP: " << * elt.bootstrap << endl;
         }
         else
         {
-          node->setBranchProperty(propertyName, new String(bootstrapS));
+          node->setBranchProperty(propertyName, String(bootstrapS));
         }
       }
     }

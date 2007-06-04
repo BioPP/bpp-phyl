@@ -384,7 +384,7 @@ class Node:
      * @{
      */
         
-    virtual void setNodeProperty(const string & name, const Clonable * property) { _nodeProperties[name] = property->clone(); }
+    virtual void setNodeProperty(const string & name, const Clonable & property) { _nodeProperties[name] = property.clone(); }
         
     virtual Clonable * getNodeProperty(const string & name) { return _nodeProperties[name]; }
         
@@ -435,7 +435,7 @@ class Node:
      * @{
      */
         
-    virtual void setBranchProperty(const string & name, const Clonable * property) { _branchProperties[name] = property->clone(); }
+    virtual void setBranchProperty(const string & name, const Clonable & property) { _branchProperties[name] = property.clone(); }
         
     virtual Clonable * getBranchProperty(const string & name) { return _branchProperties[name]; }
         

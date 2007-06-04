@@ -40,6 +40,11 @@ knowledge of the CeCILL license and that you accept its terms.
 #include "TreeTools.h"
 #include "Tree.h"
 #include "BipartitionTools.h"
+#include "JCnuc.h"
+#include "DistanceEstimation.h"
+#include "BioNJ.h"
+#include "DRTreeParsimonyScore.h"
+#include "OptimizationTools.h"
 
 // From Utils:
 #include <Utils/TextTools.h>
@@ -49,6 +54,11 @@ knowledge of the CeCILL license and that you accept its terms.
 
 // From NumCalc:
 #include <NumCalc/VectorTools.h>
+#include <NumCalc/ConstantDistribution.h>
+
+// From SeqLib:
+#include <Seq/DNA.h>
+#include <Seq/VectorSiteContainer.h>
 
 // From the STL:
 #include <iostream>
@@ -670,13 +680,16 @@ int TreeTools::getMPNUId(const Tree & tree, int id)
 
 /******************************************************************************/
 
-VectorSiteContainer* TreeTools::MRPEncode(const vector<Tree*> & vecTr)
+VectorSiteContainer* TreeTools::MRPEncode(const vector<Tree *> & vecTr)
 {
-  vector<BipartitionList*> vecBipL;
+  vector<BipartitionList *> vecBipL;
+  for(unsigned int i = 0; i < vecTr.size(); i++) vecBipL.push_back(new BipartitionList(*vecTr[i]));
 
-  for(unsigned int i = 0; i < vecTr.size(); i++)
-    vecBipL.push_back(new BipartitionList(*(vecTr[i])));
-  return BipartitionTools::MRPEncode(vecBipL);
+  VectorSiteContainer * cont = BipartitionTools::MRPEncode(vecBipL);
+  
+  for(unsigned int i = 0; i < vecTr.size(); i++) delete vecBipL[i];
+
+  return cont;
 }
 
 /******************************************************************************/
@@ -786,7 +799,7 @@ int TreeTools::robinsonFouldsDistance(const Tree & tr1, const Tree & tr2, bool c
 
 /******************************************************************************/
 
-BipartitionList * TreeTools::bipartitionOccurrences(const vector<Tree *> & vecTr, vector<int> & bipScore)
+BipartitionList * TreeTools::bipartitionOccurrences(const vector<Tree *> & vecTr, vector<unsigned int> & bipScore)
 {
   vector<BipartitionList *> vecBipL;
   BipartitionList * mergedBipL;
@@ -794,11 +807,12 @@ BipartitionList * TreeTools::bipartitionOccurrences(const vector<Tree *> & vecTr
   unsigned int nbBip;
 
 	/*  build and merge bipartitions */
-  for(unsigned int i = 0; i < vecTr.size(); i++)
-    vecBipL.push_back(new BipartitionList(*(vecTr[i])));
+  for(unsigned int i = 0; i < vecTr.size(); i++) vecBipL.push_back(new BipartitionList(*vecTr[i]));
   mergedBipL = BipartitionTools::mergeBipartitionLists(vecBipL);
+  for(unsigned int i = 0; i < vecTr.size(); i++) delete vecBipL[i];
+
   mergedBipL->removeTrivialBipartitions();
-  nbBip=mergedBipL->getNumberOfBipartitions();
+  nbBip = mergedBipL->getNumberOfBipartitions();
   bipScore.clear();
   for(unsigned int i = 0; i < nbBip; i++)
   {
@@ -835,9 +849,6 @@ BipartitionList * TreeTools::bipartitionOccurrences(const vector<Tree *> & vecTr
   for(unsigned int i = 0; i < mergedBipL->getNumberOfElements(); i++)
     bipScore.push_back(vecTr.size());
 
-  for(unsigned int i = 0; i < vecTr.size(); i++)
-    delete vecBipL[i];
-
   return mergedBipL;
 }
 
@@ -845,21 +856,21 @@ BipartitionList * TreeTools::bipartitionOccurrences(const vector<Tree *> & vecTr
 
 TreeTemplate<Node> * TreeTools::thresholdConsensus(const vector<Tree *> & vecTr, double threshold, bool checkNames) throw (Exception)
 {
-  vector<int> bipScore;
+  vector<unsigned int> bipScore;
   vector<string> tr0leaves;
   BipartitionList * bipL;
   double score;
 
   if(vecTr.size() == 0)
-    throw Exception("Empty vector passed");
+    throw Exception("TreeTools::thresholdConsensus. Empty vector passed");
 
 	/* check names */
   if(checkNames)
   {
-    tr0leaves = vecTr[0] -> getLeavesNames();
+    tr0leaves = vecTr[0]->getLeavesNames();
     for(unsigned int i = 1; i < vecTr.size(); i++)
       if(!VectorTools::haveSameElements(vecTr[i]->getLeavesNames(), tr0leaves))
-        throw Exception("Distinct leaf sets between trees");
+        throw Exception("TreeTools::thresholdConsensus. Distinct leaf sets between trees");
   }
 
   bipL = bipartitionOccurrences(vecTr, bipScore);
@@ -908,6 +919,65 @@ TreeTemplate<Node> * TreeTools::majorityConsensus(const vector<Tree *> & vecTr, 
 TreeTemplate<Node> * TreeTools::strictConsensus(const vector<Tree *> & vecTr, bool checkNames)
 {
   return thresholdConsensus(vecTr, 1., checkNames);
+}
+
+/******************************************************************************/
+
+Tree* TreeTools::MRP(const vector<Tree*> & vecTr)
+{
+  //matrix representation
+  VectorSiteContainer* sites = TreeTools::MRPEncode(vecTr);
+
+  //starting bioNJ tree
+  const DNA* alphabet= dynamic_cast<const DNA*>(sites->getAlphabet());
+  JCnuc jc(alphabet);
+  ConstantDistribution constRate(1.);
+  DistanceEstimation distFunc(&jc, &constRate, sites, 0, true);
+  BioNJ bionjTreeBuilder;
+  bionjTreeBuilder.setDistanceMatrix(*(distFunc.getMatrix()));
+  bionjTreeBuilder.computeTree(false);
+  TreeTemplate<Node>* startTree = new TreeTemplate<Node>(*bionjTreeBuilder.getTree());
+
+  //MP optimization
+  DRTreeParsimonyScore * MPScore = new DRTreeParsimonyScore(*startTree, *sites, true);
+  MPScore = OptimizationTools::optimizeTreeNNI(MPScore, 0);
+  delete startTree;
+  Tree* retTree = new TreeTemplate<Node>(*MPScore->getTree());
+  delete MPScore;
+
+  return retTree;
+}
+
+/******************************************************************************/
+
+void TreeTools::computeBootstrapValues(Tree & tree, const vector<Tree *> & vecTr)
+{
+  vector<int> index;
+  BipartitionList bpTree(tree, true, & index);
+  vector<unsigned int> occurences;
+  BipartitionList *bpList = bipartitionOccurrences(vecTr, occurences);
+  
+  vector< Number<double> > bootstrapValues(bpTree.getNumberOfBipartitions());
+
+  for(unsigned int i = 0; i < bpTree.getNumberOfBipartitions(); i++)
+  {
+    for(unsigned int j = 0; j < bpList->getNumberOfBipartitions(); j++)
+    {
+      if(BipartitionTools::areIdentical(bpTree, i, *bpList, j))
+      {
+        bootstrapValues[i] = (double) occurences[j] * 100. / (double) vecTr.size();
+        break;
+      }
+    }
+  }
+
+  for(unsigned int i = 0; i < index.size(); i++)
+  {
+    if(!tree.isLeaf(index[i]))
+      tree.setBranchProperty(index[i], BOOTSTRAP, bootstrapValues[i]);
+  }
+
+  delete bpList;
 }
 
 /******************************************************************************/

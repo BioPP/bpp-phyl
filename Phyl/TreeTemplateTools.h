@@ -438,12 +438,12 @@ class TreeTemplateTools
       names = tree.getNodePropertyNames(nodeId);
       for(unsigned int i = 0; i < names.size(); i++)
       {
-        clone->setNodeProperty(names[i], tree.getNodeProperty(nodeId, names[i]));
+        clone->setNodeProperty(names[i], *tree.getNodeProperty(nodeId, names[i]));
       }
       names = tree.getBranchPropertyNames(nodeId);
       for(unsigned int i = 0; i < names.size(); i++)
       {
-        clone->setBranchProperty(names[i], tree.getBranchProperty(nodeId, names[i]));
+        clone->setBranchProperty(names[i], *tree.getBranchProperty(nodeId, names[i]));
       }
       
       return clone;

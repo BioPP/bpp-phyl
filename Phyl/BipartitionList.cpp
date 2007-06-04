@@ -97,7 +97,8 @@ bool operator < (IntAndInt iai1, IntAndInt iai2)
 
 /******************************************************************************/
 
-BipartitionList::BipartitionList(const Tree & tr, bool sorted): _sorted(sorted)
+BipartitionList::BipartitionList(const Tree & tr, bool sorted, vector<int> * index):
+  _sorted(sorted)
 {
   unsigned int nbbip;
 
@@ -128,18 +129,17 @@ BipartitionList::BipartitionList(const Tree & tr, bool sorted): _sorted(sorted)
   try
   {
     //Gain some time...
-    buildBitBipartitions(dynamic_cast<const TreeTemplate<Node> &>(tr).getRootNode(), _bitBipartitionList, _elements, &cpt);
+    buildBitBipartitions(dynamic_cast<const TreeTemplate<Node> &>(tr).getRootNode(), _bitBipartitionList, _elements, &cpt, index);
   }
   catch(exception & e)
   {
     TreeTemplate<Node> tmp(tr);
-    buildBitBipartitions(tmp.getRootNode(), _bitBipartitionList, _elements, &cpt);
+    buildBitBipartitions(tmp.getRootNode(), _bitBipartitionList, _elements, &cpt, index);
   }
 }
 
 /******************************************************************************/
 
-/* from element and bipartition lists */
 BipartitionList::BipartitionList(const vector<string> & elements, const vector<int*> & bitBipL)
 {
   unsigned int lword  = BipartitionTools::LWORD;
@@ -415,22 +415,22 @@ bool BipartitionList::areAllCompatible() const
 
 /******************************************************************************/
 
-bool BipartitionList::areAllCompatibleWith(map<string, bool> & bipart, bool checkElements) throw (Exception)
+bool BipartitionList::areAllCompatibleWith(map<string, bool> & bipart, bool checkElements) const throw (Exception)
 {
   if(checkElements && !haveSameElementsThan(bipart))
     throw Exception("Distinct bipartition element sets");
   unsigned int nbBip = _bitBipartitionList.size();
-  addBipartition(bipart, false);
+  const_cast<BipartitionList *>(this)->addBipartition(bipart, false);
 
   for(unsigned int i = 0; i < nbBip; i++)
   {
     if(!areCompatible(i, nbBip))
     {
-      deleteBipartition(nbBip);
+      const_cast<BipartitionList *>(this)->deleteBipartition(nbBip);
       return false;
     }
   }
-  deleteBipartition(nbBip);
+  const_cast<BipartitionList *>(this)->deleteBipartition(nbBip);
   return true;
 }
 
@@ -677,7 +677,7 @@ TreeTemplate<Node>* BipartitionList::toTree() const throw (Exception)
 
 /******************************************************************************/
 
-vector<string> BipartitionList::buildBitBipartitions(const Node * nd, vector<int*> & bitbip, const vector<string> & elements, unsigned int* cpt) const
+vector<string> BipartitionList::buildBitBipartitions(const Node * nd, vector<int*> & bitbip, const vector<string> & elements, unsigned int* cpt, vector<int> * index) const
 {
   vector<string> under_elements, ret_elements;
 
@@ -686,7 +686,7 @@ vector<string> BipartitionList::buildBitBipartitions(const Node * nd, vector<int
 
   for(unsigned int i = 0; i < nd->getNumberOfSons(); i++)
   {
-    ret_elements = BipartitionList::buildBitBipartitions(nd->getSon(i), bitbip, elements, cpt);
+    ret_elements = BipartitionList::buildBitBipartitions(nd->getSon(i), bitbip, elements, cpt, index);
     for(unsigned int j = 0; j < ret_elements.size(); j++)
       under_elements.push_back(ret_elements[j]);
   }
@@ -720,6 +720,8 @@ vector<string> BipartitionList::buildBitBipartitions(const Node * nd, vector<int
   }
 
   (*cpt)++;
+
+  if(index) index->push_back(nd->getId());
 
   return under_elements;
 }

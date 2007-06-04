@@ -550,7 +550,7 @@ class TreeTools
      * @return Robinson-Foulds distance = *missing_in_tr1 + *missing_in_tr2
      * @throw Exception If checkNames is set to true and trees do not share the same leaves names.
      */
-    static int robinsonFouldsDistance(const Tree & tr1, const Tree & tr2, bool checkNames=true, int* missing_in_tr2 = NULL, int* missing_in_tr1 = NULL) throw (Exception);
+    static int robinsonFouldsDistance(const Tree & tr1, const Tree & tr2, bool checkNames = true, int* missing_in_tr2 = NULL, int* missing_in_tr1 = NULL) throw (Exception);
 
     /**
      * @brief Counts the total number of occurrences of every bipartition from the input trees
@@ -563,7 +563,7 @@ class TreeTools
      * @param bipScore Output as the numbers of occurrences of the returned distinct bipartitions
      * @return A BipartitionList object including only distinct bipartitions
      */
-    static BipartitionList * bipartitionOccurrences(const vector<Tree *> & vecTr, vector<int> & bipScore);
+    static BipartitionList * bipartitionOccurrences(const vector<Tree *> & vecTr, vector<unsigned int> & bipScore);
 
     /**
      * @brief General greedy consensus tree method
@@ -612,7 +612,26 @@ class TreeTools
 
     /** @} */
 
+    /**
+     * @brief Matrix Representation Parsimony supertree method
+     *
+     * This implementation of the MRP method takes a BIONJ tree (Jukes-Cantor distances)
+     * as the starting tree and optimizes the parsimony score using only NNI (in a
+     * PHYML-like way).
+     *
+     * @author Nicolas Galtier
+     * @param vecTr A vector of trees.
+     * @return The MRP super tree.
+     */
+    static Tree* MRP(const vector<Tree*> & vecTr);
 
+    /**
+     * @brief Compute bootstrap values.
+     *
+     * @param tree Input tree. the BOOTSTRAP banch property of the tree will be modified if it already exists.
+     * @param vecTr A list of trees to compare to 'tree'.
+     */
+    static void computeBootstrapValues(Tree & tree, const vector<Tree *> & vecTr);
 
 
 

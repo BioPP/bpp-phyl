@@ -45,6 +45,7 @@ knowledge of the CeCILL license and that you accept its terms.
 #include "SubstitutionModel.h"
 #include "MarkovModulatedSubstitutionModel.h"
 #include "HomogeneousTreeLikelihood.h"
+#include "ClockTreeLikelihood.h"
 
 // From Utils:
 #include <Utils/TextTools.h>
@@ -214,20 +215,21 @@ class PhylogeneticsApplicationTools
 		 * - optimization.scale_first = Tell if we must scale the tree first.
 		 * - optimization.ignore_parameter = A coma-separated list of parameter
 		 *   names to ignore in the optimizing process.
-     * - optimization.method = [NB|NND] Algorithm to use: Newton-Brent or Newton with Numerical Derivatives.
-     *   This option is only available whent optimization.topology is set to no, otherwise the NB algorithm is used.
-     * - optimization.topology = Tell if we must optimize tree topology as well.
+     * - optimization.method = [DB|fullD] Algorithm to use: Derivatives+Brent or full derivatives, with numerical derivatives when required.
+     * - optimization.method.derivatives = [gradient|newton] Use Conjugate Grandient or Newton-Rhaphson algorithm.
+     * - optimization.topology = Tell if we must optimize tree topology. Toplogy estimation uses the DB algorithm with Newton-Raphson during estimation.
+     *   The previous options will be used only for final estimation of numerical parameters.
 		 * Options depending on other options:
 		 * - If optimization.scale_first is set to true:
 		 *   - optimization.scale_first.tolerance = The tolerance of the scaling alogrithm.
 		 *   - optimization.scale_first.max_number_f_eval = the maximum number of function evaluations
 		 *     for the scaling algorithm.
-     *   - optimization.method_NB.nstep = number of progressive steps to use in NB algorithm.
-     *   - optimization.topology.algorithm = [nni] algorithm to use (for now, only Nearest Neighbor Interchanges (NNI) are implemented). 
-     *   - optimization.topology.nstep = Estimate numerical parameters every 'n' NNI rounds.
-     *   - optimization.topology.numfirst = Tell if numerical parameters must be estimated prior to topology search.
-     *   - optimization.topology.tolerance.before = Numerical parameters estimation prior to topology search.
-     *   - optimization.topology.tolerance.during = Numerical parameters estimation during topology search.
+     * - optimization.method_DB.nstep = number of progressive steps to use in DB algorithm.
+     * - optimization.topology.algorithm = [nni] algorithm to use (for now, only Nearest Neighbor Interchanges (NNI) are implemented). 
+     * - optimization.topology.nstep = Estimate numerical parameters every 'n' NNI rounds.
+     * - optimization.topology.numfirst = Tell if numerical parameters must be estimated prior to topology search.
+     * - optimization.topology.tolerance.before = Numerical parameters estimation prior to topology search.
+     * - optimization.topology.tolerance.during = Numerical parameters estimation during topology search.
 		 *
 		 * @param tl      The TreeLikelihood function to optimize.
 		 * @param params  The attribute map where options may be found.
@@ -252,6 +254,39 @@ class PhylogeneticsApplicationTools
 			throw (Exception);
 		
 		/**
+		 * @brief Optimize parameters according to options, with a molecular clock.
+		 *
+		 * Options used are:
+     * - optimization = Tell if optimization must be performed.
+		 * - optimization.message_handler = [std, file_path]
+		 *   A path to a specific path (existing will be overwritten) or std for use
+		 *   of the standard output.
+		 * - optimization.profiler = [std, file_path], idem for the profiling (history
+		 *   of all functions evaluations).
+		 * - optimization.max_number_f_eval = The maximum number of function evaluation.
+		 * - optimization.tolerance = The tolerance parameter (when to stop the optimization).
+		 * - optimization.ignore_parameter = A coma-separated list of parameter
+		 *   names to ignore in the optimizing process.
+     * - optimization.method = [DB|fullD] Algorithm to use: Derivatives+Brent or full derivatives, with numerical derivatives when required.
+     * - optimization.method.derivatives = [gradient|newton] Use Conjugate Grandient or Newton-Rhaphson algorithm.
+     * - optimization.method_DB.nstep = number of progressive steps to use in DB algorithm.
+		 *
+		 * @param tl      The ClockTreeLikelihood function to optimize.
+		 * @param params  The attribute map where options may be found.
+		 * @param suffix  A suffix to be applied to each attribute name.
+		 * @param suffixIsOptional Tell if the suffix is absolutely required.
+		 * @param verbose Print some info to the 'message' output stream.
+		 * @throw Exception Any exception that may happen during the optimization process.
+		 */
+		static void optimizeParameters(
+			ClockTreeLikelihood * tl,
+			map<string, string> & params,
+			const string & suffix = "",
+			bool suffixIsOptional = true,
+			bool verbose = true)
+			throw (Exception);
+
+    /**
 		 * @brief This function prints the options available for substitution models.
 		 */
 		static void printSubstitutionModelHelp();
@@ -268,8 +303,11 @@ class PhylogeneticsApplicationTools
 		
 		/**
 		 * @brief This function prints the options available for optimization.
+     *
+     * @param topo Display options for topology estimation
+     * @param clock Restrict to options available for molecular clock estimation
 		 */
-		static void printOptimizationHelp();
+		static void printOptimizationHelp(bool topo = true, bool clock = false);
 		
 		/**
 		 * @brief Write a tree according to options.

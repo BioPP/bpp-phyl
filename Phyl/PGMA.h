@@ -65,10 +65,10 @@ class PGMA:
 		bool _weighted;
 		
 	public:
-		PGMA() {}
-		PGMA(const DistanceMatrix & matrix, bool weighted = true) throw (Exception): AbstractAgglomerativeDistanceMethod(matrix) 
+		PGMA(bool weighted = true): _weighted(weighted) {}
+
+		PGMA(const DistanceMatrix & matrix, bool weighted = true) throw (Exception): AbstractAgglomerativeDistanceMethod(matrix), _weighted(weighted)
 		{
-			_weighted = weighted;
 			computeTree(true);
 		}
 		virtual ~PGMA() {}
@@ -76,7 +76,6 @@ class PGMA:
 	public:
 		void setDistanceMatrix(const DistanceMatrix & matrix)
 		{ 
-			_weighted = true;
 			AbstractAgglomerativeDistanceMethod::setDistanceMatrix(matrix);
 		}
 

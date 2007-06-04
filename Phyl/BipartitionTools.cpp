@@ -93,6 +93,7 @@ void BipartitionTools::bitAnd(int *listet, int *list1, int *list2, unsigned int 
 }
 
 /******************************************************************************/
+
 void BipartitionTools::bitOr(int *listou, int *list1, int *list2, unsigned int len)
 {
   for(unsigned int i = 0; i < len; i++)
@@ -117,7 +118,10 @@ bool BipartitionTools::testBit(int *plist, int num)
 
 /******************************************************************************/
 
-BipartitionList * BipartitionTools::buildBipartitionPair(BipartitionList & bipartL1, unsigned int i1, BipartitionList & bipartL2, unsigned int i2, bool checkElements) throw (Exception)
+BipartitionList * BipartitionTools::buildBipartitionPair(
+    const BipartitionList & bipartL1, unsigned int i1,
+    const BipartitionList & bipartL2, unsigned int i2,
+    bool checkElements) throw (Exception)
 {
   vector<int*> bitBipL1, bitBipL2, twoBitBipL;
   vector<string> elements;
@@ -140,10 +144,10 @@ BipartitionList * BipartitionTools::buildBipartitionPair(BipartitionList & bipar
   }
   else
   {
-    BipartitionList* provBipartL = new BipartitionList(bipartL1.getElementNames(), bipartL1.getBitBipartitionList());
-    provBipartL->sortElements();
-    elements=provBipartL->getElementNames();
-    bitBipL1=provBipartL->getBitBipartitionList();
+    BipartitionList provBipartL(bipartL1.getElementNames(), bipartL1.getBitBipartitionList());
+    provBipartL.sortElements();
+    elements = provBipartL.getElementNames();
+    bitBipL1 = provBipartL.getBitBipartitionList();
   }
 
   if(bipartL2.isSorted())
@@ -152,9 +156,9 @@ BipartitionList * BipartitionTools::buildBipartitionPair(BipartitionList & bipar
   }
   else
   {
-    BipartitionList * provBipartL=new BipartitionList(bipartL2.getElementNames(), bipartL2.getBitBipartitionList());
-    provBipartL->sortElements();
-    bitBipL2 = provBipartL->getBitBipartitionList();
+    BipartitionList provBipartL(bipartL2.getElementNames(), bipartL2.getBitBipartitionList());
+    provBipartL.sortElements();
+    bitBipL2 = provBipartL.getBitBipartitionList();
   }
 
   /* create a new BipartitionList with just the two focal bipartitions */
@@ -167,23 +171,35 @@ BipartitionList * BipartitionTools::buildBipartitionPair(BipartitionList & bipar
 
 /******************************************************************************/
 
-bool BipartitionTools::areIdentical(BipartitionList & bipartL1, unsigned int i1, BipartitionList & bipartL2, unsigned int i2, bool checkElements)
+bool BipartitionTools::areIdentical(
+    const BipartitionList & bipartL1, unsigned int i1,
+    const BipartitionList & bipartL2, unsigned int i2,
+    bool checkElements)
 {
-  BipartitionList* twoBipL = buildBipartitionPair(bipartL1, i1, bipartL2, i2, checkElements);
-  return twoBipL->areIdentical(0,1);
+  BipartitionList *twoBipL = buildBipartitionPair(bipartL1, i1, bipartL2, i2, checkElements);
+  bool test = twoBipL->areIdentical(0,1);
+  delete twoBipL;
+  return test;
 }
 
 /******************************************************************************/
 
-bool BipartitionTools::areCompatible(BipartitionList & bipartL1, unsigned int i1, BipartitionList & bipartL2, unsigned int i2, bool checkElements)
+bool BipartitionTools::areCompatible(
+    const BipartitionList & bipartL1, unsigned int i1,
+    const BipartitionList & bipartL2, unsigned int i2,
+    bool checkElements)
 {
   BipartitionList* twoBipL = buildBipartitionPair(bipartL1, i1, bipartL2, i2, checkElements);
-  return twoBipL->areCompatible(0,1);
+  bool test = twoBipL->areCompatible(0,1);
+  delete twoBipL;
+  return test;
 }
 
 /******************************************************************************/
 
-BipartitionList* BipartitionTools::mergeBipartitionLists(const vector<BipartitionList*> & vecBipartL, bool checkElements) throw (Exception)
+BipartitionList* BipartitionTools::mergeBipartitionLists(
+    const vector<BipartitionList *> & vecBipartL,
+    bool checkElements) throw (Exception)
 {
   vector<string> elements;
   vector<int*> mergedBitBipL;
@@ -197,7 +213,7 @@ BipartitionList* BipartitionTools::mergeBipartitionLists(const vector<Bipartitio
   {
     for(unsigned int i = 1; i < vecBipartL.size(); i++)
       if(!VectorTools::haveSameElements(vecBipartL[0]->getElementNames(), vecBipartL[0]->getElementNames()))
-        throw Exception("Distinct bipartition element sets");
+        throw Exception("BipartitionTools::mergeBipartitionLists. Distinct bipartition element sets");
   }
 
   unsigned int lword  = BipartitionTools::LWORD;
@@ -213,13 +229,13 @@ BipartitionList* BipartitionTools::mergeBipartitionLists(const vector<Bipartitio
     vector<int*> bitBipL;
     if(vecBipartL[i]->isSorted())
     {
-      bitBipL=vecBipartL[i]->getBitBipartitionList();
+      bitBipL = vecBipartL[i]->getBitBipartitionList();
     }
     else
     {
-      BipartitionList* provBipartL = new BipartitionList(vecBipartL[i]->getElementNames(),vecBipartL[i]->getBitBipartitionList());
-      provBipartL->sortElements();
-      bitBipL=provBipartL->getBitBipartitionList();
+      BipartitionList provBipartL(BipartitionList(vecBipartL[i]->getElementNames(), vecBipartL[i]->getBitBipartitionList()));
+      provBipartL.sortElements();
+      bitBipL = provBipartL.getBitBipartitionList();
     }
     for(unsigned int j = 0; j < bitBipL.size(); j++)
     {
@@ -238,12 +254,13 @@ BipartitionList* BipartitionTools::mergeBipartitionLists(const vector<Bipartitio
 
 /******************************************************************************/
 
-VectorSiteContainer* BipartitionTools::MRPEncode(const vector<BipartitionList*> & vecBipartL) throw (Exception)
+VectorSiteContainer* BipartitionTools::MRPEncode(
+    const vector<BipartitionList *> & vecBipartL) throw (Exception)
 {
   vector<string> all_elements;
   map<string, bool> bip;
   vector<string> bip_elements;
-  Alphabet* alpha=new DNA();
+  const DNA* alpha = & AlphabetTools::DNA_ALPHABET;
   vector<string> sequences;
 
   if(vecBipartL.size() == 0)
@@ -283,12 +300,11 @@ VectorSiteContainer* BipartitionTools::MRPEncode(const vector<BipartitionList*> 
     vec_sequences.push_back(seq);
   }
 
-  VectorSequenceContainer* vec_seq_cont = new VectorSequenceContainer(vec_sequences, alpha);
-  VectorSiteContainer * vec_site_cont = new VectorSiteContainer(*vec_seq_cont);
-
+  VectorSequenceContainer vec_seq_cont(vec_sequences, alpha);
   for(unsigned int i = 0; i < all_elements.size(); i++)
     delete vec_sequences[i];
-  delete vec_seq_cont;
+  
+  VectorSiteContainer * vec_site_cont = new VectorSiteContainer(vec_seq_cont);
 
   return vec_site_cont;
 }
