@@ -39,22 +39,24 @@ knowledge of the CeCILL license and that you accept its terms.
 
 #include "AbstractTreeParsimonyScore.h"
 #include "PatternTools.h"
+#include "TreeTemplateTools.h"
 
 // From Utils:
 #include <Utils/ApplicationTools.h>
 
 AbstractTreeParsimonyScore::AbstractTreeParsimonyScore(
-	const TreeTemplate<Node> & tree,
+	const Tree & tree,
 	const SiteContainer & data,
 	bool verbose)
 	throw (Exception):
-    _tree(tree.clone()), _data(NULL), _alphabet(data.getAlphabet()), _nbStates(_alphabet->getSize())
+    _tree(new TreeTemplate<Node>(tree)), _data(NULL), _alphabet(data.getAlphabet()), _nbStates(_alphabet->getSize())
 {
 	if(_tree->isRooted())
   {
 		if(verbose) ApplicationTools::displayWarning("Tree has been unrooted.");
 		_tree->unroot();
 	}
+  TreeTemplateTools::deleteBranchLengths(*_tree->getRootNode());
 	
 	//Sequences will be in the same order than in the tree:
 	_data = PatternTools::getSequenceSubset(data, * _tree->getRootNode());

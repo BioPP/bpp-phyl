@@ -62,7 +62,6 @@ public:
   BioNJ(): NeighborJoining(), _variance(0) {}
   
 	BioNJ(const DistanceMatrix & matrix, bool rooted = false, bool positiveLengths = false) throw (Exception):
-//    AbstractAgglomerativeDistanceMethod(matrix), 
     NeighborJoining(),
     _variance(matrix)
 	{

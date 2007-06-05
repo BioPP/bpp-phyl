@@ -165,5 +165,110 @@ class AbstractOTree: public virtual OTree
 		}
 };
 
+
+
+
+
+
+
+/**
+ * @brief General interface for multiple trees readers.
+ */
+class IMultiTree: public virtual IOTree
+{
+	public:
+		IMultiTree() {}
+		virtual ~IMultiTree() {}
+
+	public:
+    /**
+     * @brief Read trees from a file.
+     *
+     * @param path The file path.
+     * @param trees The output trees container.
+     * @throw Exception If an error occured.
+     */
+		virtual void read(const string & path, vector<Tree *> & trees) const throw (Exception) = 0;
+    /**
+     * @brief Read trees from a stream.
+     *
+     * @param in The input stream.
+     * @param trees The output trees container.
+     * @throw Exception If an error occured.
+     */
+		virtual void read(istream & in, vector<Tree *> & trees) const throw (Exception) = 0;
+};
+
+/**
+ * @brief General interface for tree writers.
+ */
+class OMultiTree: public virtual IOTree
+{
+	public:
+		OMultiTree() {}
+		virtual ~OMultiTree() {}
+
+	public:
+    /**
+     * @brief Write trees to a file.
+     *
+     * @param trees A vector of tree objects.
+     * @param path The file path.
+     * @param overwrite Tell if existing file must be overwritten.
+     * Otherwise append to the file.
+     * @throw Exception If an error occured.
+     */
+		virtual void write(const vector<Tree *> & trees, const string & path, bool overwrite) const throw (Exception) = 0;
+    /**
+     * @brief Write trees to a stream.
+     *
+     * @param tree A vector of tree objects.
+     * @param out The output stream.
+     * @throw Exception If an error occured.
+     */
+		virtual void write(const vector<Tree *> & trees, ostream & out) const throw (Exception) = 0;
+};
+
+/**
+ * @brief Partial implementation of the IMultiTree interface.
+ */
+class AbstractIMultiTree: public virtual IMultiTree
+{
+	public:
+		AbstractIMultiTree() {}
+		virtual ~AbstractIMultiTree() {}
+
+	public:
+		virtual void read(istream & in, vector<Tree *> & trees) const throw (Exception) = 0;
+		virtual void read(const string & path, vector<Tree *> & trees) const throw (Exception)
+		{
+			ifstream input(path.c_str(), ios::in);
+			read(input, trees);
+			input.close();
+		}
+
+};
+
+/**
+ * @brief Partial implementation of the OTree interface.
+ */
+class AbstractOMultiTree: public virtual OMultiTree
+{
+	public:
+		AbstractOMultiTree() {}
+		virtual ~AbstractOMultiTree() {}
+
+	public:
+		void write(const vector<Tree *> & trees, ostream & out) const throw (Exception) = 0;
+		virtual void write(const vector<Tree *> & trees, const string & path, bool overwrite) const throw (Exception)
+		{
+			// Open file in specified mode
+			ofstream output(path.c_str(), overwrite ? (ios::out) : (ios::out|ios::app));
+			write(trees, output);
+			output.close();
+		}
+};
+
+
 #endif	//_IOTREE_H_
 

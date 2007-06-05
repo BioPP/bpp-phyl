@@ -66,7 +66,7 @@ ProbabilisticSubstitutionMapping * SubstitutionMappingTools::computeSubstitution
 																   
 	//A few variables we'll need:
 	
-	const TreeTemplate<Node> *    tree = dynamic_cast<TreeTemplate<Node> *>(drhtl.getTree());
+	const TreeTemplate<Node> *    tree = dynamic_cast<const TreeTemplate<Node> *>(drhtl.getTree());
 	const SiteContainer *    sequences = drhtl.getData();
 	const SubstitutionModel *    model = drhtl.getSubstitutionModel();
 	const DiscreteDistribution * rDist = drhtl.getRateDistribution();
@@ -286,7 +286,7 @@ ProbabilisticSubstitutionMapping * SubstitutionMappingTools::computeSubstitution
   if(!drhtl.isInitialized()) throw Exception("SubstitutionMappingTools::computeSubstitutionVectorsNoAveraging(). Likelihood object is not initialized.");
 																   
 	//A few variables we'll need:
-	const TreeTemplate<Node> *    tree = dynamic_cast<TreeTemplate<Node> *>(drhtl.getTree());
+	const TreeTemplate<Node> *    tree = dynamic_cast<const TreeTemplate<Node> *>(drhtl.getTree());
 	const SiteContainer *    sequences = drhtl.getData();
 	const SubstitutionModel *    model = drhtl.getSubstitutionModel();
 	const DiscreteDistribution * rDist = drhtl.getRateDistribution();
@@ -492,7 +492,7 @@ ProbabilisticSubstitutionMapping * SubstitutionMappingTools::computeSubstitution
 																   
 	//A few variables we'll need:
 	
-	const TreeTemplate<Node> *    tree = dynamic_cast<TreeTemplate<Node> *>(drhtl.getTree());
+	const TreeTemplate<Node> *    tree = dynamic_cast<const TreeTemplate<Node> *>(drhtl.getTree());
 	const SiteContainer *    sequences = drhtl.getData();
 	const SubstitutionModel *    model = drhtl.getSubstitutionModel();
 	const DiscreteDistribution * rDist = drhtl.getRateDistribution();
@@ -580,7 +580,7 @@ ProbabilisticSubstitutionMapping * SubstitutionMappingTools::computeSubstitution
 																   
 	//A few variables we'll need:
 	
-	const TreeTemplate<Node> *    tree = dynamic_cast<TreeTemplate<Node> *>(drhtl.getTree());
+	const TreeTemplate<Node> *    tree = dynamic_cast<const TreeTemplate<Node> *>(drhtl.getTree());
 	const SiteContainer *    sequences = drhtl.getData();
 	const SubstitutionModel *    model = drhtl.getSubstitutionModel();
 	const DiscreteDistribution * rDist = drhtl.getRateDistribution();

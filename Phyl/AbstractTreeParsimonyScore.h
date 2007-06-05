@@ -60,7 +60,7 @@ class AbstractTreeParsimonyScore :
 		
 	public:
 		AbstractTreeParsimonyScore(
-			const TreeTemplate<Node> & tree,
+			const Tree & tree,
 			const SiteContainer & data,
 			bool verbose)
 			throw (Exception);
@@ -88,7 +88,6 @@ class AbstractTreeParsimonyScore :
     }
 
 	public:
-		virtual Tree * getTree() { return _tree; }
 		virtual const Tree * getTree() const { return _tree; }
 		virtual vector<unsigned int> getScoreForEachSite() const;
 };

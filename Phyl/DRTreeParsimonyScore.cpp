@@ -50,7 +50,7 @@ knowledge of the CeCILL license and that you accept its terms.
 /******************************************************************************/
 
 DRTreeParsimonyScore::DRTreeParsimonyScore(
-		TreeTemplate<Node> & tree,
+		const Tree & tree,
 		const SiteContainer & data,
 		bool verbose)
 	throw (Exception) :

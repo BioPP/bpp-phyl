@@ -96,13 +96,6 @@ class NNITopologySearch : public virtual TopologySearch
 		 */
 		const Tree * getTopology() const { return _searchableTree->getTopology(); }
 		
-		/**
-		 * @brief Retrieve the tree.
-		 *
-		 * @return The tree associated to this instance.
-		 */
-		Tree * getTopology() { return _searchableTree->getTopology(); }
-
     /**
      * @return The NNISearchable object associated to this instance.
      */

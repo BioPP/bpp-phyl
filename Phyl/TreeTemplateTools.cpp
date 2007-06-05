@@ -464,6 +464,17 @@ void TreeTemplateTools::setBranchLengths(Node & node, double brLen)
 
 /******************************************************************************/
 
+void TreeTemplateTools::deleteBranchLengths(Node & node)
+{
+  node.deleteDistanceToFather();
+  for(unsigned int i = 0; i < node.getNumberOfSons(); i++)
+  {
+    deleteBranchLengths(* node.getSon(i));
+  }
+}
+
+/******************************************************************************/
+
 void TreeTemplateTools::setVoidBranchLengths(Node & node, double brLen)
 {
   if(!node.hasDistanceToFather()) node.setDistanceToFather(brLen);

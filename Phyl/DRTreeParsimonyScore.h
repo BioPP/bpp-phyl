@@ -56,13 +56,11 @@ class DRTreeParsimonyScore :
 {
 	protected:
 		DRTreeParsimonyData *_parsimonyData;
-		//vector<unsigned int> _rootScores;
-		//vector<Bitset>       _rootBitsets;
 		unsigned int         _nbDistinctSites;
 			
 	public:
 		DRTreeParsimonyScore(
-			TreeTemplate<Node> & tree,
+			const Tree & tree,
 			const SiteContainer & data,
 			bool verbose = true)
 			throw (Exception);

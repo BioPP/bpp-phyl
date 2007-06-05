@@ -1,3 +1,6 @@
+05/05/07 Julien Dutheil
+* Add support for multi-trees I/O.
+
 02/06/07 Julien Dutheil
 * Node/Branch properties are passed as references.
 * Bootstrap values computation in TreeTools.

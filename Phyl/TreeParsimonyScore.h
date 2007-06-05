@@ -93,12 +93,6 @@ class TreeParsimonyScore:
 		 *
 		 * @return The tree associated to this object.
 		 */
-		virtual Tree * getTree() = 0;
-		/**
-		 * @brief Get the tree for wich scores are computed.
-		 *
-		 * @return The tree associated to this object.
-		 */
 		virtual const Tree * getTree() const = 0;
 };
 

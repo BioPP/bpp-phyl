@@ -219,8 +219,6 @@ class NNIHomogeneousTreeLikelihood:
      * Usually, this is achieved by calling the topologyChangePerformed() method, which call the reInit() method of the LikelihoodData object.
      * @{
      */
-		Tree * getTopology() { return AbstractHomogeneousTreeLikelihood::getTree(); }
-		
 		const Tree * getTopology() const { return getTree(); }
 
     double getTopologyValue() const throw (Exception) { return getValue(); }

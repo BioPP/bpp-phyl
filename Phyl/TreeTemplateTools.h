@@ -483,6 +483,13 @@ class TreeTemplateTools
     static void setBranchLengths(Node & node, double brLen);
      
     /**
+     * @brief Remove all the branch lengths of a subtree.
+     *
+     * @param node  The root node of the subtree.
+     */
+    static void deleteBranchLengths(Node & node);
+
+    /**
      * @brief Give a length to branches that don't have one in a subtree.
      *
      * @param node  The root node of the subtree.

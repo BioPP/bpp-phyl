@@ -79,7 +79,9 @@ knowledge of the CeCILL license and that you accept its terms.
  */
 class Newick:
   public virtual AbstractITree,
-  public virtual AbstractOTree
+  public virtual AbstractOTree,
+  public virtual AbstractIMultiTree,
+  public virtual AbstractOMultiTree
 {
 	protected:
 		bool _allowComments;
@@ -97,7 +99,12 @@ class Newick:
 		 * @param allowComments Tell if comments between [] are allowed in file.
 		 * @param writeId       If true, nodes ids will be written in place of bootstrap values.
 		 */
-		Newick(bool allowComments = false, bool writeId = false): _allowComments(allowComments), _writeId(writeId), _useBootstrap(true), _bootstrapPropertyName(TreeTools::BOOTSTRAP) {}
+		Newick(bool allowComments = false, bool writeId = false):
+      _allowComments(allowComments),
+      _writeId(writeId),
+      _useBootstrap(true),
+      _bootstrapPropertyName(TreeTools::BOOTSTRAP) {}
+
 		virtual ~Newick() {}
 	
 	public:
@@ -158,6 +165,30 @@ class Newick:
 			AbstractOTree::write(tree, path, overwrite);
 		}
 		void write(const Tree & tree, ostream & out) const throw (Exception);
+		/** @} */
+
+		/**
+		 * @name The IMultiTree interface
+		 *
+		 * @{
+		 */
+		void read(const string & path, vector<Tree *> & trees) const throw (Exception)
+		{
+			AbstractIMultiTree::read(path, trees);
+		}
+		void read(istream & in, vector<Tree *> & trees) const throw (Exception);
+    /**@}*/
+
+		/**
+		 * @name The OMultiTree interface
+		 *
+		 * @{
+		 */
+		void write(const vector<Tree *> & trees, const string & path, bool overwrite = true) const throw (Exception)
+		{
+			AbstractOMultiTree::write(trees, path, overwrite);
+		}
+		void write(const vector<Tree *> & trees, ostream & out) const throw (Exception);
 		/** @} */
 };
 

@@ -131,13 +131,6 @@ class NNISearchable:
 		 *
 		 * @return The tree associated to this instance.
 		 */
-		virtual Tree * getTopology() = 0;
-
-		/**
-		 * @brief Get the tree associated to this NNISearchable object.
-		 *
-		 * @return The tree associated to this instance.
-		 */
 		virtual const Tree * getTopology() const = 0;
     
     /**

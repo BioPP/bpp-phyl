@@ -133,7 +133,6 @@ class AbstractTreeLikelihood :
 		unsigned int getNumberOfSites() const { return _data->getNumberOfSites(); }
 		unsigned int getNumberOfStates() const { return _data->getAlphabet()->getSize(); }
 		const Tree * getTree() const { return _tree; }
-		Tree * getTree() { return _tree; }
 		void enableDerivatives(bool yn) { _computeFirstOrderDerivatives = _computeSecondOrderDerivatives = yn; }
 		void enableFirstOrderDerivatives(bool yn) { _computeFirstOrderDerivatives = yn; }
 		void enableSecondOrderDerivatives(bool yn) { _computeFirstOrderDerivatives = _computeSecondOrderDerivatives = yn; }

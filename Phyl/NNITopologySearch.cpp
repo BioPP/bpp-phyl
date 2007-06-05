@@ -298,12 +298,12 @@ void NNITopologySearch::searchPhyML() throw (Exception)
 		    notifyAllTested(TopologyChangeEvent());
         if(_verbose >= 1)
           ApplicationTools::displayResult("   Current value", TextTools::toString(_searchableTree->getTopologyValue(),10));
-        if(_searchableTree->getTopologyValue() > currentValue)
+        if(_searchableTree->getTopologyValue() >= currentValue)
         {
           //No improvement!
 			    if(_verbose >= 1)
           {
-				    ApplicationTools::displayMessage("Likelihood decreases! Moving backward...");
+				    ApplicationTools::displayMessage("Score >= current score! Moving backward...");
 			    }
           //Restore backup:
           delete _searchableTree;
