@@ -116,11 +116,11 @@ void Newick::read(istream & in, vector<Tree *> & trees) const throw (Exception)
 	// Checking the existence of specified file
 	if (! in) { throw IOException ("Newick::read: failed to read from stream"); }
 	
-	//We concatenate all line in file till we reach the ending semi colon:
-	string temp, description;// Initialization
 	// Main loop : for all file lines
   while(!in.eof())
   {
+	  //We concatenate all line in file till we reach the ending semi colon:
+	  string temp, description;// Initialization
 	  while(!in.eof())
     {
 		  getline(in, temp, '\n');  // Copy current line in temporary string
