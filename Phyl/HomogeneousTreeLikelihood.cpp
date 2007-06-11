@@ -123,6 +123,7 @@ HomogeneousTreeLikelihood::~HomogeneousTreeLikelihood()
 
 void HomogeneousTreeLikelihood::setData(const SiteContainer & sites) throw (Exception)
 {
+  if(_data) delete _data;
   _data = PatternTools::getSequenceSubset(sites, * _tree->getRootNode());
   if(_verbose) ApplicationTools::displayTask("Initializing data structure");
   _likelihoodData->initLikelihoods(* _data, *_model);
@@ -134,6 +135,7 @@ void HomogeneousTreeLikelihood::setData(const SiteContainer & sites) throw (Exce
   
   if(_verbose) ApplicationTools::displayResult("Number of distinct sites",
       TextTools::toString(_nbDistinctSites));
+  _initialized = false;
 }
 
 /******************************************************************************/

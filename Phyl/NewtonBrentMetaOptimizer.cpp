@@ -41,6 +41,9 @@ knowledge of the CeCILL license and that you accept its terms.
 
 #include "NewtonBrentMetaOptimizer.h"
 
+// From Utils:
+#include <Utils/ApplicationTools.h>
+
 // From NumCalc:
 #include <NumCalc/SimpleMultiDimensions.h>
 #include <NumCalc/SimpleNewtonMultiDimensions.h>
@@ -204,10 +207,10 @@ double NewtonBrentMetaOptimizer::doStep() throw (Exception)
   
   if(_nbNewtonParameters > 0)
   {
-    if(_verbose > 1)
+    if(_verbose > 1 && ApplicationTools::message)
     {
-      cout << endl << "Derivable parameters:";
-      cout.flush();
+      *ApplicationTools::message << endl << "Derivable parameters:";
+      ApplicationTools::message->flush();
     }
     dynamic_cast<DerivableSecondOrder *>(_function)->enableSecondOrderDerivatives(true);
     _newtonParameters.matchParametersValues(_parameters);
@@ -225,9 +228,9 @@ double NewtonBrentMetaOptimizer::doStep() throw (Exception)
 
   if(_nbBrentParameters > 0)
   {
-    if(_verbose > 1)
+    if(_verbose > 1 && ApplicationTools::message)
     {
-      cout << endl << "Non-derivable parameters:" << endl;
+      *ApplicationTools::message << endl << "Non-derivable parameters:" << endl;
     }
     _brentParameters.matchParametersValues(_parameters);
     _brentOptimizer->getStopCondition()->setTolerance(tol);
