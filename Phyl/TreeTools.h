@@ -42,7 +42,6 @@ knowledge of the CeCILL license and that you accept its terms.
 
 #include "TreeExceptions.h"
 #include "Node.h"
-#include "DistanceMatrix.h"
 #include "Tree.h"
 #include "BipartitionList.h"
 
@@ -54,6 +53,7 @@ knowledge of the CeCILL license and that you accept its terms.
 
 // From SeqLib:
 #include <Seq/VectorSiteContainer.h>
+#include <Seq/DistanceMatrix.h>
 
 /**
  * @brief Inner class for parsing strings in Newick format.

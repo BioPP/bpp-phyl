@@ -1,3 +1,6 @@
+12/05/07 Julien Dutheil
+* DistanceMtrix class is now in library seqlib.
+
 05/05/07 Julien Dutheil
 * Add support for multi-trees I/O.
 

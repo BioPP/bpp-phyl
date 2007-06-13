@@ -39,7 +39,6 @@ knowledge of the CeCILL license and that you accept its terms.
 */
 
 #include "DistanceEstimation.h"
-#include "DistanceMatrix.h"
 #include "Tree.h"
 #include "PatternTools.h"
 #include "SitePatterns.h"
@@ -54,6 +53,7 @@ knowledge of the CeCILL license and that you accept its terms.
 #include <Seq/SiteTools.h>
 #include <Seq/Sequence.h>
 #include <Seq/AlignedSequenceContainer.h>
+#include <Seq/DistanceMatrix.h>
 
 // From the STL:
 #include <vector>

@@ -38,7 +38,9 @@ knowledge of the CeCILL license and that you accept its terms.
 */
 
 #include "PhylipDistanceMatrixFormat.h"
-#include "DistanceMatrix.h"
+
+// From SeqLib:
+#include <Seq/DistanceMatrix.h>
 
 // From Utils:
 #include <Utils/FileTools.h>

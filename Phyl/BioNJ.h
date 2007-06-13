@@ -41,7 +41,6 @@ knowledge of the CeCILL license and that you accept its terms.
 #define _BIONJ_H_
 
 #include "NeighborJoining.h"
-#include "DistanceMatrix.h"
 
 /**
  * @brief The BioNJ distance method.
@@ -51,7 +50,8 @@ knowledge of the CeCILL license and that you accept its terms.
  * BIONJ: an improved version of the NJ algorithm based on a simple model of sequence data.
  * Mol Biol Evol. 1997 Jul;14(7):685-95.
  */
-class BioNJ : public NeighborJoining
+class BioNJ:
+  public NeighborJoining
 {
 protected:
 	DistanceMatrix _variance;

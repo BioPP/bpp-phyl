@@ -45,7 +45,6 @@ knowledge of the CeCILL license and that you accept its terms.
 #include "NewtonBrentMetaOptimizer.h"
 #include "AbstractTreeLikelihood.h"
 #include "DRHomogeneousTreeLikelihood.h"
-#include "DistanceMatrix.h"
 
 // From NumCalc
 #include <NumCalc/ParameterList.h>
