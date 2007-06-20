@@ -576,10 +576,17 @@ TreeLikelihood * PhylogeneticsApplicationTools::optimizeParameters(
 
   string method = ApplicationTools::getStringParameter("optimization.method", params, "DB", suffix, suffixIsOptional, false);
   string order  = ApplicationTools::getStringParameter("optimization.method.derivatives", params, "newton", suffix, suffixIsOptional, false);
-	string optMethod;
-  if(order == "gradient") optMethod = OptimizationTools::OPTIMIZATION_GRADIENT;
-  else if(order == "newton")   optMethod = OptimizationTools::OPTIMIZATION_NEWTON;
-  else throw Exception("Option '" + order + "' is not known for 'optimization.method.derivatives'.");
+  string optMethod, derMethod;
+  if(order == "gradient")
+  {
+    optMethod = OptimizationTools::OPTIMIZATION_GRADIENT;
+    derMethod = OptimizationTools::OPTIMIZATION_2POINTS;
+  }
+  else if(order == "newton")
+  {
+    optMethod = OptimizationTools::OPTIMIZATION_NEWTON;
+    derMethod = OptimizationTools::OPTIMIZATION_3POINTS;
+  }
   if(verbose) ApplicationTools::displayResult("Optimization method", method);
   if(verbose) ApplicationTools::displayResult("Algorithm used for derivable parameters", order);
 	
@@ -606,7 +613,7 @@ TreeLikelihood * PhylogeneticsApplicationTools::optimizeParameters(
     n = OptimizationTools::optimizeNumericalParameters2(
 			dynamic_cast<AbstractHomogeneousTreeLikelihood *>(tl),
       NULL,
-      OptimizationTools::OPTIMIZATION_2POINTS,
+      derMethod,
 			tolerance,
 			nbEvalMax,
 			messageHandler,
@@ -685,9 +692,17 @@ void PhylogeneticsApplicationTools::optimizeParameters(
 	
   string method = ApplicationTools::getStringParameter("optimization.method", params, "DB", suffix, suffixIsOptional, false);
   string order  = ApplicationTools::getStringParameter("optimization.method.derivatives", params, "gradient", suffix, suffixIsOptional, false);
-	string optMethod;
-  if(order == "gradient") optMethod = OptimizationTools::OPTIMIZATION_GRADIENT;
-  else if(order == "newton")   optMethod = OptimizationTools::OPTIMIZATION_NEWTON;
+	string optMethod, derMethod;
+  if(order == "gradient")
+  {
+    optMethod = OptimizationTools::OPTIMIZATION_GRADIENT;
+    derMethod = OptimizationTools::OPTIMIZATION_2POINTS;
+  }
+  else if(order == "newton")
+  {
+    optMethod = OptimizationTools::OPTIMIZATION_NEWTON;
+    derMethod = OptimizationTools::OPTIMIZATION_3POINTS;
+  }
   else throw Exception("Option '" + order + "' is not known for 'optimization.method.derivatives'.");
   if(verbose) ApplicationTools::displayResult("Optimization method", method);
   if(verbose) ApplicationTools::displayResult("Algorithm used for derivable parameters", order);
@@ -702,7 +717,7 @@ void PhylogeneticsApplicationTools::optimizeParameters(
 		  tl,
       NULL,
       nstep,
-      OptimizationTools::OPTIMIZATION_2POINTS,
+      derMethod,
 			tolerance,
 			nbEvalMax,
 			messageHandler,
@@ -716,7 +731,7 @@ void PhylogeneticsApplicationTools::optimizeParameters(
     n = OptimizationTools::optimizeNumericalParametersWithGlobalClock2(
 			tl,
       NULL,
-      OptimizationTools::OPTIMIZATION_2POINTS,
+      derMethod,
 			tolerance,
 			nbEvalMax,
 			messageHandler,
@@ -786,7 +801,7 @@ void PhylogeneticsApplicationTools::writeTree(
 	string file = ApplicationTools::getAFilePath("output.tree.file", params, true, false, suffix, false);
 	Newick newick;
 	newick.write(tree, file, true);
-	if(verbose) ApplicationTools::displayMessage("Wrote tree to file '" + file + "'.");
+	if(verbose) ApplicationTools::displayResult("Wrote tree to file ", file);
 }
 
 /******************************************************************************/

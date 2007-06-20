@@ -199,10 +199,9 @@ unsigned int OptimizationTools::optimizeNumericalParameters2(
   else throw Exception("OptimizationTools::optimizeNumericalParameters2. Unknow numerical derivative method: " + derMethod + ".");
 
   //Numerical derivatives:
-  ParameterList tmp = tl->getBranchLengthsParameters();
+  ParameterList tmp = tl->getSubstitutionModelParameters();
+  tmp.addParameters(tl->getRateDistributionParameters());
   fun->setParametersToDerivate(tmp.getParameterNames());
-  ParameterList tmp2 = tl->getSubstitutionModelParameters();
-  tmp2.addParameters(tl->getRateDistributionParameters());
 
   // Build optimizer:
   Optimizer * optimizer = NULL;
@@ -213,7 +212,7 @@ unsigned int OptimizationTools::optimizeNumericalParameters2(
   }
   else if(optMethod == OPTIMIZATION_NEWTON)
   {
-    if(derMethod == OPTIMIZATION_2POINTS) throw Exception("OptimizationTools::optimizeNumericalParameters2. Newton optimization requires second order derivatives and hance can't be used with 2points numerical derivatives.");
+    if(derMethod == OPTIMIZATION_2POINTS) throw Exception("OptimizationTools::optimizeNumericalParameters2. Newton optimization requires second order derivatives and hence can't be used with 2points numerical derivatives.");
     fun->setInterval(0.0001);
     optimizer = new PseudoNewtonOptimizer(fun);
   }
@@ -346,6 +345,8 @@ unsigned int OptimizationTools::optimizeNumericalParametersWithGlobalClock(
 
   // Final step without derivatives:
   PowellMultiDimensions optimizer2(cl);
+  FunctionStopCondition stop(&optimizer2);
+  optimizer2.setStopCondition(stop);
   optimizer2.setVerbose(verbose);
   optimizer2.setProfiler(profiler);
   optimizer2.setMessageHandler(messageHandler);
@@ -427,6 +428,8 @@ unsigned int OptimizationTools::optimizeNumericalParametersWithGlobalClock2(
 
   // Final step without derivatives:
   PowellMultiDimensions optimizer2(cl);
+  FunctionStopCondition stop(&optimizer2);
+  optimizer2.setStopCondition(stop);
   optimizer2.setVerbose(verbose);
   optimizer2.setProfiler(profiler);
   optimizer2.setMessageHandler(messageHandler);

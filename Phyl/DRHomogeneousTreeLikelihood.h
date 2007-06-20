@@ -154,7 +154,6 @@ class DRHomogeneousTreeLikelihood:
     double getLogLikelihoodForASite(unsigned int site) const;
     /** @} */
 
-
     void computeTreeLikelihood();
 
     

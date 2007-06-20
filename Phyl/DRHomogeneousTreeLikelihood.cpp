@@ -89,7 +89,6 @@ throw (Exception):
 
 void DRHomogeneousTreeLikelihood::_init() throw (Exception)
 {
-  if(_verbose) ApplicationTools::displayMessage("Double-Recursive Homogeneous Tree Likelihood");  
   _likelihoodData = new DRASDRTreeLikelihoodData(*_tree, _rateDistribution->getNumberOfCategories());
 }
 

@@ -86,7 +86,6 @@ throw (Exception):
 
 void HomogeneousTreeLikelihood::_init(bool usePatterns) throw (Exception)
 {
-  if(_verbose) ApplicationTools::displayMessage("Homogeneous Tree Likelihood");  
   _likelihoodData = new DRASRTreeLikelihoodData(*_tree, _rateDistribution->getNumberOfCategories(), usePatterns);
 }
 
