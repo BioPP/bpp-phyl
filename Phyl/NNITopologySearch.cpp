@@ -297,7 +297,7 @@ void NNITopologySearch::searchPhyML() throw (Exception)
 		    // Notify:
 		    notifyAllTested(TopologyChangeEvent());
         if(_verbose >= 1)
-          ApplicationTools::displayResult("   Current value", TextTools::toString(_searchableTree->getTopologyValue(),10));
+          ApplicationTools::displayResult("   Current value", TextTools::toString(_searchableTree->getTopologyValue(), 10));
         if(_searchableTree->getTopologyValue() >= currentValue)
         {
           //No improvement!
@@ -316,10 +316,10 @@ void NNITopologySearch::searchPhyML() throw (Exception)
         else
         {
           test2 = false;
-          delete backup;
         }
       }
       while(test2);
+      delete backup;
 		  // Notify:
 		  notifyAllSuccessful(TopologyChangeEvent());
     }

@@ -1,3 +1,6 @@
+27/06/07 Nicolas Galtier & Julien Dutheil
+* No more memory leak when optimizing tree topology using NNI and PhyML algorithm.
+
 12/05/07 Julien Dutheil
 * DistanceMtrix class is now in library seqlib.
 
