@@ -217,6 +217,7 @@ class PhylogeneticsApplicationTools
 		 *   names to ignore in the optimizing process.
      * - optimization.method = [DB|fullD] Algorithm to use: Derivatives+Brent or full derivatives, with numerical derivatives when required.
      * - optimization.method.derivatives = [gradient|newton] Use Conjugate Grandient or Newton-Rhaphson algorithm.
+     * - optimization.final = [none|simplex|powell] Perform a downhill simplex or a Powell multidimensions optimization
      * - optimization.topology = Tell if we must optimize tree topology. Toplogy estimation uses the DB algorithm with Newton-Raphson during estimation.
      *   The previous options will be used only for final estimation of numerical parameters.
 		 * Options depending on other options:
@@ -269,6 +270,7 @@ class PhylogeneticsApplicationTools
 		 *   names to ignore in the optimizing process.
      * - optimization.method = [DB|fullD] Algorithm to use: Derivatives+Brent or full derivatives, with numerical derivatives when required.
      * - optimization.method.derivatives = [gradient|newton] Use Conjugate Grandient or Newton-Rhaphson algorithm.
+     * - optimization.final = [none|simplex|powell] Perform a downhill simplex or a Powell multidimensions optimization
      * - optimization.method_DB.nstep = number of progressive steps to use in DB algorithm.
 		 *
 		 * @param tl      The ClockTreeLikelihood function to optimize.

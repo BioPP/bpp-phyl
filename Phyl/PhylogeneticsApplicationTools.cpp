@@ -54,6 +54,7 @@ knowledge of the CeCILL license and that you accept its terms.
 // From NumCalc:
 #include <NumCalc/ConstantDistribution.h>
 #include <NumCalc/GammaDiscreteDistribution.h>
+#include <NumCalc/optimizers>
 
 // From the STL:
 #include <fstream>
@@ -563,30 +564,19 @@ TreeLikelihood * PhylogeneticsApplicationTools::optimizeParameters(
 	
   bool optimizeTopo = ApplicationTools::getBooleanParameter("optimization.topology", params, false, suffix, suffixIsOptional, false);
   ApplicationTools::displayResult("Optimize topology", optimizeTopo ? "yes" : "no");
-  if(optimizeTopo)
-  {
-    bool optNumFirst = ApplicationTools::getBooleanParameter("optimization.topology.numfirst", params, true, suffix, suffixIsOptional, false);
-    unsigned int n   = ApplicationTools::getParameter<unsigned int>("optimization.topology.nstep", params, 1, "", true, false);
-	  double tolBefore = ApplicationTools::getDoubleParameter("optimization.topology.tolerance.before", params, 100, suffix, suffixIsOptional);
-	  double tolDuring = ApplicationTools::getDoubleParameter("optimization.topology.tolerance.during", params, 100, suffix, suffixIsOptional);
-    tl = OptimizationTools::optimizeTreeNNI(
-			  dynamic_cast<NNIHomogeneousTreeLikelihood *>(tl),
-        optNumFirst, tolBefore, tolDuring, nbEvalMax, n, messageHandler, profiler, optVerbose);
-  }
-
+  
   string method = ApplicationTools::getStringParameter("optimization.method", params, "DB", suffix, suffixIsOptional, false);
   string order  = ApplicationTools::getStringParameter("optimization.method.derivatives", params, "newton", suffix, suffixIsOptional, false);
-  string optMethod, derMethod;
+  string optMethod;
   if(order == "gradient")
   {
     optMethod = OptimizationTools::OPTIMIZATION_GRADIENT;
-    derMethod = OptimizationTools::OPTIMIZATION_2POINTS;
   }
   else if(order == "newton")
   {
     optMethod = OptimizationTools::OPTIMIZATION_NEWTON;
-    derMethod = OptimizationTools::OPTIMIZATION_3POINTS;
   }
+  else throw Exception("Unknown derivatives algorithm: '" + order + "'.");
   if(verbose) ApplicationTools::displayResult("Optimization method", method);
   if(verbose) ApplicationTools::displayResult("Algorithm used for derivable parameters", order);
 	
@@ -594,7 +584,19 @@ TreeLikelihood * PhylogeneticsApplicationTools::optimizeParameters(
   if(method == "DB")
   {
     //Uses Newton-Brent method:
-	  int nstep = ApplicationTools::getIntParameter("optimization.method_DB.nstep", params, 1, suffix, suffixIsOptional, false);
+	  
+    unsigned int nstep = ApplicationTools::getParameter<unsigned int>("optimization.method_DB.nstep", params, 1, suffix, suffixIsOptional, false);
+    if(optimizeTopo)
+    {
+      bool optNumFirst = ApplicationTools::getBooleanParameter("optimization.topology.numfirst", params, true, suffix, suffixIsOptional, false);
+      unsigned int n   = ApplicationTools::getParameter<unsigned int>("optimization.topology.nstep", params, 1, "", true, false);
+	    double tolBefore = ApplicationTools::getDoubleParameter("optimization.topology.tolerance.before", params, 100, suffix, suffixIsOptional);
+	    double tolDuring = ApplicationTools::getDoubleParameter("optimization.topology.tolerance.during", params, 100, suffix, suffixIsOptional);
+      tl = OptimizationTools::optimizeTreeNNI(
+			    dynamic_cast<NNIHomogeneousTreeLikelihood *>(tl),
+          optNumFirst, tolBefore, tolDuring, nbEvalMax, n, messageHandler, profiler, optVerbose, optMethod, nstep);
+    }
+
 	  if(verbose && nstep > 1) ApplicationTools::displayResult("# of precision steps", TextTools::toString(nstep));
     n = OptimizationTools::optimizeNumericalParameters(
 		  dynamic_cast<AbstractHomogeneousTreeLikelihood *>(tl),
@@ -610,10 +612,21 @@ TreeLikelihood * PhylogeneticsApplicationTools::optimizeParameters(
   else if(method == "fullD")
   {
     //Uses Newton-raphson alogrithm with numerical derivatives when required.
+    
+    if(optimizeTopo)
+    {
+      bool optNumFirst = ApplicationTools::getBooleanParameter("optimization.topology.numfirst", params, true, suffix, suffixIsOptional, false);
+      unsigned int n   = ApplicationTools::getParameter<unsigned int>("optimization.topology.nstep", params, 1, "", true, false);
+	    double tolBefore = ApplicationTools::getDoubleParameter("optimization.topology.tolerance.before", params, 100, suffix, suffixIsOptional);
+	    double tolDuring = ApplicationTools::getDoubleParameter("optimization.topology.tolerance.during", params, 100, suffix, suffixIsOptional);
+      tl = OptimizationTools::optimizeTreeNNI2(
+			    dynamic_cast<NNIHomogeneousTreeLikelihood *>(tl),
+          optNumFirst, tolBefore, tolDuring, nbEvalMax, n, messageHandler, profiler, optVerbose, optMethod);
+    }
+
     n = OptimizationTools::optimizeNumericalParameters2(
 			dynamic_cast<AbstractHomogeneousTreeLikelihood *>(tl),
       NULL,
-      derMethod,
 			tolerance,
 			nbEvalMax,
 			messageHandler,
@@ -622,6 +635,35 @@ TreeLikelihood * PhylogeneticsApplicationTools::optimizeParameters(
       optMethod);		   
   }
   else throw Exception("Unknown optimization method: " + method);
+
+  string finalMethod = ApplicationTools::getStringParameter("optimization.final", params, "none", suffix, suffixIsOptional, false);
+  Optimizer * finalOptimizer  = NULL;
+  if(finalMethod == "none") {}
+  else if(finalMethod == "simplex")
+  {
+    finalOptimizer = new DownhillSimplexMethod(tl);
+  }
+  else if(finalMethod == "powell")
+  {
+    finalOptimizer = new PowellMultiDimensions(tl);
+  }
+  else throw Exception("Unknown final optimization method: " + finalMethod);
+
+  if(finalOptimizer)
+  {
+    ApplicationTools::displayResult("Final optimization step", finalMethod);
+    finalOptimizer->setProfiler(profiler);
+    finalOptimizer->setMessageHandler(messageHandler);
+    finalOptimizer->setMaximumNumberOfEvaluations(nbEvalMax);
+    finalOptimizer->getStopCondition()->setTolerance(tolerance);
+    finalOptimizer->setVerbose(verbose);
+    finalOptimizer->setConstraintPolicy(AutoParameter::CONSTRAINTS_AUTO);
+    finalOptimizer->init(tl->getParameters());
+    finalOptimizer->optimize();
+    n += finalOptimizer->getNumberOfEvaluations();
+    delete finalOptimizer;
+  }
+  
 	if(verbose) ApplicationTools::displayResult("Performed", TextTools::toString(n) + " function evaluations.");
   return tl;
 }
@@ -696,12 +738,10 @@ void PhylogeneticsApplicationTools::optimizeParameters(
   if(order == "gradient")
   {
     optMethod = OptimizationTools::OPTIMIZATION_GRADIENT;
-    derMethod = OptimizationTools::OPTIMIZATION_2POINTS;
   }
   else if(order == "newton")
   {
     optMethod = OptimizationTools::OPTIMIZATION_NEWTON;
-    derMethod = OptimizationTools::OPTIMIZATION_3POINTS;
   }
   else throw Exception("Option '" + order + "' is not known for 'optimization.method.derivatives'.");
   if(verbose) ApplicationTools::displayResult("Optimization method", method);
@@ -711,13 +751,12 @@ void PhylogeneticsApplicationTools::optimizeParameters(
   if(method == "DB")
   {
     //Uses Newton-Brent method:
-	  int nstep = ApplicationTools::getIntParameter("optimization.method_DB.nstep", params, 1, suffix, suffixIsOptional, false);
+	  unsigned int nstep = ApplicationTools::getParameter<unsigned int>("optimization.method_DB.nstep", params, 1, suffix, suffixIsOptional, false);
 	  if(verbose && nstep > 1) ApplicationTools::displayResult("# of precision steps", TextTools::toString(nstep));
     n = OptimizationTools::optimizeNumericalParametersWithGlobalClock(
 		  tl,
       NULL,
       nstep,
-      derMethod,
 			tolerance,
 			nbEvalMax,
 			messageHandler,
@@ -731,7 +770,6 @@ void PhylogeneticsApplicationTools::optimizeParameters(
     n = OptimizationTools::optimizeNumericalParametersWithGlobalClock2(
 			tl,
       NULL,
-      derMethod,
 			tolerance,
 			nbEvalMax,
 			messageHandler,
@@ -740,7 +778,36 @@ void PhylogeneticsApplicationTools::optimizeParameters(
       optMethod);		   
   }
   else throw Exception("Unknown optimization method: " + method);
-	if(verbose) ApplicationTools::displayResult("Performed", TextTools::toString(n) + " function evaluations.");
+
+  string finalMethod = ApplicationTools::getStringParameter("optimization.final", params, "none", suffix, suffixIsOptional, false);
+  Optimizer * finalOptimizer  = NULL;
+  if(finalMethod == "none") {}
+  else if(finalMethod == "simplex")
+  {
+    finalOptimizer = new DownhillSimplexMethod(tl);
+  }
+  else if(finalMethod == "powell")
+  {
+    finalOptimizer = new PowellMultiDimensions(tl);
+  }
+  else throw Exception("Unknown final optimization method: " + finalMethod);
+
+  if(finalOptimizer)
+  {
+    ApplicationTools::displayResult("Final optimization step", finalMethod);
+    finalOptimizer->setProfiler(profiler);
+    finalOptimizer->setMessageHandler(messageHandler);
+    finalOptimizer->setMaximumNumberOfEvaluations(nbEvalMax);
+    finalOptimizer->getStopCondition()->setTolerance(tolerance);
+    finalOptimizer->setVerbose(verbose);
+    finalOptimizer->setConstraintPolicy(AutoParameter::CONSTRAINTS_AUTO);
+    finalOptimizer->init(tl->getParameters());
+    finalOptimizer->optimize();
+    n += finalOptimizer->getNumberOfEvaluations();
+    delete finalOptimizer;
+  }
+  
+  if(verbose) ApplicationTools::displayResult("Performed", TextTools::toString(n) + " function evaluations.");
 }
 
 /******************************************************************************/
@@ -753,6 +820,7 @@ void PhylogeneticsApplicationTools::printOptimizationHelp(bool topo, bool clock)
 	*ApplicationTools::message << "optimization.method.derivatives| [gradient/newton] use Conjugate gradient" << endl;
   *ApplicationTools::message << "                               | or Newton-Raphson" << endl;
 	*ApplicationTools::message << "optimization.method_DB.step    | Number of progressive step to perform." << endl;
+	*ApplicationTools::message << "optimization.final             | [none|simplex|powell] final step." << endl;
 	*ApplicationTools::message << "optimization.verbose           | [0,1,2] level of verbose" << endl;
 	*ApplicationTools::message << "optimization.message_handler   | [none, std ot file path] where to dislay" << endl;
   *ApplicationTools::message << "                               | optimization messages" << endl;
@@ -786,8 +854,8 @@ void PhylogeneticsApplicationTools::printOptimizationHelp(bool topo, bool clock)
 	*ApplicationTools::message << "optimization.topology.tolerance| " << endl;
 	*ApplicationTools::message << "                        .before| Tolerance for prior estimation." << endl;
 	*ApplicationTools::message << "                        .during| Tolerance during estimation." << endl;
-  *ApplicationTools::message << "_______________________________|__________________________________________" << endl;
   }
+  *ApplicationTools::message << "_______________________________|__________________________________________" << endl;
 }
 
 /******************************************************************************/

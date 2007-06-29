@@ -67,9 +67,6 @@ OptimizationTools::~OptimizationTools() {}
  
 /******************************************************************************/
 
-string OptimizationTools::OPTIMIZATION_2POINTS = "2points";
-string OptimizationTools::OPTIMIZATION_3POINTS = "3points";
-string OptimizationTools::OPTIMIZATION_5POINTS = "5points";
 string OptimizationTools::OPTIMIZATION_NEWTON = "newton";
 string OptimizationTools::OPTIMIZATION_GRADIENT = "gradient";
 
@@ -164,6 +161,7 @@ unsigned int OptimizationTools::optimizeNumericalParameters(
   if(listener) optimizer.addOptimizationListener(listener);
   optimizer.init(pl);
   optimizer.optimize();
+  if(verbose > 0) ApplicationTools::displayMessage("\n");
   
   // We're done.
   return optimizer.getNumberOfEvaluations(); 
@@ -174,7 +172,6 @@ unsigned int OptimizationTools::optimizeNumericalParameters(
 unsigned int OptimizationTools::optimizeNumericalParameters2(
   DiscreteRatesAcrossSitesTreeLikelihood * tl,
   OptimizationListener * listener,
-  const string & derMethod,
   double tolerance,
   unsigned int tlEvalMax,
   ostream * messageHandler,
@@ -184,39 +181,27 @@ unsigned int OptimizationTools::optimizeNumericalParameters2(
   )  throw (Exception)
 {
   AbstractNumericalDerivative * fun = NULL;
-  if(derMethod == OPTIMIZATION_2POINTS)
-  {
-    fun = new TwoPointsNumericalDerivative(tl);
-  }
-  else if(derMethod == OPTIMIZATION_3POINTS)
-  {
-    fun = new ThreePointsNumericalDerivative(tl);
-  }
-  else if(derMethod == OPTIMIZATION_5POINTS)
-  {
-    fun = new FivePointsNumericalDerivative(tl);
-  }
-  else throw Exception("OptimizationTools::optimizeNumericalParameters2. Unknow numerical derivative method: " + derMethod + ".");
-
-  //Numerical derivatives:
-  ParameterList tmp = tl->getSubstitutionModelParameters();
-  tmp.addParameters(tl->getRateDistributionParameters());
-  fun->setParametersToDerivate(tmp.getParameterNames());
-
   // Build optimizer:
   Optimizer * optimizer = NULL;
   if(optMethod == OPTIMIZATION_GRADIENT)
   {
+    fun = new TwoPointsNumericalDerivative(tl);
     fun->setInterval(0.0000001);
     optimizer = new ConjugateGradientMultiDimensions(fun);
   }
   else if(optMethod == OPTIMIZATION_NEWTON)
   {
-    if(derMethod == OPTIMIZATION_2POINTS) throw Exception("OptimizationTools::optimizeNumericalParameters2. Newton optimization requires second order derivatives and hence can't be used with 2points numerical derivatives.");
+    fun = new ThreePointsNumericalDerivative(tl);
     fun->setInterval(0.0001);
     optimizer = new PseudoNewtonOptimizer(fun);
   }
   else throw Exception("OptimizationTools::optimizeNumericalParameters2. Unknown optimization method: " + optMethod);
+  
+  //Numerical derivatives:
+  ParameterList tmp = tl->getSubstitutionModelParameters();
+  tmp.addParameters(tl->getRateDistributionParameters());
+  fun->setParametersToDerivate(tmp.getParameterNames());
+ 
   optimizer->setVerbose(verbose);
   optimizer->setProfiler(profiler);
   optimizer->setMessageHandler(messageHandler);
@@ -229,6 +214,7 @@ unsigned int OptimizationTools::optimizeNumericalParameters2(
   if(listener) optimizer->addOptimizationListener(listener);
   optimizer->init(pl);
   optimizer->optimize();
+  if(verbose > 0) ApplicationTools::displayMessage("\n");
   
   // We're done.
   unsigned int n = optimizer->getNumberOfEvaluations(); 
@@ -268,6 +254,7 @@ unsigned int OptimizationTools::optimizeBranchLengthsParameters(
   if(listener) optimizer->addOptimizationListener(listener);
   optimizer->init(pl);
   optimizer->optimize();
+  if(verbose > 0) ApplicationTools::displayMessage("\n");
   
   // We're done.
   unsigned int n = optimizer->getNumberOfEvaluations();
@@ -281,7 +268,6 @@ unsigned int OptimizationTools::optimizeNumericalParametersWithGlobalClock(
   ClockTreeLikelihood * cl,
   OptimizationListener * listener,
   unsigned int nstep,
-  const string & derMethod,
   double tolerance,
   unsigned int tlEvalMax,
   ostream * messageHandler,
@@ -291,19 +277,22 @@ unsigned int OptimizationTools::optimizeNumericalParametersWithGlobalClock(
   )  throw (Exception)
 {
   AbstractNumericalDerivative * fun = NULL;
-  if(derMethod == OPTIMIZATION_2POINTS)
+
+  // Build optimizer:
+  string method;
+  if(optMethod == OPTIMIZATION_GRADIENT)
   {
     fun = new TwoPointsNumericalDerivative(cl);
+    fun->setInterval(0.0000001);
+    method = NewtonBrentMetaOptimizer::TYPE_CONJUGATEGRADIENT;
   }
-  else if(derMethod == OPTIMIZATION_3POINTS)
+  else if(optMethod == OPTIMIZATION_NEWTON) 
   {
     fun = new ThreePointsNumericalDerivative(cl);
+    fun->setInterval(0.0001);
+    method = NewtonBrentMetaOptimizer::TYPE_PSEUDONEWTON;
   }
-  else if(derMethod == OPTIMIZATION_5POINTS)
-  {
-    fun = new FivePointsNumericalDerivative(cl);
-  }
-  else throw Exception("OptimizationTools::optimizeNumericalParametersWithGlobalClock. Unknow numerical derivative method: " + derMethod + ".");
+  else throw Exception("OptimizationTools::optimizeNumericalParametersWithGlobalClock. Unknown optimization method: " + optMethod);
 
   //Numerical derivatives:
   ParameterList tmp = cl->getBranchLengthsParameters();
@@ -311,20 +300,6 @@ unsigned int OptimizationTools::optimizeNumericalParametersWithGlobalClock(
   ParameterList tmp2 = cl->getSubstitutionModelParameters();
   tmp2.addParameters(cl->getRateDistributionParameters());
 
-  // Build optimizer:
-  string method;
-  if(optMethod == OPTIMIZATION_GRADIENT)
-  {
-    fun->setInterval(0.0000001);
-    method = NewtonBrentMetaOptimizer::TYPE_CONJUGATEGRADIENT;
-  }
-  else if(optMethod == OPTIMIZATION_NEWTON) 
-  {
-    if(derMethod == OPTIMIZATION_2POINTS) throw Exception("OptimizationTools::optimizeNumericalParametersWithGlobalClock. Newton optimization requires second order derivatives and hance can't be used with 2points numerical derivatives.");
-    fun->setInterval(0.0001);
-    method = NewtonBrentMetaOptimizer::TYPE_PSEUDONEWTON;
-  }
-  else throw Exception("OptimizationTools::optimizeNumericalParametersWithGlobalClock. Unknown optimization method: " + optMethod);
   NewtonBrentMetaOptimizer optimizer(fun, method, NewtonBrentMetaOptimizer::IT_TYPE_FULL, nstep);
   optimizer.setDerivableParameters(tmp.getParameterNames());
   optimizer.setNonDerivableParameters(tmp2.getParameterNames());
@@ -340,26 +315,10 @@ unsigned int OptimizationTools::optimizeNumericalParametersWithGlobalClock(
   if(listener) optimizer.addOptimizationListener(listener);
   optimizer.init(pl);
   optimizer.optimize();
+  if(verbose > 0) ApplicationTools::displayMessage("\n");
   
-  unsigned int n = optimizer.getNumberOfEvaluations(); 
-
-  // Final step without derivatives:
-  PowellMultiDimensions optimizer2(cl);
-  FunctionStopCondition stop(&optimizer2);
-  optimizer2.setStopCondition(stop);
-  optimizer2.setVerbose(verbose);
-  optimizer2.setProfiler(profiler);
-  optimizer2.setMessageHandler(messageHandler);
-  optimizer2.setMaximumNumberOfEvaluations(tlEvalMax);
-  optimizer2.getStopCondition()->setTolerance(tolerance);
-  pl = cl->getParameters();
-  optimizer2.setConstraintPolicy(AutoParameter::CONSTRAINTS_AUTO);
-  if(listener) optimizer2.addOptimizationListener(listener);
-  optimizer2.init(pl);
-  optimizer2.optimize();
-
   // We're done.
-  return n + optimizer2.getNumberOfEvaluations(); 
+  return optimizer.getNumberOfEvaluations(); 
 }
 
 /******************************************************************************/
@@ -367,7 +326,6 @@ unsigned int OptimizationTools::optimizeNumericalParametersWithGlobalClock(
 unsigned int OptimizationTools::optimizeNumericalParametersWithGlobalClock2(
   ClockTreeLikelihood * cl,
   OptimizationListener * listener,
-  const string & derMethod,
   double tolerance,
   unsigned int tlEvalMax,
   ostream * messageHandler,
@@ -377,38 +335,27 @@ unsigned int OptimizationTools::optimizeNumericalParametersWithGlobalClock2(
   ) throw (Exception)
 {
   AbstractNumericalDerivative * fun = NULL;
-  if(derMethod == OPTIMIZATION_2POINTS)
-  {
-    fun = new TwoPointsNumericalDerivative(cl);
-  }
-  else if(derMethod == OPTIMIZATION_3POINTS)
-  {
-    fun = new ThreePointsNumericalDerivative(cl);
-  }
-  else if(derMethod == OPTIMIZATION_5POINTS)
-  {
-    fun = new FivePointsNumericalDerivative(cl);
-  }
-  else throw Exception("OptimizationTools::optimizeNumericalParametersWithGlobalClock2. Unknow numerical derivative method: " + derMethod + ".");
-
-  //Numerical derivatives:
-  ParameterList tmp = cl->getParameters();
-  fun->setParametersToDerivate(tmp.getParameterNames());
 
   // Build optimizer:
   Optimizer * optimizer = NULL;
   if(optMethod == OPTIMIZATION_GRADIENT)
   {
+    fun = new TwoPointsNumericalDerivative(cl);
     fun->setInterval(0.0000001);
     optimizer = new ConjugateGradientMultiDimensions(fun);
   }
   else if(optMethod == OPTIMIZATION_NEWTON)
   {
-    if(derMethod == OPTIMIZATION_2POINTS) throw Exception("OptimizationTools::optimizeNumericalParametersWithGlobalClock2. Newton optimization requires second order derivatives and hance can't be used with 2points numerical derivatives.");
+    fun = new ThreePointsNumericalDerivative(cl);
     fun->setInterval(0.0001);
     optimizer = new PseudoNewtonOptimizer(fun);
   }
   else throw Exception("OptimizationTools::optimizeBranchLengthsParameters. Unknown optimization method: " + optMethod);
+  
+  //Numerical derivatives:
+  ParameterList tmp = cl->getParameters();
+  fun->setParametersToDerivate(tmp.getParameterNames());
+
   optimizer->setVerbose(verbose);
   optimizer->setProfiler(profiler);
   optimizer->setMessageHandler(messageHandler);
@@ -421,34 +368,14 @@ unsigned int OptimizationTools::optimizeNumericalParametersWithGlobalClock2(
   if(listener) optimizer->addOptimizationListener(listener);
   optimizer->init(pl);
   optimizer->optimize();
+  if(verbose > 0) ApplicationTools::displayMessage("\n");
   
   // We're done.
   unsigned int n = optimizer->getNumberOfEvaluations(); 
   delete optimizer;
 
-  // Final step without derivatives:
-  PowellMultiDimensions optimizer2(cl);
-  FunctionStopCondition stop(&optimizer2);
-  optimizer2.setStopCondition(stop);
-  optimizer2.setVerbose(verbose);
-  optimizer2.setProfiler(profiler);
-  optimizer2.setMessageHandler(messageHandler);
-  optimizer2.setMaximumNumberOfEvaluations(tlEvalMax);
-  optimizer2.getStopCondition()->setTolerance(tolerance);
-  pl = cl->getParameters();
-  optimizer2.setConstraintPolicy(AutoParameter::CONSTRAINTS_AUTO);
-  if(listener) optimizer2.addOptimizationListener(listener);
-  optimizer2.init(pl);
-  optimizer2.optimize();
-
   // We're done.
-  return n + optimizer2.getNumberOfEvaluations(); 
-}
-
-/******************************************************************************/
-
-void NNITopologyListener::topologyChangeTested(const TopologyChangeEvent & event)
-{
+  return n; 
 }
 
 /******************************************************************************/  
@@ -459,12 +386,25 @@ void NNITopologyListener::topologyChangeSuccessful(const TopologyChangeEvent & e
   if(_optimizeCounter == _optimizeNumerical)
   {
     DiscreteRatesAcrossSitesTreeLikelihood * likelihood = dynamic_cast<DiscreteRatesAcrossSitesTreeLikelihood *>(_topoSearch->getSearchableObject());
-    OptimizationTools::optimizeNumericalParameters(likelihood, NULL, 1, _tolerance, 1000000, _messenger, _profiler, _verbose);
+    OptimizationTools::optimizeNumericalParameters(likelihood, NULL, _nStep, _tolerance, 1000000, _messenger, _profiler, _verbose, _optMethod);
     _optimizeCounter = 0;
   }
 }
 
 /******************************************************************************/  
+
+void NNITopologyListener2::topologyChangeSuccessful(const TopologyChangeEvent & event)
+{
+  _optimizeCounter++;
+  if(_optimizeCounter == _optimizeNumerical)
+  {
+    DiscreteRatesAcrossSitesTreeLikelihood * likelihood = dynamic_cast<DiscreteRatesAcrossSitesTreeLikelihood *>(_topoSearch->getSearchableObject());
+    OptimizationTools::optimizeNumericalParameters2(likelihood, NULL, _tolerance, 1000000, _messenger, _profiler, _verbose, _optMethod);
+    _optimizeCounter = 0;
+  }
+}
+
+//******************************************************************************/  
 
 NNIHomogeneousTreeLikelihood * OptimizationTools::optimizeTreeNNI(
     NNIHomogeneousTreeLikelihood * tl,
@@ -475,15 +415,49 @@ NNIHomogeneousTreeLikelihood * OptimizationTools::optimizeTreeNNI(
     unsigned int numStep,
     ostream * messageHandler,
     ostream * profiler,
-    unsigned int verbose)
+    unsigned int verbose,
+    const string & optMethod,
+    unsigned int nStep)
   throw (Exception)
 {
   //Roughly optimize parameter
   if(optimizeNumFirst)
-    OptimizationTools::optimizeNumericalParameters(tl, NULL, 1, tolBefore, 1000000, messageHandler, profiler, verbose);
+  {
+    OptimizationTools::optimizeNumericalParameters(tl, NULL, nStep, tolBefore, 1000000, messageHandler, profiler, verbose, optMethod);
+  }
   //Begin topo search:
   NNITopologySearch topoSearch(*tl, NNITopologySearch::PHYML, verbose > 2 ? verbose - 2 : 0);
-  NNITopologyListener *topoListener = new NNITopologyListener(&topoSearch, tolDuring, messageHandler, profiler, verbose);
+  NNITopologyListener *topoListener = new NNITopologyListener(&topoSearch, tolDuring, messageHandler, profiler, verbose, optMethod, nStep);
+  topoListener->setNumericalOptimizationCounter(numStep);
+  topoSearch.addTopologyListener(*topoListener);
+  topoSearch.search();
+  delete topoListener;
+  return dynamic_cast<NNIHomogeneousTreeLikelihood *>(topoSearch.getSearchableObject());
+}
+
+/******************************************************************************/  
+
+NNIHomogeneousTreeLikelihood * OptimizationTools::optimizeTreeNNI2(
+    NNIHomogeneousTreeLikelihood * tl,
+    bool optimizeNumFirst,
+    double tolBefore,
+    double tolDuring,
+    int tlEvalMax,
+    unsigned int numStep,
+    ostream * messageHandler,
+    ostream * profiler,
+    unsigned int verbose,
+    const string & optMethod)
+  throw (Exception)
+{
+  //Roughly optimize parameter
+  if(optimizeNumFirst)
+  {
+    OptimizationTools::optimizeNumericalParameters2(tl, NULL, tolBefore, 1000000, messageHandler, profiler, verbose, optMethod);
+  }
+  //Begin topo search:
+  NNITopologySearch topoSearch(*tl, NNITopologySearch::PHYML, verbose > 2 ? verbose - 2 : 0);
+  NNITopologyListener2 *topoListener = new NNITopologyListener2(&topoSearch, tolDuring, messageHandler, profiler, verbose, optMethod);
   topoListener->setNumericalOptimizationCounter(numStep);
   topoSearch.addTopologyListener(*topoListener);
   topoSearch.search();

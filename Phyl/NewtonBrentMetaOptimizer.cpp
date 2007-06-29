@@ -48,7 +48,7 @@ knowledge of the CeCILL license and that you accept its terms.
 #include <NumCalc/SimpleMultiDimensions.h>
 #include <NumCalc/SimpleNewtonMultiDimensions.h>
 #include <NumCalc/ConjugateGradientMultiDimensions.h>
-#
+
 /**************************************************************************/
 
 string NewtonBrentMetaOptimizer::TYPE_CONJUGATEGRADIENT = "conjugate gradient";

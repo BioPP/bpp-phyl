@@ -1,5 +1,9 @@
 27/06/07 Nicolas Galtier & Julien Dutheil
 * No more memory leak when optimizing tree topology using NNI and PhyML algorithm.
+* NNI Topology optimization method (OptimizationTools) improved and duplicated
+  (optimizeTreeTopology1 & 2).
+* Optimization with a molecular clock do not perform a Powell optimization as
+  a last step.
 
 12/05/07 Julien Dutheil
 * DistanceMtrix class is now in library seqlib.

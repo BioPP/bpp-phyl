@@ -73,21 +73,84 @@ class NNITopologyListener:
     unsigned int _verbose;
     unsigned int _optimizeCounter;
     unsigned int _optimizeNumerical;
+    string _optMethod;
+    unsigned int _nStep;
 
   public:
-    NNITopologyListener(NNITopologySearch * ts, double tolerance, ostream *messenger, ostream *profiler, unsigned int verbose):
+    /**
+     * @brief Build a new NNITopologyListener object.
+     *
+     * This listener listens to a NNITopologySearch object, and optimizes numerical parameters every *n* topological movements.
+     * Optimization is performed using the optimizeNumericalParameters method (see there documentation for more details).
+     *
+     * @param ts The NNITopologySearch object attached to this listener.
+     * @param messenger Where to output messages.
+     * @param profiler  Where to output optimization steps.
+     * @param verbose Verbose level during optimization.
+     * @param optMethod Optimization method to use.
+     * @param nStep The number of optimization steps to perform.
+     */
+    NNITopologyListener(NNITopologySearch * ts, double tolerance, ostream *messenger, ostream *profiler, unsigned int verbose, const string & optMethod, unsigned int nStep):
       _topoSearch(ts), _tolerance(tolerance),
       _messenger(messenger), _profiler(profiler),
       _verbose(verbose),
-      _optimizeCounter(0), _optimizeNumerical(1) {}
+      _optimizeCounter(0), _optimizeNumerical(1),
+      _optMethod(optMethod), _nStep(nStep) {}
+
     virtual ~NNITopologyListener() {}
 
   public:
-    void topologyChangeTested(const TopologyChangeEvent & event);
+    void topologyChangeTested(const TopologyChangeEvent & event) {}
     void topologyChangeSuccessful(const TopologyChangeEvent & event);
     void setNumericalOptimizationCounter(unsigned int c) { _optimizeNumerical = c; }
 
 };
+
+/**
+ * @brief Listener used internally by the optimizeTreeNNI2 method.
+ */
+class NNITopologyListener2:
+  public TopologyListener
+{
+  protected:
+    NNITopologySearch * _topoSearch;
+    double _tolerance;
+    ostream *_messenger;
+    ostream *_profiler;
+    unsigned int _verbose;
+    unsigned int _optimizeCounter;
+    unsigned int _optimizeNumerical;
+    string _optMethod;
+
+  public:
+    /**
+     * @brief Build a new NNITopologyListener2 object.
+     *
+     * This listener listens to a NNITopologySearch object, and optimizes numerical parameters every *n* topological movements.
+     * Optimization is performed using the optimizeNumericalParameters2 method (see there documentation for more details).
+     *
+     * @param ts The NNITopologySearch object attached to this listener.
+     * @param messenger Where to output messages.
+     * @param profiler  Where to output optimization steps.
+     * @param verbose Verbose level during optimization.
+     * @param optMethod Optimization method to use.
+     */
+    NNITopologyListener2(NNITopologySearch * ts, double tolerance, ostream *messenger, ostream *profiler, unsigned int verbose, const string & optMethod):
+      _topoSearch(ts), _tolerance(tolerance),
+      _messenger(messenger), _profiler(profiler),
+      _verbose(verbose),
+      _optimizeCounter(0), _optimizeNumerical(1),
+      _optMethod(optMethod) {}
+
+    virtual ~NNITopologyListener2() {}
+
+  public:
+    void topologyChangeTested(const TopologyChangeEvent & event) {}
+    void topologyChangeSuccessful(const TopologyChangeEvent & event);
+    void setNumericalOptimizationCounter(unsigned int c) { _optimizeNumerical = c; }
+
+};
+
 
 
 
@@ -112,9 +175,6 @@ class OptimizationTools
 
     static string OPTIMIZATION_GRADIENT;
     static string OPTIMIZATION_NEWTON;
-    static string OPTIMIZATION_2POINTS;
-    static string OPTIMIZATION_3POINTS;
-    static string OPTIMIZATION_5POINTS;
 		
 		/**
 		 * @brief Optimize numerical parameters (branch length, substitution model & rate distribution) of a TreeLikelihood function.
@@ -156,25 +216,21 @@ class OptimizationTools
 		 * Uses Newton's method for all parameters, branch length derivatives are computed analytically, derivatives for other parameters numerically.
 		 *
 		 * @see PseudoNewtonOptimizer
-		 * @see ThreePointsNumericalDerivative
-		 * @see FivePointsNumericalDerivative
 		 *
 		 * @param tl             A pointer toward the TreeLikelihood object to optimize.
      * @param listener       A pointer toward an optimization listener, if needed.
-     * @param derMethod      Numerical derivative computation method. Must be one of "3points" or "5points", otherwise an exception is thrown.
 		 * @param tolerance      The tolerance to use in the algorithm.
 		 * @param tlEvalMax      The maximum number of function evaluations.
 		 * @param messageHandler The massage handler.
 		 * @param profiler       The profiler.
 		 * @param verbose        The verbose level.
      * @param optMethod      Optimization type for derivable parameters (first or second order derivatives).
-     * @see OPTIMIZATION_3POINTS, OPTIMIZATION_3POINTS, OPTIMIZATION_5POINTS, OPTIMIZATION_NEWTON, OPTIMIZATION_GRADIENT
+     * @see OPTIMIZATION_NEWTON, OPTIMIZATION_GRADIENT
 		 * @throw Exception any exception thrown by the Optimizer.
 		 */
 		static unsigned int optimizeNumericalParameters2(
 			DiscreteRatesAcrossSitesTreeLikelihood * tl,
       OptimizationListener * listener = NULL,
-      const string & derMethod = OPTIMIZATION_3POINTS,
 			double tolerance = 0.000001,
 			unsigned int tlEvalMax = 1000000,
 			ostream * messageHandler = &cout,
@@ -224,28 +280,23 @@ class OptimizationTools
 		 * A condition over function values is used as a stop condition for the algorithm.
 		 *
 		 * @see NewtonBrentMetaOptimizer
-		 * @see TwoPointsNumericalDerivative
-		 * @see ThreePointsNumericalDerivative
-		 * @see FivePointsNumericalDerivative
 		 *
 		 * @param cl             A pointer toward the ClockTreeLikelihood object to optimize.
      * @param listener       A pointer toward an optimization listener, if needed.
      * @param nstep          The number of progressive steps to perform (see NewtonBrentMetaOptimizer). 1 means full precision from start.
-     * @param derMethod      Numerical derivative computation method. Must be one of "2points", "3points" or "5points", otherwise an exception is thrown.
 		 * @param tolerance      The tolerance to use in the algorithm.
 		 * @param tlEvalMax      The maximum number of function evaluations.
 		 * @param messageHandler The massage handler.
 		 * @param profiler       The profiler.
 		 * @param verbose        The verbose level.
      * @param optMethod      Optimization type for derivable parameters (first or second order derivatives).
-     * @see OPTIMIZATION_2POINTS, OPTIMIZATION_3POINTS, OPTIMIZATION_5POINTS, OPTIMIZATION_NEWTON, OPTIMIZATION_GRADIENT
+     * @see OPTIMIZATION_NEWTON, OPTIMIZATION_GRADIENT
 		 * @throw Exception any exception thrown by the Optimizer.
 		 */
 		static unsigned int optimizeNumericalParametersWithGlobalClock(
 			ClockTreeLikelihood * cl,
       OptimizationListener * listener = NULL,
       unsigned int nstep = 1,
-      const string & method = OPTIMIZATION_3POINTS,
 			double tolerance = 0.000001,
 			unsigned int tlEvalMax = 1000000,
 			ostream * messageHandler = &cout,
@@ -260,25 +311,20 @@ class OptimizationTools
 		 * Uses Newton or conjugate gradient method for all parameters, branch length derivatives are computed analytically, derivatives for other parameters numerically.
 		 *
 		 * @see PseudoNewtonOptimizer
-		 * @see TwoPointsNumericalDerivative
-		 * @see ThreePointsNumericalDerivative
-		 * @see FivePointsNumericalDerivative
 		 *
 		 * @param cl             A pointer toward the ClockTreeLikelihood object to optimize.
-     * @param derMethod      Numerical derivative computation method. Must be one of "2points", "3points" or "5points", otherwise an exception is thrown.
 		 * @param tolerance      The tolerance to use in the algorithm.
 		 * @param tlEvalMax      The maximum number of function evaluations.
 		 * @param messageHandler The massage handler.
 		 * @param profiler       The profiler.
 		 * @param verbose        The verbose level.
      * @param optMethod      Optimization type for derivable parameters (first or second order derivatives).
-     * @see OPTIMIZATION_2POINTS, OPTIMIZATION_3POINTS, OPTIMIZATION_5POINTS, OPTIMIZATION_NEWTON, OPTIMIZATION_GRADIENT
+     * @see OPTIMIZATION_NEWTON, OPTIMIZATION_GRADIENT
 		 * @throw Exception any exception thrown by the Optimizer.
 		 */
 		static unsigned int optimizeNumericalParametersWithGlobalClock2(
 			ClockTreeLikelihood * cl,
       OptimizationListener * listener = NULL,
-      const string & method = OPTIMIZATION_3POINTS,
 			double tolerance = 0.000001,
 			unsigned int tlEvalMax = 1000000,
 			ostream * messageHandler = &cout,
@@ -377,6 +423,8 @@ class OptimizationTools
 		 * @param messageHandler   The massage handler.
 		 * @param profiler         The profiler.
 		 * @param verbose          The verbose level.
+     * @param optMethod        Option passed to optimizeNumericalParameters.
+     * @param nStep            Option passed to optimizeNumericalParameters.
      * @return A pointer toward the final likelihood object.
      * This pointer may be the same as passed in argument (tl), but in some cases the algorithm
      * clone this object. We may change this bahavior in the future...
@@ -395,9 +443,72 @@ class OptimizationTools
         unsigned int numStep = 1,
 			  ostream * messageHandler = &cout,
 			  ostream * profiler       = &cout,
-			  unsigned int verbose = 1)
+			  unsigned int verbose     = 1,
+        const string & optMethod = OptimizationTools::OPTIMIZATION_NEWTON,
+        unsigned int nStep       = 1)
       throw (Exception);
 
+    /**
+     * @brief Optimize all parameters from a TreeLikelihood object, including tree topology using Nearest Neighbor Interchanges.
+     *
+     * This function takes as input a TreeLikelihood object implementing the NNISearchable interface.
+     *
+     * Details:
+     * A NNITopologySearch object is instanciated and is associated an additional TopologyListener.
+     * This listener is used to re-estimate numerical parameters after one or several topology change.
+     * By default, the PHYML option is used for the NNITopologySearch object, and numerical parameters are re-estimated
+     * every 4 NNI runs (as in the phyml software).
+     *
+     * The optimizeNumericalParameters2 method is used for estimating numerical parameters.
+     * The tolerance passed to this function is specified as input parameters.
+     * They are generally very high to avoid local optima.
+     *
+		 * @param tl               A pointer toward the TreeLikelihood object to optimize.
+     * @param optimizeNumFirst Tell if we must optimize numerical parameters before searching topology.
+		 * @param tolBefore        The tolerance to use when estimating numerical parameters before topology search (if optimizeNumFirst is set to 'true').
+		 * @param tolDuring        The tolerance to use when estimating numerical parameters during the topology search.
+		 * @param tlEvalMax        The maximum number of function evaluations.
+     * @param numStep          Number of NNI rounds before re-estimating numerical parameters.
+		 * @param messageHandler   The massage handler.
+		 * @param profiler         The profiler.
+		 * @param verbose          The verbose level.
+     * @param optMethod        Option passed to optimizeNumericalParameters2.
+     * @return A pointer toward the final likelihood object.
+     * This pointer may be the same as passed in argument (tl), but in some cases the algorithm
+     * clone this object. We may change this bahavior in the future...
+     * You hence should write something like
+     * @code
+     * tl = OptimizationTools::optimizeTreeNNI2(tl, ...);
+     * @endcode
+		 * @throw Exception any exception thrown by the optimizer.
+     */
+    static NNIHomogeneousTreeLikelihood * optimizeTreeNNI2(
+        NNIHomogeneousTreeLikelihood * tl,
+        bool optimizeNumFirst = true,
+			  double tolBefore = 100,
+			  double tolDuring = 100,
+			  int tlEvalMax = 1000000,
+        unsigned int numStep = 1,
+			  ostream * messageHandler = &cout,
+			  ostream * profiler       = &cout,
+			  unsigned int verbose     = 1,
+        const string & optMethod = OptimizationTools::OPTIMIZATION_NEWTON)
+      throw (Exception);
+
+    /**
+     * @brief Optimize tree topology from a DRTreeParsimonyScore using Nearest Neighbor Interchanges.
+     *
+		 * @param tp               A pointer toward the DRTreeParsimonyScore object to optimize.
+		 * @param verbose          The verbose level.
+     * @return A pointer toward the final parsimony score object.
+     * This pointer may be the same as passed in argument (tl), but in some cases the algorithm
+     * clone this object. We may change this bahavior in the future...
+     * You hence should write something like
+     * @code
+     * tp = OptimizationTools::optimizeTreeNNI(tp, ...);
+     * @endcode
+     */
+    
     static DRTreeParsimonyScore * optimizeTreeNNI(
         DRTreeParsimonyScore * tp,
         unsigned int verbose = 1);
