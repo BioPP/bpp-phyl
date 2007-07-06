@@ -87,11 +87,6 @@ AbstractHomogeneousTreeLikelihood::AbstractHomogeneousTreeLikelihood(
   _minimumBrLen    = lik._minimumBrLen;
   _brLenParameters = lik._brLenParameters;
   _brLenConstraint = lik._brLenConstraint->clone();
-  //Update the constraints on branch lengths:
-  for(unsigned int i = 0; i < _brLenParameters.size(); i++)
-  {
-    _brLenParameters[i]->setConstraint(_brLenConstraint);
-  }
 }
 
 /******************************************************************************/
@@ -115,11 +110,6 @@ AbstractHomogeneousTreeLikelihood & AbstractHomogeneousTreeLikelihood::operator=
   _minimumBrLen    = lik._minimumBrLen;
   _brLenParameters = lik._brLenParameters;
   _brLenConstraint = lik._brLenConstraint->clone();
-  //Update the constraints on branch lengths:
-  for(unsigned int i = 0; i < _brLenParameters.size(); i++)
-  {
-    _brLenParameters[i]->setConstraint(_brLenConstraint);
-  }
   return *this;
 }
 
@@ -158,7 +148,7 @@ void AbstractHomogeneousTreeLikelihood::_init(const Tree & tree,
   //Allocate transition probabilities arrays:
   for(unsigned int l = 0; l < _nbNodes; l++)
   {
-    //For each son node,
+    //For each son node,i
     Node * son = _nodes[l];
 
     VVVdouble * _pxy_son = & _pxy[son->getId()];
@@ -298,7 +288,7 @@ void AbstractHomogeneousTreeLikelihood::initBranchLengthsParameters()
         d = _minimumBrLen;
       }
     }
-    _brLenParameters.addParameter(Parameter("BrLen" + TextTools::toString(_nodes[i]->getId()), d, _brLenConstraint));
+    _brLenParameters.addParameter(Parameter("BrLen" + TextTools::toString(_nodes[i]->getId()), d, _brLenConstraint->clone(), true)); //Attach constraint to avoid clonage problems!
   }
 }
 

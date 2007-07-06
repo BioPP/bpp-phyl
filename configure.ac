@@ -1,4 +1,4 @@
-AC_INIT(Bio++ PhylLib, 1.3.1, Julien.Dutheil@univ-montp2.fr, Bpp-Phyl)
+AC_INIT(Bio++ PhylLib, 1.4.0, Julien.Dutheil@univ-montp2.fr, Bpp-Phyl)
 AC_CONFIG_SRCDIR(Phyl/SubstitutionModel.h)
 AM_INIT_AUTOMAKE()
 AC_LANG_CPLUSPLUS

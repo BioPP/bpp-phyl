@@ -45,6 +45,10 @@ knowledge of the CeCILL license and that you accept its terms.
 // From SeqLib:
 #include <Seq/ProteicAlphabet.h>
 
+// From the STL:
+#include <string>
+using namespace std;
+
 /**
  * @brief Build an empirical protein substitution model from a file.
  * 

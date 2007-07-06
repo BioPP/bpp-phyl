@@ -333,7 +333,8 @@ void NNIHomogeneousTreeLikelihood::doNNI(int nodeId) throw (NodeException)
   {
     double length = _brLenNNIValues[nodeId];
     _brLenParameters.setParameterValue(name, length);
-    _parameters.setParameterValue(name, length);
+    Parameter * p = _parameters.getParameter(name);
+    if(p) p->setValue(length);
     parent->setDistanceToFather(length);
   }
   else cerr << "ERROR, branch not found: " << nodeId << endl;

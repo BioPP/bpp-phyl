@@ -130,13 +130,13 @@ void ClockTreeLikelihood::initBranchLengthsParameters()
   map<const Node *, double> heights;
   TreeTemplateTools::getHeights(*_tree->getRootNode(), heights);
   double totalHeight = heights[_tree->getRootNode()];
-  _brLenParameters.addParameter(Parameter("TotalHeight", totalHeight, _brLenConstraint)); 
+  _brLenParameters.addParameter(Parameter("TotalHeight", totalHeight, _brLenConstraint->clone(), true)); 
   for(map<const Node *, double>::iterator it = heights.begin(); it != heights.end(); it++)
   {
     if(!it->first->isLeaf() && it->first->hasFather())
     {
       double fatherHeight = heights[it->first->getFather()];
-      _brLenParameters.addParameter(Parameter("HeightP" + TextTools::toString(it->first->getId()), it->second / fatherHeight, &_percentConstraint, false));
+      _brLenParameters.addParameter(Parameter("HeightP" + TextTools::toString(it->first->getId()), it->second / fatherHeight, _percentConstraint.clone(), true));
     }
   }
 }

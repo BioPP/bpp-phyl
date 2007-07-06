@@ -150,7 +150,7 @@ class ClockTreeLikelihood:
      *
      * NB: This is a recursive method.
      * @param node the current node.
-     * @param the current height.
+     * @param height the current height.
      * @throw Exception If something unexpected happened.
      */
     void computeBranchLengthsFromHeights(Node * node, double height) throw (Exception);

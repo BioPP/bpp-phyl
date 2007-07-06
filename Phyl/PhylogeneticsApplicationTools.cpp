@@ -563,7 +563,7 @@ TreeLikelihood * PhylogeneticsApplicationTools::optimizeParameters(
 	if(verbose) ApplicationTools::displayResult("Tolerance", TextTools::toString(tolerance));
 	
   bool optimizeTopo = ApplicationTools::getBooleanParameter("optimization.topology", params, false, suffix, suffixIsOptional, false);
-  ApplicationTools::displayResult("Optimize topology", optimizeTopo ? "yes" : "no");
+  if(verbose) ApplicationTools::displayResult("Optimize topology", optimizeTopo ? "yes" : "no");
   
   string method = ApplicationTools::getStringParameter("optimization.method", params, "DB", suffix, suffixIsOptional, false);
   string order  = ApplicationTools::getStringParameter("optimization.method.derivatives", params, "newton", suffix, suffixIsOptional, false);
@@ -651,7 +651,7 @@ TreeLikelihood * PhylogeneticsApplicationTools::optimizeParameters(
 
   if(finalOptimizer)
   {
-    ApplicationTools::displayResult("Final optimization step", finalMethod);
+    if(verbose) ApplicationTools::displayResult("Final optimization step", finalMethod);
     finalOptimizer->setProfiler(profiler);
     finalOptimizer->setMessageHandler(messageHandler);
     finalOptimizer->setMaximumNumberOfEvaluations(nbEvalMax);

@@ -115,7 +115,7 @@ class NewtonBrentMetaOptimizer:
     /**
      * @brief Build a new NewtonBrentMetaOptimizer object.
      *
-     * @param tl     A likelihood function.
+     * @param function A second-order derivable function.
      * @param type   Tell if me must use a PseudoNewtonOptimizer or a SimpleNewtonMultiDimensions optimizer for derivable parameters.
      * @param itType Specify what kind of action must be performed in each step of the optimization:
      * either calling the step method of the Newton optimizer (IT_TYPE_STEP), or the optimize method (IT_TYPE_FULL).

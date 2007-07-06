@@ -71,6 +71,7 @@ class G2001:
      * @param model The substitution model to use. May be of any alphabet type.
      * @param rDist The discrete distribution for rates.
      * @param nu    The rate matrix parameter.
+     * @param normalizeRateChanges Tell if the rate transition matrix should be normalized.
      */
     G2001(SubstitutionModel * model, DiscreteDistribution * rDist, double nu = 1., bool normalizeRateChanges = false):
       MarkovModulatedSubstitutionModel(model, normalizeRateChanges), _rDist(rDist)

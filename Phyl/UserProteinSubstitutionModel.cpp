@@ -51,6 +51,7 @@ knowledge of the CeCILL license and that you accept its terms.
 // From the STL:
 #include <iostream>
 #include <fstream>
+#include <string>
 using namespace std;
 
 /******************************************************************************/

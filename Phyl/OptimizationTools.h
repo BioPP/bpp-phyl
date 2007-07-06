@@ -84,6 +84,7 @@ class NNITopologyListener:
      * Optimization is performed using the optimizeNumericalParameters method (see there documentation for more details).
      *
      * @param ts The NNITopologySearch object attached to this listener.
+     * @param tolerance Tolerance to use during optimizaton.
      * @param messenger Where to output messages.
      * @param profiler  Where to output optimization steps.
      * @param verbose Verbose level during optimization.
@@ -130,6 +131,7 @@ class NNITopologyListener2:
      * Optimization is performed using the optimizeNumericalParameters2 method (see there documentation for more details).
      *
      * @param ts The NNITopologySearch object attached to this listener.
+     * @param tolerance Tolerance to use during optimizaton.
      * @param messenger Where to output messages.
      * @param profiler  Where to output optimization steps.
      * @param verbose Verbose level during optimization.
@@ -194,7 +196,7 @@ class OptimizationTools
 		 * @param messageHandler The massage handler.
 		 * @param profiler       The profiler.
 		 * @param verbose        The verbose level.
-     * @param optMethod      Optimization type for derivable parameters (first or second order derivatives).
+     * @param method         Optimization type for derivable parameters (first or second order derivatives).
      * @see OPTIMIZATION_NEWTON, OPTIMIZATION_GRADIENT
 		 * @throw Exception any exception thrown by the Optimizer.
 		 */
@@ -313,6 +315,7 @@ class OptimizationTools
 		 * @see PseudoNewtonOptimizer
 		 *
 		 * @param cl             A pointer toward the ClockTreeLikelihood object to optimize.
+     * @param listener       A pointer toward an optimization listener, if needed.
 		 * @param tolerance      The tolerance to use in the algorithm.
 		 * @param tlEvalMax      The maximum number of function evaluations.
 		 * @param messageHandler The massage handler.

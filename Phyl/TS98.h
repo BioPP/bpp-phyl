@@ -81,6 +81,7 @@ class TS98:
      * @param model The substitution model to use. May be of any alphabet type.
      * @param s1    First rate parameter.
      * @param s2    Second rate parameter.
+     * @param normalizeRateChanges Tell if the rate transition matrix should be normalized.
      */
     TS98(SubstitutionModel * model, double s1 = 1., double s2 = 1., bool normalizeRateChanges = false):
       MarkovModulatedSubstitutionModel(model, normalizeRateChanges)
@@ -97,11 +98,7 @@ class TS98:
 
     virtual ~TS98() {}
 
-#if defined(NO_VIRTUAL_COV)
-    Clonable * clone() const { return new TS98(*this); }
-#else
     TS98 * clone() const { return new TS98(*this); }
-#endif
 
   public:
     string getName() const { return "Tuffley and Steel Covarion Model (Tuffley and Steel 1998)"; }

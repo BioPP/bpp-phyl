@@ -176,9 +176,10 @@ class BipartitionList:
     /**
      * @brief Tells whether all bipartitions in the list are compatible with a given bipartition
      *
-     * @param checkElements Check the correspondance of element sets or not
+     * @param bipart A map representing a bipartition.
+     * @param checkElements Check the correspondance of element sets or not.
      */
-    bool areAllCompatibleWith(map<string, bool> & bipart, bool checkElements = 1) const throw (Exception);
+    bool areAllCompatibleWith(map<string, bool> & bipart, bool checkElements = true) const throw (Exception);
 
     /**
      * @brief Removes bipartitions corresponding to external branches (1 vs n-1)

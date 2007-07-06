@@ -544,6 +544,8 @@ class TreeTools
      * Three numbers are calculated:
      *
      * @author Nicolas Galtier
+     * @param tr1 First input tree.
+     * @param tr2 Second input tree.
      * @param missing_in_tr2 Output as the number of bipartitions occurring in the first tree but not the second
      * @param missing_in_tr1 Output as the number of bipartitions occurring in the second tree but not the first
      * @param checkNames Tell whether we should check the trees first.
@@ -576,6 +578,7 @@ class TreeTools
      * @author Nicolas Galtier
      * @param vecTr Vector of input trees (must share a common set of leaves - checked if checkNames is true)
      * @param threshold Minimal acceptable score =number of occurrence of a bipartition/number of trees (0.<=threshold<=1.)
+     * @param checkNames Tell whether we should check the trees first.
      */
     static TreeTemplate<Node>* thresholdConsensus(const vector<Tree *> & vecTr, double threshold, bool checkNames = true) throw (Exception);
 
@@ -587,6 +590,7 @@ class TreeTools
      *
      * @author Nicolas Galtier
      * @param vecTr Vector of input trees (must share a common set of leaves - checked if checkNames is true)
+     * @param checkNames Tell whether we should check the trees first.
      */
     static TreeTemplate<Node>* fullyResolvedConsensus(const vector<Tree *> & vecTr, bool checkNames = true);
 
@@ -597,6 +601,7 @@ class TreeTools
      *
      * @author Nicolas Galtier
      * @param vecTr Vector of input trees (must share a common set of leaves - checked if checkNames is true)
+     * @param checkNames Tell whether we should check the trees first.
      */
     static TreeTemplate<Node>* majorityConsensus(const vector<Tree *> & vecTr, bool checkNames = true);
 
@@ -607,6 +612,7 @@ class TreeTools
      *
      * @author Nicolas Galtier
      * @param vecTr Vector of input trees (must share a common set of leaves - checked if checkNames is true)
+     * @param checkNames Tell whether we should check the trees first.
      */
     static TreeTemplate<Node>* strictConsensus(const vector<Tree *> & vecTr, bool checkNames = true);
 

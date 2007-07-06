@@ -222,7 +222,7 @@ class OMultiTree: public virtual IOTree
     /**
      * @brief Write trees to a stream.
      *
-     * @param tree A vector of tree objects.
+     * @param trees A vector of tree objects.
      * @param out The output stream.
      * @throw Exception If an error occured.
      */
