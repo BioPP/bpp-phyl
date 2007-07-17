@@ -160,6 +160,15 @@ class K80:
 		RowMatrix<double> getd2Pij_dt2(double d) const;
 
 		string getName() const;
+	   
+    /**
+     * @brief This method is disabled in this model since frequencies are not free parameters.
+     *
+     * Consider using the HKY85 model for instance if you want to set frequencies as parameters.
+     *
+     * @param data Useless parameter.
+     */
+    void setFreqFromData(const SequenceContainer & data) {}
 	
 	protected:
 		void updateMatrices();

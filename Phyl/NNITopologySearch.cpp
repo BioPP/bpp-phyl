@@ -301,14 +301,19 @@ void NNITopologySearch::searchPhyML() throw (Exception)
         if(_searchableTree->getTopologyValue() >= currentValue)
         {
           //No improvement!
-			    if(_verbose >= 1)
-          {
-				    ApplicationTools::displayMessage("Score >= current score! Moving backward...");
-			    }
           //Restore backup:
           delete _searchableTree;
           _searchableTree = dynamic_cast<NNISearchable *>(backup->clone());
+			    if(_verbose >= 1)
+          {
+				    ApplicationTools::displayResult("Score >= current score! Moving backward", TextTools::toString(_searchableTree->getTopologyValue()));
+			    }
           //And try doing half of the movements:
+          if(improving.size() == 1)
+          {
+            //Problem! This should have worked!!!
+            throw Exception("NNITopologySearch::searchPhyML. Error, no improving NNI!\n This may be due to a change in parameters between testNNI and doNNI. Check your code!");
+          }
           unsigned int n = (unsigned int)ceil((double)improving.size() / 2.);
           improving.erase(improving.begin() + n, improving.end());
           improvement.erase(improvement.begin() + n, improvement.end());

@@ -312,7 +312,7 @@ double NNIHomogeneousTreeLikelihood::testNNI(int nodeId) const throw (NodeExcept
 
 void NNIHomogeneousTreeLikelihood::doNNI(int nodeId) throw (NodeException)
 {
-  //Perform the topological move, the likelihood array will have to be recomputed...
+  //Perform the topological move, tihe likelihood array will have to be recomputed...
   Node * son    = _tree->getNode(nodeId);
 	if(!son->hasFather()) throw NodeException("DRHomogeneousTreeLikelihood::testNNI(). Node 'son' must not be the root node.", son);
   Node * parent = son->getFather();
