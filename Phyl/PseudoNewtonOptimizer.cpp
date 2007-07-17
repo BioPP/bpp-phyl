@@ -124,6 +124,7 @@ double PseudoNewtonOptimizer::doStep() throw (Exception)
     {
       printMessage("!!! Felsenstein-Churchill correction applied too much time. Stopping here. Convergence probably not reached.");
       _tolIsReached = true;
+      if(!_updateParameters) _function->setParameters(_parameters);
       return _currentValue;
       //throw Exception("PseudoNewtonOptimizer::step(). Felsenstein-Churchill correction applied more than 10 times.");
     }
