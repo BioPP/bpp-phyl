@@ -115,7 +115,7 @@ RowMatrix<double> AbstractSubstitutionModel::getdPij_dt(double t) const
 
 RowMatrix<double> AbstractSubstitutionModel::getd2Pij_dt2(double t) const
 {
-	return MatrixTools::mult(_rightEigenVectors, sqr(_eigenValues) * VectorTools::exp(_eigenValues * t), _leftEigenVectors);
+	return MatrixTools::mult(_rightEigenVectors, NumTools::sqr(_eigenValues) * VectorTools::exp(_eigenValues * t), _leftEigenVectors);
 }
 
 /******************************************************************************/
@@ -148,7 +148,7 @@ void AbstractSubstitutionModel::setFreqFromData(const SequenceContainer & data)
 
 double AbstractSubstitutionModel::getScale() const
 {
-	return -VectorTools::scalar(MatrixTools::diag<RowMatrix<double>, double>(_generator), _freq);
+	return -VectorTools::scalar<double, double>(MatrixTools::diag<RowMatrix<double>, double>(_generator), _freq);
 }
 
 /******************************************************************************/

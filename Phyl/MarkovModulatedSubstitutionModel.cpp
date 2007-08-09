@@ -63,7 +63,7 @@ void MarkovModulatedSubstitutionModel::updateMatrices()
 	if(_normalizeRateChanges)
   {
     // Normalization:
-	  double scale = -VectorTools::scalar(MatrixTools::diag<RowMatrix<double>, double>(_generator), _freq);
+	  double scale = -VectorTools::scalar<double, double>(MatrixTools::diag<RowMatrix<double>, double>(_generator), _freq);
     MatrixTools::scale(_generator, 1./scale);
 
     // Normalize exchangeability matrix too:
@@ -118,7 +118,7 @@ RowMatrix<double> MarkovModulatedSubstitutionModel::getdPij_dt(double t) const
 
 RowMatrix<double> MarkovModulatedSubstitutionModel::getd2Pij_dt2(double t) const
 {
-	return MatrixTools::mult(_rightEigenVectors, sqr(_eigenValues) * VectorTools::exp(_eigenValues*t), _leftEigenVectors);
+	return MatrixTools::mult(_rightEigenVectors, NumTools::sqr(_eigenValues) * VectorTools::exp(_eigenValues*t), _leftEigenVectors);
 }
 
 /******************************************************************************/

@@ -54,7 +54,7 @@ knowledge of the CeCILL license and that you accept its terms.
 bool PseudoNewtonOptimizer::PNStopCondition::isToleranceReached() const
 {
   cout << dynamic_cast<const PseudoNewtonOptimizer *>(_optimizer)->_currentValue << "\t" <<       dynamic_cast<const PseudoNewtonOptimizer *>(_optimizer)->_previousValue << endl;
-  return abs<double>(
+  return NumTools::abs<double>(
       dynamic_cast<const PseudoNewtonOptimizer *>(_optimizer)->_currentValue -
       dynamic_cast<const PseudoNewtonOptimizer *>(_optimizer)->_previousValue)
     < _tolerance; 

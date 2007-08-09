@@ -81,8 +81,6 @@ ProbabilisticSubstitutionMapping * SubstitutionMappingTools::computeSubstitution
 	nodes.pop_back(); // Remove root node.
 	unsigned int nbNodes         = nodes.size();
   
-	if(verbose) ApplicationTools::displayResult("# of nodes", TextTools::toString(nbNodes));
-	
 	// We create a new ProbabilisticSubstitutionMapping object:
   ProbabilisticSubstitutionMapping * substitutions = new ProbabilisticSubstitutionMapping(*tree, nbSites);
 																   
@@ -300,7 +298,6 @@ ProbabilisticSubstitutionMapping * SubstitutionMappingTools::computeSubstitution
                                = & drhtl.getLikelihoodData()->getRootArrayPositions();
 	nodes.pop_back(); // Remove root node.
 	unsigned int nbNodes = nodes.size();
-	if(verbose) ApplicationTools::displayResult("# of nodes", TextTools::toString(nbNodes));
 	
 	// We create a new ProbabilisticSubstitutionMapping object:
   ProbabilisticSubstitutionMapping * substitutions = new ProbabilisticSubstitutionMapping(*tree, nbSites);
@@ -505,7 +502,6 @@ ProbabilisticSubstitutionMapping * SubstitutionMappingTools::computeSubstitution
                                = &drhtl.getLikelihoodData()->getRootArrayPositions();
 	nodes.pop_back(); // Remove root node.
 	unsigned int nbNodes = nodes.size();
-	if(verbose) ApplicationTools::displayResult("# of nodes", TextTools::toString(nbNodes));
 	
 	// We create a new ProbabilisticSubstitutionMapping object:
   ProbabilisticSubstitutionMapping * substitutions = new ProbabilisticSubstitutionMapping(*tree, nbSites);
@@ -594,7 +590,6 @@ ProbabilisticSubstitutionMapping * SubstitutionMappingTools::computeSubstitution
                                = &drhtl.getLikelihoodData()->getRootArrayPositions();
 	nodes.pop_back(); // Remove root node.
 	unsigned int nbNodes = nodes.size();
-	if(verbose) ApplicationTools::displayResult("# of nodes", TextTools::toString(nbNodes));
 	
 	// We create a new ProbabilisticSubstitutionMapping object:
   ProbabilisticSubstitutionMapping * substitutions = new ProbabilisticSubstitutionMapping(*tree, nbSites);

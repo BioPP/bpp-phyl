@@ -91,8 +91,7 @@ void AbstractAgglomerativeDistanceMethod::computeTree(bool rooted) throw (Except
     {
 			unsigned int id = i -> first;
 			_matrix(bestPair[0], id) = _matrix(id, bestPair[0]) = newDist[id];
-		}
-		
+		}	
 	}
 	finalStep(idNextNode);
 }
@@ -105,8 +104,8 @@ Node * AbstractAgglomerativeDistanceMethod::getLeafNode(int id, const string & n
 Node * AbstractAgglomerativeDistanceMethod::getParentNode(int id, Node * son1, Node * son2)
 {
 	Node * parent = new Node(id);
-	parent -> addSon(* son1);
-	parent -> addSon(* son2);
+	parent->addSon(* son1);
+	parent->addSon(* son2);
 	return parent;
 }
 
