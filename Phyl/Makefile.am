@@ -88,7 +88,8 @@ TS98.h\
 NNIHomogeneousTreeLikelihood.h\
 ClockTreeLikelihood.h\
 BipartitionList.h\
-BipartitionTools.h
+BipartitionTools.h\
+SubstitutionModelSet.h
 
 
 CPP_FILES = \
@@ -150,7 +151,8 @@ MarkovModulatedSubstitutionModel.cpp\
 NNIHomogeneousTreeLikelihood.cpp\
 ClockTreeLikelihood.cpp\
 BipartitionList.cpp\
-BipartitionTools.cpp
+BipartitionTools.cpp\
+SubstitutionModelSet.cpp
 
 CPP_EXTRA = \
 __DSO78FrequenciesCode\

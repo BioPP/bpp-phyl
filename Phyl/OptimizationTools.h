@@ -358,6 +358,11 @@ class OptimizationTools
 				void setParameters(const ParameterList & lambda) throw (ParameterNotFoundException, ConstraintException);
 				double getValue() const throw (ParameterException);
 				ParameterList getParameters() const throw (Exception) { return _lambda; }
+        Parameter getParameter(const string & name) const throw (ParameterNotFoundException)
+        {
+          if(name == "lambda") return *_lambda[0];
+          else throw ParameterNotFoundException("ScaleFunction::getParameter.", name);
+        }
 				double getParameterValue(const string & name) const throw (ParameterNotFoundException) { return _lambda.getParameter(name) -> getValue(); };
 				void setAllParametersValues(const ParameterList & params) 
 					throw (ParameterNotFoundException, ConstraintException) {}

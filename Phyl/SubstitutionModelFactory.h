@@ -42,6 +42,7 @@ knowledge of the CeCILL license and that you accept its terms.
 #define _SUBSTITUTIOMODELFACTORY_H_
 
 #include "models"
+#include "Tree.h"
 
 // From SeqLib:
 #include <Seq/Alphabet.h>
@@ -49,6 +50,7 @@ knowledge of the CeCILL license and that you accept its terms.
 
 // From the STL:
 #include <string>
+using namespace std;
 
 /**
  * @brief Utilitary class for creating substitution models.
@@ -95,7 +97,30 @@ public:
    * @throw AlphabetException If the model is not compatible with the given alphabet.
    * @throw Exception If the model name do not match any available model.
    */
-  virtual SubstitutionModel * createModel(const string& modelName) throw (AlphabetException, Exception);
+  virtual SubstitutionModel * createModel(const string& modelName) const throw (AlphabetException, Exception);
+
+  /**
+   * @brief Create a SubstitutionModelSet object, corresponding to the homogeneous case.
+   *
+   * This class is mainly for testing purpose.
+   *
+   * @param modelName The name of the model to use.
+   * @param tree      The tree to use for the construction of the set.
+   */
+  virtual SubstitutionModelSet * createHomogeneousModelSet(const string & modelName, const Tree * tree) const throw (AlphabetException, Exception);
+
+  /**
+   * @brief Create a SubstitutionModelSet object, with one model per branch.
+   *
+   * All branches share the same type of model, but allow one set of parameters per branch.
+   * This is also possible to specify some parameters to be common to all branches.
+   *
+   * @param modelName            The name of the model to use.
+   * @param tree                 The tree to use for the construction of the set.
+   * @param globalParameterNames Common parameters for all branches.
+   * All other parameters will be considered distinct for all branches.
+   */
+  virtual SubstitutionModelSet * createNonHomogeneousModelSet(const string & modelName, const Tree * tree, const vector<string> & globalParameterNames) const throw (AlphabetException, Exception);
 
 };
 

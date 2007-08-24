@@ -18,4 +18,5 @@
 #include "TS98.h"
 #include "SubstitutionModelFactory.h"
 #include "RateDistributionFactory.h"
+#include "SubstitutionModelSet.h"
 

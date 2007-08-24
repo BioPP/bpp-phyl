@@ -213,6 +213,20 @@ class MarkovModulatedSubstitutionModel:
       parameters.addParameters(_ratesParameters);
       return parameters;
     }
+
+    Parameter getParameter(const string & name) const throw (ParameterNotFoundException)
+    {
+      const Parameter * p = _ratesParameters.getParameter(name);
+      if(p) return *p;
+      try
+      {
+        return _model->getParameter(name);
+      }
+      catch(ParameterNotFoundException & pnfe)
+      {
+        throw ParameterNotFoundException("MarkovModulatedSubstitutionModel::getParameter.", name);
+      }
+    }
 	
 		double getParameterValue(const string & name) const
 			throw (ParameterNotFoundException)

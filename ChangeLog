@@ -1,3 +1,6 @@
+24/08/07 Bastien Bousseau & Julien Dutheil
+* New class SubstitutionModelSet (early draft)
+
 17/01/07 Julien Dutheil
 * Bug fixed in PseudoNewtonOptimizer! (included in version 1.4.0).
 
