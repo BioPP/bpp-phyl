@@ -43,6 +43,9 @@ knowledge of the CeCILL license and that you accept its terms.
 #include "Tree.h"
 #include "TreeTemplate.h"
 
+//From Utils:
+#include <Utils/Clonable.h>
+
 /**
  * @brief General interface for storing mapping data.
  *
@@ -54,12 +57,17 @@ knowledge of the CeCILL license and that you accept its terms.
  * interfac only contains one method.
  * More methods are expected to be added later.
  */
-class SubstitutionMapping
+class SubstitutionMapping:
+  public virtual Clonable
 {
 
   public:
     SubstitutionMapping() {}
     virtual ~SubstitutionMapping() {}
+
+#ifndef NO_VIRTUAL_COV
+    SubstitutionMapping * clone() const = 0;
+#endif
 
   public:
     

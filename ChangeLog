@@ -1,3 +1,6 @@
+26/08/07 Julien Dutheil
+* Class SubstitutionMapping is now Clonable.
+	
 24/08/07 Bastien Bousseau & Julien Dutheil
 * New class SubstitutionModelSet (early draft)
 

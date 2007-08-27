@@ -1,7 +1,7 @@
 //
 // File: SubstitutionModelSet.cpp
 // Created by: Bastien Bousseau
-//             Julien Duteil
+//             Julien Dutheil
 // Created on: Tue Aug 21 2007
 //
 

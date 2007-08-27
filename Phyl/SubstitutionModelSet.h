@@ -1,7 +1,7 @@
 //
 // File: SubstitutionModelSet.h
 // Created by: Bastien Bousseau
-//             Julien Duteil
+//             Julien Dutheil
 // Created on: Tue Aug 21 2007
 //
 
@@ -318,7 +318,14 @@ class SubstitutionModelSet:
     void listModelNames(ostream & out = cout) const;
 
     //Check sum to 1?
-    void setInitialFrequencies(const vector<double> & initFreqs) { _rootFrequencies = initFreqs; }
+    void setInitialFrequencies(const vector<double> & initFreqs) 
+    {
+      _rootFrequencies = initFreqs;
+      for(unsigned int i = 0; i < _alphabet->getSize(); i++)
+      {
+        _parameters[i]->setValue(initFreqs[i]);
+      }
+    }
 
     vector<double> getRootFrequencies() const { return _rootFrequencies; }
 

@@ -54,7 +54,8 @@ knowledge of the CeCILL license and that you accept its terms.
  *
  * A 'probabilistic' mapping contains the expected number of substitutions for all branches and all sites.
  */
-class ProbabilisticSubstitutionMapping : public AbstractSubstitutionMapping
+class ProbabilisticSubstitutionMapping:
+  public AbstractSubstitutionMapping
 {
   protected:
     /**
@@ -116,6 +117,13 @@ class ProbabilisticSubstitutionMapping : public AbstractSubstitutionMapping
       }
       return *this;
     }
+
+#ifdef NO_VIRTUAL_COV
+    Clonable *
+#else
+    ProbabilisticSubstitutionMapping *
+#endif
+    clone() const { return new ProbabilisticSubstitutionMapping(*this); }
 
     virtual ~ProbabilisticSubstitutionMapping()
     {
