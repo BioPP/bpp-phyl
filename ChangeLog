@@ -1,7 +1,13 @@
+17/09/07 Julien Dutheil
+* New interface ReversibleSubstitutionModel.
+* New class AbstractReversibleSubstitutionModel.
+* Bug fixed in SubstitutionModelSet (root frequencies are now properly set for
+  the homogeneous case)
+
 26/08/07 Julien Dutheil
 * Class SubstitutionMapping is now Clonable.
 	
-24/08/07 Bastien Bousseau & Julien Dutheil
+24/08/07 Bastien Boussau & Julien Dutheil
 * New class SubstitutionModelSet (early draft)
 
 17/01/07 Julien Dutheil

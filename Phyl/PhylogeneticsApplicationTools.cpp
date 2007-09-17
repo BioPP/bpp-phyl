@@ -366,7 +366,7 @@ void PhylogeneticsApplicationTools::printSubstitutionModelHelp()
 /******************************************************************************/
 
 MarkovModulatedSubstitutionModel * PhylogeneticsApplicationTools::getCovarionProcess(
-  SubstitutionModel * model,
+  ReversibleSubstitutionModel * model,
   DiscreteDistribution * rDist,
   map<string, string> & params,
 	string suffix,

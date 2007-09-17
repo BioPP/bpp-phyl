@@ -73,7 +73,7 @@ class G2001:
      * @param nu    The rate matrix parameter.
      * @param normalizeRateChanges Tell if the rate transition matrix should be normalized.
      */
-    G2001(SubstitutionModel * model, DiscreteDistribution * rDist, double nu = 1., bool normalizeRateChanges = false):
+    G2001(ReversibleSubstitutionModel * model, DiscreteDistribution * rDist, double nu = 1., bool normalizeRateChanges = false):
       MarkovModulatedSubstitutionModel(model, normalizeRateChanges), _rDist(rDist)
     {
       _nbRates = _rDist->getNumberOfCategories();

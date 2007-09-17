@@ -141,6 +141,7 @@ SubstitutionModelSet * SubstitutionModelFactory::createHomogeneousModelSet(const
   int rootId = tree->getRootId();
   remove(ids.begin(), ids.end(), rootId);
   modelSet->addModel(model, ids, model->getParameters().getParameterNames());
+  modelSet->setRootFrequencies(model->getFrequencies());
   return modelSet;
 }
 

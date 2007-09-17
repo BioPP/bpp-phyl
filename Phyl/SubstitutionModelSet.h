@@ -1,6 +1,6 @@
 //
 // File: SubstitutionModelSet.h
-// Created by: Bastien Bousseau
+// Created by: Bastien Boussau
 //             Julien Dutheil
 // Created on: Tue Aug 21 2007
 //
@@ -210,9 +210,6 @@ class SubstitutionModelSet:
      */
     void fireParameterChanged(const ParameterList & parameters);
 
-    //Dans classe static!
-    //void makeRandomNodeToModelLinks();
-  
     /**
      * @brief Add a new model to the set, and set relationships with nodes and params.
      *
@@ -292,7 +289,7 @@ class SubstitutionModelSet:
      */
     void addParameters(const ParameterList & parameters, const vector<int> & nodesId) throw (Exception);
  
-     void removeModel(unsigned int modelIndex)
+    void removeModel(unsigned int modelIndex)
     {
       _modelSet.erase(_modelSet.begin() + modelIndex);
       if(!checkOrphanParameters()) throw Exception("DEBUG: SubstitutionModelSet::removeModel. Orphan parameter!");
@@ -318,7 +315,7 @@ class SubstitutionModelSet:
     void listModelNames(ostream & out = cout) const;
 
     //Check sum to 1?
-    void setInitialFrequencies(const vector<double> & initFreqs) 
+    void setRootFrequencies(const vector<double> & initFreqs) 
     {
       _rootFrequencies = initFreqs;
       for(unsigned int i = 0; i < _alphabet->getSize(); i++)

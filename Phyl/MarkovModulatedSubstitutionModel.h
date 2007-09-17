@@ -67,11 +67,11 @@ knowledge of the CeCILL license and that you accept its terms.
  * _Journal of Computational Biology_, 11:727-33.
  */
 class MarkovModulatedSubstitutionModel:
-  public SubstitutionModel
+  public ReversibleSubstitutionModel
 {
 
   protected:
-    SubstitutionModel * _model;
+    ReversibleSubstitutionModel * _model;
     unsigned int _nbStates; //Number of states in model
     unsigned int _nbRates; //Number of rate classes
     /**
@@ -128,7 +128,7 @@ class MarkovModulatedSubstitutionModel:
      * changes instead of state change only.
      * NB: In most cases, this parameter should be set to false.
      */
-    MarkovModulatedSubstitutionModel(SubstitutionModel * model, bool normalizeRateChanges):
+    MarkovModulatedSubstitutionModel(ReversibleSubstitutionModel * model, bool normalizeRateChanges):
       _model(model), _nbStates(0), _nbRates(0), _rates(), _ratesExchangeability(),
       _ratesFreq(), _ratesGenerator(), _ratesParameters(), _generator(), _exchangeability(),
       _leftEigenVectors(), _rightEigenVectors(), _eigenValues(), _freq(), _normalizeRateChanges(normalizeRateChanges) {}
@@ -159,7 +159,7 @@ class MarkovModulatedSubstitutionModel:
 		RowMatrix<double> getColumnRightEigenVectors() const { return _rightEigenVectors; }
     
 		double freq(int i) const { return _freq[i]; }
-    
+    double Sij(int i, int j) const { return _exchangeability(i, j); }
 		double Qij(int i, int j) const { return _generator(i, j); }
     
 		double Pij_t    (int i, int j, double t) const { return getPij_t(t)(i, j); }

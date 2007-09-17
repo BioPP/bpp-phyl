@@ -193,7 +193,7 @@ class PhylogeneticsApplicationTools
      * @throw Exception if an error occured.
      */
     static MarkovModulatedSubstitutionModel * getCovarionProcess(
-      SubstitutionModel * model,
+      ReversibleSubstitutionModel * model,
       DiscreteDistribution * rDist,
 			map<string, string> & params,
 			string suffix = "",

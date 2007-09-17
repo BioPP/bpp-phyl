@@ -118,14 +118,6 @@ class SubstitutionModelException:
  * class (getEigenValues(), getRowRightEigenVectors() and getColumnLeftEigenVectors()
  * functions).
  *
- * Moreover, for reversible models, we can write:
- * \f[ Q = S . \pi, \f]
- * where \f$S\f$ is a symetric matrix called the exchangeability matrix, and
- * \f$\Pi\f$ the diagonal matrix with all equilibrium frequencies.
- * The frequencies may be retrieved as a vector by the getFrequencies() method
- * or individually by the freq() method.
- * The \f$S\f$ matrix may be obtained by the getExchangeabilityMatrix().
- *
  * First and second order derivatives of \f$P(t)\f$ with respect to \f$t\f$
  * can also be retrieved.
  * These methods may be useful for optimization processes.
@@ -199,13 +191,6 @@ class SubstitutionModel:
 		 */
 		virtual Vdouble getFrequencies() const = 0;
 		
-		/**
-		 * @return The matrix of exchangeability terms.
-		 * It is recommended that exchangeability matrix be normalized so that the normalized 
-		 * generator be obtained directly by the dot product \f$S . \pi\f$.
-		 */
-		virtual RowMatrix<double> getExchangeabilityMatrix() const = 0;
-
 		/**
 		 * @return The Markov generator matrix, i.e. all rates of changes from state i
 		 * to state j. Usually, the generator is normalized so that
@@ -301,6 +286,51 @@ class SubstitutionModel:
      */
     virtual int getState(int i) const = 0;
 		
+};
+
+
+
+
+
+
+/**
+ * @brief Interface for reversible substitution models.
+ * 
+ * For reversible models,
+ * \f[ Q = S . \pi, \f]
+ * where \f$S\f$ is a symetric matrix called the exchangeability matrix, and
+ * \f$\Pi\f$ the diagonal matrix with all equilibrium frequencies.
+ * The frequencies may be retrieved as a vector by the getFrequencies() method
+ * or individually by the freq() method.
+ * The \f$S\f$ matrix may be obtained by the getExchangeabilityMatrix().
+ */
+class ReversibleSubstitutionModel:
+  public SubstitutionModel
+{
+  public:
+		ReversibleSubstitutionModel() {}
+		virtual ~ReversibleSubstitutionModel() {};
+
+#ifndef NO_VIRTUAL_COV
+    ReversibleSubstitutionModel * clone() const = 0;
+#endif
+
+	public:
+	
+    /**
+		 * @return The matrix of exchangeability terms.
+		 * It is recommended that exchangeability matrix be normalized so that the normalized 
+		 * generator be obtained directly by the dot product \f$S . \pi\f$.
+		 */
+		virtual RowMatrix<double> getExchangeabilityMatrix() const = 0;
+
+		/**
+		 * @return The exchangeability between state i and state j.
+     *
+     * By definition Sij(i,j) = Sij(j,i).
+		 */
+    virtual double Sij(int i, int j) const = 0;
+
 };
 
 #endif	//_SUBSTITUTIONMODEL_H_

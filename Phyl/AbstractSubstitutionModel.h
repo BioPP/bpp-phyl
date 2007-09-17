@@ -47,7 +47,7 @@ knowledge of the CeCILL license and that you accept its terms.
  *
  * This abstract class provides some fields, namely:
  * - _alphabet: a pointer toward the alphabet,
- * - _size: the size of the alphabet, a parameter frequenctly called during various computations,
+ * - _size: the size of the alphabet, a parameter frequently called during various computations,
  * - _generator, _exchangeability, _leftEigenVectors, _rightEigenVectors: usefull matrices,
  * - _eigenValues, _freq: usefull vectors.
  *
@@ -90,11 +90,6 @@ class AbstractSubstitutionModel :
 		RowMatrix<double> _generator;
 
 		/**
-		 * @brief The exchangeability matrix \f$S\f$ of the model.
-		 */
-		RowMatrix<double> _exchangeability;
-
-		/**
 		 * @brief The \f$U\f$ matrix made of left eigen vectors (by row).
 		 */
 		RowMatrix<double> _leftEigenVectors;
@@ -119,19 +114,11 @@ class AbstractSubstitutionModel :
 	
 		virtual ~AbstractSubstitutionModel() {}
 
-#if defined(NO_VIRTUAL_COV)
-    Clonable * clone() const = 0;
-#else
-    SubstitutionModel * clone() const = 0;
-#endif
-	
 	public:
 		const Alphabet * getAlphabet() const { return _alphabet; }
     
 		Vdouble getFrequencies() const { return _freq; }
-    
-		RowMatrix<double> getExchangeabilityMatrix() const { return _exchangeability; }
-    
+       
 		RowMatrix<double> getGenerator() const { return _generator; }
     
 		RowMatrix<double> getPij_t(double t) const;
@@ -171,6 +158,51 @@ class AbstractSubstitutionModel :
 	protected:
 
 		/**
+		 * @brief Diagonalize the \f$Q\f$ matrix, and fill the _eigenValues,
+		 * _leftEigenVectors and _rightEigenVectors matrices.
+		 *
+		 * The _generator matrix and _freq vector must be initialized.
+		 * 
+		 * Eigen values and vectors are computed from the generator and assigned to the
+		 * _eigenValues, _rightEigenVectors and _leftEigenVectors variables.
+		 */
+		virtual void updateMatrices();
+
+		/**
+		 * @brief Get the scalar product of diagonal elements of the generator
+		 * and the frequencies vector.
+		 * If the generator is normalized, then scale=1. Otherwise each element
+		 * must be multiplied by 1/scale.
+		 *
+		 * @return Minus the scalar product of diagonal elements and the frequencies vector.
+		 */
+		double getScale() const;
+};
+
+
+
+
+
+
+class AbstractReversibleSubstitutionModel:
+  public AbstractSubstitutionModel
+{
+  protected:
+		/**
+		 * @brief The exchangeability matrix \f$S\f$ of the model.
+		 */
+		RowMatrix<double> _exchangeability;
+
+  public:
+		AbstractReversibleSubstitutionModel(const Alphabet * alpha);
+	
+		virtual ~AbstractReversibleSubstitutionModel() {}
+
+  public:
+		RowMatrix<double> getExchangeabilityMatrix() const { return _exchangeability; }
+    double Sij(int i, int j) const { return _exchangeability(i, j); }
+ 
+		/**
 		 * @brief Compute and diagonalize the \f$Q\f$ matrix, and fill the _eigenValues,
 		 * _leftEigenVectors and _rightEigenVectors matrices.
 		 *
@@ -188,22 +220,11 @@ class AbstractSubstitutionModel :
 		 * \f]
 		 * (\f$\pi_i\f$ are the equilibrium frequencies).
 		 *
-		 * WARNING!!! The exchangeability matrix is not scaled, only the generator matrix.
-		 * 
 		 * Eigen values and vectors are computed from the scaled generator and assigned to the
 		 * _eigenValues, _rightEigenVectors and _leftEigenVectors variables.
 		 */
 		virtual void updateMatrices();
 
-		/**
-		 * @brief Get the scalar product of diagonal elements of the generator
-		 * and the frequencies vector.
-		 * If the generator is normalized, then scale=1. Otherwise each element
-		 * must be multiplied by 1/scale.
-		 *
-		 * @return Minus the scalar product of diagonal elements and the frequencies vector.
-		 */
-		double getScale() const;
 };
 
 #endif	//_ABSTRACTSUBSTITUTIONMODEL_H_

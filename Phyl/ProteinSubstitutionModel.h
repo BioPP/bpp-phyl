@@ -49,10 +49,10 @@ knowledge of the CeCILL license and that you accept its terms.
  * @brief Basal class for protein substitution model.
  */
 class ProteinSubstitutionModel:
-  public AbstractSubstitutionModel
+  public AbstractReversibleSubstitutionModel
 {
 	public:
-		ProteinSubstitutionModel(const ProteicAlphabet * alpha): AbstractSubstitutionModel(alpha) {}
+		ProteinSubstitutionModel(const ProteicAlphabet * alpha): AbstractReversibleSubstitutionModel(alpha) {}
 
 		virtual ~ProteinSubstitutionModel() {}
 

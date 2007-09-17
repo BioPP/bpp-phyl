@@ -49,10 +49,10 @@ knowledge of the CeCILL license and that you accept its terms.
  * @brief Basal class for nucleotide substitution model.
  */
 class NucleotideSubstitutionModel :
-  public AbstractSubstitutionModel
+  public AbstractReversibleSubstitutionModel
 {
 	public:
-		NucleotideSubstitutionModel(const NucleicAlphabet * alpha) : AbstractSubstitutionModel(alpha) {}
+		NucleotideSubstitutionModel(const NucleicAlphabet * alpha) : AbstractReversibleSubstitutionModel(alpha) {}
 
 		virtual ~NucleotideSubstitutionModel() {}
 

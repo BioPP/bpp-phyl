@@ -83,7 +83,7 @@ class TS98:
      * @param s2    Second rate parameter.
      * @param normalizeRateChanges Tell if the rate transition matrix should be normalized.
      */
-    TS98(SubstitutionModel * model, double s1 = 1., double s2 = 1., bool normalizeRateChanges = false):
+    TS98(ReversibleSubstitutionModel * model, double s1 = 1., double s2 = 1., bool normalizeRateChanges = false):
       MarkovModulatedSubstitutionModel(model, normalizeRateChanges)
     {
       _nbRates = 2;
