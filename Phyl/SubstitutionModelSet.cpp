@@ -91,7 +91,9 @@ SubstitutionModelSet & SubstitutionModelSet::operator=(const SubstitutionModelSe
 void SubstitutionModelSet::addModel(SubstitutionModel * model, const vector<int> & nodesId, const vector<string> & newParams) throw (Exception)
 {
   if(model->getAlphabet()->getAlphabetType() != _alphabet->getAlphabetType())
-    throw Exception("SubstitutionModelSet::addModel. A Substitution Model cannot be added to a Model Set if it does not have the same alphabet");
+    throw Exception("SubstitutionModelSet::addModel. A Substitution Model cannot be added to a Model Set if it does not have the same alphabet.");
+  if(_modelSet.size() > 0 && model->getNumberOfStates() != _modelSet[0]->getNumberOfStates())
+    throw Exception("SubstitutionModelSet::addModel. A Substitution Model cannot be added to a Model Set if it does not have the same number of states.");
   _modelSet.push_back(model);
   unsigned int thisModelIndex = _modelSet.size() - 1;
   //Associate this model to specified nodes:

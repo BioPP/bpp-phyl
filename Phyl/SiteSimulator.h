@@ -51,17 +51,17 @@ knowledge of the CeCILL license and that you accept its terms.
  */
 class SiteSimulator
 {
-	public:
-		SiteSimulator() {}
-		virtual ~SiteSimulator() {}
-		
-	public:
-		virtual Site * simulate() const = 0;
-		virtual Site * simulate(int ancestralState) const = 0;
-		virtual Site * simulate(int ancestralState, double rate) const = 0;
-		virtual Site * simulate(double rate) const = 0;
-		virtual vector<string> getSequencesNames() const = 0;
-		virtual const Alphabet * getAlphabet() const = 0;
+  public:
+    SiteSimulator() {}
+    virtual ~SiteSimulator() {}
+    
+  public:
+    virtual Site * simulate() const = 0;
+    virtual Site * simulate(int ancestralState) const = 0;
+    virtual Site * simulate(int ancestralState, double rate) const = 0;
+    virtual Site * simulate(double rate) const = 0;
+    virtual vector<string> getSequencesNames() const = 0;
+    virtual const Alphabet * getAlphabet() const = 0;
 };
 
 #endif // _SITESIMULATOR_H_

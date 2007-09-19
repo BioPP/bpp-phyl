@@ -38,7 +38,7 @@ ProteinSubstitutionModel.h\
 SequenceSimulator.h\
 SiteSimulator.h\
 DetailedSiteSimulator.h\
-HomogeneousSequenceSimulator.h\
+NonHomogeneousSequenceSimulator.h\
 SubstitutionModel.h\
 T92.h\
 TN93.h\
@@ -89,7 +89,8 @@ NNIHomogeneousTreeLikelihood.h\
 ClockTreeLikelihood.h\
 BipartitionList.h\
 BipartitionTools.h\
-SubstitutionModelSet.h
+SubstitutionModelSet.h\
+SubstitutionModelSetTools.h
 
 
 CPP_FILES = \
@@ -122,7 +123,7 @@ OptimizationTools.cpp\
 PatternTools.cpp\
 PGMA.cpp\
 PhylipDistanceMatrixFormat.cpp\
-HomogeneousSequenceSimulator.cpp\
+NonHomogeneousSequenceSimulator.cpp\
 SubstitutionModel.cpp\
 T92.cpp\
 TN93.cpp\
@@ -152,7 +153,8 @@ NNIHomogeneousTreeLikelihood.cpp\
 ClockTreeLikelihood.cpp\
 BipartitionList.cpp\
 BipartitionTools.cpp\
-SubstitutionModelSet.cpp
+SubstitutionModelSet.cpp\
+SubstitutionModelSetTools.cpp
 
 CPP_EXTRA = \
 __DSO78FrequenciesCode\

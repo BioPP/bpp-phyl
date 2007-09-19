@@ -58,69 +58,69 @@ using namespace std;
  */
 class SiteSimulationResult
 {
-	protected:
-		mutable map<const Node *, unsigned int> _indexes;
-		unsigned int _currentIndex;
-		vector<MutationPath> _paths;
-		vector<int> _ancestralStates;
-		const TreeTemplate<Node> * _tree;
-		vector<const Node *> _leaves;
+  protected:
+    mutable map<const Node *, unsigned int> _indexes;
+    unsigned int _currentIndex;
+    vector<MutationPath> _paths;
+    vector<int> _ancestralStates;
+    const TreeTemplate<Node> * _tree;
+    vector<const Node *> _leaves;
     const Alphabet * _alphabet;
-		
-	public:
-		SiteSimulationResult(const TreeTemplate<Node> * tree, const Alphabet * alphabet, int ancestralState):
-			_currentIndex(0) {
-			_tree = tree;
+    
+  public:
+    SiteSimulationResult(const TreeTemplate<Node> * tree, const Alphabet * alphabet, int ancestralState):
+      _currentIndex(0) {
+      _tree = tree;
       _alphabet = alphabet;
-			_indexes[tree -> getRootNode()] = 0;
-			_ancestralStates.push_back(ancestralState);
-			_leaves = tree -> getLeaves();
-		}
+      _indexes[tree->getRootNode()] = 0;
+      _ancestralStates.push_back(ancestralState);
+      _leaves = tree->getLeaves();
+    }
 
-		virtual ~SiteSimulationResult() {}
-	
-	public:
+    virtual ~SiteSimulationResult() {}
+  
+  public:
     /**
      * @return The alphabet associated to this simulation.
      */
     virtual const Alphabet * getAlphabet() const { return _alphabet; }
     
-		virtual void addNode(const Node * node, MutationPath path)
+    virtual void addNode(const Node * node, MutationPath path)
     {
-			_currentIndex++;
-			_indexes[node] = _currentIndex;
-			_paths.push_back(path);
-			_ancestralStates.push_back(path.getFinalState());
-		}
+      _currentIndex++;
+      _indexes[node] = _currentIndex;
+      _paths.push_back(path);
+      _ancestralStates.push_back(path.getFinalState());
+    }
 
-		virtual int getAncestralState(unsigned int i)    const { return _ancestralStates[i]; }
+    virtual int getAncestralState(unsigned int i)    const { return _ancestralStates[i]; }
 
-		virtual int getAncestralState(const Node * node) const { return _ancestralStates[_indexes[node]]; }
+    virtual int getAncestralState(const Node * node) const { return _ancestralStates[_indexes[node]]; }
 
-		virtual unsigned int getSubstitutionCount(unsigned int i)    const { return _paths[i].getNumberOfEvents(); }
-		
-		virtual unsigned int getSubstitutionCount(const Node * node) const { return _paths[_indexes[node]].getNumberOfEvents(); }
-		
-		virtual vector<double> getSubstitutionVector() const
-		{
-			unsigned int n = _paths.size();
-			vector<double> counts(n);
-			for(unsigned int i = 0; i < n; i++) counts[i] = (double)_paths[i].getNumberOfEvents();
-			return counts;
-		}
+    virtual unsigned int getSubstitutionCount(unsigned int i) const { return _paths[i].getNumberOfEvents(); }
+    
+    virtual unsigned int getSubstitutionCount(const Node * node) const { return _paths[_indexes[node]].getNumberOfEvents(); }
+    
+    virtual vector<double> getSubstitutionVector() const
+    {
+      unsigned int n = _paths.size();
+      vector<double> counts(n);
+      for(unsigned int i = 0; i < n; i++) counts[i] = (double)_paths[i].getNumberOfEvents();
+      return counts;
+    }
 
     /**
      * @return The states at the leaves.
      */
-		virtual vector<int> getFinalStates() const
-		{
-			unsigned int n = _leaves.size(); 
-			vector<int> states(n);
-			for(unsigned int i = 0; i < n; i++) {
-				states[i] = _ancestralStates[_indexes[_leaves[i]]];
-			}
-			return states;
-		}
+    virtual vector<int> getFinalStates() const
+    {
+      unsigned int n = _leaves.size(); 
+      vector<int> states(n);
+      for(unsigned int i = 0; i < n; i++) {
+        states[i] = _ancestralStates[_indexes[_leaves[i]]];
+      }
+      return states;
+    }
 
     /**
      * @return The site correspodning to this simulation.
@@ -132,14 +132,42 @@ class SiteSimulationResult
      */
     virtual vector<string> getLeaveNames() const
     {
-			unsigned int n = _leaves.size(); 
-			vector<string> names(n);
-			for(unsigned int i = 0; i < n; i++) {
-				names[i] = _leaves[i] -> getName();
-			}
-			return names;
+      unsigned int n = _leaves.size(); 
+      vector<string> names(n);
+      for(unsigned int i = 0; i < n; i++) {
+        names[i] = _leaves[i] -> getName();
+      }
+      return names;
     }
 
+};
+
+//---------------------------------------------------------------------------
+
+/**
+ * @brief Data structure to store the result of a DetailedSiteSimulator.
+ *
+ * This sructure inherits from the SequenceSimulationResult class, and add support for
+ * rate variation across sites.
+ */
+class RASiteSimulationResult:
+  public SiteSimulationResult
+{
+  protected:
+    double _rate;
+    
+  public:
+    RASiteSimulationResult(const TreeTemplate<Node> * tree, const Alphabet * alphabet, int ancestralState, double rate):
+      SiteSimulationResult(tree, alphabet, ancestralState),
+      _rate(rate) {}
+
+    virtual ~RASiteSimulationResult() {}
+  
+  public:
+    /**
+     * @return The rate of this simulation.
+     */
+    virtual double getRate() const { return _rate; }
 };
 
 //---------------------------------------------------------------------------
@@ -149,24 +177,25 @@ class SiteSimulationResult
  *
  * Instances of this class should be used when a detailed output of the simulation is needed.
  */
-class DetailedSiteSimulator: public virtual SiteSimulator
+class DetailedSiteSimulator:
+  public virtual SiteSimulator
 {
-	public:
-		DetailedSiteSimulator() {}
-		virtual ~DetailedSiteSimulator() {}
-	
-	public:
-		/**
-		 * @brief Get a detailed simulation result for one site.
-		 *
-		 * @return A SiteSimulationResult object with all ancestral
-		 * states for all nodes and branches.
-		 */
-		virtual SiteSimulationResult * dSimulate() const = 0;
-		virtual SiteSimulationResult * dSimulate(int ancestralState) const = 0;
-		virtual SiteSimulationResult * dSimulate(int ancestralState, double rate) const = 0;
-		virtual SiteSimulationResult * dSimulate(double rate) const = 0;
-		
+  public:
+    DetailedSiteSimulator() {}
+    virtual ~DetailedSiteSimulator() {}
+  
+  public:
+    /**
+     * @brief Get a detailed simulation result for one site.
+     *
+     * @return A SiteSimulationResult object with all ancestral
+     * states for all nodes and branches.
+     */
+    virtual SiteSimulationResult * dSimulate() const = 0;
+    virtual SiteSimulationResult * dSimulate(int ancestralState) const = 0;
+    virtual SiteSimulationResult * dSimulate(int ancestralState, double rate) const = 0;
+    virtual SiteSimulationResult * dSimulate(double rate) const = 0;
+    
 };
 
 #endif // _DETAILEDSITESIMULATOR_H_

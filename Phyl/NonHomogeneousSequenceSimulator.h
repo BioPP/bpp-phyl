@@ -1,6 +1,7 @@
 //
-// File: HomogeneousSequenceSimulator.h
+// File: NonHomogeneousSequenceSimulator.h
 // Created by: Julien Dutheil
+//             Bastien Boussau
 // Created on: Wed Aug  24 15:20 2005
 //
 
@@ -37,8 +38,8 @@ The fact that you are presently reading this means that you have had
 knowledge of the CeCILL license and that you accept its terms.
 */
 
-#ifndef _HOMOGENEOUSSEQUENCESIMULATOR_H_
-#define _HOMOGENEOUSSEQUENCESIMULATOR_H_
+#ifndef _NONHOMOGENEOUSSEQUENCESIMULATOR_H_
+#define _NONHOMOGENEOUSSEQUENCESIMULATOR_H_
 
 #include "DetailedSiteSimulator.h"
 #include "SequenceSimulator.h"
@@ -59,49 +60,23 @@ knowledge of the CeCILL license and that you accept its terms.
 #include <vector>
 using namespace std;
 
-/**
- * @brief Data structure to store the results of the HomogeneousSequenceSimulator class.
- *
- * This sructure inherits from the SequenceSimulationResult class, and add support for
- * rate variation across sites.
- */
-class HomogeneousSiteSimulationResult:
-  public SiteSimulationResult
-{
-	protected:
-		double _rate;
-		
-	public:
-		HomogeneousSiteSimulationResult(const TreeTemplate<Node> * tree, const Alphabet * alphabet, int ancestralState, double rate):
-			SiteSimulationResult(tree, alphabet, ancestralState),
-			_rate(rate) {}
-
-		virtual ~HomogeneousSiteSimulationResult() {}
-	
-	public:
-    /**
-     * @return The rate of this simulation.
-     */
-		virtual double getRate() const { return _rate; }
-};
-
-//---------------------------------------------------------------------------
+#include "SubstitutionModelSet.h"
 
 /**
- * @brief Site and sequences simulation undes homogeneous models.
+ * @brief Site and sequences simulation under non-homogeneous models.
  *
  * Rate across sites variation is supported, using a DiscreteDistribution object or by specifying explicitely the rate of the sites to simulate.
  */
-class HomogeneousSequenceSimulator:
+class NonHomogeneousSequenceSimulator:
   public DetailedSiteSimulator,
   public SequenceSimulator
 {
 	protected:
-		const MutationProcess * _process;
-		const Alphabet * _alphabet;
-		const SubstitutionModel * _model;
-		const DiscreteDistribution * _rate;
-		const TreeTemplate<Node> * _tree;
+		const SubstitutionModelSet *_modelSet;
+		const Alphabet             *_alphabet;
+		const DiscreteDistribution *_rate;
+		const TreeTemplate<Node>   *_tree;
+    bool _ownModelSet;
 	
 		/**
 		 * @brief This stores once for all all leaves in a given order.
@@ -140,14 +115,30 @@ class HomogeneousSequenceSimulator:
     /** @} */
 	
 	public:		
-		HomogeneousSequenceSimulator(
-			const MutationProcess * process,
+		NonHomogeneousSequenceSimulator(
+			const SubstitutionModelSet * modelSet,
 			const DiscreteDistribution * rate,
-			const TreeTemplate<Node> * tree,
-			bool verbose = true
+			const TreeTemplate<Node> * tree
+		);
+
+    NonHomogeneousSequenceSimulator(
+			SubstitutionModel * model,
+			const DiscreteDistribution * rate,
+			const TreeTemplate<Node> * tree
 		);
 			
-		virtual ~HomogeneousSequenceSimulator() {}
+		virtual ~NonHomogeneousSequenceSimulator()
+    {
+      if(_ownModelSet && _modelSet != NULL) delete _modelSet;
+    }
+
+  private:
+    /**
+     * @brief Init all probabilities.
+     *
+     * Method called by constructors.
+     */
+    void init();
 
 	public:
 	
@@ -168,13 +159,13 @@ class HomogeneousSequenceSimulator:
 		 *
 		 * @{
 		 */
-    HomogeneousSiteSimulationResult * dSimulate() const;
+    RASiteSimulationResult * dSimulate() const;
     
-    HomogeneousSiteSimulationResult *	dSimulate(int ancestralState) const;
+    RASiteSimulationResult *	dSimulate(int ancestralState) const;
     
-    HomogeneousSiteSimulationResult * dSimulate(int ancestralState, double rate) const;
+    RASiteSimulationResult * dSimulate(int ancestralState, double rate) const;
 
-    HomogeneousSiteSimulationResult *	dSimulate(double rate) const;
+    RASiteSimulationResult *	dSimulate(double rate) const;
 		/** @} */
 
     /**
@@ -199,7 +190,7 @@ class HomogeneousSequenceSimulator:
      * @{
      */
 		virtual Site * simulate(int ancestralState, unsigned int rateClass) const;
-    virtual	HomogeneousSiteSimulationResult * dSimulate(int ancestralState, unsigned int rateClass) const;
+    virtual	RASiteSimulationResult * dSimulate(int ancestralState, unsigned int rateClass) const;
     /** @} */
 	
 		/**
@@ -207,14 +198,9 @@ class HomogeneousSequenceSimulator:
 		 *
 		 * @return The MutationProcess object associated to this instance.
 		 */
-		const MutationProcess * getMutationProcess() const { return _process; }
+		const SubstitutionModelSet * getSubstitutionModelSet() const { return _modelSet; }
 		
-		/**
-		 * @brief Get the substitution model associated to this instance.
-		 *
-		 * @return The SubstitutionModel object associated to this instance.
-		 */
-		const SubstitutionModel * getSubstitutionModel() const { return _process -> getSubstitutionModel(); }
+	
 		
 		/**
 		 * @brief Get the rate distribution associated to this instance.
@@ -265,7 +251,7 @@ class HomogeneousSequenceSimulator:
 		void multipleEvolve(const Node * node, const Vint & initialState, const vector<unsigned int> & rateClasses, Vint & finalStates) const;
 		SiteContainer * multipleEvolve(const Vint & initialStates, const vector<unsigned int> & rateClasses) const;
 		
-    void dEvolve(int initialState, double rate, HomogeneousSiteSimulationResult & hssr) const;
+    void dEvolve(int initialState, double rate, RASiteSimulationResult & rassr) const;
 		
     /**
      * @name The 'Internal' methods.
@@ -289,10 +275,26 @@ class HomogeneousSequenceSimulator:
     /**
      * This method uses the _states variable for saving ancestral states.
      */
-		void dEvolveInternal(const Node * node, double rate, HomogeneousSiteSimulationResult & hssr) const;
+		void dEvolveInternal(const Node * node, double rate, RASiteSimulationResult & rassr) const;
     /** @} */
 
 };
 
-#endif //_HOMOGENEOUSSEQUENCESIMULATOR_H_
+/**
+ * @brief This is an alias class, mainly for backward compatibility and disambiguation of code.
+ */
+class HomogeneousSequenceSimulator:
+  public NonHomogeneousSequenceSimulator
+{
+  public:
+    HomogeneousSequenceSimulator(
+			SubstitutionModel * model,
+			const DiscreteDistribution * rate,
+			const TreeTemplate<Node> * tree
+		): NonHomogeneousSequenceSimulator(model, rate, tree) {}
+
+    virtual ~HomogeneousSequenceSimulator() {}
+};
+
+#endif //_NONHOMOGENEOUSSEQUENCESIMULATOR_H_
 

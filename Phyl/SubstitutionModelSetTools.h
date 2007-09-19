@@ -1,11 +1,11 @@
 //
-// File: SequenceSimulator.h
+// File: SubstitutionModelSetTools.h
 // Created by: Julien Dutheil
-// Created on: Wed Feb  4 16:30:51 2004
+// Created on: tue Sep 17 16:57 2007
 //
 
 /*
-Copyright or © or Copr. CNRS, (November 16, 2004)
+Copyright or Â© or Copr. CNRS, (November 16, 2004)
 
 This software is a computer program whose purpose is to provide classes
 for phylogenetic data analysis.
@@ -37,26 +37,44 @@ The fact that you are presently reading this means that you have had
 knowledge of the CeCILL license and that you accept its terms.
 */
 
-#ifndef _SEQUENCESIMULATOR_H_
-#define _SEQUENCESIMULATOR_H_
+#ifndef _SUBSTITUTIONMODELSETTOOLS_H_
+#define _SUBSTITUTIONMODELSETTOOLS_H_
 
-// From SeqLib:
-#include <Seq/SiteContainer.h>
+#include "SubstitutionModelSet.h"
+#include "Tree.h"
 
 /**
- * @brief The SequenceSimulator interface.
- * SequenceSimulator classes can simulate whole datasets.
+ * @brief Tools for automatically creating SubstitutionModelSet objects.
  */
-class SequenceSimulator
+class SubstitutionModelSetTools
 {
+
   public:
-    SequenceSimulator() {}
-    virtual ~SequenceSimulator() {}
-  
-  public:
-    virtual SiteContainer * simulate(unsigned int numberOfSites) const = 0;
-    virtual const Alphabet * getAlphabet() const = 0;  
+
+    /**
+     * @brief Create a SubstitutionModelSet object, corresponding to the homogeneous case.
+     *
+     * This class is mainly for testing purpose.
+     *
+     * @param model The model to use.
+     * @param tree  The tree to use for the construction of the set.
+     */
+    static SubstitutionModelSet * createHomogeneousModelSet(SubstitutionModel *model, const Tree *tree) throw (AlphabetException, Exception);
+
+    /**
+     * @brief Create a SubstitutionModelSet object, with one model per branch.
+     *
+     * All branches share the same type of model, but allow one set of parameters per branch.
+     * This is also possible to specify some parameters to be common to all branches.
+     *
+     * @param model                The model to use.
+     * @param tree                 The tree to use for the construction of the set.
+     * @param globalParameterNames Common parameters for all branches.
+     * All other parameters will be considered distinct for all branches.
+     */
+    static SubstitutionModelSet * createNonHomogeneousModelSet(SubstitutionModel *model, const Tree *tree, const vector<string> & globalParameterNames) throw (AlphabetException, Exception);
+
 };
 
-#endif  //_SEQUENCESIMULATOR_H_
+#endif //_SUBSTITUTIONMODELSETTOOLS_H_
 

@@ -39,6 +39,7 @@ knowledge of the CeCILL license and that you accept its terms.
 */
 
 #include "SubstitutionModelFactory.h"
+#include "SubstitutionModelSetTools.h"
 
 // From SeqLib:
 #include <Seq/AlphabetTools.h>
@@ -132,45 +133,15 @@ SubstitutionModel * SubstitutionModelFactory::createModel(const string& modelNam
   else throw Exception("SubstitutionModelFactory::createModel(). Unknown model: " + modelName);
 }
 
-SubstitutionModelSet * SubstitutionModelFactory::createHomogeneousModelSet(const string& modelName, const Tree * tree) const throw (AlphabetException, Exception)
+SubstitutionModelSet * SubstitutionModelFactory::createHomogeneousModelSet(const string& modelName, const Tree *tree) const throw (AlphabetException, Exception)
 {
   SubstitutionModel * model = createModel(modelName);
-  SubstitutionModelSet * modelSet = new SubstitutionModelSet(_alphabet);
-  //We assign this model to all nodes in the tree (excepted root node), and link all parameters with it.
-  vector<int> ids = tree->getNodesId();
-  int rootId = tree->getRootId();
-  remove(ids.begin(), ids.end(), rootId);
-  modelSet->addModel(model, ids, model->getParameters().getParameterNames());
-  modelSet->setRootFrequencies(model->getFrequencies());
-  return modelSet;
+  return SubstitutionModelSetTools::createHomogeneousModelSet(model, tree);
 }
 
-SubstitutionModelSet * SubstitutionModelFactory::createNonHomogeneousModelSet(const string& modelName, const Tree * tree, const vector<string> & globalParameterNames) const throw (AlphabetException, Exception)
+SubstitutionModelSet * SubstitutionModelFactory::createNonHomogeneousModelSet(const string& modelName, const Tree *tree, const vector<string> & globalParameterNames) const throw (AlphabetException, Exception)
 {
   SubstitutionModel * model = createModel(modelName); //template model.
-  ParameterList globalParameters, branchParameters;
-  globalParameters = model->getParameters();
-  for(unsigned int i = globalParameters.size(); i > 0; i--)
-  {
-    if(find(globalParameterNames.begin(), globalParameterNames.end(), globalParameters[i]->getName()) == globalParameterNames.end())
-    {
-      //not a global parameter:
-      branchParameters.addParameter(*globalParameters[i]);
-      globalParameters.erase(globalParameters.begin() + i);
-    }
-  }
-  SubstitutionModelSet * modelSet = new SubstitutionModelSet(_alphabet);
-  //We assign a copy of this model to all nodes in the tree (excepted root node), and link all parameters with it.
-  vector<int> ids = tree->getNodesId();
-  int rootId = tree->getRootId();
-  remove(ids.begin(), ids.end(), rootId);
-  for(unsigned int i = 0; i < ids.size(); i++)
-  {
-    modelSet->addModel(dynamic_cast<SubstitutionModel *>(model->clone()), vector<int>(1, ids[i]), branchParameters.getParameterNames());
-  }
-  //Now add global parameters to all nodes:
-  modelSet->addParameters(globalParameters, ids);
-  delete model; //delete template model.
-  return modelSet;
+  return SubstitutionModelSetTools::createNonHomogeneousModelSet(model, tree, globalParameterNames);
 }
 

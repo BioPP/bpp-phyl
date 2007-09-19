@@ -57,70 +57,70 @@ using namespace std;
  */
 class SubstitutionModelFactory
 {
-public:
-  static const string JUKES_CANTOR;
-  static const string KIMURA_2P;
-  static const string HASEGAWA_KISHINO_YANO;
-  static const string TAMURA_NEI;
-  static const string GENERAL_TIME_REVERSIBLE;
-  static const string TAMURA;
-  static const string FELSENSTEIN84;
-  static const string JOHN_TAYLOR_THORNTON;
-  static const string DAYHOFF_SCHWARTZ_ORCUTT;
+  public:
+    static const string JUKES_CANTOR;
+    static const string KIMURA_2P;
+    static const string HASEGAWA_KISHINO_YANO;
+    static const string TAMURA_NEI;
+    static const string GENERAL_TIME_REVERSIBLE;
+    static const string TAMURA;
+    static const string FELSENSTEIN84;
+    static const string JOHN_TAYLOR_THORNTON;
+    static const string DAYHOFF_SCHWARTZ_ORCUTT;
   
-protected:
-  const Alphabet * _alphabet;
+  protected:
+    const Alphabet * _alphabet;
   
-public:
-  /**
-   * @brief Creates a new factory object with the given alphabet.
-   *
-   * @param alphabet The alphabet for wich models must be instanciated.
-   *
-   * Example:
-   * @code
-   * const Alphabet * alphabet = new DNA();
-   * SubstitutionModel * model = SubstitutionModelFactory(alphabet)
-   *     .createModel(SubstitutionModelFactory::TAMURA);
-   * // model can be used in any object dealing with a nucleotide substitution models.
-   * @endcode
-   */
-  SubstitutionModelFactory(const Alphabet * alphabet): _alphabet(alphabet) {}
-  virtual ~SubstitutionModelFactory() {}
+  public:
+    /**
+     * @brief Creates a new factory object with the given alphabet.
+     *
+     * @param alphabet The alphabet for wich models must be instanciated.
+     *
+     * Example:
+     * @code
+     * const Alphabet * alphabet = new DNA();
+     * SubstitutionModel * model = SubstitutionModelFactory(alphabet)
+     *     .createModel(SubstitutionModelFactory::TAMURA);
+     * // model can be used in any object dealing with a nucleotide substitution models.
+     * @endcode
+     */
+    SubstitutionModelFactory(const Alphabet * alphabet): _alphabet(alphabet) {}
+    virtual ~SubstitutionModelFactory() {}
 
-public:
-  /**
-   * @brief Get a new dynamically created SubstitutionModel object.
-   *
-   * @param modelName The name of the model to use.
-   * @return A pointer toward a new substitution model, with default parameter values.
-   * @throw AlphabetException If the model is not compatible with the given alphabet.
-   * @throw Exception If the model name do not match any available model.
-   */
-  virtual SubstitutionModel * createModel(const string& modelName) const throw (AlphabetException, Exception);
+  public:
+    /**
+     * @brief Get a new dynamically created SubstitutionModel object.
+     *
+     * @param modelName The name of the model to use.
+     * @return A pointer toward a new substitution model, with default parameter values.
+     * @throw AlphabetException If the model is not compatible with the given alphabet.
+     * @throw Exception If the model name do not match any available model.
+     */
+    virtual SubstitutionModel * createModel(const string& modelName) const throw (AlphabetException, Exception);
 
-  /**
-   * @brief Create a SubstitutionModelSet object, corresponding to the homogeneous case.
-   *
-   * This class is mainly for testing purpose.
-   *
-   * @param modelName The name of the model to use.
-   * @param tree      The tree to use for the construction of the set.
-   */
-  virtual SubstitutionModelSet * createHomogeneousModelSet(const string & modelName, const Tree * tree) const throw (AlphabetException, Exception);
+    /**
+     * @brief Create a SubstitutionModelSet object, corresponding to the homogeneous case.
+     *
+     * This class is mainly for testing purpose.
+     *
+     * @param modelName The name of the model to use.
+     * @param tree      The tree to use for the construction of the set.
+     */
+    virtual SubstitutionModelSet * createHomogeneousModelSet(const string & modelName, const Tree * tree) const throw (AlphabetException, Exception);
 
-  /**
-   * @brief Create a SubstitutionModelSet object, with one model per branch.
-   *
-   * All branches share the same type of model, but allow one set of parameters per branch.
-   * This is also possible to specify some parameters to be common to all branches.
-   *
-   * @param modelName            The name of the model to use.
-   * @param tree                 The tree to use for the construction of the set.
-   * @param globalParameterNames Common parameters for all branches.
-   * All other parameters will be considered distinct for all branches.
-   */
-  virtual SubstitutionModelSet * createNonHomogeneousModelSet(const string & modelName, const Tree * tree, const vector<string> & globalParameterNames) const throw (AlphabetException, Exception);
+    /**
+     * @brief Create a SubstitutionModelSet object, with one model per branch.
+     *
+     * All branches share the same type of model, but allow one set of parameters per branch.
+     * This is also possible to specify some parameters to be common to all branches.
+     *
+     * @param modelName            The name of the model to use.
+     * @param tree                 The tree to use for the construction of the set.
+     * @param globalParameterNames Common parameters for all branches.
+     * All other parameters will be considered distinct for all branches.
+     */
+    virtual SubstitutionModelSet * createNonHomogeneousModelSet(const string & modelName, const Tree * tree, const vector<string> & globalParameterNames) const throw (AlphabetException, Exception);
 
 };
 

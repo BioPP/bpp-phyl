@@ -204,6 +204,18 @@ class SubstitutionModelSet:
   public:
 
     /**
+     * @brief Get the number of states associated to this model set.
+     *
+     * @return The number of states.
+     * @throw Exception if no model is associated to the set.
+     */
+    unsigned int getNumberOfStates() const throw (Exception)
+    {
+      if(_modelSet.size() == 0) throw Exception("SubstitutionModelSet::getNumberOfStates(). No model associated to this set!");
+      return _modelSet[0]->getNumberOfStates();
+    }
+
+    /**
      * To be called when a parameter has changed.
      * Depending on parameters, this will actualize the _initialFrequencies vector or the corresponding models in the set.
      * @param parameters The modified parameters.
@@ -224,7 +236,12 @@ class SubstitutionModelSet:
      * unsetParameterToModel to remove the relationship with this model for instance.
      * Parameters not specified in newParams will be ignored, unless you manually assign them to another parameter with
      * setParameterToModel.
-     * @throw Exception in case of error (...).
+     * @throw Exception in case of error:
+     * <ul>
+     * <li>if the new model does not match the alphabet<li>
+     * <li>if the new model does not have the same number of states than existing ones<li>
+     * <li>etc.</li>
+     * </ul>
      */
     void addModel(SubstitutionModel * model, const vector<int> & nodesId, const vector<string> & newParams) throw (Exception);
   

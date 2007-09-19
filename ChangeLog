@@ -1,3 +1,9 @@
+19/09/07 Bastien Boussau & Julien Dutheil
+* New NonHomogeneousSequenceSimulator class, which replaces
+  HomogeneousSequenceSimulator. An alias for backward compatibility is provided.
+* Updated class names for sequence simulations, to deal with the
+  non-homogeneous case: HomogeneousSiteSimulationResult=>RASSiteSimulationResult.
+
 17/09/07 Julien Dutheil
 * New interface ReversibleSubstitutionModel.
 * New class AbstractReversibleSubstitutionModel.
