@@ -433,6 +433,7 @@ class OptimizationTools
 		 * @param verbose          The verbose level.
      * @param optMethod        Option passed to optimizeNumericalParameters.
      * @param nStep            Option passed to optimizeNumericalParameters.
+     * @param nniMethod        NNI algorithm to use.
      * @return A pointer toward the final likelihood object.
      * This pointer may be the same as passed in argument (tl), but in some cases the algorithm
      * clone this object. We may change this bahavior in the future...
@@ -453,7 +454,8 @@ class OptimizationTools
 			  ostream * profiler       = &cout,
 			  unsigned int verbose     = 1,
         const string & optMethod = OptimizationTools::OPTIMIZATION_NEWTON,
-        unsigned int nStep       = 1)
+        unsigned int nStep       = 1,
+        const string & nniMethod = NNITopologySearch::PHYML)
       throw (Exception);
 
     /**
@@ -481,6 +483,7 @@ class OptimizationTools
 		 * @param profiler         The profiler.
 		 * @param verbose          The verbose level.
      * @param optMethod        Option passed to optimizeNumericalParameters2.
+     * @param nniMethod        NNI algorithm to use.
      * @return A pointer toward the final likelihood object.
      * This pointer may be the same as passed in argument (tl), but in some cases the algorithm
      * clone this object. We may change this bahavior in the future...
@@ -500,7 +503,8 @@ class OptimizationTools
 			  ostream * messageHandler = &cout,
 			  ostream * profiler       = &cout,
 			  unsigned int verbose     = 1,
-        const string & optMethod = OptimizationTools::OPTIMIZATION_NEWTON)
+        const string & optMethod = OptimizationTools::OPTIMIZATION_NEWTON,
+        const string & nniMethod = NNITopologySearch::PHYML)
       throw (Exception);
 
     /**

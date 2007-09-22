@@ -144,6 +144,11 @@ knowledge of the CeCILL license and that you accept its terms.
 class K80:
   public NucleotideSubstitutionModel
 {
+  protected:
+    double _kappa, _r;
+    mutable double _l, _k, _exp1, _exp2;
+    mutable RowMatrix<double> _p;
+
 	public:
 		K80(const NucleicAlphabet * alpha, double kappa = 1.);
 

@@ -116,7 +116,7 @@ class GTR:
 {
 	protected:
 		Constraint * piConstraint;
-		double _a, _b, _c, _d, _e;
+    double _a, _b, _c, _d, _e, _piA, _piC, _piG, _piT, _p;
 
 	public:
 		GTR(
@@ -137,6 +137,8 @@ class GTR:
 
   public:
 		string getName() const;
+
+    void updateMatrices();
 
 		/**
 		 * @brief This method is redefined to actualize the corresponding parameters piA, piT, piG and piC too.

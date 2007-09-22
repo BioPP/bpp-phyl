@@ -67,7 +67,7 @@ AbstractSubstitutionModel::AbstractSubstitutionModel(const Alphabet * alpha): _a
 	
 void AbstractSubstitutionModel::updateMatrices()
 {
-	// Compute eigen values and vectors:
+	// Compute eigen values and vectors:i
 	EigenValue<double> ev(_generator);
 	_rightEigenVectors = ev.getV();
 	_leftEigenVectors = MatrixTools::inv(_rightEigenVectors);

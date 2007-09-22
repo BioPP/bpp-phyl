@@ -49,16 +49,7 @@ JCnuc::JCnuc(const NucleicAlphabet * alpha) :
   NucleotideSubstitutionModel(alpha)
 {
 	_parameters = ParameterList(); //no parameters for this model.	
-	
-	// Frequencies:
-	_freq[0] = _freq[1] = _freq[2] = _freq[3] = 1. / 4.;
-	// Echangeability:
-	for(int i = 0; i < 4; i++) {
-		for(int j = 0; j < 4; j++) {
-			_exchangeability(i, j) = (i == j) ? -3. : 1.;
-		}
-	}
-	
+  _p.resize(_size,_size);
 	updateMatrices();
 }
 
@@ -66,9 +57,14 @@ JCnuc::JCnuc(const NucleicAlphabet * alpha) :
 	
 void JCnuc::updateMatrices()
 {
-	// Generator:
-	for(int i = 0; i < 4; i++) {
-		for(int j = 0; j < 4; j++) {
+	// Frequencies:
+	_freq[0] = _freq[1] = _freq[2] = _freq[3] = 1. / 4.;
+
+	// Generator and exchangeabilities:
+	for(int i = 0; i < 4; i++)
+  {
+		for(int j = 0; j < 4; j++)
+    {
 			_generator(i, j) = (i == j) ? -1. : 1./3.;
 			_exchangeability(i, j) = _generator(i, j) * 4.;
 		}
@@ -125,35 +121,41 @@ double JCnuc::d2Pij_dt2(int i, int j, double d) const
 
 RowMatrix<double> JCnuc::getPij_t(double d) const
 {
-	RowMatrix<double> p(_size, _size);
-	for(unsigned int i = 0; i < _size; i++) {
-		for(unsigned int j = 0; j < _size; j++) {
-			p(i,j) = (i==j) ? 1./4. + 3./4. * exp(- 4./3. * d) : 1./4. - 1./4. * exp(- 4./3. * d);
+	_exp = exp(-4./3. * d);
+	for(unsigned int i = 0; i < _size; i++)
+  {
+		for(unsigned int j = 0; j < _size; j++)
+    {
+			_p(i,j) = (i==j) ? 1./4. + 3./4. * _exp : 1./4. - 1./4. * _exp;
 		}
 	}
-	return p;
+	return _p;
 }
 
 RowMatrix<double> JCnuc::getdPij_dt(double d) const
 {
-	RowMatrix<double> p(_size, _size);
-	for(unsigned int i = 0; i < _size; i++) {
-		for(unsigned int j = 0; j < _size; j++) {
-			p(i,j) = (i==j) ? - exp(- 4./3. * d) : 1./3. * exp(- 4./3. * d);
+	_exp = exp(-4./3. * d);
+	for(unsigned int i = 0; i < _size; i++)
+  {
+		for(unsigned int j = 0; j < _size; j++)
+    {
+			_p(i,j) = (i==j) ? - _exp : 1./3. * _exp;
 		}
 	}
-	return p;
+	return _p;
 }
 
 RowMatrix<double> JCnuc::getd2Pij_dt2(double d) const
 {
-	RowMatrix<double> p(_size, _size);
-	for(unsigned int i = 0; i < _size; i++) {
-		for(unsigned int j = 0; j < _size; j++) {
-			p(i,j) = (i==j) ? 4./3. * exp(- 4./3. * d) : - 4./9. * exp(- 4./3. * d);
+	_exp = exp(-4./3. * d);
+	for(unsigned int i = 0; i < _size; i++)
+  {
+		for(unsigned int j = 0; j < _size; j++)
+    {
+			_p(i,j) = (i==j) ? 4./3. * _exp : - 4./9. * _exp;
 		}
 	}
-	return p;
+	return _p;
 }
 
 /******************************************************************************/

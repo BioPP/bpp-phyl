@@ -105,7 +105,7 @@ void NNITopologySearch::searchFast() throw (Exception)
     {
 			Node * node = nodesSub[i];
 			double diff = _searchableTree->testNNI(node->getId());
-			if(_verbose >= 2)
+			if(_verbose >= 3)
       {
 				ApplicationTools::displayResult("   Testing node " + TextTools::toString(node->getId())
 						                    + " at " + TextTools::toString(node->getFather()->getId()),
@@ -114,7 +114,7 @@ void NNITopologySearch::searchFast() throw (Exception)
 			
 			if(diff < 0.)
       { //Good NNI found...
-				if(_verbose == 1)
+				if(_verbose >= 2)
         {
 					ApplicationTools::displayResult("   Swapping node " + TextTools::toString(node->getId())
 							                    + " at " + TextTools::toString(node->getFather()->getId()),
@@ -124,9 +124,11 @@ void NNITopologySearch::searchFast() throw (Exception)
 				// Notify:
 				notifyAllPerformed(TopologyChangeEvent());
 				test = true;
+
+        if(_verbose >= 1)
+          ApplicationTools::displayResult("   Current value", TextTools::toString(_searchableTree->getTopologyValue(), 10));
 			}
 		}
-		if(_verbose >= 2) ApplicationTools::displayTaskDone();	
 	}
   while(test);
 }
@@ -139,7 +141,7 @@ void NNITopologySearch::searchBetter() throw (Exception)
 	  TreeTemplate<Node> tree(*_searchableTree->getTopology());
 	  vector<Node *> nodes = tree.getNodes();
 
-		if(_verbose >= 2) ApplicationTools::displayTask("Test all possible NNIs...");
+		if(_verbose >= 3) ApplicationTools::displayTask("Test all possible NNIs...");
 		
 		vector<Node *> nodesSub = nodes;
 		for(unsigned int i = nodesSub.size(); i > 0; i--)
@@ -156,7 +158,7 @@ void NNITopologySearch::searchBetter() throw (Exception)
     {
 			Node * node = nodesSub[i];
 			double diff = _searchableTree->testNNI(node->getId());
-			if(_verbose >= 2)
+			if(_verbose >= 3)
       {
 				ApplicationTools::displayResult("   Testing node " + TextTools::toString(node->getId())
 						                    + " at " + TextTools::toString(node->getFather()->getId()),
@@ -169,22 +171,23 @@ void NNITopologySearch::searchBetter() throw (Exception)
 				improvement.push_back(diff);
 			}
 		}
-		if(_verbose >= 2) ApplicationTools::displayTaskDone();
+		if(_verbose >= 3) ApplicationTools::displayTaskDone();
 		test = improving.size() > 0;
 		if(test)
     {
 			unsigned int nodeMin = VectorTools::posmin(improvement);
 			Node * node = improving[nodeMin];
-			if(_verbose >= 1)
-      {
-				ApplicationTools::displayResult(string("   Swapping node ") + TextTools::toString(node->getId())
-            + string(" at ") + TextTools::toString(node->getFather()->getId()),
-            TextTools::toString(improvement[nodeMin]));
-			}
+			if(_verbose >=2)
+        ApplicationTools::displayResult("   Swapping node " + TextTools::toString(node->getId())
+          + " at " + TextTools::toString(node->getFather()->getId()),
+          TextTools::toString(improvement[nodeMin]));
 			_searchableTree->doNNI(node->getId());
 			
 			// Notify:
 			notifyAllPerformed(TopologyChangeEvent());
+      
+      if(_verbose >= 1)
+        ApplicationTools::displayResult("   Current value", TextTools::toString(_searchableTree->getTopologyValue(), 10));
 		}
 	} while(test);	
 }

@@ -417,7 +417,8 @@ NNIHomogeneousTreeLikelihood * OptimizationTools::optimizeTreeNNI(
     ostream * profiler,
     unsigned int verbose,
     const string & optMethod,
-    unsigned int nStep)
+    unsigned int nStep,
+    const string & nniMethod)
   throw (Exception)
 {
   //Roughly optimize parameter
@@ -426,7 +427,7 @@ NNIHomogeneousTreeLikelihood * OptimizationTools::optimizeTreeNNI(
     OptimizationTools::optimizeNumericalParameters(tl, NULL, nStep, tolBefore, 1000000, messageHandler, profiler, verbose, optMethod);
   }
   //Begin topo search:
-  NNITopologySearch topoSearch(*tl, NNITopologySearch::PHYML, verbose > 2 ? verbose - 2 : 0);
+  NNITopologySearch topoSearch(*tl, nniMethod, verbose > 2 ? verbose - 2 : 0);
   NNITopologyListener *topoListener = new NNITopologyListener(&topoSearch, tolDuring, messageHandler, profiler, verbose, optMethod, nStep);
   topoListener->setNumericalOptimizationCounter(numStep);
   topoSearch.addTopologyListener(*topoListener);
@@ -447,7 +448,8 @@ NNIHomogeneousTreeLikelihood * OptimizationTools::optimizeTreeNNI2(
     ostream * messageHandler,
     ostream * profiler,
     unsigned int verbose,
-    const string & optMethod)
+    const string & optMethod,
+    const string & nniMethod)
   throw (Exception)
 {
   //Roughly optimize parameter
@@ -456,7 +458,7 @@ NNIHomogeneousTreeLikelihood * OptimizationTools::optimizeTreeNNI2(
     OptimizationTools::optimizeNumericalParameters2(tl, NULL, tolBefore, 1000000, messageHandler, profiler, verbose, optMethod);
   }
   //Begin topo search:
-  NNITopologySearch topoSearch(*tl, NNITopologySearch::PHYML, verbose > 2 ? verbose - 2 : 0);
+  NNITopologySearch topoSearch(*tl, nniMethod, verbose > 2 ? verbose - 2 : 0);
   NNITopologyListener2 *topoListener = new NNITopologyListener2(&topoSearch, tolDuring, messageHandler, profiler, verbose, optMethod);
   topoListener->setNumericalOptimizationCounter(numStep);
   topoSearch.addTopologyListener(*topoListener);
@@ -510,8 +512,8 @@ TreeTemplate<Node> * OptimizationTools::buildDistanceTree(
   TreeTemplate<Node> * tree = NULL;
   TreeTemplate<Node> * previousTree = NULL;
   bool test = true;
-  double previousLL = -log(0.);
-  double currentLL = -log(0.);
+//  double previousLL = -log(0.);
+//  double currentLL = -log(0.);
   while(test)
   {
     //Compute matrice:
@@ -536,6 +538,7 @@ TreeTemplate<Node> * OptimizationTools::buildDistanceTree(
     {
       int rf = TreeTools::robinsonFouldsDistance(*previousTree, *tree, false);
       ApplicationTools::displayResult("Topo. distance with previous iteration", TextTools::toString(rf));
+      test = (rf == 0);
       delete previousTree;
     }
     if(param != DISTANCEMETHOD_ITERATIONS) break; //Ends here.
@@ -554,8 +557,8 @@ TreeTemplate<Node> * OptimizationTools::buildDistanceTree(
     for(unsigned int i = 0; i < parametersToIgnore.size(); i++)
       tl.ignoreParameter(parametersToIgnore[i]->getName());
     optimizeNumericalParameters(&tl, NULL, 0, tolerance, tlEvalMax, messenger, profiler, verbose > 0 ? verbose - 1 : 0);
-    previousLL = currentLL;
-    currentLL = tl.getLogLikelihood();
+    //previousLL = currentLL;
+    //currentLL = tl.getLogLikelihood();
     if(verbose > 0)
     {
       ParameterList tmp = tl.getSubstitutionModelParameters();
@@ -565,7 +568,7 @@ TreeTemplate<Node> * OptimizationTools::buildDistanceTree(
       for(unsigned int i = 0; i < tmp.size(); i++)
         ApplicationTools::displayResult(tmp[i]->getName(), TextTools::toString(tmp[i]->getValue()));
     }
-    test = (std::abs(currentLL - previousLL) > tolerance);
+    //test = (std::abs(currentLL - previousLL) > tolerance);
   }
   return tree;
 }

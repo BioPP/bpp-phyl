@@ -52,7 +52,8 @@ JTT92::JTT92(const ProteicAlphabet * alpha) :
 
 /******************************************************************************/
 
-string JTT92::getName() const {
+string JTT92::getName() const
+{
 	return "Jones et al. (1992) protein substitution model";
 }
 

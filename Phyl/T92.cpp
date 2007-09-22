@@ -58,11 +58,7 @@ T92::T92(const NucleicAlphabet * alpha, double kappa, double theta):
 	thetaConstraint = new IncludingInterval(0, 1);
 	_parameters.addParameter(Parameter("kappa", kappa, &Parameter::R_PLUS));
 	_parameters.addParameter(Parameter("theta", theta, thetaConstraint));
-	
-	// Frequences:
-	_freq[0] = _freq[3] = (1. - theta) / 2.;
-	_freq[1] = _freq[2] = theta /2.;
-
+  _p.resize(_size, _size);
 	updateMatrices();
 }
 
@@ -77,78 +73,89 @@ T92::~T92()
 
 void T92::updateMatrices()
 {
-	double kappa = _parameters.getParameter("kappa") -> getValue();
-	double theta = _parameters.getParameter("theta") -> getValue();
-	
-	_generator(0, 0) = -(1. +        theta * kappa);
-	_generator(1, 1) = -(1. + (1. - theta) * kappa);
-	_generator(2, 2) = -(1. + (1. - theta) * kappa);
-	_generator(3, 3) = -(1. +        theta * kappa);
+	_kappa = _parameters.getParameter("kappa")->getValue();
+	_theta = _parameters.getParameter("theta")->getValue();
+  cout << "theta=" << _theta << endl;
+  _piA = (1 - _theta) / 2;
+	_piC = _theta / 2;
+	_piG = _theta / 2;
+	_piT = (1 - _theta) / 2;
+	_k = (_kappa + 1.) / 2.;
+	_r = 2./ (1. + 2. * _theta * _kappa - 2. * _theta * _theta * _kappa);
 
-	_generator(1, 0) = (1. - theta);
-	_generator(3, 0) = (1. - theta);
-	_generator(0, 1) = theta;
-	_generator(2, 1) = theta;
-	_generator(1, 2) = theta;
-	_generator(3, 2) = theta;
-	_generator(0, 3) = (1. - theta);
-	_generator(2, 3) = (1. - theta);
+  _freq[0] = _piA;
+	_freq[1] = _piC;
+	_freq[2] = _piG;
+	_freq[3] = _piT;
 	
-	_generator(2, 0) = kappa * (1. - theta);
-	_generator(3, 1) = kappa * theta;
-	_generator(0, 2) = kappa * theta;
-	_generator(1, 3) = kappa * (1. - theta);
+	_generator(0, 0) = -(1. +        _theta * _kappa)/2;
+	_generator(1, 1) = -(1. + (1. - _theta) * _kappa)/2;
+	_generator(2, 2) = -(1. + (1. - _theta) * _kappa)/2;
+	_generator(3, 3) = -(1. +        _theta * _kappa)/2;
+
+	_generator(1, 0) = (1. - _theta)/2;
+	_generator(3, 0) = (1. - _theta)/2;
+	_generator(0, 1) = _theta/2;
+	_generator(2, 1) = _theta/2;
+	_generator(1, 2) = _theta/2;
+	_generator(3, 2) = _theta/2;
+	_generator(0, 3) = (1. - _theta)/2;
+	_generator(2, 3) = (1. - _theta)/2;
+	
+	_generator(2, 0) = _kappa * (1. - _theta)/2;
+	_generator(3, 1) = _kappa * _theta/2;
+	_generator(0, 2) = _kappa * _theta/2;
+	_generator(1, 3) = _kappa * (1. - _theta)/2;
 	
 	// Normalization:
-	double r = 1. / (1. + 2. * theta * kappa - 2. * theta * theta * kappa);
-	MatrixTools::scale(_generator, r);
+	MatrixTools::scale(_generator, _r);
 
 	// Exchangeability:
-	_exchangeability(0,0) = _generator(0,0) * 2./(1.-theta);
-	_exchangeability(0,1) = _generator(0,1) * 2./theta; 
-	_exchangeability(0,2) = _generator(0,2) * 2./theta; 
-	_exchangeability(0,3) = _generator(0,3) * 2./(1.-theta);
+	_exchangeability(0,0) = _generator(0,0) * 2./(1. - _theta);
+	_exchangeability(0,1) = _generator(0,1) * 2./_theta; 
+	_exchangeability(0,2) = _generator(0,2) * 2./_theta; 
+	_exchangeability(0,3) = _generator(0,3) * 2./(1. - _theta);
 
-	_exchangeability(1,0) = _generator(1,0) * 2./(1.-theta); 
-	_exchangeability(1,1) = _generator(1,1) * 2/theta; 
-	_exchangeability(1,2) = _generator(1,2) * 2/theta; 
-	_exchangeability(1,3) = _generator(1,3) * 2/(1-theta); 
+	_exchangeability(1,0) = _generator(1,0) * 2./(1. - _theta); 
+	_exchangeability(1,1) = _generator(1,1) * 2/_theta; 
+	_exchangeability(1,2) = _generator(1,2) * 2/_theta; 
+	_exchangeability(1,3) = _generator(1,3) * 2/(1. - _theta); 
 	
-	_exchangeability(2,0) = _generator(2,0) * 2./(1.-theta); 
-	_exchangeability(2,1) = _generator(2,1) * 2/theta; 
-	_exchangeability(2,2) = _generator(2,2) * 2/theta; 
-	_exchangeability(2,3) = _generator(2,3) * 2/(1-theta); 
+	_exchangeability(2,0) = _generator(2,0) * 2./(1. - _theta); 
+	_exchangeability(2,1) = _generator(2,1) * 2/_theta; 
+	_exchangeability(2,2) = _generator(2,2) * 2/_theta; 
+	_exchangeability(2,3) = _generator(2,3) * 2/(1. - _theta); 
 	
-	_exchangeability(3,0) = _generator(3,0) * 2./(1.-theta);
-	_exchangeability(3,1) = _generator(3,1) * 2./theta; 
-	_exchangeability(3,2) = _generator(3,2) * 2./theta; 
-	_exchangeability(3,3) = _generator(3,3) * 2./(1.-theta);
+	_exchangeability(3,0) = _generator(3,0) * 2./(1. - _theta);
+	_exchangeability(3,1) = _generator(3,1) * 2./_theta; 
+	_exchangeability(3,2) = _generator(3,2) * 2./_theta; 
+	_exchangeability(3,3) = _generator(3,3) * 2./(1. - _theta);
 
 	// Eigen values:
 	_eigenValues[0] = 0;
-	_eigenValues[1] = _eigenValues[2] = -r * (1. + kappa); 
-	_eigenValues[3] = -r * 2.;
+	_eigenValues[1] = _eigenValues[2] = -_r * (1. + _kappa)/2; 
+	_eigenValues[3] = -_r;
 	
 	// Eigen vectors:
-	_leftEigenVectors(0,0) = - (theta - 1.)/2.;
-	_leftEigenVectors(0,1) = theta/2.;
-	_leftEigenVectors(0,2) = theta/2.;
-	_leftEigenVectors(0,3) = - (theta - 1.)/2.;
+	_leftEigenVectors(0,0) = - (_theta - 1.)/2.;
+	_leftEigenVectors(0,1) = _theta/2.;
+	_leftEigenVectors(0,2) = _theta/2.;
+	_leftEigenVectors(0,3) = - (_theta - 1.)/2.;
 	
 	_leftEigenVectors(1,0) = 0.;
-	_leftEigenVectors(1,1) = - (theta - 1.);
+	_leftEigenVectors(1,1) = - (_theta - 1.);
 	_leftEigenVectors(1,2) = 0.;
-	_leftEigenVectors(1,3) = theta - 1.;
+	_leftEigenVectors(1,3) = _theta - 1.;
 	
-	_leftEigenVectors(2,0) = theta;
+	_leftEigenVectors(2,0) = _theta;
 	_leftEigenVectors(2,1) = 0.;
-	_leftEigenVectors(2,2) = -theta;
+	_leftEigenVectors(2,2) = -_theta;
 	_leftEigenVectors(2,3) = 0.;
 	
-	_leftEigenVectors(3,0) = - (theta - 1.)/2.;
-	_leftEigenVectors(3,1) = - theta/2.;
-	_leftEigenVectors(3,2) = theta/2.;
-	_leftEigenVectors(3,3) = (theta - 1.)/2.;
+	_leftEigenVectors(3,0) = - (_theta - 1.)/2.;
+	_leftEigenVectors(3,1) = - _theta/2.;
+	_leftEigenVectors(3,2) = _theta/2.;
+	_leftEigenVectors(3,3) = (_theta - 1.)/2.;
 
 
 	_rightEigenVectors(0,0) = 1.;
@@ -163,11 +170,11 @@ void T92::updateMatrices()
 
 	_rightEigenVectors(2,0) = 1.;
 	_rightEigenVectors(2,1) = 0.;
-	_rightEigenVectors(2,2) = (theta-1.)/theta;
+	_rightEigenVectors(2,2) = (_theta-1.)/_theta;
 	_rightEigenVectors(2,3) = 1.;
 	
 	_rightEigenVectors(3,0) = 1.;
-	_rightEigenVectors(3,1) = theta/(theta - 1.);
+	_rightEigenVectors(3,1) = _theta/(_theta - 1.);
 	_rightEigenVectors(3,2) = 0;
 	_rightEigenVectors(3,3) = -1.;
 }
@@ -176,51 +183,45 @@ void T92::updateMatrices()
 
 double T92::Pij_t(int i, int j, double d) const
 {
-	double kappa = _parameters.getParameter("kappa") -> getValue();
-	double theta = _parameters.getParameter("theta") -> getValue();
-	double piA, piT = piA = (1. - theta)/2.;
-	double piC, piG = piC = theta/2.;
-	double k = (kappa + 1.) / 2.;
-	double r  = 2./ (1. + 2. * theta * kappa - 2. * theta * theta * kappa);
-	double l = r * d;
-	double exp1 = exp(-l);
-	double exp2 = exp(-k * l);
+	_l = _r * d;
+	_exp1 = exp(-_l);
+	_exp2 = exp(-_k * _l);
 	
 	switch(i) {
 		//A
 		case 0 : {
 			switch(j) {
-				case 0 : return piA * (1. + exp1) + theta * exp2; //A
-				case 1 : return piC * (1. - exp1);                //C
-				case 2 : return piG * (1. + exp1) - theta * exp2; //G
-				case 3 : return piT * (1. - exp1);                //T, U
+				case 0 : return _piA * (1. + _exp1) + _theta * _exp2; //A
+				case 1 : return _piC * (1. - _exp1);                  //C
+				case 2 : return _piG * (1. + _exp1) - _theta * _exp2; //G
+				case 3 : return _piT * (1. - _exp1);                  //T, U
 			}
 		} 
 		//C
 		case 1 : {
 			switch(j) {
-				case 0 : return piA * (1. - exp1);                       //A
-				case 1 : return piC * (1. + exp1) + (1. - theta) * exp2; //C
-				case 2 : return piG * (1. - exp1);                       //G
-				case 3 : return piT * (1. + exp1) - (1. - theta) * exp2; //T, U
+				case 0 : return _piA * (1. - _exp1);                         //A
+				case 1 : return _piC * (1. + _exp1) + (1. - _theta) * _exp2; //C
+				case 2 : return _piG * (1. - _exp1);                         //G
+				case 3 : return _piT * (1. + _exp1) - (1. - _theta) * _exp2; //T, U
 			}
 		}
 		//G
 		case 2 : {
 			switch(j) {
-				case 0 : return piA * (1. + exp1) - (1. - theta) * exp2; //A
-				case 1 : return piC * (1. - exp1);                       //C
-				case 2 : return piG * (1. + exp1) + (1. - theta) * exp2; //G
-				case 3 : return piT * (1. - exp1);                       //T, U
+				case 0 : return _piA * (1. + _exp1) - (1. - _theta) * _exp2; //A
+				case 1 : return _piC * (1. - _exp1);                         //C
+				case 2 : return _piG * (1. + _exp1) + (1. - _theta) * _exp2; //G
+				case 3 : return _piT * (1. - _exp1);                         //T, U
 			}
 		}
 		//T, U
 		case 3 : {
 			switch(j) {
-				case 0 : return piA * (1. - exp1);                //A
-				case 1 : return piC * (1. + exp1) - theta * exp2; //C
-				case 2 : return piG * (1. - exp1);                //G
-				case 3 : return piT * (1. + exp1) + theta * exp2; //T, U
+				case 0 : return _piA * (1. - _exp1);                  //A
+				case 1 : return _piC * (1. + _exp1) - _theta * _exp2; //C
+				case 2 : return _piG * (1. - _exp1);                  //G
+				case 3 : return _piT * (1. + _exp1) + _theta * _exp2; //T, U
 			}
 		}
 	}
@@ -231,51 +232,45 @@ double T92::Pij_t(int i, int j, double d) const
 
 double T92::dPij_dt(int i, int j, double d) const
 {
-	double kappa = _parameters.getParameter("kappa") -> getValue();
-	double theta = _parameters.getParameter("theta") -> getValue();
-	double piA, piT = piA = (1. - theta)/2.;
-	double piC, piG = piC = theta/2.;
-	double k = (kappa + 1.) / 2.;
-	double r  = 2. / (1. + 2. * theta * kappa - 2. * theta * theta * kappa);
-	double l = r * d;
-	double exp1 = exp(-l);
-	double exp2 = exp(-k * l);
+	_l = _r * d;
+	_exp1 = exp(-_l);
+	_exp2 = exp(-_k * _l);
 
 	switch(i) {
 		//A
 		case 0 : {
 			switch(j) {
-				case 0 : return r * (piA * - exp1 + theta * -k * exp2); //A
-				case 1 : return r * (piC *   exp1);                     //C
-				case 2 : return r * (piG * - exp1 - theta * -k * exp2); //G
-				case 3 : return r * (piT *   exp1);                     //T, U
+				case 0 : return _r * (_piA * - _exp1 + _theta * -_k * _exp2); //A
+				case 1 : return _r * (_piC *   _exp1);                        //C
+				case 2 : return _r * (_piG * - _exp1 - _theta * -_k * _exp2); //G
+				case 3 : return _r * (_piT *   _exp1);                        //T, U
 			}
 		} 
 		//C
 		case 1 : {
 			switch(j) {
-				case 0 : return r * (piA *   exp1);                            //A
-				case 1 : return r * (piC * - exp1 + (1. - theta) * -k * exp2); //C
-				case 2 : return r * (piG *   exp1);                            //G
-				case 3 : return r * (piT * - exp1 - (1. - theta) * -k * exp2); //T, U
+				case 0 : return _r * (_piA *   _exp1);                               //A
+				case 1 : return _r * (_piC * - _exp1 + (1. - _theta) * -_k * _exp2); //C
+				case 2 : return _r * (_piG *   _exp1);                               //G
+				case 3 : return _r * (_piT * - _exp1 - (1. - _theta) * -_k * _exp2); //T, U
 			}
 		}
 		//G
 		case 2 : {
 			switch(j) {
-				case 0 : return r * (piA * - exp1 - (1. - theta) * -k * exp2); //A
-				case 1 : return r * (piC *   exp1);                            //C
-				case 2 : return r * (piG * - exp1 + (1. - theta) * -k * exp2); //G
-				case 3 : return r * (piT *   exp1);                            //T, U
+				case 0 : return _r * (_piA * - _exp1 - (1. - _theta) * -_k * _exp2); //A
+				case 1 : return _r * (_piC *   _exp1);                               //C
+				case 2 : return _r * (_piG * - _exp1 + (1. - _theta) * -_k * _exp2); //G
+				case 3 : return _r * (_piT *   _exp1);                               //T, U
 			}
 		}
 		//T, U
 		case 3 : {
 			switch(j) {
-				case 0 : return r * (piA *   exp1);                     //A
-				case 1 : return r * (piC * - exp1 - theta * -k * exp2); //C
-				case 2 : return r * (piG *   exp1);                     //G
-				case 3 : return r * (piT * - exp1 + theta * -k * exp2); //T, U
+				case 0 : return _r * (_piA *   _exp1);                        //A
+				case 1 : return _r * (_piC * - _exp1 - _theta * -_k * _exp2); //C
+				case 2 : return _r * (_piG *   _exp1);                        //G
+				case 3 : return _r * (_piT * - _exp1 + _theta * -_k * _exp2); //T, U
 			}
 		}
 	}
@@ -286,53 +281,47 @@ double T92::dPij_dt(int i, int j, double d) const
 
 double T92::d2Pij_dt2(int i, int j, double d) const
 {
-	double kappa = _parameters.getParameter("kappa") -> getValue();
-	double theta = _parameters.getParameter("theta") -> getValue();
-	double piA, piT = piA = (1. - theta)/2.;
-	double piC, piG = piC = theta/2.;
-	double k = (kappa + 1.) / 2.;
-	double k2 = k * k;
-	double r  = 2. / (1. + 2. * theta * kappa - 2. * theta * theta * kappa);
-	double l = r * d;
-	double r2 = r * r;
-	double exp1 = exp(-l);
-	double exp2 = exp(-k * l);
+	double _k2 = _k * _k;
+	_l = _r * d;
+	double r2 = _r * _r;
+	_exp1 = exp(-_l);
+	_exp2 = exp(-_k * _l);
 
 	switch(i) {
 		//A
 		case 0 : {
 			switch(j) {
-				case 0 : return r2 * (piA *   exp1 + theta * k2 * exp2); //A
-				case 1 : return r2 * (piC * - exp1);                     //C
-				case 2 : return r2 * (piG *   exp1 - theta * k2 * exp2); //G
-				case 3 : return r2 * (piT * - exp1);                     //T, U
+				case 0 : return r2 * (_piA *   _exp1 + _theta * _k2 * _exp2); //A
+				case 1 : return r2 * (_piC * - _exp1);                        //C
+				case 2 : return r2 * (_piG *   _exp1 - _theta * _k2 * _exp2); //G
+				case 3 : return r2 * (_piT * - _exp1);                        //T, U
 			}
 		} 
 		//C
 		case 1 : {
 			switch(j) {
-				case 0 : return r2 * (piA * - exp1);                            //A
-				case 1 : return r2 * (piC *   exp1 + (1. - theta) * k2 * exp2); //C
-				case 2 : return r2 * (piG * - exp1);                            //G
-				case 3 : return r2 * (piT *   exp1 - (1. - theta) * k2 * exp2); //T, U
+				case 0 : return r2 * (_piA * - _exp1);                               //A
+				case 1 : return r2 * (_piC *   _exp1 + (1. - _theta) * _k2 * _exp2); //C
+				case 2 : return r2 * (_piG * - _exp1);                               //G
+				case 3 : return r2 * (_piT *   _exp1 - (1. - _theta) * _k2 * _exp2); //T, U
 			}
 		}
 		//G
 		case 2 : {
 			switch(j) {
-				case 0 : return r2 * (piA *   exp1 - (1. - theta) * k2 * exp2); //A
-				case 1 : return r2 * (piC * - exp1);                            //C
-				case 2 : return r2 * (piG *   exp1 + (1. - theta) * k2 * exp2); //G
-				case 3 : return r2 * (piT * - exp1);                            //T, U
+				case 0 : return r2 * (_piA *   _exp1 - (1. - _theta) * _k2 * _exp2); //A
+				case 1 : return r2 * (_piC * - _exp1);                               //C
+				case 2 : return r2 * (_piG *   _exp1 + (1. - _theta) * _k2 * _exp2); //G
+				case 3 : return r2 * (_piT * - _exp1);                               //T, U
 			}
 		}
 		//T, U
 		case 3 : {
 			switch(j) {
-				case 0 : return r2 * (piA * - exp1);                     //A
-				case 1 : return r2 * (piC *   exp1 - theta * k2 * exp2); //C
-				case 2 : return r2 * (piG * - exp1);                     //G
-				case 3 : return r2 * (piT *   exp1 + theta * k2 * exp2); //T, U
+				case 0 : return r2 * (_piA * - _exp1);                        //A
+				case 1 : return r2 * (_piC *   _exp1 - _theta * _k2 * _exp2); //C
+				case 2 : return r2 * (_piG * - _exp1);                        //G
+				case 3 : return r2 * (_piT *   _exp1 + _theta * _k2 * _exp2); //T, U
 			}
 		}
 	}
@@ -343,124 +332,103 @@ double T92::d2Pij_dt2(int i, int j, double d) const
 
 RowMatrix<double> T92::getPij_t(double d) const
 {
-	RowMatrix<double> p(_size, _size);
-	double kappa = _parameters.getParameter("kappa") -> getValue();
-	double theta = _parameters.getParameter("theta") -> getValue();
-	double piA, piT = piA = (1. - theta)/2.;
-	double piC, piG = piC = theta/2.;
-	double k = (kappa + 1.) / 2.;
-	double r  = 2./ (1. + 2. * theta * kappa - 2. * theta * theta * kappa);
-	double l = r * d;
-	double exp1 = exp(-l);
-	double exp2 = exp(-k * l);
+	_l = _r * d;
+	_exp1 = exp(-_l);
+	_exp2 = exp(-_k * _l);
 
 	//A
-	p(0, 0) = piA * (1. + exp1) + theta * exp2; //A
-	p(0, 1) = piC * (1. - exp1);                //C
-	p(0, 2) = piG * (1. + exp1) - theta * exp2; //G
-	p(0, 3) = piT * (1. - exp1);                //T, U
+	_p(0, 0) = _piA * (1. + _exp1) + _theta * _exp2; //A
+	_p(0, 1) = _piC * (1. - _exp1);                  //C
+	_p(0, 2) = _piG * (1. + _exp1) - _theta * _exp2; //G
+	_p(0, 3) = _piT * (1. - _exp1);                  //T, U
 
 	//C
-	p(1, 0) = piA * (1. - exp1);                       //A
-	p(1, 1) = piC * (1. + exp1) + (1. - theta) * exp2; //C
-	p(1, 2) = piG * (1. - exp1);                       //G
-	p(1, 3) = piT * (1. + exp1) - (1. - theta) * exp2; //T, U
+	_p(1, 0) = _piA * (1. - _exp1);                         //A
+	_p(1, 1) = _piC * (1. + _exp1) + (1. - _theta) * _exp2; //C
+	_p(1, 2) = _piG * (1. - _exp1);                         //G
+	_p(1, 3) = _piT * (1. + _exp1) - (1. - _theta) * _exp2; //T, U
 
 	//G
-	p(2, 0) = piA * (1. + exp1) - (1. - theta) * exp2; //A
-	p(2, 1) = piC * (1. - exp1);                       //C
-	p(2, 2) = piG * (1. + exp1) + (1. - theta) * exp2; //G
-	p(2, 3) = piT * (1. - exp1);                       //T, U
+	_p(2, 0) = _piA * (1. + _exp1) - (1. - _theta) * _exp2; //A
+	_p(2, 1) = _piC * (1. - _exp1);                         //C
+	_p(2, 2) = _piG * (1. + _exp1) + (1. - _theta) * _exp2; //G
+	_p(2, 3) = _piT * (1. - _exp1);                         //T, U
 
 	//T, U
-	p(3, 0) = piA * (1. - exp1);                //A
-	p(3, 1) = piC * (1. + exp1) - theta * exp2; //C
-	p(3, 2) = piG * (1. - exp1);                //G
-	p(3, 3) = piT * (1. + exp1) + theta * exp2; //T, U
+	_p(3, 0) = _piA * (1. - _exp1);                  //A
+	_p(3, 1) = _piC * (1. + _exp1) - _theta * _exp2; //C
+	_p(3, 2) = _piG * (1. - _exp1);                  //G
+	_p(3, 3) = _piT * (1. + _exp1) + _theta * _exp2; //T, U
 
-	return p;
+	return _p;
 }
 
 RowMatrix<double> T92::getdPij_dt(double d) const
 {
-	RowMatrix<double> p(_size, _size);
-	double kappa = _parameters.getParameter("kappa") -> getValue();
-	double theta = _parameters.getParameter("theta") -> getValue();
-	double piA, piT = piA = (1. - theta)/2.;
-	double piC, piG = piC = theta/2.;
-	double k = (kappa + 1.) / 2.;
-	double r  = 2. / (1. + 2. * theta * kappa - 2. * theta * theta * kappa);
-	double l = r * d;
-	double exp1 = exp(-l);
-	double exp2 = exp(-k * l);
+	_l = _r * d;
+	_exp1 = exp(-_l);
+	_exp2 = exp(-_k * _l);
 
 	//A
-	p(0, 0) = r * (piA * - exp1 + theta * -k * exp2); //A
-	p(0, 1) = r * (piC *   exp1);                     //C
-	p(0, 2) = r * (piG * - exp1 - theta * -k * exp2); //G
-	p(0, 3) = r * (piT *   exp1);                     //T, U
+	_p(0, 0) = _r * (_piA * - _exp1 + _theta * -_k * _exp2); //A
+	_p(0, 1) = _r * (_piC *   _exp1);                        //C
+	_p(0, 2) = _r * (_piG * - _exp1 - _theta * -_k * _exp2); //G
+	_p(0, 3) = _r * (_piT *   _exp1);                        //T, U
 
 	//C
-	p(1, 0) = r * (piA *   exp1);                            //A
-	p(1, 1) = r * (piC * - exp1 + (1. - theta) * -k * exp2); //C
-	p(1, 2) = r * (piG *   exp1);                            //G
-	p(1, 3) = r * (piT * - exp1 - (1. - theta) * -k * exp2); //T, U
+	_p(1, 0) = _r * (_piA *   _exp1);                               //A
+	_p(1, 1) = _r * (_piC * - _exp1 + (1. - _theta) * -_k * _exp2); //C
+	_p(1, 2) = _r * (_piG *   _exp1);                               //G
+	_p(1, 3) = _r * (_piT * - _exp1 - (1. - _theta) * -_k * _exp2); //T, U
 
 	//G
-	p(2, 0) = r * (piA * - exp1 - (1. - theta) * -k * exp2); //A
-	p(2, 1) = r * (piC *   exp1);                            //C
-	p(2, 2) = r * (piG * - exp1 + (1. - theta) * -k * exp2); //G
-	p(2, 3) = r * (piT *   exp1);                            //T, U
+	_p(2, 0) = _r * (_piA * - _exp1 - (1. - _theta) * -_k * _exp2); //A
+	_p(2, 1) = _r * (_piC *   _exp1);                               //C
+	_p(2, 2) = _r * (_piG * - _exp1 + (1. - _theta) * -_k * _exp2); //G
+	_p(2, 3) = _r * (_piT *   _exp1);                               //T, U
 
 	//T, U
-	p(3, 0) = r * (piA *   exp1);                     //A
-	p(3, 1) = r * (piC * - exp1 - theta * -k * exp2); //C
-	p(3, 2) = r * (piG *   exp1);                     //G
-	p(3, 3) = r * (piT * - exp1 + theta * -k * exp2); //T, U
+	_p(3, 0) = _r * (_piA *   _exp1);                        //A
+	_p(3, 1) = _r * (_piC * - _exp1 - _theta * -_k * _exp2); //C
+	_p(3, 2) = _r * (_piG *   _exp1);                        //G
+	_p(3, 3) = _r * (_piT * - _exp1 + _theta * -_k * _exp2); //T, U
 
-	return p;
+	return _p;
 }
 
 RowMatrix<double> T92::getd2Pij_dt2(double d) const
 {
-	RowMatrix<double> p(_size, _size);
-	double kappa = _parameters.getParameter("kappa") -> getValue();
-	double theta = _parameters.getParameter("theta") -> getValue();
-	double piA, piT = piA = (1. - theta)/2.;
-	double piC, piG = piC = theta/2.;
-	double k = (kappa + 1.) / 2.;
-	double k2 = k * k;
-	double r  = 2. / (1. + 2. * theta * kappa - 2. * theta * theta * kappa);
-	double l = r * d;
-	double r2 = r * r;
-	double exp1 = exp(-l);
-	double exp2 = exp(-k * l);
+	double k2 = _k * _k;
+	_l = _r * d;
+	double r2 = _r * _r;
+	_exp1 = exp(-_l);
+	_exp2 = exp(-_k * _l);
 
 	//A
-	p(0, 0) = r2 * (piA *   exp1 + theta * k2 * exp2); //A
-	p(0, 1) = r2 * (piC * - exp1);                     //C
-	p(0, 2) = r2 * (piG *   exp1 - theta * k2 * exp2); //G
-	p(0, 3) = r2 * (piT * - exp1);                     //T, U
+	_p(0, 0) = r2 * (_piA *   _exp1 + _theta * k2 * _exp2); //A
+	_p(0, 1) = r2 * (_piC * - _exp1);                       //C
+	_p(0, 2) = r2 * (_piG *   _exp1 - _theta * k2 * _exp2); //G
+	_p(0, 3) = r2 * (_piT * - _exp1);                       //T, U
 
 	//C
-	p(1, 0) = r2 * (piA * - exp1);                            //A
-	p(1, 1) = r2 * (piC *   exp1 + (1. - theta) * k2 * exp2); //C
-	p(1, 2) = r2 * (piG * - exp1);                            //G
-	p(1, 3) = r2 * (piT *   exp1 - (1. - theta) * k2 * exp2); //T, U
+	_p(1, 0) = r2 * (_piA * - _exp1);                              //A
+	_p(1, 1) = r2 * (_piC *   _exp1 + (1. - _theta) * k2 * _exp2); //C
+	_p(1, 2) = r2 * (_piG * - _exp1);                              //G
+	_p(1, 3) = r2 * (_piT *   _exp1 - (1. - _theta) * k2 * _exp2); //T, U
 
 	//G
-	p(2, 0) = r2 * (piA *   exp1 - (1. - theta) * k2 * exp2); //A
-	p(2, 1) = r2 * (piC * - exp1);                            //C
-	p(2, 2) = r2 * (piG *   exp1 + (1. - theta) * k2 * exp2); //G
-	p(2, 3) = r2 * (piT * - exp1);                            //T, U
+	_p(2, 0) = r2 * (_piA *   _exp1 - (1. - _theta) * k2 * _exp2); //A
+	_p(2, 1) = r2 * (_piC * - _exp1);                              //C
+	_p(2, 2) = r2 * (_piG *   _exp1 + (1. - _theta) * k2 * _exp2); //G
+	_p(2, 3) = r2 * (_piT * - _exp1);                              //T, U
 
 	//T, U
-	p(3, 0) = r2 * (piA * - exp1);                     //A
-	p(3, 1) = r2 * (piC *   exp1 - theta * k2 * exp2); //C
-	p(3, 2) = r2 * (piG * - exp1);                     //G
-	p(3, 3) = r2 * (piT *   exp1 + theta * k2 * exp2); //T, U
+	_p(3, 0) = r2 * (_piA * - _exp1);                       //A
+	_p(3, 1) = r2 * (_piC *   _exp1 - _theta * k2 * _exp2); //C
+	_p(3, 2) = r2 * (_piG * - _exp1);                       //G
+	_p(3, 3) = r2 * (_piT *   _exp1 + _theta * k2 * _exp2); //T, U
 
-	return p;
+	return _p;
 }
 
 /******************************************************************************/
@@ -474,10 +442,6 @@ void T92::setFreqFromData(const SequenceContainer & data)
 	map<int, double> freqs = SequenceContainerTools::getFrequencies(data);
 	double f = (freqs[1] + freqs[2]) / (freqs[0] + freqs[1] + freqs[2] + freqs[3]);
 	setParameterValue("theta", f);
-	_freq[0] = (1 - f) / 2;
-	_freq[1] = f / 2;
-	_freq[2] = f / 2;
-	_freq[3] = (1 - f) / 2;
 	updateMatrices();
 }
 

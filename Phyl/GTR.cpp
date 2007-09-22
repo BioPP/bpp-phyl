@@ -61,7 +61,6 @@ GTR::GTR(
 	double piC,
 	double piG,
 	double piT):
-	//AbstractSubstitutionModel(alpha),
 	NucleotideSubstitutionModel(alpha)
 {
 	piConstraint = new IncludingInterval(0, 1);
@@ -74,45 +73,54 @@ GTR::GTR(
 	_parameters.addParameter(Parameter("piC", piC, piConstraint));
 	_parameters.addParameter(Parameter("piG", piG, piConstraint));
 	_parameters.addParameter(Parameter("piT", piT, piConstraint));
-
-	// Frequencies:
-	_freq[0] = piA;
-	_freq[1] = piC;
-	_freq[2] = piG;
-	_freq[3] = piT;
-
-	//double p = piG*(c*piT+e*piC+  piA)
-	//	       + piC*(b*piT+  piG+d*piA)
-	//				 + piA*(a*piT+e*piG+d*piC)
-	//				 + piT*(c*piG+a*piC+b*piA);
-		
-  double p = 2*(a*piC*piT+b*piA*piT+c*piG*piT+d*piA*piC+e*piC*piG+piA*piG);
-	
-  // Exchangeability matrix:
-	_exchangeability(0,0) = (-b*piT-  piG-d*piC)/(piA * p);
-	_exchangeability(1,0) = d/p;
-	_exchangeability(0,1) = d/p;
-	_exchangeability(2,0) = 1/p;
-	_exchangeability(0,2) = 1/p;
-	_exchangeability(3,0) = b/p;
-	_exchangeability(0,3) = b/p;
-	_exchangeability(1,1) = (-a*piT-e*piG-d*piA)/(piC * p);
-	_exchangeability(1,2) = e/p;
-	_exchangeability(2,1) = e/p;
-	_exchangeability(1,3) = a/p;
-	_exchangeability(3,1) = a/p;
-	_exchangeability(2,2) = (-c*piT-e*piC-  piA)/(piG * p);
-	_exchangeability(2,3) = c/p;
-	_exchangeability(3,2) = c/p;
-	_exchangeability(3,3) = (-c*piG-a*piC-b*piA)/(piT * p);
-
 	updateMatrices();
 }
 
 /******************************************************************************/
 
 GTR::~GTR() { delete piConstraint; }
+
+/******************************************************************************/
 	
+void GTR::updateMatrices()
+{
+	_a = _parameters.getParameter("a")->getValue();
+	_b = _parameters.getParameter("b")->getValue();
+	_c = _parameters.getParameter("c")->getValue();
+	_d = _parameters.getParameter("d")->getValue();
+	_e = _parameters.getParameter("e")->getValue();
+	_piA = _parameters.getParameter("piA")->getValue();
+	_piC = _parameters.getParameter("piC")->getValue();
+	_piG = _parameters.getParameter("piG")->getValue();
+	_piT = _parameters.getParameter("piT")->getValue();
+  _p = 2*(_a*_piC*_piT+_b*_piA*_piT+_c*_piG*_piT+_d*_piA*_piC+_e*_piC*_piG+_piA*_piG);
+
+  _freq[0] = _piA;
+  _freq[1] = _piC;
+  _freq[2] = _piG;
+  _freq[3] = _piT;
+	
+  // Exchangeability matrix:
+	_exchangeability(0,0) = (-_b*_piT-_piG-_d*_piC)/(_piA * _p);
+	_exchangeability(1,0) = _d/_p;
+	_exchangeability(0,1) = _d/_p;
+	_exchangeability(2,0) = 1/_p;
+	_exchangeability(0,2) = 1/_p;
+	_exchangeability(3,0) = _b/_p;
+	_exchangeability(0,3) = _b/_p;
+	_exchangeability(1,1) = (-_a*_piT-_e*_piG-_d*_piA)/(_piC * _p);
+	_exchangeability(1,2) = _e/_p;
+	_exchangeability(2,1) = _e/_p;
+	_exchangeability(1,3) = _a/_p;
+	_exchangeability(3,1) = _a/_p;
+	_exchangeability(2,2) = (-_c*_piT-_e*_piC-_piA)/(_piG * _p);
+	_exchangeability(2,3) = _c/_p;
+	_exchangeability(3,2) = _c/_p;
+	_exchangeability(3,3) = (-_c*_piG-_a*_piC-_b*_piA)/(_piT * _p);
+
+  AbstractReversibleSubstitutionModel::updateMatrices();
+}
+
 /******************************************************************************/
 
 string GTR::getName() const { return string("General Time-Reversible"); }
@@ -121,12 +129,14 @@ string GTR::getName() const { return string("General Time-Reversible"); }
 
 void GTR::setFreqFromData(const SequenceContainer & data)
 {
-	AbstractSubstitutionModel::setFreqFromData(data);
-	// In this model, frequencies may be parameters:
-	setParameterValue("piA", _freq[0]);
-	setParameterValue("piC", _freq[1]);
-	setParameterValue("piG", _freq[2]);
-	setParameterValue("piT", _freq[3]);
+	map<int, double> freqs = SequenceContainerTools::getFrequencies(data);
+	double t = 0;
+	for(unsigned int i = 0; i < _size; i++) t += freqs[i];
+	setParameterValue("piA", freqs[0] / t);
+	setParameterValue("piC", freqs[1] / t);
+	setParameterValue("piG", freqs[2] / t);
+	setParameterValue("piT", freqs[3] / t);
+  updateMatrices();
 }
 
 /******************************************************************************/

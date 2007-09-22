@@ -159,6 +159,9 @@ class T92:
 {
 	protected:
 		Constraint * thetaConstraint;
+    double _kappa, _theta, _r, _k, _piA, _piC, _piG, _piT;
+    mutable double _l, _exp1, _exp2;
+    mutable RowMatrix<double> _p;
 
 	public:
 		T92(const NucleicAlphabet * alpha, double kappa = 1., double theta = 0.5);

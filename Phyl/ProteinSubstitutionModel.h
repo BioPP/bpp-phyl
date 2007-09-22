@@ -59,7 +59,7 @@ class ProteinSubstitutionModel:
     ProteinSubstitutionModel * clone() const = 0;
 		
   public:
-    virtual unsigned int getNumberOfStates() const { return 20; };
+    unsigned int getNumberOfStates() const { return 20; };
 
 };
 

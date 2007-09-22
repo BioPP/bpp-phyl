@@ -108,6 +108,9 @@ class TN93:
 {
 	protected:
 		Constraint * piConstraint;
+    double _kappa1, _kappa2, _piA, _piC, _piG, _piT, _piY, _piR, _r, _k1, _k2;
+    mutable double _exp1, _exp21, _exp22, _l;
+    mutable RowMatrix<double> _p;
 
 	public:
 		TN93(

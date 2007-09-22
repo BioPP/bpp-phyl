@@ -51,10 +51,7 @@ K80::K80(const NucleicAlphabet * alpha, double kappa) :
   NucleotideSubstitutionModel(alpha)
 {
 	_parameters.addParameter(Parameter("kappa", kappa, &Parameter::R_PLUS));
-
-	// Frequences:
-	_freq[0] = _freq[1] = _freq[2] = _freq[3] = 1. / 4.;
-
+  _p.resize(_size, _size);
 	updateMatrices();
 }
 
@@ -62,13 +59,18 @@ K80::K80(const NucleicAlphabet * alpha, double kappa) :
 
 void K80::updateMatrices()
 {
-	double kappa = _parameters.getParameter("kappa") -> getValue();
+	_kappa = _parameters.getParameter("kappa")->getValue();
+	_k = (_kappa + 1.) / 2.;
+	_r = 4. / (_kappa + 2.);
 	
+  // Frequences:
+	_freq[0] = _freq[1] = _freq[2] = _freq[3] = 1. / 4.;
+
 	// Generator:
-	_generator(0, 0) = -2. - kappa;
-	_generator(1, 1) = -2. - kappa;
-	_generator(2, 2) = -2. - kappa;
-	_generator(3, 3) = -2. - kappa;
+	_generator(0, 0) = -2. - _kappa;
+	_generator(1, 1) = -2. - _kappa;
+	_generator(2, 2) = -2. - _kappa;
+	_generator(3, 3) = -2. - _kappa;
 
 	_generator(0, 1) = 1.;
 	_generator(0, 3) = 1.;
@@ -79,14 +81,13 @@ void K80::updateMatrices()
 	_generator(3, 0) = 1.;
 	_generator(3, 2) = 1.;
 	
-	_generator(0, 2) = kappa;
-	_generator(1, 3) = kappa;
-	_generator(2, 0) = kappa;
-	_generator(3, 1) = kappa;
+	_generator(0, 2) = _kappa;
+	_generator(1, 3) = _kappa;
+	_generator(2, 0) = _kappa;
+	_generator(3, 1) = _kappa;
 
 	// Normalization:
-	double r = 1. / (2. + kappa);
-	MatrixTools::scale(_generator, r);
+	MatrixTools::scale(_generator, _r/4);
 
 	// Exchangeability:
 	_exchangeability = _generator;
@@ -94,9 +95,9 @@ void K80::updateMatrices()
 
 	// Eigen values:
 	_eigenValues[0] = 0;
-	_eigenValues[1] = -2. * (1. + kappa) * r;
-	_eigenValues[2] = -2. * (1. + kappa) * r;
-	_eigenValues[3] = -4. * r;
+	_eigenValues[1] = -_r * (1. + _kappa)/2;
+	_eigenValues[2] = -_r * (1. + _kappa)/2;
+	_eigenValues[3] = -_r;
 	
 	// Eigen vectors:
 	_leftEigenVectors(0,0) = 1. / 4.;
@@ -138,48 +139,45 @@ void K80::updateMatrices()
 
 double K80::Pij_t(int i, int j, double d) const
 {
-	double kappa = _parameters.getParameter("kappa") -> getValue();
-	double k = (kappa + 1.) / 2.;
-	double r = 4. / (kappa + 2.);
-	double l = r * d;
-	double exp1 = exp(-l);
-	double exp2 = exp(-k * l);
+	_l = _r * d;
+	_exp1 = exp(-_l);
+	_exp2 = exp(-_k * _l);
 	
 	switch(i) {
 		//A
 		case 0 : {
 			switch(j) {
-				case 0 : return 0.25 * (1. + exp1) + 0.5 * exp2; //A
-				case 1 : return 0.25 * (1. - exp1);              //C
-				case 2 : return 0.25 * (1. + exp1) - 0.5 * exp2; //G
-				case 3 : return 0.25 * (1. - exp1);              //T, U
+				case 0 : return 0.25 * (1. + _exp1) + 0.5 * _exp2; //A
+				case 1 : return 0.25 * (1. - _exp1);               //C
+				case 2 : return 0.25 * (1. + _exp1) - 0.5 * _exp2; //G
+				case 3 : return 0.25 * (1. - _exp1);               //T, U
 			}
 		} 
 		//C
 		case 1 : {
 			switch(j) {
-				case 0 : return 0.25 * (1. - exp1);              //A
-				case 1 : return 0.25 * (1. + exp1) + 0.5 * exp2; //C
-				case 2 : return 0.25 * (1. - exp1);              //G
-				case 3 : return 0.25 * (1. + exp1) - 0.5 * exp2; //T, U
+				case 0 : return 0.25 * (1. - _exp1);               //A
+				case 1 : return 0.25 * (1. + _exp1) + 0.5 * _exp2; //C
+				case 2 : return 0.25 * (1. - _exp1);               //G
+				case 3 : return 0.25 * (1. + _exp1) - 0.5 * _exp2; //T, U
 			}
 		}
 		//G
 		case 2 : {
 			switch(j) {
-				case 0 : return 0.25 * (1. + exp1) - 0.5 * exp2; //A
-				case 1 : return 0.25 * (1. - exp1);              //C
-				case 2 : return 0.25 * (1. + exp1) + 0.5 * exp2; //G
-				case 3 : return 0.25 * (1. - exp1);              //T, U
+				case 0 : return 0.25 * (1. + _exp1) - 0.5 * _exp2; //A
+				case 1 : return 0.25 * (1. - _exp1);               //C
+				case 2 : return 0.25 * (1. + _exp1) + 0.5 * _exp2; //G
+				case 3 : return 0.25 * (1. - _exp1);               //T, U
 			}
 		}
 		//T, U
 		case 3 : {
 			switch(j) {
-				case 0 : return 0.25 * (1. - exp1);              //A
-				case 1 : return 0.25 * (1. + exp1) - 0.5 * exp2; //C
-				case 2 : return 0.25 * (1. - exp1);              //G
-				case 3 : return 0.25 * (1. + exp1) + 0.5 * exp2; //T, U
+				case 0 : return 0.25 * (1. - _exp1);               //A
+				case 1 : return 0.25 * (1. + _exp1) - 0.5 * _exp2; //C
+				case 2 : return 0.25 * (1. - _exp1);               //G
+				case 3 : return 0.25 * (1. + _exp1) + 0.5 * _exp2; //T, U
 			}
 		}
 	}
@@ -190,48 +188,45 @@ double K80::Pij_t(int i, int j, double d) const
 
 double K80::dPij_dt(int i, int j, double d) const
 {
-	double kappa = _parameters.getParameter("kappa") -> getValue();
-	double k = (kappa + 1.) / 2.;
-	double r = 4. / (kappa + 2.);
-	double l = r * d;
-	double exp1 = exp(-l);
-	double exp2 = exp(-k * l);
+	_l = _r * d;
+	_exp1 = exp(-_l);
+	_exp2 = exp(-_k * _l);
 
 	switch(i) {
 		//A
 		case 0 : {
 			switch(j) {
-				case 0 : return r/4. * (- exp1 - 2. * k * exp2); //A
-				case 1 : return r/4. * (  exp1);                 //C
-				case 2 : return r/4. * (- exp1 + 2. * k * exp2); //G
-				case 3 : return r/4. * (  exp1);                 //T, U
+				case 0 : return _r/4. * (- _exp1 - 2. * _k * _exp2); //A
+				case 1 : return _r/4. * (  _exp1);                   //C
+				case 2 : return _r/4. * (- _exp1 + 2. * _k * _exp2); //G
+				case 3 : return _r/4. * (  _exp1);                   //T, U
 			}
 		} 
 		//C
 		case 1 : {
 			switch(j) {
-				case 0 : return r/4. * (  exp1);                 //A
-				case 1 : return r/4. * (- exp1 - 2. * k * exp2); //C
-				case 2 : return r/4. * (  exp1);                 //G
-				case 3 : return r/4. * (- exp1 + 2. * k * exp2); //T, U
+				case 0 : return _r/4. * (  _exp1);                   //A
+				case 1 : return _r/4. * (- _exp1 - 2. * _k * _exp2); //C
+				case 2 : return _r/4. * (  _exp1);                   //G
+				case 3 : return _r/4. * (- _exp1 + 2. * _k * _exp2); //T, U
 			}
 		}
 		//G
 		case 2 : {
 			switch(j) {
-				case 0 : return r/4. * (- exp1 + 2. * k * exp2); //A
-				case 1 : return r/4. * (  exp1);                 //C
-				case 2 : return r/4. * (- exp1 - 2. * k * exp2); //G
-				case 3 : return r/4. * (  exp1);                 //T, U
+				case 0 : return _r/4. * (- _exp1 + 2. * _k * _exp2); //A
+				case 1 : return _r/4. * (  _exp1);                   //C
+				case 2 : return _r/4. * (- _exp1 - 2. * _k * _exp2); //G
+				case 3 : return _r/4. * (  _exp1);                   //T, U
 			}
 		}
 		//T, U
 		case 3 : {
 			switch(j) {
-				case 0 : return r/4. * (  exp1);                 //A
-				case 1 : return r/4. * (- exp1 + 2. * k * exp2); //C
-				case 2 : return r/4. * (  exp1);                 //G
-				case 3 : return r/4. * (- exp1 - 2. * k * exp2); //T, U
+				case 0 : return _r/4. * (  _exp1);                   //A
+				case 1 : return _r/4. * (- _exp1 + 2. * _k * _exp2); //C
+				case 2 : return _r/4. * (  _exp1);                   //G
+				case 3 : return _r/4. * (- _exp1 - 2. * _k * _exp2); //T, U
 			}
 		}
 	}
@@ -242,50 +237,47 @@ double K80::dPij_dt(int i, int j, double d) const
 
 double K80::d2Pij_dt2(int i, int j, double d) const
 {
-	double kappa = _parameters.getParameter("kappa") -> getValue();
-	double k = (kappa + 1.) / 2.;
-	double k_2 = k * k;
-	double r = 4. / (kappa + 2.);
-	double r_2 = r * r;
-	double l = r * d;
-	double exp1 = exp(-l);
-	double exp2 = exp(-k * l);
+	double k_2 = _k * _k;
+	double r_2 = _r * _r;
+	_l = _r * d;
+	_exp1 = exp(-_l);
+	_exp2 = exp(-_k * _l);
 
 	switch(i) {
 		//A
 		case 0 : {
 			switch(j) {
-				case 0 : return r_2/4. * (  exp1 + 2. * k_2 * exp2); //A
-				case 1 : return r_2/4. * (- exp1);                   //C
-				case 2 : return r_2/4. * (  exp1 - 2. * k_2 * exp2); //G
-				case 3 : return r_2/4. * (- exp1);                   //T, U
+				case 0 : return r_2/4. * (  _exp1 + 2. * k_2 * _exp2); //A
+				case 1 : return r_2/4. * (- _exp1);                    //C
+				case 2 : return r_2/4. * (  _exp1 - 2. * k_2 * _exp2); //G
+				case 3 : return r_2/4. * (- _exp1);                    //T, U
 			}
 		} 
 		//C
 		case 1 : {
 			switch(j) {
-				case 0 : return r_2/4. * (- exp1);                   //A
-				case 1 : return r_2/4. * (  exp1 + 2. * k_2 * exp2); //C
-				case 2 : return r_2/4. * (- exp1);                   //G
-				case 3 : return r_2/4. * (  exp1 - 2. * k_2 * exp2); //T, U
+				case 0 : return r_2/4. * (- _exp1);                    //A
+				case 1 : return r_2/4. * (  _exp1 + 2. * k_2 * _exp2); //C
+				case 2 : return r_2/4. * (- _exp1);                    //G
+				case 3 : return r_2/4. * (  _exp1 - 2. * k_2 * _exp2); //T, U
 			}
 		}
 		//G
 		case 2 : {
 			switch(j) {
-				case 0 : return r_2/4. * (  exp1 - 2. * k_2 * exp2); //A
-				case 1 : return r_2/4. * (- exp1);                   //C
-				case 2 : return r_2/4. * (  exp1 + 2. * k_2 * exp2); //G
-				case 3 : return r_2/4. * (- exp1);                   //T, U
+				case 0 : return r_2/4. * (  _exp1 - 2. * k_2 * _exp2); //A
+				case 1 : return r_2/4. * (- _exp1);                    //C
+				case 2 : return r_2/4. * (  _exp1 + 2. * k_2 * _exp2); //G
+				case 3 : return r_2/4. * (- _exp1);                    //T, U
 			}
 		}
 		//T, U
 		case 3 : {
 			switch(j) {
-				case 0 : return r_2/4. * (- exp1);                   //A
-				case 1 : return r_2/4. * (  exp1 - 2. * k_2 * exp2); //C
-				case 2 : return r_2/4. * (- exp1);                   //G
-				case 3 : return r_2/4. * (  exp1 + 2. * k_2 * exp2); //T, U
+				case 0 : return r_2/4. * (- _exp1);                    //A
+				case 1 : return r_2/4. * (  _exp1 - 2. * k_2 * _exp2); //C
+				case 2 : return r_2/4. * (- _exp1);                    //G
+				case 3 : return r_2/4. * (  _exp1 + 2. * k_2 * _exp2); //T, U
 			}
 		}
 	}
@@ -296,113 +288,101 @@ double K80::d2Pij_dt2(int i, int j, double d) const
 
 RowMatrix<double> K80::getPij_t(double d) const
 {
-	RowMatrix<double> p(_size, _size);
-	double kappa = _parameters.getParameter("kappa") -> getValue();
-	double k = (kappa + 1.) / 2.;
-	double r = 4. / (kappa + 2.);
-	double l = r * d;
-	double exp1 = exp(-l);
-	double exp2 = exp(-k * l);
+	_l = _r * d;
+	_exp1 = exp(-_l);
+	_exp2 = exp(-_k * _l);
 
 	//A
-	p(0, 0) = 0.25 * (1. + exp1) + 0.5 * exp2; //A
-	p(0, 1) = 0.25 * (1. - exp1);              //C
-	p(0, 2) = 0.25 * (1. + exp1) - 0.5 * exp2; //G
-	p(0, 3) = 0.25 * (1. - exp1);              //T, U
+	_p(0, 0) = 0.25 * (1. + _exp1) + 0.5 * _exp2; //A
+	_p(0, 1) = 0.25 * (1. - _exp1);               //C
+	_p(0, 2) = 0.25 * (1. + _exp1) - 0.5 * _exp2; //G
+	_p(0, 3) = 0.25 * (1. - _exp1);               //T, U
 
 	//C
-	p(1, 0) = 0.25 * (1. - exp1);              //A
-	p(1, 1) = 0.25 * (1. + exp1) + 0.5 * exp2; //C
-	p(1, 2) = 0.25 * (1. - exp1);              //G
-	p(1, 3) = 0.25 * (1. + exp1) - 0.5 * exp2; //T, U
+	_p(1, 0) = 0.25 * (1. - _exp1);               //A
+	_p(1, 1) = 0.25 * (1. + _exp1) + 0.5 * _exp2; //C
+	_p(1, 2) = 0.25 * (1. - _exp1);               //G
+	_p(1, 3) = 0.25 * (1. + _exp1) - 0.5 * _exp2; //T, U
 
 	//G
-	p(2, 0) = 0.25 * (1. + exp1) - 0.5 * exp2; //A
-	p(2, 1) = 0.25 * (1. - exp1);              //C
-	p(2, 2) = 0.25 * (1. + exp1) + 0.5 * exp2; //G
-	p(2, 3) = 0.25 * (1. - exp1);              //T, U
+	_p(2, 0) = 0.25 * (1. + _exp1) - 0.5 * _exp2; //A
+	_p(2, 1) = 0.25 * (1. - _exp1);               //C
+	_p(2, 2) = 0.25 * (1. + _exp1) + 0.5 * _exp2; //G
+	_p(2, 3) = 0.25 * (1. - _exp1);               //T, U
 
 	//T, U
-	p(3, 0) = 0.25 * (1. - exp1);              //A
-	p(3, 1) = 0.25 * (1. + exp1) - 0.5 * exp2; //C
-	p(3, 2) = 0.25 * (1. - exp1);              //G
-	p(3, 3) = 0.25 * (1. + exp1) + 0.5 * exp2; //T, U
+	_p(3, 0) = 0.25 * (1. - _exp1);               //A
+	_p(3, 1) = 0.25 * (1. + _exp1) - 0.5 * _exp2; //C
+	_p(3, 2) = 0.25 * (1. - _exp1);               //G
+	_p(3, 3) = 0.25 * (1. + _exp1) + 0.5 * _exp2; //T, U
 
-	return p;
+	return _p;
 }
 
 RowMatrix<double> K80::getdPij_dt(double d) const
 {
-	RowMatrix<double> p(_size, _size);
-	double kappa = _parameters.getParameter("kappa") -> getValue();
-	double k = (kappa + 1.) / 2.;
-	double r = 4. / (kappa + 2.);
-	double l = r * d;
-	double exp1 = exp(-l);
-	double exp2 = exp(-k * l);
+	_l = _r * d;
+	_exp1 = exp(-_l);
+	_exp2 = exp(-_k * _l);
 
-	p(0, 0) = r/4. * (- exp1 - 2. * k * exp2); //A
-	p(0, 1) = r/4. * (  exp1);                 //C
-	p(0, 2) = r/4. * (- exp1 + 2. * k * exp2); //G
-	p(0, 3) = r/4. * (  exp1);                 //T, U
+	_p(0, 0) = _r/4. * (- _exp1 - 2. * _k * _exp2); //A
+	_p(0, 1) = _r/4. * (  _exp1);                   //C
+	_p(0, 2) = _r/4. * (- _exp1 + 2. * _k * _exp2); //G
+	_p(0, 3) = _r/4. * (  _exp1);                   //T, U
 
 	//C
-	p(1, 0) = r/4. * (  exp1);                 //A
-	p(1, 1) = r/4. * (- exp1 - 2. * k * exp2); //C
-	p(1, 2) = r/4. * (  exp1);                 //G
-	p(1, 3) = r/4. * (- exp1 + 2. * k * exp2); //T, U
+	_p(1, 0) = _r/4. * (  _exp1);                   //A
+	_p(1, 1) = _r/4. * (- _exp1 - 2. * _k * _exp2); //C
+	_p(1, 2) = _r/4. * (  _exp1);                   //G
+	_p(1, 3) = _r/4. * (- _exp1 + 2. * _k * _exp2); //T, U
 
 	//G
-	p(2, 0) = r/4. * (- exp1 + 2. * k * exp2); //A
-	p(2, 1) = r/4. * (  exp1);                 //C
-	p(2, 2) = r/4. * (- exp1 - 2. * k * exp2); //G
-	p(2, 3) = r/4. * (  exp1);                 //T, U
+	_p(2, 0) = _r/4. * (- _exp1 + 2. * _k * _exp2); //A
+	_p(2, 1) = _r/4. * (  _exp1);                   //C
+	_p(2, 2) = _r/4. * (- _exp1 - 2. * _k * _exp2); //G
+	_p(2, 3) = _r/4. * (  _exp1);                   //T, U
 
 	//T, U
-	p(3, 0) = r/4. * (  exp1);                 //A
-	p(3, 1) = r/4. * (- exp1 + 2. * k * exp2); //C
-	p(3, 2) = r/4. * (  exp1);                 //G
-	p(3, 3) = r/4. * (- exp1 - 2. * k * exp2); //T, U
+	_p(3, 0) = _r/4. * (  _exp1);                   //A
+	_p(3, 1) = _r/4. * (- _exp1 + 2. * _k * _exp2); //C
+	_p(3, 2) = _r/4. * (  _exp1);                   //G
+	_p(3, 3) = _r/4. * (- _exp1 - 2. * _k * _exp2); //T, U
 
-	return p;
+	return _p;
 }
 
 RowMatrix<double> K80::getd2Pij_dt2(double d) const
 {
-	RowMatrix<double> p(_size, _size);
-	double kappa = _parameters.getParameter("kappa") -> getValue();
-	double k = (kappa + 1.) / 2.;
-	double k_2 = k * k;
-	double r = 4. / (kappa + 2.);
-	double r_2 = r * r;
-	double l = r * d;
-	double exp1 = exp(-l);
-	double exp2 = exp(-k * l);
+	double k_2 = _k * _k;
+	double r_2 = _r * _r;
+	_l = _r * d;
+	_exp1 = exp(-_l);
+	_exp2 = exp(-_k * _l);
 
-	p(0, 0) = r_2/4. * (  exp1 + 2. * k_2 * exp2); //A
-	p(0, 1) = r_2/4. * (- exp1);                   //C
-	p(0, 2) = r_2/4. * (  exp1 - 2. * k_2 * exp2); //G
-	p(0, 3) = r_2/4. * (- exp1);                   //T, U
+	_p(0, 0) = r_2/4. * (  _exp1 + 2. * k_2 * _exp2); //A
+	_p(0, 1) = r_2/4. * (- _exp1);                    //C
+	_p(0, 2) = r_2/4. * (  _exp1 - 2. * k_2 * _exp2); //G
+	_p(0, 3) = r_2/4. * (- _exp1);                    //T, U
 
 	//C
-	p(1, 0) = r_2/4. * (- exp1);                   //A
-	p(1, 1) = r_2/4. * (  exp1 + 2. * k_2 * exp2); //C
-	p(1, 2) = r_2/4. * (- exp1);                   //G
-	p(1, 3) = r_2/4. * (  exp1 - 2. * k_2 * exp2); //T, U
+	_p(1, 0) = r_2/4. * (- _exp1);                    //A
+	_p(1, 1) = r_2/4. * (  _exp1 + 2. * k_2 * _exp2); //C
+	_p(1, 2) = r_2/4. * (- _exp1);                    //G
+	_p(1, 3) = r_2/4. * (  _exp1 - 2. * k_2 * _exp2); //T, U
 
 	//G
-	p(2, 0) = r_2/4. * (  exp1 - 2. * k_2 * exp2); //A
-	p(2, 1) = r_2/4. * (- exp1);                   //C
-	p(2, 2) = r_2/4. * (  exp1 + 2. * k_2 * exp2); //G
-	p(2, 3) = r_2/4. * (- exp1);                   //T, U
+	_p(2, 0) = r_2/4. * (  _exp1 - 2. * k_2 * _exp2); //A
+	_p(2, 1) = r_2/4. * (- _exp1);                    //C
+	_p(2, 2) = r_2/4. * (  _exp1 + 2. * k_2 * _exp2); //G
+	_p(2, 3) = r_2/4. * (- _exp1);                    //T, U
 
 	//T, U
-	p(3, 0) = r_2/4. * (- exp1);                   //A
-	p(3, 1) = r_2/4. * (  exp1 - 2. * k_2 * exp2); //C
-	p(3, 2) = r_2/4. * (- exp1);                   //G
-	p(3, 3) = r_2/4. * (  exp1 + 2. * k_2 * exp2); //T, U
+	_p(3, 0) = r_2/4. * (- _exp1);                    //A
+	_p(3, 1) = r_2/4. * (  _exp1 - 2. * k_2 * _exp2); //C
+	_p(3, 2) = r_2/4. * (- _exp1);                    //G
+	_p(3, 3) = r_2/4. * (  _exp1 + 2. * k_2 * _exp2); //T, U
 
-	return p;
+	return _p;
 }
 
 /******************************************************************************/

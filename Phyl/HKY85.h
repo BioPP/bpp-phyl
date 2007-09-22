@@ -161,7 +161,9 @@ class HKY85:
 {
 	protected:
 		Constraint * piConstraint;
-		double kappa, r, exp1, exp2, exp3;
+		double _kappa, _k1, _k2, _r, _piA, _piC, _piG, _piT, _piY, _piR;
+    mutable double _exp1, _exp21, _exp22, _l;
+    mutable RowMatrix<double> _p;
 
 	public:
 		HKY85(

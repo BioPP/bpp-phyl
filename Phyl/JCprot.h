@@ -126,6 +126,10 @@ knowledge of the CeCILL license and that you accept its terms.
 class JCprot:
   public ProteinSubstitutionModel
 {
+  protected:
+    mutable double _exp;
+    mutable RowMatrix<double> _p;
+
 	public:
 		JCprot(const ProteicAlphabet * alpha);
 

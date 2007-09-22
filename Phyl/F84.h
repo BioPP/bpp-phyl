@@ -49,7 +49,7 @@ knowledge of the CeCILL license and that you accept its terms.
 #include <Seq/NucleicAlphabet.h>
 
 /**
- * @brief The Hasegawa M, Kishino H and Yano T (1985) substitution model for nucleotides.
+ * @brief The Felsenstein (1984) substitution model for nucleotides.
  *
  * This model is similar to the HKY85 model, with a different parametrization.
  * \f[
@@ -156,7 +156,9 @@ class F84:
 {
 	protected:
 		Constraint * piConstraint;
-		double kappa, r, exp1, exp2, exp3;
+    double _kappa, _piA, _piC, _piG, _piT, _piY, _piR, _r, _k1, _k2;
+    mutable double _l, _exp1, _exp2;
+    mutable RowMatrix<double> _p;
 
 	public:
 		F84(

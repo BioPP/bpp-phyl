@@ -1,3 +1,11 @@
+21/09/07 Julien Dutheil
+* OptimizationTools::buildDistanceTree improved: iterative algorithm stops
+  when topological distance equals 0 instead of checking likelihoods.
+* PhylogeneticsApplicationTools now supports several NNI algorithms.
+* Bug fixed in SubstitutionModels! Frequencies parameters are now updated
+  correctly!
+* Analytical substitution models now save more calculations and declarations.
+
 19/09/07 Bastien Boussau & Julien Dutheil
 * New NonHomogeneousSequenceSimulator class, which replaces
   HomogeneousSequenceSimulator. An alias for backward compatibility is provided.
@@ -29,7 +37,7 @@
   a last step.
 
 12/05/07 Julien Dutheil
-* DistanceMtrix class is now in library seqlib.
+* DistanceMatrix class is now in library seqlib.
 
 05/05/07 Julien Dutheil
 * Add support for multi-trees I/O.

@@ -48,9 +48,7 @@ JCprot::JCprot(const ProteicAlphabet * alpha) :
   ProteinSubstitutionModel(alpha)
 {
 	_parameters = ParameterList(); //no parameters for this model.	
-	
-	// Frequencies:
-	for(unsigned int i = 0; i < 20; i++) _freq[i] = 1. / 20.;	
+	_p.resize(_size, _size);
 	updateMatrices();
 }
 
@@ -58,9 +56,14 @@ JCprot::JCprot(const ProteicAlphabet * alpha) :
 	
 void JCprot::updateMatrices()
 {
+	// Frequencies:
+	for(unsigned int i = 0; i < 20; i++) _freq[i] = 1. / 20.;
+
 	// Generator:
-	for(unsigned int i = 0; i < 20; i++) {
-		for(unsigned int j = 0; j < 20; j++) {
+	for(unsigned int i = 0; i < 20; i++)
+  {
+		for(unsigned int j = 0; j < 20; j++)
+    {
 			_generator(i, j) = (i == j) ? -1. : 1./19.;
 			_exchangeability(i, j) = _generator(i, j) * 20.;
 		}
@@ -114,35 +117,41 @@ double JCprot::d2Pij_dt2(int i, int j, double d) const
 
 RowMatrix<double> JCprot::getPij_t(double d) const
 {
-	RowMatrix<double> p(_size, _size);
-	for(unsigned int i = 0; i < _size; i++) {
-		for(unsigned int j = 0; j < _size; j++) {
-			p(i,j) = (i==j) ? 1./20. + 19./20. * exp(- 20./19. * d) : 1./20. - 1./20. * exp(- 20./19. * d);
+  _exp = exp(- 20./19. * d);
+	for(unsigned int i = 0; i < _size; i++)
+  {
+		for(unsigned int j = 0; j < _size; j++)
+    {
+			_p(i,j) = (i==j) ? 1./20. + 19./20. * _exp : 1./20. - 1./20. * _exp;
 		}
 	}
-	return p;
+	return _p;
 }
 
 RowMatrix<double> JCprot::getdPij_dt(double d) const
 {
-	RowMatrix<double> p(_size, _size);
-	for(unsigned int i = 0; i < _size; i++) {
-		for(unsigned int j = 0; j < _size; j++) {
-			p(i,j) = (i==j) ? - exp(- 20./19. * d) : 1./19. * exp(- 20./19. * d);
+  _exp = exp(- 20./19. * d);
+	for(unsigned int i = 0; i < _size; i++)
+  {
+		for(unsigned int j = 0; j < _size; j++)
+    {
+			_p(i,j) = (i==j) ? - _exp : 1./19. * _exp;
 		}
 	}
-	return p;
+	return _p;
 }
 
 RowMatrix<double> JCprot::getd2Pij_dt2(double d) const
 {
-	RowMatrix<double> p(_size, _size);
-	for(unsigned int i = 0; i < _size; i++) {
-		for(unsigned int j = 0; j < _size; j++) {
-			p(i,j) = (i==j) ? 20./19. * exp(- 20./19. * d) : - 20./361. * exp(- 20./19. * d);
+  _exp = exp(- 20./19. * d);
+	for(unsigned int i = 0; i < _size; i++)
+  {
+		for(unsigned int j = 0; j < _size; j++)
+    {
+			_p(i,j) = (i==j) ? 20./19. * _exp : - 20./361. * _exp;
 		}
 	}
-	return p;
+	return _p;
 }
 
 /******************************************************************************/
