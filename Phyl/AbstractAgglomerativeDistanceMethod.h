@@ -65,10 +65,11 @@ class AbstractAgglomerativeDistanceMethod:
 		Tree * _tree;
 
  		map<unsigned int, Node *> _currentNodes;
+    bool _verbose;
 	
 	public:
-		AbstractAgglomerativeDistanceMethod(): _matrix(0), _tree(NULL), _currentNodes() {}
-		AbstractAgglomerativeDistanceMethod(const DistanceMatrix & matrix): _matrix(0), _tree(NULL), _currentNodes()
+		AbstractAgglomerativeDistanceMethod(): _matrix(0), _tree(NULL), _currentNodes(), _verbose(true) {}
+		AbstractAgglomerativeDistanceMethod(const DistanceMatrix & matrix, bool verbose = true): _matrix(0), _tree(NULL), _currentNodes(), _verbose(verbose)
     {
       setDistanceMatrix(matrix);
     }
@@ -126,7 +127,9 @@ class AbstractAgglomerativeDistanceMethod:
      * @param rooted Tell if the final tree must be rooted or not.
      */
 		virtual void computeTree(bool rooted) throw (Exception);
-	
+
+    void setVerbose(bool yn) { _verbose = yn; }
+    bool isVerbose() const { return _verbose; }
 
 	protected:
     /**

@@ -51,6 +51,10 @@ knowledge of the CeCILL license and that you accept its terms.
 
 /******************************************************************************/
 
+IncludingInterval TN93::PI_CONSTRAINT(0, 1);
+
+/******************************************************************************/
+
 TN93::TN93(
 	const NucleicAlphabet * alpha,
 	double kappa1,
@@ -62,21 +66,16 @@ TN93::TN93(
 	//AbstractSubstitutionModel(alpha),
 	NucleotideSubstitutionModel(alpha)
 {
-	piConstraint = new IncludingInterval(0, 1);
 	_parameters.addParameter(Parameter("kappa1", kappa1, &Parameter::R_PLUS));
 	_parameters.addParameter(Parameter("kappa2", kappa2, &Parameter::R_PLUS));
-	_parameters.addParameter(Parameter("piA", piA, piConstraint));
-	_parameters.addParameter(Parameter("piC", piC, piConstraint));
-	_parameters.addParameter(Parameter("piG", piG, piConstraint));
-	_parameters.addParameter(Parameter("piT", piT, piConstraint));
+	_parameters.addParameter(Parameter("piA", piA, &PI_CONSTRAINT));
+	_parameters.addParameter(Parameter("piC", piC, &PI_CONSTRAINT));
+	_parameters.addParameter(Parameter("piG", piG, &PI_CONSTRAINT));
+	_parameters.addParameter(Parameter("piT", piT, &PI_CONSTRAINT));
   _p.resize(_size, _size);
 	updateMatrices();
 }
 
-/******************************************************************************/
-
-TN93::~TN93() { delete piConstraint; }
-	
 /******************************************************************************/
 
 void TN93::updateMatrices()

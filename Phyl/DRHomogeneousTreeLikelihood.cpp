@@ -331,7 +331,7 @@ void DRHomogeneousTreeLikelihood::computeTreeDLikelihoodAtNode(const Node * node
           denominator += (*  _pxy_node_c_x)[y] * (* _likelihoods_father_node_i_c)[y];
         }
         dLicx = (* larray_i_c)[x] * numerator / denominator;
-        dLic += _model->freq(x) * dLicx;  
+        dLic += _rootFreqs[x] * dLicx;  
       }
       dLi += _rateDistribution->getProbability(c) * dLic;
     }
@@ -419,7 +419,7 @@ void DRHomogeneousTreeLikelihood::computeTreeD2LikelihoodAtNode(const Node * nod
           denominator += (*   _pxy_node_c_x)[y] * (* _likelihoods_father_node_i_c)[y];
         }
         d2Licx = (* larray_i_c)[x] * numerator / denominator;
-        d2Lic += _model->freq(x) * d2Licx;
+        d2Lic += _rootFreqs[x] * d2Licx;
       }
       d2Li += _rateDistribution->getProbability(c) * d2Lic;
     }
@@ -681,7 +681,6 @@ void DRHomogeneousTreeLikelihood::computeRootLikelihood()
   }
   computeLikelihoodFromArrays(iLik, tProb, *rootLikelihoods, nbNodes, _nbDistinctSites, _nbClasses, _nbStates, false);
 
-  Vdouble f = _model->getFrequencies();
   Vdouble p = _rateDistribution->getProbabilities();
   VVdouble * rootLikelihoodsS  = & _likelihoodData->getRootSiteLikelihoodArray();
   Vdouble  * rootLikelihoodsSR = & _likelihoodData->getRootRateSiteLikelihoodArray();
@@ -700,7 +699,7 @@ void DRHomogeneousTreeLikelihood::computeRootLikelihood()
       for(unsigned int x = 0; x < _nbStates; x++)
       {
         //For each initial state,
-        (* rootLikelihoodsS_i_c) += f[x] * (* rootLikelihoods_i_c)[x];
+        (* rootLikelihoodsS_i_c) += _rootFreqs[x] * (* rootLikelihoods_i_c)[x];
         //cout << i << "\t" << c << "\t" << x << "\t" << f[x] << "\t" << (* rootLikelihoods_i_c)[x] << endl;
       }
       (* rootLikelihoodsSR)[i] += p[c] * (* rootLikelihoodsS_i)[c];

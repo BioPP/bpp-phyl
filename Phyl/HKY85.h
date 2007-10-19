@@ -160,10 +160,12 @@ class HKY85:
   public NucleotideSubstitutionModel
 {
 	protected:
-		Constraint * piConstraint;
 		double _kappa, _k1, _k2, _r, _piA, _piC, _piG, _piT, _piY, _piR;
     mutable double _exp1, _exp21, _exp22, _l;
     mutable RowMatrix<double> _p;
+
+  public:
+    static IncludingInterval PI_CONSTRAINT;
 
 	public:
 		HKY85(
@@ -174,7 +176,7 @@ class HKY85:
 			double piG = 0.25,
 			double piT = 0.25);
 	
-		virtual ~HKY85();
+		virtual ~HKY85() {}
 
     HKY85 * clone() const { return new HKY85(*this); }
 

@@ -45,7 +45,9 @@ knowledge of the CeCILL license and that you accept its terms.
 /**
  * @brief Distance matrix I/O in Phylip format.
  */
-class PhylipDistanceMatrixFormat: public virtual AbstractIDistanceMatrix, public virtual AbstractODistanceMatrix
+class PhylipDistanceMatrixFormat:
+  public virtual AbstractIDistanceMatrix,
+  public virtual AbstractODistanceMatrix
 {
 	public:
 		PhylipDistanceMatrixFormat() {}

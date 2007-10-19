@@ -50,6 +50,10 @@ knowledge of the CeCILL license and that you accept its terms.
 
 /******************************************************************************/
 
+IncludingInterval HKY85::PI_CONSTRAINT(0, 1);
+
+/******************************************************************************/
+
 HKY85::HKY85(
 	const NucleicAlphabet * alpha,
 	double kappa,
@@ -57,22 +61,16 @@ HKY85::HKY85(
 	double piC,
 	double piG,
 	double piT):
-	//AbstractSubstitutionModel(alpha),
 	NucleotideSubstitutionModel(alpha)
 {
-	piConstraint = new IncludingInterval(0, 1);
 	_parameters.addParameter(Parameter("kappa", kappa, &Parameter::R_PLUS));
-	_parameters.addParameter(Parameter("piA", piA, piConstraint));
-	_parameters.addParameter(Parameter("piC", piC, piConstraint));
-	_parameters.addParameter(Parameter("piG", piG, piConstraint));
-	_parameters.addParameter(Parameter("piT", piT, piConstraint));
+	_parameters.addParameter(Parameter("piA", piA, &PI_CONSTRAINT));
+	_parameters.addParameter(Parameter("piC", piC, &PI_CONSTRAINT));
+	_parameters.addParameter(Parameter("piG", piG, &PI_CONSTRAINT));
+	_parameters.addParameter(Parameter("piT", piT, &PI_CONSTRAINT));
 	updateMatrices();
 }
 
-/******************************************************************************/
-
-HKY85::~HKY85() { delete piConstraint; }
-	
 /******************************************************************************/
 
 void HKY85::updateMatrices()

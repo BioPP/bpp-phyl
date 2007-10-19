@@ -1,7 +1,8 @@
 //
-// File: AbstractHomogeneousTreeLikelihood.h
+// File: AbstractNonHomogeneousTreeLikelihood.h
 // Created by: Julien Dutheil
-// Created on: Thr Dec 23 12:03 2004
+// Created on: Tue Oct 09 16:07 2007
+// From file: AbstractHomogeneousTreeLikelihood.h
 //
 
 /*
@@ -37,23 +38,23 @@ The fact that you are presently reading this means that you have had
 knowledge of the CeCILL license and that you accept its terms.
 */
 
-#ifndef _ABSTRACTHOMOGENEOUSTREELIKELIHOOD_H_
-#define _ABSTRACTHOMOGENEOUSTREELIKELIHOOD_H_
+#ifndef _ABSTRACTNONHOMOGENEOUSTREELIKELIHOOD_H_
+#define _ABSTRACTNONHOMOGENEOUSTREELIKELIHOOD_H_
 
+#include "NonHomogeneousTreeLikelihood.h"
 #include "AbstractDiscreteRatesAcrossSitesTreeLikelihood.h"
-#include "HomogeneousTreeLikelihood.h"
 
 /**
- * @brief Partial implementation for homogeneous model of the TreeLikelihood interface.
+ * @brief Partial implementation for non-homogeneous models of the TreeLikelihood interface.
  *
  * This class provides a pointer toward a single substitution model + several utilitary variables.
  */
-class AbstractHomogeneousTreeLikelihood:
-  public virtual HomogeneousTreeLikelihood,
+class AbstractNonHomogeneousTreeLikelihood:
+  public virtual NonHomogeneousTreeLikelihood,
   public AbstractDiscreteRatesAcrossSitesTreeLikelihood
 {
 	protected:
-		SubstitutionModel * _model;
+		SubstitutionModelSet * _modelSet;
 		ParameterList _brLenParameters;
 		
 		mutable map<int, VVVdouble> _pxy;
@@ -61,7 +62,7 @@ class AbstractHomogeneousTreeLikelihood:
 		mutable map<int, VVVdouble> _dpxy;
 
 		mutable map<int, VVVdouble> _d2pxy;
-
+				
     vector<double> _rootFreqs;
 				
 		/**
@@ -83,12 +84,14 @@ class AbstractHomogeneousTreeLikelihood:
     double _minimumBrLen;
     Constraint * _brLenConstraint;
 
+    int _root1, _root2;
+
 	public:
-		AbstractHomogeneousTreeLikelihood(
+		AbstractNonHomogeneousTreeLikelihood(
 			const Tree & tree,
-			SubstitutionModel * model,
+			SubstitutionModelSet * modelSet,
 			DiscreteDistribution * rDist,
-      bool checkRooted = true,
+      bool checkUnrooted = true,
 			bool verbose = true)
       throw (Exception);
 
@@ -97,16 +100,16 @@ class AbstractHomogeneousTreeLikelihood:
      *
      * This constructor is to be called by the derived class copy constructor.
      */
-    AbstractHomogeneousTreeLikelihood(const AbstractHomogeneousTreeLikelihood & lik);
+    AbstractNonHomogeneousTreeLikelihood(const AbstractNonHomogeneousTreeLikelihood & lik);
     
     /**
      * @brief Assignation operator
      *
      * This operator is to be called by the derived class operator.
      */
-    AbstractHomogeneousTreeLikelihood & operator=(const AbstractHomogeneousTreeLikelihood & lik);
+    AbstractNonHomogeneousTreeLikelihood & operator=(const AbstractNonHomogeneousTreeLikelihood & lik);
  
-		virtual ~AbstractHomogeneousTreeLikelihood();
+		virtual ~AbstractNonHomogeneousTreeLikelihood();
 		
 	private:
 
@@ -114,9 +117,9 @@ class AbstractHomogeneousTreeLikelihood:
      * @brief Method called by constructor.
      */
     void _init(const Tree & tree,
-			SubstitutionModel * model,
+			SubstitutionModelSet * modelSet,
 			DiscreteDistribution * rDist,
-      bool checkRooted,
+      bool checkUnrooted,
 			bool verbose) throw (Exception);
 
 	public:
@@ -138,15 +141,20 @@ class AbstractHomogeneousTreeLikelihood:
     /** @} */
 
 		/**
-		 * @name The HomogeneousTreeLikelihood interface.
+		 * @name The NonHomogeneousTreeLikelihood interface.
 		 *
 		 * Other methods are implemented in the AbstractTreeLikelihood class.
 		 *
 		 * @{
 		 */
-		const SubstitutionModel * getSubstitutionModel() const { return _model; }
+		const SubstitutionModelSet * getSubstitutionModelSet() const { return _modelSet; }
 		
-		SubstitutionModel * getSubstitutionModel() { return _model; }
+		SubstitutionModelSet * getSubstitutionModelSet() { return _modelSet; }
+
+    ParameterList getRootFrequenciesParameters() const
+    {
+      return _modelSet->getRootFrequenciesParameters();
+    }
     /** @} */
 		
 	public: //Specific methods:
@@ -188,5 +196,5 @@ class AbstractHomogeneousTreeLikelihood:
 
 };
 
-#endif //_ABSTRACTHOMOGENEOUSTREELIKELIHOOD_H_
+#endif //_ABSTRACTNONHOMOGENEOUSTREELIKELIHOOD_H_
 

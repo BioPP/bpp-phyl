@@ -93,3 +93,11 @@ VVdouble AbstractTreeLikelihood::getLogLikelihoodForEachSiteForEachState() const
 
 /******************************************************************************/
 
+void AbstractTreeLikelihood::ignoreParameter(const string & name)
+  throw (ParameterNotFoundException)
+{
+  _parameters.deleteParameter(name);
+}
+
+/******************************************************************************/
+

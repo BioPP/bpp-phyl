@@ -1,3 +1,21 @@
+10/10/07 Bastien Boussau & Julien Dutheil
+* New class NonHomogeneousTreeLikelihood, which deal with non-homogeneous
+  models of sequence evolution (fixed topology).
+* SubstitutionModels parameters are now cloned propoerly (no more Constraint issue).
+* ClockTreeLikelihood has been chaged to HomogeneousClockLikelihood, and a
+  NonHomogeneousClockTreeLikelihood was created. The ClockTreeLikelihood is
+	now a common (empty) interface for both, which a specialisation of
+	TreeLikelihood.
+* NewtonBrentMetaOptimizer becomes MetaOptimizer, is more general, and was
+  moved to NumCalc.
+
+05/10/07 Julien Dutheil
+* New PhylogeneticApplicationTools (more general) method to instanciate substitution models.
+* New method PhylogeneticsApplicationTools::getSubstitutionModelSet.
+
+28/09/07 Julien Dutheil
+* New verbose option in distance methods.
+
 21/09/07 Julien Dutheil
 * OptimizationTools::buildDistanceTree improved: iterative algorithm stops
   when topological distance equals 0 instead of checking likelihoods.
@@ -5,6 +23,7 @@
 * Bug fixed in SubstitutionModels! Frequencies parameters are now updated
   correctly!
 * Analytical substitution models now save more calculations and declarations.
+* New midpoint rooting method in TreeTools.
 
 19/09/07 Bastien Boussau & Julien Dutheil
 * New NonHomogeneousSequenceSimulator class, which replaces

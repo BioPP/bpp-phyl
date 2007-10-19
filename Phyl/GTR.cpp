@@ -50,6 +50,10 @@ knowledge of the CeCILL license and that you accept its terms.
 
 /******************************************************************************/
 
+IncludingInterval GTR::PI_CONSTRAINT(0, 1);
+
+/******************************************************************************/
+
 GTR::GTR(
 	const NucleicAlphabet * alpha,
 	double a,
@@ -63,22 +67,17 @@ GTR::GTR(
 	double piT):
 	NucleotideSubstitutionModel(alpha)
 {
-	piConstraint = new IncludingInterval(0, 1);
 	_parameters.addParameter(Parameter("a", a, &Parameter::R_PLUS));
 	_parameters.addParameter(Parameter("b", b, &Parameter::R_PLUS));
 	_parameters.addParameter(Parameter("c", c, &Parameter::R_PLUS));
 	_parameters.addParameter(Parameter("d", d, &Parameter::R_PLUS));
 	_parameters.addParameter(Parameter("e", e, &Parameter::R_PLUS));
-	_parameters.addParameter(Parameter("piA", piA, piConstraint));
-	_parameters.addParameter(Parameter("piC", piC, piConstraint));
-	_parameters.addParameter(Parameter("piG", piG, piConstraint));
-	_parameters.addParameter(Parameter("piT", piT, piConstraint));
+	_parameters.addParameter(Parameter("piA", piA, &PI_CONSTRAINT));
+	_parameters.addParameter(Parameter("piC", piC, &PI_CONSTRAINT));
+	_parameters.addParameter(Parameter("piG", piG, &PI_CONSTRAINT));
+	_parameters.addParameter(Parameter("piT", piT, &PI_CONSTRAINT));
 	updateMatrices();
 }
-
-/******************************************************************************/
-
-GTR::~GTR() { delete piConstraint; }
 
 /******************************************************************************/
 	

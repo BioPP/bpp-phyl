@@ -155,10 +155,12 @@ class F84:
   public NucleotideSubstitutionModel
 {
 	protected:
-		Constraint * piConstraint;
     double _kappa, _piA, _piC, _piG, _piT, _piY, _piR, _r, _k1, _k2;
     mutable double _l, _exp1, _exp2;
     mutable RowMatrix<double> _p;
+
+  public:
+    static IncludingInterval PI_CONSTRAINT;
 
 	public:
 		F84(
@@ -169,7 +171,7 @@ class F84:
 			double piG = 0.25,
 			double piT = 0.25);
 	
-		virtual ~F84();
+		virtual ~F84() {}
 
     F84 * clone() const { return new F84(*this); }
 

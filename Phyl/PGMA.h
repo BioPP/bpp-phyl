@@ -67,7 +67,8 @@ class PGMA:
 	public:
 		PGMA(bool weighted = true): _weighted(weighted) {}
 
-		PGMA(const DistanceMatrix & matrix, bool weighted = true) throw (Exception): AbstractAgglomerativeDistanceMethod(matrix), _weighted(weighted)
+		PGMA(const DistanceMatrix & matrix, bool weighted = true, bool verbose = true) throw (Exception):
+      AbstractAgglomerativeDistanceMethod(matrix, verbose), _weighted(weighted)
 		{
 			computeTree(true);
 		}

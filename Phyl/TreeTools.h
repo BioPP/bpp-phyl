@@ -355,7 +355,6 @@ class TreeTools
      */
     static double convertToClockTree2(Tree & tree, int nodeId) throw (NodeNotFoundException,NodeException);
  
-  public:
     /**
      * @brief Get the total distance between two nodes.
      *
@@ -381,7 +380,17 @@ class TreeTools
      * @param tree The tree to use.
      * @return The distance matrix computed from tree.
      */
-    static DistanceMatrix * getDistanceMatrix(const Tree & tree); 
+    static DistanceMatrix * getDistanceMatrix(const Tree & tree);
+
+    /**
+     * @brief (Re)root the tree using the midpoint method.
+     *
+     * This methods compute the pairwise distance matrix from the tree and get the maximum distance.
+     * The root is then set on the branch located at half this distance.
+     *
+     * @param tree The tree to (re)root.
+     */
+    static void midpointRooting(Tree & tree);
     /** @} */
 
     /**

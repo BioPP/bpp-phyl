@@ -305,7 +305,7 @@ class SubstitutionModel:
  * The \f$S\f$ matrix may be obtained by the getExchangeabilityMatrix().
  */
 class ReversibleSubstitutionModel:
-  public SubstitutionModel
+  public virtual SubstitutionModel
 {
   public:
 		ReversibleSubstitutionModel() {}

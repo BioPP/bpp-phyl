@@ -43,7 +43,11 @@ knowledge of the CeCILL license and that you accept its terms.
 #include "OptimizationTools.h"
 #include "Tree.h"
 #include "Newick.h"
-#include "HomogeneousTreeLikelihood.h"
+#include "RHomogeneousTreeLikelihood.h"
+#include "RNonHomogeneousTreeLikelihood.h"
+#include "DRHomogeneousTreeLikelihood.h"
+#include "NNIHomogeneousTreeLikelihood.h"
+#include "RHomogeneousClockTreeLikelihood.h"
 
 // From Utils:
 #include <Utils/FileTools.h>
@@ -55,6 +59,10 @@ knowledge of the CeCILL license and that you accept its terms.
 #include <NumCalc/ConstantDistribution.h>
 #include <NumCalc/GammaDiscreteDistribution.h>
 #include <NumCalc/optimizers>
+
+// From SeqLib:
+#include <Seq/AlphabetTools.h>
+#include <Seq/SequenceContainerTools.h>
 
 // From the STL:
 #include <fstream>
@@ -90,206 +98,60 @@ void PhylogeneticsApplicationTools::printInputTreeHelp()
 
 /******************************************************************************/
 
-SubstitutionModel * PhylogeneticsApplicationTools::getSubstitutionModel(
+SubstitutionModel * PhylogeneticsApplicationTools::getSubstitutionModelDefaultInstance(
   const Alphabet * alphabet,
   const SiteContainer * data,
   map<string, string> & params,
+  const string & prefix,
   const string & suffix,
   bool suffixIsOptional,
   bool verbose) throw (Exception)
 {
   SubstitutionModel * model = NULL;
+  string covarionName = "none";
 
-  if(alphabet->getAlphabetType() == "DNA alphabet"
-  || alphabet->getAlphabetType() == "RNA alphabet")
+  if(AlphabetTools::isNucleicAlphabet(alphabet))
   {
     string modelName = ApplicationTools::getStringParameter("model", params, "JCnuc", suffix, suffixIsOptional);
+    if(modelName.find("+") != string::npos)
+    {
+      StringTokenizer st(modelName, "+");
+      modelName = st.nextToken();
+      covarionName = st.nextToken();
+    }
     const NucleicAlphabet * alpha = dynamic_cast<const NucleicAlphabet *>(alphabet);
-    if(verbose) ApplicationTools::displayResult("Substitution model", modelName);
+    bool useObsFreq = ApplicationTools::getBooleanParameter(prefix + "use_observed_freq", params, false, suffix, suffixIsOptional);
+    
+    if(verbose) ApplicationTools::displayResult("Substitution model" + suffix, modelName);
 
     if(modelName == "GTR")
     {
-      double piA = 0.25, piC = 0.25, piG = 0.25, piT = 0.25;
-      double a = ApplicationTools::getDoubleParameter("a", params, 1, suffix, suffixIsOptional);
-      double b = ApplicationTools::getDoubleParameter("b", params, 1, suffix, suffixIsOptional);
-      double c = ApplicationTools::getDoubleParameter("c", params, 1, suffix, suffixIsOptional);
-      double d = ApplicationTools::getDoubleParameter("d", params, 1, suffix, suffixIsOptional);
-      double e = ApplicationTools::getDoubleParameter("e", params, 1, suffix, suffixIsOptional);
-      bool useObsFreq = ApplicationTools::getBooleanParameter("model.use_observed_freq", params, false, suffix, suffixIsOptional);
-      if(useObsFreq && data != NULL)
-      {
-        model = new GTR(alpha, a, b, c, d, e);
-        dynamic_cast<GTR *>(model)->setFreqFromData(*data);
-        piA = model->getParameterValue("piA");
-        piC = model->getParameterValue("piC");
-        piG = model->getParameterValue("piG");
-        piT = model->getParameterValue("piT");
-      }
-      else
-      {
-        piA = ApplicationTools::getDoubleParameter("piA", params, 0.25, suffix, suffixIsOptional);
-        piC = ApplicationTools::getDoubleParameter("piC", params, 0.25, suffix, suffixIsOptional);
-        piG = ApplicationTools::getDoubleParameter("piG", params, 0.25, suffix, suffixIsOptional);
-        piT = ApplicationTools::getDoubleParameter("piT", params, 0.25, suffix, suffixIsOptional);
-        if( fabs(1-(piA + piT + piG + piC)) > 0.00000000000001 )
-        {
-          throw Exception("Equilibrium base frequencies must equal 1. Aborting...");
-        }
-        model = new GTR(alpha, a, b, c, d, e, piA, piC, piG, piT);
-      }
-      if(verbose)
-      {
-        ApplicationTools::displayResult("a"  , TextTools::toString(a));
-        ApplicationTools::displayResult("b"  , TextTools::toString(b));
-        ApplicationTools::displayResult("c"  , TextTools::toString(c));
-        ApplicationTools::displayResult("d"  , TextTools::toString(d));
-        ApplicationTools::displayResult("e"  , TextTools::toString(e));
-        ApplicationTools::displayResult("piA", TextTools::toString(piA));
-        ApplicationTools::displayResult("piC", TextTools::toString(piC));
-        ApplicationTools::displayResult("piG", TextTools::toString(piG));
-        ApplicationTools::displayResult("piT", TextTools::toString(piT));
-      }
+      model = new GTR(alpha);
+      if(useObsFreq && data != NULL) model->setFreqFromData(*data);
     }
     else if(modelName == "TN93")
     {
-      double piA = 0.25, piC = 0.25, piG = 0.25, piT = 0.25;
-      double kappa1 = ApplicationTools::getDoubleParameter("kappa1", params, 2, suffix, suffixIsOptional);
-      double kappa2 = ApplicationTools::getDoubleParameter("kappa2", params, 2, suffix, suffixIsOptional);
-      bool useObsFreq = ApplicationTools::getBooleanParameter("model.use_observed_freq", params, false, suffix, suffixIsOptional);
-      if(useObsFreq && data != NULL)
-      {
-        model = new TN93(alpha, kappa1, kappa2);
-        dynamic_cast<TN93 *>(model)->setFreqFromData(*data);
-        piA = model->getParameterValue("piA");
-        piC = model->getParameterValue("piC");
-        piG = model->getParameterValue("piG");
-        piT = model->getParameterValue("piT");
-      }
-      else
-      {
-        piA = ApplicationTools::getDoubleParameter("piA", params, 0.25, suffix, suffixIsOptional);
-        piC = ApplicationTools::getDoubleParameter("piC", params, 0.25, suffix, suffixIsOptional);
-        piG = ApplicationTools::getDoubleParameter("piG", params, 0.25, suffix, suffixIsOptional);
-        piT = ApplicationTools::getDoubleParameter("piT", params, 0.25, suffix, suffixIsOptional);
-        if( fabs(1-(piA + piT + piG + piC)) > 0.00000000000001 )
-        {
-          throw Exception("Equilibrium base frequencies must equal 1. Aborting...");
-          exit(-1);
-        }
-        model = new TN93(alpha, kappa1, kappa2, piA, piC, piG, piT);
-      }
-      if(verbose)
-      {
-        ApplicationTools::displayResult("kappa1", TextTools::toString(kappa1));
-        ApplicationTools::displayResult("kappa2", TextTools::toString(kappa2));
-        ApplicationTools::displayResult("piA"   , TextTools::toString(piA));
-        ApplicationTools::displayResult("piC"   , TextTools::toString(piC));
-        ApplicationTools::displayResult("piG"   , TextTools::toString(piG));
-        ApplicationTools::displayResult("piT"   , TextTools::toString(piT));
-      }
+      model = new TN93(alpha);
+      if(useObsFreq && data != NULL) model->setFreqFromData(*data);
     }
     else if(modelName == "HKY85")
     {
-      double piA = 0.25, piC = 0.25, piG = 0.25, piT = 0.25;
-      double kappa = ApplicationTools::getDoubleParameter("kappa", params, 2, suffix, suffixIsOptional);
-      bool useObsFreq = ApplicationTools::getBooleanParameter("model.use_observed_freq", params, false, suffix, suffixIsOptional);
-      if(useObsFreq && data != NULL)
-      {
-        model = new HKY85(alpha, kappa);
-        dynamic_cast<HKY85 *>(model)->setFreqFromData(*data);
-        piA = model->getParameterValue("piA");
-        piC = model->getParameterValue("piC");
-        piG = model->getParameterValue("piG");
-        piT = model->getParameterValue("piT");
-      }
-      else
-      {
-        piA = ApplicationTools::getDoubleParameter("piA", params, 0.25, suffix, suffixIsOptional);
-        piC = ApplicationTools::getDoubleParameter("piC", params, 0.25, suffix, suffixIsOptional);
-        piG = ApplicationTools::getDoubleParameter("piG", params, 0.25, suffix, suffixIsOptional);
-        piT = ApplicationTools::getDoubleParameter("piT", params, 0.25, suffix, suffixIsOptional);
-        if( fabs(1-(piA + piT + piG + piC)) > 0.00000000000001 )
-        {
-          throw Exception("Equilibrium base frequencies must equal 1. Aborting...");
-          exit(-1);
-        }
-        model = new HKY85(alpha, kappa, piA, piC, piG, piT);
-      }
-      if(verbose)
-      {
-        ApplicationTools::displayResult("kappa", TextTools::toString(kappa));
-        ApplicationTools::displayResult("piA"  , TextTools::toString(piA));
-        ApplicationTools::displayResult("piC"  , TextTools::toString(piC));
-        ApplicationTools::displayResult("piG"  , TextTools::toString(piG));
-        ApplicationTools::displayResult("piT"  , TextTools::toString(piT));
-      }
+      model = new HKY85(alpha);
+      if(useObsFreq && data != NULL) model->setFreqFromData(*data);
     }
     else if(modelName == "F84")
     {
-      double piA = 0.25, piC = 0.25, piG = 0.25, piT = 0.25;
-      double kappa = ApplicationTools::getDoubleParameter("kappa", params, 2, suffix, suffixIsOptional);
-      bool useObsFreq = ApplicationTools::getBooleanParameter("model.use_observed_freq", params, false, suffix, suffixIsOptional);
-      if(useObsFreq && data != NULL)
-      {
-        model = new F84(alpha, kappa);
-        dynamic_cast<F84 *>(model)->setFreqFromData(*data);
-        piA = model->getParameterValue("piA");
-        piC = model->getParameterValue("piC");
-        piG = model->getParameterValue("piG");
-        piT = model->getParameterValue("piT");
-      }
-      else
-      {
-        piA = ApplicationTools::getDoubleParameter("piA", params, 0.25, suffix, suffixIsOptional);
-        piC = ApplicationTools::getDoubleParameter("piC", params, 0.25, suffix, suffixIsOptional);
-        piG = ApplicationTools::getDoubleParameter("piG", params, 0.25, suffix, suffixIsOptional);
-        piT = ApplicationTools::getDoubleParameter("piT", params, 0.25, suffix, suffixIsOptional);
-        if( fabs(1-(piA + piT + piG + piC)) > 0.00000000000001 )
-        {
-          throw Exception("Equilibrium base frequencies must equal 1. Aborting...");
-          exit(-1);
-        }
-        model = new F84(alpha, kappa, piA, piC, piG, piT);
-      }
-      if(verbose)
-      {
-        ApplicationTools::displayResult("kappa", TextTools::toString(kappa));
-        ApplicationTools::displayResult("piA"  , TextTools::toString(piA));
-        ApplicationTools::displayResult("piC"  , TextTools::toString(piC));
-        ApplicationTools::displayResult("piG"  , TextTools::toString(piG));
-        ApplicationTools::displayResult("piT"  , TextTools::toString(piT));
-      }
+      model = new F84(alpha);
+      if(useObsFreq && data != NULL) model->setFreqFromData(*data);
     }
     else if(modelName == "T92")
     {
-      double kappa = ApplicationTools::getDoubleParameter("kappa", params, 2, suffix, suffixIsOptional);
-      double theta = 0.5;
-      bool useObsFreq = ApplicationTools::getBooleanParameter("model.use_observed_freq", params, false, suffix, suffixIsOptional);
-      if(useObsFreq && data != NULL)
-      {
-        model = new T92(alpha, kappa);
-        dynamic_cast<T92 *>(model)->setFreqFromData(*data);
-        theta = model->getParameterValue("theta");
-      }
-      else
-      {
-        theta = ApplicationTools::getDoubleParameter("theta", params, 0.5, suffix, suffixIsOptional);
-        model = new T92(alpha, kappa, theta);
-      }
-      if(verbose)
-      {
-        ApplicationTools::displayResult("kappa", TextTools::toString(kappa));
-        ApplicationTools::displayResult("theta", TextTools::toString(theta));
-      }
+      model = new T92(alpha);
+      if(useObsFreq && data != NULL) model->setFreqFromData(*data);
     }
     else if(modelName == "K80")
     {
-      double kappa = ApplicationTools::getDoubleParameter("kappa", params, 2, suffix, suffixIsOptional);
-      model = new K80(alpha, kappa);
-      if(verbose)
-      {
-        ApplicationTools::displayResult("kappa", TextTools::toString(kappa));
-      }
+      model = new K80(alpha);
     }
     else if(modelName == "JCnuc")
     {
@@ -304,8 +166,17 @@ SubstitutionModel * PhylogeneticsApplicationTools::getSubstitutionModel(
   { 
     // Alphabet supposed to be proteic!
     string modelName = ApplicationTools::getStringParameter("model", params, "JCprot", suffix, suffixIsOptional);
+    if(modelName.find("+") != string::npos)
+    {
+      StringTokenizer st(modelName, "+");
+      modelName = st.nextToken();
+      covarionName = st.nextToken();
+    }
     const ProteicAlphabet * alpha = dynamic_cast<const ProteicAlphabet *>(alphabet);
-    bool useObsFreq = ApplicationTools::getBooleanParameter("model.use_observed_freq", params, false, suffix, suffixIsOptional);
+    bool useObsFreq = ApplicationTools::getBooleanParameter(prefix + "use_observed_freq", params, false, suffix, suffixIsOptional);
+    
+    if(verbose) ApplicationTools::displayResult("Substitution model" + suffix, modelName);
+    
     if(modelName == "JCprot")
     {
       model = new JCprot(alpha);
@@ -313,30 +184,86 @@ SubstitutionModel * PhylogeneticsApplicationTools::getSubstitutionModel(
     else if(modelName == "DSO78")
     {
       model = new DSO78(alpha);
-      if(useObsFreq && data != NULL) dynamic_cast<DSO78 *>(model)->setFreqFromData(*data);
     }
     else if(modelName == "JTT92")
     {
       model = new JTT92(alpha);
-      if(useObsFreq && data != NULL) dynamic_cast<JTT92 *>(model)->setFreqFromData(*data);  
     }
     else if(modelName == "empirical")
     {
       string file = ApplicationTools::getAFilePath("model_empirical.file", params, true, true, suffix, true);
       model = new UserProteinSubstitutionModel(alpha, file);
-      if(useObsFreq && data != NULL)
-        dynamic_cast<UserProteinSubstitutionModel *>(model)->setFreqFromData(*data);  
     }
     else
     {
       throw Exception("Model '" + modelName + "' unknown. Aborting...");
     }
-     if(verbose)
+    if(useObsFreq && data != NULL) model->setFreqFromData(*data);
+    if(verbose)
     {
       ApplicationTools::displayResult("Substitution model", modelName + (useObsFreq && (model != NULL) ? "-F" : ""));
     }
   }
+
+  if(covarionName == "none") {}
+  else if(covarionName == "G2001")
+  {
+    if(verbose)
+    {
+      ApplicationTools::displayResult("Covarion model" , covarionName);
+    }
+    DiscreteDistribution * rDist = getRateDistributionDefaultInstance(params, false, prefix, suffix, suffixIsOptional, verbose);
+    ReversibleSubstitutionModel * tmp = dynamic_cast<ReversibleSubstitutionModel *>(model);
+    model = new G2001(tmp, rDist); //The instance will delete the rDist object.
+  }
+  else if(covarionName == "TS98")
+  {
+    if(verbose)
+    {
+      ApplicationTools::displayResult("Covarion model" , covarionName);
+    }
+    ReversibleSubstitutionModel * tmp = dynamic_cast<ReversibleSubstitutionModel *>(model);
+    model = new TS98(tmp);
+  }
+  else
+  {
+    throw Exception("Process unknown: " + covarionName + ".");
+  }
   
+  return model;
+}
+
+void PhylogeneticsApplicationTools::setSubstitutionModelParametersInitialValues(
+  SubstitutionModel * model,
+  map<string, string> & params,
+  const string & prefix,
+  const string & suffix,
+  bool suffixIsOptional,
+  bool verbose) throw (Exception)
+{
+  ParameterList pl = model->getParameters();
+  bool useObsFreq = ApplicationTools::getBooleanParameter(prefix + "use_observed_freq", params, false, suffix, suffixIsOptional);
+  for(unsigned int i=0; i < pl.size(); i++)
+  {
+    const string pName = pl[i]->getName();
+    if(useObsFreq && (pName == "piA" || pName == "piC" || pName == "piG" || pName == "piT")) continue;
+    double value = ApplicationTools::getDoubleParameter(prefix + pName, params, pl[i]->getValue(), suffix, suffixIsOptional); 
+    pl[i]->setValue(value);
+    if(verbose) ApplicationTools::displayResult(prefix + pName, TextTools::toString(pl[i]->getValue()));
+  }
+  model->matchParametersValues(pl);
+}
+ 
+SubstitutionModel * PhylogeneticsApplicationTools::getSubstitutionModel(
+  const Alphabet * alphabet,
+  const SiteContainer * data,
+  map<string, string> & params,
+  const string & suffix,
+  bool suffixIsOptional,
+  bool verbose) throw (Exception)
+{
+  SubstitutionModel * model = getSubstitutionModelDefaultInstance(alphabet, data, params, "model.", suffix, suffixIsOptional, verbose);
+  setSubstitutionModelParametersInitialValues(model, params, "model.", suffix, suffixIsOptional, verbose);
   return model;
 }
 
@@ -346,60 +273,205 @@ void PhylogeneticsApplicationTools::printSubstitutionModelHelp()
 {
   if(!ApplicationTools::message) return;
   *ApplicationTools::message << "Substitution Model:" << endl;
-  *ApplicationTools::message << "model               | Nucleotides (N): [JCnuc, K80, T92, F84, HKY85, TN93," << endl;
-  *ApplicationTools::message << "                    | GTR]" << endl;
-  *ApplicationTools::message << "                    | Proteins (P): [JCprot, DSO78, JTT92, empirical]" << endl;
-  *ApplicationTools::message << "kappa               | kappa(N)  parameter in Q matrix" << endl;
-  *ApplicationTools::message << "kappa1              | kappa1(N) parameter in Q matrix" << endl;
-  *ApplicationTools::message << "kappa2              | kappa2(N) parameter in Q matrix" << endl;
-  *ApplicationTools::message << "a,b,c,d,e,f         | GTR rates parameter in Q matrix" << endl;
-  *ApplicationTools::message << "theta               | theta(N)  parameter in Q matrix" << endl;
-  *ApplicationTools::message << "piA                 | piA(N)    parameter in Q matrix" << endl;
-  *ApplicationTools::message << "piT                 | piT(N)    parameter in Q matrix" << endl;
-  *ApplicationTools::message << "piC                 | piC(N)    parameter in Q matrix" << endl;
-  *ApplicationTools::message << "piG                 | piG(N)    parameter in Q matrix" << endl;
-  *ApplicationTools::message << "use_observed_freq   | (N,P) Tell if the observed frequencies must be used." << endl; 
-  *ApplicationTools::message << "model_empirical.file| (P) The path toward data file to use (PAML format)." << endl; 
-  *ApplicationTools::message << "____________________|_____________________________________________________" << endl;
+  *ApplicationTools::message << "model                   | Nucleotides (N): [JCnuc, K80, T92, F84, HKY85, TN93," << endl;
+  *ApplicationTools::message << "                        | GTR]" << endl;
+  *ApplicationTools::message << "                        | Proteins (P): [JCprot, DSO78, JTT92, empirical]" << endl;
+  *ApplicationTools::message << "model.kappa             | kappa(N)  parameter in Q matrix" << endl;
+  *ApplicationTools::message << "model.kappa1            | kappa1(N) parameter in Q matrix" << endl;
+  *ApplicationTools::message << "model.kappa2            | kappa2(N) parameter in Q matrix" << endl;
+  *ApplicationTools::message << "model.a,b,c,d,e,f       | GTR rates parameter in Q matrix" << endl;
+  *ApplicationTools::message << "model.theta             | theta(N)  parameter in Q matrix" << endl;
+  *ApplicationTools::message << "model.piA               | piA(N)    parameter in Q matrix" << endl;
+  *ApplicationTools::message << "model.piT               | piT(N)    parameter in Q matrix" << endl;
+  *ApplicationTools::message << "model.piC               | piC(N)    parameter in Q matrix" << endl;
+  *ApplicationTools::message << "model.piG               | piG(N)    parameter in Q matrix" << endl;
+  *ApplicationTools::message << "model.use_observed_freq | (N,P) Tell if the observed frequencies must be used." << endl; 
+  *ApplicationTools::message << "model_empirical.file    | (P) The path toward data file to use (PAML format)." << endl; 
+  *ApplicationTools::message << "________________________|_____________________________________________________" << endl;
 }
 
 /******************************************************************************/
 
-MarkovModulatedSubstitutionModel * PhylogeneticsApplicationTools::getCovarionProcess(
-  ReversibleSubstitutionModel * model,
-  DiscreteDistribution * rDist,
+void PhylogeneticsApplicationTools::setSubstitutionModelParametersInitialValues(
+    SubstitutionModel * model,
+    map<string, double> & existingParams,
+    vector<string> & specificParams,
+    vector<string> & sharedParams,
+    map<string, string> & params,
+    const string & prefix,
+    const string & suffix,
+    bool suffixIsOptional,
+    bool verbose) throw (Exception)
+{
+  ParameterList pl = model->getParameters();
+  bool useObsFreq = ApplicationTools::getBooleanParameter(prefix + "use_observed_freq", params, false, suffix, suffixIsOptional);
+  for(unsigned int i=0; i < pl.size(); i++)
+  {
+    const string pName = pl[i]->getName();
+    if(useObsFreq && (pName == "piA" || pName == "piC" || pName == "piG" || pName == "piT")) continue;
+    string value = ApplicationTools::getStringParameter(prefix + pName, params, TextTools::toString(pl[i]->getValue()), suffix, suffixIsOptional);
+    if(value.substr(0, 5) == "model")
+    {
+      if(existingParams.find(value) != existingParams.end())
+      {
+        pl[i]->setValue(existingParams[value]);
+        sharedParams.push_back(value);
+      }
+      else
+      {
+        throw Exception("Error, unknown parameter model" + prefix + pName);
+      }
+    }
+    else
+    {
+      double value2 = TextTools::toDouble(value);
+      existingParams["model" + prefix + "." + pName] = value2;
+      specificParams.push_back(pName);
+      pl[i]->setValue(value2);
+    }
+    if(verbose) ApplicationTools::displayResult("model" + prefix + pName, TextTools::toString(pl[i]->getValue()));
+  }
+  model->matchParametersValues(pl);
+}
+ 
+FrequenciesSet * PhylogeneticsApplicationTools::getFrequenciesSet(
+  const Alphabet * alphabet,
+  const SiteContainer * data,
   map<string, string> & params,
-  string suffix,
+  const vector<double> & rateFreqs,
+  const string & suffix,
   bool suffixIsOptional,
   bool verbose) throw (Exception)
 {
-  string covarionName = ApplicationTools::getStringParameter("covarion", params, "none", suffix, suffixIsOptional);
-  if(covarionName == "G2001")
+  FrequenciesSet * rootFrequencies = NULL;
+  string freqOpt = ApplicationTools::getStringParameter("nonhomogeneous.root_freq", params, "observed", suffix, suffixIsOptional);
+  if(verbose) ApplicationTools::displayResult("Ancestral frequences method", freqOpt);
+  if(freqOpt == "oberved")
   {
-    double nu = ApplicationTools::getDoubleParameter("covarion_G2001.nu", params, 1., suffix, suffixIsOptional);
-    if(verbose)
+    map<int, double> freqs = SequenceContainerTools::getFrequencies(*data);
+    double t = 0;
+    vector<double> rootFreq(alphabet->getSize());
+    for(unsigned int i = 0; i < alphabet->getSize(); i++) t += freqs[i];
+    for(unsigned int i = 0; i < alphabet->getSize(); i++) rootFreq[i] = freqs[i] / t;
+    rootFrequencies = new FullFrequenciesSet(alphabet, rootFreq, "RootFreq");
+  }
+  else if(freqOpt == "balanced")
+  {
+    rootFrequencies = new FullFrequenciesSet(alphabet, "RootFreq");
+  }
+  else if(freqOpt == "init")
+  {
+    vector<double> rootFreq(alphabet->getSize());
+    if(AlphabetTools::isNucleicAlphabet(alphabet))
     {
-      ApplicationTools::displayResult("Covarion model" , covarionName);
-      ApplicationTools::displayResult("nu"   , TextTools::toString(nu));
+      rootFreq[ 0] = ApplicationTools::getDoubleParameter("model.ancA", params, 0.25);
+      rootFreq[ 1] = ApplicationTools::getDoubleParameter("model.ancC", params, 0.25);
+      rootFreq[ 2] = ApplicationTools::getDoubleParameter("model.ancG", params, 0.25);
+      rootFreq[ 3] = ApplicationTools::getDoubleParameter("model.ancT", params, 0.25);
     }
-    return new G2001(model, rDist, nu);
-  }
-  else if(covarionName == "TS98")
-  {
-    double s1 = ApplicationTools::getDoubleParameter("covarion_TS98.s1", params, 1., suffix, suffixIsOptional);
-    double s2 = ApplicationTools::getDoubleParameter("covarion_TS98.s2", params, 1., suffix, suffixIsOptional);
-    if(verbose)
+    else if(AlphabetTools::isProteicAlphabet(alphabet))
     {
-      ApplicationTools::displayResult("Covarion model" , covarionName);
-      ApplicationTools::displayResult("s1"   , TextTools::toString(s1));
-      ApplicationTools::displayResult("s2"   , TextTools::toString(s2));
+      rootFreq[ 0] = ApplicationTools::getDoubleParameter("model.ancA", params, 0.05);
+      rootFreq[ 1] = ApplicationTools::getDoubleParameter("model.ancR", params, 0.05);
+      rootFreq[ 2] = ApplicationTools::getDoubleParameter("model.ancN", params, 0.05);
+      rootFreq[ 3] = ApplicationTools::getDoubleParameter("model.ancD", params, 0.05);
+      rootFreq[ 4] = ApplicationTools::getDoubleParameter("model.ancC", params, 0.05);
+      rootFreq[ 5] = ApplicationTools::getDoubleParameter("model.ancQ", params, 0.05);
+      rootFreq[ 6] = ApplicationTools::getDoubleParameter("model.ancE", params, 0.05);
+      rootFreq[ 7] = ApplicationTools::getDoubleParameter("model.ancG", params, 0.05);
+      rootFreq[ 8] = ApplicationTools::getDoubleParameter("model.ancH", params, 0.05);
+      rootFreq[ 9] = ApplicationTools::getDoubleParameter("model.ancI", params, 0.05);
+      rootFreq[10] = ApplicationTools::getDoubleParameter("model.ancL", params, 0.05);
+      rootFreq[11] = ApplicationTools::getDoubleParameter("model.ancK", params, 0.05);
+      rootFreq[12] = ApplicationTools::getDoubleParameter("model.ancM", params, 0.05);
+      rootFreq[13] = ApplicationTools::getDoubleParameter("model.ancF", params, 0.05);
+      rootFreq[14] = ApplicationTools::getDoubleParameter("model.ancP", params, 0.05);
+      rootFreq[15] = ApplicationTools::getDoubleParameter("model.ancS", params, 0.05);
+      rootFreq[16] = ApplicationTools::getDoubleParameter("model.ancT", params, 0.05);
+      rootFreq[17] = ApplicationTools::getDoubleParameter("model.ancW", params, 0.05);
+      rootFreq[18] = ApplicationTools::getDoubleParameter("model.ancY", params, 0.05);
+      rootFreq[19] = ApplicationTools::getDoubleParameter("model.ancV", params, 0.05);
     }
-    return new TS98(model, s1, s2);
+    else throw Exception("Init root frequencies is only available with Nucleic and Proteic alphabet.");
+    rootFrequencies = new FullFrequenciesSet(alphabet, rootFreq, "RootFreq");
   }
-  else
+  else if(freqOpt == "observedGC")
   {
-    throw Exception("Process unknown: " + covarionName + ".");
+    if(!AlphabetTools::isNucleicAlphabet(alphabet)) throw Exception("Error, unvalid option " + freqOpt + " with non-nucleic alphabet.");
+    map<int, double> freqs = SequenceContainerTools::getFrequencies(*data);
+    double theta  = (freqs[1] + freqs[2]) / (freqs[0] + freqs[1] + freqs[2] + freqs[3]);
+    if(verbose) ApplicationTools::displayResult("Ancestral theta", TextTools::toString(theta));
+    rootFrequencies = new GCFrequenciesSet(dynamic_cast<const NucleicAlphabet *>(alphabet), theta, "RootFreq");
   }
+  else if(freqOpt == "balancedGC")
+  {
+    if(!AlphabetTools::isNucleicAlphabet(alphabet)) throw Exception("Error, unvalid option " + freqOpt + " with non-nucleic alphabet.");
+    rootFrequencies = new GCFrequenciesSet(dynamic_cast<const NucleicAlphabet *>(alphabet), "RootFreq");
+  }
+  else if(freqOpt == "initGC")
+  {
+    if(!AlphabetTools::isNucleicAlphabet(alphabet)) throw Exception("Error, unvalid option " + freqOpt + " with non-nucleic alphabet.");
+    double theta = ApplicationTools::getDoubleParameter("model.ancTheta", params, 0.5);
+    rootFrequencies = new GCFrequenciesSet(dynamic_cast<const NucleicAlphabet *>(alphabet), theta, "RootFreq");
+  }
+  else throw Exception("Unvalid method for root frequencies: " + freqOpt);
+    
+  if(rateFreqs.size() > 0)
+    rootFrequencies = new MarkovModulatedFrequenciesSet(rootFrequencies, rateFreqs);
+  return rootFrequencies;
+}
+
+SubstitutionModelSet * PhylogeneticsApplicationTools::getSubstitutionModelSet(
+  const Alphabet * alphabet,
+  const SiteContainer * data,
+  map<string, string> & params,
+  const string & suffix,
+  bool suffixIsOptional,
+  bool verbose) throw (Exception)
+{
+  unsigned int nbModels = ApplicationTools::getParameter<unsigned int>("number_of_models", params, 1, suffix, suffixIsOptional);
+  if(nbModels == 0) nbModels = 1;
+  if(verbose) ApplicationTools::displayResult("Number of distinct models", TextTools::toString(nbModels));
+  
+  //Deal with root frequencies, and build a new model set object:
+  vector<double> rateFreqs;
+  SubstitutionModel * tmp = getSubstitutionModelDefaultInstance(alphabet, data, params, string("model1."), suffix, suffixIsOptional, verbose);
+  if(tmp->getNumberOfStates() != alphabet->getSize())
+  {
+    //Markov-Modulated Markov Model...
+    unsigned int n =(unsigned int)(tmp->getNumberOfStates() / alphabet->getSize());
+    vector<double> ratesFreq(n, 1./(double)n); // Equal rates assumed for now, may be changed later (actually, in the most general case,
+                                               // we should assume a rate distribution for the root also!!!  
+  }
+  delete tmp;
+  
+  FrequenciesSet * rootFrequencies = getFrequenciesSet(alphabet, data, params, rateFreqs, suffix, suffixIsOptional, verbose);
+
+  SubstitutionModelSet * modelSet = new SubstitutionModelSet(alphabet, rootFrequencies);
+  
+  // Now parse all models:
+  map<string, double> existingParameters;
+  for(unsigned int i = 0; i < nbModels; i++)
+  {
+    string prefix = "model" + TextTools::toString(i+1) + ".";
+    SubstitutionModel * model = getSubstitutionModelDefaultInstance(alphabet, data, params, prefix, suffix, suffixIsOptional, verbose);
+    vector<string> specificParameters, sharedParameters;
+    setSubstitutionModelParametersInitialValues(model, existingParameters, specificParameters, sharedParameters, params, TextTools::toString(i+1), suffix, suffixIsOptional, verbose);
+    vector<int> nodesId = ApplicationTools::getVectorParameter<int>(prefix + ".nodes_id", params, ',', "", suffix, suffixIsOptional);
+    //Add model and specific parameters:
+    modelSet->addModel(model, nodesId, specificParameters);
+    //Now set shared parameters:
+    for(unsigned int j = 0; j < sharedParameters.size(); j++)
+    {
+      string pName = sharedParameters[j];
+      string::size_type index = pName.find(".");
+      if(index == string::npos) throw Exception("PhylogeneticsApplicationTools::getSubstitutionModelSet. Bad parameter name: " + pName);
+      string name = pName.substr(index + 1) + "_" + pName.substr(5, index - 5);
+      modelSet->setParameterToModel(modelSet->getParameterIndex(name), modelSet->getNumberOfModels() - 1);
+    }
+  }
+
+  return modelSet;
 }
 
 /******************************************************************************/
@@ -408,25 +480,36 @@ void PhylogeneticsApplicationTools::printCovarionModelHelp()
 {
   if(!ApplicationTools::message) return;
   *ApplicationTools::message << "Covarion Model:" << endl;
-  *ApplicationTools::message << "covarion            | [none|G2001|TS98]" << endl;
-  *ApplicationTools::message << "covarion_G2001.nu   | covarion rate parameter in G2001 model." << endl;
-  *ApplicationTools::message << "covarion_TS98.s1    | covarion rate parameter in TS98 model." << endl;
-  *ApplicationTools::message << "covarion_TS98.s2    | covarion rate parameter in TS98 model." << endl;
-  *ApplicationTools::message << "____________________|_____________________________________________________" << endl;
+  *ApplicationTools::message << "model                   | [+G2001|+TS98]" << endl;
+  *ApplicationTools::message << "model.nu                | covarion rate parameter in G2001 model." << endl;
+  *ApplicationTools::message << "model.rate_distribution | [gamma] covarion rate distribution in G2001 model." << endl;
+  *ApplicationTools::message << "model.rate_distribution |" << endl;
+  *ApplicationTools::message << "                 .alpha | alpha parameter of the gamma law." << endl;
+  *ApplicationTools::message << "model.rate_distribution |" << endl;
+  *ApplicationTools::message << "         .classes_number| number of classes for rate distribution." << endl;
+  *ApplicationTools::message << "model.nu                | covarion rate parameter in G2001 model." << endl;
+  *ApplicationTools::message << "model.nu                | covarion rate parameter in G2001 model." << endl;
+  *ApplicationTools::message << "model.s1                | covarion rate parameter in TS98 model." << endl;
+  *ApplicationTools::message << "model.s2                | covarion rate parameter in TS98 model." << endl;
+  *ApplicationTools::message << "________________________|________________________________________________" << endl;
 }
 
 /******************************************************************************/
 
-DiscreteDistribution * PhylogeneticsApplicationTools::getRateDistribution(
+DiscreteDistribution * PhylogeneticsApplicationTools::getRateDistributionDefaultInstance(
   map<string, string> & params,
-  string suffix,
+  bool constDistAllowed,
+  const string & prefix,
+  const string & suffix,
   bool suffixIsOptional,
   bool verbose) throw (Exception)
 {
-  string distributionType = ApplicationTools::getStringParameter("rate_distribution", params, "constant", suffix, suffixIsOptional);
+  string defaultDist = constDistAllowed ? "constant" : "gamma";
+  string distributionType = ApplicationTools::getStringParameter(prefix + "rate_distribution", params, defaultDist, suffix, suffixIsOptional);
   DiscreteDistribution * rDist;
   if(distributionType == "constant")
   {
+    if(!constDistAllowed) throw Exception("You can't use a constant distribution here!");
     rDist = new ConstantDistribution(1.);
     if(verbose)
     {
@@ -435,28 +518,12 @@ DiscreteDistribution * PhylogeneticsApplicationTools::getRateDistribution(
   }
   else if(distributionType == "gamma")
   {
-    double alpha = ApplicationTools::getDoubleParameter("rate_distribution_gamma.alpha", params, 1., suffix, suffixIsOptional);
-    int nbClasses = ApplicationTools::getIntParameter("rate_distribution.classes_number", params, 4, suffix, suffixIsOptional);
-
-    if(alpha < 0)
+    int nbClasses = ApplicationTools::getIntParameter(prefix + "rate_distribution.classes_number", params, 4, suffix, suffixIsOptional);
+    rDist = new GammaDiscreteDistribution(nbClasses);
+    if(verbose)
     {
-      throw Exception("Alpha parameter in gamma distribution of rates must be > 0, found " + TextTools::toString(alpha) + ".");
-    }
-    else
-    {
-      rDist = new GammaDiscreteDistribution(nbClasses, alpha);
-      if(verbose)
-      {
-        ApplicationTools::displayResult("Rate distribution", distributionType);
-        ApplicationTools::displayResult("Shape (alpha)", TextTools::toString((dynamic_cast<GammaDiscreteDistribution *>(rDist)) -> getParameterValue("alpha")));
-        ApplicationTools::displayResult("Number of classes", TextTools::toString(rDist -> getNumberOfCategories()));
-        for(unsigned int c = 0; c < rDist -> getNumberOfCategories(); c++)
-        {
-          ApplicationTools::displayResult("- Category " + TextTools::toString(c)
-          + "(rate = " + TextTools::toString(rDist -> getCategory(c))
-          + "), prob = ", TextTools::toString(rDist -> getProbability(c)));
-        }
-      }
+      ApplicationTools::displayResult("Rate distribution", distributionType);
+      ApplicationTools::displayResult("Number of classes", TextTools::toString(rDist->getNumberOfCategories()));
     }
   }
   else
@@ -467,16 +534,59 @@ DiscreteDistribution * PhylogeneticsApplicationTools::getRateDistribution(
   return rDist;
 }
 
+void PhylogeneticsApplicationTools::setRateDistributionParametersInitialValues(
+  DiscreteDistribution * rDist,
+  map<string, string> & params,
+  const string & prefix,
+  const string & suffix,
+  bool suffixIsOptional,
+  bool verbose) throw (Exception)
+{
+  ParameterList pl = rDist->getParameters();
+  for(unsigned int i=0; i < pl.size(); i++)
+  {
+    const string pName = pl[i]->getName();
+    double value = ApplicationTools::getDoubleParameter(prefix + "rate_distribution." + pName, params, pl[i]->getValue(), suffix, suffixIsOptional); 
+    if(pName == "alpha" && value < 0)
+    {
+      throw Exception("Alpha parameter in gamma distribution of rates must be > 0, found " + TextTools::toString(value) + ".");
+    }
+    pl[i]->setValue(value);
+    if(verbose) ApplicationTools::displayResult(prefix + "rate_distribution." + pName, TextTools::toString(pl[i]->getValue()));
+  }
+  if(verbose)
+  {
+    for(unsigned int c = 0; c < rDist -> getNumberOfCategories(); c++)
+    {
+      ApplicationTools::displayResult("- Category " + TextTools::toString(c)
+          + " (Pr = " + TextTools::toString(rDist->getProbability(c)) +") rate", TextTools::toString(rDist -> getCategory(c)));
+    }
+  }
+  rDist->matchParametersValues(pl);
+}
+ 
+
+DiscreteDistribution * PhylogeneticsApplicationTools::getRateDistribution(
+  map<string, string> & params,
+  const string & suffix,
+  bool suffixIsOptional,
+  bool verbose) throw (Exception)
+{
+  DiscreteDistribution * rDist = getRateDistributionDefaultInstance(params, true, "", suffix, suffixIsOptional, verbose);
+  setRateDistributionParametersInitialValues(rDist, params, "", suffix, suffixIsOptional, verbose);
+  return rDist;
+}
+
 /******************************************************************************/
 
 void PhylogeneticsApplicationTools::printRateDistributionHelp()
 {
   if(!ApplicationTools::message) return;
   *ApplicationTools::message << "Rate distribution parameters:" << endl;
-   *ApplicationTools::message << "rate_distribution               | uniform or gamma." << endl;
-   *ApplicationTools::message << "rate_distribution_gamma.alpha   | the gamma law's alpha parameter." << endl;
-   *ApplicationTools::message << "rate_distribution.classes_number| discrete approximation: number of" << endl;
+  *ApplicationTools::message << "rate_distribution               | uniform or gamma." << endl;
+  *ApplicationTools::message << "rate_distribution.classes_number| discrete approximation: number of" << endl;
   *ApplicationTools::message << "                                | categories (default to 4)." << endl;
+  *ApplicationTools::message << "rate_distribution.alpha         | the gamma law's alpha parameter." << endl;
   *ApplicationTools::message << "________________________________|_________________________________________" << endl;
 }
 
@@ -541,10 +651,18 @@ TreeLikelihood * PhylogeneticsApplicationTools::optimizeParameters(
         vector<string> vs = tl->getBranchLengthsParameters().getParameterNames();
         for(unsigned int i = 0; i < vs.size(); i++)
         {
-          dynamic_cast<AbstractHomogeneousTreeLikelihood *>(tl)->ignoreParameter(vs[i]);
+          dynamic_cast<AbstractTreeLikelihood *>(tl)->ignoreParameter(vs[i]);
         }
       }
-      else dynamic_cast<AbstractHomogeneousTreeLikelihood *>(tl)->ignoreParameter(param);
+      else if(param == "Ancient")
+      {
+        vector<string> vs = dynamic_cast<NonHomogeneousTreeLikelihood *>(tl)->getRootFrequenciesParameters().getParameterNames();
+        for(unsigned int i = 0; i < vs.size(); i++)
+        {
+          dynamic_cast<AbstractTreeLikelihood *>(tl)->ignoreParameter(vs[i]);
+        }
+      }
+      else dynamic_cast<AbstractTreeLikelihood *>(tl)->ignoreParameter(param);
     } 
     catch(ParameterNotFoundException pnfe)
     {
@@ -615,7 +733,7 @@ TreeLikelihood * PhylogeneticsApplicationTools::optimizeParameters(
 
     if(verbose && nstep > 1) ApplicationTools::displayResult("# of precision steps", TextTools::toString(nstep));
     n = OptimizationTools::optimizeNumericalParameters(
-      dynamic_cast<AbstractHomogeneousTreeLikelihood *>(tl),
+      dynamic_cast<DiscreteRatesAcrossSitesTreeLikelihood *>(tl),
       NULL, nstep, tolerance, nbEvalMax, messageHandler, profiler, optVerbose, optMethod);    
   }
   else if(method == "fullD")
@@ -634,7 +752,7 @@ TreeLikelihood * PhylogeneticsApplicationTools::optimizeParameters(
     }
 
     n = OptimizationTools::optimizeNumericalParameters2(
-      dynamic_cast<AbstractHomogeneousTreeLikelihood *>(tl), NULL, tolerance, nbEvalMax, messageHandler, profiler, optVerbose, optMethod);       
+      dynamic_cast<DiscreteRatesAcrossSitesTreeLikelihood *>(tl), NULL, tolerance, nbEvalMax, messageHandler, profiler, optVerbose, optMethod);       
   }
   else throw Exception("Unknown optimization method: " + method);
 
@@ -673,7 +791,7 @@ TreeLikelihood * PhylogeneticsApplicationTools::optimizeParameters(
 /******************************************************************************/
 
 void PhylogeneticsApplicationTools::optimizeParameters(
-  ClockTreeLikelihood * tl,
+  DiscreteRatesAcrossSitesClockTreeLikelihood * tl,
   map<string, string> & params,
   const string & suffix,
   bool suffixIsOptional,
@@ -713,10 +831,18 @@ void PhylogeneticsApplicationTools::optimizeParameters(
         vector<string> vs = tl->getBranchLengthsParameters().getParameterNames();
         for(unsigned int i = 0; i < vs.size(); i++)
         {
-          dynamic_cast<AbstractHomogeneousTreeLikelihood *>(tl)->ignoreParameter(vs[i]);
+          dynamic_cast<AbstractTreeLikelihood *>(tl)->ignoreParameter(vs[i]);
         }
       }
-      else dynamic_cast<AbstractHomogeneousTreeLikelihood *>(tl)->ignoreParameter(param);
+      else if(param == "Ancient")
+      {
+        vector<string> vs = dynamic_cast<NonHomogeneousTreeLikelihood *>(tl)->getRootFrequenciesParameters().getParameterNames();
+        for(unsigned int i = 0; i < vs.size(); i++)
+        {
+          dynamic_cast<AbstractTreeLikelihood *>(tl)->ignoreParameter(vs[i]);
+        }
+      }
+      else dynamic_cast<AbstractTreeLikelihood *>(tl)->ignoreParameter(param);
     } 
     catch(ParameterNotFoundException pnfe)
     {

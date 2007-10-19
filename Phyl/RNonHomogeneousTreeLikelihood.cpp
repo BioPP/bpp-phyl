@@ -1,7 +1,8 @@
 //
-// File: HomogeneousTreeLikelihood.cpp
+// File: RNonHomogeneousTreeLikelihood.cpp
 // Created by: Julien Dutheil
-// Created on: Fri Oct 17 18:14:51 2003
+// Created on: Tue Oct 09 16:07 2007
+// From file: RHomogeneousTreeLikelihood.cpp
 //
 
 /*
@@ -37,7 +38,7 @@ The fact that you are presently reading this means that you have had
 knowledge of the CeCILL license and that you accept its terms.
 */
 
-#include "HomogeneousTreeLikelihood.h"
+#include "RNonHomogeneousTreeLikelihood.h"
 #include "PatternTools.h"
 
 // From Utils:
@@ -50,50 +51,54 @@ using namespace std;
 
 /******************************************************************************/
 
-HomogeneousTreeLikelihood::HomogeneousTreeLikelihood(
+RNonHomogeneousTreeLikelihood::RNonHomogeneousTreeLikelihood(
   const Tree & tree,
-  SubstitutionModel * model,
+  SubstitutionModelSet * modelSet,
   DiscreteDistribution * rDist,
   bool checkRooted,
   bool verbose,
   bool usePatterns)
 throw (Exception):
-  AbstractHomogeneousTreeLikelihood(tree, model, rDist, checkRooted, verbose),
+  AbstractNonHomogeneousTreeLikelihood(tree, modelSet, rDist, checkRooted, verbose),
   _likelihoodData(NULL)
 {
-  _init(usePatterns);
+  if(!modelSet->isFullySetUpFor(tree))
+    throw Exception("RNonHomogeneousTreeLikelihood(constructor). Model set is not fully specified.");
+   _init(usePatterns);
 }
 
 /******************************************************************************/
 
-HomogeneousTreeLikelihood::HomogeneousTreeLikelihood(
+RNonHomogeneousTreeLikelihood::RNonHomogeneousTreeLikelihood(
   const Tree & tree,
   const SiteContainer & data,
-  SubstitutionModel * model,
+  SubstitutionModelSet * modelSet,
   DiscreteDistribution * rDist,
-  bool checkRooted,
+  bool checkUnrooted,
   bool verbose,
   bool usePatterns)
 throw (Exception):
-  AbstractHomogeneousTreeLikelihood(tree, model, rDist, checkRooted, verbose),
+  AbstractNonHomogeneousTreeLikelihood(tree, modelSet, rDist, checkUnrooted, verbose),
   _likelihoodData(NULL)
 {
+  if(!modelSet->isFullySetUpFor(tree))
+    throw Exception("RNonHomogeneousTreeLikelihood(constructor). Model set is not fully specified.");
   _init(usePatterns);
   setData(data);
 }
 
 /******************************************************************************/
 
-void HomogeneousTreeLikelihood::_init(bool usePatterns) throw (Exception)
+void RNonHomogeneousTreeLikelihood::_init(bool usePatterns) throw (Exception)
 {
   _likelihoodData = new DRASRTreeLikelihoodData(*_tree, _rateDistribution->getNumberOfCategories(), usePatterns);
 }
 
 /******************************************************************************/
 
-HomogeneousTreeLikelihood::HomogeneousTreeLikelihood(
-    const HomogeneousTreeLikelihood & lik):
-  AbstractHomogeneousTreeLikelihood(lik),
+RNonHomogeneousTreeLikelihood::RNonHomogeneousTreeLikelihood(
+    const RNonHomogeneousTreeLikelihood & lik):
+  AbstractNonHomogeneousTreeLikelihood(lik),
   _likelihoodData(NULL)
 {
   _likelihoodData = lik._likelihoodData->clone();
@@ -102,10 +107,10 @@ HomogeneousTreeLikelihood::HomogeneousTreeLikelihood(
 
 /******************************************************************************/
 
-HomogeneousTreeLikelihood & HomogeneousTreeLikelihood::operator=(
-    const HomogeneousTreeLikelihood & lik)
+RNonHomogeneousTreeLikelihood & RNonHomogeneousTreeLikelihood::operator=(
+    const RNonHomogeneousTreeLikelihood & lik)
 {
-  AbstractHomogeneousTreeLikelihood::operator=(lik);
+  AbstractNonHomogeneousTreeLikelihood::operator=(lik);
   _likelihoodData = lik._likelihoodData->clone();
   _likelihoodData->setTree(*_tree);
   return *this;
@@ -113,19 +118,20 @@ HomogeneousTreeLikelihood & HomogeneousTreeLikelihood::operator=(
 
 /******************************************************************************/
 
-HomogeneousTreeLikelihood::~HomogeneousTreeLikelihood()
+RNonHomogeneousTreeLikelihood::~RNonHomogeneousTreeLikelihood()
 { 
   delete _likelihoodData;
 }
 
 /******************************************************************************/
 
-void HomogeneousTreeLikelihood::setData(const SiteContainer & sites) throw (Exception)
+void RNonHomogeneousTreeLikelihood::setData(const SiteContainer & sites) throw (Exception)
 {
   if(_data) delete _data;
   _data = PatternTools::getSequenceSubset(sites, * _tree->getRootNode());
   if(_verbose) ApplicationTools::displayTask("Initializing data structure");
-  _likelihoodData->initLikelihoods(* _data, *_model);
+  _likelihoodData->initLikelihoods(* _data, *_modelSet->getModel(0)); //We assume here that all models have the same number of states, and that they have the same 'init' method,
+                                                                      //Which is a reasonable assumption as long as they share the same alphabet.
   if(_verbose) ApplicationTools::displayTaskDone();
 
   _nbSites = _likelihoodData->getNumberOfSites();
@@ -139,7 +145,7 @@ void HomogeneousTreeLikelihood::setData(const SiteContainer & sites) throw (Exce
 
 /******************************************************************************/
 
-double HomogeneousTreeLikelihood::getLikelihood() const
+double RNonHomogeneousTreeLikelihood::getLikelihood() const
 {
   double l = 1.;
   for(unsigned int i = 0; i < _nbSites; i++)
@@ -151,7 +157,7 @@ double HomogeneousTreeLikelihood::getLikelihood() const
 
 /******************************************************************************/
 
-double HomogeneousTreeLikelihood::getLogLikelihood() const
+double RNonHomogeneousTreeLikelihood::getLogLikelihood() const
 {
   double ll = 0;
   for(unsigned int i = 0; i < _nbSites; i++)
@@ -163,7 +169,7 @@ double HomogeneousTreeLikelihood::getLogLikelihood() const
 
 /******************************************************************************/
 
-double HomogeneousTreeLikelihood::getLikelihoodForASite(unsigned int site) const
+double RNonHomogeneousTreeLikelihood::getLikelihoodForASite(unsigned int site) const
 {
   double l = 0;
   for(unsigned int i = 0; i < _nbClasses; i++)
@@ -175,7 +181,7 @@ double HomogeneousTreeLikelihood::getLikelihoodForASite(unsigned int site) const
 
 /******************************************************************************/
 
-double HomogeneousTreeLikelihood::getLogLikelihoodForASite(unsigned int site) const
+double RNonHomogeneousTreeLikelihood::getLogLikelihoodForASite(unsigned int site) const
 {
   double l = 0;
   for(unsigned int i = 0; i < _nbClasses; i++)
@@ -189,25 +195,25 @@ double HomogeneousTreeLikelihood::getLogLikelihoodForASite(unsigned int site) co
 
 /******************************************************************************/
 
-double HomogeneousTreeLikelihood::getLikelihoodForASiteForARateClass(unsigned int site, unsigned int rateClass) const
+double RNonHomogeneousTreeLikelihood::getLikelihoodForASiteForARateClass(unsigned int site, unsigned int rateClass) const
 {
   double l = 0;
   Vdouble * la = & _likelihoodData->getLikelihoodArray(_tree->getRootNode())[_likelihoodData->getRootArrayPosition(site)][rateClass];
   for(unsigned int i = 0; i < _nbStates; i++)
   {
-    l += (* la)[i] * _model->freq(i);
+    l += (* la)[i] * _rootFreqs[i];
   }
   return l;
 }
 
 /******************************************************************************/
 
-double HomogeneousTreeLikelihood::getLogLikelihoodForASiteForARateClass(unsigned int site, unsigned int rateClass) const
+double RNonHomogeneousTreeLikelihood::getLogLikelihoodForASiteForARateClass(unsigned int site, unsigned int rateClass) const
 {
   double l = 0;
   Vdouble * la = & _likelihoodData->getLikelihoodArray(_tree->getRootNode())[_likelihoodData->getRootArrayPosition(site)][rateClass];
   for(unsigned int i = 0; i < _nbStates; i++) {
-    l += (* la)[i] * _model->freq(i);
+    l += (* la)[i] * _rootFreqs[i];
   }
   //if(l <= 0.) cerr << "WARNING!!! Negative likelihood." << endl;
   return log(l);
@@ -215,21 +221,21 @@ double HomogeneousTreeLikelihood::getLogLikelihoodForASiteForARateClass(unsigned
 
 /******************************************************************************/  
 
-double HomogeneousTreeLikelihood::getLikelihoodForASiteForARateClassForAState(unsigned int site, unsigned int rateClass, int state) const
+double RNonHomogeneousTreeLikelihood::getLikelihoodForASiteForARateClassForAState(unsigned int site, unsigned int rateClass, int state) const
 {
   return _likelihoodData->getLikelihoodArray(_tree->getRootNode())[_likelihoodData->getRootArrayPosition(site)][rateClass][state];
 }
 
 /******************************************************************************/
 
-double HomogeneousTreeLikelihood::getLogLikelihoodForASiteForARateClassForAState(unsigned int site, unsigned int rateClass, int state) const
+double RNonHomogeneousTreeLikelihood::getLogLikelihoodForASiteForARateClassForAState(unsigned int site, unsigned int rateClass, int state) const
 {
   return log(_likelihoodData->getLikelihoodArray(_tree->getRootNode())[_likelihoodData->getRootArrayPosition(site)][rateClass][state]);
 }
 
 /******************************************************************************/
 
-void HomogeneousTreeLikelihood::setParameters(const ParameterList & parameters)
+void RNonHomogeneousTreeLikelihood::setParameters(const ParameterList & parameters)
   throw (ParameterNotFoundException, ConstraintException)
 {
   setParametersValues(parameters);
@@ -237,19 +243,51 @@ void HomogeneousTreeLikelihood::setParameters(const ParameterList & parameters)
 
 /******************************************************************************/
 
-void HomogeneousTreeLikelihood::fireParameterChanged(const ParameterList & params)
+void RNonHomogeneousTreeLikelihood::fireParameterChanged(const ParameterList & params)
 {
   applyParameters();
 
-  // For now we ignore the parameter that changed and we recompute all arrays...
-  computeAllTransitionProbabilities();
+  if(params.getCommonParametersWith(_rateDistribution->getParameters()).size() > 0)
+  {
+    computeAllTransitionProbabilities();
+  }
+  else
+  {
+    vector<int> ids;
+    vector<string> tmp = params.getCommonParametersWith(_modelSet->getParameters()).getParameterNames();
+    for(unsigned int i = 0; i < tmp.size(); i++)
+    {
+      vector<int> tmpv = _modelSet->getNodesWithParameter(tmp[i]);
+      ids = VectorTools::vectorUnion(ids, tmpv);
+    }
+    tmp = params.getCommonParametersWith(_brLenParameters).getParameterNames();
+    vector<int> tmpv;
+    bool test = false;
+    for(unsigned int i = 0; i < tmp.size(); i++)
+    {
+      if(!test && (tmp[i] == "BrLenRoot" || tmp[i] == "RootPosition"))
+      {
+        tmpv.push_back(_root1);
+        tmpv.push_back(_root2);
+        test = true; //Add only once.
+      }
+      else
+        tmpv.push_back(TextTools::toInt(tmp[i].substr(5)));
+    }
+    ids = VectorTools::vectorUnion(ids, tmpv);
 
+    for(unsigned int i = 0; i < ids.size(); i++)
+    {
+      computeTransitionProbabilitiesForNode(_tree->getNode(ids[i]));
+    }
+    _rootFreqs = _modelSet->getRootFrequencies();
+  }
   computeTreeLikelihood();
 }
 
 /******************************************************************************/
 
-double HomogeneousTreeLikelihood::getValue() const
+double RNonHomogeneousTreeLikelihood::getValue() const
 throw (Exception)
 {
   //double f = - getLogLikelihood(); // For minimization.
@@ -262,7 +300,7 @@ throw (Exception)
  *                           First Order Derivatives                          *
  ******************************************************************************/  
 
-double HomogeneousTreeLikelihood::getDLikelihoodForASiteForARateClass(
+double RNonHomogeneousTreeLikelihood::getDLikelihoodForASiteForARateClass(
   unsigned int site,
   unsigned int rateClass) const
 {
@@ -270,14 +308,14 @@ double HomogeneousTreeLikelihood::getDLikelihoodForASiteForARateClass(
   Vdouble * dla = & _likelihoodData->getDLikelihoodArray(_tree->getRootNode())[_likelihoodData->getRootArrayPosition(site)][rateClass];
   for(unsigned int i = 0; i < _nbStates; i++)
   {
-    dl += (* dla)[i] * _model->freq(i);
+    dl += (* dla)[i] * _rootFreqs[i];
   }
   return dl;
 }
 
 /******************************************************************************/  
 
-double HomogeneousTreeLikelihood::getDLikelihoodForASite(unsigned int site) const
+double RNonHomogeneousTreeLikelihood::getDLikelihoodForASite(unsigned int site) const
 {
   // Derivative of the sum is the sum of derivatives:
   double dl = 0;
@@ -288,7 +326,7 @@ double HomogeneousTreeLikelihood::getDLikelihoodForASite(unsigned int site) cons
 
 /******************************************************************************/  
 
-double HomogeneousTreeLikelihood::getDLogLikelihoodForASite(unsigned int site) const
+double RNonHomogeneousTreeLikelihood::getDLogLikelihoodForASite(unsigned int site) const
 {
   // d(f(g(x)))/dx = dg(x)/dx . df(g(x))/dg :
   return getDLikelihoodForASite(site) / getLikelihoodForASite(site);
@@ -296,7 +334,7 @@ double HomogeneousTreeLikelihood::getDLogLikelihoodForASite(unsigned int site) c
 
 /******************************************************************************/  
 
-double HomogeneousTreeLikelihood::getDLogLikelihood() const
+double RNonHomogeneousTreeLikelihood::getDLogLikelihood() const
 {
   // Derivative of the sum is the sum of derivatives:
   double dl = 0;
@@ -307,7 +345,7 @@ double HomogeneousTreeLikelihood::getDLogLikelihood() const
 
 /******************************************************************************/
 
-double HomogeneousTreeLikelihood::getFirstOrderDerivative(const string & variable) const
+double RNonHomogeneousTreeLikelihood::getFirstOrderDerivative(const string & variable) const
 throw (Exception)
 { 
   Parameter * p = _parameters.getParameter(variable);
@@ -320,14 +358,35 @@ throw (Exception)
   {
     throw Exception("Derivatives respective to substitution model parameters are not implemented.");
   }
-  
-  const_cast<HomogeneousTreeLikelihood *>(this)->computeTreeDLikelihood(variable);
-  return - getDLogLikelihood();
+ 
+  if(variable == "BrLenRoot")
+  {
+    const_cast<RNonHomogeneousTreeLikelihood *>(this)->computeTreeDLikelihood("BrLen" + TextTools::toString(_root1));
+    double d1 = - getDLogLikelihood();
+    const_cast<RNonHomogeneousTreeLikelihood *>(this)->computeTreeDLikelihood("BrLen" + TextTools::toString(_root2));
+    double d2 = - getDLogLikelihood();
+    double pos = _brLenParameters.getParameter("RootPosition")->getValue();
+    return pos * d1 + (1. - pos) * d2;
+  }
+  else if(variable == "RootPosition")
+  {
+    const_cast<RNonHomogeneousTreeLikelihood *>(this)->computeTreeDLikelihood("BrLen" + TextTools::toString(_root1));
+    double d1 = - getDLogLikelihood();
+    const_cast<RNonHomogeneousTreeLikelihood *>(this)->computeTreeDLikelihood("BrLen" + TextTools::toString(_root2));
+    double d2 = - getDLogLikelihood();
+    double len = _brLenParameters.getParameter("BrLenRoot")->getValue();
+    return len * (d1 - d2);
+  }
+  else
+  {
+    const_cast<RNonHomogeneousTreeLikelihood *>(this)->computeTreeDLikelihood(variable);
+    return - getDLogLikelihood();
+  }
 }
 
 /******************************************************************************/
 
-void HomogeneousTreeLikelihood::computeTreeDLikelihood(const string & variable)
+void RNonHomogeneousTreeLikelihood::computeTreeDLikelihood(const string & variable)
 {  
   // Get the node with the branch whose length must be derivated:
   int brI = TextTools::toInt(variable.substr(5));
@@ -417,7 +476,7 @@ void HomogeneousTreeLikelihood::computeTreeDLikelihood(const string & variable)
 
 /******************************************************************************/
 
-void HomogeneousTreeLikelihood::computeDownSubtreeDLikelihood(const Node * node)
+void RNonHomogeneousTreeLikelihood::computeDownSubtreeDLikelihood(const Node * node)
 {
   const Node * father = node->getFather();
   // We assume that the _dLikelihoods array has been filled for the current node 'node'.
@@ -509,7 +568,7 @@ void HomogeneousTreeLikelihood::computeDownSubtreeDLikelihood(const Node * node)
  *                           Second Order Derivatives                         *
  ******************************************************************************/  
 
-double HomogeneousTreeLikelihood::getD2LikelihoodForASiteForARateClass(
+double RNonHomogeneousTreeLikelihood::getD2LikelihoodForASiteForARateClass(
   unsigned int site,
   unsigned int rateClass) const
 {
@@ -517,14 +576,14 @@ double HomogeneousTreeLikelihood::getD2LikelihoodForASiteForARateClass(
   Vdouble * d2la = & _likelihoodData->getD2LikelihoodArray(_tree->getRootNode())[_likelihoodData->getRootArrayPosition(site)][rateClass];
   for(unsigned int i = 0; i < _nbStates; i++)
   {
-    d2l += (* d2la)[i] * _model->freq(i);
+    d2l += (* d2la)[i] * _rootFreqs[i];
   }
   return d2l;
 }
 
 /******************************************************************************/  
 
-double HomogeneousTreeLikelihood::getD2LikelihoodForASite(unsigned int site) const
+double RNonHomogeneousTreeLikelihood::getD2LikelihoodForASite(unsigned int site) const
 {
   // Derivative of the sum is the sum of derivatives:
   double d2l = 0;
@@ -535,7 +594,7 @@ double HomogeneousTreeLikelihood::getD2LikelihoodForASite(unsigned int site) con
 
 /******************************************************************************/  
 
-double HomogeneousTreeLikelihood::getD2LogLikelihoodForASite(unsigned int site) const
+double RNonHomogeneousTreeLikelihood::getD2LogLikelihoodForASite(unsigned int site) const
 {
   return getD2LikelihoodForASite(site) / getLikelihoodForASite(site)
   - pow( getDLikelihoodForASite(site) / getLikelihoodForASite(site), 2);
@@ -543,7 +602,7 @@ double HomogeneousTreeLikelihood::getD2LogLikelihoodForASite(unsigned int site) 
 
 /******************************************************************************/  
 
-double HomogeneousTreeLikelihood::getD2LogLikelihood() const
+double RNonHomogeneousTreeLikelihood::getD2LogLikelihood() const
 {
   // Derivative of the sum is the sum of derivatives:
   double dl = 0;
@@ -554,7 +613,7 @@ double HomogeneousTreeLikelihood::getD2LogLikelihood() const
 
 /******************************************************************************/
 
-double HomogeneousTreeLikelihood::getSecondOrderDerivative(const string & variable) const
+double RNonHomogeneousTreeLikelihood::getSecondOrderDerivative(const string & variable) const
 throw (Exception)
 {
   Parameter * p = _parameters.getParameter(variable);
@@ -568,13 +627,57 @@ throw (Exception)
     throw Exception("Derivatives respective to substitution model parameters are not implemented.");
   }
   
-  const_cast<HomogeneousTreeLikelihood *>(this)->computeTreeD2Likelihood(variable);
-  return - getD2LogLikelihood();
+  if(variable == "BrLenRoot")
+  {
+    const_cast<RNonHomogeneousTreeLikelihood *>(this)->computeTreeDLikelihood("BrLen" + TextTools::toString(_root1));
+    double d1 = - getDLogLikelihood();
+    const_cast<RNonHomogeneousTreeLikelihood *>(this)->computeTreeD2Likelihood("BrLen" + TextTools::toString(_root1));
+    double d21 = - getD2LogLikelihood();
+    const_cast<RNonHomogeneousTreeLikelihood *>(this)->computeTreeDLikelihood("BrLen" + TextTools::toString(_root2));
+    double d2 = - getDLogLikelihood();
+    const_cast<RNonHomogeneousTreeLikelihood *>(this)->computeTreeD2Likelihood("BrLen" + TextTools::toString(_root2));
+    double d22 = - getD2LogLikelihood();
+    double pos = _brLenParameters.getParameter("RootPosition")->getValue();
+    return pos * pos * d21 + (1. - pos) * (1. - pos) * d22 - 2 * pos * (1. - pos) * d1 * d2;
+  }
+  else if(variable == "RootPosition")
+  {
+    
+    vector<double> d(_nbSites);
+    for(unsigned int i = 0; i < _nbSites; i++)
+      d[i] = - getLikelihoodForASite(i);
+    const_cast<RNonHomogeneousTreeLikelihood *>(this)->computeTreeDLikelihood("BrLen" + TextTools::toString(_root1));
+    vector<double> d1(_nbSites);
+    for(unsigned int i = 0; i < _nbSites; i++)
+      d1[i] = - getDLikelihoodForASite(i);
+    const_cast<RNonHomogeneousTreeLikelihood *>(this)->computeTreeD2Likelihood("BrLen" + TextTools::toString(_root1));
+    vector<double> d21(_nbSites);
+    for(unsigned int i = 0; i < _nbSites; i++)
+      d21[i] = - getD2LikelihoodForASite(i);
+    const_cast<RNonHomogeneousTreeLikelihood *>(this)->computeTreeDLikelihood("BrLen" + TextTools::toString(_root2));
+    vector<double> d2(_nbSites);
+    for(unsigned int i = 0; i < _nbSites; i++)
+      d2[i] = - getDLikelihoodForASite(i);
+    const_cast<RNonHomogeneousTreeLikelihood *>(this)->computeTreeD2Likelihood("BrLen" + TextTools::toString(_root2));
+    vector<double> d22(_nbSites);
+    for(unsigned int i = 0; i < _nbSites; i++)
+      d22[i] = - getD2LikelihoodForASite(i);
+    double len = _brLenParameters.getParameter("BrLenRoot")->getValue();
+    double dl = 0;
+    for(unsigned int i = 0; i < _nbSites; i++)
+      dl += len * len * (d21[i] + d22[i]) / d[i]  - std::pow(len * (d1[i] - d2[i]) / d[i], 2.);
+    return dl;
+  }
+  else
+  {
+    const_cast<RNonHomogeneousTreeLikelihood *>(this)->computeTreeD2Likelihood(variable);
+    return - getD2LogLikelihood();
+  }
 }
 
 /******************************************************************************/
 
-void HomogeneousTreeLikelihood::computeTreeD2Likelihood(const string & variable)
+void RNonHomogeneousTreeLikelihood::computeTreeD2Likelihood(const string & variable)
 {
   // Get the node with the branch whose length must be derivated:
   int brI = TextTools::toInt(variable.substr(5));
@@ -664,7 +767,7 @@ void HomogeneousTreeLikelihood::computeTreeD2Likelihood(const string & variable)
 
 /******************************************************************************/
 
-void HomogeneousTreeLikelihood::computeDownSubtreeD2Likelihood(const Node * node)
+void RNonHomogeneousTreeLikelihood::computeDownSubtreeD2Likelihood(const Node * node)
 {
   const Node * father = node->getFather();
   // We assume that the _dLikelihoods array has been filled for the current node 'node'.
@@ -754,14 +857,14 @@ void HomogeneousTreeLikelihood::computeDownSubtreeD2Likelihood(const Node * node
 
 /******************************************************************************/
   
-void HomogeneousTreeLikelihood::computeTreeLikelihood()
+void RNonHomogeneousTreeLikelihood::computeTreeLikelihood()
 {
   computeSubtreeLikelihood(_tree->getRootNode());
 }
 
 /******************************************************************************/  
 
-void HomogeneousTreeLikelihood::computeSubtreeLikelihood(const Node * node)
+void RNonHomogeneousTreeLikelihood::computeSubtreeLikelihood(const Node * node)
 {
   if(node->isLeaf()) return;
 
@@ -827,7 +930,7 @@ void HomogeneousTreeLikelihood::computeSubtreeLikelihood(const Node * node)
 
 /******************************************************************************/
 
-void HomogeneousTreeLikelihood::displayLikelihood(const Node * node)
+void RNonHomogeneousTreeLikelihood::displayLikelihood(const Node * node)
 {
   cout << "Likelihoods at node " << node->getName() << ": " << endl;
   displayLikelihoodArray(_likelihoodData->getLikelihoodArray(node));

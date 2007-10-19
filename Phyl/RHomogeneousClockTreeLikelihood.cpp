@@ -1,6 +1,7 @@
 //
-// File: ClockTreeLikelihood.cpp
+// File: RHomogeneousClockTreeLikelihood.cpp
 // Created by: Benoît Nabholz
+//             Julien Dutheil
 // Created on: Fri Apr 06 14:11 2007
 //
 
@@ -37,7 +38,7 @@ The fact that you are presently reading this means that you have had
 knowledge of the CeCILL license and that you accept its terms.
 */
 
-#include "ClockTreeLikelihood.h"
+#include "RHomogeneousClockTreeLikelihood.h"
 #include "TreeTemplateTools.h"
 #include <iostream>
 using namespace std;
@@ -47,22 +48,21 @@ using namespace std;
 
 /******************************************************************************/
 
-ClockTreeLikelihood::ClockTreeLikelihood(
+RHomogeneousClockTreeLikelihood::RHomogeneousClockTreeLikelihood(
   const Tree & tree,
   SubstitutionModel * model,
   DiscreteDistribution * rDist,
   bool checkRooted,
   bool verbose)
 throw (Exception):
-  HomogeneousTreeLikelihood(tree, model, rDist, false, verbose, true),
-  _percentConstraint(0,1)
+  RHomogeneousTreeLikelihood(tree, model, rDist, false, verbose, true)
 {
   _init();
 }
 
 /******************************************************************************/
 
-ClockTreeLikelihood::ClockTreeLikelihood(
+RHomogeneousClockTreeLikelihood::RHomogeneousClockTreeLikelihood(
   const Tree & tree,
   const SiteContainer & data,
   SubstitutionModel * model,
@@ -70,27 +70,26 @@ ClockTreeLikelihood::ClockTreeLikelihood(
   bool checkRooted,
   bool verbose)
 throw (Exception):
-  HomogeneousTreeLikelihood(tree, data, model, rDist, false, verbose, true),
-  _percentConstraint(0,1)
+  RHomogeneousTreeLikelihood(tree, data, model, rDist, false, verbose, true)
 {
   _init();
 }
 
 /******************************************************************************/
 
-void ClockTreeLikelihood::_init()
+void RHomogeneousClockTreeLikelihood::_init()
 {
-  //Check is ithe tree is rooted:
-  if(!_tree->isRooted()) throw Exception("ClockTreeLikelihood::init(). Tree is unrooted!");
-  if(TreeTemplateTools::isMultifurcating(*_tree->getRootNode())) throw Exception("ClockTreeLikelihood::init(). Tree is multifurcating.");
+  //Check if the tree is rooted:
+  if(!_tree->isRooted()) throw Exception("RHomogeneousClockTreeLikelihood::init(). Tree is unrooted!");
+  if(TreeTemplateTools::isMultifurcating(*_tree->getRootNode())) throw Exception("HomogeneousClockTreeLikelihood::init(). Tree is multifurcating.");
   setMinimumBranchLength(0.);
 }
 
 /******************************************************************************/
 
-void ClockTreeLikelihood::applyParameters() throw (Exception)
+void RHomogeneousClockTreeLikelihood::applyParameters() throw (Exception)
 {
-  if(!_initialized) throw Exception("ClockTreeLikelihood::applyParameters(). Object not initialized.");
+  if(!_initialized) throw Exception("RHomogeneousClockTreeLikelihood::applyParameters(). Object not initialized.");
    //Apply branch lengths:
   _brLenParameters.matchParametersValues(_parameters);
   computeBranchLengthsFromHeights(_tree->getRootNode(), _brLenParameters.getParameter("TotalHeight")->getValue());
@@ -103,7 +102,7 @@ void ClockTreeLikelihood::applyParameters() throw (Exception)
 
 /******************************************************************************/
 
-void ClockTreeLikelihood::initBranchLengthsParameters()
+void RHomogeneousClockTreeLikelihood::initBranchLengthsParameters()
 {
   //Check branch lengths first:
   for(unsigned int i = 0; i < _nbNodes; i++)
@@ -136,14 +135,14 @@ void ClockTreeLikelihood::initBranchLengthsParameters()
     if(!it->first->isLeaf() && it->first->hasFather())
     {
       double fatherHeight = heights[it->first->getFather()];
-      _brLenParameters.addParameter(Parameter("HeightP" + TextTools::toString(it->first->getId()), it->second / fatherHeight, _percentConstraint.clone(), true));
+      _brLenParameters.addParameter(Parameter("HeightP" + TextTools::toString(it->first->getId()), it->second / fatherHeight, &Parameter::PROP_CONSTRAINT_IN, true));
     }
   }
 }
 
 /******************************************************************************/
 
-void ClockTreeLikelihood::computeBranchLengthsFromHeights(Node * node, double height) throw (Exception)
+void RHomogeneousClockTreeLikelihood::computeBranchLengthsFromHeights(Node * node, double height) throw (Exception)
 {
   for(unsigned int i = 0; i < node->getNumberOfSons(); i++)
   {
@@ -155,7 +154,7 @@ void ClockTreeLikelihood::computeBranchLengthsFromHeights(Node * node, double he
     else
     {
       Parameter * p = _brLenParameters.getParameter(string("HeightP") + TextTools::toString(son->getId()));
-      if(p == NULL) throw Exception("ClockTreeLikelihood::computeBranchLengthsFromHeights(). Parameter HeightP" + TextTools::toString(son->getId()) + " was not found."); 
+      if(p == NULL) throw Exception("RHomogeneousClockTreeLikelihood::computeBranchLengthsFromHeights(). Parameter HeightP" + TextTools::toString(son->getId()) + " was not found."); 
       double sonHeightP = p->getValue();
       double sonHeight = sonHeightP * height;
       son->setDistanceToFather(std::max(_minimumBrLen, height - sonHeight));
@@ -166,17 +165,17 @@ void ClockTreeLikelihood::computeBranchLengthsFromHeights(Node * node, double he
 
 /******************************************************************************/
 
-ParameterList ClockTreeLikelihood::getDerivableParameters() const throw (Exception)
+ParameterList RHomogeneousClockTreeLikelihood::getDerivableParameters() const throw (Exception)
 {
-  if(!_initialized) throw Exception("ClockTreeLikelihood::getDerivableParameters(). Object is not initialized.");
+  if(!_initialized) throw Exception("RHomogeneousClockTreeLikelihood::getDerivableParameters(). Object is not initialized.");
   return ParameterList();
 }
 
 /******************************************************************************/
 
-ParameterList ClockTreeLikelihood::getNonDerivableParameters() const throw (Exception)
+ParameterList RHomogeneousClockTreeLikelihood::getNonDerivableParameters() const throw (Exception)
 {
-  if(!_initialized) throw Exception("ClockTreeLikelihood::getNonDerivableParameters(). Object is not initialized.");
+  if(!_initialized) throw Exception("RHomogeneousClockTreeLikelihood::getNonDerivableParameters(). Object is not initialized.");
   return _parameters;
 }
 
@@ -184,7 +183,7 @@ ParameterList ClockTreeLikelihood::getNonDerivableParameters() const throw (Exce
  *                           First Order Derivatives                          *
  ******************************************************************************/  
 
-double ClockTreeLikelihood::getFirstOrderDerivative(const string & variable) const
+double RHomogeneousClockTreeLikelihood::getFirstOrderDerivative(const string & variable) const
 throw (Exception)
 { 
   throw Exception("No first order derivative is implemented for this function.");
@@ -194,7 +193,7 @@ throw (Exception)
  *                           Second Order Derivatives                         *
  ******************************************************************************/  
 
-double ClockTreeLikelihood::getSecondOrderDerivative(const string & variable) const
+double RHomogeneousClockTreeLikelihood::getSecondOrderDerivative(const string & variable) const
 throw (Exception)
 {
   throw Exception("No second order derivative is implemented for this function.");

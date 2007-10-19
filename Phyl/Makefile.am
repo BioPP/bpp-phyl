@@ -3,6 +3,7 @@ AbstractSubstitutionModel.h\
 AbstractTreeLikelihood.h\
 AbstractDiscreteRatesAcrossSitesTreeLikelihood.h\
 AbstractHomogeneousTreeLikelihood.h\
+AbstractNonHomogeneousTreeLikelihood.h\
 AbstractAgglomerativeDistanceMethod.h\
 AncestralStateReconstruction.h\
 MarginalAncestralStateReconstruction.h\
@@ -13,7 +14,13 @@ DSO78.h\
 PseudoNewtonOptimizer.h\
 HKY85.h\
 HomogeneousTreeLikelihood.h\
+RHomogeneousTreeLikelihood.h\
 DRHomogeneousTreeLikelihood.h\
+NNIHomogeneousTreeLikelihood.h\
+NonHomogeneousTreeLikelihood.h\
+RNonHomogeneousTreeLikelihood.h\
+ClockTreeLikelihood.h\
+RHomogeneousClockTreeLikelihood.h\
 DRTreeLikelihoodTools.h\
 IODistanceMatrix.h\
 iodistance\
@@ -26,7 +33,6 @@ K80.h\
 models\
 MutationProcess.h\
 Newick.h\
-NewtonBrentMetaOptimizer.h\
 NucleotideSubstitutionModel.h\
 NeighborJoining.h\
 NNISearchable.h\
@@ -85,8 +91,6 @@ F84.h\
 MarkovModulatedSubstitutionModel.h\
 G2001.h\
 TS98.h\
-NNIHomogeneousTreeLikelihood.h\
-ClockTreeLikelihood.h\
 BipartitionList.h\
 BipartitionTools.h\
 SubstitutionModelSet.h\
@@ -98,15 +102,19 @@ AbstractSubstitutionModel.cpp\
 AbstractTreeLikelihood.cpp\
 AbstractDiscreteRatesAcrossSitesTreeLikelihood.cpp\
 AbstractHomogeneousTreeLikelihood.cpp\
+AbstractNonHomogeneousTreeLikelihood.cpp\
 AbstractAgglomerativeDistanceMethod.cpp\
 PhylogeneticsApplicationTools.cpp\
 DistanceEstimation.cpp\
 DSO78.cpp\
 PseudoNewtonOptimizer.cpp\
 HKY85.cpp\
-HomogeneousTreeLikelihood.cpp\
+RHomogeneousTreeLikelihood.cpp\
+RNonHomogeneousTreeLikelihood.cpp\
 DRASRTreeLikelihoodData.cpp\
 DRHomogeneousTreeLikelihood.cpp\
+NNIHomogeneousTreeLikelihood.cpp\
+RHomogeneousClockTreeLikelihood.cpp\
 DRASDRTreeLikelihoodData.cpp\
 DRTreeLikelihoodTools.cpp\
 JCnuc.cpp\
@@ -117,7 +125,6 @@ MarginalAncestralStateReconstruction.cpp\
 MutationProcess.cpp\
 NeighborJoining.cpp\
 Newick.cpp\
-NewtonBrentMetaOptimizer.cpp\
 Node.cpp\
 OptimizationTools.cpp\
 PatternTools.cpp\
@@ -149,8 +156,6 @@ IOTreeFactory.cpp\
 IODistanceMatrixFactory.cpp\
 F84.cpp\
 MarkovModulatedSubstitutionModel.cpp\
-NNIHomogeneousTreeLikelihood.cpp\
-ClockTreeLikelihood.cpp\
 BipartitionList.cpp\
 BipartitionTools.cpp\
 SubstitutionModelSet.cpp\

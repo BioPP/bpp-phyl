@@ -55,6 +55,7 @@ knowledge of the CeCILL license and that you accept its terms.
 // From NumCalc:
 #include <NumCalc/VectorTools.h>
 #include <NumCalc/ConstantDistribution.h>
+#include <NumCalc/MatrixTools.h>
 
 // From SeqLib:
 #include <Seq/DNA.h>
@@ -647,6 +648,36 @@ DistanceMatrix * TreeTools::getDistanceMatrix(const Tree & tree)
     }
   }
   return mat;
+}
+
+/******************************************************************************/
+
+void TreeTools::midpointRooting(Tree & tree)
+{
+  if(tree.isRooted()) tree.unroot();
+  DistanceMatrix * dist = getDistanceMatrix(tree);
+  vector<unsigned int> pos = MatrixTools::whichmax(*dist);
+  double dmid = (*dist)(pos[0],pos[1]) / 2;
+  int id1 = tree.getLeafId(dist->getName(pos[0])); 
+  int id2 = tree.getLeafId(dist->getName(pos[1])); 
+  int rootId = tree.getRootId();
+  double d1 = getDistanceBetweenAnyTwoNodes(tree, id1, rootId);
+  double d2 = getDistanceBetweenAnyTwoNodes(tree, id2, rootId);
+  int current = d2 > d1 ? id2 : id1;
+  delete dist;
+  double l = tree.getDistanceToFather(current);
+  double c = l;
+  while(c < dmid)
+  {
+    current = tree.getFatherId(current);
+    l = tree.getDistanceToFather(current);
+    c += l;
+  }
+  tree.newOutGroup(current);
+  int brother = tree.getSonsId(tree.getRootId())[1];
+  if(brother == current) brother = tree.getSonsId(tree.getRootId())[0];
+  tree.setDistanceToFather(current, l - (c - dmid)); 
+  tree.setDistanceToFather(brother, c - dmid); 
 }
 
 /******************************************************************************/

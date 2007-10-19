@@ -52,7 +52,7 @@ knowledge of the CeCILL license and that you accept its terms.
  */
 class AbstractDiscreteRatesAcrossSitesTreeLikelihood:
 	public AbstractTreeLikelihood,
-	public DiscreteRatesAcrossSitesTreeLikelihood
+	public virtual DiscreteRatesAcrossSitesTreeLikelihood
 {
 	protected:
 		DiscreteDistribution * _rateDistribution;

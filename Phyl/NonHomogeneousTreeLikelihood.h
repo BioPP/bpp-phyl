@@ -1,7 +1,8 @@
 //
-// File: HomogeneousTreeLikelihood.h
+// File: NonHomogeneousTreeLikelihood.h
 // Created by: Julien Dutheil
 // Created on: Tue Oct 9 16:03 2007
+// From file: HomogeneousTreeLikelihood.h
 //
 
 /*
@@ -37,40 +38,46 @@ The fact that you are presently reading this means that you have had
 knowledge of the CeCILL license and that you accept its terms.
 */
 
-#ifndef _HOMOGENEOUSTREELIKELIHOOD_H_
-#define _HOMOGENEOUSTREELIKELIHOOD_H_
+#ifndef _NONHOMOGENEOUSTREELIKELIHOOD_H_
+#define _NONHOMOGENEOUSTREELIKELIHOOD_H_
 
 #include "TreeLikelihood.h"
-#include "SubstitutionModel.h"
+#include "SubstitutionModelSet.h"
 
 /**
- * @brief Specialization of the TreeLikelihood interface for the Homogeneous case.
+ * @brief Specialization of the TreeLikelihood interface for the Non-homogeneous case.
  *
- * Homogeneous models assume a unique substitution model along the tree.
+ * The main difference is that the likelihood depends on the position of the root.
+ * The frequencies at the root of the tree are new parameters, which are not necessarily equal to the equilibrium frequencies of the substitution model.
  *
- * @see SubstitutionModel.
+ * @see SubstitutionModelSet.
  */
-class HomogeneousTreeLikelihood :
+class NonHomogeneousTreeLikelihood :
 	public virtual TreeLikelihood
 {
 	public:
 #ifndef NO_VIRTUAL_COV
-    HomogeneousTreeLikelihood * clone() const = 0;
+    NonHomogeneousTreeLikelihood * clone() const = 0;
 #endif
 
   public:
 
     /**
-     * @return The substitution model attached to this instance.
+     * @return The set of substitution models associated to this instance.
      */
-    virtual const SubstitutionModel * getSubstitutionModel() const = 0;
-    
+    virtual const SubstitutionModelSet * getSubstitutionModelSet() const = 0;
+
     /**
-     * @return The substitution model attached to this instance.
+     * @return The set of substitution models associated to this instance.
      */
-    virtual SubstitutionModel * getSubstitutionModel() = 0;
+    virtual SubstitutionModelSet * getSubstitutionModelSet() = 0;
+
+    /**
+     * @return The parameters containing the root frequencies.
+     */
+    virtual ParameterList getRootFrequenciesParameters() const = 0;
 
 };
 
-#endif	//_HOMOGENEOUSTREELIKELIHOOD_H_
+#endif	//_NONHOMOGENEOUSTREELIKELIHOOD_H_
 

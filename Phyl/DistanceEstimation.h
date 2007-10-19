@@ -42,15 +42,16 @@ knowledge of the CeCILL license and that you accept its terms.
 #define _DISTANCEESTIMATION_H_
 
 #include "SubstitutionModel.h"
-#include "NewtonBrentMetaOptimizer.h"
 #include "AbstractTreeLikelihood.h"
 #include "DRHomogeneousTreeLikelihood.h"
+#include "PseudoNewtonOptimizer.h"
 
 // From NumCalc
 #include <NumCalc/ParameterList.h>
 #include <NumCalc/DiscreteDistribution.h>
 #include <NumCalc/Optimizer.h>
 #include <NumCalc/SimpleMultiDimensions.h>
+#include <NumCalc/MetaOptimizer.h>
 
 // From SeqLib:
 #include <Seq/SiteContainer.h>
@@ -284,7 +285,7 @@ class DistanceEstimation
 		const SiteContainer * _sites;
 		DistanceMatrix * _dist;
 		Optimizer * _optimizer;
-		NewtonBrentMetaOptimizer * _defaultOptimizer;
+		MetaOptimizer * _defaultOptimizer;
 		unsigned int _verbose;
 		ParameterList _parameters;
 
@@ -369,13 +370,14 @@ class DistanceEstimation
   private:
     void _init()
     {
-    	_defaultOptimizer = new NewtonBrentMetaOptimizer(NULL);
+      MetaOptimizerInfos * desc = new MetaOptimizerInfos();
       vector<string> name;
       name.push_back("BrLen");
-      _defaultOptimizer->setDerivableParameters(name);
+      desc->addOptimizer("Branch length", new PseudoNewtonOptimizer(NULL), name, 2, MetaOptimizerInfos::IT_TYPE_FULL);
       ParameterList tmp = _model->getParameters();
       tmp.addParameters(_rateDist->getParameters());
-      _defaultOptimizer->setNonDerivableParameters(tmp.getParameterNames());
+      desc->addOptimizer("substitution model and rate distribution", new SimpleMultiDimensions(NULL), tmp.getParameterNames(), 0, MetaOptimizerInfos::IT_TYPE_STEP);
+    	_defaultOptimizer = new MetaOptimizer(NULL, desc);
       _defaultOptimizer->setMessageHandler(NULL);
 	    _defaultOptimizer->setProfiler(NULL);
 	    _optimizer = _defaultOptimizer->clone();

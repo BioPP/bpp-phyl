@@ -51,7 +51,8 @@ knowledge of the CeCILL license and that you accept its terms.
  *
  * This model is a subclass of the so-called Markov-modulated substitution models,
  * with a Jukes-Cantor rate matrix, of parameter @f$\nu@f$.
- * It uses a discrete @f$\Gamma@f$ distribution for rates.
+ * the original version uses a discrete @f$\Gamma@f$ distribution for rates, but you can
+ * use it with virtually any rate distribution.
  *
  * @see MarkovModulatedSubstitutionModel
  *
@@ -69,7 +70,8 @@ class G2001:
      * @brief Build a new G2001 substitution model.
      *
      * @param model The substitution model to use. May be of any alphabet type.
-     * @param rDist The discrete distribution for rates.
+     * @param rDist The discrete distribution for rates. The class will own the DiscreteDistribution object,
+     * which will be deleted together with this instance.
      * @param nu    The rate matrix parameter.
      * @param normalizeRateChanges Tell if the rate transition matrix should be normalized.
      */
@@ -86,7 +88,7 @@ class G2001:
       updateMatrices();
     }
 
-    virtual ~G2001() {}
+    virtual ~G2001() { delete _rDist; }
 
     G2001 * clone() const { return new G2001(*this); }
 

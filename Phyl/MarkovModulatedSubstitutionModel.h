@@ -123,7 +123,7 @@ class MarkovModulatedSubstitutionModel:
     /**
      * @brief Build a new MarkovModulatedSubstitutionModel object.
      *
-     * @param model The substitution model to use. Can be of any alphabet type.
+     * @param model The substitution model to use. Can be of any alphabet type, and will be owned by this instance.
      * @param normalizeRateChanges Tells if the branch lengths must be computed in terms of rate and state
      * changes instead of state change only.
      * NB: In most cases, this parameter should be set to false.
@@ -133,7 +133,7 @@ class MarkovModulatedSubstitutionModel:
       _ratesFreq(), _ratesGenerator(), _ratesParameters(), _generator(), _exchangeability(),
       _leftEigenVectors(), _rightEigenVectors(), _eigenValues(), _freq(), _normalizeRateChanges(normalizeRateChanges) {}
     
-    virtual ~MarkovModulatedSubstitutionModel() {}
+    virtual ~MarkovModulatedSubstitutionModel() { delete _model; }
 
     MarkovModulatedSubstitutionModel * clone() const = 0;
 

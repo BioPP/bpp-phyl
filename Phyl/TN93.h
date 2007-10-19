@@ -107,10 +107,12 @@ class TN93:
   public NucleotideSubstitutionModel
 {
 	protected:
-		Constraint * piConstraint;
     double _kappa1, _kappa2, _piA, _piC, _piG, _piT, _piY, _piR, _r, _k1, _k2;
     mutable double _exp1, _exp21, _exp22, _l;
     mutable RowMatrix<double> _p;
+
+  public:
+    static IncludingInterval PI_CONSTRAINT;
 
 	public:
 		TN93(
@@ -122,7 +124,7 @@ class TN93:
 			double piG = 0.25,
 			double piT = 0.25);
 	
-		virtual ~TN93();
+		virtual ~TN93() {}
 
     TN93 * clone() const { return new TN93(*this); }
 

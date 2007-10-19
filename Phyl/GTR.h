@@ -115,8 +115,10 @@ class GTR:
   public NucleotideSubstitutionModel
 {
 	protected:
-		Constraint * piConstraint;
     double _a, _b, _c, _d, _e, _piA, _piC, _piG, _piT, _p;
+
+  public:
+    static IncludingInterval PI_CONSTRAINT;
 
 	public:
 		GTR(
@@ -131,7 +133,7 @@ class GTR:
 			double piG = 0.25,
 			double piT = 0.25);
 	
-		virtual ~GTR();
+		virtual ~GTR() {}
 
     GTR * clone() const { return new GTR(*this); }
 

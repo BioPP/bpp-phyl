@@ -39,7 +39,6 @@ knowledge of the CeCILL license and that you accept its terms.
 
 #include "OptimizationTools.h"
 #include "PseudoNewtonOptimizer.h"
-#include "NewtonBrentMetaOptimizer.h"
 #include "NNISearchable.h"
 #include "NNITopologySearch.h"
 #include "Newick.h"
@@ -54,6 +53,7 @@ knowledge of the CeCILL license and that you accept its terms.
 #include <NumCalc/ConjugateGradientMultiDimensions.h>
 #include <NumCalc/DownhillSimplexMethod.h>
 #include <NumCalc/BrentOneDimension.h>
+#include <NumCalc/MetaOptimizer.h>
 #include <NumCalc/OptimizationStopCondition.h>
 #include <NumCalc/FivePointsNumericalDerivative.h>
 #include <NumCalc/ThreePointsNumericalDerivative.h>
@@ -142,11 +142,39 @@ unsigned int OptimizationTools::optimizeNumericalParameters(
   )  throw (Exception)
 {
   // Build optimizer:
-  string method;
-  if(optMethod == OPTIMIZATION_GRADIENT) method = NewtonBrentMetaOptimizer::TYPE_CONJUGATEGRADIENT;
-  else if(optMethod == OPTIMIZATION_NEWTON) method = NewtonBrentMetaOptimizer::TYPE_PSEUDONEWTON;
+  MetaOptimizerInfos * desc = new MetaOptimizerInfos();
+  TwoPointsNumericalDerivative * tld1 = NULL; 
+  TwoPointsNumericalDerivative * tld2 = NULL; 
+  if(optMethod == OPTIMIZATION_GRADIENT)
+    desc->addOptimizer("Branch length parameters", new ConjugateGradientMultiDimensions(tl), tl->getBranchLengthsParameters().getParameterNames(), 2, MetaOptimizerInfos::IT_TYPE_FULL);
+  else if(optMethod == OPTIMIZATION_NEWTON)
+    desc->addOptimizer("Branch length parameters", new PseudoNewtonOptimizer(tl), tl->getBranchLengthsParameters().getParameterNames(), 2, MetaOptimizerInfos::IT_TYPE_FULL);
   else throw Exception("OptimizationTools::optimizeNumericalParameters. Unknown optimization method: " + optMethod);
-  NewtonBrentMetaOptimizer optimizer(tl, method, NewtonBrentMetaOptimizer::IT_TYPE_FULL, nstep);
+  
+  ParameterList plsm = tl->getSubstitutionModelParameters();
+  if(plsm.size() < 10)
+    desc->addOptimizer("Substitution model parameter", new SimpleMultiDimensions(tl), plsm.getParameterNames(), 0, MetaOptimizerInfos::IT_TYPE_STEP);
+  else
+  {
+    tld1 = new TwoPointsNumericalDerivative(tl);
+    tld1->setInterval(0.0000001);
+    tld1->setParametersToDerivate(plsm.getParameterNames());
+    desc->addOptimizer("Substitution model parameters", new ConjugateGradientMultiDimensions(tld1), plsm.getParameterNames(), 0, MetaOptimizerInfos::IT_TYPE_FULL);
+  }
+  
+
+  ParameterList plrd = tl->getRateDistributionParameters();
+  if(plrd.size() < 10)
+    desc->addOptimizer("Rate distribution parameter", new SimpleMultiDimensions(tl), plrd.getParameterNames(), 0, MetaOptimizerInfos::IT_TYPE_STEP);
+  else
+  {
+    tld2 = new TwoPointsNumericalDerivative(tl);
+    tld2->setInterval(0.0000001);
+    tld2->setParametersToDerivate(plrd.getParameterNames());
+    desc->addOptimizer("Rate distribution parameters", new ConjugateGradientMultiDimensions(tld2), plrd.getParameterNames(), 0, MetaOptimizerInfos::IT_TYPE_FULL);
+  }
+   
+  MetaOptimizer optimizer(tl, desc, nstep);
   optimizer.setVerbose(verbose);
   optimizer.setProfiler(profiler);
   optimizer.setMessageHandler(messageHandler);
@@ -154,15 +182,15 @@ unsigned int OptimizationTools::optimizeNumericalParameters(
   optimizer.getStopCondition()->setTolerance(tolerance);
   
   // Optimize TreeLikelihood function:
-  optimizer.setDerivableParameters(tl->getDerivableParameters().getParameterNames());
-  optimizer.setNonDerivableParameters(tl->getNonDerivableParameters().getParameterNames());
   ParameterList pl = tl->getParameters();
   optimizer.setConstraintPolicy(AutoParameter::CONSTRAINTS_AUTO);
   if(listener) optimizer.addOptimizationListener(listener);
   optimizer.init(pl);
   optimizer.optimize();
   if(verbose > 0) ApplicationTools::displayMessage("\n");
-  
+  if(tld1 != NULL) delete tld1;
+  if(tld2 != NULL) delete tld2;
+
   // We're done.
   return optimizer.getNumberOfEvaluations(); 
 }
@@ -219,6 +247,10 @@ unsigned int OptimizationTools::optimizeNumericalParameters2(
   // We're done.
   unsigned int n = optimizer->getNumberOfEvaluations(); 
   delete optimizer;
+  delete fun;
+
+  if(verbose > 0) ApplicationTools::displayMessage("\n");
+  
   return n;
 }
 
@@ -265,7 +297,7 @@ unsigned int OptimizationTools::optimizeBranchLengthsParameters(
 /******************************************************************************/
 
 unsigned int OptimizationTools::optimizeNumericalParametersWithGlobalClock(
-  ClockTreeLikelihood * cl,
+  DiscreteRatesAcrossSitesClockTreeLikelihood * cl,
   OptimizationListener * listener,
   unsigned int nstep,
   double tolerance,
@@ -279,30 +311,38 @@ unsigned int OptimizationTools::optimizeNumericalParametersWithGlobalClock(
   AbstractNumericalDerivative * fun = NULL;
 
   // Build optimizer:
-  string method;
+  MetaOptimizerInfos * desc = new MetaOptimizerInfos();
   if(optMethod == OPTIMIZATION_GRADIENT)
   {
     fun = new TwoPointsNumericalDerivative(cl);
     fun->setInterval(0.0000001);
-    method = NewtonBrentMetaOptimizer::TYPE_CONJUGATEGRADIENT;
+    desc->addOptimizer("Branch length parameters", new ConjugateGradientMultiDimensions(fun), cl->getBranchLengthsParameters().getParameterNames(), 2, MetaOptimizerInfos::IT_TYPE_FULL);
   }
   else if(optMethod == OPTIMIZATION_NEWTON) 
   {
     fun = new ThreePointsNumericalDerivative(cl);
     fun->setInterval(0.0001);
-    method = NewtonBrentMetaOptimizer::TYPE_PSEUDONEWTON;
+    desc->addOptimizer("Branch length parameters", new PseudoNewtonOptimizer(fun), cl->getBranchLengthsParameters().getParameterNames(), 2, MetaOptimizerInfos::IT_TYPE_FULL);
   }
   else throw Exception("OptimizationTools::optimizeNumericalParametersWithGlobalClock. Unknown optimization method: " + optMethod);
 
   //Numerical derivatives:
   ParameterList tmp = cl->getBranchLengthsParameters();
   fun->setParametersToDerivate(tmp.getParameterNames());
-  ParameterList tmp2 = cl->getSubstitutionModelParameters();
-  tmp2.addParameters(cl->getRateDistributionParameters());
 
-  NewtonBrentMetaOptimizer optimizer(fun, method, NewtonBrentMetaOptimizer::IT_TYPE_FULL, nstep);
-  optimizer.setDerivableParameters(tmp.getParameterNames());
-  optimizer.setNonDerivableParameters(tmp2.getParameterNames());
+  ParameterList plsm = cl->getSubstitutionModelParameters();
+  if(plsm.size() < 10)
+    desc->addOptimizer("Substitution model parameter", new SimpleMultiDimensions(cl), plsm.getParameterNames(), 0, MetaOptimizerInfos::IT_TYPE_STEP);
+  else
+    desc->addOptimizer("Substitution model parameters", new DownhillSimplexMethod(cl), plsm.getParameterNames(), 0, MetaOptimizerInfos::IT_TYPE_FULL);
+  
+  ParameterList plrd = cl->getRateDistributionParameters();
+  if(plrd.size() < 10)
+    desc->addOptimizer("Rate distribution parameter", new SimpleMultiDimensions(cl), plrd.getParameterNames(), 0, MetaOptimizerInfos::IT_TYPE_STEP);
+  else
+    desc->addOptimizer("Rate dsitribution parameters", new DownhillSimplexMethod(cl), plrd.getParameterNames(), 0, MetaOptimizerInfos::IT_TYPE_FULL);
+ 
+  MetaOptimizer optimizer(fun, desc, nstep);
   optimizer.setVerbose(verbose);
   optimizer.setProfiler(profiler);
   optimizer.setMessageHandler(messageHandler);
@@ -324,7 +364,7 @@ unsigned int OptimizationTools::optimizeNumericalParametersWithGlobalClock(
 /******************************************************************************/
 
 unsigned int OptimizationTools::optimizeNumericalParametersWithGlobalClock2(
-  ClockTreeLikelihood * cl,
+  DiscreteRatesAcrossSitesClockTreeLikelihood * cl,
   OptimizationListener * listener,
   double tolerance,
   unsigned int tlEvalMax,

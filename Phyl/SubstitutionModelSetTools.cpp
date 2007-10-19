@@ -41,34 +41,43 @@ knowledge of the CeCILL license and that you accept its terms.
 
 SubstitutionModelSet * SubstitutionModelSetTools::createHomogeneousModelSet(SubstitutionModel *model, const Tree *tree) throw (AlphabetException, Exception)
 {
-  SubstitutionModelSet * modelSet = new SubstitutionModelSet(model->getAlphabet());
+  SubstitutionModelSet * modelSet = new SubstitutionModelSet(model->getAlphabet(), new FullFrequenciesSet(model->getAlphabet(), model->getFrequencies(), "RootFreq"));
   //We assign this model to all nodes in the tree (excepted root node), and link all parameters with it.
   vector<int> ids = tree->getNodesId();
   int rootId = tree->getRootId();
   remove(ids.begin(), ids.end(), rootId);
   modelSet->addModel(model, ids, model->getParameters().getParameterNames());
-  modelSet->setRootFrequencies(model->getFrequencies());
   return modelSet;
 }
 
-SubstitutionModelSet * SubstitutionModelSetTools::createNonHomogeneousModelSet(SubstitutionModel *model, const Tree *tree, const vector<string> & globalParameterNames) throw (AlphabetException, Exception)
+SubstitutionModelSet * SubstitutionModelSetTools::createNonHomogeneousModelSet(SubstitutionModel *model, const Tree *tree, const vector<string> & globalParameterNames, FrequenciesSet * rootFreqs) throw (AlphabetException, Exception)
 {
   ParameterList globalParameters, branchParameters;
   globalParameters = model->getParameters();
   for(unsigned int i = globalParameters.size(); i > 0; i--)
   {
-    if(find(globalParameterNames.begin(), globalParameterNames.end(), globalParameters[i]->getName()) == globalParameterNames.end())
+    if(find(globalParameterNames.begin(), globalParameterNames.end(), globalParameters[i-1]->getName()) == globalParameterNames.end())
     {
       //not a global parameter:
-      branchParameters.addParameter(*globalParameters[i]);
-      globalParameters.erase(globalParameters.begin() + i);
+      branchParameters.addParameter(*globalParameters[i-1]);
+      globalParameters.deleteParameter(i - 1);
     }
   }
-  SubstitutionModelSet * modelSet = new SubstitutionModelSet(model->getAlphabet());
+  if(rootFreqs == NULL) rootFreqs = new FullFrequenciesSet(model->getAlphabet(), "RootFreq");
+  SubstitutionModelSet * modelSet = new SubstitutionModelSet(model->getAlphabet(), rootFreqs);
   //We assign a copy of this model to all nodes in the tree (excepted root node), and link all parameters with it.
   vector<int> ids = tree->getNodesId();
   int rootId = tree->getRootId();
-  remove(ids.begin(), ids.end(), rootId);
+  unsigned int pos = 0;
+  for(unsigned int i = 0; i < ids.size(); i++)
+  {
+    if(ids[i] == rootId)
+    {
+      pos = i;
+      break;
+    }
+  }
+  ids.erase(ids.begin() + pos);
   for(unsigned int i = 0; i < ids.size(); i++)
   {
     modelSet->addModel(dynamic_cast<SubstitutionModel *>(model->clone()), vector<int>(1, ids[i]), branchParameters.getParameterNames());

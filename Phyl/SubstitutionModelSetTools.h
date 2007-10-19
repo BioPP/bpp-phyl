@@ -70,9 +70,11 @@ class SubstitutionModelSetTools
      * @param model                The model to use.
      * @param tree                 The tree to use for the construction of the set.
      * @param globalParameterNames Common parameters for all branches.
+     * @param rootFreqs            A FrequenciesSet object to parametrize root frequencies.
+     *                             If NULL, a FullFrequenciesSet with equal probabilities will be used.
      * All other parameters will be considered distinct for all branches.
      */
-    static SubstitutionModelSet * createNonHomogeneousModelSet(SubstitutionModel *model, const Tree *tree, const vector<string> & globalParameterNames) throw (AlphabetException, Exception);
+    static SubstitutionModelSet * createNonHomogeneousModelSet(SubstitutionModel *model, const Tree *tree, const vector<string> & globalParameterNames, FrequenciesSet * rootFreqs = NULL) throw (AlphabetException, Exception);
 
 };
 

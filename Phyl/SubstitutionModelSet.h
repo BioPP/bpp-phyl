@@ -42,23 +42,188 @@ knowledge of the CeCILL license and that you accept its terms.
 #define _SUBSTITUTIONMODELSET_H_
 
 
+#include "Phyl/Tree.h"
 #include "Phyl/SubstitutionModel.h"
 #include "Phyl/AbstractSubstitutionModel.h"
 
 // From NumCalc:
 #include <NumCalc/RandomTools.h>
+#include <NumCalc/VectorTools.h>
 
 // From utils:
 #include <Utils/Exceptions.h>
 
 //From Seqlib:
 #include <Seq/Alphabet.h>
+#include <Seq/NucleicAlphabet.h>
 
 // From the STL:
 #include <vector>
 #include <map>
 #include <algorithm>
 using namespace std;
+
+class FrequenciesSet:
+  public virtual Parametrizable
+{
+  public:
+#ifndef NO_VIRTUAL_COV
+    FrequenciesSet * clone() const = 0;
+#endif
+  public:
+    virtual const Alphabet * getAlphabet() const = 0;
+    virtual vector<double> getFrequencies() const = 0;
+    virtual unsigned int getNumberOfParameters() const = 0;
+};
+
+class AbstractFrequenciesSet:
+  public virtual FrequenciesSet,
+  public AbstractParametrizable
+{
+  protected:
+    const Alphabet * _alphabet;
+    vector<double> _freq;
+
+  public:
+    AbstractFrequenciesSet(const Alphabet * alphabet): _alphabet(alphabet) {}
+  
+  public:
+    const Alphabet * getAlphabet() const { return _alphabet; }
+    vector<double> getFrequencies() const { return _freq; }
+    unsigned int getNumberOfParameters() const { return _parameters.size(); }
+};
+
+class FullFrequenciesSet:
+  public AbstractFrequenciesSet
+{
+  public:
+    FullFrequenciesSet(const Alphabet * alphabet, const string & prefix = ""):
+      AbstractFrequenciesSet(alphabet)
+    {
+      _freq.resize(alphabet->getSize());
+      for(unsigned int i = 0; i < alphabet->getSize(); i++)
+      {
+        _parameters.addParameter(Parameter(prefix + alphabet->intToChar((int)i), 1. / alphabet->getSize(), &Parameter::PROP_CONSTRAINT_IN));
+        _freq[i] = 1. / alphabet->getSize();
+      }
+    }
+    FullFrequenciesSet(const Alphabet * alphabet, const vector<double> & initFreqs, const string & prefix = "") throw (Exception):
+      AbstractFrequenciesSet(alphabet)
+    {
+      if(initFreqs.size() != alphabet->getSize())
+        throw Exception("FullFrequenciesSet(constructor). There must be " + TextTools::toString(alphabet->getSize()) + " frequencies.");
+      double sum = 0.0;
+      for(unsigned int i = 0; i < initFreqs.size(); i++)
+      {
+        sum += initFreqs[i];
+      }
+      if(fabs(1-sum) > 0.00000000000001)
+      {
+        throw Exception("Root frequencies must equal 1.");
+      }
+      _freq.resize(alphabet->getSize());
+      for(unsigned int i = 0; i < alphabet->getSize(); i++)
+      {
+        _parameters.addParameter(Parameter(prefix + alphabet->intToChar((int)i), initFreqs[i], &Parameter::PROP_CONSTRAINT_IN));
+        _freq[i] = initFreqs[i];
+      }
+    }
+#ifndef NO_VIRTUAL_COV
+    FullFrequenciesSet *
+#else
+    Clonable *
+#endif
+    clone() const { return new FullFrequenciesSet(*this); }
+
+  public:
+    void fireParameterChanged(const ParameterList & pl)
+    {
+      for(unsigned int i = 0; i < _alphabet->getSize(); i++)
+      {
+        _freq[i] = _parameters[i]->getValue();
+      }
+    }
+};
+
+class GCFrequenciesSet:
+  public AbstractFrequenciesSet
+{
+  public:
+    GCFrequenciesSet(const NucleicAlphabet * alphabet, const string & prefix = ""):
+      AbstractFrequenciesSet(alphabet)
+    {
+      _freq.resize(4);
+      _parameters.addParameter(Parameter(prefix + "theta", 0.5, &Parameter::PROP_CONSTRAINT_IN));
+      _freq[0] = _freq[1] = _freq[2] = _freq[3] = 0.25;
+    }
+    GCFrequenciesSet(const NucleicAlphabet * alphabet, double theta, const string & prefix = ""):
+      AbstractFrequenciesSet(alphabet)
+    {
+      _freq.resize(4);
+      _parameters.addParameter(Parameter(prefix + "theta", theta, &Parameter::PROP_CONSTRAINT_IN));
+      _freq[0] = _freq[3] = (1. - theta) / 2.;
+      _freq[1] = _freq[2] = theta / 2.;
+    }
+#ifndef NO_VIRTUAL_COV
+    GCFrequenciesSet *
+#else
+    Clonable *
+#endif
+    clone() const { return new GCFrequenciesSet(*this); }
+
+  public:
+    void fireParameterChanged(const ParameterList & pl)
+    {
+      double theta = _parameters[0]->getValue();
+      _freq[0] = _freq[3] = (1. - theta) / 2.;
+      _freq[1] = _freq[2] = theta / 2.;
+    }
+};
+
+class MarkovModulatedFrequenciesSet:
+  public AbstractFrequenciesSet
+{
+  protected:
+    FrequenciesSet * _freqSet;
+    vector<double> _rateFreqs;
+  public:
+    MarkovModulatedFrequenciesSet(const MarkovModulatedFrequenciesSet & mmfs):
+      AbstractFrequenciesSet(mmfs)
+    {
+      _freqSet = dynamic_cast<FrequenciesSet *>(mmfs._freqSet->clone());
+      _rateFreqs = mmfs._rateFreqs;
+    }
+    MarkovModulatedFrequenciesSet & operator=(const MarkovModulatedFrequenciesSet & mmfs)
+    {
+      AbstractFrequenciesSet::operator=(mmfs);
+      _freqSet = dynamic_cast<FrequenciesSet *>(mmfs._freqSet->clone());
+      _rateFreqs = mmfs._rateFreqs;
+      return *this;
+    }
+    MarkovModulatedFrequenciesSet(FrequenciesSet * freqSet, const vector<double> & rateFreqs):
+      AbstractFrequenciesSet(freqSet->getAlphabet()), _rateFreqs(rateFreqs)
+    {
+      _freq.resize(_alphabet->getSize() * rateFreqs.size());
+      _parameters.addParameters(_freqSet->getParameters());
+      _freq = VectorTools::kroneckerMult(rateFreqs, _freqSet->getFrequencies());
+    }
+#ifndef NO_VIRTUAL_COV
+    MarkovModulatedFrequenciesSet *
+#else
+    Clonable *
+#endif
+    clone() const { return new MarkovModulatedFrequenciesSet(*this); }
+
+    virtual ~MarkovModulatedFrequenciesSet() { delete _freqSet; }
+
+  public:
+    void fireParameterChanged(const ParameterList & pl)
+    {
+      _freqSet->matchParametersValues(pl);
+      _freq = VectorTools::kroneckerMult(_rateFreqs, _freqSet->getFrequencies());
+    }
+};
+
 
 /**
  * @brief Substitution models manager for heterogenous models of evolution.
@@ -81,23 +246,35 @@ class SubstitutionModelSet:
 {
   protected:
     /**
+     * @brief A pointer toward the comon alphabet to all models in the set.
+     */
+    const Alphabet * _alphabet;
+
+    /**
      * @brief contains all models used in this tree.
      */
     vector<SubstitutionModel *> _modelSet;
 
     /**
+     * @brief Root frequencies.
+     */
+    FrequenciesSet * _rootFrequencies;
+
+    /**
      * @brief contains for each node in a tree the index of the corresponding model in _modelSet
      */
     mutable map<int, unsigned int> _nodeToModel;
+    mutable map<unsigned int, int> _modelToNode;
 
     /**
      * @brief contains for each parameter in the list the indexes of the corresponding models in _modelSet that share this parameter.
      */
     vector< vector<unsigned int> > _paramToModels;
 
+    map<string, unsigned int> _paramNamesCount;
+
     /**
      * @brief contains for each parameter in the list the corresponding name in substitution models.
-     *
      */
     vector<string> _modelParameterNames;
 
@@ -106,89 +283,22 @@ class SubstitutionModelSet:
      *
      * The _parameters field, inherited from AbstractSubstitutionModel contains all parameters, with unique names.
      * To make the correspondance with parameters for each model in the set, we duplicate them in this array.
-     * In most cases, this is something like 'theta0 <=> theta', 'theta2 <=> theta', etc.
+     * In most cases, this is something like 'theta_1 <=> theta', 'theta_2 <=> theta', etc.
      */
     vector<ParameterList> _modelParameters;
 
-    /**
-     * @brief A pointer toward the comon alphabet to all models in the set.
-     */
-    const Alphabet * _alphabet;
-
-    IncludingInterval _freqConstraint;
-
-    /**
-     * @brief Root frequencies.
-     */
-    vector <double> _rootFrequencies;
-
   public:
   
-    SubstitutionModelSet(const Alphabet *alpha): _alphabet(alpha), _freqConstraint(0, 1)
+    SubstitutionModelSet(const Alphabet *alpha): _alphabet(alpha)
     {
-      double temp = 1. / (double)(_alphabet->getSize());
-      for(unsigned int i = 0; i < _alphabet->getSize(); i++)
-      {
-        _parameters.addParameter(Parameter("RootFreq" + TextTools::toString(i), temp, & _freqConstraint));
-        _modelParameterNames.push_back("RootFreq" + TextTools::toString(i)); //Just to maintain correspondance between indices. These names are actually never used.
-      }
-      _rootFrequencies.resize(_alphabet->getSize());
-      updateRootFrequencies();
+      _rootFrequencies = new FullFrequenciesSet(alpha, "RootFreq");
+      _parameters.addParameters(_rootFrequencies->getParameters());
     }
 
-    SubstitutionModelSet(const Alphabet *alpha, const vector<double> & rootFreqs): _alphabet(alpha), _freqConstraint(0, 1), _rootFrequencies(rootFreqs) {}
-
-    SubstitutionModelSet(): _alphabet(NULL), _freqConstraint(0, 1) {}
-
-
-//Plutot en classe utilitaire
-/*  SubstitutionModelSet(map<string, string> & params)
-  {
-    _alphabet = SequenceApplicationTools::getAlphabet(params, "", false);
-    if (_alphabet->getSize()==4){
-      _initialFrequencies.push_back(ApplicationTools::getDoubleParameter("ancA", params, 0.25));
-      _initialFrequencies.push_back(ApplicationTools::getDoubleParameter("ancC", params, 0.25));
-      _initialFrequencies.push_back(ApplicationTools::getDoubleParameter("ancG", params, 0.25));
-      _initialFrequencies.push_back(ApplicationTools::getDoubleParameter("ancT", params, 0.25));
+    SubstitutionModelSet(const Alphabet *alpha, FrequenciesSet * rootFreqs): _alphabet(alpha), _rootFrequencies(rootFreqs)
+    {
+      _parameters.addParameters(_rootFrequencies->getParameters());
     }
-    else if (_alphabet->getSize()==20) {
-      _initialFrequencies.push_back(ApplicationTools::getDoubleParameter("ancA", params, 0.05));
-      _initialFrequencies.push_back(ApplicationTools::getDoubleParameter("ancC", params, 0.05));
-      _initialFrequencies.push_back(ApplicationTools::getDoubleParameter("ancD", params, 0.05));
-      _initialFrequencies.push_back(ApplicationTools::getDoubleParameter("ancE", params, 0.05));
-      _initialFrequencies.push_back(ApplicationTools::getDoubleParameter("ancF", params, 0.05));
-      _initialFrequencies.push_back(ApplicationTools::getDoubleParameter("ancG", params, 0.05));
-      _initialFrequencies.push_back(ApplicationTools::getDoubleParameter("ancH", params, 0.05));
-      _initialFrequencies.push_back(ApplicationTools::getDoubleParameter("ancI", params, 0.05));
-      _initialFrequencies.push_back(ApplicationTools::getDoubleParameter("ancK", params, 0.05));
-      _initialFrequencies.push_back(ApplicationTools::getDoubleParameter("ancL", params, 0.05));
-      _initialFrequencies.push_back(ApplicationTools::getDoubleParameter("ancM", params, 0.05));
-      _initialFrequencies.push_back(ApplicationTools::getDoubleParameter("ancN", params, 0.05));
-      _initialFrequencies.push_back(ApplicationTools::getDoubleParameter("ancP", params, 0.05));
-      _initialFrequencies.push_back(ApplicationTools::getDoubleParameter("ancQ", params, 0.05));
-      _initialFrequencies.push_back(ApplicationTools::getDoubleParameter("ancR", params, 0.05));
-      _initialFrequencies.push_back(ApplicationTools::getDoubleParameter("ancS", params, 0.05));
-      _initialFrequencies.push_back(ApplicationTools::getDoubleParameter("ancT", params, 0.05));
-      _initialFrequencies.push_back(ApplicationTools::getDoubleParameter("ancV", params, 0.05));
-      _initialFrequencies.push_back(ApplicationTools::getDoubleParameter("ancW", params, 0.05));
-      _initialFrequencies.push_back(ApplicationTools::getDoubleParameter("ancY", params, 0.05));
-    }
-    else {
-      for (int i=0;i<_alphabet->getSize();i++) {
-	double temp =1.0/(double)(_alphabet->getSize());
-	_initialFrequencies.push_back(temp);
-      }
-    }
-
-    double sum=0.0;
-    for (int i=0;i<_alphabet->getSize();i++) {
-      sum += _initialFrequencies[i];
-    }
-    if( fabs(1-(sum)) > 0.00000000000001 )
-      {
-	throw Exception("Equilibrium base frequencies must equal 1. Aborting...");
-      }
-  }*/
 
     SubstitutionModelSet(const SubstitutionModelSet & set);
     
@@ -197,6 +307,7 @@ class SubstitutionModelSet:
     virtual ~SubstitutionModelSet()
     {
       for(unsigned int i = 0; i < _modelSet.size(); i++) delete _modelSet[i];
+      delete _rootFrequencies;
     }
 
     SubstitutionModelSet * clone() const { return new SubstitutionModelSet(*this); }
@@ -211,8 +322,14 @@ class SubstitutionModelSet:
      */
     unsigned int getNumberOfStates() const throw (Exception)
     {
-      if(_modelSet.size() == 0) throw Exception("SubstitutionModelSet::getNumberOfStates(). No model associated to this set!");
-      return _modelSet[0]->getNumberOfStates();
+      return _rootFrequencies->getFrequencies().size();
+    }
+
+    unsigned int getParameterIndex(const string & name) const throw (ParameterNotFoundException)
+    {
+      for(unsigned int i = 0; i < _parameters.size(); i++)
+        if(_parameters[i]->getName() == name) return i;
+      throw ParameterNotFoundException("SubstitutionModelSet::getParameterIndex.", name);
     }
 
     /**
@@ -221,6 +338,65 @@ class SubstitutionModelSet:
      * @param parameters The modified parameters.
      */
     void fireParameterChanged(const ParameterList & parameters);
+
+    /**
+     * @return The current number of distinct substitution models in this set.
+     */
+    unsigned int getNumberOfModels() const { return _modelSet.size(); }
+
+    /**
+     * @brief Get one model from the set knowing its index.
+     *
+     * @param i Index of the model in the set.
+     * @return A pointer toward the corresponding model.
+     */
+    const SubstitutionModel * getModel(unsigned int i) const throw (IndexOutOfBoundsException)
+    {
+      if(i > _modelSet.size()) throw IndexOutOfBoundsException("SubstitutionModelSet::getNumberOfModels().", 0, _modelSet.size()-1, i);
+      return _modelSet[i];
+    }
+
+    /**
+     * @brief Get the model associated to a particular node id.
+     *
+     * @param nodeId The id of the query node.
+     * @return A pointer toward the corresponding model.
+     * @throw Exception If no model is found for this node.
+     */
+    const SubstitutionModel * getModelForNode(int nodeId) const throw (Exception)
+    {
+      map<int, unsigned int>::iterator i = _nodeToModel.find(nodeId);
+      if(i == _nodeToModel.end())
+        throw Exception("SubstitutionModelSet::getModelForNode(). No model associated to node with id " + TextTools::toString(nodeId));
+      return _modelSet[i->second];
+    }
+    SubstitutionModel * getModelForNode(int nodeId) throw (Exception)
+    {
+      map<int, unsigned int>::const_iterator i = _nodeToModel.find(nodeId);
+      if(i == _nodeToModel.end())
+        throw Exception("SubstitutionModelSet::getModelForNode(). No model associated to node with id " + TextTools::toString(nodeId));
+      return _modelSet[i->second];
+    }
+
+    /**
+     * @return The list of nodes with a model containing the specified parameter.
+     */
+    vector<int> getNodesWithParameter(const string & name) const
+    {
+      vector<int> ids;
+      unsigned int offset = _rootFrequencies->getNumberOfParameters();
+      for(unsigned int i = 0; i < _paramToModels.size(); i++)
+      {
+        if(_parameters[offset + i]->getName() == name)
+        {
+          ids.resize(_paramToModels[i].size());
+          for(unsigned int j = 0; j < ids.size(); j++)
+            ids[j] = _modelToNode[_paramToModels[i][j]];
+          return ids;
+        }
+      }
+      return ids;
+    }
 
     /**
      * @brief Add a new model to the set, and set relationships with nodes and params.
@@ -306,58 +482,72 @@ class SubstitutionModelSet:
      */
     void addParameters(const ParameterList & parameters, const vector<int> & nodesId) throw (Exception);
  
-    void removeModel(unsigned int modelIndex)
-    {
-      _modelSet.erase(_modelSet.begin() + modelIndex);
-      if(!checkOrphanParameters()) throw Exception("DEBUG: SubstitutionModelSet::removeModel. Orphan parameter!");
-      if(!checkOrphanNodes())      throw Exception("DEBUG: SubstitutionModelSet::removeModel. Orphan node!");
-    }
-
     /**
-     * @brief Get a reference toward the model associated to node with the specified id, if any.
+     * @brief Remove a model from the set, and all corresponding parameters.
      *
-     * @param nodeId The id of the node to search.
-     * @return A pointer toward the associated model, NULL if no model is associated with this node.
+     * @param modelIndex The index of the model in the set.
+     * @throw Exception if a parameter becomes orphan because of the removal.
      */
-    const SubstitutionModel * getModelForNode(int nodeId) const;
- 
-    /**
-     * @brief Get a reference toward the model associated to node with the specified id, if any.
-     *
-     * @param nodeId The id of the node to search.
-     * @return A pointer toward the associated model, NULL if no model is associated with this node.
-     */
-    SubstitutionModel * getModelForNode(int nodeId);
+    void removeModel(unsigned int modelIndex) throw (Exception);
 
     void listModelNames(ostream & out = cout) const;
 
-    //Check sum to 1?
-    void setRootFrequencies(const vector<double> & initFreqs) 
-    {
-      _rootFrequencies = initFreqs;
-      for(unsigned int i = 0; i < _alphabet->getSize(); i++)
-      {
-        _parameters[i]->setValue(initFreqs[i]);
-      }
+    //void setRootFrequencies(const vector<double> & initFreqs) throw (Exception);
+
+    vector<double> getRootFrequencies() const { return _rootFrequencies->getFrequencies(); }
+    
+    /**
+     * @brief Get the parameters corresponding to the root frequencies.
+     *
+     * This corresponds to the [number of states] parameters in the list.
+     *
+     * @return The parameters corresponding to the root frequencies.
+     */
+    ParameterList getRootFrequenciesParameters() const
+    { 
+      return _rootFrequencies->getParameters();
     }
 
-    vector<double> getRootFrequencies() const { return _rootFrequencies; }
-
     const Alphabet * getAlphabet() const { return _alphabet; }
+
+    /**
+     * @brief Check if the model set is fully specified for a given tree.
+     *
+     * This include:
+     * - that each node as a model set up,
+     * - that each model in the set is attributed to a node,
+     * - that each parameter in the set actually correspond to a model.
+     *
+     * @param tree The tree to check.
+     */
+    bool isFullySetUpFor(const Tree & tree) const
+    {
+      return checkOrphanModels()
+          && checkOrphanParameters()
+          && checkOrphanNodes(tree);
+    }
 
   protected:
 
     /**
      * Set _rootFrequencies from _parameters.
      */
-    void updateRootFrequencies();
+    void updateRootFrequencies()
+    {
+      _rootFrequencies->matchParametersValues(_parameters);
+    }
 
-    //TODO
-    bool checkOrphanModels() const { return true; }
+    /**
+     * @name Chek function.
+     *
+     * @{
+     */
+    bool checkOrphanModels() const;
 
-    bool checkOrphanParameters() const { return true; }
+    bool checkOrphanParameters() const;
 
-    bool checkOrphanNodes() const { return true; }
+    bool checkOrphanNodes(const Tree & tree) const;
+    /** @} */
 
 };
 

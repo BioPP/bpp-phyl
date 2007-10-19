@@ -40,10 +40,7 @@ knowledge of the CeCILL license and that you accept its terms.
 #ifndef _OPTIMIZATIONTOOLS_H_
 #define _OPTIMIZATIONTOOLS_H_
 
-#include "TreeLikelihood.h"
-#include "HomogeneousTreeLikelihood.h"
-#include "AbstractHomogeneousTreeLikelihood.h"
-#include "DRHomogeneousTreeLikelihood.h"
+#include "ClockTreeLikelihood.h"
 #include "NNIHomogeneousTreeLikelihood.h"
 #include "ClockTreeLikelihood.h"
 #include "NNITopologySearch.h"
@@ -296,7 +293,7 @@ class OptimizationTools
 		 * @throw Exception any exception thrown by the Optimizer.
 		 */
 		static unsigned int optimizeNumericalParametersWithGlobalClock(
-			ClockTreeLikelihood * cl,
+			DiscreteRatesAcrossSitesClockTreeLikelihood * cl,
       OptimizationListener * listener = NULL,
       unsigned int nstep = 1,
 			double tolerance = 0.000001,
@@ -326,7 +323,7 @@ class OptimizationTools
 		 * @throw Exception any exception thrown by the Optimizer.
 		 */
 		static unsigned int optimizeNumericalParametersWithGlobalClock2(
-			ClockTreeLikelihood * cl,
+			DiscreteRatesAcrossSitesClockTreeLikelihood * cl,
       OptimizationListener * listener = NULL,
 			double tolerance = 0.000001,
 			unsigned int tlEvalMax = 1000000,

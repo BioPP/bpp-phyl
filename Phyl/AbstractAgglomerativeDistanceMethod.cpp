@@ -41,6 +41,9 @@ knowledge of the CeCILL license and that you accept its terms.
 #include "AbstractAgglomerativeDistanceMethod.h"
 #include "Node.h"
 
+// From Utils:
+#include <Utils/ApplicationTools.h>
+
 // From the STL:
 #include <iostream>
 using namespace std;
@@ -64,6 +67,8 @@ void AbstractAgglomerativeDistanceMethod::computeTree(bool rooted) throw (Except
 	// Build tree:
 	while(_currentNodes.size() > (rooted ? 2 : 3))
   {
+    if(_verbose)
+      ApplicationTools::displayGauge(_matrix.size() - _currentNodes.size(), _matrix.size() - (rooted ? 2 : 3) - 1);
 		vector<unsigned int> bestPair = getBestPair();
 		vector<double> distances = computeBranchLengthsForPair(bestPair);
 		Node * best1 = _currentNodes[bestPair[0]];

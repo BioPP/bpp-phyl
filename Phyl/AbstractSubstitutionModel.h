@@ -185,7 +185,8 @@ class AbstractSubstitutionModel :
 
 
 class AbstractReversibleSubstitutionModel:
-  public AbstractSubstitutionModel
+  public AbstractSubstitutionModel,
+  public ReversibleSubstitutionModel
 {
   protected:
 		/**

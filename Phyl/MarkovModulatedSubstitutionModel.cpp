@@ -50,7 +50,6 @@ using namespace VectorOperators;
 void MarkovModulatedSubstitutionModel::updateMatrices()
 {
   //_ratesGenerator and _rates must be initialized!
-
   _nbStates        = _model->getNumberOfStates();
   _nbRates         = _rates.nCols();
   _ratesGenerator  = MatrixTools::mult(_ratesExchangeability, MatrixTools::diag< RowMatrix<double> >(_ratesFreq));

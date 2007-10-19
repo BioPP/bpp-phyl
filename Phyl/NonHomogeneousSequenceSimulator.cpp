@@ -58,13 +58,15 @@ using namespace VectorOperators;
 NonHomogeneousSequenceSimulator::NonHomogeneousSequenceSimulator(
   const SubstitutionModelSet * modelSet,
   const DiscreteDistribution * rate,
-  const TreeTemplate<Node> * tree):
+  const TreeTemplate<Node> * tree) throw(Exception):
   _modelSet(modelSet),
   _rate(rate),
   _tree(tree),
   _ownModelSet(false),
   _continuousRates(false)
 {
+  if(!modelSet->isFullySetUpFor(*tree))
+    throw Exception("NonHomogeneousSequenceSimulator(constructor). Model set is not fully specified.");
   init();
 }
 

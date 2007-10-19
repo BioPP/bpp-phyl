@@ -119,7 +119,7 @@ class NonHomogeneousSequenceSimulator:
 			const SubstitutionModelSet * modelSet,
 			const DiscreteDistribution * rate,
 			const TreeTemplate<Node> * tree
-		);
+		) throw (Exception);
 
     NonHomogeneousSequenceSimulator(
 			SubstitutionModel * model,

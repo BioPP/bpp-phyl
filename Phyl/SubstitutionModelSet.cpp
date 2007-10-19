@@ -1,6 +1,6 @@
 //
 // File: SubstitutionModelSet.cpp
-// Created by: Bastien Bousseau
+// Created by: Bastien Boussau
 //             Julien Dutheil
 // Created on: Tue Aug 21 2007
 //
@@ -40,6 +40,9 @@ knowledge of the CeCILL license and that you accept its terms.
 
 #include "SubstitutionModelSet.h"
 
+// From Utils:
+#include <Utils/MapTools.h>
+
 /*
 void SubstitutionModelSet::makeRandomNodeToModelLinks()
 {
@@ -52,32 +55,34 @@ void SubstitutionModelSet::makeRandomNodeToModelLinks()
 
 SubstitutionModelSet::SubstitutionModelSet(const SubstitutionModelSet & set):
   AbstractParametrizable(set),
-  _nodeToModel          (set._nodeToModel),
-  _paramToModels        (set._paramToModels),
-  _modelParameterNames  (set._modelParameterNames),
-  _modelParameters      (set._modelParameters),
   _alphabet             (set._alphabet),
-  _freqConstraint       (set._freqConstraint),
-  _rootFrequencies      (set._rootFrequencies)
+  _nodeToModel          (set._nodeToModel),
+  _modelToNode          (set._modelToNode),
+  _paramToModels        (set._paramToModels),
+  _paramNamesCount      (set._paramNamesCount),
+  _modelParameterNames  (set._modelParameterNames),
+  _modelParameters      (set._modelParameters)
 {
   //Duplicate all model objects:
   _modelSet.resize(set._modelSet.size());
   for(unsigned int i = 0; i < set._modelSet.size(); i++)
   {
-    _modelSet[i] = set._modelSet[i]->clone();
+    _modelSet[i] = dynamic_cast<SubstitutionModel *>(set._modelSet[i]->clone());
   }
+  _rootFrequencies = dynamic_cast<FrequenciesSet *>(set._rootFrequencies->clone());
 }
 
 SubstitutionModelSet & SubstitutionModelSet::operator=(const SubstitutionModelSet & set)
 {
   AbstractParametrizable::operator=(set);
+  _alphabet            = set._alphabet;
   _nodeToModel         = set._nodeToModel;
+  _modelToNode         = set._modelToNode;
   _paramToModels       = set._paramToModels;
+  _paramNamesCount     = set._paramNamesCount;
   _modelParameterNames = set._modelParameterNames;
   _modelParameters     = set._modelParameters;
-  _alphabet            = set._alphabet;
-  _freqConstraint      = set._freqConstraint;
-  _rootFrequencies     = set._rootFrequencies;
+  _rootFrequencies     = dynamic_cast<FrequenciesSet *>(set._rootFrequencies->clone());
   
   //Duplicate all model objects:
   _modelSet.resize(set._modelSet.size());
@@ -88,7 +93,7 @@ SubstitutionModelSet & SubstitutionModelSet::operator=(const SubstitutionModelSe
   return *this;
 }
 
-void SubstitutionModelSet::addModel(SubstitutionModel * model, const vector<int> & nodesId, const vector<string> & newParams) throw (Exception)
+void SubstitutionModelSet::addModel(SubstitutionModel *model, const vector<int> & nodesId, const vector<string> & newParams) throw (Exception)
 {
   if(model->getAlphabet()->getAlphabetType() != _alphabet->getAlphabetType())
     throw Exception("SubstitutionModelSet::addModel. A Substitution Model cannot be added to a Model Set if it does not have the same alphabet.");
@@ -96,11 +101,14 @@ void SubstitutionModelSet::addModel(SubstitutionModel * model, const vector<int>
     throw Exception("SubstitutionModelSet::addModel. A Substitution Model cannot be added to a Model Set if it does not have the same number of states.");
   _modelSet.push_back(model);
   unsigned int thisModelIndex = _modelSet.size() - 1;
+
   //Associate this model to specified nodes:
   for(unsigned int i = 0; i < nodesId.size(); i++)
   {
     _nodeToModel[nodesId[i]] = thisModelIndex;
+    _modelToNode[thisModelIndex] = nodesId[i];
   }
+
   //Associate parameters:
   string pname;
   _modelParameters.push_back(ParameterList());
@@ -108,10 +116,12 @@ void SubstitutionModelSet::addModel(SubstitutionModel * model, const vector<int>
   {
     pname = newParams[i];
     _modelParameterNames.push_back(pname);
+    vector<unsigned int> modelsIndex(1, thisModelIndex);
+    _paramToModels.push_back(modelsIndex);
     Parameter p(model->getParameter(pname));
-    p.setName(pname + TextTools::toString(thisModelIndex)); //Change name to unique name in case of sared parameters.
-    _parameters.addParameter(p);
     _modelParameters[thisModelIndex].addParameter(p);
+    p.setName(pname + "_" + TextTools::toString(++_paramNamesCount[pname])); //Change name to unique name in case of sared parameters.
+    _parameters.addParameter(p);
   }
 }
 
@@ -125,20 +135,21 @@ void SubstitutionModelSet::setModel(SubstitutionModel * model, unsigned int mode
   _modelSet[modelIndex] = model;
 }
    
-const SubstitutionModel * SubstitutionModelSet::getModelForNode(int nodeId) const
+void SubstitutionModelSet::removeModel(unsigned int modelIndex) throw (Exception)
 {
-  if(_nodeToModel.find(nodeId) == _nodeToModel.end())
-    return NULL;
-  else
-    return _modelSet[_nodeToModel[nodeId]];
-}
-
-SubstitutionModel * SubstitutionModelSet::getModelForNode(int nodeId)
-{
-  if(_nodeToModel.find(nodeId) == _nodeToModel.end())
-    return NULL;
-  else
-    return _modelSet[_nodeToModel[nodeId]];
+  _modelSet.erase(_modelSet.begin() + modelIndex);
+  //Erase all parameter references to this model and translate other indices...
+  for(unsigned int i = 0; i < _paramToModels.size(); i++)
+  {
+    for(unsigned int j = _paramToModels[i].size(); j > 0; j--)
+    {
+      if(_paramToModels[i][j-1] == modelIndex)
+        _paramToModels[i].erase(_paramToModels[i].begin() + j - 1);
+      else if(_paramToModels[i][j-1] > modelIndex)
+        _paramToModels[i][j-1]--; //Correct indice due to removal!
+    }
+  }
+  if(!checkOrphanParameters()) throw Exception("DEBUG: SubstitutionModelSet::removeModel. Orphan parameter!");
 }
 
 void SubstitutionModelSet::listModelNames(ostream & out) const
@@ -151,7 +162,7 @@ void SubstitutionModelSet::addParameter(const Parameter & parameter, const vecto
 {
   _modelParameterNames.push_back(parameter.getName());
   Parameter p(parameter);
-  p.setName(p.getName() + TextTools::toString(_modelSet.size()));
+  p.setName(p.getName() + "_" + TextTools::toString(++_paramNamesCount[p.getName()]));
   _parameters.addParameter(p);
   //Build model indexes:
   vector<unsigned int> modelIndexes(nodesId.size());
@@ -169,17 +180,18 @@ void SubstitutionModelSet::addParameters(const ParameterList & parameters, const
     _modelParameterNames.push_back(parameters[i]->getName());
   }
   ParameterList pl(parameters);
-  string suffix = TextTools::toString(_modelSet.size());
   for(unsigned int i = 0; i < pl.size(); i++)
   {
-    pl[i]->setName(pl[i]->getName() + suffix);
+    pl[i]->setName(pl[i]->getName() + "_" + TextTools::toString(++_paramNamesCount[pl[i]->getName()]));
   }
   _parameters.addParameters(pl);
   //Build model indexes:
   vector<unsigned int> modelIndexes(nodesId.size());
   for(unsigned int i = 0; i < nodesId.size(); i++)
   {
-    modelIndexes[i] = _nodeToModel[nodesId[i]];
+    unsigned int pos = _nodeToModel[nodesId[i]];
+    _modelParameters[pos].addParameters(parameters);
+    modelIndexes[i] = pos;
   }
   for(unsigned int i = 0; i < pl.size(); i++)
   {
@@ -187,29 +199,24 @@ void SubstitutionModelSet::addParameters(const ParameterList & parameters, const
   }
 }
 
-void SubstitutionModelSet::updateRootFrequencies()
-{
-  for(unsigned int i = 0; i < _alphabet->getSize(); i++)
-  {
-    _rootFrequencies[i] = _parameters.getParameter("RootFreq" + TextTools::toString(i))->getValue();
-  }
-}
 
 void SubstitutionModelSet::fireParameterChanged(const ParameterList & parameters)
 {
   //For now, we actualize all parameters... we'll optimize later!
-  
   //Update root frequencies:
   updateRootFrequencies();
 
   //First we actualize the _modelParameters array:
-  for(unsigned int i = _alphabet->getSize(); i < _parameters.size(); i++)
+  unsigned int offset = _rootFrequencies->getNumberOfParameters(); //Root frequencies are the first parameters! We should ignore them here.
+  for(unsigned int i = 0; i < _modelParameterNames.size(); i++)
   {
     //Check associations:
     vector<unsigned int> * modelIndexes = & _paramToModels[i];
     for(unsigned int j = 0; j < modelIndexes->size(); j++)
     {
-      _modelParameters[(*modelIndexes)[j]].getParameter(_modelParameterNames[i])->setValue(_parameters[i]->getValue());
+      if(_modelParameters[(*modelIndexes)[j]].getParameter(_modelParameterNames[i]) == NULL) cerr << "DEBUG: Error, no parameter with name " << _modelParameterNames[i] << endl;
+      if(offset + i > _parameters.size()) cerr << "DEBUG: Error, missing parameter " << (offset + i) << "/" << _parameters.size() << endl;
+      _modelParameters[(*modelIndexes)[j]].getParameter(_modelParameterNames[i])->setValue(_parameters[offset + i]->getValue());
     }
   }
 
@@ -218,5 +225,35 @@ void SubstitutionModelSet::fireParameterChanged(const ParameterList & parameters
   {
     _modelSet[i]->matchParametersValues(_modelParameters[i]);
   }
+}
+
+bool SubstitutionModelSet::checkOrphanModels() const
+{
+  vector<unsigned int> index = MapTools::getValues(_nodeToModel);
+  for(unsigned int i = 0; i < _modelSet.size(); i++)
+  {
+    if(!VectorTools::contains(index, i)) return false;
+  }
+  return true;
+}
+
+bool SubstitutionModelSet::checkOrphanParameters() const
+{
+  for(unsigned int i = 0; i < _paramToModels.size(); i++)
+  {
+    if(_paramToModels[i].size() == 0) return false;
+  }
+  return true;
+}
+
+bool SubstitutionModelSet::checkOrphanNodes(const Tree & tree) const
+{
+  vector<int> ids = tree.getNodesId();
+  int rootId = tree.getRootId();
+  for(unsigned int i = 0; i < ids.size(); i++)
+  {
+    if(ids[i] != rootId && _nodeToModel.find(ids[i]) == _nodeToModel.end()) return false;
+  }
+  return true;
 }
 

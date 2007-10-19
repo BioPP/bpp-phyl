@@ -142,6 +142,16 @@ class AbstractTreeLikelihood :
     void initialize() throw (Exception) { _initialized = true; }
 		/** @} */
 
+		/**
+		 * @brief This removes a particular parameter from the list.
+		 *
+		 * This method may be used to not estimate a parameter after having
+		 * fixed its value. The previous method reset all calls of this one.
+		 *
+		 * @param name The name of the parameter to ignore.
+		 */
+		virtual void ignoreParameter(const string & name) throw (ParameterNotFoundException);
+
 	protected:
 		
 		/**

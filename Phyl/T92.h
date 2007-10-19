@@ -158,7 +158,6 @@ class T92:
   public NucleotideSubstitutionModel
 {
 	protected:
-		Constraint * thetaConstraint;
     double _kappa, _theta, _r, _k, _piA, _piC, _piG, _piT;
     mutable double _l, _exp1, _exp2;
     mutable RowMatrix<double> _p;
@@ -166,7 +165,7 @@ class T92:
 	public:
 		T92(const NucleicAlphabet * alpha, double kappa = 1., double theta = 0.5);
 
-		virtual ~T92();
+		virtual ~T92() {}
 
     T92 * clone() const { return new T92(*this); }
 

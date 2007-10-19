@@ -52,21 +52,12 @@ knowledge of the CeCILL license and that you accept its terms.
 /******************************************************************************/
 
 T92::T92(const NucleicAlphabet * alpha, double kappa, double theta):
-	//AbstractSubstitutionModel(alpha),
 	NucleotideSubstitutionModel(alpha)
 {
-	thetaConstraint = new IncludingInterval(0, 1);
 	_parameters.addParameter(Parameter("kappa", kappa, &Parameter::R_PLUS));
-	_parameters.addParameter(Parameter("theta", theta, thetaConstraint));
+  _parameters.addParameter(Parameter("theta", theta, &Parameter::PROP_CONSTRAINT_EX));
   _p.resize(_size, _size);
 	updateMatrices();
-}
-
-/******************************************************************************/
-
-T92::~T92()
-{
-	delete thetaConstraint;
 }
 
 /******************************************************************************/
@@ -75,7 +66,6 @@ void T92::updateMatrices()
 {
 	_kappa = _parameters.getParameter("kappa")->getValue();
 	_theta = _parameters.getParameter("theta")->getValue();
-  cout << "theta=" << _theta << endl;
   _piA = (1 - _theta) / 2;
 	_piC = _theta / 2;
 	_piG = _theta / 2;

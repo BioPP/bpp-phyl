@@ -59,16 +59,20 @@ DistanceMatrix * PhylipDistanceMatrixFormat::read(istream & in) const throw (Exc
 	unsigned int rowNumber = 0;
 	unsigned int colNumber = 0;
 	s = FileTools::getNextLine(in);
-	while(in) {
+	while(in)
+  {
 		StringTokenizer st(s, "\t ");
-		if(colNumber == 0) { // New row
-			dist -> setName(rowNumber, st.nextToken());
+		if(colNumber == 0)
+    { // New row
+			dist->setName(rowNumber, st.nextToken());
 		}
-		for(; colNumber < n && st.hasMoreToken(); colNumber++) {
+		for(; colNumber < n && st.hasMoreToken(); colNumber++)
+    {
 			double d = TextTools::fromString<double>(st.nextToken());
 			(* dist)(rowNumber, colNumber) = d;
 		}
-		if(colNumber == n) {
+		if(colNumber == n)
+    {
 			colNumber = 0;
 			rowNumber++;
 		}
@@ -81,9 +85,11 @@ void PhylipDistanceMatrixFormat::write(const DistanceMatrix & dist, ostream & ou
 {
 	unsigned int n= dist.size();
 	out << "   " << n << endl;
-	for(unsigned int i = 0; i < n; i++) {
+	for(unsigned int i = 0; i < n; i++)
+  {
 		out << TextTools::resizeRight(dist.getName(i), 10, ' ');
-		for(unsigned int j = 0; j < n; j++) {
+		for(unsigned int j = 0; j < n; j++)
+    {
 			out << "  " << setprecision(8) << dist(i, j); 
 		}
 		out << endl;
