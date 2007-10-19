@@ -42,9 +42,9 @@ knowledge of the CeCILL license and that you accept its terms.
 #define _SUBSTITUTIONMODELSET_H_
 
 
-#include "Phyl/Tree.h"
-#include "Phyl/SubstitutionModel.h"
-#include "Phyl/AbstractSubstitutionModel.h"
+#include "Tree.h"
+#include "SubstitutionModel.h"
+#include "AbstractSubstitutionModel.h"
 
 // From NumCalc:
 #include <NumCalc/RandomTools.h>
