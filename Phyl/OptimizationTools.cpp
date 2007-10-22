@@ -143,8 +143,6 @@ unsigned int OptimizationTools::optimizeNumericalParameters(
 {
   // Build optimizer:
   MetaOptimizerInfos * desc = new MetaOptimizerInfos();
-  TwoPointsNumericalDerivative * tld1 = NULL; 
-  TwoPointsNumericalDerivative * tld2 = NULL; 
   if(optMethod == OPTIMIZATION_GRADIENT)
     desc->addOptimizer("Branch length parameters", new ConjugateGradientMultiDimensions(tl), tl->getBranchLengthsParameters().getParameterNames(), 2, MetaOptimizerInfos::IT_TYPE_FULL);
   else if(optMethod == OPTIMIZATION_NEWTON)
@@ -152,27 +150,11 @@ unsigned int OptimizationTools::optimizeNumericalParameters(
   else throw Exception("OptimizationTools::optimizeNumericalParameters. Unknown optimization method: " + optMethod);
   
   ParameterList plsm = tl->getSubstitutionModelParameters();
-  if(plsm.size() < 10)
-    desc->addOptimizer("Substitution model parameter", new SimpleMultiDimensions(tl), plsm.getParameterNames(), 0, MetaOptimizerInfos::IT_TYPE_STEP);
-  else
-  {
-    tld1 = new TwoPointsNumericalDerivative(tl);
-    tld1->setInterval(0.0000001);
-    tld1->setParametersToDerivate(plsm.getParameterNames());
-    desc->addOptimizer("Substitution model parameters", new ConjugateGradientMultiDimensions(tld1), plsm.getParameterNames(), 0, MetaOptimizerInfos::IT_TYPE_FULL);
-  }
+  desc->addOptimizer("Substitution model parameter", new SimpleMultiDimensions(tl), plsm.getParameterNames(), 0, MetaOptimizerInfos::IT_TYPE_STEP);
   
 
   ParameterList plrd = tl->getRateDistributionParameters();
-  if(plrd.size() < 10)
-    desc->addOptimizer("Rate distribution parameter", new SimpleMultiDimensions(tl), plrd.getParameterNames(), 0, MetaOptimizerInfos::IT_TYPE_STEP);
-  else
-  {
-    tld2 = new TwoPointsNumericalDerivative(tl);
-    tld2->setInterval(0.0000001);
-    tld2->setParametersToDerivate(plrd.getParameterNames());
-    desc->addOptimizer("Rate distribution parameters", new ConjugateGradientMultiDimensions(tld2), plrd.getParameterNames(), 0, MetaOptimizerInfos::IT_TYPE_FULL);
-  }
+  desc->addOptimizer("Rate distribution parameter", new SimpleMultiDimensions(tl), plrd.getParameterNames(), 0, MetaOptimizerInfos::IT_TYPE_STEP);
    
   MetaOptimizer optimizer(tl, desc, nstep);
   optimizer.setVerbose(verbose);
@@ -188,8 +170,6 @@ unsigned int OptimizationTools::optimizeNumericalParameters(
   optimizer.init(pl);
   optimizer.optimize();
   if(verbose > 0) ApplicationTools::displayMessage("\n");
-  if(tld1 != NULL) delete tld1;
-  if(tld2 != NULL) delete tld2;
 
   // We're done.
   return optimizer.getNumberOfEvaluations(); 
