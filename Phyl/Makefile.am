@@ -46,6 +46,7 @@ SiteSimulator.h\
 DetailedSiteSimulator.h\
 NonHomogeneousSequenceSimulator.h\
 SubstitutionModel.h\
+FrequenciesSet.h\
 T92.h\
 TN93.h\
 TreeExceptions.h\

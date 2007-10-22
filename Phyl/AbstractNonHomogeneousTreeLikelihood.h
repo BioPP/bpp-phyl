@@ -53,31 +53,31 @@ class AbstractNonHomogeneousTreeLikelihood:
   public virtual NonHomogeneousTreeLikelihood,
   public AbstractDiscreteRatesAcrossSitesTreeLikelihood
 {
-	protected:
-		SubstitutionModelSet * _modelSet;
-		ParameterList _brLenParameters;
-		
-		mutable map<int, VVVdouble> _pxy;
+  protected:
+    SubstitutionModelSet * _modelSet;
+    ParameterList _brLenParameters;
+    
+    mutable map<int, VVVdouble> _pxy;
 
-		mutable map<int, VVVdouble> _dpxy;
+    mutable map<int, VVVdouble> _dpxy;
 
-		mutable map<int, VVVdouble> _d2pxy;
-				
+    mutable map<int, VVVdouble> _d2pxy;
+        
     vector<double> _rootFreqs;
-				
-		/**
-		 * @brief Pointer toward all nodes in the tree.
-		 *
-		 * The order of the nodes in the vector if the order of the named branches.
-		 */
-		vector<Node *> _nodes;
+        
+    /**
+     * @brief Pointer toward all nodes in the tree.
+     *
+     * The order of the nodes in the vector if the order of the named branches.
+     */
+    vector<Node *> _nodes;
 
-		//some values we'll need:
-		unsigned int _nbSites,         //the number of sites in the container
+    //some values we'll need:
+    unsigned int _nbSites,         //the number of sites in the container
                  _nbDistinctSites, //the number of distinct sites
-		             _nbClasses,       //the number of rate classes
-		             _nbStates,        //the number of states in the alphabet
-		             _nbNodes;         //the number of nodes in the tree
+                 _nbClasses,       //the number of rate classes
+                 _nbStates,        //the number of states in the alphabet
+                 _nbNodes;         //the number of nodes in the tree
 
     bool _verbose;
 
@@ -86,13 +86,13 @@ class AbstractNonHomogeneousTreeLikelihood:
 
     int _root1, _root2;
 
-	public:
-		AbstractNonHomogeneousTreeLikelihood(
-			const Tree & tree,
-			SubstitutionModelSet * modelSet,
-			DiscreteDistribution * rDist,
+  public:
+    AbstractNonHomogeneousTreeLikelihood(
+      const Tree & tree,
+      SubstitutionModelSet * modelSet,
+      DiscreteDistribution * rDist,
       bool checkUnrooted = true,
-			bool verbose = true)
+      bool verbose = true)
       throw (Exception);
 
     /**
@@ -109,70 +109,70 @@ class AbstractNonHomogeneousTreeLikelihood:
      */
     AbstractNonHomogeneousTreeLikelihood & operator=(const AbstractNonHomogeneousTreeLikelihood & lik);
  
-		virtual ~AbstractNonHomogeneousTreeLikelihood();
-		
-	private:
+    virtual ~AbstractNonHomogeneousTreeLikelihood();
+    
+  private:
 
     /**
      * @brief Method called by constructor.
      */
     void _init(const Tree & tree,
-			SubstitutionModelSet * modelSet,
-			DiscreteDistribution * rDist,
+      SubstitutionModelSet * modelSet,
+      DiscreteDistribution * rDist,
       bool checkUnrooted,
-			bool verbose) throw (Exception);
+      bool verbose) throw (Exception);
 
-	public:
-		
-		/**
-		 * @name The TreeLikelihood interface.
-		 *
-		 * Other methods are implemented in the AbstractTreeLikelihood class.
-		 *
-		 * @{
-		 */
+  public:
+    
+    /**
+     * @name The TreeLikelihood interface.
+     *
+     * Other methods are implemented in the AbstractTreeLikelihood class.
+     *
+     * @{
+     */
     void initialize() throw(Exception);
-		ParameterList getBranchLengthsParameters() const;
-		ParameterList getSubstitutionModelParameters() const;
-		ParameterList getRateDistributionParameters() const
+    ParameterList getBranchLengthsParameters() const;
+    ParameterList getSubstitutionModelParameters() const;
+    ParameterList getRateDistributionParameters() const
     {
       return AbstractDiscreteRatesAcrossSitesTreeLikelihood::getRateDistributionParameters();
     }
     /** @} */
 
-		/**
-		 * @name The NonHomogeneousTreeLikelihood interface.
-		 *
-		 * Other methods are implemented in the AbstractTreeLikelihood class.
-		 *
-		 * @{
-		 */
-		const SubstitutionModelSet * getSubstitutionModelSet() const { return _modelSet; }
-		
-		SubstitutionModelSet * getSubstitutionModelSet() { return _modelSet; }
+    /**
+     * @name The NonHomogeneousTreeLikelihood interface.
+     *
+     * Other methods are implemented in the AbstractTreeLikelihood class.
+     *
+     * @{
+     */
+    const SubstitutionModelSet * getSubstitutionModelSet() const { return _modelSet; }
+    
+    SubstitutionModelSet * getSubstitutionModelSet() { return _modelSet; }
 
     ParameterList getRootFrequenciesParameters() const
     {
       return _modelSet->getRootFrequenciesParameters();
     }
     /** @} */
-		
-	public: //Specific methods:
+    
+  public: //Specific methods:
 
-		/**
-		 * @brief This builds the <i>parameters</i> list from all parametrizable objects,
-		 * <i>i.e.</i> substitution model, rate distribution and tree.
-		 */
-		virtual void initParameters();
+    /**
+     * @brief This builds the <i>parameters</i> list from all parametrizable objects,
+     * <i>i.e.</i> substitution model, rate distribution and tree.
+     */
+    virtual void initParameters();
 
-		/**
-		 * @brief All parameters are stored in a parameter list.
-		 * This function apply these parameters to the substitution model,
-		 * to the rate distribution and to the branch lengths.
-		 */
-		virtual void applyParameters() throw (Exception);	
+    /**
+     * @brief All parameters are stored in a parameter list.
+     * This function apply these parameters to the substitution model,
+     * to the rate distribution and to the branch lengths.
+     */
+    virtual void applyParameters() throw (Exception);  
 
-		virtual void initBranchLengthsParameters();
+    virtual void initBranchLengthsParameters();
 
     virtual void setMinimumBranchLength(double minimum)
     {
