@@ -68,6 +68,7 @@ HKY85::HKY85(
 	_parameters.addParameter(Parameter("piC", piC, &PI_CONSTRAINT));
 	_parameters.addParameter(Parameter("piG", piG, &PI_CONSTRAINT));
 	_parameters.addParameter(Parameter("piT", piT, &PI_CONSTRAINT));
+  _p.resize(_size, _size);
 	updateMatrices();
 }
 
