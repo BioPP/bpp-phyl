@@ -271,7 +271,8 @@ SiteContainer * NonHomogeneousSequenceSimulator::simulate(unsigned int numberOfS
     return sites;
   }
   else
-  { //More efficient to do site this way:
+  { 
+    //More efficient to do site this way:
     // Draw random rates:
     vector<unsigned int> rateClasses(numberOfSites);
     unsigned int nCat = _rate->getNumberOfCategories();

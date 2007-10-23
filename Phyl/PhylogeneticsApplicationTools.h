@@ -117,7 +117,7 @@ class PhylogeneticsApplicationTools
      * @brief Build a SubstitutionModel object with default parameter values according to options.
      *
      * Options used are:
-     * - model = [JCnuc|K80|T92|HKY85|F84|TN93|GTR|JCprot|DSO78|JTT92|empirical], the substitution model to use.
+     * - %{prefix}name = [JCnuc|K80|T92|HKY85|F84|TN93|GTR|JCprot|DSO78|JTT92|empirical], the substitution model to use.
      * - For the T92, HKY85, F84, TN93, GTR, + all prot models, the model.use_observed_freq option lets you
      * use the actual frequencies estimated from a given data set.
      *
@@ -171,7 +171,7 @@ class PhylogeneticsApplicationTools
      * @brief Build a SubstitutionModel object according to options.
      *
      * Options used are:
-     * - model = [JCnuc|K80|T92|HKY85|F84|TN93|GTR|JCprot|DSO78|JTT92|empirical], the substitution model to use,
+     * - model.name = [JCnuc|K80|T92|HKY85|F84|TN93|GTR|JCprot|DSO78|JTT92|empirical], the substitution model to use,
      *   +G2001 or +TS98 for enabling covarion models.
      *
      * Options depending on the model specified:

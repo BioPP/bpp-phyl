@@ -45,7 +45,7 @@ knowledge of the CeCILL license and that you accept its terms.
 #include "SubstitutionModelSet.h"
 
 /**
- * @brief Specialization of the TreeLikelihood interface for the Non-homogeneous case.
+ * @brief Specialization of the TreeLikelihood interface for the non-homogeneous and non-stationary models.
  *
  * The main difference is that the likelihood depends on the position of the root.
  * The frequencies at the root of the tree are new parameters, which are not necessarily equal to the equilibrium frequencies of the substitution model.
