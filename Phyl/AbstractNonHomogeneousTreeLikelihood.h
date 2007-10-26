@@ -91,7 +91,6 @@ class AbstractNonHomogeneousTreeLikelihood:
       const Tree & tree,
       SubstitutionModelSet * modelSet,
       DiscreteDistribution * rDist,
-      bool checkUnrooted = true,
       bool verbose = true)
       throw (Exception);
 
@@ -119,7 +118,6 @@ class AbstractNonHomogeneousTreeLikelihood:
     void _init(const Tree & tree,
       SubstitutionModelSet * modelSet,
       DiscreteDistribution * rDist,
-      bool checkUnrooted,
       bool verbose) throw (Exception);
 
   public:

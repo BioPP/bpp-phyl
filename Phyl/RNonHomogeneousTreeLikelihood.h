@@ -67,7 +67,7 @@ knowledge of the CeCILL license and that you accept its terms.
  * This class can use simple or recursive site compression.
  * In the simple case, computations for identical sites are not duplicated.
  * In the recursive case, computations for identical sub-sites (<i>site patterns </i>) are also not duplicated:
- * Following N. Galtier (personal communication ;-), we define a Pattern as a distinct site
+ * Following N. Galtier (personal communication), we define a Pattern as a distinct site
  * in a sub-dataset corresponding to the dataset with sequences associated to a particular subtree.
  * The likelihood computation is the same for a given site, hence the idea is to save time from
  * performing many times the same coputation.
@@ -85,7 +85,11 @@ knowledge of the CeCILL license and that you accept its terms.
  *   parameters for instance).
  * - Patterns are more likely to occur whith small alphabet (nucleotides).
  *
- * For topology estimation, consider using the DRHomogeneousTreeLikelihood class.
+ * Important note: The input tree will be considered as rooted, since the likelihood of non-stationary models
+ * depends on the position of the root. If the input tree is not rooted, it will be considered as a rotted tree
+ * with a root multifurcation.
+ *
+ * For topology estimation, consider using the DRNonHomogeneousTreeLikelihood class (not implemented yet).
  */
 class RNonHomogeneousTreeLikelihood :
 	public AbstractNonHomogeneousTreeLikelihood
@@ -104,7 +108,6 @@ class RNonHomogeneousTreeLikelihood :
      * @param tree The tree to use.
      * @param model The substitution model to use.
      * @param rDist The rate across sites distribution to use.
-     * @param checkRooted Tell if we have to check for the tree to be unrooted.
      * If true, any rooted tree will be unrooted before likelihood computation.
      * @param verbose Should I display some info?
      * @param usePatterns Tell if recursive site compression should be performed.
@@ -114,7 +117,6 @@ class RNonHomogeneousTreeLikelihood :
 			const Tree & tree,
 			SubstitutionModelSet * modelSet,
 			DiscreteDistribution * rDist,
-      bool checkRooted = true,
 			bool verbose = true,
       bool usePatterns = true)
 			throw (Exception);
@@ -128,8 +130,6 @@ class RNonHomogeneousTreeLikelihood :
      * @param data Sequences to use.
      * @param model The substitution model to use.
      * @param rDist The rate across sites distribution to use.
-     * @param checkRooted Tell if we have to check for the tree to be unrooted.
-     * If true, any rooted tree will be unrooted before likelihood computation.
      * @param verbose Should I display some info?
      * @param usePatterns Tell if recursive site compression should be performed.
      * @throw Exception in an error occured.
@@ -139,7 +139,6 @@ class RNonHomogeneousTreeLikelihood :
 			const SiteContainer & data,
 			SubstitutionModelSet * modelSet,
 			DiscreteDistribution * rDist,
-      bool checkRooted = true,
 			bool verbose = true,
       bool usePatterns = true)
 			throw (Exception);

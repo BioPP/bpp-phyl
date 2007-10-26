@@ -57,7 +57,7 @@ SubstitutionModelSet::SubstitutionModelSet(const SubstitutionModelSet & set):
   AbstractParametrizable(set),
   _alphabet             (set._alphabet),
   _nodeToModel          (set._nodeToModel),
-  _modelToNode          (set._modelToNode),
+  _modelToNodes         (set._modelToNodes),
   _paramToModels        (set._paramToModels),
   _paramNamesCount      (set._paramNamesCount),
   _modelParameterNames  (set._modelParameterNames),
@@ -77,7 +77,7 @@ SubstitutionModelSet & SubstitutionModelSet::operator=(const SubstitutionModelSe
   AbstractParametrizable::operator=(set);
   _alphabet            = set._alphabet;
   _nodeToModel         = set._nodeToModel;
-  _modelToNode         = set._modelToNode;
+  _modelToNodes        = set._modelToNodes;
   _paramToModels       = set._paramToModels;
   _paramNamesCount     = set._paramNamesCount;
   _modelParameterNames = set._modelParameterNames;
@@ -93,6 +93,25 @@ SubstitutionModelSet & SubstitutionModelSet::operator=(const SubstitutionModelSe
   return *this;
 }
 
+vector<int> SubstitutionModelSet::getNodesWithParameter(const string & name) const
+{
+  vector<int> ids;
+  unsigned int offset = _rootFrequencies->getNumberOfParameters();
+  for(unsigned int i = 0; i < _paramToModels.size(); i++)
+  {
+    if(_parameters[offset + i]->getName() == name)
+    {
+      for(unsigned int j = 0; j < _paramToModels[i].size(); j++)
+      {
+        vector<int> v = _modelToNodes[_paramToModels[i][j]];
+        VectorTools::append(ids, v);
+      }
+    return ids;
+    }
+  }
+  return ids;
+}
+
 void SubstitutionModelSet::addModel(SubstitutionModel *model, const vector<int> & nodesId, const vector<string> & newParams) throw (Exception)
 {
   if(model->getAlphabet()->getAlphabetType() != _alphabet->getAlphabetType())
@@ -106,7 +125,7 @@ void SubstitutionModelSet::addModel(SubstitutionModel *model, const vector<int> 
   for(unsigned int i = 0; i < nodesId.size(); i++)
   {
     _nodeToModel[nodesId[i]] = thisModelIndex;
-    _modelToNode[thisModelIndex] = nodesId[i];
+    _modelToNodes[thisModelIndex].push_back(nodesId[i]);
   }
 
   //Associate parameters:
@@ -199,7 +218,6 @@ void SubstitutionModelSet::addParameters(const ParameterList & parameters, const
   }
 }
 
-
 void SubstitutionModelSet::fireParameterChanged(const ParameterList & parameters)
 {
   //For now, we actualize all parameters... we'll optimize later!
@@ -253,6 +271,22 @@ bool SubstitutionModelSet::checkOrphanNodes(const Tree & tree) const
   for(unsigned int i = 0; i < ids.size(); i++)
   {
     if(ids[i] != rootId && _nodeToModel.find(ids[i]) == _nodeToModel.end()) return false;
+  }
+  return true;
+}
+
+bool SubstitutionModelSet::checkUnknownNodes(const Tree & tree) const
+{
+  vector<int> ids = tree.getNodesId();
+  int id;
+  int rootId = tree.getRootId();
+  for(unsigned int i = 0; i < _modelToNodes.size(); i++)
+  {
+    for(unsigned int j = 0; j < _modelToNodes[i].size(); j++)
+    {
+      id = _modelToNodes[i][j];
+      if(id == rootId || !VectorTools::contains(ids, id)) return false;
+    }
   }
   return true;
 }

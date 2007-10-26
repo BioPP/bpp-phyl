@@ -458,6 +458,7 @@ SubstitutionModelSet * PhylogeneticsApplicationTools::getSubstitutionModelSet(
     vector<string> specificParameters, sharedParameters;
     setSubstitutionModelParametersInitialValues(model, existingParameters, specificParameters, sharedParameters, params, prefix, suffix, suffixIsOptional, verbose);
     vector<int> nodesId = ApplicationTools::getVectorParameter<int>(prefix + "nodes_id", params, ',', ':', TextTools::toString(i), suffix, suffixIsOptional, true);
+    if(verbose) ApplicationTools::displayResult("Model" + TextTools::toString(i+1) + " is associated to", TextTools::toString(nodesId.size()) + " node(s).");
     //Add model and specific parameters:
     modelSet->addModel(model, nodesId, specificParameters);
     //Now set shared parameters:

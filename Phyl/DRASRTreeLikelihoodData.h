@@ -207,7 +207,6 @@ class DRASRTreeLikelihoodData :
 			return _patternLinks[parent->getId()][son->getId()][currentPosition];
 		}
 
-
 		VVVdouble & getLikelihoodArray(const Node *node)
 		{
 			return _nodeData[node->getId()].getLikelihoodArray();

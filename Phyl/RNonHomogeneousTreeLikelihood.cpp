@@ -55,11 +55,10 @@ RNonHomogeneousTreeLikelihood::RNonHomogeneousTreeLikelihood(
   const Tree & tree,
   SubstitutionModelSet * modelSet,
   DiscreteDistribution * rDist,
-  bool checkRooted,
   bool verbose,
   bool usePatterns)
 throw (Exception):
-  AbstractNonHomogeneousTreeLikelihood(tree, modelSet, rDist, checkRooted, verbose),
+  AbstractNonHomogeneousTreeLikelihood(tree, modelSet, rDist, verbose),
   _likelihoodData(NULL)
 {
   if(!modelSet->isFullySetUpFor(tree))
@@ -74,11 +73,10 @@ RNonHomogeneousTreeLikelihood::RNonHomogeneousTreeLikelihood(
   const SiteContainer & data,
   SubstitutionModelSet * modelSet,
   DiscreteDistribution * rDist,
-  bool checkUnrooted,
   bool verbose,
   bool usePatterns)
 throw (Exception):
-  AbstractNonHomogeneousTreeLikelihood(tree, modelSet, rDist, checkUnrooted, verbose),
+  AbstractNonHomogeneousTreeLikelihood(tree, modelSet, rDist, verbose),
   _likelihoodData(NULL)
 {
   if(!modelSet->isFullySetUpFor(tree))

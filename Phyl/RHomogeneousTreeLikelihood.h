@@ -96,7 +96,7 @@ class RHomogeneousTreeLikelihood :
 
 	public:
     /**
-     * @brief Build a new HomogeneousTreeLikelihood object without data.
+     * @brief Build a new RHomogeneousTreeLikelihood object without data.
      *
      * This constructor only initialize the parameters.
      * To compute a likelihood, you will need to call the setData() and the computeTreeLikelihood() methods.
@@ -120,7 +120,7 @@ class RHomogeneousTreeLikelihood :
 			throw (Exception);
 	
     /**
-     * @brief Build a new HomogeneousTreeLikelihood object and compute the corresponding likelihood.
+     * @brief Build a new RHomogeneousTreeLikelihood object with data.
      *
      * This constructor initializes all parameters, data, and likelihood arrays.
      *

@@ -103,7 +103,7 @@ class SubstitutionModelSet:
      * @brief contains for each node in a tree the index of the corresponding model in _modelSet
      */
     mutable map<int, unsigned int> _nodeToModel;
-    mutable map<unsigned int, int> _modelToNode;
+    mutable map<unsigned int, vector<int> > _modelToNodes;
 
     /**
      * @brief contains for each parameter in the list the indexes of the corresponding models in _modelSet that share this parameter.
@@ -220,22 +220,7 @@ class SubstitutionModelSet:
     /**
      * @return The list of nodes with a model containing the specified parameter.
      */
-    vector<int> getNodesWithParameter(const string & name) const
-    {
-      vector<int> ids;
-      unsigned int offset = _rootFrequencies->getNumberOfParameters();
-      for(unsigned int i = 0; i < _paramToModels.size(); i++)
-      {
-        if(_parameters[offset + i]->getName() == name)
-        {
-          ids.resize(_paramToModels[i].size());
-          for(unsigned int j = 0; j < ids.size(); j++)
-            ids[j] = _modelToNode[_paramToModels[i][j]];
-          return ids;
-        }
-      }
-      return ids;
-    }
+    vector<int> getNodesWithParameter(const string & name) const;
 
     /**
      * @brief Add a new model to the set, and set relationships with nodes and params.
@@ -356,6 +341,7 @@ class SubstitutionModelSet:
      * - that each node as a model set up,
      * - that each model in the set is attributed to a node,
      * - that each parameter in the set actually correspond to a model.
+     * - all nodes ids in the set refer to an existing node in the tree.
      *
      * @param tree The tree to check.
      */
@@ -363,7 +349,8 @@ class SubstitutionModelSet:
     {
       return checkOrphanModels()
           && checkOrphanParameters()
-          && checkOrphanNodes(tree);
+          && checkOrphanNodes(tree)
+          && checkUnknownNodes(tree);
     }
 
   protected:
@@ -377,7 +364,7 @@ class SubstitutionModelSet:
     }
 
     /**
-     * @name Chek function.
+     * @name Check function.
      *
      * @{
      */
@@ -386,6 +373,8 @@ class SubstitutionModelSet:
     bool checkOrphanParameters() const;
 
     bool checkOrphanNodes(const Tree & tree) const;
+    
+    bool checkUnknownNodes(const Tree & tree) const;
     /** @} */
 
 };
