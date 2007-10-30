@@ -159,9 +159,6 @@ class F84:
     mutable double _l, _exp1, _exp2;
     mutable RowMatrix<double> _p;
 
-  public:
-    static IncludingInterval PI_CONSTRAINT;
-
 	public:
 		F84(
 			const NucleicAlphabet * alpha,

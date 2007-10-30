@@ -164,9 +164,6 @@ class HKY85:
     mutable double _exp1, _exp21, _exp22, _l;
     mutable RowMatrix<double> _p;
 
-  public:
-    static IncludingInterval PI_CONSTRAINT;
-
 	public:
 		HKY85(
 			const NucleicAlphabet * alpha,

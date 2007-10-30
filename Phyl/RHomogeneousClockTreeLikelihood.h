@@ -128,11 +128,12 @@ class RHomogeneousClockTreeLikelihood:
   public:
 
     /**
-     * @name Re-implementation from the DRHomogeneousTreeLikelihood class:
+     * @name Re-implementation from the RHomogeneousTreeLikelihood class:
      *
      * @{
      */
     void applyParameters() throw (Exception);
+    void fireParameterChanged(const ParameterList& params);
     void initBranchLengthsParameters();
     ParameterList getDerivableParameters() const throw (Exception);
     ParameterList getNonDerivableParameters() const throw (Exception);

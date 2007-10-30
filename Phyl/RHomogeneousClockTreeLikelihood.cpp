@@ -102,6 +102,17 @@ void RHomogeneousClockTreeLikelihood::applyParameters() throw (Exception)
 
 /******************************************************************************/
 
+void RHomogeneousClockTreeLikelihood::fireParameterChanged(const ParameterList & params)
+{
+  applyParameters();
+
+  computeAllTransitionProbabilities();
+
+  computeTreeLikelihood();
+}
+
+/******************************************************************************/
+
 void RHomogeneousClockTreeLikelihood::initBranchLengthsParameters()
 {
   //Check branch lengths first:
@@ -135,7 +146,7 @@ void RHomogeneousClockTreeLikelihood::initBranchLengthsParameters()
     if(!it->first->isLeaf() && it->first->hasFather())
     {
       double fatherHeight = heights[it->first->getFather()];
-      _brLenParameters.addParameter(Parameter("HeightP" + TextTools::toString(it->first->getId()), it->second / fatherHeight, &Parameter::PROP_CONSTRAINT_IN, true));
+      _brLenParameters.addParameter(Parameter("HeightP" + TextTools::toString(it->first->getId()), it->second / fatherHeight, &Parameter::PROP_CONSTRAINT_IN));
     }
   }
 }

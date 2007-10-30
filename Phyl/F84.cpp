@@ -50,10 +50,6 @@ knowledge of the CeCILL license and that you accept its terms.
 
 /******************************************************************************/
 
-IncludingInterval F84::PI_CONSTRAINT(0, 1);
-
-/******************************************************************************/
-
 F84::F84(
 	const NucleicAlphabet * alpha,
 	double kappa,
@@ -65,10 +61,10 @@ F84::F84(
 	NucleotideSubstitutionModel(alpha)
 {
 	_parameters.addParameter(Parameter("kappa", kappa, &Parameter::R_PLUS));
-	_parameters.addParameter(Parameter("piA", piA, &PI_CONSTRAINT));
-	_parameters.addParameter(Parameter("piC", piC, &PI_CONSTRAINT));
-	_parameters.addParameter(Parameter("piG", piG, &PI_CONSTRAINT));
-	_parameters.addParameter(Parameter("piT", piT, &PI_CONSTRAINT));
+	_parameters.addParameter(Parameter("piA", piA, &Parameter::PROP_CONSTRAINT_IN));
+	_parameters.addParameter(Parameter("piC", piC, &Parameter::PROP_CONSTRAINT_IN));
+	_parameters.addParameter(Parameter("piG", piG, &Parameter::PROP_CONSTRAINT_IN));
+	_parameters.addParameter(Parameter("piT", piT, &Parameter::PROP_CONSTRAINT_IN));
   _p.resize(_size, _size);
 	updateMatrices();
 }

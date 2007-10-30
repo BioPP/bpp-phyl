@@ -111,9 +111,6 @@ class TN93:
     mutable double _exp1, _exp21, _exp22, _l;
     mutable RowMatrix<double> _p;
 
-  public:
-    static IncludingInterval PI_CONSTRAINT;
-
 	public:
 		TN93(
 			const NucleicAlphabet * alpha,

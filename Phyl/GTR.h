@@ -117,9 +117,6 @@ class GTR:
 	protected:
     double _a, _b, _c, _d, _e, _piA, _piC, _piG, _piT, _p;
 
-  public:
-    static IncludingInterval PI_CONSTRAINT;
-
 	public:
 		GTR(
 			const NucleicAlphabet * alpha,

@@ -241,7 +241,6 @@ void RHomogeneousTreeLikelihood::fireParameterChanged(const ParameterList & para
 {
   applyParameters();
 
-  // For now we ignore the parameter that changed and we recompute all arrays...
   if(_rateDistribution->getParameters().getCommonParametersWith(params).size() > 0
   || _model->getParameters().getCommonParametersWith(params).size() > 0)
   {
@@ -260,6 +259,7 @@ void RHomogeneousTreeLikelihood::fireParameterChanged(const ParameterList & para
         computeTransitionProbabilitiesForNode(_tree->getNode(TextTools::toInt(s.substr(5))));
       }
     }
+    _rootFreqs = _model->getFrequencies();
   }
 
   computeTreeLikelihood();
