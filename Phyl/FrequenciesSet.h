@@ -189,6 +189,54 @@ class GCFrequenciesSet:
 };
 
 /**
+ * @brief Nucleotide FrequenciesSet using three parameters to modelize the four frequencies.
+ */
+class FullNAFrequenciesSet:
+  public AbstractFrequenciesSet
+{
+  public:
+    FullNAFrequenciesSet(const NucleicAlphabet * alphabet, const string & prefix = ""):
+      AbstractFrequenciesSet(alphabet)
+    {
+      _freq.resize(4);
+      _parameters.addParameter(Parameter(prefix + "theta" , 0.5, &Parameter::PROP_CONSTRAINT_EX));
+      _parameters.addParameter(Parameter(prefix + "theta1", 0.5, &Parameter::PROP_CONSTRAINT_EX));
+      _parameters.addParameter(Parameter(prefix + "theta2", 0.5, &Parameter::PROP_CONSTRAINT_EX));
+      _freq[0] = _freq[1] = _freq[2] = _freq[3] = 0.25;
+    }
+    FullNAFrequenciesSet(const NucleicAlphabet * alphabet, double theta, double theta1, double theta2, const string & prefix = ""):
+      AbstractFrequenciesSet(alphabet)
+    {
+      _freq.resize(4);
+      _parameters.addParameter(Parameter(prefix + "theta" , theta , &Parameter::PROP_CONSTRAINT_EX));
+      _parameters.addParameter(Parameter(prefix + "theta1", theta1, &Parameter::PROP_CONSTRAINT_EX));
+      _parameters.addParameter(Parameter(prefix + "theta2", theta2, &Parameter::PROP_CONSTRAINT_EX));
+      _freq[0] = theta1 * (1. - theta);
+      _freq[1] = (1 - theta2) * theta;
+      _freq[2] = theta2 * theta;
+      _freq[3] = (1 - theta1) * (1. - theta);
+    }
+#ifndef NO_VIRTUAL_COV
+    FullNAFrequenciesSet *
+#else
+    Clonable *
+#endif
+    clone() const { return new FullNAFrequenciesSet(*this); }
+
+  public:
+    void fireParameterChanged(const ParameterList & pl)
+    {
+      double theta  = _parameters[0]->getValue();
+      double theta1 = _parameters[1]->getValue();
+      double theta2 = _parameters[2]->getValue();
+      _freq[0] = theta1 * (1. - theta);
+      _freq[1] = (1 - theta2) * theta;
+      _freq[2] = theta2 * theta;
+      _freq[3] = (1 - theta1) * (1. - theta);
+    }
+};
+
+/**
  * @brief FrequenciesSet to be used with a Markov-modulated substitution model.
  * 
  * This implementation uses one parameter per character state frequency.
@@ -239,6 +287,39 @@ class MarkovModulatedFrequenciesSet:
     }
 };
 
+/**
+ * @brief FrequenciesSet useful for homogeneous and stationary models.
+ *
+ * This set contains no parameter.
+ */
+class FixedFrequenciesSet:
+  public AbstractFrequenciesSet
+{
+  public:
+    FixedFrequenciesSet(const Alphabet * alphabet, const vector<double>& initFreqs, const string & prefix = ""):
+      AbstractFrequenciesSet(alphabet)
+    {
+      double sum = 0.0;
+      for(unsigned int i = 0; i < initFreqs.size(); i++)
+      {
+        sum += initFreqs[i];
+      }
+      if(fabs(1-sum) > 0.00000000000001)
+      {
+        throw Exception("Root frequencies must equal 1.");
+      }
+      _freq = initFreqs;
+    }
+#ifndef NO_VIRTUAL_COV
+    FixedFrequenciesSet *
+#else
+    Clonable *
+#endif
+    clone() const { return new FixedFrequenciesSet(*this); }
+
+  public:
+    void fireParameterChanged(const ParameterList & pl) {}
+};
 
 #endif //_FREQUENCIESSET_H_
 

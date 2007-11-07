@@ -44,6 +44,7 @@ knowledge of the CeCILL license and that you accept its terms.
 #include "DetailedSiteSimulator.h"
 #include "SequenceSimulator.h"
 #include "TreeTemplate.h"
+#include "NodeTemplate.h"
 #include "SubstitutionModel.h"
 
 // From SeqLib:
@@ -62,6 +63,17 @@ using namespace std;
 
 #include "SubstitutionModelSet.h"
 
+class SimData
+{
+  public:
+    int state;
+    vector<int> states;
+    VVVdouble cumpxy;
+    const SubstitutionModel* model;
+};
+
+typedef NodeTemplate<SimData> SNode;
+
 /**
  * @brief Site and sequences simulation under non-homogeneous models.
  *
@@ -75,14 +87,15 @@ class NonHomogeneousSequenceSimulator:
 		const SubstitutionModelSet *_modelSet;
 		const Alphabet             *_alphabet;
 		const DiscreteDistribution *_rate;
-		const TreeTemplate<Node>   *_tree;
+		const TreeTemplate<Node>* _templateTree;
+		mutable TreeTemplate<SNode> _tree;
     bool _ownModelSet;
 	
 		/**
 		 * @brief This stores once for all all leaves in a given order.
 		 * This order will be used during site creation.
 		 */
-		vector<const Node *> _leaves;
+		vector<SNode *> _leaves;
 	
 		vector<string> _seqNames;
 
@@ -98,22 +111,6 @@ class NonHomogeneousSequenceSimulator:
      * @{
 		 */
 
-    /**
-     * @brief All transition probabilities.
-     */
-		mutable map<const Node *, VVVdouble> _cumpxy;
-
-    /**
-     * @brief Ancestral states storage, used for the implementation of the SiteSimulator interface.
-     */
-		mutable map<const Node *, int> _states;
-    
-    /**
-     * @brief Ancestral states storage, used for the implementation of the SequenceSimulator interface.
-     */
-		mutable map<const Node *, vector<int> > _multipleStates;
-    /** @} */
-	
 	public:		
 		NonHomogeneousSequenceSimulator(
 			const SubstitutionModelSet * modelSet,
@@ -122,7 +119,7 @@ class NonHomogeneousSequenceSimulator:
 		) throw (Exception);
 
     NonHomogeneousSequenceSimulator(
-			SubstitutionModel * model,
+			const SubstitutionModel * model,
 			const DiscreteDistribution * rate,
 			const TreeTemplate<Node> * tree
 		);
@@ -161,11 +158,11 @@ class NonHomogeneousSequenceSimulator:
 		 */
     RASiteSimulationResult * dSimulate() const;
     
-    RASiteSimulationResult *	dSimulate(int ancestralState) const;
+    RASiteSimulationResult * dSimulate(int ancestralState) const;
     
     RASiteSimulationResult * dSimulate(int ancestralState, double rate) const;
 
-    RASiteSimulationResult *	dSimulate(double rate) const;
+    RASiteSimulationResult * dSimulate(double rate) const;
 		/** @} */
 
     /**
@@ -214,7 +211,7 @@ class NonHomogeneousSequenceSimulator:
 		 *
 		 * @return The Tree object associated to this instance.
 		 */
-		const TreeTemplate<Node> * getTree() const { return _tree; }
+		const TreeTemplate<Node> * getTree() const { return _templateTree; }
 
     /**
      * @brief Enable the use of continuous rates instead of discrete rates.
@@ -233,7 +230,7 @@ class NonHomogeneousSequenceSimulator:
 		 * This method is fast since all pijt have been computed in the constructor of the class.
      * This method is used for the implementation of the SiteSimulator interface.
 		 */
-		int evolve(const Node * node, int initialState, unsigned int rateClass) const;
+		int evolve(const SNode * node, int initialState, unsigned int rateClass) const;
 		
 		/**
 		 * @brief Evolve from an initial state along a branch, knowing the evolutionary rate.
@@ -241,14 +238,14 @@ class NonHomogeneousSequenceSimulator:
 		 * This method is slower than the previous one since exponential terms must be computed.
      * This method is used for the implementation of the SiteSimulator interface.
 		 */
-		int evolve(const Node * node, int initialState, double rate) const;
+		int evolve(const SNode * node, int initialState, double rate) const;
 		
     /**
      * @brief The same as the evolve(initialState, rateClass) function, but for several sites at a time.
      *
      * This method is used for the implementation of the SequenceSimulator interface.
      */
-		void multipleEvolve(const Node * node, const Vint & initialState, const vector<unsigned int> & rateClasses, Vint & finalStates) const;
+		void multipleEvolve(const SNode * node, const Vint & initialState, const vector<unsigned int> & rateClasses, Vint & finalStates) const;
 		SiteContainer * multipleEvolve(const Vint & initialStates, const vector<unsigned int> & rateClasses) const;
 		
     void dEvolve(int initialState, double rate, RASiteSimulationResult & rassr) const;
@@ -262,38 +259,22 @@ class NonHomogeneousSequenceSimulator:
     /**
      * This method uses the _states variable for saving ancestral states.
      */
-    void evolveInternal(const Node * node, unsigned int rateClass) const;
+    void evolveInternal(SNode * node, unsigned int rateClass) const;
     /**
      * This method uses the _states variable for saving ancestral states.
      */
-		void evolveInternal(const Node * node, double rate) const;
+		void evolveInternal(SNode * node, double rate) const;
     /**
      * This method uses the _multipleStates variable for saving ancestral states.
      */
- 		void multipleEvolveInternal(const Node * node, const vector<unsigned int> & rateClasses) const;
+ 		void multipleEvolveInternal(SNode * node, const vector<unsigned int> & rateClasses) const;
 
     /**
      * This method uses the _states variable for saving ancestral states.
      */
-		void dEvolveInternal(const Node * node, double rate, RASiteSimulationResult & rassr) const;
+		void dEvolveInternal(SNode * node, double rate, RASiteSimulationResult & rassr) const;
     /** @} */
 
-};
-
-/**
- * @brief This is an alias class, mainly for backward compatibility and disambiguation of code.
- */
-class HomogeneousSequenceSimulator:
-  public NonHomogeneousSequenceSimulator
-{
-  public:
-    HomogeneousSequenceSimulator(
-			SubstitutionModel * model,
-			const DiscreteDistribution * rate,
-			const TreeTemplate<Node> * tree
-		): NonHomogeneousSequenceSimulator(model, rate, tree) {}
-
-    virtual ~HomogeneousSequenceSimulator() {}
 };
 
 #endif //_NONHOMOGENEOUSSEQUENCESIMULATOR_H_

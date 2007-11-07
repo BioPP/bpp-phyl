@@ -45,6 +45,7 @@ SequenceSimulator.h\
 SiteSimulator.h\
 DetailedSiteSimulator.h\
 NonHomogeneousSequenceSimulator.h\
+HomogeneousSequenceSimulator.h\
 SubstitutionModel.h\
 FrequenciesSet.h\
 T92.h\

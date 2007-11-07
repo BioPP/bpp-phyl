@@ -64,10 +64,12 @@ TN93::TN93(
 {
 	_parameters.addParameter(Parameter("kappa1", kappa1, &Parameter::R_PLUS));
 	_parameters.addParameter(Parameter("kappa2", kappa2, &Parameter::R_PLUS));
-	_parameters.addParameter(Parameter("piA", piA, &Parameter::PROP_CONSTRAINT_IN));
-	_parameters.addParameter(Parameter("piC", piC, &Parameter::PROP_CONSTRAINT_IN));
-	_parameters.addParameter(Parameter("piG", piG, &Parameter::PROP_CONSTRAINT_IN));
-	_parameters.addParameter(Parameter("piT", piT, &Parameter::PROP_CONSTRAINT_IN));
+	_theta = piG + piC;
+  _theta1 = piA / (1. - _theta);
+  _theta2 = piG / _theta;
+	_parameters.addParameter(Parameter("theta" , _theta , &Parameter::PROP_CONSTRAINT_EX));
+	_parameters.addParameter(Parameter("theta1", _theta1, &Parameter::PROP_CONSTRAINT_EX));
+	_parameters.addParameter(Parameter("theta2", _theta2, &Parameter::PROP_CONSTRAINT_EX));
   _p.resize(_size, _size);
 	updateMatrices();
 }
@@ -78,10 +80,13 @@ void TN93::updateMatrices()
 {
 	_kappa1 = _parameters.getParameter("kappa1")->getValue();
 	_kappa2 = _parameters.getParameter("kappa2")->getValue();
-	_piA = _parameters.getParameter("piA")->getValue();
-	_piC = _parameters.getParameter("piC")->getValue();
-	_piG = _parameters.getParameter("piG")->getValue();
-	_piT = _parameters.getParameter("piT")->getValue();
+  _theta  = _parameters.getParameter("theta" )->getValue();
+	_theta1 = _parameters.getParameter("theta1")->getValue();
+	_theta2 = _parameters.getParameter("theta2")->getValue();
+  _piA = _theta1 * (1. - _theta);
+  _piC = (1. - _theta2) * _theta;
+  _piG = _theta2 * _theta;
+  _piT = (1. - _theta1) * (1. - _theta);
 	_piR = _piA + _piG;
 	_piY = _piT + _piC;
 	_r = 1. / (2. * (_piA * _piC + _piC * _piG + _piA * _piT + _piG * _piT + _kappa2 * _piC * _piT + _kappa1 * _piA * _piG));
@@ -424,10 +429,13 @@ void TN93::setFreqFromData(const SequenceContainer & data)
 	map<int, double> freqs = SequenceContainerTools::getFrequencies(data);
 	double t = 0;
 	for(unsigned int i = 0; i < _size; i++) t += freqs[i];
-	setParameterValue("piA", freqs[0] / t);
-	setParameterValue("piC", freqs[1] / t);
-	setParameterValue("piG", freqs[2] / t);
-	setParameterValue("piT", freqs[3] / t);
+	_piA = freqs[0] / t;
+	_piC = freqs[1] / t;
+	_piG = freqs[2] / t;
+	_piT = freqs[3] / t;
+	setParameterValue("theta", _piC + _piG);
+	setParameterValue("theta1", _piA / (_piA + _piT));
+	setParameterValue("theta2", _piG / (_piC + _piG));
   updateMatrices();
 }
 

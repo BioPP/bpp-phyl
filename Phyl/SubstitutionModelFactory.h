@@ -99,29 +99,6 @@ class SubstitutionModelFactory
      */
     virtual SubstitutionModel * createModel(const string& modelName) const throw (AlphabetException, Exception);
 
-    /**
-     * @brief Create a SubstitutionModelSet object, corresponding to the homogeneous case.
-     *
-     * This class is mainly for testing purpose.
-     *
-     * @param modelName The name of the model to use.
-     * @param tree      The tree to use for the construction of the set.
-     */
-    virtual SubstitutionModelSet * createHomogeneousModelSet(const string & modelName, const Tree * tree) const throw (AlphabetException, Exception);
-
-    /**
-     * @brief Create a SubstitutionModelSet object, with one model per branch.
-     *
-     * All branches share the same type of model, but allow one set of parameters per branch.
-     * This is also possible to specify some parameters to be common to all branches.
-     *
-     * @param modelName            The name of the model to use.
-     * @param tree                 The tree to use for the construction of the set.
-     * @param globalParameterNames Common parameters for all branches.
-     * All other parameters will be considered distinct for all branches.
-     */
-    virtual SubstitutionModelSet * createNonHomogeneousModelSet(const string & modelName, const Tree * tree, const vector<string> & globalParameterNames) const throw (AlphabetException, Exception);
-
 };
 
 #endif //_SUBSTITUTIOMODELFACTORY_H_

@@ -133,15 +133,3 @@ SubstitutionModel * SubstitutionModelFactory::createModel(const string& modelNam
   else throw Exception("SubstitutionModelFactory::createModel(). Unknown model: " + modelName);
 }
 
-SubstitutionModelSet * SubstitutionModelFactory::createHomogeneousModelSet(const string& modelName, const Tree *tree) const throw (AlphabetException, Exception)
-{
-  SubstitutionModel * model = createModel(modelName);
-  return SubstitutionModelSetTools::createHomogeneousModelSet(model, tree);
-}
-
-SubstitutionModelSet * SubstitutionModelFactory::createNonHomogeneousModelSet(const string& modelName, const Tree *tree, const vector<string> & globalParameterNames) const throw (AlphabetException, Exception)
-{
-  SubstitutionModel * model = createModel(modelName); //template model.
-  return SubstitutionModelSetTools::createNonHomogeneousModelSet(model, tree, globalParameterNames);
-}
-

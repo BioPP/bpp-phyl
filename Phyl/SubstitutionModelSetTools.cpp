@@ -39,19 +39,44 @@ knowledge of the CeCILL license and that you accept its terms.
 
 #include "SubstitutionModelSetTools.h"
 
-SubstitutionModelSet * SubstitutionModelSetTools::createHomogeneousModelSet(SubstitutionModel *model, const Tree *tree) throw (AlphabetException, Exception)
+SubstitutionModelSet* SubstitutionModelSetTools::createHomogeneousModelSet(
+    SubstitutionModel* model,
+    FrequenciesSet* rootFreqs,
+    const Tree* tree
+  ) throw (AlphabetException, Exception)
 {
-  SubstitutionModelSet * modelSet = new SubstitutionModelSet(model->getAlphabet(), new FullFrequenciesSet(model->getAlphabet(), model->getFrequencies(), "RootFreq"));
+  //Check alphabet:
+  if(model->getAlphabet()->getAlphabetType() != rootFreqs->getAlphabet()->getAlphabetType())
+    throw AlphabetMismatchException("SubstitutionModelSetTools::createHomogeneousModelSet()", model->getAlphabet(), rootFreqs->getAlphabet());
+  SubstitutionModelSet * modelSet = new SubstitutionModelSet(model->getAlphabet(), rootFreqs);
   //We assign this model to all nodes in the tree (excepted root node), and link all parameters with it.
   vector<int> ids = tree->getNodesId();
   int rootId = tree->getRootId();
-  remove(ids.begin(), ids.end(), rootId);
+  unsigned int pos = 0;
+  for(unsigned int i = 0; i < ids.size(); i++)
+  {
+    if(ids[i] == rootId)
+    {
+      pos = i;
+      break;
+    }
+  }
+  ids.erase(ids.begin() + pos);
   modelSet->addModel(model, ids, model->getParameters().getParameterNames());
   return modelSet;
 }
 
-SubstitutionModelSet * SubstitutionModelSetTools::createNonHomogeneousModelSet(SubstitutionModel *model, const Tree *tree, const vector<string> & globalParameterNames, FrequenciesSet * rootFreqs) throw (AlphabetException, Exception)
+SubstitutionModelSet* SubstitutionModelSetTools::createNonHomogeneousModelSet(
+    SubstitutionModel* model,
+    FrequenciesSet* rootFreqs,
+    const Tree* tree,
+    const vector<string>&
+    globalParameterNames
+  ) throw (AlphabetException, Exception)
 {
+  //Check alphabet:
+  if(model->getAlphabet()->getAlphabetType() != rootFreqs->getAlphabet()->getAlphabetType())
+    throw AlphabetMismatchException("SubstitutionModelSetTools::createNonHomogeneousModelSet()", model->getAlphabet(), rootFreqs->getAlphabet());
   ParameterList globalParameters, branchParameters;
   globalParameters = model->getParameters();
   for(unsigned int i = globalParameters.size(); i > 0; i--)
@@ -63,7 +88,6 @@ SubstitutionModelSet * SubstitutionModelSetTools::createNonHomogeneousModelSet(S
       globalParameters.deleteParameter(i - 1);
     }
   }
-  if(rootFreqs == NULL) rootFreqs = new FullFrequenciesSet(model->getAlphabet(), "RootFreq");
   SubstitutionModelSet * modelSet = new SubstitutionModelSet(model->getAlphabet(), rootFreqs);
   //We assign a copy of this model to all nodes in the tree (excepted root node), and link all parameters with it.
   vector<int> ids = tree->getNodesId();

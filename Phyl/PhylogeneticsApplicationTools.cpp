@@ -165,7 +165,7 @@ SubstitutionModel * PhylogeneticsApplicationTools::getSubstitutionModelDefaultIn
   else
   { 
     // Alphabet supposed to be proteic!
-    string modelName = ApplicationTools::getStringParameter("model", params, "JCprot", suffix, suffixIsOptional);
+    string modelName = ApplicationTools::getStringParameter(prefix + "name", params, "JCprot", suffix, suffixIsOptional);
     if(modelName.find("+") != string::npos)
     {
       StringTokenizer st(modelName, "+");
@@ -174,8 +174,6 @@ SubstitutionModel * PhylogeneticsApplicationTools::getSubstitutionModelDefaultIn
     }
     const ProteicAlphabet * alpha = dynamic_cast<const ProteicAlphabet *>(alphabet);
     bool useObsFreq = ApplicationTools::getBooleanParameter(prefix + "use_observed_freq", params, false, suffix, suffixIsOptional);
-    
-    if(verbose) ApplicationTools::displayResult("Substitution model" + suffix, modelName);
     
     if(modelName == "JCprot")
     {
@@ -196,7 +194,7 @@ SubstitutionModel * PhylogeneticsApplicationTools::getSubstitutionModelDefaultIn
     }
     else
     {
-      throw Exception("Model '" + modelName + "' unknown. Aborting...");
+      throw Exception("Model '" + modelName + "' unknown.");
     }
     if(useObsFreq && data != NULL) model->setFreqFromData(*data);
     if(verbose)
@@ -246,9 +244,11 @@ void PhylogeneticsApplicationTools::setSubstitutionModelParametersInitialValues(
   for(unsigned int i=0; i < pl.size(); i++)
   {
     const string pName = pl[i]->getName();
-    if(useObsFreq && (pName == "piA" || pName == "piC" || pName == "piG" || pName == "piT")) continue;
-    double value = ApplicationTools::getDoubleParameter(prefix + pName, params, pl[i]->getValue(), suffix, suffixIsOptional); 
-    pl[i]->setValue(value);
+    if(!useObsFreq || (pName.substr(0,5) != "theta"))
+    {
+      double value = ApplicationTools::getDoubleParameter(prefix + pName, params, pl[i]->getValue(), suffix, suffixIsOptional); 
+      pl[i]->setValue(value);
+    }
     if(verbose) ApplicationTools::displayResult(prefix + pName, TextTools::toString(pl[i]->getValue()));
   }
   model->matchParametersValues(pl);
@@ -280,11 +280,9 @@ void PhylogeneticsApplicationTools::printSubstitutionModelHelp()
   *ApplicationTools::message << "model.kappa1            | kappa1(N) parameter in Q matrix" << endl;
   *ApplicationTools::message << "model.kappa2            | kappa2(N) parameter in Q matrix" << endl;
   *ApplicationTools::message << "model.a,b,c,d,e,f       | GTR rates parameter in Q matrix" << endl;
-  *ApplicationTools::message << "model.theta             | theta(N)  parameter in Q matrix" << endl;
-  *ApplicationTools::message << "model.piA               | piA(N)    parameter in Q matrix" << endl;
-  *ApplicationTools::message << "model.piT               | piT(N)    parameter in Q matrix" << endl;
-  *ApplicationTools::message << "model.piC               | piC(N)    parameter in Q matrix" << endl;
-  *ApplicationTools::message << "model.piG               | piG(N)    parameter in Q matrix" << endl;
+  *ApplicationTools::message << "model.theta             | piG + piC" << endl;
+  *ApplicationTools::message << "model.theta1            | piA / (piA + piT)" << endl;
+  *ApplicationTools::message << "model.theta2            | piG / (piC + piG)" << endl;
   *ApplicationTools::message << "model.use_observed_freq | (N,P) Tell if the observed frequencies must be used." << endl; 
   *ApplicationTools::message << "model_empirical.file    | (P) The path toward data file to use (PAML format)." << endl; 
   *ApplicationTools::message << "________________________|_____________________________________________________" << endl;
@@ -346,18 +344,29 @@ FrequenciesSet * PhylogeneticsApplicationTools::getFrequenciesSet(
   FrequenciesSet * rootFrequencies = NULL;
   string freqOpt = ApplicationTools::getStringParameter("nonhomogeneous.root_freq", params, "observed", suffix, suffixIsOptional);
   if(verbose) ApplicationTools::displayResult("Ancestral frequences method", freqOpt);
-  if(freqOpt == "oberved")
+  if(freqOpt == "observed" && data)
   {
     map<int, double> freqs = SequenceContainerTools::getFrequencies(*data);
     double t = 0;
     vector<double> rootFreq(alphabet->getSize());
     for(unsigned int i = 0; i < alphabet->getSize(); i++) t += freqs[i];
     for(unsigned int i = 0; i < alphabet->getSize(); i++) rootFreq[i] = freqs[i] / t;
-    rootFrequencies = new FullFrequenciesSet(alphabet, rootFreq, "RootFreq");
+    if(AlphabetTools::isNucleicAlphabet(alphabet))
+    {
+      double theta  = (rootFreq[1] + rootFreq[2]) / (rootFreq[0] + rootFreq[1] + rootFreq[2] + rootFreq[3]);
+      double theta1 = rootFreq[0] / (rootFreq[0] + rootFreq[3]);
+      double theta2 = rootFreq[2] / (rootFreq[1] + rootFreq[2]);
+      rootFrequencies = new FullNAFrequenciesSet(dynamic_cast<const NucleicAlphabet *>(alphabet), theta, theta1, theta2, "RootFreq");
+    }
+    else
+      rootFrequencies = new FullFrequenciesSet(alphabet, rootFreq, "RootFreq");
   }
   else if(freqOpt == "balanced")
   {
-    rootFrequencies = new FullFrequenciesSet(alphabet, "RootFreq");
+    if(AlphabetTools::isNucleicAlphabet(alphabet))
+      rootFrequencies = new FullNAFrequenciesSet(dynamic_cast<const NucleicAlphabet*>(alphabet), "RootFreq");
+    else
+      rootFrequencies = new FullFrequenciesSet(alphabet, "RootFreq");
   }
   else if(freqOpt == "init")
   {
@@ -368,6 +377,10 @@ FrequenciesSet * PhylogeneticsApplicationTools::getFrequenciesSet(
       rootFreq[ 1] = ApplicationTools::getDoubleParameter("model.ancC", params, 0.25);
       rootFreq[ 2] = ApplicationTools::getDoubleParameter("model.ancG", params, 0.25);
       rootFreq[ 3] = ApplicationTools::getDoubleParameter("model.ancT", params, 0.25);
+      double theta  = (rootFreq[1] + rootFreq[2]) / (rootFreq[0] + rootFreq[1] + rootFreq[2] + rootFreq[3]);
+      double theta1 = rootFreq[0] / (rootFreq[0] + rootFreq[3]);
+      double theta2 = rootFreq[2] / (rootFreq[1] + rootFreq[2]);
+      rootFrequencies = new FullNAFrequenciesSet(dynamic_cast<const NucleicAlphabet *>(alphabet), theta, theta1, theta2, "RootFreq");
     }
     else if(AlphabetTools::isProteicAlphabet(alphabet))
     {
@@ -391,11 +404,11 @@ FrequenciesSet * PhylogeneticsApplicationTools::getFrequenciesSet(
       rootFreq[17] = ApplicationTools::getDoubleParameter("model.ancW", params, 0.05);
       rootFreq[18] = ApplicationTools::getDoubleParameter("model.ancY", params, 0.05);
       rootFreq[19] = ApplicationTools::getDoubleParameter("model.ancV", params, 0.05);
+      rootFrequencies = new FullFrequenciesSet(alphabet, rootFreq, "RootFreq");
     }
     else throw Exception("Init root frequencies is only available with Nucleic and Proteic alphabet.");
-    rootFrequencies = new FullFrequenciesSet(alphabet, rootFreq, "RootFreq");
   }
-  else if(freqOpt == "observedGC")
+  else if(freqOpt == "observedGC" && data)
   {
     if(!AlphabetTools::isNucleicAlphabet(alphabet)) throw Exception("Error, unvalid option " + freqOpt + " with non-nucleic alphabet.");
     map<int, double> freqs = SequenceContainerTools::getFrequencies(*data);

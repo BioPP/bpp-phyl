@@ -59,22 +59,23 @@ using namespace std;
 class SiteSimulationResult
 {
   protected:
-    mutable map<const Node *, unsigned int> _indexes;
+    mutable map<int, unsigned int> _indexes;
     unsigned int _currentIndex;
     vector<MutationPath> _paths;
     vector<int> _ancestralStates;
-    const TreeTemplate<Node> * _tree;
-    vector<const Node *> _leaves;
+    const Tree * _tree;
+    vector<int> _leavesId;
     const Alphabet * _alphabet;
     
   public:
-    SiteSimulationResult(const TreeTemplate<Node> * tree, const Alphabet * alphabet, int ancestralState):
-      _currentIndex(0) {
+    SiteSimulationResult(const Tree * tree, const Alphabet * alphabet, int ancestralState):
+      _currentIndex(0)
+    {
       _tree = tree;
       _alphabet = alphabet;
-      _indexes[tree->getRootNode()] = 0;
+      _indexes[tree->getRootId()] = 0;
       _ancestralStates.push_back(ancestralState);
-      _leaves = tree->getLeaves();
+      _leavesId = tree->getLeavesId();
     }
 
     virtual ~SiteSimulationResult() {}
@@ -85,27 +86,28 @@ class SiteSimulationResult
      */
     virtual const Alphabet * getAlphabet() const { return _alphabet; }
     
-    virtual void addNode(const Node * node, MutationPath path)
+    virtual void addNode(int nodeId, MutationPath path)
     {
       _currentIndex++;
-      _indexes[node] = _currentIndex;
+      _indexes[nodeId] = _currentIndex;
       _paths.push_back(path);
       _ancestralStates.push_back(path.getFinalState());
     }
 
     virtual int getAncestralState(unsigned int i)    const { return _ancestralStates[i]; }
 
-    virtual int getAncestralState(const Node * node) const { return _ancestralStates[_indexes[node]]; }
+    virtual int getAncestralState(int nodeId) const { return _ancestralStates[_indexes[nodeId]]; }
 
     virtual unsigned int getSubstitutionCount(unsigned int i) const { return _paths[i].getNumberOfEvents(); }
     
-    virtual unsigned int getSubstitutionCount(const Node * node) const { return _paths[_indexes[node]].getNumberOfEvents(); }
+    virtual unsigned int getSubstitutionCount(int nodeId) const { return _paths[_indexes[nodeId]].getNumberOfEvents(); }
     
     virtual vector<double> getSubstitutionVector() const
     {
       unsigned int n = _paths.size();
       vector<double> counts(n);
-      for(unsigned int i = 0; i < n; i++) counts[i] = (double)_paths[i].getNumberOfEvents();
+      for(unsigned int i = 0; i < n; i++)
+        counts[i] = (double)_paths[i].getNumberOfEvents();
       return counts;
     }
 
@@ -114,28 +116,30 @@ class SiteSimulationResult
      */
     virtual vector<int> getFinalStates() const
     {
-      unsigned int n = _leaves.size(); 
+      unsigned int n = _leavesId.size(); 
       vector<int> states(n);
-      for(unsigned int i = 0; i < n; i++) {
-        states[i] = _ancestralStates[_indexes[_leaves[i]]];
+      for(unsigned int i = 0; i < n; i++)
+      {
+        states[i] = _ancestralStates[_indexes[_leavesId[i]]];
       }
       return states;
     }
 
     /**
-     * @return The site correspodning to this simulation.
+     * @return The site corresponding to this simulation.
      */
     virtual Site * getSite() const { return new Site(getFinalStates(), _alphabet); }
 
     /**
-     * @return A vectro with the leaves names.
+     * @return A vector with the leaves names.
      */
     virtual vector<string> getLeaveNames() const
     {
-      unsigned int n = _leaves.size(); 
+      unsigned int n = _leavesId.size(); 
       vector<string> names(n);
-      for(unsigned int i = 0; i < n; i++) {
-        names[i] = _leaves[i] -> getName();
+      for(unsigned int i = 0; i < n; i++)
+      {
+        names[i] = _tree->getNodeName(_leavesId[i]);
       }
       return names;
     }
@@ -157,7 +161,7 @@ class RASiteSimulationResult:
     double _rate;
     
   public:
-    RASiteSimulationResult(const TreeTemplate<Node> * tree, const Alphabet * alphabet, int ancestralState, double rate):
+    RASiteSimulationResult(const Tree* tree, const Alphabet * alphabet, int ancestralState, double rate):
       SiteSimulationResult(tree, alphabet, ancestralState),
       _rate(rate) {}
 

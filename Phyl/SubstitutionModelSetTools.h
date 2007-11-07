@@ -56,10 +56,15 @@ class SubstitutionModelSetTools
      *
      * This class is mainly for testing purpose.
      *
-     * @param model The model to use.
-     * @param tree  The tree to use for the construction of the set.
+     * @param model     The model to use.
+     * @param rootFreqs A FrequenciesSet object to parametrize root frequencies.
+     * @param tree      The tree to use for the construction of the set.
      */
-    static SubstitutionModelSet * createHomogeneousModelSet(SubstitutionModel *model, const Tree *tree) throw (AlphabetException, Exception);
+    static SubstitutionModelSet* createHomogeneousModelSet(
+        SubstitutionModel* model,
+        FrequenciesSet* rootFreqs,
+        const Tree* tree
+      ) throw (AlphabetException, Exception);
 
     /**
      * @brief Create a SubstitutionModelSet object, with one model per branch.
@@ -68,13 +73,17 @@ class SubstitutionModelSetTools
      * This is also possible to specify some parameters to be common to all branches.
      *
      * @param model                The model to use.
+     * @param rootFreqs            A FrequenciesSet object to parametrize root frequencies.
      * @param tree                 The tree to use for the construction of the set.
      * @param globalParameterNames Common parameters for all branches.
-     * @param rootFreqs            A FrequenciesSet object to parametrize root frequencies.
-     *                             If NULL, a FullFrequenciesSet with equal probabilities will be used.
      * All other parameters will be considered distinct for all branches.
      */
-    static SubstitutionModelSet * createNonHomogeneousModelSet(SubstitutionModel *model, const Tree *tree, const vector<string> & globalParameterNames, FrequenciesSet * rootFreqs = NULL) throw (AlphabetException, Exception);
+    static SubstitutionModelSet* createNonHomogeneousModelSet(
+        SubstitutionModel* model,
+        FrequenciesSet* rootFreqs,
+        const Tree* tree,
+        const vector<string>& globalParameterNames
+      ) throw (AlphabetException, Exception);
 
 };
 

@@ -168,7 +168,7 @@ void SubstitutionModelSet::removeModel(unsigned int modelIndex) throw (Exception
         _paramToModels[i][j-1]--; //Correct indice due to removal!
     }
   }
-  if(!checkOrphanParameters()) throw Exception("DEBUG: SubstitutionModelSet::removeModel. Orphan parameter!");
+  checkOrphanParameters(true);
 }
 
 void SubstitutionModelSet::listModelNames(ostream & out) const
@@ -245,37 +245,53 @@ void SubstitutionModelSet::fireParameterChanged(const ParameterList & parameters
   }
 }
 
-bool SubstitutionModelSet::checkOrphanModels() const
+bool SubstitutionModelSet::checkOrphanModels(bool throwEx) const
+throw (Exception)
 {
   vector<unsigned int> index = MapTools::getValues(_nodeToModel);
   for(unsigned int i = 0; i < _modelSet.size(); i++)
   {
-    if(!VectorTools::contains(index, i)) return false;
+    if(!VectorTools::contains(index, i))
+    {
+      if(throwEx) throw Exception("SubstitutionModelSet::checkOrphanModels(). Model '" + TextTools::toString(i+1) + "' is associated to no node.");
+      return false;
+    }
   }
   return true;
 }
 
-bool SubstitutionModelSet::checkOrphanParameters() const
+bool SubstitutionModelSet::checkOrphanParameters(bool throwEx) const
+throw (Exception)
 {
   for(unsigned int i = 0; i < _paramToModels.size(); i++)
   {
-    if(_paramToModels[i].size() == 0) return false;
+    if(_paramToModels[i].size() == 0)
+    {
+      if(throwEx) throw Exception("SubstitutionModelSet::checkOrphanParameters(). Parameter '" + _parameters[i]->getName() + "' is associated to no model.");
+      return false;
+    }
   }
   return true;
 }
 
-bool SubstitutionModelSet::checkOrphanNodes(const Tree & tree) const
+bool SubstitutionModelSet::checkOrphanNodes(const Tree & tree, bool throwEx) const
+throw (Exception)
 {
   vector<int> ids = tree.getNodesId();
   int rootId = tree.getRootId();
   for(unsigned int i = 0; i < ids.size(); i++)
   {
-    if(ids[i] != rootId && _nodeToModel.find(ids[i]) == _nodeToModel.end()) return false;
+    if(ids[i] != rootId && _nodeToModel.find(ids[i]) == _nodeToModel.end())
+    {
+      if(throwEx) throw Exception("SubstitutionModelSet::checkOrphanNodes(). Node '" + TextTools::toString(ids[i]) + "' in tree has no model associated.");
+      return false;
+    }
   }
   return true;
 }
 
-bool SubstitutionModelSet::checkUnknownNodes(const Tree & tree) const
+bool SubstitutionModelSet::checkUnknownNodes(const Tree & tree, bool throwEx) const
+throw (Exception)
 {
   vector<int> ids = tree.getNodesId();
   int id;
@@ -285,7 +301,11 @@ bool SubstitutionModelSet::checkUnknownNodes(const Tree & tree) const
     for(unsigned int j = 0; j < _modelToNodes[i].size(); j++)
     {
       id = _modelToNodes[i][j];
-      if(id == rootId || !VectorTools::contains(ids, id)) return false;
+      if(id == rootId || !VectorTools::contains(ids, id))
+      {
+        if(throwEx) throw Exception("SubstitutionModelSet::checkUnknownNodes(). Node '" + TextTools::toString(id) + "' is not found in tree or is the root node.");
+        return false;
+      }
     }
   }
   return true;

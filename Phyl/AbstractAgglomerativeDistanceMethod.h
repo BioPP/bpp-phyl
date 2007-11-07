@@ -69,6 +69,7 @@ class AbstractAgglomerativeDistanceMethod:
 	
 	public:
 		AbstractAgglomerativeDistanceMethod(): _matrix(0), _tree(NULL), _currentNodes(), _verbose(true) {}
+		AbstractAgglomerativeDistanceMethod(bool verbose): _matrix(0), _tree(NULL), _currentNodes(), _verbose(verbose) {}
 		AbstractAgglomerativeDistanceMethod(const DistanceMatrix & matrix, bool verbose = true): _matrix(0), _tree(NULL), _currentNodes(), _verbose(verbose)
     {
       setDistanceMatrix(matrix);

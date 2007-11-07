@@ -69,6 +69,27 @@ knowledge of the CeCILL license and that you accept its terms.
  * \f[
  * \pi = \left(\pi_A, \pi_C, \pi_G, \pi_T\right)
  * \f]
+ * This models hence includes five parameters, two transition / transversion
+ * relative rates \f$\kappa_1, \kappa_2\f$ and four frequencies \f$\pi_A, \pi_C, \pi_G, \pi_T\f$.
+ * These four frequencies are not independent parameters, since they have the constraint to
+ * sum to 1.
+ * We use instead a different parametrization to remove this constraint:
+ * \f[
+ * \begin{cases}
+ * \theta = \pi_C + \pi_G\\
+ * \theta_1 = \frac{\pi_A}{1 - \theta} = \frac{\pi_A}{\pi_A + \pi_T}\\
+ * \theta_2 = \frac{\pi_G}{\theta} = \frac{\pi_G}{\pi_C + \pi_G}\\
+ * \end{cases}
+ * \Longleftrightarrow
+ * \begin{cases}
+ * \pi_A = \theta_1 (1 - \theta)\\
+ * \pi_C = (1 - \theta_2) \theta\\
+ * \pi_G = \theta_2 \theta\\
+ * \pi_T = (1 - \theta_1)(1 - \theta).
+ * \end{cases}
+ * \f]
+ * These parameters can also be measured from the data and not optimized.
+ *
  * Normalization: \f$r\f$ is set so that \f$\sum_i Q_{i,i}\pi_i = -1\f$:
  * \f[
  * S = \frac{1}{P}\begin{pmatrix}
@@ -93,7 +114,7 @@ knowledge of the CeCILL license and that you accept its terms.
  * For now, the generator of this model is diagonalized numericaly.
  * See AbstractSubstitutionModel for details of how the porbabilities are computed.
  *
- * The parameters are named \c "kappa1", \c "kappa2", \c "piA", \c "piC", \c "piG" and \c "piT"
+ * The parameters are named \c "kappa1", \c "kappa2", \c "theta", \c "theta1" and \c "theta2"
  * and their values may be retrieve with the command 
  * \code
  * getParameterValue("kappa1")
@@ -107,7 +128,7 @@ class TN93:
   public NucleotideSubstitutionModel
 {
 	protected:
-    double _kappa1, _kappa2, _piA, _piC, _piG, _piT, _piY, _piR, _r, _k1, _k2;
+    double _kappa1, _kappa2, _piA, _piC, _piG, _piT, _piY, _piR, _r, _k1, _k2, _theta, _theta1, _theta2;
     mutable double _exp1, _exp21, _exp22, _l;
     mutable RowMatrix<double> _p;
 

@@ -282,8 +282,8 @@ class SubstitutionModelSet:
     {
       if(parameterIndex >= _paramToModels.size()) throw IndexOutOfBoundsException("SubstitutionModelSet::unsetParameterToModel.", parameterIndex, 0, _paramToModels.size() - 1);
       remove(_paramToModels[parameterIndex].begin(), _paramToModels[parameterIndex].end(), modelIndex);
-      if(!checkOrphanModels())     throw Exception("DEBUG: SubstitutionModelSet::unsetParameterToModel. Orphan model!");
-      if(!checkOrphanParameters()) throw Exception("DEBUG: SubstitutionModelSet::unsetParameterToModel. Orphan parameterl!");
+      checkOrphanModels(true);
+      checkOrphanParameters(true);
     }
 
     /**
@@ -344,13 +344,14 @@ class SubstitutionModelSet:
      * - all nodes ids in the set refer to an existing node in the tree.
      *
      * @param tree The tree to check.
+     * @param throwEx Tell if an exception have to be thrown in case of test not passed.
      */
-    bool isFullySetUpFor(const Tree & tree) const
+    bool isFullySetUpFor(const Tree& tree, bool throwEx = true) const throw (Exception)
     {
-      return checkOrphanModels()
-          && checkOrphanParameters()
-          && checkOrphanNodes(tree)
-          && checkUnknownNodes(tree);
+      return checkOrphanModels(throwEx)
+          && checkOrphanParameters(throwEx)
+          && checkOrphanNodes(tree, throwEx)
+          && checkUnknownNodes(tree, throwEx);
     }
 
   protected:
@@ -368,13 +369,13 @@ class SubstitutionModelSet:
      *
      * @{
      */
-    bool checkOrphanModels() const;
+    bool checkOrphanModels(bool throwEx) const throw (Exception);
 
-    bool checkOrphanParameters() const;
+    bool checkOrphanParameters(bool throwEx) const throw (Exception);
 
-    bool checkOrphanNodes(const Tree & tree) const;
+    bool checkOrphanNodes(const Tree & tree, bool throwEx) const throw (Exception);
     
-    bool checkUnknownNodes(const Tree & tree) const;
+    bool checkUnknownNodes(const Tree & tree, bool throwEx) const throw (Exception);
     /** @} */
 
 };

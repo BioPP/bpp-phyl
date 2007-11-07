@@ -1,3 +1,12 @@
+07/11/07 Julien Dutheil
+* Nucleotide substitution models re-parametrized to remove constraint on
+  equilibrium frequencies. These frequencies can now be fully optimized.
+	Root frequencies in non-stationary models also updated.
+* More bugs fixed due to the new heterogeneous models.
+* Sequence simulations improved (faster), due to the use of NodeTemplates
+  instead of maps for storing node-specific data.
+* HomogeneousSequenceSimulator moved to HomogeneousSequenceSimulator.h.
+
 10/10/07 Bastien Boussau & Julien Dutheil
 * New class NonHomogeneousTreeLikelihood, which deal with non-homogeneous
   models of sequence evolution (fixed topology).
