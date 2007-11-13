@@ -105,8 +105,6 @@ void NonHomogeneousSequenceSimulator::init()
   _nbClasses = _rate->getNumberOfCategories();
   _nbStates = _modelSet->getNumberOfStates();
   
-  const SubstitutionModel * model = NULL;
-
   for(unsigned int i = 0; i < nodes.size(); i++)
   {
     SNode * node = nodes[i];

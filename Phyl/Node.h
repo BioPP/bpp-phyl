@@ -303,16 +303,16 @@ class Node:
          
     virtual unsigned int getNumberOfSons() const { return _sons.size(); }
 
-    virtual const Node * getSon(unsigned int i) const throw (IndexOutOfBoundsException)
+    virtual const Node * getSon(unsigned int pos) const throw (IndexOutOfBoundsException)
     {
-      if(i >= _sons.size()) throw IndexOutOfBoundsException("Node::getSon().",i,0,_sons.size()-1);
-      return _sons[i];
+      if(pos >= _sons.size()) throw IndexOutOfBoundsException("Node::getSon().", pos, 0, _sons.size()-1);
+      return _sons[pos];
     }
         
-    virtual Node * getSon(unsigned int i) throw (IndexOutOfBoundsException)
+    virtual Node * getSon(unsigned int pos) throw (IndexOutOfBoundsException)
     {
-      if(i >= _sons.size()) throw IndexOutOfBoundsException("Node::getSon().",i,0,_sons.size()-1);
-      return _sons[i];
+      if(pos >= _sons.size()) throw IndexOutOfBoundsException("Node::getSon().", pos, 0, _sons.size()-1);
+      return _sons[pos];
     }
         
     virtual void addSon(unsigned int pos, Node & node)
@@ -327,24 +327,34 @@ class Node:
       node._father = this;
     }
 
-    virtual void setSon(unsigned int pos, Node & node) throw (NodeException)
+    virtual void setSon(unsigned int pos, Node & node) throw (IndexOutOfBoundsException)
     {
-      if(pos >= _sons.size()) throw NodeException("Node::setSon(). Invalid node position.", & node);
+      if(pos >= _sons.size()) throw IndexOutOfBoundsException("Node::setSon(). Invalid node position.", pos, 0, _sons.size()-1);
       _sons[pos] = & node;
       node._father = this;
     }
         
-    virtual void removeSon(unsigned int i)
+    virtual Node * removeSon(unsigned int pos) throw (IndexOutOfBoundsException)
     {
-      Node * node = _sons[i];
-      _sons.erase(_sons.begin() + i);
-      node -> removeFather();
+      if(pos >= _sons.size()) throw IndexOutOfBoundsException("Node::removeSon(). Invalid node position.", pos, 0, _sons.size()-1);
+      Node * node = _sons[pos];
+      _sons.erase(_sons.begin() + pos);
+      node->removeFather();
+      return node;
     }
     
     virtual void removeSon(Node & node)
     {
-      for(unsigned int i = 0; i < _sons.size(); i++) if(* _sons[i] == node) _sons.erase(_sons.begin() + i);
-      node.removeFather();
+      for(unsigned int i = 0; i < _sons.size(); i++)
+      {
+        if(_sons[i] == &node)
+        {
+          _sons.erase(_sons.begin() + i);
+          node.removeFather();
+          return;
+        }
+      }
+      throw NodeNotFoundException("Node::removeSon.", node.getId());
     }
     
     virtual void removeSons() {  while(_sons.size() != 0) removeSon(0); }
