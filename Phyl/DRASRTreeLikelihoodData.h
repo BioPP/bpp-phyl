@@ -143,7 +143,8 @@ class DRASRTreeLikelihoodData :
       _patternLinks(data._patternLinks),
       _shrunkData(NULL),
       _nbSites(data._nbSites), _nbStates(data._nbStates),
-      _nbClasses(data._nbClasses), _nbDistinctSites(data._nbDistinctSites)
+      _nbClasses(data._nbClasses), _nbDistinctSites(data._nbDistinctSites),
+      _usePatterns(data._usePatterns)
     {
       _tree              = data._tree;
       if(data._shrunkData)
@@ -164,6 +165,7 @@ class DRASRTreeLikelihoodData :
         _shrunkData      = dynamic_cast<SiteContainer *>(data._shrunkData->clone());
       else
         _shrunkData      = NULL;
+      _usePatterns       = data._usePatterns;
       return *this;
     }
 
