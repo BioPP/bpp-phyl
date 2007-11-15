@@ -221,8 +221,9 @@ class DRASDRTreeLikelihoodData :
       _nbSites(data._nbSites), _nbStates(data._nbStates),
       _nbClasses(data._nbClasses), _nbDistinctSites(data._nbDistinctSites)
     {
-      _tree       = data._tree;
-      _shrunkData = dynamic_cast<SiteContainer *>(data._shrunkData->clone());
+      _tree         = data._tree;
+      if(data._shrunkData)
+        _shrunkData = dynamic_cast<SiteContainer *>(data._shrunkData->clone());
     }
 
     DRASDRTreeLikelihoodData & operator=(const DRASDRTreeLikelihoodData & data)
@@ -238,7 +239,10 @@ class DRASDRTreeLikelihoodData :
       _nbClasses         = data._nbClasses;
       _nbDistinctSites   = data._nbDistinctSites;
       _tree              = data._tree;
-      _shrunkData        = dynamic_cast<SiteContainer *>(data._shrunkData->clone());
+      if(data._shrunkData)
+        _shrunkData      = dynamic_cast<SiteContainer *>(data._shrunkData->clone());
+      else
+        _shrunkData      = NULL;
       return *this;
     }
 

@@ -1,3 +1,9 @@
+15/11/07 Julien Dutheil
+* Bug fixed in clonage of empty DR*LikelihoodData.
+
+14/11/07 Julien Dutheil
+* New methods getAncestors and getLastCommonAncestor in TreeTools.
+
 07/11/07 Julien Dutheil
 * Nucleotide substitution models re-parametrized to remove constraint on
   equilibrium frequencies. These frequencies can now be fully optimized.

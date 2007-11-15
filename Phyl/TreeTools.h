@@ -179,7 +179,27 @@ class TreeTools
      * @throw NodeNotFoundException If the node is not found.
      */
     static vector<int> getPathBetweenAnyTwoNodes(const Tree & tree, int nodeId1, int nodeId2, bool includeAncestor = true) throw (NodeNotFoundException);
-  
+ 
+    /**
+     * @brief Get a list of all ids of parents nodes, from the current node (not included) to the root of the tree.
+     *
+     * @param tree The tree to use.
+     * @return The list of ancestors ids.
+     * @throw NodeNotFoundException If the node is not found.
+     */
+    static vector<int> getAncestors(const Tree & tree, int nodeId) throw (NodeNotFoundException);
+
+    /**
+     * @brief Get the id of the last common ancestors of all specified nodes.
+     *
+     * Nodes id need not correspond to leaves.
+     *
+     * @param tree The tree to use.
+     * @param nodeIds The ids of the input nodes.
+     * @throw NodeNotFoundException If at least of of input node is not found.
+     */
+    static int getLastCommonAncestor(const Tree & tree, const vector<int>& nodeIds) throw (NodeNotFoundException, Exception);
+
     /**
      * @brief Get the depth of the subtree defined by node 'node', i.e. the maximum
      * number of sons 'generations'.

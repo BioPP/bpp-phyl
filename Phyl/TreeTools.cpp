@@ -1013,3 +1013,45 @@ void TreeTools::computeBootstrapValues(Tree & tree, const vector<Tree *> & vecTr
 
 /******************************************************************************/
 
+vector<int> TreeTools::getAncestors(const Tree & tree, int nodeId) throw (NodeNotFoundException)
+{
+  vector<int> ids;
+  int currentId = nodeId;
+  while(tree.hasFather(currentId))
+  {
+    currentId = tree.getFatherId(currentId);
+    ids.push_back(currentId);
+  }
+  return ids;
+}
+
+/******************************************************************************/
+    
+int TreeTools::getLastCommonAncestor(const Tree & tree, const vector<int>& nodeIds) throw (NodeNotFoundException, Exception)
+{
+  if(nodeIds.size() == 0) throw Exception("TreeTools::getLastCommonAncestor(). You must provide at least one node id.");
+  vector< vector<int> > ancestors(nodeIds.size());
+  for(unsigned int i = 0; i < nodeIds.size(); i++)
+  {
+    ancestors[i] = getAncestors(tree, nodeIds[i]);
+  }
+  int lca = tree.getRootId();
+  unsigned int count = 1;
+  for(;;)
+  {
+    if(ancestors[0].size() <= count) return lca;
+    int current = ancestors[0][count];
+    for(unsigned int i = 1; i < nodeIds.size(); i++)
+    {
+      if(ancestors[i].size() <= count) return lca;
+      if(ancestors[i][count] != current) return lca;
+    }
+    lca = current;
+    count++;
+  }
+  //This line is never reached!
+  return lca;
+}
+
+/******************************************************************************/
+
