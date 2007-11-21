@@ -494,9 +494,12 @@ void TreeTools::scaleTree(Tree & tree, int nodeId, double factor) throw (NodeNot
   vector<int> nodes = getNodesId(tree, nodeId);
   for(unsigned int i = 0; i < nodes.size(); i++)
   {
-    if(!tree.hasDistanceToFather(nodes[i])) throw NodeException("TreeTools::scaleTree(). Branch with no length", nodes[i]);
-    double brLen = tree.getDistanceToFather(nodes[i]) * factor;
-    tree.setDistanceToFather(nodes[i], brLen);
+    if(tree.hasFather(nodes[i]))
+    {
+      if(!tree.hasDistanceToFather(nodes[i])) throw NodeException("TreeTools::scaleTree(). Branch with no length", nodes[i]);
+      double brLen = tree.getDistanceToFather(nodes[i]) * factor;
+      tree.setDistanceToFather(nodes[i], brLen);
+    }
   }
 }
 

@@ -1,3 +1,7 @@
+21/11/07 Julien Dutheil
+* Tree(Template)Tools do not throw exception if the root node do not have a
+  branch length.
+
 15/11/07 Julien Dutheil
 * Bug fixed in clonage of empty DR*LikelihoodData.
 
