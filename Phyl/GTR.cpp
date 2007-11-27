@@ -63,11 +63,11 @@ GTR::GTR(
 	double piT):
 	NucleotideSubstitutionModel(alpha)
 {
-	_parameters.addParameter(Parameter("a", a, &Parameter::R_PLUS));
-	_parameters.addParameter(Parameter("b", b, &Parameter::R_PLUS));
-	_parameters.addParameter(Parameter("c", c, &Parameter::R_PLUS));
-	_parameters.addParameter(Parameter("d", d, &Parameter::R_PLUS));
-	_parameters.addParameter(Parameter("e", e, &Parameter::R_PLUS));
+	_parameters.addParameter(Parameter("a", a, &Parameter::R_PLUS_STAR));
+	_parameters.addParameter(Parameter("b", b, &Parameter::R_PLUS_STAR));
+	_parameters.addParameter(Parameter("c", c, &Parameter::R_PLUS_STAR));
+	_parameters.addParameter(Parameter("d", d, &Parameter::R_PLUS_STAR));
+	_parameters.addParameter(Parameter("e", e, &Parameter::R_PLUS_STAR));
 	_theta = piG + piC;
   _theta1 = piA / (1. - _theta);
   _theta2 = piG / _theta;
