@@ -519,6 +519,20 @@ class TreeTemplateTools
      */
     static double getDistanceBetweenAnyTwoNodes(const Node & node1, const Node & node2);
 
+    /**
+     * @brief Compute a distance matrix from a tree.
+     *
+     * Compute all distances between each leaves and store them in a matrix.
+     * A new DistanceMatrix object is created, and a pointer toward it is returned.
+     * The destruction of this matrix is left up to the user.
+     *
+     * @see getDistanceBetweenAnyTwoNodes
+     *
+     * @param tree The tree to use.
+     * @return The distance matrix computed from tree.
+     */
+    static DistanceMatrix * getDistanceMatrix(const TreeTemplate<Node> & tree);
+
     /** @} */
 
     /**

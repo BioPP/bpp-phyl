@@ -628,6 +628,25 @@ double TreeTemplateTools::getDistanceBetweenAnyTwoNodes(const Node & node1, cons
   
 /******************************************************************************/
 
+DistanceMatrix * TreeTemplateTools::getDistanceMatrix(const TreeTemplate<Node> & tree)
+{
+  vector<const Node *> nodes = tree.getLeaves();
+  vector<string> names(nodes.size());
+  for(unsigned int i = 0; i < nodes.size(); i++)
+    names[i] = nodes[i]->getName();
+  DistanceMatrix * mat = new DistanceMatrix(names);
+  for(unsigned int i = 0; i < nodes.size(); i++)
+  {
+    (* mat)(i, i) = 0;
+    for(unsigned int j = 0; j < i; j++)
+    {
+      (* mat)(i, j) = (* mat)(j, i) = getDistanceBetweenAnyTwoNodes(*nodes[i], *nodes[j]);
+    }
+  }
+  return mat;
+}
+/******************************************************************************/
+
 vector<const Node *> TreeTemplateTools::getRemainingNeighbors(const Node * node1, const Node * node2, const Node * node3)
 {
   vector<const Node *> neighbors = node1->getNeighbors();
