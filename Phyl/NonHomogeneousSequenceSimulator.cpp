@@ -205,7 +205,6 @@ Site * NonHomogeneousSequenceSimulator::simulate(int initialState, double rate) 
   }
   // Now create a Site object:
   Vint site(_leaves.size());
-  const SubstitutionModel * model = NULL;
   for(unsigned int i = 0; i < _leaves.size(); i++)
   {
     site[i] = _leaves[i]->getInfos().model->getState(_leaves[i]->getInfos().state);

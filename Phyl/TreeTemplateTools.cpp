@@ -221,11 +221,19 @@ Node * TreeTemplateTools::parenthesisToNode(const string & description, bool boo
 
 /******************************************************************************/
 
-TreeTemplate<Node> * TreeTemplateTools::parenthesisToTree(const string & description, bool bootstrap, const string & propertyName)
+TreeTemplate<Node> * TreeTemplateTools::parenthesisToTree(const string & description, bool bootstrap, const string & propertyName) throw (Exception)
 {
   string::size_type lastP  = description.rfind(')');
+  if(lastP == string::npos)
+    throw Exception("TreeTemplateTools::parenthesisToNode(). Bad format: no closing parenthesis found.");
   string::size_type firstP = description.find('(');
+  if(firstP == string::npos)
+    throw Exception("TreeTemplateTools::parenthesisToNode(). Bad format: no opening parenthesis found.");
   string::size_type semi = description.rfind(';');
+  if(semi == string::npos)
+    throw Exception("TreeTemplateTools::parenthesisToNode(). Bad format: no semi-colon found.");
+  if(lastP <= firstP)
+    throw Exception("TreeTemplateTools::parenthesisToNode(). Bad format: closing parenthesis before opening parenthesis.");
   string content = description.substr(firstP + 1, lastP - firstP - 1);
   string element = semi == string::npos ? description.substr(lastP+1) : description.substr(lastP+1, semi - lastP - 1);
   //cout << "TREE: " << content << endl;

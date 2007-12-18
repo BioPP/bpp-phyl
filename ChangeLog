@@ -1,3 +1,8 @@
+18/12/07 Céline Scornavacca & Julien Dutheil
+* TreeTemplateTools::parenthesisToTree now sends exceptions in case of bad
+format.
+* Removed a 'unused variable' warning in NonHomogeneousSequenceSimulator.
+
 21/11/07 Julien Dutheil
 * Tree(Template)Tools do not throw exception if the root node do not have a
   branch length.

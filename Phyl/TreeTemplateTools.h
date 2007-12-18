@@ -566,8 +566,9 @@ class TreeTemplateTools
      * The property value will be of type Number<double>. Otherwise, an object of type String will be created and stored with the property name propertyName.
      * @param propertyName The name of the property to store. Only used if bootstrap = false.
      * @return A pointer toward a dynamically created tree.
+     * @throw Exception in case of bad format.
      */
-    static TreeTemplate<Node> * parenthesisToTree(const string & description, bool bootstrap=true, const string & propertyName=TreeTools::BOOTSTRAP);
+    static TreeTemplate<Node> * parenthesisToTree(const string & description, bool bootstrap=true, const string & propertyName=TreeTools::BOOTSTRAP) throw (Exception);
     
     /**
      * @brief Get the parenthesis description of a subtree.
