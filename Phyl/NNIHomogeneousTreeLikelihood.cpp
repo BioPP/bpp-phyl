@@ -127,7 +127,9 @@ void BranchLikelihood::computeLogLikelihood()
       double rc = _rDist->getProbability(c);
       for(unsigned int x = 0; x < _nbStates; x++)
       {
-        Li += rc * _model->freq(x) * (* arrayTmp_i_c)[x];
+        //Li += rc * _model->freq(x) * (* arrayTmp_i_c)[x];
+        //freq is already accounted in the array
+        Li += rc * (* arrayTmp_i_c)[x];
       }
     }
     _lnL -= _weights[i] * log(Li);

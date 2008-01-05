@@ -224,6 +224,16 @@ class TreeLikelihood:
      * @return A ParameterList.
      */
     virtual ParameterList getSubstitutionModelParameters() const = 0;
+
+    /**
+     * @brief Get the values of the frequencies for each state in the alphabet at the root node.
+     *
+     * For reversible models, these are the equilibrium frequencies.
+     * For non-reversible models, these usually are distinct parameters.
+     *
+     * @return A vector with ancestral frequencies for each state in the alphabet;
+     */
+    virtual vector<double> getAncestralFreqencies() const = 0;
     
     /** @} */
 
@@ -253,7 +263,17 @@ class TreeLikelihood:
      * @return A ParameterList.
      */
     virtual ParameterList getNonDerivableParameters() const = 0;
-};
+
+    /**
+     * @brief Retrieves all Pij(t) for a particular branch, defined by the upper node.
+     *
+     * These intermediate results may be used by other methods.
+     *
+     * @param node The node defining the branch of interest.
+     * @return An array of dimension 3, where a[c][x][y] is the probability of substituting from x to y while being in rate class c.
+     */
+    virtual const VVVdouble & getTransitionProbabilitiesForNode(const Node* node) const = 0;
+  };
 
 #endif  //_TREELIKELIHOOD_H_
 

@@ -42,7 +42,7 @@ knowledge of the CeCILL license and that you accept its terms.
 #define _RNONHOMOGENEOUSTREELIKELIHOOD_H_
 
 #include "AbstractNonHomogeneousTreeLikelihood.h"
-#include "SubstitutionModel.h"
+#include "SubstitutionModelSet.h"
 #include "DRASRTreeLikelihoodData.h"
 
 // From NumCalc:
@@ -54,17 +54,9 @@ knowledge of the CeCILL license and that you accept its terms.
  *
  * A non uniform distribution of rates among the sites is allowed (ASRV models).</p>
  *
- * The Felsenstein recursive algorithm is used for conputation.
- * For each node, a likelihood tensor is defined, containing all likelihoods values for
- * for the substree defined by this node. The likelihood tensor dimension are defined as below:
- * <ul>
- * <li>Site</li>
- * <li>Rate class</li>
- * <li>Ancestral state</li>
- * </ul>
- * These tensors are stored into a map with each node as a key (cf. _likelihoods).
+ * This class uses an instance of the DRASRTreeLikelihoodData for conditionnal likelihood storage.
  *
- * This class can use simple or recursive site compression.
+ * This class can also use a simple or recursive site compression.
  * In the simple case, computations for identical sites are not duplicated.
  * In the recursive case, computations for identical sub-sites (<i>site patterns </i>) are also not duplicated:
  * Following N. Galtier (personal communication), we define a Pattern as a distinct site
@@ -88,8 +80,6 @@ knowledge of the CeCILL license and that you accept its terms.
  * Important note: The input tree will be considered as rooted, since the likelihood of non-stationary models
  * depends on the position of the root. If the input tree is not rooted, it will be considered as a rotted tree
  * with a root multifurcation.
- *
- * For topology estimation, consider using the DRNonHomogeneousTreeLikelihood class (not implemented yet).
  */
 class RNonHomogeneousTreeLikelihood :
 	public AbstractNonHomogeneousTreeLikelihood
@@ -106,7 +96,7 @@ class RNonHomogeneousTreeLikelihood :
      * To compute a likelihood, you will need to call the setData() and the computeTreeLikelihood() methods.
      *
      * @param tree The tree to use.
-     * @param model The substitution model to use.
+     * @param modelSet The set of substitution models to use.
      * @param rDist The rate across sites distribution to use.
      * If true, any rooted tree will be unrooted before likelihood computation.
      * @param verbose Should I display some info?
@@ -128,7 +118,7 @@ class RNonHomogeneousTreeLikelihood :
      *
      * @param tree The tree to use.
      * @param data Sequences to use.
-     * @param model The substitution model to use.
+     * @param modelSet The set of substitution models to use.
      * @param rDist The rate across sites distribution to use.
      * @param verbose Should I display some info?
      * @param usePatterns Tell if recursive site compression should be performed.

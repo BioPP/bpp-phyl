@@ -109,6 +109,7 @@ RNonHomogeneousTreeLikelihood & RNonHomogeneousTreeLikelihood::operator=(
     const RNonHomogeneousTreeLikelihood & lik)
 {
   AbstractNonHomogeneousTreeLikelihood::operator=(lik);
+  if(_likelihoodData) delete _likelihoodData;
   _likelihoodData = lik._likelihoodData->clone();
   _likelihoodData->setTree(*_tree);
   return *this;
@@ -158,10 +159,14 @@ double RNonHomogeneousTreeLikelihood::getLikelihood() const
 double RNonHomogeneousTreeLikelihood::getLogLikelihood() const
 {
   double ll = 0;
+  vector<double> la(_nbSites);
   for(unsigned int i = 0; i < _nbSites; i++)
   {
-    ll += getLogLikelihoodForASite(i);
+    la[i] = getLogLikelihoodForASite(i);
   }
+  sort(la.begin(), la.end());
+  for(unsigned int i = _nbSites; i > 0; i--)
+    ll += la[i-1];
   return ll;
 }
 
@@ -288,9 +293,6 @@ void RNonHomogeneousTreeLikelihood::fireParameterChanged(const ParameterList & p
 double RNonHomogeneousTreeLikelihood::getValue() const
 throw (Exception)
 {
-  //double f = - getLogLikelihood(); // For minimization.
-  //if(isnan(f)) f = -log(0.); // (+inf if unlikely!)
-  //return f;
   return - getLogLikelihood();
 }
 
@@ -639,8 +641,7 @@ throw (Exception)
     return pos * pos * d21 + (1. - pos) * (1. - pos) * d22 - 2 * pos * (1. - pos) * d1 * d2;
   }
   else if(variable == "RootPosition")
-  {
-    
+  {    
     vector<double> d(_nbSites);
     for(unsigned int i = 0; i < _nbSites; i++)
       d[i] = - getLikelihoodForASite(i);
@@ -663,7 +664,7 @@ throw (Exception)
     double len = _brLenParameters.getParameter("BrLenRoot")->getValue();
     double dl = 0;
     for(unsigned int i = 0; i < _nbSites; i++)
-      dl += len * len * (d21[i] + d22[i]) / d[i]  - std::pow(len * (d1[i] - d2[i]) / d[i], 2.);
+      dl += len * len * (d21[i] + d22[i]) / d[i] - std::pow(len * (d1[i] - d2[i]) / d[i], 2.);
     return dl;
   }
   else

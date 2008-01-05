@@ -140,10 +140,12 @@ class TwoTreeLikelihood:
 		double getLogLikelihoodForASite(unsigned int site) const;
 		ParameterList getBranchLengthsParameters() const;
 		ParameterList getSubstitutionModelParameters() const;
+    vector<double> getAncestralFreqencies() const { return _model->getFrequencies(); }
     /**
      * @brief This method is not applicable for this object.
      */
-    void setData(const SiteContainer & site) throw (Exception) {}
+    const VVVdouble & getTransitionProbabilitiesForNode(const Node* node) const { return _pxy; }
+    void setData(const SiteContainer & sites) throw (Exception) {}
     void initialize() throw(Exception);
 		/** @} */
 

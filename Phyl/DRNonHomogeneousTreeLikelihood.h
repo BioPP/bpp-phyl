@@ -1,7 +1,7 @@
 //
-// File: DRHomogeneousTreeLikelihood.h
+// File: DRNonHomogeneousTreeLikelihood.h
 // Created by: Julien Dutheil
-// Created on: Fri Oct 17 18:14:51 2003
+// Created on: Fri Dec 28 19:14 2007
 //
 
 /*
@@ -37,10 +37,10 @@ The fact that you are presently reading this means that you have had
 knowledge of the CeCILL license and that you accept its terms.
 */
 
-#ifndef _DRHOMOGENEOUSTREELIKELIHOOD_H_
-#define _DRHOMOGENEOUSTREELIKELIHOOD_H_
+#ifndef _DRNONHOMOGENEOUSTREELIKELIHOOD_H_
+#define _DRNONHOMOGENEOUSTREELIKELIHOOD_H_
 
-#include "AbstractHomogeneousTreeLikelihood.h"
+#include "AbstractNonHomogeneousTreeLikelihood.h"
 #include "DRTreeLikelihood.h"
 #include "DRASDRTreeLikelihoodData.h"
 
@@ -50,7 +50,7 @@ knowledge of the CeCILL license and that you accept its terms.
 
 /**
  * @brief This class implements the likelihood computation for a tree using the double-recursive
- * algorithm.
+ * algorithm, allowing for non-homogeneous models of substitutions.
  *
  * The substitution model is the same over the tree (homogeneous model).
  * A non-uniform distribution of rates among the sites is allowed (ASRV models).</p>
@@ -58,9 +58,13 @@ knowledge of the CeCILL license and that you accept its terms.
  * This class uses an instance of the DRASDRTreeLikelihoodData for conditionnal likelihood storage.
  *
  * All nodes share the same site patterns.
+ *
+ * Important note: The input tree will be considered as rooted, since the likelihood of non-stationary models
+ * depends on the position of the root. If the input tree is not rooted, it will be considered as a rotted tree
+ * with a root multifurcation.
  */
-class DRHomogeneousTreeLikelihood:
-  public AbstractHomogeneousTreeLikelihood,
+class DRNonHomogeneousTreeLikelihood:
+  public AbstractNonHomogeneousTreeLikelihood,
   public DRTreeLikelihood
 {
   protected:
@@ -68,60 +72,56 @@ class DRHomogeneousTreeLikelihood:
     
   public:
     /**
-     * @brief Build a new DRHomogeneousTreeLikelihood object without data.
+     * @brief Build a new DRNonHomogeneousTreeLikelihood object without data.
      *
      * This constructor only initialize the parameters.
      * To compute a likelihood, you will need to call the setData() and the computeTreeLikelihood() methods.
      *
      * @param tree The tree to use.
-     * @param model The substitution model to use.
+     * @param modelSet The set of substitution models to use.
      * @param rDist The rate across sites distribution to use.
-     * @param checkRooted Tell if we have to check for the tree to be unrooted.
      * If true, any rooted tree will be unrooted before likelihood computation.
      * @param verbose Should I display some info?
      * @throw Exception in an error occured.
      */
-    DRHomogeneousTreeLikelihood(
+    DRNonHomogeneousTreeLikelihood(
       const Tree & tree,
-      SubstitutionModel* model,
-      DiscreteDistribution* rDist,
-      bool checkRooted = true,
+      SubstitutionModelSet * modelSet,
+      DiscreteDistribution * rDist,
       bool verbose = true)
       throw (Exception);
   
     /**
-     * @brief Build a new DRHomogeneousTreeLikelihood object and compute the corresponding likelihood.
+     * @brief Build a new DRNonHomogeneousTreeLikelihood object and compute the corresponding likelihood.
      *
      * This constructor initializes all parameters, data, and likelihood arrays.
      *
      * @param tree The tree to use.
      * @param data Sequences to use.
-     * @param model The substitution model to use.
+     * @param modelSet The set of substitution models to use.
      * @param rDist The rate across sites distribution to use.
-     * @param checkRooted Tell if we have to check for the tree to be unrooted.
      * If true, any rooted tree will be unrooted before likelihood computation.
      * @param verbose Should I display some info?
      * @throw Exception in an error occured.
      */
-    DRHomogeneousTreeLikelihood(
+    DRNonHomogeneousTreeLikelihood(
       const Tree & tree,
       const SiteContainer & data,
-      SubstitutionModel* model,
-      DiscreteDistribution* rDist,
-      bool checkRooted = true,
+      SubstitutionModelSet * modelSet,
+      DiscreteDistribution * rDist,
       bool verbose = true)
       throw (Exception);
 
     /**
      * @brief Copy constructor.
      */ 
-    DRHomogeneousTreeLikelihood(const DRHomogeneousTreeLikelihood & lik);
+    DRNonHomogeneousTreeLikelihood(const DRNonHomogeneousTreeLikelihood & lik);
     
-    DRHomogeneousTreeLikelihood & operator=(const DRHomogeneousTreeLikelihood & lik);
+    DRNonHomogeneousTreeLikelihood & operator=(const DRNonHomogeneousTreeLikelihood & lik);
 
-    virtual ~DRHomogeneousTreeLikelihood();
+    virtual ~DRNonHomogeneousTreeLikelihood();
 
-    DRHomogeneousTreeLikelihood * clone() const { return new DRHomogeneousTreeLikelihood(*this); }
+    DRNonHomogeneousTreeLikelihood * clone() const { return new DRNonHomogeneousTreeLikelihood(*this); }
 
   private:
 
@@ -143,7 +143,7 @@ class DRHomogeneousTreeLikelihood:
     double getLikelihood () const;
     double getLogLikelihood() const;
     double getLikelihoodForASite (unsigned int site) const;
-    double getLogLikelihoodForASite(unsigned int site) const;
+    double getLogLikelihoodForASite(unsigned int site) const;      
     /** @} */
 
     void computeTreeLikelihood();
@@ -202,13 +202,6 @@ class DRHomogeneousTreeLikelihood:
   
     virtual void computeLikelihoodAtNode(const Node * node, VVVdouble& likelihoodArray) const;
 
-    /**
-     * @brief Retrieves all Pij(t) for a particular node.
-     *
-     * These intermediate results may be used by other methods.
-     */
-    virtual const VVVdouble & getTransitionProbabilitiesForNode(const Node * node) const { return _pxy[node->getId()]; }
-       
   protected:
   
     /**
@@ -259,9 +252,48 @@ class DRHomogeneousTreeLikelihood:
      * @param reset Tell if the output likelihood array must be initalized prior to computation.
      * If true, the resetLikelihoodArray method will be called.
      */
-    static void computeLikelihoodFromArrays(const vector<const VVVdouble *> & iLik, const vector<const VVVdouble *> & tProb, VVVdouble & oLik, unsigned int nbNodes, unsigned int nbDistinctSites, unsigned int nbClasses, unsigned int nbStates, bool reset = true);
+    static void computeLikelihoodFromArrays(
+        const vector<const VVVdouble *> & iLik,
+        const vector<const VVVdouble *> & tProb,
+        VVVdouble & oLik, unsigned int nbNodes,
+        unsigned int nbDistinctSites,
+        unsigned int nbClasses,
+        unsigned int nbStates,
+        bool reset = true);
+
+    /**
+     * @brief Compute conditional likelihoods.
+     *
+     * This method is the "core" likelihood computation function, performing all the product uppon all nodes, the summation for each ancestral state and each rate class.
+     * This function is specific to non-reversible models: the subtree containing the root is specified separately.
+     * It is designed for inner usage, and a maximum efficiency, so no checking is performed on the input parameters.
+     * Use with care!
+     * 
+     * @param iLik A vector of likelihood arrays, one for each conditional node.
+     * @param tProb A vector of transition probabilities, one for each node.
+     * @param iLikR The likelihood array for the subtree containing the root of the tree.
+     * @param tProbR The transition probabilities for thr subtree containing the root of the tree.
+     * @param oLik The likelihood array to store the computed likelihoods.
+     * @param nbNodes The number of nodes = the size of the input vectors.
+     * @param nbDistinctSites The number of distinct sites (the first dimension of the likelihood array).
+     * @param nbClasses The number of rate classes (the second dimension of the likelihood array).
+     * @param nbStates The number of states (the third dimension of the likelihood array).
+     * @param reset Tell if the output likelihood array must be initalized prior to computation.
+     * If true, the resetLikelihoodArray method will be called.
+     */
+    static void computeLikelihoodFromArrays(
+        const vector<const VVVdouble *> & iLik,
+        const vector<const VVVdouble *> & tProb,
+        const VVVdouble * iLikR,
+        const VVVdouble * tProbR,
+        VVVdouble & oLik,
+        unsigned int nbNodes,
+        unsigned int nbDistinctSites,
+        unsigned int nbClasses,
+        unsigned int nbStates,
+        bool reset = true);
 
 };
 
-#endif  //_DRHOMOGENEOUSTREELIKELIHOOD_H_
+#endif  //_DRNONHOMOGENEOUSTREELIKELIHOOD_H_
 

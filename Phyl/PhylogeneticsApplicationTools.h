@@ -157,6 +157,7 @@ class PhylogeneticsApplicationTools
      * @param prefix A prefix to be applied to each attribute name.
      * @param suffix A suffix to be applied to each attribute name.
      * @param suffixIsOptional Tell if the suffix is absolutely required.
+     * @param verbose Print some info to the 'message' output stream.
      * @throw Exception if an error occured.
      */
     static void setSubstitutionModelParametersInitialValues(
@@ -200,7 +201,7 @@ class PhylogeneticsApplicationTools
      *   The rate distribution associated to this covarion model.
      * - model.s1, model.s2 = T&S rate change parameters.
      *
-     * @param alphabiet The alpabet to use in the model.
+     * @param alphabet The alphabet to use in the model.
      * @param data     A pointer toward the SiteContainer for which the substitution model is designed.
      *                 The alphabet associated to the data must be of the same type as the one specified for the model.
      *                 May be equal to NULL, but in this case use_observed_freq option will be unavailable.
@@ -359,9 +360,12 @@ class PhylogeneticsApplicationTools
      *
      * Options used are:
      * - rate_distribution = [constant|gamma], the distribution to use.
+     *   Add '+invariant' for invariants.
      * Options depending on other options:
      * - If 'gamma' is selected:
      *   - rate_distribution.classes_number = the number of categories to be used.
+     * - If'+invariant' is selected:
+     *   - rate_distribution.p = the proportion of invariants.
      *
      * This function is mainly for internal usage, you're probably looking for the getRateDistribution function.
      *

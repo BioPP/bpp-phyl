@@ -42,7 +42,7 @@ knowledge of the CeCILL license and that you accept its terms.
 
 #include "ProbabilisticSubstitutionMapping.h"
 #include "SubstitutionCount.h"
-#include "DRHomogeneousTreeLikelihood.h"
+#include "DRTreeLikelihood.h"
 
 /**
  * @brief Provide methods to compute substitution mappings.
@@ -66,14 +66,14 @@ class SubstitutionMappingTools
 		 * @brief Compute the substitutions vectors for a particular dataset using the
 		 * double-recurvive likelihood computation.
 		 *
-		 * @param drhtl             A DRHomogeneousTreeLikelihood object.
+		 * @param drtl              A DRTreeLikelihood object.
 		 * @param substitutionCount The SubstitutionCount to use.
 		 * @param verbose           Print info to screen.
 		 * @return A vector of substitutions vectors (one for each site).
      * @throw Exception If the likelihood object is not initialized.
 		 */
 		static ProbabilisticSubstitutionMapping * computeSubstitutionVectors(
-			DRHomogeneousTreeLikelihood & drhtl,
+			DRTreeLikelihood & drtl,
 			const SubstitutionCount & substitutionCount,
 			bool verbose = true) throw (Exception);
 		
@@ -91,14 +91,14 @@ class SubstitutionMappingTools
 		 * This function is mainly for testing purpose (see Dutheil et al. 2005).
 		 * For practical use, consider using the 'getSubstitutionVectors' method instead.
 		 *
-		 * @param drhtl             A DRHomogeneousTreeLikelihood object.
+		 * @param drtl              A DRTreeLikelihood object.
 		 * @param substitutionCount The substitutionsCount to use.
 		 * @param verbose           Print info to screen.
 		 * @return A vector of substitutions vectors (one for each site).
      * @throw Exception If the likelihood object is not initialized.
 		 */
 		static ProbabilisticSubstitutionMapping * computeSubstitutionVectorsNoAveraging(
-			DRHomogeneousTreeLikelihood & drhtl,
+			DRTreeLikelihood & drtl,
 			const SubstitutionCount & substitutionCount,
 			bool verbose = true) throw (Exception);
 		
@@ -114,14 +114,14 @@ class SubstitutionMappingTools
 		 *
 		 * Use with another substitution count objet is in most cases irrelevent.
 		 * 
-		 * @param drhtl             A DRHomogeneousTreeLikelihood object.
+		 * @param drtl              A DRTreeLikelihood object.
 		 * @param substitutionCount The substitutionsCount to use.
 		 * @param verbose           Print info to screen.
 		 * @return A vector of substitutions vectors (one for each site).
      * @throw Exception If the likelihood object is not initialized.
 		 */
 		static ProbabilisticSubstitutionMapping * computeSubstitutionVectorsNoAveragingMarginal(
-			DRHomogeneousTreeLikelihood & drhtl,
+			DRTreeLikelihood & drtl,
 			const SubstitutionCount & substitutionCount,
 			bool verbose = true) throw (Exception);
 		
@@ -134,14 +134,14 @@ class SubstitutionMappingTools
 		 * This function is mainly for testing purpose (see Dutheil et al. 2005).
 		 * For practical use, consider using the 'getSubstitutionVectors' method instead.
 		 *
-		 * @param drhtl             A DRHomogeneousTreeLikelihood object.
+		 * @param drtl              A DRTreeLikelihood object.
 		 * @param substitutionCount The substitutionsCount to use.
 		 * @param verbose           Print info to screen.
 		 * @return A vector of substitutions vectors (one for each site).
      * @throw Exception If the likelihood object is not initialized.
 		 */
 		static ProbabilisticSubstitutionMapping * computeSubstitutionVectorsMarginal(
-			DRHomogeneousTreeLikelihood & drhtl,
+			DRTreeLikelihood & drtl,
 			const SubstitutionCount & substitutionCount,
 			bool verbose = true) throw (Exception);
 	

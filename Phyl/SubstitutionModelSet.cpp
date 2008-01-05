@@ -174,7 +174,12 @@ void SubstitutionModelSet::removeModel(unsigned int modelIndex) throw (Exception
 void SubstitutionModelSet::listModelNames(ostream & out) const
 {
   for(unsigned int i = 0; i < _modelSet.size(); i++)
-    out << "Model "<< i + 1 << " : " << _modelSet[i]->getName() << endl;
+  {
+    out << "Model "<< i + 1 << ": " << _modelSet[i]->getName() << "\t attached to nodes ";
+    for(unsigned int j = 0; j < _modelToNodes[i].size(); j++)
+      out << _modelToNodes[i][j];
+    out << endl;
+  }
 }
 
 void SubstitutionModelSet::addParameter(const Parameter & parameter, const vector<int> & nodesId) throw (Exception)

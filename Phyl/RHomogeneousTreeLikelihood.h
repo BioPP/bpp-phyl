@@ -54,17 +54,9 @@ knowledge of the CeCILL license and that you accept its terms.
  * The substitution model is constant over the tree (homogeneous model).
  * A non uniform distribution of rates among the sites is allowed (ASRV models).</p>
  *
- * The Felsenstein recursive algorithm is used for conputation.
- * For each node, a likelihood tensor is defined, containing all likelihoods values for
- * for the substree defined by this node. The likelihood tensor dimension are defined as below:
- * <ul>
- * <li>Site</li>
- * <li>Rate class</li>
- * <li>Ancestral state</li>
- * </ul>
- * These tensors are stored into a map with each node as a key (cf. _likelihoods).
+ * This class uses an instance of the DRASRTreeLikelihoodData for conditionnal likelihood storage.
  *
- * This class can use simple or recursive site compression.
+ * This class can also use a simple or recursive site compression.
  * In the simple case, computations for identical sites are not duplicated.
  * In the recursive case, computations for identical sub-sites (<i>site patterns </i>) are also not duplicated:
  * Following N. Galtier (personal communication ;-), we define a Pattern as a distinct site
@@ -84,8 +76,6 @@ knowledge of the CeCILL license and that you accept its terms.
  *   Patterns are hence usefull when you have a high number of computation to perform, while optimizing numerical
  *   parameters for instance).
  * - Patterns are more likely to occur whith small alphabet (nucleotides).
- *
- * For topology estimation, consider using the DRHomogeneousTreeLikelihood class.
  */
 class RHomogeneousTreeLikelihood :
 	public AbstractHomogeneousTreeLikelihood

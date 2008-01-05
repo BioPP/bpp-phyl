@@ -13,12 +13,15 @@ DistanceEstimation.h\
 DSO78.h\
 PseudoNewtonOptimizer.h\
 HKY85.h\
+TreeLikelihood.h\
+DRTreeLikelihood.h\
 HomogeneousTreeLikelihood.h\
 RHomogeneousTreeLikelihood.h\
 DRHomogeneousTreeLikelihood.h\
 NNIHomogeneousTreeLikelihood.h\
 NonHomogeneousTreeLikelihood.h\
 RNonHomogeneousTreeLikelihood.h\
+DRNonHomogeneousTreeLikelihood.h\
 ClockTreeLikelihood.h\
 RHomogeneousClockTreeLikelihood.h\
 DRTreeLikelihoodTools.h\
@@ -55,7 +58,6 @@ Node.h\
 NodeTemplate.h\
 Tree.h\
 TreeTemplate.h\
-TreeLikelihood.h\
 TreeLikelihoodData.h\
 AbstractTreeLikelihoodData.h\
 DRASRTreeLikelihoodData.h\
@@ -113,6 +115,7 @@ PseudoNewtonOptimizer.cpp\
 HKY85.cpp\
 RHomogeneousTreeLikelihood.cpp\
 RNonHomogeneousTreeLikelihood.cpp\
+DRNonHomogeneousTreeLikelihood.cpp\
 DRASRTreeLikelihoodData.cpp\
 DRHomogeneousTreeLikelihood.cpp\
 NNIHomogeneousTreeLikelihood.cpp\

@@ -136,6 +136,8 @@ class AbstractNonHomogeneousTreeLikelihood:
     {
       return AbstractDiscreteRatesAcrossSitesTreeLikelihood::getRateDistributionParameters();
     }
+    virtual vector<double> getAncestralFreqencies() const { return _rootFreqs; }
+    const VVVdouble & getTransitionProbabilitiesForNode(const Node* node) const { return _pxy[node->getId()]; }
     /** @} */
 
     /**

@@ -41,7 +41,7 @@ knowledge of the CeCILL license and that you accept its terms.
 #define _MARGINALANCESTRALSTATESRECONSTRUCTION_H_
 
 #include "AncestralStateReconstruction.h"
-#include "DRHomogeneousTreeLikelihood.h"
+#include "DRTreeLikelihood.h"
 
 // From SeqLib:
 #include <Seq/Alphabet.h>
@@ -58,10 +58,11 @@ using namespace std;
  * Reference:
  * Z Yang, S Kumar and M Nei (1995), _Genetics_ 141(4) 1641-50.
  */
-class MarginalAncestralStateReconstruction: public AncestralStateReconstruction
+class MarginalAncestralStateReconstruction:
+  public AncestralStateReconstruction
 {
 	protected:
-		const DRHomogeneousTreeLikelihood * _likelihood;
+		const DRTreeLikelihood * _likelihood;
 		const Alphabet * _alphabet;
 		unsigned int _nSites;
 		unsigned int _nDistinctSites;
@@ -70,14 +71,14 @@ class MarginalAncestralStateReconstruction: public AncestralStateReconstruction
 		vector<unsigned int> _rootPatternLinks;
 		
 	public:
-		MarginalAncestralStateReconstruction(const DRHomogeneousTreeLikelihood & drl): _likelihood(& drl)
+		MarginalAncestralStateReconstruction(const DRTreeLikelihood & drl): _likelihood(& drl)
 		{
-			_alphabet         = _likelihood -> getAlphabet();
-			_nSites           = _likelihood -> getLikelihoodData() -> getNumberOfSites();
-			_nDistinctSites   = _likelihood -> getLikelihoodData() -> getNumberOfDistinctSites();
-			_nClasses         = _likelihood -> getLikelihoodData() -> getNumberOfClasses();
-			_nStates          = _likelihood -> getLikelihoodData() -> getNumberOfStates();
-			_rootPatternLinks = _likelihood -> getLikelihoodData() -> getRootArrayPositions();
+			_alphabet         = _likelihood->getAlphabet();
+			_nSites           = _likelihood->getLikelihoodData()->getNumberOfSites();
+			_nDistinctSites   = _likelihood->getLikelihoodData()->getNumberOfDistinctSites();
+			_nClasses         = _likelihood->getLikelihoodData()->getNumberOfClasses();
+			_nStates          = _likelihood->getLikelihoodData()->getNumberOfStates();
+			_rootPatternLinks = _likelihood->getLikelihoodData()->getRootArrayPositions();
 		}
 
 		virtual ~MarginalAncestralStateReconstruction() {}

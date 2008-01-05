@@ -1,3 +1,10 @@
+29/12/07 Julien Dutheil
+* New class DRNonHomogeneousTreeLikelihood.
+* Methods getLogLikelihood now sort terms before adding them.
+
+24/12/07 Julien Dutheil
+* Added support for invariants in rate distributions.
+
 18/12/07 Céline Scornavacca & Julien Dutheil
 * TreeTemplateTools::parenthesisToTree now sends exceptions in case of bad
 format.

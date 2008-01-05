@@ -53,9 +53,8 @@ vector<int> MarginalAncestralStateReconstruction::getAncestralStatesForNode(cons
 	}
   else
   {
-		VVVdouble larray = _likelihood->computeLikelihoodAtNode(node);
-		Vdouble freqs    = _likelihood->getSubstitutionModel()->getFrequencies();
-		Vdouble rcProbs  = _likelihood->getRateDistribution()->getProbabilities(); 
+		VVVdouble larray;
+    _likelihood->computeLikelihoodAtNode(node, larray);
 		for(unsigned int i = 0; i < _nDistinctSites; i++)
     {
 			Vdouble likelihoods(_nStates, 0);
@@ -63,10 +62,9 @@ vector<int> MarginalAncestralStateReconstruction::getAncestralStatesForNode(cons
 			for(unsigned int c = 0; c < _nClasses; c++)
       {
 				Vdouble * larray_i_c = & (* larray_i)[c];
-				double rcp = rcProbs[c];
 				for(unsigned int x = 0; x < _nStates; x++)
         {
-					likelihoods[x] += (* larray_i_c)[x] * freqs[x] * rcp;
+					likelihoods[x] += (* larray_i_c)[x];
 				}
 			}
 			ancestors[i] = (int)VectorTools::whichmax(likelihoods);

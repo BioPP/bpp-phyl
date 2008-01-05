@@ -106,6 +106,7 @@ RHomogeneousTreeLikelihood & RHomogeneousTreeLikelihood::operator=(
     const RHomogeneousTreeLikelihood & lik)
 {
   AbstractHomogeneousTreeLikelihood::operator=(lik);
+  if(_likelihoodData) delete _likelihoodData;
   _likelihoodData = lik._likelihoodData->clone();
   _likelihoodData->setTree(*_tree);
   return *this;
@@ -154,10 +155,14 @@ double RHomogeneousTreeLikelihood::getLikelihood() const
 double RHomogeneousTreeLikelihood::getLogLikelihood() const
 {
   double ll = 0;
+  vector<double> la(_nbSites);
   for(unsigned int i = 0; i < _nbSites; i++)
   {
-    ll += getLogLikelihoodForASite(i);
+    la[i] = getLogLikelihoodForASite(i);
   }
+  sort(la.begin(), la.end());
+  for(unsigned int i = _nbSites; i > 0; i--)
+    ll += la[i-1];
   return ll;
 }
 

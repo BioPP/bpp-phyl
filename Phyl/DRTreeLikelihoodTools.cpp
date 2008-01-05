@@ -43,77 +43,74 @@ knowledge of the CeCILL license and that you accept its terms.
 //-----------------------------------------------------------------------------------------
 
 VVVdouble DRTreeLikelihoodTools::getPosteriorProbabilitiesForEachStateForEachRate(
-							DRHomogeneousTreeLikelihood & drl,
-							const Node * node)
+  DRTreeLikelihood & drl,
+  const Node * node)
 {
-	unsigned int nSites   = drl.getLikelihoodData()->getNumberOfDistinctSites();
-	unsigned int nClasses = drl.getNumberOfClasses();
-	unsigned int nStates  = drl.getNumberOfStates();
-	VVVdouble postProb(nSites);
-	
-	const DiscreteDistribution * rDist = drl.getRateDistribution();
-	Vdouble rcProbs = rDist->getProbabilities();
-	if(node->isLeaf())
+  unsigned int nSites   = drl.getLikelihoodData()->getNumberOfDistinctSites();
+  unsigned int nClasses = drl.getNumberOfClasses();
+  unsigned int nStates  = drl.getNumberOfStates();
+  VVVdouble postProb(nSites);
+  
+  const DiscreteDistribution * rDist = drl.getRateDistribution();
+  Vdouble rcProbs = rDist->getProbabilities();
+  if(node->isLeaf())
   {
-		VVdouble larray = drl.getLikelihoodData()->getLeafLikelihoods(node);
-		for(unsigned int i = 0; i < nSites; i++)
+    VVdouble larray = drl.getLikelihoodData()->getLeafLikelihoods(node);
+    for(unsigned int i = 0; i < nSites; i++)
     {
-			VVdouble * postProb_i = & postProb[i];
-			postProb_i->resize(nClasses);
-			Vdouble * larray_i = & larray[i];
-			for(unsigned int c = 0; c < nClasses; c++)
+      VVdouble * postProb_i = & postProb[i];
+      postProb_i->resize(nClasses);
+      Vdouble * larray_i = & larray[i];
+      for(unsigned int c = 0; c < nClasses; c++)
       {
-				Vdouble * postProb_i_c = & (* postProb_i)[c];
-				postProb_i_c->resize(nStates);
-				double * rcProb = & rcProbs[c];
-				for(unsigned int x = 0; x < nStates; x++)
+        Vdouble * postProb_i_c = & (* postProb_i)[c];
+        postProb_i_c->resize(nStates);
+        double * rcProb = & rcProbs[c];
+        for(unsigned int x = 0; x < nStates; x++)
         {
-					(* postProb_i_c)[x] = (* larray_i)[x] * (* rcProb);
-				}
-			}
-		}
-	}
+          (* postProb_i_c)[x] = (* larray_i)[x] * (* rcProb);
+        }
+      }
+    }
+  }
   else
   {
-		VVVdouble larray = drl.computeLikelihoodAtNode(node);
-		
-		Vdouble likelihoods(nSites, 0);
-		Vdouble freqs = drl.getSubstitutionModel()->getFrequencies();
-		Vdouble rcRates = rDist->getCategories();
-		for(unsigned int i = 0; i < nSites; i++)
+    VVVdouble larray;
+    drl.computeLikelihoodAtNode(node, larray);
+    
+    Vdouble likelihoods(nSites, 0);
+    for(unsigned int i = 0; i < nSites; i++)
     {
-			VVdouble * larray_i = & larray[i];
-			for(unsigned int c = 0; c < nClasses; c++)
+      VVdouble * larray_i = & larray[i];
+      for(unsigned int c = 0; c < nClasses; c++)
       {
-				Vdouble * larray_i_c = & (* larray_i)[c];
-				double rcp = rcProbs[c];
-				for(unsigned int s = 0; s < nStates; s++)
+        Vdouble * larray_i_c = & (* larray_i)[c];
+        for(unsigned int s = 0; s < nStates; s++)
         {
-					likelihoods[i] += rcp * freqs[s] * (* larray_i_c)[s];
-				}
-			}
-		}
-		
-		for(unsigned int i = 0; i < nSites; i++)
+          likelihoods[i] += (* larray_i_c)[s];
+        }
+      }
+    }
+    
+    for(unsigned int i = 0; i < nSites; i++)
     {
-			VVdouble * postProb_i = & postProb[i];
-			postProb_i->resize(nClasses);
-			VVdouble * larray_i = & larray[i];
-			double likelihood = likelihoods[i];
-			for(unsigned int c = 0; c < nClasses; c++)
+      VVdouble * postProb_i = & postProb[i];
+      postProb_i->resize(nClasses);
+      VVdouble * larray_i = & larray[i];
+      double likelihood = likelihoods[i];
+      for(unsigned int c = 0; c < nClasses; c++)
       {
-				Vdouble * postProb_i_c = & (* postProb_i)[c];
-				postProb_i_c->resize(nStates);
-				Vdouble * larray_i_c = & (* larray_i)[c];
-				double rcProb = rcProbs[c];
-				for(unsigned int x = 0; x < nStates; x++)
+        Vdouble * postProb_i_c = & (* postProb_i)[c];
+        postProb_i_c->resize(nStates);
+        Vdouble * larray_i_c = & (* larray_i)[c];
+        for(unsigned int x = 0; x < nStates; x++)
         {
-					(* postProb_i_c)[x] = (* larray_i_c)[x] * freqs[x] * rcProb / likelihood;
-				}
-			}
-		}
-	}
-	return postProb;
+          (* postProb_i_c)[x] = (* larray_i_c)[x] / likelihood;
+        }
+      }
+    }
+  }
+  return postProb;
 }
 
 //-----------------------------------------------------------------------------------------

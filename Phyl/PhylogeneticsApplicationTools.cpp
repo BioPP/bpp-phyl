@@ -58,6 +58,7 @@ knowledge of the CeCILL license and that you accept its terms.
 // From NumCalc:
 #include <NumCalc/ConstantDistribution.h>
 #include <NumCalc/GammaDiscreteDistribution.h>
+#include <NumCalc/InvariantMixedDiscreteDistribution.h>
 #include <NumCalc/optimizers>
 
 // From SeqLib:
@@ -520,29 +521,36 @@ DiscreteDistribution * PhylogeneticsApplicationTools::getRateDistributionDefault
 {
   string defaultDist = constDistAllowed ? "constant" : "gamma";
   string distributionType = ApplicationTools::getStringParameter(prefix + "rate_distribution", params, defaultDist, suffix, suffixIsOptional);
+  string mixedType = "";
   DiscreteDistribution * rDist;
+  string::size_type x = distributionType.find("+");
+  if(x != string::npos)
+  {
+    mixedType = distributionType.substr(x+1);
+    distributionType = distributionType.substr(0, x);
+  }
   if(distributionType == "constant")
   {
     if(!constDistAllowed) throw Exception("You can't use a constant distribution here!");
     rDist = new ConstantDistribution(1.);
-    if(verbose)
-    {
-      ApplicationTools::displayResult("Rate distribution", distributionType);
-    }
   }
   else if(distributionType == "gamma")
   {
     int nbClasses = ApplicationTools::getIntParameter(prefix + "rate_distribution.classes_number", params, 4, suffix, suffixIsOptional);
     rDist = new GammaDiscreteDistribution(nbClasses);
-    if(verbose)
-    {
-      ApplicationTools::displayResult("Rate distribution", distributionType);
-      ApplicationTools::displayResult("Number of classes", TextTools::toString(rDist->getNumberOfCategories()));
-    }
   }
   else
   {
     throw Exception("Distribution unknown: " + distributionType + ".");
+  }
+  if(mixedType == "invariant")
+  {
+    rDist = new InvariantMixedDiscreteDistribution(rDist, 0., 0.000001, true);
+  }
+  if(verbose)
+  {
+    ApplicationTools::displayResult("Rate distribution", distributionType + (mixedType != "" ? "+" + mixedType : ""));
+    ApplicationTools::displayResult("Number of classes", TextTools::toString(rDist->getNumberOfCategories()));
   }
 
   return rDist;
@@ -597,10 +605,11 @@ void PhylogeneticsApplicationTools::printRateDistributionHelp()
 {
   if(!ApplicationTools::message) return;
   *ApplicationTools::message << "Rate distribution parameters:" << endl;
-  *ApplicationTools::message << "rate_distribution               | uniform or gamma." << endl;
+  *ApplicationTools::message << "rate_distribution               | constant or gamma, add '+invariant' for invariants." << endl;
   *ApplicationTools::message << "rate_distribution.classes_number| discrete approximation: number of" << endl;
   *ApplicationTools::message << "                                | categories (default to 4)." << endl;
   *ApplicationTools::message << "rate_distribution.alpha         | the gamma law's alpha parameter." << endl;
+  *ApplicationTools::message << "rate_distribution.p             | the proportion of invariant (default to 0)." << endl;
   *ApplicationTools::message << "________________________________|_________________________________________" << endl;
 }
 

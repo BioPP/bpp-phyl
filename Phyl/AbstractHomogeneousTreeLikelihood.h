@@ -135,6 +135,8 @@ class AbstractHomogeneousTreeLikelihood:
     {
       return AbstractDiscreteRatesAcrossSitesTreeLikelihood::getRateDistributionParameters();
     }
+    vector<double> getAncestralFreqencies() const { return _model->getFrequencies(); }
+    const VVVdouble & getTransitionProbabilitiesForNode(const Node* node) const { return _pxy[node->getId()]; }
     /** @} */
 
 		/**

@@ -184,6 +184,7 @@ class TreeTools
      * @brief Get a list of all ids of parents nodes, from the current node (not included) to the root of the tree.
      *
      * @param tree The tree to use.
+     * @param nodeId The id of node defining the subtree.
      * @return The list of ancestors ids.
      * @throw NodeNotFoundException If the node is not found.
      */

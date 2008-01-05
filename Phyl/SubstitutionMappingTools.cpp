@@ -57,27 +57,26 @@ using namespace std;
 /******************************************************************************/
 
 ProbabilisticSubstitutionMapping * SubstitutionMappingTools::computeSubstitutionVectors(
-	DRHomogeneousTreeLikelihood & drhtl,
+	DRTreeLikelihood & drtl,
 	const SubstitutionCount & substitutionCount,
 	bool verbose) throw (Exception)
 {
   //Preamble:
-  if(!drhtl.isInitialized()) throw Exception("SubstitutionMappingTools::computeSubstitutionVectors(). Likelihood object is not initialized.");
+  if(!drtl.isInitialized()) throw Exception("SubstitutionMappingTools::computeSubstitutionVectors(). Likelihood object is not initialized.");
 																   
 	//A few variables we'll need:
 	
-	const TreeTemplate<Node> *    tree = dynamic_cast<const TreeTemplate<Node> *>(drhtl.getTree());
-	const SiteContainer *    sequences = drhtl.getData();
-	const SubstitutionModel *    model = drhtl.getSubstitutionModel();
-	const DiscreteDistribution * rDist = drhtl.getRateDistribution();
+	const TreeTemplate<Node> *    tree = dynamic_cast<const TreeTemplate<Node> *>(drtl.getTree());
+	const SiteContainer *    sequences = drtl.getData();
+	const DiscreteDistribution * rDist = drtl.getRateDistribution();
 		
 	unsigned int nbSites         = sequences->getNumberOfSites();
-	unsigned int nbDistinctSites = drhtl.getLikelihoodData()->getNumberOfDistinctSites();
-	unsigned int nbStates        = model->getAlphabet()->getSize();
+	unsigned int nbDistinctSites = drtl.getLikelihoodData()->getNumberOfDistinctSites();
+	unsigned int nbStates        = sequences->getAlphabet()->getSize();
 	unsigned int nbClasses       = rDist->getNumberOfCategories();
 	vector<const Node *> nodes   = tree->getNodes();
 	const vector<unsigned int> * rootPatternLinks
-                               = & drhtl.getLikelihoodData()->getRootArrayPositions();
+                               = & drtl.getLikelihoodData()->getRootArrayPositions();
 	nodes.pop_back(); // Remove root node.
 	unsigned int nbNodes         = nodes.size();
   
@@ -85,9 +84,9 @@ ProbabilisticSubstitutionMapping * SubstitutionMappingTools::computeSubstitution
   ProbabilisticSubstitutionMapping * substitutions = new ProbabilisticSubstitutionMapping(*tree, nbSites);
 																   
 	// Store likelihood for each rate for each site:
-	VVVdouble l = drhtl.computeLikelihoodAtNode(tree->getRootNode());
+	VVVdouble l;
+  drtl.computeLikelihoodAtNode(tree->getRootNode(), l);
 	Vdouble Lr(nbDistinctSites, 0);
-	Vdouble freqs   = model->getFrequencies();
 	Vdouble rcProbs = rDist->getProbabilities();
 	Vdouble rcRates = rDist->getCategories();
 	for(unsigned int i = 0; i < nbDistinctSites; i++)
@@ -96,10 +95,9 @@ ProbabilisticSubstitutionMapping * SubstitutionMappingTools::computeSubstitution
 		for(unsigned int c = 0; c < nbClasses; c++)
     {
 			Vdouble * l_i_c = & (* l_i)[c];
-			double rcp = rcProbs[c];
 			for(unsigned int s = 0; s < nbStates; s++)
       {
-				Lr[i] += rcp * freqs[s] * (* l_i_c)[s];
+				Lr[i] += (* l_i_c)[s];
 			}
 		}
 	}
@@ -139,7 +137,7 @@ ProbabilisticSubstitutionMapping * SubstitutionMappingTools::computeSubstitution
       delete nijt;
 		}
 		
-		map<int, VVVdouble> * likelihoodsFather = & drhtl.getLikelihoodData()->getLikelihoodArrays(father);
+		map<int, VVVdouble> * likelihoodsFather = & drtl.getLikelihoodData()->getLikelihoodArrays(father);
 
 		// Now we've got to compute likelihoods in a smart manner... ;)
 
@@ -155,7 +153,9 @@ ProbabilisticSubstitutionMapping * SubstitutionMappingTools::computeSubstitution
 				double rc = rDist->getProbability(c);
 				for(unsigned int s = 0; s < nbStates; s++)
         {
-					(* likelihoodsFatherConstantPart_i_c)[s] = rc * model->freq(s);
+					//(* likelihoodsFatherConstantPart_i_c)[s] = rc * model->freq(s);
+          //freq is already accounted in the array
+					(* likelihoodsFatherConstantPart_i_c)[s] = rc;
 				}
 			}
 		}
@@ -168,7 +168,7 @@ ProbabilisticSubstitutionMapping * SubstitutionMappingTools::computeSubstitution
 			
 			if(currentSon->getId() != currentNode->getId())
       {
-				VVVdouble pxy = drhtl.getTransitionProbabilitiesForNode(currentSon);
+				VVVdouble pxy = drtl.getTransitionProbabilitiesForNode(currentSon);
 				VVVdouble * likelihoodsFather_son = & (* likelihoodsFather)[currentSon->getId()];
 				for(unsigned int i = 0; i < nbDistinctSites; i++)
         {
@@ -196,7 +196,7 @@ ProbabilisticSubstitutionMapping * SubstitutionMappingTools::computeSubstitution
 		if(father->hasFather())
     {
 			const Node * currentSon = father->getFather();
-			VVVdouble pxy = drhtl.getTransitionProbabilitiesForNode(father);
+			VVVdouble pxy = drtl.getTransitionProbabilitiesForNode(father);
 			VVVdouble * likelihoodsFather_son = & (* likelihoodsFather)[currentSon->getId()];
 			for(unsigned int i = 0; i < nbDistinctSites; i++)
       {
@@ -224,7 +224,7 @@ ProbabilisticSubstitutionMapping * SubstitutionMappingTools::computeSubstitution
 		// Then, we deal with the node of interest.
 		// We first average uppon 'y' to save computations, and then uppon 'x'.
 		// ('y' is the state at 'node' and 'x' the state at 'father'.)
-		const VVVdouble * pxy = & drhtl.getTransitionProbabilitiesForNode(currentNode);
+		const VVVdouble * pxy = & drtl.getTransitionProbabilitiesForNode(currentNode);
 		VVVdouble * likelihoodsFather_node = & (* likelihoodsFather)[currentNode->getId()];
 		for(unsigned int i = 0; i < nbDistinctSites; i++)
     {
@@ -276,26 +276,25 @@ ProbabilisticSubstitutionMapping * SubstitutionMappingTools::computeSubstitution
 /**************************************************************************************************/
 
 ProbabilisticSubstitutionMapping * SubstitutionMappingTools::computeSubstitutionVectorsNoAveraging(
-	DRHomogeneousTreeLikelihood & drhtl,
+	DRTreeLikelihood & drtl,
 	const SubstitutionCount & substitutionCount,
 	bool verbose) throw (Exception)
 {
 	//Preamble:
-  if(!drhtl.isInitialized()) throw Exception("SubstitutionMappingTools::computeSubstitutionVectorsNoAveraging(). Likelihood object is not initialized.");
+  if(!drtl.isInitialized()) throw Exception("SubstitutionMappingTools::computeSubstitutionVectorsNoAveraging(). Likelihood object is not initialized.");
 																   
 	//A few variables we'll need:
-	const TreeTemplate<Node> *    tree = dynamic_cast<const TreeTemplate<Node> *>(drhtl.getTree());
-	const SiteContainer *    sequences = drhtl.getData();
-	const SubstitutionModel *    model = drhtl.getSubstitutionModel();
-	const DiscreteDistribution * rDist = drhtl.getRateDistribution();
+	const TreeTemplate<Node> *    tree = dynamic_cast<const TreeTemplate<Node> *>(drtl.getTree());
+	const SiteContainer *    sequences = drtl.getData();
+	const DiscreteDistribution * rDist = drtl.getRateDistribution();
 		
 	unsigned int nbSites         = sequences->getNumberOfSites();
-	unsigned int nbDistinctSites = drhtl.getLikelihoodData()->getNumberOfDistinctSites();
-	unsigned int nbStates        = model->getAlphabet()->getSize();
+	unsigned int nbDistinctSites = drtl.getLikelihoodData()->getNumberOfDistinctSites();
+	unsigned int nbStates        = sequences->getAlphabet()->getSize();
 	unsigned int nbClasses       = rDist->getNumberOfCategories();
 	vector<const Node *> nodes   = tree->getNodes();
 	const vector<unsigned int> * rootPatternLinks
-                               = & drhtl.getLikelihoodData()->getRootArrayPositions();
+                               = & drtl.getLikelihoodData()->getRootArrayPositions();
 	nodes.pop_back(); // Remove root node.
 	unsigned int nbNodes = nodes.size();
 	
@@ -338,7 +337,7 @@ ProbabilisticSubstitutionMapping * SubstitutionMappingTools::computeSubstitution
       delete nijt;
 		}
 		
-		map<int, VVVdouble> likelihoodsFather = drhtl.getLikelihoodData()->getLikelihoodArrays(father);
+		map<int, VVVdouble> likelihoodsFather = drtl.getLikelihoodData()->getLikelihoodArrays(father);
 
 		// Now we've got to compute likelihoods in a smart manner... ;)
 
@@ -354,7 +353,9 @@ ProbabilisticSubstitutionMapping * SubstitutionMappingTools::computeSubstitution
 				double rc = rDist->getProbability(c);
 				for(unsigned int s = 0; s < nbStates; s++)
         {
-					(* likelihoodsFatherConstantPart_i_c)[s] = rc * model -> freq(s);
+					//(* likelihoodsFatherConstantPart_i_c)[s] = rc * model->freq(s);
+          //freq is already accounted in the array
+					(* likelihoodsFatherConstantPart_i_c)[s] = rc;
 				}
 			}
 		}
@@ -367,7 +368,7 @@ ProbabilisticSubstitutionMapping * SubstitutionMappingTools::computeSubstitution
 			
 			if(currentSon->getId() != currentNode->getId())
       {
-				VVVdouble pxy = drhtl.getTransitionProbabilitiesForNode(currentSon);
+				VVVdouble pxy = drtl.getTransitionProbabilitiesForNode(currentSon);
 				VVVdouble * likelihoodsFather_son = & likelihoodsFather[currentSon->getId()];
 				for(unsigned int i = 0; i < nbDistinctSites; i++)
         {
@@ -395,7 +396,7 @@ ProbabilisticSubstitutionMapping * SubstitutionMappingTools::computeSubstitution
 		if(father -> hasFather())
     {
 			const Node * currentSon = father->getFather();
-			VVVdouble pxy = drhtl.getTransitionProbabilitiesForNode(father);
+			VVVdouble pxy = drtl.getTransitionProbabilitiesForNode(father);
 			VVVdouble * likelihoodsFather_son = & likelihoodsFather[currentSon->getId()];
 			for(unsigned int i = 0; i < nbDistinctSites; i++)
       {
@@ -423,7 +424,7 @@ ProbabilisticSubstitutionMapping * SubstitutionMappingTools::computeSubstitution
 		// Then, we deal with the node of interest.
 		// We first average uppon 'y' to save computations, and then uppon 'x'.
 		// ('y' is the state at 'node' and 'x' the state at 'father'.)
-		VVVdouble pxy = drhtl.getTransitionProbabilitiesForNode(currentNode);
+		VVVdouble pxy = drtl.getTransitionProbabilitiesForNode(currentNode);
 		VVVdouble * likelihoodsFather_node = & likelihoodsFather[currentNode->getId()];
 		for(unsigned int i = 0; i < nbDistinctSites; i++)
     {
@@ -480,26 +481,25 @@ ProbabilisticSubstitutionMapping * SubstitutionMappingTools::computeSubstitution
 /**************************************************************************************************/
 
 ProbabilisticSubstitutionMapping * SubstitutionMappingTools::computeSubstitutionVectorsNoAveragingMarginal(
-	DRHomogeneousTreeLikelihood & drhtl,
+	DRTreeLikelihood & drtl,
 	const SubstitutionCount & substitutionCount,
 	bool verbose) throw (Exception)
 {
 	//Preamble:
-  if(!drhtl.isInitialized()) throw Exception("SubstitutionMappingTools::computeSubstitutionVectorsNoAveragingMarginal(). Likelihood object is not initialized.");
+  if(!drtl.isInitialized()) throw Exception("SubstitutionMappingTools::computeSubstitutionVectorsNoAveragingMarginal(). Likelihood object is not initialized.");
 																   
 	//A few variables we'll need:
 	
-	const TreeTemplate<Node> *    tree = dynamic_cast<const TreeTemplate<Node> *>(drhtl.getTree());
-	const SiteContainer *    sequences = drhtl.getData();
-	const SubstitutionModel *    model = drhtl.getSubstitutionModel();
-	const DiscreteDistribution * rDist = drhtl.getRateDistribution();
-	const Alphabet *             alpha = model->getAlphabet();
+	const TreeTemplate<Node> *    tree = dynamic_cast<const TreeTemplate<Node> *>(drtl.getTree());
+	const SiteContainer *    sequences = drtl.getData();
+	const DiscreteDistribution * rDist = drtl.getRateDistribution();
+	const Alphabet *             alpha = sequences->getAlphabet();
 		
 	unsigned int nbSites         = sequences->getNumberOfSites();
-	unsigned int nbDistinctSites = drhtl.getLikelihoodData()->getNumberOfDistinctSites();
+	unsigned int nbDistinctSites = drtl.getLikelihoodData()->getNumberOfDistinctSites();
 	vector<const Node *> nodes   = tree->getNodes();
 	const vector<unsigned int> * rootPatternLinks
-                               = &drhtl.getLikelihoodData()->getRootArrayPositions();
+                               = &drtl.getLikelihoodData()->getRootArrayPositions();
 	nodes.pop_back(); // Remove root node.
 	unsigned int nbNodes = nodes.size();
 	
@@ -512,7 +512,7 @@ ProbabilisticSubstitutionMapping * SubstitutionMappingTools::computeSubstitution
 
 	// Compute the number of substitutions for each class and each branch in the tree:
 	if(verbose) ApplicationTools::displayTask("Compute marginal ancestral states");
-	MarginalAncestralStateReconstruction masr(drhtl);
+	MarginalAncestralStateReconstruction masr(drtl);
 	map<const Node *, vector<int> > ancestors = masr.getAllAncestralStates();
 	if(verbose) ApplicationTools::displayTaskDone();
 
@@ -567,27 +567,26 @@ ProbabilisticSubstitutionMapping * SubstitutionMappingTools::computeSubstitution
 /**************************************************************************************************/
 
 ProbabilisticSubstitutionMapping * SubstitutionMappingTools::computeSubstitutionVectorsMarginal(
-	DRHomogeneousTreeLikelihood & drhtl,
+	DRTreeLikelihood & drtl,
 	const SubstitutionCount & substitutionCount,
 	bool verbose) throw (Exception)
 {
 	//Preamble:
-  if(!drhtl.isInitialized()) throw Exception("SubstitutionMappingTools::computeSubstitutionVectorsMarginal(). Likelihood object is not initialized.");
+  if(!drtl.isInitialized()) throw Exception("SubstitutionMappingTools::computeSubstitutionVectorsMarginal(). Likelihood object is not initialized.");
 																   
 	//A few variables we'll need:
 	
-	const TreeTemplate<Node> *    tree = dynamic_cast<const TreeTemplate<Node> *>(drhtl.getTree());
-	const SiteContainer *    sequences = drhtl.getData();
-	const SubstitutionModel *    model = drhtl.getSubstitutionModel();
-	const DiscreteDistribution * rDist = drhtl.getRateDistribution();
+	const TreeTemplate<Node> *    tree = dynamic_cast<const TreeTemplate<Node> *>(drtl.getTree());
+	const SiteContainer *    sequences = drtl.getData();
+	const DiscreteDistribution * rDist = drtl.getRateDistribution();
 		
 	unsigned int nbSites         = sequences->getNumberOfSites();
-	unsigned int nbDistinctSites = drhtl.getLikelihoodData()->getNumberOfDistinctSites();
-	unsigned int nbStates        = model->getAlphabet()->getSize();
+	unsigned int nbDistinctSites = drtl.getLikelihoodData()->getNumberOfDistinctSites();
+	unsigned int nbStates        = sequences->getAlphabet()->getSize();
 	unsigned int nbClasses       = rDist->getNumberOfCategories();
 	vector<const Node *> nodes   = tree->getNodes();
 	const vector<unsigned int> * rootPatternLinks
-                               = &drhtl.getLikelihoodData()->getRootArrayPositions();
+                               = &drtl.getLikelihoodData()->getRootArrayPositions();
 	nodes.pop_back(); // Remove root node.
 	unsigned int nbNodes = nodes.size();
 	
@@ -596,7 +595,6 @@ ProbabilisticSubstitutionMapping * SubstitutionMappingTools::computeSubstitution
 																	   
 	// Compute the whole likelihood of the tree according to the specified model:
 	
-	Vdouble freqs   = model->getFrequencies();
 	Vdouble rcProbs = rDist->getProbabilities();
 	Vdouble rcRates = rDist->getCategories();
 
@@ -636,8 +634,8 @@ ProbabilisticSubstitutionMapping * SubstitutionMappingTools::computeSubstitution
 
 		// Then, we deal with the node of interest.
 		// ('y' is the state at 'node' and 'x' the state at 'father'.)
-		VVVdouble probsNode   = DRTreeLikelihoodTools::getPosteriorProbabilitiesForEachStateForEachRate(drhtl, currentNode);
-		VVVdouble probsFather = DRTreeLikelihoodTools::getPosteriorProbabilitiesForEachStateForEachRate(drhtl, father);
+		VVVdouble probsNode   = DRTreeLikelihoodTools::getPosteriorProbabilitiesForEachStateForEachRate(drtl, currentNode);
+		VVVdouble probsFather = DRTreeLikelihoodTools::getPosteriorProbabilitiesForEachStateForEachRate(drtl, father);
 		for(unsigned int i = 0; i < nbDistinctSites; i++)
     {
 			VVdouble * probsNode_i   = & probsNode[i];
