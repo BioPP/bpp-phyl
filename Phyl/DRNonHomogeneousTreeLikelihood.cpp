@@ -247,11 +247,14 @@ void DRNonHomogeneousTreeLikelihood::fireParameterChanged(const ParameterList & 
     bool test = false;
     for(unsigned int i = 0; i < tmp.size(); i++)
     {
-      if(!test && (tmp[i] == "BrLenRoot" || tmp[i] == "RootPosition"))
+      if(tmp[i] == "BrLenRoot" || tmp[i] == "RootPosition")
       {
-        tmpv.push_back(_root1);
-        tmpv.push_back(_root2);
-        test = true; //Add only once.
+        if(!test)
+        {
+          tmpv.push_back(_root1);
+          tmpv.push_back(_root2);
+          test = true; //Add only once.
+        }
       }
       else
         tmpv.push_back(TextTools::toInt(tmp[i].substr(5)));
@@ -299,6 +302,13 @@ void DRNonHomogeneousTreeLikelihood::computeTreeDLikelihoodAtNode(const Node * n
   Vdouble * rootLikelihoodsSR = & _likelihoodData->getRootRateSiteLikelihoodArray();
 
   double dLi, dLic, dLicx, numerator, denominator;
+  Vdouble f(_nbStates, 1.);
+  if(!node->getFather()->hasFather())
+  {
+    for(unsigned int i = 0; i < _nbStates; i++)
+      f[i] = 1. / _rootFreqs[i];
+  }
+
   for(unsigned int i = 0; i < _nbDistinctSites; i++)
   {
     VVdouble * _likelihoods_father_node_i = & (* _likelihoods_father_node)[i];
@@ -324,7 +334,7 @@ void DRNonHomogeneousTreeLikelihood::computeTreeDLikelihoodAtNode(const Node * n
           denominator += (*  _pxy_node_c_x)[y] * (* _likelihoods_father_node_i_c)[y];
         }
         dLicx = (* larray_i_c)[x] * numerator / denominator;
-        dLic += dLicx;  
+        dLic += f[x] * dLicx;  
       }
       dLi += _rateDistribution->getProbability(c) * dLic;
     }
@@ -373,7 +383,7 @@ throw (Exception)
     double d2 = 0;
     for(unsigned int i = 0; i < _nbDistinctSites; i++)
       d2 -= (* w)[i] * (* _dLikelihoods_branch)[i];
-    double pos = _brLenParameters.getParameter("RootPosition")->getValue();
+    double pos = _parameters.getParameter("RootPosition")->getValue();
     return pos * d1 + (1. - pos) * d2;
   }
   else if(variable == "RootPosition")
@@ -386,7 +396,7 @@ throw (Exception)
     double d2 = 0;
     for(unsigned int i = 0; i < _nbDistinctSites; i++)
       d2 -= (* w)[i] * (* _dLikelihoods_branch)[i];
-    double len = _brLenParameters.getParameter("BrLenRoot")->getValue();
+    double len = _parameters.getParameter("BrLenRoot")->getValue();
     return len * (d1 - d2);
   }
   else
@@ -397,7 +407,8 @@ throw (Exception)
     _dLikelihoods_branch = & _likelihoodData->getDLikelihoodArray(branch);
     double d = 0;
     const vector<unsigned int> * w = & _likelihoodData->getWeights();
-    for(unsigned int i = 0; i < _nbDistinctSites; i++) d += (* w)[i] * (* _dLikelihoods_branch)[i];
+    for(unsigned int i = 0; i < _nbDistinctSites; i++)
+      d += (* w)[i] * (* _dLikelihoods_branch)[i];
     return -d;
   }  
 }
@@ -418,6 +429,13 @@ void DRNonHomogeneousTreeLikelihood::computeTreeD2LikelihoodAtNode(const Node * 
   Vdouble * rootLikelihoodsSR = & _likelihoodData->getRootRateSiteLikelihoodArray();
   
   double d2Li, d2Lic, d2Licx, numerator, denominator;
+  Vdouble f(_nbStates, 1.);
+  if(!node->getFather()->hasFather())
+  {
+    for(unsigned int i = 0; i < _nbStates; i++)
+      f[i] = 1. / _rootFreqs[i];
+  }
+
   for(unsigned int i = 0; i < _nbDistinctSites; i++)
   {
     VVdouble * _likelihoods_father_node_i = & (* _likelihoods_father_node)[i];
@@ -443,7 +461,7 @@ void DRNonHomogeneousTreeLikelihood::computeTreeD2LikelihoodAtNode(const Node * 
           denominator += (*   _pxy_node_c_x)[y] * (* _likelihoods_father_node_i_c)[y];
         }
         d2Licx = (* larray_i_c)[x] * numerator / denominator;
-        d2Lic += d2Licx;
+        d2Lic += f[x] * d2Licx;
       }
       d2Li += _rateDistribution->getProbability(c) * d2Lic;
     }
@@ -482,57 +500,318 @@ throw (Exception)
   //
   
   const vector<unsigned int> * w = & _likelihoodData->getWeights();
-  Vdouble * _dLikelihoods_branch;
-  Vdouble * _d2Likelihoods_branch;
+  //We can't deduce second order derivatives regarding BrLenRoot and RootPosition from the
+  //branch length derivatives. We need a bit more calculations...
+  //NB: we could save a few calculations here...
   if(variable == "BrLenRoot")
   { 
-    _dLikelihoods_branch = & _likelihoodData->getDLikelihoodArray(_tree->getNode(_root1));
-    double d1 = 0;
+    const Node* father = _tree->getRootNode();
+     
+    // Compute dLikelihoods array for the father node.
+    // Fist initialize to 1:
+    VVVdouble dLikelihoods_father(_nbDistinctSites); 
+    VVVdouble d2Likelihoods_father(_nbDistinctSites); 
     for(unsigned int i = 0; i < _nbDistinctSites; i++)
-      d1 -= (* w)[i] * (* _dLikelihoods_branch)[i];
+    {
+      VVdouble * dLikelihoods_father_i = & dLikelihoods_father[i];
+      VVdouble * d2Likelihoods_father_i = & d2Likelihoods_father[i];
+      dLikelihoods_father_i->resize(_nbClasses);
+      d2Likelihoods_father_i->resize(_nbClasses);
+      for(unsigned int c = 0; c < _nbClasses; c++)
+      {
+        Vdouble * dLikelihoods_father_i_c = & (* dLikelihoods_father_i)[c];
+        Vdouble * d2Likelihoods_father_i_c = & (* d2Likelihoods_father_i)[c];
+        dLikelihoods_father_i_c->resize(_nbStates);
+        d2Likelihoods_father_i_c->resize(_nbStates);
+        for(unsigned int s = 0; s < _nbStates; s++)
+        {
+          (* dLikelihoods_father_i_c)[s] = 1.;  
+          (* d2Likelihoods_father_i_c)[s] = 1.;  
+        }
+      }
+    }
 
-    _d2Likelihoods_branch = & _likelihoodData->getD2LikelihoodArray(_tree->getNode(_root1));
-    double d21 = 0;
-    for(unsigned int i = 0; i < _nbDistinctSites; i++)
-      d21 -= (* w)[i] * ((* _d2Likelihoods_branch)[i] - pow((* _dLikelihoods_branch)[i], 2));
+    unsigned int nbNodes = father->getNumberOfSons();
+    for(unsigned int l = 0; l < nbNodes; l++)
+    {
+      const Node * son = father->getSon(l);
+    
+      if(son->getId() == _root1)
+      {
+        const Node * root1 = father->getSon(0);
+        const Node * root2 = father->getSon(1);
+        VVVdouble * _likelihoods_root1 = & _likelihoodData->getLikelihoodArray(father, root1);
+        VVVdouble * _likelihoods_root2 = & _likelihoodData->getLikelihoodArray(father, root2);
+        double pos = _parameters.getParameter("RootPosition")->getValue();
 
-    _dLikelihoods_branch = & _likelihoodData->getDLikelihoodArray(_tree->getNode(_root2));
-    double d2 = 0;
-    for(unsigned int i = 0; i < _nbDistinctSites; i++)
-      d2 -= (* w)[i] * (* _dLikelihoods_branch)[i];
+        VVVdouble * _d2pxy_root1 = & _d2pxy[_root1];
+        VVVdouble * _d2pxy_root2 = & _d2pxy[_root2];
+        VVVdouble * _dpxy_root1  = & _dpxy[_root1];
+        VVVdouble * _dpxy_root2  = & _dpxy[_root2];
+        VVVdouble * _pxy_root1   = & _pxy[_root1];
+        VVVdouble * _pxy_root2   = & _pxy[_root2];
+        for(unsigned int i = 0; i < _nbDistinctSites; i++)
+        {
+          VVdouble * _likelihoods_root1_i = & (* _likelihoods_root1)[i];
+          VVdouble * _likelihoods_root2_i = & (* _likelihoods_root2)[i];
+          VVdouble * dLikelihoods_father_i = & dLikelihoods_father[i];
+          VVdouble * d2Likelihoods_father_i = & d2Likelihoods_father[i];
+          for(unsigned int c = 0; c < _nbClasses; c++)
+          {
+            Vdouble * _likelihoods_root1_i_c = & (* _likelihoods_root1_i)[c];
+            Vdouble * _likelihoods_root2_i_c = & (* _likelihoods_root2_i)[c];
+            Vdouble * dLikelihoods_father_i_c = & (* dLikelihoods_father_i)[c];
+            Vdouble * d2Likelihoods_father_i_c = & (* d2Likelihoods_father_i)[c];
+            VVdouble * _d2pxy_root1_c = & (* _d2pxy_root1)[c];
+            VVdouble * _d2pxy_root2_c = & (* _d2pxy_root2)[c];
+            VVdouble * _dpxy_root1_c  = & (* _dpxy_root1)[c];
+            VVdouble * _dpxy_root2_c  = & (* _dpxy_root2)[c];
+            VVdouble * _pxy_root1_c   = & (* _pxy_root1)[c];
+            VVdouble * _pxy_root2_c   = & (* _pxy_root2)[c];
+            for(unsigned int x = 0; x < _nbStates; x++)
+            {
+              Vdouble * _d2pxy_root1_c_x = & (* _d2pxy_root1_c)[x];
+              Vdouble * _d2pxy_root2_c_x = & (* _d2pxy_root2_c)[x];
+              Vdouble * _dpxy_root1_c_x  = & (* _dpxy_root1_c)[x];
+              Vdouble * _dpxy_root2_c_x  = & (* _dpxy_root2_c)[x];
+              Vdouble * _pxy_root1_c_x   = & (* _pxy_root1_c)[x];
+              Vdouble * _pxy_root2_c_x   = & (* _pxy_root2_c)[x];
+              double d2l1 = 0, d2l2 = 0, dl1 = 0, dl2 = 0, l1 = 0, l2 = 0;
+              for(unsigned int y = 0; y < _nbStates; y++)
+              {
+                d2l1 += (* _d2pxy_root1_c_x)[y] * (* _likelihoods_root1_i_c)[y];
+                d2l2 += (* _d2pxy_root2_c_x)[y] * (* _likelihoods_root2_i_c)[y];
+                dl1  += (* _dpxy_root1_c_x)[y]  * (* _likelihoods_root1_i_c)[y];
+                dl2  += (* _dpxy_root2_c_x)[y]  * (* _likelihoods_root2_i_c)[y];
+                l1   += (* _pxy_root1_c_x)[y]   * (* _likelihoods_root1_i_c)[y];
+                l2   += (* _pxy_root2_c_x)[y]   * (* _likelihoods_root2_i_c)[y];
+              }
+              double dl = pos * dl1 * l2 + (1. - pos) * dl2 * l1;
+              double d2l = pos * pos * d2l1 * l2 + (1. - pos) * (1. - pos) * d2l2 * l1 + 2 * pos * (1. - pos) * dl1 * dl2;
+              (* dLikelihoods_father_i_c)[x] *= dl;
+              (* d2Likelihoods_father_i_c)[x] *= d2l;
+            }
+          }
+        }
+      }
+      else if(son->getId() == _root2)
+      {
+        //Do nothing, this was accounted when dealing with _root1 
+      }
+      else
+      {
+        //Account for a putative multifurcation:
+        VVVdouble * _likelihoods_son = & _likelihoodData->getLikelihoodArray(father, son);
 
-    _d2Likelihoods_branch = & _likelihoodData->getD2LikelihoodArray(_tree->getNode(_root2));
-    double d22 = 0;
+        VVVdouble * _pxy_son = & _pxy[son->getId()];
+        for(unsigned int i = 0; i < _nbDistinctSites; i++)
+        {
+          VVdouble * _likelihoods_son_i = & (* _likelihoods_son)[i];
+          VVdouble * dLikelihoods_father_i = & dLikelihoods_father[i];
+          VVdouble * d2Likelihoods_father_i = & d2Likelihoods_father[i];
+          for(unsigned int c = 0; c < _nbClasses; c++)
+          {
+            Vdouble * _likelihoods_son_i_c = & (* _likelihoods_son_i)[c];
+            Vdouble * dLikelihoods_father_i_c = & (* dLikelihoods_father_i)[c];
+            Vdouble * d2Likelihoods_father_i_c = & (* d2Likelihoods_father_i)[c];
+            VVdouble * _pxy_son_c = & (* _pxy_son)[c];
+            for(unsigned int x = 0; x < _nbStates; x++)
+            {
+              double dl = 0;
+              Vdouble * _pxy_son_c_x = & (* _pxy_son_c)[x];
+              for(unsigned int y = 0; y < _nbStates; y++)
+              {
+                dl += (* _pxy_son_c_x)[y] * (* _likelihoods_son_i_c)[y];
+              }
+              (* dLikelihoods_father_i_c)[x] *= dl;
+              (* d2Likelihoods_father_i_c)[x] *= dl;
+            }
+          }
+        }
+      }  
+    }
+    Vdouble * rootLikelihoodsSR = & _likelihoodData->getRootRateSiteLikelihoodArray();
+    double d2l = 0, dlx, d2lx;
     for(unsigned int i = 0; i < _nbDistinctSites; i++)
-      d22 -= (* w)[i] * ((* _d2Likelihoods_branch)[i] - pow((* _dLikelihoods_branch)[i], 2));
-  
-    double pos = _brLenParameters.getParameter("RootPosition")->getValue();
-    return pos * pos * d21 + (1. - pos) * (1. - pos) * d22 - 2 * pos * (1. - pos) * d1 * d2;
+    {
+      VVdouble * dLikelihoods_father_i = & dLikelihoods_father[i];
+      VVdouble * d2Likelihoods_father_i = & d2Likelihoods_father[i];
+      dlx = 0, d2lx = 0;
+      for(unsigned int c = 0; c < _nbClasses; c++)
+      {
+        Vdouble * dLikelihoods_father_i_c = & (* dLikelihoods_father_i)[c];
+        Vdouble * d2Likelihoods_father_i_c = & (* d2Likelihoods_father_i)[c];
+        for(unsigned int x = 0; x < _nbStates; x++)
+        {
+          dlx += _rateDistribution->getProbability(c) * _rootFreqs[x] * (* dLikelihoods_father_i_c)[x];
+          d2lx += _rateDistribution->getProbability(c) * _rootFreqs[x] * (* d2Likelihoods_father_i_c)[x];
+        }
+      }
+      d2l += (* w)[i] * (d2lx / (* rootLikelihoodsSR)[i] - pow(dlx / (* rootLikelihoodsSR)[i], 2));
+    }
+    return - d2l;
   }
   else if(variable == "RootPosition")
-  {    
-    vector<double>* d1  = & _likelihoodData->getDLikelihoodArray(_tree->getNode(_root1));
-    vector<double>* d21 = & _likelihoodData->getD2LikelihoodArray(_tree->getNode(_root1));
-    vector<double>* d2  = & _likelihoodData->getDLikelihoodArray(_tree->getNode(_root2));
-    vector<double>* d22 = & _likelihoodData->getD2LikelihoodArray(_tree->getNode(_root2));
-    
-    double len = _brLenParameters.getParameter("BrLenRoot")->getValue();
-    double dl = 0;
+  {
+    const Node* father = _tree->getRootNode();
+     
+    // Compute dLikelihoods array for the father node.
+    // Fist initialize to 1:
+    VVVdouble dLikelihoods_father(_nbDistinctSites); 
+    VVVdouble d2Likelihoods_father(_nbDistinctSites); 
     for(unsigned int i = 0; i < _nbDistinctSites; i++)
-      dl += (* w)[i] * (len * len * ((*d21)[i] + (*d22)[i]) - std::pow(len * ((*d1)[i] - (*d2)[i]), 2.));
-    return dl;
+    {
+      VVdouble * dLikelihoods_father_i = & dLikelihoods_father[i];
+      VVdouble * d2Likelihoods_father_i = & d2Likelihoods_father[i];
+      dLikelihoods_father_i->resize(_nbClasses);
+      d2Likelihoods_father_i->resize(_nbClasses);
+      for(unsigned int c = 0; c < _nbClasses; c++)
+      {
+        Vdouble * dLikelihoods_father_i_c = & (* dLikelihoods_father_i)[c];
+        Vdouble * d2Likelihoods_father_i_c = & (* d2Likelihoods_father_i)[c];
+        dLikelihoods_father_i_c->resize(_nbStates);
+        d2Likelihoods_father_i_c->resize(_nbStates);
+        for(unsigned int s = 0; s < _nbStates; s++)
+        {
+          (* dLikelihoods_father_i_c)[s] = 1.;  
+          (* d2Likelihoods_father_i_c)[s] = 1.;  
+        }
+      }
+    }
+
+    unsigned int nbNodes = father->getNumberOfSons();
+    for(unsigned int l = 0; l < nbNodes; l++)
+    {
+      const Node * son = father->getSon(l);
+    
+      if(son->getId() == _root1)
+      {
+        const Node * root1 = father->getSon(0);
+        const Node * root2 = father->getSon(1);
+        VVVdouble * _likelihoods_root1 = & _likelihoodData->getLikelihoodArray(father, root1);
+        VVVdouble * _likelihoods_root2 = & _likelihoodData->getLikelihoodArray(father, root2);
+        double len = _parameters.getParameter("BrLenRoot")->getValue();
+
+        VVVdouble * _d2pxy_root1 = & _d2pxy[_root1];
+        VVVdouble * _d2pxy_root2 = & _d2pxy[_root2];
+        VVVdouble * _dpxy_root1  = & _dpxy[_root1];
+        VVVdouble * _dpxy_root2  = & _dpxy[_root2];
+        VVVdouble * _pxy_root1   = & _pxy[_root1];
+        VVVdouble * _pxy_root2   = & _pxy[_root2];
+        for(unsigned int i = 0; i < _nbDistinctSites; i++)
+        {
+          VVdouble * _likelihoods_root1_i = & (* _likelihoods_root1)[i];
+          VVdouble * _likelihoods_root2_i = & (* _likelihoods_root2)[i];
+          VVdouble * dLikelihoods_father_i = & dLikelihoods_father[i];
+          VVdouble * d2Likelihoods_father_i = & d2Likelihoods_father[i];
+          for(unsigned int c = 0; c < _nbClasses; c++)
+          {
+            Vdouble * _likelihoods_root1_i_c = & (* _likelihoods_root1_i)[c];
+            Vdouble * _likelihoods_root2_i_c = & (* _likelihoods_root2_i)[c];
+            Vdouble * dLikelihoods_father_i_c = & (* dLikelihoods_father_i)[c];
+            Vdouble * d2Likelihoods_father_i_c = & (* d2Likelihoods_father_i)[c];
+            VVdouble * _d2pxy_root1_c = & (* _d2pxy_root1)[c];
+            VVdouble * _d2pxy_root2_c = & (* _d2pxy_root2)[c];
+            VVdouble * _dpxy_root1_c  = & (* _dpxy_root1)[c];
+            VVdouble * _dpxy_root2_c  = & (* _dpxy_root2)[c];
+            VVdouble * _pxy_root1_c   = & (* _pxy_root1)[c];
+            VVdouble * _pxy_root2_c   = & (* _pxy_root2)[c];
+            for(unsigned int x = 0; x < _nbStates; x++)
+            {
+              Vdouble * _d2pxy_root1_c_x = & (* _d2pxy_root1_c)[x];
+              Vdouble * _d2pxy_root2_c_x = & (* _d2pxy_root2_c)[x];
+              Vdouble * _dpxy_root1_c_x  = & (* _dpxy_root1_c)[x];
+              Vdouble * _dpxy_root2_c_x  = & (* _dpxy_root2_c)[x];
+              Vdouble * _pxy_root1_c_x   = & (* _pxy_root1_c)[x];
+              Vdouble * _pxy_root2_c_x   = & (* _pxy_root2_c)[x];
+              double d2l1 = 0, d2l2 = 0, dl1 = 0, dl2 = 0, l1 = 0, l2 = 0;
+              for(unsigned int y = 0; y < _nbStates; y++)
+              {
+                d2l1 += (* _d2pxy_root1_c_x)[y] * (* _likelihoods_root1_i_c)[y];
+                d2l2 += (* _d2pxy_root2_c_x)[y] * (* _likelihoods_root2_i_c)[y];
+                dl1  += (* _dpxy_root1_c_x)[y]  * (* _likelihoods_root1_i_c)[y];
+                dl2  += (* _dpxy_root2_c_x)[y]  * (* _likelihoods_root2_i_c)[y];
+                l1   += (* _pxy_root1_c_x)[y]   * (* _likelihoods_root1_i_c)[y];
+                l2   += (* _pxy_root2_c_x)[y]   * (* _likelihoods_root2_i_c)[y];
+              }
+              double dl = len * (dl1 * l2 - dl2 * l1);
+              double d2l = len * len * (d2l1 * l2 + d2l2 * l1 - 2 * dl1 * dl2);
+              (* dLikelihoods_father_i_c)[x] *= dl;
+              (* d2Likelihoods_father_i_c)[x] *= d2l;
+            }
+          }
+        }
+      }
+      else if(son->getId() == _root2)
+      {
+        //Do nothing, this was accounted when dealing with _root1 
+      }
+      else
+      {
+        //Account for a putative multifurcation:
+        VVVdouble * _likelihoods_son = & _likelihoodData->getLikelihoodArray(father, son);
+
+        VVVdouble * _pxy_son = & _pxy[son->getId()];
+        for(unsigned int i = 0; i < _nbDistinctSites; i++)
+        {
+          VVdouble * _likelihoods_son_i = & (* _likelihoods_son)[i];
+          VVdouble * dLikelihoods_father_i = & dLikelihoods_father[i];
+          VVdouble * d2Likelihoods_father_i = & d2Likelihoods_father[i];
+          for(unsigned int c = 0; c < _nbClasses; c++)
+          {
+            Vdouble * _likelihoods_son_i_c = & (* _likelihoods_son_i)[c];
+            Vdouble * dLikelihoods_father_i_c = & (* dLikelihoods_father_i)[c];
+            Vdouble * d2Likelihoods_father_i_c = & (* d2Likelihoods_father_i)[c];
+            VVdouble * _pxy_son_c = & (* _pxy_son)[c];
+            for(unsigned int x = 0; x < _nbStates; x++)
+            {
+              double dl = 0;
+              Vdouble * _pxy_son_c_x = & (* _pxy_son_c)[x];
+              for(unsigned int y = 0; y < _nbStates; y++)
+              {
+                dl += (* _pxy_son_c_x)[y] * (* _likelihoods_son_i_c)[y];
+              }
+              (* dLikelihoods_father_i_c)[x] *= dl;
+              (* d2Likelihoods_father_i_c)[x] *= dl;
+            }
+          }
+        }
+      }  
+    }
+    Vdouble * rootLikelihoodsSR = & _likelihoodData->getRootRateSiteLikelihoodArray();
+    double d2l = 0, dlx, d2lx;
+    for(unsigned int i = 0; i < _nbDistinctSites; i++)
+    {
+      VVdouble * dLikelihoods_father_i = & dLikelihoods_father[i];
+      VVdouble * d2Likelihoods_father_i = & d2Likelihoods_father[i];
+      dlx = 0, d2lx = 0;
+      for(unsigned int c = 0; c < _nbClasses; c++)
+      {
+        Vdouble * dLikelihoods_father_i_c = & (* dLikelihoods_father_i)[c];
+        Vdouble * d2Likelihoods_father_i_c = & (* d2Likelihoods_father_i)[c];
+        for(unsigned int x = 0; x < _nbStates; x++)
+        {
+          dlx += _rateDistribution->getProbability(c) * _rootFreqs[x] * (* dLikelihoods_father_i_c)[x];
+          d2lx += _rateDistribution->getProbability(c) * _rootFreqs[x] * (* d2Likelihoods_father_i_c)[x];
+        }
+      }
+      d2l += (* w)[i] * (d2lx / (* rootLikelihoodsSR)[i] - pow(dlx / (* rootLikelihoodsSR)[i], 2));
+    }
+    return - d2l;
   }
   else
   {
+    Vdouble * _dLikelihoods_branch;
+    Vdouble * _d2Likelihoods_branch;
     // Get the node with the branch whose length must be derivated:
     int brI = TextTools::toInt(variable.substr(5));
     Node * branch = _nodes[brI];
     _dLikelihoods_branch = & _likelihoodData->getDLikelihoodArray(branch);
     _d2Likelihoods_branch = & _likelihoodData->getD2LikelihoodArray(branch);
-    double d2 = 0;
+    double d2l = 0;
     for(unsigned int i = 0; i < _nbDistinctSites; i++)
-      d2 += (* w)[i] * ((* _d2Likelihoods_branch)[i] - pow((* _dLikelihoods_branch)[i], 2));
-    return -d2;
+      d2l += (* w)[i] * ((* _d2Likelihoods_branch)[i] - pow((* _dLikelihoods_branch)[i], 2));
+    return - d2l;
   }
 }
 

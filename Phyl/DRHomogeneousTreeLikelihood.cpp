@@ -307,6 +307,13 @@ void DRHomogeneousTreeLikelihood::computeTreeDLikelihoodAtNode(const Node * node
   Vdouble * rootLikelihoodsSR = & _likelihoodData->getRootRateSiteLikelihoodArray();
 
   double dLi, dLic, dLicx, numerator, denominator;
+  Vdouble f(_nbStates, 1.);
+  if(!node->getFather()->hasFather())
+  {
+    for(unsigned int i = 0; i < _nbStates; i++)
+      f[i] = 1. / _rootFreqs[i];
+  }
+  
   for(unsigned int i = 0; i < _nbDistinctSites; i++)
   {
     VVdouble * _likelihoods_father_node_i = & (* _likelihoods_father_node)[i];
@@ -332,9 +339,7 @@ void DRHomogeneousTreeLikelihood::computeTreeDLikelihoodAtNode(const Node * node
           denominator += (*  _pxy_node_c_x)[y] * (* _likelihoods_father_node_i_c)[y];
         }
         dLicx = (* larray_i_c)[x] * numerator / denominator;
-        //dLic += _rootFreqs[x] * dLicx;  
-        //freq is already accounted in the array
-        dLic += dLicx;  
+        dLic += f[x] * dLicx;  
       }
       dLi += _rateDistribution->getProbability(c) * dLic;
     }
@@ -378,7 +383,8 @@ throw (Exception)
   Vdouble * _dLikelihoods_branch = & _likelihoodData->getDLikelihoodArray(branch);
   double d = 0;
   const vector<unsigned int> * w = & _likelihoodData->getWeights();
-  for(unsigned int i = 0; i < _nbDistinctSites; i++) d += (* w)[i] * (* _dLikelihoods_branch)[i];
+  for(unsigned int i = 0; i < _nbDistinctSites; i++)
+    d += (* w)[i] * (* _dLikelihoods_branch)[i];
   return -d;
 }
 
@@ -398,6 +404,13 @@ void DRHomogeneousTreeLikelihood::computeTreeD2LikelihoodAtNode(const Node * nod
   Vdouble * rootLikelihoodsSR = & _likelihoodData->getRootRateSiteLikelihoodArray();
   
   double d2Li, d2Lic, d2Licx, numerator, denominator;
+  Vdouble f(_nbStates, 1.);
+  if(!node->getFather()->hasFather())
+  {
+    for(unsigned int i = 0; i < _nbStates; i++)
+      f[i] = 1. / _rootFreqs[i];
+  }
+ 
   for(unsigned int i = 0; i < _nbDistinctSites; i++)
   {
     VVdouble * _likelihoods_father_node_i = & (* _likelihoods_father_node)[i];
@@ -423,9 +436,7 @@ void DRHomogeneousTreeLikelihood::computeTreeD2LikelihoodAtNode(const Node * nod
           denominator += (*   _pxy_node_c_x)[y] * (* _likelihoods_father_node_i_c)[y];
         }
         d2Licx = (* larray_i_c)[x] * numerator / denominator;
-        //d2Lic += _rootFreqs[x] * d2Licx;
-        //freq is already accounted in the array
-        d2Lic += d2Licx;
+        d2Lic += f[x] * d2Licx;
       }
       d2Li += _rateDistribution->getProbability(c) * d2Lic;
     }
@@ -470,7 +481,8 @@ throw (Exception)
   Vdouble * _d2Likelihoods_branch = & _likelihoodData->getD2LikelihoodArray(branch);
   double d2 = 0;
   const vector<unsigned int> * w = & _likelihoodData->getWeights();
-  for(unsigned int i = 0; i < _nbDistinctSites; i++) d2 += (* w)[i] * ((* _d2Likelihoods_branch)[i] - pow((* _dLikelihoods_branch)[i], 2));
+  for(unsigned int i = 0; i < _nbDistinctSites; i++)
+    d2 += (* w)[i] * ((* _d2Likelihoods_branch)[i] - pow((* _dLikelihoods_branch)[i], 2));
   return -d2;
 }
 

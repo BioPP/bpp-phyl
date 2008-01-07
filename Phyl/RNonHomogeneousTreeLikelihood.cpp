@@ -218,7 +218,6 @@ double RNonHomogeneousTreeLikelihood::getLogLikelihoodForASiteForARateClass(unsi
   for(unsigned int i = 0; i < _nbStates; i++) {
     l += (* la)[i] * _rootFreqs[i];
   }
-  //if(l <= 0.) cerr << "WARNING!!! Negative likelihood." << endl;
   return log(l);
 }
 
@@ -268,11 +267,14 @@ void RNonHomogeneousTreeLikelihood::fireParameterChanged(const ParameterList & p
     bool test = false;
     for(unsigned int i = 0; i < tmp.size(); i++)
     {
-      if(!test && (tmp[i] == "BrLenRoot" || tmp[i] == "RootPosition"))
+      if(tmp[i] == "BrLenRoot" || tmp[i] == "RootPosition")
       {
-        tmpv.push_back(_root1);
-        tmpv.push_back(_root2);
-        test = true; //Add only once.
+        if(!test)
+        {
+          tmpv.push_back(_root1);
+          tmpv.push_back(_root2);
+          test = true; //Add only once.
+        }
       }
       else
         tmpv.push_back(TextTools::toInt(tmp[i].substr(5)));
@@ -359,35 +361,235 @@ throw (Exception)
     throw Exception("Derivatives respective to substitution model parameters are not implemented.");
   }
  
-  if(variable == "BrLenRoot")
-  {
-    const_cast<RNonHomogeneousTreeLikelihood *>(this)->computeTreeDLikelihood("BrLen" + TextTools::toString(_root1));
-    double d1 = - getDLogLikelihood();
-    const_cast<RNonHomogeneousTreeLikelihood *>(this)->computeTreeDLikelihood("BrLen" + TextTools::toString(_root2));
-    double d2 = - getDLogLikelihood();
-    double pos = _brLenParameters.getParameter("RootPosition")->getValue();
-    return pos * d1 + (1. - pos) * d2;
-  }
-  else if(variable == "RootPosition")
-  {
-    const_cast<RNonHomogeneousTreeLikelihood *>(this)->computeTreeDLikelihood("BrLen" + TextTools::toString(_root1));
-    double d1 = - getDLogLikelihood();
-    const_cast<RNonHomogeneousTreeLikelihood *>(this)->computeTreeDLikelihood("BrLen" + TextTools::toString(_root2));
-    double d2 = - getDLogLikelihood();
-    double len = _brLenParameters.getParameter("BrLenRoot")->getValue();
-    return len * (d1 - d2);
-  }
-  else
-  {
-    const_cast<RNonHomogeneousTreeLikelihood *>(this)->computeTreeDLikelihood(variable);
-    return - getDLogLikelihood();
-  }
+  const_cast<RNonHomogeneousTreeLikelihood *>(this)->computeTreeDLikelihood(variable);
+  return - getDLogLikelihood();
 }
 
 /******************************************************************************/
 
 void RNonHomogeneousTreeLikelihood::computeTreeDLikelihood(const string & variable)
-{  
+{ 
+  if(variable == "BrLenRoot")
+  {
+    const Node* father = _tree->getRootNode();
+    
+    // Compute dLikelihoods array for the father node.
+    // Fist initialize to 1:
+    VVVdouble * _dLikelihoods_father = & _likelihoodData->getDLikelihoodArray(father); 
+    unsigned int nbSites  = _dLikelihoods_father->size();
+    for(unsigned int i = 0; i < nbSites; i++)
+    {
+      VVdouble * _dLikelihoods_father_i = & (* _dLikelihoods_father)[i];
+      for(unsigned int c = 0; c < _nbClasses; c++)
+      {
+        Vdouble * _dLikelihoods_father_i_c = & (* _dLikelihoods_father_i)[c];
+        for(unsigned int s = 0; s < _nbStates; s++)
+        {
+          (* _dLikelihoods_father_i_c)[s] = 1.;  
+        }
+      }
+    }
+
+    unsigned int nbNodes = father->getNumberOfSons();
+    for(unsigned int l = 0; l < nbNodes; l++)
+    {
+      const Node * son = father->getSon(l);
+    
+      if(son->getId() == _root1)
+      {
+        const Node * root1 = father->getSon(0);
+        const Node * root2 = father->getSon(1);
+        vector <unsigned int> * _patternLinks_father_root1 = & _likelihoodData->getArrayPositions(father, root1);
+        vector <unsigned int> * _patternLinks_father_root2 = & _likelihoodData->getArrayPositions(father, root2);
+        VVVdouble * _likelihoods_root1 = & _likelihoodData->getLikelihoodArray(root1);
+        VVVdouble * _likelihoods_root2 = & _likelihoodData->getLikelihoodArray(root2);
+        double pos = _parameters.getParameter("RootPosition")->getValue();
+
+        VVVdouble * _dpxy_root1  = & _dpxy[_root1];
+        VVVdouble * _dpxy_root2  = & _dpxy[_root2];
+        VVVdouble * _pxy_root1   = & _pxy[_root1];
+        VVVdouble * _pxy_root2   = & _pxy[_root2];
+        for(unsigned int i = 0; i < nbSites; i++)
+        {
+          VVdouble * _likelihoods_root1_i = & (* _likelihoods_root1)[(* _patternLinks_father_root1)[i]];
+          VVdouble * _likelihoods_root2_i = & (* _likelihoods_root2)[(* _patternLinks_father_root2)[i]];
+          VVdouble * _dLikelihoods_father_i = & (* _dLikelihoods_father)[i];
+          for(unsigned int c = 0; c < _nbClasses; c++)
+          {
+            Vdouble * _likelihoods_root1_i_c = & (* _likelihoods_root1_i)[c];
+            Vdouble * _likelihoods_root2_i_c = & (* _likelihoods_root2_i)[c];
+            Vdouble * _dLikelihoods_father_i_c = & (* _dLikelihoods_father_i)[c];
+            VVdouble * _dpxy_root1_c  = & (* _dpxy_root1)[c];
+            VVdouble * _dpxy_root2_c  = & (* _dpxy_root2)[c];
+            VVdouble * _pxy_root1_c   = & (* _pxy_root1)[c];
+            VVdouble * _pxy_root2_c   = & (* _pxy_root2)[c];
+            for(unsigned int x = 0; x < _nbStates; x++)
+            {
+              Vdouble * _dpxy_root1_c_x  = & (* _dpxy_root1_c)[x];
+              Vdouble * _dpxy_root2_c_x  = & (* _dpxy_root2_c)[x];
+              Vdouble * _pxy_root1_c_x   = & (* _pxy_root1_c)[x];
+              Vdouble * _pxy_root2_c_x   = & (* _pxy_root2_c)[x];
+              double dl1 = 0, dl2 = 0, l1 = 0, l2 = 0;
+              for(unsigned int y = 0; y < _nbStates; y++)
+              {
+                dl1  += (* _dpxy_root1_c_x)[y]  * (* _likelihoods_root1_i_c)[y];
+                dl2  += (* _dpxy_root2_c_x)[y]  * (* _likelihoods_root2_i_c)[y];
+                l1   += (* _pxy_root1_c_x)[y]   * (* _likelihoods_root1_i_c)[y];
+                l2   += (* _pxy_root2_c_x)[y]   * (* _likelihoods_root2_i_c)[y];
+              }
+              double dl = pos * dl1 * l2 + (1. - pos) * dl2 * l1;
+              (* _dLikelihoods_father_i_c)[x] *= dl;
+            }
+          }
+        }
+      }
+      else if(son->getId() == _root2)
+      {
+        //Do nothing, this was accounted when dealing with _root1 
+      }
+      else
+      {
+        //Account for a putative multifurcation:
+        vector <unsigned int> * _patternLinks_father_son = & _likelihoodData->getArrayPositions(father, son);
+        VVVdouble * _likelihoods_son = & _likelihoodData->getLikelihoodArray(son);
+
+        VVVdouble * _pxy_son = & _pxy[son->getId()];
+        for(unsigned int i = 0; i < nbSites; i++)
+        {
+          VVdouble * _likelihoods_son_i = & (* _likelihoods_son)[(* _patternLinks_father_son)[i]];
+          VVdouble * _dLikelihoods_father_i = & (* _dLikelihoods_father)[i];
+          for(unsigned int c = 0; c < _nbClasses; c++)
+          {
+            Vdouble * _likelihoods_son_i_c = & (* _likelihoods_son_i)[c];
+            Vdouble * _dLikelihoods_father_i_c = & (* _dLikelihoods_father_i)[c];
+            VVdouble * _pxy_son_c = & (* _pxy_son)[c];
+            for(unsigned int x = 0; x < _nbStates; x++)
+            {
+              double dl = 0;
+              Vdouble * _pxy_son_c_x = & (* _pxy_son_c)[x];
+              for(unsigned int y = 0; y < _nbStates; y++)
+              {
+                dl += (* _pxy_son_c_x)[y] * (* _likelihoods_son_i_c)[y];
+              }
+              (* _dLikelihoods_father_i_c)[x] *= dl;
+            }
+          }
+        }
+      }  
+    }
+    return;
+  }
+  else if(variable == "RootPosition")
+  {
+    const Node* father = _tree->getRootNode();
+    
+    // Compute dLikelihoods array for the father node.
+    // Fist initialize to 1:
+    VVVdouble * _dLikelihoods_father = & _likelihoodData->getDLikelihoodArray(father); 
+    unsigned int nbSites  = _dLikelihoods_father->size();
+    for(unsigned int i = 0; i < nbSites; i++)
+    {
+      VVdouble * _dLikelihoods_father_i = & (* _dLikelihoods_father)[i];
+      for(unsigned int c = 0; c < _nbClasses; c++)
+      {
+        Vdouble * _dLikelihoods_father_i_c = & (* _dLikelihoods_father_i)[c];
+        for(unsigned int s = 0; s < _nbStates; s++)
+        {
+          (* _dLikelihoods_father_i_c)[s] = 1.;  
+        }
+      }
+    }
+
+    unsigned int nbNodes = father->getNumberOfSons();
+    for(unsigned int l = 0; l < nbNodes; l++)
+    {
+      const Node * son = father->getSon(l);
+    
+      if(son->getId() == _root1)
+      {
+        const Node * root1 = father->getSon(0);
+        const Node * root2 = father->getSon(1);
+        vector <unsigned int> * _patternLinks_father_root1 = & _likelihoodData->getArrayPositions(father, root1);
+        vector <unsigned int> * _patternLinks_father_root2 = & _likelihoodData->getArrayPositions(father, root2);
+        VVVdouble * _likelihoods_root1 = & _likelihoodData->getLikelihoodArray(root1);
+        VVVdouble * _likelihoods_root2 = & _likelihoodData->getLikelihoodArray(root2);
+        double len = _parameters.getParameter("BrLenRoot")->getValue();
+
+        VVVdouble * _dpxy_root1  = & _dpxy[_root1];
+        VVVdouble * _dpxy_root2  = & _dpxy[_root2];
+        VVVdouble * _pxy_root1   = & _pxy[_root1];
+        VVVdouble * _pxy_root2   = & _pxy[_root2];
+        for(unsigned int i = 0; i < nbSites; i++)
+        {
+          VVdouble * _likelihoods_root1_i = & (* _likelihoods_root1)[(* _patternLinks_father_root1)[i]];
+          VVdouble * _likelihoods_root2_i = & (* _likelihoods_root2)[(* _patternLinks_father_root2)[i]];
+          VVdouble * _dLikelihoods_father_i = & (* _dLikelihoods_father)[i];
+          for(unsigned int c = 0; c < _nbClasses; c++)
+          {
+            Vdouble * _likelihoods_root1_i_c = & (* _likelihoods_root1_i)[c];
+            Vdouble * _likelihoods_root2_i_c = & (* _likelihoods_root2_i)[c];
+            Vdouble * _dLikelihoods_father_i_c = & (* _dLikelihoods_father_i)[c];
+            VVdouble * _dpxy_root1_c  = & (* _dpxy_root1)[c];
+            VVdouble * _dpxy_root2_c  = & (* _dpxy_root2)[c];
+            VVdouble * _pxy_root1_c   = & (* _pxy_root1)[c];
+            VVdouble * _pxy_root2_c   = & (* _pxy_root2)[c];
+            for(unsigned int x = 0; x < _nbStates; x++)
+            {
+              Vdouble * _dpxy_root1_c_x  = & (* _dpxy_root1_c)[x];
+              Vdouble * _dpxy_root2_c_x  = & (* _dpxy_root2_c)[x];
+              Vdouble * _pxy_root1_c_x   = & (* _pxy_root1_c)[x];
+              Vdouble * _pxy_root2_c_x   = & (* _pxy_root2_c)[x];
+              double dl1 = 0, dl2 = 0, l1 = 0, l2 = 0;
+              for(unsigned int y = 0; y < _nbStates; y++)
+              {
+                dl1  += (* _dpxy_root1_c_x)[y]  * (* _likelihoods_root1_i_c)[y];
+                dl2  += (* _dpxy_root2_c_x)[y]  * (* _likelihoods_root2_i_c)[y];
+                l1   += (* _pxy_root1_c_x)[y]   * (* _likelihoods_root1_i_c)[y];
+                l2   += (* _pxy_root2_c_x)[y]   * (* _likelihoods_root2_i_c)[y];
+              }
+              double dl = len * (dl1 * l2 - dl2 * l1);
+              (* _dLikelihoods_father_i_c)[x] *= dl;
+            }
+          }
+        }
+      }
+      else if(son->getId() == _root2)
+      {
+        //Do nothing, this was accounted when dealing with _root1 
+      }
+      else
+      {
+        //Account for a putative multifurcation:
+        vector <unsigned int> * _patternLinks_father_son = & _likelihoodData->getArrayPositions(father,son);
+        VVVdouble * _likelihoods_son = & _likelihoodData->getLikelihoodArray(son);
+
+        VVVdouble * _pxy_son = & _pxy[son->getId()];
+        for(unsigned int i = 0; i < nbSites; i++)
+        {
+          VVdouble * _likelihoods_son_i = & (* _likelihoods_son)[(* _patternLinks_father_son)[i]];
+          VVdouble * _dLikelihoods_father_i = & (* _dLikelihoods_father)[i];
+          for(unsigned int c = 0; c < _nbClasses; c++)
+          {
+            Vdouble * _likelihoods_son_i_c = & (* _likelihoods_son_i)[c];
+            Vdouble * _dLikelihoods_father_i_c = & (* _dLikelihoods_father_i)[c];
+            VVdouble * _pxy_son_c = & (* _pxy_son)[c];
+            for(unsigned int x = 0; x < _nbStates; x++)
+            {
+              double dl = 0;
+              Vdouble * _pxy_son_c_x = & (* _pxy_son_c)[x];
+              for(unsigned int y = 0; y < _nbStates; y++)
+              {
+                dl += (* _pxy_son_c_x)[y] * (* _likelihoods_son_i_c)[y];
+              }
+              (* _dLikelihoods_father_i_c)[x] *= dl;
+            }
+          }
+        }
+      }  
+    }
+    return;
+  }
+
   // Get the node with the branch whose length must be derivated:
   int brI = TextTools::toInt(variable.substr(5));
   const Node * branch = _nodes[brI];
@@ -627,57 +829,251 @@ throw (Exception)
     throw Exception("Derivatives respective to substitution model parameters are not implemented.");
   }
   
-  if(variable == "BrLenRoot")
-  {
-    const_cast<RNonHomogeneousTreeLikelihood *>(this)->computeTreeDLikelihood("BrLen" + TextTools::toString(_root1));
-    double d1 = - getDLogLikelihood();
-    const_cast<RNonHomogeneousTreeLikelihood *>(this)->computeTreeD2Likelihood("BrLen" + TextTools::toString(_root1));
-    double d21 = - getD2LogLikelihood();
-    const_cast<RNonHomogeneousTreeLikelihood *>(this)->computeTreeDLikelihood("BrLen" + TextTools::toString(_root2));
-    double d2 = - getDLogLikelihood();
-    const_cast<RNonHomogeneousTreeLikelihood *>(this)->computeTreeD2Likelihood("BrLen" + TextTools::toString(_root2));
-    double d22 = - getD2LogLikelihood();
-    double pos = _brLenParameters.getParameter("RootPosition")->getValue();
-    return pos * pos * d21 + (1. - pos) * (1. - pos) * d22 - 2 * pos * (1. - pos) * d1 * d2;
-  }
-  else if(variable == "RootPosition")
-  {    
-    vector<double> d(_nbSites);
-    for(unsigned int i = 0; i < _nbSites; i++)
-      d[i] = - getLikelihoodForASite(i);
-    const_cast<RNonHomogeneousTreeLikelihood *>(this)->computeTreeDLikelihood("BrLen" + TextTools::toString(_root1));
-    vector<double> d1(_nbSites);
-    for(unsigned int i = 0; i < _nbSites; i++)
-      d1[i] = - getDLikelihoodForASite(i);
-    const_cast<RNonHomogeneousTreeLikelihood *>(this)->computeTreeD2Likelihood("BrLen" + TextTools::toString(_root1));
-    vector<double> d21(_nbSites);
-    for(unsigned int i = 0; i < _nbSites; i++)
-      d21[i] = - getD2LikelihoodForASite(i);
-    const_cast<RNonHomogeneousTreeLikelihood *>(this)->computeTreeDLikelihood("BrLen" + TextTools::toString(_root2));
-    vector<double> d2(_nbSites);
-    for(unsigned int i = 0; i < _nbSites; i++)
-      d2[i] = - getDLikelihoodForASite(i);
-    const_cast<RNonHomogeneousTreeLikelihood *>(this)->computeTreeD2Likelihood("BrLen" + TextTools::toString(_root2));
-    vector<double> d22(_nbSites);
-    for(unsigned int i = 0; i < _nbSites; i++)
-      d22[i] = - getD2LikelihoodForASite(i);
-    double len = _brLenParameters.getParameter("BrLenRoot")->getValue();
-    double dl = 0;
-    for(unsigned int i = 0; i < _nbSites; i++)
-      dl += len * len * (d21[i] + d22[i]) / d[i] - std::pow(len * (d1[i] - d2[i]) / d[i], 2.);
-    return dl;
-  }
-  else
-  {
-    const_cast<RNonHomogeneousTreeLikelihood *>(this)->computeTreeD2Likelihood(variable);
-    return - getD2LogLikelihood();
-  }
+  const_cast<RNonHomogeneousTreeLikelihood *>(this)->computeTreeD2Likelihood(variable);
+  return - getD2LogLikelihood();
 }
 
 /******************************************************************************/
 
 void RNonHomogeneousTreeLikelihood::computeTreeD2Likelihood(const string & variable)
 {
+  if(variable == "BrLenRoot")
+  {
+    const Node* father = _tree->getRootNode();
+    
+    // Compute dLikelihoods array for the father node.
+    // Fist initialize to 1:
+    VVVdouble * _d2Likelihoods_father = & _likelihoodData->getD2LikelihoodArray(father); 
+    unsigned int nbSites  = _d2Likelihoods_father->size();
+    for(unsigned int i = 0; i < nbSites; i++)
+    {
+      VVdouble * _d2Likelihoods_father_i = & (* _d2Likelihoods_father)[i];
+      for(unsigned int c = 0; c < _nbClasses; c++)
+      {
+        Vdouble * _d2Likelihoods_father_i_c = & (* _d2Likelihoods_father_i)[c];
+        for(unsigned int s = 0; s < _nbStates; s++)
+        {
+          (* _d2Likelihoods_father_i_c)[s] = 1.;  
+        }
+      }
+    }
+
+    unsigned int nbNodes = father->getNumberOfSons();
+    for(unsigned int l = 0; l < nbNodes; l++)
+    {
+      const Node * son = father->getSon(l);
+    
+      if(son->getId() == _root1)
+      {
+        const Node * root1 = father->getSon(0);
+        const Node * root2 = father->getSon(1);
+        vector <unsigned int> * _patternLinks_father_root1 = & _likelihoodData->getArrayPositions(father, root1);
+        vector <unsigned int> * _patternLinks_father_root2 = & _likelihoodData->getArrayPositions(father, root2);
+        VVVdouble * _likelihoods_root1 = & _likelihoodData->getLikelihoodArray(root1);
+        VVVdouble * _likelihoods_root2 = & _likelihoodData->getLikelihoodArray(root2);
+        double pos = _parameters.getParameter("RootPosition")->getValue();
+
+        VVVdouble * _d2pxy_root1 = & _d2pxy[_root1];
+        VVVdouble * _d2pxy_root2 = & _d2pxy[_root2];
+        VVVdouble * _dpxy_root1  = & _dpxy[_root1];
+        VVVdouble * _dpxy_root2  = & _dpxy[_root2];
+        VVVdouble * _pxy_root1   = & _pxy[_root1];
+        VVVdouble * _pxy_root2   = & _pxy[_root2];
+        for(unsigned int i = 0; i < nbSites; i++)
+        {
+          VVdouble * _likelihoods_root1_i = & (* _likelihoods_root1)[(* _patternLinks_father_root1)[i]];
+          VVdouble * _likelihoods_root2_i = & (* _likelihoods_root2)[(* _patternLinks_father_root2)[i]];
+          VVdouble * _d2Likelihoods_father_i = & (* _d2Likelihoods_father)[i];
+          for(unsigned int c = 0; c < _nbClasses; c++)
+          {
+            Vdouble * _likelihoods_root1_i_c = & (* _likelihoods_root1_i)[c];
+            Vdouble * _likelihoods_root2_i_c = & (* _likelihoods_root2_i)[c];
+            Vdouble * _d2Likelihoods_father_i_c = & (* _d2Likelihoods_father_i)[c];
+            VVdouble * _d2pxy_root1_c = & (* _d2pxy_root1)[c];
+            VVdouble * _d2pxy_root2_c = & (* _d2pxy_root2)[c];
+            VVdouble * _dpxy_root1_c  = & (* _dpxy_root1)[c];
+            VVdouble * _dpxy_root2_c  = & (* _dpxy_root2)[c];
+            VVdouble * _pxy_root1_c   = & (* _pxy_root1)[c];
+            VVdouble * _pxy_root2_c   = & (* _pxy_root2)[c];
+            for(unsigned int x = 0; x < _nbStates; x++)
+            {
+              Vdouble * _d2pxy_root1_c_x = & (* _d2pxy_root1_c)[x];
+              Vdouble * _d2pxy_root2_c_x = & (* _d2pxy_root2_c)[x];
+              Vdouble * _dpxy_root1_c_x  = & (* _dpxy_root1_c)[x];
+              Vdouble * _dpxy_root2_c_x  = & (* _dpxy_root2_c)[x];
+              Vdouble * _pxy_root1_c_x   = & (* _pxy_root1_c)[x];
+              Vdouble * _pxy_root2_c_x   = & (* _pxy_root2_c)[x];
+              double d2l1 = 0, d2l2 = 0, dl1 = 0, dl2 = 0, l1 = 0, l2 = 0;
+              for(unsigned int y = 0; y < _nbStates; y++)
+              {
+                d2l1 += (* _d2pxy_root1_c_x)[y] * (* _likelihoods_root1_i_c)[y];
+                d2l2 += (* _d2pxy_root2_c_x)[y] * (* _likelihoods_root2_i_c)[y];
+                dl1  += (* _dpxy_root1_c_x)[y]  * (* _likelihoods_root1_i_c)[y];
+                dl2  += (* _dpxy_root2_c_x)[y]  * (* _likelihoods_root2_i_c)[y];
+                l1   += (* _pxy_root1_c_x)[y]   * (* _likelihoods_root1_i_c)[y];
+                l2   += (* _pxy_root2_c_x)[y]   * (* _likelihoods_root2_i_c)[y];
+              }
+              double d2l = pos * pos * d2l1 * l2 + (1. - pos) * (1. - pos) * d2l2 * l1 + 2 * pos * (1. - pos) * dl1 * dl2;
+              (* _d2Likelihoods_father_i_c)[x] *= d2l;
+            }
+          }
+        }
+      }
+      else if(son->getId() == _root2)
+      {
+        //Do nothing, this was accounted when dealing with _root1 
+      }
+      else
+      {
+        //Account for a putative multifurcation:
+        vector <unsigned int> * _patternLinks_father_son = & _likelihoodData->getArrayPositions(father,son);
+        VVVdouble * _likelihoods_son = & _likelihoodData->getLikelihoodArray(son);
+
+        VVVdouble * _pxy_son = & _pxy[son->getId()];
+        for(unsigned int i = 0; i < nbSites; i++)
+        {
+          VVdouble * _likelihoods_son_i = & (* _likelihoods_son)[(* _patternLinks_father_son)[i]];
+          VVdouble * _d2Likelihoods_father_i = & (* _d2Likelihoods_father)[i];
+          for(unsigned int c = 0; c < _nbClasses; c++)
+          {
+            Vdouble * _likelihoods_son_i_c = & (* _likelihoods_son_i)[c];
+            Vdouble * _d2Likelihoods_father_i_c = & (* _d2Likelihoods_father_i)[c];
+            VVdouble * _pxy_son_c = & (* _pxy_son)[c];
+            for(unsigned int x = 0; x < _nbStates; x++)
+            {
+              double d2l = 0;
+              Vdouble * _pxy_son_c_x = & (* _pxy_son_c)[x];
+              for(unsigned int y = 0; y < _nbStates; y++)
+              {
+                d2l += (* _pxy_son_c_x)[y] * (* _likelihoods_son_i_c)[y];
+              }
+              (* _d2Likelihoods_father_i_c)[x] *= d2l;
+            }
+          }
+        }
+      }  
+    }
+    return;
+  }
+  else if(variable == "RootPosition")
+  {
+    const Node* father = _tree->getRootNode();
+    
+    // Compute dLikelihoods array for the father node.
+    // Fist initialize to 1:
+    VVVdouble * _d2Likelihoods_father = & _likelihoodData->getD2LikelihoodArray(father); 
+    unsigned int nbSites  = _d2Likelihoods_father->size();
+    for(unsigned int i = 0; i < nbSites; i++)
+    {
+      VVdouble * _d2Likelihoods_father_i = & (* _d2Likelihoods_father)[i];
+      for(unsigned int c = 0; c < _nbClasses; c++)
+      {
+        Vdouble * _d2Likelihoods_father_i_c = & (* _d2Likelihoods_father_i)[c];
+        for(unsigned int s = 0; s < _nbStates; s++)
+        {
+          (* _d2Likelihoods_father_i_c)[s] = 1.;  
+        }
+      }
+    }
+
+    unsigned int nbNodes = father->getNumberOfSons();
+    for(unsigned int l = 0; l < nbNodes; l++)
+    {
+      const Node * son = father->getSon(l);
+    
+      if(son->getId() == _root1)
+      {
+        const Node * root1 = father->getSon(0);
+        const Node * root2 = father->getSon(1);
+        vector <unsigned int> * _patternLinks_father_root1 = & _likelihoodData->getArrayPositions(father, root1);
+        vector <unsigned int> * _patternLinks_father_root2 = & _likelihoodData->getArrayPositions(father, root2);
+        VVVdouble * _likelihoods_root1 = & _likelihoodData->getLikelihoodArray(root1);
+        VVVdouble * _likelihoods_root2 = & _likelihoodData->getLikelihoodArray(root2);
+        double len = _parameters.getParameter("BrLenRoot")->getValue();
+
+        VVVdouble * _d2pxy_root1 = & _d2pxy[_root1];
+        VVVdouble * _d2pxy_root2 = & _d2pxy[_root2];
+        VVVdouble * _dpxy_root1  = & _dpxy[_root1];
+        VVVdouble * _dpxy_root2  = & _dpxy[_root2];
+        VVVdouble * _pxy_root1   = & _pxy[_root1];
+        VVVdouble * _pxy_root2   = & _pxy[_root2];
+        for(unsigned int i = 0; i < nbSites; i++)
+        {
+          VVdouble * _likelihoods_root1_i = & (* _likelihoods_root1)[(* _patternLinks_father_root1)[i]];
+          VVdouble * _likelihoods_root2_i = & (* _likelihoods_root2)[(* _patternLinks_father_root2)[i]];
+          VVdouble * _d2Likelihoods_father_i = & (* _d2Likelihoods_father)[i];
+          for(unsigned int c = 0; c < _nbClasses; c++)
+          {
+            Vdouble * _likelihoods_root1_i_c = & (* _likelihoods_root1_i)[c];
+            Vdouble * _likelihoods_root2_i_c = & (* _likelihoods_root2_i)[c];
+            Vdouble * _d2Likelihoods_father_i_c = & (* _d2Likelihoods_father_i)[c];
+            VVdouble * _d2pxy_root1_c = & (* _d2pxy_root1)[c];
+            VVdouble * _d2pxy_root2_c = & (* _d2pxy_root2)[c];
+            VVdouble * _dpxy_root1_c  = & (* _dpxy_root1)[c];
+            VVdouble * _dpxy_root2_c  = & (* _dpxy_root2)[c];
+            VVdouble * _pxy_root1_c   = & (* _pxy_root1)[c];
+            VVdouble * _pxy_root2_c   = & (* _pxy_root2)[c];
+            for(unsigned int x = 0; x < _nbStates; x++)
+            {
+              Vdouble * _d2pxy_root1_c_x = & (* _d2pxy_root1_c)[x];
+              Vdouble * _d2pxy_root2_c_x = & (* _d2pxy_root2_c)[x];
+              Vdouble * _dpxy_root1_c_x  = & (* _dpxy_root1_c)[x];
+              Vdouble * _dpxy_root2_c_x  = & (* _dpxy_root2_c)[x];
+              Vdouble * _pxy_root1_c_x   = & (* _pxy_root1_c)[x];
+              Vdouble * _pxy_root2_c_x   = & (* _pxy_root2_c)[x];
+              double d2l1 = 0, d2l2 = 0, dl1 = 0, dl2 = 0, l1 = 0, l2 = 0;
+              for(unsigned int y = 0; y < _nbStates; y++)
+              {
+                d2l1 += (* _d2pxy_root1_c_x)[y] * (* _likelihoods_root1_i_c)[y];
+                d2l2 += (* _d2pxy_root2_c_x)[y] * (* _likelihoods_root2_i_c)[y];
+                dl1  += (* _dpxy_root1_c_x)[y]  * (* _likelihoods_root1_i_c)[y];
+                dl2  += (* _dpxy_root2_c_x)[y]  * (* _likelihoods_root2_i_c)[y];
+                l1   += (* _pxy_root1_c_x)[y]   * (* _likelihoods_root1_i_c)[y];
+                l2   += (* _pxy_root2_c_x)[y]   * (* _likelihoods_root2_i_c)[y];
+              }
+              double d2l = len * len * (d2l1 * l2 + d2l2 * l1 - 2 * dl1 * dl2);
+              (* _d2Likelihoods_father_i_c)[x] *= d2l;
+            }
+          }
+        }
+      }
+      else if(son->getId() == _root2)
+      {
+        //Do nothing, this was accounted when dealing with _root1 
+      }
+      else
+      {
+        //Account for a putative multifurcation:
+        vector <unsigned int> * _patternLinks_father_son = & _likelihoodData->getArrayPositions(father,son);
+        VVVdouble * _likelihoods_son = & _likelihoodData->getLikelihoodArray(son);
+
+        VVVdouble * _pxy_son = & _pxy[son->getId()];
+        for(unsigned int i = 0; i < nbSites; i++)
+        {
+          VVdouble * _likelihoods_son_i = & (* _likelihoods_son)[(* _patternLinks_father_son)[i]];
+          VVdouble * _d2Likelihoods_father_i = & (* _d2Likelihoods_father)[i];
+          for(unsigned int c = 0; c < _nbClasses; c++)
+          {
+            Vdouble * _likelihoods_son_i_c = & (* _likelihoods_son_i)[c];
+            Vdouble * _d2Likelihoods_father_i_c = & (* _d2Likelihoods_father_i)[c];
+            VVdouble * _pxy_son_c = & (* _pxy_son)[c];
+            for(unsigned int x = 0; x < _nbStates; x++)
+            {
+              double d2l = 0;
+              Vdouble * _pxy_son_c_x = & (* _pxy_son_c)[x];
+              for(unsigned int y = 0; y < _nbStates; y++)
+              {
+                d2l += (* _pxy_son_c_x)[y] * (* _likelihoods_son_i_c)[y];
+              }
+              (* _d2Likelihoods_father_i_c)[x] *= d2l;
+            }
+          }
+        }
+      }  
+    }
+    return;
+  }
+
   // Get the node with the branch whose length must be derivated:
   int brI = TextTools::toInt(variable.substr(5));
   Node * branch = _nodes[brI];

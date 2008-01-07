@@ -278,6 +278,18 @@ double NNIHomogeneousTreeLikelihood::testNNI(int nodeId) const throw (NodeExcept
 	grandFatherArrays.push_back(sonArray);
 	grandFatherTProbs.push_back(& _pxy[son->getId()]);
   computeLikelihoodFromArrays(grandFatherArrays, grandFatherTProbs, array1, nbGrandFatherNeighbors + 1, _nbDistinctSites, _nbClasses, _nbStates, false); 
+  if(grandFather->getFather() == NULL)
+  {
+    //This is the root node, we have to account for the ancestral frequencies:
+    for(unsigned int i = 0; i < _nbDistinctSites; i++)
+    {
+      for(unsigned int j = 0; j < _nbClasses; j++)
+      {
+        for(unsigned int x = 0; x < _nbStates; x++)
+          array1[i][j][x] *= _model->freq(x);
+      }
+    }
+  }
   
   //Compute array 2: parent array
   VVVdouble array2 = *uncleArray;
