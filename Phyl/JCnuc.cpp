@@ -39,8 +39,11 @@ knowledge of the CeCILL license and that you accept its terms.
 
 #include "JCnuc.h"
 
+using namespace bpp;
 
 #include <cmath>
+
+using namespace std;
 
 /******************************************************************************/
 
@@ -156,13 +159,6 @@ RowMatrix<double> JCnuc::getd2Pij_dt2(double d) const
 		}
 	}
 	return _p;
-}
-
-/******************************************************************************/
-
-string JCnuc::getName() const
-{
-	return string("Jukes and Cantor (1969) for nucleotides");
 }
 
 /******************************************************************************/

@@ -45,6 +45,9 @@ knowledge of the CeCILL license and that you accept its terms.
 // From SeqLib:
 #include <Seq/NucleicAlphabet.h>
 
+namespace bpp
+{
+
 /**
  * @brief Basal class for nucleotide substitution model.
  */
@@ -62,6 +65,8 @@ class NucleotideSubstitutionModel :
     virtual unsigned int getNumberOfStates() const { return 4; }
 
 };
+
+} //end of namespace bpp.
 
 #endif	//_NUCLEICSUBSTITUTIONMODEL_H_
 

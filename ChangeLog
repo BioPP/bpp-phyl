@@ -1,3 +1,8 @@
+11/01/08 Julien Dutheil
+* Inclusion in new namespace bpp.
+* Bug fixed in DRNonHomogeneousTreeLikelihood.
+* Fixed recently introduced bug in DRHomogeneousTreeLikelihood.
+
 29/12/07 Julien Dutheil
 * New class DRNonHomogeneousTreeLikelihood.
 * Methods getLogLikelihood now sort terms before adding them.

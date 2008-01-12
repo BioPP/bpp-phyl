@@ -48,6 +48,9 @@ knowledge of the CeCILL license and that you accept its terms.
 // From SeqLib:
 #include <Seq/NucleicAlphabet.h>
 
+namespace bpp
+{
+
 /**
  * @brief The Hasegawa M, Kishino H and Yano T (1985) substitution model for nucleotides.
  *
@@ -202,7 +205,7 @@ class HKY85:
 		RowMatrix<double> getdPij_dt  (double d) const;
 		RowMatrix<double> getd2Pij_dt2(double d) const;
 
-		string getName() const;
+		string getName() const { return "HKY85"; }
 
 		/**
 		 * @brief This method is redefined to actualize the corresponding parameters piA, piT, piG and piC too.
@@ -212,6 +215,8 @@ class HKY85:
 	protected:
 		void updateMatrices();
 };
+
+} //end of namespace bpp.
 
 #endif	//_HKY85_H_
 

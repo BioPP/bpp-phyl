@@ -42,6 +42,9 @@ knowledge of the CeCILL license and that you accept its terms.
 
 #include "iotree"
 
+namespace bpp
+{
+
 /**
  * @brief Utilitary class for creating tree readers and writers.
  *
@@ -86,6 +89,8 @@ public:
    */
   virtual OTree * createWriter(const string & format) throw (Exception);
 };
+
+} //end of namespace bpp.
 
 #endif //_IOTREEFACTORY_H_
 

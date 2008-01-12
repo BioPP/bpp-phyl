@@ -54,9 +54,12 @@ knowledge of the CeCILL license and that you accept its terms.
 // From NumCalc
 #include <NumCalc/random>
 
+using namespace bpp;
+
 // From STL
 #include <iostream>
 #include <algorithm>
+
 using namespace std;
 
 /******************************************************************************/

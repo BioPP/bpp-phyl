@@ -44,8 +44,12 @@ knowledge of the CeCILL license and that you accept its terms.
 // From SeqLib:
 #include <Seq/AlphabetTools.h>
 
+using namespace bpp;
+
 // From the STL:
 #include <algorithm>
+
+using namespace std;
 
 const string SubstitutionModelFactory::JUKES_CANTOR            = "JC69";
 const string SubstitutionModelFactory::KIMURA_2P               = "K80";

@@ -47,7 +47,11 @@ knowledge of the CeCILL license and that you accept its terms.
 
 // From the STL:
 #include <map>
+
 using namespace std;
+
+namespace bpp
+{
 
 /**
  * @brief Partial implementation of the AgglomerativeDistanceMethod interface.
@@ -207,6 +211,8 @@ class AbstractAgglomerativeDistanceMethod:
     /** @} */
 		
 };
+
+} //end of namespace bpp.
 
 #endif //_ABSTRACTAGGLOMERATIVEDISTANCEMETHOD_H_
 

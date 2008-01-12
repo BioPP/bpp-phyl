@@ -49,12 +49,16 @@ knowledge of the CeCILL license and that you accept its terms.
 
 using namespace std;
 
+namespace bpp
+{
+
 class DistanceMatrix;
 
 /**
  * @brief General interface for distance matrix I/O.
  */
-class IODistanceMatrix: public virtual IOFormat
+class IODistanceMatrix:
+  public virtual IOFormat
 {
 	public:
 		IODistanceMatrix() {}
@@ -67,7 +71,8 @@ class IODistanceMatrix: public virtual IOFormat
 /**
  * @brief General interface for distance matrix readers.
  */
-class IDistanceMatrix: public virtual IODistanceMatrix
+class IDistanceMatrix:
+  public virtual IODistanceMatrix
 {
 	public:
 		IDistanceMatrix() {}
@@ -95,7 +100,8 @@ class IDistanceMatrix: public virtual IODistanceMatrix
 /**
  * @brief General interface for distance matrix writers.
  */
-class ODistanceMatrix: public virtual IODistanceMatrix
+class ODistanceMatrix:
+  public virtual IODistanceMatrix
 {
 	public:
 		ODistanceMatrix() {}
@@ -125,7 +131,8 @@ class ODistanceMatrix: public virtual IODistanceMatrix
 /**
  * @brief Partial implementation of the IDistanceMatrix interface.
  */
-class AbstractIDistanceMatrix: public virtual IDistanceMatrix
+class AbstractIDistanceMatrix:
+  public virtual IDistanceMatrix
 {
 	public:
 		AbstractIDistanceMatrix() {}
@@ -145,7 +152,8 @@ class AbstractIDistanceMatrix: public virtual IDistanceMatrix
 /**
  * @brief Partial implementation of the ODistanceMatrix interface.
  */
-class AbstractODistanceMatrix: public virtual ODistanceMatrix
+class AbstractODistanceMatrix:
+  public virtual ODistanceMatrix
 {
 	public:
 		AbstractODistanceMatrix() {}
@@ -161,6 +169,8 @@ class AbstractODistanceMatrix: public virtual ODistanceMatrix
 		}
 		virtual void write(const DistanceMatrix & dist, ostream & out) const throw (Exception) = 0;
 };
+
+} //end of namespace bpp.
 
 #endif //_IODISTANCEMATRIX_H_
 

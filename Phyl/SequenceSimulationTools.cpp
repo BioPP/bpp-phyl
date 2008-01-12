@@ -42,6 +42,8 @@ knowledge of the CeCILL license and that you accept its terms.
 //From SeqLib:
 #include <Seq/VectorSiteContainer.h>
 
+using namespace bpp;
+
 SiteContainer * SequenceSimulationTools::simulateSites(const SiteSimulator & simulator, const vector<double> & rates)
 {
 	unsigned int numberOfSites = rates.size();

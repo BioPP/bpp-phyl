@@ -53,10 +53,14 @@ using namespace std;
 #include <Utils/Exceptions.h>
 #include <Utils/IOFormat.h>
 
+namespace bpp
+{
+
 /**
  * @brief General interface for tree I/O.
  */
-class IOTree: public virtual IOFormat
+class IOTree:
+  public virtual IOFormat
 {
 	public:
 		IOTree() {}
@@ -69,7 +73,8 @@ class IOTree: public virtual IOFormat
 /**
  * @brief General interface for tree readers.
  */
-class ITree: public virtual IOTree
+class ITree:
+  public virtual IOTree
 {
 	public:
 		ITree() {}
@@ -97,7 +102,8 @@ class ITree: public virtual IOTree
 /**
  * @brief General interface for tree writers.
  */
-class OTree: public virtual IOTree
+class OTree:
+  public virtual IOTree
 {
 	public:
 		OTree() {}
@@ -127,7 +133,8 @@ class OTree: public virtual IOTree
 /**
  * @brief Partial implementation of the ITree interface.
  */
-class AbstractITree: public virtual ITree
+class AbstractITree:
+  public virtual ITree
 {
 	public:
 		AbstractITree() {}
@@ -148,7 +155,8 @@ class AbstractITree: public virtual ITree
 /**
  * @brief Partial implementation of the OTree interface.
  */
-class AbstractOTree: public virtual OTree
+class AbstractOTree:
+  public virtual OTree
 {
 	public:
 		AbstractOTree() {}
@@ -174,7 +182,8 @@ class AbstractOTree: public virtual OTree
 /**
  * @brief General interface for multiple trees readers.
  */
-class IMultiTree: public virtual IOTree
+class IMultiTree:
+  public virtual IOTree
 {
 	public:
 		IMultiTree() {}
@@ -202,7 +211,8 @@ class IMultiTree: public virtual IOTree
 /**
  * @brief General interface for tree writers.
  */
-class OMultiTree: public virtual IOTree
+class OMultiTree:
+  public virtual IOTree
 {
 	public:
 		OMultiTree() {}
@@ -232,7 +242,8 @@ class OMultiTree: public virtual IOTree
 /**
  * @brief Partial implementation of the IMultiTree interface.
  */
-class AbstractIMultiTree: public virtual IMultiTree
+class AbstractIMultiTree:
+  public virtual IMultiTree
 {
 	public:
 		AbstractIMultiTree() {}
@@ -252,7 +263,8 @@ class AbstractIMultiTree: public virtual IMultiTree
 /**
  * @brief Partial implementation of the OTree interface.
  */
-class AbstractOMultiTree: public virtual OMultiTree
+class AbstractOMultiTree:
+  public virtual OMultiTree
 {
 	public:
 		AbstractOMultiTree() {}
@@ -269,6 +281,7 @@ class AbstractOMultiTree: public virtual OMultiTree
 		}
 };
 
+} //end of namespace bpp.
 
 #endif	//_IOTREE_H_
 

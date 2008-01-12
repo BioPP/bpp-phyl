@@ -40,10 +40,12 @@ knowledge of the CeCILL license and that you accept its terms.
 #include "DRTreeLikelihoodTools.h"
 #include <NumCalc/VectorTools.h>
 
+using namespace bpp;
+
 //-----------------------------------------------------------------------------------------
 
 VVVdouble DRTreeLikelihoodTools::getPosteriorProbabilitiesForEachStateForEachRate(
-  DRTreeLikelihood & drl,
+  const DRTreeLikelihood & drl,
   const Node * node)
 {
   unsigned int nSites   = drl.getLikelihoodData()->getNumberOfDistinctSites();

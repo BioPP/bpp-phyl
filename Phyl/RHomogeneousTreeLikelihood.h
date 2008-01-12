@@ -48,6 +48,9 @@ knowledge of the CeCILL license and that you accept its terms.
 #include <NumCalc/VectorTools.h>
 #include <NumCalc/DiscreteDistribution.h>
 
+namespace bpp
+{
+
 /**
  * @brief This class implement the 'traditional' way of computing likelihood for a tree.
  *
@@ -259,6 +262,8 @@ class RHomogeneousTreeLikelihood :
 
 };
 
+
+} //end of namespace bpp.
 
 #endif	//_RHOMOGENEOUSTREELIKELIHOOD_H_
 

@@ -39,6 +39,8 @@ knowledge of the CeCILL license and that you accept its terms.
 
 #include "ProbabilisticSubstitutionMapping.h"
 
+using namespace bpp;
+
 ProbabilisticSubstitutionMapping::ProbabilisticSubstitutionMapping(const Tree & tree, unsigned int numberOfSites)
 {
   _tree = NULL;

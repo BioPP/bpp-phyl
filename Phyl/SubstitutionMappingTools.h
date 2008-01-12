@@ -44,6 +44,9 @@ knowledge of the CeCILL license and that you accept its terms.
 #include "SubstitutionCount.h"
 #include "DRTreeLikelihood.h"
 
+namespace bpp
+{
+
 /**
  * @brief Provide methods to compute substitution mappings.
  *
@@ -73,8 +76,8 @@ class SubstitutionMappingTools
      * @throw Exception If the likelihood object is not initialized.
 		 */
 		static ProbabilisticSubstitutionMapping * computeSubstitutionVectors(
-			DRTreeLikelihood & drtl,
-			const SubstitutionCount & substitutionCount,
+			const DRTreeLikelihood & drtl,
+			SubstitutionCount & substitutionCount,
 			bool verbose = true) throw (Exception);
 		
 		/**
@@ -98,8 +101,8 @@ class SubstitutionMappingTools
      * @throw Exception If the likelihood object is not initialized.
 		 */
 		static ProbabilisticSubstitutionMapping * computeSubstitutionVectorsNoAveraging(
-			DRTreeLikelihood & drtl,
-			const SubstitutionCount & substitutionCount,
+			const DRTreeLikelihood & drtl,
+			SubstitutionCount & substitutionCount,
 			bool verbose = true) throw (Exception);
 		
 		/**
@@ -121,8 +124,8 @@ class SubstitutionMappingTools
      * @throw Exception If the likelihood object is not initialized.
 		 */
 		static ProbabilisticSubstitutionMapping * computeSubstitutionVectorsNoAveragingMarginal(
-			DRTreeLikelihood & drtl,
-			const SubstitutionCount & substitutionCount,
+			const DRTreeLikelihood & drtl,
+			SubstitutionCount & substitutionCount,
 			bool verbose = true) throw (Exception);
 		
 		/**
@@ -141,8 +144,8 @@ class SubstitutionMappingTools
      * @throw Exception If the likelihood object is not initialized.
 		 */
 		static ProbabilisticSubstitutionMapping * computeSubstitutionVectorsMarginal(
-			DRTreeLikelihood & drtl,
-			const SubstitutionCount & substitutionCount,
+			const DRTreeLikelihood & drtl,
+			SubstitutionCount & substitutionCount,
 			bool verbose = true) throw (Exception);
 	
 		/**
@@ -171,6 +174,8 @@ class SubstitutionMappingTools
 			throw (IOException);
     
 };
+
+} //end of namespace bpp.
 
 #endif //_SUBSTITUTIONMAPPINGTOOLS_H_
 

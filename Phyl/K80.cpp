@@ -42,7 +42,11 @@ knowledge of the CeCILL license and that you accept its terms.
 // From the STL:
 #include <cmath>
 
+using namespace bpp;
+
 #include <NumCalc/MatrixTools.h>
+
+using namespace std;
 
 /******************************************************************************/
 
@@ -384,10 +388,6 @@ RowMatrix<double> K80::getd2Pij_dt2(double d) const
 
 	return _p;
 }
-
-/******************************************************************************/
-
-string K80::getName() const { return string("Kimura (1980)"); }
 
 /******************************************************************************/
 

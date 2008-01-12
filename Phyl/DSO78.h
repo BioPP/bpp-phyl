@@ -45,6 +45,9 @@ knowledge of the CeCILL license and that you accept its terms.
 // From SeqLib:
 #include <Seq/ProteicAlphabet.h>
 
+namespace bpp
+{
+
 /**
  * @brief The Dayhoff, Schwartz and Orcutt substitution model for proteins.
  *
@@ -67,9 +70,11 @@ class DSO78:
     DSO78 * clone() const { return new DSO78(*this); }
     
 	public:
-		string getName() const;
+		string getName() const { return "DSO78"; }
 
 };
+
+} //end of namespace bpp.
 
 #endif	//_DSO78_H_
 

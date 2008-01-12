@@ -42,11 +42,15 @@ knowledge of the CeCILL license and that you accept its terms.
 // From SeqLib:
 #include <Seq/SequenceContainerTools.h>
 
+using namespace bpp;
+
 // From the STL:
 #include <cmath>
 
 // From NumCalc:
 #include <NumCalc/MatrixTools.h>
+
+using namespace std;
 
 /******************************************************************************/
 
@@ -446,10 +450,6 @@ RowMatrix<double> HKY85::getd2Pij_dt2(double d) const
 
 	return _p;
 }
-
-/******************************************************************************/
-
-string HKY85::getName() const { return string("Hasegawa, Kishino and Yano (1985)"); }
 
 /******************************************************************************/
 

@@ -41,6 +41,9 @@ knowledge of the CeCILL license and that you accept its terms.
 #ifndef _AGGLOMERATIVEDISTANCEMETHOD_H_
 #define _AGGLOMERATIVEDISTANCEMETHOD_H_
 
+namespace bpp
+{
+
 class DistanceMatrix;
 class Node;
 class Tree;
@@ -73,6 +76,8 @@ class AgglomerativeDistanceMethod
 		virtual Tree * getTree() const = 0;
 	
 };
+
+} //end of namespace bpp.
 
 #endif //_AGGLOMERATIVEDISTANCEMETHOD_H_
 

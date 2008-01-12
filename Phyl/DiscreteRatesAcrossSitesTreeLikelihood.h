@@ -46,6 +46,9 @@ knowledge of the CeCILL license and that you accept its terms.
 #include <NumCalc/DiscreteDistribution.h>
 #include <NumCalc/ParameterList.h>
 
+namespace bpp
+{
+
 /**
  * @brief Interface for rate across sites (RAS) implementation.
  *
@@ -190,6 +193,8 @@ class DiscreteRatesAcrossSitesTreeLikelihood:
 		virtual unsigned int getNumberOfClasses() const = 0;
 		
 };
+
+} //end of namespace bpp.
 
 #endif //_DISCRETERATESACROSSSITESTREELIKELIHOOD_H_
 

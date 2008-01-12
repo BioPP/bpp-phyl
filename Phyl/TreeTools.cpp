@@ -50,7 +50,7 @@ knowledge of the CeCILL license and that you accept its terms.
 #include <Utils/TextTools.h>
 #include <Utils/StringTokenizer.h>
 #include <Utils/Number.h>
-#include <Utils/String.h>
+#include <Utils/BppString.h>
 
 // From NumCalc:
 #include <NumCalc/VectorTools.h>
@@ -60,6 +60,8 @@ knowledge of the CeCILL license and that you accept its terms.
 // From SeqLib:
 #include <Seq/DNA.h>
 #include <Seq/VectorSiteContainer.h>
+
+using namespace bpp;
 
 // From the STL:
 #include <iostream>

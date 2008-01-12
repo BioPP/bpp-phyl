@@ -47,6 +47,9 @@ knowledge of the CeCILL license and that you accept its terms.
 // From SeqLib:
 #include <Utils/Clonable.h>
 
+namespace bpp
+{
+
 /**
  * @brief TreeParsimonyScore node data structure.
  *
@@ -54,7 +57,8 @@ knowledge of the CeCILL license and that you accept its terms.
  *
  * @see TreeParsimonyData
  */
-class TreeParsimonyNodeData: public Clonable
+class TreeParsimonyNodeData:
+  public virtual Clonable
 {
 	public:
 		TreeParsimonyNodeData() {}
@@ -89,7 +93,8 @@ class TreeParsimonyNodeData: public Clonable
  *
  * @see TreeParsimonyNodeData
  */
-class TreeParsimonyData: public Clonable
+class TreeParsimonyData:
+  public virtual Clonable
 {
   public:
     TreeParsimonyData() {}
@@ -105,6 +110,8 @@ class TreeParsimonyData: public Clonable
 		virtual TreeParsimonyNodeData & getNodeData(const Node * node) = 0;
 		virtual const TreeParsimonyNodeData & getNodeData(const Node * node) const = 0;
 };
+
+} //end of namespace bpp.
 
 #endif //_TREEPARSIMONYDATA_H_
 

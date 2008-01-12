@@ -48,6 +48,9 @@ knowledge of the CeCILL license and that you accept its terms.
 // From NumCalc:
 #include <NumCalc/ParameterList.h>
 
+namespace bpp
+{
+
 /**
  *@brief Likelihood computation with a global clock.
  *
@@ -157,6 +160,8 @@ class RHomogeneousClockTreeLikelihood:
     void computeBranchLengthsFromHeights(Node * node, double height) throw (Exception);
 
 };
+
+} //end of namespace bpp.
 
 #endif // _RHOMOGENEOUSCLOCKTREELIKELIHOOD_H_
 

@@ -39,7 +39,11 @@ knowledge of the CeCILL license and that you accept its terms.
 
 #include "JCprot.h"
 
+using namespace bpp;
+
 #include <cmath>
+
+using namespace std;
 
 /******************************************************************************/
 
@@ -152,13 +156,6 @@ RowMatrix<double> JCprot::getd2Pij_dt2(double d) const
 		}
 	}
 	return _p;
-}
-
-/******************************************************************************/
-
-string JCprot::getName() const
-{
-	return string("Jukes and Cantor (1969) for proteins");
 }
 
 /******************************************************************************/

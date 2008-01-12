@@ -62,7 +62,11 @@ knowledge of the CeCILL license and that you accept its terms.
 #include <vector>
 #include <map>
 #include <algorithm>
+
 using namespace std;
+
+namespace bpp
+{
 
 /**
  * @brief Substitution models manager for heterogenous models of evolution.
@@ -164,11 +168,31 @@ class SubstitutionModelSet:
       return _rootFrequencies->getFrequencies().size();
     }
 
+    /**
+     * @brief Get the index of a given parameter in the list of all parameters.
+     *
+     * @param name The name of the parameter to look for.
+     * @return The position of the parameter in the global parameter list.
+     * @throw ParameterNotFoundException If no parameter with this name is found.
+     */
     unsigned int getParameterIndex(const string & name) const throw (ParameterNotFoundException)
     {
       for(unsigned int i = 0; i < _parameters.size(); i++)
         if(_parameters[i]->getName() == name) return i;
-      throw ParameterNotFoundException("SubstitutionModelSet::getParameterIndex.", name);
+      throw ParameterNotFoundException("SubstitutionModelSet::getParameterIndex().", name);
+    }
+
+    /**
+     * @brief Get the index of a given parameter in the list of all parameters.
+     *
+     * @param name The name of the parameter to look for.
+     * @return The position of the parameter in the global parameter list.
+     * @throw ParameterNotFoundException If no parameter with this name is found.
+     */
+    string getParameterModelName(const string & name) const throw (ParameterNotFoundException)
+    {
+      unsigned int pos = getParameterIndex(name);
+      return _modelParameterNames[pos];
     }
 
     /**
@@ -196,6 +220,21 @@ class SubstitutionModelSet:
     }
 
     /**
+     * @brief Get the index in the set of the model associated to a particular node id.
+     *
+     * @param nodeId The id of the query node.
+     * @return The index of the model associated to the given node.
+     * @throw Exception If no model is found for this node.
+     */
+    unsigned int getModelIndexForNode(int nodeId) const throw (Exception)
+    {
+      map<int, unsigned int>::iterator i = _nodeToModel.find(nodeId);
+      if(i == _nodeToModel.end())
+        throw Exception("SubstitutionModelSet::getModelIndexForNode(). No model associated to node with id " + TextTools::toString(nodeId));
+      return i->second;
+    }
+
+    /**
      * @brief Get the model associated to a particular node id.
      *
      * @param nodeId The id of the query node.
@@ -215,6 +254,19 @@ class SubstitutionModelSet:
       if(i == _nodeToModel.end())
         throw Exception("SubstitutionModelSet::getModelForNode(). No model associated to node with id " + TextTools::toString(nodeId));
       return _modelSet[i->second];
+    }
+
+    /**
+     * @brief Get a list of nodes id for which the given model is associated.
+     *
+     * @param i The index of the model in the set.
+     * @return A vector with the ids of the node associated to this model.
+     * @ thriw IndexOutOfBoundsException If the index is not valid.
+     */
+    const vector<int> & getNodesWithModel(unsigned int i) const throw (IndexOutOfBoundsException)
+    {
+      if(i >= _modelSet.size()) throw IndexOutOfBoundsException("SubstitutionModelSet::getNodesWithModel().", i, 0, _modelSet.size());
+      return _modelToNodes[i];
     }
 
     /**
@@ -379,6 +431,8 @@ class SubstitutionModelSet:
     /** @} */
 
 };
+
+} //end of namespace bpp.
 
 #endif // _SUBSTITUTIONMODELSET_H_
 

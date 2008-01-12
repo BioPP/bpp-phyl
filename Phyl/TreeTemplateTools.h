@@ -46,7 +46,11 @@ knowledge of the CeCILL license and that you accept its terms.
 
 //From the STL:
 #include <vector>
+
 using namespace std;
+
+namespace bpp
+{
 
 template<class N> class TreeTemplate;
 
@@ -660,6 +664,8 @@ class TreeTemplateTools
     static void incrementAllIds(Node * node, int increment);
     
 };
+
+} //end of namespace bpp.
 
 #endif //_TREETEMPLATETOOLS_H_
 

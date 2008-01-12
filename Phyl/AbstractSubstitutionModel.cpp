@@ -45,11 +45,12 @@ knowledge of the CeCILL license and that you accept its terms.
 // From NumCalc:
 #include <NumCalc/MatrixTools.h>
 #include <NumCalc/VectorTools.h>
-using namespace VectorOperators;
 #include <NumCalc/EigenValue.h>
 
 // From SeqLib:
 #include <Seq/SequenceContainerTools.h>
+
+using namespace bpp;
 
 /******************************************************************************/
 
@@ -164,5 +165,4 @@ void AbstractReversibleSubstitutionModel::updateMatrices()
 }
 
 /******************************************************************************/
-
 

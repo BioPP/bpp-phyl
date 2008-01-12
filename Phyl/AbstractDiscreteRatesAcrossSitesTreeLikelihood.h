@@ -44,6 +44,9 @@ knowledge of the CeCILL license and that you accept its terms.
 #include "DiscreteRatesAcrossSitesTreeLikelihood.h"
 #include "SubstitutionModel.h"
 
+namespace bpp
+{
+
 /**
  * @brief Partial implementation of the DiscreteRatesAcrossSitesTreeLikelihood interface.
  *
@@ -122,6 +125,8 @@ class AbstractDiscreteRatesAcrossSitesTreeLikelihood:
     /** @} */
     
 };
+
+} //end of namespace bpp.
 
 #endif //_ABSTRACTDISCRETERATEACROSSSITESTREELIKELIHOOD_H_
 

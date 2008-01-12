@@ -59,6 +59,8 @@ knowledge of the CeCILL license and that you accept its terms.
 #include <NumCalc/ThreePointsNumericalDerivative.h>
 #include <NumCalc/TwoPointsNumericalDerivative.h>
 
+using namespace bpp;
+
 /******************************************************************************/
 
 OptimizationTools::OptimizationTools() {}

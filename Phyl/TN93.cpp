@@ -45,9 +45,13 @@ knowledge of the CeCILL license and that you accept its terms.
 // From the STL:
 #include <cmath>
 
+using namespace std;
+
 // From NumCalc:
 #include <NumCalc/MatrixTools.h>
 #include <NumCalc/EigenValue.h>
+
+using namespace bpp;
 
 /******************************************************************************/
 
@@ -417,10 +421,6 @@ RowMatrix<double> TN93::getd2Pij_dt2(double d) const
 
 	return _p;
 }
-
-/******************************************************************************/
-
-string TN93::getName() const { return string("Tamura and Nei (1993)"); }
 
 /******************************************************************************/
 

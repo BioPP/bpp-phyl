@@ -42,6 +42,9 @@ knowledge of the CeCILL license and that you accept its terms.
 
 #include "NonHomogeneousSequenceSimulator.h"
 
+namespace bpp
+{
+
 /**
  * @brief Site and sequences simulation under homogeneous models.
  *
@@ -67,6 +70,8 @@ class HomogeneousSequenceSimulator:
     }
 	
 };
+
+} //end of namespace bpp.
 
 #endif //_HOMOGENEOUSSEQUENCESIMULATOR_H_
 

@@ -49,6 +49,9 @@ knowledge of the CeCILL license and that you accept its terms.
 #include <NumCalc/BrentOneDimension.h>
 #include <NumCalc/Parametrizable.h>
 
+namespace bpp
+{
+
 /**
  * @brief Compute likelihood for a 4-tree.
  *
@@ -241,6 +244,8 @@ class NNIHomogeneousTreeLikelihood:
     /** @} */
     
 };
+
+} //end of namespace bpp.
 
 #endif  //_NNIHOMOGENEOUSTREELIKELIHOOD_H_
 

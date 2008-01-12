@@ -43,6 +43,9 @@ knowledge of the CeCILL license and that you accept its terms.
 
 #include "TreeParsimonyData.h"
 
+namespace bpp
+{
+
 /**
  * @brief Partial implementation of the TreeParsimonyData interface.
  *
@@ -61,7 +64,8 @@ knowledge of the CeCILL license and that you accept its terms.
  * The global parsimony score is then given by the sum of all scores for each array position,
  * weighted by the corresponding number of sites.
  */
-class AbstractTreeParsimonyData : public TreeParsimonyData
+class AbstractTreeParsimonyData:
+  public TreeParsimonyData
 {
 	protected:
 		vector<unsigned int> _rootPatternLinks;
@@ -84,6 +88,8 @@ class AbstractTreeParsimonyData : public TreeParsimonyData
 		const TreeTemplate<Node> * getTree() const { return _tree; }  
 		TreeTemplate<Node> * getTree() { return _tree; }
 };
+
+} //end of namespace bpp.
 
 #endif //_ABSTRACTTREEPARSIMONYDATA_H_
 

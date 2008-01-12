@@ -46,8 +46,11 @@ knowledge of the CeCILL license and that you accept its terms.
 //From NumCalc:
 #include <NumCalc/VectorTools.h>
 
+using namespace bpp;
+
 // From the STL:
 #include <cmath>
+
 using namespace std;
 
 const string NNITopologySearch::FAST   = "Fast";

@@ -46,6 +46,9 @@ knowledge of the CeCILL license and that you accept its terms.
 #include <NumCalc/DiscreteDistribution.h>
 #include <NumCalc/Parameter.h>
 
+namespace bpp
+{
+
 /**
  * @brief Tuffley and Steel's 1998 covarion model.
  *
@@ -101,7 +104,7 @@ class TS98:
     TS98 * clone() const { return new TS98(*this); }
 
   public:
-    string getName() const { return "Tuffley and Steel Covarion Model (Tuffley and Steel 1998)"; }
+    string getName() const { return _model->getName() + "+TS98"; }
     
   protected:
     void updateRatesModel()
@@ -117,6 +120,8 @@ class TS98:
     }
 	
 };
+
+} //end of namespace bpp.
 
 #endif // _TS98_H_
 

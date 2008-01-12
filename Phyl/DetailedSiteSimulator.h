@@ -49,7 +49,11 @@ knowledge of the CeCILL license and that you accept its terms.
 // From the STL:
 #include <map>
 #include <vector>
+
 using namespace std;
+
+namespace bpp
+{
 
 /**
  * @brief Data structure to store the result of a DetailedSiteSimulator.
@@ -201,6 +205,8 @@ class DetailedSiteSimulator:
     virtual SiteSimulationResult * dSimulate(double rate) const = 0;
     
 };
+
+} //end of namespace bpp.
 
 #endif // _DETAILEDSITESIMULATOR_H_
 

@@ -46,6 +46,9 @@ knowledge of the CeCILL license and that you accept its terms.
 #include <NumCalc/DiscreteDistribution.h>
 #include <NumCalc/Parameter.h>
 
+namespace bpp
+{
+
 /**
  * @brief Galtier's 2001 covarion model.
  *
@@ -93,7 +96,7 @@ class G2001:
     G2001 * clone() const { return new G2001(*this); }
 
   public:
-    string getName() const { return "Galtier 2001 Covarion Model (Galtier 2001)"; }
+    string getName() const { return _model->getName() + "+G2001"; }
 
     /**
      * @brief Re-definition of the super-class method to update the rate distribution too.
@@ -128,6 +131,8 @@ class G2001:
     }
 	
 };
+
+} //end of namespace bpp.
 
 #endif // _G2001_H_
 

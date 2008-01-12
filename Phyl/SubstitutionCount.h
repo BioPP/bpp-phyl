@@ -40,8 +40,13 @@ knowledge of the CeCILL license and that you accept its terms.
 #ifndef _SUBSTITUTIONCOUNT_H_
 #define _SUBSTITUTIONCOUNT_H_
 
+#include "SubstitutionModel.h"
+
 // From NumCalc:
 #include <NumCalc/Matrix.h>
+
+namespace bpp
+{
 
 /**
  * @brief The SubstitutionsCount interface.
@@ -79,7 +84,16 @@ class SubstitutionCount
 		 * @return A matrix with all numbers of substitutions for each initial and final states.
 		 */
     virtual Matrix<double> * getAllNumbersOfSubstitutions(double length) const = 0;
+
+    /**
+     * @brief Set the substitution model associated with this count, if relevent.
+     *
+     * @param model The substitution model to use with this count.
+     */
+    virtual void setSubstitutionModel(const SubstitutionModel* model) = 0;
 };
+
+} //end of namespace bpp.
 
 #endif //_SUBSTITUTIONCOUNT_H_
 

@@ -47,6 +47,9 @@ knowledge of the CeCILL license and that you accept its terms.
 //From SeqLib:
 #include <Seq/SiteContainer.h>
 
+namespace bpp
+{
+
 /**
  * @brief Partial implementation of the TreeLikelihood interface. 
  *
@@ -165,6 +168,7 @@ class AbstractTreeLikelihood :
 		
 };
 
+} //end of namespace bpp.
 
 #endif	//_ABSTRACTTREELIKELIHOOD_H_
 

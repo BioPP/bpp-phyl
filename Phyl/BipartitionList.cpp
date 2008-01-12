@@ -37,7 +37,6 @@ The fact that you are presently reading this means that you have had
 knowledge of the CeCILL license and that you accept its terms.
 */
 
-
 #include "BipartitionList.h"
 #include "BipartitionTools.h"
 
@@ -57,8 +56,11 @@ knowledge of the CeCILL license and that you accept its terms.
 // From NumCalc: 
 #include <NumCalc/random>
 
+using namespace bpp;
+
 // From the STL:
 #include <iostream>
+
 using namespace std;
 
 /****************************************************************/

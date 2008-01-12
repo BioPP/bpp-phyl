@@ -42,8 +42,9 @@ knowledge of the CeCILL license and that you accept its terms.
 // From NumCalc:
 #include <NumCalc/SimpleDiscreteDistribution.h>
 
-// From the STL
+using namespace bpp;
 
+// From the STL
 #include <map>
 
 using namespace std;

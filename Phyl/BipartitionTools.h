@@ -45,6 +45,9 @@ knowledge of the CeCILL license and that you accept its terms.
 // From SeqLib:
 #include <Seq/VectorSiteContainer.h>
 
+namespace bpp
+{
+
 /**
  * @brief This class provides tools related to the BipartitionList class
  *
@@ -166,6 +169,8 @@ class BipartitionTools
    static VectorSiteContainer* MRPEncode(const vector<BipartitionList *> & vecBipartL) throw (Exception);
 
 };
+
+} //end of namespace bpp.
 
 #endif //_BIPARTITIONTOOLS_H_
 

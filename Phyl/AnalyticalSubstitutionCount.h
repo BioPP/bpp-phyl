@@ -43,6 +43,9 @@ knowledge of the CeCILL license and that you accept its terms.
 #include "SubstitutionCount.h"
 #include "SubstitutionModel.h"
 
+namespace bpp
+{
+
 /**
  * @brief Analytical estimate of the substitution count.
  *
@@ -51,23 +54,30 @@ knowledge of the CeCILL license and that you accept its terms.
  * A model-based approach for detecting coevolving positions in a molecule.
  * Mol Biol Evol. 2005 Sep;22(9):1919-28.
  */
-class AnalyticalSubstitutionCount: public SubstitutionCount
+class AnalyticalSubstitutionCount:
+  public SubstitutionCount
 {
 	protected:
 		const SubstitutionModel * _model;
 		int _cuttOff;
 		mutable double _currentLength;
-		mutable RowMatrix<double> M;
+		mutable RowMatrix<double> _m;
 	
 	public:
 		AnalyticalSubstitutionCount(const SubstitutionModel * model, int cutOff);
 				
-		~AnalyticalSubstitutionCount() {}
+		virtual ~AnalyticalSubstitutionCount() {}
 			
 	public:
 		double getNumberOfSubstitutions(int initialState, int finalState, double length) const;
-    virtual Matrix<double> * getAllNumbersOfSubstitutions(double length) const;
+    Matrix<double> * getAllNumbersOfSubstitutions(double length) const;
+    void setSubstitutionModel(const SubstitutionModel* model);
+
+  protected:
+    void computeCounts(double length) const;
 };
+
+} //end of namespace bpp.
 
 #endif //_ANALYTICALSUBSTITUTIONCOUNT_H_
 

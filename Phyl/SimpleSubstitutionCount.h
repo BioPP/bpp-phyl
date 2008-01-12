@@ -45,6 +45,9 @@ knowledge of the CeCILL license and that you accept its terms.
 // From NumCalc:
 #include <NumCalc/Matrix.h>
 
+namespace bpp
+{
+
 /**
  * @brief Naive substitution count.
  *
@@ -57,7 +60,8 @@ knowledge of the CeCILL license and that you accept its terms.
  * Exploring a phylogenetic approach for the detection of correlated substitutions in proteins.
  * Mol Biol Evol. 2000 Nov;17(11):1753-9
  */
-class SimpleSubstitutionCount: public SubstitutionCount
+class SimpleSubstitutionCount:
+  public SubstitutionCount
 {
   protected:
     const Alphabet * _alphabet;
@@ -67,9 +71,11 @@ class SimpleSubstitutionCount: public SubstitutionCount
 		virtual ~SimpleSubstitutionCount() {}
 			
 	public:
-		double getNumberOfSubstitutions(int initialState, int finalState, double length) const {
+		double getNumberOfSubstitutions(int initialState, int finalState, double length) const
+    {
 			return initialState == finalState ? 0. : 1.;
 		}
+
     virtual Matrix<double> * getAllNumbersOfSubstitutions(double length) const
     { 
       unsigned int n = _alphabet->getSize();
@@ -82,7 +88,12 @@ class SimpleSubstitutionCount: public SubstitutionCount
       }
       return mat;
     }
+
+    void setSubstitutionModel(const SubstitutionModel* model) {}
+
 };
+
+} //end of namespace bpp.
 
 #endif // _SIMPLESUBSTITUTIONCOUNT_H_
 

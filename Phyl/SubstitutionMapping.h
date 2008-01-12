@@ -46,6 +46,9 @@ knowledge of the CeCILL license and that you accept its terms.
 //From Utils:
 #include <Utils/Clonable.h>
 
+namespace bpp
+{
+
 /**
  * @brief General interface for storing mapping data.
  *
@@ -91,6 +94,11 @@ class SubstitutionMapping:
     virtual int getSitePosition(unsigned int index) const = 0;
 };
 
+
+
+
+
+
 /**
  * @brief Partial implementation of the substitution mapping interface.
  */
@@ -111,6 +119,8 @@ class AbstractSubstitutionMapping:
  
     int getSitePosition(unsigned int index) const { return _sitesPostions[index]; }
 };
+
+} //end of namespace bpp.
 
 #endif //_SUBSTITUTIONMAPPING_H_
 

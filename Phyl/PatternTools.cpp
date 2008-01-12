@@ -45,6 +45,8 @@ knowledge of the CeCILL license and that you accept its terms.
 #include <Seq/VectorSiteContainer.h>
 #include <Seq/SiteTools.h>
 
+using namespace bpp;
+
 // From the STL:
 #include <iostream>
 #include <map>

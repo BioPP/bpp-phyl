@@ -65,9 +65,12 @@ knowledge of the CeCILL license and that you accept its terms.
 #include <Seq/AlphabetTools.h>
 #include <Seq/SequenceContainerTools.h>
 
+using namespace bpp;
+
 // From the STL:
 #include <fstream>
 #include <iomanip>
+
 using namespace std;
 
 /******************************************************************************/

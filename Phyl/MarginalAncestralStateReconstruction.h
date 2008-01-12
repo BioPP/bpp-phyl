@@ -50,7 +50,11 @@ knowledge of the CeCILL license and that you accept its terms.
 
 // From the STL:
 #include <vector>
+
 using namespace std;
+
+namespace bpp
+{
 
 /**
  * @brief Likelihood ancestral states reconstruction: marginal method.
@@ -121,6 +125,8 @@ class MarginalAncestralStateReconstruction:
 
 		
 };
+
+} //end of namespace bpp.
 
 #endif // _MARGINALANCESTRALSTATESRECONSTRUCTION_H_
 

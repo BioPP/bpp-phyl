@@ -45,6 +45,9 @@ knowledge of the CeCILL license and that you accept its terms.
 #include "TreeTemplate.h"
 #include "TopologySearch.h"
 
+namespace bpp
+{
+
 /**
  * @brief Interface for Nearest Neighbor Interchanges algorithms.
  *
@@ -141,6 +144,8 @@ class NNISearchable:
     virtual double getTopologyValue() const throw (Exception) = 0;
 
 };
+
+} //end of namespace bpp.
 
 #endif //_NNISEARCHABLE_H_
 

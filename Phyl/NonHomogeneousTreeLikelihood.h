@@ -44,6 +44,9 @@ knowledge of the CeCILL license and that you accept its terms.
 #include "TreeLikelihood.h"
 #include "SubstitutionModelSet.h"
 
+namespace bpp
+{
+
 /**
  * @brief Specialization of the TreeLikelihood interface for the non-homogeneous and non-stationary models.
  *
@@ -78,6 +81,8 @@ class NonHomogeneousTreeLikelihood :
     virtual ParameterList getRootFrequenciesParameters() const = 0;
 
 };
+
+} //end of namespace bpp.
 
 #endif	//_NONHOMOGENEOUSTREELIKELIHOOD_H_
 

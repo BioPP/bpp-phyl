@@ -48,10 +48,13 @@ knowledge of the CeCILL license and that you accept its terms.
 // From NumCalc:
 #include <NumCalc/VectorTools.h>
 
+using namespace bpp;
+
 // From the STL:
 #include <iostream>
 #include <fstream>
 #include <string>
+
 using namespace std;
 
 /******************************************************************************/

@@ -40,9 +40,12 @@ knowledge of the CeCILL license and that you accept its terms.
 #include "BioNJ.h"
 #include "Tree.h"
 
+using namespace bpp;
+
 // From the STL:
 #include <cmath>
 #include <iostream>
+
 using namespace std;
 
 double BioNJ::computeDistancesFromPair(const vector<unsigned int> & pair, const vector<double> & branchLengths, unsigned int pos)

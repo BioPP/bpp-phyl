@@ -43,6 +43,9 @@ knowledge of the CeCILL license and that you accept its terms.
 // From SeqLib:
 #include <Seq/SiteContainer.h>
 
+namespace bpp
+{
+
 /**
  * @brief The SequenceSimulator interface.
  * SequenceSimulator classes can simulate whole datasets.
@@ -57,6 +60,8 @@ class SequenceSimulator
     virtual SiteContainer * simulate(unsigned int numberOfSites) const = 0;
     virtual const Alphabet * getAlphabet() const = 0;  
 };
+
+} //end of namespace bpp.
 
 #endif  //_SEQUENCESIMULATOR_H_
 

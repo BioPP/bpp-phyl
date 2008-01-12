@@ -43,6 +43,9 @@ knowledge of the CeCILL license and that you accept its terms.
 #include "TopologySearch.h"
 #include "NNISearchable.h"
 
+namespace bpp
+{
+
 /**
  * @brief NNI topology search method.
  *
@@ -55,7 +58,8 @@ knowledge of the CeCILL license and that you accept its terms.
  * - PhyML algorithm (not fully tested, use with care): as the previous one, but perform all NNI improving the score at the same time.
  *   Leads to faster convergence.
  */
-class NNITopologySearch : public virtual TopologySearch
+class NNITopologySearch:
+  public virtual TopologySearch
 {
 	public:
 		const static string FAST;
@@ -124,6 +128,8 @@ class NNITopologySearch : public virtual TopologySearch
     void notifyAllSuccessful(const TopologyChangeEvent & event);
 		
 };
+
+} //end of namespace bpp.
 
 #endif //_NNITOPOLOGYSEARCH_H_
 

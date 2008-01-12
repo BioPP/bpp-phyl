@@ -44,6 +44,8 @@ knowledge of the CeCILL license and that you accept its terms.
 // From Utils:
 #include <Utils/ApplicationTools.h>
 
+using namespace bpp;
+
 AbstractTreeParsimonyScore::AbstractTreeParsimonyScore(
 	const Tree & tree,
 	const SiteContainer & data,

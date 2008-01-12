@@ -48,6 +48,8 @@ knowledge of the CeCILL license and that you accept its terms.
 #include <Seq/SequenceContainerTools.h>
 #include <Seq/VectorSiteContainer.h>
 
+using namespace bpp;
+
 /******************************************************************************/
 
 void DRASRTreeLikelihoodData::initLikelihoods(const SiteContainer & sites, const SubstitutionModel & model) throw (Exception)

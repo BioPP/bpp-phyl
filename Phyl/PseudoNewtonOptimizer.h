@@ -43,6 +43,9 @@ knowledge of the CeCILL license and that you accept its terms.
 // From NumCalc:
 #include <NumCalc/AbstractOptimizer.h>
 
+namespace bpp
+{
+
 /**
  * @brief This Optimizer implements Newton's algorithm for finding a minimum of a function.
  * This is in fact a modified version of the algorithm, as suggested by Nicolas Galtier, for
@@ -112,6 +115,8 @@ class PseudoNewtonOptimizer:
     void setMaximumNumberOfCorrections(unsigned int mx) { _maxCorrection = mx; }
 
 };
+
+} //end of namespace bpp.
 
 #endif //_PSEUDONEWTONOPTIMIZER_H_
 

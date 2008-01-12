@@ -44,8 +44,11 @@ knowledge of the CeCILL license and that you accept its terms.
 // From Utils:
 #include <Utils/ApplicationTools.h>
 
+using namespace bpp;
+
 // From the STL:
 #include <iostream>
+
 using namespace std;
 
 void AbstractAgglomerativeDistanceMethod::setDistanceMatrix(const DistanceMatrix & matrix)

@@ -53,6 +53,11 @@ knowledge of the CeCILL license and that you accept its terms.
 // From the STL:
 #include <map>
 
+using namespace std;
+
+namespace bpp
+{
+
 /**
  * @brief Data structure for site patterns.
  * 
@@ -121,6 +126,8 @@ class SitePatterns
 		SiteContainer * getSites() const;
     
 };
+
+} //end of namespace bpp.
 
 #endif // _SITEPATTERNS_H_
 

@@ -54,7 +54,11 @@ knowledge of the CeCILL license and that you accept its terms.
 
 // From the STL:
 #include <iostream>
+
 using namespace std;
+
+namespace bpp
+{
 
 /**
  * @brief Listener used internally by the optimizeTreeNNI method.
@@ -566,6 +570,8 @@ class OptimizationTools
     static string DISTANCEMETHOD_ITERATIONS;
 };
 
+
+} //end of namespace bpp.
 
 #endif	//_OPTIMIZATIONTOOLS_H_
 

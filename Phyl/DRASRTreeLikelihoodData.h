@@ -52,6 +52,9 @@ knowledge of the CeCILL license and that you accept its terms.
 
 using namespace std;
 
+namespace bpp
+{
+
 /**
  * @brief Likelihood data structure for a node.
  * 
@@ -271,6 +274,8 @@ class DRASRTreeLikelihoodData :
 		virtual SiteContainer * initLikelihoodsWithPatterns(const Node * node, const SiteContainer & sequences, const SubstitutionModel & model) throw (Exception);
 		
 };
+
+} //end of namespace bpp.
 
 #endif //_DRASRHOMOGENEOUSTREELIKELIHOODDATA_H_
 

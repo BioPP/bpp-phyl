@@ -58,6 +58,9 @@ knowledge of the CeCILL license and that you accept its terms.
 #include <NumCalc/VectorTools.h>
 #include <NumCalc/Matrix.h>
 
+namespace bpp
+{
+
 class SubstitutionModel;
 
 /**
@@ -332,6 +335,8 @@ class ReversibleSubstitutionModel:
     virtual double Sij(int i, int j) const = 0;
 
 };
+
+} //end of namespace bpp.
 
 #endif	//_SUBSTITUTIONMODEL_H_
 

@@ -46,6 +46,9 @@ knowledge of the CeCILL license and that you accept its terms.
 // From SeqLib:
 #include <Seq/SiteContainer.h>
 
+namespace bpp
+{
+
 /**
  * @brief Partial implementation of the TreeParsimonyScore interface.
  */
@@ -91,6 +94,8 @@ class AbstractTreeParsimonyScore :
 		virtual const Tree * getTree() const { return _tree; }
 		virtual vector<unsigned int> getScoreForEachSite() const;
 };
+
+} //end of namespace bpp.
 
 #endif //_ABSTRACTTREEPARSIMONYSCORE_H_
 

@@ -48,6 +48,11 @@ knowledge of the CeCILL license and that you accept its terms.
 // From the STL:
 #include <vector>
 
+using namespace std;
+
+namespace bpp
+{
+
 /**
  * @brief Compute a parsimony score.
  */
@@ -95,6 +100,8 @@ class TreeParsimonyScore:
 		 */
 		virtual const Tree * getTree() const = 0;
 };
+
+} //end of namespace bpp.
 
 #endif //_TREEPARSIMONYSCORE_H_
 

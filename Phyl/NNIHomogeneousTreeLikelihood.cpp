@@ -46,8 +46,11 @@ knowledge of the CeCILL license and that you accept its terms.
 // From NumCalc:
 #include <NumCalc/AutoParameter.h>
 
+using namespace bpp;
+
 // From the STL:
 #include <iostream>
+
 using namespace std;
 
 /*******************************************************************************/
@@ -117,6 +120,7 @@ void BranchLikelihood::computeLogLikelihood()
     }
   }
 
+  vector<double> la(_array1->size());
   for(unsigned int i = 0; i < _array1->size(); i++)
   {
     VVdouble * arrayTmp_i = & _arrayTmp[i];
@@ -132,8 +136,11 @@ void BranchLikelihood::computeLogLikelihood()
         Li += rc * (* arrayTmp_i_c)[x];
       }
     }
-    _lnL -= _weights[i] * log(Li);
+    la[i] = _weights[i] * log(Li);
   }
+  sort(la.begin(), la.end());
+  for(unsigned int i = _array1->size(); i > 0; i--)
+    _lnL -= la[i-1];
 }
 
 /******************************************************************************/
@@ -256,19 +263,15 @@ double NNIHomogeneousTreeLikelihood::testNNI(int nodeId) const throw (NodeExcept
 	const VVVdouble                    * uncleArray      = & grandFatherData->getLikelihoodArrayForNeighbor(uncle); 
 	vector<const Node *> grandFatherNeighbors = TreeTemplateTools::getRemainingNeighbors(grandFather, parent, uncle);
 	unsigned int nbGrandFatherNeighbors = grandFatherNeighbors.size();
-	vector<const VVVdouble *> grandFatherArrays(nbGrandFatherNeighbors);
-	vector<const VVVdouble *> grandFatherTProbs(nbGrandFatherNeighbors);
+	vector<const VVVdouble *> grandFatherArrays;
+	vector<const VVVdouble *> grandFatherTProbs;
 	for(unsigned int k = 0; k < nbGrandFatherNeighbors; k++)
   {
 		const Node * n = grandFatherNeighbors[k]; // This neighbor
-		grandFatherArrays[k] = & grandFatherData->getLikelihoodArrayForNeighbor(n); 
     if(grandFather->getFather() == NULL || n != grandFather->getFather())
     {
-      grandFatherTProbs[k] = & _pxy[n->getId()];
-    }
-    else
-    {
-      grandFatherTProbs[k] = & _pxy[grandFather->getId()];
+		  grandFatherArrays.push_back(& grandFatherData->getLikelihoodArrayForNeighbor(n)); 
+      grandFatherTProbs.push_back(& _pxy[n->getId()]);
     }
 	}
 
@@ -277,16 +280,21 @@ double NNIHomogeneousTreeLikelihood::testNNI(int nodeId) const throw (NodeExcept
   resetLikelihoodArray(array1);
 	grandFatherArrays.push_back(sonArray);
 	grandFatherTProbs.push_back(& _pxy[son->getId()]);
-  computeLikelihoodFromArrays(grandFatherArrays, grandFatherTProbs, array1, nbGrandFatherNeighbors + 1, _nbDistinctSites, _nbClasses, _nbStates, false); 
-  if(grandFather->getFather() == NULL)
+  if(grandFather->hasFather())
   {
+    computeLikelihoodFromArrays(grandFatherArrays, grandFatherTProbs, & grandFatherData->getLikelihoodArrayForNeighbor(grandFather->getFather()), & _pxy[grandFather->getId()], array1, nbGrandFatherNeighbors, _nbDistinctSites, _nbClasses, _nbStates, false); 
+  }
+  else
+  {
+    computeLikelihoodFromArrays(grandFatherArrays, grandFatherTProbs, array1, nbGrandFatherNeighbors + 1, _nbDistinctSites, _nbClasses, _nbStates, false); 
+    
     //This is the root node, we have to account for the ancestral frequencies:
     for(unsigned int i = 0; i < _nbDistinctSites; i++)
     {
       for(unsigned int j = 0; j < _nbClasses; j++)
       {
         for(unsigned int x = 0; x < _nbStates; x++)
-          array1[i][j][x] *= _model->freq(x);
+          array1[i][j][x] *= _rootFreqs[x];
       }
     }
   }

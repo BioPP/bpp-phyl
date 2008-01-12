@@ -44,6 +44,8 @@ knowledge of the CeCILL license and that you accept its terms.
 // From SeqLib:
 #include <Seq/AlignedSequenceContainer.h>
 
+using namespace bpp;
+
 /******************************************************************************/
 
 DRTreeParsimonyData::DRTreeParsimonyData(const DRTreeParsimonyData & data):

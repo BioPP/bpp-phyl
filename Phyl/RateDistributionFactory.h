@@ -46,6 +46,11 @@ knowledge of the CeCILL license and that you accept its terms.
 // From the STL:
 #include <string>
 
+using namespace std;
+
+namespace bpp
+{
+
 /**
  * @brief Utilitary class for creating rate distributions.
  *
@@ -98,6 +103,8 @@ public:
   }
 
 };
+
+} //end of namespace bpp.
 
 #endif //_RATEDISTRIBUTIONFACTORY_H_
 

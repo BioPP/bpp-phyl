@@ -46,7 +46,11 @@ knowledge of the CeCILL license and that you accept its terms.
 // From the STL:
 #include <vector>
 #include <map>
+
 using namespace std;
+
+namespace bpp
+{
 
 class Node;
 
@@ -93,6 +97,8 @@ class AncestralStateReconstruction
 		virtual Sequence * getAncestralSequenceForNode(const Node * node) const = 0;
 		
 };
+
+} //end of namespace bpp.
 
 #endif // _ANCESTRALSTATESRECONSTRUCTION_H_
 

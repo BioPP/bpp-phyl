@@ -45,12 +45,15 @@ knowledge of the CeCILL license and that you accept its terms.
 #include "TreeTools.h"
 #include "DRTreeParsimonyData.h"
 
+namespace bpp
+{
+
 /**
  * @brief Double recursive implementation of interface TreeParsimonyScore.
  *
  * Uses a DRTreeParsimonyData object for data storage.
  */
-class DRTreeParsimonyScore :
+class DRTreeParsimonyScore:
 	public virtual AbstractTreeParsimonyScore,
 	public virtual NNISearchable
 {
@@ -169,6 +172,8 @@ class DRTreeParsimonyScore :
 		/**@} */
 
 };
+
+} //end of namespace bpp.
 
 #endif //_ABSTRACTTREEPARSIMONYSCORE_H_
 

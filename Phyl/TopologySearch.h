@@ -48,6 +48,9 @@ knowledge of the CeCILL license and that you accept its terms.
 #include <vector>
 using namespace std;
 
+namespace bpp
+{
+
 /**
  * @brief Class for notifying new toplogy change events.
  */
@@ -142,6 +145,8 @@ class TopologySearch
      */
     virtual void addTopologyListener(TopologyListener & listener) = 0;			
 };
+
+} //end of namespace bpp.
 
 #endif //_TOPOLOGYSEARCH_H_
 

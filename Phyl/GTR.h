@@ -48,6 +48,9 @@ knowledge of the CeCILL license and that you accept its terms.
 // From SeqLib:
 #include <Seq/NucleicAlphabet.h>
 
+namespace bpp
+{
+
 /**
  * @brief The General Time-Reversible substitution model for nucleotides.
  *
@@ -156,7 +159,7 @@ class GTR:
     GTR * clone() const { return new GTR(*this); }
 
   public:
-		string getName() const;
+		string getName() const { return "GTR"; }
 
     void updateMatrices();
 
@@ -165,6 +168,8 @@ class GTR:
 		 */
 		void setFreqFromData(const SequenceContainer & data);
 };
+
+} //end of namespace bpp.
 
 #endif	//_GTR_H_
 

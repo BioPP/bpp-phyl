@@ -48,6 +48,8 @@ knowledge of the CeCILL license and that you accept its terms.
 #include <map>
 using namespace std;
 
+namespace bpp
+{
 
 /**
  * @brief Partial implementation of the TreeLikelihoodData interface.
@@ -120,6 +122,8 @@ class AbstractTreeLikelihoodData :
 		      TreeTemplate<Node> * getTree()       { return _tree; }
 
 };
+
+} //end of namespace bpp.
 
 #endif //_ABSTRACTTREELIKELIHOODDATA_H_
 

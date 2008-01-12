@@ -47,11 +47,14 @@ knowledge of the CeCILL license and that you accept its terms.
 // From NumCalc:
 #include <NumCalc/DiscreteDistribution.h>
 
+namespace bpp
+{
+
 /**
  * @brief Tools to deal with Rates Across Sites (RAS) models.
  */
-class RASTools {
-
+class RASTools
+{
 	public:
 
 		/**
@@ -67,6 +70,8 @@ class RASTools {
 		static DiscreteDistribution * getPosteriorRateDistribution(
 				const DiscreteRatesAcrossSitesTreeLikelihood & treeLikelihood);
 };
+
+} //end of namespace bpp.
 
 #endif // _RASTOOLS_H_
 

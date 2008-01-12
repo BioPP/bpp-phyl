@@ -49,8 +49,11 @@ knowledge of the CeCILL license and that you accept its terms.
 #include <Utils/TextTools.h>
 #include <Utils/ApplicationTools.h>
 
+using namespace bpp;
+
 // From the STL:
 #include <iostream>
+
 using namespace std;
 
 /******************************************************************************/
@@ -302,13 +305,6 @@ void DRNonHomogeneousTreeLikelihood::computeTreeDLikelihoodAtNode(const Node * n
   Vdouble * rootLikelihoodsSR = & _likelihoodData->getRootRateSiteLikelihoodArray();
 
   double dLi, dLic, dLicx, numerator, denominator;
-  Vdouble f(_nbStates, 1.);
-  if(!node->getFather()->hasFather())
-  {
-    for(unsigned int i = 0; i < _nbStates; i++)
-      f[i] = 1. / _rootFreqs[i];
-  }
-
   for(unsigned int i = 0; i < _nbDistinctSites; i++)
   {
     VVdouble * _likelihoods_father_node_i = & (* _likelihoods_father_node)[i];
@@ -334,7 +330,7 @@ void DRNonHomogeneousTreeLikelihood::computeTreeDLikelihoodAtNode(const Node * n
           denominator += (*  _pxy_node_c_x)[y] * (* _likelihoods_father_node_i_c)[y];
         }
         dLicx = (* larray_i_c)[x] * numerator / denominator;
-        dLic += f[x] * dLicx;  
+        dLic += dLicx;  
       }
       dLi += _rateDistribution->getProbability(c) * dLic;
     }
@@ -429,12 +425,6 @@ void DRNonHomogeneousTreeLikelihood::computeTreeD2LikelihoodAtNode(const Node * 
   Vdouble * rootLikelihoodsSR = & _likelihoodData->getRootRateSiteLikelihoodArray();
   
   double d2Li, d2Lic, d2Licx, numerator, denominator;
-  Vdouble f(_nbStates, 1.);
-  if(!node->getFather()->hasFather())
-  {
-    for(unsigned int i = 0; i < _nbStates; i++)
-      f[i] = 1. / _rootFreqs[i];
-  }
 
   for(unsigned int i = 0; i < _nbDistinctSites; i++)
   {
@@ -461,7 +451,7 @@ void DRNonHomogeneousTreeLikelihood::computeTreeD2LikelihoodAtNode(const Node * 
           denominator += (*   _pxy_node_c_x)[y] * (* _likelihoods_father_node_i_c)[y];
         }
         d2Licx = (* larray_i_c)[x] * numerator / denominator;
-        d2Lic += f[x] * d2Licx;
+        d2Lic += d2Licx;
       }
       d2Li += _rateDistribution->getProbability(c) * d2Lic;
     }
@@ -1139,21 +1129,17 @@ void DRNonHomogeneousTreeLikelihood::computeLikelihoodAtNode(const Node * node, 
   else
   {
     computeLikelihoodFromArrays(iLik, tProb, likelihoodArray, nbNodes, _nbDistinctSites, _nbClasses, _nbStates, false);
-  }
-  if(!node->hasFather())
-  {
-    //We have to account for the root frequencies and rate prior probabilities:
-    vector<double> pr = _rateDistribution->getProbabilities();
+    
+    //We have to account for the root frequencies:
      for(unsigned int i = 0; i < _nbDistinctSites; i++)
     {
       VVdouble * likelihoodArray_i = & likelihoodArray[i];
       for(unsigned int c = 0; c < _nbClasses; c++)
       {
-        double* prc = &pr[c];
         Vdouble * likelihoodArray_i_c = & (* likelihoodArray_i)[c];
         for(unsigned int x = 0; x < _nbStates; x++)
         {
-          (* likelihoodArray_i_c)[x] *= _rootFreqs[x] * (*prc);
+          (* likelihoodArray_i_c)[x] *= _rootFreqs[x];
         }
       }
     }

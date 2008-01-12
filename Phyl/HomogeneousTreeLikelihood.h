@@ -43,6 +43,9 @@ knowledge of the CeCILL license and that you accept its terms.
 #include "TreeLikelihood.h"
 #include "SubstitutionModel.h"
 
+namespace bpp
+{
+
 /**
  * @brief Specialization of the TreeLikelihood interface for the Homogeneous case.
  *
@@ -71,6 +74,8 @@ class HomogeneousTreeLikelihood :
     virtual SubstitutionModel * getSubstitutionModel() = 0;
 
 };
+
+} //end of namespace bpp.
 
 #endif	//_HOMOGENEOUSTREELIKELIHOOD_H_
 

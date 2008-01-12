@@ -56,6 +56,9 @@ knowledge of the CeCILL license and that you accept its terms.
 // From SeqLib:
 #include <Seq/SiteContainer.h>
 
+namespace bpp
+{
+
 /**
  * @brief This class is a simplified version of DRHomogeneousTreeLikelihood for 2-Trees.
  */
@@ -140,6 +143,8 @@ class TwoTreeLikelihood:
 		double getLogLikelihoodForASite(unsigned int site) const;
 		ParameterList getBranchLengthsParameters() const;
 		ParameterList getSubstitutionModelParameters() const;
+    SubstitutionModel * getSubstitutionModelForNode(int nodeId) throw (NodeNotFoundException) { return _model; }
+    const SubstitutionModel * getSubstitutionModelForNode(int nodeId) const throw (NodeNotFoundException) { return _model; }
     vector<double> getAncestralFreqencies() const { return _model->getFrequencies(); }
     /**
      * @brief This method is not applicable for this object.
@@ -452,6 +457,8 @@ class DistanceEstimation
      */
     unsigned int getVerbose() const { return _verbose; }
 };
+
+} //end of namespace bpp.
 
 #endif //_DISTANCEESTIMATION_H_
 

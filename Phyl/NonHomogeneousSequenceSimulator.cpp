@@ -50,8 +50,9 @@ knowledge of the CeCILL license and that you accept its terms.
 
 // From NumCalc:
 #include <NumCalc/VectorTools.h>
-using namespace VectorOperators;
 #include <NumCalc/MatrixTools.h>
+
+using namespace bpp;
 
 /******************************************************************************/
 

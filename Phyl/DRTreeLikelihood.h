@@ -47,6 +47,9 @@ knowledge of the CeCILL license and that you accept its terms.
 #include <NumCalc/VectorTools.h>
 #include <NumCalc/DiscreteDistribution.h>
 
+namespace bpp
+{
+
 /**
  * @brief Interface for double-recursive (DR) implementation of the likelihood computation.
  *
@@ -95,5 +98,7 @@ class DRTreeLikelihood:
 
 };
 
-#endif  //_DRNONHOMOGENEOUSTREELIKELIHOOD_H_
+} //end of namespace bpp.
+
+#endif  //_DRTREELIKELIHOOD_H_
 

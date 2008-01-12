@@ -48,6 +48,9 @@ knowledge of the CeCILL license and that you accept its terms.
 #include <Seq/Alphabet.h>
 #include <Seq/SiteContainer.h>
 
+namespace bpp
+{
+
 /**
  * @brief TreeLikelihood partial data structure.
  *
@@ -55,7 +58,8 @@ knowledge of the CeCILL license and that you accept its terms.
  *
  * @see TreeLikelihoodData
  */
-class TreeLikelihoodNodeData: public Clonable
+class TreeLikelihoodNodeData:
+  public virtual Clonable
 {
 	public:
 		TreeLikelihoodNodeData() {}
@@ -90,7 +94,8 @@ class TreeLikelihoodNodeData: public Clonable
  * 
  * @see TreeLikelihoodNodeData
  */
-class TreeLikelihoodData: public Clonable
+class TreeLikelihoodData:
+  public virtual Clonable
 {
 	public:
 		TreeLikelihoodData() {}
@@ -119,6 +124,8 @@ class TreeLikelihoodData: public Clonable
 		virtual const TreeLikelihoodNodeData & getNodeData(const Node * node) const = 0;
     
 };
+
+} //end of namespace bpp.
 
 #endif //_TREELIKELIHOODDATA_H_
 

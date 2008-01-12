@@ -48,6 +48,8 @@ knowledge of the CeCILL license and that you accept its terms.
 // From NumCalc:
 #include <NumCalc/MatrixTools.h>
 
+using namespace bpp;
+
 /******************************************************************************/
 
 GTR::GTR(
@@ -120,10 +122,6 @@ void GTR::updateMatrices()
 
   AbstractReversibleSubstitutionModel::updateMatrices();
 }
-
-/******************************************************************************/
-
-string GTR::getName() const { return string("General Time-Reversible"); }
 
 /******************************************************************************/
 

@@ -43,6 +43,9 @@ knowledge of the CeCILL license and that you accept its terms.
 #include "AbstractDiscreteRatesAcrossSitesTreeLikelihood.h"
 #include "HomogeneousTreeLikelihood.h"
 
+namespace bpp
+{
+
 /**
  * @brief Partial implementation for homogeneous model of the TreeLikelihood interface.
  *
@@ -129,13 +132,39 @@ class AbstractHomogeneousTreeLikelihood:
 		 * @{
 		 */
     void initialize() throw(Exception);
-		ParameterList getBranchLengthsParameters() const;
-		ParameterList getSubstitutionModelParameters() const;
-		ParameterList getRateDistributionParameters() const
+		
+    ParameterList getBranchLengthsParameters() const;
+		
+    ParameterList getSubstitutionModelParameters() const;
+		
+    ParameterList getRateDistributionParameters() const
     {
       return AbstractDiscreteRatesAcrossSitesTreeLikelihood::getRateDistributionParameters();
     }
+    /**
+     * @brief Get the substitution model associated to a given node.
+     *
+     * In the homogeneous case, this function is aliased by the getSubstitutionModel function.
+     *
+     * @param nodeId The id of the request node.
+     * @return A pointer toward the corresponding model.
+     * @throw NodeNotFoundException This exception may be thrown if the node is not found (depending on the implementation).
+     */
+    const SubstitutionModel * getSubstitutionModelForNode(int nodeId) const throw (NodeNotFoundException) { return _model; }
+
+    /**
+     * @brief Get the substitution model associated to a given node.
+     *
+     * In the homogeneous case, this function is aliased by the getSubstitutionModel function.
+     *
+     * @param nodeId The id of the request node.
+     * @return A pointer toward the corresponding model.
+     * @throw NodeNotFoundException This exception may be thrown if the node is not found (depending on the implementation).
+     */
+    SubstitutionModel * getSubstitutionModelForNode(int nodeId) throw (NodeNotFoundException) { return _model; }
+
     vector<double> getAncestralFreqencies() const { return _model->getFrequencies(); }
+    
     const VVVdouble & getTransitionProbabilitiesForNode(const Node* node) const { return _pxy[node->getId()]; }
     /** @} */
 
@@ -189,6 +218,8 @@ class AbstractHomogeneousTreeLikelihood:
     void computeTransitionProbabilitiesForNode(const Node * node);
 
 };
+
+} //end of namespace bpp.
 
 #endif //_ABSTRACTHOMOGENEOUSTREELIKELIHOOD_H_
 

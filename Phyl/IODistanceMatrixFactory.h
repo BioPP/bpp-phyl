@@ -45,6 +45,11 @@ knowledge of the CeCILL license and that you accept its terms.
 //From the STL:
 #include <string>
 
+using namespace std;
+
+namespace bpp
+{
+
 /**
  * @brief Utilitary class for creating distance matrix readers and writers.
  *
@@ -89,6 +94,8 @@ public:
    */
   virtual ODistanceMatrix * createWriter(const string & format) throw (Exception);
 };
+
+} //end of namespace bpp.
 
 #endif //_IODISTANCEMATRIXFACTORY_H_
 

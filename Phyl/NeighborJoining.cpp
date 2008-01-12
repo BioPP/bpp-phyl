@@ -40,8 +40,12 @@ knowledge of the CeCILL license and that you accept its terms.
 
 #include "NeighborJoining.h"
 #include "Tree.h"
+
+using namespace bpp;
+
 #include <cmath>
 #include <iostream>
+
 using namespace std;
 
 vector<unsigned int> NeighborJoining::getBestPair() throw (Exception)

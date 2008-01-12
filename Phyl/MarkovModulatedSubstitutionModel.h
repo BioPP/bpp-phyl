@@ -42,6 +42,9 @@ knowledge of the CeCILL license and that you accept its terms.
 
 #include "SubstitutionModel.h"
 
+namespace bpp
+{
+
 /**
  * @brief Partial implementation of the Markov-modulated class of substitution
  * models.
@@ -309,6 +312,8 @@ class MarkovModulatedSubstitutionModel:
     virtual void updateRatesModel() = 0;
 
 };
+
+} //end of namespace bpp.
 
 #endif //_MARKOVMODULATEDSUBSTITUTIONMODEL_H_
 

@@ -45,6 +45,9 @@ knowledge of the CeCILL license and that you accept its terms.
 // From NumCalc:
 #include <NumCalc/VectorTools.h>
 
+namespace bpp
+{
+
 /**
  * @brief This class is used by MutationProcess to store detailed results of simulations.
  */
@@ -295,6 +298,8 @@ class SelfMutationProcess : public AbstractMutationProcess
 	
 			virtual ~SelfMutationProcess();
 };
+
+} //end of namespace bpp.
 
 #endif	//_MUTATIONPROCESS_H_
 

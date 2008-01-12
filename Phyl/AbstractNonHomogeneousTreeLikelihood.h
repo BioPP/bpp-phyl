@@ -44,6 +44,9 @@ knowledge of the CeCILL license and that you accept its terms.
 #include "NonHomogeneousTreeLikelihood.h"
 #include "AbstractDiscreteRatesAcrossSitesTreeLikelihood.h"
 
+namespace bpp
+{
+
 /**
  * @brief Partial implementation for non-homogeneous models of the TreeLikelihood interface.
  *
@@ -130,13 +133,28 @@ class AbstractNonHomogeneousTreeLikelihood:
      * @{
      */
     void initialize() throw(Exception);
+    
     ParameterList getBranchLengthsParameters() const;
+    
     ParameterList getSubstitutionModelParameters() const;
+    
     ParameterList getRateDistributionParameters() const
     {
       return AbstractDiscreteRatesAcrossSitesTreeLikelihood::getRateDistributionParameters();
     }
-    virtual vector<double> getAncestralFreqencies() const { return _rootFreqs; }
+
+    const SubstitutionModel * getSubstitutionModelForNode(int nodeId) const throw (NodeNotFoundException) 
+    {
+      return _modelSet->getModelForNode(nodeId);
+    }
+
+    SubstitutionModel * getSubstitutionModelForNode(int nodeId) throw (NodeNotFoundException)
+    {
+      return _modelSet->getModelForNode(nodeId);
+    }
+
+    vector<double> getAncestralFreqencies() const { return _rootFreqs; }
+    
     const VVVdouble & getTransitionProbabilitiesForNode(const Node* node) const { return _pxy[node->getId()]; }
     /** @} */
 
@@ -195,6 +213,8 @@ class AbstractNonHomogeneousTreeLikelihood:
     void computeTransitionProbabilitiesForNode(const Node * node);
 
 };
+
+} //end of namespace bpp.
 
 #endif //_ABSTRACTNONHOMOGENEOUSTREELIKELIHOOD_H_
 

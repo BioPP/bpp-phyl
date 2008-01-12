@@ -39,6 +39,8 @@ knowledge of the CeCILL license and that you accept its terms.
 
 #include "SubstitutionModelSetTools.h"
 
+using namespace bpp;
+
 SubstitutionModelSet* SubstitutionModelSetTools::createHomogeneousModelSet(
     SubstitutionModel* model,
     FrequenciesSet* rootFreqs,

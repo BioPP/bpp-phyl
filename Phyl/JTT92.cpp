@@ -39,6 +39,8 @@ knowledge of the CeCILL license and that you accept its terms.
 
 #include "JTT92.h"
 
+using namespace bpp;
+
 /******************************************************************************/
 
 JTT92::JTT92(const ProteicAlphabet * alpha) :
@@ -48,13 +50,6 @@ JTT92::JTT92(const ProteicAlphabet * alpha) :
   #include "__JTT92ExchangeabilityCode"
 	#include "__JTT92FrequenciesCode"
 	updateMatrices();	
-}
-
-/******************************************************************************/
-
-string JTT92::getName() const
-{
-	return "Jones et al. (1992) protein substitution model";
 }
 
 /******************************************************************************/

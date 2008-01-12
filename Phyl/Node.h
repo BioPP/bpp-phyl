@@ -46,13 +46,16 @@ knowledge of the CeCILL license and that you accept its terms.
 #include <string>
 #include <vector>
 #include <map>
-#include <cstdlib>
+
 using namespace std;
 
 // From Utils:
 #include <Utils/Clonable.h>
 #include <Utils/MapTools.h>
-#include <Utils/String.h>
+#include <Utils/BppString.h>
+
+namespace bpp
+{
 
 /**
  * @brief The phylogenetic node class.
@@ -506,6 +509,8 @@ class Node:
     virtual bool isLeaf() const { return degree() == 1; }
       
 };
+
+} //end of namespace bpp.
 
 #endif  //_NODE_H_
 

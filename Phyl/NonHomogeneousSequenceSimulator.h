@@ -59,9 +59,13 @@ knowledge of the CeCILL license and that you accept its terms.
 // From the STL:
 #include <map>
 #include <vector>
+
 using namespace std;
 
 #include "SubstitutionModelSet.h"
+
+namespace bpp
+{
 
 class SimData
 {
@@ -276,6 +280,8 @@ class NonHomogeneousSequenceSimulator:
     /** @} */
 
 };
+
+} //end of namespace bpp.
 
 #endif //_NONHOMOGENEOUSSEQUENCESIMULATOR_H_
 

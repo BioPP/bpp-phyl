@@ -45,6 +45,7 @@ knowledge of the CeCILL license and that you accept its terms.
 // From the STL:
 #include <map>
 #include <algorithm>
+
 using namespace std;
 
 // From Utils:
@@ -53,8 +54,12 @@ using namespace std;
 // From NumCalc:
 #include <NumCalc/Matrix.h>
 
+namespace bpp
+{
+
 class Node;
 template<class N> class TreeTemplate;
+
 /**
  * @brief This class deals with the bipartitions defined by trees
  *
@@ -80,7 +85,6 @@ template<class N> class TreeTemplate;
  * @see BipartitionTools
  * @see TreeTools
  */
-
 class BipartitionList:
   public virtual Clonable
 {
@@ -228,6 +232,8 @@ class BipartitionList:
     vector<string> buildBitBipartitions(const Node* nd, vector<int*> & bitbip, const vector<string> & elements, unsigned int* cpt, vector<int> * index) const;
 
 };
+
+} //end of namespace bpp.
 
 #endif //_BIPARTITIONLIST_H_
 

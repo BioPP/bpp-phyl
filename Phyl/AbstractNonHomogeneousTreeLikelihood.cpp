@@ -47,8 +47,11 @@ knowledge of the CeCILL license and that you accept its terms.
 #include <Utils/TextTools.h>
 #include <Utils/ApplicationTools.h>
 
+using namespace bpp;
+
 // From the STL:
 #include <iostream>
+
 using namespace std;
 
 /******************************************************************************/

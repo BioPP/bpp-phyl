@@ -39,7 +39,7 @@ knowledge of the CeCILL license and that you accept its terms.
 
 #include "DSO78.h"
 
-using namespace std;
+using namespace bpp;
 
 /******************************************************************************/
 
@@ -50,13 +50,6 @@ DSO78::DSO78(const ProteicAlphabet * alpha) :
   #include "__DSO78ExchangeabilityCode"
 	#include "__DSO78FrequenciesCode"
 	updateMatrices();
-}
-
-/******************************************************************************/
-
-string DSO78::getName() const
-{
-	return "Dayhoff et al. (1978) protein substitution model";
 }
 
 /******************************************************************************/

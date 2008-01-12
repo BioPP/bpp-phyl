@@ -48,6 +48,9 @@ knowledge of the CeCILL license and that you accept its terms.
 #include <Seq/Alphabet.h>
 #include <Seq/NucleicAlphabet.h>
 
+namespace bpp
+{
+
 /**
  * @brief Parametrize a set of state frequencies.
  */
@@ -320,6 +323,8 @@ class FixedFrequenciesSet:
   public:
     void fireParameterChanged(const ParameterList & pl) {}
 };
+
+} //end of namespace bpp.
 
 #endif //_FREQUENCIESSET_H_
 

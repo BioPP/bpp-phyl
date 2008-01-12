@@ -44,6 +44,8 @@ knowledge of the CeCILL license and that you accept its terms.
 #include <Seq/SiteTools.h>
 #include <Seq/VectorSiteContainer.h>
 
+using namespace bpp;
+
 /******************************************************************************/
 
 SitePatterns::SitePatterns(const SiteContainer & siteSet)

@@ -46,12 +46,16 @@ knowledge of the CeCILL license and that you accept its terms.
 #include <Seq/Alphabet.h>
 #include <Seq/AlphabetIndex2.h>
 
+namespace bpp
+{
+
 /**
  * @brief Naive substitution count weighted by amino-acids properties.
  *
  * This class uses a AlphabetIndex2 object to weight substitutions.
  */
-class IndexToCount: public SubstitutionCount
+class IndexToCount:
+  public SubstitutionCount
 {
 	private:
 		const AlphabetIndex2<double> * _dist;
@@ -72,16 +76,19 @@ class IndexToCount: public SubstitutionCount
 	public:
 		double getNumberOfSubstitutions(int initialState, int finalState, double length) const
     {
-			return _dist -> getIndex(initialState, finalState);
+			return _dist->getIndex(initialState, finalState);
 		}
 		Matrix<double> * getAllNumbersOfSubstitutions(double length) const
     {
-      return _dist -> getIndexMatrix();
+      return _dist->getIndexMatrix();
     }
+    void setSubstitutionModel(const SubstitutionModel* model) {}
 
 	public:
 		const AlphabetIndex2<double> * getAlphabetIndex2() const { return _dist; }
 };
+
+} //end of namespace bpp.
 
 #endif //_INDEXTOCOUNT_H_
 

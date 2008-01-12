@@ -55,6 +55,9 @@ knowledge of the CeCILL license and that you accept its terms.
 #include <Seq/VectorSiteContainer.h>
 #include <Seq/DistanceMatrix.h>
 
+namespace bpp
+{
+
 /**
  * @brief Inner class for parsing strings in Newick format.
  */
@@ -685,6 +688,8 @@ class TreeTools
     /** @} */
 
 };
+
+} //end of namespace bpp.
 
 #endif  //_TREETOOLS_H_
 

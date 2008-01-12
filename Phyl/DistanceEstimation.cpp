@@ -55,11 +55,14 @@ knowledge of the CeCILL license and that you accept its terms.
 #include <Seq/AlignedSequenceContainer.h>
 #include <Seq/DistanceMatrix.h>
 
+using namespace bpp;
+
 // From the STL:
 #include <vector>
 #include <string>
 #include <iostream>
 #include <fstream>
+
 using namespace std;
 
 /******************************************************************************/

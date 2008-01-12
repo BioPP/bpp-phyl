@@ -49,6 +49,9 @@ knowledge of the CeCILL license and that you accept its terms.
 // From Utils:
 #include <Utils/TextTools.h>
 
+namespace bpp
+{
+
 /**
  * @brief Data storage class for probabilistic substitution mappings.
  *
@@ -216,6 +219,8 @@ class ProbabilisticSubstitutionMapping:
      */
     void setSitePosition(unsigned int index, int position) { _sitesPostions[index] = position; }
 };
+
+} //end of namespace bpp.
 
 #endif //_PROBABILISTICSUBSTITUTIONMAPPING_H_
 

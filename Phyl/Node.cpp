@@ -43,9 +43,12 @@ knowledge of the CeCILL license and that you accept its terms.
 #include <Utils/Exceptions.h>
 #include <Utils/TextTools.h>
 
+using namespace bpp;
+
 //from the STL:
 #include <algorithm>
 #include <iostream>
+
 using namespace std;
 
 /** Copy constructor: *********************************************************/

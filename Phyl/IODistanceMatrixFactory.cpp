@@ -39,6 +39,8 @@ knowledge of the CeCILL license and that you accept its terms.
 
 #include "IODistanceMatrixFactory.h"
 
+using namespace bpp;
+
 const string IODistanceMatrixFactory::PHYLIP_FORMAT = "Phylip"; 
 
 IDistanceMatrix * IODistanceMatrixFactory::createReader(const string & format) throw (Exception)

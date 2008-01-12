@@ -48,6 +48,9 @@ knowledge of the CeCILL license and that you accept its terms.
 #include <NumCalc/VectorTools.h>
 #include <NumCalc/DiscreteDistribution.h>
 
+namespace bpp
+{
+
 /**
  * @brief This class implements the likelihood computation for a tree using the double-recursive
  * algorithm, allowing for non-homogeneous models of substitutions.
@@ -294,6 +297,8 @@ class DRNonHomogeneousTreeLikelihood:
         bool reset = true);
 
 };
+
+} //end of namespace bpp.
 
 #endif  //_DRNONHOMOGENEOUSTREELIKELIHOOD_H_
 

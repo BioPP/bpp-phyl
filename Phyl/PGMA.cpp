@@ -43,9 +43,12 @@ knowledge of the CeCILL license and that you accept its terms.
 #include "TreeTemplate.h"
 #include "TreeTemplateTools.h"
 
+using namespace bpp;
+
 // From the STL:
 #include <cmath>
 #include <iostream>
+
 using namespace std;
 
 TreeTemplate<Node> * PGMA::getTree() const

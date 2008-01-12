@@ -53,6 +53,9 @@ knowledge of the CeCILL license and that you accept its terms.
 
 using namespace std;
 
+namespace bpp
+{
+
 /**
  * @brief Interface for phylogenetic tree objects.
  * 
@@ -302,6 +305,8 @@ class Tree:
     virtual int getNextId() = 0;
 
 };
+
+} //end of namespace bpp.
 
 #endif	//_TREE_H_
 

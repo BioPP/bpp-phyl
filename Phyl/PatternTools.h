@@ -52,6 +52,11 @@ knowledge of the CeCILL license and that you accept its terms.
 // From the STL:
 #include <map>
 
+using namespace std;
+
+namespace bpp
+{
+
 /**
  * @brief Utilitary methods to compute site patterns.
  *
@@ -99,6 +104,8 @@ class PatternTools
 		static Vint getIndexes(const SiteContainer & sequences1, const SiteContainer & sequences2);
 };
 
+
+} //end of namespace bpp.
 
 #endif	//_PATTERNTOOLS_H_
 

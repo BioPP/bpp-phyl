@@ -39,6 +39,8 @@ knowledge of the CeCILL license and that you accept its terms.
 
 #include "IOTreeFactory.h"
 
+using namespace bpp;
+
 const string IOTreeFactory::NEWICK_FORMAT = "Newick"; 
 
 ITree * IOTreeFactory::createReader(const string & format) throw (Exception)

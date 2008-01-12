@@ -44,12 +44,14 @@ knowledge of the CeCILL license and that you accept its terms.
 
 // From Utils:
 #include <Utils/Number.h>
-#include <Utils/String.h>
+#include <Utils/BppString.h>
 #include <Utils/StringTokenizer.h>
 #include <Utils/TextTools.h>
 
 // From NumCalc:
 #include <NumCalc/RandomTools.h>
+
+using namespace bpp;
 
 // From the STL:
 #include <iostream>

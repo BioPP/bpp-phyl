@@ -45,6 +45,9 @@ knowledge of the CeCILL license and that you accept its terms.
 // From SeqLib:
 #include <Seq/ProteicAlphabet.h>
 
+namespace bpp
+{
+
 /**
  * @brief The Jones, Taylor and Thornton substitution model for proteins.
  *
@@ -67,8 +70,10 @@ class JTT92:
     JTT92 * clone() const { return new JTT92(*this); }
 
 	public:
-		string getName() const;
+		string getName() const { return "JTT92"; }
 };
+
+} //end of namespace bpp.
 
 #endif	//_JTT92_H_
 

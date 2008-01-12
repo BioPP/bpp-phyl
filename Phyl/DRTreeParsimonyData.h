@@ -48,7 +48,11 @@ knowledge of the CeCILL license and that you accept its terms.
 
 // From the STL:
 #include <bitset>
+
 using namespace std;
+
+namespace bpp
+{
 
 typedef bitset<20> Bitset;
 
@@ -258,6 +262,8 @@ class DRTreeParsimonyData :
 		void reInit(const Node * node) throw (Exception);
 		
 };
+
+} //end of namespace bpp.
 
 #endif //_DRTREEPARSIMONYDATA_H_
 

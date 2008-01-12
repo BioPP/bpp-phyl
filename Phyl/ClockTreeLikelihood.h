@@ -48,6 +48,9 @@ knowledge of the CeCILL license and that you accept its terms.
 // From NumCalc:
 #include <NumCalc/ParameterList.h>
 
+namespace bpp
+{
+
 /**
  *@brief Interface for likelihood computation with a global clock.
  */
@@ -77,6 +80,8 @@ class DiscreteRatesAcrossSitesClockTreeLikelihood:
     virtual ~DiscreteRatesAcrossSitesClockTreeLikelihood() {}
 
 };
+
+} //end of namespace bpp.
 
 #endif // _CLOCKTREELIKELIHOOD_H_
 

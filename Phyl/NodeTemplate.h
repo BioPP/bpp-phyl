@@ -43,6 +43,9 @@ knowledge of the CeCILL license and that you accept its terms.
 #ifndef _NODETEMPLATE_H_
 #define _NODETEMPLATE_H_
 
+namespace bpp
+{
+
 /**
  * @brief The NodeTemplate class.
  *
@@ -186,6 +189,8 @@ class NodeTemplate : public Node
 		virtual void setInfos(const NodeInfos & infos) { _infos = infos; }
 
 };
+
+} //end of namespace bpp.
 
 #endif	//_NODETEMPLATE_H_
 

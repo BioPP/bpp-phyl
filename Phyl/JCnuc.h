@@ -42,6 +42,9 @@ knowledge of the CeCILL license and that you accept its terms.
 
 #include "NucleotideSubstitutionModel.h"
 
+namespace bpp
+{
+
 /**
  * @brief The Jukes-Cantor substitution model for nucleotides.
  *
@@ -144,7 +147,7 @@ class JCnuc:
 		RowMatrix<double> getdPij_dt  (double d) const;
 		RowMatrix<double> getd2Pij_dt2(double d) const;
 
-		string getName() const;
+		string getName() const { return "JCnuc"; }
 
     /**
      * @brief This method is disabled in this model since frequencies are not free parameters.
@@ -164,6 +167,8 @@ class JCnuc:
 		 */
 		void updateMatrices();
 };
+
+} //end of namespace bpp.
 
 #endif	//_JCNUC_H_
 

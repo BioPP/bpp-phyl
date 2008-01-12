@@ -48,6 +48,8 @@ knowledge of the CeCILL license and that you accept its terms.
 // From NumCalc:
 #include <NumCalc/MatrixTools.h>
 
+using namespace bpp;
+
 /******************************************************************************/
 
 F84::F84(
@@ -438,10 +440,6 @@ RowMatrix<double> F84::getd2Pij_dt2(double d) const
 
 	return _p;
 }
-
-/******************************************************************************/
-
-string F84::getName() const { return string("Felsenstein (1984)"); }
 
 /******************************************************************************/
 

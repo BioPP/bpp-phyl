@@ -48,6 +48,9 @@ knowledge of the CeCILL license and that you accept its terms.
 //From the STL:
 #include <vector>
 
+namespace bpp
+{
+
 /**
  * @brief Tools for sites and sequences simulation.
  */
@@ -93,6 +96,8 @@ class SequenceSimulationTools
 		static SiteContainer * simulateSites(const SiteSimulator & simulator, const vector<double> & rates, const vector<int> & states)
 			throw (Exception);
 };
+
+} //end of namespace bpp.
 
 #endif //_SEQUENCESIMULATIONTOOLS_H_
 

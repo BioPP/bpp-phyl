@@ -45,7 +45,11 @@ knowledge of the CeCILL license and that you accept its terms.
 
 // From the STL:
 #include <string>
+
 using namespace std;
+
+namespace bpp
+{
 
 class Node;
 class Tree;
@@ -53,7 +57,8 @@ class Tree;
 /**
  * @brief General exception thrown when something is wrong with a particular node.
  */
-class NodeException : public Exception
+class NodeException:
+  public Exception
 {
 
 	protected:
@@ -97,7 +102,8 @@ class NodeException : public Exception
 /**
  * @brief Exception thrown when something is wrong with a particular node.
  */
-class NodeNotFoundException : public Exception
+class NodeNotFoundException:
+  public Exception
 {
 
 	protected:
@@ -135,7 +141,8 @@ class NodeNotFoundException : public Exception
 /**
  * @brief General exception thrown when something wrong happened in a tree.
  */
-class TreeException : public Exception
+class TreeException:
+  public Exception
 {
 
 	protected:
@@ -167,7 +174,8 @@ class TreeException : public Exception
 /**
  * @brief Exception thrown when a tree is expected to be rooted.
  */
-class UnrootedTreeException : public TreeException
+class UnrootedTreeException:
+  public TreeException
 {
 
 	public:
@@ -183,6 +191,8 @@ class UnrootedTreeException : public TreeException
 		virtual ~UnrootedTreeException() throw () {}
 	
 };
+
+} //end of namespace bpp.
 
 #endif	//_TREEEXCEPTIONS_H_
 

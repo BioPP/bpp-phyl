@@ -49,6 +49,9 @@ knowledge of the CeCILL license and that you accept its terms.
 #include <Seq/NucleicAlphabet.h>
 #include <Seq/SequenceContainer.h>
 
+namespace bpp
+{
+
 /**
  * @brief The Tamura (1992) substitution model for nucleotides.
  *
@@ -178,7 +181,7 @@ class T92:
 		RowMatrix<double> getdPij_dt(double d) const;
 		RowMatrix<double> getd2Pij_dt2(double d) const;
 
-		string getName() const;
+		string getName() const { return "T92"; }
 	
 		/**
 		 * @brief This method is over-defined to actualize the 'theta' parameter too.
@@ -188,6 +191,8 @@ class T92:
 	protected:
 		void updateMatrices();		
 };
+
+} //end of namespace bpp.
 
 #endif	//_T92_H_
 

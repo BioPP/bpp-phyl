@@ -42,6 +42,9 @@ knowledge of the CeCILL license and that you accept its terms.
 
 #include "SubstitutionModel.h"
 
+namespace bpp
+{
+
 /**
  * @brief Partial implementation of the SubstitutionModel interface.
  *
@@ -53,12 +56,10 @@ knowledge of the CeCILL license and that you accept its terms.
  *
  * Access methods for these fields are implemented.
  *
- * This class also provides the updateMatrices() method, which updates
- * the _generator matrix from the _exchangeability matrix and _freq vector.
- * It then computes eigen values and vectors and fills the corresponding vector (_eigenValues)
- * and matrices (_leftEigenVectors and _rightEigenVectors).
+ * This class also provides the updateMatrices() method, which computes eigen values and vectors and fills the corresponding vector (_eigenValues)
+ * and matrices (_leftEigenVectors and _rightEigenVectors) from the generator.
  *
- * The _freq vector and _exchangeability matrices are hence the only things to provide to
+ * The _freq vector and _generator matrices are hence the only things to provide to
  * create a substitution model.
  * It is also possible to redefine one of these methods for better efficiency.
  * The Pij_t, dPij_dt and d2Pij_dt2 are particularly inefficient since the matrix formula
@@ -184,6 +185,27 @@ class AbstractSubstitutionModel :
 
 
 
+/**
+ * @brief Partial implementation of the ReversibleSubstitutionModel interface.
+ *
+ * This abstract class adds the _exchangeability fields to the AbstractSubstitutionModel class.
+ * Access methods for this field is implemented.
+ *
+ * This class also overrides the updateMatrices() method, which updates
+ * the _generator matrix from the _exchangeability matrix and _freq vector.
+ * It then computes eigen values and vectors and fills the corresponding vector (_eigenValues)
+ * and matrices (_leftEigenVectors and _rightEigenVectors).
+ *
+ * The _freq vector and _exchangeability matrices are hence the only things to provide to
+ * create a substitution model.
+ * It is also possible to redefine one of these methods for better efficiency.
+ * The Pij_t, dPij_dt and d2Pij_dt2 are particularly inefficient since the matrix formula
+ * is used to compute all probabilities, and then the result for the initial and final state
+ * of interest is retrieved.
+ *
+ * @note This class is dedicated to "simple" substitution models, for which the number of states is equivalent to the number of characters in the alphabet.
+ * Consider using the MarkovModulatedSubstitutionModel for more complexe cases.
+ */
 class AbstractReversibleSubstitutionModel:
   public AbstractSubstitutionModel,
   public ReversibleSubstitutionModel
@@ -227,6 +249,8 @@ class AbstractReversibleSubstitutionModel:
 		virtual void updateMatrices();
 
 };
+
+} //end of namespace bpp.
 
 #endif	//_ABSTRACTSUBSTITUTIONMODEL_H_
 

@@ -37,9 +37,15 @@ The fact that you are presently reading this means that you have had
 knowledge of the CeCILL license and that you accept its terms.
 */
 
+#ifndef _PGMA_H_
+#define _PGMA_H_
+
 #include "AbstractAgglomerativeDistanceMethod.h"
 #include "Tree.h"
 #include "TreeTemplate.h"
+
+namespace bpp
+{
 
 /**
  * @brief Inner data structure for WPGMA and UPGMA distance methods.
@@ -94,4 +100,8 @@ class PGMA:
 		virtual Node * getParentNode(int id, Node * son1, Node * son2);
 
 };
+
+} //end of namespace bpp.
+
+#endif // _PGMA_H_
 

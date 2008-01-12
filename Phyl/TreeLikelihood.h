@@ -42,6 +42,7 @@ knowledge of the CeCILL license and that you accept its terms.
 
 #include "Node.h"
 #include "Tree.h"
+#include "SubstitutionModel.h"
 
 // From NumCalc:
 #include <NumCalc/ParameterList.h>
@@ -52,6 +53,9 @@ knowledge of the CeCILL license and that you accept its terms.
 // From SeqLib:
 #include <Seq/Alphabet.h>
 #include <Seq/SiteContainer.h>
+
+namespace bpp
+{
 
 /**
  * @brief The TreeLikelihood interface.
@@ -219,11 +223,29 @@ class TreeLikelihood:
     virtual ParameterList getBranchLengthsParameters() const = 0;
     
     /**
-     * @brief Get the parameters assoicated to substitution model(s).
+     * @brief Get the parameters associated to substitution model(s).
      *
      * @return A ParameterList.
      */
     virtual ParameterList getSubstitutionModelParameters() const = 0;
+
+    /**
+     * @brief Get the substitution model associated to a given node.
+     *
+     * @param nodeId The id of the request node.
+     * @return A pointer toward the corresponding model.
+     * @throw NodeNotFoundException This exception may be thrown if the node is not found (depending on the implementation).
+     */
+    virtual const SubstitutionModel * getSubstitutionModelForNode(int nodeId) const throw (NodeNotFoundException) = 0;
+
+    /**
+     * @brief Get the substitution model associated to a given node.
+     *
+     * @param nodeId The id of the request node.
+     * @return A pointer toward the corresponding model.
+     * @throw NodeNotFoundException This exception may be thrown if the node is not found (depending on the implementation).
+     */
+    virtual SubstitutionModel * getSubstitutionModelForNode(int nodeId) throw (NodeNotFoundException) = 0;
 
     /**
      * @brief Get the values of the frequencies for each state in the alphabet at the root node.
@@ -273,7 +295,9 @@ class TreeLikelihood:
      * @return An array of dimension 3, where a[c][x][y] is the probability of substituting from x to y while being in rate class c.
      */
     virtual const VVVdouble & getTransitionProbabilitiesForNode(const Node* node) const = 0;
-  };
+};
+
+} //end of namespace bpp.
 
 #endif  //_TREELIKELIHOOD_H_
 

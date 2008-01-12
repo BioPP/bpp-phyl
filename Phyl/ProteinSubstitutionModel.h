@@ -45,6 +45,9 @@ knowledge of the CeCILL license and that you accept its terms.
 // From SeqLib:
 #include <Seq/ProteicAlphabet.h>
 
+namespace bpp
+{
+
 /**
  * @brief Basal class for protein substitution model.
  */
@@ -63,6 +66,8 @@ class ProteinSubstitutionModel:
 
 };
 
+
+} //end of namespace bpp.
 
 #endif	//_PROTEINSUBSTITUTIONMODEL_H_
 

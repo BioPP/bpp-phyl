@@ -43,6 +43,9 @@ knowledge of the CeCILL license and that you accept its terms.
 // From SeqLib:
 #include <Seq/Site.h>
 
+namespace bpp
+{
+
 /**
  * @brief The SiteSimulator interface.
  * SiteSimulator classes can simulate single sites.
@@ -63,6 +66,8 @@ class SiteSimulator
     virtual vector<string> getSequencesNames() const = 0;
     virtual const Alphabet * getAlphabet() const = 0;
 };
+
+} //end of namespace bpp.
 
 #endif // _SITESIMULATOR_H_
 

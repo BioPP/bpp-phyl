@@ -43,6 +43,9 @@ knowledge of the CeCILL license and that you accept its terms.
 #include "IOTree.h"
 #include "TreeTemplate.h"
 
+namespace bpp
+{
+
 /**
  * @brief The so-called 'newick' parenthetic format.
  *
@@ -191,6 +194,8 @@ class Newick:
 		void write(const vector<Tree *> & trees, ostream & out) const throw (Exception);
 		/** @} */
 };
+
+} //end of namespace bpp.
 
 #endif	//_NEWICK_H_
 

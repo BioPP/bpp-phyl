@@ -42,6 +42,9 @@ knowledge of the CeCILL license and that you accept its terms.
 
 #include "NeighborJoining.h"
 
+namespace bpp
+{
+
 /**
  * @brief The BioNJ distance method.
  *
@@ -92,6 +95,8 @@ public:
 	virtual double computeDistancesFromPair(const vector<unsigned int> & pair, const vector<double> & branchLengths, unsigned int pos);
   
 };
+
+} //end of namespace bpp.
 
 #endif //_BIONJ_H_
 

@@ -48,9 +48,11 @@ knowledge of the CeCILL license and that you accept its terms.
 #include <string>
 #include <vector>
 #include <map>
-#include <cstdlib>
 
 using namespace std;
+
+namespace bpp
+{
 
 /**
  * @brief The phylogenetic tree class.
@@ -454,6 +456,8 @@ class TreeTemplate:
 		}
 		
 };
+
+} //end of namespace bpp.
 
 #endif	//_TREETEMPLATE_H_
 

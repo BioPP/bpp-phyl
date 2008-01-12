@@ -42,6 +42,9 @@ knowledge of the CeCILL license and that you accept its terms.
 
 #include "IODistanceMatrix.h"
 
+namespace bpp
+{
+
 /**
  * @brief Distance matrix I/O in Phylip format.
  */
@@ -70,6 +73,8 @@ class PhylipDistanceMatrixFormat:
 		void write(const DistanceMatrix & dist, ostream & out) const throw (Exception);
 
 };
+
+} //end of namespace bpp.
 
 #endif //_PHYLIPDISTANCEMATRIXFORMAT_H_
 

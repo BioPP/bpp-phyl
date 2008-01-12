@@ -40,6 +40,8 @@ knowledge of the CeCILL license and that you accept its terms.
 #include "MarginalAncestralStateReconstruction.h"
 #include <NumCalc/VectorTools.h>
 
+using namespace bpp;
+
 vector<int> MarginalAncestralStateReconstruction::getAncestralStatesForNode(const Node * node) const
 {
 	vector<int> ancestors(_nDistinctSites);

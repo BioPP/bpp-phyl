@@ -63,7 +63,11 @@ knowledge of the CeCILL license and that you accept its terms.
 #include <string>
 #include <map>
 #include <iostream>
+
 using namespace std;
+
+namespace bpp
+{
 
 /**
  * @brief This class provides some common tools for applications.
@@ -571,6 +575,8 @@ class PhylogeneticsApplicationTools
     static void printOutputTreeHelp();
     
 };
+
+} //end of namespace bpp.
 
 #endif  //_PHYLOGENETICSAPPLICATIONTOOLS_H_
 

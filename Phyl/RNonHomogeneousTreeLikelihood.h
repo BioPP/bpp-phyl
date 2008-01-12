@@ -49,6 +49,9 @@ knowledge of the CeCILL license and that you accept its terms.
 #include <NumCalc/VectorTools.h>
 #include <NumCalc/DiscreteDistribution.h>
 
+namespace bpp
+{
+
 /**
  * @brief This class implement the 'traditional' way of computing likelihood for a tree, allowing for non-homogeneous models of substitutions.
  *
@@ -258,6 +261,8 @@ class RNonHomogeneousTreeLikelihood :
 
 };
 
+
+} //end of namespace bpp.
 
 #endif	//_RNONHOMOGENEOUSTREELIKELIHOOD_H_
 

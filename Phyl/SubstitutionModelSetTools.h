@@ -43,6 +43,9 @@ knowledge of the CeCILL license and that you accept its terms.
 #include "SubstitutionModelSet.h"
 #include "Tree.h"
 
+namespace bpp
+{
+
 /**
  * @brief Tools for automatically creating SubstitutionModelSet objects.
  */
@@ -86,6 +89,8 @@ class SubstitutionModelSetTools
       ) throw (AlphabetException, Exception);
 
 };
+
+} //end of namespace bpp.
 
 #endif //_SUBSTITUTIONMODELSETTOOLS_H_
 

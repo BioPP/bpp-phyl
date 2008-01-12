@@ -43,13 +43,16 @@ knowledge of the CeCILL license and that you accept its terms.
 #include "DRTreeLikelihood.h"
 #include <Seq/AlignedSequenceContainer.h>
 
+namespace bpp
+{
+
 /**
  * @brief Utilitary methods dealing with objects implementing the DRTreeLikelihood interface.
  */
 class DRTreeLikelihoodTools
 {
 
-	public:
+  public:
     /**
      * @brief Compute the posterior probabilities for each state and each rate of each site.
      *
@@ -58,9 +61,11 @@ class DRTreeLikelihoodTools
      * @return A 3-dimensional array, with probabilities for each site, each rate and each state.
      */
     static VVVdouble getPosteriorProbabilitiesForEachStateForEachRate(
-							DRTreeLikelihood & drl,
-							const Node * node);
+        const DRTreeLikelihood & drl,
+        const Node * node);
 };
+
+} //end of namespace bpp.
 
 #endif //_DRTREELIKELIHOODTOOLS_H_
 

@@ -43,6 +43,9 @@ knowledge of the CeCILL license and that you accept its terms.
 
 #include "AbstractAgglomerativeDistanceMethod.h"
 
+namespace bpp
+{
+
 /**
  * @brief The neighbor joining distance method.
  *
@@ -92,6 +95,8 @@ class NeighborJoining :
 		virtual void finalStep(int idRoot);	
 
 };
+
+} //end of namespace bpp.
 
 #endif //_NEIGHBORJOINING_H_
 

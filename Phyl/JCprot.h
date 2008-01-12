@@ -42,6 +42,10 @@ knowledge of the CeCILL license and that you accept its terms.
 
 #include <Seq/ProteicAlphabet.h>
 #include "ProteinSubstitutionModel.h"
+
+namespace bpp
+{
+
 /**
  * @brief The Jukes-Cantor substitution model for proteins.
  *
@@ -145,7 +149,7 @@ class JCprot:
 		RowMatrix<double> getdPij_dt  (double d) const;
 		RowMatrix<double> getd2Pij_dt2(double d) const;
 
-		string getName() const;
+		string getName() const { return "JCprot"; }
 	
 	protected:
 		/**
@@ -155,6 +159,8 @@ class JCprot:
 		 */
 		void updateMatrices();
 };
+
+} //end of namespace bpp.
 
 #endif	//_JCPROT_H_
 

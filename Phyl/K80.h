@@ -46,6 +46,9 @@ knowledge of the CeCILL license and that you accept its terms.
 // From SeqLib:
 #include <Seq/NucleicAlphabet.h>
 
+namespace bpp
+{
+
 /**
  * @brief The Kimura 2-rates substitution model for nucleotides.
  *
@@ -164,7 +167,7 @@ class K80:
 		RowMatrix<double> getdPij_dt  (double d) const;
 		RowMatrix<double> getd2Pij_dt2(double d) const;
 
-		string getName() const;
+		string getName() const { return "K80"; }
 	   
     /**
      * @brief This method is disabled in this model since frequencies are not free parameters.
@@ -179,6 +182,8 @@ class K80:
 		void updateMatrices();
 
 };
+
+} //end of namespace bpp.
 
 #endif	//_K80_H_
 

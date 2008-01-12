@@ -45,9 +45,12 @@ knowledge of the CeCILL license and that you accept its terms.
 // From NumCalc:
 #include <NumCalc/MatrixTools.h>
 
+using namespace bpp;
+
 // From the STL:
 #include <cmath>
 
+using namespace std;
 
 /******************************************************************************/
 
@@ -420,10 +423,6 @@ RowMatrix<double> T92::getd2Pij_dt2(double d) const
 
 	return _p;
 }
-
-/******************************************************************************/
-
-string T92::getName() const { return string("Tamura (1992)"); }
 
 /******************************************************************************/
 
