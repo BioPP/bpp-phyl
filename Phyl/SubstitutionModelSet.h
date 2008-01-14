@@ -191,7 +191,7 @@ class SubstitutionModelSet:
      */
     string getParameterModelName(const string & name) const throw (ParameterNotFoundException)
     {
-      unsigned int pos = getParameterIndex(name);
+      unsigned int pos = getParameterIndex(name) - _rootFrequencies->getNumberOfParameters();
       return _modelParameterNames[pos];
     }
 
