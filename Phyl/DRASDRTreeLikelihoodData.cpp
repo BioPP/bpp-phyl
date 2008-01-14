@@ -61,7 +61,7 @@ void DRASDRTreeLikelihoodData::initLikelihoods(const SiteContainer & sites, cons
   _nbStates = model.getNumberOfStates();
   _nbSites  = sites.getNumberOfSites();
   
-  SitePatterns pattern(sites);
+  SitePatterns pattern(&sites);
   if(_shrunkData != NULL) delete _shrunkData;
   _shrunkData = pattern.getSites();
   _rootWeights = pattern.getWeights();

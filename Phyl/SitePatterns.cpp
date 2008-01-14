@@ -48,18 +48,21 @@ using namespace bpp;
 
 /******************************************************************************/
 
-SitePatterns::SitePatterns(const SiteContainer & siteSet)
+SitePatterns::SitePatterns(const SiteContainer * sequences, bool own):
+  _sequences(sequences),
+  _alpha(sequences->getAlphabet()),
+  _own(own)
 {
-  _alpha = siteSet.getAlphabet();
-	unsigned int nbSites = siteSet.getNumberOfSites();
+	unsigned int nbSites = sequences->getNumberOfSites();
 	vector<SortableSite *> ss(nbSites);
-	for(unsigned int i = 0; i < nbSites; i++) {
-		const Site * currentSite = siteSet.getSite(i);
+	for(unsigned int i = 0; i < nbSites; i++)
+  {
+		const Site * currentSite = sequences->getSite(i);
 		SortableSite * ssi = new SortableSite();
 		ss[i] = ssi;
-		ssi -> siteS = currentSite -> toString();
-		ssi -> siteP = currentSite;
-		ssi -> originalPosition = i;
+		ssi->siteS = currentSite->toString();
+		ssi->siteP = currentSite;
+		ssi->originalPosition = i;
 	}
 
 	// Quick sort according to site contents:
@@ -74,23 +77,27 @@ SitePatterns::SitePatterns(const SiteContainer & siteSet)
 	_weights.push_back(1);
 	
 	unsigned int currentPos = 0;
-	for(unsigned int i = 1; i < nbSites; i++) {
+	for(unsigned int i = 1; i < nbSites; i++)
+  {
 		SortableSite * ssi = ss[i];
 		const Site * currentSite = ssi -> siteP;
 		bool siteExists = SiteTools::areSitesIdentical(* currentSite, * previousSite);
-		if(siteExists) {
+		if(siteExists)
+    {
 			_weights[currentPos]++;
-		} else {
+		}
+    else
+    {
 			_sites.push_back(currentSite);
 			_weights.push_back(1);
 			currentPos++;
 		}
-		_indices[ssi -> originalPosition] = currentPos;
+		_indices[ssi->originalPosition] = currentPos;
 		delete ss[i - 1];
 		previousSite = currentSite;
 	}
 	delete ss[nbSites - 1];
-	_names = siteSet.getSequencesNames();
+	_names = sequences->getSequencesNames();
 }
 
 /******************************************************************************/
@@ -98,7 +105,7 @@ SitePatterns::SitePatterns(const SiteContainer & siteSet)
 SiteContainer * SitePatterns::getSites() const
 {
 	SiteContainer * sites = new VectorSiteContainer(_sites, _alpha);
-	sites -> setSequencesNames(_names, false);
+	sites->setSequencesNames(_names, false);
 	return sites;
 }
 

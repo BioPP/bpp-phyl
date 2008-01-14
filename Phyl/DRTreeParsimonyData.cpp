@@ -85,7 +85,7 @@ void DRTreeParsimonyData::init(const SiteContainer & sites) throw (Exception)
 {
 	_nbStates = sites.getAlphabet()->getSize();
  	_nbSites  = sites.getNumberOfSites();
-	SitePatterns pattern(sites);
+	SitePatterns pattern(&sites);
 	_shrunkData = pattern.getSites();
 	_rootWeights = pattern.getWeights();
 	_rootPatternLinks = pattern.getIndices();

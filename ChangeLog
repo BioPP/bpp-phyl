@@ -1,3 +1,6 @@
+13/01/08 Julien Dutheil
+* DRASRTreeLikelihoodData class improved by using the SitePatterns class.
+
 11/01/08 Julien Dutheil
 * Inclusion in new namespace bpp.
 * Bug fixed in DRNonHomogeneousTreeLikelihood.

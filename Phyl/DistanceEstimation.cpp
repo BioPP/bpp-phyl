@@ -93,7 +93,7 @@ TwoTreeLikelihood::TwoTreeLikelihood(
 	if(verbose) ApplicationTools::displayMessage("Double-Recursive Homogeneous Tree Likelihood");	
 	
 	//Initialize root patterns:
-	SitePatterns pattern(* _data);
+	SitePatterns pattern(_data);
 	_shrunkData = pattern.getSites();
 	_rootWeights = pattern.getWeights();
 	_rootPatternLinks = pattern.getIndices();

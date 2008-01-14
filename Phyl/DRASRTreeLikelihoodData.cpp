@@ -40,7 +40,6 @@ knowledge of the CeCILL license and that you accept its terms.
 
 #include "DRASRTreeLikelihoodData.h"
 #include "PatternTools.h"
-#include "SitePatterns.h"
 
 //From SeqLib:
 #include <Seq/SiteTools.h>
@@ -63,31 +62,27 @@ void DRASRTreeLikelihoodData::initLikelihoods(const SiteContainer & sites, const
         model.getAlphabet());
   _alphabet = sites.getAlphabet();
   _nbStates = model.getNumberOfStates();
-   _nbSites = sites.getNumberOfSites();
+  _nbSites  = sites.getNumberOfSites();
   if(_shrunkData != NULL) delete _shrunkData;
+  SitePatterns * patterns;
   if(_usePatterns)
-    _shrunkData =  initLikelihoodsWithPatterns(_tree->getRootNode(), sites, model);
+  {
+    patterns = initLikelihoodsWithPatterns(_tree->getRootNode(), sites, model);
+    _shrunkData = patterns->getSites();
+    _rootWeights = patterns->getWeights();
+    _rootPatternLinks = patterns->getIndices();
+    _nbDistinctSites = _shrunkData->getNumberOfSites();
+  }
   else
   {
-    _shrunkData = new VectorSiteContainer(sites);  
-    initLikelihoods(_tree->getRootNode(), sites, model);
+    patterns = new SitePatterns(&sites);
+    _shrunkData = patterns->getSites();
+    _rootWeights = patterns->getWeights();
+    _rootPatternLinks = patterns->getIndices();
+    _nbDistinctSites = _shrunkData->getNumberOfSites();
+    initLikelihoods(_tree->getRootNode(), *_shrunkData, model);
   }
-  _nbDistinctSites = _shrunkData->getNumberOfSites();
-  //Initialize root patterns:
-  _rootPatternLinks.resize(_nbSites);
-  for(unsigned int i = 0; i < _nbSites; i++)
-  {
-    const Site * site1 =  sites.getSite(i);
-    for(unsigned int ii = 0; ii < _nbDistinctSites; ii++)
-    {
-      if(SiteTools::areSitesIdentical(* _shrunkData->getSite(ii), * site1))
-      {
-        //_rootPatternLinks[i] = & _likelihoods[_tree.getRootNode()][ii];
-        _rootPatternLinks[i] = ii;
-        break;
-      }
-    }
-  }
+  delete patterns;
 }
 
 /******************************************************************************/
@@ -101,11 +96,11 @@ void DRASRTreeLikelihoodData::initLikelihoods(const Node * node, const SiteConta
   VVVdouble * _dLikelihoods_node = & nodeData->getDLikelihoodArray();
   VVVdouble * _d2Likelihoods_node = & nodeData->getD2LikelihoodArray();
   
-  _likelihoods_node->resize(_nbSites);
-  _dLikelihoods_node->resize(_nbSites);
-  _d2Likelihoods_node->resize(_nbSites);
+  _likelihoods_node->resize(_nbDistinctSites);
+  _dLikelihoods_node->resize(_nbDistinctSites);
+  _d2Likelihoods_node->resize(_nbDistinctSites);
 
-  for(unsigned int i = 0; i < _nbSites; i++)
+  for(unsigned int i = 0; i < _nbDistinctSites; i++)
   {
     VVdouble * _likelihoods_node_i = & (* _likelihoods_node)[i];
     VVdouble * _dLikelihoods_node_i = & (* _dLikelihoods_node)[i];
@@ -143,7 +138,7 @@ void DRASRTreeLikelihoodData::initLikelihoods(const Node * node, const SiteConta
     {
       throw SequenceNotFoundException("DRASRTreeLikelihoodData::initTreelikelihoods. Leaf name in tree not found in site conainer: ", (node->getName()));
     }  
-    for(unsigned int i = 0; i < _nbSites; i++)
+    for(unsigned int i = 0; i < _nbDistinctSites; i++)
     {
       VVdouble * _likelihoods_node_i = & (* _likelihoods_node)[i]; 
       int state = seq->getValue(i);
@@ -176,9 +171,9 @@ void DRASRTreeLikelihoodData::initLikelihoods(const Node * node, const SiteConta
       vector<unsigned int> * _patternLinks_node_son = & (* _patternLinks_node)[son->getId()];
 
       //Init map:
-      _patternLinks_node_son->resize(_nbSites);
+      _patternLinks_node_son->resize(_nbDistinctSites);
 
-      for(unsigned int i = 0; i < _nbSites; i++)
+      for(unsigned int i = 0; i < _nbDistinctSites; i++)
       {
         (* _patternLinks_node_son)[i] = i;
       }
@@ -188,14 +183,13 @@ void DRASRTreeLikelihoodData::initLikelihoods(const Node * node, const SiteConta
 
 /******************************************************************************/
 
-SiteContainer * DRASRTreeLikelihoodData::initLikelihoodsWithPatterns(const Node * node, const SiteContainer & sequences, const SubstitutionModel & model) throw (Exception)
+SitePatterns * DRASRTreeLikelihoodData::initLikelihoodsWithPatterns(const Node * node, const SiteContainer & sequences, const SubstitutionModel & model) throw (Exception)
 {
   SiteContainer * tmp = PatternTools::getSequenceSubset(sequences, * node);
-  SiteContainer * subSequences = PatternTools::shrinkSiteSet(* tmp);
-  delete tmp;
+  SitePatterns * patterns = new SitePatterns(tmp, true);
+  SiteContainer * subSequences = patterns->getSites();
 
   unsigned int nbSites = subSequences->getNumberOfSites();
-  //_likelihoodData._tree = _tree;
   
   //Initialize likelihood vector:
   DRASRTreeLikelihoodNodeData * nodeData = & _nodeData[node->getId()];
@@ -279,29 +273,14 @@ SiteContainer * DRASRTreeLikelihoodData::initLikelihoodsWithPatterns(const Node 
 
       vector<unsigned int> * _patternLinks_node_son = & (* _patternLinks_node)[son->getId()];
       
-      //Init map:
-      _patternLinks_node_son->resize(nbSites);
-
       //Initialize subtree 'l' and retrieves corresponding subSequences:
-      SiteContainer * subSubSequencesShrunk = initLikelihoodsWithPatterns(son, sequences, model);
-      SiteContainer * subSubSequencesExpanded = PatternTools::getSequenceSubset(* subSequences, * son);
-
-      for(unsigned int i = 0; i < nbSites; i++)
-      {
-        for(unsigned int ii = 0; ii < subSubSequencesShrunk->getNumberOfSites(); ii++)
-        {
-          if(SiteTools::areSitesIdentical(* subSubSequencesShrunk->getSite(ii), (* subSubSequencesExpanded->getSite(i))))
-          {
-            (* _patternLinks_node_son)[i] = ii;
-          }
-        }
-      }
-      delete subSubSequencesShrunk;
-      delete subSubSequencesExpanded;
+      SitePatterns * subPatterns = initLikelihoodsWithPatterns(son, *subSequences, model);
+      (* _patternLinks_node_son) = subPatterns->getIndices();
+      delete subPatterns;
     }
   }
-  //displayLikelihood(node);
-  return subSequences;
+  delete subSequences;
+  return patterns;
 }
 
 /******************************************************************************/

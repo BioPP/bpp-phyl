@@ -89,7 +89,7 @@ class SitePatterns
      */
     struct SSComparator : binary_function<SortableSite, SortableSite, bool>
     {
-	    bool operator()(SortableSite * ss1, SortableSite * ss2) const { return ss1 -> siteS < ss2 -> siteS; }
+	    bool operator()(SortableSite * ss1, SortableSite * ss2) const { return ss1->siteS < ss2->siteS; }
     };
 
   protected: 
@@ -97,7 +97,9 @@ class SitePatterns
 	  vector<const Site *> _sites;
 	  vector<unsigned int> _weights;
 	  vector<unsigned int> _indices;
+    const SiteContainer * _sequences;
     const Alphabet * _alpha;
+    bool _own;
 
   public:
    /**
@@ -106,10 +108,39 @@ class SitePatterns
      * Look for patterns (unique sites) within a site container.
      *
      * @param sequences The container to look in.
+     * @param own       Tel is the class own the sequence container.
+     * If yes, the sequences wll be deleted together with this instance.
      */
-    SitePatterns(const SiteContainer & sequences);
-    virtual ~SitePatterns() {}
+    SitePatterns(const SiteContainer * sequences, bool own = false);
 
+    virtual ~SitePatterns()
+    {
+      if(_own) delete _sequences;
+    }
+
+    SitePatterns(const SitePatterns & patterns)
+    {
+  	  _names     = patterns._names;
+	    _sites     = patterns._sites;
+	    _weights   = patterns._weights;
+	    _indices   = patterns._indices;
+      if(!patterns._own) _sequences = patterns._sequences;
+      else               _sequences = dynamic_cast<SiteContainer *>(patterns._sequences->clone());
+      _alpha     = patterns._alpha;
+      _own       = patterns._own;
+    }
+    SitePatterns& operator=(const SitePatterns & patterns)
+    {
+  	  _names     = patterns._names;
+	    _sites     = patterns._sites;
+	    _weights   = patterns._weights;
+	    _indices   = patterns._indices;
+      if(!patterns._own) _sequences = patterns._sequences;
+      else               _sequences = dynamic_cast<SiteContainer *>(patterns._sequences->clone());
+      _alpha     = patterns._alpha;
+      _own       = patterns._own;
+      return *this;
+    }
   public:
     /**
      * @return The number of times each unique site was found.
