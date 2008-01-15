@@ -298,6 +298,7 @@ void RNonHomogeneousTreeLikelihood::fireParameterChanged(const ParameterList & p
 double RNonHomogeneousTreeLikelihood::getValue() const
 throw (Exception)
 {
+  if(!isInitialized()) throw Exception("RNonHomogeneousTreeLikelihood::getValue(). Instance is not initialized.");
   return - getLogLikelihood();
 }
 

@@ -286,6 +286,7 @@ void DRNonHomogeneousTreeLikelihood::fireParameterChanged(const ParameterList & 
 double DRNonHomogeneousTreeLikelihood::getValue() const
 throw (Exception)
 {
+  if(!isInitialized()) throw Exception("DRNonHomogeneousTreeLikelihood::getValue(). Instance is not initialized.");
   return - getLogLikelihood();
 }
 

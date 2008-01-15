@@ -184,6 +184,25 @@ void SubstitutionModelSet::listModelNames(ostream & out) const
   }
 }
 
+void SubstitutionModelSet::setParameterToModel(unsigned int parameterIndex, unsigned int modelIndex) throw (IndexOutOfBoundsException)
+{
+  unsigned int offset = _rootFrequencies->getNumberOfParameters();
+  if(parameterIndex < offset) throw IndexOutOfBoundsException("SubstitutionModelSet::setParameterToModel. Can't assign a root frequency parameter to a branch model.", parameterIndex, offset - 1, _paramToModels.size() + offset - 1);
+  if(parameterIndex >= _paramToModels.size() + offset) throw IndexOutOfBoundsException("SubstitutionModelSet::setParameterToModel.", parameterIndex, offset - 1, _paramToModels.size() + offset - 1);
+  if(modelIndex >= _modelSet.size()) throw IndexOutOfBoundsException("SubstitutionModelSet::setParameterToModel.", modelIndex, 0, _modelSet.size() - 1);
+  _paramToModels[parameterIndex - offset].push_back(modelIndex);
+}
+
+void SubstitutionModelSet::unsetParameterToModel(unsigned int parameterIndex, unsigned int modelIndex) throw (IndexOutOfBoundsException, Exception)
+{
+  if(parameterIndex >= _paramToModels.size()) throw IndexOutOfBoundsException("SubstitutionModelSet::unsetParameterToModel.", parameterIndex, 0, _paramToModels.size() - 1);
+  if(modelIndex >= _modelSet.size()) throw IndexOutOfBoundsException("SubstitutionModelSet::setParameterToModel.", modelIndex, 0, _modelSet.size() - 1);
+  if(!VectorTools::contains(_paramToModels[parameterIndex], modelIndex)) throw Exception("SubstitutionModelSet::unsetParameterToModel: parameter not currently associated to the specified model.");
+  remove(_paramToModels[parameterIndex].begin(), _paramToModels[parameterIndex].end(), modelIndex);
+  checkOrphanModels(true);
+  checkOrphanParameters(true);
+}
+
 void SubstitutionModelSet::addParameter(const Parameter & parameter, const vector<int> & nodesId) throw (Exception)
 {
   _modelParameterNames.push_back(parameter.getName());

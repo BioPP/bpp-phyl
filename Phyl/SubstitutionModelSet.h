@@ -323,20 +323,25 @@ class SubstitutionModelSet:
       if(modelIndex >= _nodeToModel.size()) throw IndexOutOfBoundsException("SubstitutionModelSet::setModelToNode.", modelIndex, 0, _nodeToModel.size() - 1);
       _nodeToModel[nodeNumber] = modelIndex;
     }
-    
-    void setParameterToModel(unsigned int parameterIndex, unsigned int modelIndex) throw (IndexOutOfBoundsException)
-    {
-      if(parameterIndex >= _paramToModels.size()) throw IndexOutOfBoundsException("SubstitutionModelSet::setParameterToModel.", parameterIndex, 0, _paramToModels.size() - 1);
-      _paramToModels[parameterIndex].push_back(modelIndex);
-    }
+   
+    /**
+     * @brief Assign a parameter to a model.
+     *
+     * @param parameterIndex The index of the parameter in the list.
+     * @param modelIndex     The index of the model in the list.
+     * @throw IndexOutOfBoundsException If one of the index is not valid.
+     */
+    void setParameterToModel(unsigned int parameterIndex, unsigned int modelIndex) throw (IndexOutOfBoundsException);
 
-    void unsetParameterToModel(unsigned int parameterIndex, unsigned int modelIndex) throw (IndexOutOfBoundsException)
-    {
-      if(parameterIndex >= _paramToModels.size()) throw IndexOutOfBoundsException("SubstitutionModelSet::unsetParameterToModel.", parameterIndex, 0, _paramToModels.size() - 1);
-      remove(_paramToModels[parameterIndex].begin(), _paramToModels[parameterIndex].end(), modelIndex);
-      checkOrphanModels(true);
-      checkOrphanParameters(true);
-    }
+    /**
+     * @brief Unset a given parameter to the specified model.
+     *
+     * @param parameterIndex The index of the parameter in the list.
+     * @param modelIndex     The index of the model in the list.
+     * @throw IndexOutOfBoundsException If one of the index is not valid.
+     * @throw Exception If the pseicified parameter is not currently associated to the specified model.
+     */
+    void unsetParameterToModel(unsigned int parameterIndex, unsigned int modelIndex) throw (IndexOutOfBoundsException, Exception);
 
     /**
      * @brief Add a parameter to the list, and link it to specified existing nodes.

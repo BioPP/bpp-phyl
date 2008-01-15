@@ -307,12 +307,12 @@ void PhylogeneticsApplicationTools::setSubstitutionModelParametersInitialValues(
 {
   ParameterList pl = model->getParameters();
   bool useObsFreq = ApplicationTools::getBooleanParameter(prefix + "use_observed_freq", params, false, suffix, suffixIsOptional);
-  for(unsigned int i=0; i < pl.size(); i++)
+  for(unsigned int i = 0; i < pl.size(); i++)
   {
     const string pName = pl[i]->getName();
     if(useObsFreq && (pName == "piA" || pName == "piC" || pName == "piG" || pName == "piT")) continue;
     string value = ApplicationTools::getStringParameter(prefix + pName, params, TextTools::toString(pl[i]->getValue()), suffix, suffixIsOptional);
-    if(value.substr(0, 5) == "model")
+    if(value.size() > 5 && value.substr(0, 5) == "model")
     {
       if(existingParams.find(value) != existingParams.end())
       {
@@ -568,7 +568,7 @@ void PhylogeneticsApplicationTools::setRateDistributionParametersInitialValues(
   bool verbose) throw (Exception)
 {
   ParameterList pl = rDist->getParameters();
-  for(unsigned int i=0; i < pl.size(); i++)
+  for(unsigned int i = 0; i < pl.size(); i++)
   {
     const string pName = pl[i]->getName();
     double value = ApplicationTools::getDoubleParameter(prefix + "rate_distribution." + pName, params, pl[i]->getValue(), suffix, suffixIsOptional); 
@@ -579,15 +579,15 @@ void PhylogeneticsApplicationTools::setRateDistributionParametersInitialValues(
     pl[i]->setValue(value);
     if(verbose) ApplicationTools::displayResult(prefix + "rate_distribution." + pName, TextTools::toString(pl[i]->getValue()));
   }
+  rDist->matchParametersValues(pl);
   if(verbose)
   {
     for(unsigned int c = 0; c < rDist -> getNumberOfCategories(); c++)
     {
       ApplicationTools::displayResult("- Category " + TextTools::toString(c)
-          + " (Pr = " + TextTools::toString(rDist->getProbability(c)) +") rate", TextTools::toString(rDist -> getCategory(c)));
+          + " (Pr = " + TextTools::toString(rDist->getProbability(c)) +") rate", TextTools::toString(rDist->getCategory(c)));
     }
   }
-  rDist->matchParametersValues(pl);
 }
  
 

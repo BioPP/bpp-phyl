@@ -278,9 +278,7 @@ void RHomogeneousTreeLikelihood::fireParameterChanged(const ParameterList & para
 double RHomogeneousTreeLikelihood::getValue() const
 throw (Exception)
 {
-  //double f = - getLogLikelihood(); // For minimization.
-  //if(isnan(f)) f = -log(0.); // (+inf if unlikely!)
-  //return f;
+  if(!isInitialized()) throw Exception("RHomogeneousTreeLikelihood::getValue(). Instance is not initialized.");
   return - getLogLikelihood();
 }
 
