@@ -190,15 +190,22 @@ void SubstitutionModelSet::setParameterToModel(unsigned int parameterIndex, unsi
   if(parameterIndex < offset) throw IndexOutOfBoundsException("SubstitutionModelSet::setParameterToModel. Can't assign a root frequency parameter to a branch model.", parameterIndex, offset - 1, _paramToModels.size() + offset - 1);
   if(parameterIndex >= _paramToModels.size() + offset) throw IndexOutOfBoundsException("SubstitutionModelSet::setParameterToModel.", parameterIndex, offset - 1, _paramToModels.size() + offset - 1);
   if(modelIndex >= _modelSet.size()) throw IndexOutOfBoundsException("SubstitutionModelSet::setParameterToModel.", modelIndex, 0, _modelSet.size() - 1);
+  if(VectorTools::contains(_paramToModels[parameterIndex - offset], modelIndex)) throw Exception("SubstitutionModelSet::setParameterToModel: parameter " + _parameters[parameterIndex]->getName() + " already set to model " + TextTools::toString(modelIndex) + ".");
   _paramToModels[parameterIndex - offset].push_back(modelIndex);
+  _modelParameters[modelIndex].addParameter(
+      *_modelSet[modelIndex]->getParameters().getParameter(_modelParameterNames[parameterIndex - offset])
+      );
 }
 
 void SubstitutionModelSet::unsetParameterToModel(unsigned int parameterIndex, unsigned int modelIndex) throw (IndexOutOfBoundsException, Exception)
 {
-  if(parameterIndex >= _paramToModels.size()) throw IndexOutOfBoundsException("SubstitutionModelSet::unsetParameterToModel.", parameterIndex, 0, _paramToModels.size() - 1);
+  unsigned int offset = _rootFrequencies->getNumberOfParameters();
+  if(parameterIndex < offset) throw IndexOutOfBoundsException("SubstitutionModelSet::unsetParameterToModel. Can't unset a root frequency parameter.", parameterIndex, offset - 1, _paramToModels.size() + offset - 1);
+  if(parameterIndex >= _paramToModels.size() + offset) throw IndexOutOfBoundsException("SubstitutionModelSet::unsetParameterToModel.", parameterIndex, offset - 1, _paramToModels.size() + offset - 1);
   if(modelIndex >= _modelSet.size()) throw IndexOutOfBoundsException("SubstitutionModelSet::setParameterToModel.", modelIndex, 0, _modelSet.size() - 1);
-  if(!VectorTools::contains(_paramToModels[parameterIndex], modelIndex)) throw Exception("SubstitutionModelSet::unsetParameterToModel: parameter not currently associated to the specified model.");
-  remove(_paramToModels[parameterIndex].begin(), _paramToModels[parameterIndex].end(), modelIndex);
+  if(!VectorTools::contains(_paramToModels[parameterIndex - offset], modelIndex)) throw Exception("SubstitutionModelSet::unsetParameterToModel: parameter " + _parameters[parameterIndex]->getName() + " is not currently set to model " + TextTools::toString(modelIndex) + ".");
+  remove(_paramToModels[parameterIndex - offset].begin(), _paramToModels[parameterIndex - offset].end(), modelIndex);
+  _modelParameters[modelIndex].deleteParameter(_modelParameterNames[parameterIndex - offset]);
   checkOrphanModels(true);
   checkOrphanParameters(true);
 }
@@ -213,7 +220,9 @@ void SubstitutionModelSet::addParameter(const Parameter & parameter, const vecto
   vector<unsigned int> modelIndexes(nodesId.size());
   for(unsigned int i = 0; i < nodesId.size(); i++)
   {
-    modelIndexes[i] = _nodeToModel[nodesId[i]];
+    unsigned int pos = _nodeToModel[nodesId[i]];
+    _modelParameters[pos].addParameter(parameter);
+    modelIndexes[i] = pos;
   }
   _paramToModels.push_back(modelIndexes);
 }
@@ -258,7 +267,10 @@ void SubstitutionModelSet::fireParameterChanged(const ParameterList & parameters
     vector<unsigned int> * modelIndexes = & _paramToModels[i];
     for(unsigned int j = 0; j < modelIndexes->size(); j++)
     {
-      if(_modelParameters[(*modelIndexes)[j]].getParameter(_modelParameterNames[i]) == NULL) cerr << "DEBUG: Error, no parameter with name " << _modelParameterNames[i] << endl;
+      if(_modelParameters[(*modelIndexes)[j]].getParameter(_modelParameterNames[i]) == NULL)
+      {
+        cerr << "DEBUG: Error, no parameter with name " << _modelParameterNames[i] << " for model " << (*modelIndexes)[j] << endl;
+      }
       if(offset + i > _parameters.size()) cerr << "DEBUG: Error, missing parameter " << (offset + i) << "/" << _parameters.size() << endl;
       _modelParameters[(*modelIndexes)[j]].getParameter(_modelParameterNames[i])->setValue(_parameters[offset + i]->getValue());
     }

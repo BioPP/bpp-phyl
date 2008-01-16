@@ -164,7 +164,8 @@ MarkovModulatedSubstitutionModel.cpp\
 BipartitionList.cpp\
 BipartitionTools.cpp\
 SubstitutionModelSet.cpp\
-SubstitutionModelSetTools.cpp
+SubstitutionModelSetTools.cpp\
+FrequenciesSet.cpp
 
 CPP_EXTRA = \
 __DSO78FrequenciesCode\

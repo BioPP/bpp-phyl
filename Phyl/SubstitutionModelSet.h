@@ -69,20 +69,31 @@ namespace bpp
 {
 
 /**
- * @brief Substitution models manager for heterogenous models of evolution.
+ * @brief Substitution models manager for non-homogeneous / non-reversible models of evolution.
  *
- * This class contains a set of substitution models, and their assigment towoard the branches of a phylogenetic tree.
+ * This class contains a set of substitution models, and their assigment toward the branches of a phylogenetic tree.
  * Each branch in the tree corresponds to a model in the set, but a susbstitution model may correspond to several branches.
- * The particular case where all branche points toward a unique model is the homogeneous case.
+ * The particular case where all branches point toward a unique model is the homogeneous case.
  *
  * This class also deals with the parameters associated to the models.
  * In the homogeneous case, the parameter list is the same as the list in susbstitution model.
- * When two models at least are specified, these model may have their own parameters or share some of them.
- * To deal with this issue, the SubstitutionModelSet class contains its own parameter list and an index wich tells to which
- * models this parameter applies to.
+ * When two models at least are specified, these models may have their own parameters or share some of them.
+ * To deal with this issue, the SubstitutionModelSet class contains its own parameter list and an index which tells to which
+ * models these parameters apply to.
  * Since parameters in a list must have unique names, duplicated names are numbered according to the order in the list.
- * To track the relation between names in the list and names in each model, the parameter list is duplicated in _modelParameters.
+ * To track the relationships between names in the list and names in each model, the parameter list is duplicated in _modelParameters.
  * The user only act on _parameters, the fireParameterChanged function, automatically called, will update the _modelParameters field.
+ *
+ * In the non-homogeneous and homogeneous non-reversible cases, the likelihood depends on the position of the root.
+ * The states frequencies at the root of the tree are hence distinct parameters.
+ * Theses are accounted by a FrequenciesSet objet, managed by the SubstitutionModelSet class.
+ * The corresponding parameters, if any, are added at the begining of the global parameter list.
+ * 
+ * This class provides several methods to specify which model and/or which parameter is associated to which branch/clade.
+ * Several check points are provided, but some are probably missing due to the large set of possible models that this class allows to build,
+ * so be carefull!
+ *
+ * @see SubstitutionModelSetTools for methods that provide instances of the SubstitutionModelSet for general cases.
  */
 class SubstitutionModelSet: 
   public AbstractParametrizable
@@ -94,7 +105,7 @@ class SubstitutionModelSet:
     const Alphabet * _alphabet;
 
     /**
-     * @brief contains all models used in this tree.
+     * @brief Contains all models used in this tree.
      */
     vector<SubstitutionModel *> _modelSet;
 
@@ -104,20 +115,20 @@ class SubstitutionModelSet:
     FrequenciesSet * _rootFrequencies;
 
     /**
-     * @brief contains for each node in a tree the index of the corresponding model in _modelSet
+     * @brief Contains for each node in a tree the index of the corresponding model in _modelSet
      */
     mutable map<int, unsigned int> _nodeToModel;
     mutable map<unsigned int, vector<int> > _modelToNodes;
 
     /**
-     * @brief contains for each parameter in the list the indexes of the corresponding models in _modelSet that share this parameter.
+     * @brief Contains for each parameter in the list the indexes of the corresponding models in _modelSet that share this parameter.
      */
     vector< vector<unsigned int> > _paramToModels;
 
     map<string, unsigned int> _paramNamesCount;
 
     /**
-     * @brief contains for each parameter in the list the corresponding name in substitution models.
+     * @brief Contains for each parameter in the list the corresponding name in substitution models.
      */
     vector<string> _modelParameterNames;
 
@@ -132,12 +143,25 @@ class SubstitutionModelSet:
 
   public:
   
+    /**
+     * @brief Create a model set according to the specified alphabet.
+     *
+     * A FullFrequenciesSet class is used for root frequencies.
+     *
+     * @param alpha The alphabet to use for this set.
+     */
     SubstitutionModelSet(const Alphabet *alpha): _alphabet(alpha)
     {
       _rootFrequencies = new FullFrequenciesSet(alpha, "RootFreq");
       _parameters.addParameters(_rootFrequencies->getParameters());
     }
 
+    /**
+     * @brief Create a model set according to the specified alphabet and a given model for root frequencies.
+     *
+     * @param alpha The alphabet to use for this set.
+     * @param rootFreqs The model for root frequencies.
+     */
     SubstitutionModelSet(const Alphabet *alpha, FrequenciesSet * rootFreqs): _alphabet(alpha), _rootFrequencies(rootFreqs)
     {
       _parameters.addParameters(_rootFrequencies->getParameters());
@@ -373,8 +397,9 @@ class SubstitutionModelSet:
 
     void listModelNames(ostream & out = cout) const;
 
-    //void setRootFrequencies(const vector<double> & initFreqs) throw (Exception);
-
+    /**
+     * @return The values of the root frequencies.
+     */
     vector<double> getRootFrequencies() const { return _rootFrequencies->getFrequencies(); }
     
     /**
