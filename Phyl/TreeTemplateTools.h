@@ -240,10 +240,10 @@ class TreeTemplateTools
     }
 
     /**
-     * @brief Retrieve all inner son nodes from a subtree.
+     * @brief Retrieve all inner nodes from a subtree.
      *
      * @param node The node that defines the subtree.
-     * @return A vector of pointers toward each inner son node in the subtree.
+     * @return A vector of pointers toward each inner node in the subtree.
      */
     template<class N>
     static vector<N *> getInnerNodes(N & node)
@@ -253,6 +253,12 @@ class TreeTemplateTools
       return nodes;
     }
 
+    /**
+     * @brief Retrieve all inner nodes from a subtree.
+     *
+     * @param node The node that defines the subtree.
+     * @param nodes A vector to be filled with pointers toward each inner node in the subtree.
+     */
     template<class N>
     static void getInnerNodes(N & node, vector<N *> & nodes)
     {
@@ -264,7 +270,7 @@ class TreeTemplateTools
     }
 
     /**
-     * @brief Retrieve all inner son nodes ids from a subtree.
+     * @brief Retrieve all inner nodes ids from a subtree.
      *
      * @param node The node that defines the subtree.
      * @return A vector of ids.
@@ -276,6 +282,12 @@ class TreeTemplateTools
       return ids;
     }
 
+    /**
+     * @brief Retrieve all inner nodes ids from a subtree.
+     *
+     * @param node The node that defines the subtree.
+     * @param ids  A vector to be filled with the resulting ids.
+     */
     static void getInnerNodesId(const Node & node, vector<int> & ids)
     {
       if(node.isLeaf()) return; //Do not add leaves!
@@ -285,7 +297,11 @@ class TreeTemplateTools
       ids.push_back(node.getId());
     }
 
-
+    /**
+     * @param node The node defining the subtree to be searched.
+     * @param id   The id to search for.
+     * @return     Nodes with the specified id.
+     */
     template<class N>
     static vector<N *> searchNodeWithId(N & node, int id)
     {
@@ -294,6 +310,11 @@ class TreeTemplateTools
       return nodes;    
     }
 
+    /**
+     * @param node  The node defining the subtree to be searched.
+     * @param id    The id to search for.
+     * @param nodes A vector to be filled with the matching nodes.
+     */
     template<class N>
     static void searchNodeWithId(N & node, int id, vector<N *> & nodes)
     {
@@ -304,8 +325,13 @@ class TreeTemplateTools
       if(node.getId() == id) nodes.push_back(& node);
     }
 
+    /**
+     * @param node The node defining the subtree to be searched.
+     * @param id   The id to search for.
+     * @return     True if the subtree contains a node with the specified id.
+     */
     template<class N>
-    static bool hasNodeWithId(N & node, int id)
+    static bool hasNodeWithId(const N & node, int id)
     {
       if(node.getId() == id) return true;
       else
@@ -313,6 +339,53 @@ class TreeTemplateTools
         for(unsigned int i = 0; i < node.getNumberOfSons(); i++)
         {
           if(hasNodeWithId(*node.getSon(i), id)) return true;
+        }
+        return false;
+      }
+    }
+
+    /**
+     * @param node The node defining the subtree to be searched.
+     * @param name The name to search for.
+     * @return     Nodes with the specified name.
+     */
+    template<class N>
+    static vector<N *> searchNodeWithName(N & node, const string & name)
+    {
+      vector<N *> nodes;
+      searchNodeWithId<N>(node, name, nodes);
+      return nodes;    
+    }
+
+    /**
+     * @param node  The node defining the subtree to be searched.
+     * @param name  The name to search for.
+     * @param nodes A vector to be filled with the matching nodes.
+     */
+    template<class N>
+    static void searchNodeWithName(N & node, const string & name, vector<N *> & nodes)
+    {
+      for(unsigned int i = 0; i < node.getNumberOfSons(); i++)
+      {
+        searchNodeWithName<N>(* node.getSon(i), name, nodes);
+      }
+      if(node.hasName() && node.getName() == name) nodes.push_back(& node);
+    }
+
+    /**
+     * @param node The node defining the subtree to be searched.
+     * @param name The name to search for.
+     * @return     True if the subtree contains a node with the specified name.
+     */
+    template<class N>
+    static bool hasNodeWithName(const N & node, const string & name)
+    {
+      if(node.hasName() & node.getName() == name) return true;
+      else
+      {
+        for(unsigned int i = 0; i < node.getNumberOfSons(); i++)
+        {
+          if(hasNodeWithName(*node.getSon(i), name)) return true;
         }
         return false;
       }

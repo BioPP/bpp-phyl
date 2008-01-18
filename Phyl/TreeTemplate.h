@@ -1,6 +1,7 @@
 //
 // File: TreeTemplate.h
 // Created by: Julien Dutheil
+//             Celine Scornavacca
 // Created on: Thu Mar 13 12:03:18 2003
 //
 
@@ -72,11 +73,11 @@ namespace bpp
  * 
  * To clone a tree from from another tree with a different template,
  * consider using the TreeTools::cloneSutree<N>() method:
- * <code>
+ * @code
  * Tree * t = new Tree<Node>(...)
  * NodeTemplate<int> * newRoot = TreeTools::cloneSubtree< NodeTemplate<int> >(* (t -> getRootNode()))
  * Tree< NodeTemplate<int> > * tt = new Tree< NodeTemplate<int> >(* newRoot);
- * </code>
+ * @endcode
  *
  * The getNextId() method sends a id value which is not used in the tree.
  * In the current implementation, it uses the TreeTools::getMPNUId() method.
@@ -366,7 +367,8 @@ class TreeTemplate:
 	
 		virtual N * getNode(int id) throw (NodeNotFoundException, Exception)
 		{
-			vector<N *> nodes = TreeTemplateTools::searchNodeWithId<N>(*_root, id);
+			vector<N *> nodes;
+      TreeTemplateTools::searchNodeWithId<N>(*_root, id, nodes);
 			if(nodes.size() > 1) throw Exception("TreeTemplate::getNode(): Non-unique id! (" + TextTools::toString(id) + ").");
 			if(nodes.size() == 0) throw NodeNotFoundException("TreeTemplate::getNode(): Node with id not found.", "" + id);
 			return nodes[0];
@@ -374,11 +376,30 @@ class TreeTemplate:
 		
 		virtual const N * getNode(int id) const throw (NodeNotFoundException, Exception)
 		{
-			vector<const N *> nodes = TreeTemplateTools::searchNodeWithId<const N>(*_root, id);
+			vector<const N *> nodes;
+      TreeTemplateTools::searchNodeWithId<const N>(*_root, id, nodes);
 			if(nodes.size() > 1) throw Exception("TreeTemplate::getNode(): Non-unique id! (" + TextTools::toString(id) + ").");
 			if(nodes.size() == 0) throw NodeNotFoundException("TreeTemplate::getNode(): Node with id not found.", "" + id);
 			return nodes[0];
 		}
+
+	  virtual N * getNode(const string & name) throw (NodeNotFoundException, Exception)
+    {	
+		  vector<N *> nodes;
+      TreeTemplateTools::searchNodeWithName(*_root, name, nodes);
+  		if(nodes.size() > 1)  throw NodeNotFoundException("TreeTemplate::getNode(): Non-unique name.", "" + name);
+	  	if(nodes.size() == 0) throw NodeNotFoundException("TreeTemplate::getNode(): Node with name not found.", "" + name);
+  		return nodes[0];
+	  }
+
+    virtual const N * getNode(const string & name) const throw (NodeNotFoundException, Exception)
+    {	
+		  vector<const N *> nodes;
+      TreeTemplateTools::searchNodeWithName<const N>(*_root, name, nodes);
+  		if(nodes.size() > 1)  throw NodeNotFoundException("TreeTemplate::getNode(): Non-unique name.", "" + name);
+	  	if(nodes.size() == 0) throw NodeNotFoundException("TreeTemplate::getNode(): Node with name not found.", "" + name);
+  		return nodes[0];
+	  }
 
 		void rootAt(N & newRoot)
 	  {

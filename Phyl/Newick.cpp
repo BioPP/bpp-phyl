@@ -83,8 +83,8 @@ Newick::read(istream & in) const throw (Exception)
 	while (! in.eof())
   {
 		getline(in, temp, '\n');  // Copy current line in temporary string
-		int index = temp.find(";");
-		if(index >= 0 && index < (int)temp.size())
+    string::size_type index = temp.find(";");
+		if(index != string::npos)
     {
 			description += temp.substr(0, index + 1);
 			break;
@@ -119,23 +119,24 @@ void Newick::read(istream & in, vector<Tree *> & trees) const throw (Exception)
 	if (! in) { throw IOException ("Newick::read: failed to read from stream"); }
 	
 	// Main loop : for all file lines
+	string temp, description;// Initialization
+   string::size_type index;
   while(!in.eof())
   {
 	  //We concatenate all line in file till we reach the ending semi colon:
-	  string temp, description;// Initialization
 	  while(!in.eof())
     {
 		  getline(in, temp, '\n');  // Copy current line in temporary string
-		  int index = temp.find(";");
-		  if(index >= 0 && index < (int)temp.size())
+      index = temp.find(";");
+		  if(index != string::npos)
       {
 			  description += temp.substr(0, index + 1);
-			  break;
+	      if(_allowComments) description = TextTools::removeSubstrings(description, '[', ']');
+	      trees.push_back(TreeTemplateTools::parenthesisToTree(description, _useBootstrap, _bootstrapPropertyName));
+        description = temp.substr(index + 1);
 		  }
       else description += temp;
 	  }
-	  if(_allowComments) description = TextTools::removeSubstrings(description, '[', ']');
-	  trees.push_back(TreeTemplateTools::parenthesisToTree(description, _useBootstrap, _bootstrapPropertyName));
   }
 }
 
