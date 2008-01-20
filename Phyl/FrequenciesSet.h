@@ -50,6 +50,8 @@ knowledge of the CeCILL license and that you accept its terms.
 #include <Seq/NucleicAlphabet.h>
 #include <Seq/ProteicAlphabet.h>
 
+using namespace std;
+
 namespace bpp
 {
 

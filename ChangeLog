@@ -1,3 +1,8 @@
+06/07/07 -*- Version 1.5.0. -*-
+
+18/01/08 Julien Dutheil 
+* DistanceEstimation and SitePatterns classes are now Clonable.
+
 18/01/08 Celine Scornavacca & Julien Dutheil 
 * New function getNode(name) in TreeTemplate
 * New function searNodeWithName dans TreeTemplateTools

@@ -241,6 +241,7 @@ class PhylogeneticsApplicationTools
      * @param prefix A prefix to be applied to each attribute name (model number in the set).
      * @param suffix A suffix to be applied to each attribute name.
      * @param suffixIsOptional Tell if the suffix is absolutely required.
+     * @param verbose Print some info to the 'message' output stream.
      * @throw Exception if an error occured.
      */
     static void setSubstitutionModelParametersInitialValues(

@@ -43,6 +43,9 @@ knowledge of the CeCILL license and that you accept its terms.
 
 #include "Tree.h"
 
+// From Utils:
+#include <Utils/Clonable.h>
+
 // From NumCalc:
 #include <NumCalc/VectorTools.h>
 
@@ -66,7 +69,8 @@ namespace bpp
  * 'weights' is the number of sites identical to this sites
  * 'indices' are the positions in the original container
  */
-class SitePatterns
+class SitePatterns:
+  public virtual Clonable
 {
   private:
     /**
@@ -141,6 +145,14 @@ class SitePatterns
       _own       = patterns._own;
       return *this;
     }
+
+#ifdef NO_VIRTUAL_COV
+    Clonable*
+#else
+    SitePatterns *
+#endif
+    clone() const { return new SitePatterns(*this); }
+
   public:
     /**
      * @return The number of times each unique site was found.

@@ -46,7 +46,10 @@ knowledge of the CeCILL license and that you accept its terms.
 #include "DRHomogeneousTreeLikelihood.h"
 #include "PseudoNewtonOptimizer.h"
 
-// From NumCalc
+// From Utils:
+#include <Utils/Clonable.h>
+
+// From NumCalc:
 #include <NumCalc/ParameterList.h>
 #include <NumCalc/DiscreteDistribution.h>
 #include <NumCalc/Optimizer.h>
@@ -284,7 +287,8 @@ class TwoTreeLikelihood:
  * You'll have to specify a 'profiler' to the optimizer and then look at the file
  * if you want to do so.
  */
-class DistanceEstimation
+class DistanceEstimation:
+  public virtual Clonable
 {
 	protected:
 		SubstitutionModel * _model;
@@ -373,6 +377,13 @@ class DistanceEstimation
 			delete _defaultOptimizer;
       delete _optimizer;
 		}
+
+#ifdef NO_VIRTUAL_COV
+    Clonable *
+#else
+    DistanceEstimation *
+#endif
+    clone() const { return new DistanceEstimation(*this); }
 		
   private:
     void _init()

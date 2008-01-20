@@ -49,16 +49,103 @@ knowledge of the CeCILL license and that you accept its terms.
 #include <string>
 #include <vector>
 #include <map>
-#include <cstdlib>
 
 using namespace std;
+
+/**
+ * @mainpage
+ *
+ * @section tree Tree data storage and manipulation
+ *
+ * @par
+ * The Bio++ Phylogenetics Library (PhylLib) provides classes and methods for phylogenetics and molecular evolution.
+ * The bpp::Tree interface provides general methods to store and manipulate phylogenetic trees.
+ * Several utilitary methods can also be found in the bpp::TreeTools static class.
+ * The only implementation for now of the bpp::Tree interface is the bpp::TreeTemplate class.
+ * It uses a recursive storage of bpp::Node objects (or any class inheriting from it).
+ * The bpp::Node object contains methods to access to father and son nodes in the hierarchy, and several fields like a name,
+ * an id or the length of the branch connected to its father. It also includes support for node and branch properties (like
+ * bootstrap values) that can be attached to and manipulated together with the tree.
+ * The bpp::NodeTemplate class can be used in order to extend the tree structure and add more complex
+ * data to the tree. The corresponding bpp::TreeTemplateTools provide specific methods, in most cases more efficient
+ * than their equivalent in the bpp::TreeTools.
+ *
+ * @par
+ * Trees can also be read and written from/to files, using the bpp::Newick class.
+ *
+ *
+ * @section reconstruction Phylogenetic reconstruction methods
+ *
+ * @par
+ * PhylLib provides tools to reconstruct phylogenies from sequence data, using maximum parcimony, distance-based methods 
+ * and maximum likelihood, all of them implemented in an object-oriented way, and hence involving several classes.
+ *
+ * @par Maximum parcimony
+ * See bpp::TreeParcimonyScore for parcimony score computation. Only a Nearest Neighbor Interchange (NNI) algorithm for
+ * topology estimation is provided for now, see bpp::NNISearchable, bpp::NNITopologySearch and bpp::OptimizationTools for
+ * more user-friendly methods.
+ *
+ * @par Distance methods
+ * The bpp::DistanceEstimation class allows you to compute pairwise distances from a large set of models (see next section),
+ * and store them as a bpp::DistanceMatrix. This matrix is the input of any distance-based method.
+ * The (U/W)PGMA (bpp::PGMA), neighbor-joining (bpp::NeighborJoining) and BioNJ (bpp::BioNJ) methods are implemented.
+ *
+ * @par Maximum likelihood methods
+ * Use a model to describe the evolutionary process, among many available (see next section).
+ * Support for homogeneous (reversible or not) and non-homogeneous models is provided. Several likelihood computation
+ * algorithms are provided, depending on the final usage. All classes are instances of the bpp::TreeLikelihood interface.
+ * The bpp::DiscreteRatesAcrossSitesTreeLikelihood interface adds support for rate heterogeneity across sites.
+ * - The bpp::RHomogeneousTreeLikelihood class is the most simple implementation. It uses Felsenstein's recursion.
+ *   The possibility of compressing sites save comptation time and memory.
+ * - The bpp::DRHomogeneousTreeLikelihood class is similar to the previous one, but uses a double-recursive algorithm.
+ *   It is more CPU expensive when computing likelihoods, and uses more memory. Computation of branch length analytcal 
+ *   derivatives is nonetheless faster, since they do not involve any aditionnal recursion.
+ *   You also have to use this class in order to perform substitution mapping (bpp::SubstitutionMappingTools) or reconstruct
+ *   ancestral sequences (bpp::AncestralStateReconstruction).
+ * - The bpp::NNIHomogeneousTreeLikelihood class inherits from bpp::DRHomogeneousTreeLikelihood, and implements the bpp::NNISearchable
+ *   interface. This class should hence be used in order to optimize the tree topology.
+ * - The bpp::RNonHomogeneousTreeLikelihood and bpp::DRNonHomogeneousTreeLikelihood are similar to their homogeneous homologues,
+ *   but are designed for non-reversible or non-homogeneous models of substitution.
+ * - Finally, the bpp::ClockTreeLikelihood interface uses a different parametrization by assuming a global molecular clock.
+ *   It is implemented in the bpp::RHomogeneousClockTreeLikelihood class, which inherits from bpp::RHomogeneousTreeLikelihood.
+ *
+ * @par 
+ * The bpp::TreeLikelihood class inherits from the bpp::Function interface, which means that any optimization method from
+ * the NumCalc library can be used to estimate numerical parameters. The bpp::OptimizationTools static class provides
+ * general methods with predefined options, including for topology estimation.
+ *
+ *
+ * @section models Evolutionary models
+ *
+ * @par
+ * The Bio++ phylogenetic library provides different kinds of models.
+ * Substitution models are provided via the bpp::SubstitutionModel interface.
+ * All commonly used models for nucleotides and proteins are provided (see for instance bpp::JCnuc, bpp::K80, bpp::GTR, bpp::JTT92, etc.).
+ * You can add your own model by implementing the bpp::SubstitutionModel interface.
+ * Rate across sites (RAS) models are integrated thanks to the bpp::DiscreteDistribution interface, providing support for the gamma
+ * (bpp::GammaDiscreteDistribution) and gamma+invariant (bpp::InvariantMixedDiscreteDistribution) rate distributions.
+ * Here again, this is very easy to add support for new rate distributions by implementing the corresponding interface.
+ * 
+ * @par
+ * Markov-modulated Markov models (of which the covarion model is a particular case) are included via the bpp::MarkovModulatedSubstitutionModel interface,
+ * and its implementation bpp::G2001 and bpp::TS98.
+ *
+ * @par
+ * Finally from version 1.5, it is possible to build virtually any kind of non-homogeneous model thanks to the bpp::SubstitutionModelSet class.
+ *
+ *
+ * @section more And more...
+ *
+ * @par
+ * PhylLip allows you to perform a lot of analysis, like evolutionary rate estimation, tree consensus, etc.
+ *
+ */
 
 namespace bpp
 {
 
 /**
- * @brief Interface for phylogenetic tree objects.
- * 
+ * @brief Interface for phylogenetic tree objects. 
  */
 class Tree:
   public Clonable
