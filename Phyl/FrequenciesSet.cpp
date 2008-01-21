@@ -113,6 +113,30 @@ void FullNAFrequenciesSet::fireParameterChanged(const ParameterList & pl)
   _freq[3] = (1 - theta1) * (1. - theta);
 }
 
+FullProteinFrequenciesSet::FullProteinFrequenciesSet(const ProteicAlphabet * alphabet, const vector<double> & initFreqs, const string & prefix) throw (Exception):
+  AbstractFrequenciesSet(alphabet)
+{
+  if(initFreqs.size() != 20)
+    throw Exception("FullProteinFrequenciesSet(constructor). There must be 20 frequencies.");
+  double sum = 0.0;
+  for(unsigned int i = 0; i < 20; i++)
+  {
+    sum += initFreqs[i];
+  }
+  if(fabs(1-sum) > 0.00000000000001)
+  {
+    throw Exception("Root frequencies must equal 1.");
+  }
+  _freq = initFreqs;
+  double cumFreqs = 1.;
+  for(unsigned int i = 1; i < 20; i++)
+  {
+    double theta = _freq[i] / cumFreqs;
+    cumFreqs *= (1. - _freq[i]);
+    _parameters.addParameter(Parameter(prefix + "theta" + TextTools::toString(i) , theta, &Parameter::PROP_CONSTRAINT_EX));
+  }
+}
+
 FullProteinFrequenciesSet::FullProteinFrequenciesSet(const ProteicAlphabet * alphabet, const string & prefix):
   AbstractFrequenciesSet(alphabet)
 {

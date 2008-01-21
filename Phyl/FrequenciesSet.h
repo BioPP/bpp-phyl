@@ -193,13 +193,14 @@ class FullNAFrequenciesSet:
  * @brief Protein FrequenciesSet using 19 independent parameters to modelize the 20 frequencies.
  *
  * The parameters are called @f$ \theta_{i \in 1..19} @f$, and are initialized so that all frequencies are equal to  0.005, that is
- * @f[ \theta_i = \frac{0.05}{0.956{i-1}},\quad i = 1..19 @f].
+ * @f[ \theta_i = \frac{0.05}{0.956{i-1}},\quad i = 1..19 @f] or according to a user-specified vector of initial values.
  */
 class FullProteinFrequenciesSet:
   public AbstractFrequenciesSet
 {
   public:
     FullProteinFrequenciesSet(const ProteicAlphabet * alphabet, const string & prefix = "");
+    FullProteinFrequenciesSet(const ProteicAlphabet * alphabet, const vector<double> & initFreqs, const string & prefix = "") throw (Exception);
 
 #ifndef NO_VIRTUAL_COV
     FullProteinFrequenciesSet *

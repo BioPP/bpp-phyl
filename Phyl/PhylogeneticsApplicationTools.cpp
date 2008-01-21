@@ -408,7 +408,7 @@ FrequenciesSet * PhylogeneticsApplicationTools::getFrequenciesSet(
       rootFreq[17] = ApplicationTools::getDoubleParameter("model.ancW", params, 0.05);
       rootFreq[18] = ApplicationTools::getDoubleParameter("model.ancY", params, 0.05);
       rootFreq[19] = ApplicationTools::getDoubleParameter("model.ancV", params, 0.05);
-      rootFrequencies = new FullFrequenciesSet(alphabet, rootFreq, "RootFreq");
+      rootFrequencies = new FullProteinFrequenciesSet(dynamic_cast<const ProteicAlphabet *>(alphabet), rootFreq, "RootFreq");
     }
     else throw Exception("Init root frequencies is only available with Nucleic and Proteic alphabet.");
   }
@@ -446,8 +446,11 @@ SubstitutionModelSet * PhylogeneticsApplicationTools::getSubstitutionModelSet(
   bool suffixIsOptional,
   bool verbose) throw (Exception)
 {
-  unsigned int nbModels = ApplicationTools::getParameter<unsigned int>("number_of_models", params, 1, suffix, suffixIsOptional);
-  if(nbModels == 0) nbModels = 1;
+  if(!ApplicationTools::parameterExists("nonhomogeneous.number_of_models", params))
+    throw Exception("You must specify this parameter: nonhomogeneous.number_of_models .");
+  unsigned int nbModels = ApplicationTools::getParameter<unsigned int>("nonhomogeneous.number_of_models", params, 1, suffix, suffixIsOptional, false);
+  if(nbModels == 0)
+    throw Exception("The number of models can't be 0 !");
   if(verbose) ApplicationTools::displayResult("Number of distinct models", TextTools::toString(nbModels));
   
   //Deal with root frequencies, and build a new model set object:
