@@ -148,7 +148,7 @@ class TwoTreeLikelihood:
 		ParameterList getSubstitutionModelParameters() const;
     SubstitutionModel * getSubstitutionModelForNode(int nodeId) throw (NodeNotFoundException) { return _model; }
     const SubstitutionModel * getSubstitutionModelForNode(int nodeId) const throw (NodeNotFoundException) { return _model; }
-    vector<double> getAncestralFreqencies() const { return _model->getFrequencies(); }
+    vector<double> getRootFrequencies() const { return _model->getFrequencies(); }
     /**
      * @brief This method is not applicable for this object.
      */

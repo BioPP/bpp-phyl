@@ -3,6 +3,7 @@
 		version 1.5).
 * Important bug fixed in RTreeLikelihood: derivatives are correct when nodes
   id are not reset.
+* Important bug fixed in substitution mapping.
 
 06/07/07 -*- Version 1.5.0. -*-
 

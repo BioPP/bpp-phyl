@@ -97,9 +97,10 @@ ProbabilisticSubstitutionMapping * SubstitutionMappingTools::computeSubstitution
     for(unsigned int c = 0; c < nbClasses; c++)
     {
       Vdouble * l_i_c = & (* l_i)[c];
+      double rc = rDist->getProbability(c);
       for(unsigned int s = 0; s < nbStates; s++)
       {
-        Lr[i] += (* l_i_c)[s];
+        Lr[i] += (* l_i_c)[s] * rc;
       }
     }
   }
@@ -128,7 +129,7 @@ ProbabilisticSubstitutionMapping * SubstitutionMappingTools::computeSubstitution
       VVdouble * nxy_c = & nxy[c];
       double rc = rcRates[c];
       Matrix<double> * nijt = substitutionCount.getAllNumbersOfSubstitutions(d * rc);
-      nxy_c -> resize(nbStates);
+      nxy_c->resize(nbStates);
       for(unsigned int x = 0; x < nbStates; x++)
       {
         Vdouble * nxy_c_x = & (* nxy_c)[x];
@@ -211,13 +212,30 @@ ProbabilisticSubstitutionMapping * SubstitutionMappingTools::computeSubstitution
           VVdouble * pxy_c = & pxy[c]; 
           for(unsigned int x = 0; x < nbStates; x++)
           {
-            Vdouble * pxy_c_x = & (* pxy_c)[x];
             double likelihood = 0.;
             for(unsigned int y = 0; y < nbStates; y++)
             {
-              likelihood += (* pxy_c_x)[y] * (* likelihoodsFather_son_i_c)[y];
+              Vdouble * pxy_c_x = & (* pxy_c)[y];
+              likelihood += (* pxy_c_x)[x] * (* likelihoodsFather_son_i_c)[y];
             }
             (* likelihoodsFatherConstantPart_i_c)[x] *= likelihood;
+          }
+        }
+      }      
+    }
+    else
+    {
+      //Account for root frequencies:
+      vector<double> freqs = drtl.getRootFrequencies();
+      for(unsigned int i = 0; i < nbDistinctSites; i++)
+      {
+        VVdouble * likelihoodsFatherConstantPart_i = & likelihoodsFatherConstantPart[i];
+        for(unsigned int c = 0; c < nbClasses; c++)
+        {
+          Vdouble * likelihoodsFatherConstantPart_i_c = & (* likelihoodsFatherConstantPart_i)[c];
+          for(unsigned int x = 0; x < nbStates; x++)
+          {
+            (* likelihoodsFatherConstantPart_i_c)[x] *= freqs[x]; 
           }
         }
       }      

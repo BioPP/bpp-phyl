@@ -255,7 +255,7 @@ class TreeLikelihood:
      *
      * @return A vector with ancestral frequencies for each state in the alphabet;
      */
-    virtual vector<double> getAncestralFreqencies() const = 0;
+    virtual vector<double> getRootFrequencies() const = 0;
     
     /** @} */
 

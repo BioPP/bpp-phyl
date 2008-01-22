@@ -164,7 +164,7 @@ class AbstractHomogeneousTreeLikelihood:
      */
     SubstitutionModel * getSubstitutionModelForNode(int nodeId) throw (NodeNotFoundException) { return _model; }
 
-    vector<double> getAncestralFreqencies() const { return _model->getFrequencies(); }
+    vector<double> getRootFrequencies() const { return _model->getFrequencies(); }
     
     const VVVdouble & getTransitionProbabilitiesForNode(const Node* node) const { return _pxy[node->getId()]; }
     /** @} */
