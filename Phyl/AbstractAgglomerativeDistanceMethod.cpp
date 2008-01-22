@@ -64,7 +64,7 @@ void AbstractAgglomerativeDistanceMethod::computeTree(bool rooted) throw (Except
   {
 		_currentNodes[i] = getLeafNode(i, _matrix.getName(i));
 	}
-	unsigned int idNextNode = _matrix.size();
+	int idNextNode = (int)_matrix.size();
 	vector<double> newDist(_matrix.size());
 	
 	// Build tree:
@@ -79,10 +79,11 @@ void AbstractAgglomerativeDistanceMethod::computeTree(bool rooted) throw (Except
 		// Distances may be used by getParentNodes (PGMA for instance).
 		best1->setDistanceToFather(distances[0]);
 		best2->setDistanceToFather(distances[1]);
-		Node * parent = getParentNode(idNextNode++, best1, best2);
+		Node * parent = getParentNode(idNextNode, best1, best2);
+    idNextNode++;
 		for(map<unsigned int, Node *>::iterator i = _currentNodes.begin(); i != _currentNodes.end(); i++)
     {
-			unsigned int id = i -> first;
+			unsigned int id = i->first;
 			if(id != bestPair[0] && id != bestPair[1])
       {
 				newDist[id] = computeDistancesFromPair(bestPair, distances, id);
@@ -97,7 +98,7 @@ void AbstractAgglomerativeDistanceMethod::computeTree(bool rooted) throw (Except
 		_currentNodes.erase(bestPair[1]);
 		for(map<unsigned int, Node *>::iterator i = _currentNodes.begin(); i != _currentNodes.end(); i++)
     {
-			unsigned int id = i -> first;
+			unsigned int id = i->first;
 			_matrix(bestPair[0], id) = _matrix(id, bestPair[0]) = newDist[id];
 		}	
 	}

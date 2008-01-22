@@ -93,6 +93,12 @@ throw (Exception):
 void RNonHomogeneousTreeLikelihood::_init(bool usePatterns) throw (Exception)
 {
   _likelihoodData = new DRASRTreeLikelihoodData(*_tree, _rateDistribution->getNumberOfCategories(), usePatterns);
+  //Creating index:
+  for(unsigned int i = 0; i < _nodes.size(); i++)
+  {
+    Node * node = _nodes[i];
+    _idToNode[node->getId()] = node;
+  }
 }
 
 /******************************************************************************/
@@ -266,7 +272,12 @@ void RNonHomogeneousTreeLikelihood::fireParameterChanged(const ParameterList & p
       ids = VectorTools::vectorUnion(ids, tmpv);
     }
     tmp = params.getCommonParametersWith(_brLenParameters).getParameterNames();
-    vector<int> tmpv;
+    vector<const Node *> nodes;
+    for(unsigned int i = 0; i < ids.size(); i++)
+    {
+      nodes.push_back(_idToNode[ids[i]]);
+    }
+    vector<const Node *> tmpv;
     bool test = false;
     for(unsigned int i = 0; i < tmp.size(); i++)
     {
@@ -274,19 +285,19 @@ void RNonHomogeneousTreeLikelihood::fireParameterChanged(const ParameterList & p
       {
         if(!test)
         {
-          tmpv.push_back(_root1);
-          tmpv.push_back(_root2);
+          tmpv.push_back(_tree->getRootNode()->getSon(0));
+          tmpv.push_back(_tree->getRootNode()->getSon(1));
           test = true; //Add only once.
         }
       }
       else
-        tmpv.push_back(TextTools::toInt(tmp[i].substr(5)));
+        tmpv.push_back(_nodes[TextTools::to<unsigned int>(tmp[i].substr(5))]);
     }
-    ids = VectorTools::vectorUnion(ids, tmpv);
+    nodes = VectorTools::vectorUnion(nodes, tmpv);
 
-    for(unsigned int i = 0; i < ids.size(); i++)
+    for(unsigned int i = 0; i < nodes.size(); i++)
     {
-      computeTransitionProbabilitiesForNode(_tree->getNode(ids[i]));
+      computeTransitionProbabilitiesForNode(nodes[i]);
     }
     _rootFreqs = _modelSet->getRootFrequencies();
   }
@@ -595,7 +606,7 @@ void RNonHomogeneousTreeLikelihood::computeTreeDLikelihood(const string & variab
   }
 
   // Get the node with the branch whose length must be derivated:
-  int brI = TextTools::toInt(variable.substr(5));
+  unsigned int brI = TextTools::to<unsigned int>(variable.substr(5));
   const Node * branch = _nodes[brI];
   const Node * father = branch->getFather();
   VVVdouble * _dLikelihoods_father = & _likelihoodData->getDLikelihoodArray(father);
@@ -1079,9 +1090,9 @@ void RNonHomogeneousTreeLikelihood::computeTreeD2Likelihood(const string & varia
   }
 
   // Get the node with the branch whose length must be derivated:
-  int brI = TextTools::toInt(variable.substr(5));
-  Node * branch = _nodes[brI];
-  Node * father = branch->getFather();
+  unsigned int brI = TextTools::to<unsigned int>(variable.substr(5));
+  const Node * branch = _nodes[brI];
+  const Node * father = branch->getFather();
   
   // Compute dLikelihoods array for the father node.
   // Fist initialize to 1:

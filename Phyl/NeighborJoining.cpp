@@ -109,21 +109,26 @@ void NeighborJoining::finalStep(int idRoot)
 {
 	Node * root = new Node(idRoot);
 	map<unsigned int, Node* >::iterator it = _currentNodes.begin();
-	unsigned int i1 = it -> first;
-	Node * n1       = it -> second;
+	unsigned int i1 = it->first;
+	Node * n1       = it->second;
 	it++;
-	unsigned int i2 = it -> first;
-	Node * n2       = it -> second;
-	if(_currentNodes.size() == 2) { //Rooted
+	unsigned int i2 = it->first;
+	Node * n2       = it->second;
+	if(_currentNodes.size() == 2)
+  {
+    //Rooted
 		double d = _matrix(i1, i2) / 2;
-		root -> addSon(*n1);
-		root -> addSon(*n2);
-		n1 -> setDistanceToFather(d);
-		n2 -> setDistanceToFather(d);
-	} else { //Unrooted
+		root->addSon(*n1);
+		root->addSon(*n2);
+		n1->setDistanceToFather(d);
+		n2->setDistanceToFather(d);
+	}
+  else
+  {
+    //Unrooted
 		it++;
-		unsigned int i3 = it -> first;
-		Node * n3       = it -> second;
+		unsigned int i3 = it->first;
+		Node * n3       = it->second;
 		double d1 = _positiveLengths ?
         std::max(_matrix(i1, i2) + _matrix(i1, i3) - _matrix(i2, i3), 0.)
       :          _matrix(i1, i2) + _matrix(i1, i3) - _matrix(i2, i3);
@@ -133,12 +138,12 @@ void NeighborJoining::finalStep(int idRoot)
 		double d3 = _positiveLengths ?
         std::max(_matrix(i3, i1) + _matrix(i3, i2) - _matrix(i1, i2), 0.)
       :          _matrix(i3, i1) + _matrix(i3, i2) - _matrix(i1, i2);
-		root -> addSon(*n1);
-		root -> addSon(*n2);
-		root -> addSon(*n3);
-		n1 -> setDistanceToFather(d1/2.);
-		n2 -> setDistanceToFather(d2/2.);
-		n3 -> setDistanceToFather(d3/2.);
+		root->addSon(*n1);
+		root->addSon(*n2);
+		root->addSon(*n3);
+		n1->setDistanceToFather(d1/2.);
+		n2->setDistanceToFather(d2/2.);
+		n3->setDistanceToFather(d3/2.);
 	}
 	_tree = new TreeTemplate<Node>(*root);
 }

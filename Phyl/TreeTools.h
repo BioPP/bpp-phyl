@@ -543,6 +543,15 @@ class TreeTools
      */
     static int getMPNUId(const Tree & tree, int id);
 
+    /**
+     * @brief Check if the ids are uniques.
+     *
+     * @param tree The tree to check.
+     * @param throwException If set to true, the function throws qn exception if a duplicated is found.
+     * @return true if the tree has uniqe ids.
+     */
+    static bool checkIds(const Tree & tree, bool throwException) throw (Exception);
+
     /** @} */
 
 

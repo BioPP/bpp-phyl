@@ -72,7 +72,7 @@ class DRNonHomogeneousTreeLikelihood:
 {
   protected:
     mutable DRASDRTreeLikelihoodData *_likelihoodData;
-    
+   
   public:
     /**
      * @brief Build a new DRNonHomogeneousTreeLikelihood object without data.

@@ -69,9 +69,10 @@ class AbstractHomogeneousTreeLikelihood:
 				
 		/**
 		 * @brief Pointer toward all nodes in the tree.
-		 *
-		 * The order of the nodes in the vector if the order of the named branches.
-		 */
+     *
+     * The position in the array is the number used in the parameter name.
+     * This may be different from the node id, unless you used the resetNodeId method on the input tree.
+ 		 */
 		vector<Node *> _nodes;
 
 		//some values we'll need:

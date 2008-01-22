@@ -1,3 +1,9 @@
+21/01/08 Julien Dutheil
+* New function TreeTools::checkIds, used in likelihood classes (included in
+		version 1.5).
+* Important bug fixed in RTreeLikelihood: derivatives are correct when nodes
+  id are not reset.
+
 06/07/07 -*- Version 1.5.0. -*-
 
 18/01/08 Julien Dutheil 

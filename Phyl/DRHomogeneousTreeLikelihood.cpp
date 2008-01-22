@@ -244,7 +244,7 @@ void DRHomogeneousTreeLikelihood::fireParameterChanged(const ParameterList & par
       if(s.substr(0,5) == "BrLen")
       {
         //Branch length parameter:
-        computeTransitionProbabilitiesForNode(_tree->getNode(TextTools::toInt(s.substr(5))));
+        computeTransitionProbabilitiesForNode(_nodes[TextTools::to<unsigned int>(s.substr(5))]);
       }
     }
   }
@@ -350,8 +350,8 @@ throw (Exception)
   //
   
   // Get the node with the branch whose length must be derivated:
-  int brI = TextTools::toInt(variable.substr(5));
-  Node * branch = _nodes[brI];
+  unsigned int brI = TextTools::to<unsigned int>(variable.substr(5));
+  const Node * branch = _nodes[brI];
   Vdouble * _dLikelihoods_branch = & _likelihoodData->getDLikelihoodArray(branch);
   double d = 0;
   const vector<unsigned int> * w = & _likelihoodData->getWeights();
@@ -441,8 +441,8 @@ throw (Exception)
   //
   
   // Get the node with the branch whose length must be derivated:
-  int brI = TextTools::toInt(variable.substr(5));
-  Node * branch = _nodes[brI];
+  unsigned int brI = TextTools::to<unsigned int>(variable.substr(5));
+  const Node * branch = _nodes[brI];
   Vdouble * _dLikelihoods_branch = & _likelihoodData->getDLikelihoodArray(branch);
   Vdouble * _d2Likelihoods_branch = & _likelihoodData->getD2LikelihoodArray(branch);
   double d2 = 0;

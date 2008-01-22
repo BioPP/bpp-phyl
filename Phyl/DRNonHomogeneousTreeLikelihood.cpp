@@ -246,7 +246,12 @@ void DRNonHomogeneousTreeLikelihood::fireParameterChanged(const ParameterList & 
       ids = VectorTools::vectorUnion(ids, tmpv);
     }
     tmp = params.getCommonParametersWith(_brLenParameters).getParameterNames();
-    vector<int> tmpv;
+    vector<const Node *> nodes;
+    for(unsigned int i = 0; i < ids.size(); i++)
+    {
+      nodes.push_back(_idToNode[ids[i]]);
+    }
+    vector<const Node *> tmpv;
     bool test = false;
     for(unsigned int i = 0; i < tmp.size(); i++)
     {
@@ -254,19 +259,19 @@ void DRNonHomogeneousTreeLikelihood::fireParameterChanged(const ParameterList & 
       {
         if(!test)
         {
-          tmpv.push_back(_root1);
-          tmpv.push_back(_root2);
+          tmpv.push_back(_tree->getRootNode()->getSon(0));
+          tmpv.push_back(_tree->getRootNode()->getSon(1));
           test = true; //Add only once.
         }
       }
       else
-        tmpv.push_back(TextTools::toInt(tmp[i].substr(5)));
+        tmpv.push_back(_nodes[TextTools::to<unsigned int>(tmp[i].substr(5))]);
     }
-    ids = VectorTools::vectorUnion(ids, tmpv);
+    nodes = VectorTools::vectorUnion(nodes, tmpv);
 
-    for(unsigned int i = 0; i < ids.size(); i++)
+    for(unsigned int i = 0; i < nodes.size(); i++)
     {
-      computeTransitionProbabilitiesForNode(_tree->getNode(ids[i]));
+      computeTransitionProbabilitiesForNode(nodes[i]);
     }
     _rootFreqs = _modelSet->getRootFrequencies();
   }
@@ -399,8 +404,8 @@ throw (Exception)
   else
   {
     // Get the node with the branch whose length must be derivated:
-    int brI = TextTools::toInt(variable.substr(5));
-    Node * branch = _nodes[brI];
+    unsigned int brI = TextTools::to<unsigned int>(variable.substr(5));
+    const Node * branch = _nodes[brI];
     _dLikelihoods_branch = & _likelihoodData->getDLikelihoodArray(branch);
     double d = 0;
     const vector<unsigned int> * w = & _likelihoodData->getWeights();
@@ -795,8 +800,8 @@ throw (Exception)
     Vdouble * _dLikelihoods_branch;
     Vdouble * _d2Likelihoods_branch;
     // Get the node with the branch whose length must be derivated:
-    int brI = TextTools::toInt(variable.substr(5));
-    Node * branch = _nodes[brI];
+    unsigned int brI = TextTools::to<unsigned int>(variable.substr(5));
+    const Node * branch = _nodes[brI];
     _dLikelihoods_branch = & _likelihoodData->getDLikelihoodArray(branch);
     _d2Likelihoods_branch = & _likelihoodData->getD2LikelihoodArray(branch);
     double d2l = 0;

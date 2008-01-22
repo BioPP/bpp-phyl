@@ -90,6 +90,7 @@ class RNonHomogeneousTreeLikelihood :
 	protected:
 
 		mutable DRASRTreeLikelihoodData *_likelihoodData;
+    map<int, const Node *> _idToNode;
 
 	public:
     /**

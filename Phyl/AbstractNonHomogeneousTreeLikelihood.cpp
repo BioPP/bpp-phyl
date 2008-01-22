@@ -88,6 +88,12 @@ AbstractNonHomogeneousTreeLikelihood::AbstractNonHomogeneousTreeLikelihood(
   _minimumBrLen    = lik._minimumBrLen;
   _brLenParameters = lik._brLenParameters;
   _brLenConstraint = lik._brLenConstraint->clone();
+  //Rebuild nodes index:
+  for(unsigned int i = 0; i < _nodes.size(); i++)
+  {
+    const Node * node = _nodes[i];
+    _idToNode[node->getId()] = node;
+  }
 }
 
 /******************************************************************************/
@@ -111,6 +117,12 @@ AbstractNonHomogeneousTreeLikelihood & AbstractNonHomogeneousTreeLikelihood::ope
   _minimumBrLen    = lik._minimumBrLen;
   _brLenParameters = lik._brLenParameters;
   _brLenConstraint = lik._brLenConstraint->clone();
+  //Rebuild nodes index:
+  for(unsigned int i = 0; i < _nodes.size(); i++)
+  {
+    const Node * node = _nodes[i];
+    _idToNode[node->getId()] = node;
+  }
   return *this;
 }
 
@@ -128,13 +140,20 @@ void AbstractNonHomogeneousTreeLikelihood::_init(const Tree & tree,
 			DiscreteDistribution * rDist,
 			bool verbose) throw (Exception)
 {
-  _tree = new TreeTemplate<Node>(tree);
+  TreeTools::checkIds(tree, true);
+   _tree = new TreeTemplate<Node>(tree);
   _root1 = _tree->getRootNode()->getSon(0)->getId();
   _root2 = _tree->getRootNode()->getSon(1)->getId();
   _nodes = _tree->getNodes();
   _nodes.pop_back(); //Remove the root node (the last added!).  
   _nbNodes = _nodes.size();
-  
+  //Build nodes index:
+  for(unsigned int i = 0; i < _nodes.size(); i++)
+  {
+    const Node * node = _nodes[i];
+    _idToNode[node->getId()] = node;
+  }
+ 
   _modelSet = modelSet;
 
   _nbStates = modelSet->getNumberOfStates();
@@ -260,7 +279,7 @@ void AbstractNonHomogeneousTreeLikelihood::applyParameters() throw (Exception)
     }
     else
     {
-      const Parameter * brLen = _parameters.getParameter(string("BrLen") + TextTools::toString(_nodes[i]->getId()));
+      const Parameter * brLen = _parameters.getParameter(string("BrLen") + TextTools::toString(i));
       if(brLen != NULL) _nodes[i]->setDistanceToFather(brLen->getValue());
     }
   }
@@ -300,7 +319,7 @@ void AbstractNonHomogeneousTreeLikelihood::initBranchLengthsParameters()
       l2 = d;
     else
     {
-      _brLenParameters.addParameter(Parameter("BrLen" + TextTools::toString(_nodes[i]->getId()), d, _brLenConstraint->clone(), true)); //Attach constraint to avoid clonage problems!
+      _brLenParameters.addParameter(Parameter("BrLen" + TextTools::toString(i), d, _brLenConstraint->clone(), true)); //Attach constraint to avoid clonage problems!
     }
   }
   _brLenParameters.addParameter(Parameter("BrLenRoot", l1 + l2, _brLenConstraint->clone(), true));

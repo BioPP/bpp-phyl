@@ -226,7 +226,7 @@ class TreeTemplate:
 		{
 			if(!isRooted()) throw UnrootedTreeException("Tree::unroot", this);
 
-    	if(_root -> getNumberOfSons() == 2)
+    	if(_root->getNumberOfSons() == 2)
       {
 				N* son1 = _root->getSon(0);
 				N* son2 = _root->getSon(1);

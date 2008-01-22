@@ -264,7 +264,7 @@ void RHomogeneousTreeLikelihood::fireParameterChanged(const ParameterList & para
       if(s.substr(0,5) == "BrLen")
       {
         //Branch length parameter:
-        computeTransitionProbabilitiesForNode(_tree->getNode(TextTools::toInt(s.substr(5))));
+        computeTransitionProbabilitiesForNode(_nodes[TextTools::to<unsigned int>(s.substr(5))]);
       }
     }
     _rootFreqs = _model->getFrequencies();
@@ -354,7 +354,7 @@ throw (Exception)
 void RHomogeneousTreeLikelihood::computeTreeDLikelihood(const string & variable)
 {  
   // Get the node with the branch whose length must be derivated:
-  int brI = TextTools::toInt(variable.substr(5));
+  unsigned int brI = TextTools::to<unsigned int>(variable.substr(5));
   const Node * branch = _nodes[brI];
   const Node * father = branch->getFather();
   VVVdouble * _dLikelihoods_father = & _likelihoodData->getDLikelihoodArray(father);
@@ -601,9 +601,9 @@ throw (Exception)
 void RHomogeneousTreeLikelihood::computeTreeD2Likelihood(const string & variable)
 {
   // Get the node with the branch whose length must be derivated:
-  int brI = TextTools::toInt(variable.substr(5));
-  Node * branch = _nodes[brI];
-  Node * father = branch->getFather();
+  unsigned int brI = TextTools::to<unsigned int>(variable.substr(5));
+  const Node * branch = _nodes[brI];
+  const Node * father = branch->getFather();
   
   // Compute dLikelihoods array for the father node.
   // Fist initialize to 1:
@@ -789,8 +789,8 @@ void RHomogeneousTreeLikelihood::computeSubtreeLikelihood(const Node * node)
 {
   if(node->isLeaf()) return;
 
-  unsigned int nbSites  = _likelihoodData->getLikelihoodArray(node).size();
-  unsigned int nbNodes  = node->getNumberOfSons();
+  unsigned int nbSites = _likelihoodData->getLikelihoodArray(node).size();
+  unsigned int nbNodes = node->getNumberOfSons();
     
   // Must reset the likelihood array first (i.e. set all of them to 1):
   VVVdouble * _likelihoods_node = & _likelihoodData->getLikelihoodArray(node);

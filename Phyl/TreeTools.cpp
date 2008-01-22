@@ -716,6 +716,24 @@ int TreeTools::getMPNUId(const Tree & tree, int id)
 
 /******************************************************************************/
 
+bool TreeTools::checkIds(const Tree & tree, bool throwException) throw (Exception)
+{
+  vector<int> ids = tree.getNodesId();
+  sort(ids.begin(), ids.end());
+  for(unsigned int i = 1; i < ids.size(); i++)
+  {
+    if(ids[i] == ids[i-1])
+    {
+      if(throwException)
+        throw Exception("TreeTools::checkIds. This id is used at least twice: " + TextTools::toString(ids[i]));
+      return false;
+    }
+  }
+  return true;
+}
+
+/******************************************************************************/
+
 VectorSiteContainer* TreeTools::MRPEncode(const vector<Tree *> & vecTr)
 {
   vector<BipartitionList *> vecBipL;

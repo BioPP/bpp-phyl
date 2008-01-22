@@ -81,11 +81,11 @@ AbstractHomogeneousTreeLikelihood::AbstractHomogeneousTreeLikelihood(
   _d2pxy           = lik._d2pxy;
   _nodes = _tree->getNodes();
   _nodes.pop_back(); //Remove the root node (the last added!).  
-	_nbSites         = lik._nbSites;
+  _nbSites         = lik._nbSites;
   _nbDistinctSites = lik._nbDistinctSites;
-	_nbClasses       = lik._nbClasses;
-	_nbStates        = lik._nbStates;
-	_nbNodes         = lik._nbNodes;
+  _nbClasses       = lik._nbClasses;
+  _nbStates        = lik._nbStates;
+  _nbNodes         = lik._nbNodes;
   _verbose         = lik._verbose;
   _minimumBrLen    = lik._minimumBrLen;
   _brLenParameters = lik._brLenParameters;
@@ -104,11 +104,11 @@ AbstractHomogeneousTreeLikelihood & AbstractHomogeneousTreeLikelihood::operator=
   _d2pxy           = lik._d2pxy;
   _nodes = _tree->getNodes();
   _nodes.pop_back(); //Remove the root node (the last added!).  
-	_nbSites         = lik._nbSites;
+  _nbSites         = lik._nbSites;
   _nbDistinctSites = lik._nbDistinctSites;
-	_nbClasses       = lik._nbClasses;
-	_nbStates        = lik._nbStates;
-	_nbNodes         = lik._nbNodes;
+  _nbClasses       = lik._nbClasses;
+  _nbStates        = lik._nbStates;
+  _nbNodes         = lik._nbNodes;
   _verbose         = lik._verbose;
   _minimumBrLen    = lik._minimumBrLen;
   _brLenParameters = lik._brLenParameters;
@@ -126,17 +126,17 @@ AbstractHomogeneousTreeLikelihood::~AbstractHomogeneousTreeLikelihood()
 /******************************************************************************/
 
 void AbstractHomogeneousTreeLikelihood::_init(const Tree & tree,
-			SubstitutionModel * model,
-			DiscreteDistribution * rDist,
-      bool checkRooted,
-			bool verbose) throw (Exception)
+    SubstitutionModel * model,
+    DiscreteDistribution * rDist,
+    bool checkRooted,
+    bool verbose) throw (Exception)
 {
+  TreeTools::checkIds(tree, true);
   _tree = new TreeTemplate<Node>(tree);
   if(checkRooted && _tree->isRooted())
   {
     if(verbose) ApplicationTools::displayWarning("Tree has been unrooted.");
     _tree->unroot();
-    _tree->resetNodesId();
   }
   _nodes = _tree->getNodes();
   _nodes.pop_back(); //Remove the root node (the last added!).  
@@ -251,7 +251,7 @@ void AbstractHomogeneousTreeLikelihood::applyParameters() throw (Exception)
   //_brLenParameters.matchParametersValues(_parameters); Not necessary!
   for(unsigned int i = 0; i < _nbNodes; i++)
   {
-    const Parameter * brLen = _parameters.getParameter(string("BrLen") + TextTools::toString(_nodes[i]->getId()));
+    const Parameter * brLen = _parameters.getParameter(string("BrLen") + TextTools::toString(i));
     if(brLen != NULL) _nodes[i]->setDistanceToFather(brLen->getValue());
   }
   //Apply substitution model parameters:
@@ -284,7 +284,7 @@ void AbstractHomogeneousTreeLikelihood::initBranchLengthsParameters()
         d = _minimumBrLen;
       }
     }
-    _brLenParameters.addParameter(Parameter("BrLen" + TextTools::toString(_nodes[i]->getId()), d, _brLenConstraint->clone(), true)); //Attach constraint to avoid clonage problems!
+    _brLenParameters.addParameter(Parameter("BrLen" + TextTools::toString(i), d, _brLenConstraint->clone(), true)); //Attach constraint to avoid clonage problems!
   }
 }
 
