@@ -245,7 +245,7 @@ void PhylogeneticsApplicationTools::setSubstitutionModelParametersInitialValues(
 {
   ParameterList pl = model->getParameters();
   bool useObsFreq = ApplicationTools::getBooleanParameter(prefix + "use_observed_freq", params, false, suffix, suffixIsOptional, false);
-  for(unsigned int i=0; i < pl.size(); i++)
+  for(unsigned int i = 0; i < pl.size(); i++)
   {
     const string pName = pl[i]->getName();
     if(!useObsFreq || (pName.substr(0,5) != "theta"))

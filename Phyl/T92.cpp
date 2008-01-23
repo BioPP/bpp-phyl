@@ -430,7 +430,7 @@ void T92::setFreqFromData(const SequenceContainer & data)
 {
 	map<int, double> freqs = SequenceContainerTools::getFrequencies(data);
 	double f = (freqs[1] + freqs[2]) / (freqs[0] + freqs[1] + freqs[2] + freqs[3]);
-	setParameterValue("theta", f);
+	_parameters.getParameter("theta")->setValue(f);
 	updateMatrices();
 }
 

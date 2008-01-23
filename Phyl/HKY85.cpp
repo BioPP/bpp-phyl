@@ -462,9 +462,9 @@ void HKY85::setFreqFromData(const SequenceContainer & data)
 	_piC = freqs[1] / t;
 	_piG = freqs[2] / t;
 	_piT = freqs[3] / t;
-	setParameterValue("theta", _piC + _piG);
-	setParameterValue("theta1", _piA / (_piA + _piT));
-	setParameterValue("theta2", _piG / (_piC + _piG));
+	_parameters.getParameter("theta")->setValue(_piC + _piG);
+	_parameters.getParameter("theta1")->setValue(_piA / (_piA + _piT));
+	_parameters.getParameter("theta2")->setValue(_piG / (_piC + _piG));
   updateMatrices();
 }
 
