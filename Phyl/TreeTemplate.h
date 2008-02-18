@@ -439,6 +439,10 @@ class TreeTemplate:
 			int rootId;
 			if(isRooted())
       {
+        for(unsigned int i = 0; i < _root->getNumberOfSons(); i++)
+        {
+          if(*_root->getSon(i) == outGroup) return; //This tree is already rooted appropriately.
+        }
 				rootId = getRootId();
 				unroot();
 			}

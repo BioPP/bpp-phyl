@@ -434,7 +434,7 @@ class TreeTools
       string bootstrap;
     };
 
-    static Element getElement(string elt) throw (IOException);
+    static Element getElement(const string & elt) throw (IOException);
 
     
     /**

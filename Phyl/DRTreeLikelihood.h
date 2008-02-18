@@ -86,7 +86,7 @@ class DRTreeLikelihood:
   public:
 
     /**
-     * @name Override the TreeLikelihood interface method.
+     * @name Get the likelihood data structure associated to this class.
      *
      * @{
      */

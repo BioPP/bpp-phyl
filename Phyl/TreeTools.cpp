@@ -185,14 +185,15 @@ double TreeTools::getHeight(const Tree & tree, int nodeId) throw (NodeNotFoundEx
 
 /******************************************************************************/
 
-TreeTools::Element TreeTools::getElement(string elt) throw (IOException)
+TreeTools::Element TreeTools::getElement(const string & elt) throw (IOException)
 {
   Element element;
   element.length    = ""; //default
   element.bootstrap = ""; //default
   
   string::size_type colon = elt.rfind(':');
-  try {
+  try
+  {
     string elt2;
     if(colon != string::npos)
     {
