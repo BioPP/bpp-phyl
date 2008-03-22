@@ -1,6 +1,8 @@
 20/03/08 Julien Dutheil
 * Kappa parameter can no longer be 0 (avoid likelihood to be 0 in some cases)
-* Newton-Raphson algorithm fixed: deals with case when f'' is equal to zero.	
+* Newton-Raphson algorithm fixed: deals with case when f'' is equal to zero.
+* Reading parameters from file (PhylogeneticApplicationTools) now deals with
+  parameter constraints.
 
 18/02/08 Celine Scornavacca & Julien Dutheil
 * Bug fixed in TreeTemplate::newOutGroup.

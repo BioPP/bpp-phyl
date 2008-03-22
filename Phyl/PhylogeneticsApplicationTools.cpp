@@ -244,6 +244,14 @@ void PhylogeneticsApplicationTools::setSubstitutionModelParametersInitialValues(
   bool verbose) throw (Exception)
 {
   ParameterList pl = model->getParameters();
+	for(unsigned int i = 0; i < pl.size(); i++)
+  {
+		Parameter * p = pl[i];
+		AutoParameter * ap = new AutoParameter(* p);
+		ap->setMessageHandler(ApplicationTools::warning);
+		pl[i] = ap;
+		delete p;
+	}
   bool useObsFreq = ApplicationTools::getBooleanParameter(prefix + "use_observed_freq", params, false, suffix, suffixIsOptional, false);
   for(unsigned int i = 0; i < pl.size(); i++)
   {
@@ -306,6 +314,14 @@ void PhylogeneticsApplicationTools::setSubstitutionModelParametersInitialValues(
     bool verbose) throw (Exception)
 {
   ParameterList pl = model->getParameters();
+ 	for(unsigned int i = 0; i < pl.size(); i++)
+  {
+		Parameter * p = pl[i];
+		AutoParameter * ap = new AutoParameter(* p);
+		ap->setMessageHandler(ApplicationTools::warning);
+		pl[i] = ap;
+		delete p;
+	}
   bool useObsFreq = ApplicationTools::getBooleanParameter(prefix + "use_observed_freq", params, false, suffix, suffixIsOptional);
   for(unsigned int i = 0; i < pl.size(); i++)
   {
@@ -571,6 +587,15 @@ void PhylogeneticsApplicationTools::setRateDistributionParametersInitialValues(
   bool verbose) throw (Exception)
 {
   ParameterList pl = rDist->getParameters();
+  for(unsigned int i = 0; i < pl.size(); i++)
+  {
+		Parameter * p = pl[i];
+		AutoParameter * ap = new AutoParameter(* p);
+		ap->setMessageHandler(ApplicationTools::warning);
+		pl[i] = ap;
+		delete p;
+	}
+
   for(unsigned int i = 0; i < pl.size(); i++)
   {
     const string pName = pl[i]->getName();
