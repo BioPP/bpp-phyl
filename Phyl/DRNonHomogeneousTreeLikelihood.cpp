@@ -239,7 +239,7 @@ void DRNonHomogeneousTreeLikelihood::fireParameterChanged(const ParameterList & 
   else
   {
     vector<int> ids;
-    vector<string> tmp = params.getCommonParametersWith(_modelSet->getParameters()).getParameterNames();
+    vector<string> tmp = params.getCommonParametersWith(_modelSet->getNodeParameters()).getParameterNames();
     for(unsigned int i = 0; i < tmp.size(); i++)
     {
       vector<int> tmpv = _modelSet->getNodesWithParameter(tmp[i]);

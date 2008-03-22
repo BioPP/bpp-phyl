@@ -63,7 +63,7 @@ HKY85::HKY85(
 	double piT):
 	NucleotideSubstitutionModel(alpha)
 {
-	_parameters.addParameter(Parameter("kappa", kappa, &Parameter::R_PLUS));
+	_parameters.addParameter(Parameter("kappa", kappa, &Parameter::R_PLUS_STAR));
   _theta = piG + piC;
   _theta1 = piA / (1. - _theta);
   _theta2 = piG / _theta;

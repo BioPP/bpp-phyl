@@ -73,6 +73,11 @@ class HomogeneousTreeLikelihood :
      */
     virtual SubstitutionModel * getSubstitutionModel() = 0;
 
+    /**
+     * @return Set the substitution model for this instance.
+     * @throw Exception If the model could not be set (for instance, because of a wrong alphabet type).
+     */
+    virtual void setSubstitutionModel(SubstitutionModel * model) throw (Exception) = 0;
 };
 
 } //end of namespace bpp.

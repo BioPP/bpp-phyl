@@ -74,6 +74,12 @@ class NonHomogeneousTreeLikelihood :
      * @return The set of substitution models associated to this instance.
      */
     virtual SubstitutionModelSet * getSubstitutionModelSet() = 0;
+    
+    /**
+     * @return Set the substitution models for this instance.
+     * @throw Exception If the model could not be set (for instance, because of a wrong alphabet type).
+     */
+    virtual void setSubstitutionModelSet(SubstitutionModelSet * model) throw (Exception) = 0;
 
     /**
      * @return The parameters containing the root frequencies.

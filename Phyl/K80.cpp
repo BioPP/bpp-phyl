@@ -54,7 +54,7 @@ K80::K80(const NucleicAlphabet * alpha, double kappa) :
   //AbstractSubstitutionModel(alpha),
   NucleotideSubstitutionModel(alpha)
 {
-	_parameters.addParameter(Parameter("kappa", kappa, &Parameter::R_PLUS));
+	_parameters.addParameter(Parameter("kappa", kappa, &Parameter::R_PLUS_STAR));
   _p.resize(_size, _size);
 	updateMatrices();
 }

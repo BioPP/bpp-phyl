@@ -127,9 +127,9 @@ RHomogeneousTreeLikelihood::~RHomogeneousTreeLikelihood()
 void RHomogeneousTreeLikelihood::setData(const SiteContainer & sites) throw (Exception)
 {
   if(_data) delete _data;
-  _data = PatternTools::getSequenceSubset(sites, * _tree->getRootNode());
+  _data = PatternTools::getSequenceSubset(sites, *_tree->getRootNode());
   if(_verbose) ApplicationTools::displayTask("Initializing data structure");
-  _likelihoodData->initLikelihoods(* _data, *_model);
+  _likelihoodData->initLikelihoods(*_data, *_model);
   if(_verbose) ApplicationTools::displayTaskDone();
 
   _nbSites = _likelihoodData->getNumberOfSites();

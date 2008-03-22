@@ -96,6 +96,7 @@ SubstitutionModelSet & SubstitutionModelSet::operator=(const SubstitutionModelSe
 }
 
 vector<int> SubstitutionModelSet::getNodesWithParameter(const string & name) const
+  throw (ParameterNotFoundException)
 {
   vector<int> ids;
   unsigned int offset = _rootFrequencies->getNumberOfParameters();
@@ -108,10 +109,23 @@ vector<int> SubstitutionModelSet::getNodesWithParameter(const string & name) con
         vector<int> v = _modelToNodes[_paramToModels[i][j]];
         VectorTools::append(ids, v);
       }
-    return ids;
+      return ids;
     }
   }
-  return ids;
+  throw ParameterNotFoundException("SubstitutionModelSet::getNodesWithParameter.", name);
+}
+
+vector<unsigned int> SubstitutionModelSet::getModelsWithParameter(const string & name) const
+  throw (ParameterNotFoundException)
+{
+  vector<unsigned int> indices;
+  unsigned int offset = _rootFrequencies->getNumberOfParameters();
+  for(unsigned int i = 0; i < _paramToModels.size(); i++)
+  {
+    if(_parameters[offset + i]->getName() == name)
+      return _paramToModels[i];
+  }
+  throw ParameterNotFoundException("SubstitutionModelSet::getModelsWithParameter.", name);
 }
 
 void SubstitutionModelSet::addModel(SubstitutionModel *model, const vector<int> & nodesId, const vector<string> & newParams) throw (Exception)
@@ -251,6 +265,27 @@ void SubstitutionModelSet::addParameters(const ParameterList & parameters, const
   {
     _paramToModels.push_back(modelIndexes);
   }
+}
+
+void SubstitutionModelSet::removeParameter(const string & name) throw (ParameterNotFoundException)
+{
+  for(unsigned int i = 0; i < _parameters.size(); i++)
+  {
+    if(_parameters[i]->getName() == name)
+    {
+      _parameters.deleteParameter(i);
+      _modelParameterNames.erase(_modelParameterNames.begin() + i);
+      _paramToModels.erase(_paramToModels.begin() + i);
+      vector<int> nodesId = getNodesWithParameter(name);
+      for(unsigned int j = 0; j < nodesId.size(); i++)
+      {
+        unsigned int pos = _nodeToModel[nodesId[j]];
+        _modelParameters[pos].deleteParameter(name);
+      }
+      return;
+    }
+  }
+  throw ParameterNotFoundException("SubstitutionModelSet::removeParameter.", name);
 }
 
 void SubstitutionModelSet::fireParameterChanged(const ParameterList & parameters)

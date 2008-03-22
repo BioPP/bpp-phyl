@@ -141,7 +141,7 @@ void AbstractNonHomogeneousTreeLikelihood::_init(const Tree & tree,
 			bool verbose) throw (Exception)
 {
   TreeTools::checkIds(tree, true);
-   _tree = new TreeTemplate<Node>(tree);
+  _tree = new TreeTemplate<Node>(tree);
   _root1 = _tree->getRootNode()->getSon(0)->getId();
   _root2 = _tree->getRootNode()->getSon(1)->getId();
   _nodes = _tree->getNodes();
@@ -153,12 +153,35 @@ void AbstractNonHomogeneousTreeLikelihood::_init(const Tree & tree,
     const Node * node = _nodes[i];
     _idToNode[node->getId()] = node;
   }
- 
-  _modelSet = modelSet;
-
-  _nbStates = modelSet->getNumberOfStates();
-  
   _nbClasses = _rateDistribution->getNumberOfCategories();
+  setSubstitutionModelSet(modelSet);
+
+  _verbose = verbose;
+
+  _minimumBrLen = 0.000001;
+  _brLenConstraint = new IncludingPositiveReal(_minimumBrLen);
+}
+
+/******************************************************************************/
+
+void AbstractNonHomogeneousTreeLikelihood::setSubstitutionModelSet(SubstitutionModelSet * modelSet) throw (Exception)
+{
+  //Check:
+  if(_data)
+  {
+    if(modelSet->getAlphabet()->getAlphabetType() != _data->getAlphabet()->getAlphabetType())
+      throw Exception("AbstractNonHomogeneousTreeLikelihood::setSubstitutionModelSet(). Model alphabet do not match existing data.");
+  }
+
+  _modelSet = modelSet;
+  
+  if(_data)
+  {
+    if(modelSet->getNumberOfStates() != _modelSet->getNumberOfStates())
+      setData(*_data); //Have to reinitialize the whole data structure.
+  }
+  
+  _nbStates = modelSet->getNumberOfStates();
 
   //Allocate transition probabilities arrays:
   for(unsigned int l = 0; l < _nbNodes; l++)
@@ -202,11 +225,6 @@ void AbstractNonHomogeneousTreeLikelihood::_init(const Tree & tree,
       }
     }
   }
-
-  _verbose = verbose;
-
-  _minimumBrLen = 0.000001;
-  _brLenConstraint = new IncludingPositiveReal(_minimumBrLen);
 }
 
 /******************************************************************************/

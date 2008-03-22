@@ -141,12 +141,35 @@ void AbstractHomogeneousTreeLikelihood::_init(const Tree & tree,
   _nodes = _tree->getNodes();
   _nodes.pop_back(); //Remove the root node (the last added!).  
   _nbNodes = _nodes.size();
-  
-  _model = model;
-
-  _nbStates = model->getNumberOfStates();
-  
   _nbClasses = _rateDistribution->getNumberOfCategories();
+  setSubstitutionModel(model);
+
+  _verbose = verbose;
+
+  _minimumBrLen = 0.000001;
+  _brLenConstraint = new IncludingPositiveReal(_minimumBrLen);
+}
+
+/******************************************************************************/
+
+void AbstractHomogeneousTreeLikelihood::setSubstitutionModel(SubstitutionModel * model) throw (Exception)
+{
+  //Check:
+  if(_data)
+  {
+    if(model->getAlphabet()->getAlphabetType() != _data->getAlphabet()->getAlphabetType())
+      throw Exception("AbstractHomogeneousTreeLikelihood::setSubstitutionModel(). Model alphabet do not match existing data.");
+  }
+
+  _model = model;
+  
+  if(_data)
+  {
+    if(model->getNumberOfStates() != _model->getNumberOfStates())
+      setData(*_data); //Have to reinitialize the whole data structure.
+  }
+  
+  _nbStates = model->getNumberOfStates();
 
   //Allocate transition probabilities arrays:
   for(unsigned int l = 0; l < _nbNodes; l++)
@@ -190,11 +213,6 @@ void AbstractHomogeneousTreeLikelihood::_init(const Tree & tree,
       }
     }
   }
-
-  _verbose = verbose;
-
-  _minimumBrLen = 0.000001;
-  _brLenConstraint = new IncludingPositiveReal(_minimumBrLen);
 }
 
 /******************************************************************************/

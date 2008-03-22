@@ -179,6 +179,8 @@ class AbstractHomogeneousTreeLikelihood:
 		const SubstitutionModel * getSubstitutionModel() const { return _model; }
 		
 		SubstitutionModel * getSubstitutionModel() { return _model; }
+		
+    void setSubstitutionModel(SubstitutionModel * model) throw (Exception);
     /** @} */
 		
 	public: //Specific methods:

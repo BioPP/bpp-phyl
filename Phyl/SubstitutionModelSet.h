@@ -207,16 +207,19 @@ class SubstitutionModelSet:
     }
 
     /**
-     * @brief Get the index of a given parameter in the list of all parameters.
+     * @brief Get the model name of a given parameter in the list of all parameters.
      *
      * @param name The name of the parameter to look for.
-     * @return The position of the parameter in the global parameter list.
+     * @return The model name of the parameter in the global parameter list.
      * @throw ParameterNotFoundException If no parameter with this name is found.
+     * @throw Exception If the parameter is not a 'model' parameter (that is, it is a root frequency parameter).
      */
-    string getParameterModelName(const string & name) const throw (ParameterNotFoundException)
+    string getParameterModelName(const string & name) const throw (ParameterNotFoundException, Exception)
     {
-      unsigned int pos = getParameterIndex(name) - _rootFrequencies->getNumberOfParameters();
-      return _modelParameterNames[pos];
+      unsigned int pos = getParameterIndex(name);
+      unsigned int rfs = _rootFrequencies->getNumberOfParameters();
+      if(pos < rfs) throw Exception("SubstitutionModelSet::getParameterModelName(). This parameter as no model name: " + name);
+      return _modelParameterNames[pos - rfs];
     }
 
     /**
@@ -285,7 +288,7 @@ class SubstitutionModelSet:
      *
      * @param i The index of the model in the set.
      * @return A vector with the ids of the node associated to this model.
-     * @ thriw IndexOutOfBoundsException If the index is not valid.
+     * @throw IndexOutOfBoundsException If the index is not valid.
      */
     const vector<int> & getNodesWithModel(unsigned int i) const throw (IndexOutOfBoundsException)
     {
@@ -294,11 +297,20 @@ class SubstitutionModelSet:
     }
 
     /**
+     * @param name The name of the parameter to look for.
      * @return The list of nodes with a model containing the specified parameter.
+     * @throw ParameterNotFoundException If no parameter with the specified name is found.
      */
-    vector<int> getNodesWithParameter(const string & name) const;
+    vector<int> getNodesWithParameter(const string & name) const throw (ParameterNotFoundException);
 
     /**
+     * @param name The name of the parameter to look for.
+     * @return The list of model indices containing the specified parameter.
+     * @throw ParameterNotFoundException If no parameter with the specified name is found.
+     */
+    vector<unsigned int> getModelsWithParameter(const string & name) const throw (ParameterNotFoundException);
+
+   /**
      * @brief Add a new model to the set, and set relationships with nodes and params.
      *
      * @param model A pointer toward a susbstitution model, that will added to the set.
@@ -388,6 +400,14 @@ class SubstitutionModelSet:
     void addParameters(const ParameterList & parameters, const vector<int> & nodesId) throw (Exception);
  
     /**
+     * @brief Remove a parameter from the list, and unset it to all linked nodes and models.
+     *
+     * @param name The name of the parameter to remove.
+     * @throw ParameterNotFoundException If no parameter with the given name is found in the list.
+     */
+    void removeParameter(const string & name) throw (ParameterNotFoundException);
+ 
+    /**
      * @brief Remove a model from the set, and all corresponding parameters.
      *
      * @param modelIndex The index of the model in the set.
@@ -405,13 +425,26 @@ class SubstitutionModelSet:
     /**
      * @brief Get the parameters corresponding to the root frequencies.
      *
-     * This corresponds to the [number of states] parameters in the list.
-     *
      * @return The parameters corresponding to the root frequencies.
      */
     ParameterList getRootFrequenciesParameters() const
     { 
       return _rootFrequencies->getParameters();
+    }
+
+    /**
+     * @brief Get the parameters corresponding attached to the nodes of the tree.
+     *
+     * That is, all the parameters without the root frequencies.
+     *
+     * @return The parameters attached to the nodes of the tree.
+     */
+    ParameterList getNodeParameters() const
+    { 
+      ParameterList pl;
+      for(unsigned int i = _rootFrequencies->getNumberOfParameters(); i < _parameters.size(); i++)
+        pl.addParameter(*_parameters[i]);
+      return pl;
     }
 
     const Alphabet * getAlphabet() const { return _alphabet; }

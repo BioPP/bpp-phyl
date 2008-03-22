@@ -57,7 +57,7 @@ using namespace std;
 T92::T92(const NucleicAlphabet * alpha, double kappa, double theta):
 	NucleotideSubstitutionModel(alpha)
 {
-	_parameters.addParameter(Parameter("kappa", kappa, &Parameter::R_PLUS));
+	_parameters.addParameter(Parameter("kappa", kappa, &Parameter::R_PLUS_STAR));
   _parameters.addParameter(Parameter("theta", theta, &Parameter::PROP_CONSTRAINT_EX));
   _p.resize(_size, _size);
 	updateMatrices();

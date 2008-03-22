@@ -66,8 +66,8 @@ TN93::TN93(
 	//AbstractSubstitutionModel(alpha),
 	NucleotideSubstitutionModel(alpha)
 {
-	_parameters.addParameter(Parameter("kappa1", kappa1, &Parameter::R_PLUS));
-	_parameters.addParameter(Parameter("kappa2", kappa2, &Parameter::R_PLUS));
+	_parameters.addParameter(Parameter("kappa1", kappa1, &Parameter::R_PLUS_STAR));
+	_parameters.addParameter(Parameter("kappa2", kappa2, &Parameter::R_PLUS_STAR));
 	_theta = piG + piC;
   _theta1 = piA / (1. - _theta);
   _theta2 = piG / _theta;

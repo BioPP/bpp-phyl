@@ -174,6 +174,8 @@ class AbstractNonHomogeneousTreeLikelihood:
     const SubstitutionModelSet * getSubstitutionModelSet() const { return _modelSet; }
     
     SubstitutionModelSet * getSubstitutionModelSet() { return _modelSet; }
+    
+    void setSubstitutionModelSet(SubstitutionModelSet * modelSet) throw (Exception);
 
     ParameterList getRootFrequenciesParameters() const
     {
