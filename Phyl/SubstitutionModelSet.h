@@ -270,14 +270,14 @@ class SubstitutionModelSet:
      */
     const SubstitutionModel * getModelForNode(int nodeId) const throw (Exception)
     {
-      map<int, unsigned int>::iterator i = _nodeToModel.find(nodeId);
+      map<int, unsigned int>::const_iterator i = _nodeToModel.find(nodeId);
       if(i == _nodeToModel.end())
         throw Exception("SubstitutionModelSet::getModelForNode(). No model associated to node with id " + TextTools::toString(nodeId));
       return _modelSet[i->second];
     }
     SubstitutionModel * getModelForNode(int nodeId) throw (Exception)
     {
-      map<int, unsigned int>::const_iterator i = _nodeToModel.find(nodeId);
+      map<int, unsigned int>::iterator i = _nodeToModel.find(nodeId);
       if(i == _nodeToModel.end())
         throw Exception("SubstitutionModelSet::getModelForNode(). No model associated to node with id " + TextTools::toString(nodeId));
       return _modelSet[i->second];

@@ -88,6 +88,9 @@ AbstractNonHomogeneousTreeLikelihood::AbstractNonHomogeneousTreeLikelihood(
   _minimumBrLen    = lik._minimumBrLen;
   _brLenParameters = lik._brLenParameters;
   _brLenConstraint = lik._brLenConstraint->clone();
+  _rootFreqs       = lik._rootFreqs;
+  _root1           = lik._root1;
+  _root2           = lik._root2;
   //Rebuild nodes index:
   for(unsigned int i = 0; i < _nodes.size(); i++)
   {
@@ -117,6 +120,9 @@ AbstractNonHomogeneousTreeLikelihood & AbstractNonHomogeneousTreeLikelihood::ope
   _minimumBrLen    = lik._minimumBrLen;
   _brLenParameters = lik._brLenParameters;
   _brLenConstraint = lik._brLenConstraint->clone();
+  _rootFreqs       = lik._rootFreqs;
+  _root1           = lik._root1;
+  _root2           = lik._root2;
   //Rebuild nodes index:
   for(unsigned int i = 0; i < _nodes.size(); i++)
   {
@@ -154,12 +160,12 @@ void AbstractNonHomogeneousTreeLikelihood::_init(const Tree & tree,
     _idToNode[node->getId()] = node;
   }
   _nbClasses = _rateDistribution->getNumberOfCategories();
-  setSubstitutionModelSet(modelSet);
 
   _verbose = verbose;
 
   _minimumBrLen = 0.000001;
   _brLenConstraint = new IncludingPositiveReal(_minimumBrLen);
+  setSubstitutionModelSet(modelSet);
 }
 
 /******************************************************************************/
@@ -225,6 +231,9 @@ void AbstractNonHomogeneousTreeLikelihood::setSubstitutionModelSet(SubstitutionM
       }
     }
   }
+
+  //We have to reset parameters. If the instance is not initialized, this will be done by the initialize method.
+  if(_initialized) initParameters();
 }
 
 /******************************************************************************/
@@ -361,7 +370,7 @@ void AbstractNonHomogeneousTreeLikelihood::computeAllTransitionProbabilities()
 
 void AbstractNonHomogeneousTreeLikelihood::computeTransitionProbabilitiesForNode(const Node * node)
 {
-  SubstitutionModel * model = _modelSet->getModelForNode(node->getId());
+  const SubstitutionModel * model = _modelSet->getModelForNode(node->getId());
   double l = node->getDistanceToFather(); 
 
   //Computes all pxy and pyx once for all:

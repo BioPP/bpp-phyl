@@ -103,7 +103,7 @@ vector<int> SubstitutionModelSet::getNodesWithParameter(const string & name) con
   for(unsigned int i = 0; i < _paramToModels.size(); i++)
   {
     if(_parameters[offset + i]->getName() == name)
-    {
+    { 
       for(unsigned int j = 0; j < _paramToModels[i].size(); j++)
       {
         vector<int> v = _modelToNodes[_paramToModels[i][j]];
@@ -269,19 +269,22 @@ void SubstitutionModelSet::addParameters(const ParameterList & parameters, const
 
 void SubstitutionModelSet::removeParameter(const string & name) throw (ParameterNotFoundException)
 {
-  for(unsigned int i = 0; i < _parameters.size(); i++)
+  unsigned int offset = _rootFrequencies->getNumberOfParameters();
+  for(unsigned int i = 0; i < _modelParameterNames.size(); i++)
   {
-    if(_parameters[i]->getName() == name)
+    if(_parameters[offset + i]->getName() == name)
     {
-      _parameters.deleteParameter(i);
-      _modelParameterNames.erase(_modelParameterNames.begin() + i);
-      _paramToModels.erase(_paramToModels.begin() + i);
       vector<int> nodesId = getNodesWithParameter(name);
-      for(unsigned int j = 0; j < nodesId.size(); i++)
+      for(unsigned int j = 0; j < nodesId.size(); j++)
       {
         unsigned int pos = _nodeToModel[nodesId[j]];
-        _modelParameters[pos].deleteParameter(name);
+        string tmp = _modelParameterNames[i];
+        if(_modelParameters[pos].getParameter(tmp) != NULL)
+          _modelParameters[pos].deleteParameter(tmp);
       }
+      _paramToModels.erase(_paramToModels.begin() + i);
+      _modelParameterNames.erase(_modelParameterNames.begin() + i);
+      _parameters.deleteParameter(offset + i);
       return;
     }
   }

@@ -3,6 +3,8 @@
 * Newton-Raphson algorithm fixed: deals with case when f'' is equal to zero.
 * Reading parameters from file (PhylogeneticApplicationTools) now deals with
   parameter constraints.
+* Recopy of Abstract(Non)HomogeneousTreeLikelihood fixed.
+* New methods in SubstitutionModelSet.
 
 18/02/08 Celine Scornavacca & Julien Dutheil
 * Bug fixed in TreeTemplate::newOutGroup.

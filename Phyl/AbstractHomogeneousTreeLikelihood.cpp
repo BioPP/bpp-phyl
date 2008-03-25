@@ -90,6 +90,7 @@ AbstractHomogeneousTreeLikelihood::AbstractHomogeneousTreeLikelihood(
   _minimumBrLen    = lik._minimumBrLen;
   _brLenParameters = lik._brLenParameters;
   _brLenConstraint = lik._brLenConstraint->clone();
+  _rootFreqs       = lik._rootFreqs;
 }
 
 /******************************************************************************/
@@ -113,6 +114,7 @@ AbstractHomogeneousTreeLikelihood & AbstractHomogeneousTreeLikelihood::operator=
   _minimumBrLen    = lik._minimumBrLen;
   _brLenParameters = lik._brLenParameters;
   _brLenConstraint = lik._brLenConstraint->clone();
+  _rootFreqs       = lik._rootFreqs;
   return *this;
 }
 
