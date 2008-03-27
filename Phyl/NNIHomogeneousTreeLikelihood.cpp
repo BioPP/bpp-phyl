@@ -310,7 +310,10 @@ double NNIHomogeneousTreeLikelihood::testNNI(int nodeId) const throw (NodeExcept
   _brLikFunction->initModel(_model, _rateDistribution);
   _brLikFunction->initLikelihoods(&array1, &array2);
   ParameterList parameters;
-  Parameter brLen = *_parameters.getParameter("BrLen" + TextTools::toString(parent->getId()));
+  unsigned int pos = 0;
+  while(pos < _nodes.size() && _nodes[pos]->getId() != parent->getId()) pos++;
+  if(pos == _nodes.size()) throw Exception("NNIHomogeneousTreeLikelihood::testNNI. Unvalid node id.");
+  Parameter brLen = *_parameters.getParameter("BrLen" + TextTools::toString(pos));
   brLen.setName("BrLen");
   parameters.addParameter(brLen);
   _brLikFunction->setParameters(parameters);
@@ -350,7 +353,11 @@ void NNIHomogeneousTreeLikelihood::doNNI(int nodeId) throw (NodeException)
 	grandFather->removeSon(*uncle);
 	parent->addSon(*uncle);
 	grandFather->addSon(*son);
-  string name = "BrLen" + TextTools::toString(parent->getId());
+  unsigned int pos = 0;
+  while(pos < _nodes.size() && _nodes[pos]->getId() != parent->getId()) pos++;
+  if(pos == _nodes.size()) throw Exception("NNIHomogeneousTreeLikelihood::doNNI. Unvalid node id.");
+
+  string name = "BrLen" + TextTools::toString(pos);
   if(_brLenNNIValues.find(nodeId) != _brLenNNIValues.end())
   {
     double length = _brLenNNIValues[nodeId];

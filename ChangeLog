@@ -1,3 +1,8 @@
+27/03/08 Nicolas Galtier & Julien Dutheil
+* Bug solved in NNIHomogeneousTreeLikelihood: branch lengths are now correctly
+  actualized after a NNI movement. This bug was introduced with version 1.5.
+	It mainly caused an exception to be thrown inapropriately.
+
 20/03/08 Julien Dutheil
 * Kappa parameter can no longer be 0 (avoid likelihood to be 0 in some cases)
 * Newton-Raphson algorithm fixed: deals with case when f'' is equal to zero.

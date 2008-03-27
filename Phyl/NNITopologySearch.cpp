@@ -38,6 +38,7 @@ knowledge of the CeCILL license and that you accept its terms.
 */
 
 #include "NNITopologySearch.h"
+#include "NNIHomogeneousTreeLikelihood.h"
 
 //From Utils:
 #include <Utils/TextTools.h>

@@ -76,9 +76,11 @@ AbstractHomogeneousTreeLikelihood::AbstractHomogeneousTreeLikelihood(
   AbstractDiscreteRatesAcrossSitesTreeLikelihood(lik)
 {
   _model           = lik._model;
+  _brLenParameters = lik._brLenParameters;
   _pxy             = lik._pxy;
   _dpxy            = lik._dpxy;
   _d2pxy           = lik._d2pxy;
+  _rootFreqs       = lik._rootFreqs;
   _nodes = _tree->getNodes();
   _nodes.pop_back(); //Remove the root node (the last added!).  
   _nbSites         = lik._nbSites;
@@ -88,9 +90,7 @@ AbstractHomogeneousTreeLikelihood::AbstractHomogeneousTreeLikelihood(
   _nbNodes         = lik._nbNodes;
   _verbose         = lik._verbose;
   _minimumBrLen    = lik._minimumBrLen;
-  _brLenParameters = lik._brLenParameters;
   _brLenConstraint = lik._brLenConstraint->clone();
-  _rootFreqs       = lik._rootFreqs;
 }
 
 /******************************************************************************/
@@ -100,9 +100,11 @@ AbstractHomogeneousTreeLikelihood & AbstractHomogeneousTreeLikelihood::operator=
 {
   AbstractDiscreteRatesAcrossSitesTreeLikelihood::operator=(lik);
   _model           = lik._model;
+  _brLenParameters = lik._brLenParameters;
   _pxy             = lik._pxy;
   _dpxy            = lik._dpxy;
   _d2pxy           = lik._d2pxy;
+  _rootFreqs       = lik._rootFreqs;
   _nodes = _tree->getNodes();
   _nodes.pop_back(); //Remove the root node (the last added!).  
   _nbSites         = lik._nbSites;
@@ -112,9 +114,7 @@ AbstractHomogeneousTreeLikelihood & AbstractHomogeneousTreeLikelihood::operator=
   _nbNodes         = lik._nbNodes;
   _verbose         = lik._verbose;
   _minimumBrLen    = lik._minimumBrLen;
-  _brLenParameters = lik._brLenParameters;
   _brLenConstraint = lik._brLenConstraint->clone();
-  _rootFreqs       = lik._rootFreqs;
   return *this;
 }
 
