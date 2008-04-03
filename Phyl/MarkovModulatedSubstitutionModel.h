@@ -297,6 +297,11 @@ class MarkovModulatedSubstitutionModel:
 		  _model         ->matchParametersValues(parameters);
       fireParameterChanged(parameters);
 		}
+
+    unsigned int getNumberOfParameters() const
+    {
+      return _ratesParameters.size() + _model->getNumberOfParameters();
+    }
     /**@} */
 
   protected:

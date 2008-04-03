@@ -76,10 +76,6 @@ class FrequenciesSet:
      */ 
     virtual vector<double> getFrequencies() const = 0;
 
-    /**
-     * @return The nimer of parameters associated to these frequencies.
-     */ 
-    virtual unsigned int getNumberOfParameters() const = 0;
 };
 
 /**
@@ -99,7 +95,6 @@ class AbstractFrequenciesSet:
   public:
     const Alphabet * getAlphabet() const { return _alphabet; }
     vector<double> getFrequencies() const { return _freq; }
-    unsigned int getNumberOfParameters() const { return _parameters.size(); }
 };
 
 /**

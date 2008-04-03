@@ -373,6 +373,7 @@ class OptimizationTools
 					throw (ParameterNotFoundException, ConstraintException) {}
 				void matchParametersValues(const ParameterList & params)
 					throw (ConstraintException) {};
+        unsigned int getNumberOfParameters() const { return 1; }
 		};
 	
 	public:
