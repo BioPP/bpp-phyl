@@ -450,7 +450,9 @@ FrequenciesSet * PhylogeneticsApplicationTools::getFrequenciesSet(
   else throw Exception("Unvalid method for root frequencies: " + freqOpt);
     
   if(rateFreqs.size() > 0)
+  {
     rootFrequencies = new MarkovModulatedFrequenciesSet(rootFrequencies, rateFreqs);
+  }
   return rootFrequencies;
 }
 

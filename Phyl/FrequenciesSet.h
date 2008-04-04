@@ -236,7 +236,7 @@ class MarkovModulatedFrequenciesSet:
       return *this;
     }
     MarkovModulatedFrequenciesSet(FrequenciesSet * freqSet, const vector<double> & rateFreqs):
-      AbstractFrequenciesSet(freqSet->getAlphabet()), _rateFreqs(rateFreqs)
+      AbstractFrequenciesSet(freqSet->getAlphabet()), _freqSet(freqSet), _rateFreqs(rateFreqs)
     {
       _freq.resize(_alphabet->getSize() * rateFreqs.size());
       _parameters.addParameters(_freqSet->getParameters());

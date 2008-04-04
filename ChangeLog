@@ -1,3 +1,6 @@
+04/04/08 Julien Dutheil
+* Bug fixed in copy ocnstructors: now NH models work with covarions.
+
 27/03/08 Nicolas Galtier & Julien Dutheil
 * Bug solved in NNIHomogeneousTreeLikelihood: branch lengths are now correctly
   actualized after a NNI movement. This bug was introduced with version 1.5.

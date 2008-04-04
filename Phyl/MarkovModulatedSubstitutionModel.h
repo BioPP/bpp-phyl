@@ -136,6 +136,9 @@ class MarkovModulatedSubstitutionModel:
       _ratesFreq(), _ratesGenerator(), _ratesParameters(), _generator(), _exchangeability(),
       _leftEigenVectors(), _rightEigenVectors(), _eigenValues(), _freq(), _normalizeRateChanges(normalizeRateChanges) {}
     
+    MarkovModulatedSubstitutionModel(const MarkovModulatedSubstitutionModel & model);
+    MarkovModulatedSubstitutionModel & operator=(const MarkovModulatedSubstitutionModel & model);
+
     virtual ~MarkovModulatedSubstitutionModel() { delete _model; }
 
     MarkovModulatedSubstitutionModel * clone() const = 0;

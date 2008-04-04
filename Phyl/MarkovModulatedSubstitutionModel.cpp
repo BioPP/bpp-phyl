@@ -47,6 +47,47 @@ knowledge of the CeCILL license and that you accept its terms.
 using namespace bpp;
 
 /******************************************************************************/
+
+MarkovModulatedSubstitutionModel::MarkovModulatedSubstitutionModel(const MarkovModulatedSubstitutionModel & model):
+  _nbStates(model._nbStates),
+  _nbRates(model._nbRates),
+  _rates(model._rates),
+  _ratesExchangeability(model._ratesExchangeability),
+  _ratesFreq(model._ratesFreq),
+  _ratesGenerator(model._ratesGenerator),
+  _ratesParameters(model._ratesParameters),
+  _generator(model._generator),
+  _exchangeability(model._exchangeability),
+  _leftEigenVectors(model._leftEigenVectors),
+  _rightEigenVectors(model._rightEigenVectors),
+  _eigenValues(model._eigenValues),
+  _freq(model._freq),
+  _normalizeRateChanges(model._normalizeRateChanges)
+{
+  _model = dynamic_cast<ReversibleSubstitutionModel *>(model._model->clone());
+}
+
+MarkovModulatedSubstitutionModel & MarkovModulatedSubstitutionModel::operator=(const MarkovModulatedSubstitutionModel & model)
+{
+  _model                = dynamic_cast<ReversibleSubstitutionModel *>(model._model->clone());
+  _nbStates             = model._nbStates;
+  _nbRates              = model._nbRates;
+  _rates                = model._rates;
+  _ratesExchangeability = model._ratesExchangeability;
+  _ratesFreq            = model._ratesFreq;
+  _ratesGenerator       = model._ratesGenerator;
+  _ratesParameters      = model._ratesParameters;
+  _generator            = model._generator;
+  _exchangeability      = model._exchangeability;
+  _leftEigenVectors     = model._leftEigenVectors;
+  _rightEigenVectors    = model._rightEigenVectors;
+  _eigenValues          = model._eigenValues;
+  _freq                 = model._freq;
+  _normalizeRateChanges = model._normalizeRateChanges;
+  return *this;
+}
+
+/******************************************************************************/
 	
 void MarkovModulatedSubstitutionModel::updateMatrices()
 {

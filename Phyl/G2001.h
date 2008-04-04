@@ -91,6 +91,18 @@ class G2001:
       updateMatrices();
     }
 
+    G2001(const G2001 & model): MarkovModulatedSubstitutionModel(model)
+    {
+      _rDist = dynamic_cast<DiscreteDistribution *>(model._rDist->clone());
+    }
+
+    G2001 & operator=(const G2001 & model)
+    {
+      MarkovModulatedSubstitutionModel::operator=(model);
+      _rDist = dynamic_cast<DiscreteDistribution *>(model._rDist->clone());
+      return *this;
+    }
+
     virtual ~G2001() { delete _rDist; }
 
     G2001 * clone() const { return new G2001(*this); }
