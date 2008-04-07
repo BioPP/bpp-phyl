@@ -478,8 +478,7 @@ SubstitutionModelSet * PhylogeneticsApplicationTools::getSubstitutionModelSet(
   {
     //Markov-Modulated Markov Model...
     unsigned int n =(unsigned int)(tmp->getNumberOfStates() / alphabet->getSize());
-    vector<double> ratesFreq(n, 1./(double)n); // Equal rates assumed for now, may be changed later (actually, in the most general case,
-                                               // we should assume a rate distribution for the root also!!!  
+    rateFreqs = vector<double>(n, 1./(double)n); // Equal rates assumed for now, may be changed later (actually, in the most general case,
   }
   delete tmp;
   
