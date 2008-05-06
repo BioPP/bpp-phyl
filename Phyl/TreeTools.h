@@ -209,7 +209,7 @@ class TreeTools
      * number of sons 'generations'.
      *
      * ex:
-     * <code>
+     * @code
      *    +----------A
      *    |
      * ---+ N1     +-------B
@@ -217,7 +217,7 @@ class TreeTools
      *    +--------+ N2
      *             |
      *             +------C
-     * </code>
+     * @endcode
      * Depth of node 'N1' id 2, depth of node 'N2' is 1, depth of leaves is 0.
      *
      * @param tree The tree.

@@ -1064,11 +1064,11 @@ int TreeTools::getLastCommonAncestor(const Tree & tree, const vector<int>& nodeI
   for(;;)
   {
     if(ancestors[0].size() <= count) return lca;
-    int current = ancestors[0][count];
+    int current = ancestors[0][ancestors[0].size() - count - 1];
     for(unsigned int i = 1; i < nodeIds.size(); i++)
     {
       if(ancestors[i].size() <= count) return lca;
-      if(ancestors[i][count] != current) return lca;
+      if(ancestors[i][ancestors[i].size() - count - 1] != current) return lca;
     }
     lca = current;
     count++;
