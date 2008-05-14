@@ -198,6 +198,7 @@ class TreeTools
      *
      * Nodes id need not correspond to leaves.
      *
+     * @author Simon Carrignon
      * @param tree The tree to use.
      * @param nodeIds The ids of the input nodes.
      * @throw NodeNotFoundException If at least of of input node is not found.

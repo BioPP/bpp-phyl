@@ -1058,6 +1058,7 @@ int TreeTools::getLastCommonAncestor(const Tree & tree, const vector<int>& nodeI
   for(unsigned int i = 0; i < nodeIds.size(); i++)
   {
     ancestors[i] = getAncestors(tree, nodeIds[i]);
+    ancestors[i].insert(ancestors[i].begin(),nodeIds[i]);
   }
   int lca = tree.getRootId();
   unsigned int count = 1;
