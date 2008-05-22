@@ -214,7 +214,10 @@ class RNonHomogeneousTreeLikelihood :
 	
 	public:	// Specific methods:
 	
-		void computeTreeLikelihood();
+    DRASRTreeLikelihoodData * getLikelihoodData() { return _likelihoodData; }
+    const DRASRTreeLikelihoodData * getLikelihoodData() const { return _likelihoodData; }
+ 
+    void computeTreeLikelihood();
 
 		virtual double getDLikelihoodForASiteForARateClass(unsigned int site, unsigned int rateClass) const;
 

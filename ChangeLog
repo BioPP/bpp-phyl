@@ -1,3 +1,6 @@
+22/05/08 Julien Dutheil
+* Added method getLikelihoodData() in R(Non)HomogeneousTreeLikelihood.
+
 06/05/08 Bastien Boussau & Simon Carrignon
 * Bug fixed in TreeTools::getLastCommonAncestor.
 
