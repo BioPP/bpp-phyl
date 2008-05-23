@@ -130,7 +130,12 @@ class BipartitionList:
 
     virtual ~BipartitionList();
 
-    BipartitionList * clone() const { return new BipartitionList(*this); }
+#ifndef NO_VIRTUAL_COV
+    BipartitionList*
+#else
+    Clonable*
+#endif
+    clone() const { return new BipartitionList(*this); }
 
   public:
 
