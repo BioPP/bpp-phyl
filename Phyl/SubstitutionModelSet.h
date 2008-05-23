@@ -177,7 +177,12 @@ class SubstitutionModelSet:
       delete _rootFrequencies;
     }
 
-    SubstitutionModelSet * clone() const { return new SubstitutionModelSet(*this); }
+#ifndef NO_VIRTUAL_COV
+    SubstitutionModelSet*
+#else
+    Clonable*
+#endif
+    clone() const { return new SubstitutionModelSet(*this); }
 
   public:
 
