@@ -137,7 +137,7 @@ class DRTreeParsimonyLeafData :
 #ifndef NO_VIRTUAL_COV
     DRTreeParsimonyLeafData*
 #else
-    Clonable
+    Clonable*
 #endif
     clone() const { return new DRTreeParsimonyLeafData(*this); }
 

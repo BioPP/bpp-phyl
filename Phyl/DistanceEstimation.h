@@ -403,7 +403,7 @@ class DistanceEstimation:
     	_defaultOptimizer = new MetaOptimizer(NULL, desc);
       _defaultOptimizer->setMessageHandler(NULL);
 	    _defaultOptimizer->setProfiler(NULL);
-	    _optimizer = _defaultOptimizer->clone();
+	    _optimizer = dynamic_cast<Optimizer *>(_defaultOptimizer->clone());
     }
 
 	public:
@@ -438,11 +438,11 @@ class DistanceEstimation:
 		void setOptimizer(const Optimizer * optimizer)
     { 
       if(_optimizer) delete _optimizer;
-      _optimizer = optimizer->clone();
+      _optimizer = dynamic_cast<Optimizer *>(optimizer->clone());
     }
 		const Optimizer * getOptimizer() const { return _optimizer; }
 		Optimizer * getOptimizer() { return _optimizer; }
-		void resetOptimizer() { _optimizer = _defaultOptimizer->clone(); }
+		void resetOptimizer() { _optimizer = dynamic_cast<optimizer *>(_defaultOptimizer->clone()); }
 
 		/**
 		 * @brief Specify a list of parameters to be estimated.

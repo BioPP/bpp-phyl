@@ -118,8 +118,15 @@ class AbstractTreeLikelihoodData :
 		}
 
 		const Alphabet * getAlphabet() const { return _alphabet; }
+
+#ifndef NO_VIRTUAL_COV
 		const TreeTemplate<Node> * getTree() const { return _tree; }  
 		      TreeTemplate<Node> * getTree()       { return _tree; }
+#else
+		const Tree * getTree() const { return _tree; }  
+		      Tree * getTree()       { return _tree; }
+#endif
+
 
 };
 
