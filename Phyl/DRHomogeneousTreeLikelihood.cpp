@@ -101,7 +101,7 @@ DRHomogeneousTreeLikelihood::DRHomogeneousTreeLikelihood(const DRHomogeneousTree
   AbstractHomogeneousTreeLikelihood(lik),
   _likelihoodData(NULL)
 {
-  _likelihoodData = lik._likelihoodData->clone();
+  _likelihoodData = dynamic_cast<DRASDRTreeLikelihoodData *>(lik._likelihoodData->clone());
   _likelihoodData->setTree(*_tree);
 }
 
@@ -111,7 +111,7 @@ DRHomogeneousTreeLikelihood & DRHomogeneousTreeLikelihood::operator=(const DRHom
 {
   AbstractHomogeneousTreeLikelihood::operator=(lik);
   if(_likelihoodData) delete _likelihoodData;
-  _likelihoodData = lik._likelihoodData->clone();
+  _likelihoodData = dynamic_cast<DRASDRTreeLikelihoodData *>(lik._likelihoodData->clone());
   _likelihoodData->setTree(*_tree);
   return *this;
 }
