@@ -236,7 +236,9 @@ BipartitionList* BipartitionTools::mergeBipartitionLists(
     }
     else
     {
-      BipartitionList provBipartL(BipartitionList(vecBipartL[i]->getElementNames(), vecBipartL[i]->getBitBipartitionList()));
+      //We don't need the extra recopy here, do we?
+      //BipartitionList provBipartL(BipartitionList(vecBipartL[i]->getElementNames(), vecBipartL[i]->getBitBipartitionList()));
+      BipartitionList provBipartL(vecBipartL[i]->getElementNames(), vecBipartL[i]->getBitBipartitionList());
       provBipartL.sortElements();
       bitBipL = provBipartL.getBitBipartitionList();
     }
