@@ -90,7 +90,7 @@ SubstitutionModelSet & SubstitutionModelSet::operator=(const SubstitutionModelSe
   _modelSet.resize(set._modelSet.size());
   for(unsigned int i = 0; i < set._modelSet.size(); i++)
   {
-    _modelSet[i] = set._modelSet[i]->clone();
+    _modelSet[i] = dynamic_cast<SubstitutionModel *>(set._modelSet[i]->clone());
   }
   return *this;
 }
