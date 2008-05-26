@@ -149,7 +149,7 @@ class DRASDRTreeLikelihoodNodeData :
 #ifndef NO_VIRTUAL_COV
     DRASDRTreeLikelihoodNodeData*
 #else 
-    Cloanble*
+    Clonable*
 #endif
     clone() const
     { 
