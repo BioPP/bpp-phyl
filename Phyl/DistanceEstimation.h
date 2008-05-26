@@ -442,7 +442,7 @@ class DistanceEstimation:
     }
 		const Optimizer * getOptimizer() const { return _optimizer; }
 		Optimizer * getOptimizer() { return _optimizer; }
-		void resetOptimizer() { _optimizer = dynamic_cast<optimizer *>(_defaultOptimizer->clone()); }
+		void resetOptimizer() { _optimizer = dynamic_cast<Optimizer *>(_defaultOptimizer->clone()); }
 
 		/**
 		 * @brief Specify a list of parameters to be estimated.
