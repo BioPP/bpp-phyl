@@ -264,7 +264,7 @@ class DRASDRTreeLikelihoodData :
 #ifndef NO_VIRTUAL_COV
     DRASDRTreeLikelihoodData*
 #else
-    Cloanble*
+    Clonable*
 #endif
     clone() const { return new DRASDRTreeLikelihoodData(*this); }
 
