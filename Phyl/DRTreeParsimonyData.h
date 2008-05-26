@@ -193,7 +193,12 @@ class DRTreeParsimonyData :
 		
     virtual ~DRTreeParsimonyData() { delete _shrunkData; }
 
-    DRTreeParsimonyData * clone() const { return new DRTreeParsimonyData(*this); }
+#ifndef NO_VIRTUAL_COV
+    DRTreeParsimonyData*
+#else
+    Clonable*
+#endif
+    clone() const { return new DRTreeParsimonyData(*this); }
 
 	public:
     void setTree(TreeTemplate<Node> & tree)
