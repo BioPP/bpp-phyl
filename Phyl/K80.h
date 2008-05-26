@@ -157,7 +157,12 @@ class K80:
 
     virtual ~K80() {}
 
-    K80 * clone() const { return new K80(*this); }
+#ifndef NO_VIRTUAL_COV
+    K80*
+#else
+    Clonable*
+#endif
+    clone() const { return new K80(*this); }
 
   public:
 		double Pij_t    (int i, int j, double d) const;

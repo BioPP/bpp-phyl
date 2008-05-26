@@ -117,7 +117,12 @@ class RHomogeneousClockTreeLikelihood:
       bool verbose = true)
       throw (Exception);
 
-    RHomogeneousClockTreeLikelihood * clone() const { return new RHomogeneousClockTreeLikelihood(* this); }
+#ifndef NO_VIRTUAL_COV
+    RHomogeneousClockTreeLikelihood*
+#else
+    Clonable*
+#endif
+    clone() const { return new RHomogeneousClockTreeLikelihood(* this); }
 
     virtual ~RHomogeneousClockTreeLikelihood() {}
 

@@ -74,7 +74,12 @@ class DRASDRTreeLikelihoodLeafData :
     const Node * _leaf;
 
   public:
-    DRASDRTreeLikelihoodLeafData * clone() const
+#ifndef NO_VIRTUAL_COV
+    DRASDRTreeLikelihoodLeafData*
+#else
+    Clonable*
+#endif
+    clone() const
     { 
       return new DRASDRTreeLikelihoodLeafData(*this);
     }

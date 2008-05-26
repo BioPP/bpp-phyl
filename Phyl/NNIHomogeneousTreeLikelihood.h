@@ -86,7 +86,12 @@ class BranchLikelihood :
     }
     virtual ~BranchLikelihood() {}
 
-    BranchLikelihood * clone() const { return new BranchLikelihood(*this); }
+#ifndef NO_VIRTUAL_COV
+    BranchLikelihood*
+#else
+    Clonable*
+#endif
+    clone() const { return new BranchLikelihood(*this); }
 
   public:
     void initModel(const SubstitutionModel *model, const DiscreteDistribution *rDist);
@@ -200,7 +205,12 @@ class NNIHomogeneousTreeLikelihood:
 
     virtual ~NNIHomogeneousTreeLikelihood();
 
-    NNIHomogeneousTreeLikelihood * clone() const { return new NNIHomogeneousTreeLikelihood(*this); }
+#ifndef NO_VIRTUAL_COV
+    NNIHomogeneousTreeLikelihood*
+#else
+    Clonable*
+#endif
+    clone() const { return new NNIHomogeneousTreeLikelihood(*this); }
 
   public:
 

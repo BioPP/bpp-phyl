@@ -136,7 +136,12 @@ class JCnuc:
 
 		virtual ~JCnuc() {}
 
-    JCnuc * clone() const { return new JCnuc(*this); }
+#ifndef NO_VIRTUAL_COV
+    JCnuc*
+#else
+    Clonable*
+#endif
+    clone() const { return new JCnuc(*this); }
 
   public:
 	

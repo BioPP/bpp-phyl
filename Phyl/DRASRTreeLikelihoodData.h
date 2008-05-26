@@ -83,7 +83,15 @@ class DRASRTreeLikelihoodNodeData :
 		const Node * _node;
 
   public:
-    DRASRTreeLikelihoodNodeData * clone() const { return new DRASRTreeLikelihoodNodeData(*this); }
+#ifndef NO_VIRTUAL_COV
+    DRASRTreeLikelihoodNodeData*
+#else
+    Clonable*
+#endif
+    clone() const
+    {
+      return new DRASRTreeLikelihoodNodeData(*this);
+    }
 
 	public:
 		const Node * getNode() const { return _node; }
@@ -175,7 +183,12 @@ class DRASRTreeLikelihoodData :
 
     virtual ~DRASRTreeLikelihoodData() { delete _shrunkData; }
 
-    DRASRTreeLikelihoodData * clone() const { return new DRASRTreeLikelihoodData(*this); }
+#ifndef NO_VIRTUAL_COV
+    DRASRTreeLikelihoodData*
+#else
+    Clonable*
+#endif
+    clone() const { return new DRASRTreeLikelihoodData(*this); }
 
 	public:
     void setTree(TreeTemplate<Node> & tree)

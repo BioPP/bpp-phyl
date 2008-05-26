@@ -105,7 +105,12 @@ class G2001:
 
     virtual ~G2001() { delete _rDist; }
 
-    G2001 * clone() const { return new G2001(*this); }
+#ifndef NO_VIRTUAL_COV
+    G2001*
+#else
+    Clonable*
+#endif
+    clone() const { return new G2001(*this); }
 
   public:
     string getName() const { return _model->getName() + "+G2001"; }

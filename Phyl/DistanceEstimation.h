@@ -127,7 +127,12 @@ class TwoTreeLikelihood:
     
     TwoTreeLikelihood & operator=(const TwoTreeLikelihood & lik);
 
-    TwoTreeLikelihood * clone() const { return new TwoTreeLikelihood(*this); } 
+#ifndef NO_VIRTUAL_COV
+    TwoTreeLikelihood*
+#else
+    Clonable*
+#endif
+    clone() const { return new TwoTreeLikelihood(*this); } 
 
 		virtual ~TwoTreeLikelihood();
 
@@ -336,8 +341,8 @@ class DistanceEstimation:
       _rateDist(distanceEstimation._rateDist),
       _sites(distanceEstimation._sites),
       _dist(NULL),
-      _optimizer(distanceEstimation._optimizer->clone()),
-      _defaultOptimizer(_defaultOptimizer->clone()),
+      _optimizer(dynamic_cast<Optimizer *>(distanceEstimation._optimizer->clone())),
+      _defaultOptimizer(dynamic_cast<MetaOptimizer *>(_defaultOptimizer->clone())),
       _verbose(distanceEstimation._verbose),
       _parameters(distanceEstimation._parameters)
     {
@@ -364,7 +369,7 @@ class DistanceEstimation:
         _dist = new DistanceMatrix(*distanceEstimation._dist);
       else
         _dist = NULL;
-      _optimizer = distanceEstimation._optimizer->clone();
+      _optimizer = dynamic_cast<Optimizer *>(distanceEstimation._optimizer->clone());
       // _defaultOptimizer has already been initialized since the default constructor has been called.
       _verbose = distanceEstimation._verbose;
       _parameters = distanceEstimation._parameters;
@@ -378,10 +383,10 @@ class DistanceEstimation:
       delete _optimizer;
 		}
 
-#ifdef NO_VIRTUAL_COV
-    Clonable *
-#else
+#ifndef NO_VIRTUAL_COV
     DistanceEstimation *
+#else
+    Clonable *
 #endif
     clone() const { return new DistanceEstimation(*this); }
 		

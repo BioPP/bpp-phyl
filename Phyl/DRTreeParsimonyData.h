@@ -76,7 +76,12 @@ class DRTreeParsimonyNodeData :
 		const Node * _node;
 
   public:
-    DRTreeParsimonyNodeData * clone() const { return new DRTreeParsimonyNodeData(*this); }
+#ifndef NO_VIRTUAL_COV
+    DRTreeParsimonyNodeData*
+#else
+    Clonable*
+#endif
+    clone() const { return new DRTreeParsimonyNodeData(*this); }
 
   public:
 		const Node * getNode() const { return _node; }
@@ -129,7 +134,12 @@ class DRTreeParsimonyLeafData :
 		const Node * _leaf;
 
   public:
-    DRTreeParsimonyLeafData * clone() const { return new DRTreeParsimonyLeafData(*this); }
+#ifndef NO_VIRTUAL_COV
+    DRTreeParsimonyLeafData*
+#else
+    Clonable
+#endif
+    clone() const { return new DRTreeParsimonyLeafData(*this); }
 
 	public:
 		const Node * getNode() const { return _leaf; }

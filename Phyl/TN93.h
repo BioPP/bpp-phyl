@@ -126,7 +126,7 @@ namespace bpp
  *
  * Reference:
  * - Tamura N and Nei K (1993), _Molecular Biology And Evolution_ 10(3) 512-26. 
-  */
+ */
 class TN93:
   public NucleotideSubstitutionModel
 {
@@ -147,7 +147,12 @@ class TN93:
 	
 		virtual ~TN93() {}
 
-    TN93 * clone() const { return new TN93(*this); }
+#ifndef NO_VIRTUAL_COV
+    TN93*
+#else
+    Clonable*
+#endif
+    clone() const { return new TN93(*this); }
 
   public:
 

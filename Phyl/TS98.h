@@ -101,7 +101,12 @@ class TS98:
 
     virtual ~TS98() {}
 
-    TS98 * clone() const { return new TS98(*this); }
+#ifndef NO_VIRTUAL_COV
+    TS98*
+#else
+    Clonable*
+#endif
+    clone() const { return new TS98(*this); }
 
   public:
     string getName() const { return _model->getName() + "+TS98"; }

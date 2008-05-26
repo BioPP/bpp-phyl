@@ -156,7 +156,12 @@ class GTR:
 	
 		virtual ~GTR() {}
 
-    GTR * clone() const { return new GTR(*this); }
+#ifndef NO_VIRTUAL_COV
+    GTR*
+#else
+    Clonable*
+#endif
+    clone() const { return new GTR(*this); }
 
   public:
 		string getName() const { return "GTR"; }

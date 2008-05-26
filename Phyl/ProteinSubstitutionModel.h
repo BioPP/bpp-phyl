@@ -59,7 +59,12 @@ class ProteinSubstitutionModel:
 
 		virtual ~ProteinSubstitutionModel() {}
 
-    ProteinSubstitutionModel * clone() const = 0;
+#ifndef NO_VIRTUAL_COV
+    ProteinSubstitutionModel*
+#else
+    Clonable*
+#endif
+    clone() const = 0;
 		
   public:
     unsigned int getNumberOfStates() const { return 20; };

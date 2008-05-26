@@ -142,7 +142,12 @@ class RNonHomogeneousTreeLikelihood :
 
     virtual ~RNonHomogeneousTreeLikelihood();
 
-    RNonHomogeneousTreeLikelihood * clone() const { return new RNonHomogeneousTreeLikelihood(*this); }
+#ifndef NO_VIRTUAL_COV
+    RNonHomogeneousTreeLikelihood*
+#else
+    Clonable*
+#endif
+    clone() const { return new RNonHomogeneousTreeLikelihood(*this); }
 	
 	private:
 

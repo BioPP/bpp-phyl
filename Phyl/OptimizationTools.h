@@ -353,7 +353,12 @@ class OptimizationTools
 				ScaleFunction(TreeLikelihood * tl);
 				virtual ~ScaleFunction();
 
-        ScaleFunction * clone() const { return new ScaleFunction(*this); }
+#ifndef NO_VIRTUAL_COV
+        ScaleFunction*
+#else
+        Clonable*
+#endif
+        clone() const { return new ScaleFunction(*this); }
 				
 			public:
 				void setParameters(const ParameterList & lambda) throw (ParameterNotFoundException, ConstraintException);

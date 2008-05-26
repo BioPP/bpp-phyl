@@ -67,7 +67,12 @@ class JTT92:
 
 		virtual ~JTT92() {}
 
-    JTT92 * clone() const { return new JTT92(*this); }
+#ifndef NO_VIRTUAL_COV
+    JTT92*
+#else
+    Clonable*
+#endif
+    clone() const { return new JTT92(*this); }
 
 	public:
 		string getName() const { return "JTT92"; }

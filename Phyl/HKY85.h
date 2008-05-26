@@ -195,7 +195,12 @@ class HKY85:
 	
 		virtual ~HKY85() {}
 
-    HKY85 * clone() const { return new HKY85(*this); }
+#ifndef NO_VIRTUAL_COV
+    HKY85*
+#else
+    Clonable*
+#endif
+    clone() const { return new HKY85(*this); }
 
   public:
 		double Pij_t    (int i, int j, double d) const;

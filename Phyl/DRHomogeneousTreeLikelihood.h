@@ -124,7 +124,12 @@ class DRHomogeneousTreeLikelihood:
 
     virtual ~DRHomogeneousTreeLikelihood();
 
-    DRHomogeneousTreeLikelihood * clone() const { return new DRHomogeneousTreeLikelihood(*this); }
+#ifndef NO_VIRTUAL_COV
+    DRHomogeneousTreeLikelihood*
+#else
+    Clonable*
+#endif
+    clone() const { return new DRHomogeneousTreeLikelihood(*this); }
 
   private:
 

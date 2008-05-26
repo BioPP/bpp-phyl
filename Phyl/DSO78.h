@@ -67,7 +67,12 @@ class DSO78:
 
 		virtual ~DSO78() {}
 
-    DSO78 * clone() const { return new DSO78(*this); }
+#ifndef NO_VIRTUAL_COV
+    DSO78*
+#else
+    Clonable*
+#endif
+    clone() const { return new DSO78(*this); }
     
 	public:
 		string getName() const { return "DSO78"; }

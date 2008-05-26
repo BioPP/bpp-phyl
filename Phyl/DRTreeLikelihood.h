@@ -78,7 +78,9 @@ class DRTreeLikelihood:
     DRTreeLikelihood() {}
     virtual ~DRTreeLikelihood() {}
 
-    DRTreeLikelihood * clone() const = 0;
+#ifndef NO_VIRTUAL_COV
+    DRTreeLikelihood* clone() const = 0;
+#endif
 
   public:
   
