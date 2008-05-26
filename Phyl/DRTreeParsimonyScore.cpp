@@ -75,7 +75,7 @@ DRTreeParsimonyScore::DRTreeParsimonyScore(
 DRTreeParsimonyScore::DRTreeParsimonyScore(const DRTreeParsimonyScore & tp):
   AbstractTreeParsimonyScore(tp)
 {
-  _parsimonyData = tp._parsimonyData->clone();
+  _parsimonyData = dynamic_cast<DRTreeParsimonyData *>(tp._parsimonyData->clone());
   _parsimonyData->setTree(*_tree);
   _nbDistinctSites = tp._nbDistinctSites;
 }
@@ -85,7 +85,7 @@ DRTreeParsimonyScore::DRTreeParsimonyScore(const DRTreeParsimonyScore & tp):
 DRTreeParsimonyScore& DRTreeParsimonyScore::operator=(const DRTreeParsimonyScore & tp)
 {
   AbstractTreeParsimonyScore::operator=(tp);
-  _parsimonyData = tp._parsimonyData->clone();
+  _parsimonyData = dynamic_cast<DRTreeParsimonyData *>(tp._parsimonyData->clone());
   _parsimonyData->setTree(*_tree);
   _nbDistinctSites = tp._nbDistinctSites;
   return *this;
