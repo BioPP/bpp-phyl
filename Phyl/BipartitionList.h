@@ -141,11 +141,11 @@ class BipartitionList:
 
     unsigned int getNumberOfElements() const { return _elements.size(); }
 
-    vector<string> getElementNames() const { return _elements; }
+    const vector<string> & getElementNames() const { return _elements; }
 
     unsigned int getNumberOfBipartitions() const { return _bitBipartitionList.size(); }
 
-    vector<int*> getBitBipartitionList() const { return _bitBipartitionList; }
+    const vector<int*> & getBitBipartitionList() const { return _bitBipartitionList; }
 
     map<string, bool> getBipartition(unsigned int i) const throw (Exception);
 
