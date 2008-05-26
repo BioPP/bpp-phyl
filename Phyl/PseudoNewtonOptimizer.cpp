@@ -69,7 +69,7 @@ PseudoNewtonOptimizer::PseudoNewtonOptimizer(DerivableSecondOrder * function) :
   _n(0), _params(), _maxCorrection(10)
 {
   _defaultStopCondition = new FunctionStopCondition(this);
-  _stopCondition = _defaultStopCondition->clone();
+  _stopCondition = dynamic_cast<OptimizationStopCondition *>(_defaultStopCondition->clone());
 }
 
 /**************************************************************************/
