@@ -607,7 +607,7 @@ TreeTemplate<Node>* BipartitionList::toTree() const throw (Exception)
   if(!BipartitionList::areAllCompatible())
     throw Exception("Trying to build a tree from incompatible bipartitions");
 
-  sortedBipL = clone();
+  sortedBipL = dynamic_cast<BipartitionList *>(clone());
   for(unsigned int i = 0; i < sortedBipL->getNumberOfBipartitions(); i++)
   {
     if(sortedBipL->getPartitionSize(i) > sortedBipL->getNumberOfElements() / 2)
