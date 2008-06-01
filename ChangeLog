@@ -1,3 +1,7 @@
+01/06/08 Julien Dutheil
+* Bug fixed in FrequenciesSet: the sum critierion was changed to be less
+restrictive! (now 1e-6).
+
 22/05/08 Julien Dutheil
 * Added method getLikelihoodData() in R(Non)HomogeneousTreeLikelihood.
 

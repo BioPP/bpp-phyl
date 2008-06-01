@@ -67,9 +67,9 @@ FullFrequenciesSet::FullFrequenciesSet(const Alphabet * alphabet, const vector<d
   {
     sum += initFreqs[i];
   }
-  if(fabs(1-sum) > 0.00000000000001)
+  if(fabs(1.-sum) > 0.000001)
   {
-    throw Exception("Root frequencies must equal 1.");
+    throw Exception("Root frequencies must equal 1 (sum = " + TextTools::toString(sum) + ").");
   }
   _freq.resize(alphabet->getSize());
   for(unsigned int i = 0; i < alphabet->getSize(); i++)
@@ -123,9 +123,9 @@ FullProteinFrequenciesSet::FullProteinFrequenciesSet(const ProteicAlphabet * alp
   {
     sum += initFreqs[i];
   }
-  if(fabs(1-sum) > 0.00000000000001)
+  if(fabs(1.-sum) > 0.000001)
   {
-    throw Exception("Root frequencies must equal 1.");
+    throw Exception("Root frequencies must equal 1 (sum = " + TextTools::toString(sum) + ").");
   }
   _freq = initFreqs;
   double cumFreqs = 1.;
@@ -169,9 +169,9 @@ FixedFrequenciesSet::FixedFrequenciesSet(const Alphabet * alphabet, const vector
   {
     sum += initFreqs[i];
   }
-  if(fabs(1-sum) > 0.00000000000001)
+  if(fabs(1.-sum) > 0.000001)
   {
-    throw Exception("Root frequencies must equal 1.");
+    throw Exception("Root frequencies must equal 1 (sum = " + TextTools::toString(sum) + ").");
   }
   _freq = initFreqs;
 }
