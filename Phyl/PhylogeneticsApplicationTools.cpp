@@ -378,6 +378,8 @@ FrequenciesSet * PhylogeneticsApplicationTools::getFrequenciesSet(
       double theta2 = rootFreq[2] / (rootFreq[1] + rootFreq[2]);
       rootFrequencies = new FullNAFrequenciesSet(dynamic_cast<const NucleicAlphabet *>(alphabet), theta, theta1, theta2, "RootFreq");
     }
+    else if(AlphabetTools::isProteicAlphabet(alphabet))
+      rootFrequencies = new FullProteinFrequenciesSet(dynamic_cast<const ProteicAlphabet *>(alphabet), rootFreq, "RootFreq");
     else
       rootFrequencies = new FullFrequenciesSet(alphabet, rootFreq, "RootFreq");
   }
@@ -385,6 +387,8 @@ FrequenciesSet * PhylogeneticsApplicationTools::getFrequenciesSet(
   {
     if(AlphabetTools::isNucleicAlphabet(alphabet))
       rootFrequencies = new FullNAFrequenciesSet(dynamic_cast<const NucleicAlphabet*>(alphabet), "RootFreq");
+    else if(AlphabetTools::isProteicAlphabet(alphabet))
+      rootFrequencies = new FullProteinFrequenciesSet(dynamic_cast<const ProteicAlphabet*>(alphabet), "RootFreq");
     else
       rootFrequencies = new FullFrequenciesSet(alphabet, "RootFreq");
   }
