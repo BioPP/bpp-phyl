@@ -1,4 +1,4 @@
-%define name Bpp-Phyl
+%define name bpp-phyl
 %define version 1.5.1
 %define release 1
 %define _prefix /usr/local
@@ -8,7 +8,7 @@ Name: %{name}
 Version: %{version}
 Release: %{release}
 Vendor: The Bio++ Project
-Source: http://kimura.univ-montp2.fr/BioPP/Download/Sources/%{name}-%{version}.tar.gz
+Source: http://kimura.univ-montp2.fr/BioPP/Repositories/sources/%{name}-%{version}.tar.gz
 License: CeCILL 2
 Group: System Environment/Libraries
 BuildRoot: %{_builddir}/%{name}-root
@@ -27,9 +27,9 @@ It is part of the Bio++ project.
 Summary: Libraries, includes to develop applications with %{name}.
 Group: Development/Libraries
 Requires: %{name} = %{version}
-Requires: Bpp-Utils-devel = 1.3.0
-Requires: Bpp-NumCalc-devel = 1.5.0
-Requires: Bpp-Seq-devel = 1.4.1
+Requires: bpp-utils-devel = 1.3.0
+Requires: bpp-numcalc-devel = 1.5.0
+Requires: bpp-seq-devel = 1.4.1
 
 %description devel
 The %{name}-devel package contains the header files and static libraries for
