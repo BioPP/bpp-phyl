@@ -1,4 +1,4 @@
-#Copyright or © or Copr. CNRS, (November 16, 2004)
+#Copyright or © or Copr. CNRS, (November 16, 2004-2008)
 #
 #This software is a computer program whose purpose is to provide classes
 #for phylogenetic data analysis.
@@ -29,7 +29,7 @@
 #The fact that you are presently reading this means that you have had
 #knowledge of the CeCILL license and that you accept its terms.
 
-AC_INIT(Bio++ PhylLib, 1.5.0, Julien.Dutheil@univ-montp2.fr, Bpp-Phyl)
+AC_INIT(Bio++ PhylLib, 1.5.1, Julien.Dutheil@univ-montp2.fr, bpp-phyl)
 AC_CONFIG_SRCDIR(Phyl/Tree.h)
 AM_INIT_AUTOMAKE()
 AC_LANG_CPLUSPLUS

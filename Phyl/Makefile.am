@@ -1,4 +1,4 @@
-#Copyright or © or Copr. CNRS, (November 16, 2004)
+#Copyright or © or Copr. CNRS, (November 16, 2004-2008)
 #
 #This software is a computer program whose purpose is to provide classes
 #for phylogenetic data analysis.
@@ -208,7 +208,7 @@ lib_LTLIBRARIES = libbpp-phyl.la
 libbpp_phyl_la_SOURCES = $(H_FILES) $(CPP_FILES)
 EXTRA_libbpp_phyl_la_SOURCES = $(CPP_EXTRA)
 # CURRENT:REVISION:AGE => file.so.(C-A).A.R
-libbpp_phyl_la_LDFLAGS = -version-info 6:0:0
+libbpp_phyl_la_LDFLAGS = -version-info 7:0:1
 
 library_includedir=$(includedir)/Phyl
 library_include_HEADERS = $(H_FILES)

@@ -1,3 +1,5 @@
+18/01/08 -*- Version 1.5.1. -*-
+
 01/06/08 Julien Dutheil
 * Bug fixed in FrequenciesSet: the sum critierion was changed to be less
 restrictive! (now 1e-6).
@@ -9,7 +11,7 @@ restrictive! (now 1e-6).
 * Bug fixed in TreeTools::getLastCommonAncestor.
 
 04/04/08 Julien Dutheil
-* Bug fixed in copy ocnstructors: now NH models work with covarions.
+* Bug fixed in copy constructors: now NH models work with covarions.
 
 27/03/08 Nicolas Galtier & Julien Dutheil
 * Bug solved in NNIHomogeneousTreeLikelihood: branch lengths are now correctly
@@ -24,7 +26,7 @@ restrictive! (now 1e-6).
 * Recopy of Abstract(Non)HomogeneousTreeLikelihood fixed.
 * New methods in SubstitutionModelSet.
 
-18/02/08 Celine Scornavacca & Julien Dutheil
+18/02/08 Céline Scornavacca & Julien Dutheil
 * Bug fixed in TreeTemplate::newOutGroup.
 
 21/01/08 Julien Dutheil

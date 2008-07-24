@@ -63,7 +63,7 @@ using namespace std;
  * Several utilitary methods can also be found in the bpp::TreeTools static class.
  * The only implementation for now of the bpp::Tree interface is the bpp::TreeTemplate class.
  * It uses a recursive storage of bpp::Node objects (or any class inheriting from it).
- * The bpp::Node object contains methods to access to father and son nodes in the hierarchy, and several fields like a name,
+ * The bpp::Node object contains methods to access the father and son nodes in the hierarchy, and several fields like a name,
  * an id or the length of the branch connected to its father. It also includes support for node and branch properties (like
  * bootstrap values) that can be attached to and manipulated together with the tree.
  * The bpp::NodeTemplate class can be used in order to extend the tree structure and add more complex
@@ -77,11 +77,11 @@ using namespace std;
  * @section reconstruction Phylogenetic reconstruction methods
  *
  * @par
- * PhylLib provides tools to reconstruct phylogenies from sequence data, using maximum parcimony, distance-based methods 
+ * PhylLib provides tools to reconstruct phylogenies from sequence data, using maximum parsimony, distance-based methods 
  * and maximum likelihood, all of them implemented in an object-oriented way, and hence involving several classes.
  *
  * @par Maximum parcimony
- * See bpp::TreeParcimonyScore for parcimony score computation. Only a Nearest Neighbor Interchange (NNI) algorithm for
+ * See bpp::TreeParsimonyScore for parsimony score computation. Only a Nearest Neighbor Interchange (NNI) algorithm for
  * topology estimation is provided for now, see bpp::NNISearchable, bpp::NNITopologySearch and bpp::OptimizationTools for
  * more user-friendly methods.
  *
@@ -98,8 +98,8 @@ using namespace std;
  * - The bpp::RHomogeneousTreeLikelihood class is the most simple implementation. It uses Felsenstein's recursion.
  *   The possibility of compressing sites save comptation time and memory.
  * - The bpp::DRHomogeneousTreeLikelihood class is similar to the previous one, but uses a double-recursive algorithm.
- *   It is more CPU expensive when computing likelihoods, and uses more memory. Computation of branch length analytcal 
- *   derivatives is nonetheless faster, since they do not involve any aditionnal recursion.
+ *   It is more CPU expensive when computing likelihoods, and uses more memory. Computation of branch length analytical 
+ *   derivatives is nonetheless faster, since they do not involve any additionnal recursion.
  *   You also have to use this class in order to perform substitution mapping (bpp::SubstitutionMappingTools) or reconstruct
  *   ancestral sequences (bpp::AncestralStateReconstruction).
  * - The bpp::NNIHomogeneousTreeLikelihood class inherits from bpp::DRHomogeneousTreeLikelihood, and implements the bpp::NNISearchable
