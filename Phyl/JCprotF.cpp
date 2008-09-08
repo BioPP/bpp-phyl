@@ -1,7 +1,7 @@
 //
-// File: DSO78.h
+// File: JCprotF.cpp
 // Created by: Julien Dutheil
-// Created on: Tue Oct 05 18:49:44 2004
+// Created on: Tue Sept 02 11:28 2008
 //
 
 /*
@@ -37,49 +37,30 @@ The fact that you are presently reading this means that you have had
 knowledge of the CeCILL license and that you accept its terms.
 */
 
-#ifndef _DSO78_H_
-#define _DSO78_H_
+#include "JCprotF.h"
 
-#include "ProteinSubstitutionModel.h"
+using namespace bpp;
 
-// From SeqLib:
-#include <Seq/ProteicAlphabet.h>
+#include <cmath>
 
-namespace bpp
+using namespace std;
+
+/******************************************************************************/
+
+JCprotF::JCprotF(const ProteicAlphabet * alpha) :
+  ProteinSubstitutionModel(alpha),
+  ProteinSubstitutionModelWithFrequencies(alpha)
 {
+	_p.resize(_size, _size);
+  for(unsigned int i = 0; i < 20; i++)
+  {
+		for(unsigned int j = 0; j < 20; j++)
+    {
+			_exchangeability(i, j) = (i == j) ? -20. : 20./19.;
+		}
+	}	
+	updateMatrices();
+}
 
-/**
- * @brief The Dayhoff, Schwartz and Orcutt substitution model for proteins.
- *
- * Exchangeabilities have been computed using the DCMut method of Kosiol and Goldman.
- * The exchangability matrix is normalized so that \f$Q = S . \pi\f$ and \f$\sum_i Q_{i,i}\pi_i = -1\f$.
- * Eigen values and vectors are obtained numerically.
- * 
- * References:
- * - Dayhoff MO, Schwartz RM and Orcutt BC (1978), _A model of evolutionary change in proteins_, 5(3) 345-352, in _Atlas of Protein Sequence and Structure_. 
- * - Kosiol C and Goldman N (2005), _Molecular Biology And Evolution_ 22(2) 193-9. 
- */
-class DSO78:
-  public ProteinSubstitutionModel
-{
-	public:
-		DSO78(const ProteicAlphabet * alpha);
-
-		virtual ~DSO78() {}
-
-#ifndef NO_VIRTUAL_COV
-    DSO78*
-#else
-    Clonable*
-#endif
-    clone() const { return new DSO78(*this); }
-    
-	public:
-		string getName() const { return "DSO78"; }
-
-};
-
-} //end of namespace bpp.
-
-#endif	//_DSO78_H_
-
+/******************************************************************************/
+	

@@ -170,40 +170,61 @@ SubstitutionModel * PhylogeneticsApplicationTools::getSubstitutionModelDefaultIn
   { 
     // Alphabet supposed to be proteic!
     string modelName = ApplicationTools::getStringParameter(prefix + "name", params, "JCprot", suffix, suffixIsOptional);
+    bool withFreq = false;
     if(modelName.find("+") != string::npos)
     {
       StringTokenizer st(modelName, "+");
       modelName = st.nextToken();
-      covarionName = st.nextToken();
+      string tmp = st.nextToken();
+      if(tmp == "F")
+      {
+        withFreq = true;
+        if(st.hasMoreToken()) covarionName = st.nextToken();
+      }
     }
     const ProteicAlphabet * alpha = dynamic_cast<const ProteicAlphabet *>(alphabet);
-    bool useObsFreq = ApplicationTools::getBooleanParameter(prefix + "use_observed_freq", params, false, suffix, suffixIsOptional);
     
-    if(modelName == "JCprot")
+    if(withFreq)
     {
-      model = new JCprot(alpha);
-    }
-    else if(modelName == "DSO78")
-    {
-      model = new DSO78(alpha);
-    }
-    else if(modelName == "JTT92")
-    {
-      model = new JTT92(alpha);
-    }
-    else if(modelName == "empirical")
-    {
-      string file = ApplicationTools::getAFilePath("model_empirical.file", params, true, true, suffix, true);
-      model = new UserProteinSubstitutionModel(alpha, file);
+      bool useObsFreq = ApplicationTools::getBooleanParameter(prefix + "use_observed_freq", params, false, suffix, suffixIsOptional);
+      if(modelName == "JCprot")
+        model = new JCprotF(alpha);
+      else if(modelName == "DSO78")
+        model = new DSO78F(alpha);
+      else if(modelName == "JTT92")
+        model = new JTT92F(alpha);
+      else if(modelName == "empirical")
+      {
+        string file = ApplicationTools::getAFilePath("model_empirical.file", params, true, true, suffix, true);
+        model = new UserProteinSubstitutionModelF(alpha, file);
+      }
+      else
+      {
+        throw Exception("Model '" + modelName + "+F' unknown.");
+      }
+      if(useObsFreq && data != NULL) model->setFreqFromData(*data);
     }
     else
     {
-      throw Exception("Model '" + modelName + "' unknown.");
+      if(modelName == "JCprot")
+        model = new JCprot(alpha);
+      else if(modelName == "DSO78")
+        model = new DSO78(alpha);
+      else if(modelName == "JTT92")
+        model = new JTT92(alpha);
+      else if(modelName == "empirical")
+      {
+        string file = ApplicationTools::getAFilePath("model_empirical.file", params, true, true, suffix, true);
+        model = new UserProteinSubstitutionModel(alpha, file);
+      }
+      else
+      {
+        throw Exception("Model '" + modelName + "' unknown.");
+      }
     }
-    if(useObsFreq && data != NULL) model->setFreqFromData(*data);
     if(verbose)
     {
-      ApplicationTools::displayResult("Substitution model", modelName + (useObsFreq && (model != NULL) ? "-F" : ""));
+      ApplicationTools::displayResult("Substitution model", modelName + (withFreq && (model != NULL) ? "+F" : ""));
     }
   }
 
@@ -326,7 +347,7 @@ void PhylogeneticsApplicationTools::setSubstitutionModelParametersInitialValues(
   for(unsigned int i = 0; i < pl.size(); i++)
   {
     const string pName = pl[i]->getName();
-    if(useObsFreq && (pName == "piA" || pName == "piC" || pName == "piG" || pName == "piT")) continue;
+    if(useObsFreq && pName.substr(0, 5) == "theta") continue;
     string value = ApplicationTools::getStringParameter(prefix + pName, params, TextTools::toString(pl[i]->getValue()), suffix, suffixIsOptional);
     if(value.size() > 5 && value.substr(0, 5) == "model")
     {
@@ -336,9 +357,7 @@ void PhylogeneticsApplicationTools::setSubstitutionModelParametersInitialValues(
         sharedParams.push_back(value);
       }
       else
-      {
         throw Exception("Error, unknown parameter" + prefix + pName);
-      }
     }
     else
     {

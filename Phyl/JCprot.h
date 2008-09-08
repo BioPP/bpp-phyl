@@ -105,7 +105,7 @@ namespace bpp
  * The probabilities of changes are computed analytically using the formulas:
  * \f[
  * P_{i,j}(t) = \begin{cases}
- * \frac{19}{20}e^{-\frac{20}{19}t}               & \text{if $i=j$}, \\
+ * \frac{19}{20} + e^{-\frac{20}{19}t}            & \text{if $i=j$}, \\
  * \frac{1}{20} - \frac{1}{20}e^{-\frac{20}{19}t} & \text{otherwise}.
  * \end{cases}
  * \f]

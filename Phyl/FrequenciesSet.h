@@ -76,7 +76,44 @@ class FrequenciesSet:
      */ 
     virtual vector<double> getFrequencies() const = 0;
 
+    /**
+     * @brief Set the parameters in order to match a given set of frequencies.
+     *
+     * @param frequencies The set of frequencies to match.
+     * @throw DimensionException If the number of frequencies does not match the size of the alphabet.
+     * @throw Exception If the frequencies do not sum to 1.
+     */
+    virtual void setFrequencies(const vector<double> & frequencies) throw (DimensionException, Exception) = 0;
+
 };
+
+/**
+ * @brief Parametrize a set of state frequencies for nucleotides.
+ */
+class NucleotideFrequenciesSet:
+  public virtual FrequenciesSet
+{
+  public:
+#ifndef NO_VIRTUAL_COV
+    NucleotideFrequenciesSet * clone() const = 0;
+#endif
+
+};
+
+/**
+ * @brief Parametrize a set of state frequencies for proteins.
+ */
+class ProteinFrequenciesSet:
+  public virtual FrequenciesSet
+{
+  public:
+#ifndef NO_VIRTUAL_COV
+    ProteinFrequenciesSet * clone() const = 0;
+#endif
+
+};
+
+
 
 /**
  * @brief Basic implementation of the FrequenciesSet interface.
@@ -122,13 +159,28 @@ class FullFrequenciesSet:
         _freq[i] = _parameters[i]->getValue();
       }
     }
+
+    void setFrequencies(const vector<double> & frequencies) throw (DimensionException, Exception)
+    {
+      if(frequencies.size() != _alphabet->getSize()) throw DimensionException("FullFrequenciesSet::setFrequencies", frequencies.size(), _alphabet->getSize());
+      double sum = 0.0;
+      for(unsigned int i = 0; i < 20; i++)
+        sum += frequencies[i];
+      if(fabs(1.-sum) > 0.000001)
+        throw Exception("FullFrequenciesSet::setFrequencies. Frequencies must equal 1 (sum = " + TextTools::toString(sum) + ").");
+      for(unsigned int i = 0; i < _parameters.size(); i++)
+      {
+        _parameters[i]->setValue(frequencies[i]);
+        _freq[i] = frequencies[i];
+      }
+    }
 };
 
 /**
  * @brief Nucleotide FrequenciesSet using only one parameter, the GC content.
  */
 class GCFrequenciesSet:
-  public AbstractFrequenciesSet
+  public NucleotideFrequenciesSet, AbstractFrequenciesSet
 {
   public:
     GCFrequenciesSet(const NucleicAlphabet * alphabet, const string & prefix = ""):
@@ -160,13 +212,25 @@ class GCFrequenciesSet:
       _freq[0] = _freq[3] = (1. - theta) / 2.;
       _freq[1] = _freq[2] = theta / 2.;
     }
+
+    void setFrequencies(const vector<double> & frequencies) throw (DimensionException)
+    {
+      if(frequencies.size() != 4) throw DimensionException("GCFrequenciesSet::setFrequencies", frequencies.size(), 4);
+      double sum = 0.0;
+      for(unsigned int i = 0; i < 20; i++)
+        sum += frequencies[i];
+      if(fabs(1.-sum) > 0.000001)
+        throw Exception("GCFrequenciesSet::setFrequencies. Frequencies must equal 1 (sum = " + TextTools::toString(sum) + ").");
+      _parameters[0]->setValue(frequencies[1] + frequencies[2]);
+      _freq = frequencies;
+    }
 };
 
 /**
  * @brief Nucleotide FrequenciesSet using three indpeendent parameters to modelize the four frequencies.
  */
 class FullNAFrequenciesSet:
-  public AbstractFrequenciesSet
+  public NucleotideFrequenciesSet, AbstractFrequenciesSet
 {
   public:
     FullNAFrequenciesSet(const NucleicAlphabet * alphabet, const string & prefix = "");
@@ -181,6 +245,21 @@ class FullNAFrequenciesSet:
     clone() const { return new FullNAFrequenciesSet(*this); }
 
   public:
+    void setFrequencies(const vector<double> & frequencies) throw (DimensionException, Exception)
+    {
+      if(frequencies.size() != 4) throw DimensionException("FullNAFrequenciesSet::setFrequencies", frequencies.size(), 4);
+      double sum = 0.0;
+      for(unsigned int i = 0; i < 20; i++)
+        sum += frequencies[i];
+      if(fabs(1.-sum) > 0.000001)
+        throw Exception("FullNAFrequenciesSet::setFrequencies. Frequencies must equal 1 (sum = " + TextTools::toString(sum) + ").");
+      double theta = frequencies[1] + frequencies[2];
+      _parameters[0]->setValue(theta);
+      _parameters[1]->setValue(frequencies[0] / (1 - theta));
+      _parameters[2]->setValue(frequencies[2] / theta);
+      _freq = frequencies;
+    }
+
     void fireParameterChanged(const ParameterList & pl);
 };
 
@@ -191,7 +270,7 @@ class FullNAFrequenciesSet:
  * @f[ \theta_i = \frac{0.05}{0.956{i-1}},\quad i = 1..19 @f] or according to a user-specified vector of initial values.
  */
 class FullProteinFrequenciesSet:
-  public AbstractFrequenciesSet
+  public ProteinFrequenciesSet, AbstractFrequenciesSet
 {
   public:
     FullProteinFrequenciesSet(const ProteicAlphabet * alphabet, const string & prefix = "");
@@ -205,6 +284,8 @@ class FullProteinFrequenciesSet:
     clone() const { return new FullProteinFrequenciesSet(*this); }
 
   public:
+    void setFrequencies(const vector<double> & frequencies) throw (DimensionException, Exception);
+
     void fireParameterChanged(const ParameterList & pl);
 };
 
@@ -252,6 +333,12 @@ class MarkovModulatedFrequenciesSet:
     virtual ~MarkovModulatedFrequenciesSet() { delete _freqSet; }
 
   public:
+    void setFrequencies(const vector<double> & frequencies) throw (DimensionException)
+    {
+      //Just forward this method to the sequence state frequencies set. This may change in the future...
+      _freqSet->setFrequencies(frequencies);
+    }
+
     void fireParameterChanged(const ParameterList & pl)
     {
       _freqSet->matchParametersValues(pl);
@@ -278,7 +365,18 @@ class FixedFrequenciesSet:
     clone() const { return new FixedFrequenciesSet(*this); }
 
   public:
-    void fireParameterChanged(const ParameterList & pl) {}
+    void setFrequencies(const vector<double> & frequencies) throw (DimensionException)
+    {
+      if(frequencies.size() != _alphabet->getSize()) throw DimensionException("FixedFrequenciesSet::setFrequencies", frequencies.size(), _alphabet->getSize());
+      double sum = 0.0;
+      for(unsigned int i = 0; i < 20; i++)
+        sum += frequencies[i];
+      if(fabs(1.-sum) > 0.000001)
+        throw Exception("FixedFrequenciesSet::setFrequencies. Frequencies must equal 1 (sum = " + TextTools::toString(sum) + ").");
+      _freq = frequencies;
+    }
+
+   void fireParameterChanged(const ParameterList & pl) {}
 };
 
 } //end of namespace bpp.

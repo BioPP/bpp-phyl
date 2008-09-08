@@ -118,23 +118,11 @@ FullProteinFrequenciesSet::FullProteinFrequenciesSet(const ProteicAlphabet * alp
 {
   if(initFreqs.size() != 20)
     throw Exception("FullProteinFrequenciesSet(constructor). There must be 20 frequencies.");
-  double sum = 0.0;
-  for(unsigned int i = 0; i < 20; i++)
-  {
-    sum += initFreqs[i];
-  }
-  if(fabs(1.-sum) > 0.000001)
-  {
-    throw Exception("Root frequencies must equal 1 (sum = " + TextTools::toString(sum) + ").");
-  }
-  _freq = initFreqs;
-  double cumFreqs = 1.;
   for(unsigned int i = 1; i < 20; i++)
   {
-    double theta = _freq[i] / cumFreqs;
-    cumFreqs *= (1. - _freq[i]);
-    _parameters.addParameter(Parameter(prefix + "theta" + TextTools::toString(i) , theta, &Parameter::PROP_CONSTRAINT_EX));
+    _parameters.addParameter(Parameter(prefix + "theta" + TextTools::toString(i) , 0.05 / (1-0.05*((double)i - 1.)), &Parameter::PROP_CONSTRAINT_EX));
   }
+  setFrequencies(initFreqs);
 }
 
 FullProteinFrequenciesSet::FullProteinFrequenciesSet(const ProteicAlphabet * alphabet, const string & prefix):
@@ -143,19 +131,41 @@ FullProteinFrequenciesSet::FullProteinFrequenciesSet(const ProteicAlphabet * alp
   _freq.resize(20);
   for(unsigned int i = 1; i < 20; i++)
   {
-    _parameters.addParameter(Parameter(prefix + "theta" + TextTools::toString(i) , 0.05 / pow(0.95, (double)i - 1.), &Parameter::PROP_CONSTRAINT_EX));
+    _parameters.addParameter(Parameter(prefix + "theta" + TextTools::toString(i) , 0.05 / (1-0.05*((double)i - 1.)), &Parameter::PROP_CONSTRAINT_EX));
     _freq[i-1] = 0.05;
   }
   _freq[19] = 0.05;
 }
 
+void FullProteinFrequenciesSet::setFrequencies(const vector<double> & frequencies) throw (DimensionException, Exception)
+{
+  if(frequencies.size() != 20) throw DimensionException("FullProteinFrequenciesSet::setFrequencies", frequencies.size(), 20);
+  double sum = 0.0;
+  for(unsigned int i = 0; i < 20; i++)
+  {
+    sum += frequencies[i];
+  }
+  if(fabs(1.-sum) > 0.000001)
+  {
+    throw Exception("FullProteinFrequenciesSet::setFrequencies. Frequencies must equal 1 (sum = " + TextTools::toString(sum) + ").");
+  }
+  _freq = frequencies;
+  double cumFreq = 1.;
+  for(unsigned int i = 0; i < 19; i++)
+  {
+    double theta = _freq[i] / cumFreq;
+    cumFreq -= _freq[i];
+    _parameters[i]->setValue(theta);
+  }
+}
+
 void FullProteinFrequenciesSet::fireParameterChanged(const ParameterList & pl)
 {
   double cumTheta = 1.;
-  for(unsigned int i = 1; i < 20; i++)
+  for(unsigned int i = 0; i < 19; i++)
   {
     double theta = _parameters[i]->getValue();
-    _freq[i-1] = cumTheta * theta;
+    _freq[i] = cumTheta * theta;
     cumTheta *= (1. - theta);
   }
   _freq[19] = cumTheta;
@@ -164,15 +174,6 @@ void FullProteinFrequenciesSet::fireParameterChanged(const ParameterList & pl)
 FixedFrequenciesSet::FixedFrequenciesSet(const Alphabet * alphabet, const vector<double>& initFreqs, const string & prefix):
   AbstractFrequenciesSet(alphabet)
 {
-  double sum = 0.0;
-  for(unsigned int i = 0; i < initFreqs.size(); i++)
-  {
-    sum += initFreqs[i];
-  }
-  if(fabs(1.-sum) > 0.000001)
-  {
-    throw Exception("Root frequencies must equal 1 (sum = " + TextTools::toString(sum) + ").");
-  }
-  _freq = initFreqs;
+  setFrequencies(initFreqs);
 }
 

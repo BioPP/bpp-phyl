@@ -55,7 +55,8 @@ class ProteinSubstitutionModel:
   public AbstractReversibleSubstitutionModel
 {
 	public:
-		ProteinSubstitutionModel(const ProteicAlphabet * alpha): AbstractReversibleSubstitutionModel(alpha) {}
+		ProteinSubstitutionModel(const ProteicAlphabet * alpha):
+      AbstractReversibleSubstitutionModel(alpha) {}
 
 		virtual ~ProteinSubstitutionModel() {}
 
@@ -70,7 +71,6 @@ class ProteinSubstitutionModel:
     unsigned int getNumberOfStates() const { return 20; };
 
 };
-
 
 } //end of namespace bpp.
 

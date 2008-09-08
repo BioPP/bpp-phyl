@@ -1,6 +1,6 @@
 //
 // File: JTT92.cpp
-// Created by: Julien Dutheil>
+// Created by: Julien Dutheil
 // Created on: Wed Jan 21 14:09:43 2004
 //
 

@@ -1,7 +1,7 @@
 //
-// File: DSO78.h
+// File: JTT92F.h
 // Created by: Julien Dutheil
-// Created on: Tue Oct 05 18:49:44 2004
+// Created on: Tue Sep 02 13:07 2008
 //
 
 /*
@@ -37,10 +37,10 @@ The fact that you are presently reading this means that you have had
 knowledge of the CeCILL license and that you accept its terms.
 */
 
-#ifndef _DSO78_H_
-#define _DSO78_H_
+#ifndef _JTT92F_H_
+#define _JTT92F_H_
 
-#include "ProteinSubstitutionModel.h"
+#include "ProteinSubstitutionModelWithFrequencies.h"
 
 // From SeqLib:
 #include <Seq/ProteicAlphabet.h>
@@ -49,37 +49,36 @@ namespace bpp
 {
 
 /**
- * @brief The Dayhoff, Schwartz and Orcutt substitution model for proteins.
+ * @brief The Jones, Taylor and Thornton substitution model for proteins with free equilibrium frequencies.
  *
  * Exchangeabilities have been computed using the DCMut method of Kosiol and Goldman.
  * The exchangability matrix is normalized so that \f$Q = S . \pi\f$ and \f$\sum_i Q_{i,i}\pi_i = -1\f$.
  * Eigen values and vectors are obtained numerically.
  * 
  * References:
- * - Dayhoff MO, Schwartz RM and Orcutt BC (1978), _A model of evolutionary change in proteins_, 5(3) 345-352, in _Atlas of Protein Sequence and Structure_. 
+ * - Jones DT, Taylor WR and Thornton JM (1992), _Computer Applications In The Biosciences_, 8(3) 275-82. 
  * - Kosiol C and Goldman N (2005), _Molecular Biology And Evolution_ 22(2) 193-9. 
  */
-class DSO78:
-  public ProteinSubstitutionModel
+class JTT92F:
+  public ProteinSubstitutionModelWithFrequencies
 {
 	public:
-		DSO78(const ProteicAlphabet * alpha);
+		JTT92F(const ProteicAlphabet * alpha);
 
-		virtual ~DSO78() {}
+		virtual ~JTT92F() {}
 
 #ifndef NO_VIRTUAL_COV
-    DSO78*
+    JTT92F*
 #else
     Clonable*
 #endif
-    clone() const { return new DSO78(*this); }
-    
-	public:
-		string getName() const { return "DSO78"; }
+    clone() const { return new JTT92F(*this); }
 
+	public:
+		string getName() const { return "JTT92+F"; }
 };
 
 } //end of namespace bpp.
 
-#endif	//_DSO78_H_
+#endif	//_JTT92F_H_
 

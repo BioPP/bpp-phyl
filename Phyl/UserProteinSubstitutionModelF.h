@@ -1,7 +1,7 @@
 //
-// File: DSO78.h
+// File: UserProteinSubstitutionModelF.h
 // Created by: Julien Dutheil
-// Created on: Tue Oct 05 18:49:44 2004
+// Created on: Tue Sep 02 13:19 2008
 //
 
 /*
@@ -37,49 +37,57 @@ The fact that you are presently reading this means that you have had
 knowledge of the CeCILL license and that you accept its terms.
 */
 
-#ifndef _DSO78_H_
-#define _DSO78_H_
+#ifndef _USERPROTEINSUBSTITUTIONMODELF_H_
+#define _USERPROTEINSUBSTITUTIONMODELF_H_
 
-#include "ProteinSubstitutionModel.h"
+#include "ProteinSubstitutionModelWithFrequencies.h"
 
 // From SeqLib:
 #include <Seq/ProteicAlphabet.h>
+
+// From the STL:
+#include <string>
+
+using namespace std;
 
 namespace bpp
 {
 
 /**
- * @brief The Dayhoff, Schwartz and Orcutt substitution model for proteins.
- *
- * Exchangeabilities have been computed using the DCMut method of Kosiol and Goldman.
- * The exchangability matrix is normalized so that \f$Q = S . \pi\f$ and \f$\sum_i Q_{i,i}\pi_i = -1\f$.
- * Eigen values and vectors are obtained numerically.
+ * @brief Build an empirical protein substitution model from a file with free equilibrium frequencies.
  * 
- * References:
- * - Dayhoff MO, Schwartz RM and Orcutt BC (1978), _A model of evolutionary change in proteins_, 5(3) 345-352, in _Atlas of Protein Sequence and Structure_. 
- * - Kosiol C and Goldman N (2005), _Molecular Biology And Evolution_ 22(2) 193-9. 
+ * The file must follow PAML's format, and contain the exchangeabilities components (\f$S_{i,j}\f$)
+ * and all equilibrium frequencies (\f$\pi_{i}\f$).
+ * The generator is build so that \f$Q_{i,j} = \pi_i . S_{i,j}\f$, and is normalized
+ * so that \f$\sum_i Q_{i,i} \times \pi_i = -1\f$.
  */
-class DSO78:
-  public ProteinSubstitutionModel
+class UserProteinSubstitutionModelF:
+  public ProteinSubstitutionModelWithFrequencies
 {
+	protected:
+		const string _path;
+	
 	public:
-		DSO78(const ProteicAlphabet * alpha);
+		UserProteinSubstitutionModelF(const ProteicAlphabet * alpha, const string & path);
 
-		virtual ~DSO78() {}
+		virtual ~UserProteinSubstitutionModelF() {}
 
 #ifndef NO_VIRTUAL_COV
-    DSO78*
+    UserProteinSubstitutionModelF*
 #else
     Clonable*
 #endif
-    clone() const { return new DSO78(*this); }
-    
+    clone() const { return new UserProteinSubstitutionModelF(*this); }
+			
 	public:
-		string getName() const { return "DSO78"; }
+		string getName() const;
+
+	protected:
+		void readFromFile();
 
 };
 
 } //end of namespace bpp.
 
-#endif	//_DSO78_H_
+#endif //_USERPROTEINSUBSTITUTIONMODELF_H_
 

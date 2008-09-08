@@ -102,7 +102,7 @@ namespace bpp
  * The probabilities of changes are computed analytically using the formulas:
  * \f[
  * P_{i,j}(t) = \begin{cases}
- * \frac{3}{4}e^{-\frac{4}{3}t}               & \text{if $i=j$}, \\
+ * \frac{3}{4} + e^{-\frac{4}{3}t}            & \text{if $i=j$}, \\
  * \frac{1}{4} - \frac{1}{4}e^{-\frac{4}{3}t} & \text{otherwise}.
  * \end{cases}
  * \f]
