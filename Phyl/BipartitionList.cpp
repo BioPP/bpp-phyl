@@ -197,7 +197,7 @@ BipartitionList & BipartitionList::operator=(const BipartitionList & bipL)
   unsigned int nbint  = nbword * lword / (CHAR_BIT * sizeof(int));
 
   for(unsigned int i = 0; i < _bitBipartitionList.size(); i++)
-    delete _bitBipartitionList[i];
+    delete[] _bitBipartitionList[i];
   _bitBipartitionList.resize(bipL.getNumberOfBipartitions());
   vector<int*> bitBipL = bipL.getBitBipartitionList();
   for(unsigned int i = 0; i < bipL.getNumberOfBipartitions(); i++)
@@ -219,7 +219,7 @@ BipartitionList & BipartitionList::operator=(const BipartitionList & bipL)
 BipartitionList::~BipartitionList()
 {
   for(unsigned int i = 0; i < _bitBipartitionList.size(); i++)
-    delete _bitBipartitionList[i];
+    delete[] _bitBipartitionList[i];
 }
 
 /******************************************************************************/
@@ -303,7 +303,7 @@ void BipartitionList::deleteBipartition(unsigned int i) throw(Exception)
   if(i >= _bitBipartitionList.size())
     throw Exception("Bipartition index exceeds BipartitionList size");
 
-  delete _bitBipartitionList[i];
+  delete[] _bitBipartitionList[i];
   _bitBipartitionList.erase(_bitBipartitionList.begin()+i);
 }
 
@@ -477,7 +477,7 @@ void BipartitionList::sortElements()
   }
 
   for(unsigned int j = 0; j < nbbip; j++)
-    delete _bitBipartitionList[j];
+    delete[] _bitBipartitionList[j];
 
   _bitBipartitionList.erase(_bitBipartitionList.begin(), _bitBipartitionList.begin() + nbbip);
   _sorted = true;
@@ -562,7 +562,7 @@ void BipartitionList::flip(unsigned int k) throw (Exception)
   int* flipbip = new int[nbint];
   for(unsigned int i = 0; i < nbint; i++) flipbip[i] = 0;
   BipartitionTools::bitNot(flipbip, _bitBipartitionList[k], nbint);
-  delete _bitBipartitionList[k];
+  delete[] _bitBipartitionList[k];
   _bitBipartitionList[k] = flipbip;
 }
 

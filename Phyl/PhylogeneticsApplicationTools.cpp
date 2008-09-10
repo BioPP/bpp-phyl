@@ -347,7 +347,7 @@ void PhylogeneticsApplicationTools::setSubstitutionModelParametersInitialValues(
   for(unsigned int i = 0; i < pl.size(); i++)
   {
     const string pName = pl[i]->getName();
-    if(useObsFreq && pName.substr(0, 5) == "theta") continue;
+    if(useObsFreq && (pName.substr(0,5) == "theta")) continue;
     string value = ApplicationTools::getStringParameter(prefix + pName, params, TextTools::toString(pl[i]->getValue()), suffix, suffixIsOptional);
     if(value.size() > 5 && value.substr(0, 5) == "model")
     {

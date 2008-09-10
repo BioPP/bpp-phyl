@@ -1,3 +1,6 @@
+10/09/08 Sophie Abby
+* Corrected memory leak in BipartitionList (delete -> delete[]).
+
 02/09/08 Julien Dutheil
 * Added "real" +F protein substitution models, with frequencies estimation.
 
