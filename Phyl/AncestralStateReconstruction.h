@@ -42,6 +42,7 @@ knowledge of the CeCILL license and that you accept its terms.
 
 // From SeqLib:
 #include <Seq/Sequence.h>
+#include <Seq/SequenceContainer.h>
 
 // From the STL:
 #include <vector>
@@ -72,29 +73,36 @@ class AncestralStateReconstruction
 		 * Consider using the getAncestralSequenceForNode() method for a more
 		 * general output.
 		 *
-		 * @param node A pointer toward the node at which the states must be reconstructed.
+		 * @param nodeId the id of the node at which the states must be reconstructed.
 		 * @return A vector of states as int values.
 		 * @see getAncestralSequenceForNode
 		 */ 
-		virtual vector<int> getAncestralStatesForNode(const Node * node) const = 0;
+		virtual vector<int> getAncestralStatesForNode(int nodeId) const = 0;
 
 		/**
 		 * @brief Get all ancestral states for all nodes.
 		 *
 		 * Call the getAncestralSequenceForNode() method on each node in the tree.
 		 *
-		 * @return A map with pointers toward each node as key, and a vector of int as value.
+		 * @return A map with nodes id as key, and a vector of int as value.
 		 * @see getAncestralSequenceForNode
 		 */
-		virtual map<const Node *, vector<int> > getAllAncestralStates() const = 0;
+		virtual map<int, vector<int> > getAllAncestralStates() const = 0;
 
 		/**
 		 * @brief Get the ancestral sequence for a given node.
 		 *
-		 * @param node A pointer toward the node at which the sequence must be reconstructed.
+		 * @param nodeId The id of the node at which the sequence must be reconstructed.
 		 * @return A sequence object.
 		 */ 
-		virtual Sequence * getAncestralSequenceForNode(const Node * node) const = 0;
+		virtual Sequence * getAncestralSequenceForNode(int nodeId) const = 0;
+
+		/**
+		 * @brief Get all the ancestral sequences for all nodes.
+		 *
+		 * @return A new SequenceContainer object.
+		 */ 
+    virtual SequenceContainer * getAncestralSequences() const = 0;
 		
 };
 

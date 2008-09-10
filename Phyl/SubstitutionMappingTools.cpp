@@ -87,7 +87,7 @@ ProbabilisticSubstitutionMapping * SubstitutionMappingTools::computeSubstitution
                                    
   // Store likelihood for each rate for each site:
   VVVdouble l;
-  drtl.computeLikelihoodAtNode(tree->getRootNode(), l);
+  drtl.computeLikelihoodAtNode(tree->getRootId(), l);
   Vdouble Lr(nbDistinctSites, 0);
   Vdouble rcProbs = rDist->getProbabilities();
   Vdouble rcRates = rDist->getCategories();
@@ -172,7 +172,7 @@ ProbabilisticSubstitutionMapping * SubstitutionMappingTools::computeSubstitution
       if(currentSon->getId() != currentNode->getId())
       {
         VVVdouble pxy = drtl.getTransitionProbabilitiesForNode(currentSon);
-        const VVVdouble * likelihoodsFather_son = & drtl.getLikelihoodData()->getLikelihoodArray(father, currentSon);
+        const VVVdouble * likelihoodsFather_son = & drtl.getLikelihoodData()->getLikelihoodArray(father->getId(), currentSon->getId());
         for(unsigned int i = 0; i < nbDistinctSites; i++)
         {
           const VVdouble * likelihoodsFather_son_i = & (* likelihoodsFather_son)[i];
@@ -200,7 +200,7 @@ ProbabilisticSubstitutionMapping * SubstitutionMappingTools::computeSubstitution
     {
       const Node * currentSon = father->getFather();
       VVVdouble pxy = drtl.getTransitionProbabilitiesForNode(father);
-      const VVVdouble * likelihoodsFather_son = & drtl.getLikelihoodData()->getLikelihoodArray(father, currentSon);
+      const VVVdouble * likelihoodsFather_son = & drtl.getLikelihoodData()->getLikelihoodArray(father->getId(), currentSon->getId());
       for(unsigned int i = 0; i < nbDistinctSites; i++)
       {
         const VVdouble * likelihoodsFather_son_i = & (* likelihoodsFather_son)[i];
@@ -245,7 +245,7 @@ ProbabilisticSubstitutionMapping * SubstitutionMappingTools::computeSubstitution
     // We first average uppon 'y' to save computations, and then uppon 'x'.
     // ('y' is the state at 'node' and 'x' the state at 'father'.)
     const VVVdouble * pxy = & drtl.getTransitionProbabilitiesForNode(currentNode);
-		const VVVdouble * likelihoodsFather_node = & drtl.getLikelihoodData()->getLikelihoodArray(father, currentNode);
+		const VVVdouble * likelihoodsFather_node = & drtl.getLikelihoodData()->getLikelihoodArray(father->getId(), currentNode->getId());
     for(unsigned int i = 0; i < nbDistinctSites; i++)
     {
       const VVdouble * likelihoodsFather_node_i = & (* likelihoodsFather_node)[i];
@@ -360,7 +360,7 @@ ProbabilisticSubstitutionMapping * SubstitutionMappingTools::computeSubstitution
       delete nijt;
     }
     
-    map<int, VVVdouble> likelihoodsFather = drtl.getLikelihoodData()->getLikelihoodArrays(father);
+    map<int, VVVdouble> likelihoodsFather = drtl.getLikelihoodData()->getLikelihoodArrays(father->getId());
 
     // Now we've got to compute likelihoods in a smart manner... ;)
 
@@ -536,7 +536,7 @@ ProbabilisticSubstitutionMapping * SubstitutionMappingTools::computeSubstitution
   // Compute the number of substitutions for each class and each branch in the tree:
   if(verbose) ApplicationTools::displayTask("Compute marginal ancestral states");
   MarginalAncestralStateReconstruction masr(drtl);
-  map<const Node *, vector<int> > ancestors = masr.getAllAncestralStates();
+  map<int, vector<int> > ancestors = masr.getAllAncestralStates();
   if(verbose) ApplicationTools::displayTaskDone();
 
   // Now we just have to compute the substitution vectors:
@@ -552,8 +552,8 @@ ProbabilisticSubstitutionMapping * SubstitutionMappingTools::computeSubstitution
     
     double d = currentNode->getDistanceToFather();
 
-    vector<int> nodeStates = ancestors[currentNode]; //These are not 'true' ancestors ;)
-    vector<int> fatherStates = ancestors[father];
+    vector<int> nodeStates = ancestors[currentNode->getId()]; //These are not 'true' ancestors ;)
+    vector<int> fatherStates = ancestors[father->getId()];
     
     //For each node,
     if(verbose) ApplicationTools::displayGauge(l, nbNodes-1, '>');
@@ -663,8 +663,8 @@ ProbabilisticSubstitutionMapping * SubstitutionMappingTools::computeSubstitution
 
     // Then, we deal with the node of interest.
     // ('y' is the state at 'node' and 'x' the state at 'father'.)
-    VVVdouble probsNode   = DRTreeLikelihoodTools::getPosteriorProbabilitiesForEachStateForEachRate(drtl, currentNode);
-    VVVdouble probsFather = DRTreeLikelihoodTools::getPosteriorProbabilitiesForEachStateForEachRate(drtl, father);
+    VVVdouble probsNode   = DRTreeLikelihoodTools::getPosteriorProbabilitiesForEachStateForEachRate(drtl, currentNode->getId());
+    VVVdouble probsFather = DRTreeLikelihoodTools::getPosteriorProbabilitiesForEachStateForEachRate(drtl, father->getId());
     for(unsigned int i = 0; i < nbDistinctSites; i++)
     {
       VVdouble * probsNode_i   = & probsNode[i];

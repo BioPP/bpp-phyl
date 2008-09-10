@@ -57,12 +57,12 @@ class DRTreeLikelihoodTools
      * @brief Compute the posterior probabilities for each state and each rate of each site.
      *
      * @param drl A DR tree likelihood object.
-     * @param node The node at which probabilities must be computed.
+     * @param nodeId The id of the node at which probabilities must be computed.
      * @return A 3-dimensional array, with probabilities for each site, each rate and each state.
      */
     static VVVdouble getPosteriorProbabilitiesForEachStateForEachRate(
         const DRTreeLikelihood & drl,
-        const Node * node);
+        int nodeId);
 };
 
 } //end of namespace bpp.

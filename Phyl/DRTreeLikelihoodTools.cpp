@@ -46,7 +46,7 @@ using namespace bpp;
 
 VVVdouble DRTreeLikelihoodTools::getPosteriorProbabilitiesForEachStateForEachRate(
   const DRTreeLikelihood & drl,
-  const Node * node)
+  int nodeId)
 {
   unsigned int nSites   = drl.getLikelihoodData()->getNumberOfDistinctSites();
   unsigned int nClasses = drl.getNumberOfClasses();
@@ -55,9 +55,9 @@ VVVdouble DRTreeLikelihoodTools::getPosteriorProbabilitiesForEachStateForEachRat
   
   const DiscreteDistribution * rDist = drl.getRateDistribution();
   Vdouble rcProbs = rDist->getProbabilities();
-  if(node->isLeaf())
+  if(drl.getTree()->isLeaf(nodeId))
   {
-    VVdouble larray = drl.getLikelihoodData()->getLeafLikelihoods(node);
+    VVdouble larray = drl.getLikelihoodData()->getLeafLikelihoods(nodeId);
     for(unsigned int i = 0; i < nSites; i++)
     {
       VVdouble * postProb_i = & postProb[i];
@@ -78,7 +78,7 @@ VVVdouble DRTreeLikelihoodTools::getPosteriorProbabilitiesForEachStateForEachRat
   else
   {
     VVVdouble larray;
-    drl.computeLikelihoodAtNode(node, larray);
+    drl.computeLikelihoodAtNode(nodeId, larray);
     
     Vdouble likelihoods(nSites, 0);
     for(unsigned int i = 0; i < nSites; i++)

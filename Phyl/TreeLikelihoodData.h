@@ -125,10 +125,10 @@ class TreeLikelihoodData:
      * @param tree The tree to be associated to this data.
      */
     virtual void setTree(TreeTemplate<Node> & tree) = 0;
-		virtual unsigned int getArrayPosition(const Node* parent, const Node* son, unsigned int currentPosition) const = 0;
+		virtual unsigned int getArrayPosition(int parentId, int sonId, unsigned int currentPosition) const = 0;
 		virtual unsigned int getRootArrayPosition(const unsigned int site) const = 0;
-		virtual       TreeLikelihoodNodeData & getNodeData(const Node * node) = 0;
-		virtual const TreeLikelihoodNodeData & getNodeData(const Node * node) const = 0;
+		virtual       TreeLikelihoodNodeData & getNodeData(int nodeId) = 0;
+		virtual const TreeLikelihoodNodeData & getNodeData(int nodeId) const = 0;
     
 };
 

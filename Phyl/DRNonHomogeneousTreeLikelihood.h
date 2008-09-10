@@ -208,7 +208,7 @@ class DRNonHomogeneousTreeLikelihood:
     DRASDRTreeLikelihoodData * getLikelihoodData() { return _likelihoodData; }
     const DRASDRTreeLikelihoodData * getLikelihoodData() const { return _likelihoodData; }
   
-    virtual void computeLikelihoodAtNode(const Node * node, VVVdouble& likelihoodArray) const;
+    virtual void computeLikelihoodAtNode(int nodeId, VVVdouble& likelihoodArray) const;
 
   protected:
   

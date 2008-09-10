@@ -88,26 +88,26 @@ class DRTreeParsimonyNodeData :
 		
     void setNode(const Node & node) { _node = &node; }
 
-		vector<Bitset> & getBitsetsArrayForNeighbor(const Node * neighbor)
+		vector<Bitset> & getBitsetsArrayForNeighbor(int neighborId)
 		{
-			return _nodeBitsets[neighbor->getId()];
+			return _nodeBitsets[neighborId];
 		}
-		const vector<Bitset> & getBitsetsArrayForNeighbor(const Node * neighbor) const
+		const vector<Bitset> & getBitsetsArrayForNeighbor(int neighborId) const
 		{
-			return _nodeBitsets[neighbor->getId()];
+			return _nodeBitsets[neighborId];
 		}
-		vector<unsigned int> & getScoresArrayForNeighbor(const Node * neighbor)
+		vector<unsigned int> & getScoresArrayForNeighbor(int neighborId)
 		{
-			return _nodeScores[neighbor->getId()];
+			return _nodeScores[neighborId];
 		}
-		const vector<unsigned int> & getScoresArrayForNeighbor(const Node * neighbor) const
+		const vector<unsigned int> & getScoresArrayForNeighbor(int neighborId) const
 		{
-			return _nodeScores[neighbor->getId()];
+			return _nodeScores[neighborId];
 		}
 
-		bool isNeighbor(const Node * neighbor) const
+		bool isNeighbor(int neighborId) const
 		{
-			return _nodeBitsets.find(neighbor->getId()) != _nodeBitsets.end();
+			return _nodeBitsets.find(neighborId) != _nodeBitsets.end();
 		}
 
 		void eraseNeighborArrays()
@@ -216,43 +216,43 @@ class DRTreeParsimonyData :
       }
     }
 
-		DRTreeParsimonyNodeData & getNodeData(const Node * node)
+		DRTreeParsimonyNodeData & getNodeData(int nodeId)
 		{ 
-			return _nodeData[node->getId()];
+			return _nodeData[nodeId];
 		}
-		const DRTreeParsimonyNodeData & getNodeData(const Node * node) const
+		const DRTreeParsimonyNodeData & getNodeData(int nodeId) const
 		{ 
-			return _nodeData[node->getId()];
-		}
-		
-		DRTreeParsimonyLeafData & getLeafData(const Node * node)
-		{ 
-			return _leafData[node->getId()];
-		}
-		const DRTreeParsimonyLeafData & getLeafData(const Node * node) const
-		{ 
-			return _leafData[node->getId()];
+			return _nodeData[nodeId];
 		}
 		
-		vector<Bitset> & getBitsetsArray(const Node * node, const Node * neighbor)
+		DRTreeParsimonyLeafData & getLeafData(int nodeId)
 		{ 
-			return _nodeData[node->getId()].getBitsetsArrayForNeighbor(neighbor);
+			return _leafData[nodeId];
 		}
-		const vector<Bitset> & getBitsetsArray(const Node * node, const Node * neighbor) const
+		const DRTreeParsimonyLeafData & getLeafData(int nodeId) const
 		{ 
-			return _nodeData[node->getId()].getBitsetsArrayForNeighbor(neighbor);
+			return _leafData[nodeId];
 		}
 		
-		vector<unsigned int> & getScoresArray(const Node * node, const Node * neighbor)
+		vector<Bitset> & getBitsetsArray(int nodeId, int neighborId)
 		{ 
-			return _nodeData[node->getId()].getScoresArrayForNeighbor(neighbor);
+			return _nodeData[nodeId].getBitsetsArrayForNeighbor(neighborId);
 		}
-		const vector<unsigned int> & getScoresArray(const Node * node, const Node * neighbor) const 
+		const vector<Bitset> & getBitsetsArray(int nodeId, int neighborId) const
+		{ 
+			return _nodeData[nodeId].getBitsetsArrayForNeighbor(neighborId);
+		}
+		
+		vector<unsigned int> & getScoresArray(int nodeId, int neighborId)
+		{ 
+			return _nodeData[nodeId].getScoresArrayForNeighbor(neighborId);
+		}
+		const vector<unsigned int> & getScoresArray(int nodeId, int neighborId) const 
 		{
-			return _nodeData[node->getId()].getScoresArrayForNeighbor(neighbor);
+			return _nodeData[nodeId].getScoresArrayForNeighbor(neighborId);
 		}
 
-		unsigned int getArrayPosition(const Node* parent, const Node* son, unsigned int currentPosition) const
+		unsigned int getArrayPosition(int parentId, int sonId, unsigned int currentPosition) const
 		{ 
 			return currentPosition;
 		}

@@ -98,13 +98,13 @@ class MarginalAncestralStateReconstruction:
 		 * Consider using the getAncestralSequenceForNode() method for a more
 		 * general output.
 		 *
-		 * @param node A pointer toward the node at which the states must be reconstructed.
+		 * @param nodeId The id of the node at which the states must be reconstructed.
 		 * @return A vector of states as int values.
 		 * @see getAncestralSequenceForNode
 		 */ 
-		virtual vector<int> getAncestralStatesForNode(const Node * node) const;
+		vector<int> getAncestralStatesForNode(int nodeId) const;
 
-		virtual map<const Node *, vector<int> > getAllAncestralStates() const;
+		map<int, vector<int> > getAllAncestralStates() const;
 
 		/**
 		 * @brief Get the ancestral sequence for a given node.
@@ -112,15 +112,22 @@ class MarginalAncestralStateReconstruction:
 		 * The name of the sequence will be the name of the node if there is one, its id otherwise.
 		 * A new sequence object is created, whose destruction is up to the user.
 		 *
-		 * @param node A pointer toward the node at which the sequence must be reconstructed.
+		 * @param nodeId The id of the node at which the sequence must be reconstructed.
 		 * @return A sequence object.
 		 */ 
-		virtual Sequence * getAncestralSequenceForNode(const Node * node) const;
+		Sequence * getAncestralSequenceForNode(int nodeId) const;
 
-	private:
+#ifndef NO_VIRTUAL_COV
+    AlignedSequenceContainer *
+#else
+    SequenceContainer *
+#endif
+    getAncestralSequences() const;
+	
+  private:
 		void recursiveMarginalAncestralStates(
 			const Node * node,
-			map<const Node *, vector<int> > & ancestors,
+			map<int, vector<int> > & ancestors,
 			AlignedSequenceContainer & data) const;
 
 		

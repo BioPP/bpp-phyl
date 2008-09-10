@@ -165,14 +165,14 @@ class DRASDRTreeLikelihoodNodeData :
     
     map<int, VVVdouble> & getLikelihoodArrays() { return _nodeLikelihoods; }
     
-    VVVdouble & getLikelihoodArrayForNeighbor(const Node * neighbor)
+    VVVdouble & getLikelihoodArrayForNeighbor(int neighborId)
     {
-      return _nodeLikelihoods[neighbor->getId()];
+      return _nodeLikelihoods[neighborId];
     }
     
-    const VVVdouble & getLikelihoodArrayForNeighbor(const Node * neighbor) const
+    const VVVdouble & getLikelihoodArrayForNeighbor(int neighborId) const
     {
-      return _nodeLikelihoods[neighbor->getId()];
+      return _nodeLikelihoods[neighborId];
     }
     
     Vdouble & getDLikelihoodArray() { return _nodeDLikelihoods;  }
@@ -183,9 +183,9 @@ class DRASDRTreeLikelihoodNodeData :
     
     const Vdouble & getD2LikelihoodArrayForNeighbor() const  { return _nodeD2Likelihoods; }
 
-    bool isNeighbor(const Node * neighbor) const
+    bool isNeighbor(int neighborId) const
     {
-      return _nodeLikelihoods.find(neighbor->getId()) != _nodeLikelihoods.end();
+      return _nodeLikelihoods.find(neighborId) != _nodeLikelihoods.end();
     }
 
     void eraseNeighborArrays()
@@ -284,79 +284,79 @@ class DRASDRTreeLikelihoodData :
       }
     }
 
-    DRASDRTreeLikelihoodNodeData & getNodeData(const Node * node)
+    DRASDRTreeLikelihoodNodeData & getNodeData(int nodeId)
     { 
-      return _nodeData[node->getId()];
+      return _nodeData[nodeId];
     }
     
-    const DRASDRTreeLikelihoodNodeData & getNodeData(const Node * node) const
+    const DRASDRTreeLikelihoodNodeData & getNodeData(int nodeId) const
     { 
-      return _nodeData[node->getId()];
+      return _nodeData[nodeId];
     }
     
-    DRASDRTreeLikelihoodLeafData & getLeafData(const Node * node)
+    DRASDRTreeLikelihoodLeafData & getLeafData(int nodeId)
     { 
-      return _leafData[node->getId()];
+      return _leafData[nodeId];
     }
     
-    const DRASDRTreeLikelihoodLeafData & getLeafData(const Node * node) const
+    const DRASDRTreeLikelihoodLeafData & getLeafData(int nodeId) const
     { 
-      return _leafData[node->getId()];
+      return _leafData[nodeId];
     }
     
-    unsigned int getArrayPosition(const Node* parent, const Node* son, unsigned int currentPosition) const
+    unsigned int getArrayPosition(int parentId, int sonId, unsigned int currentPosition) const
     {
       return currentPosition;
     }
 
-    const map<int, VVVdouble> & getLikelihoodArrays(const Node *node) const 
+    const map<int, VVVdouble> & getLikelihoodArrays(int nodeId) const 
     {
-      return _nodeData[node->getId()].getLikelihoodArrays();
+      return _nodeData[nodeId].getLikelihoodArrays();
     }
     
-    map<int, VVVdouble> & getLikelihoodArrays(const Node *node)
+    map<int, VVVdouble> & getLikelihoodArrays(int nodeId)
     {
-      return _nodeData[node->getId()].getLikelihoodArrays();
+      return _nodeData[nodeId].getLikelihoodArrays();
     }
 
-    VVVdouble & getLikelihoodArray(const Node *parent, const Node *neighbor)
+    VVVdouble & getLikelihoodArray(int parentId, int neighborId)
     {
-      return _nodeData[parent->getId()].getLikelihoodArrayForNeighbor(neighbor);
+      return _nodeData[parentId].getLikelihoodArrayForNeighbor(neighborId);
     }
     
-    const VVVdouble & getLikelihoodArray(const Node *parent, const Node *neighbor) const
+    const VVVdouble & getLikelihoodArray(int parentId, int neighborId) const
     {
-      return _nodeData[parent->getId()].getLikelihoodArrayForNeighbor(neighbor);
+      return _nodeData[parentId].getLikelihoodArrayForNeighbor(neighborId);
     }
     
-    Vdouble & getDLikelihoodArray(const Node * node)
+    Vdouble & getDLikelihoodArray(int nodeId)
     {
-      return _nodeData[node->getId()].getDLikelihoodArray();
+      return _nodeData[nodeId].getDLikelihoodArray();
     }
     
-    const Vdouble & getDLikelihoodArray(const Node * node) const
+    const Vdouble & getDLikelihoodArray(int nodeId) const
     {
-      return _nodeData[node->getId()].getDLikelihoodArray();
+      return _nodeData[nodeId].getDLikelihoodArray();
     }
     
-    Vdouble & getD2LikelihoodArray(const Node * node)
+    Vdouble & getD2LikelihoodArray(int nodeId)
     {
-      return _nodeData[node->getId()].getD2LikelihoodArray();
+      return _nodeData[nodeId].getD2LikelihoodArray();
     }
 
-    const Vdouble & getD2LikelihoodArray(const Node * node) const
+    const Vdouble & getD2LikelihoodArray(int nodeId) const
     {
-      return _nodeData[node->getId()].getD2LikelihoodArray();
+      return _nodeData[nodeId].getD2LikelihoodArray();
     }
 
-    VVdouble & getLeafLikelihoods(const Node * node)
+    VVdouble & getLeafLikelihoods(int nodeId)
     {
-      return _leafData[node->getId()].getLikelihoodArray();
+      return _leafData[nodeId].getLikelihoodArray();
     }
     
-    const VVdouble & getLeafLikelihoods(const Node * node) const
+    const VVdouble & getLeafLikelihoods(int nodeId) const
     {
-      return _leafData[node->getId()].getLikelihoodArray();
+      return _leafData[nodeId].getLikelihoodArray();
     }
     
     VVVdouble & getRootLikelihoodArray() { return _rootLikelihoods; }
@@ -393,6 +393,7 @@ class DRASDRTreeLikelihoodData :
      */
     void reInit() throw (Exception);
     
+#
     void reInit(const Node * node) throw (Exception);
 
   protected:

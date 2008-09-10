@@ -147,8 +147,8 @@ void DRTreeParsimonyData::init(const Node * node, const SiteContainer & sites) t
 		for(int n = (node->hasFather() ? -1 : 0); n < nbSons; n++)
     {
 			const Node * neighbor = (* node)[n];
-			vector<Bitset> * neighborData_bitsets       = & nodeData->getBitsetsArrayForNeighbor(neighbor);
-			vector<unsigned int> * neighborData_scores  = & nodeData->getScoresArrayForNeighbor(neighbor);
+			vector<Bitset> * neighborData_bitsets       = & nodeData->getBitsetsArrayForNeighbor(neighbor->getId());
+			vector<unsigned int> * neighborData_scores  = & nodeData->getScoresArrayForNeighbor(neighbor->getId());
 		
 			neighborData_bitsets->resize(_nbDistinctSites);
 			neighborData_scores->resize(_nbDistinctSites);
@@ -190,8 +190,8 @@ void DRTreeParsimonyData::reInit(const Node * node) throw (Exception)
 		for(int n = (node->hasFather() ? -1 : 0); n < nbSons; n++)
     {
 			const Node * neighbor = (* node)[n];
-			vector<Bitset> * neighborData_bitsets       = & nodeData->getBitsetsArrayForNeighbor(neighbor);
-			vector<unsigned int> * neighborData_scores  = & nodeData->getScoresArrayForNeighbor(neighbor);
+			vector<Bitset> * neighborData_bitsets       = & nodeData->getBitsetsArrayForNeighbor(neighbor->getId());
+			vector<unsigned int> * neighborData_scores  = & nodeData->getScoresArrayForNeighbor(neighbor->getId());
 		
 			neighborData_bitsets->resize(_nbDistinctSites);
 			neighborData_scores->resize(_nbDistinctSites);

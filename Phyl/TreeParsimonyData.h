@@ -109,10 +109,10 @@ class TreeParsimonyData:
 	public:
 		virtual const TreeTemplate<Node> * getTree() const = 0;  
 		virtual TreeTemplate<Node> * getTree() = 0;
-		virtual unsigned int getArrayPosition(const Node * parent, const Node * son, unsigned int currentPosition) const = 0;
+		virtual unsigned int getArrayPosition(int parentId, int sonId, unsigned int currentPosition) const = 0;
 		virtual unsigned int getRootArrayPosition(const unsigned int site) const = 0;
-		virtual TreeParsimonyNodeData & getNodeData(const Node * node) = 0;
-		virtual const TreeParsimonyNodeData & getNodeData(const Node * node) const = 0;
+		virtual TreeParsimonyNodeData & getNodeData(int nodeId) = 0;
+		virtual const TreeParsimonyNodeData & getNodeData(int nodeId) const = 0;
 };
 
 } //end of namespace bpp.

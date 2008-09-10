@@ -244,8 +244,8 @@ double NNIHomogeneousTreeLikelihood::testNNI(int nodeId) const throw (NodeExcept
 	const Node * uncle = grandFather->getSon(parentPosition > 1 ? 0 : 1 - parentPosition);
 		
 	//Retrieving arrays of interest:
-	const DRASDRTreeLikelihoodNodeData * parentData = & _likelihoodData->getNodeData(parent);
-	const VVVdouble                    * sonArray   = & parentData->getLikelihoodArrayForNeighbor(son);
+	const DRASDRTreeLikelihoodNodeData * parentData = & _likelihoodData->getNodeData(parent->getId());
+	const VVVdouble                    * sonArray   = & parentData->getLikelihoodArrayForNeighbor(son->getId());
 	vector<const Node *> parentNeighbors = TreeTemplateTools::getRemainingNeighbors(parent, grandFather, son);
 	unsigned int nbParentNeighbors = parentNeighbors.size();
 	vector<const VVVdouble *> parentArrays(nbParentNeighbors);
@@ -253,14 +253,14 @@ double NNIHomogeneousTreeLikelihood::testNNI(int nodeId) const throw (NodeExcept
 	for(unsigned int k = 0; k < nbParentNeighbors; k++)
   {
 		const Node * n = parentNeighbors[k]; // This neighbor
-		parentArrays[k] = & parentData->getLikelihoodArrayForNeighbor(n); 
+		parentArrays[k] = & parentData->getLikelihoodArrayForNeighbor(n->getId()); 
     //if(n != grandFather) parentTProbs[k] = & _pxy[n->getId()];
     //else                 parentTProbs[k] = & _pxy[parent->getId()];
     parentTProbs[k] = & _pxy[n->getId()];
 	}
 	
-	const DRASDRTreeLikelihoodNodeData * grandFatherData = & _likelihoodData->getNodeData(grandFather);
-	const VVVdouble                    * uncleArray      = & grandFatherData->getLikelihoodArrayForNeighbor(uncle); 
+	const DRASDRTreeLikelihoodNodeData * grandFatherData = & _likelihoodData->getNodeData(grandFather->getId());
+	const VVVdouble                    * uncleArray      = & grandFatherData->getLikelihoodArrayForNeighbor(uncle->getId()); 
 	vector<const Node *> grandFatherNeighbors = TreeTemplateTools::getRemainingNeighbors(grandFather, parent, uncle);
 	unsigned int nbGrandFatherNeighbors = grandFatherNeighbors.size();
 	vector<const VVVdouble *> grandFatherArrays;
@@ -270,7 +270,7 @@ double NNIHomogeneousTreeLikelihood::testNNI(int nodeId) const throw (NodeExcept
 		const Node * n = grandFatherNeighbors[k]; // This neighbor
     if(grandFather->getFather() == NULL || n != grandFather->getFather())
     {
-		  grandFatherArrays.push_back(& grandFatherData->getLikelihoodArrayForNeighbor(n)); 
+		  grandFatherArrays.push_back(& grandFatherData->getLikelihoodArrayForNeighbor(n->getId())); 
       grandFatherTProbs.push_back(& _pxy[n->getId()]);
     }
 	}
@@ -282,7 +282,7 @@ double NNIHomogeneousTreeLikelihood::testNNI(int nodeId) const throw (NodeExcept
 	grandFatherTProbs.push_back(& _pxy[son->getId()]);
   if(grandFather->hasFather())
   {
-    computeLikelihoodFromArrays(grandFatherArrays, grandFatherTProbs, & grandFatherData->getLikelihoodArrayForNeighbor(grandFather->getFather()), & _pxy[grandFather->getId()], array1, nbGrandFatherNeighbors, _nbDistinctSites, _nbClasses, _nbStates, false); 
+    computeLikelihoodFromArrays(grandFatherArrays, grandFatherTProbs, & grandFatherData->getLikelihoodArrayForNeighbor(grandFather->getFather()->getId()), & _pxy[grandFather->getId()], array1, nbGrandFatherNeighbors, _nbDistinctSites, _nbClasses, _nbStates, false); 
   }
   else
   {

@@ -1,3 +1,10 @@
+11/09/08 Julien Dutheil
+* Large update on TreeLikelihoodData and TreeParsimonyData to rely mostly on
+  nodes id instead of Node*. Likelihood, parsimony and substitution mapping
+	methods have been updated accordingly.
+* Ancestral state reconstruction method has a new method to get a
+  SequenceContainer with all sequences.
+
 10/09/08 Sophie Abby
 * Corrected memory leak in BipartitionList (delete -> delete[]).
 

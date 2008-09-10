@@ -201,48 +201,48 @@ class DRASRTreeLikelihoodData :
       }
     }
 
-		DRASRTreeLikelihoodNodeData & getNodeData(const Node * node)
+		DRASRTreeLikelihoodNodeData & getNodeData(int nodeId)
 		{ 
-			return _nodeData[node->getId()];
+			return _nodeData[nodeId];
 		}
-		const DRASRTreeLikelihoodNodeData & getNodeData(const Node * node) const
+		const DRASRTreeLikelihoodNodeData & getNodeData(int nodeId) const
 		{ 
-			return _nodeData[node->getId()];
+			return _nodeData[nodeId];
 		}
-		unsigned int getArrayPosition(const Node* parent, const Node* son, unsigned int currentPosition) const
+		unsigned int getArrayPosition(int parentId, int sonId, unsigned int currentPosition) const
 		{
-			return _patternLinks[parent->getId()][son->getId()][currentPosition];
+			return _patternLinks[parentId][sonId][currentPosition];
 		}
 		unsigned int getRootArrayPosition(unsigned int currentPosition) const
 		{
 			return _rootPatternLinks[currentPosition];
 		}
-		const vector<unsigned int> & getArrayPositions(const Node* parent, const Node* son) const
+		const vector<unsigned int> & getArrayPositions(int parentId, int sonId) const
 		{
-			return _patternLinks[parent->getId()][son->getId()];
+			return _patternLinks[parentId][sonId];
 		}
-		vector<unsigned int> & getArrayPositions(const Node* parent, const Node* son)
+		vector<unsigned int> & getArrayPositions(int parentId, int sonId)
 		{
-			return _patternLinks[parent->getId()][son->getId()];
+			return _patternLinks[parentId][sonId];
 		}
-		unsigned int getArrayPosition(const Node* parent, const Node* son, unsigned int currentPosition)
+		unsigned int getArrayPosition(int parentId, int sonId, unsigned int currentPosition)
 		{
-			return _patternLinks[parent->getId()][son->getId()][currentPosition];
+			return _patternLinks[parentId][sonId][currentPosition];
 		}
 
-		VVVdouble & getLikelihoodArray(const Node *node)
+		VVVdouble & getLikelihoodArray(int nodeId)
 		{
-			return _nodeData[node->getId()].getLikelihoodArray();
+			return _nodeData[nodeId].getLikelihoodArray();
 		}
 		
-		VVVdouble & getDLikelihoodArray(const Node *node)
+		VVVdouble & getDLikelihoodArray(int nodeId)
 		{
-			return _nodeData[node->getId()].getDLikelihoodArray();
+			return _nodeData[nodeId].getDLikelihoodArray();
 		}
 		
-		VVVdouble & getD2LikelihoodArray(const Node *node)
+		VVVdouble & getD2LikelihoodArray(int nodeId)
 		{
-			return _nodeData[node->getId()].getD2LikelihoodArray();
+			return _nodeData[nodeId].getD2LikelihoodArray();
 		}
 
 		unsigned int getNumberOfDistinctSites() const { return _nbDistinctSites; }

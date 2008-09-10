@@ -42,12 +42,12 @@ knowledge of the CeCILL license and that you accept its terms.
 
 using namespace bpp;
 
-vector<int> MarginalAncestralStateReconstruction::getAncestralStatesForNode(const Node * node) const
+vector<int> MarginalAncestralStateReconstruction::getAncestralStatesForNode(int nodeId) const
 {
 	vector<int> ancestors(_nDistinctSites);
-	if(node->isLeaf())
+	if(_likelihood->getTree()->isLeaf(nodeId))
   {
-		VVdouble larray = _likelihood->getLikelihoodData()->getLeafLikelihoods(node);
+		VVdouble larray = _likelihood->getLikelihoodData()->getLeafLikelihoods(nodeId);
 		for(unsigned int i = 0; i < _nDistinctSites; i++)
     {
 			ancestors[i] = (int)VectorTools::whichmax(larray[i]);
@@ -56,7 +56,7 @@ vector<int> MarginalAncestralStateReconstruction::getAncestralStatesForNode(cons
   else
   {
 		VVVdouble larray;
-    _likelihood->computeLikelihoodAtNode(node, larray);
+    _likelihood->computeLikelihoodAtNode(nodeId, larray);
 		for(unsigned int i = 0; i < _nDistinctSites; i++)
     {
 			Vdouble likelihoods(_nStates, 0);
@@ -75,9 +75,9 @@ vector<int> MarginalAncestralStateReconstruction::getAncestralStatesForNode(cons
 	return ancestors;
 }
 
-map<const Node *, vector<int> > MarginalAncestralStateReconstruction::getAllAncestralStates() const
+map<int, vector<int> > MarginalAncestralStateReconstruction::getAllAncestralStates() const
 {
-	map<const Node *, vector<int> > ancestors;
+	map<int, vector<int> > ancestors;
 	// Clone the data into a AlignedSequenceContainer for more efficiency:
 	AlignedSequenceContainer * data = new AlignedSequenceContainer(* _likelihood->getLikelihoodData()->getShrunkData());
 	recursiveMarginalAncestralStates(dynamic_cast<const TreeTemplate<Node> *>(_likelihood->getTree())->getRootNode(), ancestors, *data);
@@ -85,35 +85,54 @@ map<const Node *, vector<int> > MarginalAncestralStateReconstruction::getAllAnce
 	return ancestors;
 }
 
-Sequence * MarginalAncestralStateReconstruction::getAncestralSequenceForNode(const Node * node) const
+Sequence * MarginalAncestralStateReconstruction::getAncestralSequenceForNode(int nodeId) const
 {
-	string name = node->hasName() ? node->getName() : "" + node->getId();
-	vector<int> states = getAncestralStatesForNode(node);
+	string name = _likelihood->getTree()->hasNodeName(nodeId) ? _likelihood->getTree()->getNodeName(nodeId) : "" + nodeId;
+	vector<int> states = getAncestralStatesForNode(nodeId);
 	vector<int> allStates(_nSites);
 	const vector<unsigned int> * rootPatternLinks = &_likelihood->getLikelihoodData()->getRootArrayPositions();
+  const SubstitutionModel* model =  _likelihood->getSubstitutionModelForNode(nodeId);
 	for(unsigned int i = 0; i < _nSites; i++)
   {
-		allStates[i] = states[(* rootPatternLinks)[i]];
+		allStates[i] = model->getState(states[(* rootPatternLinks)[i]]);
 	}
 	return new Sequence(name, allStates, _alphabet);
 }
 
 void MarginalAncestralStateReconstruction::recursiveMarginalAncestralStates(
 			const Node * node,
-			map<const Node *, vector<int> > & ancestors,
+			map<int, vector<int> > & ancestors,
 			AlignedSequenceContainer & data) const
 {
 	if(node->isLeaf())
   {
-		ancestors[node] = data.getSequence(node->getName())->getContent();
+		ancestors[node->getId()] = data.getSequence(node->getName())->getContent();
 	}
   else
   {
-		ancestors[node] = getAncestralStatesForNode(node);
+		ancestors[node->getId()] = getAncestralStatesForNode(node->getId());
 		for(unsigned int i = 0; i < node->getNumberOfSons(); i++)
     {
 			recursiveMarginalAncestralStates(node->getSon(i), ancestors, data);
 		}
 	}
+}
+
+#ifndef NO_VIRTUAL_COV
+AlignedSequenceContainer *
+#else
+SequenceContainer *
+#endif
+MarginalAncestralStateReconstruction::getAncestralSequences() const
+{
+  AlignedSequenceContainer * asc = new AlignedSequenceContainer(_alphabet);
+  vector<int> ids = _likelihood->getTree()->getNodesId();
+  for(unsigned int i = 0; i < ids.size(); i++)
+  {
+    Sequence * seq = getAncestralSequenceForNode(ids[i]);
+    asc->addSequence(*seq);
+    delete seq;
+  }
+  return asc;
 }
 

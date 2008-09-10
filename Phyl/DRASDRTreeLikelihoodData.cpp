@@ -224,7 +224,7 @@ void DRASDRTreeLikelihoodData::reInit(const Node * node) throw (Exception)
 	for(int n = (node->hasFather() ? -1 : 0); n < nbSons; n++)
   {
 		const Node * neighbor = (* node)[n];
-		VVVdouble *array = & nodeData->getLikelihoodArrayForNeighbor(neighbor);
+		VVVdouble *array = & nodeData->getLikelihoodArrayForNeighbor(neighbor->getId());
 		
 		array->resize(_nbDistinctSites);
     for(unsigned int i = 0; i < _nbDistinctSites; i++)
