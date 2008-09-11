@@ -1,6 +1,8 @@
 12/09/08 Julien Dutheil
 * Ancestral sequence reconstruction debugged and now allow sampling from the
   posterior distribution.
+* PhylogeneticApplicationTools updated: observed frequencies are now set up
+  in the 'initial values' methods.
 
 11/09/08 Julien Dutheil
 * Large update on TreeLikelihoodData and TreeParsimonyData to rely mostly on

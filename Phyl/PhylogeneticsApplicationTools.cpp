@@ -104,7 +104,6 @@ void PhylogeneticsApplicationTools::printInputTreeHelp()
 
 SubstitutionModel * PhylogeneticsApplicationTools::getSubstitutionModelDefaultInstance(
   const Alphabet * alphabet,
-  const SiteContainer * data,
   map<string, string> & params,
   const string & prefix,
   const string & suffix,
@@ -124,34 +123,28 @@ SubstitutionModel * PhylogeneticsApplicationTools::getSubstitutionModelDefaultIn
       covarionName = st.nextToken();
     }
     const NucleicAlphabet * alpha = dynamic_cast<const NucleicAlphabet *>(alphabet);
-    bool useObsFreq = ApplicationTools::getBooleanParameter(prefix + "use_observed_freq", params, false, suffix, suffixIsOptional, false);
     
     if(verbose) ApplicationTools::displayResult("Substitution model" + suffix, modelName);
 
     if(modelName == "GTR")
     {
       model = new GTR(alpha);
-      if(useObsFreq && data != NULL) model->setFreqFromData(*data);
     }
     else if(modelName == "TN93")
     {
       model = new TN93(alpha);
-      if(useObsFreq && data != NULL) model->setFreqFromData(*data);
     }
     else if(modelName == "HKY85")
     {
       model = new HKY85(alpha);
-      if(useObsFreq && data != NULL) model->setFreqFromData(*data);
     }
     else if(modelName == "F84")
     {
       model = new F84(alpha);
-      if(useObsFreq && data != NULL) model->setFreqFromData(*data);
     }
     else if(modelName == "T92")
     {
       model = new T92(alpha);
-      if(useObsFreq && data != NULL) model->setFreqFromData(*data);
     }
     else if(modelName == "K80")
     {
@@ -186,7 +179,6 @@ SubstitutionModel * PhylogeneticsApplicationTools::getSubstitutionModelDefaultIn
     
     if(withFreq)
     {
-      bool useObsFreq = ApplicationTools::getBooleanParameter(prefix + "use_observed_freq", params, false, suffix, suffixIsOptional);
       if(modelName == "JCprot")
         model = new JCprotF(alpha);
       else if(modelName == "DSO78")
@@ -202,7 +194,6 @@ SubstitutionModel * PhylogeneticsApplicationTools::getSubstitutionModelDefaultIn
       {
         throw Exception("Model '" + modelName + "+F' unknown.");
       }
-      if(useObsFreq && data != NULL) model->setFreqFromData(*data);
     }
     else
     {
@@ -258,12 +249,15 @@ SubstitutionModel * PhylogeneticsApplicationTools::getSubstitutionModelDefaultIn
 
 void PhylogeneticsApplicationTools::setSubstitutionModelParametersInitialValues(
   SubstitutionModel * model,
+  const SiteContainer * data,
   map<string, string> & params,
   const string & prefix,
   const string & suffix,
   bool suffixIsOptional,
   bool verbose) throw (Exception)
 {
+  bool useObsFreq = ApplicationTools::getBooleanParameter(prefix + "use_observed_freq", params, false, suffix, suffixIsOptional, false);
+  if(useObsFreq && data != NULL) model->setFreqFromData(*data);
   ParameterList pl = model->getParameters();
 	for(unsigned int i = 0; i < pl.size(); i++)
   {
@@ -273,7 +267,6 @@ void PhylogeneticsApplicationTools::setSubstitutionModelParametersInitialValues(
 		pl[i] = ap;
 		delete p;
 	}
-  bool useObsFreq = ApplicationTools::getBooleanParameter(prefix + "use_observed_freq", params, false, suffix, suffixIsOptional, false);
   for(unsigned int i = 0; i < pl.size(); i++)
   {
     const string pName = pl[i]->getName();
@@ -295,8 +288,8 @@ SubstitutionModel * PhylogeneticsApplicationTools::getSubstitutionModel(
   bool suffixIsOptional,
   bool verbose) throw (Exception)
 {
-  SubstitutionModel * model = getSubstitutionModelDefaultInstance(alphabet, data, params, "model.", suffix, suffixIsOptional, verbose);
-  setSubstitutionModelParametersInitialValues(model, params, "model.", suffix, suffixIsOptional, verbose);
+  SubstitutionModel * model = getSubstitutionModelDefaultInstance(alphabet, params, "model.", suffix, suffixIsOptional, verbose);
+  setSubstitutionModelParametersInitialValues(model, data, params, "model.", suffix, suffixIsOptional, verbose);
   return model;
 }
 
@@ -325,6 +318,7 @@ void PhylogeneticsApplicationTools::printSubstitutionModelHelp()
 
 void PhylogeneticsApplicationTools::setSubstitutionModelParametersInitialValues(
     SubstitutionModel * model,
+    const SiteContainer * data,
     map<string, double> & existingParams,
     vector<string> & specificParams,
     vector<string> & sharedParams,
@@ -334,6 +328,8 @@ void PhylogeneticsApplicationTools::setSubstitutionModelParametersInitialValues(
     bool suffixIsOptional,
     bool verbose) throw (Exception)
 {
+  bool useObsFreq = ApplicationTools::getBooleanParameter(prefix + "use_observed_freq", params, false, suffix, suffixIsOptional, false);
+  if(useObsFreq && data != NULL) model->setFreqFromData(*data);
   ParameterList pl = model->getParameters();
  	for(unsigned int i = 0; i < pl.size(); i++)
   {
@@ -343,28 +339,35 @@ void PhylogeneticsApplicationTools::setSubstitutionModelParametersInitialValues(
 		pl[i] = ap;
 		delete p;
 	}
-  bool useObsFreq = ApplicationTools::getBooleanParameter(prefix + "use_observed_freq", params, false, suffix, suffixIsOptional);
   for(unsigned int i = 0; i < pl.size(); i++)
   {
     const string pName = pl[i]->getName();
-    if(useObsFreq && (pName.substr(0,5) == "theta")) continue;
-    string value = ApplicationTools::getStringParameter(prefix + pName, params, TextTools::toString(pl[i]->getValue()), suffix, suffixIsOptional);
-    if(value.size() > 5 && value.substr(0, 5) == "model")
+    string value;
+    if(!useObsFreq || (pName.substr(0,5) != "theta"))
     {
-      if(existingParams.find(value) != existingParams.end())
+      value = ApplicationTools::getStringParameter(prefix + pName, params, TextTools::toString(pl[i]->getValue()), suffix, suffixIsOptional);
+      if(value.size() > 5 && value.substr(0, 5) == "model")
       {
-        pl[i]->setValue(existingParams[value]);
-        sharedParams.push_back(value);
+        if(existingParams.find(value) != existingParams.end())
+        {
+          pl[i]->setValue(existingParams[value]);
+          sharedParams.push_back(value);
+        }
+        else
+          throw Exception("Error, unknown parameter" + prefix + pName);
       }
       else
-        throw Exception("Error, unknown parameter" + prefix + pName);
+      {
+        double value2 = TextTools::toDouble(value);
+        existingParams[prefix + pName] = value2;
+        specificParams.push_back(pName);
+        pl[i]->setValue(value2);
+      }
     }
     else
     {
-      double value2 = TextTools::toDouble(value);
-      existingParams[prefix + pName] = value2;
+      existingParams[prefix + pName] = pl[i]->getValue();
       specificParams.push_back(pName);
-      pl[i]->setValue(value2);
     }
     if(verbose) ApplicationTools::displayResult(prefix + pName, TextTools::toString(pl[i]->getValue()));
   }
@@ -496,7 +499,7 @@ SubstitutionModelSet * PhylogeneticsApplicationTools::getSubstitutionModelSet(
   
   //Deal with root frequencies, and build a new model set object:
   vector<double> rateFreqs;
-  SubstitutionModel * tmp = getSubstitutionModelDefaultInstance(alphabet, data, params, string("model1."), suffix, suffixIsOptional, verbose);
+  SubstitutionModel * tmp = getSubstitutionModelDefaultInstance(alphabet, params, string("model1."), suffix, suffixIsOptional, verbose);
   if(tmp->getNumberOfStates() != alphabet->getSize())
   {
     //Markov-Modulated Markov Model...
@@ -514,9 +517,9 @@ SubstitutionModelSet * PhylogeneticsApplicationTools::getSubstitutionModelSet(
   for(unsigned int i = 0; i < nbModels; i++)
   {
     string prefix = "model" + TextTools::toString(i+1) + ".";
-    SubstitutionModel * model = getSubstitutionModelDefaultInstance(alphabet, data, params, prefix, suffix, suffixIsOptional, verbose);
+    SubstitutionModel * model = getSubstitutionModelDefaultInstance(alphabet, params, prefix, suffix, suffixIsOptional, verbose);
     vector<string> specificParameters, sharedParameters;
-    setSubstitutionModelParametersInitialValues(model, existingParameters, specificParameters, sharedParameters, params, prefix, suffix, suffixIsOptional, verbose);
+    setSubstitutionModelParametersInitialValues(model, data, existingParameters, specificParameters, sharedParameters, params, prefix, suffix, suffixIsOptional, verbose);
     vector<int> nodesId = ApplicationTools::getVectorParameter<int>(prefix + "nodes_id", params, ',', ':', TextTools::toString(i), suffix, suffixIsOptional, true);
     if(verbose) ApplicationTools::displayResult("Model" + TextTools::toString(i+1) + " is associated to", TextTools::toString(nodesId.size()) + " node(s).");
     //Add model and specific parameters:

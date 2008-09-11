@@ -121,16 +121,11 @@ class PhylogeneticsApplicationTools
      * @brief Build a SubstitutionModel object with default parameter values according to options.
      *
      * Options used are:
-     * - %{prefix}name = [JCnuc|K80|T92|HKY85|F84|TN93|GTR|JCprot|DSO78|JTT92|empirical], the substitution model to use.
-     * - For the T92, HKY85, F84, TN93, GTR, + all prot models, the model.use_observed_freq option lets you
-     * use the actual frequencies estimated from a given data set.
+     * - %{prefix}name = [JCnuc|K80|T92|HKY85|F84|TN93|GTR|JCprot[+F]|DSO78[+F]|JTT92[+F]|empirical[+F]], the substitution model to use.
      *
      * This function is mainly for internal usage, you're probably looking for the getSubstitutionModel or getSubstitutionModelSet function.
      *
      * @param alphabet The alpabet to use in the model.
-     * @param data     A pointer toward the SiteContainer for which the substitution model is designed.
-     *                 The alphabet associated to the data must be of the same type as the one specified for the model.
-     *                 May be equal to NULL, but in this case use_observed_freq option will be unavailable.
      * @param params   The attribute map where options may be found.
      * @param prefix   A prefix to be applied to each attribute name (model number).
      * @param suffix   A suffix to be applied to each attribute name.
@@ -141,7 +136,6 @@ class PhylogeneticsApplicationTools
      */
     static SubstitutionModel * getSubstitutionModelDefaultInstance(
       const Alphabet * alphabet,
-      const SiteContainer * data,
       map<string, string> & params,
       const string & prefix,
       const string & suffix,
@@ -156,7 +150,10 @@ class PhylogeneticsApplicationTools
      *
      * This function is mainly for internal usage, you're probably looking for the getSubstitutionModel or getSubstitutionModelSet function.
      *
-     * @param model The model to set.
+     * @param model  The model to set.
+     * @param data   A pointer toward the SiteContainer for which the substitution model is designed.
+     *               The alphabet associated to the data must be of the same type as the one specified for the model.
+     *               May be equal to NULL, but in this case use_observed_freq option will be unavailable.
      * @param params The attribute map where options may be found.
      * @param prefix A prefix to be applied to each attribute name.
      * @param suffix A suffix to be applied to each attribute name.
@@ -166,6 +163,7 @@ class PhylogeneticsApplicationTools
      */
     static void setSubstitutionModelParametersInitialValues(
       SubstitutionModel * model,
+      const SiteContainer * data,
       map<string, string> & params,
       const string & prefix,
       const string & suffix,
@@ -233,6 +231,9 @@ class PhylogeneticsApplicationTools
      * This function is mainly for internal usage, you're probably looking for the getSubstitutionModel or getSubstitutionModelSet function.
      *
      * @param model The model to set.
+     * @param data     A pointer toward the SiteContainer for which the substitution model is designed.
+     *                 The alphabet associated to the data must be of the same type as the one specified for the model.
+     *                 May be equal to NULL, but in this case use_observed_freq option will be unavailable.
      * @param existingParams (in/out) A map with already existing value that have been found in previous calls, and may be recalled here.
      *                       New parameters found here will be added.
      * @param specificParams (out) Parameters specific to this model will be recorded here.
@@ -246,6 +247,7 @@ class PhylogeneticsApplicationTools
      */
     static void setSubstitutionModelParametersInitialValues(
       SubstitutionModel * model,
+      const SiteContainer * data,
       map<string, double> & existingParams,
       vector<string> & specificParams,
       vector<string> & sharedParams,
