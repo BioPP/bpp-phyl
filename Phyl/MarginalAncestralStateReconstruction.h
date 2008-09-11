@@ -73,6 +73,8 @@ class MarginalAncestralStateReconstruction:
 		unsigned int _nClasses;
 		unsigned int _nStates;
 		vector<unsigned int> _rootPatternLinks;
+    vector<double> _r;
+    vector<double> _l;
 		
 	public:
 		MarginalAncestralStateReconstruction(const DRTreeLikelihood & drl): _likelihood(& drl)
@@ -83,6 +85,8 @@ class MarginalAncestralStateReconstruction:
 			_nClasses         = _likelihood->getLikelihoodData()->getNumberOfClasses();
 			_nStates          = _likelihood->getLikelihoodData()->getNumberOfStates();
 			_rootPatternLinks = _likelihood->getLikelihoodData()->getRootArrayPositions();
+      _r                = _likelihood->getRateDistribution()->getProbabilities();
+      _l                = _likelihood->getLikelihoodData()->getRootRateSiteLikelihoodArray();
 		}
 
 		virtual ~MarginalAncestralStateReconstruction() {}
@@ -99,11 +103,19 @@ class MarginalAncestralStateReconstruction:
 		 * general output.
 		 *
 		 * @param nodeId The id of the node at which the states must be reconstructed.
+     * @param probs  A vector to be filled with the probability for each state at each position (will be the same size as the returned vector for states).
+     * @param sample Tell if the sequence should be sample from the posterior distribution instead of taking the one with maximum probability.
 		 * @return A vector of states as int values.
 		 * @see getAncestralSequenceForNode
 		 */ 
-		vector<int> getAncestralStatesForNode(int nodeId) const;
-
+		vector<int> getAncestralStatesForNode(int nodeId, VVdouble & probs, bool sample) const;
+		
+    vector<int> getAncestralStatesForNode(int nodeId) const
+    {
+      VVdouble probs(_nSites);
+      return getAncestralStatesForNode(nodeId, probs, false);
+    }
+		
 		map<int, vector<int> > getAllAncestralStates() const;
 
 		/**
@@ -113,16 +125,33 @@ class MarginalAncestralStateReconstruction:
 		 * A new sequence object is created, whose destruction is up to the user.
 		 *
 		 * @param nodeId The id of the node at which the sequence must be reconstructed.
+     * @param probs  A pointer toward a vector to be filled with the probability for each state at each site (set to NULL if you don't want these probabilities).
+     * @param sample Tell if the sequence should be sample from the posterior distribution instead of taking the one with maximum probability.
 		 * @return A sequence object.
 		 */ 
-		Sequence * getAncestralSequenceForNode(int nodeId) const;
+		Sequence * getAncestralSequenceForNode(int nodeId, VVdouble * probs, bool sample) const;
+		
+    Sequence * getAncestralSequenceForNode(int nodeId) const
+    {
+      return getAncestralSequenceForNode(nodeId, NULL, false);
+    }
 
 #ifndef NO_VIRTUAL_COV
     AlignedSequenceContainer *
 #else
     SequenceContainer *
 #endif
-    getAncestralSequences() const;
+    getAncestralSequences() const
+    {
+      return getAncestralSequences(false);
+    }
+
+#ifndef NO_VIRTUAL_COV
+    AlignedSequenceContainer *
+#else
+    SequenceContainer *
+#endif
+    getAncestralSequences(bool sample) const;
 	
   private:
 		void recursiveMarginalAncestralStates(

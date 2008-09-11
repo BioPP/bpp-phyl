@@ -360,10 +360,13 @@ class DRASDRTreeLikelihoodData :
     }
     
     VVVdouble & getRootLikelihoodArray() { return _rootLikelihoods; }
+    const VVVdouble & getRootLikelihoodArray() const { return _rootLikelihoods; }
     
     VVdouble  & getRootSiteLikelihoodArray() { return _rootLikelihoodsS; }
+    const VVdouble  & getRootSiteLikelihoodArray() const { return _rootLikelihoodsS; }
     
     Vdouble   & getRootRateSiteLikelihoodArray() { return _rootLikelihoodsSR; }
+    const Vdouble   & getRootRateSiteLikelihoodArray() const { return _rootLikelihoodsSR; }
 
     unsigned int getNumberOfDistinctSites() const { return _nbDistinctSites; }
     

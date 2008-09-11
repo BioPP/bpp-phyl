@@ -39,37 +39,61 @@ knowledge of the CeCILL license and that you accept its terms.
 
 #include "MarginalAncestralStateReconstruction.h"
 #include <NumCalc/VectorTools.h>
+#include <NumCalc/RandomTools.h>
 
 using namespace bpp;
 
-vector<int> MarginalAncestralStateReconstruction::getAncestralStatesForNode(int nodeId) const
+vector<int> MarginalAncestralStateReconstruction::getAncestralStatesForNode(int nodeId, VVdouble& probs, bool sample) const
 {
 	vector<int> ancestors(_nDistinctSites);
+  probs.resize(_nDistinctSites);
+  double cumProb = 0;
+  double r;
 	if(_likelihood->getTree()->isLeaf(nodeId))
   {
 		VVdouble larray = _likelihood->getLikelihoodData()->getLeafLikelihoods(nodeId);
 		for(unsigned int i = 0; i < _nDistinctSites; i++)
     {
-			ancestors[i] = (int)VectorTools::whichmax(larray[i]);
+	    Vdouble * probs_i = & probs[i];
+	    probs_i->resize(_nStates);
+			unsigned int j = VectorTools::whichmax(larray[i]);
+			ancestors[i] = (int)j;
+      (*probs_i)[j] = 1.;
 		}
 	}
   else
   {
-		VVVdouble larray;
+    VVVdouble larray;
     _likelihood->computeLikelihoodAtNode(nodeId, larray);
 		for(unsigned int i = 0; i < _nDistinctSites; i++)
     {
-			Vdouble likelihoods(_nStates, 0);
 			VVdouble * larray_i = & larray[i];
+			Vdouble * probs_i = & probs[i];
+			probs_i->resize(_nStates);
 			for(unsigned int c = 0; c < _nClasses; c++)
       {
 				Vdouble * larray_i_c = & (* larray_i)[c];
 				for(unsigned int x = 0; x < _nStates; x++)
         {
-					likelihoods[x] += (* larray_i_c)[x];
+					(*probs_i)[x] += (* larray_i_c)[x] * _r[c] / _l[i];
 				}
 			}
-			ancestors[i] = (int)VectorTools::whichmax(likelihoods);
+      if(sample)
+      {
+        cumProb = 0;
+        r = RandomTools::giveRandomNumberBetweenZeroAndEntry(1.);
+        for(unsigned int j = 0; j < _nStates; j++)
+        {
+          cumProb += (*probs_i)[j];
+          if(r <= cumProb)
+          {
+            ancestors[i] = (int)j; 
+            break;
+          }
+        }
+      }
+      else
+			  ancestors[i] = (int)VectorTools::whichmax(*probs_i);
 		}
 	}
 	return ancestors;
@@ -85,17 +109,33 @@ map<int, vector<int> > MarginalAncestralStateReconstruction::getAllAncestralStat
 	return ancestors;
 }
 
-Sequence * MarginalAncestralStateReconstruction::getAncestralSequenceForNode(int nodeId) const
+Sequence * MarginalAncestralStateReconstruction::getAncestralSequenceForNode(int nodeId, VVdouble *probs, bool sample) const
 {
-	string name = _likelihood->getTree()->hasNodeName(nodeId) ? _likelihood->getTree()->getNodeName(nodeId) : "" + nodeId;
-	vector<int> states = getAncestralStatesForNode(nodeId);
-	vector<int> allStates(_nSites);
+	string name = _likelihood->getTree()->hasNodeName(nodeId) ? _likelihood->getTree()->getNodeName(nodeId) : ("" + TextTools::toString(nodeId));
 	const vector<unsigned int> * rootPatternLinks = &_likelihood->getLikelihoodData()->getRootArrayPositions();
   const SubstitutionModel* model =  _likelihood->getSubstitutionModelForNode(nodeId);
-	for(unsigned int i = 0; i < _nSites; i++)
+	vector<int> states;
+	vector<int> allStates(_nSites);
+  VVdouble patternedProbs;
+  if(probs)
   {
-		allStates[i] = model->getState(states[(* rootPatternLinks)[i]]);
-	}
+    states = getAncestralStatesForNode(nodeId, patternedProbs, sample);
+    probs->resize(_nSites);
+    double x;
+  	for(unsigned int i = 0; i < _nSites; i++)
+    {
+		  allStates[i] = model->getState(states[(* rootPatternLinks)[i]]);
+		  (*probs)[i] = patternedProbs[(* rootPatternLinks)[i]];
+ 	  }
+  }
+  else
+  {
+    states = getAncestralStatesForNode(nodeId, patternedProbs, sample);
+  	for(unsigned int i = 0; i < _nSites; i++)
+    {
+		  allStates[i] = model->getState(states[(* rootPatternLinks)[i]]);
+	  }
+  }
 	return new Sequence(name, allStates, _alphabet);
 }
 
@@ -123,13 +163,13 @@ AlignedSequenceContainer *
 #else
 SequenceContainer *
 #endif
-MarginalAncestralStateReconstruction::getAncestralSequences() const
+MarginalAncestralStateReconstruction::getAncestralSequences(bool sample) const
 {
   AlignedSequenceContainer * asc = new AlignedSequenceContainer(_alphabet);
   vector<int> ids = _likelihood->getTree()->getNodesId();
   for(unsigned int i = 0; i < ids.size(); i++)
   {
-    Sequence * seq = getAncestralSequenceForNode(ids[i]);
+    Sequence * seq = getAncestralSequenceForNode(ids[i], NULL, sample);
     asc->addSequence(*seq);
     delete seq;
   }
