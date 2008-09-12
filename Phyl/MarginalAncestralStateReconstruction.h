@@ -67,6 +67,7 @@ class MarginalAncestralStateReconstruction:
 {
 	protected:
 		const DRTreeLikelihood * _likelihood;
+    const Tree * _tree;
 		const Alphabet * _alphabet;
 		unsigned int _nSites;
 		unsigned int _nDistinctSites;
@@ -80,6 +81,7 @@ class MarginalAncestralStateReconstruction:
 		MarginalAncestralStateReconstruction(const DRTreeLikelihood & drl): _likelihood(& drl)
 		{
 			_alphabet         = _likelihood->getAlphabet();
+			_tree             = _likelihood->getTree();
 			_nSites           = _likelihood->getLikelihoodData()->getNumberOfSites();
 			_nDistinctSites   = _likelihood->getLikelihoodData()->getNumberOfDistinctSites();
 			_nClasses         = _likelihood->getLikelihoodData()->getNumberOfClasses();

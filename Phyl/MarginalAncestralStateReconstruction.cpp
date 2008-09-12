@@ -111,9 +111,9 @@ map<int, vector<int> > MarginalAncestralStateReconstruction::getAllAncestralStat
 
 Sequence * MarginalAncestralStateReconstruction::getAncestralSequenceForNode(int nodeId, VVdouble *probs, bool sample) const
 {
-	string name = _likelihood->getTree()->hasNodeName(nodeId) ? _likelihood->getTree()->getNodeName(nodeId) : ("" + TextTools::toString(nodeId));
+	string name = _tree->hasNodeName(nodeId) ? _tree->getNodeName(nodeId) : ("" + TextTools::toString(nodeId));
 	const vector<unsigned int> * rootPatternLinks = &_likelihood->getLikelihoodData()->getRootArrayPositions();
-  const SubstitutionModel* model =  _likelihood->getSubstitutionModelForNode(nodeId);
+  const SubstitutionModel* model =  _likelihood->getSubstitutionModelForNode(_tree->getNodesId()[0]); //We assume all nodes have a model with the same number of states.
 	vector<int> states;
 	vector<int> allStates(_nSites);
   VVdouble patternedProbs;
