@@ -31,3 +31,7 @@
 
 SUBDIRS = Phyl
 EXTRA_DIST = Phyl.spec debian
+
+dist-hook:
+	rm -rf `find $(distdir)/debian -name CVS`
+
