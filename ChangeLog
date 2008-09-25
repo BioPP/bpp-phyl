@@ -1,3 +1,5 @@
+18/01/08 -*- Version 1.6.0 -*-
+
 12/09/08 Julien Dutheil
 * Ancestral sequence reconstruction debugged and now allow sampling from the
   posterior distribution.
@@ -17,7 +19,7 @@
 02/09/08 Julien Dutheil
 * Added "real" +F protein substitution models, with frequencies estimation.
 
-18/01/08 -*- Version 1.5.1. -*-
+18/01/08 -*- Version 1.5.1 -*-
 
 01/06/08 Julien Dutheil
 * Bug fixed in FrequenciesSet: the sum critierion was changed to be less
@@ -56,7 +58,7 @@ restrictive! (now 1e-6).
 * Important bug fixed in substitution mapping.
 * Bug fixed in substitution models with frequency parameters (init from data) !
 
-18/01/08 -*- Version 1.5.0. -*-
+18/01/08 -*- Version 1.5.0 -*-
 
 18/01/08 Julien Dutheil 
 * DistanceEstimation and SitePatterns classes are now Clonable.
@@ -153,7 +155,7 @@ format.
 17/01/07 Julien Dutheil
 * Bug fixed in PseudoNewtonOptimizer! (included in version 1.4.0).
 
-06/07/07 -*- Version 1.4.0. -*-
+06/07/07 -*- Version 1.4.0 -*-
 
 27/06/07 Nicolas Galtier & Julien Dutheil
 * No more memory leak when optimizing tree topology using NNI and PhyML algorithm.

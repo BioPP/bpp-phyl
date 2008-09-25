@@ -42,6 +42,7 @@ AgglomerativeDistanceMethod.h\
 PhylogeneticsApplicationTools.h\
 DistanceEstimation.h\
 DSO78.h\
+DSO78F.h\
 PseudoNewtonOptimizer.h\
 HKY85.h\
 TreeLikelihood.h\

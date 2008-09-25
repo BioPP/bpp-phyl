@@ -29,7 +29,7 @@
 #The fact that you are presently reading this means that you have had
 #knowledge of the CeCILL license and that you accept its terms.
 
-AC_INIT(Bio++ PhylLib, 1.5.1, Julien.Dutheil@univ-montp2.fr, bpp-phyl)
+AC_INIT(Bio++ PhylLib, 1.6.0, Julien.Dutheil@univ-montp2.fr, bpp-phyl)
 AC_CONFIG_SRCDIR(Phyl/Tree.h)
 AM_INIT_AUTOMAKE()
 AC_LANG_CPLUSPLUS

@@ -1,5 +1,5 @@
 %define name bpp-phyl
-%define version 1.5.1
+%define version 1.6.0
 %define release 1
 %define _prefix /usr/local
 
@@ -67,6 +67,8 @@ rm -rf $RPM_BUILD_ROOT
 %{_prefix}/include/*
 
 %changelog
+* Wed Sep 24 2008 Julien Dutheil <jdutheil@daimi.au.dk>
+- Version 1.6.0
 * Mon Jul 21 2008 Julien Dutheil <jdutheil@daimi.au.dk>
 - Version 1.5.1
 * Fri Jan 18 2008 Julien Dutheil <Julien.Dutheil@univ-montp2.fr>
