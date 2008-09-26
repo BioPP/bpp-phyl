@@ -121,7 +121,6 @@ Sequence * MarginalAncestralStateReconstruction::getAncestralSequenceForNode(int
   {
     states = getAncestralStatesForNode(nodeId, patternedProbs, sample);
     probs->resize(_nSites);
-    double x;
   	for(unsigned int i = 0; i < _nSites; i++)
     {
 		  allStates[i] = model->getState(states[(* rootPatternLinks)[i]]);
