@@ -164,7 +164,7 @@ class FullFrequenciesSet:
     {
       if(frequencies.size() != _alphabet->getSize()) throw DimensionException("FullFrequenciesSet::setFrequencies", frequencies.size(), _alphabet->getSize());
       double sum = 0.0;
-      for(unsigned int i = 0; i < 20; i++)
+      for(unsigned int i = 0; i < frequencies.size(); i++)
         sum += frequencies[i];
       if(fabs(1.-sum) > 0.000001)
         throw Exception("FullFrequenciesSet::setFrequencies. Frequencies must equal 1 (sum = " + TextTools::toString(sum) + ").");
@@ -180,7 +180,7 @@ class FullFrequenciesSet:
  * @brief Nucleotide FrequenciesSet using only one parameter, the GC content.
  */
 class GCFrequenciesSet:
-  public NucleotideFrequenciesSet, AbstractFrequenciesSet
+  public NucleotideFrequenciesSet, public AbstractFrequenciesSet
 {
   public:
     GCFrequenciesSet(const NucleicAlphabet * alphabet, const string & prefix = ""):
@@ -217,7 +217,7 @@ class GCFrequenciesSet:
     {
       if(frequencies.size() != 4) throw DimensionException("GCFrequenciesSet::setFrequencies", frequencies.size(), 4);
       double sum = 0.0;
-      for(unsigned int i = 0; i < 20; i++)
+      for(unsigned int i = 0; i < 4; i++)
         sum += frequencies[i];
       if(fabs(1.-sum) > 0.000001)
         throw Exception("GCFrequenciesSet::setFrequencies. Frequencies must equal 1 (sum = " + TextTools::toString(sum) + ").");
@@ -230,7 +230,7 @@ class GCFrequenciesSet:
  * @brief Nucleotide FrequenciesSet using three indpeendent parameters to modelize the four frequencies.
  */
 class FullNAFrequenciesSet:
-  public NucleotideFrequenciesSet, AbstractFrequenciesSet
+  public NucleotideFrequenciesSet, public AbstractFrequenciesSet
 {
   public:
     FullNAFrequenciesSet(const NucleicAlphabet * alphabet, const string & prefix = "");
@@ -249,7 +249,7 @@ class FullNAFrequenciesSet:
     {
       if(frequencies.size() != 4) throw DimensionException("FullNAFrequenciesSet::setFrequencies", frequencies.size(), 4);
       double sum = 0.0;
-      for(unsigned int i = 0; i < 20; i++)
+      for(unsigned int i = 0; i < 4; i++)
         sum += frequencies[i];
       if(fabs(1.-sum) > 0.000001)
         throw Exception("FullNAFrequenciesSet::setFrequencies. Frequencies must equal 1 (sum = " + TextTools::toString(sum) + ").");
@@ -270,7 +270,7 @@ class FullNAFrequenciesSet:
  * @f[ \theta_i = \frac{0.05}{0.956{i-1}},\quad i = 1..19 @f] or according to a user-specified vector of initial values.
  */
 class FullProteinFrequenciesSet:
-  public ProteinFrequenciesSet, AbstractFrequenciesSet
+  public ProteinFrequenciesSet, public AbstractFrequenciesSet
 {
   public:
     FullProteinFrequenciesSet(const ProteicAlphabet * alphabet, const string & prefix = "");
@@ -369,7 +369,7 @@ class FixedFrequenciesSet:
     {
       if(frequencies.size() != _alphabet->getSize()) throw DimensionException("FixedFrequenciesSet::setFrequencies", frequencies.size(), _alphabet->getSize());
       double sum = 0.0;
-      for(unsigned int i = 0; i < 20; i++)
+      for(unsigned int i = 0; i < frequencies.size(); i++)
         sum += frequencies[i];
       if(fabs(1.-sum) > 0.000001)
         throw Exception("FixedFrequenciesSet::setFrequencies. Frequencies must equal 1 (sum = " + TextTools::toString(sum) + ").");

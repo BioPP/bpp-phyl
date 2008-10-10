@@ -1,3 +1,6 @@
+10/10/08 Julien Dutheil
+* Bug fixed in FrequenciesSet when testing sum for frequencies.
+
 18/01/08 -*- Version 1.6.0 -*-
 
 12/09/08 Julien Dutheil
