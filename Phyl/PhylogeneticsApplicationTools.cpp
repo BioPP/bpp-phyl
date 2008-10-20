@@ -96,7 +96,7 @@ void PhylogeneticsApplicationTools::printInputTreeHelp()
 {
   if(!ApplicationTools::message) return;
   *ApplicationTools::message << "Input tree parameters:" << endl;
-  *ApplicationTools::message << "tree.file                     | file where to write the tree" << endl;
+  *ApplicationTools::message << "tree.file                     | file from where to read the tree" << endl;
   *ApplicationTools::message << "______________________________|___________________________________________" << endl;
 }
 
@@ -173,6 +173,10 @@ SubstitutionModel * PhylogeneticsApplicationTools::getSubstitutionModelDefaultIn
       {
         withFreq = true;
         if(st.hasMoreToken()) covarionName = st.nextToken();
+      }
+      else
+      {
+        covarionName = tmp;
       }
     }
     const ProteicAlphabet * alpha = dynamic_cast<const ProteicAlphabet *>(alphabet);
@@ -299,7 +303,7 @@ void PhylogeneticsApplicationTools::printSubstitutionModelHelp()
 {
   if(!ApplicationTools::message) return;
   *ApplicationTools::message << "Substitution Model:" << endl;
-  *ApplicationTools::message << "model                   | Nucleotides (N): [JCnuc, K80, T92, F84, HKY85, TN93," << endl;
+  *ApplicationTools::message << "model.name              | Nucleotides (N): [JCnuc, K80, T92, F84, HKY85, TN93," << endl;
   *ApplicationTools::message << "                        | GTR]" << endl;
   *ApplicationTools::message << "                        | Proteins (P): [JCprot, DSO78, JTT92, empirical]" << endl;
   *ApplicationTools::message << "model.kappa             | kappa(N)  parameter in Q matrix" << endl;

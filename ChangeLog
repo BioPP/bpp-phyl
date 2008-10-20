@@ -1,3 +1,7 @@
+20/10/08 Bastien Boussau
+* Bug fixed in PhylogeneticApplicationTools: now can run protein with covarion
+models.
+
 10/10/08 Julien Dutheil
 * Bug fixed in FrequenciesSet when testing sum for frequencies.
 
