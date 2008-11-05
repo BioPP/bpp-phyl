@@ -9,6 +9,7 @@
 #include "F84.h"
 #include "TN93.h"
 #include "GTR.h"
+#include "L95.h"
 #include "DSO78.h"
 #include "DSO78F.h"
 #include "JTT92.h"

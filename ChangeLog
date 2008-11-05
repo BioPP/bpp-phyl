@@ -1,3 +1,7 @@
+04/11/08 Julien Dutheil
+* New Strand-Symmetric subtituion mode from Lobry 1995.
+* Numerical issue solved in GTR.
+
 20/10/08 Bastien Boussau
 * Bug fixed in PhylogeneticApplicationTools: now can run protein with covarion
 models.

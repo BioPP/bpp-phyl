@@ -73,9 +73,9 @@ GTR::GTR(
 	_theta = piG + piC;
   _theta1 = piA / (1. - _theta);
   _theta2 = piG / _theta;
-	_parameters.addParameter(Parameter("theta" , _theta , &Parameter::PROP_CONSTRAINT_EX));
-	_parameters.addParameter(Parameter("theta1", _theta1, &Parameter::PROP_CONSTRAINT_EX));
-	_parameters.addParameter(Parameter("theta2", _theta2, &Parameter::PROP_CONSTRAINT_EX));
+	_parameters.addParameter(Parameter("theta" , _theta , new IncludingInterval(0.001, 0.999), true)); //Avoid numerical errors close to the bounds.
+	_parameters.addParameter(Parameter("theta1", _theta1, new IncludingInterval(0.001, 0.999), true));
+	_parameters.addParameter(Parameter("theta2", _theta2, new IncludingInterval(0.001, 0.999), true));
 	updateMatrices();
 }
 

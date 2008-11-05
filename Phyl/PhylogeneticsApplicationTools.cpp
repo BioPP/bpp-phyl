@@ -130,6 +130,10 @@ SubstitutionModel * PhylogeneticsApplicationTools::getSubstitutionModelDefaultIn
     {
       model = new GTR(alpha);
     }
+    else if(modelName == "L95")
+    {
+      model = new L95(alpha);
+    }
     else if(modelName == "TN93")
     {
       model = new TN93(alpha);
@@ -841,7 +845,7 @@ TreeLikelihood * PhylogeneticsApplicationTools::optimizeParameters(
   }
   else throw Exception("Unknown optimization method: " + method);
 
-  string finalMethod = ApplicationTools::getStringParameter("optimization.final", params, "none", suffix, suffixIsOptional, false);
+  string finalMethod = ApplicationTools::getStringParameter("optimization.final", params, "none", suffix, suffixIsOptional, true);
   Optimizer * finalOptimizer  = NULL;
   if(finalMethod == "none") {}
   else if(finalMethod == "simplex")

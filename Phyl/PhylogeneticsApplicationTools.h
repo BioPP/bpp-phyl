@@ -121,7 +121,7 @@ class PhylogeneticsApplicationTools
      * @brief Build a SubstitutionModel object with default parameter values according to options.
      *
      * Options used are:
-     * - %{prefix}name = [JCnuc|K80|T92|HKY85|F84|TN93|GTR|JCprot[+F]|DSO78[+F]|JTT92[+F]|empirical[+F]], the substitution model to use.
+     * - %{prefix}name = [JCnuc|K80|T92|HKY85|F84|TN93|GTR|L95|JCprot[+F]|DSO78[+F]|JTT92[+F]|empirical[+F]], the substitution model to use.
      *
      * This function is mainly for internal usage, you're probably looking for the getSubstitutionModel or getSubstitutionModelSet function.
      *
@@ -180,7 +180,7 @@ class PhylogeneticsApplicationTools
      * Options depending on the model specified:
      * - If K80, T92 or HKY85 or F84 is to be used:
      *   + model.kappa The transition/transversion ratio.
-     * - If T92 format is to be used:
+     * - If T92 or L95 format is to be used:
      *   + model.theta The GC ratio, or
      * - If HKY85, F84 or TN93 is to be used:
      *   + model.piA, piT, piC and piG: equilibrum frequencies.
@@ -188,7 +188,9 @@ class PhylogeneticsApplicationTools
      *   + model.kappa1, kappa2 The transition/transversion ratios.
      * - If GTR is to be used:
      *   + model.a, b, c, d, e rate parameters.
-     * - If GTR, TN93, HKY85, F84, T92, JTT92, DSO78 or empirical is to be used:
+     * - If L95 is to be used:
+     *   + model.beta, gamma, delta rate parameters.
+     * - If GTR, TN93, HKY85, F84, T92, JTT92, DSO78, L95 or empirical is to be used:
      *   + model.use_observed_freq Tell if we must use the observed frequences. 
      * - If empirical is to be used;
      *   + model_empirical.file Give the path toward the data file to use, in PAML format.
