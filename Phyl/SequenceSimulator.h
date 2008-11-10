@@ -40,6 +40,9 @@ knowledge of the CeCILL license and that you accept its terms.
 #ifndef _SEQUENCESIMULATOR_H_
 #define _SEQUENCESIMULATOR_H_
 
+//From Utils:
+#include <Utils/Clonable.h>
+
 // From SeqLib:
 #include <Seq/SiteContainer.h>
 
@@ -50,11 +53,16 @@ namespace bpp
  * @brief The SequenceSimulator interface.
  * SequenceSimulator classes can simulate whole datasets.
  */
-class SequenceSimulator
+class SequenceSimulator:
+  public virtual Clonable
 {
   public:
     SequenceSimulator() {}
     virtual ~SequenceSimulator() {}
+
+#ifndef NO_VIRTUAL_COV
+    SequenceSimulator * clone() const = 0;
+#endif
   
   public:
     virtual SiteContainer * simulate(unsigned int numberOfSites) const = 0;

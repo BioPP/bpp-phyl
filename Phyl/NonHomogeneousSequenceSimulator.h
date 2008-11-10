@@ -133,6 +133,13 @@ class NonHomogeneousSequenceSimulator:
       if(_ownModelSet && _modelSet != NULL) delete _modelSet;
     }
 
+#ifndef NO_VIRTUAL_COV
+    NonHomogeneousSequenceSimulator *
+#else
+    Clonable *
+#endif
+    clone() const { return new NonHomogeneousSequenceSimulator(*this); }
+
   private:
     /**
      * @brief Init all probabilities.
