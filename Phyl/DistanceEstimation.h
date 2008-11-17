@@ -403,6 +403,7 @@ class DistanceEstimation:
     	_defaultOptimizer = new MetaOptimizer(NULL, desc);
       _defaultOptimizer->setMessageHandler(NULL);
 	    _defaultOptimizer->setProfiler(NULL);
+      _defaultOptimizer->getStopCondition()->setTolerance(0.0001);
 	    _optimizer = dynamic_cast<Optimizer *>(_defaultOptimizer->clone());
     }
 

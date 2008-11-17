@@ -1,3 +1,8 @@
+17/11/08 Julien Dutheil
+* DistanceEstimation now allows to change the precision in the branch length
+  estimation (no longer fixed to 0.0001, although it is still the default
+	value).
+
 10/11/08 Julien Dutheil
 * Bug fixed in HomogeneousSequenceSimulator, ancestral root frequencies are
   not necessarily equal now!

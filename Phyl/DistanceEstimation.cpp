@@ -655,7 +655,6 @@ void DistanceEstimation::computeMatrix() throw (NullPointerException)
 	vector<string> names = _sites->getSequencesNames();
   if(_dist != NULL) delete _dist;
 	_dist = new DistanceMatrix(names);
-	_optimizer->getStopCondition()->setTolerance(0.0001);
 	_optimizer->setVerbose((unsigned int)max((int)_verbose - 2, 0));
 	for(unsigned int i = 0; i < n; i++)
   {
