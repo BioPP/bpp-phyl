@@ -137,7 +137,7 @@ using namespace std;
  * @section more And more...
  *
  * @par
- * PhylLip allows you to perform a lot of analysis, like evolutionary rate estimation, tree consensus, etc.
+ * PhylLib allows you to perform a lot of analysis, like evolutionary rate estimation, tree consensus, etc.
  *
  */
 
