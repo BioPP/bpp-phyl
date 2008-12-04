@@ -452,15 +452,15 @@ Vdouble TreeTools::getBranchLengths(const Tree & tree, int nodeId) throw (NodeNo
 
 /******************************************************************************/
 
-double TreeTools::getTotalLength(const Tree & tree, int nodeId) throw (NodeNotFoundException,NodeException)
+double TreeTools::getTotalLength(const Tree & tree, int nodeId, bool includeAncestor) throw (NodeNotFoundException,NodeException)
 {
   if(!tree.hasNode(nodeId)) throw NodeNotFoundException("TreeTools::getTotalLength", nodeId);
-  if(!tree.hasDistanceToFather(nodeId)) throw NodeException("TreeTools::getTotalLength(). No branch length.", nodeId);
-  double length = tree.getDistanceToFather(nodeId);
+  if(includeAncestor && !tree.hasDistanceToFather(nodeId)) throw NodeException("TreeTools::getTotalLength(). No branch length.", nodeId);
+  double length = includeAncestor ? tree.getDistanceToFather(nodeId) : 0;
   vector<int> sons = tree.getSonsId(nodeId);
   for(unsigned int i = 0; i < sons.size(); i++)
   {
-    length += getTotalLength(tree, sons[i]);
+    length += getTotalLength(tree, sons[i], true);
   }
   return length;
 }

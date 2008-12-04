@@ -546,10 +546,12 @@ class TreeTemplateTools
      * @brief Get the total length (sum of all branch lengths) of a subtree.
      *
      * @param node The root node of the subtree.
-     * @return The total length of the subtree.
+     * @param includeAncestor Tell if the branch length of the most ancient node should be included in the counting.
+     * (this should be set to false if this node is the root of the tree for instance).
+      * @return The total length of the subtree.
      * @throw NodeException If a branch length is lacking.
      */
-    static double getTotalLength(const Node & node) throw (NodeException);
+    static double getTotalLength(const Node & node, bool includeAncestor = true) throw (NodeException);
     
     /**
      * @brief Set all the branch lengths of a subtree.

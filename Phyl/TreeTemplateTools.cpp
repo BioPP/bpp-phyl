@@ -450,13 +450,13 @@ Vdouble TreeTemplateTools::getBranchLengths(const Node & node) throw (NodeExcept
 
 /******************************************************************************/
 
-double TreeTemplateTools::getTotalLength(const Node & node) throw (NodeException)
+double TreeTemplateTools::getTotalLength(const Node & node, bool includeAncestor) throw (NodeException)
 {
-  if(!node.hasDistanceToFather()) throw NodeException("TreeTools::getTotalLength(). No branch length.", &node);
-  double length = node.getDistanceToFather();
+  if(includeAncestor && !node.hasDistanceToFather()) throw NodeException("TreeTools::getTotalLength(). No branch length.", &node);
+  double length = includeAncestor ? node.getDistanceToFather() : 0;
   for(unsigned int i = 0; i < node.getNumberOfSons(); i++)
   {
-    length += getTotalLength(* node.getSon(i));
+    length += getTotalLength(* node.getSon(i), true);
   }
   return length;
 }

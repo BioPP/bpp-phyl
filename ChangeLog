@@ -1,3 +1,6 @@
+04/12/08 Julien Dutheil
+* Added a bit more options in tree length computation.
+
 17/11/08 Julien Dutheil
 * DistanceEstimation now allows to change the precision in the branch length
   estimation (no longer fixed to 0.0001, although it is still the default

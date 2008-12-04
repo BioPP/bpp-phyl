@@ -297,12 +297,7 @@ class TreeTemplate:
 
 		double getTotalLength() throw (NodeException)
 		{
-			double length = 0;
-			for(unsigned int i = 0; i < _root->getNumberOfSons(); i++)
-      {
-        length += TreeTemplateTools::getTotalLength(*_root->getSon(i));
-      }
-      return length;
+      return TreeTemplateTools::getTotalLength(*_root, false);
 		}
 
 		void setBranchLengths(double brLen)

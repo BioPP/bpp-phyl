@@ -266,11 +266,13 @@ class TreeTools
      *
      * @param tree The tree.
      * @param nodeId The node defining the subtree.
+     * @param includeAncestor Tell if the branch length of the most ancient node should be included in the counting.
+     * (this should be set to false if this node is the root of the tree for instance).
      * @return The total length of the subtree.
      * @throw NodeNotFoundException If the node is not found.
      * @throw NodeException If a branch length is lacking.
      */
-    static double getTotalLength(const Tree & tree, int nodeId) throw (NodeNotFoundException,NodeException);
+    static double getTotalLength(const Tree & tree, int nodeId, bool includeAncestor = true) throw (NodeNotFoundException,NodeException);
 
     /**
      * @brief Set all the branch lengths of a subtree.
