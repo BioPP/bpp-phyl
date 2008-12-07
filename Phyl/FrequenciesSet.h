@@ -344,6 +344,8 @@ class MarkovModulatedFrequenciesSet:
       _freqSet->matchParametersValues(pl);
       _freq = VectorTools::kroneckerMult(_rateFreqs, _freqSet->getFrequencies());
     }
+
+    const FrequenciesSet* getStatesFrequenciesSet() const { return _freqSet; }
 };
 
 /**

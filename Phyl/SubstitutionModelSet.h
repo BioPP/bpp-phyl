@@ -423,6 +423,11 @@ class SubstitutionModelSet:
     void listModelNames(ostream & out = cout) const;
 
     /**
+     * @return The set of root frequencies.
+     */
+    const FrequenciesSet* getRootFrequenciesSet() const { return _rootFrequencies; }
+
+     /**
      * @return The values of the root frequencies.
      */
     vector<double> getRootFrequencies() const { return _rootFrequencies->getFrequencies(); }

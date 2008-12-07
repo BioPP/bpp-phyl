@@ -1,3 +1,7 @@
+07/12/08 Julien Dutheil
+* New getRootFrequenciesSet in SubstitutionModelSet.
+* New getStatesFrequenciesSet in MarkovModulatedFrequenciesSet.
+
 04/12/08 Julien Dutheil
 * Added a bit more options in tree length computation.
 
