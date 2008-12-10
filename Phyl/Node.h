@@ -46,6 +46,7 @@ knowledge of the CeCILL license and that you accept its terms.
 #include <string>
 #include <vector>
 #include <map>
+#include <iostream>
 
 using namespace std;
 

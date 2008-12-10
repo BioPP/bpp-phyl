@@ -50,7 +50,7 @@ using namespace bpp;
 /******************************************************************************/
 
 NodeException::NodeException(const string & text, const Node * node) :
-	Exception("NodeException: " + text + (node != NULL ? "(" + node -> getName() + ")" : "")),
+	Exception("NodeException: " + text + (node != NULL ? "(id:" + TextTools::toString(node->getId()) + ")" : "")),
 	_node(node), _nodeId(node->getId()) {};
 NodeException::NodeException(const string & text, int nodeId) :
 	Exception("NodeException: " + text + "(id:" + TextTools::toString(nodeId) + ")"),
