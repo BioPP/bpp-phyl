@@ -1,13 +1,13 @@
-<<<<<<< ChangeLog
+11/12/08 Julien Dutheil
+* Bug fixed in BioNJ.
+
 10/12/08 Celine Scornavacca & Julien Dutheil
 * Bug fixed int Node::getName and NodeException: no more recursive call!
 
-=======
 07/12/08 Julien Dutheil
 * New getRootFrequenciesSet in SubstitutionModelSet.
 * New getStatesFrequenciesSet in MarkovModulatedFrequenciesSet.
 
->>>>>>> 1.73
 04/12/08 Julien Dutheil
 * Added a bit more options in tree length computation.
 

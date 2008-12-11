@@ -65,7 +65,7 @@ public:
   BioNJ(): NeighborJoining(), _variance(0) {}
   
 	BioNJ(const DistanceMatrix & matrix, bool rooted = false, bool positiveLengths = false) throw (Exception):
-    NeighborJoining(),
+    NeighborJoining(matrix, rooted, positiveLengths),
     _variance(matrix)
 	{
 		_sumDist.resize(matrix.size());

@@ -53,68 +53,68 @@ using namespace std;
 
 void AbstractAgglomerativeDistanceMethod::setDistanceMatrix(const DistanceMatrix & matrix)
 {
-	_matrix = matrix;
-	if(_tree != NULL) delete _tree;
+  _matrix = matrix;
+  if(_tree != NULL) delete _tree;
 }
-		
+    
 void AbstractAgglomerativeDistanceMethod::computeTree(bool rooted) throw (Exception)
 {
-	// Initialization:
-	for(unsigned int i = 0; i < _matrix.size(); i++)
+  // Initialization:
+  for(unsigned int i = 0; i < _matrix.size(); i++)
   {
-		_currentNodes[i] = getLeafNode(i, _matrix.getName(i));
-	}
-	int idNextNode = (int)_matrix.size();
-	vector<double> newDist(_matrix.size());
-	
-	// Build tree:
-	while(_currentNodes.size() > (rooted ? 2 : 3))
+    _currentNodes[i] = getLeafNode(i, _matrix.getName(i));
+  }
+  int idNextNode = (int)_matrix.size();
+  vector<double> newDist(_matrix.size());
+  
+  // Build tree:
+  while(_currentNodes.size() > (rooted ? 2 : 3))
   {
     if(_verbose)
       ApplicationTools::displayGauge(_matrix.size() - _currentNodes.size(), _matrix.size() - (rooted ? 2 : 3) - 1);
-		vector<unsigned int> bestPair = getBestPair();
-		vector<double> distances = computeBranchLengthsForPair(bestPair);
-		Node * best1 = _currentNodes[bestPair[0]];
-		Node * best2 = _currentNodes[bestPair[1]];
-		// Distances may be used by getParentNodes (PGMA for instance).
-		best1->setDistanceToFather(distances[0]);
-		best2->setDistanceToFather(distances[1]);
-		Node * parent = getParentNode(idNextNode, best1, best2);
+    vector<unsigned int> bestPair = getBestPair();
+    vector<double> distances = computeBranchLengthsForPair(bestPair);
+    Node * best1 = _currentNodes[bestPair[0]];
+    Node * best2 = _currentNodes[bestPair[1]];
+    // Distances may be used by getParentNodes (PGMA for instance).
+    best1->setDistanceToFather(distances[0]);
+    best2->setDistanceToFather(distances[1]);
+    Node * parent = getParentNode(idNextNode, best1, best2);
     idNextNode++;
-		for(map<unsigned int, Node *>::iterator i = _currentNodes.begin(); i != _currentNodes.end(); i++)
+    for(map<unsigned int, Node *>::iterator i = _currentNodes.begin(); i != _currentNodes.end(); i++)
     {
-			unsigned int id = i->first;
-			if(id != bestPair[0] && id != bestPair[1])
+      unsigned int id = i->first;
+      if(id != bestPair[0] && id != bestPair[1])
       {
-				newDist[id] = computeDistancesFromPair(bestPair, distances, id);
-			}
+        newDist[id] = computeDistancesFromPair(bestPair, distances, id);
+      }
       else
       {
-				newDist[id] = 0;
-			}
-		}
-		// Actualize _currentNodes:
-		_currentNodes[bestPair[0]] = parent;
-		_currentNodes.erase(bestPair[1]);
-		for(map<unsigned int, Node *>::iterator i = _currentNodes.begin(); i != _currentNodes.end(); i++)
+        newDist[id] = 0;
+      }
+    }
+    // Actualize _currentNodes:
+    _currentNodes[bestPair[0]] = parent;
+    _currentNodes.erase(bestPair[1]);
+    for(map<unsigned int, Node *>::iterator i = _currentNodes.begin(); i != _currentNodes.end(); i++)
     {
-			unsigned int id = i->first;
-			_matrix(bestPair[0], id) = _matrix(id, bestPair[0]) = newDist[id];
-		}	
-	}
-	finalStep(idNextNode);
+      unsigned int id = i->first;
+      _matrix(bestPair[0], id) = _matrix(id, bestPair[0]) = newDist[id];
+    }  
+  }
+  finalStep(idNextNode);
 }
 
 Node * AbstractAgglomerativeDistanceMethod::getLeafNode(int id, const string & name)
 {
-	return new Node(id, name);
+  return new Node(id, name);
 }
 
 Node * AbstractAgglomerativeDistanceMethod::getParentNode(int id, Node * son1, Node * son2)
 {
-	Node * parent = new Node(id);
-	parent->addSon(* son1);
-	parent->addSon(* son2);
-	return parent;
+  Node * parent = new Node(id);
+  parent->addSon(* son1);
+  parent->addSon(* son2);
+  return parent;
 }
 

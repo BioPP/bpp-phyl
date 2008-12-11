@@ -40,6 +40,9 @@ knowledge of the CeCILL license and that you accept its terms.
 #include "BioNJ.h"
 #include "Tree.h"
 
+//From Utils:
+#include <Utils/ApplicationTools.h>
+
 using namespace bpp;
 
 // From the STL:
@@ -50,76 +53,79 @@ using namespace std;
 
 double BioNJ::computeDistancesFromPair(const vector<unsigned int> & pair, const vector<double> & branchLengths, unsigned int pos)
 {
-	return _positiveLengths ?
+  return _positiveLengths ?
     std::max(_lambda * (_matrix(pair[0], pos) - branchLengths[0]) + (1-_lambda)*(_matrix(pair[1], pos) - branchLengths[1]), 0.)
   :          _lambda * (_matrix(pair[0], pos) - branchLengths[0]) + (1-_lambda)*(_matrix(pair[1], pos) - branchLengths[1]); 
 }
 
 void BioNJ::computeTree(bool rooted) throw (Exception)
 {
-	
-	// Initialization:
-	for(unsigned int i = 0; i < _matrix.size(); i++) {
-		_currentNodes[i] = getLeafNode(i, _matrix.getName(i));
-	}
-	unsigned int idNextNode = _matrix.size();
-	vector<double> newDist(_matrix.size());
-	vector<double> newVar(_matrix.size());
-	
-	// Build tree:
-	while(_currentNodes.size() > (rooted ? 2 : 3))
+  cout << _matrix.size() << endl;
+  // Initialization:
+  for(unsigned int i = 0; i < _matrix.size(); i++)
   {
-		vector<unsigned int> bestPair = getBestPair();
-		vector<double> distances = computeBranchLengthsForPair(bestPair);
-		Node * best1 = _currentNodes[bestPair[0]];
-		Node * best2 = _currentNodes[bestPair[1]];
-		// Distances may be used by getParentNodes (PGMA for instance).
-		best1  -> setDistanceToFather(distances[0]);
-		best2  -> setDistanceToFather(distances[1]);
-		Node * parent = getParentNode(idNextNode++, best1, best2);
-		// compute lambda
-		_lambda=0;
-		if (_variance[bestPair[0]][bestPair[1]] == 0)
-		  _lambda=.5;
-		else
-		{
-		  for(map<unsigned int, Node *>::iterator i = _currentNodes.begin(); i != _currentNodes.end(); i++)
+    _currentNodes[i] = getLeafNode(i, _matrix.getName(i));
+  }
+  unsigned int idNextNode = _matrix.size();
+  vector<double> newDist(_matrix.size());
+  vector<double> newVar(_matrix.size());
+  
+  // Build tree:
+  while(_currentNodes.size() > (rooted ? 2 : 3))
+  {
+    if(_verbose)
+      ApplicationTools::displayGauge(_matrix.size() - _currentNodes.size(), _matrix.size() - (rooted ? 2 : 3) - 1);
+    vector<unsigned int> bestPair = getBestPair();
+    vector<double> distances = computeBranchLengthsForPair(bestPair);
+    Node * best1 = _currentNodes[bestPair[0]];
+    Node * best2 = _currentNodes[bestPair[1]];
+    // Distances may be used by getParentNodes (PGMA for instance).
+    best1->setDistanceToFather(distances[0]);
+    best2->setDistanceToFather(distances[1]);
+    Node * parent = getParentNode(idNextNode++, best1, best2);
+    // compute lambda
+    _lambda=0;
+    if(_variance[bestPair[0]][bestPair[1]] == 0)
+      _lambda=.5;
+    else
+    {
+      for(map<unsigned int, Node *>::iterator i = _currentNodes.begin(); i != _currentNodes.end(); i++)
       {
-			  unsigned int id = i -> first;
-			  if(id != bestPair[0] && id != bestPair[1]) 
-				  _lambda += (_variance[bestPair[1]][id] - _variance[bestPair[0]][id]);
-		  }
-		  double div =  2*(_currentNodes.size() - 2)*_variance[bestPair[0]][bestPair[1]];
-		  _lambda /= div;
-		  _lambda += .5;
-		}
-		if(_lambda <0.) _lambda =0.;
-		if(_lambda > 1.) _lambda=1.;
-		
+        unsigned int id = i -> first;
+        if(id != bestPair[0] && id != bestPair[1]) 
+          _lambda += (_variance[bestPair[1]][id] - _variance[bestPair[0]][id]);
+      }
+      double div =  2*(_currentNodes.size() - 2)*_variance[bestPair[0]][bestPair[1]];
+      _lambda /= div;
+      _lambda += .5;
+    }
+    if(_lambda <0.) _lambda =0.;
+    if(_lambda > 1.) _lambda=1.;
+    
     for(map<unsigned int, Node *>::iterator i = _currentNodes.begin(); i != _currentNodes.end(); i++)
     {
-			unsigned int id = i -> first;
-			if(id != bestPair[0] && id != bestPair[1])
+      unsigned int id = i -> first;
+      if(id != bestPair[0] && id != bestPair[1])
       {
-				newDist[id] = computeDistancesFromPair(bestPair, distances, id);
-				newVar[id] = _lambda*_variance[bestPair[0]][id]+ (1-_lambda)*_variance[bestPair[1]][id]- _lambda*(1-_lambda)*_variance[bestPair[0]][bestPair[1]];
-			}
+        newDist[id] = computeDistancesFromPair(bestPair, distances, id);
+        newVar[id] = _lambda*_variance[bestPair[0]][id]+ (1-_lambda)*_variance[bestPair[1]][id]- _lambda*(1-_lambda)*_variance[bestPair[0]][bestPair[1]];
+      }
       else
       {
-				newDist[id] = 0;
-			}
-		}
-		// Actualize _currentNodes:
-		_currentNodes[bestPair[0]] = parent;
-		_currentNodes.erase(bestPair[1]);
-		for(map<unsigned int, Node *>::iterator i = _currentNodes.begin(); i != _currentNodes.end(); i++)
+        newDist[id] = 0;
+      }
+    }
+    // Actualize _currentNodes:
+    _currentNodes[bestPair[0]] = parent;
+    _currentNodes.erase(bestPair[1]);
+    for(map<unsigned int, Node *>::iterator i = _currentNodes.begin(); i != _currentNodes.end(); i++)
     {
-			unsigned int id = i -> first;
-			_matrix(  bestPair[0], id) =    _matrix(id, bestPair[0]) = newDist[id];
-			_variance(bestPair[0], id) =  _variance(id, bestPair[0]) = newVar[id];
-		}
-		
-	}
-	finalStep(idNextNode);
+      unsigned int id = i -> first;
+      _matrix(  bestPair[0], id) =    _matrix(id, bestPair[0]) = newDist[id];
+      _variance(bestPair[0], id) =  _variance(id, bestPair[0]) = newVar[id];
+    }
+    
+  }
+  finalStep(idNextNode);
 }
 
