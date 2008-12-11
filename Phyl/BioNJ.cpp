@@ -60,7 +60,6 @@ double BioNJ::computeDistancesFromPair(const vector<unsigned int> & pair, const 
 
 void BioNJ::computeTree(bool rooted) throw (Exception)
 {
-  cout << _matrix.size() << endl;
   // Initialization:
   for(unsigned int i = 0; i < _matrix.size(); i++)
   {
