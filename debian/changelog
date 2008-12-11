@@ -1,3 +1,9 @@
+libbpp-phyl (1.7.0) unstable; urgency=low
+
+  * Several bug fixed and improvements...
+
+ -- Julien Dutheil <jdutheil@daimi.au.dk>  Thu, 11 Dec 2008 12:21:37 +0100
+
 libbpp-phyl (1.6.0) unstable; urgency=low
 
   * New +F protein models + bugs fixed.
