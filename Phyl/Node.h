@@ -79,6 +79,14 @@ namespace bpp
  * - A property map, that may contain any information to link to each node, e.g. bootstrap
  * value or GC content.
  * 
+ * Methods are provided to help the building of trees from scratch.
+ * Trees are more easily built from root to leaves:
+ * The addSon(Node) method adds a node to the list of direct descendants of a 
+ * given node. The son node will also have its father set to the current node.
+ * There is also a setFather method that enables you to change the pointer
+ * toward the parent node. This will however not change the list of descendants
+ * of the parent node, you will have to tune it manually.
+ * 
  * @see Tree, TreeTemplate
  */
 class Node:
@@ -315,12 +323,17 @@ class Node:
          
     virtual unsigned int getNumberOfSons() const { return _sons.size(); }
 
+    virtual vector<Node *>& getSons()
+    {
+      return _sons;
+    }
+
     virtual const Node * getSon(unsigned int pos) const throw (IndexOutOfBoundsException)
     {
       if(pos >= _sons.size()) throw IndexOutOfBoundsException("Node::getSon().", pos, 0, _sons.size()-1);
       return _sons[pos];
     }
-        
+      
     virtual Node * getSon(unsigned int pos) throw (IndexOutOfBoundsException)
     {
       if(pos >= _sons.size()) throw IndexOutOfBoundsException("Node::getSon().", pos, 0, _sons.size()-1);

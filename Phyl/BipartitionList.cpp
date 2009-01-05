@@ -60,6 +60,7 @@ using namespace bpp;
 
 // From the STL:
 #include <iostream>
+#include <limits.h> //defines CHAR_BIT
 
 using namespace std;
 

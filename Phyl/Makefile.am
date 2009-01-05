@@ -135,7 +135,8 @@ BipartitionList.h\
 BipartitionTools.h\
 SubstitutionModelSet.h\
 SubstitutionModelSetTools.h\
-L95.h
+L95.h\
+RE08.h
 
 
 CPP_FILES = \
@@ -207,7 +208,8 @@ BipartitionTools.cpp\
 SubstitutionModelSet.cpp\
 SubstitutionModelSetTools.cpp\
 FrequenciesSet.cpp\
-L95.cpp
+L95.cpp\
+RE08.cpp
 
 CPP_EXTRA = \
 __DSO78FrequenciesCode\

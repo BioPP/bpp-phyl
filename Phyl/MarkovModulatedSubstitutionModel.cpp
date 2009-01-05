@@ -166,7 +166,7 @@ RowMatrix<double> MarkovModulatedSubstitutionModel::getd2Pij_dt2(double t) const
 
 double MarkovModulatedSubstitutionModel::getInitValue(int i, int state) const throw (BadIntException)
 {
-	if(i < 0 || i > (int)(_nbStates*_nbRates)) throw BadIntException(i, "MarkovModulatedSubstitutionModel::getInitValue");
+	if(i < 0 || i >= (int)(_nbStates*_nbRates)) throw BadIntException(i, "MarkovModulatedSubstitutionModel::getInitValue");
 	if(state < 0 || !_model->getAlphabet()->isIntInAlphabet(state)) throw BadIntException(state, "MarkovModulatedSubstitutionModel::getInitValue. Character " + _model->getAlphabet()->intToChar(state) + " is not allowed in model.");
 	vector<int> states = _model->getAlphabet()->getAlias(state);
   int x = i % _nbStates;

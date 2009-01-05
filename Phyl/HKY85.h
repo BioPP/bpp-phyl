@@ -110,7 +110,7 @@ namespace bpp
  * \f]
  *  
  * The eigen values are \f$\left(0, -\frac{\pi_R + \kappa\pi_Y}{P}, -\frac{\pi_Y + \kappa\pi_R}{P}, -\frac{1}{P}\right)\f$,
- * with \f$\pi_R=\pi_A+\pi_G\f$ and \f$\pi_Y=\pi_C+\pi_G\f$.
+ * with \f$\pi_R=\pi_A+\pi_G\f$ and \f$\pi_Y=\pi_C+\pi_T\f$.
  * The left eigen vectors are, by row:
  * \f[
  * U = \begin{pmatrix}

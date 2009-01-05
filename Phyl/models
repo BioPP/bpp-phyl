@@ -24,4 +24,5 @@
 #include "SubstitutionModelFactory.h"
 #include "RateDistributionFactory.h"
 #include "SubstitutionModelSet.h"
+#include "RE08.h"
 

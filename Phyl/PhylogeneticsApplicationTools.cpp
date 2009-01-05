@@ -111,17 +111,23 @@ SubstitutionModel * PhylogeneticsApplicationTools::getSubstitutionModelDefaultIn
   bool verbose) throw (Exception)
 {
   SubstitutionModel * model = NULL;
-  string covarionName = "none";
+  string modelName = "", left = "";
 
   if(AlphabetTools::isNucleicAlphabet(alphabet))
   {
-    string modelName = ApplicationTools::getStringParameter(prefix + "name", params, "JCnuc", suffix, suffixIsOptional);
-    if(modelName.find("+") != string::npos)
+    string modelDescription = ApplicationTools::getStringParameter(prefix + "name", params, "JCnuc", suffix, suffixIsOptional);
+    string::size_type i = modelDescription.find("+");
+    if(i == string::npos)
     {
-      StringTokenizer st(modelName, "+");
-      modelName = st.nextToken();
-      covarionName = st.nextToken();
+      modelName = modelDescription;
+      left = "";
     }
+    else
+    {
+      modelName = modelDescription.substr(0, i);
+      left = modelDescription.substr(i + 1);
+    }
+
     const NucleicAlphabet * alpha = dynamic_cast<const NucleicAlphabet *>(alphabet);
     
     if(verbose) ApplicationTools::displayResult("Substitution model" + suffix, modelName);
@@ -166,21 +172,29 @@ SubstitutionModel * PhylogeneticsApplicationTools::getSubstitutionModelDefaultIn
   else
   { 
     // Alphabet supposed to be proteic!
-    string modelName = ApplicationTools::getStringParameter(prefix + "name", params, "JCprot", suffix, suffixIsOptional);
+    string modelDescription = ApplicationTools::getStringParameter(prefix + "name", params, "JCprot", suffix, suffixIsOptional);
     bool withFreq = false;
-    if(modelName.find("+") != string::npos)
+    string::size_type i = modelDescription.find("+");
+    if(i == string::npos)
     {
-      StringTokenizer st(modelName, "+");
-      modelName = st.nextToken();
-      string tmp = st.nextToken();
-      if(tmp == "F")
+      modelName = modelDescription;
+      withFreq = false;
+      left = "";
+    }
+    else
+    {
+      modelName = modelDescription.substr(0, i);
+      left = modelDescription.substr(i + 1);
+      string::size_type j = left.find("+");
+      string tmp;
+      if(j != string::npos)
       {
-        withFreq = true;
-        if(st.hasMoreToken()) covarionName = st.nextToken();
-      }
-      else
-      {
-        covarionName = tmp;
+        string tmp = left.substr(0, j);
+        if(tmp == "F")
+        {
+          withFreq = true;
+          left = left.substr(j + 1);
+        }
       }
     }
     const ProteicAlphabet * alpha = dynamic_cast<const ProteicAlphabet *>(alphabet);
@@ -227,31 +241,65 @@ SubstitutionModel * PhylogeneticsApplicationTools::getSubstitutionModelDefaultIn
     }
   }
 
-  if(covarionName == "none") {}
-  else if(covarionName == "G2001")
+  string::size_type i = left.find("+");
+  if(i == string::npos)
   {
-    if(verbose)
-    {
-      ApplicationTools::displayResult("Covarion model" , covarionName);
-    }
-    DiscreteDistribution * rDist = getRateDistributionDefaultInstance(params, false, prefix, suffix, suffixIsOptional, verbose);
-    ReversibleSubstitutionModel * tmp = dynamic_cast<ReversibleSubstitutionModel *>(model);
-    model = new G2001(tmp, rDist); //The instance will delete the rDist object.
-  }
-  else if(covarionName == "TS98")
-  {
-    if(verbose)
-    {
-      ApplicationTools::displayResult("Covarion model" , covarionName);
-    }
-    ReversibleSubstitutionModel * tmp = dynamic_cast<ReversibleSubstitutionModel *>(model);
-    model = new TS98(tmp);
+    modelName = left;
+    left = "";
   }
   else
   {
-    throw Exception("Process unknown: " + covarionName + ".");
+    modelName = left.substr(0, i);
+    left = left.substr(i + 1);
   }
-  
+
+  while(modelName != "")
+  {
+    if(modelName == "G2001")
+    {
+      if(verbose)
+      {
+        ApplicationTools::displayResult("Covarion model" , modelName);
+      }
+      DiscreteDistribution * rDist = getRateDistributionDefaultInstance(params, false, prefix, suffix, suffixIsOptional, verbose);
+      ReversibleSubstitutionModel * tmp = dynamic_cast<ReversibleSubstitutionModel *>(model);
+      model = new G2001(tmp, rDist); //The instance will delete the rDist object.
+    }
+    else if(modelName == "TS98")
+    {
+      if(verbose)
+      {
+        ApplicationTools::displayResult("Covarion model" , modelName);
+      }
+      ReversibleSubstitutionModel * tmp = dynamic_cast<ReversibleSubstitutionModel *>(model);
+      model = new TS98(tmp);
+    }
+    else if(modelName == "RE08")
+    {
+      if(verbose)
+      {
+        ApplicationTools::displayResult("Gap model" , modelName);
+      }
+      ReversibleSubstitutionModel * tmp = dynamic_cast<ReversibleSubstitutionModel *>(model);
+      model = new RE08(tmp);
+    }
+    else
+    {
+      throw Exception("Process unknown: " + modelName + ".");
+    }
+    i = left.find("+");
+    if(i == string::npos)
+    {
+      modelName = left;
+      left = "";
+    }
+    else
+    {
+      modelName = left.substr(0, i);
+      left = left.substr(i + 1);
+    }
+  }
+    
   return model;
 }
 
@@ -309,16 +357,19 @@ void PhylogeneticsApplicationTools::printSubstitutionModelHelp()
   *ApplicationTools::message << "Substitution Model:" << endl;
   *ApplicationTools::message << "model.name              | Nucleotides (N): [JCnuc, K80, T92, F84, HKY85, TN93," << endl;
   *ApplicationTools::message << "                        | GTR]" << endl;
-  *ApplicationTools::message << "                        | Proteins (P): [JCprot, DSO78, JTT92, empirical]" << endl;
+  *ApplicationTools::message << "                        | Proteins (P): [JCprot, DSO78, JTT92, empirical][+F]" << endl;
+  *ApplicationTools::message << "                        | The +F option allows to estimate equilibrium frequencies." << endl;
   *ApplicationTools::message << "model.kappa             | kappa(N)  parameter in Q matrix" << endl;
   *ApplicationTools::message << "model.kappa1            | kappa1(N) parameter in Q matrix" << endl;
   *ApplicationTools::message << "model.kappa2            | kappa2(N) parameter in Q matrix" << endl;
   *ApplicationTools::message << "model.a,b,c,d,e,f       | GTR rates parameter in Q matrix" << endl;
-  *ApplicationTools::message << "model.theta             | piG + piC" << endl;
-  *ApplicationTools::message << "model.theta1            | piA / (piA + piT)" << endl;
-  *ApplicationTools::message << "model.theta2            | piG / (piC + piG)" << endl;
+  *ApplicationTools::message << "model.theta             | piG + piC for nucleotides, piA for proteins" << endl;
+  *ApplicationTools::message << "model.theta1            | piA / (piA + piT) for nucleotides, piR / (1 - piA) for proteins" << endl;
+  *ApplicationTools::message << "model.theta2            | piG / (piC + piG) for nucleotides, piN / (1 - piA - piR) for proteins" << endl;
+  *ApplicationTools::message << "model.thetaX            | other frequencies for protein+F models" << endl;
   *ApplicationTools::message << "model.use_observed_freq | (N,P) Tell if the observed frequencies must be used." << endl; 
   *ApplicationTools::message << "model_empirical.file    | (P) The path toward data file to use (PAML format)." << endl; 
+  *ApplicationTools::message << "                        | (N,P) the +G options uses the RE08 model with gaps." << endl; 
   *ApplicationTools::message << "________________________|_____________________________________________________" << endl;
 }
 

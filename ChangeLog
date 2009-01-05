@@ -1,3 +1,7 @@
+05/01/09 Julien Dutheil
+* Added Rivas and Eddy substitution model with gaps.
+* Small bug fixed in Markov-modulated substitution models.
+
 18/01/08 -*- Version 1.7.0 -*-
 
 11/12/08 Julien Dutheil
