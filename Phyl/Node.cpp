@@ -38,6 +38,7 @@ knowledge of the CeCILL license and that you accept its terms.
 */
 
 #include "Node.h"
+#include "TreeTools.h"
 
 //From Utils:
 #include <Utils/Exceptions.h>
@@ -50,6 +51,8 @@ using namespace bpp;
 #include <iostream>
 
 using namespace std;
+
+const string Node::BOOTSTRAP = TreeTools::BOOTSTRAP;
 
 /** Copy constructor: *********************************************************/
   

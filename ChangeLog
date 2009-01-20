@@ -1,3 +1,7 @@
+20/01/09 Julien Dutheil
+* Added getBootstrapValue method in Node.
+* New PropertyNotFoundException and property methods update.
+
 05/01/09 Julien Dutheil
 * Added Rivas and Eddy substitution model with gaps.
 * Small bug fixed in Markov-modulated substitution models.

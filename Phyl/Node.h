@@ -54,6 +54,7 @@ using namespace std;
 #include <Utils/Clonable.h>
 #include <Utils/MapTools.h>
 #include <Utils/BppString.h>
+#include <Utils/Number.h>
 
 namespace bpp
 {
@@ -368,7 +369,7 @@ class Node:
       return node;
     }
     
-    virtual void removeSon(Node & node)
+    virtual void removeSon(Node & node) throw (NodeNotFoundException)
     {
       for(unsigned int i = 0; i < _sons.size(); i++)
       {
@@ -418,24 +419,61 @@ class Node:
      *
      * @{
      */
-        
-    virtual void setNodeProperty(const string & name, const Clonable & property) { _nodeProperties[name] = property.clone(); }
-        
-    virtual Clonable * getNodeProperty(const string & name) { return _nodeProperties[name]; }
-        
-    virtual const Clonable * getNodeProperty(const string & name) const { return const_cast<const Clonable *>(_nodeProperties[name]); }
-        
-    virtual Clonable * removeNodeProperty(const string & name)
+
+    /**
+     * @brief Set/add a node property.
+     *
+     * If no property with the same name is found, the new property will be added to the list.
+     * Conversely, the property will be deleted and replaced by the new one.
+     * If you want to keep a copy of the old property, consider using the removeNodeProperty function before.
+     *
+     * @param name The name of the property to set.
+     * @param property The property object (will be cloned).
+     */
+    virtual void setNodeProperty(const string & name, const Clonable & property)
     {
-      Clonable * removed = _nodeProperties[name];
-      _nodeProperties.erase(name);
-      return removed;
+      if(hasNodeProperty(name))
+        delete _nodeProperties[name];
+      _nodeProperties[name] = property.clone();
+    }
+        
+    virtual Clonable * getNodeProperty(const string & name) throw (PropertyNotFoundException)
+    {
+      if(hasNodeProperty(name))
+        return _nodeProperties[name];
+      else
+        throw PropertyNotFoundException("", name, this);
+    }
+        
+    virtual const Clonable * getNodeProperty(const string & name) const throw (PropertyNotFoundException)
+    {
+      if(hasNodeProperty(name))
+        return const_cast<const Clonable *>(_nodeProperties[name]);
+      else
+        throw PropertyNotFoundException("", name, this);
+    }
+        
+    virtual Clonable * removeNodeProperty(const string & name) throw (PropertyNotFoundException)
+    {
+      if(hasNodeProperty(name))
+      {
+        Clonable * removed = _nodeProperties[name];
+        _nodeProperties.erase(name);
+        return removed;
+      }
+      else
+        throw PropertyNotFoundException("", name, this);
     }  
         
-    virtual void deleteNodeProperty(const string & name)
+    virtual void deleteNodeProperty(const string & name) throw (PropertyNotFoundException)
     {
-      delete _nodeProperties[name];
-      _nodeProperties.erase(name);
+      if(hasNodeProperty(name))
+      {
+        delete _nodeProperties[name];
+        _nodeProperties.erase(name);
+      }
+      else
+        throw PropertyNotFoundException("", name, this);
     }  
      
     /**
@@ -469,24 +507,61 @@ class Node:
      *
      * @{
      */
-        
-    virtual void setBranchProperty(const string & name, const Clonable & property) { _branchProperties[name] = property.clone(); }
-        
-    virtual Clonable * getBranchProperty(const string & name) { return _branchProperties[name]; }
-        
-    virtual const Clonable * getBranchProperty(const string & name) const { return const_cast<const Clonable *>(_branchProperties[name]); }
-        
-    virtual Clonable * removeBranchProperty(const string & name)
+     
+    /**
+     * @brief Set/add a branch property.
+     *
+     * If no property with the same name is found, the new property will be added to the list.
+     * Conversely, the property will be deleted and replaced by the new one.
+     * If you want to keep a copy of the old property, consider using the removeBranchProperty function before.
+     *
+     * @param name The name of the property to set.
+     * @param property The property object (will be cloned).
+     */
+    virtual void setBranchProperty(const string & name, const Clonable & property)
     {
-      Clonable * removed = _branchProperties[name];
-      _branchProperties.erase(name);
-      return removed;
+      if(hasBranchProperty(name))
+        delete _branchProperties[name];
+      _branchProperties[name] = property.clone();
+    }
+        
+    virtual Clonable * getBranchProperty(const string & name) throw (PropertyNotFoundException)
+    {
+      if(hasBranchProperty(name))
+        return _branchProperties[name];
+      else
+        throw PropertyNotFoundException("", name, this);
+    }
+        
+    virtual const Clonable * getBranchProperty(const string & name) const throw (PropertyNotFoundException)
+    {
+      if(hasBranchProperty(name))
+        return const_cast<const Clonable *>(_branchProperties[name]);
+      else
+        throw PropertyNotFoundException("", name, this);
+    }
+        
+    virtual Clonable * removeBranchProperty(const string & name) throw (PropertyNotFoundException)
+    {
+      if(hasBranchProperty(name))
+      {
+        Clonable * removed = _branchProperties[name];
+        _branchProperties.erase(name);
+        return removed;
+      }
+      else
+        throw PropertyNotFoundException("", name, this);
     }  
     
-    virtual void deleteBranchProperty(const string & name)
+    virtual void deleteBranchProperty(const string & name) throw (PropertyNotFoundException)
     {
-      delete _branchProperties[name];
-      _branchProperties.erase(name);
+      if(hasBranchProperty(name))
+      {
+        delete _branchProperties[name];
+        _branchProperties.erase(name);
+      }
+      else
+        throw PropertyNotFoundException("", name, this);
     }  
     
     /**
@@ -512,7 +587,14 @@ class Node:
     virtual bool hasBranchProperty(const string & name) const { return _branchProperties.find(name) != _branchProperties.end(); }
 
     virtual vector<string> getBranchPropertyNames() const { return MapTools::getKeys(_branchProperties); }
-    
+   
+    virtual double getBootstrapValue() const throw (PropertyNotFoundException)
+    {
+      if(hasBranchProperty(BOOTSTRAP))
+        return dynamic_cast<const Number<double> *>(getBranchProperty(BOOTSTRAP))->getValue();
+      else
+        throw PropertyNotFoundException("", BOOTSTRAP, this);
+    }
     /** @} */
     // Equality operator:
 
@@ -521,6 +603,9 @@ class Node:
     // Tests:
 
     virtual bool isLeaf() const { return degree() == 1; }
+
+  public:
+    static const string BOOTSTRAP;
       
 };
 

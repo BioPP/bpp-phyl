@@ -100,6 +100,46 @@ class NodeException:
 };
 
 /**
+ * @brief General exception thrown if a property could not be found.
+ */
+class PropertyNotFoundException:
+  public NodeException
+{
+
+	protected:
+		string _propertyName;
+			
+	public:
+
+		/**
+		 * @brief Build a new PropertyNotFoundException.
+		 * @param text A message to be passed to the exception hierarchy.
+		 * @param node A const pointer toward the node that threw the exception.
+		 */
+		PropertyNotFoundException(const string & text, const string & propertyName, const Node * node = NULL):
+      NodeException("Property not found: " + propertyName + ". " + text, node), _propertyName(propertyName) {}
+
+		/**
+		 * @brief Build a new NodeException.
+		 * @param text A message to be passed to the exception hierarchy.
+		 * @param nodeId The id of the node that threw the exception.
+		 */
+		PropertyNotFoundException(const string & text, const string & propertyName, int nodeId):
+      NodeException("Property not found: " + propertyName + ". " + text, nodeId), _propertyName(propertyName) {}
+	
+		virtual ~PropertyNotFoundException() throw () {}
+	
+	public:
+
+		/**
+		 * @brief Get the name of the property that could not be found.
+		 * 
+		 * @return The name of the missing property.
+		 */
+		virtual const string & getPropertyName() const { return _propertyName; }
+};
+
+/**
  * @brief Exception thrown when something is wrong with a particular node.
  */
 class NodeNotFoundException:
