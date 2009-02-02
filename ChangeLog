@@ -1,3 +1,7 @@
+02/02/09 Julien Dutheil (tnx to Emmanuel Douzery!)
+* Bug fixed in TreeTools::treeToParenthesis: no more seg fault if tree is
+  empty.
+
 20/01/09 Julien Dutheil
 * Added getBootstrapValue method in Node.
 * New PropertyNotFoundException and property methods update.

@@ -306,6 +306,8 @@ string TreeTools::nodeToParenthesis(const Tree & tree, int nodeId, bool bootstra
 }
 
 /******************************************************************************/
+#include "TreeTemplate.h"
+#include "Node.h"
 
 string TreeTools::treeToParenthesis(const Tree & tree, bool writeId)
 {
@@ -316,17 +318,22 @@ string TreeTools::treeToParenthesis(const Tree & tree, bool writeId)
   if(tree.isLeaf(rootId))
   {
     s << tree.getNodeName(rootId);
-    for(unsigned int i = 0; i < sonsId.size(); i++) {
+    for(unsigned int i = 0; i < sonsId.size(); i++)
+    {
       s << "," << nodeToParenthesis(tree, sonsId[i], writeId);
     }
   }
   else
   {
-    s << nodeToParenthesis(tree, sonsId[0], writeId);
-    for(unsigned int i = 1; i < sonsId.size(); i++)
+    if(sonsId.size() > 0)
     {
-      s << "," << nodeToParenthesis(tree, sonsId[i], writeId);
+      s << nodeToParenthesis(tree, sonsId[0], writeId);
+      for(unsigned int i = 1; i < sonsId.size(); i++)
+      {
+        s << "," << nodeToParenthesis(tree, sonsId[i], writeId);
+      }
     }
+    //Otherwise, this is an empty tree!
   }
   s << ");" << endl;
   return s.str();  
