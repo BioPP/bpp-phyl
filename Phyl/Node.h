@@ -588,13 +588,7 @@ class Node:
 
     virtual vector<string> getBranchPropertyNames() const { return MapTools::getKeys(_branchProperties); }
    
-    virtual double getBootstrapValue() const throw (PropertyNotFoundException)
-    {
-      if(hasBranchProperty(BOOTSTRAP))
-        return dynamic_cast<const Number<double> *>(getBranchProperty(BOOTSTRAP))->getValue();
-      else
-        throw PropertyNotFoundException("", BOOTSTRAP, this);
-    }
+    virtual double getBootstrapValue() const throw (PropertyNotFoundException);
     /** @} */
     // Equality operator:
 
@@ -604,9 +598,6 @@ class Node:
 
     virtual bool isLeaf() const { return degree() == 1; }
 
-  public:
-    static const string BOOTSTRAP;
-      
 };
 
 } //end of namespace bpp.

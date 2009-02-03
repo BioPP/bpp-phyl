@@ -52,8 +52,6 @@ using namespace bpp;
 
 using namespace std;
 
-const string Node::BOOTSTRAP = TreeTools::BOOTSTRAP;
-
 /** Copy constructor: *********************************************************/
   
 Node::Node(const Node & node):
@@ -128,6 +126,14 @@ unsigned int Node::getSonPosition(const Node & son) const throw (NodeNotFoundExc
     if(_sons[i] == &son) return i;
   }
   throw NodeNotFoundException("Son not found", TextTools::toString(son.getId()));
+}
+
+double Node::getBootstrapValue() const throw (PropertyNotFoundException)
+{
+  if(hasBranchProperty(TreeTools::BOOTSTRAP))
+    return dynamic_cast<const Number<double> *>(getBranchProperty(TreeTools::BOOTSTRAP))->getValue();
+  else
+    throw PropertyNotFoundException("", TreeTools::BOOTSTRAP, this);
 }
 
 /******************************************************************************/

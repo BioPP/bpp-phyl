@@ -681,8 +681,9 @@ class TreeTools
      *
      * @param tree Input tree. the BOOTSTRAP banch property of the tree will be modified if it already exists.
      * @param vecTr A list of trees to compare to 'tree'.
+     * @param verbose Tell if a progress bar should be displayed.
      */
-    static void computeBootstrapValues(Tree & tree, const vector<Tree *> & vecTr);
+    static void computeBootstrapValues(Tree & tree, const vector<Tree *> & vecTr, bool verbose = true);
 
 
 
@@ -696,7 +697,7 @@ class TreeTools
     /**
      * @brief Bootstrap tag.
      */
-    static string BOOTSTRAP;   
+    static const string BOOTSTRAP;   
     /** @} */
 
 };

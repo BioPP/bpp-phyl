@@ -51,6 +51,7 @@ knowledge of the CeCILL license and that you accept its terms.
 #include <Utils/StringTokenizer.h>
 #include <Utils/Number.h>
 #include <Utils/BppString.h>
+#include <Utils/ApplicationTools.h>
 
 // From NumCalc:
 #include <NumCalc/VectorTools.h>
@@ -71,7 +72,7 @@ using namespace std;
 
 /******************************************************************************/
 
-string TreeTools::BOOTSTRAP = "bootstrap";
+const string TreeTools::BOOTSTRAP = "bootstrap";
 
 /******************************************************************************/
 
@@ -306,8 +307,6 @@ string TreeTools::nodeToParenthesis(const Tree & tree, int nodeId, bool bootstra
 }
 
 /******************************************************************************/
-#include "TreeTemplate.h"
-#include "Node.h"
 
 string TreeTools::treeToParenthesis(const Tree & tree, bool writeId)
 {
@@ -1012,7 +1011,7 @@ Tree* TreeTools::MRP(const vector<Tree*> & vecTr)
 
 /******************************************************************************/
 
-void TreeTools::computeBootstrapValues(Tree & tree, const vector<Tree *> & vecTr)
+void TreeTools::computeBootstrapValues(Tree & tree, const vector<Tree *> & vecTr, bool verbose)
 {
   vector<int> index;
   BipartitionList bpTree(tree, true, & index);
@@ -1023,6 +1022,7 @@ void TreeTools::computeBootstrapValues(Tree & tree, const vector<Tree *> & vecTr
 
   for(unsigned int i = 0; i < bpTree.getNumberOfBipartitions(); i++)
   {
+    if(verbose) ApplicationTools::displayGauge(i, bpTree.getNumberOfBipartitions() - 1, '=');
     for(unsigned int j = 0; j < bpList->getNumberOfBipartitions(); j++)
     {
       if(BipartitionTools::areIdentical(bpTree, i, *bpList, j))
