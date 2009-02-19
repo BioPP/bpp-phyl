@@ -114,6 +114,10 @@ class AbstractSubstitutionModel :
 		AbstractSubstitutionModel(const Alphabet * alpha);
 	
 		virtual ~AbstractSubstitutionModel() {}
+    
+#ifndef NO_VIRTUAL_COV
+    virtual AbstractSubstitutionModel * clone() const = 0;
+#endif
 
 	public:
 		const Alphabet * getAlphabet() const { return _alphabet; }
@@ -220,6 +224,8 @@ class AbstractReversibleSubstitutionModel:
 		AbstractReversibleSubstitutionModel(const Alphabet * alpha);
 	
 		virtual ~AbstractReversibleSubstitutionModel() {}
+
+    virtual AbstractReversibleSubstitutionModel * clone() const = 0;
 
   public:
 		RowMatrix<double> getExchangeabilityMatrix() const { return _exchangeability; }

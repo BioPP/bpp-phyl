@@ -1,3 +1,6 @@
+19/02/09 [biopp-devel-forum:6]
+* Method clone in abstract[Reversible]SubstitutionModel.
+
 02/02/09 Julien Dutheil (tnx to Emmanuel Douzery!)
 * Bug fixed in TreeTools::treeToParenthesis: no more seg fault if tree is
   empty.
