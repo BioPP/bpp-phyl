@@ -796,21 +796,22 @@ TreeLikelihood * PhylogeneticsApplicationTools::optimizeParameters(
       }
       else if(param == "Ancient")
       {
-        vector<string> vs = dynamic_cast<NonHomogeneousTreeLikelihood *>(tl)->getRootFrequenciesParameters().getParameterNames();
-        for(unsigned int i = 0; i < vs.size(); i++)
+        NonHomogeneousTreeLikelihood *nhtl = dynamic_cast<NonHomogeneousTreeLikelihood *>(tl);
+        if(!nhtl) ApplicationTools::displayWarning("The 'Ancient' parameters do not exist in homogeneous models, and will be ignored.");
+        else
         {
-          dynamic_cast<AbstractTreeLikelihood *>(tl)->ignoreParameter(vs[i]);
+          vector<string> vs = nhtl->getRootFrequenciesParameters().getParameterNames();
+          for(unsigned int i = 0; i < vs.size(); i++)
+          {
+            dynamic_cast<AbstractTreeLikelihood *>(tl)->ignoreParameter(vs[i]);
+          }
         }
       }
       else dynamic_cast<AbstractTreeLikelihood *>(tl)->ignoreParameter(param);
     } 
-    catch(ParameterNotFoundException pnfe)
+    catch(ParameterNotFoundException & pnfe)
     {
-      ApplicationTools::displayError("Parameter '" + pnfe.getParameter() + "' not found, and so can't be ignored!");
-    }
-    catch(exception e)
-    {
-      ApplicationTools::displayError("DEBUB: ERROR!!! This functionality can only be used with HomogeneousTreeLikelihood for now.");
+      ApplicationTools::displayWarning("Parameter '" + pnfe.getParameter() + "' not found, and so can't be ignored!");
     }
   }
   
@@ -976,21 +977,22 @@ void PhylogeneticsApplicationTools::optimizeParameters(
       }
       else if(param == "Ancient")
       {
-        vector<string> vs = dynamic_cast<NonHomogeneousTreeLikelihood *>(tl)->getRootFrequenciesParameters().getParameterNames();
-        for(unsigned int i = 0; i < vs.size(); i++)
+        NonHomogeneousTreeLikelihood *nhtl = dynamic_cast<NonHomogeneousTreeLikelihood *>(tl);
+        if(!nhtl) ApplicationTools::displayWarning("The 'Ancient' parameters do not exist in homogeneous models, and will be ignored.");
+        else
         {
-          dynamic_cast<AbstractTreeLikelihood *>(tl)->ignoreParameter(vs[i]);
+          vector<string> vs = nhtl->getRootFrequenciesParameters().getParameterNames();
+          for(unsigned int i = 0; i < vs.size(); i++)
+          {
+            dynamic_cast<AbstractTreeLikelihood *>(tl)->ignoreParameter(vs[i]);
+          }
         }
       }
       else dynamic_cast<AbstractTreeLikelihood *>(tl)->ignoreParameter(param);
     } 
-    catch(ParameterNotFoundException pnfe)
+    catch(ParameterNotFoundException & pnfe)
     {
       ApplicationTools::displayError("Parameter '" + pnfe.getParameter() + "' not found, and so can't be ignored!");
-    }
-    catch(exception e)
-    {
-      ApplicationTools::displayError("DEBUB: ERROR!!! This functionality can only be used with HomogeneousTreeLikelihood for now.");
     }
   }
   
