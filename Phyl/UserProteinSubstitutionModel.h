@@ -64,13 +64,13 @@ namespace bpp
 class UserProteinSubstitutionModel:
   public ProteinSubstitutionModel
 {
-	protected:
-		const string _path;
-	
-	public:
-		UserProteinSubstitutionModel(const ProteicAlphabet * alpha, const string & path);
+  protected:
+    const string _path;
+  
+  public:
+    UserProteinSubstitutionModel(const ProteicAlphabet * alpha, const string & path);
 
-		virtual ~UserProteinSubstitutionModel() {}
+    virtual ~UserProteinSubstitutionModel() {}
 
 #ifndef NO_VIRTUAL_COV
     UserProteinSubstitutionModel*
@@ -78,12 +78,13 @@ class UserProteinSubstitutionModel:
     Clonable*
 #endif
     clone() const { return new UserProteinSubstitutionModel(*this); }
-			
-	public:
-		string getName() const;
+      
+  public:
+    string getName() const;
+    const string & getPath() const { return _path; }
 
-	protected:
-		void readFromFile();
+  protected:
+    void readFromFile();
 
 };
 
