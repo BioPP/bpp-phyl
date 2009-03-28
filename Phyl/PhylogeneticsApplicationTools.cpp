@@ -209,7 +209,7 @@ SubstitutionModel * PhylogeneticsApplicationTools::getSubstitutionModelDefaultIn
         model = new JTT92F(alpha);
       else if(modelName == "empirical")
       {
-        string file = ApplicationTools::getAFilePath("model_empirical.file", params, true, true, suffix, true);
+        string file = ApplicationTools::getAFilePath(prefix + "_empirical.file", params, true, true, suffix, true);
         model = new UserProteinSubstitutionModelF(alpha, file);
       }
       else
@@ -227,7 +227,7 @@ SubstitutionModel * PhylogeneticsApplicationTools::getSubstitutionModelDefaultIn
         model = new JTT92(alpha);
       else if(modelName == "empirical")
       {
-        string file = ApplicationTools::getAFilePath("model_empirical.file", params, true, true, suffix, true);
+        string file = ApplicationTools::getAFilePath(prefix + "_empirical.file", params, true, true, suffix, true);
         model = new UserProteinSubstitutionModel(alpha, file);
       }
       else

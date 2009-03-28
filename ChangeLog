@@ -1,3 +1,6 @@
+28/03/09 [biopp-devel-forum:19]
+* Now empirical substitution models can be properly loaded with non-homogeneous models.
+
 17/03/09 [biopp-devel-forum:11]
 * Bug fixed in PhylogeneticApplicationTools::optimizeParameters.
 * Also fixed error in documentation of JC models.
