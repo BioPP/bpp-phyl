@@ -42,6 +42,9 @@ knowledge of the CeCILL license and that you accept its terms.
 
 #include "SubstitutionModel.h"
 
+//From NumCalc:
+#include <NumCalc/AbstractParametrizable.h>
+
 namespace bpp
 {
 

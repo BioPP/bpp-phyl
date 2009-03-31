@@ -44,6 +44,9 @@ knowledge of the CeCILL license and that you accept its terms.
 #include "Tree.h"
 #include "TreeTemplate.h"
 
+//From NumCalc:
+#include <NumCalc/AbstractParametrizable.h>
+
 //From SeqLib:
 #include <Seq/SiteContainer.h>
 

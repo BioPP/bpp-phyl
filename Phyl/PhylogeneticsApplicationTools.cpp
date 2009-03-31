@@ -299,6 +299,37 @@ SubstitutionModel * PhylogeneticsApplicationTools::getSubstitutionModelDefaultIn
       left = left.substr(i + 1);
     }
   }
+
+  //Now look if some parameters are aliased:
+  ParameterList pl = model->getIndependentParameters();
+  string pname, pval, pname2;
+  for(unsigned int i = 0; i < pl.size(); i++)
+  {
+    pname = pl[i]->getName();
+    if(params.find(prefix + pname) == params.end()) continue;
+    pval = params[prefix + pname];
+    //Check if parameter value is suffixed.
+    //We allow model.p2=p1 or model.p2=model.p1.
+    if(pval.size() > prefix.size() && pval.substr(0, prefix.size()) == prefix)
+      pval = pval.substr(prefix.size());
+    bool found = false;
+    for(unsigned int j = 0; j < pl.size() && !found; j++)
+    {
+      pname2 = pl[j]->getName();
+      if(j == i || params.find(prefix + pname2) == params.end()) continue;
+      if(pval == pname2)
+      {
+        //This is an alias...
+        //NB: this may throw an exception if uncorrect! We leave it as is for now :s
+        model->aliasParameters(pname2, pname);
+        if(verbose)
+          ApplicationTools::displayResult("Parameter alias found", pname + "->" + pname2);
+        found = true;
+      }
+    }
+    if(!TextTools::isDecimalNumber(pval) && !found)
+      throw Exception("Incorrect parameter syntax: parameter " + pval + " was not found and can't be used as a value for parameter " + pname + ".");
+  }
     
   return model;
 }
@@ -314,7 +345,7 @@ void PhylogeneticsApplicationTools::setSubstitutionModelParametersInitialValues(
 {
   bool useObsFreq = ApplicationTools::getBooleanParameter(prefix + "use_observed_freq", params, false, suffix, suffixIsOptional, false);
   if(useObsFreq && data != NULL) model->setFreqFromData(*data);
-  ParameterList pl = model->getParameters();
+  ParameterList pl = model->getIndependentParameters();
 	for(unsigned int i = 0; i < pl.size(); i++)
   {
 		Parameter * p = pl[i];
@@ -389,7 +420,7 @@ void PhylogeneticsApplicationTools::setSubstitutionModelParametersInitialValues(
 {
   bool useObsFreq = ApplicationTools::getBooleanParameter(prefix + "use_observed_freq", params, false, suffix, suffixIsOptional, false);
   if(useObsFreq && data != NULL) model->setFreqFromData(*data);
-  ParameterList pl = model->getParameters();
+  ParameterList pl = model->getIndependentParameters();
  	for(unsigned int i = 0; i < pl.size(); i++)
   {
 		Parameter * p = pl[i];
@@ -672,7 +703,7 @@ void PhylogeneticsApplicationTools::setRateDistributionParametersInitialValues(
   bool suffixIsOptional,
   bool verbose) throw (Exception)
 {
-  ParameterList pl = rDist->getParameters();
+  ParameterList pl = rDist->getIndependentParameters();
   for(unsigned int i = 0; i < pl.size(); i++)
   {
 		Parameter * p = pl[i];
@@ -919,7 +950,7 @@ TreeLikelihood * PhylogeneticsApplicationTools::optimizeParameters(
     finalOptimizer->getStopCondition()->setTolerance(tolerance);
     finalOptimizer->setVerbose(verbose);
     finalOptimizer->setConstraintPolicy(AutoParameter::CONSTRAINTS_AUTO);
-    finalOptimizer->init(tl->getParameters());
+    finalOptimizer->init(tl->getIndependentParameters());
     finalOptimizer->optimize();
     n += finalOptimizer->getNumberOfEvaluations();
     delete finalOptimizer;
@@ -1071,7 +1102,7 @@ void PhylogeneticsApplicationTools::optimizeParameters(
     finalOptimizer->getStopCondition()->setTolerance(tolerance);
     finalOptimizer->setVerbose(verbose);
     finalOptimizer->setConstraintPolicy(AutoParameter::CONSTRAINTS_AUTO);
-    finalOptimizer->init(tl->getParameters());
+    finalOptimizer->init(tl->getIndependentParameters());
     finalOptimizer->optimize();
     n += finalOptimizer->getNumberOfEvaluations();
     delete finalOptimizer;

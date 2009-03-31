@@ -49,13 +49,13 @@ using namespace bpp;
 /******************************************************************************/
 
 MarkovModulatedSubstitutionModel::MarkovModulatedSubstitutionModel(const MarkovModulatedSubstitutionModel & model):
+  AbstractParametrizable(model),
   _nbStates(model._nbStates),
   _nbRates(model._nbRates),
   _rates(model._rates),
   _ratesExchangeability(model._ratesExchangeability),
   _ratesFreq(model._ratesFreq),
   _ratesGenerator(model._ratesGenerator),
-  _ratesParameters(model._ratesParameters),
   _generator(model._generator),
   _exchangeability(model._exchangeability),
   _leftEigenVectors(model._leftEigenVectors),
@@ -69,6 +69,7 @@ MarkovModulatedSubstitutionModel::MarkovModulatedSubstitutionModel(const MarkovM
 
 MarkovModulatedSubstitutionModel & MarkovModulatedSubstitutionModel::operator=(const MarkovModulatedSubstitutionModel & model)
 {
+  AbstractParametrizable::operator=(model);
   _model                = dynamic_cast<ReversibleSubstitutionModel *>(model._model->clone());
   _nbStates             = model._nbStates;
   _nbRates              = model._nbRates;
@@ -76,7 +77,6 @@ MarkovModulatedSubstitutionModel & MarkovModulatedSubstitutionModel::operator=(c
   _ratesExchangeability = model._ratesExchangeability;
   _ratesFreq            = model._ratesFreq;
   _ratesGenerator       = model._ratesGenerator;
-  _ratesParameters      = model._ratesParameters;
   _generator            = model._generator;
   _exchangeability      = model._exchangeability;
   _leftEigenVectors     = model._leftEigenVectors;

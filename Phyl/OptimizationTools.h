@@ -342,7 +342,8 @@ class OptimizationTools
 	private:
 		
 		class ScaleFunction:
-      public Function
+      public Function,
+      public ParametrizableAdapter
     {
 				
 			protected:
@@ -363,22 +364,15 @@ class OptimizationTools
 			public:
 				void setParameters(const ParameterList & lambda) throw (ParameterNotFoundException, ConstraintException);
 				double getValue() const throw (ParameterException);
-				ParameterList getParameters() const throw (Exception) { return _lambda; }
-        Parameter getParameter(const string & name) const throw (ParameterNotFoundException)
+				const ParameterList & getParameters() const throw (Exception) { return _lambda; }
+        const Parameter & getParameter(const string & name) const throw (ParameterNotFoundException)
         {
           if(name == "lambda") return *_lambda[0];
           else throw ParameterNotFoundException("ScaleFunction::getParameter.", name);
         }
-				double getParameterValue(const string & name) const throw (ParameterNotFoundException) { return _lambda.getParameter(name) -> getValue(); };
-				void setAllParametersValues(const ParameterList & params) 
-					throw (ParameterNotFoundException, ConstraintException) {}
-				void setParameterValue(const string & name, double value) 
-					throw (ParameterNotFoundException, ConstraintException) {}
-				void setParametersValues(const ParameterList & params)
-					throw (ParameterNotFoundException, ConstraintException) {}
-				void matchParametersValues(const ParameterList & params)
-					throw (ConstraintException) {};
-        unsigned int getNumberOfParameters() const { return 1; }
+				double getParameterValue(const string & name) const throw (ParameterNotFoundException) { return _lambda.getParameter(name)->getValue(); };
+		    unsigned int getNumberOfParameters() const { return 1; }
+		    unsigned int getNumberOfIndependentParameters() const { return 1; }
 		};
 	
 	public:

@@ -256,10 +256,10 @@ void AbstractHomogeneousTreeLikelihood::initParameters()
   _parameters.addParameters(_brLenParameters);
   
   // Substitution model:
-  _parameters.addParameters(_model->getParameters());
+  _parameters.addParameters(_model->getIndependentParameters());
   
   // Rate distribution:
-  _parameters.addParameters(_rateDistribution->getParameters());
+  _parameters.addParameters(_rateDistribution->getIndependentParameters());
 }
 
 /******************************************************************************/

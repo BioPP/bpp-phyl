@@ -42,6 +42,9 @@ knowledge of the CeCILL license and that you accept its terms.
 
 #include "SubstitutionModel.h"
 
+//From NumCalc:
+#include <NumCalc/AbstractParametrizable.h>
+
 namespace bpp
 {
 
@@ -70,7 +73,8 @@ namespace bpp
  * _Journal of Computational Biology_, 11:727-33.
  */
 class MarkovModulatedSubstitutionModel:
-  public ReversibleSubstitutionModel
+  public ReversibleSubstitutionModel,
+  public AbstractParametrizable
 {
 
   protected:
@@ -88,7 +92,6 @@ class MarkovModulatedSubstitutionModel:
     Vdouble           _ratesFreq;            //All rates equilibrium frequencies
     /**@}*/
     RowMatrix<double> _ratesGenerator;       //All rates transitions
-    ParameterList     _ratesParameters;      //All rates transitions parameters
     
 		/**
 		 * @brief The generator matrix \f$Q\f$ of the model.
@@ -133,8 +136,11 @@ class MarkovModulatedSubstitutionModel:
      */
     MarkovModulatedSubstitutionModel(ReversibleSubstitutionModel * model, bool normalizeRateChanges):
       _model(model), _nbStates(0), _nbRates(0), _rates(), _ratesExchangeability(),
-      _ratesFreq(), _ratesGenerator(), _ratesParameters(), _generator(), _exchangeability(),
-      _leftEigenVectors(), _rightEigenVectors(), _eigenValues(), _freq(), _normalizeRateChanges(normalizeRateChanges) {}
+      _ratesFreq(), _ratesGenerator(), _generator(), _exchangeability(),
+      _leftEigenVectors(), _rightEigenVectors(), _eigenValues(), _freq(), _normalizeRateChanges(normalizeRateChanges)
+    {
+      _parameters = _model->getIndependentParameters();
+    }
     
     MarkovModulatedSubstitutionModel(const MarkovModulatedSubstitutionModel & model);
     MarkovModulatedSubstitutionModel & operator=(const MarkovModulatedSubstitutionModel & model);
@@ -209,109 +215,11 @@ class MarkovModulatedSubstitutionModel:
 		 */
 		virtual void fireParameterChanged(const ParameterList & parameters)
     {
+      _model->matchParametersValues(parameters);
       updateRatesModel();
       updateMatrices();
     }
 		
-    /**
-     * @name the Parametrizable interface.
-     *
-     * @{
-     */
-    ParameterList getParameters() const
-    {
-      ParameterList parameters = _model->getParameters();
-      parameters.addParameters(_ratesParameters);
-      return parameters;
-    }
-
-    Parameter getParameter(const string & name) const throw (ParameterNotFoundException)
-    {
-      const Parameter * p = _ratesParameters.getParameter(name);
-      if(p) return *p;
-      try
-      {
-        return _model->getParameter(name);
-      }
-      catch(ParameterNotFoundException & pnfe)
-      {
-        throw ParameterNotFoundException("MarkovModulatedSubstitutionModel::getParameter.", name);
-      }
-    }
-	
-		double getParameterValue(const string & name) const
-			throw (ParameterNotFoundException)
-		{ 
-			const Parameter * param = _ratesParameters.getParameter(name);
-      if(param != NULL) return param->getValue();
-      else 
-      {
-        try
-        {
-          return _model->getParameterValue(name);
-        }
-        catch(ParameterNotFoundException &)
-        {
-          throw ParameterNotFoundException("MarkovModulatedSubstitutionModel::getParameterValue().", name);
-        }
-      }
-		}
-
-		void setAllParametersValues(const ParameterList & parameters) 
-			throw (ParameterNotFoundException, ConstraintException)
-		{
-      _ratesParameters.setAllParametersValues(parameters);
-      _model         ->setAllParametersValues(parameters);
-      fireParameterChanged(parameters);
-		}
-
-		void setParameterValue(const string & name, double value) 
-			throw (ParameterNotFoundException, ConstraintException)
-		{ 
-			Parameter * param = _ratesParameters.getParameter(name);
-      if(param != NULL) 
-      {
-        param->setValue(value);
-        fireParameterChanged(_ratesParameters.subList(name));
-      }
-      else 
-      {
-        try
-        {
-          _model->setParameterValue(name, value);
-          fireParameterChanged(_model->getParameters().subList(name));
-        }
-        catch(ParameterNotFoundException &)
-        {
-          throw ParameterNotFoundException("MarkovModulatedSubstitutionModel::setParameterValue().", name);
-        }
-      }
-    }
-
-		void setParametersValues(const ParameterList & parameters)
-			throw (ParameterNotFoundException, ConstraintException)
-		{
-      for(ParameterList::const_iterator it = parameters.begin(); it != parameters.end(); it++)
-      {
-        setParameterValue((*it)->getName(), (*it)->getValue());
-      }
-      fireParameterChanged(parameters);
-		}
-
-		void matchParametersValues(const ParameterList & parameters)
-			throw (ConstraintException)
-		{ 
-		  _ratesParameters.matchParametersValues(parameters);
-		  _model         ->matchParametersValues(parameters);
-      fireParameterChanged(parameters);
-		}
-
-    unsigned int getNumberOfParameters() const
-    {
-      return _ratesParameters.size() + _model->getNumberOfParameters();
-    }
-    /**@} */
-
   protected:
     
     virtual void updateMatrices();

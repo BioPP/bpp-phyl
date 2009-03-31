@@ -1,3 +1,8 @@
+29/03/09 Julien Dutheil
+* MarkovModulatedSubstitutionModel inherits from AbstractParametrizable.
+* Several changes to support the new parameter aliasing function,
+	including in PhylogeneticApplicationTools.
+
 28/03/09 [biopp-devel-forum:19]
 * Now empirical substitution models can be properly loaded with non-homogeneous models.
 

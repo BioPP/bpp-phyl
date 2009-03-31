@@ -166,7 +166,7 @@ unsigned int OptimizationTools::optimizeNumericalParameters(
   optimizer.getStopCondition()->setTolerance(tolerance);
   
   // Optimize TreeLikelihood function:
-  ParameterList pl = tl->getParameters();
+  ParameterList pl = tl->getIndependentParameters();
   optimizer.setConstraintPolicy(AutoParameter::CONSTRAINTS_AUTO);
   if(listener) optimizer.addOptimizationListener(listener);
   optimizer.init(pl);
@@ -219,7 +219,7 @@ unsigned int OptimizationTools::optimizeNumericalParameters2(
   optimizer->getStopCondition()->setTolerance(tolerance);
   
   // Optimize TreeLikelihood function:
-  ParameterList pl = tl->getParameters();
+  ParameterList pl = tl->getIndependentParameters();
   optimizer->setConstraintPolicy(AutoParameter::CONSTRAINTS_AUTO);
   if(listener) optimizer->addOptimizationListener(listener);
   optimizer->init(pl);
@@ -332,7 +332,7 @@ unsigned int OptimizationTools::optimizeNumericalParametersWithGlobalClock(
   optimizer.getStopCondition()->setTolerance(tolerance);
   
   // Optimize TreeLikelihood function:
-  ParameterList pl = cl->getParameters();
+  ParameterList pl = cl->getIndependentParameters();
   optimizer.setConstraintPolicy(AutoParameter::CONSTRAINTS_AUTO);
   if(listener) optimizer.addOptimizationListener(listener);
   optimizer.init(pl);
@@ -375,7 +375,7 @@ unsigned int OptimizationTools::optimizeNumericalParametersWithGlobalClock2(
   else throw Exception("OptimizationTools::optimizeBranchLengthsParameters. Unknown optimization method: " + optMethod);
   
   //Numerical derivatives:
-  ParameterList tmp = cl->getParameters();
+  ParameterList tmp = cl->getIndependentParameters();
   fun->setParametersToDerivate(tmp.getParameterNames());
 
   optimizer->setVerbose(verbose);
@@ -385,7 +385,7 @@ unsigned int OptimizationTools::optimizeNumericalParametersWithGlobalClock2(
   optimizer->getStopCondition()->setTolerance(tolerance);
 
   // Optimize TreeLikelihood function:
-  ParameterList pl = cl->getParameters();
+  ParameterList pl = cl->getIndependentParameters();
   optimizer->setConstraintPolicy(AutoParameter::CONSTRAINTS_AUTO);
   if(listener) optimizer->addOptimizationListener(listener);
   optimizer->init(pl);
@@ -526,8 +526,8 @@ TreeTemplate<Node> * OptimizationTools::buildDistanceTree(
   estimationMethod.setVerbose(verbose);
   if(param == DISTANCEMETHOD_PAIRWISE)
   {
-    ParameterList tmp = estimationMethod.getModel()->getParameters();
-    tmp.addParameters(estimationMethod.getRateDistribution()->getParameters());
+    ParameterList tmp = estimationMethod.getModel()->getIndependentParameters();
+    tmp.addParameters(estimationMethod.getRateDistribution()->getIndependentParameters());
     tmp.deleteParameters(parametersToIgnore.getParameterNames());
     estimationMethod.setAdditionalParameters(tmp);
   }

@@ -85,8 +85,8 @@ class G2001:
       _ratesExchangeability.resize(_nbRates, _nbRates);
       _rates.resize(_nbRates, _nbRates);
       _ratesFreq = vector<double>(_nbRates, 1./(double)_nbRates);
-      _ratesParameters.addParameters(_rDist->getParameters());
-      _ratesParameters.addParameter(Parameter("nu", nu, &Parameter::R_PLUS));
+      _parameters.addParameters(_rDist->getIndependentParameters());
+      _parameters.addParameter(Parameter("nu", nu, &Parameter::R_PLUS));
       updateRatesModel();
       updateMatrices();
     }
@@ -122,14 +122,14 @@ class G2001:
      */
 		void fireParameterChanged(const ParameterList & parameters)
     {
-      _rDist->matchParametersValues(_ratesParameters);
+      _rDist->matchParametersValues(parameters);
       MarkovModulatedSubstitutionModel::fireParameterChanged(parameters);
     }
     
   protected:
     void updateRatesModel()
     {
-      double nu = _ratesParameters.getParameter("nu")->getValue();
+      double nu = _parameters.getParameter("nu")->getValue();
       for(unsigned int i = 0; i < _nbRates; i++)
       {
          _rates(i,i) = _rDist->getCategory(i);

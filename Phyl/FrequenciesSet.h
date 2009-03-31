@@ -44,6 +44,7 @@ knowledge of the CeCILL license and that you accept its terms.
 // From NumCalc:
 #include <NumCalc/Parametrizable.h>
 #include <NumCalc/VectorTools.h>
+#include <NumCalc/AbstractParametrizable.h>
 
 // From SeqLib:
 #include <Seq/Alphabet.h>

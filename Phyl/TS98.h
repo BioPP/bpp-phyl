@@ -93,8 +93,8 @@ class TS98:
       _ratesExchangeability.resize(2, 2);
       _rates.resize(2, 2);
       _ratesFreq.resize(2);
-      _ratesParameters.addParameter(Parameter("s1", s1, &Parameter::R_PLUS_STAR));
-      _ratesParameters.addParameter(Parameter("s2", s2, &Parameter::R_PLUS_STAR));
+      _parameters.addParameter(Parameter("s1", s1, &Parameter::R_PLUS_STAR));
+      _parameters.addParameter(Parameter("s2", s2, &Parameter::R_PLUS_STAR));
       updateRatesModel();
       updateMatrices();
     }
@@ -114,8 +114,8 @@ class TS98:
   protected:
     void updateRatesModel()
     {
-      double s1 = _ratesParameters.getParameter("s1")->getValue();
-      double s2 = _ratesParameters.getParameter("s2")->getValue();
+      double s1 = _parameters.getParameter("s1")->getValue();
+      double s2 = _parameters.getParameter("s2")->getValue();
       _ratesFreq[0] = s2/(s1+s2);
       _ratesFreq[1] = s1/(s1+s2);
       _rates(1,1) = (s1+s2)/s1;
