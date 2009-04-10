@@ -578,7 +578,36 @@ class PhylogeneticsApplicationTools
      * @brief This function prints the options available for tree writing.
      */
     static void printOutputTreeHelp();
-    
+   
+
+    /**
+     * @brief Output a SubstitutionModel description to a file.
+     *
+     * @param model The model to serialize.
+     * @param out   The stream where to print.
+     */
+    static void printParameters(const SubstitutionModel* model, ostream& out);
+
+
+
+    /**
+     * @brief Output a SubstitutionModelSet description to a file.
+     *
+     * @param model The model set to serialize.
+     * @param out   The stream where to print.
+     */
+    static void printParameters(const SubstitutionModelSet* modelSet, ostream& out);
+
+
+
+    /**
+     * @brief Output a DiscreteDistribution description to a file.
+     *
+     * @param model The model set to serialize.
+     * @param out   The stream where to print.
+     */
+    static void printParameters(const DiscreteDistribution* rDist, ostream& out);
+
 };
 
 } //end of namespace bpp.

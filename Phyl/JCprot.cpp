@@ -119,7 +119,7 @@ double JCprot::d2Pij_dt2(int i, int j, double d) const
 
 /******************************************************************************/
 
-RowMatrix<double> JCprot::getPij_t(double d) const
+const Matrix<double> & JCprot::getPij_t(double d) const
 {
   _exp = exp(- 20./19. * d);
 	for(unsigned int i = 0; i < _size; i++)
@@ -132,7 +132,7 @@ RowMatrix<double> JCprot::getPij_t(double d) const
 	return _p;
 }
 
-RowMatrix<double> JCprot::getdPij_dt(double d) const
+const Matrix<double> & JCprot::getdPij_dt(double d) const
 {
   _exp = exp(- 20./19. * d);
 	for(unsigned int i = 0; i < _size; i++)
@@ -145,7 +145,7 @@ RowMatrix<double> JCprot::getdPij_dt(double d) const
 	return _p;
 }
 
-RowMatrix<double> JCprot::getd2Pij_dt2(double d) const
+const Matrix<double> & JCprot::getd2Pij_dt2(double d) const
 {
   _exp = exp(- 20./19. * d);
 	for(unsigned int i = 0; i < _size; i++)

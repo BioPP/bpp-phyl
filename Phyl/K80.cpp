@@ -290,7 +290,7 @@ double K80::d2Pij_dt2(int i, int j, double d) const
 
 /******************************************************************************/
 
-RowMatrix<double> K80::getPij_t(double d) const
+const Matrix<double> & K80::getPij_t(double d) const
 {
 	_l = _r * d;
 	_exp1 = exp(-_l);
@@ -323,7 +323,7 @@ RowMatrix<double> K80::getPij_t(double d) const
 	return _p;
 }
 
-RowMatrix<double> K80::getdPij_dt(double d) const
+const Matrix<double> & K80::getdPij_dt(double d) const
 {
 	_l = _r * d;
 	_exp1 = exp(-_l);
@@ -355,7 +355,7 @@ RowMatrix<double> K80::getdPij_dt(double d) const
 	return _p;
 }
 
-RowMatrix<double> K80::getd2Pij_dt2(double d) const
+const Matrix<double> & K80::getd2Pij_dt2(double d) const
 {
 	double k_2 = _k * _k;
 	double r_2 = _r * _r;

@@ -94,17 +94,29 @@ void MarkovModulatedSubstitutionModel::updateMatrices()
   //_ratesGenerator and _rates must be initialized!
   _nbStates        = _model->getNumberOfStates();
   _nbRates         = _rates.nCols();
-  _ratesGenerator  = MatrixTools::mult(_ratesExchangeability, MatrixTools::diag< RowMatrix<double> >(_ratesFreq));
+  RowMatrix<double> Tmp1, Tmp2;
+  MatrixTools::diag(_ratesFreq, Tmp1);
+  MatrixTools::mult(_ratesExchangeability, Tmp1, _ratesGenerator);
+  MatrixTools::kroneckerMult(_rates, _model->getGenerator(), _generator);
   
-  _generator       = MatrixTools::kroneckerMult(_rates, _model->getGenerator());
-  MatrixTools::add(_generator, MatrixTools::kroneckerMult(_ratesGenerator, MatrixTools::getId< RowMatrix<double> >(_nbStates))      );
-  _exchangeability = MatrixTools::kroneckerMult(MatrixTools::mult(_rates, MatrixTools::diag< RowMatrix<double> >(1./_ratesFreq)),_model->getExchangeabilityMatrix());
-  MatrixTools::add(_exchangeability, MatrixTools::kroneckerMult(_ratesExchangeability, MatrixTools::diag< RowMatrix<double> >(1/_model->getFrequencies())));
-  _freq            = VectorTools::kroneckerMult(_ratesFreq, _model->getFrequencies());
+  MatrixTools::MatrixTools::getId< RowMatrix<double> >(_nbStates, Tmp1);
+  MatrixTools::kroneckerMult(_ratesGenerator, Tmp1, Tmp2);
+  MatrixTools::add(_generator, Tmp2);
+
+  MatrixTools::diag(1./_ratesFreq, Tmp1);
+  MatrixTools::mult(_rates, Tmp1, Tmp2);
+  MatrixTools::kroneckerMult(Tmp2, _model->getExchangeabilityMatrix(), _exchangeability);
+
+  MatrixTools::diag(1/_model->getFrequencies(), Tmp1);
+  MatrixTools::kroneckerMult(_ratesExchangeability, Tmp1, Tmp2);
+  MatrixTools::add(_exchangeability, Tmp2);
+  _freq = VectorTools::kroneckerMult(_ratesFreq, _model->getFrequencies());
 	if(_normalizeRateChanges)
   {
     // Normalization:
-	  double scale = -VectorTools::scalar<double, double>(MatrixTools::diag<RowMatrix<double>, double>(_generator), _freq);
+    Vdouble Tmp;
+	  MatrixTools::diag(_generator, Tmp);
+	  double scale = -VectorTools::scalar<double, double>(Tmp, _freq);
     MatrixTools::scale(_generator, 1./scale);
 
     // Normalize exchangeability matrix too:
@@ -112,8 +124,11 @@ void MarkovModulatedSubstitutionModel::updateMatrices()
   }
 
   // Compute eigen values and vectors:
-  _eigenValues.resize(_nbRates*_nbStates);
-  _rightEigenVectors.resize(_nbStates*_nbRates, _nbStates*_nbRates);
+  _eigenValues.resize(_nbRates * _nbStates);
+  _rightEigenVectors.resize(_nbStates * _nbRates, _nbStates * _nbRates);
+  _pijt.resize(_nbStates * _nbRates, _nbStates * _nbRates);
+  _dpijt.resize(_nbStates * _nbRates, _nbStates * _nbRates);
+  _d2pijt.resize(_nbStates * _nbRates, _nbStates * _nbRates);
   
   vector<double>    modelEigenValues       = _model->getEigenValues();
   RowMatrix<double> modelRightEigenVectors = _model->getColumnRightEigenVectors();
@@ -135,31 +150,34 @@ void MarkovModulatedSubstitutionModel::updateMatrices()
         double vii = vectors(ii, j);
         for(unsigned int jj = 0; jj < _nbStates; jj++)
         {
-          _rightEigenVectors(ii*_nbStates+jj, c) = vii * modelRightEigenVectors(jj, i);
+          _rightEigenVectors(ii * _nbStates + jj, c) = vii * modelRightEigenVectors(jj, i);
         }
       }
     }
   }
   // Now compute left eigen vectors by inversion: 
-  _leftEigenVectors = MatrixTools::inv(_rightEigenVectors);
+  MatrixTools::inv(_rightEigenVectors, _leftEigenVectors);
 }
 
 /******************************************************************************/
 
-RowMatrix<double> MarkovModulatedSubstitutionModel::getPij_t(double t) const
+const Matrix<double> & MarkovModulatedSubstitutionModel::getPij_t(double t) const
 {
-	if(t == 0) return MatrixTools::getId< RowMatrix<double> >(_nbStates * _nbRates);
-  return MatrixTools::mult(_rightEigenVectors, VectorTools::exp(_eigenValues*t), _leftEigenVectors);
+	if(t == 0) MatrixTools::getId< RowMatrix<double> >(_nbStates * _nbRates, _pijt);
+  else MatrixTools::mult(_rightEigenVectors, VectorTools::exp(_eigenValues*t), _leftEigenVectors, _pijt);
+  return _pijt;
 }
 
-RowMatrix<double> MarkovModulatedSubstitutionModel::getdPij_dt(double t) const
+const Matrix<double> & MarkovModulatedSubstitutionModel::getdPij_dt(double t) const
 {
-	return MatrixTools::mult(_rightEigenVectors, _eigenValues * VectorTools::exp(_eigenValues*t), _leftEigenVectors);
+	MatrixTools::mult(_rightEigenVectors, _eigenValues * VectorTools::exp(_eigenValues*t), _leftEigenVectors, _dpijt);
+  return _dpijt;
 }
 
-RowMatrix<double> MarkovModulatedSubstitutionModel::getd2Pij_dt2(double t) const
+const Matrix<double> & MarkovModulatedSubstitutionModel::getd2Pij_dt2(double t) const
 {
-	return MatrixTools::mult(_rightEigenVectors, NumTools::sqr(_eigenValues) * VectorTools::exp(_eigenValues*t), _leftEigenVectors);
+	MatrixTools::mult(_rightEigenVectors, NumTools::sqr(_eigenValues) * VectorTools::exp(_eigenValues*t), _leftEigenVectors, _d2pijt);
+  return _d2pijt;
 }
 
 /******************************************************************************/

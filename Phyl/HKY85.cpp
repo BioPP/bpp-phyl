@@ -346,7 +346,7 @@ double HKY85::d2Pij_dt2(int i, int j, double d) const
 
 /******************************************************************************/
 
-RowMatrix<double> HKY85::getPij_t(double d) const
+const Matrix<double> & HKY85::getPij_t(double d) const
 {
   _l = _r * d;
 	_exp1 = exp(-_l);
@@ -380,7 +380,7 @@ RowMatrix<double> HKY85::getPij_t(double d) const
 	return _p;
 }
 
-RowMatrix<double> HKY85::getdPij_dt(double d) const
+const Matrix<double> & HKY85::getdPij_dt(double d) const
 {
 	_l = _r * d;
 	_exp1 = exp(-_l);
@@ -414,7 +414,7 @@ RowMatrix<double> HKY85::getdPij_dt(double d) const
 	return _p;
 }
 
-RowMatrix<double> HKY85::getd2Pij_dt2(double d) const
+const Matrix<double> & HKY85::getd2Pij_dt2(double d) const
 {
 	double r_2 = _r * _r;
 	_l = _r * d;
@@ -453,18 +453,24 @@ RowMatrix<double> HKY85::getd2Pij_dt2(double d) const
 
 /******************************************************************************/
 
-void HKY85::setFreqFromData(const SequenceContainer & data)
+void HKY85::setFreqFromData(const SequenceContainer & data, unsigned int pseudoCount)
 {
 	map<int, double> freqs = SequenceContainerTools::getFrequencies(data);
 	double t = 0;
-	for(unsigned int i = 0; i < _size; i++) t += freqs[i];
-	_piA = freqs[0] / t;
-	_piC = freqs[1] / t;
-	_piG = freqs[2] / t;
-	_piT = freqs[3] / t;
-	_parameters.getParameter("theta")->setValue(_piC + _piG);
-	_parameters.getParameter("theta1")->setValue(_piA / (_piA + _piT));
-	_parameters.getParameter("theta2")->setValue(_piG / (_piC + _piG));
+	for(unsigned int i = 0; i < _size; i++) t += freqs[i] + pseudoCount;
+	_piA = (freqs[0] + pseudoCount) / t;
+	_piC = (freqs[1] + pseudoCount) / t;
+	_piG = (freqs[2] + pseudoCount) / t;
+	_piT = (freqs[3] + pseudoCount) / t;
+  vector<string> thetas(3);
+  thetas[0] = "theta";
+  thetas[1] = "theta1";
+  thetas[2] = "theta2";
+  ParameterList pl = _parameters.subList(thetas);
+	pl[0]->setValue(_piC + _piG);
+	pl[1]->setValue(_piA / (_piA + _piT));
+	pl[2]->setValue(_piG / (_piC + _piG));
+  setParametersValues(pl);
   updateMatrices();
 }
 

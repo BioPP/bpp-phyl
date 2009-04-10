@@ -171,7 +171,7 @@ class GTR:
 		/**
 		 * @brief This method is redefined to actualize the corresponding parameters piA, piT, piG and piC too.
 		 */
-		void setFreqFromData(const SequenceContainer & data);
+		void setFreqFromData(const SequenceContainer & data, unsigned int pseudoCount = 0);
 };
 
 } //end of namespace bpp.

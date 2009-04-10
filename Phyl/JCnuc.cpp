@@ -122,7 +122,7 @@ double JCnuc::d2Pij_dt2(int i, int j, double d) const
 
 /******************************************************************************/
 
-RowMatrix<double> JCnuc::getPij_t(double d) const
+const Matrix<double> & JCnuc::getPij_t(double d) const
 {
 	_exp = exp(-4./3. * d);
 	for(unsigned int i = 0; i < _size; i++)
@@ -135,7 +135,7 @@ RowMatrix<double> JCnuc::getPij_t(double d) const
 	return _p;
 }
 
-RowMatrix<double> JCnuc::getdPij_dt(double d) const
+const Matrix<double> & JCnuc::getdPij_dt(double d) const
 {
 	_exp = exp(-4./3. * d);
 	for(unsigned int i = 0; i < _size; i++)
@@ -148,7 +148,7 @@ RowMatrix<double> JCnuc::getdPij_dt(double d) const
 	return _p;
 }
 
-RowMatrix<double> JCnuc::getd2Pij_dt2(double d) const
+const Matrix<double> & JCnuc::getd2Pij_dt2(double d) const
 {
 	_exp = exp(-4./3. * d);
 	for(unsigned int i = 0; i < _size; i++)

@@ -1,3 +1,10 @@
+07/03/09 Julien Dutheil
+* Added pseudo counts in substitution models, when setting equilibrium
+frequencies [biopp-help-forum:139]
+* Changed SubstitutionModel interface in order to return references instead of
+  hard copy of matrices.
+* Models updated to use the new functions in MatrixTools.
+
 29/03/09 Julien Dutheil
 * MarkovModulatedSubstitutionModel inherits from AbstractParametrizable.
 * Several changes to support the new parameter aliasing function,

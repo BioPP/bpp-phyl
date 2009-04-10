@@ -323,7 +323,7 @@ double T92::d2Pij_dt2(int i, int j, double d) const
 
 /******************************************************************************/
 
-RowMatrix<double> T92::getPij_t(double d) const
+const Matrix<double> & T92::getPij_t(double d) const
 {
 	_l = _r * d;
 	_exp1 = exp(-_l);
@@ -356,7 +356,7 @@ RowMatrix<double> T92::getPij_t(double d) const
 	return _p;
 }
 
-RowMatrix<double> T92::getdPij_dt(double d) const
+const Matrix<double> & T92::getdPij_dt(double d) const
 {
 	_l = _r * d;
 	_exp1 = exp(-_l);
@@ -389,7 +389,7 @@ RowMatrix<double> T92::getdPij_dt(double d) const
 	return _p;
 }
 
-RowMatrix<double> T92::getd2Pij_dt2(double d) const
+const Matrix<double> & T92::getd2Pij_dt2(double d) const
 {
 	double k2 = _k * _k;
 	_l = _r * d;
@@ -426,11 +426,11 @@ RowMatrix<double> T92::getd2Pij_dt2(double d) const
 
 /******************************************************************************/
 
-void T92::setFreqFromData(const SequenceContainer & data)
+void T92::setFreqFromData(const SequenceContainer & data, unsigned int pseudoCount)
 {
 	map<int, double> freqs = SequenceContainerTools::getFrequencies(data);
-	double f = (freqs[1] + freqs[2]) / (freqs[0] + freqs[1] + freqs[2] + freqs[3]);
-	_parameters.getParameter("theta")->setValue(f);
+	double f = (freqs[1] + freqs[2] + 2 * pseudoCount) / (freqs[0] + freqs[1] + freqs[2] + freqs[3] + 4 * pseudoCount);
+	setParameterValue("theta", f);
 	updateMatrices();
 }
 

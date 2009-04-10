@@ -192,7 +192,7 @@ class SubstitutionModel:
 		 * @return A vector of all equilibrium frequencies.
 		 * @see freq()
 		 */
-		virtual Vdouble getFrequencies() const = 0;
+		virtual const Vdouble & getFrequencies() const = 0;
 		
 		/**
 		 * @return The Markov generator matrix, i.e. all rates of changes from state i
@@ -205,44 +205,44 @@ class SubstitutionModel:
 		 * See Kosiol and Goldman (2005), Molecular Biology And Evolution 22(2) 193-9.
 		 * @see Qij()
 		 */ 
-		virtual RowMatrix<double> getGenerator() const = 0;
+		virtual const Matrix<double> & getGenerator() const = 0;
 
 		/**
 		 * @return All probabilities of change from state i to state j during time t.
 		 * @see Pij_t()
 		 */
-		virtual RowMatrix<double> getPij_t(double t) const = 0;
+		virtual const Matrix<double> & getPij_t(double t) const = 0;
 	
 		/**
 		 * @return Get all first order derivatives of the probability of change from state
 		 * i to state j with respect to time t, at time t.
 		 * @see dPij_dt()
 		 */
-		virtual RowMatrix<double> getdPij_dt(double t) const = 0;
+		virtual const Matrix<double> & getdPij_dt(double t) const = 0;
 
 		/**
 		 * @return All second order derivatives of the probability of change from state
 		 * i to state j with respect to time t, at time t.
 		 * @see d2Pij_dt2()
 		 */
-		virtual RowMatrix<double> getd2Pij_dt2(double t) const = 0;
+		virtual const Matrix<double> & getd2Pij_dt2(double t) const = 0;
 
 		/**
 		 * @return A vector with all eigen values of the generator of this model;
 		 */
-		virtual Vdouble getEigenValues() const = 0;
+		virtual const Vdouble & getEigenValues() const = 0;
 
 		/**
 		 * @return A matrix with left eigen vectors.
 		 * Each row in the matrix stands for an eigen vector.
 		 */
-		virtual RowMatrix<double> getRowLeftEigenVectors() const = 0;
+		virtual const Matrix<double> & getRowLeftEigenVectors() const = 0;
 
 		/**
 		 * @return A matrix with right eigen vectors.
 		 * Each column in the matrix stands for an eigen vector.
 		 */
-		virtual RowMatrix<double> getColumnRightEigenVectors() const = 0;
+		virtual const Matrix<double> & getColumnRightEigenVectors() const = 0;
 
 		/**
 		 * @return Get the alphabet associated to this model.
@@ -276,8 +276,13 @@ class SubstitutionModel:
 		 * from the data.
 		 *
 		 * @param data The sequences to use.
+     * @param pseudoCount @f$\psi@f$ A quantity to add to adjust the observed values in order to prevent issues due to missing states on small data set.
+     * The corrected frequencies shall be computed as
+     * @f[
+     * \pi_i = \frac{f_i+\psi}{4\psi + \sum_j f_j}
+     * @f]
 		 */
-		virtual void setFreqFromData(const SequenceContainer & data) = 0;
+		virtual void setFreqFromData(const SequenceContainer & data, unsigned int pseudoCount = 0) = 0;
 
     /**
      * @brief Get the state in the alphabet corresponding to a given state in the model.
@@ -325,7 +330,7 @@ class ReversibleSubstitutionModel:
 		 * It is recommended that exchangeability matrix be normalized so that the normalized 
 		 * generator be obtained directly by the dot product \f$S . \pi\f$.
 		 */
-		virtual RowMatrix<double> getExchangeabilityMatrix() const = 0;
+		virtual const Matrix<double> & getExchangeabilityMatrix() const = 0;
 
 		/**
 		 * @return The exchangeability between state i and state j.

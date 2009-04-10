@@ -206,16 +206,16 @@ class HKY85:
 		double Pij_t    (int i, int j, double d) const;
 		double dPij_dt  (int i, int j, double d) const;
 		double d2Pij_dt2(int i, int j, double d) const;
-		RowMatrix<double> getPij_t    (double d) const;
-		RowMatrix<double> getdPij_dt  (double d) const;
-		RowMatrix<double> getd2Pij_dt2(double d) const;
+		const Matrix<double> & getPij_t    (double d) const;
+		const Matrix<double> & getdPij_dt  (double d) const;
+		const Matrix<double> & getd2Pij_dt2(double d) const;
 
 		string getName() const { return "HKY85"; }
 
 		/**
 		 * @brief This method is redefined to actualize the corresponding parameters piA, piT, piG and piC too.
 		 */
-		void setFreqFromData(const SequenceContainer & data);
+		void setFreqFromData(const SequenceContainer & data, unsigned int pseudoCount = 0);
 	
 	protected:
 		void updateMatrices();

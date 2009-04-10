@@ -93,6 +93,13 @@ class AbstractSubstitutionModel :
 		 */
 		RowMatrix<double> _generator;
 
+    /**
+     * @brief These ones are for bookkeeping:
+     */
+    mutable RowMatrix<double> _pijt;
+    mutable RowMatrix<double> _dpijt;
+    mutable RowMatrix<double> _d2pijt;
+
 		/**
 		 * @brief The \f$U\f$ matrix made of left eigen vectors (by row).
 		 */
@@ -125,18 +132,18 @@ class AbstractSubstitutionModel :
 	public:
 		const Alphabet * getAlphabet() const { return _alphabet; }
     
-		Vdouble getFrequencies() const { return _freq; }
+		const Vdouble & getFrequencies() const { return _freq; }
        
-		RowMatrix<double> getGenerator() const { return _generator; }
+		const Matrix<double> & getGenerator() const { return _generator; }
     
-		RowMatrix<double> getPij_t(double t) const;
-		RowMatrix<double> getdPij_dt(double t) const;
-		RowMatrix<double> getd2Pij_dt2(double t) const;
+		const Matrix<double> & getPij_t(double t) const;
+		const Matrix<double> & getdPij_dt(double t) const;
+		const Matrix<double> & getd2Pij_dt2(double t) const;
     
-		Vdouble getEigenValues() const { return _eigenValues; }
+		const Vdouble & getEigenValues() const { return _eigenValues; }
     
-		RowMatrix<double> getRowLeftEigenVectors() const { return _leftEigenVectors; }
-		RowMatrix<double> getColumnRightEigenVectors() const { return _rightEigenVectors; }
+		const Matrix<double> & getRowLeftEigenVectors() const { return _leftEigenVectors; }
+		const Matrix<double> & getColumnRightEigenVectors() const { return _rightEigenVectors; }
     
 		double freq(int i) const { return _freq[i]; }
     
@@ -148,7 +155,7 @@ class AbstractSubstitutionModel :
 
 		double getInitValue(int i, int state) const throw (BadIntException);
 
-		void setFreqFromData(const SequenceContainer & data);
+		void setFreqFromData(const SequenceContainer & data, unsigned int pseudoCount = 0);
 
     int getState(int i) const { return i; }
 		
@@ -231,7 +238,7 @@ class AbstractReversibleSubstitutionModel:
     virtual AbstractReversibleSubstitutionModel * clone() const = 0;
 
   public:
-		RowMatrix<double> getExchangeabilityMatrix() const { return _exchangeability; }
+		const Matrix<double> & getExchangeabilityMatrix() const { return _exchangeability; }
     double Sij(int i, int j) const { return _exchangeability(i, j); }
  
 		/**
