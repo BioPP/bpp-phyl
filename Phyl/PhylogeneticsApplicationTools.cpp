@@ -209,7 +209,7 @@ SubstitutionModel * PhylogeneticsApplicationTools::getSubstitutionModelDefaultIn
         model = new JTT92F(alpha);
       else if(modelName == "empirical")
       {
-        string file = ApplicationTools::getAFilePath(prefix + "_empirical.file", params, true, true, suffix, true);
+        string file = ApplicationTools::getAFilePath(prefix + "name_empirical.file", params, true, true, suffix, true);
         model = new UserProteinSubstitutionModelF(alpha, file);
       }
       else
@@ -227,7 +227,7 @@ SubstitutionModel * PhylogeneticsApplicationTools::getSubstitutionModelDefaultIn
         model = new JTT92(alpha);
       else if(modelName == "empirical")
       {
-        string file = ApplicationTools::getAFilePath(prefix + "_empirical.file", params, true, true, suffix, true);
+        string file = ApplicationTools::getAFilePath(prefix + "name_empirical.file", params, true, true, suffix, true);
         model = new UserProteinSubstitutionModel(alpha, file);
       }
       else
@@ -391,20 +391,20 @@ void PhylogeneticsApplicationTools::printSubstitutionModelHelp()
 {
   if(!ApplicationTools::message) return;
   *ApplicationTools::message << "Substitution Model:" << endl;
-  *ApplicationTools::message << "model.name              | Nucleotides (N): [JCnuc, K80, T92, F84, HKY85, TN93," << endl;
-  *ApplicationTools::message << "                        | GTR]" << endl;
-  *ApplicationTools::message << "                        | Proteins (P): [JCprot, DSO78, JTT92, empirical][+F]" << endl;
-  *ApplicationTools::message << "                        | The +F option allows to estimate equilibrium frequencies." << endl;
-  *ApplicationTools::message << "model.kappa             | kappa(N)  parameter in Q matrix" << endl;
-  *ApplicationTools::message << "model.kappa1            | kappa1(N) parameter in Q matrix" << endl;
-  *ApplicationTools::message << "model.kappa2            | kappa2(N) parameter in Q matrix" << endl;
-  *ApplicationTools::message << "model.a,b,c,d,e,f       | GTR rates parameter in Q matrix" << endl;
-  *ApplicationTools::message << "model.theta             | piG + piC for nucleotides, piA for proteins" << endl;
-  *ApplicationTools::message << "model.theta1            | piA / (piA + piT) for nucleotides, piR / (1 - piA) for proteins" << endl;
-  *ApplicationTools::message << "model.theta2            | piG / (piC + piG) for nucleotides, piN / (1 - piA - piR) for proteins" << endl;
-  *ApplicationTools::message << "model.thetaX            | other frequencies for protein+F models" << endl;
-  *ApplicationTools::message << "model.use_observed_freq | (N,P) Tell if the observed frequencies must be used." << endl; 
-  *ApplicationTools::message << "model_empirical.file    | (P) The path toward data file to use (PAML format)." << endl; 
+  *ApplicationTools::message << "model.name                | Nucleotides (N): [JCnuc, K80, T92, F84, HKY85, TN93," << endl;
+  *ApplicationTools::message << "                          | GTR]" << endl;
+  *ApplicationTools::message << "                          | Proteins (P): [JCprot, DSO78, JTT92, empirical][+F]" << endl;
+  *ApplicationTools::message << "                          | The +F option allows to estimate equilibrium frequencies." << endl;
+  *ApplicationTools::message << "model.kappa               | kappa(N)  parameter in Q matrix" << endl;
+  *ApplicationTools::message << "model.kappa1              | kappa1(N) parameter in Q matrix" << endl;
+  *ApplicationTools::message << "model.kappa2              | kappa2(N) parameter in Q matrix" << endl;
+  *ApplicationTools::message << "model.a,b,c,d,e,f         | GTR rates parameter in Q matrix" << endl;
+  *ApplicationTools::message << "model.theta               | piG + piC for nucleotides, piA for proteins" << endl;
+  *ApplicationTools::message << "model.theta1              | piA / (piA + piT) for nucleotides, piR / (1 - piA) for proteins" << endl;
+  *ApplicationTools::message << "model.theta2              | piG / (piC + piG) for nucleotides, piN / (1 - piA - piR) for proteins" << endl;
+  *ApplicationTools::message << "model.thetaX              | other frequencies for protein+F models" << endl;
+  *ApplicationTools::message << "model.use_observed_freq   | (N,P) Tell if the observed frequencies must be used." << endl; 
+  *ApplicationTools::message << "model.name_empirical.file | (P) The path toward data file to use (PAML format)." << endl; 
   *ApplicationTools::message << "                        | (N,P) the +G options uses the RE08 model with gaps." << endl; 
   *ApplicationTools::message << "________________________|_____________________________________________________" << endl;
 }
@@ -1210,7 +1210,7 @@ void PhylogeneticsApplicationTools::printParameters(const SubstitutionModel* mod
     if(trial2)
     {
       out << "model.name = empirical+F" << endl;
-      out << "model_empirical.file = " << trial2->getPath() << endl;
+      out << "model.name_empirical.file = " << trial2->getPath() << endl;
     }
     else
     {
@@ -1244,7 +1244,7 @@ void PhylogeneticsApplicationTools::printParameters(const SubstitutionModelSet* 
       if(trial2)
       {
         out << "model" << (i+1) << ".name = empirical+F" << endl;
-        out << "model" << (i+1) << "_empirical.file = " << trial2->getPath() << endl;
+        out << "model" << (i+1) << ".name_empirical.file = " << trial2->getPath() << endl;
       }
       else
       {
