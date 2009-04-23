@@ -196,6 +196,14 @@ SubstitutionModel * PhylogeneticsApplicationTools::getSubstitutionModelDefaultIn
           left = left.substr(j + 1);
         }
       }
+      else
+      {
+        if(left == "F")
+        {
+          withFreq = true;
+          left = "";
+        }
+      }
     }
     const ProteicAlphabet * alpha = dynamic_cast<const ProteicAlphabet *>(alphabet);
     
@@ -308,8 +316,13 @@ SubstitutionModel * PhylogeneticsApplicationTools::getSubstitutionModelDefaultIn
     pname = pl[i]->getName();
     if(params.find(prefix + pname) == params.end()) continue;
     pval = params[prefix + pname];
-    //Check if parameter value is suffixed.
-    //We allow model.p2=p1 or model.p2=model.p1.
+
+    //Check if parameter value is prefixed.
+    //If the the prefix is not equal to the current prefix, we ignore it.
+    //If the prefix is equal to the current one, or there is no prefix at all,
+    //this is an alias that we have to deal with...
+    string::size_type pos = pval.find(".");
+    if(pos != string::npos && pval.substr(0, pos) != prefix) continue;
     if(pval.size() > prefix.size() && pval.substr(0, prefix.size()) == prefix)
       pval = pval.substr(prefix.size());
     bool found = false;
