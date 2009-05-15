@@ -82,7 +82,7 @@ namespace bpp
  * models these parameters apply to.
  * Since parameters in a list must have unique names, duplicated names are numbered according to the order in the list.
  * To track the relationships between names in the list and names in each model, the parameter list is duplicated in _modelParameters.
- * The user only act on _parameters, the fireParameterChanged function, automatically called, will update the _modelParameters field.
+ * The user only act on parameters_, the fireParameterChanged function, automatically called, will update the _modelParameters field.
  *
  * In the non-homogeneous and homogeneous non-reversible cases, the likelihood depends on the position of the root.
  * The states frequencies at the root of the tree are hence distinct parameters.
@@ -135,7 +135,7 @@ class SubstitutionModelSet:
     /**
      * @brief Parameters for each model in the set.
      *
-     * The _parameters field, inherited from AbstractSubstitutionModel contains all parameters, with unique names.
+     * The parameters_ field, inherited from AbstractSubstitutionModel contains all parameters, with unique names.
      * To make the correspondance with parameters for each model in the set, we duplicate them in this array.
      * In most cases, this is something like 'theta_1 <=> theta', 'theta_2 <=> theta', etc.
      */
@@ -150,10 +150,12 @@ class SubstitutionModelSet:
      *
      * @param alpha The alphabet to use for this set.
      */
-    SubstitutionModelSet(const Alphabet *alpha): _alphabet(alpha)
+    SubstitutionModelSet(const Alphabet *alpha) :
+      AbstractParametrizable(""),
+      _alphabet(alpha)
     {
       _rootFrequencies = new FullFrequenciesSet(alpha, "RootFreq");
-      _parameters.addParameters(_rootFrequencies->getParameters());
+      addParameters_(_rootFrequencies->getParameters());
     }
 
     /**
@@ -162,9 +164,12 @@ class SubstitutionModelSet:
      * @param alpha The alphabet to use for this set.
      * @param rootFreqs The model for root frequencies.
      */
-    SubstitutionModelSet(const Alphabet *alpha, FrequenciesSet * rootFreqs): _alphabet(alpha), _rootFrequencies(rootFreqs)
+    SubstitutionModelSet(const Alphabet* alpha, FrequenciesSet* rootFreqs) :
+      AbstractParametrizable(""),
+      _alphabet(alpha),
+      _rootFrequencies(rootFreqs)
     {
-      _parameters.addParameters(_rootFrequencies->getParameters());
+      addParameters_(_rootFrequencies->getParameters());
     }
 
     SubstitutionModelSet(const SubstitutionModelSet & set);
@@ -206,8 +211,8 @@ class SubstitutionModelSet:
      */
     unsigned int getParameterIndex(const string & name) const throw (ParameterNotFoundException)
     {
-      for(unsigned int i = 0; i < _parameters.size(); i++)
-        if(_parameters[i]->getName() == name) return i;
+      for(unsigned int i = 0; i < getNumberOfParameters(); i++)
+        if(getParameter_(i).getName() == name) return i;
       throw ParameterNotFoundException("SubstitutionModelSet::getParameterIndex().", name);
     }
 
@@ -452,8 +457,8 @@ class SubstitutionModelSet:
     ParameterList getNodeParameters() const
     { 
       ParameterList pl;
-      for(unsigned int i = _rootFrequencies->getNumberOfParameters(); i < _parameters.size(); i++)
-        pl.addParameter(*_parameters[i]);
+      for(unsigned int i = _rootFrequencies->getNumberOfParameters(); i < getNumberOfParameters(); i++)
+        pl.addParameter(getParameter_(i));
       return pl;
     }
 
@@ -482,11 +487,11 @@ class SubstitutionModelSet:
   protected:
 
     /**
-     * Set _rootFrequencies from _parameters.
+     * Set _rootFrequencies from parameters.
      */
     void updateRootFrequencies()
     {
-      _rootFrequencies->matchParametersValues(_parameters);
+      _rootFrequencies->matchParametersValues(getParameters());
     }
 
     /**

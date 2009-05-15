@@ -245,7 +245,7 @@ void AbstractNonHomogeneousTreeLikelihood::initialize() throw (Exception)
   initParameters();
   _initialized = true;
   computeAllTransitionProbabilities();
-  fireParameterChanged(_parameters);
+  fireParameterChanged(getParameters());
 }
 
 /******************************************************************************/
@@ -253,7 +253,7 @@ void AbstractNonHomogeneousTreeLikelihood::initialize() throw (Exception)
 ParameterList AbstractNonHomogeneousTreeLikelihood::getBranchLengthsParameters() const
 {
   if(!_initialized) throw Exception("AbstractNonHomogeneousTreeLikelihood::getBranchLengthsParameters(). Object is not initialized.");
-  return _brLenParameters.getCommonParametersWith(_parameters);
+  return _brLenParameters.getCommonParametersWith(getParameters());
 }
 
 /******************************************************************************/
@@ -261,7 +261,7 @@ ParameterList AbstractNonHomogeneousTreeLikelihood::getBranchLengthsParameters()
 ParameterList AbstractNonHomogeneousTreeLikelihood::getSubstitutionModelParameters() const
 {
   if(!_initialized) throw Exception("AbstractNonHomogeneousTreeLikelihood::getSubstitutionModelParameters(). Object is not initialized.");
-  return _modelSet->getParameters().getCommonParametersWith(_parameters);
+  return _modelSet->getParameters().getCommonParametersWith(getParameters());
 }
 
 /******************************************************************************/
@@ -269,17 +269,17 @@ ParameterList AbstractNonHomogeneousTreeLikelihood::getSubstitutionModelParamete
 void AbstractNonHomogeneousTreeLikelihood::initParameters()
 {
   // Reset parameters:
-  _parameters.reset();
+  resetParameters_();
   
   // Branch lengths:
   initBranchLengthsParameters();
-  _parameters.addParameters(_brLenParameters);
+  addParameters_(_brLenParameters);
   
   // Substitution model:
-  _parameters.addParameters(_modelSet->getParameters());
+  addParameters_(_modelSet->getParameters());
   
   // Rate distribution:
-  _parameters.addParameters(_rateDistribution->getParameters());
+  addParameters_(_rateDistribution->getIndependentParameters());
 }
 
 /******************************************************************************/
@@ -288,32 +288,31 @@ void AbstractNonHomogeneousTreeLikelihood::applyParameters() throw (Exception)
 {
   if(!_initialized) throw Exception("AbstractNonHomogeneousTreeLikelihood::applyParameters(). Object not initialized.");
   //Apply branch lengths:
-  //_brLenParameters.matchParametersValues(_parameters); Not necessary!
   for(unsigned int i = 0; i < _nbNodes; i++)
   {
     int id = _nodes[i]->getId();
     if(id == _root1)
     {
-      const Parameter * rootBrLen = _parameters.getParameter(string("BrLenRoot"));
-      const Parameter * rootPos = _parameters.getParameter(string("RootPosition"));
+      const Parameter * rootBrLen = &getParameter("BrLenRoot");
+      const Parameter * rootPos = &getParameter("RootPosition");
       _nodes[i]->setDistanceToFather(rootBrLen->getValue() * rootPos->getValue());
     }
     else if(id == _root2)
     {
-      const Parameter * rootBrLen = _parameters.getParameter(string("BrLenRoot"));
-      const Parameter * rootPos = _parameters.getParameter(string("RootPosition"));
+      const Parameter * rootBrLen = &getParameter("BrLenRoot");
+      const Parameter * rootPos = &getParameter("RootPosition");
       _nodes[i]->setDistanceToFather(rootBrLen->getValue() * (1. - rootPos->getValue()));
     }
     else
     {
-      const Parameter * brLen = _parameters.getParameter(string("BrLen") + TextTools::toString(i));
+      const Parameter * brLen = &getParameter(string("BrLen") + TextTools::toString(i));
       if(brLen != NULL) _nodes[i]->setDistanceToFather(brLen->getValue());
     }
   }
   //Apply substitution model parameters:
-  _modelSet->matchParametersValues(_parameters);
+  _modelSet->matchParametersValues(getParameters());
   //Apply rate distribution parameters:
-  _rateDistribution->matchParametersValues(_parameters);
+  _rateDistribution->matchParametersValues(getParameters());
 }
 
 /******************************************************************************/

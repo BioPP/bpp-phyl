@@ -187,7 +187,7 @@ void TwoTreeLikelihood::initialize() throw (Exception)
 {
 	initParameters();
   _initialized = true;
-	fireParameterChanged(_parameters);
+	fireParameterChanged(getParameters());
 }
 
 /******************************************************************************/
@@ -195,7 +195,7 @@ void TwoTreeLikelihood::initialize() throw (Exception)
 ParameterList TwoTreeLikelihood::getBranchLengthsParameters() const
 {
   if(!_initialized) throw Exception("TwoTreeLikelihood::getBranchLengthsParameters(). Object is not initialized.");
-  return _brLenParameters.getCommonParametersWith(_parameters);
+  return _brLenParameters.getCommonParametersWith(getParameters());
 }
 
 /******************************************************************************/
@@ -203,7 +203,7 @@ ParameterList TwoTreeLikelihood::getBranchLengthsParameters() const
 ParameterList TwoTreeLikelihood::getSubstitutionModelParameters() const
 {
   if(!_initialized) throw Exception("TwoTreeLikelihood::getSubstitutionModelParameters(). Object is not initialized.");
-	return _model->getParameters().getCommonParametersWith(_parameters);
+	return _model->getParameters().getCommonParametersWith(getParameters());
 }
 
 /******************************************************************************/
@@ -277,25 +277,17 @@ double TwoTreeLikelihood::getLogLikelihoodForASiteForARateClassForAState(unsigne
 void TwoTreeLikelihood::initParameters()
 {
 	// Reset parameters:
-	_parameters.reset();
+	resetParameters_();
 	
 	// Branch lengths:
 	initBranchLengthsParameters();
-	_parameters.addParameters(_brLenParameters);
+	addParameters_(_brLenParameters);
 	
 	// Substitution model:
-	_parameters.addParameters(_model->getParameters());
+	addParameters_(_model->getParameters());
 	
 	// Rate distribution:
-	_parameters.addParameters(_rateDistribution->getParameters());
-}
-
-/******************************************************************************/
-
-void TwoTreeLikelihood::ignoreParameter(const string & name)
-throw (ParameterNotFoundException)
-{
-	_parameters.deleteParameter(name);
+	addParameters_(_rateDistribution->getParameters());
 }
 
 /******************************************************************************/
@@ -303,11 +295,11 @@ throw (ParameterNotFoundException)
 void TwoTreeLikelihood::applyParameters() throw (Exception)
 {
 	//Apply branch length:
-	_brLen = _parameters.getParameter(string("BrLen"))->getValue();
+	_brLen = getParameterValue("BrLen");
 	//Apply substitution model parameters:
-	_model->matchParametersValues(_parameters);
+	_model->matchParametersValues(getParameters());
 	//Apply rate distribution parameters:
-	_rateDistribution->matchParametersValues(_parameters);
+	_rateDistribution->matchParametersValues(getParameters());
 }
 
 /******************************************************************************/
@@ -596,14 +588,14 @@ void TwoTreeLikelihood::computeTreeD2Likelihood()
 double TwoTreeLikelihood::getFirstOrderDerivative(const string & variable) const
 throw (Exception)
 { 
-	Parameter * p = _parameters.getParameter(variable);
+	const Parameter* p = &getParameter(variable);
 	if(p == NULL) throw ParameterNotFoundException("TwoTreeLikelihood::getFirstOrderDerivative", variable);
-	if(getRateDistributionParameters().getParameter(variable) != NULL)
+	if(getRateDistributionParameters().hasParameter(variable))
   {
 		cout << "DEBUB: WARNING!!! Derivatives respective to rate distribution parameter are not implemented." << endl;
 		return log(-1.);
 	}
-	if(getSubstitutionModelParameters().getParameter(variable) != NULL)
+	if(getSubstitutionModelParameters().hasParameter(variable))
   {
 		cout << "DEBUB: WARNING!!! Derivatives respective to substitution model parameters are not implemented." << endl;
 		return log(-1.);
@@ -624,14 +616,14 @@ throw (Exception)
 double TwoTreeLikelihood::getSecondOrderDerivative(const string & variable) const
 throw (Exception)
 {
-	Parameter * p = _parameters.getParameter(variable);
+	const Parameter* p = &getParameter(variable);
 	if(p == NULL) throw ParameterNotFoundException("TwoTreeLikelihood::getSecondOrderDerivative", variable);
-	if(getRateDistributionParameters().getParameter(variable) != NULL)
+	if(getRateDistributionParameters().hasParameter(variable))
   {
 		cout << "DEBUB: WARNING!!! Derivatives respective to rate distribution parameter are not implemented." << endl;
 		return log(-1.);
 	}
-	if(getSubstitutionModelParameters().getParameter(variable) != NULL)
+	if(getSubstitutionModelParameters().hasParameter(variable))
   {
 		cout << "DEBUB: WARNING!!! Derivatives respective to substitution model parameters are not implemented." << endl;
 		return log(-1.);
@@ -676,7 +668,7 @@ void DistanceEstimation::computeMatrix() throw (NullPointerException)
 			_optimizer->setFunction(lik);
 			_optimizer->setConstraintPolicy(AutoParameter::CONSTRAINTS_AUTO);
 			ParameterList params = lik->getBranchLengthsParameters();
-			params.addParameters(_parameters);
+			params.addParameters(parameters_);
 			_optimizer->init(params);
 			_optimizer->optimize();
 			// Store results:

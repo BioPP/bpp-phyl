@@ -44,8 +44,7 @@ using namespace bpp;
 /******************************************************************************/
 
 JTT92::JTT92(const ProteicAlphabet * alpha) :
-  //AbstractSubstitutionModel(alpha),
-  ProteinSubstitutionModel(alpha)
+  ProteinSubstitutionModel(alpha, "JTT92+F.")
 {
   #include "__JTT92ExchangeabilityCode"
 	#include "__JTT92FrequenciesCode"

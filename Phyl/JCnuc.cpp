@@ -48,11 +48,9 @@ using namespace std;
 /******************************************************************************/
 
 JCnuc::JCnuc(const NucleicAlphabet * alpha) :
-  //AbstractSubstitutionModel(alpha),
-  NucleotideSubstitutionModel(alpha)
+  NucleotideSubstitutionModel(alpha, "JC69.")
 {
-	_parameters = ParameterList(); //no parameters for this model.	
-  _p.resize(_size,_size);
+  _p.resize(size_,size_);
 	updateMatrices();
 }
 
@@ -61,39 +59,39 @@ JCnuc::JCnuc(const NucleicAlphabet * alpha) :
 void JCnuc::updateMatrices()
 {
 	// Frequencies:
-	_freq[0] = _freq[1] = _freq[2] = _freq[3] = 1. / 4.;
+	freq_[0] = freq_[1] = freq_[2] = freq_[3] = 1. / 4.;
 
 	// Generator and exchangeabilities:
 	for(int i = 0; i < 4; i++)
   {
 		for(int j = 0; j < 4; j++)
     {
-			_generator(i, j) = (i == j) ? -1. : 1./3.;
-			_exchangeability(i, j) = _generator(i, j) * 4.;
+			generator_(i, j) = (i == j) ? -1. : 1./3.;
+			exchangeability_(i, j) = generator_(i, j) * 4.;
 		}
 	}
 	
 	// Eigen values:
-	_eigenValues[0] = 0;
-	_eigenValues[1] = _eigenValues[2] = _eigenValues[3] = -4. / 3.;
+	eigenValues_[0] = 0;
+	eigenValues_[1] = eigenValues_[2] = eigenValues_[3] = -4. / 3.;
 	
 	// Eigen vectors:
-	for(unsigned int i = 0; i < 4; i++) _leftEigenVectors(0,i) = 1./4.;
+	for(unsigned int i = 0; i < 4; i++) leftEigenVectors_(0,i) = 1./4.;
 	for(unsigned int i = 1; i < 4; i++) 
 		for(unsigned int j = 0; j < 4; j++)
-			_leftEigenVectors(i,j) = -1./4.;
-	_leftEigenVectors(1,2) = 3./4.;
-	_leftEigenVectors(2,1) = 3./4.;
-	_leftEigenVectors(3,0) = 3./4.;
+			leftEigenVectors_(i,j) = -1./4.;
+	leftEigenVectors_(1,2) = 3./4.;
+	leftEigenVectors_(2,1) = 3./4.;
+	leftEigenVectors_(3,0) = 3./4.;
 
-	for(unsigned int i = 0; i < 4; i++) _rightEigenVectors(i,0) = 1.;
-	for(unsigned int i = 1; i < 4; i++) _rightEigenVectors(3,i) = -1.;
+	for(unsigned int i = 0; i < 4; i++) rightEigenVectors_(i,0) = 1.;
+	for(unsigned int i = 1; i < 4; i++) rightEigenVectors_(3,i) = -1.;
 	for(unsigned int i = 0; i < 3; i++) 
 		for(unsigned int j = 1; j < 4; j++)
-			_rightEigenVectors(i,j) = 0.;
-	_rightEigenVectors(2,1) = 1.;
-	_rightEigenVectors(1,2) = 1.;
-	_rightEigenVectors(0,3) = 1.;
+			rightEigenVectors_(i,j) = 0.;
+	rightEigenVectors_(2,1) = 1.;
+	rightEigenVectors_(1,2) = 1.;
+	rightEigenVectors_(0,3) = 1.;
 }
 	
 /******************************************************************************/
@@ -125,9 +123,9 @@ double JCnuc::d2Pij_dt2(int i, int j, double d) const
 const Matrix<double> & JCnuc::getPij_t(double d) const
 {
 	_exp = exp(-4./3. * d);
-	for(unsigned int i = 0; i < _size; i++)
+	for(unsigned int i = 0; i < size_; i++)
   {
-		for(unsigned int j = 0; j < _size; j++)
+		for(unsigned int j = 0; j < size_; j++)
     {
 			_p(i,j) = (i==j) ? 1./4. + 3./4. * _exp : 1./4. - 1./4. * _exp;
 		}
@@ -138,9 +136,9 @@ const Matrix<double> & JCnuc::getPij_t(double d) const
 const Matrix<double> & JCnuc::getdPij_dt(double d) const
 {
 	_exp = exp(-4./3. * d);
-	for(unsigned int i = 0; i < _size; i++)
+	for(unsigned int i = 0; i < size_; i++)
   {
-		for(unsigned int j = 0; j < _size; j++)
+		for(unsigned int j = 0; j < size_; j++)
     {
 			_p(i,j) = (i==j) ? - _exp : 1./3. * _exp;
 		}
@@ -151,9 +149,9 @@ const Matrix<double> & JCnuc::getdPij_dt(double d) const
 const Matrix<double> & JCnuc::getd2Pij_dt2(double d) const
 {
 	_exp = exp(-4./3. * d);
-	for(unsigned int i = 0; i < _size; i++)
+	for(unsigned int i = 0; i < size_; i++)
   {
-		for(unsigned int j = 0; j < _size; j++)
+		for(unsigned int j = 0; j < size_; j++)
     {
 			_p(i,j) = (i==j) ? 4./3. * _exp : - 4./9. * _exp;
 		}

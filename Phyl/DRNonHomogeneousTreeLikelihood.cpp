@@ -232,7 +232,7 @@ void DRNonHomogeneousTreeLikelihood::fireParameterChanged(const ParameterList & 
 {
   applyParameters();
 
-  if(params.getCommonParametersWith(_rateDistribution->getParameters()).size() > 0)
+  if(params.getCommonParametersWith(_rateDistribution->getIndependentParameters()).size() > 0)
   {
     computeAllTransitionProbabilities();
   }
@@ -359,13 +359,12 @@ void DRNonHomogeneousTreeLikelihood::computeTreeDLikelihoods()
 double DRNonHomogeneousTreeLikelihood::getFirstOrderDerivative(const string & variable) const
 throw (Exception)
 { 
-  Parameter * p = _parameters.getParameter(variable);
-  if(p == NULL) throw ParameterNotFoundException("DRNonHomogeneousTreeLikelihood::getFirstOrderDerivative", variable);
-  if(getRateDistributionParameters().getParameter(variable) != NULL)
+  const Parameter * p = &getParameter(variable);
+  if(getRateDistributionParameters().hasParameter(variable))
   {
     throw Exception("Derivatives respective to rate distribution parameters are not implemented.");
   }
-  if(getSubstitutionModelParameters().getParameter(variable) != NULL)
+  if(getSubstitutionModelParameters().hasParameter(variable))
   {
     throw Exception("Derivatives respective to substitution model parameters are not implemented.");
   }
@@ -385,7 +384,7 @@ throw (Exception)
     double d2 = 0;
     for(unsigned int i = 0; i < _nbDistinctSites; i++)
       d2 -= (* w)[i] * (* _dLikelihoods_branch)[i];
-    double pos = _parameters.getParameter("RootPosition")->getValue();
+    double pos = getParameterValue("RootPosition");
     return pos * d1 + (1. - pos) * d2;
   }
   else if(variable == "RootPosition")
@@ -398,7 +397,7 @@ throw (Exception)
     double d2 = 0;
     for(unsigned int i = 0; i < _nbDistinctSites; i++)
       d2 -= (* w)[i] * (* _dLikelihoods_branch)[i];
-    double len = _parameters.getParameter("BrLenRoot")->getValue();
+    double len = getParameterValue("BrLenRoot");
     return len * (d1 - d2);
   }
   else
@@ -480,13 +479,12 @@ void DRNonHomogeneousTreeLikelihood::computeTreeD2Likelihoods()
 double DRNonHomogeneousTreeLikelihood::getSecondOrderDerivative(const string & variable) const
 throw (Exception)
 {
-  Parameter * p = _parameters.getParameter(variable);
-  if(p == NULL) throw ParameterNotFoundException("DRNonHomogeneousTreeLikelihood::getSecondOrderDerivative", variable);
-  if(getRateDistributionParameters().getParameter(variable) != NULL)
+  const Parameter * p = &getParameter(variable);
+  if(getRateDistributionParameters().hasParameter(variable))
   {
     throw Exception("Derivatives respective to rate distribution parameters are not implemented.");
   }
-  if(getSubstitutionModelParameters().getParameter(variable) != NULL)
+  if(getSubstitutionModelParameters().hasParameter(variable))
   {
     throw Exception("Derivatives respective to substitution model parameters are not implemented.");
   }
@@ -536,7 +534,7 @@ throw (Exception)
       {
         VVVdouble * _likelihoods_root1 = & _likelihoodData->getLikelihoodArray(father->getId(), _root1);
         VVVdouble * _likelihoods_root2 = & _likelihoodData->getLikelihoodArray(father->getId(), _root2);
-        double pos = _parameters.getParameter("RootPosition")->getValue();
+        double pos = getParameterValue("RootPosition");
 
         VVVdouble * _d2pxy_root1 = & _d2pxy[_root1];
         VVVdouble * _d2pxy_root2 = & _d2pxy[_root2];
@@ -682,7 +680,7 @@ throw (Exception)
       {
         VVVdouble * _likelihoods_root1 = & _likelihoodData->getLikelihoodArray(father->getId(), _root1);
         VVVdouble * _likelihoods_root2 = & _likelihoodData->getLikelihoodArray(father->getId(), _root2);
-        double len = _parameters.getParameter("BrLenRoot")->getValue();
+        double len = getParameterValue("BrLenRoot");
 
         VVVdouble * _d2pxy_root1 = & _d2pxy[_root1];
         VVVdouble * _d2pxy_root2 = & _d2pxy[_root2];

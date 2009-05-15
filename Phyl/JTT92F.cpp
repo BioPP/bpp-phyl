@@ -44,14 +44,13 @@ using namespace bpp;
 /******************************************************************************/
 
 JTT92F::JTT92F(const ProteicAlphabet * alpha) :
-  ProteinSubstitutionModel(alpha),
-  ProteinSubstitutionModelWithFrequencies(alpha)
+  ProteinSubstitutionModel(alpha, "JTT92+F."),
+  ProteinSubstitutionModelWithFrequencies(alpha, "JTT92+F.")
 {
   #include "__JTT92ExchangeabilityCode"
 	#include "__JTT92FrequenciesCode"
-  _freqSet->setFrequencies(_freq);
-  _parameters.matchParametersValues(_freqSet->getParameters());
-	updateMatrices();	
+  freqSet_->setFrequencies(freq_);
+  matchParametersValues(freqSet_->getParameters());
 }
 
 /******************************************************************************/

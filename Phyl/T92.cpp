@@ -55,11 +55,13 @@ using namespace std;
 /******************************************************************************/
 
 T92::T92(const NucleicAlphabet * alpha, double kappa, double theta):
-	NucleotideSubstitutionModel(alpha)
+	NucleotideSubstitutionModel(alpha, "T92.")
 {
-	_parameters.addParameter(Parameter("kappa", kappa, &Parameter::R_PLUS_STAR));
-  _parameters.addParameter(Parameter("theta", theta, &Parameter::PROP_CONSTRAINT_EX));
-  _p.resize(_size, _size);
+	Parameter kappaP("T92.kappa", kappa, &Parameter::R_PLUS_STAR);
+	addParameter_(kappaP);
+  Parameter thetaP("T92.theta", theta, &Parameter::PROP_CONSTRAINT_EX);
+  addParameter_(thetaP);
+  _p.resize(size_, size_);
 	updateMatrices();
 }
 
@@ -67,8 +69,8 @@ T92::T92(const NucleicAlphabet * alpha, double kappa, double theta):
 
 void T92::updateMatrices()
 {
-	_kappa = _parameters.getParameter("kappa")->getValue();
-	_theta = _parameters.getParameter("theta")->getValue();
+	_kappa = getParameterValue("kappa");
+	_theta = getParameterValue("theta");
   _piA = (1 - _theta) / 2;
 	_piC = _theta / 2;
 	_piG = _theta / 2;
@@ -76,100 +78,100 @@ void T92::updateMatrices()
 	_k = (_kappa + 1.) / 2.;
 	_r = 2./ (1. + 2. * _theta * _kappa - 2. * _theta * _theta * _kappa);
 
-  _freq[0] = _piA;
-	_freq[1] = _piC;
-	_freq[2] = _piG;
-	_freq[3] = _piT;
+  freq_[0] = _piA;
+	freq_[1] = _piC;
+	freq_[2] = _piG;
+	freq_[3] = _piT;
 	
-	_generator(0, 0) = -(1. +        _theta * _kappa)/2;
-	_generator(1, 1) = -(1. + (1. - _theta) * _kappa)/2;
-	_generator(2, 2) = -(1. + (1. - _theta) * _kappa)/2;
-	_generator(3, 3) = -(1. +        _theta * _kappa)/2;
+	generator_(0, 0) = -(1. +        _theta * _kappa)/2;
+	generator_(1, 1) = -(1. + (1. - _theta) * _kappa)/2;
+	generator_(2, 2) = -(1. + (1. - _theta) * _kappa)/2;
+	generator_(3, 3) = -(1. +        _theta * _kappa)/2;
 
-	_generator(1, 0) = (1. - _theta)/2;
-	_generator(3, 0) = (1. - _theta)/2;
-	_generator(0, 1) = _theta/2;
-	_generator(2, 1) = _theta/2;
-	_generator(1, 2) = _theta/2;
-	_generator(3, 2) = _theta/2;
-	_generator(0, 3) = (1. - _theta)/2;
-	_generator(2, 3) = (1. - _theta)/2;
+	generator_(1, 0) = (1. - _theta)/2;
+	generator_(3, 0) = (1. - _theta)/2;
+	generator_(0, 1) = _theta/2;
+	generator_(2, 1) = _theta/2;
+	generator_(1, 2) = _theta/2;
+	generator_(3, 2) = _theta/2;
+	generator_(0, 3) = (1. - _theta)/2;
+	generator_(2, 3) = (1. - _theta)/2;
 	
-	_generator(2, 0) = _kappa * (1. - _theta)/2;
-	_generator(3, 1) = _kappa * _theta/2;
-	_generator(0, 2) = _kappa * _theta/2;
-	_generator(1, 3) = _kappa * (1. - _theta)/2;
+	generator_(2, 0) = _kappa * (1. - _theta)/2;
+	generator_(3, 1) = _kappa * _theta/2;
+	generator_(0, 2) = _kappa * _theta/2;
+	generator_(1, 3) = _kappa * (1. - _theta)/2;
 	
 	// Normalization:
-	MatrixTools::scale(_generator, _r);
+	MatrixTools::scale(generator_, _r);
 
 	// Exchangeability:
-	_exchangeability(0,0) = _generator(0,0) * 2./(1. - _theta);
-	_exchangeability(0,1) = _generator(0,1) * 2./_theta; 
-	_exchangeability(0,2) = _generator(0,2) * 2./_theta; 
-	_exchangeability(0,3) = _generator(0,3) * 2./(1. - _theta);
+	exchangeability_(0,0) = generator_(0,0) * 2./(1. - _theta);
+	exchangeability_(0,1) = generator_(0,1) * 2./_theta; 
+	exchangeability_(0,2) = generator_(0,2) * 2./_theta; 
+	exchangeability_(0,3) = generator_(0,3) * 2./(1. - _theta);
 
-	_exchangeability(1,0) = _generator(1,0) * 2./(1. - _theta); 
-	_exchangeability(1,1) = _generator(1,1) * 2/_theta; 
-	_exchangeability(1,2) = _generator(1,2) * 2/_theta; 
-	_exchangeability(1,3) = _generator(1,3) * 2/(1. - _theta); 
+	exchangeability_(1,0) = generator_(1,0) * 2./(1. - _theta); 
+	exchangeability_(1,1) = generator_(1,1) * 2/_theta; 
+	exchangeability_(1,2) = generator_(1,2) * 2/_theta; 
+	exchangeability_(1,3) = generator_(1,3) * 2/(1. - _theta); 
 	
-	_exchangeability(2,0) = _generator(2,0) * 2./(1. - _theta); 
-	_exchangeability(2,1) = _generator(2,1) * 2/_theta; 
-	_exchangeability(2,2) = _generator(2,2) * 2/_theta; 
-	_exchangeability(2,3) = _generator(2,3) * 2/(1. - _theta); 
+	exchangeability_(2,0) = generator_(2,0) * 2./(1. - _theta); 
+	exchangeability_(2,1) = generator_(2,1) * 2/_theta; 
+	exchangeability_(2,2) = generator_(2,2) * 2/_theta; 
+	exchangeability_(2,3) = generator_(2,3) * 2/(1. - _theta); 
 	
-	_exchangeability(3,0) = _generator(3,0) * 2./(1. - _theta);
-	_exchangeability(3,1) = _generator(3,1) * 2./_theta; 
-	_exchangeability(3,2) = _generator(3,2) * 2./_theta; 
-	_exchangeability(3,3) = _generator(3,3) * 2./(1. - _theta);
+	exchangeability_(3,0) = generator_(3,0) * 2./(1. - _theta);
+	exchangeability_(3,1) = generator_(3,1) * 2./_theta; 
+	exchangeability_(3,2) = generator_(3,2) * 2./_theta; 
+	exchangeability_(3,3) = generator_(3,3) * 2./(1. - _theta);
 
 	// Eigen values:
-	_eigenValues[0] = 0;
-	_eigenValues[1] = _eigenValues[2] = -_r * (1. + _kappa)/2; 
-	_eigenValues[3] = -_r;
+	eigenValues_[0] = 0;
+	eigenValues_[1] = eigenValues_[2] = -_r * (1. + _kappa)/2; 
+	eigenValues_[3] = -_r;
 	
 	// Eigen vectors:
-	_leftEigenVectors(0,0) = - (_theta - 1.)/2.;
-	_leftEigenVectors(0,1) = _theta/2.;
-	_leftEigenVectors(0,2) = _theta/2.;
-	_leftEigenVectors(0,3) = - (_theta - 1.)/2.;
+	leftEigenVectors_(0,0) = - (_theta - 1.)/2.;
+	leftEigenVectors_(0,1) = _theta/2.;
+	leftEigenVectors_(0,2) = _theta/2.;
+	leftEigenVectors_(0,3) = - (_theta - 1.)/2.;
 	
-	_leftEigenVectors(1,0) = 0.;
-	_leftEigenVectors(1,1) = - (_theta - 1.);
-	_leftEigenVectors(1,2) = 0.;
-	_leftEigenVectors(1,3) = _theta - 1.;
+	leftEigenVectors_(1,0) = 0.;
+	leftEigenVectors_(1,1) = - (_theta - 1.);
+	leftEigenVectors_(1,2) = 0.;
+	leftEigenVectors_(1,3) = _theta - 1.;
 	
-	_leftEigenVectors(2,0) = _theta;
-	_leftEigenVectors(2,1) = 0.;
-	_leftEigenVectors(2,2) = -_theta;
-	_leftEigenVectors(2,3) = 0.;
+	leftEigenVectors_(2,0) = _theta;
+	leftEigenVectors_(2,1) = 0.;
+	leftEigenVectors_(2,2) = -_theta;
+	leftEigenVectors_(2,3) = 0.;
 	
-	_leftEigenVectors(3,0) = - (_theta - 1.)/2.;
-	_leftEigenVectors(3,1) = - _theta/2.;
-	_leftEigenVectors(3,2) = _theta/2.;
-	_leftEigenVectors(3,3) = (_theta - 1.)/2.;
+	leftEigenVectors_(3,0) = - (_theta - 1.)/2.;
+	leftEigenVectors_(3,1) = - _theta/2.;
+	leftEigenVectors_(3,2) = _theta/2.;
+	leftEigenVectors_(3,3) = (_theta - 1.)/2.;
 
 
-	_rightEigenVectors(0,0) = 1.;
-	_rightEigenVectors(0,1) = 0.;
-	_rightEigenVectors(0,2) = 1.;
-	_rightEigenVectors(0,3) = 1.;
+	rightEigenVectors_(0,0) = 1.;
+	rightEigenVectors_(0,1) = 0.;
+	rightEigenVectors_(0,2) = 1.;
+	rightEigenVectors_(0,3) = 1.;
 	
-	_rightEigenVectors(1,0) = 1.;
-	_rightEigenVectors(1,1) = 1.;
-	_rightEigenVectors(1,2) = 0.;
-	_rightEigenVectors(1,3) = -1.;
+	rightEigenVectors_(1,0) = 1.;
+	rightEigenVectors_(1,1) = 1.;
+	rightEigenVectors_(1,2) = 0.;
+	rightEigenVectors_(1,3) = -1.;
 
-	_rightEigenVectors(2,0) = 1.;
-	_rightEigenVectors(2,1) = 0.;
-	_rightEigenVectors(2,2) = (_theta-1.)/_theta;
-	_rightEigenVectors(2,3) = 1.;
+	rightEigenVectors_(2,0) = 1.;
+	rightEigenVectors_(2,1) = 0.;
+	rightEigenVectors_(2,2) = (_theta-1.)/_theta;
+	rightEigenVectors_(2,3) = 1.;
 	
-	_rightEigenVectors(3,0) = 1.;
-	_rightEigenVectors(3,1) = _theta/(_theta - 1.);
-	_rightEigenVectors(3,2) = 0;
-	_rightEigenVectors(3,3) = -1.;
+	rightEigenVectors_(3,0) = 1.;
+	rightEigenVectors_(3,1) = _theta/(_theta - 1.);
+	rightEigenVectors_(3,2) = 0;
+	rightEigenVectors_(3,3) = -1.;
 }
 	
 /******************************************************************************/

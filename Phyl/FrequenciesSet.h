@@ -75,7 +75,7 @@ class FrequenciesSet:
     /**
      * @return The frequencies values of the set.
      */ 
-    virtual vector<double> getFrequencies() const = 0;
+    virtual const vector<double>& getFrequencies() const = 0;
 
     /**
      * @brief Set the parameters in order to match a given set of frequencies.
@@ -123,16 +123,23 @@ class AbstractFrequenciesSet:
   public virtual FrequenciesSet,
   public AbstractParametrizable
 {
-  protected:
-    const Alphabet * _alphabet;
-    vector<double> _freq;
+  private:
+    const Alphabet * alphabet_;
+    vector<double> freq_;
 
   public:
-    AbstractFrequenciesSet(const Alphabet * alphabet): _alphabet(alphabet) {}
+    AbstractFrequenciesSet(unsigned int n, const Alphabet * alphabet, const string& prefix) :
+      AbstractParametrizable(prefix), alphabet_(alphabet), freq_(n) {}
   
   public:
-    const Alphabet * getAlphabet() const { return _alphabet; }
-    vector<double> getFrequencies() const { return _freq; }
+    const Alphabet * getAlphabet() const { return alphabet_; }
+    const vector<double>& getFrequencies() const { return freq_; }
+
+  protected:
+    vector<double>& getFrequencies_() { return freq_; }
+    double& getFreq_(unsigned int i) { return freq_[i]; }
+    const double& getFreq_(unsigned int i) const { return freq_[i]; }
+    void setFrequencies_(const vector<double>& frequencies) { freq_ = frequencies; }
 };
 
 /**
@@ -142,8 +149,8 @@ class FullFrequenciesSet:
   public AbstractFrequenciesSet
 {
   public:
-    FullFrequenciesSet(const Alphabet * alphabet, const string & prefix = "");
-    FullFrequenciesSet(const Alphabet * alphabet, const vector<double> & initFreqs, const string & prefix = "") throw (Exception);
+    FullFrequenciesSet(const Alphabet * alphabet, const string& name, const string& prefix = "");
+    FullFrequenciesSet(const Alphabet * alphabet, const vector<double> & initFreqs, const string& name, const string& prefix = "") throw (Exception);
 
 #ifndef NO_VIRTUAL_COV
     FullFrequenciesSet *
@@ -155,24 +162,24 @@ class FullFrequenciesSet:
   public:
     void fireParameterChanged(const ParameterList & pl)
     {
-      for(unsigned int i = 0; i < _alphabet->getSize(); i++)
+      for(unsigned int i = 0; i < getAlphabet()->getSize(); i++)
       {
-        _freq[i] = _parameters[i]->getValue();
+        getFreq_(i) = getParameter_(i).getValue();
       }
     }
 
     void setFrequencies(const vector<double> & frequencies) throw (DimensionException, Exception)
     {
-      if(frequencies.size() != _alphabet->getSize()) throw DimensionException("FullFrequenciesSet::setFrequencies", frequencies.size(), _alphabet->getSize());
+      if(frequencies.size() != getAlphabet()->getSize()) throw DimensionException("FullFrequenciesSet::setFrequencies", frequencies.size(), getAlphabet()->getSize());
       double sum = 0.0;
       for(unsigned int i = 0; i < frequencies.size(); i++)
         sum += frequencies[i];
       if(fabs(1.-sum) > 0.000001)
         throw Exception("FullFrequenciesSet::setFrequencies. Frequencies must equal 1 (sum = " + TextTools::toString(sum) + ").");
-      for(unsigned int i = 0; i < _parameters.size(); i++)
+      for(unsigned int i = 0; i < getNumberOfParameters(); i++)
       {
-        _parameters[i]->setValue(frequencies[i]);
-        _freq[i] = frequencies[i];
+        getParameter_(i).setValue(frequencies[i]);
+        getFreq_(i) = frequencies[i];
       }
     }
 };
@@ -185,19 +192,19 @@ class GCFrequenciesSet:
 {
   public:
     GCFrequenciesSet(const NucleicAlphabet * alphabet, const string & prefix = ""):
-      AbstractFrequenciesSet(alphabet)
+      AbstractFrequenciesSet(4, alphabet, prefix)
     {
-      _freq.resize(4);
-      _parameters.addParameter(Parameter(prefix + "theta", 0.5, &Parameter::PROP_CONSTRAINT_IN));
-      _freq[0] = _freq[1] = _freq[2] = _freq[3] = 0.25;
+      Parameter p(getNamespace() + "theta", 0.5, &Parameter::PROP_CONSTRAINT_IN);
+      addParameter_(p);
+      getFreq_(0) = getFreq_(1) = getFreq_(2) = getFreq_(3) = 0.25;
     }
     GCFrequenciesSet(const NucleicAlphabet * alphabet, double theta, const string & prefix = ""):
-      AbstractFrequenciesSet(alphabet)
+      AbstractFrequenciesSet(4, alphabet, prefix)
     {
-      _freq.resize(4);
-      _parameters.addParameter(Parameter(prefix + "theta", theta, &Parameter::PROP_CONSTRAINT_IN));
-      _freq[0] = _freq[3] = (1. - theta) / 2.;
-      _freq[1] = _freq[2] = theta / 2.;
+      Parameter p(getNamespace() + "theta", theta, &Parameter::PROP_CONSTRAINT_IN);
+      addParameter_(p);
+      getFreq_(0) = getFreq_(3) = (1. - theta) / 2.;
+      getFreq_(1) = getFreq_(2) = theta / 2.;
     }
 #ifndef NO_VIRTUAL_COV
     GCFrequenciesSet *
@@ -209,9 +216,9 @@ class GCFrequenciesSet:
   public:
     void fireParameterChanged(const ParameterList & pl)
     {
-      double theta = _parameters[0]->getValue();
-      _freq[0] = _freq[3] = (1. - theta) / 2.;
-      _freq[1] = _freq[2] = theta / 2.;
+      double theta = getParameter_(0).getValue();
+      getFreq_(0) = getFreq_(3) = (1. - theta) / 2.;
+      getFreq_(1) = getFreq_(2) = theta / 2.;
     }
 
     void setFrequencies(const vector<double> & frequencies) throw (DimensionException)
@@ -222,8 +229,8 @@ class GCFrequenciesSet:
         sum += frequencies[i];
       if(fabs(1.-sum) > 0.000001)
         throw Exception("GCFrequenciesSet::setFrequencies. Frequencies must equal 1 (sum = " + TextTools::toString(sum) + ").");
-      _parameters[0]->setValue(frequencies[1] + frequencies[2]);
-      _freq = frequencies;
+      getParameter_(0).setValue(frequencies[1] + frequencies[2]);
+      setFrequencies_(frequencies);
     }
 };
 
@@ -255,10 +262,10 @@ class FullNAFrequenciesSet:
       if(fabs(1.-sum) > 0.000001)
         throw Exception("FullNAFrequenciesSet::setFrequencies. Frequencies must equal 1 (sum = " + TextTools::toString(sum) + ").");
       double theta = frequencies[1] + frequencies[2];
-      _parameters[0]->setValue(theta);
-      _parameters[1]->setValue(frequencies[0] / (1 - theta));
-      _parameters[2]->setValue(frequencies[2] / theta);
-      _freq = frequencies;
+      getParameter_(0).setValue(theta);
+      getParameter_(1).setValue(frequencies[0] / (1 - theta));
+      getParameter_(2).setValue(frequencies[2] / theta);
+      setFrequencies_(frequencies);
     }
 
     void fireParameterChanged(const ParameterList & pl);
@@ -318,11 +325,10 @@ class MarkovModulatedFrequenciesSet:
       return *this;
     }
     MarkovModulatedFrequenciesSet(FrequenciesSet * freqSet, const vector<double> & rateFreqs):
-      AbstractFrequenciesSet(freqSet->getAlphabet()), _freqSet(freqSet), _rateFreqs(rateFreqs)
+      AbstractFrequenciesSet(getAlphabet()->getSize() * rateFreqs.size(), freqSet->getAlphabet(), ""), _freqSet(freqSet), _rateFreqs(rateFreqs)
     {
-      _freq.resize(_alphabet->getSize() * rateFreqs.size());
-      _parameters.addParameters(_freqSet->getParameters());
-      _freq = VectorTools::kroneckerMult(rateFreqs, _freqSet->getFrequencies());
+      addParameters_(_freqSet->getParameters());
+      setFrequencies_(VectorTools::kroneckerMult(rateFreqs, _freqSet->getFrequencies()));
     }
 #ifndef NO_VIRTUAL_COV
     MarkovModulatedFrequenciesSet *
@@ -343,7 +349,7 @@ class MarkovModulatedFrequenciesSet:
     void fireParameterChanged(const ParameterList & pl)
     {
       _freqSet->matchParametersValues(pl);
-      _freq = VectorTools::kroneckerMult(_rateFreqs, _freqSet->getFrequencies());
+      setFrequencies_(VectorTools::kroneckerMult(_rateFreqs, _freqSet->getFrequencies()));
     }
 
     const FrequenciesSet* getStatesFrequenciesSet() const { return _freqSet; }
@@ -370,13 +376,13 @@ class FixedFrequenciesSet:
   public:
     void setFrequencies(const vector<double> & frequencies) throw (DimensionException)
     {
-      if(frequencies.size() != _alphabet->getSize()) throw DimensionException("FixedFrequenciesSet::setFrequencies", frequencies.size(), _alphabet->getSize());
+      if(frequencies.size() != getAlphabet()->getSize()) throw DimensionException("FixedFrequenciesSet::setFrequencies", frequencies.size(), getAlphabet()->getSize());
       double sum = 0.0;
       for(unsigned int i = 0; i < frequencies.size(); i++)
         sum += frequencies[i];
       if(fabs(1.-sum) > 0.000001)
         throw Exception("FixedFrequenciesSet::setFrequencies. Frequencies must equal 1 (sum = " + TextTools::toString(sum) + ").");
-      _freq = frequencies;
+      setFrequencies_(frequencies);
     }
 
    void fireParameterChanged(const ParameterList & pl) {}

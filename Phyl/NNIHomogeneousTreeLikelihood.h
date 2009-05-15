@@ -70,19 +70,21 @@ class BranchLikelihood :
     VVVdouble _arrayTmp;
     const SubstitutionModel * _model;
     const DiscreteDistribution * _rDist;
-    unsigned int _nbStates, _nbClasses;
-    VVVdouble _pxy;
+    unsigned int nbStates_, nbClasses_;
+    VVVdouble pxy_;
     double _lnL;
     vector<unsigned int> _weights;
 
   public:
-    BranchLikelihood(const vector<unsigned int> & weights):
+    BranchLikelihood(const vector<unsigned int> & weights) :
+      AbstractParametrizable(""),
       _array1(NULL), _array2(NULL), _arrayTmp(),
       _model(NULL), _rDist(NULL),
-      _nbStates(0), _nbClasses(0),
-      _pxy(), _lnL(log(0.)), _weights(weights)
+      nbStates_(0), nbClasses_(0),
+      pxy_(), _lnL(log(0.)), _weights(weights)
     {
-      _parameters.addParameter(Parameter("BrLen", 1, NULL));
+      Parameter p("BrLen", 1, NULL);
+      addParameter_(p);
     }
     virtual ~BranchLikelihood() {}
 
@@ -115,8 +117,9 @@ class BranchLikelihood :
     void setParameters(const ParameterList &parameters)
       throw (ParameterNotFoundException, ConstraintException)
     {
-      _parameters.setParametersValues(parameters);
-      fireParameterChanged(parameters);
+      //parameters_.setParametersValues(parameters);
+      //fireParameterChanged(parameters);
+      setParametersValues(parameters);
     }
 
     double getValue() const throw (Exception) { return _lnL; }

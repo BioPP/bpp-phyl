@@ -148,6 +148,7 @@ double PseudoNewtonOptimizer::doStep() throw (Exception)
   _previousPoint = _parameters;
   _previousValue = _currentValue;
   _parameters    = newPoint;
+
   if(_updateParameters) delete bckPoint;
   return newValue;
 }

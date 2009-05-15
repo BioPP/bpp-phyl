@@ -95,13 +95,13 @@ void RHomogeneousClockTreeLikelihood::applyParameters() throw (Exception)
 {
   if(!_initialized) throw Exception("RHomogeneousClockTreeLikelihood::applyParameters(). Object not initialized.");
    //Apply branch lengths:
-  _brLenParameters.matchParametersValues(_parameters);
-  computeBranchLengthsFromHeights(_tree->getRootNode(), _brLenParameters.getParameter("TotalHeight")->getValue());
+  brLenParameters_.matchParametersValues(getParameters());
+  computeBranchLengthsFromHeights(_tree->getRootNode(), brLenParameters_.getParameter("TotalHeight").getValue());
 
   //Apply substitution model parameters:
-  _model->matchParametersValues(_parameters);
+  model_->matchParametersValues(getParameters());
   //Apply rate distribution parameters:
-  _rateDistribution->matchParametersValues(_parameters);
+  _rateDistribution->matchParametersValues(getParameters());
 }
 
 /******************************************************************************/
@@ -120,37 +120,37 @@ void RHomogeneousClockTreeLikelihood::fireParameterChanged(const ParameterList &
 void RHomogeneousClockTreeLikelihood::initBranchLengthsParameters()
 {
   //Check branch lengths first:
-  for(unsigned int i = 0; i < _nbNodes; i++)
+  for(unsigned int i = 0; i < nbNodes_; i++)
   {
-    double d = _minimumBrLen;
-    if(!_nodes[i]->hasDistanceToFather())
+    double d = minimumBrLen_;
+    if(!nodes_[i]->hasDistanceToFather())
     {
-      ApplicationTools::displayWarning("Missing branch length " + TextTools::toString(i) + ". Value is set to " + TextTools::toString(_minimumBrLen));
-      _nodes[i]->setDistanceToFather(_minimumBrLen);
+      ApplicationTools::displayWarning("Missing branch length " + TextTools::toString(i) + ". Value is set to " + TextTools::toString(minimumBrLen_));
+      nodes_[i]->setDistanceToFather(minimumBrLen_);
     }
     else
     {
-      d = _nodes[i]->getDistanceToFather();
-      if (d < _minimumBrLen)
+      d = nodes_[i]->getDistanceToFather();
+      if (d < minimumBrLen_)
       {
-        ApplicationTools::displayWarning("Branch length " + TextTools::toString(i) + " is too small: " + TextTools::toString(d) + ". Value is set to " + TextTools::toString(_minimumBrLen));
-        _nodes[i]->setDistanceToFather(_minimumBrLen);
+        ApplicationTools::displayWarning("Branch length " + TextTools::toString(i) + " is too small: " + TextTools::toString(d) + ". Value is set to " + TextTools::toString(minimumBrLen_));
+        nodes_[i]->setDistanceToFather(minimumBrLen_);
       }
     }
   }
 
-  _brLenParameters.reset();
+  brLenParameters_.reset();
 
   map<const Node *, double> heights;
   TreeTemplateTools::getHeights(*_tree->getRootNode(), heights);
   double totalHeight = heights[_tree->getRootNode()];
-  _brLenParameters.addParameter(Parameter("TotalHeight", totalHeight, _brLenConstraint->clone(), true)); 
+  brLenParameters_.addParameter(Parameter("TotalHeight", totalHeight, brLenConstraint_->clone(), true)); 
   for(map<const Node *, double>::iterator it = heights.begin(); it != heights.end(); it++)
   {
     if(!it->first->isLeaf() && it->first->hasFather())
     {
       double fatherHeight = heights[it->first->getFather()];
-      _brLenParameters.addParameter(Parameter("HeightP" + TextTools::toString(it->first->getId()), it->second / fatherHeight, &Parameter::PROP_CONSTRAINT_IN));
+      brLenParameters_.addParameter(Parameter("HeightP" + TextTools::toString(it->first->getId()), it->second / fatherHeight, &Parameter::PROP_CONSTRAINT_IN));
     }
   }
 }
@@ -164,15 +164,14 @@ void RHomogeneousClockTreeLikelihood::computeBranchLengthsFromHeights(Node * nod
     Node * son = node->getSon(i);
     if(son->isLeaf())
     {
-      son->setDistanceToFather(std::max(_minimumBrLen, height));
+      son->setDistanceToFather(std::max(minimumBrLen_, height));
     }
     else
     {
-      Parameter * p = _brLenParameters.getParameter(string("HeightP") + TextTools::toString(son->getId()));
-      if(p == NULL) throw Exception("RHomogeneousClockTreeLikelihood::computeBranchLengthsFromHeights(). Parameter HeightP" + TextTools::toString(son->getId()) + " was not found."); 
+      Parameter * p = &brLenParameters_.getParameter(string("HeightP") + TextTools::toString(son->getId()));
       double sonHeightP = p->getValue();
       double sonHeight = sonHeightP * height;
-      son->setDistanceToFather(std::max(_minimumBrLen, height - sonHeight));
+      son->setDistanceToFather(std::max(minimumBrLen_, height - sonHeight));
       computeBranchLengthsFromHeights(son, sonHeight);
     }
   }
@@ -191,7 +190,7 @@ ParameterList RHomogeneousClockTreeLikelihood::getDerivableParameters() const th
 ParameterList RHomogeneousClockTreeLikelihood::getNonDerivableParameters() const throw (Exception)
 {
   if(!_initialized) throw Exception("RHomogeneousClockTreeLikelihood::getNonDerivableParameters(). Object is not initialized.");
-  return _parameters;
+  return getParameters();
 }
 
 /******************************************************************************

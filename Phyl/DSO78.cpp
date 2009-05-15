@@ -45,7 +45,7 @@ using namespace bpp;
 
 DSO78::DSO78(const ProteicAlphabet * alpha) :
   //AbstractSubstitutionModel(alpha),
-  ProteinSubstitutionModel(alpha)
+  ProteinSubstitutionModel(alpha, "DSO78.")
 {
   #include "__DSO78ExchangeabilityCode"
 	#include "__DSO78FrequenciesCode"

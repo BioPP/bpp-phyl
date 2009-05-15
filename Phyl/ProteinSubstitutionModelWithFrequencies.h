@@ -56,7 +56,7 @@ class ProteinSubstitutionModelWithFrequencies:
   public virtual ProteinSubstitutionModel
 {
   protected:
-    ProteinFrequenciesSet *_freqSet;
+    ProteinFrequenciesSet* freqSet_;
 
 	public:
     /**
@@ -65,11 +65,11 @@ class ProteinSubstitutionModelWithFrequencies:
      * @param alpha The alphabet to use.
      * @param freqSet The frequencies set object to use.
      */
-		ProteinSubstitutionModelWithFrequencies(const ProteicAlphabet * alpha, const ProteinFrequenciesSet & freqSet):
-      ProteinSubstitutionModel(alpha), _freqSet(dynamic_cast<ProteinFrequenciesSet *>(freqSet.clone()))
+		ProteinSubstitutionModelWithFrequencies(const ProteicAlphabet * alpha, const ProteinFrequenciesSet & freqSet, const string& prefix) :
+      ProteinSubstitutionModel(alpha, prefix), freqSet_(dynamic_cast<ProteinFrequenciesSet *>(freqSet.clone()))
     {
-      _freq = _freqSet->getFrequencies();
-      _parameters.addParameters(_freqSet->getParameters());
+      freq_ = freqSet_->getFrequencies();
+      addParameters_(freqSet_->getParameters());
     }
 	
     /**
@@ -78,31 +78,31 @@ class ProteinSubstitutionModelWithFrequencies:
      *
      * @param alpha The alphabet to use.
      */
-    ProteinSubstitutionModelWithFrequencies(const ProteicAlphabet * alpha):
-      ProteinSubstitutionModel(alpha)
+    ProteinSubstitutionModelWithFrequencies(const ProteicAlphabet * alpha, const string& prefix):
+      ProteinSubstitutionModel(alpha, prefix)
     {
-      _freqSet = new FullProteinFrequenciesSet(alpha);
-      _freq = _freqSet->getFrequencies();
-      _parameters.addParameters(_freqSet->getParameters());
+      freqSet_ = new FullProteinFrequenciesSet(alpha);
+      freq_ = freqSet_->getFrequencies();
+      addParameters_(freqSet_->getParameters());
     }
 		
     ProteinSubstitutionModelWithFrequencies(const ProteinSubstitutionModelWithFrequencies & model):
       ProteinSubstitutionModel(model)
     {
-      _freqSet = dynamic_cast<ProteinFrequenciesSet *>(model._freqSet->clone());
-      _freq = _freqSet->getFrequencies();
+      freqSet_ = dynamic_cast<ProteinFrequenciesSet *>(model.freqSet_->clone());
+      freq_ = freqSet_->getFrequencies();
     }
 
     ProteinSubstitutionModelWithFrequencies & operator=(const ProteinSubstitutionModelWithFrequencies & model)
     {
       ProteinSubstitutionModel::operator=(model);
-      _freqSet = dynamic_cast<ProteinFrequenciesSet *>(model._freqSet->clone());
+      freqSet_ = dynamic_cast<ProteinFrequenciesSet *>(model.freqSet_->clone());
       return *this;
     }
 
 		virtual ~ProteinSubstitutionModelWithFrequencies()
     {
-      delete _freqSet;
+      delete freqSet_;
     }
 
 #ifndef NO_VIRTUAL_COV
@@ -115,31 +115,30 @@ class ProteinSubstitutionModelWithFrequencies:
   public:
     void fireParameterChanged(const ParameterList & parameters)
     {
-      _freqSet->matchParametersValues(parameters);
-      _freq=_freqSet->getFrequencies();
+      freqSet_->matchParametersValues(parameters);
+      freq_ = freqSet_->getFrequencies();
       ProteinSubstitutionModel::fireParameterChanged(parameters);
     }
 
     void setFrequenciesSet(const ProteinFrequenciesSet & freqSet)
     {
-      delete _freqSet;
-      _freqSet = dynamic_cast<ProteinFrequenciesSet *>(freqSet.clone());
-      _parameters.reset();
-      _parameters.addParameters(_freqSet->getParameters());
+      delete freqSet_;
+      freqSet_ = dynamic_cast<ProteinFrequenciesSet *>(freqSet.clone());
+      resetParameters_();
+      addParameters_(freqSet_->getParameters());
     }
 
-    const ProteinFrequenciesSet & getFrequenciesSet() const { return *_freqSet; }
+    const ProteinFrequenciesSet & getFrequenciesSet() const { return *freqSet_; }
 
     void setFreqFromData(const SequenceContainer & data)
     {
       map<int, double> freqs = SequenceContainerTools::getFrequencies(data);
       double t = 0;
-      for(unsigned int i = 0; i < _size; i++) t += freqs[i];
-      for(unsigned int i = 0; i < _size; i++) _freq[i] = freqs[i] / t;
-      _freqSet->setFrequencies(_freq);
-      _parameters.matchParametersValues(_freqSet->getParameters());
-      //Re-compute generator and eigen values:
-      updateMatrices();
+      for(unsigned int i = 0; i < size_; i++) t += freqs[i];
+      for(unsigned int i = 0; i < size_; i++) freq_[i] = freqs[i] / t;
+      freqSet_->setFrequencies(freq_);
+      //Update parametrers and re-compute generator and eigen values:
+      matchParametersValues(freqSet_->getParameters());
     }
 
 };

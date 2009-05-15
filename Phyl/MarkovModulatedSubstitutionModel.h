@@ -43,7 +43,7 @@ knowledge of the CeCILL license and that you accept its terms.
 #include "SubstitutionModel.h"
 
 //From NumCalc:
-#include <NumCalc/AbstractParametrizable.h>
+#include <NumCalc/AbstractParameterAliasable.h>
 
 namespace bpp
 {
@@ -74,11 +74,11 @@ namespace bpp
  */
 class MarkovModulatedSubstitutionModel:
   public ReversibleSubstitutionModel,
-  public AbstractParametrizable
+  public AbstractParameterAliasable
 {
 
   protected:
-    ReversibleSubstitutionModel * _model;
+    ReversibleSubstitutionModel* _model;
     unsigned int _nbStates; //Number of states in model
     unsigned int _nbRates; //Number of rate classes
     /**
@@ -132,21 +132,27 @@ class MarkovModulatedSubstitutionModel:
 
     bool _normalizeRateChanges;
 
+    string nestedPrefix_;
+
   public:
     /**
      * @brief Build a new MarkovModulatedSubstitutionModel object.
      *
      * @param model The substitution model to use. Can be of any alphabet type, and will be owned by this instance.
      * @param normalizeRateChanges Tells if the branch lengths must be computed in terms of rate and state
+     * @param prefix The parameter namespace to be forwarded to the AbstractParametrizable constructor.
      * changes instead of state change only.
      * NB: In most cases, this parameter should be set to false.
      */
-    MarkovModulatedSubstitutionModel(ReversibleSubstitutionModel * model, bool normalizeRateChanges):
+    MarkovModulatedSubstitutionModel(ReversibleSubstitutionModel* model, bool normalizeRateChanges, const string& prefix) :
+      AbstractParameterAliasable(prefix),
       _model(model), _nbStates(0), _nbRates(0), _rates(), _ratesExchangeability(),
       _ratesFreq(), _ratesGenerator(), _generator(), _exchangeability(),
-      _leftEigenVectors(), _rightEigenVectors(), _eigenValues(), _freq(), _normalizeRateChanges(normalizeRateChanges)
+      _leftEigenVectors(), _rightEigenVectors(), _eigenValues(), _freq(), _normalizeRateChanges(normalizeRateChanges),
+      nestedPrefix_(model->getNamespace())
     {
-      _parameters = _model->getIndependentParameters();
+      _model->setNamespace(prefix + nestedPrefix_);
+      addParameters_(_model->getIndependentParameters());
     }
     
     MarkovModulatedSubstitutionModel(const MarkovModulatedSubstitutionModel & model);
@@ -226,7 +232,9 @@ class MarkovModulatedSubstitutionModel:
       updateRatesModel();
       updateMatrices();
     }
-		
+   
+    void setNamespace(const string& prefix);
+
   protected:
     
     virtual void updateMatrices();

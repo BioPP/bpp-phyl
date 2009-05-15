@@ -59,9 +59,8 @@ using namespace std;
 
 /******************************************************************************/
 
-UserProteinSubstitutionModel::UserProteinSubstitutionModel(const ProteicAlphabet * alpha, const string & path): 
-	//AbstractSubstitutionModel(alpha),
-	ProteinSubstitutionModel(alpha),
+UserProteinSubstitutionModel::UserProteinSubstitutionModel(const ProteicAlphabet * alpha, const string & path, const string& prefix): 
+	ProteinSubstitutionModel(alpha, prefix),
 	_path(path)
 {
 	readFromFile();
@@ -86,7 +85,7 @@ void UserProteinSubstitutionModel::readFromFile()
 		StringTokenizer st(line);
 		for(unsigned int j = 0; j < i; j++) {
 			double s = TextTools::toDouble(st.nextToken());
-			_exchangeability(i,j) = _exchangeability(j,i) = s;
+			exchangeability_(i,j) = exchangeability_(j,i) = s;
 		}
 	}
 	//Read frequencies:
@@ -97,11 +96,11 @@ void UserProteinSubstitutionModel::readFromFile()
 		StringTokenizer st(line);
 		while(st.hasMoreToken() && fCount < 20)
     {
-			_freq[fCount] = TextTools::toDouble(st.nextToken());
+			freq_[fCount] = TextTools::toDouble(st.nextToken());
 			fCount++;
 		}
 	}
-	double sf = VectorTools::sum(_freq);
+	double sf = VectorTools::sum(freq_);
 	if(sf - 1 > 0.000001)
   {
 		ApplicationTools::displayMessage("WARNING!!! Frequencies sum to " + TextTools::toString(sf) + ", frequencies have been scaled.");
@@ -114,9 +113,9 @@ void UserProteinSubstitutionModel::readFromFile()
 		double sum = 0;
 		for(unsigned int j = 0; j < 20; j++)
     {
-			if(j!=i) sum += _exchangeability(i,j);
+			if(j!=i) sum += exchangeability_(i,j);
 		}
-		_exchangeability(i,i) = -sum;
+		exchangeability_(i,i) = -sum;
 	}
 
 	//Closing stream:

@@ -68,7 +68,7 @@ class UserProteinSubstitutionModel:
     const string _path;
   
   public:
-    UserProteinSubstitutionModel(const ProteicAlphabet * alpha, const string & path);
+    UserProteinSubstitutionModel(const ProteicAlphabet * alpha, const string & path, const string& prefix);
 
     virtual ~UserProteinSubstitutionModel() {}
 

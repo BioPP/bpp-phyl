@@ -75,22 +75,22 @@ AbstractHomogeneousTreeLikelihood::AbstractHomogeneousTreeLikelihood(
     const AbstractHomogeneousTreeLikelihood & lik) :
   AbstractDiscreteRatesAcrossSitesTreeLikelihood(lik)
 {
-  _model           = lik._model;
-  _brLenParameters = lik._brLenParameters;
-  _pxy             = lik._pxy;
-  _dpxy            = lik._dpxy;
-  _d2pxy           = lik._d2pxy;
-  _rootFreqs       = lik._rootFreqs;
-  _nodes = _tree->getNodes();
-  _nodes.pop_back(); //Remove the root node (the last added!).  
-  _nbSites         = lik._nbSites;
-  _nbDistinctSites = lik._nbDistinctSites;
-  _nbClasses       = lik._nbClasses;
-  _nbStates        = lik._nbStates;
-  _nbNodes         = lik._nbNodes;
-  _verbose         = lik._verbose;
-  _minimumBrLen    = lik._minimumBrLen;
-  _brLenConstraint = lik._brLenConstraint->clone();
+  model_           = lik.model_;
+  brLenParameters_ = lik.brLenParameters_;
+  pxy_             = lik.pxy_;
+  dpxy_            = lik.dpxy_;
+  d2pxy_           = lik.d2pxy_;
+  rootFreqs_       = lik.rootFreqs_;
+  nodes_ = _tree->getNodes();
+  nodes_.pop_back(); //Remove the root node (the last added!).  
+  nbSites_         = lik.nbSites_;
+  nbDistinctSites_ = lik.nbDistinctSites_;
+  nbClasses_       = lik.nbClasses_;
+  nbStates_        = lik.nbStates_;
+  nbNodes_         = lik.nbNodes_;
+  verbose_         = lik.verbose_;
+  minimumBrLen_    = lik.minimumBrLen_;
+  brLenConstraint_ = lik.brLenConstraint_->clone();
 }
 
 /******************************************************************************/
@@ -99,22 +99,22 @@ AbstractHomogeneousTreeLikelihood & AbstractHomogeneousTreeLikelihood::operator=
     const AbstractHomogeneousTreeLikelihood & lik)
 {
   AbstractDiscreteRatesAcrossSitesTreeLikelihood::operator=(lik);
-  _model           = lik._model;
-  _brLenParameters = lik._brLenParameters;
-  _pxy             = lik._pxy;
-  _dpxy            = lik._dpxy;
-  _d2pxy           = lik._d2pxy;
-  _rootFreqs       = lik._rootFreqs;
-  _nodes = _tree->getNodes();
-  _nodes.pop_back(); //Remove the root node (the last added!).  
-  _nbSites         = lik._nbSites;
-  _nbDistinctSites = lik._nbDistinctSites;
-  _nbClasses       = lik._nbClasses;
-  _nbStates        = lik._nbStates;
-  _nbNodes         = lik._nbNodes;
-  _verbose         = lik._verbose;
-  _minimumBrLen    = lik._minimumBrLen;
-  _brLenConstraint = lik._brLenConstraint->clone();
+  model_           = lik.model_;
+  brLenParameters_ = lik.brLenParameters_;
+  pxy_             = lik.pxy_;
+  dpxy_            = lik.dpxy_;
+  d2pxy_           = lik.d2pxy_;
+  rootFreqs_       = lik.rootFreqs_;
+  nodes_ = _tree->getNodes();
+  nodes_.pop_back(); //Remove the root node (the last added!).  
+  nbSites_         = lik.nbSites_;
+  nbDistinctSites_ = lik.nbDistinctSites_;
+  nbClasses_       = lik.nbClasses_;
+  nbStates_        = lik.nbStates_;
+  nbNodes_         = lik.nbNodes_;
+  verbose_         = lik.verbose_;
+  minimumBrLen_    = lik.minimumBrLen_;
+  brLenConstraint_ = lik.brLenConstraint_->clone();
   return *this;
 }
 
@@ -122,7 +122,7 @@ AbstractHomogeneousTreeLikelihood & AbstractHomogeneousTreeLikelihood::operator=
 
 AbstractHomogeneousTreeLikelihood::~AbstractHomogeneousTreeLikelihood()
 {
-  delete _brLenConstraint;
+  delete brLenConstraint_;
 }
 
 /******************************************************************************/
@@ -140,16 +140,16 @@ void AbstractHomogeneousTreeLikelihood::_init(const Tree & tree,
     if(verbose) ApplicationTools::displayWarning("Tree has been unrooted.");
     _tree->unroot();
   }
-  _nodes = _tree->getNodes();
-  _nodes.pop_back(); //Remove the root node (the last added!).  
-  _nbNodes = _nodes.size();
-  _nbClasses = _rateDistribution->getNumberOfCategories();
+  nodes_ = _tree->getNodes();
+  nodes_.pop_back(); //Remove the root node (the last added!).  
+  nbNodes_ = nodes_.size();
+  nbClasses_ = _rateDistribution->getNumberOfCategories();
   setSubstitutionModel(model);
 
-  _verbose = verbose;
+  verbose_ = verbose;
 
-  _minimumBrLen = 0.000001;
-  _brLenConstraint = new IncludingPositiveReal(_minimumBrLen);
+  minimumBrLen_ = 0.000001;
+  brLenConstraint_ = new IncludingPositiveReal(minimumBrLen_);
 }
 
 /******************************************************************************/
@@ -163,55 +163,55 @@ void AbstractHomogeneousTreeLikelihood::setSubstitutionModel(SubstitutionModel *
       throw Exception("AbstractHomogeneousTreeLikelihood::setSubstitutionModel(). Model alphabet do not match existing data.");
   }
 
-  _model = model;
+  model_ = model;
   
   if(_data)
   {
-    if(model->getNumberOfStates() != _model->getNumberOfStates())
+    if(model->getNumberOfStates() != model_->getNumberOfStates())
       setData(*_data); //Have to reinitialize the whole data structure.
   }
   
-  _nbStates = model->getNumberOfStates();
+  nbStates_ = model->getNumberOfStates();
 
   //Allocate transition probabilities arrays:
-  for(unsigned int l = 0; l < _nbNodes; l++)
+  for(unsigned int l = 0; l < nbNodes_; l++)
   {
     //For each son node,i
-    Node * son = _nodes[l];
+    Node * son = nodes_[l];
 
-    VVVdouble * _pxy_son = & _pxy[son->getId()];
-    _pxy_son->resize(_nbClasses);
-    for(unsigned int c = 0; c < _nbClasses; c++)
+    VVVdouble * pxy__son = & pxy_[son->getId()];
+    pxy__son->resize(nbClasses_);
+    for(unsigned int c = 0; c < nbClasses_; c++)
     {
-      VVdouble * _pxy_son_c = & (* _pxy_son)[c];
-      _pxy_son_c->resize(_nbStates);
-      for(unsigned int x = 0; x < _nbStates; x++)
+      VVdouble * pxy__son_c = & (* pxy__son)[c];
+      pxy__son_c->resize(nbStates_);
+      for(unsigned int x = 0; x < nbStates_; x++)
       {
-        (*_pxy_son_c)[x].resize(_nbStates);
+        (*pxy__son_c)[x].resize(nbStates_);
       }
     }
   
-    VVVdouble * _dpxy_son = & _dpxy[son->getId()];
-    _dpxy_son->resize(_nbClasses);
-    for(unsigned int c = 0; c < _nbClasses; c++)
+    VVVdouble * dpxy__son = & dpxy_[son->getId()];
+    dpxy__son->resize(nbClasses_);
+    for(unsigned int c = 0; c < nbClasses_; c++)
     {
-      VVdouble * _dpxy_son_c = & (* _dpxy_son)[c];
-      _dpxy_son_c->resize(_nbStates);
-      for(unsigned int x = 0; x < _nbStates; x++)
+      VVdouble * dpxy__son_c = & (* dpxy__son)[c];
+      dpxy__son_c->resize(nbStates_);
+      for(unsigned int x = 0; x < nbStates_; x++)
       {
-        (* _dpxy_son_c)[x].resize(_nbStates);
+        (* dpxy__son_c)[x].resize(nbStates_);
       }
     }
       
-    VVVdouble * _d2pxy_son = & _d2pxy[son->getId()];
-    _d2pxy_son->resize(_nbClasses);
-    for(unsigned int c = 0; c < _nbClasses; c++)
+    VVVdouble * d2pxy__son = & d2pxy_[son->getId()];
+    d2pxy__son->resize(nbClasses_);
+    for(unsigned int c = 0; c < nbClasses_; c++)
     {
-      VVdouble * _d2pxy_son_c = & (* _d2pxy_son)[c];
-      _d2pxy_son_c->resize(_nbStates);
-      for(unsigned int x = 0; x < _nbStates; x++)
+      VVdouble * d2pxy__son_c = & (* d2pxy__son)[c];
+      d2pxy__son_c->resize(nbStates_);
+      for(unsigned int x = 0; x < nbStates_; x++)
       {
-        (* _d2pxy_son_c)[x].resize(_nbStates);
+        (* d2pxy__son_c)[x].resize(nbStates_);
       }
     }
   }
@@ -225,7 +225,7 @@ void AbstractHomogeneousTreeLikelihood::initialize() throw (Exception)
   if(_data == NULL) throw Exception("AbstractHomogeneousTreeLikelihood::initialize(). Data are no set.");
   initParameters();
   _initialized = true;
-  fireParameterChanged(_parameters);
+  fireParameterChanged(getParameters());
 }
 
 /******************************************************************************/
@@ -233,7 +233,7 @@ void AbstractHomogeneousTreeLikelihood::initialize() throw (Exception)
 ParameterList AbstractHomogeneousTreeLikelihood::getBranchLengthsParameters() const
 {
   if(!_initialized) throw Exception("AbstractHomogeneousTreeLikelihood::getBranchLengthsParameters(). Object is not initialized.");
-  return _brLenParameters.getCommonParametersWith(_parameters);
+  return brLenParameters_.getCommonParametersWith(getParameters());
 }
 
 /******************************************************************************/
@@ -241,7 +241,7 @@ ParameterList AbstractHomogeneousTreeLikelihood::getBranchLengthsParameters() co
 ParameterList AbstractHomogeneousTreeLikelihood::getSubstitutionModelParameters() const
 {
   if(!_initialized) throw Exception("AbstractHomogeneousTreeLikelihood::getSubstitutionModelParameters(). Object is not initialized.");
-  return _model->getParameters().getCommonParametersWith(_parameters);
+  return model_->getParameters().getCommonParametersWith(getParameters());
 }
 
 /******************************************************************************/
@@ -249,17 +249,17 @@ ParameterList AbstractHomogeneousTreeLikelihood::getSubstitutionModelParameters(
 void AbstractHomogeneousTreeLikelihood::initParameters()
 {
   // Reset parameters:
-  _parameters.reset();
+  resetParameters_();
   
   // Branch lengths:
   initBranchLengthsParameters();
-  _parameters.addParameters(_brLenParameters);
+  addParameters_(brLenParameters_);
   
   // Substitution model:
-  _parameters.addParameters(_model->getIndependentParameters());
+  addParameters_(model_->getParameters());
   
   // Rate distribution:
-  _parameters.addParameters(_rateDistribution->getIndependentParameters());
+  addParameters_(_rateDistribution->getIndependentParameters());
 }
 
 /******************************************************************************/
@@ -268,43 +268,43 @@ void AbstractHomogeneousTreeLikelihood::applyParameters() throw (Exception)
 {
   if(!_initialized) throw Exception("AbstractHomogeneousTreeLikelihood::applyParameters(). Object not initialized.");
   //Apply branch lengths:
-  //_brLenParameters.matchParametersValues(_parameters); Not necessary!
-  for(unsigned int i = 0; i < _nbNodes; i++)
+  //brLenParameters_.matchParametersValues(parameters_); Not necessary!
+  for(unsigned int i = 0; i < nbNodes_; i++)
   {
-    const Parameter * brLen = _parameters.getParameter(string("BrLen") + TextTools::toString(i));
-    if(brLen != NULL) _nodes[i]->setDistanceToFather(brLen->getValue());
+    const Parameter * brLen = &getParameter(string("BrLen") + TextTools::toString(i));
+    if(brLen != NULL) nodes_[i]->setDistanceToFather(brLen->getValue());
   }
   //Apply substitution model parameters:
-  _model->matchParametersValues(_parameters);
-  _rootFreqs = _model->getFrequencies();
+  model_->matchParametersValues(getParameters());
+  rootFreqs_ = model_->getFrequencies();
   //Apply rate distribution parameters:
-  _rateDistribution->matchParametersValues(_parameters);
+  _rateDistribution->matchParametersValues(getParameters());
 }
 
 /******************************************************************************/
 
 void AbstractHomogeneousTreeLikelihood::initBranchLengthsParameters()
 {
-  _brLenParameters.reset();
-  for(unsigned int i = 0; i < _nbNodes; i++)
+  brLenParameters_.reset();
+  for(unsigned int i = 0; i < nbNodes_; i++)
   {
-    double d = _minimumBrLen;
-    if(!_nodes[i]->hasDistanceToFather())
+    double d = minimumBrLen_;
+    if(!nodes_[i]->hasDistanceToFather())
     {
-      ApplicationTools::displayWarning("Missing branch length " + TextTools::toString(i) + ". Value is set to " + TextTools::toString(_minimumBrLen));
-      _nodes[i]->setDistanceToFather(_minimumBrLen);
+      ApplicationTools::displayWarning("Missing branch length " + TextTools::toString(i) + ". Value is set to " + TextTools::toString(minimumBrLen_));
+      nodes_[i]->setDistanceToFather(minimumBrLen_);
     }
     else
     {
-      d = _nodes[i]->getDistanceToFather();
-      if (d < _minimumBrLen)
+      d = nodes_[i]->getDistanceToFather();
+      if (d < minimumBrLen_)
       {
-        ApplicationTools::displayWarning("Branch length " + TextTools::toString(i) + " is too small: " + TextTools::toString(d) + ". Value is set to " + TextTools::toString(_minimumBrLen));
-        _nodes[i]->setDistanceToFather(_minimumBrLen);
-        d = _minimumBrLen;
+        ApplicationTools::displayWarning("Branch length " + TextTools::toString(i) + " is too small: " + TextTools::toString(d) + ". Value is set to " + TextTools::toString(minimumBrLen_));
+        nodes_[i]->setDistanceToFather(minimumBrLen_);
+        d = minimumBrLen_;
       }
     }
-    _brLenParameters.addParameter(Parameter("BrLen" + TextTools::toString(i), d, _brLenConstraint->clone(), true)); //Attach constraint to avoid clonage problems!
+    brLenParameters_.addParameter(Parameter("BrLen" + TextTools::toString(i), d, brLenConstraint_->clone(), true)); //Attach constraint to avoid clonage problems!
   }
 }
 
@@ -312,13 +312,13 @@ void AbstractHomogeneousTreeLikelihood::initBranchLengthsParameters()
 
 void AbstractHomogeneousTreeLikelihood::computeAllTransitionProbabilities()
 {
-  for(unsigned int l = 0; l < _nbNodes; l++)
+  for(unsigned int l = 0; l < nbNodes_; l++)
   {
     //For each node,
-    Node * node = _nodes[l];
+    Node * node = nodes_[l];
     computeTransitionProbabilitiesForNode(node);
   }
-  _rootFreqs = _model->getFrequencies();
+  rootFreqs_ = model_->getFrequencies();
 }
 
 /*******************************************************************************/
@@ -328,17 +328,17 @@ void AbstractHomogeneousTreeLikelihood::computeTransitionProbabilitiesForNode(co
   double l = node->getDistanceToFather(); 
 
   //Computes all pxy and pyx once for all:
-  VVVdouble * _pxy_node = & _pxy[node->getId()];
-  for(unsigned int c = 0; c < _nbClasses; c++)
+  VVVdouble * pxy__node = & pxy_[node->getId()];
+  for(unsigned int c = 0; c < nbClasses_; c++)
   {
-    VVdouble * _pxy_node_c = & (* _pxy_node)[c];
-    RowMatrix<double> Q = _model->getPij_t(l * _rateDistribution->getCategory(c));
-    for(unsigned int x = 0; x < _nbStates; x++)
+    VVdouble * pxy__node_c = & (* pxy__node)[c];
+    RowMatrix<double> Q = model_->getPij_t(l * _rateDistribution->getCategory(c));
+    for(unsigned int x = 0; x < nbStates_; x++)
     {
-      Vdouble * _pxy_node_c_x = & (* _pxy_node_c)[x];
-      for(unsigned int y = 0; y < _nbStates; y++)
+      Vdouble * pxy__node_c_x = & (* pxy__node_c)[x];
+      for(unsigned int y = 0; y < nbStates_; y++)
       {
-        (* _pxy_node_c_x)[y] = Q(x, y);
+        (* pxy__node_c_x)[y] = Q(x, y);
       }
     }
   }
@@ -346,18 +346,18 @@ void AbstractHomogeneousTreeLikelihood::computeTransitionProbabilitiesForNode(co
   if(_computeFirstOrderDerivatives)
   {
     //Computes all dpxy/dt once for all:
-    VVVdouble * _dpxy_node = & _dpxy[node->getId()];
-    for(unsigned int c = 0; c < _nbClasses; c++)
+    VVVdouble * dpxy__node = & dpxy_[node->getId()];
+    for(unsigned int c = 0; c < nbClasses_; c++)
     {
-      VVdouble * _dpxy_node_c = & (* _dpxy_node)[c];
+      VVdouble * dpxy__node_c = & (* dpxy__node)[c];
       double rc = _rateDistribution->getCategory(c);
-      RowMatrix<double> dQ = _model->getdPij_dt(l * rc);  
-      for(unsigned int x = 0; x < _nbStates; x++)
+      RowMatrix<double> dQ = model_->getdPij_dt(l * rc);  
+      for(unsigned int x = 0; x < nbStates_; x++)
       {
-        Vdouble * _dpxy_node_c_x = & (* _dpxy_node_c)[x];
-        for(unsigned int y = 0; y < _nbStates; y++)
+        Vdouble * dpxy__node_c_x = & (* dpxy__node_c)[x];
+        for(unsigned int y = 0; y < nbStates_; y++)
         {
-          (* _dpxy_node_c_x)[y] = rc * dQ(x, y); 
+          (* dpxy__node_c_x)[y] = rc * dQ(x, y); 
         }
       }
     }
@@ -366,18 +366,18 @@ void AbstractHomogeneousTreeLikelihood::computeTransitionProbabilitiesForNode(co
   if(_computeSecondOrderDerivatives)
   {
     //Computes all d2pxy/dt2 once for all:
-    VVVdouble * _d2pxy_node = & _d2pxy[node->getId()];
-    for(unsigned int c = 0; c < _nbClasses; c++)
+    VVVdouble * d2pxy__node = & d2pxy_[node->getId()];
+    for(unsigned int c = 0; c < nbClasses_; c++)
     {
-      VVdouble * _d2pxy_node_c = & (* _d2pxy_node)[c];
+      VVdouble * d2pxy__node_c = & (* d2pxy__node)[c];
       double rc =  _rateDistribution->getCategory(c);
-      RowMatrix<double> d2Q = _model->getd2Pij_dt2(l * rc);
-      for(unsigned int x = 0; x < _nbStates; x++)
+      RowMatrix<double> d2Q = model_->getd2Pij_dt2(l * rc);
+      for(unsigned int x = 0; x < nbStates_; x++)
       {
-        Vdouble * _d2pxy_node_c_x = & (* _d2pxy_node_c)[x];
-        for(unsigned int y = 0; y < _nbStates; y++)
+        Vdouble * d2pxy__node_c_x = & (* d2pxy__node_c)[x];
+        for(unsigned int y = 0; y < nbStates_; y++)
         {
-          (* _d2pxy_node_c_x)[y] = rc * rc * d2Q(x, y);
+          (* d2pxy__node_c_x)[y] = rc * rc * d2Q(x, y);
         }
       }
     }

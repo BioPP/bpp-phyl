@@ -48,11 +48,9 @@ using namespace std;
 /******************************************************************************/
 
 JCprot::JCprot(const ProteicAlphabet * alpha) :
-  //AbstractSubstitutionModel(alpha),
-  ProteinSubstitutionModel(alpha)
+  ProteinSubstitutionModel(alpha, "JC69.")
 {
-	_parameters = ParameterList(); //no parameters for this model.	
-	_p.resize(_size, _size);
+	_p.resize(size_, size_);
 	updateMatrices();
 }
 
@@ -61,35 +59,35 @@ JCprot::JCprot(const ProteicAlphabet * alpha) :
 void JCprot::updateMatrices()
 {
 	// Frequencies:
-	for(unsigned int i = 0; i < 20; i++) _freq[i] = 1. / 20.;
+	for(unsigned int i = 0; i < 20; i++) freq_[i] = 1. / 20.;
 
 	// Generator:
 	for(unsigned int i = 0; i < 20; i++)
   {
 		for(unsigned int j = 0; j < 20; j++)
     {
-			_generator(i, j) = (i == j) ? -1. : 1./19.;
-			_exchangeability(i, j) = _generator(i, j) * 20.;
+			generator_(i, j) = (i == j) ? -1. : 1./19.;
+			exchangeability_(i, j) = generator_(i, j) * 20.;
 		}
 	}
 	
 	// Eigen values:
-	_eigenValues[0] = 0;
-	for(unsigned int i = 1; i < 20; i++) _eigenValues[i] = -20. / 19.;
+	eigenValues_[0] = 0;
+	for(unsigned int i = 1; i < 20; i++) eigenValues_[i] = -20. / 19.;
 	
 	// Eigen vectors:
-	for(unsigned int i = 0; i < 20; i++) _leftEigenVectors(0,i) = 1./20.;
+	for(unsigned int i = 0; i < 20; i++) leftEigenVectors_(0,i) = 1./20.;
 	for(unsigned int i = 1; i < 20; i++) 
 		for(unsigned int j = 0; j < 20; j++)
-			_leftEigenVectors(i,j) = -1./20.;
-	for(unsigned int i = 0; i < 19; i++) _leftEigenVectors(19-i,i) = 19./20.;
+			leftEigenVectors_(i,j) = -1./20.;
+	for(unsigned int i = 0; i < 19; i++) leftEigenVectors_(19-i,i) = 19./20.;
 
-	for(unsigned int i = 0; i < 20; i++) _rightEigenVectors(i,0) = 1.;
-	for(unsigned int i = 1; i < 20; i++) _rightEigenVectors(19,i) = -1.;
+	for(unsigned int i = 0; i < 20; i++) rightEigenVectors_(i,0) = 1.;
+	for(unsigned int i = 1; i < 20; i++) rightEigenVectors_(19,i) = -1.;
 	for(unsigned int i = 0; i < 19; i++) 
 		for(unsigned int j = 1; j < 20; j++)
-			_rightEigenVectors(i,j) = 0.;
-	for(unsigned int i = 1; i < 20; i++) _rightEigenVectors(19-i,i) = 1.;
+			rightEigenVectors_(i,j) = 0.;
+	for(unsigned int i = 1; i < 20; i++) rightEigenVectors_(19-i,i) = 1.;
 
 }
 	
@@ -122,9 +120,9 @@ double JCprot::d2Pij_dt2(int i, int j, double d) const
 const Matrix<double> & JCprot::getPij_t(double d) const
 {
   _exp = exp(- 20./19. * d);
-	for(unsigned int i = 0; i < _size; i++)
+	for(unsigned int i = 0; i < size_; i++)
   {
-		for(unsigned int j = 0; j < _size; j++)
+		for(unsigned int j = 0; j < size_; j++)
     {
 			_p(i,j) = (i==j) ? 1./20. + 19./20. * _exp : 1./20. - 1./20. * _exp;
 		}
@@ -135,9 +133,9 @@ const Matrix<double> & JCprot::getPij_t(double d) const
 const Matrix<double> & JCprot::getdPij_dt(double d) const
 {
   _exp = exp(- 20./19. * d);
-	for(unsigned int i = 0; i < _size; i++)
+	for(unsigned int i = 0; i < size_; i++)
   {
-		for(unsigned int j = 0; j < _size; j++)
+		for(unsigned int j = 0; j < size_; j++)
     {
 			_p(i,j) = (i==j) ? - _exp : 1./19. * _exp;
 		}
@@ -148,9 +146,9 @@ const Matrix<double> & JCprot::getdPij_dt(double d) const
 const Matrix<double> & JCprot::getd2Pij_dt2(double d) const
 {
   _exp = exp(- 20./19. * d);
-	for(unsigned int i = 0; i < _size; i++)
+	for(unsigned int i = 0; i < size_; i++)
   {
-		for(unsigned int j = 0; j < _size; j++)
+		for(unsigned int j = 0; j < size_; j++)
     {
 			_p(i,j) = (i==j) ? 20./19. * _exp : - 20./361. * _exp;
 		}

@@ -63,18 +63,22 @@ TN93::TN93(
 	double piC,
 	double piG,
 	double piT):
-	//AbstractSubstitutionModel(alpha),
-	NucleotideSubstitutionModel(alpha)
+	NucleotideSubstitutionModel(alpha, "TN93.")
 {
-	_parameters.addParameter(Parameter("kappa1", kappa1, &Parameter::R_PLUS_STAR));
-	_parameters.addParameter(Parameter("kappa2", kappa2, &Parameter::R_PLUS_STAR));
+	Parameter kappa1P("TN93.kappa1", kappa1, &Parameter::R_PLUS_STAR);
+	addParameter_(kappa1P);
+	Parameter kappa2P("TN93.kappa2", kappa2, &Parameter::R_PLUS_STAR);
+	addParameter_(kappa2P);
 	_theta = piG + piC;
   _theta1 = piA / (1. - _theta);
   _theta2 = piG / _theta;
-	_parameters.addParameter(Parameter("theta" , _theta , &Parameter::PROP_CONSTRAINT_EX));
-	_parameters.addParameter(Parameter("theta1", _theta1, &Parameter::PROP_CONSTRAINT_EX));
-	_parameters.addParameter(Parameter("theta2", _theta2, &Parameter::PROP_CONSTRAINT_EX));
-  _p.resize(_size, _size);
+	Parameter thetaP("TN93.theta" , _theta , &Parameter::PROP_CONSTRAINT_EX);
+	addParameter_(thetaP);
+	Parameter theta1P("TN93.theta1", _theta1, &Parameter::PROP_CONSTRAINT_EX);
+	addParameter_(theta1P);
+	Parameter theta2P("TN93.theta2", _theta2, &Parameter::PROP_CONSTRAINT_EX);
+	addParameter_(theta2P);
+  _p.resize(size_, size_);
 	updateMatrices();
 }
 
@@ -82,11 +86,11 @@ TN93::TN93(
 
 void TN93::updateMatrices()
 {
-	_kappa1 = _parameters.getParameter("kappa1")->getValue();
-	_kappa2 = _parameters.getParameter("kappa2")->getValue();
-  _theta  = _parameters.getParameter("theta" )->getValue();
-	_theta1 = _parameters.getParameter("theta1")->getValue();
-	_theta2 = _parameters.getParameter("theta2")->getValue();
+	_kappa1 = getParameterValue("kappa1");
+	_kappa2 = getParameterValue("kappa2");
+  _theta  = getParameterValue("theta" );
+	_theta1 = getParameterValue("theta1");
+	_theta2 = getParameterValue("theta2");
   _piA = _theta1 * (1. - _theta);
   _piC = (1. - _theta2) * _theta;
   _piG = _theta2 * _theta;
@@ -97,53 +101,53 @@ void TN93::updateMatrices()
 	_k1 = _kappa2 * _piY + _piR;
 	_k2 = _kappa1 * _piR + _piY;
 
-  _freq[0] = _piA;
-  _freq[1] = _piC;
-  _freq[2] = _piG;
-  _freq[3] = _piT;
+  freq_[0] = _piA;
+  freq_[1] = _piC;
+  freq_[2] = _piG;
+  freq_[3] = _piT;
 		
-	_generator(0, 0) = -(                       _piC + _kappa1*_piG +         _piT);
-	_generator(1, 1) = -(        _piA +                        _piG + _kappa2*_piT); 
-	_generator(2, 2) = -(_kappa1*_piA +         _piC                +         _piT);
-	_generator(3, 3) = -(        _piA + _kappa2*_piC +         _piG               );
+	generator_(0, 0) = -(                       _piC + _kappa1*_piG +         _piT);
+	generator_(1, 1) = -(        _piA +                        _piG + _kappa2*_piT); 
+	generator_(2, 2) = -(_kappa1*_piA +         _piC                +         _piT);
+	generator_(3, 3) = -(        _piA + _kappa2*_piC +         _piG               );
 
-	_generator(1, 0) = _piA;
-	_generator(3, 0) = _piA;
-	_generator(0, 1) = _piC;
-	_generator(2, 1) = _piC;
-	_generator(1, 2) = _piG;
-	_generator(3, 2) = _piG;
-	_generator(0, 3) = _piT;
-	_generator(2, 3) = _piT;
+	generator_(1, 0) = _piA;
+	generator_(3, 0) = _piA;
+	generator_(0, 1) = _piC;
+	generator_(2, 1) = _piC;
+	generator_(1, 2) = _piG;
+	generator_(3, 2) = _piG;
+	generator_(0, 3) = _piT;
+	generator_(2, 3) = _piT;
 	
-	_generator(2, 0) = _kappa1 * _piA;
-	_generator(3, 1) = _kappa2 * _piC;
-	_generator(0, 2) = _kappa1 * _piG;
-	_generator(1, 3) = _kappa2 * _piT;
+	generator_(2, 0) = _kappa1 * _piA;
+	generator_(3, 1) = _kappa2 * _piC;
+	generator_(0, 2) = _kappa1 * _piG;
+	generator_(1, 3) = _kappa2 * _piT;
 	
 	// Normalization:
-	MatrixTools::scale(_generator, _r);
+	MatrixTools::scale(generator_, _r);
 	
 	// Exchangeability:
-	_exchangeability(0,0) = _generator(0,0) / _piA;
-	_exchangeability(0,1) = _generator(0,1) / _piC; 
-	_exchangeability(0,2) = _generator(0,2) / _piG; 
-	_exchangeability(0,3) = _generator(0,3) / _piT;
+	exchangeability_(0,0) = generator_(0,0) / _piA;
+	exchangeability_(0,1) = generator_(0,1) / _piC; 
+	exchangeability_(0,2) = generator_(0,2) / _piG; 
+	exchangeability_(0,3) = generator_(0,3) / _piT;
 
-	_exchangeability(1,0) = _generator(1,0) / _piA; 
-	_exchangeability(1,1) = _generator(1,1) / _piC; 
-	_exchangeability(1,2) = _generator(1,2) / _piG; 
-	_exchangeability(1,3) = _generator(1,3) / _piT; 
+	exchangeability_(1,0) = generator_(1,0) / _piA; 
+	exchangeability_(1,1) = generator_(1,1) / _piC; 
+	exchangeability_(1,2) = generator_(1,2) / _piG; 
+	exchangeability_(1,3) = generator_(1,3) / _piT; 
 	
-	_exchangeability(2,0) = _generator(2,0) / _piA; 
-	_exchangeability(2,1) = _generator(2,1) / _piC; 
-	_exchangeability(2,2) = _generator(2,2) / _piG; 
-	_exchangeability(2,3) = _generator(2,3) / _piT; 
+	exchangeability_(2,0) = generator_(2,0) / _piA; 
+	exchangeability_(2,1) = generator_(2,1) / _piC; 
+	exchangeability_(2,2) = generator_(2,2) / _piG; 
+	exchangeability_(2,3) = generator_(2,3) / _piT; 
 	
-	_exchangeability(3,0) = _generator(3,0) / _piA;
-	_exchangeability(3,1) = _generator(3,1) / _piC; 
-	_exchangeability(3,2) = _generator(3,2) / _piG; 
-	_exchangeability(3,3) = _generator(3,3) / _piT;
+	exchangeability_(3,0) = generator_(3,0) / _piA;
+	exchangeability_(3,1) = generator_(3,1) / _piC; 
+	exchangeability_(3,2) = generator_(3,2) / _piG; 
+	exchangeability_(3,3) = generator_(3,3) / _piT;
 
 	// We are not sure that the values are computed in this order :p
 	// Eigen values:
@@ -153,10 +157,10 @@ void TN93::updateMatrices()
 	//_eigenValues[3] = -r;
 	
 	// Eigen vectors and values:
-	EigenValue<double> ev(_generator);
-	_rightEigenVectors = ev.getV();
-	MatrixTools::inv(_rightEigenVectors, _leftEigenVectors);
-	_eigenValues = ev.getRealEigenValues();
+	EigenValue<double> ev(generator_);
+	rightEigenVectors_ = ev.getV();
+	MatrixTools::inv(rightEigenVectors_, leftEigenVectors_);
+	eigenValues_ = ev.getRealEigenValues();
 }
 	
 /******************************************************************************/
@@ -428,21 +432,20 @@ void TN93::setFreqFromData(const SequenceContainer & data, unsigned int pseudoCo
 {
 	map<int, double> freqs = SequenceContainerTools::getFrequencies(data);
 	double t = 0;
-	for(unsigned int i = 0; i < _size; i++) t += freqs[i] + pseudoCount;
+	for(unsigned int i = 0; i < size_; i++) t += freqs[i] + pseudoCount;
 	_piA = (freqs[0] + pseudoCount) / t;
 	_piC = (freqs[1] + pseudoCount) / t;
 	_piG = (freqs[2] + pseudoCount) / t;
 	_piT = (freqs[3] + pseudoCount) / t;
   vector<string> thetas(3);
-  thetas[0] = "theta";
-  thetas[1] = "theta1";
-  thetas[2] = "theta2";
-  ParameterList pl = _parameters.subList(thetas);
+  thetas[0] = getNamespace() + "theta";
+  thetas[1] = getNamespace() + "theta1";
+  thetas[2] = getNamespace() + "theta2";
+  ParameterList pl = getParameters().subList(thetas);
 	pl[0]->setValue(_piC + _piG);
 	pl[1]->setValue(_piA / (_piA + _piT));
 	pl[2]->setValue(_piG / (_piC + _piG));
   setParametersValues(pl);
-  updateMatrices();
 }
 
 /******************************************************************************/

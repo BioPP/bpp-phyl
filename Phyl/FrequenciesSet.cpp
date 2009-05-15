@@ -46,19 +46,19 @@ using namespace bpp;
 
 using namespace std;
 
-FullFrequenciesSet::FullFrequenciesSet(const Alphabet * alphabet, const string & prefix):
-  AbstractFrequenciesSet(alphabet)
+FullFrequenciesSet::FullFrequenciesSet(const Alphabet * alphabet, const string& name, const string& prefix):
+  AbstractFrequenciesSet(alphabet->getSize(), alphabet, prefix)
 {
-  _freq.resize(alphabet->getSize());
   for(unsigned int i = 0; i < alphabet->getSize(); i++)
   {
-    _parameters.addParameter(Parameter(prefix + alphabet->intToChar((int)i), 1. / alphabet->getSize(), &Parameter::PROP_CONSTRAINT_IN));
-    _freq[i] = 1. / alphabet->getSize();
+    Parameter p(prefix + name + alphabet->intToChar((int)i), 1. / alphabet->getSize(), &Parameter::PROP_CONSTRAINT_IN);
+    addParameter_(p);
+    getFreq_(i) = 1. / alphabet->getSize();
   }
 }
 
-FullFrequenciesSet::FullFrequenciesSet(const Alphabet * alphabet, const vector<double> & initFreqs, const string & prefix) throw (Exception):
-  AbstractFrequenciesSet(alphabet)
+FullFrequenciesSet::FullFrequenciesSet(const Alphabet * alphabet, const vector<double>& initFreqs, const string& name, const string& prefix) throw (Exception):
+  AbstractFrequenciesSet(alphabet->getSize(), alphabet, prefix)
 {
   if(initFreqs.size() != alphabet->getSize())
     throw Exception("FullFrequenciesSet(constructor). There must be " + TextTools::toString(alphabet->getSize()) + " frequencies.");
@@ -71,73 +71,78 @@ FullFrequenciesSet::FullFrequenciesSet(const Alphabet * alphabet, const vector<d
   {
     throw Exception("Root frequencies must equal 1 (sum = " + TextTools::toString(sum) + ").");
   }
-  _freq.resize(alphabet->getSize());
   for(unsigned int i = 0; i < alphabet->getSize(); i++)
   {
-    _parameters.addParameter(Parameter(prefix + alphabet->intToChar((int)i), initFreqs[i], &Parameter::PROP_CONSTRAINT_IN));
-    _freq[i] = initFreqs[i];
+    Parameter p(prefix + name + alphabet->intToChar((int)i), initFreqs[i], &Parameter::PROP_CONSTRAINT_IN);
+    addParameter_(p);
+    getFreq_(i) = initFreqs[i];
   }
 }
 
-FullNAFrequenciesSet::FullNAFrequenciesSet(const NucleicAlphabet * alphabet, const string & prefix):
-  AbstractFrequenciesSet(alphabet)
+FullNAFrequenciesSet::FullNAFrequenciesSet(const NucleicAlphabet * alphabet, const string& prefix):
+  AbstractFrequenciesSet(4, alphabet, prefix)
 {
-  _freq.resize(4);
-  _parameters.addParameter(Parameter(prefix + "theta" , 0.5, &Parameter::PROP_CONSTRAINT_EX));
-  _parameters.addParameter(Parameter(prefix + "theta1", 0.5, &Parameter::PROP_CONSTRAINT_EX));
-  _parameters.addParameter(Parameter(prefix + "theta2", 0.5, &Parameter::PROP_CONSTRAINT_EX));
-  _freq[0] = _freq[1] = _freq[2] = _freq[3] = 0.25;
+  Parameter thetaP(prefix + "theta" , 0.5, &Parameter::PROP_CONSTRAINT_EX);
+  addParameter_(thetaP);
+  Parameter theta1P(prefix + "theta1", 0.5, &Parameter::PROP_CONSTRAINT_EX);
+  addParameter_(theta1P);
+  Parameter theta2P(prefix + "theta2", 0.5, &Parameter::PROP_CONSTRAINT_EX);
+  addParameter_(theta2P);
+  getFreq_(0) = getFreq_(1) = getFreq_(2) = getFreq_(3) = 0.25;
 }
 
-FullNAFrequenciesSet::FullNAFrequenciesSet(const NucleicAlphabet * alphabet, double theta, double theta1, double theta2, const string & prefix):
-  AbstractFrequenciesSet(alphabet)
+FullNAFrequenciesSet::FullNAFrequenciesSet(const NucleicAlphabet * alphabet, double theta, double theta1, double theta2, const string& prefix):
+  AbstractFrequenciesSet(4, alphabet, prefix)
 {
-  _freq.resize(4);
-  _parameters.addParameter(Parameter(prefix + "theta" , theta , &Parameter::PROP_CONSTRAINT_EX));
-  _parameters.addParameter(Parameter(prefix + "theta1", theta1, &Parameter::PROP_CONSTRAINT_EX));
-  _parameters.addParameter(Parameter(prefix + "theta2", theta2, &Parameter::PROP_CONSTRAINT_EX));
-  _freq[0] = theta1 * (1. - theta);
-  _freq[1] = (1 - theta2) * theta;
-  _freq[2] = theta2 * theta;
-  _freq[3] = (1 - theta1) * (1. - theta);
+  Parameter thetaP(prefix + "theta" , theta, &Parameter::PROP_CONSTRAINT_EX);
+  addParameter_(thetaP);
+  Parameter theta1P(prefix + "theta1", theta1, &Parameter::PROP_CONSTRAINT_EX);
+  addParameter_(theta1P);
+  Parameter theta2P(prefix + "theta2", theta2, &Parameter::PROP_CONSTRAINT_EX);
+  addParameter_(theta2P);
+  getFreq_(0) = theta1 * (1. - theta);
+  getFreq_(1) = (1 - theta2) * theta;
+  getFreq_(2) = theta2 * theta;
+  getFreq_(3) = (1 - theta1) * (1. - theta);
 }
 
 void FullNAFrequenciesSet::fireParameterChanged(const ParameterList & pl)
 {
-  double theta  = _parameters[0]->getValue();
-  double theta1 = _parameters[1]->getValue();
-  double theta2 = _parameters[2]->getValue();
-  _freq[0] = theta1 * (1. - theta);
-  _freq[1] = (1 - theta2) * theta;
-  _freq[2] = theta2 * theta;
-  _freq[3] = (1 - theta1) * (1. - theta);
-}
+  double theta  = getParameter_(0).getValue();
+  double theta1 = getParameter_(1).getValue();
+  double theta2 = getParameter_(2).getValue();
+  getFreq_(0) = theta1 * (1. - theta);
+  getFreq_(1) = (1 - theta2) * theta;
+  getFreq_(2) = theta2 * theta;
+  getFreq_(3) = (1 - theta1) * (1. - theta);}
 
 FullProteinFrequenciesSet::FullProteinFrequenciesSet(const ProteicAlphabet * alphabet, const vector<double> & initFreqs, const string & prefix) throw (Exception):
-  AbstractFrequenciesSet(alphabet)
+  AbstractFrequenciesSet(20, alphabet, prefix)
 {
   if(initFreqs.size() != 20)
     throw Exception("FullProteinFrequenciesSet(constructor). There must be 20 frequencies.");
   for(unsigned int i = 1; i < 20; i++)
   {
-    _parameters.addParameter(Parameter(prefix + "theta" + TextTools::toString(i) , 0.05 / (1-0.05*((double)i - 1.)), &Parameter::PROP_CONSTRAINT_EX));
+    Parameter p(prefix + "theta" + TextTools::toString(i) , 0.05 / (1-0.05*((double)i - 1.)), &Parameter::PROP_CONSTRAINT_EX);
+    addParameter_(p);
   }
   setFrequencies(initFreqs);
 }
 
-FullProteinFrequenciesSet::FullProteinFrequenciesSet(const ProteicAlphabet * alphabet, const string & prefix):
-  AbstractFrequenciesSet(alphabet)
+FullProteinFrequenciesSet::FullProteinFrequenciesSet(const ProteicAlphabet * alphabet, const string& prefix):
+  AbstractFrequenciesSet(20, alphabet, prefix)
 {
-  _freq.resize(20);
   for(unsigned int i = 1; i < 20; i++)
   {
-    _parameters.addParameter(Parameter(prefix + "theta" + TextTools::toString(i) , 0.05 / (1-0.05*((double)i - 1.)), &Parameter::PROP_CONSTRAINT_EX));
-    _freq[i-1] = 0.05;
+    Parameter p(prefix + "theta" + TextTools::toString(i) , 0.05 / (1-0.05*((double)i - 1.)), &Parameter::PROP_CONSTRAINT_EX);
+    addParameter_(p);
+    getFreq_ (i - 1) = 0.05;
   }
-  _freq[19] = 0.05;
+  getFreq_(19) = 0.05;
 }
 
-void FullProteinFrequenciesSet::setFrequencies(const vector<double> & frequencies) throw (DimensionException, Exception)
+void FullProteinFrequenciesSet::setFrequencies(const vector<double> & frequencies)
+  throw (DimensionException, Exception)
 {
   if(frequencies.size() != 20) throw DimensionException("FullProteinFrequenciesSet::setFrequencies", frequencies.size(), 20);
   double sum = 0.0;
@@ -149,13 +154,13 @@ void FullProteinFrequenciesSet::setFrequencies(const vector<double> & frequencie
   {
     throw Exception("FullProteinFrequenciesSet::setFrequencies. Frequencies must equal 1 (sum = " + TextTools::toString(sum) + ").");
   }
-  _freq = frequencies;
+  setFrequencies_(frequencies);
   double cumFreq = 1.;
   for(unsigned int i = 0; i < 19; i++)
   {
-    double theta = _freq[i] / cumFreq;
-    cumFreq -= _freq[i];
-    _parameters[i]->setValue(theta);
+    double theta = getFreq_(i) / cumFreq;
+    cumFreq -= getFreq_(i);
+    getParameter_(i).setValue(theta);
   }
 }
 
@@ -164,15 +169,15 @@ void FullProteinFrequenciesSet::fireParameterChanged(const ParameterList & pl)
   double cumTheta = 1.;
   for(unsigned int i = 0; i < 19; i++)
   {
-    double theta = _parameters[i]->getValue();
-    _freq[i] = cumTheta * theta;
+    double theta = getParameter_(i).getValue();
+    getFreq_(i) = cumTheta * theta;
     cumTheta *= (1. - theta);
   }
-  _freq[19] = cumTheta;
+  getFreq_(19) = cumTheta;
 }
 
-FixedFrequenciesSet::FixedFrequenciesSet(const Alphabet * alphabet, const vector<double>& initFreqs, const string & prefix):
-  AbstractFrequenciesSet(alphabet)
+FixedFrequenciesSet::FixedFrequenciesSet(const Alphabet * alphabet, const vector<double>& initFreqs, const string& prefix):
+  AbstractFrequenciesSet(alphabet->getSize(), alphabet, prefix)
 {
   setFrequencies(initFreqs);
 }

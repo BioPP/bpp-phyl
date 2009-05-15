@@ -54,17 +54,19 @@ using namespace bpp;
 
 /******************************************************************************/
 
-AbstractSubstitutionModel::AbstractSubstitutionModel(const Alphabet * alpha): _alphabet(alpha)
+AbstractSubstitutionModel::AbstractSubstitutionModel(const Alphabet * alpha, const string& prefix) :
+  AbstractParameterAliasable(prefix),
+  alphabet_(alpha)
 {
-  _size = alpha->getSize();
-  _generator.resize(_size, _size);
-  _freq.resize(_size);
-  _eigenValues.resize(_size);
-  _leftEigenVectors.resize(_size, _size);
-  _rightEigenVectors.resize(_size, _size);
-  _pijt.resize(_size, _size);
-  _dpijt.resize(_size, _size);
-  _d2pijt.resize(_size, _size);
+  size_ = alpha->getSize();
+  generator_.resize(size_, size_);
+  freq_.resize(size_);
+  eigenValues_.resize(size_);
+  leftEigenVectors_.resize(size_, size_);
+  rightEigenVectors_.resize(size_, size_);
+  pijt_.resize(size_, size_);
+  dpijt_.resize(size_, size_);
+  d2pijt_.resize(size_, size_);
 }
 
 /******************************************************************************/
@@ -72,10 +74,10 @@ AbstractSubstitutionModel::AbstractSubstitutionModel(const Alphabet * alpha): _a
 void AbstractSubstitutionModel::updateMatrices()
 {
   // Compute eigen values and vectors:
-  EigenValue<double> ev(_generator);
-  _rightEigenVectors = ev.getV();
-  MatrixTools::inv(_rightEigenVectors, _leftEigenVectors);
-  _eigenValues = ev.getRealEigenValues();
+  EigenValue<double> ev(generator_);
+  rightEigenVectors_ = ev.getV();
+  MatrixTools::inv(rightEigenVectors_, leftEigenVectors_);
+  eigenValues_ = ev.getRealEigenValues();
 }
 
 /******************************************************************************/
@@ -84,34 +86,34 @@ const Matrix<double> & AbstractSubstitutionModel::getPij_t(double t) const
 {
   if(t == 0)
   {
-    MatrixTools::getId(_size, _pijt);
+    MatrixTools::getId(size_, pijt_);
   }
   else
   {
-    MatrixTools::mult<double>(_rightEigenVectors, VectorTools::exp(_eigenValues * t), _leftEigenVectors, _pijt);
+    MatrixTools::mult<double>(rightEigenVectors_, VectorTools::exp(eigenValues_ * t), leftEigenVectors_, pijt_);
   }
-  return _pijt;
+  return pijt_;
 }
 
 const Matrix<double> & AbstractSubstitutionModel::getdPij_dt(double t) const
 {
-  MatrixTools::mult(_rightEigenVectors, _eigenValues * VectorTools::exp(_eigenValues * t), _leftEigenVectors, _dpijt);
-  return _dpijt;
+  MatrixTools::mult(rightEigenVectors_, eigenValues_ * VectorTools::exp(eigenValues_ * t), leftEigenVectors_, dpijt_);
+  return dpijt_;
 }
 
 const Matrix<double> & AbstractSubstitutionModel::getd2Pij_dt2(double t) const
 {
-  MatrixTools::mult(_rightEigenVectors, NumTools::sqr(_eigenValues) * VectorTools::exp(_eigenValues * t), _leftEigenVectors, _d2pijt);
-  return _d2pijt;
+  MatrixTools::mult(rightEigenVectors_, NumTools::sqr(eigenValues_) * VectorTools::exp(eigenValues_ * t), leftEigenVectors_, d2pijt_);
+  return d2pijt_;
 }
 
 /******************************************************************************/
 
 double AbstractSubstitutionModel::getInitValue(int i, int state) const throw (BadIntException)
 {
-  if(i < 0 || i >= (int)_size) throw BadIntException(i, "AbstractSubstitutionModel::getInitValue");
-  if(state < 0 || !_alphabet->isIntInAlphabet(state)) throw BadIntException(state, "AbstractSubstitutionModel::getInitValue. Character " + _alphabet->intToChar(state) + " is not allowed in model.");
-  vector<int> states = _alphabet->getAlias(state);
+  if(i < 0 || i >= (int)size_) throw BadIntException(i, "AbstractSubstitutionModel::getInitValue");
+  if(state < 0 || !alphabet_->isIntInAlphabet(state)) throw BadIntException(state, "AbstractSubstitutionModel::getInitValue. Character " + alphabet_->intToChar(state) + " is not allowed in model.");
+  vector<int> states = alphabet_->getAlias(state);
   for(unsigned int j = 0; j < states.size(); j++) if(i == states[j]) return 1.;
   return 0.;
 }
@@ -122,8 +124,8 @@ void AbstractSubstitutionModel::setFreqFromData(const SequenceContainer & data, 
 {
   map<int, double> freqs = SequenceContainerTools::getFrequencies(data);
   double t = 0;
-  for(unsigned int i = 0; i < _size; i++) t += freqs[i] + pseudoCount;
-  for(unsigned int i = 0; i < _size; i++) _freq[i] = (freqs[i] + pseudoCount) / t;
+  for(unsigned int i = 0; i < size_; i++) t += freqs[i] + pseudoCount;
+  for(unsigned int i = 0; i < size_; i++) freq_[i] = (freqs[i] + pseudoCount) / t;
   //Re-compute generator and eigen values:
   updateMatrices();
 }
@@ -133,16 +135,16 @@ void AbstractSubstitutionModel::setFreqFromData(const SequenceContainer & data, 
 double AbstractSubstitutionModel::getScale() const
 {
   vector<double> _v;
-  MatrixTools::diag(_generator, _v);
-  return -VectorTools::scalar<double, double>(_v, _freq);
+  MatrixTools::diag(generator_, _v);
+  return -VectorTools::scalar<double, double>(_v, freq_);
 }
 
 /******************************************************************************/
 
-AbstractReversibleSubstitutionModel::AbstractReversibleSubstitutionModel(const Alphabet * alpha):
-  AbstractSubstitutionModel(alpha)
+AbstractReversibleSubstitutionModel::AbstractReversibleSubstitutionModel(const Alphabet * alpha, const string& prefix) :
+  AbstractSubstitutionModel(alpha, prefix)
 {
-  _exchangeability.resize(_size, _size);
+  exchangeability_.resize(size_, size_);
 }
 
 /******************************************************************************/
@@ -150,28 +152,28 @@ AbstractReversibleSubstitutionModel::AbstractReversibleSubstitutionModel(const A
 void AbstractReversibleSubstitutionModel::updateMatrices()
 {
   RowMatrix<double> Pi;
-  MatrixTools::diag(_freq, Pi);
-  MatrixTools::mult(_exchangeability, Pi, _generator); //Diagonal elements of the exchangability matrix will be ignored.
+  MatrixTools::diag(freq_, Pi);
+  MatrixTools::mult(exchangeability_, Pi, generator_); //Diagonal elements of the exchangability matrix will be ignored.
   // Compute diagonal elements of the generator:
-  for(unsigned int i = 0; i < _size; i++)
+  for(unsigned int i = 0; i < size_; i++)
   {
     double lambda = 0;
-    for(unsigned int j = 0; j < _size; j++)
+    for(unsigned int j = 0; j < size_; j++)
     {
-      if( j!=i ) lambda += _generator(i,j);
+      if( j!=i ) lambda += generator_(i,j);
     }
-    _generator(i,i) = -lambda;
+    generator_(i,i) = -lambda;
   }
   // Normalization:
   double scale = getScale();
-  MatrixTools::scale(_generator, 1./scale);
+  MatrixTools::scale(generator_, 1./scale);
 
   // Normalize exchangeability matrix too:
-  MatrixTools::scale(_exchangeability, 1./scale);
+  MatrixTools::scale(exchangeability_, 1./scale);
   // Compute diagonal elements of the exchangeability matrix:
-  for(unsigned int i = 0; i < _size; i++)
+  for(unsigned int i = 0; i < size_; i++)
   {
-    _exchangeability(i,i) = _generator(i,i) / _freq[i];
+    exchangeability_(i,i) = generator_(i,i) / freq_[i];
   }
   AbstractSubstitutionModel::updateMatrices();
 }

@@ -55,7 +55,8 @@ class NucleotideSubstitutionModel :
   public AbstractReversibleSubstitutionModel
 {
 	public:
-		NucleotideSubstitutionModel(const NucleicAlphabet * alpha) : AbstractReversibleSubstitutionModel(alpha) {}
+		NucleotideSubstitutionModel(const NucleicAlphabet * alpha, const string& prefix) :
+      AbstractReversibleSubstitutionModel(alpha, prefix) {}
 
 		virtual ~NucleotideSubstitutionModel() {}
 

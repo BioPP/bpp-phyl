@@ -48,15 +48,15 @@ using namespace std;
 /******************************************************************************/
 
 JCprotF::JCprotF(const ProteicAlphabet * alpha) :
-  ProteinSubstitutionModel(alpha),
-  ProteinSubstitutionModelWithFrequencies(alpha)
+  ProteinSubstitutionModel(alpha, "JC69+F."),
+  ProteinSubstitutionModelWithFrequencies(alpha, "JC69+F.")
 {
-	_p.resize(_size, _size);
+	_p.resize(size_, size_);
   for(unsigned int i = 0; i < 20; i++)
   {
 		for(unsigned int j = 0; j < 20; j++)
     {
-			_exchangeability(i, j) = (i == j) ? -20. : 20./19.;
+			exchangeability_(i, j) = (i == j) ? -20. : 20./19.;
 		}
 	}	
 	updateMatrices();

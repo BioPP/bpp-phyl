@@ -68,6 +68,7 @@ class NNITopologyListener:
 {
   protected:
     NNITopologySearch * _topoSearch;
+    ParameterList parameters_;
     double _tolerance;
     ostream *_messenger;
     ostream *_profiler;
@@ -84,16 +85,17 @@ class NNITopologyListener:
      * This listener listens to a NNITopologySearch object, and optimizes numerical parameters every *n* topological movements.
      * Optimization is performed using the optimizeNumericalParameters method (see there documentation for more details).
      *
-     * @param ts The NNITopologySearch object attached to this listener.
-     * @param tolerance Tolerance to use during optimizaton.
-     * @param messenger Where to output messages.
-     * @param profiler  Where to output optimization steps.
-     * @param verbose Verbose level during optimization.
-     * @param optMethod Optimization method to use.
-     * @param nStep The number of optimization steps to perform.
+     * @param ts         The NNITopologySearch object attached to this listener.
+     * @param parameters The list of parameters to optimize. Use tl->getIndependentParameters() in order to estimate all parameters.
+     * @param tolerance  Tolerance to use during optimizaton.
+     * @param messenger  Where to output messages.
+     * @param profiler   Where to output optimization steps.
+     * @param verbose    Verbose level during optimization.
+     * @param optMethod  Optimization method to use.
+     * @param nStep      The number of optimization steps to perform.
      */
-    NNITopologyListener(NNITopologySearch * ts, double tolerance, ostream *messenger, ostream *profiler, unsigned int verbose, const string & optMethod, unsigned int nStep):
-      _topoSearch(ts), _tolerance(tolerance),
+    NNITopologyListener(NNITopologySearch * ts, const ParameterList& parameters, double tolerance, ostream *messenger, ostream *profiler, unsigned int verbose, const string & optMethod, unsigned int nStep):
+      _topoSearch(ts), parameters_(parameters), _tolerance(tolerance),
       _messenger(messenger), _profiler(profiler),
       _verbose(verbose),
       _optimizeCounter(0), _optimizeNumerical(1),
@@ -116,6 +118,7 @@ class NNITopologyListener2:
 {
   protected:
     NNITopologySearch * _topoSearch;
+    ParameterList parameters_;
     double _tolerance;
     ostream *_messenger;
     ostream *_profiler;
@@ -131,15 +134,16 @@ class NNITopologyListener2:
      * This listener listens to a NNITopologySearch object, and optimizes numerical parameters every *n* topological movements.
      * Optimization is performed using the optimizeNumericalParameters2 method (see there documentation for more details).
      *
-     * @param ts The NNITopologySearch object attached to this listener.
-     * @param tolerance Tolerance to use during optimizaton.
-     * @param messenger Where to output messages.
-     * @param profiler  Where to output optimization steps.
-     * @param verbose Verbose level during optimization.
-     * @param optMethod Optimization method to use.
+     * @param ts         The NNITopologySearch object attached to this listener.
+     * @param parameters The list of parameters to optimize. Use ts->getIndependentParameters() in order to estimate all parameters.
+     * @param tolerance  Tolerance to use during optimizaton.
+     * @param messenger  Where to output messages.
+     * @param profiler   Where to output optimization steps.
+     * @param verbose    Verbose level during optimization.
+     * @param optMethod  Optimization method to use.
      */
-    NNITopologyListener2(NNITopologySearch * ts, double tolerance, ostream *messenger, ostream *profiler, unsigned int verbose, const string & optMethod):
-      _topoSearch(ts), _tolerance(tolerance),
+    NNITopologyListener2(NNITopologySearch * ts, const ParameterList& parameters, double tolerance, ostream *messenger, ostream *profiler, unsigned int verbose, const string & optMethod):
+      _topoSearch(ts), parameters_(parameters), _tolerance(tolerance),
       _messenger(messenger), _profiler(profiler),
       _verbose(verbose),
       _optimizeCounter(0), _optimizeNumerical(1),
@@ -190,6 +194,7 @@ class OptimizationTools
 		 * @see NewtonBrentMetaOptimizer
 		 *
 		 * @param tl             A pointer toward the TreeLikelihood object to optimize.
+     * @param parameters     The list of parameters to optimize. Use tl->getIndependentParameters() in order to estimate all parameters.
      * @param listener       A pointer toward an optimization listener, if needed.
      * @param nstep          The number of progressive steps to perform (see NewtonBrentMetaOptimizer). 1 means full precision from start.
 		 * @param tolerance      The tolerance to use in the algorithm.
@@ -203,6 +208,7 @@ class OptimizationTools
 		 */
 		static unsigned int optimizeNumericalParameters(
 			DiscreteRatesAcrossSitesTreeLikelihood * tl,
+      const ParameterList& parameters,
       OptimizationListener * listener = NULL,
       unsigned int nstep = 1,
 			double tolerance = 0.000001,
@@ -221,6 +227,7 @@ class OptimizationTools
 		 * @see PseudoNewtonOptimizer
 		 *
 		 * @param tl             A pointer toward the TreeLikelihood object to optimize.
+     * @param parameters     The list of parameters to optimize. Use tl->getIndependentParameters() in order to estimate all parameters.
      * @param listener       A pointer toward an optimization listener, if needed.
 		 * @param tolerance      The tolerance to use in the algorithm.
 		 * @param tlEvalMax      The maximum number of function evaluations.
@@ -233,6 +240,7 @@ class OptimizationTools
 		 */
 		static unsigned int optimizeNumericalParameters2(
 			DiscreteRatesAcrossSitesTreeLikelihood * tl,
+      const ParameterList& parameters,
       OptimizationListener * listener = NULL,
 			double tolerance = 0.000001,
 			unsigned int tlEvalMax = 1000000,
@@ -252,6 +260,7 @@ class OptimizationTools
 		 * @see NewtonBrentMetaOptimizer
 		 *
 		 * @param tl             A pointer toward the TreeLikelihood object to optimize.
+     * @param parameters     The list of parameters to optimize. The intersection of branch length parameters and the input set will be used. Use tl->getBranchLengthsParameters() in order to estimate all branch length parameters.
      * @param listener       A pointer toward an optimization listener, if needed.
 		 * @param tolerance      The tolerance to use in the algorithm.
 		 * @param tlEvalMax      The maximum number of function evaluations.
@@ -264,6 +273,7 @@ class OptimizationTools
 		 */
 		static unsigned int optimizeBranchLengthsParameters(
 			DiscreteRatesAcrossSitesTreeLikelihood * tl,
+      const ParameterList& parameters,
       OptimizationListener * listener = NULL,
 			double tolerance = 0.000001,
 			unsigned int tlEvalMax = 1000000,
@@ -285,6 +295,7 @@ class OptimizationTools
 		 * @see NewtonBrentMetaOptimizer
 		 *
 		 * @param cl             A pointer toward the ClockTreeLikelihood object to optimize.
+     * @param parameters     The list of parameters to optimize. Use cl->getIndependentParameters() in order to estimate all parameters.
      * @param listener       A pointer toward an optimization listener, if needed.
      * @param nstep          The number of progressive steps to perform (see NewtonBrentMetaOptimizer). 1 means full precision from start.
 		 * @param tolerance      The tolerance to use in the algorithm.
@@ -298,6 +309,7 @@ class OptimizationTools
 		 */
 		static unsigned int optimizeNumericalParametersWithGlobalClock(
 			DiscreteRatesAcrossSitesClockTreeLikelihood * cl,
+      const ParameterList& parameters,
       OptimizationListener * listener = NULL,
       unsigned int nstep = 1,
 			double tolerance = 0.000001,
@@ -316,6 +328,7 @@ class OptimizationTools
 		 * @see PseudoNewtonOptimizer
 		 *
 		 * @param cl             A pointer toward the ClockTreeLikelihood object to optimize.
+     * @param parameters     The list of parameters to optimize. Use cl->getIndependentParameters() in order to estimate all parameters.
      * @param listener       A pointer toward an optimization listener, if needed.
 		 * @param tolerance      The tolerance to use in the algorithm.
 		 * @param tlEvalMax      The maximum number of function evaluations.
@@ -328,6 +341,7 @@ class OptimizationTools
 		 */
 		static unsigned int optimizeNumericalParametersWithGlobalClock2(
 			DiscreteRatesAcrossSitesClockTreeLikelihood * cl,
+      const ParameterList& parameters,
       OptimizationListener * listener = NULL,
 			double tolerance = 0.000001,
 			unsigned int tlEvalMax = 1000000,
@@ -370,7 +384,10 @@ class OptimizationTools
           if(name == "lambda") return *_lambda[0];
           else throw ParameterNotFoundException("ScaleFunction::getParameter.", name);
         }
-				double getParameterValue(const string & name) const throw (ParameterNotFoundException) { return _lambda.getParameter(name)->getValue(); };
+				double getParameterValue(const string & name) const throw (ParameterNotFoundException)
+        {
+          return _lambda.getParameter(name).getValue();
+        }
 		    unsigned int getNumberOfParameters() const { return 1; }
 		    unsigned int getNumberOfIndependentParameters() const { return 1; }
 		};
@@ -424,6 +441,7 @@ class OptimizationTools
      * They are generally very high to avoid local optima.
      *
 		 * @param tl               A pointer toward the TreeLikelihood object to optimize.
+     * @param parameters       The list of parameters to optimize. Use tl->getIndependentParameters() in order to estimate all parameters.
      * @param optimizeNumFirst Tell if we must optimize numerical parameters before searching topology.
 		 * @param tolBefore        The tolerance to use when estimating numerical parameters before topology search (if optimizeNumFirst is set to 'true').
 		 * @param tolDuring        The tolerance to use when estimating numerical parameters during the topology search.
@@ -446,6 +464,7 @@ class OptimizationTools
      */
     static NNIHomogeneousTreeLikelihood * optimizeTreeNNI(
         NNIHomogeneousTreeLikelihood * tl,
+        const ParameterList& parameters,
         bool optimizeNumFirst = true,
 			  double tolBefore = 100,
 			  double tolDuring = 100,
@@ -475,6 +494,7 @@ class OptimizationTools
      * They are generally very high to avoid local optima.
      *
 		 * @param tl               A pointer toward the TreeLikelihood object to optimize.
+     * @param parameters       The list of parameters to optimize. Use tl->getIndependentParameters() in order to estimate all parameters.
      * @param optimizeNumFirst Tell if we must optimize numerical parameters before searching topology.
 		 * @param tolBefore        The tolerance to use when estimating numerical parameters before topology search (if optimizeNumFirst is set to 'true').
 		 * @param tolDuring        The tolerance to use when estimating numerical parameters during the topology search.
@@ -496,6 +516,7 @@ class OptimizationTools
      */
     static NNIHomogeneousTreeLikelihood * optimizeTreeNNI2(
         NNIHomogeneousTreeLikelihood * tl,
+        const ParameterList& parameters,
         bool optimizeNumFirst = true,
 			  double tolBefore = 100,
 			  double tolDuring = 100,

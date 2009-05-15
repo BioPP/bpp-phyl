@@ -49,7 +49,7 @@ using namespace bpp;
 /******************************************************************************/
 
 MarkovModulatedSubstitutionModel::MarkovModulatedSubstitutionModel(const MarkovModulatedSubstitutionModel & model):
-  AbstractParametrizable(model),
+  AbstractParameterAliasable(model),
   _nbStates(model._nbStates),
   _nbRates(model._nbRates),
   _rates(model._rates),
@@ -190,6 +190,15 @@ double MarkovModulatedSubstitutionModel::getInitValue(int i, int state) const th
   int x = i % _nbStates;
 	for(unsigned int j = 0; j < states.size(); j++) if(x == states[j]) return 1.;
 	return 0.;
+}
+
+/******************************************************************************/
+
+void MarkovModulatedSubstitutionModel::setNamespace(const string& prefix)
+{
+  AbstractParametrizable::setNamespace(prefix);
+  //We also need to update the namespace of the nested distribution:
+  _model->setNamespace(prefix + nestedPrefix_);
 }
 
 /******************************************************************************/

@@ -54,7 +54,7 @@ knowledge of the CeCILL license and that you accept its terms.
 // From NumCalc:
 #include <NumCalc/Parameter.h>
 #include <NumCalc/ParameterList.h>
-#include <NumCalc/Parametrizable.h>
+#include <NumCalc/ParameterAliasable.h>
 #include <NumCalc/VectorTools.h>
 #include <NumCalc/Matrix.h>
 
@@ -138,7 +138,7 @@ class SubstitutionModelException:
  */
 
 class SubstitutionModel:
-  public virtual Parametrizable
+  public virtual ParameterAliasable
 {
 	public:
 		SubstitutionModel() {}

@@ -56,16 +56,16 @@ class AbstractHomogeneousTreeLikelihood:
   public AbstractDiscreteRatesAcrossSitesTreeLikelihood
 {
 	protected:
-		SubstitutionModel * _model;
-		ParameterList _brLenParameters;
+		SubstitutionModel * model_;
+		ParameterList brLenParameters_;
 		
-		mutable map<int, VVVdouble> _pxy;
+		mutable map<int, VVVdouble> pxy_;
 
-		mutable map<int, VVVdouble> _dpxy;
+		mutable map<int, VVVdouble> dpxy_;
 
-		mutable map<int, VVVdouble> _d2pxy;
+		mutable map<int, VVVdouble> d2pxy_;
 
-    vector<double> _rootFreqs;
+    vector<double> rootFreqs_;
 				
 		/**
 		 * @brief Pointer toward all nodes in the tree.
@@ -73,19 +73,19 @@ class AbstractHomogeneousTreeLikelihood:
      * The position in the array is the number used in the parameter name.
      * This may be different from the node id, unless you used the resetNodeId method on the input tree.
  		 */
-		vector<Node *> _nodes;
+		vector<Node *> nodes_;
 
 		//some values we'll need:
-		unsigned int _nbSites,         //the number of sites in the container
-                 _nbDistinctSites, //the number of distinct sites
-		             _nbClasses,       //the number of rate classes
-		             _nbStates,        //the number of states in the alphabet
-		             _nbNodes;         //the number of nodes in the tree
+		unsigned int nbSites_,         //the number of sites in the container
+                 nbDistinctSites_, //the number of distinct sites
+		             nbClasses_,       //the number of rate classes
+		             nbStates_,        //the number of states in the alphabet
+		             nbNodes_;         //the number of nodes in the tree
 
-    bool _verbose;
+    bool verbose_;
 
-    double _minimumBrLen;
-    Constraint * _brLenConstraint;
+    double minimumBrLen_;
+    Constraint * brLenConstraint_;
 
 	public:
 		AbstractHomogeneousTreeLikelihood(
@@ -151,7 +151,7 @@ class AbstractHomogeneousTreeLikelihood:
      * @return A pointer toward the corresponding model.
      * @throw NodeNotFoundException This exception may be thrown if the node is not found (depending on the implementation).
      */
-    const SubstitutionModel * getSubstitutionModelForNode(int nodeId) const throw (NodeNotFoundException) { return _model; }
+    const SubstitutionModel * getSubstitutionModelForNode(int nodeId) const throw (NodeNotFoundException) { return model_; }
 
     /**
      * @brief Get the substitution model associated to a given node.
@@ -162,11 +162,11 @@ class AbstractHomogeneousTreeLikelihood:
      * @return A pointer toward the corresponding model.
      * @throw NodeNotFoundException This exception may be thrown if the node is not found (depending on the implementation).
      */
-    SubstitutionModel * getSubstitutionModelForNode(int nodeId) throw (NodeNotFoundException) { return _model; }
+    SubstitutionModel * getSubstitutionModelForNode(int nodeId) throw (NodeNotFoundException) { return model_; }
 
-    vector<double> getRootFrequencies() const { return _model->getFrequencies(); }
+    vector<double> getRootFrequencies() const { return model_->getFrequencies(); }
     
-    const VVVdouble & getTransitionProbabilitiesForNode(const Node* node) const { return _pxy[node->getId()]; }
+    const VVVdouble & getTransitionProbabilitiesForNode(const Node* node) const { return pxy_[node->getId()]; }
     /** @} */
 
 		/**
@@ -176,9 +176,9 @@ class AbstractHomogeneousTreeLikelihood:
 		 *
 		 * @{
 		 */
-		const SubstitutionModel * getSubstitutionModel() const { return _model; }
+		const SubstitutionModel * getSubstitutionModel() const { return model_; }
 		
-		SubstitutionModel * getSubstitutionModel() { return _model; }
+		SubstitutionModel * getSubstitutionModel() { return model_; }
 		
     void setSubstitutionModel(SubstitutionModel * model) throw (Exception);
     /** @} */
@@ -202,21 +202,21 @@ class AbstractHomogeneousTreeLikelihood:
 
     virtual void setMinimumBranchLength(double minimum)
     {
-      _minimumBrLen = minimum;
-      if(_brLenConstraint != NULL) delete _brLenConstraint;
-      _brLenConstraint = new IncludingPositiveReal(_minimumBrLen);
+      minimumBrLen_ = minimum;
+      if(brLenConstraint_ != NULL) delete brLenConstraint_;
+      brLenConstraint_ = new IncludingPositiveReal(minimumBrLen_);
       initBranchLengthsParameters();
     }
 
-    virtual double getMinimumBranchLength() const { return _minimumBrLen; }
+    virtual double getMinimumBranchLength() const { return minimumBrLen_; }
 
   protected:
     /**
-     * @brief Fill the _pxy, _dpxy and _d2pxy arrays for all nodes.
+     * @brief Fill the pxy_, dpxy_ and d2pxy_ arrays for all nodes.
      */
     void computeAllTransitionProbabilities();
     /**
-     * @brief Fill the _pxy, _dpxy and _d2pxy arrays for one node.
+     * @brief Fill the pxy_, dpxy_ and d2pxy_ arrays for one node.
      */
     void computeTransitionProbabilitiesForNode(const Node * node);
 

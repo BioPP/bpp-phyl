@@ -79,14 +79,16 @@ class G2001:
      * @param normalizeRateChanges Tell if the rate transition matrix should be normalized.
      */
     G2001(ReversibleSubstitutionModel * model, DiscreteDistribution * rDist, double nu = 1., bool normalizeRateChanges = false):
-      MarkovModulatedSubstitutionModel(model, normalizeRateChanges), _rDist(rDist)
+      MarkovModulatedSubstitutionModel(model, normalizeRateChanges, "G01."), _rDist(rDist)
     {
       _nbRates = _rDist->getNumberOfCategories();
       _ratesExchangeability.resize(_nbRates, _nbRates);
       _rates.resize(_nbRates, _nbRates);
       _ratesFreq = vector<double>(_nbRates, 1./(double)_nbRates);
-      _parameters.addParameters(_rDist->getIndependentParameters());
-      _parameters.addParameter(Parameter("nu", nu, &Parameter::R_PLUS));
+      _rDist->setNamespace("G01.rdist");
+      addParameters_(_rDist->getIndependentParameters());
+      Parameter p("G01.nu", nu, &Parameter::R_PLUS);
+      addParameter_(p);
       updateRatesModel();
       updateMatrices();
     }
@@ -129,7 +131,7 @@ class G2001:
   protected:
     void updateRatesModel()
     {
-      double nu = _parameters.getParameter("nu")->getValue();
+      double nu = getParameterValue("nu");
       for(unsigned int i = 0; i < _nbRates; i++)
       {
          _rates(i,i) = _rDist->getCategory(i);

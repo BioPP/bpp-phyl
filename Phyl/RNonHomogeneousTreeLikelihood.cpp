@@ -252,7 +252,7 @@ void RNonHomogeneousTreeLikelihood::fireParameterChanged(const ParameterList & p
 {
   applyParameters();
 
-  if(params.getCommonParametersWith(_rateDistribution->getParameters()).size() > 0)
+  if(params.getCommonParametersWith(_rateDistribution->getIndependentParameters()).size() > 0)
   {
     computeAllTransitionProbabilities();
   }
@@ -359,13 +359,12 @@ double RNonHomogeneousTreeLikelihood::getDLogLikelihood() const
 double RNonHomogeneousTreeLikelihood::getFirstOrderDerivative(const string & variable) const
 throw (Exception)
 { 
-  Parameter * p = _parameters.getParameter(variable);
-  if(p == NULL) throw ParameterNotFoundException("HomogeneousTreeLikelihood::df", variable);
-  if(getRateDistributionParameters().getParameter(variable) != NULL)
+  const Parameter * p = &getParameter(variable);
+  if(getRateDistributionParameters().hasParameter(variable))
   {
     throw Exception("Derivatives respective to rate distribution parameter are not implemented.");
   }
-  if(getSubstitutionModelParameters().getParameter(variable) != NULL)
+  if(getSubstitutionModelParameters().hasParameter(variable))
   {
     throw Exception("Derivatives respective to substitution model parameters are not implemented.");
   }
@@ -412,7 +411,7 @@ void RNonHomogeneousTreeLikelihood::computeTreeDLikelihood(const string & variab
         vector <unsigned int> * _patternLinks_father_root2 = & _likelihoodData->getArrayPositions(father->getId(), root2->getId());
         VVVdouble * _likelihoods_root1 = & _likelihoodData->getLikelihoodArray(root1->getId());
         VVVdouble * _likelihoods_root2 = & _likelihoodData->getLikelihoodArray(root2->getId());
-        double pos = _parameters.getParameter("RootPosition")->getValue();
+        double pos = getParameterValue("RootPosition");
 
         VVVdouble * _dpxy_root1  = & _dpxy[_root1];
         VVVdouble * _dpxy_root2  = & _dpxy[_root2];
@@ -522,7 +521,7 @@ void RNonHomogeneousTreeLikelihood::computeTreeDLikelihood(const string & variab
         vector <unsigned int> * _patternLinks_father_root2 = & _likelihoodData->getArrayPositions(father->getId(), root2->getId());
         VVVdouble * _likelihoods_root1 = & _likelihoodData->getLikelihoodArray(root1->getId());
         VVVdouble * _likelihoods_root2 = & _likelihoodData->getLikelihoodArray(root2->getId());
-        double len = _parameters.getParameter("BrLenRoot")->getValue();
+        double len = getParameterValue("BrLenRoot");
 
         VVVdouble * _dpxy_root1  = & _dpxy[_root1];
         VVVdouble * _dpxy_root2  = & _dpxy[_root2];
@@ -827,13 +826,12 @@ double RNonHomogeneousTreeLikelihood::getD2LogLikelihood() const
 double RNonHomogeneousTreeLikelihood::getSecondOrderDerivative(const string & variable) const
 throw (Exception)
 {
-  Parameter * p = _parameters.getParameter(variable);
-  if(p == NULL) throw ParameterNotFoundException("HomogeneousTreeLikelihood::df", variable);
-  if(getRateDistributionParameters().getParameter(variable) != NULL)
+  const Parameter * p = &getParameter(variable);
+  if(getRateDistributionParameters().hasParameter(variable))
   {
     throw Exception("Derivatives respective to rate distribution parameter are not implemented.");
   }
-  if(getSubstitutionModelParameters().getParameter(variable) != NULL)
+  if(getSubstitutionModelParameters().hasParameter(variable))
   {
     throw Exception("Derivatives respective to substitution model parameters are not implemented.");
   }
@@ -880,7 +878,7 @@ void RNonHomogeneousTreeLikelihood::computeTreeD2Likelihood(const string & varia
         vector <unsigned int> * _patternLinks_father_root2 = & _likelihoodData->getArrayPositions(father->getId(), root2->getId());
         VVVdouble * _likelihoods_root1 = & _likelihoodData->getLikelihoodArray(root1->getId());
         VVVdouble * _likelihoods_root2 = & _likelihoodData->getLikelihoodArray(root2->getId());
-        double pos = _parameters.getParameter("RootPosition")->getValue();
+        double pos = getParameterValue("RootPosition");
 
         VVVdouble * _d2pxy_root1 = & _d2pxy[_root1];
         VVVdouble * _d2pxy_root2 = & _d2pxy[_root2];
@@ -998,7 +996,7 @@ void RNonHomogeneousTreeLikelihood::computeTreeD2Likelihood(const string & varia
         vector <unsigned int> * _patternLinks_father_root2 = & _likelihoodData->getArrayPositions(father->getId(), root2->getId());
         VVVdouble * _likelihoods_root1 = & _likelihoodData->getLikelihoodArray(root1->getId());
         VVVdouble * _likelihoods_root2 = & _likelihoodData->getLikelihoodArray(root2->getId());
-        double len = _parameters.getParameter("BrLenRoot")->getValue();
+        double len = getParameterValue("BrLenRoot");
 
         VVVdouble * _d2pxy_root1 = & _d2pxy[_root1];
         VVVdouble * _d2pxy_root2 = & _d2pxy[_root2];

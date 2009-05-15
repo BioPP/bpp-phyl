@@ -51,11 +51,11 @@ using namespace std;
 /******************************************************************************/
 
 K80::K80(const NucleicAlphabet * alpha, double kappa) :
-  //AbstractSubstitutionModel(alpha),
-  NucleotideSubstitutionModel(alpha)
+  NucleotideSubstitutionModel(alpha, "K80.")
 {
-	_parameters.addParameter(Parameter("kappa", kappa, &Parameter::R_PLUS_STAR));
-  _p.resize(_size, _size);
+	Parameter kappaP(getNamespace() + "kappa", kappa, &Parameter::R_PLUS_STAR);
+	addParameter_(kappaP);
+  _p.resize(size_, size_);
 	updateMatrices();
 }
 
@@ -63,80 +63,80 @@ K80::K80(const NucleicAlphabet * alpha, double kappa) :
 
 void K80::updateMatrices()
 {
-	_kappa = _parameters.getParameter("kappa")->getValue();
+	_kappa = getParameterValue("kappa");
 	_k = (_kappa + 1.) / 2.;
 	_r = 4. / (_kappa + 2.);
 	
   // Frequences:
-	_freq[0] = _freq[1] = _freq[2] = _freq[3] = 1. / 4.;
+	freq_[0] = freq_[1] = freq_[2] = freq_[3] = 1. / 4.;
 
 	// Generator:
-	_generator(0, 0) = -2. - _kappa;
-	_generator(1, 1) = -2. - _kappa;
-	_generator(2, 2) = -2. - _kappa;
-	_generator(3, 3) = -2. - _kappa;
+	generator_(0, 0) = -2. - _kappa;
+	generator_(1, 1) = -2. - _kappa;
+	generator_(2, 2) = -2. - _kappa;
+	generator_(3, 3) = -2. - _kappa;
 
-	_generator(0, 1) = 1.;
-	_generator(0, 3) = 1.;
-	_generator(1, 0) = 1.;
-	_generator(1, 2) = 1.;
-	_generator(2, 1) = 1.;
-	_generator(2, 3) = 1.;
-	_generator(3, 0) = 1.;
-	_generator(3, 2) = 1.;
+	generator_(0, 1) = 1.;
+	generator_(0, 3) = 1.;
+	generator_(1, 0) = 1.;
+	generator_(1, 2) = 1.;
+	generator_(2, 1) = 1.;
+	generator_(2, 3) = 1.;
+	generator_(3, 0) = 1.;
+	generator_(3, 2) = 1.;
 	
-	_generator(0, 2) = _kappa;
-	_generator(1, 3) = _kappa;
-	_generator(2, 0) = _kappa;
-	_generator(3, 1) = _kappa;
+	generator_(0, 2) = _kappa;
+	generator_(1, 3) = _kappa;
+	generator_(2, 0) = _kappa;
+	generator_(3, 1) = _kappa;
 
 	// Normalization:
-	MatrixTools::scale(_generator, _r/4);
+	MatrixTools::scale(generator_, _r/4);
 
 	// Exchangeability:
-	_exchangeability = _generator;
-	MatrixTools::scale(_exchangeability, 4.);
+	exchangeability_ = generator_;
+	MatrixTools::scale(exchangeability_, 4.);
 
 	// Eigen values:
-	_eigenValues[0] = 0;
-	_eigenValues[1] = -_r * (1. + _kappa)/2;
-	_eigenValues[2] = -_r * (1. + _kappa)/2;
-	_eigenValues[3] = -_r;
+	eigenValues_[0] = 0;
+	eigenValues_[1] = -_r * (1. + _kappa)/2;
+	eigenValues_[2] = -_r * (1. + _kappa)/2;
+	eigenValues_[3] = -_r;
 	
 	// Eigen vectors:
-	_leftEigenVectors(0,0) = 1. / 4.;
-	_leftEigenVectors(0,1) = 1. / 4.;
-	_leftEigenVectors(0,2) = 1. / 4.;
-	_leftEigenVectors(0,3) = 1. / 4.;
-	_leftEigenVectors(1,0) = 0.;
-	_leftEigenVectors(1,1) = 1. / 2.;
-	_leftEigenVectors(1,2) = 0.;
-	_leftEigenVectors(1,3) = -1. / 2.;
-	_leftEigenVectors(2,0) = 1. / 2.;
-	_leftEigenVectors(2,1) = 0.;
-	_leftEigenVectors(2,2) = -1. / 2.;
-	_leftEigenVectors(2,3) = 0.;
-	_leftEigenVectors(3,0) = 1. / 4.;
-	_leftEigenVectors(3,1) = -1. / 4.;
-	_leftEigenVectors(3,2) = 1. / 4.;
-	_leftEigenVectors(3,3) = -1. / 4.;
+	leftEigenVectors_(0,0) = 1. / 4.;
+	leftEigenVectors_(0,1) = 1. / 4.;
+	leftEigenVectors_(0,2) = 1. / 4.;
+	leftEigenVectors_(0,3) = 1. / 4.;
+	leftEigenVectors_(1,0) = 0.;
+	leftEigenVectors_(1,1) = 1. / 2.;
+	leftEigenVectors_(1,2) = 0.;
+	leftEigenVectors_(1,3) = -1. / 2.;
+	leftEigenVectors_(2,0) = 1. / 2.;
+	leftEigenVectors_(2,1) = 0.;
+	leftEigenVectors_(2,2) = -1. / 2.;
+	leftEigenVectors_(2,3) = 0.;
+	leftEigenVectors_(3,0) = 1. / 4.;
+	leftEigenVectors_(3,1) = -1. / 4.;
+	leftEigenVectors_(3,2) = 1. / 4.;
+	leftEigenVectors_(3,3) = -1. / 4.;
 
-	_rightEigenVectors(0,0) = 1.;
-	_rightEigenVectors(0,1) = 0.;
-	_rightEigenVectors(0,2) = 1.;
-	_rightEigenVectors(0,3) = 1.;
-	_rightEigenVectors(1,0) = 1.;
-	_rightEigenVectors(1,1) = 1.;
-	_rightEigenVectors(1,2) = 0.;
-	_rightEigenVectors(1,3) = -1.;
-	_rightEigenVectors(2,0) = 1.;
-	_rightEigenVectors(2,1) = 0.;
-	_rightEigenVectors(2,2) = -1.;
-	_rightEigenVectors(2,3) = 1.;
-	_rightEigenVectors(3,0) = 1.;
-	_rightEigenVectors(3,1) = -1.;
-	_rightEigenVectors(3,2) = 0;
-	_rightEigenVectors(3,3) = -1.;
+	rightEigenVectors_(0,0) = 1.;
+	rightEigenVectors_(0,1) = 0.;
+	rightEigenVectors_(0,2) = 1.;
+	rightEigenVectors_(0,3) = 1.;
+	rightEigenVectors_(1,0) = 1.;
+	rightEigenVectors_(1,1) = 1.;
+	rightEigenVectors_(1,2) = 0.;
+	rightEigenVectors_(1,3) = -1.;
+	rightEigenVectors_(2,0) = 1.;
+	rightEigenVectors_(2,1) = 0.;
+	rightEigenVectors_(2,2) = -1.;
+	rightEigenVectors_(2,3) = 1.;
+	rightEigenVectors_(3,0) = 1.;
+	rightEigenVectors_(3,1) = -1.;
+	rightEigenVectors_(3,2) = 0;
+	rightEigenVectors_(3,3) = -1.;
 }
 	
 /******************************************************************************/

@@ -44,14 +44,13 @@ using namespace bpp;
 /******************************************************************************/
 
 DSO78F::DSO78F(const ProteicAlphabet * alpha) :
-  ProteinSubstitutionModel(alpha),
-  ProteinSubstitutionModelWithFrequencies(alpha)
+  ProteinSubstitutionModel(alpha, "DSO78+F."),
+  ProteinSubstitutionModelWithFrequencies(alpha, "DSO78+F.")
 {
   #include "__DSO78ExchangeabilityCode"
 	#include "__DSO78FrequenciesCode"
-  _freqSet->setFrequencies(_freq);
-  _parameters.matchParametersValues(_freqSet->getParameters());
-	updateMatrices();
+  freqSet_->setFrequencies(freq_);
+  matchParametersValues(freqSet_->getParameters());
 }
 
 /******************************************************************************/

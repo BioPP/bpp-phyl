@@ -1,3 +1,6 @@
+15/05/09 Julien Dutheil
+* New syntax for model specification in PhylogeneticApplicationTools.
+
 07/03/09 Julien Dutheil
 * Added pseudo counts in substitution models, when setting equilibrium
 frequencies [biopp-help-forum:139]

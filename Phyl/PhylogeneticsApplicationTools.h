@@ -118,29 +118,30 @@ class PhylogeneticsApplicationTools
 
 
     /**
-     * @brief Build a SubstitutionModel object with default parameter values according to options.
+     * @brief Build a SubstitutionModel object with default parameter values according to a keyval description.
      *
-     * Options used are:
-     * - %{prefix}name = [JCnuc|K80|T92|HKY85|F84|TN93|GTR|L95|JCprot[+F]|DSO78[+F]|JTT92[+F]|empirical[+F]], the substitution model to use.
+     * Check the Bio++ Program Suite documentation for a description of the syntax.
+     * This function will resolve parameter aliasing, but will not assign initial values.
+     * It is mainly for internal usage, you're probably looking for the getSubstitutionModel or getSubstitutionModelSet function.
      *
-     * This function is mainly for internal usage, you're probably looking for the getSubstitutionModel or getSubstitutionModelSet function.
-     *
-     * @param alphabet The alpabet to use in the model.
-     * @param params   The attribute map where options may be found.
-     * @param prefix   A prefix to be applied to each attribute name (model number).
-     * @param suffix   A suffix to be applied to each attribute name.
-     * @param suffixIsOptional Tell if the suffix is absolutely required.
+     * @param alphabet         The alpabet to use in the model.
+     * @param modelDescription A string describing the model in the keyval syntax.
+     * @param allowCovarions   Tell is a covarion model can be returned.
+     * @param allowGaps        Tell is a gap model can be returned.
+     * @param unparsedParameterValues [out] a map that will contain all the model parameters
+     *                                names and their corresponding unparsed value, if they were found.
      * @param verbose Print some info to the 'message' output stream.
      * @return A new SubstitutionModel object according to options specified.
      * @throw Exception if an error occured.
      */
     static SubstitutionModel * getSubstitutionModelDefaultInstance(
-      const Alphabet * alphabet,
-      map<string, string> & params,
-      const string & prefix,
-      const string & suffix,
-      bool suffixIsOptional,
+      const Alphabet* alphabet,
+      const string& modelDescription,
+      map<string, string>& unparsedParameterValues,
+      bool allowCovarions,
+      bool allowGaps,
       bool verbose) throw (Exception);
+
 
     /**
      * @brief Set parameter initial values of a given model according to options.
@@ -150,60 +151,27 @@ class PhylogeneticsApplicationTools
      *
      * This function is mainly for internal usage, you're probably looking for the getSubstitutionModel or getSubstitutionModelSet function.
      *
-     * @param model  The model to set.
+     * @param model                   The model to set.
+     * @param unparsedParameterValues A map that contains all the model parameters
+     *                                names and their corresponding unparsed value, if they were found.
      * @param data   A pointer toward the SiteContainer for which the substitution model is designed.
      *               The alphabet associated to the data must be of the same type as the one specified for the model.
      *               May be equal to NULL, but in this case use_observed_freq option will be unavailable.
-     * @param params The attribute map where options may be found.
-     * @param prefix A prefix to be applied to each attribute name.
-     * @param suffix A suffix to be applied to each attribute name.
-     * @param suffixIsOptional Tell if the suffix is absolutely required.
      * @param verbose Print some info to the 'message' output stream.
      * @throw Exception if an error occured.
      */
     static void setSubstitutionModelParametersInitialValues(
-      SubstitutionModel * model,
-      const SiteContainer * data,
-      map<string, string> & params,
-      const string & prefix,
-      const string & suffix,
-      bool suffixIsOptional,
+      SubstitutionModel* model,
+      map<string, string>& unparsedParameterValues,
+      const SiteContainer* data,
       bool verbose) throw (Exception);
 
     /**
      * @brief Build a SubstitutionModel object according to options.
      *
-     * Options used are:
-     * - model.name = [JCnuc|K80|T92|HKY85|F84|TN93|GTR|JCprot|DSO78|JTT92|empirical], the substitution model to use,
-     *   +G2001 or +TS98 for enabling covarion models.
-     *
-     * Options depending on the model specified:
-     * - If K80, T92 or HKY85 or F84 is to be used:
-     *   + model.kappa The transition/transversion ratio.
-     * - If T92 or L95 format is to be used:
-     *   + model.theta The GC ratio, or
-     * - If HKY85, F84 or TN93 is to be used:
-     *   + model.piA, piT, piC and piG: equilibrum frequencies.
-     * - If TN93 is to be used:
-     *   + model.kappa1, kappa2 The transition/transversion ratios.
-     * - If GTR is to be used:
-     *   + model.a, b, c, d, e rate parameters.
-     * - If L95 is to be used:
-     *   + model.beta, gamma, delta rate parameters.
-     * - If GTR, TN93, HKY85, F84, T92, JTT92, DSO78, L95 or empirical is to be used:
-     *   + model.use_observed_freq Tell if we must use the observed frequences. 
-     * - If empirical is to be used;
-     *   + model_empirical.file Give the path toward the data file to use, in PAML format.
-     * - For the T92, HKY85, F84, TN93, GTR, + all prot models, the model.use_observed_freq option lets you
-     *   use the actual frequencies estimated from a given data set.
-     *
-     * Covarions options:
-     * - for the G2001 model, parameter of the rate distribution are the same as for getRateDistribution() function.
-     *   The distribution must not be uniform.
-     * - model.nu = the nu paremeter.
-     * - model.rate_distribution, etc (see getRateDistribution) for detailled options:
-     *   The rate distribution associated to this covarion model.
-     * - model.s1, model.s2 = T&S rate change parameters.
+     * Creates a new substitution model object according to model description syntax
+     * (see the Bio++ Progam Suite manual for a detailed description of this syntax). The
+     * function also parses the parameter values and set them accordingly.
      *
      * @param alphabet The alphabet to use in the model.
      * @param data     A pointer toward the SiteContainer for which the substitution model is designed.
@@ -217,9 +185,9 @@ class PhylogeneticsApplicationTools
      * @throw Exception if an error occured.
      */
     static SubstitutionModel * getSubstitutionModel(
-      const Alphabet * alphabet,
-      const SiteContainer * data, 
-      map<string, string> & params,
+      const Alphabet* alphabet,
+      const SiteContainer* data, 
+      map<string, string>& params,
       const string & suffix = "",
       bool suffixIsOptional = true,
       bool verbose = true) throw (Exception);
@@ -232,31 +200,28 @@ class PhylogeneticsApplicationTools
      *
      * This function is mainly for internal usage, you're probably looking for the getSubstitutionModel or getSubstitutionModelSet function.
      *
-     * @param model The model to set.
-     * @param data     A pointer toward the SiteContainer for which the substitution model is designed.
-     *                 The alphabet associated to the data must be of the same type as the one specified for the model.
-     *                 May be equal to NULL, but in this case use_observed_freq option will be unavailable.
+     * @param model                   The model to set.
+     * @param unparsedParameterValues A map that contains all the model parameters
+     *                                names and their corresponding unparsed value, if they were found.
+     * @param modelPrefix The prefix to use to record prameters from this model.
+     * @param data   A pointer toward the SiteContainer for which the substitution model is designed.
+     *               The alphabet associated to the data must be of the same type as the one specified for the model.
+     *               May be equal to NULL, but in this case use_observed_freq option will be unavailable.
      * @param existingParams (in/out) A map with already existing value that have been found in previous calls, and may be recalled here.
      *                       New parameters found here will be added.
      * @param specificParams (out) Parameters specific to this model will be recorded here.
      * @param sharedParams (out) remote parameters will be recorded here.
-     * @param params The attribute map where options may be found.
-     * @param prefix A prefix to be applied to each attribute name (model number in the set).
-     * @param suffix A suffix to be applied to each attribute name.
-     * @param suffixIsOptional Tell if the suffix is absolutely required.
      * @param verbose Print some info to the 'message' output stream.
      * @throw Exception if an error occured.
      */
     static void setSubstitutionModelParametersInitialValues(
-      SubstitutionModel * model,
-      const SiteContainer * data,
-      map<string, double> & existingParams,
-      vector<string> & specificParams,
-      vector<string> & sharedParams,
-      map<string, string> & params,
-      const string & prefix,
-      const string & suffix,
-      bool suffixIsOptional,
+      SubstitutionModel* model,
+      map<string, string>& unparsedParameterValues,
+      const string& modelPrefix,
+      const SiteContainer* data,
+      map<string, double>& existingParams,
+      vector<string>& specificParams,
+      vector<string>& sharedParams,
       bool verbose) throw (Exception);
 
     /**
@@ -363,71 +328,53 @@ class PhylogeneticsApplicationTools
       bool suffixIsOptional = true,
       bool verbose = true) throw (Exception);
 
-
     /**
-     * @brief Build a DiscreteDistribution object according to options, with default parameter values.
+     * @brief Build a rate distribution as a DiscreteDistribution object with default parameter values according to a keyval description.
      *
-     * Options used are:
-     * - rate_distribution = [constant|gamma], the distribution to use.
-     *   Add '+invariant' for invariants.
-     * Options depending on other options:
-     * - If 'gamma' is selected:
-     *   - rate_distribution.classes_number = the number of categories to be used.
-     * - If'+invariant' is selected:
-     *   - rate_distribution.p = the proportion of invariants.
+     * Any kind of discrete distribution with a mean of 1 can be used as a rate distribution.
+     * Check the Bio++ Program Suite documentation for a description of the syntax.
+     * This function will resolve parameter aliasing, but will not assign initial values.
+     * It is mainly for internal usage, you're probably looking for the getRateDistribution function.
      *
-     * This function is mainly for internal usage, you're probably looking for the getRateDistribution function.
-     *
-     * @param params  The attribute map where options may be found.
-     * @param constDistAllowed Tell if the constant distribution is allowed as a choice.
-     * @param prefix  A prefix to be applied to each attribute name.
-     * @param suffix  A suffix to be applied to each attribute name.
-     * @param suffixIsOptional Tell if the suffix is absolutely required.
-     * @param verbose Print some info to the 'message' output stream.
+     * @param distDescription         A string describing the model in the keyval syntax.
+     * @param constDistAllowed        Tell if the constant distribution is allowed as a choice.
+     * @param unparsedParameterValues [out] a map that will contain all the distribution parameters
+     *                                names and their corresponding unparsed value, if they were found.
+     * @param verbose                 Print some info to the 'message' output stream.
      * @return A new DiscreteDistribution object according to options specified.
      * @throw Exception if an error occured.
      */
-    static DiscreteDistribution * getRateDistributionDefaultInstance(
-      map<string, string> & params,
+    static DiscreteDistribution* getRateDistributionDefaultInstance(
+      const string& distDescription,
+      map<string, string>& unparsedParameterValues,
       bool constDistAllowed = true,
-      const string & prefix = "",
-      const string & suffix = "",
-      bool suffixIsOptional = true,
       bool verbose = true) throw (Exception);
 
     /**
      * @brief Set parameter initial values of a given rate distribution according to options.
      *
-     * Parameters actually depends on the rate distirbution passed as argument.
+     * Parameters actually depends on the rate distribution passed as argument.
      * See getRateDistribution for more information.
      *
      * This function is mainly for internal usage, you're probably looking for the getRateDistribution function.
      *
-     * @param rDist The distribution to set.
-     * @param params  The attribute map where options may be found.
-     * @param prefix  A prefix to be applied to each attribute name.
-     * @param suffix  A suffix to be applied to each attribute name.
-     * @param suffixIsOptional Tell if the suffix is absolutely required.
-     * @param verbose Print some info to the 'message' output stream.
-     * @throw Exception if an error occured.
+     * @param rDist                   The distribution to set.
+     * @param unparsedParameterValues a map that contains all the distribution parameters
+     *                                names and their corresponding unparsed value, if they were found.
+     * @param verbose                 Print some info to the 'message' output stream.
+      * @throw Exception if an error occured.
      */
     static void setRateDistributionParametersInitialValues(
       DiscreteDistribution * rDist,
-      map<string, string> & params,
-      const string & prefix = "",
-      const string & suffix = "",
-      bool suffixIsOptional = true,
+      map<string, string> & unparsedParameterValues,
       bool verbose = true) throw (Exception);
 
     /**
      * @brief Build a DiscreteDistribution object according to options.
      *
-     * Options used are:
-     * - rate_distribution = [constant|gamma], the distribution to use.
-     * Options depending on other options:
-     * - If 'gamma' is selected:
-     *   - rate_distribution_gamma.alpha = the shape of the distribution
-     *   - rate_distribution.classes_number = the number of categories to be used.
+     * Creates a new rate distribution object according to distribution description syntax
+     * (see the Bio++ Progam Suite manual for a detailed description of this syntax). The
+     * function also parses the parameter values and set them accordingly.
      *
      * @param params  The attribute map where options may be found.
      * @param suffix  A suffix to be applied to each attribute name.
@@ -475,12 +422,14 @@ class PhylogeneticsApplicationTools
      * - optimization.topology.tolerance.before = Numerical parameters estimation prior to topology search.
      * - optimization.topology.tolerance.during = Numerical parameters estimation during topology search.
      *
-     * @param tl      The TreeLikelihood function to optimize.
-     * @param params  The attribute map where options may be found.
-     * @param suffix  A suffix to be applied to each attribute name.
+     * @param tl               The TreeLikelihood function to optimize.
+     * @param parameters       The initial list of parameters to optimize.
+     *                         Use tl->getIndependentParameters() in order to estimate all parameters.
+     * @param params           The attribute map where options may be found.
+     * @param suffix           A suffix to be applied to each attribute name.
      * @param suffixIsOptional Tell if the suffix is absolutely required.
-     * @param verbose Print some info to the 'message' output stream.
-     * @throw Exception Any exception that may happen during the optimization process.
+     * @param verbose          Print some info to the 'message' output stream.
+     * @throw Exception        Any exception that may happen during the optimization process.
      * @return A pointer toward the final likelihood object.
      * This pointer may be the same as passed in argument (tl), but in some cases the algorithm
      * clone this object. We may change this bahavior in the future...
@@ -489,10 +438,11 @@ class PhylogeneticsApplicationTools
      * tl = PhylogeneticsApplicationTools::optimizeParameters(tl, ...);
      * @endcode
      */
-    static TreeLikelihood * optimizeParameters(
-      TreeLikelihood * tl,
-      map<string, string> & params,
-      const string & suffix = "",
+    static TreeLikelihood* optimizeParameters(
+      TreeLikelihood* tl,
+      const ParameterList& parameters,
+      map<string, string>& params,
+      const string& suffix = "",
       bool suffixIsOptional = true,
       bool verbose = true)
       throw (Exception);
@@ -516,36 +466,24 @@ class PhylogeneticsApplicationTools
      * - optimization.final = [none|simplex|powell] Perform a downhill simplex or a Powell multidimensions optimization
      * - optimization.method_DB.nstep = number of progressive steps to use in DB algorithm.
      *
-     * @param tl      The ClockTreeLikelihood function to optimize.
-     * @param params  The attribute map where options may be found.
-     * @param suffix  A suffix to be applied to each attribute name.
+     * @param tl               The ClockTreeLikelihood function to optimize.
+     * @param parameters       The initial list of parameters to optimize.
+     *                         Use tl->getIndependentParameters() in order to estimate all parameters.
+     * @param params           The attribute map where options may be found.
+     * @param suffix           A suffix to be applied to each attribute name.
      * @param suffixIsOptional Tell if the suffix is absolutely required.
-     * @param verbose Print some info to the 'message' output stream.
-     * @throw Exception Any exception that may happen during the optimization process.
+     * @param verbose          Print some info to the 'message' output stream.
+     * @throw Exception        Any exception that may happen during the optimization process.
      */
     static void optimizeParameters(
       DiscreteRatesAcrossSitesClockTreeLikelihood * tl,
+      const ParameterList& parameters,
       map<string, string> & params,
       const string & suffix = "",
       bool suffixIsOptional = true,
       bool verbose = true)
       throw (Exception);
-
-    /**
-     * @brief This function prints the options available for substitution models.
-     */
-    static void printSubstitutionModelHelp();
-    
-    /**
-     * @brief This function prints the options available for covarion models.
-     */
-    static void printCovarionModelHelp();
-    
-    /**
-     * @brief This function prints the options available for rate distributions.
-     */
-    static void printRateDistributionHelp();
-    
+  
     /**
      * @brief This function prints the options available for optimization.
      *

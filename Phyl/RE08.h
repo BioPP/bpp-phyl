@@ -97,13 +97,14 @@ class RE08:
   public AbstractReversibleSubstitutionModel
 {
   protected:
-    ReversibleSubstitutionModel* _simpleModel;
-    RowMatrix<double> _simpleGenerator;
-    RowMatrix<double> _simpleExchangeabilities;
-    mutable double _exp;
-    mutable RowMatrix<double> _p;
-    double _lambda;
-    double _mu;
+    ReversibleSubstitutionModel* simpleModel_;
+    RowMatrix<double> simpleGenerator_;
+    RowMatrix<double> simpleExchangeabilities_;
+    mutable double exp_;
+    mutable RowMatrix<double> p_;
+    double lambda_;
+    double mu_;
+    string nestedPrefix_;
 
 	public:
     /**
@@ -122,17 +123,17 @@ class RE08:
     RE08(const RE08 & model):
       AbstractReversibleSubstitutionModel(model)
     {
-      _simpleModel = dynamic_cast<RE08 *>(model._simpleModel->clone());
+      simpleModel_ = dynamic_cast<RE08 *>(model.simpleModel_->clone());
     }
 
     RE08& operator=(const RE08 & model)
     {
       AbstractReversibleSubstitutionModel::operator=(model);
-      _simpleModel = dynamic_cast<RE08 *>(model._simpleModel->clone());
+      simpleModel_ = dynamic_cast<RE08 *>(model.simpleModel_->clone());
       return *this;
     }
 
-		virtual ~RE08() { delete _simpleModel; }
+		virtual ~RE08() { delete simpleModel_; }
 
     RE08 * clone() const { return new RE08(*this); }
 
@@ -156,16 +157,18 @@ class RE08:
 	
     void fireParameterChanged(const ParameterList &parameters)
     {
-      _simpleModel->matchParametersValues(parameters);
-      _lambda = _parameters[0]->getValue();
-      _mu     = _parameters[1]->getValue();
+      simpleModel_->matchParametersValues(parameters);
+      lambda_ = getParameter_(0).getValue();
+      mu_     = getParameter_(1).getValue();
       updateMatrices();
     }
 
-    unsigned int getNumberOfStates() const { return _size; }
+    unsigned int getNumberOfStates() const { return size_; }
 
     double getInitValue(int i, int state) const throw (BadIntException);
   
+    void setNamespace(const string& prefix);
+
   protected:
 
 		void updateMatrices();

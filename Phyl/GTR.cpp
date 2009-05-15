@@ -63,19 +63,27 @@ GTR::GTR(
 	double piC,
 	double piG,
 	double piT):
-	NucleotideSubstitutionModel(alpha)
+	NucleotideSubstitutionModel(alpha, "GTR.")
 {
-	_parameters.addParameter(Parameter("a", a, &Parameter::R_PLUS_STAR));
-	_parameters.addParameter(Parameter("b", b, &Parameter::R_PLUS_STAR));
-	_parameters.addParameter(Parameter("c", c, &Parameter::R_PLUS_STAR));
-	_parameters.addParameter(Parameter("d", d, &Parameter::R_PLUS_STAR));
-	_parameters.addParameter(Parameter("e", e, &Parameter::R_PLUS_STAR));
+	Parameter aP("GTR.a", a, &Parameter::R_PLUS_STAR);
+	addParameter_(aP);
+	Parameter bP("GTR.b", b, &Parameter::R_PLUS_STAR);
+	addParameter_(bP);
+	Parameter cP("GTR.c", c, &Parameter::R_PLUS_STAR);
+	addParameter_(cP);
+	Parameter dP("GTR.d", d, &Parameter::R_PLUS_STAR);
+	addParameter_(dP);
+	Parameter eP("GTR.e", e, &Parameter::R_PLUS_STAR);
+	addParameter_(eP);
 	_theta = piG + piC;
   _theta1 = piA / (1. - _theta);
   _theta2 = piG / _theta;
-	_parameters.addParameter(Parameter("theta" , _theta , new IncludingInterval(0.001, 0.999), true)); //Avoid numerical errors close to the bounds.
-	_parameters.addParameter(Parameter("theta1", _theta1, new IncludingInterval(0.001, 0.999), true));
-	_parameters.addParameter(Parameter("theta2", _theta2, new IncludingInterval(0.001, 0.999), true));
+	Parameter thetaP("GTR.theta" , _theta , new IncludingInterval(0.001, 0.999), true); //Avoid numerical errors close to the bounds.
+	addParameter_(thetaP);
+	Parameter theta1P("GTR.theta1", _theta1, new IncludingInterval(0.001, 0.999), true);
+	addParameter_(theta1P);
+	Parameter theta2P("GTR.theta2", _theta2, new IncludingInterval(0.001, 0.999), true);
+	addParameter_(theta2P);
 	updateMatrices();
 }
 
@@ -83,42 +91,42 @@ GTR::GTR(
 	
 void GTR::updateMatrices()
 {
-	_a = _parameters.getParameter("a")->getValue();
-	_b = _parameters.getParameter("b")->getValue();
-	_c = _parameters.getParameter("c")->getValue();
-	_d = _parameters.getParameter("d")->getValue();
-	_e = _parameters.getParameter("e")->getValue();
-	_theta  = _parameters.getParameter("theta")->getValue();
-	_theta1 = _parameters.getParameter("theta1")->getValue();
-	_theta2 = _parameters.getParameter("theta2")->getValue();
+	_a = getParameterValue("a");
+	_b = getParameterValue("b");
+	_c = getParameterValue("c");
+	_d = getParameterValue("d");
+	_e = getParameterValue("e");
+	_theta  = getParameterValue("theta");
+	_theta1 = getParameterValue("theta1");
+	_theta2 = getParameterValue("theta2");
   _piA = _theta1 * (1. - _theta);
   _piC = (1. - _theta2) * _theta;
   _piG = _theta2 * _theta;
   _piT = (1. - _theta1) * (1. - _theta);
   _p = 2*(_a*_piC*_piT+_b*_piA*_piT+_c*_piG*_piT+_d*_piA*_piC+_e*_piC*_piG+_piA*_piG);
 
-  _freq[0] = _piA;
-  _freq[1] = _piC;
-  _freq[2] = _piG;
-  _freq[3] = _piT;
+  freq_[0] = _piA;
+  freq_[1] = _piC;
+  freq_[2] = _piG;
+  freq_[3] = _piT;
 	
   // Exchangeability matrix:
-	_exchangeability(0,0) = (-_b*_piT-_piG-_d*_piC)/(_piA * _p);
-	_exchangeability(1,0) = _d/_p;
-	_exchangeability(0,1) = _d/_p;
-	_exchangeability(2,0) = 1/_p;
-	_exchangeability(0,2) = 1/_p;
-	_exchangeability(3,0) = _b/_p;
-	_exchangeability(0,3) = _b/_p;
-	_exchangeability(1,1) = (-_a*_piT-_e*_piG-_d*_piA)/(_piC * _p);
-	_exchangeability(1,2) = _e/_p;
-	_exchangeability(2,1) = _e/_p;
-	_exchangeability(1,3) = _a/_p;
-	_exchangeability(3,1) = _a/_p;
-	_exchangeability(2,2) = (-_c*_piT-_e*_piC-_piA)/(_piG * _p);
-	_exchangeability(2,3) = _c/_p;
-	_exchangeability(3,2) = _c/_p;
-	_exchangeability(3,3) = (-_c*_piG-_a*_piC-_b*_piA)/(_piT * _p);
+	exchangeability_(0,0) = (-_b*_piT-_piG-_d*_piC)/(_piA * _p);
+	exchangeability_(1,0) = _d/_p;
+	exchangeability_(0,1) = _d/_p;
+	exchangeability_(2,0) = 1/_p;
+	exchangeability_(0,2) = 1/_p;
+	exchangeability_(3,0) = _b/_p;
+	exchangeability_(0,3) = _b/_p;
+	exchangeability_(1,1) = (-_a*_piT-_e*_piG-_d*_piA)/(_piC * _p);
+	exchangeability_(1,2) = _e/_p;
+	exchangeability_(2,1) = _e/_p;
+	exchangeability_(1,3) = _a/_p;
+	exchangeability_(3,1) = _a/_p;
+	exchangeability_(2,2) = (-_c*_piT-_e*_piC-_piA)/(_piG * _p);
+	exchangeability_(2,3) = _c/_p;
+	exchangeability_(3,2) = _c/_p;
+	exchangeability_(3,3) = (-_c*_piG-_a*_piC-_b*_piA)/(_piT * _p);
 
   AbstractReversibleSubstitutionModel::updateMatrices();
 }
@@ -129,21 +137,20 @@ void GTR::setFreqFromData(const SequenceContainer & data, unsigned int pseudoCou
 {
 	map<int, double> freqs = SequenceContainerTools::getFrequencies(data);
 	double t = 0;
-	for(unsigned int i = 0; i < _size; i++) t += freqs[i] + pseudoCount;
+	for(unsigned int i = 0; i < size_; i++) t += freqs[i] + pseudoCount;
 	_piA = (freqs[0] + pseudoCount) / t;
 	_piC = (freqs[1] + pseudoCount) / t;
 	_piG = (freqs[2] + pseudoCount) / t;
 	_piT = (freqs[3] + pseudoCount) / t;
   vector<string> thetas(3);
-  thetas[0] = "theta";
-  thetas[1] = "theta1";
-  thetas[2] = "theta2";
-  ParameterList pl = _parameters.subList(thetas);
+  thetas[0] = getNamespace() + "theta";
+  thetas[1] = getNamespace() + "theta1";
+  thetas[2] = getNamespace() + "theta2";
+  ParameterList pl = getParameters().subList(thetas);
 	pl[0]->setValue(_piC + _piG);
 	pl[1]->setValue(_piA / (_piA + _piT));
 	pl[2]->setValue(_piG / (_piC + _piG));
   setParametersValues(pl);
-  updateMatrices();
 }
 
 /******************************************************************************/

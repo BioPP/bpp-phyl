@@ -215,7 +215,7 @@ class DRHomogeneousTreeLikelihood:
      *
      * These intermediate results may be used by other methods.
      */
-    virtual const VVVdouble & getTransitionProbabilitiesForNode(const Node * node) const { return _pxy[node->getId()]; }
+    virtual const VVVdouble & getTransitionProbabilitiesForNode(const Node * node) const { return pxy_[node->getId()]; }
        
   protected:
   

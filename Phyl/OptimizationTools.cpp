@@ -133,6 +133,7 @@ unsigned int OptimizationTools::optimizeTreeScale(
 
 unsigned int OptimizationTools::optimizeNumericalParameters(
   DiscreteRatesAcrossSitesTreeLikelihood * tl,
+  const ParameterList& parameters,
   OptimizationListener * listener,
   unsigned int nstep,
   double tolerance,
@@ -151,11 +152,11 @@ unsigned int OptimizationTools::optimizeNumericalParameters(
     desc->addOptimizer("Branch length parameters", new PseudoNewtonOptimizer(tl), tl->getBranchLengthsParameters().getParameterNames(), 2, MetaOptimizerInfos::IT_TYPE_FULL);
   else throw Exception("OptimizationTools::optimizeNumericalParameters. Unknown optimization method: " + optMethod);
   
-  ParameterList plsm = tl->getSubstitutionModelParameters();
+  ParameterList plsm = parameters.getCommonParametersWith(tl->getSubstitutionModelParameters());
   desc->addOptimizer("Substitution model parameter", new SimpleMultiDimensions(tl), plsm.getParameterNames(), 0, MetaOptimizerInfos::IT_TYPE_STEP);
   
 
-  ParameterList plrd = tl->getRateDistributionParameters();
+  ParameterList plrd = parameters.getCommonParametersWith(tl->getRateDistributionParameters());
   desc->addOptimizer("Rate distribution parameter", new SimpleMultiDimensions(tl), plrd.getParameterNames(), 0, MetaOptimizerInfos::IT_TYPE_STEP);
    
   MetaOptimizer optimizer(tl, desc, nstep);
@@ -166,10 +167,9 @@ unsigned int OptimizationTools::optimizeNumericalParameters(
   optimizer.getStopCondition()->setTolerance(tolerance);
   
   // Optimize TreeLikelihood function:
-  ParameterList pl = tl->getIndependentParameters();
   optimizer.setConstraintPolicy(AutoParameter::CONSTRAINTS_AUTO);
   if(listener) optimizer.addOptimizationListener(listener);
-  optimizer.init(pl);
+  optimizer.init(parameters);
   optimizer.optimize();
   if(verbose > 0) ApplicationTools::displayMessage("\n");
 
@@ -181,6 +181,7 @@ unsigned int OptimizationTools::optimizeNumericalParameters(
 
 unsigned int OptimizationTools::optimizeNumericalParameters2(
   DiscreteRatesAcrossSitesTreeLikelihood * tl,
+  const ParameterList& parameters,
   OptimizationListener * listener,
   double tolerance,
   unsigned int tlEvalMax,
@@ -208,8 +209,8 @@ unsigned int OptimizationTools::optimizeNumericalParameters2(
   else throw Exception("OptimizationTools::optimizeNumericalParameters2. Unknown optimization method: " + optMethod);
   
   //Numerical derivatives:
-  ParameterList tmp = tl->getSubstitutionModelParameters();
-  tmp.addParameters(tl->getRateDistributionParameters());
+  ParameterList tmp = parameters.getCommonParametersWith(tl->getSubstitutionModelParameters());
+  tmp.addParameters(parameters.getCommonParametersWith(tl->getRateDistributionParameters()));
   fun->setParametersToDerivate(tmp.getParameterNames());
  
   optimizer->setVerbose(verbose);
@@ -219,10 +220,9 @@ unsigned int OptimizationTools::optimizeNumericalParameters2(
   optimizer->getStopCondition()->setTolerance(tolerance);
   
   // Optimize TreeLikelihood function:
-  ParameterList pl = tl->getIndependentParameters();
   optimizer->setConstraintPolicy(AutoParameter::CONSTRAINTS_AUTO);
   if(listener) optimizer->addOptimizationListener(listener);
-  optimizer->init(pl);
+  optimizer->init(parameters);
   optimizer->optimize();
   if(verbose > 0) ApplicationTools::displayMessage("\n");
   
@@ -240,6 +240,7 @@ unsigned int OptimizationTools::optimizeNumericalParameters2(
 
 unsigned int OptimizationTools::optimizeBranchLengthsParameters(
   DiscreteRatesAcrossSitesTreeLikelihood * tl,
+  const ParameterList& parameters,
   OptimizationListener * listener,
   double tolerance,
   unsigned int tlEvalMax,
@@ -263,7 +264,7 @@ unsigned int OptimizationTools::optimizeBranchLengthsParameters(
   optimizer->getStopCondition()->setTolerance(tolerance);
   
   // Optimize TreeLikelihood function:
-  ParameterList pl = tl->getBranchLengthsParameters();
+  ParameterList pl = parameters.getCommonParametersWith(tl->getBranchLengthsParameters());
   optimizer->setConstraintPolicy(AutoParameter::CONSTRAINTS_AUTO);
   if(listener) optimizer->addOptimizationListener(listener);
   optimizer->init(pl);
@@ -280,6 +281,7 @@ unsigned int OptimizationTools::optimizeBranchLengthsParameters(
 
 unsigned int OptimizationTools::optimizeNumericalParametersWithGlobalClock(
   DiscreteRatesAcrossSitesClockTreeLikelihood * cl,
+  const ParameterList& parameters,
   OptimizationListener * listener,
   unsigned int nstep,
   double tolerance,
@@ -309,16 +311,16 @@ unsigned int OptimizationTools::optimizeNumericalParametersWithGlobalClock(
   else throw Exception("OptimizationTools::optimizeNumericalParametersWithGlobalClock. Unknown optimization method: " + optMethod);
 
   //Numerical derivatives:
-  ParameterList tmp = cl->getBranchLengthsParameters();
+  ParameterList tmp = parameters.getCommonParametersWith(cl->getBranchLengthsParameters());
   fun->setParametersToDerivate(tmp.getParameterNames());
 
-  ParameterList plsm = cl->getSubstitutionModelParameters();
+  ParameterList plsm = parameters.getCommonParametersWith(cl->getSubstitutionModelParameters());
   if(plsm.size() < 10)
     desc->addOptimizer("Substitution model parameter", new SimpleMultiDimensions(cl), plsm.getParameterNames(), 0, MetaOptimizerInfos::IT_TYPE_STEP);
   else
     desc->addOptimizer("Substitution model parameters", new DownhillSimplexMethod(cl), plsm.getParameterNames(), 0, MetaOptimizerInfos::IT_TYPE_FULL);
   
-  ParameterList plrd = cl->getRateDistributionParameters();
+  ParameterList plrd = parameters.getCommonParametersWith(cl->getRateDistributionParameters());
   if(plrd.size() < 10)
     desc->addOptimizer("Rate distribution parameter", new SimpleMultiDimensions(cl), plrd.getParameterNames(), 0, MetaOptimizerInfos::IT_TYPE_STEP);
   else
@@ -332,10 +334,9 @@ unsigned int OptimizationTools::optimizeNumericalParametersWithGlobalClock(
   optimizer.getStopCondition()->setTolerance(tolerance);
   
   // Optimize TreeLikelihood function:
-  ParameterList pl = cl->getIndependentParameters();
   optimizer.setConstraintPolicy(AutoParameter::CONSTRAINTS_AUTO);
   if(listener) optimizer.addOptimizationListener(listener);
-  optimizer.init(pl);
+  optimizer.init(parameters);
   optimizer.optimize();
   if(verbose > 0) ApplicationTools::displayMessage("\n");
   
@@ -347,6 +348,7 @@ unsigned int OptimizationTools::optimizeNumericalParametersWithGlobalClock(
 
 unsigned int OptimizationTools::optimizeNumericalParametersWithGlobalClock2(
   DiscreteRatesAcrossSitesClockTreeLikelihood * cl,
+  const ParameterList& parameters,
   OptimizationListener * listener,
   double tolerance,
   unsigned int tlEvalMax,
@@ -375,7 +377,7 @@ unsigned int OptimizationTools::optimizeNumericalParametersWithGlobalClock2(
   else throw Exception("OptimizationTools::optimizeBranchLengthsParameters. Unknown optimization method: " + optMethod);
   
   //Numerical derivatives:
-  ParameterList tmp = cl->getIndependentParameters();
+  ParameterList tmp = parameters.getCommonParametersWith(cl->getParameters());
   fun->setParametersToDerivate(tmp.getParameterNames());
 
   optimizer->setVerbose(verbose);
@@ -385,10 +387,9 @@ unsigned int OptimizationTools::optimizeNumericalParametersWithGlobalClock2(
   optimizer->getStopCondition()->setTolerance(tolerance);
 
   // Optimize TreeLikelihood function:
-  ParameterList pl = cl->getIndependentParameters();
   optimizer->setConstraintPolicy(AutoParameter::CONSTRAINTS_AUTO);
   if(listener) optimizer->addOptimizationListener(listener);
-  optimizer->init(pl);
+  optimizer->init(parameters);
   optimizer->optimize();
   if(verbose > 0) ApplicationTools::displayMessage("\n");
   
@@ -408,7 +409,8 @@ void NNITopologyListener::topologyChangeSuccessful(const TopologyChangeEvent & e
   if(_optimizeCounter == _optimizeNumerical)
   {
     DiscreteRatesAcrossSitesTreeLikelihood * likelihood = dynamic_cast<DiscreteRatesAcrossSitesTreeLikelihood *>(_topoSearch->getSearchableObject());
-    OptimizationTools::optimizeNumericalParameters(likelihood, NULL, _nStep, _tolerance, 1000000, _messenger, _profiler, _verbose, _optMethod);
+    parameters_.matchParametersValues(likelihood->getParameters());
+    OptimizationTools::optimizeNumericalParameters(likelihood, parameters_, NULL, _nStep, _tolerance, 1000000, _messenger, _profiler, _verbose, _optMethod);
     _optimizeCounter = 0;
   }
 }
@@ -421,7 +423,8 @@ void NNITopologyListener2::topologyChangeSuccessful(const TopologyChangeEvent & 
   if(_optimizeCounter == _optimizeNumerical)
   {
     DiscreteRatesAcrossSitesTreeLikelihood * likelihood = dynamic_cast<DiscreteRatesAcrossSitesTreeLikelihood *>(_topoSearch->getSearchableObject());
-    OptimizationTools::optimizeNumericalParameters2(likelihood, NULL, _tolerance, 1000000, _messenger, _profiler, _verbose, _optMethod);
+    parameters_.matchParametersValues(likelihood->getParameters());
+    OptimizationTools::optimizeNumericalParameters2(likelihood, parameters_, NULL, _tolerance, 1000000, _messenger, _profiler, _verbose, _optMethod);
     _optimizeCounter = 0;
   }
 }
@@ -430,6 +433,7 @@ void NNITopologyListener2::topologyChangeSuccessful(const TopologyChangeEvent & 
 
 NNIHomogeneousTreeLikelihood * OptimizationTools::optimizeTreeNNI(
     NNIHomogeneousTreeLikelihood * tl,
+    const ParameterList& parameters,
     bool optimizeNumFirst,
     double tolBefore,
     double tolDuring,
@@ -446,11 +450,11 @@ NNIHomogeneousTreeLikelihood * OptimizationTools::optimizeTreeNNI(
   //Roughly optimize parameter
   if(optimizeNumFirst)
   {
-    OptimizationTools::optimizeNumericalParameters(tl, NULL, nStep, tolBefore, 1000000, messageHandler, profiler, verbose, optMethod);
+    OptimizationTools::optimizeNumericalParameters(tl, parameters, NULL, nStep, tolBefore, 1000000, messageHandler, profiler, verbose, optMethod);
   }
   //Begin topo search:
   NNITopologySearch topoSearch(*tl, nniMethod, verbose > 2 ? verbose - 2 : 0);
-  NNITopologyListener *topoListener = new NNITopologyListener(&topoSearch, tolDuring, messageHandler, profiler, verbose, optMethod, nStep);
+  NNITopologyListener *topoListener = new NNITopologyListener(&topoSearch, parameters, tolDuring, messageHandler, profiler, verbose, optMethod, nStep);
   topoListener->setNumericalOptimizationCounter(numStep);
   topoSearch.addTopologyListener(*topoListener);
   topoSearch.search();
@@ -462,6 +466,7 @@ NNIHomogeneousTreeLikelihood * OptimizationTools::optimizeTreeNNI(
 
 NNIHomogeneousTreeLikelihood * OptimizationTools::optimizeTreeNNI2(
     NNIHomogeneousTreeLikelihood * tl,
+    const ParameterList& parameters,
     bool optimizeNumFirst,
     double tolBefore,
     double tolDuring,
@@ -477,11 +482,11 @@ NNIHomogeneousTreeLikelihood * OptimizationTools::optimizeTreeNNI2(
   //Roughly optimize parameter
   if(optimizeNumFirst)
   {
-    OptimizationTools::optimizeNumericalParameters2(tl, NULL, tolBefore, 1000000, messageHandler, profiler, verbose, optMethod);
+    OptimizationTools::optimizeNumericalParameters2(tl, parameters, NULL, tolBefore, 1000000, messageHandler, profiler, verbose, optMethod);
   }
   //Begin topo search:
   NNITopologySearch topoSearch(*tl, nniMethod, verbose > 2 ? verbose - 2 : 0);
-  NNITopologyListener2 *topoListener = new NNITopologyListener2(&topoSearch, tolDuring, messageHandler, profiler, verbose, optMethod);
+  NNITopologyListener2 *topoListener = new NNITopologyListener2(&topoSearch, parameters, tolDuring, messageHandler, profiler, verbose, optMethod);
   topoListener->setNumericalOptimizationCounter(numStep);
   topoSearch.addTopologyListener(*topoListener);
   topoSearch.search();
@@ -534,8 +539,6 @@ TreeTemplate<Node> * OptimizationTools::buildDistanceTree(
   TreeTemplate<Node> * tree = NULL;
   TreeTemplate<Node> * previousTree = NULL;
   bool test = true;
-//  double previousLL = -log(0.);
-//  double currentLL = -log(0.);
   while(test)
   {
     //Compute matrice:
@@ -568,19 +571,14 @@ TreeTemplate<Node> * OptimizationTools::buildDistanceTree(
     //Now, re-estimate parameters:
     DRHomogeneousTreeLikelihood tl(*tree, *estimationMethod.getData(), estimationMethod.getModel(), estimationMethod.getRateDistribution(), true, verbose > 1);
     tl.initialize();
+    ParameterList parameters = tl.getParameters();
     if(!optimizeBrLen)
     {
       vector<string> vs = tl.getBranchLengthsParameters().getParameterNames();
-      for(unsigned int i = 0; i < vs.size(); i++)
-      {
-        tl.ignoreParameter(vs[i]);
-      }
+      parameters.deleteParameters(vs);
     }
-    for(unsigned int i = 0; i < parametersToIgnore.size(); i++)
-      tl.ignoreParameter(parametersToIgnore[i]->getName());
-    optimizeNumericalParameters(&tl, NULL, 0, tolerance, tlEvalMax, messenger, profiler, verbose > 0 ? verbose - 1 : 0);
-    //previousLL = currentLL;
-    //currentLL = tl.getLogLikelihood();
+    parameters.deleteParameters(parametersToIgnore.getParameterNames());
+    optimizeNumericalParameters(&tl, parameters, NULL, 0, tolerance, tlEvalMax, messenger, profiler, verbose > 0 ? verbose - 1 : 0);
     if(verbose > 0)
     {
       ParameterList tmp = tl.getSubstitutionModelParameters();
@@ -590,7 +588,6 @@ TreeTemplate<Node> * OptimizationTools::buildDistanceTree(
       for(unsigned int i = 0; i < tmp.size(); i++)
         ApplicationTools::displayResult(tmp[i]->getName(), TextTools::toString(tmp[i]->getValue()));
     }
-    //test = (std::abs(currentLL - previousLL) > tolerance);
   }
   return tree;
 }

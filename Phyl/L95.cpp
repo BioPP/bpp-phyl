@@ -58,12 +58,16 @@ L95::L95(
 	double gamma,
 	double delta,
 	double theta):
-	NucleotideSubstitutionModel(alpha)
+	NucleotideSubstitutionModel(alpha, "L95.")
 {
-	_parameters.addParameter(Parameter("beta" , beta , &Parameter::R_PLUS_STAR));
-	_parameters.addParameter(Parameter("gamma", gamma, &Parameter::R_PLUS_STAR));
-	_parameters.addParameter(Parameter("delta", delta, &Parameter::R_PLUS_STAR));
-	_parameters.addParameter(Parameter("theta" , theta , &Parameter::PROP_CONSTRAINT_EX));
+	Parameter betaP("L95.beta" , beta , &Parameter::R_PLUS_STAR);
+	addParameter_(betaP);
+	Parameter gammaP("L95.gamma", gamma, &Parameter::R_PLUS_STAR);
+	addParameter_(gammaP);
+	Parameter deltaP("L95.delta", delta, &Parameter::R_PLUS_STAR);
+	addParameter_(deltaP);
+	Parameter thetaP("L95.theta" , theta , &Parameter::PROP_CONSTRAINT_EX);
+	addParameter_(thetaP);
 	updateMatrices();
 }
 
@@ -71,33 +75,33 @@ L95::L95(
 	
 void L95::updateMatrices()
 {
-	_beta  = _parameters.getParameter("beta")->getValue();
-	_gamma = _parameters.getParameter("gamma")->getValue();
-	_delta = _parameters.getParameter("delta")->getValue();
-	_theta = _parameters.getParameter("theta")->getValue();
+	_beta  = getParameterValue("beta");
+	_gamma = getParameterValue("gamma");
+	_delta = getParameterValue("delta");
+	_theta = getParameterValue("theta");
 
-  _freq[0] = _piA = (1. - _theta)/2.;
-  _freq[1] = _piC = _theta/2.;
-  _freq[2] = _piG = _theta/2;
-  _freq[3] = _piT = (1. - _theta)/2.;
+  freq_[0] = _piA = (1. - _theta)/2.;
+  freq_[1] = _piC = _theta/2.;
+  freq_[2] = _piG = _theta/2;
+  freq_[3] = _piT = (1. - _theta)/2.;
 	
   // Exchangeability matrix:
-	_exchangeability(0,0) = -_gamma*_piT-_piG-_beta*_piC;
-	_exchangeability(1,0) = _beta;
-	_exchangeability(0,1) = _beta;
-	_exchangeability(2,0) = 1.;
-	_exchangeability(0,2) = 1.;
-	_exchangeability(3,0) = _gamma;
-	_exchangeability(0,3) = _gamma;
-	_exchangeability(1,1) = -_piT-_delta*_piG-_beta*_piA;
-	_exchangeability(1,2) = _delta;
-	_exchangeability(2,1) = _delta;
-	_exchangeability(1,3) = 1.;
-	_exchangeability(3,1) = 1.;
-	_exchangeability(2,2) = -_beta*_piT-_delta*_piC-_piA;
-	_exchangeability(2,3) = _beta;
-	_exchangeability(3,2) = _beta;
-	_exchangeability(3,3) = -_beta*_piG-_piC-_gamma*_piA;
+	exchangeability_(0,0) = -_gamma*_piT-_piG-_beta*_piC;
+	exchangeability_(1,0) = _beta;
+	exchangeability_(0,1) = _beta;
+	exchangeability_(2,0) = 1.;
+	exchangeability_(0,2) = 1.;
+	exchangeability_(3,0) = _gamma;
+	exchangeability_(0,3) = _gamma;
+	exchangeability_(1,1) = -_piT-_delta*_piG-_beta*_piA;
+	exchangeability_(1,2) = _delta;
+	exchangeability_(2,1) = _delta;
+	exchangeability_(1,3) = 1.;
+	exchangeability_(3,1) = 1.;
+	exchangeability_(2,2) = -_beta*_piT-_delta*_piC-_piA;
+	exchangeability_(2,3) = _beta;
+	exchangeability_(3,2) = _beta;
+	exchangeability_(3,3) = -_beta*_piG-_piC-_gamma*_piA;
 
   AbstractReversibleSubstitutionModel::updateMatrices();
 }
@@ -108,10 +112,10 @@ void L95::setFreqFromData(const SequenceContainer & data)
 {
 	map<int, double> freqs = SequenceContainerTools::getFrequencies(data);
 	double t = 0;
-	for(unsigned int i = 0; i < _size; i++) t += freqs[i];
+	for(unsigned int i = 0; i < size_; i++) t += freqs[i];
 	_piC = freqs[1] / t;
 	_piG = freqs[2] / t;
-	_parameters.getParameter("theta")->setValue(_piC + _piG);
+	getParameter_("theta").setValue(_piC + _piG);
   updateMatrices();
 }
 

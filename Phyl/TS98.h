@@ -87,14 +87,16 @@ class TS98:
      * @param normalizeRateChanges Tell if the rate transition matrix should be normalized.
      */
     TS98(ReversibleSubstitutionModel * model, double s1 = 1., double s2 = 1., bool normalizeRateChanges = false):
-      MarkovModulatedSubstitutionModel(model, normalizeRateChanges)
+      MarkovModulatedSubstitutionModel(model, normalizeRateChanges, "TS98.")
     {
       _nbRates = 2;
       _ratesExchangeability.resize(2, 2);
       _rates.resize(2, 2);
       _ratesFreq.resize(2);
-      _parameters.addParameter(Parameter("s1", s1, &Parameter::R_PLUS_STAR));
-      _parameters.addParameter(Parameter("s2", s2, &Parameter::R_PLUS_STAR));
+      Parameter p1("TS98.s1", s1, &Parameter::R_PLUS_STAR);
+      addParameter_(p1);
+      Parameter p2("TS98.s2", s2, &Parameter::R_PLUS_STAR);
+      addParameter_(p2);
       updateRatesModel();
       updateMatrices();
     }
@@ -114,8 +116,8 @@ class TS98:
   protected:
     void updateRatesModel()
     {
-      double s1 = _parameters.getParameter("s1")->getValue();
-      double s2 = _parameters.getParameter("s2")->getValue();
+      double s1 = getParameterValue("s1");
+      double s2 = getParameterValue("s2");
       _ratesFreq[0] = s2/(s1+s2);
       _ratesFreq[1] = s1/(s1+s2);
       _rates(1,1) = (s1+s2)/s1;

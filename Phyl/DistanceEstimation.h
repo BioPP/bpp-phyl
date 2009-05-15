@@ -261,16 +261,6 @@ class TwoTreeLikelihood:
 		virtual void initParameters();
 
 		/**
-		 * @brief This removes a particular parameter from the list.
-		 *
-		 * This method may be used to not estimate a parameter after having
-		 * fixed its value. The previous method reset all calls of thos one.
-		 *
-		 * @param name The name of the parameter to ignore.
-		 */
-		virtual void ignoreParameter(const string & name) throw (ParameterNotFoundException);
-
-		/**
 		 * @brief All parameters are stores in a parameter list.
 		 *
 		 * This function apply these parameters to the substitution model,
@@ -303,7 +293,7 @@ class DistanceEstimation:
 		Optimizer * _optimizer;
 		MetaOptimizer * _defaultOptimizer;
 		unsigned int _verbose;
-		ParameterList _parameters;
+		ParameterList parameters_;
 
 	public:
 		
@@ -344,7 +334,7 @@ class DistanceEstimation:
       _optimizer(dynamic_cast<Optimizer *>(distanceEstimation._optimizer->clone())),
       _defaultOptimizer(dynamic_cast<MetaOptimizer *>(_defaultOptimizer->clone())),
       _verbose(distanceEstimation._verbose),
-      _parameters(distanceEstimation._parameters)
+      parameters_(distanceEstimation.parameters_)
     {
       if(distanceEstimation._dist != NULL)
         _dist = new DistanceMatrix(*distanceEstimation._dist);
@@ -372,7 +362,7 @@ class DistanceEstimation:
       _optimizer = dynamic_cast<Optimizer *>(distanceEstimation._optimizer->clone());
       // _defaultOptimizer has already been initialized since the default constructor has been called.
       _verbose = distanceEstimation._verbose;
-      _parameters = distanceEstimation._parameters;
+      parameters_ = distanceEstimation.parameters_;
       return *this;
     }
 
@@ -454,7 +444,7 @@ class DistanceEstimation:
 		 */
 		void setAdditionalParameters(const ParameterList & parameters)
 		{
-      _parameters = parameters;
+      parameters_ = parameters;
 		}
 
     /**
@@ -462,7 +452,7 @@ class DistanceEstimation:
      */
     void resetAdditionalParameters()
     {
-      _parameters.reset();
+      parameters_.reset();
     }
 
     /**

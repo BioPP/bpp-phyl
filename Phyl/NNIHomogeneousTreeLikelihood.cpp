@@ -59,14 +59,14 @@ void BranchLikelihood::initModel(const SubstitutionModel *model, const DiscreteD
 {
   this->_model = model;
   _rDist = rDist;
-  _nbStates = model->getNumberOfStates();
-  _nbClasses  = rDist->getNumberOfCategories();
-  _pxy.resize(_nbClasses);
-  for(unsigned int i = 0; i < _nbClasses; i++)
+  nbStates_ = model->getNumberOfStates();
+  nbClasses_  = rDist->getNumberOfCategories();
+  pxy_.resize(nbClasses_);
+  for(unsigned int i = 0; i < nbClasses_; i++)
   {
-    _pxy[i].resize(_nbStates);
-    for(unsigned int j = 0; j < _nbStates; j++)
-      _pxy[i][j].resize(_nbStates);
+    pxy_[i].resize(nbStates_);
+    for(unsigned int j = 0; j < nbStates_; j++)
+      pxy_[i][j].resize(nbStates_);
   }
 }
 
@@ -74,19 +74,19 @@ void BranchLikelihood::initModel(const SubstitutionModel *model, const DiscreteD
 
 void BranchLikelihood::computeAllTransitionProbabilities()
 {
-  double l = _parameters.getParameter("BrLen")->getValue(); 
+  double l = getParameterValue("BrLen"); 
 
   //Computes all pxy once for all:
-  for(unsigned int c = 0; c < _nbClasses; c++)
+  for(unsigned int c = 0; c < nbClasses_; c++)
   {
-    VVdouble * _pxy_c = & _pxy[c];
+    VVdouble * pxy__c = & pxy_[c];
     RowMatrix<double> Q = _model->getPij_t(l * _rDist->getCategory(c));
-    for(unsigned int x = 0; x < _nbStates; x++)
+    for(unsigned int x = 0; x < nbStates_; x++)
     {
-      Vdouble * _pxy_c_x = & (* _pxy_c)[x];
-      for(unsigned int y = 0; y < _nbStates; y++)
+      Vdouble * pxy__c_x = & (* pxy__c)[x];
+      for(unsigned int y = 0; y < nbStates_; y++)
       {
-        (* _pxy_c_x)[y] = Q(x, y);
+        (* pxy__c_x)[y] = Q(x, y);
       }
     }
   } 
@@ -102,18 +102,18 @@ void BranchLikelihood::computeLogLikelihood()
   {
     VVdouble * arrayTmp_i = & _arrayTmp[i];
     const VVdouble * array2_i = & (*_array2)[i];
-    for(unsigned int c = 0; c < _nbClasses; c++)
+    for(unsigned int c = 0; c < nbClasses_; c++)
     {
       Vdouble * arrayTmp_i_c = & (*arrayTmp_i)[c];
       const Vdouble * array2_i_c = & (*array2_i)[c];
-      VVdouble *_pxy_c = & _pxy[c];
-      for(unsigned int x = 0; x < _nbStates; x++)
+      VVdouble *pxy__c = & pxy_[c];
+      for(unsigned int x = 0; x < nbStates_; x++)
       {
-        Vdouble *_pxy_c_x = & (*_pxy_c)[x];
+        Vdouble *pxy__c_x = & (*pxy__c)[x];
         double likelihood = 0;
-        for(unsigned int y = 0; y < _nbStates; y++)
+        for(unsigned int y = 0; y < nbStates_; y++)
         {
-          likelihood += (*_pxy_c_x)[y] * (*array2_i_c)[y];
+          likelihood += (*pxy__c_x)[y] * (*array2_i_c)[y];
         }
         (*arrayTmp_i_c)[x] *= likelihood;
       }
@@ -125,11 +125,11 @@ void BranchLikelihood::computeLogLikelihood()
   {
     VVdouble * arrayTmp_i = & _arrayTmp[i];
     double Li = 0;
-    for(unsigned int c = 0; c < _nbClasses; c++)
+    for(unsigned int c = 0; c < nbClasses_; c++)
     {
       Vdouble * arrayTmp_i_c = & (*arrayTmp_i)[c];
       double rc = _rDist->getProbability(c);
-      for(unsigned int x = 0; x < _nbStates; x++)
+      for(unsigned int x = 0; x < nbStates_; x++)
       {
         //Li += rc * _model->freq(x) * (* arrayTmp_i_c)[x];
         //freq is already accounted in the array
@@ -254,9 +254,9 @@ double NNIHomogeneousTreeLikelihood::testNNI(int nodeId) const throw (NodeExcept
   {
 		const Node * n = parentNeighbors[k]; // This neighbor
 		parentArrays[k] = & parentData->getLikelihoodArrayForNeighbor(n->getId()); 
-    //if(n != grandFather) parentTProbs[k] = & _pxy[n->getId()];
-    //else                 parentTProbs[k] = & _pxy[parent->getId()];
-    parentTProbs[k] = & _pxy[n->getId()];
+    //if(n != grandFather) parentTProbs[k] = & pxy_[n->getId()];
+    //else                 parentTProbs[k] = & pxy_[parent->getId()];
+    parentTProbs[k] = & pxy_[n->getId()];
 	}
 	
 	const DRASDRTreeLikelihoodNodeData * grandFatherData = & _likelihoodData->getNodeData(grandFather->getId());
@@ -271,7 +271,7 @@ double NNIHomogeneousTreeLikelihood::testNNI(int nodeId) const throw (NodeExcept
     if(grandFather->getFather() == NULL || n != grandFather->getFather())
     {
 		  grandFatherArrays.push_back(& grandFatherData->getLikelihoodArrayForNeighbor(n->getId())); 
-      grandFatherTProbs.push_back(& _pxy[n->getId()]);
+      grandFatherTProbs.push_back(& pxy_[n->getId()]);
     }
 	}
 
@@ -279,22 +279,22 @@ double NNIHomogeneousTreeLikelihood::testNNI(int nodeId) const throw (NodeExcept
   VVVdouble array1 = *sonArray;
   resetLikelihoodArray(array1);
 	grandFatherArrays.push_back(sonArray);
-	grandFatherTProbs.push_back(& _pxy[son->getId()]);
+	grandFatherTProbs.push_back(& pxy_[son->getId()]);
   if(grandFather->hasFather())
   {
-    computeLikelihoodFromArrays(grandFatherArrays, grandFatherTProbs, & grandFatherData->getLikelihoodArrayForNeighbor(grandFather->getFather()->getId()), & _pxy[grandFather->getId()], array1, nbGrandFatherNeighbors, _nbDistinctSites, _nbClasses, _nbStates, false); 
+    computeLikelihoodFromArrays(grandFatherArrays, grandFatherTProbs, & grandFatherData->getLikelihoodArrayForNeighbor(grandFather->getFather()->getId()), & pxy_[grandFather->getId()], array1, nbGrandFatherNeighbors, nbDistinctSites_, nbClasses_, nbStates_, false); 
   }
   else
   {
-    computeLikelihoodFromArrays(grandFatherArrays, grandFatherTProbs, array1, nbGrandFatherNeighbors + 1, _nbDistinctSites, _nbClasses, _nbStates, false); 
+    computeLikelihoodFromArrays(grandFatherArrays, grandFatherTProbs, array1, nbGrandFatherNeighbors + 1, nbDistinctSites_, nbClasses_, nbStates_, false); 
     
     //This is the root node, we have to account for the ancestral frequencies:
-    for(unsigned int i = 0; i < _nbDistinctSites; i++)
+    for(unsigned int i = 0; i < nbDistinctSites_; i++)
     {
-      for(unsigned int j = 0; j < _nbClasses; j++)
+      for(unsigned int j = 0; j < nbClasses_; j++)
       {
-        for(unsigned int x = 0; x < _nbStates; x++)
-          array1[i][j][x] *= _rootFreqs[x];
+        for(unsigned int x = 0; x < nbStates_; x++)
+          array1[i][j][x] *= rootFreqs_[x];
       }
     }
   }
@@ -303,17 +303,17 @@ double NNIHomogeneousTreeLikelihood::testNNI(int nodeId) const throw (NodeExcept
   VVVdouble array2 = *uncleArray;
   resetLikelihoodArray(array2);
 	parentArrays.push_back(uncleArray);
-	parentTProbs.push_back(& _pxy[uncle->getId()]);
-  computeLikelihoodFromArrays(parentArrays, parentTProbs, array2, nbParentNeighbors + 1, _nbDistinctSites, _nbClasses, _nbStates, false); 
+	parentTProbs.push_back(& pxy_[uncle->getId()]);
+  computeLikelihoodFromArrays(parentArrays, parentTProbs, array2, nbParentNeighbors + 1, nbDistinctSites_, nbClasses_, nbStates_, false); 
 
   //Initialize BranchLikelihood:
-  _brLikFunction->initModel(_model, _rateDistribution);
+  _brLikFunction->initModel(model_, _rateDistribution);
   _brLikFunction->initLikelihoods(&array1, &array2);
   ParameterList parameters;
   unsigned int pos = 0;
-  while(pos < _nodes.size() && _nodes[pos]->getId() != parent->getId()) pos++;
-  if(pos == _nodes.size()) throw Exception("NNIHomogeneousTreeLikelihood::testNNI. Unvalid node id.");
-  Parameter brLen = *_parameters.getParameter("BrLen" + TextTools::toString(pos));
+  while(pos < nodes_.size() && nodes_[pos]->getId() != parent->getId()) pos++;
+  if(pos == nodes_.size()) throw Exception("NNIHomogeneousTreeLikelihood::testNNI. Unvalid node id.");
+  Parameter brLen = getParameter("BrLen" + TextTools::toString(pos));
   brLen.setName("BrLen");
   parameters.addParameter(brLen);
   _brLikFunction->setParameters(parameters);
@@ -325,7 +325,7 @@ double NNIHomogeneousTreeLikelihood::testNNI(int nodeId) const throw (NodeExcept
   _brentOptimizer->init(parameters);
   _brentOptimizer->optimize();
   //_brLenNNIValues[nodeId] = _brLikFunction->getParameterValue("BrLen");
-  _brLenNNIValues[nodeId] = _brentOptimizer->getParameters().getParameter("BrLen")->getValue();
+  _brLenNNIValues[nodeId] = _brentOptimizer->getParameters().getParameter("BrLen").getValue();
   _brLikFunction->resetLikelihoods(); //Array1 and Array2 will be destroyed after this function call.
                                       //We should not keep pointers towards them...
 
@@ -354,20 +354,19 @@ void NNIHomogeneousTreeLikelihood::doNNI(int nodeId) throw (NodeException)
 	parent->addSon(*uncle);
 	grandFather->addSon(*son);
   unsigned int pos = 0;
-  while(pos < _nodes.size() && _nodes[pos]->getId() != parent->getId()) pos++;
-  if(pos == _nodes.size()) throw Exception("NNIHomogeneousTreeLikelihood::doNNI. Unvalid node id.");
+  while(pos < nodes_.size() && nodes_[pos]->getId() != parent->getId()) pos++;
+  if(pos == nodes_.size()) throw Exception("NNIHomogeneousTreeLikelihood::doNNI. Unvalid node id.");
 
   string name = "BrLen" + TextTools::toString(pos);
   if(_brLenNNIValues.find(nodeId) != _brLenNNIValues.end())
   {
     double length = _brLenNNIValues[nodeId];
-    _brLenParameters.setParameterValue(name, length);
-    Parameter * p = _parameters.getParameter(name);
-    if(p) p->setValue(length);
+    brLenParameters_.setParameterValue(name, length);
+    getParameter_(name).setValue(length);
     parent->setDistanceToFather(length);
   }
   else cerr << "ERROR, branch not found: " << nodeId << endl;
-  try { _brLenNNIParams.addParameter(*_brLenParameters.getParameter(name)); }
+  try { _brLenNNIParams.addParameter(brLenParameters_.getParameter(name)); }
   catch(ParameterException & ex)
   {
     cerr << "DEBUG:" << endl;
