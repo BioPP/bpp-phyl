@@ -284,10 +284,10 @@ void TwoTreeLikelihood::initParameters()
 	addParameters_(_brLenParameters);
 	
 	// Substitution model:
-	addParameters_(_model->getParameters());
+	addParameters_(_model->getIndependentParameters());
 	
 	// Rate distribution:
-	addParameters_(_rateDistribution->getParameters());
+	addParameters_(_rateDistribution->getIndependentParameters());
 }
 
 /******************************************************************************/
@@ -499,7 +499,7 @@ void TwoTreeLikelihood::computeTreeLikelihood()
 	}
 	
 	Vdouble f = _model->getFrequencies();
-	Vdouble p = _rateDistribution -> getProbabilities();
+	Vdouble p = _rateDistribution->getProbabilities();
 	for(unsigned int i = 0; i < _nbDistinctSites; i++)
   {
 		//For each site in the sequence,
@@ -589,7 +589,6 @@ double TwoTreeLikelihood::getFirstOrderDerivative(const string & variable) const
 throw (Exception)
 { 
 	const Parameter* p = &getParameter(variable);
-	if(p == NULL) throw ParameterNotFoundException("TwoTreeLikelihood::getFirstOrderDerivative", variable);
 	if(getRateDistributionParameters().hasParameter(variable))
   {
 		cout << "DEBUB: WARNING!!! Derivatives respective to rate distribution parameter are not implemented." << endl;
@@ -617,7 +616,6 @@ double TwoTreeLikelihood::getSecondOrderDerivative(const string & variable) cons
 throw (Exception)
 {
 	const Parameter* p = &getParameter(variable);
-	if(p == NULL) throw ParameterNotFoundException("TwoTreeLikelihood::getSecondOrderDerivative", variable);
 	if(getRateDistributionParameters().hasParameter(variable))
   {
 		cout << "DEBUB: WARNING!!! Derivatives respective to rate distribution parameter are not implemented." << endl;

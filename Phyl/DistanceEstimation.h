@@ -383,7 +383,7 @@ class DistanceEstimation:
   private:
     void _init()
     {
-      MetaOptimizerInfos * desc = new MetaOptimizerInfos();
+      MetaOptimizerInfos* desc = new MetaOptimizerInfos();
       vector<string> name;
       name.push_back("BrLen");
       desc->addOptimizer("Branch length", new PseudoNewtonOptimizer(NULL), name, 2, MetaOptimizerInfos::IT_TYPE_FULL);
