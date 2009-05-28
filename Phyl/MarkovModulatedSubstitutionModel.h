@@ -149,7 +149,7 @@ class MarkovModulatedSubstitutionModel:
       _model(model), _nbStates(0), _nbRates(0), _rates(), _ratesExchangeability(),
       _ratesFreq(), _ratesGenerator(), _generator(), _exchangeability(),
       _leftEigenVectors(), _rightEigenVectors(), _eigenValues(), _freq(), _normalizeRateChanges(normalizeRateChanges),
-      nestedPrefix_(model->getNamespace())
+      nestedPrefix_("model_" + model->getNamespace())
     {
       _model->setNamespace(prefix + nestedPrefix_);
       addParameters_(_model->getIndependentParameters());
@@ -208,7 +208,8 @@ class MarkovModulatedSubstitutionModel:
     {
       return i % _nbStates; 
     }
-    
+   
+    const ReversibleSubstitutionModel* getNestedModel() const { return _model; }
     /**
      * @brief Get the rate category corresponding to a particular state in the compound model.
      *
@@ -228,6 +229,7 @@ class MarkovModulatedSubstitutionModel:
 		 */
 		virtual void fireParameterChanged(const ParameterList & parameters)
     {
+      AbstractParameterAliasable::fireParameterChanged(parameters);
       _model->matchParametersValues(parameters);
       updateRatesModel();
       updateMatrices();

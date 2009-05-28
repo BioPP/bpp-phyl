@@ -49,13 +49,13 @@ using namespace std;
 
 RE08::RE08(ReversibleSubstitutionModel *simpleModel, double lambda, double mu):
   AbstractReversibleSubstitutionModel(simpleModel->getAlphabet(), "RE08."),
-  simpleModel_(simpleModel), lambda_(lambda), mu_(mu), nestedPrefix_(simpleModel->getNamespace())
+  simpleModel_(simpleModel), lambda_(lambda), mu_(mu), nestedPrefix_("model_" + simpleModel->getNamespace())
 {
   Parameter lambdaP("RE08.lambda", lambda, &Parameter::R_PLUS);  
   addParameter_(lambdaP);  
   Parameter muP("RE08.mu", mu, &Parameter::R_PLUS);
   addParameter_(muP);
-  simpleModel_->setNamespace("REO8." + nestedPrefix_);
+  simpleModel_->setNamespace("RE08." + nestedPrefix_);
   addParameters_(simpleModel->getParameters());
   //We need to overrired this from the AbstractSubstitutionModel constructor,
   //since the number of states in the model is no longer equal to the size of the alphabet.

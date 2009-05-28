@@ -62,7 +62,8 @@ MarkovModulatedSubstitutionModel::MarkovModulatedSubstitutionModel(const MarkovM
   _rightEigenVectors(model._rightEigenVectors),
   _eigenValues(model._eigenValues),
   _freq(model._freq),
-  _normalizeRateChanges(model._normalizeRateChanges)
+  _normalizeRateChanges(model._normalizeRateChanges),
+  nestedPrefix_(model.nestedPrefix_)
 {
   _model = dynamic_cast<ReversibleSubstitutionModel *>(model._model->clone());
 }
@@ -84,6 +85,7 @@ MarkovModulatedSubstitutionModel & MarkovModulatedSubstitutionModel::operator=(c
   _eigenValues          = model._eigenValues;
   _freq                 = model._freq;
   _normalizeRateChanges = model._normalizeRateChanges;
+  nestedPrefix_         = model.nestedPrefix_;
   return *this;
 }
 
@@ -196,8 +198,8 @@ double MarkovModulatedSubstitutionModel::getInitValue(int i, int state) const th
 
 void MarkovModulatedSubstitutionModel::setNamespace(const string& prefix)
 {
-  AbstractParametrizable::setNamespace(prefix);
-  //We also need to update the namespace of the nested distribution:
+  AbstractParameterAliasable::setNamespace(prefix);
+   //We also need to update the namespace of the nested model:
   _model->setNamespace(prefix + nestedPrefix_);
 }
 

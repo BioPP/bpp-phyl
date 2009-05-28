@@ -136,7 +136,8 @@ BipartitionTools.h\
 SubstitutionModelSet.h\
 SubstitutionModelSetTools.h\
 L95.h\
-RE08.h
+RE08.h\
+NexusIOTree.h
 
 
 CPP_FILES = \
@@ -209,7 +210,8 @@ SubstitutionModelSet.cpp\
 SubstitutionModelSetTools.cpp\
 FrequenciesSet.cpp\
 L95.cpp\
-RE08.cpp
+RE08.cpp\
+NexusIOTree.cpp
 
 CPP_EXTRA = \
 __DSO78FrequenciesCode\

@@ -166,6 +166,7 @@ class AbstractSubstitutionModel :
 		 */
 		void fireParameterChanged(const ParameterList & parameters)
 		{
+      AbstractParameterAliasable::fireParameterChanged(parameters);
 			updateMatrices();
 		}
 

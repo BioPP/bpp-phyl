@@ -94,9 +94,7 @@ class PhylogeneticsApplicationTools
     /**
      * @brief Build a Tree object according to options.
      *
-     * Only newick format is supported for now.
-     * Options used are:
-     * - tree.file = file_path, the path of the file to parse.
+     * See the Bio++ Program Suite manual for a description of available options.
      *
      * @param params  The attribute map where options may be found.
      * @param suffix  A suffix to be applied to each attribute name.
@@ -495,14 +493,12 @@ class PhylogeneticsApplicationTools
     /**
      * @brief Write a tree according to options.
      *
-     * Options used are:
-     * - output.tree.file = file_path, the file where to put the tree.
-     *
-     * NB: only Newick format is supported for now. 
+     * See the Bio++ Program Suite manual for a descriptio of all available options.
      *
      * @param tree    The tree to write.
      * @param params  The attribute map where options may be found.
      * @param suffix  A suffix to be applied to each attribute name.
+     * @param suffixIsOptional Tell if the suffix is absolutely required.
      * @param verbose Print some info to the 'message' output stream.
      * @throw Exception if an error occured.
      */
@@ -510,6 +506,7 @@ class PhylogeneticsApplicationTools
       const TreeTemplate<Node> & tree,
       map<string, string> & params,
       const string & suffix = "",
+      bool suffixIsOptional = true,
       bool verbose = true) throw (Exception);
     
     /**
@@ -545,6 +542,11 @@ class PhylogeneticsApplicationTools
      * @param out   The stream where to print.
      */
     static void printParameters(const DiscreteDistribution* rDist, ostream& out);
+
+  private:
+    static void describeParameters_(const ParameterAliasable* parametrizable, ostream& out, map<string, string>& globalAliases, const vector<string>& names, bool printLocalAliases = true);
+    static void describeSubstitutionModel_(const SubstitutionModel* model, ostream& out, map<string, string>& globalAliases);
+    static void describeDiscreteDistribution_(const DiscreteDistribution* rDist, ostream& out, map<string, string>& globalAliases);
 
 };
 

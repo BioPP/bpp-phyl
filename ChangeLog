@@ -1,3 +1,8 @@
+28/05/09 Julien Dutheil
+* A hell of bugs fixed!
+* Better support for the new model syntax in PhylogeneticsApplicationTools
+* Support for the Nexus tree format (single tree, read only for now).
+
 15/05/09 Julien Dutheil
 * New syntax for model specification in PhylogeneticApplicationTools.
 

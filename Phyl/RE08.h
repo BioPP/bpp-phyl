@@ -124,12 +124,26 @@ class RE08:
       AbstractReversibleSubstitutionModel(model)
     {
       simpleModel_ = dynamic_cast<RE08 *>(model.simpleModel_->clone());
+      simpleGenerator_ = model.simpleGenerator_;
+      simpleExchangeabilities_ = model.simpleExchangeabilities_;
+      exp_ = model.exp_;
+      p_ = model.p_;
+      lambda_ = model.lambda_;
+      mu_ = model.mu_;
+      nestedPrefix_ = model.nestedPrefix_;
     }
 
     RE08& operator=(const RE08 & model)
     {
       AbstractReversibleSubstitutionModel::operator=(model);
       simpleModel_ = dynamic_cast<RE08 *>(model.simpleModel_->clone());
+      simpleGenerator_ = model.simpleGenerator_;
+      simpleExchangeabilities_ = model.simpleExchangeabilities_;
+      exp_ = model.exp_;
+      p_ = model.p_;
+      lambda_ = model.lambda_;
+      mu_ = model.mu_;
+      nestedPrefix_ = model.nestedPrefix_;
       return *this;
     }
 
@@ -157,6 +171,7 @@ class RE08:
 	
     void fireParameterChanged(const ParameterList &parameters)
     {
+      AbstractParameterAliasable::fireParameterChanged(parameters);      
       simpleModel_->matchParametersValues(parameters);
       lambda_ = getParameter_(0).getValue();
       mu_     = getParameter_(1).getValue();
@@ -168,6 +183,8 @@ class RE08:
     double getInitValue(int i, int state) const throw (BadIntException);
   
     void setNamespace(const string& prefix);
+
+    const SubstitutionModel* getNestedModel() const { return simpleModel_; }
 
   protected:
 

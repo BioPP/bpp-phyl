@@ -290,7 +290,7 @@ class SubstitutionModel:
      * In most cases, this method will return i.
      * @param i The state.
      * @return The corresponding state in the alphabet.
-     * @see MarkovModulatedMarkovModels
+     * @see MarkovModulatedSubstitutionModel
      */
     virtual int getState(int i) const = 0;
 		

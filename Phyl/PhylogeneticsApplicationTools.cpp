@@ -43,6 +43,7 @@ knowledge of the CeCILL license and that you accept its terms.
 #include "OptimizationTools.h"
 #include "Tree.h"
 #include "Newick.h"
+#include "NexusIOTree.h"
 #include "RHomogeneousTreeLikelihood.h"
 #include "RNonHomogeneousTreeLikelihood.h"
 #include "DRHomogeneousTreeLikelihood.h"
@@ -82,23 +83,20 @@ TreeTemplate<Node> * PhylogeneticsApplicationTools::getTree(
   bool suffixIsOptional,
   bool verbose) throw (Exception)
 {
-  string treeFilePath = ApplicationTools::getAFilePath("tree.file", params, true, true, suffix, suffixIsOptional);
+  string format = ApplicationTools::getStringParameter("input.tree.format", params, "Newick", suffix, suffixIsOptional, true);
+  string treeFilePath = ApplicationTools::getAFilePath("input.tree.file", params, true, true, suffix, suffixIsOptional);
   
-  //Read the tree file:
-  Newick newick(true);
-  TreeTemplate<Node> * tree = dynamic_cast<TreeTemplate<Node> *>(newick.read(treeFilePath));
+  ITree* treeReader;
+  if(format == "Newick")
+    treeReader = new Newick(true);
+  else if(format == "Nexus")
+    treeReader = new NexusIOTree();
+  else throw Exception("Unknow format for tree reading: " + format);
+   TreeTemplate<Node> * tree = dynamic_cast<TreeTemplate<Node> *>(treeReader->read(treeFilePath));
+  delete treeReader;
+
   if(verbose) ApplicationTools::displayResult("Tree file", treeFilePath);
   return tree;
-}
-
-/******************************************************************************/
-
-void PhylogeneticsApplicationTools::printInputTreeHelp()
-{
-  if(!ApplicationTools::message) return;
-  *ApplicationTools::message << "Input tree parameters:" << endl;
-  *ApplicationTools::message << "tree.file                     | file from where to read the tree" << endl;
-  *ApplicationTools::message << "______________________________|___________________________________________" << endl;
 }
 
 /******************************************************************************/
@@ -136,10 +134,10 @@ SubstitutionModel* PhylogeneticsApplicationTools::getSubstitutionModelDefaultIns
 
     //Then we update the parameter set:
     for (map<string, string>::iterator it = unparsedParameterValuesNested.begin(); it != unparsedParameterValuesNested.end(); it++)
-      unparsedParameterValues["RE08." + it->first] = it->second;
-    if (args.find("lambda") == args.end())
+      unparsedParameterValues["RE08.model_" + it->first] = it->second;
+    if (args.find("lambda") != args.end())
       unparsedParameterValues["RE08.lambda"] = args["lambda"];
-    if (args.find("mu") == args.end())
+    if (args.find("mu") != args.end())
       unparsedParameterValues["RE08.mu"] = args["mu"];
   }  
   else if (modelName == "TS98")
@@ -162,10 +160,10 @@ SubstitutionModel* PhylogeneticsApplicationTools::getSubstitutionModelDefaultIns
 
     //Then we update the parameter set:
     for (map<string, string>::iterator it = unparsedParameterValuesNested.begin(); it != unparsedParameterValuesNested.end(); it++)
-      unparsedParameterValues["TS98." + it->first] = it->second;
-    if (args.find("s1") == args.end())
+      unparsedParameterValues["TS98.model_" + it->first] = it->second;
+    if (args.find("s1") != args.end())
       unparsedParameterValues["TS98.s1"] = args["s1"];
-    if (args.find("s2") == args.end())
+    if (args.find("s2") != args.end())
       unparsedParameterValues["TS98.s2"] = args["s2"];
   }
   else if (modelName == "G01")
@@ -194,10 +192,10 @@ SubstitutionModel* PhylogeneticsApplicationTools::getSubstitutionModelDefaultIns
     
     //Then we update the parameter set:
     for (map<string, string>::iterator it = unparsedParameterValuesNestedModel.begin(); it != unparsedParameterValuesNestedModel.end(); it++)
-      unparsedParameterValues["G01." + it->first] = it->second;
+      unparsedParameterValues["G01.model_" + it->first] = it->second;
     for (map<string, string>::iterator it = unparsedParameterValuesNestedDist.begin(); it != unparsedParameterValuesNestedDist.end(); it++)
-      unparsedParameterValues["G01." + it->first] = it->second;
-    if (args.find("nu") == args.end())
+      unparsedParameterValues["G01.rdist_" + it->first] = it->second;
+    if (args.find("nu") != args.end())
       unparsedParameterValues["G01.nu"] = args["nu"];
   }
   else
@@ -331,9 +329,9 @@ SubstitutionModel* PhylogeneticsApplicationTools::getSubstitutionModelDefaultIns
       else
         throw Exception("Model '" + modelName + "' unknown.");
     }
+    if (verbose)
+      ApplicationTools::displayResult("Substitution model", modelName);
   }
-  if (verbose)
-    ApplicationTools::displayResult("Substitution model", modelName);
 
   //Now look if some parameters are aliased:
   ParameterList pl = model->getIndependentParameters();
@@ -369,6 +367,7 @@ SubstitutionModel* PhylogeneticsApplicationTools::getSubstitutionModelDefaultIns
   if (args.find("useObservedFreqs.pseudoCount") != args.end())
     unparsedParameterValues[model->getNamespace() + "useObservedFreqs.pseudoCount"] = args["useObservedFreqs.pseudoCount"];
     
+
   return model;
 }
 
@@ -420,7 +419,7 @@ SubstitutionModel * PhylogeneticsApplicationTools::getSubstitutionModel(
     bool suffixIsOptional,
     bool verbose) throw (Exception)
 {
-  string modelDescription = ApplicationTools::getStringParameter("model", params, "JC69()", suffix, suffixIsOptional, verbose);
+  string modelDescription = ApplicationTools::getStringParameter("model", params, "JC69", suffix, suffixIsOptional, verbose);
   map<string, string> unparsedParameterValues;
   SubstitutionModel* model = getSubstitutionModelDefaultInstance(alphabet, modelDescription, unparsedParameterValues, true, true, verbose);
   setSubstitutionModelParametersInitialValues(model, unparsedParameterValues, data, verbose);
@@ -692,16 +691,16 @@ DiscreteDistribution* PhylogeneticsApplicationTools::getRateDistributionDefaultI
     if(TextTools::isEmpty(nestedDistDescription))
       throw Exception("PhylogeneticsApplicationTools::getRateDistributionDefaultInstance. Missing argument 'dist' for distribution 'Invariant'.");
     if(verbose)
-      ApplicationTools::displayResult("Invariant Mixed distribution" , distName);
+      ApplicationTools::displayResult("Invariant Mixed distribution" , distName );
     map<string, string> unparsedParameterValuesNested;
     DiscreteDistribution* nestedDistribution = getRateDistributionDefaultInstance(nestedDistDescription, unparsedParameterValuesNested, constDistAllowed, verbose);
     
     //Now we create the Invariant rate distribution:
-    rDist = new InvariantMixedDiscreteDistribution(nestedDistribution, 0., 0.000001, "Invariant");
+    rDist = new InvariantMixedDiscreteDistribution(nestedDistribution, 0., 0.000001, "Invariant.");
 
     //Then we update the parameter set:
     for(map<string, string>::iterator it = unparsedParameterValuesNested.begin(); it != unparsedParameterValuesNested.end(); it++)
-      unparsedParameterValues["Invariant." + it->first] = it->second;
+      unparsedParameterValues["Invariant.dist_" + it->first] = it->second;
     if(args.find("p") != args.end())
       unparsedParameterValues["Invariant.p"] = args["p"];
   }
@@ -761,7 +760,7 @@ void PhylogeneticsApplicationTools::setRateDistributionParametersInitialValues(
   rDist->matchParametersValues(pl);
   if(verbose)
   {
-    for(unsigned int c = 0; c < rDist -> getNumberOfCategories(); c++)
+    for(unsigned int c = 0; c < rDist->getNumberOfCategories(); c++)
     {
       ApplicationTools::displayResult("- Category " + TextTools::toString(c)
           + " (Pr = " + TextTools::toString(rDist->getProbability(c)) +") rate", TextTools::toString(rDist->getCategory(c)));
@@ -1205,52 +1204,131 @@ void PhylogeneticsApplicationTools::writeTree(
   const TreeTemplate<Node> & tree,
   map<string, string> & params,
   const string & suffix,
+  bool suffixIsOptional,
   bool verbose) throw (Exception)
 {
-  string file = ApplicationTools::getAFilePath("output.tree.file", params, true, false, suffix, false);
-  Newick newick;
-  newick.write(tree, file, true);
+  string format = ApplicationTools::getStringParameter("output.tree.format", params, "Newick", suffix, suffixIsOptional, false);
+  string file = ApplicationTools::getAFilePath("output.tree.file", params, true, false, suffix, suffixIsOptional);
+  OTree* treeWriter;
+  if(format == "Newick")
+    treeWriter = new Newick();
+//  else if(format == "Nexus")
+//    treeWriter = new NexusIOTree();
+  else throw Exception("Unknow format for tree writing: " + format);
+  treeWriter->write(tree, file, true);
+  delete treeWriter;
   if(verbose) ApplicationTools::displayResult("Wrote tree to file ", file);
 }
 
 /******************************************************************************/
 
-void PhylogeneticsApplicationTools::printOutputTreeHelp()
+void PhylogeneticsApplicationTools::describeParameters_(const ParameterAliasable* parametrizable, ostream& out, map<string, string>& globalAliases, const vector<string>& names, bool printLocalAliases)
 {
-  if(!ApplicationTools::message) return;
-  *ApplicationTools::message << "Output tree parameters:" << endl;
-  *ApplicationTools::message << "output.tree.file              | file where to write the tree" << endl;
-  *ApplicationTools::message << "______________________________|___________________________________________" << endl;
+  ParameterList pl = parametrizable->getIndependentParameters().subList(names);
+  for(unsigned int i = 0; i < pl.size(); i++)
+  {
+    if (i > 0) out << ", ";
+    string pname = parametrizable->getParameterNameWithoutNamespace(pl[i]->getName());
+    
+    //Check for global aliases:
+    if (globalAliases.find(pl[i]->getName()) == globalAliases.end())
+    {
+      out << pname << "=" << pl[i]->getValue();
+    }
+    else
+      out << pname << "=" << globalAliases[pl[i]->getName()];
+
+    //Now check for local aliases:
+    if(printLocalAliases)
+    {
+      vector<string> aliases = parametrizable->getAlias(pname);
+      for(unsigned int j = 0; aliases.size(); j++)
+      {
+        out << ", " << aliases[j] << "=" << pname;
+      }
+    }
+  }
+}
+
+/******************************************************************************/
+
+void PhylogeneticsApplicationTools::describeSubstitutionModel_(const SubstitutionModel* model, ostream& out, map<string, string>& globalAliases)
+{
+  const UserProteinSubstitutionModel* trial1 = dynamic_cast<const UserProteinSubstitutionModel *>(model);
+  if (trial1)
+  {
+    out << "Empirical(file=" << trial1->getPath() << ")" << endl;
+  }
+  else
+  {
+    const UserProteinSubstitutionModelF* trial2 = dynamic_cast<const UserProteinSubstitutionModelF *>(model);
+    if (trial2)
+    {
+      out << "Empirical+F(file=" << trial2->getPath() << ")" << endl;
+    }
+    else
+    {
+      const MarkovModulatedSubstitutionModel* trial3 = dynamic_cast<const MarkovModulatedSubstitutionModel*>(model);
+      if(trial3)
+      {
+        out << trial3->getName() << "(model=";
+        const SubstitutionModel* nestedModel = trial3->getNestedModel();
+        describeSubstitutionModel_(nestedModel, out, globalAliases);
+        out << ", ";
+        vector<string> names;
+        const G2001* trial4 = dynamic_cast<const G2001*>(model);
+        if(trial4)
+        {
+          //Also print distribution here:
+          out << "rdist=";
+          const DiscreteDistribution* nestedDist = trial4->getRateDistribution();
+          describeDiscreteDistribution_(nestedDist, out, globalAliases);
+          out << ", ";
+          names.push_back(trial4->getParameter("nu").getName());
+        }
+        const TS98* trial5 = dynamic_cast<const TS98*>(model);
+        if(trial5)
+        {
+          names.push_back(trial5->getParameter("s1").getName());
+          names.push_back(trial5->getParameter("s2").getName());
+        }
+        describeParameters_(trial3, out, globalAliases, names);
+        out << ")";
+      }
+      else
+      {
+        const RE08* trial4 = dynamic_cast<const RE08*>(model);
+        if(trial4)
+        {
+          out << trial4->getName() << "(model=";
+          const SubstitutionModel* nestedModel = trial4->getNestedModel();
+          describeSubstitutionModel_(nestedModel, out, globalAliases);
+          out << ", ";
+          vector<string> names;
+          names.push_back(trial4->getParameter("lambda").getName());
+          names.push_back(trial4->getParameter("mu").getName());
+          describeParameters_(trial4, out, globalAliases, names);
+          out << ")";
+        }
+        else
+        {
+          out << model->getName() << "(";
+          describeParameters_(model, out, globalAliases, model->getIndependentParameters().getParameterNames());
+          out << ")";
+        }
+      }
+    }
+  }
 }
 
 /******************************************************************************/
 
 void PhylogeneticsApplicationTools::printParameters(const SubstitutionModel* model, ostream& out)
 {
-  const UserProteinSubstitutionModel * trial1 = dynamic_cast<const UserProteinSubstitutionModel *>(model);
-  if(trial1)
-  {
-    out << "model = Empirical(file=" << trial1->getPath() << ")" << endl;
-  }
-  else
-  {
-    const UserProteinSubstitutionModelF * trial2 = dynamic_cast<const UserProteinSubstitutionModelF *>(model);
-    if(trial2)
-    {
-      out << "model = Empirical+F(file=" << trial2->getPath() << ")" << endl;
-    }
-    else
-    {
-      out << "model = " << model->getName() << "(";
-      ParameterList pl = model->getParameters();
-      for(unsigned int i = 0; i < pl.size(); i++)
-      {
-        if (i > 0) out << ", ";
-        out << model->getParameterNameWithoutNamespace(pl[i]->getName()) << "=" << pl[i]->getValue();
-      }
-      out << ")" << endl;
-    }
-  }
+  out << "model = ";
+  map<string, string> globalAliases;
+  describeSubstitutionModel_(model, out, globalAliases);
+  out << endl;
 }
 
 /******************************************************************************/
@@ -1283,47 +1361,27 @@ void PhylogeneticsApplicationTools::printParameters(const SubstitutionModelSet* 
   for(unsigned int i = 0; i < modelSet->getNumberOfModels(); i++)
   {
     const SubstitutionModel* model = modelSet->getModel(i);
-    out << endl;
-    const UserProteinSubstitutionModel * trial1 = dynamic_cast<const UserProteinSubstitutionModel *>(model);
-    if(trial1)
+    
+    //First get the global aliases for this model:
+    map<string, string> globalAliases;
+    vector<string> names = modelLinks[i];
+    for (unsigned int j = 0; j < names.size(); j++)
     {
-      out << "model" << (i+1) << " = Empirical(file=" << trial1->getPath() << ")" << endl;
-    }
-    else
-    {
-      const UserProteinSubstitutionModelF * trial2 = dynamic_cast<const UserProteinSubstitutionModelF *>(model);
-      if(trial2)
+      const string name = names[j];
+      if (parameterLinks[name].size() > 1)
       {
-        out << "model" << (i+1) << " = Empirical+F(file=" << trial2->getPath() << ")" << endl;
-      }
-      else
-      {
-        out << "model" << (i+1) << " = " << model->getName() << "(";
-        vector<string> names = modelLinks[i];
-        for(unsigned int j = 0; j < names.size(); j++)
+        //there is a global alias here
+        if(parameterLinks[name][0] != i) //Otherwise, this is the 'reference' value
         {
-          if (j > 0) out << ", ";
-          const string name = names[j];
-          if(parameterLinks[name].size() == 1)
-          {
-            out << modelSet->getParameterModelName(name) << "=" << modelSet->getParameterValue(name);
-          }
-          else
-          {
-            //size must be > 1 !
-            if(parameterLinks[name][0] == i)
-            {
-              out << modelSet->getParameterNameWithoutNamespace(modelSet->getParameterModelName(name)) << "=" << modelSet->getParameterValue(name);
-            }
-            else
-            {
-              out << modelSet->getParameterNameWithoutNamespace(modelSet->getParameterModelName(name)) << "=model" << (parameterLinks[name][0] + 1) << "." << modelSet->getParameterModelName(name);
-            }
-          }
+          globalAliases[name] = "model" + TextTools::toString(parameterLinks[name][0] + 1) + "." + modelSet->getParameterModelName(name);
         }
-        out << ")" << endl;
       }
     }
+
+    //Now print it:
+    out << endl << "model" << (i+1) << " =";
+    describeSubstitutionModel_(model, out, globalAliases);
+    out << endl;
     vector<int> ids = modelSet->getNodesWithModel(i);
     out << "model" << (i+1) << ".nodes_id = " << ids[0];
     for(unsigned int j = 1; j < ids.size(); j++)
@@ -1363,27 +1421,44 @@ void PhylogeneticsApplicationTools::printParameters(const SubstitutionModelSet* 
 
 /******************************************************************************/
 
+void PhylogeneticsApplicationTools::describeDiscreteDistribution_(const DiscreteDistribution* rDist, ostream& out, map<string, string>& globalAliases)
+{
+  const InvariantMixedDiscreteDistribution * invar = dynamic_cast<const InvariantMixedDiscreteDistribution *>(rDist);
+  const DiscreteDistribution* test = rDist;
+  if (invar)
+  {
+    test = invar->getVariableSubDistribution();
+    out << "Invariant(dist=";
+    describeDiscreteDistribution_(test, out, globalAliases);
+    out << ", ";
+    vector<string> names;
+    names.push_back(invar->getParameter("p").getName());
+    describeParameters_(invar, out, globalAliases, names);
+    out << ")";
+  }
+  else
+  {
+    test = dynamic_cast<const ConstantDistribution*>(rDist);
+    if(test) out << "Uniform";
+    else
+    {
+      test = dynamic_cast<const GammaDiscreteDistribution *>(rDist);
+      if(test)
+      {
+        out << "Gamma(n=" << rDist->getNumberOfCategories() << ", ";
+        describeParameters_(rDist, out, globalAliases, rDist->getIndependentParameters().getParameterNames(), false);
+        out << ")";
+      }
+      else throw Exception("PhylogeneticsApplicationTools::printParameters(DiscreteDistribution). Unsupported distribution.");
+    }
+  }
+}
+
 void PhylogeneticsApplicationTools::printParameters(const DiscreteDistribution* rDist, ostream& out)
 {
   out << "rate_distribution = ";
-  const InvariantMixedDiscreteDistribution * invar = dynamic_cast<const InvariantMixedDiscreteDistribution *>(rDist);
-  const DiscreteDistribution * dist = rDist;
-  if (invar)
-  {
-    dist = invar->getVariableSubDistribution();
-    cout << "Invariant(dist=";
-  }
-  const DiscreteDistribution* test;
-  test = dynamic_cast<const ConstantDistribution *>(dist);
-  if(test) out << "Uniform()";
-  else
-  {
-    test = dynamic_cast<const GammaDiscreteDistribution *>(dist);
-    if(test) out << "Gamma(n=" << rDist->getNumberOfCategories() << ", alpha=" << rDist->getParameter("alpha").getValue() << ")";
-    else throw Exception("PhylogeneticsApplicationTools::printParameters(DiscreteDistribution). Unsupported distribution.");
-  }
-  if (invar)
-    out << ")";
+  map<string, string> globalAliases;
+  describeDiscreteDistribution_(rDist, out, globalAliases);
   out << endl;
 }
 
