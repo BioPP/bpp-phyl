@@ -334,7 +334,8 @@ double RHomogeneousTreeLikelihood::getDLogLikelihood() const
 double RHomogeneousTreeLikelihood::getFirstOrderDerivative(const string & variable) const
 throw (Exception)
 { 
-  const Parameter * p = &getParameter(variable);
+	if (!hasParameter(variable))
+    throw ParameterNotFoundException("RHomogeneousTreeLikelihood::getFirstOrderDerivative().", variable);
   if(getRateDistributionParameters().hasParameter(variable))
   {
     throw Exception("Derivatives respective to rate distribution parameter are not implemented.");
@@ -580,7 +581,8 @@ double RHomogeneousTreeLikelihood::getD2LogLikelihood() const
 double RHomogeneousTreeLikelihood::getSecondOrderDerivative(const string & variable) const
 throw (Exception)
 {
-  const Parameter * p = &getParameter(variable);
+	if (!hasParameter(variable))
+    throw ParameterNotFoundException("RHomogeneousTreeLikelihood::getSecondOrderDerivative().", variable);
   if(getRateDistributionParameters().hasParameter(variable))
   {
     throw Exception("Derivatives respective to rate distribution parameter are not implemented.");

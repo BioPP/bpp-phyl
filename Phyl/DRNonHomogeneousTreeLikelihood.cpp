@@ -359,7 +359,8 @@ void DRNonHomogeneousTreeLikelihood::computeTreeDLikelihoods()
 double DRNonHomogeneousTreeLikelihood::getFirstOrderDerivative(const string & variable) const
 throw (Exception)
 { 
-  const Parameter * p = &getParameter(variable);
+	if (!hasParameter(variable))
+    throw ParameterNotFoundException("DRNonHomogeneousTreeLikelihood::getFirstOrderDerivative().", variable);
   if(getRateDistributionParameters().hasParameter(variable))
   {
     throw Exception("Derivatives respective to rate distribution parameters are not implemented.");
@@ -479,7 +480,8 @@ void DRNonHomogeneousTreeLikelihood::computeTreeD2Likelihoods()
 double DRNonHomogeneousTreeLikelihood::getSecondOrderDerivative(const string & variable) const
 throw (Exception)
 {
-  const Parameter * p = &getParameter(variable);
+	if (!hasParameter(variable))
+    throw ParameterNotFoundException("DRNonHomogeneousTreeLikelihood::getSecondOrderDerivative().", variable);
   if(getRateDistributionParameters().hasParameter(variable))
   {
     throw Exception("Derivatives respective to rate distribution parameters are not implemented.");

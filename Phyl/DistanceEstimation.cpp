@@ -588,7 +588,8 @@ void TwoTreeLikelihood::computeTreeD2Likelihood()
 double TwoTreeLikelihood::getFirstOrderDerivative(const string & variable) const
 throw (Exception)
 { 
-	const Parameter* p = &getParameter(variable);
+	if (!hasParameter(variable))
+    throw ParameterNotFoundException("TwoTreeLikelihood::getFirstOrderDerivative().", variable);
 	if(getRateDistributionParameters().hasParameter(variable))
   {
 		cout << "DEBUB: WARNING!!! Derivatives respective to rate distribution parameter are not implemented." << endl;
@@ -606,7 +607,8 @@ throw (Exception)
 	
 	// Get the node with the branch whose length must be derivated:
 	double d = 0;
-	for(unsigned int i = 0; i < _nbDistinctSites; i++) d += _rootWeights[i] * _dLikelihoods[i];
+	for(unsigned int i = 0; i < _nbDistinctSites; i++)
+    d += _rootWeights[i] * _dLikelihoods[i];
 	return -d;
 }
 
@@ -615,13 +617,14 @@ throw (Exception)
 double TwoTreeLikelihood::getSecondOrderDerivative(const string & variable) const
 throw (Exception)
 {
-	const Parameter* p = &getParameter(variable);
-	if(getRateDistributionParameters().hasParameter(variable))
+	if (!hasParameter(variable))
+    throw ParameterNotFoundException("TwoTreeLikelihood::getSecondOrderDerivative().", variable);
+	if (getRateDistributionParameters().hasParameter(variable))
   {
 		cout << "DEBUB: WARNING!!! Derivatives respective to rate distribution parameter are not implemented." << endl;
 		return log(-1.);
 	}
-	if(getSubstitutionModelParameters().hasParameter(variable))
+	if( getSubstitutionModelParameters().hasParameter(variable))
   {
 		cout << "DEBUB: WARNING!!! Derivatives respective to substitution model parameters are not implemented." << endl;
 		return log(-1.);
@@ -633,7 +636,8 @@ throw (Exception)
 	
 	// Get the node with the branch whose length must be derivated:
 	double d2 = 0;
-	for(unsigned int i = 0; i < _nbDistinctSites; i++) d2 += _rootWeights[i] * (_d2Likelihoods[i] - pow(_dLikelihoods[i], 2));
+	for(unsigned int i = 0; i < _nbDistinctSites; i++)
+    d2 += _rootWeights[i] * (_d2Likelihoods[i] - pow(_dLikelihoods[i], 2));
 	return -d2;
 }
 
