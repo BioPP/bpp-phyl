@@ -643,7 +643,7 @@ SubstitutionModelSet * PhylogeneticsApplicationTools::getSubstitutionModelSet(
   for(unsigned int i = 0; i < nbModels; i++)
   {
     string prefix = "model" + TextTools::toString(i+1);
-    string modelDesc = ApplicationTools::getStringParameter(prefix, params, "JC69()", suffix, suffixIsOptional, verbose);
+    string modelDesc = ApplicationTools::getStringParameter(prefix, params, "JC69", suffix, suffixIsOptional, verbose);
     map<string, string> unparsedParameterValues;
     SubstitutionModel* model = getSubstitutionModelDefaultInstance(alphabet, modelDesc, unparsedParameterValues, true, true, verbose);
     prefix += ".";
@@ -1373,13 +1373,13 @@ void PhylogeneticsApplicationTools::printParameters(const SubstitutionModelSet* 
         //there is a global alias here
         if(parameterLinks[name][0] != i) //Otherwise, this is the 'reference' value
         {
-          globalAliases[name] = "model" + TextTools::toString(parameterLinks[name][0] + 1) + "." + modelSet->getParameterModelName(name);
+          globalAliases[modelSet->getParameterModelName(name)] = "model" + TextTools::toString(parameterLinks[name][0] + 1) + "." + modelSet->getParameterModelName(name);
         }
       }
     }
 
     //Now print it:
-    out << endl << "model" << (i+1) << " =";
+    out << endl << "model" << (i+1) << " = ";
     describeSubstitutionModel_(model, out, globalAliases);
     out << endl;
     vector<int> ids = modelSet->getNodesWithModel(i);
