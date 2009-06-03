@@ -91,7 +91,7 @@ class NonHomogeneousSequenceSimulator:
 		const SubstitutionModelSet *_modelSet;
 		const Alphabet             *_alphabet;
 		const DiscreteDistribution *_rate;
-		const TreeTemplate<Node>* _templateTree;
+		const Tree* _templateTree;
 		mutable TreeTemplate<SNode> _tree;
     bool _ownModelSet;
 	
@@ -117,15 +117,15 @@ class NonHomogeneousSequenceSimulator:
 
 	public:		
 		NonHomogeneousSequenceSimulator(
-			const SubstitutionModelSet * modelSet,
-			const DiscreteDistribution * rate,
-			const TreeTemplate<Node> * tree
+			const SubstitutionModelSet* modelSet,
+			const DiscreteDistribution* rate,
+			const Tree* tree
 		) throw (Exception);
 
     NonHomogeneousSequenceSimulator(
-			const SubstitutionModel * model,
-			const DiscreteDistribution * rate,
-			const TreeTemplate<Node> * tree
+			const SubstitutionModel* model,
+			const DiscreteDistribution* rate,
+			const Tree* tree
 		);
 			
 		virtual ~NonHomogeneousSequenceSimulator()
@@ -222,7 +222,7 @@ class NonHomogeneousSequenceSimulator:
 		 *
 		 * @return The Tree object associated to this instance.
 		 */
-		const TreeTemplate<Node> * getTree() const { return _templateTree; }
+		const Tree* getTree() const { return _templateTree; }
 
     /**
      * @brief Enable the use of continuous rates instead of discrete rates.

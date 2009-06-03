@@ -77,7 +77,7 @@ using namespace std;
 
 /******************************************************************************/
 
-TreeTemplate<Node> * PhylogeneticsApplicationTools::getTree(
+Tree* PhylogeneticsApplicationTools::getTree(
   map<string, string> & params,
   const string & suffix,
   bool suffixIsOptional,
@@ -92,11 +92,40 @@ TreeTemplate<Node> * PhylogeneticsApplicationTools::getTree(
   else if(format == "Nexus")
     treeReader = new NexusIOTree();
   else throw Exception("Unknow format for tree reading: " + format);
-   TreeTemplate<Node> * tree = dynamic_cast<TreeTemplate<Node> *>(treeReader->read(treeFilePath));
+  Tree* tree = treeReader->read(treeFilePath);
   delete treeReader;
 
   if(verbose) ApplicationTools::displayResult("Tree file", treeFilePath);
   return tree;
+}
+
+/******************************************************************************/
+
+vector<Tree*> PhylogeneticsApplicationTools::getTrees(
+  map<string, string> & params,
+  const string & suffix,
+  bool suffixIsOptional,
+  bool verbose) throw (Exception)
+{
+  string format = ApplicationTools::getStringParameter("input.trees.format", params, "Newick", suffix, suffixIsOptional, true);
+  string treeFilePath = ApplicationTools::getAFilePath("input.trees.file", params, true, true, suffix, suffixIsOptional);
+  
+  IMultiTree* treeReader;
+  if(format == "Newick")
+    treeReader = new Newick(true);
+  else if(format == "Nexus")
+    treeReader = new NexusIOTree();
+  else throw Exception("Unknow format for tree reading: " + format);
+  vector<Tree*> trees;
+  treeReader->read(treeFilePath, trees);
+  delete treeReader;
+
+  if(verbose)
+  {
+    ApplicationTools::displayResult("Tree file", treeFilePath);
+    ApplicationTools::displayResult("Number of trees in file", trees.size());
+  }
+  return trees;
 }
 
 /******************************************************************************/
@@ -1212,8 +1241,8 @@ void PhylogeneticsApplicationTools::writeTree(
   OTree* treeWriter;
   if(format == "Newick")
     treeWriter = new Newick();
-//  else if(format == "Nexus")
-//    treeWriter = new NexusIOTree();
+  else if(format == "Nexus")
+    treeWriter = new NexusIOTree();
   else throw Exception("Unknow format for tree writing: " + format);
   treeWriter->write(tree, file, true);
   delete treeWriter;

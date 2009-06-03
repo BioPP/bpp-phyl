@@ -136,8 +136,7 @@ class Newick:
 		 * @name The ITree interface
 		 *
 		 * @{
-		 */
-		
+		 */		
 #if defined(NO_VIRTUAL_COV)
 		Tree * read(const string & path) const throw (Exception)
 		{

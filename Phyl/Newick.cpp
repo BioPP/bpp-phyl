@@ -120,18 +120,18 @@ void Newick::read(istream & in, vector<Tree *> & trees) const throw (Exception)
 	
 	// Main loop : for all file lines
 	string temp, description;// Initialization
-   string::size_type index;
-  while(!in.eof())
+  string::size_type index;
+  while (!in.eof())
   {
 	  //We concatenate all line in file till we reach the ending semi colon:
-	  while(!in.eof())
+	  while (!in.eof())
     {
 		  getline(in, temp, '\n');  // Copy current line in temporary string
       index = temp.find(";");
-		  if(index != string::npos)
+		  if (index != string::npos)
       {
 			  description += temp.substr(0, index + 1);
-	      if(_allowComments) description = TextTools::removeSubstrings(description, '[', ']');
+	      if (_allowComments) description = TextTools::removeSubstrings(description, '[', ']');
 	      trees.push_back(TreeTemplateTools::parenthesisToTree(description, _useBootstrap, _bootstrapPropertyName));
         description = temp.substr(index + 1);
 		  }

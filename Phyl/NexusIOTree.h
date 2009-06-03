@@ -59,12 +59,15 @@ namespace bpp
  * @author Julien Dutheil
  */
 class NexusIOTree:
-  public virtual AbstractITree
+  public virtual AbstractITree,
+  public virtual AbstractOTree,
+  public virtual AbstractIMultiTree,
+  public virtual AbstractOMultiTree
 {
 	public:
 		
 		/**
-		 * @brief Build a new Nexus tree parserr.
+		 * @brief Build a new Nexus tree parser.
 		 */
 		NexusIOTree() {}
 
@@ -86,25 +89,60 @@ class NexusIOTree:
 		 *
 		 * @{
 		 */
-		
 #if defined(NO_VIRTUAL_COV)
-		Tree * read(const string & path) const throw (Exception)
+		Tree* read(const string& path) const throw (Exception)
 		{
 			return AbstractITree::read(path);
 		}
 #else
-		TreeTemplate<Node> * read(const string & path) const throw (Exception)
+		TreeTemplate<Node>* read(const string& path) const throw (Exception)
 		{
-			return dynamic_cast<TreeTemplate<Node> *>(AbstractITree::read(path));
+			return dynamic_cast<TreeTemplate<Node>*>(AbstractITree::read(path));
 		}
 #endif
 		
 #if defined(NO_VIRTUAL_COV)
-		Tree *
+		Tree*
 #else
-		TreeTemplate<Node> * 
+		TreeTemplate<Node>* 
 #endif
-		read(istream & in) const throw (Exception);
+		read(istream& in) const throw (Exception);
+		/** @} */
+
+    /**
+		 * @name The OTree interface
+		 *
+		 * @{
+		 */
+		void write(const Tree& tree, const string& path, bool overwrite = true) const throw (Exception)
+		{
+			AbstractOTree::write(tree, path, overwrite);
+		}
+		void write(const Tree& tree, ostream& out) const throw (Exception);
+		/** @} */
+
+		/**
+		 * @name The IMultiTree interface
+		 *
+		 * @{
+		 */
+		void read(const string& path, vector<Tree*>& trees) const throw (Exception)
+		{
+			AbstractIMultiTree::read(path, trees);
+		}
+		void read(istream& in, vector<Tree*>& trees) const throw (Exception);
+    /**@}*/
+
+		/**
+		 * @name The OMultiTree interface
+		 *
+		 * @{
+		 */
+		void write(const vector<Tree*>& trees, const string& path, bool overwrite = true) const throw (Exception)
+		{
+			AbstractOMultiTree::write(trees, path, overwrite);
+		}
+		void write(const vector<Tree*>& trees, ostream& out) const throw (Exception);
 		/** @} */
 
 };

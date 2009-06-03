@@ -48,6 +48,9 @@ knowledge of the CeCILL license and that you accept its terms.
 #include <Utils/StringTokenizer.h>
 #include <Utils/NestedStringTokenizer.h>
 
+// From NumCalc:
+#include <NumCalc/VectorTools.h>
+
 //From SeqLib:
 #include <Seq/NexusTools.h>
 
@@ -77,27 +80,42 @@ const string NexusIOTree::getFormatDescription() const
 #else
 		TreeTemplate<Node> * 
 #endif
-NexusIOTree::read(istream & in) const throw (Exception)
+NexusIOTree::read(istream &in) const throw (Exception)
+{
+  vector<Tree*> trees;
+  read(in, trees);
+  if (trees.size() == 0)
+    throw IOException("NexusIOTree::read(). No tree found in file.");
+  for (unsigned int i = trees.size() - 1; i > 0; i--)
+    delete trees[i];
+  return dynamic_cast<TreeTemplate<Node>*>(trees[0]);
+}
+
+/******************************************************************************/
+
+void NexusIOTree::read(istream& in, vector<Tree*>& trees) const throw (Exception)
 {
 	// Checking the existence of specified file
 	if (! in) { throw IOException ("NexusIOTree::read(). Failed to read from stream"); }
 	
   //Look for the TREES block:
   string line = "";
-  while(line != "BEGIN TREES;")
+  while (line != "BEGIN TREES;")
   {
-    if(in.eof())
+    if (in.eof())
       throw Exception("NexusIOTree::read(). No trees block was found.");
     line = TextTools::removeSurroundingWhiteSpaces(FileTools::getNextLine(in));
   }
   
   string cmdName = "", cmdArgs = "";
-  NexusTools::getNextCommand(in, cmdName, cmdArgs, false);
+  bool cmdFound = NexusTools::getNextCommand(in, cmdName, cmdArgs, false);
+  if (! cmdFound)
+    throw Exception("NexusIOTree::read(). Missing tree command.");
 
   //Look for the TRANSLATE command:
   map<string, string> translation;
   bool hasTranslation = false;
-  if(cmdName == "TRANSLATE")
+  if (cmdName == "TRANSLATE")
   {
     //Parse translation:
     StringTokenizer st(cmdArgs, ",");
@@ -112,35 +130,115 @@ NexusIOTree::read(istream & in) const throw (Exception)
       translation[name] = tln;
     }
     hasTranslation = true;
-    NexusTools::getNextCommand(in, cmdName, cmdArgs, false);
+    cmdFound = NexusTools::getNextCommand(in, cmdName, cmdArgs, false);
+    if (! cmdFound)
+      throw Exception("NexusIOTree::read(). Missing tree command.");
   }
 
-  //Now parse the tree:
-  if(cmdName != "TREE")
-    throw Exception("NexusIOTree::read(). Unvalid command found: " + cmdName);
-  string::size_type i = cmdArgs.find("=");
-  if(i == string::npos)
-    throw Exception("NexusIOTree::read(). unvalid format, should be tree-name=tree-description");
-  string description = cmdArgs.substr(i + 1);
-	TreeTemplate<Node>* tree = TreeTemplateTools::parenthesisToTree(description + ";", true);
-
-  //Now translate leaf names if there is a translation:
-  if(hasTranslation)
+  //Now parse the trees:
+  while (cmdFound && cmdName != "END")
   {
-    vector<Node*> leaves = tree->getLeaves();
-    for(unsigned int i = 0; i < leaves.size(); i++)
-    {
-      string name = leaves[i]->getName();
-      if(translation.find(name) == translation.end())
-      {
-        throw Exception("NexusIOTree::read(). No translation was given for this leaf: " + name);
-      }
-      leaves[i]->setName(translation[name]);
-    }
-  }
+    if (cmdName != "TREE")
+      throw Exception("NexusIOTree::read(). Unvalid command found: " + cmdName);
+    string::size_type i = cmdArgs.find("=");
+    if (i == string::npos)
+      throw Exception("NexusIOTree::read(). unvalid format, should be tree-name=tree-description");
+    string description = cmdArgs.substr(i + 1);
+	  TreeTemplate<Node>* tree = TreeTemplateTools::parenthesisToTree(description + ";", true);
 
-  return tree;
+    //Now translate leaf names if there is a translation:
+    //(we assume that all trees share the same translation! ===> check!)
+    if (hasTranslation)
+    {
+      vector<Node*> leaves = tree->getLeaves();
+      for(unsigned int i = 0; i < leaves.size(); i++)
+      {
+        string name = leaves[i]->getName();
+        if(translation.find(name) == translation.end())
+        {
+          throw Exception("NexusIOTree::read(). No translation was given for this leaf: " + name);
+        }
+        leaves[i]->setName(translation[name]);
+      }
+    }
+    trees.push_back(tree);
+    cmdFound = NexusTools::getNextCommand(in, cmdName, cmdArgs, false);
+  }
 }
 
 /******************************************************************************/
+
+void NexusIOTree::write(const Tree& tree, ostream& out) const throw (Exception)
+{
+  vector<Tree*> trees;
+  trees.push_back(&const_cast<Tree&>(tree));
+  write(trees, out);
+}
+
+/******************************************************************************/
+
+void NexusIOTree::write(const vector<Tree*>& trees, ostream& out) const throw (Exception)
+{
+	// Checking the existence of specified file, and possibility to open it in write mode
+	if (! out) { throw IOException ("NexusIOTree::write: failed to write to stream"); }
+  
+  out << "#NEXUS" << endl;
+  out << endl;
+  out << "BEGIN TREES;" << endl;
+
+  //First, we retrieve all leaf names from all trees:
+  vector<string> names;
+  for (unsigned int i = 0; i < trees.size(); i++)
+  {
+    names = VectorTools::vectorUnion(names, trees[i]->getLeavesNames());
+  }
+  //... and create a translation map:
+  map<string, unsigned int> translation;
+  unsigned int code = 0;
+  for (unsigned int i = 0; i < names.size(); i++)
+  {
+    translation[names[i]] = code++;
+  }
+
+  //Second we translate all leaf names to their corresponding code:
+  vector<Tree*> translatedTrees(trees.size());
+  for (unsigned int i = 0; i < trees.size(); i++)
+  {
+    vector<int> leavesId = trees[i]->getLeavesId();
+    Tree* tree = dynamic_cast<Tree*>(trees[i]->clone());
+    for (unsigned int j = 0; j < leavesId.size(); j++)
+    {
+      tree->setNodeName(leavesId[j], TextTools::toString(translation[tree->getNodeName(leavesId[j])]));
+    }
+    translatedTrees[i] = tree;
+  }
+  
+  //Third we print the translation command:
+  out << "  TRANSLATE";
+  unsigned int count = 0;
+  for (map<string, unsigned int>::iterator it = translation.begin(); it != translation.end(); it++)
+  {
+    out << endl << "    " << it->second << "\t" << it->first;
+    count++;
+    if (count < translation.size())
+      out << ",";
+  }
+  out << ";";
+  
+  //Finally we print all tree descriptions:
+  for (unsigned int i = 0; i < trees.size(); i++)
+  {
+    out << endl << "  TREE tree" << (i+1) << " = " << TreeTools::treeToParenthesis(*translatedTrees[i]);
+  }
+  out << "END;" << endl;
+  
+  //Clean trees:
+  for (unsigned int i = 0; i < translatedTrees.size(); i++)
+  {
+    delete translatedTrees[i];
+  }
+}
+
+/******************************************************************************/
+
 

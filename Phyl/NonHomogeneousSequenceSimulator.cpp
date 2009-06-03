@@ -57,9 +57,9 @@ using namespace bpp;
 /******************************************************************************/
 
 NonHomogeneousSequenceSimulator::NonHomogeneousSequenceSimulator(
-  const SubstitutionModelSet * modelSet,
-  const DiscreteDistribution * rate,
-  const TreeTemplate<Node> * tree) throw(Exception):
+  const SubstitutionModelSet* modelSet,
+  const DiscreteDistribution* rate,
+  const Tree* tree) throw(Exception):
   _modelSet(modelSet),
   _rate(rate),
   _templateTree(tree),
@@ -75,10 +75,10 @@ NonHomogeneousSequenceSimulator::NonHomogeneousSequenceSimulator(
 /******************************************************************************/
 
 NonHomogeneousSequenceSimulator::NonHomogeneousSequenceSimulator(
-  const SubstitutionModel * model,
-  const DiscreteDistribution * rate,
-  const TreeTemplate<Node> * tree):
-  _modelSet(NULL),
+  const SubstitutionModel* model,
+  const DiscreteDistribution* rate,
+  const Tree* tree):
+  _modelSet(0),
   _rate(rate),
   _templateTree(tree),
   _tree(*tree),

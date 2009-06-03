@@ -100,21 +100,33 @@ class PhylogeneticsApplicationTools
      * @param suffix  A suffix to be applied to each attribute name.
      * @param suffixIsOptional Tell if the suffix is absolutely required.
      * @param verbose Print some info to the 'message' output stream.
-     * @return A new Tree object according to options specified.
+     * @return A new Tree object according to the specified options.
      * @throw Exception if an error occured.
      */
-    static TreeTemplate<Node> * getTree(
+    static Tree* getTree(
+      map<string, string> & params,
+      const string & suffix = "",
+      bool suffixIsOptional = true,
+      bool verbose = true) throw (Exception);
+ 
+    /**
+     * @brief Build a list ofTree objects according to options.
+     *
+     * See the Bio++ Program Suite manual for a description of available options.
+     *
+     * @param params  The attribute map where options may be found.
+     * @param suffix  A suffix to be applied to each attribute name.
+     * @param suffixIsOptional Tell if the suffix is absolutely required.
+     * @param verbose Print some info to the 'message' output stream.
+     * @return A new vector of Tree objects according to the specified options.
+     * @throw Exception if an error occured.
+     */
+    static vector<Tree*> getTrees(
       map<string, string> & params,
       const string & suffix = "",
       bool suffixIsOptional = true,
       bool verbose = true) throw (Exception);
   
-    /**
-     * @brief This function prints the options available for tree reading.
-     */
-    static void printInputTreeHelp();
-
-
     /**
      * @brief Build a SubstitutionModel object with default parameter values according to a keyval description.
      *
