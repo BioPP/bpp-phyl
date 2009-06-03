@@ -78,49 +78,51 @@ using namespace std;
 /******************************************************************************/
 
 Tree* PhylogeneticsApplicationTools::getTree(
-  map<string, string> & params,
-  const string & suffix,
+  map<string, string>& params,
+  const string& prefix,
+  const string& suffix,
   bool suffixIsOptional,
   bool verbose) throw (Exception)
 {
-  string format = ApplicationTools::getStringParameter("input.tree.format", params, "Newick", suffix, suffixIsOptional, true);
-  string treeFilePath = ApplicationTools::getAFilePath("input.tree.file", params, true, true, suffix, suffixIsOptional);
+  string format = ApplicationTools::getStringParameter(prefix + "tree.format", params, "Newick", suffix, suffixIsOptional, true);
+  string treeFilePath = ApplicationTools::getAFilePath(prefix + "tree.file", params, true, true, suffix, suffixIsOptional);
   
   ITree* treeReader;
-  if(format == "Newick")
+  if (format == "Newick")
     treeReader = new Newick(true);
-  else if(format == "Nexus")
+  else if (format == "Nexus")
     treeReader = new NexusIOTree();
   else throw Exception("Unknow format for tree reading: " + format);
   Tree* tree = treeReader->read(treeFilePath);
   delete treeReader;
 
-  if(verbose) ApplicationTools::displayResult("Tree file", treeFilePath);
+  if (verbose) ApplicationTools::displayResult("Tree file", treeFilePath);
   return tree;
 }
 
 /******************************************************************************/
 
 vector<Tree*> PhylogeneticsApplicationTools::getTrees(
-  map<string, string> & params,
-  const string & suffix,
+  map<string, string>& params,
+  const string& prefix,
+  const string& suffix,
   bool suffixIsOptional,
   bool verbose) throw (Exception)
 {
-  string format = ApplicationTools::getStringParameter("input.trees.format", params, "Newick", suffix, suffixIsOptional, true);
-  string treeFilePath = ApplicationTools::getAFilePath("input.trees.file", params, true, true, suffix, suffixIsOptional);
+  string format = ApplicationTools::getStringParameter(prefix + "trees.format", params, "Newick", suffix, suffixIsOptional, true);
+  string treeFilePath = ApplicationTools::getAFilePath(prefix + "trees.file", params, true, true, suffix, suffixIsOptional);
   
   IMultiTree* treeReader;
-  if(format == "Newick")
+  if (format == "Newick")
     treeReader = new Newick(true);
-  else if(format == "Nexus")
+  else if (format == "Nexus")
     treeReader = new NexusIOTree();
   else throw Exception("Unknow format for tree reading: " + format);
   vector<Tree*> trees;
   treeReader->read(treeFilePath, trees);
   delete treeReader;
 
-  if(verbose)
+  if (verbose)
   {
     ApplicationTools::displayResult("Tree file", treeFilePath);
     ApplicationTools::displayResult("Number of trees in file", trees.size());
@@ -197,7 +199,7 @@ SubstitutionModel* PhylogeneticsApplicationTools::getSubstitutionModelDefaultIns
   }
   else if (modelName == "G01")
   {
-    if(!allowCovarions)
+    if (!allowCovarions)
       throw Exception("PhylogeneticsApplicationTools::getSubstitutionModelDefaultInstance. No Covarion model allowed here.");
 
     //We have to parse the nested model first:
@@ -351,7 +353,7 @@ SubstitutionModel* PhylogeneticsApplicationTools::getSubstitutionModelDefaultIns
       else if (modelName == "Empirical")
       {
         string prefix = args["name"];
-        if( TextTools::isEmpty(prefix))
+        if ( TextTools::isEmpty(prefix))
           throw Exception("'name' argument missing for user-defined substitution model.");
         model = new UserProteinSubstitutionModel(alpha, args["file"], prefix);
       }
@@ -370,7 +372,7 @@ SubstitutionModel* PhylogeneticsApplicationTools::getSubstitutionModelDefaultIns
     pname = model->getParameterNameWithoutNamespace(pl[i]->getName());
     if (args.find(pname) == args.end()) continue;
     pval = args[pname];
-    if(pval.length() >= 5 && pval.substr(0, 5) == "model")
+    if (pval.length() >= 5 && pval.substr(0, 5) == "model")
       continue;
     bool found = false;
     for (unsigned int j = 0; j < pl.size() && !found; j++)
@@ -409,14 +411,14 @@ void PhylogeneticsApplicationTools::setSubstitutionModelParametersInitialValues(
     bool verbose) throw (Exception)
 {
   bool useObsFreq = ApplicationTools::getBooleanParameter(model->getNamespace() + "useObservedFreqs", unparsedParameterValues, false, "", true, false);
-  if(verbose) ApplicationTools::displayResult("Use observed frequencies", useObsFreq ? "yes" : "no");
-  if(useObsFreq && data != NULL) 
+  if (verbose) ApplicationTools::displayResult("Use observed frequencies", useObsFreq ? "yes" : "no");
+  if (useObsFreq && data != NULL) 
   {
     unsigned int psi = ApplicationTools::getParameter<unsigned int>(model->getNamespace() + "useObservedFreqs.pseudoCount", unparsedParameterValues, 0);
     model->setFreqFromData(*data, psi);
   }
   ParameterList pl = model->getIndependentParameters();
-	for(unsigned int i = 0; i < pl.size(); i++)
+	for (unsigned int i = 0; i < pl.size(); i++)
   {
 		Parameter* p = pl[i];
 		AutoParameter* ap = new AutoParameter(* p);
@@ -424,15 +426,15 @@ void PhylogeneticsApplicationTools::setSubstitutionModelParametersInitialValues(
 		pl[i] = ap;
 		delete p;
 	}
-  for(unsigned int i = 0; i < pl.size(); i++)
+  for (unsigned int i = 0; i < pl.size(); i++)
   {
     const string pName = pl[i]->getName();
-    if(!useObsFreq || (model->getParameterNameWithoutNamespace(pName).substr(0,5) != "theta"))
+    if (!useObsFreq || (model->getParameterNameWithoutNamespace(pName).substr(0,5) != "theta"))
     {
       double value = ApplicationTools::getDoubleParameter(pName, unparsedParameterValues, pl[i]->getValue()); 
       pl[i]->setValue(value);
     }
-    if(verbose)
+    if (verbose)
       ApplicationTools::displayResult("Parameter found", pName + "=" + TextTools::toString(pl[i]->getValue()));
   }
   model->matchParametersValues(pl);
@@ -468,15 +470,15 @@ void PhylogeneticsApplicationTools::setSubstitutionModelParametersInitialValues(
     bool verbose) throw (Exception)
 {
   bool useObsFreq = ApplicationTools::getBooleanParameter(model->getNamespace() + "useObservedFreqs", unparsedParameterValues, false);
-  if(verbose) ApplicationTools::displayResult("Use observed frequencies", useObsFreq ? "yes" : "no");
-  if(useObsFreq && data != NULL) 
+  if (verbose) ApplicationTools::displayResult("Use observed frequencies", useObsFreq ? "yes" : "no");
+  if (useObsFreq && data != NULL) 
   {
     unsigned int psi = ApplicationTools::getParameter<unsigned int>(model->getNamespace() + "useObservedFreqs.pseudoCount", unparsedParameterValues, 0);
     model->setFreqFromData(*data, psi);
   }
 
   ParameterList pl = model->getIndependentParameters();
- 	for(unsigned int i = 0; i < pl.size(); i++)
+ 	for (unsigned int i = 0; i < pl.size(); i++)
   {
 		Parameter* p = pl[i];
 		AutoParameter* ap = new AutoParameter(* p);
@@ -484,16 +486,16 @@ void PhylogeneticsApplicationTools::setSubstitutionModelParametersInitialValues(
 		pl[i] = ap;
 		delete p;
 	}
-  for(unsigned int i = 0; i < pl.size(); i++)
+  for (unsigned int i = 0; i < pl.size(); i++)
   {
     const string pName = pl[i]->getName();
     string value;
-    if(!useObsFreq || (model->getParameterNameWithoutNamespace(pName).substr(0,5) != "theta"))
+    if (!useObsFreq || (model->getParameterNameWithoutNamespace(pName).substr(0,5) != "theta"))
     {
       value = ApplicationTools::getStringParameter(pName, unparsedParameterValues, TextTools::toString(pl[i]->getValue()));
-      if(value.size() > 5 && value.substr(0, 5) == "model")
+      if (value.size() > 5 && value.substr(0, 5) == "model")
       {
-        if(existingParams.find(value) != existingParams.end())
+        if (existingParams.find(value) != existingParams.end())
         {
           pl[i]->setValue(existingParams[value]);
           sharedParams.push_back(value);
@@ -514,7 +516,7 @@ void PhylogeneticsApplicationTools::setSubstitutionModelParametersInitialValues(
       existingParams[modelPrefix + pName] = pl[i]->getValue();
       specificParams.push_back(pName);
     }
-    if(verbose)
+    if (verbose)
       ApplicationTools::displayResult("Parameter found", modelPrefix + pName + "=" + TextTools::toString(pl[i]->getValue()));
   }
   model->matchParametersValues(pl);
@@ -536,39 +538,39 @@ FrequenciesSet * PhylogeneticsApplicationTools::getFrequenciesSet(
   string freqName;
   map<string, string> args;
   KeyvalTools::parseProcedure(freqDescription, freqName, args);
-  if(verbose) ApplicationTools::displayResult("Ancestral frequences method", freqName);
-  if(freqName == "Observed" && data)
+  if (verbose) ApplicationTools::displayResult("Ancestral frequences method", freqName);
+  if (freqName == "Observed" && data)
   {
     map<int, double> freqs = SequenceContainerTools::getFrequencies(*data);
     double t = 0;
     vector<double> rootFreq(alphabet->getSize());
-    for(unsigned int i = 0; i < alphabet->getSize(); i++) t += freqs[i];
-    for(unsigned int i = 0; i < alphabet->getSize(); i++) rootFreq[i] = freqs[i] / t;
-    if(AlphabetTools::isNucleicAlphabet(alphabet))
+    for (unsigned int i = 0; i < alphabet->getSize(); i++) t += freqs[i];
+    for (unsigned int i = 0; i < alphabet->getSize(); i++) rootFreq[i] = freqs[i] / t;
+    if (AlphabetTools::isNucleicAlphabet(alphabet))
     {
       double theta  = (rootFreq[1] + rootFreq[2]) / (rootFreq[0] + rootFreq[1] + rootFreq[2] + rootFreq[3]);
       double theta1 = rootFreq[0] / (rootFreq[0] + rootFreq[3]);
       double theta2 = rootFreq[2] / (rootFreq[1] + rootFreq[2]);
       rootFrequencies = new FullNAFrequenciesSet(dynamic_cast<const NucleicAlphabet *>(alphabet), theta, theta1, theta2, "RootFreq");
     }
-    else if(AlphabetTools::isProteicAlphabet(alphabet))
+    else if (AlphabetTools::isProteicAlphabet(alphabet))
       rootFrequencies = new FullProteinFrequenciesSet(dynamic_cast<const ProteicAlphabet *>(alphabet), rootFreq, "RootFreq");
     else
       rootFrequencies = new FullFrequenciesSet(alphabet, rootFreq, "RootFreq");
   }
-  else if(freqName == "Balanced")
+  else if (freqName == "Balanced")
   {
-    if(AlphabetTools::isNucleicAlphabet(alphabet))
+    if (AlphabetTools::isNucleicAlphabet(alphabet))
       rootFrequencies = new FullNAFrequenciesSet(dynamic_cast<const NucleicAlphabet*>(alphabet), "RootFreq");
-    else if(AlphabetTools::isProteicAlphabet(alphabet))
+    else if (AlphabetTools::isProteicAlphabet(alphabet))
       rootFrequencies = new FullProteinFrequenciesSet(dynamic_cast<const ProteicAlphabet*>(alphabet), "RootFreq");
     else
       rootFrequencies = new FullFrequenciesSet(alphabet, "RootFreq");
   }
-  else if(freqName == "Init")
+  else if (freqName == "Init")
   {
     vector<double> rootFreq(alphabet->getSize());
-    if(AlphabetTools::isNucleicAlphabet(alphabet))
+    if (AlphabetTools::isNucleicAlphabet(alphabet))
     {
       rootFreq[ 0] = ApplicationTools::getDoubleParameter("ancA", args, 0.25);
       rootFreq[ 1] = ApplicationTools::getDoubleParameter("ancC", args, 0.25);
@@ -579,7 +581,7 @@ FrequenciesSet * PhylogeneticsApplicationTools::getFrequenciesSet(
       double theta2 = rootFreq[2] / (rootFreq[1] + rootFreq[2]);
       rootFrequencies = new FullNAFrequenciesSet(dynamic_cast<const NucleicAlphabet *>(alphabet), theta, theta1, theta2, "RootFreq");
     }
-    else if(AlphabetTools::isProteicAlphabet(alphabet))
+    else if (AlphabetTools::isProteicAlphabet(alphabet))
     {
       rootFreq[ 0] = ApplicationTools::getDoubleParameter("ancA", args, 0.05);
       rootFreq[ 1] = ApplicationTools::getDoubleParameter("ancR", args, 0.05);
@@ -605,28 +607,28 @@ FrequenciesSet * PhylogeneticsApplicationTools::getFrequenciesSet(
     }
     else throw Exception("Init root frequencies is only available with Nucleic and Proteic alphabet.");
   }
-  else if(freqName == "ObservedGC" && data)
+  else if (freqName == "ObservedGC" && data)
   {
-    if(!AlphabetTools::isNucleicAlphabet(alphabet)) throw Exception("Error, unvalid option " + freqName + " with non-nucleic alphabet.");
+    if (!AlphabetTools::isNucleicAlphabet(alphabet)) throw Exception("Error, unvalid option " + freqName + " with non-nucleic alphabet.");
     map<int, double> freqs = SequenceContainerTools::getFrequencies(*data);
     double theta  = (freqs[1] + freqs[2]) / (freqs[0] + freqs[1] + freqs[2] + freqs[3]);
-    if(verbose) ApplicationTools::displayResult("Ancestral theta", TextTools::toString(theta));
+    if (verbose) ApplicationTools::displayResult("Ancestral theta", TextTools::toString(theta));
     rootFrequencies = new GCFrequenciesSet(dynamic_cast<const NucleicAlphabet *>(alphabet), theta, "RootFreq");
   }
-  else if(freqName == "BalancedGC")
+  else if (freqName == "BalancedGC")
   {
-    if(!AlphabetTools::isNucleicAlphabet(alphabet)) throw Exception("Error, unvalid option " + freqName + " with non-nucleic alphabet.");
+    if (!AlphabetTools::isNucleicAlphabet(alphabet)) throw Exception("Error, unvalid option " + freqName + " with non-nucleic alphabet.");
     rootFrequencies = new GCFrequenciesSet(dynamic_cast<const NucleicAlphabet *>(alphabet), "RootFreq");
   }
-  else if(freqName == "InitGC")
+  else if (freqName == "InitGC")
   {
-    if(!AlphabetTools::isNucleicAlphabet(alphabet)) throw Exception("Error, unvalid option " + freqName + " with non-nucleic alphabet.");
+    if (!AlphabetTools::isNucleicAlphabet(alphabet)) throw Exception("Error, unvalid option " + freqName + " with non-nucleic alphabet.");
     double theta = ApplicationTools::getDoubleParameter("ancTheta", args, 0.5);
     rootFrequencies = new GCFrequenciesSet(dynamic_cast<const NucleicAlphabet *>(alphabet), theta, "RootFreq");
   }
   else throw Exception("Unvalid method for root frequencies: " + freqName);
     
-  if(rateFreqs.size() > 0)
+  if (rateFreqs.size() > 0)
   {
     rootFrequencies = new MarkovModulatedFrequenciesSet(rootFrequencies, rateFreqs);
   }
@@ -643,19 +645,19 @@ SubstitutionModelSet * PhylogeneticsApplicationTools::getSubstitutionModelSet(
   bool suffixIsOptional,
   bool verbose) throw (Exception)
 {
-  if(!ApplicationTools::parameterExists("nonhomogeneous.number_of_models", params))
+  if (!ApplicationTools::parameterExists("nonhomogeneous.number_of_models", params))
     throw Exception("You must specify this parameter: nonhomogeneous.number_of_models .");
   unsigned int nbModels = ApplicationTools::getParameter<unsigned int>("nonhomogeneous.number_of_models", params, 1, suffix, suffixIsOptional, false);
-  if(nbModels == 0)
+  if (nbModels == 0)
     throw Exception("The number of models can't be 0 !");
-  if(verbose) ApplicationTools::displayResult("Number of distinct models", TextTools::toString(nbModels));
+  if (verbose) ApplicationTools::displayResult("Number of distinct models", TextTools::toString(nbModels));
   
   //Deal with root frequencies, and build a new model set object:
   vector<double> rateFreqs;
   string tmpDesc = ApplicationTools::getStringParameter("model1", params, "JC69()", suffix, suffixIsOptional, verbose);
   map<string, string> unparsedParameterValues;
   SubstitutionModel* tmp = getSubstitutionModelDefaultInstance(alphabet, tmpDesc, unparsedParameterValues, true, true, verbose);
-  if(tmp->getNumberOfStates() != alphabet->getSize())
+  if (tmp->getNumberOfStates() != alphabet->getSize())
   {
     //Markov-Modulated Markov Model...
     unsigned int n =(unsigned int)(tmp->getNumberOfStates() / alphabet->getSize());
@@ -669,7 +671,7 @@ SubstitutionModelSet * PhylogeneticsApplicationTools::getSubstitutionModelSet(
   
   // Now parse all models:
   map<string, double> existingParameters;
-  for(unsigned int i = 0; i < nbModels; i++)
+  for (unsigned int i = 0; i < nbModels; i++)
   {
     string prefix = "model" + TextTools::toString(i+1);
     string modelDesc = ApplicationTools::getStringParameter(prefix, params, "JC69", suffix, suffixIsOptional, verbose);
@@ -683,15 +685,15 @@ SubstitutionModelSet * PhylogeneticsApplicationTools::getSubstitutionModelSet(
         existingParameters, specificParameters, sharedParameters,
         verbose);
     vector<int> nodesId = ApplicationTools::getVectorParameter<int>(prefix + "nodes_id", params, ',', ':', TextTools::toString(i), suffix, suffixIsOptional, true);
-    if(verbose) ApplicationTools::displayResult("Model" + TextTools::toString(i+1) + " is associated to", TextTools::toString(nodesId.size()) + " node(s).");
+    if (verbose) ApplicationTools::displayResult("Model" + TextTools::toString(i+1) + " is associated to", TextTools::toString(nodesId.size()) + " node(s).");
     //Add model and specific parameters:
     modelSet->addModel(model, nodesId, specificParameters);
     //Now set shared parameters:
-    for(unsigned int j = 0; j < sharedParameters.size(); j++)
+    for (unsigned int j = 0; j < sharedParameters.size(); j++)
     {
       string pName = sharedParameters[j];
       string::size_type index = pName.find(".");
-      if(index == string::npos) throw Exception("PhylogeneticsApplicationTools::getSubstitutionModelSet. Bad parameter name: " + pName);
+      if (index == string::npos) throw Exception("PhylogeneticsApplicationTools::getSubstitutionModelSet. Bad parameter name: " + pName);
       string name = pName.substr(index + 1) + "_" + pName.substr(5, index - 5);
       modelSet->setParameterToModel(modelSet->getParameterIndex(name), modelSet->getNumberOfModels() - 1);
     }
@@ -713,13 +715,13 @@ DiscreteDistribution* PhylogeneticsApplicationTools::getRateDistributionDefaultI
   map<string, string> args;
   KeyvalTools::parseProcedure(distDescription, distName, args);
 
-  if(distName == "Invariant")
+  if (distName == "Invariant")
   {
     //We have to parse the nested distribution first:
     string nestedDistDescription = args["dist"];
-    if(TextTools::isEmpty(nestedDistDescription))
+    if (TextTools::isEmpty(nestedDistDescription))
       throw Exception("PhylogeneticsApplicationTools::getRateDistributionDefaultInstance. Missing argument 'dist' for distribution 'Invariant'.");
-    if(verbose)
+    if (verbose)
       ApplicationTools::displayResult("Invariant Mixed distribution" , distName );
     map<string, string> unparsedParameterValuesNested;
     DiscreteDistribution* nestedDistribution = getRateDistributionDefaultInstance(nestedDistDescription, unparsedParameterValuesNested, constDistAllowed, verbose);
@@ -728,31 +730,31 @@ DiscreteDistribution* PhylogeneticsApplicationTools::getRateDistributionDefaultI
     rDist = new InvariantMixedDiscreteDistribution(nestedDistribution, 0., 0.000001, "Invariant.");
 
     //Then we update the parameter set:
-    for(map<string, string>::iterator it = unparsedParameterValuesNested.begin(); it != unparsedParameterValuesNested.end(); it++)
+    for (map<string, string>::iterator it = unparsedParameterValuesNested.begin(); it != unparsedParameterValuesNested.end(); it++)
       unparsedParameterValues["Invariant.dist_" + it->first] = it->second;
-    if(args.find("p") != args.end())
+    if (args.find("p") != args.end())
       unparsedParameterValues["Invariant.p"] = args["p"];
   }
-  else if(distName == "Uniform")
+  else if (distName == "Uniform")
   {
-    if(!constDistAllowed) throw Exception("You can't use a constant distribution here!");
+    if (!constDistAllowed) throw Exception("You can't use a constant distribution here!");
     rDist = new ConstantDistribution(1.);
   }
-  else if(distName == "Gamma")
+  else if (distName == "Gamma")
   {
-    if(args.find("n") == args.end())
+    if (args.find("n") == args.end())
       throw Exception("Missing argument 'n' (number of classes) in Gamma distribution");
     unsigned int nbClasses = TextTools::to<unsigned int>(args["n"]);
     rDist = new GammaDiscreteDistribution(nbClasses, 1., 1., "Gamma.");
     rDist->aliasParameters("alpha", "beta");
-    if(args.find("alpha") != args.end())
+    if (args.find("alpha") != args.end())
       unparsedParameterValues["Gamma.alpha"] = args["alpha"];
   }
   else
   {
     throw Exception("Unknown distribution: " + distName + ".");
   }
-  if(verbose)
+  if (verbose)
   {
     ApplicationTools::displayResult("Rate distribution", distName);
     ApplicationTools::displayResult("Number of classes", TextTools::toString(rDist->getNumberOfCategories()));
@@ -769,7 +771,7 @@ void PhylogeneticsApplicationTools::setRateDistributionParametersInitialValues(
   bool verbose) throw (Exception)
 {
   ParameterList pl = rDist->getIndependentParameters();
-  for(unsigned int i = 0; i < pl.size(); i++)
+  for (unsigned int i = 0; i < pl.size(); i++)
   {
 		Parameter * p = pl[i];
 		AutoParameter * ap = new AutoParameter(* p);
@@ -778,18 +780,18 @@ void PhylogeneticsApplicationTools::setRateDistributionParametersInitialValues(
 		delete p;
 	}
 
-  for(unsigned int i = 0; i < pl.size(); i++)
+  for (unsigned int i = 0; i < pl.size(); i++)
   {
     const string pName = pl[i]->getName();
     double value = ApplicationTools::getDoubleParameter(pName, unparsedParameterValues, pl[i]->getValue()); 
     pl[i]->setValue(value);
-    if(verbose)
+    if (verbose)
       ApplicationTools::displayResult("Parameter found", pName + "=" + TextTools::toString(pl[i]->getValue()));
   }
   rDist->matchParametersValues(pl);
-  if(verbose)
+  if (verbose)
   {
-    for(unsigned int c = 0; c < rDist->getNumberOfCategories(); c++)
+    for (unsigned int c = 0; c < rDist->getNumberOfCategories(); c++)
     {
       ApplicationTools::displayResult("- Category " + TextTools::toString(c)
           + " (Pr = " + TextTools::toString(rDist->getProbability(c)) +") rate", TextTools::toString(rDist->getCategory(c)));
@@ -825,7 +827,7 @@ TreeLikelihood* PhylogeneticsApplicationTools::optimizeParameters(
   throw (Exception)
 {
   bool optimize = ApplicationTools::getBooleanParameter("optimization", params, true, suffix, suffixIsOptional, false);
-  if(!optimize) return tl;
+  if (!optimize) return tl;
   
   unsigned int optVerbose = ApplicationTools::getParameter<unsigned int>("optimization.verbose", params, 2, suffix, suffixIsOptional);
   
@@ -834,32 +836,32 @@ TreeLikelihood* PhylogeneticsApplicationTools::optimizeParameters(
     (mhPath == "none") ? NULL :
       (mhPath == "std") ? &cout :
         new ofstream(mhPath.c_str(), ios::out);
-  if(verbose) ApplicationTools::displayResult("Message handler", mhPath);
+  if (verbose) ApplicationTools::displayResult("Message handler", mhPath);
 
   string prPath = ApplicationTools::getAFilePath("optimization.profiler", params, false, false, suffix, suffixIsOptional);
   ostream * profiler = 
     (prPath == "none") ? NULL :
       (prPath == "std") ? &cout :
         new ofstream(prPath.c_str(), ios::out);
-  if(profiler != NULL) (*profiler) << setprecision(20);
-  if(verbose) ApplicationTools::displayResult("Profiler", prPath);
+  if (profiler != NULL) (*profiler) << setprecision(20);
+  if (verbose) ApplicationTools::displayResult("Profiler", prPath);
 
   bool scaleFirst = ApplicationTools::getBooleanParameter("optimization.scale_first", params, false, suffix, suffixIsOptional, false);
-  if(scaleFirst)
+  if (scaleFirst)
   {
     // We scale the tree before optimizing each branch length separately:
-    if(verbose) ApplicationTools::displayMessage("Scaling the tree before optimizing each branch length separately.");
+    if (verbose) ApplicationTools::displayMessage("Scaling the tree before optimizing each branch length separately.");
     double tolerance = ApplicationTools::getDoubleParameter("optimization.scale_first.tolerance", params, .0001, suffix, suffixIsOptional, true);
-    if(verbose) ApplicationTools::displayResult("Scaling tolerance", TextTools::toString(tolerance));
+    if (verbose) ApplicationTools::displayResult("Scaling tolerance", TextTools::toString(tolerance));
     int nbEvalMax = ApplicationTools::getIntParameter("optimization.scale_first.max_number_f_eval", params, 1000000, suffix, suffixIsOptional, true);
-    if(verbose) ApplicationTools::displayResult("Scaling max # f eval", TextTools::toString(nbEvalMax));
+    if (verbose) ApplicationTools::displayResult("Scaling max # f eval", TextTools::toString(nbEvalMax));
     int n = OptimizationTools::optimizeTreeScale(
       tl,
       tolerance,
       nbEvalMax,
       messageHandler,
       profiler);
-    if(verbose) ApplicationTools::displayMessage("Performed " + TextTools::toString(n) + " function evaluations.");
+    if (verbose) ApplicationTools::displayMessage("Performed " + TextTools::toString(n) + " function evaluations.");
   }
 
   // Should I ignore some parameters?
@@ -871,17 +873,17 @@ TreeLikelihood* PhylogeneticsApplicationTools::optimizeParameters(
     try
     {
       string param = st.nextToken();
-      if(param == "BrLen")
+      if (param == "BrLen")
       {
         vector<string> vs = tl->getBranchLengthsParameters().getParameterNames();
         parametersToEstimate.deleteParameters(vs);
         if (verbose)
           ApplicationTools::displayResult("Parameter ignored", string("Branch lengths"));
       }
-      else if(param == "Ancient")
+      else if (param == "Ancient")
       {
         NonHomogeneousTreeLikelihood *nhtl = dynamic_cast<NonHomogeneousTreeLikelihood *>(tl);
-        if(!nhtl) ApplicationTools::displayWarning("The 'Ancient' parameters do not exist in homogeneous models, and will be ignored.");
+        if (!nhtl) ApplicationTools::displayWarning("The 'Ancient' parameters do not exist in homogeneous models, and will be ignored.");
         else
         {
           vector<string> vs = nhtl->getRootFrequenciesParameters().getParameterNames();
@@ -904,24 +906,24 @@ TreeLikelihood* PhylogeneticsApplicationTools::optimizeParameters(
   }
   
   unsigned int nbEvalMax = ApplicationTools::getParameter<unsigned int>("optimization.max_number_f_eval", params, 1000000, suffix, suffixIsOptional);
-  if(verbose) ApplicationTools::displayResult("Max # ML evaluations", TextTools::toString(nbEvalMax));
+  if (verbose) ApplicationTools::displayResult("Max # ML evaluations", TextTools::toString(nbEvalMax));
   
   double tolerance = ApplicationTools::getDoubleParameter("optimization.tolerance", params, .000001, suffix, suffixIsOptional);
-  if(verbose) ApplicationTools::displayResult("Tolerance", TextTools::toString(tolerance));
+  if (verbose) ApplicationTools::displayResult("Tolerance", TextTools::toString(tolerance));
   
   bool optimizeTopo = ApplicationTools::getBooleanParameter("optimization.topology", params, false, suffix, suffixIsOptional, false);
-  if(verbose) ApplicationTools::displayResult("Optimize topology", optimizeTopo ? "yes" : "no");
+  if (verbose) ApplicationTools::displayResult("Optimize topology", optimizeTopo ? "yes" : "no");
   string nniMethod = ApplicationTools::getStringParameter("optimization.topology.algorithm_nni.method", params, "phyml", suffix, suffixIsOptional, false);
   string nniAlgo;
-  if(nniMethod == "fast")
+  if (nniMethod == "fast")
   {
     nniAlgo = NNITopologySearch::FAST;
   }
-  else if(nniMethod == "better")
+  else if (nniMethod == "better")
   {
     nniAlgo = NNITopologySearch::BETTER;
   }
-  else if(nniMethod == "phyml")
+  else if (nniMethod == "phyml")
   {
     nniAlgo = NNITopologySearch::PHYML;
   }
@@ -931,25 +933,25 @@ TreeLikelihood* PhylogeneticsApplicationTools::optimizeParameters(
   string method = ApplicationTools::getStringParameter("optimization.method", params, "DB", suffix, suffixIsOptional, false);
   string order  = ApplicationTools::getStringParameter("optimization.method.derivatives", params, "newton", suffix, suffixIsOptional, false);
   string optMethod;
-  if(order == "gradient")
+  if (order == "gradient")
   {
     optMethod = OptimizationTools::OPTIMIZATION_GRADIENT;
   }
-  else if(order == "newton")
+  else if (order == "newton")
   {
     optMethod = OptimizationTools::OPTIMIZATION_NEWTON;
   }
   else throw Exception("Unknown derivatives algorithm: '" + order + "'.");
-  if(verbose) ApplicationTools::displayResult("Optimization method", method);
-  if(verbose) ApplicationTools::displayResult("Algorithm used for derivable parameters", order);
+  if (verbose) ApplicationTools::displayResult("Optimization method", method);
+  if (verbose) ApplicationTools::displayResult("Algorithm used for derivable parameters", order);
   
   unsigned int n = 0;
-  if(method == "DB")
+  if (method == "DB")
   {
     //Uses Newton-Brent method:
     
     unsigned int nstep = ApplicationTools::getParameter<unsigned int>("optimization.method_DB.nstep", params, 1, suffix, suffixIsOptional, false);
-    if(optimizeTopo)
+    if (optimizeTopo)
     {
       bool optNumFirst = ApplicationTools::getBooleanParameter("optimization.topology.numfirst", params, true, suffix, suffixIsOptional, false);
       unsigned int n   = ApplicationTools::getParameter<unsigned int>("optimization.topology.nstep", params, 1, "", true, false);
@@ -960,16 +962,16 @@ TreeLikelihood* PhylogeneticsApplicationTools::optimizeParameters(
           optNumFirst, tolBefore, tolDuring, nbEvalMax, n, messageHandler, profiler, optVerbose, optMethod, nstep, nniAlgo);
     }
 
-    if(verbose && nstep > 1) ApplicationTools::displayResult("# of precision steps", TextTools::toString(nstep));
+    if (verbose && nstep > 1) ApplicationTools::displayResult("# of precision steps", TextTools::toString(nstep));
     n = OptimizationTools::optimizeNumericalParameters(
       dynamic_cast<DiscreteRatesAcrossSitesTreeLikelihood *>(tl), parametersToEstimate,
       NULL, nstep, tolerance, nbEvalMax, messageHandler, profiler, optVerbose, optMethod);    
   }
-  else if(method == "fullD")
+  else if (method == "fullD")
   {
     //Uses Newton-raphson alogrithm with numerical derivatives when required.
     
-    if(optimizeTopo)
+    if (optimizeTopo)
     {
       bool optNumFirst = ApplicationTools::getBooleanParameter("optimization.topology.numfirst", params, true, suffix, suffixIsOptional, false);
       unsigned int n   = ApplicationTools::getParameter<unsigned int>("optimization.topology.nstep", params, 1, "", true, false);
@@ -988,21 +990,21 @@ TreeLikelihood* PhylogeneticsApplicationTools::optimizeParameters(
 
   string finalMethod = ApplicationTools::getStringParameter("optimization.final", params, "none", suffix, suffixIsOptional, true);
   Optimizer * finalOptimizer  = NULL;
-  if(finalMethod == "none") {}
-  else if(finalMethod == "simplex")
+  if (finalMethod == "none") {}
+  else if (finalMethod == "simplex")
   {
     finalOptimizer = new DownhillSimplexMethod(tl);
   }
-  else if(finalMethod == "powell")
+  else if (finalMethod == "powell")
   {
     finalOptimizer = new PowellMultiDimensions(tl);
   }
   else throw Exception("Unknown final optimization method: " + finalMethod);
 
-  if(finalOptimizer)
+  if (finalOptimizer)
   {
     parametersToEstimate.matchParametersValues(tl->getParameters());
-    if(verbose) ApplicationTools::displayResult("Final optimization step", finalMethod);
+    if (verbose) ApplicationTools::displayResult("Final optimization step", finalMethod);
     finalOptimizer->setProfiler(profiler);
     finalOptimizer->setMessageHandler(messageHandler);
     finalOptimizer->setMaximumNumberOfEvaluations(nbEvalMax);
@@ -1015,7 +1017,7 @@ TreeLikelihood* PhylogeneticsApplicationTools::optimizeParameters(
     delete finalOptimizer;
   }
   
-  if(verbose) ApplicationTools::displayResult("Performed", TextTools::toString(n) + " function evaluations.");
+  if (verbose) ApplicationTools::displayResult("Performed", TextTools::toString(n) + " function evaluations.");
   return tl;
 }
 
@@ -1031,7 +1033,7 @@ void PhylogeneticsApplicationTools::optimizeParameters(
   throw (Exception)
 {
   bool optimize = ApplicationTools::getBooleanParameter("optimization", params, true, suffix, suffixIsOptional, false);
-  if(!optimize) return;
+  if (!optimize) return;
   
   unsigned int optVerbose = ApplicationTools::getParameter<unsigned int>("optimization.verbose", params, 2, suffix, suffixIsOptional);
   
@@ -1040,15 +1042,15 @@ void PhylogeneticsApplicationTools::optimizeParameters(
     (mhPath == "none") ? NULL :
       (mhPath == "std") ? &cout :
         new ofstream(mhPath.c_str(), ios::out);
-  if(verbose) ApplicationTools::displayResult("Message handler", mhPath);
+  if (verbose) ApplicationTools::displayResult("Message handler", mhPath);
 
   string prPath = ApplicationTools::getAFilePath("optimization.profiler", params, false, false, suffix, suffixIsOptional);
   ostream * profiler = 
     (prPath == "none") ? NULL :
       (prPath == "std") ? &cout :
         new ofstream(prPath.c_str(), ios::out);
-  if(profiler != NULL) (*profiler) << setprecision(20);
-  if(verbose) ApplicationTools::displayResult("Profiler", prPath);
+  if (profiler != NULL) (*profiler) << setprecision(20);
+  if (verbose) ApplicationTools::displayResult("Profiler", prPath);
 
   ParameterList parametersToEstimate = parameters;
 
@@ -1060,17 +1062,17 @@ void PhylogeneticsApplicationTools::optimizeParameters(
     try
     {
       string param = st.nextToken();
-      if(param == "BrLen")
+      if (param == "BrLen")
       {
         vector<string> vs = tl->getBranchLengthsParameters().getParameterNames();
         parametersToEstimate.deleteParameters(vs);
         if (verbose)
           ApplicationTools::displayResult("Parameter ignored", string("Branch lengths"));
       }
-      else if(param == "Ancient")
+      else if (param == "Ancient")
       {
         NonHomogeneousTreeLikelihood *nhtl = dynamic_cast<NonHomogeneousTreeLikelihood *>(tl);
-        if(!nhtl) ApplicationTools::displayWarning("The 'Ancient' parameters do not exist in homogeneous models, and will be ignored.");
+        if (!nhtl) ApplicationTools::displayWarning("The 'Ancient' parameters do not exist in homogeneous models, and will be ignored.");
         else
         {
           vector<string> vs = nhtl->getRootFrequenciesParameters().getParameterNames();
@@ -1093,32 +1095,32 @@ void PhylogeneticsApplicationTools::optimizeParameters(
   }
   
   unsigned int nbEvalMax = ApplicationTools::getParameter<unsigned int>("optimization.max_number_f_eval", params, 1000000, suffix, suffixIsOptional);
-  if(verbose) ApplicationTools::displayResult("Max # ML evaluations", TextTools::toString(nbEvalMax));
+  if (verbose) ApplicationTools::displayResult("Max # ML evaluations", TextTools::toString(nbEvalMax));
   
   double tolerance = ApplicationTools::getDoubleParameter("optimization.tolerance", params, .000001, suffix, suffixIsOptional);
-  if(verbose) ApplicationTools::displayResult("Tolerance", TextTools::toString(tolerance));
+  if (verbose) ApplicationTools::displayResult("Tolerance", TextTools::toString(tolerance));
   
   string method = ApplicationTools::getStringParameter("optimization.method", params, "DB", suffix, suffixIsOptional, false);
   string order  = ApplicationTools::getStringParameter("optimization.method.derivatives", params, "gradient", suffix, suffixIsOptional, false);
   string optMethod, derMethod;
-  if(order == "gradient")
+  if (order == "gradient")
   {
     optMethod = OptimizationTools::OPTIMIZATION_GRADIENT;
   }
-  else if(order == "newton")
+  else if (order == "newton")
   {
     optMethod = OptimizationTools::OPTIMIZATION_NEWTON;
   }
   else throw Exception("Option '" + order + "' is not known for 'optimization.method.derivatives'.");
-  if(verbose) ApplicationTools::displayResult("Optimization method", method);
-  if(verbose) ApplicationTools::displayResult("Algorithm used for derivable parameters", order);
+  if (verbose) ApplicationTools::displayResult("Optimization method", method);
+  if (verbose) ApplicationTools::displayResult("Algorithm used for derivable parameters", order);
   
   unsigned int n = 0;
-  if(method == "DB")
+  if (method == "DB")
   {
     //Uses Newton-Brent method:
     unsigned int nstep = ApplicationTools::getParameter<unsigned int>("optimization.method_DB.nstep", params, 1, suffix, suffixIsOptional, false);
-    if(verbose && nstep > 1) ApplicationTools::displayResult("# of precision steps", TextTools::toString(nstep));
+    if (verbose && nstep > 1) ApplicationTools::displayResult("# of precision steps", TextTools::toString(nstep));
     n = OptimizationTools::optimizeNumericalParametersWithGlobalClock(
       tl,
       parametersToEstimate,
@@ -1131,7 +1133,7 @@ void PhylogeneticsApplicationTools::optimizeParameters(
       optVerbose,
       optMethod);    
   }
-  else if(method == "fullD")
+  else if (method == "fullD")
   {
     //Uses Newton-raphson alogrithm with numerical derivatives when required.
     n = OptimizationTools::optimizeNumericalParametersWithGlobalClock2(
@@ -1149,18 +1151,18 @@ void PhylogeneticsApplicationTools::optimizeParameters(
 
   string finalMethod = ApplicationTools::getStringParameter("optimization.final", params, "none", suffix, suffixIsOptional, false);
   Optimizer * finalOptimizer  = NULL;
-  if(finalMethod == "none") {}
-  else if(finalMethod == "simplex")
+  if (finalMethod == "none") {}
+  else if (finalMethod == "simplex")
   {
     finalOptimizer = new DownhillSimplexMethod(tl);
   }
-  else if(finalMethod == "powell")
+  else if (finalMethod == "powell")
   {
     finalOptimizer = new PowellMultiDimensions(tl);
   }
   else throw Exception("Unknown final optimization method: " + finalMethod);
 
-  if(finalOptimizer)
+  if (finalOptimizer)
   {
     parametersToEstimate.matchParametersValues(tl->getParameters());
     ApplicationTools::displayResult("Final optimization step", finalMethod);
@@ -1176,14 +1178,14 @@ void PhylogeneticsApplicationTools::optimizeParameters(
     delete finalOptimizer;
   }
   
-  if(verbose) ApplicationTools::displayResult("Performed", TextTools::toString(n) + " function evaluations.");
+  if (verbose) ApplicationTools::displayResult("Performed", TextTools::toString(n) + " function evaluations.");
 }
 
 /******************************************************************************/
 
 void PhylogeneticsApplicationTools::printOptimizationHelp(bool topo, bool clock)
 {
-  if(!ApplicationTools::message) return;
+  if (!ApplicationTools::message) return;
   *ApplicationTools::message << "optimization                   | [yes/no] optimize parameters?" << endl;
   *ApplicationTools::message << "optimization.method            | [DB/fullD] method to use" << endl;
   *ApplicationTools::message << "optimization.method.derivatives| [gradient/newton] use Conjugate gradient" << endl;
@@ -1201,7 +1203,7 @@ void PhylogeneticsApplicationTools::printOptimizationHelp(bool topo, bool clock)
   *ApplicationTools::message << "                               | the estimation." << endl;
   *ApplicationTools::message << "optimization.max_number_f_eval | [int] max. # of likelihood computations." << endl;
   *ApplicationTools::message << "optimization.ignore_parameter  | [list] parameters to ignore during optimization." << endl;
-  if(!clock)
+  if (!clock)
   {
   *ApplicationTools::message << "optimization.scale_first       | [yes, no] tell if a global scale" << endl;
   *ApplicationTools::message << "                               | optimization must be done prior to" << endl;
@@ -1213,7 +1215,7 @@ void PhylogeneticsApplicationTools::printOptimizationHelp(bool topo, bool clock)
   *ApplicationTools::message << "                               | global scale optimization." << endl;
   *ApplicationTools::message << "_______________________________|__________________________________________" << endl;
   }
-  if(topo && !clock)
+  if (topo && !clock)
   {
   *ApplicationTools::message << "optimization.topology          | [yes/no] Optimize tree topology?" << endl;
   *ApplicationTools::message << "optimization.topology.algorithm| [nni] Topology movements to use." << endl;
@@ -1232,21 +1234,49 @@ void PhylogeneticsApplicationTools::printOptimizationHelp(bool topo, bool clock)
 void PhylogeneticsApplicationTools::writeTree(
   const TreeTemplate<Node> & tree,
   map<string, string> & params,
+  const string & prefix,
   const string & suffix,
   bool suffixIsOptional,
-  bool verbose) throw (Exception)
+  bool verbose,
+  bool checkOnly) throw (Exception)
 {
-  string format = ApplicationTools::getStringParameter("output.tree.format", params, "Newick", suffix, suffixIsOptional, false);
-  string file = ApplicationTools::getAFilePath("output.tree.file", params, true, false, suffix, suffixIsOptional);
+  string format = ApplicationTools::getStringParameter(prefix + "tree.format", params, "Newick", suffix, suffixIsOptional, false);
+  string file = ApplicationTools::getAFilePath(prefix + "tree.file", params, true, false, suffix, suffixIsOptional);
   OTree* treeWriter;
-  if(format == "Newick")
+  if (format == "Newick")
     treeWriter = new Newick();
-  else if(format == "Nexus")
+  else if (format == "Nexus")
     treeWriter = new NexusIOTree();
   else throw Exception("Unknow format for tree writing: " + format);
-  treeWriter->write(tree, file, true);
+  if (!checkOnly)
+    treeWriter->write(tree, file, true);
   delete treeWriter;
-  if(verbose) ApplicationTools::displayResult("Wrote tree to file ", file);
+  if (verbose) ApplicationTools::displayResult("Wrote tree to file ", file);
+}
+
+/******************************************************************************/
+
+void PhylogeneticsApplicationTools::writeTrees(
+  const vector<Tree*>& trees,
+  map<string, string> & params,
+  const string & prefix,
+  const string & suffix,
+  bool suffixIsOptional,
+  bool verbose,
+  bool checkOnly) throw (Exception)
+{
+  string format = ApplicationTools::getStringParameter(prefix + "trees.format", params, "Newick", suffix, suffixIsOptional, false);
+  string file = ApplicationTools::getAFilePath(prefix + "trees.file", params, true, false, suffix, suffixIsOptional);
+  OMultiTree* treeWriter;
+  if (format == "Newick")
+    treeWriter = new Newick();
+  else if (format == "Nexus")
+    treeWriter = new NexusIOTree();
+  else throw Exception("Unknow format for tree writing: " + format);
+  if (!checkOnly)
+    treeWriter->write(trees, file, true);
+  delete treeWriter;
+  if (verbose) ApplicationTools::displayResult("Wrote trees to file ", file);
 }
 
 /******************************************************************************/
@@ -1254,7 +1284,7 @@ void PhylogeneticsApplicationTools::writeTree(
 void PhylogeneticsApplicationTools::describeParameters_(const ParameterAliasable* parametrizable, ostream& out, map<string, string>& globalAliases, const vector<string>& names, bool printLocalAliases)
 {
   ParameterList pl = parametrizable->getIndependentParameters().subList(names);
-  for(unsigned int i = 0; i < pl.size(); i++)
+  for (unsigned int i = 0; i < pl.size(); i++)
   {
     if (i > 0) out << ", ";
     string pname = parametrizable->getParameterNameWithoutNamespace(pl[i]->getName());
@@ -1268,10 +1298,10 @@ void PhylogeneticsApplicationTools::describeParameters_(const ParameterAliasable
       out << pname << "=" << globalAliases[pl[i]->getName()];
 
     //Now check for local aliases:
-    if(printLocalAliases)
+    if (printLocalAliases)
     {
       vector<string> aliases = parametrizable->getAlias(pname);
-      for(unsigned int j = 0; aliases.size(); j++)
+      for (unsigned int j = 0; aliases.size(); j++)
       {
         out << ", " << aliases[j] << "=" << pname;
       }
@@ -1298,7 +1328,7 @@ void PhylogeneticsApplicationTools::describeSubstitutionModel_(const Substitutio
     else
     {
       const MarkovModulatedSubstitutionModel* trial3 = dynamic_cast<const MarkovModulatedSubstitutionModel*>(model);
-      if(trial3)
+      if (trial3)
       {
         out << trial3->getName() << "(model=";
         const SubstitutionModel* nestedModel = trial3->getNestedModel();
@@ -1306,7 +1336,7 @@ void PhylogeneticsApplicationTools::describeSubstitutionModel_(const Substitutio
         out << ", ";
         vector<string> names;
         const G2001* trial4 = dynamic_cast<const G2001*>(model);
-        if(trial4)
+        if (trial4)
         {
           //Also print distribution here:
           out << "rdist=";
@@ -1316,7 +1346,7 @@ void PhylogeneticsApplicationTools::describeSubstitutionModel_(const Substitutio
           names.push_back(trial4->getParameter("nu").getName());
         }
         const TS98* trial5 = dynamic_cast<const TS98*>(model);
-        if(trial5)
+        if (trial5)
         {
           names.push_back(trial5->getParameter("s1").getName());
           names.push_back(trial5->getParameter("s2").getName());
@@ -1327,7 +1357,7 @@ void PhylogeneticsApplicationTools::describeSubstitutionModel_(const Substitutio
       else
       {
         const RE08* trial4 = dynamic_cast<const RE08*>(model);
-        if(trial4)
+        if (trial4)
         {
           out << trial4->getName() << "(model=";
           const SubstitutionModel* nestedModel = trial4->getNestedModel();
@@ -1372,13 +1402,13 @@ void PhylogeneticsApplicationTools::printParameters(const SubstitutionModelSet* 
   map< string, vector<unsigned int> > parameterLinks; // for each parameter name, stores the list of model indices.
   ParameterList pl = modelSet->getParameters();
   ParameterList plroot = modelSet->getRootFrequenciesParameters();
-  for(unsigned int i = 0; i < pl.size(); i++)
+  for (unsigned int i = 0; i < pl.size(); i++)
   {
-    if(!plroot.hasParameter(pl[i]->getName()))
+    if (!plroot.hasParameter(pl[i]->getName()))
     {
       string name = pl[i]->getName();
       vector<unsigned int> models = modelSet->getModelsWithParameter(name);
-      for(unsigned int j = 0; j < models.size(); j++)
+      for (unsigned int j = 0; j < models.size(); j++)
       {
         modelLinks[models[j]].push_back(name);
         parameterLinks[name].push_back(models[j]);
@@ -1387,7 +1417,7 @@ void PhylogeneticsApplicationTools::printParameters(const SubstitutionModelSet* 
   }
 
   //Loop over all models:
-  for(unsigned int i = 0; i < modelSet->getNumberOfModels(); i++)
+  for (unsigned int i = 0; i < modelSet->getNumberOfModels(); i++)
   {
     const SubstitutionModel* model = modelSet->getModel(i);
     
@@ -1400,7 +1430,7 @@ void PhylogeneticsApplicationTools::printParameters(const SubstitutionModelSet* 
       if (parameterLinks[name].size() > 1)
       {
         //there is a global alias here
-        if(parameterLinks[name][0] != i) //Otherwise, this is the 'reference' value
+        if (parameterLinks[name][0] != i) //Otherwise, this is the 'reference' value
         {
           globalAliases[modelSet->getParameterModelName(name)] = "model" + TextTools::toString(parameterLinks[name][0] + 1) + "." + modelSet->getParameterModelName(name);
         }
@@ -1413,7 +1443,7 @@ void PhylogeneticsApplicationTools::printParameters(const SubstitutionModelSet* 
     out << endl;
     vector<int> ids = modelSet->getNodesWithModel(i);
     out << "model" << (i+1) << ".nodes_id = " << ids[0];
-    for(unsigned int j = 1; j < ids.size(); j++)
+    for (unsigned int j = 1; j < ids.size(); j++)
       out << "," << ids[j];
     out << endl;
   }
@@ -1421,7 +1451,7 @@ void PhylogeneticsApplicationTools::printParameters(const SubstitutionModelSet* 
   //Root frequencies:
   out << endl;
   out << "# Root frequencies:" << endl;
-  if(plroot.size() == 1 && plroot[0]->getName() == "RootFreqtheta")
+  if (plroot.size() == 1 && plroot[0]->getName() == "RootFreqtheta")
   {
     out << "nonhomogeneous.root_freq = InitGC(ancTheta=" << plroot[0]->getValue() << ")" << endl;
   }
@@ -1432,14 +1462,14 @@ void PhylogeneticsApplicationTools::printParameters(const SubstitutionModelSet* 
     try
     {
       const MarkovModulatedFrequenciesSet* mmFreqSet = dynamic_cast<const MarkovModulatedFrequenciesSet *>(modelSet->getRootFrequenciesSet());
-      if(!mmFreqSet) throw Exception("");
+      if (!mmFreqSet) throw Exception("");
       rootFreqs = mmFreqSet->getStatesFrequenciesSet()->getFrequencies();
     }
     catch(exception& e)
     {
       rootFreqs = modelSet->getRootFrequencies();
     }
-    for(unsigned int i = 0; i < rootFreqs.size(); i++)
+    for (unsigned int i = 0; i < rootFreqs.size(); i++)
     {
       if (i > 0) out << ", ";
       out << "anc" << modelSet->getAlphabet()->intToChar((int)i) << "=" << rootFreqs[i];
@@ -1468,11 +1498,11 @@ void PhylogeneticsApplicationTools::describeDiscreteDistribution_(const Discrete
   else
   {
     test = dynamic_cast<const ConstantDistribution*>(rDist);
-    if(test) out << "Uniform";
+    if (test) out << "Uniform";
     else
     {
       test = dynamic_cast<const GammaDiscreteDistribution *>(rDist);
-      if(test)
+      if (test)
       {
         out << "Gamma(n=" << rDist->getNumberOfCategories() << ", ";
         describeParameters_(rDist, out, globalAliases, rDist->getIndependentParameters().getParameterNames(), false);

@@ -97,6 +97,7 @@ class PhylogeneticsApplicationTools
      * See the Bio++ Program Suite manual for a description of available options.
      *
      * @param params  The attribute map where options may be found.
+     * @param prefix  A prefix to be applied to each attribute name.
      * @param suffix  A suffix to be applied to each attribute name.
      * @param suffixIsOptional Tell if the suffix is absolutely required.
      * @param verbose Print some info to the 'message' output stream.
@@ -105,6 +106,7 @@ class PhylogeneticsApplicationTools
      */
     static Tree* getTree(
       map<string, string> & params,
+      const string & prefix = "input.",
       const string & suffix = "",
       bool suffixIsOptional = true,
       bool verbose = true) throw (Exception);
@@ -115,6 +117,7 @@ class PhylogeneticsApplicationTools
      * See the Bio++ Program Suite manual for a description of available options.
      *
      * @param params  The attribute map where options may be found.
+     * @param prefix  A prefix to be applied to each attribute name.
      * @param suffix  A suffix to be applied to each attribute name.
      * @param suffixIsOptional Tell if the suffix is absolutely required.
      * @param verbose Print some info to the 'message' output stream.
@@ -123,6 +126,7 @@ class PhylogeneticsApplicationTools
      */
     static vector<Tree*> getTrees(
       map<string, string> & params,
+      const string & prefix = "input.",
       const string & suffix = "",
       bool suffixIsOptional = true,
       bool verbose = true) throw (Exception);
@@ -509,24 +513,49 @@ class PhylogeneticsApplicationTools
      *
      * @param tree    The tree to write.
      * @param params  The attribute map where options may be found.
+     * @param prefix  A prefix to be applied to each attribute name.
      * @param suffix  A suffix to be applied to each attribute name.
      * @param suffixIsOptional Tell if the suffix is absolutely required.
      * @param verbose Print some info to the 'message' output stream.
+     * @param checkOnly If this parameter is set to true, then all options are
+     * checked and error messages sent, but no file is written.
      * @throw Exception if an error occured.
      */
     static void writeTree(
-      const TreeTemplate<Node> & tree,
-      map<string, string> & params,
-      const string & suffix = "",
+      const TreeTemplate<Node>& tree,
+      map<string, string>& params,
+      const string& prefix = "output.",
+      const string& suffix = "",
       bool suffixIsOptional = true,
-      bool verbose = true) throw (Exception);
+      bool verbose = true,
+      bool checkOnly = false) throw (Exception);
     
     /**
-     * @brief This function prints the options available for tree writing.
+     * @brief Write a tree according to options.
+     *
+     * See the Bio++ Program Suite manual for a descriptio of all available options.
+     *
+     * @param tree    The tree to write.
+     * @param params  The attribute map where options may be found.
+     * @param prefix  A prefix to be applied to each attribute name.
+     * @param suffix  A suffix to be applied to each attribute name.
+     * @param suffixIsOptional Tell if the suffix is absolutely required.
+     * @param verbose Print some info to the 'message' output stream.
+     * @param checkOnly If this parameter is set to true, then all options are
+     * checked and error messages sent, but no file is written.
+     * @throw Exception if an error occured.
      */
-    static void printOutputTreeHelp();
-   
+    static void writeTrees(
+      const vector<Tree*>& trees,
+      map<string, string>& params,
+      const string& prefix = "output.",
+      const string& suffix = "",
+      bool suffixIsOptional = true,
+      bool verbose = true,
+      bool checkOnly = false) throw (Exception);
 
+
+    
     /**
      * @brief Output a SubstitutionModel description to a file.
      *
