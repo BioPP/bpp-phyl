@@ -186,57 +186,6 @@ double TreeTools::getHeight(const Tree & tree, int nodeId) throw (NodeNotFoundEx
 
 /******************************************************************************/
 
-TreeTools::Element TreeTools::getElement(const string & elt) throw (IOException)
-{
-  Element element;
-  element.length    = ""; //default
-  element.bootstrap = ""; //default
-  
-  string::size_type colon = elt.rfind(':');
-  try
-  {
-    string elt2;
-    if(colon != string::npos)
-    {
-      //this is an element with length:
-      elt2 = elt.substr(0, colon);
-      element.length = elt.substr(colon + 1);
-    }
-    else
-    {
-      //this is an element without length;
-      elt2 = elt;
-    }
-  
-    string::size_type lastP = elt2.rfind(')');
-    string::size_type firstP = elt2.find('(');
-    if(firstP == string::npos)
-    {
-      //This is a leaf:
-      element.content = elt2;
-    }
-    else
-    {
-      //This is a node:
-      if(lastP < firstP) throw IOException("Invalid format: bad closing parenthesis in " + elt2);
-      element.content = elt2.substr(firstP + 1, lastP - firstP - 1);
-      string bootstrap = elt2.substr(lastP + 1);
-      //cout << "ELEMENT: BOOTSTRAP: " << bootstrap << endl;
-      if(!TextTools::isEmpty(bootstrap))
-      {
-        element.bootstrap = bootstrap;
-      }
-    }
-  }
-  catch(exception e)
-  {
-    throw IOException("Bad tree description: " + elt);
-  }
-  return element;
-}  
-
-/******************************************************************************/
-
 string TreeTools::nodeToParenthesis(const Tree & tree, int nodeId, bool writeId) throw (NodeNotFoundException)
 {
   if(!tree.hasNode(nodeId)) throw NodeNotFoundException("TreeTools::nodeToParenthesis", nodeId);

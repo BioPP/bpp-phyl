@@ -59,55 +59,6 @@ namespace bpp
 {
 
 /**
- * @brief Inner class for parsing strings in Newick format.
- */
-class NodeTokenizer
-{
-  protected:
-    vector<string> tokens;
-    mutable unsigned int currentPosition;
-  
-  public:
-    NodeTokenizer(const string & description) throw (IOException): tokens(), currentPosition(0)
-    {
-      //cout << "NODETOKENIZER: " << description << endl;
-      unsigned int tokCount = 0;
-      int parCount = 0;
-      unsigned int i;
-      for(i = 0; i < description.size(); i++)
-      {
-        if(description[i] == '(') parCount++; //Another open parenthesis
-        if(description[i] == ')') parCount--; //Another close parenthesis
-        if(parCount < 0) throw IOException("Invalid tree description: closing parenthesis with no opening one, in " + description);
-        if(description[i] == ',' && parCount == 0)
-        {
-          //New token found:
-          //cout << "NODETOENIZER: NEWTOKEN " << description.substr(tokCount, i - tokCount - 1) << endl;
-          tokens.push_back(description.substr(tokCount, i - tokCount));
-          tokCount = i + 1;
-        }          
-      }
-      //Add last token:
-      //cout << "NODETOKENIZER: NEWTOKEN " << description.substr(tokCount) << endl;
-      tokens.push_back(description.substr(tokCount));
-      
-      currentPosition = 0;
-    }
-    
-  public:
-    string next() const
-    {
-      string s = tokens[currentPosition];
-      currentPosition++;
-      return s;
-    }
-    bool hasNext() const
-    { 
-      return currentPosition < tokens.size();
-    }
-};
-
-/**
  * @brief Generic utilitary methods dealing with trees.
  *
  * These methods work with all Tree object.
@@ -420,26 +371,17 @@ class TreeTools
     static void midpointRooting(Tree & tree);
     /** @} */
 
+
     /**
      * @name Conversion tools.
      *
-     * Convert from Newick standard tree description.
+     * Convert to Newick standard tree description.
      * The description is for a node, and hence is to be surrounded with
      * parenthesis. ex: (A:0.001, (B:0.001, C:0.02)90:0.005)50:0.0005
      *
      * @{
      */
-
-    struct Element
-    {
-      string content;
-      string length;
-      string bootstrap;
-    };
-
-    static Element getElement(const string & elt) throw (IOException);
-
-    
+   
     /**
      * @brief Get the parenthesis description of a subtree.
      *
@@ -451,7 +393,7 @@ class TreeTools
      * @return A string in the parenthesis format.
      * @throw NodeNotFoundException If the node is not found.
      */
-    static string nodeToParenthesis(const Tree & tree, int nodeId, bool writeId = false) throw (NodeNotFoundException);
+    static string nodeToParenthesis(const Tree& tree, int nodeId, bool writeId = false) throw (NodeNotFoundException);
 
     /**
      * @brief Get the parenthesis description of a subtree.
@@ -467,7 +409,7 @@ class TreeTools
      * @return A string in the parenthesis format.
      * @throw NodeNotFoundException If the node is not found.
      */
-    static string nodeToParenthesis(const Tree & tree, int nodeId, bool bootstrap, const string & propertyName) throw (NodeNotFoundException);
+    static string nodeToParenthesis(const Tree& tree, int nodeId, bool bootstrap, const string & propertyName) throw (NodeNotFoundException);
 
     /**
      * @brief Get the parenthesis description of a tree.

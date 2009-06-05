@@ -54,6 +54,7 @@ namespace bpp
 
 template<class N> class TreeTemplate;
 
+
 /**
  * @brief Utilitary methods working with TreeTemplate and Node objects.
  *
@@ -429,7 +430,7 @@ class TreeTemplateTools
      * number of sons 'generations'.
      *
      * ex:
-     * <code>
+     * @verbatim
      *    +----------A
      *    |
      * ---+ N1     +-------B
@@ -437,7 +438,7 @@ class TreeTemplateTools
      *    +--------+ N2
      *             |
      *             +------C
-     * </code>
+     * @endverbatim
      * Depth of node 'N1' id 2, depth of node 'N2' is 1, depth of leaves is 0.
      *
      * @param node The node defining the subtree to check.
@@ -623,6 +624,15 @@ class TreeTemplateTools
      *
      * @{
      */
+
+    struct Element
+    {
+      string content;
+      string length;
+      string bootstrap;
+    };
+
+    static Element getElement(const string & elt) throw (IOException);
 
     /**
      * @brief Parse a string in the parenthesis format and convert it to

@@ -46,6 +46,7 @@ knowledge of the CeCILL license and that you accept its terms.
 #include <Utils/Number.h>
 #include <Utils/BppString.h>
 #include <Utils/StringTokenizer.h>
+#include <Utils/NestedStringTokenizer.h>
 #include <Utils/TextTools.h>
 
 // From NumCalc:
@@ -169,13 +170,73 @@ double TreeTemplateTools::getHeights(const Node & node, map<const Node *, double
 
 /******************************************************************************/
 
-Node * TreeTemplateTools::parenthesisToNode(const string & description, bool bootstrap, const string & propertyName)
+TreeTemplateTools::Element TreeTemplateTools::getElement(const string& elt) throw (IOException)
+{
+  Element element;
+  element.length    = ""; //default
+  element.bootstrap = ""; //default
+  
+  unsigned int colonIndex;
+  bool hasColon = false;
+  for (colonIndex = elt.size(); colonIndex > 0 && elt[colonIndex] != ')'; colonIndex--)
+  {
+    if (elt[colonIndex] == ':')
+    {
+      hasColon = true;
+      break;
+    }
+  }
+  try
+  {
+    string elt2;
+    if(hasColon)
+    {
+      //this is an element with length:
+      elt2 = elt.substr(0, colonIndex);
+      element.length = elt.substr(colonIndex + 1);
+    }
+    else
+    {
+      //this is an element without length;
+      elt2 = elt;
+    }
+  
+    string::size_type lastP = elt2.rfind(')');
+    string::size_type firstP = elt2.find('(');
+    if(firstP == string::npos)
+    {
+      //This is a leaf:
+      element.content = elt2;
+    }
+    else
+    {
+      //This is a node:
+      if(lastP < firstP) throw IOException("TreeTemplateTools::getElement(). Invalid format: bad closing parenthesis in " + elt2);
+      element.content = elt2.substr(firstP + 1, lastP - firstP - 1);
+      string bootstrap = elt2.substr(lastP + 1);
+      //cout << "ELEMENT: BOOTSTRAP: " << bootstrap << endl;
+      if(!TextTools::isEmpty(bootstrap))
+      {
+        element.bootstrap = bootstrap;
+      }
+    }
+  }
+  catch(exception e)
+  {
+    throw IOException("Bad tree description: " + elt);
+  }
+  return element;
+}  
+
+/******************************************************************************/
+
+Node * TreeTemplateTools::parenthesisToNode(const string& description, bool bootstrap, const string & propertyName)
 {
   //cout << "NODE: " << description << endl;
-  TreeTools::Element elt = TreeTools::getElement(description);
+  Element elt = getElement(description);
 
   //New node:
-  Node * node = new Node();
+  Node* node = new Node();
   if(!TextTools::isEmpty(elt.length))
   {
     node->setDistanceToFather(TextTools::toDouble(elt.length));
@@ -194,11 +255,11 @@ Node * TreeTemplateTools::parenthesisToNode(const string & description, bool boo
     }
   }
   
-  NodeTokenizer nt(elt.content);
+  NestedStringTokenizer nt(elt.content, "(", ")", ",");
   vector<string> elements;
-  while(nt.hasNext())
+  while (nt.hasMoreToken())
   {
-    elements.push_back(nt.next());
+    elements.push_back(nt.nextToken());
   }
 
   if(elements.size() == 1)
@@ -237,16 +298,16 @@ TreeTemplate<Node> * TreeTemplateTools::parenthesisToTree(const string & descrip
   if(lastP <= firstP)
     throw Exception("TreeTemplateTools::parenthesisToTree(). Bad format: closing parenthesis before opening parenthesis.");
   string content = description.substr(firstP + 1, lastP - firstP - 1);
-  string element = semi == string::npos ? description.substr(lastP + 1) : description.substr(lastP + 1, semi - lastP - 1);
+  string element = (semi == string::npos) ? description.substr(lastP + 1) : description.substr(lastP + 1, semi - lastP - 1);
   //cout << "TREE: " << content << endl;
   //New root node:
-  Node * node = new Node();
+  Node* node = new Node();
   
-  NodeTokenizer nt(content);
+  NestedStringTokenizer nt(content,"(", ")", ",");
   vector<string> elements;
-  while(nt.hasNext())
+  while(nt.hasMoreToken())
   {
-    elements.push_back(nt.next());
+    elements.push_back(nt.nextToken());
   }
 
   if(elements.size() == 1)
