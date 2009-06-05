@@ -933,7 +933,7 @@ TreeTemplate<Node> * TreeTools::strictConsensus(const vector<Tree *> & vecTr, bo
 
 /******************************************************************************/
 
-Tree* TreeTools::MRP(const vector<Tree*> & vecTr)
+Tree* TreeTools::MRP(const vector<Tree*>& vecTr)
 {
   //matrix representation
   VectorSiteContainer* sites = TreeTools::MRPEncode(vecTr);
@@ -946,10 +946,11 @@ Tree* TreeTools::MRP(const vector<Tree*> & vecTr)
   BioNJ bionjTreeBuilder;
   bionjTreeBuilder.setDistanceMatrix(*(distFunc.getMatrix()));
   bionjTreeBuilder.computeTree(false);
+  *ApplicationTools::message << endl;
   TreeTemplate<Node>* startTree = new TreeTemplate<Node>(*bionjTreeBuilder.getTree());
 
   //MP optimization
-  DRTreeParsimonyScore * MPScore = new DRTreeParsimonyScore(*startTree, *sites, true);
+  DRTreeParsimonyScore * MPScore = new DRTreeParsimonyScore(*startTree, *sites, false);
   MPScore = OptimizationTools::optimizeTreeNNI(MPScore, 0);
   delete startTree;
   Tree* retTree = new TreeTemplate<Node>(*MPScore->getTree());
