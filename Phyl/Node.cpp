@@ -128,6 +128,11 @@ unsigned int Node::getSonPosition(const Node & son) const throw (NodeNotFoundExc
   throw NodeNotFoundException("Son not found", TextTools::toString(son.getId()));
 }
 
+bool Node::hasBootstrapValue() const
+{
+  return hasBranchProperty(TreeTools::BOOTSTRAP);
+}
+
 double Node::getBootstrapValue() const throw (PropertyNotFoundException)
 {
   if(hasBranchProperty(TreeTools::BOOTSTRAP))

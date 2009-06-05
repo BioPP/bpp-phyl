@@ -588,6 +588,8 @@ class Node:
 
     virtual vector<string> getBranchPropertyNames() const { return MapTools::getKeys(_branchProperties); }
    
+    virtual bool hasBootstrapValue() const;
+    
     virtual double getBootstrapValue() const throw (PropertyNotFoundException);
     /** @} */
     // Equality operator:
