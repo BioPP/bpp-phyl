@@ -535,7 +535,7 @@ class PhylogeneticsApplicationTools
      *
      * See the Bio++ Program Suite manual for a descriptio of all available options.
      *
-     * @param tree    The tree to write.
+     * @param trees   The trees to write.
      * @param params  The attribute map where options may be found.
      * @param prefix  A prefix to be applied to each attribute name.
      * @param suffix  A suffix to be applied to each attribute name.
@@ -569,8 +569,8 @@ class PhylogeneticsApplicationTools
     /**
      * @brief Output a SubstitutionModelSet description to a file.
      *
-     * @param model The model set to serialize.
-     * @param out   The stream where to print.
+     * @param modelSet The model set to serialize.
+     * @param out      The stream where to print.
      */
     static void printParameters(const SubstitutionModelSet* modelSet, ostream& out);
 
@@ -579,7 +579,7 @@ class PhylogeneticsApplicationTools
     /**
      * @brief Output a DiscreteDistribution description to a file.
      *
-     * @param model The model set to serialize.
+     * @param rDist The rate distribution to serialize.
      * @param out   The stream where to print.
      */
     static void printParameters(const DiscreteDistribution* rDist, ostream& out);

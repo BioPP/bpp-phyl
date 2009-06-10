@@ -113,15 +113,19 @@ class PropertyNotFoundException:
 
 		/**
 		 * @brief Build a new PropertyNotFoundException.
+     *
 		 * @param text A message to be passed to the exception hierarchy.
+		 * @param propertyName The name of the property.
 		 * @param node A const pointer toward the node that threw the exception.
 		 */
-		PropertyNotFoundException(const string & text, const string & propertyName, const Node * node = NULL):
+		PropertyNotFoundException(const string& text, const string& propertyName, const Node* node = NULL):
       NodeException("Property not found: " + propertyName + ". " + text, node), _propertyName(propertyName) {}
 
 		/**
-		 * @brief Build a new NodeException.
+		 * @brief Build a new PropertyNotFoundException.
+     *
 		 * @param text A message to be passed to the exception hierarchy.
+		 * @param propertyName The name of the property.
 		 * @param nodeId The id of the node that threw the exception.
 		 */
 		PropertyNotFoundException(const string & text, const string & propertyName, int nodeId):

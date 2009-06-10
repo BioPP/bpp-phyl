@@ -1,21 +1,21 @@
 Source: libbpp-phyl
 Section: libs
 Priority: optional
-Maintainer: Julien Dutheil <jdutheil@daimi.au.dk>
+Maintainer: Julien Dutheil <jdutheil@birc.au.dk>
 Build-Depends: debhelper (>= 5), autotools-dev
 Standards-Version: 3.7.2
 
 Package: libbpp-phyl-dev
 Section: libdevel
 Architecture: any
-Depends: libbpp-phyl (= ${source:Version}), libbpp-utils-dev (>= 1.3.0), libbpp-numcalc-dev (= 1.6.0), libbpp-seq-dev (= 1.5.0)
+Depends: libbpp-phyl (= ${source:Version}), libbpp-utils-dev (= 1.4.0), libbpp-numcalc-dev (= 1.7.0), libbpp-seq-dev (= 1.6.0)
 Description: The Bio++ Phylogenetic library development files.
  Contains the Bio++ classes for phylogenetics.
 
 Package: libbpp-phyl
 Section: libs
 Architecture: any
-Depends: ${shlibs:Depends}, ${misc:Depends}, libbpp-utils (>= 1.3.0), libbpp-numcalc (= 1.6.0), libbpp-seq (= 1.5.0)
+Depends: ${shlibs:Depends}, ${misc:Depends}, libbpp-utils (= 1.4.0), libbpp-numcalc (= 1.7.0), libbpp-seq (= 1.6.0)
 Description: The Bio++ Phylogenetic library.
  Contains the Bio++ classes for phylogenetics.
 

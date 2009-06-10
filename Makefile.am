@@ -1,4 +1,4 @@
-#Copyright or © or Copr. CNRS, (November 16, 2004-2008)
+#Copyright or © or Copr. CNRS, (November 16, 2004-2009)
 #
 #This software is a computer program whose purpose is to provide classes
 #for phylogenetic data analysis.
@@ -31,6 +31,7 @@
 
 SUBDIRS = Phyl
 EXTRA_DIST = Phyl.spec debian
+ACLOCAL_AMFLAGS=-I m4
 
 dist-hook:
 	rm -rf `find $(distdir)/debian -name CVS`

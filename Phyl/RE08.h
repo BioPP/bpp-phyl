@@ -43,6 +43,8 @@ knowledge of the CeCILL license and that you accept its terms.
 #include "SubstitutionModel.h"
 #include "AbstractSubstitutionModel.h"
 
+using namespace std;
+
 namespace bpp
 {
 

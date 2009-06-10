@@ -64,8 +64,9 @@ class ProteinSubstitutionModelWithFrequencies:
      *
      * @param alpha The alphabet to use.
      * @param freqSet The frequencies set object to use.
+     * @param prefix The namespace to use for parameter names.
      */
-		ProteinSubstitutionModelWithFrequencies(const ProteicAlphabet * alpha, const ProteinFrequenciesSet & freqSet, const string& prefix) :
+		ProteinSubstitutionModelWithFrequencies(const ProteicAlphabet* alpha, const ProteinFrequenciesSet& freqSet, const string& prefix) :
       ProteinSubstitutionModel(alpha, prefix), freqSet_(dynamic_cast<ProteinFrequenciesSet *>(freqSet.clone()))
     {
       freq_ = freqSet_->getFrequencies();
@@ -77,8 +78,9 @@ class ProteinSubstitutionModelWithFrequencies:
      * A FullProteinFrequenciesSet object will be used in order to parametrize the equilibrium frequencies.
      *
      * @param alpha The alphabet to use.
+     * @param prefix The namespace to use for parameter names.
      */
-    ProteinSubstitutionModelWithFrequencies(const ProteicAlphabet * alpha, const string& prefix):
+    ProteinSubstitutionModelWithFrequencies(const ProteicAlphabet* alpha, const string& prefix):
       ProteinSubstitutionModel(alpha, prefix)
     {
       freqSet_ = new FullProteinFrequenciesSet(alpha);
