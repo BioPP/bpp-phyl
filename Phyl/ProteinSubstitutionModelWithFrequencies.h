@@ -134,7 +134,8 @@ class ProteinSubstitutionModelWithFrequencies:
 
     void setFreqFromData(const SequenceContainer & data)
     {
-      map<int, double> freqs = SequenceContainerTools::getFrequencies(data);
+      map<int, double> freqs;
+      SequenceContainerTools::getFrequencies(data, freqs);
       double t = 0;
       for(unsigned int i = 0; i < size_; i++) t += freqs[i];
       for(unsigned int i = 0; i < size_; i++) freq_[i] = freqs[i] / t;

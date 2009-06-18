@@ -135,7 +135,8 @@ void GTR::updateMatrices()
 
 void GTR::setFreqFromData(const SequenceContainer & data, unsigned int pseudoCount)
 {
-	map<int, double> freqs = SequenceContainerTools::getFrequencies(data);
+	map<int, double> freqs;
+  SequenceContainerTools::getFrequencies(data, freqs);
 	double t = 0;
 	for(unsigned int i = 0; i < size_; i++) t += freqs[i] + pseudoCount;
 	_piA = (freqs[0] + pseudoCount) / t;

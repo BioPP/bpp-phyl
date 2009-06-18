@@ -541,7 +541,8 @@ FrequenciesSet * PhylogeneticsApplicationTools::getFrequenciesSet(
   if (verbose) ApplicationTools::displayResult("Ancestral frequences method", freqName);
   if (freqName == "Observed" && data)
   {
-    map<int, double> freqs = SequenceContainerTools::getFrequencies(*data);
+    map<int, double> freqs;
+    SequenceContainerTools::getFrequencies(*data, freqs);
     double t = 0;
     vector<double> rootFreq(alphabet->getSize());
     for (unsigned int i = 0; i < alphabet->getSize(); i++) t += freqs[i];
@@ -610,7 +611,8 @@ FrequenciesSet * PhylogeneticsApplicationTools::getFrequenciesSet(
   else if (freqName == "ObservedGC" && data)
   {
     if (!AlphabetTools::isNucleicAlphabet(alphabet)) throw Exception("Error, unvalid option " + freqName + " with non-nucleic alphabet.");
-    map<int, double> freqs = SequenceContainerTools::getFrequencies(*data);
+    map<int, double> freqs;
+    SequenceContainerTools::getFrequencies(*data, freqs);
     double theta  = (freqs[1] + freqs[2]) / (freqs[0] + freqs[1] + freqs[2] + freqs[3]);
     if (verbose) ApplicationTools::displayResult("Ancestral theta", TextTools::toString(theta));
     rootFrequencies = new GCFrequenciesSet(dynamic_cast<const NucleicAlphabet *>(alphabet), theta, "RootFreq");

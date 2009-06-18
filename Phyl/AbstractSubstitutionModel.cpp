@@ -122,7 +122,8 @@ double AbstractSubstitutionModel::getInitValue(int i, int state) const throw (Ba
 
 void AbstractSubstitutionModel::setFreqFromData(const SequenceContainer & data, unsigned int pseudoCount)
 {
-  map<int, double> freqs = SequenceContainerTools::getFrequencies(data);
+  map<int, double> freqs;
+  SequenceContainerTools::getFrequencies(data, freqs);
   double t = 0;
   for(unsigned int i = 0; i < size_; i++) t += freqs[i] + pseudoCount;
   for(unsigned int i = 0; i < size_; i++) freq_[i] = (freqs[i] + pseudoCount) / t;

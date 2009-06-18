@@ -430,7 +430,8 @@ const Matrix<double> & T92::getd2Pij_dt2(double d) const
 
 void T92::setFreqFromData(const SequenceContainer & data, unsigned int pseudoCount)
 {
-	map<int, double> freqs = SequenceContainerTools::getFrequencies(data);
+	map<int, double> freqs;
+  SequenceContainerTools::getFrequencies(data, freqs);
 	double f = (freqs[1] + freqs[2] + 2 * pseudoCount) / (freqs[0] + freqs[1] + freqs[2] + freqs[3] + 4 * pseudoCount);
 	setParameterValue("theta", f);
 	updateMatrices();
