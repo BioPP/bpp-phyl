@@ -301,8 +301,8 @@ double DRTreeParsimonyScore::testNNI(int nodeId) const throw (NodeException)
 	//From here: Bifurcation assumed.
 	//In case of multifurcation, an arbitrary uncle is chosen.
 	//If we are at root node with a trifurcation, this does not matter, since 2 NNI are possible (see doc of the NNISearchable interface).
-	unsigned int parentPosition = grandFather->getSonPosition(*parent);
-	const Node * uncle = grandFather->getSon(parentPosition > 1 ? parentPosition -1 : 1 - parentPosition);
+	unsigned int parentPosition = grandFather->getSonPosition(parent);
+	const Node* uncle = grandFather->getSon(parentPosition > 1 ? parentPosition -1 : 1 - parentPosition);
 	
 	//Retrieving arrays of interest:
 	const DRTreeParsimonyNodeData * parentData = & _parsimonyData->getNodeData(parent->getId());
@@ -374,13 +374,13 @@ void DRTreeParsimonyScore::doNNI(int nodeId) throw (NodeException)
 	//From here: Bifurcation assumed.
 	//In case of multifurcation, an arbitrary uncle is chosen.
 	//If we are at root node with a trifurcation, this does not matter, since 2 NNI are possible (see doc of the NNISearchable interface).
-	unsigned int parentPosition = grandFather->getSonPosition(*parent);
+	unsigned int parentPosition = grandFather->getSonPosition(parent);
 	Node * uncle = grandFather->getSon(parentPosition > 1 ? parentPosition -1 : 1 - parentPosition);
 	//Swap nodes:
-	parent->removeSon(*son);
-	grandFather->removeSon(*uncle);
-	parent->addSon(*uncle);
-	grandFather->addSon(*son);
+	parent->removeSon(son);
+	grandFather->removeSon(uncle);
+	parent->addSon(uncle);
+	grandFather->addSon(son);
 }
 
 /******************************************************************************/

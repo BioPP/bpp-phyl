@@ -275,8 +275,8 @@ Node * TreeTemplateTools::parenthesisToNode(const string& description, bool boot
     for(unsigned int i = 0; i < elements.size(); i++)
     {
       //cout << "NODE: SUBNODE: " << i << ", " << elements[i] << endl;
-      Node * son = parenthesisToNode(elements[i], bootstrap, propertyName);
-      node->addSon(* son);
+      Node* son = parenthesisToNode(elements[i], bootstrap, propertyName);
+      node->addSon(son);
     }
   }
   return node;
@@ -320,8 +320,8 @@ TreeTemplate<Node> * TreeTemplateTools::parenthesisToTree(const string & descrip
     //This is a node:
     for(unsigned int i = 0; i < elements.size(); i++)
     {
-      Node * son = parenthesisToNode(elements[i], bootstrap, propertyName);
-      node->addSon(* son);
+      Node* son = parenthesisToNode(elements[i], bootstrap, propertyName);
+      node->addSon(son);
     }
     if(! TextTools::isEmpty(element))
     {
@@ -356,8 +356,8 @@ TreeTemplate<Node> * TreeTemplateTools::parenthesisToTree(const string & descrip
       }
     }
   }
-  TreeTemplate<Node> * tree = new TreeTemplate<Node>();
-  tree->setRootNode(* node);
+  TreeTemplate<Node>* tree = new TreeTemplate<Node>();
+  tree->setRootNode(node);
   tree->resetNodesId();
   return tree;
 }
@@ -589,19 +589,19 @@ TreeTemplate<Node> * TreeTemplateTools::getRandomTree(vector<string> & leavesNam
   {
     // Select random nodes:
     int pos1 = RandomTools::giveIntRandomNumberBetweenZeroAndEntry(nodes.size());
-    Node * node1 = nodes[pos1];
+    Node* node1 = nodes[pos1];
     nodes.erase(nodes.begin() + pos1);
     int pos2 = RandomTools::giveIntRandomNumberBetweenZeroAndEntry(nodes.size());
-    Node * node2 = nodes[pos2];
+    Node* node2 = nodes[pos2];
     nodes.erase(nodes.begin() + pos2);
     // Add new node:
-    Node * parent = new Node();
-    parent -> addSon(* node1);
-    parent -> addSon(* node2);
+    Node* parent = new Node();
+    parent->addSon(node1);
+    parent->addSon(node2);
     nodes.push_back(parent);
   }
   // Return tree with last node as root node:
-  TreeTemplate<Node> * tree = new TreeTemplate<Node>(* nodes[0]);
+  TreeTemplate<Node>* tree = new TreeTemplate<Node>(* nodes[0]);
   tree->resetNodesId();
   return tree;
 }

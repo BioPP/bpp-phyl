@@ -48,8 +48,6 @@ knowledge of the CeCILL license and that you accept its terms.
 #include <map>
 #include <iostream>
 
-using namespace std;
-
 // From Utils:
 #include <Utils/Clonable.h>
 #include <Utils/MapTools.h>
@@ -75,7 +73,7 @@ namespace bpp
  * - An identity tag, to identity it in the tree;
  * - A name, necessary for leaf nodes, optionnal else;
  * - A pointer toward the father node;
- * - A vector of pointer toward son nodes;
+ * - A std::vector of pointer toward son nodes;
  * - The distance from the father node:
  * - A property map, that may contain any information to link to each node, e.g. bootstrap
  * value or GC content.
@@ -84,9 +82,8 @@ namespace bpp
  * Trees are more easily built from root to leaves:
  * The addSon(Node) method adds a node to the list of direct descendants of a 
  * given node. The son node will also have its father set to the current node.
- * There is also a setFather method that enables you to change the pointer
- * toward the parent node. This will however not change the list of descendants
- * of the parent node, you will have to tune it manually.
+ * It is also possible to build a tree starting from the leaves using the setFather method.
+ * Changing the parent node will automatically append the current node to the son nodes of the new father.
  * 
  * @see Tree, TreeTemplate
  */
@@ -95,35 +92,35 @@ class Node:
 {
       
   protected:
-    int                             _id;
-    string                        * _name;
-    vector<Node *>                  _sons;
-    Node                          * _father;
-    double                        * _distanceToFather;
-    mutable map<string, Clonable *> _nodeProperties;
-    mutable map<string, Clonable *> _branchProperties;
+    int id_;
+    std::string* name_;
+    std::vector<Node *> sons_;
+    Node* father_;
+    double* distanceToFather_;
+    mutable map<std::string, Clonable*> nodeProperties_;
+    mutable map<std::string, Clonable*> branchProperties_;
 
   public:
   
     /**
      * @brief Build a new void Node object.
      */
-    Node() : _id(0), _name(NULL), _sons(), _father(NULL), _distanceToFather(NULL), _nodeProperties(), _branchProperties() {}
+    Node() : id_(0), name_(NULL), sons_(), father_(NULL), distanceToFather_(NULL), nodeProperties_(), branchProperties_() {}
       
     /**
      * @brief Build a new Node with specified id.
      */
-    Node(int id) : _id(id), _name(NULL), _sons(), _father(NULL), _distanceToFather(NULL), _nodeProperties(), _branchProperties() {}
+    Node(int id) : id_(id), name_(NULL), sons_(), father_(NULL), distanceToFather_(NULL), nodeProperties_(), branchProperties_() {}
 
     /**
      * @brief Build a new Node with specified name.
      */
-    Node(const string & name) : _id(0), _name(new string(name)), _sons(), _father(NULL), _distanceToFather(NULL), _nodeProperties(), _branchProperties() {}
+    Node(const std::string & name) : id_(0), name_(new std::string(name)), sons_(), father_(NULL), distanceToFather_(NULL), nodeProperties_(), branchProperties_() {}
 
     /**
      * @brief Build a new Node with specified id and name.
      */
-    Node(int id, const string & name) : _id(id), _name(new string(name)), _sons(), _father(NULL), _distanceToFather(NULL), _nodeProperties(), _branchProperties() {}
+    Node(int id, const std::string & name) : id_(id), name_(new std::string(name)), sons_(), father_(NULL), distanceToFather_(NULL), nodeProperties_(), branchProperties_() {}
 
     /**
      * @brief Copy constructor.
@@ -142,11 +139,11 @@ class Node:
 
     virtual ~Node()
     {  
-      delete _name;
-      delete _distanceToFather;
-      for(map<string, Clonable *>::iterator i = _nodeProperties.begin(); i != _nodeProperties.end(); i++)
+      delete name_;
+      delete distanceToFather_;
+      for(map<std::string, Clonable *>::iterator i = nodeProperties_.begin(); i != nodeProperties_.end(); i++)
         delete i->second;
-      for(map<string, Clonable *>::iterator i = _branchProperties.begin(); i != _branchProperties.end(); i++)
+      for(map<std::string, Clonable *>::iterator i = branchProperties_.begin(); i != branchProperties_.end(); i++)
         delete i->second;
     }
 
@@ -165,20 +162,20 @@ class Node:
      *
      * @return The identity tag of this node.
      */
-    virtual int getId() const { return _id; }
+    virtual int getId() const { return id_; }
     
     /**
      * @brief Set this node's id.
      *
      * @param id The new identity tag.
      */
-    virtual void setId(int id) { _id = id; }
+    virtual void setId(int id) { id_ = id; }
 
-    virtual vector<int> getSonsId() const
+    virtual std::vector<int> getSonsId() const
     {
-      vector<int> sonsId(_sons.size());
-      for(unsigned int i = 0; i < _sons.size(); i++) {
-        sonsId[i] = _sons[i] -> getId();
+      std::vector<int> sonsId(sons_.size());
+      for(unsigned int i = 0; i < sons_.size(); i++) {
+        sonsId[i] = sons_[i] -> getId();
       }
       return sonsId;
     }
@@ -197,10 +194,10 @@ class Node:
      * 
      * @return The name associated to this node.
      */
-    virtual string getName() const throw (NodeException)
+    virtual std::string getName() const throw (NodeException)
     {
       if(!hasName()) throw NodeException("Node::getName: no name associated to this node.", this);
-      return * _name;
+      return * name_;
     }
         
     /**
@@ -208,10 +205,10 @@ class Node:
      * 
      * @param name The name to give to the node.
      */
-    virtual void setName(const string & name)
+    virtual void setName(const std::string & name)
     { 
-      if(_name) delete _name;
-      _name = new string(name);
+      if(name_) delete name_;
+      name_ = new std::string(name);
     }
     
     /**
@@ -219,8 +216,8 @@ class Node:
      */
     virtual void deleteName()
     {
-      if(_name) delete _name;
-      _name = NULL;
+      if(name_) delete name_;
+      name_ = NULL;
     }
     
     /**
@@ -228,7 +225,7 @@ class Node:
      * 
      * @return True if name != NULL.
      */
-    virtual bool hasName() const { return _name != NULL; }
+    virtual bool hasName() const { return name_ != NULL; }
     
     /** @} */
     
@@ -247,7 +244,7 @@ class Node:
     virtual double getDistanceToFather() const throw (NodeException) 
     {
       if(!hasDistanceToFather()) throw NodeException("Node::getDistanceToFather: Node has no distance." , this);
-      return * _distanceToFather;
+      return * distanceToFather_;
     }
         
     /**
@@ -259,19 +256,19 @@ class Node:
      * 
      * @param distance The new distance to the father node.
      */
-    virtual void setDistanceToFather(double distance) { delete _distanceToFather; _distanceToFather = new double(distance); }
+    virtual void setDistanceToFather(double distance) { delete distanceToFather_; distanceToFather_ = new double(distance); }
     
     /**
      * @brief Delete the distance to the father node.
      */
-    virtual void deleteDistanceToFather() { delete _distanceToFather; _distanceToFather = NULL; }
+    virtual void deleteDistanceToFather() { delete distanceToFather_; distanceToFather_ = NULL; }
         
     /**
      * @brief Tell is this node has a distance to the father.
      * 
      * @return True if distanceToFather != NULL.
      */
-    virtual bool hasDistanceToFather() const { return _distanceToFather != NULL; }
+    virtual bool hasDistanceToFather() const { return distanceToFather_ != NULL; }
 
     /** @} */
         
@@ -286,33 +283,37 @@ class Node:
      * 
      * @return A pointer toward the father node, NULL if there is not.
      */     
-    virtual const Node * getFather() const { return _father; }
+    virtual const Node* getFather() const { return father_; }
         
     /**
      * @brief Get the father of this node is there is one.
      * 
      * @return A pointer toward the father node, NULL if there is not.
      */     
-    virtual Node * getFather() { return _father; }
+    virtual Node* getFather() { return father_; }
     
-    virtual int getFatherId() const { return _father->getId(); }
+    virtual int getFatherId() const { return father_->getId(); }
         
     /**
      * @brief Set the father node of this node.
      * 
      * @param node The father node.
      */
-    virtual void setFather(Node & node) { _father = & node; }
+    virtual void setFather(Node* node)
+    {
+      father_ = node;
+      sons_.push_back(node);
+    }
         
     /**
      * @brief Remove the father of this node.
      */
-    virtual Node * removeFather() { Node * f = _father; _father = NULL; return f; }
+    virtual Node* removeFather() { Node* f = father_; father_ = 0; return f; }
         
     /**
      * @brief Tell if this node has a father node.
      */
-    virtual bool hasFather() const { return _father != NULL; }
+    virtual bool hasFather() const { return father_ != 0; }
 
     /** @} */
 
@@ -322,80 +323,84 @@ class Node:
      * @{
      */
          
-    virtual unsigned int getNumberOfSons() const { return _sons.size(); }
+    virtual unsigned int getNumberOfSons() const { return sons_.size(); }
 
-    virtual vector<Node *>& getSons()
+    virtual std::vector<Node *>& getSons()
     {
-      return _sons;
+      return sons_;
     }
 
-    virtual const Node * getSon(unsigned int pos) const throw (IndexOutOfBoundsException)
+    virtual const Node* getSon(unsigned int pos) const throw (IndexOutOfBoundsException)
     {
-      if(pos >= _sons.size()) throw IndexOutOfBoundsException("Node::getSon().", pos, 0, _sons.size()-1);
-      return _sons[pos];
+      if(pos >= sons_.size()) throw IndexOutOfBoundsException("Node::getSon().", pos, 0, sons_.size()-1);
+      return sons_[pos];
     }
       
-    virtual Node * getSon(unsigned int pos) throw (IndexOutOfBoundsException)
+    virtual Node* getSon(unsigned int pos) throw (IndexOutOfBoundsException)
     {
-      if(pos >= _sons.size()) throw IndexOutOfBoundsException("Node::getSon().", pos, 0, _sons.size()-1);
-      return _sons[pos];
+      if(pos >= sons_.size()) throw IndexOutOfBoundsException("Node::getSon().", pos, 0, sons_.size()-1);
+      return sons_[pos];
     }
         
-    virtual void addSon(unsigned int pos, Node & node)
+    virtual void addSon(unsigned int pos, Node* node)
     {
-      _sons.insert(_sons.begin() + pos, & node);
-      node._father = this;
+      sons_.insert(sons_.begin() + pos, node);
+      node->father_ = this;
     }
 
-    virtual void addSon(Node & node)
+    virtual void addSon(Node* node)
     {
-      _sons.push_back(& node);
-      node._father = this;
+      sons_.push_back(node);
+      node->father_ = this;
     }
 
-    virtual void setSon(unsigned int pos, Node & node) throw (IndexOutOfBoundsException)
+    virtual void setSon(unsigned int pos, Node* node) throw (IndexOutOfBoundsException)
     {
-      if(pos >= _sons.size()) throw IndexOutOfBoundsException("Node::setSon(). Invalid node position.", pos, 0, _sons.size()-1);
-      _sons[pos] = & node;
-      node._father = this;
+      if(pos >= sons_.size()) throw IndexOutOfBoundsException("Node::setSon(). Invalid node position.", pos, 0, sons_.size()-1);
+      sons_[pos] = node;
+      node->father_ = this;
     }
         
-    virtual Node * removeSon(unsigned int pos) throw (IndexOutOfBoundsException)
+    virtual Node* removeSon(unsigned int pos) throw (IndexOutOfBoundsException)
     {
-      if(pos >= _sons.size()) throw IndexOutOfBoundsException("Node::removeSon(). Invalid node position.", pos, 0, _sons.size()-1);
-      Node * node = _sons[pos];
-      _sons.erase(_sons.begin() + pos);
+      if(pos >= sons_.size()) throw IndexOutOfBoundsException("Node::removeSon(). Invalid node position.", pos, 0, sons_.size()-1);
+      Node * node = sons_[pos];
+      sons_.erase(sons_.begin() + pos);
       node->removeFather();
       return node;
     }
     
-    virtual void removeSon(Node & node) throw (NodeNotFoundException)
+    virtual void removeSon(Node* node) throw (NodeNotFoundException)
     {
-      for(unsigned int i = 0; i < _sons.size(); i++)
+      for(unsigned int i = 0; i < sons_.size(); i++)
       {
-        if(_sons[i] == &node)
+        if(sons_[i] == node)
         {
-          _sons.erase(_sons.begin() + i);
-          node.removeFather();
+          sons_.erase(sons_.begin() + i);
+          node->removeFather();
           return;
         }
       }
-      throw NodeNotFoundException("Node::removeSon.", node.getId());
+      throw NodeNotFoundException("Node::removeSon.", node->getId());
     }
     
-    virtual void removeSons() {  while(_sons.size() != 0) removeSon(0); }
+    virtual void removeSons()
+    {
+      while (sons_.size() != 0)
+        removeSon(static_cast<unsigned int>(0));
+    }
         
     virtual void swap(unsigned int branch1, unsigned int branch2) throw (IndexOutOfBoundsException);
 
-    virtual unsigned int getSonPosition(const Node & son) const throw (NodeNotFoundException);
+    virtual unsigned int getSonPosition(const Node* son) const throw (NodeNotFoundException);
 
     /** @} */
 
     // These functions must not be declared as virtual!!
     
-    vector<const Node *> getNeighbors() const;
+    std::vector<const Node*> getNeighbors() const;
     
-    vector<Node *> getNeighbors();
+    std::vector<Node*> getNeighbors();
 
     virtual unsigned int degree() const { return getNumberOfSons() + (hasFather() ? 1 : 0); }
     
@@ -408,9 +413,9 @@ class Node:
      * @{
      */
          
-    Node * operator[](int i) { return (i < 0) ? _father : _sons[i]; }
+    Node* operator[](int i) { return (i < 0) ? father_ : sons_[i]; }
         
-    const Node * operator[](int i) const { return (i < 0) ? _father : _sons[i]; }
+    const Node* operator[](int i) const { return (i < 0) ? father_ : sons_[i]; }
     
     /** @} */
     
@@ -430,47 +435,47 @@ class Node:
      * @param name The name of the property to set.
      * @param property The property object (will be cloned).
      */
-    virtual void setNodeProperty(const string & name, const Clonable & property)
+    virtual void setNodeProperty(const std::string& name, const Clonable& property)
     {
       if(hasNodeProperty(name))
-        delete _nodeProperties[name];
-      _nodeProperties[name] = property.clone();
+        delete nodeProperties_[name];
+      nodeProperties_[name] = property.clone();
     }
         
-    virtual Clonable * getNodeProperty(const string & name) throw (PropertyNotFoundException)
+    virtual Clonable* getNodeProperty(const std::string& name) throw (PropertyNotFoundException)
     {
       if(hasNodeProperty(name))
-        return _nodeProperties[name];
+        return nodeProperties_[name];
       else
         throw PropertyNotFoundException("", name, this);
     }
         
-    virtual const Clonable * getNodeProperty(const string & name) const throw (PropertyNotFoundException)
+    virtual const Clonable* getNodeProperty(const std::string& name) const throw (PropertyNotFoundException)
     {
       if(hasNodeProperty(name))
-        return const_cast<const Clonable *>(_nodeProperties[name]);
+        return const_cast<const Clonable *>(nodeProperties_[name]);
       else
         throw PropertyNotFoundException("", name, this);
     }
         
-    virtual Clonable * removeNodeProperty(const string & name) throw (PropertyNotFoundException)
+    virtual Clonable* removeNodeProperty(const std::string& name) throw (PropertyNotFoundException)
     {
       if(hasNodeProperty(name))
       {
-        Clonable * removed = _nodeProperties[name];
-        _nodeProperties.erase(name);
+        Clonable * removed = nodeProperties_[name];
+        nodeProperties_.erase(name);
         return removed;
       }
       else
         throw PropertyNotFoundException("", name, this);
     }  
         
-    virtual void deleteNodeProperty(const string & name) throw (PropertyNotFoundException)
+    virtual void deleteNodeProperty(const std::string& name) throw (PropertyNotFoundException)
     {
       if(hasNodeProperty(name))
       {
-        delete _nodeProperties[name];
-        _nodeProperties.erase(name);
+        delete nodeProperties_[name];
+        nodeProperties_.erase(name);
       }
       else
         throw PropertyNotFoundException("", name, this);
@@ -483,7 +488,7 @@ class Node:
      */
     virtual void removeNodeProperties()
     {
-      _nodeProperties.clear();
+      nodeProperties_.clear();
     }  
 
     /**
@@ -491,14 +496,14 @@ class Node:
      */
     virtual void deleteNodeProperties()
     {
-      for(map<string, Clonable *>::iterator i = _nodeProperties.begin(); i != _nodeProperties.end(); i++)
+      for(map<std::string, Clonable *>::iterator i = nodeProperties_.begin(); i != nodeProperties_.end(); i++)
         delete i->second; 
-      _nodeProperties.clear();
+      nodeProperties_.clear();
     }  
                 
-    virtual bool hasNodeProperty(const string & name) const { return _nodeProperties.find(name) != _nodeProperties.end(); }
+    virtual bool hasNodeProperty(const std::string& name) const { return nodeProperties_.find(name) != nodeProperties_.end(); }
 
-    virtual vector<string> getNodePropertyNames() const { return MapTools::getKeys(_nodeProperties); }
+    virtual std::vector<std::string> getNodePropertyNames() const { return MapTools::getKeys(nodeProperties_); }
     
     /** @} */
     
@@ -518,47 +523,47 @@ class Node:
      * @param name The name of the property to set.
      * @param property The property object (will be cloned).
      */
-    virtual void setBranchProperty(const string & name, const Clonable & property)
+    virtual void setBranchProperty(const std::string& name, const Clonable & property)
     {
       if(hasBranchProperty(name))
-        delete _branchProperties[name];
-      _branchProperties[name] = property.clone();
+        delete branchProperties_[name];
+      branchProperties_[name] = property.clone();
     }
         
-    virtual Clonable * getBranchProperty(const string & name) throw (PropertyNotFoundException)
+    virtual Clonable * getBranchProperty(const std::string& name) throw (PropertyNotFoundException)
     {
       if(hasBranchProperty(name))
-        return _branchProperties[name];
+        return branchProperties_[name];
       else
         throw PropertyNotFoundException("", name, this);
     }
         
-    virtual const Clonable * getBranchProperty(const string & name) const throw (PropertyNotFoundException)
+    virtual const Clonable * getBranchProperty(const std::string& name) const throw (PropertyNotFoundException)
     {
       if(hasBranchProperty(name))
-        return const_cast<const Clonable *>(_branchProperties[name]);
+        return const_cast<const Clonable *>(branchProperties_[name]);
       else
         throw PropertyNotFoundException("", name, this);
     }
         
-    virtual Clonable * removeBranchProperty(const string & name) throw (PropertyNotFoundException)
+    virtual Clonable * removeBranchProperty(const std::string& name) throw (PropertyNotFoundException)
     {
       if(hasBranchProperty(name))
       {
-        Clonable * removed = _branchProperties[name];
-        _branchProperties.erase(name);
+        Clonable * removed = branchProperties_[name];
+        branchProperties_.erase(name);
         return removed;
       }
       else
         throw PropertyNotFoundException("", name, this);
     }  
     
-    virtual void deleteBranchProperty(const string & name) throw (PropertyNotFoundException)
+    virtual void deleteBranchProperty(const std::string& name) throw (PropertyNotFoundException)
     {
       if(hasBranchProperty(name))
       {
-        delete _branchProperties[name];
-        _branchProperties.erase(name);
+        delete branchProperties_[name];
+        branchProperties_.erase(name);
       }
       else
         throw PropertyNotFoundException("", name, this);
@@ -571,7 +576,7 @@ class Node:
      */
     virtual void removeBranchProperties()
     {
-      _branchProperties.clear();
+      branchProperties_.clear();
     }  
 
     /**
@@ -579,14 +584,14 @@ class Node:
      */
     virtual void deleteBranchProperties()
     {
-      for(map<string, Clonable *>::iterator i = _branchProperties.begin(); i != _branchProperties.end(); i++)
+      for(map<std::string, Clonable *>::iterator i = branchProperties_.begin(); i != branchProperties_.end(); i++)
         delete i->second; 
-      _branchProperties.clear();
+      branchProperties_.clear();
     }  
         
-    virtual bool hasBranchProperty(const string & name) const { return _branchProperties.find(name) != _branchProperties.end(); }
+    virtual bool hasBranchProperty(const std::string & name) const { return branchProperties_.find(name) != branchProperties_.end(); }
 
-    virtual vector<string> getBranchPropertyNames() const { return MapTools::getKeys(_branchProperties); }
+    virtual std::vector<std::string> getBranchPropertyNames() const { return MapTools::getKeys(branchProperties_); }
    
     virtual bool hasBootstrapValue() const;
     
@@ -594,7 +599,7 @@ class Node:
     /** @} */
     // Equality operator:
 
-    virtual bool operator==(const Node & node) const { return _id == node._id; }  
+    virtual bool operator==(const Node & node) const { return id_ == node.id_; }  
         
     // Tests:
 

@@ -493,7 +493,7 @@ class TreeTemplateTools
       //Now we perform a hard copy:
       for(unsigned int i = 0; i < node.getNumberOfSons(); i++)
       {
-        clone->setSon(i, * cloneSubtree<N>(* node[i]));
+        clone->setSon(i, cloneSubtree<N>(*node[i]));
       }
       return clone;
     }
@@ -509,7 +509,7 @@ class TreeTemplateTools
       vector<int> sonsId = tree.getSonsId(nodeId);
       for(unsigned int i = 0; i < sonsId.size(); i++)
       {
-        clone->addSon(* cloneSubtree<N>(tree, sonsId[i]));
+        clone->addSon(cloneSubtree<N>(tree, sonsId[i]));
       }
       //Must copy all properties too:
       vector<string> names;

@@ -79,21 +79,21 @@ TwoTreeLikelihood::TwoTreeLikelihood(
 	_seqnames.resize(2);
 	_seqnames[0] = seq1;
 	_seqnames[1] = seq2;
-	_data = PatternTools::getSequenceSubset(data, _seqnames);
+	data_ = PatternTools::getSequenceSubset(data, _seqnames);
 	_model = model;
-	if(_data->getAlphabet()->getAlphabetType()
+	if(data_->getAlphabet()->getAlphabetType()
 			!= _model->getAlphabet()->getAlphabetType())
 		throw AlphabetMismatchException("TwoTreeTreeLikelihood::TwoTreeTreeLikelihood. Data and model must have the same alphabet type.",
-				_data->getAlphabet(),
+				data_->getAlphabet(),
 				_model->getAlphabet());
 
-	_nbSites   = _data->getNumberOfSites();
+	_nbSites   = data_->getNumberOfSites();
 	_nbClasses = _rateDistribution->getNumberOfCategories();
 	_nbStates  = _model->getNumberOfStates();	
 	if(verbose) ApplicationTools::displayMessage("Double-Recursive Homogeneous Tree Likelihood");	
 	
 	//Initialize root patterns:
-	SitePatterns pattern(_data);
+	SitePatterns pattern(data_);
 	_shrunkData = pattern.getSites();
 	_rootWeights = pattern.getWeights();
 	_rootPatternLinks = pattern.getIndices();
@@ -122,7 +122,7 @@ TwoTreeLikelihood::TwoTreeLikelihood(const TwoTreeLikelihood & lik):
 	AbstractDiscreteRatesAcrossSitesTreeLikelihood(lik)
 {
 	_seqnames          = lik._seqnames;
-	_data              = dynamic_cast<SiteContainer *>(lik._data->clone());
+	data_              = dynamic_cast<SiteContainer *>(lik.data_->clone());
 	_model             = lik._model;
 	_nbSites           = lik._nbSites;
 	_nbClasses         = lik._nbClasses;
@@ -150,7 +150,7 @@ TwoTreeLikelihood & TwoTreeLikelihood::operator=(const TwoTreeLikelihood & lik)
 {
 	AbstractDiscreteRatesAcrossSitesTreeLikelihood::operator=(lik);
   _seqnames          = lik._seqnames;
-	_data              = dynamic_cast<SiteContainer *>(lik._data->clone());
+	data_              = dynamic_cast<SiteContainer *>(lik.data_->clone());
 	_model             = lik._model;
 	_nbSites           = lik._nbSites;
 	_nbClasses         = lik._nbClasses;
@@ -186,7 +186,7 @@ TwoTreeLikelihood::~TwoTreeLikelihood()
 void TwoTreeLikelihood::initialize() throw (Exception)
 {
 	initParameters();
-  _initialized = true;
+  initialized_ = true;
 	fireParameterChanged(getParameters());
 }
 
@@ -194,7 +194,7 @@ void TwoTreeLikelihood::initialize() throw (Exception)
 
 ParameterList TwoTreeLikelihood::getBranchLengthsParameters() const
 {
-  if(!_initialized) throw Exception("TwoTreeLikelihood::getBranchLengthsParameters(). Object is not initialized.");
+  if(!initialized_) throw Exception("TwoTreeLikelihood::getBranchLengthsParameters(). Object is not initialized.");
   return _brLenParameters.getCommonParametersWith(getParameters());
 }
 
@@ -202,7 +202,7 @@ ParameterList TwoTreeLikelihood::getBranchLengthsParameters() const
 
 ParameterList TwoTreeLikelihood::getSubstitutionModelParameters() const
 {
-  if(!_initialized) throw Exception("TwoTreeLikelihood::getSubstitutionModelParameters(). Object is not initialized.");
+  if(!initialized_) throw Exception("TwoTreeLikelihood::getSubstitutionModelParameters(). Object is not initialized.");
 	return _model->getParameters().getCommonParametersWith(getParameters());
 }
 
@@ -348,7 +348,7 @@ void TwoTreeLikelihood::fireParameterChanged(const ParameterList & params)
 			}
 		}
 		
-		if(_computeFirstOrderDerivatives)
+		if(computeFirstOrderDerivatives_)
     {
 			//Computes all dpxy/dt once for all:
 			_dpxy.resize(_nbClasses);
@@ -370,7 +370,7 @@ void TwoTreeLikelihood::fireParameterChanged(const ParameterList & params)
 			}
     }
 
-		if(_computeSecondOrderDerivatives)
+		if(computeSecondOrderDerivatives_)
     {
 			//Computes all d2pxy/dt2 once for all:
 			_d2pxy.resize(_nbClasses);
@@ -394,11 +394,11 @@ void TwoTreeLikelihood::fireParameterChanged(const ParameterList & params)
 	}
 
 	computeTreeLikelihood();
-	if(_computeFirstOrderDerivatives)
+	if(computeFirstOrderDerivatives_)
   {
 		computeTreeDLikelihood();	
   }
-  if(_computeSecondOrderDerivatives)
+  if(computeSecondOrderDerivatives_)
   {
 		computeTreeD2Likelihood();
 	}

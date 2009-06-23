@@ -92,7 +92,7 @@ throw (Exception):
 
 void DRHomogeneousTreeLikelihood::_init() throw (Exception)
 {
-  _likelihoodData = new DRASDRTreeLikelihoodData(*_tree, _rateDistribution->getNumberOfCategories());
+  _likelihoodData = new DRASDRTreeLikelihoodData(*tree_, _rateDistribution->getNumberOfCategories());
 }
 
 /******************************************************************************/
@@ -102,7 +102,7 @@ DRHomogeneousTreeLikelihood::DRHomogeneousTreeLikelihood(const DRHomogeneousTree
   _likelihoodData(NULL)
 {
   _likelihoodData = dynamic_cast<DRASDRTreeLikelihoodData *>(lik._likelihoodData->clone());
-  _likelihoodData->setTree(*_tree);
+  _likelihoodData->setTree(*tree_);
 }
 
 /******************************************************************************/
@@ -112,7 +112,7 @@ DRHomogeneousTreeLikelihood & DRHomogeneousTreeLikelihood::operator=(const DRHom
   AbstractHomogeneousTreeLikelihood::operator=(lik);
   if(_likelihoodData) delete _likelihoodData;
   _likelihoodData = dynamic_cast<DRASDRTreeLikelihoodData *>(lik._likelihoodData->clone());
-  _likelihoodData->setTree(*_tree);
+  _likelihoodData->setTree(*tree_);
   return *this;
 }
 
@@ -127,10 +127,10 @@ DRHomogeneousTreeLikelihood::~DRHomogeneousTreeLikelihood()
 
 void DRHomogeneousTreeLikelihood::setData(const SiteContainer & sites) throw (Exception)
 {
-  if(_data) delete _data;
-  _data = PatternTools::getSequenceSubset(sites, *_tree->getRootNode());
+  if(data_) delete data_;
+  data_ = PatternTools::getSequenceSubset(sites, *tree_->getRootNode());
    if(verbose_) ApplicationTools::displayTask("Initializing data structure");
-  _likelihoodData->initLikelihoods(*_data, *model_);
+  _likelihoodData->initLikelihoods(*data_, *model_);
   if(verbose_) ApplicationTools::displayTaskDone();
 
   nbSites_ = _likelihoodData->getNumberOfSites();
@@ -139,7 +139,7 @@ void DRHomogeneousTreeLikelihood::setData(const SiteContainer & sites) throw (Ex
   
   if(verbose_) ApplicationTools::displayResult("Number of distinct sites",
       TextTools::toString(nbDistinctSites_));
-  _initialized = false;
+  initialized_ = false;
 }
 
 /******************************************************************************/
@@ -250,11 +250,11 @@ void DRHomogeneousTreeLikelihood::fireParameterChanged(const ParameterList & par
   }
 
   computeTreeLikelihood();
-  if(_computeFirstOrderDerivatives)
+  if(computeFirstOrderDerivatives_)
   {
     computeTreeDLikelihoods();  
   }
-  if(_computeSecondOrderDerivatives)
+  if(computeSecondOrderDerivatives_)
   {
     computeTreeD2Likelihoods();
   }
@@ -472,8 +472,8 @@ void DRHomogeneousTreeLikelihood::resetLikelihoodArrays(const Node * node)
   
 void DRHomogeneousTreeLikelihood::computeTreeLikelihood()
 {
-  computeSubtreeLikelihoodPostfix(_tree->getRootNode());
-  computeSubtreeLikelihoodPrefix(_tree->getRootNode());
+  computeSubtreeLikelihoodPostfix(tree_->getRootNode());
+  computeSubtreeLikelihoodPrefix(tree_->getRootNode());
   computeRootLikelihood();
 }
 
@@ -645,7 +645,7 @@ void DRHomogeneousTreeLikelihood::computeSubtreeLikelihoodPrefix(const Node * no
 
 void DRHomogeneousTreeLikelihood::computeRootLikelihood()
 {
-  const Node * root = _tree->getRootNode();
+  const Node * root = tree_->getRootNode();
   VVVdouble * rootLikelihoods = & _likelihoodData->getRootLikelihoodArray();
   // Set all likelihoods to 1 for a start:
   if(root->isLeaf())
@@ -714,7 +714,7 @@ void DRHomogeneousTreeLikelihood::computeRootLikelihood()
 
 void DRHomogeneousTreeLikelihood::computeLikelihoodAtNode(int nodeId, VVVdouble& likelihoodArray) const
 {
-  const Node * node = _tree->getNode(nodeId);
+  const Node * node = tree_->getNode(nodeId);
 
   likelihoodArray.resize(nbDistinctSites_);
   map<int, VVVdouble> * likelihoods_node = & _likelihoodData->getLikelihoodArrays(nodeId);

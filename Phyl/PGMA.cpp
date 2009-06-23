@@ -109,16 +109,16 @@ void PGMA::finalStep(int idRoot)
 {
 	NodeTemplate<PGMAInfos> * root = new NodeTemplate<PGMAInfos>(idRoot);
 	map<unsigned int, Node * >::iterator it = _currentNodes.begin();
-	unsigned int i1 = it -> first;
-	Node * n1       = it -> second;
+	unsigned int i1 = it->first;
+	Node* n1        = it->second;
 	it++;
-	unsigned int i2 = it -> first;
-	Node * n2       = it -> second;
+	unsigned int i2 = it->first;
+	Node* n2        = it->second;
 	double d = _matrix(i1, i2) / 2;
-	root -> addSon(*n1);
-	root -> addSon(*n2);
-	n1 -> setDistanceToFather(d - dynamic_cast<NodeTemplate<PGMAInfos> *>(n1) -> getInfos().time); 
-	n2 -> setDistanceToFather(d - dynamic_cast<NodeTemplate<PGMAInfos> *>(n2) -> getInfos().time); 
+	root->addSon(n1);
+	root->addSon(n2);
+	n1->setDistanceToFather(d - dynamic_cast<NodeTemplate<PGMAInfos>*>(n1)->getInfos().time); 
+	n2->setDistanceToFather(d - dynamic_cast<NodeTemplate<PGMAInfos>*>(n2)->getInfos().time); 
 	_tree = new TreeTemplate<NodeTemplate<PGMAInfos> >(*root);
 }
 
@@ -139,10 +139,10 @@ Node * PGMA::getParentNode(int id, Node * son1, Node * son2)
 		dynamic_cast<NodeTemplate<PGMAInfos> *>(son1) -> getInfos().numberOfLeaves
 	+ dynamic_cast<NodeTemplate<PGMAInfos> *>(son2) -> getInfos().numberOfLeaves;
 	infos.time = dynamic_cast<NodeTemplate<PGMAInfos> *>(son1) -> getInfos().time + son1 -> getDistanceToFather();
-	Node * parent = new NodeTemplate<PGMAInfos>(id);
+	Node* parent = new NodeTemplate<PGMAInfos>(id);
 	dynamic_cast<NodeTemplate<PGMAInfos> *>(parent) -> setInfos(infos);
-	parent -> addSon(* son1);
-	parent -> addSon(* son2);
+	parent->addSon(son1);
+	parent->addSon(son2);
 	return parent;
 }
 

@@ -77,7 +77,7 @@ AbstractNonHomogeneousTreeLikelihood::AbstractNonHomogeneousTreeLikelihood(
   _pxy             = lik._pxy;
   _dpxy            = lik._dpxy;
   _d2pxy           = lik._d2pxy;
-  _nodes           = _tree->getNodes();
+  _nodes           = tree_->getNodes();
   _nodes.pop_back(); //Remove the root node (the last added!).  
 	_nbSites         = lik._nbSites;
   _nbDistinctSites = lik._nbDistinctSites;
@@ -109,7 +109,7 @@ AbstractNonHomogeneousTreeLikelihood & AbstractNonHomogeneousTreeLikelihood::ope
   _pxy             = lik._pxy;
   _dpxy            = lik._dpxy;
   _d2pxy           = lik._d2pxy;
-  _nodes           = _tree->getNodes();
+  _nodes           = tree_->getNodes();
   _nodes.pop_back(); //Remove the root node (the last added!).  
 	_nbSites         = lik._nbSites;
   _nbDistinctSites = lik._nbDistinctSites;
@@ -147,10 +147,10 @@ void AbstractNonHomogeneousTreeLikelihood::_init(const Tree & tree,
 			bool verbose) throw (Exception)
 {
   TreeTools::checkIds(tree, true);
-  _tree = new TreeTemplate<Node>(tree);
-  _root1 = _tree->getRootNode()->getSon(0)->getId();
-  _root2 = _tree->getRootNode()->getSon(1)->getId();
-  _nodes = _tree->getNodes();
+  tree_ = new TreeTemplate<Node>(tree);
+  _root1 = tree_->getRootNode()->getSon(0)->getId();
+  _root2 = tree_->getRootNode()->getSon(1)->getId();
+  _nodes = tree_->getNodes();
   _nodes.pop_back(); //Remove the root node (the last added!).  
   _nbNodes = _nodes.size();
   //Build nodes index:
@@ -173,18 +173,18 @@ void AbstractNonHomogeneousTreeLikelihood::_init(const Tree & tree,
 void AbstractNonHomogeneousTreeLikelihood::setSubstitutionModelSet(SubstitutionModelSet * modelSet) throw (Exception)
 {
   //Check:
-  if(_data)
+  if(data_)
   {
-    if(modelSet->getAlphabet()->getAlphabetType() != _data->getAlphabet()->getAlphabetType())
+    if(modelSet->getAlphabet()->getAlphabetType() != data_->getAlphabet()->getAlphabetType())
       throw Exception("AbstractNonHomogeneousTreeLikelihood::setSubstitutionModelSet(). Model alphabet do not match existing data.");
   }
 
   _modelSet = modelSet;
   
-  if(_data)
+  if(data_)
   {
     if(modelSet->getNumberOfStates() != _modelSet->getNumberOfStates())
-      setData(*_data); //Have to reinitialize the whole data structure.
+      setData(*data_); //Have to reinitialize the whole data structure.
   }
   
   _nbStates = modelSet->getNumberOfStates();
@@ -233,17 +233,17 @@ void AbstractNonHomogeneousTreeLikelihood::setSubstitutionModelSet(SubstitutionM
   }
 
   //We have to reset parameters. If the instance is not initialized, this will be done by the initialize method.
-  if(_initialized) initParameters();
+  if(initialized_) initParameters();
 }
 
 /******************************************************************************/
 
 void AbstractNonHomogeneousTreeLikelihood::initialize() throw (Exception)
 {
-  if(_initialized) throw Exception("AbstractNonHomogeneousTreeLikelihood::initialize(). Object is already initialized.");
-  if(_data == NULL) throw Exception("AbstractNonHomogeneousTreeLikelihood::initialize(). Data are no set.");
+  if(initialized_) throw Exception("AbstractNonHomogeneousTreeLikelihood::initialize(). Object is already initialized.");
+  if(data_ == NULL) throw Exception("AbstractNonHomogeneousTreeLikelihood::initialize(). Data are no set.");
   initParameters();
-  _initialized = true;
+  initialized_ = true;
   computeAllTransitionProbabilities();
   fireParameterChanged(getParameters());
 }
@@ -252,7 +252,7 @@ void AbstractNonHomogeneousTreeLikelihood::initialize() throw (Exception)
 
 ParameterList AbstractNonHomogeneousTreeLikelihood::getBranchLengthsParameters() const
 {
-  if(!_initialized) throw Exception("AbstractNonHomogeneousTreeLikelihood::getBranchLengthsParameters(). Object is not initialized.");
+  if(!initialized_) throw Exception("AbstractNonHomogeneousTreeLikelihood::getBranchLengthsParameters(). Object is not initialized.");
   return _brLenParameters.getCommonParametersWith(getParameters());
 }
 
@@ -260,7 +260,7 @@ ParameterList AbstractNonHomogeneousTreeLikelihood::getBranchLengthsParameters()
 
 ParameterList AbstractNonHomogeneousTreeLikelihood::getSubstitutionModelParameters() const
 {
-  if(!_initialized) throw Exception("AbstractNonHomogeneousTreeLikelihood::getSubstitutionModelParameters(). Object is not initialized.");
+  if(!initialized_) throw Exception("AbstractNonHomogeneousTreeLikelihood::getSubstitutionModelParameters(). Object is not initialized.");
   return _modelSet->getParameters().getCommonParametersWith(getParameters());
 }
 
@@ -286,7 +286,7 @@ void AbstractNonHomogeneousTreeLikelihood::initParameters()
 
 void AbstractNonHomogeneousTreeLikelihood::applyParameters() throw (Exception)
 {
-  if(!_initialized) throw Exception("AbstractNonHomogeneousTreeLikelihood::applyParameters(). Object not initialized.");
+  if(!initialized_) throw Exception("AbstractNonHomogeneousTreeLikelihood::applyParameters(). Object not initialized.");
   //Apply branch lengths:
   for(unsigned int i = 0; i < _nbNodes; i++)
   {
@@ -388,7 +388,7 @@ void AbstractNonHomogeneousTreeLikelihood::computeTransitionProbabilitiesForNode
     }
   }
   
-  if(_computeFirstOrderDerivatives)
+  if(computeFirstOrderDerivatives_)
   {
     //Computes all dpxy/dt once for all:
     VVVdouble * _dpxy_node = & _dpxy[node->getId()];
@@ -408,7 +408,7 @@ void AbstractNonHomogeneousTreeLikelihood::computeTransitionProbabilitiesForNode
     }
   }
       
-  if(_computeSecondOrderDerivatives)
+  if(computeSecondOrderDerivatives_)
   {
     //Computes all d2pxy/dt2 once for all:
     VVVdouble * _d2pxy_node = & _d2pxy[node->getId()];

@@ -118,8 +118,8 @@ void NeighborJoining::finalStep(int idRoot)
   {
     //Rooted
     double d = _matrix(i1, i2) / 2;
-    root->addSon(*n1);
-    root->addSon(*n2);
+    root->addSon(n1);
+    root->addSon(n2);
     n1->setDistanceToFather(d);
     n2->setDistanceToFather(d);
   }
@@ -138,9 +138,9 @@ void NeighborJoining::finalStep(int idRoot)
     double d3 = _positiveLengths ?
         std::max(_matrix(i3, i1) + _matrix(i3, i2) - _matrix(i1, i2), 0.)
       :          _matrix(i3, i1) + _matrix(i3, i2) - _matrix(i1, i2);
-    root->addSon(*n1);
-    root->addSon(*n2);
-    root->addSon(*n3);
+    root->addSon(n1);
+    root->addSon(n2);
+    root->addSon(n3);
     n1->setDistanceToFather(d1/2.);
     n2->setDistanceToFather(d2/2.);
     n3->setDistanceToFather(d3/2.);

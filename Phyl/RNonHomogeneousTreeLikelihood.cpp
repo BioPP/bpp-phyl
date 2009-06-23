@@ -92,7 +92,7 @@ throw (Exception):
 
 void RNonHomogeneousTreeLikelihood::_init(bool usePatterns) throw (Exception)
 {
-  _likelihoodData = new DRASRTreeLikelihoodData(*_tree, _rateDistribution->getNumberOfCategories(), usePatterns);
+  _likelihoodData = new DRASRTreeLikelihoodData(*tree_, _rateDistribution->getNumberOfCategories(), usePatterns);
 }
 
 /******************************************************************************/
@@ -103,7 +103,7 @@ RNonHomogeneousTreeLikelihood::RNonHomogeneousTreeLikelihood(
   _likelihoodData(NULL)
 {
   _likelihoodData = dynamic_cast<DRASRTreeLikelihoodData *>(lik._likelihoodData->clone());
-  _likelihoodData->setTree(*_tree);
+  _likelihoodData->setTree(*tree_);
 }
 
 /******************************************************************************/
@@ -114,7 +114,7 @@ RNonHomogeneousTreeLikelihood & RNonHomogeneousTreeLikelihood::operator=(
   AbstractNonHomogeneousTreeLikelihood::operator=(lik);
   if(_likelihoodData) delete _likelihoodData;
   _likelihoodData = dynamic_cast<DRASRTreeLikelihoodData *>(lik._likelihoodData->clone());
-  _likelihoodData->setTree(*_tree);
+  _likelihoodData->setTree(*tree_);
   return *this;
 }
 
@@ -129,10 +129,10 @@ RNonHomogeneousTreeLikelihood::~RNonHomogeneousTreeLikelihood()
 
 void RNonHomogeneousTreeLikelihood::setData(const SiteContainer & sites) throw (Exception)
 {
-  if(_data) delete _data;
-  _data = PatternTools::getSequenceSubset(sites, * _tree->getRootNode());
+  if(data_) delete data_;
+  data_ = PatternTools::getSequenceSubset(sites, * tree_->getRootNode());
   if(_verbose) ApplicationTools::displayTask("Initializing data structure");
-  _likelihoodData->initLikelihoods(* _data, *_modelSet->getModel(0)); //We assume here that all models have the same number of states, and that they have the same 'init' method,
+  _likelihoodData->initLikelihoods(* data_, *_modelSet->getModel(0)); //We assume here that all models have the same number of states, and that they have the same 'init' method,
                                                                       //Which is a reasonable assumption as long as they share the same alphabet.
   if(_verbose) ApplicationTools::displayTaskDone();
 
@@ -142,7 +142,7 @@ void RNonHomogeneousTreeLikelihood::setData(const SiteContainer & sites) throw (
   
   if(_verbose) ApplicationTools::displayResult("Number of distinct sites",
       TextTools::toString(_nbDistinctSites));
-  _initialized = false;
+  initialized_ = false;
 }
 
 /******************************************************************************/
@@ -204,7 +204,7 @@ double RNonHomogeneousTreeLikelihood::getLogLikelihoodForASite(unsigned int site
 double RNonHomogeneousTreeLikelihood::getLikelihoodForASiteForARateClass(unsigned int site, unsigned int rateClass) const
 {
   double l = 0;
-  Vdouble * la = & _likelihoodData->getLikelihoodArray(_tree->getRootNode()->getId())[_likelihoodData->getRootArrayPosition(site)][rateClass];
+  Vdouble * la = & _likelihoodData->getLikelihoodArray(tree_->getRootNode()->getId())[_likelihoodData->getRootArrayPosition(site)][rateClass];
   for(unsigned int i = 0; i < _nbStates; i++)
   {
     l += (* la)[i] * _rootFreqs[i];
@@ -217,7 +217,7 @@ double RNonHomogeneousTreeLikelihood::getLikelihoodForASiteForARateClass(unsigne
 double RNonHomogeneousTreeLikelihood::getLogLikelihoodForASiteForARateClass(unsigned int site, unsigned int rateClass) const
 {
   double l = 0;
-  Vdouble * la = & _likelihoodData->getLikelihoodArray(_tree->getRootNode()->getId())[_likelihoodData->getRootArrayPosition(site)][rateClass];
+  Vdouble * la = & _likelihoodData->getLikelihoodArray(tree_->getRootNode()->getId())[_likelihoodData->getRootArrayPosition(site)][rateClass];
   for(unsigned int i = 0; i < _nbStates; i++) {
     l += (* la)[i] * _rootFreqs[i];
   }
@@ -228,14 +228,14 @@ double RNonHomogeneousTreeLikelihood::getLogLikelihoodForASiteForARateClass(unsi
 
 double RNonHomogeneousTreeLikelihood::getLikelihoodForASiteForARateClassForAState(unsigned int site, unsigned int rateClass, int state) const
 {
-  return _likelihoodData->getLikelihoodArray(_tree->getRootNode()->getId())[_likelihoodData->getRootArrayPosition(site)][rateClass][state];
+  return _likelihoodData->getLikelihoodArray(tree_->getRootNode()->getId())[_likelihoodData->getRootArrayPosition(site)][rateClass][state];
 }
 
 /******************************************************************************/
 
 double RNonHomogeneousTreeLikelihood::getLogLikelihoodForASiteForARateClassForAState(unsigned int site, unsigned int rateClass, int state) const
 {
-  return log(_likelihoodData->getLikelihoodArray(_tree->getRootNode()->getId())[_likelihoodData->getRootArrayPosition(site)][rateClass][state]);
+  return log(_likelihoodData->getLikelihoodArray(tree_->getRootNode()->getId())[_likelihoodData->getRootArrayPosition(site)][rateClass][state]);
 }
 
 /******************************************************************************/
@@ -279,8 +279,8 @@ void RNonHomogeneousTreeLikelihood::fireParameterChanged(const ParameterList & p
       {
         if(!test)
         {
-          tmpv.push_back(_tree->getRootNode()->getSon(0));
-          tmpv.push_back(_tree->getRootNode()->getSon(1));
+          tmpv.push_back(tree_->getRootNode()->getSon(0));
+          tmpv.push_back(tree_->getRootNode()->getSon(1));
           test = true; //Add only once.
         }
       }
@@ -316,7 +316,7 @@ double RNonHomogeneousTreeLikelihood::getDLikelihoodForASiteForARateClass(
   unsigned int rateClass) const
 {
   double dl = 0;
-  Vdouble * dla = & _likelihoodData->getDLikelihoodArray(_tree->getRootNode()->getId())[_likelihoodData->getRootArrayPosition(site)][rateClass];
+  Vdouble * dla = & _likelihoodData->getDLikelihoodArray(tree_->getRootNode()->getId())[_likelihoodData->getRootArrayPosition(site)][rateClass];
   for(unsigned int i = 0; i < _nbStates; i++)
   {
     dl += (* dla)[i] * _rootFreqs[i];
@@ -380,7 +380,7 @@ void RNonHomogeneousTreeLikelihood::computeTreeDLikelihood(const string & variab
 { 
   if(variable == "BrLenRoot")
   {
-    const Node* father = _tree->getRootNode();
+    const Node* father = tree_->getRootNode();
     
     // Compute dLikelihoods array for the father node.
     // Fist initialize to 1:
@@ -490,7 +490,7 @@ void RNonHomogeneousTreeLikelihood::computeTreeDLikelihood(const string & variab
   }
   else if(variable == "RootPosition")
   {
-    const Node* father = _tree->getRootNode();
+    const Node* father = tree_->getRootNode();
     
     // Compute dLikelihoods array for the father node.
     // Fist initialize to 1:
@@ -784,7 +784,7 @@ double RNonHomogeneousTreeLikelihood::getD2LikelihoodForASiteForARateClass(
   unsigned int rateClass) const
 {
   double d2l = 0;
-  Vdouble * d2la = & _likelihoodData->getD2LikelihoodArray(_tree->getRootNode()->getId())[_likelihoodData->getRootArrayPosition(site)][rateClass];
+  Vdouble * d2la = & _likelihoodData->getD2LikelihoodArray(tree_->getRootNode()->getId())[_likelihoodData->getRootArrayPosition(site)][rateClass];
   for(unsigned int i = 0; i < _nbStates; i++)
   {
     d2l += (* d2la)[i] * _rootFreqs[i];
@@ -848,7 +848,7 @@ void RNonHomogeneousTreeLikelihood::computeTreeD2Likelihood(const string & varia
 {
   if(variable == "BrLenRoot")
   {
-    const Node* father = _tree->getRootNode();
+    const Node* father = tree_->getRootNode();
     
     // Compute dLikelihoods array for the father node.
     // Fist initialize to 1:
@@ -966,7 +966,7 @@ void RNonHomogeneousTreeLikelihood::computeTreeD2Likelihood(const string & varia
   }
   else if(variable == "RootPosition")
   {
-    const Node* father = _tree->getRootNode();
+    const Node* father = tree_->getRootNode();
     
     // Compute dLikelihoods array for the father node.
     // Fist initialize to 1:
@@ -1263,7 +1263,7 @@ void RNonHomogeneousTreeLikelihood::computeDownSubtreeD2Likelihood(const Node * 
   
 void RNonHomogeneousTreeLikelihood::computeTreeLikelihood()
 {
-  computeSubtreeLikelihood(_tree->getRootNode());
+  computeSubtreeLikelihood(tree_->getRootNode());
 }
 
 /******************************************************************************/  

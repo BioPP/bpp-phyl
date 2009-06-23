@@ -112,9 +112,9 @@ Node * AbstractAgglomerativeDistanceMethod::getLeafNode(int id, const string & n
 
 Node * AbstractAgglomerativeDistanceMethod::getParentNode(int id, Node * son1, Node * son2)
 {
-  Node * parent = new Node(id);
-  parent->addSon(* son1);
-  parent->addSon(* son2);
+  Node* parent = new Node(id);
+  parent->addSon(son1);
+  parent->addSon(son2);
   return parent;
 }
 

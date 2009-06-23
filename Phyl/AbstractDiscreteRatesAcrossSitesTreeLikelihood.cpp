@@ -64,7 +64,7 @@ throw (Exception)
 
 ParameterList AbstractDiscreteRatesAcrossSitesTreeLikelihood::getRateDistributionParameters() const
 {
-  if(!_initialized) throw Exception("AbstractDiscreteRatesAcrossSitesTreeLikelihood::getRateDistributionParameters(). Object is not initialized.");
+  if(!initialized_) throw Exception("AbstractDiscreteRatesAcrossSitesTreeLikelihood::getRateDistributionParameters(). Object is not initialized.");
  	return _rateDistribution->getParameters().getCommonParametersWith(getParameters());
 }
 
@@ -72,7 +72,7 @@ ParameterList AbstractDiscreteRatesAcrossSitesTreeLikelihood::getRateDistributio
 
 ParameterList AbstractDiscreteRatesAcrossSitesTreeLikelihood::getDerivableParameters() const
 {
-  if(!_initialized) throw Exception("AbstractDiscreteRatesAcrossSitesTreeLikelihood::getDerivableParameters(). Object is not initialized.");
+  if(!initialized_) throw Exception("AbstractDiscreteRatesAcrossSitesTreeLikelihood::getDerivableParameters(). Object is not initialized.");
   return getBranchLengthsParameters();
 }
 
@@ -80,7 +80,7 @@ ParameterList AbstractDiscreteRatesAcrossSitesTreeLikelihood::getDerivableParame
 
 ParameterList AbstractDiscreteRatesAcrossSitesTreeLikelihood::getNonDerivableParameters() const
 {
-  if(!_initialized) throw Exception("AbstractDiscreteRatesAcrossSitesTreeLikelihood::getNonDerivableParameters(). Object is not initialized.");
+  if(!initialized_) throw Exception("AbstractDiscreteRatesAcrossSitesTreeLikelihood::getNonDerivableParameters(). Object is not initialized.");
   ParameterList tmp = getSubstitutionModelParameters();
   tmp.addParameters(getRateDistributionParameters());
   return tmp;

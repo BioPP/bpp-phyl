@@ -54,40 +54,40 @@ using namespace std;
 
 /** Copy constructor: *********************************************************/
   
-Node::Node(const Node & node):
-  _id(node._id), _name(NULL), _sons(node._sons), _father(node._father),
-  _distanceToFather(NULL), _nodeProperties(), _branchProperties()
+Node::Node(const Node& node):
+  id_(node.id_), name_(0), sons_(node.sons_), father_(node.father_),
+  distanceToFather_(0), nodeProperties_(), branchProperties_()
 {
-  _name             = node.hasName() ? new string(* node._name) : NULL;
-  _distanceToFather = node.hasDistanceToFather() ? new double(* node._distanceToFather) : NULL;
-  for(map<string, Clonable *>::iterator i = node._nodeProperties.begin(); i != node._nodeProperties.end(); i++)
-    _nodeProperties[i->first] = i->second->clone();
-  for(map<string, Clonable *>::iterator i = node._branchProperties.begin(); i != node._branchProperties.end(); i++)
-    _branchProperties[i->first] = i->second->clone();
+  name_             = node.hasName() ? new string(* node.name_) : 0;
+  distanceToFather_ = node.hasDistanceToFather() ? new double(* node.distanceToFather_) : 0;
+  for(map<string, Clonable *>::iterator i = node.nodeProperties_.begin(); i != node.nodeProperties_.end(); i++)
+    nodeProperties_[i->first] = i->second->clone();
+  for(map<string, Clonable *>::iterator i = node.branchProperties_.begin(); i != node.branchProperties_.end(); i++)
+    branchProperties_[i->first] = i->second->clone();
 }
 
 /** Assignation operator: *****************************************************/
 
 Node & Node::operator=(const Node & node)
 {
-  _id               = node._id;
-  if(_name) delete _name;
-  _name             = node.hasName() ? new string(* node._name) : NULL;
-  _father           = node._father;
-  if(_distanceToFather) delete _distanceToFather;
-  _distanceToFather = node.hasDistanceToFather() ? new double(* node._distanceToFather) : NULL;
-  _sons             = node._sons;
-  for(map<string, Clonable *>::iterator i = node._nodeProperties.begin(); i != node._nodeProperties.end(); i++)
+  id_               = node.id_;
+  if(name_) delete name_;
+  name_             = node.hasName() ? new string(* node.name_) : 0;
+  father_           = node.father_;
+  if(distanceToFather_) delete distanceToFather_;
+  distanceToFather_ = node.hasDistanceToFather() ? new double(* node.distanceToFather_) : 0;
+  sons_             = node.sons_;
+  for(map<string, Clonable *>::iterator i = node.nodeProperties_.begin(); i != node.nodeProperties_.end(); i++)
   {
-    Clonable * p = _nodeProperties[i->first];
+    Clonable * p = nodeProperties_[i->first];
     if(p) delete p;
-    _nodeProperties[i->first] = i->second->clone();
+    nodeProperties_[i->first] = i->second->clone();
   }
-  for(map<string, Clonable *>::iterator i = node._branchProperties.begin(); i != node._branchProperties.end(); i++)
+  for(map<string, Clonable *>::iterator i = node.branchProperties_.begin(); i != node.branchProperties_.end(); i++)
   {
-    Clonable * p = _branchProperties[i->first];
+    Clonable * p = branchProperties_[i->first];
     if(p) delete p;
-    _branchProperties[i->first] = i->second->clone();
+    branchProperties_[i->first] = i->second->clone();
   }
   return * this;
 }
@@ -98,34 +98,35 @@ void Node::swap(unsigned int branch1, unsigned int branch2) throw (IndexOutOfBou
 {
     Node* node1 = getSon(branch1);
     Node* node2 = getSon(branch2);
-    removeSon(*node1);
-    removeSon(*node2);
-    addSon(branch1, *node2);
-    addSon(branch2, *node1);
+    removeSon(node1);
+    removeSon(node2);
+    addSon(branch1, node2);
+    addSon(branch2, node1);
 }
 
 vector<const Node *> Node::getNeighbors() const
 {
   vector<const Node *> neighbors;
-  if(hasFather()) neighbors.push_back(_father);
-  for(unsigned int i = 0; i < _sons.size(); i++) neighbors.push_back(_sons[i]);
+  if(hasFather()) neighbors.push_back(father_);
+  for(unsigned int i = 0; i < sons_.size(); i++) neighbors.push_back(sons_[i]);
   return neighbors;
 }
     
 vector<Node *> Node::getNeighbors()
 {
   vector<Node *> neighbors;
-  if(hasFather()) neighbors.push_back(_father);
-  for(unsigned int i = 0; i < _sons.size(); i++) neighbors.push_back(_sons[i]);
+  if(hasFather()) neighbors.push_back(father_);
+  for(unsigned int i = 0; i < sons_.size(); i++) neighbors.push_back(sons_[i]);
   return neighbors;
 }
 
-unsigned int Node::getSonPosition(const Node & son) const throw (NodeNotFoundException)
+unsigned int Node::getSonPosition(const Node* son) const throw (NodeNotFoundException)
 {
-  for(unsigned int i = 0; i < _sons.size(); i++) {
-    if(_sons[i] == &son) return i;
+  for(unsigned int i = 0; i < sons_.size(); i++)
+  {
+    if(sons_[i] == son) return i;
   }
-  throw NodeNotFoundException("Son not found", TextTools::toString(son.getId()));
+  throw NodeNotFoundException("Son not found", TextTools::toString(son->getId()));
 }
 
 bool Node::hasBootstrapValue() const

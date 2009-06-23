@@ -231,7 +231,7 @@ NNIHomogeneousTreeLikelihood::~NNIHomogeneousTreeLikelihood()
 
 double NNIHomogeneousTreeLikelihood::testNNI(int nodeId) const throw (NodeException)
 {
-  const Node * son    = _tree->getNode(nodeId);
+  const Node * son    = tree_->getNode(nodeId);
 	if(!son->hasFather()) throw NodeException("DRHomogeneousTreeLikelihood::testNNI(). Node 'son' must not be the root node.", son);
   const Node * parent = son->getFather();
 	if(!parent->hasFather()) throw NodeException("DRHomogeneousTreeLikelihood::testNNI(). Node 'parent' must not be the root node.", parent);
@@ -239,7 +239,7 @@ double NNIHomogeneousTreeLikelihood::testNNI(int nodeId) const throw (NodeExcept
 	//From here: Bifurcation assumed.
 	//In case of multifurcation, an arbitrary uncle is chosen.
 	//If we are at root node with a trifurcation, this does not matter, since 2 NNI are possible (see doc of the NNISearchable interface).
-	unsigned int parentPosition = grandFather->getSonPosition(*parent);
+	unsigned int parentPosition = grandFather->getSonPosition(parent);
 	//const Node * uncle = grandFather->getSon(parentPosition > 1 ? parentPosition - 1 : 1 - parentPosition);
 	const Node * uncle = grandFather->getSon(parentPosition > 1 ? 0 : 1 - parentPosition);
 		
@@ -338,7 +338,7 @@ double NNIHomogeneousTreeLikelihood::testNNI(int nodeId) const throw (NodeExcept
 void NNIHomogeneousTreeLikelihood::doNNI(int nodeId) throw (NodeException)
 {
   //Perform the topological move, the likelihood array will have to be recomputed...
-  Node * son    = _tree->getNode(nodeId);
+  Node * son    = tree_->getNode(nodeId);
 	if(!son->hasFather()) throw NodeException("DRHomogeneousTreeLikelihood::testNNI(). Node 'son' must not be the root node.", son);
   Node * parent = son->getFather();
 	if(!parent->hasFather()) throw NodeException("DRHomogeneousTreeLikelihood::testNNI(). Node 'parent' must not be the root node.", parent);
@@ -346,13 +346,13 @@ void NNIHomogeneousTreeLikelihood::doNNI(int nodeId) throw (NodeException)
 	//From here: Bifurcation assumed.
 	//In case of multifurcation, an arbitrary uncle is chosen.
 	//If we are at root node with a trifurcation, this does not matter, since 2 NNI are possible (see doc of the NNISearchable interface).
-	unsigned int parentPosition = grandFather->getSonPosition(*parent);
+	unsigned int parentPosition = grandFather->getSonPosition(parent);
 	Node * uncle = grandFather->getSon(parentPosition > 1 ? 0 : 1 - parentPosition);
 	//Swap nodes:
-	parent->removeSon(*son);
-	grandFather->removeSon(*uncle);
-	parent->addSon(*uncle);
-	grandFather->addSon(*son);
+	parent->removeSon(son);
+	grandFather->removeSon(uncle);
+	parent->addSon(uncle);
+	grandFather->addSon(son);
   unsigned int pos = 0;
   while(pos < nodes_.size() && nodes_[pos]->getId() != parent->getId()) pos++;
   if(pos == nodes_.size()) throw Exception("NNIHomogeneousTreeLikelihood::doNNI. Unvalid node id.");

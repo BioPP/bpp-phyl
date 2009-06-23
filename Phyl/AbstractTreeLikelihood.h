@@ -59,7 +59,7 @@ namespace bpp
  * This class implements a few methods useful for most of likelihood
  * computation methods.
  *
- * It includes a _tree and a _data pointers.
+ * It includes a tree_ and a data_ pointers.
  * This objects are owned by the class, and hence hard copied when cloning, and destroyed by the destructor.
  * 
  * - The Parametrizable interface;
@@ -72,45 +72,45 @@ class AbstractTreeLikelihood :
 	public AbstractParametrizable
 {
 	protected:
-		const SiteContainer * _data;
-		mutable TreeTemplate<Node> * _tree;
-		bool _computeFirstOrderDerivatives;
-		bool _computeSecondOrderDerivatives;
-    bool _initialized;
+		const SiteContainer* data_;
+		mutable TreeTemplate<Node>* tree_;
+		bool computeFirstOrderDerivatives_;
+		bool computeSecondOrderDerivatives_;
+    bool initialized_;
 
 	public:
 		AbstractTreeLikelihood():
       AbstractParametrizable(""),
-      _data(NULL),
-      _tree(NULL),
-      _computeFirstOrderDerivatives(true),
-      _computeSecondOrderDerivatives(true),
-      _initialized(false) {}
+      data_(0),
+      tree_(0),
+      computeFirstOrderDerivatives_(true),
+      computeSecondOrderDerivatives_(true),
+      initialized_(false) {}
 
     AbstractTreeLikelihood(const AbstractTreeLikelihood & lik):
       AbstractParametrizable(lik),
-      _data(NULL),
-      _tree(NULL),
-      _computeFirstOrderDerivatives(lik._computeFirstOrderDerivatives),
-      _computeSecondOrderDerivatives(lik._computeSecondOrderDerivatives),
-      _initialized(lik._initialized) 
+      data_(0),
+      tree_(0),
+      computeFirstOrderDerivatives_(lik.computeFirstOrderDerivatives_),
+      computeSecondOrderDerivatives_(lik.computeSecondOrderDerivatives_),
+      initialized_(lik.initialized_) 
     {
-      if(lik._data) _data = dynamic_cast<SiteContainer *>(lik._data->clone());
-      if(lik._tree) _tree = lik._tree->clone();
+      if(lik.data_) data_ = dynamic_cast<SiteContainer *>(lik.data_->clone());
+      if(lik.tree_) tree_ = lik.tree_->clone();
     }
 
     AbstractTreeLikelihood & operator=(const AbstractTreeLikelihood & lik)
     {
       AbstractParametrizable::operator=(lik);
-      if(_data) delete _data;
-      if(lik._data) _data = dynamic_cast<SiteContainer *>(lik._data->clone());
-      else          _data = NULL;
-      if(_tree) delete _tree;
-      if(lik._tree) _tree = lik._tree->clone();
-      else          _tree = NULL;
-      _computeFirstOrderDerivatives = lik._computeFirstOrderDerivatives;
-      _computeSecondOrderDerivatives = lik._computeSecondOrderDerivatives;
-      _initialized        = lik._initialized;
+      if(data_) delete data_;
+      if(lik.data_) data_ = dynamic_cast<SiteContainer *>(lik.data_->clone());
+      else          data_ = 0;
+      if(tree_) delete tree_;
+      if(lik.tree_) tree_ = lik.tree_->clone();
+      else          tree_ = 0;
+      computeFirstOrderDerivatives_ = lik.computeFirstOrderDerivatives_;
+      computeSecondOrderDerivatives_ = lik.computeSecondOrderDerivatives_;
+      initialized_        = lik.initialized_;
       return *this;
     }
 
@@ -121,8 +121,8 @@ class AbstractTreeLikelihood :
      */
 		virtual ~AbstractTreeLikelihood()
     {
-      if(_data) delete _data;
-      if(_tree) delete _tree;
+      if(data_) delete data_;
+      if(tree_) delete tree_;
     }
 	
 	public:
@@ -131,22 +131,22 @@ class AbstractTreeLikelihood :
 		 *
 		 * @{
 		 */
-		const SiteContainer * getData() const { return _data; }
-		const Alphabet * getAlphabet() const { return _data->getAlphabet(); }	
+		const SiteContainer * getData() const { return data_; }
+		const Alphabet * getAlphabet() const { return data_->getAlphabet(); }	
 		Vdouble getLikelihoodForEachSite()                 const;
 		Vdouble getLogLikelihoodForEachSite()              const;
 		VVdouble getLikelihoodForEachSiteForEachState()    const;
 		VVdouble getLogLikelihoodForEachSiteForEachState() const;
-		unsigned int getNumberOfSites() const { return _data->getNumberOfSites(); }
-		unsigned int getNumberOfStates() const { return _data->getAlphabet()->getSize(); }
-		const Tree * getTree() const { return _tree; }
-		void enableDerivatives(bool yn) { _computeFirstOrderDerivatives = _computeSecondOrderDerivatives = yn; }
-		void enableFirstOrderDerivatives(bool yn) { _computeFirstOrderDerivatives = yn; }
-		void enableSecondOrderDerivatives(bool yn) { _computeFirstOrderDerivatives = _computeSecondOrderDerivatives = yn; }
-		bool enableFirstOrderDerivatives() const { return _computeFirstOrderDerivatives; }
-		bool enableSecondOrderDerivatives() const { return _computeSecondOrderDerivatives; }
-    bool isInitialized() const { return _initialized; }
-    void initialize() throw (Exception) { _initialized = true; }
+		unsigned int getNumberOfSites() const { return data_->getNumberOfSites(); }
+		unsigned int getNumberOfStates() const { return data_->getAlphabet()->getSize(); }
+		const Tree * getTree() const { return tree_; }
+		void enableDerivatives(bool yn) { computeFirstOrderDerivatives_ = computeSecondOrderDerivatives_ = yn; }
+		void enableFirstOrderDerivatives(bool yn) { computeFirstOrderDerivatives_ = yn; }
+		void enableSecondOrderDerivatives(bool yn) { computeFirstOrderDerivatives_ = computeSecondOrderDerivatives_ = yn; }
+		bool enableFirstOrderDerivatives() const { return computeFirstOrderDerivatives_; }
+		bool enableSecondOrderDerivatives() const { return computeSecondOrderDerivatives_; }
+    bool isInitialized() const { return initialized_; }
+    void initialize() throw (Exception) { initialized_ = true; }
 		/** @} */
 
 	protected:

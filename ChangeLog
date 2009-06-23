@@ -1,5 +1,6 @@
 23/06/09 Julien Dutheil
 * Compatibility update: now contianers returns references instead of pointers.
+* TreeTemplate now uses pointers and not references.
 
 10/06/09 -*- Version 1.8.0 -*-
 

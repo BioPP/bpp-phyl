@@ -81,7 +81,7 @@ AbstractHomogeneousTreeLikelihood::AbstractHomogeneousTreeLikelihood(
   dpxy_            = lik.dpxy_;
   d2pxy_           = lik.d2pxy_;
   rootFreqs_       = lik.rootFreqs_;
-  nodes_ = _tree->getNodes();
+  nodes_ = tree_->getNodes();
   nodes_.pop_back(); //Remove the root node (the last added!).  
   nbSites_         = lik.nbSites_;
   nbDistinctSites_ = lik.nbDistinctSites_;
@@ -105,7 +105,7 @@ AbstractHomogeneousTreeLikelihood & AbstractHomogeneousTreeLikelihood::operator=
   dpxy_            = lik.dpxy_;
   d2pxy_           = lik.d2pxy_;
   rootFreqs_       = lik.rootFreqs_;
-  nodes_ = _tree->getNodes();
+  nodes_ = tree_->getNodes();
   nodes_.pop_back(); //Remove the root node (the last added!).  
   nbSites_         = lik.nbSites_;
   nbDistinctSites_ = lik.nbDistinctSites_;
@@ -134,13 +134,13 @@ void AbstractHomogeneousTreeLikelihood::_init(const Tree & tree,
     bool verbose) throw (Exception)
 {
   TreeTools::checkIds(tree, true);
-  _tree = new TreeTemplate<Node>(tree);
-  if(checkRooted && _tree->isRooted())
+  tree_ = new TreeTemplate<Node>(tree);
+  if(checkRooted && tree_->isRooted())
   {
     if(verbose) ApplicationTools::displayWarning("Tree has been unrooted.");
-    _tree->unroot();
+    tree_->unroot();
   }
-  nodes_ = _tree->getNodes();
+  nodes_ = tree_->getNodes();
   nodes_.pop_back(); //Remove the root node (the last added!).  
   nbNodes_ = nodes_.size();
   nbClasses_ = _rateDistribution->getNumberOfCategories();
@@ -157,18 +157,18 @@ void AbstractHomogeneousTreeLikelihood::_init(const Tree & tree,
 void AbstractHomogeneousTreeLikelihood::setSubstitutionModel(SubstitutionModel * model) throw (Exception)
 {
   //Check:
-  if(_data)
+  if(data_)
   {
-    if(model->getAlphabet()->getAlphabetType() != _data->getAlphabet()->getAlphabetType())
+    if(model->getAlphabet()->getAlphabetType() != data_->getAlphabet()->getAlphabetType())
       throw Exception("AbstractHomogeneousTreeLikelihood::setSubstitutionModel(). Model alphabet do not match existing data.");
   }
 
   model_ = model;
   
-  if(_data)
+  if(data_)
   {
     if(model->getNumberOfStates() != model_->getNumberOfStates())
-      setData(*_data); //Have to reinitialize the whole data structure.
+      setData(*data_); //Have to reinitialize the whole data structure.
   }
   
   nbStates_ = model->getNumberOfStates();
@@ -221,10 +221,10 @@ void AbstractHomogeneousTreeLikelihood::setSubstitutionModel(SubstitutionModel *
 
 void AbstractHomogeneousTreeLikelihood::initialize() throw (Exception)
 {
-  if(_initialized) throw Exception("AbstractHomogeneousTreeLikelihood::initialize(). Object is already initialized.");
-  if(_data == NULL) throw Exception("AbstractHomogeneousTreeLikelihood::initialize(). Data are no set.");
+  if(initialized_) throw Exception("AbstractHomogeneousTreeLikelihood::initialize(). Object is already initialized.");
+  if(data_ == NULL) throw Exception("AbstractHomogeneousTreeLikelihood::initialize(). Data are no set.");
   initParameters();
-  _initialized = true;
+  initialized_ = true;
   fireParameterChanged(getParameters());
 }
 
@@ -232,7 +232,7 @@ void AbstractHomogeneousTreeLikelihood::initialize() throw (Exception)
 
 ParameterList AbstractHomogeneousTreeLikelihood::getBranchLengthsParameters() const
 {
-  if(!_initialized) throw Exception("AbstractHomogeneousTreeLikelihood::getBranchLengthsParameters(). Object is not initialized.");
+  if(!initialized_) throw Exception("AbstractHomogeneousTreeLikelihood::getBranchLengthsParameters(). Object is not initialized.");
   return brLenParameters_.getCommonParametersWith(getParameters());
 }
 
@@ -240,7 +240,7 @@ ParameterList AbstractHomogeneousTreeLikelihood::getBranchLengthsParameters() co
 
 ParameterList AbstractHomogeneousTreeLikelihood::getSubstitutionModelParameters() const
 {
-  if(!_initialized) throw Exception("AbstractHomogeneousTreeLikelihood::getSubstitutionModelParameters(). Object is not initialized.");
+  if(!initialized_) throw Exception("AbstractHomogeneousTreeLikelihood::getSubstitutionModelParameters(). Object is not initialized.");
   return model_->getParameters().getCommonParametersWith(getParameters());
 }
 
@@ -266,7 +266,7 @@ void AbstractHomogeneousTreeLikelihood::initParameters()
 
 void AbstractHomogeneousTreeLikelihood::applyParameters() throw (Exception)
 {
-  if(!_initialized) throw Exception("AbstractHomogeneousTreeLikelihood::applyParameters(). Object not initialized.");
+  if(!initialized_) throw Exception("AbstractHomogeneousTreeLikelihood::applyParameters(). Object not initialized.");
   //Apply branch lengths:
   //brLenParameters_.matchParametersValues(parameters_); Not necessary!
   for(unsigned int i = 0; i < nbNodes_; i++)
@@ -343,7 +343,7 @@ void AbstractHomogeneousTreeLikelihood::computeTransitionProbabilitiesForNode(co
     }
   }
   
-  if(_computeFirstOrderDerivatives)
+  if(computeFirstOrderDerivatives_)
   {
     //Computes all dpxy/dt once for all:
     VVVdouble * dpxy__node = & dpxy_[node->getId()];
@@ -363,7 +363,7 @@ void AbstractHomogeneousTreeLikelihood::computeTransitionProbabilitiesForNode(co
     }
   }
       
-  if(_computeSecondOrderDerivatives)
+  if(computeSecondOrderDerivatives_)
   {
     //Computes all d2pxy/dt2 once for all:
     VVVdouble * d2pxy__node = & d2pxy_[node->getId()];

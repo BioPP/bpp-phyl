@@ -661,7 +661,7 @@ TreeTemplate<Node>* BipartitionList::toTree() const throw (Exception)
       }
       vecNd[i] = new Node();
       for(unsigned int k = 0; k < sonNd.size(); k++)
-        vecNd[i]->addSon(*sonNd[k]);
+        vecNd[i]->addSon(sonNd[k]);
     }
   }
  
@@ -669,7 +669,7 @@ TreeTemplate<Node>* BipartitionList::toTree() const throw (Exception)
   Node* rootNd = new Node();
   for(unsigned int i = 0; i < sortedBipL->getNumberOfBipartitions(); i++)
     if(alive[i])
-      rootNd->addSon(*vecNd[i]);
+      rootNd->addSon(vecNd[i]);
 
   /* construct tree and return */
   TreeTemplate<Node>* tr = new TreeTemplate<Node>(*rootNd);
@@ -680,7 +680,7 @@ TreeTemplate<Node>* BipartitionList::toTree() const throw (Exception)
 
 /******************************************************************************/
 
-vector<string> BipartitionList::buildBitBipartitions(const Node * nd, vector<int*> & bitbip, const vector<string> & elements, unsigned int* cpt, vector<int> * index) const
+vector<string> BipartitionList::buildBitBipartitions(const Node* nd, vector<int*>& bitbip, const vector<string>& elements, unsigned int* cpt, vector<int>* index) const
 {
   vector<string> under_elements, ret_elements;
 
