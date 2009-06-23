@@ -120,8 +120,10 @@ vector<Node *> Node::getNeighbors()
   return neighbors;
 }
 
-unsigned int Node::getSonPosition(const Node* son) const throw (NodeNotFoundException)
+unsigned int Node::getSonPosition(const Node* son) const throw (NodeNotFoundException, NullPointerException)
 {
+  if (!son)
+    throw NullPointerException("Node::getSonPosition(). Empty node given as input.");
   for(unsigned int i = 0; i < sons_.size(); i++)
   {
     if(sons_[i] == son) return i;

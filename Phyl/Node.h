@@ -256,19 +256,30 @@ class Node:
      * 
      * @param distance The new distance to the father node.
      */
-    virtual void setDistanceToFather(double distance) { delete distanceToFather_; distanceToFather_ = new double(distance); }
+    virtual void setDistanceToFather(double distance)
+    { 
+      delete distanceToFather_;
+      distanceToFather_ = new double(distance);
+    }
     
     /**
      * @brief Delete the distance to the father node.
      */
-    virtual void deleteDistanceToFather() { delete distanceToFather_; distanceToFather_ = NULL; }
+    virtual void deleteDistanceToFather()
+    {
+      delete distanceToFather_;
+      distanceToFather_ = 0;
+    }
         
     /**
      * @brief Tell is this node has a distance to the father.
      * 
      * @return True if distanceToFather != NULL.
      */
-    virtual bool hasDistanceToFather() const { return distanceToFather_ != NULL; }
+    virtual bool hasDistanceToFather() const
+    {
+      return distanceToFather_ != 0;
+    }
 
     /** @} */
         
@@ -299,8 +310,10 @@ class Node:
      * 
      * @param node The father node.
      */
-    virtual void setFather(Node* node)
+    virtual void setFather(Node* node) throw (NullPointerException)
     {
+      if (!node)
+        throw NullPointerException("Node::setFather(). Empty node given as input.");
       father_ = node;
       sons_.push_back(node);
     }
@@ -308,7 +321,12 @@ class Node:
     /**
      * @brief Remove the father of this node.
      */
-    virtual Node* removeFather() { Node* f = father_; father_ = 0; return f; }
+    virtual Node* removeFather()
+    {
+      Node* f = father_;
+      father_ = 0;
+      return f;
+    }
         
     /**
      * @brief Tell if this node has a father node.
@@ -342,36 +360,46 @@ class Node:
       return sons_[pos];
     }
         
-    virtual void addSon(unsigned int pos, Node* node)
+    virtual void addSon(unsigned int pos, Node* node) throw (NullPointerException)
     {
+      if (!node)
+        throw NullPointerException("Node::addSon(). Empty node given as input.");
       sons_.insert(sons_.begin() + pos, node);
       node->father_ = this;
     }
 
-    virtual void addSon(Node* node)
+    virtual void addSon(Node* node) throw (NullPointerException)
     {
+      if (!node)
+        throw NullPointerException("Node::addSon(). Empty node given as input.");
       sons_.push_back(node);
       node->father_ = this;
     }
 
-    virtual void setSon(unsigned int pos, Node* node) throw (IndexOutOfBoundsException)
+    virtual void setSon(unsigned int pos, Node* node) throw (IndexOutOfBoundsException, NullPointerException)
     {
-      if(pos >= sons_.size()) throw IndexOutOfBoundsException("Node::setSon(). Invalid node position.", pos, 0, sons_.size()-1);
+      if (!node)
+        throw NullPointerException("Node::setSon(). Empty node given as input.");
+      if(pos >= sons_.size())
+        throw IndexOutOfBoundsException("Node::setSon(). Invalid node position.", pos, 0, sons_.size()-1);
       sons_[pos] = node;
       node->father_ = this;
     }
         
     virtual Node* removeSon(unsigned int pos) throw (IndexOutOfBoundsException)
     {
-      if(pos >= sons_.size()) throw IndexOutOfBoundsException("Node::removeSon(). Invalid node position.", pos, 0, sons_.size()-1);
+      if(pos >= sons_.size())
+        throw IndexOutOfBoundsException("Node::removeSon(). Invalid node position.", pos, 0, sons_.size()-1);
       Node * node = sons_[pos];
       sons_.erase(sons_.begin() + pos);
       node->removeFather();
       return node;
     }
     
-    virtual void removeSon(Node* node) throw (NodeNotFoundException)
+    virtual void removeSon(Node* node) throw (NodeNotFoundException, NullPointerException)
     {
+      if (!node)
+        throw NullPointerException("Node::removeSon(). Empty node given as input.");
       for(unsigned int i = 0; i < sons_.size(); i++)
       {
         if(sons_[i] == node)
@@ -392,7 +420,7 @@ class Node:
         
     virtual void swap(unsigned int branch1, unsigned int branch2) throw (IndexOutOfBoundsException);
 
-    virtual unsigned int getSonPosition(const Node* son) const throw (NodeNotFoundException);
+    virtual unsigned int getSonPosition(const Node* son) const throw (NodeNotFoundException, NullPointerException);
 
     /** @} */
 
