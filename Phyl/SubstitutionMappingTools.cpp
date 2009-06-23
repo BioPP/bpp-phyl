@@ -720,7 +720,7 @@ void SubstitutionMappingTools::writeToStream(
   out << "\tMean";
   for(unsigned int i = 0; i < substitutions.getNumberOfSites(); i++)
   {
-    out << "\tSite" << sites.getSite(i) -> getPosition();
+    out << "\tSite" << sites.getSite(i).getPosition();
   }
   out << endl;
   

@@ -56,14 +56,14 @@ using namespace std;
 
 /******************************************************************************/
 
-SiteContainer * PatternTools::getSequenceSubset(const SiteContainer & sequenceSet, const Node & node) throw (Exception)
+SiteContainer * PatternTools::getSequenceSubset(const SiteContainer& sequenceSet, const Node& node) throw (Exception)
 {
 	VectorSiteContainer * sequenceSubset = new VectorSiteContainer(sequenceSet.getAlphabet());
 	vector<const Node *> leaves = TreeTemplateTools::getLeaves(node);
-	for(vector<const Node *>::iterator i = leaves.begin(); i < leaves.end(); i++)
+	for (vector<const Node *>::iterator i = leaves.begin(); i < leaves.end(); i++)
   {
-		const Sequence * newSeq = sequenceSet.getSequence((* i) -> getName());
-		if(newSeq == NULL) throw SequenceNotFoundException("PatternToolsERROR: leaf name not found in sequence file: ", (* i) -> getName());
+		const Sequence* newSeq = &sequenceSet.getSequence((* i)->getName());
+		if (newSeq == NULL) throw SequenceNotFoundException("PatternToolsERROR: leaf name not found in sequence file: ", (* i) -> getName());
 		sequenceSubset -> addSequence(* newSeq);
 	}
 	return sequenceSubset;
@@ -71,48 +71,53 @@ SiteContainer * PatternTools::getSequenceSubset(const SiteContainer & sequenceSe
 
 /******************************************************************************/
 
-SiteContainer * PatternTools::getSequenceSubset(const SiteContainer & sequenceSet, const vector<string> & names) throw (Exception)
+SiteContainer * PatternTools::getSequenceSubset(const SiteContainer& sequenceSet, const vector<string>& names) throw (Exception)
 {
 	VectorSiteContainer * sequenceSubset = new VectorSiteContainer(sequenceSet.getAlphabet());
-	for(unsigned int i = 0; i < names.size(); i++) {
-		const Sequence * newSeq = sequenceSet.getSequence(names[i]);
-		if(newSeq == NULL) throw SequenceNotFoundException("PatternTools ERROR: name not found in sequence file: ", names[i]);
-		sequenceSubset -> addSequence(* newSeq);
+	for (unsigned int i = 0; i < names.size(); i++)
+  {
+		const Sequence* newSeq = &sequenceSet.getSequence(names[i]);
+		if (newSeq == NULL) throw SequenceNotFoundException("PatternTools ERROR: name not found in sequence file: ", names[i]);
+		sequenceSubset->addSequence(* newSeq);
 	}
 	return sequenceSubset;
 }
 
 /******************************************************************************/
 
-SiteContainer * PatternTools::shrinkSiteSet(const SiteContainer & siteSet) throw (Exception)
+SiteContainer * PatternTools::shrinkSiteSet(const SiteContainer& siteSet) throw (Exception)
 {
-	if(siteSet.getNumberOfSites() == 0) throw Exception("PatternTools::shrinkSiteSet siteSet is void.");
+	if (siteSet.getNumberOfSites() == 0) throw Exception("PatternTools::shrinkSiteSet siteSet is void.");
 	vector<const Site *> sites;
-	for(unsigned int i = 0; i < siteSet.getNumberOfSites(); i++) {
-		const Site * currentSite = siteSet.getSite(i);
+	for (unsigned int i = 0; i < siteSet.getNumberOfSites(); i++)
+  {
+		const Site* currentSite = &siteSet.getSite(i);
 		bool siteExists = false;
-		for(unsigned int j = 0; !siteExists && j < sites.size(); j++) {
-			if(SiteTools::areSitesIdentical(* currentSite, * sites[j])) siteExists = true;
+		for (unsigned int j = 0; !siteExists && j < sites.size(); j++)
+    {
+			if (SiteTools::areSitesIdentical(* currentSite, * sites[j])) siteExists = true;
 		}
-		if(!siteExists)	sites.push_back(currentSite);
+		if (!siteExists)	sites.push_back(currentSite);
 	}
-	SiteContainer * result = new VectorSiteContainer(sites, siteSet.getAlphabet());
-	result -> setSequencesNames(siteSet.getSequencesNames(), false);
+	SiteContainer* result = new VectorSiteContainer(sites, siteSet.getAlphabet());
+	result->setSequencesNames(siteSet.getSequencesNames(), false);
 	return result;
 }
 
 /******************************************************************************/
 
-Vint PatternTools::getIndexes(const SiteContainer & sequences1, const SiteContainer & sequences2)
+Vint PatternTools::getIndexes(const SiteContainer& sequences1, const SiteContainer& sequences2)
 {
 	int nbSites = sequences1.getNumberOfSites(); 
 	Vint indexes(nbSites);
-	for(int i = 0; i < nbSites; i++) {
+	for (int i = 0; i < nbSites; i++) {
 		//For each site in sequences1,
 		indexes[i] = -1;
-		const Site * site = sequences1.getSite(i);
-		for(unsigned int j = 0; j < sequences2.getNumberOfSites(); j++) {
-			if(SiteTools::areSitesIdentical(* site, * sequences2.getSite(j))) {
+		const Site* site = &sequences1.getSite(i);
+		for (unsigned int j = 0; j < sequences2.getNumberOfSites(); j++)
+    {
+			if (SiteTools::areSitesIdentical(*site, sequences2.getSite(j)))
+      {
 				indexes[i] = j;
 				break;
 			}

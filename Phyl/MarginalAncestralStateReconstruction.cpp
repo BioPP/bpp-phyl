@@ -145,7 +145,7 @@ void MarginalAncestralStateReconstruction::recursiveMarginalAncestralStates(
 {
 	if(node->isLeaf())
   {
-		ancestors[node->getId()] = data.getSequence(node->getName())->getContent();
+		ancestors[node->getId()] = data.getContent(node->getName());
 	}
   else
   {

@@ -104,15 +104,18 @@ void DRTreeParsimonyData::init(const SiteContainer & sites) throw (Exception)
 
 /******************************************************************************/
 
-void DRTreeParsimonyData::init(const Node * node, const SiteContainer & sites) throw (Exception)
+void DRTreeParsimonyData::init(const Node* node, const SiteContainer& sites) throw (Exception)
 {
-	const Alphabet * alphabet = sites.getAlphabet();
+	const Alphabet* alphabet = sites.getAlphabet();
 	if(node->isLeaf())
   {
-		const Sequence * seq;
-		try {
-			seq = sites.getSequence(node->getName());
-		} catch (SequenceNotFoundException & snfe) {
+		const Sequence* seq;
+		try
+    {
+			seq = &sites.getSequence(node->getName());
+		}
+    catch (SequenceNotFoundException & snfe)
+    {
 			throw SequenceNotFoundException("DRTreeParsimonyData:init(node, sites). Leaf name in tree not found in site container: ", (node -> getName()));
 		}
 		DRTreeParsimonyLeafData * leafData    = & _leafData[node->getId()];

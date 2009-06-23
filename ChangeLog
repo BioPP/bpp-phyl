@@ -1,3 +1,6 @@
+23/06/09 Julien Dutheil
+* Compatibility update: now contianers returns references instead of pointers.
+
 10/06/09 -*- Version 1.8.0 -*-
 
 05/06/09 Julien Dutheil

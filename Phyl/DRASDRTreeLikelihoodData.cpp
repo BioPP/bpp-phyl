@@ -103,10 +103,10 @@ void DRASDRTreeLikelihoodData::initLikelihoods(const Node * node, const SiteCont
   if(node->isLeaf())
   {
     // Init leaves likelihoods:
-    const Sequence * seq;
+    const Sequence* seq;
     try
     {
-      seq = sites.getSequence(node->getName());
+      seq = &sites.getSequence(node->getName());
     }
     catch (SequenceNotFoundException & snfe)
     {

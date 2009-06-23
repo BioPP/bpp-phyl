@@ -416,8 +416,8 @@ throw (Exception)
 
 void TwoTreeLikelihood::initTreeLikelihoods(const SequenceContainer & sequences) throw (Exception)
 {
-	const Sequence * seq1 = sequences.getSequence(_seqnames[0]);
-	const Sequence * seq2 = sequences.getSequence(_seqnames[1]);
+	const Sequence* seq1 = &sequences.getSequence(_seqnames[0]);
+	const Sequence* seq2 = &sequences.getSequence(_seqnames[1]);
 	_leafLikelihoods1.resize(_nbDistinctSites);
 	_leafLikelihoods2.resize(_nbDistinctSites);
 	for(unsigned int i = 0; i < _nbDistinctSites; i++)
@@ -661,8 +661,8 @@ void DistanceEstimation::computeMatrix() throw (NullPointerException)
 				new TwoTreeLikelihood(names[i], names[j], *_sites, _model, _rateDist, _verbose > 3);
       lik->initialize();
 			lik->enableDerivatives(true);
-			const Sequence * seqi = _sites->getSequence(names[i]);
-			const Sequence * seqj = _sites->getSequence(names[j]);
+			const Sequence* seqi = &_sites->getSequence(names[i]);
+			const Sequence* seqj = &_sites->getSequence(names[j]);
 			unsigned int d = SymbolListTools::getNumberOfDistinctPositions(* seqi, * seqj);
 			unsigned int g = SymbolListTools::getNumberOfPositionsWithoutGap(* seqi, * seqj);
 			lik->setParameterValue("BrLen", g == 0 ? lik->getMinimumBranchLength() : std::max(lik->getMinimumBranchLength(),(double)d/(double)g));

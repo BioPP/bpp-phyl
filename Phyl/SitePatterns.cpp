@@ -48,7 +48,7 @@ using namespace bpp;
 
 /******************************************************************************/
 
-SitePatterns::SitePatterns(const SiteContainer * sequences, bool own):
+SitePatterns::SitePatterns(const SiteContainer* sequences, bool own):
   _sequences(sequences),
   _alpha(sequences->getAlphabet()),
   _own(own)
@@ -57,8 +57,8 @@ SitePatterns::SitePatterns(const SiteContainer * sequences, bool own):
 	vector<SortableSite *> ss(nbSites);
 	for(unsigned int i = 0; i < nbSites; i++)
   {
-		const Site * currentSite = sequences->getSite(i);
-		SortableSite * ssi = new SortableSite();
+		const Site* currentSite = &sequences->getSite(i);
+		SortableSite* ssi = new SortableSite();
 		ss[i] = ssi;
 		ssi->siteS = currentSite->toString();
 		ssi->siteP = currentSite;

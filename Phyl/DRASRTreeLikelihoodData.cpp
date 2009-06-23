@@ -129,10 +129,10 @@ void DRASRTreeLikelihoodData::initLikelihoods(const Node * node, const SiteConta
   
   if(node->isLeaf())
   {
-    const Sequence * seq;
+    const Sequence* seq;
     try
     {
-      seq = sequences.getSequence(node->getName());
+      seq = &sequences.getSequence(node->getName());
     }
     catch (SequenceNotFoundException snfe)
     {
@@ -230,10 +230,10 @@ SitePatterns * DRASRTreeLikelihoodData::initLikelihoodsWithPatterns(const Node *
     
   if(node->isLeaf())
   {
-    const Sequence * seq;
+    const Sequence* seq;
     try
     {
-      seq = subSequences->getSequence(node->getName());
+      seq = &subSequences->getSequence(node->getName());
     }
     catch (SequenceNotFoundException snfe)
     {
