@@ -165,7 +165,7 @@ class TreeTemplateTools
      * @param id The id of the node.
      * @throw NodeNotFoundException If the node is not found.
      */
-    static void searchLeaf(const Node & node, const string & name, int * & id) throw (NodeNotFoundException)
+    static void searchLeaf(const Node& node, const string & name, int * & id) throw (NodeNotFoundException)
     {
       if(node.isLeaf())
       {
@@ -181,6 +181,61 @@ class TreeTemplateTools
       }
     }
 
+    /**
+     * @brief Remove a leaf node and its parent node, while correcting fro branch lengths.
+     *
+     * @param tree The tree to edit.
+     * @param name The name of the leaf node.
+     * @throw NodeNotFoundException If the node is not found.
+     */
+    template<class N>
+    static void dropLeaf(TreeTemplate<N>& tree, const string& leafName) throw (NodeNotFoundException, Exception)
+    {
+      N* leaf = tree.getNode(leafName);
+      if (!leaf->hasfather())
+        throw Exception("TreeTemplateTools::dropLeaf(). Leaf is the only node in the tree, can't remove it.");
+      N* parent = leaf->getFather();
+      if (parent->getNumberOfSons() > 2)
+      {
+        //The easy case:
+        parent->removeSon(leaf);
+        delete leaf;
+      }
+      else if (parent->getNumberOfSons() == 2)
+      {
+        //We have to delete the parent node as well:
+        N* brother = parent->getson(0);
+        if (brother == leaf) brother = parent->getSon(1);
+        if (!parent->hasFather())
+        {
+          //The brother becomes the root:
+          if (leaf->hasDistanceToFather() && brother->hasDistanceToFather())
+          {
+            brother->setDistanceToFather(brother->getDistanceToFather() + leaf->getDistanceToFather());
+          }
+          tree->setRootNode(brother);
+          delete parent;
+          delete leaf;
+        }
+        else
+        {
+          N* gParent = parent->getFather();
+          if (brother->hasDistanceToFather() && parent->hasDistanceToFather())
+          {
+            brother->setDistanceToFather(brother->getDistanceToFather() + parent->getDistanceToFather());
+          }
+          unsigned int pos = gParent->getsonPosition(parent);
+          gParent->setSon(pos, brother);
+          delete parent;
+          delete leaf;
+        }
+      }
+      else
+      {
+        //Dunno what to do in that case :(
+        throw Exception("TreeTemplateTools::dropLeaf. Parent node as only one child, I don't know what to do in that case :(");
+      }
+    }
 
     /**
      * @brief Retrieve all son nodes from a subtree.
@@ -189,7 +244,7 @@ class TreeTemplateTools
      * @return A vector of pointers toward each son node in the subtree.
      */
     template<class N>
-    static vector<N *> getNodes(N & node)
+    static vector<N *> getNodes(N& node)
     {
       vector<N *> nodes;
       getNodes<N>(node, nodes);
