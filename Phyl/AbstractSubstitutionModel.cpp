@@ -122,17 +122,29 @@ double AbstractSubstitutionModel::getInitValue(int i, int state) const throw (Ba
 
 void AbstractSubstitutionModel::setFreqFromData(const SequenceContainer & data, unsigned int pseudoCount)
 {
+  map<int, int> counts;
+  SequenceContainerTools::getCounts(data, counts);
+  int t = 0;
   map<int, double> freqs;
-  SequenceContainerTools::getFrequencies(data, freqs);
-  double t = 0;
-  for(unsigned int i = 0; i < size_; i++) t += freqs[i] + pseudoCount;
-  for(unsigned int i = 0; i < size_; i++) freq_[i] = (freqs[i] + pseudoCount) / t;
+  
+  for(unsigned int i = 0; i < size_; i++) t += counts[i] + pseudoCount;
+  for(unsigned int i = 0; i < size_; i++) freqs[i] = ((double)counts[i] + pseudoCount) / t;
+
   //Re-compute generator and eigen values:
-  updateMatrices();
+  setFreq(freqs);
 }
 
 /******************************************************************************/
 
+void AbstractSubstitutionModel::setFreq(map<int, double>& freqs)
+{
+  for(unsigned int i = 0; i < size_; i++)
+    freq_[i] = freqs[i];
+  //Re-compute generator and eigen values:
+  updateMatrices();
+ }
+
+/******************************************************************************/
 double AbstractSubstitutionModel::getScale() const
 {
   vector<double> _v;

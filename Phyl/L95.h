@@ -98,35 +98,35 @@ namespace bpp
 class L95:
   public NucleotideSubstitutionModel
 {
-	protected:
-    double _beta, _gamma, _delta, _theta, _piA, _piC, _piG, _piT;
-
-	public:
-		L95(
-			const NucleicAlphabet * alpha,
-			double beta = 1.,
-			double gamma = 1.,
-			double delta = 1.,
-			double theta = 0.5);
-	
-		virtual ~L95() {}
-
+protected:
+  double _beta, _gamma, _delta, _theta, _piA, _piC, _piG, _piT;
+  
+public:
+  L95(
+      const NucleicAlphabet * alpha,
+      double beta = 1.,
+      double gamma = 1.,
+      double delta = 1.,
+      double theta = 0.5);
+  
+  virtual ~L95() {}
+  
 #ifndef NO_VIRTUAL_COV
-    L95*
+  L95*
 #else
-    Clonable*
+  Clonable*
 #endif
-    clone() const { return new L95(*this); }
-
-  public:
-		string getName() const { return "Lobry 1995"; }
-
-    void updateMatrices();
-
-		/**
-		 * @brief This method is redefined to actualize the corresponding parameters theta too.
-		 */
-		void setFreqFromData(const SequenceContainer & data);
+  clone() const { return new L95(*this); }
+  
+public:
+  string getName() const { return "Lobry 1995"; }
+  
+  void updateMatrices();
+  
+  /**
+   * @brief This method is redefined to actualize the corresponding parameters theta too.
+   */
+  void setFreq(map<int, double>&);
 };
 
 } //end of namespace bpp.

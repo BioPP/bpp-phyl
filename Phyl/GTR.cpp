@@ -133,24 +133,20 @@ void GTR::updateMatrices()
 
 /******************************************************************************/
 
-void GTR::setFreqFromData(const SequenceContainer & data, unsigned int pseudoCount)
+void GTR::setFreq(map<int, double>& freqs)
 {
-	map<int, double> freqs;
-  SequenceContainerTools::getFrequencies(data, freqs);
-	double t = 0;
-	for(unsigned int i = 0; i < size_; i++) t += freqs[i] + pseudoCount;
-	_piA = (freqs[0] + pseudoCount) / t;
-	_piC = (freqs[1] + pseudoCount) / t;
-	_piG = (freqs[2] + pseudoCount) / t;
-	_piT = (freqs[3] + pseudoCount) / t;
+  _piA = freqs[0];
+  _piC = freqs[1];
+  _piG = freqs[2];
+  _piT = freqs[3];
   vector<string> thetas(3);
   thetas[0] = getNamespace() + "theta";
   thetas[1] = getNamespace() + "theta1";
   thetas[2] = getNamespace() + "theta2";
   ParameterList pl = getParameters().subList(thetas);
-	pl[0]->setValue(_piC + _piG);
-	pl[1]->setValue(_piA / (_piA + _piT));
-	pl[2]->setValue(_piG / (_piC + _piG));
+  pl[0]->setValue(_piC + _piG);
+  pl[1]->setValue(_piA / (_piA + _piT));
+  pl[2]->setValue(_piG / (_piC + _piG));
   setParametersValues(pl);
 }
 

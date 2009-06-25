@@ -57,50 +57,50 @@ using namespace std;
 T92::T92(const NucleicAlphabet * alpha, double kappa, double theta):
 	NucleotideSubstitutionModel(alpha, "T92.")
 {
-	Parameter kappaP("T92.kappa", kappa, &Parameter::R_PLUS_STAR);
-	addParameter_(kappaP);
+  Parameter kappaP("T92.kappa", kappa, &Parameter::R_PLUS_STAR);
+  addParameter_(kappaP);
   Parameter thetaP("T92.theta", theta, &Parameter::PROP_CONSTRAINT_EX);
   addParameter_(thetaP);
   _p.resize(size_, size_);
-	updateMatrices();
+  updateMatrices();
 }
 
 /******************************************************************************/
 
 void T92::updateMatrices()
 {
-	_kappa = getParameterValue("kappa");
-	_theta = getParameterValue("theta");
+  _kappa = getParameterValue("kappa");
+  _theta = getParameterValue("theta");
   _piA = (1 - _theta) / 2;
-	_piC = _theta / 2;
-	_piG = _theta / 2;
-	_piT = (1 - _theta) / 2;
-	_k = (_kappa + 1.) / 2.;
-	_r = 2./ (1. + 2. * _theta * _kappa - 2. * _theta * _theta * _kappa);
-
+  _piC = _theta / 2;
+  _piG = _theta / 2;
+  _piT = (1 - _theta) / 2;
+  _k = (_kappa + 1.) / 2.;
+  _r = 2./ (1. + 2. * _theta * _kappa - 2. * _theta * _theta * _kappa);
+  
   freq_[0] = _piA;
-	freq_[1] = _piC;
-	freq_[2] = _piG;
-	freq_[3] = _piT;
-	
-	generator_(0, 0) = -(1. +        _theta * _kappa)/2;
-	generator_(1, 1) = -(1. + (1. - _theta) * _kappa)/2;
-	generator_(2, 2) = -(1. + (1. - _theta) * _kappa)/2;
-	generator_(3, 3) = -(1. +        _theta * _kappa)/2;
-
-	generator_(1, 0) = (1. - _theta)/2;
-	generator_(3, 0) = (1. - _theta)/2;
-	generator_(0, 1) = _theta/2;
-	generator_(2, 1) = _theta/2;
-	generator_(1, 2) = _theta/2;
-	generator_(3, 2) = _theta/2;
-	generator_(0, 3) = (1. - _theta)/2;
-	generator_(2, 3) = (1. - _theta)/2;
-	
-	generator_(2, 0) = _kappa * (1. - _theta)/2;
-	generator_(3, 1) = _kappa * _theta/2;
-	generator_(0, 2) = _kappa * _theta/2;
-	generator_(1, 3) = _kappa * (1. - _theta)/2;
+  freq_[1] = _piC;
+  freq_[2] = _piG;
+  freq_[3] = _piT;
+  
+  generator_(0, 0) = -(1. +        _theta * _kappa)/2;
+  generator_(1, 1) = -(1. + (1. - _theta) * _kappa)/2;
+  generator_(2, 2) = -(1. + (1. - _theta) * _kappa)/2;
+  generator_(3, 3) = -(1. +        _theta * _kappa)/2;
+  
+  generator_(1, 0) = (1. - _theta)/2;
+  generator_(3, 0) = (1. - _theta)/2;
+  generator_(0, 1) = _theta/2;
+  generator_(2, 1) = _theta/2;
+  generator_(1, 2) = _theta/2;
+  generator_(3, 2) = _theta/2;
+  generator_(0, 3) = (1. - _theta)/2;
+  generator_(2, 3) = (1. - _theta)/2;
+  
+  generator_(2, 0) = _kappa * (1. - _theta)/2;
+  generator_(3, 1) = _kappa * _theta/2;
+  generator_(0, 2) = _kappa * _theta/2;
+  generator_(1, 3) = _kappa * (1. - _theta)/2;
 	
 	// Normalization:
 	MatrixTools::scale(generator_, _r);
@@ -428,13 +428,12 @@ const Matrix<double> & T92::getd2Pij_dt2(double d) const
 
 /******************************************************************************/
 
-void T92::setFreqFromData(const SequenceContainer & data, unsigned int pseudoCount)
+void T92::setFreq(map<int, double>& freqs)
+  
 {
-	map<int, double> freqs;
-  SequenceContainerTools::getFrequencies(data, freqs);
-	double f = (freqs[1] + freqs[2] + 2 * pseudoCount) / (freqs[0] + freqs[1] + freqs[2] + freqs[3] + 4 * pseudoCount);
-	setParameterValue("theta", f);
-	updateMatrices();
+  double f = (freqs[1] + freqs[2]) / (freqs[0] + freqs[1] + freqs[2] + freqs[3]);
+  setParameterValue("theta", f);
+  updateMatrices();  
 }
 
 /******************************************************************************/

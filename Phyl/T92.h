@@ -188,13 +188,13 @@ class T92:
 
 		string getName() const { return "T92"; }
 	
-		/**
-		 * @brief This method is over-defined to actualize the 'theta' parameter too.
-		 */
-		void setFreqFromData(const SequenceContainer & data, unsigned int pseudoCount = 0);
 
-	protected:
-		void updateMatrices();		
+  /**
+   * @brief This method is over-defined to actualize the 'theta' parameter too.
+   */
+  void setFreq(map<int, double>&);
+
+  void updateMatrices();		
 };
 
 } //end of namespace bpp.

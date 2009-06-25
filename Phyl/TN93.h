@@ -165,12 +165,11 @@ class TN93:
 
 		string getName() const { return "TN93"; }
 	
-		/**
-		 * @brief This method is over-defined to actualize the corresponding parameters piA, piT, piG and piC too.
-		 */
-		void setFreqFromData(const SequenceContainer & data, unsigned int pseudoCount = 0);
+  /**
+   * @brief This method is over-defined to actualize the corresponding parameters piA, piT, piG and piC too.
+   */
+  void setFreq(map<int, double>&);
 
-	protected:
 		void updateMatrices();
 
 };

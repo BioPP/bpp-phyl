@@ -63,7 +63,7 @@ K80::K80(const NucleicAlphabet * alpha, double kappa) :
 
 void K80::updateMatrices()
 {
-	_kappa = getParameterValue("kappa");
+  _kappa = getParameterValue("kappa");
 	_k = (_kappa + 1.) / 2.;
 	_r = 4. / (_kappa + 2.);
 	

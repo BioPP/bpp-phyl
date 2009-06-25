@@ -87,6 +87,7 @@ class SubstitutionModelException:
 		 * @return The model that throw the exception.
 		 */
 		virtual const SubstitutionModel * getSubstitutionModel() const;
+
 };
 
 /**
@@ -140,8 +141,11 @@ class SubstitutionModelException:
 class SubstitutionModel:
   public virtual ParameterAliasable
 {
-	public:
-		SubstitutionModel() {}
+private:
+  bool _eigenDecompose;
+  
+        public:
+		SubstitutionModel() : _eigenDecompose(1) {}
 		virtual ~SubstitutionModel() {};
 
 #ifndef NO_VIRTUAL_COV
@@ -227,7 +231,19 @@ class SubstitutionModel:
 		 */
 		virtual const Matrix<double> & getd2Pij_dt2(double t) const = 0;
 
-		/**
+                 /**
+                  * @brief Set if eigenValues and Vectors must be computed
+                  */
+                     
+                void enableEigenDecomposition(bool yn) { _eigenDecompose = yn;}
+
+                   /**
+                   * @brief Tell if eigenValues and Vectors must be computed
+                   */
+                     
+                bool enableEigenDecomposition() { return _eigenDecompose;}
+
+                 /**
 		 * @return A vector with all eigen values of the generator of this model;
 		 */
 		virtual const Vdouble & getEigenValues() const = 0;
@@ -271,18 +287,19 @@ class SubstitutionModel:
 		 */
 		virtual double getInitValue(int i, int state) const throw (BadIntException) = 0;
 
-		/**
-		 * @brief Set equilibrium frequencies equal to the frequencies estimated
-		 * from the data.
-		 *
-		 * @param data The sequences to use.
-     * @param pseudoCount @f$\psi@f$ A quantity to add to adjust the observed values in order to prevent issues due to missing states on small data set.
-     * The corrected frequencies shall be computed as
-     * @f[
-     * \pi_i = \frac{f_i+\psi}{4\psi + \sum_j f_j}
-     * @f]
-		 */
-		virtual void setFreqFromData(const SequenceContainer & data, unsigned int pseudoCount = 0) = 0;
+  /**
+   * @brief Set equilibrium frequencies equal to the frequencies estimated
+   * from the data.
+   *
+   * @param data The sequences to use.
+   * @param uniform pseudoCount @f$\psi@f$ A quantity to add to adjust the observed
+   *   values in order to prevent issues due to missing states on small data set.
+   * The corrected frequencies shall be computed as
+   * @f[
+   * \pi_i = \frac{n_i+\psi}{\sum_j (f_j+\psi)}
+   * @f]
+   */
+  virtual void setFreqFromData(const SequenceContainer & data, unsigned int pseudoCount = 0) = 0;
 
     /**
      * @brief Get the state in the alphabet corresponding to a given state in the model.
@@ -293,7 +310,15 @@ class SubstitutionModel:
      * @see MarkovModulatedSubstitutionModel
      */
     virtual int getState(int i) const = 0;
-		
+
+  /**
+   * @brief Set equilibrium frequencies
+   *
+   * @param freq The map of the frequencies to use.
+   */
+
+  virtual void setFreq(map<int, double>&) {};
+
 };
 
 

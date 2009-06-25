@@ -155,8 +155,11 @@ class AbstractSubstitutionModel :
 
 		double getInitValue(int i, int state) const throw (BadIntException);
 
-		void setFreqFromData(const SequenceContainer & data, unsigned int pseudoCount = 0);
+  void setFreqFromData(const SequenceContainer & data, unsigned int pseudoCount = 0);
 
+  void setFreq(map<int, double>&);
+
+public:
     int getState(int i) const { return i; }
 		
     /**

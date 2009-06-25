@@ -108,15 +108,11 @@ void L95::updateMatrices()
 
 /******************************************************************************/
 
-void L95::setFreqFromData(const SequenceContainer & data)
+void L95::setFreq(map<int, double>& freqs)
 {
-	map<int, double> freqs;
-  SequenceContainerTools::getFrequencies(data, freqs);
-	double t = 0;
-	for(unsigned int i = 0; i < size_; i++) t += freqs[i];
-	_piC = freqs[1] / t;
-	_piG = freqs[2] / t;
-	getParameter_("theta").setValue(_piC + _piG);
+  _piC = freqs[1];
+  _piG = freqs[2];
+  getParameter_("theta").setValue(_piC + _piG);
   updateMatrices();
 }
 

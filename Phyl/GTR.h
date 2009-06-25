@@ -168,10 +168,12 @@ class GTR:
 
     void updateMatrices();
 
-		/**
-		 * @brief This method is redefined to actualize the corresponding parameters piA, piT, piG and piC too.
-		 */
-		void setFreqFromData(const SequenceContainer & data, unsigned int pseudoCount = 0);
+
+  /**
+   * @brief This method is redefined to actualize the corresponding parameters piA, piT, piG and piC too.
+   */
+
+  void setFreq(map<int,double>&);
 };
 
 } //end of namespace bpp.
