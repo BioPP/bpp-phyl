@@ -1,4 +1,4 @@
-#Copyright or © or Copr. CNRS, (November 16, 2004-2009)
+#Copyright or © or Copr. CNRS, (November 16, 2004-2008)
 #
 #This software is a computer program whose purpose is to provide classes
 #for phylogenetic data analysis.
@@ -137,8 +137,16 @@ SubstitutionModelSet.h\
 SubstitutionModelSetTools.h\
 L95.h\
 RE08.h\
+AbstractWordReversibleSubstitutionModel.h\
+WordReversibleSubstitutionModel.h\
+TripletReversibleSubstitutionModel.h\
+AbstractCodonReversibleSubstitutionModel.h\
+CodonNeutralReversibleSubstitutionModel.h\
+CodonAsynonymousReversibleSubstitutionModel.h\
+AbstractCodonFrequenciesReversibleSubstitutionModel.h\
+CodonNeutralFrequenciesReversibleSubstitutionModel.h\
+CodonAsynonymousFrequenciesReversibleSubstitutionModel.h\
 NexusIOTree.h
-
 
 CPP_FILES = \
 AbstractSubstitutionModel.cpp\
@@ -209,8 +217,17 @@ BipartitionTools.cpp\
 SubstitutionModelSet.cpp\
 SubstitutionModelSetTools.cpp\
 FrequenciesSet.cpp\
-L95.cpp\
+AbstractWordReversibleSubstitutionModel.cpp\
+WordReversibleSubstitutionModel.cpp\
+TripletReversibleSubstitutionModel.cpp\
+AbstractCodonReversibleSubstitutionModel.cpp\
+CodonNeutralReversibleSubstitutionModel.cpp\
+CodonAsynonymousReversibleSubstitutionModel.cpp\
+AbstractCodonFrequenciesReversibleSubstitutionModel.cpp\
+CodonNeutralFrequenciesReversibleSubstitutionModel.cpp\
+CodonAsynonymousFrequenciesReversibleSubstitutionModel.cpp\
 RE08.cpp\
+L95.cpp\
 NexusIOTree.cpp
 
 CPP_EXTRA = \
@@ -227,7 +244,7 @@ EXTRA_libbpp_phyl_la_SOURCES = $(CPP_EXTRA)
 # revision: The implementation number of the current interface.
 # age: The difference between the newest and oldest interfaces that this library implements.
 # In other words, the library implements all the interface numbers in the range from number current - age to current.
-libbpp_phyl_la_LDFLAGS = -version-info 9:0:0
+libbpp_phyl_la_LDFLAGS = -version-info 8:0:2
 
 library_includedir=$(includedir)/Phyl
 library_include_HEADERS = $(H_FILES)
