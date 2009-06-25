@@ -154,7 +154,8 @@ class SubstitutionModelSet:
       AbstractParametrizable(""),
       _alphabet(alpha)
     {
-      _rootFrequencies = new FullFrequenciesSet(alpha, "RootFreq");
+      _rootFrequencies = new FullFrequenciesSet(alpha);
+      _rootFrequencies->setNamespace("RootFreq.");
       addParameters_(_rootFrequencies->getParameters());
     }
 
