@@ -1,5 +1,11 @@
+24/06/09 Julien Dutheil
+* Change precision output while printing parameters.
+
+24/06/09 Laurent Gueguen
+* Added codon and general word models.
+
 23/06/09 Julien Dutheil
-* Compatibility update: now contianers returns references instead of pointers.
+* Compatibility update: now containers returns references instead of pointers.
 * TreeTemplate now uses pointers and not references.
 * Added dropTip function in TreeTemplateTools.
 

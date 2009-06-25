@@ -1707,7 +1707,7 @@ void PhylogeneticsApplicationTools::describeParameters_(const ParameterAliasable
     //Check for global aliases:
     if (globalAliases.find(pl[i]->getName()) == globalAliases.end())
     {
-      out << pname << "=" << pl[i]->getValue();
+      out << pname << "=" << fixed << setprecision(12) << pl[i]->getValue();
     }
     else
       out << pname << "=" << globalAliases[pl[i]->getName()];
