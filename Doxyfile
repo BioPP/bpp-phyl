@@ -207,9 +207,9 @@ SKIP_FUNCTION_MACROS   = YES
 #---------------------------------------------------------------------------
 # Configuration::additions related to external references   
 #---------------------------------------------------------------------------
-TAGFILES               = ../../utils/Utils.tag=../../utils/html \
-                         ../../numcalc/NumCalc.tag=../../numcalc/html \
-                         ../../seqlib/Seq.tag=../../seqlib/html
+TAGFILES               = ../utils/Utils.tag=../../utils/html \
+                         ../numcalc/NumCalc.tag=../../numcalc/html \
+                         ../seqlib/Seq.tag=../../seqlib/html
 GENERATE_TAGFILE       = Phyl.tag
 ALLEXTERNALS           = NO
 EXTERNAL_GROUPS        = YES
