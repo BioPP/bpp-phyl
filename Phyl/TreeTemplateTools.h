@@ -167,15 +167,15 @@ class TreeTemplateTools
      */
     static void searchLeaf(const Node& node, const string & name, int * & id) throw (NodeNotFoundException)
     {
-      if(node.isLeaf())
+      if (node.isLeaf())
       {
-        if(node.getName() == name)
+        if (node.getName() == name)
         {
           id = new int(node.getId());
           return;
         }
       }
-      for(unsigned int i = 0; i < node.getNumberOfSons(); i++)
+      for (unsigned int i = 0; i < node.getNumberOfSons(); i++)
       {
         searchLeaf(* node.getSon(i), name, id);
       }
@@ -312,21 +312,26 @@ class TreeTemplateTools
     /**
      * @brief Retrieve all inner nodes from a subtree.
      *
+     * A inner node is a node with degree > 1, that is, all nodes but the leaves, be they terminal or not.
+     *
      * @param node The node that defines the subtree.
      * @param nodes A vector to be filled with pointers toward each inner node in the subtree.
      */
     template<class N>
     static void getInnerNodes(N & node, vector<N *> & nodes)
     {
-      if(node.isLeaf()) return; //Do not add leaves!
-      for(unsigned int i = 0; i < node.getNumberOfSons(); i++) {
+      for(unsigned int i = 0; i < node.getNumberOfSons(); i++)
+      {
         getInnerNodes<N>(* node.getSon(i), nodes);
       }
-      nodes.push_back(& node);
+      if (!node.isLeaf()) 
+        nodes.push_back(&node); //Do not add leaves!
     }
 
     /**
      * @brief Retrieve all inner nodes ids from a subtree.
+     *
+     * A inner node is a node with degree > 1, that is, all nodes but the leaves, be they terminal or not.
      *
      * @param node The node that defines the subtree.
      * @return A vector of ids.
@@ -346,11 +351,12 @@ class TreeTemplateTools
      */
     static void getInnerNodesId(const Node & node, vector<int> & ids)
     {
-      if(node.isLeaf()) return; //Do not add leaves!
-      for(unsigned int i = 0; i < node.getNumberOfSons(); i++) {
+      for (unsigned int i = 0; i < node.getNumberOfSons(); i++)
+      {
         getInnerNodesId(* node.getSon(i), ids);
       }
-      ids.push_back(node.getId());
+      if (!node.isLeaf())
+        ids.push_back(node.getId()); //Do not add leaves!
     }
 
     /**
