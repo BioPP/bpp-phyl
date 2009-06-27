@@ -81,16 +81,16 @@ namespace bpp
  * The disableExtendedBootstrapProperty method restores the default behavior.
  */
 class Newick:
-  public virtual AbstractITree,
-  public virtual AbstractOTree,
-  public virtual AbstractIMultiTree,
-  public virtual AbstractOMultiTree
+  public AbstractITree,
+  public AbstractOTree,
+  public AbstractIMultiTree,
+  public AbstractOMultiTree
 {
 	protected:
-		bool _allowComments;
-    bool _writeId;
-    bool _useBootstrap;
-    string _bootstrapPropertyName;
+		bool allowComments_;
+    bool writeId_;
+    bool useBootstrap_;
+    std::string bootstrapPropertyName_;
 	
 	public:
 		
@@ -103,24 +103,24 @@ class Newick:
 		 * @param writeId       If true, nodes ids will be written in place of bootstrap values.
 		 */
 		Newick(bool allowComments = false, bool writeId = false):
-      _allowComments(allowComments),
-      _writeId(writeId),
-      _useBootstrap(true),
-      _bootstrapPropertyName(TreeTools::BOOTSTRAP) {}
+      allowComments_(allowComments),
+      writeId_(writeId),
+      useBootstrap_(true),
+      bootstrapPropertyName_(TreeTools::BOOTSTRAP) {}
 
 		virtual ~Newick() {}
 	
 	public:
 
-    void enableExtendedBootstrapProperty(const string & propertyName)
+    void enableExtendedBootstrapProperty(const std::string& propertyName)
     {
-      _useBootstrap = false;
-      _bootstrapPropertyName = propertyName;
+      useBootstrap_ = false;
+      bootstrapPropertyName_ = propertyName;
     }
     void disableExtendedBootstrapProperty()
     {
-      _useBootstrap = true;
-      _bootstrapPropertyName = TreeTools::BOOTSTRAP;
+      useBootstrap_ = true;
+      bootstrapPropertyName_ = TreeTools::BOOTSTRAP;
     }
 
 		/**
@@ -137,24 +137,12 @@ class Newick:
 		 *
 		 * @{
 		 */		
-#if defined(NO_VIRTUAL_COV)
-		Tree * read(const string & path) const throw (Exception)
+		TreeTemplate<Node>* read(const std::string& path) const throw (Exception)
 		{
-			return AbstractITree::read(path);
+			return dynamic_cast<TreeTemplate<Node>*>(AbstractITree::read(path));
 		}
-#else
-		TreeTemplate<Node> * read(const string & path) const throw (Exception)
-		{
-			return dynamic_cast<TreeTemplate<Node> *>(AbstractITree::read(path));
-		}
-#endif
 		
-#if defined(NO_VIRTUAL_COV)
-		Tree *
-#else
-		TreeTemplate<Node> * 
-#endif
-		read(istream & in) const throw (Exception);
+		TreeTemplate<Node>* read(std::istream& in) const throw (Exception);
 		/** @} */
 
 		/**
@@ -162,11 +150,15 @@ class Newick:
 		 *
 		 * @{
 		 */
-		void write(const Tree & tree, const string & path, bool overwrite = true) const throw (Exception)
+		void write(const Tree& tree, const std::string& path, bool overwrite = true) const throw (Exception)
 		{
 			AbstractOTree::write(tree, path, overwrite);
 		}
-		void write(const Tree & tree, ostream & out) const throw (Exception);
+		
+    void write(const Tree& tree, std::ostream& out) const throw (Exception)
+    {
+      write_(tree, out);
+    }
 		/** @} */
 
 		/**
@@ -174,11 +166,11 @@ class Newick:
 		 *
 		 * @{
 		 */
-		void read(const string & path, vector<Tree *> & trees) const throw (Exception)
+		void read(const std::string& path, std::vector<Tree*>& trees) const throw (Exception)
 		{
 			AbstractIMultiTree::read(path, trees);
 		}
-		void read(istream & in, vector<Tree *> & trees) const throw (Exception);
+		void read(std::istream& in, std::vector<Tree*>& trees) const throw (Exception);
     /**@}*/
 
 		/**
@@ -186,12 +178,27 @@ class Newick:
 		 *
 		 * @{
 		 */
-		void write(const vector<Tree *> & trees, const string & path, bool overwrite = true) const throw (Exception)
+		void write(const std::vector<Tree*>& trees, const string& path, bool overwrite = true) const throw (Exception)
 		{
 			AbstractOMultiTree::write(trees, path, overwrite);
 		}
-		void write(const vector<Tree *> & trees, ostream & out) const throw (Exception);
+		void write(const std::vector<Tree*>& trees, ostream& out) const throw (Exception)
+    {
+      write_(trees, out);
+    }
 		/** @} */
+
+  protected:
+    void write_(const Tree& tree, std::ostream& out) const throw (Exception);
+    
+    template<class N>
+    void write_(const TreeTemplate<N>& tree, std::ostream& out) const throw (Exception);
+		
+    void write_(const std::vector<Tree*>& trees, ostream& out) const throw (Exception);
+    
+    template<class N>
+    void write_(const std::vector<TreeTemplate<N>*>& trees, ostream& out) const throw (Exception);
+
 };
 
 } //end of namespace bpp.

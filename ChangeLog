@@ -1,3 +1,7 @@
+27/06/09 Céline Scornavacca & Julien Dutheil
+* Newick and Nexus tree output now use polymorphism in order to print
+TreeTemplate objects more efficiently.
+
 24/06/09 Julien Dutheil
 * Change precision output while printing parameters.
 

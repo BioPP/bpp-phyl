@@ -118,7 +118,10 @@ class NexusIOTree:
 		{
 			AbstractOTree::write(tree, path, overwrite);
 		}
-		void write(const Tree& tree, ostream& out) const throw (Exception);
+		void write(const Tree& tree, ostream& out) const throw (Exception)
+    {
+      write_(tree, out);
+    }
 		/** @} */
 
 		/**
@@ -142,8 +145,22 @@ class NexusIOTree:
 		{
 			AbstractOMultiTree::write(trees, path, overwrite);
 		}
-		void write(const vector<Tree*>& trees, ostream& out) const throw (Exception);
+		void write(const vector<Tree*>& trees, ostream& out) const throw (Exception)
+    {
+      write_(trees, out);
+    }
 		/** @} */
+
+  protected:
+    void write_(const Tree& tree, std::ostream& out) const throw (Exception);
+    
+    template<class N>
+    void write_(const TreeTemplate<N>& tree, std::ostream& out) const throw (Exception);
+
+    void write_(const std::vector<Tree*>& trees, ostream& out) const throw (Exception);
+    
+    template<class N>
+    void write_(const std::vector<TreeTemplate<N>*>& trees, ostream& out) const throw (Exception);
 
 };
 

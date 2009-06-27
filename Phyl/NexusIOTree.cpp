@@ -168,7 +168,7 @@ void NexusIOTree::read(istream& in, vector<Tree*>& trees) const throw (Exception
 
 /******************************************************************************/
 
-void NexusIOTree::write(const Tree& tree, ostream& out) const throw (Exception)
+void NexusIOTree::write_(const Tree& tree, ostream& out) const throw (Exception)
 {
   vector<Tree*> trees;
   trees.push_back(&const_cast<Tree&>(tree));
@@ -177,7 +177,17 @@ void NexusIOTree::write(const Tree& tree, ostream& out) const throw (Exception)
 
 /******************************************************************************/
 
-void NexusIOTree::write(const vector<Tree*>& trees, ostream& out) const throw (Exception)
+template<class N>
+void NexusIOTree::write_(const TreeTemplate<N>& tree, ostream& out) const throw (Exception)
+{
+  vector<Tree*> trees;
+  trees.push_back(&const_cast<Tree&>(tree));
+  write(trees, out);
+}
+
+/******************************************************************************/
+
+void NexusIOTree::write_(const vector<Tree*>& trees, ostream& out) const throw (Exception)
 {
 	// Checking the existence of specified file, and possibility to open it in write mode
 	if (! out) { throw IOException ("NexusIOTree::write: failed to write to stream"); }
@@ -229,6 +239,71 @@ void NexusIOTree::write(const vector<Tree*>& trees, ostream& out) const throw (E
   for (unsigned int i = 0; i < trees.size(); i++)
   {
     out << endl << "  TREE tree" << (i+1) << " = " << TreeTools::treeToParenthesis(*translatedTrees[i]);
+  }
+  out << "END;" << endl;
+  
+  //Clean trees:
+  for (unsigned int i = 0; i < translatedTrees.size(); i++)
+  {
+    delete translatedTrees[i];
+  }
+}
+
+/******************************************************************************/
+
+template<class N>
+void NexusIOTree::write_(const vector<TreeTemplate<N>*>& trees, ostream& out) const throw (Exception)
+{
+	// Checking the existence of specified file, and possibility to open it in write mode
+	if (! out) { throw IOException ("NexusIOTree::write: failed to write to stream"); }
+  
+  out << "#NEXUS" << endl;
+  out << endl;
+  out << "BEGIN TREES;" << endl;
+
+  //First, we retrieve all leaf names from all trees:
+  vector<string> names;
+  for (unsigned int i = 0; i < trees.size(); i++)
+  {
+    names = VectorTools::vectorUnion(names, trees[i]->getLeavesNames());
+  }
+  //... and create a translation map:
+  map<string, unsigned int> translation;
+  unsigned int code = 0;
+  for (unsigned int i = 0; i < names.size(); i++)
+  {
+    translation[names[i]] = code++;
+  }
+
+  //Second we translate all leaf names to their corresponding code:
+  vector<Tree*> translatedTrees(trees.size());
+  for (unsigned int i = 0; i < trees.size(); i++)
+  {
+    vector<int> leavesId = trees[i]->getLeavesId();
+    Tree* tree = dynamic_cast<Tree*>(trees[i]->clone());
+    for (unsigned int j = 0; j < leavesId.size(); j++)
+    {
+      tree->setNodeName(leavesId[j], TextTools::toString(translation[tree->getNodeName(leavesId[j])]));
+    }
+    translatedTrees[i] = tree;
+  }
+  
+  //Third we print the translation command:
+  out << "  TRANSLATE";
+  unsigned int count = 0;
+  for (map<string, unsigned int>::iterator it = translation.begin(); it != translation.end(); it++)
+  {
+    out << endl << "    " << it->second << "\t" << it->first;
+    count++;
+    if (count < translation.size())
+      out << ",";
+  }
+  out << ";";
+  
+  //Finally we print all tree descriptions:
+  for (unsigned int i = 0; i < trees.size(); i++)
+  {
+    out << endl << "  TREE tree" << (i+1) << " = " << TreeTemplateTools::treeToParenthesis(*translatedTrees[i]);
   }
   out << "END;" << endl;
   
