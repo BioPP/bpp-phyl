@@ -71,22 +71,22 @@ class SubstitutionModel;
 class SubstitutionModelException:
   public Exception
 {
-	protected:
-		const SubstitutionModel * sm;
-			
-	public:
-		SubstitutionModelException(const char *   text, const SubstitutionModel * sm = NULL);
-		SubstitutionModelException(const string & text, const SubstitutionModel * sm = NULL);
-	
-		~SubstitutionModelException() throw ();
-		
-	public:
-		/**
-		 * @brief Get the model that throw the exception.
-		 *
-		 * @return The model that throw the exception.
-		 */
-		virtual const SubstitutionModel * getSubstitutionModel() const;
+  protected:
+    const SubstitutionModel * sm;
+      
+  public:
+    SubstitutionModelException(const char *   text, const SubstitutionModel * sm = NULL);
+    SubstitutionModelException(const string & text, const SubstitutionModel * sm = NULL);
+  
+    ~SubstitutionModelException() throw ();
+    
+  public:
+    /**
+     * @brief Get the model that throw the exception.
+     *
+     * @return The model that throw the exception.
+     */
+    virtual const SubstitutionModel * getSubstitutionModel() const;
 
 };
 
@@ -141,129 +141,152 @@ class SubstitutionModelException:
 class SubstitutionModel:
   public virtual ParameterAliasable
 {
-private:
-  bool _eigenDecompose;
-  
-        public:
-		SubstitutionModel() : _eigenDecompose(1) {}
-		virtual ~SubstitutionModel() {};
+  public:
+    SubstitutionModel() {}
+    virtual ~SubstitutionModel() {};
 
 #ifndef NO_VIRTUAL_COV
     SubstitutionModel * clone() const = 0;
 #endif
 
-	public:
-		
-		/**
-		 * @brief Get the name of the model.
-		 *
-		 * @return The name of this model.
-		 */
-		virtual string getName() const = 0;
-	
-		/**
-		 * @return Equilibrium frequency associated to character i.
-		 * @see getFrequencies()
-		 */
-		virtual double freq(int i) const = 0;
+  public:
+    
+    /**
+     * @brief Get the name of the model.
+     *
+     * @return The name of this model.
+     */
+    virtual string getName() const = 0;
 
-		/**
-		 * @return The rate of change from state i to state j.
-		 */
-		virtual double Qij(int i, int j) const = 0;
+    /**
+     * @return The supported states of the model, as a vector of int codes.
+     *
+     * @see Alphabet
+     */
+    virtual const vector<int>& getAlphabetChars() const = 0;
 
-		/**
-		 * @return The probability of change from state i to state j during time t.
-		 * @see getPij_t()
-		 */
-		virtual double Pij_t(int i, int j, double t) const = 0;
+    /**
+     * @brief Get the char in the alphabet corresponding to a given state in the model.
+     *
+     * In most cases, this method will return i.
+     * @param i The index of the state.
+     * @return The corresponding state in the alphabet.
+     * @see MarkovModulatedSubstitutionModel
+     * @see getStates()
+     */
+    virtual int getAlphabetChar(unsigned int i) const = 0;
 
-		/**
-		 * @return The first order derivative of the probability of change from state
-		 * i to state j with respect to time t, at time t.
-		 * @see getdPij_dt()
-		 */
-		virtual double dPij_dt(int i, int j, double t) const = 0;
-		
-		/**
-		 * @return The second order derivative of the probability of change from state
-		 * i to state j with respect to time t, at time t.
-		 * @see getd2Pij_dt2()
-		 */
-		virtual double d2Pij_dt2(int i, int j, double t) const = 0;
-	
-		/**
-		 * @return A vector of all equilibrium frequencies.
-		 * @see freq()
-		 */
-		virtual const Vdouble & getFrequencies() const = 0;
-		
-		/**
-		 * @return The Markov generator matrix, i.e. all rates of changes from state i
-		 * to state j. Usually, the generator is normalized so that
-		 * (i) \f$ \forall j; \sum_i Q_{i,j} = 0 \f$, meaning that $\f$ \forall j; Q_{j,j} = -\sum_{i \neq j}Q_{i,j}\f$,
-		 * and (ii) \f$ \sum_i Q_{i,i} \times \pi_i = -1\f$.
-		 * This means that the mean rate of replacement at equilibrium is 1 and that time \f$t\f$ are measured
-		 * in units of expected number of changes per site.
-		 * 
-		 * See Kosiol and Goldman (2005), Molecular Biology And Evolution 22(2) 193-9.
-		 * @see Qij()
-		 */ 
-		virtual const Matrix<double> & getGenerator() const = 0;
+    /**
+     * @brief Get the state in the model corresponding to a particular char in the alphabet.
+     *
+     * @param i The alphabet char to check.
+     * @return A vector of indices of model states.
+     */
+    virtual std::vector<unsigned int> getModelStates(int i) const = 0;
 
-		/**
-		 * @return All probabilities of change from state i to state j during time t.
-		 * @see Pij_t()
-		 */
-		virtual const Matrix<double> & getPij_t(double t) const = 0;
-	
-		/**
-		 * @return Get all first order derivatives of the probability of change from state
-		 * i to state j with respect to time t, at time t.
-		 * @see dPij_dt()
-		 */
-		virtual const Matrix<double> & getdPij_dt(double t) const = 0;
+    /**
+     * @return Equilibrium frequency associated to character i.
+     * @see getFrequencies(), getStates()
+     */
+    virtual double freq(unsigned int i) const = 0;
 
-		/**
-		 * @return All second order derivatives of the probability of change from state
-		 * i to state j with respect to time t, at time t.
-		 * @see d2Pij_dt2()
-		 */
-		virtual const Matrix<double> & getd2Pij_dt2(double t) const = 0;
+    /**
+     * @return The rate of change from state i to state j.
+     *
+     * @see getStates();
+     */
+    virtual double Qij(unsigned int i, unsigned int j) const = 0;
 
-                 /**
-                  * @brief Set if eigenValues and Vectors must be computed
-                  */
-                     
-                void enableEigenDecomposition(bool yn) { _eigenDecompose = yn;}
+    /**
+     * @return The probability of change from state i to state j during time t.
+     * @see getPij_t(), getStates()
+     */
+    virtual double Pij_t(unsigned int i, unsigned int j, double t) const = 0;
 
-                   /**
-                   * @brief Tell if eigenValues and Vectors must be computed
-                   */
-                     
-                bool enableEigenDecomposition() { return _eigenDecompose;}
+    /**
+     * @return The first order derivative of the probability of change from state
+     * i to state j with respect to time t, at time t.
+     * @see getdPij_dt(), getStates()
+     */
+    virtual double dPij_dt(unsigned int i, unsigned int j, double t) const = 0;
+    
+    /**
+     * @return The second order derivative of the probability of change from state
+     * i to state j with respect to time t, at time t.
+     * @see getd2Pij_dt2(), getStates()
+     */
+    virtual double d2Pij_dt2(unsigned int i, unsigned int j, double t) const = 0;
+  
+    /**
+     * @return A vector of all equilibrium frequencies.
+     * @see freq()
+     */
+    virtual const Vdouble& getFrequencies() const = 0;
+    
+    /**
+     * @return The Markov generator matrix, i.e. all rates of changes from state i
+     * to state j. Usually, the generator is normalized so that
+     * (i) \f$ \forall j; \sum_i Q_{i,j} = 0 \f$, meaning that $\f$ \forall j; Q_{j,j} = -\sum_{i \neq j}Q_{i,j}\f$,
+     * and (ii) \f$ \sum_i Q_{i,i} \times \pi_i = -1\f$.
+     * This means that the mean rate of replacement at equilibrium is 1 and that time \f$t\f$ are measured
+     * in units of expected number of changes per site.
+     * 
+     * See Kosiol and Goldman (2005), Molecular Biology And Evolution 22(2) 193-9.
+     * @see Qij()
+     */ 
+    virtual const Matrix<double> & getGenerator() const = 0;
 
-                 /**
-		 * @return A vector with all eigen values of the generator of this model;
-		 */
-		virtual const Vdouble & getEigenValues() const = 0;
+    /**
+     * @return All probabilities of change from state i to state j during time t.
+     * @see Pij_t()
+     */
+    virtual const Matrix<double> & getPij_t(double t) const = 0;
+  
+    /**
+     * @return Get all first order derivatives of the probability of change from state
+     * i to state j with respect to time t, at time t.
+     * @see dPij_dt()
+     */
+    virtual const Matrix<double> & getdPij_dt(double t) const = 0;
 
-		/**
-		 * @return A matrix with left eigen vectors.
-		 * Each row in the matrix stands for an eigen vector.
-		 */
-		virtual const Matrix<double> & getRowLeftEigenVectors() const = 0;
+    /**
+     * @return All second order derivatives of the probability of change from state
+     * i to state j with respect to time t, at time t.
+     * @see d2Pij_dt2()
+     */
+    virtual const Matrix<double> & getd2Pij_dt2(double t) const = 0;
 
-		/**
-		 * @return A matrix with right eigen vectors.
-		 * Each column in the matrix stands for an eigen vector.
-		 */
-		virtual const Matrix<double> & getColumnRightEigenVectors() const = 0;
+    /**
+     * @brief Set if eigenValues and Vectors must be computed
+     */   
+    virtual void enableEigenDecomposition(bool yn) = 0;
 
-		/**
-		 * @return Get the alphabet associated to this model.
-		 */
-		virtual const Alphabet * getAlphabet() const = 0;
+    /**
+     * @brief Tell if eigenValues and Vectors must be computed
+     */                     
+    virtual bool enableEigenDecomposition() = 0;
+
+    /**
+     * @return A vector with all eigen values of the generator of this model;
+     */
+    virtual const Vdouble& getEigenValues() const = 0;
+
+    /**
+     * @return A matrix with left eigen vectors.
+     * Each row in the matrix stands for an eigen vector.
+     */
+    virtual const Matrix<double>& getRowLeftEigenVectors() const = 0;
+
+    /**
+     * @return A matrix with right eigen vectors.
+     * Each column in the matrix stands for an eigen vector.
+     */
+    virtual const Matrix<double>& getColumnRightEigenVectors() const = 0;
+
+    /**
+     * @return Get the alphabet associated to this model.
+     */
+    virtual const Alphabet* getAlphabet() const = 0;
 
     /**
      * @brief Get the number of states.
@@ -274,50 +297,40 @@ private:
      */
     virtual unsigned int getNumberOfStates() const = 0;
 
-		/**
-		 * This method is used to initialize likelihoods in reccursions.
-		 * It typically sends 1 if i = state, 0 otherwise, where
-		 * i is one of the possible states of the alphabet allowed in the model
-		 * and state is the observed state in the considered sequence/site.
-		 *
-		 * @param i one of the possible states of the alphabet.
-		 * @param state An observed state in the sequence/site.
-		 * @return 1 or 0 depending if the two states are compatible.
-		 * @throw BadIntException if states are not allowed in the associated alphabet.
-		 */
-		virtual double getInitValue(int i, int state) const throw (BadIntException) = 0;
-
-  /**
-   * @brief Set equilibrium frequencies equal to the frequencies estimated
-   * from the data.
-   *
-   * @param data The sequences to use.
-   * @param uniform pseudoCount @f$\psi@f$ A quantity to add to adjust the observed
-   *   values in order to prevent issues due to missing states on small data set.
-   * The corrected frequencies shall be computed as
-   * @f[
-   * \pi_i = \frac{n_i+\psi}{\sum_j (f_j+\psi)}
-   * @f]
-   */
-  virtual void setFreqFromData(const SequenceContainer & data, unsigned int pseudoCount = 0) = 0;
+    /**
+     * This method is used to initialize likelihoods in reccursions.
+     * It typically sends 1 if i = state, 0 otherwise, where
+     * i is one of the possible states of the alphabet allowed in the model
+     * and state is the observed state in the considered sequence/site.
+     *
+     * @param i the index of the state in the model.
+     * @param state An observed state in the sequence/site.
+     * @return 1 or 0 depending if the two states are compatible.
+     * @throw BadIntException if states are not allowed in the associated alphabet.
+     * @see getStates();
+     */
+    virtual double getInitValue(unsigned int i, int state) const throw (BadIntException) = 0;
 
     /**
-     * @brief Get the state in the alphabet corresponding to a given state in the model.
+     * @brief Set equilibrium frequencies equal to the frequencies estimated
+     * from the data.
      *
-     * In most cases, this method will return i.
-     * @param i The state.
-     * @return The corresponding state in the alphabet.
-     * @see MarkovModulatedSubstitutionModel
+     * @param data The sequences to use.
+     * @param uniform pseudoCount @f$\psi@f$ A quantity to add to adjust the observed
+     *   values in order to prevent issues due to missing states on small data set.
+     * The corrected frequencies shall be computed as
+     * @f[
+     * \pi_i = \frac{n_i+\psi}{\sum_j (f_j+\psi)}
+     * @f]
      */
-    virtual int getState(int i) const = 0;
+    virtual void setFreqFromData(const SequenceContainer & data, unsigned int pseudoCount = 0) = 0;
 
-  /**
-   * @brief Set equilibrium frequencies
-   *
-   * @param freq The map of the frequencies to use.
-   */
-
-  virtual void setFreq(map<int, double>&) {};
+    /**
+     * @brief Set equilibrium frequencies
+     *
+     * @param freq The map of the frequencies to use.
+     */
+    virtual void setFreq(map<int, double>&) {};
 
 };
 
@@ -341,32 +354,32 @@ class ReversibleSubstitutionModel:
   public virtual SubstitutionModel
 {
   public:
-		ReversibleSubstitutionModel() {}
-		virtual ~ReversibleSubstitutionModel() {};
+    ReversibleSubstitutionModel() {}
+    virtual ~ReversibleSubstitutionModel() {};
 
 #ifndef NO_VIRTUAL_COV
     ReversibleSubstitutionModel * clone() const = 0;
 #endif
 
-	public:
-	
+  public:
+  
     /**
-		 * @return The matrix of exchangeability terms.
-		 * It is recommended that exchangeability matrix be normalized so that the normalized 
-		 * generator be obtained directly by the dot product \f$S . \pi\f$.
-		 */
-		virtual const Matrix<double> & getExchangeabilityMatrix() const = 0;
+     * @return The matrix of exchangeability terms.
+     * It is recommended that exchangeability matrix be normalized so that the normalized 
+     * generator be obtained directly by the dot product \f$S . \pi\f$.
+     */
+    virtual const Matrix<double>& getExchangeabilityMatrix() const = 0;
 
-		/**
-		 * @return The exchangeability between state i and state j.
+    /**
+     * @return The exchangeability between state i and state j.
      *
      * By definition Sij(i,j) = Sij(j,i).
-		 */
-    virtual double Sij(int i, int j) const = 0;
+     */
+    virtual double Sij(unsigned int i, unsigned int j) const = 0;
 
 };
 
 } //end of namespace bpp.
 
-#endif	//_SUBSTITUTIONMODEL_H_
+#endif  //_SUBSTITUTIONMODEL_H_
 

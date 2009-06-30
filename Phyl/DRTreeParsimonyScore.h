@@ -158,9 +158,9 @@ class DRTreeParsimonyScore:
 
 		void doNNI(int nodeId) throw (NodeException);
 
-		Tree * getTopology() { return _tree; }
+		Tree& getTopology() { return *_tree; }
 		
-		const Tree * getTopology() const { return _tree; }
+		const Tree& getTopology() const { return *_tree; }
 		
 		void topologyChangeTested(const TopologyChangeEvent & event)
 		{

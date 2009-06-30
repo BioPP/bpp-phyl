@@ -43,6 +43,10 @@ knowledge of the CeCILL license and that you accept its terms.
 #include "SubstitutionModelSet.h"
 #include "Tree.h"
 
+//From the STL:
+#include <vector>
+#include <map>
+
 namespace bpp
 {
 
@@ -85,7 +89,7 @@ class SubstitutionModelSetTools
         SubstitutionModel* model,
         FrequenciesSet* rootFreqs,
         const Tree* tree,
-        const vector<string>& globalParameterNames
+        const std::vector<std::string>& globalParameterNames
       ) throw (AlphabetException, Exception);
 
 };

@@ -89,10 +89,10 @@ class TS98:
     TS98(ReversibleSubstitutionModel * model, double s1 = 1., double s2 = 1., bool normalizeRateChanges = false):
       MarkovModulatedSubstitutionModel(model, normalizeRateChanges, "TS98.")
     {
-      _nbRates = 2;
-      _ratesExchangeability.resize(2, 2);
-      _rates.resize(2, 2);
-      _ratesFreq.resize(2);
+      nbRates_ = 2;
+      ratesExchangeability_.resize(2, 2);
+      rates_.resize(2, 2);
+      ratesFreq_.resize(2);
       Parameter p1("TS98.s1", s1, &Parameter::R_PLUS_STAR);
       addParameter_(p1);
       Parameter p2("TS98.s2", s2, &Parameter::R_PLUS_STAR);
@@ -118,12 +118,12 @@ class TS98:
     {
       double s1 = getParameterValue("s1");
       double s2 = getParameterValue("s2");
-      _ratesFreq[0] = s2/(s1+s2);
-      _ratesFreq[1] = s1/(s1+s2);
-      _rates(1,1) = (s1+s2)/s1;
-      _ratesExchangeability(0,1) = _ratesExchangeability(1,0) = s1+s2;
-      _ratesExchangeability(0,0) = -s1*(s1+s2)/s2;
-      _ratesExchangeability(1,1) = -s2*(s1+s2)/s1;
+      ratesFreq_[0] = s2/(s1+s2);
+      ratesFreq_[1] = s1/(s1+s2);
+      rates_(1,1) = (s1+s2)/s1;
+      ratesExchangeability_(0,1) = ratesExchangeability_(1,0) = s1+s2;
+      ratesExchangeability_(0,0) = -s1*(s1+s2)/s2;
+      ratesExchangeability_(1,1) = -s2*(s1+s2)/s1;
     }
 	
 };

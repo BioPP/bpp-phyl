@@ -55,7 +55,7 @@ VVVdouble DRTreeLikelihoodTools::getPosteriorProbabilitiesForEachStateForEachRat
   
   const DiscreteDistribution * rDist = drl.getRateDistribution();
   Vdouble rcProbs = rDist->getProbabilities();
-  if(drl.getTree()->isLeaf(nodeId))
+  if(drl.getTree().isLeaf(nodeId))
   {
     VVdouble larray = drl.getLikelihoodData()->getLeafLikelihoods(nodeId);
     for(unsigned int i = 0; i < nSites; i++)

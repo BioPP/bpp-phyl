@@ -54,9 +54,10 @@ using namespace bpp;
 
 /******************************************************************************/
 
-AbstractSubstitutionModel::AbstractSubstitutionModel(const Alphabet * alpha, const string& prefix) :
+AbstractSubstitutionModel::AbstractSubstitutionModel(const Alphabet* alpha, const string& prefix) :
   AbstractParameterAliasable(prefix),
-  alphabet_(alpha)
+  alphabet_(alpha),
+  eigenDecompose_(true)
 {
   size_ = alpha->getSize();
   generator_.resize(size_, size_);
@@ -67,6 +68,9 @@ AbstractSubstitutionModel::AbstractSubstitutionModel(const Alphabet * alpha, con
   pijt_.resize(size_, size_);
   dpijt_.resize(size_, size_);
   d2pijt_.resize(size_, size_);
+  chars_.resize(size_);
+  for(unsigned int i = 0; i < size_; i++)
+    chars_[i] = (int)i;
 }
 
 /******************************************************************************/
@@ -109,18 +113,19 @@ const Matrix<double> & AbstractSubstitutionModel::getd2Pij_dt2(double t) const
 
 /******************************************************************************/
 
-double AbstractSubstitutionModel::getInitValue(int i, int state) const throw (BadIntException)
+double AbstractSubstitutionModel::getInitValue(unsigned int i, int state) const throw (BadIntException)
 {
-  if(i < 0 || i >= (int)size_) throw BadIntException(i, "AbstractSubstitutionModel::getInitValue");
+  if(i >= size_) throw BadIntException(i, "AbstractSubstitutionModel::getInitValue");
   if(state < 0 || !alphabet_->isIntInAlphabet(state)) throw BadIntException(state, "AbstractSubstitutionModel::getInitValue. Character " + alphabet_->intToChar(state) + " is not allowed in model.");
   vector<int> states = alphabet_->getAlias(state);
-  for(unsigned int j = 0; j < states.size(); j++) if(i == states[j]) return 1.;
+  for(unsigned int j = 0; j < states.size(); j++)
+    if(getAlphabetChar(i) == states[j]) return 1.;
   return 0.;
 }
 
 /******************************************************************************/
 
-void AbstractSubstitutionModel::setFreqFromData(const SequenceContainer & data, unsigned int pseudoCount)
+void AbstractSubstitutionModel::setFreqFromData(const SequenceContainer& data, unsigned int pseudoCount)
 {
   map<int, int> counts;
   SequenceContainerTools::getCounts(data, counts);
@@ -154,7 +159,7 @@ double AbstractSubstitutionModel::getScale() const
 
 /******************************************************************************/
 
-AbstractReversibleSubstitutionModel::AbstractReversibleSubstitutionModel(const Alphabet * alpha, const string& prefix) :
+AbstractReversibleSubstitutionModel::AbstractReversibleSubstitutionModel(const Alphabet* alpha, const string& prefix) :
   AbstractSubstitutionModel(alpha, prefix)
 {
   exchangeability_.resize(size_, size_);

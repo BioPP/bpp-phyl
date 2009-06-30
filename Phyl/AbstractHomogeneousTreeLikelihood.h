@@ -117,9 +117,9 @@ class AbstractHomogeneousTreeLikelihood:
     /**
      * @brief Method called by constructor.
      */
-    void _init(const Tree & tree,
-			SubstitutionModel * model,
-			DiscreteDistribution * rDist,
+    void init_(const Tree& tree,
+			SubstitutionModel* model,
+			DiscreteDistribution* rDist,
       bool checkRooted,
 			bool verbose) throw (Exception);
 
@@ -151,7 +151,7 @@ class AbstractHomogeneousTreeLikelihood:
      * @return A pointer toward the corresponding model.
      * @throw NodeNotFoundException This exception may be thrown if the node is not found (depending on the implementation).
      */
-    const SubstitutionModel * getSubstitutionModelForNode(int nodeId) const throw (NodeNotFoundException) { return model_; }
+    const SubstitutionModel* getSubstitutionModelForNode(int nodeId) const throw (NodeNotFoundException) { return model_; }
 
     /**
      * @brief Get the substitution model associated to a given node.
@@ -162,11 +162,11 @@ class AbstractHomogeneousTreeLikelihood:
      * @return A pointer toward the corresponding model.
      * @throw NodeNotFoundException This exception may be thrown if the node is not found (depending on the implementation).
      */
-    SubstitutionModel * getSubstitutionModelForNode(int nodeId) throw (NodeNotFoundException) { return model_; }
+    SubstitutionModel* getSubstitutionModelForNode(int nodeId) throw (NodeNotFoundException) { return model_; }
 
     vector<double> getRootFrequencies() const { return model_->getFrequencies(); }
     
-    const VVVdouble & getTransitionProbabilitiesForNode(const Node* node) const { return pxy_[node->getId()]; }
+    VVVdouble getTransitionProbabilitiesPerRateClassForNode(int nodeId) const { return pxy_[nodeId]; }
     /** @} */
 
 		/**
@@ -176,11 +176,11 @@ class AbstractHomogeneousTreeLikelihood:
 		 *
 		 * @{
 		 */
-		const SubstitutionModel * getSubstitutionModel() const { return model_; }
+		const SubstitutionModel* getSubstitutionModel() const { return model_; }
 		
-		SubstitutionModel * getSubstitutionModel() { return model_; }
+		SubstitutionModel* getSubstitutionModel() { return model_; }
 		
-    void setSubstitutionModel(SubstitutionModel * model) throw (Exception);
+    void setSubstitutionModel(SubstitutionModel* model) throw (Exception);
     /** @} */
 		
 	public: //Specific methods:

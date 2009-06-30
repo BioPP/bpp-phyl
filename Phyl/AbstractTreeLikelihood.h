@@ -110,7 +110,7 @@ class AbstractTreeLikelihood :
       else          tree_ = 0;
       computeFirstOrderDerivatives_ = lik.computeFirstOrderDerivatives_;
       computeSecondOrderDerivatives_ = lik.computeSecondOrderDerivatives_;
-      initialized_        = lik.initialized_;
+      initialized_ = lik.initialized_;
       return *this;
     }
 
@@ -139,7 +139,7 @@ class AbstractTreeLikelihood :
 		VVdouble getLogLikelihoodForEachSiteForEachState() const;
 		unsigned int getNumberOfSites() const { return data_->getNumberOfSites(); }
 		unsigned int getNumberOfStates() const { return data_->getAlphabet()->getSize(); }
-		const Tree * getTree() const { return tree_; }
+		const Tree& getTree() const { return *tree_; }
 		void enableDerivatives(bool yn) { computeFirstOrderDerivatives_ = computeSecondOrderDerivatives_ = yn; }
 		void enableFirstOrderDerivatives(bool yn) { computeFirstOrderDerivatives_ = yn; }
 		void enableSecondOrderDerivatives(bool yn) { computeFirstOrderDerivatives_ = computeSecondOrderDerivatives_ = yn; }

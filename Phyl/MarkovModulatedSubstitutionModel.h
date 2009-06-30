@@ -78,40 +78,41 @@ class MarkovModulatedSubstitutionModel:
 {
 
   protected:
-    ReversibleSubstitutionModel* _model;
-    unsigned int _nbStates; //Number of states in model
-    unsigned int _nbRates; //Number of rate classes
+    ReversibleSubstitutionModel* model_;
+    unsigned int nbStates_; //Number of states in model
+    unsigned int nbRates_; //Number of rate classes
+
     /**
      * @name Rate generator.
      *
      * These variables must be initialized in the constructor of the derived class.
      * @{
      */
-    RowMatrix<double> _rates;                //All rates values
-    RowMatrix<double> _ratesExchangeability; //All rates transitions
-    Vdouble           _ratesFreq;            //All rates equilibrium frequencies
+    RowMatrix<double> rates_;                //All rates values
+    RowMatrix<double> ratesExchangeability_; //All rates transitions
+    Vdouble           ratesFreq_;            //All rates equilibrium frequencies
     /**@}*/
-    RowMatrix<double> _ratesGenerator;       //All rates transitions
+    RowMatrix<double> ratesGenerator_;       //All rates transitions
     
 		/**
 		 * @brief The generator matrix \f$Q\f$ of the model.
 		 */
-		RowMatrix<double> _generator;
+		RowMatrix<double> generator_;
 
 		/**
 		 * @brief The exchangeability matrix \f$S\f$ of the model.
 		 */
-		RowMatrix<double> _exchangeability;
+		RowMatrix<double> exchangeability_;
 
 		/**
 		 * @brief The \f$U\f$ matrix made of left eigen vectors (by row).
 		 */
-		RowMatrix<double> _leftEigenVectors;
+		RowMatrix<double> leftEigenVectors_;
 
 		/**
 		 * @brief The \f$U^-1\f$ matrix made of right eigen vectors (by column).
 		 */
-		RowMatrix<double> _rightEigenVectors;
+		RowMatrix<double> rightEigenVectors_;
 
     /**
      * @brief These ones are for bookkeeping:
@@ -123,14 +124,19 @@ class MarkovModulatedSubstitutionModel:
 		/**
 		 * @brief The vector of eigen values.
 		 */
-		Vdouble _eigenValues;
+		Vdouble eigenValues_;
 
-		/**
+    /**
+     * @brief Tell if the eigen decomposition should be performed.
+     */
+    bool eigenDecompose_;
+
+    /**
 		 * @brief The vector of equilibrium frequencies.
 		 */
-		Vdouble _freq;
+		Vdouble freq_;
 
-    bool _normalizeRateChanges;
+    bool normalizeRateChanges_;
 
     string nestedPrefix_;
 
@@ -146,19 +152,19 @@ class MarkovModulatedSubstitutionModel:
      */
     MarkovModulatedSubstitutionModel(ReversibleSubstitutionModel* model, bool normalizeRateChanges, const string& prefix) :
       AbstractParameterAliasable(prefix),
-      _model(model), _nbStates(0), _nbRates(0), _rates(), _ratesExchangeability(),
-      _ratesFreq(), _ratesGenerator(), _generator(), _exchangeability(),
-      _leftEigenVectors(), _rightEigenVectors(), _eigenValues(), _freq(), _normalizeRateChanges(normalizeRateChanges),
+      model_(model), nbStates_(model->getNumberOfStates()), nbRates_(0), rates_(), ratesExchangeability_(),
+      ratesFreq_(), ratesGenerator_(), generator_(), exchangeability_(),
+      leftEigenVectors_(), rightEigenVectors_(), eigenValues_(), freq_(), normalizeRateChanges_(normalizeRateChanges),
       nestedPrefix_("model_" + model->getNamespace())
     {
-      _model->setNamespace(prefix + nestedPrefix_);
-      addParameters_(_model->getIndependentParameters());
+      model_->setNamespace(prefix + nestedPrefix_);
+      addParameters_(model_->getIndependentParameters());
     }
     
-    MarkovModulatedSubstitutionModel(const MarkovModulatedSubstitutionModel & model);
-    MarkovModulatedSubstitutionModel & operator=(const MarkovModulatedSubstitutionModel & model);
+    MarkovModulatedSubstitutionModel(const MarkovModulatedSubstitutionModel& model);
+    MarkovModulatedSubstitutionModel & operator=(const MarkovModulatedSubstitutionModel& model);
 
-    virtual ~MarkovModulatedSubstitutionModel() { delete _model; }
+    virtual ~MarkovModulatedSubstitutionModel() { delete model_; }
 
 #ifndef NO_VIRTUAL_COV
     MarkovModulatedSubstitutionModel*
@@ -169,47 +175,60 @@ class MarkovModulatedSubstitutionModel:
 
   public:
 	  
-		const Alphabet * getAlphabet() const { return _model->getAlphabet(); }
+		const Alphabet* getAlphabet() const { return model_->getAlphabet(); }
 
-    unsigned int getNumberOfStates() const { return _nbStates*_nbRates; }
+    unsigned int getNumberOfStates() const { return nbStates_ * nbRates_; }
 
-		const Vdouble & getFrequencies() const { return _freq; }
+		const Vdouble& getFrequencies() const { return freq_; }
     
-		const Matrix<double> & getExchangeabilityMatrix() const { return _exchangeability; }
+		const Matrix<double>& getExchangeabilityMatrix() const { return exchangeability_; }
     
-		const Matrix<double> & getGenerator() const { return _generator; }
+		const Matrix<double>& getGenerator() const { return generator_; }
     
-		const Matrix<double> & getPij_t(double t) const;
-		const Matrix<double> & getdPij_dt(double t) const;
-		const Matrix<double> & getd2Pij_dt2(double t) const;
+		const Matrix<double>& getPij_t(double t) const;
+		const Matrix<double>& getdPij_dt(double t) const;
+		const Matrix<double>& getd2Pij_dt2(double t) const;
     
-		const Vdouble & getEigenValues() const { return _eigenValues; }
+		const Vdouble& getEigenValues() const { return eigenValues_; }
     
-		const Matrix<double> & getRowLeftEigenVectors() const { return _leftEigenVectors; }
-		const Matrix<double> & getColumnRightEigenVectors() const { return _rightEigenVectors; }
+		const Matrix<double>& getRowLeftEigenVectors() const { return leftEigenVectors_; }
+		const Matrix<double>& getColumnRightEigenVectors() const { return rightEigenVectors_; }
     
-		double freq(int i) const { return _freq[i]; }
-    double Sij(int i, int j) const { return _exchangeability(i, j); }
-		double Qij(int i, int j) const { return _generator(i, j); }
+		double freq(unsigned int i) const { return freq_[i]; }
+    double Sij(unsigned int i, unsigned int j) const { return exchangeability_(i, j); }
+		double Qij(unsigned int i, unsigned int j) const { return generator_(i, j); }
     
-		double Pij_t    (int i, int j, double t) const { return getPij_t(t)(i, j); }
-		double dPij_dt  (int i, int j, double t) const { return getdPij_dt(t)(i, j); }
-		double d2Pij_dt2(int i, int j, double t) const { return getd2Pij_dt2(t)(i, j); }
+		double Pij_t    (unsigned int i, unsigned int j, double t) const { return getPij_t(t)(i, j); }
+		double dPij_dt  (unsigned int i, unsigned int j, double t) const { return getdPij_dt(t)(i, j); }
+		double d2Pij_dt2(unsigned int i, unsigned int j, double t) const { return getd2Pij_dt2(t)(i, j); }
     
-		double getInitValue(int i, int state) const throw (BadIntException);
+		double getInitValue(unsigned int i, int state) const throw (BadIntException);
     
-		void setFreqFromData(const SequenceContainer & data, unsigned int pseudoCount = 0)
+		void setFreqFromData(const SequenceContainer& data, unsigned int pseudoCount = 0)
     {
-      _model->setFreqFromData(data, pseudoCount);
+      model_->setFreqFromData(data, pseudoCount);
       updateMatrices();
     }
 
-    int getState(int i) const
+    const std::vector<int>& getAlphabetChars() const { return model_->getAlphabetChars(); }
+
+    int getAlphabetChar(unsigned int i) const
     {
-      return i % _nbStates; 
+      return model_->getAlphabetChar(i % nbStates_); 
     }
    
-    const ReversibleSubstitutionModel* getNestedModel() const { return _model; }
+    std::vector<unsigned int> getModelStates(int i) const
+    {
+      std::vector<unsigned int> states(nbRates_ * nbStates_);
+      std::vector<unsigned int> nestedStates = model_->getModelStates(i);
+      for(unsigned int j = 0; j < nbRates_; j++)
+        for(unsigned int k = 0; k < nestedStates.size(); k++)
+          states.push_back(j * nbRates_ + states[k]);
+      return states;
+    }
+
+    const ReversibleSubstitutionModel* getNestedModel() const { return model_; }
+
     /**
      * @brief Get the rate category corresponding to a particular state in the compound model.
      *
@@ -217,20 +236,24 @@ class MarkovModulatedSubstitutionModel:
      * @return The corresponding rate category.
      * @see getState;
      */
-    int getRate(int i) const
+    unsigned int getRate(unsigned int i) const
     {
-      return i / _nbStates; 
+      return i / nbStates_; 
     }
 
+    void enableEigenDecomposition(bool yn) { eigenDecompose_ = yn; }
+
+    bool enableEigenDecomposition() { return eigenDecompose_; }
+	
     /**
 		 * @brief Tells the model that a parameter value has changed.
 		 *
 		 * This updates the matrices consequently.
 		 */
-		virtual void fireParameterChanged(const ParameterList & parameters)
+		virtual void fireParameterChanged(const ParameterList& parameters)
     {
       AbstractParameterAliasable::fireParameterChanged(parameters);
-      _model->matchParametersValues(parameters);
+      model_->matchParametersValues(parameters);
       updateRatesModel();
       updateMatrices();
     }

@@ -44,6 +44,7 @@ knowledge of the CeCILL license and that you accept its terms.
 
 //From NumCalc:
 #include <NumCalc/AbstractParameterAliasable.h>
+#include <NumCalc/VectorTools.h>
 
 namespace bpp
 {
@@ -55,11 +56,11 @@ namespace bpp
  * - alphabet_: a pointer toward the alphabet,
  * - _size: the size of the alphabet, a parameter frequently called during various computations,
  * - generator_, exchangeability_, leftEigenVectors_, rightEigenVectors_: usefull matrices,
- * - _eigenValues, freq_: usefull vectors.
+ * - eigenValues_, freq_: usefull vectors.
  *
  * Access methods for these fields are implemented.
  *
- * This class also provides the updateMatrices() method, which computes eigen values and vectors and fills the corresponding vector (_eigenValues)
+ * This class also provides the updateMatrices() method, which computes eigen values and vectors and fills the corresponding vector (eigenValues_)
  * and matrices (leftEigenVectors_ and rightEigenVectors_) from the generator.
  *
  * The freq_ vector and generator_ matrices are hence the only things to provide to
@@ -87,6 +88,11 @@ class AbstractSubstitutionModel :
 		 * @brief The size of the generator, i.e. the number of states.
 		 */
 		unsigned int size_;
+
+    /**
+     * @brief The list of supported chars.
+     */
+    std::vector<int> chars_;
 
 		/**
 		 * @brief The generator matrix \f$Q\f$ of the model.
@@ -120,47 +126,60 @@ class AbstractSubstitutionModel :
 		 */
 		Vdouble freq_;
 
+    /**
+     * @brief Tell if the eigen decomposition should be performed.
+     */
+    bool eigenDecompose_;
+  
+
 	public:
-		AbstractSubstitutionModel(const Alphabet * alpha, const string& prefix);
+		AbstractSubstitutionModel(const Alphabet* alpha, const string& prefix);
 	
 		virtual ~AbstractSubstitutionModel() {}
     
 #ifndef NO_VIRTUAL_COV
-    virtual AbstractSubstitutionModel * clone() const = 0;
+    virtual AbstractSubstitutionModel* clone() const = 0;
 #endif
 
 	public:
-		const Alphabet * getAlphabet() const { return alphabet_; }
+		const Alphabet* getAlphabet() const { return alphabet_; }
+
+    const vector<int>& getAlphabetChars() const { return chars_; }
     
-		const Vdouble & getFrequencies() const { return freq_; }
+    int getAlphabetChar(unsigned int i) const { return chars_[i]; }
+
+    vector<unsigned int> getModelStates(int i) const { return VectorTools::whichAll(chars_, i); }
+    
+		const Vdouble& getFrequencies() const { return freq_; }
        
-		const Matrix<double> & getGenerator() const { return generator_; }
+		const Matrix<double>& getGenerator() const { return generator_; }
     
-		const Matrix<double> & getPij_t(double t) const;
-		const Matrix<double> & getdPij_dt(double t) const;
-		const Matrix<double> & getd2Pij_dt2(double t) const;
+		const Matrix<double>& getPij_t(double t) const;
+		const Matrix<double>& getdPij_dt(double t) const;
+		const Matrix<double>& getd2Pij_dt2(double t) const;
     
 		const Vdouble & getEigenValues() const { return eigenValues_; }
     
-		const Matrix<double> & getRowLeftEigenVectors() const { return leftEigenVectors_; }
-		const Matrix<double> & getColumnRightEigenVectors() const { return rightEigenVectors_; }
+		const Matrix<double>& getRowLeftEigenVectors() const { return leftEigenVectors_; }
+		const Matrix<double>& getColumnRightEigenVectors() const { return rightEigenVectors_; }
     
-		double freq(int i) const { return freq_[i]; }
+		double freq(unsigned int i) const { return freq_[i]; }
     
-		double Qij(int i, int j) const { return generator_(i, j); }
+		double Qij(unsigned int i, unsigned int j) const { return generator_(i, j); }
     
-		double Pij_t    (int i, int j, double t) const { return getPij_t(t)(i, j); }
-		double dPij_dt  (int i, int j, double t) const { return getdPij_dt(t)(i, j); }
-		double d2Pij_dt2(int i, int j, double t) const { return getd2Pij_dt2(t)(i, j); }
+		double Pij_t    (unsigned int i, unsigned int j, double t) const { return getPij_t(t)(i, j); }
+		double dPij_dt  (unsigned int i, unsigned int j, double t) const { return getdPij_dt(t)(i, j); }
+		double d2Pij_dt2(unsigned int i, unsigned int j, double t) const { return getd2Pij_dt2(t)(i, j); }
 
-		double getInitValue(int i, int state) const throw (BadIntException);
+		double getInitValue(unsigned int i, int state) const throw (BadIntException);
 
-  void setFreqFromData(const SequenceContainer & data, unsigned int pseudoCount = 0);
+    void setFreqFromData(const SequenceContainer & data, unsigned int pseudoCount = 0);
 
-  void setFreq(map<int, double>&);
+    void setFreq(map<int, double>&);
 
-public:
-    int getState(int i) const { return i; }
+    void enableEigenDecomposition(bool yn) { eigenDecompose_ = yn; }
+
+    bool enableEigenDecomposition() { return eigenDecompose_; }
 		
     /**
 		 * @brief Tells the model that a parameter value has changed.
@@ -177,13 +196,13 @@ public:
 	protected:
 
 		/**
-		 * @brief Diagonalize the \f$Q\f$ matrix, and fill the _eigenValues,
+		 * @brief Diagonalize the \f$Q\f$ matrix, and fill the eigenValues_,
 		 * leftEigenVectors_ and rightEigenVectors_ matrices.
 		 *
 		 * The generator_ matrix and freq_ vector must be initialized.
 		 * 
 		 * Eigen values and vectors are computed from the generator and assigned to the
-		 * _eigenValues, rightEigenVectors_ and leftEigenVectors_ variables.
+		 * eigenValues_, rightEigenVectors_ and leftEigenVectors_ variables.
 		 */
 		virtual void updateMatrices();
 
@@ -211,7 +230,7 @@ public:
  *
  * This class also overrides the updateMatrices() method, which updates
  * the generator_ matrix from the exchangeability_ matrix and freq_ vector.
- * It then computes eigen values and vectors and fills the corresponding vector (_eigenValues)
+ * It then computes eigen values and vectors and fills the corresponding vector (eigenValues_)
  * and matrices (leftEigenVectors_ and rightEigenVectors_).
  *
  * The freq_ vector and exchangeability_ matrices are hence the only things to provide to
@@ -242,11 +261,11 @@ class AbstractReversibleSubstitutionModel:
     virtual AbstractReversibleSubstitutionModel * clone() const = 0;
 
   public:
-		const Matrix<double> & getExchangeabilityMatrix() const { return exchangeability_; }
-    double Sij(int i, int j) const { return exchangeability_(i, j); }
+		const Matrix<double>& getExchangeabilityMatrix() const { return exchangeability_; }
+    double Sij(unsigned int i, unsigned int j) const { return exchangeability_(i, j); }
  
 		/**
-		 * @brief Compute and diagonalize the \f$Q\f$ matrix, and fill the _eigenValues,
+		 * @brief Compute and diagonalize the \f$Q\f$ matrix, and fill the eigenValues_,
 		 * leftEigenVectors_ and rightEigenVectors_ matrices.
 		 *
 		 * The exchangeability_ matrix and freq_ vector must be initialized.
@@ -264,7 +283,7 @@ class AbstractReversibleSubstitutionModel:
 		 * (\f$\pi_i\f$ are the equilibrium frequencies).
 		 *
 		 * Eigen values and vectors are computed from the scaled generator and assigned to the
-		 * _eigenValues, rightEigenVectors_ and leftEigenVectors_ variables.
+		 * eigenValues_, rightEigenVectors_ and leftEigenVectors_ variables.
 		 */
 		virtual void updateMatrices();
 

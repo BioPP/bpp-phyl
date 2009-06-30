@@ -51,8 +51,6 @@ knowledge of the CeCILL license and that you accept its terms.
 // From the STL:
 #include <vector>
 
-using namespace std;
-
 namespace bpp
 {
 
@@ -66,9 +64,9 @@ class MarginalAncestralStateReconstruction:
   public AncestralStateReconstruction
 {
 	protected:
-		const DRTreeLikelihood * _likelihood;
-    const Tree * _tree;
-		const Alphabet * _alphabet;
+		const DRTreeLikelihood* _likelihood;
+    const TreeTemplate<Node> _tree;
+		const Alphabet* _alphabet;
 		unsigned int _nSites;
 		unsigned int _nDistinctSites;
 		unsigned int _nClasses;
@@ -78,10 +76,9 @@ class MarginalAncestralStateReconstruction:
     vector<double> _l;
 		
 	public:
-		MarginalAncestralStateReconstruction(const DRTreeLikelihood & drl): _likelihood(& drl)
+		MarginalAncestralStateReconstruction(const DRTreeLikelihood* drl): _likelihood(drl), _tree(drl->getTree())
 		{
 			_alphabet         = _likelihood->getAlphabet();
-			_tree             = _likelihood->getTree();
 			_nSites           = _likelihood->getLikelihoodData()->getNumberOfSites();
 			_nDistinctSites   = _likelihood->getLikelihoodData()->getNumberOfDistinctSites();
 			_nClasses         = _likelihood->getLikelihoodData()->getNumberOfClasses();
@@ -107,18 +104,18 @@ class MarginalAncestralStateReconstruction:
 		 * @param nodeId The id of the node at which the states must be reconstructed.
      * @param probs  A vector to be filled with the probability for each state at each position (will be the same size as the returned vector for states).
      * @param sample Tell if the sequence should be sample from the posterior distribution instead of taking the one with maximum probability.
-		 * @return A vector of states as int values.
+		 * @return A vector of states indices.
 		 * @see getAncestralSequenceForNode
 		 */ 
-		vector<int> getAncestralStatesForNode(int nodeId, VVdouble & probs, bool sample) const;
+		vector<unsigned int> getAncestralStatesForNode(int nodeId, VVdouble & probs, bool sample) const;
 		
-    vector<int> getAncestralStatesForNode(int nodeId) const
+    vector<unsigned int> getAncestralStatesForNode(int nodeId) const
     {
       VVdouble probs(_nSites);
       return getAncestralStatesForNode(nodeId, probs, false);
     }
 		
-		map<int, vector<int> > getAllAncestralStates() const;
+		map<int, vector<unsigned int> > getAllAncestralStates() const;
 
 		/**
 		 * @brief Get the ancestral sequence for a given node.
@@ -131,19 +128,14 @@ class MarginalAncestralStateReconstruction:
      * @param sample Tell if the sequence should be sample from the posterior distribution instead of taking the one with maximum probability.
 		 * @return A sequence object.
 		 */ 
-		Sequence * getAncestralSequenceForNode(int nodeId, VVdouble * probs, bool sample) const;
+		Sequence* getAncestralSequenceForNode(int nodeId, VVdouble* probs, bool sample) const;
 		
-    Sequence * getAncestralSequenceForNode(int nodeId) const
+    Sequence* getAncestralSequenceForNode(int nodeId) const
     {
-      return getAncestralSequenceForNode(nodeId, NULL, false);
+      return getAncestralSequenceForNode(nodeId, 0, false);
     }
 
-#ifndef NO_VIRTUAL_COV
-    AlignedSequenceContainer *
-#else
-    SequenceContainer *
-#endif
-    getAncestralSequences() const
+    AlignedSequenceContainer* getAncestralSequences() const
     {
       return getAncestralSequences(false);
     }
@@ -157,9 +149,9 @@ class MarginalAncestralStateReconstruction:
 	
   private:
 		void recursiveMarginalAncestralStates(
-			const Node * node,
-			map<int, vector<int> > & ancestors,
-			AlignedSequenceContainer & data) const;
+			const Node* node,
+			std::map<int, std::vector<unsigned int> >& ancestors,
+			AlignedSequenceContainer& data) const;
 
 		
 };

@@ -92,7 +92,7 @@ void NNITopologySearch::searchFast() throw (Exception)
 	bool test = true;
 	do
   { 
-	  TreeTemplate<Node> tree(*_searchableTree->getTopology());
+	  TreeTemplate<Node> tree(_searchableTree->getTopology());
 	  vector<Node *> nodes = tree.getNodes();
 
 		vector<Node *> nodesSub = nodes;
@@ -142,7 +142,7 @@ void NNITopologySearch::searchBetter() throw (Exception)
 	bool test = true;
 	do
   { 
-	  TreeTemplate<Node> tree(*_searchableTree->getTopology());
+	  TreeTemplate<Node> tree(_searchableTree->getTopology());
 	  vector<Node *> nodes = tree.getNodes();
 
 		if(_verbose >= 3) ApplicationTools::displayTask("Test all possible NNIs...");
@@ -202,7 +202,7 @@ void NNITopologySearch::searchPhyML() throw (Exception)
 	do
   { 
 		if(_verbose >= 3) ApplicationTools::displayTask("Test all possible NNIs...");
-	  TreeTemplate<Node> tree(*_searchableTree->getTopology());
+	  TreeTemplate<Node> tree(_searchableTree->getTopology());
 	  vector<Node *> nodes = tree.getNodes();
 		vector<Node *> nodesSub = nodes;
 		for(unsigned int i = nodesSub.size(); i > 0; i--)
@@ -295,7 +295,7 @@ void NNITopologySearch::searchPhyML() throw (Exception)
 			    if(_verbose >= 2)
           {
 				    ApplicationTools::displayResult(string("   Swapping node ") + TextTools::toString(nodeId)
-                + string(" at ") + TextTools::toString(_searchableTree->getTopology()->getFatherId(nodeId)),
+                + string(" at ") + TextTools::toString(_searchableTree->getTopology().getFatherId(nodeId)),
                 TextTools::toString(improvement[i]));
 			    }
 			    _searchableTree->doNNI(nodeId);

@@ -97,9 +97,9 @@ class AbstractNonHomogeneousTreeLikelihood:
 
   public:
     AbstractNonHomogeneousTreeLikelihood(
-      const Tree & tree,
-      SubstitutionModelSet * modelSet,
-      DiscreteDistribution * rDist,
+      const Tree& tree,
+      SubstitutionModelSet* modelSet,
+      DiscreteDistribution* rDist,
       bool verbose = true)
       throw (Exception);
 
@@ -108,14 +108,14 @@ class AbstractNonHomogeneousTreeLikelihood:
      *
      * This constructor is to be called by the derived class copy constructor.
      */
-    AbstractNonHomogeneousTreeLikelihood(const AbstractNonHomogeneousTreeLikelihood & lik);
+    AbstractNonHomogeneousTreeLikelihood(const AbstractNonHomogeneousTreeLikelihood& lik);
     
     /**
      * @brief Assignation operator
      *
      * This operator is to be called by the derived class operator.
      */
-    AbstractNonHomogeneousTreeLikelihood & operator=(const AbstractNonHomogeneousTreeLikelihood & lik);
+    AbstractNonHomogeneousTreeLikelihood & operator=(const AbstractNonHomogeneousTreeLikelihood& lik);
  
     virtual ~AbstractNonHomogeneousTreeLikelihood();
     
@@ -124,10 +124,11 @@ class AbstractNonHomogeneousTreeLikelihood:
     /**
      * @brief Method called by constructor.
      */
-    void _init(const Tree & tree,
-      SubstitutionModelSet * modelSet,
-      DiscreteDistribution * rDist,
-      bool verbose) throw (Exception);
+    void init_(
+        const Tree& tree,
+        SubstitutionModelSet* modelSet,
+        DiscreteDistribution* rDist,
+        bool verbose) throw (Exception);
 
   public:
     
@@ -149,19 +150,19 @@ class AbstractNonHomogeneousTreeLikelihood:
       return AbstractDiscreteRatesAcrossSitesTreeLikelihood::getRateDistributionParameters();
     }
 
-    const SubstitutionModel * getSubstitutionModelForNode(int nodeId) const throw (NodeNotFoundException) 
+    const SubstitutionModel* getSubstitutionModelForNode(int nodeId) const throw (NodeNotFoundException) 
     {
       return _modelSet->getModelForNode(nodeId);
     }
 
-    SubstitutionModel * getSubstitutionModelForNode(int nodeId) throw (NodeNotFoundException)
+    SubstitutionModel* getSubstitutionModelForNode(int nodeId) throw (NodeNotFoundException)
     {
       return _modelSet->getModelForNode(nodeId);
     }
 
     vector<double> getRootFrequencies() const { return _rootFreqs; }
     
-    const VVVdouble & getTransitionProbabilitiesForNode(const Node* node) const { return _pxy[node->getId()]; }
+    VVVdouble getTransitionProbabilitiesPerRateClassForNode(int nodeId) const { return _pxy[nodeId]; }
     /** @} */
 
     /**
@@ -171,11 +172,11 @@ class AbstractNonHomogeneousTreeLikelihood:
      *
      * @{
      */
-    const SubstitutionModelSet * getSubstitutionModelSet() const { return _modelSet; }
+    const SubstitutionModelSet* getSubstitutionModelSet() const { return _modelSet; }
     
-    SubstitutionModelSet * getSubstitutionModelSet() { return _modelSet; }
+    SubstitutionModelSet* getSubstitutionModelSet() { return _modelSet; }
     
-    void setSubstitutionModelSet(SubstitutionModelSet * modelSet) throw (Exception);
+    void setSubstitutionModelSet(SubstitutionModelSet* modelSet) throw (Exception);
 
     ParameterList getRootFrequenciesParameters() const
     {

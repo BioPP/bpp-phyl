@@ -1,11 +1,11 @@
 //
-// File: DRTreeLikelihoodTools.h
+// File: TreeLikelihoodTools.cpp
 // Created by: Julien Dutheil
-// Created on: Mon Janv 17 09:56 2005
+// Created on: Tue Jun 30 12:25 2009
 //
 
 /*
-Copyright or © or Copr. CNRS, (November 16, 2004)
+Copyright or Â© or Copr. CNRS, (November 16, 2004)
 
 This software is a computer program whose purpose is to provide classes
 for phylogenetic data analysis.
@@ -37,37 +37,45 @@ The fact that you are presently reading this means that you have had
 knowledge of the CeCILL license and that you accept its terms.
 */
 
-#ifndef _DRTREELIKELIHOODTOOLS_H_
-#define _DRTREELIKELIHOODTOOLS_H_
-
 #include "TreeLikelihoodTools.h"
-#include "DRTreeLikelihood.h"
-#include <Seq/AlignedSequenceContainer.h>
 
-namespace bpp
+using namespace std;
+using namespace bpp;
+
+void TreeLikelihoodTools::getAncestralFrequencies(
+        const TreeLikelihood& tl,
+        map<int, vector<double> >& frequencies,
+        bool alsoForLeaves) throw (Exception)
 {
+  int currentId = tl.getTree().getRootId();
+  vector<double> currentFreqs = tl.getRootFrequencies();
+  getAncestralFrequencies_(tl, currentId, currentFreqs, frequencies, alsoForLeaves); 
+}
 
-/**
- * @brief Utilitary methods dealing with objects implementing the DRTreeLikelihood interface.
- */
-class DRTreeLikelihoodTools:
-  public TreeLikelihoodTools
+void TreeLikelihoodTools::getAncestralFrequencies_(
+        const TreeLikelihood& tl,
+        int parentId,
+        const vector<double>& ancestralFrequencies,
+        map<int, vector<double> >& frequencies,
+        bool alsoForLeaves) throw (Exception)
 {
-
-  public:
-    /**
-     * @brief Compute the posterior probabilities for each state and each rate of each site.
-     *
-     * @param drl A DR tree likelihood object.
-     * @param nodeId The id of the node at which probabilities must be computed.
-     * @return A 3-dimensional array, with probabilities for each site, each rate and each state.
-     */
-    static VVVdouble getPosteriorProbabilitiesForEachStateForEachRate(
-        const DRTreeLikelihood & drl,
-        int nodeId);
-};
-
-} //end of namespace bpp.
-
-#endif //_DRTREELIKELIHOODTOOLS_H_
+  if (!tl.getTree().isLeaf(parentId) || alsoForLeaves)
+    frequencies[parentId] = ancestralFrequencies;
+  vector<int> sonsId = tl.getTree().getSonsId(parentId);
+  for(unsigned int i = 0; i < sonsId.size(); i++)
+  {
+    vector<double> sonFrequencies(tl.getNumberOfStates());
+    VVdouble pijt = tl.getTransitionProbabilitiesForNode(sonsId[i]);
+    for (unsigned int j = 0; j < tl.getNumberOfStates(); j++)
+    {
+      double x = 0;
+      for (unsigned int k = 0; k < tl.getNumberOfStates(); k++)
+      {
+        x += pijt[k][j] * ancestralFrequencies[k];
+      }
+      sonFrequencies[j] = x;
+    }
+    getAncestralFrequencies_(tl, sonsId[i], sonFrequencies, frequencies, alsoForLeaves);
+  }
+}
 

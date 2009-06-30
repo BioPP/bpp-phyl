@@ -132,25 +132,20 @@ class JCnuc:
     mutable RowMatrix<double> _p;
 
 	public:
-		JCnuc(const NucleicAlphabet * alpha);
+		JCnuc(const NucleicAlphabet* alpha);
 
 		virtual ~JCnuc() {}
 
-#ifndef NO_VIRTUAL_COV
-    JCnuc*
-#else
-    Clonable*
-#endif
-    clone() const { return new JCnuc(*this); }
+    JCnuc* clone() const { return new JCnuc(*this); }
 
   public:
 	
-		double Pij_t    (int i, int j, double d) const;
-		double dPij_dt  (int i, int j, double d) const;
-		double d2Pij_dt2(int i, int j, double d) const;
-		const Matrix<double> & getPij_t    (double d) const;
-		const Matrix<double> & getdPij_dt  (double d) const;
-		const Matrix<double> & getd2Pij_dt2(double d) const;
+		double Pij_t    (unsigned int i, unsigned int j, double d) const;
+		double dPij_dt  (unsigned int i, unsigned int j, double d) const;
+		double d2Pij_dt2(unsigned int i, unsigned int j, double d) const;
+		const Matrix<double>& getPij_t    (double d) const;
+		const Matrix<double>& getdPij_dt  (double d) const;
+		const Matrix<double>& getd2Pij_dt2(double d) const;
 
 		string getName() const { return "JC69"; }
 
@@ -161,7 +156,7 @@ class JCnuc:
      *
      * @param data Useless parameter.
      */
-    void setFreqFromData(const SequenceContainer & data) {}
+    void setFreqFromData(const SequenceContainer& data) {}
 	
 	protected:
 

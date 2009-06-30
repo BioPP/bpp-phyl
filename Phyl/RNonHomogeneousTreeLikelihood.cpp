@@ -66,7 +66,7 @@ throw (Exception):
 {
   if(!modelSet->isFullySetUpFor(tree))
     throw Exception("RNonHomogeneousTreeLikelihood(constructor). Model set is not fully specified.");
-  _init(usePatterns);
+  init_(usePatterns);
 }
 
 /******************************************************************************/
@@ -84,13 +84,13 @@ throw (Exception):
 {
   if(!modelSet->isFullySetUpFor(tree))
     throw Exception("RNonHomogeneousTreeLikelihood(constructor). Model set is not fully specified.");
-  _init(usePatterns);
+  init_(usePatterns);
   setData(data);
 }
 
 /******************************************************************************/
 
-void RNonHomogeneousTreeLikelihood::_init(bool usePatterns) throw (Exception)
+void RNonHomogeneousTreeLikelihood::init_(bool usePatterns) throw (Exception)
 {
   _likelihoodData = new DRASRTreeLikelihoodData(*tree_, _rateDistribution->getNumberOfCategories(), usePatterns);
 }

@@ -190,7 +190,7 @@ Site * NonHomogeneousSequenceSimulator::simulate(int initialState, unsigned int 
   Vint site(_leaves.size());
   for(unsigned int i = 0; i < _leaves.size(); i++)
   {
-    site[i] = _leaves[i]->getInfos().model->getState(_leaves[i]->getInfos().state);
+    site[i] = _leaves[i]->getInfos().model->getAlphabetChar(_leaves[i]->getInfos().state);
   }
   return new Site(site, _alphabet);
 }
@@ -210,7 +210,7 @@ Site * NonHomogeneousSequenceSimulator::simulate(int initialState, double rate) 
   Vint site(_leaves.size());
   for(unsigned int i = 0; i < _leaves.size(); i++)
   {
-    site[i] = _leaves[i]->getInfos().model->getState(_leaves[i]->getInfos().state);
+    site[i] = _leaves[i]->getInfos().model->getAlphabetChar(_leaves[i]->getInfos().state);
   }
   return new Site(site, _alphabet);
 }
@@ -491,7 +491,7 @@ SiteContainer * NonHomogeneousSequenceSimulator::multipleEvolve(const Vint & ini
     model = _leaves[i]->getInfos().model;
     for(unsigned int j = 0; j < nbSites; j++)
     {
-      content[j] = model->getState((*states)[j]);
+      content[j] = model->getAlphabetChar((*states)[j]);
     }
     sites->addSequence(Sequence(_leaves[i]->getName(), content, _alphabet), false);
   }

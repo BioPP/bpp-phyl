@@ -98,7 +98,7 @@ class NNITopologySearch:
 		 *
 		 * @return The tree associated to this instance.
 		 */
-		const Tree * getTopology() const { return _searchableTree->getTopology(); }
+		const Tree& getTopology() const { return _searchableTree->getTopology(); }
 		
     /**
      * @return The NNISearchable object associated to this instance.

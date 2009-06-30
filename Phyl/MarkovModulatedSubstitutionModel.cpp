@@ -48,43 +48,45 @@ using namespace bpp;
 
 /******************************************************************************/
 
-MarkovModulatedSubstitutionModel::MarkovModulatedSubstitutionModel(const MarkovModulatedSubstitutionModel & model):
+MarkovModulatedSubstitutionModel::MarkovModulatedSubstitutionModel(const MarkovModulatedSubstitutionModel& model):
   AbstractParameterAliasable(model),
-  _nbStates(model._nbStates),
-  _nbRates(model._nbRates),
-  _rates(model._rates),
-  _ratesExchangeability(model._ratesExchangeability),
-  _ratesFreq(model._ratesFreq),
-  _ratesGenerator(model._ratesGenerator),
-  _generator(model._generator),
-  _exchangeability(model._exchangeability),
-  _leftEigenVectors(model._leftEigenVectors),
-  _rightEigenVectors(model._rightEigenVectors),
-  _eigenValues(model._eigenValues),
-  _freq(model._freq),
-  _normalizeRateChanges(model._normalizeRateChanges),
+  nbStates_(model.nbStates_),
+  nbRates_(model.nbRates_),
+  rates_(model.rates_),
+  ratesExchangeability_(model.ratesExchangeability_),
+  ratesFreq_(model.ratesFreq_),
+  ratesGenerator_(model.ratesGenerator_),
+  generator_(model.generator_),
+  exchangeability_(model.exchangeability_),
+  leftEigenVectors_(model.leftEigenVectors_),
+  rightEigenVectors_(model.rightEigenVectors_),
+  eigenValues_(model.eigenValues_),
+  freq_(model.freq_),
+  normalizeRateChanges_(model.normalizeRateChanges_),
+  eigenDecompose_(model.eigenDecompose_),
   nestedPrefix_(model.nestedPrefix_)
 {
-  _model = dynamic_cast<ReversibleSubstitutionModel *>(model._model->clone());
+  model_ = dynamic_cast<ReversibleSubstitutionModel *>(model.model_->clone());
 }
 
-MarkovModulatedSubstitutionModel & MarkovModulatedSubstitutionModel::operator=(const MarkovModulatedSubstitutionModel & model)
+MarkovModulatedSubstitutionModel& MarkovModulatedSubstitutionModel::operator=(const MarkovModulatedSubstitutionModel & model)
 {
   AbstractParametrizable::operator=(model);
-  _model                = dynamic_cast<ReversibleSubstitutionModel *>(model._model->clone());
-  _nbStates             = model._nbStates;
-  _nbRates              = model._nbRates;
-  _rates                = model._rates;
-  _ratesExchangeability = model._ratesExchangeability;
-  _ratesFreq            = model._ratesFreq;
-  _ratesGenerator       = model._ratesGenerator;
-  _generator            = model._generator;
-  _exchangeability      = model._exchangeability;
-  _leftEigenVectors     = model._leftEigenVectors;
-  _rightEigenVectors    = model._rightEigenVectors;
-  _eigenValues          = model._eigenValues;
-  _freq                 = model._freq;
-  _normalizeRateChanges = model._normalizeRateChanges;
+  model_                = dynamic_cast<ReversibleSubstitutionModel *>(model.model_->clone());
+  nbStates_             = model.nbStates_;
+  nbRates_              = model.nbRates_;
+  rates_                = model.rates_;
+  ratesExchangeability_ = model.ratesExchangeability_;
+  ratesFreq_            = model.ratesFreq_;
+  ratesGenerator_       = model.ratesGenerator_;
+  generator_            = model.generator_;
+  exchangeability_      = model.exchangeability_;
+  leftEigenVectors_     = model.leftEigenVectors_;
+  rightEigenVectors_    = model.rightEigenVectors_;
+  eigenValues_          = model.eigenValues_;
+  freq_                 = model.freq_;
+  normalizeRateChanges_ = model.normalizeRateChanges_;
+  eigenDecompose_       = model.eigenDecompose_;
   nestedPrefix_         = model.nestedPrefix_;
   return *this;
 }
@@ -93,104 +95,105 @@ MarkovModulatedSubstitutionModel & MarkovModulatedSubstitutionModel::operator=(c
 	
 void MarkovModulatedSubstitutionModel::updateMatrices()
 {
-  //_ratesGenerator and _rates must be initialized!
-  _nbStates        = _model->getNumberOfStates();
-  _nbRates         = _rates.nCols();
+  //ratesGenerator_ and rates_ must be initialized!
+  nbStates_        = model_->getNumberOfStates();
+  nbRates_         = rates_.nCols();
   RowMatrix<double> Tmp1, Tmp2;
-  MatrixTools::diag(_ratesFreq, Tmp1);
-  MatrixTools::mult(_ratesExchangeability, Tmp1, _ratesGenerator);
-  MatrixTools::kroneckerMult(_rates, _model->getGenerator(), _generator);
+  MatrixTools::diag(ratesFreq_, Tmp1);
+  MatrixTools::mult(ratesExchangeability_, Tmp1, ratesGenerator_);
+  MatrixTools::kroneckerMult(rates_, model_->getGenerator(), generator_);
   
-  MatrixTools::MatrixTools::getId< RowMatrix<double> >(_nbStates, Tmp1);
-  MatrixTools::kroneckerMult(_ratesGenerator, Tmp1, Tmp2);
-  MatrixTools::add(_generator, Tmp2);
+  MatrixTools::MatrixTools::getId< RowMatrix<double> >(nbStates_, Tmp1);
+  MatrixTools::kroneckerMult(ratesGenerator_, Tmp1, Tmp2);
+  MatrixTools::add(generator_, Tmp2);
 
-  MatrixTools::diag(1./_ratesFreq, Tmp1);
-  MatrixTools::mult(_rates, Tmp1, Tmp2);
-  MatrixTools::kroneckerMult(Tmp2, _model->getExchangeabilityMatrix(), _exchangeability);
+  MatrixTools::diag(1./ratesFreq_, Tmp1);
+  MatrixTools::mult(rates_, Tmp1, Tmp2);
+  MatrixTools::kroneckerMult(Tmp2, model_->getExchangeabilityMatrix(), exchangeability_);
 
-  MatrixTools::diag(1/_model->getFrequencies(), Tmp1);
-  MatrixTools::kroneckerMult(_ratesExchangeability, Tmp1, Tmp2);
-  MatrixTools::add(_exchangeability, Tmp2);
-  _freq = VectorTools::kroneckerMult(_ratesFreq, _model->getFrequencies());
-	if(_normalizeRateChanges)
+  MatrixTools::diag(1/model_->getFrequencies(), Tmp1);
+  MatrixTools::kroneckerMult(ratesExchangeability_, Tmp1, Tmp2);
+  MatrixTools::add(exchangeability_, Tmp2);
+  freq_ = VectorTools::kroneckerMult(ratesFreq_, model_->getFrequencies());
+	if(normalizeRateChanges_)
   {
     // Normalization:
     Vdouble Tmp;
-	  MatrixTools::diag(_generator, Tmp);
-	  double scale = -VectorTools::scalar<double, double>(Tmp, _freq);
-    MatrixTools::scale(_generator, 1./scale);
+	  MatrixTools::diag(generator_, Tmp);
+	  double scale = -VectorTools::scalar<double, double>(Tmp, freq_);
+    MatrixTools::scale(generator_, 1./scale);
 
     // Normalize exchangeability matrix too:
-	  MatrixTools::scale(_exchangeability, 1./scale);
+	  MatrixTools::scale(exchangeability_, 1./scale);
   }
 
   // Compute eigen values and vectors:
-  _eigenValues.resize(_nbRates * _nbStates);
-  _rightEigenVectors.resize(_nbStates * _nbRates, _nbStates * _nbRates);
-  _pijt.resize(_nbStates * _nbRates, _nbStates * _nbRates);
-  _dpijt.resize(_nbStates * _nbRates, _nbStates * _nbRates);
-  _d2pijt.resize(_nbStates * _nbRates, _nbStates * _nbRates);
+  eigenValues_.resize(nbRates_ * nbStates_);
+  rightEigenVectors_.resize(nbStates_ * nbRates_, nbStates_ * nbRates_);
+  _pijt.resize(nbStates_ * nbRates_, nbStates_ * nbRates_);
+  _dpijt.resize(nbStates_ * nbRates_, nbStates_ * nbRates_);
+  _d2pijt.resize(nbStates_ * nbRates_, nbStates_ * nbRates_);
   
-  vector<double>    modelEigenValues       = _model->getEigenValues();
-  RowMatrix<double> modelRightEigenVectors = _model->getColumnRightEigenVectors();
-  for(unsigned int i = 0; i < _nbStates; i++)
+  vector<double>    modelEigenValues       = model_->getEigenValues();
+  RowMatrix<double> modelRightEigenVectors = model_->getColumnRightEigenVectors();
+  for(unsigned int i = 0; i < nbStates_; i++)
   {
-    RowMatrix<double> tmp = _rates;
+    RowMatrix<double> tmp = rates_;
     MatrixTools::scale(tmp, modelEigenValues[i]);
-    MatrixTools::add(tmp, _ratesGenerator);
+    MatrixTools::add(tmp, ratesGenerator_);
     EigenValue<double> ev(tmp);
 	  vector<double>    values  = ev.getRealEigenValues();
 	  RowMatrix<double> vectors = ev.getV();
-    for(unsigned int j = 0; j < _nbRates; j++)
+    for(unsigned int j = 0; j < nbRates_; j++)
     {
-      unsigned int c = i*_nbRates+j; //Current eigen value index.
-      _eigenValues[c] = values[j];
+      unsigned int c = i*nbRates_+j; //Current eigen value index.
+      eigenValues_[c] = values[j];
       // Compute the Kronecker product of the jth vector and the ith modelRightEigenVector.
-      for(unsigned int ii = 0; ii < _nbRates; ii++)
+      for(unsigned int ii = 0; ii < nbRates_; ii++)
       {
         double vii = vectors(ii, j);
-        for(unsigned int jj = 0; jj < _nbStates; jj++)
+        for(unsigned int jj = 0; jj < nbStates_; jj++)
         {
-          _rightEigenVectors(ii * _nbStates + jj, c) = vii * modelRightEigenVectors(jj, i);
+          rightEigenVectors_(ii * nbStates_ + jj, c) = vii * modelRightEigenVectors(jj, i);
         }
       }
     }
   }
   // Now compute left eigen vectors by inversion: 
-  MatrixTools::inv(_rightEigenVectors, _leftEigenVectors);
+  MatrixTools::inv(rightEigenVectors_, leftEigenVectors_);
 }
 
 /******************************************************************************/
 
-const Matrix<double> & MarkovModulatedSubstitutionModel::getPij_t(double t) const
+const Matrix<double>& MarkovModulatedSubstitutionModel::getPij_t(double t) const
 {
-	if(t == 0) MatrixTools::getId< RowMatrix<double> >(_nbStates * _nbRates, _pijt);
-  else MatrixTools::mult(_rightEigenVectors, VectorTools::exp(_eigenValues*t), _leftEigenVectors, _pijt);
+	if(t == 0) MatrixTools::getId< RowMatrix<double> >(nbStates_ * nbRates_, _pijt);
+  else MatrixTools::mult(rightEigenVectors_, VectorTools::exp(eigenValues_*t), leftEigenVectors_, _pijt);
   return _pijt;
 }
 
-const Matrix<double> & MarkovModulatedSubstitutionModel::getdPij_dt(double t) const
+const Matrix<double>& MarkovModulatedSubstitutionModel::getdPij_dt(double t) const
 {
-	MatrixTools::mult(_rightEigenVectors, _eigenValues * VectorTools::exp(_eigenValues*t), _leftEigenVectors, _dpijt);
+	MatrixTools::mult(rightEigenVectors_, eigenValues_ * VectorTools::exp(eigenValues_*t), leftEigenVectors_, _dpijt);
   return _dpijt;
 }
 
-const Matrix<double> & MarkovModulatedSubstitutionModel::getd2Pij_dt2(double t) const
+const Matrix<double>& MarkovModulatedSubstitutionModel::getd2Pij_dt2(double t) const
 {
-	MatrixTools::mult(_rightEigenVectors, NumTools::sqr(_eigenValues) * VectorTools::exp(_eigenValues*t), _leftEigenVectors, _d2pijt);
+	MatrixTools::mult(rightEigenVectors_, NumTools::sqr(eigenValues_) * VectorTools::exp(eigenValues_*t), leftEigenVectors_, _d2pijt);
   return _d2pijt;
 }
 
 /******************************************************************************/
 
-double MarkovModulatedSubstitutionModel::getInitValue(int i, int state) const throw (BadIntException)
+double MarkovModulatedSubstitutionModel::getInitValue(unsigned int i, int state) const throw (BadIntException)
 {
-	if(i < 0 || i >= (int)(_nbStates*_nbRates)) throw BadIntException(i, "MarkovModulatedSubstitutionModel::getInitValue");
-	if(state < 0 || !_model->getAlphabet()->isIntInAlphabet(state)) throw BadIntException(state, "MarkovModulatedSubstitutionModel::getInitValue. Character " + _model->getAlphabet()->intToChar(state) + " is not allowed in model.");
-	vector<int> states = _model->getAlphabet()->getAlias(state);
-  int x = i % _nbStates;
-	for(unsigned int j = 0; j < states.size(); j++) if(x == states[j]) return 1.;
+	if(i >= (nbStates_*nbRates_)) throw BadIntException(i, "MarkovModulatedSubstitutionModel::getInitValue");
+	if(state < 0 || !model_->getAlphabet()->isIntInAlphabet(state)) throw BadIntException(state, "MarkovModulatedSubstitutionModel::getInitValue. Character " + model_->getAlphabet()->intToChar(state) + " is not allowed in model.");
+	vector<int> states = model_->getAlphabet()->getAlias(state);
+	for (unsigned int j = 0; j < states.size(); j++)
+    if (getAlphabetChar(i) == states[j])
+      return 1.;
 	return 0.;
 }
 
@@ -200,7 +203,7 @@ void MarkovModulatedSubstitutionModel::setNamespace(const string& prefix)
 {
   AbstractParameterAliasable::setNamespace(prefix);
    //We also need to update the namespace of the nested model:
-  _model->setNamespace(prefix + nestedPrefix_);
+  model_->setNamespace(prefix + nestedPrefix_);
 }
 
 /******************************************************************************/

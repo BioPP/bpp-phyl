@@ -66,7 +66,7 @@ class G2001:
   public MarkovModulatedSubstitutionModel
 {
   protected:
-    DiscreteDistribution * _rDist;
+    DiscreteDistribution * rDist_;
 
     string nestedRatePrefix_;
 
@@ -81,14 +81,14 @@ class G2001:
      * @param normalizeRateChanges Tell if the rate transition matrix should be normalized.
      */
     G2001(ReversibleSubstitutionModel * model, DiscreteDistribution * rDist, double nu = 1., bool normalizeRateChanges = false):
-      MarkovModulatedSubstitutionModel(model, normalizeRateChanges, "G01."), _rDist(rDist), nestedRatePrefix_("rdist_" + rDist->getNamespace())
+      MarkovModulatedSubstitutionModel(model, normalizeRateChanges, "G01."), rDist_(rDist), nestedRatePrefix_("rdist_" + rDist->getNamespace())
     {
-      _nbRates = _rDist->getNumberOfCategories();
-      _ratesExchangeability.resize(_nbRates, _nbRates);
-      _rates.resize(_nbRates, _nbRates);
-      _ratesFreq = vector<double>(_nbRates, 1./(double)_nbRates);
-      _rDist->setNamespace(getNamespace() + nestedRatePrefix_);
-      addParameters_(_rDist->getIndependentParameters());
+      nbRates_ = rDist_->getNumberOfCategories();
+      ratesExchangeability_.resize(nbRates_, nbRates_);
+      rates_.resize(nbRates_, nbRates_);
+      ratesFreq_ = vector<double>(nbRates_, 1./(double)nbRates_);
+      rDist_->setNamespace(getNamespace() + nestedRatePrefix_);
+      addParameters_(rDist_->getIndependentParameters());
       Parameter p("G01.nu", nu, &Parameter::R_PLUS);
       addParameter_(p);
       updateRatesModel();
@@ -99,18 +99,18 @@ class G2001:
       MarkovModulatedSubstitutionModel(model),
       nestedRatePrefix_(model.nestedRatePrefix_)
     {
-      _rDist = dynamic_cast<DiscreteDistribution *>(model._rDist->clone());
+      rDist_ = dynamic_cast<DiscreteDistribution *>(model.rDist_->clone());
     }
 
     G2001 & operator=(const G2001 & model)
     {
       MarkovModulatedSubstitutionModel::operator=(model);
-      _rDist = dynamic_cast<DiscreteDistribution *>(model._rDist->clone());
+      rDist_ = dynamic_cast<DiscreteDistribution *>(model.rDist_->clone());
       nestedRatePrefix_ = model.nestedRatePrefix_;
       return *this;
     }
 
-    virtual ~G2001() { delete _rDist; }
+    virtual ~G2001() { delete rDist_; }
 
 #ifndef NO_VIRTUAL_COV
     G2001*
@@ -129,20 +129,20 @@ class G2001:
      */
 		void fireParameterChanged(const ParameterList & parameters)
     {
-      _rDist->matchParametersValues(parameters);
+      rDist_->matchParametersValues(parameters);
       MarkovModulatedSubstitutionModel::fireParameterChanged(parameters);
     }
 
     /**
      * @return The rate distribution associated to this instance.
      */
-    const DiscreteDistribution* getRateDistribution() const { return _rDist; }
+    const DiscreteDistribution* getRateDistribution() const { return rDist_; }
 
     void setNamespace(const string& prefix)
     {
       MarkovModulatedSubstitutionModel::setNamespace(prefix);
       //We also need to update the namespace of the nested distribution:
-      _rDist->setNamespace(prefix + nestedRatePrefix_);
+      rDist_->setNamespace(prefix + nestedRatePrefix_);
     }
 
     
@@ -150,18 +150,18 @@ class G2001:
     void updateRatesModel()
     {
       double nu = getParameterValue("nu");
-      for(unsigned int i = 0; i < _nbRates; i++)
+      for(unsigned int i = 0; i < nbRates_; i++)
       {
-         _rates(i,i) = _rDist->getCategory(i);
-         for(unsigned int j = 0; j < _nbRates; j++)
+         rates_(i,i) = rDist_->getCategory(i);
+         for(unsigned int j = 0; j < nbRates_; j++)
          {
             if(i==j)
             {
-              _ratesExchangeability(i,j) = -(double)_nbRates*nu;
+              ratesExchangeability_(i,j) = -(double)nbRates_*nu;
             }
             else
             {
-              _ratesExchangeability(i,j) = _nbRates*nu/(_nbRates-1);
+              ratesExchangeability_(i,j) = nbRates_*nu/(nbRates_-1);
             }
          }
       }

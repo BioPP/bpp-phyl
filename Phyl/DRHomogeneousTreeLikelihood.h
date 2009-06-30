@@ -124,12 +124,7 @@ class DRHomogeneousTreeLikelihood:
 
     virtual ~DRHomogeneousTreeLikelihood();
 
-#ifndef NO_VIRTUAL_COV
-    DRHomogeneousTreeLikelihood*
-#else
-    Clonable*
-#endif
-    clone() const { return new DRHomogeneousTreeLikelihood(*this); }
+    DRHomogeneousTreeLikelihood* clone() const { return new DRHomogeneousTreeLikelihood(*this); }
 
   private:
 
@@ -205,8 +200,8 @@ class DRHomogeneousTreeLikelihood:
     
   public:  // Specific methods:
 
-    DRASDRTreeLikelihoodData * getLikelihoodData() { return _likelihoodData; }
-    const DRASDRTreeLikelihoodData * getLikelihoodData() const { return _likelihoodData; }
+    DRASDRTreeLikelihoodData* getLikelihoodData() { return _likelihoodData; }
+    const DRASDRTreeLikelihoodData* getLikelihoodData() const { return _likelihoodData; }
   
     virtual void computeLikelihoodAtNode(int nodeId, VVVdouble& likelihoodArray) const;
 
@@ -215,7 +210,7 @@ class DRHomogeneousTreeLikelihood:
      *
      * These intermediate results may be used by other methods.
      */
-    virtual const VVVdouble & getTransitionProbabilitiesForNode(const Node * node) const { return pxy_[node->getId()]; }
+    virtual VVVdouble getTransitionProbabilitiesPerRateClassForNode(int nodeId) const { return pxy_[nodeId]; }
        
   protected:
   

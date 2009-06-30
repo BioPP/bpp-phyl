@@ -298,3 +298,23 @@ void AbstractDiscreteRatesAcrossSitesTreeLikelihood::displayLikelihoodArray(
 
 /******************************************************************************/
 
+VVdouble AbstractDiscreteRatesAcrossSitesTreeLikelihood::getTransitionProbabilitiesForNode(int nodeId) const
+{
+  VVVdouble p3 = getTransitionProbabilitiesPerRateClassForNode(nodeId);
+  VVdouble p2;
+  Vdouble probs = _rateDistribution->getProbabilities();
+  p2.resize(getNumberOfStates());
+  for (unsigned int i = 0; i < p2.size(); i++)
+  {
+    p2[i].resize(getNumberOfStates());
+    for (unsigned int j = 0; j < p2.size(); j++)
+    {
+      for (unsigned int k = 0; k < getNumberOfClasses(); k++)
+        p2[i][j] += p3[k][i][j] * probs[k];
+    }
+  }
+  return p2;
+}
+	
+/******************************************************************************/
+

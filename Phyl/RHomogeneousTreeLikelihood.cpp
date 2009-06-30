@@ -64,7 +64,7 @@ throw (Exception):
   AbstractHomogeneousTreeLikelihood(tree, model, rDist, checkRooted, verbose),
   _likelihoodData(NULL)
 {
-  _init(usePatterns);
+  init_(usePatterns);
 }
 
 /******************************************************************************/
@@ -81,13 +81,13 @@ throw (Exception):
   AbstractHomogeneousTreeLikelihood(tree, model, rDist, checkRooted, verbose),
   _likelihoodData(NULL)
 {
-  _init(usePatterns);
+  init_(usePatterns);
   setData(data);
 }
 
 /******************************************************************************/
 
-void RHomogeneousTreeLikelihood::_init(bool usePatterns) throw (Exception)
+void RHomogeneousTreeLikelihood::init_(bool usePatterns) throw (Exception)
 {
   _likelihoodData = new DRASRTreeLikelihoodData(*tree_, _rateDistribution->getNumberOfCategories(), usePatterns);
 }

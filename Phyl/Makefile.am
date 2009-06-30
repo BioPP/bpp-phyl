@@ -56,6 +56,7 @@ RNonHomogeneousTreeLikelihood.h\
 DRNonHomogeneousTreeLikelihood.h\
 ClockTreeLikelihood.h\
 RHomogeneousClockTreeLikelihood.h\
+TreeLikelihoodTools.h\
 DRTreeLikelihoodTools.h\
 IODistanceMatrix.h\
 iodistance\
@@ -169,6 +170,7 @@ DRHomogeneousTreeLikelihood.cpp\
 NNIHomogeneousTreeLikelihood.cpp\
 RHomogeneousClockTreeLikelihood.cpp\
 DRASDRTreeLikelihoodData.cpp\
+TreeLikelihoodTools.cpp\
 DRTreeLikelihoodTools.cpp\
 JCnuc.cpp\
 JCprot.cpp\

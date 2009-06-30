@@ -68,14 +68,14 @@ class DiscreteRatesAcrossSitesTreeLikelihood:
 		 *
 		 * @return A const pointer toward the rate distribution of this instance.
 		 */
-		virtual const DiscreteDistribution * getRateDistribution() const = 0;
+		virtual const DiscreteDistribution* getRateDistribution() const = 0;
 
 		/**
 		 * @brief Get the rate distribution used for the computation.
 		 *
 		 * @return A pointer toward the rate distribution of this instance.
 		 */
-		virtual DiscreteDistribution * getRateDistribution() = 0;
+		virtual DiscreteDistribution* getRateDistribution() = 0;
 
 		/**
 		 * @brief Get the likelihood for a site knowing its rate class.
@@ -191,6 +191,16 @@ class DiscreteRatesAcrossSitesTreeLikelihood:
 		 * @return The Number of classes.
 		 */
 		virtual unsigned int getNumberOfClasses() const = 0;
+
+    /**
+     * @brief Retrieves all Pij(t) for a particular branch, defined by the upper node.
+     *
+     * These intermediate results may be used by other methods.
+     *
+     * @param node The node defining the branch of interest.
+     * @return An array of dimension 3, where a[c][x][y] is the probability of substituting from x to y while being in rate class c.
+     */
+    virtual VVVdouble getTransitionProbabilitiesPerRateClassForNode(int nodeId) const = 0;
 		
 };
 

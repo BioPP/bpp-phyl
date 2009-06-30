@@ -1,11 +1,11 @@
 //
-// File: DRTreeLikelihoodTools.h
+// File: TreeLikelihoodTools.h
 // Created by: Julien Dutheil
-// Created on: Mon Janv 17 09:56 2005
+// Created on: Tue Jun 30 12:25 2009
 //
 
 /*
-Copyright or © or Copr. CNRS, (November 16, 2004)
+Copyright or Â© or Copr. CNRS, (November 16, 2004)
 
 This software is a computer program whose purpose is to provide classes
 for phylogenetic data analysis.
@@ -37,37 +37,56 @@ The fact that you are presently reading this means that you have had
 knowledge of the CeCILL license and that you accept its terms.
 */
 
-#ifndef _DRTREELIKELIHOODTOOLS_H_
-#define _DRTREELIKELIHOODTOOLS_H_
+#ifndef _TREELIKELIHOODTOOLS_H_
+#define _TREELIKELIHOODTOOLS_H_
 
-#include "TreeLikelihoodTools.h"
-#include "DRTreeLikelihood.h"
-#include <Seq/AlignedSequenceContainer.h>
+#include "TreeLikelihood.h"
+
+//From the STL:
+#include <vector>
+#include <map>
 
 namespace bpp
 {
 
 /**
- * @brief Utilitary methods dealing with objects implementing the DRTreeLikelihood interface.
+ * @brief Utilitary methods that work with TreeLikelihoo objects.
  */
-class DRTreeLikelihoodTools:
-  public TreeLikelihoodTools
+class TreeLikelihoodTools
 {
-
   public:
     /**
-     * @brief Compute the posterior probabilities for each state and each rate of each site.
+     * @brief Compute the expected ancestral frequencies of all states at all (inner) nodes
+     * according to a Markov process defined by a given substitution model set.
      *
-     * @param drl A DR tree likelihood object.
-     * @param nodeId The id of the node at which probabilities must be computed.
-     * @return A 3-dimensional array, with probabilities for each site, each rate and each state.
+     * @param modelSet    [in] The model set defining the Markov process.
+     * @param tree        [in] The phylogenetic tree to use.
+     * @param frequencies [out] A map where to store the results, as a vector of double (the 
+     * size of which being equal to the number of states in the model), and with nodes id as keys.
+     * @param alsoForLeaves [opt] Tell if frequencies should also be estimated for terminal nodes.
+     * @throw Exception In case something bad happens, like an unvalid model set.
      */
-    static VVVdouble getPosteriorProbabilitiesForEachStateForEachRate(
-        const DRTreeLikelihood & drl,
-        int nodeId);
+    static void getAncestralFrequencies(
+        const TreeLikelihood& tl,
+        std::map<int, std::vector<double> >& frequencies,
+        bool alsoForLeaves = false) throw (Exception);
+
+  private:
+    /**
+     * @brief Recursive method, for internal use only.
+     *
+     * @see getAncestralFrequencies()
+     */
+    static void getAncestralFrequencies_(
+        const TreeLikelihood& tl,
+        int parentId,
+        const std::vector<double>& ancestralFrequencies,
+        std::map<int, std::vector<double> >& frequencies,
+        bool alsoForLeaves) throw (Exception);
+ 
 };
 
 } //end of namespace bpp.
 
-#endif //_DRTREELIKELIHOODTOOLS_H_
+#endif //_TREELIKELIHOODTOOLS_H_
 

@@ -85,7 +85,7 @@ class RHomogeneousTreeLikelihood :
 {
 	protected:
 
-		mutable DRASRTreeLikelihoodData *_likelihoodData;
+		mutable DRASRTreeLikelihoodData* _likelihoodData;
 
 	public:
     /**
@@ -143,19 +143,14 @@ class RHomogeneousTreeLikelihood :
 
     virtual ~RHomogeneousTreeLikelihood();
 
-#ifndef NO_VIRTUAL_COV
-    RHomogeneousTreeLikelihood*
-#else
-    Clonable*
-#endif
-    clone() const { return new RHomogeneousTreeLikelihood(*this); }
+    RHomogeneousTreeLikelihood* clone() const { return new RHomogeneousTreeLikelihood(*this); }
 	
 	private:
 
     /**
      * @brief Method called by constructors.
      */
-    void _init(bool usePatterns) throw (Exception);
+    void init_(bool usePatterns) throw (Exception);
 	
   public:
 
@@ -220,8 +215,8 @@ class RHomogeneousTreeLikelihood :
 	
 	public:	// Specific methods:
 	
-    DRASRTreeLikelihoodData * getLikelihoodData() { return _likelihoodData; }
-    const DRASRTreeLikelihoodData * getLikelihoodData() const { return _likelihoodData; }
+    DRASRTreeLikelihoodData* getLikelihoodData() { return _likelihoodData; }
+    const DRASRTreeLikelihoodData* getLikelihoodData() const { return _likelihoodData; }
 
     void computeTreeLikelihood();
 

@@ -89,7 +89,7 @@ class RNonHomogeneousTreeLikelihood :
 {
 	protected:
 
-		mutable DRASRTreeLikelihoodData *_likelihoodData;
+		mutable DRASRTreeLikelihoodData* _likelihoodData;
 
 	public:
     /**
@@ -107,9 +107,9 @@ class RNonHomogeneousTreeLikelihood :
      * @throw Exception in an error occured.
      */
 		RNonHomogeneousTreeLikelihood(
-			const Tree & tree,
-			SubstitutionModelSet * modelSet,
-			DiscreteDistribution * rDist,
+			const Tree& tree,
+			SubstitutionModelSet* modelSet,
+			DiscreteDistribution* rDist,
 			bool verbose = true,
       bool usePatterns = true)
 			throw (Exception);
@@ -128,33 +128,28 @@ class RNonHomogeneousTreeLikelihood :
      * @throw Exception in an error occured.
      */
 		RNonHomogeneousTreeLikelihood(
-			const Tree & tree,
-			const SiteContainer & data,
-			SubstitutionModelSet * modelSet,
-			DiscreteDistribution * rDist,
+			const Tree& tree,
+			const SiteContainer& data,
+			SubstitutionModelSet* modelSet,
+			DiscreteDistribution* rDist,
 			bool verbose = true,
       bool usePatterns = true)
 			throw (Exception);
 
-    RNonHomogeneousTreeLikelihood(const RNonHomogeneousTreeLikelihood & lik);
+    RNonHomogeneousTreeLikelihood(const RNonHomogeneousTreeLikelihood& lik);
     
-    RNonHomogeneousTreeLikelihood & operator=(const RNonHomogeneousTreeLikelihood & lik);
+    RNonHomogeneousTreeLikelihood & operator=(const RNonHomogeneousTreeLikelihood& lik);
 
     virtual ~RNonHomogeneousTreeLikelihood();
 
-#ifndef NO_VIRTUAL_COV
-    RNonHomogeneousTreeLikelihood*
-#else
-    Clonable*
-#endif
-    clone() const { return new RNonHomogeneousTreeLikelihood(*this); }
+    RNonHomogeneousTreeLikelihood* clone() const { return new RNonHomogeneousTreeLikelihood(*this); }
 	
 	private:
 
     /**
      * @brief Method called by constructors.
      */
-    void _init(bool usePatterns) throw (Exception);
+    void init_(bool usePatterns) throw (Exception);
 	
   public:
 
@@ -165,8 +160,8 @@ class RNonHomogeneousTreeLikelihood :
 		 *
 		 * @{
 		 */
-    void setData(const SiteContainer & sites) throw (Exception);
-  	double getLikelihood () const;
+    void setData(const SiteContainer& sites) throw (Exception);
+  	double getLikelihood() const;
 		double getLogLikelihood() const;
 		double getLikelihoodForASite (unsigned int site) const;
 		double getLogLikelihoodForASite(unsigned int site) const;
@@ -197,7 +192,7 @@ class RNonHomogeneousTreeLikelihood :
 		 *
 		 * @param parameters The parameter list to pass to the function.
 		 */
-		void setParameters(const ParameterList & parameters) throw (ParameterNotFoundException, ConstraintException);
+		void setParameters(const ParameterList& parameters) throw (ParameterNotFoundException, ConstraintException);
 		double getValue() const throw(Exception);
 		
 		/**
@@ -205,7 +200,7 @@ class RNonHomogeneousTreeLikelihood :
 		 *
 		 * @{
 		 */
-		double getFirstOrderDerivative(const string & variable) const throw (Exception);
+		double getFirstOrderDerivative(const string& variable) const throw (Exception);
 		/** @} */
 
 		/**
@@ -213,14 +208,14 @@ class RNonHomogeneousTreeLikelihood :
 		 *
 		 * @{
 		 */
-		double getSecondOrderDerivative(const string & variable) const throw (Exception);
-		double getSecondOrderDerivative(const string & variable1, const string & variable2) const throw (Exception) { return 0; } // Not implemented for now.
+		double getSecondOrderDerivative(const string& variable) const throw (Exception);
+		double getSecondOrderDerivative(const string& variable1, const string& variable2) const throw (Exception) { return 0; } // Not implemented for now.
 		/** @} */
 	
 	public:	// Specific methods:
 	
-    DRASRTreeLikelihoodData * getLikelihoodData() { return _likelihoodData; }
-    const DRASRTreeLikelihoodData * getLikelihoodData() const { return _likelihoodData; }
+    DRASRTreeLikelihoodData* getLikelihoodData() { return _likelihoodData; }
+    const DRASRTreeLikelihoodData* getLikelihoodData() const { return _likelihoodData; }
  
     void computeTreeLikelihood();
 

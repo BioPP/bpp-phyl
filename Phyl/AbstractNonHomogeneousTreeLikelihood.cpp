@@ -64,7 +64,7 @@ AbstractNonHomogeneousTreeLikelihood::AbstractNonHomogeneousTreeLikelihood(
   throw (Exception):
   AbstractDiscreteRatesAcrossSitesTreeLikelihood(rDist, verbose)
 {
-  _init(tree, modelSet, rDist, verbose);
+  init_(tree, modelSet, rDist, verbose);
 }
 
 /******************************************************************************/
@@ -141,9 +141,10 @@ AbstractNonHomogeneousTreeLikelihood::~AbstractNonHomogeneousTreeLikelihood()
 
 /******************************************************************************/
 
-void AbstractNonHomogeneousTreeLikelihood::_init(const Tree & tree,
-			SubstitutionModelSet * modelSet,
-			DiscreteDistribution * rDist,
+void AbstractNonHomogeneousTreeLikelihood::init_(
+    const Tree& tree,
+			SubstitutionModelSet* modelSet,
+			DiscreteDistribution* rDist,
 			bool verbose) throw (Exception)
 {
   TreeTools::checkIds(tree, true);

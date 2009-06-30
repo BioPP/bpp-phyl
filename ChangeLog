@@ -1,3 +1,8 @@
+29/06/09 Julien Dutheil
+* Upgraded TreeLikelihood interfaces and SubstitutionModel interface + code lifting.
+* New class TreeLikelihoodTools
+* Added computation of expected ancestral frequencies.
+
 27/06/09 Céline Scornavacca & Julien Dutheil
 * Newick and Nexus tree output now use polymorphism in order to print
 TreeTemplate objects more efficiently.

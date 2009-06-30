@@ -96,7 +96,7 @@ void JCnuc::updateMatrices()
 	
 /******************************************************************************/
 
-double JCnuc::Pij_t(int i, int j, double d) const
+double JCnuc::Pij_t(unsigned int i, unsigned int j, double d) const
 {
 	if(i == j) return 1./4. + 3./4. * exp(- 4./3. * d);
 	else       return 1./4. - 1./4. * exp(- 4./3. * d);
@@ -104,7 +104,7 @@ double JCnuc::Pij_t(int i, int j, double d) const
 
 /******************************************************************************/
 
-double JCnuc::dPij_dt(int i, int j, double d) const
+double JCnuc::dPij_dt(unsigned int i, unsigned int j, double d) const
 {
 	if(i == j) return -       exp(- 4./3. * d);
 	else       return 1./3. * exp(- 4./3. * d);
@@ -112,7 +112,7 @@ double JCnuc::dPij_dt(int i, int j, double d) const
 
 /******************************************************************************/
 
-double JCnuc::d2Pij_dt2(int i, int j, double d) const
+double JCnuc::d2Pij_dt2(unsigned int i, unsigned int j, double d) const
 {
 	if(i == j) return   4./3. * exp(- 4./3. * d);
 	else       return - 4./9. * exp(- 4./3. * d);

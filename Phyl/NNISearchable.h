@@ -102,7 +102,7 @@ class NNISearchable:
 		virtual ~NNISearchable() {}
 
 #ifndef NO_VIRTUAL_COV
-    virtual NNISearchable * clone() const = 0;
+    virtual NNISearchable* clone() const = 0;
 #endif
 
 	public:
@@ -134,7 +134,7 @@ class NNISearchable:
 		 *
 		 * @return The tree associated to this instance.
 		 */
-		virtual const Tree * getTopology() const = 0;
+		virtual const Tree& getTopology() const = 0;
     
     /**
      * @brief Get the current score of this NNISearchable object.

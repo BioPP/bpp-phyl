@@ -127,12 +127,7 @@ class TwoTreeLikelihood:
     
     TwoTreeLikelihood & operator=(const TwoTreeLikelihood & lik);
 
-#ifndef NO_VIRTUAL_COV
-    TwoTreeLikelihood*
-#else
-    Clonable*
-#endif
-    clone() const { return new TwoTreeLikelihood(*this); } 
+    TwoTreeLikelihood* clone() const { return new TwoTreeLikelihood(*this); } 
 
 		virtual ~TwoTreeLikelihood();
 
@@ -151,14 +146,14 @@ class TwoTreeLikelihood:
 		double getLogLikelihoodForASite(unsigned int site) const;
 		ParameterList getBranchLengthsParameters() const;
 		ParameterList getSubstitutionModelParameters() const;
-    SubstitutionModel * getSubstitutionModelForNode(int nodeId) throw (NodeNotFoundException) { return _model; }
-    const SubstitutionModel * getSubstitutionModelForNode(int nodeId) const throw (NodeNotFoundException) { return _model; }
+    SubstitutionModel* getSubstitutionModelForNode(int nodeId) throw (NodeNotFoundException) { return _model; }
+    const SubstitutionModel* getSubstitutionModelForNode(int nodeId) const throw (NodeNotFoundException) { return _model; }
     vector<double> getRootFrequencies() const { return _model->getFrequencies(); }
     /**
      * @brief This method is not applicable for this object.
      */
-    const VVVdouble & getTransitionProbabilitiesForNode(const Node* node) const { return _pxy; }
-    void setData(const SiteContainer & sites) throw (Exception) {}
+    VVVdouble getTransitionProbabilitiesPerRateClassForNode(int nodeId) const { return _pxy; }
+    void setData(const SiteContainer& sites) throw (Exception) {}
     void initialize() throw(Exception);
 		/** @} */
 

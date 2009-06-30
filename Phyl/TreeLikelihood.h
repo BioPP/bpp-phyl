@@ -186,7 +186,7 @@ class TreeLikelihood:
      *
      * @return The tree of this TreeLikelihood object.
       */
-    virtual const Tree * getTree() const = 0;
+    virtual const Tree& getTree() const = 0;
 
     /**
      * @brief Get the number of sites in the dataset.
@@ -292,9 +292,9 @@ class TreeLikelihood:
      * These intermediate results may be used by other methods.
      *
      * @param node The node defining the branch of interest.
-     * @return An array of dimension 3, where a[c][x][y] is the probability of substituting from x to y while being in rate class c.
+     * @return An array of dimension 2, where a[x][y] is the probability of substituting from x to y.
      */
-    virtual const VVVdouble & getTransitionProbabilitiesForNode(const Node* node) const = 0;
+    virtual VVdouble getTransitionProbabilitiesForNode(int nodeId) const = 0;
 };
 
 } //end of namespace bpp.
