@@ -56,6 +56,7 @@ MarkovModulatedSubstitutionModel::MarkovModulatedSubstitutionModel(const MarkovM
   ratesExchangeability_(model.ratesExchangeability_),
   ratesFreq_(model.ratesFreq_),
   ratesGenerator_(model.ratesGenerator_),
+  chars_(model.chars_),
   generator_(model.generator_),
   exchangeability_(model.exchangeability_),
   leftEigenVectors_(model.leftEigenVectors_),
@@ -79,6 +80,7 @@ MarkovModulatedSubstitutionModel& MarkovModulatedSubstitutionModel::operator=(co
   ratesExchangeability_ = model.ratesExchangeability_;
   ratesFreq_            = model.ratesFreq_;
   ratesGenerator_       = model.ratesGenerator_;
+  chars_                = model.chars_;
   generator_            = model.generator_;
   exchangeability_      = model.exchangeability_;
   leftEigenVectors_     = model.leftEigenVectors_;

@@ -94,7 +94,12 @@ class MarkovModulatedSubstitutionModel:
     /**@}*/
     RowMatrix<double> ratesGenerator_;       //All rates transitions
     
-		/**
+    /**
+     * @brief The list of supported chars.
+     */
+    std::vector<int> chars_;
+
+    /**
 		 * @brief The generator matrix \f$Q\f$ of the model.
 		 */
 		RowMatrix<double> generator_;
@@ -157,6 +162,7 @@ class MarkovModulatedSubstitutionModel:
       leftEigenVectors_(), rightEigenVectors_(), eigenValues_(), freq_(), normalizeRateChanges_(normalizeRateChanges),
       nestedPrefix_("model_" + model->getNamespace())
     {
+      chars_ = VectorTools::rep(model_->getAlphabetChars(), nbRates_);
       model_->setNamespace(prefix + nestedPrefix_);
       addParameters_(model_->getIndependentParameters());
     }
@@ -210,11 +216,14 @@ class MarkovModulatedSubstitutionModel:
       updateMatrices();
     }
 
-    const std::vector<int>& getAlphabetChars() const { return model_->getAlphabetChars(); }
+    const std::vector<int>& getAlphabetChars() const
+    {
+      return chars_;
+    }
 
     int getAlphabetChar(unsigned int i) const
     {
-      return model_->getAlphabetChar(i % nbStates_); 
+      return chars_[i]; 
     }
    
     std::vector<unsigned int> getModelStates(int i) const
