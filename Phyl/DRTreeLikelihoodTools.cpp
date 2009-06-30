@@ -53,7 +53,7 @@ VVVdouble DRTreeLikelihoodTools::getPosteriorProbabilitiesForEachStateForEachRat
   unsigned int nStates  = drl.getNumberOfStates();
   VVVdouble postProb(nSites);
   
-  const DiscreteDistribution * rDist = drl.getRateDistribution();
+  const DiscreteDistribution* rDist = drl.getRateDistribution();
   Vdouble rcProbs = rDist->getProbabilities();
   if(drl.getTree().isLeaf(nodeId))
   {
@@ -113,6 +113,34 @@ VVVdouble DRTreeLikelihoodTools::getPosteriorProbabilitiesForEachStateForEachRat
     }
   }
   return postProb;
+}
+
+//-----------------------------------------------------------------------------------------
+
+Vdouble DRTreeLikelihoodTools::getPosteriorStateFrequencies(
+  const DRTreeLikelihood& drl,
+  int nodeId)
+{
+  VVVdouble probs = getPosteriorProbabilitiesForEachStateForEachRate(drl, nodeId);
+  Vdouble freqs(drl.getNumberOfStates());
+  double sumw = 0, w;
+  for (unsigned int i = 0; i < probs.size(); i++)
+  {
+    w = drl.getLikelihoodData()->getWeight(i);
+    sumw += w;
+    for (unsigned int j = 0; j < drl.getNumberOfClasses(); j++)
+    {
+      for (unsigned int k = 0; k < drl.getNumberOfStates(); k++)
+      {
+        freqs[k] += probs[i][j][k] * w;
+      }
+    }
+  }
+  for (unsigned int k = 0; k < drl.getNumberOfStates(); k++)
+  {
+    freqs[k] /= sumw;
+  }
+  return freqs;
 }
 
 //-----------------------------------------------------------------------------------------

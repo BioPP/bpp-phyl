@@ -56,15 +56,31 @@ class DRTreeLikelihoodTools:
 
   public:
     /**
-     * @brief Compute the posterior probabilities for each state and each rate of each site.
+     * @brief Compute the posterior probabilities for each state and each rate of each distinct site.
      *
      * @param drl A DR tree likelihood object.
      * @param nodeId The id of the node at which probabilities must be computed.
      * @return A 3-dimensional array, with probabilities for each site, each rate and each state.
      */
     static VVVdouble getPosteriorProbabilitiesForEachStateForEachRate(
-        const DRTreeLikelihood & drl,
+        const DRTreeLikelihood& drl,
         int nodeId);
+
+    /**
+     * @brief Compute the posterior probabilities for each state for a given node.
+     *
+     * This method calls the getPosteriorProbabilitiesForEachStateForEachRate function
+     * and average the probabilities over all sites and rate classes, resulting in a
+     * one-dimensionnal frequency array, with one frequency per model state.
+     *
+     * @param drl A DR tree likelihood object.
+     * @param nodeId The id of the node at which probabilities must be computed.
+     * @return vector of double with state frequencies for the given node.
+     */
+    static Vdouble getPosteriorStateFrequencies(
+        const DRTreeLikelihood& drl,
+        int nodeId);
+
 };
 
 } //end of namespace bpp.
