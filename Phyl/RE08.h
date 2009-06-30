@@ -120,9 +120,9 @@ class RE08:
      * @param lambda Insertion rate.
      * @param mu     Deletion rate.
      */
-		RE08(ReversibleSubstitutionModel *simpleModel, double lambda = 0, double mu = 0);
+		RE08(ReversibleSubstitutionModel* simpleModel, double lambda = 0, double mu = 0);
 
-    RE08(const RE08 & model):
+    RE08(const RE08& model):
       AbstractReversibleSubstitutionModel(model)
     {
       simpleModel_ = dynamic_cast<RE08 *>(model.simpleModel_->clone());
@@ -135,7 +135,7 @@ class RE08:
       nestedPrefix_ = model.nestedPrefix_;
     }
 
-    RE08& operator=(const RE08 & model)
+    RE08& operator=(const RE08& model)
     {
       AbstractReversibleSubstitutionModel::operator=(model);
       simpleModel_ = dynamic_cast<RE08 *>(model.simpleModel_->clone());
@@ -151,16 +151,16 @@ class RE08:
 
 		virtual ~RE08() { delete simpleModel_; }
 
-    RE08 * clone() const { return new RE08(*this); }
+    RE08* clone() const { return new RE08(*this); }
 
   public:
 	
-		double Pij_t    (int i, int j, double d) const;
-		double dPij_dt  (int i, int j, double d) const;
-		double d2Pij_dt2(int i, int j, double d) const;
-		const Matrix<double> & getPij_t    (double d) const;
-		const Matrix<double> & getdPij_dt  (double d) const;
-		const Matrix<double> & getd2Pij_dt2(double d) const;
+		double Pij_t    (unsigned int i, unsigned int j, double d) const;
+		double dPij_dt  (unsigned int i, unsigned int j, double d) const;
+		double d2Pij_dt2(unsigned int i, unsigned int j, double d) const;
+		const Matrix<double>& getPij_t    (double d) const;
+		const Matrix<double>& getdPij_dt  (double d) const;
+		const Matrix<double>& getd2Pij_dt2(double d) const;
 
 		string getName() const { return "RE08"; }
 
@@ -169,9 +169,9 @@ class RE08:
      *
      * @param data The data to be passed to the simple model (gaps will be ignored).
      */
-    void setFreqFromData(const SequenceContainer & data) {}
+    void setFreqFromData(const SequenceContainer& data) {}
 	
-    void fireParameterChanged(const ParameterList &parameters)
+    void fireParameterChanged(const ParameterList& parameters)
     {
       AbstractParameterAliasable::fireParameterChanged(parameters);      
       simpleModel_->matchParametersValues(parameters);
@@ -182,7 +182,7 @@ class RE08:
 
     unsigned int getNumberOfStates() const { return size_; }
 
-    double getInitValue(int i, int state) const throw (BadIntException);
+    double getInitValue(unsigned int i, int state) const throw (BadIntException);
   
     void setNamespace(const string& prefix);
 

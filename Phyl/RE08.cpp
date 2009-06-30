@@ -60,6 +60,7 @@ RE08::RE08(ReversibleSubstitutionModel *simpleModel, double lambda, double mu):
   //We need to overrired this from the AbstractSubstitutionModel constructor,
   //since the number of states in the model is no longer equal to the size of the alphabet.
   size_ = simpleModel->getNumberOfStates() + 1;
+  chars_.insert(chars_.begin(), -1);
   generator_.resize(size_, size_);
   exchangeability_.resize(size_, size_);
   freq_.resize(size_);
@@ -86,13 +87,13 @@ void RE08::updateMatrices()
   simpleExchangeabilities_ = simpleModel_->getExchangeabilityMatrix();
 
   // Generator and exchangeabilities:
-  for(int i = 0; i < (int)size_ - 1; i++)
+  for (unsigned int i = 0; i < size_ - 1; i++)
   {
-    for(int j = 0; j < (int)size_ - 1; j++)
+    for (unsigned int j = 0; j < size_ - 1; j++)
     {
       generator_(i, j) = simpleGenerator_(i, j);
       exchangeability_(i, j) = simpleExchangeabilities_(i, j) / f;
-      if(i == j) 
+      if (i == j) 
       {
         generator_(i, j) -= mu_;
         exchangeability_(i, j) -= (mu_ / f) / simpleModel_->freq(i);
@@ -114,19 +115,19 @@ void RE08::updateMatrices()
   
 /******************************************************************************/
 
-double RE08::Pij_t(int i, int j, double d) const
+double RE08::Pij_t(unsigned int i, unsigned int j, double d) const
 {
   double f = (lambda_ == 0 && mu_ == 0) ? 1. : lambda_ / (lambda_ + mu_);
-  if(i < (int)size_ - 1 && j < (int)size_ - 1)
+  if(i < size_ - 1 && j < size_ - 1)
   {
     return (simpleModel_->Pij_t(i, j, d) - simpleModel_->freq(j)) * exp(-mu_ * d)
       + freq_[j] + (simpleModel_->freq(j) - freq_[j]) * exp(-(lambda_ + mu_) * d);
   }
   else
   {
-    if(i == (int)size_ - 1)
+    if (i == size_ - 1)
     {
-      if(j < (int)size_ - 1)
+      if (j < size_ - 1)
       {
         return freq_[j] * (1. - exp(-(lambda_ + mu_) * d));
       }
@@ -144,10 +145,10 @@ double RE08::Pij_t(int i, int j, double d) const
 
 /******************************************************************************/
 
-double RE08::dPij_dt(int i, int j, double d) const
+double RE08::dPij_dt(unsigned int i, unsigned int j, double d) const
 {
   double f = (lambda_ == 0 && mu_ == 0) ? 1. : lambda_ / (lambda_ + mu_);
-  if(i < (int)size_ - 1 && j < (int)size_ - 1)
+  if(i < size_ - 1 && j < size_ - 1)
   {
     return simpleModel_->dPij_dt(i, j, d) * exp(-mu_ * d)
       - mu_ * (simpleModel_->Pij_t(i, j, d) - simpleModel_->freq(j)) * exp(-mu_ * d)
@@ -155,9 +156,9 @@ double RE08::dPij_dt(int i, int j, double d) const
   }
   else
   {
-    if(i == (int)size_ - 1)
+    if (i == size_ - 1)
     {
-      if(j < (int)size_ - 1)
+      if (j < size_ - 1)
       {
         return (lambda_ + mu_) * freq_[j] * exp(-(lambda_ + mu_) * d);
       }
@@ -175,10 +176,10 @@ double RE08::dPij_dt(int i, int j, double d) const
 
 /******************************************************************************/
 
-double RE08::d2Pij_dt2(int i, int j, double d) const
+double RE08::d2Pij_dt2(unsigned int i, unsigned int j, double d) const
 {
   double f = (lambda_ == 0 && mu_ == 0) ? 1. : lambda_ / (lambda_ + mu_);
-  if(i < (int)size_ - 1 && j < (int)size_ - 1)
+  if(i < size_ - 1 && j < size_ - 1)
   {
     return simpleModel_->d2Pij_dt2(i, j, d) * exp(-mu_ * d)
       - 2 * mu_ * simpleModel_->dPij_dt(i, j, d) * exp(-mu_ * d)
@@ -187,9 +188,9 @@ double RE08::d2Pij_dt2(int i, int j, double d) const
   }
   else
   {
-    if(i == (int)size_ - 1)
+    if (i == size_ - 1)
     {
-      if(j < (int)size_ - 1)
+      if (j < size_ - 1)
       {
         return - (lambda_ + mu_) * (lambda_ + mu_) * freq_[j] * exp(-(lambda_ + mu_) * d);
       }
@@ -211,9 +212,9 @@ const Matrix<double> & RE08::getPij_t(double d) const
 {
   RowMatrix<double> simpleP = simpleModel_->getPij_t(d);
   double f = (lambda_ == 0 && mu_ == 0) ? 1. : lambda_ / (lambda_ + mu_);
-  for(int i = 0; i < (int)size_ - 1; i++)
+  for (unsigned int i = 0; i < size_ - 1; i++)
   {
-    for(int j = 0; j < (int)size_ - 1; j++)
+    for (unsigned int j = 0; j < size_ - 1; j++)
     {
       p_(i, j) = (simpleP(i, j) - simpleModel_->freq(j)) * exp(-mu_ * d)
           + freq_[j] + (simpleModel_->freq(j) - freq_[j]) * exp(-(lambda_ + mu_) * d);
@@ -238,21 +239,21 @@ const Matrix<double> & RE08::getdPij_dt(double d) const
   RowMatrix<double> simpleP = simpleModel_->getPij_t(d);
   RowMatrix<double> simpleDP = simpleModel_->getdPij_dt(d);
   double f = (lambda_ == 0 && mu_ == 0) ? 1. : lambda_ / (lambda_ + mu_);
-  for(int i = 0; i < (int)size_ - 1; i++)
+  for (unsigned int i = 0; i < size_ - 1; i++)
   {
-    for(int j = 0; j < (int)size_ - 1; j++)
+    for (unsigned int j = 0; j < size_ - 1; j++)
     {
       p_(i, j) = simpleDP(i, j) * exp(-mu_ * d)
           - mu_ * (simpleP(i, j) - simpleModel_->freq(j)) * exp(-mu_ * d)
           - (lambda_ + mu_) * (simpleModel_->freq(j) - freq_[j]) * exp(-(lambda_ + mu_) * d);
     }
   }
-  for(unsigned int j = 0; j < size_ - 1; j++)
+  for (unsigned int j = 0; j < size_ - 1; j++)
   {
     p_(size_ - 1, j) = (lambda_ + mu_) * freq_[j] * exp(-(lambda_ + mu_) * d);
   }
   p_(size_ - 1, size_ - 1) = - f * (lambda_ + mu_) * exp(-(lambda_ + mu_) * d);
-  for(unsigned int i = 0; i < size_ - 1; i++)
+  for (unsigned int i = 0; i < size_ - 1; i++)
   {  
     p_(i, size_ - 1) = (lambda_ + mu_) * freq_[size_ - 1] * exp(-(lambda_ + mu_) * d);
   }
@@ -267,9 +268,9 @@ const Matrix<double> & RE08::getd2Pij_dt2(double d) const
   RowMatrix<double> simpleDP = simpleModel_->getdPij_dt(d);
   RowMatrix<double> simpleD2P = simpleModel_->getd2Pij_dt2(d);
   double f = (lambda_ == 0 && mu_ == 0) ? 1. : lambda_ / (lambda_ + mu_);
-  for(int i = 0; i < (int)size_ - 1; i++)
+  for (unsigned int i = 0; i < size_ - 1; i++)
   {
-    for(int j = 0; j < (int)size_ - 1; j++)
+    for (unsigned int j = 0; j < size_ - 1; j++)
     {
       p_(i, j) = simpleD2P(i, j) * exp(-mu_ * d)
           - 2 * mu_ * simpleDP(i, j) * exp(-mu_ * d)
@@ -277,7 +278,7 @@ const Matrix<double> & RE08::getd2Pij_dt2(double d) const
           + (lambda_ + mu_) * (lambda_ + mu_) * (simpleModel_->freq(j) - freq_[j]) * exp(-(lambda_ + mu_) * d);
     }
   }
-  for(unsigned int j = 0; j < size_ - 1; j++)
+  for (unsigned int j = 0; j < size_ - 1; j++)
   {
     p_(size_ - 1, j) = - (lambda_ + mu_) * (lambda_ + mu_) * freq_[j] * exp(-(lambda_ + mu_) * d);
   }
@@ -291,7 +292,7 @@ const Matrix<double> & RE08::getd2Pij_dt2(double d) const
 
 /******************************************************************************/
 
-double RE08::getInitValue(int i, int state) const throw (BadIntException)
+double RE08::getInitValue(unsigned int i, int state) const throw (BadIntException)
 {
   if(i < 0 || i >= (int)size_) throw BadIntException(i, "RE08::getInitValue");
   if(state < -1 || !getAlphabet()->isIntInAlphabet(state))
