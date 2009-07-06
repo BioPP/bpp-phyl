@@ -74,8 +74,6 @@ AbstractCodonFrequenciesReversibleSubstitutionModel::AbstractCodonFrequenciesRev
     
   AbsFreq->setNamespace(st+AbsFreq->getNamespace());
   addParameters_(AbsFreq->getParameters());
-
-  updateMatrices();
 }
 
 AbstractCodonFrequenciesReversibleSubstitutionModel::AbstractCodonFrequenciesReversibleSubstitutionModel(const AbstractCodonFrequenciesReversibleSubstitutionModel& wrsm) : AbstractWordReversibleSubstitutionModel(wrsm), AbsFreq(wrsm.AbsFreq)
@@ -83,7 +81,6 @@ AbstractCodonFrequenciesReversibleSubstitutionModel::AbstractCodonFrequenciesRev
   enableEigenDecomposition(1);
   AbsFreq->setNamespace(getNamespace()+AbsFreq->getNamespace());
   addParameters_(AbsFreq->getParameters());
-  updateMatrices();
 }
 
 AbstractCodonFrequenciesReversibleSubstitutionModel::~AbstractCodonFrequenciesReversibleSubstitutionModel()
@@ -96,23 +93,24 @@ void AbstractCodonFrequenciesReversibleSubstitutionModel::fireParameterChanged(c
   AbstractWordReversibleSubstitutionModel::fireParameterChanged(parameters);
 }
 
+
+void AbstractCodonFrequenciesReversibleSubstitutionModel::setFreq(map<int,double>& freq)
+{
+  AbsFreq->setFrequenciesFromMap(freq);
+  updateMatrices();
+}
+
 void AbstractCodonFrequenciesReversibleSubstitutionModel::completeMatrices()
 {
+  unsigned int i,j;
   int salph=getNumberOfStates();
-  int i,j;
-
-  for (j=0;j<salph;j++)
-    if (abs(freq_[j])>0.0001)
-      for (i=0;i<salph;i++)
-        exchangeability_(i,j)=generator_(i,j)/freq_[j];
-    else
-      for (i=0;i<salph;i++)
-        exchangeability_(i,j)=0;
-
-  freq_=AbsFreq->getFrequencies();
   
-  for (i=0;i<salph;i++){
+  freq_=AbsFreq->getFrequencies();
+
+  for (i=0;i<salph;i++)
     for (j=0;j<salph;j++)
       generator_(i,j)=exchangeability_(i,j)*freq_[j];
-  }
+  
 }
+
+
