@@ -38,7 +38,6 @@ knowledge of the CeCILL license and that you accept its terms.
 
 #include "CodonNeutralFrequenciesReversibleSubstitutionModel.h"
 
-
 using namespace bpp;
 
 using namespace std;
@@ -46,7 +45,7 @@ using namespace std;
 /******************************************************************************/
 
 CodonNeutralFrequenciesReversibleSubstitutionModel::CodonNeutralFrequenciesReversibleSubstitutionModel(const CodonAlphabet* palph,
-                                                                                                       AbstractFrequenciesSet* pfreq) : AbstractCodonFrequenciesReversibleSubstitutionModel(palph, pfreq,"CodonNeutralFrequencies.") 
+                                                                                                       AbstractFrequenciesSet* pfreq) : AbstractCodonFrequenciesReversibleSubstitutionModel(palph, pfreq,"CodonNeutralFrequencies.")
 {
   int i;
   
@@ -91,16 +90,8 @@ void CodonNeutralFrequenciesReversibleSubstitutionModel::completeMatrices()
     for (j=0;j<salph;j++)
       if (ca->isStop(i) || ca->isStop(j)){
         generator_(i,j)=0;
+        exchangeability_(i,j)=0;
       }
-
-  
-  for (i=0;i<salph;i++){
-    x=0;
-    for (j=0;j<salph;j++)
-      if (j!=i)
-        x+=generator_(i,j);
-    generator_(i,i)=-x;
-  }
 
   AbstractCodonFrequenciesReversibleSubstitutionModel::completeMatrices();
 }
@@ -108,6 +99,7 @@ void CodonNeutralFrequenciesReversibleSubstitutionModel::completeMatrices()
 
 void CodonNeutralFrequenciesReversibleSubstitutionModel::updateMatrices()
 {
+
   int i,k, nbmod=_VAbsRevMod.size();
   double x;
   for (k=nbmod-1;k>=0;k--){
@@ -119,7 +111,7 @@ void CodonNeutralFrequenciesReversibleSubstitutionModel::updateMatrices()
     _rate[k]=x;
   }
 
-  AbstractCodonFrequenciesReversibleSubstitutionModel::updateMatrices();
+  AbstractWordReversibleSubstitutionModel::updateMatrices();
 
 }
 
