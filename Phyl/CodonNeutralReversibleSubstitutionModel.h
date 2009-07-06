@@ -127,7 +127,7 @@ public:
   CodonNeutralReversibleSubstitutionModel(const CodonNeutralReversibleSubstitutionModel&);
 
 
-  virtual ~CodonNeutralReversibleSubstitutionModel(){};
+  ~CodonNeutralReversibleSubstitutionModel(){};
   
 #ifndef NO_VIRTUAL_COV
   CodonNeutralReversibleSubstitutionModel*
@@ -137,9 +137,9 @@ public:
   clone() const { return new CodonNeutralReversibleSubstitutionModel(*this);}
   
 public:
-  virtual void completeMatrices();
-  virtual void updateMatrices();
-  virtual string getName() const;
+  void completeMatrices();
+  void updateMatrices();
+  string getName() const;
   
 };
 
