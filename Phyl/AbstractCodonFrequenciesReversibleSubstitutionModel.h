@@ -1,7 +1,6 @@
 //
 // File: AbstractCodonFrequenciesReversibleSubstitutionModel.h
 // Created by: Laurent Gueguen
-// Created on: Tue Dec 24 11:03:53 2003
 //
 
 /*
@@ -80,7 +79,7 @@ public:
    *three instances of the K80 model.
    *
    *@param pointer to a CodonAlphabet
-   *@param pointer to the AbstractFrequenciesSet* equilibrium frequencies
+   *@param pointer to the AbstractFrequenciesSet equilibrium frequencies
    */
   
   AbstractCodonFrequenciesReversibleSubstitutionModel(const CodonAlphabet*,
@@ -93,7 +92,9 @@ public:
 
   virtual void fireParameterChanged(const ParameterList&);
 
-public:
+  void setFreq(map<int,double>& );
+
+protected:
 
   virtual void completeMatrices();
   
