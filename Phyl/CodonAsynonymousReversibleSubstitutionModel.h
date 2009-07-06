@@ -115,7 +115,7 @@ public:
   CodonAsynonymousReversibleSubstitutionModel(const CodonAsynonymousReversibleSubstitutionModel&);
 
 
-  virtual ~CodonAsynonymousReversibleSubstitutionModel() {};
+  ~CodonAsynonymousReversibleSubstitutionModel() {};
   
 #ifndef NO_VIRTUAL_COV
   CodonAsynonymousReversibleSubstitutionModel*
@@ -127,7 +127,7 @@ public:
 public:
   void completeMatrices();
 
-  virtual string getName() const;
+  string getName() const;
 };
 
 } //end of namespace bpp.

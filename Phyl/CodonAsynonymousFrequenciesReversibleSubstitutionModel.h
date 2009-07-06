@@ -77,7 +77,7 @@ private:
 
   const GeneticCode* _geneticCode;
   const AlphabetIndex2<double>* _pdistance;
-  
+    
 public:
 
   /**
@@ -97,7 +97,7 @@ public:
   CodonAsynonymousFrequenciesReversibleSubstitutionModel(const CodonAsynonymousFrequenciesReversibleSubstitutionModel&);
 
 
-  virtual ~CodonAsynonymousFrequenciesReversibleSubstitutionModel() {};
+  ~CodonAsynonymousFrequenciesReversibleSubstitutionModel() {};
   
 #ifndef NO_VIRTUAL_COV
   CodonAsynonymousFrequenciesReversibleSubstitutionModel*
@@ -106,10 +106,11 @@ public:
 #endif
   clone() const { return new CodonAsynonymousFrequenciesReversibleSubstitutionModel(*this);}
   
-public:
+protected:
   void completeMatrices();
 
-  virtual string getName() const;
+public:
+  string getName() const;
 };
 
 } //end of namespace bpp.
