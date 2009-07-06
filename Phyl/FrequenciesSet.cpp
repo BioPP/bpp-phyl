@@ -48,6 +48,29 @@ using namespace bpp;
 #include <cmath>
 using namespace std;
 
+/////////////////////////////////////////
+// AbstractFrequenciesSet
+
+AbstractFrequenciesSet::AbstractFrequenciesSet(unsigned int n, const Alphabet * alphabet, const string& prefix) :
+  AbstractParametrizable(prefix), alphabet_(alphabet), freq_(n)
+{
+}
+
+void AbstractFrequenciesSet::setFrequenciesFromMap(map<int,double>& mfreq)
+{
+  int s=getAlphabet()->getSize();
+  vector<double> freq(s);
+  double x=0;
+  for (unsigned int i=0; i< s; i++){
+    freq[i]=(mfreq.find(i)!=mfreq.end())?mfreq[i]:0;
+    x+=freq[i];
+  }
+  for (unsigned int i=0; i< s; i++){
+    freq[i]/=x;
+  }
+  setFrequencies(freq);
+}
+
 //////////////////////////////
 // FullFrequenciesSet
 
@@ -180,7 +203,7 @@ void GCFrequenciesSet::fireParameterChanged(const ParameterList & pl)
   getFreq_(1) = getFreq_(2) = theta / 2.;
 }
 
-void GCFrequenciesSet::setFrequencies(const vector<double> & frequencies) throw (DimensionException)
+void GCFrequenciesSet::setFrequencies(const vector<double> & frequencies) throw (DimensionException, Exception)
 {
   if(frequencies.size() != 4) throw DimensionException("GCFrequenciesSet::setFrequencies", frequencies.size(), 4);
   double sum = 0.0;

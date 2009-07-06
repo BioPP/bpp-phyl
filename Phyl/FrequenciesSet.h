@@ -90,6 +90,7 @@ class FrequenciesSet:
      */
     virtual void setFrequencies(const vector<double> & frequencies) throw (DimensionException, Exception) = 0;
 
+  virtual void setFrequenciesFromMap(map<int, double>&) = 0;
 };
 
 /**
@@ -133,8 +134,7 @@ class AbstractFrequenciesSet:
     vector<double> freq_;
 
   public:
-  AbstractFrequenciesSet(unsigned int n, const Alphabet * alphabet, const string& prefix) :
-    AbstractParametrizable(prefix), alphabet_(alphabet), freq_(n) {}
+  AbstractFrequenciesSet(unsigned int, const Alphabet *, const string&);
 
 #ifndef NO_VIRTUAL_COV
   AbstractFrequenciesSet *
@@ -149,6 +149,16 @@ class AbstractFrequenciesSet:
   public:
     const Alphabet * getAlphabet() const { return alphabet_; }
     const vector<double>& getFrequencies() const { return freq_; }
+
+  /*
+   * @brief sets the Frequencies from the one of the map which keys
+   *  match with a letter of the Alphabet.
+   * The frequencies are normalized so that the matching values sum 1.
+   */
+  
+  void setFrequenciesFromMap(map<int, double>&);
+
+  virtual void setFrequencies(const vector<double> & ) throw (DimensionException, Exception) {};
 
   protected:
     vector<double>& getFrequencies_() { return freq_; }
@@ -222,7 +232,7 @@ class GCFrequenciesSet:
   public:
   void fireParameterChanged(const ParameterList &);
 
-  void setFrequencies(const vector<double> &) throw (DimensionException);
+  void setFrequencies(const vector<double> &) throw (DimensionException, Exception);
 
 };
 
@@ -336,7 +346,7 @@ class MarkovModulatedFrequenciesSet:
     virtual ~MarkovModulatedFrequenciesSet() { delete _freqSet; }
 
   public:
-    void setFrequencies(const vector<double> & frequencies) throw (DimensionException)
+  void setFrequencies(const vector<double> & frequencies) throw (DimensionException, Exception)
     {
       //Just forward this method to the sequence state frequencies set. This may change in the future...
       _freqSet->setFrequencies(frequencies);
@@ -387,7 +397,7 @@ class FixedFrequenciesSet:
     clone() const { return new FixedFrequenciesSet(*this); }
 
   public:
-    void setFrequencies(const vector<double> & frequencies) throw (DimensionException)
+  void setFrequencies(const vector<double> & frequencies) throw (DimensionException, Exception)
     {
       if(frequencies.size() != getAlphabet()->getSize()) throw DimensionException("FixedFrequenciesSet::setFrequencies", frequencies.size(), getAlphabet()->getSize());
       double sum = 0.0;
