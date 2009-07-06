@@ -53,7 +53,7 @@ CodonAsynonymousReversibleSubstitutionModel::CodonAsynonymousReversibleSubstitut
   if (_pdistance)
     addParameter_(Parameter("CodonAsynonymous.alpha",1,&Parameter::R_PLUS_STAR));
 
-  addParameter_(Parameter("CodonAsynonymous.beta",1,&Parameter::R_PLUS));
+  addParameter_(Parameter("CodonAsynonymous.beta",0,&Parameter::R_PLUS));
 
   updateMatrices();
 }
@@ -109,13 +109,6 @@ void CodonAsynonymousReversibleSubstitutionModel::completeMatrices()
             generator_(i,j)*=exp(-((_pdistance?_pdistance->getIndex(_geneticCode->translate(i),_geneticCode->translate(j))/alpha:0)+beta));
       }
   
-  for (i=0;i<salph;i++){
-    x=0;
-    for (j=0;j<salph;j++)
-      if (j!=i)
-        x+=generator_(i,j);
-    generator_(i,i)=-x;
-  }
 }
 
 
