@@ -65,7 +65,7 @@ namespace bpp
   
 class CodonNeutralFrequenciesReversibleSubstitutionModel :
   public AbstractCodonFrequenciesReversibleSubstitutionModel
-{ 
+{
 public:
 
   /**
@@ -82,7 +82,7 @@ public:
   
   CodonNeutralFrequenciesReversibleSubstitutionModel(const CodonNeutralFrequenciesReversibleSubstitutionModel&);
 
-  virtual ~CodonNeutralFrequenciesReversibleSubstitutionModel(){};
+  ~CodonNeutralFrequenciesReversibleSubstitutionModel(){};
 
 #ifndef NO_VIRTUAL_COV
   CodonNeutralFrequenciesReversibleSubstitutionModel*
@@ -95,6 +95,9 @@ public:
 
   string getName() const;
   void updateMatrices();
+
+protected:
+  
   void completeMatrices();
 };
 
