@@ -107,16 +107,6 @@ void CodonNeutralReversibleSubstitutionModel::completeMatrices()
       if (ca->isStop(i) || ca->isStop(j)){
         generator_(i,j)=0;
       }
-
-  
-  for (i=0;i<salph;i++){
-    x=0;
-    for (j=0;j<salph;j++)
-      if (j!=i)
-        x+=generator_(i,j);
-    generator_(i,i)=-x;
-  }
-  
 }
 
 
