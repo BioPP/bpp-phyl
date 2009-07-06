@@ -140,7 +140,7 @@ public:
   virtual void fireParameterChanged(const ParameterList&);
 
   void setNamespace(const string&);
-  
+
 protected:
 
   /**

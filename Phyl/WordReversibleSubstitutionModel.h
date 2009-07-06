@@ -116,12 +116,10 @@ protected:
   WordReversibleSubstitutionModel(const Alphabet* alph, const std::string& = "");
 
   virtual void updateMatrices();
-  virtual void completeMatrices() {};
+  virtual void completeMatrices();
   
 public:
   
-  virtual string getName() const;
-
   virtual double Pij_t(int i, int j, double d) const;
 
   virtual const RowMatrix<double>& getPij_t(double d) const;
@@ -134,6 +132,7 @@ public:
 
   virtual const RowMatrix<double>& getd2Pij_dt2(double d) const;
 
+  virtual string getName() const;
 };
 
 } //end of namespace bpp.

@@ -116,15 +116,24 @@ void WordReversibleSubstitutionModel::updateMatrices()
   AbstractWordReversibleSubstitutionModel::updateMatrices();
 }
 
-string WordReversibleSubstitutionModel::getName() const
+void WordReversibleSubstitutionModel::completeMatrices()
 {
-  string s="WordReversibleSubstitutionModel model:";
-  for (int i=0; i< _VAbsRevMod.size(); i++)
-    s+=" "+ _VAbsRevMod[i]->getName();
+  int nbmod=_VAbsRevMod.size();
+  int i,p,j,m;
+  int salph=getAlphabet()->getSize();
   
-  return s;
+  // _freq for this generator
+  
+  for (i=0;i<salph;i++){
+    freq_[i]=1;
+    j=i;
+    for (p=nbmod-1;p>=0;p--){
+      m=_VAbsRevMod[p]->getNumberOfStates();
+      freq_[i]*=_VAbsRevMod[p]->getFrequencies()[j%m];
+      j/=m;
+    }
+  }
 }
-
 
 double WordReversibleSubstitutionModel::Pij_t(int i, int j, double d) const
 {
@@ -267,3 +276,14 @@ const RowMatrix<double>& WordReversibleSubstitutionModel::getd2Pij_dt2(double d)
 }
 
 
+string WordReversibleSubstitutionModel::getName() const
+{
+  int nbmod=_VAbsRevMod.size();
+  string s="WordReversibleSubstitutionModel model: "+ _VAbsRevMod[0]->getName();
+  for (unsigned int i=1;i<nbmod-1;i++)
+    s+=" "+_VAbsRevMod[i]->getName();
+
+  return s;
+}
+    
+  

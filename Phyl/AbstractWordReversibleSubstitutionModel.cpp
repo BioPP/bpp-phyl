@@ -41,6 +41,7 @@ knowledge of the CeCILL license and that you accept its terms.
 // From SeqLib:
 #include <Seq/SequenceContainerTools.h>
 #include <Seq/WordAlphabet.h>
+#include <Seq/AlphabetTools.h>
 
 // From NumCalc:
 #include <NumCalc/MatrixTools.h>
@@ -215,16 +216,6 @@ void AbstractWordReversibleSubstitutionModel::updateMatrices()
 
   int salph=getNumberOfStates();
 
-  for (i=0;i<salph;i++){
-    freq_[i]=1;
-    j=i;
-    for (p=nbmod-1;p>=0;p--){
-      m=_VAbsRevMod[p]->getNumberOfStates();
-      freq_[i]*=_VAbsRevMod[p]->getFrequencies()[j%m];
-      j/=m;
-    }
-  }
-
   // Generator
 
   Vector<int> vsize;
@@ -233,17 +224,13 @@ void AbstractWordReversibleSubstitutionModel::updateMatrices()
   for (k=0;k<nbmod;k++)
     vsize.push_back(_VAbsRevMod[k]->getNumberOfStates());
 
-  for (i=0;i<salph;i++)
-    for (j=0;j<salph;j++){
-      generator_(i,j)=0;
-    }
+  RowMatrix<double> gk, exch;
 
-  RowMatrix<double> gk;
-  
   m=1;
 
   for (k=nbmod-1;k>=0;k--){
     gk=_VAbsRevMod[k]->getGenerator();
+    exch=(dynamic_cast<AbstractReversibleSubstitutionModel*>(_VAbsRevMod[k]))->getExchangeabilityMatrix();
     for (i=0;i<vsize[k];i++)  
       for (j=0;j<vsize[k];j++) 
         if (i!=j){
@@ -251,6 +238,7 @@ void AbstractWordReversibleSubstitutionModel::updateMatrices()
           while (n<salph){ //loop on prefix
             for (l=0;l<m;l++){ //loop on suffix
               generator_(n+i*m+l,n+j*m+l)=gk(i,j)*_rate[k];
+              exchangeability_(n+i*m+l,n+j*m+l)=exch(i,j)*_rate[k];
             }
             n+=m*vsize[k];
           }
@@ -258,6 +246,10 @@ void AbstractWordReversibleSubstitutionModel::updateMatrices()
     m*=vsize[k];
   }
   
+  // modification of generator_ and freq_
+  
+  completeMatrices();
+
   for (i=0;i<salph;i++){
     x=0;
     for (j=0;j<salph;j++)
@@ -266,80 +258,108 @@ void AbstractWordReversibleSubstitutionModel::updateMatrices()
     generator_(i,i)=-x;
   }
   
-  completeMatrices();
-  
+  // at that point generator_ is done
+  // and freq_ is done for models without enableEigenDecomposition
+
  // Eigen values:
 
+  int gi,gj;
+  int nbStop;
+  Vdouble vi;
+
   if (enableEigenDecomposition()){
-    EigenValue<double> ev(generator_);
-    eigenValues_=ev.getRealEigenValues();
-    rightEigenVectors_ = ev.getV();
+
+    if (AlphabetTools::isCodonAlphabet(getAlphabet())){
+      gi=0;gj=0;
+      const CodonAlphabet* pca=dynamic_cast<const CodonAlphabet*>(getAlphabet());
+
+      nbStop=pca->numberOfStopCodons();
+      gk.resize(salph - nbStop, salph - nbStop);
+      for (i=0;i<salph;i++){
+        if (! pca->isStop(i)){
+          gj=0;
+          for (j=0;j<salph;j++)
+            if (! pca->isStop(j)){
+              gk(i-gi,j-gj)=generator_(i,j);
+            }
+            else
+              gj++;
+        }
+        else
+          gi++;
+      }
+
+      EigenValue<double> ev(gk);
+      eigenValues_=ev.getRealEigenValues();
+      vi=ev.getImagEigenValues();
+
+      for (i=0;i<nbStop;i++)
+        eigenValues_.push_back(0);
+
+      RowMatrix<double> rev = ev.getV();
+      rightEigenVectors_.resize(salph,salph);
+      gi=0;
+      for (i=0;i<salph;i++){
+        if (pca->isStop(i)){
+          gi++;
+          for (j=0;j<salph;j++)
+            rightEigenVectors_(i,j)=0;
+          rightEigenVectors_(i,salph-nbStop+gi-1)=1;
+        }
+        else {
+          for (j=0;j<salph-nbStop;j++)
+            rightEigenVectors_(i,j)=rev(i-gi,j);
+          for (j=salph-nbStop;j<salph;j++)
+            rightEigenVectors_(i,j)=0;
+        }
+      }
+    }
+    else {
+      EigenValue<double> ev(generator_);
+      eigenValues_=ev.getRealEigenValues();
+      vi=ev.getImagEigenValues();
+      rightEigenVectors_ = ev.getV();
+      nbStop=0;
+    }
+    
     MatrixTools::inv(rightEigenVectors_,leftEigenVectors_);
 
-    vector<double> vi=ev.getImagEigenValues();
-
     // looking for the 0 eigenvector
-    
-    x=0;
-    j=0;
-    while (j<salph){
-      if (abs(eigenValues_[j])<0.000001 && abs(vi[j])<0.000001){
-        // selecting the 0 eigenvalue that does not match with
-        // STOP codons
-        i=0;
-        while (i<salph){
-          if (abs(leftEigenVectors_(j,i))>0.001){
-            // i is a word in the eigenspace
-            // check that i is not a stop codon
-            k=0;
-            while (k<salph){
-              if ((i!=k) && generator_(k,i)>0.001)
-                break;
-              k++;
-            }
-            if (k<salph) // i is not a stop codon
-              break;
-          }
-          i++;
-        }
-        if (i<salph) // good eigenvector
-          break;
-      }
-      j++;
+      
+    int nulleigen=0;
+    while (nulleigen<salph-nbStop){
+      if (abs(eigenValues_[nulleigen])<0.000001 && abs(vi[nulleigen])<0.000001)
+        break;
+      else
+        nulleigen++;
     }
 
-    if (j>=salph){
-      cerr << "AbstractWordReversibleSubstitutionModel::updateMatrices : Problem in eigenspace of" << getName() << endl;
+    if (nulleigen>=salph-nbStop){
+      cerr << "AbstractWordReversibleSubstitutionModel::updateMatrices : Problem in eigenspace of " << getName() << endl;
       exit(0);
     }
 
-    // stationnary distribution
-    
-    for (i=0;i<salph;i++){
-      if ((i!=j) && (abs(eigenValues_[i])<0.000001)) // if i is in a STOP codon eigenspace, _freq[i]=0
-        freq_[i]=0;
-      else
-        freq_[i]=leftEigenVectors_(j,i);
-      
+    for (i=0;i<salph;i++)
+      freq_[i]=leftEigenVectors_(nulleigen,i);
+
+    x=0;
+    for (i=0;i<salph;i++)
       x+=freq_[i];
-    }
 
     for (i=0;i<salph;i++)
       freq_[i]/=x;
-
-    // normalization
     
+    // normalization
+
     x=0;
     for (i=0;i<salph;i++)
       x+=freq_[i]*generator_(i,i);
-    
+
     MatrixTools::scale(generator_,-1/x);
     
     for (i=0;i<salph;i++)
       eigenValues_[i]/=-x;
-
   }
-  
 }
 
 
