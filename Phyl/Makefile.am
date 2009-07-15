@@ -147,7 +147,9 @@ CodonAsynonymousReversibleSubstitutionModel.h\
 AbstractCodonFrequenciesReversibleSubstitutionModel.h\
 CodonNeutralFrequenciesReversibleSubstitutionModel.h\
 CodonAsynonymousFrequenciesReversibleSubstitutionModel.h\
-NexusIOTree.h
+NexusIOTree.h\
+GY94.h\
+MG94.h
 
 CPP_FILES = \
 AbstractSubstitutionModel.cpp\
@@ -225,12 +227,15 @@ TripletReversibleSubstitutionModel.cpp\
 AbstractCodonReversibleSubstitutionModel.cpp\
 CodonNeutralReversibleSubstitutionModel.cpp\
 CodonAsynonymousReversibleSubstitutionModel.cpp\
-AbstractCodonFrequenciesReversibleSubstitutionModel.cpp\
 CodonNeutralFrequenciesReversibleSubstitutionModel.cpp\
 CodonAsynonymousFrequenciesReversibleSubstitutionModel.cpp\
+AbstractCodonFrequenciesReversibleSubstitutionModel.cpp\
 RE08.cpp\
 L95.cpp\
-NexusIOTree.cpp
+NexusIOTree.cpp\
+GY94.cpp\
+MG94.cpp
+
 
 CPP_EXTRA = \
 __DSO78FrequenciesCode\
