@@ -338,6 +338,8 @@ SubstitutionModel* PhylogeneticsApplicationTools::getSubstitutionModelDefaultIns
 
     AbstractFrequenciesSet *pAFS = getFrequenciesSetDefaultInstance(pCA, args["frequencies"],unparsedParameterValuesNested,0);
     
+    for (map<string, string>::iterator it = unparsedParameterValuesNested.begin(); it != unparsedParameterValuesNested.end(); it++)
+      unparsedParameterValues[modelName+"." + it->first] = it->second;
     
     ///////////////////////////////////
     /// CODONNEUTRALFREQUENCIES
@@ -357,6 +359,10 @@ SubstitutionModel* PhylogeneticsApplicationTools::getSubstitutionModelDefaultIns
       modelName+= args["frequencies"];
     }
     
+    ///////////////////////////////////
+    /// CODONASYNONYMOUSFREQUENCIES
+    /////////////////////////////////
+    
     else if (modelName == "CodonAsynonymousFrequencies")
     {
 
@@ -367,7 +373,6 @@ SubstitutionModel* PhylogeneticsApplicationTools::getSubstitutionModelDefaultIns
       if (pgc->getSourceAlphabet()->getAlphabetType()!=pCA->getAlphabetType())
         throw Exception("Mismatch  between genetic code and codon alphabet");
 
-
       AlphabetIndex2<double>* pai2;
       
       if (args.find("aadistance") == args.end())
@@ -376,17 +381,66 @@ SubstitutionModel* PhylogeneticsApplicationTools::getSubstitutionModelDefaultIns
         pai2  =SequenceApplicationTools::getAADistance(args["aadistance"]);
       
       if (args.find("beta") != args.end())
-        unparsedParameterValues["CodonAsynonymous.beta"] = args["beta"];
+        unparsedParameterValues["CodonAsynonymousFrequencies.beta"] = args["beta"];
       
       if (pai2)
         if (args.find("alpha") != args.end())
-          unparsedParameterValues["CodonAsynonymous.alpha"] = args["alpha"];
-
+          unparsedParameterValues["CodonAsynonymousFrequencies.alpha"] = args["alpha"];
       
       model = new CodonAsynonymousFrequenciesReversibleSubstitutionModel(pgc,pAFS,pai2);
-      
     }
   }
+
+  ////////////////////////////////////////
+  // GY94
+  ////////////////////////////////////////
+  
+  else if (modelName == "GY94")
+    {
+      if (! AlphabetTools::isCodonAlphabet(alphabet))
+        throw Exception("Alphabet should be Codon Alphabet.");
+
+      const CodonAlphabet* pCA = (const CodonAlphabet*)(alphabet);
+
+      if (args.find("geneticcode")==args.end())
+        throw Exception("PhylogeneticsApplicationTools::getSubstitutionModelDefaultInstance. Missing Genetic Code.");
+
+      GeneticCode* pgc=SequenceApplicationTools::getGeneticCode(dynamic_cast<const NucleicAlphabet*>(pCA->getNAlphabet(0)),args["geneticcode"]);
+      if (pgc->getSourceAlphabet()->getAlphabetType()!=pCA->getAlphabetType())
+        throw Exception("Mismatch  between genetic code and codon alphabet");
+
+      if (args.find("kappa") != args.end())
+        unparsedParameterValues["GY94.kappa"] = args["kappa"];
+      if (args.find("V") != args.end())
+        unparsedParameterValues["GY94.V"] = args["V"];
+      
+      model = new GY94(pgc);
+    }
+  
+  ////////////////////////////////////////
+  // MG94
+  ////////////////////////////////////////
+  
+  else if (modelName == "MG94")
+    {
+      if (! AlphabetTools::isCodonAlphabet(alphabet))
+        throw Exception("Alphabet should be Codon Alphabet.");
+
+      const CodonAlphabet* pCA = (const CodonAlphabet*)(alphabet);
+
+      if (args.find("geneticcode")==args.end())
+        throw Exception("PhylogeneticsApplicationTools::getSubstitutionModelDefaultInstance. Missing Genetic Code.");
+
+      GeneticCode* pgc=SequenceApplicationTools::getGeneticCode(dynamic_cast<const NucleicAlphabet*>(pCA->getNAlphabet(0)),args["geneticcode"]);
+      if (pgc->getSourceAlphabet()->getAlphabetType()!=pCA->getAlphabetType())
+        throw Exception("Mismatch  between genetic code and codon alphabet");
+
+      if (args.find("rho") != args.end())
+        unparsedParameterValues["MG94.rho"] = args["rho"];
+      
+      model = new MG94(pgc);
+    }
+  
   
   ///////////////////////////////////
   /// RE08
@@ -612,12 +666,19 @@ SubstitutionModel* PhylogeneticsApplicationTools::getSubstitutionModelDefaultIns
               if (args.find("kappa") != args.end())
                 unparsedParameterValues["K80.kappa"] = args["kappa"];
             }
+
+
+          ///////////////////////////////////
+          /// JC69
+          /////////////////////////////////
+
           else if (modelName == "JC69")
             {
               model = new JCnuc(alpha);
             }
-          else
+          else{
             throw Exception("Model '" + modelName + "' unknown.");
+          }
         }
       else
         { 
@@ -992,7 +1053,7 @@ AbstractFrequenciesSet* PhylogeneticsApplicationTools::getFrequenciesSetDefaultI
       unparsedParameterValues["FullNA.theta"] = args["theta"];
     if (args.find("theta1") != args.end())
       unparsedParameterValues["FullNA.theta1"] = args["theta1"];
-    if (args.find("theta") != args.end())
+    if (args.find("theta2") != args.end())
       unparsedParameterValues["FullNA.theta2"] = args["theta2"];
   }
   else if (freqName == "FullProtein")
@@ -1063,8 +1124,9 @@ AbstractFrequenciesSet* PhylogeneticsApplicationTools::getFrequenciesSetDefaultI
     for (i=0;i< v_sAFS.size();i++){
       unparsedParameterValuesNested.clear();
       pAFS=getFrequenciesSetDefaultInstance(pWA->getNAlphabet(i), v_sAFS[i], unparsedParameterValuesNested, false);
-      for (map<string, string>::iterator it = unparsedParameterValuesNested.begin(); it != unparsedParameterValuesNested.end(); it++)
+      for (map<string, string>::iterator it = unparsedParameterValuesNested.begin(); it != unparsedParameterValuesNested.end(); it++){
         unparsedParameterValues["IndFreq."+TextTools::toString(i)+"_" + it->first] = it->second;
+      }
       v_AFS.push_back(pAFS);
     }
 
