@@ -49,9 +49,9 @@ CodonAsynonymousFrequenciesReversibleSubstitutionModel::CodonAsynonymousFrequenc
                                                                                                                const AlphabetIndex2<double>* pdist) throw(Exception) : AbstractCodonFrequenciesReversibleSubstitutionModel((CodonAlphabet*)palph->getSourceAlphabet(), pfreq, "CodonAsynonymousFrequencies."), _geneticCode(palph), _pdistance(pdist)
 {
   if (_pdistance)
-    addParameter_(Parameter("CodonAsynonymousFrequencies.alpha",1,&Parameter::R_PLUS_STAR));
+    addParameter_(Parameter("CodonAsynonymousFrequencies.alpha",100,&Parameter::R_PLUS_STAR));
   
-  addParameter_(Parameter("CodonAsynonymousFrequencies.beta",0,&Parameter::R_PLUS));
+  addParameter_(Parameter("CodonAsynonymousFrequencies.beta",1,&Parameter::R_PLUS_STAR));
   updateMatrices();
 }
   
@@ -67,11 +67,7 @@ CodonAsynonymousFrequenciesReversibleSubstitutionModel::CodonAsynonymousFrequenc
 
 string CodonAsynonymousFrequenciesReversibleSubstitutionModel::getName() const
 {
-  string s="CodonAsynonymousFrequenciesReversibleSubstitutionModel model:";
-  for (int i=0; i< _VAbsRevMod.size(); i++)
-    s+=" "+ _VAbsRevMod[i]->getName();
-  
-  return s;
+  return "CodonAsynonymousFrequenciesReversibleSubstitutionModel model : " + AbsFreq->getName();
 }
 
 void CodonAsynonymousFrequenciesReversibleSubstitutionModel::completeMatrices()
@@ -80,6 +76,7 @@ void CodonAsynonymousFrequenciesReversibleSubstitutionModel::completeMatrices()
   int salph=getNumberOfStates();
   double x;
   double alpha=_pdistance?getParameterValue("alpha"):1;
+
   double beta=getParameterValue("beta");
 
   CodonAlphabet* ca=(CodonAlphabet*)(_geneticCode->getSourceAlphabet());
@@ -93,8 +90,8 @@ void CodonAsynonymousFrequenciesReversibleSubstitutionModel::completeMatrices()
         }
         else{
           if (! _geneticCode->areSynonymous(i,j)){
-            generator_(i,j)*=exp(-((_pdistance?_pdistance->getIndex(_geneticCode->translate(i),_geneticCode->translate(j))/alpha:0)+beta));
-            exchangeability_(i,j)*=exp(-((_pdistance?_pdistance->getIndex(_geneticCode->translate(i),_geneticCode->translate(j))/alpha:0)+beta));
+            generator_(i,j)*=beta*(_pdistance?exp(-_pdistance->getIndex(_geneticCode->translate(i),_geneticCode->translate(j))/alpha):1);
+            exchangeability_(i,j)*=beta*(_pdistance?exp(-_pdistance->getIndex(_geneticCode->translate(i),_geneticCode->translate(j))/alpha):1);
           }
         }
       }

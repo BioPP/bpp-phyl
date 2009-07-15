@@ -61,14 +61,14 @@ namespace bpp
  * nonsynonymous over synonymous substitutions.
  *
  * If a distance $d$ between amino-acids is defined, the ratio between
- * codons coding amino-acids $x$ and $y$, this ratio is
- * $\exp(-(alpha.d(x,y)+beta))$ with non-negative parameters alpha and
- * beta.
+ * non-synonymous and synonymous substitutions rates is, if the codied
+ * amino-acids are $x$ and $y$, $\beta*\exp(-\alpha.d(x,y))$ with
+ * non-negative parameter $\alpha$ and positive parameter $\beta$.
  *
- * If such a distance is not defined, the ratio between codons coding
- * different amino-acids, this ratio is $\exp(-beta)$ with
- * non-negative parameter beta.
-*/
+ * If such a distance is not defined, the ratio between non-synonymous
+ * and synonymous substitutions rates is $\beta$ with positive
+ * parameter $\beta$.
+ */
   
 class CodonAsynonymousFrequenciesReversibleSubstitutionModel :
   public AbstractCodonFrequenciesReversibleSubstitutionModel
