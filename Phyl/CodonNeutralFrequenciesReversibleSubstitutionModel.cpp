@@ -69,13 +69,10 @@ CodonNeutralFrequenciesReversibleSubstitutionModel::CodonNeutralFrequenciesRever
   updateMatrices();
 }
 
+
 string CodonNeutralFrequenciesReversibleSubstitutionModel::getName() const
 {
-  string s="CodonNeutralFrequenciesReversibleSubstitutionModel model:";
-  for (int i=0; i< _VAbsRevMod.size(); i++)
-    s+=" "+ _VAbsRevMod[i]->getName();
-  
-  return s;
+  return "CodonNeutralFrequenciesReversibleSubstitutionModel model:" + AbsFreq->getName();
 }
 
 void CodonNeutralFrequenciesReversibleSubstitutionModel::completeMatrices()
