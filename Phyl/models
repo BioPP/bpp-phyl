@@ -26,10 +26,11 @@
 #include "SubstitutionModelSet.h"
 #include "RE08.h"
 
-
 #include "WordReversibleSubstitutionModel.h"
 #include "TripletReversibleSubstitutionModel.h"
 #include "CodonNeutralReversibleSubstitutionModel.h"
 #include "CodonAsynonymousReversibleSubstitutionModel.h"
 #include "CodonNeutralFrequenciesReversibleSubstitutionModel.h"
 #include "CodonAsynonymousFrequenciesReversibleSubstitutionModel.h"
+#include "GY94.h"
+#include "MG94.h"
