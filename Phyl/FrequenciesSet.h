@@ -91,6 +91,8 @@ class FrequenciesSet:
     virtual void setFrequencies(const vector<double> & frequencies) throw (DimensionException, Exception) = 0;
 
   virtual void setFrequenciesFromMap(map<int, double>&) = 0;
+  virtual string getName() const = 0;
+  
 };
 
 /**
@@ -160,6 +162,8 @@ class AbstractFrequenciesSet:
 
   virtual void setFrequencies(const vector<double> & ) throw (DimensionException, Exception) {};
 
+  virtual string getName() const {return "Abstract Frequencies";}
+  
   protected:
     vector<double>& getFrequencies_() { return freq_; }
     double& getFreq_(unsigned int i) { return freq_[i]; }
@@ -194,6 +198,9 @@ class FullFrequenciesSet:
     clone() const { return new FullFrequenciesSet(*this); }
 
   public:
+
+  string getName() const {return "Full Frequencies";}
+  
   void fireParameterChanged(const ParameterList &);
 
   void setFrequencies(const vector<double> & ) throw (DimensionException, Exception);
@@ -234,6 +241,7 @@ class GCFrequenciesSet:
 
   void setFrequencies(const vector<double> &) throw (DimensionException, Exception);
 
+  string getName() const {return "GC Frequencies";}
 };
 
 /**
@@ -272,6 +280,8 @@ class FullNAFrequenciesSet:
     }
 
     void fireParameterChanged(const ParameterList & pl);
+
+  string getName() const {return "FullNA  Frequencies";}
 };
 
 
@@ -299,6 +309,9 @@ class FullProteinFrequenciesSet:
     void setFrequencies(const vector<double> & frequencies) throw (DimensionException, Exception);
 
     void fireParameterChanged(const ParameterList & pl);
+
+  string getName() const {return "FullProtein Frequencies";}
+
 };
 
 /**
@@ -367,6 +380,8 @@ class MarkovModulatedFrequenciesSet:
     _freqSet->setNamespace(prefix + _freqSet->getNamespace());
   }
 
+  string getName() const {return "MarkovModulated " + _freqSet->getName();}
+
 };
 
 /**
@@ -404,32 +419,54 @@ class FixedFrequenciesSet:
       for(unsigned int i = 0; i < frequencies.size(); i++)
         sum += frequencies[i];
       if(fabs(1.-sum) > 0.000001)
-        throw Exception("FixedFrequenciesSet::setFrequencies. Frequencies must equal 1 (sum = " + TextTools::toString(sum) + ").");
+        throw Exception("FixedFrequenciesSet::setFrequencies. Frequencies sum must equal 1 (sum = " + TextTools::toString(sum) + ").");
       setFrequencies_(frequencies);
     }
 
    void fireParameterChanged(const ParameterList & pl) {}
+
+  string getName() const {return "Fixed Frequencies";}
+
 };
 
 
 /**
  * @brief Frequencies in words from the product of frequencies on
- * letters. The parameters are the parameters of the Frequencies on letters
+ * letters. The parameters are the parameters of the Frequencies on
+ * letters.
  */
 
 class IndependentWordFrequenciesSet:
   public AbstractFrequenciesSet
 {
-protected:
+private:
   Vector<AbstractFrequenciesSet*> _VAbsFreq;
   Vector<string> _VnestedPrefix;
+  bool unique_AbsFreq;
+  
+  /*brief builds a new alphabet matching with the future vector of
+    AbstractFrequenciesSet.
+   */
   
   static Alphabet* extract_alph(const Vector<AbstractFrequenciesSet*>&);
+
   static unsigned int getSize(const Vector<AbstractFrequenciesSet*>&);
 
 public:
+
+  /* @brief Constructor from a vector of AbstractFrequenciesSet*. If
+   *  these AbstractFrequenciesSet* are not all different, the
+   *  constructor uses only the first AbstractFrequenciesSet* from the
+   *  vector, as many time as the length of the vector
+   */
+  
   IndependentWordFrequenciesSet(const Vector<AbstractFrequenciesSet*>&);
-  //  IndependentWordFrequenciesSet(const AbstractFrequenciesSet *pabsfreq, int num, const string & prefix = "");
+  
+  /* @brief Constructor from an AbstractFrequenciesSet* repeated num
+   *  times.
+   */
+
+  IndependentWordFrequenciesSet(AbstractFrequenciesSet *pabsfreq, int num);
 
   IndependentWordFrequenciesSet(const IndependentWordFrequenciesSet&);
 
@@ -456,12 +493,19 @@ public:
   /**
    *@ brief Independent letter frequencies from given word frequencies.
    * The frequencies of a letter at a position is the sum of the
-   *    frequencies of the words that have this letter at this position. 
+   *    frequencies of the words that have this letter at this
+   *    position.
+   * When there is a unique letter frequencies set, the frequencies of
+   * each letter is the average of the frequencies of that letter at
+   * all positions.
    **/
   
   void setFrequencies(const vector<double> & frequencies) throw (DimensionException, Exception);
 
   void setNamespace(const string&);
+
+  string getName() const;
+
 };
 
 } //end of namespace bpp.

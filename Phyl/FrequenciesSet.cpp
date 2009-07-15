@@ -314,36 +314,89 @@ FixedFrequenciesSet::FixedFrequenciesSet(const Alphabet * alphabet):
 
 IndependentWordFrequenciesSet::IndependentWordFrequenciesSet(const Vector<AbstractFrequenciesSet*>& freqvector) : AbstractFrequenciesSet(getSize(freqvector),extract_alph(freqvector),"IndFreq.")
 {
-  vector<const Alphabet*> pval;
-  int i,i2,p,t;
+  int i,j,k,t;
   int l=freqvector.size();
 
-  ParameterList ParL;
-  ParameterList::iterator itPar;
-
-  for (i=0;i<l;i++){
-    _VAbsFreq.push_back(freqvector[i]);
-    _VnestedPrefix.push_back(freqvector[i]->getNamespace());
-    _VAbsFreq[i]->setNamespace("IndFreq."+TextTools::toString(i)+"_"+_VnestedPrefix[i]);
-    addParameters_(_VAbsFreq[i]->getParameters());
+  unique_AbsFreq=0;
+  i=0;
+  j=1;
+  while (!unique_AbsFreq && i<(l-1)){
+    if (freqvector[i]==freqvector[j])
+      unique_AbsFreq=1;
+    else {
+      j++;
+      if (j==l){
+        i++;
+        j=i+1;
+      }
+    }
   }
-  
+
+  if (!unique_AbsFreq){
+    for (i=0;i<l;i++){
+      _VAbsFreq.push_back(freqvector[i]);
+      _VnestedPrefix.push_back(freqvector[i]->getNamespace());
+      _VAbsFreq[i]->setNamespace("IndFreq."+TextTools::toString(i)+"_"+_VnestedPrefix[i]);
+      addParameters_(_VAbsFreq[i]->getParameters());
+    }
+  }
+  else {
+    string st="";
+    for (i=0;i< l; i++){
+      _VAbsFreq.push_back(freqvector[0]);
+      _VnestedPrefix.push_back(freqvector[0]->getNamespace());
+      st+=TextTools::toString(i);
+    }
+    _VAbsFreq[0]->setNamespace("IndFreq."+st+"_"+_VnestedPrefix[0]);
+    addParameters_(_VAbsFreq[0]->getParameters());
+  }
+
   vector<double> f[l];
-  for (p=0;p<l;p++)
-    f[p]=_VAbsFreq[p]->getFrequencies();
+  for (i=0;i<l;i++)
+    f[i]=_VAbsFreq[i]->getFrequencies();
 
   int s=getAlphabet()->getSize();
 
   for (i=0;i<s;i++){
-    i2=i;
-    getFreq_(i2)=1;
-    for (p=l-1;p>=0;p--){
-      t=_VAbsFreq[p]->getAlphabet()->getSize();
-      getFreq_(i)*=f[p][i2%t];
-      i2/=t;
+    j=i;
+    getFreq_(j)=1;
+    for (k=l-1;k>=0;k--){
+      t=_VAbsFreq[k]->getAlphabet()->getSize();
+      getFreq_(i)*=f[k][j%t];
+      j/=t;
     }
   }
 
+}
+
+IndependentWordFrequenciesSet::IndependentWordFrequenciesSet(AbstractFrequenciesSet* pabsfreq, int num) : AbstractFrequenciesSet((int)pow((double) pabsfreq->getAlphabet()->getSize(),num),new WordAlphabet(pabsfreq->getAlphabet(), num),"IndFreq."), unique_AbsFreq(1)
+{
+  int i,j,k,t;
+
+  string st="";
+  for (i=0;i< num; i++){
+    _VAbsFreq.push_back(pabsfreq);
+    _VnestedPrefix.push_back(pabsfreq->getNamespace());
+    st+=TextTools::toString(i);
+  }
+  _VAbsFreq[0]->setNamespace("IndFreq."+st+"_"+_VnestedPrefix[0]);
+  addParameters_(_VAbsFreq[0]->getParameters());
+  
+  vector<double> f[num];
+  for (i=0;i<num;i++)
+    f[i]=_VAbsFreq[i]->getFrequencies();
+
+  int s=getAlphabet()->getSize();
+  
+  for (i=0;i<s;i++){
+    j=i;
+    getFreq_(j)=1;
+    for (k=num-1;k>=0;k--){
+      t=_VAbsFreq[k]->getAlphabet()->getSize();
+      getFreq_(i)*=f[k][j%t];
+      j/=t;
+    }
+  }
 }
 
 Alphabet* IndependentWordFrequenciesSet::extract_alph(const Vector<AbstractFrequenciesSet*>& freqvector)
@@ -368,12 +421,14 @@ unsigned int IndependentWordFrequenciesSet::getSize(const Vector<AbstractFrequen
   return s;
 }
 
-IndependentWordFrequenciesSet::IndependentWordFrequenciesSet(const IndependentWordFrequenciesSet& iwfs) : AbstractFrequenciesSet(iwfs)
+IndependentWordFrequenciesSet::IndependentWordFrequenciesSet(const IndependentWordFrequenciesSet& iwfs) : AbstractFrequenciesSet(iwfs), unique_AbsFreq(iwfs.unique_AbsFreq)
 {
   int i,l=iwfs._VAbsFreq.size();
   
-  for (i=0;i<l;i++)
+  for (i=0;i<l;i++){
     _VAbsFreq.push_back(iwfs._VAbsFreq[i]);
+    _VnestedPrefix.push_back(iwfs._VnestedPrefix[i]);
+  }
 }
 
 void IndependentWordFrequenciesSet::fireParameterChanged(const ParameterList& pl)
@@ -381,9 +436,11 @@ void IndependentWordFrequenciesSet::fireParameterChanged(const ParameterList& pl
   int l=_VAbsFreq.size();
   
   int i,p,t,i2;
-
-  for (i=0;i<l;i++)
-    _VAbsFreq[i]->matchParametersValues(pl);
+  if (unique_AbsFreq)
+    _VAbsFreq[0]->matchParametersValues(pl);
+  else
+    for (i=0;i<l;i++)
+      _VAbsFreq[i]->matchParametersValues(pl);
 
   int s=getAlphabet()->getSize();
   vector<double> f[l];
@@ -416,20 +473,36 @@ void IndependentWordFrequenciesSet::setFrequencies(const vector<double> & freque
   int d,i,j,k,s,l=_VAbsFreq.size();
   vector<double> freq;
 
-  d=size;
-
-  for (i=0;i<l;i++){
-    s=_VAbsFreq[i]->getAlphabet()->getSize();
+  if (unique_AbsFreq){
+    s=_VAbsFreq[0]->getAlphabet()->getSize();
     freq.resize(s);
-    d/=s;
     for (j=0;j<s;j++)
       freq[j]=0;
-    for (k=0;k<size;k++)
-      freq[(k/d)%s]+=frequencies[k];
-    _VAbsFreq[i]->setFrequencies(freq);
+    d=size;
+    for (i=0;i<l;i++){
+      d/=s;
+      for (k=0;k<size;k++)
+        freq[(k/d)%s]+=frequencies[k];
+    }
+    for (j=0;j<s;j++)
+      freq[j]/=l;
+    _VAbsFreq[0]->setFrequencies(freq);
+  }
+  else {
+    d=size;
+    for (i=0;i<l;i++){
+      s=_VAbsFreq[i]->getAlphabet()->getSize();
+      freq.resize(s);
+      d/=s;
+      for (j=0;j<s;j++)
+        freq[j]=0;
+      for (k=0;k<size;k++)
+        freq[(k/d)%s]+=frequencies[k];
+      _VAbsFreq[i]->setFrequencies(freq);
+    }
   }
 
-    // updating freq_
+  // updating freq_
 
   vector<double> f[l];
   for (k=0;k<l;k++)
@@ -460,3 +533,10 @@ void IndependentWordFrequenciesSet::setNamespace(const string& prefix)
     _VAbsFreq[i]->setNamespace(prefix +TextTools::toString(i)+"_"+_VnestedPrefix[i]);
 }
 
+string IndependentWordFrequenciesSet::getName() const
+{
+  string s= "IndependentWord : ";
+  for (unsigned int i=0;i< _VAbsFreq.size(); i++)
+    s+= _VAbsFreq[i]->getName();
+  return s;
+}
