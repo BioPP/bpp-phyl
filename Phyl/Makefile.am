@@ -149,7 +149,8 @@ CodonNeutralFrequenciesReversibleSubstitutionModel.h\
 CodonAsynonymousFrequenciesReversibleSubstitutionModel.h\
 NexusIOTree.h\
 GY94.h\
-MG94.h
+MG94.h\
+YN98.h
 
 CPP_FILES = \
 AbstractSubstitutionModel.cpp\
@@ -234,7 +235,8 @@ RE08.cpp\
 L95.cpp\
 NexusIOTree.cpp\
 GY94.cpp\
-MG94.cpp
+MG94.cpp\
+YN98.cpp
 
 
 CPP_EXTRA = \

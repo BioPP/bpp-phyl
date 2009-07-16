@@ -442,6 +442,33 @@ SubstitutionModel* PhylogeneticsApplicationTools::getSubstitutionModelDefaultIns
     }
   
   
+  ////////////////////////////////////////
+  // YN98
+  ////////////////////////////////////////
+  
+  else if (modelName == "YN98")
+    {
+      if (! AlphabetTools::isCodonAlphabet(alphabet))
+        throw Exception("Alphabet should be Codon Alphabet.");
+
+      const CodonAlphabet* pCA = (const CodonAlphabet*)(alphabet);
+
+      if (args.find("geneticcode")==args.end())
+        throw Exception("PhylogeneticsApplicationTools::getSubstitutionModelDefaultInstance. Missing Genetic Code.");
+
+      GeneticCode* pgc=SequenceApplicationTools::getGeneticCode(dynamic_cast<const NucleicAlphabet*>(pCA->getNAlphabet(0)),args["geneticcode"]);
+      if (pgc->getSourceAlphabet()->getAlphabetType()!=pCA->getAlphabetType())
+        throw Exception("Mismatch  between genetic code and codon alphabet");
+
+      if (args.find("omega") != args.end())
+        unparsedParameterValues["YN98.omega"] = args["omega"];
+      if (args.find("kappa") != args.end())
+        unparsedParameterValues["YN98.kappa"] = args["kappa"];
+      
+      model = new YN98(pgc);
+    }
+  
+
   ///////////////////////////////////
   /// RE08
   /////////////////////////////////
