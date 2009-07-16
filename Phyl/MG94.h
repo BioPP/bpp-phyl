@@ -47,24 +47,25 @@ namespace bpp
 
 /**
  * @brief The Muse and Gaut (1994) substitution model for codons.
+ * @author Laurent Guéguen
  *
- * This model has one ratio $\rho$ of synonymous substitution rate
+ * This model has one ratio \f$\rho\f$ of synonymous substitution rate
  * over non-synonymous substitution rate. It allows distinct
  * equilibrium frequencies between nucleotides.
  * 
- * For codons $i=i_1i_2i_3$ and $j=j_1j_2j_3$, the generator term
- * $Q_{ij} (i \neq j)$ is: 0 if 2 or 3 of the pair $(i_1,j_1)
- * (i_2,j_2) (i_3,j_3) $ are different.
- * $\mu \rho \pi_{j_k} $  if exactly 1 of the pairs
- $(i_1,j_1) (i_2,j_2) (i_3,j_3) $ is different ($k$), and that
+ * For codons \f$i=i_1i_2i_3\f$ and \f$j=j_1j_2j_3\f$, the generator term
+ * \f$Q_{ij} (i \neq j)\f$ is: 0 if 2 or 3 of the pair \f$(i_1,j_1)
+ * (i_2,j_2) (i_3,j_3) \f$ are different.
+ * \f$\mu \rho \pi_{j_k} \f$  if exactly 1 of the pairs
+ \f$(i_1,j_1) (i_2,j_2) (i_3,j_3) \f$ is different (\f$k\f$), and that
  difference is synonymous.
- * $\mu \pi_{j_k} $  if exactly 1 of the pairs
- $(i_1,j_1) (i_2,j_2) (i_3,j_3) $ is different ($k$), and that
+ * \f$\mu \pi_{j_k} \f$  if exactly 1 of the pairs
+ \f$(i_1,j_1) (i_2,j_2) (i_3,j_3) \f$ is different (\f$k\f$), and that
  difference is non-synonymous.
  *
- * \mu is a normalization factor.
+ * \f$\mu\f$ is a normalization factor.
  *
- * This model includes one parameter ($\kappa$ and $V$). The codon
+ * This model includes one parameter (\f$\kappa\f$ and \f$V\f$). The codon
  * frequencies are observed.
  *
  * Reference:

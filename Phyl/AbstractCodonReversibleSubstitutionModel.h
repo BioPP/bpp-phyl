@@ -51,6 +51,7 @@ namespace bpp
 
 /**
  * @brief Abstract class for reversible substitution models on codons.
+ * @author Laurent Guéguen
  *
  * Objects of this class are built from three reversible substitution
  * models of NucleicAlphabets. No model is directly accessible. </p>
@@ -71,31 +72,33 @@ public:
    *@brief Build a new AbstractCodonReversibleSubstitutionModel object from
    *a pointer to an AbstractReversibleSubstitutionModel. 
    *
-   *@param pointer to a CodonAlphabet
-   *@param pmodel is a pointer to the
-   *AbstractReversibleSubstitutionModel to use in the three positions.
+   *@param palph pointer to a CodonAlphabet
+   *@param pmod pointer to the
+   *  AbstractReversibleSubstitutionModel to use in the three positions.
+   *@param st string of the Namespace
    */
   
-  AbstractCodonReversibleSubstitutionModel(const CodonAlphabet*,
-                                            NucleotideSubstitutionModel*,
-                                           const std::string&);
+  AbstractCodonReversibleSubstitutionModel(const CodonAlphabet* palph,
+                                            NucleotideSubstitutionModel* pmod,
+                                           const std::string& st);
   
   /**
    *@brief Build a new AbstractReversibleSubstitutionModel object
    *from three pointers to AbstractReversibleSubstitutionModels. 
    *
-   *@param pointer to a CodonAlphabet
-   *@param pmodel1, pmodel2 and pmodel3 are pointers to the
+   *@param palph pointer to a CodonAlphabet
+   *@param pmod1, pmod2, pmod3 are pointers to the
    *AbstractReversibleSubstitutionModel to use in the three positions.
    * All the models must be different objects to avoid redondant
    * parameters.
+   *@param st string of the Namespace
    */
 
   AbstractCodonReversibleSubstitutionModel(const CodonAlphabet*,
-                                            NucleotideSubstitutionModel*,
-                                            NucleotideSubstitutionModel*, 
-                                            NucleotideSubstitutionModel*,
-                                           const std::string&);
+                                            NucleotideSubstitutionModel* pmod1,
+                                            NucleotideSubstitutionModel* pmod2,  
+                                            NucleotideSubstitutionModel* pmod3,
+                                           const std::string& st);
 
 
   AbstractCodonReversibleSubstitutionModel(const AbstractCodonReversibleSubstitutionModel&);

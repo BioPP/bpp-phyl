@@ -52,7 +52,7 @@ namespace bpp
  * @brief Class for reversible substitution models on codons
  *  parametrized by the equilibrium frequencies. The basic
  *  substitution model is the K80 model. </p>
- *
+ * @author Laurent Guéguen
  * Objects of this class are built from three reversible substitution
  *  models of NucleicAlphabets. No model is directly accessible. </p>
  *
@@ -78,13 +78,14 @@ public:
    *AbstractCodonFrequenciesReversibleSubstitutionModel object from
    *three instances of the K80 model.
    *
-   *@param pointer to a CodonAlphabet
-   *@param pointer to the AbstractFrequenciesSet equilibrium frequencies
+   *@param pfreq pointer to a CodonAlphabet
+   *@param palph pointer to the AbstractFrequenciesSet equilibrium frequencies
+   *@param st  string for the Namespace
    */
   
-  AbstractCodonFrequenciesReversibleSubstitutionModel(const CodonAlphabet*,
-                                                      AbstractFrequenciesSet*,
-                                                      const std::string&) throw(Exception);
+  AbstractCodonFrequenciesReversibleSubstitutionModel(const CodonAlphabet* pfreq,
+                                                      AbstractFrequenciesSet* palph,
+                                                      const std::string& st) throw(Exception);
   
   AbstractCodonFrequenciesReversibleSubstitutionModel(const AbstractCodonFrequenciesReversibleSubstitutionModel&);
 

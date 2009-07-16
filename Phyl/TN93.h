@@ -168,9 +168,9 @@ class TN93:
   /**
    * @brief This method is over-defined to actualize the corresponding parameters piA, piT, piG and piC too.
    */
-  void setFreq(map<int, double>&);
+  void setFreq(std::map<int, double>& freqs);
 
-		void updateMatrices();
+  void updateMatrices();
 
 };
 

@@ -61,8 +61,8 @@ namespace bpp
  * on the equilibrium frequency, and each position has its specific rate.
  *
  * The generator is constructed in two steps:
- * First, if there are $n$ models and $\rho_i$ is the rate of
- * model i ($\Sum_{i=0}^{n-1} \rho_i = 1$):
+ * First, if there are \f$n\f$ models and \f$\rho_i\f$ is the rate of
+ * model i (\f$\sum_{i=0}^{n-1} \rho_i = 1\f$):
  * @f[
  * Q_{abc \rightarrow abd} = \rho_2 Q^{(2)}_{c \rightarrow d}
  * Q_{abc \rightarrow aed} = 0
@@ -70,13 +70,13 @@ namespace bpp
  * @f]
  *
  * Second, the subsitution between STOP codons and non-STOP codons are
- * nullified, and the lines of Q are normalised in accordance.
+ * nullified, and the lines of Q are normalized in accordance.
  *
  * The parameters of this word model are the same as the ones of the
  * models used. Their names have a new suffix, "_phi" where i stands
  * for the position (i.e. the phase) in the word.
  *
- * The rates are defined by relative rates parameters $r_i$ (called "relrate_i") with:
+ * The rates are defined by relative rates parameters \f$r_i\f$ (called "relrate_i") with:
  * @f[
  * i < n-1, \rho_i = (1-r_0).(1-r_1)...(1-r_{i-1}).r_i
  * \rho_{n-1} = (1-r_0).(1-r_1)...(1-r_{n-2})
@@ -99,30 +99,31 @@ public:
   /**
    *@brief Build a new CodonNeutralReversibleSubstitutionModel object from
    *a pointer to AbstractReversibleSubstitutionModels. 
+   * @author Laurent Guéguen
    *
-   *@param pointer to a CodonAlphabet
-   *@param pmodel is a pointer to the
-   *AbstractReversibleSubstitutionModel to use in the three positions.
+   *@param palph pointer to a CodonAlphabet
+   *@param pmod1 pointer to the
+   *NucleotideSubstitutionModel to use in the three positions.
    */
   
-  CodonNeutralReversibleSubstitutionModel(const CodonAlphabet*,
-                                          NucleotideSubstitutionModel*);
+  CodonNeutralReversibleSubstitutionModel(const CodonAlphabet* palph,
+                                          NucleotideSubstitutionModel* pmod1);
   
   /**
    *@brief Build a new CodonNeutralReversibleSubstitutionModel object
    *from three pointers to AbstractReversibleSubstitutionModels. 
    *
-   *@param pointer to a CodonAlphabet @param pmodel1, pmodel2 and
-   *pmodel3 are pointers to the AbstractReversibleSubstitutionModel to
-   *use in the three positions. All the models must be different
-   *objects to avoid parameters redondancy, otherwise only the first
-   *model is used.
+   *@param palph pointer to a CodonAlphabet
+   *@param pmod1, pmod2, pmod3 pointers to the
+   *NucleotideSubstitutionModel to use in the three positions.
+   *All the models must be different objects to avoid parameters
+   *redondancy, otherwise only the first model is used.
    */
 
-  CodonNeutralReversibleSubstitutionModel(const CodonAlphabet*,
-                                          NucleotideSubstitutionModel*,
-                                          NucleotideSubstitutionModel*, 
-                                          NucleotideSubstitutionModel*);
+  CodonNeutralReversibleSubstitutionModel(const CodonAlphabet* palph,
+                                          NucleotideSubstitutionModel* pmod1,
+                                          NucleotideSubstitutionModel* pmod2, 
+                                          NucleotideSubstitutionModel* pmod3);
 
   CodonNeutralReversibleSubstitutionModel(const CodonNeutralReversibleSubstitutionModel&);
 

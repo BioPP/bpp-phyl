@@ -53,6 +53,7 @@ namespace bpp
 /**
  * @brief Class for asynonymous substitution models on codons with
  * parameterized equilibrium frequencies and K80 basic model.
+ * @author Laurent Guéguen
  *
  * Only substitutions with one letter changed are accepted. </p>
  *
@@ -60,14 +61,14 @@ namespace bpp
  * AbstractCodonFrequenciesReversibleSubstitutionModel is the ratio of
  * nonsynonymous over synonymous substitutions.
  *
- * If a distance $d$ between amino-acids is defined, the ratio between
+ * If a distance \f$d\f$ between amino-acids is defined, the ratio between
  * non-synonymous and synonymous substitutions rates is, if the codied
- * amino-acids are $x$ and $y$, $\beta*\exp(-\alpha.d(x,y))$ with
- * non-negative parameter $\alpha$ and positive parameter $\beta$.
+ * amino-acids are \f$x\f$ and \f$y\f$, \f$\beta*\exp(-\alpha.d(x,y))\f$ with
+ * non-negative parameter \f$\alpha\f$ and positive parameter \f$\beta\f$.
  *
  * If such a distance is not defined, the ratio between non-synonymous
- * and synonymous substitutions rates is $\beta$ with positive
- * parameter $\beta$.
+ * and synonymous substitutions rates is \f$\beta\f$ with positive
+ * parameter \f$\beta\f$.
  */
   
 class CodonAsynonymousFrequenciesReversibleSubstitutionModel :
@@ -86,13 +87,14 @@ public:
    *AbstractReversibleSubstitutionModels are copied from the given
    *ones.
    *
-   *@param pointer to a GeneticCode
-   *@param pointer to the AbstractFrequenciesSet* equilibrium frequencies
+   *@param palph pointer to a GeneticCode
+   *@param pfreq pointer to the AbstractFrequenciesSet* equilibrium frequencies
+   *@param pdist optional pointer to the AlphabetIndex2<double> amino-acids distance object.
    */
   
-  CodonAsynonymousFrequenciesReversibleSubstitutionModel(const GeneticCode*,
-                                                         AbstractFrequenciesSet*,
-                                                         const AlphabetIndex2<double>* =0) throw(Exception);
+  CodonAsynonymousFrequenciesReversibleSubstitutionModel(const GeneticCode* palph,
+                                                         AbstractFrequenciesSet* pfreq,
+                                                         const AlphabetIndex2<double>* pdist =0) throw(Exception);
 
   CodonAsynonymousFrequenciesReversibleSubstitutionModel(const CodonAsynonymousFrequenciesReversibleSubstitutionModel&);
 

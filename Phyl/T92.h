@@ -192,7 +192,7 @@ class T92:
   /**
    * @brief This method is over-defined to actualize the 'theta' parameter too.
    */
-  void setFreq(map<int, double>&);
+  void setFreq(std::map<int, double>& freqs);
 
   void updateMatrices();		
 };

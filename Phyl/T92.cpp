@@ -428,7 +428,7 @@ const Matrix<double> & T92::getd2Pij_dt2(double d) const
 
 /******************************************************************************/
 
-void T92::setFreq(map<int, double>& freqs)
+void T92::setFreq(std::map<int, double>& freqs)
   
 {
   double f = (freqs[1] + freqs[2]) / (freqs[0] + freqs[1] + freqs[2] + freqs[3]);

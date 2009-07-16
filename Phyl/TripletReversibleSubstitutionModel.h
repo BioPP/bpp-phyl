@@ -53,6 +53,7 @@ namespace bpp
  * @brief Class for neutral reversible substitution models on triplets,
  * which correspond to codons that do not have any significance
  * (whether they are STOP or functional).
+ * @author Laurent Guéguen
  *
  * Objects of this class are built from three reversible substitution
  * models of NucleicAlphabets. No model is directly accessible. </p>
@@ -66,31 +67,31 @@ public:
 
   /**
    *@brief Build a new TripletReversibleSubstitutionModel object from
-   *a pointer to AbstractReversibleSubstitutionModels. 
+   *a pointer to NucleotideSubstitutionModels. 
    *
-   *@param pointer to a CodonAlphabet
-   *@param pmodel is a pointer to the
-   *AbstractReversibleSubstitutionModel to use in the three positions.
+   *@param palph pointer to a CodonAlphabet
+   *@param pmod  pointer to the
+   *NucleotideSubstitutionModel to use in the three positions.
    */
   
-  TripletReversibleSubstitutionModel(const CodonAlphabet*,
-                                     NucleotideSubstitutionModel*);
+  TripletReversibleSubstitutionModel(const CodonAlphabet* palph,
+                                     NucleotideSubstitutionModel* pmod);
   
   /**
    *@brief Build a new TripletReversibleSubstitutionModel object
-   *from three pointers to AbstractReversibleSubstitutionModels. 
+   *from three pointers to NucleotideSubstitutionModels. 
    *
-   *@param pointer to a CodonAlphabet @param pmodel1, pmodel2 and
-   *   pmodel3 are pointers to the AbstractReversibleSubstitutionModel
-   *   to use in the three positions. All the models must be different
-   *   objects to avoid parameters redondancy, otherwise only the
-   *   first model is used.
+   *@param palph pointer to a CodonAlphabet
+   *@param pmod1, pmod2, pmod3 pointers to the
+   *   NucleotideSubstitutionModels to use in the three positions. All
+   *   the models must be different objects to avoid parameters
+   *   redondancy, otherwise only the first model is used.
    */
 
-  TripletReversibleSubstitutionModel(const CodonAlphabet*,
-                                     NucleotideSubstitutionModel*,
-                                     NucleotideSubstitutionModel*, 
-                                     NucleotideSubstitutionModel*);
+  TripletReversibleSubstitutionModel(const CodonAlphabet* palph,
+                                     NucleotideSubstitutionModel* pmod1,
+                                     NucleotideSubstitutionModel* pmod2, 
+                                     NucleotideSubstitutionModel* pmod3);
 
   TripletReversibleSubstitutionModel(const TripletReversibleSubstitutionModel&);
 

@@ -53,6 +53,7 @@ namespace bpp
 
 /**
  * @brief Class for asynonymous substitution models on codons.
+ * @author Laurent Guéguen
  *
  * Objects of this class are built from three reversible substitution
  * models of NucleicAlphabets. No model is directly accessible. </p>
@@ -60,14 +61,14 @@ namespace bpp
  * Only substitutions with one letter changed are accepted. </p>
  *
  *
- * If a distance $d$ between amino-acids is defined, the ratio between
+ * If a distance \f$d\f$ between amino-acids is defined, the ratio between
  * non-synonymous and synonymous substitutions rates is, if the codied
- * amino-acids are $x$ and $y$, $\beta*\exp(-\alpha.d(x,y))$ with
- * non-negative parameter $\alpha$ and positive parameter $\beta$.
+ * amino-acids are \f$x\f$ and \f$y\f$, \f$\beta*\exp(-\alpha.d(x,y))\f$ with
+ * non-negative parameter \f$\alpha\f$ and positive parameter \f$\beta\f$.
  *
  * If such a distance is not defined, the ratio between non-synonymous
- * and synonymous substitutions rates is $\beta$ with positive
- * parameter $\beta$.
+ * and synonymous substitutions rates is \f$\beta\f$ with positive
+ * parameter \f$\beta\f$.
  */
   
 class CodonAsynonymousReversibleSubstitutionModel :
@@ -82,35 +83,36 @@ public:
 
   /**
    *@brief Build a new CodonNeutralReversibleSubstitutionModel object from
-   *a pointer to AbstractReversibleSubstitutionModels. 
+   *a pointer to NucleotideSubstitutionModel. 
    *
-   *@param pointer to a CodonAlphabet
-   *@param pmodel is a pointer to the
-   *AbstractReversibleSubstitutionModel to use in the three positions.
-   *@param optional pointer to a distance between amino-acids
+   *@param palph pointer to a GeneticCode
+   *@param pmod  pointer to the
+   *NucleotideSubstitutionModel to use in the three positions.
+   *@param pdist optional pointer to a distance between amino-acids
    */
   
-  CodonAsynonymousReversibleSubstitutionModel(const GeneticCode*,
-                                              NucleotideSubstitutionModel*,
-                                              const AlphabetIndex2<double>* = 0);
+  CodonAsynonymousReversibleSubstitutionModel(const GeneticCode* palph,
+                                              NucleotideSubstitutionModel* pmod,
+                                              const AlphabetIndex2<double>* pdist = 0);
   
   /**
    *@brief Build a new CodonNeutralReversibleSubstitutionModel object
-   *from three pointers to AbstractReversibleSubstitutionModels. 
+   *from three pointers to NucleotideSubstitutionModels. 
    *
-   *@param pointer to a CodonAlphabet @param pmodel1, pmodel2 and
-   * pmodel3 are pointers to the AbstractReversibleSubstitutionModel
-   * to use in the three positions. All the models must be different
-   * objects to avoid parameters redondancy, otherwise only the first
-   * model is used.
-   *@param optional pointer to a distance between *amino-acids
+   * @param palph pointer to a GeneticCode
+   * @param pmod1, pmod2, pmod3 pointers to the
+   * NucleotideSubstitutionModels to use in the three
+   * positions. Either all the models are different objects to avoid
+   * parameters redondancy, or only the first model is used in every
+   * position.
+   *@param pdist optional pointer to the AlphabetIndex2<double> amino-acids distance object.
    */
 
-  CodonAsynonymousReversibleSubstitutionModel(const GeneticCode*,
-                                              NucleotideSubstitutionModel*,
-                                              NucleotideSubstitutionModel*, 
-                                              NucleotideSubstitutionModel*,
-                                              const AlphabetIndex2<double>* = 0);
+  CodonAsynonymousReversibleSubstitutionModel(const GeneticCode* palph,
+                                              NucleotideSubstitutionModel* pmod1,
+                                              NucleotideSubstitutionModel* pmod2, 
+                                              NucleotideSubstitutionModel* pmod3,
+                                              const AlphabetIndex2<double>* pdist = 0);
 
   CodonAsynonymousReversibleSubstitutionModel(const CodonAsynonymousReversibleSubstitutionModel&);
 

@@ -457,7 +457,7 @@ const Matrix<double> & HKY85::getd2Pij_dt2(double d) const
 
 /******************************************************************************/
 
-void HKY85::setFreq(map<int, double>& freqs)
+void HKY85::setFreq(std::map<int, double>& freqs)
 {
   _piA = freqs[0];
   _piC = freqs[1];

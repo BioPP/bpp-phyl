@@ -428,7 +428,7 @@ const Matrix<double> & TN93::getd2Pij_dt2(double d) const
 
 /******************************************************************************/
 
-void TN93::setFreq(map<int, double>& freqs)
+void TN93::setFreq(std::map<int, double>& freqs)
 {
   _piA = freqs[0];
   _piC = freqs[1];

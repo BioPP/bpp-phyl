@@ -316,7 +316,7 @@ class SubstitutionModel:
      * from the data.
      *
      * @param data The sequences to use.
-     * @param uniform pseudoCount @f$\psi@f$ A quantity to add to adjust the observed
+     * @param pseudoCount A quantity @f$\psi@f$ to add to adjust the observed
      *   values in order to prevent issues due to missing states on small data set.
      * The corrected frequencies shall be computed as
      * @f[
@@ -330,7 +330,7 @@ class SubstitutionModel:
      *
      * @param freq The map of the frequencies to use.
      */
-    virtual void setFreq(map<int, double>&) {};
+    virtual void setFreq(map<int, double>& freq) {};
 
 };
 

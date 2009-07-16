@@ -50,12 +50,13 @@ namespace bpp
 
 /**
  * @brief Basal class for words of reversible substitution models.
+ * @author Laurent Guéguen
  *
  * Only substitutions with one letter changed are accepted. Hence the
  * equilibrium frequency of each word is the product of the
  * equilibrium frequencies of the letters.</p>
  *
- * The rates are defined by relative rates parameters $r_i$ with:
+ * The rates are defined by relative rates parameters \f$r_i\f$ with:
  * @f[
  * i < n-1, \rho_i = (1-r_0).(1-r_1)...(1-r_{i-1}).r_i
  * \rho_{n-1} = (1-r_0).(1-r_1)...(1-r_{n-2})
@@ -64,7 +65,7 @@ namespace bpp
  * @f[
  * \forall i< n-1, r_i = \frac{\rho_i}{1-(\rho_0+...\rho_{i-1})}
  * @f]
- * where $\rho_i$ stands for the rate of position $i$.
+ * where \f$\rho_i\f$ stands for the rate of position \f$i\f$.
  */
   
 class WordReversibleSubstitutionModel :
@@ -80,21 +81,23 @@ public:
    *   the order of the positions in the words from left to right. All
    *   the models must be different objects to avoid parameters
    *   redondancy, otherwise only the first model is used.
+   * @param st the Namespace.
    */
   
-  WordReversibleSubstitutionModel(const Vector<SubstitutionModel*>& modelVector, const std::string& = "");
+  WordReversibleSubstitutionModel(const Vector<SubstitutionModel*>& modelVector, const std::string& st = "");
 
   /**
    *@brief Build a new WordReversibleSubstitutionModel object from a
    *pointer to an SubstitutionModel and a number of
    *desired models.
    *
-   * @param A pointer to the substitution model to use in all the
+   * @param pmodel pointer to the substitution model to use in all the
    *positions.
-   * @param The number of models involved.
+   * @param num The number of models involved.
+   * @param st the Namespace.
    */
 
-  WordReversibleSubstitutionModel(SubstitutionModel*, unsigned int, const std::string& = "");
+  WordReversibleSubstitutionModel(SubstitutionModel* pmodel, unsigned int num , const std::string& st = "");
 
   WordReversibleSubstitutionModel(const WordReversibleSubstitutionModel&);
 

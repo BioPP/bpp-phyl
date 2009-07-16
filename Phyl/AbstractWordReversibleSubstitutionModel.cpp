@@ -107,8 +107,8 @@ AbstractWordReversibleSubstitutionModel::AbstractWordReversibleSubstitutionModel
   _p.resize(getNumberOfStates(),getNumberOfStates());
 }
 
-AbstractWordReversibleSubstitutionModel::AbstractWordReversibleSubstitutionModel(const Alphabet* alph,
-                                                                                 const std::string& st) : AbstractReversibleSubstitutionModel(alph,st), new_alphabet_(0)
+AbstractWordReversibleSubstitutionModel::AbstractWordReversibleSubstitutionModel(const Alphabet* palph,
+                                                                                 const std::string& st) : AbstractReversibleSubstitutionModel(palph,st), new_alphabet_(0)
 
 {
   enableEigenDecomposition(0);
@@ -181,7 +181,7 @@ Alphabet* AbstractWordReversibleSubstitutionModel::extract_alph(const Vector<Sub
   return (new WordAlphabet(VAlph));
 }
 
-void AbstractWordReversibleSubstitutionModel::setNamespace(const string& prefix)
+void AbstractWordReversibleSubstitutionModel::setNamespace(const std::string& prefix)
 {
   AbstractReversibleSubstitutionModel::setNamespace(prefix);
 
@@ -363,7 +363,7 @@ void AbstractWordReversibleSubstitutionModel::updateMatrices()
 }
 
 
-void AbstractWordReversibleSubstitutionModel::setFreq(map<int, double>& freqs)
+void AbstractWordReversibleSubstitutionModel::setFreq(std::map<int, double>& freqs)
 {
   map<int, double> freq;
   int nbmod=_VAbsRevMod.size();

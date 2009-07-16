@@ -434,6 +434,7 @@ class FixedFrequenciesSet:
  * @brief Frequencies in words from the product of frequencies on
  * letters. The parameters are the parameters of the Frequencies on
  * letters.
+ * @author Laurent Guéguen
  */
 
 class IndependentWordFrequenciesSet:

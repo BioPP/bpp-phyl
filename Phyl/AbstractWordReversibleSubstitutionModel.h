@@ -50,6 +50,7 @@ namespace bpp
 
 /**
  * @brief Abstract Basal class for words of reversible substitution models.
+ * @author Laurent Guéguen
  *
  * Objects of this class are built from several reversible
  * substitution models. Each model corresponds to a position in the
@@ -59,13 +60,13 @@ namespace bpp
  *
  * There is one substitution per word per unit of time
  * on the equilibrium frequency, and each position has its specific rate.
- * For example, if there are $n$ models and $\rho_i$ is the rate of
- * model i ($\Sum_{i=0}^{n-1} \rho_i = 1$):
- * @f[
- * Q_{abc \rightarrow abd} = \rho_2 Q^{(2)}_{c \rightarrow d}
- * Q_{abc \rightarrow aed} = 0
- * Q_{abc \rightarrow abc} = \rho_0 Q^{(0)}_{a \rightarrow a} + \rho_1 Q^{(1)}_{b \rightarrow b} + \rho_2 Q^{(2)}_{c \rightarrow c})
- * @f]
+ * For example, if there are \f$n\f$ models and \f$\rho_i\f$ is the rate of
+ * model i (\f$\sum_{i=0}^{n-1} \rho_i = 1\f$):
+ * \f{eqnarray*}{
+ * Q_{abc \rightarrow abd} &=& \rho_2 Q^{(2)}_{c \rightarrow d}
+ * Q_{abc \rightarrow aed} &=& 0
+ * Q_{abc \rightarrow abc} &=& \rho_0 Q^{(0)}_{a \rightarrow a} + \rho_1 Q^{(1)}_{b \rightarrow b} + \\rho_2 Q^{(2)}_{c \rightarrow c})
+ * \f}
  *
  * The parameters of this word model are the same as the ones of the
  * models used. Their names have a new suffix, "_phi" where i stands
@@ -117,21 +118,23 @@ public:
    *   the order of the positions in the words from left to right. All
    *   the models must be different objects to avoid parameters
    *   redondancy, otherwise only the first model is used.
+   *@param st the Namespace.
    */
   
   AbstractWordReversibleSubstitutionModel(const Vector<SubstitutionModel*>& modelVector,
-                                          const std::string&);
+                                          const std::string& st);
 
   /**
    *@brief Build a new AbstractWordReversibleSubstitutionModel object from a
    *pointer to an SubstitutionModel and a number of
    *desired models.
    *
-   *@param A pointer to the substitution model to use in all the positions.
-   *@param The number of models involved.
+   *@param pmodel A pointer to the substitution model to use in all the positions.
+   *@param num The number of models involved.
+   *@param st  the Namespace.
    */
 
-  AbstractWordReversibleSubstitutionModel( SubstitutionModel*, unsigned int, const std::string&);
+  AbstractWordReversibleSubstitutionModel( SubstitutionModel* pmodel, unsigned int  num, const std::string& st);
 
   AbstractWordReversibleSubstitutionModel(const AbstractWordReversibleSubstitutionModel&);
 
@@ -139,7 +142,7 @@ public:
 
   virtual void fireParameterChanged(const ParameterList&);
 
-  void setNamespace(const string&);
+  void setNamespace(const std::string& prefix);
 
 protected:
 
@@ -152,7 +155,7 @@ protected:
 public:
   virtual unsigned int getNumberOfStates() const;
 
-  virtual void setFreq(map<int, double>&);
+  virtual void setFreq(std::map<int, double>& freqs);
 
 };
 

@@ -277,7 +277,7 @@ class PhylogeneticsApplicationTools
    *              description following keyval syntax.
    *
    * @param alphabet The alpabet to use.
-   * @param string&  The description of the Frequencies set. Either
+   * @param freqDescription  The description of the Frequencies set. Either
    *                      Full   -> FullFrequenciesSet
    *                      Fixed  -> FixedFrequenciesSet
    *                      GC     -> GCFrequenciesSet
@@ -285,7 +285,7 @@ class PhylogeneticsApplicationTools
    *                 FullProtein -> FullProteinFrequenciesSet
    *             MarkovModulated -> MarkovModulatedFrequenciesSet
    *             IndependentWord -> IndependentWordFrequenciesSet
-   * @param map<string,string>& keyval description of the parameters
+   * @param unparsedParameterValues map<string,string>& keyval description of the parameters
    *     of the AbstractFrequenciesSet
    * @param verbose   Print some info to the 'message' output stream.
    * @return A new AbstractFrequenciesSet object according to options specified.

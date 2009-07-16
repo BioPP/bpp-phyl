@@ -164,16 +164,16 @@ class GTR:
     clone() const { return new GTR(*this); }
 
   public:
-		string getName() const { return "GTR"; }
-
-    void updateMatrices();
+  string getName() const { return "GTR"; }
+  
+  void updateMatrices();
 
 
   /**
    * @brief This method is redefined to actualize the corresponding parameters piA, piT, piG and piC too.
    */
 
-  void setFreq(map<int,double>&);
+  void setFreq(map<int,double>& freqs);
 };
 
 } //end of namespace bpp.
