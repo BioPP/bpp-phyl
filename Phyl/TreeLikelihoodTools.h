@@ -59,8 +59,7 @@ class TreeLikelihoodTools
      * @brief Compute the expected ancestral frequencies of all states at all (inner) nodes
      * according to a Markov process defined by a given substitution model set.
      *
-     * @param modelSet    [in] The model set defining the Markov process.
-     * @param tree        [in] The phylogenetic tree to use.
+     * @param tl          [in] A tree likelihood object.
      * @param frequencies [out] A map where to store the results, as a vector of double (the 
      * size of which being equal to the number of states in the model), and with nodes id as keys.
      * @param alsoForLeaves [opt] Tell if frequencies should also be estimated for terminal nodes.

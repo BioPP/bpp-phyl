@@ -65,7 +65,7 @@ namespace bpp
  * \f{eqnarray*}{
  * Q_{abc \rightarrow abd} &=& \rho_2 Q^{(2)}_{c \rightarrow d}
  * Q_{abc \rightarrow aed} &=& 0
- * Q_{abc \rightarrow abc} &=& \rho_0 Q^{(0)}_{a \rightarrow a} + \rho_1 Q^{(1)}_{b \rightarrow b} + \\rho_2 Q^{(2)}_{c \rightarrow c})
+ * Q_{abc \rightarrow abc} &=& \rho_0 Q^{(0)}_{a \rightarrow a} + \rho_1 Q^{(1)}_{b \rightarrow b} + \rho_2 Q^{(2)}_{c \rightarrow c})
  * \f}
  *
  * The parameters of this word model are the same as the ones of the

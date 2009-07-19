@@ -197,7 +197,7 @@ class DiscreteRatesAcrossSitesTreeLikelihood:
      *
      * These intermediate results may be used by other methods.
      *
-     * @param node The node defining the branch of interest.
+     * @param nodeId The node defining the branch of interest.
      * @return An array of dimension 3, where a[c][x][y] is the probability of substituting from x to y while being in rate class c.
      */
     virtual VVVdouble getTransitionProbabilitiesPerRateClassForNode(int nodeId) const = 0;

@@ -291,7 +291,7 @@ class TreeLikelihood:
      *
      * These intermediate results may be used by other methods.
      *
-     * @param node The node defining the branch of interest.
+     * @param nodeId The node defining the branch of interest.
      * @return An array of dimension 2, where a[x][y] is the probability of substituting from x to y.
      */
     virtual VVdouble getTransitionProbabilitiesForNode(int nodeId) const = 0;

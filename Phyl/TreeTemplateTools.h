@@ -185,7 +185,7 @@ class TreeTemplateTools
      * @brief Remove a leaf node and its parent node, while correcting fro branch lengths.
      *
      * @param tree The tree to edit.
-     * @param name The name of the leaf node.
+     * @param leafName The name of the leaf node.
      * @throw NodeNotFoundException If the node is not found.
      */
     template<class N>

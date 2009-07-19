@@ -44,7 +44,7 @@ using namespace bpp;
 
 void TreeLikelihoodTools::getAncestralFrequencies(
         const TreeLikelihood& tl,
-        map<int, vector<double> >& frequencies,
+        std::map<int, std::vector<double> >& frequencies,
         bool alsoForLeaves) throw (Exception)
 {
   int currentId = tl.getTree().getRootId();
@@ -55,8 +55,8 @@ void TreeLikelihoodTools::getAncestralFrequencies(
 void TreeLikelihoodTools::getAncestralFrequencies_(
         const TreeLikelihood& tl,
         int parentId,
-        const vector<double>& ancestralFrequencies,
-        map<int, vector<double> >& frequencies,
+        const std::vector<double>& ancestralFrequencies,
+        std::map<int,std:: vector<double> >& frequencies,
         bool alsoForLeaves) throw (Exception)
 {
   if (!tl.getTree().isLeaf(parentId) || alsoForLeaves)
