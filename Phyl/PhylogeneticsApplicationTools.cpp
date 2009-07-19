@@ -396,50 +396,50 @@ SubstitutionModel* PhylogeneticsApplicationTools::getSubstitutionModelDefaultIns
   ////////////////////////////////////////
   
   else if (modelName == "GY94")
-    {
-      if (! AlphabetTools::isCodonAlphabet(alphabet))
-        throw Exception("Alphabet should be Codon Alphabet.");
+  {
+    if (! AlphabetTools::isCodonAlphabet(alphabet))
+      throw Exception("Alphabet should be Codon Alphabet.");
 
-      const CodonAlphabet* pCA = (const CodonAlphabet*)(alphabet);
+    const CodonAlphabet* pCA = (const CodonAlphabet*)(alphabet);
 
-      if (args.find("geneticcode")==args.end())
-        throw Exception("PhylogeneticsApplicationTools::getSubstitutionModelDefaultInstance. Missing Genetic Code.");
+    if (args.find("geneticcode")==args.end())
+      throw Exception("PhylogeneticsApplicationTools::getSubstitutionModelDefaultInstance. Missing Genetic Code.");
 
-      GeneticCode* pgc=SequenceApplicationTools::getGeneticCode(dynamic_cast<const NucleicAlphabet*>(pCA->getNAlphabet(0)),args["geneticcode"]);
-      if (pgc->getSourceAlphabet()->getAlphabetType()!=pCA->getAlphabetType())
-        throw Exception("Mismatch  between genetic code and codon alphabet");
+    GeneticCode* pgc=SequenceApplicationTools::getGeneticCode(dynamic_cast<const NucleicAlphabet*>(pCA->getNAlphabet(0)),args["geneticcode"]);
+    if (pgc->getSourceAlphabet()->getAlphabetType()!=pCA->getAlphabetType())
+      throw Exception("Mismatch  between genetic code and codon alphabet");
 
-      if (args.find("kappa") != args.end())
-        unparsedParameterValues["GY94.kappa"] = args["kappa"];
-      if (args.find("V") != args.end())
-        unparsedParameterValues["GY94.V"] = args["V"];
+    if (args.find("kappa") != args.end())
+      unparsedParameterValues["GY94.kappa"] = args["kappa"];
+    if (args.find("V") != args.end())
+      unparsedParameterValues["GY94.V"] = args["V"];
       
-      model = new GY94(pgc);
-    }
+    model = new GY94(pgc);
+  }
   
   ////////////////////////////////////////
   // MG94
   ////////////////////////////////////////
   
   else if (modelName == "MG94")
-    {
-      if (! AlphabetTools::isCodonAlphabet(alphabet))
-        throw Exception("Alphabet should be Codon Alphabet.");
+  {
+    if (! AlphabetTools::isCodonAlphabet(alphabet))
+      throw Exception("Alphabet should be Codon Alphabet.");
 
-      const CodonAlphabet* pCA = (const CodonAlphabet*)(alphabet);
+    const CodonAlphabet* pCA = (const CodonAlphabet*)(alphabet);
 
-      if (args.find("geneticcode")==args.end())
-        throw Exception("PhylogeneticsApplicationTools::getSubstitutionModelDefaultInstance. Missing Genetic Code.");
+    if (args.find("geneticcode")==args.end())
+      throw Exception("PhylogeneticsApplicationTools::getSubstitutionModelDefaultInstance. Missing Genetic Code.");
 
-      GeneticCode* pgc=SequenceApplicationTools::getGeneticCode(dynamic_cast<const NucleicAlphabet*>(pCA->getNAlphabet(0)),args["geneticcode"]);
-      if (pgc->getSourceAlphabet()->getAlphabetType()!=pCA->getAlphabetType())
-        throw Exception("Mismatch  between genetic code and codon alphabet");
+    GeneticCode* pgc=SequenceApplicationTools::getGeneticCode(dynamic_cast<const NucleicAlphabet*>(pCA->getNAlphabet(0)),args["geneticcode"]);
+    if (pgc->getSourceAlphabet()->getAlphabetType()!=pCA->getAlphabetType())
+      throw Exception("Mismatch  between genetic code and codon alphabet");
 
-      if (args.find("rho") != args.end())
-        unparsedParameterValues["MG94.rho"] = args["rho"];
-      
-      model = new MG94(pgc);
-    }
+    if (args.find("rho") != args.end())
+      unparsedParameterValues["MG94.rho"] = args["rho"];
+     
+    model = new MG94(pgc);
+  }
   
   
   ////////////////////////////////////////
@@ -447,26 +447,26 @@ SubstitutionModel* PhylogeneticsApplicationTools::getSubstitutionModelDefaultIns
   ////////////////////////////////////////
   
   else if (modelName == "YN98")
-    {
-      if (! AlphabetTools::isCodonAlphabet(alphabet))
-        throw Exception("Alphabet should be Codon Alphabet.");
+  {
+    if (! AlphabetTools::isCodonAlphabet(alphabet))
+      throw Exception("Alphabet should be Codon Alphabet.");
 
-      const CodonAlphabet* pCA = (const CodonAlphabet*)(alphabet);
+    const CodonAlphabet* pCA = (const CodonAlphabet*)(alphabet);
 
-      if (args.find("geneticcode")==args.end())
-        throw Exception("PhylogeneticsApplicationTools::getSubstitutionModelDefaultInstance. Missing Genetic Code.");
+    if (args.find("geneticcode")==args.end())
+      throw Exception("PhylogeneticsApplicationTools::getSubstitutionModelDefaultInstance. Missing Genetic Code.");
 
-      GeneticCode* pgc=SequenceApplicationTools::getGeneticCode(dynamic_cast<const NucleicAlphabet*>(pCA->getNAlphabet(0)),args["geneticcode"]);
-      if (pgc->getSourceAlphabet()->getAlphabetType()!=pCA->getAlphabetType())
-        throw Exception("Mismatch  between genetic code and codon alphabet");
+    GeneticCode* pgc=SequenceApplicationTools::getGeneticCode(dynamic_cast<const NucleicAlphabet*>(pCA->getNAlphabet(0)),args["geneticcode"]);
+    if (pgc->getSourceAlphabet()->getAlphabetType()!=pCA->getAlphabetType())
+      throw Exception("Mismatch  between genetic code and codon alphabet");
 
-      if (args.find("omega") != args.end())
-        unparsedParameterValues["YN98.omega"] = args["omega"];
-      if (args.find("kappa") != args.end())
-        unparsedParameterValues["YN98.kappa"] = args["kappa"];
+    if (args.find("omega") != args.end())
+      unparsedParameterValues["YN98.omega"] = args["omega"];
+    if (args.find("kappa") != args.end())
+      unparsedParameterValues["YN98.kappa"] = args["kappa"];
       
-      model = new YN98(pgc);
-    }
+    model = new YN98(pgc);
+  }
   
 
   ///////////////////////////////////
@@ -474,301 +474,302 @@ SubstitutionModel* PhylogeneticsApplicationTools::getSubstitutionModelDefaultIns
   /////////////////////////////////
 
   else if (modelName == "RE08")
-    {
-      if (!allowGaps)
-        throw Exception("PhylogeneticsApplicationTools::getSubstitutionModelDefaultInstance. No Gap model allowed here.");
+  {
+    if (!allowGaps)
+      throw Exception("PhylogeneticsApplicationTools::getSubstitutionModelDefaultInstance. No Gap model allowed here.");
     
-      //We have to parse the nested model first:
-      string nestedModelDescription = args["model"];
-      if (TextTools::isEmpty(nestedModelDescription))
-        throw Exception("PhylogeneticsApplicationTools::getSubstitutionModelDefaultInstance. Missing argument 'model' for model 'RE08'.");
-      if (verbose)
-        ApplicationTools::displayResult("Gap model" , modelName);
-      map<string, string> unparsedParameterValuesNested;
-      SubstitutionModel* nestedModel = getSubstitutionModelDefaultInstance(alphabet, nestedModelDescription, unparsedParameterValuesNested, allowCovarions, false, verbose);
+    //We have to parse the nested model first:
+    string nestedModelDescription = args["model"];
+    if (TextTools::isEmpty(nestedModelDescription))
+      throw Exception("PhylogeneticsApplicationTools::getSubstitutionModelDefaultInstance. Missing argument 'model' for model 'RE08'.");
+    if (verbose)
+      ApplicationTools::displayResult("Gap model" , modelName);
+    map<string, string> unparsedParameterValuesNested;
+    SubstitutionModel* nestedModel = getSubstitutionModelDefaultInstance(alphabet, nestedModelDescription, unparsedParameterValuesNested, allowCovarions, false, verbose);
     
-      //Now we create the RE08 substitution model:
-      ReversibleSubstitutionModel * tmp = dynamic_cast<ReversibleSubstitutionModel *>(nestedModel);
-      model = new RE08(tmp);
+    //Now we create the RE08 substitution model:
+    ReversibleSubstitutionModel * tmp = dynamic_cast<ReversibleSubstitutionModel *>(nestedModel);
+    model = new RE08(tmp);
 
-      //Then we update the parameter set:
-      for (map<string, string>::iterator it = unparsedParameterValuesNested.begin(); it != unparsedParameterValuesNested.end(); it++)
-        unparsedParameterValues["RE08.model_" + it->first] = it->second;
-      if (args.find("lambda") != args.end())
-        unparsedParameterValues["RE08.lambda"] = args["lambda"];
-      if (args.find("mu") != args.end())
-        unparsedParameterValues["RE08.mu"] = args["mu"];
-    }  
+    //Then we update the parameter set:
+    for (map<string, string>::iterator it = unparsedParameterValuesNested.begin(); it != unparsedParameterValuesNested.end(); it++)
+      unparsedParameterValues["RE08.model_" + it->first] = it->second;
+    if (args.find("lambda") != args.end())
+      unparsedParameterValues["RE08.lambda"] = args["lambda"];
+    if (args.find("mu") != args.end())
+      unparsedParameterValues["RE08.mu"] = args["mu"];
+  }  
 
   ///////////////////////////////////
   /// TS98
   /////////////////////////////////
   
   else if (modelName == "TS98")
-    {
-      if (!allowCovarions)
-        throw Exception("PhylogeneticsApplicationTools::getSubstitutionModelDefaultInstance. No Covarion model allowed here.");
+  {
+    if (!allowCovarions)
+      throw Exception("PhylogeneticsApplicationTools::getSubstitutionModelDefaultInstance. No Covarion model allowed here.");
 
-      //We have to parse the nested model first:
-      string nestedModelDescription = args["model"];
-      if (TextTools::isEmpty(nestedModelDescription))
-        throw Exception("PhylogeneticsApplicationTools::getSubstitutionModelDefaultInstance. Missing argument 'model' for model 'TS98'.");
-      if (verbose)
-        ApplicationTools::displayResult("Covarion model" , modelName);
-      map<string, string> unparsedParameterValuesNested;
-      SubstitutionModel* nestedModel = getSubstitutionModelDefaultInstance(alphabet, nestedModelDescription, unparsedParameterValuesNested, false, allowGaps, verbose);
+    //We have to parse the nested model first:
+    string nestedModelDescription = args["model"];
+    if (TextTools::isEmpty(nestedModelDescription))
+      throw Exception("PhylogeneticsApplicationTools::getSubstitutionModelDefaultInstance. Missing argument 'model' for model 'TS98'.");
+    if (verbose)
+      ApplicationTools::displayResult("Covarion model" , modelName);
+    map<string, string> unparsedParameterValuesNested;
+    SubstitutionModel* nestedModel = getSubstitutionModelDefaultInstance(alphabet, nestedModelDescription, unparsedParameterValuesNested, false, allowGaps, verbose);
     
-      //Now we create the TS98 substitution model:
-      ReversibleSubstitutionModel * tmp = dynamic_cast<ReversibleSubstitutionModel *>(nestedModel);
-      model = new TS98(tmp);
+    //Now we create the TS98 substitution model:
+    ReversibleSubstitutionModel * tmp = dynamic_cast<ReversibleSubstitutionModel *>(nestedModel);
+    model = new TS98(tmp);
 
-      //Then we update the parameter set:
-      for (map<string, string>::iterator it = unparsedParameterValuesNested.begin(); it != unparsedParameterValuesNested.end(); it++)
-        unparsedParameterValues["TS98.model_" + it->first] = it->second;
-      if (args.find("s1") != args.end())
-        unparsedParameterValues["TS98.s1"] = args["s1"];
-      if (args.find("s2") != args.end())
-        unparsedParameterValues["TS98.s2"] = args["s2"];
-    }
+    //Then we update the parameter set:
+    for (map<string, string>::iterator it = unparsedParameterValuesNested.begin(); it != unparsedParameterValuesNested.end(); it++)
+      unparsedParameterValues["TS98.model_" + it->first] = it->second;
+    if (args.find("s1") != args.end())
+      unparsedParameterValues["TS98.s1"] = args["s1"];
+    if (args.find("s2") != args.end())
+      unparsedParameterValues["TS98.s2"] = args["s2"];
+  }
 
   ///////////////////////////////////
   /// G01
   /////////////////////////////////
 
   else if (modelName == "G01")
-    {
-      if(!allowCovarions)
-        throw Exception("PhylogeneticsApplicationTools::getSubstitutionModelDefaultInstance. No Covarion model allowed here.");
+  {
+    if(!allowCovarions)
+      throw Exception("PhylogeneticsApplicationTools::getSubstitutionModelDefaultInstance. No Covarion model allowed here.");
 
-      //We have to parse the nested model first:
-      string nestedModelDescription = args["model"];
-      if (TextTools::isEmpty(nestedModelDescription))
-        throw Exception("PhylogeneticsApplicationTools::getSubstitutionModelDefaultInstance. Missing argument 'model' for model 'G01'.");
-      string nestedRateDistDescription = args["rdist"];
-      if (TextTools::isEmpty(nestedRateDistDescription))
-        throw Exception("PhylogeneticsApplicationTools::getSubstitutionModelDefaultInstance. Missing argument 'rdist' for model 'G01'.");
-      if (verbose)
-        ApplicationTools::displayResult("Covarion model" , modelName);
+    //We have to parse the nested model first:
+    string nestedModelDescription = args["model"];
+    if (TextTools::isEmpty(nestedModelDescription))
+      throw Exception("PhylogeneticsApplicationTools::getSubstitutionModelDefaultInstance. Missing argument 'model' for model 'G01'.");
+    string nestedRateDistDescription = args["rdist"];
+    if (TextTools::isEmpty(nestedRateDistDescription))
+      throw Exception("PhylogeneticsApplicationTools::getSubstitutionModelDefaultInstance. Missing argument 'rdist' for model 'G01'.");
+    if (verbose)
+      ApplicationTools::displayResult("Covarion model" , modelName);
    
-      map<string, string> unparsedParameterValuesNestedModel;
-      SubstitutionModel* nestedModel = getSubstitutionModelDefaultInstance(alphabet, nestedModelDescription, unparsedParameterValuesNestedModel, false, allowGaps, verbose);
-      map<string, string> unparsedParameterValuesNestedDist;
-      DiscreteDistribution* nestedRDist = getRateDistributionDefaultInstance(nestedRateDistDescription, unparsedParameterValuesNestedDist, false, verbose);
+    map<string, string> unparsedParameterValuesNestedModel;
+    SubstitutionModel* nestedModel = getSubstitutionModelDefaultInstance(alphabet, nestedModelDescription, unparsedParameterValuesNestedModel, false, allowGaps, verbose);
+    map<string, string> unparsedParameterValuesNestedDist;
+    DiscreteDistribution* nestedRDist = getRateDistributionDefaultInstance(nestedRateDistDescription, unparsedParameterValuesNestedDist, false, verbose);
 
-      //Now we create the G01 substitution model:
-      ReversibleSubstitutionModel * tmp = dynamic_cast<ReversibleSubstitutionModel *>(nestedModel);
-      model = new G2001(tmp, nestedRDist);
+    //Now we create the G01 substitution model:
+    ReversibleSubstitutionModel * tmp = dynamic_cast<ReversibleSubstitutionModel *>(nestedModel);
+    model = new G2001(tmp, nestedRDist);
     
-      //Then we update the parameter set:
-      for (map<string, string>::iterator it = unparsedParameterValuesNestedModel.begin(); it != unparsedParameterValuesNestedModel.end(); it++)
-        unparsedParameterValues["G01.model_" + it->first] = it->second;
-      for (map<string, string>::iterator it = unparsedParameterValuesNestedDist.begin(); it != unparsedParameterValuesNestedDist.end(); it++)
-        unparsedParameterValues["G01.rdist_" + it->first] = it->second;
-      if (args.find("nu") != args.end())
-        unparsedParameterValues["G01.nu"] = args["nu"];
-    }
+    //Then we update the parameter set:
+    for (map<string, string>::iterator it = unparsedParameterValuesNestedModel.begin(); it != unparsedParameterValuesNestedModel.end(); it++)
+      unparsedParameterValues["G01.model_" + it->first] = it->second;
+    for (map<string, string>::iterator it = unparsedParameterValuesNestedDist.begin(); it != unparsedParameterValuesNestedDist.end(); it++)
+      unparsedParameterValues["G01.rdist_" + it->first] = it->second;
+    if (args.find("nu") != args.end())
+      unparsedParameterValues["G01.nu"] = args["nu"];
+  }
   else
+  {
+    //This is a 'simple' model...
+    if (AlphabetTools::isNucleicAlphabet(alphabet))
     {
-      //This is a 'simple' model...
-      if (AlphabetTools::isNucleicAlphabet(alphabet))
-        {
-          const NucleicAlphabet * alpha = dynamic_cast<const NucleicAlphabet *>(alphabet);
+      const NucleicAlphabet * alpha = dynamic_cast<const NucleicAlphabet *>(alphabet);
     
-          ///////////////////////////////////
-          /// GTR
-          /////////////////////////////////
+      ///////////////////////////////////
+      /// GTR
+      /////////////////////////////////
 
-          if (modelName == "GTR")
-            {
-              model = new GTR(alpha);
-              if (args.find("a") != args.end())
-                unparsedParameterValues["GTR.a"] = args["a"];
-              if (args.find("b") != args.end())
-                unparsedParameterValues["GTR.b"] = args["b"];
-              if (args.find("c") != args.end())
-                unparsedParameterValues["GTR.c"] = args["c"];
-              if (args.find("d") != args.end())
-                unparsedParameterValues["GTR.d"] = args["d"];
-              if (args.find("e") != args.end())
-                unparsedParameterValues["GTR.e"] = args["e"];
-              if (args.find("theta") != args.end())
-                unparsedParameterValues["GTR.theta"] = args["theta"];
-              if (args.find("theta1") != args.end())
-                unparsedParameterValues["GTR.theta1"] = args["theta1"];
-              if (args.find("theta2") != args.end())
-                unparsedParameterValues["GTR.theta2"] = args["theta2"];
-            }
+      if (modelName == "GTR")
+      {
+        model = new GTR(alpha);
+        if (args.find("a") != args.end())
+          unparsedParameterValues["GTR.a"] = args["a"];
+        if (args.find("b") != args.end())
+          unparsedParameterValues["GTR.b"] = args["b"];
+        if (args.find("c") != args.end())
+          unparsedParameterValues["GTR.c"] = args["c"];
+        if (args.find("d") != args.end())
+          unparsedParameterValues["GTR.d"] = args["d"];
+        if (args.find("e") != args.end())
+          unparsedParameterValues["GTR.e"] = args["e"];
+        if (args.find("theta") != args.end())
+          unparsedParameterValues["GTR.theta"] = args["theta"];
+        if (args.find("theta1") != args.end())
+          unparsedParameterValues["GTR.theta1"] = args["theta1"];
+        if (args.find("theta2") != args.end())
+          unparsedParameterValues["GTR.theta2"] = args["theta2"];
+      }
 
 
-          ///////////////////////////////////
-          /// L95
-          /////////////////////////////////
+      ///////////////////////////////////
+      /// L95
+      /////////////////////////////////
       
-          else if (modelName == "L95")
-            {
-              model = new L95(alpha);
-              if (args.find("beta") != args.end())
-                unparsedParameterValues["L95.beta"] = args["beta"];
-              if (args.find("gamma") != args.end())
-                unparsedParameterValues["L95.gamma"] = args["gamma"];
-              if (args.find("delta") != args.end())
-                unparsedParameterValues["L95.delta"] = args["delta"];
-              if (args.find("theta") != args.end())
-                unparsedParameterValues["L95.theta"] = args["theta"];
-            }
+      else if (modelName == "L95")
+      {
+        model = new L95(alpha);
+        if (args.find("beta") != args.end())
+          unparsedParameterValues["L95.beta"] = args["beta"];
+        if (args.find("gamma") != args.end())
+          unparsedParameterValues["L95.gamma"] = args["gamma"];
+        if (args.find("delta") != args.end())
+          unparsedParameterValues["L95.delta"] = args["delta"];
+        if (args.find("theta") != args.end())
+          unparsedParameterValues["L95.theta"] = args["theta"];
+      }
 
-          ///////////////////////////////////
-          /// TN93
-          ////////////////////////////////
+      ///////////////////////////////////
+      /// TN93
+      ////////////////////////////////
 
-          else if (modelName == "TN93")
-            {
-              model = new TN93(alpha);
-              if (args.find("kappa1") != args.end())
-                unparsedParameterValues["TN93.kappa1"] = args["kappa1"];
-              if (args.find("kappa2") != args.end())
-                unparsedParameterValues["TN93.kappa2"] = args["kappa2"];
-              if (args.find("theta") != args.end())
-                unparsedParameterValues["TN93.theta"] = args["theta"];
-              if (args.find("theta1") != args.end())
-                unparsedParameterValues["TN93.theta1"] = args["theta1"];
-              if (args.find("theta2") != args.end())
-                unparsedParameterValues["TN93.theta2"] = args["theta2"];
-            }
+      else if (modelName == "TN93")
+      {
+        model = new TN93(alpha);
+        if (args.find("kappa1") != args.end())
+          unparsedParameterValues["TN93.kappa1"] = args["kappa1"];
+        if (args.find("kappa2") != args.end())
+          unparsedParameterValues["TN93.kappa2"] = args["kappa2"];
+        if (args.find("theta") != args.end())
+          unparsedParameterValues["TN93.theta"] = args["theta"];
+        if (args.find("theta1") != args.end())
+          unparsedParameterValues["TN93.theta1"] = args["theta1"];
+        if (args.find("theta2") != args.end())
+          unparsedParameterValues["TN93.theta2"] = args["theta2"];
+      }
 
-          ///////////////////////////////////
-          /// HKY85
-          /////////////////////////////////
+      ///////////////////////////////////
+      /// HKY85
+      /////////////////////////////////
 
-          else if (modelName == "HKY85")
-            {
-              model = new HKY85(alpha);
-              if (args.find("kappa") != args.end())
-                unparsedParameterValues["HKY85.kappa"] = args["kappa"];
-              if (args.find("theta") != args.end())
-                unparsedParameterValues["HKY85.theta"] = args["theta"];
-              if (args.find("theta1") != args.end())
-                unparsedParameterValues["HKY85.theta1"] = args["theta1"];
-              if (args.find("theta2") != args.end())
-                unparsedParameterValues["HKY85.theta2"] = args["theta2"];
-            }
+      else if (modelName == "HKY85")
+      {
+        model = new HKY85(alpha);
+        if (args.find("kappa") != args.end())
+          unparsedParameterValues["HKY85.kappa"] = args["kappa"];
+        if (args.find("theta") != args.end())
+          unparsedParameterValues["HKY85.theta"] = args["theta"];
+        if (args.find("theta1") != args.end())
+          unparsedParameterValues["HKY85.theta1"] = args["theta1"];
+        if (args.find("theta2") != args.end())
+          unparsedParameterValues["HKY85.theta2"] = args["theta2"];
+      }
 
-          ///////////////////////////////////
-          /// F84
-          /////////////////////////////////
+      ///////////////////////////////////
+      /// F84
+      /////////////////////////////////
 
-          else if (modelName == "F84")
-            {
-              model = new F84(alpha);
-              if (args.find("kappa") != args.end())
-                unparsedParameterValues["F84.kappa"] = args["kappa"];
-              if (args.find("theta") != args.end())
-                unparsedParameterValues["F84.theta"] = args["theta"];
-              if (args.find("theta1") != args.end())
-                unparsedParameterValues["F84.theta1"] = args["theta1"];
-              if (args.find("theta2") != args.end())
-                unparsedParameterValues["F84.theta2"] = args["theta2"];
-            }
+      else if (modelName == "F84")
+      {
+        model = new F84(alpha);
+        if (args.find("kappa") != args.end())
+          unparsedParameterValues["F84.kappa"] = args["kappa"];
+        if (args.find("theta") != args.end())
+          unparsedParameterValues["F84.theta"] = args["theta"];
+        if (args.find("theta1") != args.end())
+          unparsedParameterValues["F84.theta1"] = args["theta1"];
+        if (args.find("theta2") != args.end())
+          unparsedParameterValues["F84.theta2"] = args["theta2"];
+      }
 
-          ///////////////////////////////////
-          /// T92
-          /////////////////////////////////
+      ///////////////////////////////////
+      /// T92
+      /////////////////////////////////
       
-          else if (modelName == "T92")
-            {
-              model = new T92(alpha);
-              if (args.find("kappa") != args.end())
-                unparsedParameterValues["T92.kappa"] = args["kappa"];
-              if (args.find("theta") != args.end())
-                unparsedParameterValues["T92.theta"] = args["theta"];
-            }
+      else if (modelName == "T92")
+      {
+        model = new T92(alpha);
+        if (args.find("kappa") != args.end())
+          unparsedParameterValues["T92.kappa"] = args["kappa"];
+        if (args.find("theta") != args.end())
+          unparsedParameterValues["T92.theta"] = args["theta"];
+      }
 
-          ///////////////////////////////////
-          /// K80
-          /////////////////////////////////
+      ///////////////////////////////////
+      /// K80
+      /////////////////////////////////
       
-          else if (modelName == "K80")
-            {
-              model = new K80(alpha);
-              if (args.find("kappa") != args.end())
-                unparsedParameterValues["K80.kappa"] = args["kappa"];
-            }
+      else if (modelName == "K80")
+      {
+        model = new K80(alpha);
+        if (args.find("kappa") != args.end())
+          unparsedParameterValues["K80.kappa"] = args["kappa"];
+      }
 
 
-          ///////////////////////////////////
-          /// JC69
-          /////////////////////////////////
+      ///////////////////////////////////
+      /// JC69
+      /////////////////////////////////
 
-          else if (modelName == "JC69")
-            {
-              model = new JCnuc(alpha);
-            }
-          else{
-            throw Exception("Model '" + modelName + "' unknown.");
-          }
-        }
+      else if (modelName == "JC69")
+      {
+        model = new JCnuc(alpha);
+      }
       else
-        { 
-          const ProteicAlphabet * alpha = dynamic_cast<const ProteicAlphabet *>(alphabet);
-    
-          if (modelName == "JC69+F")
-            model = new JCprotF(alpha);
-          else if (modelName == "DSO78+F")
-            model = new DSO78F(alpha);
-          else if (modelName == "JTT92+F")
-            model = new JTT92F(alpha);
-          else if (modelName == "Empirical+F")
-            {
-              string prefix = args["name"];
-              if (TextTools::isEmpty(prefix))
-                throw Exception("'name' argument missing for user-defined substitution model.");
-              model = new UserProteinSubstitutionModelF(alpha, args["file"], prefix + ".");
-            }
-          else if (modelName == "JC69")
-            model = new JCprot(alpha);
-          else if (modelName == "DSO78")
-            model = new DSO78(alpha);
-          else if (modelName == "JTT92")
-            model = new JTT92(alpha);
-          else if (modelName == "Empirical")
-            {
-              string prefix = args["name"];
-              if( TextTools::isEmpty(prefix))
-                throw Exception("'name' argument missing for user-defined substitution model.");
-              model = new UserProteinSubstitutionModel(alpha, args["file"], prefix);
-            }
-          else
-            throw Exception("Model '" + modelName + "' unknown.");
-        }
-      if (verbose)
-        ApplicationTools::displayResult("Substitution model", modelName);
+      {
+        throw Exception("Model '" + modelName + "' unknown.");
+      }
     }
+    else
+    { 
+      const ProteicAlphabet * alpha = dynamic_cast<const ProteicAlphabet *>(alphabet);
+    
+      if (modelName == "JC69+F")
+        model = new JCprotF(alpha);
+      else if (modelName == "DSO78+F")
+        model = new DSO78F(alpha);
+      else if (modelName == "JTT92+F")
+        model = new JTT92F(alpha);
+      else if (modelName == "Empirical+F")
+      {
+        string prefix = args["name"];
+        if (TextTools::isEmpty(prefix))
+          throw Exception("'name' argument missing for user-defined substitution model.");
+        model = new UserProteinSubstitutionModelF(alpha, args["file"], prefix + ".");
+      }
+      else if (modelName == "JC69")
+        model = new JCprot(alpha);
+      else if (modelName == "DSO78")
+        model = new DSO78(alpha);
+      else if (modelName == "JTT92")
+        model = new JTT92(alpha);
+      else if (modelName == "Empirical")
+      {
+        string prefix = args["name"];
+        if( TextTools::isEmpty(prefix))
+          throw Exception("'name' argument missing for user-defined substitution model.");
+        model = new UserProteinSubstitutionModel(alpha, args["file"], prefix);
+      }
+      else
+        throw Exception("Model '" + modelName + "' unknown.");
+    }
+    if (verbose)
+      ApplicationTools::displayResult("Substitution model", modelName);
+  }
 
   //Now look if some parameters are aliased:
   ParameterList pl = model->getIndependentParameters();
   string pname, pval, pname2;
   for (unsigned int i = 0; i < pl.size(); i++)
+  {
+    pname = model->getParameterNameWithoutNamespace(pl[i]->getName());
+    if (args.find(pname) == args.end()) continue;
+    pval = args[pname];
+    if(pval.length() >= 5 && pval.substr(0, 5) == "model")
+      continue;
+    bool found = false;
+    for (unsigned int j = 0; j < pl.size() && !found; j++)
     {
-      pname = model->getParameterNameWithoutNamespace(pl[i]->getName());
-      if (args.find(pname) == args.end()) continue;
-      pval = args[pname];
-      if(pval.length() >= 5 && pval.substr(0, 5) == "model")
-        continue;
-      bool found = false;
-      for (unsigned int j = 0; j < pl.size() && !found; j++)
-        {
-          pname2 = model->getParameterNameWithoutNamespace(pl[j]->getName());
-          if (j == i || args.find(pname2) == args.end()) continue;
-          if (pval == pname2)
-            {
-              //This is an alias...
-              //NB: this may throw an exception if uncorrect! We leave it as is for now :s
-              model->aliasParameters(pname2, pname);
-              if (verbose)
-                ApplicationTools::displayResult("Parameter alias found", pname + "->" + pname2);
-              found = true;
-            }
+      pname2 = model->getParameterNameWithoutNamespace(pl[j]->getName());
+      if (j == i || args.find(pname2) == args.end()) continue;
+      if (pval == pname2)
+      {
+        //This is an alias...
+        //NB: this may throw an exception if uncorrect! We leave it as is for now :s
+        model->aliasParameters(pname2, pname);
+        if (verbose)
+          ApplicationTools::displayResult("Parameter alias found", pname + "->" + pname2);
+        found = true;
         }
+      }
       if (!TextTools::isDecimalNumber(pval) && !found)
         throw Exception("Incorrect parameter syntax: parameter " + pval + " was not found and can't be used as a value for parameter " + pname + ".");
     }

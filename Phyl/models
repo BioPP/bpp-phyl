@@ -34,3 +34,4 @@
 #include "CodonAsynonymousFrequenciesReversibleSubstitutionModel.h"
 #include "GY94.h"
 #include "MG94.h"
+#include "YN98.h"
