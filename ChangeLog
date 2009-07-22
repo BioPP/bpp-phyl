@@ -1,3 +1,6 @@
+22/07/09 Julien Dutheil
+* Added TreeDrawing classes.
+
 29/06/09 Julien Dutheil
 * Upgraded TreeLikelihood interfaces and SubstitutionModel interface + code lifting.
 * New class TreeLikelihoodTools

@@ -2027,7 +2027,7 @@ void PhylogeneticsApplicationTools::describeDiscreteDistribution_(const Discrete
   else
   {
     test = dynamic_cast<const ConstantDistribution*>(rDist);
-    if (test) out << "Uniform";
+    if (test) out << "Uniform()";
     else
     {
       test = dynamic_cast<const GammaDiscreteDistribution *>(rDist);

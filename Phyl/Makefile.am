@@ -150,7 +150,12 @@ CodonAsynonymousFrequenciesReversibleSubstitutionModel.h\
 NexusIOTree.h\
 GY94.h\
 MG94.h\
-YN98.h
+YN98.h\
+TreeDrawing.h\
+AbstractTreeDrawing.h\
+AbstractDendrogramPlot.h\
+PhylogramPlot.h\
+CladogramPlot.h
 
 CPP_FILES = \
 AbstractSubstitutionModel.cpp\
@@ -236,7 +241,11 @@ L95.cpp\
 NexusIOTree.cpp\
 GY94.cpp\
 MG94.cpp\
-YN98.cpp
+YN98.cpp\
+AbstractTreeDrawing.cpp\
+AbstractDendrogramPlot.cpp\
+PhylogramPlot.cpp\
+CladogramPlot.cpp
 
 
 CPP_EXTRA = \
