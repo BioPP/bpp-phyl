@@ -154,8 +154,11 @@ class AbstractTreeDrawing:
      * @param text The text to draw.
      * @param xOffset Horizontal offset.
      * @param yOffset Vertical offset.
+     * @param hpos The way the text should be aligned horizontally (see GraphicDevice).
+     * @param vpos The way the text should be aligned vertically (see GraphicDevice).
+     * @param angle The rotation value of the text.
      */
-    virtual void drawAtNode(GraphicDevice& gDevice, const INode& node, const string& text, double xOffset = 0, double yOffset = 0) const;
+    virtual void drawAtNode(GraphicDevice& gDevice, const INode& node, const string& text, double xOffset = 0, double yOffset = 0, short hpos = GraphicDevice::TEXT_HORIZONTAL_LEFT, short vpos = GraphicDevice::TEXT_VERTICAL_CENTER, double angle = 0) const;
 
     /**
      * @brief Draw some text at a particular branch position.
@@ -165,8 +168,11 @@ class AbstractTreeDrawing:
      * @param text The text to draw.
      * @param xOffset Horizontal offset.
      * @param yOffset Vertical offset.
+     * @param hpos The way the text should be aligned horizontally (see GraphicDevice).
+     * @param vpos The way the text should be aligned vertically (see GraphicDevice).
+     * @param angle The rotation value of the text.
       */
-    virtual void drawAtBranch(GraphicDevice& gDevice, const INode& node, const string& text, double xOffset = 0, double yOffset = 0) const;
+    virtual void drawAtBranch(GraphicDevice& gDevice, const INode& node, const string& text, double xOffset = 0, double yOffset = 0, short hpos = GraphicDevice::TEXT_HORIZONTAL_LEFT, short vpos = GraphicDevice::TEXT_VERTICAL_CENTER, double angle = 0) const;
    
     void setDisplaySettings(TreeDrawingSettings& tds) { settings_ = tds; }
     TreeDrawingSettings & getDisplaySettings() { return settings_; }

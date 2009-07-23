@@ -89,16 +89,16 @@ bool AbstractTreeDrawing::belongsTo(const Point2D<double>& p1, const Point2D<dou
        && p1.getY() >= p2.getY() - pointArea_ * yUnit_ && p1.getY() <= p2.getY() + pointArea_ * yUnit_);
 }
 
-void AbstractTreeDrawing::drawAtNode(GraphicDevice& gDevice, const INode& node, const string& text, double xOffset, double yOffset) const
+void AbstractTreeDrawing::drawAtNode(GraphicDevice& gDevice, const INode& node, const string& text, double xOffset, double yOffset, short hpos, short vpos, double angle) const
 {
-  gDevice.drawText(node.getInfos().getX() + xOffset * xUnit_, node.getInfos().getY() + yOffset * yUnit_, text);
+  gDevice.drawText(node.getInfos().getX() + xOffset * xUnit_, node.getInfos().getY() + yOffset * yUnit_, text, hpos, vpos, angle);
 }
 
-void AbstractTreeDrawing::drawAtBranch(GraphicDevice& gDevice, const INode& node, const string& text, double xOffset, double yOffset) const
+void AbstractTreeDrawing::drawAtBranch(GraphicDevice& gDevice, const INode& node, const string& text, double xOffset, double yOffset, short hpos, short vpos, double angle) const
 {
   if(node.hasFather())
   {
-    gDevice.drawText(node.getFather()->getInfos().getX() + xOffset * xUnit_, node.getInfos().getY() + yOffset * yUnit_, text);
+    gDevice.drawText(node.getFather()->getInfos().getX() + xOffset * xUnit_, node.getInfos().getY() + yOffset * yUnit_, text, hpos, vpos, angle);
   }
 }  
 

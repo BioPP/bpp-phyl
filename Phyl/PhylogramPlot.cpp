@@ -61,25 +61,28 @@ void PhylogramPlot::drawDendrogram_(GraphicDevice& gDevice) const throw (Excepti
   {
     unsigned int* tipCounter = new unsigned int(0);
     double y;
-    recursivePlot_(gDevice, *const_cast<INode*>(getTree_()->getRootNode()), 0, y, tipCounter);
+    recursivePlot_(gDevice, *const_cast<INode*>(getTree_()->getRootNode()), 0, y,
+        getHorizontalOrientation() == ORIENTATION_LEFT_TO_RIGHT ? 1. : -1.,
+        getVerticalOrientation() == ORIENTATION_TOP_TO_BOTTOM ? 1. : -1.,
+        tipCounter);
   }
 }
 
-void PhylogramPlot::recursivePlot_(GraphicDevice& gDevice, INode& node, double x, double& y, unsigned int* tipCounter) const
+void PhylogramPlot::recursivePlot_(GraphicDevice& gDevice, INode& node, double x, double& y, double hDirection, double vDirection, unsigned int* tipCounter) const
 {
   double x2;
   bool drawBranch = true;
-  if(node.hasDistanceToFather())
+  if (node.hasDistanceToFather())
   {
     double length = node.hasDistanceToFather() ? node.getDistanceToFather() : 0.;
-    if(length < -10000000)
+    if (length < -10000000)
     {
       x2 = x;
       drawBranch = false;
     }
     else
     {
-      x2 = x + (unsigned int)(length * getXUnit());
+      x2 = x + hDirection * length * getXUnit();
     }
   }
   else
@@ -88,28 +91,36 @@ void PhylogramPlot::recursivePlot_(GraphicDevice& gDevice, INode& node, double x
     drawBranch = false;
   }
   
-  if(node.isLeaf())
+  if (node.isLeaf())
   {
-    y = (unsigned int)((*tipCounter) * getYUnit());
+    y = static_cast<double>(*tipCounter) * getYUnit() * vDirection;
     (*tipCounter)++;
   }
   else
   {
     //Vertical line. Call the method on son nodes first:
-    double miny = 1000000; //(unsigned int)(-log(0));
+    double miny = vDirection * 1000000; //(unsigned int)(-log(0));
     double maxy = 0;
     for(unsigned int i = 0; i < node.getNumberOfSons(); i++)
     {
       double yson;
-      recursivePlot_(gDevice, *node.getSon(i), x2, yson, tipCounter);
-      if(yson < miny) miny = yson;
-      if(yson > maxy) maxy = yson;
+      recursivePlot_(gDevice, *node.getSon(i), x2, yson, hDirection, vDirection, tipCounter);
+      if (vDirection > 0)
+      {
+        if(yson < miny) miny = yson;
+        if(yson > maxy) maxy = yson;
+      }
+      else
+      {
+        if(yson > miny) miny = yson;
+        if(yson < maxy) maxy = yson;
+      }
     }
-    y = (unsigned int)((maxy+miny) / 2);
+    y = (maxy + miny) / 2.;
     gDevice.drawLine(x2, miny, x2, maxy);
   }
   
-  if(drawBranch)
+  if (drawBranch)
   {
     //Horizontal line
     gDevice.drawLine(x, y, x2, y);

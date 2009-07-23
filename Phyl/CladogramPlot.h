@@ -76,7 +76,7 @@ class CladogramPlot:
       
   private:
     void drawDendrogram_(GraphicDevice& gDevice) const throw (Exception);
-    void recursivePlot_(GraphicDevice& gDevice, INode& node, double x, double& y, unsigned int* tipCounter) const;
+    void recursivePlot_(GraphicDevice& gDevice, INode& node, double x, double& y, double hDirection, double vDirection, unsigned int* tipCounter) const;
 
 };
 

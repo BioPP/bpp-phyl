@@ -57,17 +57,20 @@ class AbstractDendrogramPlot:
   public AbstractTreeDrawing
 {
   private:
-    short orientation_;
+    short horOrientation_;
+    short verOrientation_;
 
   public:
     AbstractDendrogramPlot(const Tree* tree = 0):
-      AbstractTreeDrawing(tree), orientation_(ORIENTATION_LEFT_TO_RIGHT)
+      AbstractTreeDrawing(tree), horOrientation_(ORIENTATION_LEFT_TO_RIGHT), verOrientation_(ORIENTATION_TOP_TO_BOTTOM)
     {}
 
   public:
-    void setOrientation(short orientation) { orientation_ = orientation; }
+    void setHorizontalOrientation(short orientation) { horOrientation_ = orientation; }
+    void setVerticalOrientation(short orientation) { verOrientation_ = orientation; }
 
-    short getOrientation() const { return orientation_; }
+    short getHorizontalOrientation() const { return horOrientation_; }
+    short getVerticalOrientation() const { return verOrientation_; }
 
     void plot(GraphicDevice& gDevice) const throw (Exception);
 
@@ -85,6 +88,8 @@ class AbstractDendrogramPlot:
   public:
     static short ORIENTATION_LEFT_TO_RIGHT;
     static short ORIENTATION_RIGHT_TO_LEFT;
+    static short ORIENTATION_TOP_TO_BOTTOM;
+    static short ORIENTATION_BOTTOM_TO_TOP;
 
 };
 

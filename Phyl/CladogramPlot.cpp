@@ -55,32 +55,44 @@ void CladogramPlot::drawDendrogram_(GraphicDevice& gDevice) const throw (Excepti
   {
     unsigned int* tipCounter = new unsigned int(0);
     double y;
-    recursivePlot_(gDevice, *const_cast<INode*>(getTree_()->getRootNode()), 0, y, tipCounter);
+    recursivePlot_(gDevice, *const_cast<INode*>(getTree_()->getRootNode()), 0, y,
+        getHorizontalOrientation() == ORIENTATION_LEFT_TO_RIGHT ? 1. : -1.,
+        getVerticalOrientation() == ORIENTATION_TOP_TO_BOTTOM ? 1. : -1.,
+        tipCounter);
   }
 }
 
-void CladogramPlot::recursivePlot_(GraphicDevice& gDevice, INode& node, double x, double& y, unsigned int* tipCounter) const
+void CladogramPlot::recursivePlot_(GraphicDevice& gDevice, INode& node, double x, double& y, double hDirection, double vDirection, unsigned int* tipCounter) const
 {
-  unsigned int depth = TreeTemplateTools::getDepth(node);
-  double x2 = ((double)(totalDepth_ - depth) * getXUnit());
+  double depth = TreeTemplateTools::getDepth(node);
+  double x2 = (totalDepth_ - depth) * getXUnit() * hDirection;
   if(node.isLeaf())
   {
-    y = ((double)(*tipCounter) * getYUnit());
+    y = static_cast<double>(*tipCounter) * getYUnit() * vDirection;
     (*tipCounter)++;
   }
   else
   {
     //Vertical line. Call the method on son nodes first:
-    double miny = 1000000; //(unsigned int)(-log(0));
+    double miny = vDirection * 1000000; //(unsigned int)(-log(0));
     double maxy = 0;
     for(unsigned int i = 0; i < node.getNumberOfSons(); i++)
     {
       double yson;
-      recursivePlot_(gDevice, *node.getSon(i), x2, yson, tipCounter);
-      if(yson < miny) miny = yson;
-      if(yson > maxy) maxy = yson;
+      recursivePlot_(gDevice, *node.getSon(i), x2, yson, hDirection, vDirection, tipCounter);
+      if (vDirection > 0)
+      {
+        if(yson < miny) miny = yson;
+        if(yson > maxy) maxy = yson;
+      }
+      else
+      {
+        if(yson > miny) miny = yson;
+        if(yson < maxy) maxy = yson;
+      }
+
     }
-    y = (unsigned int)((maxy+miny) / 2);
+    y = (maxy + miny) / 2.;
     gDevice.drawLine(x2, miny, x2, maxy);
   }
   //Horizontal line

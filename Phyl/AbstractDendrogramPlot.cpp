@@ -43,6 +43,8 @@ using namespace bpp;
 
 short AbstractDendrogramPlot::ORIENTATION_LEFT_TO_RIGHT = 1;
 short AbstractDendrogramPlot::ORIENTATION_RIGHT_TO_LEFT = 2;
+short AbstractDendrogramPlot::ORIENTATION_TOP_TO_BOTTOM = 3;
+short AbstractDendrogramPlot::ORIENTATION_BOTTOM_TO_TOP = 4;
 
 void AbstractDendrogramPlot::plot(GraphicDevice& gDevice) const throw (Exception)
 {
@@ -57,7 +59,10 @@ void AbstractDendrogramPlot::drawNodesId_(GraphicDevice& gDevice) const
   for(unsigned int i = 0; i < nodes.size(); i++)
   {
     const INode* node = nodes[i];
-    drawAtNode(gDevice, *node, TextTools::toString(node->getId()), 0, 0);
+    drawAtNode(gDevice, *node, TextTools::toString(node->getId()), 0, 0,
+        horOrientation_ == ORIENTATION_LEFT_TO_RIGHT
+        ? GraphicDevice::TEXT_HORIZONTAL_LEFT
+        : GraphicDevice::TEXT_HORIZONTAL_RIGHT);
   }
 }
 
@@ -68,7 +73,10 @@ void AbstractDendrogramPlot::drawLeafNames_(GraphicDevice& gDevice) const
   for(unsigned int i = 0; i < leaves.size(); i++)
   {
     const INode* node = leaves[i];
-    drawAtNode(gDevice, *node, TextTools::toString(node->getName()), 0, 0);
+    drawAtNode(gDevice, *node, TextTools::toString(node->getName()), 0, 0,
+        horOrientation_ == ORIENTATION_LEFT_TO_RIGHT
+        ? GraphicDevice::TEXT_HORIZONTAL_LEFT
+        : GraphicDevice::TEXT_HORIZONTAL_RIGHT);
   }
 }
 
@@ -81,7 +89,7 @@ void AbstractDendrogramPlot::drawBranchLengthValues_(GraphicDevice& gDevice) con
     const INode * node = nodes[i];
     if(node->hasDistanceToFather())
     {
-      drawAtBranch(gDevice, *node, TextTools::toString(node->getDistanceToFather()), 0, -7);
+      drawAtBranch(gDevice, *node, TextTools::toString(node->getDistanceToFather()), 0, 0,GraphicDevice::TEXT_HORIZONTAL_CENTER);
     }
   }
 }
@@ -96,7 +104,11 @@ void AbstractDendrogramPlot::drawBootstrapValues_(GraphicDevice& gDevice) const
     const Clonable* b = node->getBranchProperty(TreeTools::BOOTSTRAP);
     if(b)
     {
-      drawAtNode(gDevice, *node, TextTools::toString(dynamic_cast<const Number<double> *>(b)->getValue()), 5, 0);
+      drawAtNode(gDevice, *node, TextTools::toString(dynamic_cast<const Number<double> *>(b)->getValue()),
+        horOrientation_ == ORIENTATION_LEFT_TO_RIGHT ? -5 : 5, 0,
+        horOrientation_ == ORIENTATION_LEFT_TO_RIGHT
+        ? GraphicDevice::TEXT_HORIZONTAL_LEFT
+        : GraphicDevice::TEXT_HORIZONTAL_RIGHT);
     }
   }
 }

@@ -61,12 +61,12 @@ namespace bpp
  * There is one substitution per word per unit of time
  * on the equilibrium frequency, and each position has its specific rate.
  * For example, if there are \f$n\f$ models and \f$\rho_i\f$ is the rate of
- * model i (\f$\sum_{i=0}^{n-1} \rho_i = 1\f$):
- * \f{eqnarray*}{
- * Q_{abc \rightarrow abd} &=& \rho_2 Q^{(2)}_{c \rightarrow d}
- * Q_{abc \rightarrow aed} &=& 0
+ * model i (@f$\sum_{i=0}^{n-1} \rho_i = 1@f$):
+ * @f{eqnarray*}{
+ * Q_{abc \rightarrow abd} &=& \rho_2 Q^{(2)}_{c \rightarrow d}\\
+ * Q_{abc \rightarrow aed} &=& 0\\
  * Q_{abc \rightarrow abc} &=& \rho_0 Q^{(0)}_{a \rightarrow a} + \rho_1 Q^{(1)}_{b \rightarrow b} + \rho_2 Q^{(2)}_{c \rightarrow c})
- * \f}
+ * @f}
  *
  * The parameters of this word model are the same as the ones of the
  * models used. Their names have a new suffix, "_phi" where i stands
