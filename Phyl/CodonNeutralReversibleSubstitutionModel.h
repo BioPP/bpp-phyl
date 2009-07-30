@@ -61,8 +61,8 @@ namespace bpp
  * on the equilibrium frequency, and each position has its specific rate.
  *
  * The generator is constructed in two steps:
- * First, if there are \f$n\f$ models and \f$\rho_i\f$ is the rate of
- * model i (\f$\sum_{i=0}^{n-1} \rho_i = 1\f$):
+ * First, if there are @f$n@f$ models and @f$\rho_i@f$ is the rate of
+ * model i (@f$\sum_{i=0}^{n-1} \rho_i = 1@f$):
  * @f[
  * Q_{abc \rightarrow abd} = \rho_2 Q^{(2)}_{c \rightarrow d}
  * Q_{abc \rightarrow aed} = 0
@@ -76,7 +76,7 @@ namespace bpp
  * models used. Their names have a new suffix, "_phi" where i stands
  * for the position (i.e. the phase) in the word.
  *
- * The rates are defined by relative rates parameters \f$r_i\f$ (called "relrate_i") with:
+ * The rates are defined by relative rates parameters @f$r_i@f$ (called "relrate_i") with:
  * @f[
  * i < n-1, \rho_i = (1-r_0).(1-r_1)...(1-r_{i-1}).r_i
  * \rho_{n-1} = (1-r_0).(1-r_1)...(1-r_{n-2})

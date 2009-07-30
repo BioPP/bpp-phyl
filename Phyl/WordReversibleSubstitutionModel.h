@@ -56,16 +56,16 @@ namespace bpp
  * equilibrium frequency of each word is the product of the
  * equilibrium frequencies of the letters.</p>
  *
- * The rates are defined by relative rates parameters \f$r_i\f$ with:
+ * The rates are defined by relative rates parameters @f$r_i@f$ with:
  * @f[
  * i < n-1, \rho_i = (1-r_0).(1-r_1)...(1-r_{i-1}).r_i
  * \rho_{n-1} = (1-r_0).(1-r_1)...(1-r_{n-2})
  * @f]
  * and
  * @f[
- * \forall i< n-1, r_i = \frac{\rho_i}{1-(\rho_0+...\rho_{i-1})}
+ * @forall i< n-1, r_i = @frac{\rho_i}{1-(\rho_0+...\rho_{i-1})}
  * @f]
- * where \f$\rho_i\f$ stands for the rate of position \f$i\f$.
+ * where @f$\rho_i@f$ stands for the rate of position @f$i@f$.
  */
   
 class WordReversibleSubstitutionModel :
