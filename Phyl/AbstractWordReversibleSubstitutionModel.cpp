@@ -107,8 +107,8 @@ AbstractWordReversibleSubstitutionModel::AbstractWordReversibleSubstitutionModel
   _p.resize(getNumberOfStates(),getNumberOfStates());
 }
 
-AbstractWordReversibleSubstitutionModel::AbstractWordReversibleSubstitutionModel(const Alphabet* palph,
-                                                                                 const std::string& st) : AbstractReversibleSubstitutionModel(palph,st), new_alphabet_(0)
+AbstractWordReversibleSubstitutionModel::AbstractWordReversibleSubstitutionModel(const Alphabet* alph,
+                                                                                 const std::string& st) : AbstractReversibleSubstitutionModel(alph,st), new_alphabet_(0)
 
 {
   enableEigenDecomposition(0);
@@ -181,7 +181,7 @@ Alphabet* AbstractWordReversibleSubstitutionModel::extract_alph(const Vector<Sub
   return (new WordAlphabet(VAlph));
 }
 
-void AbstractWordReversibleSubstitutionModel::setNamespace(const std::string& prefix)
+void AbstractWordReversibleSubstitutionModel::setNamespace(const string& prefix)
 {
   AbstractReversibleSubstitutionModel::setNamespace(prefix);
 
@@ -207,72 +207,75 @@ void AbstractWordReversibleSubstitutionModel::fireParameterChanged(const Paramet
 
 void AbstractWordReversibleSubstitutionModel::updateMatrices()
 {
-  int i,j,k,p,m;
-  string s;
-  ParameterList ParL;
-  ParameterList::iterator itPar;
-  double x;
   int nbmod=_VAbsRevMod.size();
-
   int salph=getNumberOfStates();
 
   // Generator
 
-  Vector<int> vsize;
-  int n,l;
-  
-  for (k=0;k<nbmod;k++)
-    vsize.push_back(_VAbsRevMod[k]->getNumberOfStates());
+  if (enableEigenDecomposition()){
+    int i,j,n,l,k,m;
 
-  RowMatrix<double> gk, exch;
+    Vector<int> vsize;
 
-  m=1;
+    for (k=0;k<nbmod;k++)
+      vsize.push_back(_VAbsRevMod[k]->getNumberOfStates());
 
-  for (k=nbmod-1;k>=0;k--){
-    gk=_VAbsRevMod[k]->getGenerator();
-    exch=(dynamic_cast<AbstractReversibleSubstitutionModel*>(_VAbsRevMod[k]))->getExchangeabilityMatrix();
-    for (i=0;i<vsize[k];i++)  
-      for (j=0;j<vsize[k];j++) 
-        if (i!=j){
-          n=0;
-          while (n<salph){ //loop on prefix
-            for (l=0;l<m;l++){ //loop on suffix
-              generator_(n+i*m+l,n+j*m+l)=gk(i,j)*_rate[k];
-              exchangeability_(n+i*m+l,n+j*m+l)=exch(i,j)*_rate[k];
+    RowMatrix<double> gk, exch;
+    
+    m=1;
+    
+    for (k=nbmod-1;k>=0;k--){
+      gk=_VAbsRevMod[k]->getGenerator();
+      exch=(dynamic_cast<AbstractReversibleSubstitutionModel*>(_VAbsRevMod[k]))->getExchangeabilityMatrix();
+      for (i=0;i<vsize[k];i++)  
+        for (j=0;j<vsize[k];j++) 
+          if (i!=j){
+            n=0;
+            while (n<salph){ //loop on prefix
+              for (l=0;l<m;l++){ //loop on suffix
+                generator_(n+i*m+l,n+j*m+l)=gk(i,j)*_rate[k];
+                exchangeability_(n+i*m+l,n+j*m+l)=exch(i,j)*_rate[k];
+              }
+              n+=m*vsize[k];
             }
-            n+=m*vsize[k];
           }
-        }
-    m*=vsize[k];
+      m*=vsize[k];
+    }
   }
   
   // modification of generator_ and freq_
   
   completeMatrices();
 
-  for (i=0;i<salph;i++){
-    x=0;
-    for (j=0;j<salph;j++)
-      if (j!=i)
-        x+=generator_(i,j);
-    generator_(i,i)=-x;
-  }
-  
-  // at that point generator_ is done
-  // and freq_ is done for models without enableEigenDecomposition
+  // at that point generator_ and freq_ are done for models without
+  // enableEigenDecomposition
 
- // Eigen values:
+  // Eigen values:
 
-  int gi,gj;
-  int nbStop;
-  Vdouble vi;
 
   if (enableEigenDecomposition()){
+    int i,j,n,l,k,m;
+    double x;
+    
+    int nbStop;
+    Vdouble vi;
+
+    for (i=0;i<salph;i++){
+      x=0;
+      for (j=0;j<salph;j++)
+        if (j!=i)
+          x+=generator_(i,j);
+      generator_(i,i)=-x;
+    }
 
     if (AlphabetTools::isCodonAlphabet(getAlphabet())){
+      int gi,gj;
       gi=0;gj=0;
+
       const CodonAlphabet* pca=dynamic_cast<const CodonAlphabet*>(getAlphabet());
 
+      RowMatrix<double> gk;
+      
       nbStop=pca->numberOfStopCodons();
       gk.resize(salph - nbStop, salph - nbStop);
       for (i=0;i<salph;i++){
@@ -363,7 +366,7 @@ void AbstractWordReversibleSubstitutionModel::updateMatrices()
 }
 
 
-void AbstractWordReversibleSubstitutionModel::setFreq(std::map<int, double>& freqs)
+void AbstractWordReversibleSubstitutionModel::setFreq(map<int, double>& freqs)
 {
   map<int, double> freq;
   int nbmod=_VAbsRevMod.size();
