@@ -41,6 +41,7 @@ knowledge of the CeCILL license and that you accept its terms.
 #define _WORDREVERSIBLESUBSTITUTIONMODEL_H_
 
 #include "AbstractWordReversibleSubstitutionModel.h"
+#include <NumCalc/Matrix.h>
 
 // From Utils
 #include <Utils/BppVector.h>
@@ -71,6 +72,9 @@ namespace bpp
 class WordReversibleSubstitutionModel :
   public AbstractWordReversibleSubstitutionModel
 {
+private:
+  mutable Vector< RowMatrix<double> > _vp;
+
 public:
 
   /**
@@ -101,7 +105,7 @@ public:
 
   WordReversibleSubstitutionModel(const WordReversibleSubstitutionModel&);
 
-  virtual ~WordReversibleSubstitutionModel(){};
+  virtual ~WordReversibleSubstitutionModel();
   
 #ifndef NO_VIRTUAL_COV
   WordReversibleSubstitutionModel*
@@ -123,15 +127,15 @@ protected:
   
 public:
   
-  virtual double Pij_t(int i, int j, double d) const;
+  virtual double Pij_t(unsigned int i, unsigned int j, double d) const;
 
   virtual const RowMatrix<double>& getPij_t(double d) const;
 
-  virtual double dPij_dt(int i, int j, double d) const;
+  virtual double dPij_dt(unsigned int i, unsigned int j, double d) const;
 
   virtual const RowMatrix<double>& getdPij_dt(double d) const;
 
-  virtual double d2Pij_dt2(int i, int j, double d) const;
+  virtual double d2Pij_dt2(unsigned int i, unsigned int j, double d) const;
 
   virtual const RowMatrix<double>& getd2Pij_dt2(double d) const;
 

@@ -60,14 +60,14 @@ using namespace std;
 WordReversibleSubstitutionModel::WordReversibleSubstitutionModel(const Vector<SubstitutionModel*>& modelVector,
                                                                  const std::string& st) : AbstractWordReversibleSubstitutionModel(modelVector, (st=="")?"Word.":st)
 {
-  int i,l=_VAbsRevMod.size();
+  int i,nbmod=_VAbsRevMod.size();
   
   // relative rates
-  for (i=0; i< l-1; i++){
-    addParameter_(Parameter("Word.relrate"+TextTools::toString(i) , 1.0/(l-i),&Parameter::PROP_CONSTRAINT_EX));
+  for (i=0; i< nbmod-1; i++){
+    addParameter_(Parameter("Word.relrate"+TextTools::toString(i) , 1.0/(nbmod-i),&Parameter::PROP_CONSTRAINT_EX));
   }
 
-  updateMatrices();
+  WordReversibleSubstitutionModel::updateMatrices();
 }
 
 WordReversibleSubstitutionModel::WordReversibleSubstitutionModel(const Alphabet* alph,
@@ -78,26 +78,26 @@ WordReversibleSubstitutionModel::WordReversibleSubstitutionModel(const Alphabet*
 
 WordReversibleSubstitutionModel::WordReversibleSubstitutionModel(SubstitutionModel* pmodel, unsigned int num, const std::string& st) : AbstractWordReversibleSubstitutionModel(pmodel, num,  (st=="")?"Word.":st)
 {
-  int i;
+  int i,k;
   
   // relative rates
   for (i=0; i< num-1; i++){
     addParameter_(Parameter("Word.relrate"+TextTools::toString(i) , 1.0/(num-i),&Parameter::PROP_CONSTRAINT_EX));
   }
 
-  updateMatrices();
+  WordReversibleSubstitutionModel::updateMatrices();
 }
 
 WordReversibleSubstitutionModel::WordReversibleSubstitutionModel(const WordReversibleSubstitutionModel& wrsm) : AbstractWordReversibleSubstitutionModel(wrsm)
 {
-  int i, num=_VAbsRevMod.size();
+  int i, k, nbmod=_VAbsRevMod.size();
   
-  for (i=0; i< num-1; i++){
+  for (i=0; i< nbmod-1; i++){
     addParameter_(Parameter("Word.relrate"+TextTools::toString(i) , wrsm.getParameterValue("relrate"+TextTools::toString(i)),
                             &Parameter::PROP_CONSTRAINT_EX));
   }
 
-  updateMatrices();
+  WordReversibleSubstitutionModel::updateMatrices();
 }
 
 void WordReversibleSubstitutionModel::updateMatrices()
@@ -135,7 +135,7 @@ void WordReversibleSubstitutionModel::completeMatrices()
   }
 }
 
-double WordReversibleSubstitutionModel::Pij_t(int i, int j, double d) const
+double WordReversibleSubstitutionModel::Pij_t(unsigned int i, unsigned int j, double d) const
 {
   double x=1;
   int nbmod=_VAbsRevMod.size();
@@ -150,7 +150,7 @@ double WordReversibleSubstitutionModel::Pij_t(int i, int j, double d) const
     i2/=t;
     j2/=t;
   }
-
+  
   return(x);
 }
 
@@ -167,7 +167,7 @@ const RowMatrix<double>& WordReversibleSubstitutionModel::getPij_t(double d) con
   return _p;
 }
 
-double WordReversibleSubstitutionModel::dPij_dt(int i, int j, double d) const
+double WordReversibleSubstitutionModel::dPij_dt(unsigned int i, unsigned int j, double d) const
 {
   double r,x;
   int nbmod=_VAbsRevMod.size();
@@ -209,7 +209,7 @@ const RowMatrix<double>& WordReversibleSubstitutionModel::getdPij_dt(double d) c
   return _p;
 }
 
-double WordReversibleSubstitutionModel::d2Pij_dt2(int i, int j, double d) const
+double WordReversibleSubstitutionModel::d2Pij_dt2(unsigned int i, unsigned int j, double d) const
 {
   double r,x;
   int nbmod=_VAbsRevMod.size();

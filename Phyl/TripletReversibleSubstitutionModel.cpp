@@ -71,6 +71,12 @@ TripletReversibleSubstitutionModel::TripletReversibleSubstitutionModel(const Cod
   for (i=0;i< 3; i++)
     _rate[i]=1.0/3;
 
+  // relative rates
+  for (i=0; i< 2; i++){
+    addParameter_(Parameter("Triplet.relrate"+TextTools::toString(i) , 1.0/(3-i),&Parameter::PROP_CONSTRAINT_EX));
+  }
+
+  WordReversibleSubstitutionModel::updateMatrices();
 }
 
 TripletReversibleSubstitutionModel::TripletReversibleSubstitutionModel(const CodonAlphabet* palph,
@@ -106,11 +112,18 @@ TripletReversibleSubstitutionModel::TripletReversibleSubstitutionModel(const Cod
     _VAbsRevMod[2]->setNamespace(st+"2_"+_VnestedPrefix[2]);
     addParameters_(pmod3->getParameters());
   }
-  
+
+  int i;
   _rate=new double[3];
-  for (unsigned int i=0;i< 3; i++)
+  for ( i=0;i< 3; i++)
     _rate[i]=1.0/3;
 
+  // relative rates
+  for (i=0; i< 2; i++){
+    addParameter_(Parameter(st+"relrate"+TextTools::toString(i) , 1.0/(3-i),&Parameter::PROP_CONSTRAINT_EX));
+  }
+
+  WordReversibleSubstitutionModel::updateMatrices();
 }
   
 TripletReversibleSubstitutionModel::TripletReversibleSubstitutionModel(const TripletReversibleSubstitutionModel& wrsm) : WordReversibleSubstitutionModel(wrsm.alphabet_,"Triplet")
@@ -131,6 +144,13 @@ TripletReversibleSubstitutionModel::TripletReversibleSubstitutionModel(const Tri
   _rate=new double[3];
   for (i=0;i< 3; i++)
     _rate[i]=1.0/3;
+
+  // relative rates
+  for (i=0; i< 2; i++){
+    addParameter_(Parameter("Triplet.relrate"+TextTools::toString(i) , 1.0/(3-i),&Parameter::PROP_CONSTRAINT_EX));
+  }
+
+  WordReversibleSubstitutionModel::updateMatrices();
 }
 
 string TripletReversibleSubstitutionModel::getName() const
