@@ -67,6 +67,14 @@ class TreeDrawingSettings
  * of each node on the graph. These coordinates may be retrieved by dedicated functions.
  * The drawing is performed on a GraphicDevice object.
  *
+ * The TreeDrwing class is in charge of the tree reprensentation, and offer tools to retireve
+ * the coordinates of nodes. Using these funcitons to plot annotation may turn to be unefficient
+ * however, particularly for large trees, as they involve a search on the whole tree. For easier
+ * tuning of the drawing extensions, the interface defines the drawProperty,
+ * getSupportedDrawableProperties and isDrawable methods. These methods can be used to add features
+ * to the plot. Adding new features can then be performed by subclassing an existing algorithm
+ * and adding support for more properties.
+ *
  * The TreeDrawing interface do not implies that the implementation works on a copy of the tree.
  * It takes a constant pointer toward the tree to plot. Depending on the implementation however,
  * the inheriting class may chose to store a copy of the tree for convenience. Refer to the
@@ -114,7 +122,27 @@ class TreeDrawing
      * The effect of this expansion factor depends on the implementation of the interface.
      * @param yu The vertical unit length.
      */
-    virtual void setYUnit(double yu) = 0; 
+    virtual void setYUnit(double yu) = 0;
+
+    /**
+     * @return The horizontal unit length.
+     */
+    virtual double getXUnit() const = 0;
+    
+    /**
+     * @return The vertical unit length.
+     */
+    virtual double getYUnit() const = 0;
+
+    /**
+     * @return The total width of the drawing, in X units.
+     */
+    virtual double getWidth() const = 0; 
+
+    /**
+     * @return The total height of the drawing, in Y units.
+     */
+    virtual double getHeight() const = 0; 
 
     /**
      * @brief Plot the tree onto the specified device.
@@ -140,6 +168,25 @@ class TreeDrawing
      * @throw NodeNotFoundException If the node does not correspond to a node in the tree.
      */
     virtual int getNodeAt(const Point2D<double>& position) const throw (NodeNotFoundException) = 0;
+
+    /**
+     * @brief Plot a property on the tree.
+     *
+     * @param property The name of the property to plot.
+     * @return True is the property could be drawn properly.
+     */
+    virtual bool drawProperty(GraphicDevice& gDevice, const string& property) const = 0;
+
+    /**
+     * @return The list of supported drawable properties by the plotting algorithm.
+     */
+    virtual const vector<string>& getSupportedDrawableProperties() const = 0;
+
+    /**
+     * @param property The name of the property to test.
+     * @return True if the given property can be plotted on the tree.
+     */
+    virtual bool isDrawable(const string& property) const = 0;
 
     virtual void setDisplaySettings(TreeDrawingSettings& tds) = 0;
     virtual TreeDrawingSettings& getDisplaySettings() = 0;

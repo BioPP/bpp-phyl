@@ -40,11 +40,16 @@ knowledge of the CeCILL license and that you accept its terms.
 #include "AbstractDendrogramPlot.h"
 
 using namespace bpp;
+using namespace std;
 
 short AbstractDendrogramPlot::ORIENTATION_LEFT_TO_RIGHT = 1;
 short AbstractDendrogramPlot::ORIENTATION_RIGHT_TO_LEFT = 2;
 short AbstractDendrogramPlot::ORIENTATION_TOP_TO_BOTTOM = 3;
 short AbstractDendrogramPlot::ORIENTATION_BOTTOM_TO_TOP = 4;
+
+string AbstractDendrogramPlot::PROPERTY_BRLEN = "Branch lengths";
+string AbstractDendrogramPlot::PROPERTY_BOOTSTRAP = "Bootstrap values";
+string AbstractDendrogramPlot::PROPERTY_IDS = "Nodes ids";
 
 void AbstractDendrogramPlot::plot(GraphicDevice& gDevice) const throw (Exception)
 {
@@ -52,9 +57,29 @@ void AbstractDendrogramPlot::plot(GraphicDevice& gDevice) const throw (Exception
   drawLeafNames_(gDevice);
 }
 
+bool AbstractDendrogramPlot::drawProperty(GraphicDevice& gDevice, const string& property) const
+{
+  if (property == PROPERTY_BRLEN)
+  {
+    drawBranchLengthValues_(gDevice);
+    return true;
+  }
+  if (property == PROPERTY_BOOTSTRAP)
+  {
+    drawBootstrapValues_(gDevice);
+    return true;
+  }
+  if (property == PROPERTY_IDS)
+  {
+    drawNodesId_(gDevice);
+    return true;
+  }
+  return false;
+}
+
 void AbstractDendrogramPlot::drawNodesId_(GraphicDevice& gDevice) const
 {
-  if(!hasTree()) return;
+  if (!hasTree()) return;
   vector<const INode *> nodes = getTree_()->getNodes();
   for(unsigned int i = 0; i < nodes.size(); i++)
   {
@@ -68,7 +93,7 @@ void AbstractDendrogramPlot::drawNodesId_(GraphicDevice& gDevice) const
 
 void AbstractDendrogramPlot::drawLeafNames_(GraphicDevice& gDevice) const
 {
-  if(!hasTree()) return;
+  if (!hasTree()) return;
   vector<const INode *> leaves = getTree_()->getLeaves();
   for(unsigned int i = 0; i < leaves.size(); i++)
   {
@@ -82,12 +107,12 @@ void AbstractDendrogramPlot::drawLeafNames_(GraphicDevice& gDevice) const
 
 void AbstractDendrogramPlot::drawBranchLengthValues_(GraphicDevice& gDevice) const
 {
-  if(!hasTree()) return;
-  vector<const INode *> nodes = getTree_()->getNodes();
-  for(unsigned int i = 0; i < nodes.size(); i++)
+  if (!hasTree()) return;
+  vector<const INode*> nodes = getTree_()->getNodes();
+  for (unsigned int i = 0; i < nodes.size(); i++)
   {
-    const INode * node = nodes[i];
-    if(node->hasDistanceToFather())
+    const INode* node = nodes[i];
+    if (node->hasDistanceToFather())
     {
       drawAtBranch(gDevice, *node, TextTools::toString(node->getDistanceToFather()), 0, 0,GraphicDevice::TEXT_HORIZONTAL_CENTER);
     }
@@ -96,14 +121,14 @@ void AbstractDendrogramPlot::drawBranchLengthValues_(GraphicDevice& gDevice) con
 
 void AbstractDendrogramPlot::drawBootstrapValues_(GraphicDevice& gDevice) const
 {
-  if(!hasTree()) return;
+  if (!hasTree()) return;
   vector<const INode *> nodes = getTree_()->getNodes();
-  for(unsigned int i = 0; i < nodes.size(); i++)
+  for (unsigned int i = 0; i < nodes.size(); i++)
   {
     const INode* node = nodes[i];
-    const Clonable* b = node->getBranchProperty(TreeTools::BOOTSTRAP);
-    if(b)
+    if (node->hasBranchProperty(TreeTools::BOOTSTRAP))
     {
+      const Clonable* b = node->getBranchProperty(TreeTools::BOOTSTRAP);
       drawAtNode(gDevice, *node, TextTools::toString(dynamic_cast<const Number<double> *>(b)->getValue()),
         horOrientation_ == ORIENTATION_LEFT_TO_RIGHT ? -5 : 5, 0,
         horOrientation_ == ORIENTATION_LEFT_TO_RIGHT

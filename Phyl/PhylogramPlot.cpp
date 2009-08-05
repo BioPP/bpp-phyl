@@ -61,7 +61,9 @@ void PhylogramPlot::drawDendrogram_(GraphicDevice& gDevice) const throw (Excepti
   {
     unsigned int* tipCounter = new unsigned int(0);
     double y;
-    recursivePlot_(gDevice, *const_cast<INode*>(getTree_()->getRootNode()), 0, y,
+    recursivePlot_(gDevice, *const_cast<INode*>(getTree_()->getRootNode()),
+        getHorizontalOrientation() == ORIENTATION_LEFT_TO_RIGHT ? 0 : getWidth() * getXUnit(),
+        y,
         getHorizontalOrientation() == ORIENTATION_LEFT_TO_RIGHT ? 1. : -1.,
         getVerticalOrientation() == ORIENTATION_TOP_TO_BOTTOM ? 1. : -1.,
         tipCounter);
@@ -93,28 +95,20 @@ void PhylogramPlot::recursivePlot_(GraphicDevice& gDevice, INode& node, double x
   
   if (node.isLeaf())
   {
-    y = static_cast<double>(*tipCounter) * getYUnit() * vDirection;
+    y =  ((getVerticalOrientation() == ORIENTATION_TOP_TO_BOTTOM ? 0 : getHeight()) + static_cast<double>(*tipCounter) * vDirection) * getYUnit();
     (*tipCounter)++;
   }
   else
   {
     //Vertical line. Call the method on son nodes first:
-    double miny = vDirection * 1000000; //(unsigned int)(-log(0));
+    double miny = 1000000; //(unsigned int)(-log(0));
     double maxy = 0;
     for(unsigned int i = 0; i < node.getNumberOfSons(); i++)
     {
       double yson;
       recursivePlot_(gDevice, *node.getSon(i), x2, yson, hDirection, vDirection, tipCounter);
-      if (vDirection > 0)
-      {
-        if(yson < miny) miny = yson;
-        if(yson > maxy) maxy = yson;
-      }
-      else
-      {
-        if(yson > miny) miny = yson;
-        if(yson < maxy) maxy = yson;
-      }
+      if(yson < miny) miny = yson;
+      if(yson > maxy) maxy = yson;
     }
     y = (maxy + miny) / 2.;
     gDevice.drawLine(x2, miny, x2, maxy);

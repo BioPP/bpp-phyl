@@ -43,14 +43,11 @@ knowledge of the CeCILL license and that you accept its terms.
 #include <Utils/TextTools.h>
 #include <Utils/Number.h>
 
-using namespace bpp;
+// From the STL:
+#include <algorithm>
 
-AbstractTreeDrawing::AbstractTreeDrawing(const Tree* tree): tree_(0)
-{
-  setTree(tree);
-  xUnit_ = 1;
-  yUnit_ = 1;
-}
+using namespace bpp;
+using namespace std;
 
 Point2D<double> AbstractTreeDrawing::getNodePosition(int nodeId) const
 throw (NodeNotFoundException)
@@ -98,7 +95,13 @@ void AbstractTreeDrawing::drawAtBranch(GraphicDevice& gDevice, const INode& node
 {
   if(node.hasFather())
   {
-    gDevice.drawText(node.getFather()->getInfos().getX() + xOffset * xUnit_, node.getInfos().getY() + yOffset * yUnit_, text, hpos, vpos, angle);
+    gDevice.drawText((node.getInfos().getX() + node.getFather()->getInfos().getX()) / 2. + xOffset * xUnit_, node.getInfos().getY() + yOffset * yUnit_, text, hpos, vpos, angle);
   }
 }  
+
+bool AbstractTreeDrawing::isDrawable(const string& property) const
+{
+  return find(drawableProperties_.begin(), drawableProperties_.end(), property) != drawableProperties_.end();
+}
+
 

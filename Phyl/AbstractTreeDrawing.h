@@ -44,6 +44,10 @@ knowledge of the CeCILL license and that you accept its terms.
 #include "NodeTemplate.h"
 #include "TreeDrawing.h"
 
+// From ths STL:
+#include <vector>
+#include <string>
+
 namespace bpp
 {
 
@@ -83,10 +87,11 @@ class AbstractTreeDrawing:
     double xUnit_;
     double yUnit_;
     double pointArea_;
+    std::vector<std::string> drawableProperties_;
     TreeDrawingSettings settings_;
  
   public:
-    AbstractTreeDrawing(const Tree* tree = 0);
+    AbstractTreeDrawing(): tree_(0), xUnit_(1.), yUnit_(1.) {};
     
     AbstractTreeDrawing(const AbstractTreeDrawing& atd)
     {
@@ -129,6 +134,7 @@ class AbstractTreeDrawing:
       {
         tree_ = new TreeTemplate<INode>(*tree); //We copy the tree
       }
+      treeHasChanged();
     }
     
     Point2D<double> getNodePosition(int nodeId) const throw (NodeNotFoundException);
@@ -158,7 +164,9 @@ class AbstractTreeDrawing:
      * @param vpos The way the text should be aligned vertically (see GraphicDevice).
      * @param angle The rotation value of the text.
      */
-    virtual void drawAtNode(GraphicDevice& gDevice, const INode& node, const string& text, double xOffset = 0, double yOffset = 0, short hpos = GraphicDevice::TEXT_HORIZONTAL_LEFT, short vpos = GraphicDevice::TEXT_VERTICAL_CENTER, double angle = 0) const;
+    virtual void drawAtNode(GraphicDevice& gDevice, const INode& node, const string& text,
+        double xOffset = 0, double yOffset = 0,
+        short hpos = GraphicDevice::TEXT_HORIZONTAL_LEFT, short vpos = GraphicDevice::TEXT_VERTICAL_CENTER, double angle = 0) const;
 
     /**
      * @brief Draw some text at a particular branch position.
@@ -186,9 +194,30 @@ class AbstractTreeDrawing:
     
     void setYUnit(double yu) { yUnit_ = yu; }
 
+    const vector<string>& getSupportedDrawableProperties() const { return drawableProperties_; }
+
+    bool isDrawable(const string& property) const;
+
+    /**
+     * @brief Method to implement to deal with redrawing when the underlying tree has been modified.
+     */
+    virtual void treeHasChanged() = 0;
+
   protected:
     TreeTemplate<INode>* getTree_() { return tree_; }
     const TreeTemplate<INode>* getTree_() const { return tree_; }
+
+    /**
+     * @brief Add a supported drawable property to the list.
+     *
+     * This method is to be used by subclasses of this class.
+     * Currently no checking is performed regarding the unicity
+     * of property names.
+     */
+    void addSupportedDrawableProperty_(const string& property)
+    {
+      drawableProperties_.push_back(property);
+    }
  
 };
 

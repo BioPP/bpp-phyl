@@ -53,14 +53,15 @@ namespace bpp
 class PhylogramPlot:
   public AbstractDendrogramPlot
 {
+  private:
+    double totalDepth_;
+    double numberOfLeaves_;
+
   public:
-    PhylogramPlot(const Tree* tree = 0):
-      AbstractDendrogramPlot(tree)
+    PhylogramPlot():
+      AbstractDendrogramPlot(), totalDepth_(0), numberOfLeaves_(0)
     {
-      if (tree)
-      {
-        getTree_()->setVoidBranchLengths(0.);
-      }
+      treeHasChanged();
     }
     
     virtual ~PhylogramPlot() {}
@@ -70,6 +71,19 @@ class PhylogramPlot:
  
     void setTree(const Tree* tree = 0);
     
+    double getWidth() const { return totalDepth_; }
+    double getHeight() const { return numberOfLeaves_; }
+
+    void treeHasChanged()
+    {
+      if (hasTree())
+      {
+        getTree_()->setVoidBranchLengths(0.);
+        totalDepth_ = TreeTemplateTools::getHeight(*getTree_()->getRootNode());
+        numberOfLeaves_ = static_cast<double>(getTree_()->getNumberOfLeaves());
+      }
+    }
+ 
   private:
     void drawDendrogram_(GraphicDevice& gDevice) const throw (Exception);
  

@@ -58,13 +58,13 @@ class CladogramPlot:
 {
   private:
     double totalDepth_;
+    double numberOfLeaves_;
     
   public:
-    CladogramPlot(const Tree* tree = 0):
-      AbstractDendrogramPlot(tree)
+    CladogramPlot():
+      AbstractDendrogramPlot(), totalDepth_(0), numberOfLeaves_(0)
     {
-      if (hasTree())
-        totalDepth_ = TreeTemplateTools::getDepth(*getTree_()->getRootNode());  
+      treeHasChanged();
     }
     
     virtual ~CladogramPlot() {}
@@ -73,6 +73,19 @@ class CladogramPlot:
     string getName() const { return "Cladogram"; }
     
     void setTree(const Tree* tree = 0);
+
+    double getWidth() const { return totalDepth_; }
+    double getHeight() const { return numberOfLeaves_; }
+
+    void treeHasChanged()
+    {
+      if (hasTree())
+      {
+        totalDepth_ = static_cast<double>(TreeTemplateTools::getDepth(*getTree_()->getRootNode()));  
+        numberOfLeaves_ = static_cast<double>(getTree_()->getNumberOfLeaves());
+      }
+    }
+ 
       
   private:
     void drawDendrogram_(GraphicDevice& gDevice) const throw (Exception);
