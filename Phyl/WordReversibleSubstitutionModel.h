@@ -105,14 +105,9 @@ public:
 
   WordReversibleSubstitutionModel(const WordReversibleSubstitutionModel&);
 
-  virtual ~WordReversibleSubstitutionModel();
+  virtual ~WordReversibleSubstitutionModel() {}
   
-#ifndef NO_VIRTUAL_COV
-  WordReversibleSubstitutionModel*
-#else
-  Clonable*
-#endif
-  clone() const { return new WordReversibleSubstitutionModel(*this);}
+  WordReversibleSubstitutionModel* clone() const { return new WordReversibleSubstitutionModel(*this);}
 
 protected:
 

@@ -78,11 +78,12 @@ WordReversibleSubstitutionModel::WordReversibleSubstitutionModel(const Alphabet*
 
 WordReversibleSubstitutionModel::WordReversibleSubstitutionModel(SubstitutionModel* pmodel, unsigned int num, const std::string& st) : AbstractWordReversibleSubstitutionModel(pmodel, num,  (st=="")?"Word.":st)
 {
-  int i,k;
+  unsigned int i;
   
   // relative rates
-  for (i=0; i< num-1; i++){
-    addParameter_(Parameter("Word.relrate"+TextTools::toString(i) , 1.0/(num-i),&Parameter::PROP_CONSTRAINT_EX));
+  for (i = 0; i < num - 1; i++)
+  {
+    addParameter_(Parameter("Word.relrate" + TextTools::toString(i) , 1.0 / (num -i ), &Parameter::PROP_CONSTRAINT_EX));
   }
 
   WordReversibleSubstitutionModel::updateMatrices();
@@ -90,9 +91,10 @@ WordReversibleSubstitutionModel::WordReversibleSubstitutionModel(SubstitutionMod
 
 WordReversibleSubstitutionModel::WordReversibleSubstitutionModel(const WordReversibleSubstitutionModel& wrsm) : AbstractWordReversibleSubstitutionModel(wrsm)
 {
-  int i, k, nbmod=_VAbsRevMod.size();
+  unsigned int i, nbmod = _VAbsRevMod.size();
   
-  for (i=0; i< nbmod-1; i++){
+  for (i = 0; i < nbmod - 1; i++)
+  {
     addParameter_(Parameter("Word.relrate"+TextTools::toString(i) , wrsm.getParameterValue("relrate"+TextTools::toString(i)),
                             &Parameter::PROP_CONSTRAINT_EX));
   }
@@ -156,13 +158,13 @@ double WordReversibleSubstitutionModel::Pij_t(unsigned int i, unsigned int j, do
 
 const RowMatrix<double>& WordReversibleSubstitutionModel::getPij_t(double d) const
 {
-  int nbetats=getNumberOfStates();
-  unsigned int i,j;
+  unsigned int nbetats = getNumberOfStates();
+  unsigned int i, j;
 
-  for (i=0;i<nbetats;i++)
-    for (j=0;j<nbetats;j++){
-      
-      _p(i,j)=Pij_t(i,j,d);
+  for (i = 0; i < nbetats; i++)
+    for (j = 0; j < nbetats; j++)
+    {  
+      _p(i,j) = Pij_t(i,j,d);
     }
   return _p;
 }
@@ -170,18 +172,20 @@ const RowMatrix<double>& WordReversibleSubstitutionModel::getPij_t(double d) con
 double WordReversibleSubstitutionModel::dPij_dt(unsigned int i, unsigned int j, double d) const
 {
   double r,x;
-  int nbmod=_VAbsRevMod.size();
-  int p,q,t;
+  unsigned int nbmod = _VAbsRevMod.size();
+  unsigned int p,q,t;
 
-  int i2=i;
-  int j2=j;
+  unsigned int i2 = i;
+  unsigned int j2 = j;
 
   r=0;
-  for (q=0;q<nbmod;q++){
-    i2=i;
-    j2=j;
-    x=1;
-    for (p=nbmod-1;p>=0;p--){
+  for (q = 0; q < nbmod; q++)
+  {
+    i2 = i;
+    j2 = j;
+    x = 1;
+    for (p = nbmod - 1; p >= 0; p--)
+    {
       t=_VAbsRevMod[p]->getNumberOfStates();
       if (q!=p)
         x*=_VAbsRevMod[p]->Pij_t(i2%t,j2%t,d*_rate[p]);
@@ -199,12 +203,12 @@ double WordReversibleSubstitutionModel::dPij_dt(unsigned int i, unsigned int j, 
 
 const RowMatrix<double>& WordReversibleSubstitutionModel::getdPij_dt(double d) const
 {
-  int nbetats=getNumberOfStates();
-  unsigned int i,j;
+  unsigned int nbetats = getNumberOfStates();
+  unsigned int i, j;
 
-  for (i=0;i<nbetats;i++)
-    for (j=0;j<nbetats;j++)
-      _p(i,j)=dPij_dt(i,j,d);
+  for (i = 0; i < nbetats; i++)
+    for (j = 0; j < nbetats; j++)
+      _p(i,j) = dPij_dt(i,j,d);
 
   return _p;
 }
@@ -212,20 +216,23 @@ const RowMatrix<double>& WordReversibleSubstitutionModel::getdPij_dt(double d) c
 double WordReversibleSubstitutionModel::d2Pij_dt2(unsigned int i, unsigned int j, double d) const
 {
   double r,x;
-  int nbmod=_VAbsRevMod.size();
-  int b,p,q,t;
+  unsigned int nbmod = _VAbsRevMod.size();
+  unsigned int b,p,q,t;
 
-  int i2=i;
-  int j2=j;
+  unsigned int i2 = i;
+  unsigned int j2 = j;
 
   r=0;
 
-  for (q=1;q<nbmod;q++){
-    for (b=0;b<q;b++){
+  for (q = 1; q < nbmod; q++)
+  {
+    for (b=0;b<q;b++)
+    {
       x=1;
       i2=i;
       j2=j;
-      for (p=nbmod-1;p>=0;p--){
+      for (p=nbmod-1;p>=0;p--)
+      {
         t=_VAbsRevMod[p]->getNumberOfStates();
         if (p==q) 
           x*=_rate[p]*_VAbsRevMod[p]->dPij_dt(i2%t,j2%t,d*_rate[p]);
@@ -265,12 +272,12 @@ double WordReversibleSubstitutionModel::d2Pij_dt2(unsigned int i, unsigned int j
 
 const RowMatrix<double>& WordReversibleSubstitutionModel::getd2Pij_dt2(double d) const
 {
-  int nbetats=getNumberOfStates();
+  unsigned int nbetats = getNumberOfStates();
   unsigned int i,j;
 
-  for (i=0;i<nbetats;i++)
-    for (j=0;j<nbetats;j++)
-      _p(i,j)=Pij_t(i,j,d);
+  for (i = 0; i < nbetats; i++)
+    for (j = 0; j < nbetats; j++)
+      _p(i,j) = Pij_t(i,j,d);
 
   return _p;
 }
@@ -278,10 +285,10 @@ const RowMatrix<double>& WordReversibleSubstitutionModel::getd2Pij_dt2(double d)
 
 string WordReversibleSubstitutionModel::getName() const
 {
-  int nbmod=_VAbsRevMod.size();
-  string s="WordReversibleSubstitutionModel model: "+ _VAbsRevMod[0]->getName();
-  for (unsigned int i=1;i<nbmod-1;i++)
-    s+=" "+_VAbsRevMod[i]->getName();
+  unsigned int nbmod = _VAbsRevMod.size();
+  string s = "WordReversibleSubstitutionModel model: " + _VAbsRevMod[0]->getName();
+  for (unsigned int i = 1; i < nbmod - 1; i++)
+    s += " " + _VAbsRevMod[i]->getName();
 
   return s;
 }
