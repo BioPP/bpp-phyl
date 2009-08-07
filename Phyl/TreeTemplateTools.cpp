@@ -601,7 +601,7 @@ TreeTemplate<Node> * TreeTemplateTools::getRandomTree(vector<string> & leavesNam
     nodes.push_back(parent);
   }
   // Return tree with last node as root node:
-  TreeTemplate<Node>* tree = new TreeTemplate<Node>(* nodes[0]);
+  TreeTemplate<Node>* tree = new TreeTemplate<Node>(nodes[0]);
   tree->resetNodesId();
   return tree;
 }

@@ -46,8 +46,6 @@ knowledge of the CeCILL license and that you accept its terms.
 #include <map>
 #include <algorithm>
 
-using namespace std;
-
 // From Utils:
 #include <Utils/MapTools.h>
 
@@ -93,9 +91,9 @@ class BipartitionList:
     /**
      *Fields
      */
-    vector<int*> _bitBipartitionList;
-    vector<string> _elements;
-    bool _sorted;
+    std::vector<int*> bitBipartitionList_;
+    std::vector<std::string> elements_;
+    bool sorted_;
 
   public:
 
@@ -139,29 +137,29 @@ class BipartitionList:
 
   public:
 
-    unsigned int getNumberOfElements() const { return _elements.size(); }
+    unsigned int getNumberOfElements() const { return elements_.size(); }
 
-    const vector<string> & getElementNames() const { return _elements; }
+    const vector<string>& getElementNames() const { return elements_; }
 
-    unsigned int getNumberOfBipartitions() const { return _bitBipartitionList.size(); }
+    unsigned int getNumberOfBipartitions() const { return bitBipartitionList_.size(); }
 
-    const vector<int*> & getBitBipartitionList() const { return _bitBipartitionList; }
+    const vector<int*> & getBitBipartitionList() const { return bitBipartitionList_; }
 
     map<string, bool> getBipartition(unsigned int i) const throw (Exception);
 
     int* getBitBipartition(unsigned int i) throw (Exception);
 
-    bool haveSameElementsThan(map <string, bool> bipart) const;
+    bool haveSameElementsThan(map<string, bool>& bipart) const;
 
-    void addBipartition(map<string, bool> & bipart, bool checkElements = 1) throw(Exception);
+    void addBipartition(map<string, bool>& bipart, bool checkElements = 1) throw(Exception);
 
     void deleteBipartition(unsigned int i) throw(Exception);
 
-    bool isSorted() const { return _sorted; }
+    bool isSorted() const { return sorted_; }
 
     void sortElements();
 
-    bool containsBipartition(map<string, bool> & bipart, bool checkElements = 1) const throw(Exception);
+    bool containsBipartition(map<string, bool>& bipart, bool checkElements = 1) const throw(Exception);
 
     bool areIdentical(unsigned int k1, unsigned int k2) const throw(Exception);
 

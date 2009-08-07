@@ -117,7 +117,7 @@ class TreeTemplate:
 			root_ = TreeTemplateTools::cloneSubtree<N>(t, t.getRootId());
 		}
 
-		TreeTemplate(N & root): root_(&root), name_() {}
+		TreeTemplate(N* root): root_(root), name_() {}
 
 		TreeTemplate<N> & operator=(const TreeTemplate<N>& t)
 		{

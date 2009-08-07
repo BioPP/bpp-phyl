@@ -54,7 +54,7 @@ using namespace std;
 TreeTemplate<Node> * PGMA::getTree() const
 {
 	Node * root = TreeTemplateTools::cloneSubtree<Node>(* dynamic_cast<TreeTemplate<NodeTemplate<PGMAInfos> > *>(_tree) -> getRootNode());
-	return new TreeTemplate<Node>(* root);
+	return new TreeTemplate<Node>(root);
 }
 	
 vector<unsigned int> PGMA::getBestPair() throw (Exception)
@@ -119,7 +119,7 @@ void PGMA::finalStep(int idRoot)
 	root->addSon(n2);
 	n1->setDistanceToFather(d - dynamic_cast<NodeTemplate<PGMAInfos>*>(n1)->getInfos().time); 
 	n2->setDistanceToFather(d - dynamic_cast<NodeTemplate<PGMAInfos>*>(n2)->getInfos().time); 
-	_tree = new TreeTemplate<NodeTemplate<PGMAInfos> >(*root);
+	_tree = new TreeTemplate<NodeTemplate<PGMAInfos> >(root);
 }
 
 Node * PGMA::getLeafNode(int id, const string & name)
