@@ -117,7 +117,10 @@ class TreeTemplate:
 			root_ = TreeTemplateTools::cloneSubtree<N>(t, t.getRootId());
 		}
 
-		TreeTemplate(N* root): root_(root), name_() {}
+		TreeTemplate(N* root): root_(root), name_()
+    {
+      root_->removeFather(); //In case this is a subtree from somewhere else...
+    }
 
 		TreeTemplate<N> & operator=(const TreeTemplate<N>& t)
 		{

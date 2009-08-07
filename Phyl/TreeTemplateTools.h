@@ -45,9 +45,8 @@ knowledge of the CeCILL license and that you accept its terms.
 #include "TreeTools.h"
 
 //From the STL:
+#include <string>
 #include <vector>
-
-using namespace std;
 
 namespace bpp
 {
@@ -81,9 +80,9 @@ class TreeTemplateTools
      * @return A vector of pointers toward each leaf in the subtree.
      */
     template<class N>
-    static vector<N *> getLeaves(N & node)
+    static std::vector<N *> getLeaves(N & node)
     {
-      vector<N *> leaves;
+      std::vector<N *> leaves;
       getLeaves<N>(node, leaves);
       return leaves;
     }
@@ -95,7 +94,7 @@ class TreeTemplateTools
      * @param leaves A vector of pointers toward each leaf in the subtree.
      */
     template<class N>
-    static void getLeaves(N & node, vector<N *> & leaves)
+    static void getLeaves(N & node, std::vector<N *> & leaves)
     {
       if(node.isLeaf())
       {
@@ -113,9 +112,9 @@ class TreeTemplateTools
      * @param node The node that defines the subtree.
      * @return A vector of ids.
      */
-    static vector<int> getLeavesId(const Node & node)
+    static std::vector<int> getLeavesId(const Node& node)
     {
-      vector<int> ids;
+      std::vector<int> ids;
       getLeavesId(node, ids);
       return ids;
     }
@@ -126,7 +125,7 @@ class TreeTemplateTools
      * @param node The node that defines the subtree.
      * @param ids A vector of ids.
      */
-    static void getLeavesId(const Node & node, vector<int> & ids)
+    static void getLeavesId(const Node& node, std::vector<int>& ids)
     {
       if(node.isLeaf()) {
         ids.push_back(node.getId());
@@ -144,7 +143,7 @@ class TreeTemplateTools
      * @return The id of the node.
      * @throw NodeNotFoundException If the node is not found.
      */
-    static int getLeafId(const Node & node, const string & name) throw (NodeNotFoundException)
+    static int getLeafId(const Node& node, const std::string & name) throw (NodeNotFoundException)
     {
       int * id = NULL;
       searchLeaf(node, name, id);
@@ -165,7 +164,7 @@ class TreeTemplateTools
      * @param id The id of the node.
      * @throw NodeNotFoundException If the node is not found.
      */
-    static void searchLeaf(const Node& node, const string & name, int * & id) throw (NodeNotFoundException)
+    static void searchLeaf(const Node& node, const std::string & name, int * & id) throw (NodeNotFoundException)
     {
       if (node.isLeaf())
       {
@@ -189,7 +188,7 @@ class TreeTemplateTools
      * @throw NodeNotFoundException If the node is not found.
      */
     template<class N>
-    static void dropLeaf(TreeTemplate<N>& tree, const string& leafName) throw (NodeNotFoundException, Exception)
+    static void dropLeaf(TreeTemplate<N>& tree, const std::string& leafName) throw (NodeNotFoundException, Exception)
     {
       N* leaf = tree.getNode(leafName);
       if (!leaf->hasfather())
@@ -244,9 +243,9 @@ class TreeTemplateTools
      * @return A vector of pointers toward each son node in the subtree.
      */
     template<class N>
-    static vector<N *> getNodes(N& node)
+    static std::vector<N *> getNodes(N& node)
     {
-      vector<N *> nodes;
+      std::vector<N *> nodes;
       getNodes<N>(node, nodes);
       return nodes;
     }
@@ -258,7 +257,7 @@ class TreeTemplateTools
      * @param nodes A vector of pointers toward each son node in the subtree.
      */
     template<class N>
-    static void getNodes(N & node, vector<N *> & nodes)
+    static void getNodes(N & node, std::vector<N *> & nodes)
     {
       for(unsigned int i = 0; i < node.getNumberOfSons(); i++)
       {
@@ -273,9 +272,9 @@ class TreeTemplateTools
      * @param node The node that defines the subtree.
      * @return A vector of ids.
      */
-    static vector<int> getNodesId(const Node & node)
+    static std::vector<int> getNodesId(const Node & node)
     {
-      vector<int> ids;
+      std::vector<int> ids;
       getNodesId(node, ids);
       return ids;
     }
@@ -286,7 +285,7 @@ class TreeTemplateTools
      * @param node The node that defines the subtree.
      * @param ids A vector of ids.
      */
-    static void getNodesId(const Node & node, vector<int> & ids)
+    static void getNodesId(const Node & node, std::vector<int> & ids)
     {
       for(unsigned int i = 0; i < node.getNumberOfSons(); i++)
       {
@@ -302,9 +301,9 @@ class TreeTemplateTools
      * @return A vector of pointers toward each inner node in the subtree.
      */
     template<class N>
-    static vector<N *> getInnerNodes(N & node)
+    static std::vector<N *> getInnerNodes(N & node)
     {
-      vector<N *> nodes;
+      std::vector<N *> nodes;
       getInnerNodes<N>(node, nodes);
       return nodes;
     }
@@ -318,7 +317,7 @@ class TreeTemplateTools
      * @param nodes A vector to be filled with pointers toward each inner node in the subtree.
      */
     template<class N>
-    static void getInnerNodes(N & node, vector<N *> & nodes)
+    static void getInnerNodes(N & node, std::vector<N *> & nodes)
     {
       for(unsigned int i = 0; i < node.getNumberOfSons(); i++)
       {
@@ -336,9 +335,9 @@ class TreeTemplateTools
      * @param node The node that defines the subtree.
      * @return A vector of ids.
      */
-    static vector<int> getInnerNodesId(const Node & node)
+    static std::vector<int> getInnerNodesId(const Node& node)
     {
-      vector<int> ids;
+      std::vector<int> ids;
       getInnerNodesId(node, ids);
       return ids;
     }
@@ -349,7 +348,7 @@ class TreeTemplateTools
      * @param node The node that defines the subtree.
      * @param ids  A vector to be filled with the resulting ids.
      */
-    static void getInnerNodesId(const Node & node, vector<int> & ids)
+    static void getInnerNodesId(const Node& node, std::vector<int> & ids)
     {
       for (unsigned int i = 0; i < node.getNumberOfSons(); i++)
       {
@@ -365,9 +364,9 @@ class TreeTemplateTools
      * @return     Nodes with the specified id.
      */
     template<class N>
-    static vector<N *> searchNodeWithId(N & node, int id)
+    static std::vector<N *> searchNodeWithId(N& node, int id)
     {
-      vector<N *> nodes;
+      std::vector<N*> nodes;
       searchNodeWithId<N>(node, id, nodes);
       return nodes;    
     }
@@ -378,7 +377,7 @@ class TreeTemplateTools
      * @param nodes A vector to be filled with the matching nodes.
      */
     template<class N>
-    static void searchNodeWithId(N & node, int id, vector<N *> & nodes)
+    static void searchNodeWithId(N& node, int id, std::vector<N*> & nodes)
     {
       for(unsigned int i = 0; i < node.getNumberOfSons(); i++)
       {
@@ -412,9 +411,9 @@ class TreeTemplateTools
      * @return     Nodes with the specified name.
      */
     template<class N>
-    static vector<N *> searchNodeWithName(N & node, const string & name)
+    static std::vector<N*> searchNodeWithName(N& node, const std::string& name)
     {
-      vector<N *> nodes;
+      std::vector<N*> nodes;
       searchNodeWithId<N>(node, name, nodes);
       return nodes;    
     }
@@ -425,7 +424,7 @@ class TreeTemplateTools
      * @param nodes A vector to be filled with the matching nodes.
      */
     template<class N>
-    static void searchNodeWithName(N & node, const string & name, vector<N *> & nodes)
+    static void searchNodeWithName(N & node, const std::string& name, std::vector<N *> & nodes)
     {
       for(unsigned int i = 0; i < node.getNumberOfSons(); i++)
       {
@@ -440,7 +439,7 @@ class TreeTemplateTools
      * @return     True if the subtree contains a node with the specified name.
      */
     template<class N>
-    static bool hasNodeWithName(const N & node, const string & name)
+    static bool hasNodeWithName(const N& node, const std::string& name)
     {
       if(node.hasName() & node.getName() == name) return true;
       else
@@ -460,7 +459,7 @@ class TreeTemplateTools
      * @param node The node to check.
      * @return True if node has a father.
      */
-    static bool isRoot(const Node & node) { return !node.hasFather(); }
+    static bool isRoot(const Node& node) { return !node.hasFather(); }
 
     /**
      * @brief Get the number of leaves of a subtree defined by a particular node.
@@ -468,7 +467,7 @@ class TreeTemplateTools
      * @param node The node defining the subtree to check.
      * @return The number of leaves.
      */
-    static unsigned int getNumberOfLeaves(const Node & node);
+    static unsigned int getNumberOfLeaves(const Node& node);
 
     /**
      * @brief Get the number of nodes of a subtree defined by a particular node.
@@ -476,7 +475,7 @@ class TreeTemplateTools
      * @param node The node defining the subtree to check.
      * @return The number of leaves.
      */
-    static unsigned int getNumberOfNodes(const Node & node);
+    static unsigned int getNumberOfNodes(const Node& node);
 
     /**
      * @brief Get the leaves names of a subtree defined by a particular node.
@@ -484,7 +483,7 @@ class TreeTemplateTools
      * @param node The node defining the subtree to check.
      * @return The list of all leaves names.
      */
-    static vector<string> getLeavesNames(const Node & node);
+    static std::vector<std::string> getLeavesNames(const Node& node);
 
     /**
      * @brief Get the depth of the subtree defined by node 'node', i.e. the maximum
@@ -505,7 +504,7 @@ class TreeTemplateTools
      * @param node The node defining the subtree to check.
      * @return The depth of the subtree.
      */
-    static unsigned int getDepth(const Node & node);
+    static unsigned int getDepth(const Node& node);
 
     /**
      * @brief Get the height of the subtree defined by node 'node', i.e. the maximum
@@ -518,7 +517,7 @@ class TreeTemplateTools
      * @return The height of the subtree.
      * @throw NodeException If a branch length is lacking.
      */ 
-    static double getHeight(const Node & node) throw (NodeException);
+    static double getHeight(const Node& node) throw (NodeException);
 
     /**
      * @brief Get the heights of all nodes within a subtree defined by node 'node', i.e. the maximum
@@ -531,7 +530,7 @@ class TreeTemplateTools
      * @return The height of the subtree.
      * @throw NodeException If a branch length is lacking.
      */ 
-    static double getHeights(const Node & node, map<const Node *, double> & heights) throw (NodeException);
+    static double getHeights(const Node& node, map<const Node*, double>& heights) throw (NodeException);
 
     /**
      * @brief Tell is a subtree is multifurcating.
@@ -540,17 +539,20 @@ class TreeTemplateTools
      * @return True is the subtree contains at least one multifurcating
      * node (including the root node).
      */
-    static bool isMultifurcating(const Node & node);
+    static bool isMultifurcating(const Node& node);
 
-    static vector<Node *> getPathBetweenAnyTwoNodes(Node & node1, Node & node2, bool includeAncestor = true);
+    static std::vector<Node*> getPathBetweenAnyTwoNodes(Node& node1, Node& node2, bool includeAncestor = true);
     
-    static vector<const Node *> getPathBetweenAnyTwoNodes(const Node & node1, const Node & node2, bool includeAncestor = true);
+    static std::vector<const Node*> getPathBetweenAnyTwoNodes(const Node & node1, const Node & node2, bool includeAncestor = true);
      
     template<class N>
-    static N * cloneSubtree(const Node & node) 
+    static N* cloneSubtree(const Node & node) 
     {
       //First we copy this node using default copy constuctor:
-      N * clone = new N(node);
+      N* clone = new N(node);
+      //We remove the link toward the father:
+      clone->removeFather();
+
       //Now we perform a hard copy:
       for(unsigned int i = 0; i < node.getNumberOfSons(); i++)
       {
@@ -560,20 +562,21 @@ class TreeTemplateTools
     }
     
     template<class N>
-    static N * cloneSubtree(const Tree & tree, int nodeId) 
+    static N* cloneSubtree(const Tree& tree, int nodeId) 
     {
       //First we copy this node using default copy constuctor:
-      N * clone = tree.hasNodeName(nodeId) ? new N(nodeId, tree.getNodeName(nodeId)) : new N(nodeId);
+      N* clone = tree.hasNodeName(nodeId) ? new N(nodeId, tree.getNodeName(nodeId)) : new N(nodeId);
+      //Then we set the length:
       if(tree.hasDistanceToFather(nodeId))
         clone->setDistanceToFather(tree.getDistanceToFather(nodeId));
       //Now we copy all sons:
-      vector<int> sonsId = tree.getSonsId(nodeId);
+      std::vector<int> sonsId = tree.getSonsId(nodeId);
       for(unsigned int i = 0; i < sonsId.size(); i++)
       {
         clone->addSon(cloneSubtree<N>(tree, sonsId[i]));
       }
       //Must copy all properties too:
-      vector<string> names;
+      std::vector<std::string> names;
       names = tree.getNodePropertyNames(nodeId);
       for(unsigned int i = 0; i < names.size(); i++)
       {
@@ -688,12 +691,12 @@ class TreeTemplateTools
 
     struct Element
     {
-      string content;
-      string length;
-      string bootstrap;
+      std::string content;
+      std::string length;
+      std::string bootstrap;
     };
 
-    static Element getElement(const string & elt) throw (IOException);
+    static Element getElement(const std::string& elt) throw (IOException);
 
     /**
      * @brief Parse a string in the parenthesis format and convert it to
@@ -705,7 +708,7 @@ class TreeTemplateTools
      * @param propertyName The name of the property to store. Only used if bootstrap = false.
      * @return A pointer toward a dynamically created subtree.
      */
-    static Node * parenthesisToNode(const string & description, bool bootstrap=true, const string & propertyName=TreeTools::BOOTSTRAP);
+    static Node * parenthesisToNode(const std::string& description, bool bootstrap=true, const std::string& propertyName=TreeTools::BOOTSTRAP);
   
     /**
      * @brief Parse a string in the parenthesis format and convert it to
@@ -718,7 +721,7 @@ class TreeTemplateTools
      * @return A pointer toward a dynamically created tree.
      * @throw Exception in case of bad format.
      */
-    static TreeTemplate<Node> * parenthesisToTree(const string & description, bool bootstrap=true, const string & propertyName=TreeTools::BOOTSTRAP) throw (Exception);
+    static TreeTemplate<Node> * parenthesisToTree(const std::string& description, bool bootstrap=true, const std::string& propertyName=TreeTools::BOOTSTRAP) throw (Exception);
     
     /**
      * @brief Get the parenthesis description of a subtree.
@@ -729,7 +732,7 @@ class TreeTemplateTools
      *                Leaves id will be added to the leave names, separated by a '_' character.
      * @return A string in the parenthesis format.
      */
-    static string nodeToParenthesis(const Node & node, bool writeId = false);
+    static std::string nodeToParenthesis(const Node & node, bool writeId = false);
 
     /**
      * @brief Get the parenthesis description of a subtree.
@@ -743,7 +746,7 @@ class TreeTemplateTools
      * @param propertyName The name of the property to use. Only used if bootstrap = false.
      * @return A string in the parenthesis format.
      */
-    static string nodeToParenthesis(const Node & node, bool bootstrap, const string & propertyName);
+    static std::string nodeToParenthesis(const Node & node, bool bootstrap, const std::string & propertyName);
 
     /**
      * @brief Get the parenthesis description of a tree.
@@ -754,7 +757,7 @@ class TreeTemplateTools
      *                Leaves id will be added to the leave names, separated by a '_' character.
      * @return A string in the parenthesis format.
      */
-    static string treeToParenthesis(const TreeTemplate<Node> & tree, bool writeId = false);
+    static std::string treeToParenthesis(const TreeTemplate<Node>& tree, bool writeId = false);
     
     /**
      * @brief Get the parenthesis description of a tree.
@@ -768,7 +771,7 @@ class TreeTemplateTools
      * @param propertyName The name of the property to use. Only used if bootstrap = false.
      * @return A string in the parenthesis format.
      */
-    static string treeToParenthesis(const TreeTemplate<Node> & tree, bool bootstrap, const string & propertyName);
+    static std::string treeToParenthesis(const TreeTemplate<Node> & tree, bool bootstrap, const std::string& propertyName);
   
     /** @} */
 
@@ -784,7 +787,7 @@ class TreeTemplateTools
      * @param leavesNames A list of taxa.
      * @return A random tree with all corresponding taxa.
      */
-    static TreeTemplate<Node> * getRandomTree(vector<string> & leavesNames);
+    static TreeTemplate<Node> * getRandomTree(std::vector<std::string>& leavesNames);
 
     /** @} */
     
@@ -799,7 +802,7 @@ class TreeTemplateTools
      * @param node3 Another neighbor to exclude.
      * @return A vector of neighbors.
      */
-    static vector<const Node *> getRemainingNeighbors(const Node * node1, const Node * node2, const Node * node3);
+    static std::vector<const Node *> getRemainingNeighbors(const Node * node1, const Node * node2, const Node * node3);
  
     /**
      * @brief This method will add a given value (possibly negative) to all identifiers in a (sub)tree.
@@ -807,7 +810,7 @@ class TreeTemplateTools
      * @param node The root node of the (sub)tree to use.
      * @param increment The value to add.
      */
-    static void incrementAllIds(Node * node, int increment);
+    static void incrementAllIds(Node* node, int increment);
     
 };
 

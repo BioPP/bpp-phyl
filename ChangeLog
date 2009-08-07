@@ -1,3 +1,7 @@
+07/08/09 Sophie Abby & Julien Dutheil
+* [biopp-help-forum:214] Bug fixed in cloneSubtree, remove the link toward the
+father node of the root node of the subtree.
+
 05/08/09 Julien Dutheil
 * TreeDrawing classes improved.
 
