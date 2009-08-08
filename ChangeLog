@@ -1,3 +1,6 @@
+08/08/09 Bastien Boussau
+* Added support for reading trees with id in TreeTemplateTools.
+
 07/08/09 Sophie Abby & Julien Dutheil
 * [biopp-help-forum:214] Bug fixed in cloneSubtree, remove the link toward the
 father node of the root node of the subtree.

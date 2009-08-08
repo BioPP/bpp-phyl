@@ -230,7 +230,7 @@ TreeTemplateTools::Element TreeTemplateTools::getElement(const string& elt) thro
 
 /******************************************************************************/
 
-Node * TreeTemplateTools::parenthesisToNode(const string& description, bool bootstrap, const string & propertyName)
+Node * TreeTemplateTools::parenthesisToNode(const string& description, bool bootstrap, const string& propertyName, bool withId)
 {
   //cout << "NODE: " << description << endl;
   Element elt = getElement(description);
@@ -244,14 +244,21 @@ Node * TreeTemplateTools::parenthesisToNode(const string& description, bool boot
   }
   if(!TextTools::isEmpty(elt.bootstrap))
   {
-    if(bootstrap)
+    if (withId)
     {
-      node->setBranchProperty(TreeTools::BOOTSTRAP, Number<double>(TextTools::toDouble(elt.bootstrap)));
-      //cout << "NODE: BOOTSTRAP: " << * elt.bootstrap << endl;
+      node->setId(TextTools::toInt(elt.bootstrap));
     }
     else
     {
-      node->setBranchProperty(propertyName, String(elt.bootstrap));
+      if(bootstrap)
+      {
+        node->setBranchProperty(TreeTools::BOOTSTRAP, Number<double>(TextTools::toDouble(elt.bootstrap)));
+        //cout << "NODE: BOOTSTRAP: " << * elt.bootstrap << endl;
+      }
+      else
+      {
+        node->setBranchProperty(propertyName, String(elt.bootstrap));
+      }
     }
   }
   
@@ -267,7 +274,25 @@ Node * TreeTemplateTools::parenthesisToNode(const string& description, bool boot
     //This is a leaf:
     //cout << "NODE: LEAF: " << elements[0] << endl;
     string name = TextTools::removeSurroundingWhiteSpaces(elements[0]);
-    node->setName(name);
+    if (withId)
+    {
+      StringTokenizer st(name, "_", true, true);
+      ostringstream realName;
+      for (int i = 0; i < st.numberOfRemainingTokens() - 1; i++)
+      {
+        if (i != 0)
+        {
+          realName << "_";
+        }
+        realName << st.getToken(i);
+      }
+      node->setName(realName.str());    
+      node->setId(TextTools::toInt(st.getToken(st.numberOfRemainingTokens()-1)));
+    }
+    else
+    {
+      node->setName(name);
+    }
   }
   else
   {
@@ -275,7 +300,7 @@ Node * TreeTemplateTools::parenthesisToNode(const string& description, bool boot
     for(unsigned int i = 0; i < elements.size(); i++)
     {
       //cout << "NODE: SUBNODE: " << i << ", " << elements[i] << endl;
-      Node* son = parenthesisToNode(elements[i], bootstrap, propertyName);
+      Node* son = parenthesisToNode(elements[i], bootstrap, propertyName, withId);
       node->addSon(son);
     }
   }
@@ -284,18 +309,18 @@ Node * TreeTemplateTools::parenthesisToNode(const string& description, bool boot
 
 /******************************************************************************/
 
-TreeTemplate<Node> * TreeTemplateTools::parenthesisToTree(const string & description, bool bootstrap, const string & propertyName) throw (Exception)
+TreeTemplate<Node> * TreeTemplateTools::parenthesisToTree(const string& description, bool bootstrap, const string& propertyName, bool withId) throw (Exception)
 {
   string::size_type lastP  = description.rfind(')');
-  if(lastP == string::npos)
+  if (lastP == string::npos)
     throw Exception("TreeTemplateTools::parenthesisToTree(). Bad format: no closing parenthesis found.");
   string::size_type firstP = description.find('(');
-  if(firstP == string::npos)
+  if (firstP == string::npos)
     throw Exception("TreeTemplateTools::parenthesisToTree(). Bad format: no opening parenthesis found.");
   string::size_type semi = description.rfind(';');
-  if(semi == string::npos)
+  if (semi == string::npos)
     throw Exception("TreeTemplateTools::parenthesisToTree(). Bad format: no semi-colon found.");
-  if(lastP <= firstP)
+  if (lastP <= firstP)
     throw Exception("TreeTemplateTools::parenthesisToTree(). Bad format: closing parenthesis before opening parenthesis.");
   string content = description.substr(firstP + 1, lastP - firstP - 1);
   string element = (semi == string::npos) ? description.substr(lastP + 1) : description.substr(lastP + 1, semi - lastP - 1);
@@ -305,22 +330,41 @@ TreeTemplate<Node> * TreeTemplateTools::parenthesisToTree(const string & descrip
   
   NestedStringTokenizer nt(content,"(", ")", ",");
   vector<string> elements;
-  while(nt.hasMoreToken())
+  while (nt.hasMoreToken())
   {
     elements.push_back(nt.nextToken());
   }
 
-  if(elements.size() == 1)
+  if (elements.size() == 1)
   {
     //This is a leaf:
-    node->setName(elements[0]);
+    if (withId) 
+    {
+      StringTokenizer st(elements[0], "_", true, true);
+      ostringstream realName;
+      for (int i = 0 ; i < st.numberOfRemainingTokens() - 1; i++)
+      {
+        if (i != 0)
+        {
+          realName << "_";
+        }
+        realName << st.getToken(i);
+      }
+      node->setName(realName.str());    
+      node->setName(realName.str());
+      node->setId(TextTools::toInt(st.getToken(1)));
+    }
+    else
+    {
+      node->setName(elements[0]);
+    }
   }
   else
   {
     //This is a node:
     for(unsigned int i = 0; i < elements.size(); i++)
     {
-      Node* son = parenthesisToNode(elements[i], bootstrap, propertyName);
+      Node* son = parenthesisToNode(elements[i], bootstrap, propertyName, withId);
       node->addSon(son);
     }
     if(! TextTools::isEmpty(element))
@@ -344,21 +388,31 @@ TreeTemplate<Node> * TreeTemplateTools::parenthesisToTree(const string & descrip
       }
       if(!TextTools::isEmpty(bootstrapS))
       {
-        if(bootstrap)
+        if (withId)
         {
-          node->setBranchProperty(TreeTools::BOOTSTRAP, Number<double>(TextTools::toDouble(bootstrapS)));
-          //cout << "NODE: BOOTSTRAP: " << * elt.bootstrap << endl;
+          node->setId(TextTools::toInt(bootstrapS));
         }
-        else
+        else 
         {
-          node->setBranchProperty(propertyName, String(bootstrapS));
+          if (bootstrap)
+          {
+            node->setBranchProperty(TreeTools::BOOTSTRAP, Number<double>(TextTools::toDouble(bootstrapS)));
+            //cout << "NODE: BOOTSTRAP: " << * elt.bootstrap << endl;
+          }
+          else
+          {
+            node->setBranchProperty(propertyName, String(bootstrapS));
+          }
         }
       }
     }
   }
   TreeTemplate<Node>* tree = new TreeTemplate<Node>();
   tree->setRootNode(node);
-  tree->resetNodesId();
+  if (!withId)
+  {
+    tree->resetNodesId();
+  }
   return tree;
 }
 
