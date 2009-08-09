@@ -155,7 +155,8 @@ TreeDrawing.h\
 AbstractTreeDrawing.h\
 AbstractDendrogramPlot.h\
 PhylogramPlot.h\
-CladogramPlot.h
+CladogramPlot.h\
+PhyloStatistics.h
 
 CPP_FILES = \
 AbstractSubstitutionModel.cpp\
@@ -245,7 +246,8 @@ YN98.cpp\
 AbstractTreeDrawing.cpp\
 AbstractDendrogramPlot.cpp\
 PhylogramPlot.cpp\
-CladogramPlot.cpp
+CladogramPlot.cpp\
+PhyloStatistics.cpp
 
 
 CPP_EXTRA = \
