@@ -60,9 +60,7 @@ class PhylogramPlot:
   public:
     PhylogramPlot():
       AbstractDendrogramPlot(), totalDepth_(0), numberOfLeaves_(0)
-    {
-      treeHasChanged();
-    }
+    {}
     
     virtual ~PhylogramPlot() {}
 

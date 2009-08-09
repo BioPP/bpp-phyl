@@ -119,16 +119,17 @@ class AbstractTreeDrawing:
     
     bool hasTree() const { return tree_ != 0; }
 
-#ifndef NO_VIRTUAL_COV
+#ifdef NO_VIRTUAL_COV
     Tree*
 #else
-    const TreeTemplate<INOde>*
+    const TreeTemplate<INode>*
 #endif
     getTree() const { return tree_; }
     
     void setTree(const Tree* tree)
     {
-      if (tree_) delete tree_;
+      if (tree_)
+        delete tree_;
       if (!tree) tree_ = 0;
       else
       {

@@ -63,9 +63,7 @@ class CladogramPlot:
   public:
     CladogramPlot():
       AbstractDendrogramPlot(), totalDepth_(0), numberOfLeaves_(0)
-    {
-      treeHasChanged();
-    }
+    {}
     
     virtual ~CladogramPlot() {}
 

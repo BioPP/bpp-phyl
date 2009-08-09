@@ -92,26 +92,26 @@ class NodeTemplate : public Node
 		/**
 		 * @brief Build a new NodeTemplate with specified name.
 		 */
-		NodeTemplate(const string & name) : Node(name) {}
+		NodeTemplate(const std::string& name) : Node(name) {}
 
 		/**
 		 * @brief Build a new NodeTemplate with specified id and name.
 		 */
-		NodeTemplate(int id, const string & name) : Node(id, name) {}
+		NodeTemplate(int id, const std::string& name) : Node(id, name) {}
 
 		/**
 		 * @brief Copy constructor.
 		 * 
 		 * @param node The node to copy.
 		 */
-		NodeTemplate(const Node & node) : Node(node) {}
+		NodeTemplate(const Node& node) : Node(node) {}
 
 		/**
 		 * @brief Copy constructor.
 		 * 
 		 * @param node The node to copy.
 		 */
-		NodeTemplate(const NodeTemplate<NodeInfos> & node):
+		NodeTemplate(const NodeTemplate<NodeInfos>& node):
       Node(node)
 		{
 			infos_ = node.infos_;
@@ -123,50 +123,50 @@ class NodeTemplate : public Node
 		 * @param node the node to copy.
 		 * @return A reference toward this node.
 		 */
-		NodeTemplate<NodeInfos> & operator=(const NodeTemplate<NodeInfos> & node)
+		NodeTemplate<NodeInfos>& operator=(const NodeTemplate<NodeInfos>& node)
 		{
       Node::operator=(node);
 			infos_ = node.infos_;
-			return * this;
+			return *this;
 		}
 
 		virtual ~NodeTemplate() {}
 
-    NodeTemplate<NodeInfos> * clone() const { return new NodeTemplate<NodeInfos>(*this); }
+    NodeTemplate<NodeInfos>* clone() const { return new NodeTemplate<NodeInfos>(*this); }
 
   public:
 
-		const NodeTemplate<NodeInfos> * getFather() const { return dynamic_cast<const NodeTemplate<NodeInfos> *>(father_); }
+		const NodeTemplate<NodeInfos>* getFather() const { return dynamic_cast<const NodeTemplate<NodeInfos> *>(father_); }
  
-		NodeTemplate<NodeInfos> * getFather() { return dynamic_cast<NodeTemplate<NodeInfos> *>(father_); }
+		NodeTemplate<NodeInfos>* getFather() { return dynamic_cast<NodeTemplate<NodeInfos> *>(father_); }
 				
-		NodeTemplate<NodeInfos> * removeFather() { NodeTemplate<NodeInfos> * f = dynamic_cast<NodeTemplate<NodeInfos> *>(father_); father_ = NULL; return f; }
+		NodeTemplate<NodeInfos>* removeFather() { NodeTemplate<NodeInfos> * f = dynamic_cast<NodeTemplate<NodeInfos> *>(father_); father_ = NULL; return f; }
 
-		const NodeTemplate<NodeInfos> * getSon(unsigned int i) const throw (IndexOutOfBoundsException) { return dynamic_cast<NodeTemplate<NodeInfos> *>(sons_[i]); }
+		const NodeTemplate<NodeInfos>* getSon(unsigned int i) const throw (IndexOutOfBoundsException) { return dynamic_cast<NodeTemplate<NodeInfos> *>(sons_[i]); }
 				
-		NodeTemplate<NodeInfos> * getSon(unsigned int i) throw (IndexOutOfBoundsException) { return dynamic_cast<NodeTemplate<NodeInfos> *>(sons_[i]); }
+		NodeTemplate<NodeInfos>* getSon(unsigned int i) throw (IndexOutOfBoundsException) { return dynamic_cast<NodeTemplate<NodeInfos> *>(sons_[i]); }
 				
-		vector<const NodeTemplate<NodeInfos> *> getNeighbors() const
+		vector<const NodeTemplate<NodeInfos>*> getNeighbors() const
 		{
-			vector<const Node *> neighbors = Node::getNeighbors();
-			vector<const NodeTemplate<NodeInfos> *> neighbors2(neighbors.size());
-			for(unsigned int i=0; i < neighbors.size(); i++)
+			vector<const Node*> neighbors = Node::getNeighbors();
+			vector<const NodeTemplate<NodeInfos>*> neighbors2(neighbors.size());
+			for (unsigned int i = 0; i < neighbors.size(); i++)
 				neighbors2[i] = dynamic_cast<const NodeTemplate<NodeInfos> *>(neighbors[i]);
 			return neighbors2;
 		}
 		
-		vector<NodeTemplate<NodeInfos> *> getNeighbors()
+		vector<NodeTemplate<NodeInfos>*> getNeighbors()
 		{
-			vector<Node *> neighbors = Node::getNeighbors();
-			vector<NodeTemplate<NodeInfos> *> neighbors2(neighbors.size());
-			for(unsigned int i=0; i < neighbors.size(); i++)
-				neighbors2[i] = dynamic_cast<NodeTemplate<NodeInfos> *>(neighbors[i]);
+			vector<Node*> neighbors = Node::getNeighbors();
+			vector<NodeTemplate<NodeInfos>*> neighbors2(neighbors.size());
+			for(unsigned int i = 0; i < neighbors.size(); i++)
+				neighbors2[i] = dynamic_cast<NodeTemplate<NodeInfos>*>(neighbors[i]);
 			return neighbors2;
 		}
 		
-		NodeTemplate<NodeInfos> * operator[](int i) { return dynamic_cast<NodeTemplate<NodeInfos> *>((i < 0) ? father_ : sons_[i]); }
+		NodeTemplate<NodeInfos>* operator[](int i) { return dynamic_cast<NodeTemplate<NodeInfos> *>((i < 0) ? father_ : sons_[i]); }
 				
-		const NodeTemplate<NodeInfos> * operator[](int i) const { return dynamic_cast<const NodeTemplate<NodeInfos> *>((i < 0) ? father_ : sons_[i]); }
+		const NodeTemplate<NodeInfos>* operator[](int i) const { return dynamic_cast<const NodeTemplate<NodeInfos> *>((i < 0) ? father_ : sons_[i]); }
 
 
 		// Specific methods:
@@ -174,19 +174,19 @@ class NodeTemplate : public Node
     /**
      * @return A reference toward the information object associated to this node.
      */
-		virtual const NodeInfos & getInfos() const { return infos_; }
+		virtual const NodeInfos& getInfos() const { return infos_; }
 		
     /**
      * @return A reference toward the information object associated to this node.
      */
-		virtual NodeInfos & getInfos() { return infos_; }
+		virtual NodeInfos& getInfos() { return infos_; }
 
     /**
      * @brief Set the information to be associated to this node.
      * 
      * @param infos An information object.
      */
-		virtual void setInfos(const NodeInfos & infos) { infos_ = infos; }
+		virtual void setInfos(const NodeInfos& infos) { infos_ = infos; }
 
 };
 

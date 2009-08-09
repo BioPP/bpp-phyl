@@ -44,7 +44,7 @@ using namespace bpp;
 
 void CladogramPlot::setTree(const Tree* tree)
 {
-  AbstractTreeDrawing::setTree(tree);
+  AbstractDendrogramPlot::setTree(tree);
   if (hasTree())
     totalDepth_ = TreeTemplateTools::getDepth(*getTree_()->getRootNode());
 }

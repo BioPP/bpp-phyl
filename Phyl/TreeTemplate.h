@@ -133,7 +133,7 @@ class TreeTemplate:
 
 		virtual ~TreeTemplate()
     {
-      destroySubtree(root_);
+      destroySubtree_(root_);
       delete root_;
     }
 
@@ -465,14 +465,14 @@ class TreeTemplate:
 
 		/** @} */
 		
-	protected:
+	private:
 		
-		virtual void destroySubtree(N* node)
+		virtual void destroySubtree_(N* node)
 		{
 			for(unsigned int i = 0; i < node->getNumberOfSons(); i++)
       {
 				N* son = node->getSon(i);
-				destroySubtree(son);
+				destroySubtree_(son);
 				delete son;
 			}
 		}

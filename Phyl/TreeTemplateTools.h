@@ -546,7 +546,7 @@ class TreeTemplateTools
     static std::vector<const Node*> getPathBetweenAnyTwoNodes(const Node & node1, const Node & node2, bool includeAncestor = true);
      
     template<class N>
-    static N* cloneSubtree(const Node & node) 
+    static N* cloneSubtree(const Node& node) 
     {
       //First we copy this node using default copy constuctor:
       N* clone = new N(node);
@@ -567,7 +567,7 @@ class TreeTemplateTools
       //First we copy this node using default copy constuctor:
       N* clone = tree.hasNodeName(nodeId) ? new N(nodeId, tree.getNodeName(nodeId)) : new N(nodeId);
       //Then we set the length:
-      if(tree.hasDistanceToFather(nodeId))
+      if (tree.hasDistanceToFather(nodeId))
         clone->setDistanceToFather(tree.getDistanceToFather(nodeId));
       //Now we copy all sons:
       std::vector<int> sonsId = tree.getSonsId(nodeId);

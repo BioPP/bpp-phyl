@@ -48,7 +48,7 @@ using namespace std;
 
 void PhylogramPlot::setTree(const Tree* tree)
 {
-  AbstractTreeDrawing::setTree(tree);
+  AbstractDendrogramPlot::setTree(tree);
   if (tree)
   {
     getTree_()->setVoidBranchLengths(0.);

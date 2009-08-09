@@ -122,7 +122,7 @@ vector<string> TreeTemplateTools::getLeavesNames(const Node & node)
 
 /******************************************************************************/
 
-unsigned int TreeTemplateTools::getDepth(const Node & node)
+unsigned int TreeTemplateTools::getDepth(const Node& node)
 {
   unsigned int d = 0;
   for(unsigned int i = 0; i < node.getNumberOfSons(); i++)
@@ -135,16 +135,16 @@ unsigned int TreeTemplateTools::getDepth(const Node & node)
 
 /******************************************************************************/
 
-double TreeTemplateTools::getHeight(const Node & node) throw (NodeException)
+double TreeTemplateTools::getHeight(const Node& node) throw (NodeException)
 {
   double d = 0;
   for(unsigned int i = 0; i < node.getNumberOfSons(); i++)
   {
-    const Node * son = node[i];
+    const Node* son = node[i];
     double dist = 0;
-    if(son->hasDistanceToFather()) dist = son->getDistanceToFather();
+    if (son->hasDistanceToFather()) dist = son->getDistanceToFather();
     else throw NodeException("Node without branch length.", son);
-    double c = getHeight(* son) + dist;
+    double c = getHeight(*son) + dist;
     if(c > d) d = c;
   }
   return d;
@@ -152,7 +152,7 @@ double TreeTemplateTools::getHeight(const Node & node) throw (NodeException)
 
 /******************************************************************************/
 
-double TreeTemplateTools::getHeights(const Node & node, map<const Node *, double> & heights) throw (NodeException)
+double TreeTemplateTools::getHeights(const Node& node, map<const Node*, double>& heights) throw (NodeException)
 {
   double d = 0;
   for(unsigned int i = 0; i < node.getNumberOfSons(); i++)
