@@ -66,6 +66,8 @@ class CladogramPlot:
     {}
     
     virtual ~CladogramPlot() {}
+    
+    CladogramPlot* clone() const { return new CladogramPlot(*this); }
 
   public:
     string getName() const { return "Cladogram"; }

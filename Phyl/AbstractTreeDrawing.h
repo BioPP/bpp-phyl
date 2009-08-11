@@ -95,18 +95,25 @@ class AbstractTreeDrawing:
     
     AbstractTreeDrawing(const AbstractTreeDrawing& atd)
     {
-      tree_       = atd.tree_->clone();
-      xUnit_      = atd.xUnit_;
-      yUnit_      = atd.yUnit_;
-      settings_   = atd.settings_;
+      if (atd.tree_)
+        tree_             = atd.tree_->clone();
+      else tree_ = 0;
+      xUnit_              = atd.xUnit_;
+      yUnit_              = atd.yUnit_;
+      pointArea_          = atd.pointArea_;
+      drawableProperties_ = atd.drawableProperties_;
+      settings_           = atd.settings_;
     }
      
     AbstractTreeDrawing& operator=(const AbstractTreeDrawing& atd)
     {
-      tree_       = atd.tree_->clone();
-      xUnit_      = atd.xUnit_;
-      yUnit_      = atd.yUnit_;
-      settings_   = atd.settings_;
+      if (atd.tree_)
+        tree_             = atd.tree_->clone();
+      else tree_ = 0;
+      xUnit_              = atd.xUnit_;
+      yUnit_              = atd.yUnit_;
+      pointArea_          = atd.pointArea_;
+      drawableProperties_ = atd.drawableProperties_;
       return *this;
     }
 

@@ -64,6 +64,8 @@ class PhylogramPlot:
     
     virtual ~PhylogramPlot() {}
 
+    PhylogramPlot* clone() const { return new PhylogramPlot(*this); }
+
   public:
     string getName() const { return "Phylogram"; }
  

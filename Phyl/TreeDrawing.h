@@ -43,6 +43,7 @@ knowledge of the CeCILL license and that you accept its terms.
 // From Utils:
 #include <Utils/GraphicDevice.h>
 #include <Utils/Point2D.h>
+#include <Utils/Clonable.h>
 
 // From PhylLib:
 #include "Tree.h"
@@ -68,7 +69,7 @@ class TreeDrawingSettings
  * The drawing is performed on a GraphicDevice object.
  *
  * The TreeDrwing class is in charge of the tree reprensentation, and offer tools to retireve
- * the coordinates of nodes. Using these funcitons to plot annotation may turn to be unefficient
+ * the coordinates of nodes. Using these functions to plot annotation may turn to be unefficient
  * however, particularly for large trees, as they involve a search on the whole tree. For easier
  * tuning of the drawing extensions, the interface defines the drawProperty,
  * getSupportedDrawableProperties and isDrawable methods. These methods can be used to add features
@@ -81,12 +82,17 @@ class TreeDrawingSettings
  * documentation of the specific implementation you are using for details.
  *
  */
-class TreeDrawing
+class TreeDrawing:
+  public virtual Clonable
 {
   public:
     TreeDrawing() {}
     virtual ~TreeDrawing() {}
-  
+ 
+#ifndef NO_VIRTUAL_COV
+    TreeDrawing* clone() const = 0;
+#endif
+
   public:
     /**
      * @return A string describing this drawing algorithm.
