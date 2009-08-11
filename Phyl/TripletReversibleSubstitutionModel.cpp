@@ -155,9 +155,9 @@ TripletReversibleSubstitutionModel::TripletReversibleSubstitutionModel(const Tri
 
 string TripletReversibleSubstitutionModel::getName() const
 {
-  string s="TripletReversibleSubstitutionModel model:";
-  for (int i=0; i< _VAbsRevMod.size(); i++)
-    s+=" "+ _VAbsRevMod[i]->getName();
+  string s = "TripletReversibleSubstitutionModel model:";
+  for (unsigned int i = 0; i < _VAbsRevMod.size(); i++)
+    s += " " + _VAbsRevMod[i]->getName();
   
   return s;
 }

@@ -82,31 +82,31 @@ CodonAsynonymousReversibleSubstitutionModel::CodonAsynonymousReversibleSubstitut
 
 string CodonAsynonymousReversibleSubstitutionModel::getName() const
 {
-  string s="CodonAsynonymousReversibleSubstitutionModel model:";
-  for (int i=0; i< _VAbsRevMod.size(); i++)
-    s+=" "+ _VAbsRevMod[i]->getName();
+  string s = "CodonAsynonymousReversibleSubstitutionModel model:";
+  for (unsigned int i = 0; i < _VAbsRevMod.size(); i++)
+    s += " " + _VAbsRevMod[i]->getName();
   
   return s;
 }
 
 void CodonAsynonymousReversibleSubstitutionModel::completeMatrices()
 {
-  unsigned int i,j;
-  int salph=getNumberOfStates();
-  double x;
-  double alpha=_pdistance?getParameterValue("alpha"):1;
-  double beta=getParameterValue("beta");
+  unsigned int i, j;
+  unsigned int salph = getNumberOfStates();
+  double alpha = _pdistance ? getParameterValue("alpha") : 1;
+  double beta = getParameterValue("beta");
 
-  CodonAlphabet* ca=(CodonAlphabet*)(alphabet_);
+  CodonAlphabet* ca = (CodonAlphabet*)(alphabet_);
   
-  for (i=0;i<salph;i++)
-    for (j=0;j<salph;j++)
-      if (i!=j){
+  for (i = 0; i < salph; i++)
+    for (j = 0; j < salph; j++)
+      if (i != j)
+      {
         if (ca->isStop(j) || ca->isStop(i))
-          generator_(i,j)=0;
+          generator_(i,j) = 0;
         else
           if (! _geneticCode->areSynonymous(i,j))
-            generator_(i,j)*=beta*(_pdistance?exp(-_pdistance->getIndex(_geneticCode->translate(i),_geneticCode->translate(j))/alpha):1);
+            generator_(i,j) *= beta * (_pdistance ? exp(-_pdistance->getIndex(_geneticCode->translate(i), _geneticCode->translate(j)) / alpha) : 1);
       }
 }
 

@@ -62,9 +62,9 @@ MarkovModulatedSubstitutionModel::MarkovModulatedSubstitutionModel(const MarkovM
   leftEigenVectors_(model.leftEigenVectors_),
   rightEigenVectors_(model.rightEigenVectors_),
   eigenValues_(model.eigenValues_),
+  eigenDecompose_(model.eigenDecompose_),
   freq_(model.freq_),
   normalizeRateChanges_(model.normalizeRateChanges_),
-  eigenDecompose_(model.eigenDecompose_),
   nestedPrefix_(model.nestedPrefix_)
 {
   model_ = dynamic_cast<ReversibleSubstitutionModel *>(model.model_->clone());
@@ -86,9 +86,9 @@ MarkovModulatedSubstitutionModel& MarkovModulatedSubstitutionModel::operator=(co
   leftEigenVectors_     = model.leftEigenVectors_;
   rightEigenVectors_    = model.rightEigenVectors_;
   eigenValues_          = model.eigenValues_;
+  eigenDecompose_       = model.eigenDecompose_;
   freq_                 = model.freq_;
   normalizeRateChanges_ = model.normalizeRateChanges_;
-  eigenDecompose_       = model.eigenDecompose_;
   nestedPrefix_         = model.nestedPrefix_;
   return *this;
 }
