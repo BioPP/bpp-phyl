@@ -45,7 +45,7 @@ knowledge of the CeCILL license and that you accept its terms.
 #include <Utils/Point2D.h>
 
 // From PhylLib:
-#include <Phyl/Tree.h>
+#include "Tree.h"
 
 namespace bpp
 {
