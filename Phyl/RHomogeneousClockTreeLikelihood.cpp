@@ -61,7 +61,7 @@ RHomogeneousClockTreeLikelihood::RHomogeneousClockTreeLikelihood(
 throw (Exception):
   RHomogeneousTreeLikelihood(tree, model, rDist, false, verbose, true)
 {
-  _init();
+  init_();
 }
 
 /******************************************************************************/
@@ -76,16 +76,16 @@ RHomogeneousClockTreeLikelihood::RHomogeneousClockTreeLikelihood(
 throw (Exception):
   RHomogeneousTreeLikelihood(tree, data, model, rDist, false, verbose, true)
 {
-  _init();
+  init_();
 }
 
 /******************************************************************************/
 
-void RHomogeneousClockTreeLikelihood::_init()
+void RHomogeneousClockTreeLikelihood::init_()
 {
   //Check if the tree is rooted:
-  if(!tree_->isRooted()) throw Exception("RHomogeneousClockTreeLikelihood::init(). Tree is unrooted!");
-  if(TreeTemplateTools::isMultifurcating(*tree_->getRootNode())) throw Exception("HomogeneousClockTreeLikelihood::init(). Tree is multifurcating.");
+  if(!tree_->isRooted()) throw Exception("RHomogeneousClockTreeLikelihood::init_(). Tree is unrooted!");
+  if(TreeTemplateTools::isMultifurcating(*tree_->getRootNode())) throw Exception("HomogeneousClockTreeLikelihood::init_(). Tree is multifurcating.");
   setMinimumBranchLength(0.);
 }
 

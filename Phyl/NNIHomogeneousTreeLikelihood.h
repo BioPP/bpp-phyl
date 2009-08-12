@@ -78,12 +78,12 @@ class BranchLikelihood :
   public:
     BranchLikelihood(const vector<unsigned int> & weights) :
       AbstractParametrizable(""),
-      _array1(NULL), _array2(NULL), _arrayTmp(),
-      _model(NULL), _rDist(NULL),
+      _array1(0), _array2(0), _arrayTmp(),
+      _model(0), _rDist(0),
       nbStates_(0), nbClasses_(0),
       pxy_(), _lnL(log(0.)), _weights(weights)
     {
-      Parameter p("BrLen", 1, NULL);
+      Parameter p("BrLen", 1, 0);
       addParameter_(p);
     }
     virtual ~BranchLikelihood() {}
@@ -110,8 +110,8 @@ class BranchLikelihood :
 
     void resetLikelihoods()
     {
-      _array1 = NULL;
-      _array2 = NULL;
+      _array1 = 0;
+      _array2 = 0;
     }
 
     void setParameters(const ParameterList &parameters)
@@ -145,18 +145,18 @@ class NNIHomogeneousTreeLikelihood:
   public NNISearchable
 {
   protected:
-    BranchLikelihood * _brLikFunction;
+    BranchLikelihood * brLikFunction_;
     /**
      * @brief Optimizer used for testing NNI.
      */
-    BrentOneDimension * _brentOptimizer;
+    BrentOneDimension * brentOptimizer_;
 
     /**
      * @brief Hash used for backing up branch lengths when testing NNIs.
      */
-    mutable map<int, double> _brLenNNIValues;
+    mutable map<int, double> brLenNNIValues_;
 
-    ParameterList _brLenNNIParams;
+    ParameterList brLenNNIParams_;
     
   public:
     /**
@@ -171,9 +171,9 @@ class NNIHomogeneousTreeLikelihood:
      * @throw Exception in an error occured.
      */
     NNIHomogeneousTreeLikelihood(
-      const Tree & tree,
-      SubstitutionModel * model,
-      DiscreteDistribution * rDist,
+      const Tree& tree,
+      SubstitutionModel* model,
+      DiscreteDistribution* rDist,
       bool checkRooted = true,
       bool verbose = true)
       throw (Exception);
@@ -191,10 +191,10 @@ class NNIHomogeneousTreeLikelihood:
      * @throw Exception in an error occured.
      */
     NNIHomogeneousTreeLikelihood(
-      const Tree & tree,
-      const SiteContainer & data,
-      SubstitutionModel * model,
-      DiscreteDistribution * rDist,
+      const Tree& tree,
+      const SiteContainer& data,
+      SubstitutionModel* model,
+      DiscreteDistribution* rDist,
       bool checkRooted = true,
       bool verbose = true)
       throw (Exception);
@@ -217,11 +217,11 @@ class NNIHomogeneousTreeLikelihood:
 
   public:
 
-    void setData(const SiteContainer & sites) throw (Exception)
+    void setData(const SiteContainer& sites) throw (Exception)
     {
       DRHomogeneousTreeLikelihood::setData(sites);
-      if(_brLikFunction) delete _brLikFunction;
-      _brLikFunction = new BranchLikelihood(_likelihoodData->getWeights());
+      if(brLikFunction_) delete brLikFunction_;
+      brLikFunction_ = new BranchLikelihood(likelihoodData_->getWeights());
     }
 
     /**
@@ -243,16 +243,16 @@ class NNIHomogeneousTreeLikelihood:
     
     void doNNI(int nodeId) throw (NodeException);
 
-    void topologyChangeTested(const TopologyChangeEvent & event)
+    void topologyChangeTested(const TopologyChangeEvent& event)
     {
-      _likelihoodData->reInit();
-      //if(_brLenNNIParams.size() > 0)
-      fireParameterChanged(_brLenNNIParams);
-      _brLenNNIParams.reset();
+      likelihoodData_->reInit();
+      //if(brLenNNIParams_.size() > 0)
+      fireParameterChanged(brLenNNIParams_);
+      brLenNNIParams_.reset();
     }
     void topologyChangeSuccessful(const TopologyChangeEvent & event)
     {
-      _brLenNNIValues.clear();
+      brLenNNIValues_.clear();
     }
     /** @} */
     

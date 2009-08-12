@@ -59,52 +59,53 @@ using namespace std;
 /******************************************************************************/
 
 DRNonHomogeneousTreeLikelihood::DRNonHomogeneousTreeLikelihood(
-  const Tree & tree,
-  SubstitutionModelSet * modelSet,
-  DiscreteDistribution * rDist,
+  const Tree& tree,
+  SubstitutionModelSet* modelSet,
+  DiscreteDistribution* rDist,
   bool verbose)
 throw (Exception):
   AbstractNonHomogeneousTreeLikelihood(tree, modelSet, rDist, verbose),
-  _likelihoodData(NULL)
+  likelihoodData_(0)
 {
   if(!modelSet->isFullySetUpFor(tree))
     throw Exception("DRNonHomogeneousTreeLikelihood(constructor). Model set is not fully specified.");
-  _init();
+  init_();
 }
 
 /******************************************************************************/
 
 DRNonHomogeneousTreeLikelihood::DRNonHomogeneousTreeLikelihood(
-  const Tree & tree,
-  const SiteContainer & data,
-  SubstitutionModelSet * modelSet,
-  DiscreteDistribution * rDist,
+  const Tree& tree,
+  const SiteContainer& data,
+  SubstitutionModelSet* modelSet,
+  DiscreteDistribution* rDist,
   bool verbose)
 throw (Exception):
   AbstractNonHomogeneousTreeLikelihood(tree, modelSet, rDist, verbose),
-  _likelihoodData(NULL)
+  likelihoodData_(0)
 {
   if(!modelSet->isFullySetUpFor(tree))
     throw Exception("DRNonHomogeneousTreeLikelihood(constructor). Model set is not fully specified.");
-  _init(); 
+  init_(); 
   setData(data);
 }
 
 /******************************************************************************/
 
-void DRNonHomogeneousTreeLikelihood::_init() throw (Exception)
+void DRNonHomogeneousTreeLikelihood::init_() throw (Exception)
 {
-  _likelihoodData = new DRASDRTreeLikelihoodData(*tree_, _rateDistribution->getNumberOfCategories());
+  likelihoodData_ = new DRASDRTreeLikelihoodData(*tree_, _rateDistribution->getNumberOfCategories());
 }
 
 /******************************************************************************/
 
 DRNonHomogeneousTreeLikelihood::DRNonHomogeneousTreeLikelihood(const DRNonHomogeneousTreeLikelihood & lik):
   AbstractNonHomogeneousTreeLikelihood(lik),
-  _likelihoodData(NULL)
+  likelihoodData_(0),
+  minusLogLik_(lik.minusLogLik_)
 {
-  _likelihoodData = dynamic_cast<DRASDRTreeLikelihoodData *>(lik._likelihoodData->clone());
-  _likelihoodData->setTree(*tree_);
+  likelihoodData_ = dynamic_cast<DRASDRTreeLikelihoodData *>(lik.likelihoodData_->clone());
+  likelihoodData_->setTree(*tree_);
 }
 
 /******************************************************************************/
@@ -112,9 +113,10 @@ DRNonHomogeneousTreeLikelihood::DRNonHomogeneousTreeLikelihood(const DRNonHomoge
 DRNonHomogeneousTreeLikelihood & DRNonHomogeneousTreeLikelihood::operator=(const DRNonHomogeneousTreeLikelihood & lik)
 {
   AbstractNonHomogeneousTreeLikelihood::operator=(lik);
-  if(_likelihoodData) delete _likelihoodData;
-  _likelihoodData = dynamic_cast<DRASDRTreeLikelihoodData *>(lik._likelihoodData->clone());
-  _likelihoodData->setTree(*tree_);
+  if(likelihoodData_) delete likelihoodData_;
+  likelihoodData_ = dynamic_cast<DRASDRTreeLikelihoodData *>(lik.likelihoodData_->clone());
+  likelihoodData_->setTree(*tree_);
+  minusLogLik_ = lik.minusLogLik_;
   return *this;
 }
 
@@ -122,7 +124,7 @@ DRNonHomogeneousTreeLikelihood & DRNonHomogeneousTreeLikelihood::operator=(const
 
 DRNonHomogeneousTreeLikelihood::~DRNonHomogeneousTreeLikelihood()
 {
-  delete _likelihoodData;
+  delete likelihoodData_;
 }
 
 /******************************************************************************/
@@ -132,13 +134,13 @@ void DRNonHomogeneousTreeLikelihood::setData(const SiteContainer & sites) throw 
   if(data_) delete data_;
   data_ = PatternTools::getSequenceSubset(sites, *tree_->getRootNode());
   if(_verbose) ApplicationTools::displayTask("Initializing data structure");
-  _likelihoodData->initLikelihoods(* data_, *_modelSet->getModel(0)); //We assume here that all models have the same number of states, and that they have the same 'init' method,
+  likelihoodData_->initLikelihoods(* data_, *_modelSet->getModel(0)); //We assume here that all models have the same number of states, and that they have the same 'init' method,
                                                                       //Which is a reasonable assumption as long as they share the same alphabet.
   if(_verbose) ApplicationTools::displayTaskDone();
 
-  _nbSites = _likelihoodData->getNumberOfSites();
-  _nbDistinctSites = _likelihoodData->getNumberOfDistinctSites();
-  _nbStates = _likelihoodData->getNumberOfStates();
+  _nbSites = likelihoodData_->getNumberOfSites();
+  _nbDistinctSites = likelihoodData_->getNumberOfDistinctSites();
+  _nbStates = likelihoodData_->getNumberOfStates();
   
   if(_verbose) ApplicationTools::displayResult("Number of distinct sites",
       TextTools::toString(_nbDistinctSites));
@@ -150,8 +152,8 @@ void DRNonHomogeneousTreeLikelihood::setData(const SiteContainer & sites) throw 
 double DRNonHomogeneousTreeLikelihood::getLikelihood() const
 {
   double l = 1.;
-  Vdouble * lik = & _likelihoodData->getRootRateSiteLikelihoodArray(); 
-  const vector<unsigned int> * w = & _likelihoodData->getWeights();
+  Vdouble * lik = & likelihoodData_->getRootRateSiteLikelihoodArray(); 
+  const vector<unsigned int> * w = & likelihoodData_->getWeights();
   for(unsigned int i = 0; i < _nbDistinctSites; i++)
   {
     l *= std::pow((*lik)[i], (int)(* w)[i]);
@@ -164,8 +166,8 @@ double DRNonHomogeneousTreeLikelihood::getLikelihood() const
 double DRNonHomogeneousTreeLikelihood::getLogLikelihood() const
 {
   double ll = 0;
-  Vdouble * lik = & _likelihoodData->getRootRateSiteLikelihoodArray(); 
-  const vector<unsigned int> * w = & _likelihoodData->getWeights();
+  Vdouble * lik = & likelihoodData_->getRootRateSiteLikelihoodArray(); 
+  const vector<unsigned int> * w = & likelihoodData_->getWeights();
   vector<double> la(_nbDistinctSites);
   for(unsigned int i = 0; i < _nbDistinctSites; i++)
   {
@@ -181,41 +183,41 @@ double DRNonHomogeneousTreeLikelihood::getLogLikelihood() const
 
 double DRNonHomogeneousTreeLikelihood::getLikelihoodForASite(unsigned int site) const
 {
-  return _likelihoodData->getRootRateSiteLikelihoodArray()[_likelihoodData->getRootArrayPosition(site)];
+  return likelihoodData_->getRootRateSiteLikelihoodArray()[likelihoodData_->getRootArrayPosition(site)];
 }
 
 /******************************************************************************/
 
 double DRNonHomogeneousTreeLikelihood::getLogLikelihoodForASite(unsigned int site) const
 {
-  return log(_likelihoodData->getRootRateSiteLikelihoodArray()[_likelihoodData->getRootArrayPosition(site)]);
+  return log(likelihoodData_->getRootRateSiteLikelihoodArray()[likelihoodData_->getRootArrayPosition(site)]);
 }
 
 /******************************************************************************/
 double DRNonHomogeneousTreeLikelihood::getLikelihoodForASiteForARateClass(unsigned int site, unsigned int rateClass) const
 {
-  return _likelihoodData->getRootSiteLikelihoodArray()[_likelihoodData->getRootArrayPosition(site)][rateClass];
+  return likelihoodData_->getRootSiteLikelihoodArray()[likelihoodData_->getRootArrayPosition(site)][rateClass];
 }
 
 /******************************************************************************/
 
 double DRNonHomogeneousTreeLikelihood::getLogLikelihoodForASiteForARateClass(unsigned int site, unsigned int rateClass) const
 {
-  return log(_likelihoodData->getRootSiteLikelihoodArray()[_likelihoodData->getRootArrayPosition(site)][rateClass]);
+  return log(likelihoodData_->getRootSiteLikelihoodArray()[likelihoodData_->getRootArrayPosition(site)][rateClass]);
 }
 
 /******************************************************************************/  
 
 double DRNonHomogeneousTreeLikelihood::getLikelihoodForASiteForARateClassForAState(unsigned int site, unsigned int rateClass, int state) const
 {
-  return _likelihoodData->getRootLikelihoodArray()[_likelihoodData->getRootArrayPosition(site)][rateClass][state];
+  return likelihoodData_->getRootLikelihoodArray()[likelihoodData_->getRootArrayPosition(site)][rateClass][state];
 }
 
 /******************************************************************************/
 
 double DRNonHomogeneousTreeLikelihood::getLogLikelihoodForASiteForARateClassForAState(unsigned int site, unsigned int rateClass, int state) const
 {
-  return log(_likelihoodData->getRootLikelihoodArray()[_likelihoodData->getRootArrayPosition(site)][rateClass][state]);
+  return log(likelihoodData_->getRootLikelihoodArray()[likelihoodData_->getRootArrayPosition(site)][rateClass][state]);
 }
 
 /******************************************************************************/  
@@ -302,13 +304,13 @@ throw (Exception)
 void DRNonHomogeneousTreeLikelihood::computeTreeDLikelihoodAtNode(const Node * node)
 {
   const Node * father = node->getFather();
-  VVVdouble * _likelihoods_father_node = & _likelihoodData->getLikelihoodArray(father->getId(), node->getId());
-  Vdouble * _dLikelihoods_node = & _likelihoodData->getDLikelihoodArray(node->getId());
+  VVVdouble * _likelihoods_father_node = & likelihoodData_->getLikelihoodArray(father->getId(), node->getId());
+  Vdouble * _dLikelihoods_node = & likelihoodData_->getDLikelihoodArray(node->getId());
   VVVdouble *  _pxy_node = &  _pxy[node->getId()];
   VVVdouble * _dpxy_node = & _dpxy[node->getId()];
   VVVdouble larray;
   computeLikelihoodAtNode(father->getId(), larray);
-  Vdouble * rootLikelihoodsSR = & _likelihoodData->getRootRateSiteLikelihoodArray();
+  Vdouble * rootLikelihoodsSR = & likelihoodData_->getRootRateSiteLikelihoodArray();
 
   double dLi, dLic, dLicx, numerator, denominator;
   for(unsigned int i = 0; i < _nbDistinctSites; i++)
@@ -373,15 +375,15 @@ throw (Exception)
   //
   // Computation for branch lengths:
   //
-  const vector<unsigned int> * w = & _likelihoodData->getWeights();
+  const vector<unsigned int> * w = & likelihoodData_->getWeights();
   Vdouble * _dLikelihoods_branch;
   if(variable == "BrLenRoot")
   {
-    _dLikelihoods_branch = & _likelihoodData->getDLikelihoodArray(_root1);
+    _dLikelihoods_branch = & likelihoodData_->getDLikelihoodArray(_root1);
     double d1 = 0;
     for(unsigned int i = 0; i < _nbDistinctSites; i++)
       d1 -= (* w)[i] * (* _dLikelihoods_branch)[i];
-    _dLikelihoods_branch = & _likelihoodData->getDLikelihoodArray(_root2);
+    _dLikelihoods_branch = & likelihoodData_->getDLikelihoodArray(_root2);
     double d2 = 0;
     for(unsigned int i = 0; i < _nbDistinctSites; i++)
       d2 -= (* w)[i] * (* _dLikelihoods_branch)[i];
@@ -390,11 +392,11 @@ throw (Exception)
   }
   else if(variable == "RootPosition")
   {
-    _dLikelihoods_branch = & _likelihoodData->getDLikelihoodArray(_root1);
+    _dLikelihoods_branch = & likelihoodData_->getDLikelihoodArray(_root1);
     double d1 = 0;
     for(unsigned int i = 0; i < _nbDistinctSites; i++)
       d1 -= (* w)[i] * (* _dLikelihoods_branch)[i];
-    _dLikelihoods_branch = & _likelihoodData->getDLikelihoodArray(_root2);
+    _dLikelihoods_branch = & likelihoodData_->getDLikelihoodArray(_root2);
     double d2 = 0;
     for(unsigned int i = 0; i < _nbDistinctSites; i++)
       d2 -= (* w)[i] * (* _dLikelihoods_branch)[i];
@@ -406,9 +408,9 @@ throw (Exception)
     // Get the node with the branch whose length must be derivated:
     unsigned int brI = TextTools::to<unsigned int>(variable.substr(5));
     const Node * branch = _nodes[brI];
-    _dLikelihoods_branch = & _likelihoodData->getDLikelihoodArray(branch->getId());
+    _dLikelihoods_branch = & likelihoodData_->getDLikelihoodArray(branch->getId());
     double d = 0;
-    const vector<unsigned int> * w = & _likelihoodData->getWeights();
+    const vector<unsigned int> * w = & likelihoodData_->getWeights();
     for(unsigned int i = 0; i < _nbDistinctSites; i++)
       d += (* w)[i] * (* _dLikelihoods_branch)[i];
     return -d;
@@ -422,13 +424,13 @@ throw (Exception)
 void DRNonHomogeneousTreeLikelihood::computeTreeD2LikelihoodAtNode(const Node * node)
 {
   const Node * father = node->getFather();
-  VVVdouble * _likelihoods_father_node = & _likelihoodData->getLikelihoodArray(father->getId(), node->getId());
-  Vdouble * _d2Likelihoods_node = & _likelihoodData->getD2LikelihoodArray(node->getId());  
+  VVVdouble * _likelihoods_father_node = & likelihoodData_->getLikelihoodArray(father->getId(), node->getId());
+  Vdouble * _d2Likelihoods_node = & likelihoodData_->getD2LikelihoodArray(node->getId());  
   VVVdouble *   _pxy_node = &   _pxy[node->getId()];
   VVVdouble * _d2pxy_node = & _d2pxy[node->getId()];
   VVVdouble larray;
   computeLikelihoodAtNode(father->getId(), larray);
-  Vdouble * rootLikelihoodsSR = & _likelihoodData->getRootRateSiteLikelihoodArray();
+  Vdouble * rootLikelihoodsSR = & likelihoodData_->getRootRateSiteLikelihoodArray();
   
   double d2Li, d2Lic, d2Licx, numerator, denominator;
 
@@ -495,7 +497,7 @@ throw (Exception)
   // Computation for branch lengths:
   //
   
-  const vector<unsigned int> * w = & _likelihoodData->getWeights();
+  const vector<unsigned int> * w = & likelihoodData_->getWeights();
   //We can't deduce second order derivatives regarding BrLenRoot and RootPosition from the
   //branch length derivatives. We need a bit more calculations...
   //NB: we could save a few calculations here...
@@ -534,8 +536,8 @@ throw (Exception)
     
       if(son->getId() == _root1)
       {
-        VVVdouble * _likelihoods_root1 = & _likelihoodData->getLikelihoodArray(father->getId(), _root1);
-        VVVdouble * _likelihoods_root2 = & _likelihoodData->getLikelihoodArray(father->getId(), _root2);
+        VVVdouble * _likelihoods_root1 = & likelihoodData_->getLikelihoodArray(father->getId(), _root1);
+        VVVdouble * _likelihoods_root2 = & likelihoodData_->getLikelihoodArray(father->getId(), _root2);
         double pos = getParameterValue("RootPosition");
 
         VVVdouble * _d2pxy_root1 = & _d2pxy[_root1];
@@ -595,7 +597,7 @@ throw (Exception)
       else
       {
         //Account for a putative multifurcation:
-        VVVdouble * _likelihoods_son = & _likelihoodData->getLikelihoodArray(father->getId(), son->getId());
+        VVVdouble * _likelihoods_son = & likelihoodData_->getLikelihoodArray(father->getId(), son->getId());
 
         VVVdouble * _pxy_son = & _pxy[son->getId()];
         for(unsigned int i = 0; i < _nbDistinctSites; i++)
@@ -624,7 +626,7 @@ throw (Exception)
         }
       }  
     }
-    Vdouble * rootLikelihoodsSR = & _likelihoodData->getRootRateSiteLikelihoodArray();
+    Vdouble * rootLikelihoodsSR = & likelihoodData_->getRootRateSiteLikelihoodArray();
     double d2l = 0, dlx, d2lx;
     for(unsigned int i = 0; i < _nbDistinctSites; i++)
     {
@@ -680,8 +682,8 @@ throw (Exception)
     
       if(son->getId() == _root1)
       {
-        VVVdouble * _likelihoods_root1 = & _likelihoodData->getLikelihoodArray(father->getId(), _root1);
-        VVVdouble * _likelihoods_root2 = & _likelihoodData->getLikelihoodArray(father->getId(), _root2);
+        VVVdouble * _likelihoods_root1 = & likelihoodData_->getLikelihoodArray(father->getId(), _root1);
+        VVVdouble * _likelihoods_root2 = & likelihoodData_->getLikelihoodArray(father->getId(), _root2);
         double len = getParameterValue("BrLenRoot");
 
         VVVdouble * _d2pxy_root1 = & _d2pxy[_root1];
@@ -741,7 +743,7 @@ throw (Exception)
       else
       {
         //Account for a putative multifurcation:
-        VVVdouble * _likelihoods_son = & _likelihoodData->getLikelihoodArray(father->getId(), son->getId());
+        VVVdouble * _likelihoods_son = & likelihoodData_->getLikelihoodArray(father->getId(), son->getId());
 
         VVVdouble * _pxy_son = & _pxy[son->getId()];
         for(unsigned int i = 0; i < _nbDistinctSites; i++)
@@ -770,7 +772,7 @@ throw (Exception)
         }
       }  
     }
-    Vdouble * rootLikelihoodsSR = & _likelihoodData->getRootRateSiteLikelihoodArray();
+    Vdouble * rootLikelihoodsSR = & likelihoodData_->getRootRateSiteLikelihoodArray();
     double d2l = 0, dlx, d2lx;
     for(unsigned int i = 0; i < _nbDistinctSites; i++)
     {
@@ -798,8 +800,8 @@ throw (Exception)
     // Get the node with the branch whose length must be derivated:
     unsigned int brI = TextTools::to<unsigned int>(variable.substr(5));
     const Node * branch = _nodes[brI];
-    _dLikelihoods_branch = & _likelihoodData->getDLikelihoodArray(branch->getId());
-    _d2Likelihoods_branch = & _likelihoodData->getD2LikelihoodArray(branch->getId());
+    _dLikelihoods_branch = & likelihoodData_->getDLikelihoodArray(branch->getId());
+    _d2Likelihoods_branch = & likelihoodData_->getD2LikelihoodArray(branch->getId());
     double d2l = 0;
     for(unsigned int i = 0; i < _nbDistinctSites; i++)
       d2l += (* w)[i] * ((* _d2Likelihoods_branch)[i] - pow((* _dLikelihoods_branch)[i], 2));
@@ -814,12 +816,12 @@ void DRNonHomogeneousTreeLikelihood::resetLikelihoodArrays(const Node * node)
   for(unsigned int n = 0; n < node->getNumberOfSons(); n++)
   {
     const Node * subNode = node->getSon(n);
-    resetLikelihoodArray(_likelihoodData->getLikelihoodArray(node->getId(), subNode->getId()));
+    resetLikelihoodArray(likelihoodData_->getLikelihoodArray(node->getId(), subNode->getId()));
   }
   if(node->hasFather())
   {
     const Node * father = node->getFather();
-    resetLikelihoodArray(_likelihoodData->getLikelihoodArray(node->getId(), father->getId()));
+    resetLikelihoodArray(likelihoodData_->getLikelihoodArray(node->getId(), father->getId()));
   }
 }
 
@@ -843,7 +845,7 @@ void DRNonHomogeneousTreeLikelihood::computeSubtreeLikelihoodPostfix(const Node 
   // Set all likelihood arrays to 1 for a start:
   resetLikelihoodArrays(node);
   
-  map<int, VVVdouble> * _likelihoods_node = & _likelihoodData->getLikelihoodArrays(node->getId());
+  map<int, VVVdouble> * _likelihoods_node = & likelihoodData_->getLikelihoodArrays(node->getId());
   unsigned int nbNodes = node->getNumberOfSons();
   for(unsigned int l = 0; l < nbNodes; l++)
   {
@@ -854,7 +856,7 @@ void DRNonHomogeneousTreeLikelihood::computeSubtreeLikelihoodPostfix(const Node 
     
     if(son->isLeaf())
     {
-      VVdouble * _likelihoods_leaf = & _likelihoodData->getLeafLikelihoods(son->getId());
+      VVdouble * _likelihoods_leaf = & likelihoodData_->getLeafLikelihoods(son->getId());
       for(unsigned int i = 0; i < _nbDistinctSites; i++)
       {
         //For each site in the sequence,
@@ -876,7 +878,7 @@ void DRNonHomogeneousTreeLikelihood::computeSubtreeLikelihoodPostfix(const Node 
     {
       computeSubtreeLikelihoodPostfix(son); //Recursive method:
       unsigned int nbSons = son->getNumberOfSons();
-      map<int, VVVdouble> * _likelihoods_son = & _likelihoodData->getLikelihoodArrays(son->getId());
+      map<int, VVVdouble> * _likelihoods_son = & likelihoodData_->getLikelihoodArrays(son->getId());
       
       vector<const VVVdouble *> iLik(nbSons);
       vector<const VVVdouble *> tProb(nbSons);
@@ -907,8 +909,8 @@ void DRNonHomogeneousTreeLikelihood::computeSubtreeLikelihoodPrefix(const Node *
   else
   {
     const Node * father = node->getFather();
-    map<int, VVVdouble> * _likelihoods_node = & _likelihoodData->getLikelihoodArrays(node->getId());
-    map<int, VVVdouble> * _likelihoods_father = & _likelihoodData->getLikelihoodArrays(father->getId());
+    map<int, VVVdouble> * _likelihoods_node = & likelihoodData_->getLikelihoodArrays(node->getId());
+    map<int, VVVdouble> * _likelihoods_father = & likelihoodData_->getLikelihoodArrays(father->getId());
     VVVdouble * _likelihoods_node_father = & (* _likelihoods_node)[father->getId()];
     if(node->isLeaf())
     {
@@ -918,7 +920,7 @@ void DRNonHomogeneousTreeLikelihood::computeSubtreeLikelihoodPrefix(const Node *
     if(father->isLeaf())
     { 
       // If the tree is rooted by a leaf
-      VVdouble * _likelihoods_leaf = & _likelihoodData->getLeafLikelihoods(father->getId());
+      VVdouble * _likelihoods_leaf = & likelihoodData_->getLeafLikelihoods(father->getId());
       for(unsigned int i = 0; i < _nbDistinctSites; i++)
       {
         //For each site in the sequence,
@@ -1001,11 +1003,11 @@ void DRNonHomogeneousTreeLikelihood::computeSubtreeLikelihoodPrefix(const Node *
 void DRNonHomogeneousTreeLikelihood::computeRootLikelihood()
 {
   const Node * root = tree_->getRootNode();
-  VVVdouble * rootLikelihoods = & _likelihoodData->getRootLikelihoodArray();
+  VVVdouble * rootLikelihoods = & likelihoodData_->getRootLikelihoodArray();
   // Set all likelihoods to 1 for a start:
   if(root->isLeaf())
   {
-    VVdouble * leavesLikelihoods_root = & _likelihoodData->getLeafLikelihoods(root->getId());
+    VVdouble * leavesLikelihoods_root = & likelihoodData_->getLeafLikelihoods(root->getId());
     for(unsigned int i = 0; i < _nbDistinctSites; i++)
     {
       VVdouble * rootLikelihoods_i = & (* rootLikelihoods)[i];
@@ -1025,7 +1027,7 @@ void DRNonHomogeneousTreeLikelihood::computeRootLikelihood()
     resetLikelihoodArray(* rootLikelihoods);
   }
   
-  map<int, VVVdouble> * likelihoods_root = & _likelihoodData->getLikelihoodArrays(root->getId());
+  map<int, VVVdouble> * likelihoods_root = & likelihoodData_->getLikelihoodArrays(root->getId());
   unsigned int nbNodes = root->getNumberOfSons();
   vector<const VVVdouble *> iLik(nbNodes);
   vector<const VVVdouble *> tProb(nbNodes);
@@ -1038,8 +1040,8 @@ void DRNonHomogeneousTreeLikelihood::computeRootLikelihood()
   computeLikelihoodFromArrays(iLik, tProb, *rootLikelihoods, nbNodes, _nbDistinctSites, _nbClasses, _nbStates, false);
 
   Vdouble p = _rateDistribution->getProbabilities();
-  VVdouble * rootLikelihoodsS  = & _likelihoodData->getRootSiteLikelihoodArray();
-  Vdouble  * rootLikelihoodsSR = & _likelihoodData->getRootRateSiteLikelihoodArray();
+  VVdouble * rootLikelihoodsS  = & likelihoodData_->getRootSiteLikelihoodArray();
+  Vdouble  * rootLikelihoodsSR = & likelihoodData_->getRootRateSiteLikelihoodArray();
   for(unsigned int i = 0; i < _nbDistinctSites; i++)
   {
     //For each site in the sequence,
@@ -1072,12 +1074,12 @@ void DRNonHomogeneousTreeLikelihood::computeLikelihoodAtNode(int nodeId, VVVdoub
   const Node * node = tree_->getNode(nodeId);
 
   likelihoodArray.resize(_nbDistinctSites);
-  map<int, VVVdouble> * likelihoods_node = & _likelihoodData->getLikelihoodArrays(nodeId);
+  map<int, VVVdouble> * likelihoods_node = & likelihoodData_->getLikelihoodArrays(nodeId);
   
   //Initialize likelihood array:
   if(node->isLeaf())
   {
-    VVdouble * leavesLikelihoods_node = & _likelihoodData->getLeafLikelihoods(nodeId);
+    VVdouble * leavesLikelihoods_node = & likelihoodData_->getLeafLikelihoods(nodeId);
     for(unsigned int i = 0; i < _nbDistinctSites; i++)
     {
       VVdouble * likelihoodArray_i = & likelihoodArray[i];
@@ -1288,13 +1290,13 @@ void DRNonHomogeneousTreeLikelihood::displayLikelihood(const Node * node)
   {
     const Node * subNode = node->getSon(n);
     cout << "Array for sub-node " << subNode->getId() << endl;
-    displayLikelihoodArray(_likelihoodData->getLikelihoodArray(node->getId(), subNode->getId()));
+    displayLikelihoodArray(likelihoodData_->getLikelihoodArray(node->getId(), subNode->getId()));
   }
   if(node->hasFather())
   {
     const Node * father = node->getFather();
     cout << "Array for father node " << father->getId() << endl;
-    displayLikelihoodArray(_likelihoodData->getLikelihoodArray(node->getId(), father->getId()));
+    displayLikelihoodArray(likelihoodData_->getLikelihoodArray(node->getId(), father->getId()));
   }
   cout << "                                         ***" << endl;
 }

@@ -67,7 +67,10 @@ class DRHomogeneousTreeLikelihood:
   public DRTreeLikelihood
 {
   protected:
-    mutable DRASDRTreeLikelihoodData *_likelihoodData;
+    mutable DRASDRTreeLikelihoodData* likelihoodData_;
+
+  private:
+    double minusLogLik_;
     
   public:
     /**
@@ -131,7 +134,7 @@ class DRHomogeneousTreeLikelihood:
     /**
      * @brief Method called by constructors.
      */
-    void _init() throw (Exception);
+    void init_() throw (Exception);
 
   public:
 
@@ -200,8 +203,8 @@ class DRHomogeneousTreeLikelihood:
     
   public:  // Specific methods:
 
-    DRASDRTreeLikelihoodData* getLikelihoodData() { return _likelihoodData; }
-    const DRASDRTreeLikelihoodData* getLikelihoodData() const { return _likelihoodData; }
+    DRASDRTreeLikelihoodData* getLikelihoodData() { return likelihoodData_; }
+    const DRASDRTreeLikelihoodData* getLikelihoodData() const { return likelihoodData_; }
   
     virtual void computeLikelihoodAtNode(int nodeId, VVVdouble& likelihoodArray) const;
 

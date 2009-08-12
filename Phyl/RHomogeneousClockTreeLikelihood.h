@@ -85,9 +85,9 @@ class RHomogeneousClockTreeLikelihood:
      * @throw Exception in an error occured.
      */
     RHomogeneousClockTreeLikelihood(
-      const Tree & tree,
-      SubstitutionModel * model,
-      DiscreteDistribution * rDist,
+      const Tree& tree,
+      SubstitutionModel* model,
+      DiscreteDistribution* rDist,
       bool checkRooted = true,
       bool verbose = true)
       throw (Exception);
@@ -109,10 +109,10 @@ class RHomogeneousClockTreeLikelihood:
      * @throw Exception in an error occured.
      */
     RHomogeneousClockTreeLikelihood(
-      const Tree & tree,
-      const SiteContainer & data,
-      SubstitutionModel * model,
-      DiscreteDistribution * rDist,
+      const Tree& tree,
+      const SiteContainer& data,
+      SubstitutionModel* model,
+      DiscreteDistribution* rDist,
       bool checkRooted = true,
       bool verbose = true)
       throw (Exception);
@@ -122,7 +122,7 @@ class RHomogeneousClockTreeLikelihood:
 #else
     Clonable*
 #endif
-    clone() const { return new RHomogeneousClockTreeLikelihood(* this); }
+    clone() const { return new RHomogeneousClockTreeLikelihood(*this); }
 
     virtual ~RHomogeneousClockTreeLikelihood() {}
 
@@ -131,7 +131,7 @@ class RHomogeneousClockTreeLikelihood:
     /**
      * @brief Method called by constructor.
      */
-    void _init();
+    void init_();
 
   public:
 
@@ -145,9 +145,9 @@ class RHomogeneousClockTreeLikelihood:
     void initBranchLengthsParameters();
     ParameterList getDerivableParameters() const throw (Exception);
     ParameterList getNonDerivableParameters() const throw (Exception);
-    double getFirstOrderDerivative(const string & variable) const throw (Exception);
-    double getSecondOrderDerivative(const string & variable) const throw (Exception);
-    double getSecondOrderDerivative(const string & variable1, const string & variable2) const throw (Exception) { return 0; } // Not implemented for now.
+    double getFirstOrderDerivative(const std::string& variable) const throw (Exception);
+    double getSecondOrderDerivative(const std::string& variable) const throw (Exception);
+    double getSecondOrderDerivative(const std::string& variable1, const std::string& variable2) const throw (Exception) { return 0; } // Not implemented for now.
     /** @} */
 
   protected:
@@ -162,7 +162,7 @@ class RHomogeneousClockTreeLikelihood:
      * @param height the current height.
      * @throw Exception If something unexpected happened.
      */
-    void computeBranchLengthsFromHeights(Node * node, double height) throw (Exception);
+    void computeBranchLengthsFromHeights(Node* node, double height) throw (Exception);
 
 };
 

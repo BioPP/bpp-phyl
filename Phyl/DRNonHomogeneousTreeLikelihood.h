@@ -71,7 +71,8 @@ class DRNonHomogeneousTreeLikelihood:
   public DRTreeLikelihood
 {
   protected:
-    mutable DRASDRTreeLikelihoodData *_likelihoodData;
+    mutable DRASDRTreeLikelihoodData *likelihoodData_;
+    double minusLogLik_;
    
   public:
     /**
@@ -88,9 +89,9 @@ class DRNonHomogeneousTreeLikelihood:
      * @throw Exception in an error occured.
      */
     DRNonHomogeneousTreeLikelihood(
-      const Tree & tree,
-      SubstitutionModelSet * modelSet,
-      DiscreteDistribution * rDist,
+      const Tree& tree,
+      SubstitutionModelSet* modelSet,
+      DiscreteDistribution* rDist,
       bool verbose = true)
       throw (Exception);
   
@@ -108,19 +109,19 @@ class DRNonHomogeneousTreeLikelihood:
      * @throw Exception in an error occured.
      */
     DRNonHomogeneousTreeLikelihood(
-      const Tree & tree,
-      const SiteContainer & data,
-      SubstitutionModelSet * modelSet,
-      DiscreteDistribution * rDist,
+      const Tree& tree,
+      const SiteContainer& data,
+      SubstitutionModelSet* modelSet,
+      DiscreteDistribution* rDist,
       bool verbose = true)
       throw (Exception);
 
     /**
      * @brief Copy constructor.
      */ 
-    DRNonHomogeneousTreeLikelihood(const DRNonHomogeneousTreeLikelihood & lik);
+    DRNonHomogeneousTreeLikelihood(const DRNonHomogeneousTreeLikelihood& lik);
     
-    DRNonHomogeneousTreeLikelihood & operator=(const DRNonHomogeneousTreeLikelihood & lik);
+    DRNonHomogeneousTreeLikelihood & operator=(const DRNonHomogeneousTreeLikelihood& lik);
 
     virtual ~DRNonHomogeneousTreeLikelihood();
 
@@ -136,7 +137,7 @@ class DRNonHomogeneousTreeLikelihood:
     /**
      * @brief Method called by constructors.
      */
-    void _init() throw (Exception);
+    void init_() throw (Exception);
 
   public:
 
@@ -205,8 +206,8 @@ class DRNonHomogeneousTreeLikelihood:
     
   public:  // Specific methods:
 
-    DRASDRTreeLikelihoodData * getLikelihoodData() { return _likelihoodData; }
-    const DRASDRTreeLikelihoodData * getLikelihoodData() const { return _likelihoodData; }
+    DRASDRTreeLikelihoodData * getLikelihoodData() { return likelihoodData_; }
+    const DRASDRTreeLikelihoodData * getLikelihoodData() const { return likelihoodData_; }
   
     virtual void computeLikelihoodAtNode(int nodeId, VVVdouble& likelihoodArray) const;
 

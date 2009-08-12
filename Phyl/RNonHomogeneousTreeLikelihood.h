@@ -89,7 +89,8 @@ class RNonHomogeneousTreeLikelihood :
 {
 	protected:
 
-		mutable DRASRTreeLikelihoodData* _likelihoodData;
+		mutable DRASRTreeLikelihoodData* likelihoodData_;
+    double minusLogLik_;
 
 	public:
     /**
@@ -214,8 +215,8 @@ class RNonHomogeneousTreeLikelihood :
 	
 	public:	// Specific methods:
 	
-    DRASRTreeLikelihoodData* getLikelihoodData() { return _likelihoodData; }
-    const DRASRTreeLikelihoodData* getLikelihoodData() const { return _likelihoodData; }
+    DRASRTreeLikelihoodData* getLikelihoodData() { return likelihoodData_; }
+    const DRASRTreeLikelihoodData* getLikelihoodData() const { return likelihoodData_; }
  
     void computeTreeLikelihood();
 

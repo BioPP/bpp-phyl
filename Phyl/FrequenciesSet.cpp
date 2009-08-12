@@ -294,19 +294,21 @@ FixedFrequenciesSet::FixedFrequenciesSet(const Alphabet * alphabet, const vector
 FixedFrequenciesSet::FixedFrequenciesSet(const Alphabet * alphabet):
   AbstractFrequenciesSet(alphabet->getSize(), alphabet, "Fixed.")
 {
-  const CodonAlphabet* pca= AlphabetTools::isCodonAlphabet(alphabet)?dynamic_cast<const CodonAlphabet*>(alphabet):0;
-  unsigned int i, size=alphabet->getSize();
-  size-=(pca)?pca->numberOfStopCodons():0;
+  const CodonAlphabet* pca= AlphabetTools::isCodonAlphabet(alphabet) ? dynamic_cast<const CodonAlphabet*>(alphabet) : 0;
+  unsigned int i, size = alphabet->getSize();
+  size -= (pca) ? pca->numberOfStopCodons() : 0;
   
   for(i = 0; i < alphabet->getSize(); i++)
+  {
+    if (pca && pca->isStop(i))
     {
-      if (pca && pca->isStop(i)){
-        getFreq_(i)=0;
-      }
-      else {
-        getFreq_(i) = 1. / size;
-      }
+      getFreq_(i)=0;
     }
+    else
+    {
+      getFreq_(i) = 1. / size;
+    }
+  }
 }
 
 ///////////////////////////////////////////////

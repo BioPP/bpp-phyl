@@ -85,7 +85,8 @@ class RHomogeneousTreeLikelihood :
 {
 	protected:
 
-		mutable DRASRTreeLikelihoodData* _likelihoodData;
+		mutable DRASRTreeLikelihoodData* likelihoodData_;
+    double minusLogLik_;
 
 	public:
     /**
@@ -104,9 +105,9 @@ class RHomogeneousTreeLikelihood :
      * @throw Exception in an error occured.
      */
 		RHomogeneousTreeLikelihood(
-			const Tree & tree,
-			SubstitutionModel * model,
-			DiscreteDistribution * rDist,
+			const Tree& tree,
+			SubstitutionModel* model,
+			DiscreteDistribution* rDist,
       bool checkRooted = true,
 			bool verbose = true,
       bool usePatterns = true)
@@ -128,10 +129,10 @@ class RHomogeneousTreeLikelihood :
      * @throw Exception in an error occured.
      */
 		RHomogeneousTreeLikelihood(
-			const Tree & tree,
-			const SiteContainer & data,
-			SubstitutionModel * model,
-			DiscreteDistribution * rDist,
+			const Tree& tree,
+			const SiteContainer& data,
+			SubstitutionModel* model,
+			DiscreteDistribution* rDist,
       bool checkRooted = true,
 			bool verbose = true,
       bool usePatterns = true)
@@ -215,8 +216,8 @@ class RHomogeneousTreeLikelihood :
 	
 	public:	// Specific methods:
 	
-    DRASRTreeLikelihoodData* getLikelihoodData() { return _likelihoodData; }
-    const DRASRTreeLikelihoodData* getLikelihoodData() const { return _likelihoodData; }
+    DRASRTreeLikelihoodData* getLikelihoodData() { return likelihoodData_; }
+    const DRASRTreeLikelihoodData* getLikelihoodData() const { return likelihoodData_; }
 
     void computeTreeLikelihood();
 

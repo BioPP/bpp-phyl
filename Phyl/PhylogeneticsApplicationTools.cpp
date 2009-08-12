@@ -914,7 +914,7 @@ FrequenciesSet* PhylogeneticsApplicationTools::getFrequenciesSet(
                                                                   bool verbose) throw (Exception)
 {
   FrequenciesSet * rootFrequencies = 0;
-  string freqDescription = ApplicationTools::getStringParameter("nonhomogeneous.root_freq", params, "observed", suffix, suffixIsOptional);
+  string freqDescription = ApplicationTools::getStringParameter("nonhomogeneous.root_freq", params, "Observed", suffix, suffixIsOptional);
   string freqName;
   map<string, string> args;
   KeyvalTools::parseProcedure(freqDescription, freqName, args);

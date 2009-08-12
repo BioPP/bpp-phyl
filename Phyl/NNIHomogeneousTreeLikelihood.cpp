@@ -153,16 +153,16 @@ NNIHomogeneousTreeLikelihood::NNIHomogeneousTreeLikelihood(
   bool verbose)
 throw (Exception):
   DRHomogeneousTreeLikelihood(tree, model, rDist, checkRooted, verbose),
-  _brLikFunction(NULL),
-  _brentOptimizer(NULL),
-  _brLenNNIValues(),
-  _brLenNNIParams()
+  brLikFunction_(0),
+  brentOptimizer_(0),
+  brLenNNIValues_(),
+  brLenNNIParams_()
 {
-  _brentOptimizer = new BrentOneDimension();
-  _brentOptimizer->setConstraintPolicy(AutoParameter::CONSTRAINTS_AUTO);
-  _brentOptimizer->setProfiler(NULL);
-  _brentOptimizer->setMessageHandler(NULL);
-  _brentOptimizer->setVerbose(0);
+  brentOptimizer_ = new BrentOneDimension();
+  brentOptimizer_->setConstraintPolicy(AutoParameter::CONSTRAINTS_AUTO);
+  brentOptimizer_->setProfiler(0);
+  brentOptimizer_->setMessageHandler(0);
+  brentOptimizer_->setVerbose(0);
 }
 
 /******************************************************************************/
@@ -176,33 +176,33 @@ NNIHomogeneousTreeLikelihood::NNIHomogeneousTreeLikelihood(
   bool verbose)
 throw (Exception):
   DRHomogeneousTreeLikelihood(tree, data, model, rDist, checkRooted, verbose),
-  _brLikFunction(NULL),
-  _brentOptimizer(NULL),
-  _brLenNNIValues(),
-  _brLenNNIParams()
+  brLikFunction_(0),
+  brentOptimizer_(0),
+  brLenNNIValues_(),
+  brLenNNIParams_()
 {
-  _brentOptimizer = new BrentOneDimension();
-  _brentOptimizer->setConstraintPolicy(AutoParameter::CONSTRAINTS_AUTO);
-  _brentOptimizer->setProfiler(NULL);
-  _brentOptimizer->setMessageHandler(NULL);
-  _brentOptimizer->setVerbose(0);
+  brentOptimizer_ = new BrentOneDimension();
+  brentOptimizer_->setConstraintPolicy(AutoParameter::CONSTRAINTS_AUTO);
+  brentOptimizer_->setProfiler(0);
+  brentOptimizer_->setMessageHandler(0);
+  brentOptimizer_->setVerbose(0);
   //We have to do this since the DRHomogeneousTreeLikelihood constructor will not call the overloaded setData method:
-  _brLikFunction = new BranchLikelihood(_likelihoodData->getWeights());
+  brLikFunction_ = new BranchLikelihood(likelihoodData_->getWeights());
 }
 
 /******************************************************************************/
 
 NNIHomogeneousTreeLikelihood::NNIHomogeneousTreeLikelihood(const NNIHomogeneousTreeLikelihood & lik):
   DRHomogeneousTreeLikelihood(lik),
-  _brLikFunction(NULL),
-  _brentOptimizer(NULL),
-  _brLenNNIValues(),
-  _brLenNNIParams()
+  brLikFunction_(0),
+  brentOptimizer_(0),
+  brLenNNIValues_(),
+  brLenNNIParams_()
 {
-  _brLikFunction  = dynamic_cast<BranchLikelihood *>(lik._brLikFunction->clone());
-  _brentOptimizer = dynamic_cast<BrentOneDimension *>(lik._brentOptimizer->clone());
-  _brLenNNIValues = lik._brLenNNIValues;
-  _brLenNNIParams = lik._brLenNNIParams;
+  brLikFunction_  = dynamic_cast<BranchLikelihood *>(lik.brLikFunction_->clone());
+  brentOptimizer_ = dynamic_cast<BrentOneDimension *>(lik.brentOptimizer_->clone());
+  brLenNNIValues_ = lik.brLenNNIValues_;
+  brLenNNIParams_ = lik.brLenNNIParams_;
 }
 
 /******************************************************************************/
@@ -210,12 +210,12 @@ NNIHomogeneousTreeLikelihood::NNIHomogeneousTreeLikelihood(const NNIHomogeneousT
 NNIHomogeneousTreeLikelihood & NNIHomogeneousTreeLikelihood::operator=(const NNIHomogeneousTreeLikelihood & lik)
 {
   DRHomogeneousTreeLikelihood::operator=(lik);
-  if(_brLikFunction) delete _brLikFunction;
-  _brLikFunction  = dynamic_cast<BranchLikelihood *>(lik._brLikFunction->clone());
-  if(_brentOptimizer) delete _brentOptimizer;
-  _brentOptimizer = dynamic_cast<BrentOneDimension *>(lik._brentOptimizer->clone());
-  _brLenNNIValues = lik._brLenNNIValues;
-  _brLenNNIParams = lik._brLenNNIParams;
+  if(brLikFunction_) delete brLikFunction_;
+  brLikFunction_  = dynamic_cast<BranchLikelihood *>(lik.brLikFunction_->clone());
+  if(brentOptimizer_) delete brentOptimizer_;
+  brentOptimizer_ = dynamic_cast<BrentOneDimension *>(lik.brentOptimizer_->clone());
+  brLenNNIValues_ = lik.brLenNNIValues_;
+  brLenNNIParams_ = lik.brLenNNIParams_;
   return *this;
 }
 
@@ -223,8 +223,8 @@ NNIHomogeneousTreeLikelihood & NNIHomogeneousTreeLikelihood::operator=(const NNI
 
 NNIHomogeneousTreeLikelihood::~NNIHomogeneousTreeLikelihood()
 {
-  if(_brLikFunction) delete _brLikFunction;
-  delete _brentOptimizer;
+  if(brLikFunction_) delete brLikFunction_;
+  delete brentOptimizer_;
 }
 
 /******************************************************************************/
@@ -244,7 +244,7 @@ double NNIHomogeneousTreeLikelihood::testNNI(int nodeId) const throw (NodeExcept
 	const Node * uncle = grandFather->getSon(parentPosition > 1 ? 0 : 1 - parentPosition);
 		
 	//Retrieving arrays of interest:
-	const DRASDRTreeLikelihoodNodeData * parentData = & _likelihoodData->getNodeData(parent->getId());
+	const DRASDRTreeLikelihoodNodeData * parentData = & likelihoodData_->getNodeData(parent->getId());
 	const VVVdouble                    * sonArray   = & parentData->getLikelihoodArrayForNeighbor(son->getId());
 	vector<const Node *> parentNeighbors = TreeTemplateTools::getRemainingNeighbors(parent, grandFather, son);
 	unsigned int nbParentNeighbors = parentNeighbors.size();
@@ -259,7 +259,7 @@ double NNIHomogeneousTreeLikelihood::testNNI(int nodeId) const throw (NodeExcept
     parentTProbs[k] = & pxy_[n->getId()];
 	}
 	
-	const DRASDRTreeLikelihoodNodeData * grandFatherData = & _likelihoodData->getNodeData(grandFather->getId());
+	const DRASDRTreeLikelihoodNodeData * grandFatherData = & likelihoodData_->getNodeData(grandFather->getId());
 	const VVVdouble                    * uncleArray      = & grandFatherData->getLikelihoodArrayForNeighbor(uncle->getId()); 
 	vector<const Node *> grandFatherNeighbors = TreeTemplateTools::getRemainingNeighbors(grandFather, parent, uncle);
 	unsigned int nbGrandFatherNeighbors = grandFatherNeighbors.size();
@@ -307,8 +307,8 @@ double NNIHomogeneousTreeLikelihood::testNNI(int nodeId) const throw (NodeExcept
   computeLikelihoodFromArrays(parentArrays, parentTProbs, array2, nbParentNeighbors + 1, nbDistinctSites_, nbClasses_, nbStates_, false); 
 
   //Initialize BranchLikelihood:
-  _brLikFunction->initModel(model_, _rateDistribution);
-  _brLikFunction->initLikelihoods(&array1, &array2);
+  brLikFunction_->initModel(model_, _rateDistribution);
+  brLikFunction_->initLikelihoods(&array1, &array2);
   ParameterList parameters;
   unsigned int pos = 0;
   while(pos < nodes_.size() && nodes_[pos]->getId() != parent->getId()) pos++;
@@ -316,21 +316,21 @@ double NNIHomogeneousTreeLikelihood::testNNI(int nodeId) const throw (NodeExcept
   Parameter brLen = getParameter("BrLen" + TextTools::toString(pos));
   brLen.setName("BrLen");
   parameters.addParameter(brLen);
-  _brLikFunction->setParameters(parameters);
+  brLikFunction_->setParameters(parameters);
   
   //Re-estimate branch length:
-  _brentOptimizer->setFunction(_brLikFunction);
-  _brentOptimizer->getStopCondition()->setTolerance(0.1);
-  _brentOptimizer->setInitialInterval(brLen.getValue(), brLen.getValue()+0.01);
-  _brentOptimizer->init(parameters);
-  _brentOptimizer->optimize();
-  //_brLenNNIValues[nodeId] = _brLikFunction->getParameterValue("BrLen");
-  _brLenNNIValues[nodeId] = _brentOptimizer->getParameters().getParameter("BrLen").getValue();
-  _brLikFunction->resetLikelihoods(); //Array1 and Array2 will be destroyed after this function call.
+  brentOptimizer_->setFunction(brLikFunction_);
+  brentOptimizer_->getStopCondition()->setTolerance(0.1);
+  brentOptimizer_->setInitialInterval(brLen.getValue(), brLen.getValue()+0.01);
+  brentOptimizer_->init(parameters);
+  brentOptimizer_->optimize();
+  //brLenNNIValues_[nodeId] = brLikFunction_->getParameterValue("BrLen");
+  brLenNNIValues_[nodeId] = brentOptimizer_->getParameters().getParameter("BrLen").getValue();
+  brLikFunction_->resetLikelihoods(); //Array1 and Array2 will be destroyed after this function call.
                                       //We should not keep pointers towards them...
 
   //Return the resulting likelihood:
-  return _brLikFunction->getValue() - getValue();
+  return brLikFunction_->getValue() - getValue();
 }
     
 /*******************************************************************************/
@@ -358,25 +358,25 @@ void NNIHomogeneousTreeLikelihood::doNNI(int nodeId) throw (NodeException)
   if(pos == nodes_.size()) throw Exception("NNIHomogeneousTreeLikelihood::doNNI. Unvalid node id.");
 
   string name = "BrLen" + TextTools::toString(pos);
-  if(_brLenNNIValues.find(nodeId) != _brLenNNIValues.end())
+  if(brLenNNIValues_.find(nodeId) != brLenNNIValues_.end())
   {
-    double length = _brLenNNIValues[nodeId];
+    double length = brLenNNIValues_[nodeId];
     brLenParameters_.setParameterValue(name, length);
     getParameter_(name).setValue(length);
     parent->setDistanceToFather(length);
   }
   else cerr << "ERROR, branch not found: " << nodeId << endl;
-  try { _brLenNNIParams.addParameter(brLenParameters_.getParameter(name)); }
+  try { brLenNNIParams_.addParameter(brLenParameters_.getParameter(name)); }
   catch(ParameterException & ex)
   {
     cerr << "DEBUG:" << endl;
-    _brLenNNIParams.printParameters(cerr);
+    brLenNNIParams_.printParameters(cerr);
     cerr << "DEBUG:" << name << endl;
   }
   //In case of copy of this object, we must remove the constraint associated to this stored parameter:
   //(It should be also possible to update the pointer in the copy constructor,
   //but we do not need the constraint info here...).
-  (*_brLenNNIParams.rbegin())->removeConstraint();
+  (*brLenNNIParams_.rbegin())->removeConstraint();
 }
 
 /*******************************************************************************/
