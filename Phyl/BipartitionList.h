@@ -97,8 +97,6 @@ class BipartitionList:
 
   public:
 
-    BipartitionList();
-
     /**
      * @brief The main contructor
      *
