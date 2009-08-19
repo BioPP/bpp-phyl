@@ -69,7 +69,7 @@ class DRHomogeneousTreeLikelihood:
   protected:
     mutable DRASDRTreeLikelihoodData* likelihoodData_;
 
-  private:
+//  private:
     double minusLogLik_;
     
   public:
