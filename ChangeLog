@@ -1,3 +1,6 @@
+21/08/09 Julien Dutheil
+* Added config files for CMake.
+
 12/08/09 Bastien Boussau & Julien Dutheil
 * Function getValue in likelihood classes now does not repeat calculations
   if called several times on the same parameters.
