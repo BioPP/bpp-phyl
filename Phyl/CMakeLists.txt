@@ -243,7 +243,7 @@ set_target_properties(bppphyl-shared
 target_link_libraries(bppphyl-shared ${LIBS})
 
 # Install libs
-install(TARGETS bppphyl-shared DESTINATION lib)
+install(TARGETS bppphyl-static bppphyl-shared DESTINATION lib)
 
 # Install headers
 install(FILES ${H_FILES} DESTINATION include/Phyl)
