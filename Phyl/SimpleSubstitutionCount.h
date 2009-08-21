@@ -5,7 +5,7 @@
 //
 
 /*
-Copyright or © or Copr. CNRS, (November 16, 2004, 2005, 2006)
+Copyright or Â© or Copr. CNRS, (November 16, 2004, 2005, 2006)
 
 This software is a computer program whose purpose is to provide classes
 for phylogenetic data analysis.
@@ -56,7 +56,7 @@ namespace bpp
  * - 1 if @f$i \neq j @f$.
  *
  * Reference (for instance):
- * Tufféry P, Darlu P.
+ * TuffÃ©ry P, Darlu P.
  * Exploring a phylogenetic approach for the detection of correlated substitutions in proteins.
  * Mol Biol Evol. 2000 Nov;17(11):1753-9
  */

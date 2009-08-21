@@ -5,7 +5,7 @@
 //
 
 /*
-Copyright or © or Copr. CNRS, (November 16, 2004)
+Copyright or Â© or Copr. CNRS, (November 16, 2004)
 
 This software is a computer program whose purpose is to provide classes
 for phylogenetic data analysis.
@@ -52,7 +52,7 @@ namespace bpp
  * @brief Class for reversible substitution models on codons
  *  parametrized by the equilibrium frequencies. The basic
  *  substitution model is the K80 model. </p>
- * @author Laurent Guéguen
+ * @author Laurent GuÃ©guen
  *
  * Objects of this class are built from three reversible substitution
  *  models of NucleicAlphabets. No model is directly accessible. </p>

@@ -5,7 +5,7 @@
 //
 
 /*
-Copyright or © or Copr. CNRS, (November 16, 2004, 2005, 2006)
+Copyright or Â© or Copr. CNRS, (November 16, 2004, 2005, 2006)
 
 This software is a computer program whose purpose is to provide classes
 for phylogenetic data analysis.
@@ -113,7 +113,7 @@ class SubstitutionMappingTools
 		 * putatively intregated over several rate classes.
 		 * For each branch, the number of substitution given marginal states is used.
 		 * This method, used with a SimpleSubstitutionCount objet is equivalent to
-		 * Tufféry and Darlu's (2000) computation of substitution vectors.
+		 * TuffÃ©ry and Darlu's (2000) computation of substitution vectors.
 		 *
 		 * Use with another substitution count objet is in most cases irrelevent.
 		 * 

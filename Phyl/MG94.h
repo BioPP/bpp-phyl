@@ -5,7 +5,7 @@
 //
 
 /*
-Copyright or © or Copr. CNRS, (November 16, 2004)
+Copyright or Â© or Copr. CNRS, (November 16, 2004)
 
 This software is a computer program whose purpose is to provide classes
 for phylogenetic data analysis.
@@ -47,7 +47,7 @@ namespace bpp
 
 /**
  * @brief The Muse and Gaut (1994) substitution model for codons.
- * @author Laurent Guéguen
+ * @author Laurent GuÃ©guen
  *
  * This model has one ratio @f$\rho@f$ of synonymous substitution rate
  * over non-synonymous substitution rate. It allows distinct

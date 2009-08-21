@@ -6,7 +6,7 @@
 //
 
 /*
-Copyright or © or Copr. CNRS, (November 16, 2004)
+Copyright or Â© or Copr. CNRS, (November 16, 2004)
 
 This software is a computer program whose purpose is to provide classes
 for phylogenetic data analysis.
@@ -255,7 +255,7 @@ class PhylogeneticsApplicationTools
      *                  The alphabet associated to the data must be of the same type as the one specified for the model.
      *                  May be equal to NULL, but in this cas use_observed_freq option will be unavailable.
      * @param params    The attribute map where options may be found.
-     * @param rateFreqs A vector of rate catégories frequencies in case of a Markov Modulated Markov Model.
+     * @param rateFreqs A vector of rate catÃ©gories frequencies in case of a Markov Modulated Markov Model.
      *                  Ignored if a vector with size 0 is passed.
      * @param suffix    A suffix to be applied to each attribute name.
      * @param suffixIsOptional Tell if the suffix is absolutely required.

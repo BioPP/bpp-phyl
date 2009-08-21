@@ -6,7 +6,7 @@
 //
 
 /*
-Copyright or © or Copr. Julien Dutheil, (November 16, 2004)
+Copyright or Â© or Copr. Julien Dutheil, (November 16, 2004)
 
 Julien.Dutheil@univ-montp2.fr
 

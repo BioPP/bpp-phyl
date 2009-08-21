@@ -5,7 +5,7 @@
 //
 
 /*
-Copyright or © or Copr. CNRS, (November 16, 2004)
+Copyright or Â© or Copr. CNRS, (November 16, 2004)
 
 This software is a computer program whose purpose is to provide classes
 for phylogenetic data analysis.
@@ -99,7 +99,7 @@ public:
   /**
    *@brief Build a new CodonNeutralReversibleSubstitutionModel object from
    *a pointer to AbstractReversibleSubstitutionModels. 
-   * @author Laurent Guéguen
+   * @author Laurent GuÃ©guen
    *
    *@param palph pointer to a CodonAlphabet
    *@param pmod1 pointer to the

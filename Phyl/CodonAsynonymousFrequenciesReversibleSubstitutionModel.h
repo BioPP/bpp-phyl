@@ -5,7 +5,7 @@
 //
 
 /*
-Copyright or © or Copr. CNRS, (November 16, 2004)
+Copyright or Â© or Copr. CNRS, (November 16, 2004)
 
 This software is a computer program whose purpose is to provide classes
 for phylogenetic data analysis.
@@ -53,7 +53,7 @@ namespace bpp
 /**
  * @brief Class for asynonymous substitution models on codons with
  * parameterized equilibrium frequencies and K80 basic model.
- * @author Laurent Guéguen
+ * @author Laurent GuÃ©guen
  *
  * Only substitutions with one letter changed are accepted. </p>
  *

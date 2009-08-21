@@ -5,7 +5,7 @@
 //
 
 /*
-Copyright or © or Copr. CNRS, (November 16, 2004)
+Copyright or Â© or Copr. CNRS, (November 16, 2004)
 
 This software is a computer program whose purpose is to provide classes
 for phylogenetic data analysis.
@@ -51,7 +51,7 @@ namespace bpp
 
 /**
  * @brief Basal class for words of reversible substitution models.
- * @author Laurent Guéguen
+ * @author Laurent GuÃ©guen
  *
  * Only substitutions with one letter changed are accepted. Hence the
  * equilibrium frequency of each word is the product of the

@@ -1,12 +1,12 @@
 //
 // File: ClockTreeLikelihood.h
-// Created by: Benoît Nabholz
+// Created by: BenoÃ®t Nabholz
 //             Julien Dutheil
 // Created on: Fri Apr 06 14:11 2007
 //
 
 /*
-Copyright or © or Copr. CNRS, (November 16, 2004)
+Copyright or Â© or Copr. CNRS, (November 16, 2004)
 
 This software is a computer program whose purpose is to provide classes
 for phylogenetic data analysis.
