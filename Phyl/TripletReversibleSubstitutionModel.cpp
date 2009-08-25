@@ -59,18 +59,16 @@ using namespace std;
 TripletReversibleSubstitutionModel::TripletReversibleSubstitutionModel(const CodonAlphabet* palph,
                                                                        NucleotideSubstitutionModel* pmod)  : WordReversibleSubstitutionModel(palph,"Triplet.")
 {
-  _VAbsRevMod.push_back(pmod);
-  _VAbsRevMod.push_back(pmod);
-  _VAbsRevMod.push_back(pmod);
-
   int i;
-
   addParameters_(pmod->getParameters());
 
   _rate=new double[3];
-  for (i=0;i< 3; i++)
-    _rate[i]=1.0/3;
-
+  for (i=0;i< 3; i++){
+  _VAbsRevMod.push_back(pmod);
+  _VnestedPrefix.push_back(pmod->getNamespace());
+  _rate[i]=1.0/3;
+  }
+  
   // relative rates
   for (i=0; i< 2; i++){
     addParameter_(Parameter("Triplet.relrate"+TextTools::toString(i) , 1.0/(3-i),&Parameter::PROP_CONSTRAINT_EX));
@@ -126,33 +124,6 @@ TripletReversibleSubstitutionModel::TripletReversibleSubstitutionModel(const Cod
   WordReversibleSubstitutionModel::updateMatrices();
 }
   
-TripletReversibleSubstitutionModel::TripletReversibleSubstitutionModel(const TripletReversibleSubstitutionModel& wrsm) : WordReversibleSubstitutionModel(wrsm.alphabet_,"Triplet")
-{
-  int i;
-
-  _VAbsRevMod.push_back(wrsm._VAbsRevMod[0]);
-  _VnestedPrefix.push_back(wrsm._VnestedPrefix[0]);
-
-  _VAbsRevMod.push_back(wrsm._VAbsRevMod[1]);
-  _VnestedPrefix.push_back(wrsm._VnestedPrefix[1]);
-
-  _VAbsRevMod.push_back(wrsm._VAbsRevMod[2]);
-  _VnestedPrefix.push_back(wrsm._VnestedPrefix[2]);
-
-  addParameters_(wrsm.getParameters());
-
-  _rate=new double[3];
-  for (i=0;i< 3; i++)
-    _rate[i]=1.0/3;
-
-  // relative rates
-  for (i=0; i< 2; i++){
-    addParameter_(Parameter("Triplet.relrate"+TextTools::toString(i) , 1.0/(3-i),&Parameter::PROP_CONSTRAINT_EX));
-  }
-
-  WordReversibleSubstitutionModel::updateMatrices();
-}
-
 string TripletReversibleSubstitutionModel::getName() const
 {
   string s = "TripletReversibleSubstitutionModel model:";

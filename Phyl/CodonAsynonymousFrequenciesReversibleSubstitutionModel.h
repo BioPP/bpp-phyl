@@ -96,9 +96,6 @@ public:
                                                          AbstractFrequenciesSet* pfreq,
                                                          const AlphabetIndex2<double>* pdist =0) throw(Exception);
 
-  CodonAsynonymousFrequenciesReversibleSubstitutionModel(const CodonAsynonymousFrequenciesReversibleSubstitutionModel&);
-
-
   ~CodonAsynonymousFrequenciesReversibleSubstitutionModel() {};
   
 #ifndef NO_VIRTUAL_COV
@@ -113,6 +110,8 @@ protected:
 
 public:
   string getName() const;
+
+  const GeneticCode* getGeneticCode();
 };
 
 } //end of namespace bpp.

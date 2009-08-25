@@ -49,22 +49,12 @@ CodonAsynonymousFrequenciesReversibleSubstitutionModel::CodonAsynonymousFrequenc
                                                                                                                const AlphabetIndex2<double>* pdist) throw(Exception) : AbstractCodonFrequenciesReversibleSubstitutionModel((CodonAlphabet*)palph->getSourceAlphabet(), pfreq, "CodonAsynonymousFrequencies."), _geneticCode(palph), _pdistance(pdist)
 {
   if (_pdistance)
-    addParameter_(Parameter("CodonAsynonymousFrequencies.alpha",100,&Parameter::R_PLUS_STAR));
+    addParameter_(Parameter("CodonAsynonymousFrequencies.alpha",10000,&Parameter::R_PLUS_STAR));
   
   addParameter_(Parameter("CodonAsynonymousFrequencies.beta",1,&Parameter::R_PLUS_STAR));
   updateMatrices();
 }
   
-CodonAsynonymousFrequenciesReversibleSubstitutionModel::CodonAsynonymousFrequenciesReversibleSubstitutionModel(const CodonAsynonymousFrequenciesReversibleSubstitutionModel& wrsm) : AbstractCodonFrequenciesReversibleSubstitutionModel(wrsm), _geneticCode(wrsm._geneticCode), _pdistance(wrsm._pdistance)
-{
-  if (_pdistance)
-    addParameter_(Parameter("CodonAsynonymousFrequencies.alpha",wrsm.getParameterValue("alpha"),&Parameter::R_PLUS_STAR));
-
-  addParameter_(Parameter("CodonAsynonymousFrequencies.beta",wrsm.getParameterValue("beta"),&Parameter::R_PLUS));
-
-  updateMatrices();
-}
-
 string CodonAsynonymousFrequenciesReversibleSubstitutionModel::getName() const
 {
   return "CodonAsynonymousFrequenciesReversibleSubstitutionModel model : " + AbsFreq->getName();
@@ -100,3 +90,7 @@ void CodonAsynonymousFrequenciesReversibleSubstitutionModel::completeMatrices()
 }
 
 
+const GeneticCode* CodonAsynonymousFrequenciesReversibleSubstitutionModel::getGeneticCode()
+{
+  return _geneticCode;
+}

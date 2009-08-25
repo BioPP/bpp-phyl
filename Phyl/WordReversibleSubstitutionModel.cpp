@@ -89,19 +89,6 @@ WordReversibleSubstitutionModel::WordReversibleSubstitutionModel(SubstitutionMod
   WordReversibleSubstitutionModel::updateMatrices();
 }
 
-WordReversibleSubstitutionModel::WordReversibleSubstitutionModel(const WordReversibleSubstitutionModel& wrsm) : AbstractWordReversibleSubstitutionModel(wrsm)
-{
-  unsigned int i, nbmod = _VAbsRevMod.size();
-  
-  for (i = 0; i < nbmod - 1; i++)
-  {
-    addParameter_(Parameter("Word.relrate"+TextTools::toString(i) , wrsm.getParameterValue("relrate"+TextTools::toString(i)),
-                            &Parameter::PROP_CONSTRAINT_EX));
-  }
-
-  WordReversibleSubstitutionModel::updateMatrices();
-}
-
 void WordReversibleSubstitutionModel::updateMatrices()
 {
   int i,k, nbmod=_VAbsRevMod.size();
@@ -173,7 +160,7 @@ double WordReversibleSubstitutionModel::dPij_dt(unsigned int i, unsigned int j, 
 {
   double r,x;
   unsigned int nbmod = _VAbsRevMod.size();
-  unsigned int p,q,t;
+  int p,q,t;
 
   unsigned int i2 = i;
   unsigned int j2 = j;
@@ -191,13 +178,11 @@ double WordReversibleSubstitutionModel::dPij_dt(unsigned int i, unsigned int j, 
         x*=_VAbsRevMod[p]->Pij_t(i2%t,j2%t,d*_rate[p]);
       else
         x*=_rate[p]*_VAbsRevMod[p]->dPij_dt(i2%t,j2%t,d*_rate[p]);
-      
       i2/=t;
       j2/=t;
     }
     r+=x;
   }
-
   return(r);
 }
 
@@ -207,9 +192,9 @@ const RowMatrix<double>& WordReversibleSubstitutionModel::getdPij_dt(double d) c
   unsigned int i, j;
 
   for (i = 0; i < nbetats; i++)
-    for (j = 0; j < nbetats; j++)
+    for (j = 0; j < nbetats; j++){
       _p(i,j) = dPij_dt(i,j,d);
-
+    }
   return _p;
 }
 
@@ -217,7 +202,7 @@ double WordReversibleSubstitutionModel::d2Pij_dt2(unsigned int i, unsigned int j
 {
   double r,x;
   unsigned int nbmod = _VAbsRevMod.size();
-  unsigned int b,p,q,t;
+  int b,p,q,t;
 
   unsigned int i2 = i;
   unsigned int j2 = j;

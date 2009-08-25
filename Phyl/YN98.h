@@ -93,6 +93,8 @@ public:
        
   ~YN98();
 
+  YN98(const YN98&);
+  
 #ifndef NO_VIRTUAL_COV
     YN98*
 #else

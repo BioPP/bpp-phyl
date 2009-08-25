@@ -93,9 +93,6 @@ public:
                                      NucleotideSubstitutionModel* pmod2, 
                                      NucleotideSubstitutionModel* pmod3);
 
-  TripletReversibleSubstitutionModel(const TripletReversibleSubstitutionModel&);
-
-
   ~TripletReversibleSubstitutionModel() {};
   
 #ifndef NO_VIRTUAL_COV

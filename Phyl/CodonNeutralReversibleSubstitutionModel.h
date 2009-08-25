@@ -125,9 +125,6 @@ public:
                                           NucleotideSubstitutionModel* pmod2, 
                                           NucleotideSubstitutionModel* pmod3);
 
-  CodonNeutralReversibleSubstitutionModel(const CodonNeutralReversibleSubstitutionModel&);
-
-
   ~CodonNeutralReversibleSubstitutionModel(){};
   
 #ifndef NO_VIRTUAL_COV

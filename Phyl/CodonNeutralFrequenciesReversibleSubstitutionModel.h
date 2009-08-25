@@ -81,8 +81,6 @@ public:
   CodonNeutralFrequenciesReversibleSubstitutionModel(const CodonAlphabet* palph,
                                                      AbstractFrequenciesSet* pfreq);
   
-  CodonNeutralFrequenciesReversibleSubstitutionModel(const CodonNeutralFrequenciesReversibleSubstitutionModel&);
-
   ~CodonNeutralFrequenciesReversibleSubstitutionModel(){};
 
 #ifndef NO_VIRTUAL_COV

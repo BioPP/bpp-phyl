@@ -393,18 +393,19 @@ void AbstractNonHomogeneousTreeLikelihood::computeTransitionProbabilitiesForNode
   {
     //Computes all dpxy/dt once for all:
     VVVdouble * _dpxy_node = & _dpxy[node->getId()];
+
     for(unsigned int c = 0; c < _nbClasses; c++)
     {
       VVdouble * _dpxy_node_c = & (* _dpxy_node)[c];
       double rc = _rateDistribution->getCategory(c);
+
       RowMatrix<double> dQ = model->getdPij_dt(l * rc);  
+
       for(unsigned int x = 0; x < _nbStates; x++)
       {
         Vdouble * _dpxy_node_c_x = & (* _dpxy_node_c)[x];
         for(unsigned int y = 0; y < _nbStates; y++)
-        {
           (* _dpxy_node_c_x)[y] = rc * dQ(x, y); 
-        }
       }
     }
   }
@@ -428,6 +429,7 @@ void AbstractNonHomogeneousTreeLikelihood::computeTransitionProbabilitiesForNode
       }
     }
   }
+
 }
 
 /*******************************************************************************/

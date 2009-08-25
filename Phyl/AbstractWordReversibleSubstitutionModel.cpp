@@ -138,27 +138,32 @@ AbstractWordReversibleSubstitutionModel::AbstractWordReversibleSubstitutionModel
   _p.resize(getNumberOfStates(),getNumberOfStates());
 }
 
-AbstractWordReversibleSubstitutionModel::AbstractWordReversibleSubstitutionModel(const AbstractWordReversibleSubstitutionModel& wrsm) : AbstractReversibleSubstitutionModel(wrsm.alphabet_,wrsm.getNamespace()),   new_alphabet_(0)
+AbstractWordReversibleSubstitutionModel::AbstractWordReversibleSubstitutionModel(const AbstractWordReversibleSubstitutionModel& wrsm) : AbstractReversibleSubstitutionModel(wrsm),   new_alphabet_(wrsm.new_alphabet_)
 {
-  enableEigenDecomposition(0);
   int i;
   int num=wrsm._VAbsRevMod.size();
 
+  if (wrsm.new_alphabet_)
+    alphabet_= new WordAlphabet(*(dynamic_cast<const WordAlphabet*>(wrsm.getAlphabet())));
+
+  SubstitutionModel* pSM=0;
+  if ((num>1) & (wrsm._VAbsRevMod[0]==wrsm._VAbsRevMod[1]))
+    pSM=wrsm._VAbsRevMod[0]->clone();
+
   _rate=new double[num];
   for (i=0;i< num; i++){
-    _VAbsRevMod.push_back(wrsm._VAbsRevMod[i]);
+    _VAbsRevMod.push_back(pSM?pSM:wrsm._VAbsRevMod[i]->clone());
     _VnestedPrefix.push_back(wrsm._VnestedPrefix[i]);
     _rate[i]=wrsm._rate[i];
   }
 
-  addParameters_(wrsm.getParameters());
   _p.resize(getNumberOfStates(),getNumberOfStates());
 }
 
 AbstractWordReversibleSubstitutionModel::~AbstractWordReversibleSubstitutionModel()
 {
   _VAbsRevMod.clear();
-
+  _VnestedPrefix.clear();
   if (new_alphabet_)
     delete alphabet_;
   delete _rate;

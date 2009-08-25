@@ -43,24 +43,29 @@ using namespace bpp;
 
 using namespace std;
 
-//GranthamAAChemicalDistance GY94::_GranthamAAChemicalDistance;
-
 /******************************************************************************/
 
 GY94::GY94(const GeneticCode* palph) : AbstractSubstitutionModel(palph->getSourceAlphabet(),"GY94."),
                                        _ffs(palph->getSourceAlphabet()),
                                        _gacd(),
-                                       _pmodel(palph, &_ffs, &_gacd)
+                                       _pmodel(new CodonAsynonymousFrequenciesReversibleSubstitutionModel(palph, &_ffs, &_gacd))
 {
   addParameter_(Parameter("GY94.kappa",1,&Parameter::R_PLUS_STAR));
   
-  addParameter_(Parameter("GY94.V",100,&Parameter::R_PLUS_STAR));
+  addParameter_(Parameter("GY94.V",10000,&Parameter::R_PLUS_STAR));
 
   
   updateMatrices();
 }
 
-GY94::~GY94() {
+GY94::GY94(const GY94& gy94) : _ffs(gy94._ffs), _gacd(), AbstractSubstitutionModel(gy94)
+{
+  _pmodel=new CodonAsynonymousFrequenciesReversibleSubstitutionModel(gy94._pmodel->getGeneticCode(), &_ffs, &_gacd);
+}
+
+GY94::~GY94()
+{
+  delete _pmodel;
 };
 
 string GY94::getName() const
@@ -74,5 +79,5 @@ void GY94::updateMatrices()
   Pl.addParameter(Parameter("CodonAsynonymousFrequencies.012_K80.kappa",getParameterValue("kappa")));
   Pl.addParameter(Parameter("CodonAsynonymousFrequencies.alpha",getParameterValue("V")));
 
-  _pmodel.matchParametersValues(Pl);
+  _pmodel->matchParametersValues(Pl);
 }

@@ -72,18 +72,6 @@ CodonNeutralReversibleSubstitutionModel::CodonNeutralReversibleSubstitutionModel
   
   updateMatrices();
 }
-  
-CodonNeutralReversibleSubstitutionModel::CodonNeutralReversibleSubstitutionModel(const CodonNeutralReversibleSubstitutionModel& wrsm) : AbstractCodonReversibleSubstitutionModel(wrsm)
-{
-  int i;
-
-  for (i=0; i< 2; i++){
-    addParameter_(Parameter("CodonNeutral.relrate"+TextTools::toString(i) , wrsm.getParameterValue("relrate"+TextTools::toString(i)),
-                            &Parameter::PROP_CONSTRAINT_EX));
-  }
-
-  updateMatrices();
-}
 
 string CodonNeutralReversibleSubstitutionModel::getName() const
 {

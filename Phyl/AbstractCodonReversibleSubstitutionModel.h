@@ -100,10 +100,7 @@ public:
                                             NucleotideSubstitutionModel* pmod3,
                                            const std::string& st);
 
-
-  AbstractCodonReversibleSubstitutionModel(const AbstractCodonReversibleSubstitutionModel&);
-
-  virtual ~AbstractCodonReversibleSubstitutionModel();  
+  virtual ~AbstractCodonReversibleSubstitutionModel() {};  
 };
 
 } //end of namespace bpp.

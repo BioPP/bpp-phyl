@@ -114,9 +114,6 @@ public:
                                               NucleotideSubstitutionModel* pmod3,
                                               const AlphabetIndex2<double>* pdist = 0);
 
-  CodonAsynonymousReversibleSubstitutionModel(const CodonAsynonymousReversibleSubstitutionModel&);
-
-
   ~CodonAsynonymousReversibleSubstitutionModel() {};
   
 #ifndef NO_VIRTUAL_COV
@@ -130,6 +127,8 @@ public:
   void completeMatrices();
 
   string getName() const;
+
+  const GeneticCode* getGeneticCode();
 };
 
 } //end of namespace bpp.

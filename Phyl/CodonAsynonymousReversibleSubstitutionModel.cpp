@@ -51,7 +51,7 @@ CodonAsynonymousReversibleSubstitutionModel::CodonAsynonymousReversibleSubstitut
                                                                                          const AlphabetIndex2<double>* pdist) : AbstractCodonReversibleSubstitutionModel((CodonAlphabet*)palph->getSourceAlphabet(), pmod1, pmod2, pmod3, "CodonAsynonymous."), _geneticCode(palph), _pdistance(pdist)
 {
   if (_pdistance)
-    addParameter_(Parameter("CodonAsynonymous.alpha",100,&Parameter::R_PLUS_STAR));
+    addParameter_(Parameter("CodonAsynonymous.alpha",10000,&Parameter::R_PLUS_STAR));
 
   addParameter_(Parameter("CodonAsynonymous.beta",1,&Parameter::R_PLUS_STAR));
 
@@ -66,16 +66,6 @@ CodonAsynonymousReversibleSubstitutionModel::CodonAsynonymousReversibleSubstitut
     addParameter_(Parameter("CodonAsynonymous.alpha",1,&Parameter::R_PLUS_STAR));
 
   addParameter_(Parameter("CodonAsynonymous.beta",1,&Parameter::R_PLUS));
-
-  updateMatrices();
-}
-
-CodonAsynonymousReversibleSubstitutionModel::CodonAsynonymousReversibleSubstitutionModel(const CodonAsynonymousReversibleSubstitutionModel& wrsm) : AbstractCodonReversibleSubstitutionModel(wrsm), _geneticCode(wrsm._geneticCode), _pdistance(wrsm._pdistance)
-{
-  if (_pdistance)
-    addParameter_(Parameter("CodonAsynonymous.alpha",wrsm.getParameterValue("alpha"),&Parameter::R_PLUS_STAR));
-
-  addParameter_(Parameter("CodonAsynonymous.beta",wrsm.getParameterValue("beta"),&Parameter::R_PLUS));
 
   updateMatrices();
 }
@@ -111,3 +101,7 @@ void CodonAsynonymousReversibleSubstitutionModel::completeMatrices()
 }
 
 
+const GeneticCode* CodonAsynonymousReversibleSubstitutionModel::getGeneticCode()
+{
+  return _geneticCode;
+}

@@ -105,28 +105,4 @@ AbstractCodonReversibleSubstitutionModel::AbstractCodonReversibleSubstitutionMod
   
 }
   
-AbstractCodonReversibleSubstitutionModel::AbstractCodonReversibleSubstitutionModel(const AbstractCodonReversibleSubstitutionModel& wrsm) :
-  AbstractWordReversibleSubstitutionModel(wrsm.alphabet_,wrsm.getNamespace())
-{
-  enableEigenDecomposition(1);
-
-  _VAbsRevMod.push_back(wrsm._VAbsRevMod[0]);
-  _VnestedPrefix.push_back(wrsm._VnestedPrefix[0]);
-
-  _VAbsRevMod.push_back(wrsm._VAbsRevMod[1]);
-  _VnestedPrefix.push_back(wrsm._VnestedPrefix[1]);
-
-  _VAbsRevMod.push_back(wrsm._VAbsRevMod[2]);
-  _VnestedPrefix.push_back(wrsm._VnestedPrefix[2]);
-
-  addParameters_(wrsm.getParameters());
-
-  _rate=new double[3];
-  for (unsigned int i=0;i< 3; i++)
-    _rate[i]=1.0/3;
-}
-
-AbstractCodonReversibleSubstitutionModel::~AbstractCodonReversibleSubstitutionModel()
-{
-}
 

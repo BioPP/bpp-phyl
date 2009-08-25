@@ -83,13 +83,15 @@ private:
   GranthamAAChemicalDistance _gacd;
   
   FixedFrequenciesSet _ffs;
-  CodonAsynonymousFrequenciesReversibleSubstitutionModel _pmodel;
+  CodonAsynonymousFrequenciesReversibleSubstitutionModel* _pmodel;
 
 public:
-  GY94(const GeneticCode*);
+  GY94(const GeneticCode* palph);
        
   ~GY94();
 
+  GY94(const GY94&);
+  
 #ifndef NO_VIRTUAL_COV
     GY94*
 #else
@@ -103,39 +105,39 @@ public:
 	
   inline void updateMatrices();
 
-  const Vdouble& getFrequencies() const { return _pmodel.getFrequencies(); }
+  const Vdouble& getFrequencies() const { return _pmodel->getFrequencies(); }
        
-  const Matrix<double>& getGenerator() const { return _pmodel.getGenerator(); }
+  const Matrix<double>& getGenerator() const { return _pmodel->getGenerator(); }
     
-  const Vdouble & getEigenValues() const { return _pmodel.getEigenValues(); }
+  const Vdouble & getEigenValues() const { return _pmodel->getEigenValues(); }
     
-  const Matrix<double>& getRowLeftEigenVectors() const { return _pmodel.getRowLeftEigenVectors(); }
+  const Matrix<double>& getRowLeftEigenVectors() const { return _pmodel->getRowLeftEigenVectors(); }
   
-  const Matrix<double>& getColumnRightEigenVectors() const { return _pmodel.getColumnRightEigenVectors(); }
+  const Matrix<double>& getColumnRightEigenVectors() const { return _pmodel->getColumnRightEigenVectors(); }
     
-  double freq(unsigned int i) const { return _pmodel.freq(i); }
+  double freq(unsigned int i) const { return _pmodel->freq(i); }
     
-  double Qij(unsigned int i, unsigned int j) const { return _pmodel.Qij(i,j); }
+  double Qij(unsigned int i, unsigned int j) const { return _pmodel->Qij(i,j); }
     
-  double Pij_t    (unsigned int i, unsigned int j, double t) const { return _pmodel.Pij_t(i, j, t); }
-  double dPij_dt  (unsigned int i, unsigned int j, double t) const { return _pmodel.dPij_dt(i, j, t); }
-  double d2Pij_dt2(unsigned int i, unsigned int j, double t) const { return _pmodel.d2Pij_dt2(i, j, t); }
+  double Pij_t    (unsigned int i, unsigned int j, double t) const { return _pmodel->Pij_t(i, j, t); }
+  double dPij_dt  (unsigned int i, unsigned int j, double t) const { return _pmodel->dPij_dt(i, j, t); }
+  double d2Pij_dt2(unsigned int i, unsigned int j, double t) const { return _pmodel->d2Pij_dt2(i, j, t); }
 
-  const Matrix<double> & getPij_t    (double d) const  {    return _pmodel.getPij_t(d);  }
+  const Matrix<double> & getPij_t    (double d) const  {    return _pmodel->getPij_t(d);  }
 
-  const Matrix<double> & getdPij_dt  (double d) const  {    return _pmodel.getdPij_dt(d);  }
+  const Matrix<double> & getdPij_dt  (double d) const  {    return _pmodel->getdPij_dt(d);  }
 
-  const Matrix<double> & getd2Pij_dt2(double d) const  {    return _pmodel.getd2Pij_dt2(d);  }
+  const Matrix<double> & getd2Pij_dt2(double d) const  {    return _pmodel->getd2Pij_dt2(d);  }
 
-  void setFreq(map<int, double>& m)  {    _pmodel.setFreq(m);  }
+  void setFreq(map<int, double>& m)  {    _pmodel->setFreq(m);  }
 
-  unsigned int getNumberOfStates() const  {    return _pmodel.getNumberOfStates();  }
+  unsigned int getNumberOfStates() const  {    return _pmodel->getNumberOfStates();  }
 
-  double getInitValue(unsigned int i, int state) const throw (BadIntException) { return _pmodel.getInitValue(i,state); }
+  double getInitValue(unsigned int i, int state) const throw (BadIntException) { return _pmodel->getInitValue(i,state); }
 
   void enableEigenDecomposition(bool yn) { eigenDecompose_ = 1; }
 
-  bool enableEigenDecomposition() { return _pmodel.enableEigenDecomposition(); }
+  bool enableEigenDecomposition() { return _pmodel->enableEigenDecomposition(); }
 
 };
 

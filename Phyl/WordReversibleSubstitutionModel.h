@@ -103,7 +103,7 @@ public:
 
   WordReversibleSubstitutionModel(SubstitutionModel* pmodel, unsigned int num , const std::string& st = "");
 
-  WordReversibleSubstitutionModel(const WordReversibleSubstitutionModel&);
+  //  WordReversibleSubstitutionModel(const WordReversibleSubstitutionModel&);
 
   virtual ~WordReversibleSubstitutionModel() {}
   

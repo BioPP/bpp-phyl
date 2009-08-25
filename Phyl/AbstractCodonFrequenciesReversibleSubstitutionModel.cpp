@@ -76,11 +76,8 @@ AbstractCodonFrequenciesReversibleSubstitutionModel::AbstractCodonFrequenciesRev
   addParameters_(AbsFreq->getParameters());
 }
 
-AbstractCodonFrequenciesReversibleSubstitutionModel::AbstractCodonFrequenciesReversibleSubstitutionModel(const AbstractCodonFrequenciesReversibleSubstitutionModel& wrsm) : AbstractWordReversibleSubstitutionModel(wrsm), AbsFreq(wrsm.AbsFreq)
+AbstractCodonFrequenciesReversibleSubstitutionModel::AbstractCodonFrequenciesReversibleSubstitutionModel(const AbstractCodonFrequenciesReversibleSubstitutionModel& wrsm) : AbstractWordReversibleSubstitutionModel(wrsm), AbsFreq(wrsm.AbsFreq->clone())
 {
-  enableEigenDecomposition(1);
-  AbsFreq->setNamespace(getNamespace()+AbsFreq->getNamespace());
-  addParameters_(AbsFreq->getParameters());
 }
 
 AbstractCodonFrequenciesReversibleSubstitutionModel::~AbstractCodonFrequenciesReversibleSubstitutionModel()
