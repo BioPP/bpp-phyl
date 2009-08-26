@@ -314,7 +314,7 @@ FixedFrequenciesSet::FixedFrequenciesSet(const Alphabet * alphabet):
 ///////////////////////////////////////////////
 // IndependentWordFrequenciesSet
 
-IndependentWordFrequenciesSet::IndependentWordFrequenciesSet(const Vector<AbstractFrequenciesSet*>& freqvector) : AbstractFrequenciesSet(getSize(freqvector),extract_alph(freqvector),"IndFreq.")
+IndependentWordFrequenciesSet::IndependentWordFrequenciesSet(const Vector<AbstractFrequenciesSet*>& freqvector) : AbstractFrequenciesSet(getSizeFromVector(freqvector),extract_alph(freqvector),"IndFreq.")
 {
   int i,j,k,t;
   int l=freqvector.size();
@@ -412,7 +412,7 @@ Alphabet* IndependentWordFrequenciesSet::extract_alph(const Vector<AbstractFrequ
   return (new WordAlphabet(pval));
 }
 
-unsigned int IndependentWordFrequenciesSet::getSize(const Vector<AbstractFrequenciesSet*>& freqvector)
+unsigned int IndependentWordFrequenciesSet::getSizeFromVector(const Vector<AbstractFrequenciesSet*>& freqvector)
 {
   int s=1;
   int i,l=freqvector.size();
@@ -423,12 +423,14 @@ unsigned int IndependentWordFrequenciesSet::getSize(const Vector<AbstractFrequen
   return s;
 }
 
-IndependentWordFrequenciesSet::IndependentWordFrequenciesSet(const IndependentWordFrequenciesSet& iwfs) : AbstractFrequenciesSet(iwfs), unique_AbsFreq(iwfs.unique_AbsFreq)
+IndependentWordFrequenciesSet::IndependentWordFrequenciesSet(const IndependentWordFrequenciesSet& iwfs) : AbstractFrequenciesSet(iwfs.getSize(),new WordAlphabet(*dynamic_cast<const WordAlphabet*>(iwfs.getAlphabet())), iwfs.getNamespace())
 {
   int i,l=iwfs._VAbsFreq.size();
+
+  AbstractFrequenciesSet* pAFS=(unique_AbsFreq?iwfs._VAbsFreq[0]->clone():0);
   
   for (i=0;i<l;i++){
-    _VAbsFreq.push_back(iwfs._VAbsFreq[i]);
+    _VAbsFreq.push_back(unique_AbsFreq?pAFS:iwfs._VAbsFreq[i]->clone());
     _VnestedPrefix.push_back(iwfs._VnestedPrefix[i]);
   }
 }

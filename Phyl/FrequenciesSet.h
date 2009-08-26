@@ -163,6 +163,8 @@ class AbstractFrequenciesSet:
   virtual void setFrequencies(const vector<double> & ) throw (DimensionException, Exception) {};
 
   virtual string getName() const {return "Abstract Frequencies";}
+
+  int getSize() const { return freq_.size();}
   
   protected:
     vector<double>& getFrequencies_() { return freq_; }
@@ -451,7 +453,7 @@ private:
   
   static Alphabet* extract_alph(const Vector<AbstractFrequenciesSet*>&);
 
-  static unsigned int getSize(const Vector<AbstractFrequenciesSet*>&);
+  static unsigned int getSizeFromVector(const Vector<AbstractFrequenciesSet*>&);
 
 public:
 
