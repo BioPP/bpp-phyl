@@ -166,20 +166,21 @@ SubstitutionModel* PhylogeneticsApplicationTools::getSubstitutionModelDefaultIns
     string s, nestedModelDescription;
     unsigned int nbmodels;
     
+    if ((modelName=="Word" && ! AlphabetTools::isWordAlphabet(alphabet)) ||
+        (modelName!="Word" && ! AlphabetTools::isCodonAlphabet(alphabet)))
+      throw Exception("PhylogeneticsApplicationTools::getSubstitutionModelDefaultInstance.\n\t Bad alphabet type "
+                      + alphabet->getAlphabetType() + " for  model " + modelName+ ".");
+
+    pWA = dynamic_cast<const WordAlphabet*>(alphabet);
+
+    
     if (args.find("model") != args.end())
     {
       nestedModelDescription = args["model"];
       if (modelName == "Word")
       {
-        if (args.find("length") == args.end())
-        {
-          throw Exception("PhylogeneticsApplicationTools::getSubstitutionModelDefaultInstance.\n\t With argument 'model' argument 'length' is missing for  model " + modelName+ ".");
-        }
-        else
-        {
-          v_nestedModelDescription.push_back(nestedModelDescription);
-          nbmodels=TextTools::toInt(args["length"]);
-        }
+        v_nestedModelDescription.push_back(nestedModelDescription);
+        nbmodels=pWA->getLength();
       }
       else
       {
@@ -202,12 +203,6 @@ SubstitutionModel* PhylogeneticsApplicationTools::getSubstitutionModelDefaultIns
     if (nbmodels < 2)
       throw Exception("PhylogeneticsApplicationTools::getSubstitutionModelDefaultInstance.\n\t Missing nested models for model " + modelName+ ".");
 
-    if ((modelName=="Word" && ! AlphabetTools::isWordAlphabet(alphabet)) ||
-        (modelName!="Word" && ! AlphabetTools::isCodonAlphabet(alphabet)))
-      throw Exception("PhylogeneticsApplicationTools::getSubstitutionModelDefaultInstance.\n\t Bad alphabet type "
-                      + alphabet->getAlphabetType() + " for  model " + modelName+ ".");
-
-    pWA = dynamic_cast<const WordAlphabet*>(alphabet);
     if (pWA->getLength() != nbmodels)
       throw Exception("PhylogeneticsApplicationTools::getSubstitutionModelDefaultInstance.\n\t Bad alphabet type "
                       + alphabet->getAlphabetType() + " for  model " + modelName+ ".");
@@ -1132,34 +1127,59 @@ AbstractFrequenciesSet* PhylogeneticsApplicationTools::getFrequenciesSetDefaultI
   // INDEPENDENTWORD
   else if (freqName == "IndependentWord")
   {
-    if (args.find("frequencies0")==args.end())
-      throw Exception("PhylogeneticsApplicationTools::getFrequenciesSetDefaultInstance. Missing argument 'frequencies0' for frequencies set 'IndependentWord'.");
-    Vector<string> v_sAFS;
-    Vector<AbstractFrequenciesSet*> v_AFS;
-    unsigned int i,nbfreq=0;
-      
-    while (args.find("frequencies"+TextTools::toString(nbfreq))!=args.end()){
-      v_sAFS.push_back(args["frequencies"+TextTools::toString(nbfreq++)]);
-    }
-    
     if (! AlphabetTools::isWordAlphabet(alphabet))
       throw Exception("PhylogeneticsApplicationTools::getFrequenciesSetDefaultInstance.\n\t Bad alphabet type "
                       + alphabet->getAlphabetType() + " for frequenciesset " + freqName+ ".");
-
+    
     const WordAlphabet* pWA=dynamic_cast<const WordAlphabet*>(alphabet);
 
-    map<string, string> unparsedParameterValuesNested;
-    for (i=0;i< v_sAFS.size();i++){
+    if (args.find("frequencies")!=args.end()){
+      string sAFS=args["frequencies"];
+      
+      unsigned int i,nbfreq=pWA->getLength();
+      AbstractFrequenciesSet* pAFS2;
+      string st="";
+      for (i=0;i< nbfreq; i++)
+        st+=TextTools::toString(i);
+    
+      map<string, string> unparsedParameterValuesNested;
       unparsedParameterValuesNested.clear();
-      pAFS=getFrequenciesSetDefaultInstance(pWA->getNAlphabet(i), v_sAFS[i], unparsedParameterValuesNested, false);
+      pAFS2=getFrequenciesSetDefaultInstance(pWA->getNAlphabet(0), sAFS, unparsedParameterValuesNested, false);
       for (map<string, string>::iterator it = unparsedParameterValuesNested.begin(); it != unparsedParameterValuesNested.end(); it++){
-        unparsedParameterValues["IndFreq."+TextTools::toString(i)+"_" + it->first] = it->second;
+        unparsedParameterValues["IndFreq."+st+ "_" + it->first] = it->second;
       }
-      v_AFS.push_back(pAFS);
+      pAFS=new IndependentWordFrequenciesSet(pAFS2,nbfreq);
+    }
+    
+    else {
+      if (args.find("frequencies0")==args.end())
+        throw Exception("PhylogeneticsApplicationTools::getFrequenciesSetDefaultInstance. Missing argument 'frequencies' or 'frequencies0' for frequencies set 'IndependentWord'.");
+      Vector<string> v_sAFS;
+      Vector<AbstractFrequenciesSet*> v_AFS;
+      unsigned int i,nbfreq=0;
+      
+      while (args.find("frequencies"+TextTools::toString(nbfreq))!=args.end()){
+        v_sAFS.push_back(args["frequencies"+TextTools::toString(nbfreq++)]);
+      }
+
+      if (v_sAFS.size()!=pWA->getLength())
+        throw Exception("PhylogeneticsApplicationTools::getFrequenciesSetDefaultInstance. Number of frequencies (" + TextTools::toString(v_sAFS.size()) +") does not match length of the words ("+ TextTools::toString(pWA->getLength())+")");
+      
+      map<string, string> unparsedParameterValuesNested;
+      for (i=0;i< v_sAFS.size();i++){
+        unparsedParameterValuesNested.clear();
+        pAFS=getFrequenciesSetDefaultInstance(pWA->getNAlphabet(i), v_sAFS[i], unparsedParameterValuesNested, false);
+        for (map<string, string>::iterator it = unparsedParameterValuesNested.begin(); it != unparsedParameterValuesNested.end(); it++){
+          unparsedParameterValues["IndFreq."+TextTools::toString(i)+"_" + it->first] = it->second;
+        }
+        v_AFS.push_back(pAFS);
+      }
+      
+      pAFS=new IndependentWordFrequenciesSet(v_AFS);
     }
 
-    pAFS=new IndependentWordFrequenciesSet(v_AFS);
   }
+  
   return pAFS;
 }
 
