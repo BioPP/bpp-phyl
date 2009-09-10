@@ -5,6 +5,7 @@
 # Global parameters
 cmake_minimum_required(VERSION 2.6)
 project(bppphyl CXX)
+set(CMAKE_BUILD_TYPE "Release")
 
 # Libtool-like version number
 # CURRENT:REVISION:AGE => file.so.(C-A).A.R
