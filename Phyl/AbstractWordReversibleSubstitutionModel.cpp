@@ -121,14 +121,15 @@ AbstractWordReversibleSubstitutionModel::AbstractWordReversibleSubstitutionModel
                                                                                  const std::string& st) : AbstractReversibleSubstitutionModel(new WordAlphabet(pmodel->getAlphabet(), num),st),   new_alphabet_(1)
 {
   enableEigenDecomposition(0);
-  int i;
-  _rate=new double[num];
+  unsigned int i;
+  _rate = new double[num];
 
-  string t="";
-  for (i=0;i< num; i++){
+  string t = "";
+  for (i = 0; i < num; i++)
+  {
     _VAbsRevMod.push_back(pmodel);
     _VnestedPrefix.push_back(pmodel->getNamespace());
-    _rate[i]=1.0/num;
+    _rate[i] = 1.0/num;
     t+=TextTools::toString(i);
   }
   
@@ -176,11 +177,11 @@ unsigned int AbstractWordReversibleSubstitutionModel::getNumberOfStates() const
 
 Alphabet* AbstractWordReversibleSubstitutionModel::extract_alph(const Vector<SubstitutionModel*>& modelVector)
 {
-  int i;
+  unsigned int i;
 
   Vector<const Alphabet*> VAlph;
   
-  for (i=0;i< modelVector.size(); i++)
+  for (i = 0; i < modelVector.size(); i++)
     VAlph.push_back(modelVector[i]->getAlphabet());
 
   return (new WordAlphabet(VAlph));
@@ -212,39 +213,44 @@ void AbstractWordReversibleSubstitutionModel::fireParameterChanged(const Paramet
 
 void AbstractWordReversibleSubstitutionModel::updateMatrices()
 {
-  int nbmod=_VAbsRevMod.size();
-  int salph=getNumberOfStates();
+  unsigned int nbmod=_VAbsRevMod.size();
+  unsigned int salph=getNumberOfStates();
 
   // Generator
 
-  if (enableEigenDecomposition()){
-    int i,j,n,l,k,m;
+  if (enableEigenDecomposition())
+  {
+    unsigned int i, j, n, l, k, m;
 
-    Vector<int> vsize;
+    Vector<unsigned int> vsize;
 
-    for (k=0;k<nbmod;k++)
+    for (k = 0; k < nbmod; k++)
       vsize.push_back(_VAbsRevMod[k]->getNumberOfStates());
 
     RowMatrix<double> gk, exch;
     
-    m=1;
+    m = 1;
     
-    for (k=nbmod-1;k>=0;k--){
-      gk=_VAbsRevMod[k]->getGenerator();
-      exch=(dynamic_cast<AbstractReversibleSubstitutionModel*>(_VAbsRevMod[k]))->getExchangeabilityMatrix();
-      for (i=0;i<vsize[k];i++)  
-        for (j=0;j<vsize[k];j++) 
-          if (i!=j){
-            n=0;
-            while (n<salph){ //loop on prefix
-              for (l=0;l<m;l++){ //loop on suffix
-                generator_(n+i*m+l,n+j*m+l)=gk(i,j)*_rate[k];
-                exchangeability_(n+i*m+l,n+j*m+l)=exch(i,j)*_rate[k];
+    for (k = nbmod - 1; k >= 0; k--)
+    {
+      gk = _VAbsRevMod[k]->getGenerator();
+      exch = (dynamic_cast<AbstractReversibleSubstitutionModel*>(_VAbsRevMod[k]))->getExchangeabilityMatrix();
+      for (i = 0; i < vsize[k]; i++)  
+        for (j = 0; j < vsize[k]; j++) 
+          if (i != j)
+          {
+            n = 0;
+            while (n < salph)
+            { //loop on prefix
+              for (l = 0; l < m; l++)
+              { //loop on suffix
+                generator_(n+i*m+l, n+j*m+l) = gk(i,j) * _rate[k];
+                exchangeability_(n+i*m+l,n+j*m+l) = exch(i,j) * _rate[k];
               }
-              n+=m*vsize[k];
+              n += m * vsize[k];
             }
           }
-      m*=vsize[k];
+      m *= vsize[k];
     }
   }
   
@@ -258,37 +264,42 @@ void AbstractWordReversibleSubstitutionModel::updateMatrices()
   // Eigen values:
 
 
-  if (enableEigenDecomposition()){
-    int i,j,n,l,k,m;
+  if (enableEigenDecomposition())
+  {
+    unsigned int i, j;
     double x;
     
-    int nbStop;
+    unsigned int nbStop;
     Vdouble vi;
 
-    for (i=0;i<salph;i++){
-      x=0;
-      for (j=0;j<salph;j++)
-        if (j!=i)
-          x+=generator_(i,j);
-      generator_(i,i)=-x;
+    for (i = 0; i < salph; i++)
+    {
+      x = 0;
+      for (j = 0; j < salph; j++)
+        if (j != i)
+          x += generator_(i, j);
+      generator_(i, i) = -x;
     }
 
-    if (AlphabetTools::isCodonAlphabet(getAlphabet())){
-      int gi,gj;
-      gi=0;gj=0;
+    if (AlphabetTools::isCodonAlphabet(getAlphabet()))
+    {
+      unsigned int gi = 0, gj = 0;
 
       const CodonAlphabet* pca=dynamic_cast<const CodonAlphabet*>(getAlphabet());
 
       RowMatrix<double> gk;
       
-      nbStop=pca->numberOfStopCodons();
+      nbStop = pca->numberOfStopCodons();
       gk.resize(salph - nbStop, salph - nbStop);
-      for (i=0;i<salph;i++){
-        if (! pca->isStop(i)){
-          gj=0;
-          for (j=0;j<salph;j++)
-            if (! pca->isStop(j)){
-              gk(i-gi,j-gj)=generator_(i,j);
+      for (i = 0; i < salph; i++)
+      {
+        if (! pca->isStop(i))
+        {
+          gj = 0;
+          for (j = 0; j < salph; j++)
+            if (! pca->isStop(j))
+            {
+              gk(i-gi,j-gj) = generator_(i,j);
             }
             else
               gj++;
@@ -298,26 +309,29 @@ void AbstractWordReversibleSubstitutionModel::updateMatrices()
       }
 
       EigenValue<double> ev(gk);
-      eigenValues_=ev.getRealEigenValues();
-      vi=ev.getImagEigenValues();
+      eigenValues_ = ev.getRealEigenValues();
+      vi = ev.getImagEigenValues();
 
-      for (i=0;i<nbStop;i++)
+      for (i = 0; i < nbStop; i++)
         eigenValues_.push_back(0);
 
       RowMatrix<double> rev = ev.getV();
       rightEigenVectors_.resize(salph,salph);
-      gi=0;
-      for (i=0;i<salph;i++){
-        if (pca->isStop(i)){
+      gi = 0;
+      for (i = 0; i < salph; i++)
+      {
+        if (pca->isStop(i))
+        {
           gi++;
-          for (j=0;j<salph;j++)
-            rightEigenVectors_(i,j)=0;
-          rightEigenVectors_(i,salph-nbStop+gi-1)=1;
+          for (j = 0; j < salph; j++)
+            rightEigenVectors_(i,j) = 0;
+          rightEigenVectors_(i,salph-nbStop+gi-1) = 1;
         }
-        else {
-          for (j=0;j<salph-nbStop;j++)
-            rightEigenVectors_(i,j)=rev(i-gi,j);
-          for (j=salph-nbStop;j<salph;j++)
+        else
+        {
+          for (j = 0; j < salph - nbStop; j++)
+            rightEigenVectors_(i,j) = rev(i-gi,j);
+          for (j = salph-nbStop; j < salph; j++)
             rightEigenVectors_(i,j)=0;
         }
       }
@@ -334,8 +348,9 @@ void AbstractWordReversibleSubstitutionModel::updateMatrices()
 
     // looking for the 0 eigenvector
       
-    int nulleigen=0;
-    while (nulleigen<salph-nbStop){
+    unsigned int nulleigen = 0;
+    while (nulleigen < salph - nbStop)
+    {
       if (abs(eigenValues_[nulleigen])<0.000001 && abs(vi[nulleigen])<0.000001)
         break;
       else
