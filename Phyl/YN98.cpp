@@ -49,11 +49,8 @@ YN98::YN98(const GeneticCode* palph) : AbstractSubstitutionModel(palph->getSourc
                                        _ffs(palph->getSourceAlphabet()),
                                        _pmodel(palph, &_ffs)
 {
-  addParameter_(Parameter("YN98.kappa",1,&Parameter::R_PLUS_STAR));
-  
-  addParameter_(Parameter("YN98.omega",1,&Parameter::R_PLUS_STAR));
-
-  
+  addParameter_(Parameter("YN98.kappa", 1, &Parameter::R_PLUS_STAR));
+  addParameter_(Parameter("YN98.omega", 1, new IncludingInterval(0.0001, 999), true)); 
   updateMatrices();
 }
 
