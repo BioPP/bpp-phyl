@@ -44,13 +44,16 @@ using namespace std;
 
 /******************************************************************************/
 
-CodonNeutralFrequenciesReversibleSubstitutionModel::CodonNeutralFrequenciesReversibleSubstitutionModel(const CodonAlphabet* palph,
-                                                                                                       AbstractFrequenciesSet* pfreq) : AbstractCodonFrequenciesReversibleSubstitutionModel(palph, pfreq,"CodonNeutralFrequencies.")
+CodonNeutralFrequenciesReversibleSubstitutionModel::CodonNeutralFrequenciesReversibleSubstitutionModel(
+    const CodonAlphabet* palph,
+    AbstractFrequenciesSet* pfreq) :
+  AbstractCodonFrequenciesReversibleSubstitutionModel(palph, pfreq, "CodonNeutralFrequencies.")
 {
-  int i;
+  unsigned int i;
   
   // relative rates
-  for (i=0; i< 2; i++){
+  for (i = 0; i < 2; i++)
+  {
     addParameter_(Parameter("CodonNeutralFrequencies.relrate"+TextTools::toString(i) , 1.0/(3-i),&Parameter::PROP_CONSTRAINT_EX));
   }
 
@@ -64,18 +67,22 @@ string CodonNeutralFrequenciesReversibleSubstitutionModel::getName() const
 
 void CodonNeutralFrequenciesReversibleSubstitutionModel::completeMatrices()
 {
-  unsigned int i,j;
-  int salph=getNumberOfStates();
-  double x;
+  unsigned int i, j;
+  unsigned int salph = getNumberOfStates();
 
-  CodonAlphabet* ca=(CodonAlphabet*)(alphabet_);
+  const CodonAlphabet* ca = dynamic_cast<const CodonAlphabet*>(alphabet_);
   
-  for (i=0;i<salph;i++)
-    for (j=0;j<salph;j++)
-      if (ca->isStop(i) || ca->isStop(j)){
-        generator_(i,j)=0;
-        exchangeability_(i,j)=0;
+  for (i = 0; i < salph; i++)
+  {
+    for (j = 0; j < salph; j++)
+    {
+      if (ca->isStop(i) || ca->isStop(j))
+      {
+        generator_(i, j) = 0;
+        exchangeability_(i, j) = 0;
       }
+    }
+  }
 
   AbstractCodonFrequenciesReversibleSubstitutionModel::completeMatrices();
 }

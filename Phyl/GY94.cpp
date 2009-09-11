@@ -45,22 +45,24 @@ using namespace std;
 
 /******************************************************************************/
 
-GY94::GY94(const GeneticCode* palph) : AbstractSubstitutionModel(palph->getSourceAlphabet(),"GY94."),
-                                       _ffs(palph->getSourceAlphabet()),
-                                       _gacd(),
-                                       _pmodel(new CodonAsynonymousFrequenciesReversibleSubstitutionModel(palph, &_ffs, &_gacd))
+GY94::GY94(const GeneticCode* palph) :
+  AbstractSubstitutionModel(palph->getSourceAlphabet(),"GY94."),
+  _gacd(),
+  _ffs(palph->getSourceAlphabet()),
+  _pmodel(new CodonAsynonymousFrequenciesReversibleSubstitutionModel(palph, &_ffs, &_gacd))
 {
   addParameter_(Parameter("GY94.kappa",1,&Parameter::R_PLUS_STAR));
-  
   addParameter_(Parameter("GY94.V",10000,&Parameter::R_PLUS_STAR));
-
   
   updateMatrices();
 }
 
-GY94::GY94(const GY94& gy94) : _ffs(gy94._ffs), _gacd(), AbstractSubstitutionModel(gy94)
+GY94::GY94(const GY94& gy94) :
+  AbstractSubstitutionModel(gy94),
+  _gacd(),
+  _ffs(gy94._ffs)
 {
-  _pmodel=new CodonAsynonymousFrequenciesReversibleSubstitutionModel(gy94._pmodel->getGeneticCode(), &_ffs, &_gacd);
+  _pmodel = new CodonAsynonymousFrequenciesReversibleSubstitutionModel(gy94._pmodel->getGeneticCode(), &_ffs, &_gacd);
 }
 
 GY94::~GY94()

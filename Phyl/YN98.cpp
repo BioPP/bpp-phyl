@@ -54,7 +54,10 @@ YN98::YN98(const GeneticCode* palph) : AbstractSubstitutionModel(palph->getSourc
   updateMatrices();
 }
 
-YN98::YN98(const YN98& yn98) : _ffs(yn98._ffs), _pmodel(yn98._pmodel), AbstractSubstitutionModel(yn98)
+YN98::YN98(const YN98& yn98) :
+  AbstractSubstitutionModel(yn98),
+  _ffs(yn98._ffs),
+  _pmodel(yn98._pmodel)
 {
 }
 

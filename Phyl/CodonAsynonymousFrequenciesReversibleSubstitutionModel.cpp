@@ -62,29 +62,34 @@ string CodonAsynonymousFrequenciesReversibleSubstitutionModel::getName() const
 
 void CodonAsynonymousFrequenciesReversibleSubstitutionModel::completeMatrices()
 {
-  unsigned int i,j;
-  int salph=getNumberOfStates();
-  double x;
-  double alpha=_pdistance?getParameterValue("alpha"):1;
-
-  double beta=getParameterValue("beta");
-
-  CodonAlphabet* ca=(CodonAlphabet*)(_geneticCode->getSourceAlphabet());
+  unsigned int i, j;
+  unsigned int salph = getNumberOfStates();
+  double alpha = _pdistance ? getParameterValue("alpha") : 1;
+  double beta = getParameterValue("beta");
+  const CodonAlphabet* ca = dynamic_cast<const CodonAlphabet*>(_geneticCode->getSourceAlphabet());
   
-  for (i=0;i<salph;i++)
-    for (j=0;j<salph;j++)
-      if (i!=j){
-        if (ca->isStop(j) || ca->isStop(i)){
-          generator_(i,j)=0;
-          exchangeability_(i,j)=0;
+  for (i = 0; i < salph; i++)
+  {
+    for (j = 0; j < salph; j++)
+    {
+      if (i != j)
+      {
+        if (ca->isStop(j) || ca->isStop(i))
+        {
+          generator_(i,j) = 0;
+          exchangeability_(i,j) = 0;
         }
-        else{
-          if (! _geneticCode->areSynonymous(i,j)){
-            generator_(i,j)*=beta*(_pdistance?exp(-_pdistance->getIndex(_geneticCode->translate(i),_geneticCode->translate(j))/alpha):1);
-            exchangeability_(i,j)*=beta*(_pdistance?exp(-_pdistance->getIndex(_geneticCode->translate(i),_geneticCode->translate(j))/alpha):1);
+        else
+        {
+          if (! _geneticCode->areSynonymous(i,j))
+          {
+            generator_(i,j) *= beta * (_pdistance ? exp(-_pdistance->getIndex(_geneticCode->translate(i), _geneticCode->translate(j)) / alpha) : 1);
+            exchangeability_(i,j) *= beta * (_pdistance ? exp(-_pdistance->getIndex(_geneticCode->translate(i), _geneticCode->translate(j)) / alpha) : 1);
           }
         }
       }
+    }
+  }
 
   AbstractCodonFrequenciesReversibleSubstitutionModel::completeMatrices();
 }

@@ -100,13 +100,13 @@ void AbstractCodonFrequenciesReversibleSubstitutionModel::setFreq(map<int,double
 void AbstractCodonFrequenciesReversibleSubstitutionModel::completeMatrices()
 {
   unsigned int i,j;
-  int salph=getNumberOfStates();
+  unsigned int salph = getNumberOfStates();
   
-  freq_=AbsFreq->getFrequencies();
+  freq_ = AbsFreq->getFrequencies();
 
-  for (i=0;i<salph;i++)
-    for (j=0;j<salph;j++)
-      generator_(i,j)=exchangeability_(i,j)*freq_[j];
+  for (i = 0; i < salph; i++)
+    for (j = 0; j < salph; j++)
+      generator_(i, j) = exchangeability_(i, j) * freq_[j];
   
 }
 

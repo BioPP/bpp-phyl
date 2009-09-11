@@ -40,9 +40,9 @@ set(BPPUTILS_NAMES bpp-utils bpp-utilslib bpp-utilsdll)
 find_library(BPPUTILS_LIBRARY NAMES ${BPPUTILS_NAMES})
 set( BPPUTILS_LIBRARIES ${BPPUTILS_LIBRARY} )
 if(BPPUTILS_LIBRARY)
-  message("bpp-utils found here:")
-  message("  includes : ${BPPUTILS_INCLUDE_DIR}")
-  message("  libraries: ${BPPUTILS_LIBRARIES}")
+  message("-- bpp-utils found here:")
+  message("   includes : ${BPPUTILS_INCLUDE_DIR}")
+  message("   libraries: ${BPPUTILS_LIBRARIES}")
 else(BPPUTILS_LIBRARY)
   message(FATAL_ERROR "bpp-utils required but not found")
 endif(BPPUTILS_LIBRARY)
@@ -57,9 +57,9 @@ set(BPPNUMCALC_NAMES bpp-numcalc bpp-numcalclib bpp-numcalcdll)
 find_library(BPPNUMCALC_LIBRARY NAMES ${BPPNUMCALC_NAMES})
 set( BPPNUMCALC_LIBRARIES ${BPPNUMCALC_LIBRARY} )
 if(BPPNUMCALC_LIBRARY)
-  message("bpp-numcalc found here:")
-  message("  includes : ${BPPNUMCALC_INCLUDE_DIR}")
-  message("  libraries: ${BPPNUMCALC_LIBRARIES}")
+  message("-- bpp-numcalc found here:")
+  message("   includes : ${BPPNUMCALC_INCLUDE_DIR}")
+  message("   libraries: ${BPPNUMCALC_LIBRARIES}")
 else(BPPNUMCALC_LIBRARY)
   message(FATAL_ERROR "bpp-numcalc required but not found")
 endif(BPPNUMCALC_LIBRARY)
@@ -74,9 +74,9 @@ set(BPPSEQ_NAMES bpp-seq bpp-seqlib bpp-seqdll)
 find_library(BPPSEQ_LIBRARY NAMES ${BPPSEQ_NAMES})
 set( BPPSEQ_LIBRARIES ${BPPSEQ_LIBRARY} )
 if(BPPSEQ_LIBRARY)
-  message("bpp-seq found here:")
-  message("  includes : ${BPPSEQ_INCLUDE_DIR}")
-  message("  libraries: ${BPPSEQ_LIBRARIES}")
+  message("-- bpp-seq found here:")
+  message("   includes : ${BPPSEQ_INCLUDE_DIR}")
+  message("   libraries: ${BPPSEQ_LIBRARIES}")
 else(BPPSEQ_LIBRARY)
   message(FATAL_ERROR "bpp-seq required but not found")
 endif(BPPSEQ_LIBRARY)
@@ -95,4 +95,41 @@ if (DOXYGEN_FOUND)
 endif (DOXYGEN_FOUND)
 
 # Packager
+set(CPACK_PACKAGE_NAME "libbpp-phyl")
+set(CPACK_PACKAGE_VENDOR "Bio++ Development Team")
+set(CPACK_PACKAGE_VERSION "1.8.0")
+set(CPACK_PACKAGE_VERSION_MAJOR "1")
+set(CPACK_PACKAGE_VERSION_MINOR "8")
+set(CPACK_PACKAGE_VERSION_PATCH "0")
+set(CPACK_PACKAGE_DESCRIPTION_SUMMARY "The Bio++ Phylogenetics library")
+set(CPACK_RESOURCE_FILE_LICENSE "COPYING")
+set(CPACK_RESOURCE_FILE_AUTHORS "AUTHORS")
+set(CPACK_GENERATOR "DEB;RPM")
+set(CPACK_SOURCE_GENERATOR "TGZ")
+set(CPACK_SYSTEM_NAME x86_64)
+set(CPACK_TOPLEVEL_TAG x86_64)
+set(CPACK_DEBIAN_PACKAGE_ARCHITECTURE amd64)
+set(CPACK_DEBIAN_PACKAGE_DEPENDS "libstdc++6, libbpp-utils (= 1.4.0), libbpp-numcalc (= 1.7.0), libbpp-seq (= 1.6.0)")
+set(CPACK_DEBIAN_PACKAGE_MAINTAINER "Julien Dutheil <jdutheil@birc.au.dk>")
+set(CPACK_SOURCE_IGNORE_FILES
+ ".*CMakeFiles"
+ ".*Makefile"
+ ".*_CPack_Packages"
+ ".*CMakeCache.txt"
+ "debian/"
+ "Phyl.spec"
+ ".*\\\\.cmake"
+ ".*CVS/"
+ ".*.gz"
+ ".*.deb"
+ ".*.rpm"
+ ".*~"
+ "Phyl/\\\\..*"
+ "html"
+ "Seq.tag"
+ "autogen.sh"
+ "autoclean.sh"
+ ${CPACK_SOURCE_IGNORE_FILES}
+)
+set(CPACK_SOURCE_PACKAGE_FILE_NAME "${CMAKE_PROJECT_NAME}-${CPACK_PACKAGE_VERSION_MAJOR}.${CPACK_PACKAGE_VERSION_MINOR}.${CPACK_PACKAGE_VERSION_PATCH}")
 include(CPack)

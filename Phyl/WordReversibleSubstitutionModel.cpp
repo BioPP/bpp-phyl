@@ -126,18 +126,19 @@ void WordReversibleSubstitutionModel::completeMatrices()
 
 double WordReversibleSubstitutionModel::Pij_t(unsigned int i, unsigned int j, double d) const
 {
-  double x=1;
-  int nbmod=_VAbsRevMod.size();
-  int p,t;
+  double x = 1;
+  unsigned int nbmod = _VAbsRevMod.size();
+  unsigned int p, t;
 
-  int i2=i;
-  int j2=j;
+  unsigned int i2 = i;
+  unsigned int j2 = j;
 
-  for (p=nbmod-1;p>=0;p--){
-    t=_VAbsRevMod[p]->getNumberOfStates();
-    x*=_VAbsRevMod[p]->Pij_t(i2%t,j2%t,d*_rate[p]);
-    i2/=t;
-    j2/=t;
+  for (p = nbmod - 1; p >= 0; p--)
+  {
+    t = _VAbsRevMod[p]->getNumberOfStates();
+    x *= _VAbsRevMod[p]->Pij_t(i2%t, j2%t, d*_rate[p]);
+    i2 /= t;
+    j2 /= t;
   }
   
   return(x);
@@ -145,27 +146,29 @@ double WordReversibleSubstitutionModel::Pij_t(unsigned int i, unsigned int j, do
 
 const RowMatrix<double>& WordReversibleSubstitutionModel::getPij_t(double d) const
 {
-  unsigned int nbetats = getNumberOfStates();
+  unsigned int nbStates = getNumberOfStates();
   unsigned int i, j;
 
-  for (i = 0; i < nbetats; i++)
-    for (j = 0; j < nbetats; j++)
+  for (i = 0; i < nbStates; i++)
+  {
+    for (j = 0; j < nbStates; j++)
     {  
       _p(i,j) = Pij_t(i,j,d);
     }
+  }
   return _p;
 }
 
 double WordReversibleSubstitutionModel::dPij_dt(unsigned int i, unsigned int j, double d) const
 {
-  double r,x;
+  double r, x;
   unsigned int nbmod = _VAbsRevMod.size();
-  int p,q,t;
+  unsigned int p, q, t;
 
   unsigned int i2 = i;
   unsigned int j2 = j;
 
-  r=0;
+  r = 0;
   for (q = 0; q < nbmod; q++)
   {
     i2 = i;
@@ -200,56 +203,58 @@ const RowMatrix<double>& WordReversibleSubstitutionModel::getdPij_dt(double d) c
 
 double WordReversibleSubstitutionModel::d2Pij_dt2(unsigned int i, unsigned int j, double d) const
 {
-  double r,x;
+  double r, x;
   unsigned int nbmod = _VAbsRevMod.size();
-  int b,p,q,t;
+  unsigned int b, p, q, t;
 
   unsigned int i2 = i;
   unsigned int j2 = j;
 
-  r=0;
+  r = 0;
 
   for (q = 1; q < nbmod; q++)
   {
-    for (b=0;b<q;b++)
+    for (b = 0; b < q; b++)
     {
-      x=1;
-      i2=i;
-      j2=j;
-      for (p=nbmod-1;p>=0;p--)
+      x = 1;
+      i2 = i;
+      j2 = j;
+      for (p = nbmod - 1; p >= 0; p--)
       {
-        t=_VAbsRevMod[p]->getNumberOfStates();
-        if (p==q) 
-          x*=_rate[p]*_VAbsRevMod[p]->dPij_dt(i2%t,j2%t,d*_rate[p]);
+        t = _VAbsRevMod[p]->getNumberOfStates();
+        if (p == q) 
+          x *= _rate[p] * _VAbsRevMod[p]->dPij_dt(i2%t, j2%t, d*_rate[p]);
         else if (p==b)
-          x*=_rate[p]*_VAbsRevMod[p]->dPij_dt(i2%t,j2%t,d*_rate[p]);
+          x *= _rate[p] * _VAbsRevMod[p]->dPij_dt(i2%t, j2%t, d*_rate[p]);
         else
-          x*=_VAbsRevMod[p]->Pij_t(i2%t,j2%t,d*_rate[p]);
+          x *= _VAbsRevMod[p]->Pij_t(i2%t, j2%t, d*_rate[p]);
         
-        i2/=t;
-        j2/=t;
+        i2 /= t;
+        j2 /= t;
       }
-      r+=x;
+      r += x;
     }
   }
 
-  r*=2;
+  r *= 2;
   
-  for (q=0;q<nbmod;q++){
-    x=1;
-    i2=i;
-    j2=j;
-    for (p=nbmod-1;p>=0;p--){
-      t=_VAbsRevMod[p]->getNumberOfStates();
-      if (q!=p)
-        x*=_VAbsRevMod[p]->Pij_t(i2%t,j2%t,d*_rate[p]);
+  for (q = 0; q < nbmod; q++)
+  {
+    x = 1;
+    i2 = i;
+    j2 = j;
+    for (p = nbmod - 1; p >= 0; p--)
+    {
+      t = _VAbsRevMod[p]->getNumberOfStates();
+      if (q != p)
+        x *= _VAbsRevMod[p]->Pij_t(i2%t, j2%t, d*_rate[p]);
       else
-        x*=_rate[p]*_rate[p]*_VAbsRevMod[p]->d2Pij_dt2(i2%t,j2%t,d*_rate[p]);
+        x *= _rate[p] * _rate[p] * _VAbsRevMod[p]->d2Pij_dt2(i2%t, j2%t, d * _rate[p]);
       
-      i2/=t;
-      j2/=t;
+      i2 /= t;
+      j2 /= t;
     }
-    r+=x;
+    r += x;
   }
   
   return(r);

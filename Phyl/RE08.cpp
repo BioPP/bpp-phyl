@@ -294,12 +294,13 @@ const Matrix<double> & RE08::getd2Pij_dt2(double d) const
 
 double RE08::getInitValue(unsigned int i, int state) const throw (BadIntException)
 {
-  if(i < 0 || i >= (int)size_) throw BadIntException(i, "RE08::getInitValue");
-  if(state < -1 || !getAlphabet()->isIntInAlphabet(state))
+  if (i >= size_) throw BadIntException(i, "RE08::getInitValue");
+  if (state < -1 || !getAlphabet()->isIntInAlphabet(state))
     throw BadIntException(state, "RE08::getInitValue. Character " + getAlphabet()->intToChar(state) + " is not allowed in model.");
-  if(i == (int)size_ - 1 && state == -1) return 1.;
+  if (i == size_ - 1 && state == -1) return 1.;
   vector<int> states = getAlphabet()->getAlias(state);
-  for(unsigned int j = 0; j < states.size(); j++) if(i == states[j]) return 1.;
+  for (unsigned int j = 0; j < states.size(); j++)
+    if ((int)i == states[j]) return 1.;
   return 0.;
 }
 

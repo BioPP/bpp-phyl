@@ -75,40 +75,41 @@ CodonNeutralReversibleSubstitutionModel::CodonNeutralReversibleSubstitutionModel
 
 string CodonNeutralReversibleSubstitutionModel::getName() const
 {
-  string s="CodonNeutralReversibleSubstitutionModel model:";
-  for (int i=0; i< _VAbsRevMod.size(); i++)
-    s+=" "+ _VAbsRevMod[i]->getName();
+  string s = "CodonNeutralReversibleSubstitutionModel model:";
+  for (unsigned int i = 0; i < _VAbsRevMod.size(); i++)
+    s += " "+ _VAbsRevMod[i]->getName();
   
   return s;
 }
 
 void CodonNeutralReversibleSubstitutionModel::completeMatrices()
 {
-  unsigned int i,j;
-  int salph=getNumberOfStates();
-  double x;
+  unsigned int i, j;
+  unsigned int salph = getNumberOfStates();
 
-  CodonAlphabet* ca=(CodonAlphabet*)(alphabet_);
+  CodonAlphabet* ca = (CodonAlphabet*)(alphabet_);
   
-  for (i=0;i<salph;i++)
-    for (j=0;j<salph;j++)
-      if (ca->isStop(i) || ca->isStop(j)){
-        generator_(i,j)=0;
+  for (i = 0; i < salph; i++)
+    for (j = 0; j < salph; j++)
+      if (ca->isStop(i) || ca->isStop(j))
+      {
+        generator_(i,j) = 0;
       }
 }
 
 
 void CodonNeutralReversibleSubstitutionModel::updateMatrices()
 {
-  int i,k, nbmod=_VAbsRevMod.size();
+  unsigned int i, k, nbmod = _VAbsRevMod.size();
   double x;
-  for (k=nbmod-1;k>=0;k--){
-    x=1.0;
-    for (i=0;i<k;i++)
-      x*=1-getParameterValue("relrate"+TextTools::toString(i));
-    if (k!=nbmod-1)
-      x*=getParameterValue("relrate"+TextTools::toString(k));
-    _rate[k]=x;
+  for (k = nbmod - 1; k >= 0; k--)
+  {
+    x = 1.0;
+    for (i = 0; i < k; i++)
+      x *= 1 - getParameterValue("relrate" + TextTools::toString(i));
+    if (k != nbmod - 1)
+      x *= getParameterValue("relrate"+TextTools::toString(k));
+    _rate[k] = x;
   }
 
   AbstractCodonReversibleSubstitutionModel::updateMatrices();
