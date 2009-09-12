@@ -83,12 +83,12 @@ SubstitutionModelSet* SubstitutionModelSetTools::createNonHomogeneousModelSet(
     throw AlphabetMismatchException("SubstitutionModelSetTools::createNonHomogeneousModelSet()", model->getAlphabet(), rootFreqs->getAlphabet());
   ParameterList globalParameters, branchParameters;
   globalParameters = model->getParameters();
-  for(unsigned int i = globalParameters.size(); i > 0; i--)
+  for (unsigned int i = globalParameters.size(); i > 0; i--)
   {
-    if(find(globalParameterNames.begin(), globalParameterNames.end(), globalParameters[i-1]->getName()) == globalParameterNames.end())
+    if (find(globalParameterNames.begin(), globalParameterNames.end(), globalParameters[i-1].getName()) == globalParameterNames.end())
     {
       //not a global parameter:
-      branchParameters.addParameter(*globalParameters[i-1]);
+      branchParameters.addParameter(globalParameters[i-1]);
       globalParameters.deleteParameter(i - 1);
     }
   }

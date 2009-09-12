@@ -99,7 +99,7 @@ void MarkovModulatedSubstitutionModel::updateMatrices()
 {
   //ratesGenerator_ and rates_ must be initialized!
   nbStates_        = model_->getNumberOfStates();
-  nbRates_         = rates_.nCols();
+  nbRates_         = rates_.getNumberOfColumns();
   RowMatrix<double> Tmp1, Tmp2;
   MatrixTools::diag(ratesFreq_, Tmp1);
   MatrixTools::mult(ratesExchangeability_, Tmp1, ratesGenerator_);

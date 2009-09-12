@@ -439,9 +439,9 @@ void TN93::setFreq(std::map<int, double>& freqs)
   thetas[1] = getNamespace() + "theta1";
   thetas[2] = getNamespace() + "theta2";
   ParameterList pl = getParameters().subList(thetas);
-  pl[0]->setValue(_piC + _piG);
-  pl[1]->setValue(_piA / (_piA + _piT));
-  pl[2]->setValue(_piG / (_piC + _piG));
+  pl[0].setValue(_piC + _piG);
+  pl[1].setValue(_piA / (_piA + _piT));
+  pl[2].setValue(_piG / (_piC + _piG));
   setParametersValues(pl);
 }
 

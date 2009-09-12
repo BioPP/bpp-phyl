@@ -242,7 +242,7 @@ void DRHomogeneousTreeLikelihood::fireParameterChanged(const ParameterList & par
     //We may save some computations:
     for(unsigned int i = 0; i < params.size(); i++)
     {
-      string s = params[i]->getName();
+      string s = params[i].getName();
       if(s.substr(0,5) == "BrLen")
       {
         //Branch length parameter:

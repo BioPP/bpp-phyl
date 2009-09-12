@@ -61,7 +61,7 @@ void AnalyticalSubstitutionCount::computeCounts(double length) const
 {
   RowMatrix<double> Q = _model->getGenerator();
   // L is the diagonal matrix with all substitution rates.
-  unsigned int s = Q.nRows();
+  unsigned int s = Q.getNumberOfRows();
   RowMatrix<double> QL(s, s);
   for(unsigned int i = 0; i < s; i++)
   {

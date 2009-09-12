@@ -97,7 +97,7 @@ throw (ParameterException)
   ParameterList brLen = _brLen;
   for(unsigned int i = 0; i < brLen.size(); i++)
   {
-    brLen[i]->setValue(brLen[i]->getValue() * _lambda[0]->getValue());
+    brLen[i].setValue(brLen[i].getValue() * _lambda[0].getValue());
   }
   return _tl->f(brLen);
 }
@@ -583,10 +583,10 @@ TreeTemplate<Node> * OptimizationTools::buildDistanceTree(
     {
       ParameterList tmp = tl.getSubstitutionModelParameters();
       for(unsigned int i = 0; i < tmp.size(); i++)
-        ApplicationTools::displayResult(tmp[i]->getName(), TextTools::toString(tmp[i]->getValue()));
+        ApplicationTools::displayResult(tmp[i].getName(), TextTools::toString(tmp[i].getValue()));
       tmp = tl.getRateDistributionParameters();
       for(unsigned int i = 0; i < tmp.size(); i++)
-        ApplicationTools::displayResult(tmp[i]->getName(), TextTools::toString(tmp[i]->getValue()));
+        ApplicationTools::displayResult(tmp[i].getName(), TextTools::toString(tmp[i].getValue()));
     }
   }
   return tree;

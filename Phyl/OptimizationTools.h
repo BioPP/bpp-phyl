@@ -55,8 +55,6 @@ knowledge of the CeCILL license and that you accept its terms.
 // From the STL:
 #include <iostream>
 
-using namespace std;
-
 namespace bpp
 {
 
@@ -376,12 +374,12 @@ class OptimizationTools
         clone() const { return new ScaleFunction(*this); }
 				
 			public:
-				void setParameters(const ParameterList & lambda) throw (ParameterNotFoundException, ConstraintException);
+				void setParameters(const ParameterList& lambda) throw (ParameterNotFoundException, ConstraintException);
 				double getValue() const throw (ParameterException);
 				const ParameterList & getParameters() const throw (Exception) { return _lambda; }
-        const Parameter & getParameter(const string & name) const throw (ParameterNotFoundException)
+        const Parameter& getParameter(const std::string & name) const throw (ParameterNotFoundException)
         {
-          if(name == "lambda") return *_lambda[0];
+          if(name == "lambda") return _lambda[0];
           else throw ParameterNotFoundException("ScaleFunction::getParameter.", name);
         }
 				double getParameterValue(const string & name) const throw (ParameterNotFoundException)

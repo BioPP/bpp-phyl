@@ -745,7 +745,7 @@ SubstitutionModel* PhylogeneticsApplicationTools::getSubstitutionModelDefaultIns
   string pname, pval, pname2;
   for (unsigned int i = 0; i < pl.size(); i++)
   {
-    pname = model->getParameterNameWithoutNamespace(pl[i]->getName());
+    pname = model->getParameterNameWithoutNamespace(pl[i].getName());
     if (args.find(pname) == args.end()) continue;
     pval = args[pname];
     if(pval.length() >= 5 && pval.substr(0, 5) == "model")
@@ -753,7 +753,7 @@ SubstitutionModel* PhylogeneticsApplicationTools::getSubstitutionModelDefaultIns
     bool found = false;
     for (unsigned int j = 0; j < pl.size() && !found; j++)
     {
-      pname2 = model->getParameterNameWithoutNamespace(pl[j]->getName());
+      pname2 = model->getParameterNameWithoutNamespace(pl[j].getName());
       if (j == i || args.find(pname2) == args.end()) continue;
       if (pval == pname2)
       {
@@ -795,22 +795,20 @@ void PhylogeneticsApplicationTools::setSubstitutionModelParametersInitialValues(
   ParameterList pl = model->getIndependentParameters();
 	for (unsigned int i = 0; i < pl.size(); i++)
   {
-		Parameter* p = pl[i];
-		AutoParameter* ap = new AutoParameter(* p);
-		ap->setMessageHandler(ApplicationTools::warning);
-		pl[i] = ap;
-		delete p;
+		AutoParameter ap(pl[i]);
+		ap.setMessageHandler(ApplicationTools::warning);
+		pl.setParameter(i, ap);
 	}
   for (unsigned int i = 0; i < pl.size(); i++)
   {
-    const string pName = pl[i]->getName();
+    const string pName = pl[i].getName();
     if (!useObsFreq || (model->getParameterNameWithoutNamespace(pName).substr(0,5) != "theta"))
     {
-      double value = ApplicationTools::getDoubleParameter(pName, unparsedParameterValues, pl[i]->getValue()); 
-      pl[i]->setValue(value);
+      double value = ApplicationTools::getDoubleParameter(pName, unparsedParameterValues, pl[i].getValue()); 
+      pl[i].setValue(value);
     }
     if (verbose)
-      ApplicationTools::displayResult("Parameter found", pName + "=" + TextTools::toString(pl[i]->getValue()));
+      ApplicationTools::displayResult("Parameter found", pName + "=" + TextTools::toString(pl[i].getValue()));
   }
   model->matchParametersValues(pl);
 }
@@ -855,24 +853,22 @@ void PhylogeneticsApplicationTools::setSubstitutionModelParametersInitialValues(
   ParameterList pl = model->getIndependentParameters();
  	for (unsigned int i = 0; i < pl.size(); i++)
   {
-		Parameter* p = pl[i];
-		AutoParameter* ap = new AutoParameter(* p);
-		ap->setMessageHandler(ApplicationTools::warning);
-		pl[i] = ap;
-		delete p;
+		AutoParameter ap(pl[i]);
+		ap.setMessageHandler(ApplicationTools::warning);
+		pl.setParameter(i, ap);
 	}
   for (unsigned int i = 0; i < pl.size(); i++)
   {
-    const string pName = pl[i]->getName();
+    const string pName = pl[i].getName();
     string value;
     if (!useObsFreq || (model->getParameterNameWithoutNamespace(pName).substr(0,5) != "theta"))
     {
-      value = ApplicationTools::getStringParameter(pName, unparsedParameterValues, TextTools::toString(pl[i]->getValue()));
+      value = ApplicationTools::getStringParameter(pName, unparsedParameterValues, TextTools::toString(pl[i].getValue()));
       if (value.size() > 5 && value.substr(0, 5) == "model")
       {
         if (existingParams.find(value) != existingParams.end())
         {
-          pl[i]->setValue(existingParams[value]);
+          pl[i].setValue(existingParams[value]);
           sharedParams.push_back(value);
         }
         else
@@ -883,16 +879,16 @@ void PhylogeneticsApplicationTools::setSubstitutionModelParametersInitialValues(
         double value2 = TextTools::toDouble(value);
         existingParams[modelPrefix + pName] = value2;
         specificParams.push_back(pName);
-        pl[i]->setValue(value2);
+        pl[i].setValue(value2);
       }
     }
     else
     {
-      existingParams[modelPrefix + pName] = pl[i]->getValue();
+      existingParams[modelPrefix + pName] = pl[i].getValue();
       specificParams.push_back(pName);
     }
     if (verbose)
-      ApplicationTools::displayResult("Parameter found", modelPrefix + pName + "=" + TextTools::toString(pl[i]->getValue()));
+      ApplicationTools::displayResult("Parameter found", modelPrefix + pName + "=" + TextTools::toString(pl[i].getValue()));
   }
   model->matchParametersValues(pl);
 }
@@ -1322,20 +1318,18 @@ void PhylogeneticsApplicationTools::setRateDistributionParametersInitialValues(
   ParameterList pl = rDist->getIndependentParameters();
   for (unsigned int i = 0; i < pl.size(); i++)
   {
-		Parameter * p = pl[i];
-		AutoParameter * ap = new AutoParameter(* p);
-		ap->setMessageHandler(ApplicationTools::warning);
-		pl[i] = ap;
-		delete p;
+		AutoParameter ap(pl[i]);
+		ap.setMessageHandler(ApplicationTools::warning);
+		pl.setParameter(i, ap);
 	}
 
   for (unsigned int i = 0; i < pl.size(); i++)
   {
-    const string pName = pl[i]->getName();
-    double value = ApplicationTools::getDoubleParameter(pName, unparsedParameterValues, pl[i]->getValue()); 
-    pl[i]->setValue(value);
+    const string pName = pl[i].getName();
+    double value = ApplicationTools::getDoubleParameter(pName, unparsedParameterValues, pl[i].getValue()); 
+    pl[i].setValue(value);
     if (verbose)
-      ApplicationTools::displayResult("Parameter found", pName + "=" + TextTools::toString(pl[i]->getValue()));
+      ApplicationTools::displayResult("Parameter found", pName + "=" + TextTools::toString(pl[i].getValue()));
   }
   rDist->matchParametersValues(pl);
   if (verbose)
@@ -1836,15 +1830,15 @@ void PhylogeneticsApplicationTools::describeParameters_(const ParameterAliasable
   for (unsigned int i = 0; i < pl.size(); i++)
   {
     if (i > 0) out << ", ";
-    string pname = parametrizable->getParameterNameWithoutNamespace(pl[i]->getName());
+    string pname = parametrizable->getParameterNameWithoutNamespace(pl[i].getName());
     
     //Check for global aliases:
-    if (globalAliases.find(pl[i]->getName()) == globalAliases.end())
+    if (globalAliases.find(pl[i].getName()) == globalAliases.end())
     {
-      out << pname << "=" << fixed << setprecision(12) << pl[i]->getValue();
+      out << pname << "=" << fixed << setprecision(12) << pl[i].getValue();
     }
     else
-      out << pname << "=" << globalAliases[pl[i]->getName()];
+      out << pname << "=" << globalAliases[pl[i].getName()];
 
     //Now check for local aliases:
     if (printLocalAliases)
@@ -1953,9 +1947,9 @@ void PhylogeneticsApplicationTools::printParameters(const SubstitutionModelSet* 
   ParameterList plroot = modelSet->getRootFrequenciesParameters();
   for (unsigned int i = 0; i < pl.size(); i++)
   {
-    if (!plroot.hasParameter(pl[i]->getName()))
+    if (!plroot.hasParameter(pl[i].getName()))
     {
-      string name = pl[i]->getName();
+      string name = pl[i].getName();
       vector<unsigned int> models = modelSet->getModelsWithParameter(name);
       for (unsigned int j = 0; j < models.size(); j++)
       {
@@ -2000,9 +1994,9 @@ void PhylogeneticsApplicationTools::printParameters(const SubstitutionModelSet* 
   //Root frequencies:
   out << endl;
   out << "# Root frequencies:" << endl;
-  if (plroot.size() == 1 && plroot[0]->getName() == "RootFreqtheta")
+  if (plroot.size() == 1 && plroot[0].getName() == "RootFreqtheta")
   {
-    out << "nonhomogeneous.root_freq = InitGC(ancTheta=" << plroot[0]->getValue() << ")" << endl;
+    out << "nonhomogeneous.root_freq = InitGC(ancTheta=" << plroot[0].getValue() << ")" << endl;
   }
   else
   {

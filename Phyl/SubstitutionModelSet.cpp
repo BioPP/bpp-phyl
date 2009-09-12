@@ -244,12 +244,12 @@ void SubstitutionModelSet::addParameters(const ParameterList & parameters, const
 {
   for(unsigned int i = 0; i < parameters.size(); i++)
   {
-    _modelParameterNames.push_back(parameters[i]->getName());
+    _modelParameterNames.push_back(parameters[i].getName());
   }
   ParameterList pl(parameters);
   for(unsigned int i = 0; i < pl.size(); i++)
   {
-    pl[i]->setName(pl[i]->getName() + "_" + TextTools::toString(++_paramNamesCount[pl[i]->getName()]));
+    pl[i].setName(pl[i].getName() + "_" + TextTools::toString(++_paramNamesCount[pl[i].getName()]));
   }
   addParameters_(pl);
   //Build model indexes:

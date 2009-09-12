@@ -102,7 +102,7 @@ double PseudoNewtonOptimizer::doStep() throw (Exception)
     }
     else if(secondOrderDerivative < 0)
     {
-      printMessage("!!! Second order derivative is negative for parameter " + _params[i] + "(" + TextTools::toString(_parameters[i]->getValue()) + "). No move performed.");
+      printMessage("!!! Second order derivative is negative for parameter " + _params[i] + "(" + TextTools::toString(_parameters[i].getValue()) + "). No move performed.");
       //movements[i] = 0;  // We want to reach a minimum, not a maximum!
       // My personnal improvement:
       movements[i] = -firstOrderDerivative / secondOrderDerivative;
@@ -115,7 +115,7 @@ double PseudoNewtonOptimizer::doStep() throw (Exception)
     }
     //DEBUG:
     //cout << "PN[" << i << "]=" << _parameters.getParameter(_params[i])->getValue() << "\t" << movements[i] << "\t " << firstOrderDerivative << "\t" << secondOrderDerivative << endl;
-    newPoint[i]->setValue(_parameters[i]->getValue() - movements[i]);
+    newPoint[i].setValue(_parameters[i].getValue() - movements[i]);
   }
   newValue = _function->f(newPoint);
 
@@ -140,7 +140,7 @@ double PseudoNewtonOptimizer::doStep() throw (Exception)
     for(unsigned int i = 0; i < movements.size(); i++)
     {
       movements[i] = movements[i] / 2;
-      newPoint[i]->setValue(_parameters[i]->getValue() - movements[i]);
+      newPoint[i].setValue(_parameters[i].getValue() - movements[i]);
     }
     newValue = _function->f(newPoint);
   }

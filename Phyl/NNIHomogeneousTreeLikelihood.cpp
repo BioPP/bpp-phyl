@@ -376,7 +376,7 @@ void NNIHomogeneousTreeLikelihood::doNNI(int nodeId) throw (NodeException)
   //In case of copy of this object, we must remove the constraint associated to this stored parameter:
   //(It should be also possible to update the pointer in the copy constructor,
   //but we do not need the constraint info here...).
-  (*brLenNNIParams_.rbegin())->removeConstraint();
+  brLenNNIParams_[brLenNNIParams_.size()-1].removeConstraint();
 }
 
 /*******************************************************************************/
