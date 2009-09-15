@@ -45,7 +45,7 @@ using namespace std;
 /******************************************************************************/
 
 CodonAsynonymousFrequenciesReversibleSubstitutionModel::CodonAsynonymousFrequenciesReversibleSubstitutionModel(const GeneticCode* palph,
-                                                                                                               AbstractFrequenciesSet* pfreq,
+                                                                                                               FrequenciesSet* pfreq,
                                                                                                                const AlphabetIndex2<double>* pdist) throw(Exception) : AbstractCodonFrequenciesReversibleSubstitutionModel((CodonAlphabet*)palph->getSourceAlphabet(), pfreq, "CodonAsynonymousFrequencies."), _geneticCode(palph), _pdistance(pdist)
 {
   if (_pdistance)
@@ -57,7 +57,7 @@ CodonAsynonymousFrequenciesReversibleSubstitutionModel::CodonAsynonymousFrequenc
   
 string CodonAsynonymousFrequenciesReversibleSubstitutionModel::getName() const
 {
-  return "CodonAsynonymousFrequenciesReversibleSubstitutionModel model : " + AbsFreq->getName();
+  return "CodonAsynonymousFrequenciesReversibleSubstitutionModel model : " + pfreqset_->getName();
 }
 
 void CodonAsynonymousFrequenciesReversibleSubstitutionModel::completeMatrices()

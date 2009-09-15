@@ -69,7 +69,7 @@ class AbstractCodonFrequenciesReversibleSubstitutionModel :
 
 protected:
 
-  AbstractFrequenciesSet* AbsFreq;
+  FrequenciesSet* pfreqset_;
   
 public:
 
@@ -84,7 +84,7 @@ public:
    */
   
   AbstractCodonFrequenciesReversibleSubstitutionModel(const CodonAlphabet* pfreq,
-                                                      AbstractFrequenciesSet* palph,
+                                                      FrequenciesSet* palph,
                                                       const std::string& st) throw(Exception);
   
   AbstractCodonFrequenciesReversibleSubstitutionModel(const AbstractCodonFrequenciesReversibleSubstitutionModel&);

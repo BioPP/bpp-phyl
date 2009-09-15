@@ -48,8 +48,8 @@ using namespace std;
 /******************************************************************************/
 
 AbstractCodonFrequenciesReversibleSubstitutionModel::AbstractCodonFrequenciesReversibleSubstitutionModel(const CodonAlphabet* palph,
-                                                                                                         AbstractFrequenciesSet* pfreq,
-                                                                                                         const std::string& st) throw(Exception) : AbstractWordReversibleSubstitutionModel(palph,st), AbsFreq(pfreq)
+                                                                                                         FrequenciesSet* pfreq,
+                                                                                                         const std::string& st) throw(Exception) : AbstractWordReversibleSubstitutionModel(palph,st), pfreqset_(pfreq)
 {
   enableEigenDecomposition(1);
 
@@ -69,14 +69,14 @@ AbstractCodonFrequenciesReversibleSubstitutionModel::AbstractCodonFrequenciesRev
   pmodel->setNamespace(st+t+"_"+_VnestedPrefix[0]);
   addParameters_(pmodel->getParameters());
   
-  if (AbsFreq->getAlphabet()->getSize() !=64)
-    throw Exception("Bad Alphabet for equilibrium frequencies " + AbsFreq->getAlphabet()->getAlphabetType());
+  if (pfreqset_->getAlphabet()->getSize() !=64)
+    throw Exception("Bad Alphabet for equilibrium frequencies " + pfreqset_->getAlphabet()->getAlphabetType());
     
-  AbsFreq->setNamespace(st+AbsFreq->getNamespace());
-  addParameters_(AbsFreq->getParameters());
+  pfreqset_->setNamespace(st+pfreqset_->getNamespace());
+  addParameters_(pfreqset_->getParameters());
 }
 
-AbstractCodonFrequenciesReversibleSubstitutionModel::AbstractCodonFrequenciesReversibleSubstitutionModel(const AbstractCodonFrequenciesReversibleSubstitutionModel& wrsm) : AbstractWordReversibleSubstitutionModel(wrsm), AbsFreq(wrsm.AbsFreq->clone())
+AbstractCodonFrequenciesReversibleSubstitutionModel::AbstractCodonFrequenciesReversibleSubstitutionModel(const AbstractCodonFrequenciesReversibleSubstitutionModel& wrsm) : AbstractWordReversibleSubstitutionModel(wrsm), pfreqset_(wrsm.pfreqset_->clone())
 {
 }
 
@@ -86,14 +86,14 @@ AbstractCodonFrequenciesReversibleSubstitutionModel::~AbstractCodonFrequenciesRe
 
 void AbstractCodonFrequenciesReversibleSubstitutionModel::fireParameterChanged(const ParameterList &parameters)
 {
-  AbsFreq->matchParametersValues(parameters);
+  pfreqset_->matchParametersValues(parameters);
   AbstractWordReversibleSubstitutionModel::fireParameterChanged(parameters);
 }
 
 
 void AbstractCodonFrequenciesReversibleSubstitutionModel::setFreq(map<int,double>& freq)
 {
-  AbsFreq->setFrequenciesFromMap(freq);
+  pfreqset_->setFrequenciesFromMap(freq);
   updateMatrices();
 }
 
@@ -102,7 +102,7 @@ void AbstractCodonFrequenciesReversibleSubstitutionModel::completeMatrices()
   unsigned int i,j;
   unsigned int salph = getNumberOfStates();
   
-  freq_ = AbsFreq->getFrequencies();
+  freq_ = pfreqset_->getFrequencies();
 
   for (i = 0; i < salph; i++)
     for (j = 0; j < salph; j++)

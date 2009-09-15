@@ -46,7 +46,7 @@ using namespace std;
 
 CodonNeutralFrequenciesReversibleSubstitutionModel::CodonNeutralFrequenciesReversibleSubstitutionModel(
     const CodonAlphabet* palph,
-    AbstractFrequenciesSet* pfreq) :
+    FrequenciesSet* pfreq) :
   AbstractCodonFrequenciesReversibleSubstitutionModel(palph, pfreq, "CodonNeutralFrequencies.")
 {
   unsigned int i;
@@ -62,7 +62,7 @@ CodonNeutralFrequenciesReversibleSubstitutionModel::CodonNeutralFrequenciesRever
 
 string CodonNeutralFrequenciesReversibleSubstitutionModel::getName() const
 {
-  return "CodonNeutralFrequenciesReversibleSubstitutionModel model:" + AbsFreq->getName();
+  return "CodonNeutralFrequenciesReversibleSubstitutionModel model:" + pfreqset_->getName();
 }
 
 void CodonNeutralFrequenciesReversibleSubstitutionModel::completeMatrices()

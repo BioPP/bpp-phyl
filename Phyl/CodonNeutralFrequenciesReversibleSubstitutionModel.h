@@ -79,7 +79,7 @@ public:
    */
   
   CodonNeutralFrequenciesReversibleSubstitutionModel(const CodonAlphabet* palph,
-                                                     AbstractFrequenciesSet* pfreq);
+                                                     FrequenciesSet* pfreq);
   
   ~CodonNeutralFrequenciesReversibleSubstitutionModel(){};
 

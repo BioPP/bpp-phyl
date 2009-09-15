@@ -88,12 +88,12 @@ public:
    *ones.
    *
    *@param palph pointer to a GeneticCode
-   *@param pfreq pointer to the AbstractFrequenciesSet* equilibrium frequencies
+   *@param pfreq pointer to the FrequenciesSet* equilibrium frequencies
    *@param pdist optional pointer to the AlphabetIndex2<double> amino-acids distance object.
    */
   
   CodonAsynonymousFrequenciesReversibleSubstitutionModel(const GeneticCode* palph,
-                                                         AbstractFrequenciesSet* pfreq,
+                                                         FrequenciesSet* pfreq,
                                                          const AlphabetIndex2<double>* pdist =0) throw(Exception);
 
   ~CodonAsynonymousFrequenciesReversibleSubstitutionModel() {};
