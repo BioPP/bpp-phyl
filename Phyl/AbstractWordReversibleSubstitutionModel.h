@@ -87,7 +87,7 @@ private:
   
 protected:
 
-  Vector<SubstitutionModel*> _VAbsRevMod;
+  Vector<SubstitutionModel*> _VSubMod;
   Vector<string> _VnestedPrefix;
   
   double *_rate;

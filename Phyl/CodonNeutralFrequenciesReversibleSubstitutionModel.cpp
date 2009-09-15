@@ -91,7 +91,7 @@ void CodonNeutralFrequenciesReversibleSubstitutionModel::completeMatrices()
 void CodonNeutralFrequenciesReversibleSubstitutionModel::updateMatrices()
 {
 
-  int i,k, nbmod=_VAbsRevMod.size();
+  int i,k, nbmod=_VSubMod.size();
   double x;
   for (k=nbmod-1;k>=0;k--){
     x=1.0;

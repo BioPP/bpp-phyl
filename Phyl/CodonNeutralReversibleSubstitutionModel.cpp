@@ -76,8 +76,8 @@ CodonNeutralReversibleSubstitutionModel::CodonNeutralReversibleSubstitutionModel
 string CodonNeutralReversibleSubstitutionModel::getName() const
 {
   string s = "CodonNeutralReversibleSubstitutionModel model:";
-  for (unsigned int i = 0; i < _VAbsRevMod.size(); i++)
-    s += " "+ _VAbsRevMod[i]->getName();
+  for (unsigned int i = 0; i < _VSubMod.size(); i++)
+    s += " "+ _VSubMod[i]->getName();
   
   return s;
 }
@@ -100,7 +100,7 @@ void CodonNeutralReversibleSubstitutionModel::completeMatrices()
 
 void CodonNeutralReversibleSubstitutionModel::updateMatrices()
 {
-  unsigned int i, k, nbmod = _VAbsRevMod.size();
+  unsigned int i, k, nbmod = _VSubMod.size();
   double x;
   for (k = nbmod - 1; k >= 0; k--)
   {

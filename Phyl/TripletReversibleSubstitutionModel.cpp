@@ -64,7 +64,7 @@ TripletReversibleSubstitutionModel::TripletReversibleSubstitutionModel(const Cod
 
   _rate=new double[3];
   for (i=0;i< 3; i++){
-  _VAbsRevMod.push_back(pmod);
+  _VSubMod.push_back(pmod);
   _VnestedPrefix.push_back(pmod->getNamespace());
   _rate[i]=1.0/3;
   }
@@ -87,7 +87,7 @@ TripletReversibleSubstitutionModel::TripletReversibleSubstitutionModel(const Cod
   if ((pmod1==pmod2) || (pmod2==pmod3) || (pmod1==pmod3)){
     int i;
     for (i=0;i< 3; i++){
-      _VAbsRevMod.push_back(pmod1);
+      _VSubMod.push_back(pmod1);
       _VnestedPrefix.push_back(pmod1->getNamespace());
     }
   
@@ -95,19 +95,19 @@ TripletReversibleSubstitutionModel::TripletReversibleSubstitutionModel(const Cod
     addParameters_(pmod1->getParameters());
   }
   else {
-    _VAbsRevMod.push_back(pmod1);
+    _VSubMod.push_back(pmod1);
     _VnestedPrefix.push_back(pmod1->getNamespace());
-    _VAbsRevMod[0]->setNamespace(st+"0_"+_VnestedPrefix[0]);
+    _VSubMod[0]->setNamespace(st+"0_"+_VnestedPrefix[0]);
     addParameters_(pmod1->getParameters());
     
-    _VAbsRevMod.push_back(pmod2);
+    _VSubMod.push_back(pmod2);
     _VnestedPrefix.push_back(pmod2->getNamespace());
-    _VAbsRevMod[1]->setNamespace(st+"1_"+_VnestedPrefix[1]);
+    _VSubMod[1]->setNamespace(st+"1_"+_VnestedPrefix[1]);
     addParameters_(pmod2->getParameters());
     
-    _VAbsRevMod.push_back(pmod3);
+    _VSubMod.push_back(pmod3);
     _VnestedPrefix.push_back(pmod3->getNamespace());
-    _VAbsRevMod[2]->setNamespace(st+"2_"+_VnestedPrefix[2]);
+    _VSubMod[2]->setNamespace(st+"2_"+_VnestedPrefix[2]);
     addParameters_(pmod3->getParameters());
   }
 
@@ -127,8 +127,8 @@ TripletReversibleSubstitutionModel::TripletReversibleSubstitutionModel(const Cod
 string TripletReversibleSubstitutionModel::getName() const
 {
   string s = "TripletReversibleSubstitutionModel model:";
-  for (unsigned int i = 0; i < _VAbsRevMod.size(); i++)
-    s += " " + _VAbsRevMod[i]->getName();
+  for (unsigned int i = 0; i < _VSubMod.size(); i++)
+    s += " " + _VSubMod[i]->getName();
   
   return s;
 }

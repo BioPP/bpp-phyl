@@ -60,7 +60,7 @@ AbstractCodonFrequenciesReversibleSubstitutionModel::AbstractCodonFrequenciesRev
 
   string t="";
   for (i=0;i< 3; i++){
-    _VAbsRevMod.push_back(pmodel);
+    _VSubMod.push_back(pmodel);
     _VnestedPrefix.push_back(pmodel->getNamespace());
     _rate[i]=1.0/3;
     t+=TextTools::toString(i);

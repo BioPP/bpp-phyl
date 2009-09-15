@@ -73,8 +73,8 @@ CodonAsynonymousReversibleSubstitutionModel::CodonAsynonymousReversibleSubstitut
 string CodonAsynonymousReversibleSubstitutionModel::getName() const
 {
   string s = "CodonAsynonymousReversibleSubstitutionModel model:";
-  for (unsigned int i = 0; i < _VAbsRevMod.size(); i++)
-    s += " " + _VAbsRevMod[i]->getName();
+  for (unsigned int i = 0; i < _VSubMod.size(); i++)
+    s += " " + _VSubMod[i]->getName();
   
   return s;
 }
