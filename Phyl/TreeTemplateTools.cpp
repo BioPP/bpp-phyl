@@ -278,7 +278,7 @@ Node * TreeTemplateTools::parenthesisToNode(const string& description, bool boot
     {
       StringTokenizer st(name, "_", true, true);
       ostringstream realName;
-      for (int i = 0; i < st.numberOfRemainingTokens() - 1; i++)
+      for (int i = 0; i < (int)st.numberOfRemainingTokens() - 1; i++)
       {
         if (i != 0)
         {
@@ -342,7 +342,7 @@ TreeTemplate<Node> * TreeTemplateTools::parenthesisToTree(const string& descript
     {
       StringTokenizer st(elements[0], "_", true, true);
       ostringstream realName;
-      for (int i = 0 ; i < st.numberOfRemainingTokens() - 1; i++)
+      for (int i = 0 ; i < (int)st.numberOfRemainingTokens() - 1; i++)
       {
         if (i != 0)
         {
