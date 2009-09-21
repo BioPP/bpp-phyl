@@ -66,32 +66,34 @@ namespace bpp
 class FrequenciesSet:
   public virtual Parametrizable
 {
-  public:
+public:
 #ifndef NO_VIRTUAL_COV
-    FrequenciesSet * clone() const = 0;
+  FrequenciesSet * clone() const = 0;
 #endif
-  public:
-    /**
-     * @return The alphabet associated to this set.
-     */  
-    virtual const Alphabet * getAlphabet() const = 0;
-
-    /**
-     * @return The frequencies values of the set.
-     */ 
-    virtual const vector<double>& getFrequencies() const = 0;
-
-    /**
-     * @brief Set the parameters in order to match a given set of frequencies.
-     *
-     * @param frequencies The set of frequencies to match.
-     * @throw DimensionException If the number of frequencies does not match the size of the alphabet.
-     * @throw Exception If the frequencies do not sum to 1.
-     */
-    virtual void setFrequencies(const vector<double> & frequencies) throw (DimensionException, Exception) = 0;
-
+public:
+  /**
+   * @return The alphabet associated to this set.
+   */  
+  virtual const Alphabet * getAlphabet() const = 0;
+  
+  /**
+   * @return The frequencies values of the set.
+   */ 
+  virtual const vector<double>& getFrequencies() const = 0;
+  
+  /**
+   * @brief Set the parameters in order to match a given set of frequencies.
+   *
+   * @param frequencies The set of frequencies to match.
+   * @throw DimensionException If the number of frequencies does not match the size of the alphabet.
+   * @throw Exception If the frequencies do not sum to 1.
+   */
+  virtual void setFrequencies(const vector<double> & frequencies) throw (DimensionException, Exception) = 0;
+  
   virtual void setFrequenciesFromMap(map<int, double>&) = 0;
   virtual string getName() const = 0;
+
+  virtual void updateFrequencies() = 0;
   
 };
 
@@ -162,10 +164,25 @@ class AbstractFrequenciesSet:
 
   virtual void setFrequencies(const vector<double> & ) throw (DimensionException, Exception) {};
 
-  virtual string getName() const {return "Abstract Frequencies";}
+  void fireParameterChanged(const ParameterList & parameters)
+  {
+    updateFrequencies();
+  }
+
+  virtual string getName() const {return "Abstract";}
 
   int getSize() const { return freq_.size();}
-  
+
+//  bool matchParametersValues(const ParameterList& pl) throw(ConstraintException){
+//
+//    bool t=getParameters_().matchParametersValues(pl);
+//    if (t)
+//      fireParameterChanged(pl);
+//
+//    return t;
+//  }
+      
+
   protected:
     vector<double>& getFrequencies_() { return freq_; }
     double& getFreq_(unsigned int i) { return freq_[i]; }
@@ -201,10 +218,9 @@ class FullFrequenciesSet:
 
   public:
 
-  string getName() const {return "Full Frequencies";}
-  
-  void fireParameterChanged(const ParameterList &);
+  string getName() const {return "Full";}
 
+  void updateFrequencies(); 
   void setFrequencies(const vector<double> & ) throw (DimensionException, Exception);
   
 };
@@ -238,12 +254,12 @@ class GCFrequenciesSet:
 #endif
     clone() const { return new GCFrequenciesSet(*this); }
 
-  public:
-  void fireParameterChanged(const ParameterList &);
+public:
+  void updateFrequencies(); 
 
   void setFrequencies(const vector<double> &) throw (DimensionException, Exception);
 
-  string getName() const {return "GC Frequencies";}
+  string getName() const {return "GC";}
 };
 
 /**
@@ -256,7 +272,7 @@ class FullNAFrequenciesSet:
 
   FullNAFrequenciesSet(const NucleicAlphabet * alphabet);
   
-  FullNAFrequenciesSet(const NucleicAlphabet * alphabet, double theta, double theta1, double theta2);
+  FullNAFrequenciesSet(const NucleicAlphabet * alphabet, double theta, double theta_1, double theta_2);
 
 #ifndef NO_VIRTUAL_COV
     FullNAFrequenciesSet *
@@ -281,9 +297,9 @@ class FullNAFrequenciesSet:
       setFrequencies_(frequencies);
     }
 
-    void fireParameterChanged(const ParameterList & pl);
+  void updateFrequencies(); 
 
-  string getName() const {return "FullNA  Frequencies";}
+  string getName() const {return "FullNA";}
 };
 
 
@@ -310,9 +326,9 @@ class FullProteinFrequenciesSet:
   public:
     void setFrequencies(const vector<double> & frequencies) throw (DimensionException, Exception);
 
-    void fireParameterChanged(const ParameterList & pl);
+  void updateFrequencies(); 
 
-  string getName() const {return "FullProtein Frequencies";}
+  string getName() const {return "FullProtein";}
 
 };
 
@@ -326,63 +342,69 @@ class FullProteinFrequenciesSet:
 class MarkovModulatedFrequenciesSet:
   public AbstractFrequenciesSet
 {
-  protected:
-    FrequenciesSet * _freqSet;
-    vector<double> _rateFreqs;
-  public:
-    MarkovModulatedFrequenciesSet(const MarkovModulatedFrequenciesSet & mmfs):
-      AbstractFrequenciesSet(mmfs)
-    {
-      _freqSet = dynamic_cast<FrequenciesSet *>(mmfs._freqSet->clone());
-      _rateFreqs = mmfs._rateFreqs;
-    }
-    MarkovModulatedFrequenciesSet & operator=(const MarkovModulatedFrequenciesSet & mmfs)
-    {
-      AbstractFrequenciesSet::operator=(mmfs);
-      _freqSet = dynamic_cast<FrequenciesSet *>(mmfs._freqSet->clone());
-      _rateFreqs = mmfs._rateFreqs;
-      return *this;
-    }
-    MarkovModulatedFrequenciesSet(FrequenciesSet * freqSet, const vector<double> & rateFreqs):
-      AbstractFrequenciesSet(getAlphabet()->getSize() * rateFreqs.size(), freqSet->getAlphabet(), "MarkovModulated."), _freqSet(freqSet), _rateFreqs(rateFreqs)
-    {
-      _freqSet->setNamespace("MarkovModulated."+_freqSet->getNamespace());
-      addParameters_(_freqSet->getParameters());
-      setFrequencies_(VectorTools::kroneckerMult(rateFreqs, _freqSet->getFrequencies()));
-    }
+protected:
+  FrequenciesSet * _freqSet;
+  vector<double> _rateFreqs;
+public:
+  MarkovModulatedFrequenciesSet(const MarkovModulatedFrequenciesSet & mmfs):
+    AbstractFrequenciesSet(mmfs)
+  {
+    _freqSet = dynamic_cast<FrequenciesSet *>(mmfs._freqSet->clone());
+    _rateFreqs = mmfs._rateFreqs;
+  }
+  MarkovModulatedFrequenciesSet & operator=(const MarkovModulatedFrequenciesSet & mmfs)
+  {
+    AbstractFrequenciesSet::operator=(mmfs);
+    _freqSet = dynamic_cast<FrequenciesSet *>(mmfs._freqSet->clone());
+    _rateFreqs = mmfs._rateFreqs;
+    return *this;
+  }
+  MarkovModulatedFrequenciesSet(FrequenciesSet * freqSet, const vector<double> & rateFreqs):
+    AbstractFrequenciesSet(getAlphabet()->getSize() * rateFreqs.size(), freqSet->getAlphabet(), "MarkovModulated."), _freqSet(freqSet), _rateFreqs(rateFreqs)
+  {
+    _freqSet->setNamespace("MarkovModulated."+_freqSet->getNamespace());
+    addParameters_(_freqSet->getParameters());
+    setFrequencies_(VectorTools::kroneckerMult(rateFreqs, _freqSet->getFrequencies()));
+  }
   
 #ifndef NO_VIRTUAL_COV
-    MarkovModulatedFrequenciesSet *
+  MarkovModulatedFrequenciesSet *
 #else
-    Clonable *
+  Clonable *
 #endif
-    clone() const { return new MarkovModulatedFrequenciesSet(*this); }
-
-    virtual ~MarkovModulatedFrequenciesSet() { delete _freqSet; }
-
-  public:
+  clone() const { return new MarkovModulatedFrequenciesSet(*this); }
+  
+  virtual ~MarkovModulatedFrequenciesSet() { delete _freqSet; }
+  
+public:
   void setFrequencies(const vector<double> & frequencies) throw (DimensionException, Exception)
-    {
-      //Just forward this method to the sequence state frequencies set. This may change in the future...
-      _freqSet->setFrequencies(frequencies);
-    }
-
-    void fireParameterChanged(const ParameterList & pl)
-    {
-      _freqSet->matchParametersValues(pl);
-      setFrequencies_(VectorTools::kroneckerMult(_rateFreqs, _freqSet->getFrequencies()));
-    }
-
+  {
+    //Just forward this method to the sequence state frequencies set. This may change in the future...
+    _freqSet->setFrequencies(frequencies);
+  }
+  
+  void fireParameterChanged(const ParameterList & pl)
+  {
+    _freqSet->matchParametersValues(pl);
+    updateFrequencies();
+  }
+    
+  void updateFrequencies()
+  {
+    _freqSet->updateFrequencies();
+    setFrequencies_(VectorTools::kroneckerMult(_rateFreqs, _freqSet->getFrequencies()));
+  }
+  
   const FrequenciesSet* getStatesFrequenciesSet() const { return _freqSet; }
 
   void setNamespace(const string& prefix)
   {
     AbstractFrequenciesSet::setNamespace(prefix);
-
+    
     _freqSet->setNamespace(prefix + _freqSet->getNamespace());
   }
-
-  string getName() const {return "MarkovModulated " + _freqSet->getName();}
+  
+  string getName() const {return "MarkovModulated." + _freqSet->getName();}
 
 };
 
@@ -425,9 +447,9 @@ class FixedFrequenciesSet:
       setFrequencies_(frequencies);
     }
 
-   void fireParameterChanged(const ParameterList & pl) {}
+  void updateFrequencies() {};
 
-  string getName() const {return "Fixed Frequencies";}
+  string getName() const {return "Fixed";}
 
 };
 
@@ -443,7 +465,7 @@ class IndependentWordFrequenciesSet:
   public AbstractFrequenciesSet
 {
 private:
-  Vector<AbstractFrequenciesSet*> _VAbsFreq;
+  Vector<FrequenciesSet*> _VFreq;
   Vector<string> _VnestedPrefix;
   bool unique_AbsFreq;
   
@@ -451,9 +473,9 @@ private:
     AbstractFrequenciesSet.
    */
   
-  static Alphabet* extract_alph(const Vector<AbstractFrequenciesSet*>&);
+  static Alphabet* extract_alph(const Vector<FrequenciesSet*>&);
 
-  static unsigned int getSizeFromVector(const Vector<AbstractFrequenciesSet*>&);
+  static unsigned int getSizeFromVector(const Vector<FrequenciesSet*>&);
 
 public:
 
@@ -463,13 +485,13 @@ public:
    *  vector, as many time as the length of the vector
    */
   
-  IndependentWordFrequenciesSet(const Vector<AbstractFrequenciesSet*>&);
+  IndependentWordFrequenciesSet(const Vector<FrequenciesSet*>&);
   
   /* @brief Constructor from an AbstractFrequenciesSet* repeated num
    *  times.
    */
 
-  IndependentWordFrequenciesSet(AbstractFrequenciesSet *pabsfreq, int num);
+  IndependentWordFrequenciesSet(FrequenciesSet *pabsfreq, int num);
 
   IndependentWordFrequenciesSet(const IndependentWordFrequenciesSet&);
 
@@ -487,11 +509,12 @@ public:
    *@ brief Return the n-th AbstractFrequenciesSet* 
    **/
   
-  AbstractFrequenciesSet* getNFrequencies(int n){ return _VAbsFreq[n];}
+  FrequenciesSet* getNFrequencies(int n){ return _VFreq[n];}
   
 public:
 
   void fireParameterChanged(const ParameterList & pl);
+  void updateFrequencies(); 
 
   /**
    *@ brief Independent letter frequencies from given word frequencies.
