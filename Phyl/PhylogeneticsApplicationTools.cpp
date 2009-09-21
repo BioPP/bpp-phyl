@@ -331,7 +331,7 @@ SubstitutionModel* PhylogeneticsApplicationTools::getSubstitutionModelDefaultIns
 
     map<string, string> unparsedParameterValuesNested;
 
-    AbstractFrequenciesSet *pAFS = getFrequenciesSetDefaultInstance(pCA, args["frequencies"],unparsedParameterValuesNested,0);
+    FrequenciesSet *pFS = getFrequenciesSetDefaultInstance(pCA, args["frequencies"],unparsedParameterValuesNested,0);
     
     for (map<string, string>::iterator it = unparsedParameterValuesNested.begin(); it != unparsedParameterValuesNested.end(); it++)
       unparsedParameterValues[modelName+"." + it->first] = it->second;
@@ -343,7 +343,7 @@ SubstitutionModel* PhylogeneticsApplicationTools::getSubstitutionModelDefaultIns
     if (modelName == "CodonNeutralFrequencies")
     {
       
-      model= new CodonNeutralFrequenciesReversibleSubstitutionModel(pCA, pAFS);
+      model= new CodonNeutralFrequenciesReversibleSubstitutionModel(pCA, pFS);
       
       for (i=0;i<3;i++)
         if (args.find("relrate"+TextTools::toString(i)) == args.end())
@@ -382,7 +382,7 @@ SubstitutionModel* PhylogeneticsApplicationTools::getSubstitutionModelDefaultIns
         if (args.find("alpha") != args.end())
           unparsedParameterValues["CodonAsynonymousFrequencies.alpha"] = args["alpha"];
       
-      model = new CodonAsynonymousFrequenciesReversibleSubstitutionModel(pgc,pAFS,pai2);
+      model = new CodonAsynonymousFrequenciesReversibleSubstitutionModel(pgc,pFS,pai2);
     }
   }
 
@@ -703,6 +703,12 @@ SubstitutionModel* PhylogeneticsApplicationTools::getSubstitutionModelDefaultIns
         throw Exception("Model '" + modelName + "' unknown.");
       }
     }
+    else if (modelName == "BinarySubstitutionModel")
+      {
+        model = new BinarySubstitutionModel(dynamic_cast<const BinaryAlphabet*>(alphabet));
+        if (args.find("kappa") != args.end())
+          unparsedParameterValues["BinarySubstitutionModel.kappa"] = args["kappa"];
+      }
     else
     { 
       const ProteicAlphabet * alpha = dynamic_cast<const ProteicAlphabet *>(alphabet);
@@ -842,7 +848,7 @@ void PhylogeneticsApplicationTools::setSubstitutionModelParametersInitialValues(
     vector<string> & sharedParams,
     bool verbose) throw (Exception)
 {
-  bool useObsFreq = ApplicationTools::getBooleanParameter(model->getNamespace() + "useObservedFreqs", unparsedParameterValues, false);
+  bool useObsFreq = ApplicationTools::getBooleanParameter(model->getNamespace() + "useObservedFreqs", unparsedParameterValues, false, "" ,"" , false);
   if (verbose) ApplicationTools::displayResult("Use observed frequencies", useObsFreq ? "yes" : "no");
   if (useObsFreq && data != 0) 
   {
@@ -851,42 +857,41 @@ void PhylogeneticsApplicationTools::setSubstitutionModelParametersInitialValues(
   }
 
   ParameterList pl = model->getIndependentParameters();
- 	for (unsigned int i = 0; i < pl.size(); i++)
-  {
-		AutoParameter ap(pl[i]);
-		ap.setMessageHandler(ApplicationTools::warning);
-		pl.setParameter(i, ap);
-	}
-  for (unsigned int i = 0; i < pl.size(); i++)
-  {
+  for (unsigned int i = 0; i < pl.size(); i++){
+    AutoParameter ap(pl[i]);
+    ap.setMessageHandler(ApplicationTools::warning);
+    pl.setParameter(i, ap);
+  }
+  
+  for (unsigned int i = 0; i < pl.size(); i++){
     const string pName = pl[i].getName();
     string value;
     if (!useObsFreq || (model->getParameterNameWithoutNamespace(pName).substr(0,5) != "theta"))
     {
       value = ApplicationTools::getStringParameter(pName, unparsedParameterValues, TextTools::toString(pl[i].getValue()));
       if (value.size() > 5 && value.substr(0, 5) == "model")
-      {
-        if (existingParams.find(value) != existingParams.end())
         {
-          pl[i].setValue(existingParams[value]);
-          sharedParams.push_back(value);
+          if (existingParams.find(value) != existingParams.end())
+            {
+              pl[i].setValue(existingParams[value]);
+              sharedParams.push_back(value);
+            }
+          else
+            throw Exception("Error, unknown parameter" + modelPrefix + pName);
         }
-        else
-          throw Exception("Error, unknown parameter" + modelPrefix + pName);
-      }
       else
-      {
-        double value2 = TextTools::toDouble(value);
-        existingParams[modelPrefix + pName] = value2;
-        specificParams.push_back(pName);
-        pl[i].setValue(value2);
-      }
+        {
+          double value2 = TextTools::toDouble(value);
+          existingParams[modelPrefix + pName] = value2;
+          specificParams.push_back(pName);
+          pl[i].setValue(value2);
+        }
     }
     else
-    {
+      {
       existingParams[modelPrefix + pName] = pl[i].getValue();
       specificParams.push_back(pName);
-    }
+      }
     if (verbose)
       ApplicationTools::displayResult("Parameter found", modelPrefix + pName + "=" + TextTools::toString(pl[i].getValue()));
   }
@@ -895,203 +900,153 @@ void PhylogeneticsApplicationTools::setSubstitutionModelParametersInitialValues(
 
 /******************************************************************************/
  
-FrequenciesSet* PhylogeneticsApplicationTools::getFrequenciesSet(
-                                                                  const Alphabet * alphabet,
-                                                                  const SiteContainer * data,
-                                                                  map<string, string> & params,
-                                                                  const vector<double> & rateFreqs,
-                                                                  const string & suffix,
-                                                                  bool suffixIsOptional,
-                                                                  bool verbose) throw (Exception)
-{
-  FrequenciesSet * rootFrequencies = 0;
-  string freqDescription = ApplicationTools::getStringParameter("nonhomogeneous.root_freq", params, "Observed", suffix, suffixIsOptional);
+FrequenciesSet* PhylogeneticsApplicationTools::getRootFrequenciesSet(
+                                                                     const Alphabet * alphabet,
+                                                                     const SiteContainer * data,
+                                                                     map<string, string> & params,
+                                                                     const vector<double> & rateFreqs,
+                                                                     const string & suffix,
+                                                                     bool suffixIsOptional,
+                                                                     bool verbose) throw (Exception)
+{ 
+
+  string freqDescription = ApplicationTools::getStringParameter("RootFreq", params, "Fixed", suffix, suffixIsOptional);
   string freqName;
   map<string, string> args;
   KeyvalTools::parseProcedure(freqDescription, freqName, args);
-  if(verbose) ApplicationTools::displayResult("Ancestral frequences method", freqName);
-  if(freqName == "Observed" && data)
-    {
-      map<int, double> freqs;
-      SequenceContainerTools::getFrequencies(*data, freqs);
-      double t = 0;
-      vector<double> rootFreq(alphabet->getSize());
-      for(unsigned int i = 0; i < alphabet->getSize(); i++) t += freqs[i];
-      for(unsigned int i = 0; i < alphabet->getSize(); i++) rootFreq[i] = freqs[i] / t;
-      if(AlphabetTools::isNucleicAlphabet(alphabet))
-        {
-          double theta  = (rootFreq[1] + rootFreq[2]) / (rootFreq[0] + rootFreq[1] + rootFreq[2] + rootFreq[3]);
-          double theta1 = rootFreq[0] / (rootFreq[0] + rootFreq[3]);
-          double theta2 = rootFreq[2] / (rootFreq[1] + rootFreq[2]);
-          rootFrequencies = new FullNAFrequenciesSet(dynamic_cast<const NucleicAlphabet *>(alphabet), theta, theta1, theta2);
-        }
-      else if(AlphabetTools::isProteicAlphabet(alphabet))
-        rootFrequencies = new FullProteinFrequenciesSet(dynamic_cast<const ProteicAlphabet *>(alphabet), rootFreq);
-      else
-        rootFrequencies = new FullFrequenciesSet(alphabet, rootFreq);
-    }
-  else if(freqName == "Balanced")
-    {
-      if(AlphabetTools::isNucleicAlphabet(alphabet))
-        rootFrequencies = new FullNAFrequenciesSet(dynamic_cast<const NucleicAlphabet*>(alphabet));
-      else if(AlphabetTools::isProteicAlphabet(alphabet))
-        rootFrequencies = new FullProteinFrequenciesSet(dynamic_cast<const ProteicAlphabet*>(alphabet));
-      else
-        rootFrequencies = new FullFrequenciesSet(alphabet);
-    }
-  else if(freqName == "Init")
-    {
-      vector<double> rootFreq(alphabet->getSize());
-      if(AlphabetTools::isNucleicAlphabet(alphabet))
-        {
-          rootFreq[ 0] = ApplicationTools::getDoubleParameter("ancA", args, 0.25);
-          rootFreq[ 1] = ApplicationTools::getDoubleParameter("ancC", args, 0.25);
-          rootFreq[ 2] = ApplicationTools::getDoubleParameter("ancG", args, 0.25);
-          rootFreq[ 3] = ApplicationTools::getDoubleParameter("ancT", args, 0.25);
-          double theta  = (rootFreq[1] + rootFreq[2]) / (rootFreq[0] + rootFreq[1] + rootFreq[2] + rootFreq[3]);
-          double theta1 = rootFreq[0] / (rootFreq[0] + rootFreq[3]);
-          double theta2 = rootFreq[2] / (rootFreq[1] + rootFreq[2]);
-          rootFrequencies = new FullNAFrequenciesSet(dynamic_cast<const NucleicAlphabet *>(alphabet), theta, theta1, theta2);
-        }
-      else if(AlphabetTools::isProteicAlphabet(alphabet))
-        {
-          rootFreq[ 0] = ApplicationTools::getDoubleParameter("ancA", args, 0.05);
-          rootFreq[ 1] = ApplicationTools::getDoubleParameter("ancR", args, 0.05);
-          rootFreq[ 2] = ApplicationTools::getDoubleParameter("ancN", args, 0.05);
-          rootFreq[ 3] = ApplicationTools::getDoubleParameter("ancD", args, 0.05);
-          rootFreq[ 4] = ApplicationTools::getDoubleParameter("ancC", args, 0.05);
-          rootFreq[ 5] = ApplicationTools::getDoubleParameter("ancQ", args, 0.05);
-          rootFreq[ 6] = ApplicationTools::getDoubleParameter("ancE", args, 0.05);
-          rootFreq[ 7] = ApplicationTools::getDoubleParameter("ancG", args, 0.05);
-          rootFreq[ 8] = ApplicationTools::getDoubleParameter("ancH", args, 0.05);
-          rootFreq[ 9] = ApplicationTools::getDoubleParameter("ancI", args, 0.05);
-          rootFreq[10] = ApplicationTools::getDoubleParameter("ancL", args, 0.05);
-          rootFreq[11] = ApplicationTools::getDoubleParameter("ancK", args, 0.05);
-          rootFreq[12] = ApplicationTools::getDoubleParameter("ancM", args, 0.05);
-          rootFreq[13] = ApplicationTools::getDoubleParameter("ancF", args, 0.05);
-          rootFreq[14] = ApplicationTools::getDoubleParameter("ancP", args, 0.05);
-          rootFreq[15] = ApplicationTools::getDoubleParameter("ancS", args, 0.05);
-          rootFreq[16] = ApplicationTools::getDoubleParameter("ancT", args, 0.05);
-          rootFreq[17] = ApplicationTools::getDoubleParameter("ancW", args, 0.05);
-          rootFreq[18] = ApplicationTools::getDoubleParameter("ancY", args, 0.05);
-          rootFreq[19] = ApplicationTools::getDoubleParameter("ancV", args, 0.05);
-          rootFrequencies = new FullProteinFrequenciesSet(dynamic_cast<const ProteicAlphabet *>(alphabet), rootFreq);
-        }
-      else throw Exception("Init root frequencies is only available with Nucleic and Proteic alphabet.");
-    }
-  else if(freqName == "ObservedGC" && data)
-    {
-      if (!AlphabetTools::isNucleicAlphabet(alphabet)) throw Exception("Error, unvalid option " + freqName + " with non-nucleic alphabet.");
-      map<int, double> freqs;
-      SequenceContainerTools::getFrequencies(*data, freqs);
-      double theta  = (freqs[1] + freqs[2]) / (freqs[0] + freqs[1] + freqs[2] + freqs[3]);
-      if(verbose) ApplicationTools::displayResult("Ancestral theta", TextTools::toString(theta));
-      rootFrequencies = new GCFrequenciesSet(dynamic_cast<const NucleicAlphabet *>(alphabet), theta);
-    }
-  else if(freqName == "BalancedGC")
-    {
-      if(!AlphabetTools::isNucleicAlphabet(alphabet)) throw Exception("Error, unvalid option " + freqName + " with non-nucleic alphabet.");
-      rootFrequencies = new GCFrequenciesSet(dynamic_cast<const NucleicAlphabet *>(alphabet));
-    }
-  else if(freqName == "InitGC")
-    {
-      if(!AlphabetTools::isNucleicAlphabet(alphabet)) throw Exception("Error, unvalid option " + freqName + " with non-nucleic alphabet.");
-      double theta = ApplicationTools::getDoubleParameter("ancTheta", args, 0.5);
-      rootFrequencies = new GCFrequenciesSet(dynamic_cast<const NucleicAlphabet *>(alphabet), theta);
-    }
-  else throw Exception("Unvalid method for root frequencies: " + freqName);
+  if(verbose)
+    ApplicationTools::displayResult("Root frequencies ", freqName);
+
+  map<string, string> unparsedParameterValues;
+  FrequenciesSet *pFS = getFrequenciesSetDefaultInstance(alphabet, freqDescription , unparsedParameterValues, 0);
+
+  if (args.find("init")==args.end()){  
+    ParameterList pl = pFS->getParameters();
     
-  if(rateFreqs.size() > 0)
-    {
-      rootFrequencies = new MarkovModulatedFrequenciesSet(rootFrequencies, rateFreqs);
+    for (unsigned int i = 0; i < pl.size(); i++) {
+      AutoParameter ap(pl[i]);
+      ap.setMessageHandler(ApplicationTools::warning);
+      pl.setParameter(i, ap);
     }
-  rootFrequencies->setNamespace("RootFreq.");
-  return rootFrequencies;
+    
+    for (unsigned int i = 0; i < pl.size(); i++) {
+      const string pName = pl[i].getName();
+      double value = ApplicationTools::getDoubleParameter(pName, unparsedParameterValues, pl[i].getValue()); 
+      pl[i].setValue(value);
+      if (verbose)
+        ApplicationTools::displayResult("Parameter found", pName + "=" + TextTools::toString(pl[i].getValue()));
+    }
+
+    pFS->matchParametersValues(pl);
+  }
+  else {
+    string init=args["init"];
+    if (init=="observed"){
+      if (! data)
+        throw Exception("Missing data for observed root frequencies");
+      map<int, double> freqs;
+      SequenceContainerTools::getFrequencies(*data, freqs);
+      pFS->setFrequenciesFromMap(freqs);
+    }
+    else
+      throw Exception("Unknown init argument");
+  }
+
+
+  ///////// To be changed for input normalization
+  if (rateFreqs.size() > 0)
+    {
+      pFS = new MarkovModulatedFrequenciesSet(pFS, rateFreqs);
+    }
+    
+  pFS->updateFrequencies();
+  return pFS;
 }
 
 /******************************************************************************/
  
-AbstractFrequenciesSet* PhylogeneticsApplicationTools::getFrequenciesSetDefaultInstance(
-                                                                                         const Alphabet * alphabet,
-                                                                                         const string& freqDescription,
-                                                                                         map<string, string> & unparsedParameterValues,
-                                                                                         bool verbose) throw (Exception)
+
+FrequenciesSet* PhylogeneticsApplicationTools::getFrequenciesSetDefaultInstance(
+                                                                                const Alphabet * alphabet,
+                                                                                const string& freqDescription,
+                                                                                map<string, string> & unparsedParameterValues,
+                                                                                bool verbose) throw (Exception)
 {
   string freqName;
   map<string, string> args;
   KeyvalTools::parseProcedure(freqDescription, freqName, args);
-  AbstractFrequenciesSet* pAFS;
+  FrequenciesSet* pFS;
   unsigned int i;
 
+  vector<double> ratefreq;
+  if (args.find("rateFreq")!=args.end()){
+    string rf=args["rateFreq"];
+    StringTokenizer strtok(rf.substr(1,rf.length()-2),",");
+    while (strtok.hasMoreToken())
+      ratefreq.push_back(TextTools::toDouble(strtok.nextToken()));
+  }
+  
   if(freqName == "Full")
   {
     if (args.find("rateFreq") != args.end())
-    {
-      string rf=args["rateFreq"];
-      StringTokenizer strtok(rf.substr(1,rf.length()-2),",");
-      vector<double> ratefreq;
-      while (strtok.hasMoreToken())
-        ratefreq.push_back(TextTools::toDouble(strtok.nextToken()));
-      pAFS = new FullFrequenciesSet(alphabet,ratefreq);
-    }
+      pFS = new FullFrequenciesSet(alphabet,ratefreq);
     else
-      pAFS = new FullFrequenciesSet(alphabet);
-    for (i = 0; i < alphabet->getSize(); i++)
-    {
-      if (args.find(alphabet->intToChar(i)) != args.end())
-        unparsedParameterValues["Full." + alphabet->intToChar(i)] = args[alphabet->intToChar(i)];
+      pFS = new FullFrequenciesSet(alphabet);
+    for (i = 0; i < alphabet->getSize()-1; i++){
+      if (args.find("theta_"+alphabet->intToChar(i)) != args.end())
+        unparsedParameterValues["Full.theta_" + alphabet->intToChar(i)] = args["theta_"+alphabet->intToChar(i)];
     }
   }
+
   else if (freqName == "Fixed")
   {
-    if (args.find("rateFreq")!=args.end()){
-      string rf=args["rateFreq"];
-      StringTokenizer strtok(rf.substr(1,rf.length()-2),",");
-      vector<double> ratefreq;
-      while (strtok.hasMoreToken())
-        ratefreq.push_back(TextTools::toDouble(strtok.nextToken()));
-      pAFS=new FixedFrequenciesSet(alphabet,ratefreq);
-    }
+    if (args.find("rateFreq")!=args.end())
+      pFS=new FixedFrequenciesSet(alphabet,ratefreq);
     else
-      pAFS=new FixedFrequenciesSet(alphabet);
+      pFS=new FixedFrequenciesSet(alphabet);
   }
+
   else if (freqName == "GC")
   {
     if (!AlphabetTools::isNucleicAlphabet(alphabet))
       throw Exception("Error, unvalid frequencies " + freqName + " with non-nucleic alphabet.");
-    pAFS=new GCFrequenciesSet(dynamic_cast<const NucleicAlphabet*>(alphabet));
-    if (args.find("theta") != args.end())
-      unparsedParameterValues["GC.theta"] = args["theta"];
+    pFS=new GCFrequenciesSet(dynamic_cast<const NucleicAlphabet*>(alphabet));
+    if (args.find("rateFreq") != args.end())
+      pFS->setFrequencies(ratefreq);
+    else
+      if (args.find("theta") != args.end())
+        unparsedParameterValues["GC.theta"] = args["theta"];
   }
+
   else if (freqName == "FullNA")
   {
     if (!AlphabetTools::isNucleicAlphabet(alphabet))
       throw Exception("Error, unvalid frequencies " + freqName + " with non-nucleic alphabet.");
-    pAFS = new FullNAFrequenciesSet(dynamic_cast<const NucleicAlphabet*>(alphabet));
-    if (args.find("theta") != args.end())
-      unparsedParameterValues["FullNA.theta"] = args["theta"];
-    if (args.find("theta1") != args.end())
-      unparsedParameterValues["FullNA.theta1"] = args["theta1"];
-    if (args.find("theta2") != args.end())
-      unparsedParameterValues["FullNA.theta2"] = args["theta2"];
+    pFS = new FullNAFrequenciesSet(dynamic_cast<const NucleicAlphabet*>(alphabet));
+    if (args.find("rateFreq") != args.end())
+      pFS->setFrequencies(ratefreq);
+    else {
+      if (args.find("theta") != args.end())
+        unparsedParameterValues["FullNA.theta"] = args["theta"];
+      if (args.find("theta_1") != args.end())
+        unparsedParameterValues["FullNA.theta_1"] = args["theta_1"];
+      if (args.find("theta_2") != args.end())
+        unparsedParameterValues["FullNA.theta_2"] = args["theta_2"];
+    }
   }
+
   else if (freqName == "FullProtein")
   {
     if (!AlphabetTools::isProteicAlphabet(alphabet))
       throw Exception("Error, unvalid frequencies " + freqName + " with non-proteic alphabet.");
-    if (args.find("rateFreq")!=args.end()){
-      string rf=args["rateFreq"];
-      StringTokenizer strtok(rf.substr(1,rf.length()-2),",");
-      vector<double> ratefreq;
-      while (strtok.hasMoreToken())
-        ratefreq.push_back(TextTools::toDouble(strtok.nextToken()));
-      pAFS=new FullProteinFrequenciesSet(dynamic_cast<const ProteicAlphabet*>(alphabet),ratefreq);
-    }
-    else
-      pAFS=new FullProteinFrequenciesSet(dynamic_cast<const ProteicAlphabet*>(alphabet));
-    for (i=1;i<20;i++){
-      if (args.find("theta"+TextTools::toString(i)) != args.end())
-        unparsedParameterValues["FullProtein.theta"+TextTools::toString(i)] = args["theta"+TextTools::toString(i)];
+    if (args.find("rateFreq") != args.end())
+      pFS=new FullProteinFrequenciesSet(dynamic_cast<const ProteicAlphabet*>(alphabet),ratefreq);
+    else {
+      pFS=new FullProteinFrequenciesSet(dynamic_cast<const ProteicAlphabet*>(alphabet));
+      for (i=1;i<20;i++){
+        if (args.find("theta_"+TextTools::toString(i)) != args.end())
+          unparsedParameterValues["FullProtein.theta_"+TextTools::toString(i)] = args["theta_"+TextTools::toString(i)];
+      }
     }
   }
 
@@ -1104,19 +1059,13 @@ AbstractFrequenciesSet* PhylogeneticsApplicationTools::getFrequenciesSetDefaultI
     if (args.find("rateFreq")==args.end())
       throw Exception("PhylogeneticsApplicationTools::getFrequenciesSetDefaultInstance. Missing argument 'rateFreq' for frequencies set 'MarkovModulated'.");
 
-    string rf=args["rateFreq"];
-    StringTokenizer strtok(rf.substr(1,rf.length()-2),",");
-    vector<double> ratefreq;
-    while (strtok.hasMoreToken())
-      ratefreq.push_back(TextTools::toDouble(strtok.nextToken()));
-    
     string stnestedFreq=args["frequencies"];
     map<string, string> unparsedParameterValuesNested;
-    AbstractFrequenciesSet* nestedFreq=getFrequenciesSetDefaultInstance(alphabet,stnestedFreq,unparsedParameterValuesNested,false);
+    FrequenciesSet* nestedFreq=getFrequenciesSetDefaultInstance(alphabet,stnestedFreq,unparsedParameterValuesNested,false);
     
     for(map<string, string>::iterator it = unparsedParameterValuesNested.begin(); it != unparsedParameterValuesNested.end(); it++)
       unparsedParameterValues["MarkovModulated." + it->first] = it->second;
-    pAFS=new MarkovModulatedFrequenciesSet(nestedFreq, ratefreq);
+    pFS=new MarkovModulatedFrequenciesSet(nestedFreq, ratefreq);
     
   }
 
@@ -1133,25 +1082,25 @@ AbstractFrequenciesSet* PhylogeneticsApplicationTools::getFrequenciesSetDefaultI
       string sAFS=args["frequencies"];
       
       unsigned int i,nbfreq=pWA->getLength();
-      AbstractFrequenciesSet* pAFS2;
+      FrequenciesSet* pFS2;
       string st="";
       for (i=0;i< nbfreq; i++)
         st+=TextTools::toString(i);
     
       map<string, string> unparsedParameterValuesNested;
       unparsedParameterValuesNested.clear();
-      pAFS2=getFrequenciesSetDefaultInstance(pWA->getNAlphabet(0), sAFS, unparsedParameterValuesNested, false);
+      pFS2=getFrequenciesSetDefaultInstance(pWA->getNAlphabet(0), sAFS, unparsedParameterValuesNested, false);
       for (map<string, string>::iterator it = unparsedParameterValuesNested.begin(); it != unparsedParameterValuesNested.end(); it++){
-        unparsedParameterValues["IndFreq."+st+ "_" + it->first] = it->second;
+        unparsedParameterValues["IndWord."+st+ "_" + it->first] = it->second;
       }
-      pAFS=new IndependentWordFrequenciesSet(pAFS2,nbfreq);
+      pFS=new IndependentWordFrequenciesSet(pFS2,nbfreq);
     }
     
     else {
       if (args.find("frequencies0")==args.end())
         throw Exception("PhylogeneticsApplicationTools::getFrequenciesSetDefaultInstance. Missing argument 'frequencies' or 'frequencies0' for frequencies set 'IndependentWord'.");
       Vector<string> v_sAFS;
-      Vector<AbstractFrequenciesSet*> v_AFS;
+      Vector<FrequenciesSet*> v_AFS;
       unsigned int i,nbfreq=0;
       
       while (args.find("frequencies"+TextTools::toString(nbfreq))!=args.end()){
@@ -1164,19 +1113,19 @@ AbstractFrequenciesSet* PhylogeneticsApplicationTools::getFrequenciesSetDefaultI
       map<string, string> unparsedParameterValuesNested;
       for (i=0;i< v_sAFS.size();i++){
         unparsedParameterValuesNested.clear();
-        pAFS=getFrequenciesSetDefaultInstance(pWA->getNAlphabet(i), v_sAFS[i], unparsedParameterValuesNested, false);
+        pFS=getFrequenciesSetDefaultInstance(pWA->getNAlphabet(i), v_sAFS[i], unparsedParameterValuesNested, false);
         for (map<string, string>::iterator it = unparsedParameterValuesNested.begin(); it != unparsedParameterValuesNested.end(); it++){
-          unparsedParameterValues["IndFreq."+TextTools::toString(i)+"_" + it->first] = it->second;
+          unparsedParameterValues["IndWord."+TextTools::toString(i)+"_" + it->first] = it->second;
         }
-        v_AFS.push_back(pAFS);
+        v_AFS.push_back(pFS);
       }
       
-      pAFS=new IndependentWordFrequenciesSet(v_AFS);
+      pFS=new IndependentWordFrequenciesSet(v_AFS);
     }
 
   }
   
-  return pAFS;
+  return pFS;
 }
 
 
@@ -1195,13 +1144,17 @@ SubstitutionModelSet* PhylogeneticsApplicationTools::getSubstitutionModelSet(
   unsigned int nbModels = ApplicationTools::getParameter<unsigned int>("nonhomogeneous.number_of_models", params, 1, suffix, suffixIsOptional, false);
   if (nbModels == 0)
     throw Exception("The number of models can't be 0 !");
+
   if (verbose) ApplicationTools::displayResult("Number of distinct models", TextTools::toString(nbModels));
+
+
+  /////////////////////////////////////////////
+  //Build a new model set object:
   
-  //Deal with root frequencies, and build a new model set object:
   vector<double> rateFreqs;
   string tmpDesc = ApplicationTools::getStringParameter("model1", params, "JC69()", suffix, suffixIsOptional, verbose);
   map<string, string> unparsedParameterValues;
-  SubstitutionModel* tmp = getSubstitutionModelDefaultInstance(alphabet, tmpDesc, unparsedParameterValues, true, true, verbose);
+  SubstitutionModel* tmp = getSubstitutionModelDefaultInstance(alphabet, tmpDesc, unparsedParameterValues, true, true, 0);
   if (tmp->getNumberOfStates() != alphabet->getSize())
   {
     //Markov-Modulated Markov Model...
@@ -1209,13 +1162,21 @@ SubstitutionModelSet* PhylogeneticsApplicationTools::getSubstitutionModelSet(
     rateFreqs = vector<double>(n, 1./(double)n); // Equal rates assumed for now, may be changed later (actually, in the most general case,
   }
   delete tmp;
-  
-  FrequenciesSet* rootFrequencies = getFrequenciesSet(alphabet, data, params, rateFreqs, suffix, suffixIsOptional, verbose);
+
+
+  //////////////////////////////////////
+  // Deal with root frequencies
+
+  FrequenciesSet* rootFrequencies = getRootFrequenciesSet(alphabet, data, params, rateFreqs, suffix, suffixIsOptional, verbose);
 
   SubstitutionModelSet* modelSet = new SubstitutionModelSet(alphabet, rootFrequencies);
-  
+
+
+  ////////////////////////////////////////
   // Now parse all models:
+  
   map<string, double> existingParameters;
+
   for (unsigned int i = 0; i < nbModels; i++)
   {
     string prefix = "model" + TextTools::toString(i+1);
@@ -1925,6 +1886,22 @@ void PhylogeneticsApplicationTools::describeSubstitutionModel_(const Substitutio
 
 /******************************************************************************/
 
+
+void PhylogeneticsApplicationTools::describeFrequenciesSet_(const FrequenciesSet* pfreqset, ostream& out)
+{
+  out << pfreqset->getName() << "(";
+  ParameterList pl = pfreqset->getParameters();
+  for (unsigned int i = 0; i < pl.size(); i++)
+    {
+      if (i > 0) out << ", ";
+      string pname = pfreqset->getParameterNameWithoutNamespace(pl[i].getName());    
+      out << pname << "=" << fixed << setprecision(12) << pl[i].getValue();
+    }
+  out << ")";
+}
+
+/******************************************************************************/
+
 void PhylogeneticsApplicationTools::printParameters(const SubstitutionModel* model, ostream& out)
 {
   out << "model = ";
@@ -1994,31 +1971,8 @@ void PhylogeneticsApplicationTools::printParameters(const SubstitutionModelSet* 
   //Root frequencies:
   out << endl;
   out << "# Root frequencies:" << endl;
-  if (plroot.size() == 1 && plroot[0].getName() == "RootFreqtheta")
-  {
-    out << "nonhomogeneous.root_freq = InitGC(ancTheta=" << plroot[0].getValue() << ")" << endl;
-  }
-  else
-  {
-    out << "nonhomogeneous.root_freq = Init(";
-    vector<double> rootFreqs;
-    try
-    {
-      const MarkovModulatedFrequenciesSet* mmFreqSet = dynamic_cast<const MarkovModulatedFrequenciesSet *>(modelSet->getRootFrequenciesSet());
-      if (!mmFreqSet) throw Exception("");
-      rootFreqs = mmFreqSet->getStatesFrequenciesSet()->getFrequencies();
-    }
-    catch(exception& e)
-    {
-      rootFreqs = modelSet->getRootFrequencies();
-    }
-    for (unsigned int i = 0; i < rootFreqs.size(); i++)
-    {
-      if (i > 0) out << ", ";
-      out << "anc" << modelSet->getAlphabet()->intToChar((int)i) << "=" << rootFreqs[i];
-    }
-    out << ")" << endl;
-  }
+  out << "RootFreq = ";
+  describeFrequenciesSet_(modelSet->getRootFrequenciesSet(), out);
 }
 
 /******************************************************************************/

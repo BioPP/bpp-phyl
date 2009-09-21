@@ -263,7 +263,7 @@ class PhylogeneticsApplicationTools
      * @return A new FrequenciesSet object according to options specified.
      * @throw Exception if an error occured.
      */
-    static FrequenciesSet * getFrequenciesSet(
+    static FrequenciesSet * getRootFrequenciesSet(
       const Alphabet * alphabet,
       const SiteContainer * data, 
       map<string, string> & params,
@@ -292,11 +292,11 @@ class PhylogeneticsApplicationTools
    * @throw Exception if an error occured.
    */
 
-  static AbstractFrequenciesSet * getFrequenciesSetDefaultInstance(
-                                                                   const Alphabet * alphabet,
-                                                                   const string& freqDescription,
-                                                                   map<string, string> & unparsedParameterValues,
-                                                                   bool verbose) throw (Exception);
+  static FrequenciesSet * getFrequenciesSetDefaultInstance(
+                                                           const Alphabet * alphabet,
+                                                           const string& freqDescription,
+                                                           map<string, string> & unparsedParameterValues,
+                                                           bool verbose) throw (Exception);
     
 
   /**
@@ -308,8 +308,7 @@ class PhylogeneticsApplicationTools
      * - number_of_models: the number of distinct SubstitutionModel to use.
      *
      * Then, for each of the models, the following information must be provided:
-     * - model1='model name'
-     * - model1.'parameters'='value'
+     * - model1='model name(parameters'='value',...)
      * Model names and parameters follow the same syntaxe as for the getSubstitutionModel method.
      * - model1.nodes='list of nodes id, separated by comas'.
      * And then
@@ -322,30 +321,20 @@ class PhylogeneticsApplicationTools
      * Finally, this is also allowed for models to share one or several parameters.
      * for instance:
      * @code
-     * model1=T92
-     * model1.kappa=2.0
-     * model1.theta=0.5
-     * model2=T92
-     * model2.kappa=model1.kappa
-     * model2.theta=0.5
+     * model1=T92(kappa=2.0, theta=0.5)
+     * model2=T92(kappa=model1.kappa, theta=0.5)
      * @endcode
      * In this case model1 and model2 with have their own and independent theta parameter, but only one kappa parameter will be used for both models.
      * Note that
      * @code
-     * model1=T92
-     * model1.kappa=2.0
-     * model1.theta=0.5
+     * model1=T92(kappa=2.0, theta=0.5)
      * model1.nodes=1,2,3
-     * model2=T92
-     * model2.kappa=model1.kappa
-     * model2.theta=model1.theta
+     * model2=T92(kappa= model1.kappa, theta=model1.theta)
      * model2.nodes=4,5,6
      * @endcode
      * is equivalent to
      * @code
-     * model1=T92
-     * model1.kappa=2.0
-     * model1.theta=0.5
+     * model1=T92(kappa=2.0, theta=0.5)
      * model1.nodes=1,2,3,4,5,6
      * @endcode
      * but will require more memory and use more CPU, since some calculations will be performed twice.
@@ -614,6 +603,7 @@ class PhylogeneticsApplicationTools
   private:
     static void describeParameters_(const ParameterAliasable* parametrizable, ostream& out, map<string, string>& globalAliases, const vector<string>& names, bool printLocalAliases = true);
     static void describeSubstitutionModel_(const SubstitutionModel* model, ostream& out, map<string, string>& globalAliases);
+  static void describeFrequenciesSet_(const FrequenciesSet* pfreqset, ostream& out);
     static void describeDiscreteDistribution_(const DiscreteDistribution* rDist, ostream& out, map<string, string>& globalAliases);
 
 };
