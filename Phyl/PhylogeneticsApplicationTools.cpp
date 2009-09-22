@@ -703,12 +703,6 @@ SubstitutionModel* PhylogeneticsApplicationTools::getSubstitutionModelDefaultIns
         throw Exception("Model '" + modelName + "' unknown.");
       }
     }
-    else if (modelName == "BinarySubstitutionModel")
-      {
-        model = new BinarySubstitutionModel(dynamic_cast<const BinaryAlphabet*>(alphabet));
-        if (args.find("kappa") != args.end())
-          unparsedParameterValues["BinarySubstitutionModel.kappa"] = args["kappa"];
-      }
     else
     { 
       const ProteicAlphabet * alpha = dynamic_cast<const ProteicAlphabet *>(alphabet);

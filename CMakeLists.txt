@@ -126,10 +126,14 @@ set(CPACK_SOURCE_IGNORE_FILES
  ".*~"
  "Phyl/\\\\..*"
  "html"
- "Seq.tag"
+ "Phyl.tag"
  "autogen.sh"
  "autoclean.sh"
  ${CPACK_SOURCE_IGNORE_FILES}
 )
 set(CPACK_SOURCE_PACKAGE_FILE_NAME "${CMAKE_PROJECT_NAME}-${CPACK_PACKAGE_VERSION_MAJOR}.${CPACK_PACKAGE_VERSION_MINOR}.${CPACK_PACKAGE_VERSION_PATCH}")
 include(CPack)
+
+#This adds the 'dist' target
+add_custom_target(dist COMMAND ${CMAKE_MAKE_PROGRAM} package_source)
+
