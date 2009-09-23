@@ -55,11 +55,9 @@ using namespace bpp;
            
 bool PseudoNewtonOptimizer::PNStopCondition::isToleranceReached() const
 {
-//  cout << dynamic_cast<const PseudoNewtonOptimizer *>(_optimizer)->_currentValue << "\t" << dynamic_cast<const PseudoNewtonOptimizer *>(_optimizer)->_previousValue << endl;
   return NumTools::abs<double>(
-      dynamic_cast<const PseudoNewtonOptimizer *>(_optimizer)->_currentValue -
-      dynamic_cast<const PseudoNewtonOptimizer *>(_optimizer)->_previousValue)
-    < _tolerance; 
+      dynamic_cast<const PseudoNewtonOptimizer *>(optimizer_)->_currentValue -
+      dynamic_cast<const PseudoNewtonOptimizer *>(optimizer_)->_previousValue) < tolerance_; 
 }
    
 /**************************************************************************/
