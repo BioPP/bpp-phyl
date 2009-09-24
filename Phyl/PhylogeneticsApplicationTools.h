@@ -264,9 +264,9 @@ class PhylogeneticsApplicationTools
     /**
      * @brief Get A FrequenciesSet object according to options.
      *
+     * @param alphabet The alpabet to use.
      * @param freqDescription A string in the keyval syntaxe describing the frequency set to use.:if expand("%") == ""|browse confirm w|else|confirm w|endif
      * 
-     * @param alphabet The alpabet to use.
      * @param data      A pointer toward the SiteContainer for which the substitution model is designed.
      *                  The alphabet associated to the data must be of the same type as the one specified for the model.
      *                  May be equal to NULL, but in this cas use_observed_freq option will be unavailable.
@@ -277,8 +277,8 @@ class PhylogeneticsApplicationTools
      * @throw Exception if an error occured.
      */
     static FrequenciesSet* getFrequenciesSet(
-      const std::string& freqDescription,
       const Alphabet* alphabet,
+      const std::string& freqDescription,
       const SiteContainer* data, 
       const std::vector<double>& rateFreqs,
       bool verbose = true) throw (Exception);

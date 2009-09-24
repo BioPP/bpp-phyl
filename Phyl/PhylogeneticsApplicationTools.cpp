@@ -905,7 +905,7 @@ FrequenciesSet* PhylogeneticsApplicationTools::getRootFrequenciesSet(
     bool verbose) throw (Exception)
 {
   string freqDescription = ApplicationTools::getStringParameter("RootFreq", params, "Fixed", suffix, suffixIsOptional);
-  FrequenciesSet* freq = getFrequenciesSet(freqDescription, alphabet, data, rateFreqs, verbose);
+  FrequenciesSet* freq = getFrequenciesSet(alphabet, freqDescription, data, rateFreqs, verbose);
 
   if(verbose)
     ApplicationTools::displayResult("Root frequencies ", freq->getName());
@@ -915,8 +915,8 @@ FrequenciesSet* PhylogeneticsApplicationTools::getRootFrequenciesSet(
 /******************************************************************************/
 
 FrequenciesSet* PhylogeneticsApplicationTools::getFrequenciesSet(
-    const std::string& freqDescription,
     const Alphabet* alphabet,
+    const std::string& freqDescription,
     const SiteContainer* data,
     const std::vector<double>& rateFreqs,
     bool verbose) throw (Exception)
