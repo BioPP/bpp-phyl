@@ -90,39 +90,50 @@ class PseudoNewtonOptimizer:
 
 		unsigned int _n; // Number of parameters
 
-		vector<string> _params; // All parameter names
+    std::vector<std::string> _params; // All parameter names
 
-    string _mode;
+    std::string _mode;
 
     double _maxCorrection;
 
 	public:
 
-		PseudoNewtonOptimizer(DerivableSecondOrder * function);
+		PseudoNewtonOptimizer(DerivableSecondOrder* function);
 
 		virtual ~PseudoNewtonOptimizer() {}
 
-#ifndef NO_VIRTUAL_COV
-    PseudoNewtonOptimizer*
-#else
-    Clonable*
-#endif
-    clone() const { return new PseudoNewtonOptimizer(*this); }
+    PseudoNewtonOptimizer* clone() const { return new PseudoNewtonOptimizer(*this); }
 
 	public:
+    const DerivableSecondOrder* getFunction() const
+    {
+      return dynamic_cast<const DerivableSecondOrder*>(AbstractOptimizer::getFunction());
+    }
+    DerivableSecondOrder* getFunction()
+    {
+      return dynamic_cast<DerivableSecondOrder*>(AbstractOptimizer::getFunction());
+    }
+
 		/**
 		 * @name The Optimizer interface.
 		 *
 		 * @{
 		 */
-		double getFunctionValue() const throw (NullPointerException) { return _currentValue; }
+		double getFunctionValue() const throw (NullPointerException) { return currentValue_; }
 		/** @} */
 
-		void doInit(const ParameterList & params) throw (Exception);
+		void doInit(const ParameterList& params) throw (Exception);
 
 		double doStep() throw (Exception);
 
     void setMaximumNumberOfCorrections(unsigned int mx) { _maxCorrection = mx; }
+
+  protected:
+    DerivableSecondOrder* getFunction_()
+    {
+      return dynamic_cast<DerivableSecondOrder*>(AbstractOptimizer::getFunction_());
+    }
+    
 
 };
 
