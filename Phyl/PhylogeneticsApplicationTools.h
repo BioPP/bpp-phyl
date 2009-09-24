@@ -64,8 +64,6 @@ knowledge of the CeCILL license and that you accept its terms.
 #include <map>
 #include <iostream>
 
-using namespace std;
-
 namespace bpp
 {
 
@@ -105,9 +103,9 @@ class PhylogeneticsApplicationTools
      * @throw Exception if an error occured.
      */
     static Tree* getTree(
-      map<string, string> & params,
-      const string & prefix = "input.",
-      const string & suffix = "",
+      std::map<std::string, std::string> & params,
+      const std::string& prefix = "input.",
+      const std::string& suffix = "",
       bool suffixIsOptional = true,
       bool verbose = true) throw (Exception);
  
@@ -124,10 +122,10 @@ class PhylogeneticsApplicationTools
      * @return A new vector of Tree objects according to the specified options.
      * @throw Exception if an error occured.
      */
-    static vector<Tree*> getTrees(
-      map<string, string> & params,
-      const string & prefix = "input.",
-      const string & suffix = "",
+    static std::vector<Tree*> getTrees(
+      std::map<std::string, std::string>& params,
+      const std::string& prefix = "input.",
+      const std::string& suffix = "",
       bool suffixIsOptional = true,
       bool verbose = true) throw (Exception);
   
@@ -150,8 +148,8 @@ class PhylogeneticsApplicationTools
      */
     static SubstitutionModel * getSubstitutionModelDefaultInstance(
       const Alphabet* alphabet,
-      const string& modelDescription,
-      map<string, string>& unparsedParameterValues,
+      const std::string& modelDescription,
+      std::map<std::string, std::string>& unparsedParameterValues,
       bool allowCovarions,
       bool allowGaps,
       bool verbose) throw (Exception);
@@ -176,7 +174,7 @@ class PhylogeneticsApplicationTools
      */
     static void setSubstitutionModelParametersInitialValues(
       SubstitutionModel* model,
-      map<string, string>& unparsedParameterValues,
+      std::map<std::string, std::string>& unparsedParameterValues,
       const SiteContainer* data,
       bool verbose) throw (Exception);
 
@@ -201,8 +199,8 @@ class PhylogeneticsApplicationTools
     static SubstitutionModel * getSubstitutionModel(
       const Alphabet* alphabet,
       const SiteContainer* data, 
-      map<string, string>& params,
-      const string & suffix = "",
+      std::map<std::string, std::string>& params,
+      const std::string& suffix = "",
       bool suffixIsOptional = true,
       bool verbose = true) throw (Exception);
   
@@ -230,25 +228,16 @@ class PhylogeneticsApplicationTools
      */
     static void setSubstitutionModelParametersInitialValues(
       SubstitutionModel* model,
-      map<string, string>& unparsedParameterValues,
-      const string& modelPrefix,
+      std::map<std::string, std::string>& unparsedParameterValues,
+      const std::string& modelPrefix,
       const SiteContainer* data,
-      map<string, double>& existingParams,
-      vector<string>& specificParams,
-      vector<string>& sharedParams,
+      std::map<std::string, double>& existingParams,
+      std::vector<std::string>& specificParams,
+      std::vector<std::string>& sharedParams,
       bool verbose) throw (Exception);
 
     /**
-     * @brief Get A FrequenciesSet object according to options.
-     *
-     * Available options are:
-     * nonhomogeneous.root_freq one of the following:
-     * - balanced: All frequencies set to 1/n, where n is the size of the alphabet.
-     * - observed: Use observed counts
-     * - init: Specify each frequency using parameters with names ancA, ancC, ... ancA, ancR, ancN...
-     * - balancedGC: use the GC content parametrization
-     * - observedGC: use the observed GC content
-     * - initGC: use ancTheta to set the ancestral GC content.
+     * @brief Get A FrequenciesSet object for root frequencies (NH models) according to options.
      *
      * @param alphabet The alpabet to use.
      * @param data      A pointer toward the SiteContainer for which the substitution model is designed.
@@ -263,13 +252,35 @@ class PhylogeneticsApplicationTools
      * @return A new FrequenciesSet object according to options specified.
      * @throw Exception if an error occured.
      */
-    static FrequenciesSet * getRootFrequenciesSet(
-      const Alphabet * alphabet,
-      const SiteContainer * data, 
-      map<string, string> & params,
-      const vector<double> & rateFreqs,
-      const string & suffix = "",
+    static FrequenciesSet* getRootFrequenciesSet(
+      const Alphabet* alphabet,
+      const SiteContainer* data, 
+      std::map<std::string, std::string>& params,
+      const std::vector<double>& rateFreqs,
+      const string& suffix = "",
       bool suffixIsOptional = true,
+      bool verbose = true) throw (Exception);
+
+    /**
+     * @brief Get A FrequenciesSet object according to options.
+     *
+     * @param freqDescription A string in the keyval syntaxe describing the frequency set to use.:if expand("%") == ""|browse confirm w|else|confirm w|endif
+     * 
+     * @param alphabet The alpabet to use.
+     * @param data      A pointer toward the SiteContainer for which the substitution model is designed.
+     *                  The alphabet associated to the data must be of the same type as the one specified for the model.
+     *                  May be equal to NULL, but in this cas use_observed_freq option will be unavailable.
+     * @param rateFreqs A vector of rate catégories frequencies in case of a Markov Modulated Markov Model.
+     *                  Ignored if a vector with size 0 is passed.
+     * @param verbose   Print some info to the 'message' output stream.
+     * @return A new FrequenciesSet object according to options specified.
+     * @throw Exception if an error occured.
+     */
+    static FrequenciesSet* getFrequenciesSet(
+      const std::string& freqDescription,
+      const Alphabet* alphabet,
+      const SiteContainer* data, 
+      const std::vector<double>& rateFreqs,
       bool verbose = true) throw (Exception);
 
   /**
@@ -292,11 +303,11 @@ class PhylogeneticsApplicationTools
    * @throw Exception if an error occured.
    */
 
-  static FrequenciesSet * getFrequenciesSetDefaultInstance(
-                                                           const Alphabet * alphabet,
-                                                           const string& freqDescription,
-                                                           map<string, string> & unparsedParameterValues,
-                                                           bool verbose) throw (Exception);
+  static FrequenciesSet* getFrequenciesSetDefaultInstance(
+    const Alphabet* alphabet,
+    const std::string& freqDescription,
+    std::map<std::string, std::string>& unparsedParameterValues,
+    bool verbose) throw (Exception);
     
 
   /**
