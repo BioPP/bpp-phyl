@@ -84,7 +84,7 @@ void BioNJ::computeTree(bool rooted) throw (Exception)
     Node * parent = getParentNode(idNextNode++, best1, best2);
     // compute lambda
     _lambda=0;
-    if(_variance[bestPair[0]][bestPair[1]] == 0)
+    if (_variance(bestPair[0], bestPair[1]) == 0)
       _lambda=.5;
     else
     {
@@ -92,9 +92,9 @@ void BioNJ::computeTree(bool rooted) throw (Exception)
       {
         unsigned int id = i -> first;
         if(id != bestPair[0] && id != bestPair[1]) 
-          _lambda += (_variance[bestPair[1]][id] - _variance[bestPair[0]][id]);
+          _lambda += (_variance(bestPair[1], id) - _variance(bestPair[0], id));
       }
-      double div =  2*(_currentNodes.size() - 2)*_variance[bestPair[0]][bestPair[1]];
+      double div = 2 * (_currentNodes.size() - 2) * _variance(bestPair[0], bestPair[1]);
       _lambda /= div;
       _lambda += .5;
     }
@@ -107,7 +107,7 @@ void BioNJ::computeTree(bool rooted) throw (Exception)
       if(id != bestPair[0] && id != bestPair[1])
       {
         newDist[id] = computeDistancesFromPair(bestPair, distances, id);
-        newVar[id] = _lambda*_variance[bestPair[0]][id]+ (1-_lambda)*_variance[bestPair[1]][id]- _lambda*(1-_lambda)*_variance[bestPair[0]][bestPair[1]];
+        newVar[id] = _lambda * _variance(bestPair[0], id) + (1-_lambda) * _variance(bestPair[1], id) - _lambda * (1-_lambda) * _variance(bestPair[0], bestPair[1]);
       }
       else
       {
