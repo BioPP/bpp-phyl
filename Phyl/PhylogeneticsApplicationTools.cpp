@@ -786,7 +786,7 @@ void PhylogeneticsApplicationTools::setSubstitutionModelParametersInitialValues(
     bool verbose) throw (Exception)
 {
   bool useObsFreq = ApplicationTools::getBooleanParameter(model->getNamespace() + "useObservedFreqs", unparsedParameterValues, false, "", true, false);
-  if (verbose) ApplicationTools::displayResult("Use observed frequencies", useObsFreq ? "yes" : "no");
+  if (verbose) ApplicationTools::displayResult("Use observed frequencies for model", useObsFreq ? "yes" : "no");
   if (useObsFreq && data != 0) 
   {
     unsigned int psi = ApplicationTools::getParameter<unsigned int>(model->getNamespace() + "useObservedFreqs.pseudoCount", unparsedParameterValues, 0);
@@ -843,7 +843,7 @@ void PhylogeneticsApplicationTools::setSubstitutionModelParametersInitialValues(
     bool verbose) throw (Exception)
 {
   bool useObsFreq = ApplicationTools::getBooleanParameter(model->getNamespace() + "useObservedFreqs", unparsedParameterValues, false, "" ,"" , false);
-  if (verbose) ApplicationTools::displayResult("Use observed frequencies", useObsFreq ? "yes" : "no");
+  if (verbose) ApplicationTools::displayResult("Use observed frequencies for model", useObsFreq ? "yes" : "no");
   if (useObsFreq && data != 0) 
   {
     unsigned int psi = ApplicationTools::getParameter<unsigned int>(model->getNamespace() + "useObservedFreqs.pseudoCount", unparsedParameterValues, 0);
@@ -928,7 +928,7 @@ FrequenciesSet* PhylogeneticsApplicationTools::getFrequenciesSet(
   map<string, string> unparsedParameterValues;
   FrequenciesSet *pFS = getFrequenciesSetDefaultInstance(alphabet, freqDescription , unparsedParameterValues, 0);
 
-  if (args.find("init") == args.end())
+  if (args.find("init") == args.end() && args.find("rateFreq") == args.end())
   {  
     ParameterList pl = pFS->getParameters();
     
@@ -951,19 +951,21 @@ FrequenciesSet* PhylogeneticsApplicationTools::getFrequenciesSet(
     pFS->matchParametersValues(pl);
   }
   else
-  {
-    string init=args["init"];
-    if (init == "observed")
-    {
-      if (! data)
-        throw Exception("Missing data for observed frequencies");
-      map<int, double> freqs;
-      SequenceContainerTools::getFrequencies(*data, freqs);
-      pFS->setFrequenciesFromMap(freqs);
-    }
-    else
-      throw Exception("Unknown init argument");
-  }
+    if (args.find("rateFreq") == args.end())
+      {
+        string init=args["init"];
+        if (init == "observed")
+          {
+            if (! data)
+              throw Exception("Missing data for observed frequencies");
+            map<int, double> freqs;
+            SequenceContainerTools::getFrequencies(*data, freqs);
+            pFS->setFrequenciesFromMap(freqs);
+          }
+        else
+          throw Exception("Unknown init argument");
+      }
+  
 
 
   ///////// To be changed for input normalization
