@@ -1,3 +1,7 @@
+19/10/09 Julien Dutheil
+* Bug fixed in node setFather method + new check and warning messages in tree
+  edition methods.
+
 21/08/09 Julien Dutheil
 * Added config files for CMake.
 

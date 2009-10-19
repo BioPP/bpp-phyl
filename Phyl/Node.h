@@ -47,6 +47,7 @@ knowledge of the CeCILL license and that you accept its terms.
 #include <vector>
 #include <map>
 #include <iostream>
+#include <algorithm>
 
 // From Utils:
 #include <Utils/Clonable.h>
@@ -105,22 +106,22 @@ class Node:
     /**
      * @brief Build a new void Node object.
      */
-    Node() : id_(0), name_(NULL), sons_(), father_(NULL), distanceToFather_(NULL), nodeProperties_(), branchProperties_() {}
+    Node() : id_(0), name_(0), sons_(), father_(0), distanceToFather_(0), nodeProperties_(), branchProperties_() {}
       
     /**
      * @brief Build a new Node with specified id.
      */
-    Node(int id) : id_(id), name_(NULL), sons_(), father_(NULL), distanceToFather_(NULL), nodeProperties_(), branchProperties_() {}
+    Node(int id) : id_(id), name_(0), sons_(), father_(0), distanceToFather_(0), nodeProperties_(), branchProperties_() {}
 
     /**
      * @brief Build a new Node with specified name.
      */
-    Node(const std::string & name) : id_(0), name_(new std::string(name)), sons_(), father_(NULL), distanceToFather_(NULL), nodeProperties_(), branchProperties_() {}
+    Node(const std::string & name) : id_(0), name_(new std::string(name)), sons_(), father_(0), distanceToFather_(0), nodeProperties_(), branchProperties_() {}
 
     /**
      * @brief Build a new Node with specified id and name.
      */
-    Node(int id, const std::string & name) : id_(id), name_(new std::string(name)), sons_(), father_(NULL), distanceToFather_(NULL), nodeProperties_(), branchProperties_() {}
+    Node(int id, const std::string & name) : id_(id), name_(new std::string(name)), sons_(), father_(0), distanceToFather_(0), nodeProperties_(), branchProperties_() {}
 
     /**
      * @brief Copy constructor.
@@ -217,15 +218,15 @@ class Node:
     virtual void deleteName()
     {
       if(name_) delete name_;
-      name_ = NULL;
+      name_ = 0;
     }
     
     /**
      * @brief Tell is this node has a name.
      * 
-     * @return True if name != NULL.
+     * @return True if name != 0.
      */
-    virtual bool hasName() const { return name_ != NULL; }
+    virtual bool hasName() const { return name_ != 0; }
     
     /** @} */
     
@@ -274,7 +275,7 @@ class Node:
     /**
      * @brief Tell is this node has a distance to the father.
      * 
-     * @return True if distanceToFather != NULL.
+     * @return True if distanceToFather != 0.
      */
     virtual bool hasDistanceToFather() const
     {
@@ -292,14 +293,14 @@ class Node:
     /**
      * @brief Get the father of this node is there is one.
      * 
-     * @return A pointer toward the father node, NULL if there is not.
+     * @return A pointer toward the father node, 0 if there is not.
      */     
     virtual const Node* getFather() const { return father_; }
         
     /**
      * @brief Get the father of this node is there is one.
      * 
-     * @return A pointer toward the father node, NULL if there is not.
+     * @return A pointer toward the father node, 0 if there is not.
      */     
     virtual Node* getFather() { return father_; }
     
@@ -315,7 +316,10 @@ class Node:
       if (!node)
         throw NullPointerException("Node::setFather(). Empty node given as input.");
       father_ = node;
-      sons_.push_back(node);
+      if (find(node->sons_.begin(), node->sons_.end(), this) == node->sons_.end())
+        node->sons_.push_back(this);
+      else //Otherwise node is already present.
+        cerr << "DEVEL warning: Node::setFather. Son node already registered! No pb here, but could be a bug in your implementation..." << endl;
     }
         
     /**
@@ -360,19 +364,26 @@ class Node:
       return sons_[pos];
     }
         
-    virtual void addSon(unsigned int pos, Node* node) throw (NullPointerException)
+    virtual void addSon(unsigned int pos, Node* node) throw (NullPointerException, NodeException)
     {
       if (!node)
         throw NullPointerException("Node::addSon(). Empty node given as input.");
-      sons_.insert(sons_.begin() + pos, node);
+      if (find(sons_.begin(), sons_.end(), node) == sons_.end())
+        sons_.insert(sons_.begin() + pos, node);
+      else //Otherwise node is already present.
+        cerr << "DEVEL warning: Node::addSon. Son node already registered! No pb here, but could be a bug in your implementation..." << endl;
+ 
       node->father_ = this;
     }
 
-    virtual void addSon(Node* node) throw (NullPointerException)
+    virtual void addSon(Node* node) throw (NullPointerException, NodeException)
     {
       if (!node)
         throw NullPointerException("Node::addSon(). Empty node given as input.");
-      sons_.push_back(node);
+      if (find(sons_.begin(), sons_.end(), node) == sons_.end())
+        sons_.push_back(node);
+      else //Otherwise node is already present.
+        throw NodeException("Node::addSon. Trying to add a node which is already present.");
       node->father_ = this;
     }
 
@@ -382,7 +393,11 @@ class Node:
         throw NullPointerException("Node::setSon(). Empty node given as input.");
       if(pos >= sons_.size())
         throw IndexOutOfBoundsException("Node::setSon(). Invalid node position.", pos, 0, sons_.size()-1);
-      sons_[pos] = node;
+      vector<Node *>::iterator search = find(sons_.begin(), sons_.end(), node);
+      if (search == sons_.end() || search == sons_.begin() + pos)
+        sons_[pos] = node;
+      else
+        throw NodeException("Node::setSon. Trying to set a node which is already present.");
       node->father_ = this;
     }
         

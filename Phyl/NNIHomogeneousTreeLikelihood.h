@@ -88,12 +88,7 @@ class BranchLikelihood :
     }
     virtual ~BranchLikelihood() {}
 
-#ifndef NO_VIRTUAL_COV
-    BranchLikelihood*
-#else
-    Clonable*
-#endif
-    clone() const { return new BranchLikelihood(*this); }
+    BranchLikelihood* clone() const { return new BranchLikelihood(*this); }
 
   public:
     void initModel(const SubstitutionModel *model, const DiscreteDistribution *rDist);

@@ -68,12 +68,7 @@ class PseudoNewtonOptimizer:
           AbstractOptimizationStopCondition(pno) {}
         virtual ~PNStopCondition() {}
 
-#ifndef NO_VIRTUAL_COV
-        PNStopCondition*
-#else
-        Clonable*
-#endif
-        clone() const { return new PNStopCondition(*this); }
+        PNStopCondition* clone() const { return new PNStopCondition(*this); }
           
       public:
 				void init() {}
