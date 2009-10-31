@@ -1999,7 +1999,7 @@ void PhylogeneticsApplicationTools::printParameters(const SubstitutionModelSet* 
   //Root frequencies:
   out << endl;
   out << "# Root frequencies:" << endl;
-  out << "RootFreq = ";
+  out << "nonhomogeneous.root_freq = ";
   describeFrequenciesSet_(modelSet->getRootFrequenciesSet(), out);
 }
 
