@@ -1,3 +1,6 @@
+31/10/09 Julien Dutheil
+* Code cleaning in FrequenciesSet.
+
 19/10/09 Julien Dutheil
 * Bug fixed in node setFather method + new check and warning messages in tree
   edition methods.

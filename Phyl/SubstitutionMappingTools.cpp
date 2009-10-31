@@ -123,7 +123,7 @@ ProbabilisticSubstitutionMapping * SubstitutionMappingTools::computeSubstitution
     Vdouble substitutionsForCurrentNode(nbDistinctSites, 0);
 
     //compute all nxy first:
-    VVVdouble nxy = VVVdouble(nbClasses);
+    VVVdouble nxy(nbClasses);
     for (unsigned int c = 0; c < nbClasses; c++)
     {
       VVdouble * nxy_c = & nxy[c];
@@ -341,7 +341,7 @@ ProbabilisticSubstitutionMapping * SubstitutionMappingTools::computeSubstitution
     Vdouble substitutionsForCurrentNode(nbDistinctSites, 0);
 
     // Compute all nxy first:
-    VVVdouble nxy = VVVdouble(nbClasses);
+    VVVdouble nxy(nbClasses);
     for (unsigned int c = 0; c < nbClasses; c++)
     {
       VVdouble * nxy_c = & nxy[c];
@@ -642,7 +642,7 @@ ProbabilisticSubstitutionMapping* SubstitutionMappingTools::computeSubstitutionV
     Vdouble substitutionsForCurrentNode(nbDistinctSites, 0);
 
     //compute all nxy first:
-    VVVdouble nxy = VVVdouble(nbClasses);
+    VVVdouble nxy(nbClasses);
     for (unsigned int c = 0; c < nbClasses; c++)
     {
       VVdouble * nxy_c = & nxy[c];

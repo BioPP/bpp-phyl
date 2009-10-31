@@ -283,34 +283,25 @@ class PhylogeneticsApplicationTools
       const std::vector<double>& rateFreqs,
       bool verbose = true) throw (Exception);
 
-  /**
-   * @brief Get An AbstractFrequenciesSet object according to a
-   *              description following keyval syntax.
-   *
-   * @param alphabet The alpabet to use.
-   * @param freqDescription  The description of the Frequencies set. Either
-   *                      Full   -> FullFrequenciesSet
-   *                      Fixed  -> FixedFrequenciesSet
-   *                      GC     -> GCFrequenciesSet
-   *                      FullNA -> FullNAFrequenciesSet
-   *                 FullProtein -> FullProteinFrequenciesSet
-   *             MarkovModulated -> MarkovModulatedFrequenciesSet
-   *             IndependentWord -> IndependentWordFrequenciesSet
-   * @param unparsedParameterValues map<string,string>& keyval description of the parameters
-   *     of the AbstractFrequenciesSet
-   * @param verbose   Print some info to the 'message' output stream.
-   * @return A new AbstractFrequenciesSet object according to options specified.
-   * @throw Exception if an error occured.
-   */
-
-  static FrequenciesSet* getFrequenciesSetDefaultInstance(
-    const Alphabet* alphabet,
-    const std::string& freqDescription,
-    std::map<std::string, std::string>& unparsedParameterValues,
-    bool verbose) throw (Exception);
+    /**
+     * @brief Get An AbstractFrequenciesSet object according to a
+     *              description following keyval syntax.
+     *
+     * @param alphabet The alpabet to use.
+     * @param freqDescription  The description of the Frequencies set. See the Bio++ Program Suite
+     * Manual for a detailed list of supported options.
+     * @param unparsedParameterValues map<string,string>& keyval description of the parameters
+     *     of the FrequenciesSet
+     * @return A new FrequenciesSet object according to options specified.
+     * @throw Exception if an error occured.
+     */
+    static FrequenciesSet* getFrequenciesSetDefaultInstance(
+      const Alphabet* alphabet,
+      const std::string& freqDescription,
+      std::map<std::string, std::string>& unparsedParameterValues) throw (Exception);
     
 
-  /**
+    /**
      * @brief Build a SubstitutionModelSet object according to options.
      *
      * This model set is meant to be used with non-homogeneous substitution models of sequence evolution.
