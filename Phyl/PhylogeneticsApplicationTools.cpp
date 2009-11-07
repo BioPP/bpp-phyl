@@ -1022,6 +1022,8 @@ FrequenciesSet* PhylogeneticsApplicationTools::getFrequenciesSetDefaultInstance(
     }
 
     //Update parameter values:
+    if (args.find("theta") != args.end())
+      unparsedParameterValues["Full.theta"] = args["theta"];
     for (i = 0; i < alphabet->getSize() - 1; i++)
     {
       if (args.find("theta_" + alphabet->intToChar(i)) != args.end())
@@ -1042,32 +1044,6 @@ FrequenciesSet* PhylogeneticsApplicationTools::getFrequenciesSetDefaultInstance(
     
     if (args.find("theta") != args.end())
       unparsedParameterValues["GC.theta"] = args["theta"];
-  }
-  else if (freqName == "FullNA")
-  {
-    if (!AlphabetTools::isNucleicAlphabet(alphabet))
-      throw Exception("Error, unvalid frequencies " + freqName + " with non-nucleic alphabet.");
-
-    pFS = new FullNAFrequenciesSet(dynamic_cast<const NucleicAlphabet*>(alphabet));
-    
-    if (args.find("theta") != args.end())
-      unparsedParameterValues["FullNA.theta"] = args["theta"];
-    if (args.find("theta_1") != args.end())
-      unparsedParameterValues["FullNA.theta_1"] = args["theta_1"];
-    if (args.find("theta_2") != args.end())
-      unparsedParameterValues["FullNA.theta_2"] = args["theta_2"];
-  }
-  else if (freqName == "FullProtein")
-  {
-    if (!AlphabetTools::isProteicAlphabet(alphabet))
-      throw Exception("Error, unvalid frequencies " + freqName + " with non-proteic alphabet.");
-
-    pFS = new FullProteinFrequenciesSet(dynamic_cast<const ProteicAlphabet*>(alphabet));
-    for (i = 1; i < 20; i++)
-    {
-      if (args.find("theta_"+TextTools::toString(i)) != args.end())
-        unparsedParameterValues["FullProtein.theta_"+TextTools::toString(i)] = args["theta_"+TextTools::toString(i)];
-    }
   }
 
   // MARKOVMODULATEDFREQUENCIESSET
