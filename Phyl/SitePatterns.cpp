@@ -49,17 +49,16 @@ using namespace bpp;
 /******************************************************************************/
 
 SitePatterns::SitePatterns(const SiteContainer* sequences, bool own):
-  _sequences(sequences),
-  _alpha(sequences->getAlphabet()),
-  _own(own)
+  sequences_(sequences),
+  alpha_(sequences->getAlphabet()),
+  own_(own)
 {
 	unsigned int nbSites = sequences->getNumberOfSites();
-	vector<SortableSite *> ss(nbSites);
+	vector<SortableSite> ss(nbSites);
 	for(unsigned int i = 0; i < nbSites; i++)
   {
 		const Site* currentSite = &sequences->getSite(i);
-		SortableSite* ssi = new SortableSite();
-		ss[i] = ssi;
+		SortableSite* ssi = &ss[i];
 		ssi->siteS = currentSite->toString();
 		ssi->siteP = currentSite;
 		ssi->originalPosition = i;
@@ -69,43 +68,41 @@ SitePatterns::SitePatterns(const SiteContainer* sequences, bool own):
 	sort(ss.begin(), ss.end(), SSComparator());
 	
 	// Now build patterns:
-	SortableSite * ss0 = ss[0];
-	const Site * previousSite = ss0 -> siteP;
-	_indices.resize(nbSites);
-	_indices[ss0 -> originalPosition] = 0;
-	_sites.push_back(previousSite);
-	_weights.push_back(1);
+	SortableSite* ss0 = &ss[0];
+	const Site* previousSite = ss0->siteP;
+	indices_.resize(nbSites);
+	indices_[ss0->originalPosition] = 0;
+	sites_.push_back(previousSite);
+	weights_.push_back(1);
 	
 	unsigned int currentPos = 0;
 	for(unsigned int i = 1; i < nbSites; i++)
   {
-		SortableSite * ssi = ss[i];
-		const Site * currentSite = ssi -> siteP;
-		bool siteExists = SiteTools::areSitesIdentical(* currentSite, * previousSite);
-		if(siteExists)
+		SortableSite* ssi = &ss[i];
+		const Site* currentSite = ssi->siteP;
+		bool siteExists = SiteTools::areSitesIdentical(*currentSite, *previousSite);
+		if (siteExists)
     {
-			_weights[currentPos]++;
+			weights_[currentPos]++;
 		}
     else
     {
-			_sites.push_back(currentSite);
-			_weights.push_back(1);
+			sites_.push_back(currentSite);
+			weights_.push_back(1);
 			currentPos++;
 		}
-		_indices[ssi->originalPosition] = currentPos;
-		delete ss[i - 1];
+		indices_[ssi->originalPosition] = currentPos;
 		previousSite = currentSite;
 	}
-	delete ss[nbSites - 1];
-	_names = sequences->getSequencesNames();
+	names_ = sequences->getSequencesNames();
 }
 
 /******************************************************************************/
 
-SiteContainer * SitePatterns::getSites() const
+SiteContainer* SitePatterns::getSites() const
 {
-	SiteContainer * sites = new VectorSiteContainer(_sites, _alpha);
-	sites->setSequencesNames(_names, false);
+	SiteContainer* sites = new VectorSiteContainer(sites_, alpha_);
+	sites->setSequencesNames(names_, false);
 	return sites;
 }
 

@@ -55,8 +55,8 @@ knowledge of the CeCILL license and that you accept its terms.
 
 // From the STL:
 #include <map>
-
-using namespace std;
+#include <vector>
+#include <string>
 
 namespace bpp
 {
@@ -84,7 +84,7 @@ class SitePatterns:
 		
 	    public:
 		    string siteS; 
-		    const Site * siteP;
+		    const Site* siteP;
 		    unsigned int originalPosition;
     };
 
@@ -93,17 +93,17 @@ class SitePatterns:
      */
     struct SSComparator : binary_function<SortableSite, SortableSite, bool>
     {
-	    bool operator()(SortableSite * ss1, SortableSite * ss2) const { return ss1->siteS < ss2->siteS; }
+	    bool operator()(const SortableSite& ss1, const SortableSite& ss2) const { return ss1.siteS < ss2.siteS; }
     };
 
   protected: 
-  	vector<string> _names;
-	  vector<const Site *> _sites;
-	  vector<unsigned int> _weights;
-	  vector<unsigned int> _indices;
-    const SiteContainer * _sequences;
-    const Alphabet * _alpha;
-    bool _own;
+    std::vector<std::string> names_;
+    std::vector<const Site *> sites_;
+    std::vector<unsigned int> weights_;
+    std::vector<unsigned int> indices_;
+    const SiteContainer* sequences_;
+    const Alphabet* alpha_;
+    bool own_;
 
   public:
    /**
@@ -115,34 +115,34 @@ class SitePatterns:
      * @param own       Tel is the class own the sequence container.
      * If yes, the sequences wll be deleted together with this instance.
      */
-    SitePatterns(const SiteContainer * sequences, bool own = false);
+    SitePatterns(const SiteContainer* sequences, bool own = false);
 
     virtual ~SitePatterns()
     {
-      if(_own) delete _sequences;
+      if(own_) delete sequences_;
     }
 
-    SitePatterns(const SitePatterns & patterns)
+    SitePatterns(const SitePatterns& patterns)
     {
-  	  _names     = patterns._names;
-	    _sites     = patterns._sites;
-	    _weights   = patterns._weights;
-	    _indices   = patterns._indices;
-      if(!patterns._own) _sequences = patterns._sequences;
-      else               _sequences = dynamic_cast<SiteContainer *>(patterns._sequences->clone());
-      _alpha     = patterns._alpha;
-      _own       = patterns._own;
+  	  names_     = patterns.names_;
+	    sites_     = patterns.sites_;
+	    weights_   = patterns.weights_;
+	    indices_   = patterns.indices_;
+      if(!patterns.own_) sequences_ = patterns.sequences_;
+      else               sequences_ = dynamic_cast<SiteContainer*>(patterns.sequences_->clone());
+      alpha_     = patterns.alpha_;
+      own_       = patterns.own_;
     }
-    SitePatterns& operator=(const SitePatterns & patterns)
+    SitePatterns& operator=(const SitePatterns& patterns)
     {
-  	  _names     = patterns._names;
-	    _sites     = patterns._sites;
-	    _weights   = patterns._weights;
-	    _indices   = patterns._indices;
-      if(!patterns._own) _sequences = patterns._sequences;
-      else               _sequences = dynamic_cast<SiteContainer *>(patterns._sequences->clone());
-      _alpha     = patterns._alpha;
-      _own       = patterns._own;
+  	  names_     = patterns.names_;
+	    sites_     = patterns.sites_;
+	    weights_   = patterns.weights_;
+	    indices_   = patterns.indices_;
+      if(!patterns.own_) sequences_ = patterns.sequences_;
+      else               sequences_ = dynamic_cast<SiteContainer*>(patterns.sequences_->clone());
+      alpha_     = patterns.alpha_;
+      own_       = patterns.own_;
       return *this;
     }
 
@@ -157,16 +157,16 @@ class SitePatterns:
     /**
      * @return The number of times each unique site was found.
      */
-		const vector<unsigned int> getWeights() const { return _weights; }
+		const std::vector<unsigned int>& getWeights() const { return weights_; }
     /**
      * @return The position of each unique site.
      */
-		const vector<unsigned int> getIndices() const { return _indices; }
+		const std::vector<unsigned int>& getIndices() const { return indices_; }
 
     /**
      * @return A new container with each unique site.
      */
-		SiteContainer * getSites() const;
+		SiteContainer* getSites() const;
     
 };
 
