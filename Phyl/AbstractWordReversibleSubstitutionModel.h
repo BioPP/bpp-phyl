@@ -88,7 +88,7 @@ private:
 protected:
 
   Vector<SubstitutionModel*> _VSubMod;
-  Vector<string> _VnestedPrefix;
+  Vector<std::string> _VnestedPrefix;
   
   double *_rate;
   mutable RowMatrix<double> _p;

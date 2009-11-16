@@ -119,14 +119,14 @@ public:
   clone() const { return new L95(*this); }
   
 public:
-  string getName() const { return "Lobry 1995"; }
+  std::string getName() const { return "Lobry 1995"; }
   
   void updateMatrices();
   
   /**
    * @brief This method is redefined to actualize the corresponding parameters theta too.
    */
-  void setFreq(map<int, double>&);
+  void setFreq(std::map<int, double>&);
 };
 
 } //end of namespace bpp.

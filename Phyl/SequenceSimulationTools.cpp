@@ -43,6 +43,7 @@ knowledge of the CeCILL license and that you accept its terms.
 #include <Seq/VectorSiteContainer.h>
 
 using namespace bpp;
+using namespace std;
 
 SiteContainer * SequenceSimulationTools::simulateSites(const SiteSimulator & simulator, const vector<double> & rates)
 {

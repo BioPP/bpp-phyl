@@ -75,8 +75,8 @@ class SubstitutionModelException:
     const SubstitutionModel * sm;
       
   public:
-    SubstitutionModelException(const char *   text, const SubstitutionModel * sm = NULL);
-    SubstitutionModelException(const string & text, const SubstitutionModel * sm = NULL);
+    SubstitutionModelException(const char *   text, const SubstitutionModel * sm = 0);
+    SubstitutionModelException(const std::string & text, const SubstitutionModel * sm = 0);
   
     ~SubstitutionModelException() throw ();
     
@@ -156,14 +156,14 @@ class SubstitutionModel:
      *
      * @return The name of this model.
      */
-    virtual string getName() const = 0;
+    virtual std::string getName() const = 0;
 
     /**
      * @return The supported states of the model, as a vector of int codes.
      *
      * @see Alphabet
      */
-    virtual const vector<int>& getAlphabetChars() const = 0;
+    virtual const std::vector<int>& getAlphabetChars() const = 0;
 
     /**
      * @brief Get the char in the alphabet corresponding to a given state in the model.
@@ -330,7 +330,7 @@ class SubstitutionModel:
      *
      * @param freq The map of the frequencies to use.
      */
-    virtual void setFreq(map<int, double>& freq) {};
+    virtual void setFreq(std::map<int, double>& freq) {};
 
 };
 

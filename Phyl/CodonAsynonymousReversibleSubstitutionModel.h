@@ -126,7 +126,7 @@ public:
 public:
   void completeMatrices();
 
-  string getName() const;
+  std::string getName() const;
 
   const GeneticCode* getGeneticCode();
 };

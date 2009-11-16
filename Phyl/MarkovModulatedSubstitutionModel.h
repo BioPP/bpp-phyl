@@ -143,7 +143,7 @@ class MarkovModulatedSubstitutionModel:
 
     bool normalizeRateChanges_;
 
-    string nestedPrefix_;
+    std::string nestedPrefix_;
 
   public:
     /**
@@ -155,7 +155,7 @@ class MarkovModulatedSubstitutionModel:
      * changes instead of state change only.
      * NB: In most cases, this parameter should be set to false.
      */
-    MarkovModulatedSubstitutionModel(ReversibleSubstitutionModel* model, bool normalizeRateChanges, const string& prefix) :
+    MarkovModulatedSubstitutionModel(ReversibleSubstitutionModel* model, bool normalizeRateChanges, const std::string& prefix) :
       AbstractParameterAliasable(prefix),
       model_(model), nbStates_(model->getNumberOfStates()), nbRates_(0), rates_(), ratesExchangeability_(),
       ratesFreq_(), ratesGenerator_(), generator_(), exchangeability_(),
@@ -267,7 +267,7 @@ class MarkovModulatedSubstitutionModel:
       updateMatrices();
     }
    
-    void setNamespace(const string& prefix);
+    void setNamespace(const std::string& prefix);
 
   protected:
     

@@ -103,7 +103,7 @@ public:
   clone() const { return new TripletReversibleSubstitutionModel(*this);}
   
 public:
-  string getName() const;
+  std::string getName() const;
 };
 
 } //end of namespace bpp.

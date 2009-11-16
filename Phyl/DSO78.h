@@ -75,7 +75,7 @@ class DSO78:
     clone() const { return new DSO78(*this); }
     
 	public:
-		string getName() const { return "DSO78"; }
+    std::string getName() const { return "DSO78"; }
 
 };
 

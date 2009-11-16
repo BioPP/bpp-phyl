@@ -40,6 +40,7 @@ knowledge of the CeCILL license and that you accept its terms.
 #include "SubstitutionModel.h"
 
 using namespace bpp;
+using namespace std;
 
 /******************************************************************************
  *                        SubstitutionModel exceptions:                       *

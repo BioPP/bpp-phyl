@@ -147,7 +147,7 @@ class JCnuc:
 		const Matrix<double>& getdPij_dt  (double d) const;
 		const Matrix<double>& getd2Pij_dt2(double d) const;
 
-		string getName() const { return "JC69"; }
+    std::string getName() const { return "JC69"; }
 
     /**
      * @brief This method is disabled in this model since frequencies are not free parameters.

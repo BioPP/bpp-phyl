@@ -75,7 +75,7 @@ class JTT92:
     clone() const { return new JTT92(*this); }
 
 	public:
-		string getName() const { return "JTT92"; }
+    std::string getName() const { return "JTT92"; }
 };
 
 } //end of namespace bpp.

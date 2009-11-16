@@ -210,7 +210,7 @@ class HKY85:
 		const Matrix<double> & getdPij_dt  (double d) const;
 		const Matrix<double> & getd2Pij_dt2(double d) const;
 
-		string getName() const { return "HKY85"; }
+    std::string getName() const { return "HKY85"; }
 
   /**
    * @brief This method is redefined to actualize the corresponding parameters piA, piT, piG and piC too.

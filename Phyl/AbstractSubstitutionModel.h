@@ -133,7 +133,7 @@ class AbstractSubstitutionModel :
   
 
 	public:
-		AbstractSubstitutionModel(const Alphabet* alpha, const string& prefix);
+		AbstractSubstitutionModel(const Alphabet* alpha, const std::string& prefix);
 	
 		virtual ~AbstractSubstitutionModel() {}
     
@@ -144,11 +144,11 @@ class AbstractSubstitutionModel :
 	public:
 		const Alphabet* getAlphabet() const { return alphabet_; }
 
-    const vector<int>& getAlphabetChars() const { return chars_; }
+    const std::vector<int>& getAlphabetChars() const { return chars_; }
     
     int getAlphabetChar(unsigned int i) const { return chars_[i]; }
 
-    vector<unsigned int> getModelStates(int i) const { return VectorTools::whichAll(chars_, i); }
+    std::vector<unsigned int> getModelStates(int i) const { return VectorTools::whichAll(chars_, i); }
     
 		const Vdouble& getFrequencies() const { return freq_; }
        
@@ -175,7 +175,7 @@ class AbstractSubstitutionModel :
 
     void setFreqFromData(const SequenceContainer & data, unsigned int pseudoCount = 0);
 
-    void setFreq(map<int, double>&);
+    void setFreq(std::map<int, double>&);
 
     void enableEigenDecomposition(bool yn) { eigenDecompose_ = yn; }
 
@@ -254,7 +254,7 @@ class AbstractReversibleSubstitutionModel:
 		RowMatrix<double> exchangeability_;
 
   public:
-		AbstractReversibleSubstitutionModel(const Alphabet * alpha, const string& prefix);
+		AbstractReversibleSubstitutionModel(const Alphabet * alpha, const std::string& prefix);
 	
 		virtual ~AbstractReversibleSubstitutionModel() {}
 

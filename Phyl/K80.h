@@ -172,7 +172,7 @@ class K80:
 		const Matrix<double> & getdPij_dt  (double d) const;
 		const Matrix<double> & getd2Pij_dt2(double d) const;
 
-		string getName() const { return "K80"; }
+    std::string getName() const { return "K80"; }
 	   
     /**
      * @brief This method is disabled in this model since frequencies are not free parameters.

@@ -58,13 +58,13 @@ class MutationPath
 		/**
 		 * @brief The states taken, without intiial state.
 		 */
-		vector<int>    _states;
+    std::vector<int>    _states;
 
 		/**
 		 * @brief Times between states.
 		 * The first element in array is the time between the initial state and the first state in _states.
 		 */
-		vector<double> _times;
+    std::vector<double> _times;
 		
 		/**
 		 * @brief The initial state.

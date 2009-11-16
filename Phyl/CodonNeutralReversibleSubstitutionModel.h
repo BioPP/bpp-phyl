@@ -137,7 +137,7 @@ public:
 public:
   void completeMatrices();
   void updateMatrices();
-  string getName() const;
+  std::string getName() const;
   
 };
 

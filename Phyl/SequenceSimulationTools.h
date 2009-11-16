@@ -76,7 +76,7 @@ class SequenceSimulationTools
 		 * @param rates     the rates to use, one for each site to simulate.
 		 * @return          A container with all simulated sites.
 		 */
-		static SiteContainer * simulateSites(const SiteSimulator & simulator, const vector<double> & rates);
+		static SiteContainer * simulateSites(const SiteSimulator & simulator, const std::vector<double> & rates);
 
 		/**
 		 * @brief Simulate a set of sites knowing their rate and ancestral state.
@@ -93,7 +93,7 @@ class SequenceSimulationTools
 		 * @param states    the ancestral states to use, one for each site to simulate.
 		 * @return          A container with all simulated sites.
 		 */
-		static SiteContainer * simulateSites(const SiteSimulator & simulator, const vector<double> & rates, const vector<int> & states)
+		static SiteContainer * simulateSites(const SiteSimulator & simulator, const std::vector<double> & rates, const std::vector<int> & states)
 			throw (Exception);
 };
 

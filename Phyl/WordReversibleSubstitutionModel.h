@@ -134,7 +134,7 @@ public:
 
   virtual const RowMatrix<double>& getd2Pij_dt2(double d) const;
 
-  virtual string getName() const;
+  virtual std::string getName() const;
 };
 
 } //end of namespace bpp.

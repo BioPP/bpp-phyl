@@ -210,12 +210,12 @@ class F84:
 		const Matrix<double> & getdPij_dt  (double d) const;
 		const Matrix<double> & getd2Pij_dt2(double d) const;
 
-		string getName() const { return "F84"; }
+    std::string getName() const { return "F84"; }
 
 		/**
 		 * @brief This method is redefined to actualize the corresponding parameters piA, piT, piG and piC too.
 		 */
-  void setFreq(map<int, double>&);
+  void setFreq(std::map<int, double>&);
 	
 	protected:
 		void updateMatrices();

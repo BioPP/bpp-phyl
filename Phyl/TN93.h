@@ -163,7 +163,7 @@ class TN93:
 		const Matrix<double> & getdPij_dt  (double d) const;
 		const Matrix<double> & getd2Pij_dt2(double d) const;
 
-		string getName() const { return "TN93"; }
+    std::string getName() const { return "TN93"; }
 	
   /**
    * @brief This method is over-defined to actualize the corresponding parameters piA, piT, piG and piC too.

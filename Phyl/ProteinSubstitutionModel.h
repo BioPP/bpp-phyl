@@ -55,7 +55,7 @@ class ProteinSubstitutionModel:
   public AbstractReversibleSubstitutionModel
 {
 	public:
-		ProteinSubstitutionModel(const ProteicAlphabet * alpha, const string& prefix):
+		ProteinSubstitutionModel(const ProteicAlphabet * alpha, const std::string& prefix):
       AbstractReversibleSubstitutionModel(alpha, prefix) {}
 
 		virtual ~ProteinSubstitutionModel() {}

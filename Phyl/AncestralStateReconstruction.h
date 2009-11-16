@@ -75,7 +75,7 @@ class AncestralStateReconstruction
 		 * @return A vector of states indices.
 		 * @see getAncestralSequenceForNode
 		 */ 
-		virtual vector<unsigned int> getAncestralStatesForNode(int nodeId) const = 0;
+		virtual std::vector<unsigned int> getAncestralStatesForNode(int nodeId) const = 0;
 
 		/**
 		 * @brief Get all ancestral states for all nodes.
@@ -85,7 +85,7 @@ class AncestralStateReconstruction
 		 * @return A map with nodes id as key, and a vector of states indices as value.
 		 * @see getAncestralSequenceForNode
 		 */
-		virtual map<int, vector<unsigned int> > getAllAncestralStates() const = 0;
+		virtual std::map<int, std::vector<unsigned int> > getAllAncestralStates() const = 0;
 
 		/**
 		 * @brief Get the ancestral sequence for a given node.
