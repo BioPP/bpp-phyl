@@ -136,7 +136,7 @@ void NonHomogeneousSequenceSimulator::init()
 
 /******************************************************************************/
 
-Site * NonHomogeneousSequenceSimulator::simulate() const
+Site* NonHomogeneousSequenceSimulator::simulate() const
 {
   // Draw an initial state randomly according to equilibrum frequencies:
   int initialState = 0;
@@ -157,7 +157,7 @@ Site * NonHomogeneousSequenceSimulator::simulate() const
 
 /******************************************************************************/
   
-Site * NonHomogeneousSequenceSimulator::simulate(int initialState) const
+Site* NonHomogeneousSequenceSimulator::simulate(int initialState) const
 {
   if(_continuousRates)
   {
@@ -177,7 +177,7 @@ Site * NonHomogeneousSequenceSimulator::simulate(int initialState) const
 
 /******************************************************************************/
 
-Site * NonHomogeneousSequenceSimulator::simulate(int initialState, unsigned int rateClass) const
+Site* NonHomogeneousSequenceSimulator::simulate(int initialState, unsigned int rateClass) const
 {
   // Launch recursion:
   SNode* root = _tree.getRootNode();
@@ -197,7 +197,7 @@ Site * NonHomogeneousSequenceSimulator::simulate(int initialState, unsigned int 
 
 /******************************************************************************/
   
-Site * NonHomogeneousSequenceSimulator::simulate(int initialState, double rate) const
+Site* NonHomogeneousSequenceSimulator::simulate(int initialState, double rate) const
 {
   // Launch recursion:
   SNode* root = _tree.getRootNode();
@@ -217,7 +217,7 @@ Site * NonHomogeneousSequenceSimulator::simulate(int initialState, double rate) 
 
 /******************************************************************************/
 
-Site * NonHomogeneousSequenceSimulator::simulate(double rate) const
+Site* NonHomogeneousSequenceSimulator::simulate(double rate) const
 {
   // Draw an initial state randomly according to equilibrum frequencies:
   int initialState = 0;
@@ -239,31 +239,31 @@ Site * NonHomogeneousSequenceSimulator::simulate(double rate) const
 
 /******************************************************************************/
     
-SiteContainer * NonHomogeneousSequenceSimulator::simulate(unsigned int numberOfSites) const
+SiteContainer* NonHomogeneousSequenceSimulator::simulate(unsigned int numberOfSites) const
 {
-  Vint * initialStates = new Vint(numberOfSites, 0);
-  for(unsigned int j = 0; j < numberOfSites; j++)
+  Vint initialStates(numberOfSites, 0);
+  for (unsigned int j = 0; j < numberOfSites; j++)
   { 
     double r = RandomTools::giveRandomNumberBetweenZeroAndEntry(1.);
     double cumprob = 0;  
     vector<double> freqs = _modelSet->getRootFrequencies();
-    for(unsigned int i = 0; i < _nbStates; i++)
+    for (unsigned int i = 0; i < _nbStates; i++)
     {
       cumprob += freqs[i]; 
-      if(r <= cumprob)
+      if (r <= cumprob)
       {
-        (* initialStates)[j] = (int)i;
+        initialStates[j] = (int)i;
         break;
       }
     }
   }
-  if(_continuousRates)
+  if (_continuousRates)
   {
-    VectorSiteContainer * sites = new VectorSiteContainer(_seqNames.size(), _alphabet);
+    VectorSiteContainer* sites = new VectorSiteContainer(_seqNames.size(), _alphabet);
     sites->setSequencesNames(_seqNames);
-    for(unsigned int j = 0; j < numberOfSites; j++)
+    for (unsigned int j = 0; j < numberOfSites; j++)
     {
-      Site * site = simulate();
+      Site* site = simulate();
       site->setPosition(j);
       sites->addSite(*site);
       delete site;
@@ -276,17 +276,17 @@ SiteContainer * NonHomogeneousSequenceSimulator::simulate(unsigned int numberOfS
     // Draw random rates:
     vector<unsigned int> rateClasses(numberOfSites);
     unsigned int nCat = _rate->getNumberOfCategories();
-    for(unsigned int j = 0; j < numberOfSites; j++)
-      rateClasses[j] = (unsigned int)RandomTools::giveIntRandomNumberBetweenZeroAndEntry(nCat);
+    for (unsigned int j = 0; j < numberOfSites; j++)
+      rateClasses[j] = static_cast<unsigned int>(RandomTools::giveIntRandomNumberBetweenZeroAndEntry(nCat));
     // Make these states evolve:
-    SiteContainer * sites = multipleEvolve(* initialStates, rateClasses);
+    SiteContainer* sites = multipleEvolve(initialStates, rateClasses);
     return sites;
   }
 }
 
 /******************************************************************************/
 
-RASiteSimulationResult * NonHomogeneousSequenceSimulator::dSimulate() const
+RASiteSimulationResult* NonHomogeneousSequenceSimulator::dSimulate() const
 {
   // Draw an initial state randomly according to equilibrum frequencies:
   int initialState = 0;
@@ -308,7 +308,7 @@ RASiteSimulationResult * NonHomogeneousSequenceSimulator::dSimulate() const
 
 /******************************************************************************/
 
-RASiteSimulationResult * NonHomogeneousSequenceSimulator::dSimulate(int initialState) const
+RASiteSimulationResult* NonHomogeneousSequenceSimulator::dSimulate(int initialState) const
 {
   // Draw a random rate:
   if(_continuousRates)
@@ -326,7 +326,7 @@ RASiteSimulationResult * NonHomogeneousSequenceSimulator::dSimulate(int initialS
 
 /******************************************************************************/
 
-RASiteSimulationResult * NonHomogeneousSequenceSimulator::dSimulate(int initialState, double rate) const
+RASiteSimulationResult* NonHomogeneousSequenceSimulator::dSimulate(int initialState, double rate) const
 {
   // Make this state evolve:
   RASiteSimulationResult * hssr = new RASiteSimulationResult(_templateTree, _modelSet->getAlphabet(), initialState, rate);
@@ -336,14 +336,14 @@ RASiteSimulationResult * NonHomogeneousSequenceSimulator::dSimulate(int initialS
 
 /******************************************************************************/
 
-RASiteSimulationResult * NonHomogeneousSequenceSimulator::dSimulate(int initialState, unsigned int rateClass) const
+RASiteSimulationResult* NonHomogeneousSequenceSimulator::dSimulate(int initialState, unsigned int rateClass) const
 {
   return dSimulate(initialState, _rate->getCategory(rateClass));
 }
 
 /******************************************************************************/
 
-RASiteSimulationResult * NonHomogeneousSequenceSimulator::dSimulate(double rate) const
+RASiteSimulationResult* NonHomogeneousSequenceSimulator::dSimulate(double rate) const
 {
   // Draw an initial state randomly according to equilibrum frequencies:
   int initialState = 0;
@@ -451,7 +451,7 @@ void NonHomogeneousSequenceSimulator::evolveInternal(SNode* node, double rate) c
 
 /******************************************************************************/
 
-void NonHomogeneousSequenceSimulator::multipleEvolveInternal(SNode * node, const vector<unsigned int> & rateClasses) const
+void NonHomogeneousSequenceSimulator::multipleEvolveInternal(SNode* node, const vector<unsigned int> & rateClasses) const
 {
   if(!node->hasFather())
   { 
@@ -470,7 +470,7 @@ void NonHomogeneousSequenceSimulator::multipleEvolveInternal(SNode * node, const
 
 /******************************************************************************/
 
-SiteContainer * NonHomogeneousSequenceSimulator::multipleEvolve(const Vint & initialStates, const vector<unsigned int> & rateClasses) const
+SiteContainer * NonHomogeneousSequenceSimulator::multipleEvolve(const Vint& initialStates, const vector<unsigned int> & rateClasses) const
 {
   // Launch recursion:
   SNode * root = _tree.getRootNode();
@@ -513,7 +513,7 @@ void NonHomogeneousSequenceSimulator::dEvolve(int initialState, double rate, RAS
 
 /******************************************************************************/
 
-void NonHomogeneousSequenceSimulator::dEvolveInternal(SNode * node, double rate, RASiteSimulationResult & rassr) const
+void NonHomogeneousSequenceSimulator::dEvolveInternal(SNode* node, double rate, RASiteSimulationResult & rassr) const
 {
   if(!node->hasFather())
   { 
