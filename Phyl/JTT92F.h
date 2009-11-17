@@ -63,16 +63,11 @@ class JTT92F:
   public ProteinSubstitutionModelWithFrequencies
 {
 	public:
-		JTT92F(const ProteicAlphabet * alpha);
+		JTT92F(const ProteicAlphabet* alpha);
 
 		virtual ~JTT92F() {}
 
-#ifndef NO_VIRTUAL_COV
-    JTT92F*
-#else
-    Clonable*
-#endif
-    clone() const { return new JTT92F(*this); }
+    JTT92F* clone() const { return new JTT92F(*this); }
 
 	public:
 		string getName() const { return "JTT92+F"; }

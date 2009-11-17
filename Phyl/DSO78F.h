@@ -63,16 +63,11 @@ class DSO78F:
   public ProteinSubstitutionModelWithFrequencies
 {
 	public:
-		DSO78F(const ProteicAlphabet * alpha);
+		DSO78F(const ProteicAlphabet* alpha);
 
 		virtual ~DSO78F() {}
 
-#ifndef NO_VIRTUAL_COV
-    DSO78F*
-#else
-    Clonable*
-#endif
-    clone() const { return new DSO78F(*this); }
+    DSO78F* clone() const { return new DSO78F(*this); }
     
 	public:
 		string getName() const { return "DSO78+F"; }

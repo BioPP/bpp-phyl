@@ -87,7 +87,7 @@ FullFrequenciesSet::FullFrequenciesSet(const Alphabet* alphabet):
 
   for (unsigned int i = 0; i < alphabet->getSize() - 1; i++)
   {
-    Parameter p("Full.theta_" + alphabet->intToChar((int)i), 1. / (size - i), &Parameter::PROP_CONSTRAINT_IN);
+    Parameter p("Full.theta_" + TextTools::toString(i + 1), 1. / (size - i), &Parameter::PROP_CONSTRAINT_IN);
     addParameter_(p);
     getFreq_(i) = 1. / size;
   }
@@ -101,7 +101,7 @@ FullFrequenciesSet::FullFrequenciesSet(const Alphabet* alphabet, const vector<do
   if (initFreqs.size() != alphabet->getSize())
     throw Exception("FullFrequenciesSet(constructor). There must be " + TextTools::toString(alphabet->getSize()) + " frequencies.");
   double sum = VectorTools::sum(initFreqs);
-  if (fabs(1. - sum) > NumConstants::TINY)
+  if (fabs(1. - sum) > NumConstants::SMALL)
   {
     throw Exception("Frequencies must equal 1 (sum = " + TextTools::toString(sum) + ").");
   }
@@ -109,7 +109,7 @@ FullFrequenciesSet::FullFrequenciesSet(const Alphabet* alphabet, const vector<do
   double y = 1;
   for (unsigned int i = 0; i < alphabet->getSize() - 1; i++)
   {
-    Parameter p("Full.theta_" + alphabet->intToChar((int)i), initFreqs[i] / y, &Parameter::PROP_CONSTRAINT_IN);
+    Parameter p("Full.theta_" + TextTools::toString(i + 1), initFreqs[i] / y, &Parameter::PROP_CONSTRAINT_IN);
     addParameter_(p);
     getFreq_(i) = initFreqs[i];
     y -= initFreqs[i];
@@ -124,15 +124,15 @@ void FullFrequenciesSet::setFrequencies(const vector<double>& frequencies) throw
   if (frequencies.size() != getNumberOfFrequencies())
     throw DimensionException("FullFrequenciesSet::setFrequencies. Invalid number of frequencies.", frequencies.size(), getNumberOfFrequencies());
 
-  if (fabs(1. - VectorTools::sum(frequencies)) >= NumConstants::TINY)
-    throw Exception("FullFrequenciesSet::setFrequencies. Frequencies do not sum to 1!!!");
+  if (fabs(1. - VectorTools::sum(frequencies)) >= NumConstants::SMALL)
+    throw Exception("FullFrequenciesSet::setFrequencies. Frequencies do not sum to 1 : " + TextTools::toString(VectorTools::sum(frequencies)));
 
   setFrequencies_(frequencies);
 
   double y = 1;
   for (unsigned int i = 0; i < alphabet->getSize() - 1; i++)
   {
-    getParameter_("theta_" + alphabet->intToChar(i)).setValue(frequencies[i] / y);
+    getParameter_("theta_" + TextTools::toString(i + 1)).setValue(frequencies[i] / y);
     y -= frequencies[i];
   }
 }
@@ -144,8 +144,8 @@ void FullFrequenciesSet::fireParameterChanged(const ParameterList& parameters)
   unsigned int i;
   for (i = 0; i < alphabet->getSize()-1; i++)
   {
-    getFreq_(i) = getParameter_("theta_" + alphabet->intToChar(i)).getValue() * y;
-    y *= 1 - getParameter_("theta_" + alphabet->intToChar(i)).getValue();
+    getFreq_(i) = getParameter_("theta_" + TextTools::toString(i + 1)).getValue() * y;
+    y *= 1 - getParameter_("theta_" + TextTools::toString(i + 1)).getValue();
   }
   
   i = alphabet->getSize() - 1;
@@ -197,7 +197,7 @@ FullCodonFrequenciesSet::FullCodonFrequenciesSet(const CodonAlphabet* alphabet, 
     }
   }
   
-  if (fabs(1. - sum) > NumConstants::TINY)
+  if (fabs(1. - sum) > NumConstants::SMALL)
   {
     throw Exception("Non stop frequencies must equal 1 (sum = " + TextTools::toString(sum) + ").");
   }
@@ -233,7 +233,7 @@ void FullCodonFrequenciesSet::setFrequencies(const vector<double>& frequencies) 
     if (!(alphabet->isStop(i)))
       sum += frequencies[i];
   }
-  if (fabs(1. - sum) > NumConstants::TINY)
+  if (fabs(1. - sum) > NumConstants::SMALL)
   {
     throw Exception("FullFrequenciesSet::setFrequencies. Non stop frequencies must equal 1 (sum = " + TextTools::toString(sum) + ").");
   }
@@ -311,7 +311,7 @@ void FullNAFrequenciesSet::setFrequencies(const vector<double>& frequencies) thr
   double sum = 0.0;
   for (unsigned int i = 0; i < 4; i++)
     sum += frequencies[i];
-  if (fabs(1. - sum) > NumConstants::TINY)
+  if (fabs(1. - sum) > NumConstants::SMALL)
     throw Exception("FullNAFrequenciesSet::setFrequencies. Frequencies must equal 1 (sum = " + TextTools::toString(sum) + ").");
   double theta = frequencies[1] + frequencies[2];
   getParameter_(0).setValue(theta);
@@ -341,7 +341,7 @@ void GCFrequenciesSet::setFrequencies(const vector<double>& frequencies) throw (
   double sum = 0.0;
   for (unsigned int i = 0; i < 4; i++)
     sum += frequencies[i];
-  if(fabs(1. - sum) > NumConstants::TINY)
+  if(fabs(1. - sum) > NumConstants::SMALL)
     throw Exception("GCFrequenciesSet::setFrequencies. Frequencies must equal 1 (sum = " + TextTools::toString(sum) + ").");
   double theta = frequencies[1] + frequencies[2];
   //We set everything in one shot here:

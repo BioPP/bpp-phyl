@@ -43,7 +43,7 @@ using namespace bpp;
 
 /******************************************************************************/
 
-JTT92F::JTT92F(const ProteicAlphabet * alpha) :
+JTT92F::JTT92F(const ProteicAlphabet* alpha) :
   ProteinSubstitutionModel(alpha, "JTT92+F."),
   ProteinSubstitutionModelWithFrequencies(alpha, "JTT92+F.")
 {
