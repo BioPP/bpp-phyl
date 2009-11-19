@@ -248,7 +248,7 @@ string TreeTools::nodeToParenthesis(const Tree & tree, int nodeId, bool bootstra
     else
     {
       if(tree.hasBranchProperty(nodeId, propertyName))
-        s << *(dynamic_cast<const String *>(tree.getBranchProperty(nodeId, propertyName)));
+        s << *(dynamic_cast<const BppString*>(tree.getBranchProperty(nodeId, propertyName)));
     }
   }
   if(tree.hasDistanceToFather(nodeId)) s << ":" << tree.getDistanceToFather(nodeId);
@@ -257,7 +257,7 @@ string TreeTools::nodeToParenthesis(const Tree & tree, int nodeId, bool bootstra
 
 /******************************************************************************/
 
-string TreeTools::treeToParenthesis(const Tree & tree, bool writeId)
+string TreeTools::treeToParenthesis(const Tree& tree, bool writeId)
 {
   ostringstream s;
   s << "(";
@@ -289,7 +289,7 @@ string TreeTools::treeToParenthesis(const Tree & tree, bool writeId)
 
 /******************************************************************************/
 
-string TreeTools::treeToParenthesis(const Tree & tree, bool bootstrap, const string & propertyName)
+string TreeTools::treeToParenthesis(const Tree& tree, bool bootstrap, const string & propertyName)
 {
   ostringstream s;
   s << "(";
@@ -320,7 +320,7 @@ string TreeTools::treeToParenthesis(const Tree & tree, bool bootstrap, const str
   else
   {
     if(tree.hasBranchProperty(rootId, propertyName))
-      s << *(dynamic_cast<const String *>(tree.getBranchProperty(rootId, propertyName)));
+      s << *(dynamic_cast<const BppString*>(tree.getBranchProperty(rootId, propertyName)));
   }
   s << ";" << endl;
   return s.str();  

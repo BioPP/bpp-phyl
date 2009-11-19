@@ -257,7 +257,7 @@ Node * TreeTemplateTools::parenthesisToNode(const string& description, bool boot
       }
       else
       {
-        node->setBranchProperty(propertyName, String(elt.bootstrap));
+        node->setBranchProperty(propertyName, BppString(elt.bootstrap));
       }
     }
   }
@@ -401,7 +401,7 @@ TreeTemplate<Node> * TreeTemplateTools::parenthesisToTree(const string& descript
           }
           else
           {
-            node->setBranchProperty(propertyName, String(bootstrapS));
+            node->setBranchProperty(propertyName, BppString(bootstrapS));
           }
         }
       }
@@ -476,7 +476,7 @@ string TreeTemplateTools::nodeToParenthesis(const Node & node, bool bootstrap, c
     else
     {
       if(node.hasBranchProperty(propertyName))
-        s << *(dynamic_cast<const String *>(node.getBranchProperty(propertyName)));
+        s << *(dynamic_cast<const BppString*>(node.getBranchProperty(propertyName)));
     }
   }
   if(node.hasDistanceToFather()) s << ":" << node.getDistanceToFather();
@@ -542,7 +542,7 @@ string TreeTemplateTools::treeToParenthesis(const TreeTemplate<Node> & tree, boo
   else
   {
     if(node->hasBranchProperty(propertyName))
-      s << *(dynamic_cast<const String *>(node->getBranchProperty(propertyName)));
+      s << *(dynamic_cast<const BppString*>(node->getBranchProperty(propertyName)));
   }
   s << ";" << endl;
   return s.str();  
