@@ -1073,9 +1073,9 @@ FrequenciesSet* PhylogeneticsApplicationTools::getFrequenciesSetDefaultInstance(
     
     const WordAlphabet* pWA = dynamic_cast<const WordAlphabet*>(alphabet);
 
-    if (args.find("frequencies")!=args.end())
+    if (args.find("frequency")!=args.end())
     {
-      string sAFS = args["frequencies"];
+      string sAFS = args["frequency"];
       
       unsigned int i, nbfreq = pWA->getLength();
       FrequenciesSet* pFS2;
@@ -1087,21 +1087,21 @@ FrequenciesSet* PhylogeneticsApplicationTools::getFrequenciesSetDefaultInstance(
       pFS2 = getFrequenciesSetDefaultInstance(pWA->getNAlphabet(0), sAFS, unparsedParameterValuesNested);
       for (map<string, string>::iterator it = unparsedParameterValuesNested.begin(); it != unparsedParameterValuesNested.end(); it++)
       {
-        unparsedParameterValues["IndWord." + st + "_" + it->first] = it->second;
+        unparsedParameterValues["IndependentWord." + st + "_" + it->first] = it->second;
       }
       pFS = new IndependentWordFrequenciesSet(pFS2,nbfreq);
     }    
     else
     {
-      if (args.find("frequencies0") == args.end())
-        throw Exception("PhylogeneticsApplicationTools::getFrequenciesSetDefaultInstance. Missing argument 'frequencies' or 'frequencies0' for frequencies set 'IndependentWord'.");
+      if (args.find("frequency0") == args.end())
+        throw Exception("PhylogeneticsApplicationTools::getFrequenciesSetDefaultInstance. Missing argument 'frequency' or 'frequency0' for frequencies set 'IndependentWord'.");
       Vector<string> v_sAFS;
       Vector<FrequenciesSet*> v_AFS;
       unsigned int i, nbfreq = 0;
       
-      while (args.find("frequencies" + TextTools::toString(nbfreq)) != args.end())
+      while (args.find("frequency" + TextTools::toString(nbfreq)) != args.end())
       {
-        v_sAFS.push_back(args["frequencies" + TextTools::toString(nbfreq++)]);
+        v_sAFS.push_back(args["frequency" + TextTools::toString(nbfreq++)]);
       }
 
       if (v_sAFS.size() != pWA->getLength())
@@ -1114,7 +1114,7 @@ FrequenciesSet* PhylogeneticsApplicationTools::getFrequenciesSetDefaultInstance(
         pFS = getFrequenciesSetDefaultInstance(pWA->getNAlphabet(i), v_sAFS[i], unparsedParameterValuesNested);
         for (map<string, string>::iterator it = unparsedParameterValuesNested.begin(); it != unparsedParameterValuesNested.end(); it++)
         {
-          unparsedParameterValues["IndWord."+TextTools::toString(i) + "_" + it->first] = it->second;
+          unparsedParameterValues["IndependentWord."+TextTools::toString(i) + "_" + it->first] = it->second;
         }
         v_AFS.push_back(pFS);
       }
