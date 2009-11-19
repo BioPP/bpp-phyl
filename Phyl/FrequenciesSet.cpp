@@ -172,7 +172,7 @@ FullCodonFrequenciesSet::FullCodonFrequenciesSet(const CodonAlphabet* alphabet):
     else
     {
       j++;
-      Parameter p("Full.theta_" + alphabet->intToChar((int)i), 1. / (size - j), &Parameter::PROP_CONSTRAINT_IN);
+      Parameter p("Full.theta_" + TextTools::toString(i+1), 1. / (size - j), &Parameter::PROP_CONSTRAINT_IN);
       addParameter_(p);
       getFreq_(i) = 1. / size;
     }
@@ -211,7 +211,7 @@ FullCodonFrequenciesSet::FullCodonFrequenciesSet(const CodonAlphabet* alphabet, 
     }
     else
     { 
-      Parameter p("Full.theta_" + alphabet->intToChar((int)i), initFreqs[i] / y, &Parameter::PROP_CONSTRAINT_IN);
+      Parameter p("Full.theta_" + TextTools::toString(i+1), initFreqs[i] / y, &Parameter::PROP_CONSTRAINT_IN);
       addParameter_(p);
       getFreq_(i) = initFreqs[i];
       y -= initFreqs[i];
@@ -247,7 +247,7 @@ void FullCodonFrequenciesSet::setFrequencies(const vector<double>& frequencies) 
     }
     else
     {
-      getParameter_("theta_" + alphabet->intToChar(i)).setValue(frequencies[i] / y);
+      getParameter_("theta_" + TextTools::toString(i+1)).setValue(frequencies[i] / y);
       y -= frequencies[i];
       getFreq_(i) = frequencies[i];
     }
@@ -264,8 +264,8 @@ void FullCodonFrequenciesSet::fireParameterChanged(const ParameterList& paramete
   for (i = 0; i < alphabet->getSize()-1; i++)
   {
     if (!(alphabet->isStop(i)))
-      getFreq_(i) = getParameter_("theta_" + alphabet->intToChar(i)).getValue() * y;
-    y *= 1 - getParameter_("theta_" + alphabet->intToChar(i)).getValue();
+      getFreq_(i) = getParameter_("theta_" + TextTools::toString(i+1)).getValue() * y;
+    y *= 1 - getParameter_("theta_" + TextTools::toString(i+1)).getValue();
   }
   
   i = alphabet->getSize() - 1;
