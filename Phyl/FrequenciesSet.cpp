@@ -419,7 +419,7 @@ void CodonFixedFrequenciesSet::setFrequencies(const vector<double>& frequencies)
 ///////////////////////////////////////////////
 // IndependentWordFrequenciesSet
 
-IndependentWordFrequenciesSet::IndependentWordFrequenciesSet(const Vector<FrequenciesSet*>& freqvector) : AbstractFrequenciesSet(getSizeFromVector(freqvector),extract_alph(freqvector),"IndWord.")
+IndependentWordFrequenciesSet::IndependentWordFrequenciesSet(const Vector<FrequenciesSet*>& freqvector) : AbstractFrequenciesSet(getSizeFromVector(freqvector),extract_alph(freqvector),"IndependentWord.")
 {
   int i,j,k,t;
   int l=freqvector.size();
@@ -443,7 +443,7 @@ IndependentWordFrequenciesSet::IndependentWordFrequenciesSet(const Vector<Freque
     for (i=0;i<l;i++){
       _VFreq.push_back(freqvector[i]);
       _VnestedPrefix.push_back(freqvector[i]->getNamespace());
-      _VFreq[i]->setNamespace("IndWord."+TextTools::toString(i)+"_"+_VnestedPrefix[i]);
+      _VFreq[i]->setNamespace("IndependentWord."+TextTools::toString(i)+"_"+_VnestedPrefix[i]);
       addParameters_(_VFreq[i]->getParameters());
     }
   }
@@ -454,7 +454,7 @@ IndependentWordFrequenciesSet::IndependentWordFrequenciesSet(const Vector<Freque
       _VnestedPrefix.push_back(freqvector[0]->getNamespace());
       st+=TextTools::toString(i);
     }
-    _VFreq[0]->setNamespace("IndWord."+st+"_"+_VnestedPrefix[0]);
+    _VFreq[0]->setNamespace("IndependentWord."+st+"_"+_VnestedPrefix[0]);
     addParameters_(_VFreq[0]->getParameters());
   }
 
@@ -476,7 +476,7 @@ IndependentWordFrequenciesSet::IndependentWordFrequenciesSet(const Vector<Freque
 
 }
 
-IndependentWordFrequenciesSet::IndependentWordFrequenciesSet(FrequenciesSet* pabsfreq, int num) : AbstractFrequenciesSet((int)pow((double) pabsfreq->getAlphabet()->getSize(),num),new WordAlphabet(pabsfreq->getAlphabet(), num),"IndWord."), unique_AbsFreq(1)
+IndependentWordFrequenciesSet::IndependentWordFrequenciesSet(FrequenciesSet* pabsfreq, int num) : AbstractFrequenciesSet((int)pow((double) pabsfreq->getAlphabet()->getSize(),num),new WordAlphabet(pabsfreq->getAlphabet(), num),"IndependentWord."), unique_AbsFreq(1)
 {
   int i,j,k,t;
 
@@ -486,7 +486,7 @@ IndependentWordFrequenciesSet::IndependentWordFrequenciesSet(FrequenciesSet* pab
     _VnestedPrefix.push_back(pabsfreq->getNamespace());
     st+=TextTools::toString(i);
   }
-  _VFreq[0]->setNamespace("IndWord."+st+"_"+_VnestedPrefix[0]);
+  _VFreq[0]->setNamespace("IndependentWord."+st+"_"+_VnestedPrefix[0]);
   addParameters_(_VFreq[0]->getParameters());
   
   vector<double> f[num];
@@ -666,7 +666,7 @@ void IndependentWordFrequenciesSet::setNamespace(const string& prefix)
 
 string IndependentWordFrequenciesSet::getName() const
 {
-  string s= "IndWord : ";
+  string s= "IndependentWord : ";
   for (unsigned int i=0;i< _VFreq.size(); i++)
     s+= _VFreq[i]->getName();
   return s;
