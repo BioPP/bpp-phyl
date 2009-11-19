@@ -58,15 +58,13 @@ AbstractCodonFrequenciesReversibleSubstitutionModel::AbstractCodonFrequenciesRev
 
   SubstitutionModel* pmodel=new K80(palph->getNucleicAlphabet());
 
-  string t="";
   for (i=0;i< 3; i++){
     _VSubMod.push_back(pmodel);
     _VnestedPrefix.push_back(pmodel->getNamespace());
     _rate[i]=1.0/3;
-    t+=TextTools::toString(i);
   }
   
-  pmodel->setNamespace(st+t+"_"+_VnestedPrefix[0]);
+  pmodel->setNamespace(st+"012_"+_VnestedPrefix[0]);
   addParameters_(pmodel->getParameters());
   
   if (pfreqset_->getAlphabet()->getSize() !=64)
