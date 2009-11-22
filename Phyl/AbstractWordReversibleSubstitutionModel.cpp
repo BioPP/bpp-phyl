@@ -213,16 +213,16 @@ void AbstractWordReversibleSubstitutionModel::fireParameterChanged(const Paramet
 
 void AbstractWordReversibleSubstitutionModel::updateMatrices()
 {
-  unsigned int nbmod=_VSubMod.size();
-  unsigned int salph=getNumberOfStates();
+  int nbmod=_VSubMod.size();
+  int salph=getNumberOfStates();
 
   // Generator
 
   if (enableEigenDecomposition())
   {
-    unsigned int i, j, n, l, k, m;
+    int i, j, n, l, k, m;
 
-    Vector<unsigned int> vsize;
+    Vector<int> vsize;
 
     for (k = 0; k < nbmod; k++)
       vsize.push_back(_VSubMod[k]->getNumberOfStates());
@@ -266,10 +266,10 @@ void AbstractWordReversibleSubstitutionModel::updateMatrices()
 
   if (enableEigenDecomposition())
   {
-    unsigned int i, j;
+     int i, j;
     double x;
     
-    unsigned int nbStop;
+     int nbStop;
     Vdouble vi;
 
     for (i = 0; i < salph; i++)
@@ -283,7 +283,7 @@ void AbstractWordReversibleSubstitutionModel::updateMatrices()
 
     if (AlphabetTools::isCodonAlphabet(getAlphabet()))
     {
-      unsigned int gi = 0, gj = 0;
+       int gi = 0, gj = 0;
 
       const CodonAlphabet* pca=dynamic_cast<const CodonAlphabet*>(getAlphabet());
 
@@ -348,7 +348,7 @@ void AbstractWordReversibleSubstitutionModel::updateMatrices()
 
     // looking for the 0 eigenvector
       
-    unsigned int nulleigen = 0;
+     int nulleigen = 0;
     while (nulleigen < salph - nbStop)
     {
       if (abs(eigenValues_[nulleigen])<0.000001 && abs(vi[nulleigen])<0.000001)
