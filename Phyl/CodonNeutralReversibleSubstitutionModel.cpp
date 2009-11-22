@@ -100,8 +100,9 @@ void CodonNeutralReversibleSubstitutionModel::completeMatrices()
 
 void CodonNeutralReversibleSubstitutionModel::updateMatrices()
 {
-  unsigned int i, k, nbmod = _VSubMod.size();
+  int i, nbmod = _VSubMod.size();
   double x;
+  int k;
   for (k = nbmod - 1; k >= 0; k--)
   {
     x = 1.0;
