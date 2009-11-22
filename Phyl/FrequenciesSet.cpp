@@ -597,7 +597,8 @@ void IndependentWordFrequenciesSet::setFrequencies(const vector<double>& frequen
   if (fabs(1.-sum) > 0.000001)
     throw Exception("IndependentWordFrequenciesSet::setFrequencies. Frequencies must equal 1 (sum = " + TextTools::toString(sum) + ").");
 
-  unsigned int d,i,j,k,s,l=_VFreq.size();
+  unsigned int d,i,j,s,l=_VFreq.size();
+  int k;
   vector<double> freq;
 
   if (unique_AbsFreq)
@@ -609,7 +610,7 @@ void IndependentWordFrequenciesSet::setFrequencies(const vector<double>& frequen
     d = size;
     for (i = 0; i < l; i++){
       d/=s;
-      for (k = 0; k < size; k++)
+      for (k = 0; k < (int)size; k++)
         freq[(k/d)%s] += frequencies[k];
     }
     for (j = 0; j < s; j++)
@@ -626,7 +627,7 @@ void IndependentWordFrequenciesSet::setFrequencies(const vector<double>& frequen
       d /= s;
       for (j = 0; j < s; j++)
         freq[j] = 0;
-      for (k = 0; k < size; k++)
+      for (k = 0; k < (int)size; k++)
         freq[(k/d) % s] += frequencies[k];
       _VFreq[i]->setFrequencies(freq);
     }
@@ -635,7 +636,7 @@ void IndependentWordFrequenciesSet::setFrequencies(const vector<double>& frequen
   // updating freq_
 
   vector<double> f[l];
-  for (k = 0; k < l; k++)
+  for (k = 0; k < (int)l; k++)
     f[k] = _VFreq[k]->getFrequencies();
   
   for (i = 0; i < size; i++)
