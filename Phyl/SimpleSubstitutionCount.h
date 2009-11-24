@@ -63,31 +63,20 @@ namespace bpp
 class SimpleSubstitutionCount:
   public SubstitutionCount
 {
-  protected:
-    const Alphabet * _alphabet;
+  private:
+    const Alphabet * alphabet_;
     
 	public:
-		SimpleSubstitutionCount(const Alphabet * alphabet): _alphabet(alphabet) {}				
+		SimpleSubstitutionCount(const Alphabet* alphabet): alphabet_(alphabet) {}				
 		virtual ~SimpleSubstitutionCount() {}
 			
 	public:
-		double getNumberOfSubstitutions(int initialState, int finalState, double length) const
+		double getNumberOfSubstitutions(unsigned int initialState, unsigned int finalState, double length) const
     {
 			return initialState == finalState ? 0. : 1.;
 		}
 
-    virtual Matrix<double> * getAllNumbersOfSubstitutions(double length) const
-    { 
-      unsigned int n = _alphabet->getSize();
-      RowMatrix<double> * mat = new RowMatrix<double>(n, n);
-      for(unsigned int i = 0; i < n; i++) {
-        (*mat)(i,i) = 0.;
-        for(unsigned int j = 0; j < i; j++) {
-          (*mat)(i,j) = (*mat)(j,i) = 1.;
-        }
-      }
-      return mat;
-    }
+    virtual Matrix<double>* getAllNumbersOfSubstitutions(double length) const;
 
     void setSubstitutionModel(const SubstitutionModel* model) {}
 

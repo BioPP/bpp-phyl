@@ -46,37 +46,26 @@ using namespace bpp;
 
 /******************************************************************************/
 
-AnalyticalSubstitutionCount::AnalyticalSubstitutionCount(const SubstitutionModel * model, int cutOff):
-  _model(model),
-  _cuttOff(cutOff),
-  _currentLength(-1.)
-{
-  unsigned int n = model->getAlphabet()->getSize();
-  _m = RowMatrix<double>(n, n);
-};
-
-/******************************************************************************/
-
 void AnalyticalSubstitutionCount::computeCounts(double length) const
 {
-  RowMatrix<double> Q = _model->getGenerator();
+  RowMatrix<double> Q = model_->getGenerator();
   // L is the diagonal matrix with all substitution rates.
   unsigned int s = Q.getNumberOfRows();
   RowMatrix<double> QL(s, s);
-  for(unsigned int i = 0; i < s; i++)
+  for (unsigned int i = 0; i < s; i++)
   {
-   for(unsigned int j = 0; j < s; j++)
-   {
-    QL(i, j) = ((i == j) ? 0. : Q(i, j)) ;
-   }
+    for (unsigned int j = 0; j < s; j++)
+    {
+      QL(i, j) = ((i == j) ? 0. : Q(i, j)) ;
+    }
   }
 
-  MatrixTools::fill(_m, 0.);
+  MatrixTools::fill(m_, 0.);
   RowMatrix<double> M2(s, s);
   RowMatrix<double> M3(s, s);
   RowMatrix<double> M4(s, s);
   RowMatrix<double> M5(s, s);
-  for(int n = 1; n < _cuttOff; n++)
+  for (int n = 1; n < cuttOff_; n++)
   {
     MatrixTools::fill(M2, 0.);
     for(int p = 0; p < n; p++)
@@ -88,45 +77,46 @@ void AnalyticalSubstitutionCount::computeCounts(double length) const
       MatrixTools::add(M2, M5);
     }
     MatrixTools::scale(M2, pow(length, n) / NumTools::fact(n));
-    MatrixTools::add(_m, M2);
+    MatrixTools::add(m_, M2);
   }
 
   // Now we must divide by pijt:
-  for(unsigned int i = 0; i < s; i++)
+  RowMatrix<double> P = model_->getPij_t(length);
+  for (unsigned int i = 0; i < s; i++)
   {
     for(unsigned int j = 0; j < s; j++)
     {
-      _m(i, j) /= _model->Pij_t(i, j, length);
+      m_(i, j) /= P(i, j);
     }
   }
 }
 
 /******************************************************************************/
 
-double AnalyticalSubstitutionCount::getNumberOfSubstitutions(int initialState, int finalState, double length) const
+double AnalyticalSubstitutionCount::getNumberOfSubstitutions(unsigned int initialState, unsigned int finalState, double length) const
 {
-  if(length == _currentLength) return _m(initialState, finalState);
+  if (length == currentLength_) return m_(initialState, finalState);
   if(length < 0.000001) return initialState == finalState ? 0. : 1.; //Limit case!
   // Else we need to recompute M:
   computeCounts(length);
 
-  _currentLength = length;
-  return _m(initialState, finalState);
+  currentLength_ = length;
+  return m_(initialState, finalState);
 }
 
 /******************************************************************************/
 
-Matrix<double> * AnalyticalSubstitutionCount::getAllNumbersOfSubstitutions(double length) const
+Matrix<double>* AnalyticalSubstitutionCount::getAllNumbersOfSubstitutions(double length) const
 {
-  if(length == _currentLength) return new RowMatrix<double>(_m);
-  if(length < 0.000001) // Limit case!
+  if (length == currentLength_) return new RowMatrix<double>(m_);
+  if (length < 0.000001) // Limit case!
   { 
-    unsigned int s = _model->getAlphabet()->getSize();
-    for(unsigned int i = 0; i < s; i++)
+    unsigned int s = model_->getAlphabet()->getSize();
+    for (unsigned int i = 0; i < s; i++)
     {
-      for(unsigned int j = 0; j < s; j++)
+      for (unsigned int j = 0; j < s; j++)
       {
-        _m(i, j) = i == j ? 0. : 1.;
+        m_(i, j) = i == j ? 0. : 1.;
       }
     }
   }
@@ -136,20 +126,20 @@ Matrix<double> * AnalyticalSubstitutionCount::getAllNumbersOfSubstitutions(doubl
     computeCounts(length);
   }
 
-  _currentLength = length;
+  currentLength_ = length;
 
-  return new RowMatrix<double>(_m);
+  return new RowMatrix<double>(m_);
 }
 
 /******************************************************************************/
 
 void AnalyticalSubstitutionCount::setSubstitutionModel(const SubstitutionModel* model)
 {
-  _model = model;
+  model_ = model;
   unsigned int n = model->getAlphabet()->getSize();
-  _m.resize(n, n);
+  m_.resize(n, n);
   //Recompute counts:
-  computeCounts(_currentLength);
+  computeCounts(currentLength_);
 }
 
 /******************************************************************************/

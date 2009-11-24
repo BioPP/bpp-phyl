@@ -75,7 +75,7 @@ class SubstitutionCount
 		 * @return The number of substitutions on a branch of specified length and
 		 * according to initial and final states.
 		 */
-		virtual double getNumberOfSubstitutions(int initialState, int finalState, double length) const = 0;
+		virtual double getNumberOfSubstitutions(unsigned int initialState, unsigned int finalState, double length) const = 0;
 		
 		/**
 		 * @brief Get the numbers of susbstitutions on a branch, for each initial and final states, and given the branch length.
@@ -83,7 +83,7 @@ class SubstitutionCount
 		 * @param length       The length of the branch.
 		 * @return A matrix with all numbers of substitutions for each initial and final states.
 		 */
-    virtual Matrix<double> * getAllNumbersOfSubstitutions(double length) const = 0;
+    virtual Matrix<double>* getAllNumbersOfSubstitutions(double length) const = 0;
 
     /**
      * @brief Set the substitution model associated with this count, if relevent.

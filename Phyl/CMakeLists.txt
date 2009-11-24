@@ -60,6 +60,8 @@ set(CPP_FILES
   SitePatterns.cpp
   ProbabilisticSubstitutionMapping.cpp
   AnalyticalSubstitutionCount.cpp
+  SimpleSubstitutionCount.cpp
+  OneJumpSubstitutionCount.cpp
   SubstitutionMappingTools.cpp
   BioNJ.cpp
   SubstitutionModelFactory.cpp
@@ -186,6 +188,7 @@ set(H_FILES
   SubstitutionCount.h
   AnalyticalSubstitutionCount.h
   SimpleSubstitutionCount.h
+  OneJumpSubstitutionCount.h
   IndexToCount.h
   SubstitutionMappingTools.h
   BioNJ.h

@@ -1,11 +1,11 @@
 //
-// File: AnalyticalSubstitutionCount.h
+// File: OneJumpSubstitutionCount.h
 // Created by: Julien Dutheil
-// Created on: Wed Apr 5 11:21 2006
+// Created on: Tue Nov 24 17:00 2009
 //
 
 /*
-Copyright or © or Copr. CNRS, (November 16, 2004, 2005, 2006)
+Copyright or © or Copr. CNRS, (November 16, 2004)
 
 This software is a computer program whose purpose is to provide classes
 for phylogenetic data analysis.
@@ -37,8 +37,8 @@ The fact that you are presently reading this means that you have had
 knowledge of the CeCILL license and that you accept its terms.
 */
 
-#ifndef _ANALYTICALSUBSTITUTIONCOUNT_H_
-#define _ANALYTICALSUBSTITUTIONCOUNT_H_
+#ifndef _ONEJUMPSUBSTITUTIONCOUNT_H_
+#define _ONEJUMPSUBSTITUTIONCOUNT_H_
 
 #include "SubstitutionCount.h"
 #include "SubstitutionModel.h"
@@ -47,39 +47,39 @@ namespace bpp
 {
 
 /**
- * @brief Analytical estimate of the substitution count.
+ * @brief Computes the probability that at least one jump occured on a branch, givne the initial and final state.
  *
- * This method uses Laplace transforms, as described in 
- * Dutheil J, Pupko T, Jean-Marie A, Galtier N.
- * A model-based approach for detecting coevolving positions in a molecule.
- * Mol Biol Evol. 2005 Sep;22(9):1919-28.
+ * This probability is defined as
+ * @f[
+ * p_{x,y}(l) = \left\{\begin{array}{ll}1 & \mathrm{if} x \neq y \\ 1 - \exp{\left(Q \cdot t\right)}_{x,y} & \mathrm{otherwise.}\end{array}\right.
+ * @f]
  */
-class AnalyticalSubstitutionCount:
+class OneJumpSubstitutionCount:
   public SubstitutionCount
 {
 	private:
 		const SubstitutionModel* model_;
-		int cuttOff_;
-		mutable double currentLength_;
-		mutable RowMatrix<double> m_;
+		mutable RowMatrix<double> tmp_;
 	
 	public:
-		AnalyticalSubstitutionCount(const SubstitutionModel* model, int cutOff) :
-      model_(model), cuttOff_(cuttOff_), currentLength_(-1), m_(model->getNumberOfStates(), model->getNumberOfStates())
-    {}
+		OneJumpSubstitutionCount(const SubstitutionModel* model) : model_(model), tmp_() {}
 				
-		virtual ~AnalyticalSubstitutionCount() {}
+		virtual ~OneJumpSubstitutionCount() {}
 			
 	public:
-		double getNumberOfSubstitutions(unsigned int initialState, unsigned int finalState, double length) const;
-    Matrix<double>* getAllNumbersOfSubstitutions(double length) const;
-    void setSubstitutionModel(const SubstitutionModel* model);
+		double getNumberOfSubstitutions(unsigned int initialState, unsigned int finalState, double length) const
+    {
+      if (finalState != initialState) return 1.;
+      else return 1. - model_->Pij_t(initialState, finalState, length);
+    }
 
-  protected:
-    void computeCounts(double length) const;
+    Matrix<double>* getAllNumbersOfSubstitutions(double length) const;
+    
+    void setSubstitutionModel(const SubstitutionModel* model) { model_ = model; }
+
 };
 
 } //end of namespace bpp.
 
-#endif //_ANALYTICALSUBSTITUTIONCOUNT_H_
+#endif //_ONEJUMPSUBSTITUTIONCOUNT_H_
 

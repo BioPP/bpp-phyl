@@ -41,44 +41,18 @@ knowledge of the CeCILL license and that you accept its terms.
 
 using namespace bpp;
 
-ProbabilisticSubstitutionMapping::ProbabilisticSubstitutionMapping(const Tree & tree, unsigned int numberOfSites)
+void ProbabilisticSubstitutionMapping::setTree(const Tree& tree)
 {
-  _tree = NULL;
-  _nbSites = numberOfSites;
-  _mapping.resize(_nbSites);
-  setTree(tree);
-}
-
-ProbabilisticSubstitutionMapping::ProbabilisticSubstitutionMapping(const Tree & tree)
-{
-  _tree = NULL;
-  _nbSites = 0;
-  _mapping.resize(_nbSites); 
-  setTree(tree);
-}
-
-void ProbabilisticSubstitutionMapping::setTree(const Tree & tree)
-{
-  if(_tree != NULL) delete _tree;
-  _tree = new TreeTemplate<Node>(tree);
-  _nodes = _tree->getNodes();
-  _nodes.pop_back(); // remove root node.
-  _nbBranches = _nodes.size();
-  for(unsigned int i = 0; i < _nbSites; i++)
-  {
-    _mapping[i].resize(_nbBranches);
-  }
+  AbstractSubstitutionMapping::setTree(tree);
+  for (unsigned int i = 0; i < getNumberOfSites(); i++)
+    mapping_[i].resize(getNumberOfBranches());
 }
 
 void ProbabilisticSubstitutionMapping::setNumberOfSites(unsigned int numberOfSites)
 {
-  _nbSites = numberOfSites;
-  _mapping.resize(_nbSites);
-  _sitesPostions.resize(_nbSites);
-  for(unsigned int i = 0; i < _nbSites; i++)
-  {
-    _sitesPostions[i] = i + 1; //Default: all sizes numbered for 1 to n.
-    _mapping[i].resize(_nbBranches);
-  }
+  AbstractSubstitutionMapping::setNumberOfSites(numberOfSites);
+  mapping_.resize(numberOfSites);
+  for (unsigned int i = 0; i < numberOfSites; i++)
+    mapping_[i].resize(getNumberOfBranches());
 }
  

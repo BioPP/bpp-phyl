@@ -1,7 +1,7 @@
 //
-// File: AnalyticalSubstitutionCount.h
+// File: SimpleSubstitutionCount.h
 // Created by: Julien Dutheil
-// Created on: Wed Apr 5 11:21 2006
+// Created on: Wed Apr 5 11:08 2006
 //
 
 /*
@@ -37,49 +37,22 @@ The fact that you are presently reading this means that you have had
 knowledge of the CeCILL license and that you accept its terms.
 */
 
-#ifndef _ANALYTICALSUBSTITUTIONCOUNT_H_
-#define _ANALYTICALSUBSTITUTIONCOUNT_H_
+#include "SimpleSubstitutionCount.h"
 
-#include "SubstitutionCount.h"
-#include "SubstitutionModel.h"
+using namespace bpp;
 
-namespace bpp
-{
-
-/**
- * @brief Analytical estimate of the substitution count.
- *
- * This method uses Laplace transforms, as described in 
- * Dutheil J, Pupko T, Jean-Marie A, Galtier N.
- * A model-based approach for detecting coevolving positions in a molecule.
- * Mol Biol Evol. 2005 Sep;22(9):1919-28.
- */
-class AnalyticalSubstitutionCount:
-  public SubstitutionCount
-{
-	private:
-		const SubstitutionModel* model_;
-		int cuttOff_;
-		mutable double currentLength_;
-		mutable RowMatrix<double> m_;
-	
-	public:
-		AnalyticalSubstitutionCount(const SubstitutionModel* model, int cutOff) :
-      model_(model), cuttOff_(cuttOff_), currentLength_(-1), m_(model->getNumberOfStates(), model->getNumberOfStates())
-    {}
-				
-		virtual ~AnalyticalSubstitutionCount() {}
-			
-	public:
-		double getNumberOfSubstitutions(unsigned int initialState, unsigned int finalState, double length) const;
-    Matrix<double>* getAllNumbersOfSubstitutions(double length) const;
-    void setSubstitutionModel(const SubstitutionModel* model);
-
-  protected:
-    void computeCounts(double length) const;
-};
-
-} //end of namespace bpp.
-
-#endif //_ANALYTICALSUBSTITUTIONCOUNT_H_
+Matrix<double>* SimpleSubstitutionCount::getAllNumbersOfSubstitutions(double length) const
+{ 
+  unsigned int n = alphabet_->getSize();
+  RowMatrix<double>* mat = new RowMatrix<double>(n, n);
+  for (unsigned int i = 0; i < n; i++)
+  {
+    (*mat)(i,i) = 0.;
+    for (unsigned int j = 0; j < i; j++)
+    {
+      (*mat)(i,j) = (*mat)(j,i) = 1.;
+    }
+  }
+  return mat;
+}
 

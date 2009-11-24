@@ -1,11 +1,11 @@
 //
-// File: AnalyticalSubstitutionCount.h
+// File: OneJumpSubstitutionCount.cpp
 // Created by: Julien Dutheil
-// Created on: Wed Apr 5 11:21 2006
+// Created on: Tue Nov 24 17:00 2009
 //
 
 /*
-Copyright or © or Copr. CNRS, (November 16, 2004, 2005, 2006)
+Copyright or © or Copr. CNRS, (November 16, 2004)
 
 This software is a computer program whose purpose is to provide classes
 for phylogenetic data analysis.
@@ -37,49 +37,18 @@ The fact that you are presently reading this means that you have had
 knowledge of the CeCILL license and that you accept its terms.
 */
 
-#ifndef _ANALYTICALSUBSTITUTIONCOUNT_H_
-#define _ANALYTICALSUBSTITUTIONCOUNT_H_
+#include "OneJumpSubstitutionCount.h"
 
-#include "SubstitutionCount.h"
-#include "SubstitutionModel.h"
+using namespace bpp;
 
-namespace bpp
+Matrix<double>* OneJumpSubstitutionCount::getAllNumbersOfSubstitutions(double length) const
 {
-
-/**
- * @brief Analytical estimate of the substitution count.
- *
- * This method uses Laplace transforms, as described in 
- * Dutheil J, Pupko T, Jean-Marie A, Galtier N.
- * A model-based approach for detecting coevolving positions in a molecule.
- * Mol Biol Evol. 2005 Sep;22(9):1919-28.
- */
-class AnalyticalSubstitutionCount:
-  public SubstitutionCount
-{
-	private:
-		const SubstitutionModel* model_;
-		int cuttOff_;
-		mutable double currentLength_;
-		mutable RowMatrix<double> m_;
-	
-	public:
-		AnalyticalSubstitutionCount(const SubstitutionModel* model, int cutOff) :
-      model_(model), cuttOff_(cuttOff_), currentLength_(-1), m_(model->getNumberOfStates(), model->getNumberOfStates())
-    {}
-				
-		virtual ~AnalyticalSubstitutionCount() {}
-			
-	public:
-		double getNumberOfSubstitutions(unsigned int initialState, unsigned int finalState, double length) const;
-    Matrix<double>* getAllNumbersOfSubstitutions(double length) const;
-    void setSubstitutionModel(const SubstitutionModel* model);
-
-  protected:
-    void computeCounts(double length) const;
-};
-
-} //end of namespace bpp.
-
-#endif //_ANALYTICALSUBSTITUTIONCOUNT_H_
+  tmp_ = model_->getPij_t(length);
+  unsigned int n = model_->getNumberOfStates();
+  Matrix<double>* probs = new LinearMatrix<double>(n, n);
+  for (unsigned int i = 0; i < n; i++) 
+    for (unsigned int j = 0; j < n; j++)
+      (*probs)(i, j) = (i == j ? 1. - tmp_(i, j) : 1.);
+  return probs;
+}
 

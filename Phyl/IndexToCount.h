@@ -58,34 +58,37 @@ class IndexToCount:
   public SubstitutionCount
 {
 	private:
-		const AlphabetIndex2<double> * _dist;
-		bool _deleteDist;
+		const AlphabetIndex2<double> * dist_;
+		bool deleteDist_;
 	
 	public:
 		IndexToCount(const AlphabetIndex2<double> * ai2, bool deleteDistance)
     {
-			_dist = ai2;
-			_deleteDist = deleteDistance;
+			dist_ = ai2;
+			deleteDist_ = deleteDistance;
 		}				
 		
 		virtual ~IndexToCount()
     {
-			if(_deleteDist) delete _dist;
+			if (deleteDist_) delete dist_;
 		}
 			
 	public:
-		double getNumberOfSubstitutions(int initialState, int finalState, double length) const
+
+		double getNumberOfSubstitutions(unsigned int initialState, unsigned int finalState, double length) const
     {
-			return _dist->getIndex(initialState, finalState);
+			return dist_->getIndex(initialState, finalState);
 		}
-		Matrix<double> * getAllNumbersOfSubstitutions(double length) const
+
+		Matrix<double>* getAllNumbersOfSubstitutions(double length) const
     {
-      return _dist->getIndexMatrix();
+      return dist_->getIndexMatrix();
     }
+    
     void setSubstitutionModel(const SubstitutionModel* model) {}
 
 	public:
-		const AlphabetIndex2<double> * getAlphabetIndex2() const { return _dist; }
+		const AlphabetIndex2<double>* getAlphabetIndex2() const { return dist_; }
 };
 
 } //end of namespace bpp.

@@ -42,6 +42,7 @@ knowledge of the CeCILL license and that you accept its terms.
 
 #include "ProbabilisticSubstitutionMapping.h"
 #include "SubstitutionCount.h"
+#include "OneJumpSubstitutionCount.h"
 #include "DRTreeLikelihood.h"
 
 namespace bpp
@@ -75,9 +76,9 @@ class SubstitutionMappingTools
 		 * @return A vector of substitutions vectors (one for each site).
      * @throw Exception If the likelihood object is not initialized.
 		 */
-		static ProbabilisticSubstitutionMapping * computeSubstitutionVectors(
+		static ProbabilisticSubstitutionMapping* computeSubstitutionVectors(
 			const DRTreeLikelihood & drtl,
-			SubstitutionCount & substitutionCount,
+			SubstitutionCount& substitutionCount,
 			bool verbose = true) throw (Exception);
 		
 		/**
@@ -100,9 +101,9 @@ class SubstitutionMappingTools
 		 * @return A vector of substitutions vectors (one for each site).
      * @throw Exception If the likelihood object is not initialized.
 		 */
-		static ProbabilisticSubstitutionMapping * computeSubstitutionVectorsNoAveraging(
+		static ProbabilisticSubstitutionMapping* computeSubstitutionVectorsNoAveraging(
 			const DRTreeLikelihood & drtl,
-			SubstitutionCount & substitutionCount,
+			SubstitutionCount& substitutionCount,
 			bool verbose = true) throw (Exception);
 		
 		/**
@@ -123,9 +124,9 @@ class SubstitutionMappingTools
 		 * @return A vector of substitutions vectors (one for each site).
      * @throw Exception If the likelihood object is not initialized.
 		 */
-		static ProbabilisticSubstitutionMapping * computeSubstitutionVectorsNoAveragingMarginal(
-			const DRTreeLikelihood & drtl,
-			SubstitutionCount & substitutionCount,
+		static ProbabilisticSubstitutionMapping* computeSubstitutionVectorsNoAveragingMarginal(
+			const DRTreeLikelihood& drtl,
+			SubstitutionCount& substitutionCount,
 			bool verbose = true) throw (Exception);
 		
 		/**
@@ -143,11 +144,27 @@ class SubstitutionMappingTools
 		 * @return A vector of substitutions vectors (one for each site).
      * @throw Exception If the likelihood object is not initialized.
 		 */
-		static ProbabilisticSubstitutionMapping * computeSubstitutionVectorsMarginal(
-			const DRTreeLikelihood & drtl,
-			SubstitutionCount & substitutionCount,
+		static ProbabilisticSubstitutionMapping* computeSubstitutionVectorsMarginal(
+			const DRTreeLikelihood& drtl,
+			SubstitutionCount& substitutionCount,
 			bool verbose = true) throw (Exception);
 	
+
+    /**
+     * @brief This method computes for each site and for each branch the probability that
+     * at least one jump occurred.
+     *
+     * Here 'jump' refer to a change in the model state. Depending on the model, this might
+     * not be the same as a substitution (an alphabet state change).
+     */
+		static ProbabilisticSubstitutionMapping* computeOneJumpProbabilityVectors(
+			const DRTreeLikelihood& drtl,
+			bool verbose = true) throw (Exception)
+    {
+      OneJumpSubstitutionCount ojsm(0);
+      return computeSubstitutionVectors(drtl, ojsm);
+    }
+
 		/**
 		 * @brief Write the substitutions vectors to a stream.
 		 *
@@ -158,9 +175,9 @@ class SubstitutionMappingTools
 		 * @throw IOException If an output error happens.
 		 */
 		static void writeToStream(
-			const ProbabilisticSubstitutionMapping & substitutions,
-			const SiteContainer & sites,
-			ostream & out)
+			const ProbabilisticSubstitutionMapping& substitutions,
+			const SiteContainer& sites,
+			ostream& out)
 			throw (IOException);
 	
 		/**
@@ -170,7 +187,7 @@ class SubstitutionMappingTools
 		 * @param substitutions The mapping object to fill.
 		 * @throw IOException If an input error happens.
 		 */
-		static void readFromStream(istream & in, ProbabilisticSubstitutionMapping & substitutions)
+		static void readFromStream(istream& in, ProbabilisticSubstitutionMapping& substitutions)
 			throw (IOException);
     
 };

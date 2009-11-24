@@ -62,7 +62,7 @@ namespace bpp
  * on the equilibrium frequency, and each position has its specific rate.
  * For example, if there are @f$n@f$ models and \f$\rho_i\f$ is the rate of
  * model i (@f$\sum_{i=0}^{n-1} \rho_i = 1@f$):
- * @f{eqnarray*}{
+ * @f{eqnarray*}
  * Q_{abc \rightarrow abd} &=& \rho_2 Q^{(2)}_{c \rightarrow d}\\
  * Q_{abc \rightarrow aed} &=& 0\\
  * Q_{abc \rightarrow abc} &=& \rho_0 Q^{(0)}_{a \rightarrow a} + \rho_1 Q^{(1)}_{b \rightarrow b} + \rho_2 Q^{(2)}_{c \rightarrow c})
