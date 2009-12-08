@@ -164,8 +164,9 @@ class RNonHomogeneousTreeLikelihood :
     void setData(const SiteContainer& sites) throw (Exception);
   	double getLikelihood() const;
 		double getLogLikelihood() const;
-		double getLikelihoodForASite (unsigned int site) const;
+		double getLikelihoodForASite(unsigned int site) const;
 		double getLogLikelihoodForASite(unsigned int site) const;
+    unsigned int getSiteIndex(unsigned int site) const throw (IndexOutOfBoundsException) { return likelihoodData_->getRootArrayPosition(site); }
  		/** @} */
 
 		

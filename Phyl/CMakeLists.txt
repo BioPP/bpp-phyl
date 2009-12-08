@@ -123,6 +123,7 @@ set(H_FILES
   DRNonHomogeneousTreeLikelihood.h
   ClockTreeLikelihood.h
   RHomogeneousClockTreeLikelihood.h
+  SitePartitionTreeLikelihood.h
   TreeLikelihoodTools.h
   DRTreeLikelihoodTools.h
   IODistanceMatrix.h

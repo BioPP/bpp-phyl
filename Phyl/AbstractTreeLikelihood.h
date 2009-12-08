@@ -71,6 +71,134 @@ class AbstractTreeLikelihood :
 	public virtual TreeLikelihood,
 	public AbstractParametrizable
 {
+  public:
+    /**
+     * @brief A very simple branch iterator.
+     *
+     * The constructor takes a vector of nodes id to iterate over.
+     */
+    class SimpleBranchIterator :
+      public BranchIterator
+    {
+      private:
+        std::vector<int> nodesId_;
+        unsigned int index_;
+
+      public:
+        SimpleBranchIterator(const std::vector<int>& nodesId) :
+          nodesId_(nodesId), index_(0) {}
+
+      public:
+        int next() throw (Exception)
+        {
+          if (!hasNext())
+            throw Exception("AbstractTreeLikelihood::SimpleBranchIterator::next(). No more branch in the set.");
+          return nodesId_[index_++];
+        }
+
+        bool hasNext() const { return index_ < nodesId_.size(); }
+        
+    };
+
+    /**
+     * @brief A very simple site iterator.
+     *
+     * This iterator loops over a continuous range of sites.
+     * The ocnstructor takes as input the number of sites to iterate over,
+     * and optionally an offset argument, specifying the index of the first site.
+     */
+    class SimpleSiteIterator :
+      public SiteIterator
+    {
+      private:
+        unsigned int maxIndex_;
+        unsigned int index_;
+        unsigned int offset_;
+
+      public:
+        SimpleSiteIterator(unsigned int nbSites, unsigned int offset = 0) :
+          maxIndex_(nbSites), index_(0), offset_(offset) {}
+
+      public:
+        unsigned int next() throw (Exception)
+        {
+          if (!hasNext())
+            throw Exception("AbstractTreeLikelihood::SimpleSiteIterator::next(). No more site in the set.");
+          return offset_ + index_++;
+        }
+
+        bool hasNext() const { return index_ < maxIndex_; }
+        
+    };
+   
+    /**
+     * @name Branch iterator for models without site partition.
+     *
+     * @{
+     */
+    class ConstNoPartitionBranchModelDescription :
+      public ConstBranchModelDescription
+    {
+      private:
+        const SubstitutionModel* model_;
+        unsigned int nbSites_;
+
+      public:
+        ConstNoPartitionBranchModelDescription(const SubstitutionModel* model, unsigned int nbSites) :
+          model_(model), nbSites_(nbSites) {}
+
+      public:
+        const SubstitutionModel* getModel() const { return model_; }
+        
+        SiteIterator* getNewSiteIterator() const { return new SimpleSiteIterator(nbSites_); }
+    };
+
+    class ConstNoPartitionBranchModelIterator :
+      public ConstBranchModelIterator
+    {
+      private:
+        ConstNoPartitionBranchModelDescription branchModelDescription_;
+        unsigned int index_;
+        unsigned int nbBranches_;
+
+      public:
+        ConstNoPartitionBranchModelIterator(const Tree& tree, SubstitutionModel* model, unsigned int nbSites) :
+          branchModelDescription_(model, nbSites), index_(0), nbBranches_(tree.getNumberOfNodes() - 1) {}
+
+      public:
+        ConstNoPartitionBranchModelDescription* next() throw (Exception)
+        {
+          if (!hasNext())
+            throw Exception("AbstractHomogeneousTreeLikelihood::ConstHomogeneousBranchModelIterator::next(). No more branch in the set.");
+          index_++;
+          return &branchModelDescription_;
+        }
+
+        bool hasNext() const { return index_ < nbBranches_; }
+    };
+ 
+    class ConstNoPartitionSiteModelDescription :
+      public ConstSiteModelDescription
+    {
+      private:
+        const SubstitutionModel* model_;
+        std::vector<int> nodesId_;
+
+      public:
+        ConstNoPartitionSiteModelDescription(const SubstitutionModel* model, const std::vector<int> nodesId) :
+          model_(model), nodesId_(nodesId) {}
+
+      public:
+        const SubstitutionModel* getModel() const { return model_; }
+        
+        BranchIterator* getNewBranchIterator() const { return new SimpleBranchIterator(nodesId_); }
+    };
+
+   /** @} */
+
+
+
+
 	protected:
 		const SiteContainer* data_;
 		mutable TreeTemplate<Node>* tree_;
@@ -121,8 +249,8 @@ class AbstractTreeLikelihood :
      */
 		virtual ~AbstractTreeLikelihood()
     {
-      if(data_) delete data_;
-      if(tree_) delete tree_;
+      if (data_) delete data_;
+      if (tree_) delete tree_;
     }
 	
 	public:
@@ -131,8 +259,8 @@ class AbstractTreeLikelihood :
 		 *
 		 * @{
 		 */
-		const SiteContainer * getData() const { return data_; }
-		const Alphabet * getAlphabet() const { return data_->getAlphabet(); }	
+		const SiteContainer* getData() const { return data_; }
+		const Alphabet* getAlphabet() const { return data_->getAlphabet(); }	
 		Vdouble getLikelihoodForEachSite()                 const;
 		Vdouble getLogLikelihoodForEachSite()              const;
 		VVdouble getLikelihoodForEachSiteForEachState()    const;

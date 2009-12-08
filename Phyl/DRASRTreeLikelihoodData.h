@@ -51,8 +51,6 @@ knowledge of the CeCILL license and that you accept its terms.
 // From the STL:
 #include <map>
 
-using namespace std;
-
 namespace bpp
 {
 
@@ -80,7 +78,7 @@ class DRASRTreeLikelihoodNodeData :
 		mutable VVVdouble _nodeLikelihoods;
 		mutable VVVdouble _nodeDLikelihoods;
 		mutable VVVdouble _nodeD2Likelihoods;
-		const Node * _node;
+		const Node* _node;
 
   public:
 #ifndef NO_VIRTUAL_COV
@@ -94,17 +92,17 @@ class DRASRTreeLikelihoodNodeData :
     }
 
 	public:
-		const Node * getNode() const { return _node; }
-		void setNode(const Node & node) { _node = &node; }
+		const Node* getNode() const { return _node; }
+		void setNode(const Node* node) { _node = node; }
 
-		VVVdouble & getLikelihoodArray() { return _nodeLikelihoods; }
-		const VVVdouble & getLikelihoodArray() const { return _nodeLikelihoods; }
+		VVVdouble& getLikelihoodArray() { return _nodeLikelihoods; }
+		const VVVdouble& getLikelihoodArray() const { return _nodeLikelihoods; }
 		
-		VVVdouble & getDLikelihoodArray() { return _nodeDLikelihoods; }
-		const VVVdouble & getDLikelihoodArray() const { return _nodeDLikelihoods; }
+		VVVdouble& getDLikelihoodArray() { return _nodeDLikelihoods; }
+		const VVVdouble& getDLikelihoodArray() const { return _nodeDLikelihoods; }
 
-		VVVdouble & getD2LikelihoodArray() { return _nodeD2Likelihoods; }
-		const VVVdouble & getD2LikelihoodArray() const { return _nodeD2Likelihoods; }
+		VVVdouble& getD2LikelihoodArray() { return _nodeD2Likelihoods; }
+		const VVVdouble& getD2LikelihoodArray() const { return _nodeD2Likelihoods; }
 };
 
 /**
@@ -119,7 +117,7 @@ class DRASRTreeLikelihoodData :
 		 * @brief This contains all likelihood values used for computation.
 		 *
 		 */
-		mutable map<int, DRASRTreeLikelihoodNodeData> _nodeData;
+		mutable std::map<int, DRASRTreeLikelihoodNodeData> _nodeData;
 			
 		/**
 		 * @brief This map defines the pattern network.
@@ -133,7 +131,7 @@ class DRASRTreeLikelihoodData :
 		 * The double map contains the position of the site to use (second dimension)
 		 * of the likelihoods array.
 		 */
-		mutable map<int, map<int, vector<unsigned int> > > _patternLinks;
+		mutable std::map<int, std::map<int, std::vector<unsigned int> > > _patternLinks;
 		SiteContainer * _shrunkData;
 		unsigned int _nbSites; 
 		unsigned int _nbStates;
@@ -142,24 +140,24 @@ class DRASRTreeLikelihoodData :
     bool _usePatterns;
 
 	public:
-		DRASRTreeLikelihoodData(TreeTemplate<Node> & tree, unsigned int nbClasses, bool usePatterns = true):
-      _nodeData(), _patternLinks(), _shrunkData(NULL), _nbSites(0), _nbStates(0),
+		DRASRTreeLikelihoodData(TreeTemplate<Node>& tree, unsigned int nbClasses, bool usePatterns = true):
+      _nodeData(), _patternLinks(), _shrunkData(0), _nbSites(0), _nbStates(0),
       _nbClasses(nbClasses), _nbDistinctSites(0), _usePatterns(usePatterns)
     {
       _tree = &tree;
     }
 
-		DRASRTreeLikelihoodData(const DRASRTreeLikelihoodData & data):
+		DRASRTreeLikelihoodData(const DRASRTreeLikelihoodData& data):
       AbstractTreeLikelihoodData(data),
       _nodeData(data._nodeData),
       _patternLinks(data._patternLinks),
-      _shrunkData(NULL),
+      _shrunkData(0),
       _nbSites(data._nbSites), _nbStates(data._nbStates),
       _nbClasses(data._nbClasses), _nbDistinctSites(data._nbDistinctSites),
       _usePatterns(data._usePatterns)
     {
       _tree              = data._tree;
-      if(data._shrunkData)
+      if (data._shrunkData)
         _shrunkData      = dynamic_cast<SiteContainer *>(data._shrunkData->clone());
     }
 
@@ -174,9 +172,9 @@ class DRASRTreeLikelihoodData :
       _nbDistinctSites   = data._nbDistinctSites;
       _tree              = data._tree;
       if(data._shrunkData)
-        _shrunkData      = dynamic_cast<SiteContainer *>(data._shrunkData->clone());
+        _shrunkData      = dynamic_cast<SiteContainer*>(data._shrunkData->clone());
       else
-        _shrunkData      = NULL;
+        _shrunkData      = 0;
       _usePatterns       = data._usePatterns;
       return *this;
     }
@@ -191,21 +189,21 @@ class DRASRTreeLikelihoodData :
     clone() const { return new DRASRTreeLikelihoodData(*this); }
 
 	public:
-    void setTree(TreeTemplate<Node> & tree)
+    void setTree(TreeTemplate<Node>& tree)
     { 
       _tree = &tree;
-      for(map<int, DRASRTreeLikelihoodNodeData>::iterator it = _nodeData.begin(); it != _nodeData.end(); it++)
+      for (std::map<int, DRASRTreeLikelihoodNodeData>::iterator it = _nodeData.begin(); it != _nodeData.end(); it++)
       {
         int id = it->second.getNode()->getId();
-        it->second.setNode(*_tree->getNode(id));
+        it->second.setNode(_tree->getNode(id));
       }
     }
 
-		DRASRTreeLikelihoodNodeData & getNodeData(int nodeId)
+		DRASRTreeLikelihoodNodeData& getNodeData(int nodeId)
 		{ 
 			return _nodeData[nodeId];
 		}
-		const DRASRTreeLikelihoodNodeData & getNodeData(int nodeId) const
+		const DRASRTreeLikelihoodNodeData& getNodeData(int nodeId) const
 		{ 
 			return _nodeData[nodeId];
 		}
@@ -217,11 +215,11 @@ class DRASRTreeLikelihoodData :
 		{
 			return _rootPatternLinks[currentPosition];
 		}
-		const vector<unsigned int> & getArrayPositions(int parentId, int sonId) const
+		const std::vector<unsigned int>& getArrayPositions(int parentId, int sonId) const
 		{
 			return _patternLinks[parentId][sonId];
 		}
-		vector<unsigned int> & getArrayPositions(int parentId, int sonId)
+    std::vector<unsigned int>& getArrayPositions(int parentId, int sonId)
 		{
 			return _patternLinks[parentId][sonId];
 		}

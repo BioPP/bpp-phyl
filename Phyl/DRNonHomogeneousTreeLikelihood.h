@@ -121,16 +121,11 @@ class DRNonHomogeneousTreeLikelihood:
      */ 
     DRNonHomogeneousTreeLikelihood(const DRNonHomogeneousTreeLikelihood& lik);
     
-    DRNonHomogeneousTreeLikelihood & operator=(const DRNonHomogeneousTreeLikelihood& lik);
+    DRNonHomogeneousTreeLikelihood& operator=(const DRNonHomogeneousTreeLikelihood& lik);
 
     virtual ~DRNonHomogeneousTreeLikelihood();
 
-#ifndef NO_VIRTUAL_COV
-    DRNonHomogeneousTreeLikelihood*
-#else
-    Clonable*
-#endif
-    clone() const { return new DRNonHomogeneousTreeLikelihood(*this); }
+    DRNonHomogeneousTreeLikelihood* clone() const { return new DRNonHomogeneousTreeLikelihood(*this); }
 
   private:
 
@@ -148,11 +143,12 @@ class DRNonHomogeneousTreeLikelihood:
      *
      * @{
      */
-    void setData(const SiteContainer & sites) throw (Exception);
+    void setData(const SiteContainer& sites) throw (Exception);
     double getLikelihood () const;
     double getLogLikelihood() const;
     double getLikelihoodForASite (unsigned int site) const;
     double getLogLikelihoodForASite(unsigned int site) const;      
+    unsigned int getSiteIndex(unsigned int site) const throw (IndexOutOfBoundsException) { return likelihoodData_->getRootArrayPosition(site); }
     /** @} */
 
     void computeTreeLikelihood();

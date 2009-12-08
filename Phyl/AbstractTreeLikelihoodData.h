@@ -46,7 +46,6 @@ knowledge of the CeCILL license and that you accept its terms.
 //From the STL:
 #include <vector>
 #include <map>
-using namespace std;
 
 namespace bpp
 {
@@ -84,26 +83,26 @@ class AbstractTreeLikelihoodData :
 		 * However, if this is not the case, some pointers may point toward the same
 		 * element in the likelihood array.
 		 */
-		vector<unsigned int> _rootPatternLinks;
+    std::vector<unsigned int> _rootPatternLinks;
 
 		/**
 		 * @brief The frequency of each site.
 		 */
-		vector<unsigned int> _rootWeights;
+    std::vector<unsigned int> _rootWeights;
 
-		TreeTemplate<Node> * _tree;
+		TreeTemplate<Node>* _tree;
 
-		const Alphabet * _alphabet;
+		const Alphabet* _alphabet;
 
   public:
 		AbstractTreeLikelihoodData():
-      _rootPatternLinks(), _rootWeights(), _tree(NULL), _alphabet(NULL) {}
+      _rootPatternLinks(), _rootWeights(), _tree(0), _alphabet(0) {}
 
 		virtual ~AbstractTreeLikelihoodData() {}
 
 	public:
-		vector<unsigned int> & getRootArrayPositions() { return _rootPatternLinks; }
-		const vector<unsigned int> & getRootArrayPositions() const { return _rootPatternLinks; }
+    std::vector<unsigned int>& getRootArrayPositions() { return _rootPatternLinks; }
+		const std::vector<unsigned int>& getRootArrayPositions() const { return _rootPatternLinks; }
 		unsigned int getRootArrayPosition(const unsigned int site) const
 		{
 			return _rootPatternLinks[site];
@@ -112,15 +111,15 @@ class AbstractTreeLikelihoodData :
 		{
 			return _rootWeights[pos];
 		}
-		const vector<unsigned int> & getWeights() const
+		const std::vector<unsigned int>& getWeights() const
 		{ 
 			return _rootWeights;
 		}
 
-		const Alphabet * getAlphabet() const { return _alphabet; }
+		const Alphabet* getAlphabet() const { return _alphabet; }
 
-		const TreeTemplate<Node> * getTree() const { return _tree; }  
-		      TreeTemplate<Node> * getTree()       { return _tree; }
+		const TreeTemplate<Node>* getTree() const { return _tree; }  
+		      TreeTemplate<Node>* getTree()       { return _tree; }
 
 
 };

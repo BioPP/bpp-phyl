@@ -58,26 +58,36 @@ class HomogeneousTreeLikelihood :
 {
 	public:
 #ifndef NO_VIRTUAL_COV
-    HomogeneousTreeLikelihood * clone() const = 0;
+    HomogeneousTreeLikelihood* clone() const = 0;
 #endif
 
   public:
+    const SubstitutionModel* getSubstitutionModel(int nodeId, unsigned int siteIndex) const throw (NodeNotFoundException)
+    {
+      return getSubstitutionModel();
+    }
+
+    SubstitutionModel* getSubstitutionModel(int nodeId, unsigned int siteIndex) throw (NodeNotFoundException)
+    {
+      return getSubstitutionModel();
+    }
 
     /**
      * @return The substitution model attached to this instance.
      */
-    virtual const SubstitutionModel * getSubstitutionModel() const = 0;
+    virtual const SubstitutionModel* getSubstitutionModel() const = 0;
     
     /**
      * @return The substitution model attached to this instance.
      */
-    virtual SubstitutionModel * getSubstitutionModel() = 0;
+    virtual SubstitutionModel* getSubstitutionModel() = 0;
 
     /**
      * @return Set the substitution model for this instance.
      * @throw Exception If the model could not be set (for instance, because of a wrong alphabet type).
      */
-    virtual void setSubstitutionModel(SubstitutionModel * model) throw (Exception) = 0;
+    virtual void setSubstitutionModel(SubstitutionModel* model) throw (Exception) = 0;
+    
 };
 
 } //end of namespace bpp.

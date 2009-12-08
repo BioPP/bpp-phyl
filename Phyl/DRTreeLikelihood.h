@@ -92,8 +92,8 @@ class DRTreeLikelihood:
      *
      * @{
      */
-    virtual DRASDRTreeLikelihoodData * getLikelihoodData() = 0;
-    virtual const DRASDRTreeLikelihoodData * getLikelihoodData() const = 0;
+    virtual DRASDRTreeLikelihoodData* getLikelihoodData() = 0;
+    virtual const DRASDRTreeLikelihoodData* getLikelihoodData() const = 0;
     /** @} */
   
     /**

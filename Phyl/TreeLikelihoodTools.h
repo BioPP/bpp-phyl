@@ -50,16 +50,20 @@ namespace bpp
 {
 
 /**
- * @brief Utilitary methods that work with TreeLikelihoo objects.
+ * @brief Utilitary methods that work with TreeLikelihood objects.
  */
 class TreeLikelihoodTools
 {
   public:
     /**
      * @brief Compute the expected ancestral frequencies of all states at all (inner) nodes
-     * according to a Markov process defined by a given substitution model set.
+     * according to a Markov process defined by a given substitution model.
+     *
+     * The computation is performed for a given site. If sites the likelihood object has no
+     * site partition, then the method will return the same result for all positions.
      *
      * @param tl          [in] A tree likelihood object.
+     * @param site        [in] The site for which the frequencies should be ocmputed.
      * @param frequencies [out] A map where to store the results, as a vector of double (the 
      * size of which being equal to the number of states in the model), and with nodes id as keys.
      * @param alsoForLeaves [opt] Tell if frequencies should also be estimated for terminal nodes.
@@ -67,6 +71,7 @@ class TreeLikelihoodTools
      */
     static void getAncestralFrequencies(
         const TreeLikelihood& tl,
+        unsigned int site,
         std::map<int, std::vector<double> >& frequencies,
         bool alsoForLeaves = false) throw (Exception);
 
@@ -78,6 +83,7 @@ class TreeLikelihoodTools
      */
     static void getAncestralFrequencies_(
         const TreeLikelihood& tl,
+        unsigned int siteIndex,
         int parentId,
         const std::vector<double>& ancestralFrequencies,
         std::map<int, std::vector<double> >& frequencies,

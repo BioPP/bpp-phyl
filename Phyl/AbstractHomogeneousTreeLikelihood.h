@@ -55,17 +55,44 @@ class AbstractHomogeneousTreeLikelihood:
   public virtual HomogeneousTreeLikelihood,
   public AbstractDiscreteRatesAcrossSitesTreeLikelihood
 {
+  public:
+
+    class ConstHomogeneousSiteModelIterator :
+      public ConstSiteModelIterator
+    {
+      private:
+        ConstNoPartitionSiteModelDescription siteModelDescription_;
+        unsigned int index_;
+        unsigned int nbSites_;
+
+      public:
+        ConstHomogeneousSiteModelIterator(const Tree& tree, const SubstitutionModel* model, unsigned int nbSites) :
+          siteModelDescription_(model, tree.getBranchesId()), index_(0), nbSites_(nbSites) {}
+
+      public:
+        ConstSiteModelDescription* next() throw (Exception)
+        {
+          if (!hasNext())
+            throw Exception("AbstractHomogeneousTreeLikelihood::ConstHomogeneousSiteModelIterator::next(). No more site in the set.");
+          index_++;
+          return &siteModelDescription_;
+        }
+
+        bool hasNext() const { return index_ < nbSites_; }
+    };
+
+
 	protected:
-		SubstitutionModel * model_;
+		SubstitutionModel* model_;
 		ParameterList brLenParameters_;
 		
-		mutable map<int, VVVdouble> pxy_;
+		mutable std::map<int, VVVdouble> pxy_;
 
-		mutable map<int, VVVdouble> dpxy_;
+		mutable std::map<int, VVVdouble> dpxy_;
 
-		mutable map<int, VVVdouble> d2pxy_;
+		mutable std::map<int, VVVdouble> d2pxy_;
 
-    vector<double> rootFreqs_;
+    std::vector<double> rootFreqs_;
 				
 		/**
 		 * @brief Pointer toward all nodes in the tree.
@@ -73,7 +100,7 @@ class AbstractHomogeneousTreeLikelihood:
      * The position in the array is the number used in the parameter name.
      * This may be different from the node id, unless you used the resetNodeId method on the input tree.
  		 */
-		vector<Node *> nodes_;
+    std::vector<Node*> nodes_;
 
 		//some values we'll need:
 		unsigned int nbSites_,         //the number of sites in the container
@@ -85,13 +112,13 @@ class AbstractHomogeneousTreeLikelihood:
     bool verbose_;
 
     double minimumBrLen_;
-    Constraint * brLenConstraint_;
+    Constraint* brLenConstraint_;
 
 	public:
 		AbstractHomogeneousTreeLikelihood(
-			const Tree & tree,
-			SubstitutionModel * model,
-			DiscreteDistribution * rDist,
+			const Tree& tree,
+			SubstitutionModel* model,
+			DiscreteDistribution* rDist,
       bool checkRooted = true,
 			bool verbose = true)
       throw (Exception);
@@ -101,14 +128,14 @@ class AbstractHomogeneousTreeLikelihood:
      *
      * This constructor is to be called by the derived class copy constructor.
      */
-    AbstractHomogeneousTreeLikelihood(const AbstractHomogeneousTreeLikelihood & lik);
+    AbstractHomogeneousTreeLikelihood(const AbstractHomogeneousTreeLikelihood& lik);
     
     /**
      * @brief Assignation operator
      *
      * This operator is to be called by the derived class operator.
      */
-    AbstractHomogeneousTreeLikelihood & operator=(const AbstractHomogeneousTreeLikelihood & lik);
+    AbstractHomogeneousTreeLikelihood& operator=(const AbstractHomogeneousTreeLikelihood& lik);
  
 		virtual ~AbstractHomogeneousTreeLikelihood();
 		
@@ -142,31 +169,21 @@ class AbstractHomogeneousTreeLikelihood:
     {
       return AbstractDiscreteRatesAcrossSitesTreeLikelihood::getRateDistributionParameters();
     }
-    /**
-     * @brief Get the substitution model associated to a given node.
-     *
-     * In the homogeneous case, this function is aliased by the getSubstitutionModel function.
-     *
-     * @param nodeId The id of the request node.
-     * @return A pointer toward the corresponding model.
-     * @throw NodeNotFoundException This exception may be thrown if the node is not found (depending on the implementation).
-     */
-    const SubstitutionModel* getSubstitutionModelForNode(int nodeId) const throw (NodeNotFoundException) { return model_; }
-
-    /**
-     * @brief Get the substitution model associated to a given node.
-     *
-     * In the homogeneous case, this function is aliased by the getSubstitutionModel function.
-     *
-     * @param nodeId The id of the request node.
-     * @return A pointer toward the corresponding model.
-     * @throw NodeNotFoundException This exception may be thrown if the node is not found (depending on the implementation).
-     */
-    SubstitutionModel* getSubstitutionModelForNode(int nodeId) throw (NodeNotFoundException) { return model_; }
-
-    vector<double> getRootFrequencies() const { return model_->getFrequencies(); }
     
-    VVVdouble getTransitionProbabilitiesPerRateClassForNode(int nodeId) const { return pxy_[nodeId]; }
+    const std::vector<double>& getRootFrequencies(unsigned int siteIndex) const { return model_->getFrequencies(); }
+    
+    VVVdouble getTransitionProbabilitiesPerRateClass(int nodeId, unsigned int siteIndex) const { return pxy_[nodeId]; }
+
+    ConstBranchModelIterator* getNewBranchModelIterator(int nodeId) const
+    {
+      return new ConstNoPartitionBranchModelIterator(*tree_, model_, nbDistinctSites_);
+    }
+
+    ConstSiteModelIterator* getNewSiteModelIterator(unsigned int siteIndex) const
+    {
+      return new ConstHomogeneousSiteModelIterator(*tree_, model_, nbDistinctSites_);
+    }
+   
     /** @} */
 
 		/**
@@ -203,7 +220,7 @@ class AbstractHomogeneousTreeLikelihood:
     virtual void setMinimumBranchLength(double minimum)
     {
       minimumBrLen_ = minimum;
-      if(brLenConstraint_ != NULL) delete brLenConstraint_;
+      if (brLenConstraint_) delete brLenConstraint_;
       brLenConstraint_ = new IncludingPositiveReal(minimumBrLen_);
       initBranchLengthsParameters();
     }

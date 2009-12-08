@@ -90,8 +90,8 @@ void DRASRTreeLikelihoodData::initLikelihoods(const SiteContainer & sites, const
 void DRASRTreeLikelihoodData::initLikelihoods(const Node * node, const SiteContainer & sequences, const SubstitutionModel & model) throw (Exception)
 {
   //Initialize likelihood vector:
-  DRASRTreeLikelihoodNodeData * nodeData = & _nodeData[node->getId()];
-  nodeData->setNode(*node);
+  DRASRTreeLikelihoodNodeData* nodeData = &_nodeData[node->getId()];
+  nodeData->setNode(node);
   VVVdouble * _likelihoods_node = & nodeData->getLikelihoodArray();
   VVVdouble * _dLikelihoods_node = & nodeData->getDLikelihoodArray();
   VVVdouble * _d2Likelihoods_node = & nodeData->getD2LikelihoodArray();
@@ -192,43 +192,43 @@ SitePatterns * DRASRTreeLikelihoodData::initLikelihoodsWithPatterns(const Node *
   unsigned int nbSites = subSequences->getNumberOfSites();
   
   //Initialize likelihood vector:
-  DRASRTreeLikelihoodNodeData * nodeData = & _nodeData[node->getId()];
-  nodeData->setNode(*node);
-  VVVdouble * _likelihoods_node = & nodeData->getLikelihoodArray();
-  VVVdouble * _dLikelihoods_node = & nodeData->getDLikelihoodArray();
-  VVVdouble * _d2Likelihoods_node = & nodeData->getD2LikelihoodArray();
+  DRASRTreeLikelihoodNodeData* nodeData = &_nodeData[node->getId()];
+  nodeData->setNode(node);
+  VVVdouble* _likelihoods_node = &nodeData->getLikelihoodArray();
+  VVVdouble* _dLikelihoods_node = &nodeData->getDLikelihoodArray();
+  VVVdouble* _d2Likelihoods_node = &nodeData->getD2LikelihoodArray();
   _likelihoods_node->resize(nbSites);
   _dLikelihoods_node->resize(nbSites);
   _d2Likelihoods_node->resize(nbSites);
 
-  for(unsigned int i = 0; i < nbSites; i++)
+  for (unsigned int i = 0; i < nbSites; i++)
   {
-    VVdouble * _likelihoods_node_i = & (* _likelihoods_node)[i];
-    VVdouble * _dLikelihoods_node_i = & (* _dLikelihoods_node)[i];
-    VVdouble * _d2Likelihoods_node_i = & (* _d2Likelihoods_node)[i];
+    VVdouble* _likelihoods_node_i = &(*_likelihoods_node)[i];
+    VVdouble* _dLikelihoods_node_i = &(*_dLikelihoods_node)[i];
+    VVdouble* _d2Likelihoods_node_i = &(*_d2Likelihoods_node)[i];
     _likelihoods_node_i->resize(_nbClasses);
     _dLikelihoods_node_i->resize(_nbClasses);
     _d2Likelihoods_node_i->resize(_nbClasses);
-    for(unsigned int c = 0; c < _nbClasses; c++)
+    for (unsigned int c = 0; c < _nbClasses; c++)
     {
-      Vdouble * _likelihoods_node_i_c = & (* _likelihoods_node_i)[c];
-      Vdouble * _dLikelihoods_node_i_c = & (* _dLikelihoods_node_i)[c];
-      Vdouble * _d2Likelihoods_node_i_c = & (* _d2Likelihoods_node_i)[c];
+      Vdouble* _likelihoods_node_i_c = &(*_likelihoods_node_i)[c];
+      Vdouble* _dLikelihoods_node_i_c = &(*_dLikelihoods_node_i)[c];
+      Vdouble* _d2Likelihoods_node_i_c = &(*_d2Likelihoods_node_i)[c];
       _likelihoods_node_i_c->resize(_nbStates);
       _dLikelihoods_node_i_c->resize(_nbStates);
       _d2Likelihoods_node_i_c->resize(_nbStates);
-      for(unsigned int s = 0; s < _nbStates; s++)
+      for (unsigned int s = 0; s < _nbStates; s++)
       {
-        (* _likelihoods_node_i_c)[s] = 1; //All likelihoods are initialized to 1.
-        (* _dLikelihoods_node_i_c)[s] = 0; //All dLikelihoods are initialized to 0.
-        (* _d2Likelihoods_node_i_c)[s] = 0; //All d2Likelihoods are initialized to 0.
+        (*_likelihoods_node_i_c)[s] = 1; //All likelihoods are initialized to 1.
+        (*_dLikelihoods_node_i_c)[s] = 0; //All dLikelihoods are initialized to 0.
+        (*_d2Likelihoods_node_i_c)[s] = 0; //All d2Likelihoods are initialized to 0.
       }
     }
   }
 
   //Now initialize likelihood values and pointers:
     
-  if(node->isLeaf())
+  if (node->isLeaf())
   {
     const Sequence* seq;
     try

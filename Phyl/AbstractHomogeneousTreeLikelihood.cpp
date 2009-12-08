@@ -144,7 +144,7 @@ void AbstractHomogeneousTreeLikelihood::init_(
   nodes_ = tree_->getNodes();
   nodes_.pop_back(); //Remove the root node (the last added!).  
   nbNodes_ = nodes_.size();
-  nbClasses_ = _rateDistribution->getNumberOfCategories();
+  nbClasses_ = rateDistribution_->getNumberOfCategories();
   setSubstitutionModel(model);
 
   verbose_ = verbose;
@@ -260,7 +260,7 @@ void AbstractHomogeneousTreeLikelihood::initParameters()
   addParameters_(model_->getParameters());
   
   // Rate distribution:
-  addParameters_(_rateDistribution->getIndependentParameters());
+  addParameters_(rateDistribution_->getIndependentParameters());
 }
 
 /******************************************************************************/
@@ -279,7 +279,7 @@ void AbstractHomogeneousTreeLikelihood::applyParameters() throw (Exception)
   model_->matchParametersValues(getParameters());
   rootFreqs_ = model_->getFrequencies();
   //Apply rate distribution parameters:
-  _rateDistribution->matchParametersValues(getParameters());
+  rateDistribution_->matchParametersValues(getParameters());
 }
 
 /******************************************************************************/
@@ -324,7 +324,7 @@ void AbstractHomogeneousTreeLikelihood::computeAllTransitionProbabilities()
 
 /*******************************************************************************/
 
-void AbstractHomogeneousTreeLikelihood::computeTransitionProbabilitiesForNode(const Node * node)
+void AbstractHomogeneousTreeLikelihood::computeTransitionProbabilitiesForNode(const Node* node)
 {
   double l = node->getDistanceToFather(); 
 
@@ -333,7 +333,7 @@ void AbstractHomogeneousTreeLikelihood::computeTransitionProbabilitiesForNode(co
   for(unsigned int c = 0; c < nbClasses_; c++)
   {
     VVdouble * pxy__node_c = & (* pxy__node)[c];
-    RowMatrix<double> Q = model_->getPij_t(l * _rateDistribution->getCategory(c));
+    RowMatrix<double> Q = model_->getPij_t(l * rateDistribution_->getCategory(c));
     for(unsigned int x = 0; x < nbStates_; x++)
     {
       Vdouble * pxy__node_c_x = & (* pxy__node_c)[x];
@@ -351,7 +351,7 @@ void AbstractHomogeneousTreeLikelihood::computeTransitionProbabilitiesForNode(co
     for(unsigned int c = 0; c < nbClasses_; c++)
     {
       VVdouble * dpxy__node_c = & (* dpxy__node)[c];
-      double rc = _rateDistribution->getCategory(c);
+      double rc = rateDistribution_->getCategory(c);
       RowMatrix<double> dQ = model_->getdPij_dt(l * rc);  
       for(unsigned int x = 0; x < nbStates_; x++)
       {
@@ -371,7 +371,7 @@ void AbstractHomogeneousTreeLikelihood::computeTransitionProbabilitiesForNode(co
     for(unsigned int c = 0; c < nbClasses_; c++)
     {
       VVdouble * d2pxy__node_c = & (* d2pxy__node)[c];
-      double rc =  _rateDistribution->getCategory(c);
+      double rc =  rateDistribution_->getCategory(c);
       RowMatrix<double> d2Q = model_->getd2Pij_dt2(l * rc);
       for(unsigned int x = 0; x < nbStates_; x++)
       {

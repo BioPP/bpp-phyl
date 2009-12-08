@@ -272,10 +272,23 @@ class TreeTemplateTools
      * @param node The node that defines the subtree.
      * @return A vector of ids.
      */
-    static std::vector<int> getNodesId(const Node & node)
+    static std::vector<int> getNodesId(const Node& node)
     {
       std::vector<int> ids;
       getNodesId(node, ids);
+      return ids;
+    }
+
+    /**
+     * @brief Retrieve all branches ids from a subtree.
+     *
+     * @param node The node that defines the subtree.
+     * @return A vector of ids.
+     */
+    static std::vector<int> getBranchesId(const Node& node)
+    {
+      std::vector<int> ids;
+      getBranchesId(node, ids);
       return ids;
     }
 
@@ -285,13 +298,28 @@ class TreeTemplateTools
      * @param node The node that defines the subtree.
      * @param ids A vector of ids.
      */
-    static void getNodesId(const Node & node, std::vector<int> & ids)
+    static void getNodesId(const Node& node, std::vector<int>& ids)
     {
-      for(unsigned int i = 0; i < node.getNumberOfSons(); i++)
+      for (unsigned int i = 0; i < node.getNumberOfSons(); i++)
       {
-        getNodesId(* node.getSon(i), ids);
+        getNodesId(*node.getSon(i), ids);
       }
       ids.push_back(node.getId());
+    }
+
+    /**
+     * @brief Retrieve all branches ids from a subtree.
+     *
+     * @param node The node that defines the subtree.
+     * @param ids A vector of ids.
+     */
+    static void getBranchesId(const Node& node, std::vector<int>& ids)
+    {
+      for (unsigned int i = 0; i < node.getNumberOfSons(); i++)
+      {
+        getNodesId(*node.getSon(i), ids);
+        ids.push_back(node.getSon(i)->getId());
+      }
     }
 
     /**

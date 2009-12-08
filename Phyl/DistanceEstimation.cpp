@@ -80,16 +80,16 @@ TwoTreeLikelihood::TwoTreeLikelihood(
 	_seqnames[0] = seq1;
 	_seqnames[1] = seq2;
 	data_ = PatternTools::getSequenceSubset(data, _seqnames);
-	_model = model;
+	model_ = model;
 	if(data_->getAlphabet()->getAlphabetType()
-			!= _model->getAlphabet()->getAlphabetType())
+			!= model_->getAlphabet()->getAlphabetType())
 		throw AlphabetMismatchException("TwoTreeTreeLikelihood::TwoTreeTreeLikelihood. Data and model must have the same alphabet type.",
 				data_->getAlphabet(),
-				_model->getAlphabet());
+				model_->getAlphabet());
 
 	_nbSites   = data_->getNumberOfSites();
-	_nbClasses = _rateDistribution->getNumberOfCategories();
-	_nbStates  = _model->getNumberOfStates();	
+	_nbClasses = rateDistribution_->getNumberOfCategories();
+	_nbStates  = model_->getNumberOfStates();	
 	if(verbose) ApplicationTools::displayMessage("Double-Recursive Homogeneous Tree Likelihood");	
 	
 	//Initialize root patterns:
@@ -123,7 +123,7 @@ TwoTreeLikelihood::TwoTreeLikelihood(const TwoTreeLikelihood & lik):
 {
 	_seqnames          = lik._seqnames;
 	data_              = dynamic_cast<SiteContainer *>(lik.data_->clone());
-	_model             = lik._model;
+	model_             = lik.model_;
 	_nbSites           = lik._nbSites;
 	_nbClasses         = lik._nbClasses;
 	_nbStates          = lik._nbStates;	
@@ -151,7 +151,7 @@ TwoTreeLikelihood & TwoTreeLikelihood::operator=(const TwoTreeLikelihood & lik)
 	AbstractDiscreteRatesAcrossSitesTreeLikelihood::operator=(lik);
   _seqnames          = lik._seqnames;
 	data_              = dynamic_cast<SiteContainer *>(lik.data_->clone());
-	_model             = lik._model;
+	model_             = lik.model_;
 	_nbSites           = lik._nbSites;
 	_nbClasses         = lik._nbClasses;
 	_nbStates          = lik._nbStates;	
@@ -203,7 +203,7 @@ ParameterList TwoTreeLikelihood::getBranchLengthsParameters() const
 ParameterList TwoTreeLikelihood::getSubstitutionModelParameters() const
 {
   if(!initialized_) throw Exception("TwoTreeLikelihood::getSubstitutionModelParameters(). Object is not initialized.");
-	return _model->getParameters().getCommonParametersWith(getParameters());
+	return model_->getParameters().getCommonParametersWith(getParameters());
 }
 
 /******************************************************************************/
@@ -284,10 +284,10 @@ void TwoTreeLikelihood::initParameters()
 	addParameters_(_brLenParameters);
 	
 	// Substitution model:
-	addParameters_(_model->getIndependentParameters());
+	addParameters_(model_->getIndependentParameters());
 	
 	// Rate distribution:
-	addParameters_(_rateDistribution->getIndependentParameters());
+	addParameters_(rateDistribution_->getIndependentParameters());
 }
 
 /******************************************************************************/
@@ -297,9 +297,9 @@ void TwoTreeLikelihood::applyParameters() throw (Exception)
 	//Apply branch length:
 	_brLen = getParameterValue("BrLen");
 	//Apply substitution model parameters:
-	_model->matchParametersValues(getParameters());
+	model_->matchParametersValues(getParameters());
 	//Apply rate distribution parameters:
-	_rateDistribution->matchParametersValues(getParameters());
+	rateDistribution_->matchParametersValues(getParameters());
 }
 
 /******************************************************************************/
@@ -333,12 +333,12 @@ void TwoTreeLikelihood::fireParameterChanged(const ParameterList & params)
 
 	//Computes all pxy and pyx once for all:
 	_pxy.resize(_nbClasses);
-	for(unsigned int c = 0; c < _nbClasses; c++)
+	for (unsigned int c = 0; c < _nbClasses; c++)
   {
 		VVdouble * _pxy_c = & _pxy[c];
 		_pxy_c->resize(_nbStates);
-		RowMatrix<double> Q = _model->getPij_t(_brLen * _rateDistribution->getCategory(c));
-		for(unsigned int x = 0; x < _nbStates; x++)
+		RowMatrix<double> Q = model_->getPij_t(_brLen * rateDistribution_->getCategory(c));
+		for (unsigned int x = 0; x < _nbStates; x++)
     {
 			Vdouble * _pxy_c_x = & (* _pxy_c)[x];
 			_pxy_c_x->resize(_nbStates);
@@ -348,7 +348,7 @@ void TwoTreeLikelihood::fireParameterChanged(const ParameterList & params)
 			}
 		}
 		
-		if(computeFirstOrderDerivatives_)
+		if (computeFirstOrderDerivatives_)
     {
 			//Computes all dpxy/dt once for all:
 			_dpxy.resize(_nbClasses);
@@ -356,8 +356,8 @@ void TwoTreeLikelihood::fireParameterChanged(const ParameterList & params)
       {
 				VVdouble * _dpxy_c = & _dpxy[c];
 				_dpxy_c->resize(_nbStates);
-				double rc = _rateDistribution->getCategory(c);
-				RowMatrix<double> dQ = _model->getdPij_dt(_brLen * rc);  
+				double rc = rateDistribution_->getCategory(c);
+				RowMatrix<double> dQ = model_->getdPij_dt(_brLen * rc);  
 				for(unsigned int x = 0; x < _nbStates; x++)
         {
 					Vdouble * _dpxy_c_x = & (* _dpxy_c)[x];
@@ -370,7 +370,7 @@ void TwoTreeLikelihood::fireParameterChanged(const ParameterList & params)
 			}
     }
 
-		if(computeSecondOrderDerivatives_)
+		if (computeSecondOrderDerivatives_)
     {
 			//Computes all d2pxy/dt2 once for all:
 			_d2pxy.resize(_nbClasses);
@@ -378,8 +378,8 @@ void TwoTreeLikelihood::fireParameterChanged(const ParameterList & params)
       {
 				VVdouble * _d2pxy_c = & _d2pxy[c];
 				_d2pxy_c->resize(_nbStates);
-				double rc = _rateDistribution->getCategory(c);
-				RowMatrix<double> d2Q = _model->getd2Pij_dt2(_brLen * rc);
+				double rc = rateDistribution_->getCategory(c);
+				RowMatrix<double> d2Q = model_->getd2Pij_dt2(_brLen * rc);
 				for(unsigned int x = 0; x < _nbStates; x++)
         {
 					Vdouble * _d2pxy_c_x = & (* _d2pxy_c)[x];
@@ -394,11 +394,11 @@ void TwoTreeLikelihood::fireParameterChanged(const ParameterList & params)
 	}
 
 	computeTreeLikelihood();
-	if(computeFirstOrderDerivatives_)
+	if (computeFirstOrderDerivatives_)
   {
 		computeTreeDLikelihood();	
   }
-  if(computeSecondOrderDerivatives_)
+  if (computeSecondOrderDerivatives_)
   {
 		computeTreeD2Likelihood();
 	}
@@ -434,8 +434,8 @@ void TwoTreeLikelihood::initTreeLikelihoods(const SequenceContainer & sequences)
 			//otherwise value set to 0:
 			try
       {
-				(* _leafLikelihoods1_i)[s] = _model->getInitValue(s, state1);
-				(* _leafLikelihoods2_i)[s] = _model->getInitValue(s, state2);
+				(* _leafLikelihoods1_i)[s] = model_->getInitValue(s, state1);
+				(* _leafLikelihoods2_i)[s] = model_->getInitValue(s, state2);
 			}
       catch (SequenceNotFoundException & snfe)
       {
@@ -498,8 +498,8 @@ void TwoTreeLikelihood::computeTreeLikelihood()
 		}
 	}
 	
-	Vdouble f = _model->getFrequencies();
-	Vdouble p = _rateDistribution->getProbabilities();
+	Vdouble f = model_->getFrequencies();
+	Vdouble p = rateDistribution_->getProbabilities();
 	for(unsigned int i = 0; i < _nbDistinctSites; i++)
   {
 		//For each site in the sequence,
@@ -544,9 +544,9 @@ void TwoTreeLikelihood::computeTreeDLikelihood()
 					double l2 = (* _leafLikelihoods2_i)[y];
 					dlicx += l1 * l2 * (* _dpxy_c_x)[y];
 				}
-				dlic += dlicx * _model->freq(x);
+				dlic += dlicx * model_->freq(x);
 			}
-			dli += dlic * _rateDistribution->getProbability(c);
+			dli += dlic * rateDistribution_->getProbability(c);
 		}
 		_dLikelihoods[i] = dli / _rootLikelihoodsSR[i];
 	}
@@ -575,9 +575,9 @@ void TwoTreeLikelihood::computeTreeD2Likelihood()
 					double l2 = (* _leafLikelihoods2_i)[y];
 					d2licx += l1 * l2 * (* _d2pxy_c_x)[y];
 				}
-				d2lic += d2licx * _model->freq(x);
+				d2lic += d2licx * model_->freq(x);
 			}
-			d2li += d2lic * _rateDistribution->getProbability(c);
+			d2li += d2lic * rateDistribution_->getProbability(c);
 		}
 		_d2Likelihoods[i] = d2li / _rootLikelihoodsSR[i];
 	}
@@ -645,36 +645,36 @@ throw (Exception)
 
 void DistanceEstimation::computeMatrix() throw (NullPointerException)
 {	
-	unsigned int n = _sites->getNumberOfSequences();
-	vector<string> names = _sites->getSequencesNames();
-  if(_dist != NULL) delete _dist;
-	_dist = new DistanceMatrix(names);
-	_optimizer->setVerbose((unsigned int)max((int)_verbose - 2, 0));
+	unsigned int n = sites_->getNumberOfSequences();
+	vector<string> names = sites_->getSequencesNames();
+  if(dist_ != NULL) delete dist_;
+	dist_ = new DistanceMatrix(names);
+	optimizer_->setVerbose((unsigned int)max((int)_verbose - 2, 0));
 	for(unsigned int i = 0; i < n; i++)
   {
-		(* _dist)(i, i) = 0;
+		(* dist_)(i, i) = 0;
 		if(_verbose == 1) { ApplicationTools::displayGauge(i, n - 1, '='); }
 		for(unsigned int j = i + 1; j < n; j++)
     {
 			if(_verbose > 1) { ApplicationTools::displayGauge(j - i - 1, n - i - 2, '='); }
 			TwoTreeLikelihood * lik = 
-				new TwoTreeLikelihood(names[i], names[j], *_sites, _model, _rateDist, _verbose > 3);
+				new TwoTreeLikelihood(names[i], names[j], *sites_, model_, rateDist_, _verbose > 3);
       lik->initialize();
 			lik->enableDerivatives(true);
-			const Sequence* seqi = &_sites->getSequence(names[i]);
-			const Sequence* seqj = &_sites->getSequence(names[j]);
+			const Sequence* seqi = &sites_->getSequence(names[i]);
+			const Sequence* seqj = &sites_->getSequence(names[j]);
 			unsigned int d = SymbolListTools::getNumberOfDistinctPositions(* seqi, * seqj);
 			unsigned int g = SymbolListTools::getNumberOfPositionsWithoutGap(* seqi, * seqj);
 			lik->setParameterValue("BrLen", g == 0 ? lik->getMinimumBranchLength() : std::max(lik->getMinimumBranchLength(),(double)d/(double)g));
 			// Optimization:
-			_optimizer->setFunction(lik);
-			_optimizer->setConstraintPolicy(AutoParameter::CONSTRAINTS_AUTO);
+			optimizer_->setFunction(lik);
+			optimizer_->setConstraintPolicy(AutoParameter::CONSTRAINTS_AUTO);
 			ParameterList params = lik->getBranchLengthsParameters();
 			params.addParameters(parameters_);
-			_optimizer->init(params);
-			_optimizer->optimize();
+			optimizer_->init(params);
+			optimizer_->optimize();
 			// Store results:
-			(* _dist)(i, j) = (* _dist)(j, i) = lik->getParameterValue("BrLen");
+			(* dist_)(i, j) = (* dist_)(j, i) = lik->getParameterValue("BrLen");
 			delete lik;
 		}
 	  if(_verbose > 1 && ApplicationTools::message) *ApplicationTools::message << endl;

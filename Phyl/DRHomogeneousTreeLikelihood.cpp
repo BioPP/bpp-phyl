@@ -92,7 +92,7 @@ throw (Exception):
 
 void DRHomogeneousTreeLikelihood::init_() throw (Exception)
 {
-  likelihoodData_ = new DRASDRTreeLikelihoodData(*tree_, _rateDistribution->getNumberOfCategories());
+  likelihoodData_ = new DRASDRTreeLikelihoodData(*tree_, rateDistribution_->getNumberOfCategories());
 }
 
 /******************************************************************************/
@@ -231,7 +231,7 @@ void DRHomogeneousTreeLikelihood::fireParameterChanged(const ParameterList & par
 {
   applyParameters();
 
-  if(_rateDistribution->getParameters().getCommonParametersWith(params).size() > 0
+  if(rateDistribution_->getParameters().getCommonParametersWith(params).size() > 0
   || model_->getParameters().getCommonParametersWith(params).size() > 0)
   {
     //Rate parameter changed, need to recompute all probs:
@@ -317,7 +317,7 @@ void DRHomogeneousTreeLikelihood::computeTreeDLikelihoodAtNode(const Node * node
         dLicx = (* larray_i_c)[x] * numerator / denominator;
         dLic += dLicx;  
       }
-      dLi += _rateDistribution->getProbability(c) * dLic;
+      dLi += rateDistribution_->getProbability(c) * dLic;
     }
     (* _dLikelihoods_node)[i] = dLi / (* rootLikelihoodsSR)[i]; 
   }
@@ -408,7 +408,7 @@ void DRHomogeneousTreeLikelihood::computeTreeD2LikelihoodAtNode(const Node * nod
         d2Licx = (* larray_i_c)[x] * numerator / denominator;
         d2Lic += d2Licx;
       }
-      d2Li += _rateDistribution->getProbability(c) * d2Lic;
+      d2Li += rateDistribution_->getProbability(c) * d2Lic;
     }
     (* _d2Likelihoods_node)[i] = d2Li / (* rootLikelihoodsSR)[i]; 
   }
@@ -686,7 +686,7 @@ void DRHomogeneousTreeLikelihood::computeRootLikelihood()
   }
   computeLikelihoodFromArrays(iLik, tProb, *rootLikelihoods, nbNodes, nbDistinctSites_, nbClasses_, nbStates_, false);
 
-  Vdouble p = _rateDistribution->getProbabilities();
+  Vdouble p = rateDistribution_->getProbabilities();
   VVdouble * rootLikelihoodsS  = & likelihoodData_->getRootSiteLikelihoodArray();
   Vdouble  * rootLikelihoodsSR = & likelihoodData_->getRootRateSiteLikelihoodArray();
   for(unsigned int i = 0; i < nbDistinctSites_; i++)
@@ -930,7 +930,7 @@ void DRHomogeneousTreeLikelihood::computeLikelihoodFromArrays(
 
 /******************************************************************************/
 
-void DRHomogeneousTreeLikelihood::displayLikelihood(const Node * node)
+void DRHomogeneousTreeLikelihood::displayLikelihood(const Node* node)
 {
   cout << "Likelihoods at node " << node->getId() << ": " << endl;
   for(unsigned int n = 0; n < node->getNumberOfSons(); n++)

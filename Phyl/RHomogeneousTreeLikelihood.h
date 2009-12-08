@@ -138,9 +138,9 @@ class RHomogeneousTreeLikelihood :
       bool usePatterns = true)
 			throw (Exception);
 
-    RHomogeneousTreeLikelihood(const RHomogeneousTreeLikelihood & lik);
+    RHomogeneousTreeLikelihood(const RHomogeneousTreeLikelihood& lik);
     
-    RHomogeneousTreeLikelihood & operator=(const RHomogeneousTreeLikelihood & lik);
+    RHomogeneousTreeLikelihood& operator=(const RHomogeneousTreeLikelihood& lik);
 
     virtual ~RHomogeneousTreeLikelihood();
 
@@ -162,8 +162,8 @@ class RHomogeneousTreeLikelihood :
 		 *
 		 * @{
 		 */
-    void setData(const SiteContainer & sites) throw (Exception);
-  	double getLikelihood () const;
+    void setData(const SiteContainer& sites) throw (Exception);
+  	double getLikelihood() const;
 		double getLogLikelihood() const;
 		double getLikelihoodForASite (unsigned int site) const;
 		double getLogLikelihoodForASite(unsigned int site) const;
@@ -194,15 +194,17 @@ class RHomogeneousTreeLikelihood :
 		 *
 		 * @param parameters The parameter list to pass to the function.
 		 */
-		void setParameters(const ParameterList & parameters) throw (ParameterNotFoundException, ConstraintException);
+		void setParameters(const ParameterList& parameters) throw (ParameterNotFoundException, ConstraintException);
 		double getValue() const throw(Exception);
 		
+    unsigned int getSiteIndex(unsigned int site) const throw (IndexOutOfBoundsException) { return likelihoodData_->getRootArrayPosition(site); }
+
 		/**
 		 * @name DerivableFirstOrder interface.
 		 *
 		 * @{
 		 */
-		double getFirstOrderDerivative(const string & variable) const throw (Exception);
+		double getFirstOrderDerivative(const std::string& variable) const throw (Exception);
 		/** @} */
 
 		/**
@@ -210,8 +212,8 @@ class RHomogeneousTreeLikelihood :
 		 *
 		 * @{
 		 */
-		double getSecondOrderDerivative(const string & variable) const throw (Exception);
-		double getSecondOrderDerivative(const string & variable1, const string & variable2) const throw (Exception) { return 0; } // Not implemented for now.
+		double getSecondOrderDerivative(const std::string& variable) const throw (Exception);
+		double getSecondOrderDerivative(const std::string& variable1, const std::string& variable2) const throw (Exception) { return 0; } // Not implemented for now.
 		/** @} */
 	
 	public:	// Specific methods:
@@ -229,7 +231,7 @@ class RHomogeneousTreeLikelihood :
 		
 		virtual double getDLogLikelihood() const;
 		
-		virtual void computeTreeDLikelihood(const string & variable);
+		virtual void computeTreeDLikelihood(const std::string& variable);
 
 		virtual double getD2LikelihoodForASiteForARateClass(unsigned int site, unsigned int rateClass) const;
 
@@ -239,7 +241,7 @@ class RHomogeneousTreeLikelihood :
 		
 		virtual double getD2LogLikelihood() const;
 		
-		virtual void computeTreeD2Likelihood(const string & variable);
+		virtual void computeTreeD2Likelihood(const std::string& variable);
 
 	
 	protected:

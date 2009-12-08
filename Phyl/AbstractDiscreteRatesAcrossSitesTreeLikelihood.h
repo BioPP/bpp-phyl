@@ -58,7 +58,7 @@ class AbstractDiscreteRatesAcrossSitesTreeLikelihood:
 	public virtual DiscreteRatesAcrossSitesTreeLikelihood
 {
 	protected:
-		DiscreteDistribution * _rateDistribution;
+		DiscreteDistribution* rateDistribution_;
 		
 	public:
 		AbstractDiscreteRatesAcrossSitesTreeLikelihood(
@@ -81,7 +81,7 @@ class AbstractDiscreteRatesAcrossSitesTreeLikelihood:
 		double getLogLikelihoodForASiteForAState(unsigned int site, int state) const;
 		ParameterList getDerivableParameters() const;
 		ParameterList getNonDerivableParameters() const;
-    VVdouble getTransitionProbabilitiesForNode(int nodeId) const;
+    VVdouble getTransitionProbabilities(int nodeId, unsigned int siteIndex) const;
 	 		/** @} */
 
 		/**
@@ -89,9 +89,9 @@ class AbstractDiscreteRatesAcrossSitesTreeLikelihood:
 		 *
 		 * @{
 		 */
-		const DiscreteDistribution * getRateDistribution() const { return _rateDistribution; }
-		      DiscreteDistribution * getRateDistribution()       { return _rateDistribution; }
-		unsigned int getNumberOfClasses() const { return _rateDistribution -> getNumberOfCategories(); } 
+		const DiscreteDistribution* getRateDistribution() const { return rateDistribution_; }
+		      DiscreteDistribution* getRateDistribution()       { return rateDistribution_; }
+		unsigned int getNumberOfClasses() const { return rateDistribution_->getNumberOfCategories(); } 
 		ParameterList getRateDistributionParameters() const;
 		VVdouble getLikelihoodForEachSiteForEachRateClass() const;
 		VVdouble getLogLikelihoodForEachSiteForEachRateClass() const;
@@ -99,7 +99,7 @@ class AbstractDiscreteRatesAcrossSitesTreeLikelihood:
 		VVVdouble getLogLikelihoodForEachSiteForEachRateClassForEachState() const;
 		VVdouble getPosteriorProbabilitiesOfEachRate() const;
 		Vdouble getRateWithMaxPostProbOfEachSite() const;
-		vector<unsigned int> getRateClassWithMaxPostProbOfEachSite() const;
+    std::vector<unsigned int> getRateClassWithMaxPostProbOfEachSite() const;
 		Vdouble getPosteriorRateOfEachSite() const;
 		/** @} */
 

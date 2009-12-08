@@ -570,17 +570,17 @@ class OptimizationTools
      * @param messenger Output stream used by optimizer. Used only with param=DISTANCEMETHOD_ITERATIONS.
      * @param verbose Verbose level.
      */
-    static TreeTemplate<Node> * buildDistanceTree(
-        DistanceEstimation & estimationMethod,
-        AgglomerativeDistanceMethod & reconstructionMethod,
-        const ParameterList & parametersToIgnore,
+    static TreeTemplate<Node>* buildDistanceTree(
+        DistanceEstimation& estimationMethod,
+        AgglomerativeDistanceMethod& reconstructionMethod,
+        const ParameterList& parametersToIgnore,
         bool optimizeBrLen = false,
         bool rooted = false,
-        const string & param = DISTANCEMETHOD_INIT,
+        const std::string& param = DISTANCEMETHOD_INIT,
         double tolerance = 0.000001,
         unsigned int tlEvalMax = 1000000,
-        ostream * profiler = NULL,
-        ostream * messenger = NULL,
+        ostream* profiler = 0,
+        ostream* messenger = 0,
         unsigned int verbose = 0) throw (Exception);
 
   public:

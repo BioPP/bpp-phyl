@@ -48,6 +48,7 @@ knowledge of the CeCILL license and that you accept its terms.
 
 // From Utils:
 #include <Utils/TextTools.h>
+#include <Utils/ApplicationTools.h>
 
 using namespace bpp;
 
@@ -135,6 +136,7 @@ double PseudoNewtonOptimizer::doStep() throw (Exception)
     }
 
     printMessage("!!! Function at new point is greater than at current point: " + TextTools::toString(newValue) + ">" + TextTools::toString(currentValue_) + ". Applying Felsenstein-Churchill correction.");
+    getParameters().printParameters(*getMessageHandler());
     for (unsigned int i = 0; i < movements.size(); i++)
     {
       movements[i] = movements[i] / 2;

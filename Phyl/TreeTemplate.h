@@ -151,21 +151,23 @@ class TreeTemplate:
 
 		int getRootId() const { return root_->getId(); }
 
-		unsigned int getNumberOfLeaves() const { return TreeTemplateTools::getNumberOfLeaves(* root_); }
+		unsigned int getNumberOfLeaves() const { return TreeTemplateTools::getNumberOfLeaves(*root_); }
 		
-		unsigned int getNumberOfNodes() const { return TreeTemplateTools::getNumberOfNodes(* root_); }
+		unsigned int getNumberOfNodes() const { return TreeTemplateTools::getNumberOfNodes(*root_); }
 		
-		int getLeafId(const std::string& name) const throw (NodeNotFoundException) { return TreeTemplateTools::getLeafId(* root_, name); }
+		int getLeafId(const std::string& name) const throw (NodeNotFoundException) { return TreeTemplateTools::getLeafId(*root_, name); }
 		
-		vector<int> getLeavesId() const { return TreeTemplateTools::getLeavesId(* root_); }
+    std::vector<int> getLeavesId() const { return TreeTemplateTools::getLeavesId(*root_); }
 
-		vector<int> getNodesId() const { return TreeTemplateTools::getNodesId(* root_); }
+    std::vector<int> getNodesId() const { return TreeTemplateTools::getNodesId(*root_); }
+		
+    std::vector<int> getBranchesId() const { return TreeTemplateTools::getBranchesId(*root_); }
 
-		vector<double> getBranchLengths() const { return TreeTemplateTools::getBranchLengths(* root_); }
+    std::vector<double> getBranchLengths() const { return TreeTemplateTools::getBranchLengths(*root_); }
 
-		vector<std::string> getLeavesNames() const { return TreeTemplateTools::getLeavesNames(* const_cast<const N *>( root_)); }
+    std::vector<std::string> getLeavesNames() const { return TreeTemplateTools::getLeavesNames(*const_cast<const N*>( root_)); }
 
-		vector<int> getSonsId(int parentId) const throw (NodeNotFoundException)	{ return getNode(parentId)->getSonsId(); }
+    std::vector<int> getSonsId(int parentId) const throw (NodeNotFoundException)	{ return getNode(parentId)->getSonsId(); }
 
 		int getFatherId(int parentId) const throw (NodeNotFoundException) { return getNode(parentId)->getFatherId(); }
 
@@ -183,7 +185,7 @@ class TreeTemplate:
 
 		bool isLeaf(int nodeId) const throw (NodeNotFoundException) { return getNode(nodeId)->isLeaf(); }
 
-		bool isRoot(int nodeId) const throw (NodeNotFoundException) { return TreeTemplateTools::isRoot(* getNode(nodeId)); }
+		bool isRoot(int nodeId) const throw (NodeNotFoundException) { return TreeTemplateTools::isRoot(*getNode(nodeId)); }
 
 		double getDistanceToFather(int nodeId) const throw (NodeNotFoundException) { return getNode(nodeId)->getDistanceToFather(); }
 		

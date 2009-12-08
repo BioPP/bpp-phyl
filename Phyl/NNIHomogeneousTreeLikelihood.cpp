@@ -307,7 +307,7 @@ double NNIHomogeneousTreeLikelihood::testNNI(int nodeId) const throw (NodeExcept
   computeLikelihoodFromArrays(parentArrays, parentTProbs, array2, nbParentNeighbors + 1, nbDistinctSites_, nbClasses_, nbStates_, false); 
 
   //Initialize BranchLikelihood:
-  brLikFunction_->initModel(model_, _rateDistribution);
+  brLikFunction_->initModel(model_, rateDistribution_);
   brLikFunction_->initLikelihoods(&array1, &array2);
   ParameterList parameters;
   unsigned int pos = 0;

@@ -63,8 +63,6 @@ knowledge of the CeCILL license and that you accept its terms.
 #include <map>
 #include <algorithm>
 
-using namespace std;
-
 namespace bpp
 {
 
@@ -102,35 +100,35 @@ class SubstitutionModelSet:
     /**
      * @brief A pointer toward the comon alphabet to all models in the set.
      */
-    const Alphabet * _alphabet;
+    const Alphabet *_alphabet;
 
     /**
      * @brief Contains all models used in this tree.
      */
-    vector<SubstitutionModel *> _modelSet;
+    std::vector<SubstitutionModel*> _modelSet;
 
     /**
      * @brief Root frequencies.
      */
-    FrequenciesSet * _rootFrequencies;
+    FrequenciesSet* _rootFrequencies;
 
     /**
      * @brief Contains for each node in a tree the index of the corresponding model in _modelSet
      */
-    mutable map<int, unsigned int> _nodeToModel;
-    mutable map<unsigned int, vector<int> > _modelToNodes;
+    mutable std::map<int, unsigned int> _nodeToModel;
+    mutable std::map<unsigned int, std::vector<int> > _modelToNodes;
 
     /**
      * @brief Contains for each parameter in the list the indexes of the corresponding models in _modelSet that share this parameter.
      */
-    vector< vector<unsigned int> > _paramToModels;
+    std::vector< std::vector<unsigned int> > _paramToModels;
 
-    map<string, unsigned int> _paramNamesCount;
+    std::map<std::string, unsigned int> _paramNamesCount;
 
     /**
      * @brief Contains for each parameter in the list the corresponding name in substitution models.
      */
-    vector<string> _modelParameterNames;
+    std::vector<std::string> _modelParameterNames;
 
     /**
      * @brief Parameters for each model in the set.
@@ -139,7 +137,7 @@ class SubstitutionModelSet:
      * To make the correspondance with parameters for each model in the set, we duplicate them in this array.
      * In most cases, this is something like 'theta_1 <=> theta', 'theta_2 <=> theta', etc.
      */
-    vector<ParameterList> _modelParameters;
+    std::vector<ParameterList> _modelParameters;
 
   public:
   
@@ -209,9 +207,9 @@ class SubstitutionModelSet:
      * @return The position of the parameter in the global parameter list.
      * @throw ParameterNotFoundException If no parameter with this name is found.
      */
-    unsigned int getParameterIndex(const string & name) const throw (ParameterNotFoundException)
+    unsigned int getParameterIndex(const std::string& name) const throw (ParameterNotFoundException)
     {
-      for(unsigned int i = 0; i < getNumberOfParameters(); i++)
+      for (unsigned int i = 0; i < getNumberOfParameters(); i++)
         if(getParameter_(i).getName() == name) return i;
       throw ParameterNotFoundException("SubstitutionModelSet::getParameterIndex().", name);
     }
@@ -224,7 +222,7 @@ class SubstitutionModelSet:
      * @throw ParameterNotFoundException If no parameter with this name is found.
      * @throw Exception If the parameter is not a 'model' parameter (that is, it is a root frequency parameter).
      */
-    string getParameterModelName(const string & name) const throw (ParameterNotFoundException, Exception)
+    string getParameterModelName(const std::string& name) const throw (ParameterNotFoundException, Exception)
     {
       unsigned int pos = getParameterIndex(name);
       unsigned int rfs = _rootFrequencies->getNumberOfParameters();
@@ -237,7 +235,7 @@ class SubstitutionModelSet:
      * Depending on parameters, this will actualize the _initialFrequencies vector or the corresponding models in the set.
      * @param parameters The modified parameters.
      */
-    void fireParameterChanged(const ParameterList & parameters);
+    void fireParameterChanged(const ParameterList& parameters);
 
     /**
      * @return The current number of distinct substitution models in this set.
@@ -250,9 +248,9 @@ class SubstitutionModelSet:
      * @param i Index of the model in the set.
      * @return A pointer toward the corresponding model.
      */
-    const SubstitutionModel * getModel(unsigned int i) const throw (IndexOutOfBoundsException)
+    const SubstitutionModel* getModel(unsigned int i) const throw (IndexOutOfBoundsException)
     {
-      if(i > _modelSet.size()) throw IndexOutOfBoundsException("SubstitutionModelSet::getNumberOfModels().", 0, _modelSet.size()-1, i);
+      if (i > _modelSet.size()) throw IndexOutOfBoundsException("SubstitutionModelSet::getNumberOfModels().", 0, _modelSet.size()-1, i);
       return _modelSet[i];
     }
 
@@ -278,14 +276,14 @@ class SubstitutionModelSet:
      * @return A pointer toward the corresponding model.
      * @throw Exception If no model is found for this node.
      */
-    const SubstitutionModel * getModelForNode(int nodeId) const throw (Exception)
+    const SubstitutionModel* getModelForNode(int nodeId) const throw (Exception)
     {
       map<int, unsigned int>::const_iterator i = _nodeToModel.find(nodeId);
       if(i == _nodeToModel.end())
         throw Exception("SubstitutionModelSet::getModelForNode(). No model associated to node with id " + TextTools::toString(nodeId));
       return _modelSet[i->second];
     }
-    SubstitutionModel * getModelForNode(int nodeId) throw (Exception)
+    SubstitutionModel* getModelForNode(int nodeId) throw (Exception)
     {
       map<int, unsigned int>::iterator i = _nodeToModel.find(nodeId);
       if(i == _nodeToModel.end())
@@ -300,7 +298,7 @@ class SubstitutionModelSet:
      * @return A vector with the ids of the node associated to this model.
      * @throw IndexOutOfBoundsException If the index is not valid.
      */
-    const vector<int> & getNodesWithModel(unsigned int i) const throw (IndexOutOfBoundsException)
+    const std::vector<int>& getNodesWithModel(unsigned int i) const throw (IndexOutOfBoundsException)
     {
       if(i >= _modelSet.size()) throw IndexOutOfBoundsException("SubstitutionModelSet::getNodesWithModel().", i, 0, _modelSet.size());
       return _modelToNodes[i];
@@ -311,16 +309,16 @@ class SubstitutionModelSet:
      * @return The list of nodes with a model containing the specified parameter.
      * @throw ParameterNotFoundException If no parameter with the specified name is found.
      */
-    vector<int> getNodesWithParameter(const string & name) const throw (ParameterNotFoundException);
+    std::vector<int> getNodesWithParameter(const std::string& name) const throw (ParameterNotFoundException);
 
     /**
      * @param name The name of the parameter to look for.
      * @return The list of model indices containing the specified parameter.
      * @throw ParameterNotFoundException If no parameter with the specified name is found.
      */
-    vector<unsigned int> getModelsWithParameter(const string & name) const throw (ParameterNotFoundException);
+    std::vector<unsigned int> getModelsWithParameter(const std::string& name) const throw (ParameterNotFoundException);
 
-   /**
+    /**
      * @brief Add a new model to the set, and set relationships with nodes and params.
      *
      * @param model A pointer toward a susbstitution model, that will added to the set.
@@ -341,7 +339,7 @@ class SubstitutionModelSet:
      * <li>etc.</li>
      * </ul>
      */
-    void addModel(SubstitutionModel * model, const vector<int> & nodesId, const vector<string> & newParams) throw (Exception);
+    void addModel(SubstitutionModel* model, const std::vector<int>& nodesId, const std::vector<std::string>& newParams) throw (Exception);
   
     /**
      * @brief Change a given model.
@@ -353,7 +351,7 @@ class SubstitutionModelSet:
      * Copy the model first if you don't want it to be lost!
      * @param modelIndex The index of the existing model to replace.
      */
-    void setModel(SubstitutionModel * model, unsigned int modelIndex) throw (Exception, IndexOutOfBoundsException);
+    void setModel(SubstitutionModel* model, unsigned int modelIndex) throw (Exception, IndexOutOfBoundsException);
  
     /**
      * @brief Associate an existing model with a given node.
@@ -397,7 +395,7 @@ class SubstitutionModelSet:
      * Nodes must have a corresponding model in the set.
      * @throw Exception If one of the above requirement is not true.
      */
-    void addParameter(const Parameter & parameter, const vector<int> & nodesId) throw (Exception);
+    void addParameter(const Parameter& parameter, const std::vector<int>& nodesId) throw (Exception);
  
     /**
      * @brief Add several parameters to the list, and link them to specified existing nodes.
@@ -407,7 +405,7 @@ class SubstitutionModelSet:
      * Nodes must have a corresponding model in the set.
      * @throw Exception If one of the above requirement is not true.
      */
-    void addParameters(const ParameterList & parameters, const vector<int> & nodesId) throw (Exception);
+    void addParameters(const ParameterList& parameters, const std::vector<int>& nodesId) throw (Exception);
  
     /**
      * @brief Remove a parameter from the list, and unset it to all linked nodes and models.
@@ -415,7 +413,7 @@ class SubstitutionModelSet:
      * @param name The name of the parameter to remove.
      * @throw ParameterNotFoundException If no parameter with the given name is found in the list.
      */
-    void removeParameter(const string & name) throw (ParameterNotFoundException);
+    void removeParameter(const std::string& name) throw (ParameterNotFoundException);
  
     /**
      * @brief Remove a model from the set, and all corresponding parameters.
@@ -425,7 +423,7 @@ class SubstitutionModelSet:
      */
     void removeModel(unsigned int modelIndex) throw (Exception);
 
-    void listModelNames(ostream & out = cout) const;
+    void listModelNames(ostream& out = cout) const;
 
     /**
      * @return The set of root frequencies.
@@ -435,7 +433,7 @@ class SubstitutionModelSet:
      /**
      * @return The values of the root frequencies.
      */
-    vector<double> getRootFrequencies() const { return _rootFrequencies->getFrequencies(); }
+    std::vector<double> getRootFrequencies() const { return _rootFrequencies->getFrequencies(); }
     
     /**
      * @brief Get the parameters corresponding to the root frequencies.
@@ -462,7 +460,7 @@ class SubstitutionModelSet:
       return pl;
     }
 
-    const Alphabet * getAlphabet() const { return _alphabet; }
+    const Alphabet* getAlphabet() const { return _alphabet; }
 
     /**
      * @brief Check if the model set is fully specified for a given tree.
@@ -503,9 +501,9 @@ class SubstitutionModelSet:
 
     bool checkOrphanParameters(bool throwEx) const throw (Exception);
 
-    bool checkOrphanNodes(const Tree & tree, bool throwEx) const throw (Exception);
+    bool checkOrphanNodes(const Tree& tree, bool throwEx) const throw (Exception);
     
-    bool checkUnknownNodes(const Tree & tree, bool throwEx) const throw (Exception);
+    bool checkUnknownNodes(const Tree& tree, bool throwEx) const throw (Exception);
     /** @} */
 
 };

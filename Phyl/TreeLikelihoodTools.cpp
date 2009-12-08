@@ -44,28 +44,30 @@ using namespace bpp;
 
 void TreeLikelihoodTools::getAncestralFrequencies(
         const TreeLikelihood& tl,
+        unsigned int site,
         std::map<int, std::vector<double> >& frequencies,
         bool alsoForLeaves) throw (Exception)
 {
   int currentId = tl.getTree().getRootId();
-  vector<double> currentFreqs = tl.getRootFrequencies();
-  getAncestralFrequencies_(tl, currentId, currentFreqs, frequencies, alsoForLeaves); 
+  vector<double> currentFreqs = tl.getRootFrequencies(tl.getSiteIndex(site));
+  getAncestralFrequencies_(tl, tl.getSiteIndex(site), currentId, currentFreqs, frequencies, alsoForLeaves); 
 }
 
 void TreeLikelihoodTools::getAncestralFrequencies_(
         const TreeLikelihood& tl,
+        unsigned int siteIndex,
         int parentId,
         const std::vector<double>& ancestralFrequencies,
-        std::map<int,std:: vector<double> >& frequencies,
+        std::map<int,std::vector<double> >& frequencies,
         bool alsoForLeaves) throw (Exception)
 {
   if (!tl.getTree().isLeaf(parentId) || alsoForLeaves)
     frequencies[parentId] = ancestralFrequencies;
   vector<int> sonsId = tl.getTree().getSonsId(parentId);
-  for(unsigned int i = 0; i < sonsId.size(); i++)
+  for (unsigned int i = 0; i < sonsId.size(); i++)
   {
     vector<double> sonFrequencies(tl.getNumberOfStates());
-    VVdouble pijt = tl.getTransitionProbabilitiesForNode(sonsId[i]);
+    VVdouble pijt = tl.getTransitionProbabilities(sonsId[i], siteIndex);
     for (unsigned int j = 0; j < tl.getNumberOfStates(); j++)
     {
       double x = 0;
@@ -75,7 +77,7 @@ void TreeLikelihoodTools::getAncestralFrequencies_(
       }
       sonFrequencies[j] = x;
     }
-    getAncestralFrequencies_(tl, sonsId[i], sonFrequencies, frequencies, alsoForLeaves);
+    getAncestralFrequencies_(tl, siteIndex, sonsId[i], sonFrequencies, frequencies, alsoForLeaves);
   }
 }
 

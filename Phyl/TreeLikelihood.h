@@ -67,11 +67,86 @@ class TreeLikelihood:
   public virtual DerivableSecondOrder
 {
   public:
+    /**
+     * @brief An iterator over a set of branches, specified by their node ids.
+     */
+    class BranchIterator
+    {
+      public:
+        /**
+         * @return The id of the next node in the set.
+         */
+        virtual int next() throw (Exception) = 0;
+        /**
+         * @return True if there is at least another node in the set.
+         */
+        virtual bool hasNext() const = 0;
+    };
+
+    /**
+     * @brief An iterator over a set of sites, speicfied by their position.
+     *
+     * In most cases, the position will reflect the index of an inner array used for likelihood storage.
+     */
+    class SiteIterator
+    {
+      public:
+        /**
+         * @return The position of the next site in the set.
+         */
+        virtual unsigned int next() throw (Exception) = 0;
+        /**
+         * @return True is there is at least another site in the set.
+         */
+        virtual bool hasNext() const = 0;
+    };
+
+    /**
+     * @brief A pair of SubstitutionModel / SiteIterator.
+     */
+    class ConstBranchModelDescription
+    {
+      public:
+        virtual const SubstitutionModel* getModel() const = 0;
+        virtual SiteIterator* getNewSiteIterator() const = 0;
+    };
+
+    /**
+     * @brief Iterates through all models used for all sites on a given branch.
+     */
+    class ConstBranchModelIterator
+    {
+      public:
+        virtual ConstBranchModelDescription* next() throw (Exception) = 0;
+        virtual bool hasNext() const = 0;
+    };
+
+    /**
+     * @brief A pair of SubstitutionModel / BranchIterator.
+     */
+    class ConstSiteModelDescription
+    {
+      public:
+        virtual const SubstitutionModel* getModel() const = 0;
+        virtual BranchIterator* getNewBranchIterator() const = 0;
+    };
+
+    /**
+     * @brief Iterates through all models used for all branches on a given site.
+     */
+    class ConstSiteModelIterator
+    {
+      public:
+        virtual ConstSiteModelDescription* next() throw (Exception) = 0;
+        virtual bool hasNext() const = 0;
+    };
+
+  public:
     TreeLikelihood() {}
     virtual ~TreeLikelihood() {}
 
 #ifndef NO_VIRTUAL_COV
-    TreeLikelihood * clone() const = 0;
+    TreeLikelihood* clone() const = 0;
 #endif
 
   public:
@@ -81,14 +156,14 @@ class TreeLikelihood:
      *
      * @param sites The data set to use.
      */
-    virtual void setData(const SiteContainer & sites) = 0;
+    virtual void setData(const SiteContainer& sites) = 0;
     
     /**
      * @brief Get the dataset for which the likelihood must be evaluated.
      *
      * @return A pointer toward the site container where the sequences are stored.
      */
-    virtual const SiteContainer * getData() const = 0;
+    virtual const SiteContainer* getData() const = 0;
 
     /**
      * @brief Init the likelihood object.
@@ -207,8 +282,8 @@ class TreeLikelihood:
      *
      * @return the alphabet associated to the dataset.
      */    
-    virtual const Alphabet * getAlphabet() const = 0;
-    
+    virtual const Alphabet* getAlphabet() const = 0;
+   
     /**
      * @name Retrieve some particular parameters subsets.
      *
@@ -230,22 +305,50 @@ class TreeLikelihood:
     virtual ParameterList getSubstitutionModelParameters() const = 0;
 
     /**
-     * @brief Get the substitution model associated to a given node.
+     * @brief Get the substitution model associated to a given node and alignment column.
      *
      * @param nodeId The id of the request node.
+     * @param siteIndex The index of the alignment position.
+     * @see getSiteIndex
      * @return A pointer toward the corresponding model.
      * @throw NodeNotFoundException This exception may be thrown if the node is not found (depending on the implementation).
      */
-    virtual const SubstitutionModel * getSubstitutionModelForNode(int nodeId) const throw (NodeNotFoundException) = 0;
+    virtual const SubstitutionModel* getSubstitutionModel(int nodeId, unsigned int siteIndex) const throw (NodeNotFoundException) = 0;
 
     /**
-     * @brief Get the substitution model associated to a given node.
+     * @brief Get the substitution model associated to a given node and alignment column.
      *
      * @param nodeId The id of the request node.
+     * @param siteIndex The index of the alignment position.
+     * @see getSiteIndex
      * @return A pointer toward the corresponding model.
      * @throw NodeNotFoundException This exception may be thrown if the node is not found (depending on the implementation).
      */
-    virtual SubstitutionModel * getSubstitutionModelForNode(int nodeId) throw (NodeNotFoundException) = 0;
+    virtual SubstitutionModel* getSubstitutionModel(int nodeId, unsigned int siteIndex) throw (NodeNotFoundException) = 0;
+
+    /**
+     * @brief Retrieves all Pij(t) for a particular branch, defined by the upper node and site.
+     *
+     * These intermediate results may be used by other methods.
+     *
+     * @param nodeId The node defining the branch of interest.
+     * @param siteIndex The index of the alignment position.
+     * @see getSiteIndex
+     * @return An array of dimension 2, where a[x][y] is the probability of substituting from x to y.
+     */
+    virtual VVdouble getTransitionProbabilities(int nodeId, unsigned int siteIndex) const = 0;
+
+    virtual ConstBranchModelIterator* getNewBranchModelIterator(int nodeId) const = 0;
+
+    virtual ConstSiteModelIterator* getNewSiteModelIterator(unsigned int siteIndex) const = 0;
+
+    /**
+     * @brief Get the index (used for inner computations) of a given site (original alignment column).
+     *
+     * @param site An alignment position.
+     * @return The site index corresponding to the given input alignment position.
+     */
+    virtual unsigned int getSiteIndex(unsigned int site) const throw (IndexOutOfBoundsException) = 0;
 
     /**
      * @brief Get the values of the frequencies for each state in the alphabet at the root node.
@@ -253,9 +356,14 @@ class TreeLikelihood:
      * For reversible models, these are the equilibrium frequencies.
      * For non-reversible models, these usually are distinct parameters.
      *
+     * For models without site partitioning, the set of frequencies is the same for all positions.
+     * For partition models, the frequencies may differ from one site to another.
+     *
+     * @param siteIndex The index of the alignment position.
+     * @see getSiteIndex
      * @return A vector with ancestral frequencies for each state in the alphabet;
      */
-    virtual vector<double> getRootFrequencies() const = 0;
+    virtual const std::vector<double>& getRootFrequencies(unsigned int siteIndex) const = 0;
     
     /** @} */
 
@@ -286,15 +394,6 @@ class TreeLikelihood:
      */
     virtual ParameterList getNonDerivableParameters() const = 0;
 
-    /**
-     * @brief Retrieves all Pij(t) for a particular branch, defined by the upper node.
-     *
-     * These intermediate results may be used by other methods.
-     *
-     * @param nodeId The node defining the branch of interest.
-     * @return An array of dimension 2, where a[x][y] is the probability of substituting from x to y.
-     */
-    virtual VVdouble getTransitionProbabilitiesForNode(int nodeId) const = 0;
 };
 
 } //end of namespace bpp.

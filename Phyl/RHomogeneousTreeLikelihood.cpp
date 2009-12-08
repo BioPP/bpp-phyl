@@ -89,7 +89,7 @@ throw (Exception):
 
 void RHomogeneousTreeLikelihood::init_(bool usePatterns) throw (Exception)
 {
-  likelihoodData_ = new DRASRTreeLikelihoodData(*tree_, _rateDistribution->getNumberOfCategories(), usePatterns);
+  likelihoodData_ = new DRASRTreeLikelihoodData(*tree_, rateDistribution_->getNumberOfCategories(), usePatterns);
 }
 
 /******************************************************************************/
@@ -178,7 +178,7 @@ double RHomogeneousTreeLikelihood::getLikelihoodForASite(unsigned int site) cons
   double l = 0;
   for(unsigned int i = 0; i < nbClasses_; i++)
   {
-    l += getLikelihoodForASiteForARateClass(site, i) * _rateDistribution->getProbability(i);
+    l += getLikelihoodForASiteForARateClass(site, i) * rateDistribution_->getProbability(i);
   }
   return l;
 }
@@ -190,7 +190,7 @@ double RHomogeneousTreeLikelihood::getLogLikelihoodForASite(unsigned int site) c
   double l = 0;
   for(unsigned int i = 0; i < nbClasses_; i++)
   {
-    l += getLikelihoodForASiteForARateClass(site, i) * _rateDistribution->getProbability(i);
+    l += getLikelihoodForASiteForARateClass(site, i) * rateDistribution_->getProbability(i);
   }
   //if(l <= 0.) cerr << "WARNING!!! Negative likelihood." << endl;
   if(l<0) l=0; //May happen because of numerical errors.
@@ -251,7 +251,7 @@ void RHomogeneousTreeLikelihood::fireParameterChanged(const ParameterList & para
 {
   applyParameters();
 
-  if(_rateDistribution->getParameters().getCommonParametersWith(params).size() > 0
+  if(rateDistribution_->getParameters().getCommonParametersWith(params).size() > 0
   || model_->getParameters().getCommonParametersWith(params).size() > 0)
   {
     //Rate parameter changed, need to recompute all probs:
@@ -310,7 +310,7 @@ double RHomogeneousTreeLikelihood::getDLikelihoodForASite(unsigned int site) con
   // Derivative of the sum is the sum of derivatives:
   double dl = 0;
   for(unsigned int i = 0; i < nbClasses_; i++)
-    dl += getDLikelihoodForASiteForARateClass(site, i) * _rateDistribution->getProbability(i);
+    dl += getDLikelihoodForASiteForARateClass(site, i) * rateDistribution_->getProbability(i);
   return dl;
 }
 
@@ -557,7 +557,7 @@ double RHomogeneousTreeLikelihood::getD2LikelihoodForASite(unsigned int site) co
   // Derivative of the sum is the sum of derivatives:
   double d2l = 0;
   for(unsigned int i = 0; i < nbClasses_; i++)
-    d2l += getD2LikelihoodForASiteForARateClass(site, i) * _rateDistribution->getProbability(i);
+    d2l += getD2LikelihoodForASiteForARateClass(site, i) * rateDistribution_->getProbability(i);
   return d2l;
 }
 

@@ -160,7 +160,7 @@ class DiscreteRatesAcrossSitesTreeLikelihood:
 		 *
 		 * @return A vector with all rate classes indexes.
 		 */
-		virtual vector<unsigned int> getRateClassWithMaxPostProbOfEachSite() const = 0;
+		virtual std::vector<unsigned int> getRateClassWithMaxPostProbOfEachSite() const = 0;
 
 		/**
 		 * @brief Get the posterior rate (the one with maximum posterior
@@ -198,9 +198,10 @@ class DiscreteRatesAcrossSitesTreeLikelihood:
      * These intermediate results may be used by other methods.
      *
      * @param nodeId The node defining the branch of interest.
+     * @param siteIndex The position in the alignment.
      * @return An array of dimension 3, where a[c][x][y] is the probability of substituting from x to y while being in rate class c.
      */
-    virtual VVVdouble getTransitionProbabilitiesPerRateClassForNode(int nodeId) const = 0;
+    virtual VVVdouble getTransitionProbabilitiesPerRateClass(int nodeId, unsigned int siteIndex) const = 0;
 		
 };
 

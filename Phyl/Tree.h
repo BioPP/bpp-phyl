@@ -187,11 +187,13 @@ class Tree:
 
 		virtual int getLeafId(const string & name) const throw (NodeNotFoundException)= 0;
 	
-		virtual vector<int> getLeavesId() const = 0;
+		virtual std::vector<int> getLeavesId() const = 0;
 
-		virtual vector<int> getNodesId() const = 0;
+		virtual std::vector<int> getNodesId() const = 0;
+		
+    virtual std::vector<int> getBranchesId() const = 0;
 
-		virtual vector<int> getSonsId(int parentId) const throw (NodeNotFoundException) = 0;
+		virtual std::vector<int> getSonsId(int parentId) const throw (NodeNotFoundException) = 0;
 
 		virtual int getFatherId(int parentId) const throw (NodeNotFoundException) = 0;
 

@@ -48,7 +48,7 @@ namespace bpp
 {
 
 /**
- * @brief Partial implementation for non-homogeneous models of the TreeLikelihood interface.
+ * @brief Partial implementation for branch non-homogeneous models of the TreeLikelihood interface.
  *
  * This class provides a pointer toward a single substitution model + several utilitary variables.
  */
@@ -56,17 +56,47 @@ class AbstractNonHomogeneousTreeLikelihood:
   public virtual NonHomogeneousTreeLikelihood,
   public AbstractDiscreteRatesAcrossSitesTreeLikelihood
 {
+  public:
+
+    class ConstNonHomogeneousSiteModelIterator :
+      public ConstSiteModelIterator
+    {
+      private:
+        std::vector<ConstNoPartitionSiteModelDescription> siteModelDescriptions_;
+        unsigned int index_;
+        unsigned int nbSites_;
+
+      public:
+        ConstNonHomogeneousSiteModelIterator(const SubstitutionModelSet* modelSet, unsigned int nbSites) :
+          siteModelDescriptions_(), index_(0), nbSites_(nbSites)
+        {
+          for (unsigned int i = 0; i < modelSet->getNumberOfModels(); ++i)
+            siteModelDescriptions_.push_back(ConstNoPartitionSiteModelDescription(modelSet->getModel(i), modelSet->getNodesWithModel(i)));        
+        }
+
+      public:
+        ConstSiteModelDescription* next() throw (Exception)
+        {
+          if (!hasNext())
+            throw Exception("AbstractNonHomogeneousTreeLikelihood::ConstHomogeneousSiteModelIterator::next(). No more site in the set.");
+          return &siteModelDescriptions_[index_++];
+        }
+
+        bool hasNext() const { return index_ < nbSites_; }
+    };
+
+
   protected:
-    SubstitutionModelSet * _modelSet;
-    ParameterList _brLenParameters;
+    SubstitutionModelSet* modelSet_;
+    ParameterList brLenParameters_;
     
-    mutable map<int, VVVdouble> _pxy;
+    mutable std::map<int, VVVdouble> pxy_;
 
-    mutable map<int, VVVdouble> _dpxy;
+    mutable std::map<int, VVVdouble> dpxy_;
 
-    mutable map<int, VVVdouble> _d2pxy;
+    mutable std::map<int, VVVdouble> d2pxy_;
         
-    vector<double> _rootFreqs;
+    std::vector<double> rootFreqs_;
         
     /**
      * @brief Pointer toward all nodes in the tree.
@@ -74,26 +104,26 @@ class AbstractNonHomogeneousTreeLikelihood:
      * The position in the array is the number used in the parameter name.
      * This may be different from the node id, unless you used the resetNodeId method on the input tree.
      */
-    vector<Node *> _nodes;
+    std::vector<Node *> nodes_;
 
     /**
      * @brief An index linking nodes to their id, for faster access than the getNode() method.
      */
-    mutable map<int, const Node *> _idToNode;
+    mutable std::map<int, const Node *> idToNode_;
  
     //some values we'll need:
-    unsigned int _nbSites,         //the number of sites in the container
-                 _nbDistinctSites, //the number of distinct sites
-                 _nbClasses,       //the number of rate classes
-                 _nbStates,        //the number of states in the alphabet
-                 _nbNodes;         //the number of nodes in the tree
+    unsigned int nbSites_,         //the number of sites in the container
+                 nbDistinctSites_, //the number of distinct sites
+                 nbClasses_,       //the number of rate classes
+                 nbStates_,        //the number of states in the alphabet
+                 nbNodes_;         //the number of nodes in the tree
 
     bool _verbose;
 
     double _minimumBrLen;
-    Constraint * _brLenConstraint;
+    Constraint * brLenConstraint_;
 
-    int _root1, _root2;
+    int root1_, root2_;
 
   public:
     AbstractNonHomogeneousTreeLikelihood(
@@ -115,7 +145,7 @@ class AbstractNonHomogeneousTreeLikelihood:
      *
      * This operator is to be called by the derived class operator.
      */
-    AbstractNonHomogeneousTreeLikelihood & operator=(const AbstractNonHomogeneousTreeLikelihood& lik);
+    AbstractNonHomogeneousTreeLikelihood& operator=(const AbstractNonHomogeneousTreeLikelihood& lik);
  
     virtual ~AbstractNonHomogeneousTreeLikelihood();
     
@@ -152,17 +182,28 @@ class AbstractNonHomogeneousTreeLikelihood:
 
     const SubstitutionModel* getSubstitutionModelForNode(int nodeId) const throw (NodeNotFoundException) 
     {
-      return _modelSet->getModelForNode(nodeId);
+      return modelSet_->getModelForNode(nodeId);
     }
 
     SubstitutionModel* getSubstitutionModelForNode(int nodeId) throw (NodeNotFoundException)
     {
-      return _modelSet->getModelForNode(nodeId);
+      return modelSet_->getModelForNode(nodeId);
     }
 
-    vector<double> getRootFrequencies() const { return _rootFreqs; }
+    const std::vector<double>& getRootFrequencies(unsigned int siteIndex) const { return rootFreqs_; }
     
-    VVVdouble getTransitionProbabilitiesPerRateClassForNode(int nodeId) const { return _pxy[nodeId]; }
+    VVVdouble getTransitionProbabilitiesPerRateClass(int nodeId, unsigned int siteIndex) const { return pxy_[nodeId]; }
+
+    ConstBranchModelIterator* getNewBranchModelIterator(int nodeId) const
+    {
+      return new ConstNoPartitionBranchModelIterator(*tree_, modelSet_->getModelForNode(nodeId), nbDistinctSites_);
+    }
+
+    ConstSiteModelIterator* getNewSiteModelIterator(unsigned int siteIndex) const
+    {
+      return new ConstNonHomogeneousSiteModelIterator(modelSet_, nbDistinctSites_);
+    }
+       
     /** @} */
 
     /**
@@ -172,15 +213,15 @@ class AbstractNonHomogeneousTreeLikelihood:
      *
      * @{
      */
-    const SubstitutionModelSet* getSubstitutionModelSet() const { return _modelSet; }
+    const SubstitutionModelSet* getSubstitutionModelSet() const { return modelSet_; }
     
-    SubstitutionModelSet* getSubstitutionModelSet() { return _modelSet; }
+    SubstitutionModelSet* getSubstitutionModelSet() { return modelSet_; }
     
     void setSubstitutionModelSet(SubstitutionModelSet* modelSet) throw (Exception);
 
     ParameterList getRootFrequenciesParameters() const
     {
-      return _modelSet->getRootFrequenciesParameters();
+      return modelSet_->getRootFrequenciesParameters();
     }
     /** @} */
     
@@ -204,8 +245,8 @@ class AbstractNonHomogeneousTreeLikelihood:
     virtual void setMinimumBranchLength(double minimum)
     {
       _minimumBrLen = minimum;
-      if(_brLenConstraint != NULL) delete _brLenConstraint;
-      _brLenConstraint = new IncludingPositiveReal(_minimumBrLen);
+      if(brLenConstraint_ != NULL) delete brLenConstraint_;
+      brLenConstraint_ = new IncludingPositiveReal(_minimumBrLen);
       initBranchLengthsParameters();
     }
 
@@ -213,11 +254,11 @@ class AbstractNonHomogeneousTreeLikelihood:
 
   protected:
     /**
-     * @brief Fill the _pxy, _dpxy and _d2pxy arrays for all nodes.
+     * @brief Fill the pxy_, dpxy_ and d2pxy_ arrays for all nodes.
      */
     void computeAllTransitionProbabilities();
     /**
-     * @brief Fill the _pxy, _dpxy and _d2pxy arrays for one node.
+     * @brief Fill the pxy_, dpxy_ and d2pxy_ arrays for one node.
      */
     void computeTransitionProbabilitiesForNode(const Node * node);
 

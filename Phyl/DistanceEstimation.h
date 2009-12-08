@@ -69,9 +69,9 @@ class TwoTreeLikelihood:
   public AbstractDiscreteRatesAcrossSitesTreeLikelihood  
 {
 	protected:
-		SiteContainer * _shrunkData;
-		vector<string> _seqnames;
-		SubstitutionModel * _model;
+		SiteContainer* _shrunkData;
+    std::vector<std::string> _seqnames;
+		SubstitutionModel* model_;
 		ParameterList _brLenParameters;
 		
 		mutable VVVdouble _pxy;
@@ -91,12 +91,12 @@ class TwoTreeLikelihood:
 		 * However, if this is not the case, some pointers may point toward the same
 		 * element in the likelihood array.
 		 */
-		vector<unsigned int> _rootPatternLinks;
+    std::vector<unsigned int> _rootPatternLinks;
 
 		/**
 		 * @brief The frequency of each site.
 		 */
-		vector<unsigned int> _rootWeights;
+    std::vector<unsigned int> _rootWeights;
 
 		//some values we'll need:
 		unsigned int _nbSites,         //the number of sites in the container
@@ -113,19 +113,19 @@ class TwoTreeLikelihood:
 		mutable VVdouble _leafLikelihoods1, _leafLikelihoods2;
 	
     double _minimumBrLen;
-    Constraint * _brLenConstraint;
+    Constraint* _brLenConstraint;
 
 	public:
 		TwoTreeLikelihood(
-			const string & seq1, const string & seq2,	
-			const SiteContainer & data,
-			SubstitutionModel * model,
-			DiscreteDistribution * rDist,
+			const std::string& seq1, const std::string& seq2,	
+			const SiteContainer& data,
+			SubstitutionModel* model,
+			DiscreteDistribution* rDist,
 			bool verbose)	throw (Exception);
 
-    TwoTreeLikelihood(const TwoTreeLikelihood & lik);
+    TwoTreeLikelihood(const TwoTreeLikelihood& lik);
     
-    TwoTreeLikelihood & operator=(const TwoTreeLikelihood & lik);
+    TwoTreeLikelihood& operator=(const TwoTreeLikelihood& lik);
 
     TwoTreeLikelihood* clone() const { return new TwoTreeLikelihood(*this); } 
 
@@ -140,19 +140,20 @@ class TwoTreeLikelihood:
 		 *
 		 * @{
 		 */
-		double getLikelihood () const;
+		double getLikelihood() const;
 		double getLogLikelihood() const;
 		double getLikelihoodForASite (unsigned int site) const;
 		double getLogLikelihoodForASite(unsigned int site) const;
 		ParameterList getBranchLengthsParameters() const;
 		ParameterList getSubstitutionModelParameters() const;
-    SubstitutionModel* getSubstitutionModelForNode(int nodeId) throw (NodeNotFoundException) { return _model; }
-    const SubstitutionModel* getSubstitutionModelForNode(int nodeId) const throw (NodeNotFoundException) { return _model; }
-    vector<double> getRootFrequencies() const { return _model->getFrequencies(); }
+    SubstitutionModel* getSubstitutionModel(int nodeId, unsigned int siteIndex) throw (NodeNotFoundException) { return model_; }
+    const SubstitutionModel* getSubstitutionModel(int nodeId, unsigned int siteIndex) const throw (NodeNotFoundException) { return model_; }
+    const std::vector<double>& getRootFrequencies(unsigned int siteIndex) const { return model_->getFrequencies(); }
+    unsigned int getSiteIndex(unsigned int site) const throw (IndexOutOfBoundsException) { return _rootPatternLinks[site]; }
     /**
      * @brief This method is not applicable for this object.
      */
-    VVVdouble getTransitionProbabilitiesPerRateClassForNode(int nodeId) const { return _pxy; }
+    VVVdouble getTransitionProbabilitiesPerRateClass(int nodeId, unsigned int siteIndex) const { return _pxy; }
     void setData(const SiteContainer& sites) throw (Exception) {}
     void initialize() throw(Exception);
 		/** @} */
@@ -173,14 +174,26 @@ class TwoTreeLikelihood:
 		 *
 		 * @return A const pointer toward the substitution model of this instance.
 		 */
-		virtual const SubstitutionModel * getSubstitutionModel() const { return _model; }
+		const SubstitutionModel* getSubstitutionModel() const { return model_; }
 		
 		/**
 		 * @brief Get the substitution model used for the computation.
 		 *
 		 * @return A pointer toward the substitution model of this instance.
 		 */
-		virtual SubstitutionModel * getSubstitutionModel() { return _model; }
+		SubstitutionModel* getSubstitutionModel() { return model_; }
+
+    ConstBranchModelIterator* getNewBranchModelIterator(int nodeId) const throw (NotImplementedException)
+    {
+      throw NotImplementedException("TwoTreeLikelihood::getNewBranchSiteModelIterator. This class does not (yet) provide support for partition models.");
+    }
+
+    ConstSiteModelIterator* getNewSiteModelIterator(unsigned int siteIndex) const throw (NotImplementedException)
+    {
+      throw NotImplementedException("TwoTreeLikelihood::getNewSiteModelIterator. This class is for inner use only and does not provide site model iterators.");
+    }
+
+    
 
 		/**
 		 * @brief Implements the Function interface.
@@ -195,7 +208,7 @@ class TwoTreeLikelihood:
 		 *
 		 * @param parameters The parameter list to pass to the function.
 		 */
-		void setParameters(const ParameterList & parameters) throw (ParameterNotFoundException, ConstraintException);
+		void setParameters(const ParameterList& parameters) throw (ParameterNotFoundException, ConstraintException);
 		double getValue() const throw(Exception);
 		
 		/**
@@ -203,7 +216,7 @@ class TwoTreeLikelihood:
 		 *
 		 * @{
 		 */
-		double getFirstOrderDerivative(const string & variable) const throw (Exception);
+		double getFirstOrderDerivative(const std::string& variable) const throw (Exception);
 		/** @{ */
 
 		/**
@@ -211,8 +224,8 @@ class TwoTreeLikelihood:
 		 *
 		 * @{
 		 */
-		double getSecondOrderDerivative(const string & variable) const throw (Exception);
-		double getSecondOrderDerivative(const string & variable1, const string & variable2) const throw (Exception) { return 0; } // Not implemented for now.
+		double getSecondOrderDerivative(const std::string& variable) const throw (Exception);
+		double getSecondOrderDerivative(const std::string& variable1, const std::string& variable2) const throw (Exception) { return 0; } // Not implemented for now.
 		/** @} */
 
 		virtual void initBranchLengthsParameters();
@@ -281,11 +294,11 @@ class DistanceEstimation:
   public virtual Clonable
 {
 	protected:
-		SubstitutionModel * _model;
-		DiscreteDistribution * _rateDist;
-		const SiteContainer * _sites;
-		DistanceMatrix * _dist;
-		Optimizer * _optimizer;
+		SubstitutionModel * model_;
+		DiscreteDistribution * rateDist_;
+		const SiteContainer * sites_;
+		DistanceMatrix * dist_;
+		Optimizer * optimizer_;
 		MetaOptimizer * _defaultOptimizer;
 		unsigned int _verbose;
 		ParameterList parameters_;
@@ -308,7 +321,7 @@ class DistanceEstimation:
 		 *  @param computeMat if true the computeMatrix() method is called.
 		 */
 		DistanceEstimation(SubstitutionModel * model, DiscreteDistribution * rateDist, const SiteContainer * sites, unsigned int verbose = 1, bool computeMat = true):
-      _model(model), _rateDist(rateDist), _sites(sites), _dist(NULL), _verbose(verbose)
+      model_(model), rateDist_(rateDist), sites_(sites), dist_(NULL), _verbose(verbose)
     {
 	    _init();
       if(computeMat) computeMatrix();
@@ -322,19 +335,19 @@ class DistanceEstimation:
      * @param distanceEstimation The object to copy.
      */
     DistanceEstimation(const DistanceEstimation & distanceEstimation):
-      _model(distanceEstimation._model),
-      _rateDist(distanceEstimation._rateDist),
-      _sites(distanceEstimation._sites),
-      _dist(NULL),
-      _optimizer(dynamic_cast<Optimizer *>(distanceEstimation._optimizer->clone())),
+      model_(distanceEstimation.model_),
+      rateDist_(distanceEstimation.rateDist_),
+      sites_(distanceEstimation.sites_),
+      dist_(NULL),
+      optimizer_(dynamic_cast<Optimizer *>(distanceEstimation.optimizer_->clone())),
       _defaultOptimizer(dynamic_cast<MetaOptimizer *>(_defaultOptimizer->clone())),
       _verbose(distanceEstimation._verbose),
       parameters_(distanceEstimation.parameters_)
     {
-      if(distanceEstimation._dist != NULL)
-        _dist = new DistanceMatrix(*distanceEstimation._dist);
+      if(distanceEstimation.dist_ != NULL)
+        dist_ = new DistanceMatrix(*distanceEstimation.dist_);
       else
-        _dist = NULL;
+        dist_ = NULL;
     }
 
     /**
@@ -347,14 +360,14 @@ class DistanceEstimation:
      */
     DistanceEstimation & operator=(const DistanceEstimation & distanceEstimation)
     {
-      _model = distanceEstimation._model;
-      _rateDist = distanceEstimation._rateDist;
-      _sites = distanceEstimation._sites;
-      if(distanceEstimation._dist != NULL)
-        _dist = new DistanceMatrix(*distanceEstimation._dist);
+      model_ = distanceEstimation.model_;
+      rateDist_ = distanceEstimation.rateDist_;
+      sites_ = distanceEstimation.sites_;
+      if(distanceEstimation.dist_ != NULL)
+        dist_ = new DistanceMatrix(*distanceEstimation.dist_);
       else
-        _dist = NULL;
-      _optimizer = dynamic_cast<Optimizer *>(distanceEstimation._optimizer->clone());
+        dist_ = NULL;
+      optimizer_ = dynamic_cast<Optimizer *>(distanceEstimation.optimizer_->clone());
       // _defaultOptimizer has already been initialized since the default constructor has been called.
       _verbose = distanceEstimation._verbose;
       parameters_ = distanceEstimation.parameters_;
@@ -363,9 +376,9 @@ class DistanceEstimation:
 
 		virtual ~DistanceEstimation()
 		{
-			if(_dist != NULL) delete _dist;
+			if(dist_ != NULL) delete dist_;
 			delete _defaultOptimizer;
-      delete _optimizer;
+      delete optimizer_;
 		}
 
 #ifndef NO_VIRTUAL_COV
@@ -382,14 +395,14 @@ class DistanceEstimation:
       vector<string> name;
       name.push_back("BrLen");
       desc->addOptimizer("Branch length", new PseudoNewtonOptimizer(NULL), name, 2, MetaOptimizerInfos::IT_TYPE_FULL);
-      ParameterList tmp = _model->getParameters();
-      tmp.addParameters(_rateDist->getParameters());
+      ParameterList tmp = model_->getParameters();
+      tmp.addParameters(rateDist_->getParameters());
       desc->addOptimizer("substitution model and rate distribution", new SimpleMultiDimensions(NULL), tmp.getParameterNames(), 0, MetaOptimizerInfos::IT_TYPE_STEP);
     	_defaultOptimizer = new MetaOptimizer(NULL, desc);
       _defaultOptimizer->setMessageHandler(NULL);
 	    _defaultOptimizer->setProfiler(NULL);
       _defaultOptimizer->getStopCondition()->setTolerance(0.0001);
-	    _optimizer = dynamic_cast<Optimizer *>(_defaultOptimizer->clone());
+	    optimizer_ = dynamic_cast<Optimizer *>(_defaultOptimizer->clone());
     }
 
 	public:
@@ -409,26 +422,26 @@ class DistanceEstimation:
 		 *
 		 * @return A pointer toward the computed distance matrix.
 		 */
-		DistanceMatrix * getMatrix() const { return _dist == NULL ? NULL : new DistanceMatrix(* _dist); }
+		DistanceMatrix* getMatrix() const { return dist_ == 0 ? 0 : new DistanceMatrix(*dist_); }
 
-		SubstitutionModel * getModel() const { return _model; }
-		void resetModel() { _model = NULL; }
+		SubstitutionModel* getModel() const { return model_; }
+		void resetModel() { model_ = 0; }
 
-		DiscreteDistribution * getRateDistribution() const { return _rateDist; }
-		void resetRateDistribution() { _rateDist = NULL; }
+		DiscreteDistribution* getRateDistribution() const { return rateDist_; }
+		void resetRateDistribution() { rateDist_ = 0; }
 
-		void setData(const SiteContainer * sites) { _sites = sites; }
-		const SiteContainer * getData() const { return _sites; }
-		void resetData() { _sites = NULL; }
+		void setData(const SiteContainer* sites) { sites_ = sites; }
+		const SiteContainer* getData() const { return sites_; }
+		void resetData() { sites_ = 0; }
 		
 		void setOptimizer(const Optimizer * optimizer)
     { 
-      if(_optimizer) delete _optimizer;
-      _optimizer = dynamic_cast<Optimizer *>(optimizer->clone());
+      if(optimizer_) delete optimizer_;
+      optimizer_ = dynamic_cast<Optimizer *>(optimizer->clone());
     }
-		const Optimizer * getOptimizer() const { return _optimizer; }
-		Optimizer * getOptimizer() { return _optimizer; }
-		void resetOptimizer() { _optimizer = dynamic_cast<Optimizer *>(_defaultOptimizer->clone()); }
+		const Optimizer * getOptimizer() const { return optimizer_; }
+		Optimizer * getOptimizer() { return optimizer_; }
+		void resetOptimizer() { optimizer_ = dynamic_cast<Optimizer*>(_defaultOptimizer->clone()); }
 
 		/**
 		 * @brief Specify a list of parameters to be estimated.
@@ -437,7 +450,7 @@ class DistanceEstimation:
 		 *
 		 * @param parameters A list of parameters to estimate.
 		 */
-		void setAdditionalParameters(const ParameterList & parameters)
+		void setAdditionalParameters(const ParameterList& parameters)
 		{
       parameters_ = parameters;
 		}

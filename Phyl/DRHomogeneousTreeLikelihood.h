@@ -88,7 +88,7 @@ class DRHomogeneousTreeLikelihood:
      * @throw Exception in an error occured.
      */
     DRHomogeneousTreeLikelihood(
-      const Tree & tree,
+      const Tree& tree,
       SubstitutionModel* model,
       DiscreteDistribution* rDist,
       bool checkRooted = true,
@@ -110,8 +110,8 @@ class DRHomogeneousTreeLikelihood:
      * @throw Exception in an error occured.
      */
     DRHomogeneousTreeLikelihood(
-      const Tree & tree,
-      const SiteContainer & data,
+      const Tree& tree,
+      const SiteContainer& data,
       SubstitutionModel* model,
       DiscreteDistribution* rDist,
       bool checkRooted = true,
@@ -121,9 +121,9 @@ class DRHomogeneousTreeLikelihood:
     /**
      * @brief Copy constructor.
      */ 
-    DRHomogeneousTreeLikelihood(const DRHomogeneousTreeLikelihood & lik);
+    DRHomogeneousTreeLikelihood(const DRHomogeneousTreeLikelihood& lik);
     
-    DRHomogeneousTreeLikelihood & operator=(const DRHomogeneousTreeLikelihood & lik);
+    DRHomogeneousTreeLikelihood & operator=(const DRHomogeneousTreeLikelihood& lik);
 
     virtual ~DRHomogeneousTreeLikelihood();
 
@@ -150,6 +150,7 @@ class DRHomogeneousTreeLikelihood:
     double getLogLikelihood() const;
     double getLikelihoodForASite (unsigned int site) const;
     double getLogLikelihoodForASite(unsigned int site) const;
+    unsigned int getSiteIndex(unsigned int site) const throw (IndexOutOfBoundsException) { return likelihoodData_->getRootArrayPosition(site); }
     /** @} */
 
     void computeTreeLikelihood();
@@ -207,14 +208,7 @@ class DRHomogeneousTreeLikelihood:
     const DRASDRTreeLikelihoodData* getLikelihoodData() const { return likelihoodData_; }
   
     virtual void computeLikelihoodAtNode(int nodeId, VVVdouble& likelihoodArray) const;
-
-    /**
-     * @brief Retrieves all Pij(t) for a particular node.
-     *
-     * These intermediate results may be used by other methods.
-     */
-    virtual VVVdouble getTransitionProbabilitiesPerRateClassForNode(int nodeId) const { return pxy_[nodeId]; }
-       
+      
   protected:
   
     /**

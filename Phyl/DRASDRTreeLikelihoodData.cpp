@@ -108,47 +108,47 @@ void DRASDRTreeLikelihoodData::initLikelihoods(const Node * node, const SiteCont
     {
       seq = &sites.getSequence(node->getName());
     }
-    catch (SequenceNotFoundException & snfe)
+    catch (SequenceNotFoundException& snfe)
     {
       throw SequenceNotFoundException("DRASDRTreeLikelihoodData::initlikelihoods. Leaf name in tree not found in site container: ", (node->getName()));
     }
-    DRASDRTreeLikelihoodLeafData * leafData = & _leafData[node->getId()];
-    VVdouble * leavesLikelihoods_leaf = & leafData->getLikelihoodArray();
-    leafData->setNode(*node);
+    DRASDRTreeLikelihoodLeafData *leafData = &_leafData[node->getId()];
+    VVdouble* leavesLikelihoods_leaf = &leafData->getLikelihoodArray();
+    leafData->setNode(node);
     leavesLikelihoods_leaf->resize(_nbDistinctSites);
-    for(unsigned int i = 0; i < _nbDistinctSites; i++)
+    for (unsigned int i = 0; i < _nbDistinctSites; i++)
     {
-      Vdouble * leavesLikelihoods_leaf_i = & (* leavesLikelihoods_leaf)[i];
+      Vdouble* leavesLikelihoods_leaf_i = &(*leavesLikelihoods_leaf)[i];
       leavesLikelihoods_leaf_i->resize(_nbStates);
       int state = seq->getValue(i);
       double test = 0.;
-      for(unsigned int s = 0; s < _nbStates; s++)
+      for (unsigned int s = 0; s < _nbStates; s++)
       {
         //Leaves likelihood are set to 1 if the char correspond to the site in the sequence,
         //otherwise value set to 0:
         ( * leavesLikelihoods_leaf_i)[s] = model.getInitValue(s, state);
         test += ( * leavesLikelihoods_leaf_i)[s];
       }
-      if(test < 0.000001) cerr << "WARNING!!! Likelihood will be 0 for this site." << endl;
+      if (test < 0.000001) cerr << "WARNING!!! Likelihood will be 0 for this site." << endl;
     }
   }
 
   // We initialize each son node first:
   unsigned int nbSonNodes = node->getNumberOfSons();
-  for(unsigned int l = 0; l < nbSonNodes; l++)
+  for (unsigned int l = 0; l < nbSonNodes; l++)
   {
     //For each son node,
     initLikelihoods(node->getSon(l), sites, model);
   }
 
   //Initialize likelihood vector:
-  DRASDRTreeLikelihoodNodeData * nodeData = & _nodeData[node->getId()];
-  map<int, VVVdouble> * _likelihoods_node = & nodeData->getLikelihoodArrays();
-  nodeData->setNode(*node);
+  DRASDRTreeLikelihoodNodeData* nodeData = &_nodeData[node->getId()];
+  map<int, VVVdouble> *_likelihoods_node = &nodeData->getLikelihoodArrays();
+  nodeData->setNode(node);
   
   int nbSons = node->getNumberOfSons();
   
-  for(int n = (node->hasFather() ? -1 : 0); n < nbSons; n++)
+  for (int n = (node->hasFather() ? -1 : 0); n < nbSons; n++)
   {
     const Node * neighbor = (* node)[n];
     VVVdouble * _likelihoods_node_neighbor = & (* _likelihoods_node)[neighbor->getId()];
@@ -194,8 +194,8 @@ void DRASDRTreeLikelihoodData::initLikelihoods(const Node * node, const SiteCont
   }
 
   // Initialize d and d2 likelihoods:
-  Vdouble * _dLikelihoods_node = & nodeData->getDLikelihoodArray();
-  Vdouble * _d2Likelihoods_node = & nodeData->getD2LikelihoodArray();
+  Vdouble* _dLikelihoods_node = &nodeData->getDLikelihoodArray();
+  Vdouble* _d2Likelihoods_node = &nodeData->getD2LikelihoodArray();
   _dLikelihoods_node->resize(_nbDistinctSites);
   _d2Likelihoods_node->resize(_nbDistinctSites);   
 }
@@ -207,37 +207,37 @@ void DRASDRTreeLikelihoodData::reInit() throw (Exception)
   reInit(_tree->getRootNode());
 }
 
-void DRASDRTreeLikelihoodData::reInit(const Node * node) throw (Exception)
+void DRASDRTreeLikelihoodData::reInit(const Node* node) throw (Exception)
 {
-	if(node->isLeaf())
+	if (node->isLeaf())
   {
-    DRASDRTreeLikelihoodLeafData * leafData = & _leafData[node->getId()];
-	  leafData->setNode(*node);
+    DRASDRTreeLikelihoodLeafData* leafData = &_leafData[node->getId()];
+	  leafData->setNode(node);
   }
 
-  DRASDRTreeLikelihoodNodeData * nodeData = & _nodeData[node->getId()];
-	nodeData->setNode(*node);
+  DRASDRTreeLikelihoodNodeData* nodeData = &_nodeData[node->getId()];
+	nodeData->setNode(node);
 	nodeData->eraseNeighborArrays();
 	
 	int nbSons = node->getNumberOfSons();
 	
-	for(int n = (node->hasFather() ? -1 : 0); n < nbSons; n++)
+	for (int n = (node->hasFather() ? -1 : 0); n < nbSons; n++)
   {
-		const Node * neighbor = (* node)[n];
-		VVVdouble *array = & nodeData->getLikelihoodArrayForNeighbor(neighbor->getId());
+		const Node* neighbor = (*node)[n];
+		VVVdouble *array = &nodeData->getLikelihoodArrayForNeighbor(neighbor->getId());
 		
 		array->resize(_nbDistinctSites);
-    for(unsigned int i = 0; i < _nbDistinctSites; i++)
+    for (unsigned int i = 0; i < _nbDistinctSites; i++)
     {
-      VVdouble * array_i = & (* array)[i];
+      VVdouble* array_i = &(*array)[i];
       array_i->resize(_nbClasses);
-      for(unsigned int c = 0; c < _nbClasses; c++)
+      for (unsigned int c = 0; c < _nbClasses; c++)
       {
-        Vdouble * array_i_c = & (* array_i)[c];
+        Vdouble* array_i_c = &(*array_i)[c];
         array_i_c->resize(_nbStates);
-        for(unsigned int s = 0; s < _nbStates; s++)
+        for (unsigned int s = 0; s < _nbStates; s++)
         {
-          (* array_i_c)[s] = 1.; //All likelihoods are initialized to 1.
+          (*array_i_c)[s] = 1.; //All likelihoods are initialized to 1.
         }
       }
     }
@@ -245,7 +245,7 @@ void DRASDRTreeLikelihoodData::reInit(const Node * node) throw (Exception)
 
 	// We re-initialize each son node:
 	unsigned int nbSonNodes = node->getNumberOfSons();
-	for(unsigned int l = 0; l < nbSonNodes; l++)
+	for (unsigned int l = 0; l < nbSonNodes; l++)
   {
 		//For each son node,
 		reInit(node->getSon(l));

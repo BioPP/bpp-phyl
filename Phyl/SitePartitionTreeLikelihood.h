@@ -1,8 +1,7 @@
 //
-// File: NonHomogeneousTreeLikelihood.h
+// File: SitePartitionTreeLikelihood.h
 // Created by: Julien Dutheil
-// Created on: Tue Oct 9 16:03 2007
-// From file: HomogeneousTreeLikelihood.h
+// Created on: Mon Dec 7 11:02 2009
 //
 
 /*
@@ -38,84 +37,60 @@ The fact that you are presently reading this means that you have had
 knowledge of the CeCILL license and that you accept its terms.
 */
 
-#ifndef _NONHOMOGENEOUSTREELIKELIHOOD_H_
-#define _NONHOMOGENEOUSTREELIKELIHOOD_H_
+
+#ifndef _SITEPARTITIONTREELIKELIHOOD_H_
+#define _SITEPARTITIONTREELIKELIHOOD_H_
 
 #include "TreeLikelihood.h"
-#include "SubstitutionModelSet.h"
 
 namespace bpp
 {
 
 /**
- * @brief Specialization of the TreeLikelihood interface for the branch non-homogeneous and non-stationary models.
+ * @brief Specialization of the TreeLikelihood interface for partition models.
  *
- * The main difference is that the likelihood depends on the position of the root.
- * The frequencies at the root of the tree are new parameters, which are not necessarily equal to the equilibrium frequencies of the substitution model.
- *
- * @see SubstitutionModelSet.
+ * These models allow the distinct sites of an alignment to have a different model.
+ * The substitution model is however assumed to be the same along the tree.
+ * suche models are hence homogeneous in time.
  */
-class NonHomogeneousTreeLikelihood :
+class SitePartitionTreeLikelihood :
 	public virtual TreeLikelihood
 {
 	public:
 #ifndef NO_VIRTUAL_COV
-    NonHomogeneousTreeLikelihood* clone() const = 0;
+    SitePartitionTreeLikelihood* clone() const = 0;
 #endif
 
   public:
     const SubstitutionModel* getSubstitutionModel(int nodeId, unsigned int siteIndex) const throw (NodeNotFoundException)
     {
-      return getSubstitutionModelForNode(nodeId);
+      return getSubstitutionModelForSite(siteIndex);
     }
 
     SubstitutionModel* getSubstitutionModel(int nodeId, unsigned int siteIndex) throw (NodeNotFoundException)
     {
-      return getSubstitutionModelForNode(nodeId);
+      return getSubstitutionModelForSite(siteIndex);
     }
 
     /**
      * @brief Get the substitution model associated to a given node.
      *
-     * @param nodeId The id of the request node.
+     * @param siteIndex The position in the alignment.
      * @return A pointer toward the corresponding model.
-     * @throw NodeNotFoundException This exception may be thrown if the node is not found (depending on the implementation).
      */
-    virtual const SubstitutionModel* getSubstitutionModelForNode(int nodeId) const throw (NodeNotFoundException) = 0;
+    virtual const SubstitutionModel* getSubstitutionModelForSite(int siteIndex) const = 0;
 
     /**
      * @brief Get the substitution model associated to a given node.
      *
-     * @param nodeId The id of the request node.
+     * @param siteIndex The position in the alignment.
      * @return A pointer toward the corresponding model.
-     * @throw NodeNotFoundException This exception may be thrown if the node is not found (depending on the implementation).
      */
-    virtual SubstitutionModel* getSubstitutionModelForNode(int nodeId) throw (NodeNotFoundException) = 0;
-
-    /**
-     * @return The set of substitution models associated to this instance.
-     */
-    virtual const SubstitutionModelSet* getSubstitutionModelSet() const = 0;
-
-    /**
-     * @return The set of substitution models associated to this instance.
-     */
-    virtual SubstitutionModelSet* getSubstitutionModelSet() = 0;
-    
-    /**
-     * @return Set the substitution models for this instance.
-     * @throw Exception If the model could not be set (for instance, because of a wrong alphabet type).
-     */
-    virtual void setSubstitutionModelSet(SubstitutionModelSet* model) throw (Exception) = 0;
-
-    /**
-     * @return The parameters on which the root frequencies depend.
-     */
-    virtual ParameterList getRootFrequenciesParameters() const = 0;
+    virtual SubstitutionModel* getSubstitutionModelForSite(unsigned int siteIndex) = 0;
 
 };
 
 } //end of namespace bpp.
 
-#endif	//_NONHOMOGENEOUSTREELIKELIHOOD_H_
+#endif	//_SITEPARTITIONTREELIKELIHOOD_H_
 

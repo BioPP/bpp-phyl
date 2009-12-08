@@ -52,8 +52,6 @@ knowledge of the CeCILL license and that you accept its terms.
 // From the STL:
 #include <map>
 
-using namespace std;
-
 namespace bpp
 {
 
@@ -71,7 +69,7 @@ class DRASDRTreeLikelihoodLeafData :
 {
   protected:
     mutable VVdouble _leafLikelihood;
-    const Node * _leaf;
+    const Node* _leaf;
 
   public:
 #ifndef NO_VIRTUAL_COV
@@ -85,10 +83,10 @@ class DRASDRTreeLikelihoodLeafData :
     }
 
   public:
-    const Node * getNode() const { return _leaf; }
-    void setNode(const Node & node) { _leaf = &node; }
+    const Node* getNode() const { return _leaf; }
+    void setNode(const Node* node) { _leaf = node; }
 
-    VVdouble & getLikelihoodArray()  { return _leafLikelihood;  }
+    VVdouble& getLikelihoodArray()  { return _leafLikelihood;  }
 };
 
 /**
@@ -159,29 +157,29 @@ class DRASDRTreeLikelihoodNodeData :
   public:
     const Node * getNode() const { return _node; }
     
-    void setNode(const Node & node) { _node = &node; }
+    void setNode(const Node* node) { _node = node; }
 
-    const map<int, VVVdouble> & getLikelihoodArrays() const { return _nodeLikelihoods; }
+    const std::map<int, VVVdouble>& getLikelihoodArrays() const { return _nodeLikelihoods; }
     
-    map<int, VVVdouble> & getLikelihoodArrays() { return _nodeLikelihoods; }
+    std::map<int, VVVdouble>& getLikelihoodArrays() { return _nodeLikelihoods; }
     
-    VVVdouble & getLikelihoodArrayForNeighbor(int neighborId)
+    VVVdouble& getLikelihoodArrayForNeighbor(int neighborId)
     {
       return _nodeLikelihoods[neighborId];
     }
     
-    const VVVdouble & getLikelihoodArrayForNeighbor(int neighborId) const
+    const VVVdouble& getLikelihoodArrayForNeighbor(int neighborId) const
     {
       return _nodeLikelihoods[neighborId];
     }
     
-    Vdouble & getDLikelihoodArray() { return _nodeDLikelihoods;  }
+    Vdouble& getDLikelihoodArray() { return _nodeDLikelihoods;  }
     
-    const Vdouble & getDLikelihoodArray() const  {  return _nodeDLikelihoods;  }
+    const Vdouble& getDLikelihoodArray() const  {  return _nodeDLikelihoods;  }
     
-    Vdouble & getD2LikelihoodArray()  {  return _nodeD2Likelihoods; }
+    Vdouble& getD2LikelihoodArray()  {  return _nodeD2Likelihoods; }
     
-    const Vdouble & getD2LikelihoodArrayForNeighbor() const  { return _nodeD2Likelihoods; }
+    const Vdouble& getD2LikelihoodArrayForNeighbor() const  { return _nodeD2Likelihoods; }
 
     bool isNeighbor(int neighborId) const
     {
@@ -204,13 +202,13 @@ class DRASDRTreeLikelihoodData :
 {
   protected:
 
-    mutable map<int, DRASDRTreeLikelihoodNodeData> _nodeData;
-    mutable map<int, DRASDRTreeLikelihoodLeafData> _leafData;
+    mutable std::map<int, DRASDRTreeLikelihoodNodeData> _nodeData;
+    mutable std::map<int, DRASDRTreeLikelihoodLeafData> _leafData;
     mutable VVVdouble _rootLikelihoods;
     mutable VVdouble  _rootLikelihoodsS;
     mutable Vdouble   _rootLikelihoodsSR;
 
-    SiteContainer * _shrunkData;
+    SiteContainer* _shrunkData;
     unsigned int _nbSites; 
     unsigned int _nbStates;
     unsigned int _nbClasses;
@@ -219,24 +217,24 @@ class DRASDRTreeLikelihoodData :
   public:
     DRASDRTreeLikelihoodData(TreeTemplate<Node> & tree, unsigned int nbClasses):
       _nodeData(), _leafData(), _rootLikelihoods(), _rootLikelihoodsS(), _rootLikelihoodsSR(),
-      _shrunkData(NULL), _nbSites(0), _nbStates(0), _nbClasses(nbClasses), _nbDistinctSites(0)
+      _shrunkData(0), _nbSites(0), _nbStates(0), _nbClasses(nbClasses), _nbDistinctSites(0)
     {
       _tree = &tree;
     }
 
-    DRASDRTreeLikelihoodData(const DRASDRTreeLikelihoodData & data):
+    DRASDRTreeLikelihoodData(const DRASDRTreeLikelihoodData& data):
       AbstractTreeLikelihoodData(data),
       _nodeData(data._nodeData), _leafData(data._leafData),
       _rootLikelihoods(data._rootLikelihoods),
       _rootLikelihoodsS(data._rootLikelihoodsS),
       _rootLikelihoodsSR(data._rootLikelihoodsSR),
-      _shrunkData(NULL),
+      _shrunkData(0),
       _nbSites(data._nbSites), _nbStates(data._nbStates),
       _nbClasses(data._nbClasses), _nbDistinctSites(data._nbDistinctSites)
     {
       _tree         = data._tree;
       if(data._shrunkData)
-        _shrunkData = dynamic_cast<SiteContainer *>(data._shrunkData->clone());
+        _shrunkData = dynamic_cast<SiteContainer*>(data._shrunkData->clone());
     }
 
     DRASDRTreeLikelihoodData & operator=(const DRASDRTreeLikelihoodData & data)
@@ -255,51 +253,46 @@ class DRASDRTreeLikelihoodData :
       if(data._shrunkData)
         _shrunkData      = dynamic_cast<SiteContainer *>(data._shrunkData->clone());
       else
-        _shrunkData      = NULL;
+        _shrunkData      = 0;
       return *this;
     }
 
     virtual ~DRASDRTreeLikelihoodData() { delete _shrunkData; }
 
-#ifndef NO_VIRTUAL_COV
-    DRASDRTreeLikelihoodData*
-#else
-    Clonable*
-#endif
-    clone() const { return new DRASDRTreeLikelihoodData(*this); }
+    DRASDRTreeLikelihoodData* clone() const { return new DRASDRTreeLikelihoodData(*this); }
 
   public:
-    void setTree(TreeTemplate<Node> & tree)
+    void setTree(TreeTemplate<Node>& tree)
     { 
       _tree = &tree;
-      for(map<int, DRASDRTreeLikelihoodNodeData>::iterator it = _nodeData.begin(); it != _nodeData.end(); it++)
+      for (std::map<int, DRASDRTreeLikelihoodNodeData>::iterator it = _nodeData.begin(); it != _nodeData.end(); it++)
       {
         int id = it->second.getNode()->getId();
-        it->second.setNode(*_tree->getNode(id));
+        it->second.setNode(_tree->getNode(id));
       }
-      for(map<int, DRASDRTreeLikelihoodLeafData>::iterator it = _leafData.begin(); it != _leafData.end(); it++)
+      for (std::map<int, DRASDRTreeLikelihoodLeafData>::iterator it = _leafData.begin(); it != _leafData.end(); it++)
       {
         int id = it->second.getNode()->getId();
-        it->second.setNode(*_tree->getNode(id));
+        it->second.setNode(_tree->getNode(id));
       }
     }
 
-    DRASDRTreeLikelihoodNodeData & getNodeData(int nodeId)
+    DRASDRTreeLikelihoodNodeData& getNodeData(int nodeId)
     { 
       return _nodeData[nodeId];
     }
     
-    const DRASDRTreeLikelihoodNodeData & getNodeData(int nodeId) const
+    const DRASDRTreeLikelihoodNodeData& getNodeData(int nodeId) const
     { 
       return _nodeData[nodeId];
     }
     
-    DRASDRTreeLikelihoodLeafData & getLeafData(int nodeId)
+    DRASDRTreeLikelihoodLeafData& getLeafData(int nodeId)
     { 
       return _leafData[nodeId];
     }
     
-    const DRASDRTreeLikelihoodLeafData & getLeafData(int nodeId) const
+    const DRASDRTreeLikelihoodLeafData& getLeafData(int nodeId) const
     { 
       return _leafData[nodeId];
     }
@@ -309,64 +302,64 @@ class DRASDRTreeLikelihoodData :
       return currentPosition;
     }
 
-    const map<int, VVVdouble> & getLikelihoodArrays(int nodeId) const 
+    const std::map<int, VVVdouble>& getLikelihoodArrays(int nodeId) const 
     {
       return _nodeData[nodeId].getLikelihoodArrays();
     }
     
-    map<int, VVVdouble> & getLikelihoodArrays(int nodeId)
+    std::map<int, VVVdouble>& getLikelihoodArrays(int nodeId)
     {
       return _nodeData[nodeId].getLikelihoodArrays();
     }
 
-    VVVdouble & getLikelihoodArray(int parentId, int neighborId)
+    VVVdouble& getLikelihoodArray(int parentId, int neighborId)
     {
       return _nodeData[parentId].getLikelihoodArrayForNeighbor(neighborId);
     }
     
-    const VVVdouble & getLikelihoodArray(int parentId, int neighborId) const
+    const VVVdouble& getLikelihoodArray(int parentId, int neighborId) const
     {
       return _nodeData[parentId].getLikelihoodArrayForNeighbor(neighborId);
     }
     
-    Vdouble & getDLikelihoodArray(int nodeId)
+    Vdouble& getDLikelihoodArray(int nodeId)
     {
       return _nodeData[nodeId].getDLikelihoodArray();
     }
     
-    const Vdouble & getDLikelihoodArray(int nodeId) const
+    const Vdouble& getDLikelihoodArray(int nodeId) const
     {
       return _nodeData[nodeId].getDLikelihoodArray();
     }
     
-    Vdouble & getD2LikelihoodArray(int nodeId)
+    Vdouble& getD2LikelihoodArray(int nodeId)
     {
       return _nodeData[nodeId].getD2LikelihoodArray();
     }
 
-    const Vdouble & getD2LikelihoodArray(int nodeId) const
+    const Vdouble& getD2LikelihoodArray(int nodeId) const
     {
       return _nodeData[nodeId].getD2LikelihoodArray();
     }
 
-    VVdouble & getLeafLikelihoods(int nodeId)
+    VVdouble& getLeafLikelihoods(int nodeId)
     {
       return _leafData[nodeId].getLikelihoodArray();
     }
     
-    const VVdouble & getLeafLikelihoods(int nodeId) const
+    const VVdouble& getLeafLikelihoods(int nodeId) const
     {
       return _leafData[nodeId].getLikelihoodArray();
     }
     
-    VVVdouble & getRootLikelihoodArray() { return _rootLikelihoods; }
+    VVVdouble& getRootLikelihoodArray() { return _rootLikelihoods; }
     const VVVdouble & getRootLikelihoodArray() const { return _rootLikelihoods; }
     
-    VVdouble  & getRootSiteLikelihoodArray() { return _rootLikelihoodsS; }
-    const VVdouble  & getRootSiteLikelihoodArray() const { return _rootLikelihoodsS; }
+    VVdouble& getRootSiteLikelihoodArray() { return _rootLikelihoodsS; }
+    const VVdouble& getRootSiteLikelihoodArray() const { return _rootLikelihoodsS; }
     
-    Vdouble   & getRootRateSiteLikelihoodArray() { return _rootLikelihoodsSR; }
-    const Vdouble   & getRootRateSiteLikelihoodArray() const { return _rootLikelihoodsSR; }
+    Vdouble& getRootRateSiteLikelihoodArray() { return _rootLikelihoodsSR; }
+    const Vdouble& getRootRateSiteLikelihoodArray() const { return _rootLikelihoodsSR; }
 
     unsigned int getNumberOfDistinctSites() const { return _nbDistinctSites; }
     
@@ -376,7 +369,7 @@ class DRASDRTreeLikelihoodData :
     
     unsigned int getNumberOfClasses() const { return _nbClasses; }
 
-    const SiteContainer * getShrunkData() const { return _shrunkData; }
+    const SiteContainer* getShrunkData() const { return _shrunkData; }
     
     /**
      * @brief Resize and initialize all likelihood arrays according to the given data set and substitution model.
@@ -385,7 +378,7 @@ class DRASDRTreeLikelihoodData :
      * @param model The substitution model to use.
      * @throw Exception if an error occures.
      */
-    void initLikelihoods(const SiteContainer & sites, const SubstitutionModel & model) throw (Exception);
+    void initLikelihoods(const SiteContainer& sites, const SubstitutionModel& model) throw (Exception);
     
     /**
      * @brief Rebuild likelihood arrays at inner nodes.
@@ -396,8 +389,7 @@ class DRASDRTreeLikelihoodData :
      */
     void reInit() throw (Exception);
     
-#
-    void reInit(const Node * node) throw (Exception);
+    void reInit(const Node* node) throw (Exception);
 
   protected:
     /**
@@ -416,7 +408,7 @@ class DRASDRTreeLikelihoodData :
      * @param sites The sequence container to use.
      * @param model The model, used for initializing leaves' likelihoods.
      */
-    void initLikelihoods(const Node * node, const SiteContainer & sites, const SubstitutionModel & model) throw (Exception);
+    void initLikelihoods(const Node* node, const SiteContainer& sites, const SubstitutionModel& model) throw (Exception);
 
 };
 

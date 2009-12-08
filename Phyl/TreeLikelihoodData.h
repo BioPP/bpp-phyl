@@ -78,7 +78,7 @@ class TreeLikelihoodNodeData:
 		 *
 		 * @return The node associated to this structure.
 		 */
-		virtual const Node * getNode() const = 0;
+		virtual const Node* getNode() const = 0;
 
     /**
      * @brief Set the node associated to this data
@@ -87,7 +87,7 @@ class TreeLikelihoodNodeData:
      *
      * @param node The node to be associated to this data.
      */
-    virtual void setNode(const Node & node) = 0;
+    virtual void setNode(const Node* node) = 0;
 };
 
 /**
@@ -107,13 +107,13 @@ class TreeLikelihoodData:
 		virtual ~TreeLikelihoodData() {}
     
 #ifndef NO_VIRTUAL_COV
-    TreeLikelihoodData * clone() const = 0;
+    TreeLikelihoodData* clone() const = 0;
 #endif
 
 	public:
-		virtual const Alphabet * getAlphabet() const = 0;
-		virtual const TreeTemplate<Node> * getTree() const = 0;
-		virtual TreeTemplate<Node> * getTree() = 0;
+		virtual const Alphabet* getAlphabet() const = 0;
+		virtual const TreeTemplate<Node>* getTree() const = 0;
+		virtual TreeTemplate<Node>* getTree() = 0;
     /**
      * @brief Set the tree associated to the data.
      *
@@ -124,11 +124,11 @@ class TreeLikelihoodData:
      *
      * @param tree The tree to be associated to this data.
      */
-    virtual void setTree(TreeTemplate<Node> & tree) = 0;
+    virtual void setTree(TreeTemplate<Node>& tree) = 0;
 		virtual unsigned int getArrayPosition(int parentId, int sonId, unsigned int currentPosition) const = 0;
-		virtual unsigned int getRootArrayPosition(const unsigned int site) const = 0;
-		virtual       TreeLikelihoodNodeData & getNodeData(int nodeId) = 0;
-		virtual const TreeLikelihoodNodeData & getNodeData(int nodeId) const = 0;
+		virtual unsigned int getRootArrayPosition(unsigned int site) const = 0;
+		virtual       TreeLikelihoodNodeData& getNodeData(int nodeId) = 0;
+		virtual const TreeLikelihoodNodeData& getNodeData(int nodeId) const = 0;
     
 };
 

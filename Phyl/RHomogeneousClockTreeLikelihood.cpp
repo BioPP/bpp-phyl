@@ -101,12 +101,12 @@ void RHomogeneousClockTreeLikelihood::applyParameters() throw (Exception)
   //Apply substitution model parameters:
   model_->matchParametersValues(getParameters());
   //Apply rate distribution parameters:
-  _rateDistribution->matchParametersValues(getParameters());
+  rateDistribution_->matchParametersValues(getParameters());
 }
 
 /******************************************************************************/
 
-void RHomogeneousClockTreeLikelihood::fireParameterChanged(const ParameterList & params)
+void RHomogeneousClockTreeLikelihood::fireParameterChanged(const ParameterList& params)
 {
   applyParameters();
 
@@ -157,7 +157,7 @@ void RHomogeneousClockTreeLikelihood::initBranchLengthsParameters()
 
 /******************************************************************************/
 
-void RHomogeneousClockTreeLikelihood::computeBranchLengthsFromHeights(Node * node, double height) throw (Exception)
+void RHomogeneousClockTreeLikelihood::computeBranchLengthsFromHeights(Node* node, double height) throw (Exception)
 {
   for(unsigned int i = 0; i < node->getNumberOfSons(); i++)
   {
@@ -197,7 +197,7 @@ ParameterList RHomogeneousClockTreeLikelihood::getNonDerivableParameters() const
  *                           First Order Derivatives                          *
  ******************************************************************************/  
 
-double RHomogeneousClockTreeLikelihood::getFirstOrderDerivative(const string & variable) const
+double RHomogeneousClockTreeLikelihood::getFirstOrderDerivative(const std::string& variable) const
 throw (Exception)
 { 
   throw Exception("No first order derivative is implemented for this function.");
@@ -207,7 +207,7 @@ throw (Exception)
  *                           Second Order Derivatives                         *
  ******************************************************************************/  
 
-double RHomogeneousClockTreeLikelihood::getSecondOrderDerivative(const string & variable) const
+double RHomogeneousClockTreeLikelihood::getSecondOrderDerivative(const std::string& variable) const
 throw (Exception)
 {
   throw Exception("No second order derivative is implemented for this function.");

@@ -57,7 +57,7 @@ AbstractDiscreteRatesAcrossSitesTreeLikelihood::AbstractDiscreteRatesAcrossSites
 throw (Exception)
 {
 	AbstractTreeLikelihood::enableDerivatives(true);
-	_rateDistribution = rDist;
+	rateDistribution_ = rDist;
 }
 
 /******************************************************************************/
@@ -65,7 +65,7 @@ throw (Exception)
 ParameterList AbstractDiscreteRatesAcrossSitesTreeLikelihood::getRateDistributionParameters() const
 {
   if(!initialized_) throw Exception("AbstractDiscreteRatesAcrossSitesTreeLikelihood::getRateDistributionParameters(). Object is not initialized.");
- 	return _rateDistribution->getParameters().getCommonParametersWith(getParameters());
+ 	return rateDistribution_->getParameters().getCommonParametersWith(getParameters());
 }
 
 /******************************************************************************/
@@ -110,7 +110,7 @@ double AbstractDiscreteRatesAcrossSitesTreeLikelihood::getLikelihoodForASiteForA
 	double l = 0;
 	for(unsigned int i = 0; i < nbClasses; i++)
   {
-		l += getLikelihoodForASiteForARateClassForAState(site, i, state) * _rateDistribution -> getProbability(i);
+		l += getLikelihoodForASiteForARateClassForAState(site, i, state) * rateDistribution_ -> getProbability(i);
 	}
 	return l;
 }
@@ -123,7 +123,7 @@ double AbstractDiscreteRatesAcrossSitesTreeLikelihood::getLogLikelihoodForASiteF
 	double l = 0;
 	for(unsigned int i = 0; i < nbClasses; i++)
   {
-		l += getLikelihoodForASiteForARateClassForAState(site, i, state) * _rateDistribution -> getProbability(i);
+		l += getLikelihoodForASiteForARateClassForAState(site, i, state) * rateDistribution_ -> getProbability(i);
 	}
 	//if(l <= 0.) cerr << "WARNING!!! Negative likelihood." << endl;
 	return log(l);
@@ -202,7 +202,7 @@ VVdouble AbstractDiscreteRatesAcrossSitesTreeLikelihood::getPosteriorProbabiliti
 	for(unsigned int i = 0; i < nbSites; i++)
   {
 		for(unsigned int j = 0; j < nbClasses; j++)
-      pb[i][j] = pb[i][j] * _rateDistribution->getProbability(j) / l[i]; 
+      pb[i][j] = pb[i][j] * rateDistribution_->getProbability(j) / l[i]; 
 	}
 	return pb;
 }
@@ -220,7 +220,7 @@ Vdouble AbstractDiscreteRatesAcrossSitesTreeLikelihood::getPosteriorRateOfEachSi
   {
 		for(unsigned int j = 0; j < nbClasses; j++)
     {
-			rates[i] += (lr[i][j] / l[i]) * _rateDistribution->getProbability(j) *  _rateDistribution->getCategory(j);
+			rates[i] += (lr[i][j] / l[i]) * rateDistribution_->getProbability(j) *  rateDistribution_->getCategory(j);
 		}
 	}
 	return rates;
@@ -247,7 +247,7 @@ Vdouble AbstractDiscreteRatesAcrossSitesTreeLikelihood::getRateWithMaxPostProbOf
 	Vdouble rates(nbSites);
 	for(unsigned int i = 0; i < nbSites; i++)
   {
-		rates[i] = _rateDistribution->getCategory(VectorTools::whichmax<double>(l[i]));
+		rates[i] = rateDistribution_->getCategory(VectorTools::whichmax<double>(l[i]));
 	}
 	return rates;
 }
@@ -298,11 +298,11 @@ void AbstractDiscreteRatesAcrossSitesTreeLikelihood::displayLikelihoodArray(
 
 /******************************************************************************/
 
-VVdouble AbstractDiscreteRatesAcrossSitesTreeLikelihood::getTransitionProbabilitiesForNode(int nodeId) const
+VVdouble AbstractDiscreteRatesAcrossSitesTreeLikelihood::getTransitionProbabilities(int nodeId, unsigned int siteIndex) const
 {
-  VVVdouble p3 = getTransitionProbabilitiesPerRateClassForNode(nodeId);
+  VVVdouble p3 = getTransitionProbabilitiesPerRateClass(nodeId, siteIndex);
   VVdouble p2;
-  Vdouble probs = _rateDistribution->getProbabilities();
+  Vdouble probs = rateDistribution_->getProbabilities();
   p2.resize(getNumberOfStates());
   for (unsigned int i = 0; i < p2.size(); i++)
   {
