@@ -73,6 +73,9 @@ class TreeLikelihood:
     class BranchIterator
     {
       public:
+        virtual ~BranchIterator() {}
+
+      public:
         /**
          * @return The id of the next node in the set.
          */
@@ -91,6 +94,9 @@ class TreeLikelihood:
     class SiteIterator
     {
       public:
+        virtual ~SiteIterator() {}
+
+      public:
         /**
          * @return The position of the next site in the set.
          */
@@ -107,6 +113,9 @@ class TreeLikelihood:
     class ConstBranchModelDescription
     {
       public:
+        virtual ~ConstBranchModelDescription() {}
+
+      public:
         virtual const SubstitutionModel* getModel() const = 0;
         virtual SiteIterator* getNewSiteIterator() const = 0;
     };
@@ -116,6 +125,9 @@ class TreeLikelihood:
      */
     class ConstBranchModelIterator
     {
+      public:
+        virtual ~ConstBranchModelIterator() {}
+
       public:
         virtual ConstBranchModelDescription* next() throw (Exception) = 0;
         virtual bool hasNext() const = 0;
@@ -127,6 +139,9 @@ class TreeLikelihood:
     class ConstSiteModelDescription
     {
       public:
+        virtual ~ConstSiteModelDescription() {}
+
+      public:
         virtual const SubstitutionModel* getModel() const = 0;
         virtual BranchIterator* getNewBranchIterator() const = 0;
     };
@@ -136,6 +151,9 @@ class TreeLikelihood:
      */
     class ConstSiteModelIterator
     {
+      public:
+        virtual ~ConstSiteModelIterator() {}
+
       public:
         virtual ConstSiteModelDescription* next() throw (Exception) = 0;
         virtual bool hasNext() const = 0;

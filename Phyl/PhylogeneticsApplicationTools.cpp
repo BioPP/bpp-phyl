@@ -1407,7 +1407,7 @@ TreeLikelihood* PhylogeneticsApplicationTools::optimizeParameters(
           ApplicationTools::displayResult("Parameter ignored", param);
       }
     } 
-    catch(ParameterNotFoundException & pnfe)
+    catch(ParameterNotFoundException& pnfe)
     {
       ApplicationTools::displayWarning("Parameter '" + pnfe.getParameter() + "' not found, and so can't be ignored!");
     }
