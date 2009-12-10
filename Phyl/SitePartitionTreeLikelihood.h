@@ -47,18 +47,18 @@ namespace bpp
 {
 
 /**
- * @brief Specialization of the TreeLikelihood interface for partition models.
+ * @brief Specialization of the TreeLikelihood interface for partition models, homogeneous case.
  *
  * These models allow the distinct sites of an alignment to have a different model.
  * The substitution model is however assumed to be the same along the tree.
  * suche models are hence homogeneous in time.
  */
-class SitePartitionTreeLikelihood :
+class SitePartitionHomogeneousTreeLikelihood :
 	public virtual TreeLikelihood
 {
 	public:
 #ifndef NO_VIRTUAL_COV
-    SitePartitionTreeLikelihood* clone() const = 0;
+    SitePartitionHomogeneousTreeLikelihood* clone() const = 0;
 #endif
 
   public:

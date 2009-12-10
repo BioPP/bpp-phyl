@@ -50,8 +50,10 @@ namespace bpp
  * @brief Specialization of the TreeLikelihood interface for the Homogeneous case.
  *
  * Homogeneous models assume a unique substitution model along the tree.
+ * This interface further assumes that  the substitution model is the same for all sites.
+ * For likelihood functions with different model per sites, see SitePartitionHomogeneousTreeLikelihood.
  *
- * @see SubstitutionModel.
+ * @see SubstitutionModel, SitePartitionHomogeneousTreeLikelihood.
  */
 class HomogeneousTreeLikelihood :
 	public virtual TreeLikelihood

@@ -53,6 +53,8 @@ namespace bpp
  * The main difference is that the likelihood depends on the position of the root.
  * The frequencies at the root of the tree are new parameters, which are not necessarily equal to the equilibrium frequencies of the substitution model.
  *
+ * This interface further assumes that the substitution model is the same for all sites, for a given branch.
+ *
  * @see SubstitutionModelSet.
  */
 class NonHomogeneousTreeLikelihood :
