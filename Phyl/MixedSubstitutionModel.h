@@ -1,5 +1,5 @@
 //
-// File: MixedModel.h
+// File: MixedSubstitutionModel.h
 // Created by: Davud Fournier, Laurent Gueguen
 //
 
@@ -36,8 +36,8 @@
   knowledge of the CeCILL license and that you accept its terms.
 */
 
-#ifndef _MIXEDMODEL_H_
-#define _MIXEDMODEL_H_
+#ifndef _MIXEDSUBSTITUTIONMODEL_H_
+#define _MIXEDSUBSTITUTIONMODEL_H_
 
 #include "NumCalc/AbstractDiscreteDistribution.h"
 #include "NumCalc/ConstantDistribution.h"
@@ -54,8 +54,42 @@
 #include <cstring> // C lib for string copy
 
 namespace bpp
-{ 
-  class MixedModel:
+{
+
+  /**
+   * @brief Substitution models defined as a mixture of "simple"
+   * substitution models.
+   * @author Laurent Guéguen
+   *
+   * All the models are of the same type (for example T92 or GY94),
+   * and their parameter values can follow discrete distributions.
+   *
+   * In this kind of model, there is no generator or transition
+   * probabilities.
+   *
+   * There is a map with connection from parameter names to discrete
+   * distributions, and then a related vector of "simple" substitution
+   * models for all the combinations of parameter values.
+   *
+   * For example:
+   * HKY85(kappa=Gamma(n=3,alpha=2,beta=5),
+   *       theta=TruncExponential(n=4,lambda=0.2,tp=1),
+   *       theta1=0.4,
+   *       theta2=TruncExponential(n=5,lambda=0.6,tp=1))
+   *
+   * defines 60 different HKY85 models.
+   *
+   * If a distribution parameter does not respect the constraints of
+   * this parameter, there is an Exception at the creation of the
+   * wrong mdel, if any.
+   *
+   * When used through a MixedTreeLikelihood objetc, all the models
+   * are equiprobable and then the comptuing of the likelihoods and
+   * probabilities are the average of the "simple" models values.
+   *
+   */
+  
+  class MixedSubstitutionModel:
   public AbstractSubstitutionModel
   {
   protected:
@@ -66,28 +100,37 @@ namespace bpp
 
   public:
  
-    MixedModel(const Alphabet * alpha, 
+    MixedSubstitutionModel(const Alphabet * alpha, 
                SubstitutionModel * _model,  
                map<string, DiscreteDistribution*>  _parametersdistributionslist);
     
-    ~MixedModel();
+    ~MixedSubstitutionModel();
 
-    MixedModel* clone() const { return new MixedModel(*this); }
+    MixedSubstitutionModel* clone() const { return new MixedSubstitutionModel(*this); }
   
   public:
 
+    /**
+     * @brief Returns a specific model from the mixture
+     */
+    
     SubstitutionModel* getNModel(int);
 
     int getNumberOfModels() const;
 
-    string getName() const { return "MixedModel"; }
+    string getName() const { return "MixedSubstitutionModel"; }
 
     void updateMatrices();
 
     string getName(){
-      return "Mixed Model";
+      return "Mixed Substitution Model";
     }
 
+    /**
+     * @brief This function can not be applied here, so it is defined
+     * to prevent wrong usage.
+     */
+    
     void setFreq(std::map<int,double>&);
 
     unsigned int getNumberOfStates() const;
@@ -96,4 +139,4 @@ namespace bpp
   
 } //end of namespace bpp.
 
-#endif  //_MIXEDMODEL_H_
+#endif  //_MIXEDSUBSTITUTIONMODEL_H_
