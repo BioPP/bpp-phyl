@@ -266,6 +266,7 @@ class RHomogeneousTreeLikelihood :
 		 */
 		virtual void displayLikelihood(const Node * node);
 
+  friend class RHomogeneousMixedTreeLikelihood;
 };
 
 
