@@ -156,10 +156,10 @@ SubstitutionModel* PhylogeneticsApplicationTools::getSubstitutionModelDefaultIns
   /// MIXED MODELS
   //////////////////////////////////
 
-  if (modelName == "MixedModel"){
+  if (modelName == "MixedSubstitutionModel"){
     map<string, string> unparsedParameterValuesNested;
     if (args.find("model")==args.end())
-      throw Exception("The argument 'model' is missing from MixedModel description");
+      throw Exception("The argument 'model' is missing from MixedSubstitutionModel description");
     string nestedModelDescription = args["model"];
     SubstitutionModel* pSM=getSubstitutionModelDefaultInstance(alphabet,
                                                                nestedModelDescription,
@@ -187,9 +187,9 @@ SubstitutionModel* PhylogeneticsApplicationTools::getSubstitutionModelDefaultIns
     
     for (map<string, string>::iterator it = unparsedParameterValuesNested2.begin();
          it != unparsedParameterValuesNested2.end(); it++)
-      unparsedParameterValues["MixedModel." + it->first] = it->second;
+      unparsedParameterValues["MixedSubstitutionModel." + it->first] = it->second;
     
-    model=new MixedModel(alphabet,pSM,mdist);
+    model=new MixedSubstitutionModel(alphabet,pSM,mdist);
 
     vector<string> v=model->getParameters().getParameterNames();
   
@@ -198,7 +198,7 @@ SubstitutionModel* PhylogeneticsApplicationTools::getSubstitutionModelDefaultIns
       delete it->second;
 
     if (verbose)
-      ApplicationTools::displayResult("Mixed Model" , nestedModelDescription );
+      ApplicationTools::displayResult("Mixed Substitution Model" , nestedModelDescription );
 
   }
   

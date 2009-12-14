@@ -96,7 +96,7 @@ set(CPP_FILES
   PhylogramPlot.cpp
   CladogramPlot.cpp
   PhyloStatistics.cpp
-  MixedModel.cpp
+  MixedSubstitutionModel.cpp
   )
 set(H_FILES
   AbstractSubstitutionModel.h
@@ -230,7 +230,7 @@ set(H_FILES
   PhylogramPlot.h
   CladogramPlot.h
   PhyloStatistics.h
-  MixedModel.h
+  MixedSubstitutionModel.h
   )
 
 # Build the static lib
