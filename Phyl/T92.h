@@ -157,18 +157,18 @@ namespace bpp
  * Reference:
  * - Tamura K (1992), _Molecular Biology And Evolution_ 9(5) 814-25. 
  */
-class T92:
-  public NucleotideSubstitutionModel
-{
-	protected:
+  class T92:
+    public NucleotideSubstitutionModel
+  {
+  protected:
     double _kappa, _theta, _r, _k, _piA, _piC, _piG, _piT;
     mutable double _l, _exp1, _exp2;
     mutable RowMatrix<double> _p;
+    
+  public:
+    T92(const NucleicAlphabet * alpha, double kappa = 1., double theta = 0.5);
 
-	public:
-		T92(const NucleicAlphabet * alpha, double kappa = 1., double theta = 0.5);
-
-		virtual ~T92() {}
+    virtual ~T92() {}
 
 #ifndef NO_VIRTUAL_COV
     T92*
@@ -179,12 +179,12 @@ class T92:
 
   public:
 
-		double Pij_t    (int i, int j, double d) const;
-		double dPij_dt  (int i, int j, double d) const;
-		double d2Pij_dt2(int i, int j, double d) const;
-		const Matrix<double> & getPij_t(double d) const;
-		const Matrix<double> & getdPij_dt(double d) const;
-		const Matrix<double> & getd2Pij_dt2(double d) const;
+    double Pij_t    (int i, int j, double d) const;
+    double dPij_dt  (int i, int j, double d) const;
+    double d2Pij_dt2(int i, int j, double d) const;
+    const Matrix<double> & getPij_t(double d) const;
+    const Matrix<double> & getdPij_dt(double d) const;
+    const Matrix<double> & getd2Pij_dt2(double d) const;
 
     std::string getName() const { return "T92"; }
 	
