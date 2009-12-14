@@ -136,7 +136,8 @@ double PseudoNewtonOptimizer::doStep() throw (Exception)
     }
 
     printMessage("!!! Function at new point is greater than at current point: " + TextTools::toString(newValue) + ">" + TextTools::toString(currentValue_) + ". Applying Felsenstein-Churchill correction.");
-    getParameters().printParameters(*getMessageHandler());
+    if (getMessageHandler())
+      getParameters().printParameters(*getMessageHandler());
     for (unsigned int i = 0; i < movements.size(); i++)
     {
       movements[i] = movements[i] / 2;
