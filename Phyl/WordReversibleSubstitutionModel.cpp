@@ -128,7 +128,8 @@ double WordReversibleSubstitutionModel::Pij_t(unsigned int i, unsigned int j, do
 {
   double x = 1;
   unsigned int nbmod = _VSubMod.size();
-  unsigned int p, t;
+  unsigned int t;
+  int p;
 
   unsigned int i2 = i;
   unsigned int j2 = j;
@@ -162,11 +163,12 @@ const RowMatrix<double>& WordReversibleSubstitutionModel::getPij_t(double d) con
 double WordReversibleSubstitutionModel::dPij_dt(unsigned int i, unsigned int j, double d) const
 {
   double r, x;
-  unsigned int nbmod = _VSubMod.size();
-  unsigned int p, q, t;
-
-  unsigned int i2 = i;
-  unsigned int j2 = j;
+   int nbmod = _VSubMod.size();
+   int t;
+  int p,q;
+  
+   int i2 = i;
+   int j2 = j;
 
   r = 0;
   for (q = 0; q < nbmod; q++)
@@ -204,11 +206,12 @@ const RowMatrix<double>& WordReversibleSubstitutionModel::getdPij_dt(double d) c
 double WordReversibleSubstitutionModel::d2Pij_dt2(unsigned int i, unsigned int j, double d) const
 {
   double r, x;
-  unsigned int nbmod = _VSubMod.size();
-  unsigned int b, p, q, t;
-
-  unsigned int i2 = i;
-  unsigned int j2 = j;
+   int nbmod = _VSubMod.size();
+   int b, q, t;
+  int p;
+  
+   int i2 = i;
+   int j2 = j;
 
   r = 0;
 
