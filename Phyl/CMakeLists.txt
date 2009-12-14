@@ -17,6 +17,7 @@ set(CPP_FILES
   PseudoNewtonOptimizer.cpp
   HKY85.cpp
   RHomogeneousTreeLikelihood.cpp
+  RHomogeneousMixedTreeLikelihood.cpp
   RNonHomogeneousTreeLikelihood.cpp
   DRNonHomogeneousTreeLikelihood.cpp
   DRASRTreeLikelihoodData.cpp
@@ -95,6 +96,7 @@ set(CPP_FILES
   PhylogramPlot.cpp
   CladogramPlot.cpp
   PhyloStatistics.cpp
+  MixedModel.cpp
   )
 set(H_FILES
   AbstractSubstitutionModel.h
@@ -116,11 +118,13 @@ set(H_FILES
   DRTreeLikelihood.h
   HomogeneousTreeLikelihood.h
   RHomogeneousTreeLikelihood.h
+  RHomogeneousMixedTreeLikelihood.h
   DRHomogeneousTreeLikelihood.h
   NNIHomogeneousTreeLikelihood.h
   NonHomogeneousTreeLikelihood.h
   RNonHomogeneousTreeLikelihood.h
   DRNonHomogeneousTreeLikelihood.h
+  treelikelihoods
   ClockTreeLikelihood.h
   RHomogeneousClockTreeLikelihood.h
   SitePartitionTreeLikelihood.h
@@ -226,6 +230,7 @@ set(H_FILES
   PhylogramPlot.h
   CladogramPlot.h
   PhyloStatistics.h
+  MixedModel.h
   )
 
 # Build the static lib
