@@ -44,8 +44,8 @@ using namespace std;
 
 
 MixedModel::MixedModel(const Alphabet * alpha,
-                       AbstractSubstitutionModel * _model,  
-                       map<string,AbstractDiscreteDistribution*>  _parametersdistributionslist)
+                       SubstitutionModel * _model,  
+                       map<string,DiscreteDistribution*>  _parametersdistributionslist)
   
   :AbstractSubstitutionModel(alpha,"MixedModel.")
 { 
@@ -53,9 +53,9 @@ MixedModel::MixedModel(const Alphabet * alpha,
   unsigned int c, i;
   double d;
   string s1, s2, t;
-  map<string, AbstractDiscreteDistribution*>::iterator it;
+  map<string, DiscreteDistribution*>::iterator it;
   
-  // Initialization of _distributionmap.
+  // Initialization of distributionmap_.
 
   vector<string> parnames=_model->getParameters().getParameterNames();
   
@@ -65,35 +65,35 @@ MixedModel::MixedModel(const Alphabet * alpha,
     s2=_model->getParameterNameWithoutNamespace(s1);
     
     if (_parametersdistributionslist.find(s2)!=_parametersdistributionslist.end())
-      _distributionmap["MixedModel."+s1]=dynamic_cast<AbstractDiscreteDistribution*>(_parametersdistributionslist.find(s2)->second->clone());
+      distributionmap_["MixedModel."+s1]=dynamic_cast<DiscreteDistribution*>(_parametersdistributionslist.find(s2)->second->clone());
     else
-      _distributionmap["MixedModel."+s1]= new ConstantDistribution(_model->getParameterValue(s2));
+      distributionmap_["MixedModel."+s1]= new ConstantDistribution(_model->getParameterValue(s2));
     
     
-    if (dynamic_cast<ConstantDistribution*>(_distributionmap["MixedModel."+s1])==NULL)
-      _distributionmap["MixedModel."+s1]->setNamespace("MixedModel."+s1+"."+_distributionmap["MixedModel."+s1]->getNamespace());
+    if (dynamic_cast<ConstantDistribution*>(distributionmap_["MixedModel."+s1])==NULL)
+      distributionmap_["MixedModel."+s1]->setNamespace("MixedModel."+s1+"."+distributionmap_["MixedModel."+s1]->getNamespace());
     else
-      _distributionmap["MixedModel."+s1]->setNamespace("MixedModel."+s1+".");
+      distributionmap_["MixedModel."+s1]->setNamespace("MixedModel."+s1+".");
   }
 
   
-  // Initialization of _modelscontainer.
+  // Initialization of modelscontainer_.
 
   c=1;
 
-  for(it=_distributionmap.begin(); it!= _distributionmap.end(); it++)
+  for(it=distributionmap_.begin(); it!= distributionmap_.end(); it++)
     c*=it->second->getNumberOfCategories();
 
   for(i=0; i<c ; i++){
-    _modelscontainer.push_back(_model->clone());
-    _modelscontainer[i]->setNamespace("MixedModel."+_model->getNamespace());
+    modelscontainer_.push_back(_model->clone());
+    modelscontainer_[i]->setNamespace("MixedModel."+_model->getNamespace());
   }
 
   // Initialization of _parameters.
 
   Constraint* pc;
   
-  for(it=_distributionmap.begin(); it!=_distributionmap.end(); it++){
+  for(it=distributionmap_.begin(); it!=distributionmap_.end(); it++){
 
     if (dynamic_cast<ConstantDistribution*>(it->second)==NULL){
       for(i=0; i!=it->second->getNumberOfParameters(); i++){ 
@@ -119,26 +119,26 @@ MixedModel::MixedModel(const Alphabet * alpha,
 }
 
 
-AbstractSubstitutionModel* MixedModel::getNModel(int i)
+SubstitutionModel* MixedModel::getNModel(int i)
 {
-  return _modelscontainer[i];
+  return modelscontainer_[i];
 }
 
 int MixedModel::getNumberOfModels() const
 {
-  return _modelscontainer.size();
+  return modelscontainer_.size();
 }
 
 MixedModel::~MixedModel()
 {
   unsigned int i;
-  map<string, AbstractDiscreteDistribution*>::iterator it;
+  map<string, DiscreteDistribution*>::iterator it;
   
-  for (it= _distributionmap.begin(); it!= _distributionmap.end(); it++)
+  for (it= distributionmap_.begin(); it!= distributionmap_.end(); it++)
     delete it->second;
   
-  for(i = 0; i < _modelscontainer.size(); i++){
-    delete _modelscontainer[i];
+  for(i = 0; i < modelscontainer_.size(); i++){
+    delete modelscontainer_[i];
   }
   
 }
@@ -149,13 +149,13 @@ void MixedModel::updateMatrices()
   unsigned int i, j, l;
   double d;
   ParameterList pl;
-  map<string, AbstractDiscreteDistribution*>::iterator it;
+  map<string, DiscreteDistribution*>::iterator it;
 
   // Update of distribution parameters from the parameters_ member
   // data. (reverse operation compared to what has been done in the
   // constructor).
 
-  for( it=_distributionmap.begin(); it!=_distributionmap.end(); it++){
+  for( it=distributionmap_.begin(); it!=distributionmap_.end(); it++){
 
     if (dynamic_cast<ConstantDistribution*>(it->second)==NULL){
       for(i=0; i<it->second->getNumberOfParameters(); i++){ 
@@ -174,14 +174,14 @@ void MixedModel::updateMatrices()
   }
 
   
-  for(i=0; i<_modelscontainer.size(); i++){
+  for(i=0; i<modelscontainer_.size(); i++){
     
     j=i;
-    for( it=_distributionmap.begin(); it!=_distributionmap.end(); it++){
+    for( it=distributionmap_.begin(); it!=distributionmap_.end(); it++){
       s=it->first;
       l=j%it->second->getNumberOfCategories();
       
-      d=_distributionmap.find(s)->second->getCategory(l);
+      d=distributionmap_.find(s)->second->getCategory(l);
       
       if (pl.hasParameter(s))
 	pl.setParameterValue(s,d);
@@ -192,15 +192,15 @@ void MixedModel::updateMatrices()
       
     }
 
-    _modelscontainer[i]->matchParametersValues(pl);
+    modelscontainer_[i]->matchParametersValues(pl);
   }
 
   
   for (i=0;i<getNumberOfStates();i++){
     freq_[i]=0;
-    for( j=0; j<_modelscontainer.size(); j++)
-      freq_[i]+=_modelscontainer[j]->freq(i);
-    freq_[i]/=_modelscontainer.size();
+    for( j=0; j<modelscontainer_.size(); j++)
+      freq_[i]+=modelscontainer_[j]->freq(i);
+    freq_[i]/=modelscontainer_.size();
   }
 
 }
@@ -212,6 +212,6 @@ void MixedModel::setFreq(std::map<int,double>& m){
 
 unsigned int MixedModel::getNumberOfStates() const
 {
-  return _modelscontainer[0]->getNumberOfStates();
+  return modelscontainer_[0]->getNumberOfStates();
 }
 

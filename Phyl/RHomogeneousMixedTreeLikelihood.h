@@ -55,9 +55,9 @@ class RHomogeneousMixedTreeLikelihood :
 {
  private:
 
-  MixedModel * _mixedmodel;
+  MixedModel * mixedmodel_;
 
-  vector<RHomogeneousTreeLikelihood*> _treelikelihoodscontainer;
+  vector<RHomogeneousTreeLikelihood*> treelikelihoodscontainer_;
 
 public:
   /**

@@ -60,40 +60,29 @@ namespace bpp
   {
   protected:
  
-    map<string, AbstractDiscreteDistribution *> _distributionmap;
+    map<string, DiscreteDistribution *> distributionmap_;
 
-    vector<AbstractSubstitutionModel *> _modelscontainer;
+    vector<SubstitutionModel *> modelscontainer_;
 
   public:
  
     MixedModel(const Alphabet * alpha, 
-               AbstractSubstitutionModel * _model,  
-               map<string, AbstractDiscreteDistribution*>  _parametersdistributionslist);
+               SubstitutionModel * _model,  
+               map<string, DiscreteDistribution*>  _parametersdistributionslist);
     
     ~MixedModel();
 
-#ifndef NO_VIRTUAL_COV
-    MixedModel*
-#else
-    Clonable*
-#endif
-    clone() const { return new MixedModel(*this); }
+    MixedModel* clone() const { return new MixedModel(*this); }
   
   public:
 
-    AbstractSubstitutionModel* getNModel(int);
+    SubstitutionModel* getNModel(int);
 
     int getNumberOfModels() const;
 
     string getName() const { return "MixedModel"; }
 
     void updateMatrices();
-
-    void setRateDistribution(AbstractDiscreteDistribution * _rateDistribution);
-
-    void setRateDistribution(Vdouble v);
-
-    AbstractDiscreteDistribution * getRateDistribution();
 
     string getName(){
       return "Mixed Model";
