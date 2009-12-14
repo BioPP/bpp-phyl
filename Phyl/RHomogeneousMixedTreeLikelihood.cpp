@@ -62,8 +62,8 @@ RHomogeneousMixedTreeLikelihood::RHomogeneousMixedTreeLikelihood(
                                                                  )  throw (Exception):
   RHomogeneousTreeLikelihood(tree, model , rDist, checkRooted, verbose)
 {
-  if ((mixedmodel_=dynamic_cast<MixedModel*>(model_))==NULL)
-    throw Exception("Bad model: RHomogeneousMixedTreeLikelihood needs a MixedModel.");
+  if ((mixedmodel_=dynamic_cast<MixedSubstitutionModel*>(model_))==NULL)
+    throw Exception("Bad model: RHomogeneousMixedTreeLikelihood needs a MixedSubstitutionModel.");
   
   unsigned int s=mixedmodel_->getNumberOfModels();
   for (unsigned int i=0;i<s;i++)
@@ -86,8 +86,8 @@ RHomogeneousMixedTreeLikelihood::RHomogeneousMixedTreeLikelihood(
   throw (Exception):
   RHomogeneousTreeLikelihood(tree, model,rDist, checkRooted, verbose)
 {
-  if ((mixedmodel_=dynamic_cast<MixedModel*>(model_))==NULL)
-    throw Exception("Bad model: RHomogeneousMixedTreeLikelihood needs a MixedModel.");
+  if ((mixedmodel_=dynamic_cast<MixedSubstitutionModel*>(model_))==NULL)
+    throw Exception("Bad model: RHomogeneousMixedTreeLikelihood needs a MixedSubstitutionModel.");
   
   int s=mixedmodel_->getNumberOfModels();
   

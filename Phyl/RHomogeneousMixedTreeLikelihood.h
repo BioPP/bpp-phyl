@@ -41,7 +41,7 @@ knowledge of the CeCILL license and that you accept its terms.
 
 #include "RHomogeneousTreeLikelihood.h"
 #include "SubstitutionModel.h"
-#include "MixedModel.h"
+#include "MixedSubstitutionModel.h"
 
 // From NumCalc:
 #include <NumCalc/VectorTools.h>
@@ -50,12 +50,21 @@ knowledge of the CeCILL license and that you accept its terms.
 namespace bpp
 {
 
+  /**
+   *@ brief A class to compute the average of several
+   *RHomogeneousTreeLikelihood defined from a Mixed Substitution
+   *Model.
+   *
+   * In all the calculs, the average of the likelihoods, probabilities
+   * are computed.
+   **/
+   
 class RHomogeneousMixedTreeLikelihood :
 	public RHomogeneousTreeLikelihood
 {
  private:
 
-  MixedModel * mixedmodel_;
+  MixedSubstitutionModel * mixedmodel_;
 
   vector<RHomogeneousTreeLikelihood*> treelikelihoodscontainer_;
 
@@ -67,7 +76,7 @@ public:
    * To compute a likelihood, you will need to call the setData() and the computeTreeLikelihood() methods.
    *
    * @param tree The tree to use.
-   * @param model The substitution model to use.
+   * @param model The mixed substitution model to use.
    * @param rDist The rate across sites distribution to use.
    * @param checkRooted Tell if we have to check for the tree to be unrooted.
    * If true, any rooted tree will be unrooted before likelihood computation.
@@ -91,7 +100,7 @@ public:
    *
    * @param tree The tree to use.
    * @param data Sequences to use.
-   * @param model The substitution model to use.
+   * @param model The mixed substitution model to use.
    * @param rDist The rate across sites distribution to use.
    * @param checkRooted Tell if we have to check for the tree to be unrooted.
    * If true, any rooted tree will be unrooted before likelihood computation.
