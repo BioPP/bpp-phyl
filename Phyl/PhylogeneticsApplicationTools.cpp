@@ -58,7 +58,9 @@
 #include <Utils/KeyvalTools.h>
 
 // From NumCalc:
-#include <NumCalc/distributions>
+#include <NumCalc/ConstantDistribution.h>
+#include <NumCalc/GammaDiscreteDistribution.h>
+#include <NumCalc/InvariantMixedDiscreteDistribution.h>
 #include <NumCalc/optimizers>
 
 // From SeqLib:
@@ -165,7 +167,7 @@ SubstitutionModel* PhylogeneticsApplicationTools::getSubstitutionModelDefaultIns
                                                                allowCovarions,
                                                                allowGaps,
                                                                verbose);
-    map<string,AbstractDiscreteDistribution*> mdist;
+    map<string,DiscreteDistribution*> mdist;
     map<string, string> unparsedParameterValuesNested2, unparsedParameterValuesNested3;
     
     for (map<string, string>::iterator it = unparsedParameterValuesNested.begin();
@@ -173,7 +175,7 @@ SubstitutionModel* PhylogeneticsApplicationTools::getSubstitutionModelDefaultIns
       if (it->second.find("(")!=string::npos){
         unparsedParameterValuesNested3.clear();
 
-        mdist[pSM->getParameterNameWithoutNamespace(it->first)]=dynamic_cast<AbstractDiscreteDistribution*>(getDistributionDefaultInstance(it->second, unparsedParameterValuesNested3,true));
+        mdist[pSM->getParameterNameWithoutNamespace(it->first)]=getDistributionDefaultInstance(it->second, unparsedParameterValuesNested3,true);
         for (map<string, string>::iterator it2 = unparsedParameterValuesNested3.begin();
              it2 != unparsedParameterValuesNested3.end(); it2++){
           unparsedParameterValuesNested2[it->first + "." + it2->first] = it2->second;
@@ -187,11 +189,11 @@ SubstitutionModel* PhylogeneticsApplicationTools::getSubstitutionModelDefaultIns
          it != unparsedParameterValuesNested2.end(); it++)
       unparsedParameterValues["MixedModel." + it->first] = it->second;
     
-    model=new MixedModel(alphabet,dynamic_cast<AbstractSubstitutionModel*>(pSM),mdist);
+    model=new MixedModel(alphabet,pSM,mdist);
 
     vector<string> v=model->getParameters().getParameterNames();
   
-    for (map<string,AbstractDiscreteDistribution*>::iterator it=mdist.begin();
+    for (map<string,DiscreteDistribution*>::iterator it=mdist.begin();
          it!=mdist.end(); it++)
       delete it->second;
 
@@ -208,6 +210,7 @@ SubstitutionModel* PhylogeneticsApplicationTools::getSubstitutionModelDefaultIns
     {
       Vector<string> v_nestedModelDescription;
       Vector<SubstitutionModel*> v_pSM;
+      //SubstitutionModel* pSM;
       const WordAlphabet* pWA;
     
       string s, nestedModelDescription;
@@ -330,7 +333,7 @@ SubstitutionModel* PhylogeneticsApplicationTools::getSubstitutionModelDefaultIns
       else if (modelName == "CodonAsynonymous")
         {
           if (args.find("geneticcode") == args.end())
-            throw Exception("Missing Genetic Code.");
+            throw Exception("PhylogeneticsApplicationTools::getSubstitutionModelDefaultInstance. Missing Genetic Code.");
 
           GeneticCode* pgc = SequenceApplicationTools::getGeneticCode(dynamic_cast<const NucleicAlphabet*>(pWA->getNAlphabet(0)),args["geneticcode"]);
           if (pgc->getSourceAlphabet()->getAlphabetType() != pWA->getAlphabetType())
@@ -408,7 +411,7 @@ SubstitutionModel* PhylogeneticsApplicationTools::getSubstitutionModelDefaultIns
         {
 
           if (args.find("geneticcode")==args.end())
-            throw Exception("Missing Genetic Code.");
+            throw Exception("PhylogeneticsApplicationTools::getSubstitutionModelDefaultInstance. Missing Genetic Code.");
 
           GeneticCode* pgc=SequenceApplicationTools::getGeneticCode(dynamic_cast<const NucleicAlphabet*>(pCA->getNAlphabet(0)),args["geneticcode"]);
           if (pgc->getSourceAlphabet()->getAlphabetType()!=pCA->getAlphabetType())
@@ -444,7 +447,7 @@ SubstitutionModel* PhylogeneticsApplicationTools::getSubstitutionModelDefaultIns
       const CodonAlphabet* pCA = (const CodonAlphabet*)(alphabet);
 
       if (args.find("geneticcode")==args.end())
-        throw Exception("Missing Genetic Code.");
+        throw Exception("PhylogeneticsApplicationTools::getSubstitutionModelDefaultInstance. Missing Genetic Code.");
 
       GeneticCode* pgc=SequenceApplicationTools::getGeneticCode(dynamic_cast<const NucleicAlphabet*>(pCA->getNAlphabet(0)),args["geneticcode"]);
       if (pgc->getSourceAlphabet()->getAlphabetType()!=pCA->getAlphabetType())
@@ -470,7 +473,7 @@ SubstitutionModel* PhylogeneticsApplicationTools::getSubstitutionModelDefaultIns
       const CodonAlphabet* pCA = (const CodonAlphabet*)(alphabet);
 
       if (args.find("geneticcode")==args.end())
-        throw Exception("Missing Genetic Code.");
+        throw Exception("PhylogeneticsApplicationTools::getSubstitutionModelDefaultInstance. Missing Genetic Code.");
 
       GeneticCode* pgc=SequenceApplicationTools::getGeneticCode(dynamic_cast<const NucleicAlphabet*>(pCA->getNAlphabet(0)),args["geneticcode"]);
       if (pgc->getSourceAlphabet()->getAlphabetType()!=pCA->getAlphabetType())
@@ -495,7 +498,7 @@ SubstitutionModel* PhylogeneticsApplicationTools::getSubstitutionModelDefaultIns
       const CodonAlphabet* pCA = (const CodonAlphabet*)(alphabet);
 
       if (args.find("geneticcode")==args.end())
-        throw Exception("Missing Genetic Code.");
+        throw Exception("PhylogeneticsApplicationTools::getSubstitutionModelDefaultInstance. Missing Genetic Code.");
 
       GeneticCode* pgc=SequenceApplicationTools::getGeneticCode(dynamic_cast<const NucleicAlphabet*>(pCA->getNAlphabet(0)),args["geneticcode"]);
       if (pgc->getSourceAlphabet()->getAlphabetType()!=pCA->getAlphabetType())
@@ -509,6 +512,7 @@ SubstitutionModel* PhylogeneticsApplicationTools::getSubstitutionModelDefaultIns
       model = new YN98(pgc);
     }
   
+
   ///////////////////////////////////
   /// RE08
   /////////////////////////////////
