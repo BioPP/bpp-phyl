@@ -231,11 +231,11 @@ class AbstractHomogeneousTreeLikelihood:
     /**
      * @brief Fill the pxy_, dpxy_ and d2pxy_ arrays for all nodes.
      */
-    void computeAllTransitionProbabilities();
+    virtual void computeAllTransitionProbabilities();
     /**
      * @brief Fill the pxy_, dpxy_ and d2pxy_ arrays for one node.
      */
-    void computeTransitionProbabilitiesForNode(const Node * node);
+    virtual void computeTransitionProbabilitiesForNode(const Node * node);
 
 };
 
