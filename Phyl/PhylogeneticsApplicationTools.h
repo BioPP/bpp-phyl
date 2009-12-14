@@ -6,36 +6,36 @@
 //
 
 /*
-Copyright or © or Copr. CNRS, (November 16, 2004)
+  Copyright or © or Copr. CNRS, (November 16, 2004)
 
-This software is a computer program whose purpose is to provide classes
-for phylogenetic data analysis.
+  This software is a computer program whose purpose is to provide classes
+  for phylogenetic data analysis.
 
-This software is governed by the CeCILL  license under French law and
-abiding by the rules of distribution of free software.  You can  use, 
-modify and/ or redistribute the software under the terms of the CeCILL
-license as circulated by CEA, CNRS and INRIA at the following URL
-"http://www.cecill.info". 
+  This software is governed by the CeCILL  license under French law and
+  abiding by the rules of distribution of free software.  You can  use, 
+  modify and/ or redistribute the software under the terms of the CeCILL
+  license as circulated by CEA, CNRS and INRIA at the following URL
+  "http://www.cecill.info". 
 
-As a counterpart to the access to the source code and  rights to copy,
-modify and redistribute granted by the license, users are provided only
-with a limited warranty  and the software's author,  the holder of the
-economic rights,  and the successive licensors  have only  limited
-liability. 
+  As a counterpart to the access to the source code and  rights to copy,
+  modify and redistribute granted by the license, users are provided only
+  with a limited warranty  and the software's author,  the holder of the
+  economic rights,  and the successive licensors  have only  limited
+  liability. 
 
-In this respect, the user's attention is drawn to the risks associated
-with loading,  using,  modifying and/or developing or reproducing the
-software by the user in light of its specific status of free software,
-that may mean  that it is complicated to manipulate,  and  that  also
-therefore means  that it is reserved for developers  and  experienced
-professionals having in-depth computer knowledge. Users are therefore
-encouraged to load and test the software's suitability as regards their
-requirements in conditions enabling the security of their systems and/or 
-data to be ensured and,  more generally, to use and operate it in the 
-same conditions as regards security. 
+  In this respect, the user's attention is drawn to the risks associated
+  with loading,  using,  modifying and/or developing or reproducing the
+  software by the user in light of its specific status of free software,
+  that may mean  that it is complicated to manipulate,  and  that  also
+  therefore means  that it is reserved for developers  and  experienced
+  professionals having in-depth computer knowledge. Users are therefore
+  encouraged to load and test the software's suitability as regards their
+  requirements in conditions enabling the security of their systems and/or 
+  data to be ensured and,  more generally, to use and operate it in the 
+  same conditions as regards security. 
 
-The fact that you are presently reading this means that you have had
-knowledge of the CeCILL license and that you accept its terms.
+  The fact that you are presently reading this means that you have had
+  knowledge of the CeCILL license and that you accept its terms.
 */
 
 #ifndef _PHYLOGENETICSAPPLICATIONTOOLS_H_
@@ -67,22 +67,22 @@ knowledge of the CeCILL license and that you accept its terms.
 namespace bpp
 {
 
-/**
- * @brief This class provides some common tools for applications.
- *
- * The functions parse some option file, create corresponding objects and send
- * a pointer toward it.
- * 
- * The option files are supposed to follow this simple format:
- * @code
- * parameterName = parameterContent
- * @endcode
- * with one parameter per line.
- *
- * @see ApplicationTools
- */
-class PhylogeneticsApplicationTools
-{
+  /**
+   * @brief This class provides some common tools for applications.
+   *
+   * The functions parse some option file, create corresponding objects and send
+   * a pointer toward it.
+   * 
+   * The option files are supposed to follow this simple format:
+   * @code
+   * parameterName = parameterContent
+   * @endcode
+   * with one parameter per line.
+   *
+   * @see ApplicationTools
+   */
+  class PhylogeneticsApplicationTools
+  {
   
   public:
     PhylogeneticsApplicationTools();
@@ -103,11 +103,11 @@ class PhylogeneticsApplicationTools
      * @throw Exception if an error occured.
      */
     static Tree* getTree(
-      std::map<std::string, std::string> & params,
-      const std::string& prefix = "input.",
-      const std::string& suffix = "",
-      bool suffixIsOptional = true,
-      bool verbose = true) throw (Exception);
+                         std::map<std::string, std::string> & params,
+                         const std::string& prefix = "input.",
+                         const std::string& suffix = "",
+                         bool suffixIsOptional = true,
+                         bool verbose = true) throw (Exception);
  
     /**
      * @brief Build a list ofTree objects according to options.
@@ -123,11 +123,11 @@ class PhylogeneticsApplicationTools
      * @throw Exception if an error occured.
      */
     static std::vector<Tree*> getTrees(
-      std::map<std::string, std::string>& params,
-      const std::string& prefix = "input.",
-      const std::string& suffix = "",
-      bool suffixIsOptional = true,
-      bool verbose = true) throw (Exception);
+                                       std::map<std::string, std::string>& params,
+                                       const std::string& prefix = "input.",
+                                       const std::string& suffix = "",
+                                       bool suffixIsOptional = true,
+                                       bool verbose = true) throw (Exception);
   
     /**
      * @brief Build a SubstitutionModel object with default parameter values according to a keyval description.
@@ -147,12 +147,12 @@ class PhylogeneticsApplicationTools
      * @throw Exception if an error occured.
      */
     static SubstitutionModel * getSubstitutionModelDefaultInstance(
-      const Alphabet* alphabet,
-      const std::string& modelDescription,
-      std::map<std::string, std::string>& unparsedParameterValues,
-      bool allowCovarions,
-      bool allowGaps,
-      bool verbose) throw (Exception);
+                                                                   const Alphabet* alphabet,
+                                                                   const std::string& modelDescription,
+                                                                   std::map<std::string, std::string>& unparsedParameterValues,
+                                                                   bool allowCovarions,
+                                                                   bool allowGaps,
+                                                                   bool verbose) throw (Exception);
 
 
     /**
@@ -173,10 +173,10 @@ class PhylogeneticsApplicationTools
      * @throw Exception if an error occured.
      */
     static void setSubstitutionModelParametersInitialValues(
-      SubstitutionModel* model,
-      std::map<std::string, std::string>& unparsedParameterValues,
-      const SiteContainer* data,
-      bool verbose) throw (Exception);
+                                                            SubstitutionModel* model,
+                                                            std::map<std::string, std::string>& unparsedParameterValues,
+                                                            const SiteContainer* data,
+                                                            bool verbose) throw (Exception);
 
     /**
      * @brief Build a SubstitutionModel object according to options.
@@ -197,12 +197,12 @@ class PhylogeneticsApplicationTools
      * @throw Exception if an error occured.
      */
     static SubstitutionModel * getSubstitutionModel(
-      const Alphabet* alphabet,
-      const SiteContainer* data, 
-      std::map<std::string, std::string>& params,
-      const std::string& suffix = "",
-      bool suffixIsOptional = true,
-      bool verbose = true) throw (Exception);
+                                                    const Alphabet* alphabet,
+                                                    const SiteContainer* data, 
+                                                    std::map<std::string, std::string>& params,
+                                                    const std::string& suffix = "",
+                                                    bool suffixIsOptional = true,
+                                                    bool verbose = true) throw (Exception);
   
     /**
      * @brief Set parameter initial values of a given model in a set according to options.
@@ -227,14 +227,14 @@ class PhylogeneticsApplicationTools
      * @throw Exception if an error occured.
      */
     static void setSubstitutionModelParametersInitialValues(
-      SubstitutionModel* model,
-      std::map<std::string, std::string>& unparsedParameterValues,
-      const std::string& modelPrefix,
-      const SiteContainer* data,
-      std::map<std::string, double>& existingParams,
-      std::vector<std::string>& specificParams,
-      std::vector<std::string>& sharedParams,
-      bool verbose) throw (Exception);
+                                                            SubstitutionModel* model,
+                                                            std::map<std::string, std::string>& unparsedParameterValues,
+                                                            const std::string& modelPrefix,
+                                                            const SiteContainer* data,
+                                                            std::map<std::string, double>& existingParams,
+                                                            std::vector<std::string>& specificParams,
+                                                            std::vector<std::string>& sharedParams,
+                                                            bool verbose) throw (Exception);
 
     /**
      * @brief Get A FrequenciesSet object for root frequencies (NH models) according to options.
@@ -253,13 +253,13 @@ class PhylogeneticsApplicationTools
      * @throw Exception if an error occured.
      */
     static FrequenciesSet* getRootFrequenciesSet(
-      const Alphabet* alphabet,
-      const SiteContainer* data, 
-      std::map<std::string, std::string>& params,
-      const std::vector<double>& rateFreqs,
-      const string& suffix = "",
-      bool suffixIsOptional = true,
-      bool verbose = true) throw (Exception);
+                                                 const Alphabet* alphabet,
+                                                 const SiteContainer* data, 
+                                                 std::map<std::string, std::string>& params,
+                                                 const std::vector<double>& rateFreqs,
+                                                 const string& suffix = "",
+                                                 bool suffixIsOptional = true,
+                                                 bool verbose = true) throw (Exception);
 
     /**
      * @brief Get A FrequenciesSet object according to options.
@@ -277,11 +277,11 @@ class PhylogeneticsApplicationTools
      * @throw Exception if an error occured.
      */
     static FrequenciesSet* getFrequenciesSet(
-      const Alphabet* alphabet,
-      const std::string& freqDescription,
-      const SiteContainer* data, 
-      const std::vector<double>& rateFreqs,
-      bool verbose = true) throw (Exception);
+                                             const Alphabet* alphabet,
+                                             const std::string& freqDescription,
+                                             const SiteContainer* data, 
+                                             const std::vector<double>& rateFreqs,
+                                             bool verbose = true) throw (Exception);
 
     /**
      * @brief Get An AbstractFrequenciesSet object according to a
@@ -296,9 +296,9 @@ class PhylogeneticsApplicationTools
      * @throw Exception if an error occured.
      */
     static FrequenciesSet* getFrequenciesSetDefaultInstance(
-      const Alphabet* alphabet,
-      const std::string& freqDescription,
-      std::map<std::string, std::string>& unparsedParameterValues) throw (Exception);
+                                                            const Alphabet* alphabet,
+                                                            const std::string& freqDescription,
+                                                            std::map<std::string, std::string>& unparsedParameterValues) throw (Exception);
     
 
     /**
@@ -353,13 +353,13 @@ class PhylogeneticsApplicationTools
      * @throw Exception if an error occured.
      */
     static SubstitutionModelSet * getSubstitutionModelSet(
-      const Alphabet * alphabet,
-      const SiteContainer * data, 
-      map<string, string> & params,
-      const string & suffix = "",
-      bool suffixIsOptional = true,
-      bool verbose = true) throw (Exception);
-
+                                                          const Alphabet * alphabet,
+                                                          const SiteContainer * data, 
+                                                          map<string, string> & params,
+                                                          const string & suffix = "",
+                                                          bool suffixIsOptional = true,
+                                                          bool verbose = true) throw (Exception);
+  
     /**
      * @brief Build a rate distribution as a DiscreteDistribution object with default parameter values according to a keyval description.
      *
@@ -377,10 +377,28 @@ class PhylogeneticsApplicationTools
      * @throw Exception if an error occured.
      */
     static DiscreteDistribution* getRateDistributionDefaultInstance(
-      const string& distDescription,
-      map<string, string>& unparsedParameterValues,
-      bool constDistAllowed = true,
-      bool verbose = true) throw (Exception);
+                                                                    const string& distDescription,
+                                                                    map<string, string>& unparsedParameterValues,
+                                                                    bool constDistAllowed = true,
+                                                                    bool verbose = true) throw (Exception);
+
+    /**
+     * @brief Build a distribution as a DiscreteDistribution object with default parameter values according to a keyval description.
+     *
+     * Check the Bio++ Program Suite documentation for a description of the syntax.
+     * It is mainly for internal usage, you're probably looking for the getRateDistribution function.
+     *
+     * @param distDescription         A string describing the model in the keyval syntax.
+     * @param unparsedParameterValues [out] a map that will contain all the distribution parameters
+     *                                names and their corresponding unparsed value, if they were found.
+     * @param verbose                 Print some info to the 'message' output stream.
+     * @return A new DiscreteDistribution object according to options specified.
+     * @throw Exception if an error occured.
+     */
+    
+    static DiscreteDistribution* getDistributionDefaultInstance(const string& distDescription,
+                                                                map<string, string>& unparsedParameterValues,
+                                                                bool verbose = true) throw (Exception);
 
     /**
      * @brief Set parameter initial values of a given rate distribution according to options.
@@ -394,12 +412,12 @@ class PhylogeneticsApplicationTools
      * @param unparsedParameterValues a map that contains all the distribution parameters
      *                                names and their corresponding unparsed value, if they were found.
      * @param verbose                 Print some info to the 'message' output stream.
-      * @throw Exception if an error occured.
+     * @throw Exception if an error occured.
      */
     static void setRateDistributionParametersInitialValues(
-      DiscreteDistribution * rDist,
-      map<string, string> & unparsedParameterValues,
-      bool verbose = true) throw (Exception);
+                                                           DiscreteDistribution * rDist,
+                                                           map<string, string> & unparsedParameterValues,
+                                                           bool verbose = true) throw (Exception);
 
     /**
      * @brief Build a DiscreteDistribution object according to options.
@@ -416,10 +434,10 @@ class PhylogeneticsApplicationTools
      * @throw Exception if an error occured.
      */
     static DiscreteDistribution * getRateDistribution(
-      map<string, string> & params,
-      const string & suffix = "",
-      bool suffixIsOptional = true,
-      bool verbose = true) throw (Exception);
+                                                      map<string, string> & params,
+                                                      const string & suffix = "",
+                                                      bool suffixIsOptional = true,
+                                                      bool verbose = true) throw (Exception);
       
     /**
      * @brief Optimize parameters according to options.
@@ -471,12 +489,12 @@ class PhylogeneticsApplicationTools
      * @endcode
      */
     static TreeLikelihood* optimizeParameters(
-      TreeLikelihood* tl,
-      const ParameterList& parameters,
-      map<string, string>& params,
-      const string& suffix = "",
-      bool suffixIsOptional = true,
-      bool verbose = true)
+                                              TreeLikelihood* tl,
+                                              const ParameterList& parameters,
+                                              map<string, string>& params,
+                                              const string& suffix = "",
+                                              bool suffixIsOptional = true,
+                                              bool verbose = true)
       throw (Exception);
     
     /**
@@ -508,12 +526,12 @@ class PhylogeneticsApplicationTools
      * @throw Exception        Any exception that may happen during the optimization process.
      */
     static void optimizeParameters(
-      DiscreteRatesAcrossSitesClockTreeLikelihood * tl,
-      const ParameterList& parameters,
-      map<string, string> & params,
-      const string & suffix = "",
-      bool suffixIsOptional = true,
-      bool verbose = true)
+                                   DiscreteRatesAcrossSitesClockTreeLikelihood * tl,
+                                   const ParameterList& parameters,
+                                   map<string, string> & params,
+                                   const string & suffix = "",
+                                   bool suffixIsOptional = true,
+                                   bool verbose = true)
       throw (Exception);
   
     /**
@@ -540,13 +558,13 @@ class PhylogeneticsApplicationTools
      * @throw Exception if an error occured.
      */
     static void writeTree(
-      const TreeTemplate<Node>& tree,
-      map<string, string>& params,
-      const string& prefix = "output.",
-      const string& suffix = "",
-      bool suffixIsOptional = true,
-      bool verbose = true,
-      bool checkOnly = false) throw (Exception);
+                          const TreeTemplate<Node>& tree,
+                          map<string, string>& params,
+                          const string& prefix = "output.",
+                          const string& suffix = "",
+                          bool suffixIsOptional = true,
+                          bool verbose = true,
+                          bool checkOnly = false) throw (Exception);
     
     /**
      * @brief Write a tree according to options.
@@ -564,13 +582,13 @@ class PhylogeneticsApplicationTools
      * @throw Exception if an error occured.
      */
     static void writeTrees(
-      const vector<Tree*>& trees,
-      map<string, string>& params,
-      const string& prefix = "output.",
-      const string& suffix = "",
-      bool suffixIsOptional = true,
-      bool verbose = true,
-      bool checkOnly = false) throw (Exception);
+                           const vector<Tree*>& trees,
+                           map<string, string>& params,
+                           const string& prefix = "output.",
+                           const string& suffix = "",
+                           bool suffixIsOptional = true,
+                           bool verbose = true,
+                           bool checkOnly = false) throw (Exception);
 
 
     
@@ -605,10 +623,10 @@ class PhylogeneticsApplicationTools
   private:
     static void describeParameters_(const ParameterAliasable* parametrizable, ostream& out, map<string, string>& globalAliases, const vector<string>& names, bool printLocalAliases = true);
     static void describeSubstitutionModel_(const SubstitutionModel* model, ostream& out, map<string, string>& globalAliases);
-  static void describeFrequenciesSet_(const FrequenciesSet* pfreqset, ostream& out);
+    static void describeFrequenciesSet_(const FrequenciesSet* pfreqset, ostream& out);
     static void describeDiscreteDistribution_(const DiscreteDistribution* rDist, ostream& out, map<string, string>& globalAliases);
 
-};
+  };
 
 } //end of namespace bpp.
 
