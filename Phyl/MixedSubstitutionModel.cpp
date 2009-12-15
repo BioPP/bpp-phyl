@@ -47,7 +47,7 @@ MixedSubstitutionModel::MixedSubstitutionModel(const Alphabet * alpha,
                        SubstitutionModel * _model,  
                        map<string,DiscreteDistribution*>  _parametersdistributionslist)
   
-  :AbstractSubstitutionModel(alpha,"MixedSubstitutionModel.")
+  :AbstractSubstitutionModel(alpha,"MixedModel.")
 { 
 
   unsigned int c, i;
@@ -65,15 +65,15 @@ MixedSubstitutionModel::MixedSubstitutionModel(const Alphabet * alpha,
     s2=_model->getParameterNameWithoutNamespace(s1);
     
     if (_parametersdistributionslist.find(s2)!=_parametersdistributionslist.end())
-      distributionmap_["MixedSubstitutionModel."+s1]=dynamic_cast<DiscreteDistribution*>(_parametersdistributionslist.find(s2)->second->clone());
+      distributionmap_["MixedModel."+s1]=dynamic_cast<DiscreteDistribution*>(_parametersdistributionslist.find(s2)->second->clone());
     else
-      distributionmap_["MixedSubstitutionModel."+s1]= new ConstantDistribution(_model->getParameterValue(s2));
+      distributionmap_["MixedModel."+s1]= new ConstantDistribution(_model->getParameterValue(s2));
     
     
-    if (dynamic_cast<ConstantDistribution*>(distributionmap_["MixedSubstitutionModel."+s1])==NULL)
-      distributionmap_["MixedSubstitutionModel."+s1]->setNamespace("MixedSubstitutionModel."+s1+"."+distributionmap_["MixedSubstitutionModel."+s1]->getNamespace());
+    if (dynamic_cast<ConstantDistribution*>(distributionmap_["MixedModel."+s1])==NULL)
+      distributionmap_["MixedModel."+s1]->setNamespace("MixedModel."+s1+"."+distributionmap_["MixedModel."+s1]->getNamespace());
     else
-      distributionmap_["MixedSubstitutionModel."+s1]->setNamespace("MixedSubstitutionModel."+s1+".");
+      distributionmap_["MixedModel."+s1]->setNamespace("MixedModel."+s1+".");
   }
 
   
@@ -86,7 +86,7 @@ MixedSubstitutionModel::MixedSubstitutionModel(const Alphabet * alpha,
 
   for(i=0; i<c ; i++){
     modelscontainer_.push_back(_model->clone());
-    modelscontainer_[i]->setNamespace("MixedSubstitutionModel."+_model->getNamespace());
+    modelscontainer_[i]->setNamespace("MixedModel."+_model->getNamespace());
   }
 
   // Initialization of _parameters.

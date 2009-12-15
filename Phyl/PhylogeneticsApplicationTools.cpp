@@ -156,7 +156,7 @@ SubstitutionModel* PhylogeneticsApplicationTools::getSubstitutionModelDefaultIns
   /// MIXED MODELS
   //////////////////////////////////
 
-  if (modelName == "MixedSubstitutionModel"){
+  if (modelName == "MixedModel"){
     map<string, string> unparsedParameterValuesNested;
     if (args.find("model")==args.end())
       throw Exception("The argument 'model' is missing from MixedSubstitutionModel description");
@@ -187,7 +187,7 @@ SubstitutionModel* PhylogeneticsApplicationTools::getSubstitutionModelDefaultIns
     
     for (map<string, string>::iterator it = unparsedParameterValuesNested2.begin();
          it != unparsedParameterValuesNested2.end(); it++)
-      unparsedParameterValues["MixedSubstitutionModel." + it->first] = it->second;
+      unparsedParameterValues["MixedModel." + it->first] = it->second;
     
     model=new MixedSubstitutionModel(alphabet,pSM,mdist);
 
@@ -1192,8 +1192,7 @@ SubstitutionModelSet* PhylogeneticsApplicationTools::getSubstitutionModelSet(
   string tmpDesc = ApplicationTools::getStringParameter("model1", params, "JC69()", suffix, suffixIsOptional, verbose);
   map<string, string> unparsedParameterValues;
   SubstitutionModel* tmp = getSubstitutionModelDefaultInstance(alphabet, tmpDesc, unparsedParameterValues, true, true, 0);
-  if ((tmp->getName().substr(0,3)!=("YpR")) 
-      && (tmp->getNumberOfStates() != alphabet->getSize()))
+  if (tmp->getNumberOfStates() != alphabet->getSize())
     {
       //Markov-Modulated Markov Model...
       unsigned int n =(unsigned int)(tmp->getNumberOfStates() / alphabet->getSize());
