@@ -43,7 +43,6 @@ set(CPP_FILES
   PGMA.cpp
   PhylipDistanceMatrixFormat.cpp
   NonHomogeneousSequenceSimulator.cpp
-  SubstitutionModel.cpp
   T92.cpp
   TN93.cpp
   TreeExceptions.cpp

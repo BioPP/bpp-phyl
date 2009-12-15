@@ -5,37 +5,37 @@
 //
 
 /*
-Copyright or © or Copr. CNRS, (November 16, 2004)
+   Copyright or © or Copr. CNRS, (November 16, 2004)
 
-This software is a computer program whose purpose is to provide classes
-for phylogenetic data analysis.
+   This software is a computer program whose purpose is to provide classes
+   for phylogenetic data analysis.
 
-This software is governed by the CeCILL  license under French law and
-abiding by the rules of distribution of free software.  You can  use, 
-modify and/ or redistribute the software under the terms of the CeCILL
-license as circulated by CEA, CNRS and INRIA at the following URL
-"http://www.cecill.info". 
+   This software is governed by the CeCILL  license under French law and
+   abiding by the rules of distribution of free software.  You can  use,
+   modify and/ or redistribute the software under the terms of the CeCILL
+   license as circulated by CEA, CNRS and INRIA at the following URL
+   "http://www.cecill.info".
 
-As a counterpart to the access to the source code and  rights to copy,
-modify and redistribute granted by the license, users are provided only
-with a limited warranty  and the software's author,  the holder of the
-economic rights,  and the successive licensors  have only  limited
-liability. 
+   As a counterpart to the access to the source code and  rights to copy,
+   modify and redistribute granted by the license, users are provided only
+   with a limited warranty  and the software's author,  the holder of the
+   economic rights,  and the successive licensors  have only  limited
+   liability.
 
-In this respect, the user's attention is drawn to the risks associated
-with loading,  using,  modifying and/or developing or reproducing the
-software by the user in light of its specific status of free software,
-that may mean  that it is complicated to manipulate,  and  that  also
-therefore means  that it is reserved for developers  and  experienced
-professionals having in-depth computer knowledge. Users are therefore
-encouraged to load and test the software's suitability as regards their
-requirements in conditions enabling the security of their systems and/or 
-data to be ensured and,  more generally, to use and operate it in the 
-same conditions as regards security. 
+   In this respect, the user's attention is drawn to the risks associated
+   with loading,  using,  modifying and/or developing or reproducing the
+   software by the user in light of its specific status of free software,
+   that may mean  that it is complicated to manipulate,  and  that  also
+   therefore means  that it is reserved for developers  and  experienced
+   professionals having in-depth computer knowledge. Users are therefore
+   encouraged to load and test the software's suitability as regards their
+   requirements in conditions enabling the security of their systems and/or
+   data to be ensured and,  more generally, to use and operate it in the
+   same conditions as regards security.
 
-The fact that you are presently reading this means that you have had
-knowledge of the CeCILL license and that you accept its terms.
-*/
+   The fact that you are presently reading this means that you have had
+   knowledge of the CeCILL license and that you accept its terms.
+ */
 
 #include "AbstractSubstitutionModel.h"
 
@@ -55,27 +55,29 @@ using namespace std;
 
 /******************************************************************************/
 
-AbstractSubstitutionModel::AbstractSubstitutionModel(const Alphabet* alpha, const string& prefix) :
+AbstractSubstitutionModel::AbstractSubstitutionModel(const Alphabet* alpha, const std::string& prefix) :
   AbstractParameterAliasable(prefix),
   alphabet_(alpha),
+  size_(alpha->getSize()),
+  chars_(size_),
+  generator_(size_, size_),
+  pijt_(size_, size_),
+  dpijt_(size_, size_),
+  d2pijt_(size_, size_),
+  leftEigenVectors_(size_, size_),
+  rightEigenVectors_(size_, size_),
+  eigenValues_(size_),
+  freq_(size_),
   eigenDecompose_(true)
 {
-  size_ = alpha->getSize();
-  generator_.resize(size_, size_);
-  freq_.resize(size_);
-  eigenValues_.resize(size_);
-  leftEigenVectors_.resize(size_, size_);
-  rightEigenVectors_.resize(size_, size_);
-  pijt_.resize(size_, size_);
-  dpijt_.resize(size_, size_);
-  d2pijt_.resize(size_, size_);
-  chars_.resize(size_);
-  for(unsigned int i = 0; i < size_; i++)
-    chars_[i] = (int)i;
+  for (unsigned int i = 0; i < size_; i++)
+  {
+    chars_[i] = static_cast<int>(i);
+  }
 }
 
 /******************************************************************************/
-  
+
 void AbstractSubstitutionModel::updateMatrices()
 {
   // Compute eigen values and vectors:
@@ -87,9 +89,9 @@ void AbstractSubstitutionModel::updateMatrices()
 
 /******************************************************************************/
 
-const Matrix<double> & AbstractSubstitutionModel::getPij_t(double t) const
+const Matrix<double>& AbstractSubstitutionModel::getPij_t(double t) const
 {
-  if(t == 0)
+  if (t == 0)
   {
     MatrixTools::getId(size_, pijt_);
   }
@@ -100,13 +102,13 @@ const Matrix<double> & AbstractSubstitutionModel::getPij_t(double t) const
   return pijt_;
 }
 
-const Matrix<double> & AbstractSubstitutionModel::getdPij_dt(double t) const
+const Matrix<double>& AbstractSubstitutionModel::getdPij_dt(double t) const
 {
   MatrixTools::mult(rightEigenVectors_, eigenValues_ * VectorTools::exp(eigenValues_ * t), leftEigenVectors_, dpijt_);
   return dpijt_;
 }
 
-const Matrix<double> & AbstractSubstitutionModel::getd2Pij_dt2(double t) const
+const Matrix<double>& AbstractSubstitutionModel::getd2Pij_dt2(double t) const
 {
   MatrixTools::mult(rightEigenVectors_, NumTools::sqr(eigenValues_) * VectorTools::exp(eigenValues_ * t), leftEigenVectors_, d2pijt_);
   return d2pijt_;
@@ -116,11 +118,13 @@ const Matrix<double> & AbstractSubstitutionModel::getd2Pij_dt2(double t) const
 
 double AbstractSubstitutionModel::getInitValue(unsigned int i, int state) const throw (BadIntException)
 {
-  if(i >= size_) throw BadIntException(i, "AbstractSubstitutionModel::getInitValue");
-  if(state < 0 || !alphabet_->isIntInAlphabet(state)) throw BadIntException(state, "AbstractSubstitutionModel::getInitValue. Character " + alphabet_->intToChar(state) + " is not allowed in model.");
+  if (i >= size_) throw BadIntException(i, "AbstractSubstitutionModel::getInitValue");
+  if (state < 0 || !alphabet_->isIntInAlphabet(state)) throw BadIntException(state, "AbstractSubstitutionModel::getInitValue. Character " + alphabet_->intToChar(state) + " is not allowed in model.");
   vector<int> states = alphabet_->getAlias(state);
-  for(unsigned int j = 0; j < states.size(); j++)
-    if(getAlphabetChar(i) == states[j]) return 1.;
+  for (unsigned int j = 0; j < states.size(); j++)
+  {
+    if (getAlphabetChar(i) == states[j]) return 1.;
+  }
   return 0.;
 }
 
@@ -132,9 +136,15 @@ void AbstractSubstitutionModel::setFreqFromData(const SequenceContainer& data, u
   SequenceContainerTools::getCounts(data, counts);
   int t = 0;
   map<int, double> freqs;
-  
-  for(unsigned int i = 0; i < size_; i++) t += counts[i] + pseudoCount;
-  for(unsigned int i = 0; i < size_; i++) freqs[i] = ((double)counts[i] + pseudoCount) / t;
+
+  for (unsigned int i = 0; i < size_; i++)
+  {
+    t += counts[i] + pseudoCount;
+  }
+  for (unsigned int i = 0; i < size_; i++)
+  {
+    freqs[i] = ((double)counts[i] + pseudoCount) / t;
+  }
 
   //Re-compute generator and eigen values:
   setFreq(freqs);
@@ -144,11 +154,13 @@ void AbstractSubstitutionModel::setFreqFromData(const SequenceContainer& data, u
 
 void AbstractSubstitutionModel::setFreq(map<int, double>& freqs)
 {
-  for(unsigned int i = 0; i < size_; i++)
+  for (unsigned int i = 0; i < size_; i++)
+  {
     freq_[i] = freqs[i];
+  }
   //Re-compute generator and eigen values:
   updateMatrices();
- }
+}
 
 /******************************************************************************/
 double AbstractSubstitutionModel::getScale() const
@@ -167,30 +179,30 @@ AbstractReversibleSubstitutionModel::AbstractReversibleSubstitutionModel(const A
 }
 
 /******************************************************************************/
-    
+
 void AbstractReversibleSubstitutionModel::updateMatrices()
 {
   RowMatrix<double> Pi;
   MatrixTools::diag(freq_, Pi);
   MatrixTools::mult(exchangeability_, Pi, generator_); //Diagonal elements of the exchangability matrix will be ignored.
   // Compute diagonal elements of the generator:
-  for(unsigned int i = 0; i < size_; i++)
+  for (unsigned int i = 0; i < size_; i++)
   {
     double lambda = 0;
-    for(unsigned int j = 0; j < size_; j++)
+    for (unsigned int j = 0; j < size_; j++)
     {
-      if( j!=i ) lambda += generator_(i,j);
+      if (j != i) lambda += generator_(i,j);
     }
     generator_(i,i) = -lambda;
   }
   // Normalization:
   double scale = getScale();
-  MatrixTools::scale(generator_, 1./scale);
+  MatrixTools::scale(generator_, 1. / scale);
 
   // Normalize exchangeability matrix too:
-  MatrixTools::scale(exchangeability_, 1./scale);
+  MatrixTools::scale(exchangeability_, 1. / scale);
   // Compute diagonal elements of the exchangeability matrix:
-  for(unsigned int i = 0; i < size_; i++)
+  for (unsigned int i = 0; i < size_; i++)
   {
     exchangeability_(i,i) = generator_(i,i) / freq_[i];
   }
