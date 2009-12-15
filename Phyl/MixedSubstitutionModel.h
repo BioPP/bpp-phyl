@@ -43,9 +43,9 @@
 #include "NumCalc/ConstantDistribution.h"
 #include "NumCalc/SimpleDiscreteDistribution.h"
 #include "NumCalc/VectorTools.h"
-#include "Phyl/AbstractSubstitutionModel.h"
-#include "Phyl/PhylogeneticsApplicationTools.h"
-#include "Phyl/NucleotideSubstitutionModel.h"
+#include "AbstractSubstitutionModel.h"
+#include "PhylogeneticsApplicationTools.h"
+#include "NucleotideSubstitutionModel.h"
 #include "Seq/alphabets"
 
 #include <vector>
