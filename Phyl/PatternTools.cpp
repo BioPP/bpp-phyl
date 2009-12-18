@@ -99,7 +99,7 @@ SiteContainer * PatternTools::shrinkSiteSet(const SiteContainer& siteSet) throw 
 		}
 		if (!siteExists)	sites.push_back(currentSite);
 	}
-	SiteContainer* result = new VectorSiteContainer(sites, siteSet.getAlphabet());
+	SiteContainer* result = new VectorSiteContainer(sites, siteSet.getAlphabet(), false); //We do not check positions here.
 	result->setSequencesNames(siteSet.getSequencesNames(), false);
 	return result;
 }
