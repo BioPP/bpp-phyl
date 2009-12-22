@@ -86,21 +86,21 @@ ProbabilisticSubstitutionMapping* SubstitutionMappingTools::computeSubstitutionV
   ProbabilisticSubstitutionMapping* substitutions = new ProbabilisticSubstitutionMapping(tree, nbSites);
                                    
   // Store likelihood for each rate for each site:
-  VVVdouble l;
-  drtl.computeLikelihoodAtNode(tree.getRootId(), l);
+  VVVdouble lik;
+  drtl.computeLikelihoodAtNode(tree.getRootId(), lik);
   Vdouble Lr(nbDistinctSites, 0);
   Vdouble rcProbs = rDist->getProbabilities();
   Vdouble rcRates = rDist->getCategories();
   for (unsigned int i = 0; i < nbDistinctSites; i++)
   {
-    VVdouble * l_i = & l[i];
+    VVdouble * lik_i = & lik[i];
     for (unsigned int c = 0; c < nbClasses; c++)
     {
-      Vdouble * l_i_c = & (* l_i)[c];
+      Vdouble * lik_i_c = & (* lik_i)[c];
       double rc = rDist->getProbability(c);
       for (unsigned int s = 0; s < nbStates; s++)
       {
-        Lr[i] += (* l_i_c)[s] * rc;
+        Lr[i] += (* lik_i_c)[s] * rc;
       }
     }
   }
@@ -164,7 +164,7 @@ ProbabilisticSubstitutionMapping* SubstitutionMappingTools::computeSubstitutionV
             //We retrieve the transition probabilities for this site partition:
             if (first)
             {
-              VVVdouble pxy = drtl.getTransitionProbabilitiesPerRateClass(currentSon->getId(), i);
+              pxy = drtl.getTransitionProbabilitiesPerRateClass(currentSon->getId(), i);
               first = false;
             }
             const VVdouble* likelihoodsFather_son_i = &(*likelihoodsFather_son)[i];
@@ -430,7 +430,7 @@ ProbabilisticSubstitutionMapping* SubstitutionMappingTools::computeSubstitutionV
             //We retrieve the transition probabilities for this site partition:
             if (first)
             {
-              VVVdouble pxy = drtl.getTransitionProbabilitiesPerRateClass(currentSon->getId(), i);
+              pxy = drtl.getTransitionProbabilitiesPerRateClass(currentSon->getId(), i);
               first = false;
             }
             const VVdouble* likelihoodsFather_son_i = &(*likelihoodsFather_son)[i];

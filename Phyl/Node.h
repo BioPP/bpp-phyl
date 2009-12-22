@@ -98,8 +98,8 @@ class Node:
     std::vector<Node *> sons_;
     Node* father_;
     double* distanceToFather_;
-    mutable map<std::string, Clonable*> nodeProperties_;
-    mutable map<std::string, Clonable*> branchProperties_;
+    mutable std::map<std::string, Clonable*> nodeProperties_;
+    mutable std::map<std::string, Clonable*> branchProperties_;
 
   public:
   
@@ -142,9 +142,9 @@ class Node:
     {  
       delete name_;
       delete distanceToFather_;
-      for(map<std::string, Clonable *>::iterator i = nodeProperties_.begin(); i != nodeProperties_.end(); i++)
+      for (std::map<std::string, Clonable *>::iterator i = nodeProperties_.begin(); i != nodeProperties_.end(); i++)
         delete i->second;
-      for(map<std::string, Clonable *>::iterator i = branchProperties_.begin(); i != branchProperties_.end(); i++)
+      for (std::map<std::string, Clonable *>::iterator i = branchProperties_.begin(); i != branchProperties_.end(); i++)
         delete i->second;
     }
 
@@ -319,7 +319,7 @@ class Node:
       if (find(node->sons_.begin(), node->sons_.end(), this) == node->sons_.end())
         node->sons_.push_back(this);
       else //Otherwise node is already present.
-        cerr << "DEVEL warning: Node::setFather. Son node already registered! No pb here, but could be a bug in your implementation..." << endl;
+        std::cerr << "DEVEL warning: Node::setFather. Son node already registered! No pb here, but could be a bug in your implementation..." << std::endl;
     }
         
     /**
@@ -371,7 +371,7 @@ class Node:
       if (find(sons_.begin(), sons_.end(), node) == sons_.end())
         sons_.insert(sons_.begin() + pos, node);
       else //Otherwise node is already present.
-        cerr << "DEVEL warning: Node::addSon. Son node already registered! No pb here, but could be a bug in your implementation..." << endl;
+        std::cerr << "DEVEL warning: Node::addSon. Son node already registered! No pb here, but could be a bug in your implementation..." << std::endl;
  
       node->father_ = this;
     }
@@ -393,7 +393,7 @@ class Node:
         throw NullPointerException("Node::setSon(). Empty node given as input.");
       if(pos >= sons_.size())
         throw IndexOutOfBoundsException("Node::setSon(). Invalid node position.", pos, 0, sons_.size()-1);
-      vector<Node *>::iterator search = find(sons_.begin(), sons_.end(), node);
+      std::vector<Node *>::iterator search = find(sons_.begin(), sons_.end(), node);
       if (search == sons_.end() || search == sons_.begin() + pos)
         sons_[pos] = node;
       else
@@ -539,7 +539,7 @@ class Node:
      */
     virtual void deleteNodeProperties()
     {
-      for(map<std::string, Clonable *>::iterator i = nodeProperties_.begin(); i != nodeProperties_.end(); i++)
+      for (std::map<std::string, Clonable *>::iterator i = nodeProperties_.begin(); i != nodeProperties_.end(); i++)
         delete i->second; 
       nodeProperties_.clear();
     }  
@@ -627,7 +627,7 @@ class Node:
      */
     virtual void deleteBranchProperties()
     {
-      for(map<std::string, Clonable *>::iterator i = branchProperties_.begin(); i != branchProperties_.end(); i++)
+      for (std::map<std::string, Clonable *>::iterator i = branchProperties_.begin(); i != branchProperties_.end(); i++)
         delete i->second; 
       branchProperties_.clear();
     }  

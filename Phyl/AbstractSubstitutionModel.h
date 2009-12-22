@@ -278,7 +278,9 @@ protected:
   RowMatrix<double> exchangeability_;
 
 public:
-  AbstractReversibleSubstitutionModel(const Alphabet* alpha, const std::string& prefix);
+  AbstractReversibleSubstitutionModel(const Alphabet* alpha, const std::string& prefix) :
+    AbstractSubstitutionModel(alpha, prefix),
+    exchangeability_(size_, size_) {}
 
   virtual ~AbstractReversibleSubstitutionModel() {}
 

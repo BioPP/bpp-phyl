@@ -172,14 +172,6 @@ double AbstractSubstitutionModel::getScale() const
 
 /******************************************************************************/
 
-AbstractReversibleSubstitutionModel::AbstractReversibleSubstitutionModel(const Alphabet* alpha, const string& prefix) :
-  AbstractSubstitutionModel(alpha, prefix)
-{
-  exchangeability_.resize(size_, size_);
-}
-
-/******************************************************************************/
-
 void AbstractReversibleSubstitutionModel::updateMatrices()
 {
   RowMatrix<double> Pi;

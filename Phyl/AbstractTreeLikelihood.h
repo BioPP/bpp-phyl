@@ -147,6 +147,18 @@ class AbstractTreeLikelihood :
         ConstNoPartitionBranchModelDescription(const SubstitutionModel* model, unsigned int nbSites) :
           model_(model), nbSites_(nbSites) {}
 
+        ConstNoPartitionBranchModelDescription(const ConstNoPartitionBranchModelDescription& bmd) :
+          model_(bmd.model_),
+          nbSites_(bmd.nbSites_)
+        {}
+
+        ConstNoPartitionBranchModelDescription& operator=(const ConstNoPartitionBranchModelDescription& bmd)
+        {
+          model_ = bmd.model_;
+          nbSites_ = bmd.nbSites_;
+          return *this;
+        }
+
       public:
         const SubstitutionModel* getModel() const { return model_; }
         
@@ -187,6 +199,18 @@ class AbstractTreeLikelihood :
       public:
         ConstNoPartitionSiteModelDescription(const SubstitutionModel* model, const std::vector<int> nodesId) :
           model_(model), nodesId_(nodesId) {}
+
+        ConstNoPartitionSiteModelDescription(const ConstNoPartitionSiteModelDescription& smd) :
+          model_(smd.model_),
+          nodesId_(smd.nodesId_)
+        {}
+
+        ConstNoPartitionSiteModelDescription& operator=(const ConstNoPartitionSiteModelDescription& smd)
+        {
+          model_ = smd.model_;
+          nodesId_ = smd.nodesId_;
+          return *this;
+        }
 
       public:
         const SubstitutionModel* getModel() const { return model_; }
