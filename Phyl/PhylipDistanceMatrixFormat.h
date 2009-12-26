@@ -57,20 +57,20 @@ class PhylipDistanceMatrixFormat:
 		virtual ~PhylipDistanceMatrixFormat() {}
 
 	public:
-		const string getFormatName() const { return "Phylip"; }
+		const std::string getFormatName() const { return "Phylip"; }
 
-		const string getFormatDescription() const {	return "Multiline space-delimited columns."; }
-		DistanceMatrix * read(const string & path) const throw (Exception)
+		const std::string getFormatDescription() const {	return "Multiline space-delimited columns."; }
+		DistanceMatrix* read(const std::string& path) const throw (Exception)
 		{
 			return AbstractIDistanceMatrix::read(path);
 		}
-		DistanceMatrix * read(istream & in) const throw (Exception);
+		DistanceMatrix* read(std::istream& in) const throw (Exception);
 		
-		void write(const DistanceMatrix & dist, const string & path, bool overwrite = true) const throw (Exception)
+		void write(const DistanceMatrix& dist, const std::string& path, bool overwrite = true) const throw (Exception)
 		{
 			AbstractODistanceMatrix::write(dist, path, overwrite);
 		}
-		void write(const DistanceMatrix & dist, ostream & out) const throw (Exception);
+		void write(const DistanceMatrix& dist, std::ostream& out) const throw (Exception);
 
 };
 

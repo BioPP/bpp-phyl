@@ -45,6 +45,7 @@ knowledge of the CeCILL license and that you accept its terms.
 #include <Seq/AlignedSequenceContainer.h>
 
 using namespace bpp;
+using namespace std;
 
 /******************************************************************************/
 
@@ -59,7 +60,7 @@ DRTreeParsimonyData::DRTreeParsimonyData(const DRTreeParsimonyData & data):
   _nbStates(data._nbStates),
   _nbDistinctSites(data._nbDistinctSites)
 {
-  _shrunkData      = dynamic_cast<SiteContainer *>(data._shrunkData->clone());
+  _shrunkData = dynamic_cast<SiteContainer *>(data._shrunkData->clone());
 }
     
 /******************************************************************************/
@@ -118,13 +119,13 @@ void DRTreeParsimonyData::init(const Node* node, const SiteContainer& sites) thr
     {
 			throw SequenceNotFoundException("DRTreeParsimonyData:init(node, sites). Leaf name in tree not found in site container: ", (node -> getName()));
 		}
-		DRTreeParsimonyLeafData * leafData    = & _leafData[node->getId()];
-		vector<Bitset> * leafData_bitsets     = & leafData->getBitsetsArray();
-		leafData->setNode(*node);
+		DRTreeParsimonyLeafData* leafData    = & _leafData[node->getId()];
+		vector<Bitset>* leafData_bitsets     = & leafData->getBitsetsArray();
+		leafData->setNode(node);
 		
 		leafData_bitsets->resize(_nbDistinctSites);
 		
-		for(unsigned int i = 0; i < _nbDistinctSites; i++)
+		for (unsigned int i = 0; i < _nbDistinctSites; i++)
     {
 			Bitset * leafData_bitsets_i = & (* leafData_bitsets)[i];
 			for(unsigned int s = 0; s < _nbStates; s++)
@@ -142,7 +143,7 @@ void DRTreeParsimonyData::init(const Node* node, const SiteContainer& sites) thr
   else
   {
 		DRTreeParsimonyNodeData * nodeData = & _nodeData[node->getId()];
-		nodeData->setNode(*node);
+		nodeData->setNode(node);
 		nodeData->eraseNeighborArrays();
 	
 		int nbSons = node->getNumberOfSons();
@@ -160,7 +161,7 @@ void DRTreeParsimonyData::init(const Node* node, const SiteContainer& sites) thr
 
 	// We initialize each son node:
 	unsigned int nbSonNodes = node->getNumberOfSons();
-	for(unsigned int l = 0; l < nbSonNodes; l++)
+	for (unsigned int l = 0; l < nbSonNodes; l++)
   {
 		//For each son node,
 		init(node->getSon(l), sites);
@@ -184,13 +185,13 @@ void DRTreeParsimonyData::reInit(const Node * node) throw (Exception)
 	}
   else
   {
-		DRTreeParsimonyNodeData * nodeData = & _nodeData[node->getId()];
-		nodeData->setNode(*node);
+		DRTreeParsimonyNodeData* nodeData = &_nodeData[node->getId()];
+		nodeData->setNode(node);
 		nodeData->eraseNeighborArrays();
 	
 		int nbSons = node->getNumberOfSons();
 	
-		for(int n = (node->hasFather() ? -1 : 0); n < nbSons; n++)
+		for (int n = (node->hasFather() ? -1 : 0); n < nbSons; n++)
     {
 			const Node * neighbor = (* node)[n];
 			vector<Bitset> * neighborData_bitsets       = & nodeData->getBitsetsArrayForNeighbor(neighbor->getId());

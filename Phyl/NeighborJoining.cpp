@@ -48,9 +48,9 @@ using namespace bpp;
 
 using namespace std;
 
-vector<unsigned int> NeighborJoining::getBestPair() throw (Exception)
+std::vector<unsigned int> NeighborJoining::getBestPair() throw (Exception)
 {
-  for(map<unsigned int, Node *>::iterator i = _currentNodes.begin(); i != _currentNodes.end(); i++) {
+  for (std::map<unsigned int, Node *>::iterator i = _currentNodes.begin(); i != _currentNodes.end(); i++) {
     unsigned int id = i -> first;
     _sumDist[id] = 0;
     for(map<unsigned int, Node *>::iterator j = _currentNodes.begin(); j != _currentNodes.end(); j++) {
@@ -83,7 +83,7 @@ vector<unsigned int> NeighborJoining::getBestPair() throw (Exception)
   return bestPair;  
 }
 
-vector<double> NeighborJoining::computeBranchLengthsForPair(const vector<unsigned int> & pair)
+std::vector<double> NeighborJoining::computeBranchLengthsForPair(const std::vector<unsigned int>& pair)
 {
   double ratio = (_sumDist[pair[0]] - _sumDist[pair[1]]) / (_currentNodes.size() - 2);
   vector<double> d(2);
@@ -97,7 +97,7 @@ vector<double> NeighborJoining::computeBranchLengthsForPair(const vector<unsigne
   return d;
 }
 
-double NeighborJoining::computeDistancesFromPair(const vector<unsigned int> & pair, const vector<double> & branchLengths, unsigned int pos)
+double NeighborJoining::computeDistancesFromPair(const std::vector<unsigned int>& pair, const std::vector<double>& branchLengths, unsigned int pos)
 {
   return 
     _positiveLengths ?

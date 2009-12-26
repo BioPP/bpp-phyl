@@ -53,11 +53,6 @@ knowledge of the CeCILL license and that you accept its terms.
 #include <Seq/WordAlphabet.h>
 #include <Seq/CodonAlphabet.h>
 
-// From Utils
-#include <Utils/BppVector.h>
-
-using namespace std;
-
 namespace bpp
 {
 
@@ -81,7 +76,7 @@ public:
   /**
    * @return The frequencies values of the set.
    */ 
-  virtual const vector<double>& getFrequencies() const = 0;
+  virtual const std::vector<double>& getFrequencies() const = 0;
   
   /**
    * @brief Set the parameters in order to match a given set of frequencies.
@@ -90,7 +85,7 @@ public:
    * @throw DimensionException If the number of frequencies does not match the size of the alphabet.
    * @throw Exception If the frequencies do not sum to 1.
    */
-  virtual void setFrequencies(const vector<double>& frequencies) throw (DimensionException, Exception) = 0;
+  virtual void setFrequencies(const std::vector<double>& frequencies) throw (DimensionException, Exception) = 0;
   
   /**
    * @brief Set the Frequencies from the one of the map which keys
@@ -99,9 +94,9 @@ public:
    *
    * @param frequencies The set of frequencies to match.
    */
-  virtual void setFrequenciesFromMap(const map<int, double>& frequencies) = 0;
+  virtual void setFrequenciesFromMap(const std::map<int, double>& frequencies) = 0;
 
-  virtual string getName() const = 0;
+  virtual std::string getName() const = 0;
 
   /**
    * @return The number of frequencies in the set. In most cases this will correspond to the size of the alphabet,
@@ -168,10 +163,10 @@ class AbstractFrequenciesSet:
 {
   private:
     const Alphabet* alphabet_;
-    vector<double> freq_;
+    std::vector<double> freq_;
 
   public:
-    AbstractFrequenciesSet(unsigned int n, const Alphabet* alphabet, const string& prefix) :
+    AbstractFrequenciesSet(unsigned int n, const Alphabet* alphabet, const std::string& prefix) :
       AbstractParametrizable(prefix),
       alphabet_(alphabet),
       freq_(n) {}
@@ -192,27 +187,18 @@ class AbstractFrequenciesSet:
   public:
     const Alphabet* getAlphabet() const { return alphabet_; }
 
-    const vector<double>& getFrequencies() const { return freq_; }
+    const std::vector<double>& getFrequencies() const { return freq_; }
 
-    void setFrequenciesFromMap(const map<int, double>& frequencies);
+    void setFrequenciesFromMap(const std::map<int, double>& frequencies);
 
     unsigned int getNumberOfFrequencies() const { return freq_.size();}
 
-//  bool matchParametersValues(const ParameterList& pl) throw(ConstraintException){
-//
-//    bool t=getParameters_().matchParametersValues(pl);
-//    if (t)
-//      fireParameterChanged(pl);
-//
-//    return t;
-//  }
-      
 
   protected:
-    vector<double>& getFrequencies_() { return freq_; }
+    std::vector<double>& getFrequencies_() { return freq_; }
     double& getFreq_(unsigned int i) { return freq_[i]; }
     const double& getFreq_(unsigned int i) const { return freq_[i]; }
-    void setFrequencies_(const vector<double>& frequencies) { freq_ = frequencies; }
+    void setFrequencies_(const std::vector<double>& frequencies) { freq_ = frequencies; }
 
 };
 
@@ -231,15 +217,15 @@ class FullFrequenciesSet:
      * frequencies are null.
      */
     FullFrequenciesSet(const Alphabet* alphabet);
-    FullFrequenciesSet(const Alphabet* alphabet, const vector<double>& initFreqs) throw (Exception);
+    FullFrequenciesSet(const Alphabet* alphabet, const std::vector<double>& initFreqs) throw (Exception);
   
     FullFrequenciesSet* clone() const { return new FullFrequenciesSet(*this); }
 
   public:
     
-    void setFrequencies(const vector<double>& frequencies) throw (DimensionException, Exception);
+    void setFrequencies(const std::vector<double>& frequencies) throw (DimensionException, Exception);
 
-    string getName() const {return "Full";}
+    std::string getName() const {return "Full";}
 
   protected:
     void fireParameterChanged(const ParameterList& parameters);
@@ -263,7 +249,7 @@ class FullCodonFrequenciesSet:
      * frequencies are null.
      */
     FullCodonFrequenciesSet(const CodonAlphabet* alphabet);
-    FullCodonFrequenciesSet(const CodonAlphabet* alphabet, const vector<double>& initFreqs) throw (Exception);
+    FullCodonFrequenciesSet(const CodonAlphabet* alphabet, const std::vector<double>& initFreqs) throw (Exception);
   
 #ifndef NO_VIRTUAL_COV
     FullCodonFrequenciesSet*
@@ -274,9 +260,9 @@ class FullCodonFrequenciesSet:
 
   public:
 
-    string getName() const { return "Full"; }
+    std::string getName() const { return "Full"; }
 
-    void setFrequencies(const vector<double>& frequencies) throw (DimensionException, Exception);
+    void setFrequencies(const std::vector<double>& frequencies) throw (DimensionException, Exception);
 
 #ifndef NO_VIRTUAL_COV
     const CodonAlphabet* getAlphabet() const
@@ -333,9 +319,9 @@ class GCFrequenciesSet:
     }
 #endif
     
-    void setFrequencies(const vector<double>& frequencies) throw (DimensionException, Exception);
+    void setFrequencies(const std::vector<double>& frequencies) throw (DimensionException, Exception);
 
-    string getName() const { return "GC"; }
+    std::string getName() const { return "GC"; }
 
   protected:
     void fireParameterChanged(const ParameterList& parameters);
@@ -370,9 +356,9 @@ class FullNAFrequenciesSet:
     }
 #endif    
 
-    void setFrequencies(const vector<double>& frequencies) throw (DimensionException, Exception);
+    void setFrequencies(const std::vector<double>& frequencies) throw (DimensionException, Exception);
 
-    string getName() const { return "FullNA"; }
+    std::string getName() const { return "FullNA"; }
 
   protected:
     void fireParameterChanged(const ParameterList& parameters);
@@ -393,7 +379,7 @@ class FullProteinFrequenciesSet:
   public:
     FullProteinFrequenciesSet(const ProteicAlphabet* alphabet):
       FullFrequenciesSet(alphabet) {}
-    FullProteinFrequenciesSet(const ProteicAlphabet* alphabet, const vector<double>& initFreqs) throw (Exception):
+    FullProteinFrequenciesSet(const ProteicAlphabet* alphabet, const std::vector<double>& initFreqs) throw (Exception):
       FullFrequenciesSet(alphabet, initFreqs) {}
 
 #ifndef NO_VIRTUAL_COV
@@ -426,10 +412,10 @@ class MarkovModulatedFrequenciesSet:
 {
   private:
     FrequenciesSet* freqSet_;
-    vector<double> rateFreqs_;
+    std::vector<double> rateFreqs_;
 
   public:
-    MarkovModulatedFrequenciesSet(FrequenciesSet* freqSet, const vector<double>& rateFreqs):
+    MarkovModulatedFrequenciesSet(FrequenciesSet* freqSet, const std::vector<double>& rateFreqs):
       AbstractFrequenciesSet(getAlphabet()->getSize() * rateFreqs.size(), freqSet->getAlphabet(), "MarkovModulated."),
       freqSet_(freqSet),
       rateFreqs_(rateFreqs)
@@ -458,7 +444,7 @@ class MarkovModulatedFrequenciesSet:
     virtual ~MarkovModulatedFrequenciesSet() { delete freqSet_; }
   
   public:
-    void setFrequencies(const vector<double>& frequencies) throw (DimensionException, Exception)
+    void setFrequencies(const std::vector<double>& frequencies) throw (DimensionException, Exception)
     {
       //Just forward this method to the sequence state frequencies set. This may change in the future...
       freqSet_->setFrequencies(frequencies);
@@ -472,13 +458,13 @@ class MarkovModulatedFrequenciesSet:
     
     const FrequenciesSet& getStatesFrequenciesSet() const { return *freqSet_; }
 
-    void setNamespace(const string& prefix)
+    void setNamespace(const std::string& prefix)
     {
       AbstractFrequenciesSet::setNamespace(prefix);    
       freqSet_->setNamespace(prefix + freqSet_->getNamespace());
     }
   
-    string getName() const {return "MarkovModulated." + freqSet_->getName();}
+    std::string getName() const { return "MarkovModulated." + freqSet_->getName();}
 
 };
 
@@ -492,7 +478,7 @@ class FixedFrequenciesSet:
   public AbstractFrequenciesSet
 {
   public:
-    FixedFrequenciesSet(const Alphabet* alphabet, const vector<double>& initFreqs);
+    FixedFrequenciesSet(const Alphabet* alphabet, const std::vector<double>& initFreqs);
 
     /**
      * @brief Construction with uniform frequencies on the letters of
@@ -504,9 +490,9 @@ class FixedFrequenciesSet:
     FixedFrequenciesSet* clone() const { return new FixedFrequenciesSet(*this); }
 
   public:
-    void setFrequencies(const vector<double>& frequencies) throw (DimensionException, Exception);
+    void setFrequencies(const std::vector<double>& frequencies) throw (DimensionException, Exception);
 
-    string getName() const { return "Fixed"; }
+    std::string getName() const { return "Fixed"; }
 
   protected:
     void fireParameterChanged(const ParameterList& parameters) {}
@@ -522,7 +508,7 @@ class CodonFixedFrequenciesSet:
   public AbstractFrequenciesSet
 {
   public:
-    CodonFixedFrequenciesSet(const CodonAlphabet* alphabet, const vector<double>& initFreqs);
+    CodonFixedFrequenciesSet(const CodonAlphabet* alphabet, const std::vector<double>& initFreqs);
 
     /**
      * @brief Construction with uniform frequencies on the letters of
@@ -544,9 +530,9 @@ class CodonFixedFrequenciesSet:
       return dynamic_cast<const CodonAlphabet*>(AbstractFrequenciesSet::getAlphabet());
     }
 #endif
-    void setFrequencies(const vector<double>& frequencies) throw (DimensionException, Exception);
+    void setFrequencies(const std::vector<double>& frequencies) throw (DimensionException, Exception);
 
-    string getName() const { return "Fixed"; }
+    std::string getName() const { return "Fixed"; }
 
   protected:
     void fireParameterChanged(const ParameterList& parameters) {}
@@ -563,33 +549,33 @@ class IndependentWordFrequenciesSet:
   public AbstractFrequenciesSet
 {
 private:
-  Vector<FrequenciesSet*> _VFreq;
-  Vector<string> _VnestedPrefix;
-  bool unique_AbsFreq;
+  std::vector<FrequenciesSet*> vFreq_;
+  std::vector<std::string> vNestedPrefix_;
+  bool uniqueAbsFreq_;
   
-  /*brief builds a new alphabet matching with the future vector of
-    AbstractFrequenciesSet.
-   */
-  
-  static Alphabet* extract_alph(const Vector<FrequenciesSet*>&);
+  /**
+   * brief builds a new alphabet matching with the future vector of
+   * AbstractFrequenciesSet.
+   */ 
+  static Alphabet* extractAlph_(const std::vector<FrequenciesSet*>& freqVector);
 
-  static unsigned int getSizeFromVector(const Vector<FrequenciesSet*>&);
+  static unsigned int getSizeFromVector(const std::vector<FrequenciesSet*>& freqVector);
 
 public:
 
-  /* @brief Constructor from a vector of AbstractFrequenciesSet*. If
+  /**
+   * @brief Constructor from a vector of AbstractFrequenciesSet*. If
    *  these AbstractFrequenciesSet* are not all different, the
    *  constructor uses only the first AbstractFrequenciesSet* from the
    *  vector, as many time as the length of the vector
    */
+  IndependentWordFrequenciesSet(const std::vector<FrequenciesSet*>&);
   
-  IndependentWordFrequenciesSet(const Vector<FrequenciesSet*>&);
-  
-  /* @brief Constructor from an AbstractFrequenciesSet* repeated num
+  /**
+   * @brief Constructor from an AbstractFrequenciesSet* repeated num
    *  times.
    */
-
-  IndependentWordFrequenciesSet(FrequenciesSet *pabsfreq, int num);
+  IndependentWordFrequenciesSet(FrequenciesSet* pabsfreq, int num);
 
   IndependentWordFrequenciesSet(const IndependentWordFrequenciesSet&);
 
@@ -607,7 +593,7 @@ public:
    *@ brief Return the n-th AbstractFrequenciesSet* 
    **/
   
-  FrequenciesSet* getNFrequencies(int n){ return _VFreq[n];}
+  FrequenciesSet* getNFrequencies(int n){ return vFreq_[n]; }
   
 public:
 
@@ -622,13 +608,12 @@ public:
    * When there is a unique letter frequencies set, the frequencies of
    * each letter is the average of the frequencies of that letter at
    * all positions.
-   **/
-  
-  void setFrequencies(const vector<double> & frequencies) throw (DimensionException, Exception);
+   */
+  void setFrequencies(const std::vector<double>& frequencies) throw (DimensionException, Exception);
 
-  void setNamespace(const string&);
+  void setNamespace(const std::string&);
 
-  string getName() const;
+  std::string getName() const;
 
 };
 

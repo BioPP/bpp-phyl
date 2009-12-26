@@ -66,17 +66,17 @@ class BranchLikelihood :
   public AbstractParametrizable
 {
   protected:
-    const VVVdouble *_array1, *_array2;
+    const VVVdouble* _array1, * _array2;
     VVVdouble _arrayTmp;
-    const SubstitutionModel * _model;
-    const DiscreteDistribution * _rDist;
+    const SubstitutionModel* _model;
+    const DiscreteDistribution* _rDist;
     unsigned int nbStates_, nbClasses_;
     VVVdouble pxy_;
     double _lnL;
-    vector<unsigned int> _weights;
+    std::vector<unsigned int> _weights;
 
   public:
-    BranchLikelihood(const vector<unsigned int> & weights) :
+    BranchLikelihood(const std::vector<unsigned int>& weights) :
       AbstractParametrizable(""),
       _array1(0), _array2(0), _arrayTmp(),
       _model(0), _rDist(0),
@@ -149,7 +149,7 @@ class NNIHomogeneousTreeLikelihood:
     /**
      * @brief Hash used for backing up branch lengths when testing NNIs.
      */
-    mutable map<int, double> brLenNNIValues_;
+    mutable std::map<int, double> brLenNNIValues_;
 
     ParameterList brLenNNIParams_;
     

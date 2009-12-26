@@ -92,12 +92,12 @@ class PGMA:
 		bool isWeighted() const { return _weighted; }
 	
 	protected:
-		vector<unsigned int> getBestPair() throw (Exception);
-		vector<double> computeBranchLengthsForPair(const vector<unsigned int> & pair);
-		double computeDistancesFromPair(const vector<unsigned int> & pair, const vector<double> & branchLengths, unsigned int pos);
+    std::vector<unsigned int> getBestPair() throw (Exception);
+    std::vector<double> computeBranchLengthsForPair(const std::vector<unsigned int>& pair);
+		double computeDistancesFromPair(const std::vector<unsigned int>& pair, const std::vector<double>& branchLengths, unsigned int pos);
 		void finalStep(int idRoot);	
-		virtual Node * getLeafNode(int id, const string & name);
-		virtual Node * getParentNode(int id, Node * son1, Node * son2);
+		virtual Node* getLeafNode(int id, const std::string& name);
+		virtual Node* getParentNode(int id, Node* son1, Node* son2);
 
 };
 

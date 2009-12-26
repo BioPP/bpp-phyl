@@ -67,7 +67,7 @@ class PhylogramPlot:
     PhylogramPlot* clone() const { return new PhylogramPlot(*this); }
 
   public:
-    string getName() const { return "Phylogram"; }
+    std::string getName() const { return "Phylogram"; }
  
     void setTree(const Tree* tree = 0);
     

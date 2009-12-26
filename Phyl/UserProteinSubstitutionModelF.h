@@ -48,8 +48,6 @@ knowledge of the CeCILL license and that you accept its terms.
 // From the STL:
 #include <string>
 
-using namespace std;
-
 namespace bpp
 {
 
@@ -65,23 +63,18 @@ class UserProteinSubstitutionModelF:
   public ProteinSubstitutionModelWithFrequencies
 {
   protected:
-    const string _path;
+    const std::string path_;
   
   public:
-    UserProteinSubstitutionModelF(const ProteicAlphabet * alpha, const string & path, const string& prefix);
+    UserProteinSubstitutionModelF(const ProteicAlphabet* alpha, const std::string& path, const std::string& prefix);
 
     virtual ~UserProteinSubstitutionModelF() {}
 
-#ifndef NO_VIRTUAL_COV
-    UserProteinSubstitutionModelF*
-#else
-    Clonable*
-#endif
-    clone() const { return new UserProteinSubstitutionModelF(*this); }
+    UserProteinSubstitutionModelF* clone() const { return new UserProteinSubstitutionModelF(*this); }
       
   public:
-    string getName() const;
-    const string & getPath() const { return _path; }
+    std::string getName() const;
+    const std::string& getPath() const { return path_; }
 
   protected:
     void readFromFile();

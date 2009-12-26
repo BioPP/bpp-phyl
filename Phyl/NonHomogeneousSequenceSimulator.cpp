@@ -53,6 +53,7 @@ knowledge of the CeCILL license and that you accept its terms.
 #include <NumCalc/MatrixTools.h>
 
 using namespace bpp;
+using namespace std;
 
 /******************************************************************************/
 
@@ -99,16 +100,16 @@ void NonHomogeneousSequenceSimulator::init()
   _leaves   = _tree.getLeaves();
   _alphabet = _modelSet->getAlphabet();
   _seqNames.resize(_leaves.size());
-  for(unsigned int i = 0; i < _seqNames.size(); i++)
+  for (unsigned int i = 0; i < _seqNames.size(); i++)
     _seqNames[i] = _leaves[i]->getName();
   // Initialize cumulative pxy:
-  vector<SNode *> nodes = _tree.getNodes();
+  vector<SNode*> nodes = _tree.getNodes();
   nodes.pop_back(); //remove root
   _nbNodes = nodes.size();
   _nbClasses = _rate->getNumberOfCategories();
   _nbStates = _modelSet->getNumberOfStates();
   
-  for(unsigned int i = 0; i < nodes.size(); i++)
+  for (unsigned int i = 0; i < nodes.size(); i++)
   {
     SNode * node = nodes[i];
     node->getInfos().model = _modelSet->getModelForNode(node->getId());
@@ -143,7 +144,7 @@ Site* NonHomogeneousSequenceSimulator::simulate() const
   double r = RandomTools::giveRandomNumberBetweenZeroAndEntry(1.);
   double cumprob = 0;
   vector<double> freqs = _modelSet->getRootFrequencies();
-  for(unsigned int i = 0; i < _nbStates; i++)
+  for (unsigned int i = 0; i < _nbStates; i++)
   {
     cumprob += freqs[i];
     if(r <= cumprob)
@@ -224,7 +225,7 @@ Site* NonHomogeneousSequenceSimulator::simulate(double rate) const
   double r = RandomTools::giveRandomNumberBetweenZeroAndEntry(1.);
   double cumprob = 0;  
   vector<double> freqs = _modelSet->getRootFrequencies();
-  for(unsigned int i = 0; i < _nbStates; i++)
+  for (unsigned int i = 0; i < _nbStates; i++)
   {
     cumprob += freqs[i];
     if(r <= cumprob)
@@ -293,7 +294,7 @@ RASiteSimulationResult* NonHomogeneousSequenceSimulator::dSimulate() const
   double r = RandomTools::giveRandomNumberBetweenZeroAndEntry(1.);
   double cumprob = 0;  
   vector<double> freqs = _modelSet->getRootFrequencies();
-  for(unsigned int i = 0; i < _nbStates; i++)
+  for (unsigned int i = 0; i < _nbStates; i++)
   {
     cumprob += freqs[i];
     if(r <= cumprob)
@@ -349,8 +350,8 @@ RASiteSimulationResult* NonHomogeneousSequenceSimulator::dSimulate(double rate) 
   int initialState = 0;
   double r = RandomTools::giveRandomNumberBetweenZeroAndEntry(1.);
   double cumprob = 0;
-  vector <double> freqs =  _modelSet->getRootFrequencies();
-  for(unsigned int i = 0; i < _nbStates; i++)
+  vector<double> freqs = _modelSet->getRootFrequencies();
+  for (unsigned int i = 0; i < _nbStates; i++)
   {
     cumprob += freqs[i];
     if(r <= cumprob)

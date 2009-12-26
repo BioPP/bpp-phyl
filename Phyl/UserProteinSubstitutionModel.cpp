@@ -59,9 +59,9 @@ using namespace std;
 
 /******************************************************************************/
 
-UserProteinSubstitutionModel::UserProteinSubstitutionModel(const ProteicAlphabet * alpha, const string & path, const string& prefix): 
+UserProteinSubstitutionModel::UserProteinSubstitutionModel(const ProteicAlphabet* alpha, const std::string& path, const std::string& prefix): 
 	ProteinSubstitutionModel(alpha, prefix),
-	_path(path)
+	path_(path)
 {
 	readFromFile();
 	updateMatrices();	
@@ -69,16 +69,16 @@ UserProteinSubstitutionModel::UserProteinSubstitutionModel(const ProteicAlphabet
 
 /******************************************************************************/
 
-string UserProteinSubstitutionModel::getName() const
+std::string UserProteinSubstitutionModel::getName() const
 {
-	return "User model from file '" + _path + "'";
+	return "User model from file '" + path_ + "'";
 }
 
 /******************************************************************************/
 
 void UserProteinSubstitutionModel::readFromFile()
 {
- 	ifstream in(_path.c_str(), ios::in);
+ 	ifstream in(path_.c_str(), ios::in);
 	//Read exchangeability matrix:
 	for(unsigned int i = 1; i < 20; i++) {
 		string line = FileTools::getNextLine(in);

@@ -52,14 +52,14 @@ using namespace bpp;
 NodeException::NodeException(const std::string& text, const Node* node) :
   Exception("NodeException: " + text + (node != 0 ? "(id:" + TextTools::toString(node->getId()) + ")" : "")),
   node_(node), nodeId_(node->getId()) {}
-NodeException::NodeException(const string& text, int nodeId) :
+NodeException::NodeException(const std::string& text, int nodeId) :
   Exception("NodeException: " + text + "(id:" + TextTools::toString(nodeId) + ")"),
   node_(0),
   nodeId_(nodeId) {}
 
 /******************************************************************************/
 
-NodeNotFoundException::NodeNotFoundException(const std::string& text, const string& id) :
+NodeNotFoundException::NodeNotFoundException(const std::string& text, const std::string& id) :
   Exception("NodeNotFoundException: " + text + "(" + id + ")"),
   id_(id) {}
 

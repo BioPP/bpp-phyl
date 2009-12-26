@@ -68,9 +68,9 @@ class AbstractTreeParsimonyData:
   public TreeParsimonyData
 {
 	protected:
-		vector<unsigned int> _rootPatternLinks;
-		vector<unsigned int> _rootWeights;
-		TreeTemplate<Node> * _tree;
+    std::vector<unsigned int> _rootPatternLinks;
+    std::vector<unsigned int> _rootWeights;
+		TreeTemplate<Node>* _tree;
     
   public:
     AbstractTreeParsimonyData(): _rootPatternLinks(), _rootWeights(), _tree(NULL) {}

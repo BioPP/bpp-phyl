@@ -104,7 +104,7 @@ class BipartitionList:
      * @param sorted Tells whether leave names should be alphabetically sorted (recommended)
      * @param index An output optional vector to keep trace of the nodes id underlying each bipartition.
      */
-    BipartitionList(const Tree & tr, bool sorted = true, vector<int> * index = NULL);
+    BipartitionList(const Tree& tr, bool sorted = true, std::vector<int>* index = 0);
 
     /**
      * @brief An alternative constructor in which elements and bipartitions are passed directly
@@ -112,17 +112,17 @@ class BipartitionList:
      * @param elements Leaf names
      * @param bipl The list of bit-encoded bipartitions
      */
-    BipartitionList(const vector<string> & elements, const vector<int*> & bipl);
+    BipartitionList(const std::vector<std::string>& elements, const std::vector<int*>& bipl);
 
     /**
      * @brief Copy-constructor
      */
-    BipartitionList(const BipartitionList & bipl);
+    BipartitionList(const BipartitionList& bipl);
 
     /**
      * @brief Assignment operator
      */
-    BipartitionList& operator=(const BipartitionList & bipl);
+    BipartitionList& operator=(const BipartitionList& bipl);
 
     virtual ~BipartitionList();
 
@@ -137,19 +137,19 @@ class BipartitionList:
 
     unsigned int getNumberOfElements() const { return elements_.size(); }
 
-    const vector<string>& getElementNames() const { return elements_; }
+    const std::vector<std::string>& getElementNames() const { return elements_; }
 
     unsigned int getNumberOfBipartitions() const { return bitBipartitionList_.size(); }
 
-    const vector<int*> & getBitBipartitionList() const { return bitBipartitionList_; }
+    const std::vector<int*> & getBitBipartitionList() const { return bitBipartitionList_; }
 
-    map<string, bool> getBipartition(unsigned int i) const throw (Exception);
+    std::map<std::string, bool> getBipartition(unsigned int i) const throw (Exception);
 
     int* getBitBipartition(unsigned int i) throw (Exception);
 
-    bool haveSameElementsThan(map<string, bool>& bipart) const;
+    bool haveSameElementsThan(std::map<std::string, bool>& bipart) const;
 
-    void addBipartition(map<string, bool>& bipart, bool checkElements = 1) throw(Exception);
+    void addBipartition(std::map<std::string, bool>& bipart, bool checkElements = 1) throw(Exception);
 
     void deleteBipartition(unsigned int i) throw(Exception);
 
@@ -157,7 +157,7 @@ class BipartitionList:
 
     void sortElements();
 
-    bool containsBipartition(map<string, bool>& bipart, bool checkElements = 1) const throw(Exception);
+    bool containsBipartition(std::map<std::string, bool>& bipart, bool checkElements = 1) const throw(Exception);
 
     bool areIdentical(unsigned int k1, unsigned int k2) const throw(Exception);
 
@@ -184,7 +184,7 @@ class BipartitionList:
      * @param bipart A map representing a bipartition.
      * @param checkElements Check the correspondance of element sets or not.
      */
-    bool areAllCompatibleWith(map<string, bool> & bipart, bool checkElements = true) const throw (Exception);
+    bool areAllCompatibleWith(std::map<std::string, bool>& bipart, bool checkElements = true) const throw (Exception);
 
     /**
      * @brief Removes bipartitions corresponding to external branches (1 vs n-1)
@@ -230,7 +230,7 @@ class BipartitionList:
 
   private:
 
-    vector<string> buildBitBipartitions(const Node* nd, vector<int*> & bitbip, const vector<string> & elements, unsigned int* cpt, vector<int> * index) const;
+    std::vector<std::string> buildBitBipartitions(const Node* nd, std::vector<int*>& bitbip, const std::vector<std::string> & elements, unsigned int* cpt, std::vector<int>* index) const;
 
 };
 

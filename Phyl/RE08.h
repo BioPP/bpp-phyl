@@ -43,8 +43,6 @@ knowledge of the CeCILL license and that you accept its terms.
 #include "SubstitutionModel.h"
 #include "AbstractSubstitutionModel.h"
 
-using namespace std;
-
 namespace bpp
 {
 
@@ -106,7 +104,7 @@ class RE08:
     mutable RowMatrix<double> p_;
     double lambda_;
     double mu_;
-    string nestedPrefix_;
+    std::string nestedPrefix_;
 
 	public:
     /**
@@ -162,7 +160,7 @@ class RE08:
 		const Matrix<double>& getdPij_dt  (double d) const;
 		const Matrix<double>& getd2Pij_dt2(double d) const;
 
-		string getName() const { return "RE08"; }
+    std::string getName() const { return "RE08"; }
 
     /**
      * @brief This method is forwarded to the simple model.
@@ -184,7 +182,7 @@ class RE08:
 
     double getInitValue(unsigned int i, int state) const throw (BadIntException);
   
-    void setNamespace(const string& prefix);
+    void setNamespace(const std::string& prefix);
 
     const SubstitutionModel* getNestedModel() const { return simpleModel_; }
 

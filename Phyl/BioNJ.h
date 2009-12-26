@@ -92,7 +92,7 @@ public:
 		_variance = matrix;
 	}
 	virtual void computeTree(bool rooted) throw (Exception);
-	virtual double computeDistancesFromPair(const vector<unsigned int> & pair, const vector<double> & branchLengths, unsigned int pos);
+	virtual double computeDistancesFromPair(const std::vector<unsigned int>& pair, const std::vector<double>& branchLengths, unsigned int pos);
   
 };
 

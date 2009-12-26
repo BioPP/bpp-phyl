@@ -66,7 +66,7 @@ class ProteinSubstitutionModelWithFrequencies:
      * @param freqSet The frequencies set object to use.
      * @param prefix The namespace to use for parameter names.
      */
-		ProteinSubstitutionModelWithFrequencies(const ProteicAlphabet* alpha, const ProteinFrequenciesSet& freqSet, const string& prefix) :
+		ProteinSubstitutionModelWithFrequencies(const ProteicAlphabet* alpha, const ProteinFrequenciesSet& freqSet, const std::string& prefix) :
       ProteinSubstitutionModel(alpha, prefix), freqSet_(dynamic_cast<ProteinFrequenciesSet *>(freqSet.clone()))
     {
       freq_ = freqSet_->getFrequencies();
@@ -80,7 +80,7 @@ class ProteinSubstitutionModelWithFrequencies:
      * @param alpha The alphabet to use.
      * @param prefix The namespace to use for parameter names.
      */
-    ProteinSubstitutionModelWithFrequencies(const ProteicAlphabet* alpha, const string& prefix):
+    ProteinSubstitutionModelWithFrequencies(const ProteicAlphabet* alpha, const std::string& prefix):
       ProteinSubstitutionModel(alpha, prefix)
     {
       freqSet_ = new FullProteinFrequenciesSet(alpha);
@@ -130,15 +130,15 @@ class ProteinSubstitutionModelWithFrequencies:
       addParameters_(freqSet_->getParameters());
     }
 
-    const ProteinFrequenciesSet & getFrequenciesSet() const { return *freqSet_; }
+    const ProteinFrequenciesSet& getFrequenciesSet() const { return *freqSet_; }
 
-    void setFreqFromData(const SequenceContainer & data)
+    void setFreqFromData(const SequenceContainer& data)
     {
-      map<int, double> freqs;
+      std::map<int, double> freqs;
       SequenceContainerTools::getFrequencies(data, freqs);
       double t = 0;
-      for(unsigned int i = 0; i < size_; i++) t += freqs[i];
-      for(unsigned int i = 0; i < size_; i++) freq_[i] = freqs[i] / t;
+      for (unsigned int i = 0; i < size_; i++) t += freqs[i];
+      for (unsigned int i = 0; i < size_; i++) freq_[i] = freqs[i] / t;
       freqSet_->setFrequencies(freq_);
       //Update parametrers and re-compute generator and eigen values:
       matchParametersValues(freqSet_->getParameters());

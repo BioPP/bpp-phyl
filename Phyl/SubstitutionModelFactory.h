@@ -51,8 +51,6 @@ knowledge of the CeCILL license and that you accept its terms.
 // From the STL:
 #include <string>
 
-using namespace std;
-
 namespace bpp
 {
 
@@ -62,18 +60,18 @@ namespace bpp
 class SubstitutionModelFactory
 {
   public:
-    static const string JUKES_CANTOR;
-    static const string KIMURA_2P;
-    static const string HASEGAWA_KISHINO_YANO;
-    static const string TAMURA_NEI;
-    static const string GENERAL_TIME_REVERSIBLE;
-    static const string TAMURA;
-    static const string FELSENSTEIN84;
-    static const string JOHN_TAYLOR_THORNTON;
-    static const string DAYHOFF_SCHWARTZ_ORCUTT;
+    static const std::string JUKES_CANTOR;
+    static const std::string KIMURA_2P;
+    static const std::string HASEGAWA_KISHINO_YANO;
+    static const std::string TAMURA_NEI;
+    static const std::string GENERAL_TIME_REVERSIBLE;
+    static const std::string TAMURA;
+    static const std::string FELSENSTEIN84;
+    static const std::string JOHN_TAYLOR_THORNTON;
+    static const std::string DAYHOFF_SCHWARTZ_ORCUTT;
   
-  protected:
-    const Alphabet * _alphabet;
+  private:
+    const Alphabet* alphabet_;
   
   public:
     /**
@@ -89,7 +87,7 @@ class SubstitutionModelFactory
      * // model can be used in any object dealing with a nucleotide substitution models.
      * @endcode
      */
-    SubstitutionModelFactory(const Alphabet * alphabet): _alphabet(alphabet) {}
+    SubstitutionModelFactory(const Alphabet* alphabet): alphabet_(alphabet) {}
     virtual ~SubstitutionModelFactory() {}
 
   public:
@@ -101,7 +99,7 @@ class SubstitutionModelFactory
      * @throw AlphabetException If the model is not compatible with the given alphabet.
      * @throw Exception If the model name do not match any available model.
      */
-    virtual SubstitutionModel * createModel(const string& modelName) const throw (AlphabetException, Exception);
+    virtual SubstitutionModel* createModel(const std::string& modelName) const throw (AlphabetException, Exception);
 
 };
 

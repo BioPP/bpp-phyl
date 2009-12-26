@@ -128,8 +128,8 @@ class Newick:
 		 *
 		 * @{
 		 */
-		const string getFormatName() const;
-		const string getFormatDescription() const;
+		const std::string getFormatName() const;
+		const std::string getFormatDescription() const;
 		/* @} */
 
 		/**
@@ -178,11 +178,11 @@ class Newick:
 		 *
 		 * @{
 		 */
-		void write(const std::vector<Tree*>& trees, const string& path, bool overwrite = true) const throw (Exception)
+		void write(const std::vector<Tree*>& trees, const std::string& path, bool overwrite = true) const throw (Exception)
 		{
 			AbstractOMultiTree::write(trees, path, overwrite);
 		}
-		void write(const std::vector<Tree*>& trees, ostream& out) const throw (Exception)
+		void write(const std::vector<Tree*>& trees, std::ostream& out) const throw (Exception)
     {
       write_(trees, out);
     }
@@ -194,10 +194,10 @@ class Newick:
     template<class N>
     void write_(const TreeTemplate<N>& tree, std::ostream& out) const throw (Exception);
 		
-    void write_(const std::vector<Tree*>& trees, ostream& out) const throw (Exception);
+    void write_(const std::vector<Tree*>& trees, std::ostream& out) const throw (Exception);
     
     template<class N>
-    void write_(const std::vector<TreeTemplate<N>*>& trees, ostream& out) const throw (Exception);
+    void write_(const std::vector<TreeTemplate<N>*>& trees, std::ostream& out) const throw (Exception);
 
 };
 

@@ -154,21 +154,21 @@ void DRASRTreeLikelihoodData::initLikelihoods(const Node * node, const SiteConta
           (* _likelihoods_node_i_c)[s] = model.getInitValue(s, state);
           test += (* _likelihoods_node_i_c)[s];
         }
-        if(test < 0.000001) cerr << "WARNING!!! Likelihood will be 0 for this site." << endl;
+        if (test < 0.000001) std::cerr << "WARNING!!! Likelihood will be 0 for this site." << std::endl;
       }
     }
   }
   else
   {
     //'node' is an internal node.
-    map<int, vector<unsigned int> > * _patternLinks_node = & _patternLinks[node->getId()];
+    std::map<int, std::vector<unsigned int> >* _patternLinks_node = &_patternLinks[node->getId()];
     unsigned int nbSonNodes = node->getNumberOfSons();
-    for(unsigned int l = 0; l < nbSonNodes; l++)
+    for (unsigned int l = 0; l < nbSonNodes; l++)
     {
       //For each son node,
       const Node * son = (* node)[l];
       initLikelihoods(son, sequences, model);
-      vector<unsigned int> * _patternLinks_node_son = & (* _patternLinks_node)[son->getId()];
+      std::vector<unsigned int>* _patternLinks_node_son = &(*_patternLinks_node)[son->getId()];
 
       //Init map:
       _patternLinks_node_son->resize(_nbDistinctSites);
@@ -255,23 +255,23 @@ SitePatterns * DRASRTreeLikelihoodData::initLikelihoodsWithPatterns(const Node *
           (* _likelihoods_node_i_c)[s] = model.getInitValue(s, state);
           test += (* _likelihoods_node_i_c)[s];
         }
-        if(test < 0.000001) cerr << "WARNING!!! Likelihood will be 0 for this site." << endl;
+        if (test < 0.000001) std::cerr << "WARNING!!! Likelihood will be 0 for this site." << std::endl;
       }
     }
   }
   else
   {
     //'node' is an internal node.
-    map<int, vector<unsigned int> > * _patternLinks_node = & _patternLinks[node->getId()];
+    std::map<int, std::vector<unsigned int> >* _patternLinks_node = &_patternLinks[node->getId()];
     
     //Now initialize pattern links:
     unsigned int nbSonNodes = node->getNumberOfSons();
-    for(unsigned int l = 0; l < nbSonNodes; l++)
+    for (unsigned int l = 0; l < nbSonNodes; l++)
     {
       //For each son node,
       const Node * son = (* node)[l];
 
-      vector<unsigned int> * _patternLinks_node_son = & (* _patternLinks_node)[son->getId()];
+      std::vector<unsigned int>* _patternLinks_node_son = &(*_patternLinks_node)[son->getId()];
       
       //Initialize subtree 'l' and retrieves corresponding subSequences:
       SitePatterns * subPatterns = initLikelihoodsWithPatterns(son, *subSequences, model);

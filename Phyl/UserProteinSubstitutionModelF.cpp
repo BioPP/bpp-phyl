@@ -62,7 +62,7 @@ using namespace std;
 UserProteinSubstitutionModelF::UserProteinSubstitutionModelF(const ProteicAlphabet * alpha, const string & path, const string& prefix): 
 	ProteinSubstitutionModel(alpha, prefix),
 	ProteinSubstitutionModelWithFrequencies(alpha, prefix),
-	_path(path)
+	path_(path)
 {
 	readFromFile();
   freqSet_->setFrequencies(freq_);
@@ -73,13 +73,13 @@ UserProteinSubstitutionModelF::UserProteinSubstitutionModelF(const ProteicAlphab
 
 string UserProteinSubstitutionModelF::getName() const
 {
-	return "User model from file '" + _path + " (+F)'";
+	return "User model from file '" + path_ + " (+F)'";
 }
 
 /******************************************************************************/
 void UserProteinSubstitutionModelF::readFromFile()
 {
- 	ifstream in(_path.c_str(), ios::in);
+ 	ifstream in(path_.c_str(), ios::in);
 	//Read exchangeability matrix:
 	for(unsigned int i = 1; i < 20; i++) {
 		string line = FileTools::getNextLine(in);

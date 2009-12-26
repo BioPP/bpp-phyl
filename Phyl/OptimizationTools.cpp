@@ -60,6 +60,7 @@ knowledge of the CeCILL license and that you accept its terms.
 #include <NumCalc/TwoPointsNumericalDerivative.h>
 
 using namespace bpp;
+using namespace std;
 
 /******************************************************************************/
 
@@ -69,12 +70,12 @@ OptimizationTools::~OptimizationTools() {}
  
 /******************************************************************************/
 
-string OptimizationTools::OPTIMIZATION_NEWTON = "newton";
-string OptimizationTools::OPTIMIZATION_GRADIENT = "gradient";
+std::string OptimizationTools::OPTIMIZATION_NEWTON = "newton";
+std::string OptimizationTools::OPTIMIZATION_GRADIENT = "gradient";
 
 /******************************************************************************/
 
-OptimizationTools::ScaleFunction::ScaleFunction(TreeLikelihood * tl): _tl(tl)
+OptimizationTools::ScaleFunction::ScaleFunction(TreeLikelihood* tl): _tl(tl)
 {
   // We work only on the branch lengths:
   _brLen = tl->getBranchLengthsParameters();
@@ -83,7 +84,7 @@ OptimizationTools::ScaleFunction::ScaleFunction(TreeLikelihood * tl): _tl(tl)
   
 OptimizationTools::ScaleFunction::~ScaleFunction() {}
 
-void OptimizationTools::ScaleFunction::setParameters(const ParameterList & lambda)
+void OptimizationTools::ScaleFunction::setParameters(const ParameterList& lambda)
 throw (ParameterNotFoundException, ConstraintException)
 {
   if(lambda.size() != 1) throw Exception("OptimizationTools::ScaleFunction::f(). This is a one parameter function!");
@@ -105,13 +106,13 @@ throw (ParameterException)
 /******************************************************************************/
 
 unsigned int OptimizationTools::optimizeTreeScale(
-  TreeLikelihood * tl,
+  TreeLikelihood* tl,
   double tolerance,
   int tlEvalMax,
-  ostream * messageHandler,
-  ostream * profiler,
-  unsigned int verbose
-  )  throw (Exception)
+  std::ostream* messageHandler,
+  std::ostream* profiler,
+  unsigned int verbose)
+throw (Exception)
 {
   ScaleFunction sf(tl);
   BrentOneDimension bod(&sf);
@@ -132,17 +133,17 @@ unsigned int OptimizationTools::optimizeTreeScale(
 /******************************************************************************/
 
 unsigned int OptimizationTools::optimizeNumericalParameters(
-  DiscreteRatesAcrossSitesTreeLikelihood * tl,
+  DiscreteRatesAcrossSitesTreeLikelihood* tl,
   const ParameterList& parameters,
-  OptimizationListener * listener,
+  OptimizationListener* listener,
   unsigned int nstep,
   double tolerance,
   unsigned int tlEvalMax,
-  ostream * messageHandler,
-  ostream * profiler,
+  std::ostream* messageHandler,
+  std::ostream* profiler,
   unsigned int verbose,
-  const string & optMethod
-  )  throw (Exception)
+  const std::string& optMethod)
+throw (Exception)
 {
   // Build optimizer:
   MetaOptimizerInfos * desc = new MetaOptimizerInfos();
@@ -180,16 +181,16 @@ unsigned int OptimizationTools::optimizeNumericalParameters(
 /******************************************************************************/
 
 unsigned int OptimizationTools::optimizeNumericalParameters2(
-  DiscreteRatesAcrossSitesTreeLikelihood * tl,
+  DiscreteRatesAcrossSitesTreeLikelihood* tl,
   const ParameterList& parameters,
-  OptimizationListener * listener,
+  OptimizationListener* listener,
   double tolerance,
   unsigned int tlEvalMax,
-  ostream * messageHandler,
-  ostream * profiler,
+  std::ostream* messageHandler,
+  std::ostream* profiler,
   unsigned int verbose,
-  const string & optMethod
-  )  throw (Exception)
+  const std::string& optMethod)
+throw (Exception)
 {
   AbstractNumericalDerivative * fun = NULL;
   // Build optimizer:
@@ -239,16 +240,16 @@ unsigned int OptimizationTools::optimizeNumericalParameters2(
 /******************************************************************************/
 
 unsigned int OptimizationTools::optimizeBranchLengthsParameters(
-  DiscreteRatesAcrossSitesTreeLikelihood * tl,
+  DiscreteRatesAcrossSitesTreeLikelihood* tl,
   const ParameterList& parameters,
-  OptimizationListener * listener,
+  OptimizationListener* listener,
   double tolerance,
   unsigned int tlEvalMax,
-  ostream * messageHandler,
-  ostream * profiler,
+  std::ostream* messageHandler,
+  std::ostream* profiler,
   unsigned int verbose,
-  const string & optMethod
-  ) throw (Exception)
+  const std::string& optMethod)
+throw (Exception)
 {
   // Build optimizer:
   Optimizer * optimizer = NULL;
@@ -280,17 +281,17 @@ unsigned int OptimizationTools::optimizeBranchLengthsParameters(
 /******************************************************************************/
 
 unsigned int OptimizationTools::optimizeNumericalParametersWithGlobalClock(
-  DiscreteRatesAcrossSitesClockTreeLikelihood * cl,
+  DiscreteRatesAcrossSitesClockTreeLikelihood* cl,
   const ParameterList& parameters,
-  OptimizationListener * listener,
+  OptimizationListener* listener,
   unsigned int nstep,
   double tolerance,
   unsigned int tlEvalMax,
-  ostream * messageHandler,
-  ostream * profiler,
+  std::ostream* messageHandler,
+  std::ostream* profiler,
   unsigned int verbose,
-  const string & optMethod
-  )  throw (Exception)
+  const std::string& optMethod)
+throw (Exception)
 {
   AbstractNumericalDerivative * fun = NULL;
 
@@ -347,16 +348,16 @@ unsigned int OptimizationTools::optimizeNumericalParametersWithGlobalClock(
 /******************************************************************************/
 
 unsigned int OptimizationTools::optimizeNumericalParametersWithGlobalClock2(
-  DiscreteRatesAcrossSitesClockTreeLikelihood * cl,
+  DiscreteRatesAcrossSitesClockTreeLikelihood* cl,
   const ParameterList& parameters,
-  OptimizationListener * listener,
+  OptimizationListener* listener,
   double tolerance,
   unsigned int tlEvalMax,
-  ostream * messageHandler,
-  ostream * profiler,
+  std::ostream* messageHandler,
+  std::ostream* profiler,
   unsigned int verbose,
-  const string & optMethod
-  ) throw (Exception)
+  const std::string& optMethod)
+throw (Exception)
 {
   AbstractNumericalDerivative * fun = NULL;
 
@@ -403,12 +404,12 @@ unsigned int OptimizationTools::optimizeNumericalParametersWithGlobalClock2(
 
 /******************************************************************************/  
 
-void NNITopologyListener::topologyChangeSuccessful(const TopologyChangeEvent & event)
+void NNITopologyListener::topologyChangeSuccessful(const TopologyChangeEvent& event)
 {
   _optimizeCounter++;
-  if(_optimizeCounter == _optimizeNumerical)
+  if (_optimizeCounter == _optimizeNumerical)
   {
-    DiscreteRatesAcrossSitesTreeLikelihood * likelihood = dynamic_cast<DiscreteRatesAcrossSitesTreeLikelihood *>(_topoSearch->getSearchableObject());
+    DiscreteRatesAcrossSitesTreeLikelihood* likelihood = dynamic_cast<DiscreteRatesAcrossSitesTreeLikelihood *>(_topoSearch->getSearchableObject());
     parameters_.matchParametersValues(likelihood->getParameters());
     OptimizationTools::optimizeNumericalParameters(likelihood, parameters_, NULL, _nStep, _tolerance, 1000000, _messenger, _profiler, _verbose, _optMethod);
     _optimizeCounter = 0;
@@ -431,20 +432,20 @@ void NNITopologyListener2::topologyChangeSuccessful(const TopologyChangeEvent & 
 
 //******************************************************************************/  
 
-NNIHomogeneousTreeLikelihood * OptimizationTools::optimizeTreeNNI(
-    NNIHomogeneousTreeLikelihood * tl,
+NNIHomogeneousTreeLikelihood* OptimizationTools::optimizeTreeNNI(
+    NNIHomogeneousTreeLikelihood* tl,
     const ParameterList& parameters,
     bool optimizeNumFirst,
     double tolBefore,
     double tolDuring,
     int tlEvalMax,
     unsigned int numStep,
-    ostream * messageHandler,
-    ostream * profiler,
+    std::ostream* messageHandler,
+    std::ostream* profiler,
     unsigned int verbose,
-    const string & optMethod,
+    const std::string& optMethod,
     unsigned int nStep,
-    const string & nniMethod)
+    const std::string& nniMethod)
   throw (Exception)
 {
   //Roughly optimize parameter
@@ -464,19 +465,19 @@ NNIHomogeneousTreeLikelihood * OptimizationTools::optimizeTreeNNI(
 
 /******************************************************************************/  
 
-NNIHomogeneousTreeLikelihood * OptimizationTools::optimizeTreeNNI2(
-    NNIHomogeneousTreeLikelihood * tl,
+NNIHomogeneousTreeLikelihood* OptimizationTools::optimizeTreeNNI2(
+    NNIHomogeneousTreeLikelihood* tl,
     const ParameterList& parameters,
     bool optimizeNumFirst,
     double tolBefore,
     double tolDuring,
     int tlEvalMax,
     unsigned int numStep,
-    ostream * messageHandler,
-    ostream * profiler,
+    std::ostream* messageHandler,
+    std::ostream* profiler,
     unsigned int verbose,
-    const string & optMethod,
-    const string & nniMethod)
+    const std::string& optMethod,
+    const std::string& nniMethod)
   throw (Exception)
 {
   //Roughly optimize parameter
@@ -496,8 +497,8 @@ NNIHomogeneousTreeLikelihood * OptimizationTools::optimizeTreeNNI2(
 
 /******************************************************************************/  
 
-DRTreeParsimonyScore * OptimizationTools::optimizeTreeNNI(
-        DRTreeParsimonyScore * tp,
+DRTreeParsimonyScore* OptimizationTools::optimizeTreeNNI(
+        DRTreeParsimonyScore* tp,
         unsigned int verbose)  
 {
   NNISearchable *topo = dynamic_cast<NNISearchable *>(tp);
@@ -508,23 +509,23 @@ DRTreeParsimonyScore * OptimizationTools::optimizeTreeNNI(
 
 /******************************************************************************/  
 
-string OptimizationTools::DISTANCEMETHOD_INIT       = "init";
-string OptimizationTools::DISTANCEMETHOD_PAIRWISE   = "pairwise";
-string OptimizationTools::DISTANCEMETHOD_ITERATIONS = "iterations";
+std::string OptimizationTools::DISTANCEMETHOD_INIT       = "init";
+std::string OptimizationTools::DISTANCEMETHOD_PAIRWISE   = "pairwise";
+std::string OptimizationTools::DISTANCEMETHOD_ITERATIONS = "iterations";
 
 /******************************************************************************/  
 
-TreeTemplate<Node> * OptimizationTools::buildDistanceTree(
-    DistanceEstimation & estimationMethod,
-    AgglomerativeDistanceMethod & reconstructionMethod,
-    const ParameterList & parametersToIgnore,
+TreeTemplate<Node>* OptimizationTools::buildDistanceTree(
+    DistanceEstimation& estimationMethod,
+    AgglomerativeDistanceMethod& reconstructionMethod,
+    const ParameterList& parametersToIgnore,
     bool optimizeBrLen,
     bool rooted,
-    const string & param,
+    const std::string& param,
     double tolerance,
     unsigned int tlEvalMax,
-    ostream * profiler,
-    ostream * messenger,
+    std::ostream* profiler,
+    std::ostream* messenger,
     unsigned int verbose) throw (Exception)
 {
   estimationMethod.resetAdditionalParameters();
@@ -572,7 +573,7 @@ TreeTemplate<Node> * OptimizationTools::buildDistanceTree(
     DRHomogeneousTreeLikelihood tl(*tree, *estimationMethod.getData(), estimationMethod.getModel(), estimationMethod.getRateDistribution(), true, verbose > 1);
     tl.initialize();
     ParameterList parameters = tl.getParameters();
-    if(!optimizeBrLen)
+    if (!optimizeBrLen)
     {
       vector<string> vs = tl.getBranchLengthsParameters().getParameterNames();
       parameters.deleteParameters(vs);

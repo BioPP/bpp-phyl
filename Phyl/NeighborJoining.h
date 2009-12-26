@@ -56,7 +56,7 @@ class NeighborJoining :
   public AbstractAgglomerativeDistanceMethod
 {
 	protected:
-		vector<double> _sumDist;
+    std::vector<double> _sumDist;
     bool _positiveLengths;
 		
 	public:
@@ -89,10 +89,10 @@ class NeighborJoining :
     virtual void outputPositiveLengths(bool yn) { _positiveLengths = yn; }
 	
 	protected:
-		virtual vector<unsigned int> getBestPair() throw (Exception);
-		virtual vector<double> computeBranchLengthsForPair(const vector<unsigned int> & pair);
-		virtual double computeDistancesFromPair(const vector<unsigned int> & pair, const vector<double> & branchLengths, unsigned int pos);
-		virtual void finalStep(int idRoot);	
+		std::vector<unsigned int> getBestPair() throw (Exception);
+		std::vector<double> computeBranchLengthsForPair(const std::vector<unsigned int>& pair);
+		double computeDistancesFromPair(const std::vector<unsigned int>& pair, const std::vector<double>& branchLengths, unsigned int pos);
+		void finalStep(int idRoot);	
 
 };
 

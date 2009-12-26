@@ -70,7 +70,7 @@ class CladogramPlot:
     CladogramPlot* clone() const { return new CladogramPlot(*this); }
 
   public:
-    string getName() const { return "Cladogram"; }
+    std::string getName() const { return "Cladogram"; }
     
     void setTree(const Tree* tree = 0);
 

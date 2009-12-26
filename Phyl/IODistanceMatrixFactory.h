@@ -45,8 +45,6 @@ knowledge of the CeCILL license and that you accept its terms.
 //From the STL:
 #include <string>
 
-using namespace std;
-
 namespace bpp
 {
 
@@ -59,7 +57,7 @@ namespace bpp
 class IODistanceMatrixFactory
 {
 public:
-  static const string PHYLIP_FORMAT;  
+  static const std::string PHYLIP_FORMAT;  
 
 public:
 
@@ -83,7 +81,7 @@ public:
    * @return A pointer toward a new IDistanceMatrix object.
    * @throw Exception If the format name do not match any available format.
    */
-  virtual IDistanceMatrix * createReader(const string & format) throw (Exception);
+  virtual IDistanceMatrix* createReader(const std::string& format) throw (Exception);
   
   /**
    * @brief Get a new dynamically created ODistanceMatrix object.
@@ -92,7 +90,7 @@ public:
    * @return A pointer toward a new ODistanceMatrix object.
    * @throw Exception If the format name do not match any available format.
    */
-  virtual ODistanceMatrix * createWriter(const string & format) throw (Exception);
+  virtual ODistanceMatrix * createWriter(const std::string& format) throw (Exception);
 };
 
 } //end of namespace bpp.

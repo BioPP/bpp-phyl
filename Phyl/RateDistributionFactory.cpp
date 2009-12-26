@@ -41,6 +41,7 @@ knowledge of the CeCILL license and that you accept its terms.
 #include "RateDistributionFactory.h"
 
 using namespace bpp;
+using namespace std;
 
 const string RateDistributionFactory::CONSTANT_DISTRIBUTION = "Constant";
 const string RateDistributionFactory::GAMMA_DISTRIBUTION = "Gamma";

@@ -88,7 +88,7 @@ class TreeTools
      * @return A vector with the ids of all leaves in the subtree.
      * @throw NodeNotFoundException If the node is not found.
      */
-    static vector<int> getLeavesId(const Tree & tree, int nodeId) throw (NodeNotFoundException);
+    static std::vector<int> getLeavesId(const Tree& tree, int nodeId) throw (NodeNotFoundException);
 
     /**
      * @brief Retrieve all leaves from a subtree.
@@ -98,7 +98,7 @@ class TreeTools
      * @param leaves A vector with the ids of all leaves in the subtree.
      * @throw NodeNotFoundException If the node is not found.
      */
-    static void getLeavesId(const Tree & tree, int nodeId, vector<int> & leaves) throw (NodeNotFoundException);
+    static void getLeavesId(const Tree& tree, int nodeId, std::vector<int>& leaves) throw (NodeNotFoundException);
  
     /**
      * @brief Get the id of a leaf given its name in a subtree.
@@ -109,7 +109,7 @@ class TreeTools
      * @return The id of the node.
      * @throw NodeNotFoundException If the node is not found.
      */
-    static int getLeafId(const Tree & tree, int nodeId, const string & name) throw (NodeNotFoundException);
+    static int getLeafId(const Tree& tree, int nodeId, const std::string& name) throw (NodeNotFoundException);
 
     /**
      * @brief Get the id of a leaf given its name in a subtree.
@@ -120,7 +120,7 @@ class TreeTools
      * @param id The id of the node.
      * @throw NodeNotFoundException If the node is not found.
      */
-    static void searchLeaf(const Tree & tree, int nodeId, const string & name, int * & id) throw (NodeNotFoundException);
+    static void searchLeaf(const Tree& tree, int nodeId, const std::string& name, int*& id) throw (NodeNotFoundException);
 
     /**
      * @brief Get a vector of ancestor nodes between to nodes.
@@ -132,7 +132,7 @@ class TreeTools
      * @return A vector of ancestor nodes ids.
      * @throw NodeNotFoundException If the node is not found.
      */
-    static vector<int> getPathBetweenAnyTwoNodes(const Tree & tree, int nodeId1, int nodeId2, bool includeAncestor = true) throw (NodeNotFoundException);
+    static std::vector<int> getPathBetweenAnyTwoNodes(const Tree& tree, int nodeId1, int nodeId2, bool includeAncestor = true) throw (NodeNotFoundException);
  
     /**
      * @brief Get a list of all ids of parents nodes, from the current node (not included) to the root of the tree.
@@ -142,7 +142,7 @@ class TreeTools
      * @return The list of ancestors ids.
      * @throw NodeNotFoundException If the node is not found.
      */
-    static vector<int> getAncestors(const Tree & tree, int nodeId) throw (NodeNotFoundException);
+    static std::vector<int> getAncestors(const Tree& tree, int nodeId) throw (NodeNotFoundException);
 
     /**
      * @brief Get the id of the last common ancestors of all specified nodes.
@@ -154,7 +154,7 @@ class TreeTools
      * @param nodeIds The ids of the input nodes.
      * @throw NodeNotFoundException If at least of of input node is not found.
      */
-    static int getLastCommonAncestor(const Tree & tree, const vector<int>& nodeIds) throw (NodeNotFoundException, Exception);
+    static int getLastCommonAncestor(const Tree& tree, const std::vector<int>& nodeIds) throw (NodeNotFoundException, Exception);
 
     /**
      * @brief Get the depth of the subtree defined by node 'node', i.e. the maximum
@@ -177,7 +177,7 @@ class TreeTools
      * @return The depth of the subtree.
      * @throw NodeNotFoundException If the node is not found.
      */
-    static unsigned int getDepth(const Tree & tree, int nodeId) throw (NodeNotFoundException);
+    static unsigned int getDepth(const Tree& tree, int nodeId) throw (NodeNotFoundException);
 
     /**
      * @brief Get the height of the subtree defined by node 'node', i.e. the maximum
@@ -192,7 +192,7 @@ class TreeTools
      * @throw NodeNotFoundException If the node is not found.
      * @throw NodeException If a branch length is lacking.
      */ 
-    static double getHeight(const Tree & tree, int nodeId) throw (NodeNotFoundException,NodeException);
+    static double getHeight(const Tree& tree, int nodeId) throw (NodeNotFoundException,NodeException);
     /** @} */
 
     /**
@@ -210,7 +210,7 @@ class TreeTools
      * @throw NodeNotFoundException If the node is not found.
      * @throw NodeException If a branch length is lacking.
      */
-    static Vdouble getBranchLengths(const Tree & tree, int nodeId) throw (NodeNotFoundException,NodeException);
+    static Vdouble getBranchLengths(const Tree& tree, int nodeId) throw (NodeNotFoundException,NodeException);
     
     /**
      * @brief Get the total length (sum of all branch lengths) of a subtree.
@@ -223,7 +223,7 @@ class TreeTools
      * @throw NodeNotFoundException If the node is not found.
      * @throw NodeException If a branch length is lacking.
      */
-    static double getTotalLength(const Tree & tree, int nodeId, bool includeAncestor = true) throw (NodeNotFoundException,NodeException);
+    static double getTotalLength(const Tree& tree, int nodeId, bool includeAncestor = true) throw (NodeNotFoundException,NodeException);
 
     /**
      * @brief Set all the branch lengths of a subtree.
@@ -233,7 +233,7 @@ class TreeTools
      * @param brLen The branch length to apply.
      * @throw NodeNotFoundException If the node is not found.
      */
-    static void setBranchLengths(Tree & tree, int nodeId, double brLen) throw (NodeNotFoundException);
+    static void setBranchLengths(Tree& tree, int nodeId, double brLen) throw (NodeNotFoundException);
           
     /**
      * @brief Give a length to branches that don't have one in a subtree.
@@ -243,7 +243,7 @@ class TreeTools
      * @param brLen The branch length to apply.
      * @throw NodeNotFoundException If the node is not found.
      */
-    static void setVoidBranchLengths(Tree & tree, int nodeId, double brLen) throw (NodeNotFoundException);
+    static void setVoidBranchLengths(Tree& tree, int nodeId, double brLen) throw (NodeNotFoundException);
         
     /**
      * @brief Scale a given tree.
@@ -256,7 +256,7 @@ class TreeTools
      * @throw NodeNotFoundException If the node is not found.
      * @throw NodeException If a branch length is lacking.
      */
-    static void scaleTree(Tree & tree, int nodeId, double factor) throw (NodeNotFoundException,NodeException);
+    static void scaleTree(Tree& tree, int nodeId, double factor) throw (NodeNotFoundException,NodeException);
 
     /**
      * @brief Grafen's method to initialize branch lengths.
@@ -271,7 +271,7 @@ class TreeTools
      * 
      * @param tree The tree.
      */ 
-    static void initBranchLengthsGrafen(Tree & tree);
+    static void initBranchLengthsGrafen(Tree& tree);
     
     /**
      * @brief Compute branch lengths using Grafen's method.
@@ -288,11 +288,11 @@ class TreeTools
      *             Otherwise use branch lengths.
      * @throw NodeException If init=false and one branch length is lacking.
      */
-    static void computeBranchLengthsGrafen(Tree & tree, double power=1, bool init=true) throw (NodeException);
+    static void computeBranchLengthsGrafen(Tree& tree, double power = 1, bool init = true) throw (NodeException);
    
   private:
-    static unsigned int initBranchLengthsGrafen(Tree & tree, int nodeId) throw (NodeNotFoundException);
-    static void computeBranchLengthsGrafen(Tree & tree, int nodeId, double power, double total, double & height, double & heightRaised) throw (NodeNotFoundException,NodeException);
+    static unsigned int initBranchLengthsGrafen(Tree& tree, int nodeId) throw (NodeNotFoundException);
+    static void computeBranchLengthsGrafen(Tree& tree, int nodeId, double power, double total, double& height, double& heightRaised) throw (NodeNotFoundException,NodeException);
 
   public:
     /**
@@ -314,7 +314,7 @@ class TreeTools
      * @throw NodeNotFoundException If the node is not found.
      * @throw NodeException If one branch length is lacking.
      */
-    static double convertToClockTree(Tree & tree, int nodeId, bool noneg=false) throw (NodeNotFoundException,NodeException);
+    static double convertToClockTree(Tree& tree, int nodeId, bool noneg = false) throw (NodeNotFoundException, NodeException);
     
     /**
      * @brief Modify a tree's branch lengths to make a clock tree, by rescaling subtrees.
@@ -331,7 +331,7 @@ class TreeTools
      * @throw NodeNotFoundException If the node is not found.
      * @throw NodeException If one branch length is lacking.
      */
-    static double convertToClockTree2(Tree & tree, int nodeId) throw (NodeNotFoundException,NodeException);
+    static double convertToClockTree2(Tree& tree, int nodeId) throw (NodeNotFoundException,NodeException);
  
     /**
      * @brief Get the total distance between two nodes.
@@ -344,7 +344,7 @@ class TreeTools
      * @return The sum of all branch lengths between the two nodes.
      * @throw NodeNotFoundException If the node is not found.
      */
-    static double getDistanceBetweenAnyTwoNodes(const Tree & tree, int nodeId1, int nodeId2) throw (NodeNotFoundException);
+    static double getDistanceBetweenAnyTwoNodes(const Tree& tree, int nodeId1, int nodeId2) throw (NodeNotFoundException);
     
     /**
      * @brief Compute a distance matrix from a tree.
@@ -358,7 +358,7 @@ class TreeTools
      * @param tree The tree to use.
      * @return The distance matrix computed from tree.
      */
-    static DistanceMatrix * getDistanceMatrix(const Tree & tree);
+    static DistanceMatrix* getDistanceMatrix(const Tree& tree);
 
     /**
      * @brief (Re)root the tree using the midpoint method.
@@ -368,7 +368,7 @@ class TreeTools
      *
      * @param tree The tree to (re)root.
      */
-    static void midpointRooting(Tree & tree);
+    static void midpointRooting(Tree& tree);
     /** @} */
 
 
@@ -393,7 +393,7 @@ class TreeTools
      * @return A string in the parenthesis format.
      * @throw NodeNotFoundException If the node is not found.
      */
-    static string nodeToParenthesis(const Tree& tree, int nodeId, bool writeId = false) throw (NodeNotFoundException);
+    static std::string nodeToParenthesis(const Tree& tree, int nodeId, bool writeId = false) throw (NodeNotFoundException);
 
     /**
      * @brief Get the parenthesis description of a subtree.
@@ -409,7 +409,7 @@ class TreeTools
      * @return A string in the parenthesis format.
      * @throw NodeNotFoundException If the node is not found.
      */
-    static string nodeToParenthesis(const Tree& tree, int nodeId, bool bootstrap, const string & propertyName) throw (NodeNotFoundException);
+    static std::string nodeToParenthesis(const Tree& tree, int nodeId, bool bootstrap, const std::string& propertyName) throw (NodeNotFoundException);
 
     /**
      * @brief Get the parenthesis description of a tree.
@@ -420,7 +420,7 @@ class TreeTools
      *                Leaves id will be added to the leave names, separated by a '_' character.
      * @return A string in the parenthesis format.
      */
-    static string treeToParenthesis(const Tree & tree, bool writeId = false);
+    static std::string treeToParenthesis(const Tree& tree, bool writeId = false);
     
     /**
      * @brief Get the parenthesis description of a tree.
@@ -434,7 +434,7 @@ class TreeTools
      * @param propertyName The name of the property to use. Only used if bootstrap = false.
      * @return A string in the parenthesis format.
      */
-    static string treeToParenthesis(const Tree & tree, bool bootstrap, const string & propertyName);
+    static std::string treeToParenthesis(const Tree& tree, bool bootstrap, const std::string& propertyName);
     
     /** @} */
 
@@ -452,7 +452,7 @@ class TreeTools
      * @return A vector of ids of each node in the subtree.
      * @throw NodeNotFoundException If the node is not found.
      */
-    static vector<int> getNodesId(const Tree & tree, int nodeId) throw (NodeNotFoundException);
+    static std::vector<int> getNodesId(const Tree& tree, int nodeId) throw (NodeNotFoundException);
 
     /**
      * @brief Retrieve all nodes ids from a subtree.
@@ -462,7 +462,7 @@ class TreeTools
      * @param nodes A vector of ids of each node in the subtree.
      * @throw NodeNotFoundException If the node is not found.
      */
-    static void getNodesId(const Tree & tree, int nodeId, vector<int> & nodes) throw (NodeNotFoundException);
+    static void getNodesId(const Tree& tree, int nodeId, std::vector<int>& nodes) throw (NodeNotFoundException);
 
     /**
      * @brief Get the maximum identifier used in a (sub)tree.
@@ -474,7 +474,7 @@ class TreeTools
      * Use id=tree.getRootId() to search for the whole tree.
      * @return The identifier number with maximum value.
      */
-    static int getMaxId(const Tree & tree, int id);
+    static int getMaxId(const Tree& tree, int id);
 
     /**
      * @brief Get the minimum positive non-used identifier in a (sub)tree.
@@ -486,7 +486,7 @@ class TreeTools
      * Use id=tree.getRootId() to search for the whole tree.
      * @return A non-used identifier number.
      */
-    static int getMPNUId(const Tree & tree, int id);
+    static int getMPNUId(const Tree& tree, int id);
 
     /**
      * @brief Check if the ids are uniques.
@@ -495,7 +495,7 @@ class TreeTools
      * @param throwException If set to true, the function throws qn exception if a duplicated is found.
      * @return true if the tree has uniqe ids.
      */
-    static bool checkIds(const Tree & tree, bool throwException) throw (Exception);
+    static bool checkIds(const Tree& tree, bool throwException) throw (Exception);
 
     /** @} */
 
@@ -514,7 +514,7 @@ class TreeTools
      * The output alignment (DNA sequences including only A, C and N)) is ready for maximum parsimony analysis
      * according to the MRP supertree method.
      */
-    static VectorSiteContainer* MRPEncode(const vector<Tree *> & vecTr);
+    static VectorSiteContainer* MRPEncode(const std::vector<Tree*>& vecTr);
 
     /**
      * @brief Tells whether two trees have the same unrooted topology
@@ -522,7 +522,7 @@ class TreeTools
      * @author Nicolas Galtier
      * Note that the location of the root, if any, is ignored.
      */
-    static bool haveSameTopology(const Tree & tr1, const Tree & tr2);
+    static bool haveSameTopology(const Tree& tr1, const Tree& tr2);
 
     /**
      * @brief Calculates the Robinson-Foulds topological distance between two trees
@@ -539,7 +539,7 @@ class TreeTools
      * @return Robinson-Foulds distance = *missing_in_tr1 + *missing_in_tr2
      * @throw Exception If checkNames is set to true and trees do not share the same leaves names.
      */
-    static int robinsonFouldsDistance(const Tree & tr1, const Tree & tr2, bool checkNames = true, int* missing_in_tr2 = NULL, int* missing_in_tr1 = NULL) throw (Exception);
+    static int robinsonFouldsDistance(const Tree& tr1, const Tree& tr2, bool checkNames = true, int* missing_in_tr2 = NULL, int* missing_in_tr1 = NULL) throw (Exception);
 
     /**
      * @brief Counts the total number of occurrences of every bipartition from the input trees
@@ -552,7 +552,7 @@ class TreeTools
      * @param bipScore Output as the numbers of occurrences of the returned distinct bipartitions
      * @return A BipartitionList object including only distinct bipartitions
      */
-    static BipartitionList * bipartitionOccurrences(const vector<Tree *> & vecTr, vector<unsigned int> & bipScore);
+    static BipartitionList* bipartitionOccurrences(const std::vector<Tree*>& vecTr, std::vector<unsigned int>& bipScore);
 
     /**
      * @brief General greedy consensus tree method
@@ -567,7 +567,7 @@ class TreeTools
      * @param threshold Minimal acceptable score =number of occurrence of a bipartition/number of trees (0.<=threshold<=1.)
      * @param checkNames Tell whether we should check the trees first.
      */
-    static TreeTemplate<Node>* thresholdConsensus(const vector<Tree *> & vecTr, double threshold, bool checkNames = true) throw (Exception);
+    static TreeTemplate<Node>* thresholdConsensus(const std::vector<Tree*>& vecTr, double threshold, bool checkNames = true) throw (Exception);
 
     /**
      * @brief Fully-resolved greedy consensus tree method
@@ -579,7 +579,7 @@ class TreeTools
      * @param vecTr Vector of input trees (must share a common set of leaves - checked if checkNames is true)
      * @param checkNames Tell whether we should check the trees first.
      */
-    static TreeTemplate<Node>* fullyResolvedConsensus(const vector<Tree *> & vecTr, bool checkNames = true);
+    static TreeTemplate<Node>* fullyResolvedConsensus(const std::vector<Tree*>& vecTr, bool checkNames = true);
 
     /**
      * @brief Majority consensus tree method
@@ -590,7 +590,7 @@ class TreeTools
      * @param vecTr Vector of input trees (must share a common set of leaves - checked if checkNames is true)
      * @param checkNames Tell whether we should check the trees first.
      */
-    static TreeTemplate<Node>* majorityConsensus(const vector<Tree *> & vecTr, bool checkNames = true);
+    static TreeTemplate<Node>* majorityConsensus(const std::vector<Tree*>& vecTr, bool checkNames = true);
 
     /**
      * @brief Strict consensus tree method
@@ -601,7 +601,7 @@ class TreeTools
      * @param vecTr Vector of input trees (must share a common set of leaves - checked if checkNames is true)
      * @param checkNames Tell whether we should check the trees first.
      */
-    static TreeTemplate<Node>* strictConsensus(const vector<Tree *> & vecTr, bool checkNames = true);
+    static TreeTemplate<Node>* strictConsensus(const std::vector<Tree*>& vecTr, bool checkNames = true);
 
     /** @} */
 
@@ -616,7 +616,7 @@ class TreeTools
      * @param vecTr A vector of trees.
      * @return The MRP super tree.
      */
-    static Tree* MRP(const vector<Tree*> & vecTr);
+    static Tree* MRP(const std::vector<Tree*>& vecTr);
 
     /**
      * @brief Compute bootstrap values.
@@ -625,7 +625,7 @@ class TreeTools
      * @param vecTr A list of trees to compare to 'tree'.
      * @param verbose Tell if a progress bar should be displayed.
      */
-    static void computeBootstrapValues(Tree & tree, const vector<Tree *> & vecTr, bool verbose = true);
+    static void computeBootstrapValues(Tree& tree, const std::vector<Tree*>& vecTr, bool verbose = true);
 
 
 
@@ -639,7 +639,7 @@ class TreeTools
     /**
      * @brief Bootstrap tag.
      */
-    static const string BOOTSTRAP;   
+    static const std::string BOOTSTRAP;   
     /** @} */
 
 };

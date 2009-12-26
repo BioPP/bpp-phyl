@@ -49,12 +49,10 @@ knowledge of the CeCILL license and that you accept its terms.
 // From the STL:
 #include <bitset>
 
-using namespace std;
-
 namespace bpp
 {
 
-typedef bitset<20> Bitset;
+typedef std::bitset<20> Bitset;
 
 /**
  * @brief Parsimony data structure for a node.
@@ -71,36 +69,31 @@ class DRTreeParsimonyNodeData :
 	public TreeParsimonyNodeData
 {
 	protected:
-		mutable map<int, vector<Bitset> > _nodeBitsets;
-		mutable map<int, vector<unsigned int> > _nodeScores;
-		const Node * _node;
+		mutable std::map<int, std::vector<Bitset> > _nodeBitsets;
+		mutable std::map<int, std::vector<unsigned int> > _nodeScores;
+		const Node* _node;
 
   public:
-#ifndef NO_VIRTUAL_COV
-    DRTreeParsimonyNodeData*
-#else
-    Clonable*
-#endif
-    clone() const { return new DRTreeParsimonyNodeData(*this); }
+    DRTreeParsimonyNodeData* clone() const { return new DRTreeParsimonyNodeData(*this); }
 
   public:
-		const Node * getNode() const { return _node; }
+		const Node* getNode() const { return _node; }
 		
-    void setNode(const Node & node) { _node = &node; }
+    void setNode(const Node* node) { _node = node; }
 
-		vector<Bitset> & getBitsetsArrayForNeighbor(int neighborId)
+    std::vector<Bitset>& getBitsetsArrayForNeighbor(int neighborId)
 		{
 			return _nodeBitsets[neighborId];
 		}
-		const vector<Bitset> & getBitsetsArrayForNeighbor(int neighborId) const
+		const std::vector<Bitset>& getBitsetsArrayForNeighbor(int neighborId) const
 		{
 			return _nodeBitsets[neighborId];
 		}
-		vector<unsigned int> & getScoresArrayForNeighbor(int neighborId)
+    std::vector<unsigned int>& getScoresArrayForNeighbor(int neighborId)
 		{
 			return _nodeScores[neighborId];
 		}
-		const vector<unsigned int> & getScoresArrayForNeighbor(int neighborId) const
+		const std::vector<unsigned int>& getScoresArrayForNeighbor(int neighborId) const
 		{
 			return _nodeScores[neighborId];
 		}
@@ -130,26 +123,21 @@ class DRTreeParsimonyLeafData :
 	public TreeParsimonyNodeData
 {
 	protected:
-		mutable vector<Bitset> _leafBitsets;
-		const Node * _leaf;
+		mutable std::vector<Bitset> _leafBitsets;
+		const Node* _leaf;
 
   public:
-#ifndef NO_VIRTUAL_COV
-    DRTreeParsimonyLeafData*
-#else
-    Clonable*
-#endif
-    clone() const { return new DRTreeParsimonyLeafData(*this); }
+    DRTreeParsimonyLeafData* clone() const { return new DRTreeParsimonyLeafData(*this); }
 
 	public:
-		const Node * getNode() const { return _leaf; }
-		void setNode(const Node & node) { _leaf = &node; }
+		const Node* getNode() const { return _leaf; }
+		void setNode(const Node* node) { _leaf = node; }
 
-		vector<Bitset> & getBitsetsArray()
+    std::vector<Bitset>& getBitsetsArray()
 		{
 			return _leafBitsets;
 		}
-		const vector<Bitset> & getBitsetsArray() const
+		const std::vector<Bitset>& getBitsetsArray() const
 		{
 			return _leafBitsets;
 		}
@@ -169,12 +157,12 @@ class DRTreeParsimonyLeafData :
 class DRTreeParsimonyData :
 	public AbstractTreeParsimonyData
 {
-	protected:
-		mutable map<int, DRTreeParsimonyNodeData> _nodeData;
-		mutable map<int, DRTreeParsimonyLeafData> _leafData;
-		mutable vector<Bitset> _rootBitsets;
-		mutable vector<unsigned int> _rootScores;
-		SiteContainer * _shrunkData;
+	private:
+		mutable std::map<int, DRTreeParsimonyNodeData> _nodeData;
+		mutable std::map<int, DRTreeParsimonyLeafData> _leafData;
+		mutable std::vector<Bitset> _rootBitsets;
+		mutable std::vector<unsigned int> _rootScores;
+		SiteContainer* _shrunkData;
 		unsigned int _nbSites; 
 		unsigned int _nbStates;
 		unsigned int _nbDistinctSites; 
@@ -201,53 +189,53 @@ class DRTreeParsimonyData :
     clone() const { return new DRTreeParsimonyData(*this); }
 
 	public:
-    void setTree(TreeTemplate<Node> & tree)
+    void setTree(TreeTemplate<Node>& tree)
     { 
       _tree = &tree;
-      for(map<int, DRTreeParsimonyNodeData>::iterator it = _nodeData.begin(); it != _nodeData.end(); it++)
+      for (std::map<int, DRTreeParsimonyNodeData>::iterator it = _nodeData.begin(); it != _nodeData.end(); it++)
       {
         int id = it->second.getNode()->getId();
-        it->second.setNode(*_tree->getNode(id));
+        it->second.setNode(_tree->getNode(id));
       }
-      for(map<int, DRTreeParsimonyLeafData>::iterator it = _leafData.begin(); it != _leafData.end(); it++)
+      for (std::map<int, DRTreeParsimonyLeafData>::iterator it = _leafData.begin(); it != _leafData.end(); it++)
       {
         int id = it->second.getNode()->getId();
-        it->second.setNode(*_tree->getNode(id));
+        it->second.setNode(_tree->getNode(id));
       }
     }
 
-		DRTreeParsimonyNodeData & getNodeData(int nodeId)
+		DRTreeParsimonyNodeData& getNodeData(int nodeId)
 		{ 
 			return _nodeData[nodeId];
 		}
-		const DRTreeParsimonyNodeData & getNodeData(int nodeId) const
+		const DRTreeParsimonyNodeData& getNodeData(int nodeId) const
 		{ 
 			return _nodeData[nodeId];
 		}
 		
-		DRTreeParsimonyLeafData & getLeafData(int nodeId)
+		DRTreeParsimonyLeafData& getLeafData(int nodeId)
 		{ 
 			return _leafData[nodeId];
 		}
-		const DRTreeParsimonyLeafData & getLeafData(int nodeId) const
+		const DRTreeParsimonyLeafData& getLeafData(int nodeId) const
 		{ 
 			return _leafData[nodeId];
 		}
 		
-		vector<Bitset> & getBitsetsArray(int nodeId, int neighborId)
+    std::vector<Bitset>& getBitsetsArray(int nodeId, int neighborId)
 		{ 
 			return _nodeData[nodeId].getBitsetsArrayForNeighbor(neighborId);
 		}
-		const vector<Bitset> & getBitsetsArray(int nodeId, int neighborId) const
+		const std::vector<Bitset>& getBitsetsArray(int nodeId, int neighborId) const
 		{ 
 			return _nodeData[nodeId].getBitsetsArrayForNeighbor(neighborId);
 		}
 		
-		vector<unsigned int> & getScoresArray(int nodeId, int neighborId)
+    std::vector<unsigned int>& getScoresArray(int nodeId, int neighborId)
 		{ 
 			return _nodeData[nodeId].getScoresArrayForNeighbor(neighborId);
 		}
-		const vector<unsigned int> & getScoresArray(int nodeId, int neighborId) const 
+		const std::vector<unsigned int>& getScoresArray(int nodeId, int neighborId) const 
 		{
 			return _nodeData[nodeId].getScoresArrayForNeighbor(neighborId);
 		}
@@ -257,19 +245,19 @@ class DRTreeParsimonyData :
 			return currentPosition;
 		}
 
-    vector<Bitset> & getRootBitsets() { return _rootBitsets; }
-    const vector<Bitset> & getRootBitsets() const { return _rootBitsets; }
-    const Bitset & getRootBitset(unsigned int i) const { return _rootBitsets[i]; }
+    std::vector<Bitset>& getRootBitsets() { return _rootBitsets; }
+    const std::vector<Bitset>& getRootBitsets() const { return _rootBitsets; }
+    const Bitset& getRootBitset(unsigned int i) const { return _rootBitsets[i]; }
 
-		vector<unsigned int> & getRootScores() { return _rootScores; }
-		const vector<unsigned int> & getRootScores() const { return _rootScores; }
+    std::vector<unsigned int>& getRootScores() { return _rootScores; }
+		const std::vector<unsigned int>& getRootScores() const { return _rootScores; }
 		unsigned int getRootScore(unsigned int i) const { return _rootScores[i]; }
 
 		unsigned int getNumberOfDistinctSites() const { return _nbDistinctSites; }
 		unsigned int getNumberOfSites() const { return _nbSites; }
 		unsigned int getNumberOfStates() const { return _nbStates; }
 		
-		void init(const SiteContainer & sites) throw (Exception);
+		void init(const SiteContainer& sites) throw (Exception);
 		void reInit() throw (Exception);
 
 	protected:

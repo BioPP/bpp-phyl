@@ -48,8 +48,6 @@ knowledge of the CeCILL license and that you accept its terms.
 // From the STL:
 #include <map>
 
-using namespace std;
-
 namespace bpp
 {
 
@@ -66,9 +64,9 @@ class AbstractAgglomerativeDistanceMethod:
 {
 	protected:
 		DistanceMatrix _matrix;
-		Tree * _tree;
+		Tree* _tree;
 
- 		map<unsigned int, Node *> _currentNodes;
+    std::map<unsigned int, Node*> _currentNodes;
     bool _verbose;
 	
 	public:
@@ -85,9 +83,9 @@ class AbstractAgglomerativeDistanceMethod:
     AbstractAgglomerativeDistanceMethod(const AbstractAgglomerativeDistanceMethod & a): _matrix(a._matrix), _tree(NULL), _currentNodes()
     {
       // Hard copy of inner tree:
-      if(a._tree != NULL) _tree = new TreeTemplate<Node>(* a._tree);
+      if(a._tree != 0) _tree = new TreeTemplate<Node>(* a._tree);
     }
-    AbstractAgglomerativeDistanceMethod & operator=(const AbstractAgglomerativeDistanceMethod & a)
+    AbstractAgglomerativeDistanceMethod& operator=(const AbstractAgglomerativeDistanceMethod & a)
     {
       _matrix = a._matrix;
       // Hard copy of inner tree:
@@ -152,7 +150,7 @@ class AbstractAgglomerativeDistanceMethod:
      * @return A size 2 vector with the indices of the nodes.
      * @throw Exception If an error occured.
      */
-		virtual vector<unsigned int> getBestPair() throw (Exception) = 0;
+		virtual std::vector<unsigned int> getBestPair() throw (Exception) = 0;
 		
     /**
      * @brief Compute the branch lengths for two nodes to agglomerate.
@@ -167,7 +165,7 @@ class AbstractAgglomerativeDistanceMethod:
      * @param pair The indices of the nodes to be agglomerated.
      * @return A size 2 vector with branch lengths.
      */
-    virtual vector<double> computeBranchLengthsForPair(const vector<unsigned int> & pair) = 0;
+    virtual std::vector<double> computeBranchLengthsForPair(const std::vector<unsigned int> & pair) = 0;
 
     /**
      * @brief Actualizes the distance matrix according to a given pair and the corresponding branch lengths.
@@ -177,7 +175,7 @@ class AbstractAgglomerativeDistanceMethod:
      * @param pos The index of the node whose distance ust be updated.
      * @return The distance between the 'pos' node and the agglomerated pair.
      */
-		virtual double computeDistancesFromPair(const vector<unsigned int> & pair, const vector<double> & branchLengths, unsigned int pos) = 0;
+		virtual double computeDistancesFromPair(const std::vector<unsigned int>& pair, const std::vector<double>& branchLengths, unsigned int pos) = 0;
 		
     /**
      * @brief Method called when there ar eonly three remaining node to agglomerate, and creates the root node of the tree.
@@ -195,7 +193,7 @@ class AbstractAgglomerativeDistanceMethod:
      * @param name The name of the node.
      * @return A pointer toward a new node object.
      */
-		virtual Node * getLeafNode(int id, const string & name);
+		virtual Node* getLeafNode(int id, const std::string& name);
 
     /**
      * @brief Get an inner node.
@@ -207,7 +205,7 @@ class AbstractAgglomerativeDistanceMethod:
      * @param son2 The second son of the node.
      * @return A pointer toward a new node object.
      */
-		virtual Node * getParentNode(int id, Node * son1, Node * son2);
+		virtual Node* getParentNode(int id, Node * son1, Node * son2);
     /** @} */
 		
 };

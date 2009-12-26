@@ -115,7 +115,7 @@ class DRASDRTreeLikelihoodNodeData :
      * We call this the <i>likelihood array</i> for each node.
      */
 
-    mutable map<int, VVVdouble > _nodeLikelihoods;
+    mutable std::map<int, VVVdouble > _nodeLikelihoods;
     /**
      * @brief This contains all likelihood first order derivatives values used for computation.
      *

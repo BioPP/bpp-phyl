@@ -74,16 +74,14 @@ class TreeParsimonyNodeData:
 		 *
 		 * @return The node associated to this structure.
 		 */
-		virtual const Node * getNode() const = 0;
+		virtual const Node* getNode() const = 0;
 
     /**
      * @brief Set the node associated to this data
      *
-     * A pointer toward this node will be created and associated to this data.
-     *
-     * @param node The node to be associated to this data.
+     * @param node A pointer toward the node to be associated to this data.
      */
-    virtual void setNode(const Node & node) = 0;
+    virtual void setNode(const Node* node) = 0;
 };
 
 /**

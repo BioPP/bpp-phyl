@@ -410,7 +410,6 @@ throw (Exception)
     const Node * branch = nodes_[brI];
     _dLikelihoods_branch = & likelihoodData_->getDLikelihoodArray(branch->getId());
     double d = 0;
-    const vector<unsigned int> * w = & likelihoodData_->getWeights();
     for(unsigned int i = 0; i < nbDistinctSites_; i++)
       d += (* w)[i] * (* _dLikelihoods_branch)[i];
     return -d;

@@ -97,7 +97,7 @@ class TreeDrawing:
     /**
      * @return A string describing this drawing algorithm.
      */
-    virtual string getName() const = 0;
+    virtual std::string getName() const = 0;
 
     /**
      * @return 'True' if a tree is attached to this instance.
@@ -181,18 +181,18 @@ class TreeDrawing:
      * @param property The name of the property to plot.
      * @return True is the property could be drawn properly.
      */
-    virtual bool drawProperty(GraphicDevice& gDevice, const string& property) const = 0;
+    virtual bool drawProperty(GraphicDevice& gDevice, const std::string& property) const = 0;
 
     /**
      * @return The list of supported drawable properties by the plotting algorithm.
      */
-    virtual const vector<string>& getSupportedDrawableProperties() const = 0;
+    virtual const std::vector<std::string>& getSupportedDrawableProperties() const = 0;
 
     /**
      * @param property The name of the property to test.
      * @return True if the given property can be plotted on the tree.
      */
-    virtual bool isDrawable(const string& property) const = 0;
+    virtual bool isDrawable(const std::string& property) const = 0;
 
     virtual void setDisplaySettings(TreeDrawingSettings& tds) = 0;
     virtual TreeDrawingSettings& getDisplaySettings() = 0;

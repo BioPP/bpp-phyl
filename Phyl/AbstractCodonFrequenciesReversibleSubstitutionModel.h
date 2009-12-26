@@ -91,9 +91,9 @@ public:
 
   virtual ~AbstractCodonFrequenciesReversibleSubstitutionModel();
 
-  virtual void fireParameterChanged(const ParameterList&);
+  virtual void fireParameterChanged(const ParameterList& parameters);
 
-  void setFreq(map<int,double>& );
+  void setFreq(std::map<int, double>& freqencies);
 
 protected:
 

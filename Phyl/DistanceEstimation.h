@@ -233,7 +233,7 @@ class TwoTreeLikelihood:
     virtual void setMinimumBranchLength(double minimum)
     {
       _minimumBrLen = minimum;
-      if(_brLenConstraint != NULL) delete _brLenConstraint;
+      if(_brLenConstraint != 0) delete _brLenConstraint;
       _brLenConstraint = new IncludingPositiveReal(_minimumBrLen);
       initBranchLengthsParameters();
     }
@@ -321,7 +321,7 @@ class DistanceEstimation:
 		 *  @param computeMat if true the computeMatrix() method is called.
 		 */
 		DistanceEstimation(SubstitutionModel * model, DiscreteDistribution * rateDist, const SiteContainer * sites, unsigned int verbose = 1, bool computeMat = true):
-      model_(model), rateDist_(rateDist), sites_(sites), dist_(NULL), _verbose(verbose)
+      model_(model), rateDist_(rateDist), sites_(sites), dist_(0), _verbose(verbose)
     {
 	    _init();
       if(computeMat) computeMatrix();
@@ -338,16 +338,16 @@ class DistanceEstimation:
       model_(distanceEstimation.model_),
       rateDist_(distanceEstimation.rateDist_),
       sites_(distanceEstimation.sites_),
-      dist_(NULL),
+      dist_(0),
       optimizer_(dynamic_cast<Optimizer *>(distanceEstimation.optimizer_->clone())),
       _defaultOptimizer(dynamic_cast<MetaOptimizer *>(_defaultOptimizer->clone())),
       _verbose(distanceEstimation._verbose),
       parameters_(distanceEstimation.parameters_)
     {
-      if(distanceEstimation.dist_ != NULL)
+      if(distanceEstimation.dist_ != 0)
         dist_ = new DistanceMatrix(*distanceEstimation.dist_);
       else
-        dist_ = NULL;
+        dist_ = 0;
     }
 
     /**
@@ -363,10 +363,10 @@ class DistanceEstimation:
       model_ = distanceEstimation.model_;
       rateDist_ = distanceEstimation.rateDist_;
       sites_ = distanceEstimation.sites_;
-      if(distanceEstimation.dist_ != NULL)
+      if(distanceEstimation.dist_ != 0)
         dist_ = new DistanceMatrix(*distanceEstimation.dist_);
       else
-        dist_ = NULL;
+        dist_ = 0;
       optimizer_ = dynamic_cast<Optimizer *>(distanceEstimation.optimizer_->clone());
       // _defaultOptimizer has already been initialized since the default constructor has been called.
       _verbose = distanceEstimation._verbose;
@@ -376,7 +376,7 @@ class DistanceEstimation:
 
 		virtual ~DistanceEstimation()
 		{
-			if(dist_ != NULL) delete dist_;
+			if(dist_ != 0) delete dist_;
 			delete _defaultOptimizer;
       delete optimizer_;
 		}
@@ -392,17 +392,17 @@ class DistanceEstimation:
     void _init()
     {
       MetaOptimizerInfos* desc = new MetaOptimizerInfos();
-      vector<string> name;
+      std::vector<std::string> name;
       name.push_back("BrLen");
-      desc->addOptimizer("Branch length", new PseudoNewtonOptimizer(NULL), name, 2, MetaOptimizerInfos::IT_TYPE_FULL);
+      desc->addOptimizer("Branch length", new PseudoNewtonOptimizer(0), name, 2, MetaOptimizerInfos::IT_TYPE_FULL);
       ParameterList tmp = model_->getParameters();
       tmp.addParameters(rateDist_->getParameters());
-      desc->addOptimizer("substitution model and rate distribution", new SimpleMultiDimensions(NULL), tmp.getParameterNames(), 0, MetaOptimizerInfos::IT_TYPE_STEP);
-    	_defaultOptimizer = new MetaOptimizer(NULL, desc);
-      _defaultOptimizer->setMessageHandler(NULL);
-	    _defaultOptimizer->setProfiler(NULL);
+      desc->addOptimizer("substitution model and rate distribution", new SimpleMultiDimensions(0), tmp.getParameterNames(), 0, MetaOptimizerInfos::IT_TYPE_STEP);
+    	_defaultOptimizer = new MetaOptimizer(0, desc);
+      _defaultOptimizer->setMessageHandler(0);
+	    _defaultOptimizer->setProfiler(0);
       _defaultOptimizer->getStopCondition()->setTolerance(0.0001);
-	    optimizer_ = dynamic_cast<Optimizer *>(_defaultOptimizer->clone());
+	    optimizer_ = dynamic_cast<Optimizer*>(_defaultOptimizer->clone());
     }
 
 	public:

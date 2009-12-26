@@ -190,7 +190,7 @@ class DRHomogeneousTreeLikelihood:
      *
      * @{
      */
-    double getFirstOrderDerivative(const string & variable) const throw (Exception);
+    double getFirstOrderDerivative(const std::string& variable) const throw (Exception);
     /** @{ */
 
     /**
@@ -198,8 +198,8 @@ class DRHomogeneousTreeLikelihood:
      *
      * @{
      */
-    double getSecondOrderDerivative(const string & variable) const throw (Exception);
-    double getSecondOrderDerivative(const string & variable1, const string & variable2) const throw (Exception) { return 0; } // Not implemented for now.
+    double getSecondOrderDerivative(const std::string& variable) const throw (Exception);
+    double getSecondOrderDerivative(const std::string& variable1, const std::string& variable2) const throw (Exception) { return 0; } // Not implemented for now.
     /** @} */
     
   public:  // Specific methods:
@@ -259,7 +259,14 @@ class DRHomogeneousTreeLikelihood:
      * @param reset Tell if the output likelihood array must be initalized prior to computation.
      * If true, the resetLikelihoodArray method will be called.
      */
-    static void computeLikelihoodFromArrays(const vector<const VVVdouble *> & iLik, const vector<const VVVdouble *> & tProb, VVVdouble & oLik, unsigned int nbNodes, unsigned int nbDistinctSites, unsigned int nbClasses, unsigned int nbStates, bool reset = true);
+    static void computeLikelihoodFromArrays(
+        const std::vector<const VVVdouble*>& iLik,
+        const std::vector<const VVVdouble*>& tProb,
+        VVVdouble& oLik, unsigned int nbNodes,
+        unsigned int nbDistinctSites,
+        unsigned int nbClasses,
+        unsigned int nbStates,
+        bool reset = true);
 
     /**
      * @brief Compute conditional likelihoods.
@@ -282,11 +289,11 @@ class DRHomogeneousTreeLikelihood:
      * If true, the resetLikelihoodArray method will be called.
      */
     static void computeLikelihoodFromArrays(
-        const vector<const VVVdouble *> & iLik,
-        const vector<const VVVdouble *> & tProb,
-        const VVVdouble * iLikR,
-        const VVVdouble * tProbR,
-        VVVdouble & oLik,
+        const std::vector<const VVVdouble*>& iLik,
+        const std::vector<const VVVdouble*>& tProb,
+        const VVVdouble* iLikR,
+        const VVVdouble* tProbR,
+        VVVdouble& oLik,
         unsigned int nbNodes,
         unsigned int nbDistinctSites,
         unsigned int nbClasses,

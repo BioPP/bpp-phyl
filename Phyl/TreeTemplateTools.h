@@ -558,7 +558,7 @@ class TreeTemplateTools
      * @return The height of the subtree.
      * @throw NodeException If a branch length is lacking.
      */ 
-    static double getHeights(const Node& node, map<const Node*, double>& heights) throw (NodeException);
+    static double getHeights(const Node& node, std::map<const Node*, double>& heights) throw (NodeException);
 
     /**
      * @brief Tell is a subtree is multifurcating.

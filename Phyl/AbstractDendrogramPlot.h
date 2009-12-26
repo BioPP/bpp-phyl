@@ -78,7 +78,7 @@ class AbstractDendrogramPlot:
 
     void plot(GraphicDevice& gDevice) const throw (Exception);
 
-    bool drawProperty(GraphicDevice& gDevice, const string& property) const;
+    bool drawProperty(GraphicDevice& gDevice, const std::string& property) const;
 
   protected:
     virtual void drawDendrogram_(GraphicDevice& gDevice) const throw (Exception) = 0;

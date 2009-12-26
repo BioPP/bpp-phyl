@@ -46,8 +46,6 @@ knowledge of the CeCILL license and that you accept its terms.
 // From the STL:
 #include <string>
 
-using namespace std;
-
 namespace bpp
 {
 
@@ -59,11 +57,11 @@ namespace bpp
 class RateDistributionFactory
 {
 public:
-  static const string CONSTANT_DISTRIBUTION;
-  static const string GAMMA_DISTRIBUTION;
+  static const std::string CONSTANT_DISTRIBUTION;
+  static const std::string GAMMA_DISTRIBUTION;
 
-protected:
-  unsigned int _nbClasses; // For discrete distributions. 
+private:
+  unsigned int nbClasses_; // For discrete distributions. 
   
 public:
   /**
@@ -77,7 +75,7 @@ public:
    * // dist can be used in any object dealing with rate distributions.
    * @endcode
    */
-  RateDistributionFactory(unsigned int nbClasses = 4): _nbClasses(nbClasses) {}
+  RateDistributionFactory(unsigned int nbClasses = 4): nbClasses_(nbClasses) {}
   virtual ~RateDistributionFactory() {}
 
 public:
@@ -89,7 +87,7 @@ public:
    * @return A pointer toward a new discrete distribution, with default parameter values.
    * @throw Exception If the dist name do not match any available distribution.
    */
-  virtual DiscreteDistribution * createDiscreteDistribution(const string& distName, unsigned int nbClasses) throw (Exception);
+  virtual DiscreteDistribution* createDiscreteDistribution(const std::string& distName, unsigned int nbClasses) throw (Exception);
   /**
    * @brief Get a new dynamically created DiscreteDistribution object.
    *
@@ -97,9 +95,9 @@ public:
    * @return A pointer toward a new discrete distribution, with default parameter values.
    * @throw Exception If the dist name do not match any available distribution.
    */
-  virtual DiscreteDistribution * createDiscreteDistribution(const string& distName) throw (Exception)
+  virtual DiscreteDistribution* createDiscreteDistribution(const std::string& distName) throw (Exception)
   {
-    return createDiscreteDistribution(distName, _nbClasses);
+    return createDiscreteDistribution(distName, nbClasses_);
   }
 
 };

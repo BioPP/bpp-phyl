@@ -111,7 +111,7 @@ class TS98:
     clone() const { return new TS98(*this); }
 
   public:
-    string getName() const { return "TS98"; }
+    std::string getName() const { return "TS98"; }
     
   protected:
     void updateRatesModel()

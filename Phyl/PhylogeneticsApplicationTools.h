@@ -253,13 +253,13 @@ namespace bpp
      * @throw Exception if an error occured.
      */
     static FrequenciesSet* getRootFrequenciesSet(
-                                                 const Alphabet* alphabet,
-                                                 const SiteContainer* data, 
-                                                 std::map<std::string, std::string>& params,
-                                                 const std::vector<double>& rateFreqs,
-                                                 const string& suffix = "",
-                                                 bool suffixIsOptional = true,
-                                                 bool verbose = true) throw (Exception);
+        const Alphabet* alphabet,
+        const SiteContainer* data, 
+        std::map<std::string, std::string>& params,
+        const std::vector<double>& rateFreqs,
+        const std::string& suffix = "",
+        bool suffixIsOptional = true,
+        bool verbose = true) throw (Exception);
 
     /**
      * @brief Get A FrequenciesSet object according to options.
@@ -277,11 +277,12 @@ namespace bpp
      * @throw Exception if an error occured.
      */
     static FrequenciesSet* getFrequenciesSet(
-                                             const Alphabet* alphabet,
-                                             const std::string& freqDescription,
-                                             const SiteContainer* data, 
-                                             const std::vector<double>& rateFreqs,
-                                             bool verbose = true) throw (Exception);
+        const Alphabet* alphabet,
+        const std::string& freqDescription,
+        const SiteContainer* data, 
+        const std::vector<double>& rateFreqs,
+        bool verbose = true)
+      throw (Exception);
 
     /**
      * @brief Get An AbstractFrequenciesSet object according to a
@@ -296,9 +297,10 @@ namespace bpp
      * @throw Exception if an error occured.
      */
     static FrequenciesSet* getFrequenciesSetDefaultInstance(
-                                                            const Alphabet* alphabet,
-                                                            const std::string& freqDescription,
-                                                            std::map<std::string, std::string>& unparsedParameterValues) throw (Exception);
+        const Alphabet* alphabet,
+        const std::string& freqDescription,
+        std::map<std::string, std::string>& unparsedParameterValues)
+      throw (Exception);
     
 
     /**
@@ -352,13 +354,14 @@ namespace bpp
      * @return A new SubstitutionModelSet object according to options specified.
      * @throw Exception if an error occured.
      */
-    static SubstitutionModelSet * getSubstitutionModelSet(
-                                                          const Alphabet * alphabet,
-                                                          const SiteContainer * data, 
-                                                          map<string, string> & params,
-                                                          const string & suffix = "",
-                                                          bool suffixIsOptional = true,
-                                                          bool verbose = true) throw (Exception);
+    static SubstitutionModelSet* getSubstitutionModelSet(
+        const Alphabet* alphabet,
+        const SiteContainer* data, 
+        std::map<std::string, std::string>& params,
+        const std::string& suffix = "",
+        bool suffixIsOptional = true,
+        bool verbose = true)
+      throw (Exception);
   
     /**
      * @brief Build a rate distribution as a DiscreteDistribution object with default parameter values according to a keyval description.
@@ -377,10 +380,11 @@ namespace bpp
      * @throw Exception if an error occured.
      */
     static DiscreteDistribution* getRateDistributionDefaultInstance(
-                                                                    const string& distDescription,
-                                                                    map<string, string>& unparsedParameterValues,
-                                                                    bool constDistAllowed = true,
-                                                                    bool verbose = true) throw (Exception);
+        const std::string& distDescription,
+        std::map<std::string, std::string>& unparsedParameterValues,
+        bool constDistAllowed = true,
+        bool verbose = true)
+      throw (Exception);
 
     /**
      * @brief Build a distribution as a DiscreteDistribution object with default parameter values according to a keyval description.
@@ -396,9 +400,11 @@ namespace bpp
      * @throw Exception if an error occured.
      */
     
-    static DiscreteDistribution* getDistributionDefaultInstance(const string& distDescription,
-                                                                map<string, string>& unparsedParameterValues,
-                                                                bool verbose = true) throw (Exception);
+    static DiscreteDistribution* getDistributionDefaultInstance(
+        const std::string& distDescription,
+        std::map<std::string, std::string>& unparsedParameterValues,
+        bool verbose = true)
+      throw (Exception);
 
     /**
      * @brief Set parameter initial values of a given rate distribution according to options.
@@ -415,9 +421,10 @@ namespace bpp
      * @throw Exception if an error occured.
      */
     static void setRateDistributionParametersInitialValues(
-                                                           DiscreteDistribution * rDist,
-                                                           map<string, string> & unparsedParameterValues,
-                                                           bool verbose = true) throw (Exception);
+        DiscreteDistribution* rDist,
+        std::map<std::string, std::string>& unparsedParameterValues,
+        bool verbose = true)
+      throw (Exception);
 
     /**
      * @brief Build a DiscreteDistribution object according to options.
@@ -433,11 +440,12 @@ namespace bpp
      * @return A new DiscreteDistribution object according to options specified.
      * @throw Exception if an error occured.
      */
-    static DiscreteDistribution * getRateDistribution(
-                                                      map<string, string> & params,
-                                                      const string & suffix = "",
-                                                      bool suffixIsOptional = true,
-                                                      bool verbose = true) throw (Exception);
+    static DiscreteDistribution* getRateDistribution(
+        std::map<std::string, std::string> & params,
+        const std::string& suffix = "",
+        bool suffixIsOptional = true,
+        bool verbose = true)
+      throw (Exception);
       
     /**
      * @brief Optimize parameters according to options.
@@ -489,12 +497,12 @@ namespace bpp
      * @endcode
      */
     static TreeLikelihood* optimizeParameters(
-                                              TreeLikelihood* tl,
-                                              const ParameterList& parameters,
-                                              map<string, string>& params,
-                                              const string& suffix = "",
-                                              bool suffixIsOptional = true,
-                                              bool verbose = true)
+        TreeLikelihood* tl,
+        const ParameterList& parameters,
+        std::map<std::string, std::string>& params,
+        const std::string& suffix = "",
+        bool suffixIsOptional = true,
+        bool verbose = true)
       throw (Exception);
     
     /**
@@ -526,12 +534,12 @@ namespace bpp
      * @throw Exception        Any exception that may happen during the optimization process.
      */
     static void optimizeParameters(
-                                   DiscreteRatesAcrossSitesClockTreeLikelihood * tl,
-                                   const ParameterList& parameters,
-                                   map<string, string> & params,
-                                   const string & suffix = "",
-                                   bool suffixIsOptional = true,
-                                   bool verbose = true)
+        DiscreteRatesAcrossSitesClockTreeLikelihood* tl,
+        const ParameterList& parameters,
+        std::map<std::string, std::string>& params,
+        const std::string& suffix = "",
+        bool suffixIsOptional = true,
+        bool verbose = true)
       throw (Exception);
   
     /**
@@ -558,13 +566,13 @@ namespace bpp
      * @throw Exception if an error occured.
      */
     static void writeTree(
-                          const TreeTemplate<Node>& tree,
-                          map<string, string>& params,
-                          const string& prefix = "output.",
-                          const string& suffix = "",
-                          bool suffixIsOptional = true,
-                          bool verbose = true,
-                          bool checkOnly = false) throw (Exception);
+        const TreeTemplate<Node>& tree,
+        std::map<std::string, std::string>& params,
+        const std::string& prefix = "output.",
+        const std::string& suffix = "",
+        bool suffixIsOptional = true,
+        bool verbose = true,
+        bool checkOnly = false) throw (Exception);
     
     /**
      * @brief Write a tree according to options.
@@ -582,13 +590,13 @@ namespace bpp
      * @throw Exception if an error occured.
      */
     static void writeTrees(
-                           const vector<Tree*>& trees,
-                           map<string, string>& params,
-                           const string& prefix = "output.",
-                           const string& suffix = "",
-                           bool suffixIsOptional = true,
-                           bool verbose = true,
-                           bool checkOnly = false) throw (Exception);
+        const std::vector<Tree*>& trees,
+        std::map<std::string, std::string>& params,
+        const std::string& prefix = "output.",
+        const std::string& suffix = "",
+        bool suffixIsOptional = true,
+        bool verbose = true,
+        bool checkOnly = false) throw (Exception);
 
 
     
@@ -598,7 +606,7 @@ namespace bpp
      * @param model The model to serialize.
      * @param out   The stream where to print.
      */
-    static void printParameters(const SubstitutionModel* model, ostream& out);
+    static void printParameters(const SubstitutionModel* model, std::ostream& out);
 
 
 
@@ -608,7 +616,7 @@ namespace bpp
      * @param modelSet The model set to serialize.
      * @param out      The stream where to print.
      */
-    static void printParameters(const SubstitutionModelSet* modelSet, ostream& out);
+    static void printParameters(const SubstitutionModelSet* modelSet, std::ostream& out);
 
 
 
@@ -618,13 +626,13 @@ namespace bpp
      * @param rDist The rate distribution to serialize.
      * @param out   The stream where to print.
      */
-    static void printParameters(const DiscreteDistribution* rDist, ostream& out);
+    static void printParameters(const DiscreteDistribution* rDist, std::ostream& out);
 
   private:
-    static void describeParameters_(const ParameterAliasable* parametrizable, ostream& out, map<string, string>& globalAliases, const vector<string>& names, bool printLocalAliases = true);
-    static void describeSubstitutionModel_(const SubstitutionModel* model, ostream& out, map<string, string>& globalAliases);
-    static void describeFrequenciesSet_(const FrequenciesSet* pfreqset, ostream& out);
-    static void describeDiscreteDistribution_(const DiscreteDistribution* rDist, ostream& out, map<string, string>& globalAliases);
+    static void describeParameters_(const ParameterAliasable* parametrizable, std::ostream& out, std::map<std::string, std::string>& globalAliases, const std::vector<std::string>& names, bool printLocalAliases = true);
+    static void describeSubstitutionModel_(const SubstitutionModel* model, std::ostream& out, std::map<std::string, std::string>& globalAliases);
+    static void describeFrequenciesSet_(const FrequenciesSet* pfreqset, std::ostream& out);
+    static void describeDiscreteDistribution_(const DiscreteDistribution* rDist, std::ostream& out, std::map<std::string,std:: string>& globalAliases);
 
   };
 

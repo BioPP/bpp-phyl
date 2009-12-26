@@ -44,18 +44,9 @@ knowledge of the CeCILL license and that you accept its terms.
 #include <Utils/MapTools.h>
 
 using namespace bpp;
+using namespace std;
 
-/*
-void SubstitutionModelSet::makeRandomNodeToModelLinks()
-{
-  int rand;
-  for (int i=0;i<_numberOfNodes; i++) {
-    rand = RandomTools::giveIntRandomNumberBetweenZeroAndEntry(_numberOfModels);
-    setModelToNode(rand, i);
-  }
-}*/
-
-SubstitutionModelSet::SubstitutionModelSet(const SubstitutionModelSet & set):
+SubstitutionModelSet::SubstitutionModelSet(const SubstitutionModelSet& set):
   AbstractParametrizable(set),
   _alphabet             (set._alphabet),
   _nodeToModel          (set._nodeToModel),
@@ -74,7 +65,7 @@ SubstitutionModelSet::SubstitutionModelSet(const SubstitutionModelSet & set):
   _rootFrequencies = dynamic_cast<FrequenciesSet *>(set._rootFrequencies->clone());
 }
 
-SubstitutionModelSet & SubstitutionModelSet::operator=(const SubstitutionModelSet & set)
+SubstitutionModelSet & SubstitutionModelSet::operator=(const SubstitutionModelSet& set)
 {
   AbstractParametrizable::operator=(set);
   _alphabet            = set._alphabet;
@@ -95,7 +86,7 @@ SubstitutionModelSet & SubstitutionModelSet::operator=(const SubstitutionModelSe
   return *this;
 }
 
-vector<int> SubstitutionModelSet::getNodesWithParameter(const string & name) const
+std::vector<int> SubstitutionModelSet::getNodesWithParameter(const std::string& name) const
   throw (ParameterNotFoundException)
 {
   vector<int> ids;
@@ -115,7 +106,7 @@ vector<int> SubstitutionModelSet::getNodesWithParameter(const string & name) con
   throw ParameterNotFoundException("SubstitutionModelSet::getNodesWithParameter.", name);
 }
 
-vector<unsigned int> SubstitutionModelSet::getModelsWithParameter(const string & name) const
+vector<unsigned int> SubstitutionModelSet::getModelsWithParameter(const std::string& name) const
   throw (ParameterNotFoundException)
 {
   vector<unsigned int> indices;
@@ -128,7 +119,7 @@ vector<unsigned int> SubstitutionModelSet::getModelsWithParameter(const string &
   throw ParameterNotFoundException("SubstitutionModelSet::getModelsWithParameter.", name);
 }
 
-void SubstitutionModelSet::addModel(SubstitutionModel *model, const vector<int> & nodesId, const vector<string> & newParams) throw (Exception)
+void SubstitutionModelSet::addModel(SubstitutionModel *model, const std::vector<int>& nodesId, const vector<string> & newParams) throw (Exception)
 {
   if(model->getAlphabet()->getAlphabetType() != _alphabet->getAlphabetType())
     throw Exception("SubstitutionModelSet::addModel. A Substitution Model cannot be added to a Model Set if it does not have the same alphabet.");
@@ -160,7 +151,7 @@ void SubstitutionModelSet::addModel(SubstitutionModel *model, const vector<int> 
   }
 }
 
-void SubstitutionModelSet::setModel(SubstitutionModel * model, unsigned int modelIndex) throw (Exception, IndexOutOfBoundsException)
+void SubstitutionModelSet::setModel(SubstitutionModel* model, unsigned int modelIndex) throw (Exception, IndexOutOfBoundsException)
 {
   if(model->getAlphabet()->getAlphabetType() != _alphabet->getAlphabetType())
     throw Exception("SubstitutionModelSet::setModel. A Substitution Model cannot be added to a Model Set if it does not have the same alphabet");
@@ -187,7 +178,7 @@ void SubstitutionModelSet::removeModel(unsigned int modelIndex) throw (Exception
   checkOrphanParameters(true);
 }
 
-void SubstitutionModelSet::listModelNames(ostream & out) const
+void SubstitutionModelSet::listModelNames(std::ostream& out) const
 {
   for(unsigned int i = 0; i < _modelSet.size(); i++)
   {

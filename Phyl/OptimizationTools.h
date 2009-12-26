@@ -64,16 +64,16 @@ namespace bpp
 class NNITopologyListener:
   public TopologyListener
 {
-  protected:
-    NNITopologySearch * _topoSearch;
+  private:
+    NNITopologySearch* _topoSearch;
     ParameterList parameters_;
     double _tolerance;
-    ostream *_messenger;
-    ostream *_profiler;
+    std::ostream *_messenger;
+    std::ostream *_profiler;
     unsigned int _verbose;
     unsigned int _optimizeCounter;
     unsigned int _optimizeNumerical;
-    string _optMethod;
+    std::string _optMethod;
     unsigned int _nStep;
 
   public:
@@ -92,7 +92,15 @@ class NNITopologyListener:
      * @param optMethod  Optimization method to use.
      * @param nStep      The number of optimization steps to perform.
      */
-    NNITopologyListener(NNITopologySearch * ts, const ParameterList& parameters, double tolerance, ostream *messenger, ostream *profiler, unsigned int verbose, const string & optMethod, unsigned int nStep):
+    NNITopologyListener(
+        NNITopologySearch* ts,
+        const ParameterList& parameters,
+        double tolerance,
+        std::ostream* messenger,
+        std::ostream* profiler,
+        unsigned int verbose,
+        const std::string& optMethod,
+        unsigned int nStep):
       _topoSearch(ts), parameters_(parameters), _tolerance(tolerance),
       _messenger(messenger), _profiler(profiler),
       _verbose(verbose),
@@ -114,16 +122,16 @@ class NNITopologyListener:
 class NNITopologyListener2:
   public TopologyListener
 {
-  protected:
-    NNITopologySearch * _topoSearch;
+  private:
+    NNITopologySearch* _topoSearch;
     ParameterList parameters_;
     double _tolerance;
-    ostream *_messenger;
-    ostream *_profiler;
+    std::ostream* _messenger;
+    std::ostream* _profiler;
     unsigned int _verbose;
     unsigned int _optimizeCounter;
     unsigned int _optimizeNumerical;
-    string _optMethod;
+    std::string _optMethod;
 
   public:
     /**
@@ -140,7 +148,14 @@ class NNITopologyListener2:
      * @param verbose    Verbose level during optimization.
      * @param optMethod  Optimization method to use.
      */
-    NNITopologyListener2(NNITopologySearch * ts, const ParameterList& parameters, double tolerance, ostream *messenger, ostream *profiler, unsigned int verbose, const string & optMethod):
+    NNITopologyListener2(
+        NNITopologySearch* ts,
+        const ParameterList& parameters,
+        double tolerance,
+        std::ostream* messenger,
+        std::ostream* profiler,
+        unsigned int verbose,
+        const std::string& optMethod) :
       _topoSearch(ts), parameters_(parameters), _tolerance(tolerance),
       _messenger(messenger), _profiler(profiler),
       _verbose(verbose),
@@ -178,8 +193,8 @@ class OptimizationTools
 	
 	public:
 
-    static string OPTIMIZATION_GRADIENT;
-    static string OPTIMIZATION_NEWTON;
+    static std::string OPTIMIZATION_GRADIENT;
+    static std::string OPTIMIZATION_NEWTON;
 		
 		/**
 		 * @brief Optimize numerical parameters (branch length, substitution model & rate distribution) of a TreeLikelihood function.
@@ -207,14 +222,14 @@ class OptimizationTools
 		static unsigned int optimizeNumericalParameters(
 			DiscreteRatesAcrossSitesTreeLikelihood * tl,
       const ParameterList& parameters,
-      OptimizationListener * listener = NULL,
+      OptimizationListener * listener = 0,
       unsigned int nstep = 1,
 			double tolerance = 0.000001,
 			unsigned int tlEvalMax = 1000000,
-			ostream * messageHandler = &cout,
-			ostream * profiler       = &cout,
+			std::ostream* messageHandler = &std::cout,
+			std::ostream* profiler       = &std::cout,
 			unsigned int verbose = 1,
-      const string & method = OPTIMIZATION_NEWTON)
+      const std::string& method = OPTIMIZATION_NEWTON)
 			throw (Exception);
 	
 		/**
@@ -239,13 +254,13 @@ class OptimizationTools
 		static unsigned int optimizeNumericalParameters2(
 			DiscreteRatesAcrossSitesTreeLikelihood * tl,
       const ParameterList& parameters,
-      OptimizationListener * listener = NULL,
+      OptimizationListener * listener = 0,
 			double tolerance = 0.000001,
 			unsigned int tlEvalMax = 1000000,
-			ostream * messageHandler = &cout,
-			ostream * profiler       = &cout,
+			std::ostream* messageHandler = &std::cout,
+			std::ostream* profiler       = &std::cout,
 			unsigned int verbose = 1,
-      const string & optMethod = OPTIMIZATION_NEWTON)
+      const std::string& optMethod = OPTIMIZATION_NEWTON)
 			throw (Exception);
 
     /**
@@ -272,13 +287,13 @@ class OptimizationTools
 		static unsigned int optimizeBranchLengthsParameters(
 			DiscreteRatesAcrossSitesTreeLikelihood * tl,
       const ParameterList& parameters,
-      OptimizationListener * listener = NULL,
+      OptimizationListener * listener = 0,
 			double tolerance = 0.000001,
 			unsigned int tlEvalMax = 1000000,
-			ostream * messageHandler = &cout,
-			ostream * profiler       = &cout,
+			std::ostream* messageHandler = &std::cout,
+			std::ostream* profiler       = &std::cout,
 			unsigned int verbose = 1,
-      const string & optMethod = OPTIMIZATION_NEWTON)
+      const std::string& optMethod = OPTIMIZATION_NEWTON)
 			throw (Exception);
 		
 		/**
@@ -306,16 +321,16 @@ class OptimizationTools
 		 * @throw Exception any exception thrown by the Optimizer.
 		 */
 		static unsigned int optimizeNumericalParametersWithGlobalClock(
-			DiscreteRatesAcrossSitesClockTreeLikelihood * cl,
+			DiscreteRatesAcrossSitesClockTreeLikelihood* cl,
       const ParameterList& parameters,
-      OptimizationListener * listener = NULL,
+      OptimizationListener* listener = 0,
       unsigned int nstep = 1,
 			double tolerance = 0.000001,
 			unsigned int tlEvalMax = 1000000,
-			ostream * messageHandler = &cout,
-			ostream * profiler       = &cout,
+			std::ostream* messageHandler = &std::cout,
+			std::ostream* profiler       = &std::cout,
 			unsigned int verbose = 1,
-      const string & optMethod = OPTIMIZATION_GRADIENT)
+      const std::string& optMethod = OPTIMIZATION_GRADIENT)
 			throw (Exception);
 
     /**
@@ -338,16 +353,15 @@ class OptimizationTools
 		 * @throw Exception any exception thrown by the Optimizer.
 		 */
 		static unsigned int optimizeNumericalParametersWithGlobalClock2(
-			DiscreteRatesAcrossSitesClockTreeLikelihood * cl,
+			DiscreteRatesAcrossSitesClockTreeLikelihood* cl,
       const ParameterList& parameters,
-      OptimizationListener * listener = NULL,
+      OptimizationListener* listener = 0,
 			double tolerance = 0.000001,
 			unsigned int tlEvalMax = 1000000,
-			ostream * messageHandler = &cout,
-			ostream * profiler       = &cout,
+			std::ostream* messageHandler = &std::cout,
+			std::ostream* profiler       = &std::cout,
 			unsigned int verbose = 1,
-      const string & optMethod = OPTIMIZATION_GRADIENT
-      )
+      const std::string& optMethod = OPTIMIZATION_GRADIENT)
 			throw (Exception);
 
 
@@ -382,7 +396,7 @@ class OptimizationTools
           if(name == "lambda") return _lambda[0];
           else throw ParameterNotFoundException("ScaleFunction::getParameter.", name);
         }
-				double getParameterValue(const string & name) const throw (ParameterNotFoundException)
+				double getParameterValue(const std::string& name) const throw (ParameterNotFoundException)
         {
           return _lambda.getParameter(name).getValue();
         }
@@ -415,11 +429,11 @@ class OptimizationTools
 		 * @throw Exception any exception thrown by the optimizer.
 		 */
 		static unsigned int optimizeTreeScale(
-			  TreeLikelihood * tl,
+			  TreeLikelihood* tl,
 			  double tolerance = 0.000001,
 			  int tlEvalMax = 1000000,
-			  ostream * messageHandler = &cout,
-			  ostream * profiler       = &cout,
+			  std::ostream* messageHandler = &std::cout,
+			  std::ostream* profiler       = &std::cout,
 			  unsigned int verbose = 1)
       throw (Exception);
 
@@ -460,20 +474,20 @@ class OptimizationTools
      * @endcode
 		 * @throw Exception any exception thrown by the optimizer.
      */
-    static NNIHomogeneousTreeLikelihood * optimizeTreeNNI(
-        NNIHomogeneousTreeLikelihood * tl,
+    static NNIHomogeneousTreeLikelihood* optimizeTreeNNI(
+        NNIHomogeneousTreeLikelihood* tl,
         const ParameterList& parameters,
         bool optimizeNumFirst = true,
 			  double tolBefore = 100,
 			  double tolDuring = 100,
 			  int tlEvalMax = 1000000,
         unsigned int numStep = 1,
-			  ostream * messageHandler = &cout,
-			  ostream * profiler       = &cout,
-			  unsigned int verbose     = 1,
-        const string & optMethod = OptimizationTools::OPTIMIZATION_NEWTON,
-        unsigned int nStep       = 1,
-        const string & nniMethod = NNITopologySearch::PHYML)
+			  std::ostream* messageHandler = &std::cout,
+			  std::ostream* profiler       = &std::cout,
+			  unsigned int verbose = 1,
+        const std::string& optMethod = OptimizationTools::OPTIMIZATION_NEWTON,
+        unsigned int nStep = 1,
+        const std::string& nniMethod = NNITopologySearch::PHYML)
       throw (Exception);
 
     /**
@@ -512,19 +526,19 @@ class OptimizationTools
      * @endcode
 		 * @throw Exception any exception thrown by the optimizer.
      */
-    static NNIHomogeneousTreeLikelihood * optimizeTreeNNI2(
-        NNIHomogeneousTreeLikelihood * tl,
+    static NNIHomogeneousTreeLikelihood* optimizeTreeNNI2(
+        NNIHomogeneousTreeLikelihood* tl,
         const ParameterList& parameters,
         bool optimizeNumFirst = true,
 			  double tolBefore = 100,
 			  double tolDuring = 100,
 			  int tlEvalMax = 1000000,
         unsigned int numStep = 1,
-			  ostream * messageHandler = &cout,
-			  ostream * profiler       = &cout,
+			  std::ostream* messageHandler = &std::cout,
+			  std::ostream* profiler       = &std::cout,
 			  unsigned int verbose     = 1,
-        const string & optMethod = OptimizationTools::OPTIMIZATION_NEWTON,
-        const string & nniMethod = NNITopologySearch::PHYML)
+        const std::string& optMethod = OptimizationTools::OPTIMIZATION_NEWTON,
+        const std::string& nniMethod = NNITopologySearch::PHYML)
       throw (Exception);
 
     /**
@@ -541,8 +555,8 @@ class OptimizationTools
      * @endcode
      */
     
-    static DRTreeParsimonyScore * optimizeTreeNNI(
-        DRTreeParsimonyScore * tp,
+    static DRTreeParsimonyScore* optimizeTreeNNI(
+        DRTreeParsimonyScore* tp,
         unsigned int verbose = 1);
 
     /**
@@ -579,14 +593,14 @@ class OptimizationTools
         const std::string& param = DISTANCEMETHOD_INIT,
         double tolerance = 0.000001,
         unsigned int tlEvalMax = 1000000,
-        ostream* profiler = 0,
-        ostream* messenger = 0,
+        std::ostream* profiler = 0,
+        std::ostream* messenger = 0,
         unsigned int verbose = 0) throw (Exception);
 
   public:
-    static string DISTANCEMETHOD_INIT;
-    static string DISTANCEMETHOD_PAIRWISE;
-    static string DISTANCEMETHOD_ITERATIONS;
+    static std::string DISTANCEMETHOD_INIT;
+    static std::string DISTANCEMETHOD_PAIRWISE;
+    static std::string DISTANCEMETHOD_ITERATIONS;
 };
 
 

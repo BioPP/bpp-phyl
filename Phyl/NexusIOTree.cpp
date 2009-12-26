@@ -93,7 +93,7 @@ NexusIOTree::read(istream &in) const throw (Exception)
 
 /******************************************************************************/
 
-void NexusIOTree::read(istream& in, vector<Tree*>& trees) const throw (Exception)
+void NexusIOTree::read(std::istream& in, std::vector<Tree*>& trees) const throw (Exception)
 {
 	// Checking the existence of specified file
 	if (! in) { throw IOException ("NexusIOTree::read(). Failed to read from stream"); }
@@ -140,10 +140,10 @@ void NexusIOTree::read(istream& in, vector<Tree*>& trees) const throw (Exception
   {
     if (cmdName != "TREE")
       throw Exception("NexusIOTree::read(). Unvalid command found: " + cmdName);
-    string::size_type i = cmdArgs.find("=");
-    if (i == string::npos)
+    string::size_type pos = cmdArgs.find("=");
+    if (pos == string::npos)
       throw Exception("NexusIOTree::read(). unvalid format, should be tree-name=tree-description");
-    string description = cmdArgs.substr(i + 1);
+    string description = cmdArgs.substr(pos + 1);
 	  TreeTemplate<Node>* tree = TreeTemplateTools::parenthesisToTree(description + ";", true);
 
     //Now translate leaf names if there is a translation:
@@ -151,10 +151,10 @@ void NexusIOTree::read(istream& in, vector<Tree*>& trees) const throw (Exception
     if (hasTranslation)
     {
       vector<Node*> leaves = tree->getLeaves();
-      for(unsigned int i = 0; i < leaves.size(); i++)
+      for (unsigned int i = 0; i < leaves.size(); i++)
       {
         string name = leaves[i]->getName();
-        if(translation.find(name) == translation.end())
+        if (translation.find(name) == translation.end())
         {
           throw Exception("NexusIOTree::read(). No translation was given for this leaf: " + name);
         }

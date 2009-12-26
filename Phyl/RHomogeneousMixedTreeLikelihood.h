@@ -64,9 +64,9 @@ class RHomogeneousMixedTreeLikelihood :
 {
  private:
 
-  MixedSubstitutionModel * mixedmodel_;
+  MixedSubstitutionModel* mixedmodel_;
 
-  vector<RHomogeneousTreeLikelihood*> treelikelihoodscontainer_;
+  std::vector<RHomogeneousTreeLikelihood*> treelikelihoodscontainer_;
 
 public:
   /**
@@ -175,7 +175,7 @@ public:
    *
    * @{
    */
-  double getFirstOrderDerivative(const string & variable) const throw (Exception);
+  double getFirstOrderDerivative(const std::string& variable) const throw (Exception);
   /** @} */
   
   /**
@@ -183,8 +183,8 @@ public:
    *
    * @{
 		 */
-  double getSecondOrderDerivative(const string & variable) const throw (Exception);
-  double getSecondOrderDerivative(const string & variable1, const string & variable2) const throw (Exception) { return 0; } // Not implemented for now.
+  double getSecondOrderDerivative(const std::string& variable) const throw (Exception);
+  double getSecondOrderDerivative(const std::string& variable1, const std::string& variable2) const throw (Exception) { return 0; } // Not implemented for now.
   /** @} */
   
 public:	// Specific methods:
@@ -199,13 +199,13 @@ public:	// Specific methods:
   
   virtual double getDLikelihoodForASite(unsigned int site) const;
       
-  virtual void computeTreeDLikelihood(const string & variable);
+  virtual void computeTreeDLikelihood(const std::string& variable);
   
   virtual double getD2LikelihoodForASiteForARateClass(unsigned int site, unsigned int rateClass) const;
   
   virtual double getD2LikelihoodForASite(unsigned int site) const;
   
-  virtual void computeTreeD2Likelihood(const string & variable);
+  virtual void computeTreeD2Likelihood(const std::string& variable);
   
 protected:
   

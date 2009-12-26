@@ -89,7 +89,7 @@ double PseudoNewtonOptimizer::doStep() throw (Exception)
   if (updateParameters()) bckPoint = new ParameterList(getFunction()->getParameters());
   double newValue = 0;
   // Compute derivative at current point:
-  vector<double> movements(_n);
+  std::vector<double> movements(_n);
   ParameterList newPoint = getParameters();
   for (unsigned int i = 0; i < _n; i++)
   {

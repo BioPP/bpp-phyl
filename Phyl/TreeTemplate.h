@@ -205,7 +205,7 @@ class TreeTemplate:
 				
 		Clonable* removeNodeProperty(int nodeId, const std::string& name) throw (NodeNotFoundException) { return getNode(nodeId)->removeNodeProperty(name); }
 		
-    vector<std::string> getNodePropertyNames(int nodeId) const throw (NodeNotFoundException) { return getNode(nodeId)->getNodePropertyNames(); }
+    std::vector<std::string> getNodePropertyNames(int nodeId) const throw (NodeNotFoundException) { return getNode(nodeId)->getNodePropertyNames(); }
 		
 		bool hasBranchProperty(int nodeId, const std::string& name) const throw (NodeNotFoundException) { return getNode(nodeId)->hasBranchProperty(name); }
 	
@@ -217,7 +217,7 @@ class TreeTemplate:
 				
 		Clonable* removeBranchProperty(int nodeId, const std::string& name) throw (NodeNotFoundException) { return getNode(nodeId)->removeBranchProperty(name); }
 		
-    vector<std::string> getBranchPropertyNames(int nodeId) const throw (NodeNotFoundException) { return getNode(nodeId)->getBranchPropertyNames(); }
+    std::vector<std::string> getBranchPropertyNames(int nodeId) const throw (NodeNotFoundException) { return getNode(nodeId)->getBranchPropertyNames(); }
 		
     void rootAt(int nodeId) throw (NodeNotFoundException)	{	rootAt(getNode(nodeId)); }
 		
@@ -271,8 +271,8 @@ class TreeTemplate:
 
 		void resetNodesId()
 		{
-			vector<N *> nodes = getNodes();
-			for(unsigned int i = 0; i < nodes.size(); i++)
+      std::vector<N *> nodes = getNodes();
+			for (unsigned int i = 0; i < nodes.size(); i++)
       {
         nodes[i]->setId(i);
       }
@@ -288,7 +288,7 @@ class TreeTemplate:
 			return b;
 		}
 		
-		vector<double> getBranchLengths() throw (NodeException)
+    std::vector<double> getBranchLengths() throw (NodeException)
 		{
 			Vdouble brLen(1);
 			for(unsigned int i = 0; i < root_->getNumberOfSons(); i++)
@@ -335,7 +335,7 @@ class TreeTemplate:
 
     void swapNodes(int parentId, unsigned int i1, unsigned int i2) throw (NodeNotFoundException,IndexOutOfBoundsException)
     {
-			vector<N *> nodes = TreeTemplateTools::searchNodeWithId<N>(*root_, parentId);
+      std::vector<N*> nodes = TreeTemplateTools::searchNodeWithId<N>(*root_, parentId);
 			if(nodes.size() == 0) throw NodeNotFoundException("TreeTemplate:swapNodes(): Node with id not found.", "" + parentId);
       for(unsigned int i = 0; i < nodes.size(); i++) nodes[i]->swap(i1, i2); 
     }
@@ -352,21 +352,21 @@ class TreeTemplate:
 		
 		virtual const N* getRootNode() const { return root_; }
 		
-		virtual vector<const N*> getLeaves() const { return TreeTemplateTools::getLeaves(* const_cast<const N *>(root_)); }
+		virtual std::vector<const N*> getLeaves() const { return TreeTemplateTools::getLeaves(* const_cast<const N *>(root_)); }
 
-		virtual vector<N*> getLeaves() { return TreeTemplateTools::getLeaves(* root_); }
+		virtual std::vector<N*> getLeaves() { return TreeTemplateTools::getLeaves(* root_); }
 	
-		virtual vector<const N*> getNodes() const { return TreeTemplateTools::getNodes(* const_cast<const N *>(root_)); }
+		virtual std::vector<const N*> getNodes() const { return TreeTemplateTools::getNodes(* const_cast<const N *>(root_)); }
 
-		virtual vector<N*> getNodes() { return TreeTemplateTools::getNodes(* root_); }
+		virtual std::vector<N*> getNodes() { return TreeTemplateTools::getNodes(* root_); }
 		
-		virtual vector<const N*> getInnerNodes() const { return TreeTemplateTools::getInnerNodes(* const_cast<const N *>(root_)); }
+		virtual std::vector<const N*> getInnerNodes() const { return TreeTemplateTools::getInnerNodes(* const_cast<const N *>(root_)); }
 
-		virtual vector<N *> getInnerNodes() { return TreeTemplateTools::getInnerNodes(* root_); }
+		virtual std::vector<N *> getInnerNodes() { return TreeTemplateTools::getInnerNodes(* root_); }
 	
 		virtual N* getNode(int id) throw (NodeNotFoundException, Exception)
 		{
-			vector<N *> nodes;
+      std::vector<N*> nodes;
       TreeTemplateTools::searchNodeWithId<N>(*root_, id, nodes);
 			if(nodes.size() > 1) throw Exception("TreeTemplate::getNode(): Non-unique id! (" + TextTools::toString(id) + ").");
 			if(nodes.size() == 0) throw NodeNotFoundException("TreeTemplate::getNode(): Node with id not found.", "" + id);
@@ -375,7 +375,7 @@ class TreeTemplate:
 		
 		virtual const N* getNode(int id) const throw (NodeNotFoundException, Exception)
 		{
-			vector<const N *> nodes;
+      std::vector<const N*> nodes;
       TreeTemplateTools::searchNodeWithId<const N>(*root_, id, nodes);
 			if(nodes.size() > 1) throw Exception("TreeTemplate::getNode(): Non-unique id! (" + TextTools::toString(id) + ").");
 			if(nodes.size() == 0) throw NodeNotFoundException("TreeTemplate::getNode(): Node with id not found.", "" + id);
@@ -384,7 +384,7 @@ class TreeTemplate:
 
 	  virtual N* getNode(const std::string& name) throw (NodeNotFoundException, Exception)
     {	
-		  vector<N *> nodes;
+      std::vector<N*> nodes;
       TreeTemplateTools::searchNodeWithName(*root_, name, nodes);
   		if(nodes.size() > 1)  throw NodeNotFoundException("TreeTemplate::getNode(): Non-unique name.", "" + name);
 	  	if(nodes.size() == 0) throw NodeNotFoundException("TreeTemplate::getNode(): Node with name not found.", "" + name);
@@ -393,7 +393,7 @@ class TreeTemplate:
 
     virtual const N* getNode(const std::string& name) const throw (NodeNotFoundException, Exception)
     {	
-		  vector<const N *> nodes;
+      std::vector<const N*> nodes;
       TreeTemplateTools::searchNodeWithName<const N>(*root_, name, nodes);
   		if(nodes.size() > 1)  throw NodeNotFoundException("TreeTemplate::getNode(): Non-unique name.", "" + name);
 	  	if(nodes.size() == 0) throw NodeNotFoundException("TreeTemplate::getNode(): Node with name not found.", "" + name);
@@ -403,8 +403,8 @@ class TreeTemplate:
 		void rootAt(N* newRoot)
 	  {
 			if (root_ == newRoot) return;
-			if(isRooted()) unroot();
-			vector<Node *> path = TreeTemplateTools::getPathBetweenAnyTwoNodes(*root_, *newRoot);
+			if (isRooted()) unroot();
+      std::vector<Node*> path = TreeTemplateTools::getPathBetweenAnyTwoNodes(*root_, *newRoot);
 
 			for (unsigned int i = 0; i < path.size() - 1 ; i++)
       {
@@ -420,7 +420,7 @@ class TreeTemplate:
         else path[i]->deleteDistanceToFather();
 				path[i+1]->addSon(path[i]);
 
-        vector<std::string> names = path[i+1]->getBranchPropertyNames();
+        std::vector<std::string> names = path[i+1]->getBranchPropertyNames();
         for(unsigned int j = 0; j < names.size(); j++)
         {
           path[i]->setBranchProperty(names[j], *path[i+1]->getBranchProperty(names[j]));

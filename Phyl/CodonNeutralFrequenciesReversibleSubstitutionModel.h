@@ -92,7 +92,7 @@ public:
   
 public:
 
-  string getName() const;
+  std::string getName() const;
   void updateMatrices();
 
 protected:

@@ -61,77 +61,77 @@ const string SubstitutionModelFactory::FELSENSTEIN84           = "F84";
 const string SubstitutionModelFactory::JOHN_TAYLOR_THORNTON    = "JTT92";
 const string SubstitutionModelFactory::DAYHOFF_SCHWARTZ_ORCUTT = "DSO78";
 
-SubstitutionModel * SubstitutionModelFactory::createModel(const string& modelName) const throw (AlphabetException, Exception)
+SubstitutionModel* SubstitutionModelFactory::createModel(const string& modelName) const throw (AlphabetException, Exception)
 {
-  if(modelName == JUKES_CANTOR)
+  if (modelName == JUKES_CANTOR)
   {
-    if(AlphabetTools::isNucleicAlphabet(_alphabet))
-      return new JCnuc(dynamic_cast<const NucleicAlphabet *>(_alphabet));
+    if (AlphabetTools::isNucleicAlphabet(alphabet_))
+      return new JCnuc(dynamic_cast<const NucleicAlphabet *>(alphabet_));
     else
-      return new JCprot(dynamic_cast<const ProteicAlphabet *>(_alphabet));
+      return new JCprot(dynamic_cast<const ProteicAlphabet *>(alphabet_));
   }
   else if(modelName == KIMURA_2P)
   {
     try { 
-      return new K80(dynamic_cast<const NucleicAlphabet *>(_alphabet));
+      return new K80(dynamic_cast<const NucleicAlphabet *>(alphabet_));
     } catch(Exception & e) {
-      throw AlphabetException("SubstitutionModelFactory::createInstanceOf(). K80 model requires a nucleotide alphabet.", _alphabet);
+      throw AlphabetException("SubstitutionModelFactory::createInstanceOf(). K80 model requires a nucleotide alphabet.", alphabet_);
     }
   }
   else if(modelName == TAMURA)
   {
     try { 
-      return new T92(dynamic_cast<const NucleicAlphabet *>(_alphabet));
+      return new T92(dynamic_cast<const NucleicAlphabet *>(alphabet_));
     } catch(Exception & e) {
-      throw AlphabetException("SubstitutionModelFactory::createInstanceOf(). T92 model requires a nucleotide alphabet.", _alphabet);
+      throw AlphabetException("SubstitutionModelFactory::createInstanceOf(). T92 model requires a nucleotide alphabet.", alphabet_);
     }
   }
   else if(modelName == FELSENSTEIN84)
   {
     try { 
-      return new F84(dynamic_cast<const NucleicAlphabet *>(_alphabet));
+      return new F84(dynamic_cast<const NucleicAlphabet *>(alphabet_));
     } catch(Exception & e) {
-      throw AlphabetException("SubstitutionModelFactory::createInstanceOf(). T92 model requires a nucleotide alphabet.", _alphabet);
+      throw AlphabetException("SubstitutionModelFactory::createInstanceOf(). T92 model requires a nucleotide alphabet.", alphabet_);
     }
   }
   else if(modelName == TAMURA_NEI)
   {
     try { 
-      return new TN93(dynamic_cast<const NucleicAlphabet *>(_alphabet));
+      return new TN93(dynamic_cast<const NucleicAlphabet *>(alphabet_));
     } catch(Exception & e) {
-      throw AlphabetException("SubstitutionModelFactory::createInstanceOf(). TN93 model requires a nucleotide alphabet.", _alphabet);
+      throw AlphabetException("SubstitutionModelFactory::createInstanceOf(). TN93 model requires a nucleotide alphabet.", alphabet_);
     }
   }
   else if(modelName == HASEGAWA_KISHINO_YANO)
   {
     try { 
-      return new HKY85(dynamic_cast<const NucleicAlphabet *>(_alphabet));
+      return new HKY85(dynamic_cast<const NucleicAlphabet *>(alphabet_));
     } catch(Exception & e) {
-      throw AlphabetException("SubstitutionModelFactory::createInstanceOf(). HKY85 model requires a nucleotide alphabet.", _alphabet);
+      throw AlphabetException("SubstitutionModelFactory::createInstanceOf(). HKY85 model requires a nucleotide alphabet.", alphabet_);
     }
   }
   else if(modelName == GENERAL_TIME_REVERSIBLE)
   {
     try { 
-      return new GTR(dynamic_cast<const NucleicAlphabet *>(_alphabet));
+      return new GTR(dynamic_cast<const NucleicAlphabet *>(alphabet_));
     } catch(Exception & e) {
-      throw AlphabetException("SubstitutionModelFactory::createInstanceOf(). GTR model requires a nucleotide alphabet.", _alphabet);
+      throw AlphabetException("SubstitutionModelFactory::createInstanceOf(). GTR model requires a nucleotide alphabet.", alphabet_);
     }
   }
   else if(modelName == JOHN_TAYLOR_THORNTON)
   {
     try { 
-      return new JTT92(dynamic_cast<const ProteicAlphabet *>(_alphabet));
+      return new JTT92(dynamic_cast<const ProteicAlphabet *>(alphabet_));
     } catch(Exception & e) {
-      throw AlphabetException("SubstitutionModelFactory::createInstanceOf(). JTT92 model requires a protein alphabet.", _alphabet);
+      throw AlphabetException("SubstitutionModelFactory::createInstanceOf(). JTT92 model requires a protein alphabet.", alphabet_);
     }
   }
   else if(modelName == DAYHOFF_SCHWARTZ_ORCUTT)
   {
     try { 
-      return new DSO78(dynamic_cast<const ProteicAlphabet *>(_alphabet));
+      return new DSO78(dynamic_cast<const ProteicAlphabet *>(alphabet_));
     } catch(Exception & e) {
-      throw AlphabetException("SubstitutionModelFactory::createInstanceOf(). DSO78 model requires a protein alphabet.", _alphabet);
+      throw AlphabetException("SubstitutionModelFactory::createInstanceOf(). DSO78 model requires a protein alphabet.", alphabet_);
     }
   }
   else throw Exception("SubstitutionModelFactory::createModel(). Unknown model: " + modelName);

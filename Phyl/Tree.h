@@ -50,8 +50,6 @@ knowledge of the CeCILL license and that you accept its terms.
 #include <vector>
 #include <map>
 
-using namespace std;
-
 /**
  * @mainpage
  *
@@ -148,7 +146,7 @@ namespace bpp
  * @brief Interface for phylogenetic tree objects. 
  */
 class Tree:
-  public Clonable
+  public virtual Clonable
 {
 
 	public: // Constructors and destructor:
@@ -156,7 +154,7 @@ class Tree:
 		Tree() {}
 		virtual ~Tree() {}
 
-    Tree * clone() const = 0;
+    Tree* clone() const = 0;
 
 	public:
 		
@@ -165,18 +163,18 @@ class Tree:
 		 *
 		 * @{
 		 */
-		virtual string getName() const = 0;
+		virtual std::string getName() const = 0;
 		
-		virtual void setName(const string & name) = 0;
+		virtual void setName(const std::string& name) = 0;
 		/** @} */
 		
 		virtual unsigned int getNumberOfLeaves() const = 0;
 		
 		virtual unsigned int getNumberOfNodes() const = 0;
 
-		virtual vector<double> getBranchLengths() const = 0;
+		virtual std::vector<double> getBranchLengths() const = 0;
 
-		virtual vector<string> getLeavesNames() const = 0;
+		virtual std::vector<std::string> getLeavesNames() const = 0;
 
 		/**
 		 * @name Retrieving ids.
@@ -185,7 +183,7 @@ class Tree:
 		 */
 		virtual int getRootId() const = 0;
 
-		virtual int getLeafId(const string & name) const throw (NodeNotFoundException)= 0;
+		virtual int getLeafId(const std::string& name) const throw (NodeNotFoundException)= 0;
 	
 		virtual std::vector<int> getLeavesId() const = 0;
 
@@ -205,9 +203,9 @@ class Tree:
 		 *
 		 * @{
 		 */
-		virtual string getNodeName(int nodeId) const throw (NodeNotFoundException) = 0;
+		virtual std::string getNodeName(int nodeId) const throw (NodeNotFoundException) = 0;
 		
-		virtual void setNodeName(int nodeId, const string & name) throw (NodeNotFoundException) = 0;
+		virtual void setNodeName(int nodeId, const std::string& name) throw (NodeNotFoundException) = 0;
 		
 		virtual void deleteNodeName(int nodeId) throw (NodeNotFoundException) = 0;
 		
@@ -242,7 +240,7 @@ class Tree:
      * @throw NodeNotFoundException If the node is not found.
      * @throw IndexOutOfBoundsException If one node index is not valid, or if the node
      */
-    void swapNodes(const Tree & tree, int nodeId, unsigned int i1=0, unsigned int i2=1) throw (NodeNotFoundException,IndexOutOfBoundsException);
+    void swapNodes(const Tree& tree, int nodeId, unsigned int i1 = 0, unsigned int i2 = 1) throw (NodeNotFoundException,IndexOutOfBoundsException);
   
     /** @} */
 
@@ -265,17 +263,17 @@ class Tree:
 		 *
 		 * @{
 		 */
-		virtual bool hasNodeProperty(int nodeId, const string & name) const throw (NodeNotFoundException) = 0;
+		virtual bool hasNodeProperty(int nodeId, const std::string& name) const throw (NodeNotFoundException) = 0;
 		
-		virtual void setNodeProperty(int nodeId, const string & name, const Clonable & property) throw (NodeNotFoundException) = 0;
+		virtual void setNodeProperty(int nodeId, const std::string& name, const Clonable& property) throw (NodeNotFoundException) = 0;
 				
-		virtual Clonable * getNodeProperty(int nodeId, const string & name) throw (NodeNotFoundException) = 0;
+		virtual Clonable* getNodeProperty(int nodeId, const std::string& name) throw (NodeNotFoundException) = 0;
 				
-		virtual const Clonable * getNodeProperty(int nodeId, const string & name) const throw (NodeNotFoundException) = 0;
+		virtual const Clonable* getNodeProperty(int nodeId, const std::string& name) const throw (NodeNotFoundException) = 0;
 				
-		virtual Clonable * removeNodeProperty(int nodeId, const string & name) throw (NodeNotFoundException) = 0;
+		virtual Clonable* removeNodeProperty(int nodeId, const std::string& name) throw (NodeNotFoundException) = 0;
 
-    virtual vector<string> getNodePropertyNames(int nodeId) const throw (NodeNotFoundException) = 0;
+    virtual std::vector<std::string> getNodePropertyNames(int nodeId) const throw (NodeNotFoundException) = 0;
 		/** @} */
 		
 		/**
@@ -283,17 +281,17 @@ class Tree:
 		 *
 		 * @{
 		 */
-		virtual bool hasBranchProperty(int nodeId, const string & name) const throw (NodeNotFoundException) = 0;
+		virtual bool hasBranchProperty(int nodeId, const std::string& name) const throw (NodeNotFoundException) = 0;
 		
-		virtual void setBranchProperty(int nodeId, const string & name, const Clonable & property) throw (NodeNotFoundException) = 0;
+		virtual void setBranchProperty(int nodeId, const std::string& name, const Clonable & property) throw (NodeNotFoundException) = 0;
 				
-		virtual Clonable * getBranchProperty(int nodeId, const string & name) throw (NodeNotFoundException) = 0;
+		virtual Clonable* getBranchProperty(int nodeId, const std::string& name) throw (NodeNotFoundException) = 0;
 				
-		virtual const Clonable * getBranchProperty(int nodeId, const string & name) const throw (NodeNotFoundException) = 0;
+		virtual const Clonable* getBranchProperty(int nodeId, const std::string& name) const throw (NodeNotFoundException) = 0;
 				
-		virtual Clonable * removeBranchProperty(int nodeId, const string & name) throw (NodeNotFoundException) = 0;
+		virtual Clonable* removeBranchProperty(int nodeId, const std::string& name) throw (NodeNotFoundException) = 0;
 
-    virtual vector<string> getBranchPropertyNames(int nodeId) const throw (NodeNotFoundException) = 0;
+    virtual std::vector<std::string> getBranchPropertyNames(int nodeId) const throw (NodeNotFoundException) = 0;
 		/** @} */
 
 		/**
@@ -352,7 +350,7 @@ class Tree:
 		 * @return A vector with all branch lengths.
 		 * @throw NodeException If a branch length is lacking.
 		 */
-		virtual vector<double> getBranchLengths() throw (NodeException) = 0;
+		virtual std::vector<double> getBranchLengths() throw (NodeException) = 0;
 
 		/**
 		 * @brief Get the total length (sum of all branch lengths) of a tree.

@@ -51,7 +51,7 @@ using namespace bpp;
 
 using namespace std;
 
-void AbstractAgglomerativeDistanceMethod::setDistanceMatrix(const DistanceMatrix & matrix)
+void AbstractAgglomerativeDistanceMethod::setDistanceMatrix(const DistanceMatrix& matrix)
 {
   _matrix = matrix;
   if(_tree != NULL) delete _tree;
@@ -79,7 +79,7 @@ void AbstractAgglomerativeDistanceMethod::computeTree(bool rooted) throw (Except
     // Distances may be used by getParentNodes (PGMA for instance).
     best1->setDistanceToFather(distances[0]);
     best2->setDistanceToFather(distances[1]);
-    Node * parent = getParentNode(idNextNode, best1, best2);
+    Node* parent = getParentNode(idNextNode, best1, best2);
     idNextNode++;
     for(map<unsigned int, Node *>::iterator i = _currentNodes.begin(); i != _currentNodes.end(); i++)
     {
@@ -105,12 +105,12 @@ void AbstractAgglomerativeDistanceMethod::computeTree(bool rooted) throw (Except
   finalStep(idNextNode);
 }
 
-Node * AbstractAgglomerativeDistanceMethod::getLeafNode(int id, const string & name)
+Node* AbstractAgglomerativeDistanceMethod::getLeafNode(int id, const std::string& name)
 {
   return new Node(id, name);
 }
 
-Node * AbstractAgglomerativeDistanceMethod::getParentNode(int id, Node * son1, Node * son2)
+Node* AbstractAgglomerativeDistanceMethod::getParentNode(int id, Node* son1, Node* son2)
 {
   Node* parent = new Node(id);
   parent->addSon(son1);

@@ -68,7 +68,7 @@ class G2001:
   protected:
     DiscreteDistribution * rDist_;
 
-    string nestedRatePrefix_;
+    std::string nestedRatePrefix_;
 
   public:
     /**
@@ -86,7 +86,7 @@ class G2001:
       nbRates_ = rDist_->getNumberOfCategories();
       ratesExchangeability_.resize(nbRates_, nbRates_);
       rates_.resize(nbRates_, nbRates_);
-      ratesFreq_ = vector<double>(nbRates_, 1./(double)nbRates_);
+      ratesFreq_ = std::vector<double>(nbRates_, 1./static_cast<double>(nbRates_));
       rDist_->setNamespace(getNamespace() + nestedRatePrefix_);
       addParameters_(rDist_->getIndependentParameters());
       Parameter p("G01.nu", nu, &Parameter::R_PLUS);
@@ -120,7 +120,7 @@ class G2001:
     clone() const { return new G2001(*this); }
 
   public:
-    string getName() const { return "G01"; }
+    std::string getName() const { return "G01"; }
 
     /**
      * @brief Re-definition of the super-class method to update the rate distribution too.
@@ -138,7 +138,7 @@ class G2001:
      */
     const DiscreteDistribution* getRateDistribution() const { return rDist_; }
 
-    void setNamespace(const string& prefix)
+    void setNamespace(const std::string& prefix)
     {
       MarkovModulatedSubstitutionModel::setNamespace(prefix);
       //We also need to update the namespace of the nested distribution:

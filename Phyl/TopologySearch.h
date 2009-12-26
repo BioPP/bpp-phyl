@@ -46,7 +46,6 @@ knowledge of the CeCILL license and that you accept its terms.
 // From the STL:
 #include <string>
 #include <vector>
-using namespace std;
 
 namespace bpp
 {
@@ -57,11 +56,11 @@ namespace bpp
 class TopologyChangeEvent
 {
 	protected:
-		string _message;
+    std::string message_;
 		
 	public:
-		TopologyChangeEvent(): _message("") {}
-		TopologyChangeEvent(const string & message): _message(message) {}
+		TopologyChangeEvent(): message_("") {}
+		TopologyChangeEvent(const std::string& message): message_(message) {}
 		virtual ~TopologyChangeEvent() {}
 
 	public:
@@ -70,7 +69,7 @@ class TopologyChangeEvent
 		 *
 		 * @return The message associated to this event.
 		 */
-		virtual string getMessage() const { return _message; }
+		virtual const std::string& getMessage() const { return message_; }
 
 };
 

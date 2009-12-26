@@ -177,7 +177,7 @@ class SubstitutionMappingTools
 		static void writeToStream(
 			const ProbabilisticSubstitutionMapping& substitutions,
 			const SiteContainer& sites,
-			ostream& out)
+			std::ostream& out)
 			throw (IOException);
 	
 		/**
@@ -187,7 +187,7 @@ class SubstitutionMappingTools
 		 * @param substitutions The mapping object to fill.
 		 * @throw IOException If an input error happens.
 		 */
-		static void readFromStream(istream& in, ProbabilisticSubstitutionMapping& substitutions)
+		static void readFromStream(std::istream& in, ProbabilisticSubstitutionMapping& substitutions)
 			throw (IOException);
     
 };

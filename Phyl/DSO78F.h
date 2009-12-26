@@ -70,7 +70,7 @@ class DSO78F:
     DSO78F* clone() const { return new DSO78F(*this); }
     
 	public:
-		string getName() const { return "DSO78+F"; }
+    std::string getName() const { return "DSO78+F"; }
 
 };
 

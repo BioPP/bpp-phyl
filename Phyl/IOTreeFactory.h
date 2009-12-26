@@ -54,7 +54,7 @@ namespace bpp
 class IOTreeFactory
 {
 public:
-  static const string NEWICK_FORMAT;  
+  static const std::string NEWICK_FORMAT;  
 
 public:
 
@@ -78,7 +78,7 @@ public:
    * @return A pointer toward a new ITree object.
    * @throw Exception If the format name do not match any available format.
    */
-  virtual ITree * createReader(const string & format) throw (Exception);
+  virtual ITree* createReader(const std::string& format) throw (Exception);
   
   /**
    * @brief Get a new dynamically created OTree object.
@@ -87,7 +87,7 @@ public:
    * @return A pointer toward a new OTree object.
    * @throw Exception If the format name do not match any available format.
    */
-  virtual OTree * createWriter(const string & format) throw (Exception);
+  virtual OTree* createWriter(const std::string& format) throw (Exception);
 };
 
 } //end of namespace bpp.

@@ -202,7 +202,7 @@ class RNonHomogeneousTreeLikelihood :
 		 *
 		 * @{
 		 */
-		double getFirstOrderDerivative(const string& variable) const throw (Exception);
+		double getFirstOrderDerivative(const std::string& variable) const throw (Exception);
 		/** @} */
 
 		/**
@@ -210,8 +210,8 @@ class RNonHomogeneousTreeLikelihood :
 		 *
 		 * @{
 		 */
-		double getSecondOrderDerivative(const string& variable) const throw (Exception);
-		double getSecondOrderDerivative(const string& variable1, const string& variable2) const throw (Exception) { return 0; } // Not implemented for now.
+		double getSecondOrderDerivative(const std::string& variable) const throw (Exception);
+		double getSecondOrderDerivative(const std::string& variable1, const std::string& variable2) const throw (Exception) { return 0; } // Not implemented for now.
 		/** @} */
 	
 	public:	// Specific methods:
@@ -229,7 +229,7 @@ class RNonHomogeneousTreeLikelihood :
 		
 		virtual double getDLogLikelihood() const;
 		
-		virtual void computeTreeDLikelihood(const string & variable);
+		virtual void computeTreeDLikelihood(const std::string& variable);
 
 		virtual double getD2LikelihoodForASiteForARateClass(unsigned int site, unsigned int rateClass) const;
 
@@ -239,7 +239,7 @@ class RNonHomogeneousTreeLikelihood :
 		
 		virtual double getD2LogLikelihood() const;
 		
-		virtual void computeTreeD2Likelihood(const string & variable);
+		virtual void computeTreeD2Likelihood(const std::string& variable);
 
 	
 	protected:

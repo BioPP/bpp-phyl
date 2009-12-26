@@ -47,8 +47,6 @@ knowledge of the CeCILL license and that you accept its terms.
 #include <iostream>
 #include <fstream>
 
-using namespace std;
-
 //From Utils:
 #include <Utils/Exceptions.h>
 #include <Utils/IOFormat.h>
@@ -67,7 +65,7 @@ class IOTree:
 		virtual ~IOTree() {}
 
 	public:
-		virtual const string getDataType() const { return "Tree"; }
+		virtual const std::string getDataType() const { return "Tree"; }
 };
 
 /**
@@ -88,7 +86,7 @@ class ITree:
      * @return A new tree object.
      * @throw Exception If an error occured.
      */
-		virtual Tree * read(const string & path) const throw (Exception) = 0;
+		virtual Tree* read(const std::string& path) const throw (Exception) = 0;
     /**
      * @brief Read a tree from a stream.
      *
@@ -96,7 +94,7 @@ class ITree:
      * @return A new tree object.
      * @throw Exception If an error occured.
      */
-		virtual Tree * read(istream & in) const throw (Exception) = 0;
+		virtual Tree* read(std::istream& in) const throw (Exception) = 0;
 };
 
 /**
@@ -119,7 +117,7 @@ class OTree:
      * Otherwise append to the file.
      * @throw Exception If an error occured.
      */
-		virtual void write(const Tree & tree, const string & path, bool overwrite) const throw (Exception) = 0;
+		virtual void write(const Tree& tree, const std::string& path, bool overwrite) const throw (Exception) = 0;
     /**
      * @brief Write a tree to a stream.
      *
@@ -127,7 +125,7 @@ class OTree:
      * @param out The output stream.
      * @throw Exception If an error occured.
      */
-		virtual void write(const Tree & tree, ostream & out) const throw (Exception) = 0;
+		virtual void write(const Tree& tree, std::ostream& out) const throw (Exception) = 0;
 };
 
 /**
@@ -141,11 +139,11 @@ class AbstractITree:
 		virtual ~AbstractITree() {}
 
 	public:
-		virtual Tree * read(istream & in) const throw (Exception) = 0;
-		virtual Tree * read(const string & path) const throw (Exception)
+		virtual Tree* read(std::istream& in) const throw (Exception) = 0;
+		virtual Tree* read(const std::string& path) const throw (Exception)
 		{
-			ifstream input(path.c_str(), ios::in);
-			Tree * tree = read(input);
+      std::ifstream input(path.c_str(), std::ios::in);
+			Tree* tree = read(input);
 			input.close();
 			return tree;
 		}
@@ -163,11 +161,11 @@ class AbstractOTree:
 		virtual ~AbstractOTree() {}
 
 	public:
-		void write(const Tree & tree, ostream & out) const throw (Exception) = 0;
-		virtual void write(const Tree & tree, const string & path, bool overwrite) const throw (Exception)
+		void write(const Tree& tree, std::ostream& out) const throw (Exception) = 0;
+		virtual void write(const Tree& tree, const std::string& path, bool overwrite) const throw (Exception)
 		{
 			// Open file in specified mode
-			ofstream output(path.c_str(), overwrite ? (ios::out) : (ios::out|ios::app));
+      std::ofstream output(path.c_str(), overwrite ? (std::ios::out) : (std::ios::out|std::ios::app));
 			write(tree, output);
 			output.close();
 		}
@@ -197,7 +195,7 @@ class IMultiTree:
      * @param trees The output trees container.
      * @throw Exception If an error occured.
      */
-		virtual void read(const string & path, vector<Tree *> & trees) const throw (Exception) = 0;
+		virtual void read(const std::string& path, std::vector<Tree*>& trees) const throw (Exception) = 0;
     /**
      * @brief Read trees from a stream.
      *
@@ -205,7 +203,7 @@ class IMultiTree:
      * @param trees The output trees container.
      * @throw Exception If an error occured.
      */
-		virtual void read(istream & in, vector<Tree *> & trees) const throw (Exception) = 0;
+		virtual void read(std::istream& in, std::vector<Tree*>& trees) const throw (Exception) = 0;
 };
 
 /**
@@ -228,7 +226,7 @@ class OMultiTree:
      * Otherwise append to the file.
      * @throw Exception If an error occured.
      */
-		virtual void write(const vector<Tree *> & trees, const string & path, bool overwrite) const throw (Exception) = 0;
+		virtual void write(const std::vector<Tree*>& trees, const std::string& path, bool overwrite) const throw (Exception) = 0;
     /**
      * @brief Write trees to a stream.
      *
@@ -236,7 +234,7 @@ class OMultiTree:
      * @param out The output stream.
      * @throw Exception If an error occured.
      */
-		virtual void write(const vector<Tree *> & trees, ostream & out) const throw (Exception) = 0;
+		virtual void write(const std::vector<Tree*>& trees, std::ostream& out) const throw (Exception) = 0;
 };
 
 /**
@@ -250,10 +248,10 @@ class AbstractIMultiTree:
 		virtual ~AbstractIMultiTree() {}
 
 	public:
-		virtual void read(istream & in, vector<Tree *> & trees) const throw (Exception) = 0;
-		virtual void read(const string & path, vector<Tree *> & trees) const throw (Exception)
+		virtual void read(std::istream& in, std::vector<Tree*>& trees) const throw (Exception) = 0;
+		virtual void read(const std::string& path, std::vector<Tree*>& trees) const throw (Exception)
 		{
-			ifstream input(path.c_str(), ios::in);
+      std::ifstream input(path.c_str(), std::ios::in);
 			read(input, trees);
 			input.close();
 		}
@@ -271,11 +269,11 @@ class AbstractOMultiTree:
 		virtual ~AbstractOMultiTree() {}
 
 	public:
-		void write(const vector<Tree *> & trees, ostream & out) const throw (Exception) = 0;
-		virtual void write(const vector<Tree *> & trees, const string & path, bool overwrite) const throw (Exception)
+		void write(const std::vector<Tree*>& trees, std::ostream& out) const throw (Exception) = 0;
+		virtual void write(const std::vector<Tree*>& trees, const std::string& path, bool overwrite) const throw (Exception)
 		{
 			// Open file in specified mode
-			ofstream output(path.c_str(), overwrite ? (ios::out) : (ios::out|ios::app));
+      std::ofstream output(path.c_str(), overwrite ? (std::ios::out) : (std::ios::out|std::ios::app));
 			write(trees, output);
 			output.close();
 		}

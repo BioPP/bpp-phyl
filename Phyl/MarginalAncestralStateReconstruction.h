@@ -63,7 +63,7 @@ namespace bpp
 class MarginalAncestralStateReconstruction:
   public AncestralStateReconstruction
 {
-	protected:
+	private:
 		const DRTreeLikelihood* _likelihood;
     const TreeTemplate<Node> _tree;
 		const Alphabet* _alphabet;
@@ -71,9 +71,9 @@ class MarginalAncestralStateReconstruction:
 		unsigned int _nDistinctSites;
 		unsigned int _nClasses;
 		unsigned int _nStates;
-		vector<unsigned int> _rootPatternLinks;
-    vector<double> _r;
-    vector<double> _l;
+    std::vector<unsigned int> _rootPatternLinks;
+    std::vector<double> _r;
+    std::vector<double> _l;
 		
 	public:
 		MarginalAncestralStateReconstruction(const DRTreeLikelihood* drl): _likelihood(drl), _tree(drl->getTree())
@@ -107,15 +107,15 @@ class MarginalAncestralStateReconstruction:
 		 * @return A vector of states indices.
 		 * @see getAncestralSequenceForNode
 		 */ 
-		vector<unsigned int> getAncestralStatesForNode(int nodeId, VVdouble & probs, bool sample) const;
+    std::vector<unsigned int> getAncestralStatesForNode(int nodeId, VVdouble& probs, bool sample) const;
 		
-    vector<unsigned int> getAncestralStatesForNode(int nodeId) const
+    std::vector<unsigned int> getAncestralStatesForNode(int nodeId) const
     {
       VVdouble probs(_nSites);
       return getAncestralStatesForNode(nodeId, probs, false);
     }
 		
-		map<int, vector<unsigned int> > getAllAncestralStates() const;
+    std::map<int, std::vector<unsigned int> > getAllAncestralStates() const;
 
 		/**
 		 * @brief Get the ancestral sequence for a given node.

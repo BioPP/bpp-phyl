@@ -73,7 +73,7 @@ class JCprotF:
     clone() const { return new JCprotF(*this); }
 
   public:
-		string getName() const { return "JCprot+F"; }
+    std::string getName() const { return "JCprot+F"; }
 	
 };
 

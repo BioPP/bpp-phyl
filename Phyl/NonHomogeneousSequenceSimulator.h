@@ -60,8 +60,6 @@ knowledge of the CeCILL license and that you accept its terms.
 #include <map>
 #include <vector>
 
-using namespace std;
-
 #include "SubstitutionModelSet.h"
 
 namespace bpp
@@ -71,7 +69,7 @@ class SimData
 {
   public:
     int state;
-    vector<int> states;
+    std::vector<int> states;
     VVVdouble cumpxy;
     const SubstitutionModel* model;
 };
@@ -99,9 +97,9 @@ class NonHomogeneousSequenceSimulator:
 		 * @brief This stores once for all all leaves in a given order.
 		 * This order will be used during site creation.
 		 */
-		vector<SNode *> _leaves;
+    std::vector<SNode*> _leaves;
 	
-		vector<string> _seqNames;
+    std::vector<std::string> _seqNames;
 
 		unsigned int _nbNodes;
 		unsigned int _nbClasses;
@@ -155,11 +153,11 @@ class NonHomogeneousSequenceSimulator:
 		 *
 		 * @{
 		 */
-		Site * simulate() const;
-		Site * simulate(int ancestralState) const;
-		Site * simulate(int ancestralState, double rate) const;
-		Site * simulate(double rate) const;
-		vector<string> getSequencesNames() const { return _seqNames; }
+		Site* simulate() const;
+		Site* simulate(int ancestralState) const;
+		Site* simulate(int ancestralState, double rate) const;
+		Site* simulate(double rate) const;
+    std::vector<std::string> getSequencesNames() const { return _seqNames; }
 		/** @} */
     
 		/**
@@ -167,13 +165,13 @@ class NonHomogeneousSequenceSimulator:
 		 *
 		 * @{
 		 */
-    RASiteSimulationResult * dSimulate() const;
+    RASiteSimulationResult* dSimulate() const;
     
-    RASiteSimulationResult * dSimulate(int ancestralState) const;
+    RASiteSimulationResult* dSimulate(int ancestralState) const;
     
-    RASiteSimulationResult * dSimulate(int ancestralState, double rate) const;
+    RASiteSimulationResult* dSimulate(int ancestralState, double rate) const;
 
-    RASiteSimulationResult * dSimulate(double rate) const;
+    RASiteSimulationResult* dSimulate(double rate) const;
 		/** @} */
 
     /**
@@ -181,7 +179,7 @@ class NonHomogeneousSequenceSimulator:
 		 *
 		 * @{
 		 */
-		SiteContainer * simulate(unsigned int numberOfSites) const;
+		SiteContainer* simulate(unsigned int numberOfSites) const;
 		/** @} */
     
 		/**
@@ -189,7 +187,7 @@ class NonHomogeneousSequenceSimulator:
 		 *
 		 * @{
 		 */
-		const Alphabet * getAlphabet() const { return _alphabet; }
+		const Alphabet* getAlphabet() const { return _alphabet; }
 		/** @} */
 
     /**
@@ -197,8 +195,8 @@ class NonHomogeneousSequenceSimulator:
      *
      * @{
      */
-		virtual Site * simulate(int ancestralState, unsigned int rateClass) const;
-    virtual	RASiteSimulationResult * dSimulate(int ancestralState, unsigned int rateClass) const;
+		virtual Site* simulate(int ancestralState, unsigned int rateClass) const;
+    virtual	RASiteSimulationResult* dSimulate(int ancestralState, unsigned int rateClass) const;
     /** @} */
 	
 		/**
@@ -206,7 +204,7 @@ class NonHomogeneousSequenceSimulator:
 		 *
 		 * @return The MutationProcess object associated to this instance.
 		 */
-		const SubstitutionModelSet * getSubstitutionModelSet() const { return _modelSet; }
+		const SubstitutionModelSet* getSubstitutionModelSet() const { return _modelSet; }
 		
 	
 		
@@ -215,7 +213,7 @@ class NonHomogeneousSequenceSimulator:
 		 *
 		 * @return The DiscreteDistribution object associated to this instance.
 		 */
-		const DiscreteDistribution * getRateDistribution() const { return _rate; }
+		const DiscreteDistribution* getRateDistribution() const { return _rate; }
 
 		/**
 		 * @brief Get the tree associated to this instance.
@@ -256,8 +254,8 @@ class NonHomogeneousSequenceSimulator:
      *
      * This method is used for the implementation of the SequenceSimulator interface.
      */
-		void multipleEvolve(const SNode * node, const Vint & initialState, const vector<unsigned int> & rateClasses, Vint & finalStates) const;
-		SiteContainer * multipleEvolve(const Vint & initialStates, const vector<unsigned int> & rateClasses) const;
+		void multipleEvolve(const SNode* node, const Vint& initialState, const std::vector<unsigned int>& rateClasses, Vint& finalStates) const;
+		SiteContainer* multipleEvolve(const Vint& initialStates, const std::vector<unsigned int>& rateClasses) const;
 		
     void dEvolve(int initialState, double rate, RASiteSimulationResult & rassr) const;
 		
@@ -270,15 +268,15 @@ class NonHomogeneousSequenceSimulator:
     /**
      * This method uses the _states variable for saving ancestral states.
      */
-    void evolveInternal(SNode * node, unsigned int rateClass) const;
+    void evolveInternal(SNode* node, unsigned int rateClass) const;
     /**
      * This method uses the _states variable for saving ancestral states.
      */
-		void evolveInternal(SNode * node, double rate) const;
+		void evolveInternal(SNode* node, double rate) const;
     /**
      * This method uses the _multipleStates variable for saving ancestral states.
      */
- 		void multipleEvolveInternal(SNode * node, const vector<unsigned int> & rateClasses) const;
+ 		void multipleEvolveInternal(SNode* node, const std::vector<unsigned int>& rateClasses) const;
 
     /**
      * This method uses the _states variable for saving ancestral states.

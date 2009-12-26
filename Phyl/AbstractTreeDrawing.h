@@ -172,7 +172,7 @@ class AbstractTreeDrawing:
      * @param vpos The way the text should be aligned vertically (see GraphicDevice).
      * @param angle The rotation value of the text.
      */
-    virtual void drawAtNode(GraphicDevice& gDevice, const INode& node, const string& text,
+    virtual void drawAtNode(GraphicDevice& gDevice, const INode& node, const std::string& text,
         double xOffset = 0, double yOffset = 0,
         short hpos = GraphicDevice::TEXT_HORIZONTAL_LEFT, short vpos = GraphicDevice::TEXT_VERTICAL_CENTER, double angle = 0) const;
 
@@ -188,7 +188,7 @@ class AbstractTreeDrawing:
      * @param vpos The way the text should be aligned vertically (see GraphicDevice).
      * @param angle The rotation value of the text.
       */
-    virtual void drawAtBranch(GraphicDevice& gDevice, const INode& node, const string& text, double xOffset = 0, double yOffset = 0, short hpos = GraphicDevice::TEXT_HORIZONTAL_LEFT, short vpos = GraphicDevice::TEXT_VERTICAL_CENTER, double angle = 0) const;
+    virtual void drawAtBranch(GraphicDevice& gDevice, const INode& node, const std::string& text, double xOffset = 0, double yOffset = 0, short hpos = GraphicDevice::TEXT_HORIZONTAL_LEFT, short vpos = GraphicDevice::TEXT_VERTICAL_CENTER, double angle = 0) const;
    
     void setDisplaySettings(TreeDrawingSettings& tds) { settings_ = tds; }
     TreeDrawingSettings & getDisplaySettings() { return settings_; }
@@ -202,9 +202,9 @@ class AbstractTreeDrawing:
     
     void setYUnit(double yu) { yUnit_ = yu; }
 
-    const vector<string>& getSupportedDrawableProperties() const { return drawableProperties_; }
+    const std::vector<std::string>& getSupportedDrawableProperties() const { return drawableProperties_; }
 
-    bool isDrawable(const string& property) const;
+    bool isDrawable(const std::string& property) const;
 
     /**
      * @brief Method to implement to deal with redrawing when the underlying tree has been modified.
@@ -222,7 +222,7 @@ class AbstractTreeDrawing:
      * Currently no checking is performed regarding the unicity
      * of property names.
      */
-    void addSupportedDrawableProperty_(const string& property)
+    void addSupportedDrawableProperty_(const std::string& property)
     {
       drawableProperties_.push_back(property);
     }

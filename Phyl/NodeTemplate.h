@@ -146,25 +146,25 @@ class NodeTemplate : public Node
 				
 		NodeTemplate<NodeInfos>* getSon(unsigned int i) throw (IndexOutOfBoundsException) { return dynamic_cast<NodeTemplate<NodeInfos> *>(sons_[i]); }
 				
-		vector<const NodeTemplate<NodeInfos>*> getNeighbors() const
+    std::vector<const NodeTemplate<NodeInfos>*> getNeighbors() const
 		{
-			vector<const Node*> neighbors = Node::getNeighbors();
-			vector<const NodeTemplate<NodeInfos>*> neighbors2(neighbors.size());
+      std::vector<const Node*> neighbors = Node::getNeighbors();
+      std::vector<const NodeTemplate<NodeInfos>*> neighbors2(neighbors.size());
 			for (unsigned int i = 0; i < neighbors.size(); i++)
-				neighbors2[i] = dynamic_cast<const NodeTemplate<NodeInfos> *>(neighbors[i]);
+				neighbors2[i] = dynamic_cast<const NodeTemplate<NodeInfos>*>(neighbors[i]);
 			return neighbors2;
 		}
 		
-		vector<NodeTemplate<NodeInfos>*> getNeighbors()
+    std::vector<NodeTemplate<NodeInfos>*> getNeighbors()
 		{
-			vector<Node*> neighbors = Node::getNeighbors();
-			vector<NodeTemplate<NodeInfos>*> neighbors2(neighbors.size());
-			for(unsigned int i = 0; i < neighbors.size(); i++)
+      std::vector<Node*> neighbors = Node::getNeighbors();
+      std::vector<NodeTemplate<NodeInfos>*> neighbors2(neighbors.size());
+			for (unsigned int i = 0; i < neighbors.size(); i++)
 				neighbors2[i] = dynamic_cast<NodeTemplate<NodeInfos>*>(neighbors[i]);
 			return neighbors2;
 		}
 		
-		NodeTemplate<NodeInfos>* operator[](int i) { return dynamic_cast<NodeTemplate<NodeInfos> *>((i < 0) ? father_ : sons_[i]); }
+		NodeTemplate<NodeInfos>* operator[](int i) { return dynamic_cast<NodeTemplate<NodeInfos>*>((i < 0) ? father_ : sons_[i]); }
 				
 		const NodeTemplate<NodeInfos>* operator[](int i) const { return dynamic_cast<const NodeTemplate<NodeInfos> *>((i < 0) ? father_ : sons_[i]); }
 

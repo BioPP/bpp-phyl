@@ -222,7 +222,7 @@ class SubstitutionModelSet:
      * @throw ParameterNotFoundException If no parameter with this name is found.
      * @throw Exception If the parameter is not a 'model' parameter (that is, it is a root frequency parameter).
      */
-    string getParameterModelName(const std::string& name) const throw (ParameterNotFoundException, Exception)
+    std::string getParameterModelName(const std::string& name) const throw (ParameterNotFoundException, Exception)
     {
       unsigned int pos = getParameterIndex(name);
       unsigned int rfs = _rootFrequencies->getNumberOfParameters();
@@ -263,8 +263,8 @@ class SubstitutionModelSet:
      */
     unsigned int getModelIndexForNode(int nodeId) const throw (Exception)
     {
-      map<int, unsigned int>::iterator i = _nodeToModel.find(nodeId);
-      if(i == _nodeToModel.end())
+      std::map<int, unsigned int>::iterator i = _nodeToModel.find(nodeId);
+      if (i == _nodeToModel.end())
         throw Exception("SubstitutionModelSet::getModelIndexForNode(). No model associated to node with id " + TextTools::toString(nodeId));
       return i->second;
     }
@@ -278,15 +278,15 @@ class SubstitutionModelSet:
      */
     const SubstitutionModel* getModelForNode(int nodeId) const throw (Exception)
     {
-      map<int, unsigned int>::const_iterator i = _nodeToModel.find(nodeId);
-      if(i == _nodeToModel.end())
+      std::map<int, unsigned int>::const_iterator i = _nodeToModel.find(nodeId);
+      if (i == _nodeToModel.end())
         throw Exception("SubstitutionModelSet::getModelForNode(). No model associated to node with id " + TextTools::toString(nodeId));
       return _modelSet[i->second];
     }
     SubstitutionModel* getModelForNode(int nodeId) throw (Exception)
     {
-      map<int, unsigned int>::iterator i = _nodeToModel.find(nodeId);
-      if(i == _nodeToModel.end())
+      std::map<int, unsigned int>::iterator i = _nodeToModel.find(nodeId);
+      if (i == _nodeToModel.end())
         throw Exception("SubstitutionModelSet::getModelForNode(). No model associated to node with id " + TextTools::toString(nodeId));
       return _modelSet[i->second];
     }
@@ -423,7 +423,7 @@ class SubstitutionModelSet:
      */
     void removeModel(unsigned int modelIndex) throw (Exception);
 
-    void listModelNames(ostream& out = cout) const;
+    void listModelNames(std::ostream& out = std::cout) const;
 
     /**
      * @return The set of root frequencies.

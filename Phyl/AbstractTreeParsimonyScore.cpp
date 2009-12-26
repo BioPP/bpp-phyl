@@ -45,6 +45,7 @@ knowledge of the CeCILL license and that you accept its terms.
 #include <Utils/ApplicationTools.h>
 
 using namespace bpp;
+using namespace std;
 
 AbstractTreeParsimonyScore::AbstractTreeParsimonyScore(
 	const Tree & tree,
@@ -67,10 +68,10 @@ AbstractTreeParsimonyScore::AbstractTreeParsimonyScore(
 	if(_data->getAlphabet()->getSize() > 20) throw Exception("Error, only alphabet with size <= 20 are supported. See the source file of AbstractTreeParsimonyScore.");
 }
 
-vector<unsigned int> AbstractTreeParsimonyScore::getScoreForEachSite() const
+std::vector<unsigned int> AbstractTreeParsimonyScore::getScoreForEachSite() const
 {
 	vector<unsigned int> scores(_data->getNumberOfSites());
-	for(unsigned int i = 0; i < scores.size(); i++)
+	for (unsigned int i = 0; i < scores.size(); i++)
   {
 		scores[i] = getScoreForSite(i);
 	}

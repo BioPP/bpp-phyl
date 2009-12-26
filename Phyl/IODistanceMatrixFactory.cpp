@@ -41,15 +41,15 @@ knowledge of the CeCILL license and that you accept its terms.
 
 using namespace bpp;
 
-const string IODistanceMatrixFactory::PHYLIP_FORMAT = "Phylip"; 
+const std::string IODistanceMatrixFactory::PHYLIP_FORMAT = "Phylip"; 
 
-IDistanceMatrix * IODistanceMatrixFactory::createReader(const string & format) throw (Exception)
+IDistanceMatrix* IODistanceMatrixFactory::createReader(const std::string& format) throw (Exception)
 {
        if(format == PHYLIP_FORMAT) return new PhylipDistanceMatrixFormat();
   else throw Exception("Format " + format + " is not supported for input.");
 }
   
-ODistanceMatrix * IODistanceMatrixFactory::createWriter(const string & format) throw (Exception)
+ODistanceMatrix* IODistanceMatrixFactory::createWriter(const std::string& format) throw (Exception)
 {
        if(format == PHYLIP_FORMAT) return new PhylipDistanceMatrixFormat();
   else throw Exception("Format " + format + " is not supported for input.");

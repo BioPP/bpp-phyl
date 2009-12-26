@@ -48,8 +48,6 @@ knowledge of the CeCILL license and that you accept its terms.
 // From the STL:
 #include <vector>
 
-using namespace std;
-
 namespace bpp
 {
 
@@ -64,9 +62,9 @@ class TreeParsimonyScore:
 		virtual ~TreeParsimonyScore() {}
 
 #if defined(NO_VIRTUAL_COV)
-    Clonable * clone() const = 0;
+    Clonable* clone() const = 0;
 #else
-    TreeParsimonyScore * clone() const = 0;
+    TreeParsimonyScore* clone() const = 0;
 #endif
 
 	public:
@@ -91,14 +89,14 @@ class TreeParsimonyScore:
 		 *
 		 * @return The minimum total number of changes in the tree for each site.
 		 */
-		virtual vector<unsigned int> getScoreForEachSite() const = 0;
+		virtual std::vector<unsigned int> getScoreForEachSite() const = 0;
 
 		/**
 		 * @brief Get the tree for wich scores are computed.
 		 *
 		 * @return The tree associated to this object.
 		 */
-		virtual const Tree * getTree() const = 0;
+		virtual const Tree* getTree() const = 0;
 };
 
 } //end of namespace bpp.

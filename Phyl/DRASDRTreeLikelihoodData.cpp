@@ -129,7 +129,7 @@ void DRASDRTreeLikelihoodData::initLikelihoods(const Node * node, const SiteCont
         ( * leavesLikelihoods_leaf_i)[s] = model.getInitValue(s, state);
         test += ( * leavesLikelihoods_leaf_i)[s];
       }
-      if (test < 0.000001) cerr << "WARNING!!! Likelihood will be 0 for this site." << endl;
+      if (test < 0.000001) std::cerr << "WARNING!!! Likelihood will be 0 for this site." << std::endl;
     }
   }
 
@@ -143,7 +143,7 @@ void DRASDRTreeLikelihoodData::initLikelihoods(const Node * node, const SiteCont
 
   //Initialize likelihood vector:
   DRASDRTreeLikelihoodNodeData* nodeData = &_nodeData[node->getId()];
-  map<int, VVVdouble> *_likelihoods_node = &nodeData->getLikelihoodArrays();
+  std::map<int, VVVdouble> *_likelihoods_node = &nodeData->getLikelihoodArrays();
   nodeData->setNode(node);
   
   int nbSons = node->getNumberOfSons();

@@ -50,8 +50,6 @@ knowledge of the CeCILL license and that you accept its terms.
 #include <map>
 #include <vector>
 
-using namespace std;
-
 namespace bpp
 {
 
@@ -62,14 +60,14 @@ namespace bpp
  */
 class SiteSimulationResult
 {
-  protected:
-    mutable map<int, unsigned int> _indexes;
+  private:
+    mutable std::map<int, unsigned int> _indexes;
     unsigned int _currentIndex;
-    vector<MutationPath> _paths;
-    vector<int> _ancestralStates;
-    const Tree * _tree;
-    vector<int> _leavesId;
-    const Alphabet * _alphabet;
+    std::vector<MutationPath> _paths;
+    std::vector<int> _ancestralStates;
+    const Tree* _tree;
+    std::vector<int> _leavesId;
+    const Alphabet* _alphabet;
     
   public:
     SiteSimulationResult(const Tree * tree, const Alphabet * alphabet, int ancestralState):
@@ -106,11 +104,11 @@ class SiteSimulationResult
     
     virtual unsigned int getSubstitutionCount(int nodeId) const { return _paths[_indexes[nodeId]].getNumberOfEvents(); }
     
-    virtual vector<double> getSubstitutionVector() const
+    virtual std::vector<double> getSubstitutionVector() const
     {
       unsigned int n = _paths.size();
-      vector<double> counts(n);
-      for(unsigned int i = 0; i < n; i++)
+      std::vector<double> counts(n);
+      for (unsigned int i = 0; i < n; i++)
         counts[i] = (double)_paths[i].getNumberOfEvents();
       return counts;
     }
@@ -118,11 +116,11 @@ class SiteSimulationResult
     /**
      * @return The states at the leaves.
      */
-    virtual vector<int> getFinalStates() const
+    virtual std::vector<int> getFinalStates() const
     {
       unsigned int n = _leavesId.size(); 
-      vector<int> states(n);
-      for(unsigned int i = 0; i < n; i++)
+      std::vector<int> states(n);
+      for (unsigned int i = 0; i < n; i++)
       {
         states[i] = _ancestralStates[_indexes[_leavesId[i]]];
       }
@@ -132,15 +130,15 @@ class SiteSimulationResult
     /**
      * @return The site corresponding to this simulation.
      */
-    virtual Site * getSite() const { return new Site(getFinalStates(), _alphabet); }
+    virtual Site* getSite() const { return new Site(getFinalStates(), _alphabet); }
 
     /**
      * @return A vector with the leaves names.
      */
-    virtual vector<string> getLeaveNames() const
+    virtual std::vector<std::string> getLeaveNames() const
     {
       unsigned int n = _leavesId.size(); 
-      vector<string> names(n);
+      std::vector<std::string> names(n);
       for(unsigned int i = 0; i < n; i++)
       {
         names[i] = _tree->getNodeName(_leavesId[i]);

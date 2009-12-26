@@ -62,18 +62,21 @@ class NNITopologySearch:
   public virtual TopologySearch
 {
 	public:
-		const static string FAST;
-		const static string BETTER;
-		const static string PHYML;
+		const static std::string FAST;
+		const static std::string BETTER;
+		const static std::string PHYML;
 		
-	protected:
-		NNISearchable * _searchableTree;
-		string _algorithm;
+	private:
+		NNISearchable* _searchableTree;
+    std::string _algorithm;
 		unsigned int _verbose;
-    vector<TopologyListener *> _topoListeners;
+    std::vector<TopologyListener*> _topoListeners;
 		
 	public:
-		NNITopologySearch(NNISearchable & tree, const string & algorithm = FAST, unsigned int verbose = 2):
+		NNITopologySearch(
+        NNISearchable& tree,
+        const std::string& algorithm = FAST,
+        unsigned int verbose = 2):
       _searchableTree(&tree), _algorithm(algorithm), _verbose(verbose) {}
 
 		virtual ~NNITopologySearch() {}

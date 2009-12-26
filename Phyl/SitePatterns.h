@@ -83,7 +83,7 @@ class SitePatterns:
 		    virtual ~SortableSite() {}
 		
 	    public:
-		    string siteS; 
+        std::string siteS; 
 		    const Site* siteP;
 		    unsigned int originalPosition;
     };
@@ -91,7 +91,8 @@ class SitePatterns:
     /**
      * @brief Class used for site pattern sorting.
      */
-    struct SSComparator : binary_function<SortableSite, SortableSite, bool>
+    struct SSComparator :
+      std::binary_function<SortableSite, SortableSite, bool>
     {
 	    bool operator()(const SortableSite& ss1, const SortableSite& ss2) const { return ss1.siteS < ss2.siteS; }
     };

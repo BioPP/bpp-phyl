@@ -41,15 +41,15 @@ knowledge of the CeCILL license and that you accept its terms.
 
 using namespace bpp;
 
-const string IOTreeFactory::NEWICK_FORMAT = "Newick"; 
+const std::string IOTreeFactory::NEWICK_FORMAT = "Newick"; 
 
-ITree * IOTreeFactory::createReader(const string & format) throw (Exception)
+ITree* IOTreeFactory::createReader(const std::string& format) throw (Exception)
 {
        if(format == NEWICK_FORMAT) return new Newick();
   else throw Exception("Format " + format + " is not supported for input.");
 }
   
-OTree * IOTreeFactory::createWriter(const string & format) throw (Exception)
+OTree* IOTreeFactory::createWriter(const std::string& format) throw (Exception)
 {
        if(format == NEWICK_FORMAT) return new Newick();
   else throw Exception("Format " + format + " is not supported for output.");

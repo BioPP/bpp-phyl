@@ -91,8 +91,8 @@ class AbstractTreeParsimonyScore :
     }
 
 	public:
-		virtual const Tree * getTree() const { return _tree; }
-		virtual vector<unsigned int> getScoreForEachSite() const;
+		virtual const Tree* getTree() const { return _tree; }
+		virtual std::vector<unsigned int> getScoreForEachSite() const;
 };
 
 } //end of namespace bpp.

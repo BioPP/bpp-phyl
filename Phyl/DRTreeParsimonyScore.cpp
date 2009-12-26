@@ -48,6 +48,7 @@ knowledge of the CeCILL license and that you accept its terms.
 #include <NumCalc/VectorTools.h>
 
 using namespace bpp;
+using namespace std;
 
 /******************************************************************************/
 
@@ -72,7 +73,7 @@ DRTreeParsimonyScore::DRTreeParsimonyScore(
 
 /******************************************************************************/
 
-DRTreeParsimonyScore::DRTreeParsimonyScore(const DRTreeParsimonyScore & tp):
+DRTreeParsimonyScore::DRTreeParsimonyScore(const DRTreeParsimonyScore& tp):
   AbstractTreeParsimonyScore(tp)
 {
   _parsimonyData = dynamic_cast<DRTreeParsimonyData *>(tp._parsimonyData->clone());
@@ -82,7 +83,7 @@ DRTreeParsimonyScore::DRTreeParsimonyScore(const DRTreeParsimonyScore & tp):
     
 /******************************************************************************/
 
-DRTreeParsimonyScore& DRTreeParsimonyScore::operator=(const DRTreeParsimonyScore & tp)
+DRTreeParsimonyScore& DRTreeParsimonyScore::operator=(const DRTreeParsimonyScore& tp)
 {
   AbstractTreeParsimonyScore::operator=(tp);
   _parsimonyData = dynamic_cast<DRTreeParsimonyData *>(tp._parsimonyData->clone());
@@ -107,16 +108,16 @@ void DRTreeParsimonyScore::computeScores()
       _parsimonyData->getRootScores());
 }
 
-void DRTreeParsimonyScore::computeScoresPostorder(const Node * node)
+void DRTreeParsimonyScore::computeScoresPostorder(const Node* node)
 {
 	if(node->isLeaf()) return;
-	DRTreeParsimonyNodeData * pData = & _parsimonyData->getNodeData(node->getId());
-	for(unsigned int k = 0; k < node->getNumberOfSons(); k++)
+	DRTreeParsimonyNodeData* pData = & _parsimonyData->getNodeData(node->getId());
+	for (unsigned int k = 0; k < node->getNumberOfSons(); k++)
   {
-		const Node * son = node->getSon(k);
+		const Node* son = node->getSon(k);
 		computeScoresPostorder(son);
-		vector<Bitset> * bitsets      = & pData->getBitsetsArrayForNeighbor(son->getId());
-		vector<unsigned int> * scores = & pData->getScoresArrayForNeighbor(son->getId());		
+		vector<Bitset>* bitsets      = &pData->getBitsetsArrayForNeighbor(son->getId());
+		vector<unsigned int>* scores = &pData->getScoresArrayForNeighbor(son->getId());		
 		if(son->isLeaf())
     {
 			// son has no NodeData associated, must use LeafData instead
@@ -137,7 +138,7 @@ void DRTreeParsimonyScore::computeScoresPostorder(const Node * node)
 	}
 }
 
-void DRTreeParsimonyScore::computeScoresPostorderForNode(const DRTreeParsimonyNodeData & pData, vector<Bitset> & rBitsets, vector<unsigned int> & rScores)
+void DRTreeParsimonyScore::computeScoresPostorderForNode(const DRTreeParsimonyNodeData& pData, vector<Bitset> & rBitsets, vector<unsigned int> & rScores)
 {
 	//First initialize the vectors from input:
 	const Node * node = pData.getNode();
@@ -159,7 +160,7 @@ void DRTreeParsimonyScore::computeScoresPostorderForNode(const DRTreeParsimonyNo
 	computeScoresFromArrays(iBitsets, iScores, rBitsets, rScores);
 }
 
-void DRTreeParsimonyScore::computeScoresPreorder(const Node * node)
+void DRTreeParsimonyScore::computeScoresPreorder(const Node* node)
 {
 	if(node->getNumberOfSons() == 0) return;
 	DRTreeParsimonyNodeData * pData = & _parsimonyData->getNodeData(node->getId());
@@ -192,7 +193,7 @@ void DRTreeParsimonyScore::computeScoresPreorder(const Node * node)
     computeScoresPreorder(node->getSon(k));
 }
 
-void DRTreeParsimonyScore::computeScoresPreorderForNode(const DRTreeParsimonyNodeData & pData, const Node * source, vector<Bitset> & rBitsets, vector<unsigned int> & rScores)
+void DRTreeParsimonyScore::computeScoresPreorderForNode(const DRTreeParsimonyNodeData& pData, const Node* source, std::vector<Bitset>& rBitsets, std::vector<unsigned int>& rScores)
 {
 	//First initialize the vectors from input:
 	const Node * node = pData.getNode();
@@ -213,7 +214,7 @@ void DRTreeParsimonyScore::computeScoresPreorderForNode(const DRTreeParsimonyNod
 	computeScoresFromArrays(iBitsets, iScores, rBitsets, rScores);
 }
 
-void DRTreeParsimonyScore::computeScoresForNode(const DRTreeParsimonyNodeData & pData, vector<Bitset> & rBitsets, vector<unsigned int> & rScores)
+void DRTreeParsimonyScore::computeScoresForNode(const DRTreeParsimonyNodeData& pData, std::vector<Bitset>& rBitsets, std::vector<unsigned int>& rScores)
 {
 	const Node * node   = pData.getNode();
 	unsigned int nbNeighbors = node->degree();

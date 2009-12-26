@@ -109,7 +109,7 @@ protected:
   void completeMatrices();
 
 public:
-  string getName() const;
+  std::string getName() const;
 
   const GeneticCode* getGeneticCode();
 };
