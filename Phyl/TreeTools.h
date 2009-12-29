@@ -101,6 +101,15 @@ class TreeTools
     static void getLeavesId(const Tree& tree, int nodeId, std::vector<int>& leaves) throw (NodeNotFoundException);
  
     /**
+     * @brief Count the number of leaves from a subtree.
+     *
+     * @param tree The tree
+     * @param nodeId The id of node defining the subtree.
+     * @throw NodeNotFoundException If the node is not found.
+     */
+    static unsigned int getNumberOfLeaves(const Tree& tree, int nodeId) throw (NodeNotFoundException);
+ 
+    /**
      * @brief Get the id of a leaf given its name in a subtree.
      *
      * @param tree The tree

@@ -38,6 +38,8 @@ knowledge of the CeCILL license and that you accept its terms.
 */
 
 #include "AbstractTreeDrawing.h"
+#include "TreeTemplateTools.h"
+#include "TreeTools.h"
 
 // From Utils:
 #include <Utils/TextTools.h>
@@ -104,4 +106,73 @@ bool AbstractTreeDrawing::isDrawable(const string& property) const
   return find(drawableProperties_.begin(), drawableProperties_.end(), property) != drawableProperties_.end();
 }
 
+void LabelInnerNodesTreeDrawingListener::afterDrawNode(const DrawNodeEvent& event)
+{
+  try
+  {
+    //Pointer-based event (efficient):
+    const DrawINodeEvent& eventC = dynamic_cast<const DrawINodeEvent&>(event);
+    if (!eventC.getINode()->getInfos().isCollapsed())
+    {
+      GraphicDevice* gd = event.getGraphicDevice();
+      Cursor cursor     = event.getCursor();
+      if (eventC.getINode()->hasName())
+      {
+        string name = eventC.getINode()->getName();
+        gd->drawText(cursor.getX(), cursor.getY(), name, hpos_, vpos_, cursor.getAngle());
+      }
+    }
+  }
+  catch(std::bad_cast& e)
+  {
+    //Id-based event (less-efficient):
+    const TreeDrawing* td = event.getTreeDrawing();
+    if (! td->isNodeCollapsed(event.getNodeId()))
+    {
+      GraphicDevice* gd = event.getGraphicDevice();
+      Cursor cursor     = event.getCursor();
+      if (td->getTree()->hasNodeName(event.getNodeId()))
+      {
+        string name = td->getTree()->getNodeName(event.getNodeId());
+        gd->drawText(cursor.getX(), cursor.getY(), name, hpos_, vpos_, cursor.getAngle());
+      }
+    }
+  }
+}
+
+void LabelCollapsedNodesTreeDrawingListener::afterDrawNode(const DrawNodeEvent& event)
+{
+  try
+  {
+    //Pointer-based event (efficient):
+    const DrawINodeEvent& eventC = dynamic_cast<const DrawINodeEvent&>(event);
+    if (eventC.getINode()->getInfos().isCollapsed())
+    {
+      GraphicDevice* gd = event.getGraphicDevice();
+      Cursor cursor     = event.getCursor();
+      unsigned int size = TreeTemplateTools::getNumberOfLeaves(*eventC.getINode());
+      string text = "";
+      if (eventC.getINode()->hasName())
+        text += eventC.getINode()->getName() + " ";
+      text += "(" + TextTools::toString(size) + " leaves)";
+      gd->drawText(cursor.getX(), cursor.getY(), text, hpos_, vpos_, cursor.getAngle());
+    }
+  }
+  catch(std::bad_cast& e)
+  {
+    //Id-based event (less-efficient):
+    const TreeDrawing* td = event.getTreeDrawing();
+    if (td->isNodeCollapsed(event.getNodeId()))
+    {
+      GraphicDevice* gd = event.getGraphicDevice();
+      Cursor cursor     = event.getCursor();
+      unsigned int size = TreeTools::getNumberOfLeaves(*td->getTree(), event.getNodeId());
+      string text = "";
+      if (td->getTree()->hasNodeName(event.getNodeId()))
+        text += td->getTree()->getNodeName(event.getNodeId()) + " ";
+      text += "(" + TextTools::toString(size) + " leaves)";
+      gd->drawText(cursor.getX(), cursor.getY(), text, hpos_, vpos_, cursor.getAngle());
+    }
+  }
+}
 

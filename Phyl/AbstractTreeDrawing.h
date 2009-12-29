@@ -47,6 +47,7 @@ knowledge of the CeCILL license and that you accept its terms.
 // From ths STL:
 #include <vector>
 #include <string>
+#include <memory>
 
 namespace bpp
 {
@@ -55,9 +56,10 @@ class TreeDrawingNodeInfo
 {
   private:
     Point2D<double> pos_;
+    bool collapsed_;
     
   public:
-    TreeDrawingNodeInfo() {}
+    TreeDrawingNodeInfo() : pos_(), collapsed_(false) {}
     virtual ~TreeDrawingNodeInfo() {}
         
   public:
@@ -68,9 +70,46 @@ class TreeDrawingNodeInfo
     double getY() const { return pos_.getY(); }
     void setX(double x) { pos_.setX(x); }
     void setY(double y) { pos_.setY(y); }
+    void collapse(bool yn) { collapsed_ = yn; }
+    bool isCollapsed() const { return collapsed_; }
 };
 
 typedef NodeTemplate<TreeDrawingNodeInfo> INode;
+
+
+
+/**
+ * @brief Event class that uses INode object (more efficient than relying on nodes id, but less generic).
+ */
+class DrawINodeEvent :
+  public DrawNodeEvent
+{
+  private:
+    const INode* node_;
+
+  public:
+    DrawINodeEvent(const TreeDrawing* source, GraphicDevice* gd, const INode* node, const Cursor& cursor) :
+      DrawNodeEvent(source, gd, node->getId(), cursor),
+      node_(node)
+    {}
+
+    DrawINodeEvent(const DrawINodeEvent& dne) :
+      DrawNodeEvent(dne), node_(dne.node_)
+    {}
+    
+    DrawINodeEvent& operator=(const DrawINodeEvent& dne)
+    {
+      DrawNodeEvent::operator=(dne);
+      node_ = dne.node_;
+      return *this;
+    }
+
+  public:
+    const INode* getINode() const { return node_; }
+
+};
+
+
 
 /**
  * @brief Partial implementation of the TreeDrawing interface.
@@ -83,64 +122,74 @@ class AbstractTreeDrawing:
   public virtual TreeDrawing
 {
   private:
-    TreeTemplate<INode> *tree_;
+    std::auto_ptr<TreeTemplate<INode> > tree_;
     double xUnit_;
     double yUnit_;
     double pointArea_;
     std::vector<std::string> drawableProperties_;
     TreeDrawingSettings settings_;
+    std::vector<TreeDrawingListener*> listeners_;
  
   public:
-    AbstractTreeDrawing(): tree_(0), xUnit_(1.), yUnit_(1.) {};
+    AbstractTreeDrawing(): tree_(0), xUnit_(1.), yUnit_(1.), pointArea_(), drawableProperties_(), settings_(), listeners_() {};
     
-    AbstractTreeDrawing(const AbstractTreeDrawing& atd)
+    AbstractTreeDrawing(const AbstractTreeDrawing& atd) :
+      tree_(atd.tree_.get() ? dynamic_cast<TreeTemplate<INode> *>(atd.tree_->clone()) : 0),
+      xUnit_(atd.xUnit_),
+      yUnit_(atd.yUnit_),
+      pointArea_(atd.pointArea_),
+      drawableProperties_(atd.drawableProperties_),
+      settings_(atd.settings_),
+      listeners_(atd.listeners_.size())
     {
-      if (atd.tree_)
-        tree_             = atd.tree_->clone();
-      else tree_ = 0;
-      xUnit_              = atd.xUnit_;
-      yUnit_              = atd.yUnit_;
-      pointArea_          = atd.pointArea_;
-      drawableProperties_ = atd.drawableProperties_;
-      settings_           = atd.settings_;
+      for (unsigned int i = 0; i < listeners_.size(); ++i)
+      {
+        listeners_[i] = dynamic_cast<TreeDrawingListener*>(atd.listeners_[i]->clone());
+      }
     }
      
     AbstractTreeDrawing& operator=(const AbstractTreeDrawing& atd)
     {
-      if (atd.tree_)
-        tree_             = atd.tree_->clone();
-      else tree_ = 0;
+      if (atd.tree_.get())
+        tree_.reset(dynamic_cast<TreeTemplate<INode> *>(atd.tree_->clone()));
+      else tree_.reset();
       xUnit_              = atd.xUnit_;
       yUnit_              = atd.yUnit_;
       pointArea_          = atd.pointArea_;
       drawableProperties_ = atd.drawableProperties_;
+      listeners_.resize(atd.listeners_.size());
+      for (unsigned int i = 0; i < listeners_.size(); ++i)
+      {
+        listeners_[i] = dynamic_cast<TreeDrawingListener*>(atd.listeners_[i]->clone());
+      }
       return *this;
     }
 
     virtual ~AbstractTreeDrawing()
     {
-      if (tree_) delete tree_;   
+      for (unsigned int i = 0; i < listeners_.size(); i++)
+        delete listeners_[i];
     }
   
   public:
     
-    bool hasTree() const { return tree_ != 0; }
+    bool hasTree() const { return tree_.get() != 0; }
 
 #ifdef NO_VIRTUAL_COV
     Tree*
 #else
     const TreeTemplate<INode>*
 #endif
-    getTree() const { return tree_; }
+    getTree() const { return tree_.get(); }
     
     void setTree(const Tree* tree)
     {
-      if (tree_)
-        delete tree_;
-      if (!tree) tree_ = 0;
+      if (tree_.get())
+        tree_.reset();
+      if (!tree) tree_.reset();
       else
       {
-        tree_ = new TreeTemplate<INode>(*tree); //We copy the tree
+        tree_.reset(new TreeTemplate<INode>(*tree)); //We copy the tree
       }
       treeHasChanged();
     }
@@ -187,12 +236,12 @@ class AbstractTreeDrawing:
      * @param hpos The way the text should be aligned horizontally (see GraphicDevice).
      * @param vpos The way the text should be aligned vertically (see GraphicDevice).
      * @param angle The rotation value of the text.
-      */
+     */
     virtual void drawAtBranch(GraphicDevice& gDevice, const INode& node, const std::string& text, double xOffset = 0, double yOffset = 0, short hpos = GraphicDevice::TEXT_HORIZONTAL_LEFT, short vpos = GraphicDevice::TEXT_VERTICAL_CENTER, double angle = 0) const;
    
     void setDisplaySettings(TreeDrawingSettings& tds) { settings_ = tds; }
-    TreeDrawingSettings & getDisplaySettings() { return settings_; }
-    const TreeDrawingSettings & getDisplaySettings() const { return settings_; }
+    TreeDrawingSettings& getDisplaySettings() { return settings_; }
+    const TreeDrawingSettings& getDisplaySettings() const { return settings_; }
 
     double getXUnit() const { return xUnit_; }
     
@@ -206,14 +255,31 @@ class AbstractTreeDrawing:
 
     bool isDrawable(const std::string& property) const;
 
+    void collapseNode(int nodeId, bool yn) throw (NodeNotFoundException, Exception)
+    {
+      if(! tree_.get()) throw Exception("AbstractTreeDrawing::collapseNode. No tree is associated to the drawing.");
+      tree_->getNode(nodeId)->getInfos().collapse(yn);
+    }
+
+    bool isNodeCollapsed(int nodeId) const throw (NodeNotFoundException, Exception)
+    {
+      if(! tree_.get()) throw Exception("AbstractTreeDrawing::isNodeCollapsed. No tree is associated to the drawing.");
+      return tree_->getNode(nodeId)->getInfos().isCollapsed();
+    }
+
+    void addTreeDrawingListener(TreeDrawingListener* listener)
+    {
+      listeners_.push_back(listener);
+    }
+    
     /**
      * @brief Method to implement to deal with redrawing when the underlying tree has been modified.
      */
     virtual void treeHasChanged() = 0;
 
   protected:
-    TreeTemplate<INode>* getTree_() { return tree_; }
-    const TreeTemplate<INode>* getTree_() const { return tree_; }
+    TreeTemplate<INode>* getTree_() { return tree_.get(); }
+    const TreeTemplate<INode>* getTree_() const { return tree_.get(); }
 
     /**
      * @brief Add a supported drawable property to the list.
@@ -226,7 +292,86 @@ class AbstractTreeDrawing:
     {
       drawableProperties_.push_back(property);
     }
- 
+    
+    void fireBeforeNodeEvent_(GraphicDevice& gd, const INode& node, const Cursor& cursor) const
+    {
+      DrawINodeEvent event(this, &gd, &node, cursor);
+      for (unsigned int i = 0; i < listeners_.size(); i++)
+        listeners_[i]->beforeDrawNode(event);
+    }
+
+    void fireAfterNodeEvent_(GraphicDevice& gd, const INode& node, const Cursor& cursor) const
+    {
+      DrawINodeEvent event(this, &gd, &node, cursor);
+      for (unsigned int i = 0; i < listeners_.size(); i++)
+        listeners_[i]->afterDrawNode(event);
+    }
+
+    void fireBeforeBranchEvent_(GraphicDevice& gd, const INode& node, const Cursor& cursor) const
+    {
+      DrawINodeEvent event(this, &gd, &node, cursor);
+      for (unsigned int i = 0; i < listeners_.size(); i++)
+        listeners_[i]->beforeDrawBranch(event);
+    }
+
+    void fireAfterBranchEvent_(GraphicDevice& gd, const INode& node, const Cursor& cursor) const
+    {
+      DrawINodeEvent event(this, &gd, &node, cursor);
+      for (unsigned int i = 0; i < listeners_.size(); i++)
+        listeners_[i]->afterDrawBranch(event);
+    }
+};
+
+
+
+/**
+ * @brief A TreeDrawingListener implementation that write the names of inner nodes.
+ *
+ * Collapsed nodes are not labelled.
+ *
+ * This listener works with TreeDrawing classes, but is more efficient when used with a class that fires DrawINodeEvent events.
+ */
+class LabelInnerNodesTreeDrawingListener :
+  public TreeDrawingListenerAdapter
+{
+private:
+  short hpos_;
+  short vpos_;
+
+public:
+  LabelInnerNodesTreeDrawingListener(short hpos, short vpos) :
+    hpos_(hpos), vpos_(vpos) {}
+
+  LabelInnerNodesTreeDrawingListener* clone() const { return new LabelInnerNodesTreeDrawingListener(*this); }
+
+public :    
+  void afterDrawNode(const DrawNodeEvent& event);
+
+};
+
+
+
+/**
+ * @brief A TreeDrawingListener implementation that label the collapsed nodes.
+ *
+ * This listener works with TreeDrawing classes, but is more efficient when used with a class that fires DrawINodeEvent events.
+ */
+class LabelCollapsedNodesTreeDrawingListener :
+  public TreeDrawingListenerAdapter
+{
+private:
+  short hpos_;
+  short vpos_;
+
+public:
+  LabelCollapsedNodesTreeDrawingListener(short hpos, short vpos) :
+    hpos_(hpos), vpos_(vpos) {}
+
+  LabelCollapsedNodesTreeDrawingListener* clone() const { return new LabelCollapsedNodesTreeDrawingListener(*this); }
+
+public :    
+  void afterDrawNode(const DrawNodeEvent& event);
+
 };
 
 } //end of namespace bpp.

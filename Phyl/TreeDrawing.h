@@ -44,12 +44,16 @@ knowledge of the CeCILL license and that you accept its terms.
 #include <Utils/GraphicDevice.h>
 #include <Utils/Point2D.h>
 #include <Utils/Clonable.h>
+#include <Utils/Font.h>
 
 // From PhylLib:
 #include "Tree.h"
 
 namespace bpp
 {
+
+//Forward declaration:
+class TreeDrawing;
 
 /**
  * @brief A set of options to tune the display of a TreeDrawing object.
@@ -58,8 +62,111 @@ class TreeDrawingSettings
 {
   public:
     bool drawLeafNames;
+    Font fontLeafNames;
     //More options will be added in the future...
 };
+
+
+/**
+ * @brief Data structure describing a plotting direction.
+ */
+class Cursor
+{
+private:
+  double x_;
+  double y_;
+  double angle_;
+
+public:
+  Cursor(double x, double y, double angle = 0) :
+    x_(x), y_(y), angle_(angle) {}
+
+public:
+  double getX() const { return x_; }
+  double getY() const { return y_; }
+  double getAngle() const { return angle_; }
+
+};
+
+
+
+/**
+ * @brief Event class used by TreeDrawing classes.
+ */
+class DrawNodeEvent
+{
+  private:
+    const TreeDrawing* td_;
+    GraphicDevice* gd_;
+    int id_;
+    Cursor cursor_;
+
+  public:
+    DrawNodeEvent(const TreeDrawing* source, GraphicDevice* gd, int nodeId, const Cursor& cursor) :
+      td_(source), gd_(gd), id_(nodeId), cursor_(cursor)
+    {}
+
+    DrawNodeEvent(const DrawNodeEvent& dne) :
+      td_(dne.td_), gd_(dne.gd_), id_(dne.id_), cursor_(dne.cursor_)
+    {}
+    
+    DrawNodeEvent& operator=(const DrawNodeEvent& dne)
+    {
+      td_     = dne.td_;
+      gd_     = dne.gd_;
+      id_     = dne.id_;
+      cursor_ = dne.cursor_;
+      return *this;
+    }
+
+    virtual ~DrawNodeEvent() {}
+
+  public:
+    virtual const TreeDrawing* getTreeDrawing() const { return td_; }
+    virtual GraphicDevice* getGraphicDevice() const { return gd_; }
+    virtual int getNodeId() const { return id_; }
+    virtual const Cursor& getCursor() const { return cursor_; }
+
+};
+
+
+
+/**
+ * @brief Interface allowing to capture drawing events.
+ *
+ * Implementing this interface allows you to easily and efficiently tune a plot,
+ * and/or add elements to it.
+ */
+class TreeDrawingListener :
+  public virtual Clonable
+{
+public:
+#ifndef NO_VIRTUAL_COV
+  TreeDrawingListener*
+#else
+  Clonable*
+#endif
+  clone() const = 0;
+
+  virtual void beforeDrawNode(const DrawNodeEvent& event) = 0;
+  virtual void afterDrawNode(const DrawNodeEvent& event) = 0;
+  virtual void beforeDrawBranch(const DrawNodeEvent& event) = 0;
+  virtual void afterDrawBranch(const DrawNodeEvent& event) = 0;
+};
+
+
+
+class TreeDrawingListenerAdapter :
+  public virtual TreeDrawingListener
+{
+public:
+  void beforeDrawNode(const DrawNodeEvent& event) {}
+  void afterDrawNode(const DrawNodeEvent& event) {}
+  void beforeDrawBranch(const DrawNodeEvent& event) {}
+  void afterDrawBranch(const DrawNodeEvent& event) {}
+};
+
+
 
 /**
  * @brief Basal interface for tree drawing classes.
@@ -176,6 +283,12 @@ class TreeDrawing:
     virtual int getNodeAt(const Point2D<double>& position) const throw (NodeNotFoundException) = 0;
 
     /**
+     * @brief Properties to draw.
+     *
+     * @{
+     */
+
+    /**
      * @brief Plot a property on the tree.
      *
      * @param property The name of the property to plot.
@@ -194,9 +307,34 @@ class TreeDrawing:
      */
     virtual bool isDrawable(const std::string& property) const = 0;
 
+    /** @} */
+
+    /**
+     * @brief Collapsing nodes
+     *
+     * @{
+     */
+    virtual void collapseNode(int nodeId, bool yn) throw (NodeNotFoundException, Exception) = 0;
+    virtual bool isNodeCollapsed(int nodeId) const throw (NodeNotFoundException, Exception) = 0;
+    /** @} */
+
+    /**
+     * @brief Global drawing settings.
+     *
+     * @{
+     */
     virtual void setDisplaySettings(TreeDrawingSettings& tds) = 0;
     virtual TreeDrawingSettings& getDisplaySettings() = 0;
     virtual const TreeDrawingSettings& getDisplaySettings() const = 0;
+    /** @} */
+
+    /**
+     * @brief Add a drawng listener to this instance.
+     *
+     * @param listener a pointer toward an object implementing the TreeDrawingListener interface.
+     * This object will then be owned by the class and copied and deleted if/when needed.
+     */
+    virtual void addTreeDrawingListener(TreeDrawingListener* listener) = 0;
      
 };
 

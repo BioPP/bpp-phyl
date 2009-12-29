@@ -329,7 +329,7 @@ class TreeTemplateTools
      * @return A vector of pointers toward each inner node in the subtree.
      */
     template<class N>
-    static std::vector<N *> getInnerNodes(N & node)
+    static std::vector<N*> getInnerNodes(N & node)
     {
       std::vector<N *> nodes;
       getInnerNodes<N>(node, nodes);
@@ -345,7 +345,7 @@ class TreeTemplateTools
      * @param nodes A vector to be filled with pointers toward each inner node in the subtree.
      */
     template<class N>
-    static void getInnerNodes(N & node, std::vector<N *> & nodes)
+    static void getInnerNodes(N& node, std::vector<N*>& nodes)
     {
       for(unsigned int i = 0; i < node.getNumberOfSons(); i++)
       {
@@ -392,7 +392,7 @@ class TreeTemplateTools
      * @return     Nodes with the specified id.
      */
     template<class N>
-    static std::vector<N *> searchNodeWithId(N& node, int id)
+    static std::vector<N*> searchNodeWithId(N& node, int id)
     {
       std::vector<N*> nodes;
       searchNodeWithId<N>(node, id, nodes);
@@ -405,13 +405,13 @@ class TreeTemplateTools
      * @param nodes A vector to be filled with the matching nodes.
      */
     template<class N>
-    static void searchNodeWithId(N& node, int id, std::vector<N*> & nodes)
+    static void searchNodeWithId(N& node, int id, std::vector<N*>& nodes)
     {
-      for(unsigned int i = 0; i < node.getNumberOfSons(); i++)
+      for (unsigned int i = 0; i < node.getNumberOfSons(); i++)
       {
-        searchNodeWithId<N>(* node.getSon(i), id, nodes);
+        searchNodeWithId<N>(*node.getSon(i), id, nodes);
       }
-      if(node.getId() == id) nodes.push_back(& node);
+      if (node.getId() == id) nodes.push_back(&node);
     }
 
     /**
@@ -420,7 +420,7 @@ class TreeTemplateTools
      * @return     True if the subtree contains a node with the specified id.
      */
     template<class N>
-    static bool hasNodeWithId(const N & node, int id)
+    static bool hasNodeWithId(const N& node, int id)
     {
       if(node.getId() == id) return true;
       else

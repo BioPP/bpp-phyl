@@ -76,14 +76,14 @@ const string TreeTools::BOOTSTRAP = "bootstrap";
 
 /******************************************************************************/
 
-vector<int> TreeTools::getLeavesId(const Tree & tree, int nodeId) throw (NodeNotFoundException)
+vector<int> TreeTools::getLeavesId(const Tree& tree, int nodeId) throw (NodeNotFoundException)
 {
   vector<int> leaves;
   getLeavesId(tree, nodeId, leaves);
   return leaves;
 }
 
-void TreeTools::getLeavesId(const Tree & tree, int nodeId, vector<int> & leaves) throw (NodeNotFoundException)
+void TreeTools::getLeavesId(const Tree& tree, int nodeId, std::vector<int>& leaves) throw (NodeNotFoundException)
 {
   if(!tree.hasNode(nodeId)) throw NodeNotFoundException("TreeTools::getLeavesId", nodeId);
   if(tree.isLeaf(nodeId))
@@ -97,9 +97,27 @@ void TreeTools::getLeavesId(const Tree & tree, int nodeId, vector<int> & leaves)
   }
 }
 
+unsigned int TreeTools::getNumberOfLeaves(const Tree& tree, int nodeId) throw (NodeNotFoundException)
+{
+  if (!tree.hasNode(nodeId))
+    throw NodeNotFoundException("TreeTools::getNumberOfLeaves", nodeId);
+
+  unsigned int n = 0;
+  if(tree.isLeaf(nodeId))
+  {
+    ++n;
+  }
+  vector<int> sons = tree.getSonsId(nodeId);
+  for (unsigned int i = 0; i < sons.size(); ++i)
+  {
+    n += getNumberOfLeaves(tree, sons[i]);
+  }
+  return n;
+}
+
 /******************************************************************************/
 
-int TreeTools::getLeafId(const Tree & tree, int nodeId, const string & name)
+int TreeTools::getLeafId(const Tree& tree, int nodeId, const std::string& name)
 throw (NodeNotFoundException)
 {
   int * id = NULL;

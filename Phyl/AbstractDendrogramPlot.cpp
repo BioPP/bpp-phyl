@@ -54,7 +54,8 @@ string AbstractDendrogramPlot::PROPERTY_IDS = "Nodes ids";
 void AbstractDendrogramPlot::plot(GraphicDevice& gDevice) const throw (Exception)
 {
   drawDendrogram_(gDevice);
-  drawLeafNames_(gDevice);
+  if (getDisplaySettings().drawLeafNames)
+    drawLeafNames_(gDevice);
 }
 
 bool AbstractDendrogramPlot::drawProperty(GraphicDevice& gDevice, const string& property) const
@@ -80,8 +81,8 @@ bool AbstractDendrogramPlot::drawProperty(GraphicDevice& gDevice, const string& 
 void AbstractDendrogramPlot::drawNodesId_(GraphicDevice& gDevice) const
 {
   if (!hasTree()) return;
-  vector<const INode *> nodes = getTree_()->getNodes();
-  for(unsigned int i = 0; i < nodes.size(); i++)
+  vector<const INode*> nodes = getTree_()->getNodes();
+  for (unsigned int i = 0; i < nodes.size(); i++)
   {
     const INode* node = nodes[i];
     drawAtNode(gDevice, *node, TextTools::toString(node->getId()), 0, 0,
@@ -94,6 +95,8 @@ void AbstractDendrogramPlot::drawNodesId_(GraphicDevice& gDevice) const
 void AbstractDendrogramPlot::drawLeafNames_(GraphicDevice& gDevice) const
 {
   if (!hasTree()) return;
+  Font fontBck = gDevice.getCurrentFont();
+  gDevice.setCurrentFont(getDisplaySettings().fontLeafNames);
   vector<const INode *> leaves = getTree_()->getLeaves();
   for(unsigned int i = 0; i < leaves.size(); i++)
   {
@@ -103,6 +106,7 @@ void AbstractDendrogramPlot::drawLeafNames_(GraphicDevice& gDevice) const
         ? GraphicDevice::TEXT_HORIZONTAL_LEFT
         : GraphicDevice::TEXT_HORIZONTAL_RIGHT);
   }
+  gDevice.setCurrentFont(fontBck);
 }
 
 void AbstractDendrogramPlot::drawBranchLengthValues_(GraphicDevice& gDevice) const

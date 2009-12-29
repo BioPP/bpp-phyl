@@ -57,7 +57,7 @@ void PhylogramPlot::setTree(const Tree* tree)
 
 void PhylogramPlot::drawDendrogram_(GraphicDevice& gDevice) const throw (Exception)
 {
-  if(hasTree())
+  if (hasTree())
   {
     unsigned int* tipCounter = new unsigned int(0);
     double y;
@@ -92,18 +92,28 @@ void PhylogramPlot::recursivePlot_(GraphicDevice& gDevice, INode& node, double x
     x2 = x;
     drawBranch = false;
   }
-  
+ 
+  auto_ptr<Cursor> cursor;
   if (node.isLeaf())
   {
     y =  ((getVerticalOrientation() == ORIENTATION_TOP_TO_BOTTOM ? 0 : getHeight()) + static_cast<double>(*tipCounter) * vDirection) * getYUnit();
     (*tipCounter)++;
+    cursor.reset(new Cursor(x2, y, 0));
+    fireBeforeNodeEvent_(gDevice, node, *cursor);
+  }
+  else if (node.getInfos().isCollapsed())
+  {
+    y =  ((getVerticalOrientation() == ORIENTATION_TOP_TO_BOTTOM ? 0 : getHeight()) + static_cast<double>(*tipCounter) * vDirection) * getYUnit();
+    (*tipCounter)++;
+    cursor.reset(new Cursor(x2, y, 0));
+    fireBeforeNodeEvent_(gDevice, node, *cursor);
   }
   else
   {
     //Vertical line. Call the method on son nodes first:
     double miny = 1000000; //(unsigned int)(-log(0));
     double maxy = 0;
-    for(unsigned int i = 0; i < node.getNumberOfSons(); i++)
+    for (unsigned int i = 0; i < node.getNumberOfSons(); i++)
     {
       double yson;
       recursivePlot_(gDevice, *node.getSon(i), x2, yson, hDirection, vDirection, tipCounter);
@@ -111,18 +121,23 @@ void PhylogramPlot::recursivePlot_(GraphicDevice& gDevice, INode& node, double x
       if(yson > maxy) maxy = yson;
     }
     y = (maxy + miny) / 2.;
+    cursor.reset(new Cursor(x2, y, 0));
+    fireBeforeNodeEvent_(gDevice, node, *cursor);
     gDevice.drawLine(x2, miny, x2, maxy);
   }
   
-  if (drawBranch)
-  {
-    //Horizontal line
-    gDevice.drawLine(x, y, x2, y);
-  }
-
   //Actualize node infos:
   node.getInfos().setX(x2);
   node.getInfos().setY(y);
+  fireAfterNodeEvent_(gDevice, node, *cursor);
+
+  if (drawBranch)
+  {
+    //Horizontal line
+    fireBeforeBranchEvent_(gDevice, node, *cursor);
+    gDevice.drawLine(x, y, x2, y);
+    fireAfterBranchEvent_(gDevice, node, *cursor);
+  }
 }
 
 

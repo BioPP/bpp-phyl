@@ -1,5 +1,8 @@
+29/12/09 Julien Dutheil
+* Improved TreeDrawing classes: added Listeners.
+
 26/12/09 Julien Dutheil
-* Removed all usin namespace std in header files.
+* Removed all "using namespace std" in header files.
 * Code cleaning.
 
 15/12/09 Laurent Guegen
