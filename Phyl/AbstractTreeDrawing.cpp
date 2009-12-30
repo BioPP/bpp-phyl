@@ -47,6 +47,7 @@ knowledge of the CeCILL license and that you accept its terms.
 
 // From the STL:
 #include <algorithm>
+#include <typeinfo>
 
 using namespace bpp;
 using namespace std;
