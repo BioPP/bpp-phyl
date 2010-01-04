@@ -129,6 +129,25 @@ unsigned int MixedSubstitutionModel::getNumberOfModels() const
   return modelsContainer_.size();
 }
 
+MixedSubstitutionModel::MixedSubstitutionModel(const MixedSubstitutionModel& msm) :
+  AbstractSubstitutionModel(msm)
+{
+  
+  map<string, DiscreteDistribution*> m= msm.distributionMap_;
+  map<string, DiscreteDistribution*>::iterator it;
+  
+  for (it = m.begin(); it != m.end(); it++)
+    {
+      distributionMap_[it->first]=it->second->clone();
+    }
+  
+  for (unsigned int i = 0; i < msm.modelsContainer_.size(); i++)
+    {
+      modelsContainer_.push_back(msm.modelsContainer_[i]->clone());
+    }
+
+}
+
 MixedSubstitutionModel::~MixedSubstitutionModel()
 {
   unsigned int i;
@@ -138,7 +157,6 @@ MixedSubstitutionModel::~MixedSubstitutionModel()
   {
     delete it->second;
   }
-
   for (i = 0; i < modelsContainer_.size(); i++)
   {
     delete modelsContainer_[i];

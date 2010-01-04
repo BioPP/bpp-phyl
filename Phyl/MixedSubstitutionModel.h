@@ -91,7 +91,7 @@ namespace bpp
 class MixedSubstitutionModel :
   public AbstractSubstitutionModel
 {
-protected:
+private:
   std::map<std::string, DiscreteDistribution*> distributionMap_;
 
   std::vector<SubstitutionModel*> modelsContainer_;
@@ -101,6 +101,8 @@ public:
                          SubstitutionModel* model,
                          std::map<std::string, DiscreteDistribution*> parametersDistributionsList);
 
+  MixedSubstitutionModel(const MixedSubstitutionModel&);
+  
   ~MixedSubstitutionModel();
 
   MixedSubstitutionModel* clone() const { return new MixedSubstitutionModel(*this); }
