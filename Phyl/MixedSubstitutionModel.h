@@ -111,9 +111,16 @@ public:
   /**
    * @brief Returns a specific model from the mixture
    */
-  SubstitutionModel* getNModel(int);
 
-  unsigned int getNumberOfModels() const;
+  SubstitutionModel* getNModel(unsigned int i)
+  {
+    return modelsContainer_[i];
+  }
+
+  unsigned int getNumberOfModels() const
+  {
+    return modelsContainer_.size();
+  }
 
   std::string getName() const { return "MixedSubstitutionModel"; }
 

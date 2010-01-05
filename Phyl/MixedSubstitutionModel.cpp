@@ -118,17 +118,6 @@ MixedSubstitutionModel::MixedSubstitutionModel(const Alphabet* alpha,
   updateMatrices();
 }
 
-
-SubstitutionModel* MixedSubstitutionModel::getNModel(int i)
-{
-  return modelsContainer_[i];
-}
-
-unsigned int MixedSubstitutionModel::getNumberOfModels() const
-{
-  return modelsContainer_.size();
-}
-
 MixedSubstitutionModel::MixedSubstitutionModel(const MixedSubstitutionModel& msm) :
   AbstractSubstitutionModel(msm)
 {
