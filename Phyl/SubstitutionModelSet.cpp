@@ -39,6 +39,7 @@ knowledge of the CeCILL license and that you accept its terms.
 */
 
 #include "SubstitutionModelSet.h"
+#include "MixedSubstitutionModel.h"
 
 // From Utils:
 #include <Utils/MapTools.h>
@@ -375,5 +376,12 @@ throw (Exception)
     }
   }
   return true;
+}
+
+bool SubstitutionModelSet::hasMixedSubstitutionModel() const {
+  for (unsigned int i=0;i<getNumberOfModels();i++)
+    if (dynamic_cast< MixedSubstitutionModel*>(getModel(i))!=NULL)
+      return true;
+  return false;
 }
 

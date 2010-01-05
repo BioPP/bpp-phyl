@@ -4,5 +4,6 @@
 #include "NNIHomogeneousTreeLikelihood.h"
 #include "RHomogeneousClockTreeLikelihood.h"
 #include "RNonHomogeneousTreeLikelihood.h"
+#include "RNonHomogeneousMixedTreeLikelihood.h"
 #include "DRNonHomogeneousTreeLikelihood.h"
 
