@@ -19,6 +19,7 @@ set(CPP_FILES
   RHomogeneousTreeLikelihood.cpp
   RHomogeneousMixedTreeLikelihood.cpp
   RNonHomogeneousTreeLikelihood.cpp
+  RNonHomogeneousMixedTreeLikelihood.cpp
   DRNonHomogeneousTreeLikelihood.cpp
   DRASRTreeLikelihoodData.cpp
   DRHomogeneousTreeLikelihood.cpp
@@ -122,6 +123,7 @@ set(H_FILES
   NNIHomogeneousTreeLikelihood.h
   NonHomogeneousTreeLikelihood.h
   RNonHomogeneousTreeLikelihood.h
+  RNonHomogeneousMixedTreeLikelihood.h
   DRNonHomogeneousTreeLikelihood.h
   treelikelihoods
   ClockTreeLikelihood.h
