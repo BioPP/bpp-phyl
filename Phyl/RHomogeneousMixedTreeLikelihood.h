@@ -70,10 +70,12 @@ class RHomogeneousMixedTreeLikelihood :
 
 public:
   /**
-   * @brief Build a new RHomogeneousMixedTreeLikelihood object without data.
+   * @brief Build a new RHomogeneousMixedTreeLikelihood object without
+   * data.
    *
-   * This constructor only initialize the parameters.
-   * To compute a likelihood, you will need to call the setData() and the computeTreeLikelihood() methods.
+   * This constructor only initialize the parameters. To compute a
+   * likelihood, you will need to call the setData() and the
+   * computeTreeLikelihood() methods.
    *
    * @param tree The tree to use.
    * @param model The mixed substitution model to use.
