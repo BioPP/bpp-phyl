@@ -380,7 +380,7 @@ throw (Exception)
 
 bool SubstitutionModelSet::hasMixedSubstitutionModel() const {
   for (unsigned int i=0;i<getNumberOfModels();i++)
-    if (dynamic_cast< MixedSubstitutionModel*>(getModel(i))!=NULL)
+    if (dynamic_cast<const MixedSubstitutionModel*>(getModel(i))!=NULL)
       return true;
   return false;
 }
