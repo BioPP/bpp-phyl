@@ -112,7 +112,7 @@ public:
    * @brief Returns a specific model from the mixture
    */
 
-  SubstitutionModel* getNModel(unsigned int i)
+  const SubstitutionModel* getNModel(unsigned int i) const
   {
     return modelsContainer_[i];
   }

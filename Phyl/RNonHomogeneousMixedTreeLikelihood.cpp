@@ -74,7 +74,7 @@ RNonHomogeneousMixedTreeLikelihood::RNonHomogeneousMixedTreeLikelihood(
   MixedSubstitutionModel* pmsm;
   SubstitutionModel* psm;
   for (unsigned int i=0;i<nbmodels;i++){
-    if ((pmsm=dynamic_cast< MixedSubstitutionModel*>(modelSet->getModel(i)))!=NULL)
+    if ((pmsm=dynamic_cast< MixedSubstitutionModel*>(modelSet->getModel(i)->clone()))!=NULL)
       mapmodels[i]=pmsm->getNumberOfModels();
     else
       mapmodels[i]=1;
@@ -88,7 +88,7 @@ RNonHomogeneousMixedTreeLikelihood::RNonHomogeneousMixedTreeLikelihood(
     psms=modelSet->clone();
     for (unsigned int j=0;j<nbmodels;j++){
       if (mapmodels[j]!=1){
-        psm=dynamic_cast< MixedSubstitutionModel*>(modelSet->getModel(j))->getNModel(s%mapmodels[j]);
+        psm=dynamic_cast<const MixedSubstitutionModel*>(modelSet->getModel(j))->getNModel(s%mapmodels[j])->clone();
         psms->setModel(psm,j);
         s/=mapmodels[j];
       }                      
@@ -121,7 +121,7 @@ throw (Exception):
   MixedSubstitutionModel* pmsm;
   SubstitutionModel* psm;
   for (unsigned int i=0;i<nbmodels;i++){
-    if ((pmsm=dynamic_cast< MixedSubstitutionModel*>(modelSet->getModel(i)))!=NULL)
+    if ((pmsm=dynamic_cast< MixedSubstitutionModel*>(modelSet->getModel(i)->clone()))!=NULL)
       mapmodels[i]=pmsm->getNumberOfModels();
     else
       mapmodels[i]=1;
@@ -135,7 +135,7 @@ throw (Exception):
     psms=modelSet->clone();
     for (unsigned int j=0;j<nbmodels;j++){
       if (mapmodels[j]!=1){
-        psm=dynamic_cast< MixedSubstitutionModel*>(modelSet->getModel(j))->getNModel(s%mapmodels[j]);
+        psm=dynamic_cast<const MixedSubstitutionModel*>(modelSet->getModel(j))->getNModel(s%mapmodels[j])->clone();
       psms->setModel(psm,j);
       s/=mapmodels[j];
     }                      
@@ -281,13 +281,13 @@ void RNonHomogeneousMixedTreeLikelihood::fireParameterChanged(const ParameterLis
 {
   RNonHomogeneousTreeLikelihood::fireParameterChanged(params);
   unsigned int s;
-  MixedSubstitutionModel *pm;
+  const MixedSubstitutionModel *pm;
   SubstitutionModelSet* modelSet=getSubstitutionModelSet();
   
   for (unsigned int i=0;i< treelikelihoodscontainer_.size(); i++){
     s=i;
     for (unsigned int j=0;j<modelSet->getNumberOfModels();j++){
-      pm=dynamic_cast<MixedSubstitutionModel*>(modelSet->getModel(j));
+      pm=dynamic_cast<const MixedSubstitutionModel*>(modelSet->getModel(j));
       if (pm!=NULL){
         treelikelihoodscontainer_[i]->matchParametersValues(pm->getNModel(s%pm->getNumberOfModels())->getParameters());
         s/=pm->getNumberOfModels();

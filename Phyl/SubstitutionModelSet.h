@@ -254,7 +254,7 @@ class SubstitutionModelSet:
      * @param i Index of the model in the set.
      * @return A pointer toward the corresponding model.
      */
-  SubstitutionModel* getModel(unsigned int i) const throw (IndexOutOfBoundsException)
+  const SubstitutionModel* getModel(unsigned int i) const throw (IndexOutOfBoundsException)
     {
       if (i > _modelSet.size()) throw IndexOutOfBoundsException("SubstitutionModelSet::getNumberOfModels().", 0, _modelSet.size()-1, i);
       return _modelSet[i];

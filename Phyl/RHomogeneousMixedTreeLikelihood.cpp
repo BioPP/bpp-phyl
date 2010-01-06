@@ -68,7 +68,7 @@ RHomogeneousMixedTreeLikelihood::RHomogeneousMixedTreeLikelihood(
   unsigned int s=mixedmodel_->getNumberOfModels();
   for (unsigned int i=0;i<s;i++)
     treelikelihoodscontainer_.push_back(
-					new RHomogeneousTreeLikelihood(tree, mixedmodel_->getNModel(i), rDist, checkRooted, false)
+					new RHomogeneousTreeLikelihood(tree, mixedmodel_->getNModel(i)->clone(), rDist, checkRooted, false)
 					);
   
 }
@@ -93,7 +93,7 @@ RHomogeneousMixedTreeLikelihood::RHomogeneousMixedTreeLikelihood(
   
   for (int i=0;i<s;i++)
     treelikelihoodscontainer_.push_back(
-                                        new RHomogeneousTreeLikelihood(tree, mixedmodel_->getNModel(i), rDist, checkRooted, false)
+                                        new RHomogeneousTreeLikelihood(tree, mixedmodel_->getNModel(i)->clone(), rDist, checkRooted, false)
 					);
   setData(data);
 }
@@ -215,7 +215,7 @@ void RHomogeneousMixedTreeLikelihood::fireParameterChanged(const ParameterList& 
 {
   RHomogeneousTreeLikelihood::fireParameterChanged(params);
   
-  SubstitutionModel *pm;
+  const SubstitutionModel *pm;
   for (unsigned int i=0; i<treelikelihoodscontainer_.size(); i++){
     pm=mixedmodel_->getNModel(i);
     treelikelihoodscontainer_[i]->matchParametersValues(pm->getParameters());
