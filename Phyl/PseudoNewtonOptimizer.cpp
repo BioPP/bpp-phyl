@@ -107,7 +107,7 @@ double PseudoNewtonOptimizer::doStep() throw (Exception)
       movements[i] = -firstOrderDerivative / secondOrderDerivative;
     }
     else movements[i] = firstOrderDerivative / secondOrderDerivative;
-    if (isnan(movements[i]))
+    if (std::isnan(movements[i]))
     {
       printMessage("!!! Non derivable point at " + _params[i] + ". No move performed. (f=" + TextTools::toString(currentValue_) + ", d1=" + TextTools::toString(firstOrderDerivative) + ", d2=" + TextTools::toString(secondOrderDerivative) + ").");
       movements[i] = 0; // Either first or second order derivative is infinity. This may happen when the function == inf at this point.
