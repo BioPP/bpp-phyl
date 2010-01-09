@@ -4,37 +4,37 @@
 //
 
 /*
-  Copyright or © or Copr. CNRS, (November 16, 2004)
+   Copyright or © or Copr. CNRS, (November 16, 2004)
 
-  This software is a computer program whose purpose is to provide classes
-  for phylogenetic data analysis.
+   This software is a computer program whose purpose is to provide classes
+   for phylogenetic data analysis.
 
-  This software is governed by the CeCILL  license under French law and
-  abiding by the rules of distribution of free software.  You can  use,
-  modify and/ or redistribute the software under the terms of the CeCILL
-  license as circulated by CEA, CNRS and INRIA at the following URL
-  "http://www.cecill.info".
+   This software is governed by the CeCILL  license under French law and
+   abiding by the rules of distribution of free software.  You can  use,
+   modify and/ or redistribute the software under the terms of the CeCILL
+   license as circulated by CEA, CNRS and INRIA at the following URL
+   "http://www.cecill.info".
 
-  As a counterpart to the access to the source code and  rights to copy,
-  modify and redistribute granted by the license, users are provided only
-  with a limited warranty  and the software's author,  the holder of the
-  economic rights,  and the successive licensors  have only  limited
-  liability.
+   As a counterpart to the access to the source code and  rights to copy,
+   modify and redistribute granted by the license, users are provided only
+   with a limited warranty  and the software's author,  the holder of the
+   economic rights,  and the successive licensors  have only  limited
+   liability.
 
-  In this respect, the user's attention is drawn to the risks associated
-  with loading,  using,  modifying and/or developing or reproducing the
-  software by the user in light of its specific status of free software,
-  that may mean  that it is complicated to manipulate,  and  that  also
-  therefore means  that it is reserved for developers  and  experienced
-  professionals having in-depth computer knowledge. Users are therefore
-  encouraged to load and test the software's suitability as regards their
-  requirements in conditions enabling the security of their systems and/or
-  data to be ensured and,  more generally, to use and operate it in the
-  same conditions as regards security.
+   In this respect, the user's attention is drawn to the risks associated
+   with loading,  using,  modifying and/or developing or reproducing the
+   software by the user in light of its specific status of free software,
+   that may mean  that it is complicated to manipulate,  and  that  also
+   therefore means  that it is reserved for developers  and  experienced
+   professionals having in-depth computer knowledge. Users are therefore
+   encouraged to load and test the software's suitability as regards their
+   requirements in conditions enabling the security of their systems and/or
+   data to be ensured and,  more generally, to use and operate it in the
+   same conditions as regards security.
 
-  The fact that you are presently reading this means that you have had
-  knowledge of the CeCILL license and that you accept its terms.
-*/
+   The fact that you are presently reading this means that you have had
+   knowledge of the CeCILL license and that you accept its terms.
+ */
 
 #include "RHomogeneousMixedTreeLikelihood.h"
 
@@ -64,7 +64,6 @@ RHomogeneousMixedTreeLikelihood::RHomogeneousMixedTreeLikelihood(
 {
   if ((mixedmodel_ = dynamic_cast<MixedSubstitutionModel*>(model_)) == NULL)
     throw Exception("Bad model: RHomogeneousMixedTreeLikelihood needs a MixedSubstitutionModel.");
-
   unsigned int s = mixedmodel_->getNumberOfModels();
   for (unsigned int i = 0; i < s; i++)
   {
@@ -95,12 +94,11 @@ throw (Exception) :
   for (unsigned int i = 0; i < s; i++)
   {
    treelikelihoodscontainer_.push_back(
-      new RHomogeneousTreeLikelihood(tree, mixedmodel_->getNModel(i)->clone(), rDist, checkRooted, false)
+      new RHomogeneousTreeLikelihood(tree, mixedmodel_->getNModel(i), rDist, checkRooted, false)
       );
   }
   setData(data);
 }
-
 
 RHomogeneousMixedTreeLikelihood & RHomogeneousMixedTreeLikelihood::operator=(const RHomogeneousMixedTreeLikelihood& lik)
 {
@@ -122,7 +120,7 @@ RHomogeneousMixedTreeLikelihood & RHomogeneousMixedTreeLikelihood::operator=(con
 RHomogeneousMixedTreeLikelihood::RHomogeneousMixedTreeLikelihood(const RHomogeneousMixedTreeLikelihood& lik) : RHomogeneousTreeLikelihood(lik),
   mixedmodel_(lik.mixedmodel_->clone())
 {
-  unsigned int s = lik.mixedmodel_->getNumberOfModels();
+   unsigned int s = lik.mixedmodel_->getNumberOfModels();
 
   for (unsigned int i = 0; i < s; i++)
   {
@@ -150,7 +148,7 @@ void RHomogeneousMixedTreeLikelihood::initialize() throw (Exception)
 
 void RHomogeneousMixedTreeLikelihood::setData(const SiteContainer& sites) throw (Exception)
 {
-  RHomogeneousTreeLikelihood::setData(sites);
+   RHomogeneousTreeLikelihood::setData(sites);
 
   for (unsigned int i = 0; i < treelikelihoodscontainer_.size(); i++)
   {
@@ -161,7 +159,7 @@ void RHomogeneousMixedTreeLikelihood::setData(const SiteContainer& sites) throw 
 
 double RHomogeneousMixedTreeLikelihood::getLogLikelihood() const
 {
-  vector<double> reslog;
+   vector<double> reslog;
 
   for (unsigned int i = 0; i < treelikelihoodscontainer_.size(); i++)
   {
@@ -183,11 +181,11 @@ double RHomogeneousMixedTreeLikelihood::getLikelihoodForASite(unsigned int site)
 
 double RHomogeneousMixedTreeLikelihood::getLogLikelihoodForASite(unsigned int site) const
 {
-  vector<double> reslog;
+   vector<double> reslog;
 
   for (unsigned int i = 0; i < treelikelihoodscontainer_.size(); i++)
   {
-    reslog.push_back(treelikelihoodscontainer_[i]->getLogLikelihoodForASite(site));
+   reslog.push_back(treelikelihoodscontainer_[i]->getLogLikelihoodForASite(site));
   }
 
   return VectorTools::logmeanexp(reslog);
@@ -200,11 +198,11 @@ double RHomogeneousMixedTreeLikelihood::getLikelihoodForASiteForARateClass(unsig
 
 double RHomogeneousMixedTreeLikelihood::getLogLikelihoodForASiteForARateClass(unsigned int site, unsigned int rateClass) const
 {
-  vector<double> reslog;
+   vector<double> reslog;
 
   for (unsigned int i = 0; i < treelikelihoodscontainer_.size(); i++)
   {
-    reslog.push_back(treelikelihoodscontainer_[i]->getLogLikelihoodForASiteForARateClass(site, rateClass));
+   reslog.push_back(treelikelihoodscontainer_[i]->getLogLikelihoodForASiteForARateClass(site, rateClass));
   }
 
   return VectorTools::logmeanexp(reslog);
@@ -217,11 +215,11 @@ double RHomogeneousMixedTreeLikelihood::getLikelihoodForASiteForARateClassForASt
 
 double RHomogeneousMixedTreeLikelihood::getLogLikelihoodForASiteForARateClassForAState(unsigned int site, unsigned int rateClass, int state) const
 {
-  vector<double> reslog;
+   vector<double> reslog;
 
   for (unsigned int i = 0; i < treelikelihoodscontainer_.size(); i++)
   {
-    reslog.push_back(treelikelihoodscontainer_[i]->getLogLikelihoodForASiteForARateClassForAState(site, rateClass, state));
+   reslog.push_back(treelikelihoodscontainer_[i]->getLogLikelihoodForASiteForARateClassForAState(site, rateClass, state));
   }
 
   return VectorTools::logmeanexp(reslog);
@@ -229,7 +227,7 @@ double RHomogeneousMixedTreeLikelihood::getLogLikelihoodForASiteForARateClassFor
 
 void RHomogeneousMixedTreeLikelihood::fireParameterChanged(const ParameterList& params)
 {
-  RHomogeneousTreeLikelihood::fireParameterChanged(params);
+  applyParameters();
 
   const SubstitutionModel* pm;
   for (unsigned int i = 0; i < treelikelihoodscontainer_.size(); i++)
@@ -238,27 +236,17 @@ void RHomogeneousMixedTreeLikelihood::fireParameterChanged(const ParameterList& 
     treelikelihoodscontainer_[i]->matchParametersValues(pm->getParameters());
     treelikelihoodscontainer_[i]->matchParametersValues(getParameters());
   }
-}
 
-double RHomogeneousMixedTreeLikelihood::getValue() const
-throw (Exception)
-{
-  for (unsigned int i = 0; i < treelikelihoodscontainer_.size(); i++)
-  {
-    if (!treelikelihoodscontainer_[i]->isInitialized())
-      throw Exception("RHomogeneousMixedTreeLikelihood::getValue(). Instance is not initialized.");
-  }
-
-  return -getLogLikelihood();
+  minusLogLik_ = -getLogLikelihood();
 }
 
 double RHomogeneousMixedTreeLikelihood::getFirstOrderDerivative(const string& variable) const throw (Exception)
 {
-  vector<double> rescontainer;
+   vector<double> rescontainer;
 
   for (unsigned int i = 0; i < treelikelihoodscontainer_.size(); i++)
   {
-    rescontainer.push_back(treelikelihoodscontainer_[i]->getFirstOrderDerivative(variable));
+   rescontainer.push_back(treelikelihoodscontainer_[i]->getFirstOrderDerivative(variable));
   }
 
   return VectorTools::mean<double, double>(rescontainer);
@@ -266,11 +254,11 @@ double RHomogeneousMixedTreeLikelihood::getFirstOrderDerivative(const string& va
 
 double RHomogeneousMixedTreeLikelihood::getSecondOrderDerivative(const string& variable) const throw (Exception)
 {
-  vector<double> rescontainer;
+   vector<double> rescontainer;
 
   for (unsigned int i = 0; i < treelikelihoodscontainer_.size(); i++)
   {
-    rescontainer.push_back(treelikelihoodscontainer_[i]->getSecondOrderDerivative(variable));
+   rescontainer.push_back(treelikelihoodscontainer_[i]->getSecondOrderDerivative(variable));
   }
 
   return VectorTools::mean<double, double>(rescontainer);
@@ -286,11 +274,11 @@ void RHomogeneousMixedTreeLikelihood::computeTreeLikelihood()
 
 double RHomogeneousMixedTreeLikelihood::getDLikelihoodForASiteForARateClass(unsigned int site, unsigned int rateClass) const
 {
-  vector<double> rescontainer;
+   vector<double> rescontainer;
 
   for (unsigned int i = 0; i < treelikelihoodscontainer_.size(); i++)
   {
-    rescontainer.push_back(treelikelihoodscontainer_[i]->getDLikelihoodForASiteForARateClass(site,rateClass));
+   rescontainer.push_back(treelikelihoodscontainer_[i]->getDLikelihoodForASiteForARateClass(site,rateClass));
   }
 
   return VectorTools::mean<double, double>(rescontainer);
@@ -298,11 +286,11 @@ double RHomogeneousMixedTreeLikelihood::getDLikelihoodForASiteForARateClass(unsi
 
 double RHomogeneousMixedTreeLikelihood::getDLikelihoodForASite(unsigned int site) const
 {
-  vector<double> rescontainer;
+   vector<double> rescontainer;
 
   for (unsigned int i = 0; i < treelikelihoodscontainer_.size(); i++)
   {
-    rescontainer.push_back(treelikelihoodscontainer_[i]->getDLikelihoodForASite(site));
+   rescontainer.push_back(treelikelihoodscontainer_[i]->getDLikelihoodForASite(site));
   }
 
   return VectorTools::mean<double, double>(rescontainer);
@@ -319,11 +307,11 @@ void RHomogeneousMixedTreeLikelihood::computeTreeDLikelihood(const string& varia
 
 double RHomogeneousMixedTreeLikelihood::getD2LikelihoodForASiteForARateClass(unsigned int site, unsigned int rateClass) const
 {
-  vector<double> rescontainer;
+   vector<double> rescontainer;
 
   for (unsigned int i = 0; i < treelikelihoodscontainer_.size(); i++)
   {
-    rescontainer.push_back(treelikelihoodscontainer_[i]->getD2LikelihoodForASiteForARateClass(site,rateClass));
+   rescontainer.push_back(treelikelihoodscontainer_[i]->getD2LikelihoodForASiteForARateClass(site,rateClass));
   }
 
   return VectorTools::mean<double, double>(rescontainer);
@@ -331,11 +319,11 @@ double RHomogeneousMixedTreeLikelihood::getD2LikelihoodForASiteForARateClass(uns
 
 double RHomogeneousMixedTreeLikelihood::getD2LikelihoodForASite(unsigned int site) const
 {
-  vector<double> rescontainer;
+   vector<double> rescontainer;
 
   for (unsigned int i = 0; i < treelikelihoodscontainer_.size(); i++)
   {
-    rescontainer.push_back(treelikelihoodscontainer_[i]->getD2LikelihoodForASite(site));
+   rescontainer.push_back(treelikelihoodscontainer_[i]->getD2LikelihoodForASite(site));
   }
 
   return VectorTools::mean<double, double>(rescontainer);

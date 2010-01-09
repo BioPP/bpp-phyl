@@ -55,7 +55,6 @@
 
 namespace bpp
 {
-
 /**
  * @brief Substitution models defined as a mixture of "simple"
  * substitution models.
@@ -102,7 +101,7 @@ public:
                          std::map<std::string, DiscreteDistribution*> parametersDistributionsList);
 
   MixedSubstitutionModel(const MixedSubstitutionModel&);
-  
+
   ~MixedSubstitutionModel();
 
   MixedSubstitutionModel* clone() const { return new MixedSubstitutionModel(*this); }
@@ -111,8 +110,12 @@ public:
   /**
    * @brief Returns a specific model from the mixture
    */
-
   const SubstitutionModel* getNModel(unsigned int i) const
+  {
+    return modelsContainer_[i];
+  }
+
+  SubstitutionModel* getNModel(unsigned int i)
   {
     return modelsContainer_[i];
   }
@@ -134,6 +137,6 @@ public:
 
   unsigned int getNumberOfStates() const;
 };
-} //end of namespace bpp.
+} // end of namespace bpp.
 
-#endif  //_MIXEDSUBSTITUTIONMODEL_H_
+#endif  // _MIXEDSUBSTITUTIONMODEL_H_

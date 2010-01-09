@@ -46,12 +46,12 @@ using namespace std;
 MixedSubstitutionModel::MixedSubstitutionModel(const Alphabet* alpha,
                                                SubstitutionModel* model,
                                                map<string,DiscreteDistribution*> parametersDistributionsList) :
-    AbstractSubstitutionModel(alpha,"MixedModel.")
+  AbstractSubstitutionModel(alpha,"MixedModel.")
 {
-  unsigned int c, i;
-  double d;
-  string s1, s2, t;
-  map<string, DiscreteDistribution*>::iterator it;
+   unsigned int c, i;
+   double d;
+   string s1, s2, t;
+   map<string, DiscreteDistribution*>::iterator it;
 
   // Initialization of distributionMap_.
 
@@ -86,7 +86,7 @@ MixedSubstitutionModel::MixedSubstitutionModel(const Alphabet* alpha,
 
   for (i = 0; i < c; i++)
   {
-    modelsContainer_.push_back(model->clone());
+   modelsContainer_.push_back(model->clone());
     modelsContainer_[i]->setNamespace("MixedModel." + model->getNamespace());
   }
 
@@ -121,26 +121,24 @@ MixedSubstitutionModel::MixedSubstitutionModel(const Alphabet* alpha,
 MixedSubstitutionModel::MixedSubstitutionModel(const MixedSubstitutionModel& msm) :
   AbstractSubstitutionModel(msm)
 {
-  
-  map<string, DiscreteDistribution*> m= msm.distributionMap_;
-  map<string, DiscreteDistribution*>::iterator it;
-  
-  for (it = m.begin(); it != m.end(); it++)
-    {
-      distributionMap_[it->first]=it->second->clone();
-    }
-  
-  for (unsigned int i = 0; i < msm.modelsContainer_.size(); i++)
-    {
-      modelsContainer_.push_back(msm.modelsContainer_[i]->clone());
-    }
+   map<string, DiscreteDistribution*> m = msm.distributionMap_;
+   map<string, DiscreteDistribution*>::iterator it;
 
+  for (it = m.begin(); it != m.end(); it++)
+  {
+    distributionMap_[it->first] = it->second->clone();
+  }
+
+  for (unsigned int i = 0; i < msm.modelsContainer_.size(); i++)
+  {
+   modelsContainer_.push_back(msm.modelsContainer_[i]->clone());
+  }
 }
 
 MixedSubstitutionModel::~MixedSubstitutionModel()
 {
-  unsigned int i;
-  map<string, DiscreteDistribution*>::iterator it;
+   unsigned int i;
+   map<string, DiscreteDistribution*>::iterator it;
 
   for (it = distributionMap_.begin(); it != distributionMap_.end(); it++)
   {
@@ -154,11 +152,11 @@ MixedSubstitutionModel::~MixedSubstitutionModel()
 
 void MixedSubstitutionModel::updateMatrices()
 {
-  string s,t;
-  unsigned int i, j, l;
-  double d;
-  ParameterList pl;
-  map<string, DiscreteDistribution*>::iterator it;
+   string s,t;
+   unsigned int i, j, l;
+   double d;
+   ParameterList pl;
+   map<string, DiscreteDistribution*>::iterator it;
 
   // Update of distribution parameters from the parameters_ member
   // data. (reverse operation compared to what has been done in the
