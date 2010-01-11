@@ -195,7 +195,7 @@ throw (Exception) :
 
 RNonHomogeneousMixedTreeLikelihood::RNonHomogeneousMixedTreeLikelihood(
   const RNonHomogeneousMixedTreeLikelihood& lik) :
-  RNonHomogeneousTreeLikelihood(lik)
+  RNonHomogeneousTreeLikelihood(lik), internParam_(lik.internParam_)
 {
   for (unsigned int i = 0; i < lik.treelikelihoodscontainer_.size(); i++)
   {
@@ -209,6 +209,9 @@ RNonHomogeneousMixedTreeLikelihood & RNonHomogeneousMixedTreeLikelihood::operato
   const RNonHomogeneousMixedTreeLikelihood& lik)
 {
   RNonHomogeneousTreeLikelihood::operator=(lik);
+
+  internParam_=lik.internParam_;
+  
   for (unsigned int i = 0; i < lik.treelikelihoodscontainer_.size(); i++)
   {
    treelikelihoodscontainer_.push_back(lik.treelikelihoodscontainer_[i]->clone());
@@ -369,7 +372,6 @@ void RNonHomogeneousMixedTreeLikelihood::fireParameterChanged(const ParameterLis
     }
     treelikelihoodscontainer_[i]->matchParametersValues(getParameters());
   }
-
   minusLogLik_ = -getLogLikelihood();
 }
 
