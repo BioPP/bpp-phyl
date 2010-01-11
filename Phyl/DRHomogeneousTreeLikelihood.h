@@ -231,9 +231,9 @@ class DRHomogeneousTreeLikelihood:
     virtual void computeTreeD2LikelihoodAtNode(const Node * node);
     virtual void computeTreeD2Likelihoods();
 
-    void fireParameterChanged(const ParameterList & params);
+    virtual void fireParameterChanged(const ParameterList & params);
 
-    void resetLikelihoodArrays(const Node * node);
+    virtual void resetLikelihoodArrays(const Node * node);
   
     /**
      * @brief This method is mainly for debugging purpose.
@@ -299,6 +299,8 @@ class DRHomogeneousTreeLikelihood:
         unsigned int nbClasses,
         unsigned int nbStates,
         bool reset = true);
+
+  friend class DRHomogeneousMixedTreeLikelihood;
 };
 
 } //end of namespace bpp.
