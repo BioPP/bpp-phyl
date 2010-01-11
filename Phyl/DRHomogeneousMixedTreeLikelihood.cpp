@@ -60,7 +60,7 @@ DRHomogeneousMixedTreeLikelihood::DRHomogeneousMixedTreeLikelihood(
   bool verbose,
   bool usePatterns
   )  throw (Exception) :
-  DRHomogeneousTreeLikelihood(tree, model, rDist, checkRooted, verbose)
+  DRHomogeneousTreeLikelihood(tree, model, rDist, checkRooted, verbose, usePatterns)
 {
   MixedSubstitutionModel* mixedmodel;
 
@@ -87,7 +87,7 @@ DRHomogeneousMixedTreeLikelihood::DRHomogeneousMixedTreeLikelihood(
   )
 
 throw (Exception) :
-  DRHomogeneousTreeLikelihood(tree, model,rDist, checkRooted, verbose)
+  DRHomogeneousTreeLikelihood(tree, model,rDist, checkRooted, verbose, usePatterns)
 {
   MixedSubstitutionModel* mixedmodel;
 
