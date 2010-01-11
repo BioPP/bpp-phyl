@@ -7,4 +7,5 @@
 #include "RNonHomogeneousTreeLikelihood.h"
 #include "RNonHomogeneousMixedTreeLikelihood.h"
 #include "DRNonHomogeneousTreeLikelihood.h"
+#include "DRNonHomogeneousMixedTreeLikelihood.h"
 

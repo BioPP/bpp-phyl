@@ -298,6 +298,7 @@ class DRNonHomogeneousTreeLikelihood:
         unsigned int nbStates,
         bool reset = true);
 
+  friend class DRNonHomogeneousMixedTreeLikelihood;
 };
 
 } //end of namespace bpp.
