@@ -62,13 +62,14 @@ RHomogeneousMixedTreeLikelihood::RHomogeneousMixedTreeLikelihood(
   )  throw (Exception) :
   RHomogeneousTreeLikelihood(tree, model, rDist, checkRooted, verbose)
 {
-  if ((mixedmodel_ = dynamic_cast<MixedSubstitutionModel*>(model_)) == NULL)
+   MixedSubstitutionModel* mixedmodel;
+  if ((mixedmodel = dynamic_cast<MixedSubstitutionModel*>(model_)) == NULL)
     throw Exception("Bad model: RHomogeneousMixedTreeLikelihood needs a MixedSubstitutionModel.");
-  unsigned int s = mixedmodel_->getNumberOfModels();
+  unsigned int s = mixedmodel->getNumberOfModels();
   for (unsigned int i = 0; i < s; i++)
   {
    treelikelihoodscontainer_.push_back(
-      new RHomogeneousTreeLikelihood(tree, mixedmodel_->getNModel(i)->clone(), rDist, checkRooted, false)
+      new RHomogeneousTreeLikelihood(tree, mixedmodel->getNModel(i), rDist, checkRooted, false)
       );
   }
 }
@@ -81,20 +82,20 @@ RHomogeneousMixedTreeLikelihood::RHomogeneousMixedTreeLikelihood(
   bool checkRooted,
   bool verbose,
   bool usePatterns
-  )
-
-throw (Exception) :
+  )  throw (Exception) :
   RHomogeneousTreeLikelihood(tree, model,rDist, checkRooted, verbose)
 {
-  if ((mixedmodel_ = dynamic_cast<MixedSubstitutionModel*>(model_)) == NULL)
+   MixedSubstitutionModel* mixedmodel;
+
+  if ((mixedmodel = dynamic_cast<MixedSubstitutionModel*>(model_)) == NULL)
     throw Exception("Bad model: RHomogeneousMixedTreeLikelihood needs a MixedSubstitutionModel.");
 
-  unsigned int s = mixedmodel_->getNumberOfModels();
+  unsigned int s = mixedmodel->getNumberOfModels();
 
   for (unsigned int i = 0; i < s; i++)
   {
    treelikelihoodscontainer_.push_back(
-      new RHomogeneousTreeLikelihood(tree, mixedmodel_->getNModel(i), rDist, checkRooted, false)
+      new RHomogeneousTreeLikelihood(tree, mixedmodel->getNModel(i), rDist, checkRooted, false)
       );
   }
   setData(data);
@@ -104,11 +105,7 @@ RHomogeneousMixedTreeLikelihood & RHomogeneousMixedTreeLikelihood::operator=(con
 {
   RHomogeneousTreeLikelihood::operator=(lik);
 
-  mixedmodel_ = lik.mixedmodel_->clone();
-
-  unsigned int s = lik.mixedmodel_->getNumberOfModels();
-
-  for (unsigned int i = 0; i < s; i++)
+  for (unsigned int i = 0; i < treelikelihoodscontainer_.size(); i++)
   {
    treelikelihoodscontainer_.push_back(lik.treelikelihoodscontainer_[i]->clone());
   }
@@ -117,12 +114,9 @@ RHomogeneousMixedTreeLikelihood & RHomogeneousMixedTreeLikelihood::operator=(con
 }
 
 
-RHomogeneousMixedTreeLikelihood::RHomogeneousMixedTreeLikelihood(const RHomogeneousMixedTreeLikelihood& lik) : RHomogeneousTreeLikelihood(lik),
-  mixedmodel_(lik.mixedmodel_->clone())
+RHomogeneousMixedTreeLikelihood::RHomogeneousMixedTreeLikelihood(const RHomogeneousMixedTreeLikelihood& lik) : RHomogeneousTreeLikelihood(lik)
 {
-   unsigned int s = lik.mixedmodel_->getNumberOfModels();
-
-  for (unsigned int i = 0; i < s; i++)
+  for (unsigned int i = 0; i < treelikelihoodscontainer_.size(); i++)
   {
    treelikelihoodscontainer_.push_back(lik.treelikelihoodscontainer_[i]->clone());
   }
@@ -229,10 +223,14 @@ void RHomogeneousMixedTreeLikelihood::fireParameterChanged(const ParameterList& 
 {
   applyParameters();
 
+  MixedSubstitutionModel* mixedmodel = dynamic_cast<MixedSubstitutionModel*>(model_);
+
+  unsigned int s = mixedmodel->getNumberOfModels();
+
   const SubstitutionModel* pm;
-  for (unsigned int i = 0; i < treelikelihoodscontainer_.size(); i++)
+  for (unsigned int i = 0; i < s; i++)
   {
-    pm = mixedmodel_->getNModel(i);
+    pm = mixedmodel->getNModel(i);
     treelikelihoodscontainer_[i]->matchParametersValues(pm->getParameters());
     treelikelihoodscontainer_[i]->matchParametersValues(getParameters());
   }
