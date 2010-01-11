@@ -62,7 +62,6 @@ DRHomogeneousMixedTreeLikelihood::DRHomogeneousMixedTreeLikelihood(
   )  throw (Exception) :
   DRHomogeneousTreeLikelihood(tree, model, rDist, checkRooted, verbose)
 {
-  cerr << "DRHomogeneousTreeLikelihood::DRHomogeneousTreeLikelihood" << endl;
   MixedSubstitutionModel* mixedmodel;
 
   if ((mixedmodel = dynamic_cast<MixedSubstitutionModel*>(model_)) == NULL)
@@ -90,7 +89,6 @@ DRHomogeneousMixedTreeLikelihood::DRHomogeneousMixedTreeLikelihood(
 throw (Exception) :
   DRHomogeneousTreeLikelihood(tree, model,rDist, checkRooted, verbose)
 {
-  cerr << "DRHomogeneousTreeLikelihood::DRHomogeneousTreeLikelihood" << endl;
   MixedSubstitutionModel* mixedmodel;
 
   if ((mixedmodel = dynamic_cast<MixedSubstitutionModel*>(model_)) == NULL)
@@ -139,11 +137,8 @@ DRHomogeneousMixedTreeLikelihood::~DRHomogeneousMixedTreeLikelihood()
 
 void DRHomogeneousMixedTreeLikelihood::initialize() throw (Exception)
 {
-  cerr << "initialize" << endl;
-
   for (unsigned int i = 0; i < treelikelihoodscontainer_.size(); i++)
   {
-    cerr << i << endl;
     treelikelihoodscontainer_[i]->initialize();
   }
   DRHomogeneousTreeLikelihood::initialize();
