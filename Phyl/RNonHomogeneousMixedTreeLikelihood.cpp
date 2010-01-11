@@ -63,7 +63,7 @@ RNonHomogeneousMixedTreeLikelihood::RNonHomogeneousMixedTreeLikelihood(
   bool verbose,
   bool usePatterns)
 throw (Exception) :
-  RNonHomogeneousTreeLikelihood(tree, modelSet, rDist, verbose)
+  RNonHomogeneousTreeLikelihood(tree, modelSet, rDist, verbose, usePatterns)
 {
   if (!modelSet->isFullySetUpFor(tree))
     throw Exception("RNonHomogeneousMixedTreeLikelihood(constructor). Model set is not fully specified.");
@@ -117,6 +117,10 @@ throw (Exception) :
         s /= mapmodels[j];
       }
     }
+    treelikelihoodscontainer_.push_back(
+                                        new RNonHomogeneousTreeLikelihood(tree, psms, rDist, false, usePatterns)
+                                        );
+
   }
 }
 
@@ -130,7 +134,7 @@ RNonHomogeneousMixedTreeLikelihood::RNonHomogeneousMixedTreeLikelihood(
   bool verbose,
   bool usePatterns)
 throw (Exception) :
-  RNonHomogeneousTreeLikelihood(tree, modelSet, rDist, verbose)
+  RNonHomogeneousTreeLikelihood(tree, modelSet, rDist, verbose, usePatterns)
 {
   if (!modelSet->isFullySetUpFor(tree))
     throw Exception("RNonHomogeneousMixedTreeLikelihood(constructor). Model set is not fully specified.");

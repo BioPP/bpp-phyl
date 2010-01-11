@@ -60,7 +60,7 @@ RHomogeneousMixedTreeLikelihood::RHomogeneousMixedTreeLikelihood(
   bool verbose,
   bool usePatterns
   )  throw (Exception) :
-  RHomogeneousTreeLikelihood(tree, model, rDist, checkRooted, verbose)
+  RHomogeneousTreeLikelihood(tree, model, rDist, checkRooted, verbose, usePatterns)
 {
    MixedSubstitutionModel* mixedmodel;
   if ((mixedmodel = dynamic_cast<MixedSubstitutionModel*>(model_)) == NULL)
@@ -69,7 +69,7 @@ RHomogeneousMixedTreeLikelihood::RHomogeneousMixedTreeLikelihood(
   for (unsigned int i = 0; i < s; i++)
   {
    treelikelihoodscontainer_.push_back(
-      new RHomogeneousTreeLikelihood(tree, mixedmodel->getNModel(i), rDist, checkRooted, false)
+                                       new RHomogeneousTreeLikelihood(tree, mixedmodel->getNModel(i), rDist, checkRooted, false, usePatterns)
       );
   }
 }
@@ -83,7 +83,7 @@ RHomogeneousMixedTreeLikelihood::RHomogeneousMixedTreeLikelihood(
   bool verbose,
   bool usePatterns
   )  throw (Exception) :
-  RHomogeneousTreeLikelihood(tree, model,rDist, checkRooted, verbose)
+  RHomogeneousTreeLikelihood(tree, model,rDist, checkRooted, verbose, usePatterns)
 {
    MixedSubstitutionModel* mixedmodel;
 
@@ -95,7 +95,7 @@ RHomogeneousMixedTreeLikelihood::RHomogeneousMixedTreeLikelihood(
   for (unsigned int i = 0; i < s; i++)
   {
    treelikelihoodscontainer_.push_back(
-      new RHomogeneousTreeLikelihood(tree, mixedmodel->getNModel(i), rDist, checkRooted, false)
+                                       new RHomogeneousTreeLikelihood(tree, mixedmodel->getNModel(i), rDist, checkRooted, false, usePatterns)
       );
   }
   setData(data);

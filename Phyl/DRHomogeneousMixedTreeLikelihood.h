@@ -87,8 +87,7 @@ public:
     SubstitutionModel* model,
     DiscreteDistribution* rDist,
     bool checkRooted = true,
-    bool verbose = true,
-    bool usePatterns = true)
+    bool verbose = true)
   throw (Exception);
 
   /**
@@ -112,8 +111,7 @@ public:
     SubstitutionModel* model,
     DiscreteDistribution* rDist,
     bool checkRooted = true,
-    bool verbose = true,
-    bool usePatterns = true)
+    bool verbose = true)
   throw (Exception);
 
   DRHomogeneousMixedTreeLikelihood(const DRHomogeneousMixedTreeLikelihood& lik);

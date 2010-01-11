@@ -57,10 +57,8 @@ DRHomogeneousMixedTreeLikelihood::DRHomogeneousMixedTreeLikelihood(
   SubstitutionModel* model,
   DiscreteDistribution* rDist,
   bool checkRooted,
-  bool verbose,
-  bool usePatterns
-  )  throw (Exception) :
-  DRHomogeneousTreeLikelihood(tree, model, rDist, checkRooted, verbose, usePatterns)
+  bool verbose)  throw (Exception) :
+  DRHomogeneousTreeLikelihood(tree, model, rDist, checkRooted, verbose)
 {
   MixedSubstitutionModel* mixedmodel;
 
@@ -71,7 +69,7 @@ DRHomogeneousMixedTreeLikelihood::DRHomogeneousMixedTreeLikelihood(
   for (unsigned int i = 0; i < s; i++)
   {
    treelikelihoodscontainer_.push_back(
-      new DRHomogeneousTreeLikelihood(tree, mixedmodel->getNModel(i), rDist, checkRooted, false)
+                                       new DRHomogeneousTreeLikelihood(tree, mixedmodel->getNModel(i), rDist, checkRooted, false)
       );
   }
 }
@@ -82,12 +80,10 @@ DRHomogeneousMixedTreeLikelihood::DRHomogeneousMixedTreeLikelihood(
   SubstitutionModel* model,
   DiscreteDistribution* rDist,
   bool checkRooted,
-  bool verbose,
-  bool usePatterns
-  )
+  bool verbose)
 
 throw (Exception) :
-  DRHomogeneousTreeLikelihood(tree, model,rDist, checkRooted, verbose, usePatterns)
+  DRHomogeneousTreeLikelihood(tree, model,rDist, checkRooted, verbose)
 {
   MixedSubstitutionModel* mixedmodel;
 
@@ -99,7 +95,7 @@ throw (Exception) :
   for (int i = 0; i < s; i++)
   {
    treelikelihoodscontainer_.push_back(
-      new DRHomogeneousTreeLikelihood(tree, mixedmodel->getNModel(i), rDist, checkRooted, false)
+                                       new DRHomogeneousTreeLikelihood(tree, mixedmodel->getNModel(i), rDist, checkRooted, false)
       );
   }
   setData(data);
