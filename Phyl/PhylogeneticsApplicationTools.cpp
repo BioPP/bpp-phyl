@@ -1305,10 +1305,10 @@ DiscreteDistribution* PhylogeneticsApplicationTools::getRateDistributionDefaultI
     // Then we update the parameter set:
     for (map<string, string>::iterator it = unparsedParameterValuesNested.begin(); it != unparsedParameterValuesNested.end(); it++)
     {
-      unparsedParameterValues["Invariant.dist_" + it->first] = it->second;
+      unparsedParameterValues["InvariantMixed.dist_" + it->first] = it->second;
     }
     if (args.find("p") != args.end())
-      unparsedParameterValues["Invariant.p"] = args["p"];
+      unparsedParameterValues["InvariantMixed.p"] = args["p"];
   }
   else if (distName == "Uniform")
   {
