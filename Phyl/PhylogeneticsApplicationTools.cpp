@@ -1300,7 +1300,7 @@ DiscreteDistribution* PhylogeneticsApplicationTools::getRateDistributionDefaultI
     DiscreteDistribution* nestedDistribution = getRateDistributionDefaultInstance(nestedDistDescription, unparsedParameterValuesNested, constDistAllowed, verbose);
 
     // Now we create the Invariant rate distribution:
-    rDist = new InvariantMixedDiscreteDistribution(nestedDistribution, 0., 0.000001); // , "Invariant.");
+    rDist = new InvariantMixedDiscreteDistribution(nestedDistribution, 0.1, 0.000001); // , "Invariant.");
 
     // Then we update the parameter set:
     for (map<string, string>::iterator it = unparsedParameterValuesNested.begin(); it != unparsedParameterValuesNested.end(); it++)
@@ -1365,7 +1365,7 @@ throw (Exception)
                                                                               verbose);
 
     // Now we create the Invariant rate distribution:
-    rDist = new InvariantMixedDiscreteDistribution(nestedDistribution, 0., 0.000001);
+    rDist = new InvariantMixedDiscreteDistribution(nestedDistribution, 0.1, 0.000001);
 
     // Then we update the parameter set:
     for (map<string, string>::iterator it = unparsedParameterValuesNested.begin();
