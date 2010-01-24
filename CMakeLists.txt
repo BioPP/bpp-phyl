@@ -4,7 +4,7 @@
 
 # Global parameters
 CMAKE_MINIMUM_REQUIRED(VERSION 2.6)
-PROJECT(bppphyl CXX)
+PROJECT(bpp-phyl CXX)
 IF(NOT CMAKE_BUILD_TYPE)
   SET(CMAKE_BUILD_TYPE RelWithDebInfo CACHE STRING
       "Choose the type of build, options are: None Debug Release RelWithDebInfo MinSizeRel."
@@ -91,20 +91,12 @@ SET(CPACK_PACKAGE_VERSION_PATCH "0")
 SET(CPACK_PACKAGE_DESCRIPTION_SUMMARY "The Bio++ Phylogenetics library")
 SET(CPACK_RESOURCE_FILE_LICENSE "COPYING")
 SET(CPACK_RESOURCE_FILE_AUTHORS "AUTHORS")
-SET(CPACK_GENERATOR "DEB;RPM")
 SET(CPACK_SOURCE_GENERATOR "TGZ")
-SET(CPACK_SYSTEM_NAME x86_64)
-SET(CPACK_TOPLEVEL_TAG x86_64)
-SET(CPACK_DEBIAN_PACKAGE_ARCHITECTURE amd64)
-SET(CPACK_DEBIAN_PACKAGE_DEPENDS "libstdc++6, libbpp-utils (= 1.4.0), libbpp-numcalc (= 1.7.0), libbpp-seq (= 1.6.0)")
-SET(CPACK_DEBIAN_PACKAGE_MAINTAINER "Julien Dutheil <jdutheil@birc.au.dk>")
 SET(CPACK_SOURCE_IGNORE_FILES
  ".*CMakeFiles"
  ".*Makefile"
  ".*_CPack_Packages"
  ".*CMakeCache.txt"
- "debian/"
- "Phyl.spec"
  ".*\\\\.cmake"
  ".*CVS/"
  ".*.gz"
@@ -114,8 +106,6 @@ SET(CPACK_SOURCE_IGNORE_FILES
  "Phyl/\\\\..*"
  "html"
  "Phyl.tag"
- "autogen.sh"
- "autoclean.sh"
  ${CPACK_SOURCE_IGNORE_FILES}
 )
 SET(CPACK_SOURCE_PACKAGE_FILE_NAME "${CMAKE_PROJECT_NAME}-${CPACK_PACKAGE_VERSION_MAJOR}.${CPACK_PACKAGE_VERSION_MINOR}.${CPACK_PACKAGE_VERSION_PATCH}")
@@ -123,4 +113,15 @@ INCLUDE(CPack)
 
 #This adds the 'dist' target
 ADD_CUSTOM_TARGET(dist COMMAND ${CMAKE_MAKE_PROGRAM} package_source)
+
+IF (UNIX)
+#This creates deb packages:
+ADD_CUSTOM_TARGET(deb fakeroot debian/rules binary)
+ADD_DEPENDENCIES(deb dist)
+
+#This creates rpm packages:
+ADD_CUSTOM_TARGET(rpm rpmbuild -ta ${CPACK_SOURCE_PACKAGE_FILE_NAME}.tar.gz)
+ADD_DEPENDENCIES(rpm dist)
+
+ENDIF()
 

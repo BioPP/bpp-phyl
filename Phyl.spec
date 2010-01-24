@@ -39,7 +39,7 @@ building applications which use %{name}.
 %setup -q
 
 %build
-CFLAGS="$RPM_OPT_FLAGS" ./configure --prefix=%{_prefix}
+CFLAGS="$RPM_OPT_FLAGS" cmake -DCMAKE_INSTALL_PREFIX=%{_prefix}
 make
 
 %install
@@ -63,7 +63,6 @@ rm -rf $RPM_BUILD_ROOT
 %defattr(-,root,root)
 %doc AUTHORS COPYING INSTALL NEWS README ChangeLog
 %{_prefix}/lib/lib*.a
-%{_prefix}/lib/lib*.la
 %{_prefix}/include/*
 
 %changelog
