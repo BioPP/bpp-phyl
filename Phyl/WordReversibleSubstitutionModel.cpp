@@ -57,7 +57,7 @@ using namespace std;
 
 /******************************************************************************/
 
-WordReversibleSubstitutionModel::WordReversibleSubstitutionModel(const Vector<SubstitutionModel*>& modelVector,
+WordReversibleSubstitutionModel::WordReversibleSubstitutionModel(const std::vector<SubstitutionModel*>& modelVector,
                                                                  const std::string& st) : AbstractWordReversibleSubstitutionModel(modelVector, (st=="")?"Word.":st)
 {
   int i,nbmod=_VSubMod.size();

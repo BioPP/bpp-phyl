@@ -62,6 +62,7 @@
 #include <vector>
 #include <map>
 #include <algorithm>
+#include <memory>
 
 namespace bpp
 {
@@ -78,8 +79,8 @@ namespace bpp
  * To deal with this issue, the SubstitutionModelSet class contains its own parameter list and an index which tells to which
  * models these parameters apply to.
  * Since parameters in a list must have unique names, duplicated names are numbered according to the order in the list.
- * To track the relationships between names in the list and names in each model, the parameter list is duplicated in _modelParameters.
- * The user only act on parameters_, the fireParameterChanged function, automatically called, will update the _modelParameters field.
+ * To track the relationships between names in the list and names in each model, the parameter list is duplicated in modelParameters_.
+ * The user only act on parameters_, the fireParameterChanged function, automatically called, will update the modelParameters_ field.
  *
  * In the non-homogeneous and homogeneous non-reversible cases, the likelihood depends on the position of the root.
  * The states frequencies at the root of the tree are hence distinct parameters.
@@ -95,39 +96,39 @@ namespace bpp
 class SubstitutionModelSet :
   public AbstractParametrizable
 {
-protected:
+private:
   /**
    * @brief A pointer toward the comon alphabet to all models in the set.
    */
-  const Alphabet* _alphabet;
+  const Alphabet* alphabet_;
 
   /**
    * @brief Contains all models used in this tree.
    */
-  std::vector<SubstitutionModel*> _modelSet;
+  std::vector<SubstitutionModel*> modelSet_;
 
   /**
    * @brief Root frequencies.
    */
-  FrequenciesSet* _rootFrequencies;
+  std::auto_ptr<FrequenciesSet> rootFrequencies_;
 
   /**
-   * @brief Contains for each node in a tree the index of the corresponding model in _modelSet
+   * @brief Contains for each node in a tree the index of the corresponding model in modelSet_
    */
-  mutable std::map<int, unsigned int> _nodeToModel;
-  mutable std::map<unsigned int, std::vector<int> > _modelToNodes;
+  mutable std::map<int, unsigned int> nodeToModel_;
+  mutable std::map<unsigned int, std::vector<int> > modelToNodes_;
 
   /**
-   * @brief Contains for each parameter in the list the indexes of the corresponding models in _modelSet that share this parameter.
+   * @brief Contains for each parameter in the list the indexes of the corresponding models in modelSet_ that share this parameter.
    */
-  std::vector< std::vector<unsigned int> > _paramToModels;
+  std::vector< std::vector<unsigned int> > paramToModels_;
 
-  std::map<std::string, unsigned int> _paramNamesCount;
+  std::map<std::string, unsigned int> paramNamesCount_;
 
   /**
    * @brief Contains for each parameter in the list the corresponding name in substitution models.
    */
-  std::vector<std::string> _modelParameterNames;
+  std::vector<std::string> modelParameterNames_;
 
   /**
    * @brief Parameters for each model in the set.
@@ -136,7 +137,7 @@ protected:
    * To make the correspondance with parameters for each model in the set, we duplicate them in this array.
    * In most cases, this is something like 'theta_1 <=> theta', 'theta_2 <=> theta', etc.
    */
-  std::vector<ParameterList> _modelParameters;
+  std::vector<ParameterList> modelParameters_;
 
 public:
   /**
@@ -148,24 +149,38 @@ public:
    */
   SubstitutionModelSet(const Alphabet* alpha) :
     AbstractParametrizable(""),
-    _alphabet(alpha)
+    alphabet_(alpha),
+    modelSet_(),
+    rootFrequencies_(new FullFrequenciesSet(alpha)),
+    nodeToModel_(),
+    modelToNodes_(),
+    paramToModels_(),
+    paramNamesCount_(),
+    modelParameterNames_(),
+    modelParameters_()
   {
-    _rootFrequencies = new FullFrequenciesSet(alpha);
-    addParameters_(_rootFrequencies->getParameters());
+    addParameters_(rootFrequencies_->getParameters());
   }
 
   /**
    * @brief Create a model set according to the specified alphabet and a given model for root frequencies.
-   *
+   *:
    * @param alpha The alphabet to use for this set.
    * @param rootFreqs The model for root frequencies.
    */
   SubstitutionModelSet(const Alphabet* alpha, FrequenciesSet* rootFreqs) :
     AbstractParametrizable(""),
-    _alphabet(alpha),
-    _rootFrequencies(rootFreqs)
+    alphabet_(alpha),
+    modelSet_(),
+    rootFrequencies_(rootFreqs),
+    nodeToModel_(),
+    modelToNodes_(),
+    paramToModels_(),
+    paramNamesCount_(),
+    modelParameterNames_(),
+    modelParameters_()
   {
-    addParameters_(_rootFrequencies->getParameters());
+    addParameters_(rootFrequencies_->getParameters());
   }
 
   SubstitutionModelSet(const SubstitutionModelSet& set);
@@ -174,8 +189,7 @@ public:
 
   virtual ~SubstitutionModelSet()
   {
-    for (unsigned int i = 0; i < _modelSet.size(); i++) { delete _modelSet[i]; }
-    delete _rootFrequencies;
+    for (unsigned int i = 0; i < modelSet_.size(); i++) { delete modelSet_[i]; }
   }
 
 #ifndef NO_VIRTUAL_COV
@@ -194,7 +208,7 @@ public:
    */
   unsigned int getNumberOfStates() const throw (Exception)
   {
-    return _rootFrequencies->getFrequencies().size();
+    return rootFrequencies_->getFrequencies().size();
   }
 
   /**
@@ -224,9 +238,9 @@ public:
   std::string getParameterModelName(const std::string& name) const throw (ParameterNotFoundException, Exception)
   {
    unsigned int pos = getParameterIndex(name);
-   unsigned int rfs = _rootFrequencies->getNumberOfParameters();
+   unsigned int rfs = rootFrequencies_->getNumberOfParameters();
     if (pos < rfs) throw Exception("SubstitutionModelSet::getParameterModelName(). This parameter as no model name: " + name);
-    return _modelParameterNames[pos - rfs];
+    return modelParameterNames_[pos - rfs];
   }
 
   /**
@@ -239,7 +253,7 @@ public:
   /**
    * @return The current number of distinct substitution models in this set.
    */
-  unsigned int getNumberOfModels() const { return _modelSet.size(); }
+  unsigned int getNumberOfModels() const { return modelSet_.size(); }
 
   /**
    * @return True iff there is a MixedSubstitutionModel in the SubstitutionModelSet
@@ -255,14 +269,14 @@ public:
    */
   const SubstitutionModel* getModel(unsigned int i) const throw (IndexOutOfBoundsException)
   {
-    if (i > _modelSet.size()) throw IndexOutOfBoundsException("SubstitutionModelSet::getNumberOfModels().", 0, _modelSet.size() - 1, i);
-    return _modelSet[i];
+    if (i > modelSet_.size()) throw IndexOutOfBoundsException("SubstitutionModelSet::getNumberOfModels().", 0, modelSet_.size() - 1, i);
+    return modelSet_[i];
   }
 
   SubstitutionModel* getModel(unsigned int i) throw (IndexOutOfBoundsException)
   {
-    if (i > _modelSet.size()) throw IndexOutOfBoundsException("SubstitutionModelSet::getNumberOfModels().", 0, _modelSet.size() - 1, i);
-    return _modelSet[i];
+    if (i > modelSet_.size()) throw IndexOutOfBoundsException("SubstitutionModelSet::getNumberOfModels().", 0, modelSet_.size() - 1, i);
+    return modelSet_[i];
   }
 
   /**
@@ -274,8 +288,8 @@ public:
    */
   unsigned int getModelIndexForNode(int nodeId) const throw (Exception)
   {
-   std::map<int, unsigned int>::iterator i = _nodeToModel.find(nodeId);
-    if (i == _nodeToModel.end())
+   std::map<int, unsigned int>::iterator i = nodeToModel_.find(nodeId);
+    if (i == nodeToModel_.end())
       throw Exception("SubstitutionModelSet::getModelIndexForNode(). No model associated to node with id " + TextTools::toString(nodeId));
     return i->second;
   }
@@ -289,17 +303,17 @@ public:
    */
   const SubstitutionModel* getModelForNode(int nodeId) const throw (Exception)
   {
-   std::map<int, unsigned int>::const_iterator i = _nodeToModel.find(nodeId);
-    if (i == _nodeToModel.end())
+   std::map<int, unsigned int>::const_iterator i = nodeToModel_.find(nodeId);
+    if (i == nodeToModel_.end())
       throw Exception("SubstitutionModelSet::getModelForNode(). No model associated to node with id " + TextTools::toString(nodeId));
-    return _modelSet[i->second];
+    return modelSet_[i->second];
   }
   SubstitutionModel* getModelForNode(int nodeId) throw (Exception)
   {
-   std::map<int, unsigned int>::iterator i = _nodeToModel.find(nodeId);
-    if (i == _nodeToModel.end())
+   std::map<int, unsigned int>::iterator i = nodeToModel_.find(nodeId);
+    if (i == nodeToModel_.end())
       throw Exception("SubstitutionModelSet::getModelForNode(). No model associated to node with id " + TextTools::toString(nodeId));
-    return _modelSet[i->second];
+    return modelSet_[i->second];
   }
 
   /**
@@ -311,8 +325,8 @@ public:
    */
   const std::vector<int>& getNodesWithModel(unsigned int i) const throw (IndexOutOfBoundsException)
   {
-    if (i >= _modelSet.size()) throw IndexOutOfBoundsException("SubstitutionModelSet::getNodesWithModel().", i, 0, _modelSet.size());
-    return _modelToNodes[i];
+    if (i >= modelSet_.size()) throw IndexOutOfBoundsException("SubstitutionModelSet::getNodesWithModel().", i, 0, modelSet_.size());
+    return modelToNodes_[i];
   }
 
   /**
@@ -375,8 +389,8 @@ public:
    */
   void setModelToNode(unsigned int modelIndex, int nodeNumber) throw (IndexOutOfBoundsException)
   {
-    if (modelIndex >= _nodeToModel.size()) throw IndexOutOfBoundsException("SubstitutionModelSet::setModelToNode.", modelIndex, 0, _nodeToModel.size() - 1);
-    _nodeToModel[nodeNumber] = modelIndex;
+    if (modelIndex >= nodeToModel_.size()) throw IndexOutOfBoundsException("SubstitutionModelSet::setModelToNode.", modelIndex, 0, nodeToModel_.size() - 1);
+    nodeToModel_[nodeNumber] = modelIndex;
   }
 
   /**
@@ -439,12 +453,12 @@ public:
   /**
    * @return The set of root frequencies.
    */
-  const FrequenciesSet* getRootFrequenciesSet() const { return _rootFrequencies; }
+  const FrequenciesSet* getRootFrequenciesSet() const { return rootFrequencies_.get(); }
 
   /**
    * @return The values of the root frequencies.
    */
-  std::vector<double> getRootFrequencies() const { return _rootFrequencies->getFrequencies(); }
+  std::vector<double> getRootFrequencies() const { return rootFrequencies_->getFrequencies(); }
 
   /**
    * @brief Get the parameters corresponding to the root frequencies.
@@ -453,7 +467,7 @@ public:
    */
   ParameterList getRootFrequenciesParameters() const
   {
-    return _rootFrequencies->getParameters();
+    return rootFrequencies_->getParameters();
   }
 
   /**
@@ -466,7 +480,7 @@ public:
   ParameterList getNodeParameters() const
   {
    ParameterList pl;
-    for (unsigned int i = _rootFrequencies->getNumberOfParameters(); i < getNumberOfParameters(); i++)
+    for (unsigned int i = rootFrequencies_->getNumberOfParameters(); i < getNumberOfParameters(); i++)
     {
    pl.addParameter(getParameter_(i));
     }
@@ -483,7 +497,7 @@ public:
 
   ParameterList getModelParameters(unsigned int modelIndex) const;
 
-  const Alphabet* getAlphabet() const { return _alphabet; }
+  const Alphabet* getAlphabet() const { return alphabet_; }
 
   /**
    * @brief Check if the model set is fully specified for a given tree.
@@ -507,11 +521,11 @@ public:
 
 protected:
   /**
-   * Set _rootFrequencies from parameters.
+   * Set rootFrequencies_ from parameters.
    */
   void updateRootFrequencies()
   {
-   _rootFrequencies->matchParametersValues(getParameters());
+   rootFrequencies_->matchParametersValues(getParameters());
   }
 
   /**

@@ -131,18 +131,18 @@ RNonHomogeneousTreeLikelihood::~RNonHomogeneousTreeLikelihood()
 
 void RNonHomogeneousTreeLikelihood::setData(const SiteContainer& sites) throw (Exception)
 {
-  if(data_) delete data_;
+  if (data_) delete data_;
   data_ = PatternTools::getSequenceSubset(sites, * tree_->getRootNode());
-  if(_verbose) ApplicationTools::displayTask("Initializing data structure");
+  if (verbose_) ApplicationTools::displayTask("Initializing data structure");
   likelihoodData_->initLikelihoods(* data_, *modelSet_->getModel(0)); //We assume here that all models have the same number of states, and that they have the same 'init' method,
                                                                       //Which is a reasonable assumption as long as they share the same alphabet.
-  if(_verbose) ApplicationTools::displayTaskDone();
+  if (verbose_) ApplicationTools::displayTaskDone();
 
-  nbSites_ = likelihoodData_->getNumberOfSites();
+  nbSites_         = likelihoodData_->getNumberOfSites();
   nbDistinctSites_ = likelihoodData_->getNumberOfDistinctSites();
-  nbStates_ = likelihoodData_->getNumberOfStates();
+  nbStates_        = likelihoodData_->getNumberOfStates();
   
-  if(_verbose) ApplicationTools::displayResult("Number of distinct sites",
+  if (verbose_) ApplicationTools::displayResult("Number of distinct sites",
       TextTools::toString(nbDistinctSites_));
   initialized_ = false;
 }

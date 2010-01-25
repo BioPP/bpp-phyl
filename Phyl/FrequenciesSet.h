@@ -183,6 +183,14 @@ class AbstractFrequenciesSet:
       alphabet_(af.alphabet_),
       freq_(af.freq_) {}
 
+    AbstractFrequenciesSet& operator=(const AbstractFrequenciesSet& af)
+    {
+      AbstractParametrizable::operator=(af);
+      alphabet_ = af.alphabet_;
+      freq_ = af.freq_;
+      return *this;
+    }
+
 
   public:
     const Alphabet* getAlphabet() const { return alphabet_; }

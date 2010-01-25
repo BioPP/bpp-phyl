@@ -44,6 +44,9 @@ knowledge of the CeCILL license and that you accept its terms.
 #include "NonHomogeneousTreeLikelihood.h"
 #include "AbstractDiscreteRatesAcrossSitesTreeLikelihood.h"
 
+//From the STL:
+#include <memory>
+
 namespace bpp
 {
 
@@ -85,7 +88,6 @@ class AbstractNonHomogeneousTreeLikelihood:
         bool hasNext() const { return index_ < nbSites_; }
     };
 
-
   protected:
     SubstitutionModelSet* modelSet_;
     ParameterList brLenParameters_;
@@ -104,12 +106,12 @@ class AbstractNonHomogeneousTreeLikelihood:
      * The position in the array is the number used in the parameter name.
      * This may be different from the node id, unless you used the resetNodeId method on the input tree.
      */
-    std::vector<Node *> nodes_;
+    std::vector<Node*> nodes_;
 
     /**
      * @brief An index linking nodes to their id, for faster access than the getNode() method.
      */
-    mutable std::map<int, const Node *> idToNode_;
+    mutable std::map<int, const Node*> idToNode_;
  
     //some values we'll need:
     unsigned int nbSites_,         //the number of sites in the container
@@ -118,10 +120,10 @@ class AbstractNonHomogeneousTreeLikelihood:
                  nbStates_,        //the number of states in the alphabet
                  nbNodes_;         //the number of nodes in the tree
 
-    bool _verbose;
+    bool verbose_;
 
-    double _minimumBrLen;
-    Constraint * brLenConstraint_;
+    double minimumBrLen_;
+    std::auto_ptr<Constraint> brLenConstraint_;
 
     int root1_, root2_;
 
@@ -147,7 +149,7 @@ class AbstractNonHomogeneousTreeLikelihood:
      */
     AbstractNonHomogeneousTreeLikelihood& operator=(const AbstractNonHomogeneousTreeLikelihood& lik);
  
-    virtual ~AbstractNonHomogeneousTreeLikelihood();
+    virtual ~AbstractNonHomogeneousTreeLikelihood() {}
     
   private:
 
@@ -244,13 +246,13 @@ class AbstractNonHomogeneousTreeLikelihood:
 
     virtual void setMinimumBranchLength(double minimum)
     {
-      _minimumBrLen = minimum;
-      if(brLenConstraint_ != NULL) delete brLenConstraint_;
-      brLenConstraint_ = new IncludingPositiveReal(_minimumBrLen);
+      minimumBrLen_ = minimum;
+      if (brLenConstraint_.get()) brLenConstraint_.release();
+      brLenConstraint_.reset(new IncludingPositiveReal(minimumBrLen_));
       initBranchLengthsParameters();
     }
 
-    virtual double getMinimumBranchLength() const { return _minimumBrLen; }
+    virtual double getMinimumBranchLength() const { return minimumBrLen_; }
 
   protected:
     /**

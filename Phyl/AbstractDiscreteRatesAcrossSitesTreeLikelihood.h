@@ -62,9 +62,21 @@ class AbstractDiscreteRatesAcrossSitesTreeLikelihood:
 		
 	public:
 		AbstractDiscreteRatesAcrossSitesTreeLikelihood(
-			DiscreteDistribution * rDist,
+			DiscreteDistribution* rDist,
 			bool verbose = true
 		)	throw (Exception);
+		
+    AbstractDiscreteRatesAcrossSitesTreeLikelihood(
+        const AbstractDiscreteRatesAcrossSitesTreeLikelihood& tl) :
+      rateDistribution_(tl.rateDistribution_)
+    {}
+
+    AbstractDiscreteRatesAcrossSitesTreeLikelihood& operator=(
+        const AbstractDiscreteRatesAcrossSitesTreeLikelihood& tl)
+    {
+      rateDistribution_ = tl.rateDistribution_;
+      return *this;
+    }
 
 		virtual ~AbstractDiscreteRatesAcrossSitesTreeLikelihood() {}
 		

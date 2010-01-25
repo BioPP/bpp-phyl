@@ -215,8 +215,8 @@ SubstitutionModel* PhylogeneticsApplicationTools::getSubstitutionModelDefaultIns
 
   else if (word)
   {
-    Vector<string> v_nestedModelDescription;
-    Vector<SubstitutionModel*> v_pSM;
+    vector<string> v_nestedModelDescription;
+    vector<SubstitutionModel*> v_pSM;
     // SubstitutionModel* pSM;
     const WordAlphabet* pWA;
 
@@ -1160,8 +1160,8 @@ FrequenciesSet* PhylogeneticsApplicationTools::getFrequenciesSetDefaultInstance(
     {
       if (args.find("frequency0") == args.end())
         throw Exception("PhylogeneticsApplicationTools::getFrequenciesSetDefaultInstance. Missing argument 'frequency' or 'frequency0' for frequencies set 'IndependentWord'.");
-      Vector<string> v_sAFS;
-      Vector<FrequenciesSet*> v_AFS;
+      vector<string> v_sAFS;
+      vector<FrequenciesSet*> v_AFS;
       unsigned int nbfreq = 0;
 
       while (args.find("frequency" + TextTools::toString(nbfreq)) != args.end())

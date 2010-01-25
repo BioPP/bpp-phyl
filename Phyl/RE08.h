@@ -96,7 +96,7 @@ namespace bpp
 class RE08:
   public AbstractReversibleSubstitutionModel
 {
-  protected:
+  private:
     ReversibleSubstitutionModel* simpleModel_;
     RowMatrix<double> simpleGenerator_;
     RowMatrix<double> simpleExchangeabilities_;
@@ -121,29 +121,28 @@ class RE08:
 		RE08(ReversibleSubstitutionModel* simpleModel, double lambda = 0, double mu = 0);
 
     RE08(const RE08& model):
-      AbstractReversibleSubstitutionModel(model)
-    {
-      simpleModel_ = dynamic_cast<RE08 *>(model.simpleModel_->clone());
-      simpleGenerator_ = model.simpleGenerator_;
-      simpleExchangeabilities_ = model.simpleExchangeabilities_;
-      exp_ = model.exp_;
-      p_ = model.p_;
-      lambda_ = model.lambda_;
-      mu_ = model.mu_;
-      nestedPrefix_ = model.nestedPrefix_;
-    }
+      AbstractReversibleSubstitutionModel(model),
+      simpleModel_(model.simpleModel_->clone()),
+      simpleGenerator_(model.simpleGenerator_),
+      simpleExchangeabilities_(model.simpleExchangeabilities_),
+      exp_(model.exp_),
+      p_(model.p_),
+      lambda_(model.lambda_),
+      mu_(model.mu_),
+      nestedPrefix_(model.nestedPrefix_)
+    {}
 
     RE08& operator=(const RE08& model)
     {
       AbstractReversibleSubstitutionModel::operator=(model);
-      simpleModel_ = dynamic_cast<RE08 *>(model.simpleModel_->clone());
-      simpleGenerator_ = model.simpleGenerator_;
+      simpleModel_             = dynamic_cast<RE08 *>(model.simpleModel_->clone());
+      simpleGenerator_         = model.simpleGenerator_;
       simpleExchangeabilities_ = model.simpleExchangeabilities_;
-      exp_ = model.exp_;
-      p_ = model.p_;
-      lambda_ = model.lambda_;
-      mu_ = model.mu_;
-      nestedPrefix_ = model.nestedPrefix_;
+      exp_                     = model.exp_;
+      p_                       = model.p_;
+      lambda_                  = model.lambda_;
+      mu_                      = model.mu_;
+      nestedPrefix_            = model.nestedPrefix_;
       return *this;
     }
 

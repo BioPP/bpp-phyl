@@ -81,21 +81,19 @@ class ProteinSubstitutionModelWithFrequencies:
      * @param prefix The namespace to use for parameter names.
      */
     ProteinSubstitutionModelWithFrequencies(const ProteicAlphabet* alpha, const std::string& prefix):
-      ProteinSubstitutionModel(alpha, prefix)
+      ProteinSubstitutionModel(alpha, prefix), freqSet_(new FullProteinFrequenciesSet(alpha))
     {
-      freqSet_ = new FullProteinFrequenciesSet(alpha);
       freq_ = freqSet_->getFrequencies();
       addParameters_(freqSet_->getParameters());
     }
 		
     ProteinSubstitutionModelWithFrequencies(const ProteinSubstitutionModelWithFrequencies & model):
-      ProteinSubstitutionModel(model)
+      ProteinSubstitutionModel(model), freqSet_(dynamic_cast<ProteinFrequenciesSet *>(model.freqSet_->clone()))
     {
-      freqSet_ = dynamic_cast<ProteinFrequenciesSet *>(model.freqSet_->clone());
       freq_ = freqSet_->getFrequencies();
     }
 
-    ProteinSubstitutionModelWithFrequencies & operator=(const ProteinSubstitutionModelWithFrequencies & model)
+    ProteinSubstitutionModelWithFrequencies& operator=(const ProteinSubstitutionModelWithFrequencies & model)
     {
       ProteinSubstitutionModel::operator=(model);
       freqSet_ = dynamic_cast<ProteinFrequenciesSet *>(model.freqSet_->clone());

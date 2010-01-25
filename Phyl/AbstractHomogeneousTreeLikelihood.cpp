@@ -58,13 +58,28 @@ using namespace std;
 /******************************************************************************/
 
 AbstractHomogeneousTreeLikelihood::AbstractHomogeneousTreeLikelihood(
-  const Tree & tree,
-  SubstitutionModel * model,
-  DiscreteDistribution * rDist,
+  const Tree& tree,
+  SubstitutionModel* model,
+  DiscreteDistribution* rDist,
   bool checkRooted,
   bool verbose)
   throw (Exception):
-  AbstractDiscreteRatesAcrossSitesTreeLikelihood(rDist, verbose)
+  AbstractDiscreteRatesAcrossSitesTreeLikelihood(rDist, verbose),
+  model_(NULL),
+  brLenParameters_(),
+  pxy_(),
+  dpxy_(),
+  d2pxy_(),
+  rootFreqs_(),
+  nodes_(),
+  nbSites_(),
+  nbDistinctSites_(),
+  nbClasses_(),
+  nbStates_(),
+  nbNodes_(),
+  verbose_(),
+  minimumBrLen_(),
+  brLenConstraint_()
 {
   init_(tree, model, rDist, checkRooted, verbose);
 }
@@ -73,30 +88,31 @@ AbstractHomogeneousTreeLikelihood::AbstractHomogeneousTreeLikelihood(
 
 AbstractHomogeneousTreeLikelihood::AbstractHomogeneousTreeLikelihood(
     const AbstractHomogeneousTreeLikelihood & lik) :
-  AbstractDiscreteRatesAcrossSitesTreeLikelihood(lik)
+  AbstractDiscreteRatesAcrossSitesTreeLikelihood(lik),
+  model_(lik.model_),
+  brLenParameters_(lik.brLenParameters_),
+  pxy_(lik.pxy_),
+  dpxy_(lik.dpxy_),
+  d2pxy_(lik.d2pxy_),
+  rootFreqs_(lik.rootFreqs_),
+  nodes_(),
+  nbSites_(lik.nbSites_),
+  nbDistinctSites_(lik.nbDistinctSites_),
+  nbClasses_(lik.nbClasses_),
+  nbStates_(lik.nbStates_),
+  nbNodes_(lik.nbNodes_),
+  verbose_(lik.verbose_),
+  minimumBrLen_(lik.minimumBrLen_),
+  brLenConstraint_(lik.brLenConstraint_->clone())
 {
-  model_           = lik.model_;
-  brLenParameters_ = lik.brLenParameters_;
-  pxy_             = lik.pxy_;
-  dpxy_            = lik.dpxy_;
-  d2pxy_           = lik.d2pxy_;
-  rootFreqs_       = lik.rootFreqs_;
   nodes_ = tree_->getNodes();
   nodes_.pop_back(); //Remove the root node (the last added!).  
-  nbSites_         = lik.nbSites_;
-  nbDistinctSites_ = lik.nbDistinctSites_;
-  nbClasses_       = lik.nbClasses_;
-  nbStates_        = lik.nbStates_;
-  nbNodes_         = lik.nbNodes_;
-  verbose_         = lik.verbose_;
-  minimumBrLen_    = lik.minimumBrLen_;
-  brLenConstraint_ = lik.brLenConstraint_->clone();
 }
 
 /******************************************************************************/
 
-AbstractHomogeneousTreeLikelihood & AbstractHomogeneousTreeLikelihood::operator=(
-    const AbstractHomogeneousTreeLikelihood & lik)
+AbstractHomogeneousTreeLikelihood& AbstractHomogeneousTreeLikelihood::operator=(
+    const AbstractHomogeneousTreeLikelihood& lik)
 {
   AbstractDiscreteRatesAcrossSitesTreeLikelihood::operator=(lik);
   model_           = lik.model_;
@@ -155,7 +171,7 @@ void AbstractHomogeneousTreeLikelihood::init_(
 
 /******************************************************************************/
 
-void AbstractHomogeneousTreeLikelihood::setSubstitutionModel(SubstitutionModel * model) throw (Exception)
+void AbstractHomogeneousTreeLikelihood::setSubstitutionModel(SubstitutionModel* model) throw (Exception)
 {
   //Check:
   if(data_)

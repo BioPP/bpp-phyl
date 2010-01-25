@@ -57,12 +57,30 @@ using namespace std;
 /******************************************************************************/
 
 AbstractNonHomogeneousTreeLikelihood::AbstractNonHomogeneousTreeLikelihood(
-  const Tree & tree,
-  SubstitutionModelSet * modelSet,
-  DiscreteDistribution * rDist,
+  const Tree& tree,
+  SubstitutionModelSet* modelSet,
+  DiscreteDistribution* rDist,
   bool verbose)
-  throw (Exception):
-  AbstractDiscreteRatesAcrossSitesTreeLikelihood(rDist, verbose)
+  throw (Exception) :
+  AbstractDiscreteRatesAcrossSitesTreeLikelihood(rDist, verbose),
+  modelSet_(NULL),
+  brLenParameters_(),
+  pxy_(),
+  dpxy_(),
+  d2pxy_(),
+  rootFreqs_(),
+  nodes_(),
+  idToNode_(),
+  nbSites_(),
+  nbDistinctSites_(),
+  nbClasses_(),
+  nbStates_(),
+  nbNodes_(),
+  verbose_(),
+  minimumBrLen_(),
+  brLenConstraint_(NULL),
+  root1_(),
+  root2_()
 {
   init_(tree, modelSet, rDist, verbose);
 }
@@ -71,44 +89,48 @@ AbstractNonHomogeneousTreeLikelihood::AbstractNonHomogeneousTreeLikelihood(
 
 AbstractNonHomogeneousTreeLikelihood::AbstractNonHomogeneousTreeLikelihood(
     const AbstractNonHomogeneousTreeLikelihood& lik) :
-  AbstractDiscreteRatesAcrossSitesTreeLikelihood(lik)
-{
-  modelSet_        = lik.modelSet_;
-  pxy_             = lik.pxy_;
-  dpxy_            = lik.dpxy_;
-  d2pxy_           = lik.d2pxy_;
-  nodes_           = tree_->getNodes();
+  AbstractDiscreteRatesAcrossSitesTreeLikelihood(lik),
+  modelSet_(lik.modelSet_),
+  brLenParameters_(lik.brLenParameters_),
+  pxy_(lik.pxy_),
+  dpxy_(lik.dpxy_),
+  d2pxy_(lik.d2pxy_),
+  rootFreqs_(lik.rootFreqs_),
+  nodes_(),
+  idToNode_(),
+	nbSites_(lik.nbSites_),
+  nbDistinctSites_(lik.nbDistinctSites_),
+	nbClasses_(lik.nbClasses_),
+	nbStates_(lik.nbStates_),
+	nbNodes_(lik.nbNodes_),
+  verbose_(lik.verbose_),
+  minimumBrLen_(lik.minimumBrLen_),
+  brLenConstraint_(dynamic_cast<Constraint*>(lik.brLenConstraint_->clone())),
+  root1_(lik.root1_),
+  root2_(lik.root2_)
+{ 
+  nodes_ = tree_->getNodes();
   nodes_.pop_back(); //Remove the root node (the last added!).  
-	nbSites_         = lik.nbSites_;
-  nbDistinctSites_ = lik.nbDistinctSites_;
-	nbClasses_       = lik.nbClasses_;
-	nbStates_        = lik.nbStates_;
-	nbNodes_         = lik.nbNodes_;
-  _verbose         = lik._verbose;
-  _minimumBrLen    = lik._minimumBrLen;
-  brLenParameters_ = lik.brLenParameters_;
-  brLenConstraint_ = lik.brLenConstraint_->clone();
-  rootFreqs_       = lik.rootFreqs_;
-  root1_           = lik.root1_;
-  root2_           = lik.root2_;
   //Rebuild nodes index:
-  for(unsigned int i = 0; i < nodes_.size(); i++)
+  for (unsigned int i = 0; i < nodes_.size(); i++)
   {
-    const Node * node = nodes_[i];
+    const Node* node = nodes_[i];
     idToNode_[node->getId()] = node;
   }
 }
 
 /******************************************************************************/
 
-AbstractNonHomogeneousTreeLikelihood & AbstractNonHomogeneousTreeLikelihood::operator=(
-    const AbstractNonHomogeneousTreeLikelihood & lik)
+AbstractNonHomogeneousTreeLikelihood& AbstractNonHomogeneousTreeLikelihood::operator=(
+    const AbstractNonHomogeneousTreeLikelihood& lik)
 {
   AbstractDiscreteRatesAcrossSitesTreeLikelihood::operator=(lik);
   modelSet_        = lik.modelSet_;
+  brLenParameters_ = lik.brLenParameters_;
   pxy_             = lik.pxy_;
   dpxy_            = lik.dpxy_;
   d2pxy_           = lik.d2pxy_;
+  rootFreqs_       = lik.rootFreqs_;
   nodes_           = tree_->getNodes();
   nodes_.pop_back(); //Remove the root node (the last added!).  
 	nbSites_         = lik.nbSites_;
@@ -116,27 +138,18 @@ AbstractNonHomogeneousTreeLikelihood & AbstractNonHomogeneousTreeLikelihood::ope
 	nbClasses_       = lik.nbClasses_;
 	nbStates_        = lik.nbStates_;
 	nbNodes_         = lik.nbNodes_;
-  _verbose         = lik._verbose;
-  _minimumBrLen    = lik._minimumBrLen;
-  brLenParameters_ = lik.brLenParameters_;
-  brLenConstraint_ = lik.brLenConstraint_->clone();
-  rootFreqs_       = lik.rootFreqs_;
+  verbose_         = lik.verbose_;
+  minimumBrLen_    = lik.minimumBrLen_;
+  brLenConstraint_.reset(dynamic_cast<Constraint*>(lik.brLenConstraint_->clone()));
   root1_           = lik.root1_;
   root2_           = lik.root2_;
   //Rebuild nodes index:
-  for(unsigned int i = 0; i < nodes_.size(); i++)
+  for( unsigned int i = 0; i < nodes_.size(); i++)
   {
     const Node * node = nodes_[i];
     idToNode_[node->getId()] = node;
   }
   return *this;
-}
-
-/******************************************************************************/
-
-AbstractNonHomogeneousTreeLikelihood::~AbstractNonHomogeneousTreeLikelihood()
-{
-  delete brLenConstraint_;
 }
 
 /******************************************************************************/
@@ -162,10 +175,10 @@ void AbstractNonHomogeneousTreeLikelihood::init_(
   }
   nbClasses_ = rateDistribution_->getNumberOfCategories();
 
-  _verbose = verbose;
+  verbose_ = verbose;
 
-  _minimumBrLen = 0.000001;
-  brLenConstraint_ = new IncludingPositiveReal(_minimumBrLen);
+  minimumBrLen_ = 0.000001;
+  brLenConstraint_.reset(new IncludingPositiveReal(minimumBrLen_));
   setSubstitutionModelSet(modelSet);
 }
 
@@ -322,25 +335,25 @@ void AbstractNonHomogeneousTreeLikelihood::initBranchLengthsParameters()
 {
   brLenParameters_.reset();
   double l1 = 0, l2 = 0;
-  for(unsigned int i = 0; i < nbNodes_; i++)
+  for (unsigned int i = 0; i < nbNodes_; i++)
   {
-    double d = _minimumBrLen;
-    if(!nodes_[i]->hasDistanceToFather())
+    double d = minimumBrLen_;
+    if (!nodes_[i]->hasDistanceToFather())
     {
-      ApplicationTools::displayWarning("Missing branch length " + TextTools::toString(i) + ". Value is set to " + TextTools::toString(_minimumBrLen));
-      nodes_[i]->setDistanceToFather(_minimumBrLen);
+      ApplicationTools::displayWarning("Missing branch length " + TextTools::toString(i) + ". Value is set to " + TextTools::toString(minimumBrLen_));
+      nodes_[i]->setDistanceToFather(minimumBrLen_);
     }
     else
     {
       d = nodes_[i]->getDistanceToFather();
-      if (d < _minimumBrLen)
+      if (d < minimumBrLen_)
       {
-        ApplicationTools::displayWarning("Branch length " + TextTools::toString(i) + " is too small: " + TextTools::toString(d) + ". Value is set to " + TextTools::toString(_minimumBrLen));
-        nodes_[i]->setDistanceToFather(_minimumBrLen);
-        d = _minimumBrLen;
+        ApplicationTools::displayWarning("Branch length " + TextTools::toString(i) + " is too small: " + TextTools::toString(d) + ". Value is set to " + TextTools::toString(minimumBrLen_));
+        nodes_[i]->setDistanceToFather(minimumBrLen_);
+        d = minimumBrLen_;
       }
     }
-    if(nodes_[i]->getId() == root1_)
+    if (nodes_[i]->getId() == root1_)
       l1 = d;
     else if(nodes_[i]->getId() == root2_)
       l2 = d;

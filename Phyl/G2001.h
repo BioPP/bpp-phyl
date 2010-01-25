@@ -65,8 +65,8 @@ namespace bpp
 class G2001:
   public MarkovModulatedSubstitutionModel
 {
-  protected:
-    DiscreteDistribution * rDist_;
+  private:
+    DiscreteDistribution* rDist_;
 
     std::string nestedRatePrefix_;
 
@@ -80,7 +80,7 @@ class G2001:
      * @param nu    The rate matrix parameter.
      * @param normalizeRateChanges Tell if the rate transition matrix should be normalized.
      */
-    G2001(ReversibleSubstitutionModel * model, DiscreteDistribution * rDist, double nu = 1., bool normalizeRateChanges = false):
+    G2001(ReversibleSubstitutionModel* model, DiscreteDistribution* rDist, double nu = 1., bool normalizeRateChanges = false):
       MarkovModulatedSubstitutionModel(model, normalizeRateChanges, "G01."), rDist_(rDist), nestedRatePrefix_("rdist_" + rDist->getNamespace())
     {
       nbRates_ = rDist_->getNumberOfCategories();
@@ -97,12 +97,11 @@ class G2001:
 
     G2001(const G2001& model):
       MarkovModulatedSubstitutionModel(model),
+      rDist_(dynamic_cast<DiscreteDistribution *>(model.rDist_->clone())),
       nestedRatePrefix_(model.nestedRatePrefix_)
-    {
-      rDist_ = dynamic_cast<DiscreteDistribution *>(model.rDist_->clone());
-    }
+    {}
 
-    G2001 & operator=(const G2001 & model)
+    G2001& operator=(const G2001& model)
     {
       MarkovModulatedSubstitutionModel::operator=(model);
       rDist_ = dynamic_cast<DiscreteDistribution *>(model.rDist_->clone());
@@ -112,12 +111,7 @@ class G2001:
 
     virtual ~G2001() { delete rDist_; }
 
-#ifndef NO_VIRTUAL_COV
-    G2001*
-#else
-    Clonable*
-#endif
-    clone() const { return new G2001(*this); }
+    G2001* clone() const { return new G2001(*this); }
 
   public:
     std::string getName() const { return "G01"; }

@@ -119,13 +119,6 @@ class MarkovModulatedSubstitutionModel:
 		 */
 		RowMatrix<double> rightEigenVectors_;
 
-    /**
-     * @brief These ones are for bookkeeping:
-     */
-    mutable RowMatrix<double> _pijt;
-    mutable RowMatrix<double> _dpijt;
-    mutable RowMatrix<double> _d2pijt;
-
 		/**
 		 * @brief The vector of eigen values.
 		 */
@@ -135,6 +128,13 @@ class MarkovModulatedSubstitutionModel:
      * @brief Tell if the eigen decomposition should be performed.
      */
     bool eigenDecompose_;
+
+    /**
+     * @brief These ones are for bookkeeping:
+     */
+    mutable RowMatrix<double> pijt_;
+    mutable RowMatrix<double> dpijt_;
+    mutable RowMatrix<double> d2pijt_;
 
     /**
 		 * @brief The vector of equilibrium frequencies.
@@ -158,8 +158,10 @@ class MarkovModulatedSubstitutionModel:
     MarkovModulatedSubstitutionModel(ReversibleSubstitutionModel* model, bool normalizeRateChanges, const std::string& prefix) :
       AbstractParameterAliasable(prefix),
       model_(model), nbStates_(model->getNumberOfStates()), nbRates_(0), rates_(), ratesExchangeability_(),
-      ratesFreq_(), ratesGenerator_(), generator_(), exchangeability_(),
-      leftEigenVectors_(), rightEigenVectors_(), eigenValues_(), freq_(), normalizeRateChanges_(normalizeRateChanges),
+      ratesFreq_(), ratesGenerator_(), chars_(), generator_(), exchangeability_(),
+      leftEigenVectors_(), rightEigenVectors_(), eigenValues_(), eigenDecompose_(true), 
+      pijt_(), dpijt_(), d2pijt_(), freq_(),
+      normalizeRateChanges_(normalizeRateChanges),
       nestedPrefix_("model_" + model->getNamespace())
     {
       chars_ = VectorTools::rep(model_->getAlphabetChars(), nbRates_);
@@ -168,7 +170,7 @@ class MarkovModulatedSubstitutionModel:
     }
     
     MarkovModulatedSubstitutionModel(const MarkovModulatedSubstitutionModel& model);
-    MarkovModulatedSubstitutionModel & operator=(const MarkovModulatedSubstitutionModel& model);
+    MarkovModulatedSubstitutionModel& operator=(const MarkovModulatedSubstitutionModel& model);
 
     virtual ~MarkovModulatedSubstitutionModel() { delete model_; }
 
