@@ -1515,18 +1515,18 @@ throw (Exception)
   unsigned int optVerbose = ApplicationTools::getParameter<unsigned int>("optimization.verbose", params, 2, suffix, suffixIsOptional);
 
   string mhPath = ApplicationTools::getAFilePath("optimization.message_handler", params, false, false, suffix, suffixIsOptional);
-  ostream* messageHandler =
+  OutputStream* messageHandler =
     (mhPath == "none") ? 0 :
-    (mhPath == "std") ? &cout :
-    new ofstream(mhPath.c_str(), ios::out);
+    (mhPath == "std") ? ApplicationTools::message :
+    new StlOutputStream(auto_ptr<ostream>(new ofstream(mhPath.c_str(), ios::out)));
   if (verbose) ApplicationTools::displayResult("Message handler", mhPath);
 
   string prPath = ApplicationTools::getAFilePath("optimization.profiler", params, false, false, suffix, suffixIsOptional);
-  ostream* profiler =
+  OutputStream* profiler =
     (prPath == "none") ? 0 :
-    (prPath == "std") ? &cout :
-    new ofstream(prPath.c_str(), ios::out);
-  if (profiler != 0) (*profiler) << setprecision(20);
+    (prPath == "std") ? ApplicationTools::message :
+    new StlOutputStream(auto_ptr<ostream>(new ofstream(prPath.c_str(), ios::out)));
+  if (profiler) profiler->setPrecision(20);
   if (verbose) ApplicationTools::displayResult("Profiler", prPath);
 
   bool scaleFirst = ApplicationTools::getBooleanParameter("optimization.scale_first", params, false, suffix, suffixIsOptional, false);
@@ -1722,18 +1722,18 @@ throw (Exception)
   unsigned int optVerbose = ApplicationTools::getParameter<unsigned int>("optimization.verbose", params, 2, suffix, suffixIsOptional);
 
   string mhPath = ApplicationTools::getAFilePath("optimization.message_handler", params, false, false, suffix, suffixIsOptional);
-  ostream* messageHandler =
+  OutputStream* messageHandler =
     (mhPath == "none") ? 0 :
-    (mhPath == "std") ? &cout :
-    new ofstream(mhPath.c_str(), ios::out);
+    (mhPath == "std") ? ApplicationTools::message :
+    new StlOutputStream(auto_ptr<ostream>(new ofstream(mhPath.c_str(), ios::out)));
   if (verbose) ApplicationTools::displayResult("Message handler", mhPath);
 
   string prPath = ApplicationTools::getAFilePath("optimization.profiler", params, false, false, suffix, suffixIsOptional);
-  ostream* profiler =
+  OutputStream* profiler =
     (prPath == "none") ? 0 :
-    (prPath == "std") ? &cout :
-    new ofstream(prPath.c_str(), ios::out);
-  if (profiler != 0) (*profiler) << setprecision(20);
+    (prPath == "std") ? ApplicationTools::message :
+    new StlOutputStream(auto_ptr<ostream>(new ofstream(prPath.c_str(), ios::out)));
+  if (profiler) profiler->setPrecision(20);
   if (verbose) ApplicationTools::displayResult("Profiler", prPath);
 
   ParameterList parametersToEstimate = parameters;
@@ -1868,54 +1868,6 @@ throw (Exception)
 
 /******************************************************************************/
 
-void PhylogeneticsApplicationTools::printOptimizationHelp(bool topo, bool clock)
-{
-  if (!ApplicationTools::message) return;
-  *ApplicationTools::message << "optimization                   | [yes/no] optimize parameters?" << endl;
-  *ApplicationTools::message << "optimization.method            | [DB/fullD] method to use" << endl;
-  *ApplicationTools::message << "optimization.method.derivatives| [gradient/newton] use Conjugate gradient" << endl;
-  *ApplicationTools::message << "                               | or Newton-Raphson" << endl;
-  *ApplicationTools::message << "optimization.method_DB.step    | Number of progressive step to perform." << endl;
-  *ApplicationTools::message << "optimization.final             | [none|simplex|powell] final step." << endl;
-  *ApplicationTools::message << "optimization.verbose           | [0,1,2] level of verbose" << endl;
-  *ApplicationTools::message << "optimization.message_handler   | [none, std ot file path] where to dislay" << endl;
-  *ApplicationTools::message << "                               | optimization messages" << endl;
-  *ApplicationTools::message << "                               | (if std, uses 'cout' to display messages)." << endl;
-  *ApplicationTools::message << "optimization.profiler          | [none, std ot file path] where to display" << endl;
-  *ApplicationTools::message << "                               | optimization steps (if std, uses 'cout'" << endl;
-  *ApplicationTools::message << "                               | to display optimization steps)." << endl;
-  *ApplicationTools::message << "optimization.tolerance         | [double] tolerance parameter for stopping" << endl;
-  *ApplicationTools::message << "                               | the estimation." << endl;
-  *ApplicationTools::message << "optimization.max_number_f_eval | [int] max. # of likelihood computations." << endl;
-  *ApplicationTools::message << "optimization.ignore_parameter  | [list] parameters to ignore during optimization." << endl;
-  if (!clock)
-  {
-    *ApplicationTools::message << "optimization.scale_first       | [yes, no] tell if a global scale" << endl;
-    *ApplicationTools::message << "                               | optimization must be done prior to" << endl;
-    *ApplicationTools::message << "                               | separate estimation of branch lengths." << endl;
-    *ApplicationTools::message << "optimization.scale_first       | " << endl;
-    *ApplicationTools::message << "                     .tolerance| [double] tolerance parameter for global" << endl;
-    *ApplicationTools::message << "                               | scale optimization." << endl;
-    *ApplicationTools::message << "             .max_number_f_eval| [int] maximum number of computation for" << endl;
-    *ApplicationTools::message << "                               | global scale optimization." << endl;
-    *ApplicationTools::message << "_______________________________|__________________________________________" << endl;
-  }
-  if (topo && !clock)
-  {
-    *ApplicationTools::message << "optimization.topology          | [yes/no] Optimize tree topology?" << endl;
-    *ApplicationTools::message << "optimization.topology.algorithm| [nni] Topology movements to use." << endl;
-    *ApplicationTools::message << "optimization.topology.nstep    | estimate numerical parameters every 'n'" << endl;
-    *ApplicationTools::message << "                               | topology movement rounds." << endl;
-    *ApplicationTools::message << "optimization.topology.numfirst | [yes/no] Optimize num. parameters first?" << endl;
-    *ApplicationTools::message << "optimization.topology.tolerance| " << endl;
-    *ApplicationTools::message << "                        .before| Tolerance for prior estimation." << endl;
-    *ApplicationTools::message << "                        .during| Tolerance during estimation." << endl;
-  }
-  *ApplicationTools::message << "_______________________________|__________________________________________" << endl;
-}
-
-/******************************************************************************/
-
 void PhylogeneticsApplicationTools::writeTree(
   const TreeTemplate<Node>& tree,
   map<string, string>& params,
@@ -1966,9 +1918,11 @@ void PhylogeneticsApplicationTools::writeTrees(
 
 /******************************************************************************/
 
-void PhylogeneticsApplicationTools::describeParameters_(const ParameterAliasable* parametrizable, ostream& out, map<string, string>& globalAliases, const vector<string>& names, bool printLocalAliases)
+void PhylogeneticsApplicationTools::describeParameters_(const ParameterAliasable* parametrizable, OutputStream& out, map<string, string>& globalAliases, const vector<string>& names, bool printLocalAliases)
 {
   ParameterList pl = parametrizable->getIndependentParameters().subList(names);
+  unsigned int p = out.getPrecision();
+  out.setPrecision(12);
   for (unsigned int i = 0; i < pl.size(); i++)
   {
     if (i > 0) out << ", ";
@@ -1977,7 +1931,7 @@ void PhylogeneticsApplicationTools::describeParameters_(const ParameterAliasable
     // Check for global aliases:
     if (globalAliases.find(pl[i].getName()) == globalAliases.end())
     {
-      out << pname << "=" << fixed << setprecision(12) << pl[i].getValue();
+      out << pname << "=" << fixed << pl[i].getValue();
     }
     else
       out << pname << "=" << globalAliases[pl[i].getName()];
@@ -1992,23 +1946,26 @@ void PhylogeneticsApplicationTools::describeParameters_(const ParameterAliasable
       }
     }
   }
+  out.setPrecision(p);
 }
 
 /******************************************************************************/
 
-void PhylogeneticsApplicationTools::describeSubstitutionModel_(const SubstitutionModel* model, ostream& out, map<string, string>& globalAliases)
+void PhylogeneticsApplicationTools::describeSubstitutionModel_(const SubstitutionModel* model, OutputStream& out, map<string, string>& globalAliases)
 {
   const UserProteinSubstitutionModel* trial1 = dynamic_cast<const UserProteinSubstitutionModel*>(model);
   if (trial1)
   {
-    out << "Empirical(file=" << trial1->getPath() << ")" << endl;
+    out << "Empirical(file=" << trial1->getPath() << ")";
+    out.endLine();
   }
   else
   {
    const UserProteinSubstitutionModelF* trial2 = dynamic_cast<const UserProteinSubstitutionModelF*>(model);
     if (trial2)
     {
-      out << "Empirical+F(file=" << trial2->getPath() << ")" << endl;
+      out << "Empirical+F(file=" << trial2->getPath() << ")";
+      out.endLine();
     }
     else
     {
@@ -2068,35 +2025,38 @@ void PhylogeneticsApplicationTools::describeSubstitutionModel_(const Substitutio
 /******************************************************************************/
 
 
-void PhylogeneticsApplicationTools::describeFrequenciesSet_(const FrequenciesSet* pfreqset, ostream& out)
+void PhylogeneticsApplicationTools::describeFrequenciesSet_(const FrequenciesSet* pfreqset, OutputStream& out)
 {
   out << pfreqset->getName() << "(";
   ParameterList pl = pfreqset->getParameters();
+  unsigned int p = out.getPrecision();
+  out.setPrecision(12);
   for (unsigned int i = 0; i < pl.size(); i++)
   {
     if (i > 0) out << ", ";
     string pname = pfreqset->getParameterNameWithoutNamespace(pl[i].getName());
-    out << pname << "=" << fixed << setprecision(12) << pl[i].getValue();
+    out << pname << "=" << fixed << pl[i].getValue();
   }
   out << ")";
+  out.setPrecision(p);
 }
 
 /******************************************************************************/
 
-void PhylogeneticsApplicationTools::printParameters(const SubstitutionModel* model, ostream& out)
+void PhylogeneticsApplicationTools::printParameters(const SubstitutionModel* model, OutputStream& out)
 {
   out << "model = ";
   map<string, string> globalAliases;
   describeSubstitutionModel_(model, out, globalAliases);
-  out << endl;
+  out.endLine();
 }
 
 /******************************************************************************/
 
-void PhylogeneticsApplicationTools::printParameters(const SubstitutionModelSet* modelSet, ostream& out)
+void PhylogeneticsApplicationTools::printParameters(const SubstitutionModelSet* modelSet, OutputStream& out)
 {
-  out << "nonhomogeneous = general" << endl;
-  out << "nonhomogeneous.number_of_models = " << modelSet->getNumberOfModels() << endl;
+  (out << "nonhomogeneous = general").endLine();
+  (out << "nonhomogeneous.number_of_models = " << modelSet->getNumberOfModels()).endLine();
 
   // Get the parameter links:
   map< unsigned int, vector<string> > modelLinks; // for each model index, stores the list of global parameters.
@@ -2139,28 +2099,28 @@ void PhylogeneticsApplicationTools::printParameters(const SubstitutionModelSet* 
     }
 
     // Now print it:
-    out << endl << "model" << (i + 1) << " = ";
+    out.endLine() << "model" << (i + 1) << " = ";
     describeSubstitutionModel_(model, out, globalAliases);
-    out << endl;
+    out.endLine();
     vector<int> ids = modelSet->getNodesWithModel(i);
     out << "model" << (i + 1) << ".nodes_id = " << ids[0];
     for (unsigned int j = 1; j < ids.size(); j++)
     {
       out << "," << ids[j];
     }
-    out << endl;
+    out.endLine();
   }
 
   // Root frequencies:
-  out << endl;
-  out << "# Root frequencies:" << endl;
+  out.endLine();
+  (out << "# Root frequencies:").endLine();
   out << "nonhomogeneous.root_freq = ";
   describeFrequenciesSet_(modelSet->getRootFrequenciesSet(), out);
 }
 
 /******************************************************************************/
 
-void PhylogeneticsApplicationTools::describeDiscreteDistribution_(const DiscreteDistribution* rDist, ostream& out, map<string, string>& globalAliases)
+void PhylogeneticsApplicationTools::describeDiscreteDistribution_(const DiscreteDistribution* rDist, OutputStream& out, map<string, string>& globalAliases)
 {
   const InvariantMixedDiscreteDistribution* invar = dynamic_cast<const InvariantMixedDiscreteDistribution*>(rDist);
   const DiscreteDistribution* test = rDist;
@@ -2193,12 +2153,12 @@ void PhylogeneticsApplicationTools::describeDiscreteDistribution_(const Discrete
   }
 }
 
-void PhylogeneticsApplicationTools::printParameters(const DiscreteDistribution* rDist, ostream& out)
+void PhylogeneticsApplicationTools::printParameters(const DiscreteDistribution* rDist, OutputStream& out)
 {
   out << "rate_distribution = ";
   map<string, string> globalAliases;
   describeDiscreteDistribution_(rDist, out, globalAliases);
-  out << endl;
+  out.endLine();
 }
 
 /******************************************************************************/

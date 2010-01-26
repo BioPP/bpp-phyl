@@ -49,11 +49,12 @@ knowledge of the CeCILL license and that you accept its terms.
 #include "DistanceEstimation.h"
 #include "AgglomerativeDistanceMethod.h"
 
+// From Utils:
+#include <Utils/OutputStream.h>
+#include <Utils/ApplicationTools.h>
+
 // From NumCalc:
 #include <NumCalc/SimpleNewtonMultiDimensions.h>
-
-// From the STL:
-#include <iostream>
 
 namespace bpp
 {
@@ -65,16 +66,16 @@ class NNITopologyListener:
   public TopologyListener
 {
   private:
-    NNITopologySearch* _topoSearch;
+    NNITopologySearch* topoSearch_;
     ParameterList parameters_;
-    double _tolerance;
-    std::ostream *_messenger;
-    std::ostream *_profiler;
-    unsigned int _verbose;
-    unsigned int _optimizeCounter;
-    unsigned int _optimizeNumerical;
-    std::string _optMethod;
-    unsigned int _nStep;
+    double tolerance_;
+    OutputStream* messenger_;
+    OutputStream* profiler_;
+    unsigned int verbose_;
+    unsigned int optimizeCounter_;
+    unsigned int optimizeNumerical_;
+    std::string optMethod_;
+    unsigned int nStep_;
 
   public:
     /**
@@ -96,23 +97,23 @@ class NNITopologyListener:
         NNITopologySearch* ts,
         const ParameterList& parameters,
         double tolerance,
-        std::ostream* messenger,
-        std::ostream* profiler,
+        OutputStream* messenger,
+        OutputStream* profiler,
         unsigned int verbose,
         const std::string& optMethod,
         unsigned int nStep):
-      _topoSearch(ts), parameters_(parameters), _tolerance(tolerance),
-      _messenger(messenger), _profiler(profiler),
-      _verbose(verbose),
-      _optimizeCounter(0), _optimizeNumerical(1),
-      _optMethod(optMethod), _nStep(nStep) {}
+      topoSearch_(ts), parameters_(parameters), tolerance_(tolerance),
+      messenger_(messenger), profiler_(profiler),
+      verbose_(verbose),
+      optimizeCounter_(0), optimizeNumerical_(1),
+      optMethod_(optMethod), nStep_(nStep) {}
 
     virtual ~NNITopologyListener() {}
 
   public:
-    void topologyChangeTested(const TopologyChangeEvent & event) {}
-    void topologyChangeSuccessful(const TopologyChangeEvent & event);
-    void setNumericalOptimizationCounter(unsigned int c) { _optimizeNumerical = c; }
+    void topologyChangeTested(const TopologyChangeEvent& event) {}
+    void topologyChangeSuccessful(const TopologyChangeEvent& event);
+    void setNumericalOptimizationCounter(unsigned int c) { optimizeNumerical_ = c; }
 
 };
 
@@ -123,15 +124,15 @@ class NNITopologyListener2:
   public TopologyListener
 {
   private:
-    NNITopologySearch* _topoSearch;
+    NNITopologySearch* topoSearch_;
     ParameterList parameters_;
-    double _tolerance;
-    std::ostream* _messenger;
-    std::ostream* _profiler;
-    unsigned int _verbose;
-    unsigned int _optimizeCounter;
-    unsigned int _optimizeNumerical;
-    std::string _optMethod;
+    double tolerance_;
+    OutputStream* messenger_;
+    OutputStream* profiler_;
+    unsigned int verbose_;
+    unsigned int optimizeCounter_;
+    unsigned int optimizeNumerical_;
+    std::string optMethod_;
 
   public:
     /**
@@ -152,22 +153,22 @@ class NNITopologyListener2:
         NNITopologySearch* ts,
         const ParameterList& parameters,
         double tolerance,
-        std::ostream* messenger,
-        std::ostream* profiler,
+        OutputStream* messenger,
+        OutputStream* profiler,
         unsigned int verbose,
         const std::string& optMethod) :
-      _topoSearch(ts), parameters_(parameters), _tolerance(tolerance),
-      _messenger(messenger), _profiler(profiler),
-      _verbose(verbose),
-      _optimizeCounter(0), _optimizeNumerical(1),
-      _optMethod(optMethod) {}
+      topoSearch_(ts), parameters_(parameters), tolerance_(tolerance),
+      messenger_(messenger), profiler_(profiler),
+      verbose_(verbose),
+      optimizeCounter_(0), optimizeNumerical_(1),
+      optMethod_(optMethod) {}
 
     virtual ~NNITopologyListener2() {}
 
   public:
-    void topologyChangeTested(const TopologyChangeEvent & event) {}
-    void topologyChangeSuccessful(const TopologyChangeEvent & event);
-    void setNumericalOptimizationCounter(unsigned int c) { _optimizeNumerical = c; }
+    void topologyChangeTested(const TopologyChangeEvent& event) {}
+    void topologyChangeSuccessful(const TopologyChangeEvent& event);
+    void setNumericalOptimizationCounter(unsigned int c) { optimizeNumerical_ = c; }
 
 };
 
@@ -226,8 +227,8 @@ class OptimizationTools
       unsigned int nstep = 1,
 			double tolerance = 0.000001,
 			unsigned int tlEvalMax = 1000000,
-			std::ostream* messageHandler = &std::cout,
-			std::ostream* profiler       = &std::cout,
+			OutputStream* messageHandler = ApplicationTools::message,
+			OutputStream* profiler       = ApplicationTools::message,
 			unsigned int verbose = 1,
       const std::string& method = OPTIMIZATION_NEWTON)
 			throw (Exception);
@@ -257,8 +258,8 @@ class OptimizationTools
       OptimizationListener * listener = 0,
 			double tolerance = 0.000001,
 			unsigned int tlEvalMax = 1000000,
-			std::ostream* messageHandler = &std::cout,
-			std::ostream* profiler       = &std::cout,
+			OutputStream* messageHandler = ApplicationTools::message,
+			OutputStream* profiler       = ApplicationTools::message,
 			unsigned int verbose = 1,
       const std::string& optMethod = OPTIMIZATION_NEWTON)
 			throw (Exception);
@@ -290,8 +291,8 @@ class OptimizationTools
       OptimizationListener * listener = 0,
 			double tolerance = 0.000001,
 			unsigned int tlEvalMax = 1000000,
-			std::ostream* messageHandler = &std::cout,
-			std::ostream* profiler       = &std::cout,
+			OutputStream* messageHandler = ApplicationTools::message,
+			OutputStream* profiler       = ApplicationTools::message,
 			unsigned int verbose = 1,
       const std::string& optMethod = OPTIMIZATION_NEWTON)
 			throw (Exception);
@@ -327,8 +328,8 @@ class OptimizationTools
       unsigned int nstep = 1,
 			double tolerance = 0.000001,
 			unsigned int tlEvalMax = 1000000,
-			std::ostream* messageHandler = &std::cout,
-			std::ostream* profiler       = &std::cout,
+			OutputStream* messageHandler = ApplicationTools::message,
+			OutputStream* profiler       = ApplicationTools::message,
 			unsigned int verbose = 1,
       const std::string& optMethod = OPTIMIZATION_GRADIENT)
 			throw (Exception);
@@ -358,8 +359,8 @@ class OptimizationTools
       OptimizationListener* listener = 0,
 			double tolerance = 0.000001,
 			unsigned int tlEvalMax = 1000000,
-			std::ostream* messageHandler = &std::cout,
-			std::ostream* profiler       = &std::cout,
+			OutputStream* messageHandler = ApplicationTools::message,
+			OutputStream* profiler       = ApplicationTools::message,
 			unsigned int verbose = 1,
       const std::string& optMethod = OPTIMIZATION_GRADIENT)
 			throw (Exception);
@@ -432,8 +433,8 @@ class OptimizationTools
 			  TreeLikelihood* tl,
 			  double tolerance = 0.000001,
 			  int tlEvalMax = 1000000,
-			  std::ostream* messageHandler = &std::cout,
-			  std::ostream* profiler       = &std::cout,
+			  OutputStream* messageHandler = ApplicationTools::message,
+			  OutputStream* profiler       = ApplicationTools::message,
 			  unsigned int verbose = 1)
       throw (Exception);
 
@@ -482,8 +483,8 @@ class OptimizationTools
 			  double tolDuring = 100,
 			  int tlEvalMax = 1000000,
         unsigned int numStep = 1,
-			  std::ostream* messageHandler = &std::cout,
-			  std::ostream* profiler       = &std::cout,
+			  OutputStream* messageHandler = ApplicationTools::message,
+			  OutputStream* profiler       = ApplicationTools::message,
 			  unsigned int verbose = 1,
         const std::string& optMethod = OptimizationTools::OPTIMIZATION_NEWTON,
         unsigned int nStep = 1,
@@ -534,8 +535,8 @@ class OptimizationTools
 			  double tolDuring = 100,
 			  int tlEvalMax = 1000000,
         unsigned int numStep = 1,
-			  std::ostream* messageHandler = &std::cout,
-			  std::ostream* profiler       = &std::cout,
+			  OutputStream* messageHandler = ApplicationTools::message,
+			  OutputStream* profiler       = ApplicationTools::message,
 			  unsigned int verbose     = 1,
         const std::string& optMethod = OptimizationTools::OPTIMIZATION_NEWTON,
         const std::string& nniMethod = NNITopologySearch::PHYML)
@@ -593,8 +594,8 @@ class OptimizationTools
         const std::string& param = DISTANCEMETHOD_INIT,
         double tolerance = 0.000001,
         unsigned int tlEvalMax = 1000000,
-        std::ostream* profiler = 0,
-        std::ostream* messenger = 0,
+        OutputStream* profiler = 0,
+        OutputStream* messenger = 0,
         unsigned int verbose = 0) throw (Exception);
 
   public:

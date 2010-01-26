@@ -687,7 +687,7 @@ void DistanceEstimation::computeMatrix() throw (NullPointerException)
       (*dist_)(i, j) = (*dist_)(j, i) = lik->getParameterValue("BrLen");
       delete lik;
     }
-    if (_verbose > 1 && ApplicationTools::message) *ApplicationTools::message << endl;
+    if (_verbose > 1 && ApplicationTools::message) ApplicationTools::message->endLine();
   }
 }
 

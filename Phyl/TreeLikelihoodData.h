@@ -129,7 +129,32 @@ class TreeLikelihoodData:
 		virtual unsigned int getRootArrayPosition(unsigned int site) const = 0;
 		virtual       TreeLikelihoodNodeData& getNodeData(int nodeId) = 0;
 		virtual const TreeLikelihoodNodeData& getNodeData(int nodeId) const = 0;
+
+    /**
+     * @return The number of non redundant patterns.
+     */
+    virtual unsigned int getNumberOfDistinctSites() const = 0;
     
+    /**
+     * @return The total number of sites.
+     */
+    virtual unsigned int getNumberOfSites() const = 0;
+    
+    /**
+     * @return Get the number of states used in the model.
+     */
+    virtual unsigned int getNumberOfStates() const = 0;
+
+    /**
+     * @return The frequency of a given pattern.
+     */
+		virtual unsigned int getWeight(unsigned int pos) const = 0;
+		
+    /**
+     * @return Frequencies for each pattern.
+     */
+    virtual const std::vector<unsigned int>& getWeights() const = 0;
+
 };
 
 } //end of namespace bpp.

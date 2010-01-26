@@ -59,11 +59,11 @@ class TreeLikelihoodTools
      * @brief Compute the expected ancestral frequencies of all states at all (inner) nodes
      * according to a Markov process defined by a given substitution model.
      *
-     * The computation is performed for a given site. If sites the likelihood object has no
+     * The computation is performed for a given site. If the likelihood object has no
      * site partition, then the method will return the same result for all positions.
      *
      * @param tl          [in] A tree likelihood object.
-     * @param site        [in] The site for which the frequencies should be ocmputed.
+     * @param site        [in] The site for which the frequencies should be computed.
      * @param frequencies [out] A map where to store the results, as a vector of double (the 
      * size of which being equal to the number of states in the model), and with nodes id as keys.
      * @param alsoForLeaves [opt] Tell if frequencies should also be estimated for terminal nodes.
@@ -72,6 +72,24 @@ class TreeLikelihoodTools
     static void getAncestralFrequencies(
         const TreeLikelihood& tl,
         unsigned int site,
+        std::map<int, std::vector<double> >& frequencies,
+        bool alsoForLeaves = false) throw (Exception);
+
+    /**
+     * @brief Compute the expected ancestral frequencies of all states at all (inner) nodes
+     * according to a Markov process defined by a given substitution model.
+     *
+     * The computation is averaged over all sites. If the likelihood object has no
+     * site partition, then the method will return the same result as all single site numbers.
+     *
+     * @param tl          [in] A tree likelihood object.
+     * @param frequencies [out] A map where to store the results, as a vector of double (the 
+     * size of which being equal to the number of states in the model), and with nodes id as keys.
+     * @param alsoForLeaves [opt] Tell if frequencies should also be estimated for terminal nodes.
+     * @throw Exception In case something bad happens, like an unvalid model set.
+     */
+    static void getAncestralFrequencies(
+        const TreeLikelihood& tl,
         std::map<int, std::vector<double> >& frequencies,
         bool alsoForLeaves = false) throw (Exception);
 

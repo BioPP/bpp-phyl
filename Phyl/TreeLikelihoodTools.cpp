@@ -53,6 +53,40 @@ void TreeLikelihoodTools::getAncestralFrequencies(
   getAncestralFrequencies_(tl, tl.getSiteIndex(site), currentId, currentFreqs, frequencies, alsoForLeaves); 
 }
 
+void TreeLikelihoodTools::getAncestralFrequencies(
+        const TreeLikelihood& tl,
+        std::map<int, std::vector<double> >& frequencies,
+        bool alsoForLeaves) throw (Exception)
+{
+  unsigned int n = tl.getLikelihoodData()->getNumberOfDistinctSites();
+  unsigned int ns = tl.getNumberOfStates();
+  double sumw = 0, w;
+  map<int, vector<double> > siteFrequencies;
+  for (unsigned int i = 0; i < n; ++i)
+  {
+    w = tl.getLikelihoodData()->getWeight(i);
+    sumw += w;
+    getAncestralFrequencies(tl, i, siteFrequencies, alsoForLeaves);
+    //Intialization
+    if (i == 0)
+    {
+      frequencies = siteFrequencies; //Initialize all nodes ids.
+      //Now reset to 0:
+      for (map<int, vector<double> >::iterator it = frequencies.begin(); it != frequencies.end(); it++)
+        VectorTools::fill(it->second, 0.);
+    }
+    map<int, vector<double> >::iterator it = frequencies.begin();
+    map<int, vector<double> >::iterator itSite = siteFrequencies.begin();
+    for (unsigned int j = 0; j < frequencies.size(); ++j)
+    {
+      for (unsigned int k = 0; k < ns; ++k)
+        it->second[k] += itSite->second[k] * w;
+      it++;
+      itSite++;
+    }
+  }
+}
+
 void TreeLikelihoodTools::getAncestralFrequencies_(
         const TreeLikelihood& tl,
         unsigned int siteIndex,

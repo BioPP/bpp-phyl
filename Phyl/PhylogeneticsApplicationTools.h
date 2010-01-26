@@ -51,6 +51,7 @@
 // From Utils:
 #include <Utils/TextTools.h>
 #include <Utils/StringTokenizer.h>
+#include <Utils/OutputStream.h>
 
 // From NumCalc:
 #include <NumCalc/DiscreteDistribution.h>
@@ -62,7 +63,6 @@
 // From the STL:
 #include <string>
 #include <map>
-#include <iostream>
 
 namespace bpp
 {
@@ -541,14 +541,6 @@ namespace bpp
         bool suffixIsOptional = true,
         bool verbose = true)
       throw (Exception);
-  
-    /**
-     * @brief This function prints the options available for optimization.
-     *
-     * @param topo Display options for topology estimation
-     * @param clock Restrict to options available for molecular clock estimation
-     */
-    static void printOptimizationHelp(bool topo = true, bool clock = false);
     
     /**
      * @brief Write a tree according to options.
@@ -606,7 +598,7 @@ namespace bpp
      * @param model The model to serialize.
      * @param out   The stream where to print.
      */
-    static void printParameters(const SubstitutionModel* model, std::ostream& out);
+    static void printParameters(const SubstitutionModel* model, OutputStream& out);
 
 
 
@@ -616,7 +608,7 @@ namespace bpp
      * @param modelSet The model set to serialize.
      * @param out      The stream where to print.
      */
-    static void printParameters(const SubstitutionModelSet* modelSet, std::ostream& out);
+    static void printParameters(const SubstitutionModelSet* modelSet, OutputStream& out);
 
 
 
@@ -626,13 +618,13 @@ namespace bpp
      * @param rDist The rate distribution to serialize.
      * @param out   The stream where to print.
      */
-    static void printParameters(const DiscreteDistribution* rDist, std::ostream& out);
+    static void printParameters(const DiscreteDistribution* rDist, OutputStream& out);
 
   private:
-    static void describeParameters_(const ParameterAliasable* parametrizable, std::ostream& out, std::map<std::string, std::string>& globalAliases, const std::vector<std::string>& names, bool printLocalAliases = true);
-    static void describeSubstitutionModel_(const SubstitutionModel* model, std::ostream& out, std::map<std::string, std::string>& globalAliases);
-    static void describeFrequenciesSet_(const FrequenciesSet* pfreqset, std::ostream& out);
-    static void describeDiscreteDistribution_(const DiscreteDistribution* rDist, std::ostream& out, std::map<std::string,std:: string>& globalAliases);
+    static void describeParameters_(const ParameterAliasable* parametrizable, OutputStream& out, std::map<std::string, std::string>& globalAliases, const std::vector<std::string>& names, bool printLocalAliases = true);
+    static void describeSubstitutionModel_(const SubstitutionModel* model, OutputStream& out, std::map<std::string, std::string>& globalAliases);
+    static void describeFrequenciesSet_(const FrequenciesSet* pfreqset, OutputStream& out);
+    static void describeDiscreteDistribution_(const DiscreteDistribution* rDist, OutputStream& out, std::map<std::string,std:: string>& globalAliases);
 
   };
 

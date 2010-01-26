@@ -228,17 +228,17 @@ class DRASRTreeLikelihoodData :
 			return _patternLinks[parentId][sonId][currentPosition];
 		}
 
-		VVVdouble & getLikelihoodArray(int nodeId)
+		VVVdouble& getLikelihoodArray(int nodeId)
 		{
 			return _nodeData[nodeId].getLikelihoodArray();
 		}
 		
-		VVVdouble & getDLikelihoodArray(int nodeId)
+		VVVdouble& getDLikelihoodArray(int nodeId)
 		{
 			return _nodeData[nodeId].getDLikelihoodArray();
 		}
 		
-		VVVdouble & getD2LikelihoodArray(int nodeId)
+		VVVdouble& getD2LikelihoodArray(int nodeId)
 		{
 			return _nodeData[nodeId].getD2LikelihoodArray();
 		}

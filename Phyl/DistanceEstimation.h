@@ -140,7 +140,15 @@ class TwoTreeLikelihood:
 		 *
 		 * @{
 		 */
-		double getLikelihood() const;
+    TreeLikelihoodData* getLikelihoodData() throw (NotImplementedException)
+    {
+      throw NotImplementedException("TwoTreeLikelihood::getLikelihoodData.");
+    }
+    const TreeLikelihoodData* getLikelihoodData() const throw (NotImplementedException)
+    {
+      throw NotImplementedException("TwoTreeLikelihood::getLikelihoodData.");
+    }	
+    double getLikelihood() const;
 		double getLogLikelihood() const;
 		double getLikelihoodForASite (unsigned int site) const;
 		double getLogLikelihoodForASite(unsigned int site) const;

@@ -367,10 +367,11 @@ void NNIHomogeneousTreeLikelihood::doNNI(int nodeId) throw (NodeException)
   }
   else cerr << "ERROR, branch not found: " << nodeId << endl;
   try { brLenNNIParams_.addParameter(brLenParameters_.getParameter(name)); }
-  catch(ParameterException & ex)
+  catch(ParameterException& ex)
   {
+    StdErr errout;
     cerr << "DEBUG:" << endl;
-    brLenNNIParams_.printParameters(cerr);
+    brLenNNIParams_.printParameters(errout);
     cerr << "DEBUG:" << name << endl;
   }
   //In case of copy of this object, we must remove the constraint associated to this stored parameter:

@@ -964,7 +964,7 @@ Tree* TreeTools::MRP(const vector<Tree*>& vecTr)
   BioNJ bionjTreeBuilder;
   bionjTreeBuilder.setDistanceMatrix(*(distFunc.getMatrix()));
   bionjTreeBuilder.computeTree(false);
-  *ApplicationTools::message << endl;
+  if (ApplicationTools::message) ApplicationTools::message->endLine();
   TreeTemplate<Node>* startTree = new TreeTemplate<Node>(*bionjTreeBuilder.getTree());
 
   //MP optimization

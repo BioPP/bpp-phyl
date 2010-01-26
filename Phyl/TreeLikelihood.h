@@ -43,6 +43,7 @@ knowledge of the CeCILL license and that you accept its terms.
 #include "Node.h"
 #include "Tree.h"
 #include "SubstitutionModel.h"
+#include "TreeLikelihoodData.h"
 
 // From NumCalc:
 #include <NumCalc/ParameterList.h>
@@ -197,6 +198,16 @@ class TreeLikelihood:
      * @return 'true' is the likelihood function has been initialized.
      */
     virtual bool isInitialized() const = 0;
+
+    /**
+     * @return The underlying likelihood data structure.
+     */
+    virtual TreeLikelihoodData* getLikelihoodData() = 0;
+
+    /**
+     * @return The underlying likelihood data structure.
+     */
+    virtual const TreeLikelihoodData* getLikelihoodData() const = 0;
 
     /**
      * @brief Get the likelihood for a site.
