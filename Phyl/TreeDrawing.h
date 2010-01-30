@@ -132,6 +132,41 @@ class DrawNodeEvent
 
 
 /**
+ * @brief Event class used by TreeDrawing classes.
+ */
+class DrawTreeEvent
+{
+  private:
+    const TreeDrawing* td_;
+    GraphicDevice* gd_;
+
+  public:
+    DrawTreeEvent(const TreeDrawing* source, GraphicDevice* gd) :
+      td_(source), gd_(gd)
+    {}
+
+    DrawTreeEvent(const DrawTreeEvent& dne) :
+      td_(dne.td_), gd_(dne.gd_)
+    {}
+    
+    DrawTreeEvent& operator=(const DrawTreeEvent& dte)
+    {
+      td_     = dte.td_;
+      gd_     = dte.gd_;
+      return *this;
+    }
+
+    virtual ~DrawTreeEvent() {}
+
+  public:
+    virtual const TreeDrawing* getTreeDrawing() const { return td_; }
+    virtual GraphicDevice* getGraphicDevice() const { return gd_; }
+
+};
+
+
+
+/**
  * @brief Interface allowing to capture drawing events.
  *
  * Implementing this interface allows you to easily and efficiently tune a plot,
@@ -148,6 +183,8 @@ public:
 #endif
   clone() const = 0;
 
+  virtual void beforeDrawTree(const DrawTreeEvent& event) = 0;
+  virtual void afterDrawTree(const DrawTreeEvent& event) = 0;
   virtual void beforeDrawNode(const DrawNodeEvent& event) = 0;
   virtual void afterDrawNode(const DrawNodeEvent& event) = 0;
   virtual void beforeDrawBranch(const DrawNodeEvent& event) = 0;
@@ -160,6 +197,8 @@ class TreeDrawingListenerAdapter :
   public virtual TreeDrawingListener
 {
 public:
+  void beforeDrawTree(const DrawTreeEvent& event) {}
+  void afterDrawTree(const DrawTreeEvent& event) {}
   void beforeDrawNode(const DrawNodeEvent& event) {}
   void afterDrawNode(const DrawNodeEvent& event) {}
   void beforeDrawBranch(const DrawNodeEvent& event) {}

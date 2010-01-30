@@ -293,6 +293,20 @@ class AbstractTreeDrawing:
       drawableProperties_.push_back(property);
     }
     
+    void fireBeforeTreeEvent_(GraphicDevice& gd) const
+    {
+      DrawTreeEvent event(this, &gd);
+      for (unsigned int i = 0; i < listeners_.size(); i++)
+        listeners_[i]->beforeDrawTree(event);
+    }
+
+    void fireAfterTreeEvent_(GraphicDevice& gd) const
+    {
+      DrawTreeEvent event(this, &gd);
+      for (unsigned int i = 0; i < listeners_.size(); i++)
+        listeners_[i]->beforeDrawTree(event);
+    }
+
     void fireBeforeNodeEvent_(GraphicDevice& gd, const INode& node, const Cursor& cursor) const
     {
       DrawINodeEvent event(this, &gd, &node, cursor);

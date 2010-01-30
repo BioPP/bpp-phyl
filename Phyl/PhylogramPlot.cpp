@@ -59,6 +59,7 @@ void PhylogramPlot::drawDendrogram_(GraphicDevice& gDevice) const throw (Excepti
 {
   if (hasTree())
   {
+    fireBeforeTreeEvent_(gDevice);
     unsigned int* tipCounter = new unsigned int(0);
     double y;
     recursivePlot_(gDevice, *const_cast<INode*>(getTree_()->getRootNode()),
@@ -67,6 +68,7 @@ void PhylogramPlot::drawDendrogram_(GraphicDevice& gDevice) const throw (Excepti
         getHorizontalOrientation() == ORIENTATION_LEFT_TO_RIGHT ? 1. : -1.,
         getVerticalOrientation() == ORIENTATION_TOP_TO_BOTTOM ? 1. : -1.,
         tipCounter);
+    fireAfterTreeEvent_(gDevice);
   }
 }
 
