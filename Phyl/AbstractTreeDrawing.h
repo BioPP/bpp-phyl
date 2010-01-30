@@ -304,7 +304,7 @@ class AbstractTreeDrawing:
     {
       DrawTreeEvent event(this, &gd);
       for (unsigned int i = 0; i < listeners_.size(); i++)
-        listeners_[i]->beforeDrawTree(event);
+        listeners_[i]->afterDrawTree(event);
     }
 
     void fireBeforeNodeEvent_(GraphicDevice& gd, const INode& node, const Cursor& cursor) const
