@@ -51,9 +51,9 @@ using namespace bpp;
 
 using namespace std;
 
-TreeTemplate<Node> * PGMA::getTree() const
+TreeTemplate<Node>* PGMA::getTree() const
 {
-	Node * root = TreeTemplateTools::cloneSubtree<Node>(* dynamic_cast<TreeTemplate<NodeTemplate<PGMAInfos> > *>(_tree) -> getRootNode());
+	Node* root = TreeTemplateTools::cloneSubtree<Node>(*dynamic_cast<TreeTemplate<NodeTemplate<PGMAInfos> >*>(tree_)->getRootNode());
 	return new TreeTemplate<Node>(root);
 }
 	
@@ -61,13 +61,13 @@ vector<unsigned int> PGMA::getBestPair() throw (Exception)
 {
 	vector<unsigned int> bestPair(2);
 	double distMin = -std::log(0.);
-	for(map<unsigned int, Node *>::iterator i = _currentNodes.begin(); i != _currentNodes.end(); i++) {
+	for(map<unsigned int, Node *>::iterator i = currentNodes_.begin(); i != currentNodes_.end(); i++) {
 		unsigned int id = i -> first;
 		map<unsigned int, Node *>::iterator j = i;
 		j++;
-		for(; j != _currentNodes.end(); j++) {
+		for(; j != currentNodes_.end(); j++) {
 			unsigned int jd = j -> first;
-			double dist = _matrix(id, jd);
+			double dist = matrix_(id, jd);
 			if(dist < distMin) {
 				distMin = dist;
 				bestPair[0] = id;
@@ -86,9 +86,9 @@ vector<unsigned int> PGMA::getBestPair() throw (Exception)
 vector<double> PGMA::computeBranchLengthsForPair(const vector<unsigned int> & pair)
 {
 	vector<double> d(2);
-	double dist = _matrix(pair[0], pair[1]) / 2.;
-	d[0] = dist - dynamic_cast<NodeTemplate<PGMAInfos> *>(_currentNodes[pair[0]]) -> getInfos().time; 
-	d[1] = dist - dynamic_cast<NodeTemplate<PGMAInfos> *>(_currentNodes[pair[1]]) -> getInfos().time; 
+	double dist = matrix_(pair[0], pair[1]) / 2.;
+	d[0] = dist - dynamic_cast<NodeTemplate<PGMAInfos> *>(currentNodes_[pair[0]]) -> getInfos().time; 
+	d[1] = dist - dynamic_cast<NodeTemplate<PGMAInfos> *>(currentNodes_[pair[1]]) -> getInfos().time; 
 	return d;
 }
 
@@ -99,27 +99,27 @@ double PGMA::computeDistancesFromPair(const vector<unsigned int> & pair, const v
 		w1 = 1;
 		w2 = 1;
 	} else {
-		w1 = dynamic_cast<NodeTemplate<PGMAInfos> *>(_currentNodes[pair[0]]) -> getInfos().numberOfLeaves;
-		w2 = dynamic_cast<NodeTemplate<PGMAInfos> *>(_currentNodes[pair[1]]) -> getInfos().numberOfLeaves;
+		w1 = dynamic_cast<NodeTemplate<PGMAInfos> *>(currentNodes_[pair[0]]) -> getInfos().numberOfLeaves;
+		w2 = dynamic_cast<NodeTemplate<PGMAInfos> *>(currentNodes_[pair[1]]) -> getInfos().numberOfLeaves;
 	}
-	return (w1 * _matrix(pair[0], pos) + w2 * _matrix(pair[1], pos)) / (w1 + w2); 
+	return (w1 * matrix_(pair[0], pos) + w2 * matrix_(pair[1], pos)) / (w1 + w2); 
 }
 
 void PGMA::finalStep(int idRoot)
 {
 	NodeTemplate<PGMAInfos> * root = new NodeTemplate<PGMAInfos>(idRoot);
-	map<unsigned int, Node * >::iterator it = _currentNodes.begin();
+	map<unsigned int, Node * >::iterator it = currentNodes_.begin();
 	unsigned int i1 = it->first;
 	Node* n1        = it->second;
 	it++;
 	unsigned int i2 = it->first;
 	Node* n2        = it->second;
-	double d = _matrix(i1, i2) / 2;
+	double d = matrix_(i1, i2) / 2;
 	root->addSon(n1);
 	root->addSon(n2);
 	n1->setDistanceToFather(d - dynamic_cast<NodeTemplate<PGMAInfos>*>(n1)->getInfos().time); 
 	n2->setDistanceToFather(d - dynamic_cast<NodeTemplate<PGMAInfos>*>(n2)->getInfos().time); 
-	_tree = new TreeTemplate<NodeTemplate<PGMAInfos> >(root);
+	tree_ = new TreeTemplate<NodeTemplate<PGMAInfos> >(root);
 }
 
 Node * PGMA::getLeafNode(int id, const string & name)

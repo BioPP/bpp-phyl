@@ -65,7 +65,7 @@ AbstractHomogeneousTreeLikelihood::AbstractHomogeneousTreeLikelihood(
   bool verbose)
   throw (Exception):
   AbstractDiscreteRatesAcrossSitesTreeLikelihood(rDist, verbose),
-  model_(NULL),
+  model_(0),
   brLenParameters_(),
   pxy_(),
   dpxy_(),
@@ -87,7 +87,7 @@ AbstractHomogeneousTreeLikelihood::AbstractHomogeneousTreeLikelihood(
 /******************************************************************************/
 
 AbstractHomogeneousTreeLikelihood::AbstractHomogeneousTreeLikelihood(
-    const AbstractHomogeneousTreeLikelihood & lik) :
+    const AbstractHomogeneousTreeLikelihood& lik) :
   AbstractDiscreteRatesAcrossSitesTreeLikelihood(lik),
   model_(lik.model_),
   brLenParameters_(lik.brLenParameters_),
@@ -105,6 +105,7 @@ AbstractHomogeneousTreeLikelihood::AbstractHomogeneousTreeLikelihood(
   minimumBrLen_(lik.minimumBrLen_),
   brLenConstraint_(lik.brLenConstraint_->clone())
 {
+  cout << tree_ << endl;
   nodes_ = tree_->getNodes();
   nodes_.pop_back(); //Remove the root node (the last added!).  
 }

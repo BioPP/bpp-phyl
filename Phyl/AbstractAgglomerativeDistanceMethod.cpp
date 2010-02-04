@@ -53,35 +53,35 @@ using namespace std;
 
 void AbstractAgglomerativeDistanceMethod::setDistanceMatrix(const DistanceMatrix& matrix)
 {
-  _matrix = matrix;
-  if(_tree != NULL) delete _tree;
+  matrix_ = matrix;
+  if (tree_) delete tree_;
 }
     
 void AbstractAgglomerativeDistanceMethod::computeTree(bool rooted) throw (Exception)
 {
   // Initialization:
-  for(unsigned int i = 0; i < _matrix.size(); i++)
+  for (unsigned int i = 0; i < matrix_.size(); i++)
   {
-    _currentNodes[i] = getLeafNode(i, _matrix.getName(i));
+    currentNodes_[i] = getLeafNode(i, matrix_.getName(i));
   }
-  int idNextNode = (int)_matrix.size();
-  vector<double> newDist(_matrix.size());
+  int idNextNode = (int)matrix_.size();
+  vector<double> newDist(matrix_.size());
   
   // Build tree:
-  while(_currentNodes.size() > (rooted ? 2 : 3))
+  while (currentNodes_.size() > (rooted ? 2 : 3))
   {
-    if(_verbose)
-      ApplicationTools::displayGauge(_matrix.size() - _currentNodes.size(), _matrix.size() - (rooted ? 2 : 3) - 1);
+    if (verbose_)
+      ApplicationTools::displayGauge(matrix_.size() - currentNodes_.size(), matrix_.size() - (rooted ? 2 : 3) - 1);
     vector<unsigned int> bestPair = getBestPair();
     vector<double> distances = computeBranchLengthsForPair(bestPair);
-    Node * best1 = _currentNodes[bestPair[0]];
-    Node * best2 = _currentNodes[bestPair[1]];
+    Node* best1 = currentNodes_[bestPair[0]];
+    Node* best2 = currentNodes_[bestPair[1]];
     // Distances may be used by getParentNodes (PGMA for instance).
     best1->setDistanceToFather(distances[0]);
     best2->setDistanceToFather(distances[1]);
     Node* parent = getParentNode(idNextNode, best1, best2);
     idNextNode++;
-    for(map<unsigned int, Node *>::iterator i = _currentNodes.begin(); i != _currentNodes.end(); i++)
+    for (map<unsigned int, Node *>::iterator i = currentNodes_.begin(); i != currentNodes_.end(); i++)
     {
       unsigned int id = i->first;
       if(id != bestPair[0] && id != bestPair[1])
@@ -93,13 +93,13 @@ void AbstractAgglomerativeDistanceMethod::computeTree(bool rooted) throw (Except
         newDist[id] = 0;
       }
     }
-    // Actualize _currentNodes:
-    _currentNodes[bestPair[0]] = parent;
-    _currentNodes.erase(bestPair[1]);
-    for(map<unsigned int, Node *>::iterator i = _currentNodes.begin(); i != _currentNodes.end(); i++)
+    // Actualize currentNodes_:
+    currentNodes_[bestPair[0]] = parent;
+    currentNodes_.erase(bestPair[1]);
+    for (map<unsigned int, Node *>::iterator i = currentNodes_.begin(); i != currentNodes_.end(); i++)
     {
       unsigned int id = i->first;
-      _matrix(bestPair[0], id) = _matrix(id, bestPair[0]) = newDist[id];
+      matrix_(bestPair[0], id) = matrix_(id, bestPair[0]) = newDist[id];
     }  
   }
   finalStep(idNextNode);

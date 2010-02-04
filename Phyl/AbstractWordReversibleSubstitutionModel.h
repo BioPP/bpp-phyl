@@ -98,8 +98,8 @@ protected:
   virtual void updateMatrices();
 
   /**
-   *@brief Called by updateMatrices to handle specific modifications
-   *for inheriting classes
+   * @brief Called by updateMatrices to handle specific modifications
+   * for inheriting classes
    */
   virtual void completeMatrices() = 0;
 

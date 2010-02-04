@@ -68,12 +68,14 @@ class AbstractDiscreteRatesAcrossSitesTreeLikelihood:
 		
     AbstractDiscreteRatesAcrossSitesTreeLikelihood(
         const AbstractDiscreteRatesAcrossSitesTreeLikelihood& tl) :
+      AbstractTreeLikelihood(tl),
       rateDistribution_(tl.rateDistribution_)
     {}
 
     AbstractDiscreteRatesAcrossSitesTreeLikelihood& operator=(
         const AbstractDiscreteRatesAcrossSitesTreeLikelihood& tl)
     {
+      AbstractTreeLikelihood::operator=(tl);
       rateDistribution_ = tl.rateDistribution_;
       return *this;
     }

@@ -137,7 +137,7 @@ class BranchLikelihood :
  */
 class NNIHomogeneousTreeLikelihood:
   public DRHomogeneousTreeLikelihood,
-  public NNISearchable
+  public virtual NNISearchable
 {
   protected:
     BranchLikelihood * brLikFunction_;
