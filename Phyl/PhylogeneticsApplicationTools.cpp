@@ -353,11 +353,11 @@ SubstitutionModel* PhylogeneticsApplicationTools::getSubstitutionModelDefaultIns
     else if (modelName == "CodonAsynonymous")
     {
       if (args.find("geneticcode") == args.end())
-        throw Exception("PhylogeneticsApplicationTools::getSubstitutionModelDefaultInstance. Missing Genetic Code.");
-
+        args["geneticcode"]=pWA->getAlphabetType();
+      
       GeneticCode* pgc = SequenceApplicationTools::getGeneticCode(dynamic_cast<const NucleicAlphabet*>(pWA->getNAlphabet(0)),args["geneticcode"]);
       if (pgc->getSourceAlphabet()->getAlphabetType() != pWA->getAlphabetType())
-        throw Exception("Mismatch  between genetic code and codon alphabet");
+        throw Exception("Mismatch between genetic code and codon alphabet");
 
       AlphabetIndex2<double>* pai2;
 
@@ -433,7 +433,7 @@ SubstitutionModel* PhylogeneticsApplicationTools::getSubstitutionModelDefaultIns
     else if (modelName == "CodonAsynonymousFrequencies")
     {
       if (args.find("geneticcode") == args.end())
-        throw Exception("PhylogeneticsApplicationTools::getSubstitutionModelDefaultInstance. Missing Genetic Code.");
+        args["geneticcode"]=pCA->getAlphabetType();
 
       GeneticCode* pgc = SequenceApplicationTools::getGeneticCode(dynamic_cast<const NucleicAlphabet*>(pCA->getNAlphabet(0)),args["geneticcode"]);
       if (pgc->getSourceAlphabet()->getAlphabetType() != pCA->getAlphabetType())
@@ -469,7 +469,7 @@ SubstitutionModel* PhylogeneticsApplicationTools::getSubstitutionModelDefaultIns
     const CodonAlphabet* pCA = (const CodonAlphabet*)(alphabet);
 
     if (args.find("geneticcode") == args.end())
-      throw Exception("PhylogeneticsApplicationTools::getSubstitutionModelDefaultInstance. Missing Genetic Code.");
+      args["geneticcode"]=pCA->getAlphabetType();
 
     GeneticCode* pgc = SequenceApplicationTools::getGeneticCode(dynamic_cast<const NucleicAlphabet*>(pCA->getNAlphabet(0)),args["geneticcode"]);
     if (pgc->getSourceAlphabet()->getAlphabetType() != pCA->getAlphabetType())
@@ -495,7 +495,7 @@ SubstitutionModel* PhylogeneticsApplicationTools::getSubstitutionModelDefaultIns
     const CodonAlphabet* pCA = (const CodonAlphabet*)(alphabet);
 
     if (args.find("geneticcode") == args.end())
-      throw Exception("PhylogeneticsApplicationTools::getSubstitutionModelDefaultInstance. Missing Genetic Code.");
+        args["geneticcode"]=pCA->getAlphabetType();
 
     GeneticCode* pgc = SequenceApplicationTools::getGeneticCode(dynamic_cast<const NucleicAlphabet*>(pCA->getNAlphabet(0)),args["geneticcode"]);
     if (pgc->getSourceAlphabet()->getAlphabetType() != pCA->getAlphabetType())
@@ -520,7 +520,7 @@ SubstitutionModel* PhylogeneticsApplicationTools::getSubstitutionModelDefaultIns
     const CodonAlphabet* pCA = (const CodonAlphabet*)(alphabet);
 
     if (args.find("geneticcode") == args.end())
-      throw Exception("PhylogeneticsApplicationTools::getSubstitutionModelDefaultInstance. Missing Genetic Code.");
+      args["geneticcode"]=pCA->getAlphabetType();
 
     GeneticCode* pgc = SequenceApplicationTools::getGeneticCode(dynamic_cast<const NucleicAlphabet*>(pCA->getNAlphabet(0)),args["geneticcode"]);
     if (pgc->getSourceAlphabet()->getAlphabetType() != pCA->getAlphabetType())
@@ -533,7 +533,6 @@ SubstitutionModel* PhylogeneticsApplicationTools::getSubstitutionModelDefaultIns
 
     model = new YN98(pgc);
   }
-
 
   // /////////////////////////////////
   // / RE08
@@ -867,9 +866,16 @@ SubstitutionModel* PhylogeneticsApplicationTools::getSubstitutionModel(
   bool suffixIsOptional,
   bool verbose) throw (Exception)
 {
-   string modelDescription = ApplicationTools::getStringParameter("model", params, "JC69", suffix, suffixIsOptional, verbose);
-   map<string, string> unparsedParameterValues;
-   SubstitutionModel* model = getSubstitutionModelDefaultInstance(alphabet, modelDescription, unparsedParameterValues, true, true, verbose);
+  string modelDescription;
+  if (AlphabetTools::isCodonAlphabet(alphabet))
+    modelDescription = ApplicationTools::getStringParameter("model", params, "CodonNeutral(model=JC69)", suffix, suffixIsOptional, verbose);
+  else if (AlphabetTools::isWordAlphabet(alphabet))
+    modelDescription = ApplicationTools::getStringParameter("model", params, "Word(model=JC69)", suffix, suffixIsOptional, verbose);
+  else
+    modelDescription = ApplicationTools::getStringParameter("model", params, "JC69", suffix, suffixIsOptional, verbose);
+  
+  map<string, string> unparsedParameterValues;
+  SubstitutionModel* model = getSubstitutionModelDefaultInstance(alphabet, modelDescription, unparsedParameterValues, true, true, verbose);
   setSubstitutionModelParametersInitialValues(model, unparsedParameterValues, data, verbose);
   return model;
 }
@@ -1221,7 +1227,15 @@ SubstitutionModelSet* PhylogeneticsApplicationTools::getSubstitutionModelSet(
   // Build a new model set object:
 
   vector<double> rateFreqs;
-  string tmpDesc = ApplicationTools::getStringParameter("model1", params, "JC69()", suffix, suffixIsOptional, verbose);
+  string tmpDesc;
+  if (AlphabetTools::isCodonAlphabet(alphabet))
+    tmpDesc = ApplicationTools::getStringParameter("model1", params, "CodonNeutral(model=JC69)", suffix, suffixIsOptional, verbose);
+  else if (AlphabetTools::isWordAlphabet(alphabet))
+    tmpDesc = ApplicationTools::getStringParameter("model1", params, "Word(model=JC69)", suffix, suffixIsOptional, verbose);
+  else
+    tmpDesc = ApplicationTools::getStringParameter("model1", params, "JC69", suffix, suffixIsOptional, verbose);
+  
+
   map<string, string> tmpUnparsedParameterValues;
   auto_ptr<SubstitutionModel> tmp(getSubstitutionModelDefaultInstance(alphabet, tmpDesc, tmpUnparsedParameterValues, true, true, 0));
   if (tmp->getNumberOfStates() != alphabet->getSize())
@@ -1247,7 +1261,16 @@ SubstitutionModelSet* PhylogeneticsApplicationTools::getSubstitutionModelSet(
   for (unsigned int i = 0; i < nbModels; i++)
   {
     string prefix = "model" + TextTools::toString(i + 1);
-    string modelDesc = ApplicationTools::getStringParameter(prefix, params, "JC69", suffix, suffixIsOptional, verbose);
+    string modelDesc;
+    if (AlphabetTools::isCodonAlphabet(alphabet))
+      modelDesc = ApplicationTools::getStringParameter(prefix, params, "CodonNeutral(model=JC69)", suffix, suffixIsOptional, verbose);
+    else
+      if (AlphabetTools::isWordAlphabet(alphabet))
+        modelDesc = ApplicationTools::getStringParameter(prefix, params, "Word(model=JC69)", suffix, suffixIsOptional, verbose);
+      else
+        modelDesc = ApplicationTools::getStringParameter(prefix, params, "JC69", suffix, suffixIsOptional, verbose);
+    
+
     map<string, string> unparsedParameterValues;
     SubstitutionModel* model = getSubstitutionModelDefaultInstance(alphabet, modelDesc, unparsedParameterValues, true, true, verbose);
     prefix += ".";
