@@ -37,8 +37,8 @@ The fact that you are presently reading this means that you have had
 knowledge of the CeCILL license and that you accept its terms.
 */
 
-#ifndef _GTR_H_
-#define _GTR_H_
+#ifndef GTR_H__
+#define GTR_H__
 
 #include "NucleotideSubstitutionModel.h"
 
@@ -103,9 +103,9 @@ namespace bpp
  * \f]
  * with \f{eqnarray*}
  * P &=& \pi_A(d\pi_C+ \pi_G+b\pi_T)\\
- *	 &+& \pi_C(d\pi_A+e\pi_G+a\pi_T)\\
+ *   &+& \pi_C(d\pi_A+e\pi_G+a\pi_T)\\
  *   &+& \pi_G( \pi_A+e\pi_C+c\pi_T)\\
- *	 &+& \pi_T(b\pi_A+a\pi_C+c\pi_G)\\
+ *   &+& \pi_T(b\pi_A+a\pi_C+c\pi_G)\\
  *   &=& 2*(a*\pi_C*\pi_T+b*\pi_A*\pi_T+c*\pi_G*\pi_T+d*\pi_A*\pi_C+e*\pi_C*\pi_G+\pi_A*\pi_G)
  * \f}
  *
@@ -130,31 +130,31 @@ namespace bpp
  * for instance.
  * 
  * Reference:
- * - Yang Z (1994), _Journal Of Molecular Evolution_ 39(1) 105-11.
- * - Lanave C, Preparata G, Saccone C and Serio G (1984), _Journal Of Molecular Evolution_ 20 86-93.
- * - Tavaré S (1986), _Lect. Math. Life Sci._ 17 57-86.
- * - Rodriguez F (1990, _Journal Of Theoretical Biology_ 142(4) 485-501.
+ * - Yang Z (1994), Journal_ Of Molecular Evolution_ 39(1) 105-11.
+ * - Lanave C, Preparata G, Saccone C and Serio G (1984), Journal_ Of Molecular Evolution_ 20 86-93.
+ * - Tavaré S (1986), Lect_. Math. Life Sci._ 17 57-86.
+ * - Rodriguez F (1990, Journal_ Of Theoretical Biology_ 142(4) 485-501.
  */
 class GTR:
-  public NucleotideSubstitutionModel
+  public virtual NucleotideSubstitutionModel
 {
-	protected:
-    double _a, _b, _c, _d, _e, _piA, _piC, _piG, _piT, _p, _theta, _theta1, _theta2;
+  protected:
+    double a_, b_, c_, d_, e_, piA_, piC_, piG_, piT_, theta_, theta1_, theta2_, p_;
 
-	public:
-		GTR(
-			const NucleicAlphabet * alpha,
-			double a = 1.,
-			double b = 1.,
-			double c = 1.,
-			double d = 1.,
-			double e = 1.,
-			double piA = 0.25,
-			double piC = 0.25,
-			double piG = 0.25,
-			double piT = 0.25);
-	
-		virtual ~GTR() {}
+  public:
+    GTR(
+      const NucleicAlphabet * alpha,
+      double a = 1.,
+      double b = 1.,
+      double c = 1.,
+      double d = 1.,
+      double e = 1.,
+      double piA = 0.25,
+      double piC = 0.25,
+      double piG = 0.25,
+      double piT = 0.25);
+  
+    virtual ~GTR() {}
 
 #ifndef NO_VIRTUAL_COV
     GTR*
@@ -178,5 +178,5 @@ class GTR:
 
 } //end of namespace bpp.
 
-#endif	//_GTR_H_
+#endif  //GTR_H__
 

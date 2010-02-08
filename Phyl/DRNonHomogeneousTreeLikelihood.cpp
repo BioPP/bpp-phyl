@@ -65,7 +65,7 @@ DRNonHomogeneousTreeLikelihood::DRNonHomogeneousTreeLikelihood(
   bool verbose)
 throw (Exception):
   AbstractNonHomogeneousTreeLikelihood(tree, modelSet, rDist, verbose),
-  likelihoodData_(0)
+  likelihoodData_(0), minusLogLik_(-1.)
 {
   if(!modelSet->isFullySetUpFor(tree))
     throw Exception("DRNonHomogeneousTreeLikelihood(constructor). Model set is not fully specified.");
@@ -82,7 +82,7 @@ DRNonHomogeneousTreeLikelihood::DRNonHomogeneousTreeLikelihood(
   bool verbose)
 throw (Exception):
   AbstractNonHomogeneousTreeLikelihood(tree, modelSet, rDist, verbose),
-  likelihoodData_(0)
+  likelihoodData_(0), minusLogLik_(-1.)
 {
   if(!modelSet->isFullySetUpFor(tree))
     throw Exception("DRNonHomogeneousTreeLikelihood(constructor). Model set is not fully specified.");
@@ -94,7 +94,9 @@ throw (Exception):
 
 void DRNonHomogeneousTreeLikelihood::init_() throw (Exception)
 {
-  likelihoodData_ = new DRASDRTreeLikelihoodData(*tree_, rateDistribution_->getNumberOfCategories());
+  likelihoodData_ = new DRASDRTreeLikelihoodData(
+      tree_,
+      rateDistribution_->getNumberOfCategories());
 }
 
 /******************************************************************************/
@@ -105,7 +107,7 @@ DRNonHomogeneousTreeLikelihood::DRNonHomogeneousTreeLikelihood(const DRNonHomoge
   minusLogLik_(lik.minusLogLik_)
 {
   likelihoodData_ = dynamic_cast<DRASDRTreeLikelihoodData *>(lik.likelihoodData_->clone());
-  likelihoodData_->setTree(*tree_);
+  likelihoodData_->setTree(tree_);
 }
 
 /******************************************************************************/
@@ -115,7 +117,7 @@ DRNonHomogeneousTreeLikelihood& DRNonHomogeneousTreeLikelihood::operator=(const 
   AbstractNonHomogeneousTreeLikelihood::operator=(lik);
   if(likelihoodData_) delete likelihoodData_;
   likelihoodData_ = dynamic_cast<DRASDRTreeLikelihoodData *>(lik.likelihoodData_->clone());
-  likelihoodData_->setTree(*tree_);
+  likelihoodData_->setTree(tree_);
   minusLogLik_ = lik.minusLogLik_;
   return *this;
 }

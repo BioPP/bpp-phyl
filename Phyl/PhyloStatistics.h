@@ -71,7 +71,10 @@ namespace bpp
       std::vector<int> nodeIds_;
 
     public:
-      PhyloStatistics() {}
+      PhyloStatistics() : 
+        numberOfLeaves_(0), numberOfAncestors_(0),
+        branchLengths_(), nodeHeights_(), nodeDepths_(), nodeNumberOfSons_(), nodeIds_()
+      {}
       virtual ~PhyloStatistics() {}
 
 #ifndef NO_VIRTUAL_COV

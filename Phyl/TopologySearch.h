@@ -42,6 +42,7 @@ knowledge of the CeCILL license and that you accept its terms.
 
 // From Utils:
 #include <Utils/Exceptions.h>
+#include <Utils/Clonable.h>
 
 // From the STL:
 #include <string>
@@ -73,17 +74,22 @@ class TopologyChangeEvent
 
 };
 
-
+class TopologySearch;
 
 /**
  * @brief Implement this interface to be notified when the topology of a tree
  * has changed during topology search.
  */
-class TopologyListener
+class TopologyListener :
+  public virtual Clonable
 {
   public:
     TopologyListener() {}
     virtual ~TopologyListener() {}
+
+#ifndef NO_VIRTUAL_COV
+    TopologyListener* clone() const = 0;
+#endif
 
   public:
 		/**
@@ -97,7 +103,7 @@ class TopologyListener
 		 *
 		 * @param event The topology change event.
 		 */
-    virtual void topologyChangePerformed(const TopologyChangeEvent & event)
+    virtual void topologyChangePerformed(const TopologyChangeEvent& event)
     {
       topologyChangeTested(event);
       topologyChangeSuccessful(event);
@@ -107,7 +113,7 @@ class TopologyListener
 		 *
 		 * @param event The topology change event.
 		 */
-    virtual void topologyChangeTested(const TopologyChangeEvent & event) = 0;
+    virtual void topologyChangeTested(const TopologyChangeEvent& event) = 0;
 
     /**
      * @brief Tell that a topology change is definitive.
@@ -116,7 +122,8 @@ class TopologyListener
      *
 		 * @param event The topology change event.
      */
-    virtual void topologyChangeSuccessful(const TopologyChangeEvent & event) = 0;
+    virtual void topologyChangeSuccessful(const TopologyChangeEvent& event) = 0;
+
 };
 
 
@@ -142,7 +149,7 @@ class TopologySearch
      *
      * TopologyListeners will be notified when the topology of the tree is modified. 
      */
-    virtual void addTopologyListener(TopologyListener & listener) = 0;			
+    virtual void addTopologyListener(TopologyListener* listener) = 0;			
 };
 
 } //end of namespace bpp.

@@ -55,7 +55,7 @@ namespace bpp
  * @f]
  */
 class OneJumpSubstitutionCount:
-  public SubstitutionCount
+  public virtual SubstitutionCount
 {
 	private:
 		const SubstitutionModel* model_;
@@ -63,6 +63,16 @@ class OneJumpSubstitutionCount:
 	
 	public:
 		OneJumpSubstitutionCount(const SubstitutionModel* model) : model_(model), tmp_() {}
+		
+    OneJumpSubstitutionCount(const OneJumpSubstitutionCount& ojsc) :
+      model_(ojsc.model_), tmp_(ojsc.tmp_) {}
+				
+    OneJumpSubstitutionCount& operator=(const OneJumpSubstitutionCount& ojsc)
+    {
+      model_ = ojsc.model_;
+      tmp_   = ojsc.tmp_;
+      return *this;
+    }
 				
 		virtual ~OneJumpSubstitutionCount() {}
 			

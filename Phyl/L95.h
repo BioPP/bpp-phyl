@@ -37,8 +37,8 @@ The fact that you are presently reading this means that you have had
 knowledge of the CeCILL license and that you accept its terms.
 */
 
-#ifndef _L95_H_
-#define _L95_H_
+#ifndef L95_H__
+#define L95_H__
 
 #include "NucleotideSubstitutionModel.h"
 
@@ -92,18 +92,18 @@ namespace bpp
  * for instance.
  * 
  * Reference:
- * - Hobolth A, Christensen O Fm Mailund T, Schierup M H (2007), _PLoS Genetics_ 3(2) e7.
- * - Lobry J R (1995), _Journal Of Molecular Evolution_ 40 326-330.
+ * - Hobolth A, Christensen O Fm Mailund T, Schierup M H (2007), PLoS_ Genetics_ 3(2) e7.
+ * - Lobry J R (1995), Journal_ Of Molecular Evolution_ 40 326-330.
  */
 class L95:
-  public NucleotideSubstitutionModel
+  public virtual NucleotideSubstitutionModel
 {
-protected:
-  double _beta, _gamma, _delta, _theta, _piA, _piC, _piG, _piT;
+private:
+  double beta_, gamma_, delta_, theta_, piA_, piC_, piG_, piT_;
   
 public:
   L95(
-      const NucleicAlphabet * alpha,
+      const NucleicAlphabet* alpha,
       double beta = 1.,
       double gamma = 1.,
       double delta = 1.,
@@ -131,5 +131,5 @@ public:
 
 } //end of namespace bpp.
 
-#endif	//_L95_H_
+#endif	//L95_H__
 

@@ -87,7 +87,7 @@ namespace bpp
 class RNonHomogeneousTreeLikelihood :
 	public AbstractNonHomogeneousTreeLikelihood
 {
-	protected:
+	private:
 
 		mutable DRASRTreeLikelihoodData* likelihoodData_;
     double minusLogLik_;

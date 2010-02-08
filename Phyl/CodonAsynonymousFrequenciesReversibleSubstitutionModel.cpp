@@ -44,11 +44,18 @@ using namespace std;
 
 /******************************************************************************/
 
-CodonAsynonymousFrequenciesReversibleSubstitutionModel::CodonAsynonymousFrequenciesReversibleSubstitutionModel(const GeneticCode* palph,
-                                                                                                               FrequenciesSet* pfreq,
-                                                                                                               const AlphabetIndex2<double>* pdist) throw(Exception) : AbstractCodonFrequenciesReversibleSubstitutionModel((CodonAlphabet*)palph->getSourceAlphabet(), pfreq, "CodonAsynonymousFrequencies."), _geneticCode(palph), _pdistance(pdist)
+CodonAsynonymousFrequenciesReversibleSubstitutionModel::CodonAsynonymousFrequenciesReversibleSubstitutionModel(
+    const GeneticCode* palph,
+    FrequenciesSet* pfreq,
+    const AlphabetIndex2<double>* pdist) throw(Exception) :
+  AbstractCodonFrequenciesReversibleSubstitutionModel(
+      dynamic_cast<const CodonAlphabet*>(palph->getSourceAlphabet()),
+      pfreq,
+      "CodonAsynonymousFrequencies."),
+  geneticCode_(palph),
+  pdistance_(pdist)
 {
-  if (_pdistance)
+  if (pdistance_)
     addParameter_(Parameter("CodonAsynonymousFrequencies.alpha",10000,&Parameter::R_PLUS_STAR));
   
   addParameter_(Parameter("CodonAsynonymousFrequencies.beta",1,&Parameter::R_PLUS_STAR));
@@ -64,9 +71,9 @@ void CodonAsynonymousFrequenciesReversibleSubstitutionModel::completeMatrices()
 {
   unsigned int i, j;
   unsigned int salph = getNumberOfStates();
-  double alpha = _pdistance ? getParameterValue("alpha") : 1;
+  double alpha = pdistance_ ? getParameterValue("alpha") : 1;
   double beta = getParameterValue("beta");
-  const CodonAlphabet* ca = dynamic_cast<const CodonAlphabet*>(_geneticCode->getSourceAlphabet());
+  const CodonAlphabet* ca = dynamic_cast<const CodonAlphabet*>(geneticCode_->getSourceAlphabet());
   
   for (i = 0; i < salph; i++)
   {
@@ -81,10 +88,10 @@ void CodonAsynonymousFrequenciesReversibleSubstitutionModel::completeMatrices()
         }
         else
         {
-          if (! _geneticCode->areSynonymous(i,j))
+          if (! geneticCode_->areSynonymous(i,j))
           {
-            generator_(i,j) *= beta * (_pdistance ? exp(-_pdistance->getIndex(_geneticCode->translate(i), _geneticCode->translate(j)) / alpha) : 1);
-            exchangeability_(i,j) *= beta * (_pdistance ? exp(-_pdistance->getIndex(_geneticCode->translate(i), _geneticCode->translate(j)) / alpha) : 1);
+            generator_(i,j) *= beta * (pdistance_ ? exp(-pdistance_->getIndex(geneticCode_->translate(i), geneticCode_->translate(j)) / alpha) : 1);
+            exchangeability_(i,j) *= beta * (pdistance_ ? exp(-pdistance_->getIndex(geneticCode_->translate(i), geneticCode_->translate(j)) / alpha) : 1);
           }
         }
       }
@@ -94,8 +101,3 @@ void CodonAsynonymousFrequenciesReversibleSubstitutionModel::completeMatrices()
   AbstractCodonFrequenciesReversibleSubstitutionModel::completeMatrices();
 }
 
-
-const GeneticCode* CodonAsynonymousFrequenciesReversibleSubstitutionModel::getGeneticCode()
-{
-  return _geneticCode;
-}

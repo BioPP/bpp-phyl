@@ -37,8 +37,8 @@ The fact that you are presently reading this means that you have had
 knowledge of the CeCILL license and that you accept its terms.
 */
 
-#ifndef _K80_H_
-#define _K80_H_
+#ifndef K80_H__
+#define K80_H__
 
 
 #include "NucleotideSubstitutionModel.h"
@@ -142,18 +142,18 @@ namespace bpp
  * \endcode
  * 
  * Reference:
- * - Kimura M (1980), _Journal Of Molecular Evolution_ 16(2) 111-20. 
+ * - Kimura M (1980), Journal_ Of Molecular Evolution_ 16(2) 111-20. 
  */
 class K80:
-  public NucleotideSubstitutionModel
+  public virtual NucleotideSubstitutionModel
 {
-  protected:
-    double _kappa, _r;
-    mutable double _l, _k, _exp1, _exp2;
-    mutable RowMatrix<double> _p;
+  private:
+    double kappa_, r_;
+    mutable double l_, k_, exp1_, exp2_;
+    mutable RowMatrix<double> p_;
 
 	public:
-		K80(const NucleicAlphabet * alpha, double kappa = 1.);
+		K80(const NucleicAlphabet* alpha, double kappa = 1.);
 
     virtual ~K80() {}
 
@@ -190,5 +190,5 @@ class K80:
 
 } //end of namespace bpp.
 
-#endif	//_K80_H_
+#endif	//K80_H__
 

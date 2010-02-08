@@ -73,7 +73,7 @@ template<class NodeInfos>
 class NodeTemplate : public Node
 {
 	
-	protected:
+	private:
 
 		NodeInfos infos_;
 
@@ -82,29 +82,29 @@ class NodeTemplate : public Node
 		/**	
 		 * @brief Build a new void NodeTemplate object.
 		 */
-		NodeTemplate() : Node() {}
+		NodeTemplate() : Node(), infos_() {}
 			
 		/**
 		 * @brief Build a new NodeTemplate with specified id.
 		 */
-		NodeTemplate(int id) : Node(id) {}
+		NodeTemplate(int id) : Node(id), infos_() {}
 
 		/**
 		 * @brief Build a new NodeTemplate with specified name.
 		 */
-		NodeTemplate(const std::string& name) : Node(name) {}
+		NodeTemplate(const std::string& name) : Node(name), infos_() {}
 
 		/**
 		 * @brief Build a new NodeTemplate with specified id and name.
 		 */
-		NodeTemplate(int id, const std::string& name) : Node(id, name) {}
+		NodeTemplate(int id, const std::string& name) : Node(id, name), infos_() {}
 
 		/**
 		 * @brief Copy constructor.
 		 * 
 		 * @param node The node to copy.
 		 */
-		NodeTemplate(const Node& node) : Node(node) {}
+		NodeTemplate(const Node& node) : Node(node), infos_() {}
 
 		/**
 		 * @brief Copy constructor.
@@ -112,10 +112,8 @@ class NodeTemplate : public Node
 		 * @param node The node to copy.
 		 */
 		NodeTemplate(const NodeTemplate<NodeInfos>& node):
-      Node(node)
-		{
-			infos_ = node.infos_;
-		}
+      Node(node), infos_(node.infos_)
+    {}
 
 		/**
 		 * @brief Assignation operator.

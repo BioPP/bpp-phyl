@@ -55,18 +55,37 @@ namespace bpp
  * Mol Biol Evol. 2005 Sep;22(9):1919-28.
  */
 class AnalyticalSubstitutionCount:
-  public SubstitutionCount
+  public virtual SubstitutionCount
 {
 	private:
 		const SubstitutionModel* model_;
-		int cuttOff_;
+		int cutOff_;
 		mutable double currentLength_;
 		mutable RowMatrix<double> m_;
 	
 	public:
 		AnalyticalSubstitutionCount(const SubstitutionModel* model, int cutOff) :
-      model_(model), cuttOff_(cuttOff_), currentLength_(-1), m_(model->getNumberOfStates(), model->getNumberOfStates())
+      model_        (model),
+      cutOff_       (cutOff),
+      currentLength_(-1),
+      m_            (model->getNumberOfStates(), model->getNumberOfStates())
     {}
+	
+    AnalyticalSubstitutionCount(const AnalyticalSubstitutionCount& asc) :
+      model_        (asc.model_),
+      cutOff_       (asc.cutOff_),
+      currentLength_(asc.currentLength_),
+      m_            (asc.m_)
+    {}
+				
+	  AnalyticalSubstitutionCount& operator=(const AnalyticalSubstitutionCount& asc)
+    {
+      model_         = asc.model_;
+      cutOff_        = asc.cutOff_;
+      currentLength_ = asc.currentLength_;
+      m_             = asc.m_;
+      return *this;
+    }
 				
 		virtual ~AnalyticalSubstitutionCount() {}
 			

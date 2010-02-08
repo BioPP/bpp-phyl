@@ -61,9 +61,9 @@ namespace bpp
 class TreeLikelihoodNodeData:
   public virtual Clonable
 {
-	public:
-		TreeLikelihoodNodeData() {}
-		virtual ~TreeLikelihoodNodeData() {}
+  public:
+    TreeLikelihoodNodeData() {}
+    virtual ~TreeLikelihoodNodeData() {}
 
 #ifndef NO_VIRTUAL_COV
     TreeLikelihoodNodeData*
@@ -72,13 +72,13 @@ class TreeLikelihoodNodeData:
 #endif
     clone() const = 0;
 
-	public:
-		/**
-		 * @brief Get the node associated to this data structure.
-		 *
-		 * @return The node associated to this structure.
-		 */
-		virtual const Node* getNode() const = 0;
+  public:
+    /**
+     * @brief Get the node associated to this data structure.
+     *
+     * @return The node associated to this structure.
+     */
+    virtual const Node* getNode() const = 0;
 
     /**
      * @brief Set the node associated to this data
@@ -102,33 +102,21 @@ class TreeLikelihoodNodeData:
 class TreeLikelihoodData:
   public virtual Clonable
 {
-	public:
-		TreeLikelihoodData() {}
-		virtual ~TreeLikelihoodData() {}
+  public:
+    TreeLikelihoodData() {}
+    virtual ~TreeLikelihoodData() {}
     
 #ifndef NO_VIRTUAL_COV
     TreeLikelihoodData* clone() const = 0;
 #endif
 
-	public:
-		virtual const Alphabet* getAlphabet() const = 0;
-		virtual const TreeTemplate<Node>* getTree() const = 0;
-		virtual TreeTemplate<Node>* getTree() = 0;
-    /**
-     * @brief Set the tree associated to the data.
-     *
-     * A pointer toward this tree be created and associated to this data.
-     * All node dat will be actualized accordingly by calling the setNode() method on the corresponding nodes.
-     * @warning: the old tree and the new tree must be two clones! And particularly, they have to share the
-     * same topology and nodes id.
-     *
-     * @param tree The tree to be associated to this data.
-     */
-    virtual void setTree(TreeTemplate<Node>& tree) = 0;
-		virtual unsigned int getArrayPosition(int parentId, int sonId, unsigned int currentPosition) const = 0;
-		virtual unsigned int getRootArrayPosition(unsigned int site) const = 0;
-		virtual       TreeLikelihoodNodeData& getNodeData(int nodeId) = 0;
-		virtual const TreeLikelihoodNodeData& getNodeData(int nodeId) const = 0;
+  public:
+    virtual const Alphabet* getAlphabet() const = 0;
+    virtual const TreeTemplate<Node>* getTree() const = 0;
+    virtual unsigned int getArrayPosition(int parentId, int sonId, unsigned int currentPosition) const = 0;
+    virtual unsigned int getRootArrayPosition(unsigned int site) const = 0;
+    virtual       TreeLikelihoodNodeData& getNodeData(int nodeId) = 0;
+    virtual const TreeLikelihoodNodeData& getNodeData(int nodeId) const = 0;
 
     /**
      * @return The number of non redundant patterns.
@@ -148,8 +136,8 @@ class TreeLikelihoodData:
     /**
      * @return The frequency of a given pattern.
      */
-		virtual unsigned int getWeight(unsigned int pos) const = 0;
-		
+    virtual unsigned int getWeight(unsigned int pos) const = 0;
+    
     /**
      * @return Frequencies for each pattern.
      */

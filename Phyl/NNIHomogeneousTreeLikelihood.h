@@ -86,6 +86,31 @@ class BranchLikelihood :
       Parameter p("BrLen", 1, 0);
       addParameter_(p);
     }
+
+    BranchLikelihood(const BranchLikelihood& bl) :
+      AbstractParametrizable(bl),
+      _array1(bl._array1), _array2(bl._array2), _arrayTmp(bl._arrayTmp),
+      _model(bl._model), _rDist(bl._rDist),
+      nbStates_(bl.nbStates_), nbClasses_(bl.nbClasses_),
+      pxy_(bl.pxy_), _lnL(bl._lnL), _weights(bl._weights)
+    {}
+
+    BranchLikelihood& operator=(const BranchLikelihood& bl)
+    {
+      AbstractParametrizable::operator=(bl);
+      _array1 = bl._array1;
+      _array2 = bl._array2;
+      _arrayTmp = bl._arrayTmp;
+      _model = bl._model;
+      _rDist = bl._rDist;
+      nbStates_ = bl.nbStates_;
+      nbClasses_ = bl.nbClasses_;
+      pxy_ =bl.pxy_;
+      _lnL = bl._lnL;
+      _weights = bl._weights;
+      return *this;
+    }
+
     virtual ~BranchLikelihood() {}
 
     BranchLikelihood* clone() const { return new BranchLikelihood(*this); }
@@ -112,8 +137,6 @@ class BranchLikelihood :
     void setParameters(const ParameterList &parameters)
       throw (ParameterNotFoundException, ConstraintException)
     {
-      //parameters_.setParametersValues(parameters);
-      //fireParameterChanged(parameters);
       setParametersValues(parameters);
     }
 
@@ -140,11 +163,11 @@ class NNIHomogeneousTreeLikelihood:
   public virtual NNISearchable
 {
   protected:
-    BranchLikelihood * brLikFunction_;
+    BranchLikelihood* brLikFunction_;
     /**
      * @brief Optimizer used for testing NNI.
      */
-    BrentOneDimension * brentOptimizer_;
+    BrentOneDimension* brentOptimizer_;
 
     /**
      * @brief Hash used for backing up branch lengths when testing NNIs.
@@ -216,7 +239,7 @@ class NNIHomogeneousTreeLikelihood:
     {
       DRHomogeneousTreeLikelihood::setData(sites);
       if(brLikFunction_) delete brLikFunction_;
-      brLikFunction_ = new BranchLikelihood(likelihoodData_->getWeights());
+      brLikFunction_ = new BranchLikelihood(getLikelihoodData()->getWeights());
     }
 
     /**
@@ -240,17 +263,18 @@ class NNIHomogeneousTreeLikelihood:
 
     void topologyChangeTested(const TopologyChangeEvent& event)
     {
-      likelihoodData_->reInit();
+      getLikelihoodData()->reInit();
       //if(brLenNNIParams_.size() > 0)
       fireParameterChanged(brLenNNIParams_);
       brLenNNIParams_.reset();
     }
+    
     void topologyChangeSuccessful(const TopologyChangeEvent & event)
     {
       brLenNNIValues_.clear();
     }
     /** @} */
-    
+
 };
 
 } //end of namespace bpp.

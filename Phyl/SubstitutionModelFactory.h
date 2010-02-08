@@ -88,6 +88,15 @@ class SubstitutionModelFactory
      * @endcode
      */
     SubstitutionModelFactory(const Alphabet* alphabet): alphabet_(alphabet) {}
+    
+    SubstitutionModelFactory(const SubstitutionModelFactory& smf) : alphabet_(smf.alphabet_) {}
+    
+    SubstitutionModelFactory& operator=(const SubstitutionModelFactory& smf)
+    {
+      alphabet_ = smf.alphabet_;
+      return *this;
+    }
+    
     virtual ~SubstitutionModelFactory() {}
 
   public:

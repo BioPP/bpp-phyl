@@ -37,8 +37,8 @@ The fact that you are presently reading this means that you have had
 knowledge of the CeCILL license and that you accept its terms.
 */
 
-#ifndef _TN93_H_
-#define _TN93_H_
+#ifndef TN93_H__
+#define TN93_H__
 
 #include "NucleotideSubstitutionModel.h"
 
@@ -125,15 +125,15 @@ namespace bpp
  * for instance.
  *
  * Reference:
- * - Tamura N and Nei K (1993), _Molecular Biology And Evolution_ 10(3) 512-26. 
+ * - Tamura N and Nei K (1993), Molecular_ Biology And Evolution_ 10(3) 512-26. 
  */
 class TN93:
-  public NucleotideSubstitutionModel
+  public virtual NucleotideSubstitutionModel
 {
-	protected:
-    double _kappa1, _kappa2, _piA, _piC, _piG, _piT, _piY, _piR, _r, _k1, _k2, _theta, _theta1, _theta2;
-    mutable double _exp1, _exp21, _exp22, _l;
-    mutable RowMatrix<double> _p;
+	private:
+    double kappa1_, kappa2_, piA_, piC_, piG_, piT_, piY_, piR_, r_, k1_, k2_, theta_, theta1_, theta2_;
+    mutable double exp1_, exp21_, exp22_, l_;
+    mutable RowMatrix<double> p_;
 
 	public:
 		TN93(
@@ -159,9 +159,9 @@ class TN93:
 		double Pij_t    (int i, int j, double d) const;
 		double dPij_dt  (int i, int j, double d) const;
 		double d2Pij_dt2(int i, int j, double d) const;
-		const Matrix<double> & getPij_t    (double d) const;
-		const Matrix<double> & getdPij_dt  (double d) const;
-		const Matrix<double> & getd2Pij_dt2(double d) const;
+		const Matrix<double>& getPij_t    (double d) const;
+		const Matrix<double>& getdPij_dt  (double d) const;
+		const Matrix<double>& getd2Pij_dt2(double d) const;
 
     std::string getName() const { return "TN93"; }
 	
@@ -176,5 +176,5 @@ class TN93:
 
 } //end of namespace bpp.
 
-#endif	//_TN93_H_
+#endif	//TN93_H__
 

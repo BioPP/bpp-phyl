@@ -63,7 +63,7 @@ namespace bpp
  * @brief Listener used internally by the optimizeTreeNNI method.
  */
 class NNITopologyListener:
-  public TopologyListener
+  public virtual TopologyListener
 {
   private:
     NNITopologySearch* topoSearch_;
@@ -107,6 +107,36 @@ class NNITopologyListener:
       verbose_(verbose),
       optimizeCounter_(0), optimizeNumerical_(1),
       optMethod_(optMethod), nStep_(nStep) {}
+
+    NNITopologyListener(const NNITopologyListener& tl) :
+      topoSearch_(tl.topoSearch_),
+      parameters_(tl.parameters_),
+      tolerance_(tl.tolerance_),
+      messenger_(tl.messenger_),
+      profiler_(tl.profiler_),
+      verbose_(tl.verbose_),
+      optimizeCounter_(tl.optimizeCounter_),
+      optimizeNumerical_(tl.optimizeNumerical_),
+      optMethod_(tl.optMethod_),
+      nStep_(tl.nStep_)
+    {}
+
+    NNITopologyListener& operator=(const NNITopologyListener& tl)
+    {
+      topoSearch_        = tl.topoSearch_;
+      parameters_        = tl.parameters_;
+      tolerance_         = tl.tolerance_;
+      messenger_         = tl.messenger_;
+      profiler_          = tl.profiler_;
+      verbose_           = tl.verbose_;
+      optimizeCounter_   = tl.optimizeCounter_;
+      optimizeNumerical_ = tl.optimizeNumerical_;
+      optMethod_         = tl.optMethod_;
+      nStep_             = tl.nStep_;
+      return *this;
+    }
+
+    NNITopologyListener* clone() const { return new NNITopologyListener(*this); }
 
     virtual ~NNITopologyListener() {}
 
@@ -162,6 +192,34 @@ class NNITopologyListener2:
       verbose_(verbose),
       optimizeCounter_(0), optimizeNumerical_(1),
       optMethod_(optMethod) {}
+
+    NNITopologyListener2(const NNITopologyListener2& tl) :
+      topoSearch_(tl.topoSearch_),
+      parameters_(tl.parameters_),
+      tolerance_(tl.tolerance_),
+      messenger_(tl.messenger_),
+      profiler_(tl.profiler_),
+      verbose_(tl.verbose_),
+      optimizeCounter_(tl.optimizeCounter_),
+      optimizeNumerical_(tl.optimizeNumerical_),
+      optMethod_(tl.optMethod_)
+    {}
+
+    NNITopologyListener2& operator=(const NNITopologyListener2& tl)
+    {
+      topoSearch_        = tl.topoSearch_;
+      parameters_        = tl.parameters_;
+      tolerance_         = tl.tolerance_;
+      messenger_         = tl.messenger_;
+      profiler_          = tl.profiler_;
+      verbose_           = tl.verbose_;
+      optimizeCounter_   = tl.optimizeCounter_;
+      optimizeNumerical_ = tl.optimizeNumerical_;
+      optMethod_         = tl.optMethod_;
+      return *this;
+    }
+
+    NNITopologyListener2* clone() const { return new NNITopologyListener2(*this); }
 
     virtual ~NNITopologyListener2() {}
 
@@ -369,16 +427,28 @@ class OptimizationTools
 	private:
 		
 		class ScaleFunction:
-      public Function,
+      public virtual Function,
       public ParametrizableAdapter
-    {
-				
-			protected:
-				TreeLikelihood * _tl;
-				mutable ParameterList _brLen, _lambda;
+    {				
+			private:
+				TreeLikelihood* tl_;
+				mutable ParameterList brLen_, lambda_;
 				
 			public:
-				ScaleFunction(TreeLikelihood * tl);
+				ScaleFunction(TreeLikelihood* tl);
+				
+        ScaleFunction(const ScaleFunction& sf) :
+          tl_(sf.tl_), brLen_(sf.brLen_), lambda_(sf.lambda_)
+        {}
+
+        ScaleFunction& operator=(const ScaleFunction& sf)
+        {
+          tl_     = sf.tl_;
+          brLen_  = sf.brLen_;
+          lambda_ = sf.lambda_;
+          return *this;
+        }
+
 				virtual ~ScaleFunction();
 
 #ifndef NO_VIRTUAL_COV
@@ -391,15 +461,15 @@ class OptimizationTools
 			public:
 				void setParameters(const ParameterList& lambda) throw (ParameterNotFoundException, ConstraintException);
 				double getValue() const throw (ParameterException);
-				const ParameterList & getParameters() const throw (Exception) { return _lambda; }
-        const Parameter& getParameter(const std::string & name) const throw (ParameterNotFoundException)
+				const ParameterList& getParameters() const throw (Exception) { return lambda_; }
+        const Parameter& getParameter(const std::string& name) const throw (ParameterNotFoundException)
         {
-          if(name == "lambda") return _lambda[0];
+          if(name == "lambda") return lambda_[0];
           else throw ParameterNotFoundException("ScaleFunction::getParameter.", name);
         }
 				double getParameterValue(const std::string& name) const throw (ParameterNotFoundException)
         {
-          return _lambda.getParameter(name).getValue();
+          return lambda_.getParameter(name).getValue();
         }
 		    unsigned int getNumberOfParameters() const { return 1; }
 		    unsigned int getNumberOfIndependentParameters() const { return 1; }

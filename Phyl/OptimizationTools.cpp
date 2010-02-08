@@ -75,11 +75,12 @@ std::string OptimizationTools::OPTIMIZATION_GRADIENT = "gradient";
 
 /******************************************************************************/
 
-OptimizationTools::ScaleFunction::ScaleFunction(TreeLikelihood* tl): _tl(tl)
+OptimizationTools::ScaleFunction::ScaleFunction(TreeLikelihood* tl) :
+  tl_(tl), brLen_(), lambda_()
 {
   // We work only on the branch lengths:
-  _brLen = tl->getBranchLengthsParameters();
-  _lambda.addParameter(Parameter("scale factor", 1, &Parameter::R_PLUS_STAR)); 
+  brLen_ = tl->getBranchLengthsParameters();
+  lambda_.addParameter(Parameter("scale factor", 1, &Parameter::R_PLUS_STAR)); 
 }
   
 OptimizationTools::ScaleFunction::~ScaleFunction() {}
@@ -88,19 +89,19 @@ void OptimizationTools::ScaleFunction::setParameters(const ParameterList& lambda
 throw (ParameterNotFoundException, ConstraintException)
 {
   if(lambda.size() != 1) throw Exception("OptimizationTools::ScaleFunction::f(). This is a one parameter function!");
-  _lambda.setParametersValues(lambda);
+  lambda_.setParametersValues(lambda);
 }
 
 double OptimizationTools::ScaleFunction::getValue() const
 throw (ParameterException)
 {
   // Scale the tree:
-  ParameterList brLen = _brLen;
+  ParameterList brLen = brLen_;
   for(unsigned int i = 0; i < brLen.size(); i++)
   {
-    brLen[i].setValue(brLen[i].getValue() * _lambda[0].getValue());
+    brLen[i].setValue(brLen[i].getValue() * lambda_[0].getValue());
   }
-  return _tl->f(brLen);
+  return tl_->f(brLen);
 }
 
 /******************************************************************************/
@@ -449,7 +450,7 @@ NNIHomogeneousTreeLikelihood* OptimizationTools::optimizeTreeNNI(
   throw (Exception)
 {
   //Roughly optimize parameter
-  if(optimizeNumFirst)
+  if (optimizeNumFirst)
   {
     OptimizationTools::optimizeNumericalParameters(tl, parameters, NULL, nStep, tolBefore, 1000000, messageHandler, profiler, verbose, optMethod);
   }
@@ -457,7 +458,7 @@ NNIHomogeneousTreeLikelihood* OptimizationTools::optimizeTreeNNI(
   NNITopologySearch topoSearch(*tl, nniMethod, verbose > 2 ? verbose - 2 : 0);
   NNITopologyListener *topoListener = new NNITopologyListener(&topoSearch, parameters, tolDuring, messageHandler, profiler, verbose, optMethod, nStep);
   topoListener->setNumericalOptimizationCounter(numStep);
-  topoSearch.addTopologyListener(*topoListener);
+  topoSearch.addTopologyListener(topoListener);
   topoSearch.search();
   delete topoListener;
   return dynamic_cast<NNIHomogeneousTreeLikelihood *>(topoSearch.getSearchableObject());
@@ -489,7 +490,7 @@ NNIHomogeneousTreeLikelihood* OptimizationTools::optimizeTreeNNI2(
   NNITopologySearch topoSearch(*tl, nniMethod, verbose > 2 ? verbose - 2 : 0);
   NNITopologyListener2 *topoListener = new NNITopologyListener2(&topoSearch, parameters, tolDuring, messageHandler, profiler, verbose, optMethod);
   topoListener->setNumericalOptimizationCounter(numStep);
-  topoSearch.addTopologyListener(*topoListener);
+  topoSearch.addTopologyListener(topoListener);
   topoSearch.search();
   delete topoListener;
   return dynamic_cast<NNIHomogeneousTreeLikelihood *>(topoSearch.getSearchableObject());

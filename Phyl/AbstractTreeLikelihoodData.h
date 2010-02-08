@@ -58,12 +58,12 @@ namespace bpp
  *
  * The compression is achieved by the TreeLikelihood object.
  * The correspondance between sites in the dataset and the arrays in the structures is given
- * by the _rootPatternLinks array: the array indice for site @f$i@f$ if given by:
+ * by the rootPatternLinks_ array: the array indice for site @f$i@f$ if given by:
  * @code
- * _rootPatternLinks[i]
+ * rootPatternLinks_[i]
  * @endcode
  *
- * Finally, the _rootWeights array gives for each array position, the number of sites with this
+ * Finally, the rootWeights_ array gives for each array position, the number of sites with this
  * pattern.
  * The global likelihood is then given by the product of all likelihoods for each array position,
  * weighted by the corresponding number of sites.
@@ -83,44 +83,59 @@ class AbstractTreeLikelihoodData :
 		 * However, if this is not the case, some pointers may point toward the same
 		 * element in the likelihood array.
 		 */
-    std::vector<unsigned int> _rootPatternLinks;
+    std::vector<unsigned int> rootPatternLinks_;
 
 		/**
 		 * @brief The frequency of each site.
 		 */
-    std::vector<unsigned int> _rootWeights;
+    std::vector<unsigned int> rootWeights_;
 
-		TreeTemplate<Node>* _tree;
+		const TreeTemplate<Node>* tree_;
 
-		const Alphabet* _alphabet;
+		const Alphabet* alphabet_;
 
   public:
-		AbstractTreeLikelihoodData():
-      _rootPatternLinks(), _rootWeights(), _tree(0), _alphabet(0) {}
+		AbstractTreeLikelihoodData(const TreeTemplate<Node>* tree):
+      rootPatternLinks_(), rootWeights_(), tree_(tree), alphabet_(0) {}
+
+		AbstractTreeLikelihoodData(const AbstractTreeLikelihoodData& atd) :
+      rootPatternLinks_(atd.rootPatternLinks_),
+      rootWeights_(atd.rootWeights_),
+      tree_(atd.tree_),
+      alphabet_(atd.alphabet_)
+    {}
+
+    AbstractTreeLikelihoodData& operator=(const AbstractTreeLikelihoodData& atd)
+    {
+      rootPatternLinks_ = atd.rootPatternLinks_;
+      rootWeights_      = atd.rootWeights_;
+      tree_             = atd.tree_;
+      alphabet_         = atd.alphabet_;
+      return *this;
+    }
+
 
 		virtual ~AbstractTreeLikelihoodData() {}
 
 	public:
-    std::vector<unsigned int>& getRootArrayPositions() { return _rootPatternLinks; }
-		const std::vector<unsigned int>& getRootArrayPositions() const { return _rootPatternLinks; }
+    std::vector<unsigned int>& getRootArrayPositions() { return rootPatternLinks_; }
+		const std::vector<unsigned int>& getRootArrayPositions() const { return rootPatternLinks_; }
 		unsigned int getRootArrayPosition(const unsigned int site) const
 		{
-			return _rootPatternLinks[site];
+			return rootPatternLinks_[site];
 		}
 		unsigned int getWeight(unsigned int pos) const
 		{
-			return _rootWeights[pos];
+			return rootWeights_[pos];
 		}
 		const std::vector<unsigned int>& getWeights() const
 		{ 
-			return _rootWeights;
+			return rootWeights_;
 		}
 
-		const Alphabet* getAlphabet() const { return _alphabet; }
+		const Alphabet* getAlphabet() const { return alphabet_; }
 
-		const TreeTemplate<Node>* getTree() const { return _tree; }  
-		      TreeTemplate<Node>* getTree()       { return _tree; }
-
+		const TreeTemplate<Node>* getTree() const { return tree_; }  
 
 };
 

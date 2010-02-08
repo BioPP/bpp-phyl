@@ -39,8 +39,8 @@ The fact that you are presently reading this means that you have had
 knowledge of the CeCILL license and that you accept its terms.
 */
 
-#ifndef _DETAILEDSITESIMULATOR_H_
-#define _DETAILEDSITESIMULATOR_H_
+#ifndef DETAILEDSITESIMULATOR_H__
+#define DETAILEDSITESIMULATOR_H__
 
 #include "SiteSimulator.h"
 #include "TreeTemplate.h"
@@ -61,23 +61,48 @@ namespace bpp
 class SiteSimulationResult
 {
   private:
-    mutable std::map<int, unsigned int> _indexes;
-    unsigned int _currentIndex;
-    std::vector<MutationPath> _paths;
-    std::vector<int> _ancestralStates;
-    const Tree* _tree;
-    std::vector<int> _leavesId;
-    const Alphabet* _alphabet;
+    mutable std::map<int, unsigned int> indexes_;
+    unsigned int currentIndex_;
+    std::vector<MutationPath> paths_;
+    std::vector<int> ancestralStates_;
+    const Tree* tree_;
+    std::vector<int> leavesId_;
+    const Alphabet* alphabet_;
     
   public:
-    SiteSimulationResult(const Tree * tree, const Alphabet * alphabet, int ancestralState):
-      _currentIndex(0)
+    SiteSimulationResult(const Tree* tree, const Alphabet* alphabet, int ancestralState) :
+      indexes_        (),
+      currentIndex_   (0),
+      paths_          (),
+      ancestralStates_(),
+      tree_           (tree),
+      leavesId_       (tree->getLeavesId()),
+      alphabet_       (alphabet)
     {
-      _tree = tree;
-      _alphabet = alphabet;
-      _indexes[tree->getRootId()] = 0;
-      _ancestralStates.push_back(ancestralState);
-      _leavesId = tree->getLeavesId();
+      indexes_[tree->getRootId()] = 0;
+      ancestralStates_.push_back(ancestralState);
+    }
+
+    SiteSimulationResult(const SiteSimulationResult& ssr) :
+      indexes_        (ssr.indexes_),
+      currentIndex_   (ssr.currentIndex_),
+      paths_          (ssr.paths_),
+      ancestralStates_(ssr.ancestralStates_),
+      tree_           (ssr.tree_),
+      leavesId_       (ssr.leavesId_),
+      alphabet_       (ssr.alphabet_)
+    {}
+ 
+    SiteSimulationResult& operator=(const SiteSimulationResult& ssr)
+    {
+      indexes_         = ssr.indexes_;
+      currentIndex_    = ssr.currentIndex_;
+      paths_           = ssr.paths_;
+      ancestralStates_ = ssr.ancestralStates_;
+      tree_            = ssr.tree_;
+      leavesId_        = ssr.leavesId_;
+      alphabet_        = ssr.alphabet_;
+      return *this;
     }
 
     virtual ~SiteSimulationResult() {}
@@ -86,30 +111,30 @@ class SiteSimulationResult
     /**
      * @return The alphabet associated to this simulation.
      */
-    virtual const Alphabet * getAlphabet() const { return _alphabet; }
+    virtual const Alphabet* getAlphabet() const { return alphabet_; }
     
     virtual void addNode(int nodeId, MutationPath path)
     {
-      _currentIndex++;
-      _indexes[nodeId] = _currentIndex;
-      _paths.push_back(path);
-      _ancestralStates.push_back(path.getFinalState());
+      currentIndex_++;
+      indexes_[nodeId] = currentIndex_;
+      paths_.push_back(path);
+      ancestralStates_.push_back(path.getFinalState());
     }
 
-    virtual int getAncestralState(unsigned int i)    const { return _ancestralStates[i]; }
+    virtual int getAncestralState(unsigned int i)    const { return ancestralStates_[i]; }
 
-    virtual int getAncestralState(int nodeId) const { return _ancestralStates[_indexes[nodeId]]; }
+    virtual int getAncestralState(int nodeId) const { return ancestralStates_[indexes_[nodeId]]; }
 
-    virtual unsigned int getSubstitutionCount(unsigned int i) const { return _paths[i].getNumberOfEvents(); }
+    virtual unsigned int getSubstitutionCount(unsigned int i) const { return paths_[i].getNumberOfEvents(); }
     
-    virtual unsigned int getSubstitutionCount(int nodeId) const { return _paths[_indexes[nodeId]].getNumberOfEvents(); }
+    virtual unsigned int getSubstitutionCount(int nodeId) const { return paths_[indexes_[nodeId]].getNumberOfEvents(); }
     
     virtual std::vector<double> getSubstitutionVector() const
     {
-      unsigned int n = _paths.size();
+      unsigned int n = paths_.size();
       std::vector<double> counts(n);
       for (unsigned int i = 0; i < n; i++)
-        counts[i] = (double)_paths[i].getNumberOfEvents();
+        counts[i] = (double)paths_[i].getNumberOfEvents();
       return counts;
     }
 
@@ -118,11 +143,11 @@ class SiteSimulationResult
      */
     virtual std::vector<int> getFinalStates() const
     {
-      unsigned int n = _leavesId.size(); 
+      unsigned int n = leavesId_.size(); 
       std::vector<int> states(n);
       for (unsigned int i = 0; i < n; i++)
       {
-        states[i] = _ancestralStates[_indexes[_leavesId[i]]];
+        states[i] = ancestralStates_[indexes_[leavesId_[i]]];
       }
       return states;
     }
@@ -130,18 +155,18 @@ class SiteSimulationResult
     /**
      * @return The site corresponding to this simulation.
      */
-    virtual Site* getSite() const { return new Site(getFinalStates(), _alphabet); }
+    virtual Site* getSite() const { return new Site(getFinalStates(), alphabet_); }
 
     /**
      * @return A vector with the leaves names.
      */
     virtual std::vector<std::string> getLeaveNames() const
     {
-      unsigned int n = _leavesId.size(); 
+      unsigned int n = leavesId_.size(); 
       std::vector<std::string> names(n);
       for(unsigned int i = 0; i < n; i++)
       {
-        names[i] = _tree->getNodeName(_leavesId[i]);
+        names[i] = tree_->getNodeName(leavesId_[i]);
       }
       return names;
     }
@@ -160,12 +185,12 @@ class RASiteSimulationResult:
   public SiteSimulationResult
 {
   protected:
-    double _rate;
+    double rate_;
     
   public:
     RASiteSimulationResult(const Tree* tree, const Alphabet * alphabet, int ancestralState, double rate):
       SiteSimulationResult(tree, alphabet, ancestralState),
-      _rate(rate) {}
+      rate_(rate) {}
 
     virtual ~RASiteSimulationResult() {}
   
@@ -173,7 +198,7 @@ class RASiteSimulationResult:
     /**
      * @return The rate of this simulation.
      */
-    virtual double getRate() const { return _rate; }
+    virtual double getRate() const { return rate_; }
 };
 
 //---------------------------------------------------------------------------
@@ -206,5 +231,5 @@ class DetailedSiteSimulator:
 
 } //end of namespace bpp.
 
-#endif // _DETAILEDSITESIMULATOR_H_
+#endif // DETAILEDSITESIMULATOR_H__
 

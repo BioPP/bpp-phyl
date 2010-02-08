@@ -50,6 +50,10 @@ using namespace std;
 /******************************************************************************/
 
 SitePatterns::SitePatterns(const SiteContainer* sequences, bool own):
+	names_(sequences->getSequencesNames()),
+  sites_(),
+  weights_(),
+  indices_(),
   sequences_(sequences),
   alpha_(sequences->getAlphabet()),
   own_(own)
@@ -66,7 +70,7 @@ SitePatterns::SitePatterns(const SiteContainer* sequences, bool own):
 	}
 
 	// Quick sort according to site contents:
-	sort(ss.begin(), ss.end(), SSComparator());
+	sort(ss.begin(), ss.end());
 	
 	// Now build patterns:
 	SortableSite* ss0 = &ss[0];
@@ -95,7 +99,6 @@ SitePatterns::SitePatterns(const SiteContainer* sequences, bool own):
 		indices_[ssi->originalPosition] = currentPos;
 		previousSite = currentSite;
 	}
-	names_ = sequences->getSequencesNames();
 }
 
 /******************************************************************************/

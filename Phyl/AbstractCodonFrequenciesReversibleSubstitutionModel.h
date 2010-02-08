@@ -87,7 +87,18 @@ public:
                                                       FrequenciesSet* palph,
                                                       const std::string& st) throw(Exception);
   
-  AbstractCodonFrequenciesReversibleSubstitutionModel(const AbstractCodonFrequenciesReversibleSubstitutionModel&);
+  AbstractCodonFrequenciesReversibleSubstitutionModel(const AbstractCodonFrequenciesReversibleSubstitutionModel& wrsm) :
+    AbstractWordReversibleSubstitutionModel(wrsm),
+    pfreqset_(wrsm.pfreqset_->clone())
+  {}
+
+  AbstractCodonFrequenciesReversibleSubstitutionModel& operator=(const AbstractCodonFrequenciesReversibleSubstitutionModel& wrsm)
+  {
+    AbstractWordReversibleSubstitutionModel::operator=(wrsm);
+    if (pfreqset_) delete pfreqset_;
+    pfreqset_ = wrsm.pfreqset_->clone();
+    return *this;
+  }
 
   virtual ~AbstractCodonFrequenciesReversibleSubstitutionModel();
 

@@ -49,58 +49,64 @@ using namespace std;
 
 /******************************************************************************/
 
-DRTreeParsimonyData::DRTreeParsimonyData(const DRTreeParsimonyData & data):
+DRTreeParsimonyData::DRTreeParsimonyData(const DRTreeParsimonyData& data):
   AbstractTreeParsimonyData(data), 
-  _nodeData(data._nodeData),
-  _leafData(data._leafData),
-  _rootBitsets(data._rootBitsets),
-  _rootScores(data._rootScores),
-  _shrunkData(NULL),
-  _nbSites(data._nbSites),
-  _nbStates(data._nbStates),
-  _nbDistinctSites(data._nbDistinctSites)
+  nodeData_(data.nodeData_),
+  leafData_(data.leafData_),
+  rootBitsets_(data.rootBitsets_),
+  rootScores_(data.rootScores_),
+  shrunkData_(0),
+  nbSites_(data.nbSites_),
+  nbStates_(data.nbStates_),
+  nbDistinctSites_(data.nbDistinctSites_)
 {
-  _shrunkData = dynamic_cast<SiteContainer *>(data._shrunkData->clone());
+  if (data.shrunkData_)
+    shrunkData_ = dynamic_cast<SiteContainer *>(data.shrunkData_->clone());
+  else
+    shrunkData_ = 0;
 }
     
 /******************************************************************************/
 
-DRTreeParsimonyData & DRTreeParsimonyData::operator=(const DRTreeParsimonyData & data)
+DRTreeParsimonyData& DRTreeParsimonyData::operator=(const DRTreeParsimonyData& data)
 {
   AbstractTreeParsimonyData::operator=(data);
-  _nodeData        = data._nodeData;
-  _leafData        = data._leafData;
-  _rootBitsets     = data._rootBitsets;
-  _rootScores      = data._rootScores;
-  if(_shrunkData) delete _shrunkData;
-  _shrunkData      = dynamic_cast<SiteContainer *>(data._shrunkData->clone());
-  _nbSites         = data._nbSites;
-  _nbStates        = data._nbStates;
-  _nbDistinctSites = data._nbDistinctSites;
+  nodeData_        = data.nodeData_;
+  leafData_        = data.leafData_;
+  rootBitsets_     = data.rootBitsets_;
+  rootScores_      = data.rootScores_;
+  if (shrunkData_) delete shrunkData_;
+  if (data.shrunkData_)
+    shrunkData_ = dynamic_cast<SiteContainer *>(data.shrunkData_->clone());
+  else
+    shrunkData_ = 0;
+  nbSites_         = data.nbSites_;
+  nbStates_        = data.nbStates_;
+  nbDistinctSites_ = data.nbDistinctSites_;
   return *this;
 }
 
 /******************************************************************************/
 
-void DRTreeParsimonyData::init(const SiteContainer & sites) throw (Exception)
+void DRTreeParsimonyData::init(const SiteContainer& sites) throw (Exception)
 {
-	_nbStates = sites.getAlphabet()->getSize();
- 	_nbSites  = sites.getNumberOfSites();
+	nbStates_         = sites.getAlphabet()->getSize();
+ 	nbSites_          = sites.getNumberOfSites();
 	SitePatterns pattern(&sites);
-	_shrunkData = pattern.getSites();
-	_rootWeights = pattern.getWeights();
-	_rootPatternLinks = pattern.getIndices();
-	_nbDistinctSites = _shrunkData->getNumberOfSites();
+	shrunkData_       = pattern.getSites();
+	rootWeights_      = pattern.getWeights();
+	rootPatternLinks_ = pattern.getIndices();
+	nbDistinctSites_  = shrunkData_->getNumberOfSites();
 		
 	//Init data:
 	// Clone data for more efficiency on sequences access:
-	const SiteContainer * sequences = new AlignedSequenceContainer(* _shrunkData);
-	init(_tree->getRootNode(), *sequences);
+	const SiteContainer* sequences = new AlignedSequenceContainer(*shrunkData_);
+	init(getTreeP_()->getRootNode(), *sequences);
 	delete sequences;
 
 	// Now initialize root arrays:
-	_rootBitsets.resize(_nbDistinctSites);
-	_rootScores.resize(_nbDistinctSites);
+	rootBitsets_.resize(nbDistinctSites_);
+	rootScores_.resize(nbDistinctSites_);
 }
 
 /******************************************************************************/
@@ -108,7 +114,7 @@ void DRTreeParsimonyData::init(const SiteContainer & sites) throw (Exception)
 void DRTreeParsimonyData::init(const Node* node, const SiteContainer& sites) throw (Exception)
 {
 	const Alphabet* alphabet = sites.getAlphabet();
-	if(node->isLeaf())
+	if (node->isLeaf())
   {
 		const Sequence* seq;
 		try
@@ -119,43 +125,42 @@ void DRTreeParsimonyData::init(const Node* node, const SiteContainer& sites) thr
     {
 			throw SequenceNotFoundException("DRTreeParsimonyData:init(node, sites). Leaf name in tree not found in site container: ", (node -> getName()));
 		}
-		DRTreeParsimonyLeafData* leafData    = & _leafData[node->getId()];
-		vector<Bitset>* leafData_bitsets     = & leafData->getBitsetsArray();
+		DRTreeParsimonyLeafData* leafData    = &leafData_[node->getId()];
+		vector<Bitset>* leafData_bitsets     = &leafData->getBitsetsArray();
 		leafData->setNode(node);
 		
-		leafData_bitsets->resize(_nbDistinctSites);
+		leafData_bitsets->resize(nbDistinctSites_);
 		
-		for (unsigned int i = 0; i < _nbDistinctSites; i++)
+		for (unsigned int i = 0; i < nbDistinctSites_; i++)
     {
-			Bitset * leafData_bitsets_i = & (* leafData_bitsets)[i];
-			for(unsigned int s = 0; s < _nbStates; s++)
+			Bitset* leafData_bitsets_i = & (* leafData_bitsets)[i];
+			for (unsigned int s = 0; s < nbStates_; s++)
       {
 				//Leaves bitset are set to 1 if the char correspond to the site in the sequence,
 				//otherwise value set to 0:
 				int state = seq->getValue(i);
 				vector<int> states = alphabet->getAlias(state);
-				for(unsigned int j = 0; j < states.size(); j++)
-					if((int)s == states[j]) (* leafData_bitsets_i)[s].flip();
+				for (unsigned int j = 0; j < states.size(); j++)
+					if ((int)s == states[j]) (*leafData_bitsets_i)[s].flip();
 			}
 		}
-
 	}
   else
   {
-		DRTreeParsimonyNodeData * nodeData = & _nodeData[node->getId()];
+		DRTreeParsimonyNodeData* nodeData = &nodeData_[node->getId()];
 		nodeData->setNode(node);
 		nodeData->eraseNeighborArrays();
 	
 		int nbSons = node->getNumberOfSons();
 	
-		for(int n = (node->hasFather() ? -1 : 0); n < nbSons; n++)
+		for (int n = (node->hasFather() ? -1 : 0); n < nbSons; n++)
     {
-			const Node * neighbor = (* node)[n];
-			vector<Bitset> * neighborData_bitsets       = & nodeData->getBitsetsArrayForNeighbor(neighbor->getId());
-			vector<unsigned int> * neighborData_scores  = & nodeData->getScoresArrayForNeighbor(neighbor->getId());
+			const Node* neighbor = (*node)[n];
+			vector<Bitset>* neighborData_bitsets       = &nodeData->getBitsetsArrayForNeighbor(neighbor->getId());
+			vector<unsigned int>* neighborData_scores  = &nodeData->getScoresArrayForNeighbor(neighbor->getId());
 		
-			neighborData_bitsets->resize(_nbDistinctSites);
-			neighborData_scores->resize(_nbDistinctSites);
+			neighborData_bitsets->resize(nbDistinctSites_);
+			neighborData_scores->resize(nbDistinctSites_);
 		}
 	}
 
@@ -172,7 +177,7 @@ void DRTreeParsimonyData::init(const Node* node, const SiteContainer& sites) thr
 
 void DRTreeParsimonyData::reInit() throw (Exception)
 {
-  reInit(_tree->getRootNode());
+  reInit(getTreeP_()->getRootNode());
 }
 
 /******************************************************************************/
@@ -185,7 +190,7 @@ void DRTreeParsimonyData::reInit(const Node * node) throw (Exception)
 	}
   else
   {
-		DRTreeParsimonyNodeData* nodeData = &_nodeData[node->getId()];
+		DRTreeParsimonyNodeData* nodeData = &nodeData_[node->getId()];
 		nodeData->setNode(node);
 		nodeData->eraseNeighborArrays();
 	
@@ -197,8 +202,8 @@ void DRTreeParsimonyData::reInit(const Node * node) throw (Exception)
 			vector<Bitset> * neighborData_bitsets       = & nodeData->getBitsetsArrayForNeighbor(neighbor->getId());
 			vector<unsigned int> * neighborData_scores  = & nodeData->getScoresArrayForNeighbor(neighbor->getId());
 		
-			neighborData_bitsets->resize(_nbDistinctSites);
-			neighborData_scores->resize(_nbDistinctSites);
+			neighborData_bitsets->resize(nbDistinctSites_);
+			neighborData_scores->resize(nbDistinctSites_);
 		}
 	}
 

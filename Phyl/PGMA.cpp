@@ -95,7 +95,7 @@ vector<double> PGMA::computeBranchLengthsForPair(const vector<unsigned int> & pa
 double PGMA::computeDistancesFromPair(const vector<unsigned int> & pair, const vector<double> & branchLengths, unsigned int pos)
 {
 	double w1, w2;
-	if(_weighted) {
+	if(weighted_) {
 		w1 = 1;
 		w2 = 1;
 	} else {
@@ -107,8 +107,8 @@ double PGMA::computeDistancesFromPair(const vector<unsigned int> & pair, const v
 
 void PGMA::finalStep(int idRoot)
 {
-	NodeTemplate<PGMAInfos> * root = new NodeTemplate<PGMAInfos>(idRoot);
-	map<unsigned int, Node * >::iterator it = currentNodes_.begin();
+	NodeTemplate<PGMAInfos>* root = new NodeTemplate<PGMAInfos>(idRoot);
+	map<unsigned int, Node*>::iterator it = currentNodes_.begin();
 	unsigned int i1 = it->first;
 	Node* n1        = it->second;
 	it++;
@@ -122,7 +122,7 @@ void PGMA::finalStep(int idRoot)
 	tree_ = new TreeTemplate<NodeTemplate<PGMAInfos> >(root);
 }
 
-Node * PGMA::getLeafNode(int id, const string & name)
+Node* PGMA::getLeafNode(int id, const string& name)
 {
 	PGMAInfos infos;
 	infos.numberOfLeaves = 1;
@@ -132,7 +132,7 @@ Node * PGMA::getLeafNode(int id, const string & name)
 	return leaf;
 }
 
-Node * PGMA::getParentNode(int id, Node * son1, Node * son2)
+Node* PGMA::getParentNode(int id, Node* son1, Node* son2)
 {
 	PGMAInfos infos;
 	infos.numberOfLeaves = 

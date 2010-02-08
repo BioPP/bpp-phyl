@@ -73,6 +73,9 @@ class StringAndInt
   public:
     unsigned int ind;
     string str;
+
+  public:
+    StringAndInt() : ind(0), str() {}
 };
 
 bool operator < (StringAndInt sai1, StringAndInt sai2)
@@ -100,7 +103,9 @@ bool operator < (IntAndInt iai1, IntAndInt iai2)
 
 /******************************************************************************/
 
-BipartitionList::BipartitionList(const Tree& tr, bool sorted, vector<int>* index):
+BipartitionList::BipartitionList(const Tree& tr, bool sorted, std::vector<int>* index) :
+  bitBipartitionList_(),
+  elements_(),
   sorted_(sorted)
 {
   unsigned int nbbip;
@@ -145,13 +150,18 @@ BipartitionList::BipartitionList(const Tree& tr, bool sorted, vector<int>* index
 
 /******************************************************************************/
 
-BipartitionList::BipartitionList(const vector<string>& elements, const vector<int*>& bitBipL)
+BipartitionList::BipartitionList(
+    const std::vector<std::string>& elements,
+    const std::vector<int*>& bitBipL) :
+  bitBipartitionList_(),
+  elements_(elements),
+  sorted_()
 {
   unsigned int lword  = BipartitionTools::LWORD;
   unsigned int nbword = (elements.size() + lword - 1) / lword;
   unsigned int nbint  = nbword * lword / (CHAR_BIT * sizeof(int));
 
-  for(unsigned int i = 0; i < bitBipL.size(); i++)
+  for (unsigned int i = 0; i < bitBipL.size(); i++ )
   {
     bitBipartitionList_.push_back(new int[nbint]);
     for(unsigned int j = 0; j < nbint; j++)
@@ -160,60 +170,60 @@ BipartitionList::BipartitionList(const vector<string>& elements, const vector<in
     }
   }
 
-  elements_ = elements;
-
   vector<string> cpelements_ = elements;
   std::sort(cpelements_.begin(), cpelements_.end());
-  if(cpelements_ == elements) sorted_=true; else sorted_=false;
+  if (cpelements_ == elements)
+    sorted_ = true;
+  else
+    sorted_ = false;
 }
 
 /******************************************************************************/
 
-BipartitionList::BipartitionList(const BipartitionList& bipL)
+BipartitionList::BipartitionList(const BipartitionList& bipL) :
+  bitBipartitionList_(),
+  elements_(bipL.elements_),
+  sorted_(bipL.sorted_)
 {
-
   unsigned int lword  = BipartitionTools::LWORD;
   unsigned int nbword = (bipL.getNumberOfElements() + lword - 1) / lword;
   unsigned int nbint  = nbword * lword / (CHAR_BIT * sizeof(int));
 
   bitBipartitionList_.resize(bipL.getNumberOfBipartitions());
   vector<int*> bitBipL = bipL.getBitBipartitionList();
-  for(unsigned int i = 0; i < bipL.getNumberOfBipartitions(); i++)
+  for (unsigned int i = 0; i < bipL.getNumberOfBipartitions(); i++)
   {
     bitBipartitionList_[i] = new int[nbint];
-    for(unsigned int j = 0; j < nbint; j++)
+    for (unsigned int j = 0; j < nbint; j++)
     {
       bitBipartitionList_[i][j] = bitBipL[i][j];
     }
   }
-
-  elements_ = bipL.elements_;
-  sorted_ = bipL.sorted_;
 }
 
 /******************************************************************************/
 
-BipartitionList & BipartitionList::operator=(const BipartitionList& bipL)
+BipartitionList& BipartitionList::operator=(const BipartitionList& bipL)
 {
   unsigned int lword  = BipartitionTools::LWORD;
   unsigned int nbword = (bipL.getNumberOfElements() + lword - 1) / lword;
   unsigned int nbint  = nbword * lword / (CHAR_BIT * sizeof(int));
 
-  for(unsigned int i = 0; i < bitBipartitionList_.size(); i++)
+  for (unsigned int i = 0; i < bitBipartitionList_.size(); i++)
     delete[] bitBipartitionList_[i];
   bitBipartitionList_.resize(bipL.getNumberOfBipartitions());
   vector<int*> bitBipL = bipL.getBitBipartitionList();
-  for(unsigned int i = 0; i < bipL.getNumberOfBipartitions(); i++)
+  for (unsigned int i = 0; i < bipL.getNumberOfBipartitions(); i++)
   {
     bitBipartitionList_[i] = new int[nbint];
-    for(unsigned int j = 0; j < nbint; j++)
+    for (unsigned int j = 0; j < nbint; j++)
     {
       bitBipartitionList_[i][j] = bitBipL[i][j];
     }
   }
 
   elements_ = bipL.elements_;
-  sorted_ = bipL.sorted_;
+  sorted_   = bipL.sorted_;
   return *this;
 }
 

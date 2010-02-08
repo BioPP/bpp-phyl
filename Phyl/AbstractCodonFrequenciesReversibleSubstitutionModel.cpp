@@ -47,25 +47,27 @@ using namespace std;
 
 /******************************************************************************/
 
-AbstractCodonFrequenciesReversibleSubstitutionModel::AbstractCodonFrequenciesReversibleSubstitutionModel(const CodonAlphabet* palph,
-                                                                                                         FrequenciesSet* pfreq,
-                                                                                                         const std::string& st) throw (Exception) : AbstractWordReversibleSubstitutionModel(palph,st),
+AbstractCodonFrequenciesReversibleSubstitutionModel::AbstractCodonFrequenciesReversibleSubstitutionModel(
+    const CodonAlphabet* palph,
+    FrequenciesSet* pfreq,
+    const std::string& st) throw (Exception) :
+  AbstractWordReversibleSubstitutionModel(palph,st),
   pfreqset_(pfreq)
 {
   enableEigenDecomposition(1);
 
-  _rate = new double[3];
+  rate_.resize(3);
 
   SubstitutionModel* pmodel = new K80(palph->getNucleicAlphabet());
 
   for (unsigned i = 0; i < 3; i++)
   {
-    _VSubMod.push_back(pmodel);
-    _VnestedPrefix.push_back(pmodel->getNamespace());
-    _rate[i] = 1.0 / 3;
+    VSubMod_.push_back(pmodel);
+    VnestedPrefix_.push_back(pmodel->getNamespace());
+    rate_[i] = 1.0 / 3;
   }
 
-  pmodel->setNamespace(st + "012_" + _VnestedPrefix[0]);
+  pmodel->setNamespace(st + "012_" + VnestedPrefix_[0]);
   addParameters_(pmodel->getParameters());
 
   if (pfreqset_->getAlphabet()->getSize() != 64)
@@ -75,12 +77,10 @@ AbstractCodonFrequenciesReversibleSubstitutionModel::AbstractCodonFrequenciesRev
   addParameters_(pfreqset_->getParameters());
 }
 
-AbstractCodonFrequenciesReversibleSubstitutionModel::AbstractCodonFrequenciesReversibleSubstitutionModel(const AbstractCodonFrequenciesReversibleSubstitutionModel& wrsm) : AbstractWordReversibleSubstitutionModel(wrsm),
-  pfreqset_(wrsm.pfreqset_->clone())
-{}
-
 AbstractCodonFrequenciesReversibleSubstitutionModel::~AbstractCodonFrequenciesReversibleSubstitutionModel()
-{}
+{
+  delete pfreqset_;
+}
 
 void AbstractCodonFrequenciesReversibleSubstitutionModel::fireParameterChanged(const ParameterList& parameters)
 {
@@ -110,5 +110,4 @@ void AbstractCodonFrequenciesReversibleSubstitutionModel::completeMatrices()
     }
   }
 }
-
 

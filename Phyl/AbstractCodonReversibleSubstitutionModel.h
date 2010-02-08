@@ -37,8 +37,8 @@ The fact that you are presently reading this means that you have had
 knowledge of the CeCILL license and that you accept its terms.
 */
 
-#ifndef _ABSTRACTCODONREVERSIBLESUBSTITUTIONMODEL_H_
-#define _ABSTRACTCODONREVERSIBLESUBSTITUTIONMODEL_H_
+#ifndef ABSTRACTCODONREVERSIBLESUBSTITUTIONMODEL_H__
+#define ABSTRACTCODONREVERSIBLESUBSTITUTIONMODEL_H__
 
 #include "AbstractWordReversibleSubstitutionModel.h"
 #include "NucleotideSubstitutionModel.h"
@@ -73,14 +73,14 @@ public:
    *a pointer to an AbstractReversibleSubstitutionModel. 
    *
    *@param palph pointer to a CodonAlphabet
-   *@param pmod pointer to the
-   *  AbstractReversibleSubstitutionModel to use in the three positions.
+   *@param pmod pointer to the AbstractReversibleSubstitutionModel to use in the three positions.
    *@param st string of the Namespace
    */
   
-  AbstractCodonReversibleSubstitutionModel(const CodonAlphabet* palph,
-                                            NucleotideSubstitutionModel* pmod,
-                                           const std::string& st);
+  AbstractCodonReversibleSubstitutionModel(
+      const CodonAlphabet* palph,
+      NucleotideSubstitutionModel* pmod,
+      const std::string& st);
   
   /**
    *@brief Build a new AbstractReversibleSubstitutionModel object
@@ -94,11 +94,12 @@ public:
    *@param st string of the Namespace
    */
 
-  AbstractCodonReversibleSubstitutionModel(const CodonAlphabet*,
-                                            NucleotideSubstitutionModel* pmod1,
-                                            NucleotideSubstitutionModel* pmod2,  
-                                            NucleotideSubstitutionModel* pmod3,
-                                           const std::string& st);
+  AbstractCodonReversibleSubstitutionModel(
+      const CodonAlphabet*,
+      NucleotideSubstitutionModel* pmod1,
+      NucleotideSubstitutionModel* pmod2,  
+      NucleotideSubstitutionModel* pmod3,
+      const std::string& st);
 
   virtual ~AbstractCodonReversibleSubstitutionModel() {};  
 };

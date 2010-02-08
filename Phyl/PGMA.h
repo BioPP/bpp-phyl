@@ -37,8 +37,8 @@ The fact that you are presently reading this means that you have had
 knowledge of the CeCILL license and that you accept its terms.
 */
 
-#ifndef _PGMA_H_
-#define _PGMA_H_
+#ifndef PGMA_H__
+#define PGMA_H__
 
 #include "AbstractAgglomerativeDistanceMethod.h"
 #include "Tree.h"
@@ -68,13 +68,13 @@ class PGMA:
   public AbstractAgglomerativeDistanceMethod
 {
 	protected:
-		bool _weighted;
+		bool weighted_;
 		
 	public:
-		PGMA(bool weighted = true): _weighted(weighted) {}
+		PGMA(bool weighted = true): weighted_(weighted) {}
 
 		PGMA(const DistanceMatrix & matrix, bool weighted = true, bool verbose = true) throw (Exception):
-      AbstractAgglomerativeDistanceMethod(matrix, verbose), _weighted(weighted)
+      AbstractAgglomerativeDistanceMethod(matrix, verbose), weighted_(weighted)
 		{
 			computeTree(true);
 		}
@@ -88,8 +88,8 @@ class PGMA:
 
 		TreeTemplate<Node> * getTree() const;
 		
-		void setWeighted(bool weighted) { _weighted = weighted; }
-		bool isWeighted() const { return _weighted; }
+		void setWeighted(bool weighted) { weighted_ = weighted; }
+		bool isWeighted() const { return weighted_; }
 	
 	protected:
     std::vector<unsigned int> getBestPair() throw (Exception);
@@ -103,5 +103,5 @@ class PGMA:
 
 } //end of namespace bpp.
 
-#endif // _PGMA_H_
+#endif // PGMA_H__
 

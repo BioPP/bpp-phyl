@@ -67,19 +67,50 @@ class NNITopologySearch:
 		const static std::string PHYML;
 		
 	private:
-		NNISearchable* _searchableTree;
-    std::string _algorithm;
-		unsigned int _verbose;
-    std::vector<TopologyListener*> _topoListeners;
+		NNISearchable* searchableTree_;
+    std::string algorithm_;
+		unsigned int verbose_;
+    std::vector<TopologyListener*> topoListeners_;
 		
 	public:
 		NNITopologySearch(
         NNISearchable& tree,
         const std::string& algorithm = FAST,
-        unsigned int verbose = 2):
-      _searchableTree(&tree), _algorithm(algorithm), _verbose(verbose) {}
+        unsigned int verbose = 2) :
+      searchableTree_(&tree), algorithm_(algorithm), verbose_(verbose), topoListeners_()
+    {}
 
-		virtual ~NNITopologySearch() {}
+    NNITopologySearch(const NNITopologySearch& ts) :
+      searchableTree_(ts.searchableTree_),
+      algorithm_(ts.algorithm_),
+      verbose_(ts.verbose_),
+      topoListeners_(ts.topoListeners_)
+    {
+      //Hard-copy all listeners:
+      for (unsigned int i = 0; i < topoListeners_.size(); i++)
+        topoListeners_[i] = dynamic_cast<TopologyListener*>(ts.topoListeners_[i]->clone());
+    }
+	
+    NNITopologySearch& operator=(const NNITopologySearch& ts)
+    {
+      searchableTree_ = ts.searchableTree_;
+      algorithm_      = ts.algorithm_;
+      verbose_        = ts.verbose_;
+      topoListeners_  = ts.topoListeners_;
+      //Hard-copy all listeners:
+      for (unsigned int i = 0; i < topoListeners_.size(); i++)
+        topoListeners_[i] = dynamic_cast<TopologyListener*>(ts.topoListeners_[i]->clone());
+      return *this;
+    }
+	
+	
+		virtual ~NNITopologySearch()
+    {
+      for (std::vector <TopologyListener*>::iterator it = topoListeners_.begin();
+           it != topoListeners_.end();
+           it++)
+        delete *it;
+    }
 
 	public:
 		void search() throw (Exception);
@@ -89,10 +120,13 @@ class NNITopologySearch:
      *
      * All listeners will be notified in the order of the list.
      * The first listener to be notified is the NNISearchable object itself.
+     *
+     * The listener will be owned by this instance, and copied when needed.
      */
-    void addTopologyListener(TopologyListener & listener)
+    void addTopologyListener(TopologyListener* listener)
     {
-      _topoListeners.push_back(&listener);
+      if (listener)
+        topoListeners_.push_back(listener);
     }
 
 	public:
@@ -101,16 +135,16 @@ class NNITopologySearch:
 		 *
 		 * @return The tree associated to this instance.
 		 */
-		const Tree& getTopology() const { return _searchableTree->getTopology(); }
+		const Tree& getTopology() const { return searchableTree_->getTopology(); }
 		
     /**
      * @return The NNISearchable object associated to this instance.
      */
-    NNISearchable * getSearchableObject() { return _searchableTree; }
+    NNISearchable* getSearchableObject() { return searchableTree_; }
     /**
      * @return The NNISearchable object associated to this instance.
      */
-    const NNISearchable * getSearchableObject() const { return _searchableTree; }
+    const NNISearchable* getSearchableObject() const { return searchableTree_; }
 
 	protected:
 		void searchFast()   throw (Exception);
@@ -120,15 +154,15 @@ class NNITopologySearch:
     /**
      * @brief Process a TopologyChangeEvent to all listeners.
      */
-    void notifyAllPerformed(const TopologyChangeEvent & event);
+    void notifyAllPerformed(const TopologyChangeEvent& event);
     /**
      * @brief Process a TopologyChangeEvent to all listeners.
      */
-    void notifyAllTested(const TopologyChangeEvent & event);
+    void notifyAllTested(const TopologyChangeEvent& event);
     /**
      * @brief Process a TopologyChangeEvent to all listeners.
      */
-    void notifyAllSuccessful(const TopologyChangeEvent & event);
+    void notifyAllSuccessful(const TopologyChangeEvent& event);
 		
 };
 

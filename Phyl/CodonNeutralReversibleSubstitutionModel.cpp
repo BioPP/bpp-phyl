@@ -76,8 +76,8 @@ CodonNeutralReversibleSubstitutionModel::CodonNeutralReversibleSubstitutionModel
 string CodonNeutralReversibleSubstitutionModel::getName() const
 {
   string s = "CodonNeutralReversibleSubstitutionModel model:";
-  for (unsigned int i = 0; i < _VSubMod.size(); i++)
-    s += " "+ _VSubMod[i]->getName();
+  for (unsigned int i = 0; i < VSubMod_.size(); i++)
+    s += " "+ VSubMod_[i]->getName();
   
   return s;
 }
@@ -100,7 +100,7 @@ void CodonNeutralReversibleSubstitutionModel::completeMatrices()
 
 void CodonNeutralReversibleSubstitutionModel::updateMatrices()
 {
-  int i, nbmod = _VSubMod.size();
+  int i, nbmod = VSubMod_.size();
   double x;
   int k;
   for (k = nbmod - 1; k >= 0; k--)
@@ -110,7 +110,7 @@ void CodonNeutralReversibleSubstitutionModel::updateMatrices()
       x *= 1 - getParameterValue("relrate" + TextTools::toString(i));
     if (k != nbmod - 1)
       x *= getParameterValue("relrate"+TextTools::toString(k));
-    _rate[k] = x;
+    rate_[k] = x;
   }
 
   AbstractCodonReversibleSubstitutionModel::updateMatrices();

@@ -37,8 +37,8 @@ The fact that you are presently reading this means that you have had
 knowledge of the CeCILL license and that you accept its terms.
 */
 
-#ifndef _JCPROT_H_
-#define _JCPROT_H_
+#ifndef JCPROT_H__
+#define JCPROT_H__
 
 #include <Seq/ProteicAlphabet.h>
 #include "ProteinSubstitutionModel.h"
@@ -125,17 +125,17 @@ namespace bpp
  * \f]
  *
  * Reference:
- * - Jukes TH and Cantor CR (1969), _Evolution of proteins molecules_, 121-123, in _Mammalian protein metabolism_. 
+ * - Jukes TH and Cantor CR (1969), Evolution_ of proteins molecules_, 121-123, in Mammalian_ protein metabolism_. 
  */
 class JCprot:
-  public ProteinSubstitutionModel
+  public virtual ProteinSubstitutionModel
 {
-  protected:
-    mutable double _exp;
-    mutable RowMatrix<double> _p;
+  private:
+    mutable double exp_;
+    mutable RowMatrix<double> p_;
 
 	public:
-		JCprot(const ProteicAlphabet * alpha);
+		JCprot(const ProteicAlphabet* alpha);
 
 		virtual ~JCprot() {}
 	
@@ -167,5 +167,5 @@ class JCprot:
 
 } //end of namespace bpp.
 
-#endif	//_JCPROT_H_
+#endif	//JCPROT_H__
 

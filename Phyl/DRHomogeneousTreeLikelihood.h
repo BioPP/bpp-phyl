@@ -66,10 +66,9 @@ class DRHomogeneousTreeLikelihood:
   public AbstractHomogeneousTreeLikelihood,
   public DRTreeLikelihood
 {
-  protected:
+  private:
     mutable DRASDRTreeLikelihoodData* likelihoodData_;
 
-//  private:
     double minusLogLik_;
     
   public:

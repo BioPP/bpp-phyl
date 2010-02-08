@@ -64,7 +64,7 @@ class PseudoNewtonOptimizer:
       public AbstractOptimizationStopCondition
     {
       public:
-        PNStopCondition(PseudoNewtonOptimizer * pno):
+        PNStopCondition(PseudoNewtonOptimizer* pno) :
           AbstractOptimizationStopCondition(pno) {}
         virtual ~PNStopCondition() {}
 
@@ -77,19 +77,17 @@ class PseudoNewtonOptimizer:
    
   friend class PNStopCondition;
          
-	protected:
+	private:
 
-		ParameterList _previousPoint; // Current point is in _parameters
+		ParameterList previousPoint_; // Current point is in _parameters
 
-		double _previousValue;
+		double previousValue_;
 
-		unsigned int _n; // Number of parameters
+		unsigned int n_; // Number of parameters
 
-    std::vector<std::string> _params; // All parameter names
+    std::vector<std::string> params_; // All parameter names
 
-    std::string _mode;
-
-    double _maxCorrection;
+    double maxCorrection_;
 
 	public:
 
@@ -121,7 +119,7 @@ class PseudoNewtonOptimizer:
 
 		double doStep() throw (Exception);
 
-    void setMaximumNumberOfCorrections(unsigned int mx) { _maxCorrection = mx; }
+    void setMaximumNumberOfCorrections(unsigned int mx) { maxCorrection_ = mx; }
 
   protected:
     DerivableSecondOrder* getFunction_()

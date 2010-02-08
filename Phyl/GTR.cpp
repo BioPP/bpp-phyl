@@ -54,80 +54,78 @@ using namespace std;
 /******************************************************************************/
 
 GTR::GTR(
-	const NucleicAlphabet * alpha,
-	double a,
-	double b,
-	double c,
-	double d,
-	double e,
-	double piA,
-	double piC,
-	double piG,
-	double piT):
-	NucleotideSubstitutionModel(alpha, "GTR.")
+    const NucleicAlphabet * alpha,
+    double a,
+    double b,
+    double c,
+    double d,
+    double e,
+    double piA,
+    double piC,
+    double piG,
+    double piT) :
+  NucleotideSubstitutionModel(alpha, "GTR."),
+  a_(a), b_(b), c_(c), d_(d), e_(e), piA_(piA), piC_(piC), piG_(piG), piT_(piT), theta_(piG + piC), theta1_(piA / (1. - theta_)), theta2_(piG / theta_), p_()
 {
-	Parameter aP("GTR.a", a, &Parameter::R_PLUS_STAR);
-	addParameter_(aP);
-	Parameter bP("GTR.b", b, &Parameter::R_PLUS_STAR);
-	addParameter_(bP);
-	Parameter cP("GTR.c", c, &Parameter::R_PLUS_STAR);
-	addParameter_(cP);
-	Parameter dP("GTR.d", d, &Parameter::R_PLUS_STAR);
-	addParameter_(dP);
-	Parameter eP("GTR.e", e, &Parameter::R_PLUS_STAR);
-	addParameter_(eP);
-	_theta = piG + piC;
-  _theta1 = piA / (1. - _theta);
-  _theta2 = piG / _theta;
-	Parameter thetaP("GTR.theta" , _theta , new IncludingInterval(0.001, 0.999), true); //Avoid numerical errors close to the bounds.
-	addParameter_(thetaP);
-	Parameter theta1P("GTR.theta1", _theta1, new IncludingInterval(0.001, 0.999), true);
-	addParameter_(theta1P);
-	Parameter theta2P("GTR.theta2", _theta2, new IncludingInterval(0.001, 0.999), true);
-	addParameter_(theta2P);
-	updateMatrices();
+  Parameter aP("GTR.a", a, &Parameter::R_PLUS_STAR);
+  addParameter_(aP);
+  Parameter bP("GTR.b", b, &Parameter::R_PLUS_STAR);
+  addParameter_(bP);
+  Parameter cP("GTR.c", c, &Parameter::R_PLUS_STAR);
+  addParameter_(cP);
+  Parameter dP("GTR.d", d, &Parameter::R_PLUS_STAR);
+  addParameter_(dP);
+  Parameter eP("GTR.e", e, &Parameter::R_PLUS_STAR);
+  addParameter_(eP);
+  Parameter thetaP("GTR.theta" , theta_ , new IncludingInterval(0.001, 0.999), true); //Avoid numerical errors close to the bounds.
+  addParameter_(thetaP);
+  Parameter theta1P("GTR.theta1", theta1_, new IncludingInterval(0.001, 0.999), true);
+  addParameter_(theta1P);
+  Parameter theta2P("GTR.theta2", theta2_, new IncludingInterval(0.001, 0.999), true);
+  addParameter_(theta2P);
+  updateMatrices();
 }
 
 /******************************************************************************/
-	
+  
 void GTR::updateMatrices()
 {
-	_a = getParameterValue("a");
-	_b = getParameterValue("b");
-	_c = getParameterValue("c");
-	_d = getParameterValue("d");
-	_e = getParameterValue("e");
-	_theta  = getParameterValue("theta");
-	_theta1 = getParameterValue("theta1");
-	_theta2 = getParameterValue("theta2");
-  _piA = _theta1 * (1. - _theta);
-  _piC = (1. - _theta2) * _theta;
-  _piG = _theta2 * _theta;
-  _piT = (1. - _theta1) * (1. - _theta);
-  _p = 2*(_a*_piC*_piT+_b*_piA*_piT+_c*_piG*_piT+_d*_piA*_piC+_e*_piC*_piG+_piA*_piG);
+  a_ = getParameterValue("a");
+  b_ = getParameterValue("b");
+  c_ = getParameterValue("c");
+  d_ = getParameterValue("d");
+  e_ = getParameterValue("e");
+  theta_  = getParameterValue("theta");
+  theta1_ = getParameterValue("theta1");
+  theta2_ = getParameterValue("theta2");
+  piA_ = theta1_ * (1. - theta_);
+  piC_ = (1. - theta2_) * theta_;
+  piG_ = theta2_ * theta_;
+  piT_ = (1. - theta1_) * (1. - theta_);
+  p_ = 2*(a_*piC_*piT_+b_*piA_*piT_+c_*piG_*piT_+d_*piA_*piC_+e_*piC_*piG_+piA_*piG_);
 
-  freq_[0] = _piA;
-  freq_[1] = _piC;
-  freq_[2] = _piG;
-  freq_[3] = _piT;
-	
+  freq_[0] = piA_;
+  freq_[1] = piC_;
+  freq_[2] = piG_;
+  freq_[3] = piT_;
+  
   // Exchangeability matrix:
-	exchangeability_(0,0) = (-_b*_piT-_piG-_d*_piC)/(_piA * _p);
-	exchangeability_(1,0) = _d/_p;
-	exchangeability_(0,1) = _d/_p;
-	exchangeability_(2,0) = 1/_p;
-	exchangeability_(0,2) = 1/_p;
-	exchangeability_(3,0) = _b/_p;
-	exchangeability_(0,3) = _b/_p;
-	exchangeability_(1,1) = (-_a*_piT-_e*_piG-_d*_piA)/(_piC * _p);
-	exchangeability_(1,2) = _e/_p;
-	exchangeability_(2,1) = _e/_p;
-	exchangeability_(1,3) = _a/_p;
-	exchangeability_(3,1) = _a/_p;
-	exchangeability_(2,2) = (-_c*_piT-_e*_piC-_piA)/(_piG * _p);
-	exchangeability_(2,3) = _c/_p;
-	exchangeability_(3,2) = _c/_p;
-	exchangeability_(3,3) = (-_c*_piG-_a*_piC-_b*_piA)/(_piT * _p);
+  exchangeability_(0,0) = (-b_*piT_-piG_-d_*piC_)/(piA_ * p_);
+  exchangeability_(1,0) = d_/p_;
+  exchangeability_(0,1) = d_/p_;
+  exchangeability_(2,0) = 1/p_;
+  exchangeability_(0,2) = 1/p_;
+  exchangeability_(3,0) = b_/p_;
+  exchangeability_(0,3) = b_/p_;
+  exchangeability_(1,1) = (-a_*piT_-e_*piG_-d_*piA_)/(piC_ * p_);
+  exchangeability_(1,2) = e_/p_;
+  exchangeability_(2,1) = e_/p_;
+  exchangeability_(1,3) = a_/p_;
+  exchangeability_(3,1) = a_/p_;
+  exchangeability_(2,2) = (-c_*piT_-e_*piC_-piA_)/(piG_ * p_);
+  exchangeability_(2,3) = c_/p_;
+  exchangeability_(3,2) = c_/p_;
+  exchangeability_(3,3) = (-c_*piG_-a_*piC_-b_*piA_)/(piT_ * p_);
 
   AbstractReversibleSubstitutionModel::updateMatrices();
 }
@@ -136,18 +134,18 @@ void GTR::updateMatrices()
 
 void GTR::setFreq(map<int, double>& freqs)
 {
-  _piA = freqs[0];
-  _piC = freqs[1];
-  _piG = freqs[2];
-  _piT = freqs[3];
+  piA_ = freqs[0];
+  piC_ = freqs[1];
+  piG_ = freqs[2];
+  piT_ = freqs[3];
   vector<string> thetas(3);
   thetas[0] = getNamespace() + "theta";
   thetas[1] = getNamespace() + "theta1";
   thetas[2] = getNamespace() + "theta2";
   ParameterList pl = getParameters().subList(thetas);
-  pl[0].setValue(_piC + _piG);
-  pl[1].setValue(_piA / (_piA + _piT));
-  pl[2].setValue(_piG / (_piC + _piG));
+  pl[0].setValue(piC_ + piG_);
+  pl[1].setValue(piA_ / (piA_ + piT_));
+  pl[2].setValue(piG_ / (piC_ + piG_));
   setParametersValues(pl);
 }
 

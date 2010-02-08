@@ -37,8 +37,8 @@ The fact that you are presently reading this means that you have had
 knowledge of the CeCILL license and that you accept its terms.
 */
 
-#ifndef _JCPROTF_H_
-#define _JCPROTF_H_
+#ifndef JCPROTF_H__
+#define JCPROTF_H__
 
 #include <Seq/ProteicAlphabet.h>
 #include "ProteinSubstitutionModelWithFrequencies.h"
@@ -54,11 +54,11 @@ namespace bpp
  * @see JCprot, ProteinSubstitutionModelWithFrequencies
  */
 class JCprotF:
-  public ProteinSubstitutionModelWithFrequencies
+  public virtual ProteinSubstitutionModelWithFrequencies
 {
-  protected:
-    mutable double _exp;
-    mutable RowMatrix<double> _p;
+  private:
+    mutable double exp_;
+    mutable RowMatrix<double> p_;
 
 	public:
 		JCprotF(const ProteicAlphabet * alpha);
@@ -79,5 +79,5 @@ class JCprotF:
 
 } //end of namespace bpp.
 
-#endif	//_JCPROTF_H_
+#endif	//JCPROTF_H__
 

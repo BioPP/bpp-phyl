@@ -122,7 +122,7 @@ class RE08:
 
     RE08(const RE08& model):
       AbstractReversibleSubstitutionModel(model),
-      simpleModel_(model.simpleModel_->clone()),
+      simpleModel_(dynamic_cast<ReversibleSubstitutionModel*>(model.simpleModel_->clone())),
       simpleGenerator_(model.simpleGenerator_),
       simpleExchangeabilities_(model.simpleExchangeabilities_),
       exp_(model.exp_),
@@ -135,7 +135,7 @@ class RE08:
     RE08& operator=(const RE08& model)
     {
       AbstractReversibleSubstitutionModel::operator=(model);
-      simpleModel_             = dynamic_cast<RE08 *>(model.simpleModel_->clone());
+      simpleModel_             = dynamic_cast<ReversibleSubstitutionModel*>(model.simpleModel_->clone());
       simpleGenerator_         = model.simpleGenerator_;
       simpleExchangeabilities_ = model.simpleExchangeabilities_;
       exp_                     = model.exp_;

@@ -38,8 +38,8 @@ The fact that you are presently reading this means that you have had
 knowledge of the CeCILL license and that you accept its terms.
 */
 
-#ifndef _NONHOMOGENEOUSSEQUENCESIMULATOR_H_
-#define _NONHOMOGENEOUSSEQUENCESIMULATOR_H_
+#ifndef NONHOMOGENEOUSSEQUENCESIMULATOR_H__
+#define NONHOMOGENEOUSSEQUENCESIMULATOR_H__
 
 #include "DetailedSiteSimulator.h"
 #include "SequenceSimulator.h"
@@ -72,6 +72,18 @@ class SimData
     std::vector<int> states;
     VVVdouble cumpxy;
     const SubstitutionModel* model;
+
+  public:
+    SimData(): state(), states(), cumpxy(), model(0) {}
+    SimData(const SimData& sd): state(sd.state), states(sd.states), cumpxy(), model(sd.model) {}
+    SimData& operator=(const SimData& sd)
+    {
+      state  = sd.state;
+      states = sd.states;
+      cumpxy = sd.cumpxy;
+      model  = sd.model;
+      return *this;
+    }
 };
 
 typedef NodeTemplate<SimData> SNode;
@@ -83,29 +95,29 @@ typedef NodeTemplate<SimData> SNode;
  */
 class NonHomogeneousSequenceSimulator:
   public DetailedSiteSimulator,
-  public SequenceSimulator
+  public virtual SequenceSimulator
 {
-	protected:
-		const SubstitutionModelSet *_modelSet;
-		const Alphabet             *_alphabet;
-		const DiscreteDistribution *_rate;
-		const Tree* _templateTree;
-		mutable TreeTemplate<SNode> _tree;
-    bool _ownModelSet;
+	private:
+		const SubstitutionModelSet* modelSet_;
+		const Alphabet            * alphabet_;
+		const DiscreteDistribution* rate_;
+		const Tree                * templateTree_;
+		mutable TreeTemplate<SNode> tree_;
+    bool ownModelSet_;
 	
 		/**
 		 * @brief This stores once for all all leaves in a given order.
 		 * This order will be used during site creation.
 		 */
-    std::vector<SNode*> _leaves;
+    std::vector<SNode*> leaves_;
 	
-    std::vector<std::string> _seqNames;
+    std::vector<std::string> seqNames_;
 
-		unsigned int _nbNodes;
-		unsigned int _nbClasses;
-		unsigned int _nbStates;
+		unsigned int nbNodes_;
+		unsigned int nbClasses_;
+		unsigned int nbStates_;
 
-    bool _continuousRates;
+    bool continuousRates_;
 	
 		/**
 		 * @name Stores intermediate results.
@@ -128,13 +140,45 @@ class NonHomogeneousSequenceSimulator:
 			
 		virtual ~NonHomogeneousSequenceSimulator()
     {
-      if(_ownModelSet && _modelSet != NULL) delete _modelSet;
+      if (ownModelSet_ && modelSet_) delete modelSet_;
+    }
+
+    NonHomogeneousSequenceSimulator(const NonHomogeneousSequenceSimulator& nhss) :
+      modelSet_       (nhss.modelSet_),
+      alphabet_       (nhss.alphabet_),
+      rate_           (nhss.rate_),
+      templateTree_   (nhss.templateTree_),
+      tree_           (nhss.tree_),
+      ownModelSet_    (nhss.ownModelSet_),
+      leaves_         (nhss.leaves_),
+      seqNames_       (nhss.seqNames_),
+      nbNodes_        (nhss.nbNodes_),
+      nbClasses_      (nhss.nbClasses_),
+      nbStates_       (nhss.nbStates_),
+      continuousRates_(nhss.continuousRates_)
+    {}
+
+    NonHomogeneousSequenceSimulator& operator=(const NonHomogeneousSequenceSimulator& nhss)
+    {
+      modelSet_        = nhss.modelSet_;
+      alphabet_        = nhss.alphabet_;
+      rate_            = nhss.rate_;
+      templateTree_    = nhss.templateTree_;
+      tree_            = nhss.tree_;
+      ownModelSet_     = nhss.ownModelSet_;
+      leaves_          = nhss.leaves_;
+      seqNames_        = nhss.seqNames_;
+      nbNodes_         = nhss.nbNodes_;
+      nbClasses_       = nhss.nbClasses_;
+      nbStates_        = nhss.nbStates_;
+      continuousRates_ = nhss.continuousRates_;
+      return *this;
     }
 
 #ifndef NO_VIRTUAL_COV
-    NonHomogeneousSequenceSimulator *
+    NonHomogeneousSequenceSimulator*
 #else
-    Clonable *
+    Clonable*
 #endif
     clone() const { return new NonHomogeneousSequenceSimulator(*this); }
 
@@ -157,7 +201,7 @@ class NonHomogeneousSequenceSimulator:
 		Site* simulate(int ancestralState) const;
 		Site* simulate(int ancestralState, double rate) const;
 		Site* simulate(double rate) const;
-    std::vector<std::string> getSequencesNames() const { return _seqNames; }
+    std::vector<std::string> getSequencesNames() const { return seqNames_; }
 		/** @} */
     
 		/**
@@ -187,7 +231,7 @@ class NonHomogeneousSequenceSimulator:
 		 *
 		 * @{
 		 */
-		const Alphabet* getAlphabet() const { return _alphabet; }
+		const Alphabet* getAlphabet() const { return alphabet_; }
 		/** @} */
 
     /**
@@ -204,7 +248,7 @@ class NonHomogeneousSequenceSimulator:
 		 *
 		 * @return The MutationProcess object associated to this instance.
 		 */
-		const SubstitutionModelSet* getSubstitutionModelSet() const { return _modelSet; }
+		const SubstitutionModelSet* getSubstitutionModelSet() const { return modelSet_; }
 		
 	
 		
@@ -213,14 +257,14 @@ class NonHomogeneousSequenceSimulator:
 		 *
 		 * @return The DiscreteDistribution object associated to this instance.
 		 */
-		const DiscreteDistribution* getRateDistribution() const { return _rate; }
+		const DiscreteDistribution* getRateDistribution() const { return rate_; }
 
 		/**
 		 * @brief Get the tree associated to this instance.
 		 *
 		 * @return The Tree object associated to this instance.
 		 */
-		const Tree* getTree() const { return _templateTree; }
+		const Tree* getTree() const { return templateTree_; }
 
     /**
      * @brief Enable the use of continuous rates instead of discrete rates.
@@ -229,7 +273,7 @@ class NonHomogeneousSequenceSimulator:
      *
      * @param yn Tell if we should use continuous rates.
      */
-    void enableContinuousRates(bool yn) { _continuousRates = yn; }
+    void enableContinuousRates(bool yn) { continuousRates_ = yn; }
 	
 	protected:
 		
@@ -266,20 +310,20 @@ class NonHomogeneousSequenceSimulator:
      */
 
     /**
-     * This method uses the _states variable for saving ancestral states.
+     * This method uses the states_ variable for saving ancestral states.
      */
     void evolveInternal(SNode* node, unsigned int rateClass) const;
     /**
-     * This method uses the _states variable for saving ancestral states.
+     * This method uses the states_ variable for saving ancestral states.
      */
 		void evolveInternal(SNode* node, double rate) const;
     /**
-     * This method uses the _multipleStates variable for saving ancestral states.
+     * This method uses the multipleStates_ variable for saving ancestral states.
      */
  		void multipleEvolveInternal(SNode* node, const std::vector<unsigned int>& rateClasses) const;
 
     /**
-     * This method uses the _states variable for saving ancestral states.
+     * This method uses the states_ variable for saving ancestral states.
      */
 		void dEvolveInternal(SNode * node, double rate, RASiteSimulationResult & rassr) const;
     /** @} */
@@ -288,5 +332,5 @@ class NonHomogeneousSequenceSimulator:
 
 } //end of namespace bpp.
 
-#endif //_NONHOMOGENEOUSSEQUENCESIMULATOR_H_
+#endif //NONHOMOGENEOUSSEQUENCESIMULATOR_H__
 

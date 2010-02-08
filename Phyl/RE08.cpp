@@ -47,9 +47,13 @@ using namespace std;
 
 /******************************************************************************/
 
-RE08::RE08(ReversibleSubstitutionModel *simpleModel, double lambda, double mu):
+RE08::RE08(ReversibleSubstitutionModel *simpleModel, double lambda, double mu) :
   AbstractReversibleSubstitutionModel(simpleModel->getAlphabet(), "RE08."),
-  simpleModel_(simpleModel), lambda_(lambda), mu_(mu), nestedPrefix_("model_" + simpleModel->getNamespace())
+  simpleModel_(simpleModel),
+  simpleGenerator_(),
+  simpleExchangeabilities_(),
+  exp_(), p_(), lambda_(lambda), mu_(mu),
+  nestedPrefix_("model_" + simpleModel->getNamespace())
 {
   Parameter lambdaP("RE08.lambda", lambda, &Parameter::R_PLUS);  
   addParameter_(lambdaP);  

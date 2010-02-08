@@ -703,7 +703,7 @@ class TreeTemplateTools
      * @param tree The tree to use.
      * @return The distance matrix computed from tree.
      */
-    static DistanceMatrix * getDistanceMatrix(const TreeTemplate<Node> & tree);
+    static DistanceMatrix* getDistanceMatrix(const TreeTemplate<Node> & tree);
 
     /** @} */
 
@@ -719,9 +719,13 @@ class TreeTemplateTools
 
     struct Element
     {
-      std::string content;
-      std::string length;
-      std::string bootstrap;
+      public:
+        std::string content;
+        std::string length;
+        std::string bootstrap;
+
+      public:
+        Element() : content(), length(), bootstrap() {}
     };
 
     static Element getElement(const std::string& elt) throw (IOException);
@@ -737,7 +741,7 @@ class TreeTemplateTools
     * @param withId Tells if node ids have been stored in the tree. If set at "true", no bootstrap or property values can be read. Node ids are positioned as bootstrap values for internal nodes, and are concatenated to leaf names after a "_" sign.
      * @return A pointer toward a dynamically created subtree.
      */
-    static Node * parenthesisToNode(const std::string& description, bool bootstrap=true, const std::string& propertyName=TreeTools::BOOTSTRAP, bool withId=false);
+    static Node* parenthesisToNode(const std::string& description, bool bootstrap=true, const std::string& propertyName=TreeTools::BOOTSTRAP, bool withId=false);
   
     /**
      * @brief Parse a string in the parenthesis format and convert it to

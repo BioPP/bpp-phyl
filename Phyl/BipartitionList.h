@@ -86,11 +86,8 @@ template<class N> class TreeTemplate;
 class BipartitionList:
   public virtual Clonable
 {
-  protected:
+  private:
 
-    /**
-     *Fields
-     */
     std::vector<int*> bitBipartitionList_;
     std::vector<std::string> elements_;
     bool sorted_;

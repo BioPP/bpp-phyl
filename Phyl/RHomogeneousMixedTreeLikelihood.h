@@ -62,7 +62,7 @@ class RHomogeneousMixedTreeLikelihood :
   public RHomogeneousTreeLikelihood
 {
 private:
-  std::vector<RHomogeneousTreeLikelihood*> treelikelihoodscontainer_;
+  std::vector<RHomogeneousTreeLikelihood*> treeLikelihoodsContainer_;
 
 public:
   /**

@@ -37,8 +37,8 @@ The fact that you are presently reading this means that you have had
 knowledge of the CeCILL license and that you accept its terms.
 */
 
-#ifndef _F84_H_
-#define _F84_H_
+#ifndef F84_H__
+#define F84_H__
 
 #include "NucleotideSubstitutionModel.h"
 
@@ -176,23 +176,23 @@ namespace bpp
  * - Felsenstein (1984), Phylip version 2.6. 
  */
 class F84:
-  public NucleotideSubstitutionModel
+  public virtual NucleotideSubstitutionModel
 {
-	protected:
-    double _kappa, _piA, _piC, _piG, _piT, _piY, _piR, _r, _k1, _k2, _theta, _theta1, _theta2;
-    mutable double _l, _exp1, _exp2;
-    mutable RowMatrix<double> _p;
+  private:
+    double kappa_, piA_, piC_, piG_, piT_, piY_, piR_, r_, k1_, k2_, theta_, theta1_, theta2_;
+    mutable double l_, exp1_, exp2_;
+    mutable RowMatrix<double> p_;
 
-	public:
-		F84(
-			const NucleicAlphabet * alpha,
-			double kappa = 1.,
-			double piA = 0.25,
-			double piC = 0.25,
-			double piG = 0.25,
-			double piT = 0.25);
-	
-		virtual ~F84() {}
+  public:
+    F84(
+      const NucleicAlphabet * alpha,
+      double kappa = 1.,
+      double piA = 0.25,
+      double piC = 0.25,
+      double piG = 0.25,
+      double piT = 0.25);
+  
+    virtual ~F84() {}
 
 #ifndef NO_VIRTUAL_COV
     F84*
@@ -203,25 +203,25 @@ class F84:
 
   public:
 
-		double Pij_t    (int i, int j, double d) const;
-		double dPij_dt  (int i, int j, double d) const;
-		double d2Pij_dt2(int i, int j, double d) const;
-		const Matrix<double> & getPij_t    (double d) const;
-		const Matrix<double> & getdPij_dt  (double d) const;
-		const Matrix<double> & getd2Pij_dt2(double d) const;
+    double Pij_t    (int i, int j, double d) const;
+    double dPij_dt  (int i, int j, double d) const;
+    double d2Pij_dt2(int i, int j, double d) const;
+    const Matrix<double> & getPij_t    (double d) const;
+    const Matrix<double> & getdPij_dt  (double d) const;
+    const Matrix<double> & getd2Pij_dt2(double d) const;
 
     std::string getName() const { return "F84"; }
 
-		/**
-		 * @brief This method is redefined to actualize the corresponding parameters piA, piT, piG and piC too.
-		 */
+    /**
+     * @brief This method is redefined to actualize the corresponding parameters piA, piT, piG and piC too.
+     */
   void setFreq(std::map<int, double>&);
-	
-	protected:
-		void updateMatrices();
+  
+  protected:
+    void updateMatrices();
 };
 
 } //end of namespace bpp.
 
-#endif	//_F84_H_
+#endif  //F84_H__
 

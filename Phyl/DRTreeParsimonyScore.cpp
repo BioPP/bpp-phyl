@@ -53,32 +53,31 @@ using namespace std;
 /******************************************************************************/
 
 DRTreeParsimonyScore::DRTreeParsimonyScore(
-		const Tree & tree,
-		const SiteContainer & data,
+		const Tree& tree,
+		const SiteContainer& data,
 		bool verbose)
 	throw (Exception) :
-	AbstractTreeParsimonyScore(tree, data, verbose)
+	AbstractTreeParsimonyScore(tree, data, verbose),
+	parsimonyData_(new DRTreeParsimonyData(getTreeP_())),
+  nbDistinctSites_()
 {
-	_parsimonyData = new DRTreeParsimonyData(*_tree);
-	
 	if(verbose) ApplicationTools::displayTask("Initializing data structure");
-	_parsimonyData->init(data);
-	_nbDistinctSites = _parsimonyData->getNumberOfDistinctSites();
+	parsimonyData_->init(data);
+	nbDistinctSites_ = parsimonyData_->getNumberOfDistinctSites();
 	computeScores();
 	if(verbose) ApplicationTools::displayTaskDone();
-	
 	if(verbose) ApplicationTools::displayResult("Number of distinct sites",
-			TextTools::toString(_nbDistinctSites));
+			TextTools::toString(nbDistinctSites_));
 }
 
 /******************************************************************************/
 
 DRTreeParsimonyScore::DRTreeParsimonyScore(const DRTreeParsimonyScore& tp):
-  AbstractTreeParsimonyScore(tp)
+  AbstractTreeParsimonyScore(tp),
+  parsimonyData_(dynamic_cast<DRTreeParsimonyData *>(tp.parsimonyData_->clone())),
+  nbDistinctSites_(tp.nbDistinctSites_)
 {
-  _parsimonyData = dynamic_cast<DRTreeParsimonyData *>(tp._parsimonyData->clone());
-  _parsimonyData->setTree(*_tree);
-  _nbDistinctSites = tp._nbDistinctSites;
+  parsimonyData_->setTree(getTreeP_());
 }
     
 /******************************************************************************/
@@ -86,32 +85,32 @@ DRTreeParsimonyScore::DRTreeParsimonyScore(const DRTreeParsimonyScore& tp):
 DRTreeParsimonyScore& DRTreeParsimonyScore::operator=(const DRTreeParsimonyScore& tp)
 {
   AbstractTreeParsimonyScore::operator=(tp);
-  _parsimonyData = dynamic_cast<DRTreeParsimonyData *>(tp._parsimonyData->clone());
-  _parsimonyData->setTree(*_tree);
-  _nbDistinctSites = tp._nbDistinctSites;
+  parsimonyData_ = dynamic_cast<DRTreeParsimonyData *>(tp.parsimonyData_->clone());
+  parsimonyData_->setTree(getTreeP_());
+  nbDistinctSites_ = tp.nbDistinctSites_;
   return *this;
 }
 
 /******************************************************************************/
 	
-DRTreeParsimonyScore::~DRTreeParsimonyScore() { delete _parsimonyData; }
+DRTreeParsimonyScore::~DRTreeParsimonyScore() { delete parsimonyData_; }
 
 /******************************************************************************/
 
 void DRTreeParsimonyScore::computeScores()
 {
-	computeScoresPostorder(_tree->getRootNode());
-	computeScoresPreorder(_tree->getRootNode());
+	computeScoresPostorder(getTreeP_()->getRootNode());
+	computeScoresPreorder(getTreeP_()->getRootNode());
 	computeScoresForNode(
-      _parsimonyData->getNodeData(_tree->getRootId()),
-      _parsimonyData->getRootBitsets(),
-      _parsimonyData->getRootScores());
+      parsimonyData_->getNodeData(getTree().getRootId()),
+      parsimonyData_->getRootBitsets(),
+      parsimonyData_->getRootScores());
 }
 
 void DRTreeParsimonyScore::computeScoresPostorder(const Node* node)
 {
 	if(node->isLeaf()) return;
-	DRTreeParsimonyNodeData* pData = & _parsimonyData->getNodeData(node->getId());
+	DRTreeParsimonyNodeData* pData = & parsimonyData_->getNodeData(node->getId());
 	for (unsigned int k = 0; k < node->getNumberOfSons(); k++)
   {
 		const Node* son = node->getSon(k);
@@ -121,7 +120,7 @@ void DRTreeParsimonyScore::computeScoresPostorder(const Node* node)
 		if(son->isLeaf())
     {
 			// son has no NodeData associated, must use LeafData instead
-			vector<Bitset> * sonBitsets = & _parsimonyData->getLeafData(son->getId()).getBitsetsArray();
+			vector<Bitset> * sonBitsets = & parsimonyData_->getLeafData(son->getId()).getBitsetsArray();
 			for(unsigned int i = 0; i < sonBitsets->size(); i++)
       {
 				(*bitsets)[i] = (*sonBitsets)[i];
@@ -131,7 +130,7 @@ void DRTreeParsimonyScore::computeScoresPostorder(const Node* node)
     else
     {
 			computeScoresPostorderForNode(
-					_parsimonyData->getNodeData(son->getId()), 
+					parsimonyData_->getNodeData(son->getId()), 
 					*bitsets,
 					*scores);		
 		}
@@ -163,7 +162,7 @@ void DRTreeParsimonyScore::computeScoresPostorderForNode(const DRTreeParsimonyNo
 void DRTreeParsimonyScore::computeScoresPreorder(const Node* node)
 {
 	if(node->getNumberOfSons() == 0) return;
-	DRTreeParsimonyNodeData * pData = & _parsimonyData->getNodeData(node->getId());
+	DRTreeParsimonyNodeData * pData = & parsimonyData_->getNodeData(node->getId());
 	if(node->hasFather())
   {
 		const Node * father = node->getFather();
@@ -172,7 +171,7 @@ void DRTreeParsimonyScore::computeScoresPreorder(const Node* node)
 		if(father->isLeaf())
     { // Means that the tree is rooted by a leaf... dunno if we must allow that! Let it be for now.
 			// son has no NodeData associated, must use LeafData instead
-			vector<Bitset> * sonBitsets = & _parsimonyData->getLeafData(father->getId()).getBitsetsArray();
+			vector<Bitset> * sonBitsets = & parsimonyData_->getLeafData(father->getId()).getBitsetsArray();
 			for(unsigned int i = 0; i < sonBitsets->size(); i++)
       {
 				(*bitsets)[i] = (*sonBitsets)[i];
@@ -182,7 +181,7 @@ void DRTreeParsimonyScore::computeScoresPreorder(const Node* node)
     else
     {
 			computeScoresPreorderForNode(
-					_parsimonyData->getNodeData(father->getId()),
+					parsimonyData_->getNodeData(father->getId()),
 					node,
 					*bitsets,
 					*scores);		
@@ -237,9 +236,9 @@ void DRTreeParsimonyScore::computeScoresForNode(const DRTreeParsimonyNodeData& p
 unsigned int DRTreeParsimonyScore::getScore() const
 {
 	unsigned int score = 0;
-	for(unsigned int i = 0; i < _nbDistinctSites; i++)
+	for(unsigned int i = 0; i < nbDistinctSites_; i++)
   {
-		score += _parsimonyData->getRootScore(i) * _parsimonyData->getWeight(i);
+		score += parsimonyData_->getRootScore(i) * parsimonyData_->getWeight(i);
 	}
 	return score;
 }
@@ -248,7 +247,7 @@ unsigned int DRTreeParsimonyScore::getScore() const
 
 unsigned int DRTreeParsimonyScore::getScoreForSite(unsigned int site) const
 {
-	return _parsimonyData->getRootScore(_parsimonyData->getRootArrayPosition(site));
+	return parsimonyData_->getRootScore(parsimonyData_->getRootArrayPosition(site));
 }
 	
 /******************************************************************************/
@@ -294,11 +293,11 @@ void DRTreeParsimonyScore::computeScoresFromArrays(
 
 double DRTreeParsimonyScore::testNNI(int nodeId) const throw (NodeException)
 {
-  const Node * son = _tree->getNode(nodeId);
+  const Node* son = getTreeP_()->getNode(nodeId);
 	if(!son->hasFather()) throw NodeException("DRTreeParsimonyScore::testNNI(). Node 'son' must not be the root node.", son);
-  const Node * parent = son->getFather();
+  const Node* parent = son->getFather();
 	if(!parent->hasFather()) throw NodeException("DRTreeParsimonyScore::testNNI(). Node 'parent' must not be the root node.", parent);
-	const Node * grandFather = parent->getFather();
+	const Node* grandFather = parent->getFather();
 	//From here: Bifurcation assumed.
 	//In case of multifurcation, an arbitrary uncle is chosen.
 	//If we are at root node with a trifurcation, this does not matter, since 2 NNI are possible (see doc of the NNISearchable interface).
@@ -306,7 +305,7 @@ double DRTreeParsimonyScore::testNNI(int nodeId) const throw (NodeException)
 	const Node* uncle = grandFather->getSon(parentPosition > 1 ? parentPosition -1 : 1 - parentPosition);
 	
 	//Retrieving arrays of interest:
-	const DRTreeParsimonyNodeData * parentData = & _parsimonyData->getNodeData(parent->getId());
+	const DRTreeParsimonyNodeData * parentData = & parsimonyData_->getNodeData(parent->getId());
 	const vector<Bitset>          * sonBitsets = & parentData->getBitsetsArrayForNeighbor(son->getId()); 
 	const vector<unsigned int>    * sonScores  = & parentData->getScoresArrayForNeighbor(son->getId()); 
 	vector<const Node *> parentNeighbors = TreeTemplateTools::getRemainingNeighbors(parent, grandFather, son);
@@ -320,7 +319,7 @@ double DRTreeParsimonyScore::testNNI(int nodeId) const throw (NodeException)
 		parentScores[k] = & parentData->getScoresArrayForNeighbor(n->getId()); 
 	}
 	
-	const DRTreeParsimonyNodeData * grandFatherData = & _parsimonyData->getNodeData(grandFather->getId());
+	const DRTreeParsimonyNodeData * grandFatherData = & parsimonyData_->getNodeData(grandFather->getId());
 	const vector<Bitset>          * uncleBitsets = & grandFatherData->getBitsetsArrayForNeighbor(uncle->getId()); 
 	const vector<unsigned int>    * uncleScores  = & grandFatherData->getScoresArrayForNeighbor(uncle->getId()); 
 	vector<const Node *> grandFatherNeighbors = TreeTemplateTools::getRemainingNeighbors(grandFather, parent, uncle);
@@ -356,9 +355,9 @@ double DRTreeParsimonyScore::testNNI(int nodeId) const throw (NodeException)
 
 	//Final computation:
 	unsigned int score = 0;
-	for(unsigned int i = 0; i < _nbDistinctSites; i++)
+	for(unsigned int i = 0; i < nbDistinctSites_; i++)
   {
-		score += pScores[i] * _parsimonyData -> getWeight(i);
+		score += pScores[i] * parsimonyData_ -> getWeight(i);
 	}
 	return (double)score - (double)getScore();
 }
@@ -367,16 +366,16 @@ double DRTreeParsimonyScore::testNNI(int nodeId) const throw (NodeException)
 
 void DRTreeParsimonyScore::doNNI(int nodeId) throw (NodeException)
 {
-  Node * son = _tree->getNode(nodeId);
-	if(!son->hasFather()) throw NodeException("DRTreeParsimonyScore::doNNI(). Node 'son' must not be the root node.", son);
-  Node * parent = son->getFather();
-	if(!parent->hasFather()) throw NodeException("DRTreeParsimonyScore::doNNI(). Node 'parent' must not be the root node.", parent);
-	Node * grandFather = parent->getFather();
+  Node* son = getTreeP_()->getNode(nodeId);
+	if (!son->hasFather()) throw NodeException("DRTreeParsimonyScore::doNNI(). Node 'son' must not be the root node.", son);
+  Node* parent = son->getFather();
+	if (!parent->hasFather()) throw NodeException("DRTreeParsimonyScore::doNNI(). Node 'parent' must not be the root node.", parent);
+	Node* grandFather = parent->getFather();
 	//From here: Bifurcation assumed.
 	//In case of multifurcation, an arbitrary uncle is chosen.
 	//If we are at root node with a trifurcation, this does not matter, since 2 NNI are possible (see doc of the NNISearchable interface).
 	unsigned int parentPosition = grandFather->getSonPosition(parent);
-	Node * uncle = grandFather->getSon(parentPosition > 1 ? parentPosition -1 : 1 - parentPosition);
+	Node* uncle = grandFather->getSon(parentPosition > 1 ? parentPosition -1 : 1 - parentPosition);
 	//Swap nodes:
 	parent->removeSon(son);
 	grandFather->removeSon(uncle);

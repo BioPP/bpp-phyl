@@ -37,8 +37,8 @@ The fact that you are presently reading this means that you have had
 knowledge of the CeCILL license and that you accept its terms.
 */
 
-#ifndef _BIONJ_H_
-#define _BIONJ_H_
+#ifndef BIONJ_H__
+#define BIONJ_H__
 
 #include "NeighborJoining.h"
 
@@ -56,32 +56,25 @@ namespace bpp
 class BioNJ:
   public NeighborJoining
 {
-protected:
-	DistanceMatrix _variance;
-	double _lambda;
+private:
+	DistanceMatrix variance_;
+	double lambda_;
   
 public:
   
-  BioNJ(): NeighborJoining(), _variance(0) {}
+  BioNJ(): NeighborJoining(), variance_(0), lambda_(0) {}
   
-	BioNJ(const DistanceMatrix & matrix, bool rooted = false, bool positiveLengths = false) throw (Exception):
-    NeighborJoining(matrix, rooted, positiveLengths),
-    _variance(matrix)
+	BioNJ(const DistanceMatrix& matrix, bool rooted = false, bool positiveLengths = false) throw (Exception):
+    NeighborJoining(), //Use the default constructor, because the other one call computeTree.
+    variance_(matrix), lambda_(0)
 	{
-		_sumDist.resize(matrix.size());
-    _positiveLengths = positiveLengths;
+    setDistanceMatrix(matrix);
+    outputPositiveLengths(positiveLengths);
 		computeTree(rooted);
   }
-
-  BioNJ(const BioNJ & bionj): NeighborJoining(bionj), _variance(bionj._variance), _lambda(bionj._lambda) {}
-  BioNJ & operator=(const BioNJ & bionj)
-  {
-    NeighborJoining::operator=(bionj);
-    _variance = bionj._variance;
-    _lambda   = bionj._lambda;
-    return *this;
-  }
   
+  BioNJ* clone() const { return new BioNJ(*this); }
+
 	virtual ~BioNJ() {};
 	
 public:
@@ -89,7 +82,7 @@ public:
 	virtual void setDistanceMatrix(const DistanceMatrix & matrix)
   { 
 		NeighborJoining::setDistanceMatrix(matrix);
-		_variance = matrix;
+		variance_ = matrix;
 	}
 	virtual void computeTree(bool rooted) throw (Exception);
 	virtual double computeDistancesFromPair(const std::vector<unsigned int>& pair, const std::vector<double>& branchLengths, unsigned int pos);
@@ -98,5 +91,5 @@ public:
 
 } //end of namespace bpp.
 
-#endif //_BIONJ_H_
+#endif //BIONJ_H__
 

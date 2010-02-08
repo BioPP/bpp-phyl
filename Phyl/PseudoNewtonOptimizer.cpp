@@ -58,14 +58,18 @@ bool PseudoNewtonOptimizer::PNStopCondition::isToleranceReached() const
 {
   return NumTools::abs<double>(
       dynamic_cast<const PseudoNewtonOptimizer*>(optimizer_)->currentValue_ -
-      dynamic_cast<const PseudoNewtonOptimizer *>(optimizer_)->_previousValue) < tolerance_; 
+      dynamic_cast<const PseudoNewtonOptimizer *>(optimizer_)->previousValue_) < tolerance_; 
 }
    
 /**************************************************************************/
   
-PseudoNewtonOptimizer::PseudoNewtonOptimizer(DerivableSecondOrder * function) :
-  AbstractOptimizer(function), _previousPoint(), _previousValue(0),
-  _n(0), _params(), _maxCorrection(10)
+PseudoNewtonOptimizer::PseudoNewtonOptimizer(DerivableSecondOrder* function) :
+  AbstractOptimizer(function),
+  previousPoint_(),
+  previousValue_(0),
+  n_(0),
+  params_(),
+  maxCorrection_(10)
 {
   setDefaultStopCondition_(new FunctionStopCondition(this));
   setStopCondition(*getDefaultStopCondition());
@@ -75,8 +79,8 @@ PseudoNewtonOptimizer::PseudoNewtonOptimizer(DerivableSecondOrder * function) :
 
 void PseudoNewtonOptimizer::doInit(const ParameterList& params) throw (Exception)
 {
-  _n = getParameters().size();
-  _params = getParameters().getParameterNames();
+  n_ = getParameters().size();
+  params_ = getParameters().getParameterNames();
   getFunction()->enableSecondOrderDerivatives(true);
   getFunction()->setParameters(getParameters());
 }
@@ -89,19 +93,19 @@ double PseudoNewtonOptimizer::doStep() throw (Exception)
   if (updateParameters()) bckPoint = new ParameterList(getFunction()->getParameters());
   double newValue = 0;
   // Compute derivative at current point:
-  std::vector<double> movements(_n);
+  std::vector<double> movements(n_);
   ParameterList newPoint = getParameters();
-  for (unsigned int i = 0; i < _n; i++)
+  for (unsigned int i = 0; i < n_; i++)
   {
-    double  firstOrderDerivative = getFunction()->getFirstOrderDerivative(_params[i]);
-    double secondOrderDerivative = getFunction()->getSecondOrderDerivative(_params[i]);
+    double  firstOrderDerivative = getFunction()->getFirstOrderDerivative(params_[i]);
+    double secondOrderDerivative = getFunction()->getSecondOrderDerivative(params_[i]);
     if (secondOrderDerivative == 0)
     {
       movements[i] = 0;
     }
     else if (secondOrderDerivative < 0)
     {
-      printMessage("!!! Second order derivative is negative for parameter " + _params[i] + "(" + TextTools::toString(getParameters()[i].getValue()) + "). No move performed.");
+      printMessage("!!! Second order derivative is negative for parameter " + params_[i] + "(" + TextTools::toString(getParameters()[i].getValue()) + "). No move performed.");
       //movements[i] = 0;  // We want to reach a minimum, not a maximum!
       // My personnal improvement:
       movements[i] = -firstOrderDerivative / secondOrderDerivative;
@@ -109,11 +113,11 @@ double PseudoNewtonOptimizer::doStep() throw (Exception)
     else movements[i] = firstOrderDerivative / secondOrderDerivative;
     if (std::isnan(movements[i]))
     {
-      printMessage("!!! Non derivable point at " + _params[i] + ". No move performed. (f=" + TextTools::toString(currentValue_) + ", d1=" + TextTools::toString(firstOrderDerivative) + ", d2=" + TextTools::toString(secondOrderDerivative) + ").");
+      printMessage("!!! Non derivable point at " + params_[i] + ". No move performed. (f=" + TextTools::toString(currentValue_) + ", d1=" + TextTools::toString(firstOrderDerivative) + ", d2=" + TextTools::toString(secondOrderDerivative) + ").");
       movements[i] = 0; // Either first or second order derivative is infinity. This may happen when the function == inf at this point.
     }
     //DEBUG:
-    //cout << "PN[" << i << "]=" << _parameters.getParameter(_params[i])->getValue() << "\t" << movements[i] << "\t " << firstOrderDerivative << "\t" << secondOrderDerivative << endl;
+    //cout << "PN[" << i << "]=" << _parameters.getParameter(params_[i])->getValue() << "\t" << movements[i] << "\t " << firstOrderDerivative << "\t" << secondOrderDerivative << endl;
     newPoint[i].setValue(getParameters()[i].getValue() - movements[i]);
   }
   newValue = getFunction()->f(newPoint);
@@ -126,7 +130,7 @@ double PseudoNewtonOptimizer::doStep() throw (Exception)
     if (updateParameters()) getFunction()->setParameters(*bckPoint);
 
     count++;
-    if (count >= _maxCorrection)
+    if (count >= maxCorrection_)
     {
       printMessage("!!! Felsenstein-Churchill correction applied too much time. Stopping here. Convergence probably not reached.");
       tolIsReached_ = true;
@@ -146,8 +150,8 @@ double PseudoNewtonOptimizer::doStep() throw (Exception)
     newValue = getFunction()->f(newPoint);
   }
   
-  _previousPoint = getParameters();
-  _previousValue = currentValue_;
+  previousPoint_ = getParameters();
+  previousValue_ = currentValue_;
   getParameters_() = newPoint;
 
   if (updateParameters()) delete bckPoint;

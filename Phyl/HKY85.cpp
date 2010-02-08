@@ -61,20 +61,20 @@ HKY85::HKY85(
 	double piC,
 	double piG,
 	double piT):
-	NucleotideSubstitutionModel(alpha, "HKY85.")
+	NucleotideSubstitutionModel(alpha, "HKY85."),
+  kappa_(kappa), k1_(), k2_(), r_(),
+  piA_(piA), piC_(piC), piG_(piG), piT_(piT), piY_(), piR_(),
+  theta_(piG + piC), theta1_(piA / (1. - theta_)), theta2_(piG / theta_),
+  exp1_(), exp21_(), exp22_(), l_(), p_(size_, size_)
 {
 	Parameter kappaP("HKY85.kappa", kappa, &Parameter::R_PLUS_STAR);
 	addParameter_(kappaP);
-  _theta = piG + piC;
-  _theta1 = piA / (1. - _theta);
-  _theta2 = piG / _theta;
-	Parameter thetaP("HKY85.theta" , _theta , &Parameter::PROP_CONSTRAINT_EX);
+	Parameter thetaP("HKY85.theta" , theta_ , &Parameter::PROP_CONSTRAINT_EX);
 	addParameter_(thetaP);
-	Parameter theta1P("HKY85.theta1", _theta1, &Parameter::PROP_CONSTRAINT_EX);
+	Parameter theta1P("HKY85.theta1", theta1_, &Parameter::PROP_CONSTRAINT_EX);
 	addParameter_(theta1P);
-	Parameter theta2P("HKY85.theta2", _theta2, &Parameter::PROP_CONSTRAINT_EX);
+	Parameter theta2P("HKY85.theta2", theta2_, &Parameter::PROP_CONSTRAINT_EX);
 	addParameter_(theta2P);
-  _p.resize(size_, size_);
 	updateMatrices();
 }
 
@@ -82,94 +82,94 @@ HKY85::HKY85(
 
 void HKY85::updateMatrices()
 {
-	_kappa  = getParameterValue("kappa");
-	_theta  = getParameterValue("theta");
-	_theta1 = getParameterValue("theta1");
-	_theta2 = getParameterValue("theta2");
-  _piA = _theta1 * (1. - _theta);
-  _piC = (1. - _theta2) * _theta;
-  _piG = _theta2 * _theta;
-  _piT = (1. - _theta1) * (1. - _theta);
-	_piR   = _piA + _piG;
-	_piY   = _piT + _piC;
-	_k1    = _kappa * _piY + _piR;
-	_k2    = _kappa * _piR + _piY;
+	kappa_  = getParameterValue("kappa");
+	theta_  = getParameterValue("theta");
+	theta1_ = getParameterValue("theta1");
+	theta2_ = getParameterValue("theta2");
+  piA_ = theta1_ * (1. - theta_);
+  piC_ = (1. - theta2_) * theta_;
+  piG_ = theta2_ * theta_;
+  piT_ = (1. - theta1_) * (1. - theta_);
+	piR_   = piA_ + piG_;
+	piY_   = piT_ + piC_;
+	k1_    = kappa_ * piY_ + piR_;
+	k2_    = kappa_ * piR_ + piY_;
 
-  freq_[0] = _piA;
-  freq_[1] = _piC;
-  freq_[2] = _piG;
-  freq_[3] = _piT;
+  freq_[0] = piA_;
+  freq_[1] = piC_;
+  freq_[2] = piG_;
+  freq_[3] = piT_;
 	
-	generator_(0, 0) = -(                     _piC + _kappa*_piG +        _piT);
-	generator_(1, 1) = -(       _piA +                      _piG + _kappa*_piT); 
-	generator_(2, 2) = -(_kappa*_piA +        _piC               +       _piT);
-	generator_(3, 3) = -(       _piA + _kappa*_piC +        _piG             );
+	generator_(0, 0) = -(                     piC_ + kappa_*piG_ +        piT_);
+	generator_(1, 1) = -(       piA_ +                      piG_ + kappa_*piT_); 
+	generator_(2, 2) = -(kappa_*piA_ +        piC_               +       piT_);
+	generator_(3, 3) = -(       piA_ + kappa_*piC_ +        piG_             );
 
-	generator_(1, 0) = _piA;
-	generator_(3, 0) = _piA;
-	generator_(0, 1) = _piC;
-	generator_(2, 1) = _piC;
-	generator_(1, 2) = _piG;
-	generator_(3, 2) = _piG;
-	generator_(0, 3) = _piT;
-	generator_(2, 3) = _piT;
+	generator_(1, 0) = piA_;
+	generator_(3, 0) = piA_;
+	generator_(0, 1) = piC_;
+	generator_(2, 1) = piC_;
+	generator_(1, 2) = piG_;
+	generator_(3, 2) = piG_;
+	generator_(0, 3) = piT_;
+	generator_(2, 3) = piT_;
 	
-	generator_(2, 0) = _kappa * _piA;
-	generator_(3, 1) = _kappa * _piC;
-	generator_(0, 2) = _kappa * _piG;
-	generator_(1, 3) = _kappa * _piT;
+	generator_(2, 0) = kappa_ * piA_;
+	generator_(3, 1) = kappa_ * piC_;
+	generator_(0, 2) = kappa_ * piG_;
+	generator_(1, 3) = kappa_ * piT_;
 	
 	// Normalization:
-	_r = 1. / (2. * (_piA * _piC + _piC * _piG + _piA * _piT + _piG * _piT + _kappa * (_piC * _piT + _piA * _piG)));
-	MatrixTools::scale(generator_, _r);
+	r_ = 1. / (2. * (piA_ * piC_ + piC_ * piG_ + piA_ * piT_ + piG_ * piT_ + kappa_ * (piC_ * piT_ + piA_ * piG_)));
+	MatrixTools::scale(generator_, r_);
 	
 	// Exchangeability:
-	exchangeability_(0,0) = generator_(0,0) / _piA;
-	exchangeability_(0,1) = generator_(0,1) / _piC; 
-	exchangeability_(0,2) = generator_(0,2) / _piG; 
-	exchangeability_(0,3) = generator_(0,3) / _piT;
+	exchangeability_(0,0) = generator_(0,0) / piA_;
+	exchangeability_(0,1) = generator_(0,1) / piC_; 
+	exchangeability_(0,2) = generator_(0,2) / piG_; 
+	exchangeability_(0,3) = generator_(0,3) / piT_;
 
-	exchangeability_(1,0) = generator_(1,0) / _piA; 
-	exchangeability_(1,1) = generator_(1,1) / _piC; 
-	exchangeability_(1,2) = generator_(1,2) / _piG; 
-	exchangeability_(1,3) = generator_(1,3) / _piT; 
+	exchangeability_(1,0) = generator_(1,0) / piA_; 
+	exchangeability_(1,1) = generator_(1,1) / piC_; 
+	exchangeability_(1,2) = generator_(1,2) / piG_; 
+	exchangeability_(1,3) = generator_(1,3) / piT_; 
 	
-	exchangeability_(2,0) = generator_(2,0) / _piA; 
-	exchangeability_(2,1) = generator_(2,1) / _piC; 
-	exchangeability_(2,2) = generator_(2,2) / _piG; 
-	exchangeability_(2,3) = generator_(2,3) / _piT; 
+	exchangeability_(2,0) = generator_(2,0) / piA_; 
+	exchangeability_(2,1) = generator_(2,1) / piC_; 
+	exchangeability_(2,2) = generator_(2,2) / piG_; 
+	exchangeability_(2,3) = generator_(2,3) / piT_; 
 	
-	exchangeability_(3,0) = generator_(3,0) / _piA;
-	exchangeability_(3,1) = generator_(3,1) / _piC; 
-	exchangeability_(3,2) = generator_(3,2) / _piG; 
-	exchangeability_(3,3) = generator_(3,3) / _piT;
+	exchangeability_(3,0) = generator_(3,0) / piA_;
+	exchangeability_(3,1) = generator_(3,1) / piC_; 
+	exchangeability_(3,2) = generator_(3,2) / piG_; 
+	exchangeability_(3,3) = generator_(3,3) / piT_;
 
 	// Eigen values:
 	eigenValues_[0] = 0;
-	eigenValues_[1] = -_r * (_kappa * _piY + _piR);
-	eigenValues_[2] = -_r * (_kappa * _piR + _piY); 
-	eigenValues_[3] = -_r;
+	eigenValues_[1] = -r_ * (kappa_ * piY_ + piR_);
+	eigenValues_[2] = -r_ * (kappa_ * piR_ + piY_); 
+	eigenValues_[3] = -r_;
 	
 	// Eigen vectors:
-	leftEigenVectors_(0,0) = _piA;
-	leftEigenVectors_(0,1) = _piC;
-	leftEigenVectors_(0,2) = _piG;
-	leftEigenVectors_(0,3) = _piT;
+	leftEigenVectors_(0,0) = piA_;
+	leftEigenVectors_(0,1) = piC_;
+	leftEigenVectors_(0,2) = piG_;
+	leftEigenVectors_(0,3) = piT_;
 
 	leftEigenVectors_(1,0) = 0.;
-	leftEigenVectors_(1,1) = _piT / _piY;
+	leftEigenVectors_(1,1) = piT_ / piY_;
 	leftEigenVectors_(1,2) = 0.;
-	leftEigenVectors_(1,3) = -_piT / _piY;
+	leftEigenVectors_(1,3) = -piT_ / piY_;
 
-	leftEigenVectors_(2,0) = _piG / _piR;
+	leftEigenVectors_(2,0) = piG_ / piR_;
 	leftEigenVectors_(2,1) = 0.;
-	leftEigenVectors_(2,2) = -_piG / _piR;
+	leftEigenVectors_(2,2) = -piG_ / piR_;
 	leftEigenVectors_(2,3) = 0.;
 
-	leftEigenVectors_(3,0) = _piA*_piY / _piR;
-	leftEigenVectors_(3,1) = -_piC;
-	leftEigenVectors_(3,2) = _piG*_piY / _piR;
-	leftEigenVectors_(3,3) = -_piT;
+	leftEigenVectors_(3,0) = piA_*piY_ / piR_;
+	leftEigenVectors_(3,1) = -piC_;
+	leftEigenVectors_(3,2) = piG_*piY_ / piR_;
+	leftEigenVectors_(3,3) = -piT_;
 
 	rightEigenVectors_(0,0) = 1.;
 	rightEigenVectors_(0,1) = 0.;
@@ -179,64 +179,64 @@ void HKY85::updateMatrices()
 	rightEigenVectors_(1,0) = 1.;
 	rightEigenVectors_(1,1) = 1.;
 	rightEigenVectors_(1,2) = 0.;;
-	rightEigenVectors_(1,3) = -_piR / _piY;
+	rightEigenVectors_(1,3) = -piR_ / piY_;
 
 	rightEigenVectors_(2,0) = 1.;
 	rightEigenVectors_(2,1) = 0.;
-	rightEigenVectors_(2,2) = -_piA / _piG;
+	rightEigenVectors_(2,2) = -piA_ / piG_;
 	rightEigenVectors_(2,3) = 1.;
 
 	rightEigenVectors_(3,0) = 1.;
-	rightEigenVectors_(3,1) = -_piC / _piT;
+	rightEigenVectors_(3,1) = -piC_ / piT_;
 	rightEigenVectors_(3,2) = 0.;
-	rightEigenVectors_(3,3) = -_piR / _piY;
+	rightEigenVectors_(3,3) = -piR_ / piY_;
 }
 	
 /******************************************************************************/
 
 double HKY85::Pij_t(int i, int j, double d) const
 {
-	_l     = _r * d;
-	_exp1  = exp(-_l);
-	_exp22 = exp(-_k2 * _l);
-	_exp21 = exp(-_k1 * _l);
+	l_     = r_ * d;
+	exp1_  = exp(-l_);
+	exp22_ = exp(-k2_ * l_);
+	exp21_ = exp(-k1_ * l_);
 	
 	switch(i)
   {
 		//A
 		case 0 : {
 			switch(j) {
-				case 0 : return _piA * (1. + (_piY/_piR) * _exp1) + (_piG/_piR) * _exp22; //A
-				case 1 : return _piC * (1. -               _exp1);                        //C
-				case 2 : return _piG * (1. + (_piY/_piR) * _exp1) - (_piG/_piR) * _exp22; //G
-				case 3 : return _piT * (1. -               _exp1);                        //T, U
+				case 0 : return piA_ * (1. + (piY_/piR_) * exp1_) + (piG_/piR_) * exp22_; //A
+				case 1 : return piC_ * (1. -               exp1_);                        //C
+				case 2 : return piG_ * (1. + (piY_/piR_) * exp1_) - (piG_/piR_) * exp22_; //G
+				case 3 : return piT_ * (1. -               exp1_);                        //T, U
 			}
 		} 
 		//C
 		case 1 : {
 			switch(j) {
-				case 0 : return _piA * (1. -               _exp1);                        //A
-				case 1 : return _piC * (1. + (_piR/_piY) * _exp1) + (_piT/_piY) * _exp21; //C
-				case 2 : return _piG * (1. -               _exp1);                        //G
-				case 3 : return _piT * (1. + (_piR/_piY) * _exp1) - (_piT/_piY) * _exp21; //T, U
+				case 0 : return piA_ * (1. -               exp1_);                        //A
+				case 1 : return piC_ * (1. + (piR_/piY_) * exp1_) + (piT_/piY_) * exp21_; //C
+				case 2 : return piG_ * (1. -               exp1_);                        //G
+				case 3 : return piT_ * (1. + (piR_/piY_) * exp1_) - (piT_/piY_) * exp21_; //T, U
 			}
 		}
 		//G
 		case 2 : {
 			switch(j) {
-				case 0 : return _piA * (1. + (_piY/_piR) * _exp1) - (_piA/_piR) * _exp22; //A
-				case 1 : return _piC * (1. -               _exp1);                        //C
-				case 2 : return _piG * (1. + (_piY/_piR) * _exp1) + (_piA/_piR) * _exp22; //G
-				case 3 : return _piT * (1. -               _exp1);                        //T, U
+				case 0 : return piA_ * (1. + (piY_/piR_) * exp1_) - (piA_/piR_) * exp22_; //A
+				case 1 : return piC_ * (1. -               exp1_);                        //C
+				case 2 : return piG_ * (1. + (piY_/piR_) * exp1_) + (piA_/piR_) * exp22_; //G
+				case 3 : return piT_ * (1. -               exp1_);                        //T, U
 			}
 		}
 		//T, U
 		case 3 : {
 			switch(j) {
-				case 0 : return _piA * (1. -               _exp1);                        //A
-				case 1 : return _piC * (1. + (_piR/_piY) * _exp1) - (_piC/_piY) * _exp21; //C
-				case 2 : return _piG * (1. -               _exp1);                        //G
-				case 3 : return _piT * (1. + (_piR/_piY) * _exp1) + (_piC/_piY) * _exp21; //T, U
+				case 0 : return piA_ * (1. -               exp1_);                        //A
+				case 1 : return piC_ * (1. + (piR_/piY_) * exp1_) - (piC_/piY_) * exp21_; //C
+				case 2 : return piG_ * (1. -               exp1_);                        //G
+				case 3 : return piT_ * (1. + (piR_/piY_) * exp1_) + (piC_/piY_) * exp21_; //T, U
 			}
 		}
 	}
@@ -247,47 +247,47 @@ double HKY85::Pij_t(int i, int j, double d) const
 
 double HKY85::dPij_dt(int i, int j, double d) const
 {
-	_l     = _r * d;
-	_exp1  = exp(-_l);
-	_exp22 = exp(-_k2 * _l);
-	_exp21 = exp(-_k1 * _l);
+	l_     = r_ * d;
+	exp1_  = exp(-l_);
+	exp22_ = exp(-k2_ * l_);
+	exp21_ = exp(-k1_ * l_);
 	
 	switch(i)
   {
 		//A
 		case 0 : {
 			switch(j) {
-				case 0 : return _r * (_piA * -(_piY/_piR) * _exp1 - (_piG/_piR) * _k2 * _exp22); //A
-				case 1 : return _r * (_piC *                _exp1);                              //C
-				case 2 : return _r * (_piG * -(_piY/_piR) * _exp1 + (_piG/_piR) * _k2 * _exp22); //G
-				case 3 : return _r * (_piT *                _exp1);                              //T, U
+				case 0 : return r_ * (piA_ * -(piY_/piR_) * exp1_ - (piG_/piR_) * k2_ * exp22_); //A
+				case 1 : return r_ * (piC_ *                exp1_);                              //C
+				case 2 : return r_ * (piG_ * -(piY_/piR_) * exp1_ + (piG_/piR_) * k2_ * exp22_); //G
+				case 3 : return r_ * (piT_ *                exp1_);                              //T, U
 			}
 		} 
 		//C
 		case 1 : {
 			switch(j) {
-				case 0 : return _r * (_piA *                _exp1);                              //A
-				case 1 : return _r * (_piC * -(_piR/_piY) * _exp1 - (_piT/_piY) * _k1 * _exp21); //C
-				case 2 : return _r * (_piG *                _exp1);                              //G
-				case 3 : return _r * (_piT * -(_piR/_piY) * _exp1 + (_piT/_piY) * _k1 * _exp21); //T, U
+				case 0 : return r_ * (piA_ *                exp1_);                              //A
+				case 1 : return r_ * (piC_ * -(piR_/piY_) * exp1_ - (piT_/piY_) * k1_ * exp21_); //C
+				case 2 : return r_ * (piG_ *                exp1_);                              //G
+				case 3 : return r_ * (piT_ * -(piR_/piY_) * exp1_ + (piT_/piY_) * k1_ * exp21_); //T, U
 			}
 		}
 		//G
 		case 2 : {
 			switch(j) {
-				case 0 : return _r * (_piA * -(_piY/_piR) * _exp1 + (_piA/_piR) * _k2 * _exp22); //A
-				case 1 : return _r * (_piC *                _exp1);                              //C
-				case 2 : return _r * (_piG * -(_piY/_piR) * _exp1 - (_piA/_piR) * _k2 * _exp22); //G
-				case 3 : return _r * (_piT *                _exp1);                              //T, U
+				case 0 : return r_ * (piA_ * -(piY_/piR_) * exp1_ + (piA_/piR_) * k2_ * exp22_); //A
+				case 1 : return r_ * (piC_ *                exp1_);                              //C
+				case 2 : return r_ * (piG_ * -(piY_/piR_) * exp1_ - (piA_/piR_) * k2_ * exp22_); //G
+				case 3 : return r_ * (piT_ *                exp1_);                              //T, U
 			}
 		}
 		//T, U
 		case 3 : {
 			switch(j) {
-				case 0 : return _r * (_piA *                _exp1);                              //A
-				case 1 : return _r * (_piC * -(_piR/_piY) * _exp1 + (_piC/_piY) * _k1 * _exp21); //C
-				case 2 : return _r * (_piG *                _exp1);                              //G
-				case 3 : return _r * (_piT * -(_piR/_piY) * _exp1 - (_piC/_piY) * _k1 * _exp21); //T, U
+				case 0 : return r_ * (piA_ *                exp1_);                              //A
+				case 1 : return r_ * (piC_ * -(piR_/piY_) * exp1_ + (piC_/piY_) * k1_ * exp21_); //C
+				case 2 : return r_ * (piG_ *                exp1_);                              //G
+				case 3 : return r_ * (piT_ * -(piR_/piY_) * exp1_ - (piC_/piY_) * k1_ * exp21_); //T, U
 			}
 		}
 	}
@@ -298,50 +298,50 @@ double HKY85::dPij_dt(int i, int j, double d) const
 
 double HKY85::d2Pij_dt2(int i, int j, double d) const
 {
-	double r_2 = _r * _r;
-	_l = _r * d;
-	double k1_2 = _k1 * _k1;
-	double k2_2 = _k2 * _k2;
-	_exp1 = exp(-_l);
-	_exp22 = exp(-_k2 * _l);
-	_exp21 = exp(-_k1 * _l);
+	double r_2 = r_ * r_;
+	l_ = r_ * d;
+	double k1_2 = k1_ * k1_;
+	double k2_2 = k2_ * k2_;
+	exp1_ = exp(-l_);
+	exp22_ = exp(-k2_ * l_);
+	exp21_ = exp(-k1_ * l_);
 	
 	switch(i)
   {
 		//A
 		case 0 : {
 			switch(j) {
-				case 0 : return r_2 * (_piA * (_piY/_piR) * _exp1 + (_piG/_piR) * k2_2 * _exp22); //A
-				case 1 : return r_2 * (_piC *             - _exp1);                               //C
-				case 2 : return r_2 * (_piG * (_piY/_piR) * _exp1 - (_piG/_piR) * k2_2 * _exp22); //G
-				case 3 : return r_2 * (_piT *             - _exp1);                               //T, U
+				case 0 : return r_2 * (piA_ * (piY_/piR_) * exp1_ + (piG_/piR_) * k2_2 * exp22_); //A
+				case 1 : return r_2 * (piC_ *             - exp1_);                               //C
+				case 2 : return r_2 * (piG_ * (piY_/piR_) * exp1_ - (piG_/piR_) * k2_2 * exp22_); //G
+				case 3 : return r_2 * (piT_ *             - exp1_);                               //T, U
 			}
 		} 
 		//C
 		case 1 : {
 			switch(j) {
-				case 0 : return r_2 * (_piA *             - _exp1);                               //A
-				case 1 : return r_2 * (_piC * (_piR/_piY) * _exp1 + (_piT/_piY) * k1_2 * _exp21); //C
-				case 2 : return r_2 * (_piG *             - _exp1);                               //G
-				case 3 : return r_2 * (_piT * (_piR/_piY) * _exp1 - (_piT/_piY) * k1_2 * _exp21); //T, U
+				case 0 : return r_2 * (piA_ *             - exp1_);                               //A
+				case 1 : return r_2 * (piC_ * (piR_/piY_) * exp1_ + (piT_/piY_) * k1_2 * exp21_); //C
+				case 2 : return r_2 * (piG_ *             - exp1_);                               //G
+				case 3 : return r_2 * (piT_ * (piR_/piY_) * exp1_ - (piT_/piY_) * k1_2 * exp21_); //T, U
 			}
 		}
 		//G
 		case 2 : {
 			switch(j) {
-				case 0 : return r_2 * (_piA * (_piY/_piR) * _exp1 - (_piA/_piR) * k2_2 * _exp22); //A
-				case 1 : return r_2 * (_piC *             - _exp1);                               //C
-				case 2 : return r_2 * (_piG * (_piY/_piR) * _exp1 + (_piA/_piR) * k2_2 * _exp22); //G
-				case 3 : return r_2 * (_piT *             - _exp1);                               //T, U
+				case 0 : return r_2 * (piA_ * (piY_/piR_) * exp1_ - (piA_/piR_) * k2_2 * exp22_); //A
+				case 1 : return r_2 * (piC_ *             - exp1_);                               //C
+				case 2 : return r_2 * (piG_ * (piY_/piR_) * exp1_ + (piA_/piR_) * k2_2 * exp22_); //G
+				case 3 : return r_2 * (piT_ *             - exp1_);                               //T, U
 			}
 		}
 		//T, U
 		case 3 : {
 			switch(j) {
-				case 0 : return r_2 * (_piA *             - _exp1);                              //A
-				case 1 : return r_2 * (_piC * (_piR/_piY) * _exp1 - (_piC/_piY) * k1_2 * _exp21); //C
-				case 2 : return r_2 * (_piG *             - _exp1);                              //G
-				case 3 : return r_2 * (_piT * (_piR/_piY) * _exp1 + (_piC/_piY) * k1_2 * _exp21); //T, U
+				case 0 : return r_2 * (piA_ *             - exp1_);                              //A
+				case 1 : return r_2 * (piC_ * (piR_/piY_) * exp1_ - (piC_/piY_) * k1_2 * exp21_); //C
+				case 2 : return r_2 * (piG_ *             - exp1_);                              //G
+				case 3 : return r_2 * (piT_ * (piR_/piY_) * exp1_ + (piC_/piY_) * k1_2 * exp21_); //T, U
 			}
 		}
 	}
@@ -352,125 +352,125 @@ double HKY85::d2Pij_dt2(int i, int j, double d) const
 
 const Matrix<double> & HKY85::getPij_t(double d) const
 {
-  _l = _r * d;
-	_exp1 = exp(-_l);
-	_exp22 = exp(-_k2 * _l);
-	_exp21 = exp(-_k1 * _l);
+  l_ = r_ * d;
+	exp1_ = exp(-l_);
+	exp22_ = exp(-k2_ * l_);
+	exp21_ = exp(-k1_ * l_);
 
 	//A
-	_p(0, 0) = _piA * (1. + (_piY/_piR) * _exp1) + (_piG/_piR) * _exp22; //A
-	_p(0, 1) = _piC * (1. -               _exp1);                        //C
-	_p(0, 2) = _piG * (1. + (_piY/_piR) * _exp1) - (_piG/_piR) * _exp22; //G
-	_p(0, 3) = _piT * (1. -               _exp1);                        //T, U
+	p_(0, 0) = piA_ * (1. + (piY_/piR_) * exp1_) + (piG_/piR_) * exp22_; //A
+	p_(0, 1) = piC_ * (1. -               exp1_);                        //C
+	p_(0, 2) = piG_ * (1. + (piY_/piR_) * exp1_) - (piG_/piR_) * exp22_; //G
+	p_(0, 3) = piT_ * (1. -               exp1_);                        //T, U
 
 	//C
-	_p(1, 0) = _piA * (1. -               _exp1);                        //A
-	_p(1, 1) = _piC * (1. + (_piR/_piY) * _exp1) + (_piT/_piY) * _exp21; //C
-	_p(1, 2) = _piG * (1. -               _exp1);                        //G
-	_p(1, 3) = _piT * (1. + (_piR/_piY) * _exp1) - (_piT/_piY) * _exp21; //T, U
+	p_(1, 0) = piA_ * (1. -               exp1_);                        //A
+	p_(1, 1) = piC_ * (1. + (piR_/piY_) * exp1_) + (piT_/piY_) * exp21_; //C
+	p_(1, 2) = piG_ * (1. -               exp1_);                        //G
+	p_(1, 3) = piT_ * (1. + (piR_/piY_) * exp1_) - (piT_/piY_) * exp21_; //T, U
 
 	//G
-	_p(2, 0) = _piA * (1. + (_piY/_piR) * _exp1) - (_piA/_piR) * _exp22; //A
-	_p(2, 1) = _piC * (1. -               _exp1);                        //C
-	_p(2, 2) = _piG * (1. + (_piY/_piR) * _exp1) + (_piA/_piR) * _exp22; //G
-	_p(2, 3) = _piT * (1. -               _exp1);                        //T, U
+	p_(2, 0) = piA_ * (1. + (piY_/piR_) * exp1_) - (piA_/piR_) * exp22_; //A
+	p_(2, 1) = piC_ * (1. -               exp1_);                        //C
+	p_(2, 2) = piG_ * (1. + (piY_/piR_) * exp1_) + (piA_/piR_) * exp22_; //G
+	p_(2, 3) = piT_ * (1. -               exp1_);                        //T, U
 
 	//T, U
-	_p(3, 0) = _piA * (1. -               _exp1);                        //A
-	_p(3, 1) = _piC * (1. + (_piR/_piY) * _exp1) - (_piC/_piY) * _exp21; //C
-	_p(3, 2) = _piG * (1. -               _exp1);                        //G
-	_p(3, 3) = _piT * (1. + (_piR/_piY) * _exp1) + (_piC/_piY) * _exp21; //T, U
+	p_(3, 0) = piA_ * (1. -               exp1_);                        //A
+	p_(3, 1) = piC_ * (1. + (piR_/piY_) * exp1_) - (piC_/piY_) * exp21_; //C
+	p_(3, 2) = piG_ * (1. -               exp1_);                        //G
+	p_(3, 3) = piT_ * (1. + (piR_/piY_) * exp1_) + (piC_/piY_) * exp21_; //T, U
 
-	return _p;
+	return p_;
 }
 
 const Matrix<double> & HKY85::getdPij_dt(double d) const
 {
-	_l = _r * d;
-	_exp1 = exp(-_l);
-	_exp22 = exp(-_k2 * _l);
-	_exp21 = exp(-_k1 * _l);
+	l_ = r_ * d;
+	exp1_ = exp(-l_);
+	exp22_ = exp(-k2_ * l_);
+	exp21_ = exp(-k1_ * l_);
 
 	//A
-	_p(0, 0) = _r * (_piA * -(_piY/_piR) * _exp1 - (_piG/_piR) * _k2 * _exp22); //A
-	_p(0, 1) = _r * (_piC *                _exp1);                              //C
-	_p(0, 2) = _r * (_piG * -(_piY/_piR) * _exp1 + (_piG/_piR) * _k2 * _exp22); //G
-	_p(0, 3) = _r * (_piT *                _exp1);                              //T, U
+	p_(0, 0) = r_ * (piA_ * -(piY_/piR_) * exp1_ - (piG_/piR_) * k2_ * exp22_); //A
+	p_(0, 1) = r_ * (piC_ *                exp1_);                              //C
+	p_(0, 2) = r_ * (piG_ * -(piY_/piR_) * exp1_ + (piG_/piR_) * k2_ * exp22_); //G
+	p_(0, 3) = r_ * (piT_ *                exp1_);                              //T, U
 
 	//C
-	_p(1, 0) = _r * (_piA *                _exp1);                              //A
-	_p(1, 1) = _r * (_piC * -(_piR/_piY) * _exp1 - (_piT/_piY) * _k1 * _exp21); //C
-	_p(1, 2) = _r * (_piG *                _exp1);                              //G
-	_p(1, 3) = _r * (_piT * -(_piR/_piY) * _exp1 + (_piT/_piY) * _k1 * _exp21); //T, U
+	p_(1, 0) = r_ * (piA_ *                exp1_);                              //A
+	p_(1, 1) = r_ * (piC_ * -(piR_/piY_) * exp1_ - (piT_/piY_) * k1_ * exp21_); //C
+	p_(1, 2) = r_ * (piG_ *                exp1_);                              //G
+	p_(1, 3) = r_ * (piT_ * -(piR_/piY_) * exp1_ + (piT_/piY_) * k1_ * exp21_); //T, U
 
 	//G
-	_p(2, 0) = _r * (_piA * -(_piY/_piR) * _exp1 + (_piA/_piR) * _k2 * _exp22); //A
-	_p(2, 1) = _r * (_piC *                _exp1);                              //C
-	_p(2, 2) = _r * (_piG * -(_piY/_piR) * _exp1 - (_piA/_piR) * _k2 * _exp22); //G
-	_p(2, 3) = _r * (_piT *                _exp1);                              //T, U
+	p_(2, 0) = r_ * (piA_ * -(piY_/piR_) * exp1_ + (piA_/piR_) * k2_ * exp22_); //A
+	p_(2, 1) = r_ * (piC_ *                exp1_);                              //C
+	p_(2, 2) = r_ * (piG_ * -(piY_/piR_) * exp1_ - (piA_/piR_) * k2_ * exp22_); //G
+	p_(2, 3) = r_ * (piT_ *                exp1_);                              //T, U
 
 	//T, U
-	_p(3, 0) = _r * (_piA *                _exp1);                              //A
-	_p(3, 1) = _r * (_piC * -(_piR/_piY) * _exp1 + (_piC/_piY) * _k1 * _exp21); //C
-	_p(3, 2) = _r * (_piG *                _exp1);                              //G
-	_p(3, 3) = _r * (_piT * -(_piR/_piY) * _exp1 - (_piC/_piY) * _k1 * _exp21); //T, U
+	p_(3, 0) = r_ * (piA_ *                exp1_);                              //A
+	p_(3, 1) = r_ * (piC_ * -(piR_/piY_) * exp1_ + (piC_/piY_) * k1_ * exp21_); //C
+	p_(3, 2) = r_ * (piG_ *                exp1_);                              //G
+	p_(3, 3) = r_ * (piT_ * -(piR_/piY_) * exp1_ - (piC_/piY_) * k1_ * exp21_); //T, U
 
-	return _p;
+	return p_;
 }
 
 const Matrix<double> & HKY85::getd2Pij_dt2(double d) const
 {
-	double r_2 = _r * _r;
-	_l = _r * d;
-	double k1_2 = _k1 * _k1;
-	double k2_2 = _k2 * _k2;
-	_exp1 = exp(-_l);
-	_exp22 = exp(-_k2 * _l);
-	_exp21 = exp(-_k1 * _l);
+	double r_2 = r_ * r_;
+	l_ = r_ * d;
+	double k1_2 = k1_ * k1_;
+	double k2_2 = k2_ * k2_;
+	exp1_ = exp(-l_);
+	exp22_ = exp(-k2_ * l_);
+	exp21_ = exp(-k1_ * l_);
 
 	//A
-	_p(0, 0) = r_2 * (_piA * (_piY/_piR) * _exp1 + (_piG/_piR) * k2_2 * _exp22); //A
-	_p(0, 1) = r_2 * (_piC *             - _exp1);                               //C
-	_p(0, 2) = r_2 * (_piG * (_piY/_piR) * _exp1 - (_piG/_piR) * k2_2 * _exp22); //G
-	_p(0, 3) = r_2 * (_piT *             - _exp1);                               //T, U
+	p_(0, 0) = r_2 * (piA_ * (piY_/piR_) * exp1_ + (piG_/piR_) * k2_2 * exp22_); //A
+	p_(0, 1) = r_2 * (piC_ *             - exp1_);                               //C
+	p_(0, 2) = r_2 * (piG_ * (piY_/piR_) * exp1_ - (piG_/piR_) * k2_2 * exp22_); //G
+	p_(0, 3) = r_2 * (piT_ *             - exp1_);                               //T, U
 
 	//C
-	_p(1, 0) = r_2 * (_piA *             - _exp1);                               //A
-	_p(1, 1) = r_2 * (_piC * (_piR/_piY) * _exp1 + (_piT/_piY) * k1_2 * _exp21); //C
-	_p(1, 2) = r_2 * (_piG *             - _exp1);                               //G
-	_p(1, 3) = r_2 * (_piT * (_piR/_piY) * _exp1 - (_piT/_piY) * k1_2 * _exp21); //T, U
+	p_(1, 0) = r_2 * (piA_ *             - exp1_);                               //A
+	p_(1, 1) = r_2 * (piC_ * (piR_/piY_) * exp1_ + (piT_/piY_) * k1_2 * exp21_); //C
+	p_(1, 2) = r_2 * (piG_ *             - exp1_);                               //G
+	p_(1, 3) = r_2 * (piT_ * (piR_/piY_) * exp1_ - (piT_/piY_) * k1_2 * exp21_); //T, U
 
 	//G
-	_p(2, 0) = r_2 * (_piA * (_piY/_piR) * _exp1 - (_piA/_piR) * k2_2 * _exp22); //A
-	_p(2, 1) = r_2 * (_piC *             - _exp1);                               //C
-	_p(2, 2) = r_2 * (_piG * (_piY/_piR) * _exp1 + (_piA/_piR) * k2_2 * _exp22); //G
-	_p(2, 3) = r_2 * (_piT *             - _exp1);                               //T, U
+	p_(2, 0) = r_2 * (piA_ * (piY_/piR_) * exp1_ - (piA_/piR_) * k2_2 * exp22_); //A
+	p_(2, 1) = r_2 * (piC_ *             - exp1_);                               //C
+	p_(2, 2) = r_2 * (piG_ * (piY_/piR_) * exp1_ + (piA_/piR_) * k2_2 * exp22_); //G
+	p_(2, 3) = r_2 * (piT_ *             - exp1_);                               //T, U
 
 	//T, U
-	_p(3, 0) = r_2 * (_piA *             - _exp1);                               //A
-	_p(3, 1) = r_2 * (_piC * (_piR/_piY) * _exp1 - (_piC/_piY) * k1_2 * _exp21); //C
-	_p(3, 2) = r_2 * (_piG *             - _exp1);                               //G
-	_p(3, 3) = r_2 * (_piT * (_piR/_piY) * _exp1 + (_piC/_piY) * k1_2 * _exp21); //T, U
+	p_(3, 0) = r_2 * (piA_ *             - exp1_);                               //A
+	p_(3, 1) = r_2 * (piC_ * (piR_/piY_) * exp1_ - (piC_/piY_) * k1_2 * exp21_); //C
+	p_(3, 2) = r_2 * (piG_ *             - exp1_);                               //G
+	p_(3, 3) = r_2 * (piT_ * (piR_/piY_) * exp1_ + (piC_/piY_) * k1_2 * exp21_); //T, U
 
-	return _p;
+	return p_;
 }
 
 /******************************************************************************/
 
 void HKY85::setFreq(std::map<int, double>& freqs)
 {
-  _piA = freqs[0];
-  _piC = freqs[1];
-  _piG = freqs[2];
-  _piT = freqs[3];
+  piA_ = freqs[0];
+  piC_ = freqs[1];
+  piG_ = freqs[2];
+  piT_ = freqs[3];
   vector<string> thetas(3);
   thetas[0] = getNamespace() + "theta";
   thetas[1] = getNamespace() + "theta1";
   thetas[2] = getNamespace() + "theta2";
   ParameterList pl = getParameters().subList(thetas);
-  pl[0].setValue(_piC + _piG);
-  pl[1].setValue(_piA / (_piA + _piT));
-  pl[2].setValue(_piG / (_piC + _piG));
+  pl[0].setValue(piC_ + piG_);
+  pl[1].setValue(piA_ / (piA_ + piT_));
+  pl[2].setValue(piG_ / (piC_ + piG_));
   setParametersValues(pl);
 }
 

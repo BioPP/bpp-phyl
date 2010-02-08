@@ -971,7 +971,7 @@ Tree* TreeTools::MRP(const vector<Tree*>& vecTr)
   DRTreeParsimonyScore * MPScore = new DRTreeParsimonyScore(*startTree, *sites, false);
   MPScore = OptimizationTools::optimizeTreeNNI(MPScore, 0);
   delete startTree;
-  Tree* retTree = new TreeTemplate<Node>(*MPScore->getTree());
+  Tree* retTree = new TreeTemplate<Node>(MPScore->getTree());
   delete MPScore;
 
   return retTree;
@@ -979,7 +979,7 @@ Tree* TreeTools::MRP(const vector<Tree*>& vecTr)
 
 /******************************************************************************/
 
-void TreeTools::computeBootstrapValues(Tree & tree, const vector<Tree *> & vecTr, bool verbose)
+void TreeTools::computeBootstrapValues(Tree& tree, const vector<Tree *> & vecTr, bool verbose)
 {
   vector<int> index;
   BipartitionList bpTree(tree, true, & index);
@@ -1012,7 +1012,7 @@ void TreeTools::computeBootstrapValues(Tree & tree, const vector<Tree *> & vecTr
 
 /******************************************************************************/
 
-vector<int> TreeTools::getAncestors(const Tree & tree, int nodeId) throw (NodeNotFoundException)
+vector<int> TreeTools::getAncestors(const Tree& tree, int nodeId) throw (NodeNotFoundException)
 {
   vector<int> ids;
   int currentId = nodeId;
@@ -1026,7 +1026,7 @@ vector<int> TreeTools::getAncestors(const Tree & tree, int nodeId) throw (NodeNo
 
 /******************************************************************************/
     
-int TreeTools::getLastCommonAncestor(const Tree & tree, const vector<int>& nodeIds) throw (NodeNotFoundException, Exception)
+int TreeTools::getLastCommonAncestor(const Tree& tree, const vector<int>& nodeIds) throw (NodeNotFoundException, Exception)
 {
   if(nodeIds.size() == 0) throw Exception("TreeTools::getLastCommonAncestor(). You must provide at least one node id.");
   vector< vector<int> > ancestors(nodeIds.size());

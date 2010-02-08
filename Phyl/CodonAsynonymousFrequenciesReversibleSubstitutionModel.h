@@ -76,34 +76,47 @@ class CodonAsynonymousFrequenciesReversibleSubstitutionModel :
 {
 private:
 
-  const GeneticCode* _geneticCode;
-  const AlphabetIndex2<double>* _pdistance;
+  const GeneticCode* geneticCode_;
+  const AlphabetIndex2<double>* pdistance_;
     
 public:
 
   /**
-   *@brief Build a new CodonAsynonymousFrequenciesReversibleSubstitutionModel object
-   *from three pointers to AbstractReversibleSubstitutionModels. NEW
-   *AbstractReversibleSubstitutionModels are copied from the given
-   *ones.
+   * @brief Build a new CodonAsynonymousFrequenciesReversibleSubstitutionModel object
+   * from three pointers to AbstractReversibleSubstitutionModels. NEW
+   * AbstractReversibleSubstitutionModels are copied from the given ones.
    *
-   *@param palph pointer to a GeneticCode
-   *@param pfreq pointer to the FrequenciesSet* equilibrium frequencies
-   *@param pdist optional pointer to the AlphabetIndex2<double> amino-acids distance object.
+   * @param palph pointer to a GeneticCode
+   * @param pfreq pointer to the FrequenciesSet* equilibrium frequencies
+   * @param pdist optional pointer to the AlphabetIndex2<double> amino-acids distance object.
    */
-  
-  CodonAsynonymousFrequenciesReversibleSubstitutionModel(const GeneticCode* palph,
-                                                         FrequenciesSet* pfreq,
-                                                         const AlphabetIndex2<double>* pdist =0) throw(Exception);
+  CodonAsynonymousFrequenciesReversibleSubstitutionModel(
+      const GeneticCode* palph,
+      FrequenciesSet* pfreq,
+      const AlphabetIndex2<double>* pdist = 0) throw(Exception);
+
+  CodonAsynonymousFrequenciesReversibleSubstitutionModel(
+      const CodonAsynonymousFrequenciesReversibleSubstitutionModel& cfm) :
+    AbstractCodonFrequenciesReversibleSubstitutionModel(cfm),
+    geneticCode_(cfm.geneticCode_),
+    pdistance_(cfm.pdistance_)
+  {}
+
+  CodonAsynonymousFrequenciesReversibleSubstitutionModel& operator=(
+      const CodonAsynonymousFrequenciesReversibleSubstitutionModel& cfm)
+  {
+    AbstractCodonFrequenciesReversibleSubstitutionModel::operator=(cfm);
+    geneticCode_ = cfm.geneticCode_;
+    pdistance_   = cfm.pdistance_;
+    return *this;
+  }
 
   ~CodonAsynonymousFrequenciesReversibleSubstitutionModel() {};
   
-#ifndef NO_VIRTUAL_COV
-  CodonAsynonymousFrequenciesReversibleSubstitutionModel*
-#else
-  Clonable*
-#endif
-  clone() const { return new CodonAsynonymousFrequenciesReversibleSubstitutionModel(*this);}
+  CodonAsynonymousFrequenciesReversibleSubstitutionModel* clone() const
+  {
+    return new CodonAsynonymousFrequenciesReversibleSubstitutionModel(*this);
+  }
   
 protected:
   void completeMatrices();
@@ -111,7 +124,7 @@ protected:
 public:
   std::string getName() const;
 
-  const GeneticCode* getGeneticCode();
+  const GeneticCode* getGeneticCode() const { return geneticCode_; }
 };
 
 } //end of namespace bpp.

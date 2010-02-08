@@ -62,9 +62,9 @@ RNonHomogeneousTreeLikelihood::RNonHomogeneousTreeLikelihood(
   bool usePatterns)
 throw (Exception):
   AbstractNonHomogeneousTreeLikelihood(tree, modelSet, rDist, verbose),
-  likelihoodData_(0)
+  likelihoodData_(0), minusLogLik_(-1.)
 {
-  if(!modelSet->isFullySetUpFor(tree))
+  if (!modelSet->isFullySetUpFor(tree))
     throw Exception("RNonHomogeneousTreeLikelihood(constructor). Model set is not fully specified.");
   init_(usePatterns);
 }
@@ -80,7 +80,7 @@ RNonHomogeneousTreeLikelihood::RNonHomogeneousTreeLikelihood(
   bool usePatterns)
 throw (Exception):
   AbstractNonHomogeneousTreeLikelihood(tree, modelSet, rDist, verbose),
-  likelihoodData_(0)
+  likelihoodData_(0), minusLogLik_(-1.)
 {
   if(!modelSet->isFullySetUpFor(tree))
     throw Exception("RNonHomogeneousTreeLikelihood(constructor). Model set is not fully specified.");
@@ -92,7 +92,10 @@ throw (Exception):
 
 void RNonHomogeneousTreeLikelihood::init_(bool usePatterns) throw (Exception)
 {
-  likelihoodData_ = new DRASRTreeLikelihoodData(*tree_, rateDistribution_->getNumberOfCategories(), usePatterns);
+  likelihoodData_ = new DRASRTreeLikelihoodData(
+      tree_,
+      rateDistribution_->getNumberOfCategories(),
+      usePatterns);
 }
 
 /******************************************************************************/
@@ -103,19 +106,19 @@ RNonHomogeneousTreeLikelihood::RNonHomogeneousTreeLikelihood(
   likelihoodData_(0),
   minusLogLik_(lik.minusLogLik_)
 {
-  likelihoodData_ = dynamic_cast<DRASRTreeLikelihoodData *>(lik.likelihoodData_->clone());
-  likelihoodData_->setTree(*tree_);
+  likelihoodData_ = dynamic_cast<DRASRTreeLikelihoodData*>(lik.likelihoodData_->clone());
+  likelihoodData_->setTree(tree_);
 }
 
 /******************************************************************************/
 
-RNonHomogeneousTreeLikelihood & RNonHomogeneousTreeLikelihood::operator=(
-    const RNonHomogeneousTreeLikelihood & lik)
+RNonHomogeneousTreeLikelihood& RNonHomogeneousTreeLikelihood::operator=(
+    const RNonHomogeneousTreeLikelihood& lik)
 {
   AbstractNonHomogeneousTreeLikelihood::operator=(lik);
   if(likelihoodData_) delete likelihoodData_;
   likelihoodData_ = dynamic_cast<DRASRTreeLikelihoodData *>(lik.likelihoodData_->clone());
-  likelihoodData_->setTree(*tree_);
+  likelihoodData_->setTree(tree_);
   minusLogLik_ = lik.minusLogLik_;
   return *this;
 }

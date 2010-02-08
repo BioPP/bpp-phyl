@@ -52,10 +52,10 @@ std::vector<unsigned int> NeighborJoining::getBestPair() throw (Exception)
 {
   for (std::map<unsigned int, Node *>::iterator i = currentNodes_.begin(); i != currentNodes_.end(); i++) {
     unsigned int id = i -> first;
-    _sumDist[id] = 0;
+    sumDist_[id] = 0;
     for(map<unsigned int, Node *>::iterator j = currentNodes_.begin(); j != currentNodes_.end(); j++) {
       unsigned int jd = j -> first;
-      _sumDist[id] += matrix_(id, jd);
+      sumDist_[id] += matrix_(id, jd);
     }
   }
 
@@ -67,7 +67,7 @@ std::vector<unsigned int> NeighborJoining::getBestPair() throw (Exception)
     j++;
     for(; j != currentNodes_.end(); j++) {
       unsigned int jd = j -> first;
-      double crit = _sumDist[id] + _sumDist[jd] - (currentNodes_.size() - 2) * matrix_(id, jd);
+      double crit = sumDist_[id] + sumDist_[jd] - (currentNodes_.size() - 2) * matrix_(id, jd);
       //cout << "\t" << id << "\t" << jd << "\t" << crit << endl;
       if(crit > critMax) {
         critMax = crit;
@@ -85,12 +85,15 @@ std::vector<unsigned int> NeighborJoining::getBestPair() throw (Exception)
 
 std::vector<double> NeighborJoining::computeBranchLengthsForPair(const std::vector<unsigned int>& pair)
 {
-  double ratio = (_sumDist[pair[0]] - _sumDist[pair[1]]) / (currentNodes_.size() - 2);
+  double ratio = (sumDist_[pair[0]] - sumDist_[pair[1]]) / (currentNodes_.size() - 2);
   vector<double> d(2);
-  if(_positiveLengths) {
+  if (positiveLengths_)
+  {
     d[0] = std::max(.5 * (matrix_(pair[0], pair[1]) + ratio), 0.); 
     d[1] = std::max(.5 * (matrix_(pair[0], pair[1]) - ratio), 0.); 
-  } else {
+  }
+  else
+  {
     d[0] = .5 * (matrix_(pair[0], pair[1]) + ratio); 
     d[1] = .5 * (matrix_(pair[0], pair[1]) - ratio); 
   }
@@ -100,7 +103,7 @@ std::vector<double> NeighborJoining::computeBranchLengthsForPair(const std::vect
 double NeighborJoining::computeDistancesFromPair(const std::vector<unsigned int>& pair, const std::vector<double>& branchLengths, unsigned int pos)
 {
   return 
-    _positiveLengths ?
+    positiveLengths_ ?
       std::max(.5 * (matrix_(pair[0], pos) - branchLengths[0] + matrix_(pair[1], pos) - branchLengths[1]), 0.)
     :          .5 * (matrix_(pair[0], pos) - branchLengths[0] + matrix_(pair[1], pos) - branchLengths[1]); 
 }
@@ -129,13 +132,13 @@ void NeighborJoining::finalStep(int idRoot)
     it++;
     unsigned int i3 = it->first;
     Node * n3       = it->second;
-    double d1 = _positiveLengths ?
+    double d1 = positiveLengths_ ?
         std::max(matrix_(i1, i2) + matrix_(i1, i3) - matrix_(i2, i3), 0.)
       :          matrix_(i1, i2) + matrix_(i1, i3) - matrix_(i2, i3);
-    double d2 = _positiveLengths ?
+    double d2 = positiveLengths_ ?
         std::max(matrix_(i2, i1) + matrix_(i2, i3) - matrix_(i1, i3), 0.)
       :          matrix_(i2, i1) + matrix_(i2, i3) - matrix_(i1, i3);
-    double d3 = _positiveLengths ?
+    double d3 = positiveLengths_ ?
         std::max(matrix_(i3, i1) + matrix_(i3, i2) - matrix_(i1, i2), 0.)
       :          matrix_(i3, i1) + matrix_(i3, i2) - matrix_(i1, i2);
     root->addSon(n1);

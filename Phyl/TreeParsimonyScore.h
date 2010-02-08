@@ -96,7 +96,7 @@ class TreeParsimonyScore:
 		 *
 		 * @return The tree associated to this object.
 		 */
-		virtual const Tree* getTree() const = 0;
+		virtual const Tree& getTree() const = 0;
 };
 
 } //end of namespace bpp.

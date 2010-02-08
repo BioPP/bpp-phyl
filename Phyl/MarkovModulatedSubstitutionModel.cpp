@@ -49,29 +49,33 @@ using namespace std;
 
 /******************************************************************************/
 
-MarkovModulatedSubstitutionModel::MarkovModulatedSubstitutionModel(const MarkovModulatedSubstitutionModel& model):
+MarkovModulatedSubstitutionModel::MarkovModulatedSubstitutionModel(
+    const MarkovModulatedSubstitutionModel& model) :
   AbstractParameterAliasable(model),
-  nbStates_(model.nbStates_),
-  nbRates_(model.nbRates_),
-  rates_(model.rates_),
+  model_               (dynamic_cast<ReversibleSubstitutionModel*>(model.model_->clone())),
+  nbStates_            (model.nbStates_),
+  nbRates_             (model.nbRates_),
+  rates_               (model.rates_),
   ratesExchangeability_(model.ratesExchangeability_),
-  ratesFreq_(model.ratesFreq_),
-  ratesGenerator_(model.ratesGenerator_),
-  chars_(model.chars_),
-  generator_(model.generator_),
-  exchangeability_(model.exchangeability_),
-  leftEigenVectors_(model.leftEigenVectors_),
-  rightEigenVectors_(model.rightEigenVectors_),
-  eigenValues_(model.eigenValues_),
-  eigenDecompose_(model.eigenDecompose_),
-  freq_(model.freq_),
+  ratesFreq_           (model.ratesFreq_),
+  ratesGenerator_      (model.ratesGenerator_),
+  chars_               (model.chars_),
+  generator_           (model.generator_),
+  exchangeability_     (model.exchangeability_),
+  leftEigenVectors_    (model.leftEigenVectors_),
+  rightEigenVectors_   (model.rightEigenVectors_),
+  eigenValues_         (model.eigenValues_),
+  eigenDecompose_      (model.eigenDecompose_),
+  pijt_                (model.pijt_),
+  dpijt_               (model.dpijt_),
+  d2pijt_              (model.d2pijt_),
+  freq_                (model.freq_),
   normalizeRateChanges_(model.normalizeRateChanges_),
-  nestedPrefix_(model.nestedPrefix_)
-{
-  model_ = dynamic_cast<ReversibleSubstitutionModel *>(model.model_->clone());
-}
+  nestedPrefix_        (model.nestedPrefix_)
+{}
 
-MarkovModulatedSubstitutionModel& MarkovModulatedSubstitutionModel::operator=(const MarkovModulatedSubstitutionModel & model)
+MarkovModulatedSubstitutionModel& MarkovModulatedSubstitutionModel::operator=(
+    const MarkovModulatedSubstitutionModel& model)
 {
   AbstractParametrizable::operator=(model);
   model_                = dynamic_cast<ReversibleSubstitutionModel *>(model.model_->clone());
@@ -88,6 +92,9 @@ MarkovModulatedSubstitutionModel& MarkovModulatedSubstitutionModel::operator=(co
   rightEigenVectors_    = model.rightEigenVectors_;
   eigenValues_          = model.eigenValues_;
   eigenDecompose_       = model.eigenDecompose_;
+  pijt_                 = model.pijt_;
+  dpijt_                = model.dpijt_;
+  d2pijt_               = model.d2pijt_;
   freq_                 = model.freq_;
   normalizeRateChanges_ = model.normalizeRateChanges_;
   nestedPrefix_         = model.nestedPrefix_;

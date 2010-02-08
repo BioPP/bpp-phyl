@@ -62,7 +62,7 @@ RHomogeneousTreeLikelihood::RHomogeneousTreeLikelihood(
   bool usePatterns)
 throw (Exception):
   AbstractHomogeneousTreeLikelihood(tree, model, rDist, checkRooted, verbose),
-  likelihoodData_(0)
+  likelihoodData_(0), minusLogLik_(-1.)
 {
   init_(usePatterns);
 }
@@ -70,16 +70,16 @@ throw (Exception):
 /******************************************************************************/
 
 RHomogeneousTreeLikelihood::RHomogeneousTreeLikelihood(
-  const Tree & tree,
-  const SiteContainer & data,
-  SubstitutionModel * model,
-  DiscreteDistribution * rDist,
+  const Tree& tree,
+  const SiteContainer& data,
+  SubstitutionModel* model,
+  DiscreteDistribution* rDist,
   bool checkRooted,
   bool verbose,
   bool usePatterns)
 throw (Exception):
   AbstractHomogeneousTreeLikelihood(tree, model, rDist, checkRooted, verbose),
-  likelihoodData_(0)
+  likelihoodData_(0), minusLogLik_(-1.)
 {
   init_(usePatterns);
   setData(data);
@@ -89,30 +89,33 @@ throw (Exception):
 
 void RHomogeneousTreeLikelihood::init_(bool usePatterns) throw (Exception)
 {
-  likelihoodData_ = new DRASRTreeLikelihoodData(*tree_, rateDistribution_->getNumberOfCategories(), usePatterns);
+  likelihoodData_ = new DRASRTreeLikelihoodData(
+      tree_,
+      rateDistribution_->getNumberOfCategories(),
+      usePatterns);
 }
 
 /******************************************************************************/
 
 RHomogeneousTreeLikelihood::RHomogeneousTreeLikelihood(
-    const RHomogeneousTreeLikelihood & lik):
+    const RHomogeneousTreeLikelihood& lik):
   AbstractHomogeneousTreeLikelihood(lik),
   likelihoodData_(0),
   minusLogLik_(lik.minusLogLik_)
 {
   likelihoodData_ = dynamic_cast<DRASRTreeLikelihoodData *>(lik.likelihoodData_->clone());
-  likelihoodData_->setTree(*tree_);
+  likelihoodData_->setTree(tree_);
 }
 
 /******************************************************************************/
 
 RHomogeneousTreeLikelihood& RHomogeneousTreeLikelihood::operator=(
-    const RHomogeneousTreeLikelihood & lik)
+    const RHomogeneousTreeLikelihood& lik)
 {
   AbstractHomogeneousTreeLikelihood::operator=(lik);
   if(likelihoodData_) delete likelihoodData_;
   likelihoodData_ = dynamic_cast<DRASRTreeLikelihoodData *>(lik.likelihoodData_->clone());
-  likelihoodData_->setTree(*tree_);
+  likelihoodData_->setTree(tree_);
   minusLogLik_ = lik.minusLogLik_;
   return *this;
 }

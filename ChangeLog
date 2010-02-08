@@ -1,3 +1,9 @@
+08/12/10 Julien Dutheil
+* Now compiles with -Weffc++!
+* A lot of code updates and small bugs fixed!
+* BioNJ is now faster when using the full constructor.
+* Parsimony and Likelihood data structure improved.
+
 29/12/09 Julien Dutheil
 * Improved TreeDrawing classes: added Listeners.
 

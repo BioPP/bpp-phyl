@@ -83,7 +83,7 @@ namespace bpp
 class RHomogeneousTreeLikelihood :
 	public AbstractHomogeneousTreeLikelihood
 {
-	protected:
+	private:
 
 		mutable DRASRTreeLikelihoodData* likelihoodData_;
     double minusLogLik_;

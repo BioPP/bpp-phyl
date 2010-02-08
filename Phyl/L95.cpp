@@ -52,14 +52,15 @@ using namespace bpp;
 using namespace std;
 
 /******************************************************************************/
-
+ 
 L95::L95(
 	const NucleicAlphabet * alpha,
 	double beta,
 	double gamma,
 	double delta,
 	double theta):
-	NucleotideSubstitutionModel(alpha, "L95.")
+	NucleotideSubstitutionModel(alpha, "L95."), beta_(beta), gamma_(gamma), delta_(delta_), theta_(theta),
+  piA_((1. - theta) / 2.), piC_(theta / 2.), piG_(theta / 2.), piT_((1. - theta) / 2.)
 {
 	Parameter betaP("L95.beta" , beta , &Parameter::R_PLUS_STAR);
 	addParameter_(betaP);
@@ -76,33 +77,33 @@ L95::L95(
 	
 void L95::updateMatrices()
 {
-	_beta  = getParameterValue("beta");
-	_gamma = getParameterValue("gamma");
-	_delta = getParameterValue("delta");
-	_theta = getParameterValue("theta");
+	beta_  = getParameterValue("beta");
+	gamma_ = getParameterValue("gamma");
+	delta_ = getParameterValue("delta");
+	theta_ = getParameterValue("theta");
 
-  freq_[0] = _piA = (1. - _theta)/2.;
-  freq_[1] = _piC = _theta/2.;
-  freq_[2] = _piG = _theta/2;
-  freq_[3] = _piT = (1. - _theta)/2.;
+  freq_[0] = piA_ = (1. - theta_)/2.;
+  freq_[1] = piC_ = theta_/2.;
+  freq_[2] = piG_ = theta_/2;
+  freq_[3] = piT_ = (1. - theta_)/2.;
 	
   // Exchangeability matrix:
-	exchangeability_(0,0) = -_gamma*_piT-_piG-_beta*_piC;
-	exchangeability_(1,0) = _beta;
-	exchangeability_(0,1) = _beta;
+	exchangeability_(0,0) = -gamma_*piT_-piG_-beta_*piC_;
+	exchangeability_(1,0) = beta_;
+	exchangeability_(0,1) = beta_;
 	exchangeability_(2,0) = 1.;
 	exchangeability_(0,2) = 1.;
-	exchangeability_(3,0) = _gamma;
-	exchangeability_(0,3) = _gamma;
-	exchangeability_(1,1) = -_piT-_delta*_piG-_beta*_piA;
-	exchangeability_(1,2) = _delta;
-	exchangeability_(2,1) = _delta;
+	exchangeability_(3,0) = gamma_;
+	exchangeability_(0,3) = gamma_;
+	exchangeability_(1,1) = -piT_-delta_*piG_-beta_*piA_;
+	exchangeability_(1,2) = delta_;
+	exchangeability_(2,1) = delta_;
 	exchangeability_(1,3) = 1.;
 	exchangeability_(3,1) = 1.;
-	exchangeability_(2,2) = -_beta*_piT-_delta*_piC-_piA;
-	exchangeability_(2,3) = _beta;
-	exchangeability_(3,2) = _beta;
-	exchangeability_(3,3) = -_beta*_piG-_piC-_gamma*_piA;
+	exchangeability_(2,2) = -beta_*piT_-delta_*piC_-piA_;
+	exchangeability_(2,3) = beta_;
+	exchangeability_(3,2) = beta_;
+	exchangeability_(3,3) = -beta_*piG_-piC_-gamma_*piA_;
 
   AbstractReversibleSubstitutionModel::updateMatrices();
 }
@@ -111,9 +112,9 @@ void L95::updateMatrices()
 
 void L95::setFreq(map<int, double>& freqs)
 {
-  _piC = freqs[1];
-  _piG = freqs[2];
-  getParameter_("theta").setValue(_piC + _piG);
+  piC_ = freqs[1];
+  piG_ = freqs[2];
+  getParameter_("theta").setValue(piC_ + piG_);
   updateMatrices();
 }
 

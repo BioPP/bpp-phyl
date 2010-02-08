@@ -37,8 +37,8 @@ The fact that you are presently reading this means that you have had
 knowledge of the CeCILL license and that you accept its terms.
 */
 
-#ifndef _T92_H_
-#define _T92_H_
+#ifndef T92_H__
+#define T92_H__
 
 #include "NucleotideSubstitutionModel.h"
 
@@ -70,7 +70,7 @@ namespace bpp
  * \f[
  * \pi = \left(\frac{1-\theta}{2}, \frac{\theta}{2}, \frac{\theta}{2}, \frac{1 - \theta}{2}\right)
  * \f]
- * Normalization: \f$r\f$ is set so that \f$\sum_i Q_{i,i}\pi_i = -1\f$:
+ * Normalization: \f$r\f$ is set so that \f$\sumi_ Q_{i,i}\pii_ = -1\f$:
  * \f[
  * S = \frac{1}{P}\begin{pmatrix}
  * \frac{2\theta\kappa + 2}{\theta - 1} & 2 & 2\kappa & 2 \\ 
@@ -155,22 +155,22 @@ namespace bpp
  * \endcode
  *
  * Reference:
- * - Tamura K (1992), _Molecular Biology And Evolution_ 9(5) 814-25. 
+ * - Tamura K (1992), Molecular_ Biology And Evolution_ 9(5) 814-25. 
  */
-  class T92:
-    public NucleotideSubstitutionModel
-  {
-  protected:
-    double _kappa, _theta, _r, _k, _piA, _piC, _piG, _piT;
-    mutable double _l, _exp1, _exp2;
-    mutable RowMatrix<double> _p;
+class T92 :
+  public virtual NucleotideSubstitutionModel
+{
+  private:
+    double kappa_, theta_, k_, r_, piA_, piC_, piG_, piT_;
+    mutable double exp1_, exp2_, l_;
+    mutable RowMatrix<double> p_;
     
   public:
-    T92(const NucleicAlphabet * alpha, double kappa = 1., double theta = 0.5);
+    T92(const NucleicAlphabet* alpha, double kappa = 1., double theta = 0.5);
 
     virtual ~T92() {}
 
-#ifndef NO_VIRTUAL_COV
+#ifndef NOVIRTUAL_COV_
     T92*
 #else
     Clonable*
@@ -182,9 +182,9 @@ namespace bpp
     double Pij_t    (int i, int j, double d) const;
     double dPij_dt  (int i, int j, double d) const;
     double d2Pij_dt2(int i, int j, double d) const;
-    const Matrix<double> & getPij_t(double d) const;
-    const Matrix<double> & getdPij_dt(double d) const;
-    const Matrix<double> & getd2Pij_dt2(double d) const;
+    const Matrix<double>& getPij_t(double d) const;
+    const Matrix<double>& getdPij_dt(double d) const;
+    const Matrix<double>& getd2Pij_dt2(double d) const;
 
     std::string getName() const { return "T92"; }
 	
@@ -199,5 +199,5 @@ namespace bpp
 
 } //end of namespace bpp.
 
-#endif	//_T92_H_
+#endif	//T92_H__
 

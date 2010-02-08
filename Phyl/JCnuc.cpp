@@ -47,10 +47,9 @@ using namespace std;
 
 /******************************************************************************/
 
-JCnuc::JCnuc(const NucleicAlphabet * alpha) :
-  NucleotideSubstitutionModel(alpha, "JC69.")
+JCnuc::JCnuc(const NucleicAlphabet* alpha) :
+  NucleotideSubstitutionModel(alpha, "JC69."), exp_(), p_(size_, size_)
 {
-  _p.resize(size_,size_);
 	updateMatrices();
 }
 
@@ -122,41 +121,41 @@ double JCnuc::d2Pij_dt2(unsigned int i, unsigned int j, double d) const
 
 const Matrix<double> & JCnuc::getPij_t(double d) const
 {
-	_exp = exp(-4./3. * d);
+	exp_ = exp(-4./3. * d);
 	for(unsigned int i = 0; i < size_; i++)
   {
 		for(unsigned int j = 0; j < size_; j++)
     {
-			_p(i,j) = (i==j) ? 1./4. + 3./4. * _exp : 1./4. - 1./4. * _exp;
+			p_(i,j) = (i==j) ? 1./4. + 3./4. * exp_ : 1./4. - 1./4. * exp_;
 		}
 	}
-	return _p;
+	return p_;
 }
 
 const Matrix<double> & JCnuc::getdPij_dt(double d) const
 {
-	_exp = exp(-4./3. * d);
+	exp_ = exp(-4./3. * d);
 	for(unsigned int i = 0; i < size_; i++)
   {
 		for(unsigned int j = 0; j < size_; j++)
     {
-			_p(i,j) = (i==j) ? - _exp : 1./3. * _exp;
+			p_(i,j) = (i==j) ? - exp_ : 1./3. * exp_;
 		}
 	}
-	return _p;
+	return p_;
 }
 
 const Matrix<double> & JCnuc::getd2Pij_dt2(double d) const
 {
-	_exp = exp(-4./3. * d);
+	exp_ = exp(-4./3. * d);
 	for(unsigned int i = 0; i < size_; i++)
   {
 		for(unsigned int j = 0; j < size_; j++)
     {
-			_p(i,j) = (i==j) ? 4./3. * _exp : - 4./9. * _exp;
+			p_(i,j) = (i==j) ? 4./3. * exp_ : - 4./9. * exp_;
 		}
 	}
-	return _p;
+	return p_;
 }
 
 /******************************************************************************/

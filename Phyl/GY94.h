@@ -59,16 +59,16 @@ namespace bpp
  * For codons @f$i=i_1i_2i_3@f$ and @f$j=j_1j_2j_3@f$, the generator term @f$Q_{ij} (i \neq j)@f$ is:
  * 0 if 2 or 3 of the pair @f$(i_1,j_1) (i_2,j_2) (i_3,j_3) @f$ are different.
  * @f$\mu \pi_j \exp(-d_{aa_i,aa_j}/V)@f$  if exactly 1 of the pairs
- @f$(i_1,j_1) (i_2,j_2) (i_3,j_3) @f$ is different, and that
- difference is a transversion.
+ * @f$(i_1,j_1) (i_2,j_2) (i_3,j_3) @f$ is different, and that
+ * difference is a transversion.
  * @f$\mu \kappa \pi_j \exp(-d_{aa_i,aa_j}/V)@f$  if exactly 1 of the
- pairs @f$(i_1,j_1) (i_2,j_2) (i_3,j_3) @f$ is different, and that
- difference is a transition.
+ * pairs @f$(i_1,j_1) (i_2,j_2) (i_3,j_3) @f$ is different, and that
+ * difference is a transition.
  *
  * @f$\mu@f$ is a normalization factor.
  *
  * This model includes 2 parameters (@f$\kappa@f$ and @f$V@f$). The codon
- frequencies are observed.
+ * frequencies are observed.
  *
  * Reference:
  * - Goldman N. and Yang Z. (1994), _Molecular Biology And Evolution_ 11(5) 725--736. 
@@ -80,23 +80,20 @@ class GY94:
 {
 private:
 
-  GranthamAAChemicalDistance _gacd;
-  FixedFrequenciesSet _ffs;
-  CodonAsynonymousFrequenciesReversibleSubstitutionModel* _pmodel;
+  GranthamAAChemicalDistance gacd_;
+  FixedFrequenciesSet ffs_;
+  CodonAsynonymousFrequenciesReversibleSubstitutionModel pmodel_;
 
 public:
   GY94(const GeneticCode* palph);
        
-  ~GY94();
+  ~GY94() {}
 
   GY94(const GY94&);
   
-#ifndef NO_VIRTUAL_COV
-    GY94*
-#else
-    Clonable*
-#endif
-    clone() const { return new GY94(*this); }
+  GY94& operator=(const GY94&);
+  
+  GY94* clone() const { return new GY94(*this); }
 
 public:
 
@@ -104,39 +101,39 @@ public:
 	
   inline void updateMatrices();
 
-  const Vdouble& getFrequencies() const { return _pmodel->getFrequencies(); }
+  const Vdouble& getFrequencies() const { return pmodel_.getFrequencies(); }
        
-  const Matrix<double>& getGenerator() const { return _pmodel->getGenerator(); }
+  const Matrix<double>& getGenerator() const { return pmodel_.getGenerator(); }
     
-  const Vdouble& getEigenValues() const { return _pmodel->getEigenValues(); }
+  const Vdouble& getEigenValues() const { return pmodel_.getEigenValues(); }
     
-  const Matrix<double>& getRowLeftEigenVectors() const { return _pmodel->getRowLeftEigenVectors(); }
+  const Matrix<double>& getRowLeftEigenVectors() const { return pmodel_.getRowLeftEigenVectors(); }
   
-  const Matrix<double>& getColumnRightEigenVectors() const { return _pmodel->getColumnRightEigenVectors(); }
+  const Matrix<double>& getColumnRightEigenVectors() const { return pmodel_.getColumnRightEigenVectors(); }
     
-  double freq(unsigned int i) const { return _pmodel->freq(i); }
+  double freq(unsigned int i) const { return pmodel_.freq(i); }
     
-  double Qij(unsigned int i, unsigned int j) const { return _pmodel->Qij(i,j); }
+  double Qij(unsigned int i, unsigned int j) const { return pmodel_.Qij(i,j); }
     
-  double Pij_t    (unsigned int i, unsigned int j, double t) const { return _pmodel->Pij_t(i, j, t); }
-  double dPij_dt  (unsigned int i, unsigned int j, double t) const { return _pmodel->dPij_dt(i, j, t); }
-  double d2Pij_dt2(unsigned int i, unsigned int j, double t) const { return _pmodel->d2Pij_dt2(i, j, t); }
+  double Pij_t    (unsigned int i, unsigned int j, double t) const { return pmodel_.Pij_t(i, j, t); }
+  double dPij_dt  (unsigned int i, unsigned int j, double t) const { return pmodel_.dPij_dt(i, j, t); }
+  double d2Pij_dt2(unsigned int i, unsigned int j, double t) const { return pmodel_.d2Pij_dt2(i, j, t); }
 
-  const Matrix<double>& getPij_t    (double d) const { return _pmodel->getPij_t(d);  }
+  const Matrix<double>& getPij_t    (double d) const { return pmodel_.getPij_t(d);  }
 
-  const Matrix<double>& getdPij_dt  (double d) const { return _pmodel->getdPij_dt(d);  }
+  const Matrix<double>& getdPij_dt  (double d) const { return pmodel_.getdPij_dt(d);  }
 
-  const Matrix<double>& getd2Pij_dt2(double d) const { return _pmodel->getd2Pij_dt2(d);  }
+  const Matrix<double>& getd2Pij_dt2(double d) const { return pmodel_.getd2Pij_dt2(d);  }
 
-  void setFreq(std::map<int, double>& m)  { _pmodel->setFreq(m);  }
+  void setFreq(std::map<int, double>& m)  { pmodel_.setFreq(m);  }
 
-  unsigned int getNumberOfStates() const  { return _pmodel->getNumberOfStates();  }
+  unsigned int getNumberOfStates() const  { return pmodel_.getNumberOfStates();  }
 
-  double getInitValue(unsigned int i, int state) const throw (BadIntException) { return _pmodel->getInitValue(i,state); }
+  double getInitValue(unsigned int i, int state) const throw (BadIntException) { return pmodel_.getInitValue(i,state); }
 
   void enableEigenDecomposition(bool yn) { eigenDecompose_ = 1; }
 
-  bool enableEigenDecomposition() { return _pmodel->enableEigenDecomposition(); }
+  bool enableEigenDecomposition() { return pmodel_.enableEigenDecomposition(); }
 
 };
 

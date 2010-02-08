@@ -60,31 +60,31 @@ const string NNITopologySearch::PHYML  = "PhyML";
 
 void NNITopologySearch::notifyAllPerformed(const TopologyChangeEvent & event)
 {
-  _searchableTree->topologyChangePerformed(event);
-  for(unsigned int i = 0; i < _topoListeners.size(); i++)
-    _topoListeners[i]->topologyChangePerformed(event);
+  searchableTree_->topologyChangePerformed(event);
+  for(unsigned int i = 0; i < topoListeners_.size(); i++)
+    topoListeners_[i]->topologyChangePerformed(event);
 }
 
 void NNITopologySearch::notifyAllTested(const TopologyChangeEvent & event)
 {
-  _searchableTree->topologyChangeTested(event);
-  for(unsigned int i = 0; i < _topoListeners.size(); i++)
-    _topoListeners[i]->topologyChangeTested(event);
+  searchableTree_->topologyChangeTested(event);
+  for(unsigned int i = 0; i < topoListeners_.size(); i++)
+    topoListeners_[i]->topologyChangeTested(event);
 }
 	
 void NNITopologySearch::notifyAllSuccessful(const TopologyChangeEvent & event)
 {
-  _searchableTree->topologyChangeSuccessful(event);
-  for(unsigned int i = 0; i < _topoListeners.size(); i++)
-    _topoListeners[i]->topologyChangeSuccessful(event);
+  searchableTree_->topologyChangeSuccessful(event);
+  for(unsigned int i = 0; i < topoListeners_.size(); i++)
+    topoListeners_[i]->topologyChangeSuccessful(event);
 }
 
 void NNITopologySearch::search() throw (Exception)
 {
-	     if(_algorithm == FAST)   searchFast();
-	else if(_algorithm == BETTER) searchBetter();
-	else if(_algorithm == PHYML)  searchPhyML();
-  else throw Exception("Unknown NNI algorithm: " + _algorithm + ".\n");
+	     if(algorithm_ == FAST)   searchFast();
+	else if(algorithm_ == BETTER) searchBetter();
+	else if(algorithm_ == PHYML)  searchPhyML();
+  else throw Exception("Unknown NNI algorithm: " + algorithm_ + ".\n");
 }
 
 void NNITopologySearch::searchFast() throw (Exception)
@@ -92,7 +92,7 @@ void NNITopologySearch::searchFast() throw (Exception)
 	bool test = true;
 	do
   { 
-	  TreeTemplate<Node> tree(_searchableTree->getTopology());
+	  TreeTemplate<Node> tree(searchableTree_->getTopology());
 	  vector<Node *> nodes = tree.getNodes();
 
 		vector<Node *> nodesSub = nodes;
@@ -108,8 +108,8 @@ void NNITopologySearch::searchFast() throw (Exception)
 		for(unsigned int i = 0; !test && i < nodesSub.size(); i++)
     {
 			Node * node = nodesSub[i];
-			double diff = _searchableTree->testNNI(node->getId());
-			if(_verbose >= 3)
+			double diff = searchableTree_->testNNI(node->getId());
+			if(verbose_ >= 3)
       {
 				ApplicationTools::displayResult("   Testing node " + TextTools::toString(node->getId())
 						                    + " at " + TextTools::toString(node->getFather()->getId()),
@@ -118,19 +118,19 @@ void NNITopologySearch::searchFast() throw (Exception)
 			
 			if(diff < 0.)
       { //Good NNI found...
-				if(_verbose >= 2)
+				if(verbose_ >= 2)
         {
 					ApplicationTools::displayResult("   Swapping node " + TextTools::toString(node->getId())
 							                    + " at " + TextTools::toString(node->getFather()->getId()),
 																	TextTools::toString(diff));
 				}
-				_searchableTree->doNNI(node->getId());
+				searchableTree_->doNNI(node->getId());
 				// Notify:
 				notifyAllPerformed(TopologyChangeEvent());
 				test = true;
 
-        if(_verbose >= 1)
-          ApplicationTools::displayResult("   Current value", TextTools::toString(_searchableTree->getTopologyValue(), 10));
+        if(verbose_ >= 1)
+          ApplicationTools::displayResult("   Current value", TextTools::toString(searchableTree_->getTopologyValue(), 10));
 			}
 		}
 	}
@@ -142,10 +142,10 @@ void NNITopologySearch::searchBetter() throw (Exception)
 	bool test = true;
 	do
   { 
-	  TreeTemplate<Node> tree(_searchableTree->getTopology());
+	  TreeTemplate<Node> tree(searchableTree_->getTopology());
 	  vector<Node *> nodes = tree.getNodes();
 
-		if(_verbose >= 3) ApplicationTools::displayTask("Test all possible NNIs...");
+		if(verbose_ >= 3) ApplicationTools::displayTask("Test all possible NNIs...");
 		
 		vector<Node *> nodesSub = nodes;
 		for(unsigned int i = nodesSub.size(); i > 0; i--)
@@ -157,12 +157,12 @@ void NNITopologySearch::searchBetter() throw (Exception)
 		// Test all NNIs:
 		vector<Node *> improving;
 		vector<double> improvement;
-		if (_verbose >= 2 && ApplicationTools::message) ApplicationTools::message->endLine();
+		if (verbose_ >= 2 && ApplicationTools::message) ApplicationTools::message->endLine();
 		for(unsigned int i = 0; i < nodesSub.size(); i++)
     {
 			Node * node = nodesSub[i];
-			double diff = _searchableTree->testNNI(node->getId());
-			if(_verbose >= 3)
+			double diff = searchableTree_->testNNI(node->getId());
+			if(verbose_ >= 3)
       {
 				ApplicationTools::displayResult("   Testing node " + TextTools::toString(node->getId())
 						                    + " at " + TextTools::toString(node->getFather()->getId()),
@@ -175,23 +175,23 @@ void NNITopologySearch::searchBetter() throw (Exception)
 				improvement.push_back(diff);
 			}
 		}
-		if(_verbose >= 3) ApplicationTools::displayTaskDone();
+		if(verbose_ >= 3) ApplicationTools::displayTaskDone();
 		test = improving.size() > 0;
 		if(test)
     {
 			unsigned int nodeMin = VectorTools::posmin(improvement);
 			Node * node = improving[nodeMin];
-			if(_verbose >=2)
+			if(verbose_ >=2)
         ApplicationTools::displayResult("   Swapping node " + TextTools::toString(node->getId())
           + " at " + TextTools::toString(node->getFather()->getId()),
           TextTools::toString(improvement[nodeMin]));
-			_searchableTree->doNNI(node->getId());
+			searchableTree_->doNNI(node->getId());
 			
 			// Notify:
 			notifyAllPerformed(TopologyChangeEvent());
       
-      if(_verbose >= 1)
-        ApplicationTools::displayResult("   Current value", TextTools::toString(_searchableTree->getTopologyValue(), 10));
+      if(verbose_ >= 1)
+        ApplicationTools::displayResult("   Current value", TextTools::toString(searchableTree_->getTopologyValue(), 10));
 		}
 	} while(test);	
 }
@@ -201,8 +201,8 @@ void NNITopologySearch::searchPhyML() throw (Exception)
 	bool test = true;
 	do
   { 
-		if(_verbose >= 3) ApplicationTools::displayTask("Test all possible NNIs...");
-	  TreeTemplate<Node> tree(_searchableTree->getTopology());
+		if(verbose_ >= 3) ApplicationTools::displayTask("Test all possible NNIs...");
+	  TreeTemplate<Node> tree(searchableTree_->getTopology());
 	  vector<Node *> nodes = tree.getNodes();
 		vector<Node *> nodesSub = nodes;
 		for(unsigned int i = nodesSub.size(); i > 0; i--)
@@ -216,12 +216,12 @@ void NNITopologySearch::searchPhyML() throw (Exception)
 		vector<int> improving;
 		vector<Node *> improvingNodes;
 		vector<double> improvement;
-		if(_verbose >= 2 && ApplicationTools::message) ApplicationTools::message->endLine();
+		if(verbose_ >= 2 && ApplicationTools::message) ApplicationTools::message->endLine();
 		for(unsigned int i = 0; i < nodesSub.size(); i++)
     {
 			Node * node = nodesSub[i];
-			double diff = _searchableTree->testNNI(node->getId());
-			if(_verbose >= 3)
+			double diff = searchableTree_->testNNI(node->getId());
+			if(verbose_ >= 3)
       {
 				ApplicationTools::displayResult("   Testing node " + TextTools::toString(node->getId())
 						                    + " at " + TextTools::toString(node->getFather()->getId()),
@@ -278,42 +278,42 @@ void NNITopologySearch::searchPhyML() throw (Exception)
     //Moreover, if a backward movement is performed,
     //the underlying node will not exist anymore...
     improvingNodes.clear();
-		if(_verbose >= 3) ApplicationTools::displayTaskDone();
+		if(verbose_ >= 3) ApplicationTools::displayTaskDone();
 		test = improving.size() > 0;
 		if(test)
     {
-      double currentValue = _searchableTree->getTopologyValue();
+      double currentValue = searchableTree_->getTopologyValue();
       bool test2 = true;
       //Make a backup copy:
-      NNISearchable * backup = dynamic_cast<NNISearchable *>(_searchableTree->clone());
+      NNISearchable * backup = dynamic_cast<NNISearchable *>(searchableTree_->clone());
       do
       {
-        if(_verbose >= 1) ApplicationTools::displayMessage("Trying to perform " + TextTools::toString(improving.size()) + " NNI(s).");
+        if(verbose_ >= 1) ApplicationTools::displayMessage("Trying to perform " + TextTools::toString(improving.size()) + " NNI(s).");
         for(unsigned int i = 0; i < improving.size(); i++)
         {
 			    int nodeId = improving[i];
-			    if(_verbose >= 2)
+			    if(verbose_ >= 2)
           {
 				    ApplicationTools::displayResult(string("   Swapping node ") + TextTools::toString(nodeId)
-                + string(" at ") + TextTools::toString(_searchableTree->getTopology().getFatherId(nodeId)),
+                + string(" at ") + TextTools::toString(searchableTree_->getTopology().getFatherId(nodeId)),
                 TextTools::toString(improvement[i]));
 			    }
-			    _searchableTree->doNNI(nodeId);
+			    searchableTree_->doNNI(nodeId);
 		    }
 		
 		    // Notify:
 		    notifyAllTested(TopologyChangeEvent());
-        if(_verbose >= 1)
-          ApplicationTools::displayResult("   Current value", TextTools::toString(_searchableTree->getTopologyValue(), 10));
-        if(_searchableTree->getTopologyValue() >= currentValue)
+        if(verbose_ >= 1)
+          ApplicationTools::displayResult("   Current value", TextTools::toString(searchableTree_->getTopologyValue(), 10));
+        if(searchableTree_->getTopologyValue() >= currentValue)
         {
           //No improvement!
           //Restore backup:
-          delete _searchableTree;
-          _searchableTree = dynamic_cast<NNISearchable *>(backup->clone());
-			    if(_verbose >= 1)
+          delete searchableTree_;
+          searchableTree_ = dynamic_cast<NNISearchable *>(backup->clone());
+			    if(verbose_ >= 1)
           {
-				    ApplicationTools::displayResult("Score >= current score! Moving backward", TextTools::toString(_searchableTree->getTopologyValue()));
+				    ApplicationTools::displayResult("Score >= current score! Moving backward", TextTools::toString(searchableTree_->getTopologyValue()));
 			    }
           //And try doing half of the movements:
           if(improving.size() == 1)

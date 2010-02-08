@@ -73,7 +73,7 @@ class WordReversibleSubstitutionModel :
   public AbstractWordReversibleSubstitutionModel
 {
 private:
-  mutable std::vector< RowMatrix<double> > vp_;
+  //mutable std::vector< RowMatrix<double> > vp_; //Is this needed?
 
 public:
 

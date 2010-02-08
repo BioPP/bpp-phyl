@@ -47,11 +47,10 @@ using namespace std;
 
 /******************************************************************************/
 
-JCprotF::JCprotF(const ProteicAlphabet * alpha) :
+JCprotF::JCprotF(const ProteicAlphabet* alpha) :
   ProteinSubstitutionModel(alpha, "JC69+F."),
-  ProteinSubstitutionModelWithFrequencies(alpha, "JC69+F.")
+  ProteinSubstitutionModelWithFrequencies(alpha, "JC69+F."), exp_(), p_(size_, size_)
 {
-	_p.resize(size_, size_);
   for(unsigned int i = 0; i < 20; i++)
   {
 		for(unsigned int j = 0; j < 20; j++)

@@ -49,27 +49,14 @@ using namespace bpp;
 
 /******************************************************************************/
 
-AbstractMutationProcess::AbstractMutationProcess(const SubstitutionModel * model): _model(model) {}
-	
-AbstractMutationProcess::~AbstractMutationProcess() {}
-	
-/******************************************************************************/
-	
-const SubstitutionModel * AbstractMutationProcess::getSubstitutionModel() const
-{
-	return _model;
-}
-	
-/******************************************************************************/
-
 int AbstractMutationProcess::mutate(int state) const
 {
   double alea = RandomTools::giveRandomNumberBetweenZeroAndEntry(1.0);
-  for(unsigned int j = 0; j < _size; j++)
+  for (unsigned int j = 0; j < size_; j++)
   { 
-   	if(alea < _repartition[state][j]) return j;
+   	if (alea < repartition_[state][j]) return j;
 	}
-  return _size;
+  return size_;
 }
 
 /******************************************************************************/
@@ -80,9 +67,9 @@ int AbstractMutationProcess::mutate(int state, unsigned int n) const
  	for(unsigned int k = 0; k < n; k++)
   {
    	double alea = RandomTools::giveRandomNumberBetweenZeroAndEntry(1.0);
-   	for(unsigned int j = 1; j < _size + 1; j++)
+   	for(unsigned int j = 1; j < size_ + 1; j++)
     { 
-   		if(alea < _repartition[s][j])
+   		if(alea < repartition_[s][j])
       {
        	s = j;
      		break;
@@ -96,7 +83,7 @@ int AbstractMutationProcess::mutate(int state, unsigned int n) const
 
 double AbstractMutationProcess::getTimeBeforeNextMutationEvent(int state) const
 {
-	return RandomTools::randExponential(- _model->Qij(state, state));
+	return RandomTools::randExponential(- model_->Qij(state, state));
 }
 
 /******************************************************************************/
@@ -136,32 +123,32 @@ MutationPath AbstractMutationProcess::detailedEvolve(int initialState, double ti
 SimpleMutationProcess::SimpleMutationProcess(const SubstitutionModel * model):
   AbstractMutationProcess(model)
 {
-	_size = model->getNumberOfStates();
-  _repartition = VVdouble(_size);
+	size_ = model->getNumberOfStates();
+  repartition_ = VVdouble(size_);
   // Each element contains the probabilities concerning each character in the alphabet.
 
   // We will now initiate each of these probability vector.
 	RowMatrix<double> Q = model->getGenerator();
-  for(unsigned int i = 0; i < _size; i++)
+  for(unsigned int i = 0; i < size_; i++)
   {
-   	_repartition[i] = Vdouble(_size);
+   	repartition_[i] = Vdouble(size_);
    	double cum = 0;
    	double sum_Q = 0;
-   	for(unsigned int j = 0; j < _size; j++)
+   	for(unsigned int j = 0; j < size_; j++)
     {
    		if(j != i) sum_Q += Q(i, j);
    	}
-   	for(unsigned int j = 0; j < _size; j++)
+   	for(unsigned int j = 0; j < size_; j++)
     {
     	if(j != i)
       {
  		   	cum += model->Qij(i, j) / sum_Q;
-     		_repartition[i][j] = cum;
+     		repartition_[i][j] = cum;
      	}
-      else _repartition[i][j] = -1; // Forbiden value: does not correspond to a change.
+      else repartition_[i][j] = -1; // Forbiden value: does not correspond to a change.
     }
  	}
-  // Note that I use cumulative probabilities in _repartition (hence the name).
+  // Note that I use cumulative probabilities in repartition_ (hence the name).
   // These cumulative probabilities are useful for the 'mutate(...)' function.
 }
 
@@ -172,18 +159,18 @@ SimpleMutationProcess::~SimpleMutationProcess() {}
 int SimpleMutationProcess::evolve(int initialState, double time) const
 {
 	// Compute all cumulative pijt:
-	Vdouble pijt(_size);
-	pijt[0] = _model->Pij_t(initialState, 0, time);
-	for(unsigned int i = 1; i < _size; i++)
+	Vdouble pijt(size_);
+	pijt[0] = model_->Pij_t(initialState, 0, time);
+	for(unsigned int i = 1; i < size_; i++)
   {
-		pijt[i] = pijt[i - 1] + _model->Pij_t(initialState, i, time);
+		pijt[i] = pijt[i - 1] + model_->Pij_t(initialState, i, time);
 	}
 	double rand = RandomTools::giveRandomNumberBetweenZeroAndEntry(1);
-	for(unsigned int i = 0; i < _size; i++)
+	for(unsigned int i = 0; i < size_; i++)
   {
 		if(rand < pijt[i]) return i;
 	}
-	throw Exception("SimpleSimulationProcess::evolve(intialState, time): error all pijt do not sum to one (total sum = " + TextTools::toString(pijt[_size - 1]) + ").");
+	throw Exception("SimpleSimulationProcess::evolve(intialState, time): error all pijt do not sum to one (total sum = " + TextTools::toString(pijt[size_ - 1]) + ").");
 }
 
 /******************************************************************************/
@@ -191,20 +178,20 @@ int SimpleMutationProcess::evolve(int initialState, double time) const
 SelfMutationProcess::SelfMutationProcess(int alphabetSize):
 AbstractMutationProcess(NULL)
 {
-  	_size = alphabetSize;
-  	_repartition = VVdouble(_size);
+  	size_ = alphabetSize;
+  	repartition_ = VVdouble(size_);
   	// Each element contains the probabilities concerning each character in the alphabet.
 
   	// We will now initiate each of these probability vector.
-  	for(unsigned int i = 0; i < _size; i++)
+  	for(unsigned int i = 0; i < size_; i++)
     {
-	    _repartition[i] = Vdouble(_size);
-    	for(unsigned int j = 0; j < _size; j++)
+	    repartition_[i] = Vdouble(size_);
+    	for(unsigned int j = 0; j < size_; j++)
       {
-      	_repartition[i][j] = (j+1.0)/_size;
+      	repartition_[i][j] = (j+1.0)/size_;
     	}
   	}
-  	// Note that I use cumulative probabilities in _repartition (hence the name).
+  	// Note that I use cumulative probabilities in repartition_ (hence the name).
   	// These cumulative probabilities are useful for the 'mutate(...)' function.
 }
 

@@ -47,10 +47,9 @@ using namespace std;
 
 /******************************************************************************/
 
-JCprot::JCprot(const ProteicAlphabet * alpha) :
-  ProteinSubstitutionModel(alpha, "JC69.")
+JCprot::JCprot(const ProteicAlphabet* alpha) :
+  ProteinSubstitutionModel(alpha, "JC69."), exp_(), p_(size_, size_)
 {
-	_p.resize(size_, size_);
 	updateMatrices();
 }
 
@@ -119,41 +118,41 @@ double JCprot::d2Pij_dt2(int i, int j, double d) const
 
 const Matrix<double> & JCprot::getPij_t(double d) const
 {
-  _exp = exp(- 20./19. * d);
+  exp_ = exp(- 20./19. * d);
 	for(unsigned int i = 0; i < size_; i++)
   {
 		for(unsigned int j = 0; j < size_; j++)
     {
-			_p(i,j) = (i==j) ? 1./20. + 19./20. * _exp : 1./20. - 1./20. * _exp;
+			p_(i,j) = (i==j) ? 1./20. + 19./20. * exp_ : 1./20. - 1./20. * exp_;
 		}
 	}
-	return _p;
+	return p_;
 }
 
 const Matrix<double> & JCprot::getdPij_dt(double d) const
 {
-  _exp = exp(- 20./19. * d);
+  exp_ = exp(- 20./19. * d);
 	for(unsigned int i = 0; i < size_; i++)
   {
 		for(unsigned int j = 0; j < size_; j++)
     {
-			_p(i,j) = (i==j) ? - _exp : 1./19. * _exp;
+			p_(i,j) = (i==j) ? - exp_ : 1./19. * exp_;
 		}
 	}
-	return _p;
+	return p_;
 }
 
 const Matrix<double> & JCprot::getd2Pij_dt2(double d) const
 {
-  _exp = exp(- 20./19. * d);
+  exp_ = exp(- 20./19. * d);
 	for(unsigned int i = 0; i < size_; i++)
   {
 		for(unsigned int j = 0; j < size_; j++)
     {
-			_p(i,j) = (i==j) ? 20./19. * _exp : - 20./361. * _exp;
+			p_(i,j) = (i==j) ? 20./19. * exp_ : - 20./361. * exp_;
 		}
 	}
-	return _p;
+	return p_;
 }
 
 /******************************************************************************/

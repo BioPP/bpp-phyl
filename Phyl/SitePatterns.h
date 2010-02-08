@@ -69,7 +69,7 @@ namespace bpp
  * 'weights' is the number of sites identical to this sites
  * 'indices' are the positions in the original container
  */
-class SitePatterns:
+class SitePatterns :
   public virtual Clonable
 {
   private:
@@ -79,25 +79,36 @@ class SitePatterns:
     class SortableSite
     {
 	    public:
-		    SortableSite() {}
-		    virtual ~SortableSite() {}
-		
-	    public:
         std::string siteS; 
 		    const Site* siteP;
 		    unsigned int originalPosition;
+	    
+      public:
+		    SortableSite() : siteS(), siteP(0), originalPosition(0) {}
+        SortableSite(const SortableSite& ss) : siteS(ss.siteS), siteP(ss.siteP), originalPosition(ss.originalPosition) {}
+        SortableSite& operator=(const SortableSite& ss)
+        {
+          siteS = ss.siteS;
+          siteP = ss.siteP;
+          originalPosition = ss.originalPosition;
+          return *this;
+        }
+
+        bool operator<(const SortableSite& ss) const { return siteS < ss.siteS; }
+
+		    virtual ~SortableSite() {}
     };
 
-    /**
-     * @brief Class used for site pattern sorting.
-     */
-    struct SSComparator :
-      std::binary_function<SortableSite, SortableSite, bool>
-    {
-	    bool operator()(const SortableSite& ss1, const SortableSite& ss2) const { return ss1.siteS < ss2.siteS; }
-    };
+    ///**
+    // * @brief Class used for site pattern sorting.
+    // */
+    //struct SSComparator :
+    //  std::binary_function<SortableSite, SortableSite, bool>
+    //{
+	  //  bool operator()(const SortableSite& ss1, const SortableSite& ss2) const { return ss1.siteS < ss2.siteS; }
+    //};
 
-  protected: 
+  private: 
     std::vector<std::string> names_;
     std::vector<const Site *> sites_;
     std::vector<unsigned int> weights_;
@@ -123,17 +134,19 @@ class SitePatterns:
       if(own_) delete sequences_;
     }
 
-    SitePatterns(const SitePatterns& patterns)
+    SitePatterns(const SitePatterns& patterns) :
+  	  names_(patterns.names_),
+	    sites_(patterns.sites_),
+	    weights_(patterns.weights_),
+	    indices_(patterns.indices_),
+      sequences_(0),
+      alpha_(patterns.alpha_),
+      own_(patterns.own_)
     {
-  	  names_     = patterns.names_;
-	    sites_     = patterns.sites_;
-	    weights_   = patterns.weights_;
-	    indices_   = patterns.indices_;
       if(!patterns.own_) sequences_ = patterns.sequences_;
       else               sequences_ = dynamic_cast<SiteContainer*>(patterns.sequences_->clone());
-      alpha_     = patterns.alpha_;
-      own_       = patterns.own_;
     }
+
     SitePatterns& operator=(const SitePatterns& patterns)
     {
   	  names_     = patterns.names_;

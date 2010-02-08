@@ -48,29 +48,29 @@ using namespace bpp;
 using namespace std;
 
 AbstractTreeParsimonyScore::AbstractTreeParsimonyScore(
-	const Tree & tree,
-	const SiteContainer & data,
+	const Tree& tree,
+	const SiteContainer& data,
 	bool verbose)
 	throw (Exception):
-    _tree(new TreeTemplate<Node>(tree)), _data(NULL), _alphabet(data.getAlphabet()), _nbStates(_alphabet->getSize())
+    tree_(new TreeTemplate<Node>(tree)), data_(0), alphabet_(data.getAlphabet()), nbStates_(alphabet_->getSize())
 {
-	if(_tree->isRooted())
+	if(tree_->isRooted())
   {
 		if(verbose) ApplicationTools::displayWarning("Tree has been unrooted.");
-		_tree->unroot();
+		tree_->unroot();
 	}
-  TreeTemplateTools::deleteBranchLengths(*_tree->getRootNode());
+  TreeTemplateTools::deleteBranchLengths(*tree_->getRootNode());
 	
 	//Sequences will be in the same order than in the tree:
-	_data = PatternTools::getSequenceSubset(data, * _tree->getRootNode());
-	if(_data->getNumberOfSequences() == 1) throw Exception("Error, only 1 sequence!");
-	if(_data->getNumberOfSequences() == 0) throw Exception("Error, no sequence!");
-	if(_data->getAlphabet()->getSize() > 20) throw Exception("Error, only alphabet with size <= 20 are supported. See the source file of AbstractTreeParsimonyScore.");
+	data_ = PatternTools::getSequenceSubset(data, * tree_->getRootNode());
+	if(data_->getNumberOfSequences() == 1) throw Exception("Error, only 1 sequence!");
+	if(data_->getNumberOfSequences() == 0) throw Exception("Error, no sequence!");
+	if(data_->getAlphabet()->getSize() > 20) throw Exception("Error, only alphabet with size <= 20 are supported. See the source file of AbstractTreeParsimonyScore.");
 }
 
 std::vector<unsigned int> AbstractTreeParsimonyScore::getScoreForEachSite() const
 {
-	vector<unsigned int> scores(_data->getNumberOfSites());
+	vector<unsigned int> scores(data_->getNumberOfSites());
 	for (unsigned int i = 0; i < scores.size(); i++)
   {
 		scores[i] = getScoreForSite(i);

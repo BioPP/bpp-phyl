@@ -44,13 +44,22 @@ using namespace std;
 
 /******************************************************************************/
 
-CodonAsynonymousReversibleSubstitutionModel::CodonAsynonymousReversibleSubstitutionModel(const GeneticCode* palph,
-                                                                                         NucleotideSubstitutionModel* pmod1,
-                                                                                         NucleotideSubstitutionModel* pmod2,
-                                                                                         NucleotideSubstitutionModel* pmod3,
-                                                                                         const AlphabetIndex2<double>* pdist) : AbstractCodonReversibleSubstitutionModel((CodonAlphabet*)palph->getSourceAlphabet(), pmod1, pmod2, pmod3, "CodonAsynonymous."), _geneticCode(palph), _pdistance(pdist)
+CodonAsynonymousReversibleSubstitutionModel::CodonAsynonymousReversibleSubstitutionModel(
+    const GeneticCode* palph,
+    NucleotideSubstitutionModel* pmod1,
+    NucleotideSubstitutionModel* pmod2,
+    NucleotideSubstitutionModel* pmod3,
+    const AlphabetIndex2<double>* pdist) :
+  AbstractCodonReversibleSubstitutionModel(
+      dynamic_cast<const CodonAlphabet*>(palph->getSourceAlphabet()),
+      pmod1,
+      pmod2,
+      pmod3,
+      "CodonAsynonymous."),
+  geneticCode_(palph),
+  pdistance_(pdist)
 {
-  if (_pdistance)
+  if (pdistance_)
     addParameter_(Parameter("CodonAsynonymous.alpha",10000,&Parameter::R_PLUS_STAR));
 
   addParameter_(Parameter("CodonAsynonymous.beta",1,&Parameter::R_PLUS_STAR));
@@ -58,11 +67,18 @@ CodonAsynonymousReversibleSubstitutionModel::CodonAsynonymousReversibleSubstitut
   updateMatrices();
 }
   
-CodonAsynonymousReversibleSubstitutionModel::CodonAsynonymousReversibleSubstitutionModel(const GeneticCode* palph,
-                                                                                         NucleotideSubstitutionModel* pmod,
-                                                                                         const AlphabetIndex2<double>* pdist) : AbstractCodonReversibleSubstitutionModel((CodonAlphabet*)palph->getSourceAlphabet(), pmod, "CodonAsynonymous."), _geneticCode(palph), _pdistance(pdist)
+CodonAsynonymousReversibleSubstitutionModel::CodonAsynonymousReversibleSubstitutionModel(
+    const GeneticCode* palph,
+    NucleotideSubstitutionModel* pmod,
+    const AlphabetIndex2<double>* pdist) :
+  AbstractCodonReversibleSubstitutionModel(
+      dynamic_cast<const CodonAlphabet*>(palph->getSourceAlphabet()),
+      pmod,
+      "CodonAsynonymous."),
+  geneticCode_(palph),
+  pdistance_(pdist)
 {
-  if (_pdistance)
+  if (pdistance_)
     addParameter_(Parameter("CodonAsynonymous.alpha",1,&Parameter::R_PLUS_STAR));
 
   addParameter_(Parameter("CodonAsynonymous.beta",1,&Parameter::R_PLUS));
@@ -73,8 +89,8 @@ CodonAsynonymousReversibleSubstitutionModel::CodonAsynonymousReversibleSubstitut
 string CodonAsynonymousReversibleSubstitutionModel::getName() const
 {
   string s = "CodonAsynonymousReversibleSubstitutionModel model:";
-  for (unsigned int i = 0; i < _VSubMod.size(); i++)
-    s += " " + _VSubMod[i]->getName();
+  for (unsigned int i = 0; i < VSubMod_.size(); i++)
+    s += " " + VSubMod_[i]->getName();
   
   return s;
 }
@@ -83,7 +99,7 @@ void CodonAsynonymousReversibleSubstitutionModel::completeMatrices()
 {
   unsigned int i, j;
   unsigned int salph = getNumberOfStates();
-  double alpha = _pdistance ? getParameterValue("alpha") : 1;
+  double alpha = pdistance_ ? getParameterValue("alpha") : 1;
   double beta = getParameterValue("beta");
 
   CodonAlphabet* ca = (CodonAlphabet*)(alphabet_);
@@ -95,13 +111,8 @@ void CodonAsynonymousReversibleSubstitutionModel::completeMatrices()
         if (ca->isStop(j) || ca->isStop(i))
           generator_(i,j) = 0;
         else
-          if (! _geneticCode->areSynonymous(i,j))
-            generator_(i,j) *= beta * (_pdistance ? exp(-_pdistance->getIndex(_geneticCode->translate(i), _geneticCode->translate(j)) / alpha) : 1);
+          if (! geneticCode_->areSynonymous(i,j))
+            generator_(i,j) *= beta * (pdistance_ ? exp(-pdistance_->getIndex(geneticCode_->translate(i), geneticCode_->translate(j)) / alpha) : 1);
       }
 }
 
-
-const GeneticCode* CodonAsynonymousReversibleSubstitutionModel::getGeneticCode()
-{
-  return _geneticCode;
-}

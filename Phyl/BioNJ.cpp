@@ -53,9 +53,9 @@ using namespace std;
 
 double BioNJ::computeDistancesFromPair(const vector<unsigned int> & pair, const vector<double> & branchLengths, unsigned int pos)
 {
-  return _positiveLengths ?
-    std::max(_lambda * (matrix_(pair[0], pos) - branchLengths[0]) + (1-_lambda)*(matrix_(pair[1], pos) - branchLengths[1]), 0.)
-  :          _lambda * (matrix_(pair[0], pos) - branchLengths[0]) + (1-_lambda)*(matrix_(pair[1], pos) - branchLengths[1]); 
+  return positiveLengths_ ?
+    std::max(lambda_ * (matrix_(pair[0], pos) - branchLengths[0]) + (1-lambda_)*(matrix_(pair[1], pos) - branchLengths[1]), 0.)
+  :          lambda_ * (matrix_(pair[0], pos) - branchLengths[0]) + (1-lambda_)*(matrix_(pair[1], pos) - branchLengths[1]); 
 }
 
 void BioNJ::computeTree(bool rooted) throw (Exception)
@@ -83,23 +83,23 @@ void BioNJ::computeTree(bool rooted) throw (Exception)
     best2->setDistanceToFather(distances[1]);
     Node * parent = getParentNode(idNextNode++, best1, best2);
     // compute lambda
-    _lambda=0;
-    if (_variance(bestPair[0], bestPair[1]) == 0)
-      _lambda=.5;
+    lambda_=0;
+    if (variance_(bestPair[0], bestPair[1]) == 0)
+      lambda_=.5;
     else
     {
       for(map<unsigned int, Node *>::iterator i = currentNodes_.begin(); i != currentNodes_.end(); i++)
       {
         unsigned int id = i -> first;
         if(id != bestPair[0] && id != bestPair[1]) 
-          _lambda += (_variance(bestPair[1], id) - _variance(bestPair[0], id));
+          lambda_ += (variance_(bestPair[1], id) - variance_(bestPair[0], id));
       }
-      double div = 2 * (currentNodes_.size() - 2) * _variance(bestPair[0], bestPair[1]);
-      _lambda /= div;
-      _lambda += .5;
+      double div = 2 * (currentNodes_.size() - 2) * variance_(bestPair[0], bestPair[1]);
+      lambda_ /= div;
+      lambda_ += .5;
     }
-    if(_lambda <0.) _lambda =0.;
-    if(_lambda > 1.) _lambda=1.;
+    if(lambda_ <0.) lambda_ =0.;
+    if(lambda_ > 1.) lambda_=1.;
     
     for(map<unsigned int, Node *>::iterator i = currentNodes_.begin(); i != currentNodes_.end(); i++)
     {
@@ -107,7 +107,7 @@ void BioNJ::computeTree(bool rooted) throw (Exception)
       if(id != bestPair[0] && id != bestPair[1])
       {
         newDist[id] = computeDistancesFromPair(bestPair, distances, id);
-        newVar[id] = _lambda * _variance(bestPair[0], id) + (1-_lambda) * _variance(bestPair[1], id) - _lambda * (1-_lambda) * _variance(bestPair[0], bestPair[1]);
+        newVar[id] = lambda_ * variance_(bestPair[0], id) + (1-lambda_) * variance_(bestPair[1], id) - lambda_ * (1-lambda_) * variance_(bestPair[0], bestPair[1]);
       }
       else
       {
@@ -121,7 +121,7 @@ void BioNJ::computeTree(bool rooted) throw (Exception)
     {
       unsigned int id = i -> first;
       matrix_(  bestPair[0], id) =    matrix_(id, bestPair[0]) = newDist[id];
-      _variance(bestPair[0], id) =  _variance(id, bestPair[0]) = newVar[id];
+      variance_(bestPair[0], id) =  variance_(id, bestPair[0]) = newVar[id];
     }
     
   }

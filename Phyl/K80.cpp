@@ -50,12 +50,12 @@ using namespace std;
 
 /******************************************************************************/
 
-K80::K80(const NucleicAlphabet * alpha, double kappa) :
-  NucleotideSubstitutionModel(alpha, "K80.")
+K80::K80(const NucleicAlphabet* alpha, double kappa) :
+  NucleotideSubstitutionModel(alpha, "K80."),
+  kappa_(kappa), r_(), l_(), k_(), exp1_(), exp2_(), p_(size_, size_)
 {
 	Parameter kappaP(getNamespace() + "kappa", kappa, &Parameter::R_PLUS_STAR);
 	addParameter_(kappaP);
-  _p.resize(size_, size_);
 	updateMatrices();
 }
 
@@ -63,18 +63,18 @@ K80::K80(const NucleicAlphabet * alpha, double kappa) :
 
 void K80::updateMatrices()
 {
-  _kappa = getParameterValue("kappa");
-	_k = (_kappa + 1.) / 2.;
-	_r = 4. / (_kappa + 2.);
+  kappa_ = getParameterValue("kappa");
+	k_ = (kappa_ + 1.) / 2.;
+	r_ = 4. / (kappa_ + 2.);
 	
   // Frequences:
 	freq_[0] = freq_[1] = freq_[2] = freq_[3] = 1. / 4.;
 
 	// Generator:
-	generator_(0, 0) = -2. - _kappa;
-	generator_(1, 1) = -2. - _kappa;
-	generator_(2, 2) = -2. - _kappa;
-	generator_(3, 3) = -2. - _kappa;
+	generator_(0, 0) = -2. - kappa_;
+	generator_(1, 1) = -2. - kappa_;
+	generator_(2, 2) = -2. - kappa_;
+	generator_(3, 3) = -2. - kappa_;
 
 	generator_(0, 1) = 1.;
 	generator_(0, 3) = 1.;
@@ -85,13 +85,13 @@ void K80::updateMatrices()
 	generator_(3, 0) = 1.;
 	generator_(3, 2) = 1.;
 	
-	generator_(0, 2) = _kappa;
-	generator_(1, 3) = _kappa;
-	generator_(2, 0) = _kappa;
-	generator_(3, 1) = _kappa;
+	generator_(0, 2) = kappa_;
+	generator_(1, 3) = kappa_;
+	generator_(2, 0) = kappa_;
+	generator_(3, 1) = kappa_;
 
 	// Normalization:
-	MatrixTools::scale(generator_, _r/4);
+	MatrixTools::scale(generator_, r_/4);
 
 	// Exchangeability:
 	exchangeability_ = generator_;
@@ -99,9 +99,9 @@ void K80::updateMatrices()
 
 	// Eigen values:
 	eigenValues_[0] = 0;
-	eigenValues_[1] = -_r * (1. + _kappa)/2;
-	eigenValues_[2] = -_r * (1. + _kappa)/2;
-	eigenValues_[3] = -_r;
+	eigenValues_[1] = -r_ * (1. + kappa_)/2;
+	eigenValues_[2] = -r_ * (1. + kappa_)/2;
+	eigenValues_[3] = -r_;
 	
 	// Eigen vectors:
 	leftEigenVectors_(0,0) = 1. / 4.;
@@ -143,45 +143,45 @@ void K80::updateMatrices()
 
 double K80::Pij_t(int i, int j, double d) const
 {
-	_l = _r * d;
-	_exp1 = exp(-_l);
-	_exp2 = exp(-_k * _l);
+	l_ = r_ * d;
+	exp1_ = exp(-l_);
+	exp2_ = exp(-k_ * l_);
 	
 	switch(i) {
 		//A
 		case 0 : {
 			switch(j) {
-				case 0 : return 0.25 * (1. + _exp1) + 0.5 * _exp2; //A
-				case 1 : return 0.25 * (1. - _exp1);               //C
-				case 2 : return 0.25 * (1. + _exp1) - 0.5 * _exp2; //G
-				case 3 : return 0.25 * (1. - _exp1);               //T, U
+				case 0 : return 0.25 * (1. + exp1_) + 0.5 * exp2_; //A
+				case 1 : return 0.25 * (1. - exp1_);               //C
+				case 2 : return 0.25 * (1. + exp1_) - 0.5 * exp2_; //G
+				case 3 : return 0.25 * (1. - exp1_);               //T, U
 			}
 		} 
 		//C
 		case 1 : {
 			switch(j) {
-				case 0 : return 0.25 * (1. - _exp1);               //A
-				case 1 : return 0.25 * (1. + _exp1) + 0.5 * _exp2; //C
-				case 2 : return 0.25 * (1. - _exp1);               //G
-				case 3 : return 0.25 * (1. + _exp1) - 0.5 * _exp2; //T, U
+				case 0 : return 0.25 * (1. - exp1_);               //A
+				case 1 : return 0.25 * (1. + exp1_) + 0.5 * exp2_; //C
+				case 2 : return 0.25 * (1. - exp1_);               //G
+				case 3 : return 0.25 * (1. + exp1_) - 0.5 * exp2_; //T, U
 			}
 		}
 		//G
 		case 2 : {
 			switch(j) {
-				case 0 : return 0.25 * (1. + _exp1) - 0.5 * _exp2; //A
-				case 1 : return 0.25 * (1. - _exp1);               //C
-				case 2 : return 0.25 * (1. + _exp1) + 0.5 * _exp2; //G
-				case 3 : return 0.25 * (1. - _exp1);               //T, U
+				case 0 : return 0.25 * (1. + exp1_) - 0.5 * exp2_; //A
+				case 1 : return 0.25 * (1. - exp1_);               //C
+				case 2 : return 0.25 * (1. + exp1_) + 0.5 * exp2_; //G
+				case 3 : return 0.25 * (1. - exp1_);               //T, U
 			}
 		}
 		//T, U
 		case 3 : {
 			switch(j) {
-				case 0 : return 0.25 * (1. - _exp1);               //A
-				case 1 : return 0.25 * (1. + _exp1) - 0.5 * _exp2; //C
-				case 2 : return 0.25 * (1. - _exp1);               //G
-				case 3 : return 0.25 * (1. + _exp1) + 0.5 * _exp2; //T, U
+				case 0 : return 0.25 * (1. - exp1_);               //A
+				case 1 : return 0.25 * (1. + exp1_) - 0.5 * exp2_; //C
+				case 2 : return 0.25 * (1. - exp1_);               //G
+				case 3 : return 0.25 * (1. + exp1_) + 0.5 * exp2_; //T, U
 			}
 		}
 	}
@@ -192,45 +192,45 @@ double K80::Pij_t(int i, int j, double d) const
 
 double K80::dPij_dt(int i, int j, double d) const
 {
-	_l = _r * d;
-	_exp1 = exp(-_l);
-	_exp2 = exp(-_k * _l);
+	l_ = r_ * d;
+	exp1_ = exp(-l_);
+	exp2_ = exp(-k_ * l_);
 
 	switch(i) {
 		//A
 		case 0 : {
 			switch(j) {
-				case 0 : return _r/4. * (- _exp1 - 2. * _k * _exp2); //A
-				case 1 : return _r/4. * (  _exp1);                   //C
-				case 2 : return _r/4. * (- _exp1 + 2. * _k * _exp2); //G
-				case 3 : return _r/4. * (  _exp1);                   //T, U
+				case 0 : return r_/4. * (- exp1_ - 2. * k_ * exp2_); //A
+				case 1 : return r_/4. * (  exp1_);                   //C
+				case 2 : return r_/4. * (- exp1_ + 2. * k_ * exp2_); //G
+				case 3 : return r_/4. * (  exp1_);                   //T, U
 			}
 		} 
 		//C
 		case 1 : {
 			switch(j) {
-				case 0 : return _r/4. * (  _exp1);                   //A
-				case 1 : return _r/4. * (- _exp1 - 2. * _k * _exp2); //C
-				case 2 : return _r/4. * (  _exp1);                   //G
-				case 3 : return _r/4. * (- _exp1 + 2. * _k * _exp2); //T, U
+				case 0 : return r_/4. * (  exp1_);                   //A
+				case 1 : return r_/4. * (- exp1_ - 2. * k_ * exp2_); //C
+				case 2 : return r_/4. * (  exp1_);                   //G
+				case 3 : return r_/4. * (- exp1_ + 2. * k_ * exp2_); //T, U
 			}
 		}
 		//G
 		case 2 : {
 			switch(j) {
-				case 0 : return _r/4. * (- _exp1 + 2. * _k * _exp2); //A
-				case 1 : return _r/4. * (  _exp1);                   //C
-				case 2 : return _r/4. * (- _exp1 - 2. * _k * _exp2); //G
-				case 3 : return _r/4. * (  _exp1);                   //T, U
+				case 0 : return r_/4. * (- exp1_ + 2. * k_ * exp2_); //A
+				case 1 : return r_/4. * (  exp1_);                   //C
+				case 2 : return r_/4. * (- exp1_ - 2. * k_ * exp2_); //G
+				case 3 : return r_/4. * (  exp1_);                   //T, U
 			}
 		}
 		//T, U
 		case 3 : {
 			switch(j) {
-				case 0 : return _r/4. * (  _exp1);                   //A
-				case 1 : return _r/4. * (- _exp1 + 2. * _k * _exp2); //C
-				case 2 : return _r/4. * (  _exp1);                   //G
-				case 3 : return _r/4. * (- _exp1 - 2. * _k * _exp2); //T, U
+				case 0 : return r_/4. * (  exp1_);                   //A
+				case 1 : return r_/4. * (- exp1_ + 2. * k_ * exp2_); //C
+				case 2 : return r_/4. * (  exp1_);                   //G
+				case 3 : return r_/4. * (- exp1_ - 2. * k_ * exp2_); //T, U
 			}
 		}
 	}
@@ -241,47 +241,47 @@ double K80::dPij_dt(int i, int j, double d) const
 
 double K80::d2Pij_dt2(int i, int j, double d) const
 {
-	double k_2 = _k * _k;
-	double r_2 = _r * _r;
-	_l = _r * d;
-	_exp1 = exp(-_l);
-	_exp2 = exp(-_k * _l);
+	double k_2 = k_ * k_;
+	double r_2 = r_ * r_;
+	l_ = r_ * d;
+	exp1_ = exp(-l_);
+	exp2_ = exp(-k_ * l_);
 
 	switch(i) {
 		//A
 		case 0 : {
 			switch(j) {
-				case 0 : return r_2/4. * (  _exp1 + 2. * k_2 * _exp2); //A
-				case 1 : return r_2/4. * (- _exp1);                    //C
-				case 2 : return r_2/4. * (  _exp1 - 2. * k_2 * _exp2); //G
-				case 3 : return r_2/4. * (- _exp1);                    //T, U
+				case 0 : return r_2/4. * (  exp1_ + 2. * k_2 * exp2_); //A
+				case 1 : return r_2/4. * (- exp1_);                    //C
+				case 2 : return r_2/4. * (  exp1_ - 2. * k_2 * exp2_); //G
+				case 3 : return r_2/4. * (- exp1_);                    //T, U
 			}
 		} 
 		//C
 		case 1 : {
 			switch(j) {
-				case 0 : return r_2/4. * (- _exp1);                    //A
-				case 1 : return r_2/4. * (  _exp1 + 2. * k_2 * _exp2); //C
-				case 2 : return r_2/4. * (- _exp1);                    //G
-				case 3 : return r_2/4. * (  _exp1 - 2. * k_2 * _exp2); //T, U
+				case 0 : return r_2/4. * (- exp1_);                    //A
+				case 1 : return r_2/4. * (  exp1_ + 2. * k_2 * exp2_); //C
+				case 2 : return r_2/4. * (- exp1_);                    //G
+				case 3 : return r_2/4. * (  exp1_ - 2. * k_2 * exp2_); //T, U
 			}
 		}
 		//G
 		case 2 : {
 			switch(j) {
-				case 0 : return r_2/4. * (  _exp1 - 2. * k_2 * _exp2); //A
-				case 1 : return r_2/4. * (- _exp1);                    //C
-				case 2 : return r_2/4. * (  _exp1 + 2. * k_2 * _exp2); //G
-				case 3 : return r_2/4. * (- _exp1);                    //T, U
+				case 0 : return r_2/4. * (  exp1_ - 2. * k_2 * exp2_); //A
+				case 1 : return r_2/4. * (- exp1_);                    //C
+				case 2 : return r_2/4. * (  exp1_ + 2. * k_2 * exp2_); //G
+				case 3 : return r_2/4. * (- exp1_);                    //T, U
 			}
 		}
 		//T, U
 		case 3 : {
 			switch(j) {
-				case 0 : return r_2/4. * (- _exp1);                    //A
-				case 1 : return r_2/4. * (  _exp1 - 2. * k_2 * _exp2); //C
-				case 2 : return r_2/4. * (- _exp1);                    //G
-				case 3 : return r_2/4. * (  _exp1 + 2. * k_2 * _exp2); //T, U
+				case 0 : return r_2/4. * (- exp1_);                    //A
+				case 1 : return r_2/4. * (  exp1_ - 2. * k_2 * exp2_); //C
+				case 2 : return r_2/4. * (- exp1_);                    //G
+				case 3 : return r_2/4. * (  exp1_ + 2. * k_2 * exp2_); //T, U
 			}
 		}
 	}
@@ -292,101 +292,101 @@ double K80::d2Pij_dt2(int i, int j, double d) const
 
 const Matrix<double> & K80::getPij_t(double d) const
 {
-	_l = _r * d;
-	_exp1 = exp(-_l);
-	_exp2 = exp(-_k * _l);
+	l_ = r_ * d;
+	exp1_ = exp(-l_);
+	exp2_ = exp(-k_ * l_);
 
 	//A
-	_p(0, 0) = 0.25 * (1. + _exp1) + 0.5 * _exp2; //A
-	_p(0, 1) = 0.25 * (1. - _exp1);               //C
-	_p(0, 2) = 0.25 * (1. + _exp1) - 0.5 * _exp2; //G
-	_p(0, 3) = 0.25 * (1. - _exp1);               //T, U
+	p_(0, 0) = 0.25 * (1. + exp1_) + 0.5 * exp2_; //A
+	p_(0, 1) = 0.25 * (1. - exp1_);               //C
+	p_(0, 2) = 0.25 * (1. + exp1_) - 0.5 * exp2_; //G
+	p_(0, 3) = 0.25 * (1. - exp1_);               //T, U
 
 	//C
-	_p(1, 0) = 0.25 * (1. - _exp1);               //A
-	_p(1, 1) = 0.25 * (1. + _exp1) + 0.5 * _exp2; //C
-	_p(1, 2) = 0.25 * (1. - _exp1);               //G
-	_p(1, 3) = 0.25 * (1. + _exp1) - 0.5 * _exp2; //T, U
+	p_(1, 0) = 0.25 * (1. - exp1_);               //A
+	p_(1, 1) = 0.25 * (1. + exp1_) + 0.5 * exp2_; //C
+	p_(1, 2) = 0.25 * (1. - exp1_);               //G
+	p_(1, 3) = 0.25 * (1. + exp1_) - 0.5 * exp2_; //T, U
 
 	//G
-	_p(2, 0) = 0.25 * (1. + _exp1) - 0.5 * _exp2; //A
-	_p(2, 1) = 0.25 * (1. - _exp1);               //C
-	_p(2, 2) = 0.25 * (1. + _exp1) + 0.5 * _exp2; //G
-	_p(2, 3) = 0.25 * (1. - _exp1);               //T, U
+	p_(2, 0) = 0.25 * (1. + exp1_) - 0.5 * exp2_; //A
+	p_(2, 1) = 0.25 * (1. - exp1_);               //C
+	p_(2, 2) = 0.25 * (1. + exp1_) + 0.5 * exp2_; //G
+	p_(2, 3) = 0.25 * (1. - exp1_);               //T, U
 
 	//T, U
-	_p(3, 0) = 0.25 * (1. - _exp1);               //A
-	_p(3, 1) = 0.25 * (1. + _exp1) - 0.5 * _exp2; //C
-	_p(3, 2) = 0.25 * (1. - _exp1);               //G
-	_p(3, 3) = 0.25 * (1. + _exp1) + 0.5 * _exp2; //T, U
+	p_(3, 0) = 0.25 * (1. - exp1_);               //A
+	p_(3, 1) = 0.25 * (1. + exp1_) - 0.5 * exp2_; //C
+	p_(3, 2) = 0.25 * (1. - exp1_);               //G
+	p_(3, 3) = 0.25 * (1. + exp1_) + 0.5 * exp2_; //T, U
 
-	return _p;
+	return p_;
 }
 
 const Matrix<double> & K80::getdPij_dt(double d) const
 {
-	_l = _r * d;
-	_exp1 = exp(-_l);
-	_exp2 = exp(-_k * _l);
+	l_ = r_ * d;
+	exp1_ = exp(-l_);
+	exp2_ = exp(-k_ * l_);
 
-	_p(0, 0) = _r/4. * (- _exp1 - 2. * _k * _exp2); //A
-	_p(0, 1) = _r/4. * (  _exp1);                   //C
-	_p(0, 2) = _r/4. * (- _exp1 + 2. * _k * _exp2); //G
-	_p(0, 3) = _r/4. * (  _exp1);                   //T, U
+	p_(0, 0) = r_/4. * (- exp1_ - 2. * k_ * exp2_); //A
+	p_(0, 1) = r_/4. * (  exp1_);                   //C
+	p_(0, 2) = r_/4. * (- exp1_ + 2. * k_ * exp2_); //G
+	p_(0, 3) = r_/4. * (  exp1_);                   //T, U
 
 	//C
-	_p(1, 0) = _r/4. * (  _exp1);                   //A
-	_p(1, 1) = _r/4. * (- _exp1 - 2. * _k * _exp2); //C
-	_p(1, 2) = _r/4. * (  _exp1);                   //G
-	_p(1, 3) = _r/4. * (- _exp1 + 2. * _k * _exp2); //T, U
+	p_(1, 0) = r_/4. * (  exp1_);                   //A
+	p_(1, 1) = r_/4. * (- exp1_ - 2. * k_ * exp2_); //C
+	p_(1, 2) = r_/4. * (  exp1_);                   //G
+	p_(1, 3) = r_/4. * (- exp1_ + 2. * k_ * exp2_); //T, U
 
 	//G
-	_p(2, 0) = _r/4. * (- _exp1 + 2. * _k * _exp2); //A
-	_p(2, 1) = _r/4. * (  _exp1);                   //C
-	_p(2, 2) = _r/4. * (- _exp1 - 2. * _k * _exp2); //G
-	_p(2, 3) = _r/4. * (  _exp1);                   //T, U
+	p_(2, 0) = r_/4. * (- exp1_ + 2. * k_ * exp2_); //A
+	p_(2, 1) = r_/4. * (  exp1_);                   //C
+	p_(2, 2) = r_/4. * (- exp1_ - 2. * k_ * exp2_); //G
+	p_(2, 3) = r_/4. * (  exp1_);                   //T, U
 
 	//T, U
-	_p(3, 0) = _r/4. * (  _exp1);                   //A
-	_p(3, 1) = _r/4. * (- _exp1 + 2. * _k * _exp2); //C
-	_p(3, 2) = _r/4. * (  _exp1);                   //G
-	_p(3, 3) = _r/4. * (- _exp1 - 2. * _k * _exp2); //T, U
+	p_(3, 0) = r_/4. * (  exp1_);                   //A
+	p_(3, 1) = r_/4. * (- exp1_ + 2. * k_ * exp2_); //C
+	p_(3, 2) = r_/4. * (  exp1_);                   //G
+	p_(3, 3) = r_/4. * (- exp1_ - 2. * k_ * exp2_); //T, U
 
-	return _p;
+	return p_;
 }
 
 const Matrix<double> & K80::getd2Pij_dt2(double d) const
 {
-	double k_2 = _k * _k;
-	double r_2 = _r * _r;
-	_l = _r * d;
-	_exp1 = exp(-_l);
-	_exp2 = exp(-_k * _l);
+	double k_2 = k_ * k_;
+	double r_2 = r_ * r_;
+	l_ = r_ * d;
+	exp1_ = exp(-l_);
+	exp2_ = exp(-k_ * l_);
 
-	_p(0, 0) = r_2/4. * (  _exp1 + 2. * k_2 * _exp2); //A
-	_p(0, 1) = r_2/4. * (- _exp1);                    //C
-	_p(0, 2) = r_2/4. * (  _exp1 - 2. * k_2 * _exp2); //G
-	_p(0, 3) = r_2/4. * (- _exp1);                    //T, U
+	p_(0, 0) = r_2/4. * (  exp1_ + 2. * k_2 * exp2_); //A
+	p_(0, 1) = r_2/4. * (- exp1_);                    //C
+	p_(0, 2) = r_2/4. * (  exp1_ - 2. * k_2 * exp2_); //G
+	p_(0, 3) = r_2/4. * (- exp1_);                    //T, U
 
 	//C
-	_p(1, 0) = r_2/4. * (- _exp1);                    //A
-	_p(1, 1) = r_2/4. * (  _exp1 + 2. * k_2 * _exp2); //C
-	_p(1, 2) = r_2/4. * (- _exp1);                    //G
-	_p(1, 3) = r_2/4. * (  _exp1 - 2. * k_2 * _exp2); //T, U
+	p_(1, 0) = r_2/4. * (- exp1_);                    //A
+	p_(1, 1) = r_2/4. * (  exp1_ + 2. * k_2 * exp2_); //C
+	p_(1, 2) = r_2/4. * (- exp1_);                    //G
+	p_(1, 3) = r_2/4. * (  exp1_ - 2. * k_2 * exp2_); //T, U
 
 	//G
-	_p(2, 0) = r_2/4. * (  _exp1 - 2. * k_2 * _exp2); //A
-	_p(2, 1) = r_2/4. * (- _exp1);                    //C
-	_p(2, 2) = r_2/4. * (  _exp1 + 2. * k_2 * _exp2); //G
-	_p(2, 3) = r_2/4. * (- _exp1);                    //T, U
+	p_(2, 0) = r_2/4. * (  exp1_ - 2. * k_2 * exp2_); //A
+	p_(2, 1) = r_2/4. * (- exp1_);                    //C
+	p_(2, 2) = r_2/4. * (  exp1_ + 2. * k_2 * exp2_); //G
+	p_(2, 3) = r_2/4. * (- exp1_);                    //T, U
 
 	//T, U
-	_p(3, 0) = r_2/4. * (- _exp1);                    //A
-	_p(3, 1) = r_2/4. * (  _exp1 - 2. * k_2 * _exp2); //C
-	_p(3, 2) = r_2/4. * (- _exp1);                    //G
-	_p(3, 3) = r_2/4. * (  _exp1 + 2. * k_2 * _exp2); //T, U
+	p_(3, 0) = r_2/4. * (- exp1_);                    //A
+	p_(3, 1) = r_2/4. * (  exp1_ - 2. * k_2 * exp2_); //C
+	p_(3, 2) = r_2/4. * (- exp1_);                    //G
+	p_(3, 3) = r_2/4. * (  exp1_ + 2. * k_2 * exp2_); //T, U
 
-	return _p;
+	return p_;
 }
 
 /******************************************************************************/

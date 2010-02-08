@@ -54,12 +54,12 @@ namespace bpp
  *
  * The compression is achieved by the TreeParsimonyScore object.
  * The correspondance between sites in the dataset and the arrays in the structures is given
- * by the _rootPatternLinks array: the array indice for site @f$i@f$ if given by:
+ * by the rootPatternLinks_ array: the array indice for site @f$i@f$ if given by:
  * @code
- * _rootPatternLinks[i]
+ * rootPatternLinks_[i]
  * @endcode
  *
- * Finally, the _rootWeights array gives for each array position, the number of sites with this
+ * Finally, the rootWeights_ array gives for each array position, the number of sites with this
  * pattern.
  * The global parsimony score is then given by the sum of all scores for each array position,
  * weighted by the corresponding number of sites.
@@ -68,25 +68,50 @@ class AbstractTreeParsimonyData:
   public TreeParsimonyData
 {
 	protected:
-    std::vector<unsigned int> _rootPatternLinks;
-    std::vector<unsigned int> _rootWeights;
-		TreeTemplate<Node>* _tree;
+    std::vector<unsigned int> rootPatternLinks_;
+    std::vector<unsigned int> rootWeights_;
+		const TreeTemplate<Node>* tree_;
     
   public:
-    AbstractTreeParsimonyData(): _rootPatternLinks(), _rootWeights(), _tree(NULL) {}
+    AbstractTreeParsimonyData(const TreeTemplate<Node>* tree) :
+      rootPatternLinks_(),
+      rootWeights_(),
+      tree_(tree)
+    {}
+
+    AbstractTreeParsimonyData(const AbstractTreeParsimonyData& atpd) :
+      rootPatternLinks_(atpd.rootPatternLinks_),
+      rootWeights_(atpd.rootWeights_),
+      tree_(atpd.tree_)
+    {}
+
+    AbstractTreeParsimonyData& operator=(const AbstractTreeParsimonyData& atpd)
+    {
+      rootPatternLinks_ = atpd.rootPatternLinks_;
+      rootWeights_      = atpd.rootWeights_;
+      tree_             = atpd.tree_;
+      return *this;
+    }
+
+
     virtual ~AbstractTreeParsimonyData() {}
     
 	public:
 		unsigned int getRootArrayPosition(const unsigned int site) const
 		{
-			return _rootPatternLinks[site];
+			return rootPatternLinks_[site];
 		}
+
 		unsigned int getWeight(unsigned int pos) const
 		{ 
-			return _rootWeights[pos];
+			return rootWeights_[pos];
 		}
-		const TreeTemplate<Node> * getTree() const { return _tree; }  
-		TreeTemplate<Node> * getTree() { return _tree; }
+
+		const TreeTemplate<Node>* getTree() const { return tree_; }
+
+  protected:
+    void setTreeP_(const TreeTemplate<Node>* tree) { tree_ = tree; }
+    const TreeTemplate<Node>* getTreeP_() const { return tree_; }
 };
 
 } //end of namespace bpp.

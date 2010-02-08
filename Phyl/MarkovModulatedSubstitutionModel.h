@@ -73,7 +73,7 @@ namespace bpp
  * _Journal of Computational Biology_, 11:727-33.
  */
 class MarkovModulatedSubstitutionModel:
-  public ReversibleSubstitutionModel,
+  public virtual ReversibleSubstitutionModel,
   public AbstractParameterAliasable
 {
 

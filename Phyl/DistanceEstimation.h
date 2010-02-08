@@ -68,17 +68,17 @@ namespace bpp
 class TwoTreeLikelihood:
   public AbstractDiscreteRatesAcrossSitesTreeLikelihood  
 {
-	protected:
-		SiteContainer* _shrunkData;
-    std::vector<std::string> _seqnames;
+	private:
+		SiteContainer* shrunkData_;
+    std::vector<std::string> seqnames_;
 		SubstitutionModel* model_;
-		ParameterList _brLenParameters;
+		ParameterList brLenParameters_;
 		
-		mutable VVVdouble _pxy;
+		mutable VVVdouble pxy_;
 
-		mutable VVVdouble _dpxy;
+		mutable VVVdouble dpxy_;
 
-		mutable VVVdouble _d2pxy;
+		mutable VVVdouble d2pxy_;
 
 		/**
 		 * @brief As previous, but for the global container.
@@ -91,29 +91,29 @@ class TwoTreeLikelihood:
 		 * However, if this is not the case, some pointers may point toward the same
 		 * element in the likelihood array.
 		 */
-    std::vector<unsigned int> _rootPatternLinks;
+    std::vector<unsigned int> rootPatternLinks_;
 
 		/**
 		 * @brief The frequency of each site.
 		 */
-    std::vector<unsigned int> _rootWeights;
+    std::vector<unsigned int> rootWeights_;
 
 		//some values we'll need:
-		unsigned int _nbSites,         //the number of sites in the container
-		             _nbClasses,       //the number of rate classes
-		             _nbStates,        //the number of states in the alphabet
-		             _nbDistinctSites; //the number of distinct sites in the container
+		unsigned int nbSites_,         //the number of sites in the container
+		             nbClasses_,       //the number of rate classes
+		             nbStates_,        //the number of states in the alphabet
+		             nbDistinctSites_; //the number of distinct sites in the container
 
-		double _brLen;
-		mutable VVVdouble _rootLikelihoods;
-		mutable VVdouble _rootLikelihoodsS;
-		mutable Vdouble _rootLikelihoodsSR;
-		mutable Vdouble _dLikelihoods;
-		mutable Vdouble _d2Likelihoods;
-		mutable VVdouble _leafLikelihoods1, _leafLikelihoods2;
+		mutable VVVdouble rootLikelihoods_;
+		mutable VVdouble rootLikelihoodsS_;
+		mutable Vdouble rootLikelihoodsSR_;
+		mutable Vdouble dLikelihoods_;
+		mutable Vdouble d2Likelihoods_;
+		mutable VVdouble leafLikelihoods1_, leafLikelihoods2_;
 	
-    double _minimumBrLen;
-    Constraint* _brLenConstraint;
+    double minimumBrLen_;
+    Constraint* brLenConstraint_;
+		double brLen_;
 
 	public:
 		TwoTreeLikelihood(
@@ -157,11 +157,11 @@ class TwoTreeLikelihood:
     SubstitutionModel* getSubstitutionModel(int nodeId, unsigned int siteIndex) throw (NodeNotFoundException) { return model_; }
     const SubstitutionModel* getSubstitutionModel(int nodeId, unsigned int siteIndex) const throw (NodeNotFoundException) { return model_; }
     const std::vector<double>& getRootFrequencies(unsigned int siteIndex) const { return model_->getFrequencies(); }
-    unsigned int getSiteIndex(unsigned int site) const throw (IndexOutOfBoundsException) { return _rootPatternLinks[site]; }
+    unsigned int getSiteIndex(unsigned int site) const throw (IndexOutOfBoundsException) { return rootPatternLinks_[site]; }
     /**
      * @brief This method is not applicable for this object.
      */
-    VVVdouble getTransitionProbabilitiesPerRateClass(int nodeId, unsigned int siteIndex) const { return _pxy; }
+    VVVdouble getTransitionProbabilitiesPerRateClass(int nodeId, unsigned int siteIndex) const { return pxy_; }
     void setData(const SiteContainer& sites) throw (Exception) {}
     void initialize() throw(Exception);
 		/** @} */
@@ -240,20 +240,20 @@ class TwoTreeLikelihood:
 
     virtual void setMinimumBranchLength(double minimum)
     {
-      _minimumBrLen = minimum;
-      if(_brLenConstraint != 0) delete _brLenConstraint;
-      _brLenConstraint = new IncludingPositiveReal(_minimumBrLen);
+      minimumBrLen_ = minimum;
+      if(brLenConstraint_ != 0) delete brLenConstraint_;
+      brLenConstraint_ = new IncludingPositiveReal(minimumBrLen_);
       initBranchLengthsParameters();
     }
 
-    virtual double getMinimumBranchLength() const { return _minimumBrLen; }
+    virtual double getMinimumBranchLength() const { return minimumBrLen_; }
 
 	protected:
 		
 		/**
 		 * @brief This method initializes the leaves according to a sequence container.
 		 *
-		 * Here the container _shrunkData is used.
+		 * Here the container shrunkData_ is used.
 		 * Likelihood is set to 1 for the state corresponding to the sequence site,
 		 * otherwise it is set to 0.
 		 *
@@ -302,13 +302,13 @@ class DistanceEstimation:
   public virtual Clonable
 {
 	protected:
-		SubstitutionModel * model_;
-		DiscreteDistribution * rateDist_;
-		const SiteContainer * sites_;
-		DistanceMatrix * dist_;
-		Optimizer * optimizer_;
-		MetaOptimizer * _defaultOptimizer;
-		unsigned int _verbose;
+		SubstitutionModel* model_;
+		DiscreteDistribution* rateDist_;
+		const SiteContainer* sites_;
+		DistanceMatrix* dist_;
+		Optimizer* optimizer_;
+		MetaOptimizer* defaultOptimizer_;
+		unsigned int verbose_;
 		ParameterList parameters_;
 
 	public:
@@ -328,8 +328,20 @@ class DistanceEstimation:
 		 *  - 4=3 + likelihood object verbose enabled
 		 *  @param computeMat if true the computeMatrix() method is called.
 		 */
-		DistanceEstimation(SubstitutionModel * model, DiscreteDistribution * rateDist, const SiteContainer * sites, unsigned int verbose = 1, bool computeMat = true):
-      model_(model), rateDist_(rateDist), sites_(sites), dist_(0), _verbose(verbose)
+		DistanceEstimation(
+        SubstitutionModel* model,
+        DiscreteDistribution* rateDist,
+        const SiteContainer* sites,
+        unsigned int verbose = 1,
+        bool computeMat = true) :
+      model_(model),
+      rateDist_(rateDist),
+      sites_(sites),
+      dist_(0),
+      optimizer_(0),
+      defaultOptimizer_(0),
+      verbose_(verbose),
+      parameters_()
     {
 	    _init();
       if(computeMat) computeMatrix();
@@ -342,14 +354,14 @@ class DistanceEstimation:
      *
      * @param distanceEstimation The object to copy.
      */
-    DistanceEstimation(const DistanceEstimation & distanceEstimation):
+    DistanceEstimation(const DistanceEstimation& distanceEstimation):
       model_(distanceEstimation.model_),
       rateDist_(distanceEstimation.rateDist_),
       sites_(distanceEstimation.sites_),
       dist_(0),
       optimizer_(dynamic_cast<Optimizer *>(distanceEstimation.optimizer_->clone())),
-      _defaultOptimizer(dynamic_cast<MetaOptimizer *>(_defaultOptimizer->clone())),
-      _verbose(distanceEstimation._verbose),
+      defaultOptimizer_(dynamic_cast<MetaOptimizer *>(defaultOptimizer_->clone())),
+      verbose_(distanceEstimation.verbose_),
       parameters_(distanceEstimation.parameters_)
     {
       if(distanceEstimation.dist_ != 0)
@@ -366,33 +378,33 @@ class DistanceEstimation:
      * @param distanceEstimation The object to copy.
      * @return A reference toward this object.
      */
-    DistanceEstimation & operator=(const DistanceEstimation & distanceEstimation)
+    DistanceEstimation& operator=(const DistanceEstimation& distanceEstimation)
     {
-      model_ = distanceEstimation.model_;
-      rateDist_ = distanceEstimation.rateDist_;
-      sites_ = distanceEstimation.sites_;
+      model_      = distanceEstimation.model_;
+      rateDist_   = distanceEstimation.rateDist_;
+      sites_      = distanceEstimation.sites_;
       if(distanceEstimation.dist_ != 0)
-        dist_ = new DistanceMatrix(*distanceEstimation.dist_);
+        dist_     = new DistanceMatrix(*distanceEstimation.dist_);
       else
-        dist_ = 0;
-      optimizer_ = dynamic_cast<Optimizer *>(distanceEstimation.optimizer_->clone());
+        dist_     = 0;
+      optimizer_  = dynamic_cast<Optimizer *>(distanceEstimation.optimizer_->clone());
       // _defaultOptimizer has already been initialized since the default constructor has been called.
-      _verbose = distanceEstimation._verbose;
+      verbose_    = distanceEstimation.verbose_;
       parameters_ = distanceEstimation.parameters_;
       return *this;
     }
 
 		virtual ~DistanceEstimation()
 		{
-			if(dist_ != 0) delete dist_;
-			delete _defaultOptimizer;
+			if (dist_) delete dist_;
+			delete defaultOptimizer_;
       delete optimizer_;
 		}
 
 #ifndef NO_VIRTUAL_COV
-    DistanceEstimation *
+    DistanceEstimation*
 #else
-    Clonable *
+    Clonable*
 #endif
     clone() const { return new DistanceEstimation(*this); }
 		
@@ -406,11 +418,11 @@ class DistanceEstimation:
       ParameterList tmp = model_->getParameters();
       tmp.addParameters(rateDist_->getParameters());
       desc->addOptimizer("substitution model and rate distribution", new SimpleMultiDimensions(0), tmp.getParameterNames(), 0, MetaOptimizerInfos::IT_TYPE_STEP);
-    	_defaultOptimizer = new MetaOptimizer(0, desc);
-      _defaultOptimizer->setMessageHandler(0);
-	    _defaultOptimizer->setProfiler(0);
-      _defaultOptimizer->getStopCondition()->setTolerance(0.0001);
-	    optimizer_ = dynamic_cast<Optimizer*>(_defaultOptimizer->clone());
+    	defaultOptimizer_ = new MetaOptimizer(0, desc);
+      defaultOptimizer_->setMessageHandler(0);
+	    defaultOptimizer_->setProfiler(0);
+      defaultOptimizer_->getStopCondition()->setTolerance(0.0001);
+	    optimizer_ = dynamic_cast<Optimizer*>(defaultOptimizer_->clone());
     }
 
 	public:
@@ -449,7 +461,7 @@ class DistanceEstimation:
     }
 		const Optimizer * getOptimizer() const { return optimizer_; }
 		Optimizer * getOptimizer() { return optimizer_; }
-		void resetOptimizer() { optimizer_ = dynamic_cast<Optimizer*>(_defaultOptimizer->clone()); }
+		void resetOptimizer() { optimizer_ = dynamic_cast<Optimizer*>(defaultOptimizer_->clone()); }
 
 		/**
 		 * @brief Specify a list of parameters to be estimated.
@@ -474,11 +486,11 @@ class DistanceEstimation:
     /**
      * @param verbose Verbose level.
      */
-    void setVerbose(unsigned int verbose) { _verbose = verbose; }
+    void setVerbose(unsigned int verbose) { verbose_ = verbose; }
     /**
      * @return Verbose level.
      */
-    unsigned int getVerbose() const { return _verbose; }
+    unsigned int getVerbose() const { return verbose_; }
 };
 
 } //end of namespace bpp.

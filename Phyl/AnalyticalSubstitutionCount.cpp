@@ -65,7 +65,7 @@ void AnalyticalSubstitutionCount::computeCounts(double length) const
   RowMatrix<double> M3(s, s);
   RowMatrix<double> M4(s, s);
   RowMatrix<double> M5(s, s);
-  for (int n = 1; n < cuttOff_; n++)
+  for (int n = 1; n < cutOff_; n++)
   {
     MatrixTools::fill(M2, 0.);
     for(int p = 0; p < n; p++)

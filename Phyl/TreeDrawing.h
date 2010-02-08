@@ -64,6 +64,12 @@ class TreeDrawingSettings
     bool drawLeafNames;
     Font fontLeafNames;
     //More options will be added in the future...
+    
+  public:
+    TreeDrawingSettings() :
+      drawLeafNames(true),
+      fontLeafNames("Courier", Font::STYLE_NORMAL, Font::WEIGHT_NORMAL, 12)
+  {}
 };
 
 

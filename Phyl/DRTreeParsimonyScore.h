@@ -37,8 +37,8 @@ The fact that you are presently reading this means that you have had
 knowledge of the CeCILL license and that you accept its terms.
 */
 
-#ifndef _DRTREEPARSIMONYSCORE_H_
-#define _DRTREEPARSIMONYSCORE_H_
+#ifndef DRTREEPARSIMONYSCORE_H__
+#define DRTREEPARSIMONYSCORE_H__
 
 #include "AbstractTreeParsimonyScore.h"
 #include "NNISearchable.h"
@@ -54,37 +54,38 @@ namespace bpp
  * Uses a DRTreeParsimonyData object for data storage.
  */
 class DRTreeParsimonyScore:
-	public virtual AbstractTreeParsimonyScore,
+	public AbstractTreeParsimonyScore,
 	public virtual NNISearchable
 {
-	protected:
-		DRTreeParsimonyData *_parsimonyData;
-		unsigned int         _nbDistinctSites;
+	private:
+		DRTreeParsimonyData *parsimonyData_;
+		unsigned int         nbDistinctSites_;
 			
 	public:
 		DRTreeParsimonyScore(
-			const Tree & tree,
-			const SiteContainer & data,
+			const Tree& tree,
+			const SiteContainer& data,
 			bool verbose = true)
 			throw (Exception);
 
-    DRTreeParsimonyScore(const DRTreeParsimonyScore & tp);
+    DRTreeParsimonyScore(const DRTreeParsimonyScore& tp);
     
-    DRTreeParsimonyScore& operator=(const DRTreeParsimonyScore & tp);
+    DRTreeParsimonyScore& operator=(const DRTreeParsimonyScore& tp);
 				
 		virtual ~DRTreeParsimonyScore();
 
-#if defined(NO_VIRTUAL_COV)
-    Clonable * clone() const { return new DRTreeParsimonyScore(* this); }
+#ifndef NO_VIRTUAL_COV
+    DRTreeParsimonyScore*
 #else
-    DRTreeParsimonyScore * clone() const { return new DRTreeParsimonyScore(* this); }
+    Clonable*
 #endif
+    clone() const { return new DRTreeParsimonyScore(* this); }
 
 	protected:
 		/**
 		 * @brief Compute all scores.
 		 *
-		 * Call the computeScoresPreorder and computeScoresPostorder methods, and then initialize _rootBitsets and _rootScores.
+		 * Call the computeScoresPreorder and computeScoresPostorder methods, and then initialize rootBitsets_ and rootScores_.
 		 */
 		virtual void computeScores();
 		/**
@@ -167,13 +168,13 @@ class DRTreeParsimonyScore:
 
 		void doNNI(int nodeId) throw (NodeException);
 
-		Tree& getTopology() { return *_tree; }
+		//Tree& getTopology() { return getTree(); } do we realy need this one?
 		
-		const Tree& getTopology() const { return *_tree; }
+		const Tree& getTopology() const { return getTree(); }
 		
 		void topologyChangeTested(const TopologyChangeEvent & event)
 		{
-			_parsimonyData->reInit();
+			parsimonyData_->reInit();
 			computeScores();
 		}
 
@@ -184,5 +185,5 @@ class DRTreeParsimonyScore:
 
 } //end of namespace bpp.
 
-#endif //_ABSTRACTTREEPARSIMONYSCORE_H_
+#endif //ABSTRACTTREEPARSIMONYSCORE_H__
 

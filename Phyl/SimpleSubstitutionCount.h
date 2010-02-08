@@ -61,14 +61,23 @@ namespace bpp
  * Mol Biol Evol. 2000 Nov;17(11):1753-9
  */
 class SimpleSubstitutionCount:
-  public SubstitutionCount
+  public virtual SubstitutionCount
 {
   private:
-    const Alphabet * alphabet_;
+    const Alphabet* alphabet_;
     
 	public:
-		SimpleSubstitutionCount(const Alphabet* alphabet): alphabet_(alphabet) {}				
-		virtual ~SimpleSubstitutionCount() {}
+		SimpleSubstitutionCount(const Alphabet* alphabet) : alphabet_(alphabet) {}				
+		
+    SimpleSubstitutionCount(const SimpleSubstitutionCount& ssc) : alphabet_(ssc.alphabet_) {}				
+    
+    SimpleSubstitutionCount& operator=(const SimpleSubstitutionCount& ssc)
+    {
+      alphabet_ = ssc.alphabet_;
+      return *this;
+    }				
+		
+    virtual ~SimpleSubstitutionCount() {}
 			
 	public:
 		double getNumberOfSubstitutions(unsigned int initialState, unsigned int finalState, double length) const

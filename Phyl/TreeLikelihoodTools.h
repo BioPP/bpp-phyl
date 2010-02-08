@@ -55,6 +55,10 @@ namespace bpp
 class TreeLikelihoodTools
 {
   public:
+    TreeLikelihoodTools() {}
+    virtual ~TreeLikelihoodTools() {}
+
+  public:
     /**
      * @brief Compute the expected ancestral frequencies of all states at all (inner) nodes
      * according to a Markov process defined by a given substitution model.

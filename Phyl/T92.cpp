@@ -54,14 +54,17 @@ using namespace std;
 
 /******************************************************************************/
 
-T92::T92(const NucleicAlphabet * alpha, double kappa, double theta):
-	NucleotideSubstitutionModel(alpha, "T92.")
+T92::T92(const NucleicAlphabet* alpha, double kappa, double theta):
+	NucleotideSubstitutionModel(alpha, "T92."),
+  kappa_(kappa), theta_(theta), k_(), r_(),
+  piA_((1. - theta_) / 2.), piC_(theta_ / 2.), piG_(theta_ / 2.), piT_((1. - theta_) / 2.),
+  exp1_(), exp2_(), l_(), p_(size_, size_)
 {
   Parameter kappaP("T92.kappa", kappa, &Parameter::R_PLUS_STAR);
   addParameter_(kappaP);
   Parameter thetaP("T92.theta", theta, &Parameter::PROP_CONSTRAINT_EX);
   addParameter_(thetaP);
-  _p.resize(size_, size_);
+  p_.resize(size_, size_);
   updateMatrices();
 }
 
@@ -69,88 +72,88 @@ T92::T92(const NucleicAlphabet * alpha, double kappa, double theta):
 
 void T92::updateMatrices()
 {
-  _kappa = getParameterValue("kappa");
-  _theta = getParameterValue("theta");
-  _piA = (1 - _theta) / 2;
-  _piC = _theta / 2;
-  _piG = _theta / 2;
-  _piT = (1 - _theta) / 2;
-  _k = (_kappa + 1.) / 2.;
-  _r = 2./ (1. + 2. * _theta * _kappa - 2. * _theta * _theta * _kappa);
+  kappa_ = getParameterValue("kappa");
+  theta_ = getParameterValue("theta");
+  piA_ = (1 - theta_) / 2;
+  piC_ = theta_ / 2;
+  piG_ = theta_ / 2;
+  piT_ = (1 - theta_) / 2;
+  k_ = (kappa_ + 1.) / 2.;
+  r_ = 2./ (1. + 2. * theta_ * kappa_ - 2. * theta_ * theta_ * kappa_);
   
-  freq_[0] = _piA;
-  freq_[1] = _piC;
-  freq_[2] = _piG;
-  freq_[3] = _piT;
+  freq_[0] = piA_;
+  freq_[1] = piC_;
+  freq_[2] = piG_;
+  freq_[3] = piT_;
   
-  generator_(0, 0) = -(1. +        _theta * _kappa)/2;
-  generator_(1, 1) = -(1. + (1. - _theta) * _kappa)/2;
-  generator_(2, 2) = -(1. + (1. - _theta) * _kappa)/2;
-  generator_(3, 3) = -(1. +        _theta * _kappa)/2;
+  generator_(0, 0) = -(1. +        theta_ * kappa_)/2;
+  generator_(1, 1) = -(1. + (1. - theta_) * kappa_)/2;
+  generator_(2, 2) = -(1. + (1. - theta_) * kappa_)/2;
+  generator_(3, 3) = -(1. +        theta_ * kappa_)/2;
   
-  generator_(1, 0) = (1. - _theta)/2;
-  generator_(3, 0) = (1. - _theta)/2;
-  generator_(0, 1) = _theta/2;
-  generator_(2, 1) = _theta/2;
-  generator_(1, 2) = _theta/2;
-  generator_(3, 2) = _theta/2;
-  generator_(0, 3) = (1. - _theta)/2;
-  generator_(2, 3) = (1. - _theta)/2;
+  generator_(1, 0) = (1. - theta_)/2;
+  generator_(3, 0) = (1. - theta_)/2;
+  generator_(0, 1) = theta_/2;
+  generator_(2, 1) = theta_/2;
+  generator_(1, 2) = theta_/2;
+  generator_(3, 2) = theta_/2;
+  generator_(0, 3) = (1. - theta_)/2;
+  generator_(2, 3) = (1. - theta_)/2;
   
-  generator_(2, 0) = _kappa * (1. - _theta)/2;
-  generator_(3, 1) = _kappa * _theta/2;
-  generator_(0, 2) = _kappa * _theta/2;
-  generator_(1, 3) = _kappa * (1. - _theta)/2;
+  generator_(2, 0) = kappa_ * (1. - theta_)/2;
+  generator_(3, 1) = kappa_ * theta_/2;
+  generator_(0, 2) = kappa_ * theta_/2;
+  generator_(1, 3) = kappa_ * (1. - theta_)/2;
 	
 	// Normalization:
-	MatrixTools::scale(generator_, _r);
+	MatrixTools::scale(generator_, r_);
 
 	// Exchangeability:
-	exchangeability_(0,0) = generator_(0,0) * 2./(1. - _theta);
-	exchangeability_(0,1) = generator_(0,1) * 2./_theta; 
-	exchangeability_(0,2) = generator_(0,2) * 2./_theta; 
-	exchangeability_(0,3) = generator_(0,3) * 2./(1. - _theta);
+	exchangeability_(0,0) = generator_(0,0) * 2./(1. - theta_);
+	exchangeability_(0,1) = generator_(0,1) * 2./theta_; 
+	exchangeability_(0,2) = generator_(0,2) * 2./theta_; 
+	exchangeability_(0,3) = generator_(0,3) * 2./(1. - theta_);
 
-	exchangeability_(1,0) = generator_(1,0) * 2./(1. - _theta); 
-	exchangeability_(1,1) = generator_(1,1) * 2/_theta; 
-	exchangeability_(1,2) = generator_(1,2) * 2/_theta; 
-	exchangeability_(1,3) = generator_(1,3) * 2/(1. - _theta); 
+	exchangeability_(1,0) = generator_(1,0) * 2./(1. - theta_); 
+	exchangeability_(1,1) = generator_(1,1) * 2/theta_; 
+	exchangeability_(1,2) = generator_(1,2) * 2/theta_; 
+	exchangeability_(1,3) = generator_(1,3) * 2/(1. - theta_); 
 	
-	exchangeability_(2,0) = generator_(2,0) * 2./(1. - _theta); 
-	exchangeability_(2,1) = generator_(2,1) * 2/_theta; 
-	exchangeability_(2,2) = generator_(2,2) * 2/_theta; 
-	exchangeability_(2,3) = generator_(2,3) * 2/(1. - _theta); 
+	exchangeability_(2,0) = generator_(2,0) * 2./(1. - theta_); 
+	exchangeability_(2,1) = generator_(2,1) * 2/theta_; 
+	exchangeability_(2,2) = generator_(2,2) * 2/theta_; 
+	exchangeability_(2,3) = generator_(2,3) * 2/(1. - theta_); 
 	
-	exchangeability_(3,0) = generator_(3,0) * 2./(1. - _theta);
-	exchangeability_(3,1) = generator_(3,1) * 2./_theta; 
-	exchangeability_(3,2) = generator_(3,2) * 2./_theta; 
-	exchangeability_(3,3) = generator_(3,3) * 2./(1. - _theta);
+	exchangeability_(3,0) = generator_(3,0) * 2./(1. - theta_);
+	exchangeability_(3,1) = generator_(3,1) * 2./theta_; 
+	exchangeability_(3,2) = generator_(3,2) * 2./theta_; 
+	exchangeability_(3,3) = generator_(3,3) * 2./(1. - theta_);
 
 	// Eigen values:
 	eigenValues_[0] = 0;
-	eigenValues_[1] = eigenValues_[2] = -_r * (1. + _kappa)/2; 
-	eigenValues_[3] = -_r;
+	eigenValues_[1] = eigenValues_[2] = -r_ * (1. + kappa_)/2; 
+	eigenValues_[3] = -r_;
 	
 	// Eigen vectors:
-	leftEigenVectors_(0,0) = - (_theta - 1.)/2.;
-	leftEigenVectors_(0,1) = _theta/2.;
-	leftEigenVectors_(0,2) = _theta/2.;
-	leftEigenVectors_(0,3) = - (_theta - 1.)/2.;
+	leftEigenVectors_(0,0) = - (theta_ - 1.)/2.;
+	leftEigenVectors_(0,1) = theta_/2.;
+	leftEigenVectors_(0,2) = theta_/2.;
+	leftEigenVectors_(0,3) = - (theta_ - 1.)/2.;
 	
 	leftEigenVectors_(1,0) = 0.;
-	leftEigenVectors_(1,1) = - (_theta - 1.);
+	leftEigenVectors_(1,1) = - (theta_ - 1.);
 	leftEigenVectors_(1,2) = 0.;
-	leftEigenVectors_(1,3) = _theta - 1.;
+	leftEigenVectors_(1,3) = theta_ - 1.;
 	
-	leftEigenVectors_(2,0) = _theta;
+	leftEigenVectors_(2,0) = theta_;
 	leftEigenVectors_(2,1) = 0.;
-	leftEigenVectors_(2,2) = -_theta;
+	leftEigenVectors_(2,2) = -theta_;
 	leftEigenVectors_(2,3) = 0.;
 	
-	leftEigenVectors_(3,0) = - (_theta - 1.)/2.;
-	leftEigenVectors_(3,1) = - _theta/2.;
-	leftEigenVectors_(3,2) = _theta/2.;
-	leftEigenVectors_(3,3) = (_theta - 1.)/2.;
+	leftEigenVectors_(3,0) = - (theta_ - 1.)/2.;
+	leftEigenVectors_(3,1) = - theta_/2.;
+	leftEigenVectors_(3,2) = theta_/2.;
+	leftEigenVectors_(3,3) = (theta_ - 1.)/2.;
 
 
 	rightEigenVectors_(0,0) = 1.;
@@ -165,11 +168,11 @@ void T92::updateMatrices()
 
 	rightEigenVectors_(2,0) = 1.;
 	rightEigenVectors_(2,1) = 0.;
-	rightEigenVectors_(2,2) = (_theta-1.)/_theta;
+	rightEigenVectors_(2,2) = (theta_-1.)/theta_;
 	rightEigenVectors_(2,3) = 1.;
 	
 	rightEigenVectors_(3,0) = 1.;
-	rightEigenVectors_(3,1) = _theta/(_theta - 1.);
+	rightEigenVectors_(3,1) = theta_/(theta_ - 1.);
 	rightEigenVectors_(3,2) = 0;
 	rightEigenVectors_(3,3) = -1.;
 }
@@ -178,45 +181,45 @@ void T92::updateMatrices()
 
 double T92::Pij_t(int i, int j, double d) const
 {
-	_l = _r * d;
-	_exp1 = exp(-_l);
-	_exp2 = exp(-_k * _l);
+	l_ = r_ * d;
+	exp1_ = exp(-l_);
+	exp2_ = exp(-k_ * l_);
 	
 	switch(i) {
 		//A
 		case 0 : {
 			switch(j) {
-				case 0 : return _piA * (1. + _exp1) + _theta * _exp2; //A
-				case 1 : return _piC * (1. - _exp1);                  //C
-				case 2 : return _piG * (1. + _exp1) - _theta * _exp2; //G
-				case 3 : return _piT * (1. - _exp1);                  //T, U
+				case 0 : return piA_ * (1. + exp1_) + theta_ * exp2_; //A
+				case 1 : return piC_ * (1. - exp1_);                  //C
+				case 2 : return piG_ * (1. + exp1_) - theta_ * exp2_; //G
+				case 3 : return piT_ * (1. - exp1_);                  //T, U
 			}
 		} 
 		//C
 		case 1 : {
 			switch(j) {
-				case 0 : return _piA * (1. - _exp1);                         //A
-				case 1 : return _piC * (1. + _exp1) + (1. - _theta) * _exp2; //C
-				case 2 : return _piG * (1. - _exp1);                         //G
-				case 3 : return _piT * (1. + _exp1) - (1. - _theta) * _exp2; //T, U
+				case 0 : return piA_ * (1. - exp1_);                         //A
+				case 1 : return piC_ * (1. + exp1_) + (1. - theta_) * exp2_; //C
+				case 2 : return piG_ * (1. - exp1_);                         //G
+				case 3 : return piT_ * (1. + exp1_) - (1. - theta_) * exp2_; //T, U
 			}
 		}
 		//G
 		case 2 : {
 			switch(j) {
-				case 0 : return _piA * (1. + _exp1) - (1. - _theta) * _exp2; //A
-				case 1 : return _piC * (1. - _exp1);                         //C
-				case 2 : return _piG * (1. + _exp1) + (1. - _theta) * _exp2; //G
-				case 3 : return _piT * (1. - _exp1);                         //T, U
+				case 0 : return piA_ * (1. + exp1_) - (1. - theta_) * exp2_; //A
+				case 1 : return piC_ * (1. - exp1_);                         //C
+				case 2 : return piG_ * (1. + exp1_) + (1. - theta_) * exp2_; //G
+				case 3 : return piT_ * (1. - exp1_);                         //T, U
 			}
 		}
 		//T, U
 		case 3 : {
 			switch(j) {
-				case 0 : return _piA * (1. - _exp1);                  //A
-				case 1 : return _piC * (1. + _exp1) - _theta * _exp2; //C
-				case 2 : return _piG * (1. - _exp1);                  //G
-				case 3 : return _piT * (1. + _exp1) + _theta * _exp2; //T, U
+				case 0 : return piA_ * (1. - exp1_);                  //A
+				case 1 : return piC_ * (1. + exp1_) - theta_ * exp2_; //C
+				case 2 : return piG_ * (1. - exp1_);                  //G
+				case 3 : return piT_ * (1. + exp1_) + theta_ * exp2_; //T, U
 			}
 		}
 	}
@@ -227,45 +230,45 @@ double T92::Pij_t(int i, int j, double d) const
 
 double T92::dPij_dt(int i, int j, double d) const
 {
-	_l = _r * d;
-	_exp1 = exp(-_l);
-	_exp2 = exp(-_k * _l);
+	l_ = r_ * d;
+	exp1_ = exp(-l_);
+	exp2_ = exp(-k_ * l_);
 
 	switch(i) {
 		//A
 		case 0 : {
 			switch(j) {
-				case 0 : return _r * (_piA * - _exp1 + _theta * -_k * _exp2); //A
-				case 1 : return _r * (_piC *   _exp1);                        //C
-				case 2 : return _r * (_piG * - _exp1 - _theta * -_k * _exp2); //G
-				case 3 : return _r * (_piT *   _exp1);                        //T, U
+				case 0 : return r_ * (piA_ * - exp1_ + theta_ * -k_ * exp2_); //A
+				case 1 : return r_ * (piC_ *   exp1_);                        //C
+				case 2 : return r_ * (piG_ * - exp1_ - theta_ * -k_ * exp2_); //G
+				case 3 : return r_ * (piT_ *   exp1_);                        //T, U
 			}
 		} 
 		//C
 		case 1 : {
 			switch(j) {
-				case 0 : return _r * (_piA *   _exp1);                               //A
-				case 1 : return _r * (_piC * - _exp1 + (1. - _theta) * -_k * _exp2); //C
-				case 2 : return _r * (_piG *   _exp1);                               //G
-				case 3 : return _r * (_piT * - _exp1 - (1. - _theta) * -_k * _exp2); //T, U
+				case 0 : return r_ * (piA_ *   exp1_);                               //A
+				case 1 : return r_ * (piC_ * - exp1_ + (1. - theta_) * -k_ * exp2_); //C
+				case 2 : return r_ * (piG_ *   exp1_);                               //G
+				case 3 : return r_ * (piT_ * - exp1_ - (1. - theta_) * -k_ * exp2_); //T, U
 			}
 		}
 		//G
 		case 2 : {
 			switch(j) {
-				case 0 : return _r * (_piA * - _exp1 - (1. - _theta) * -_k * _exp2); //A
-				case 1 : return _r * (_piC *   _exp1);                               //C
-				case 2 : return _r * (_piG * - _exp1 + (1. - _theta) * -_k * _exp2); //G
-				case 3 : return _r * (_piT *   _exp1);                               //T, U
+				case 0 : return r_ * (piA_ * - exp1_ - (1. - theta_) * -k_ * exp2_); //A
+				case 1 : return r_ * (piC_ *   exp1_);                               //C
+				case 2 : return r_ * (piG_ * - exp1_ + (1. - theta_) * -k_ * exp2_); //G
+				case 3 : return r_ * (piT_ *   exp1_);                               //T, U
 			}
 		}
 		//T, U
 		case 3 : {
 			switch(j) {
-				case 0 : return _r * (_piA *   _exp1);                        //A
-				case 1 : return _r * (_piC * - _exp1 - _theta * -_k * _exp2); //C
-				case 2 : return _r * (_piG *   _exp1);                        //G
-				case 3 : return _r * (_piT * - _exp1 + _theta * -_k * _exp2); //T, U
+				case 0 : return r_ * (piA_ *   exp1_);                        //A
+				case 1 : return r_ * (piC_ * - exp1_ - theta_ * -k_ * exp2_); //C
+				case 2 : return r_ * (piG_ *   exp1_);                        //G
+				case 3 : return r_ * (piT_ * - exp1_ + theta_ * -k_ * exp2_); //T, U
 			}
 		}
 	}
@@ -276,47 +279,47 @@ double T92::dPij_dt(int i, int j, double d) const
 
 double T92::d2Pij_dt2(int i, int j, double d) const
 {
-	double _k2 = _k * _k;
-	_l = _r * d;
-	double r2 = _r * _r;
-	_exp1 = exp(-_l);
-	_exp2 = exp(-_k * _l);
+	double k2_ = k_ * k_;
+	l_ = r_ * d;
+	double r2 = r_ * r_;
+	exp1_ = exp(-l_);
+	exp2_ = exp(-k_ * l_);
 
 	switch(i) {
 		//A
 		case 0 : {
 			switch(j) {
-				case 0 : return r2 * (_piA *   _exp1 + _theta * _k2 * _exp2); //A
-				case 1 : return r2 * (_piC * - _exp1);                        //C
-				case 2 : return r2 * (_piG *   _exp1 - _theta * _k2 * _exp2); //G
-				case 3 : return r2 * (_piT * - _exp1);                        //T, U
+				case 0 : return r2 * (piA_ *   exp1_ + theta_ * k2_ * exp2_); //A
+				case 1 : return r2 * (piC_ * - exp1_);                        //C
+				case 2 : return r2 * (piG_ *   exp1_ - theta_ * k2_ * exp2_); //G
+				case 3 : return r2 * (piT_ * - exp1_);                        //T, U
 			}
 		} 
 		//C
 		case 1 : {
 			switch(j) {
-				case 0 : return r2 * (_piA * - _exp1);                               //A
-				case 1 : return r2 * (_piC *   _exp1 + (1. - _theta) * _k2 * _exp2); //C
-				case 2 : return r2 * (_piG * - _exp1);                               //G
-				case 3 : return r2 * (_piT *   _exp1 - (1. - _theta) * _k2 * _exp2); //T, U
+				case 0 : return r2 * (piA_ * - exp1_);                               //A
+				case 1 : return r2 * (piC_ *   exp1_ + (1. - theta_) * k2_ * exp2_); //C
+				case 2 : return r2 * (piG_ * - exp1_);                               //G
+				case 3 : return r2 * (piT_ *   exp1_ - (1. - theta_) * k2_ * exp2_); //T, U
 			}
 		}
 		//G
 		case 2 : {
 			switch(j) {
-				case 0 : return r2 * (_piA *   _exp1 - (1. - _theta) * _k2 * _exp2); //A
-				case 1 : return r2 * (_piC * - _exp1);                               //C
-				case 2 : return r2 * (_piG *   _exp1 + (1. - _theta) * _k2 * _exp2); //G
-				case 3 : return r2 * (_piT * - _exp1);                               //T, U
+				case 0 : return r2 * (piA_ *   exp1_ - (1. - theta_) * k2_ * exp2_); //A
+				case 1 : return r2 * (piC_ * - exp1_);                               //C
+				case 2 : return r2 * (piG_ *   exp1_ + (1. - theta_) * k2_ * exp2_); //G
+				case 3 : return r2 * (piT_ * - exp1_);                               //T, U
 			}
 		}
 		//T, U
 		case 3 : {
 			switch(j) {
-				case 0 : return r2 * (_piA * - _exp1);                        //A
-				case 1 : return r2 * (_piC *   _exp1 - _theta * _k2 * _exp2); //C
-				case 2 : return r2 * (_piG * - _exp1);                        //G
-				case 3 : return r2 * (_piT *   _exp1 + _theta * _k2 * _exp2); //T, U
+				case 0 : return r2 * (piA_ * - exp1_);                        //A
+				case 1 : return r2 * (piC_ *   exp1_ - theta_ * k2_ * exp2_); //C
+				case 2 : return r2 * (piG_ * - exp1_);                        //G
+				case 3 : return r2 * (piT_ *   exp1_ + theta_ * k2_ * exp2_); //T, U
 			}
 		}
 	}
@@ -325,111 +328,110 @@ double T92::d2Pij_dt2(int i, int j, double d) const
 
 /******************************************************************************/
 
-const Matrix<double> & T92::getPij_t(double d) const
+const Matrix<double>& T92::getPij_t(double d) const
 {
-	_l = _r * d;
-	_exp1 = exp(-_l);
-	_exp2 = exp(-_k * _l);
+	l_ = r_ * d;
+	exp1_ = exp(-l_);
+	exp2_ = exp(-k_ * l_);
 
 	//A
-	_p(0, 0) = _piA * (1. + _exp1) + _theta * _exp2; //A
-	_p(0, 1) = _piC * (1. - _exp1);                  //C
-	_p(0, 2) = _piG * (1. + _exp1) - _theta * _exp2; //G
-	_p(0, 3) = _piT * (1. - _exp1);                  //T, U
+	p_(0, 0) = piA_ * (1. + exp1_) + theta_ * exp2_; //A
+	p_(0, 1) = piC_ * (1. - exp1_);                  //C
+	p_(0, 2) = piG_ * (1. + exp1_) - theta_ * exp2_; //G
+	p_(0, 3) = piT_ * (1. - exp1_);                  //T, U
 
 	//C
-	_p(1, 0) = _piA * (1. - _exp1);                         //A
-	_p(1, 1) = _piC * (1. + _exp1) + (1. - _theta) * _exp2; //C
-	_p(1, 2) = _piG * (1. - _exp1);                         //G
-	_p(1, 3) = _piT * (1. + _exp1) - (1. - _theta) * _exp2; //T, U
+	p_(1, 0) = piA_ * (1. - exp1_);                         //A
+	p_(1, 1) = piC_ * (1. + exp1_) + (1. - theta_) * exp2_; //C
+	p_(1, 2) = piG_ * (1. - exp1_);                         //G
+	p_(1, 3) = piT_ * (1. + exp1_) - (1. - theta_) * exp2_; //T, U
 
 	//G
-	_p(2, 0) = _piA * (1. + _exp1) - (1. - _theta) * _exp2; //A
-	_p(2, 1) = _piC * (1. - _exp1);                         //C
-	_p(2, 2) = _piG * (1. + _exp1) + (1. - _theta) * _exp2; //G
-	_p(2, 3) = _piT * (1. - _exp1);                         //T, U
+	p_(2, 0) = piA_ * (1. + exp1_) - (1. - theta_) * exp2_; //A
+	p_(2, 1) = piC_ * (1. - exp1_);                         //C
+	p_(2, 2) = piG_ * (1. + exp1_) + (1. - theta_) * exp2_; //G
+	p_(2, 3) = piT_ * (1. - exp1_);                         //T, U
 
 	//T, U
-	_p(3, 0) = _piA * (1. - _exp1);                  //A
-	_p(3, 1) = _piC * (1. + _exp1) - _theta * _exp2; //C
-	_p(3, 2) = _piG * (1. - _exp1);                  //G
-	_p(3, 3) = _piT * (1. + _exp1) + _theta * _exp2; //T, U
+	p_(3, 0) = piA_ * (1. - exp1_);                  //A
+	p_(3, 1) = piC_ * (1. + exp1_) - theta_ * exp2_; //C
+	p_(3, 2) = piG_ * (1. - exp1_);                  //G
+	p_(3, 3) = piT_ * (1. + exp1_) + theta_ * exp2_; //T, U
 
-	return _p;
+	return p_;
 }
 
-const Matrix<double> & T92::getdPij_dt(double d) const
+const Matrix<double>& T92::getdPij_dt(double d) const
 {
-	_l = _r * d;
-	_exp1 = exp(-_l);
-	_exp2 = exp(-_k * _l);
+	l_ = r_ * d;
+	exp1_ = exp(-l_);
+	exp2_ = exp(-k_ * l_);
 
 	//A
-	_p(0, 0) = _r * (_piA * - _exp1 + _theta * -_k * _exp2); //A
-	_p(0, 1) = _r * (_piC *   _exp1);                        //C
-	_p(0, 2) = _r * (_piG * - _exp1 - _theta * -_k * _exp2); //G
-	_p(0, 3) = _r * (_piT *   _exp1);                        //T, U
+	p_(0, 0) = r_ * (piA_ * - exp1_ + theta_ * -k_ * exp2_); //A
+	p_(0, 1) = r_ * (piC_ *   exp1_);                        //C
+	p_(0, 2) = r_ * (piG_ * - exp1_ - theta_ * -k_ * exp2_); //G
+	p_(0, 3) = r_ * (piT_ *   exp1_);                        //T, U
 
 	//C
-	_p(1, 0) = _r * (_piA *   _exp1);                               //A
-	_p(1, 1) = _r * (_piC * - _exp1 + (1. - _theta) * -_k * _exp2); //C
-	_p(1, 2) = _r * (_piG *   _exp1);                               //G
-	_p(1, 3) = _r * (_piT * - _exp1 - (1. - _theta) * -_k * _exp2); //T, U
+	p_(1, 0) = r_ * (piA_ *   exp1_);                               //A
+	p_(1, 1) = r_ * (piC_ * - exp1_ + (1. - theta_) * -k_ * exp2_); //C
+	p_(1, 2) = r_ * (piG_ *   exp1_);                               //G
+	p_(1, 3) = r_ * (piT_ * - exp1_ - (1. - theta_) * -k_ * exp2_); //T, U
 
 	//G
-	_p(2, 0) = _r * (_piA * - _exp1 - (1. - _theta) * -_k * _exp2); //A
-	_p(2, 1) = _r * (_piC *   _exp1);                               //C
-	_p(2, 2) = _r * (_piG * - _exp1 + (1. - _theta) * -_k * _exp2); //G
-	_p(2, 3) = _r * (_piT *   _exp1);                               //T, U
+	p_(2, 0) = r_ * (piA_ * - exp1_ - (1. - theta_) * -k_ * exp2_); //A
+	p_(2, 1) = r_ * (piC_ *   exp1_);                               //C
+	p_(2, 2) = r_ * (piG_ * - exp1_ + (1. - theta_) * -k_ * exp2_); //G
+	p_(2, 3) = r_ * (piT_ *   exp1_);                               //T, U
 
 	//T, U
-	_p(3, 0) = _r * (_piA *   _exp1);                        //A
-	_p(3, 1) = _r * (_piC * - _exp1 - _theta * -_k * _exp2); //C
-	_p(3, 2) = _r * (_piG *   _exp1);                        //G
-	_p(3, 3) = _r * (_piT * - _exp1 + _theta * -_k * _exp2); //T, U
+	p_(3, 0) = r_ * (piA_ *   exp1_);                        //A
+	p_(3, 1) = r_ * (piC_ * - exp1_ - theta_ * -k_ * exp2_); //C
+	p_(3, 2) = r_ * (piG_ *   exp1_);                        //G
+	p_(3, 3) = r_ * (piT_ * - exp1_ + theta_ * -k_ * exp2_); //T, U
 
-	return _p;
+	return p_;
 }
 
-const Matrix<double> & T92::getd2Pij_dt2(double d) const
+const Matrix<double>& T92::getd2Pij_dt2(double d) const
 {
-	double k2 = _k * _k;
-	_l = _r * d;
-	double r2 = _r * _r;
-	_exp1 = exp(-_l);
-	_exp2 = exp(-_k * _l);
+	double k2 = k_ * k_;
+	l_ = r_ * d;
+	double r2 = r_ * r_;
+	exp1_ = exp(-l_);
+	exp2_ = exp(-k_ * l_);
 
 	//A
-	_p(0, 0) = r2 * (_piA *   _exp1 + _theta * k2 * _exp2); //A
-	_p(0, 1) = r2 * (_piC * - _exp1);                       //C
-	_p(0, 2) = r2 * (_piG *   _exp1 - _theta * k2 * _exp2); //G
-	_p(0, 3) = r2 * (_piT * - _exp1);                       //T, U
+	p_(0, 0) = r2 * (piA_ *   exp1_ + theta_ * k2 * exp2_); //A
+	p_(0, 1) = r2 * (piC_ * - exp1_);                       //C
+	p_(0, 2) = r2 * (piG_ *   exp1_ - theta_ * k2 * exp2_); //G
+	p_(0, 3) = r2 * (piT_ * - exp1_);                       //T, U
 
 	//C
-	_p(1, 0) = r2 * (_piA * - _exp1);                              //A
-	_p(1, 1) = r2 * (_piC *   _exp1 + (1. - _theta) * k2 * _exp2); //C
-	_p(1, 2) = r2 * (_piG * - _exp1);                              //G
-	_p(1, 3) = r2 * (_piT *   _exp1 - (1. - _theta) * k2 * _exp2); //T, U
+	p_(1, 0) = r2 * (piA_ * - exp1_);                              //A
+	p_(1, 1) = r2 * (piC_ *   exp1_ + (1. - theta_) * k2 * exp2_); //C
+	p_(1, 2) = r2 * (piG_ * - exp1_);                              //G
+	p_(1, 3) = r2 * (piT_ *   exp1_ - (1. - theta_) * k2 * exp2_); //T, U
 
 	//G
-	_p(2, 0) = r2 * (_piA *   _exp1 - (1. - _theta) * k2 * _exp2); //A
-	_p(2, 1) = r2 * (_piC * - _exp1);                              //C
-	_p(2, 2) = r2 * (_piG *   _exp1 + (1. - _theta) * k2 * _exp2); //G
-	_p(2, 3) = r2 * (_piT * - _exp1);                              //T, U
+	p_(2, 0) = r2 * (piA_ *   exp1_ - (1. - theta_) * k2 * exp2_); //A
+	p_(2, 1) = r2 * (piC_ * - exp1_);                              //C
+	p_(2, 2) = r2 * (piG_ *   exp1_ + (1. - theta_) * k2 * exp2_); //G
+	p_(2, 3) = r2 * (piT_ * - exp1_);                              //T, U
 
 	//T, U
-	_p(3, 0) = r2 * (_piA * - _exp1);                       //A
-	_p(3, 1) = r2 * (_piC *   _exp1 - _theta * k2 * _exp2); //C
-	_p(3, 2) = r2 * (_piG * - _exp1);                       //G
-	_p(3, 3) = r2 * (_piT *   _exp1 + _theta * k2 * _exp2); //T, U
+	p_(3, 0) = r2 * (piA_ * - exp1_);                       //A
+	p_(3, 1) = r2 * (piC_ *   exp1_ - theta_ * k2 * exp2_); //C
+	p_(3, 2) = r2 * (piG_ * - exp1_);                       //G
+	p_(3, 3) = r2 * (piT_ *   exp1_ + theta_ * k2 * exp2_); //T, U
 
-	return _p;
+	return p_;
 }
 
 /******************************************************************************/
 
-void T92::setFreq(std::map<int, double>& freqs)
-  
+void T92::setFreq(std::map<int, double>& freqs) 
 {
   double f = (freqs[1] + freqs[2]) / (freqs[0] + freqs[1] + freqs[2] + freqs[3]);
   setParameterValue("theta", f);

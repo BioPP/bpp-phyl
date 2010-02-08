@@ -46,10 +46,10 @@ using namespace std;
 /******************************************************************************/
 
 GY94::GY94(const GeneticCode* palph) :
-  AbstractSubstitutionModel(palph->getSourceAlphabet(),"GY94."),
-  _gacd(),
-  _ffs(palph->getSourceAlphabet()),
-  _pmodel(new CodonAsynonymousFrequenciesReversibleSubstitutionModel(palph, &_ffs, &_gacd))
+  AbstractSubstitutionModel(palph->getSourceAlphabet()," GY94."),
+  gacd_(),
+  ffs_(palph->getSourceAlphabet()),
+  pmodel_(palph, &ffs_, &gacd_)
 {
   addParameter_(Parameter("GY94.kappa",1,&Parameter::R_PLUS_STAR));
   addParameter_(Parameter("GY94.V",10000,&Parameter::R_PLUS_STAR));
@@ -59,16 +59,19 @@ GY94::GY94(const GeneticCode* palph) :
 
 GY94::GY94(const GY94& gy94) :
   AbstractSubstitutionModel(gy94),
-  _gacd(),
-  _ffs(gy94._ffs)
+  gacd_(),
+  ffs_(gy94.ffs_),
+  pmodel_(gy94.pmodel_.getGeneticCode(), &ffs_, &gacd_) //Need to adjust pointers, that's why we can't rely on the default copy constructor.
+{}
+
+GY94& GY94::operator=(const GY94& gy94)
 {
-  _pmodel = new CodonAsynonymousFrequenciesReversibleSubstitutionModel(gy94._pmodel->getGeneticCode(), &_ffs, &_gacd);
+  AbstractSubstitutionModel::operator=(gy94);
+  ffs_ = gy94.ffs_;
+  pmodel_ = CodonAsynonymousFrequenciesReversibleSubstitutionModel(gy94.pmodel_.getGeneticCode(), &ffs_, &gacd_);
+  return *this;
 }
 
-GY94::~GY94()
-{
-  delete _pmodel;
-};
 
 string GY94::getName() const
 {
@@ -81,5 +84,5 @@ void GY94::updateMatrices()
   Pl.addParameter(Parameter("CodonAsynonymousFrequencies.012_K80.kappa",getParameterValue("kappa")));
   Pl.addParameter(Parameter("CodonAsynonymousFrequencies.alpha",getParameterValue("V")));
 
-  _pmodel->matchParametersValues(Pl);
+  pmodel_.matchParametersValues(Pl);
 }

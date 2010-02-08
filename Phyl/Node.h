@@ -95,7 +95,7 @@ class Node:
   protected:
     int id_;
     std::string* name_;
-    std::vector<Node *> sons_;
+    std::vector<Node*> sons_;
     Node* father_;
     double* distanceToFather_;
     mutable std::map<std::string, Clonable*> nodeProperties_;
@@ -106,29 +106,61 @@ class Node:
     /**
      * @brief Build a new void Node object.
      */
-    Node() : id_(0), name_(0), sons_(), father_(0), distanceToFather_(0), nodeProperties_(), branchProperties_() {}
+    Node() :
+      id_(0),
+      name_(0),
+      sons_(),
+      father_(0),
+      distanceToFather_(0),
+      nodeProperties_(),
+      branchProperties_()
+    {}
       
     /**
      * @brief Build a new Node with specified id.
      */
-    Node(int id) : id_(id), name_(0), sons_(), father_(0), distanceToFather_(0), nodeProperties_(), branchProperties_() {}
+    Node(int id) :
+      id_(id),
+      name_(0),
+      sons_(),
+      father_(0),
+      distanceToFather_(0),
+      nodeProperties_(),
+      branchProperties_()
+    {}
 
     /**
      * @brief Build a new Node with specified name.
      */
-    Node(const std::string & name) : id_(0), name_(new std::string(name)), sons_(), father_(0), distanceToFather_(0), nodeProperties_(), branchProperties_() {}
+    Node(const std::string& name) :
+      id_(0),
+      name_(new std::string(name)),
+      sons_(),
+      father_(0),
+      distanceToFather_(0),
+      nodeProperties_(),
+      branchProperties_()
+    {}
 
     /**
      * @brief Build a new Node with specified id and name.
      */
-    Node(int id, const std::string & name) : id_(id), name_(new std::string(name)), sons_(), father_(0), distanceToFather_(0), nodeProperties_(), branchProperties_() {}
+    Node(int id, const std::string& name) :
+      id_(id),
+      name_(new std::string(name)),
+      sons_(),
+      father_(0),
+      distanceToFather_(0),
+      nodeProperties_(),
+      branchProperties_()
+    {}
 
     /**
      * @brief Copy constructor.
      * 
      * @param node The node to copy.
      */
-    Node(const Node & node);
+    Node(const Node& node);
 
     /**
      * @brief Assignation operator.
@@ -136,19 +168,19 @@ class Node:
      * @param node the node to copy.
      * @return A reference toward this node.
      */
-    Node & operator=(const Node & node);
+    Node& operator=(const Node& node);
 
     virtual ~Node()
     {  
-      delete name_;
-      delete distanceToFather_;
+      if (name_) delete name_;
+      if (distanceToFather_) delete distanceToFather_;
       for (std::map<std::string, Clonable *>::iterator i = nodeProperties_.begin(); i != nodeProperties_.end(); i++)
         delete i->second;
       for (std::map<std::string, Clonable *>::iterator i = branchProperties_.begin(); i != branchProperties_.end(); i++)
         delete i->second;
     }
 
-    Node * clone() const { return new Node(*this); }
+    Node* clone() const { return new Node(*this); }
 
   public:        
         

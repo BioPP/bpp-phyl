@@ -43,10 +43,13 @@ using namespace bpp;
 using namespace std;
 
 
-MixedSubstitutionModel::MixedSubstitutionModel(const Alphabet* alpha,
-                                               SubstitutionModel* model,
-                                               map<string,DiscreteDistribution*> parametersDistributionsList) :
-  AbstractSubstitutionModel(alpha,"MixedModel.")
+MixedSubstitutionModel::MixedSubstitutionModel(
+    const Alphabet* alpha,
+    SubstitutionModel* model,
+    std::map<std::string, DiscreteDistribution*> parametersDistributionsList) :
+  AbstractSubstitutionModel(alpha, "MixedModel."),
+  distributionMap_(),
+  modelsContainer_()
 {
    unsigned int c, i;
    double d;
@@ -119,21 +122,55 @@ MixedSubstitutionModel::MixedSubstitutionModel(const Alphabet* alpha,
 }
 
 MixedSubstitutionModel::MixedSubstitutionModel(const MixedSubstitutionModel& msm) :
-  AbstractSubstitutionModel(msm)
+  AbstractSubstitutionModel(msm),
+  distributionMap_(),
+  modelsContainer_()
 {
-   map<string, DiscreteDistribution*> m = msm.distributionMap_;
-   map<string, DiscreteDistribution*>::iterator it;
+  map<string, DiscreteDistribution*>::const_iterator it;
 
-  for (it = m.begin(); it != m.end(); it++)
+  for (it = msm.distributionMap_.begin(); it != msm.distributionMap_.end(); it++)
   {
-    distributionMap_[it->first] = it->second->clone();
+    distributionMap_[it->first] = dynamic_cast<DiscreteDistribution*>(it->second->clone());
+  }
+
+  for (unsigned int i = 0; i < msm.modelsContainer_.size(); i++)
+  {
+    modelsContainer_.push_back(msm.modelsContainer_[i]->clone());
+  }
+}
+
+MixedSubstitutionModel& MixedSubstitutionModel::operator=(const MixedSubstitutionModel& msm)
+{
+  AbstractSubstitutionModel::operator=(msm);
+  
+  //Clear existing containers:
+  map<string, DiscreteDistribution*>::const_iterator it;
+  for (it = msm.distributionMap_.begin(); it != msm.distributionMap_.end(); it++)
+  {
+    distributionMap_[it->first] = dynamic_cast<DiscreteDistribution*>(it->second->clone());
   }
 
   for (unsigned int i = 0; i < msm.modelsContainer_.size(); i++)
   {
    modelsContainer_.push_back(msm.modelsContainer_[i]->clone());
   }
+  
+  distributionMap_.clear();
+  modelsContainer_.clear();
+   
+  //Now copy new containers:
+  for (it = msm.distributionMap_.begin(); it != msm.distributionMap_.end(); it++)
+  {
+    distributionMap_[it->first] = dynamic_cast<DiscreteDistribution*>(it->second->clone());
+  }
+
+  for (unsigned int i = 0; i < msm.modelsContainer_.size(); i++)
+  {
+    modelsContainer_.push_back(msm.modelsContainer_[i]->clone());
+  }
+  return *this;
 }
+
 
 MixedSubstitutionModel::~MixedSubstitutionModel()
 {

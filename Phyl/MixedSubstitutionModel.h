@@ -101,6 +101,8 @@ public:
                          std::map<std::string, DiscreteDistribution*> parametersDistributionsList);
 
   MixedSubstitutionModel(const MixedSubstitutionModel&);
+  
+  MixedSubstitutionModel& operator=(const MixedSubstitutionModel&);
 
   ~MixedSubstitutionModel();
 

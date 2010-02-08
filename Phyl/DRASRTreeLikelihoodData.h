@@ -72,13 +72,13 @@ namespace bpp
  * @see DRASRTreeLikelihoodData
  */
 class DRASRTreeLikelihoodNodeData :
-	public TreeLikelihoodNodeData
+  public virtual TreeLikelihoodNodeData
 {
-	protected:
-		mutable VVVdouble _nodeLikelihoods;
-		mutable VVVdouble _nodeDLikelihoods;
-		mutable VVVdouble _nodeD2Likelihoods;
-		const Node* _node;
+  private:
+    mutable VVVdouble _nodeLikelihoods;
+    mutable VVVdouble _nodeDLikelihoods;
+    mutable VVVdouble _nodeD2Likelihoods;
+    const Node* _node;
 
   public:
 #ifndef NO_VIRTUAL_COV
@@ -91,200 +91,201 @@ class DRASRTreeLikelihoodNodeData :
       return new DRASRTreeLikelihoodNodeData(*this);
     }
 
-	public:
-		const Node* getNode() const { return _node; }
-		void setNode(const Node* node) { _node = node; }
+  public:
+    const Node* getNode() const { return _node; }
+    void setNode(const Node* node) { _node = node; }
 
-		VVVdouble& getLikelihoodArray() { return _nodeLikelihoods; }
-		const VVVdouble& getLikelihoodArray() const { return _nodeLikelihoods; }
-		
-		VVVdouble& getDLikelihoodArray() { return _nodeDLikelihoods; }
-		const VVVdouble& getDLikelihoodArray() const { return _nodeDLikelihoods; }
+    VVVdouble& getLikelihoodArray() { return _nodeLikelihoods; }
+    const VVVdouble& getLikelihoodArray() const { return _nodeLikelihoods; }
+    
+    VVVdouble& getDLikelihoodArray() { return _nodeDLikelihoods; }
+    const VVVdouble& getDLikelihoodArray() const { return _nodeDLikelihoods; }
 
-		VVVdouble& getD2LikelihoodArray() { return _nodeD2Likelihoods; }
-		const VVVdouble& getD2LikelihoodArray() const { return _nodeD2Likelihoods; }
+    VVVdouble& getD2LikelihoodArray() { return _nodeD2Likelihoods; }
+    const VVVdouble& getD2LikelihoodArray() const { return _nodeD2Likelihoods; }
 };
 
 /**
  * @brief discrete Rate Across Sites, (simple) Recursive likelihood data structure.
  */
 class DRASRTreeLikelihoodData :
-	public AbstractTreeLikelihoodData
+  public virtual AbstractTreeLikelihoodData
 {
-	protected:
+  private:
+    /**
+     * @brief This contains all likelihood values used for computation.
+     *
+     */
+    mutable std::map<int, DRASRTreeLikelihoodNodeData> nodeData_;
+      
+    /**
+     * @brief This map defines the pattern network.
+     *
+     * Let n1 be the id of a node in the tree, and n11 and n12 the ids of its sons.
+     * Providing the likelihood array is known for nodes n11 and n12,
+     * the likelihood array for node n1 and site <i>i</i> (_likelihood[n1][i]) must be computed  
+     * using arrays patternLinks_[n1][n11][i] and patternLinks_[n1][n12][i].
+     * This network is intialized once for all in the constructor of this class.
+     *
+     * The double map contains the position of the site to use (second dimension)
+     * of the likelihoods array.
+     */
+    mutable std::map<int, std::map<int, std::vector<unsigned int> > > patternLinks_;
+    SiteContainer* shrunkData_;
+    unsigned int nbSites_; 
+    unsigned int nbStates_;
+    unsigned int nbClasses_;
+    unsigned int nbDistinctSites_; 
+    bool usePatterns_;
 
-		/**
-		 * @brief This contains all likelihood values used for computation.
-		 *
-		 */
-		mutable std::map<int, DRASRTreeLikelihoodNodeData> _nodeData;
-			
-		/**
-		 * @brief This map defines the pattern network.
-		 *
-		 * Let n1 be the id of a node in the tree, and n11 and n12 the ids of its sons.
-		 * Providing the likelihood array is known for nodes n11 and n12,
-		 * the likelihood array for node n1 and site <i>i</i> (_likelihood[n1][i]) must be computed	
-		 * using arrays _patternLinks[n1][n11][i] and _patternLinks[n1][n12][i].
-		 * This network is intialized once for all in the constructor of this class.
-		 *
-		 * The double map contains the position of the site to use (second dimension)
-		 * of the likelihoods array.
-		 */
-		mutable std::map<int, std::map<int, std::vector<unsigned int> > > _patternLinks;
-		SiteContainer * _shrunkData;
-		unsigned int _nbSites; 
-		unsigned int _nbStates;
-		unsigned int _nbClasses;
-		unsigned int _nbDistinctSites; 
-    bool _usePatterns;
+  public:
+    DRASRTreeLikelihoodData(const TreeTemplate<Node>* tree, unsigned int nbClasses, bool usePatterns = true) :
+      AbstractTreeLikelihoodData(tree),
+      nodeData_(), patternLinks_(), shrunkData_(0), nbSites_(0), nbStates_(0),
+      nbClasses_(nbClasses), nbDistinctSites_(0), usePatterns_(usePatterns)
+    {}
 
-	public:
-		DRASRTreeLikelihoodData(TreeTemplate<Node>& tree, unsigned int nbClasses, bool usePatterns = true):
-      _nodeData(), _patternLinks(), _shrunkData(0), _nbSites(0), _nbStates(0),
-      _nbClasses(nbClasses), _nbDistinctSites(0), _usePatterns(usePatterns)
-    {
-      _tree = &tree;
-    }
-
-		DRASRTreeLikelihoodData(const DRASRTreeLikelihoodData& data):
+    DRASRTreeLikelihoodData(const DRASRTreeLikelihoodData& data):
       AbstractTreeLikelihoodData(data),
-      _nodeData(data._nodeData),
-      _patternLinks(data._patternLinks),
-      _shrunkData(0),
-      _nbSites(data._nbSites), _nbStates(data._nbStates),
-      _nbClasses(data._nbClasses), _nbDistinctSites(data._nbDistinctSites),
-      _usePatterns(data._usePatterns)
+      nodeData_(data.nodeData_),
+      patternLinks_(data.patternLinks_),
+      shrunkData_(0),
+      nbSites_(data.nbSites_), nbStates_(data.nbStates_),
+      nbClasses_(data.nbClasses_), nbDistinctSites_(data.nbDistinctSites_),
+      usePatterns_(data.usePatterns_)
     {
-      _tree              = data._tree;
-      if (data._shrunkData)
-        _shrunkData      = dynamic_cast<SiteContainer *>(data._shrunkData->clone());
+      if (data.shrunkData_)
+        shrunkData_      = dynamic_cast<SiteContainer *>(data.shrunkData_->clone());
     }
 
-		DRASRTreeLikelihoodData& operator=(const DRASRTreeLikelihoodData & data)
+    DRASRTreeLikelihoodData& operator=(const DRASRTreeLikelihoodData & data)
     {
       AbstractTreeLikelihoodData::operator=(data);
-      _nodeData          = data._nodeData;
-      _patternLinks      = data._patternLinks;
-      _nbSites           = data._nbSites;
-      _nbStates          = data._nbStates;
-      _nbClasses         = data._nbClasses;
-      _nbDistinctSites   = data._nbDistinctSites;
-      _tree              = data._tree;
-      if(data._shrunkData)
-        _shrunkData      = dynamic_cast<SiteContainer*>(data._shrunkData->clone());
+      nodeData_          = data.nodeData_;
+      patternLinks_      = data.patternLinks_;
+      nbSites_           = data.nbSites_;
+      nbStates_          = data.nbStates_;
+      nbClasses_         = data.nbClasses_;
+      nbDistinctSites_   = data.nbDistinctSites_;
+      if (shrunkData_) delete shrunkData_;
+      if (data.shrunkData_)
+        shrunkData_      = dynamic_cast<SiteContainer*>(data.shrunkData_->clone());
       else
-        _shrunkData      = 0;
-      _usePatterns       = data._usePatterns;
+        shrunkData_      = 0;
+      usePatterns_       = data.usePatterns_;
       return *this;
     }
 
-    virtual ~DRASRTreeLikelihoodData() { delete _shrunkData; }
+    virtual ~DRASRTreeLikelihoodData() { delete shrunkData_; }
 
-#ifndef NO_VIRTUAL_COV
-    DRASRTreeLikelihoodData*
-#else
-    Clonable*
-#endif
-    clone() const { return new DRASRTreeLikelihoodData(*this); }
+    DRASRTreeLikelihoodData* clone() const { return new DRASRTreeLikelihoodData(*this); }
 
-	public:
-    void setTree(TreeTemplate<Node>& tree)
+  public:
+    /**
+     * @brief Set the tree associated to the data.
+     *
+     * All node data will be actualized accordingly by calling the setNode() method on the corresponding nodes.
+     * @warning: the old tree and the new tree must be two clones! And particularly, they have to share the
+     * same topology and nodes id.
+     *
+     * @param tree The tree to be associated to this data.
+     */
+    void setTree(const TreeTemplate<Node>* tree)
     { 
-      _tree = &tree;
-      for (std::map<int, DRASRTreeLikelihoodNodeData>::iterator it = _nodeData.begin(); it != _nodeData.end(); it++)
+      tree_ = tree;
+      for (std::map<int, DRASRTreeLikelihoodNodeData>::iterator it = nodeData_.begin(); it != nodeData_.end(); it++)
       {
         int id = it->second.getNode()->getId();
-        it->second.setNode(_tree->getNode(id));
+        it->second.setNode(tree_->getNode(id));
       }
     }
-
-		DRASRTreeLikelihoodNodeData& getNodeData(int nodeId)
-		{ 
-			return _nodeData[nodeId];
-		}
-		const DRASRTreeLikelihoodNodeData& getNodeData(int nodeId) const
-		{ 
-			return _nodeData[nodeId];
-		}
-		unsigned int getArrayPosition(int parentId, int sonId, unsigned int currentPosition) const
-		{
-			return _patternLinks[parentId][sonId][currentPosition];
-		}
-		unsigned int getRootArrayPosition(unsigned int currentPosition) const
-		{
-			return _rootPatternLinks[currentPosition];
-		}
-		const std::vector<unsigned int>& getArrayPositions(int parentId, int sonId) const
-		{
-			return _patternLinks[parentId][sonId];
-		}
+ 
+    DRASRTreeLikelihoodNodeData& getNodeData(int nodeId)
+    { 
+      return nodeData_[nodeId];
+    }
+    const DRASRTreeLikelihoodNodeData& getNodeData(int nodeId) const
+    { 
+      return nodeData_[nodeId];
+    }
+    unsigned int getArrayPosition(int parentId, int sonId, unsigned int currentPosition) const
+    {
+      return patternLinks_[parentId][sonId][currentPosition];
+    }
+    unsigned int getRootArrayPosition(unsigned int currentPosition) const
+    {
+      return rootPatternLinks_[currentPosition];
+    }
+    const std::vector<unsigned int>& getArrayPositions(int parentId, int sonId) const
+    {
+      return patternLinks_[parentId][sonId];
+    }
     std::vector<unsigned int>& getArrayPositions(int parentId, int sonId)
-		{
-			return _patternLinks[parentId][sonId];
-		}
-		unsigned int getArrayPosition(int parentId, int sonId, unsigned int currentPosition)
-		{
-			return _patternLinks[parentId][sonId][currentPosition];
-		}
+    {
+      return patternLinks_[parentId][sonId];
+    }
+    unsigned int getArrayPosition(int parentId, int sonId, unsigned int currentPosition)
+    {
+      return patternLinks_[parentId][sonId][currentPosition];
+    }
 
-		VVVdouble& getLikelihoodArray(int nodeId)
-		{
-			return _nodeData[nodeId].getLikelihoodArray();
-		}
-		
-		VVVdouble& getDLikelihoodArray(int nodeId)
-		{
-			return _nodeData[nodeId].getDLikelihoodArray();
-		}
-		
-		VVVdouble& getD2LikelihoodArray(int nodeId)
-		{
-			return _nodeData[nodeId].getD2LikelihoodArray();
-		}
+    VVVdouble& getLikelihoodArray(int nodeId)
+    {
+      return nodeData_[nodeId].getLikelihoodArray();
+    }
+    
+    VVVdouble& getDLikelihoodArray(int nodeId)
+    {
+      return nodeData_[nodeId].getDLikelihoodArray();
+    }
+    
+    VVVdouble& getD2LikelihoodArray(int nodeId)
+    {
+      return nodeData_[nodeId].getD2LikelihoodArray();
+    }
 
-		unsigned int getNumberOfDistinctSites() const { return _nbDistinctSites; }
-		unsigned int getNumberOfSites() const { return _nbSites; }
-		unsigned int getNumberOfStates() const { return _nbStates; }
-		unsigned int getNumberOfClasses() const { return _nbClasses; }
-		
-		void initLikelihoods(const SiteContainer & sites, const SubstitutionModel & model) throw (Exception);
+    unsigned int getNumberOfDistinctSites() const { return nbDistinctSites_; }
+    unsigned int getNumberOfSites() const { return nbSites_; }
+    unsigned int getNumberOfStates() const { return nbStates_; }
+    unsigned int getNumberOfClasses() const { return nbClasses_; }
+    
+    void initLikelihoods(const SiteContainer& sites, const SubstitutionModel& model) throw (Exception);
 
-	protected:
-		/**
-		 * @brief This method initializes the leaves according to a sequence file.
-		 * likelihood is set to 1 for the state corresponding to the sequence site,
-		 * otherwise it is set to 0.
-		 *
-		 * All likelihood arrays at each nodes are initialized according to alphabet
-		 * size and sequences length, and filled with 1.
-		 *
-		 * NB: This method is recursive.
-		 *
-		 * @param node      The node defining the subtree to analyse.
-		 * @param sequences The data to be used for initialization.
+  protected:
+    /**
+     * @brief This method initializes the leaves according to a sequence file.
+     * likelihood is set to 1 for the state corresponding to the sequence site,
+     * otherwise it is set to 0.
+     *
+     * All likelihood arrays at each nodes are initialized according to alphabet
+     * size and sequences length, and filled with 1.
+     *
+     * NB: This method is recursive.
+     *
+     * @param node      The node defining the subtree to analyse.
+     * @param sequences The data to be used for initialization.
      * @param model     The model to use.
-		 */
-		virtual void initLikelihoods(const Node * node, const SiteContainer & sequences, const SubstitutionModel & model) throw (Exception);
+     */
+    virtual void initLikelihoods(const Node* node, const SiteContainer& sequences, const SubstitutionModel& model) throw (Exception);
 
-		/**
-		 * @brief This method initializes the leaves according to a sequence file.
-		 *
-		 * likelihood is set to 1 for the state corresponding to the sequence site,
-		 * otherwise it is set to 0.
-		 *
-		 * All likelihood arrays at each nodes are initialized according to alphabet
-		 * size and sequences length, and filled with 1.
-		 *
-		 * NB: This method is recursive.
-		 *
-		 * @param node      The node defining the subtree to analyse.
-		 * @param sequences The data to be used for initialization.
+    /**
+     * @brief This method initializes the leaves according to a sequence file.
+     *
+     * likelihood is set to 1 for the state corresponding to the sequence site,
+     * otherwise it is set to 0.
+     *
+     * All likelihood arrays at each nodes are initialized according to alphabet
+     * size and sequences length, and filled with 1.
+     *
+     * NB: This method is recursive.
+     *
+     * @param node      The node defining the subtree to analyse.
+     * @param sequences The data to be used for initialization.
      * @param model     The model to use.
-		 * @return The shrunk sub-dataset + indices for the subtree defined by <i>node</i>.
-		 */
-		virtual SitePatterns * initLikelihoodsWithPatterns(const Node * node, const SiteContainer & sequences, const SubstitutionModel & model) throw (Exception);
-		
+     * @return The shrunk sub-dataset + indices for the subtree defined by <i>node</i>.
+     */
+    virtual SitePatterns* initLikelihoodsWithPatterns(const Node* node, const SiteContainer& sequences, const SubstitutionModel& model) throw (Exception);
+  
 };
 
 } //end of namespace bpp.

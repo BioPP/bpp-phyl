@@ -187,7 +187,7 @@ throw (Exception):
   brentOptimizer_->setMessageHandler(0);
   brentOptimizer_->setVerbose(0);
   //We have to do this since the DRHomogeneousTreeLikelihood constructor will not call the overloaded setData method:
-  brLikFunction_ = new BranchLikelihood(likelihoodData_->getWeights());
+  brLikFunction_ = new BranchLikelihood(getLikelihoodData()->getWeights());
 }
 
 /******************************************************************************/
@@ -231,25 +231,25 @@ NNIHomogeneousTreeLikelihood::~NNIHomogeneousTreeLikelihood()
 
 double NNIHomogeneousTreeLikelihood::testNNI(int nodeId) const throw (NodeException)
 {
-  const Node * son    = tree_->getNode(nodeId);
+  const Node* son    = tree_->getNode(nodeId);
 	if(!son->hasFather()) throw NodeException("DRHomogeneousTreeLikelihood::testNNI(). Node 'son' must not be the root node.", son);
-  const Node * parent = son->getFather();
+  const Node* parent = son->getFather();
 	if(!parent->hasFather()) throw NodeException("DRHomogeneousTreeLikelihood::testNNI(). Node 'parent' must not be the root node.", parent);
-	const Node * grandFather = parent->getFather();
+	const Node* grandFather = parent->getFather();
 	//From here: Bifurcation assumed.
 	//In case of multifurcation, an arbitrary uncle is chosen.
 	//If we are at root node with a trifurcation, this does not matter, since 2 NNI are possible (see doc of the NNISearchable interface).
 	unsigned int parentPosition = grandFather->getSonPosition(parent);
 	//const Node * uncle = grandFather->getSon(parentPosition > 1 ? parentPosition - 1 : 1 - parentPosition);
-	const Node * uncle = grandFather->getSon(parentPosition > 1 ? 0 : 1 - parentPosition);
+	const Node* uncle = grandFather->getSon(parentPosition > 1 ? 0 : 1 - parentPosition);
 		
 	//Retrieving arrays of interest:
-	const DRASDRTreeLikelihoodNodeData * parentData = & likelihoodData_->getNodeData(parent->getId());
-	const VVVdouble                    * sonArray   = & parentData->getLikelihoodArrayForNeighbor(son->getId());
-	vector<const Node *> parentNeighbors = TreeTemplateTools::getRemainingNeighbors(parent, grandFather, son);
+	const DRASDRTreeLikelihoodNodeData* parentData = &getLikelihoodData()->getNodeData(parent->getId());
+	const VVVdouble                   * sonArray   = &parentData->getLikelihoodArrayForNeighbor(son->getId());
+	vector<const Node*> parentNeighbors = TreeTemplateTools::getRemainingNeighbors(parent, grandFather, son);
 	unsigned int nbParentNeighbors = parentNeighbors.size();
-	vector<const VVVdouble *> parentArrays(nbParentNeighbors);
-	vector<const VVVdouble *> parentTProbs(nbParentNeighbors);
+	vector<const VVVdouble*> parentArrays(nbParentNeighbors);
+	vector<const VVVdouble*> parentTProbs(nbParentNeighbors);
 	for(unsigned int k = 0; k < nbParentNeighbors; k++)
   {
 		const Node * n = parentNeighbors[k]; // This neighbor
@@ -259,13 +259,13 @@ double NNIHomogeneousTreeLikelihood::testNNI(int nodeId) const throw (NodeExcept
     parentTProbs[k] = & pxy_[n->getId()];
 	}
 	
-	const DRASDRTreeLikelihoodNodeData * grandFatherData = & likelihoodData_->getNodeData(grandFather->getId());
-	const VVVdouble                    * uncleArray      = & grandFatherData->getLikelihoodArrayForNeighbor(uncle->getId()); 
-	vector<const Node *> grandFatherNeighbors = TreeTemplateTools::getRemainingNeighbors(grandFather, parent, uncle);
+	const DRASDRTreeLikelihoodNodeData* grandFatherData = &getLikelihoodData()->getNodeData(grandFather->getId());
+	const VVVdouble                   * uncleArray      = &grandFatherData->getLikelihoodArrayForNeighbor(uncle->getId()); 
+	vector<const Node*> grandFatherNeighbors = TreeTemplateTools::getRemainingNeighbors(grandFather, parent, uncle);
 	unsigned int nbGrandFatherNeighbors = grandFatherNeighbors.size();
-	vector<const VVVdouble *> grandFatherArrays;
-	vector<const VVVdouble *> grandFatherTProbs;
-	for(unsigned int k = 0; k < nbGrandFatherNeighbors; k++)
+	vector<const VVVdouble*> grandFatherArrays;
+	vector<const VVVdouble*> grandFatherTProbs;
+	for (unsigned int k = 0; k < nbGrandFatherNeighbors; k++)
   {
 		const Node * n = grandFatherNeighbors[k]; // This neighbor
     if(grandFather->getFather() == NULL || n != grandFather->getFather())
@@ -279,8 +279,8 @@ double NNIHomogeneousTreeLikelihood::testNNI(int nodeId) const throw (NodeExcept
   VVVdouble array1 = *sonArray;
   resetLikelihoodArray(array1);
 	grandFatherArrays.push_back(sonArray);
-	grandFatherTProbs.push_back(& pxy_[son->getId()]);
-  if(grandFather->hasFather())
+	grandFatherTProbs.push_back(&pxy_[son->getId()]);
+  if (grandFather->hasFather())
   {
     computeLikelihoodFromArrays(grandFatherArrays, grandFatherTProbs, & grandFatherData->getLikelihoodArrayForNeighbor(grandFather->getFather()->getId()), & pxy_[grandFather->getId()], array1, nbGrandFatherNeighbors, nbDistinctSites_, nbClasses_, nbStates_, false); 
   }
@@ -311,7 +311,7 @@ double NNIHomogeneousTreeLikelihood::testNNI(int nodeId) const throw (NodeExcept
   brLikFunction_->initLikelihoods(&array1, &array2);
   ParameterList parameters;
   unsigned int pos = 0;
-  while(pos < nodes_.size() && nodes_[pos]->getId() != parent->getId()) pos++;
+  while (pos < nodes_.size() && nodes_[pos]->getId() != parent->getId()) pos++;
   if(pos == nodes_.size()) throw Exception("NNIHomogeneousTreeLikelihood::testNNI. Unvalid node id.");
   Parameter brLen = getParameter("BrLen" + TextTools::toString(pos));
   brLen.setName("BrLen");

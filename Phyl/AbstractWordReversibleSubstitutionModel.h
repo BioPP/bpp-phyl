@@ -37,8 +37,8 @@
    knowledge of the CeCILL license and that you accept its terms.
  */
 
-#ifndef _ABSTRACTWORDREVERSIBLESUBSTITUTIONMODEL_H_
-#define _ABSTRACTWORDREVERSIBLESUBSTITUTIONMODEL_H_
+#ifndef ABSTRACTWORDREVERSIBLESUBSTITUTIONMODEL_H__
+#define ABSTRACTWORDREVERSIBLESUBSTITUTIONMODEL_H__
 
 #include "AbstractSubstitutionModel.h"
 
@@ -68,7 +68,7 @@ namespace bpp
  * @f}
  *
  * The parameters of this word model are the same as the ones of the
- * models used. Their names have a new suffix, "_phi" where i stands
+ * models used. Their names have a new suffix, "phi_" where i stands
  * for the position (i.e. the phase) in the word.
  *
  */
@@ -83,14 +83,15 @@ private:
   bool new_alphabet_;
 
 protected:
-  std::vector<SubstitutionModel*> _VSubMod;
-  std::vector<std::string> _VnestedPrefix;
+  std::vector<SubstitutionModel*> VSubMod_;
+  std::vector<std::string> VnestedPrefix_;
 
-  double* _rate;
-  mutable RowMatrix<double> _p;
+  //double* rate_;
+  std::vector<double> rate_;
+  mutable RowMatrix<double> p_;
 
 protected:
-  void Build();
+  //void build(); //Is this needed???
 
   static Alphabet* extractAlph(const std::vector<SubstitutionModel*>& modelVector);
 
@@ -114,8 +115,9 @@ public:
    *   redondancy, otherwise only the first model is used.
    * @param st the Namespace.
    */
-  AbstractWordReversibleSubstitutionModel(const std::vector<SubstitutionModel*>& modelVector,
-                                          const std::string& st);
+  AbstractWordReversibleSubstitutionModel(
+      const std::vector<SubstitutionModel*>& modelVector,
+      const std::string& st);
 
   /**
    * @brief Build a new AbstractWordReversibleSubstitutionModel object from a
@@ -126,9 +128,14 @@ public:
    * @param num The number of models involved.
    * @param st  the Namespace.
    */
-  AbstractWordReversibleSubstitutionModel(SubstitutionModel* pmodel, unsigned int num, const std::string& st);
+  AbstractWordReversibleSubstitutionModel(
+      SubstitutionModel* pmodel,
+      unsigned int num,
+      const std::string& st);
 
   AbstractWordReversibleSubstitutionModel(const AbstractWordReversibleSubstitutionModel&);
+  
+  AbstractWordReversibleSubstitutionModel& operator=(const AbstractWordReversibleSubstitutionModel&);
 
   virtual ~AbstractWordReversibleSubstitutionModel();
 
@@ -150,5 +157,5 @@ public:
 
 } // end of namespace bpp.
 
-#endif  // _ABSTRACTWORDREVERSIBLESUBSTITUTIONMODEL
+#endif  // ABSTRACTWORDREVERSIBLESUBSTITUTIONMODEL_
 

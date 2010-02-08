@@ -59,14 +59,14 @@ using namespace std;
 /******************************************************************************/
 
 DRHomogeneousTreeLikelihood::DRHomogeneousTreeLikelihood(
-  const Tree & tree,
-  SubstitutionModel * model,
-  DiscreteDistribution * rDist,
+  const Tree& tree,
+  SubstitutionModel* model,
+  DiscreteDistribution* rDist,
   bool checkRooted,
   bool verbose)
-throw (Exception):
+throw (Exception) :
   AbstractHomogeneousTreeLikelihood(tree, model, rDist, checkRooted, verbose),
-  likelihoodData_(0)
+  likelihoodData_(0), minusLogLik_(-1.)
 {
   init_();
 }
@@ -74,15 +74,15 @@ throw (Exception):
 /******************************************************************************/
 
 DRHomogeneousTreeLikelihood::DRHomogeneousTreeLikelihood(
-  const Tree & tree,
-  const SiteContainer & data,
-  SubstitutionModel * model,
-  DiscreteDistribution * rDist,
+  const Tree& tree,
+  const SiteContainer& data,
+  SubstitutionModel* model,
+  DiscreteDistribution* rDist,
   bool checkRooted,
   bool verbose)
-throw (Exception):
+throw (Exception) :
   AbstractHomogeneousTreeLikelihood(tree, model, rDist, checkRooted, verbose),
-  likelihoodData_(NULL)
+  likelihoodData_(0), minusLogLik_(-1.)
 {
   init_(); 
   setData(data);
@@ -92,28 +92,30 @@ throw (Exception):
 
 void DRHomogeneousTreeLikelihood::init_() throw (Exception)
 {
-  likelihoodData_ = new DRASDRTreeLikelihoodData(*tree_, rateDistribution_->getNumberOfCategories());
+  likelihoodData_ = new DRASDRTreeLikelihoodData(
+      tree_,
+      rateDistribution_->getNumberOfCategories());
 }
 
 /******************************************************************************/
 
 DRHomogeneousTreeLikelihood::DRHomogeneousTreeLikelihood(const DRHomogeneousTreeLikelihood & lik):
   AbstractHomogeneousTreeLikelihood(lik),
-  likelihoodData_(0)
+  likelihoodData_(0), minusLogLik_(-1.)
 {
   likelihoodData_ = dynamic_cast<DRASDRTreeLikelihoodData *>(lik.likelihoodData_->clone());
-  likelihoodData_->setTree(*tree_);
+  likelihoodData_->setTree(tree_);
   minusLogLik_ = lik.minusLogLik_;
 }
 
 /******************************************************************************/
 
-DRHomogeneousTreeLikelihood & DRHomogeneousTreeLikelihood::operator=(const DRHomogeneousTreeLikelihood & lik)
+DRHomogeneousTreeLikelihood& DRHomogeneousTreeLikelihood::operator=(const DRHomogeneousTreeLikelihood & lik)
 {
   AbstractHomogeneousTreeLikelihood::operator=(lik);
   if(likelihoodData_) delete likelihoodData_;
   likelihoodData_ = dynamic_cast<DRASDRTreeLikelihoodData *>(lik.likelihoodData_->clone());
-  likelihoodData_->setTree(*tree_);
+  likelihoodData_->setTree(tree_);
   minusLogLik_ = lik.minusLogLik_;
   return *this;
 }

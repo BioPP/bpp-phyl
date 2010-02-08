@@ -51,36 +51,37 @@ using namespace bpp;
 
 /******************************************************************************/
 
-void DRASRTreeLikelihoodData::initLikelihoods(const SiteContainer & sites, const SubstitutionModel & model) throw (Exception)
+void DRASRTreeLikelihoodData::initLikelihoods(const SiteContainer& sites, const SubstitutionModel& model)
+throw (Exception)
 {
-  if(sites.getNumberOfSequences() == 1) throw Exception("Error, only 1 sequence!");
-  if(sites.getNumberOfSequences() == 0) throw Exception("Error, no sequence!");
-  if(sites.getAlphabet()->getAlphabetType()
+  if (sites.getNumberOfSequences() == 1) throw Exception("Error, only 1 sequence!");
+  if (sites.getNumberOfSequences() == 0) throw Exception("Error, no sequence!");
+  if (sites.getAlphabet()->getAlphabetType()
       != model.getAlphabet()->getAlphabetType())
     throw AlphabetMismatchException("DRASDRTreeLikelihoodData::initLikelihoods. Data and model must have the same alphabet type.",
         sites.getAlphabet(),
         model.getAlphabet());
-  _alphabet = sites.getAlphabet();
-  _nbStates = model.getNumberOfStates();
-  _nbSites  = sites.getNumberOfSites();
-  if(_shrunkData != NULL) delete _shrunkData;
-  SitePatterns * patterns;
-  if(_usePatterns)
+  alphabet_ = sites.getAlphabet();
+  nbStates_ = model.getNumberOfStates();
+  nbSites_  = sites.getNumberOfSites();
+  if (shrunkData_) delete shrunkData_;
+  SitePatterns* patterns;
+  if (usePatterns_)
   {
-    patterns = initLikelihoodsWithPatterns(_tree->getRootNode(), sites, model);
-    _shrunkData = patterns->getSites();
-    _rootWeights = patterns->getWeights();
-    _rootPatternLinks = patterns->getIndices();
-    _nbDistinctSites = _shrunkData->getNumberOfSites();
+    patterns          = initLikelihoodsWithPatterns(tree_->getRootNode(), sites, model);
+    shrunkData_       = patterns->getSites();
+    rootWeights_      = patterns->getWeights();
+    rootPatternLinks_ = patterns->getIndices();
+    nbDistinctSites_  = shrunkData_->getNumberOfSites();
   }
   else
   {
-    patterns = new SitePatterns(&sites);
-    _shrunkData = patterns->getSites();
-    _rootWeights = patterns->getWeights();
-    _rootPatternLinks = patterns->getIndices();
-    _nbDistinctSites = _shrunkData->getNumberOfSites();
-    initLikelihoods(_tree->getRootNode(), *_shrunkData, model);
+    patterns          = new SitePatterns(&sites);
+    shrunkData_       = patterns->getSites();
+    rootWeights_      = patterns->getWeights();
+    rootPatternLinks_ = patterns->getIndices();
+    nbDistinctSites_  = shrunkData_->getNumberOfSites();
+    initLikelihoods(tree_->getRootNode(), *shrunkData_, model);
   }
   delete patterns;
 }
@@ -90,33 +91,33 @@ void DRASRTreeLikelihoodData::initLikelihoods(const SiteContainer & sites, const
 void DRASRTreeLikelihoodData::initLikelihoods(const Node * node, const SiteContainer & sequences, const SubstitutionModel & model) throw (Exception)
 {
   //Initialize likelihood vector:
-  DRASRTreeLikelihoodNodeData* nodeData = &_nodeData[node->getId()];
+  DRASRTreeLikelihoodNodeData* nodeData = &nodeData_[node->getId()];
   nodeData->setNode(node);
   VVVdouble * _likelihoods_node = & nodeData->getLikelihoodArray();
   VVVdouble * _dLikelihoods_node = & nodeData->getDLikelihoodArray();
   VVVdouble * _d2Likelihoods_node = & nodeData->getD2LikelihoodArray();
   
-  _likelihoods_node->resize(_nbDistinctSites);
-  _dLikelihoods_node->resize(_nbDistinctSites);
-  _d2Likelihoods_node->resize(_nbDistinctSites);
+  _likelihoods_node->resize(nbDistinctSites_);
+  _dLikelihoods_node->resize(nbDistinctSites_);
+  _d2Likelihoods_node->resize(nbDistinctSites_);
 
-  for(unsigned int i = 0; i < _nbDistinctSites; i++)
+  for(unsigned int i = 0; i < nbDistinctSites_; i++)
   {
     VVdouble * _likelihoods_node_i = & (* _likelihoods_node)[i];
     VVdouble * _dLikelihoods_node_i = & (* _dLikelihoods_node)[i];
     VVdouble * _d2Likelihoods_node_i = & (* _d2Likelihoods_node)[i];
-    _likelihoods_node_i->resize(_nbClasses);
-    _dLikelihoods_node_i->resize(_nbClasses);
-    _d2Likelihoods_node_i->resize(_nbClasses);
-    for(unsigned int c = 0; c < _nbClasses; c++)
+    _likelihoods_node_i->resize(nbClasses_);
+    _dLikelihoods_node_i->resize(nbClasses_);
+    _d2Likelihoods_node_i->resize(nbClasses_);
+    for(unsigned int c = 0; c < nbClasses_; c++)
     {
       Vdouble * _likelihoods_node_i_c = & (* _likelihoods_node_i)[c];
       Vdouble * _dLikelihoods_node_i_c = & (* _dLikelihoods_node_i)[c];
       Vdouble * _d2Likelihoods_node_i_c = & (* _d2Likelihoods_node_i)[c];
-      _likelihoods_node_i_c->resize(_nbStates);
-      _dLikelihoods_node_i_c->resize(_nbStates);
-      _d2Likelihoods_node_i_c->resize(_nbStates);
-      for(unsigned int s = 0; s < _nbStates; s++)
+      _likelihoods_node_i_c->resize(nbStates_);
+      _dLikelihoods_node_i_c->resize(nbStates_);
+      _d2Likelihoods_node_i_c->resize(nbStates_);
+      for(unsigned int s = 0; s < nbStates_; s++)
       {
         (* _likelihoods_node_i_c)[s] = 1; //All likelihoods are initialized to 1.
         (* _dLikelihoods_node_i_c)[s] = 0; //All dLikelihoods are initialized to 0.
@@ -138,15 +139,15 @@ void DRASRTreeLikelihoodData::initLikelihoods(const Node * node, const SiteConta
     {
       throw SequenceNotFoundException("DRASRTreeLikelihoodData::initTreelikelihoods. Leaf name in tree not found in site conainer: ", (node->getName()));
     }  
-    for(unsigned int i = 0; i < _nbDistinctSites; i++)
+    for(unsigned int i = 0; i < nbDistinctSites_; i++)
     {
       VVdouble * _likelihoods_node_i = & (* _likelihoods_node)[i]; 
       int state = seq->getValue(i);
-      for(unsigned int c = 0; c < _nbClasses; c++)
+      for(unsigned int c = 0; c < nbClasses_; c++)
       {
         Vdouble * _likelihoods_node_i_c = & (* _likelihoods_node_i)[c]; 
         double test = 0.;
-        for(unsigned int s = 0; s < _nbStates; s++)
+        for(unsigned int s = 0; s < nbStates_; s++)
         {
           //Leaves likelihood are set to 1 if the char correspond to the site in the sequence,
           //otherwise value set to 0:
@@ -161,21 +162,21 @@ void DRASRTreeLikelihoodData::initLikelihoods(const Node * node, const SiteConta
   else
   {
     //'node' is an internal node.
-    std::map<int, std::vector<unsigned int> >* _patternLinks_node = &_patternLinks[node->getId()];
+    std::map<int, std::vector<unsigned int> >* patternLinks__node = &patternLinks_[node->getId()];
     unsigned int nbSonNodes = node->getNumberOfSons();
     for (unsigned int l = 0; l < nbSonNodes; l++)
     {
       //For each son node,
       const Node * son = (* node)[l];
       initLikelihoods(son, sequences, model);
-      std::vector<unsigned int>* _patternLinks_node_son = &(*_patternLinks_node)[son->getId()];
+      std::vector<unsigned int>* patternLinks__node_son = &(*patternLinks__node)[son->getId()];
 
       //Init map:
-      _patternLinks_node_son->resize(_nbDistinctSites);
+      patternLinks__node_son->resize(nbDistinctSites_);
 
-      for(unsigned int i = 0; i < _nbDistinctSites; i++)
+      for(unsigned int i = 0; i < nbDistinctSites_; i++)
       {
-        (* _patternLinks_node_son)[i] = i;
+        (* patternLinks__node_son)[i] = i;
       }
     }
   }
@@ -192,7 +193,7 @@ SitePatterns * DRASRTreeLikelihoodData::initLikelihoodsWithPatterns(const Node *
   unsigned int nbSites = subSequences->getNumberOfSites();
   
   //Initialize likelihood vector:
-  DRASRTreeLikelihoodNodeData* nodeData = &_nodeData[node->getId()];
+  DRASRTreeLikelihoodNodeData* nodeData = &nodeData_[node->getId()];
   nodeData->setNode(node);
   VVVdouble* _likelihoods_node = &nodeData->getLikelihoodArray();
   VVVdouble* _dLikelihoods_node = &nodeData->getDLikelihoodArray();
@@ -206,18 +207,18 @@ SitePatterns * DRASRTreeLikelihoodData::initLikelihoodsWithPatterns(const Node *
     VVdouble* _likelihoods_node_i = &(*_likelihoods_node)[i];
     VVdouble* _dLikelihoods_node_i = &(*_dLikelihoods_node)[i];
     VVdouble* _d2Likelihoods_node_i = &(*_d2Likelihoods_node)[i];
-    _likelihoods_node_i->resize(_nbClasses);
-    _dLikelihoods_node_i->resize(_nbClasses);
-    _d2Likelihoods_node_i->resize(_nbClasses);
-    for (unsigned int c = 0; c < _nbClasses; c++)
+    _likelihoods_node_i->resize(nbClasses_);
+    _dLikelihoods_node_i->resize(nbClasses_);
+    _d2Likelihoods_node_i->resize(nbClasses_);
+    for (unsigned int c = 0; c < nbClasses_; c++)
     {
       Vdouble* _likelihoods_node_i_c = &(*_likelihoods_node_i)[c];
       Vdouble* _dLikelihoods_node_i_c = &(*_dLikelihoods_node_i)[c];
       Vdouble* _d2Likelihoods_node_i_c = &(*_d2Likelihoods_node_i)[c];
-      _likelihoods_node_i_c->resize(_nbStates);
-      _dLikelihoods_node_i_c->resize(_nbStates);
-      _d2Likelihoods_node_i_c->resize(_nbStates);
-      for (unsigned int s = 0; s < _nbStates; s++)
+      _likelihoods_node_i_c->resize(nbStates_);
+      _dLikelihoods_node_i_c->resize(nbStates_);
+      _d2Likelihoods_node_i_c->resize(nbStates_);
+      for (unsigned int s = 0; s < nbStates_; s++)
       {
         (*_likelihoods_node_i_c)[s] = 1; //All likelihoods are initialized to 1.
         (*_dLikelihoods_node_i_c)[s] = 0; //All dLikelihoods are initialized to 0.
@@ -243,11 +244,11 @@ SitePatterns * DRASRTreeLikelihoodData::initLikelihoodsWithPatterns(const Node *
     {
       VVdouble * _likelihoods_node_i = & (* _likelihoods_node)[i];
       int state = seq->getValue(i);
-      for(unsigned int c = 0; c < _nbClasses; c++)
+      for(unsigned int c = 0; c < nbClasses_; c++)
       {
         Vdouble * _likelihoods_node_i_c = & (* _likelihoods_node_i)[c];
         double test = 0.;
-        for(unsigned int s = 0; s < _nbStates; s++)
+        for(unsigned int s = 0; s < nbStates_; s++)
         {
           //Leaves likelihood are set to 1 if the char correspond to the site in the sequence,
           //otherwise value set to 0:
@@ -262,7 +263,7 @@ SitePatterns * DRASRTreeLikelihoodData::initLikelihoodsWithPatterns(const Node *
   else
   {
     //'node' is an internal node.
-    std::map<int, std::vector<unsigned int> >* _patternLinks_node = &_patternLinks[node->getId()];
+    std::map<int, std::vector<unsigned int> >* patternLinks__node = &patternLinks_[node->getId()];
     
     //Now initialize pattern links:
     unsigned int nbSonNodes = node->getNumberOfSons();
@@ -271,11 +272,11 @@ SitePatterns * DRASRTreeLikelihoodData::initLikelihoodsWithPatterns(const Node *
       //For each son node,
       const Node * son = (* node)[l];
 
-      std::vector<unsigned int>* _patternLinks_node_son = &(*_patternLinks_node)[son->getId()];
+      std::vector<unsigned int>* patternLinks__node_son = &(*patternLinks__node)[son->getId()];
       
       //Initialize subtree 'l' and retrieves corresponding subSequences:
       SitePatterns * subPatterns = initLikelihoodsWithPatterns(son, *subSequences, model);
-      (* _patternLinks_node_son) = subPatterns->getIndices();
+      (* patternLinks__node_son) = subPatterns->getIndices();
       delete subPatterns;
     }
   }

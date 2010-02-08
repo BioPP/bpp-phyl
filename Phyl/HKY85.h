@@ -37,8 +37,8 @@ The fact that you are presently reading this means that you have had
 knowledge of the CeCILL license and that you accept its terms.
 */
 
-#ifndef _HKY85_H_
-#define _HKY85_H_
+#ifndef HKY85_H__
+#define HKY85_H__
 
 #include "NucleotideSubstitutionModel.h"
 
@@ -174,15 +174,15 @@ namespace bpp
  * for instance.
  *
  * Reference:
- * - Hasegawa M, Kishino H and Yano T (1985), _Molecular Biology And Evolution_ 22(2) 160-74. 
+ * - Hasegawa M, Kishino H and Yano T (1985), Molecular_ Biology And Evolution_ 22(2) 160-74. 
  */
 class HKY85:
-  public NucleotideSubstitutionModel
+  public virtual NucleotideSubstitutionModel
 {
-	protected:
-		double _kappa, _k1, _k2, _r, _piA, _piC, _piG, _piT, _piY, _piR, _theta, _theta1, _theta2;
-    mutable double _exp1, _exp21, _exp22, _l;
-    mutable RowMatrix<double> _p;
+	private:
+		double kappa_, k1_, k2_, r_, piA_, piC_, piG_, piT_, piY_, piR_, theta_, theta1_, theta2_;
+    mutable double exp1_, exp21_, exp22_, l_;
+    mutable RowMatrix<double> p_;
 
 	public:
 		HKY85(
@@ -222,5 +222,5 @@ class HKY85:
 
 } //end of namespace bpp.
 
-#endif	//_HKY85_H_
+#endif	//HKY85_H__
 

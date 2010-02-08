@@ -585,16 +585,13 @@ public:
    */
   IndependentWordFrequenciesSet(FrequenciesSet* pabsfreq, int num);
 
-  IndependentWordFrequenciesSet(const IndependentWordFrequenciesSet&);
+  IndependentWordFrequenciesSet(const IndependentWordFrequenciesSet& iwfs);
+  
+  IndependentWordFrequenciesSet& operator=(const IndependentWordFrequenciesSet& iwfs);
 
   ~IndependentWordFrequenciesSet();
   
-#ifndef NO_VIRTUAL_COV
-  IndependentWordFrequenciesSet*
-#else
-  Clonable *
-#endif
-  clone() const { return new IndependentWordFrequenciesSet(*this); }
+  IndependentWordFrequenciesSet* clone() const { return new IndependentWordFrequenciesSet(*this); }
 
   
   /**

@@ -37,8 +37,8 @@ The fact that you are presently reading this means that you have had
 knowledge of the CeCILL license and that you accept its terms.
 */
 
-#ifndef _ABSTRACTTREEPARSIMONYSCORE_H_
-#define _ABSTRACTTREEPARSIMONYSCORE_H_
+#ifndef ABSTRACTTREEPARSIMONYSCORE_H__
+#define ABSTRACTTREEPARSIMONYSCORE_H__
 
 #include "TreeParsimonyScore.h"
 #include "Node.h"
@@ -55,47 +55,51 @@ namespace bpp
 class AbstractTreeParsimonyScore :
 	public virtual TreeParsimonyScore
 {
-	protected:
-		TreeTemplate<Node> * _tree;
-		const SiteContainer * _data;
-		const Alphabet * _alphabet;
-		unsigned int _nbStates;
+	private:
+		TreeTemplate<Node>* tree_;
+		const SiteContainer* data_;
+		const Alphabet* alphabet_;
+		unsigned int nbStates_;
 		
 	public:
 		AbstractTreeParsimonyScore(
-			const Tree & tree,
+			const Tree& tree,
 			const SiteContainer & data,
 			bool verbose)
 			throw (Exception);
 
-    AbstractTreeParsimonyScore(const AbstractTreeParsimonyScore & tp):
-      _tree(NULL), _data(NULL), _alphabet(tp._alphabet), _nbStates(tp._nbStates)
+    AbstractTreeParsimonyScore(const AbstractTreeParsimonyScore& tp):
+      tree_(0), data_(0), alphabet_(tp.alphabet_), nbStates_(tp.nbStates_)
     {
-      _tree     = tp._tree->clone();
-      _data     = dynamic_cast<SiteContainer *>(tp._data->clone());
+      tree_     = tp.tree_->clone();
+      data_     = dynamic_cast<SiteContainer *>(tp.data_->clone());
     }
     
-    AbstractTreeParsimonyScore & operator=(const AbstractTreeParsimonyScore & tp)
+    AbstractTreeParsimonyScore& operator=(const AbstractTreeParsimonyScore & tp)
     {
-      _tree     = tp._tree->clone();
-      _data     = dynamic_cast<SiteContainer *>(tp._data->clone());
-      _alphabet = tp._alphabet;
-      _nbStates = tp._nbStates;
+      tree_     = dynamic_cast<TreeTemplate<Node>*>(tp.tree_->clone());
+      data_     = dynamic_cast<SiteContainer *>(tp.data_->clone());
+      alphabet_ = tp.alphabet_;
+      nbStates_ = tp.nbStates_;
       return *this;
     }
 
 		virtual ~AbstractTreeParsimonyScore()
     {
-      delete _tree;
-      delete _data;
+      delete tree_;
+      if (data_) delete data_;
     }
 
 	public:
-		virtual const Tree* getTree() const { return _tree; }
+		virtual const Tree& getTree() const { return *tree_; }
 		virtual std::vector<unsigned int> getScoreForEachSite() const;
+
+  protected:
+    const TreeTemplate<Node>* getTreeP_() const { return tree_; }
+    TreeTemplate<Node>* getTreeP_() { return tree_; }
 };
 
 } //end of namespace bpp.
 
-#endif //_ABSTRACTTREEPARSIMONYSCORE_H_
+#endif //ABSTRACTTREEPARSIMONYSCORE_H__
 

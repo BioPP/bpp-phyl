@@ -37,8 +37,8 @@ The fact that you are presently reading this means that you have had
 knowledge of the CeCILL license and that you accept its terms.
 */
 
-#ifndef _CODONASYNONYMOUSREVERSIBLESUBSTITUTIONMODEL_H_
-#define _CODONASYNONYMOUSREVERSIBLESUBSTITUTIONMODEL_H_
+#ifndef CODONASYNONYMOUSREVERSIBLESUBSTITUTIONMODEL_H__
+#define CODONASYNONYMOUSREVERSIBLESUBSTITUTIONMODEL_H__
 
 #include "AbstractCodonReversibleSubstitutionModel.h"
 #include "NucleotideSubstitutionModel.h"
@@ -76,28 +76,28 @@ class CodonAsynonymousReversibleSubstitutionModel :
 {
 private:
 
-  const GeneticCode* _geneticCode;
-  const AlphabetIndex2<double>*   _pdistance;
+  const GeneticCode* geneticCode_;
+  const AlphabetIndex2<double>* pdistance_;
   
 public:
 
   /**
-   *@brief Build a new CodonNeutralReversibleSubstitutionModel object from
-   *a pointer to NucleotideSubstitutionModel. 
+   * @brief Build a new CodonNeutralReversibleSubstitutionModel object from
+   * a pointer to NucleotideSubstitutionModel. 
    *
-   *@param palph pointer to a GeneticCode
-   *@param pmod  pointer to the
-   *NucleotideSubstitutionModel to use in the three positions.
-   *@param pdist optional pointer to a distance between amino-acids
-   */
-  
-  CodonAsynonymousReversibleSubstitutionModel(const GeneticCode* palph,
-                                              NucleotideSubstitutionModel* pmod,
-                                              const AlphabetIndex2<double>* pdist = 0);
+   * @param palph pointer to a GeneticCode
+   * @param pmod  pointer to the NucleotideSubstitutionModel to use in the three positions.
+   * The codon model will then own this substitution model.
+   * @param pdist optional pointer to a distance between amino-acids
+   */ 
+  CodonAsynonymousReversibleSubstitutionModel(
+      const GeneticCode* palph,
+      NucleotideSubstitutionModel* pmod,
+      const AlphabetIndex2<double>* pdist = 0);
   
   /**
-   *@brief Build a new CodonNeutralReversibleSubstitutionModel object
-   *from three pointers to NucleotideSubstitutionModels. 
+   * @brief Build a new CodonNeutralReversibleSubstitutionModel object
+   * from three pointers to NucleotideSubstitutionModels. 
    *
    * @param palph pointer to a GeneticCode
    * @param pmod1, pmod2, pmod3 pointers to the
@@ -105,30 +105,44 @@ public:
    * positions. Either all the models are different objects to avoid
    * parameters redondancy, or only the first model is used in every
    * position.
-   *@param pdist optional pointer to the AlphabetIndex2<double> amino-acids distance object.
+   * @param pdist optional pointer to the AlphabetIndex2<double> amino-acids distance object.
    */
+  CodonAsynonymousReversibleSubstitutionModel(
+      const GeneticCode* palph,
+      NucleotideSubstitutionModel* pmod1,
+      NucleotideSubstitutionModel* pmod2, 
+      NucleotideSubstitutionModel* pmod3,
+      const AlphabetIndex2<double>* pdist = 0);
 
-  CodonAsynonymousReversibleSubstitutionModel(const GeneticCode* palph,
-                                              NucleotideSubstitutionModel* pmod1,
-                                              NucleotideSubstitutionModel* pmod2, 
-                                              NucleotideSubstitutionModel* pmod3,
-                                              const AlphabetIndex2<double>* pdist = 0);
+  CodonAsynonymousReversibleSubstitutionModel(
+      const CodonAsynonymousReversibleSubstitutionModel& cm) :
+    AbstractCodonReversibleSubstitutionModel(cm),
+    geneticCode_(cm.geneticCode_),
+    pdistance_(cm.pdistance_)
+  {}
+
+  CodonAsynonymousReversibleSubstitutionModel& operator=(
+      const CodonAsynonymousReversibleSubstitutionModel& cm)
+  {
+    AbstractCodonReversibleSubstitutionModel::operator=(cm);
+    geneticCode_ = cm.geneticCode_;
+    pdistance_ = cm.pdistance_;
+    return *this;
+  }
 
   ~CodonAsynonymousReversibleSubstitutionModel() {};
   
-#ifndef NO_VIRTUAL_COV
-  CodonAsynonymousReversibleSubstitutionModel*
-#else
-  Clonable*
-#endif
-  clone() const { return new CodonAsynonymousReversibleSubstitutionModel(*this);}
+  CodonAsynonymousReversibleSubstitutionModel* clone() const
+  {
+    return new CodonAsynonymousReversibleSubstitutionModel(*this);
+  }
   
 public:
   void completeMatrices();
 
   std::string getName() const;
 
-  const GeneticCode* getGeneticCode();
+  const GeneticCode* getGeneticCode() const { return geneticCode_; }
 };
 
 } //end of namespace bpp.

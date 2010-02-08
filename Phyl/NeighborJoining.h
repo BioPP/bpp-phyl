@@ -56,37 +56,35 @@ class NeighborJoining :
   public AbstractAgglomerativeDistanceMethod
 {
 	protected:
-    std::vector<double> _sumDist;
-    bool _positiveLengths;
+    std::vector<double> sumDist_;
+    bool positiveLengths_;
 		
 	public:
-		NeighborJoining(): _positiveLengths(false) {}
-		NeighborJoining(const DistanceMatrix & matrix, bool rooted=false, bool positiveLengths=false) throw (Exception):
+		NeighborJoining() :
+      AbstractAgglomerativeDistanceMethod(),
+      sumDist_(),
+      positiveLengths_(false)
+    {}
+
+		NeighborJoining(const DistanceMatrix& matrix, bool rooted=false, bool positiveLengths=false) throw (Exception) :
       AbstractAgglomerativeDistanceMethod(matrix),
-      _positiveLengths(positiveLengths) 
+      sumDist_(),
+      positiveLengths_(positiveLengths) 
 		{
-			_sumDist.resize(matrix.size());
+			sumDist_.resize(matrix.size());
 			computeTree(rooted);
 		}
-    NeighborJoining(const NeighborJoining & nj): AbstractAgglomerativeDistanceMethod(nj), _sumDist(nj._sumDist), _positiveLengths(nj._positiveLengths) {}
-    NeighborJoining & operator=(const NeighborJoining & nj)
-    {
-      AbstractAgglomerativeDistanceMethod::operator=(nj);
-      _sumDist = nj._sumDist;
-      _positiveLengths = nj._positiveLengths;
-      return *this;
-    }
-    
+   
 		virtual ~NeighborJoining() {}
 
 	public:
-		virtual void setDistanceMatrix(const DistanceMatrix & matrix)
+		virtual void setDistanceMatrix(const DistanceMatrix& matrix)
 		{ 
 			AbstractAgglomerativeDistanceMethod::setDistanceMatrix(matrix);
-			_sumDist.resize(matrix.size());
+			sumDist_.resize(matrix.size());
 		}
 
-    virtual void outputPositiveLengths(bool yn) { _positiveLengths = yn; }
+    virtual void outputPositiveLengths(bool yn) { positiveLengths_ = yn; }
 	
 	protected:
 		std::vector<unsigned int> getBestPair() throw (Exception);
