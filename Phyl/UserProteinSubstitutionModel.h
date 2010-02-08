@@ -41,6 +41,8 @@ knowledge of the CeCILL license and that you accept its terms.
 #define _USERPROTEINSUBSTITUTIONMODEL_H_
 
 #include "ProteinSubstitutionModel.h"
+#include "AbstractSubstitutionModel.h"
+#include "FrequenciesSet.h"
 
 // From SeqLib:
 #include <Seq/ProteicAlphabet.h>
@@ -60,15 +62,59 @@ namespace bpp
  * so that \f$\sum_i Q_{i,i} \times \pi_i = -1\f$.
  */
 class UserProteinSubstitutionModel:
-  public ProteinSubstitutionModel
+  public virtual ProteinSubstitutionModel,
+  public AbstractReversibleSubstitutionModel
 {
   private:
-    const std::string path_;
+    std::string path_;
+    ProteinFrequenciesSet* freqSet_;
   
   public:
-    UserProteinSubstitutionModel(const ProteicAlphabet* alpha, const std::string& path, const std::string& prefix);
+    /**
+     * @brief Build a protein model from a PAML file, with original equilibrium frequencies.
+     *
+     * @param alpha A proteic alphabet.
+     * @param path The path toward the file to parse.
+     * @param prefix The parameter namespace to use.
+     */
+    UserProteinSubstitutionModel(
+        const ProteicAlphabet* alpha,
+        const std::string& path,
+        const std::string& prefix);
 
-    virtual ~UserProteinSubstitutionModel() {}
+    /**
+     * @brief Build a protein model from a PAML file, with special equilibrium frequencies.
+     *
+     * @param alpha A proteic alphabet.
+     * @param freqSet A pointer toward a protein frequencies set, which will be owned by this instance.
+     * @param path The path toward the file to parse.
+     * @param prefix The parameter namespace to use.
+     * @param initFreqs Tell if the frequency set should be initialized with the original JTT92 values.
+     * Otherwise, the values of the set will be used.
+     */
+    UserProteinSubstitutionModel(
+        const ProteicAlphabet* alpha,
+        const std::string& path,
+        ProteinFrequenciesSet* freqSet,
+        const std::string& prefix,
+        bool initFreqs = false
+        );
+
+    UserProteinSubstitutionModel(const UserProteinSubstitutionModel& model) :
+      AbstractReversibleSubstitutionModel(model),
+      path_(model.path_),
+      freqSet_(dynamic_cast<ProteinFrequenciesSet *>(model.freqSet_->clone()))
+    {}
+ 
+    UserProteinSubstitutionModel& operator=(const UserProteinSubstitutionModel& model)
+    {
+      AbstractReversibleSubstitutionModel::operator=(model);
+      path_ = model.path_;
+      freqSet_ = dynamic_cast<ProteinFrequenciesSet *>(model.freqSet_->clone());
+      return *this;
+    }
+ 
+    virtual ~UserProteinSubstitutionModel() { delete freqSet_; }
 
 #ifndef NO_VIRTUAL_COV
     UserProteinSubstitutionModel*
@@ -80,6 +126,25 @@ class UserProteinSubstitutionModel:
   public:
     std::string getName() const;
     const std::string& getPath() const { return path_; }
+
+    void fireParameterChanged(const ParameterList& parameters)
+    {
+      freqSet_->matchParametersValues(parameters);
+      freq_ = freqSet_->getFrequencies();
+      AbstractReversibleSubstitutionModel::fireParameterChanged(parameters);
+    }
+
+    void setFrequenciesSet(const ProteinFrequenciesSet& freqSet)
+    {
+      delete freqSet_;
+      freqSet_ = dynamic_cast<ProteinFrequenciesSet*>(freqSet.clone());
+      resetParameters_();
+      addParameters_(freqSet_->getParameters());
+    }
+
+    const ProteinFrequenciesSet& getFrequenciesSet() const { return *freqSet_; }
+
+    void setFreqFromData(const SequenceContainer& data);
 
   protected:
     void readFromFile();

@@ -507,6 +507,42 @@ class FixedFrequenciesSet:
 };
 
 /**
+ * @brief FrequenciesSet useful for homogeneous and stationary models, protein implementation
+ *
+ * This set contains no parameter.
+ */
+class ProteinFixedFrequenciesSet :
+  public virtual ProteinFrequenciesSet,
+  public FixedFrequenciesSet
+{
+  public:
+    ProteinFixedFrequenciesSet(const ProteicAlphabet* alphabet, const std::vector<double>& initFreqs) :
+      FixedFrequenciesSet(alphabet, initFreqs) {}
+
+    /**
+     * @brief Construction with uniform frequencies on the letters of
+     * the alphabet.
+     */
+    ProteinFixedFrequenciesSet(const ProteicAlphabet* alphabet) :
+      FixedFrequenciesSet(alphabet) {}
+
+#ifndef NO_VIRTUAL_COV
+    ProteinFixedFrequenciesSet*
+#else
+    FixedFrequenciesSet*
+#endif
+    clone() const { return new ProteinFixedFrequenciesSet(*this); }
+
+#ifndef NO_VIRTUAL_COV
+    const ProteicAlphabet* getAlphabet() const
+    {
+      return dynamic_cast<const ProteicAlphabet*>(AbstractFrequenciesSet::getAlphabet());
+    }
+#endif
+
+};
+
+/**
  * @brief FrequenciesSet useful for homogeneous and stationary models, codon implementation
  *
  * This set contains no parameter.

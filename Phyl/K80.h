@@ -37,11 +37,12 @@ The fact that you are presently reading this means that you have had
 knowledge of the CeCILL license and that you accept its terms.
 */
 
-#ifndef K80_H__
-#define K80_H__
+#ifndef _K80_H_
+#define _K80_H_
 
 
 #include "NucleotideSubstitutionModel.h"
+#include "AbstractSubstitutionModel.h"
 
 // From SeqLib:
 #include <Seq/NucleicAlphabet.h>
@@ -145,7 +146,8 @@ namespace bpp
  * - Kimura M (1980), Journal_ Of Molecular Evolution_ 16(2) 111-20. 
  */
 class K80:
-  public virtual NucleotideSubstitutionModel
+  public virtual NucleotideSubstitutionModel,
+  public AbstractReversibleSubstitutionModel
 {
   private:
     double kappa_, r_;
@@ -190,5 +192,5 @@ class K80:
 
 } //end of namespace bpp.
 
-#endif	//K80_H__
+#endif	//_K80_H_
 

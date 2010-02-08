@@ -54,12 +54,12 @@ using namespace std;
 /******************************************************************************/
  
 L95::L95(
-	const NucleicAlphabet * alpha,
+	const NucleicAlphabet* alpha,
 	double beta,
 	double gamma,
 	double delta,
 	double theta):
-	NucleotideSubstitutionModel(alpha, "L95."), beta_(beta), gamma_(gamma), delta_(delta_), theta_(theta),
+	AbstractReversibleSubstitutionModel(alpha, "L95."), beta_(beta), gamma_(gamma), delta_(delta_), theta_(theta),
   piA_((1. - theta) / 2.), piC_(theta / 2.), piG_(theta / 2.), piT_((1. - theta) / 2.)
 {
 	Parameter betaP("L95.beta" , beta , &Parameter::R_PLUS_STAR);

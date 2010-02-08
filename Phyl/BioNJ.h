@@ -37,8 +37,8 @@ The fact that you are presently reading this means that you have had
 knowledge of the CeCILL license and that you accept its terms.
 */
 
-#ifndef BIONJ_H__
-#define BIONJ_H__
+#ifndef _BIONJ_H_
+#define _BIONJ_H_
 
 #include "NeighborJoining.h"
 
@@ -91,5 +91,5 @@ public:
 
 } //end of namespace bpp.
 
-#endif //BIONJ_H__
+#endif //_BIONJ_H_
 

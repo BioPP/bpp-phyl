@@ -37,11 +37,13 @@ The fact that you are presently reading this means that you have had
 knowledge of the CeCILL license and that you accept its terms.
 */
 
-#ifndef JCPROT_H__
-#define JCPROT_H__
+#ifndef _JCPROT_H_
+#define _JCPROT_H_
 
 #include <Seq/ProteicAlphabet.h>
 #include "ProteinSubstitutionModel.h"
+#include "AbstractSubstitutionModel.h"
+#include "FrequenciesSet.h"
 
 namespace bpp
 {
@@ -128,16 +130,50 @@ namespace bpp
  * - Jukes TH and Cantor CR (1969), Evolution_ of proteins molecules_, 121-123, in Mammalian_ protein metabolism_. 
  */
 class JCprot:
-  public virtual ProteinSubstitutionModel
+  public virtual ProteinSubstitutionModel,
+  public AbstractReversibleSubstitutionModel
 {
   private:
     mutable double exp_;
     mutable RowMatrix<double> p_;
+    ProteinFrequenciesSet* freqSet_;
 
 	public:
+    /**
+     * @brief Build a simple JC69 model, with original equilibrium frequencies.
+     *
+     * @param alpha A proteic alphabet.
+     */
 		JCprot(const ProteicAlphabet* alpha);
 
-		virtual ~JCprot() {}
+    /**
+     * @brief Build a JC69 model with special equilibrium frequencies.
+     *
+     * @param alpha A proteic alphabet.
+     * @param freqSet A pointer toward a protein frequencies set, which will be owned by this instance.
+     * @param initFreqs Tell if the frequency set should be initialized with the original JTT92 values.
+     * Otherwise, the values of the set will be used.
+     */
+		JCprot(const ProteicAlphabet* alpha, ProteinFrequenciesSet* freqSet, bool initFreqs = false);
+
+    JCprot(const JCprot& model) :
+      AbstractReversibleSubstitutionModel(model),
+      exp_(model.exp_),
+      p_(model.p_),
+      freqSet_(dynamic_cast<ProteinFrequenciesSet*>(model.freqSet_->clone()))
+    {}
+
+    JCprot& operator=(const JCprot& model)
+    {
+      AbstractReversibleSubstitutionModel::operator=(model);
+      exp_ = model.exp_;
+      p_   = model.p_;
+      if (freqSet_) delete freqSet_;
+      freqSet_ = dynamic_cast<ProteinFrequenciesSet*>(model.freqSet_->clone());
+      return *this;
+    }
+
+		virtual ~JCprot() { delete freqSet_; }
 	
 #ifndef NO_VIRTUAL_COV
     JCprot*
@@ -150,13 +186,32 @@ class JCprot:
 		double Pij_t    (int i, int j, double d) const;
 		double dPij_dt  (int i, int j, double d) const;
 		double d2Pij_dt2(int i, int j, double d) const;
-		const Matrix<double> & getPij_t    (double d) const;
-		const Matrix<double> & getdPij_dt  (double d) const;
-		const Matrix<double> & getd2Pij_dt2(double d) const;
+		const Matrix<double>& getPij_t    (double d) const;
+		const Matrix<double>& getdPij_dt  (double d) const;
+		const Matrix<double>& getd2Pij_dt2(double d) const;
 
     std::string getName() const { return "JC69"; }
 	
-	protected:
+    void fireParameterChanged(const ParameterList& parameters)
+    {
+      freqSet_->matchParametersValues(parameters);
+      freq_ = freqSet_->getFrequencies();
+      AbstractReversibleSubstitutionModel::fireParameterChanged(parameters);
+    }
+
+    void setFrequenciesSet(const ProteinFrequenciesSet& freqSet)
+    {
+      delete freqSet_;
+      freqSet_ = dynamic_cast<ProteinFrequenciesSet*>(freqSet.clone());
+      resetParameters_();
+      addParameters_(freqSet_->getParameters());
+    }
+
+    const ProteinFrequenciesSet& getFrequenciesSet() const { return *freqSet_; }
+
+    void setFreqFromData(const SequenceContainer& data);
+
+  protected:
 		/**
 		 * In the case of the model of Jukes & Cantor, this method is useless since
 		 * the generator is fixed! No matrice can be changed... This method is only
@@ -167,5 +222,5 @@ class JCprot:
 
 } //end of namespace bpp.
 
-#endif	//JCPROT_H__
+#endif	//_JCPROT_H_
 

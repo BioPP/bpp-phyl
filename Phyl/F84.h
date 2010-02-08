@@ -37,10 +37,11 @@ The fact that you are presently reading this means that you have had
 knowledge of the CeCILL license and that you accept its terms.
 */
 
-#ifndef F84_H__
-#define F84_H__
+#ifndef _F84_H_
+#define _F84_H_
 
 #include "NucleotideSubstitutionModel.h"
+#include "AbstractSubstitutionModel.h"
 
 // From NumCalc:
 #include <NumCalc/Constraints.h>
@@ -176,7 +177,8 @@ namespace bpp
  * - Felsenstein (1984), Phylip version 2.6. 
  */
 class F84:
-  public virtual NucleotideSubstitutionModel
+  public virtual NucleotideSubstitutionModel,
+  public AbstractReversibleSubstitutionModel
 {
   private:
     double kappa_, piA_, piC_, piG_, piT_, piY_, piR_, r_, k1_, k2_, theta_, theta1_, theta2_;
@@ -223,5 +225,5 @@ class F84:
 
 } //end of namespace bpp.
 
-#endif  //F84_H__
+#endif  //_F84_H_
 

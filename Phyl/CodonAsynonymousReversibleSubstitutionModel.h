@@ -37,8 +37,8 @@ The fact that you are presently reading this means that you have had
 knowledge of the CeCILL license and that you accept its terms.
 */
 
-#ifndef CODONASYNONYMOUSREVERSIBLESUBSTITUTIONMODEL_H__
-#define CODONASYNONYMOUSREVERSIBLESUBSTITUTIONMODEL_H__
+#ifndef _CODONASYNONYMOUSREVERSIBLESUBSTITUTIONMODEL_H_
+#define _CODONASYNONYMOUSREVERSIBLESUBSTITUTIONMODEL_H_
 
 #include "AbstractCodonReversibleSubstitutionModel.h"
 #include "NucleotideSubstitutionModel.h"

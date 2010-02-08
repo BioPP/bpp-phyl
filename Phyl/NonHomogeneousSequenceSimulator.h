@@ -38,8 +38,8 @@ The fact that you are presently reading this means that you have had
 knowledge of the CeCILL license and that you accept its terms.
 */
 
-#ifndef NONHOMOGENEOUSSEQUENCESIMULATOR_H__
-#define NONHOMOGENEOUSSEQUENCESIMULATOR_H__
+#ifndef _NONHOMOGENEOUSSEQUENCESIMULATOR_H_
+#define _NONHOMOGENEOUSSEQUENCESIMULATOR_H_
 
 #include "DetailedSiteSimulator.h"
 #include "SequenceSimulator.h"
@@ -332,5 +332,5 @@ class NonHomogeneousSequenceSimulator:
 
 } //end of namespace bpp.
 
-#endif //NONHOMOGENEOUSSEQUENCESIMULATOR_H__
+#endif //_NONHOMOGENEOUSSEQUENCESIMULATOR_H_
 

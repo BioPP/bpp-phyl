@@ -54,7 +54,7 @@ using namespace std;
 /******************************************************************************/
 
 GTR::GTR(
-    const NucleicAlphabet * alpha,
+    const NucleicAlphabet* alpha,
     double a,
     double b,
     double c,
@@ -64,7 +64,7 @@ GTR::GTR(
     double piC,
     double piG,
     double piT) :
-  NucleotideSubstitutionModel(alpha, "GTR."),
+  AbstractReversibleSubstitutionModel(alpha, "GTR."),
   a_(a), b_(b), c_(c), d_(d), e_(e), piA_(piA), piC_(piC), piG_(piG), piT_(piT), theta_(piG + piC), theta1_(piA / (1. - theta_)), theta2_(piG / theta_), p_()
 {
   Parameter aP("GTR.a", a, &Parameter::R_PLUS_STAR);

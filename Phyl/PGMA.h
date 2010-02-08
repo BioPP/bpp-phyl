@@ -37,8 +37,8 @@ The fact that you are presently reading this means that you have had
 knowledge of the CeCILL license and that you accept its terms.
 */
 
-#ifndef PGMA_H__
-#define PGMA_H__
+#ifndef _PGMA_H_
+#define _PGMA_H_
 
 #include "AbstractAgglomerativeDistanceMethod.h"
 #include "Tree.h"
@@ -103,5 +103,5 @@ class PGMA:
 
 } //end of namespace bpp.
 
-#endif // PGMA_H__
+#endif // _PGMA_H_
 

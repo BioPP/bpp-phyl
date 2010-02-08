@@ -48,6 +48,9 @@ knowledge of the CeCILL license and that you accept its terms.
 // From NumCalc:
 #include <NumCalc/VectorTools.h>
 
+//From SeqLib:
+#include <Seq/SequenceContainerTools.h>
+
 using namespace bpp;
 
 // From the STL:
@@ -59,67 +62,100 @@ using namespace std;
 
 /******************************************************************************/
 
-UserProteinSubstitutionModel::UserProteinSubstitutionModel(const ProteicAlphabet* alpha, const std::string& path, const std::string& prefix): 
-	ProteinSubstitutionModel(alpha, prefix),
-	path_(path)
+UserProteinSubstitutionModel::UserProteinSubstitutionModel(
+    const ProteicAlphabet* alpha, const std::string& path, const std::string& prefix) : 
+  AbstractReversibleSubstitutionModel(alpha, prefix),
+  path_(path),
+  freqSet_(0)
 {
-	readFromFile();
-	updateMatrices();	
+  readFromFile();
+  freqSet_ = new ProteinFixedFrequenciesSet(alpha, freq_);
+  updateMatrices();  
+}
+
+UserProteinSubstitutionModel::UserProteinSubstitutionModel(
+    const ProteicAlphabet* alpha, const std::string& path,
+    ProteinFrequenciesSet* freqSet, const std::string& prefix,
+    bool initFreqs) : 
+  AbstractReversibleSubstitutionModel(alpha, prefix),
+  path_(path),
+  freqSet_(freqSet)
+{
+  readFromFile();
+  if (initFreqs) freqSet->setFrequencies(freq_);
+  else freq_ = freqSet_->getFrequencies();
+  addParameters_(freqSet_->getParameters());
+  updateMatrices();  
 }
 
 /******************************************************************************/
 
 std::string UserProteinSubstitutionModel::getName() const
 {
-	return "User model from file '" + path_ + "'";
+  return "User model from file '" + path_ + "'";
 }
 
 /******************************************************************************/
 
 void UserProteinSubstitutionModel::readFromFile()
 {
- 	ifstream in(path_.c_str(), ios::in);
-	//Read exchangeability matrix:
-	for(unsigned int i = 1; i < 20; i++) {
-		string line = FileTools::getNextLine(in);
-		StringTokenizer st(line);
-		for(unsigned int j = 0; j < i; j++) {
-			double s = TextTools::toDouble(st.nextToken());
-			exchangeability_(i,j) = exchangeability_(j,i) = s;
-		}
-	}
-	//Read frequencies:
-	unsigned int fCount = 0;
-	while(in && fCount < 20)
+  ifstream in(path_.c_str(), ios::in);
+  //Read exchangeability matrix:
+  for (unsigned int i = 1; i < 20; i++)
   {
-		string line = FileTools::getNextLine(in);
-		StringTokenizer st(line);
-		while(st.hasMoreToken() && fCount < 20)
+    string line = FileTools::getNextLine(in);
+    StringTokenizer st(line);
+    for(unsigned int j = 0; j < i; j++) {
+      double s = TextTools::toDouble(st.nextToken());
+      exchangeability_(i,j) = exchangeability_(j,i) = s;
+    }
+  }
+  //Read frequencies:
+  unsigned int fCount = 0;
+  while (in && fCount < 20)
+  {
+    string line = FileTools::getNextLine(in);
+    StringTokenizer st(line);
+    while(st.hasMoreToken() && fCount < 20)
     {
-			freq_[fCount] = TextTools::toDouble(st.nextToken());
-			fCount++;
-		}
-	}
-	double sf = VectorTools::sum(freq_);
-	if(sf - 1 > 0.000001)
+      freq_[fCount] = TextTools::toDouble(st.nextToken());
+      fCount++;
+    }
+  }
+  double sf = VectorTools::sum(freq_);
+  if (sf - 1 > 0.000001)
   {
-		ApplicationTools::displayMessage("WARNING!!! Frequencies sum to " + TextTools::toString(sf) + ", frequencies have been scaled.");
-		sf *= 1./sf;
-	}
+    ApplicationTools::displayMessage("WARNING!!! Frequencies sum to " + TextTools::toString(sf) + ", frequencies have been scaled.");
+    sf *= 1./sf;
+  }
 
-	//Now build diagonal of the exchangeability matrix:
-	for(unsigned int i = 0; i < 20; i++)
+  //Now build diagonal of the exchangeability matrix:
+  for (unsigned int i = 0; i < 20; i++)
   {
-		double sum = 0;
-		for(unsigned int j = 0; j < 20; j++)
+    double sum = 0;
+    for(unsigned int j = 0; j < 20; j++)
     {
-			if(j!=i) sum += exchangeability_(i,j);
-		}
-		exchangeability_(i,i) = -sum;
-	}
+      if(j!=i) sum += exchangeability_(i,j);
+    }
+    exchangeability_(i,i) = -sum;
+  }
 
-	//Closing stream:
-	in.close();
+  //Closing stream:
+  in.close();
+}
+
+/******************************************************************************/
+
+void UserProteinSubstitutionModel::setFreqFromData(const SequenceContainer& data)
+{
+  std::map<int, double> freqs;
+  SequenceContainerTools::getFrequencies(data, freqs);
+  double t = 0;
+  for (unsigned int i = 0; i < size_; i++) t += freqs[i];
+  for (unsigned int i = 0; i < size_; i++) freq_[i] = freqs[i] / t;
+  freqSet_->setFrequencies(freq_);
+  //Update parametrers and re-compute generator and eigen values:
+  matchParametersValues(freqSet_->getParameters());
 }
 
 /******************************************************************************/

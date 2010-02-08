@@ -37,8 +37,8 @@ The fact that you are presently reading this means that you have had
 knowledge of the CeCILL license and that you accept its terms.
 */
 
-#ifndef MARGINALANCESTRALSTATESRECONSTRUCTION_H__
-#define MARGINALANCESTRALSTATESRECONSTRUCTION_H__
+#ifndef _MARGINALANCESTRALSTATESRECONSTRUCTION_H_
+#define _MARGINALANCESTRALSTATESRECONSTRUCTION_H_
 
 #include "AncestralStateReconstruction.h"
 #include "DRTreeLikelihood.h"
@@ -58,7 +58,7 @@ namespace bpp
  * @brief Likelihood ancestral states reconstruction: marginal method.
  *
  * Reference:
- * Z Yang, S Kumar and M Nei (1995), Genetics__ 141(4) 1641-50.
+ * Z Yang, S Kumar and M Nei (1995), _Genetics_ 141(4) 1641-50.
  */
 class MarginalAncestralStateReconstruction:
   public virtual AncestralStateReconstruction
@@ -195,5 +195,5 @@ class MarginalAncestralStateReconstruction:
 
 } //end of namespace bpp.
 
-#endif // MARGINALANCESTRALSTATESRECONSTRUCTION_H__
+#endif // _MARGINALANCESTRALSTATESRECONSTRUCTION_H_
 

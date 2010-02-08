@@ -40,7 +40,7 @@ knowledge of the CeCILL license and that you accept its terms.
 #ifndef _NUCLEICSUBSTITUTIONMODEL_H_
 #define _NUCLEICSUBSTITUTIONMODEL_H_
 
-#include "AbstractSubstitutionModel.h"
+#include "SubstitutionModel.h"
 
 // From SeqLib:
 #include <Seq/NucleicAlphabet.h>
@@ -49,15 +49,12 @@ namespace bpp
 {
 
 /**
- * @brief Basal class for nucleotide substitution model.
+ * @brief Specialisation interface for nucleotide substitution model.
  */
 class NucleotideSubstitutionModel :
-  public AbstractReversibleSubstitutionModel
+  public virtual SubstitutionModel
 {
 	public:
-		NucleotideSubstitutionModel(const NucleicAlphabet * alpha, const std::string& prefix) :
-      AbstractReversibleSubstitutionModel(alpha, prefix) {}
-
 		virtual ~NucleotideSubstitutionModel() {}
 
 #ifndef NO_VIRTUAL_COV

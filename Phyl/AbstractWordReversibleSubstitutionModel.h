@@ -37,8 +37,8 @@
    knowledge of the CeCILL license and that you accept its terms.
  */
 
-#ifndef ABSTRACTWORDREVERSIBLESUBSTITUTIONMODEL_H__
-#define ABSTRACTWORDREVERSIBLESUBSTITUTIONMODEL_H__
+#ifndef _ABSTRACTWORDREVERSIBLESUBSTITUTIONMODEL_H_
+#define _ABSTRACTWORDREVERSIBLESUBSTITUTIONMODEL_H_
 
 #include "AbstractSubstitutionModel.h"
 

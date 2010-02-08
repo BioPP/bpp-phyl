@@ -39,16 +39,47 @@ knowledge of the CeCILL license and that you accept its terms.
 
 #include "JTT92.h"
 
+//From SeqLib:
+#include <Seq/SequenceContainerTools.h>
+
 using namespace bpp;
 
 /******************************************************************************/
 
-JTT92::JTT92(const ProteicAlphabet * alpha) :
-  ProteinSubstitutionModel(alpha, "JTT92+F.")
+JTT92::JTT92(const ProteicAlphabet* alpha) :
+  AbstractReversibleSubstitutionModel(alpha, "JTT92."),
+  freqSet_(0)
 {
   #include "__JTT92ExchangeabilityCode"
-	#include "__JTT92FrequenciesCode"
-	updateMatrices();	
+  #include "__JTT92FrequenciesCode"
+  freqSet_ = new ProteinFixedFrequenciesSet(alpha, freq_);
+  updateMatrices();  
+}
+
+JTT92::JTT92(const ProteicAlphabet* alpha, ProteinFrequenciesSet* freqSet, bool initFreqs) :
+  AbstractReversibleSubstitutionModel(alpha, "JTT92."),
+  freqSet_(freqSet)
+{
+  #include "__JTT92ExchangeabilityCode"
+  #include "__JTT92FrequenciesCode"
+  if (initFreqs) freqSet_->setFrequencies(freq_);
+  else freq_ = freqSet_->getFrequencies();
+  addParameters_(freqSet_->getParameters());
+  updateMatrices();  
+}
+
+/******************************************************************************/
+
+void JTT92::setFreqFromData(const SequenceContainer& data)
+{
+  std::map<int, double> freqs;
+  SequenceContainerTools::getFrequencies(data, freqs);
+  double t = 0;
+  for (unsigned int i = 0; i < size_; i++) t += freqs[i];
+  for (unsigned int i = 0; i < size_; i++) freq_[i] = freqs[i] / t;
+  freqSet_->setFrequencies(freq_);
+  //Update parameters and re-compute generator and eigen values:
+  matchParametersValues(freqSet_->getParameters());
 }
 
 /******************************************************************************/

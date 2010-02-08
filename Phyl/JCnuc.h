@@ -37,10 +37,11 @@ The fact that you are presently reading this means that you have had
 knowledge of the CeCILL license and that you accept its terms.
 */
 
-#ifndef JCNUC_H__
-#define JCNUC_H__
+#ifndef _JCNUC_H_
+#define _JCNUC_H_
 
 #include "NucleotideSubstitutionModel.h"
+#include "AbstractSubstitutionModel.h"
 
 namespace bpp
 {
@@ -125,7 +126,8 @@ namespace bpp
  * - Jukes TH and Cantor CR (1969), Evolution_ of proteins molecules_, 121-123, in Mammalian_ protein metabolism_. 
  */
 class JCnuc:
-  public virtual NucleotideSubstitutionModel
+  public virtual NucleotideSubstitutionModel,
+  public AbstractReversibleSubstitutionModel
 {
   private:
     mutable double exp_;
@@ -175,5 +177,5 @@ class JCnuc:
 
 } //end of namespace bpp.
 
-#endif	//JCNUC_H__
+#endif	//_JCNUC_H_
 

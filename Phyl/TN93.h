@@ -37,10 +37,11 @@ The fact that you are presently reading this means that you have had
 knowledge of the CeCILL license and that you accept its terms.
 */
 
-#ifndef TN93_H__
-#define TN93_H__
+#ifndef _TN93_H_
+#define _TN93_H_
 
 #include "NucleotideSubstitutionModel.h"
+#include "AbstractSubstitutionModel.h"
 
 // From NumCalc:
 #include <NumCalc/Constraints.h>
@@ -127,8 +128,9 @@ namespace bpp
  * Reference:
  * - Tamura N and Nei K (1993), Molecular_ Biology And Evolution_ 10(3) 512-26. 
  */
-class TN93:
-  public virtual NucleotideSubstitutionModel
+class TN93 :
+  public virtual NucleotideSubstitutionModel,
+  public AbstractReversibleSubstitutionModel
 {
 	private:
     double kappa1_, kappa2_, piA_, piC_, piG_, piT_, piY_, piR_, r_, k1_, k2_, theta_, theta1_, theta2_;
@@ -176,5 +178,5 @@ class TN93:
 
 } //end of namespace bpp.
 
-#endif	//TN93_H__
+#endif	//_TN93_H_
 

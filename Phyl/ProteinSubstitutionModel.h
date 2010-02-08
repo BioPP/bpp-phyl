@@ -40,7 +40,7 @@ knowledge of the CeCILL license and that you accept its terms.
 #ifndef _PROTEINSUBSTITUTIONMODEL_H_
 #define _PROTEINSUBSTITUTIONMODEL_H_
 
-#include "AbstractSubstitutionModel.h"
+#include "SubstitutionModel.h"
 
 // From SeqLib:
 #include <Seq/ProteicAlphabet.h>
@@ -49,15 +49,12 @@ namespace bpp
 {
 
 /**
- * @brief Basal class for protein substitution model.
+ * @brief Specialized interface for protein substitution model.
  */
 class ProteinSubstitutionModel:
-  public AbstractReversibleSubstitutionModel
+  public virtual SubstitutionModel
 {
 	public:
-		ProteinSubstitutionModel(const ProteicAlphabet * alpha, const std::string& prefix):
-      AbstractReversibleSubstitutionModel(alpha, prefix) {}
-
 		virtual ~ProteinSubstitutionModel() {}
 
 #ifndef NO_VIRTUAL_COV

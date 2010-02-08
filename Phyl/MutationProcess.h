@@ -37,8 +37,8 @@ The fact that you are presently reading this means that you have had
 knowledge of the CeCILL license and that you accept its terms.
 */
  
-#ifndef MUTATIONPROCESS_H__
-#define MUTATIONPROCESS_H__
+#ifndef _MUTATIONPROCESS_H_
+#define _MUTATIONPROCESS_H_
 
 #include "SubstitutionModel.h"
 
@@ -316,5 +316,5 @@ class SelfMutationProcess : public AbstractMutationProcess
 
 } //end of namespace bpp.
 
-#endif	//MUTATIONPROCESS_H__
+#endif	//_MUTATIONPROCESS_H_
 

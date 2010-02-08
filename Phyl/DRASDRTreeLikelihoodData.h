@@ -38,8 +38,8 @@ The fact that you are presently reading this means that you have had
 knowledge of the CeCILL license and that you accept its terms.
 */
 
-#ifndef DRASDRHOMOGENEOUSTREELIKELIHOODDATA_H__
-#define DRASDRHOMOGENEOUSTREELIKELIHOODDATA_H__
+#ifndef _DRASDRHOMOGENEOUSTREELIKELIHOODDATA_H_
+#define _DRASDRHOMOGENEOUSTREELIKELIHOODDATA_H_
 
 #include "AbstractTreeLikelihoodData.h"
 #include "SubstitutionModel.h"
@@ -421,5 +421,5 @@ class DRASDRTreeLikelihoodData :
 
 } //end of namespace bpp.
 
-#endif //DRASDRHOMOGENEOUSTREELIKELIHOODDATA_H__
+#endif //_DRASDRHOMOGENEOUSTREELIKELIHOODDATA_H_
 

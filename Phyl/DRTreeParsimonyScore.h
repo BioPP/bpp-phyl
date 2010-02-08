@@ -37,8 +37,8 @@ The fact that you are presently reading this means that you have had
 knowledge of the CeCILL license and that you accept its terms.
 */
 
-#ifndef DRTREEPARSIMONYSCORE_H__
-#define DRTREEPARSIMONYSCORE_H__
+#ifndef _DRTREEPARSIMONYSCORE_H_
+#define _DRTREEPARSIMONYSCORE_H_
 
 #include "AbstractTreeParsimonyScore.h"
 #include "NNISearchable.h"
@@ -53,7 +53,7 @@ namespace bpp
  *
  * Uses a DRTreeParsimonyData object for data storage.
  */
-class DRTreeParsimonyScore:
+class DRTreeParsimonyScore :
 	public AbstractTreeParsimonyScore,
 	public virtual NNISearchable
 {
@@ -185,5 +185,5 @@ class DRTreeParsimonyScore:
 
 } //end of namespace bpp.
 
-#endif //ABSTRACTTREEPARSIMONYSCORE_H__
+#endif //_DRTREEPARSIMONYSCORE_H_
 

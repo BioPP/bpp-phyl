@@ -360,8 +360,8 @@ void GCFrequenciesSet::fireParameterChanged(const ParameterList& parameters)
 }
 
 
-// ///////////////////////////////////////////
-// / FixedFrequenciesSet
+/////////////////////////////////////////////
+/// FixedFrequenciesSet
 
 FixedFrequenciesSet::FixedFrequenciesSet(const Alphabet* alphabet, const vector<double>& initFreqs) :
   AbstractFrequenciesSet(alphabet->getSize(), alphabet, "Fixed.")
@@ -393,8 +393,8 @@ void FixedFrequenciesSet::setFrequencies(const vector<double>& frequencies) thro
   setFrequencies_(frequencies);
 }
 
-// ///////////////////////////////////////////
-// / CodonFixedFrequenciesSet
+/////////////////////////////////////////////
+/// CodonFixedFrequenciesSet
 
 CodonFixedFrequenciesSet::CodonFixedFrequenciesSet(const CodonAlphabet* alphabet, const vector<double>& initFreqs) :
   AbstractFrequenciesSet(alphabet->getSize(), alphabet, "Fixed.")

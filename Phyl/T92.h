@@ -37,10 +37,11 @@ The fact that you are presently reading this means that you have had
 knowledge of the CeCILL license and that you accept its terms.
 */
 
-#ifndef T92_H__
-#define T92_H__
+#ifndef _T92_H_
+#define _T92_H_
 
 #include "NucleotideSubstitutionModel.h"
+#include "AbstractSubstitutionModel.h"
 
 // From NumCalc:
 #include <NumCalc/Constraints.h>
@@ -70,7 +71,7 @@ namespace bpp
  * \f[
  * \pi = \left(\frac{1-\theta}{2}, \frac{\theta}{2}, \frac{\theta}{2}, \frac{1 - \theta}{2}\right)
  * \f]
- * Normalization: \f$r\f$ is set so that \f$\sumi_ Q_{i,i}\pii_ = -1\f$:
+ * Normalization: \f$r\f$ is set so that \f$\sum_i Q_{i,i}\pi_i = -1\f$:
  * \f[
  * S = \frac{1}{P}\begin{pmatrix}
  * \frac{2\theta\kappa + 2}{\theta - 1} & 2 & 2\kappa & 2 \\ 
@@ -158,7 +159,8 @@ namespace bpp
  * - Tamura K (1992), Molecular_ Biology And Evolution_ 9(5) 814-25. 
  */
 class T92 :
-  public virtual NucleotideSubstitutionModel
+  public virtual NucleotideSubstitutionModel,
+  public AbstractReversibleSubstitutionModel
 {
   private:
     double kappa_, theta_, k_, r_, piA_, piC_, piG_, piT_;
@@ -199,5 +201,5 @@ class T92 :
 
 } //end of namespace bpp.
 
-#endif	//T92_H__
+#endif	//_T92_H_
 

@@ -55,7 +55,7 @@ using namespace std;
 /******************************************************************************/
 
 T92::T92(const NucleicAlphabet* alpha, double kappa, double theta):
-	NucleotideSubstitutionModel(alpha, "T92."),
+	AbstractReversibleSubstitutionModel(alpha, "T92."),
   kappa_(kappa), theta_(theta), k_(), r_(),
   piA_((1. - theta_) / 2.), piC_(theta_ / 2.), piG_(theta_ / 2.), piT_((1. - theta_) / 2.),
   exp1_(), exp2_(), l_(), p_(size_, size_)

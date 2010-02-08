@@ -37,10 +37,11 @@ The fact that you are presently reading this means that you have had
 knowledge of the CeCILL license and that you accept its terms.
 */
 
-#ifndef L95_H__
-#define L95_H__
+#ifndef _L95_H_
+#define _L95_H_
 
 #include "NucleotideSubstitutionModel.h"
+#include "AbstractSubstitutionModel.h"
 
 // From NumCalc:
 #include <NumCalc/Constraints.h>
@@ -96,7 +97,8 @@ namespace bpp
  * - Lobry J R (1995), Journal_ Of Molecular Evolution_ 40 326-330.
  */
 class L95:
-  public virtual NucleotideSubstitutionModel
+  public virtual NucleotideSubstitutionModel,
+  public AbstractReversibleSubstitutionModel
 {
 private:
   double beta_, gamma_, delta_, theta_, piA_, piC_, piG_, piT_;
@@ -131,5 +133,5 @@ public:
 
 } //end of namespace bpp.
 
-#endif	//L95_H__
+#endif	//_L95_H_
 

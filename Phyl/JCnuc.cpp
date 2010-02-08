@@ -48,7 +48,7 @@ using namespace std;
 /******************************************************************************/
 
 JCnuc::JCnuc(const NucleicAlphabet* alpha) :
-  NucleotideSubstitutionModel(alpha, "JC69."), exp_(), p_(size_, size_)
+  AbstractReversibleSubstitutionModel(alpha, "JC69."), exp_(), p_(size_, size_)
 {
 	updateMatrices();
 }

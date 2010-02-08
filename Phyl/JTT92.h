@@ -41,6 +41,8 @@ knowledge of the CeCILL license and that you accept its terms.
 #define _JTT92_H_
 
 #include "ProteinSubstitutionModel.h"
+#include "AbstractSubstitutionModel.h"
+#include "FrequenciesSet.h"
 
 // From SeqLib:
 #include <Seq/ProteicAlphabet.h>
@@ -53,19 +55,53 @@ namespace bpp
  *
  * Exchangeabilities have been computed using the DCMut method of Kosiol and Goldman.
  * The exchangability matrix is normalized so that \f$Q = S . \pi\f$ and \f$\sum_i Q_{i,i}\pi_i = -1\f$.
+ * The original frequencies can be used, or alternatively a parametrized version, corresponding to the
+ * so-called JTT92+F model.
  * Eigen values and vectors are obtained numerically.
  * 
  * References:
  * - Jones DT, Taylor WR and Thornton JM (1992), _Computer Applications In The Biosciences_, 8(3) 275-82. 
  * - Kosiol C and Goldman N (2005), _Molecular Biology And Evolution_ 22(2) 193-9. 
  */
-class JTT92:
-  public ProteinSubstitutionModel
+class JTT92 :
+  public virtual ProteinSubstitutionModel,
+  public AbstractReversibleSubstitutionModel
 {
-	public:
-		JTT92(const ProteicAlphabet * alpha);
+  private:
+    ProteinFrequenciesSet* freqSet_;
 
-		virtual ~JTT92() {}
+	public:
+    /**
+     * @brief Build a simple JTT92 model, with original equilibrium frequencies.
+     *
+     * @param alpha A proteic alphabet.
+     */
+		JTT92(const ProteicAlphabet* alpha);
+
+    /**
+     * @brief Build a JTT92 model with special equilibrium frequencies.
+     *
+     * @param alpha A proteic alphabet.
+     * @param freqSet A pointer toward a protein frequencies set, which will be owned by this instance.
+     * @param initFreqs Tell if the frequency set should be initialized with the original JTT92 values.
+     * Otherwise, the values of the set will be used.
+     */
+		JTT92(const ProteicAlphabet* alpha, ProteinFrequenciesSet* freqSet, bool initFreqs=false);
+
+    JTT92(const JTT92& model) :
+      AbstractReversibleSubstitutionModel(model),
+      freqSet_(dynamic_cast<ProteinFrequenciesSet *>(model.freqSet_->clone()))
+    {}
+
+    JTT92& operator=(const JTT92& model)
+    {
+      AbstractReversibleSubstitutionModel::operator=(model);
+      if (freqSet_) delete freqSet_;
+      freqSet_ = dynamic_cast<ProteinFrequenciesSet *>(model.freqSet_->clone());
+      return *this;
+    }
+
+		virtual ~JTT92() { delete freqSet_; }
 
 #ifndef NO_VIRTUAL_COV
     JTT92*
@@ -76,6 +112,26 @@ class JTT92:
 
 	public:
     std::string getName() const { return "JTT92"; }
+
+    void fireParameterChanged(const ParameterList& parameters)
+    {
+      freqSet_->matchParametersValues(parameters);
+      freq_ = freqSet_->getFrequencies();
+      AbstractReversibleSubstitutionModel::fireParameterChanged(parameters);
+    }
+
+    void setFrequenciesSet(const ProteinFrequenciesSet& freqSet)
+    {
+      delete freqSet_;
+      freqSet_ = dynamic_cast<ProteinFrequenciesSet*>(freqSet.clone());
+      resetParameters_();
+      addParameters_(freqSet_->getParameters());
+    }
+
+    const ProteinFrequenciesSet& getFrequenciesSet() const { return *freqSet_; }
+
+    void setFreqFromData(const SequenceContainer& data);
+
 };
 
 } //end of namespace bpp.

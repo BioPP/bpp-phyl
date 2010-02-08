@@ -3,6 +3,9 @@
 * A lot of code updates and small bugs fixed!
 * BioNJ is now faster when using the full constructor.
 * Parsimony and Likelihood data structure improved.
+* Nucleotide and ProteinSubstitutionModels are now full interfaces.
+* No more ProteinSubstitutionModelWithFrequencies... corresponding models take
+as input an optional FrequenciesSet object.
 
 29/12/09 Julien Dutheil
 * Improved TreeDrawing classes: added Listeners.

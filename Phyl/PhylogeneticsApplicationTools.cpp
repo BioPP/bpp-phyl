@@ -786,17 +786,17 @@ SubstitutionModel* PhylogeneticsApplicationTools::getSubstitutionModelDefaultIns
       const ProteicAlphabet* alpha = dynamic_cast<const ProteicAlphabet*>(alphabet);
 
       if (modelName == "JC69+F")
-        model = new JCprotF(alpha);
+        model = new JCprot(alpha, new FullProteinFrequenciesSet(alpha));
       else if (modelName == "DSO78+F")
-        model = new DSO78F(alpha);
+        model = new DSO78(alpha, new FullProteinFrequenciesSet(alpha));
       else if (modelName == "JTT92+F")
-        model = new JTT92F(alpha);
+        model = new JTT92(alpha, new FullProteinFrequenciesSet(alpha));
       else if (modelName == "Empirical+F")
       {
         string prefix = args["name"];
         if (TextTools::isEmpty(prefix))
           throw Exception("'name' argument missing for user-defined substitution model.");
-        model = new UserProteinSubstitutionModelF(alpha, args["file"], prefix + ".");
+        model = new UserProteinSubstitutionModel(alpha, args["file"], new FullProteinFrequenciesSet(alpha), prefix + ".");
       }
       else if (modelName == "JC69")
         model = new JCprot(alpha);
@@ -1979,19 +1979,18 @@ void PhylogeneticsApplicationTools::describeSubstitutionModel_(const Substitutio
   const UserProteinSubstitutionModel* trial1 = dynamic_cast<const UserProteinSubstitutionModel*>(model);
   if (trial1)
   {
-    out << "Empirical(file=" << trial1->getPath() << ")";
+    out << "Empirical";
+    vector<string> pnames = trial1->getParameters().getParameterNames();
+    if (pnames.size() > 0)
+      out << "+F";
+    out << "(file=" << trial1->getPath();
+    for (unsigned int i = 0; i < pnames.size(); i++)
+      out << ", " << pnames[i] << "=" << trial1->getParameterValue(pnames[i]);
+    out << ")";
     out.endLine();
   }
   else
   {
-   const UserProteinSubstitutionModelF* trial2 = dynamic_cast<const UserProteinSubstitutionModelF*>(model);
-    if (trial2)
-    {
-      out << "Empirical+F(file=" << trial2->getPath() << ")";
-      out.endLine();
-    }
-    else
-    {
       const MarkovModulatedSubstitutionModel* trial3 = dynamic_cast<const MarkovModulatedSubstitutionModel*>(model);
       if (trial3)
       {
@@ -2042,7 +2041,6 @@ void PhylogeneticsApplicationTools::describeSubstitutionModel_(const Substitutio
         }
       }
     }
-  }
 }
 
 /******************************************************************************/

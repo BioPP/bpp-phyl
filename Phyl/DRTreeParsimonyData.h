@@ -38,8 +38,8 @@ The fact that you are presently reading this means that you have had
 knowledge of the CeCILL license and that you accept its terms.
 */
 
-#ifndef DRTREEPARSIMONYDATA_H__
-#define DRTREEPARSIMONYDATA_H__
+#ifndef _DRTREEPARSIMONYDATA_H_
+#define _DRTREEPARSIMONYDATA_H_
 
 #include "AbstractTreeParsimonyData.h"
 
@@ -309,5 +309,5 @@ class DRTreeParsimonyData :
 
 } //end of namespace bpp.
 
-#endif //DRTREEPARSIMONYDATA_H__
+#endif //_DRTREEPARSIMONYDATA_H_
 

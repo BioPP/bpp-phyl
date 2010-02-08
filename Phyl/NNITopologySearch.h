@@ -58,7 +58,7 @@ namespace bpp
  * - PhyML algorithm (not fully tested, use with care): as the previous one, but perform all NNI improving the score at the same time.
  *   Leads to faster convergence.
  */
-class NNITopologySearch:
+class NNITopologySearch :
   public virtual TopologySearch
 {
 	public:

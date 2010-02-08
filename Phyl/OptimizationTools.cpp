@@ -460,7 +460,6 @@ NNIHomogeneousTreeLikelihood* OptimizationTools::optimizeTreeNNI(
   topoListener->setNumericalOptimizationCounter(numStep);
   topoSearch.addTopologyListener(topoListener);
   topoSearch.search();
-  delete topoListener;
   return dynamic_cast<NNIHomogeneousTreeLikelihood *>(topoSearch.getSearchableObject());
 }
 
@@ -492,7 +491,6 @@ NNIHomogeneousTreeLikelihood* OptimizationTools::optimizeTreeNNI2(
   topoListener->setNumericalOptimizationCounter(numStep);
   topoSearch.addTopologyListener(topoListener);
   topoSearch.search();
-  delete topoListener;
   return dynamic_cast<NNIHomogeneousTreeLikelihood *>(topoSearch.getSearchableObject());
 }
 

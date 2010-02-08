@@ -39,6 +39,9 @@ knowledge of the CeCILL license and that you accept its terms.
 
 #include "JCprot.h"
 
+//From SeqLib:
+#include <Seq/SequenceContainerTools.h>
+
 using namespace bpp;
 
 #include <cmath>
@@ -48,22 +51,35 @@ using namespace std;
 /******************************************************************************/
 
 JCprot::JCprot(const ProteicAlphabet* alpha) :
-  ProteinSubstitutionModel(alpha, "JC69."), exp_(), p_(size_, size_)
+  AbstractReversibleSubstitutionModel(alpha, "JC69."), exp_(), p_(size_, size_),
+  freqSet_(0)
 {
+  freqSet_ = new ProteinFixedFrequenciesSet(alpha, freq_);
 	updateMatrices();
 }
+
+JCprot::JCprot(const ProteicAlphabet* alpha, ProteinFrequenciesSet* freqSet, bool initFreqs) :
+  AbstractReversibleSubstitutionModel(alpha, "JC69."), exp_(), p_(size_, size_),
+  freqSet_(freqSet)
+{
+  if (initFreqs) freqSet_->setFrequencies(freq_);
+  else freq_ = freqSet_->getFrequencies();
+  addParameters_(freqSet_->getParameters());
+  updateMatrices();  
+}
+
 
 /******************************************************************************/
 	
 void JCprot::updateMatrices()
 {
 	// Frequencies:
-	for(unsigned int i = 0; i < 20; i++) freq_[i] = 1. / 20.;
+	for (unsigned int i = 0; i < 20; i++) freq_[i] = 1. / 20.;
 
 	// Generator:
-	for(unsigned int i = 0; i < 20; i++)
+	for (unsigned int i = 0; i < 20; i++)
   {
-		for(unsigned int j = 0; j < 20; j++)
+		for (unsigned int j = 0; j < 20; j++)
     {
 			generator_(i, j) = (i == j) ? -1. : 1./19.;
 			exchangeability_(i, j) = generator_(i, j) * 20.;
@@ -72,21 +88,21 @@ void JCprot::updateMatrices()
 	
 	// Eigen values:
 	eigenValues_[0] = 0;
-	for(unsigned int i = 1; i < 20; i++) eigenValues_[i] = -20. / 19.;
+	for (unsigned int i = 1; i < 20; i++) eigenValues_[i] = -20. / 19.;
 	
 	// Eigen vectors:
-	for(unsigned int i = 0; i < 20; i++) leftEigenVectors_(0,i) = 1./20.;
-	for(unsigned int i = 1; i < 20; i++) 
-		for(unsigned int j = 0; j < 20; j++)
+	for (unsigned int i = 0; i < 20; i++) leftEigenVectors_(0,i) = 1./20.;
+	for (unsigned int i = 1; i < 20; i++) 
+		for (unsigned int j = 0; j < 20; j++)
 			leftEigenVectors_(i,j) = -1./20.;
-	for(unsigned int i = 0; i < 19; i++) leftEigenVectors_(19-i,i) = 19./20.;
+	for (unsigned int i = 0; i < 19; i++) leftEigenVectors_(19-i,i) = 19./20.;
 
-	for(unsigned int i = 0; i < 20; i++) rightEigenVectors_(i,0) = 1.;
-	for(unsigned int i = 1; i < 20; i++) rightEigenVectors_(19,i) = -1.;
-	for(unsigned int i = 0; i < 19; i++) 
-		for(unsigned int j = 1; j < 20; j++)
+	for (unsigned int i = 0; i < 20; i++) rightEigenVectors_(i,0) = 1.;
+	for (unsigned int i = 1; i < 20; i++) rightEigenVectors_(19,i) = -1.;
+	for (unsigned int i = 0; i < 19; i++) 
+		for (unsigned int j = 1; j < 20; j++)
 			rightEigenVectors_(i,j) = 0.;
-	for(unsigned int i = 1; i < 20; i++) rightEigenVectors_(19-i,i) = 1.;
+	for (unsigned int i = 1; i < 20; i++) rightEigenVectors_(19-i,i) = 1.;
 
 }
 	
@@ -116,7 +132,7 @@ double JCprot::d2Pij_dt2(int i, int j, double d) const
 
 /******************************************************************************/
 
-const Matrix<double> & JCprot::getPij_t(double d) const
+const Matrix<double>& JCprot::getPij_t(double d) const
 {
   exp_ = exp(- 20./19. * d);
 	for(unsigned int i = 0; i < size_; i++)
@@ -129,7 +145,7 @@ const Matrix<double> & JCprot::getPij_t(double d) const
 	return p_;
 }
 
-const Matrix<double> & JCprot::getdPij_dt(double d) const
+const Matrix<double>& JCprot::getdPij_dt(double d) const
 {
   exp_ = exp(- 20./19. * d);
 	for(unsigned int i = 0; i < size_; i++)
@@ -142,7 +158,7 @@ const Matrix<double> & JCprot::getdPij_dt(double d) const
 	return p_;
 }
 
-const Matrix<double> & JCprot::getd2Pij_dt2(double d) const
+const Matrix<double>& JCprot::getd2Pij_dt2(double d) const
 {
   exp_ = exp(- 20./19. * d);
 	for(unsigned int i = 0; i < size_; i++)
@@ -153,6 +169,20 @@ const Matrix<double> & JCprot::getd2Pij_dt2(double d) const
 		}
 	}
 	return p_;
+}
+
+/******************************************************************************/
+
+void JCprot::setFreqFromData(const SequenceContainer& data)
+{
+  std::map<int, double> freqs;
+  SequenceContainerTools::getFrequencies(data, freqs);
+  double t = 0;
+  for (unsigned int i = 0; i < size_; i++) t += freqs[i];
+  for (unsigned int i = 0; i < size_; i++) freq_[i] = freqs[i] / t;
+  freqSet_->setFrequencies(freq_);
+  //Update parameters and re-compute generator and eigen values:
+  matchParametersValues(freqSet_->getParameters());
 }
 
 /******************************************************************************/

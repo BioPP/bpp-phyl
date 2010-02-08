@@ -13,7 +13,6 @@ set(CPP_FILES
   PhylogeneticsApplicationTools.cpp
   DistanceEstimation.cpp
   DSO78.cpp
-  DSO78F.cpp
   PseudoNewtonOptimizer.cpp
   HKY85.cpp
   RHomogeneousTreeLikelihood.cpp
@@ -32,9 +31,7 @@ set(CPP_FILES
   DRTreeLikelihoodTools.cpp
   JCnuc.cpp
   JCprot.cpp
-  JCprotF.cpp
   JTT92.cpp
-  JTT92F.cpp
   K80.cpp
   MarginalAncestralStateReconstruction.cpp
   MutationProcess.cpp
@@ -57,7 +54,6 @@ set(CPP_FILES
   DRTreeParsimonyData.cpp
   SequenceSimulationTools.cpp
   UserProteinSubstitutionModel.cpp
-  UserProteinSubstitutionModelF.cpp
   NNITopologySearch.cpp
   GTR.cpp
   SitePatterns.cpp
@@ -113,7 +109,6 @@ set(H_FILES
   PhylogeneticsApplicationTools.h
   DistanceEstimation.h
   DSO78.h
-  DSO78F.h
   PseudoNewtonOptimizer.h
   HKY85.h
   TreeLikelihood.h
@@ -141,9 +136,7 @@ set(H_FILES
   iotree
   JCnuc.h
   JCprot.h
-  JCprotF.h
   JTT92.h
-  JTT92F.h
   K80.h
   models
   MutationProcess.h
@@ -156,7 +149,6 @@ set(H_FILES
   PGMA.h
   PhylipDistanceMatrixFormat.h
   ProteinSubstitutionModel.h
-  ProteinSubstitutionModelWithFrequencies.h
   SequenceSimulator.h
   SiteSimulator.h
   DetailedSiteSimulator.h
@@ -187,7 +179,6 @@ set(H_FILES
   DRTreeParsimonyData.h
   SequenceSimulationTools.h
   UserProteinSubstitutionModel.h
-  UserProteinSubstitutionModelF.h
   TopologySearch.h
   NNITopologySearch.h
   GTR.h

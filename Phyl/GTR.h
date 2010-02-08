@@ -37,10 +37,11 @@ The fact that you are presently reading this means that you have had
 knowledge of the CeCILL license and that you accept its terms.
 */
 
-#ifndef GTR_H__
-#define GTR_H__
+#ifndef _GTR_H_
+#define _GTR_H_
 
 #include "NucleotideSubstitutionModel.h"
+#include "AbstractSubstitutionModel.h"
 
 // From NumCalc:
 #include <NumCalc/Constraints.h>
@@ -136,7 +137,8 @@ namespace bpp
  * - Rodriguez F (1990, Journal_ Of Theoretical Biology_ 142(4) 485-501.
  */
 class GTR:
-  public virtual NucleotideSubstitutionModel
+  public virtual NucleotideSubstitutionModel,
+  public AbstractReversibleSubstitutionModel
 {
   protected:
     double a_, b_, c_, d_, e_, piA_, piC_, piG_, piT_, theta_, theta1_, theta2_, p_;
@@ -178,5 +180,5 @@ class GTR:
 
 } //end of namespace bpp.
 
-#endif  //GTR_H__
+#endif  //_GTR_H_
 

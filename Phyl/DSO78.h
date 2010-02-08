@@ -41,6 +41,8 @@ knowledge of the CeCILL license and that you accept its terms.
 #define _DSO78_H_
 
 #include "ProteinSubstitutionModel.h"
+#include "AbstractSubstitutionModel.h"
+#include "FrequenciesSet.h"
 
 // From SeqLib:
 #include <Seq/ProteicAlphabet.h>
@@ -53,19 +55,53 @@ namespace bpp
  *
  * Exchangeabilities have been computed using the DCMut method of Kosiol and Goldman.
  * The exchangability matrix is normalized so that \f$Q = S . \pi\f$ and \f$\sum_i Q_{i,i}\pi_i = -1\f$.
+ * The original frequencies can be used, or alternatively a parametrized version, corresponding to the
+ * so-called JTT92+F model.
  * Eigen values and vectors are obtained numerically.
  * 
  * References:
  * - Dayhoff MO, Schwartz RM and Orcutt BC (1978), _A model of evolutionary change in proteins_, 5(3) 345-352, in _Atlas of Protein Sequence and Structure_. 
  * - Kosiol C and Goldman N (2005), _Molecular Biology And Evolution_ 22(2) 193-9. 
  */
-class DSO78:
-  public ProteinSubstitutionModel
+class DSO78 :
+  public virtual ProteinSubstitutionModel,
+  public AbstractReversibleSubstitutionModel
 {
-	public:
-		DSO78(const ProteicAlphabet * alpha);
+  private:
+    ProteinFrequenciesSet* freqSet_;
 
-		virtual ~DSO78() {}
+	public:
+    /**
+     * @brief Build a simple DSO78 model, with original equilibrium frequencies.
+     *
+     * @param alpha A proteic alphabet.
+     */
+		DSO78(const ProteicAlphabet* alpha);
+
+    /**
+     * @brief Build a DSO78 model with special equilibrium frequencies.
+     *
+     * @param alpha A proteic alphabet.
+     * @param freqSet A pointer toward a protein frequencies set, which will be owned by this instance.
+     * @param initFreqs Tell if the frequency set should be initialized with the original JTT92 values.
+     * Otherwise, the values of the set will be used.
+     */
+		DSO78(const ProteicAlphabet* alpha, ProteinFrequenciesSet* freqSet, bool initFreqs=false);
+
+    DSO78(const DSO78& model) :
+      AbstractReversibleSubstitutionModel(model),
+      freqSet_(dynamic_cast<ProteinFrequenciesSet *>(model.freqSet_->clone()))
+    {}
+
+    DSO78& operator=(const DSO78& model)
+    {
+      AbstractReversibleSubstitutionModel::operator=(model);
+      if (freqSet_) delete freqSet_;
+      freqSet_ = dynamic_cast<ProteinFrequenciesSet *>(model.freqSet_->clone());
+      return *this;
+    }
+
+		virtual ~DSO78() { delete freqSet_; }
 
 #ifndef NO_VIRTUAL_COV
     DSO78*
@@ -76,6 +112,25 @@ class DSO78:
     
 	public:
     std::string getName() const { return "DSO78"; }
+
+    void fireParameterChanged(const ParameterList& parameters)
+    {
+      freqSet_->matchParametersValues(parameters);
+      freq_ = freqSet_->getFrequencies();
+      AbstractReversibleSubstitutionModel::fireParameterChanged(parameters);
+    }
+
+    void setFrequenciesSet(const ProteinFrequenciesSet& freqSet)
+    {
+      delete freqSet_;
+      freqSet_ = dynamic_cast<ProteinFrequenciesSet*>(freqSet.clone());
+      resetParameters_();
+      addParameters_(freqSet_->getParameters());
+    }
+
+    const ProteinFrequenciesSet& getFrequenciesSet() const { return *freqSet_; }
+
+    void setFreqFromData(const SequenceContainer& data);
 
 };
 
