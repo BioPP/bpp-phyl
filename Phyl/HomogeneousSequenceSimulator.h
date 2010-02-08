@@ -66,7 +66,7 @@ class HomogeneousSequenceSimulator:
 	public:
     const SubstitutionModel* getSubstitutionModel() const
     {
-      return modelSet_->getModel(0);
+      return getSubstitutionModelSet()->getModel(0);
     }
 	
 };
