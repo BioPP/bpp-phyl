@@ -224,8 +224,8 @@ class FullFrequenciesSet:
      * the alphabet. If the alphabet is a CodonAlphabet, the stop codon
      * frequencies are null.
      */
-    FullFrequenciesSet(const Alphabet* alphabet);
-    FullFrequenciesSet(const Alphabet* alphabet, const std::vector<double>& initFreqs) throw (Exception);
+    FullFrequenciesSet(const Alphabet* alphabet, bool allowNullFreqs = false);
+    FullFrequenciesSet(const Alphabet* alphabet, const std::vector<double>& initFreqs, bool allowNullFreqs=false) throw (Exception);
   
     FullFrequenciesSet* clone() const { return new FullFrequenciesSet(*this); }
 
@@ -256,8 +256,8 @@ class FullCodonFrequenciesSet:
      * the alphabet. If the alphabet is a CodonAlphabet, the stop codon
      * frequencies are null.
      */
-    FullCodonFrequenciesSet(const CodonAlphabet* alphabet);
-    FullCodonFrequenciesSet(const CodonAlphabet* alphabet, const std::vector<double>& initFreqs) throw (Exception);
+    FullCodonFrequenciesSet(const CodonAlphabet* alphabet, bool allowNullFreqs = false);
+    FullCodonFrequenciesSet(const CodonAlphabet* alphabet, const std::vector<double>& initFreqs, bool allowNullFreqs = false) throw (Exception);
   
 #ifndef NO_VIRTUAL_COV
     FullCodonFrequenciesSet*
@@ -345,9 +345,9 @@ class FullNAFrequenciesSet:
 {
   public:
 
-    FullNAFrequenciesSet(const NucleicAlphabet* alphabet);
+    FullNAFrequenciesSet(const NucleicAlphabet* alphabet, bool allowNullFreqs = false);
   
-    FullNAFrequenciesSet(const NucleicAlphabet* alphabet, double theta, double theta_1, double theta_2);
+    FullNAFrequenciesSet(const NucleicAlphabet* alphabet, double theta, double theta_1, double theta_2, bool allowNullFreqs = false);
 
 #ifndef NO_VIRTUAL_COV
     FullNAFrequenciesSet*
@@ -385,10 +385,10 @@ class FullProteinFrequenciesSet:
   public FullFrequenciesSet
 {
   public:
-    FullProteinFrequenciesSet(const ProteicAlphabet* alphabet):
-      FullFrequenciesSet(alphabet) {}
-    FullProteinFrequenciesSet(const ProteicAlphabet* alphabet, const std::vector<double>& initFreqs) throw (Exception):
-      FullFrequenciesSet(alphabet, initFreqs) {}
+    FullProteinFrequenciesSet(const ProteicAlphabet* alphabet, bool allowNullFreqs = false) :
+      FullFrequenciesSet(alphabet, allowNullFreqs) {}
+    FullProteinFrequenciesSet(const ProteicAlphabet* alphabet, const std::vector<double>& initFreqs, bool allowNullFreqs = false) throw (Exception) :
+      FullFrequenciesSet(alphabet, initFreqs, allowNullFreqs) {}
 
 #ifndef NO_VIRTUAL_COV
     FullProteinFrequenciesSet*

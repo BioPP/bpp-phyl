@@ -786,17 +786,17 @@ SubstitutionModel* PhylogeneticsApplicationTools::getSubstitutionModelDefaultIns
       const ProteicAlphabet* alpha = dynamic_cast<const ProteicAlphabet*>(alphabet);
 
       if (modelName == "JC69+F")
-        model = new JCprot(alpha, new FullProteinFrequenciesSet(alpha));
+        model = new JCprot(alpha, new FullProteinFrequenciesSet(alpha), true);
       else if (modelName == "DSO78+F")
-        model = new DSO78(alpha, new FullProteinFrequenciesSet(alpha));
+        model = new DSO78(alpha, new FullProteinFrequenciesSet(alpha), true);
       else if (modelName == "JTT92+F")
-        model = new JTT92(alpha, new FullProteinFrequenciesSet(alpha));
+        model = new JTT92(alpha, new FullProteinFrequenciesSet(alpha), true);
       else if (modelName == "Empirical+F")
       {
         string prefix = args["name"];
         if (TextTools::isEmpty(prefix))
           throw Exception("'name' argument missing for user-defined substitution model.");
-        model = new UserProteinSubstitutionModel(alpha, args["file"], new FullProteinFrequenciesSet(alpha), prefix + ".");
+        model = new UserProteinSubstitutionModel(alpha, args["file"], new FullProteinFrequenciesSet(alpha), prefix + ".", true);
       }
       else if (modelName == "JC69")
         model = new JCprot(alpha);
@@ -908,7 +908,7 @@ void PhylogeneticsApplicationTools::setSubstitutionModelParametersInitialValues(
    const string pName = pl[i].getName();
     if (!useObsFreq || (model->getParameterNameWithoutNamespace(pName).substr(0,5) != "theta"))
     {
-   double value = ApplicationTools::getDoubleParameter(pName, unparsedParameterValues, pl[i].getValue());
+      double value = ApplicationTools::getDoubleParameter(pName, unparsedParameterValues, pl[i].getValue());
       pl[i].setValue(value);
     }
     if (verbose)

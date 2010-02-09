@@ -80,14 +80,19 @@ void AbstractFrequenciesSet::setFrequenciesFromMap(const map<int, double>& frequ
 // ////////////////////////////
 // FullFrequenciesSet
 
-FullFrequenciesSet::FullFrequenciesSet(const Alphabet* alphabet) :
+FullFrequenciesSet::FullFrequenciesSet(const Alphabet* alphabet, bool allowNullFreqs) :
   AbstractFrequenciesSet(alphabet->getSize(), alphabet, "Full.")
 {
    unsigned int size = alphabet->getSize();
 
   for (unsigned int i = 0; i < alphabet->getSize() - 1; i++)
   {
-    Parameter p("Full.theta_" + TextTools::toString(i + 1), 1. / (size - i), &Parameter::PROP_CONSTRAINT_IN);
+    Parameter p(
+        "Full.theta_" + TextTools::toString(i + 1),
+        1. / (size - i),
+        allowNullFreqs ?
+        dynamic_cast<Constraint*>(&Parameter::PROP_CONSTRAINT_IN) :
+        dynamic_cast<Constraint*>(&Parameter::PROP_CONSTRAINT_EX));
     addParameter_(p);
     getFreq_(i) = 1. / size;
   }
@@ -95,7 +100,7 @@ FullFrequenciesSet::FullFrequenciesSet(const Alphabet* alphabet) :
   getFreq_(i) = 1. / size;
 }
 
-FullFrequenciesSet::FullFrequenciesSet(const Alphabet* alphabet, const vector<double>& initFreqs) throw (Exception) :
+FullFrequenciesSet::FullFrequenciesSet(const Alphabet* alphabet, const vector<double>& initFreqs, bool allowNullFreqs) throw (Exception) :
   AbstractFrequenciesSet(alphabet->getSize(), alphabet, "Full.")
 {
   if (initFreqs.size() != alphabet->getSize())
@@ -109,7 +114,12 @@ FullFrequenciesSet::FullFrequenciesSet(const Alphabet* alphabet, const vector<do
   double y = 1;
   for (unsigned int i = 0; i < alphabet->getSize() - 1; i++)
   {
-    Parameter p("Full.theta_" + TextTools::toString(i + 1), initFreqs[i] / y, &Parameter::PROP_CONSTRAINT_IN);
+    Parameter p(
+        "Full.theta_" + TextTools::toString(i + 1),
+        initFreqs[i] / y,
+        allowNullFreqs ?
+        dynamic_cast<Constraint*>(&Parameter::PROP_CONSTRAINT_IN) :
+        dynamic_cast<Constraint*>(&Parameter::PROP_CONSTRAINT_EX));
     addParameter_(p);
     getFreq_(i) = initFreqs[i];
     y -= initFreqs[i];
@@ -156,7 +166,7 @@ void FullFrequenciesSet::fireParameterChanged(const ParameterList& parameters)
 // ////////////////////////////
 // FullCodonFrequenciesSet
 
-FullCodonFrequenciesSet::FullCodonFrequenciesSet(const CodonAlphabet* alphabet) :
+FullCodonFrequenciesSet::FullCodonFrequenciesSet(const CodonAlphabet* alphabet, bool allowNullFreqs) :
   AbstractFrequenciesSet(alphabet->getSize(), alphabet, "Full.")
 {
    unsigned int size = alphabet->getSize() - alphabet->numberOfStopCodons();
@@ -171,7 +181,12 @@ FullCodonFrequenciesSet::FullCodonFrequenciesSet(const CodonAlphabet* alphabet) 
     else
     {
       j++;
-      Parameter p("Full.theta_" + TextTools::toString(i + 1), 1. / (size - j), &Parameter::PROP_CONSTRAINT_IN);
+      Parameter p(
+          "Full.theta_" + TextTools::toString(i + 1),
+          1. / (size - j),
+          allowNullFreqs ?
+          dynamic_cast<Constraint*>(&Parameter::PROP_CONSTRAINT_IN) :
+          dynamic_cast<Constraint*>(&Parameter::PROP_CONSTRAINT_EX));
       addParameter_(p);
       getFreq_(i) = 1. / size;
     }
@@ -181,7 +196,7 @@ FullCodonFrequenciesSet::FullCodonFrequenciesSet(const CodonAlphabet* alphabet) 
 }
 
 
-FullCodonFrequenciesSet::FullCodonFrequenciesSet(const CodonAlphabet* alphabet, const vector<double>& initFreqs) throw (Exception) :
+FullCodonFrequenciesSet::FullCodonFrequenciesSet(const CodonAlphabet* alphabet, const vector<double>& initFreqs, bool allowNullFreqs) throw (Exception) :
   AbstractFrequenciesSet(alphabet->getSize(), alphabet, "Full.")
 {
   if (initFreqs.size() != alphabet->getSize())
@@ -210,7 +225,12 @@ FullCodonFrequenciesSet::FullCodonFrequenciesSet(const CodonAlphabet* alphabet, 
     }
     else
     {
-      Parameter p("Full.theta_" + TextTools::toString(i + 1), initFreqs[i] / y, &Parameter::PROP_CONSTRAINT_IN);
+      Parameter p(
+          "Full.theta_" + TextTools::toString(i + 1),
+          initFreqs[i] / y,
+          allowNullFreqs ?
+          dynamic_cast<Constraint*>(&Parameter::PROP_CONSTRAINT_IN) :
+          dynamic_cast<Constraint*>(&Parameter::PROP_CONSTRAINT_EX));
       addParameter_(p);
       getFreq_(i) = initFreqs[i];
       y -= initFreqs[i];
@@ -276,26 +296,52 @@ void FullCodonFrequenciesSet::fireParameterChanged(const ParameterList& paramete
 // FullNAFrequenciesSet
 
 
-FullNAFrequenciesSet::FullNAFrequenciesSet(const NucleicAlphabet* alphabet) :
+FullNAFrequenciesSet::FullNAFrequenciesSet(const NucleicAlphabet* alphabet, bool allowNullFreqs) :
   AbstractFrequenciesSet(4, alphabet, "Full.")
 {
-  Parameter thetaP("Full.theta", 0.5, &Parameter::PROP_CONSTRAINT_EX);
+  Parameter thetaP(
+      "Full.theta", 0.5,
+      allowNullFreqs ?
+      dynamic_cast<Constraint*>(&Parameter::PROP_CONSTRAINT_IN) :
+      dynamic_cast<Constraint*>(&Parameter::PROP_CONSTRAINT_EX));
   addParameter_(thetaP);
-  Parameter theta1P("Full.theta_1", 0.5, &Parameter::PROP_CONSTRAINT_EX);
+  Parameter theta1P(
+      "Full.theta_1", 0.5,
+      allowNullFreqs ?
+      dynamic_cast<Constraint*>(&Parameter::PROP_CONSTRAINT_IN) :
+      dynamic_cast<Constraint*>(&Parameter::PROP_CONSTRAINT_EX));
   addParameter_(theta1P);
-  Parameter theta2P("Full.theta_2", 0.5, &Parameter::PROP_CONSTRAINT_EX);
+  Parameter theta2P("Full.theta_2", 0.5,
+      allowNullFreqs ?
+      dynamic_cast<Constraint*>(&Parameter::PROP_CONSTRAINT_IN) :
+      dynamic_cast<Constraint*>(&Parameter::PROP_CONSTRAINT_EX));
   addParameter_(theta2P);
   getFreq_(0) = getFreq_(1) = getFreq_(2) = getFreq_(3) = 0.25;
 }
 
-FullNAFrequenciesSet::FullNAFrequenciesSet(const NucleicAlphabet* alphabet, double theta, double theta_1, double theta_2) :
+FullNAFrequenciesSet::FullNAFrequenciesSet(const NucleicAlphabet* alphabet, double theta, double theta_1, double theta_2, bool allowNullFreqs) :
   AbstractFrequenciesSet(4, alphabet, "Full.")
 {
-  Parameter thetaP("Full.theta", theta, &Parameter::PROP_CONSTRAINT_EX);
+  Parameter thetaP(
+      "Full.theta",
+      theta,
+      allowNullFreqs ?
+      dynamic_cast<Constraint*>(&Parameter::PROP_CONSTRAINT_IN) :
+      dynamic_cast<Constraint*>(&Parameter::PROP_CONSTRAINT_EX));
   addParameter_(thetaP);
-  Parameter theta1P("Full.theta_1", theta_1, &Parameter::PROP_CONSTRAINT_EX);
+  Parameter theta1P(
+      "Full.theta_1",
+      theta_1,
+      allowNullFreqs ?
+      dynamic_cast<Constraint*>(&Parameter::PROP_CONSTRAINT_IN) :
+      dynamic_cast<Constraint*>(&Parameter::PROP_CONSTRAINT_EX));
   addParameter_(theta1P);
-  Parameter theta2P("Full.theta_2", theta_2, &Parameter::PROP_CONSTRAINT_EX);
+  Parameter theta2P(
+      "Full.theta_2",
+      theta_2,
+      allowNullFreqs ?
+      dynamic_cast<Constraint*>(&Parameter::PROP_CONSTRAINT_IN) :
+      dynamic_cast<Constraint*>(&Parameter::PROP_CONSTRAINT_EX));
   addParameter_(theta2P);
   getFreq_(0) = theta_1 * (1. - theta);
   getFreq_(1) = (1 - theta_2) * theta;
@@ -332,7 +378,7 @@ void FullNAFrequenciesSet::fireParameterChanged(const ParameterList& parameters)
   getFreq_(3) = (1 - theta_1) * (1. - theta);
 }
 
-// /////////////////////////////////////////
+///////////////////////////////////////////
 // GCFrequenciesSet
 
 void GCFrequenciesSet::setFrequencies(const vector<double>& frequencies) throw (DimensionException, Exception)
