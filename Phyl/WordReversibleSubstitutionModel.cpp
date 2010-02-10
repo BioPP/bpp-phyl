@@ -58,11 +58,11 @@ using namespace std;
 /******************************************************************************/
 
 WordReversibleSubstitutionModel::WordReversibleSubstitutionModel(
-    const std::vector<SubstitutionModel*>& modelVector,
-    const std::string& st) :
-  AbstractWordReversibleSubstitutionModel(modelVector, (st == "") ? "Word." : st) //, vp_()
+  const std::vector<SubstitutionModel*>& modelVector,
+  const std::string& st) :
+  AbstractWordReversibleSubstitutionModel(modelVector, (st == "") ? "Word." : st)
 {
-  unsigned int i, nbmod = VSubMod_.size();
+   unsigned int i, nbmod = VSubMod_.size();
 
   // relative rates
   for (i = 0; i < nbmod - 1; i++)
@@ -74,18 +74,18 @@ WordReversibleSubstitutionModel::WordReversibleSubstitutionModel(
 }
 
 WordReversibleSubstitutionModel::WordReversibleSubstitutionModel(
-    const Alphabet* alph,
-    const std::string& st) :
-  AbstractWordReversibleSubstitutionModel(alph, (st == "") ? "Word." : st) //, vp_()
+  const Alphabet* alph,
+  const std::string& st) :
+  AbstractWordReversibleSubstitutionModel(alph, (st == "") ? "Word." : st)
 {}
 
 WordReversibleSubstitutionModel::WordReversibleSubstitutionModel(
-    SubstitutionModel* pmodel,
-    unsigned int num,
-    const std::string& st) :
-  AbstractWordReversibleSubstitutionModel(pmodel, num,  (st == "") ? "Word." : st) //, vp_()
+  SubstitutionModel* pmodel,
+  unsigned int num,
+  const std::string& st) :
+  AbstractWordReversibleSubstitutionModel(pmodel, num,  (st == "") ? "Word." : st)
 {
-  unsigned int i;
+   unsigned int i;
 
   // relative rates
   for (i = 0; i < num - 1; i++)
@@ -98,8 +98,8 @@ WordReversibleSubstitutionModel::WordReversibleSubstitutionModel(
 
 void WordReversibleSubstitutionModel::updateMatrices()
 {
-  int i,k, nbmod = VSubMod_.size();
-  double x;
+   int i,k, nbmod = VSubMod_.size();
+   double x;
   for (k = nbmod - 1; k >= 0; k--)
   {
     x = 1.0;
@@ -117,9 +117,9 @@ void WordReversibleSubstitutionModel::updateMatrices()
 
 void WordReversibleSubstitutionModel::completeMatrices()
 {
-  int nbmod = VSubMod_.size();
-  int i,p,j,m;
-  int salph = getAlphabet()->getSize();
+   int nbmod = VSubMod_.size();
+   int i,p,j,m;
+   int salph = getAlphabet()->getSize();
 
   // freq_ for this generator
 
@@ -138,13 +138,13 @@ void WordReversibleSubstitutionModel::completeMatrices()
 
 double WordReversibleSubstitutionModel::Pij_t(unsigned int i, unsigned int j, double d) const
 {
-  double x = 1;
-  unsigned int nbmod = VSubMod_.size();
-  unsigned int t;
-  int p;
+   double x = 1;
+   unsigned int nbmod = VSubMod_.size();
+   unsigned int t;
+   int p;
 
-  unsigned int i2 = i;
-  unsigned int j2 = j;
+   unsigned int i2 = i;
+   unsigned int j2 = j;
 
   for (p = nbmod - 1; p >= 0; p--)
   {
@@ -159,8 +159,8 @@ double WordReversibleSubstitutionModel::Pij_t(unsigned int i, unsigned int j, do
 
 const RowMatrix<double>& WordReversibleSubstitutionModel::getPij_t(double d) const
 {
-  unsigned int nbStates = getNumberOfStates();
-  unsigned int i, j;
+   unsigned int nbStates = getNumberOfStates();
+   unsigned int i, j;
 
   for (i = 0; i < nbStates; i++)
   {
@@ -174,13 +174,13 @@ const RowMatrix<double>& WordReversibleSubstitutionModel::getPij_t(double d) con
 
 double WordReversibleSubstitutionModel::dPij_dt(unsigned int i, unsigned int j, double d) const
 {
-  double r, x;
-  int nbmod = VSubMod_.size();
-  int t;
-  int p,q;
+   double r, x;
+   int nbmod = VSubMod_.size();
+   int t;
+   int p,q;
 
-  int i2 = i;
-  int j2 = j;
+   int i2 = i;
+   int j2 = j;
 
   r = 0;
   for (q = 0; q < nbmod; q++)
@@ -205,8 +205,8 @@ double WordReversibleSubstitutionModel::dPij_dt(unsigned int i, unsigned int j, 
 
 const RowMatrix<double>& WordReversibleSubstitutionModel::getdPij_dt(double d) const
 {
-  unsigned int nbetats = getNumberOfStates();
-  unsigned int i, j;
+   unsigned int nbetats = getNumberOfStates();
+   unsigned int i, j;
 
   for (i = 0; i < nbetats; i++)
   {
@@ -220,13 +220,13 @@ const RowMatrix<double>& WordReversibleSubstitutionModel::getdPij_dt(double d) c
 
 double WordReversibleSubstitutionModel::d2Pij_dt2(unsigned int i, unsigned int j, double d) const
 {
-  double r, x;
-  int nbmod = VSubMod_.size();
-  int b, q, t;
-  int p;
+   double r, x;
+   int nbmod = VSubMod_.size();
+   int b, q, t;
+   int p;
 
-  int i2 = i;
-  int j2 = j;
+   int i2 = i;
+   int j2 = j;
 
   r = 0;
 
@@ -280,8 +280,8 @@ double WordReversibleSubstitutionModel::d2Pij_dt2(unsigned int i, unsigned int j
 
 const RowMatrix<double>& WordReversibleSubstitutionModel::getd2Pij_dt2(double d) const
 {
-  unsigned int nbetats = getNumberOfStates();
-  unsigned int i,j;
+   unsigned int nbetats = getNumberOfStates();
+   unsigned int i,j;
 
   for (i = 0; i < nbetats; i++)
   {
@@ -297,8 +297,8 @@ const RowMatrix<double>& WordReversibleSubstitutionModel::getd2Pij_dt2(double d)
 
 string WordReversibleSubstitutionModel::getName() const
 {
-  unsigned int nbmod = VSubMod_.size();
-  string s = "WordReversibleSubstitutionModel model: " + VSubMod_[0]->getName();
+   unsigned int nbmod = VSubMod_.size();
+   string s = "WordReversibleSubstitutionModel model: " + VSubMod_[0]->getName();
   for (unsigned int i = 1; i < nbmod - 1; i++)
   {
     s += " " + VSubMod_[i]->getName();
