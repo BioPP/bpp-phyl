@@ -67,11 +67,11 @@ public:
 
   /**
    *@brief Build a new TripletReversibleSubstitutionModel object from
-   *a pointer to NucleotideSubstitutionModels. 
+   *a pointer to a NucleotideSubstitutionModel. 
    *
    *@param palph pointer to a CodonAlphabet
-   *@param pmod  pointer to the
-   *NucleotideSubstitutionModel to use in the three positions.
+   *@param pmod  pointer to the NucleotideSubstitutionModel to be used
+   *       in the three positions. It is owned by the instance.
    */
   
   TripletReversibleSubstitutionModel(const CodonAlphabet* palph,
@@ -85,7 +85,8 @@ public:
    *@param pmod1, pmod2, pmod3 pointers to the
    *   NucleotideSubstitutionModels to use in the three positions. All
    *   the models must be different objects to avoid parameters
-   *   redondancy, otherwise only the first model is used.
+   *   redundancy, otherwise only the first model is used. The used
+   *   models are owned by the instance.
    */
 
   TripletReversibleSubstitutionModel(const CodonAlphabet* palph,
