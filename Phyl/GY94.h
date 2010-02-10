@@ -81,7 +81,6 @@ class GY94:
 private:
 
   GranthamAAChemicalDistance gacd_;
-  FixedFrequenciesSet ffs_;
   CodonAsynonymousFrequenciesReversibleSubstitutionModel pmodel_;
 
 public:
