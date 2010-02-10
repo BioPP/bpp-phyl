@@ -52,11 +52,11 @@ namespace bpp
  * This model has one rate of transitions and one rate of
  * transversion. It also allows distinct equilibrium frequencies
  * between codons. A multiplicative factor accounts for the selective
- * restraints at the amino acid level, depending on the synonymality of the amino acids.
+ * restraints at the amino acid level, depending on the synonymy of
+ * the amino acids.
  * 
  * For codons @f$i=i_1i_2i_3@f$ and @f$j=j_1j_2j_3@f$, the generator term @f$Q_{ij} (i \neq j)@f$ is:
- * 0 if 2 or 3 of the pair @f$(i_1,j_1) (i_2,j_2) (i_3,j_3) @f$
- are different.
+ * 0 if 2 or 3 of the pair @f$(i_1,j_1) (i_2,j_2) (i_3,j_3) @f$ are different.
  * @f$\mu \pi_j \omega@f$ if exactly 1 of the pairs @f$(i_1,j_1) (i_2,j_2)
  (i_3,j_3) @f$ is different, that difference is a transversion and
  amino acids coded by i and j are different.
@@ -72,8 +72,8 @@ namespace bpp
  *
  * @f$\mu@f$ is a normalization factor.
  *
- * This model includes 2 parameters (@f$\kappa@f$ and @f$\omega@f$). The codon
- * frequencies are observed.
+ * This model includes 2 parameters (@f$\kappa@f$ and @f$\omega@f$).
+ * The codon frequencies @f$\pi_j$@f are observed.
  *
  * Reference:
  * -  Yang Z. and Nielsen R. (1998), _Journal of Molecular Evolution_ 46:409--418.
@@ -85,7 +85,6 @@ class YN98:
 {
 private:
 
-  FixedFrequenciesSet _ffs;
   CodonAsynonymousFrequenciesReversibleSubstitutionModel _pmodel;
 
 public:
