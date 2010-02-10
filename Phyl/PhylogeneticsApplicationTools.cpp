@@ -72,7 +72,6 @@ using namespace bpp;
 
 // From the STL:
 #include <fstream>
-#include <iomanip>
 #include <memory>
 
 using namespace std;
@@ -1954,7 +1953,7 @@ void PhylogeneticsApplicationTools::describeParameters_(const ParameterAliasable
     // Check for global aliases:
     if (globalAliases.find(pl[i].getName()) == globalAliases.end())
     {
-      out << pname << "=" << fixed << pl[i].getValue();
+      (out << pname << "=").enableScientificNotation(false) << pl[i].getValue();
     }
     else
       out << pname << "=" << globalAliases[pl[i].getName()];
@@ -2056,7 +2055,7 @@ void PhylogeneticsApplicationTools::describeFrequenciesSet_(const FrequenciesSet
   {
     if (i > 0) out << ", ";
     string pname = pfreqset->getParameterNameWithoutNamespace(pl[i].getName());
-    out << pname << "=" << fixed << pl[i].getValue();
+    (out << pname << "=").enableScientificNotation(false) << pl[i].getValue();
   }
   out << ")";
   out.setPrecision(p);

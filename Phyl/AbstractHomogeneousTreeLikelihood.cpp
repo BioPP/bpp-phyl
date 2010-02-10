@@ -105,7 +105,6 @@ AbstractHomogeneousTreeLikelihood::AbstractHomogeneousTreeLikelihood(
   minimumBrLen_(lik.minimumBrLen_),
   brLenConstraint_(lik.brLenConstraint_->clone())
 {
-  cout << tree_ << endl;
   nodes_ = tree_->getNodes();
   nodes_.pop_back(); //Remove the root node (the last added!).  
 }
