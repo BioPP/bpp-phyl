@@ -49,7 +49,7 @@ CodonNeutralFrequenciesReversibleSubstitutionModel::CodonNeutralFrequenciesRever
   FrequenciesSet* pfreq) :
   AbstractCodonFrequenciesReversibleSubstitutionModel(palph, pfreq, "CodonNeutralFrequencies.")
 {
-  unsigned int i;
+   unsigned int i;
 
   // relative rates
   for (i = 0; i < 2; i++)
@@ -67,10 +67,10 @@ string CodonNeutralFrequenciesReversibleSubstitutionModel::getName() const
 
 void CodonNeutralFrequenciesReversibleSubstitutionModel::completeMatrices()
 {
-  unsigned int i, j;
-  unsigned int salph = getNumberOfStates();
+   unsigned int i, j;
+   unsigned int salph = getNumberOfStates();
 
-  const CodonAlphabet* ca = dynamic_cast<const CodonAlphabet*>(alphabet_);
+   const CodonAlphabet* ca = dynamic_cast<const CodonAlphabet*>(alphabet_);
 
   for (i = 0; i < salph; i++)
   {
@@ -90,8 +90,8 @@ void CodonNeutralFrequenciesReversibleSubstitutionModel::completeMatrices()
 
 void CodonNeutralFrequenciesReversibleSubstitutionModel::updateMatrices()
 {
-  int i, k, nbmod = VSubMod_.size();
-  double x;
+   int i, k, nbmod = VSubMod_.size();
+   double x;
   for (k = nbmod - 1; k >= 0; k--)
   {
     x = 1.0;

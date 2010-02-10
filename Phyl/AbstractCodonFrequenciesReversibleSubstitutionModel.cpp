@@ -48,9 +48,9 @@ using namespace std;
 /******************************************************************************/
 
 AbstractCodonFrequenciesReversibleSubstitutionModel::AbstractCodonFrequenciesReversibleSubstitutionModel(
-    const CodonAlphabet* palph,
-    FrequenciesSet* pfreq,
-    const std::string& st) throw (Exception) :
+  const CodonAlphabet* palph,
+  FrequenciesSet* pfreq,
+  const std::string& st) throw (Exception) :
   AbstractWordReversibleSubstitutionModel(palph,st),
   pfreqset_(pfreq)
 {
@@ -62,8 +62,8 @@ AbstractCodonFrequenciesReversibleSubstitutionModel::AbstractCodonFrequenciesRev
 
   for (unsigned i = 0; i < 3; i++)
   {
-    VSubMod_.push_back(pmodel);
-    VnestedPrefix_.push_back(pmodel->getNamespace());
+   VSubMod_.push_back(pmodel);
+   VnestedPrefix_.push_back(pmodel->getNamespace());
     rate_[i] = 1.0 / 3;
   }
 
@@ -79,26 +79,28 @@ AbstractCodonFrequenciesReversibleSubstitutionModel::AbstractCodonFrequenciesRev
 
 AbstractCodonFrequenciesReversibleSubstitutionModel::~AbstractCodonFrequenciesReversibleSubstitutionModel()
 {
-  delete pfreqset_;
+  if (pfreqset_)
+    delete pfreqset_;
+  pfreqset_ = 0;
 }
 
 void AbstractCodonFrequenciesReversibleSubstitutionModel::fireParameterChanged(const ParameterList& parameters)
 {
-  pfreqset_->matchParametersValues(parameters);
-  AbstractWordReversibleSubstitutionModel::fireParameterChanged(parameters);
+   pfreqset_->matchParametersValues(parameters);
+   AbstractWordReversibleSubstitutionModel::fireParameterChanged(parameters);
 }
 
 
 void AbstractCodonFrequenciesReversibleSubstitutionModel::setFreq(map<int,double>& frequencies)
 {
-  pfreqset_->setFrequenciesFromMap(frequencies);
+   pfreqset_->setFrequenciesFromMap(frequencies);
   updateMatrices();
 }
 
 void AbstractCodonFrequenciesReversibleSubstitutionModel::completeMatrices()
 {
-  unsigned int i, j;
-  unsigned int salph = getNumberOfStates();
+   unsigned int i, j;
+   unsigned int salph = getNumberOfStates();
 
   freq_ = pfreqset_->getFrequencies();
 

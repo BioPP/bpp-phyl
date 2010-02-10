@@ -45,9 +45,9 @@ using namespace std;
 /******************************************************************************/
 
 AbstractCodonReversibleSubstitutionModel::AbstractCodonReversibleSubstitutionModel(
-    const CodonAlphabet* palph,
-    NucleotideSubstitutionModel* pmod,
-    const std::string& st) :
+  const CodonAlphabet* palph,
+  NucleotideSubstitutionModel* pmod,
+  const std::string& st) :
   AbstractWordReversibleSubstitutionModel(palph,st)
 {
   enableEigenDecomposition(1);
@@ -55,8 +55,8 @@ AbstractCodonReversibleSubstitutionModel::AbstractCodonReversibleSubstitutionMod
   unsigned int i;
   for (i = 0; i < 3; i++)
   {
-    VSubMod_.push_back(pmod);
-    VnestedPrefix_.push_back(pmod->getNamespace());
+   VSubMod_.push_back(pmod);
+   VnestedPrefix_.push_back(pmod->getNamespace());
   }
 
   pmod->setNamespace(st + "012_" + VnestedPrefix_[0]);
@@ -70,22 +70,22 @@ AbstractCodonReversibleSubstitutionModel::AbstractCodonReversibleSubstitutionMod
 }
 
 AbstractCodonReversibleSubstitutionModel::AbstractCodonReversibleSubstitutionModel(
-    const CodonAlphabet* palph,
-    NucleotideSubstitutionModel* pmod1,
-    NucleotideSubstitutionModel* pmod2,
-    NucleotideSubstitutionModel* pmod3,
-    const std::string& st) :
+  const CodonAlphabet* palph,
+  NucleotideSubstitutionModel* pmod1,
+  NucleotideSubstitutionModel* pmod2,
+  NucleotideSubstitutionModel* pmod3,
+  const std::string& st) :
   AbstractWordReversibleSubstitutionModel(palph,st)
 {
   enableEigenDecomposition(1);
 
   if ((pmod1 == pmod2) || (pmod2 == pmod3) || (pmod1 == pmod3))
   {
-    unsigned int i;
+   unsigned int i;
     for (i = 0; i < 3; i++)
     {
-      VSubMod_.push_back(pmod1);
-      VnestedPrefix_.push_back(pmod1->getNamespace());
+   VSubMod_.push_back(pmod1);
+   VnestedPrefix_.push_back(pmod1->getNamespace());
     }
 
     pmod1->setNamespace(st + "012_" + VnestedPrefix_[0]);
@@ -93,8 +93,8 @@ AbstractCodonReversibleSubstitutionModel::AbstractCodonReversibleSubstitutionMod
   }
   else
   {
-    VSubMod_.push_back(pmod1);
-    VnestedPrefix_.push_back(pmod1->getNamespace());
+   VSubMod_.push_back(pmod1);
+   VnestedPrefix_.push_back(pmod1->getNamespace());
     VSubMod_[0]->setNamespace(st + "0_" + VnestedPrefix_[0]);
     addParameters_(pmod1->getParameters());
 

@@ -42,7 +42,7 @@
 
 #include "AbstractSubstitutionModel.h"
 
-//From the STL:
+// From the STL:
 #include <vector>
 
 namespace bpp
@@ -86,13 +86,10 @@ protected:
   std::vector<SubstitutionModel*> VSubMod_;
   std::vector<std::string> VnestedPrefix_;
 
-  //double* rate_;
   std::vector<double> rate_;
   mutable RowMatrix<double> p_;
 
 protected:
-  //void build(); //Is this needed???
-
   static Alphabet* extractAlph(const std::vector<SubstitutionModel*>& modelVector);
 
 protected:
@@ -112,29 +109,31 @@ public:
    * @param modelVector the vector of substitution models to use, in
    *   the order of the positions in the words from left to right. All
    *   the models must be different objects to avoid parameters
-   *   redondancy, otherwise only the first model is used.
+   *   redundancy, otherwise only the first model is used. The used models
+   *   are owned by the instance.
    * @param st the Namespace.
    */
   AbstractWordReversibleSubstitutionModel(
-      const std::vector<SubstitutionModel*>& modelVector,
-      const std::string& st);
+    const std::vector<SubstitutionModel*>& modelVector,
+    const std::string& st);
 
   /**
    * @brief Build a new AbstractWordReversibleSubstitutionModel object from a
    * pointer to an SubstitutionModel and a number of
    * desired models.
    *
-   * @param pmodel A pointer to the substitution model to use in all the positions.
+   * @param pmodel A pointer to the substitution model to use in all
+   * the positions. It will be owned by the instance.
    * @param num The number of models involved.
-   * @param st  the Namespace.
+   * @param st the Namespace.
    */
   AbstractWordReversibleSubstitutionModel(
-      SubstitutionModel* pmodel,
-      unsigned int num,
-      const std::string& st);
+    SubstitutionModel* pmodel,
+    unsigned int num,
+    const std::string& st);
 
   AbstractWordReversibleSubstitutionModel(const AbstractWordReversibleSubstitutionModel&);
-  
+
   AbstractWordReversibleSubstitutionModel& operator=(const AbstractWordReversibleSubstitutionModel&);
 
   virtual ~AbstractWordReversibleSubstitutionModel();
@@ -154,7 +153,6 @@ public:
 
   virtual void setFreq(std::map<int, double>& freqs);
 };
-
 } // end of namespace bpp.
 
 #endif  // ABSTRACTWORDREVERSIBLESUBSTITUTIONMODEL_

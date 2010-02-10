@@ -58,8 +58,8 @@ using namespace std;
 /******************************************************************************/
 
 AbstractWordReversibleSubstitutionModel::AbstractWordReversibleSubstitutionModel(
-    const std::vector<SubstitutionModel*>& modelVector,
-    const std::string& st) :
+  const std::vector<SubstitutionModel*>& modelVector,
+  const std::string& st) :
   AbstractReversibleSubstitutionModel(AbstractWordReversibleSubstitutionModel::extractAlph(modelVector), st),
   new_alphabet_ (true),
   VSubMod_      (),
@@ -95,19 +95,19 @@ AbstractWordReversibleSubstitutionModel::AbstractWordReversibleSubstitutionModel
   {
     for (i = 0; i < n; i++)
     {
-      VSubMod_.push_back(modelVector[i]);
-      VnestedPrefix_.push_back(modelVector[i]->getNamespace());
+   VSubMod_.push_back(modelVector[i]);
+   VnestedPrefix_.push_back(modelVector[i]->getNamespace());
       VSubMod_[i]->setNamespace(st + TextTools::toString(i) + "_" + VnestedPrefix_[i]);
       addParameters_(VSubMod_[i]->getParameters());
     }
   }
   else
   {
-    string t = "";
+   string t = "";
     for (i = 0; i < n; i++)
     {
-      VSubMod_.push_back(modelVector[0]);
-      VnestedPrefix_.push_back(modelVector[0]->getNamespace());
+   VSubMod_.push_back(modelVector[0]);
+   VnestedPrefix_.push_back(modelVector[0]->getNamespace());
       t += TextTools::toString(i);
     }
     VSubMod_[0]->setNamespace(st + t + "_" + VnestedPrefix_[0]);
@@ -121,8 +121,8 @@ AbstractWordReversibleSubstitutionModel::AbstractWordReversibleSubstitutionModel
 }
 
 AbstractWordReversibleSubstitutionModel::AbstractWordReversibleSubstitutionModel(
-    const Alphabet* alph,
-    const std::string& st) :
+  const Alphabet* alph,
+  const std::string& st) :
   AbstractReversibleSubstitutionModel(alph, st),
   new_alphabet_ (false),
   VSubMod_      (),
@@ -134,9 +134,9 @@ AbstractWordReversibleSubstitutionModel::AbstractWordReversibleSubstitutionModel
 }
 
 AbstractWordReversibleSubstitutionModel::AbstractWordReversibleSubstitutionModel(
-    SubstitutionModel* pmodel,
-    unsigned int num,
-    const std::string& st) :
+  SubstitutionModel* pmodel,
+  unsigned int num,
+  const std::string& st) :
   AbstractReversibleSubstitutionModel(new WordAlphabet(pmodel->getAlphabet(), num),st),
   new_alphabet_ (true),
   VSubMod_      (),
@@ -150,8 +150,8 @@ AbstractWordReversibleSubstitutionModel::AbstractWordReversibleSubstitutionModel
   string t = "";
   for (i = 0; i < num; i++)
   {
-    VSubMod_.push_back(pmodel);
-    VnestedPrefix_.push_back(pmodel->getNamespace());
+   VSubMod_.push_back(pmodel);
+   VnestedPrefix_.push_back(pmodel->getNamespace());
     rate_[i] = 1.0 / num;
     t += TextTools::toString(i);
   }
@@ -161,7 +161,7 @@ AbstractWordReversibleSubstitutionModel::AbstractWordReversibleSubstitutionModel
 }
 
 AbstractWordReversibleSubstitutionModel::AbstractWordReversibleSubstitutionModel(
-    const AbstractWordReversibleSubstitutionModel& wrsm) :
+  const AbstractWordReversibleSubstitutionModel& wrsm) :
   AbstractReversibleSubstitutionModel(wrsm),
   new_alphabet_ (wrsm.new_alphabet_),
   VSubMod_      (),
@@ -169,8 +169,8 @@ AbstractWordReversibleSubstitutionModel::AbstractWordReversibleSubstitutionModel
   rate_         (wrsm.rate_),
   p_            (wrsm.p_)
 {
-  unsigned int i;
-  unsigned int num = wrsm.VSubMod_.size();
+   unsigned int i;
+   unsigned int num = wrsm.VSubMod_.size();
 
   if (wrsm.new_alphabet_)
     alphabet_ = new WordAlphabet(*(dynamic_cast<const WordAlphabet*>(wrsm.getAlphabet())));
@@ -181,21 +181,19 @@ AbstractWordReversibleSubstitutionModel::AbstractWordReversibleSubstitutionModel
 
   for (i = 0; i < num; i++)
   {
-    VSubMod_.push_back(pSM ? pSM : wrsm.VSubMod_[i]->clone());
+   VSubMod_.push_back(pSM ? pSM : wrsm.VSubMod_[i]->clone());
   }
 }
 
-AbstractWordReversibleSubstitutionModel& AbstractWordReversibleSubstitutionModel::operator=(
-    const AbstractWordReversibleSubstitutionModel& wrsm)
+AbstractWordReversibleSubstitutionModel & AbstractWordReversibleSubstitutionModel::operator=(
+  const AbstractWordReversibleSubstitutionModel& wrsm)
 {
   AbstractReversibleSubstitutionModel::operator=(wrsm);
   new_alphabet_  = wrsm.new_alphabet_;
-  VSubMod_       = wrsm.VSubMod_;
   VnestedPrefix_ = wrsm.VnestedPrefix_;
   rate_          = wrsm.rate_;
   p_             = wrsm.p_;
-  return *this;
-  
+
   unsigned int i;
   unsigned int num = wrsm.VSubMod_.size();
 
@@ -216,9 +214,17 @@ AbstractWordReversibleSubstitutionModel& AbstractWordReversibleSubstitutionModel
 
 AbstractWordReversibleSubstitutionModel::~AbstractWordReversibleSubstitutionModel()
 {
-  for (unsigned int i = 0; i < VSubMod_.size(); i++)
-    if (VSubMod_[i])
-      delete VSubMod_[i];
+  if ((VSubMod_.size() > 1) && (VSubMod_[0] == VSubMod_[1]))
+  {
+    if (VSubMod_[0])
+      delete VSubMod_[0];
+  }
+  else
+    for (unsigned int i = 0; i < VSubMod_.size(); i++)
+    {
+      if (VSubMod_[i])
+        delete VSubMod_[i];
+    }
   if (new_alphabet_)
     delete alphabet_;
 }
@@ -230,13 +236,13 @@ unsigned int AbstractWordReversibleSubstitutionModel::getNumberOfStates() const
 
 Alphabet* AbstractWordReversibleSubstitutionModel::extractAlph(const vector<SubstitutionModel*>& modelVector)
 {
-  unsigned int i;
+   unsigned int i;
 
-  vector<const Alphabet*> vAlph;
+   vector<const Alphabet*> vAlph;
 
   for (i = 0; i < modelVector.size(); i++)
   {
-    vAlph.push_back(modelVector[i]->getAlphabet());
+   vAlph.push_back(modelVector[i]->getAlphabet());
   }
 
   return new WordAlphabet(vAlph);
@@ -244,11 +250,11 @@ Alphabet* AbstractWordReversibleSubstitutionModel::extractAlph(const vector<Subs
 
 void AbstractWordReversibleSubstitutionModel::setNamespace(const std::string& prefix)
 {
-  AbstractReversibleSubstitutionModel::setNamespace(prefix);
+   AbstractReversibleSubstitutionModel::setNamespace(prefix);
 
   if (VSubMod_.size() < 2 || VSubMod_[0] == VSubMod_[1])
   {
-    string t = "";
+   string t = "";
     for (unsigned int i = 0; i < VSubMod_.size(); i++)
     {
       t += TextTools::toString(i);
@@ -266,10 +272,13 @@ void AbstractWordReversibleSubstitutionModel::setNamespace(const std::string& pr
 
 void AbstractWordReversibleSubstitutionModel::fireParameterChanged(const ParameterList& parameters)
 {
-  for (unsigned int i = 0; i < VSubMod_.size(); i++)
-  {
-    VSubMod_[i]->matchParametersValues(parameters);
-  }
+  if (VSubMod_.size() < 2 || VSubMod_[0] == VSubMod_[1])
+    VSubMod_[0]->matchParametersValues(parameters);
+  else
+    for (unsigned int i = 0; i < VSubMod_.size(); i++)
+    {
+      VSubMod_[i]->matchParametersValues(parameters);
+    }
   updateMatrices();
 }
 
@@ -277,20 +286,20 @@ void AbstractWordReversibleSubstitutionModel::fireParameterChanged(const Paramet
 
 void AbstractWordReversibleSubstitutionModel::updateMatrices()
 {
-  unsigned int nbmod = VSubMod_.size();
-  unsigned int salph = getNumberOfStates();
+   unsigned int nbmod = VSubMod_.size();
+   unsigned int salph = getNumberOfStates();
 
   // Generator
 
   if (enableEigenDecomposition())
   {
-    unsigned int i, j, n, l, k, m;
+   unsigned int i, j, n, l, k, m;
 
-    vector<unsigned int> vsize;
+   vector<unsigned int> vsize;
 
     for (k = 0; k < nbmod; k++)
     {
-      vsize.push_back(VSubMod_[k]->getNumberOfStates());
+   vsize.push_back(VSubMod_[k]->getNumberOfStates());
     }
 
     RowMatrix<double> gk, exch;
@@ -299,11 +308,11 @@ void AbstractWordReversibleSubstitutionModel::updateMatrices()
 
     for (k = nbmod; k > 0; k--)
     {
-      gk = VSubMod_[k-1]->getGenerator();
-      exch = (dynamic_cast<AbstractReversibleSubstitutionModel*>(VSubMod_[k-1]))->getExchangeabilityMatrix();
-      for (i = 0; i < vsize[k-1]; i++)
+      gk = VSubMod_[k - 1]->getGenerator();
+      exch = (dynamic_cast<AbstractReversibleSubstitutionModel*>(VSubMod_[k - 1]))->getExchangeabilityMatrix();
+      for (i = 0; i < vsize[k - 1]; i++)
       {
-        for (j = 0; j < vsize[k-1]; j++)
+        for (j = 0; j < vsize[k - 1]; j++)
         {
           if (i != j)
           {
@@ -312,15 +321,15 @@ void AbstractWordReversibleSubstitutionModel::updateMatrices()
             { // loop on prefix
               for (l = 0; l < m; l++)
               { // loop on suffix
-                generator_(n + i * m + l, n + j * m + l) = gk(i,j) * rate_[k-1];
-                exchangeability_(n + i * m + l, n + j * m + l) = exch(i,j) * rate_[k-1];
+                generator_(n + i * m + l, n + j * m + l) = gk(i,j) * rate_[k - 1];
+                exchangeability_(n + i * m + l, n + j * m + l) = exch(i,j) * rate_[k - 1];
               }
-              n += m * vsize[k-1];
+              n += m * vsize[k - 1];
             }
           }
         }
       }
-      m *= vsize[k-1];
+      m *= vsize[k - 1];
     }
   }
 
@@ -336,11 +345,11 @@ void AbstractWordReversibleSubstitutionModel::updateMatrices()
 
   if (enableEigenDecomposition())
   {
-    unsigned int i, j;
-    double x;
+   unsigned int i, j;
+   double x;
 
-    unsigned int nbStop;
-    Vdouble vi;
+   unsigned int nbStop;
+   Vdouble vi;
 
     for (i = 0; i < salph; i++)
     {
@@ -355,11 +364,11 @@ void AbstractWordReversibleSubstitutionModel::updateMatrices()
 
     if (AlphabetTools::isCodonAlphabet(getAlphabet()))
     {
-      int gi = 0, gj = 0;
+   int gi = 0, gj = 0;
 
-      const CodonAlphabet* pca = dynamic_cast<const CodonAlphabet*>(getAlphabet());
+   const CodonAlphabet* pca = dynamic_cast<const CodonAlphabet*>(getAlphabet());
 
-      RowMatrix<double> gk;
+   RowMatrix<double> gk;
 
       nbStop = pca->numberOfStopCodons();
       gk.resize(salph - nbStop, salph - nbStop);
@@ -388,7 +397,7 @@ void AbstractWordReversibleSubstitutionModel::updateMatrices()
 
       for (i = 0; i < nbStop; i++)
       {
-        eigenValues_.push_back(0);
+   eigenValues_.push_back(0);
       }
 
       RowMatrix<double> rev = ev.getV();
@@ -420,7 +429,7 @@ void AbstractWordReversibleSubstitutionModel::updateMatrices()
     }
     else
     {
-      EigenValue<double> ev(generator_);
+   EigenValue<double> ev(generator_);
       eigenValues_ = ev.getRealEigenValues();
       vi = ev.getImagEigenValues();
       rightEigenVectors_ = ev.getV();
@@ -482,10 +491,10 @@ void AbstractWordReversibleSubstitutionModel::updateMatrices()
 
 void AbstractWordReversibleSubstitutionModel::setFreq(std::map<int, double>& freqs)
 {
-  map<int, double> tmpFreq;
-  unsigned int nbmod = VSubMod_.size();
+   map<int, double> tmpFreq;
+   unsigned int nbmod = VSubMod_.size();
 
-  unsigned int i, j, s, k, d, size;
+   unsigned int i, j, s, k, d, size;
 
   d = size = getNumberOfStates();
 
