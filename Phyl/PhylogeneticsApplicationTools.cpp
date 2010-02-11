@@ -991,7 +991,7 @@ FrequenciesSet* PhylogeneticsApplicationTools::getRootFrequenciesSet(
   bool suffixIsOptional,
   bool verbose) throw (Exception)
 {
-   string freqDescription = ApplicationTools::getStringParameter("nonhomogeneous.root_freq", params, "Fixed", suffix, suffixIsOptional);
+   string freqDescription = ApplicationTools::getStringParameter("nonhomogeneous.root_freq", params, "Fixed(init=observed)", suffix, suffixIsOptional);
    FrequenciesSet* freq = getFrequenciesSet(alphabet, freqDescription, data, rateFreqs, verbose);
 
   if (verbose)
