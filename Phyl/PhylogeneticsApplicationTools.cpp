@@ -1192,6 +1192,8 @@ FrequenciesSet* PhylogeneticsApplicationTools::getFrequenciesSetDefaultInstance(
       pFS = new IndependentWordFrequenciesSet(v_AFS);
     }
   }
+  else
+    throw Exception("Unknown frequency option: " + freqName);
 
   // Forward arguments:
   if (args.find("init") != args.end())
