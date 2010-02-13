@@ -171,11 +171,10 @@ class AbstractTreeLikelihood :
       private:
         ConstNoPartitionBranchModelDescription branchModelDescription_;
         unsigned int index_;
-        unsigned int nbBranches_;
 
       public:
-        ConstNoPartitionBranchModelIterator(const Tree& tree, SubstitutionModel* model, unsigned int nbSites) :
-          branchModelDescription_(model, nbSites), index_(0), nbBranches_(tree.getNumberOfNodes() - 1) {}
+        ConstNoPartitionBranchModelIterator(const SubstitutionModel* model, unsigned int nbSites) :
+          branchModelDescription_(model, nbSites), index_(0) {}
 
       public:
         ConstNoPartitionBranchModelDescription* next() throw (Exception)
@@ -186,7 +185,7 @@ class AbstractTreeLikelihood :
           return &branchModelDescription_;
         }
 
-        bool hasNext() const { return index_ < nbBranches_; }
+        bool hasNext() const { return index_ == 0; }
     };
  
     class ConstNoPartitionSiteModelDescription :

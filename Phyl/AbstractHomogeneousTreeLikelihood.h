@@ -63,11 +63,10 @@ class AbstractHomogeneousTreeLikelihood:
       private:
         ConstNoPartitionSiteModelDescription siteModelDescription_;
         unsigned int index_;
-        unsigned int nbSites_;
 
       public:
-        ConstHomogeneousSiteModelIterator(const Tree& tree, const SubstitutionModel* model, unsigned int nbSites) :
-          siteModelDescription_(model, tree.getBranchesId()), index_(0), nbSites_(nbSites) {}
+        ConstHomogeneousSiteModelIterator(const Tree& tree, const SubstitutionModel* model) :
+          siteModelDescription_(model, tree.getBranchesId()), index_(0) {}
 
       public:
         ConstSiteModelDescription* next() throw (Exception)
@@ -78,7 +77,7 @@ class AbstractHomogeneousTreeLikelihood:
           return &siteModelDescription_;
         }
 
-        bool hasNext() const { return index_ < nbSites_; }
+        bool hasNext() const { return index_ == 0; }
     };
 
 
@@ -176,12 +175,12 @@ class AbstractHomogeneousTreeLikelihood:
 
     ConstBranchModelIterator* getNewBranchModelIterator(int nodeId) const
     {
-      return new ConstNoPartitionBranchModelIterator(*tree_, model_, nbDistinctSites_);
+      return new ConstNoPartitionBranchModelIterator(model_, nbDistinctSites_);
     }
 
     ConstSiteModelIterator* getNewSiteModelIterator(unsigned int siteIndex) const
     {
-      return new ConstHomogeneousSiteModelIterator(*tree_, model_, nbDistinctSites_);
+      return new ConstHomogeneousSiteModelIterator(*tree_, model_);
     }
    
     /** @} */

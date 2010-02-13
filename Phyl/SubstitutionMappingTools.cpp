@@ -76,8 +76,8 @@ ProbabilisticSubstitutionMapping* SubstitutionMappingTools::computeSubstitutionV
   unsigned int nbDistinctSites = drtl.getLikelihoodData()->getNumberOfDistinctSites();
   unsigned int nbStates        = sequences->getAlphabet()->getSize();
   unsigned int nbClasses       = rDist->getNumberOfCategories();
-  vector<const Node*> nodes   = tree.getNodes();
-  const vector<unsigned int> * rootPatternLinks
+  vector<const Node*> nodes    = tree.getNodes();
+  const vector<unsigned int>* rootPatternLinks
                                = &drtl.getLikelihoodData()->getRootArrayPositions();
   nodes.pop_back(); // Remove root node.
   unsigned int nbNodes         = nodes.size();
@@ -93,14 +93,14 @@ ProbabilisticSubstitutionMapping* SubstitutionMappingTools::computeSubstitutionV
   Vdouble rcRates = rDist->getCategories();
   for (unsigned int i = 0; i < nbDistinctSites; i++)
   {
-    VVdouble * lik_i = & lik[i];
+    VVdouble* lik_i = &lik[i];
     for (unsigned int c = 0; c < nbClasses; c++)
     {
-      Vdouble * lik_i_c = & (* lik_i)[c];
+      Vdouble* lik_i_c = &(*lik_i)[c];
       double rc = rDist->getProbability(c);
       for (unsigned int s = 0; s < nbStates; s++)
       {
-        Lr[i] += (* lik_i_c)[s] * rc;
+        Lr[i] += (*lik_i_c)[s] * rc;
       }
     }
   }
@@ -144,13 +144,13 @@ ProbabilisticSubstitutionMapping* SubstitutionMappingTools::computeSubstitutionV
     unsigned int nbSons =  father->getNumberOfSons();
     for (unsigned int n = 0; n < nbSons; n++)
     {
-      const Node* currentSon = father->getSon(n);    
+      const Node* currentSon = father->getSon(n);
       if (currentSon->getId() != currentNode->getId())
       {
         const VVVdouble* likelihoodsFather_son = &drtl.getLikelihoodData()->getLikelihoodArray(father->getId(), currentSon->getId());
 
         //Now iterate over all site partitions:
-        auto_ptr<TreeLikelihood::ConstBranchModelIterator> mit(drtl.getNewBranchModelIterator(father->getId()));
+        auto_ptr<TreeLikelihood::ConstBranchModelIterator> mit(drtl.getNewBranchModelIterator(currentSon->getId()));
         VVVdouble pxy;
         bool first;
         while (mit->hasNext())
@@ -173,7 +173,7 @@ ProbabilisticSubstitutionMapping* SubstitutionMappingTools::computeSubstitutionV
             {
               const Vdouble* likelihoodsFather_son_i_c = &(*likelihoodsFather_son_i)[c];
               Vdouble* likelihoodsFatherConstantPart_i_c = &(*likelihoodsFatherConstantPart_i)[c];
-              VVdouble* pxy_c = & pxy[c]; 
+              VVdouble* pxy_c = &pxy[c];
               for (unsigned int x = 0; x < nbStates; x++)
               {
                 Vdouble* pxy_c_x = &(*pxy_c)[x];
@@ -244,7 +244,7 @@ ProbabilisticSubstitutionMapping* SubstitutionMappingTools::computeSubstitutionV
           Vdouble* likelihoodsFatherConstantPart_i_c = &(*likelihoodsFatherConstantPart_i)[c];
           for (unsigned int x = 0; x < nbStates; x++)
           {
-            (*likelihoodsFatherConstantPart_i_c)[x] *= freqs[x]; 
+            (*likelihoodsFatherConstantPart_i_c)[x] *= freqs[x];
           }
         }
       }      
@@ -255,7 +255,7 @@ ProbabilisticSubstitutionMapping* SubstitutionMappingTools::computeSubstitutionV
     // ('y' is the state at 'node' and 'x' the state at 'father'.)
 
     //Iterate over all site partitions:
-		const VVVdouble* likelihoodsFather_node = &drtl.getLikelihoodData()->getLikelihoodArray(father->getId(), currentNode->getId());
+		const VVVdouble* likelihoodsFather_node = &(drtl.getLikelihoodData()->getLikelihoodArray(father->getId(), currentNode->getId()));
     auto_ptr<TreeLikelihood::ConstBranchModelIterator> mit(drtl.getNewBranchModelIterator(currentNode->getId()));
     VVVdouble pxy;
     bool first;
@@ -313,6 +313,7 @@ ProbabilisticSubstitutionMapping* SubstitutionMappingTools::computeSubstitutionV
               double likelihood_cxy = (*likelihoodsFatherConstantPart_i_c_x)
                  *(*pxy_c_x)[y]
                  *(*likelihoodsFather_node_i_c)[y];
+
               // Now the vector computation:
               substitutionsForCurrentNode[i] += likelihood_cxy * (*nxy_c_x)[y];
               //                                <------------>   <------------>
@@ -416,7 +417,7 @@ ProbabilisticSubstitutionMapping* SubstitutionMappingTools::computeSubstitutionV
         const VVVdouble* likelihoodsFather_son = &drtl.getLikelihoodData()->getLikelihoodArray(father->getId(), currentSon->getId());
 
         //Now iterate over all site partitions:
-        auto_ptr<TreeLikelihood::ConstBranchModelIterator> mit(drtl.getNewBranchModelIterator(father->getId()));
+        auto_ptr<TreeLikelihood::ConstBranchModelIterator> mit(drtl.getNewBranchModelIterator(currentSon->getId()));
         VVVdouble pxy;
         bool first;
         while (mit->hasNext())
@@ -671,7 +672,7 @@ ProbabilisticSubstitutionMapping* SubstitutionMappingTools::computeSubstitutionV
     // Then, we deal with the node of interest.
     // ('y' is the state at 'node' and 'x' the state at 'father'.)
     // Iterate over all site partitions:
-    auto_ptr<TreeLikelihood::ConstBranchModelIterator> mit(drtl.getNewBranchModelIterator(father->getId()));
+    auto_ptr<TreeLikelihood::ConstBranchModelIterator> mit(drtl.getNewBranchModelIterator(currentNode->getId()));
     bool first;
     while (mit->hasNext())
     {
@@ -763,7 +764,7 @@ ProbabilisticSubstitutionMapping* SubstitutionMappingTools::computeSubstitutionV
     VVVdouble probsFather = DRTreeLikelihoodTools::getPosteriorProbabilitiesForEachStateForEachRate(drtl, father->getId());
 
     //Iterate over all site partitions:
-    auto_ptr<TreeLikelihood::ConstBranchModelIterator> mit(drtl.getNewBranchModelIterator(father->getId()));
+    auto_ptr<TreeLikelihood::ConstBranchModelIterator> mit(drtl.getNewBranchModelIterator(currentNode->getId()));
     while (mit->hasNext())
     {
       TreeLikelihood::ConstBranchModelDescription* bmd = mit->next();

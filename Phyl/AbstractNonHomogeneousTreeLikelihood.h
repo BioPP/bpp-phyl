@@ -67,13 +67,13 @@ class AbstractNonHomogeneousTreeLikelihood:
       private:
         std::vector<ConstNoPartitionSiteModelDescription> siteModelDescriptions_;
         unsigned int index_;
-        unsigned int nbSites_;
+        unsigned int nbModels_;
 
       public:
-        ConstNonHomogeneousSiteModelIterator(const SubstitutionModelSet* modelSet, unsigned int nbSites) :
-          siteModelDescriptions_(), index_(0), nbSites_(nbSites)
+        ConstNonHomogeneousSiteModelIterator(const SubstitutionModelSet* modelSet) :
+          siteModelDescriptions_(), index_(0), nbModels_(modelSet->getNumberOfModels())
         {
-          for (unsigned int i = 0; i < modelSet->getNumberOfModels(); ++i)
+          for (unsigned int i = 0; i < nbModels_; ++i)
             siteModelDescriptions_.push_back(ConstNoPartitionSiteModelDescription(modelSet->getModel(i), modelSet->getNodesWithModel(i)));        
         }
 
@@ -85,7 +85,7 @@ class AbstractNonHomogeneousTreeLikelihood:
           return &siteModelDescriptions_[index_++];
         }
 
-        bool hasNext() const { return index_ < nbSites_; }
+        bool hasNext() const { return index_ < nbModels_; }
     };
 
   protected:
@@ -198,12 +198,12 @@ class AbstractNonHomogeneousTreeLikelihood:
 
     ConstBranchModelIterator* getNewBranchModelIterator(int nodeId) const
     {
-      return new ConstNoPartitionBranchModelIterator(*tree_, modelSet_->getModelForNode(nodeId), nbDistinctSites_);
+      return new ConstNoPartitionBranchModelIterator(modelSet_->getModelForNode(nodeId), nbDistinctSites_);
     }
 
     ConstSiteModelIterator* getNewSiteModelIterator(unsigned int siteIndex) const
     {
-      return new ConstNonHomogeneousSiteModelIterator(modelSet_, nbDistinctSites_);
+      return new ConstNonHomogeneousSiteModelIterator(modelSet_);
     }
        
     /** @} */
