@@ -67,7 +67,7 @@ namespace bpp
 class DRASDRTreeLikelihoodLeafData :
   public virtual TreeLikelihoodNodeData
 {
-  protected:
+  private:
     mutable VVdouble leafLikelihood_;
     const Node* leaf_;
 
@@ -101,7 +101,7 @@ class DRASDRTreeLikelihoodLeafData :
 class DRASDRTreeLikelihoodNodeData :
   public virtual TreeLikelihoodNodeData
 {
-  protected:
+  private:
     /**
      * @brief This contains all likelihood values used for computation.
      *
@@ -115,7 +115,7 @@ class DRASDRTreeLikelihoodNodeData :
      * We call this the <i>likelihood array</i> for each node.
      */
 
-    mutable std::map<int, VVVdouble > nodeLikelihoods_;
+    mutable std::map<int, VVVdouble> nodeLikelihoods_;
     /**
      * @brief This contains all likelihood first order derivatives values used for computation.
      *
@@ -138,11 +138,26 @@ class DRASDRTreeLikelihoodNodeData :
      */
     mutable Vdouble nodeD2Likelihoods_;
     
-    const Node * node_;
+    const Node* node_;
 
   public:
-    //DRASDRTreeLikelihoodNodeData() {}
-    //virtual ~DRASDRTreeLikelihoodNodeData() {}
+    DRASDRTreeLikelihoodNodeData() : nodeLikelihoods_(), nodeDLikelihoods_(), nodeD2Likelihoods_(), node_(0) {}
+    DRASDRTreeLikelihoodNodeData(const DRASDRTreeLikelihoodNodeData& data) :
+      nodeLikelihoods_(data.nodeLikelihoods_),
+      nodeDLikelihoods_(data.nodeDLikelihoods_),
+      nodeD2Likelihoods_(data.nodeD2Likelihoods_),
+      node_(data.node_)
+    {}
+    DRASDRTreeLikelihoodNodeData& operator=(const DRASDRTreeLikelihoodNodeData& data)
+    {
+      nodeLikelihoods_   = data.nodeLikelihoods_;
+      nodeDLikelihoods_  = data.nodeDLikelihoods_;
+      nodeD2Likelihoods_ = data.nodeD2Likelihoods_;
+      node_              = data.node_;
+      return *this;
+    }
+ 
+    virtual ~DRASDRTreeLikelihoodNodeData() {}
 
 #ifndef NO_VIRTUAL_COV
     DRASDRTreeLikelihoodNodeData*
@@ -155,7 +170,7 @@ class DRASDRTreeLikelihoodNodeData :
     }
 
   public:
-    const Node * getNode() const { return node_; }
+    const Node* getNode() const { return node_; }
     
     void setNode(const Node* node) { node_ = node; }
 
@@ -200,7 +215,7 @@ class DRASDRTreeLikelihoodNodeData :
 class DRASDRTreeLikelihoodData :
   public virtual AbstractTreeLikelihoodData
 {
-  protected:
+  private:
 
     mutable std::map<int, DRASDRTreeLikelihoodNodeData> nodeData_;
     mutable std::map<int, DRASDRTreeLikelihoodLeafData> leafData_;
