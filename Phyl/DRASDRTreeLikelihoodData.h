@@ -72,6 +72,18 @@ class DRASDRTreeLikelihoodLeafData :
     const Node* leaf_;
 
   public:
+    DRASDRTreeLikelihoodLeafData() : leafLikelihood_(), leaf_(0) {}
+
+    DRASDRTreeLikelihoodLeafData(const DRASDRTreeLikelihoodLeafData& data) :
+      leafLikelihood_(data.leafLikelihood_), leaf_(data.leaf_) {}
+    
+    DRASDRTreeLikelihoodLeafData& operator=(const DRASDRTreeLikelihoodLeafData& data)
+    {
+      leafLikelihood_ = data.leafLikelihood_;
+      leaf_           = data.leaf_;
+      return *this;
+    }
+
 #ifndef NO_VIRTUAL_COV
     DRASDRTreeLikelihoodLeafData*
 #else
@@ -142,12 +154,14 @@ class DRASDRTreeLikelihoodNodeData :
 
   public:
     DRASDRTreeLikelihoodNodeData() : nodeLikelihoods_(), nodeDLikelihoods_(), nodeD2Likelihoods_(), node_(0) {}
+    
     DRASDRTreeLikelihoodNodeData(const DRASDRTreeLikelihoodNodeData& data) :
       nodeLikelihoods_(data.nodeLikelihoods_),
       nodeDLikelihoods_(data.nodeDLikelihoods_),
       nodeD2Likelihoods_(data.nodeD2Likelihoods_),
       node_(data.node_)
     {}
+    
     DRASDRTreeLikelihoodNodeData& operator=(const DRASDRTreeLikelihoodNodeData& data)
     {
       nodeLikelihoods_   = data.nodeLikelihoods_;

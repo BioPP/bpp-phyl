@@ -75,12 +75,30 @@ class DRASRTreeLikelihoodNodeData :
   public virtual TreeLikelihoodNodeData
 {
   private:
-    mutable VVVdouble _nodeLikelihoods;
-    mutable VVVdouble _nodeDLikelihoods;
-    mutable VVVdouble _nodeD2Likelihoods;
-    const Node* _node;
+    mutable VVVdouble nodeLikelihoods_;
+    mutable VVVdouble nodeDLikelihoods_;
+    mutable VVVdouble nodeD2Likelihoods_;
+    const Node* node_;
 
   public:
+    DRASRTreeLikelihoodNodeData() : nodeLikelihoods_(), nodeDLikelihoods_(), nodeD2Likelihoods_(), node_(0) {}
+    
+    DRASRTreeLikelihoodNodeData(const DRASRTreeLikelihoodNodeData& data) :
+      nodeLikelihoods_(data.nodeLikelihoods_),
+      nodeDLikelihoods_(data.nodeDLikelihoods_),
+      nodeD2Likelihoods_(data.nodeD2Likelihoods_),
+      node_(data.node_)
+    {}
+    
+    DRASRTreeLikelihoodNodeData& operator=(const DRASRTreeLikelihoodNodeData& data)
+    {
+      nodeLikelihoods_   = data.nodeLikelihoods_;
+      nodeDLikelihoods_  = data.nodeDLikelihoods_;
+      nodeD2Likelihoods_ = data.nodeD2Likelihoods_;
+      node_              = data.node_;
+      return *this;
+    }
+ 
 #ifndef NO_VIRTUAL_COV
     DRASRTreeLikelihoodNodeData*
 #else
@@ -92,17 +110,17 @@ class DRASRTreeLikelihoodNodeData :
     }
 
   public:
-    const Node* getNode() const { return _node; }
-    void setNode(const Node* node) { _node = node; }
+    const Node* getNode() const { return node_; }
+    void setNode(const Node* node) { node_ = node; }
 
-    VVVdouble& getLikelihoodArray() { return _nodeLikelihoods; }
-    const VVVdouble& getLikelihoodArray() const { return _nodeLikelihoods; }
+    VVVdouble& getLikelihoodArray() { return nodeLikelihoods_; }
+    const VVVdouble& getLikelihoodArray() const { return nodeLikelihoods_; }
     
-    VVVdouble& getDLikelihoodArray() { return _nodeDLikelihoods; }
-    const VVVdouble& getDLikelihoodArray() const { return _nodeDLikelihoods; }
+    VVVdouble& getDLikelihoodArray() { return nodeDLikelihoods_; }
+    const VVVdouble& getDLikelihoodArray() const { return nodeDLikelihoods_; }
 
-    VVVdouble& getD2LikelihoodArray() { return _nodeD2Likelihoods; }
-    const VVVdouble& getD2LikelihoodArray() const { return _nodeD2Likelihoods; }
+    VVVdouble& getD2LikelihoodArray() { return nodeD2Likelihoods_; }
+    const VVVdouble& getD2LikelihoodArray() const { return nodeD2Likelihoods_; }
 };
 
 /**
