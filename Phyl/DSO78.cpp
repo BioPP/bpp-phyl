@@ -64,6 +64,7 @@ DSO78::DSO78(const ProteicAlphabet* alpha, ProteinFrequenciesSet* freqSet, bool 
   #include "__DSO78FrequenciesCode"
   if (initFreqs) freqSet_->setFrequencies(freq_);
   else freq_ = freqSet_->getFrequencies();
+  freqSet_->setNamespace("DSO78.");
   addParameters_(freqSet_->getParameters());
   updateMatrices();  
 }
