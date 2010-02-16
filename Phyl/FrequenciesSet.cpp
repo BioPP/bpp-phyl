@@ -434,7 +434,7 @@ void FixedFrequenciesSet::setFrequencies(const vector<double>& frequencies) thro
   {
     sum += frequencies[i];
   }
-  if (fabs(1. - sum) > 0.000001)
+  if (fabs(1. - sum) > 0.00001)
     throw Exception("FixedFrequenciesSet::setFrequencies. Frequencies sum must equal 1 (sum = " + TextTools::toString(sum) + ").");
   setFrequencies_(frequencies);
 }
