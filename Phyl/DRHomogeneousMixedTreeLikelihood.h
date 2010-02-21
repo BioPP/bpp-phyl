@@ -79,7 +79,6 @@ public:
    * @param checkRooted Tell if we have to check for the tree to be unrooted.
    * If true, any rooted tree will be unrooted before likelihood computation.
    * @param verbose Should I display some info?
-   * @param usePatterns Tell if recursive site compression should be performed.
    * @throw Exception in an error occured.
    */
   DRHomogeneousMixedTreeLikelihood(
@@ -102,7 +101,6 @@ public:
    * @param checkRooted Tell if we have to check for the tree to be unrooted.
    * If true, any rooted tree will be unrooted before likelihood computation.
    * @param verbose Should I display some info?
-   * @param usePatterns Tell if recursive site compression should be performed.
    * @throw Exception in an error occured.
    */
   DRHomogeneousMixedTreeLikelihood(

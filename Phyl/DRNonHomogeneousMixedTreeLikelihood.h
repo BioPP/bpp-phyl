@@ -76,12 +76,9 @@ public:
    * computeTreeLikelihood() methods.
    *
    * @param tree The tree to use.
-   * @param model The mixed substitution model to use.
+   * @param modelSet The set of substitution models to use.
    * @param rDist The rate across sites distribution to use.
-   * @param checkRooted Tell if we have to check for the tree to be unrooted.
-   * If true, any rooted tree will be unrooted before likelihood computation.
    * @param verbose Should I display some info?
-   * @param usePatterns Tell if recursive site compression should be performed.
    * @throw Exception in an error occured.
    */
   DRNonHomogeneousMixedTreeLikelihood(
@@ -98,12 +95,10 @@ public:
    *
    * @param tree The tree to use.
    * @param data Sequences to use.
-   * @param model The mixed substitution model to use.
+   * @param modelSet The set of substitution models to use.
    * @param rDist The rate across sites distribution to use.
-   * @param checkRooted Tell if we have to check for the tree to be unrooted.
    * If true, any rooted tree will be unrooted before likelihood computation.
    * @param verbose Should I display some info?
-   * @param usePatterns Tell if recursive site compression should be performed.
    * @throw Exception in an error occured.
    */
   DRNonHomogeneousMixedTreeLikelihood(

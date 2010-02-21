@@ -45,8 +45,9 @@ using namespace std;
 
 /******************************************************************************/
 
-YN98::YN98(const GeneticCode* palph) : AbstractSubstitutionModel(palph->getSourceAlphabet(),"YN98."),
-                                       _pmodel(palph, new FixedFrequenciesSet(palph->getSourceAlphabet()))
+YN98::YN98(const GeneticCode* palph) :
+  AbstractSubstitutionModel(palph->getSourceAlphabet(), "YN98."),
+  pmodel_(palph, new FixedFrequenciesSet(palph->getSourceAlphabet()))
 {
   addParameter_(Parameter("YN98.kappa", 1, &Parameter::R_PLUS_STAR));
   addParameter_(Parameter("YN98.omega", 1, new IncludingInterval(0.0001, 999), true)); 
@@ -55,7 +56,7 @@ YN98::YN98(const GeneticCode* palph) : AbstractSubstitutionModel(palph->getSourc
 
 YN98::YN98(const YN98& yn98) :
   AbstractSubstitutionModel(yn98),
-  _pmodel(yn98._pmodel)
+  pmodel_(yn98.pmodel_)
 {
 }
 
@@ -72,5 +73,5 @@ void YN98::updateMatrices()
   Pl.addParameter(Parameter("CodonAsynonymousFrequencies.012_K80.kappa",getParameterValue("kappa")));
   Pl.addParameter(Parameter("CodonAsynonymousFrequencies.beta",getParameterValue("omega")));
 
-  _pmodel.matchParametersValues(Pl);
+  pmodel_.matchParametersValues(Pl);
 }

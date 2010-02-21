@@ -57,35 +57,33 @@ namespace bpp
  * 
  * For codons @f$i=i_1i_2i_3@f$ and @f$j=j_1j_2j_3@f$, the generator term @f$Q_{ij} (i \neq j)@f$ is:
  * 0 if 2 or 3 of the pair @f$(i_1,j_1) (i_2,j_2) (i_3,j_3) @f$ are different.
- * @f$\mu \pi_j \omega@f$ if exactly 1 of the pairs @f$(i_1,j_1) (i_2,j_2)
- (i_3,j_3) @f$ is different, that difference is a transversion and
- amino acids coded by i and j are different.
- * @f$\mu \pi_j @f$ if exactly 1 of the pairs @f$(i_1,j_1) (i_2,j_2)
- (i_3,j_3) @f$ is different, that difference is a transversion and
- amino acids coded by i and j are the same.
- * @f$\mu \kappa \pi_j \omega@f$ if exactly 1 of the pairs @f$(i_1,j_1) (i_2,j_2)
- (i_3,j_3) @f$ is different, that difference is a transition and
- amino acids coded by i and j are different.
- * @f$\mu \kappa \pi_j @f$ if exactly 1 of the pairs @f$(i_1,j_1) (i_2,j_2)
- (i_3,j_3) @f$ is different, that difference is a transition and
- amino acids coded by @f$i@f$ and @f$j@f$ are the same.
+ * @f$\mu \pi_j \omega@f$ if exactly 1 of the pairs @f$(i_1,j_1) (i_2,j_2) (i_3,j_3) @f$
+ * is different, that difference is a transversion and
+ * amino acids coded by i and j are different.
+ * @f$\mu \pi_j @f$ if exactly 1 of the pairs @f$(i_1,j_1) (i_2,j_2) (i_3,j_3) @f$
+ * is different, that difference is a transversion and
+ * amino acids coded by i and j are the same.
+ * @f$\mu \kappa \pi_j \omega@f$ if exactly 1 of the pairs @f$(i_1,j_1) (i_2,j_2) (i_3,j_3) @f$
+ * is different, that difference is a transition and
+ * amino acids coded by i and j are different.
+ * @f$\mu \kappa \pi_j @f$ if exactly 1 of the pairs @f$(i_1,j_1) (i_2,j_2) (i_3,j_3) @f$
+ * is different, that difference is a transition and
+ * amino acids coded by @f$i@f$ and @f$j@f$ are the same.
  *
  * @f$\mu@f$ is a normalization factor.
  *
  * This model includes 2 parameters (@f$\kappa@f$ and @f$\omega@f$).
- * The codon frequencies @f$\pi_j$@f are observed.
+ * The codon frequencies @f$\pi_j@f$ are observed.
  *
  * Reference:
  * -  Yang Z. and Nielsen R. (1998), _Journal of Molecular Evolution_ 46:409--418.
  */
-
-  
 class YN98:
   public AbstractSubstitutionModel
 {
 private:
 
-  CodonAsynonymousFrequenciesReversibleSubstitutionModel _pmodel;
+  CodonAsynonymousFrequenciesReversibleSubstitutionModel pmodel_;
 
 public:
   YN98(const GeneticCode* palph);
@@ -107,37 +105,37 @@ public:
 	
   inline void updateMatrices();
 
-  const Vdouble& getFrequencies() const { return _pmodel.getFrequencies(); }
+  const Vdouble& getFrequencies() const { return pmodel_.getFrequencies(); }
        
-  const Matrix<double>& getGenerator() const { return _pmodel.getGenerator(); }
+  const Matrix<double>& getGenerator() const { return pmodel_.getGenerator(); }
     
-  const Vdouble& getEigenValues() const { return _pmodel.getEigenValues(); }
+  const Vdouble& getEigenValues() const { return pmodel_.getEigenValues(); }
     
-  const Matrix<double>& getRowLeftEigenVectors() const { return _pmodel.getRowLeftEigenVectors(); }
+  const Matrix<double>& getRowLeftEigenVectors() const { return pmodel_.getRowLeftEigenVectors(); }
   
-  const Matrix<double>& getColumnRightEigenVectors() const { return _pmodel.getColumnRightEigenVectors(); }
+  const Matrix<double>& getColumnRightEigenVectors() const { return pmodel_.getColumnRightEigenVectors(); }
     
-  double freq(unsigned int i) const { return _pmodel.freq(i); }
+  double freq(unsigned int i) const { return pmodel_.freq(i); }
     
-  double Qij(unsigned int i, unsigned int j) const { return _pmodel.Qij(i,j); }
+  double Qij(unsigned int i, unsigned int j) const { return pmodel_.Qij(i,j); }
     
-  double Pij_t    (unsigned int i, unsigned int j, double t) const { return _pmodel.Pij_t(i, j, t); }
-  double dPij_dt  (unsigned int i, unsigned int j, double t) const { return _pmodel.dPij_dt(i, j, t); }
-  double d2Pij_dt2(unsigned int i, unsigned int j, double t) const { return _pmodel.d2Pij_dt2(i, j, t); }
+  double Pij_t    (unsigned int i, unsigned int j, double t) const { return pmodel_.Pij_t(i, j, t); }
+  double dPij_dt  (unsigned int i, unsigned int j, double t) const { return pmodel_.dPij_dt(i, j, t); }
+  double d2Pij_dt2(unsigned int i, unsigned int j, double t) const { return pmodel_.d2Pij_dt2(i, j, t); }
 
-  const Matrix<double>& getPij_t    (double d) const { return _pmodel.getPij_t(d);  }
-  const Matrix<double>& getdPij_dt  (double d) const { return _pmodel.getdPij_dt(d);  }
-  const Matrix<double>& getd2Pij_dt2(double d) const { return _pmodel.getd2Pij_dt2(d);  }
+  const Matrix<double>& getPij_t    (double d) const { return pmodel_.getPij_t(d);  }
+  const Matrix<double>& getdPij_dt  (double d) const { return pmodel_.getdPij_dt(d);  }
+  const Matrix<double>& getd2Pij_dt2(double d) const { return pmodel_.getd2Pij_dt2(d);  }
 
-  void setFreq(std::map<int, double>& m) { _pmodel.setFreq(m);  }
+  void setFreq(std::map<int, double>& m) { pmodel_.setFreq(m);  }
 
-  unsigned int getNumberOfStates() const  { return _pmodel.getNumberOfStates();  }
+  unsigned int getNumberOfStates() const  { return pmodel_.getNumberOfStates();  }
 
-  double getInitValue(unsigned int i, int state) const throw (BadIntException) { return _pmodel.getInitValue(i,state); }
+  double getInitValue(unsigned int i, int state) const throw (BadIntException) { return pmodel_.getInitValue(i,state); }
 
   void enableEigenDecomposition(bool yn) { eigenDecompose_ = 1; }
 
-  bool enableEigenDecomposition() { return _pmodel.enableEigenDecomposition(); }
+  bool enableEigenDecomposition() { return pmodel_.enableEigenDecomposition(); }
 
 };
 

@@ -262,7 +262,7 @@ class TreeDrawing:
     virtual const Tree* getTree() const = 0;
     
     /**
-     * @param A pointer toward the tree to associate with this drawing.
+     * @param tree A pointer toward the tree to associate with this drawing.
      */
     virtual void setTree(const Tree* tree) = 0;
 
@@ -336,6 +336,7 @@ class TreeDrawing:
     /**
      * @brief Plot a property on the tree.
      *
+     * @param gDevice the graphic device where to draw.
      * @param property The name of the property to plot.
      * @return True is the property could be drawn properly.
      */
