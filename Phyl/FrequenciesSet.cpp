@@ -169,9 +169,9 @@ void FullFrequenciesSet::fireParameterChanged(const ParameterList& parameters)
 FullCodonFrequenciesSet::FullCodonFrequenciesSet(const CodonAlphabet* alphabet, bool allowNullFreqs) :
   AbstractFrequenciesSet(alphabet->getSize(), alphabet, "Full.")
 {
-   unsigned int size = alphabet->getSize() - alphabet->numberOfStopCodons();
+  unsigned int size = alphabet->getSize() - alphabet->numberOfStopCodons();
+  unsigned int j = 0;
 
-   unsigned int j = 0;
   for (unsigned int i = 0; i < alphabet->getSize() - 1; i++)
   {
     if (alphabet->isStop(i))
@@ -180,7 +180,6 @@ FullCodonFrequenciesSet::FullCodonFrequenciesSet(const CodonAlphabet* alphabet, 
     }
     else
     {
-      j++;
       Parameter p(
           "Full.theta_" + TextTools::toString(i + 1),
           1. / (size - j),
@@ -189,6 +188,7 @@ FullCodonFrequenciesSet::FullCodonFrequenciesSet(const CodonAlphabet* alphabet, 
           dynamic_cast<Constraint*>(&Parameter::PROP_CONSTRAINT_EX));
       addParameter_(p);
       getFreq_(i) = 1. / size;
+      j++;
     }
   }
   unsigned int i = alphabet->getSize() - 1;
@@ -282,9 +282,10 @@ void FullCodonFrequenciesSet::fireParameterChanged(const ParameterList& paramete
    unsigned int i;
   for (i = 0; i < alphabet->getSize() - 1; i++)
   {
-    if (!(alphabet->isStop(i)))
+    if (!(alphabet->isStop(i))){
       getFreq_(i) = getParameter_("theta_" + TextTools::toString(i + 1)).getValue() * y;
-    y *= 1 - getParameter_("theta_" + TextTools::toString(i + 1)).getValue();
+      y *= 1 - getParameter_("theta_" + TextTools::toString(i + 1)).getValue();
+    }
   }
 
   i = alphabet->getSize() - 1;
