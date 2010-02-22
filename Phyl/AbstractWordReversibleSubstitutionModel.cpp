@@ -97,8 +97,8 @@ AbstractWordReversibleSubstitutionModel::AbstractWordReversibleSubstitutionModel
     {
    VSubMod_.push_back(modelVector[i]);
    VnestedPrefix_.push_back(modelVector[i]->getNamespace());
-      VSubMod_[i]->setNamespace(st + TextTools::toString(i) + "_" + VnestedPrefix_[i]);
-      addParameters_(VSubMod_[i]->getParameters());
+   VSubMod_[i]->setNamespace(st + TextTools::toString(i+1) + "_" + VnestedPrefix_[i]);
+   addParameters_(VSubMod_[i]->getParameters());
     }
   }
   else
@@ -108,7 +108,7 @@ AbstractWordReversibleSubstitutionModel::AbstractWordReversibleSubstitutionModel
     {
    VSubMod_.push_back(modelVector[0]);
    VnestedPrefix_.push_back(modelVector[0]->getNamespace());
-      t += TextTools::toString(i);
+      t += TextTools::toString(i+1);
     }
     VSubMod_[0]->setNamespace(st + t + "_" + VnestedPrefix_[0]);
     addParameters_(VSubMod_[0]->getParameters());
@@ -153,7 +153,7 @@ AbstractWordReversibleSubstitutionModel::AbstractWordReversibleSubstitutionModel
    VSubMod_.push_back(pmodel);
    VnestedPrefix_.push_back(pmodel->getNamespace());
     rate_[i] = 1.0 / num;
-    t += TextTools::toString(i);
+    t += TextTools::toString(i+1);
   }
 
   pmodel->setNamespace(st + t + "_" + VnestedPrefix_[0]);
@@ -257,7 +257,7 @@ void AbstractWordReversibleSubstitutionModel::setNamespace(const std::string& pr
    string t = "";
     for (unsigned int i = 0; i < VSubMod_.size(); i++)
     {
-      t += TextTools::toString(i);
+      t += TextTools::toString(i+1);
     }
     VSubMod_[0]->setNamespace(prefix + t + "_" + VnestedPrefix_[0]);
   }
@@ -265,7 +265,7 @@ void AbstractWordReversibleSubstitutionModel::setNamespace(const std::string& pr
   {
     for (unsigned int i = 0; i < VSubMod_.size(); i++)
     {
-      VSubMod_[i]->setNamespace(prefix + TextTools::toString(i) + "_" + VnestedPrefix_[i]);
+      VSubMod_[i]->setNamespace(prefix + TextTools::toString(i+1) + "_" + VnestedPrefix_[i]);
     }
   }
 }

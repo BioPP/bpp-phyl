@@ -67,7 +67,7 @@ AbstractCodonFrequenciesReversibleSubstitutionModel::AbstractCodonFrequenciesRev
     rate_[i] = 1.0 / 3;
   }
 
-  pmodel->setNamespace(st + "012_" + VnestedPrefix_[0]);
+  pmodel->setNamespace(st + "123_" + VnestedPrefix_[0]);
   addParameters_(pmodel->getParameters());
 
   if (pfreqset_->getAlphabet()->getSize() != 64)

@@ -60,7 +60,7 @@ namespace bpp
  * There is one substitution per word per unit of time
  * on the equilibrium frequency, and each position has its specific rate.
  * For example, if there are @f$n@f$ models and \f$\rho_i\f$ is the rate of
- * model i (@f$\sum_{i=0}^{n-1} \rho_i = 1@f$):
+ * model i (@f$\sum_{i=1}^{n} \rho_i = 1@f$):
  * @f{eqnarray*}
  * Q_{abc \rightarrow abd} &=& \rho_2 Q^{(2)}_{c \rightarrow d}\\
  * Q_{abc \rightarrow aed} &=& 0\\

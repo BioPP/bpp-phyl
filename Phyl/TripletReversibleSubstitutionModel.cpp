@@ -98,24 +98,24 @@ TripletReversibleSubstitutionModel::TripletReversibleSubstitutionModel(
       VnestedPrefix_.push_back(pmod1->getNamespace());
     }
 
-    pmod1->setNamespace(st + "012_" + VnestedPrefix_[0]);
+    pmod1->setNamespace(st + "123_" + VnestedPrefix_[0]);
     addParameters_(pmod1->getParameters());
   }
   else
   {
     VSubMod_.push_back(pmod1);
     VnestedPrefix_.push_back(pmod1->getNamespace());
-    VSubMod_[0]->setNamespace(st + "0_" + VnestedPrefix_[0]);
+    VSubMod_[0]->setNamespace(st + "1_" + VnestedPrefix_[0]);
     addParameters_(pmod1->getParameters());
 
     VSubMod_.push_back(pmod2);
     VnestedPrefix_.push_back(pmod2->getNamespace());
-    VSubMod_[1]->setNamespace(st + "1_" + VnestedPrefix_[1]);
+    VSubMod_[1]->setNamespace(st + "2_" + VnestedPrefix_[1]);
     addParameters_(pmod2->getParameters());
 
     VSubMod_.push_back(pmod3);
     VnestedPrefix_.push_back(pmod3->getNamespace());
-    VSubMod_[2]->setNamespace(st + "2_" + VnestedPrefix_[2]);
+    VSubMod_[2]->setNamespace(st + "3_" + VnestedPrefix_[2]);
     addParameters_(pmod3->getParameters());
   }
 

@@ -245,15 +245,15 @@ SubstitutionModel* PhylogeneticsApplicationTools::getSubstitutionModelDefaultIns
     }
     else
     {
-      if (args.find("model0") == args.end())
+      if (args.find("model1") == args.end())
       {
-        throw Exception("Missing argument 'model' or 'model0' for model " + modelName + ".");
+        throw Exception("Missing argument 'model' or 'model1' for model " + modelName + ".");
       }
       nbmodels = 0;
 
-      while (args.find("model" + TextTools::toString(nbmodels)) != args.end())
+      while (args.find("model" + TextTools::toString(nbmodels+1)) != args.end())
       {
-        v_nestedModelDescription.push_back(args["model" + TextTools::toString(nbmodels++)]);
+        v_nestedModelDescription.push_back(args["model" + TextTools::toString(++nbmodels)]);
       }
     }
 
@@ -283,7 +283,7 @@ SubstitutionModel* PhylogeneticsApplicationTools::getSubstitutionModelDefaultIns
         model = getSubstitutionModelDefaultInstance(pWA->getNAlphabet(i), v_nestedModelDescription[i], unparsedParameterValuesNested, false, false, false);
         for (map<string, string>::iterator it = unparsedParameterValuesNested.begin(); it != unparsedParameterValuesNested.end(); it++)
         {
-          unparsedParameterValues[modelName + "." + TextTools::toString(i) + "_" + it->first] = it->second;
+          unparsedParameterValues[modelName + "." + TextTools::toString(i+1) + "_" + it->first] = it->second;
         }
         v_pSM.push_back(model);
       }
