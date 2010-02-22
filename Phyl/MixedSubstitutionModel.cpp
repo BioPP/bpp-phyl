@@ -47,7 +47,7 @@ MixedSubstitutionModel::MixedSubstitutionModel(
     const Alphabet* alpha,
     SubstitutionModel* model,
     std::map<std::string, DiscreteDistribution*> parametersDistributionsList) :
-  AbstractSubstitutionModel(alpha, "MixedModel."),
+  AbstractSubstitutionModel(alpha, ""),
   distributionMap_(),
   modelsContainer_()
 {
@@ -64,17 +64,17 @@ MixedSubstitutionModel::MixedSubstitutionModel(
   {
     s1 = parnames[i];
     s2 = model->getParameterNameWithoutNamespace(s1);
-
+   
     if (parametersDistributionsList.find(s2) != parametersDistributionsList.end())
-      distributionMap_["MixedModel." + s1] = dynamic_cast<DiscreteDistribution*>(parametersDistributionsList.find(s2)->second->clone());
+      distributionMap_[s1] = dynamic_cast<DiscreteDistribution*>(parametersDistributionsList.find(s2)->second->clone());
     else
-      distributionMap_["MixedModel." + s1] = new ConstantDistribution(model->getParameterValue(s2));
+      distributionMap_[ s1] = new ConstantDistribution(model->getParameterValue(s2));
 
 
-    if (dynamic_cast<ConstantDistribution*>(distributionMap_["MixedModel." + s1]) == 0)
-      distributionMap_["MixedModel." + s1]->setNamespace("MixedModel." + s1 + "." + distributionMap_["MixedModel." + s1]->getNamespace());
+    if (dynamic_cast<ConstantDistribution*>(distributionMap_[s1]) == 0)
+      distributionMap_[s1]->setNamespace(s1 + "_" + distributionMap_[s1]->getNamespace());
     else
-      distributionMap_["MixedModel." + s1]->setNamespace("MixedModel." + s1 + ".");
+      distributionMap_[s1]->setNamespace(s1 + "_");
   }
 
 
@@ -89,8 +89,8 @@ MixedSubstitutionModel::MixedSubstitutionModel(
 
   for (i = 0; i < c; i++)
   {
-   modelsContainer_.push_back(model->clone());
-    modelsContainer_[i]->setNamespace("MixedModel." + model->getNamespace());
+    modelsContainer_.push_back(model->clone());
+    modelsContainer_[i]->setNamespace(model->getNamespace());
   }
 
   // Initialization of parameters_.
@@ -105,7 +105,6 @@ MixedSubstitutionModel::MixedSubstitutionModel(
       {
         t = it->second->getParameters().getParameterNames()[i];
         d = it->second->getParameters().getParameter(t).getValue();
-
         addParameter_(Parameter(t,d));
       }
     }

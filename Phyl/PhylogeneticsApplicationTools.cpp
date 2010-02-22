@@ -191,7 +191,7 @@ SubstitutionModel* PhylogeneticsApplicationTools::getSubstitutionModelDefaultIns
     for (map<string, string>::iterator it = unparsedParameterValuesNested2.begin();
          it != unparsedParameterValuesNested2.end(); it++)
     {
-      unparsedParameterValues["MixedModel." + it->first] = it->second;
+      unparsedParameterValues[it->first] = it->second;
     }
 
     model = new MixedSubstitutionModel(alphabet,pSM,mdist);
