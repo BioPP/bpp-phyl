@@ -298,7 +298,7 @@ SubstitutionModel* PhylogeneticsApplicationTools::getSubstitutionModelDefaultIns
       model = (v_nestedModelDescription.size() != nbmodels)
               ? new WordReversibleSubstitutionModel(v_pSM[0],nbmodels)
               : new WordReversibleSubstitutionModel(v_pSM);
-      for (unsigned i = 0; i < nbmodels - 1; i++)
+      for (unsigned i = 1; i < nbmodels ; i++)
       {
         if (args.find("relrate" + TextTools::toString(i)) != args.end())
         {
@@ -319,9 +319,9 @@ SubstitutionModel* PhylogeneticsApplicationTools::getSubstitutionModelDefaultIns
                                                        dynamic_cast<NucleotideSubstitutionModel*>(v_pSM[0]),
                                                        dynamic_cast<NucleotideSubstitutionModel*>(v_pSM[1]),
                                                        dynamic_cast<NucleotideSubstitutionModel*>(v_pSM[2]));
-      for (unsigned i = 0; i < nbmodels - 1; i++)
+      for (unsigned i = 1; i < nbmodels ; i++)
       {
-        if (args.find("relrate" + TextTools::toString(i)) == args.end())
+        if (args.find("relrate" + TextTools::toString(i)) != args.end())
           unparsedParameterValues["Triplet.relrate" + TextTools::toString(i)] = args["relrate" + TextTools::toString(i)];
       }
     }
@@ -338,9 +338,9 @@ SubstitutionModel* PhylogeneticsApplicationTools::getSubstitutionModelDefaultIns
                                                             dynamic_cast<NucleotideSubstitutionModel*>(v_pSM[0]),
                                                             dynamic_cast<NucleotideSubstitutionModel*>(v_pSM[1]),
                                                             dynamic_cast<NucleotideSubstitutionModel*>(v_pSM[2]));
-      for (unsigned i = 0; i < nbmodels - 1; i++)
+      for (unsigned i = 1; i < nbmodels ; i++)
       {
-        if (args.find("relrate" + TextTools::toString(i)) == args.end())
+        if (args.find("relrate" + TextTools::toString(i)) != args.end())
           unparsedParameterValues["CodonNeutral.relrate" + TextTools::toString(i)] = args["relrate" + TextTools::toString(i)];
       }
     }
@@ -414,9 +414,9 @@ SubstitutionModel* PhylogeneticsApplicationTools::getSubstitutionModelDefaultIns
     {
       model = new CodonNeutralFrequenciesReversibleSubstitutionModel(pCA, pFS);
 
-      for (unsigned i = 0; i < 3; i++)
+      for (unsigned i = 1; i <= 3; i++)
       {
-        if (args.find("relrate" + TextTools::toString(i)) == args.end())
+        if (args.find("relrate" + TextTools::toString(i)) != args.end())
           unparsedParameterValues["CodonNeutralFrequencies.relrate" + TextTools::toString(i)] = args["relrate" + TextTools::toString(i)];
       }
 

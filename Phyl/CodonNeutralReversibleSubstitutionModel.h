@@ -61,11 +61,11 @@ namespace bpp
  *
  * The generator is constructed in two steps:
  * First, if there are @f$n@f$ models and @f$\rho_i@f$ is the rate of
- * model i (@f$\sum_{i=0}^{n-1} \rho_i = 1@f$):
+ * model i (@f$\sum_{i=1}^{n} \rho_i = 1@f$):
  * @f[
- * Q_{abc \rightarrow abd} = \rho_2 Q^{(2)}_{c \rightarrow d}
+ * Q_{abc \rightarrow abd} = \rho_3 Q^{(2)}_{c \rightarrow d}
  * Q_{abc \rightarrow aed} = 0
- * Q_{abc \rightarrow abc} = \rho_0 Q^{(0)}_{a \rightarrow a} + \rho_1 Q^{(1)}_{b \rightarrow b} + \rho_2 Q^{(2)}_{c \rightarrow c})
+ * Q_{abc \rightarrow abc} = \rho_1 Q^{(0)}_{a \rightarrow a} + \rho_2 Q^{(1)}_{b \rightarrow b} + \rho_3 Q^{(2)}_{c \rightarrow c})
  * @f]
  *
  * Second, the subsitution between STOP codons and non-STOP codons are
@@ -75,14 +75,15 @@ namespace bpp
  * models used. Their names have a new suffix, "_phi" where i stands
  * for the position (i.e. the phase) in the word.
  *
- * The rates are defined by relative rates parameters @f$r_i@f$ (called "relrate_i") with:
+ * The rates are defined by relative rates parameters @f$r_i@f$
+ * (called "relrate_i") with:
  * @f[
- * i < n-1, \rho_i = (1-r_0).(1-r_1)...(1-r_{i-1}).r_i
- * \rho_{n-1} = (1-r_0).(1-r_1)...(1-r_{n-2})
+ * 1 <= i < n, \rho_i = (1-r_1).(1-r_2)...(1-r_{i-1}).r_{i}
+ * \rho_n = (1-r_1).(1-r_2)...(1-r_{n-1})
  * @f]
  * and
  * @f[
- * \forall i< n-1, r_i = \frac{\rho_i}{1-(\rho_0+...\rho_{i-1})}
+ * \forall 1 <= i < n, r_i = \frac{\rho_i}{1-(\rho_0+...\rho_{i-1})}
  * @f]
  *
  * The parameters of this codon model are the same as the ones of the

@@ -56,14 +56,17 @@ namespace bpp
  * equilibrium frequency of each word is the product of the
  * equilibrium frequencies of the letters.</p>
  *
- * The rates are defined by relative rates parameters @f$r_i@f$ with:
+ * If there are @f$n@f$ models, @f$\rho_i@f$ is the rate of
+ * model i (@f$\sum_{i=1}^{n} \rho_i = 1@f$) and the rates
+ * are defined by relative rates parameters @f$r_i@f$
+ * (called "relrate_i") with:
  * @f[
- * i < n-1, \rho_i = (1-r_0).(1-r_1)...(1-r_{i-1}).r_i
- * \rho_{n-1} = (1-r_0).(1-r_1)...(1-r_{n-2})
+ * 1 <= i < n, \rho_i = (1-r_1).(1-r_2)...(1-r_{i-1}).r_{i}
+ * \rho_n = (1-r_1).(1-r_2)...(1-r_{n-1})
  * @f]
  * and
  * @f[
- * @forall i< n-1, r_i = @frac{\rho_i}{1-(\rho_0+...\rho_{i-1})}
+ * \forall 1 <= i < n, r_i = \frac{\rho_i}{1-(\rho_0+...\rho_{i-1})}
  * @f]
  * where @f$\rho_i@f$ stands for the rate of position @f$i@f$.
  */

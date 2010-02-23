@@ -54,7 +54,7 @@ CodonNeutralFrequenciesReversibleSubstitutionModel::CodonNeutralFrequenciesRever
   // relative rates
   for (i = 0; i < 2; i++)
   {
-    addParameter_(Parameter("CodonNeutralFrequencies.relrate" + TextTools::toString(i), 1.0 / (3 - i),&Parameter::PROP_CONSTRAINT_EX));
+    addParameter_(Parameter("CodonNeutralFrequencies.relrate" + TextTools::toString(i+1), 1.0 / (3 - i),&Parameter::PROP_CONSTRAINT_EX));
   }
 
   updateMatrices();
@@ -97,10 +97,10 @@ void CodonNeutralFrequenciesReversibleSubstitutionModel::updateMatrices()
     x = 1.0;
     for (i = 0; i < k; i++)
     {
-      x *= 1 - getParameterValue("relrate" + TextTools::toString(i));
+      x *= 1 - getParameterValue("relrate" + TextTools::toString(i+1));
     }
     if (k != nbmod - 1)
-      x *= getParameterValue("relrate" + TextTools::toString(k));
+      x *= getParameterValue("relrate" + TextTools::toString(k+1));
     rate_[k] = x;
   }
 
