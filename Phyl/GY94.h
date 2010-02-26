@@ -53,7 +53,7 @@ namespace bpp
  * This model has one rate of transitions and one rate of
  * transversion. It also allows distinct equilibrium frequencies
  * between codons. A multiplicative factor accounts for the selective
- * restraints at the amino acid level. This factor applies on the the
+ * restraints at the amino acid level. This factor applies on the
  * distance @f$d@f$ between amino acids given by Grantham (1974).
  * 
  * For codons @f$i=i_1i_2i_3@f$ and @f$j=j_1j_2j_3@f$, the generator term @f$Q_{ij} (i \neq j)@f$ is:
@@ -73,8 +73,6 @@ namespace bpp
  * Reference:
  * - Goldman N. and Yang Z. (1994), _Molecular Biology And Evolution_ 11(5) 725--736. 
  */
-
-  
 class GY94:
   public AbstractSubstitutionModel
 {

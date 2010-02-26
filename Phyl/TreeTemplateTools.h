@@ -698,13 +698,34 @@ class TreeTemplateTools
      * A new DistanceMatrix object is created, and a pointer toward it is returned.
      * The destruction of this matrix is left up to the user.
      *
+     * From version 1.9 of Bio++, this function has been rewritten in a more efficient way
+     * and does not use getDistanceBetweenAnyTwoNodes anymore, but makes use of a more clever
+     * pass on the tree. The new function now works well on trees with thousands of leaves.
+     *
      * @see getDistanceBetweenAnyTwoNodes
+     *
+     * @author Nicolas Rochette
      *
      * @param tree The tree to use.
      * @return The distance matrix computed from tree.
      */
-    static DistanceMatrix* getDistanceMatrix(const TreeTemplate<Node> & tree);
+    static DistanceMatrix* getDistanceMatrix(const TreeTemplate<Node>& tree);
 
+  private:
+    /**
+     * @brief Inner function used by getDistanceMatrix.
+     *
+     * (1) Retrieves leaf-leaf distances in node's subtree and
+     *  writes them in the distance matrix.
+     * (2) Returns distances from node's father to those leaves.
+     *
+     * @param node The current node in the recursion.
+     * @param matrix The output matrix which will be filled.
+     * @param distsToNodeFather Intermediate computations contianing the distances of the node to the leaves.
+     */
+    static void processDistsInSubtree_(const bpp::Node* node, bpp::DistanceMatrix& matrix, std::vector< std::pair<std::string,double> >& distsToNodeFather);
+
+  public:
     /** @} */
 
     /**

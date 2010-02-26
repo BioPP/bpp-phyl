@@ -1,3 +1,6 @@
+26/02/10 Nicolas Rochette and Julien Dutheil
+* More efficient TreeTemplateTools::getDistanceMatrix.
+
 08/12/10 Julien Dutheil
 * Now compiles with -Weffc++!
 * A lot of code updates and small bugs fixed!

@@ -753,26 +753,97 @@ double TreeTemplateTools::getDistanceBetweenAnyTwoNodes(const Node & node1, cons
   
 /******************************************************************************/
 
-DistanceMatrix * TreeTemplateTools::getDistanceMatrix(const TreeTemplate<Node> & tree)
+void TreeTemplateTools::processDistsInSubtree_(const Node* node, DistanceMatrix& matrix, std::vector< std::pair<std::string, double> >& distsToNodeFather)
+/*
+ * (1) Retrieves leaf-leaf distances in node's subtree and
+ *  writes them in the distance matrix.
+ * (2) Returns distances from node's father to those leaves.
+ */
 {
-  vector<const Node *> nodes = tree.getLeaves();
-  vector<string> names(nodes.size());
-  for(unsigned int i = 0; i < nodes.size(); i++)
-    names[i] = nodes[i]->getName();
-  DistanceMatrix * mat = new DistanceMatrix(names);
-  for(unsigned int i = 0; i < nodes.size(); i++)
+  distsToNodeFather.clear();
+  
+  // node-is-leaf case
+  if (node->getNumberOfSons() == 0)
   {
-    (* mat)(i, i) = 0;
-    for(unsigned int j = 0; j < i; j++)
+    distsToNodeFather.push_back(make_pair(node->getName(), node->getDistanceToFather()));
+    return;
+  }
+
+  // For all leaves in node's subtree, get leaf-to-node distances.
+  // Leaves are classified upon node's sons.
+  map<const Node*, vector< pair<string, double> > > leavesDists;
+  for (unsigned int i = 0; i < node->getNumberOfSons(); ++i)
+  {
+    const Node* son = node->getSon(i);
+    processDistsInSubtree_(son, matrix, leavesDists[son]); // recursivity
+  }
+  // Write leaf-leaf distances to the distance matrix.
+  // Only pairs in which the two leaves belong to different
+  // sons are considered.
+  for (unsigned int son1_loc = 0; son1_loc < node->getNumberOfSons(); ++son1_loc)
+  {
+    for (unsigned int son2_loc = 0; son2_loc < son1_loc; ++son2_loc)
     {
-      (* mat)(i, j) = (* mat)(j, i) = getDistanceBetweenAnyTwoNodes(*nodes[i], *nodes[j]);
+      const Node* son1 = node->getSon(son1_loc);
+      const Node* son2 = node->getSon(son2_loc);
+
+      for (vector< pair<string, double> >::iterator son1_leaf = leavesDists[son1].begin();
+          son1_leaf != leavesDists[son1].end();
+          ++son1_leaf)
+      {
+        for (vector< pair<string,double> >::iterator son2_leaf = leavesDists[son2].begin();
+            son2_leaf != leavesDists[son2].end();
+            ++son2_leaf)
+        {
+          matrix(son1_leaf->first,son2_leaf->first) =
+            matrix(son2_leaf->first,son1_leaf->first) =
+            ( son1_leaf->second + son2_leaf->second );
+        }
+      }
     }
   }
-  return mat;
+
+  // node-is-root case
+  if (!node->hasFather())
+  {
+    // node-is-root-and-leaf case
+    if (node->isLeaf() )
+    {
+      string root_name = node->getName();
+      for (vector< pair<string,double> >::iterator other_leaf = leavesDists[node->getSon(0)].begin();
+          other_leaf != leavesDists[node->getSon(0)].end();
+          ++other_leaf)
+      {
+        matrix(root_name, other_leaf->first) = matrix( other_leaf->first, root_name) = other_leaf->second;
+      }
+    }
+
+    return;
+  }
+
+  // Get distances from node's father to considered leaves
+  distsToNodeFather.clear();
+  double nodeToFather = node->getDistanceToFather();
+  for (map<const Node*, vector<pair<string,double> > >::iterator son = leavesDists.begin(); son != leavesDists.end(); ++son)
+  {
+    for (vector< pair<string,double> >::iterator leaf = (son->second).begin(); leaf != (son->second).end(); ++leaf)
+    {
+      distsToNodeFather.push_back(make_pair(leaf->first, (leaf->second + nodeToFather)));
+    }
+  }
 }
+
+DistanceMatrix* TreeTemplateTools::getDistanceMatrix(const TreeTemplate<Node>& tree)
+{
+  DistanceMatrix* matrix = new DistanceMatrix(tree.getLeavesNames());
+  vector< pair<string,double> > distsToRoot;
+  processDistsInSubtree_(tree.getRootNode(), *matrix, distsToRoot);
+  return matrix;
+}
+
 /******************************************************************************/
 
-vector<const Node *> TreeTemplateTools::getRemainingNeighbors(const Node * node1, const Node * node2, const Node * node3)
+std::vector<const Node*> TreeTemplateTools::getRemainingNeighbors(const Node* node1, const Node* node2, const Node* node3)
 {
   vector<const Node *> neighbors = node1->getNeighbors();
   vector<const Node *> neighbors2;
@@ -786,7 +857,7 @@ vector<const Node *> TreeTemplateTools::getRemainingNeighbors(const Node * node1
 
 /******************************************************************************/
 
-void TreeTemplateTools::incrementAllIds(Node * node, int increment)
+void TreeTemplateTools::incrementAllIds(Node* node, int increment)
 {
   node->setId(node->getId() + increment);
   for(unsigned int i = 0; i < node->getNumberOfSons(); i++)
