@@ -47,12 +47,13 @@ using namespace std;
 
 /******************************************************************************/
 
-MG94::MG94(const GeneticCode* palph) : AbstractSubstitutionModel(palph->getSourceAlphabet(),"MG94."),
-                                       _ffs(dynamic_cast<const CodonAlphabet*>(palph->getSourceAlphabet())->getNucleicAlphabet()),
-                                       _iwfs(&_ffs,3),
-                                       _pmodel(palph, &_iwfs)
+MG94::MG94(const GeneticCode* palph) :
+  AbstractSubstitutionModel(palph->getSourceAlphabet(), "MG94."),
+  _ffs(dynamic_cast<const CodonAlphabet*>(palph->getSourceAlphabet())->getNucleicAlphabet()),
+  _iwfs(&_ffs,3),
+  _pmodel(palph, &_iwfs)
 {
-  addParameter_(Parameter("MG94.rho",1,&Parameter::R_PLUS_STAR));
+  addParameter_(Parameter("MG94.rho", 1, &Parameter::R_PLUS_STAR));
   
   updateMatrices();
 }
@@ -69,7 +70,7 @@ void MG94::updateMatrices()
 {
   ParameterList Pl;
 
-  Pl.addParameter(Parameter("CodonAsynonymousFrequencies.beta",getParameterValue("rho")));
+  Pl.addParameter(Parameter("CodonAsynonymousFrequencies.beta", getParameterValue("rho")));
 
   _pmodel.matchParametersValues(Pl);
 }

@@ -77,8 +77,8 @@ string GY94::getName() const
 void GY94::updateMatrices()
 {
   ParameterList Pl;
-  Pl.addParameter(Parameter("CodonAsynonymousFrequencies.012_K80.kappa",getParameterValue("kappa")));
-  Pl.addParameter(Parameter("CodonAsynonymousFrequencies.alpha",getParameterValue("V")));
+  Pl.addParameter(Parameter("CodonAsynonymousFrequencies.123_K80.kappa", getParameterValue("kappa")));
+  Pl.addParameter(Parameter("CodonAsynonymousFrequencies.alpha", getParameterValue("V")));
 
   pmodel_.matchParametersValues(Pl);
 }

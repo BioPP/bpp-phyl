@@ -70,8 +70,8 @@ string YN98::getName() const
 void YN98::updateMatrices()
 {
   ParameterList Pl;
-  Pl.addParameter(Parameter("CodonAsynonymousFrequencies.012_K80.kappa",getParameterValue("kappa")));
-  Pl.addParameter(Parameter("CodonAsynonymousFrequencies.beta",getParameterValue("omega")));
+  Pl.addParameter(Parameter("CodonAsynonymousFrequencies.123_K80.kappa", getParameterValue("kappa")));
+  Pl.addParameter(Parameter("CodonAsynonymousFrequencies.beta", getParameterValue("omega")));
 
   pmodel_.matchParametersValues(Pl);
 }
