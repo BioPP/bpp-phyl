@@ -108,7 +108,7 @@ void NNITopologySearch::searchFast() throw (Exception)
 		for(unsigned int i = 0; !test && i < nodesSub.size(); i++)
     {
 			Node * node = nodesSub[i];
-			double diff = searchableTree_->testNNI(node->getId());
+			double diff = searchableTree_->testNNI(node);
 			if(verbose_ >= 3)
       {
 				ApplicationTools::displayResult("   Testing node " + TextTools::toString(node->getId())
@@ -161,7 +161,7 @@ void NNITopologySearch::searchBetter() throw (Exception)
 		for(unsigned int i = 0; i < nodesSub.size(); i++)
     {
 			Node * node = nodesSub[i];
-			double diff = searchableTree_->testNNI(node->getId());
+			double diff = searchableTree_->testNNI(node);
 			if(verbose_ >= 3)
       {
 				ApplicationTools::displayResult("   Testing node " + TextTools::toString(node->getId())
@@ -220,7 +220,7 @@ void NNITopologySearch::searchPhyML() throw (Exception)
 		for(unsigned int i = 0; i < nodesSub.size(); i++)
     {
 			Node * node = nodesSub[i];
-			double diff = searchableTree_->testNNI(node->getId());
+			double diff = searchableTree_->testNNI(node);
 			if(verbose_ >= 3)
       {
 				ApplicationTools::displayResult("   Testing node " + TextTools::toString(node->getId())
@@ -298,7 +298,7 @@ void NNITopologySearch::searchPhyML() throw (Exception)
                 + string(" at ") + TextTools::toString(searchableTree_->getTopology().getFatherId(nodeId)),
                 TextTools::toString(improvement[i]));
 			    }
-			    searchableTree_->doNNI(nodeId);
+			    searchableTree_->doNNI(improving[i]);
 		    }
 		
 		    // Notify:

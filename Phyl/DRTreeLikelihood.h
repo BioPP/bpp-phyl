@@ -102,7 +102,7 @@ class DRTreeLikelihood:
      * @param nodeId The id of the node to consider.
      * @param likelihoodArray The array where to store the results.
      */
-    virtual void computeLikelihoodAtNode(int nodeId, VVVdouble& likelihoodArray) const = 0;
+    virtual void computeLikelihoodAtNode(const Node * node, VVVdouble& likelihoodArray) const = 0;
 
 };
 

@@ -87,7 +87,7 @@ ProbabilisticSubstitutionMapping* SubstitutionMappingTools::computeSubstitutionV
                                    
   // Store likelihood for each rate for each site:
   VVVdouble lik;
-  drtl.computeLikelihoodAtNode(tree.getRootId(), lik);
+  drtl.computeLikelihoodAtNode(tree.getRootNode(), lik);
   Vdouble Lr(nbDistinctSites, 0);
   Vdouble rcProbs = rDist->getProbabilities();
   Vdouble rcRates = rDist->getCategories();

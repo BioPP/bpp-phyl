@@ -4,7 +4,7 @@
 //
 
 /*
-   Copyright or © or Copr. CNRS, (November 16, 2004)
+   Copyright or ï¿½ or Copr. CNRS, (November 16, 2004)
 
    This software is a computer program whose purpose is to provide classes
    for phylogenetic data analysis.
@@ -171,7 +171,7 @@ public:
 
   virtual void computeTreeDLikelihoods();
 
-  virtual void computeLikelihoodAtNode(int nodeId, VVVdouble& likelihoodArray) const;
+  virtual void computeLikelihoodAtNode(const Node * node, VVVdouble& likelihoodArray) const;
 
 protected:
   /**

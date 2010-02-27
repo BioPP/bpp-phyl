@@ -287,7 +287,7 @@ void DRHomogeneousTreeLikelihood::computeTreeDLikelihoodAtNode(const Node * node
   VVVdouble *  pxy__node = &  pxy_[node->getId()];
   VVVdouble * dpxy__node = & dpxy_[node->getId()];
   VVVdouble larray;
-  computeLikelihoodAtNode(father->getId(), larray);
+  computeLikelihoodAtNode(father, larray);
   Vdouble * rootLikelihoodsSR = & likelihoodData_->getRootRateSiteLikelihoodArray();
 
   double dLi, dLic, dLicx, numerator, denominator;
@@ -378,7 +378,7 @@ void DRHomogeneousTreeLikelihood::computeTreeD2LikelihoodAtNode(const Node * nod
   VVVdouble *   pxy__node = &   pxy_[node->getId()];
   VVVdouble * d2pxy__node = & d2pxy_[node->getId()];
   VVVdouble larray;
-  computeLikelihoodAtNode(father->getId(), larray);
+  computeLikelihoodAtNode(father, larray);
   Vdouble * rootLikelihoodsSR = & likelihoodData_->getRootRateSiteLikelihoodArray();
   
   double d2Li, d2Lic, d2Licx, numerator, denominator;
@@ -718,10 +718,10 @@ void DRHomogeneousTreeLikelihood::computeRootLikelihood()
 
 /******************************************************************************/
 
-void DRHomogeneousTreeLikelihood::computeLikelihoodAtNode(int nodeId, VVVdouble& likelihoodArray) const
+void DRHomogeneousTreeLikelihood::computeLikelihoodAtNode(const Node * node, VVVdouble& likelihoodArray) const
 {
-  const Node * node = tree_->getNode(nodeId);
-
+ // const Node * node = tree_->getNode(nodeId);
+  int nodeId = node->getId();
   likelihoodArray.resize(nbDistinctSites_);
   map<int, VVVdouble> * likelihoods_node = & likelihoodData_->getLikelihoodArrays(nodeId);
   

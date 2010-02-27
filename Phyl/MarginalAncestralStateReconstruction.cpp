@@ -65,7 +65,8 @@ vector<unsigned int> MarginalAncestralStateReconstruction::getAncestralStatesFor
   else
   {
     VVVdouble larray;
-    likelihood_->computeLikelihoodAtNode(nodeId, larray);
+    
+    likelihood_->computeLikelihoodAtNode(dynamic_cast<const TreeTemplate<Node> *>(&(likelihood_->getTree()))->getNode(nodeId), larray);
 		for(unsigned int i = 0; i < nbDistinctSites_; i++)
     {
 			VVdouble * larray_i = & larray[i];

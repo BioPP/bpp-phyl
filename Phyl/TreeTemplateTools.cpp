@@ -230,6 +230,7 @@ TreeTemplateTools::Element TreeTemplateTools::getElement(const string& elt) thro
 
 /******************************************************************************/
 
+
 Node * TreeTemplateTools::parenthesisToNode(const string& description, bool bootstrap, const string& propertyName, bool withId)
 {
   //cout << "NODE: " << description << endl;
@@ -867,4 +868,6 @@ void TreeTemplateTools::incrementAllIds(Node* node, int increment)
 }
 
 /******************************************************************************/
+
+
 

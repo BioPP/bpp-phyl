@@ -164,7 +164,7 @@ class DRTreeParsimonyScore :
 		 */
     double getTopologyValue() const throw (Exception) { return getScore(); }
 
-		double testNNI(int nodeId) const throw (NodeException);
+		double testNNI(Node * son) const throw (NodeException);
 
 		void doNNI(int nodeId) throw (NodeException);
 

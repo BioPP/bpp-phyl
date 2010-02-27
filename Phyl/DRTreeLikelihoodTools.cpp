@@ -78,7 +78,7 @@ VVVdouble DRTreeLikelihoodTools::getPosteriorProbabilitiesForEachStateForEachRat
   else
   {
     VVVdouble larray;
-    drl.computeLikelihoodAtNode(nodeId, larray);
+    drl.computeLikelihoodAtNode(dynamic_cast<const TreeTemplate<Node> *>(&(drl.getTree()))->getNode(nodeId), larray);
     
     Vdouble likelihoods(nSites, 0);
     for(unsigned int i = 0; i < nSites; i++)

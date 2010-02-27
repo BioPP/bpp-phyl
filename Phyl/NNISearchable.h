@@ -119,7 +119,7 @@ class NNISearchable:
 		 * @return The score variation of the NNI.
 		 * @throw NodeException If the node does not define a valid NNI.
 		 */
-		virtual double testNNI(int nodeId) const throw (NodeException) = 0;
+		virtual double testNNI(Node * son) const throw (NodeException) = 0;
 
 		/**
 		 * @brief Perform a NNI movement.

@@ -329,11 +329,11 @@ void DRHomogeneousMixedTreeLikelihood::computeRootLikelihood()
   }
 }
 
-void DRHomogeneousMixedTreeLikelihood::computeLikelihoodAtNode(int nodeId, VVVdouble& likelihoodArray) const
+void DRHomogeneousMixedTreeLikelihood::computeLikelihoodAtNode(const Node * node, VVVdouble& likelihoodArray) const
 {
   for (unsigned int i = 0; i < treeLikelihoodsContainer_.size(); i++)
   {
-    treeLikelihoodsContainer_[i]->computeLikelihoodAtNode(nodeId, likelihoodArray);
+    treeLikelihoodsContainer_[i]->computeLikelihoodAtNode(node, likelihoodArray);
   }
 }
 
