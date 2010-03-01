@@ -86,22 +86,15 @@ private:
   CodonAsynonymousFrequenciesReversibleSubstitutionModel pmodel_;
 
 public:
-  YN98(const GeneticCode* palph);
-       
-  ~YN98();
+  YN98(const GeneticCode* gc, FrequenciesSet* codonFreqs);
 
-  YN98(const YN98&);
+  ~YN98() {}
   
-#ifndef NO_VIRTUAL_COV
-    YN98*
-#else
-    Clonable*
-#endif
-    clone() const { return new YN98(*this); }
+  YN98* clone() const { return new YN98(*this); }
 
 public:
 
-    std::string getName() const;
+  std::string getName() const;
 	
   inline void updateMatrices();
 

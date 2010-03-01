@@ -45,22 +45,15 @@ using namespace std;
 
 /******************************************************************************/
 
-YN98::YN98(const GeneticCode* palph) :
-  AbstractSubstitutionModel(palph->getSourceAlphabet(), "YN98."),
-  pmodel_(palph, new FixedFrequenciesSet(palph->getSourceAlphabet()))
+YN98::YN98(const GeneticCode* gc, FrequenciesSet* codonFreqs) :
+  AbstractSubstitutionModel(gc->getSourceAlphabet(), "YN98."),
+  pmodel_(gc, codonFreqs)
 {
   addParameter_(Parameter("YN98.kappa", 1, &Parameter::R_PLUS_STAR));
-  addParameter_(Parameter("YN98.omega", 1, new IncludingInterval(0.0001, 999), true)); 
+  addParameter_(Parameter("YN98.omega", 1, new IncludingInterval(0.0001, 999), true));
+
   updateMatrices();
 }
-
-YN98::YN98(const YN98& yn98) :
-  AbstractSubstitutionModel(yn98),
-  pmodel_(yn98.pmodel_)
-{
-}
-
-YN98::~YN98() {};
 
 string YN98::getName() const
 {

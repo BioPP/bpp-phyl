@@ -807,3 +807,35 @@ string IndependentWordFrequenciesSet::getName() const
   }
   return s;
 }
+
+
+FrequenciesSet* FrequenciesSet::getFrequencySetForCodons(short option, const GeneticCode& gc)
+{
+  FrequenciesSet* codonFreqs;
+  if (option == F0)
+    codonFreqs = new FixedFrequenciesSet(dynamic_cast<const CodonAlphabet*>(gc.getTargetAlphabet()));
+  else if (option == F1X4)
+    codonFreqs = new IndependentWordFrequenciesSet(new FullNAFrequenciesSet(dynamic_cast<const NucleicAlphabet*>(gc.getSourceAlphabet())), 3);
+  else if (option == F3X4)
+  {
+    vector<FrequenciesSet*> v_AFS(3);
+    v_AFS[0] = new FullNAFrequenciesSet(dynamic_cast<const NucleicAlphabet*>(gc.getSourceAlphabet()));
+    v_AFS[1] = new FullNAFrequenciesSet(dynamic_cast<const NucleicAlphabet*>(gc.getSourceAlphabet()));
+    v_AFS[2] = new FullNAFrequenciesSet(dynamic_cast<const NucleicAlphabet*>(gc.getSourceAlphabet()));
+    codonFreqs = new IndependentWordFrequenciesSet(v_AFS);
+  }
+  else if (option == F61)
+    codonFreqs = new FullCodonFrequenciesSet(dynamic_cast<const CodonAlphabet*>(gc.getTargetAlphabet()));
+  else throw Exception("FrequenciesSet::getFrequencySetForCodons(). Unvalid codon frequency set argument.");
+  return codonFreqs;
+}
+
+/******************************************************************************/
+
+const short FrequenciesSet::F0   = 0;
+const short FrequenciesSet::F1X4 = 1;
+const short FrequenciesSet::F3X4 = 2;
+const short FrequenciesSet::F61  = 3;
+
+/******************************************************************************/
+

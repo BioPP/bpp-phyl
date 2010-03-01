@@ -530,7 +530,20 @@ SubstitutionModel* PhylogeneticsApplicationTools::getSubstitutionModelDefaultIns
     if (args.find("kappa") != args.end())
       unparsedParameterValues["YN98.kappa"] = args["kappa"];
 
-    model = new YN98(pgc);
+    string freqOpt = ApplicationTools::getStringParameter("codon_freqs", args, "F0");
+    short opt = 0;
+    if (freqOpt == "F0")
+      opt = FrequenciesSet::F0;
+    else if (freqOpt == "F1X4")
+      opt = FrequenciesSet::F1X4;
+    else if (freqOpt == "F3X4")
+      opt = FrequenciesSet::F3X4;
+    else if (freqOpt == "F61")
+      opt = FrequenciesSet::F61;
+    else
+      throw Exception("Unvalid codon frequency option. Should be one of F0, F1X4, F3X4 or F61");
+    FrequenciesSet* codonFreqs = FrequenciesSet::getFrequencySetForCodons(opt, *pgc);
+    model = new YN98(pgc, codonFreqs);
   }
 
   // /////////////////////////////////

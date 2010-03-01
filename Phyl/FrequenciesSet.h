@@ -52,6 +52,7 @@ knowledge of the CeCILL license and that you accept its terms.
 #include <Seq/ProteicAlphabet.h>
 #include <Seq/WordAlphabet.h>
 #include <Seq/CodonAlphabet.h>
+#include <Seq/GeneticCode.h>
 
 namespace bpp
 {
@@ -103,6 +104,20 @@ public:
    * but it needs not be.
    */
   virtual unsigned int getNumberOfFrequencies() const = 0;
+
+public:
+  /**
+   * @brief A helper function that provide frequencies set for codon models
+   * according to PAML option.
+   *
+   * @param option A code describing the option, one of F61, F1X4 or F3X4.
+   * @param gc The genetic code to use.
+   */
+  static FrequenciesSet* getFrequencySetForCodons(short option, const GeneticCode& gc);
+  static const short F0;
+  static const short F1X4;
+  static const short F3X4;
+  static const short F61;
 
 };
 
