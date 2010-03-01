@@ -813,19 +813,19 @@ FrequenciesSet* FrequenciesSet::getFrequencySetForCodons(short option, const Gen
 {
   FrequenciesSet* codonFreqs;
   if (option == F0)
-    codonFreqs = new FixedFrequenciesSet(dynamic_cast<const CodonAlphabet*>(gc.getTargetAlphabet()));
+    codonFreqs = new FixedFrequenciesSet(dynamic_cast<const CodonAlphabet*>(gc.getSourceAlphabet()));
   else if (option == F1X4)
-    codonFreqs = new IndependentWordFrequenciesSet(new FullNAFrequenciesSet(dynamic_cast<const NucleicAlphabet*>(gc.getSourceAlphabet())), 3);
+    codonFreqs = new IndependentWordFrequenciesSet(new FullNAFrequenciesSet(dynamic_cast<const CodonAlphabet*>(gc.getSourceAlphabet())->getNucleicAlphabet()), 3);
   else if (option == F3X4)
   {
     vector<FrequenciesSet*> v_AFS(3);
-    v_AFS[0] = new FullNAFrequenciesSet(dynamic_cast<const NucleicAlphabet*>(gc.getSourceAlphabet()));
-    v_AFS[1] = new FullNAFrequenciesSet(dynamic_cast<const NucleicAlphabet*>(gc.getSourceAlphabet()));
-    v_AFS[2] = new FullNAFrequenciesSet(dynamic_cast<const NucleicAlphabet*>(gc.getSourceAlphabet()));
+    v_AFS[0] = new FullNAFrequenciesSet(dynamic_cast<const CodonAlphabet*>(gc.getSourceAlphabet())->getNucleicAlphabet());
+    v_AFS[1] = new FullNAFrequenciesSet(dynamic_cast<const CodonAlphabet*>(gc.getSourceAlphabet())->getNucleicAlphabet());
+    v_AFS[2] = new FullNAFrequenciesSet(dynamic_cast<const CodonAlphabet*>(gc.getSourceAlphabet())->getNucleicAlphabet());
     codonFreqs = new IndependentWordFrequenciesSet(v_AFS);
   }
   else if (option == F61)
-    codonFreqs = new FullCodonFrequenciesSet(dynamic_cast<const CodonAlphabet*>(gc.getTargetAlphabet()));
+    codonFreqs = new FullCodonFrequenciesSet(dynamic_cast<const CodonAlphabet*>(gc.getSourceAlphabet()));
   else throw Exception("FrequenciesSet::getFrequencySetForCodons(). Unvalid codon frequency set argument.");
   return codonFreqs;
 }
