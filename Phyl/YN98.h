@@ -79,7 +79,7 @@ namespace bpp
  * -  Yang Z. and Nielsen R. (1998), _Journal of Molecular Evolution_ 46:409--418.
  */
 class YN98:
-  public AbstractSubstitutionModel
+  public AbstractReversibleSubstitutionModel
 {
 private:
 
@@ -96,8 +96,6 @@ public:
 
   std::string getName() const;
 	
-  inline void updateMatrices();
-
   const Vdouble& getFrequencies() const { return pmodel_.getFrequencies(); }
        
   const Matrix<double>& getGenerator() const { return pmodel_.getGenerator(); }
@@ -129,6 +127,9 @@ public:
   void enableEigenDecomposition(bool yn) { eigenDecompose_ = 1; }
 
   bool enableEigenDecomposition() { return pmodel_.enableEigenDecomposition(); }
+
+protected:
+  void updateMatrices();
 
 };
 

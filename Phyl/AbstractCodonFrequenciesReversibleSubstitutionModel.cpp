@@ -86,21 +86,21 @@ AbstractCodonFrequenciesReversibleSubstitutionModel::~AbstractCodonFrequenciesRe
 
 void AbstractCodonFrequenciesReversibleSubstitutionModel::fireParameterChanged(const ParameterList& parameters)
 {
-   pfreqset_->matchParametersValues(parameters);
-   AbstractWordReversibleSubstitutionModel::fireParameterChanged(parameters);
+  pfreqset_->matchParametersValues(parameters);
+  AbstractWordReversibleSubstitutionModel::fireParameterChanged(parameters);
 }
 
 
 void AbstractCodonFrequenciesReversibleSubstitutionModel::setFreq(map<int,double>& frequencies)
 {
-   pfreqset_->setFrequenciesFromMap(frequencies);
+  pfreqset_->setFrequenciesFromMap(frequencies);
   updateMatrices();
 }
 
 void AbstractCodonFrequenciesReversibleSubstitutionModel::completeMatrices()
 {
-   unsigned int i, j;
-   unsigned int salph = getNumberOfStates();
+  unsigned int i, j;
+  unsigned int salph = getNumberOfStates();
 
   freq_ = pfreqset_->getFrequencies();
 

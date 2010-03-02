@@ -46,12 +46,12 @@ using namespace std;
 /******************************************************************************/
 
 YN98::YN98(const GeneticCode* gc, FrequenciesSet* codonFreqs) :
-  AbstractSubstitutionModel(gc->getSourceAlphabet(), "YN98."),
+  AbstractReversibleSubstitutionModel(gc->getSourceAlphabet(), "YN98."),
   pmodel_(gc, codonFreqs)
 {
   addParameter_(Parameter("YN98.kappa", 1, &Parameter::R_PLUS_STAR));
   addParameter_(Parameter("YN98.omega", 1, new IncludingInterval(0.0001, 999), true));
-  pmodel_.setNamespace("YN98");
+  pmodel_.setNamespace("YN98.");
   addParameters_(codonFreqs->getParameters());
   updateMatrices();
 }
@@ -63,7 +63,7 @@ string YN98::getName() const
 
 void YN98::updateMatrices()
 {
-  ParameterList pl = pmodel_.getFreq().getParameters();
+  ParameterList pl = getParameters().subList(pmodel_.getFreq().getParameters().getParameterNames());
   pl.addParameter(Parameter("YN98.123_K80.kappa", getParameterValue("kappa")));
   pl.addParameter(Parameter("YN98.beta", getParameterValue("omega")));
   pmodel_.matchParametersValues(pl);

@@ -185,7 +185,7 @@ AbstractWordReversibleSubstitutionModel::AbstractWordReversibleSubstitutionModel
   }
 }
 
-AbstractWordReversibleSubstitutionModel & AbstractWordReversibleSubstitutionModel::operator=(
+AbstractWordReversibleSubstitutionModel& AbstractWordReversibleSubstitutionModel::operator=(
   const AbstractWordReversibleSubstitutionModel& wrsm)
 {
   AbstractReversibleSubstitutionModel::operator=(wrsm);
@@ -279,27 +279,27 @@ void AbstractWordReversibleSubstitutionModel::fireParameterChanged(const Paramet
     {
       VSubMod_[i]->matchParametersValues(parameters);
     }
-  updateMatrices();
+  AbstractReversibleSubstitutionModel::fireParameterChanged(parameters);
 }
 
 /******************************************************************************/
 
 void AbstractWordReversibleSubstitutionModel::updateMatrices()
 {
-   unsigned int nbmod = VSubMod_.size();
-   unsigned int salph = getNumberOfStates();
+  unsigned int nbmod = VSubMod_.size();
+  unsigned int salph = getNumberOfStates();
 
   // Generator
 
   if (enableEigenDecomposition())
   {
-   unsigned int i, j, n, l, k, m;
+    unsigned int i, j, n, l, k, m;
 
-   vector<unsigned int> vsize;
+    vector<unsigned int> vsize;
 
     for (k = 0; k < nbmod; k++)
     {
-   vsize.push_back(VSubMod_[k]->getNumberOfStates());
+      vsize.push_back(VSubMod_[k]->getNumberOfStates());
     }
 
     RowMatrix<double> gk, exch;
@@ -345,11 +345,11 @@ void AbstractWordReversibleSubstitutionModel::updateMatrices()
 
   if (enableEigenDecomposition())
   {
-   unsigned int i, j;
-   double x;
+    unsigned int i, j;
+    double x;
 
-   unsigned int nbStop;
-   Vdouble vi;
+    unsigned int nbStop;
+    Vdouble vi;
 
     for (i = 0; i < salph; i++)
     {
@@ -362,13 +362,14 @@ void AbstractWordReversibleSubstitutionModel::updateMatrices()
       generator_(i, i) = -x;
     }
 
+    //02/03/10 Julien: this should be avoided, we have to find a way to avoid particular cases like this...
     if (AlphabetTools::isCodonAlphabet(getAlphabet()))
     {
-   int gi = 0, gj = 0;
+      int gi = 0, gj = 0;
 
-   const CodonAlphabet* pca = dynamic_cast<const CodonAlphabet*>(getAlphabet());
+      const CodonAlphabet* pca = dynamic_cast<const CodonAlphabet*>(getAlphabet());
 
-   RowMatrix<double> gk;
+      RowMatrix<double> gk;
 
       nbStop = pca->numberOfStopCodons();
       gk.resize(salph - nbStop, salph - nbStop);
@@ -381,7 +382,7 @@ void AbstractWordReversibleSubstitutionModel::updateMatrices()
           {
             if (!pca->isStop(j))
             {
-              gk(i - gi, j - gj) = generator_(i,j);
+              gk(i - gi, j - gj) = generator_(i, j);
             }
             else
               gj++;
@@ -397,11 +398,11 @@ void AbstractWordReversibleSubstitutionModel::updateMatrices()
 
       for (i = 0; i < nbStop; i++)
       {
-   eigenValues_.push_back(0);
+        eigenValues_.push_back(0);
       }
 
       RowMatrix<double> rev = ev.getV();
-      rightEigenVectors_.resize(salph,salph);
+      rightEigenVectors_.resize(salph, salph);
       gi = 0;
       for (i = 0; i < salph; i++)
       {
@@ -429,14 +430,14 @@ void AbstractWordReversibleSubstitutionModel::updateMatrices()
     }
     else
     {
-   EigenValue<double> ev(generator_);
+      EigenValue<double> ev(generator_);
       eigenValues_ = ev.getRealEigenValues();
       vi = ev.getImagEigenValues();
       rightEigenVectors_ = ev.getV();
       nbStop = 0;
     }
 
-    MatrixTools::inv(rightEigenVectors_,leftEigenVectors_);
+    MatrixTools::inv(rightEigenVectors_, leftEigenVectors_);
 
     // looking for the 0 eigenvector
 
@@ -491,16 +492,16 @@ void AbstractWordReversibleSubstitutionModel::updateMatrices()
 
 void AbstractWordReversibleSubstitutionModel::setFreq(std::map<int, double>& freqs)
 {
-   map<int, double> tmpFreq;
-   unsigned int nbmod = VSubMod_.size();
+  map<int, double> tmpFreq;
+  unsigned int nbmod = VSubMod_.size();
 
-   unsigned int i, j, s, k, d, size;
+  unsigned int i, j, s, k, d, size;
 
   d = size = getNumberOfStates();
 
   for (i = 0; i < nbmod; i++)
   {
-   tmpFreq.clear();
+    tmpFreq.clear();
     s = VSubMod_[i]->getAlphabet()->getSize();
     d /= s;
     for (j = 0; j < s; j++)

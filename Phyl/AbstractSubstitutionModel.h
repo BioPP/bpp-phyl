@@ -216,7 +216,7 @@ public:
    *
    * This updates the matrices consequently.
    */
-  void fireParameterChanged(const ParameterList& parameters)
+  virtual void fireParameterChanged(const ParameterList& parameters)
   {
     AbstractParameterAliasable::fireParameterChanged(parameters);
     updateMatrices();
@@ -269,7 +269,7 @@ protected:
  */
 class AbstractReversibleSubstitutionModel :
   public AbstractSubstitutionModel,
-  public ReversibleSubstitutionModel
+  public virtual ReversibleSubstitutionModel
 {
 protected:
   /**
@@ -284,12 +284,16 @@ public:
 
   virtual ~AbstractReversibleSubstitutionModel() {}
 
+#ifndef NO_VIRTUAL_COV
   virtual AbstractReversibleSubstitutionModel* clone() const = 0;
+#endif
+
 
 public:
   const Matrix<double>& getExchangeabilityMatrix() const { return exchangeability_; }
   double Sij(unsigned int i, unsigned int j) const { return exchangeability_(i, j); }
 
+protected:
   /**
    * @brief Compute and diagonalize the \f$Q\f$ matrix, and fill the eigenValues_,
    * leftEigenVectors_ and rightEigenVectors_ matrices.

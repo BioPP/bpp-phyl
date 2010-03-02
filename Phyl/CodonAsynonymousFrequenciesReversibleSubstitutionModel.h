@@ -99,7 +99,7 @@ public:
     pdistance_(cfm.pdistance_)
   {}
 
-  CodonAsynonymousFrequenciesReversibleSubstitutionModel & operator=(
+  CodonAsynonymousFrequenciesReversibleSubstitutionModel& operator=(
     const CodonAsynonymousFrequenciesReversibleSubstitutionModel& cfm)
   {
     AbstractCodonFrequenciesReversibleSubstitutionModel::operator=(cfm);
@@ -123,6 +123,7 @@ public:
 
   const GeneticCode* getGeneticCode() const { return geneticCode_; }
 };
+
 } // end of namespace bpp.
 
 #endif

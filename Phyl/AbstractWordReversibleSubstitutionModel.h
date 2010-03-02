@@ -93,7 +93,7 @@ protected:
   static Alphabet* extractAlph(const std::vector<SubstitutionModel*>& modelVector);
 
 protected:
-  virtual void updateMatrices();
+  void updateMatrices();
 
   /**
    * @brief Called by updateMatrices to handle specific modifications
@@ -138,7 +138,7 @@ public:
 
   virtual ~AbstractWordReversibleSubstitutionModel();
 
-  virtual void fireParameterChanged(const ParameterList&);
+  void fireParameterChanged(const ParameterList& parameters);
 
   void setNamespace(const std::string& prefix);
 

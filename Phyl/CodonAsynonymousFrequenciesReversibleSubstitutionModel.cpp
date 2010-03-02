@@ -56,9 +56,9 @@ CodonAsynonymousFrequenciesReversibleSubstitutionModel::CodonAsynonymousFrequenc
   pdistance_(pdist)
 {
   if (pdistance_)
-    addParameter_(Parameter("CodonAsynonymousFrequencies.alpha",10000,&Parameter::R_PLUS_STAR));
+    addParameter_(Parameter("CodonAsynonymousFrequencies.alpha", 10000, &Parameter::R_PLUS_STAR));
 
-  addParameter_(Parameter("CodonAsynonymousFrequencies.beta",1,&Parameter::R_PLUS_STAR));
+  addParameter_(Parameter("CodonAsynonymousFrequencies.beta", 1, &Parameter::R_PLUS_STAR));
   updateMatrices();
 }
 
@@ -69,11 +69,11 @@ string CodonAsynonymousFrequenciesReversibleSubstitutionModel::getName() const
 
 void CodonAsynonymousFrequenciesReversibleSubstitutionModel::completeMatrices()
 {
-   unsigned int i, j;
-   unsigned int salph = getNumberOfStates();
-   double alpha = pdistance_ ? getParameterValue("alpha") : 1;
-   double beta = getParameterValue("beta");
-   const CodonAlphabet* ca = dynamic_cast<const CodonAlphabet*>(geneticCode_->getSourceAlphabet());
+  unsigned int i, j;
+  unsigned int salph = getNumberOfStates();
+  double alpha = pdistance_ ? getParameterValue("alpha") : 1;
+  double beta = getParameterValue("beta");
+  const CodonAlphabet* ca = dynamic_cast<const CodonAlphabet*>(geneticCode_->getSourceAlphabet());
 
   for (i = 0; i < salph; i++)
   {
