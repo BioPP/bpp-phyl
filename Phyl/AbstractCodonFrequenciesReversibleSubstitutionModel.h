@@ -67,6 +67,7 @@ class AbstractCodonFrequenciesReversibleSubstitutionModel :
 {
 protected:
   FrequenciesSet* pfreqset_;
+  std::string freqPrefix_;
 
 public:
   /**
@@ -77,23 +78,25 @@ public:
    *@param palph pointer to a CodonAlphabet
    *@param pfreq pointer to the AbstractFrequenciesSet equilibrium frequencies.
    *        It is owned by the instance.
-   *@param st  string for the Namespace
+   *@param prefix the Namespace
    */
-
-  AbstractCodonFrequenciesReversibleSubstitutionModel(const CodonAlphabet* palph,
-                                                      FrequenciesSet* pfreq,
-                                                      const std::string& st) throw (Exception);
+  AbstractCodonFrequenciesReversibleSubstitutionModel(
+      const CodonAlphabet* palph,
+      FrequenciesSet* pfreq,
+      const std::string& prefix) throw (Exception);
 
   AbstractCodonFrequenciesReversibleSubstitutionModel(const AbstractCodonFrequenciesReversibleSubstitutionModel& wrsm) :
     AbstractWordReversibleSubstitutionModel(wrsm),
-    pfreqset_(wrsm.pfreqset_->clone())
+    pfreqset_(wrsm.pfreqset_->clone()),
+    freqPrefix_(wrsm.freqPrefix_)
   {}
 
-  AbstractCodonFrequenciesReversibleSubstitutionModel & operator=(const AbstractCodonFrequenciesReversibleSubstitutionModel& wrsm)
+  AbstractCodonFrequenciesReversibleSubstitutionModel& operator=(const AbstractCodonFrequenciesReversibleSubstitutionModel& wrsm)
   {
     AbstractWordReversibleSubstitutionModel::operator=(wrsm);
     if (pfreqset_) delete pfreqset_;
-    pfreqset_ = wrsm.pfreqset_->clone();
+    pfreqset_   = wrsm.pfreqset_->clone();
+    freqPrefix_ = wrsm.freqPrefix_;
     return *this;
   }
 
@@ -103,11 +106,18 @@ public:
 
   void setFreq(std::map<int, double>& frequencies);
 
-  const FrequenciesSet* getFreq() const { return pfreqset_; }
+  const FrequenciesSet& getFreq() const { return *pfreqset_; }
+
+  void setNamespace(const std::string& prefix)
+  {
+    AbstractWordReversibleSubstitutionModel::setNamespace(prefix);
+    pfreqset_->setNamespace(prefix + "freq_" + freqPrefix_);
+  }
 
 protected:
   virtual void completeMatrices();
 };
+
 } // end of namespace bpp.
 
 #endif

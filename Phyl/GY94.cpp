@@ -65,7 +65,7 @@ GY94::GY94(const GY94& gy94) :
 GY94& GY94::operator=(const GY94& gy94)
 {
   AbstractSubstitutionModel::operator=(gy94);
-  pmodel_ = CodonAsynonymousFrequenciesReversibleSubstitutionModel(gy94.pmodel_.getGeneticCode(), gy94.pmodel_.getFreq()->clone(), &gacd_);
+  pmodel_ = CodonAsynonymousFrequenciesReversibleSubstitutionModel(gy94.pmodel_.getGeneticCode(), gy94.pmodel_.getFreq().clone(), &gacd_);
   return *this;
 }
 

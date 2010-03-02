@@ -50,9 +50,10 @@ using namespace std;
 AbstractCodonFrequenciesReversibleSubstitutionModel::AbstractCodonFrequenciesReversibleSubstitutionModel(
   const CodonAlphabet* palph,
   FrequenciesSet* pfreq,
-  const std::string& st) throw (Exception) :
-  AbstractWordReversibleSubstitutionModel(palph,st),
-  pfreqset_(pfreq)
+  const std::string& prefix) throw (Exception) :
+  AbstractWordReversibleSubstitutionModel(palph, prefix),
+  pfreqset_(pfreq),
+  freqPrefix_(pfreq->getNamespace())
 {
   enableEigenDecomposition(1);
 
@@ -62,18 +63,18 @@ AbstractCodonFrequenciesReversibleSubstitutionModel::AbstractCodonFrequenciesRev
 
   for (unsigned i = 0; i < 3; i++)
   {
-   VSubMod_.push_back(pmodel);
-   VnestedPrefix_.push_back(pmodel->getNamespace());
+    VSubMod_.push_back(pmodel);
+    VnestedPrefix_.push_back(pmodel->getNamespace());
     rate_[i] = 1.0 / 3;
   }
 
-  pmodel->setNamespace(st + "123_" + VnestedPrefix_[0]);
+  pmodel->setNamespace(prefix + "123_" + VnestedPrefix_[0]);
   addParameters_(pmodel->getParameters());
 
   if (pfreqset_->getAlphabet()->getSize() != 64)
     throw Exception("Bad Alphabet for equilibrium frequencies " + pfreqset_->getAlphabet()->getAlphabetType());
 
-  pfreqset_->setNamespace(st + pfreqset_->getNamespace());
+  pfreqset_->setNamespace(prefix + "freq_" + freqPrefix_);
   addParameters_(pfreqset_->getParameters());
 }
 
@@ -81,7 +82,6 @@ AbstractCodonFrequenciesReversibleSubstitutionModel::~AbstractCodonFrequenciesRe
 {
   if (pfreqset_)
     delete pfreqset_;
-  pfreqset_ = 0;
 }
 
 void AbstractCodonFrequenciesReversibleSubstitutionModel::fireParameterChanged(const ParameterList& parameters)

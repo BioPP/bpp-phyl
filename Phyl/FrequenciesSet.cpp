@@ -511,18 +511,18 @@ IndependentWordFrequenciesSet::IndependentWordFrequenciesSet(
     {
       vFreq_.push_back(freqvector[i]);
       vNestedPrefix_.push_back(freqvector[i]->getNamespace());
-      vFreq_[i]->setNamespace("IndependentWord." + TextTools::toString(i) + "_" + vNestedPrefix_[i]);
+      vFreq_[i]->setNamespace("IndependentWord." + TextTools::toString(i + 1) + "_" + vNestedPrefix_[i]);
       addParameters_(vFreq_[i]->getParameters());
     }
   }
   else
   {
-   string st = "";
+    string st = "";
     for (i = 0; i < l; i++)
     {
       vFreq_.push_back(freqvector[0]);
       vNestedPrefix_.push_back(freqvector[0]->getNamespace());
-      st += TextTools::toString(i);
+      st += TextTools::toString(i + 1);
     }
     vFreq_[0]->setNamespace("IndependentWord." + st + "_" + vNestedPrefix_[0]);
     addParameters_(vFreq_[0]->getParameters());
@@ -552,7 +552,7 @@ IndependentWordFrequenciesSet::IndependentWordFrequenciesSet(
 IndependentWordFrequenciesSet::IndependentWordFrequenciesSet(
     FrequenciesSet* pabsfreq, int num) :
   AbstractFrequenciesSet(
-      static_cast<int>(pow((double)pabsfreq->getAlphabet()->getSize(), num)),
+      static_cast<int>(pow(static_cast<double>(pabsfreq->getAlphabet()->getSize()), num)),
       new WordAlphabet(pabsfreq->getAlphabet(), num), "IndependentWord."),
   vFreq_(),
   vNestedPrefix_(),
@@ -565,7 +565,7 @@ IndependentWordFrequenciesSet::IndependentWordFrequenciesSet(
   {
     vFreq_.push_back(pabsfreq);
     vNestedPrefix_.push_back(pabsfreq->getNamespace());
-    st += TextTools::toString(i);
+    st += TextTools::toString(i + 1);
   }
   vFreq_[0]->setNamespace("IndependentWord." + st + "_" + vNestedPrefix_[0]);
   addParameters_(vFreq_[0]->getParameters());
@@ -794,7 +794,7 @@ void IndependentWordFrequenciesSet::setNamespace(const string& prefix)
   AbstractFrequenciesSet::setNamespace(prefix);
   for (unsigned int i = 0; i < vFreq_.size(); i++)
   {
-    vFreq_[i]->setNamespace(prefix + TextTools::toString(i) + "_" + vNestedPrefix_[i]);
+    vFreq_[i]->setNamespace(prefix + TextTools::toString(i + 1) + "_" + vNestedPrefix_[i]);
   }
 }
 

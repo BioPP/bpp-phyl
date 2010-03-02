@@ -51,7 +51,8 @@ YN98::YN98(const GeneticCode* gc, FrequenciesSet* codonFreqs) :
 {
   addParameter_(Parameter("YN98.kappa", 1, &Parameter::R_PLUS_STAR));
   addParameter_(Parameter("YN98.omega", 1, new IncludingInterval(0.0001, 999), true));
-
+  pmodel_.setNamespace("YN98");
+  addParameters_(codonFreqs->getParameters());
   updateMatrices();
 }
 
@@ -62,9 +63,8 @@ string YN98::getName() const
 
 void YN98::updateMatrices()
 {
-  ParameterList Pl;
-  Pl.addParameter(Parameter("CodonAsynonymousFrequencies.123_K80.kappa", getParameterValue("kappa")));
-  Pl.addParameter(Parameter("CodonAsynonymousFrequencies.beta", getParameterValue("omega")));
-
-  pmodel_.matchParametersValues(Pl);
+  ParameterList pl = pmodel_.getFreq().getParameters();
+  pl.addParameter(Parameter("YN98.123_K80.kappa", getParameterValue("kappa")));
+  pl.addParameter(Parameter("YN98.beta", getParameterValue("omega")));
+  pmodel_.matchParametersValues(pl);
 }
