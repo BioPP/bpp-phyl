@@ -543,14 +543,16 @@ SubstitutionModel* PhylogeneticsApplicationTools::getSubstitutionModelDefaultIns
     else
       throw Exception("Unvalid codon frequency option. Should be one of F0, F1X4, F3X4 or F61");
     FrequenciesSet* codonFreqs = FrequenciesSet::getFrequencySetForCodons(opt, *pgc);
+    model = new YN98(pgc, codonFreqs);
+    
     vector<string> pnames = codonFreqs->getParameters().getParameterNames();
     for (unsigned int i = 0; i < pnames.size(); i++)
     {
-      string name = codonFreqs->getParameterNameWithoutNamespace(pnames[i]);
+      string name = model->getParameterNameWithoutNamespace(pnames[i]);
+      cout << name << endl;
       if (args.find(name) != args.end())
         unparsedParameterValues["YN98." + name] = args[name];
     }
-    model = new YN98(pgc, codonFreqs);
   }
 
   // /////////////////////////////////
