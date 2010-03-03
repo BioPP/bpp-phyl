@@ -523,7 +523,7 @@ SubstitutionModel* PhylogeneticsApplicationTools::getSubstitutionModelDefaultIns
 
     GeneticCode* pgc = SequenceApplicationTools::getGeneticCode(dynamic_cast<const NucleicAlphabet*>(pCA->getNAlphabet(0)),args["geneticcode"]);
     if (pgc->getSourceAlphabet()->getAlphabetType() != pCA->getAlphabetType())
-      throw Exception("Mismatch  between genetic code and codon alphabet");
+      throw Exception("Mismatch between genetic code and codon alphabet");
 
     if (args.find("omega") != args.end())
       unparsedParameterValues["YN98.omega"] = args["omega"];
@@ -543,6 +543,13 @@ SubstitutionModel* PhylogeneticsApplicationTools::getSubstitutionModelDefaultIns
     else
       throw Exception("Unvalid codon frequency option. Should be one of F0, F1X4, F3X4 or F61");
     FrequenciesSet* codonFreqs = FrequenciesSet::getFrequencySetForCodons(opt, *pgc);
+    vector<string> pnames = codonFreqs->getParameters().getParameterNames();
+    for (unsigned int i = 0; i < pnames.size(); i++)
+    {
+      string name = codonFreqs->getParameterNameWithoutNamespace(pnames[i]);
+      if (args.find(name) != args.end())
+        unparsedParameterValues["YN98." + name] = args[name];
+    }
     model = new YN98(pgc, codonFreqs);
   }
 
