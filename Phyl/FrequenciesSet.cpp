@@ -694,10 +694,10 @@ void IndependentWordFrequenciesSet::updateFrequencies()
   {
     i2 = i;
     getFreq_(i2) = 1;
-    for (p = l - 1; p >= 0; p--)
+    for (p = l; p > 0; p--)
     {
-      t = vFreq_[p]->getAlphabet()->getSize();
-      getFreq_(i) *= f[p][i2 % t];
+      t = vFreq_[p - 1]->getAlphabet()->getSize();
+      getFreq_(i) *= f[p - 1][i2 % t];
       i2 /= t;
     }
   }
@@ -792,9 +792,19 @@ IndependentWordFrequenciesSet::~IndependentWordFrequenciesSet()
 void IndependentWordFrequenciesSet::setNamespace(const string& prefix)
 {
   AbstractFrequenciesSet::setNamespace(prefix);
-  for (unsigned int i = 0; i < vFreq_.size(); i++)
+  if (uniqueAbsFreq_)
   {
-    vFreq_[i]->setNamespace(prefix + TextTools::toString(i + 1) + "_" + vNestedPrefix_[i]);
+    string st = "";
+    for (unsigned i = 0; i < vFreq_.size(); i++)
+      st += TextTools::toString(i + 1);
+    vFreq_[0]->setNamespace(prefix + st + "_" + vNestedPrefix_[0]);
+  }
+  else
+  {
+    for (unsigned int i = 0; i < vFreq_.size(); i++)
+    {
+      vFreq_[i]->setNamespace(prefix + TextTools::toString(i + 1) + "_" + vNestedPrefix_[i]);
+    }
   }
 }
 
