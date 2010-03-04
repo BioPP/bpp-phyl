@@ -273,7 +273,7 @@ void AbstractHomogeneousTreeLikelihood::initParameters()
   addParameters_(brLenParameters_);
   
   // Substitution model:
-  addParameters_(model_->getParameters());
+  addParameters_(model_->getIndependentParameters());
   
   // Rate distribution:
   addParameters_(rateDistribution_->getIndependentParameters());

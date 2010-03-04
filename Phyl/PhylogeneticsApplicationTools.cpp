@@ -854,7 +854,8 @@ SubstitutionModel* PhylogeneticsApplicationTools::getSubstitutionModelDefaultIns
     for (unsigned int j = 0; j < pl.size() && !found; j++)
     {
       pname2 = model->getParameterNameWithoutNamespace(pl[j].getName());
-      if (j == i || args.find(pname2) == args.end()) continue;
+      //if (j == i || args.find(pname2) == args.end()) continue; Julien 03/03/2010: This extra condition prevents complicated (nested) models to work properly...
+      if (j == i) continue;
       if (pval == pname2)
       {
         // This is an alias...
