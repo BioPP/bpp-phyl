@@ -95,10 +95,10 @@ AbstractWordReversibleSubstitutionModel::AbstractWordReversibleSubstitutionModel
   {
     for (i = 0; i < n; i++)
     {
-   VSubMod_.push_back(modelVector[i]);
-   VnestedPrefix_.push_back(modelVector[i]->getNamespace());
-   VSubMod_[i]->setNamespace(st + TextTools::toString(i+1) + "_" + VnestedPrefix_[i]);
-   addParameters_(VSubMod_[i]->getParameters());
+      VSubMod_.push_back(modelVector[i]);
+      VnestedPrefix_.push_back(modelVector[i]->getNamespace());
+      VSubMod_[i]->setNamespace(st + TextTools::toString(i+1) + "_" + VnestedPrefix_[i]);
+      addParameters_(VSubMod_[i]->getParameters());
     }
   }
   else
@@ -106,8 +106,8 @@ AbstractWordReversibleSubstitutionModel::AbstractWordReversibleSubstitutionModel
    string t = "";
     for (i = 0; i < n; i++)
     {
-   VSubMod_.push_back(modelVector[0]);
-   VnestedPrefix_.push_back(modelVector[0]->getNamespace());
+      VSubMod_.push_back(modelVector[0]);
+      VnestedPrefix_.push_back(modelVector[0]->getNamespace());
       t += TextTools::toString(i+1);
     }
     VSubMod_[0]->setNamespace(st + t + "_" + VnestedPrefix_[0]);
@@ -270,22 +270,21 @@ void AbstractWordReversibleSubstitutionModel::setNamespace(const std::string& pr
   }
 }
 
-void AbstractWordReversibleSubstitutionModel::fireParameterChanged(const ParameterList& parameters)
-{
-  if (VSubMod_.size() < 2 || VSubMod_[0] == VSubMod_[1])
-    VSubMod_[0]->matchParametersValues(parameters);
-  else
-    for (unsigned int i = 0; i < VSubMod_.size(); i++)
-    {
-      VSubMod_[i]->matchParametersValues(parameters);
-    }
-  AbstractReversibleSubstitutionModel::fireParameterChanged(parameters);
-}
-
 /******************************************************************************/
 
 void AbstractWordReversibleSubstitutionModel::updateMatrices()
 {
+  //First we update position specific models. This need to be done here and not
+  //in fireParameterChanged, has some parameter aliases might have been defined
+  //and need to be resolved first.
+  if (VSubMod_.size() < 2 || VSubMod_[0] == VSubMod_[1])
+    VSubMod_[0]->matchParametersValues(getParameters());
+  else
+    for (unsigned int i = 0; i < VSubMod_.size(); i++)
+    {
+      VSubMod_[i]->matchParametersValues(getParameters());
+    }
+
   unsigned int nbmod = VSubMod_.size();
   unsigned int salph = getNumberOfStates();
 

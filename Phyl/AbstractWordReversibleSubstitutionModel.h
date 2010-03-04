@@ -138,8 +138,6 @@ public:
 
   virtual ~AbstractWordReversibleSubstitutionModel();
 
-  void fireParameterChanged(const ParameterList& parameters);
-
   void setNamespace(const std::string& prefix);
 
 protected:
