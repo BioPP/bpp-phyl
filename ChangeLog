@@ -1,3 +1,6 @@
+09/03/10 Julien Dutheil
+* Added reparametrization option in optimization methods.
+
 26/02/10 Nicolas Rochette and Julien Dutheil
 * More efficient TreeTemplateTools::getDistanceMatrix.
 

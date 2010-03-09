@@ -76,6 +76,7 @@ class NNITopologyListener:
     unsigned int optimizeNumerical_;
     std::string optMethod_;
     unsigned int nStep_;
+    bool reparametrization_;
 
   public:
     /**
@@ -92,6 +93,8 @@ class NNITopologyListener:
      * @param verbose    Verbose level during optimization.
      * @param optMethod  Optimization method to use.
      * @param nStep      The number of optimization steps to perform.
+     * @param reparametrization Tell if parameters should be transformed in order to remove constraints.
+     *                          This can improve optimization, but is a bit slower.
      */
     NNITopologyListener(
         NNITopologySearch* ts,
@@ -101,12 +104,13 @@ class NNITopologyListener:
         OutputStream* profiler,
         unsigned int verbose,
         const std::string& optMethod,
-        unsigned int nStep):
+        unsigned int nStep,
+        bool reparametrization) :
       topoSearch_(ts), parameters_(parameters), tolerance_(tolerance),
       messenger_(messenger), profiler_(profiler),
       verbose_(verbose),
       optimizeCounter_(0), optimizeNumerical_(1),
-      optMethod_(optMethod), nStep_(nStep) {}
+      optMethod_(optMethod), nStep_(nStep), reparametrization_(reparametrization) {}
 
     NNITopologyListener(const NNITopologyListener& tl) :
       topoSearch_(tl.topoSearch_),
@@ -118,7 +122,8 @@ class NNITopologyListener:
       optimizeCounter_(tl.optimizeCounter_),
       optimizeNumerical_(tl.optimizeNumerical_),
       optMethod_(tl.optMethod_),
-      nStep_(tl.nStep_)
+      nStep_(tl.nStep_),
+      reparametrization_(tl.reparametrization_)
     {}
 
     NNITopologyListener& operator=(const NNITopologyListener& tl)
@@ -133,6 +138,7 @@ class NNITopologyListener:
       optimizeNumerical_ = tl.optimizeNumerical_;
       optMethod_         = tl.optMethod_;
       nStep_             = tl.nStep_;
+      reparametrization_ = tl.reparametrization_;
       return *this;
     }
 
@@ -163,6 +169,7 @@ class NNITopologyListener2:
     unsigned int optimizeCounter_;
     unsigned int optimizeNumerical_;
     std::string optMethod_;
+    bool reparametrization_;
 
   public:
     /**
@@ -178,6 +185,8 @@ class NNITopologyListener2:
      * @param profiler   Where to output optimization steps.
      * @param verbose    Verbose level during optimization.
      * @param optMethod  Optimization method to use.
+     * @param reparametrization Tell if parameters should be transformed in order to remove constraints.
+     *                          This can improve optimization, but is a bit slower.
      */
     NNITopologyListener2(
         NNITopologySearch* ts,
@@ -186,12 +195,13 @@ class NNITopologyListener2:
         OutputStream* messenger,
         OutputStream* profiler,
         unsigned int verbose,
-        const std::string& optMethod) :
+        const std::string& optMethod,
+        bool reparametrization) :
       topoSearch_(ts), parameters_(parameters), tolerance_(tolerance),
       messenger_(messenger), profiler_(profiler),
       verbose_(verbose),
       optimizeCounter_(0), optimizeNumerical_(1),
-      optMethod_(optMethod) {}
+      optMethod_(optMethod), reparametrization_(reparametrization) {}
 
     NNITopologyListener2(const NNITopologyListener2& tl) :
       topoSearch_(tl.topoSearch_),
@@ -202,7 +212,8 @@ class NNITopologyListener2:
       verbose_(tl.verbose_),
       optimizeCounter_(tl.optimizeCounter_),
       optimizeNumerical_(tl.optimizeNumerical_),
-      optMethod_(tl.optMethod_)
+      optMethod_(tl.optMethod_),
+      reparametrization_(tl.reparametrization_)
     {}
 
     NNITopologyListener2& operator=(const NNITopologyListener2& tl)
@@ -216,6 +227,7 @@ class NNITopologyListener2:
       optimizeCounter_   = tl.optimizeCounter_;
       optimizeNumerical_ = tl.optimizeNumerical_;
       optMethod_         = tl.optMethod_;
+      reparametrization_ = tl.reparametrization_;
       return *this;
     }
 
@@ -273,6 +285,8 @@ class OptimizationTools
 		 * @param tlEvalMax      The maximum number of function evaluations.
 		 * @param messageHandler The massage handler.
 		 * @param profiler       The profiler.
+     * @param reparametrization Tell if parameters should be transformed in order to remove constraints.
+     *                          This can improve optimization, but is a bit slower.
 		 * @param verbose        The verbose level.
      * @param method         Optimization type for derivable parameters (first or second order derivatives).
      * @see OPTIMIZATION_NEWTON, OPTIMIZATION_GRADIENT
@@ -281,14 +295,15 @@ class OptimizationTools
 		static unsigned int optimizeNumericalParameters(
 			DiscreteRatesAcrossSitesTreeLikelihood * tl,
       const ParameterList& parameters,
-      OptimizationListener * listener = 0,
-      unsigned int nstep = 1,
-			double tolerance = 0.000001,
-			unsigned int tlEvalMax = 1000000,
-			OutputStream* messageHandler = ApplicationTools::message,
-			OutputStream* profiler       = ApplicationTools::message,
-			unsigned int verbose = 1,
-      const std::string& method = OPTIMIZATION_NEWTON)
+      OptimizationListener* listener = 0,
+      unsigned int nstep             = 1,
+			double tolerance               = 0.000001,
+			unsigned int tlEvalMax         = 1000000,
+			OutputStream* messageHandler   = ApplicationTools::message,
+			OutputStream* profiler         = ApplicationTools::message,
+      bool reparametrization         = false,
+			unsigned int verbose           = 1,
+      const std::string& method      = OPTIMIZATION_NEWTON)
 			throw (Exception);
 	
 		/**
@@ -305,21 +320,24 @@ class OptimizationTools
 		 * @param tlEvalMax      The maximum number of function evaluations.
 		 * @param messageHandler The massage handler.
 		 * @param profiler       The profiler.
+     * @param reparametrization Tell if parameters should be transformed in order to remove constraints.
+     *                          This can improve optimization, but is a bit slower.
 		 * @param verbose        The verbose level.
      * @param optMethod      Optimization type for derivable parameters (first or second order derivatives).
      * @see OPTIMIZATION_NEWTON, OPTIMIZATION_GRADIENT
 		 * @throw Exception any exception thrown by the Optimizer.
 		 */
 		static unsigned int optimizeNumericalParameters2(
-			DiscreteRatesAcrossSitesTreeLikelihood * tl,
+			DiscreteRatesAcrossSitesTreeLikelihood* tl,
       const ParameterList& parameters,
-      OptimizationListener * listener = 0,
-			double tolerance = 0.000001,
-			unsigned int tlEvalMax = 1000000,
-			OutputStream* messageHandler = ApplicationTools::message,
-			OutputStream* profiler       = ApplicationTools::message,
-			unsigned int verbose = 1,
-      const std::string& optMethod = OPTIMIZATION_NEWTON)
+      OptimizationListener* listener = 0,
+			double tolerance               = 0.000001,
+			unsigned int tlEvalMax         = 1000000,
+			OutputStream* messageHandler   = ApplicationTools::message,
+			OutputStream* profiler         = ApplicationTools::message,
+      bool reparametrization         = false,
+			unsigned int verbose           = 1,
+      const std::string& optMethod   = OPTIMIZATION_NEWTON)
 			throw (Exception);
 
     /**
@@ -346,13 +364,13 @@ class OptimizationTools
 		static unsigned int optimizeBranchLengthsParameters(
 			DiscreteRatesAcrossSitesTreeLikelihood * tl,
       const ParameterList& parameters,
-      OptimizationListener * listener = 0,
-			double tolerance = 0.000001,
-			unsigned int tlEvalMax = 1000000,
-			OutputStream* messageHandler = ApplicationTools::message,
-			OutputStream* profiler       = ApplicationTools::message,
-			unsigned int verbose = 1,
-      const std::string& optMethod = OPTIMIZATION_NEWTON)
+      OptimizationListener* listener = 0,
+			double tolerance               = 0.000001,
+			unsigned int tlEvalMax         = 1000000,
+			OutputStream* messageHandler   = ApplicationTools::message,
+			OutputStream* profiler         = ApplicationTools::message,
+			unsigned int verbose           = 1,
+      const std::string& optMethod   = OPTIMIZATION_NEWTON)
 			throw (Exception);
 		
 		/**
@@ -523,19 +541,21 @@ class OptimizationTools
      * The tolerance passed to this function is specified as input parameters.
      * They are generally very high to avoid local optima.
      *
-		 * @param tl               A pointer toward the TreeLikelihood object to optimize.
-     * @param parameters       The list of parameters to optimize. Use tl->getIndependentParameters() in order to estimate all parameters.
-     * @param optimizeNumFirst Tell if we must optimize numerical parameters before searching topology.
-		 * @param tolBefore        The tolerance to use when estimating numerical parameters before topology search (if optimizeNumFirst is set to 'true').
-		 * @param tolDuring        The tolerance to use when estimating numerical parameters during the topology search.
-		 * @param tlEvalMax        The maximum number of function evaluations.
-     * @param numStep          Number of NNI rounds before re-estimating numerical parameters.
-		 * @param messageHandler   The massage handler.
-		 * @param profiler         The profiler.
-		 * @param verbose          The verbose level.
-     * @param optMethod        Option passed to optimizeNumericalParameters.
-     * @param nStep            Option passed to optimizeNumericalParameters.
-     * @param nniMethod        NNI algorithm to use.
+		 * @param tl                A pointer toward the TreeLikelihood object to optimize.
+     * @param parameters        The list of parameters to optimize. Use tl->getIndependentParameters() in order to estimate all parameters.
+     * @param optimizeNumFirst  Tell if we must optimize numerical parameters before searching topology.
+		 * @param tolBefore         The tolerance to use when estimating numerical parameters before topology search (if optimizeNumFirst is set to 'true').
+		 * @param tolDuring         The tolerance to use when estimating numerical parameters during the topology search.
+		 * @param tlEvalMax         The maximum number of function evaluations.
+     * @param numStep           Number of NNI rounds before re-estimating numerical parameters.
+		 * @param messageHandler    The massage handler.
+		 * @param profiler          The profiler.
+     * @param reparametrization Tell if parameters should be transformed in order to remove constraints.
+     *                          This can improve optimization, but is a bit slower.
+		 * @param verbose           The verbose level.
+     * @param optMethod         Option passed to optimizeNumericalParameters.
+     * @param nStep             Option passed to optimizeNumericalParameters.
+     * @param nniMethod         NNI algorithm to use.
      * @return A pointer toward the final likelihood object.
      * This pointer may be the same as passed in argument (tl), but in some cases the algorithm
      * clone this object. We may change this bahavior in the future...
@@ -548,16 +568,17 @@ class OptimizationTools
     static NNIHomogeneousTreeLikelihood* optimizeTreeNNI(
         NNIHomogeneousTreeLikelihood* tl,
         const ParameterList& parameters,
-        bool optimizeNumFirst = true,
-			  double tolBefore = 100,
-			  double tolDuring = 100,
-			  int tlEvalMax = 1000000,
-        unsigned int numStep = 1,
+        bool optimizeNumFirst        = true,
+			  double tolBefore             = 100,
+			  double tolDuring             = 100,
+			  int tlEvalMax                = 1000000,
+        unsigned int numStep         = 1,
 			  OutputStream* messageHandler = ApplicationTools::message,
 			  OutputStream* profiler       = ApplicationTools::message,
-			  unsigned int verbose = 1,
+        bool reparametrization       = false,
+			  unsigned int verbose         = 1,
         const std::string& optMethod = OptimizationTools::OPTIMIZATION_NEWTON,
-        unsigned int nStep = 1,
+        unsigned int nStep           = 1,
         const std::string& nniMethod = NNITopologySearch::PHYML)
       throw (Exception);
 
@@ -576,18 +597,20 @@ class OptimizationTools
      * The tolerance passed to this function is specified as input parameters.
      * They are generally very high to avoid local optima.
      *
-		 * @param tl               A pointer toward the TreeLikelihood object to optimize.
-     * @param parameters       The list of parameters to optimize. Use tl->getIndependentParameters() in order to estimate all parameters.
-     * @param optimizeNumFirst Tell if we must optimize numerical parameters before searching topology.
-		 * @param tolBefore        The tolerance to use when estimating numerical parameters before topology search (if optimizeNumFirst is set to 'true').
-		 * @param tolDuring        The tolerance to use when estimating numerical parameters during the topology search.
-		 * @param tlEvalMax        The maximum number of function evaluations.
-     * @param numStep          Number of NNI rounds before re-estimating numerical parameters.
-		 * @param messageHandler   The massage handler.
-		 * @param profiler         The profiler.
-		 * @param verbose          The verbose level.
-     * @param optMethod        Option passed to optimizeNumericalParameters2.
-     * @param nniMethod        NNI algorithm to use.
+		 * @param tl                A pointer toward the TreeLikelihood object to optimize.
+     * @param parameters        The list of parameters to optimize. Use tl->getIndependentParameters() in order to estimate all parameters.
+     * @param optimizeNumFirst  Tell if we must optimize numerical parameters before searching topology.
+		 * @param tolBefore         The tolerance to use when estimating numerical parameters before topology search (if optimizeNumFirst is set to 'true').
+		 * @param tolDuring         The tolerance to use when estimating numerical parameters during the topology search.
+		 * @param tlEvalMax         The maximum number of function evaluations.
+     * @param numStep           Number of NNI rounds before re-estimating numerical parameters.
+		 * @param messageHandler    The massage handler.
+		 * @param profiler          The profiler.
+     * @param reparametrization Tell if parameters should be transformed in order to remove constraints.
+     *                          This can improve optimization, but is a bit slower.
+		 * @param verbose           The verbose level.
+     * @param optMethod         Option passed to optimizeNumericalParameters2.
+     * @param nniMethod         NNI algorithm to use.
      * @return A pointer toward the final likelihood object.
      * This pointer may be the same as passed in argument (tl), but in some cases the algorithm
      * clone this object. We may change this bahavior in the future...
@@ -600,14 +623,15 @@ class OptimizationTools
     static NNIHomogeneousTreeLikelihood* optimizeTreeNNI2(
         NNIHomogeneousTreeLikelihood* tl,
         const ParameterList& parameters,
-        bool optimizeNumFirst = true,
-			  double tolBefore = 100,
-			  double tolDuring = 100,
-			  int tlEvalMax = 1000000,
-        unsigned int numStep = 1,
+        bool optimizeNumFirst        = true,
+			  double tolBefore             = 100,
+			  double tolDuring             = 100,
+			  int tlEvalMax                = 1000000,
+        unsigned int numStep         = 1,
 			  OutputStream* messageHandler = ApplicationTools::message,
 			  OutputStream* profiler       = ApplicationTools::message,
-			  unsigned int verbose     = 1,
+        bool reparametrization       = false,
+			  unsigned int verbose         = 1,
         const std::string& optMethod = OptimizationTools::OPTIMIZATION_NEWTON,
         const std::string& nniMethod = NNITopologySearch::PHYML)
       throw (Exception);

@@ -58,6 +58,7 @@ knowledge of the CeCILL license and that you accept its terms.
 #include <NumCalc/FivePointsNumericalDerivative.h>
 #include <NumCalc/ThreePointsNumericalDerivative.h>
 #include <NumCalc/TwoPointsNumericalDerivative.h>
+#include <NumCalc/ReparametrizationFunctionWrapper.h>
 
 using namespace bpp;
 using namespace std;
@@ -142,26 +143,41 @@ unsigned int OptimizationTools::optimizeNumericalParameters(
   unsigned int tlEvalMax,
   OutputStream* messageHandler,
   OutputStream* profiler,
+  bool reparametrization,
   unsigned int verbose,
   const std::string& optMethod)
 throw (Exception)
 {
+  DerivableSecondOrder* f = tl;
+  ParameterList pl = parameters;
+  //Shall we reparametrize the function to remove constraints?
+  auto_ptr<DerivableSecondOrder> frep;
+  if (reparametrization)
+  {
+    frep.reset(new ReparametrizationDerivableSecondOrderWrapper(tl, parameters));
+    f = frep.get();
+
+    //Reset parameters to remove constraints:
+    pl = f->getParameters().subList(parameters.getParameterNames());
+  }
+
   // Build optimizer:
-  MetaOptimizerInfos * desc = new MetaOptimizerInfos();
-  if(optMethod == OPTIMIZATION_GRADIENT)
-    desc->addOptimizer("Branch length parameters", new ConjugateGradientMultiDimensions(tl), tl->getBranchLengthsParameters().getParameterNames(), 2, MetaOptimizerInfos::IT_TYPE_FULL);
-  else if(optMethod == OPTIMIZATION_NEWTON)
-    desc->addOptimizer("Branch length parameters", new PseudoNewtonOptimizer(tl), tl->getBranchLengthsParameters().getParameterNames(), 2, MetaOptimizerInfos::IT_TYPE_FULL);
+  MetaOptimizerInfos* desc = new MetaOptimizerInfos();
+  if (optMethod == OPTIMIZATION_GRADIENT)
+    desc->addOptimizer("Branch length parameters", new ConjugateGradientMultiDimensions(f), tl->getBranchLengthsParameters().getParameterNames(), 2, MetaOptimizerInfos::IT_TYPE_FULL);
+  else if (optMethod == OPTIMIZATION_NEWTON)
+    desc->addOptimizer("Branch length parameters", new PseudoNewtonOptimizer(f), tl->getBranchLengthsParameters().getParameterNames(), 2, MetaOptimizerInfos::IT_TYPE_FULL);
   else throw Exception("OptimizationTools::optimizeNumericalParameters. Unknown optimization method: " + optMethod);
   
   ParameterList plsm = parameters.getCommonParametersWith(tl->getSubstitutionModelParameters());
-  desc->addOptimizer("Substitution model parameter", new SimpleMultiDimensions(tl), plsm.getParameterNames(), 0, MetaOptimizerInfos::IT_TYPE_STEP);
+  desc->addOptimizer("Substitution model parameter", new SimpleMultiDimensions(f), plsm.getParameterNames(), 0, MetaOptimizerInfos::IT_TYPE_STEP);
   
 
   ParameterList plrd = parameters.getCommonParametersWith(tl->getRateDistributionParameters());
-  desc->addOptimizer("Rate distribution parameter", new SimpleMultiDimensions(tl), plrd.getParameterNames(), 0, MetaOptimizerInfos::IT_TYPE_STEP);
-   
-  MetaOptimizer optimizer(tl, desc, nstep);
+  desc->addOptimizer("Rate distribution parameter", new SimpleMultiDimensions(f), plrd.getParameterNames(), 0, MetaOptimizerInfos::IT_TYPE_STEP);
+  
+
+  MetaOptimizer optimizer(f, desc, nstep);
   optimizer.setVerbose(verbose);
   optimizer.setProfiler(profiler);
   optimizer.setMessageHandler(messageHandler);
@@ -170,10 +186,10 @@ throw (Exception)
   
   // Optimize TreeLikelihood function:
   optimizer.setConstraintPolicy(AutoParameter::CONSTRAINTS_AUTO);
-  if(listener) optimizer.addOptimizationListener(listener);
-  optimizer.init(parameters);
+  if (listener) optimizer.addOptimizationListener(listener);
+  optimizer.init(pl);
   optimizer.optimize();
-  if(verbose > 0) ApplicationTools::displayMessage("\n");
+  if (verbose > 0) ApplicationTools::displayMessage("\n");
 
   // We're done.
   return optimizer.getNumberOfEvaluations(); 
@@ -189,31 +205,45 @@ unsigned int OptimizationTools::optimizeNumericalParameters2(
   unsigned int tlEvalMax,
   OutputStream* messageHandler,
   OutputStream* profiler,
+  bool reparametrization,
   unsigned int verbose,
   const std::string& optMethod)
 throw (Exception)
 {
-  AbstractNumericalDerivative * fun = NULL;
-  // Build optimizer:
-  Optimizer * optimizer = NULL;
-  if(optMethod == OPTIMIZATION_GRADIENT)
+  DerivableSecondOrder* f = tl;
+  ParameterList pl = parameters;
+  //Shall we reparametrize the function to remove constraints?
+  auto_ptr<DerivableSecondOrder> frep;
+  if (reparametrization)
   {
-    fun = new TwoPointsNumericalDerivative(tl);
-    fun->setInterval(0.0000001);
-    optimizer = new ConjugateGradientMultiDimensions(fun);
+    frep.reset(new ReparametrizationDerivableSecondOrderWrapper(tl, parameters));
+    f = frep.get();
+
+    //Reset parameters to remove constraints:
+    pl = f->getParameters().subList(parameters.getParameterNames());
   }
-  else if(optMethod == OPTIMIZATION_NEWTON)
+
+  auto_ptr<AbstractNumericalDerivative> fnum;
+  // Build optimizer:
+  auto_ptr<Optimizer> optimizer;
+  if (optMethod == OPTIMIZATION_GRADIENT)
   {
-    fun = new ThreePointsNumericalDerivative(tl);
-    fun->setInterval(0.0001);
-    optimizer = new PseudoNewtonOptimizer(fun);
+    fnum.reset(new TwoPointsNumericalDerivative(f));
+    fnum->setInterval(0.0000001);
+    optimizer.reset(new ConjugateGradientMultiDimensions(fnum.get()));
+  }
+  else if (optMethod == OPTIMIZATION_NEWTON)
+  {
+    fnum.reset(new ThreePointsNumericalDerivative(f));
+    fnum->setInterval(0.0001);
+    optimizer.reset(new PseudoNewtonOptimizer(fnum.get()));
   }
   else throw Exception("OptimizationTools::optimizeNumericalParameters2. Unknown optimization method: " + optMethod);
   
   //Numerical derivatives:
   ParameterList tmp = parameters.getCommonParametersWith(tl->getSubstitutionModelParameters());
   tmp.addParameters(parameters.getCommonParametersWith(tl->getRateDistributionParameters()));
-  fun->setParametersToDerivate(tmp.getParameterNames());
+  fnum->setParametersToDerivate(tmp.getParameterNames());
  
   optimizer->setVerbose(verbose);
   optimizer->setProfiler(profiler);
@@ -223,17 +253,15 @@ throw (Exception)
   
   // Optimize TreeLikelihood function:
   optimizer->setConstraintPolicy(AutoParameter::CONSTRAINTS_AUTO);
-  if(listener) optimizer->addOptimizationListener(listener);
-  optimizer->init(parameters);
+  if (listener) optimizer->addOptimizationListener(listener);
+  optimizer->init(pl);
   optimizer->optimize();
-  if(verbose > 0) ApplicationTools::displayMessage("\n");
+  if (verbose > 0) ApplicationTools::displayMessage("\n");
   
   // We're done.
   unsigned int n = optimizer->getNumberOfEvaluations(); 
-  delete optimizer;
-  delete fun;
 
-  if(verbose > 0) ApplicationTools::displayMessage("\n");
+  if (verbose > 0) ApplicationTools::displayMessage("\n");
   
   return n;
 }
@@ -253,7 +281,7 @@ unsigned int OptimizationTools::optimizeBranchLengthsParameters(
 throw (Exception)
 {
   // Build optimizer:
-  Optimizer * optimizer = NULL;
+  Optimizer* optimizer = 0;
   if(optMethod == OPTIMIZATION_GRADIENT)
     optimizer = new ConjugateGradientMultiDimensions(tl);
   else if(optMethod == OPTIMIZATION_NEWTON)
@@ -294,10 +322,10 @@ unsigned int OptimizationTools::optimizeNumericalParametersWithGlobalClock(
   const std::string& optMethod)
 throw (Exception)
 {
-  AbstractNumericalDerivative * fun = NULL;
+  AbstractNumericalDerivative* fun = 0;
 
   // Build optimizer:
-  MetaOptimizerInfos * desc = new MetaOptimizerInfos();
+  MetaOptimizerInfos* desc = new MetaOptimizerInfos();
   if(optMethod == OPTIMIZATION_GRADIENT)
   {
     fun = new TwoPointsNumericalDerivative(cl);
@@ -360,10 +388,10 @@ unsigned int OptimizationTools::optimizeNumericalParametersWithGlobalClock2(
   const std::string& optMethod)
 throw (Exception)
 {
-  AbstractNumericalDerivative * fun = NULL;
+  AbstractNumericalDerivative* fun = 0;
 
   // Build optimizer:
-  Optimizer * optimizer = NULL;
+  Optimizer* optimizer = 0;
   if(optMethod == OPTIMIZATION_GRADIENT)
   {
     fun = new TwoPointsNumericalDerivative(cl);
@@ -412,7 +440,7 @@ void NNITopologyListener::topologyChangeSuccessful(const TopologyChangeEvent& ev
   {
     DiscreteRatesAcrossSitesTreeLikelihood* likelihood = dynamic_cast<DiscreteRatesAcrossSitesTreeLikelihood *>(topoSearch_->getSearchableObject());
     parameters_.matchParametersValues(likelihood->getParameters());
-    OptimizationTools::optimizeNumericalParameters(likelihood, parameters_, 0, nStep_, tolerance_, 1000000, messenger_, profiler_, verbose_, optMethod_);
+    OptimizationTools::optimizeNumericalParameters(likelihood, parameters_, 0, nStep_, tolerance_, 1000000, messenger_, profiler_, reparametrization_, verbose_, optMethod_);
     optimizeCounter_ = 0;
   }
 }
@@ -426,7 +454,7 @@ void NNITopologyListener2::topologyChangeSuccessful(const TopologyChangeEvent & 
   {
     DiscreteRatesAcrossSitesTreeLikelihood* likelihood = dynamic_cast<DiscreteRatesAcrossSitesTreeLikelihood *>(topoSearch_->getSearchableObject());
     parameters_.matchParametersValues(likelihood->getParameters());
-    OptimizationTools::optimizeNumericalParameters2(likelihood, parameters_, 0, tolerance_, 1000000, messenger_, profiler_, verbose_, optMethod_);
+    OptimizationTools::optimizeNumericalParameters2(likelihood, parameters_, 0, tolerance_, 1000000, messenger_, profiler_, reparametrization_, verbose_, optMethod_);
     optimizeCounter_ = 0;
   }
 }
@@ -443,6 +471,7 @@ NNIHomogeneousTreeLikelihood* OptimizationTools::optimizeTreeNNI(
     unsigned int numStep,
     OutputStream* messageHandler,
     OutputStream* profiler,
+    bool reparametrization,
     unsigned int verbose,
     const std::string& optMethod,
     unsigned int nStep,
@@ -452,11 +481,11 @@ NNIHomogeneousTreeLikelihood* OptimizationTools::optimizeTreeNNI(
   //Roughly optimize parameter
   if (optimizeNumFirst)
   {
-    OptimizationTools::optimizeNumericalParameters(tl, parameters, NULL, nStep, tolBefore, 1000000, messageHandler, profiler, verbose, optMethod);
+    OptimizationTools::optimizeNumericalParameters(tl, parameters, NULL, nStep, tolBefore, 1000000, messageHandler, profiler, reparametrization, verbose, optMethod);
   }
   //Begin topo search:
   NNITopologySearch topoSearch(*tl, nniMethod, verbose > 2 ? verbose - 2 : 0);
-  NNITopologyListener *topoListener = new NNITopologyListener(&topoSearch, parameters, tolDuring, messageHandler, profiler, verbose, optMethod, nStep);
+  NNITopologyListener *topoListener = new NNITopologyListener(&topoSearch, parameters, tolDuring, messageHandler, profiler, verbose, optMethod, nStep, reparametrization);
   topoListener->setNumericalOptimizationCounter(numStep);
   topoSearch.addTopologyListener(topoListener);
   topoSearch.search();
@@ -475,19 +504,20 @@ NNIHomogeneousTreeLikelihood* OptimizationTools::optimizeTreeNNI2(
     unsigned int numStep,
     OutputStream* messageHandler,
     OutputStream* profiler,
+    bool reparametrization,
     unsigned int verbose,
     const std::string& optMethod,
     const std::string& nniMethod)
   throw (Exception)
 {
   //Roughly optimize parameter
-  if(optimizeNumFirst)
+  if (optimizeNumFirst)
   {
-    OptimizationTools::optimizeNumericalParameters2(tl, parameters, NULL, tolBefore, 1000000, messageHandler, profiler, verbose, optMethod);
+    OptimizationTools::optimizeNumericalParameters2(tl, parameters, NULL, tolBefore, 1000000, messageHandler, profiler, reparametrization, verbose, optMethod);
   }
   //Begin topo search:
   NNITopologySearch topoSearch(*tl, nniMethod, verbose > 2 ? verbose - 2 : 0);
-  NNITopologyListener2 *topoListener = new NNITopologyListener2(&topoSearch, parameters, tolDuring, messageHandler, profiler, verbose, optMethod);
+  NNITopologyListener2 *topoListener = new NNITopologyListener2(&topoSearch, parameters, tolDuring, messageHandler, profiler, verbose, optMethod, reparametrization);
   topoListener->setNumericalOptimizationCounter(numStep);
   topoSearch.addTopologyListener(topoListener);
   topoSearch.search();
@@ -500,10 +530,10 @@ DRTreeParsimonyScore* OptimizationTools::optimizeTreeNNI(
         DRTreeParsimonyScore* tp,
         unsigned int verbose)  
 {
-  NNISearchable *topo = dynamic_cast<NNISearchable *>(tp);
+  NNISearchable* topo = dynamic_cast<NNISearchable*>(tp);
   NNITopologySearch topoSearch(*topo, NNITopologySearch::PHYML, verbose);
   topoSearch.search();
-  return dynamic_cast<DRTreeParsimonyScore *>(topoSearch.getSearchableObject());
+  return dynamic_cast<DRTreeParsimonyScore*>(topoSearch.getSearchableObject());
 };
 
 /******************************************************************************/  

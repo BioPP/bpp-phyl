@@ -1567,6 +1567,10 @@ throw (Exception)
   if (verbose) ApplicationTools::displayResult("Optimization method", method);
   if (verbose) ApplicationTools::displayResult("Algorithm used for derivable parameters", order);
 
+  //See if we should reparametrize:
+  bool reparam = ApplicationTools::getBooleanParameter("optimization.reparametrization", params, false);
+  ApplicationTools::displayResult("Reparametrization", (reparam ? "yes" : "no"));
+
   unsigned int n = 0;
   if (method == "DB")
   {
@@ -1581,13 +1585,14 @@ throw (Exception)
       double        tolDuring = ApplicationTools::getDoubleParameter("optimization.topology.tolerance.during", params, 100, suffix, suffixIsOptional);
       tl = OptimizationTools::optimizeTreeNNI(
         dynamic_cast<NNIHomogeneousTreeLikelihood*>(tl), parametersToEstimate,
-        optNumFirst, tolBefore, tolDuring, nbEvalMax, topoNbStep, messageHandler, profiler, optVerbose, optMethod, nstep, nniAlgo);
+        optNumFirst, tolBefore, tolDuring, nbEvalMax, topoNbStep, messageHandler, profiler,
+        reparam, optVerbose, optMethod, nstep, nniAlgo);
     }
 
     if (verbose && nstep > 1) ApplicationTools::displayResult("# of precision steps", TextTools::toString(nstep));
     n = OptimizationTools::optimizeNumericalParameters(
       dynamic_cast<DiscreteRatesAcrossSitesTreeLikelihood*>(tl), parametersToEstimate,
-      0, nstep, tolerance, nbEvalMax, messageHandler, profiler, optVerbose, optMethod);
+      0, nstep, tolerance, nbEvalMax, messageHandler, profiler, reparam, optVerbose, optMethod);
   }
   else if (method == "fullD")
   {
@@ -1601,12 +1606,13 @@ throw (Exception)
       double        tolDuring = ApplicationTools::getDoubleParameter("optimization.topology.tolerance.during", params, 100, suffix, suffixIsOptional);
       tl = OptimizationTools::optimizeTreeNNI2(
         dynamic_cast<NNIHomogeneousTreeLikelihood*>(tl), parametersToEstimate,
-        optNumFirst, tolBefore, tolDuring, nbEvalMax, topoNbStep, messageHandler, profiler, optVerbose, optMethod, nniAlgo);
+        optNumFirst, tolBefore, tolDuring, nbEvalMax, topoNbStep, messageHandler, profiler,
+        reparam, optVerbose, optMethod, nniAlgo);
     }
 
     n = OptimizationTools::optimizeNumericalParameters2(
       dynamic_cast<DiscreteRatesAcrossSitesTreeLikelihood*>(tl), parametersToEstimate,
-      0, tolerance, nbEvalMax, messageHandler, profiler, optVerbose, optMethod);
+      0, tolerance, nbEvalMax, messageHandler, profiler, reparam, optVerbose, optMethod);
   }
   else throw Exception("Unknown optimization method: " + method);
 
