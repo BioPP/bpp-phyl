@@ -505,10 +505,11 @@ public:
    */
   ParameterList getNodeParameters() const
   {
-   ParameterList pl;
-    for (unsigned int i = rootFrequencies_->getNumberOfParameters(); i < getNumberOfParameters(); i++)
+    ParameterList pl;
+    for (unsigned int i = stationarity_ ? 0 : rootFrequencies_->getNumberOfParameters();
+        i < getNumberOfParameters(); i++)
     {
-   pl.addParameter(getParameter_(i));
+      pl.addParameter(getParameter_(i));
     }
     return pl;
   }
