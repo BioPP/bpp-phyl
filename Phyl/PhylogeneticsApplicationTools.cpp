@@ -1979,6 +1979,11 @@ void PhylogeneticsApplicationTools::describeSubstitutionModel_(const Substitutio
 
 void PhylogeneticsApplicationTools::describeFrequenciesSet_(const FrequenciesSet* pfreqset, OutputStream& out)
 {
+  if (!pfreqset)
+  {
+    out << "None";
+    return;
+  }
   out << pfreqset->getName() << "(";
   ParameterList pl = pfreqset->getParameters();
   unsigned int p = out.getPrecision();
