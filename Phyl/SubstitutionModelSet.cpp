@@ -118,7 +118,7 @@ vector<unsigned int> SubstitutionModelSet::getModelsWithParameter(const std::str
 throw (ParameterNotFoundException)
 {
   vector<unsigned int> indices;
-  unsigned int offset = rootFrequencies_->getNumberOfParameters();
+  unsigned int offset = stationarity_ ? 0 : rootFrequencies_->getNumberOfParameters();
   for (unsigned int i = 0; i < paramToModels_.size(); i++)
   {
     if (getParameter_(offset + i).getName() == name)
@@ -192,8 +192,8 @@ void SubstitutionModelSet::removeModel(unsigned int modelIndex) throw (Exception
 
 ParameterList SubstitutionModelSet::getModelParameters(unsigned int modelIndex) const
 {
-   ParameterList pl;
-   unsigned int offset = rootFrequencies_->getNumberOfParameters(); // Root frequencies are the first parameters! We should ignore them here.
+  ParameterList pl;
+  unsigned int offset = stationarity_ ? 0 : rootFrequencies_->getNumberOfParameters(); // Root frequencies are the first parameters! We should ignore them here.
   for (unsigned int i = 0; i < modelParameterNames_.size(); i++)
   {
     // Check associations:
@@ -202,7 +202,7 @@ ParameterList SubstitutionModelSet::getModelParameters(unsigned int modelIndex) 
     {
       if ((*modelIndexes)[j] == modelIndex)
       {
-   pl.addParameter(getParameter_(offset + i));
+        pl.addParameter(getParameter_(offset + i));
         break;
       }
     }
@@ -225,7 +225,7 @@ void SubstitutionModelSet::listModelNames(std::ostream& out) const
 
 void SubstitutionModelSet::setParameterToModel(unsigned int parameterIndex, unsigned int modelIndex) throw (IndexOutOfBoundsException)
 {
-  unsigned int offset = rootFrequencies_->getNumberOfParameters();
+  unsigned int offset = stationarity_ ? 0 : rootFrequencies_->getNumberOfParameters();
   if (parameterIndex < offset)
     throw IndexOutOfBoundsException("SubstitutionModelSet::setParameterToModel. Can't assign a root frequency parameter to a branch model.", parameterIndex, offset - 1, paramToModels_.size() + offset - 1);
   if (parameterIndex >= paramToModels_.size() + offset)
@@ -241,7 +241,7 @@ void SubstitutionModelSet::setParameterToModel(unsigned int parameterIndex, unsi
 
 void SubstitutionModelSet::unsetParameterToModel(unsigned int parameterIndex, unsigned int modelIndex) throw (IndexOutOfBoundsException, Exception)
 {
-  unsigned int offset = rootFrequencies_->getNumberOfParameters();
+  unsigned int offset = stationarity_ ? 0 : rootFrequencies_->getNumberOfParameters();
   if (parameterIndex < offset)
     throw IndexOutOfBoundsException("SubstitutionModelSet::unsetParameterToModel. Can't unset a root frequency parameter.", parameterIndex, offset - 1, paramToModels_.size() + offset - 1);
   if (parameterIndex >= paramToModels_.size() + offset)
@@ -301,7 +301,7 @@ void SubstitutionModelSet::addParameters(const ParameterList& parameters, const 
 
 void SubstitutionModelSet::removeParameter(const string& name) throw (ParameterNotFoundException)
 {
-   unsigned int offset = rootFrequencies_->getNumberOfParameters();
+  unsigned int offset = stationarity_ ? 0 : rootFrequencies_->getNumberOfParameters();
   for (unsigned int i = 0; i < modelParameterNames_.size(); i++)
   {
     if (getParameter_(offset + i).getName() == name)
