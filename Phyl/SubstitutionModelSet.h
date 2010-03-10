@@ -493,7 +493,10 @@ public:
    */
   ParameterList getRootFrequenciesParameters() const
   {
-    return rootFrequencies_->getParameters();
+    if (stationarity_)
+      return ParameterList();
+    else
+      return rootFrequencies_->getParameters();
   }
 
   /**

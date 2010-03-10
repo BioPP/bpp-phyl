@@ -485,7 +485,7 @@ class TreeTemplateTools
      * i.e. if it has a father node.
      *
      * @param node The node to check.
-     * @return True if node has a father.
+     * @return True if node does not have a father.
      */
     static bool isRoot(const Node& node) { return !node.hasFather(); }
 
