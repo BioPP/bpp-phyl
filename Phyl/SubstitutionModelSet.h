@@ -6,7 +6,7 @@
 //
 
 /*
-   Copyright or <A9> or Copr. CNRS, (November 16, 2004)
+   Copyright or (c) or Copr. CNRS, (November 16, 2004)
 
    This software is a computer program whose purpose is to provide classes
    for phylogenetic data analysis.
@@ -87,6 +87,12 @@ namespace bpp
  * Theses are accounted by a FrequenciesSet objet, managed by the SubstitutionModelSet class.
  * The corresponding parameters, if any, are added at the begining of the global parameter list.
  *
+ * If the heterogenity of the model does not affect the equilibrium frequencies, the model can be considered as stationary.
+ * In such a model, the process is supposed to be at equilibrium all along the trees, including at the root.
+ * Whether a model should be considered as stationary or not is left to the user. If the "asumme stationarity" option is set when
+ * building the set, then no FrequenciesSet object is used, but the frequencies are taken to be the same as the one at the first
+ * model in the set. Nothing hence prevents you to build a "supposingly stationary model which actually is not", so be careful!!
+ *
  * This class provides several methods to specify which model and/or which parameter is associated to which branch/clade.
  * Several check points are provided, but some are probably missing due to the large set of possible models that this class allows to build,
  * so be carefull!
@@ -101,6 +107,8 @@ private:
    * @brief A pointer toward the comon alphabet to all models in the set.
    */
   const Alphabet* alphabet_;
+
+  unsigned int nbStates_;
 
   /**
    * @brief Contains all models used in this tree.
@@ -139,27 +147,32 @@ private:
    */
   std::vector<ParameterList> modelParameters_;
 
+  bool stationarity_;
+
 public:
   /**
    * @brief Create a model set according to the specified alphabet.
    *
-   * A FullFrequenciesSet class is used for root frequencies.
-   *
    * @param alpha The alphabet to use for this set.
+   * @param assumeStationarity Tell if the model should be considered as stationary. If false
+   * a FullFrequenciesSet class is used for root frequencies.
    */
-  SubstitutionModelSet(const Alphabet* alpha) :
+  SubstitutionModelSet(const Alphabet* alpha, bool assumeStationarity = false) :
     AbstractParametrizable(""),
     alphabet_(alpha),
+    nbStates_(0),
     modelSet_(),
-    rootFrequencies_(new FullFrequenciesSet(alpha)),
+    rootFrequencies_(assumeStationarity ? 0 : new FullFrequenciesSet(alpha)),
     nodeToModel_(),
     modelToNodes_(),
     paramToModels_(),
     paramNamesCount_(),
     modelParameterNames_(),
-    modelParameters_()
+    modelParameters_(),
+    stationarity_(assumeStationarity)
   {
-    addParameters_(rootFrequencies_->getParameters());
+    if (!assumeStationarity)
+      addParameters_(rootFrequencies_->getParameters());
   }
 
   /**
@@ -171,6 +184,7 @@ public:
   SubstitutionModelSet(const Alphabet* alpha, FrequenciesSet* rootFreqs) :
     AbstractParametrizable(""),
     alphabet_(alpha),
+    nbStates_(rootFreqs->getFrequencies().size()),
     modelSet_(),
     rootFrequencies_(rootFreqs),
     nodeToModel_(),
@@ -178,7 +192,8 @@ public:
     paramToModels_(),
     paramNamesCount_(),
     modelParameterNames_(),
-    modelParameters_()
+    modelParameters_(),
+    stationarity_(false)
   {
     addParameters_(rootFrequencies_->getParameters());
   }
@@ -208,7 +223,7 @@ public:
    */
   unsigned int getNumberOfStates() const throw (Exception)
   {
-    return rootFrequencies_->getFrequencies().size();
+    return nbStates_;
   }
 
   /**
@@ -458,7 +473,13 @@ public:
   /**
    * @return The values of the root frequencies.
    */
-  std::vector<double> getRootFrequencies() const { return rootFrequencies_->getFrequencies(); }
+  std::vector<double> getRootFrequencies() const
+  {
+    if (stationarity_)
+      return modelSet_[0]->getFrequencies();
+    else
+      return rootFrequencies_->getFrequencies();
+  }
 
   /**
    * @brief Get the parameters corresponding to the root frequencies.
@@ -525,7 +546,8 @@ protected:
    */
   void updateRootFrequencies()
   {
-   rootFrequencies_->matchParametersValues(getParameters());
+    if (!stationarity_)
+      rootFrequencies_->matchParametersValues(getParameters());
   }
 
   /**

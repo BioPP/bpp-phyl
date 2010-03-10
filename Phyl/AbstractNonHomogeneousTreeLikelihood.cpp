@@ -63,7 +63,7 @@ AbstractNonHomogeneousTreeLikelihood::AbstractNonHomogeneousTreeLikelihood(
   bool verbose)
   throw (Exception) :
   AbstractDiscreteRatesAcrossSitesTreeLikelihood(rDist, verbose),
-  modelSet_(NULL),
+  modelSet_(0),
   brLenParameters_(),
   pxy_(),
   dpxy_(),
@@ -78,7 +78,7 @@ AbstractNonHomogeneousTreeLikelihood::AbstractNonHomogeneousTreeLikelihood(
   nbNodes_(),
   verbose_(),
   minimumBrLen_(),
-  brLenConstraint_(NULL),
+  brLenConstraint_(0),
   root1_(),
   root2_()
 {
@@ -254,8 +254,8 @@ void AbstractNonHomogeneousTreeLikelihood::setSubstitutionModelSet(SubstitutionM
 
 void AbstractNonHomogeneousTreeLikelihood::initialize() throw (Exception)
 {
-  if(initialized_) throw Exception("AbstractBranchNonHomogeneousTreeLikelihood::initialize(). Object is already initialized.");
-  if(data_ == NULL) throw Exception("AbstractBranchNonHomogeneousTreeLikelihood::initialize(). Data are no set.");
+  if (initialized_) throw Exception("AbstractBranchNonHomogeneousTreeLikelihood::initialize(). Object is already initialized.");
+  if (!data_) throw Exception("AbstractBranchNonHomogeneousTreeLikelihood::initialize(). Data are no set.");
   initParameters();
   initialized_ = true;
   computeAllTransitionProbabilities();

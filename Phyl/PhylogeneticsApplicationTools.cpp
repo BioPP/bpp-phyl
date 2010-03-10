@@ -906,12 +906,19 @@ FrequenciesSet* PhylogeneticsApplicationTools::getRootFrequenciesSet(
   bool suffixIsOptional,
   bool verbose) throw (Exception)
 {
-   string freqDescription = ApplicationTools::getStringParameter("nonhomogeneous.root_freq", params, "Fixed(init=observed)", suffix, suffixIsOptional);
-   FrequenciesSet* freq = getFrequenciesSet(alphabet, freqDescription, data, rateFreqs, verbose);
-
-  if (verbose)
-    ApplicationTools::displayResult("Root frequencies ", freq->getName());
-  return freq;
+  string freqDescription = ApplicationTools::getStringParameter("nonhomogeneous.root_freq", params, "Fixed(init=observed)", suffix, suffixIsOptional);
+  if (freqDescription == "None")
+  {
+    ApplicationTools::displayResult("Stationarity assumed", string("Yes"));
+    return 0;
+  }
+  else
+  {
+    FrequenciesSet* freq = getFrequenciesSet(alphabet, freqDescription, data, rateFreqs, verbose);
+    if (verbose)
+      ApplicationTools::displayResult("Root frequencies ", freq->getName());
+    return freq;
+  }
 }
 
 /******************************************************************************/
@@ -1166,8 +1173,10 @@ SubstitutionModelSet* PhylogeneticsApplicationTools::getSubstitutionModelSet(
 
   FrequenciesSet* rootFrequencies = getRootFrequenciesSet(alphabet, data, params, rateFreqs, suffix, suffixIsOptional, verbose);
 
-  SubstitutionModelSet* modelSet = new SubstitutionModelSet(alphabet, rootFrequencies);
-
+  bool stationarity = !rootFrequencies;
+  SubstitutionModelSet* modelSet = stationarity ?
+    new SubstitutionModelSet(alphabet, true) : //Stationarity assumed.
+    new SubstitutionModelSet(alphabet, rootFrequencies);
 
   // //////////////////////////////////////
   // Now parse all models:

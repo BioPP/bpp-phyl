@@ -1,3 +1,6 @@
+10/03/10 Julien Dutheil
+* Added stationarity option in non-homogeneous models.
+
 09/03/10 Julien Dutheil
 * Added reparametrization option in optimization methods.
 

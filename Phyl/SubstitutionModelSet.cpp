@@ -50,14 +50,16 @@ using namespace std;
 SubstitutionModelSet::SubstitutionModelSet(const SubstitutionModelSet& set) :
   AbstractParametrizable(set),
   alphabet_             (set.alphabet_),
+  nbStates_             (set.nbStates_),
   modelSet_(set.modelSet_.size()),
-  rootFrequencies_(dynamic_cast<FrequenciesSet*>(set.rootFrequencies_->clone())),
+  rootFrequencies_(set.stationarity_ ? 0 : dynamic_cast<FrequenciesSet*>(set.rootFrequencies_->clone())),
   nodeToModel_          (set.nodeToModel_),
   modelToNodes_         (set.modelToNodes_),
   paramToModels_        (set.paramToModels_),
   paramNamesCount_      (set.paramNamesCount_),
   modelParameterNames_  (set.modelParameterNames_),
-  modelParameters_      (set.modelParameters_)
+  modelParameters_      (set.modelParameters_),
+  stationarity_         (set.stationarity_)
 {
   // Duplicate all model objects:
   for (unsigned int i = 0; i < set.modelSet_.size(); i++)
@@ -70,13 +72,18 @@ SubstitutionModelSet& SubstitutionModelSet::operator=(const SubstitutionModelSet
 {
   AbstractParametrizable::operator=(set);
   alphabet_            = set.alphabet_;
+  nbStates_            = set.nbStates_;
   nodeToModel_         = set.nodeToModel_;
   modelToNodes_        = set.modelToNodes_;
   paramToModels_       = set.paramToModels_;
   paramNamesCount_     = set.paramNamesCount_;
   modelParameterNames_ = set.modelParameterNames_;
   modelParameters_     = set.modelParameters_;
-  rootFrequencies_.reset(dynamic_cast<FrequenciesSet*>(set.rootFrequencies_->clone()));
+  stationarity_        = set.stationarity_;
+  if (set.stationarity_)
+    rootFrequencies_.reset(0);
+  else
+    rootFrequencies_.reset(dynamic_cast<FrequenciesSet*>(set.rootFrequencies_->clone()));
 
   // Duplicate all model objects:
   modelSet_.resize(set.modelSet_.size());
@@ -124,8 +131,10 @@ void SubstitutionModelSet::addModel(SubstitutionModel* model, const std::vector<
 {
   if (model->getAlphabet()->getAlphabetType() != alphabet_->getAlphabetType())
     throw Exception("SubstitutionModelSet::addModel. A Substitution Model cannot be added to a Model Set if it does not have the same alphabet.");
-  if (modelSet_.size() > 0 && model->getNumberOfStates() != modelSet_[0]->getNumberOfStates())
+  if (modelSet_.size() > 0 && model->getNumberOfStates() != nbStates_)
     throw Exception("SubstitutionModelSet::addModel. A Substitution Model cannot be added to a Model Set if it does not have the same number of states.");
+  if (modelSet_.size() == 0)
+    nbStates_ = model->getNumberOfStates();
   modelSet_.push_back(model);
   unsigned int thisModelIndex = modelSet_.size() - 1;
 
