@@ -252,10 +252,15 @@ public:
    */
   std::string getParameterModelName(const std::string& name) const throw (ParameterNotFoundException, Exception)
   {
-   unsigned int pos = getParameterIndex(name);
-   unsigned int rfs = rootFrequencies_->getNumberOfParameters();
-    if (pos < rfs) throw Exception("SubstitutionModelSet::getParameterModelName(). This parameter as no model name: " + name);
-    return modelParameterNames_[pos - rfs];
+    unsigned int pos = getParameterIndex(name);
+    if (stationarity_)
+      return modelParameterNames_[pos];
+    else
+    {
+      unsigned int rfs = rootFrequencies_->getNumberOfParameters();
+      if (pos < rfs) throw Exception("SubstitutionModelSet::getParameterModelName(). This parameter as no model name: " + name);
+      return modelParameterNames_[pos - rfs];
+    }
   }
 
   /**

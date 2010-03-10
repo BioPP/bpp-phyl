@@ -330,7 +330,7 @@ void SubstitutionModelSet::fireParameterChanged(const ParameterList& parameters)
   updateRootFrequencies();
 
   // First we actualize the modelParameters_ array:
-  unsigned int offset = rootFrequencies_->getNumberOfParameters(); // Root frequencies are the first parameters! We should ignore them here.
+  unsigned int offset = stationarity_ ? 0 : rootFrequencies_->getNumberOfParameters(); // Root frequencies are the first parameters! We should ignore them here.
   for (unsigned int i = 0; i < modelParameterNames_.size(); i++)
   {
     // Check associations:
