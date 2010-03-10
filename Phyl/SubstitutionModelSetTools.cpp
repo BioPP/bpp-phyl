@@ -79,7 +79,7 @@ SubstitutionModelSet* SubstitutionModelSetTools::createNonHomogeneousModelSet(
   ) throw (AlphabetException, Exception)
 {
   //Check alphabet:
-  if(model->getAlphabet()->getAlphabetType() != rootFreqs->getAlphabet()->getAlphabetType())
+  if (rootFreqs && model->getAlphabet()->getAlphabetType() != rootFreqs->getAlphabet()->getAlphabetType())
     throw AlphabetMismatchException("SubstitutionModelSetTools::createNonHomogeneousModelSet()", model->getAlphabet(), rootFreqs->getAlphabet());
   ParameterList globalParameters, branchParameters;
   globalParameters = model->getParameters();
@@ -92,23 +92,25 @@ SubstitutionModelSet* SubstitutionModelSetTools::createNonHomogeneousModelSet(
       globalParameters.deleteParameter(i - 1);
     }
   }
-  SubstitutionModelSet * modelSet = new SubstitutionModelSet(model->getAlphabet(), rootFreqs);
+  SubstitutionModelSet* modelSet = rootFreqs ?
+    new SubstitutionModelSet(model->getAlphabet(), rootFreqs) :
+    new SubstitutionModelSet(model->getAlphabet(), true);
   //We assign a copy of this model to all nodes in the tree (excepted root node), and link all parameters with it.
   vector<int> ids = tree->getNodesId();
   int rootId = tree->getRootId();
   unsigned int pos = 0;
-  for(unsigned int i = 0; i < ids.size(); i++)
+  for (unsigned int i = 0; i < ids.size(); i++)
   {
-    if(ids[i] == rootId)
+    if (ids[i] == rootId)
     {
       pos = i;
       break;
     }
   }
   ids.erase(ids.begin() + pos);
-  for(unsigned int i = 0; i < ids.size(); i++)
+  for (unsigned int i = 0; i < ids.size(); i++)
   {
-    modelSet->addModel(dynamic_cast<SubstitutionModel *>(model->clone()), vector<int>(1, ids[i]), branchParameters.getParameterNames());
+    modelSet->addModel(dynamic_cast<SubstitutionModel*>(model->clone()), vector<int>(1, ids[i]), branchParameters.getParameterNames());
   }
   //Now add global parameters to all nodes:
   modelSet->addParameters(globalParameters, ids);

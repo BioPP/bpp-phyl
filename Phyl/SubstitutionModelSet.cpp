@@ -98,7 +98,7 @@ std::vector<int> SubstitutionModelSet::getNodesWithParameter(const std::string& 
 throw (ParameterNotFoundException)
 {
   vector<int> ids;
-  unsigned int offset = rootFrequencies_->getNumberOfParameters();
+  unsigned int offset = stationarity_ ? 0 : rootFrequencies_->getNumberOfParameters();
   for (unsigned int i = 0; i < paramToModels_.size(); i++)
   {
     if (getParameter_(offset + i).getName() == name)
