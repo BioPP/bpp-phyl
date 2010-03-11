@@ -54,7 +54,7 @@ JCprot::JCprot(const ProteicAlphabet* alpha) :
   AbstractReversibleSubstitutionModel(alpha, "JC69."), exp_(), p_(size_, size_),
   freqSet_(0)
 {
-  freqSet_ = new ProteinFixedFrequenciesSet(alpha, freq_);
+  freqSet_ = new FixedProteinFrequenciesSet(alpha, freq_);
 	updateMatrices();
 }
 

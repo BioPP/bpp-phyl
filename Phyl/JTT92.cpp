@@ -53,7 +53,7 @@ JTT92::JTT92(const ProteicAlphabet* alpha) :
 {
   #include "__JTT92ExchangeabilityCode"
   #include "__JTT92FrequenciesCode"
-  freqSet_ = new ProteinFixedFrequenciesSet(alpha, freq_);
+  freqSet_ = new FixedProteinFrequenciesSet(alpha, freq_);
   updateMatrices();  
 }
 

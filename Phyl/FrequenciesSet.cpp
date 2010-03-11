@@ -294,10 +294,10 @@ void FullCodonFrequenciesSet::fireParameterChanged(const ParameterList& paramete
 
 
 // ///////////////////////////////////////
-// FullNAFrequenciesSet
+// FullNucleotideFrequenciesSet
 
 
-FullNAFrequenciesSet::FullNAFrequenciesSet(const NucleicAlphabet* alphabet, bool allowNullFreqs) :
+FullNucleotideFrequenciesSet::FullNucleotideFrequenciesSet(const NucleicAlphabet* alphabet, bool allowNullFreqs) :
   AbstractFrequenciesSet(4, alphabet, "Full.")
 {
   Parameter thetaP(
@@ -320,7 +320,7 @@ FullNAFrequenciesSet::FullNAFrequenciesSet(const NucleicAlphabet* alphabet, bool
   getFreq_(0) = getFreq_(1) = getFreq_(2) = getFreq_(3) = 0.25;
 }
 
-FullNAFrequenciesSet::FullNAFrequenciesSet(const NucleicAlphabet* alphabet, double theta, double theta_1, double theta_2, bool allowNullFreqs) :
+FullNucleotideFrequenciesSet::FullNucleotideFrequenciesSet(const NucleicAlphabet* alphabet, double theta, double theta_1, double theta_2, bool allowNullFreqs) :
   AbstractFrequenciesSet(4, alphabet, "Full.")
 {
   Parameter thetaP(
@@ -350,16 +350,16 @@ FullNAFrequenciesSet::FullNAFrequenciesSet(const NucleicAlphabet* alphabet, doub
   getFreq_(3) = (1 - theta_1) * (1. - theta);
 }
 
-void FullNAFrequenciesSet::setFrequencies(const vector<double>& frequencies) throw (DimensionException, Exception)
+void FullNucleotideFrequenciesSet::setFrequencies(const vector<double>& frequencies) throw (DimensionException, Exception)
 {
-  if (frequencies.size() != 4) throw DimensionException(" FullNAFrequenciesSet::setFrequencies", frequencies.size(), 4);
+  if (frequencies.size() != 4) throw DimensionException(" FullNucleotideFrequenciesSet::setFrequencies", frequencies.size(), 4);
   double sum = 0.0;
   for (unsigned int i = 0; i < 4; i++)
   {
     sum += frequencies[i];
   }
   if (fabs(1. - sum) > NumConstants::SMALL)
-    throw Exception("FullNAFrequenciesSet::setFrequencies. Frequencies must equal 1 (sum = " + TextTools::toString(sum) + ").");
+    throw Exception("FullNucleotideFrequenciesSet::setFrequencies. Frequencies must equal 1 (sum = " + TextTools::toString(sum) + ").");
   double theta = frequencies[1] + frequencies[2];
   getParameter_(0).setValue(theta);
   getParameter_(1).setValue(frequencies[0] / (1 - theta));
@@ -368,7 +368,7 @@ void FullNAFrequenciesSet::setFrequencies(const vector<double>& frequencies) thr
   setFrequencies_(frequencies);
 }
 
-void FullNAFrequenciesSet::fireParameterChanged(const ParameterList& parameters)
+void FullNucleotideFrequenciesSet::fireParameterChanged(const ParameterList& parameters)
 {
   double theta  = getParameter_(0).getValue();
   double theta_1 = getParameter_(1).getValue();
@@ -441,15 +441,15 @@ void FixedFrequenciesSet::setFrequencies(const vector<double>& frequencies) thro
 }
 
 /////////////////////////////////////////////
-/// CodonFixedFrequenciesSet
+/// FixedCodonFrequenciesSet
 
-CodonFixedFrequenciesSet::CodonFixedFrequenciesSet(const CodonAlphabet* alphabet, const vector<double>& initFreqs) :
+FixedCodonFrequenciesSet::FixedCodonFrequenciesSet(const CodonAlphabet* alphabet, const vector<double>& initFreqs) :
   AbstractFrequenciesSet(alphabet->getSize(), alphabet, "Fixed.")
 {
   setFrequencies(initFreqs);
 }
 
-CodonFixedFrequenciesSet::CodonFixedFrequenciesSet(const CodonAlphabet* alphabet) :
+FixedCodonFrequenciesSet::FixedCodonFrequenciesSet(const CodonAlphabet* alphabet) :
   AbstractFrequenciesSet(alphabet->getSize(), alphabet, "Fixed.")
 {
   unsigned int size = alphabet->getSize() - alphabet->numberOfStopCodons();
@@ -460,7 +460,7 @@ CodonFixedFrequenciesSet::CodonFixedFrequenciesSet(const CodonAlphabet* alphabet
   }
 }
 
-void CodonFixedFrequenciesSet::setFrequencies(const vector<double>& frequencies) throw (DimensionException, Exception)
+void FixedCodonFrequenciesSet::setFrequencies(const vector<double>& frequencies) throw (DimensionException, Exception)
 {
   if (frequencies.size() != getAlphabet()->getSize()) throw DimensionException("FixedFrequenciesSet::setFrequencies", frequencies.size(), getAlphabet()->getSize());
   double sum = 0.0;
@@ -469,7 +469,7 @@ void CodonFixedFrequenciesSet::setFrequencies(const vector<double>& frequencies)
     sum += frequencies[i];
   }
   if (fabs(1. - sum) > 0.000001)
-    throw Exception("CodonFixedFrequenciesSet::setFrequencies. Frequencies sum must equal 1 (sum = " + TextTools::toString(sum) + ").");
+    throw Exception("FixedCodonFrequenciesSet::setFrequencies. Frequencies sum must equal 1 (sum = " + TextTools::toString(sum) + ").");
   setFrequencies_(frequencies);
 }
 
@@ -825,13 +825,13 @@ FrequenciesSet* FrequenciesSet::getFrequencySetForCodons(short option, const Gen
   if (option == F0)
     codonFreqs = new FixedFrequenciesSet(dynamic_cast<const CodonAlphabet*>(gc.getSourceAlphabet()));
   else if (option == F1X4)
-    codonFreqs = new IndependentWordFrequenciesSet(new FullNAFrequenciesSet(dynamic_cast<const CodonAlphabet*>(gc.getSourceAlphabet())->getNucleicAlphabet()), 3);
+    codonFreqs = new IndependentWordFrequenciesSet(new FullNucleotideFrequenciesSet(dynamic_cast<const CodonAlphabet*>(gc.getSourceAlphabet())->getNucleicAlphabet()), 3);
   else if (option == F3X4)
   {
     vector<FrequenciesSet*> v_AFS(3);
-    v_AFS[0] = new FullNAFrequenciesSet(dynamic_cast<const CodonAlphabet*>(gc.getSourceAlphabet())->getNucleicAlphabet());
-    v_AFS[1] = new FullNAFrequenciesSet(dynamic_cast<const CodonAlphabet*>(gc.getSourceAlphabet())->getNucleicAlphabet());
-    v_AFS[2] = new FullNAFrequenciesSet(dynamic_cast<const CodonAlphabet*>(gc.getSourceAlphabet())->getNucleicAlphabet());
+    v_AFS[0] = new FullNucleotideFrequenciesSet(dynamic_cast<const CodonAlphabet*>(gc.getSourceAlphabet())->getNucleicAlphabet());
+    v_AFS[1] = new FullNucleotideFrequenciesSet(dynamic_cast<const CodonAlphabet*>(gc.getSourceAlphabet())->getNucleicAlphabet());
+    v_AFS[2] = new FullNucleotideFrequenciesSet(dynamic_cast<const CodonAlphabet*>(gc.getSourceAlphabet())->getNucleicAlphabet());
     codonFreqs = new IndependentWordFrequenciesSet(v_AFS);
   }
   else if (option == F61)

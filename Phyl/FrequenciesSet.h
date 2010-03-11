@@ -354,22 +354,22 @@ class GCFrequenciesSet:
 /**
  * @brief Nucleotide FrequenciesSet using three independent parameters to modelize the four frequencies.
  */
-class FullNAFrequenciesSet:
+class FullNucleotideFrequenciesSet:
   public virtual NucleotideFrequenciesSet,
   public AbstractFrequenciesSet
 {
   public:
 
-    FullNAFrequenciesSet(const NucleicAlphabet* alphabet, bool allowNullFreqs = false);
+    FullNucleotideFrequenciesSet(const NucleicAlphabet* alphabet, bool allowNullFreqs = false);
   
-    FullNAFrequenciesSet(const NucleicAlphabet* alphabet, double theta, double theta_1, double theta_2, bool allowNullFreqs = false);
+    FullNucleotideFrequenciesSet(const NucleicAlphabet* alphabet, double theta, double theta_1, double theta_2, bool allowNullFreqs = false);
 
 #ifndef NO_VIRTUAL_COV
-    FullNAFrequenciesSet*
+    FullNucleotideFrequenciesSet*
 #else
     Clonable*
 #endif
-    clone() const { return new FullNAFrequenciesSet(*this); }
+    clone() const { return new FullNucleotideFrequenciesSet(*this); }
 
   public:
 #ifndef NO_VIRTUAL_COV
@@ -381,7 +381,7 @@ class FullNAFrequenciesSet:
 
     void setFrequencies(const std::vector<double>& frequencies) throw (DimensionException, Exception);
 
-    std::string getName() const { return "FullNA"; }
+    std::string getName() const { return "FullNucleotide"; }
 
   protected:
     void fireParameterChanged(const ParameterList& parameters);
@@ -522,31 +522,67 @@ class FixedFrequenciesSet:
 };
 
 /**
- * @brief FrequenciesSet useful for homogeneous and stationary models, protein implementation
+ * @brief FrequenciesSet useful for homogeneous and stationary models, nucleotide implementation
  *
  * This set contains no parameter.
  */
-class ProteinFixedFrequenciesSet :
-  public virtual ProteinFrequenciesSet,
+class FixedNucleotideFrequenciesSet :
+  public virtual NucleotideFrequenciesSet,
   public FixedFrequenciesSet
 {
   public:
-    ProteinFixedFrequenciesSet(const ProteicAlphabet* alphabet, const std::vector<double>& initFreqs) :
+    FixedNucleotideFrequenciesSet(const NucleicAlphabet* alphabet, const std::vector<double>& initFreqs) :
       FixedFrequenciesSet(alphabet, initFreqs) {}
 
     /**
      * @brief Construction with uniform frequencies on the letters of
      * the alphabet.
      */
-    ProteinFixedFrequenciesSet(const ProteicAlphabet* alphabet) :
+    FixedNucleotideFrequenciesSet(const NucleicAlphabet* alphabet) :
       FixedFrequenciesSet(alphabet) {}
 
 #ifndef NO_VIRTUAL_COV
-    ProteinFixedFrequenciesSet*
+    FixedNucleotideFrequenciesSet*
+#else
+    NucleotideFrequenciesSet*
+#endif
+    clone() const { return new FixedNucleotideFrequenciesSet(*this); }
+
+#ifndef NO_VIRTUAL_COV
+    const NucleicAlphabet* getAlphabet() const
+    {
+      return dynamic_cast<const NucleicAlphabet*>(AbstractFrequenciesSet::getAlphabet());
+    }
+#endif
+
+};
+
+/**
+ * @brief FrequenciesSet useful for homogeneous and stationary models, protein implementation
+ *
+ * This set contains no parameter.
+ */
+class FixedProteinFrequenciesSet :
+  public virtual ProteinFrequenciesSet,
+  public FixedFrequenciesSet
+{
+  public:
+    FixedProteinFrequenciesSet(const ProteicAlphabet* alphabet, const std::vector<double>& initFreqs) :
+      FixedFrequenciesSet(alphabet, initFreqs) {}
+
+    /**
+     * @brief Construction with uniform frequencies on the letters of
+     * the alphabet.
+     */
+    FixedProteinFrequenciesSet(const ProteicAlphabet* alphabet) :
+      FixedFrequenciesSet(alphabet) {}
+
+#ifndef NO_VIRTUAL_COV
+    FixedProteinFrequenciesSet*
 #else
     FixedFrequenciesSet*
 #endif
-    clone() const { return new ProteinFixedFrequenciesSet(*this); }
+    clone() const { return new FixedProteinFrequenciesSet(*this); }
 
 #ifndef NO_VIRTUAL_COV
     const ProteicAlphabet* getAlphabet() const
@@ -562,25 +598,25 @@ class ProteinFixedFrequenciesSet :
  *
  * This set contains no parameter.
  */
-class CodonFixedFrequenciesSet:
+class FixedCodonFrequenciesSet:
   public virtual CodonFrequenciesSet,
   public AbstractFrequenciesSet
 {
   public:
-    CodonFixedFrequenciesSet(const CodonAlphabet* alphabet, const std::vector<double>& initFreqs);
+    FixedCodonFrequenciesSet(const CodonAlphabet* alphabet, const std::vector<double>& initFreqs);
 
     /**
      * @brief Construction with uniform frequencies on the letters of
      * the alphabet. The stop codon frequencies are null.
      */
-    CodonFixedFrequenciesSet(const CodonAlphabet* alphabet);
+    FixedCodonFrequenciesSet(const CodonAlphabet* alphabet);
 
 #ifndef NO_VIRTUAL_COV
-    CodonFixedFrequenciesSet*
+    FixedCodonFrequenciesSet*
 #else
     Clonable*
 #endif
-    clone() const { return new CodonFixedFrequenciesSet(*this); }
+    clone() const { return new FixedCodonFrequenciesSet(*this); }
 
   public:
 #ifndef NO_VIRTUAL_COV

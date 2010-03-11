@@ -52,7 +52,7 @@ DSO78::DSO78(const ProteicAlphabet* alpha) :
 {
   #include "__DSO78ExchangeabilityCode"
   #include "__DSO78FrequenciesCode"
-  freqSet_ = new ProteinFixedFrequenciesSet(alpha, freq_);
+  freqSet_ = new FixedProteinFrequenciesSet(alpha, freq_);
   updateMatrices();
 }
 

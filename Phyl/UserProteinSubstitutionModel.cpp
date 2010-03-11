@@ -69,7 +69,7 @@ UserProteinSubstitutionModel::UserProteinSubstitutionModel(
   freqSet_(0)
 {
   readFromFile();
-  freqSet_ = new ProteinFixedFrequenciesSet(alpha, freq_);
+  freqSet_ = new FixedProteinFrequenciesSet(alpha, freq_);
   updateMatrices();  
 }
 

@@ -1014,7 +1014,7 @@ FrequenciesSet* PhylogeneticsApplicationTools::getFrequenciesSetDefaultInstance(
   {
     if (AlphabetTools::isNucleicAlphabet(alphabet))
     {
-      pFS = new FullNAFrequenciesSet(dynamic_cast<const NucleicAlphabet*>(alphabet));
+      pFS = new FullNucleotideFrequenciesSet(dynamic_cast<const NucleicAlphabet*>(alphabet));
     }
     else if (AlphabetTools::isProteicAlphabet(alphabet))
     {
@@ -1040,9 +1040,23 @@ FrequenciesSet* PhylogeneticsApplicationTools::getFrequenciesSetDefaultInstance(
   }
   else if (freqName == "Fixed")
   {
-    pFS = new FixedFrequenciesSet(alphabet);
+    if (AlphabetTools::isNucleicAlphabet(alphabet))
+    {
+      pFS = new FixedNucleotideFrequenciesSet(dynamic_cast<const NucleicAlphabet*>(alphabet));
+    }
+    else if (AlphabetTools::isProteicAlphabet(alphabet))
+    {
+      pFS = new FixedProteinFrequenciesSet(dynamic_cast<const ProteicAlphabet*>(alphabet));
+    }
+    else if (AlphabetTools::isCodonAlphabet(alphabet))
+    {
+      pFS = new FixedCodonFrequenciesSet(dynamic_cast<const CodonAlphabet*>(alphabet));
+    }
+    else
+    {
+      pFS = new FixedFrequenciesSet(alphabet);
+    }
   }
-
   else if (freqName == "GC")
   {
     if (!AlphabetTools::isNucleicAlphabet(alphabet))
