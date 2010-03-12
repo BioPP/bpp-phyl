@@ -56,11 +56,6 @@ YN98::YN98(const GeneticCode* gc, FrequenciesSet* codonFreqs) :
   updateMatrices();
 }
 
-string YN98::getName() const
-{
-  return "YN98 model";
-}
-
 void YN98::updateMatrices()
 {
   ParameterList pl = getParameters().subList(pmodel_.getFreq().getParameters().getParameterNames());

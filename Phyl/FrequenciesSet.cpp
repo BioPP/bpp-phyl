@@ -819,7 +819,7 @@ string IndependentWordFrequenciesSet::getName() const
 }
 
 
-FrequenciesSet* FrequenciesSet::getFrequencySetForCodons(short option, const GeneticCode& gc)
+FrequenciesSet* FrequenciesSet::getFrequenciesSetForCodons(short option, const GeneticCode& gc)
 {
   FrequenciesSet* codonFreqs;
   if (option == F0)

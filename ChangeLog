@@ -1,3 +1,7 @@
+11/03/10 Julien Dutheil
+* Nexus format now allows lower case keywords ([biopp-devel-forum:287])
+* GY94 and MG94 now have frequency option like YN98.
+
 10/03/10 Julien Dutheil
 * Added stationarity option in non-homogeneous models.
 

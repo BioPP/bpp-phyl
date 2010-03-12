@@ -43,34 +43,22 @@ using namespace bpp;
 
 using namespace std;
 
-//GranthamAAChemicalDistance MG94::_GranthamAAChemicalDistance;
-
 /******************************************************************************/
 
-MG94::MG94(const GeneticCode* palph) :
-  AbstractSubstitutionModel(palph->getSourceAlphabet(), "MG94."),
-  _ffs(dynamic_cast<const CodonAlphabet*>(palph->getSourceAlphabet())->getNucleicAlphabet()),
-  _iwfs(&_ffs,3),
-  _pmodel(palph, &_iwfs)
+MG94::MG94(const GeneticCode* gc, FrequenciesSet* codonFreqs) :
+  AbstractSubstitutionModel(gc->getSourceAlphabet(), "MG94."),
+  pmodel_(gc, codonFreqs)
 {
   addParameter_(Parameter("MG94.rho", 1, &Parameter::R_PLUS_STAR));
-  
+  pmodel_.setNamespace("MG94.");
+  addParameters_(codonFreqs->getParameters());
   updateMatrices();
-}
-
-MG94::~MG94() {
-};
-
-string MG94::getName() const
-{
-  return "MG94 model";
 }
 
 void MG94::updateMatrices()
 {
-  ParameterList Pl;
-
-  Pl.addParameter(Parameter("CodonAsynonymousFrequencies.beta", getParameterValue("rho")));
-
-  _pmodel.matchParametersValues(Pl);
+  ParameterList pl;
+  pl.addParameter(Parameter("MG94.beta", getParameterValue("rho")));
+  pmodel_.matchParametersValues(pl);
 }
+

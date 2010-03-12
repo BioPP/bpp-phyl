@@ -94,7 +94,7 @@ public:
 
 public:
 
-  std::string getName() const;
+  std::string getName() const { return "YN98"; }
 	
   const Vdouble& getFrequencies() const { return pmodel_.getFrequencies(); }
        

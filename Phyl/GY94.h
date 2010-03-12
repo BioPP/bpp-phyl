@@ -82,22 +82,20 @@ private:
   CodonAsynonymousFrequenciesReversibleSubstitutionModel pmodel_;
 
 public:
-  GY94(const GeneticCode* palph);
+  GY94(const GeneticCode* gc, FrequenciesSet* codonFreqs);
        
   ~GY94() {}
 
-  GY94(const GY94&);
+  GY94(const GY94& gy94);
   
-  GY94& operator=(const GY94&);
+  GY94& operator=(const GY94& gy94);
   
   GY94* clone() const { return new GY94(*this); }
 
 public:
 
-  std::string getName() const;
+  std::string getName() const { return "GY94"; }
 	
-  inline void updateMatrices();
-
   const Vdouble& getFrequencies() const { return pmodel_.getFrequencies(); }
        
   const Matrix<double>& getGenerator() const { return pmodel_.getGenerator(); }
@@ -131,6 +129,9 @@ public:
   void enableEigenDecomposition(bool yn) { eigenDecompose_ = 1; }
 
   bool enableEigenDecomposition() { return pmodel_.enableEigenDecomposition(); }
+
+protected:
+  void updateMatrices();
 
 };
 

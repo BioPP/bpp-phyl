@@ -74,8 +74,7 @@ SubstitutionModelSet* SubstitutionModelSetTools::createNonHomogeneousModelSet(
     SubstitutionModel* model,
     FrequenciesSet* rootFreqs,
     const Tree* tree,
-    const vector<string>&
-    globalParameterNames
+    const vector<string>& globalParameterNames
   ) throw (AlphabetException, Exception)
 {
   //Check alphabet:
@@ -83,6 +82,12 @@ SubstitutionModelSet* SubstitutionModelSetTools::createNonHomogeneousModelSet(
     throw AlphabetMismatchException("SubstitutionModelSetTools::createNonHomogeneousModelSet()", model->getAlphabet(), rootFreqs->getAlphabet());
   ParameterList globalParameters, branchParameters;
   globalParameters = model->getParameters();
+  //First check if parameter names are valid:
+  for (unsigned int i = 0; i < globalParameterNames.size(); i++)
+  {
+    if (!globalParameters.hasParameter(globalParameterNames[i]))
+      throw Exception("SubstitutionModelSet::createNonHomogeneousModelSet. Parameter '" + globalParameterNames[i] + "' is not valid.");
+  }
   for (unsigned int i = globalParameters.size(); i > 0; i--)
   {
     if (find(globalParameterNames.begin(), globalParameterNames.end(), globalParameters[i-1].getName()) == globalParameterNames.end())

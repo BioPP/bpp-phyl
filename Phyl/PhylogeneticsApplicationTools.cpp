@@ -445,7 +445,21 @@ SubstitutionModel* PhylogeneticsApplicationTools::getSubstitutionModelDefaultIns
     if (pgc->getSourceAlphabet()->getAlphabetType() != pCA->getAlphabetType())
       throw Exception("Mismatch  between genetic code and codon alphabet");
 
-    model = new GY94(pgc);
+    string freqOpt = ApplicationTools::getStringParameter("codon_freqs", args, "F0");
+    short opt = 0;
+    if (freqOpt == "F0")
+      opt = FrequenciesSet::F0;
+    else if (freqOpt == "F1X4")
+      opt = FrequenciesSet::F1X4;
+    else if (freqOpt == "F3X4")
+      opt = FrequenciesSet::F3X4;
+    else if (freqOpt == "F61")
+      opt = FrequenciesSet::F61;
+    else
+      throw Exception("Unvalid codon frequency option. Should be one of F0, F1X4, F3X4 or F61");
+    FrequenciesSet* codonFreqs = FrequenciesSet::getFrequenciesSetForCodons(opt, *pgc);
+
+    model = new GY94(pgc, codonFreqs);
   }
 
   // //////////////////////////////////////
@@ -466,7 +480,21 @@ SubstitutionModel* PhylogeneticsApplicationTools::getSubstitutionModelDefaultIns
     if (pgc->getSourceAlphabet()->getAlphabetType() != pCA->getAlphabetType())
       throw Exception("Mismatch between genetic code and codon alphabet");
 
-    model = new MG94(pgc);
+    string freqOpt = ApplicationTools::getStringParameter("codon_freqs", args, "F0");
+    short opt = 0;
+    if (freqOpt == "F0")
+      opt = FrequenciesSet::F0;
+    else if (freqOpt == "F1X4")
+      opt = FrequenciesSet::F1X4;
+    else if (freqOpt == "F3X4")
+      opt = FrequenciesSet::F3X4;
+    else if (freqOpt == "F61")
+      opt = FrequenciesSet::F61;
+    else
+      throw Exception("Unvalid codon frequency option. Should be one of F0, F1X4, F3X4 or F61");
+    FrequenciesSet* codonFreqs = FrequenciesSet::getFrequenciesSetForCodons(opt, *pgc);
+
+    model = new MG94(pgc, codonFreqs);
   }
 
 
@@ -500,7 +528,7 @@ SubstitutionModel* PhylogeneticsApplicationTools::getSubstitutionModelDefaultIns
       opt = FrequenciesSet::F61;
     else
       throw Exception("Unvalid codon frequency option. Should be one of F0, F1X4, F3X4 or F61");
-    FrequenciesSet* codonFreqs = FrequenciesSet::getFrequencySetForCodons(opt, *pgc);
+    FrequenciesSet* codonFreqs = FrequenciesSet::getFrequenciesSetForCodons(opt, *pgc);
     model = new YN98(pgc, codonFreqs);
   }
 
@@ -909,7 +937,6 @@ FrequenciesSet* PhylogeneticsApplicationTools::getRootFrequenciesSet(
   string freqDescription = ApplicationTools::getStringParameter("nonhomogeneous.root_freq", params, "Fixed(init=observed)", suffix, suffixIsOptional);
   if (freqDescription == "None")
   {
-    ApplicationTools::displayResult("Stationarity assumed", string("Yes"));
     return 0;
   }
   else
@@ -1185,9 +1212,15 @@ SubstitutionModelSet* PhylogeneticsApplicationTools::getSubstitutionModelSet(
   // ////////////////////////////////////
   // Deal with root frequencies
 
-  FrequenciesSet* rootFrequencies = getRootFrequenciesSet(alphabet, data, params, rateFreqs, suffix, suffixIsOptional, verbose);
-
-  bool stationarity = !rootFrequencies;
+  bool stationarity = ApplicationTools::getBooleanParameter("nonhomogeneous.stationarity", params, "false", "", false, false);
+  FrequenciesSet* rootFrequencies = 0;
+  if (!stationarity)
+  {
+    rootFrequencies = getRootFrequenciesSet(alphabet, data, params, rateFreqs, suffix, suffixIsOptional, verbose);
+    stationarity = !rootFrequencies;
+  }
+  ApplicationTools::displayBooleanResult("Stationarity assumed", stationarity);
+  
   SubstitutionModelSet* modelSet = stationarity ?
     new SubstitutionModelSet(alphabet, true) : //Stationarity assumed.
     new SubstitutionModelSet(alphabet, rootFrequencies);

@@ -45,14 +45,15 @@ using namespace std;
 
 /******************************************************************************/
 
-GY94::GY94(const GeneticCode* palph) :
-  AbstractSubstitutionModel(palph->getSourceAlphabet(),"GY94."),
+GY94::GY94(const GeneticCode* gc, FrequenciesSet* codonFreqs) :
+  AbstractSubstitutionModel(gc->getSourceAlphabet(), "GY94."),
   gacd_(),
-  pmodel_(palph,new FixedFrequenciesSet(palph->getSourceAlphabet()), &gacd_)
+  pmodel_(gc, codonFreqs, &gacd_)
 {
   addParameter_(Parameter("GY94.kappa",1,&Parameter::R_PLUS_STAR));
   addParameter_(Parameter("GY94.V",10000,&Parameter::R_PLUS_STAR));
-
+  pmodel_.setNamespace("GY94.");
+  addParameters_(codonFreqs->getParameters());
   updateMatrices();
 }
 
@@ -69,16 +70,11 @@ GY94& GY94::operator=(const GY94& gy94)
   return *this;
 }
 
-string GY94::getName() const
-{
-  return "GY94 model";
-}
-
 void GY94::updateMatrices()
 {
-  ParameterList Pl;
-  Pl.addParameter(Parameter("CodonAsynonymousFrequencies.123_K80.kappa", getParameterValue("kappa")));
-  Pl.addParameter(Parameter("CodonAsynonymousFrequencies.alpha", getParameterValue("V")));
-
-  pmodel_.matchParametersValues(Pl);
+  ParameterList pl;
+  pl.addParameter(Parameter("GY94.123_K80.kappa", getParameterValue("kappa")));
+  pl.addParameter(Parameter("GY94.alpha", getParameterValue("V")));
+  pmodel_.matchParametersValues(pl);
 }
+

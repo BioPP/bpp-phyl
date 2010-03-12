@@ -100,7 +100,7 @@ void NexusIOTree::read(std::istream& in, std::vector<Tree*>& trees) const throw 
 	
   //Look for the TREES block:
   string line = "";
-  while (line != "BEGIN TREES;")
+  while (TextTools::toUpper(line) != "BEGIN TREES;")
   {
     if (in.eof())
       throw Exception("NexusIOTree::read(). No trees block was found.");
@@ -111,6 +111,7 @@ void NexusIOTree::read(std::istream& in, std::vector<Tree*>& trees) const throw 
   bool cmdFound = NexusTools::getNextCommand(in, cmdName, cmdArgs, false);
   if (! cmdFound)
     throw Exception("NexusIOTree::read(). Missing tree command.");
+  cmdName = TextTools::toUpper(cmdName);
 
   //Look for the TRANSLATE command:
   map<string, string> translation;
@@ -133,6 +134,8 @@ void NexusIOTree::read(std::istream& in, std::vector<Tree*>& trees) const throw 
     cmdFound = NexusTools::getNextCommand(in, cmdName, cmdArgs, false);
     if (! cmdFound)
       throw Exception("NexusIOTree::read(). Missing tree command.");
+    else
+      cmdName = TextTools::toUpper(cmdName);
   }
 
   //Now parse the trees:
@@ -163,6 +166,7 @@ void NexusIOTree::read(std::istream& in, std::vector<Tree*>& trees) const throw 
     }
     trees.push_back(tree);
     cmdFound = NexusTools::getNextCommand(in, cmdName, cmdArgs, false);
+    if (cmdFound) cmdName = TextTools::toUpper(cmdName);
   }
 }
 

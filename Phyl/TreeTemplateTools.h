@@ -501,7 +501,7 @@ class TreeTemplateTools
      * @brief Get the number of nodes of a subtree defined by a particular node.
      *
      * @param node The node defining the subtree to check.
-     * @return The number of leaves.
+     * @return The number of nodes.
      */
     static unsigned int getNumberOfNodes(const Node& node);
 
