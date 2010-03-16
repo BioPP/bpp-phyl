@@ -1096,7 +1096,7 @@ FrequenciesSet* PhylogeneticsApplicationTools::getFrequenciesSetDefaultInstance(
   }
 
   // INDEPENDENTWORD
-  else if (freqName == "IndependentWord")
+  else if (freqName == "Word")
   {
     if (!AlphabetTools::isWordAlphabet(alphabet))
       throw Exception("PhylogeneticsApplicationTools::getFrequenciesSetDefaultInstance.\n\t Bad alphabet type "
@@ -1120,14 +1120,14 @@ FrequenciesSet* PhylogeneticsApplicationTools::getFrequenciesSetDefaultInstance(
       pFS2 = getFrequenciesSetDefaultInstance(pWA->getNAlphabet(0), sAFS, unparsedParameterValuesNested);
       for (map<string, string>::iterator it = unparsedParameterValuesNested.begin(); it != unparsedParameterValuesNested.end(); it++)
       {
-        unparsedParameterValues["IndependentWord." + st + "_" + it->first] = it->second;
+        unparsedParameterValues["Word." + st + "_" + it->first] = it->second;
       }
-      pFS = new IndependentWordFrequenciesSet(pFS2,nbfreq);
+      pFS = new WordFromUniqueFrequenciesSet(pWA,pFS2);
     }
     else
     {
       if (args.find("frequency0") == args.end())
-        throw Exception("PhylogeneticsApplicationTools::getFrequenciesSetDefaultInstance. Missing argument 'frequency' or 'frequency0' for frequencies set 'IndependentWord'.");
+        throw Exception("PhylogeneticsApplicationTools::getFrequenciesSetDefaultInstance. Missing argument 'frequency' or 'frequency0' for frequencies set 'Word'.");
       vector<string> v_sAFS;
       vector<FrequenciesSet*> v_AFS;
       unsigned int nbfreq = 0;
@@ -1147,12 +1147,12 @@ FrequenciesSet* PhylogeneticsApplicationTools::getFrequenciesSetDefaultInstance(
         pFS = getFrequenciesSetDefaultInstance(pWA->getNAlphabet(i), v_sAFS[i], unparsedParameterValuesNested);
         for (map<string, string>::iterator it = unparsedParameterValuesNested.begin(); it != unparsedParameterValuesNested.end(); it++)
         {
-          unparsedParameterValues["IndependentWord." + TextTools::toString(i) + "_" + it->first] = it->second;
+          unparsedParameterValues["Word." + TextTools::toString(i) + "_" + it->first] = it->second;
         }
         v_AFS.push_back(pFS);
       }
 
-      pFS = new IndependentWordFrequenciesSet(v_AFS);
+      pFS = new WordFromIndependentFrequenciesSet(pWA, v_AFS);
     }
   }
   else
