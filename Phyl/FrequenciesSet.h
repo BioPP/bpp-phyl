@@ -634,75 +634,164 @@ class FixedCodonFrequenciesSet:
 };
 
 
+
+/*********************************************************************/
+/*********************************************************************/
+/****   Frequencies Set in Words *****/
+/*********************************************************************/
+
+
+
+
+
 /**
- * @brief Frequencies in words from the product of frequencies on
+ * @brief Frequencies in words computed from the  frequencies on
  * letters. The parameters are the parameters of the Frequencies on
  * letters.
+ * The WordFrequenciesSet owns the FrequenciesSet* it is built on.
+ * Interface class.
  * @author Laurent Guéguen
  */
-class IndependentWordFrequenciesSet:
+class WordFrequenciesSet:
   public AbstractFrequenciesSet
+{
+protected:
+  unsigned int getSizeFromVector(const std::vector<FrequenciesSet*>& freqVector);
+
+public:
+
+  WordFrequenciesSet(int size, const Alphabet* palph);
+  
+  virtual ~WordFrequenciesSet();
+  
+  /**
+   *@ brief Return the n-th FrequenciesSet* 
+   **/
+  
+  FrequenciesSet& getFrequenciesSetForLetter(int);
+  
+  /**
+   *@ brief Return the length of the words
+   **/
+  
+  virtual int getLength() const;
+};
+
+
+/**
+ * @brief the Frequencies in words are the product of Independent Frequencies in letters
+ * @author Laurent Guéguen
+ */
+
+class WordFromIndependentFrequenciesSet:
+  public WordFrequenciesSet
 {
 private:
   std::vector<FrequenciesSet*> vFreq_;
   std::vector<std::string> vNestedPrefix_;
-  bool uniqueAbsFreq_;
   
-  /**
-   * brief builds a new alphabet matching with the future vector of
-   * AbstractFrequenciesSet.
-   */ 
-  static Alphabet* extractAlph_(const std::vector<FrequenciesSet*>& freqVector);
-
-  static unsigned int getSizeFromVector(const std::vector<FrequenciesSet*>& freqVector);
-
 public:
 
   /**
-   * @brief Constructor from a vector of AbstractFrequenciesSet*. If
-   *  these AbstractFrequenciesSet* are not all different, the
-   *  constructor uses only the first AbstractFrequenciesSet* from the
-   *  vector, as many time as the length of the vector
+   * @brief Constructor from a WordAlphabet* and a vector of different FrequenciesSet*.
+   * Throws an Exception if their lengths do not match.
    */
-  IndependentWordFrequenciesSet(const std::vector<FrequenciesSet*>&);
+  WordFromIndependentFrequenciesSet(const WordAlphabet*, const std::vector<FrequenciesSet*>&) throw(Exception);
   
-  /**
-   * @brief Constructor from an AbstractFrequenciesSet* repeated num
-   *  times.
-   */
-  IndependentWordFrequenciesSet(FrequenciesSet* pabsfreq, int num);
+  WordFromIndependentFrequenciesSet(const WordFromIndependentFrequenciesSet& iwfs);
 
-  IndependentWordFrequenciesSet(const IndependentWordFrequenciesSet& iwfs);
+  ~WordFromIndependentFrequenciesSet();
   
-  IndependentWordFrequenciesSet& operator=(const IndependentWordFrequenciesSet& iwfs);
+  WordFromIndependentFrequenciesSet& operator=(const WordFromIndependentFrequenciesSet& iwfs);
 
-  ~IndependentWordFrequenciesSet();
-  
-  IndependentWordFrequenciesSet* clone() const { return new IndependentWordFrequenciesSet(*this); }
+  WordFromIndependentFrequenciesSet* clone() const { return new WordFromIndependentFrequenciesSet(*this); }
 
-  
-  /**
-   *@ brief Return the n-th AbstractFrequenciesSet* 
-   **/
-  
-  FrequenciesSet* getNFrequencies(int n){ return vFreq_[n]; }
   
 public:
 
   void fireParameterChanged(const ParameterList & pl);
-  void updateFrequencies(); 
 
+  void updateFrequencies();
+  
   /**
    *@ brief Independent letter frequencies from given word frequencies.
    * The frequencies of a letter at a position is the sum of the
    *    frequencies of the words that have this letter at this
    *    position.
-   * When there is a unique letter frequencies set, the frequencies of
-   * each letter is the average of the frequencies of that letter at
-   * all positions.
+   */
+
+  void setFrequencies(const std::vector<double>& frequencies) throw (DimensionException, Exception);
+
+  /**
+   *@ brief Return the n-th FrequenciesSet* 
+   **/
+  
+  FrequenciesSet& getFrequenciesSetForLetter(int n){ return *vFreq_[n]; }
+
+  /**
+   *@ brief Return the length of the words
+   **/
+  
+  virtual int getLength() const;
+
+  void setNamespace(const std::string&);
+
+  std::string getName() const;
+
+};
+
+/**
+ * @brief the Frequencies in words are the product of the frequencies for a unique FrequenciesSet in letters
+ * @author Laurent Guéguen
+ */
+
+class WordFromUniqueFrequenciesSet:
+  public WordFrequenciesSet
+{
+private:
+  FrequenciesSet* pFreq_;
+  std::string NestedPrefix_;
+  unsigned int length_;
+  
+public:
+
+  /**
+   * @brief Constructor from a WordAlphabet* and an AbstractFrequenciesSet* repeated as
+   *  many times as the length of the words.
+   */
+  WordFromUniqueFrequenciesSet(const WordAlphabet* pWA, FrequenciesSet* pabsfreq);
+
+  WordFromUniqueFrequenciesSet(const WordFromUniqueFrequenciesSet& iwfs);
+  
+  WordFromUniqueFrequenciesSet& operator=(const WordFromUniqueFrequenciesSet& iwfs);
+
+  ~WordFromUniqueFrequenciesSet();
+  
+  WordFromUniqueFrequenciesSet* clone() const { return new WordFromUniqueFrequenciesSet(*this); }
+
+public:
+
+  void fireParameterChanged(const ParameterList & pl);
+
+  /**
+   *@ brief letter frequencies from given word frequencies. The
+   * frequencies of a letter at a position is the sum of the
+   * frequencies of the words that have this letter at this position.
+   * The frequencies of each letter is the average of the frequencies
+   * of that letter at all positions.
    */
   void setFrequencies(const std::vector<double>& frequencies) throw (DimensionException, Exception);
 
+  void updateFrequencies();
+  
+  /**
+   *@ brief Return the n-th FrequenciesSet* 
+   **/
+  
+  FrequenciesSet& getFrequenciesSetForLetter(int n){ return *pFreq_; }
+
+  int getLength() const {return length_;}
+ 
   void setNamespace(const std::string&);
 
   std::string getName() const;
