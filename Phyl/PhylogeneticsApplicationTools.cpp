@@ -1113,7 +1113,7 @@ FrequenciesSet* PhylogeneticsApplicationTools::getFrequenciesSetDefaultInstance(
       string st = "";
       for (unsigned i = 0; i < nbfreq; i++)
       {
-        st += TextTools::toString(i);
+        st += TextTools::toString(i+1);
       }
 
       map<string, string> unparsedParameterValuesNested;
@@ -1126,11 +1126,11 @@ FrequenciesSet* PhylogeneticsApplicationTools::getFrequenciesSetDefaultInstance(
     }
     else
     {
-      if (args.find("frequency0") == args.end())
-        throw Exception("PhylogeneticsApplicationTools::getFrequenciesSetDefaultInstance. Missing argument 'frequency' or 'frequency0' for frequencies set 'Word'.");
+      if (args.find("frequency1") == args.end())
+        throw Exception("PhylogeneticsApplicationTools::getFrequenciesSetDefaultInstance. Missing argument 'frequency' or 'frequency1' for frequencies set 'Word'.");
       vector<string> v_sAFS;
       vector<FrequenciesSet*> v_AFS;
-      unsigned int nbfreq = 0;
+      unsigned int nbfreq = 1;
 
       while (args.find("frequency" + TextTools::toString(nbfreq)) != args.end())
       {
@@ -1147,7 +1147,7 @@ FrequenciesSet* PhylogeneticsApplicationTools::getFrequenciesSetDefaultInstance(
         pFS = getFrequenciesSetDefaultInstance(pWA->getNAlphabet(i), v_sAFS[i], unparsedParameterValuesNested);
         for (map<string, string>::iterator it = unparsedParameterValuesNested.begin(); it != unparsedParameterValuesNested.end(); it++)
         {
-          unparsedParameterValues["Word." + TextTools::toString(i) + "_" + it->first] = it->second;
+          unparsedParameterValues["Word." + TextTools::toString(i+1) + "_" + it->first] = it->second;
         }
         v_AFS.push_back(pFS);
       }
