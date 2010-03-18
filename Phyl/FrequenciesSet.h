@@ -345,7 +345,7 @@ class FullNucleotideFrequenciesSet :
 public:
   FullNucleotideFrequenciesSet(const NucleicAlphabet* alphabet, bool allowNullFreqs = false);
 
-  FullNucleotideFrequenciesSet(const NucleicAlphabet* alphabet, double theta, double theta_1, double theta_2, bool allowNullFreqs = false);
+  FullNucleotideFrequenciesSet(const NucleicAlphabet* alphabet, double theta, double theta1, double theta2, bool allowNullFreqs = false);
 
 #ifndef NO_VIRTUAL_COV
   FullNucleotideFrequenciesSet*
@@ -640,13 +640,13 @@ public:
    *@ brief Return the n-th FrequenciesSet*
    **/
 
-  FrequenciesSet& getFrequenciesSetForLetter(int);
+  const FrequenciesSet& getFrequenciesSetForLetter(unsigned int i) const;
 
   /**
    *@ brief Return the length of the words
    **/
 
-  virtual int getLength() const;
+  virtual unsigned int getLength() const;
 };
 
 
@@ -688,19 +688,18 @@ public:
    *    frequencies of the words that have this letter at this
    *    position.
    */
-
   void setFrequencies(const std::vector<double>& frequencies) throw (DimensionException, Exception);
 
   /**
    *@ brief Return the n-th FrequenciesSet*
    **/
-  FrequenciesSet& getFrequenciesSetForLetter(int n){ return *vFreq_[n]; }
+  const FrequenciesSet& getFrequenciesSetForLetter(unsigned int i) const { return *vFreq_[i]; }
 
   /**
    *@ brief Return the length of the words
    **/
 
-  virtual int getLength() const;
+  virtual unsigned int getLength() const;
 
   void setNamespace(const std::string&);
 
@@ -752,14 +751,15 @@ public:
   /**
    *@ brief Return the n-th FrequenciesSet*
    **/
-  FrequenciesSet& getFrequenciesSetForLetter(int n){ return *pFreq_; }
+  const FrequenciesSet& getFrequenciesSetForLetter(unsigned int i){ return *pFreq_; }
 
-  int getLength() const {return length_; }
+  unsigned int getLength() const { return length_; }
 
-  void setNamespace(const std::string&);
+  void setNamespace(const std::string& prefix);
 
   std::string getName() const;
 };
+
 } // end of namespace bpp.
 
 #endif // _FREQUENCIESSET_H_

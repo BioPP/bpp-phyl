@@ -60,8 +60,39 @@ knowledge of the CeCILL license and that you accept its terms.
 #include <NumCalc/TwoPointsNumericalDerivative.h>
 #include <NumCalc/ReparametrizationFunctionWrapper.h>
 
+//From SeqLib:
+#include <Seq/Fasta.h>
+
 using namespace bpp;
 using namespace std;
+
+/******************************************************************************/
+
+double NaNWatcher::getValue() const throw (Exception)
+{
+  double value = function_->getValue();
+  if (isnan(value))
+  {
+    std::cerr << "Oups... something abnormal happened! A core file has been dumped to DEBUB.LOG" << std::endl;
+    std::ofstream debug("DEBUG.LOG", std::ios::out);
+    debug << "<<< DEBUGGING INFORMATION >>>" << std::endl;
+    debug << "<<< SEND TO julien.dutheil@univ-montp2.fr >>>" << std::endl;
+    debug << std::endl;
+    debug << "<<< PARAMETERS >>>" << std::endl;
+    function_->getParameters().printParameters(debug);
+    debug << std::endl;
+    debug << "<<< TREE >>>" << std::endl;
+    Newick newick;
+    newick.write(dynamic_cast<TreeLikelihood*>(function_)->getTree(), debug);
+    debug << std::endl;
+    debug << "<<< SEQUENCES >>>" << std::endl;
+    Fasta fasta;
+    fasta.write(debug, *dynamic_cast<TreeLikelihood*>(function_)->getData());
+    debug.close();
+    throw Exception("Optimization failed because likelihood function returned NaN.");
+  }
+  return value;
+}
 
 /******************************************************************************/
 
@@ -148,13 +179,14 @@ unsigned int OptimizationTools::optimizeNumericalParameters(
   const std::string& optMethod)
 throw (Exception)
 {
-  DerivableSecondOrder* f = tl;
+  auto_ptr<DerivableSecondOrder> watcher(new NaNWatcher(tl));
+  DerivableSecondOrder* f = watcher.get();
   ParameterList pl = parameters;
   //Shall we reparametrize the function to remove constraints?
   auto_ptr<DerivableSecondOrder> frep;
   if (reparametrization)
   {
-    frep.reset(new ReparametrizationDerivableSecondOrderWrapper(tl, parameters));
+    frep.reset(new ReparametrizationDerivableSecondOrderWrapper(f, parameters));
     f = frep.get();
 
     //Reset parameters to remove constraints:
@@ -186,6 +218,7 @@ throw (Exception)
   
   // Optimize TreeLikelihood function:
   optimizer.setConstraintPolicy(AutoParameter::CONSTRAINTS_AUTO);
+  if (listener) cout << "ben si pourtant" << endl;
   if (listener) optimizer.addOptimizationListener(listener);
   optimizer.init(pl);
   optimizer.optimize();

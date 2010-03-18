@@ -93,7 +93,7 @@ SubstitutionModelSet* SubstitutionModelSetTools::createNonHomogeneousModelSet(
     if (find(globalParameterNames.begin(), globalParameterNames.end(), globalParameters[i-1].getName()) == globalParameterNames.end())
     {
       //not a global parameter:
-      branchParameters.addParameter(globalParameters[i-1]);
+      branchParameters.addParameter(globalParameters[i - 1]);
       globalParameters.deleteParameter(i - 1);
     }
   }

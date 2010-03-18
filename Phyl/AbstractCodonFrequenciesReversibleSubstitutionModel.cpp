@@ -103,7 +103,7 @@ void AbstractCodonFrequenciesReversibleSubstitutionModel::completeMatrices()
   unsigned int salph = getNumberOfStates();
 
   freq_ = pfreqset_->getFrequencies();
-
+  
   for (i = 0; i < salph; i++)
   {
     for (j = 0; j < salph; j++)

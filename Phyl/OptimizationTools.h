@@ -58,6 +58,30 @@ knowledge of the CeCILL license and that you accept its terms.
 
 namespace bpp
 {
+ 
+  
+/**
+ * @brief Debugging wrapper: output data to a log file if a 0 likelihood is obtained during optimization.
+ */
+class NaNWatcher: public DerivableSecondOrderWrapper
+{
+
+  public:
+    NaNWatcher(TreeLikelihood* tl) :
+      DerivableSecondOrderWrapper(tl) {}
+
+    NaNWatcher* clone() const { return new NaNWatcher(*this); }
+
+    /**
+     * @brief This function is redefined to output an error message if there is a 0 likelihood.
+     *
+     * @return The value of the likelihood function;
+     */
+    double getValue() const throw (Exception);
+
+};
+
+
 
 /**
  * @brief Listener used internally by the optimizeTreeNNI method.

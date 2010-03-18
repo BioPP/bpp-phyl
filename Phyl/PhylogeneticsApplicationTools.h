@@ -55,6 +55,7 @@
 
 // From NumCalc:
 #include <NumCalc/DiscreteDistribution.h>
+#include <NumCalc/Optimizer.h>
 
 // From SeqLib:
 #include <Seq/SiteContainer.h>
@@ -66,6 +67,7 @@
 
 namespace bpp
 {
+
 
   /**
    * @brief This class provides some common tools for applications.
@@ -103,7 +105,7 @@ namespace bpp
      * @throw Exception if an error occured.
      */
     static Tree* getTree(
-                         std::map<std::string, std::string> & params,
+                         std::map<std::string, std::string>& params,
                          const std::string& prefix = "input.",
                          const std::string& suffix = "",
                          bool suffixIsOptional = true,
