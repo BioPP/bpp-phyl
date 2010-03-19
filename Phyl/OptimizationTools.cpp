@@ -73,7 +73,7 @@ double NaNWatcher::getValue() const throw (Exception)
   double value = function_->getValue();
   if (isnan(value))
   {
-    std::cerr << "Oups... something abnormal happened! A core file has been dumped to DEBUB.LOG" << std::endl;
+    std::cerr << "Oups... something abnormal happened! A log file has been dumped to DEBUB.LOG" << std::endl;
     std::ofstream debug("DEBUG.LOG", std::ios::out);
     debug << "<<< DEBUGGING INFORMATION >>>" << std::endl;
     debug << "<<< SEND TO julien.dutheil@univ-montp2.fr >>>" << std::endl;
