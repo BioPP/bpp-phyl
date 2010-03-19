@@ -491,7 +491,7 @@ unsigned int WordFrequenciesSet::getSizeFromVector(const std::vector<Frequencies
   return s;
 }
 
-WordFrequenciesSet::WordFrequenciesSet(int size, const Alphabet* palph) :
+WordFrequenciesSet::WordFrequenciesSet(unsigned int size, const Alphabet* palph) :
   AbstractFrequenciesSet(size, palph, "Word.")
 {}
 
@@ -514,7 +514,7 @@ WordFromIndependentFrequenciesSet::WordFromIndependentFrequenciesSet(
   vFreq_(),
   vNestedPrefix_()
 {
-   unsigned int sf = getSizeFromVector(freqvector);
+  unsigned int sf = getSizeFromVector(freqvector);
   if (pWA->getSize() !=  sf)
     throw Exception("WordFromIndependentFrequenciesSet: Size of the frequencies does not match size of the alphabet : " + TextTools::toString(sf) + " vs " + TextTools::toString(pWA->getSize()));
 
@@ -522,8 +522,8 @@ WordFromIndependentFrequenciesSet::WordFromIndependentFrequenciesSet(
 
   for (unsigned int i = 0; i < l; i++)
   {
-   vFreq_.push_back(freqvector[i]->clone());
-   vNestedPrefix_.push_back(freqvector[i]->getNamespace());
+    vFreq_.push_back(freqvector[i]);
+    vNestedPrefix_.push_back(freqvector[i]->getNamespace());
     vFreq_[i]->setNamespace("Word." + TextTools::toString(i + 1) + "_" + vNestedPrefix_[i]);
     addParameters_(vFreq_[i]->getParameters());
   }
@@ -532,11 +532,11 @@ WordFromIndependentFrequenciesSet::WordFromIndependentFrequenciesSet(
 }
 
 WordFromIndependentFrequenciesSet::WordFromIndependentFrequenciesSet(const WordFromIndependentFrequenciesSet& iwfs) :
-  WordFrequenciesSet(iwfs.getNumberOfFrequencies(), iwfs.getAlphabet()),
+  WordFrequenciesSet(iwfs),
   vFreq_(),
   vNestedPrefix_(iwfs.vNestedPrefix_)
 {
-   unsigned int l = iwfs.vFreq_.size();
+  unsigned int l = iwfs.vFreq_.size();
 
   for (unsigned i = 0; i < l; i++)
   {
@@ -555,9 +555,9 @@ WordFromIndependentFrequenciesSet::~WordFromIndependentFrequenciesSet()
   }
 }
 
-WordFromIndependentFrequenciesSet & WordFromIndependentFrequenciesSet::operator=(const WordFromIndependentFrequenciesSet& iwfs)
+WordFromIndependentFrequenciesSet& WordFromIndependentFrequenciesSet::operator=(const WordFromIndependentFrequenciesSet& iwfs)
 {
-  AbstractFrequenciesSet::operator=(iwfs);
+  WordFrequenciesSet::operator=(iwfs);
   vNestedPrefix_ = iwfs.vNestedPrefix_;
 
   unsigned int l = iwfs.vFreq_.size();
@@ -657,7 +657,7 @@ unsigned int WordFromIndependentFrequenciesSet::getLength() const
   return vFreq_.size();
 }
 
-void WordFromIndependentFrequenciesSet::setNamespace(const string& prefix)
+void WordFromIndependentFrequenciesSet::setNamespace(const std::string& prefix)
 {
    AbstractFrequenciesSet::setNamespace(prefix);
   for (unsigned int i = 0; i < vFreq_.size(); i++)
@@ -666,9 +666,9 @@ void WordFromIndependentFrequenciesSet::setNamespace(const string& prefix)
   }
 }
 
-string WordFromIndependentFrequenciesSet::getName() const
+std::string WordFromIndependentFrequenciesSet::getName() const
 {
-   string s = "Word From Independent Frequencies : ";
+  string s = "Word From Independent Frequencies : ";
   for (unsigned int i = 0; i < vFreq_.size(); i++)
   {
     s += vFreq_[i]->getName();
@@ -683,13 +683,13 @@ string WordFromIndependentFrequenciesSet::getName() const
 
 WordFromUniqueFrequenciesSet::WordFromUniqueFrequenciesSet(const WordAlphabet* pWA, FrequenciesSet* pabsfreq) :
   WordFrequenciesSet(pWA->getSize(), pWA),
-  pFreq_(pabsfreq->clone()),
+  pFreq_(pabsfreq),
   NestedPrefix_(pabsfreq->getNamespace()),
   length_(pWA->getLength())
 {
-   unsigned int i;
+  unsigned int i;
 
-   string st = "";
+  string st = "";
   for (i = 0; i < length_; i++)
   {
     st += TextTools::toString(i + 1);
@@ -702,7 +702,7 @@ WordFromUniqueFrequenciesSet::WordFromUniqueFrequenciesSet(const WordAlphabet* p
 }
 
 WordFromUniqueFrequenciesSet::WordFromUniqueFrequenciesSet(const WordFromUniqueFrequenciesSet& iwfs) :
-  WordFrequenciesSet(iwfs.getNumberOfFrequencies(), iwfs.getAlphabet()),
+  WordFrequenciesSet(iwfs),
   pFreq_(iwfs.pFreq_->clone()),
   NestedPrefix_(iwfs.NestedPrefix_),
   length_(iwfs.length_)
@@ -713,7 +713,7 @@ WordFromUniqueFrequenciesSet::WordFromUniqueFrequenciesSet(const WordFromUniqueF
 
 WordFromUniqueFrequenciesSet& WordFromUniqueFrequenciesSet::operator=(const WordFromUniqueFrequenciesSet& iwfs)
 {
-  AbstractFrequenciesSet::operator=(iwfs);
+  WordFrequenciesSet::operator=(iwfs);
   pFreq_ = iwfs.pFreq_->clone();
   NestedPrefix_ = iwfs.NestedPrefix_;
   length_ = iwfs.length_;
@@ -737,11 +737,11 @@ void WordFromUniqueFrequenciesSet::fireParameterChanged(const ParameterList& pl)
 
 void WordFromUniqueFrequenciesSet::updateFrequencies()
 {
-   unsigned int s = getAlphabet()->getSize();
-   vector<double> f;
-   int letsi = pFreq_->getAlphabet()->getSize();
+  unsigned int s = getAlphabet()->getSize();
+  vector<double> f;
+  int letsi = pFreq_->getAlphabet()->getSize();
 
-   unsigned int i, p, i2;
+  unsigned int i, p, i2;
 
   f = pFreq_->getFrequencies();
 

@@ -612,7 +612,6 @@ protected:
 
 
 /*********************************************************************/
-/*********************************************************************/
 /****   Frequencies Set in Words *****/
 /*********************************************************************/
 
@@ -632,7 +631,7 @@ protected:
   unsigned int getSizeFromVector(const std::vector<FrequenciesSet*>& freqVector);
 
 public:
-  WordFrequenciesSet(int size, const Alphabet* palph);
+  WordFrequenciesSet(unsigned int size, const Alphabet* palph);
 
   virtual ~WordFrequenciesSet();
 
