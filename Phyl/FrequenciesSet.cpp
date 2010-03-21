@@ -533,26 +533,18 @@ WordFromIndependentFrequenciesSet::WordFromIndependentFrequenciesSet(
 
 WordFromIndependentFrequenciesSet::WordFromIndependentFrequenciesSet(const WordFromIndependentFrequenciesSet& iwfs) :
   WordFrequenciesSet(iwfs),
-  vFreq_(),
+  vFreq_(iwfs.vFreq_.size()),
   vNestedPrefix_(iwfs.vNestedPrefix_)
 {
-  unsigned int l = iwfs.vFreq_.size();
-
-  for (unsigned i = 0; i < l; i++)
-  {
-   vFreq_.push_back(iwfs.vFreq_[i]->clone());
-  }
+  for (unsigned i = 0; i < iwfs.vFreq_.size(); i++)
+    vFreq_[i] =  iwfs.vFreq_[i]->clone();
   updateFrequencies();
 }
 
 WordFromIndependentFrequenciesSet::~WordFromIndependentFrequenciesSet()
 {
-   unsigned int l = vFreq_.size();
-
-  for (unsigned i = 0; i < l; i++)
-  {
+  for (unsigned i = 0; i < vFreq_.size(); i++)
     delete vFreq_[i];
-  }
 }
 
 WordFromIndependentFrequenciesSet& WordFromIndependentFrequenciesSet::operator=(const WordFromIndependentFrequenciesSet& iwfs)
@@ -560,12 +552,13 @@ WordFromIndependentFrequenciesSet& WordFromIndependentFrequenciesSet::operator=(
   WordFrequenciesSet::operator=(iwfs);
   vNestedPrefix_ = iwfs.vNestedPrefix_;
 
-  unsigned int l = iwfs.vFreq_.size();
+  //Clean current frequencies first:
+  for (unsigned i = 0; i < vFreq_.size(); i++)
+    delete vFreq_[i];
 
-  for (unsigned i = 0; i < l; i++)
-  {
+  vFreq_.resize(iwfs.vFreq_.size());
+  for (unsigned i = 0; i < vFreq_.size(); i++)
     vFreq_[i] = iwfs.vFreq_[i]->clone();
-  }
   updateFrequencies();
 
   return *this;
@@ -573,9 +566,9 @@ WordFromIndependentFrequenciesSet& WordFromIndependentFrequenciesSet::operator=(
 
 void WordFromIndependentFrequenciesSet::fireParameterChanged(const ParameterList& pl)
 {
-   unsigned int l = vFreq_.size();
+  unsigned int l = vFreq_.size();
 
-   bool f = 0;
+  bool f = 0;
   for (unsigned int i = 0; i < l; i++)
   {
     f |= vFreq_[i]->matchParametersValues(pl);
@@ -583,7 +576,6 @@ void WordFromIndependentFrequenciesSet::fireParameterChanged(const ParameterList
 
   if (f)
     updateFrequencies();
-  
 }
 
 void WordFromIndependentFrequenciesSet::updateFrequencies()
@@ -714,6 +706,7 @@ WordFromUniqueFrequenciesSet::WordFromUniqueFrequenciesSet(const WordFromUniqueF
 WordFromUniqueFrequenciesSet& WordFromUniqueFrequenciesSet::operator=(const WordFromUniqueFrequenciesSet& iwfs)
 {
   WordFrequenciesSet::operator=(iwfs);
+  delete pFreq_;
   pFreq_ = iwfs.pFreq_->clone();
   NestedPrefix_ = iwfs.NestedPrefix_;
   length_ = iwfs.length_;
