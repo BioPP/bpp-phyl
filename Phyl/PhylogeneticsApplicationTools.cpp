@@ -340,10 +340,10 @@ SubstitutionModel* PhylogeneticsApplicationTools::getSubstitutionModelDefaultIns
 
     else if (modelName == "CodonAsynonymous")
     {
-      if (args.find("geneticcode") == args.end())
-        args["geneticcode"]=pWA->getAlphabetType();
+      if (args.find("genetic_code") == args.end())
+        args["genetic_code"]=pWA->getAlphabetType();
       
-      GeneticCode* pgc = SequenceApplicationTools::getGeneticCode(dynamic_cast<const NucleicAlphabet*>(pWA->getNAlphabet(0)),args["geneticcode"]);
+      GeneticCode* pgc = SequenceApplicationTools::getGeneticCode(dynamic_cast<const NucleicAlphabet*>(pWA->getNAlphabet(0)),args["genetic_code"]);
       if (pgc->getSourceAlphabet()->getAlphabetType() != pWA->getAlphabetType())
         throw Exception("Mismatch between genetic code and codon alphabet");
 
@@ -408,10 +408,10 @@ SubstitutionModel* PhylogeneticsApplicationTools::getSubstitutionModelDefaultIns
 
     else if (modelName == "CodonAsynonymousFrequencies")
     {
-      if (args.find("geneticcode") == args.end())
-        args["geneticcode"] = pCA->getAlphabetType();
+      if (args.find("genetic_code") == args.end())
+        args["genetic_code"] = pCA->getAlphabetType();
 
-      GeneticCode* pgc = SequenceApplicationTools::getGeneticCode(dynamic_cast<const NucleicAlphabet*>(pCA->getNAlphabet(0)),args["geneticcode"]);
+      GeneticCode* pgc = SequenceApplicationTools::getGeneticCode(dynamic_cast<const NucleicAlphabet*>(pCA->getNAlphabet(0)),args["genetic_code"]);
       if (pgc->getSourceAlphabet()->getAlphabetType() != pCA->getAlphabetType())
         throw Exception("Mismatch between genetic code and codon alphabet");
 
@@ -438,10 +438,10 @@ SubstitutionModel* PhylogeneticsApplicationTools::getSubstitutionModelDefaultIns
 
     const CodonAlphabet* pCA = (const CodonAlphabet*)(alphabet);
 
-    if (args.find("geneticcode") == args.end())
-      args["geneticcode"] = pCA->getAlphabetType();
+    if (args.find("genetic_code") == args.end())
+      args["genetic_code"] = pCA->getAlphabetType();
 
-    GeneticCode* pgc = SequenceApplicationTools::getGeneticCode(dynamic_cast<const NucleicAlphabet*>(pCA->getNAlphabet(0)),args["geneticcode"]);
+    GeneticCode* pgc = SequenceApplicationTools::getGeneticCode(dynamic_cast<const NucleicAlphabet*>(pCA->getNAlphabet(0)),args["genetic_code"]);
     if (pgc->getSourceAlphabet()->getAlphabetType() != pCA->getAlphabetType())
       throw Exception("Mismatch  between genetic code and codon alphabet");
 
@@ -473,10 +473,10 @@ SubstitutionModel* PhylogeneticsApplicationTools::getSubstitutionModelDefaultIns
 
     const CodonAlphabet* pCA = (const CodonAlphabet*)(alphabet);
 
-    if (args.find("geneticcode") == args.end())
-        args["geneticcode"]=pCA->getAlphabetType();
+    if (args.find("genetic_code") == args.end())
+        args["genetic_code"]=pCA->getAlphabetType();
 
-    GeneticCode* pgc = SequenceApplicationTools::getGeneticCode(dynamic_cast<const NucleicAlphabet*>(pCA->getNAlphabet(0)),args["geneticcode"]);
+    GeneticCode* pgc = SequenceApplicationTools::getGeneticCode(dynamic_cast<const NucleicAlphabet*>(pCA->getNAlphabet(0)),args["genetic_code"]);
     if (pgc->getSourceAlphabet()->getAlphabetType() != pCA->getAlphabetType())
       throw Exception("Mismatch between genetic code and codon alphabet");
 
@@ -509,10 +509,10 @@ SubstitutionModel* PhylogeneticsApplicationTools::getSubstitutionModelDefaultIns
 
     const CodonAlphabet* pCA = (const CodonAlphabet*)(alphabet);
 
-    if (args.find("geneticcode") == args.end())
-      args["geneticcode"]=pCA->getAlphabetType();
+    if (args.find("genetic_code") == args.end())
+      args["genetic_code"]=pCA->getAlphabetType();
 
-    GeneticCode* pgc = SequenceApplicationTools::getGeneticCode(dynamic_cast<const NucleicAlphabet*>(pCA->getNAlphabet(0)),args["geneticcode"]);
+    GeneticCode* pgc = SequenceApplicationTools::getGeneticCode(dynamic_cast<const NucleicAlphabet*>(pCA->getNAlphabet(0)),args["genetic_code"]);
     if (pgc->getSourceAlphabet()->getAlphabetType() != pCA->getAlphabetType())
       throw Exception("Mismatch between genetic code and codon alphabet");
 
@@ -1504,8 +1504,11 @@ TreeLikelihood* PhylogeneticsApplicationTools::optimizeParameters(
   bool verbose)
 throw (Exception)
 {
-  bool optimize = ApplicationTools::getBooleanParameter("optimization", params, true, suffix, suffixIsOptional, false);
-  if (!optimize) return tl;
+  string optimization = ApplicationTools::getStringParameter("optimization", params, "FullD(derivatives=Newton)", suffix, suffixIsOptional, false);
+  if (optimization == "None") return tl;
+  string optName;
+  map<string, string> optArgs;
+  KeyvalTools::parseProcedure(optimization, optName, optArgs);
 
   unsigned int optVerbose = ApplicationTools::getParameter<unsigned int>("optimization.verbose", params, 2, suffix, suffixIsOptional);
 
@@ -1608,19 +1611,18 @@ throw (Exception)
   else throw Exception("Unknown NNI algorithm: '" + nniMethod + "'.");
 
 
-  string method = ApplicationTools::getStringParameter("optimization.method", params, "DB", suffix, suffixIsOptional, false);
-  string order  = ApplicationTools::getStringParameter("optimization.method.derivatives", params, "newton", suffix, suffixIsOptional, false);
+  string order  = ApplicationTools::getStringParameter("derivatives", optArgs, "Newton", "", true, false);
   string optMethod;
-  if (order == "gradient")
+  if (order == "Gradient")
   {
     optMethod = OptimizationTools::OPTIMIZATION_GRADIENT;
   }
-  else if (order == "newton")
+  else if (order == "Newton")
   {
     optMethod = OptimizationTools::OPTIMIZATION_NEWTON;
   }
   else throw Exception("Unknown derivatives algorithm: '" + order + "'.");
-  if (verbose) ApplicationTools::displayResult("Optimization method", method);
+  if (verbose) ApplicationTools::displayResult("Optimization method", optName);
   if (verbose) ApplicationTools::displayResult("Algorithm used for derivable parameters", order);
 
   //See if we should reparametrize:
@@ -1628,11 +1630,11 @@ throw (Exception)
   ApplicationTools::displayResult("Reparametrization", (reparam ? "yes" : "no"));
 
   unsigned int n = 0;
-  if (method == "DB")
+  if (optName == "DB")
   {
     // Uses Newton-Brent method:
 
-    unsigned int nstep = ApplicationTools::getParameter<unsigned int>("optimization.method_DB.nstep", params, 1, suffix, suffixIsOptional, false);
+    unsigned int nstep = ApplicationTools::getParameter<unsigned int>("nstep", optArgs, 1, "", true, false);
     if (optimizeTopo)
     {
       bool        optNumFirst = ApplicationTools::getBooleanParameter("optimization.topology.numfirst", params, true, suffix, suffixIsOptional, false);
@@ -1650,7 +1652,7 @@ throw (Exception)
       dynamic_cast<DiscreteRatesAcrossSitesTreeLikelihood*>(tl), parametersToEstimate,
       0, nstep, tolerance, nbEvalMax, messageHandler, profiler, reparam, optVerbose, optMethod);
   }
-  else if (method == "fullD")
+  else if (optName == "FullD")
   {
     // Uses Newton-raphson alogrithm with numerical derivatives when required.
 
@@ -1670,7 +1672,7 @@ throw (Exception)
       dynamic_cast<DiscreteRatesAcrossSitesTreeLikelihood*>(tl), parametersToEstimate,
       0, tolerance, nbEvalMax, messageHandler, profiler, reparam, optVerbose, optMethod);
   }
-  else throw Exception("Unknown optimization method: " + method);
+  else throw Exception("Unknown optimization method: " + optName);
 
   string finalMethod = ApplicationTools::getStringParameter("optimization.final", params, "none", suffix, suffixIsOptional, true);
   Optimizer* finalOptimizer  = 0;
@@ -1717,8 +1719,11 @@ void PhylogeneticsApplicationTools::optimizeParameters(
   bool verbose)
 throw (Exception)
 {
-  bool optimize = ApplicationTools::getBooleanParameter("optimization", params, true, suffix, suffixIsOptional, false);
-  if (!optimize) return;
+  string optimization = ApplicationTools::getStringParameter("optimization", params, "FullD(derivatives=Newton)", suffix, suffixIsOptional, false);
+  if (optimization == "None") return;
+  string optName;
+  map<string, string> optArgs;
+  KeyvalTools::parseProcedure(optimization, optName, optArgs);
 
   unsigned int optVerbose = ApplicationTools::getParameter<unsigned int>("optimization.verbose", params, 2, suffix, suffixIsOptional);
 
@@ -1785,26 +1790,25 @@ throw (Exception)
   double tolerance = ApplicationTools::getDoubleParameter("optimization.tolerance", params, .000001, suffix, suffixIsOptional);
   if (verbose) ApplicationTools::displayResult("Tolerance", TextTools::toString(tolerance));
 
-  string method = ApplicationTools::getStringParameter("optimization.method", params, "DB", suffix, suffixIsOptional, false);
-  string order  = ApplicationTools::getStringParameter("optimization.method.derivatives", params, "gradient", suffix, suffixIsOptional, false);
+  string order  = ApplicationTools::getStringParameter("derivatives", optArgs, "Gradient", "", true, false);
   string optMethod, derMethod;
-  if (order == "gradient")
+  if (order == "Gradient")
   {
     optMethod = OptimizationTools::OPTIMIZATION_GRADIENT;
   }
-  else if (order == "newton")
+  else if (order == "Newton")
   {
     optMethod = OptimizationTools::OPTIMIZATION_NEWTON;
   }
   else throw Exception("Option '" + order + "' is not known for 'optimization.method.derivatives'.");
-  if (verbose) ApplicationTools::displayResult("Optimization method", method);
+  if (verbose) ApplicationTools::displayResult("Optimization method", optName);
   if (verbose) ApplicationTools::displayResult("Algorithm used for derivable parameters", order);
 
   unsigned int n = 0;
-  if (method == "DB")
+  if (optName == "DB")
   {
     // Uses Newton-Brent method:
-    unsigned int nstep = ApplicationTools::getParameter<unsigned int>("optimization.method_DB.nstep", params, 1, suffix, suffixIsOptional, false);
+    unsigned int nstep = ApplicationTools::getParameter<unsigned int>("nstep", optArgs, 1, "", true, false);
     if (verbose && nstep > 1) ApplicationTools::displayResult("# of precision steps", TextTools::toString(nstep));
     n = OptimizationTools::optimizeNumericalParametersWithGlobalClock(
       tl,
@@ -1818,7 +1822,7 @@ throw (Exception)
       optVerbose,
       optMethod);
   }
-  else if (method == "fullD")
+  else if (optName == "FullD")
   {
     // Uses Newton-raphson alogrithm with numerical derivatives when required.
     n = OptimizationTools::optimizeNumericalParametersWithGlobalClock2(
@@ -1832,7 +1836,7 @@ throw (Exception)
       optVerbose,
       optMethod);
   }
-  else throw Exception("Unknown optimization method: " + method);
+  else throw Exception("Unknown optimization method: " + optName);
 
   string finalMethod = ApplicationTools::getStringParameter("optimization.final", params, "none", suffix, suffixIsOptional, false);
   Optimizer* finalOptimizer  = 0;
