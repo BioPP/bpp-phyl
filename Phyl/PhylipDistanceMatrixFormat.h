@@ -49,8 +49,8 @@ namespace bpp
  * @brief Distance matrix I/O in Phylip format.
  */
 class PhylipDistanceMatrixFormat:
-  public virtual AbstractIDistanceMatrix,
-  public virtual AbstractODistanceMatrix
+  public AbstractIDistanceMatrix,
+  public AbstractODistanceMatrix
 {
 	public:
 		PhylipDistanceMatrixFormat() {}
@@ -62,7 +62,7 @@ class PhylipDistanceMatrixFormat:
 		const std::string getFormatDescription() const {	return "Multiline space-delimited columns."; }
 		DistanceMatrix* read(const std::string& path) const throw (Exception)
 		{
-			return AbstractIDistanceMatrix::read(path);
+			return AbstractIDistanceMatrix::read(path); 
 		}
 		DistanceMatrix* read(std::istream& in) const throw (Exception);
 		
