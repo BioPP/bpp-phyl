@@ -27,9 +27,9 @@ else
 endif
 
 # shared library versions
-version=`ls NumCalc/.libs/lib*.so.* | \
+version=`ls Phyl/.libs/lib*.so.* | \
  awk '{if (match($$0,/[0-9]+\.[0-9]+\.[0-9]+$$/)) print substr($$0,RSTART)}'`
-major=`ls NumCalc/.libs/lib*.so.* | \
+major=`ls Phyl/.libs/lib*.so.* | \
  awk '{if (match($$0,/\.so\.[0-9]+$$/)) print substr($$0,RSTART+4)}'`
 
 configure:
