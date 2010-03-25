@@ -251,20 +251,20 @@ class RHomogeneousTreeLikelihood :
 		 *
 		 * @param node The root of the subtree.
 		 */
-		virtual void computeSubtreeLikelihood(const Node * node); //Recursive method.			
+		virtual void computeSubtreeLikelihood(const Node* node); //Recursive method.			
 
-		virtual void computeDownSubtreeDLikelihood(const Node *);
+		virtual void computeDownSubtreeDLikelihood(const Node*);
 		
-		virtual void computeDownSubtreeD2Likelihood(const Node *);
+		virtual void computeDownSubtreeD2Likelihood(const Node*);
 	
-		void fireParameterChanged(const ParameterList & params);
+		void fireParameterChanged(const ParameterList& params);
 	
 		/**
 		 * @brief This method is mainly for debugging purpose.
 		 *
 		 * @param node The node at which likelihood values must be displayed.
 		 */
-		virtual void displayLikelihood(const Node * node);
+		virtual void displayLikelihood(const Node* node);
 
   friend class RHomogeneousMixedTreeLikelihood;
 };

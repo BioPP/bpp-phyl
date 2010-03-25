@@ -174,15 +174,14 @@ public:
 
   virtual void computeTreeDLikelihoods();
 
-  virtual void computeLikelihoodAtNode(const Node * node, VVVdouble& likelihoodArray) const;
-
 protected:
+  virtual void computeLikelihoodAtNode_(const Node* node, VVVdouble& likelihoodArray) const;
+
   /**
    * @brief Compute the likelihood for a subtree defined by the Tree::Node <i>node</i>.
    *
    * @param node The root of the subtree.
    */
-
   virtual void computeSubtreeLikelihoodPostfix(const Node* node);
 
   virtual void computeSubtreeLikelihoodPrefix(const Node* node);

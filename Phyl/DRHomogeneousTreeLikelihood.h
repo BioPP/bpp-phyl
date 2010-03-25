@@ -69,6 +69,7 @@ class DRHomogeneousTreeLikelihood:
   private:
     mutable DRASDRTreeLikelihoodData* likelihoodData_;
 
+  protected:
     double minusLogLik_;
     
   public:
@@ -206,43 +207,44 @@ class DRHomogeneousTreeLikelihood:
     DRASDRTreeLikelihoodData* getLikelihoodData() { return likelihoodData_; }
     const DRASDRTreeLikelihoodData* getLikelihoodData() const { return likelihoodData_; }
   
-    virtual void computeLikelihoodAtNode(const Node * node, VVVdouble& likelihoodArray) const;
-
-    void setMinuslogLikelihood_(double value) { minusLogLik_ = value; }
-
+    virtual void computeLikelihoodAtNode(int nodeId, VVVdouble& likelihoodArray) const
+    {
+      computeLikelihoodAtNode_(tree_->getNode(nodeId), likelihoodArray);
+    }
       
   protected:
+    virtual void computeLikelihoodAtNode_(const Node* node, VVVdouble& likelihoodArray) const;
   
     /**
      * Initialize the arrays corresponding to each son node for the node passed as argument.
      * The method is called for each son node and the result stored in the corresponding array.
      */
-    virtual void computeSubtreeLikelihoodPostfix(const Node * node); //Recursive method.
+    virtual void computeSubtreeLikelihoodPostfix(const Node* node); //Recursive method.
     /**
      * This method initilize the remaining likelihood arrays, corresponding to father nodes.
      * It must be called after the postfix method because it requires that the arrays for
      * son nodes to be be computed.
      */
-    virtual void computeSubtreeLikelihoodPrefix(const Node * node); //Recursive method.
+    virtual void computeSubtreeLikelihoodPrefix(const Node* node); //Recursive method.
 
     virtual void computeRootLikelihood();
 
-    virtual void computeTreeDLikelihoodAtNode(const Node * node);
+    virtual void computeTreeDLikelihoodAtNode(const Node* node);
     virtual void computeTreeDLikelihoods();
     
-    virtual void computeTreeD2LikelihoodAtNode(const Node * node);
+    virtual void computeTreeD2LikelihoodAtNode(const Node* node);
     virtual void computeTreeD2Likelihoods();
 
-    virtual void fireParameterChanged(const ParameterList & params);
+    virtual void fireParameterChanged(const ParameterList& params);
 
-    virtual void resetLikelihoodArrays(const Node * node);
+    virtual void resetLikelihoodArrays(const Node* node);
   
     /**
      * @brief This method is mainly for debugging purpose.
      *
      * @param node The node at which likelihood values must be displayed.
      */
-    virtual void displayLikelihood(const Node * node);
+    virtual void displayLikelihood(const Node* node);
 
     /**
      * @brief Compute conditional likelihoods.

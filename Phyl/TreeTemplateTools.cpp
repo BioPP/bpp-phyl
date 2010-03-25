@@ -231,7 +231,7 @@ TreeTemplateTools::Element TreeTemplateTools::getElement(const string& elt) thro
 /******************************************************************************/
 
 
-Node * TreeTemplateTools::parenthesisToNode(const string& description, bool bootstrap, const string& propertyName, bool withId)
+Node* TreeTemplateTools::parenthesisToNode(const string& description, bool bootstrap, const string& propertyName, bool withId)
 {
   //cout << "NODE: " << description << endl;
   Element elt = getElement(description);
@@ -310,7 +310,7 @@ Node * TreeTemplateTools::parenthesisToNode(const string& description, bool boot
 
 /******************************************************************************/
 
-TreeTemplate<Node> * TreeTemplateTools::parenthesisToTree(const string& description, bool bootstrap, const string& propertyName, bool withId) throw (Exception)
+TreeTemplate<Node>* TreeTemplateTools::parenthesisToTree(const string& description, bool bootstrap, const string& propertyName, bool withId) throw (Exception)
 {
   string::size_type lastP  = description.rfind(')');
   if (lastP == string::npos)
@@ -419,7 +419,7 @@ TreeTemplate<Node> * TreeTemplateTools::parenthesisToTree(const string& descript
 
 /******************************************************************************/
 
-string TreeTemplateTools::nodeToParenthesis(const Node & node, bool writeId)
+string TreeTemplateTools::nodeToParenthesis(const Node& node, bool writeId)
 {
   ostringstream s;
   if(node.isLeaf())
@@ -452,7 +452,7 @@ string TreeTemplateTools::nodeToParenthesis(const Node & node, bool writeId)
 
 /******************************************************************************/
 
-string TreeTemplateTools::nodeToParenthesis(const Node & node, bool bootstrap, const string & propertyName)
+string TreeTemplateTools::nodeToParenthesis(const Node& node, bool bootstrap, const string & propertyName)
 {
   ostringstream s;
   if(node.isLeaf())
@@ -486,7 +486,7 @@ string TreeTemplateTools::nodeToParenthesis(const Node & node, bool bootstrap, c
 
 /******************************************************************************/
 
-string TreeTemplateTools::treeToParenthesis(const TreeTemplate<Node> & tree, bool writeId)
+string TreeTemplateTools::treeToParenthesis(const TreeTemplate<Node>& tree, bool writeId)
 {
   ostringstream s;
   s << "(";
@@ -513,7 +513,7 @@ string TreeTemplateTools::treeToParenthesis(const TreeTemplate<Node> & tree, boo
 
 /******************************************************************************/
 
-string TreeTemplateTools::treeToParenthesis(const TreeTemplate<Node> & tree, bool bootstrap, const string & propertyName)
+string TreeTemplateTools::treeToParenthesis(const TreeTemplate<Node>& tree, bool bootstrap, const string & propertyName)
 {
   ostringstream s;
   s << "(";
@@ -551,7 +551,7 @@ string TreeTemplateTools::treeToParenthesis(const TreeTemplate<Node> & tree, boo
 
 /******************************************************************************/
 
-Vdouble TreeTemplateTools::getBranchLengths(const Node & node) throw (NodeException)
+Vdouble TreeTemplateTools::getBranchLengths(const Node& node) throw (NodeException)
 {
   Vdouble brLen(1);
   if(node.hasDistanceToFather()) brLen[0] = node.getDistanceToFather();
@@ -566,7 +566,7 @@ Vdouble TreeTemplateTools::getBranchLengths(const Node & node) throw (NodeExcept
 
 /******************************************************************************/
 
-double TreeTemplateTools::getTotalLength(const Node & node, bool includeAncestor) throw (NodeException)
+double TreeTemplateTools::getTotalLength(const Node& node, bool includeAncestor) throw (NodeException)
 {
   if(includeAncestor && !node.hasDistanceToFather()) throw NodeException("TreeTools::getTotalLength(). No branch length.", &node);
   double length = includeAncestor ? node.getDistanceToFather() : 0;
@@ -579,7 +579,7 @@ double TreeTemplateTools::getTotalLength(const Node & node, bool includeAncestor
 
 /******************************************************************************/
 
-void TreeTemplateTools::setBranchLengths(Node & node, double brLen)
+void TreeTemplateTools::setBranchLengths(Node& node, double brLen)
 {
   node.setDistanceToFather(brLen);
   for(unsigned int i = 0; i < node.getNumberOfSons(); i++)
@@ -590,7 +590,7 @@ void TreeTemplateTools::setBranchLengths(Node & node, double brLen)
 
 /******************************************************************************/
 
-void TreeTemplateTools::deleteBranchLengths(Node & node)
+void TreeTemplateTools::deleteBranchLengths(Node& node)
 {
   node.deleteDistanceToFather();
   for(unsigned int i = 0; i < node.getNumberOfSons(); i++)
@@ -601,7 +601,7 @@ void TreeTemplateTools::deleteBranchLengths(Node & node)
 
 /******************************************************************************/
 
-void TreeTemplateTools::setVoidBranchLengths(Node & node, double brLen)
+void TreeTemplateTools::setVoidBranchLengths(Node& node, double brLen)
 {
   if(!node.hasDistanceToFather()) node.setDistanceToFather(brLen);
   for(unsigned int i = 0; i < node.getNumberOfSons(); i++)
@@ -612,7 +612,7 @@ void TreeTemplateTools::setVoidBranchLengths(Node & node, double brLen)
 
 /******************************************************************************/
 
-void TreeTemplateTools::scaleTree(Node & node, double factor) throw (NodeException)
+void TreeTemplateTools::scaleTree(Node& node, double factor) throw (NodeException)
 {
   if(node.hasFather())
   {
@@ -627,7 +627,7 @@ void TreeTemplateTools::scaleTree(Node & node, double factor) throw (NodeExcepti
     
 /******************************************************************************/
 
-TreeTemplate<Node> * TreeTemplateTools::getRandomTree(vector<string> & leavesNames)
+TreeTemplate<Node>* TreeTemplateTools::getRandomTree(vector<string>& leavesNames)
 {
   if(leavesNames.size() == 0) return NULL; // No taxa.
   // This vector will contain all nodes.
@@ -663,7 +663,7 @@ TreeTemplate<Node> * TreeTemplateTools::getRandomTree(vector<string> & leavesNam
 
 /******************************************************************************/
 
-vector<Node *> TreeTemplateTools::getPathBetweenAnyTwoNodes(Node & node1, Node & node2, bool includeAncestor)
+vector<Node*> TreeTemplateTools::getPathBetweenAnyTwoNodes(Node& node1, Node& node2, bool includeAncestor)
 {
   vector<Node *> path;
   vector<Node *> pathMatrix1;
@@ -702,7 +702,7 @@ vector<Node *> TreeTemplateTools::getPathBetweenAnyTwoNodes(Node & node1, Node &
 
 /******************************************************************************/
 
-vector<const Node *> TreeTemplateTools::getPathBetweenAnyTwoNodes(const Node & node1, const Node & node2, bool includeAncestor)
+vector<const Node*> TreeTemplateTools::getPathBetweenAnyTwoNodes(const Node& node1, const Node & node2, bool includeAncestor)
 {
   vector<const Node *> path;
   vector<const Node *> pathMatrix1;
@@ -741,7 +741,7 @@ vector<const Node *> TreeTemplateTools::getPathBetweenAnyTwoNodes(const Node & n
 
 /******************************************************************************/
 
-double TreeTemplateTools::getDistanceBetweenAnyTwoNodes(const Node & node1, const Node & node2)
+double TreeTemplateTools::getDistanceBetweenAnyTwoNodes(const Node& node1, const Node& node2)
 {
   vector<const Node *> path = getPathBetweenAnyTwoNodes(node1, node2, false);
   double d = 0;
@@ -754,12 +754,7 @@ double TreeTemplateTools::getDistanceBetweenAnyTwoNodes(const Node & node1, cons
   
 /******************************************************************************/
 
-void TreeTemplateTools::processDistsInSubtree_(const Node* node, DistanceMatrix& matrix, std::vector< std::pair<std::string, double> >& distsToNodeFather)
-/*
- * (1) Retrieves leaf-leaf distances in node's subtree and
- *  writes them in the distance matrix.
- * (2) Returns distances from node's father to those leaves.
- */
+void TreeTemplateTools::processDistsInSubtree_(const Node* node, DistanceMatrix& matrix, vector< std::pair<string, double> >& distsToNodeFather)
 {
   distsToNodeFather.clear();
   

@@ -31,7 +31,7 @@ ENDIF(NO_VIRTUAL_COV)
 #           library implements.
 # In other words, the library implements all the interface numbers in the
 # range from number current - age to current.
-SET(BPPPHYL_VERSION_CURRENT "8")
+SET(BPPPHYL_VERSION_CURRENT "9")
 SET(BPPPHYL_VERSION_REVISION "0")
 SET(BPPPHYL_VERSION_AGE "0")
 
@@ -84,25 +84,25 @@ ENDIF (DOXYGEN_FOUND)
 # Packager
 SET(CPACK_PACKAGE_NAME "libbpp-phyl")
 SET(CPACK_PACKAGE_VENDOR "Bio++ Development Team")
-SET(CPACK_PACKAGE_VERSION "1.8.0")
+SET(CPACK_PACKAGE_VERSION "1.9.0")
 SET(CPACK_PACKAGE_VERSION_MAJOR "1")
-SET(CPACK_PACKAGE_VERSION_MINOR "8")
+SET(CPACK_PACKAGE_VERSION_MINOR "9")
 SET(CPACK_PACKAGE_VERSION_PATCH "0")
 SET(CPACK_PACKAGE_DESCRIPTION_SUMMARY "The Bio++ Phylogenetics library")
 SET(CPACK_RESOURCE_FILE_LICENSE "${CMAKE_SOURCE_DIR}/COPYING")
 SET(CPACK_RESOURCE_FILE_AUTHORS "${CMAKE_SOURCE_DIR}/AUTHORS")
 SET(CPACK_SOURCE_GENERATOR "TGZ")
 SET(CPACK_SOURCE_IGNORE_FILES
- ".*CMakeFiles"
- ".*Makefile"
- ".*_CPack_Packages"
- ".*CMakeCache.txt"
+ "CMakeFiles"
+ "Makefile"
+ "_CPack_Packages"
+ "CMakeCache.txt"
  ".*\\\\.cmake"
- ".*CVS/"
- ".*.gz"
- ".*.deb"
- ".*.rpm"
- ".*~"
+ "/CVS/"
+ ".*\\\\.gz"
+ ".*\\\\.deb"
+ ".*\\\\.rpm"
+ "\\\\..*\\\\.swp"
  "Phyl/\\\\..*"
  "html"
  "Phyl.tag"

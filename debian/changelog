@@ -1,3 +1,12 @@
+libbpp-phyl (1.9.0) unstable; urgency=low
+
+  * Several bugs fixed and improvements, compilation with -Weffc++
+  * Codon models
+  * Improved non-homogeneous classes
+  * Improved tree drawing classes
+
+ -- Julien Dutheil <julien.dutheil@univ-montp2.fr>  Thu, 25 Mar 2010 13:47:24 +0100
+
 libbpp-phyl (1.8.0) unstable; urgency=low
 
   * Several buf fixed and improvements.

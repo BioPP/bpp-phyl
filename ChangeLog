@@ -1,3 +1,5 @@
+10/06/09 -*- Version 1.9.0 -*-
+
 11/03/10 Julien Dutheil
 * Nexus format now allows lower case keywords ([biopp-devel-forum:287])
 * GY94 and MG94 now have frequency option like YN98.
@@ -84,7 +86,7 @@ TreeTemplate objects more efficiently.
 24/06/09 Julien Dutheil
 * Change precision output while printing parameters.
 
-24/06/09 Laurent Gueguen
+24/06/09 Laurent Guéguen
 * Added codon and general word models.
 
 23/06/09 Julien Dutheil

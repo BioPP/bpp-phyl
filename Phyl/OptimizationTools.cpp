@@ -263,7 +263,7 @@ throw (Exception)
   {
     fnum.reset(new TwoPointsNumericalDerivative(f));
     fnum->setInterval(0.0000001);
-    optimizer.reset(new ConjugateGradientMultiDimensions(fnum.get()));
+    optimizer.reset(new ConjugateGradientMultiDimensions(reinterpret_cast<DerivableFirstOrder *>(fnum.get()))); //Removes strict-aliasing warning with gcc 4.4
   }
   else if (optMethod == OPTIMIZATION_NEWTON)
   {

@@ -180,7 +180,7 @@ class DRTreeParsimonyLeafData :
 			return leafBitsets_;
 		}
 };
-#include <iostream>
+
 /**
  * @brief Parsimony data structure for double-recursive (DR) algorithm.
  *

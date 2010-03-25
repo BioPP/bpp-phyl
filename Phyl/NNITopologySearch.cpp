@@ -107,8 +107,8 @@ void NNITopologySearch::searchFast() throw (Exception)
 		test = false;
 		for(unsigned int i = 0; !test && i < nodesSub.size(); i++)
     {
-			Node * node = nodesSub[i];
-			double diff = searchableTree_->testNNI(node);
+			Node* node = nodesSub[i];
+			double diff = searchableTree_->testNNI(node->getId());
 			if(verbose_ >= 3)
       {
 				ApplicationTools::displayResult("   Testing node " + TextTools::toString(node->getId())
@@ -160,8 +160,8 @@ void NNITopologySearch::searchBetter() throw (Exception)
 		if (verbose_ >= 2 && ApplicationTools::message) ApplicationTools::message->endLine();
 		for(unsigned int i = 0; i < nodesSub.size(); i++)
     {
-			Node * node = nodesSub[i];
-			double diff = searchableTree_->testNNI(node);
+			Node* node = nodesSub[i];
+			double diff = searchableTree_->testNNI(node->getId());
 			if(verbose_ >= 3)
       {
 				ApplicationTools::displayResult("   Testing node " + TextTools::toString(node->getId())
@@ -219,8 +219,8 @@ void NNITopologySearch::searchPhyML() throw (Exception)
 		if(verbose_ >= 2 && ApplicationTools::message) ApplicationTools::message->endLine();
 		for(unsigned int i = 0; i < nodesSub.size(); i++)
     {
-			Node * node = nodesSub[i];
-			double diff = searchableTree_->testNNI(node);
+			Node* node = nodesSub[i];
+			double diff = searchableTree_->testNNI(node->getId());
 			if(verbose_ >= 3)
       {
 				ApplicationTools::displayResult("   Testing node " + TextTools::toString(node->getId())

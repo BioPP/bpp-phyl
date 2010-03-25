@@ -229,13 +229,12 @@ NNIHomogeneousTreeLikelihood::~NNIHomogeneousTreeLikelihood()
 
 /******************************************************************************/
 
-double NNIHomogeneousTreeLikelihood::testNNI(Node* son) const throw (NodeException)
+double NNIHomogeneousTreeLikelihood::testNNI(int nodeId) const throw (NodeException)
 {
-//  const Node* son    = tree_->getNode(nodeId);
-  int nodeId = son->getId();
-	if(!son->hasFather()) throw NodeException("DRHomogeneousTreeLikelihood::testNNI(). Node 'son' must not be the root node.", son);
+  const Node* son    = tree_->getNode(nodeId);
+	if (!son->hasFather()) throw NodeException("DRHomogeneousTreeLikelihood::testNNI(). Node 'son' must not be the root node.", son);
   const Node* parent = son->getFather();
-	if(!parent->hasFather()) throw NodeException("DRHomogeneousTreeLikelihood::testNNI(). Node 'parent' must not be the root node.", parent);
+	if (!parent->hasFather()) throw NodeException("DRHomogeneousTreeLikelihood::testNNI(). Node 'parent' must not be the root node.", parent);
 	const Node* grandFather = parent->getFather();
 	//From here: Bifurcation assumed.
 	//In case of multifurcation, an arbitrary uncle is chosen.

@@ -311,7 +311,7 @@ void DRNonHomogeneousTreeLikelihood::computeTreeDLikelihoodAtNode(const Node * n
   VVVdouble *  pxy__node = &  pxy_[node->getId()];
   VVVdouble * dpxy__node = & dpxy_[node->getId()];
   VVVdouble larray;
-  computeLikelihoodAtNode(father, larray);
+  computeLikelihoodAtNode_(father, larray);
   Vdouble * rootLikelihoodsSR = & likelihoodData_->getRootRateSiteLikelihoodArray();
 
   double dLi, dLic, dLicx, numerator, denominator;
@@ -430,7 +430,7 @@ void DRNonHomogeneousTreeLikelihood::computeTreeD2LikelihoodAtNode(const Node * 
   VVVdouble *   pxy__node = &   pxy_[node->getId()];
   VVVdouble * d2pxy__node = & d2pxy_[node->getId()];
   VVVdouble larray;
-  computeLikelihoodAtNode(father, larray);
+  computeLikelihoodAtNode_(father, larray);
   Vdouble * rootLikelihoodsSR = & likelihoodData_->getRootRateSiteLikelihoodArray();
   
   double d2Li, d2Lic, d2Licx, numerator, denominator;
@@ -837,7 +837,7 @@ void DRNonHomogeneousTreeLikelihood::computeTreeLikelihood()
 
 /******************************************************************************/
 
-void DRNonHomogeneousTreeLikelihood::computeSubtreeLikelihoodPostfix(const Node * node)
+void DRNonHomogeneousTreeLikelihood::computeSubtreeLikelihoodPostfix(const Node* node)
 {
 //  if(node->isLeaf()) return;
   //cout << node->getId() << "\t" << (node->hasName()?node->getName():"") << endl;
@@ -896,7 +896,7 @@ void DRNonHomogeneousTreeLikelihood::computeSubtreeLikelihoodPostfix(const Node 
 
 /******************************************************************************/
 
-void DRNonHomogeneousTreeLikelihood::computeSubtreeLikelihoodPrefix(const Node * node)
+void DRNonHomogeneousTreeLikelihood::computeSubtreeLikelihoodPrefix(const Node* node)
 {
   if(! node->hasFather())
   { 
@@ -1070,7 +1070,7 @@ void DRNonHomogeneousTreeLikelihood::computeRootLikelihood()
 
 /******************************************************************************/
 
-void DRNonHomogeneousTreeLikelihood::computeLikelihoodAtNode(const Node * node, VVVdouble& likelihoodArray) const
+void DRNonHomogeneousTreeLikelihood::computeLikelihoodAtNode_(const Node* node, VVVdouble& likelihoodArray) const
 {
 //  const Node * node = tree_->getNode(nodeId);
   int nodeId = node->getId();
@@ -1284,7 +1284,7 @@ void DRNonHomogeneousTreeLikelihood::computeLikelihoodFromArrays(
 
 /******************************************************************************/
 
-void DRNonHomogeneousTreeLikelihood::displayLikelihood(const Node * node)
+void DRNonHomogeneousTreeLikelihood::displayLikelihood(const Node* node)
 {
   cout << "Likelihoods at node " << node->getId() << ": " << endl;
   for(unsigned int n = 0; n < node->getNumberOfSons(); n++)

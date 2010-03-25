@@ -291,12 +291,12 @@ void DRTreeParsimonyScore::computeScoresFromArrays(
 
 /******************************************************************************/
 
-double DRTreeParsimonyScore::testNNI(Node * son) const throw (NodeException)
+double DRTreeParsimonyScore::testNNI(int nodeId) const throw (NodeException)
 {
-//  const Node* son = getTreeP_()->getNode(nodeId);
-	if(!son->hasFather()) throw NodeException("DRTreeParsimonyScore::testNNI(). Node 'son' must not be the root node.", son);
+  const Node* son = getTreeP_()->getNode(nodeId);
+	if (!son->hasFather()) throw NodeException("DRTreeParsimonyScore::testNNI(). Node 'son' must not be the root node.", son);
   const Node* parent = son->getFather();
-	if(!parent->hasFather()) throw NodeException("DRTreeParsimonyScore::testNNI(). Node 'parent' must not be the root node.", parent);
+	if (!parent->hasFather()) throw NodeException("DRTreeParsimonyScore::testNNI(). Node 'parent' must not be the root node.", parent);
 	const Node* grandFather = parent->getFather();
 	//From here: Bifurcation assumed.
 	//In case of multifurcation, an arbitrary uncle is chosen.

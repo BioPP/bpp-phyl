@@ -723,7 +723,7 @@ class TreeTemplateTools
      * @param matrix The output matrix which will be filled.
      * @param distsToNodeFather Intermediate computations contianing the distances of the node to the leaves.
      */
-    static void processDistsInSubtree_(const bpp::Node* node, bpp::DistanceMatrix& matrix, std::vector< std::pair<std::string,double> >& distsToNodeFather);
+    static void processDistsInSubtree_(const Node* node, DistanceMatrix& matrix, std::vector< std::pair<std::string, double> >& distsToNodeFather);
 
   public:
     /** @} */
