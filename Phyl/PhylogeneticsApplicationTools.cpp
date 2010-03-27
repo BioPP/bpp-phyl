@@ -1212,7 +1212,7 @@ SubstitutionModelSet* PhylogeneticsApplicationTools::getSubstitutionModelSet(
   // ////////////////////////////////////
   // Deal with root frequencies
 
-  bool stationarity = ApplicationTools::getBooleanParameter("nonhomogeneous.stationarity", params, "false", "", false, false);
+  bool stationarity = ApplicationTools::getBooleanParameter("nonhomogeneous.stationarity", params, false, "", false, false);
   FrequenciesSet* rootFrequencies = 0;
   if (!stationarity)
   {
