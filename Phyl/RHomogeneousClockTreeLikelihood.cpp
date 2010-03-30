@@ -84,8 +84,8 @@ throw (Exception):
 void RHomogeneousClockTreeLikelihood::init_()
 {
   //Check if the tree is rooted:
-  if(!tree_->isRooted()) throw Exception("RHomogeneousClockTreeLikelihood::init_(). Tree is unrooted!");
-  if(TreeTemplateTools::isMultifurcating(*tree_->getRootNode())) throw Exception("HomogeneousClockTreeLikelihood::init_(). Tree is multifurcating.");
+  if (!tree_->isRooted()) throw Exception("RHomogeneousClockTreeLikelihood::init_(). Tree is unrooted!");
+  if (TreeTemplateTools::isMultifurcating(*tree_->getRootNode())) throw Exception("HomogeneousClockTreeLikelihood::init_(). Tree is multifurcating.");
   setMinimumBranchLength(0.);
 }
 
@@ -113,6 +113,8 @@ void RHomogeneousClockTreeLikelihood::fireParameterChanged(const ParameterList& 
   computeAllTransitionProbabilities();
 
   computeTreeLikelihood();
+  
+  minusLogLik_ = - getLogLikelihood();
 }
 
 /******************************************************************************/
@@ -141,13 +143,13 @@ void RHomogeneousClockTreeLikelihood::initBranchLengthsParameters()
 
   brLenParameters_.reset();
 
-  map<const Node *, double> heights;
+  map<const Node*, double> heights;
   TreeTemplateTools::getHeights(*tree_->getRootNode(), heights);
   double totalHeight = heights[tree_->getRootNode()];
   brLenParameters_.addParameter(Parameter("TotalHeight", totalHeight, brLenConstraint_->clone(), true)); 
-  for(map<const Node *, double>::iterator it = heights.begin(); it != heights.end(); it++)
+  for (map<const Node *, double>::iterator it = heights.begin(); it != heights.end(); it++)
   {
-    if(!it->first->isLeaf() && it->first->hasFather())
+    if (!it->first->isLeaf() && it->first->hasFather())
     {
       double fatherHeight = heights[it->first->getFather()];
       brLenParameters_.addParameter(Parameter("HeightP" + TextTools::toString(it->first->getId()), it->second / fatherHeight, &Parameter::PROP_CONSTRAINT_IN));
@@ -159,16 +161,16 @@ void RHomogeneousClockTreeLikelihood::initBranchLengthsParameters()
 
 void RHomogeneousClockTreeLikelihood::computeBranchLengthsFromHeights(Node* node, double height) throw (Exception)
 {
-  for(unsigned int i = 0; i < node->getNumberOfSons(); i++)
+  for (unsigned int i = 0; i < node->getNumberOfSons(); i++)
   {
-    Node * son = node->getSon(i);
-    if(son->isLeaf())
+    Node* son = node->getSon(i);
+    if (son->isLeaf())
     {
       son->setDistanceToFather(std::max(minimumBrLen_, height));
     }
     else
     {
-      Parameter * p = &brLenParameters_.getParameter(string("HeightP") + TextTools::toString(son->getId()));
+      Parameter* p = &brLenParameters_.getParameter(string("HeightP") + TextTools::toString(son->getId()));
       double sonHeightP = p->getValue();
       double sonHeight = sonHeightP * height;
       son->setDistanceToFather(std::max(minimumBrLen_, height - sonHeight));
@@ -181,7 +183,7 @@ void RHomogeneousClockTreeLikelihood::computeBranchLengthsFromHeights(Node* node
 
 ParameterList RHomogeneousClockTreeLikelihood::getDerivableParameters() const throw (Exception)
 {
-  if(!initialized_) throw Exception("RHomogeneousClockTreeLikelihood::getDerivableParameters(). Object is not initialized.");
+  if (!initialized_) throw Exception("RHomogeneousClockTreeLikelihood::getDerivableParameters(). Object is not initialized.");
   return ParameterList();
 }
 
@@ -189,7 +191,7 @@ ParameterList RHomogeneousClockTreeLikelihood::getDerivableParameters() const th
 
 ParameterList RHomogeneousClockTreeLikelihood::getNonDerivableParameters() const throw (Exception)
 {
-  if(!initialized_) throw Exception("RHomogeneousClockTreeLikelihood::getNonDerivableParameters(). Object is not initialized.");
+  if (!initialized_) throw Exception("RHomogeneousClockTreeLikelihood::getNonDerivableParameters(). Object is not initialized.");
   return getParameters();
 }
 

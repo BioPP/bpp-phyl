@@ -86,6 +86,8 @@ class RHomogeneousTreeLikelihood :
 	private:
 
 		mutable DRASRTreeLikelihoodData* likelihoodData_;
+
+  protected:
     double minusLogLik_;
 
 	public:
