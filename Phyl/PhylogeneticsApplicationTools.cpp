@@ -1536,13 +1536,14 @@ throw (Exception)
     if (verbose) ApplicationTools::displayResult("Scaling tolerance", TextTools::toString(tolerance));
     int nbEvalMax = ApplicationTools::getIntParameter("optimization.scale_first.max_number_f_eval", params, 1000000, suffix, suffixIsOptional, true);
     if (verbose) ApplicationTools::displayResult("Scaling max # f eval", TextTools::toString(nbEvalMax));
-    int n = OptimizationTools::optimizeTreeScale(
+    OptimizationTools::optimizeTreeScale(
       tl,
       tolerance,
       nbEvalMax,
       messageHandler,
       profiler);
-    if (verbose) ApplicationTools::displayMessage("Performed " + TextTools::toString(n) + " function evaluations.");
+    if (verbose)
+      ApplicationTools::displayResult("New tree likelihood", -tl->getValue());
   }
 
   // Should I ignore some parameters?

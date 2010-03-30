@@ -112,7 +112,9 @@ OptimizationTools::ScaleFunction::ScaleFunction(TreeLikelihood* tl) :
 {
   // We work only on the branch lengths:
   brLen_ = tl->getBranchLengthsParameters();
-  lambda_.addParameter(Parameter("scale factor", 1, &Parameter::R_PLUS_STAR)); 
+  if (brLen_.hasParameter("RootPosition"))
+    brLen_.deleteParameter("RootPosition");
+  lambda_.addParameter(Parameter("scale factor", 2.718282)); 
 }
   
 OptimizationTools::ScaleFunction::~ScaleFunction() {}
@@ -120,7 +122,7 @@ OptimizationTools::ScaleFunction::~ScaleFunction() {}
 void OptimizationTools::ScaleFunction::setParameters(const ParameterList& lambda)
 throw (ParameterNotFoundException, ConstraintException)
 {
-  if(lambda.size() != 1) throw Exception("OptimizationTools::ScaleFunction::f(). This is a one parameter function!");
+  if (lambda.size() != 1) throw Exception("OptimizationTools::ScaleFunction::f(). This is a one parameter function!");
   lambda_.setParametersValues(lambda);
 }
 
@@ -129,9 +131,10 @@ throw (ParameterException)
 {
   // Scale the tree:
   ParameterList brLen = brLen_;
+  double s = exp(lambda_[0].getValue());
   for(unsigned int i = 0; i < brLen.size(); i++)
   {
-    brLen[i].setValue(brLen[i].getValue() * lambda_[0].getValue());
+    brLen[i].setValue(brLen[i].getValue() * s);
   }
   return tl_->f(brLen);
 }
@@ -151,15 +154,17 @@ throw (Exception)
   BrentOneDimension bod(&sf);
   bod.setMessageHandler(messageHandler);
   bod.setProfiler(profiler);
-  bod.setConstraintPolicy(AutoParameter::CONSTRAINTS_AUTO);
-  bod.setInitialInterval(0.99, 1.01);
   ParameterList singleParameter;
-  singleParameter.addParameter(Parameter("scale factor", 1.));
+  singleParameter.addParameter(Parameter("scale factor", 2.718282));
+  bod.setInitialInterval(2.7, 2.8);
+  bod.init(singleParameter);
   ParametersStopCondition PS(&bod, tolerance);
   bod.setStopCondition(PS);
   bod.setMaximumNumberOfEvaluations(tlEvalMax);
-  bod.init(singleParameter);
   bod.optimize();
+  ApplicationTools::displayTaskDone();
+  if (verbose > 0)
+    ApplicationTools::displayResult("Tree scaled by", exp(sf.getParameters()[0].getValue()));
   return bod.getNumberOfEvaluations();
 }
 
