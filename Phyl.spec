@@ -1,7 +1,7 @@
 %define name bpp-phyl
 %define version 1.9.0
 %define release 1
-%define _prefix /usr/local
+%define _prefix /usr
 
 Summary: The Bio++ PhylLib library.
 Name: %{name}
