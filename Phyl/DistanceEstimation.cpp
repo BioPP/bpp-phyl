@@ -665,7 +665,6 @@ void DistanceEstimation::computeMatrix() throw (NullPointerException)
     {
       ApplicationTools::displayGauge(i, n - 1, '=');
     }
-    const Sequence* seqi = &sites_->getSequence(names[i]);
     for (unsigned int j = i + 1; j < n; j++)
     {
       if (verbose_ > 1)
@@ -676,9 +675,8 @@ void DistanceEstimation::computeMatrix() throw (NullPointerException)
         new TwoTreeLikelihood(names[i], names[j], *sites_, model_, rateDist_, verbose_ > 3);
       lik->initialize();
       lik->enableDerivatives(true);
-      const Sequence* seqj = &sites_->getSequence(names[j]);
-      unsigned int d = SymbolListTools::getNumberOfDistinctPositions(*seqi, *seqj);
-      unsigned int g = SymbolListTools::getNumberOfPositionsWithoutGap(*seqi, *seqj);
+      unsigned int d = SymbolListTools::getNumberOfDistinctPositions(sites_->getSequence(i), sites_->getSequence(j));
+      unsigned int g = SymbolListTools::getNumberOfPositionsWithoutGap(sites_->getSequence(i), sites_->getSequence(j));
       lik->setParameterValue("BrLen", g == 0 ? lik->getMinimumBranchLength() : std::max(lik->getMinimumBranchLength(),(double)d / (double)g));
       // Optimization:
       optimizer_->setFunction(lik);
