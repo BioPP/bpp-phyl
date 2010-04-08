@@ -1296,9 +1296,9 @@ SKIP_FUNCTION_MACROS   = YES
 # If a tag file is not located in the directory in which doxygen
 # is run, you must also specify the path to the tagfile here.
 
-TAGFILES               = ../utils/Utils.tag=../../utils/html \
-                         ../numcalc/NumCalc.tag=../../numcalc/html \
-                         ../seqlib/Seq.tag=../../seqlib/html
+TAGFILES               = ../utils/Utils.tag=../../Utils/html \
+                         ../numcalc/NumCalc.tag=../../NumCalc/html \
+                         ../seqlib/Seq.tag=../../Seq/html
 
 # When a file name is specified after GENERATE_TAGFILE, doxygen will create
 # a tag file that is based on the input files it reads.

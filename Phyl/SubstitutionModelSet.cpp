@@ -233,10 +233,12 @@ void SubstitutionModelSet::setParameterToModel(unsigned int parameterIndex, unsi
   if (modelIndex >= modelSet_.size())
     throw IndexOutOfBoundsException("SubstitutionModelSet::setParameterToModel.", modelIndex, 0, modelSet_.size() - 1);
   if (VectorTools::contains(paramToModels_[parameterIndex - offset], modelIndex))
-    throw Exception("SubstitutionModelSet::setParameterToModel: parameter " + getParameter_(parameterIndex).getName() + " already set to model " + TextTools::toString(modelIndex) + ".");
+    throw Exception("SubstitutionModelSet::setParameterToModel: parameter " + getParameter_(parameterIndex - offset).getName() + " already set to model " + TextTools::toString(modelIndex) + ".");
   paramToModels_[parameterIndex - offset].push_back(modelIndex);
   modelParameters_[modelIndex].addParameter(
     modelSet_[modelIndex]->getParameters().getParameter(modelParameterNames_[parameterIndex - offset]));
+  //Update value of modified model:
+  modelSet_[modelIndex]->matchParametersValues(getParameters().subList(parameterIndex - offset));
 }
 
 void SubstitutionModelSet::unsetParameterToModel(unsigned int parameterIndex, unsigned int modelIndex) throw (IndexOutOfBoundsException, Exception)
@@ -289,13 +291,13 @@ void SubstitutionModelSet::addParameters(const ParameterList& parameters, const 
   vector<unsigned int> modelIndexes(nodesId.size());
   for (unsigned int i = 0; i < nodesId.size(); i++)
   {
-   unsigned int pos = nodeToModel_[nodesId[i]];
+    unsigned int pos = nodeToModel_[nodesId[i]];
     modelParameters_[pos].addParameters(parameters);
     modelIndexes[i] = pos;
   }
   for (unsigned int i = 0; i < pl.size(); i++)
   {
-   paramToModels_.push_back(modelIndexes);
+    paramToModels_.push_back(modelIndexes);
   }
 }
 
@@ -306,11 +308,11 @@ void SubstitutionModelSet::removeParameter(const string& name) throw (ParameterN
   {
     if (getParameter_(offset + i).getName() == name)
     {
-   vector<int> nodesId = getNodesWithParameter(name);
+      vector<int> nodesId = getNodesWithParameter(name);
       for (unsigned int j = 0; j < nodesId.size(); j++)
       {
-   unsigned int pos = nodeToModel_[nodesId[j]];
-   string tmp = modelParameterNames_[i];
+        unsigned int pos = nodeToModel_[nodesId[j]];
+        string tmp = modelParameterNames_[i];
         if (modelParameters_[pos].hasParameter(tmp))
           modelParameters_[pos].deleteParameter(tmp);
       }
