@@ -42,7 +42,7 @@ knowledge of the CeCILL license and that you accept its terms.
 
 // From SeqLib:
 #include <Seq/Sequence.h>
-#include <Seq/SequenceContainer.h>
+#include <Seq/SiteContainer.h>
 
 // From the STL:
 #include <vector>
@@ -98,9 +98,9 @@ class AncestralStateReconstruction
 		/**
 		 * @brief Get all the ancestral sequences for all nodes.
 		 *
-		 * @return A new SequenceContainer object.
+		 * @return A new SiteContainer object.
 		 */ 
-    virtual SequenceContainer* getAncestralSequences() const = 0;
+    virtual SiteContainer* getAncestralSequences() const = 0;
 		
 };
 
