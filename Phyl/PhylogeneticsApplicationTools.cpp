@@ -526,6 +526,7 @@ SubstitutionModel* PhylogeneticsApplicationTools::getSubstitutionModelDefaultIns
     model = new YN98(pgc, codonFreqs);
   }
 
+
   // /////////////////////////////////
   // / RE08
   // ///////////////////////////////
@@ -1434,6 +1435,15 @@ throw (Exception)
       unparsedParameterValues["TruncExponential.tp"] = args["tp"];
     }
     else
+      if (distName == "Uniform")
+        {
+          if (args.find("begin") == args.end())
+            throw Exception("Missing argument 'begin' (mean) in Uniform distribution");
+          if (args.find("end") == args.end())
+            throw Exception("Missing argument 'end' (standard deviation) in Uniform distribution");
+          rDist = new UniformDiscreteDistribution(nbClasses, TextTools::to<double>(args["begin"]),
+                                                   TextTools::to<double>(args["end"]));
+        }
     {
       throw Exception("Unknown distribution: " + distName + ".");
     }
