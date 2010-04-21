@@ -44,11 +44,7 @@
 #include "Tree.h"
 #include "Newick.h"
 #include "NexusIOTree.h"
-#include "RHomogeneousTreeLikelihood.h"
-#include "RNonHomogeneousTreeLikelihood.h"
-#include "DRHomogeneousTreeLikelihood.h"
-#include "NNIHomogeneousTreeLikelihood.h"
-#include "RHomogeneousClockTreeLikelihood.h"
+#include "treelikelihoods"
 
 // From Utils:
 #include <Utils/FileTools.h>
@@ -58,9 +54,7 @@
 #include <Utils/KeyvalTools.h>
 
 // From NumCalc:
-#include <NumCalc/ConstantDistribution.h>
-#include <NumCalc/GammaDiscreteDistribution.h>
-#include <NumCalc/InvariantMixedDiscreteDistribution.h>
+#include <NumCalc/distributions>
 #include <NumCalc/optimizers>
 
 // From SeqLib:
@@ -1396,6 +1390,17 @@ throw (Exception)
       unparsedParameterValues["Gamma.alpha"] = args["alpha"];
       unparsedParameterValues["Gamma.beta"] = args["beta"];
     }
+    if (distName == "Gaussian")
+      {
+        if (args.find("mu") == args.end())
+          throw Exception("Missing argument 'mu' (mean) in Gaussian distribution");
+        if (args.find("sigma") == args.end())
+          throw Exception("Missing argument 'sigma' (standard deviation) in Gaussian distribution");
+        rDist = new GaussianDiscreteDistribution(nbClasses, TextTools::to<double>(args["mu"]),
+                                              TextTools::to<double>(args["sigma"]));
+        unparsedParameterValues["Gaussian.mu"] = args["mu"];
+        unparsedParameterValues["Gaussian.sigma"] = args["sigma"];
+      }
     else if (distName == "Exponential")
     {
       if (args.find("lambda") == args.end())
