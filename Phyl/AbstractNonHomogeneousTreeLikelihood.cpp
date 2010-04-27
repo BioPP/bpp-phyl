@@ -184,34 +184,34 @@ void AbstractNonHomogeneousTreeLikelihood::init_(
 
 /******************************************************************************/
 
-void AbstractNonHomogeneousTreeLikelihood::setSubstitutionModelSet(SubstitutionModelSet * modelSet) throw (Exception)
+void AbstractNonHomogeneousTreeLikelihood::setSubstitutionModelSet(SubstitutionModelSet* modelSet) throw (Exception)
 {
   //Check:
-  if(data_)
+  if (data_)
   {
-    if(modelSet->getAlphabet()->getAlphabetType() != data_->getAlphabet()->getAlphabetType())
+    if (modelSet->getAlphabet()->getAlphabetType() != data_->getAlphabet()->getAlphabetType())
       throw Exception("AbstractBranchNonHomogeneousTreeLikelihood::setSubstitutionModelSet(). Model alphabet do not match existing data.");
   }
 
   modelSet_ = modelSet;
   
-  if(data_)
+  if (data_)
   {
-    if(modelSet->getNumberOfStates() != modelSet_->getNumberOfStates())
+    if (modelSet->getNumberOfStates() != modelSet_->getNumberOfStates())
       setData(*data_); //Have to reinitialize the whole data structure.
   }
   
   nbStates_ = modelSet->getNumberOfStates();
 
   //Allocate transition probabilities arrays:
-  for(unsigned int l = 0; l < nbNodes_; l++)
+  for (unsigned int l = 0; l < nbNodes_; l++)
   {
     //For each son node,i
-    Node * son = nodes_[l];
+    Node* son = nodes_[l];
 
-    VVVdouble * pxy__son = & pxy_[son->getId()];
+    VVVdouble* pxy__son = & pxy_[son->getId()];
     pxy__son->resize(nbClasses_);
-    for(unsigned int c = 0; c < nbClasses_; c++)
+    for (unsigned int c = 0; c < nbClasses_; c++)
     {
       VVdouble * pxy__son_c = & (* pxy__son)[c];
       pxy__son_c->resize(nbStates_);
@@ -221,9 +221,9 @@ void AbstractNonHomogeneousTreeLikelihood::setSubstitutionModelSet(SubstitutionM
       }
     }
   
-    VVVdouble * dpxy__son = & dpxy_[son->getId()];
+    VVVdouble* dpxy__son = & dpxy_[son->getId()];
     dpxy__son->resize(nbClasses_);
-    for(unsigned int c = 0; c < nbClasses_; c++)
+    for (unsigned int c = 0; c < nbClasses_; c++)
     {
       VVdouble * dpxy__son_c = & (* dpxy__son)[c];
       dpxy__son_c->resize(nbStates_);
@@ -233,9 +233,9 @@ void AbstractNonHomogeneousTreeLikelihood::setSubstitutionModelSet(SubstitutionM
       }
     }
       
-    VVVdouble * d2pxy__son = & d2pxy_[son->getId()];
+    VVVdouble* d2pxy__son = & d2pxy_[son->getId()];
     d2pxy__son->resize(nbClasses_);
-    for(unsigned int c = 0; c < nbClasses_; c++)
+    for (unsigned int c = 0; c < nbClasses_; c++)
     {
       VVdouble * d2pxy__son_c = & (* d2pxy__son)[c];
       d2pxy__son_c->resize(nbStates_);
@@ -247,7 +247,12 @@ void AbstractNonHomogeneousTreeLikelihood::setSubstitutionModelSet(SubstitutionM
   }
 
   //We have to reset parameters. If the instance is not initialized, this will be done by the initialize method.
-  if(initialized_) initParameters();
+  if (initialized_) 
+  {
+    initParameters();
+    computeAllTransitionProbabilities();
+    fireParameterChanged(getParameters());
+  }
 }
 
 /******************************************************************************/

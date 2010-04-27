@@ -101,7 +101,7 @@ void RNonHomogeneousTreeLikelihood::init_(bool usePatterns) throw (Exception)
 /******************************************************************************/
 
 RNonHomogeneousTreeLikelihood::RNonHomogeneousTreeLikelihood(
-    const RNonHomogeneousTreeLikelihood & lik):
+    const RNonHomogeneousTreeLikelihood& lik):
   AbstractNonHomogeneousTreeLikelihood(lik),
   likelihoodData_(0),
   minusLogLik_(lik.minusLogLik_)
@@ -245,7 +245,7 @@ double RNonHomogeneousTreeLikelihood::getLogLikelihoodForASiteForARateClassForAS
 
 /******************************************************************************/
 
-void RNonHomogeneousTreeLikelihood::setParameters(const ParameterList & parameters)
+void RNonHomogeneousTreeLikelihood::setParameters(const ParameterList& parameters)
   throw (ParameterNotFoundException, ConstraintException)
 {
   setParametersValues(parameters);
@@ -253,7 +253,7 @@ void RNonHomogeneousTreeLikelihood::setParameters(const ParameterList & paramete
 
 /******************************************************************************/
 
-void RNonHomogeneousTreeLikelihood::fireParameterChanged(const ParameterList & params)
+void RNonHomogeneousTreeLikelihood::fireParameterChanged(const ParameterList& params)
 {
   applyParameters();
 
@@ -300,6 +300,7 @@ void RNonHomogeneousTreeLikelihood::fireParameterChanged(const ParameterList & p
     }
     rootFreqs_ = modelSet_->getRootFrequencies();
   }
+  computeAllTransitionProbabilities();
   computeTreeLikelihood();
 
   minusLogLik_ = - getLogLikelihood();

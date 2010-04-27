@@ -1664,6 +1664,7 @@ throw (Exception)
     }
 
     if (verbose && nstep > 1) ApplicationTools::displayResult("# of precision steps", TextTools::toString(nstep));
+    parametersToEstimate.matchParametersValues(tl->getParameters());
     n = OptimizationTools::optimizeNumericalParameters(
       dynamic_cast<DiscreteRatesAcrossSitesTreeLikelihood*>(tl), parametersToEstimate,
       0, nstep, tolerance, nbEvalMax, messageHandler, profiler, reparam, optVerbose, optMethod);
@@ -1684,6 +1685,7 @@ throw (Exception)
         reparam, optVerbose, optMethod, nniAlgo);
     }
 
+    parametersToEstimate.matchParametersValues(tl->getParameters());
     n = OptimizationTools::optimizeNumericalParameters2(
       dynamic_cast<DiscreteRatesAcrossSitesTreeLikelihood*>(tl), parametersToEstimate,
       0, tolerance, nbEvalMax, messageHandler, profiler, reparam, optVerbose, optMethod);

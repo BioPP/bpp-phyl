@@ -317,7 +317,7 @@ class OptimizationTools
 		 * @throw Exception any exception thrown by the Optimizer.
 		 */
 		static unsigned int optimizeNumericalParameters(
-			DiscreteRatesAcrossSitesTreeLikelihood * tl,
+			DiscreteRatesAcrossSitesTreeLikelihood* tl,
       const ParameterList& parameters,
       OptimizationListener* listener = 0,
       unsigned int nstep             = 1,
