@@ -368,7 +368,7 @@ void AbstractNonHomogeneousTreeLikelihood::initBranchLengthsParameters()
     }
   }
   brLenParameters_.addParameter(Parameter("BrLenRoot", l1 + l2, brLenConstraint_->clone(), true));
-  brLenParameters_.addParameter(Parameter("RootPosition", l1 / (l1 + l2), &Parameter::PROP_CONSTRAINT_IN));
+  brLenParameters_.addParameter(Parameter("RootPosition", l1 / (l1 + l2), &Parameter::PROP_CONSTRAINT_EX));
 }
 
 /*******************************************************************************/
