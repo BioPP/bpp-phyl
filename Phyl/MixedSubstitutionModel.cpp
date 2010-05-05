@@ -49,7 +49,8 @@ MixedSubstitutionModel::MixedSubstitutionModel(
     std::map<std::string, DiscreteDistribution*> parametersDistributionsList) :
   AbstractSubstitutionModel(alpha, ""),
   distributionMap_(),
-  modelsContainer_()
+  modelsContainer_(),
+  probas_()
 {
    unsigned int c, i;
    double d;
@@ -91,6 +92,7 @@ MixedSubstitutionModel::MixedSubstitutionModel(
   {
     modelsContainer_.push_back(model->clone());
     modelsContainer_[i]->setNamespace(model->getNamespace());
+    probas_.push_back(1.0/c);
   }
 
   // Initialization of parameters_.
@@ -123,7 +125,8 @@ MixedSubstitutionModel::MixedSubstitutionModel(
 MixedSubstitutionModel::MixedSubstitutionModel(const MixedSubstitutionModel& msm) :
   AbstractSubstitutionModel(msm),
   distributionMap_(),
-  modelsContainer_()
+  modelsContainer_(),
+  probas_()
 {
   map<string, DiscreteDistribution*>::const_iterator it;
 
@@ -135,6 +138,7 @@ MixedSubstitutionModel::MixedSubstitutionModel(const MixedSubstitutionModel& msm
   for (unsigned int i = 0; i < msm.modelsContainer_.size(); i++)
   {
     modelsContainer_.push_back(msm.modelsContainer_[i]->clone());
+    probas_.push_back(1.0/msm.modelsContainer_.size());
   }
 }
 
@@ -143,6 +147,11 @@ MixedSubstitutionModel& MixedSubstitutionModel::operator=(const MixedSubstitutio
   AbstractSubstitutionModel::operator=(msm);
   
   //Clear existing containers:
+  distributionMap_.clear();
+  modelsContainer_.clear();
+  probas_.clear();
+  
+  //Now copy new containers:
   map<string, DiscreteDistribution*>::const_iterator it;
   for (it = msm.distributionMap_.begin(); it != msm.distributionMap_.end(); it++)
   {
@@ -151,21 +160,8 @@ MixedSubstitutionModel& MixedSubstitutionModel::operator=(const MixedSubstitutio
 
   for (unsigned int i = 0; i < msm.modelsContainer_.size(); i++)
   {
-   modelsContainer_.push_back(msm.modelsContainer_[i]->clone());
-  }
-  
-  distributionMap_.clear();
-  modelsContainer_.clear();
-   
-  //Now copy new containers:
-  for (it = msm.distributionMap_.begin(); it != msm.distributionMap_.end(); it++)
-  {
-    distributionMap_[it->first] = dynamic_cast<DiscreteDistribution*>(it->second->clone());
-  }
-
-  for (unsigned int i = 0; i < msm.modelsContainer_.size(); i++)
-  {
     modelsContainer_.push_back(msm.modelsContainer_[i]->clone());
+    probas_.push_back(1.0/msm.modelsContainer_.size());
   }
   return *this;
 }
@@ -220,6 +216,7 @@ void MixedSubstitutionModel::updateMatrices()
 
   for (i = 0; i < modelsContainer_.size(); i++)
   {
+    probas_[i]=1;
     j = i;
     for (it = distributionMap_.begin(); it != distributionMap_.end(); it++)
     {
@@ -227,7 +224,7 @@ void MixedSubstitutionModel::updateMatrices()
       l = j % it->second->getNumberOfCategories();
 
       d = distributionMap_.find(s)->second->getCategory(l);
-
+      probas_[i]*=distributionMap_.find(s)->second->getProbability(l);
       if (pl.hasParameter(s))
         pl.setParameterValue(s,d);
       else

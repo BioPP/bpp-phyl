@@ -82,9 +82,11 @@ namespace bpp
  * this parameter, there is an Exception at the creation of the
  * wrong mdel, if any.
  *
- * When used through a MixedTreeLikelihood objetc, all the models
- * are equiprobable and then the comptuing of the likelihoods and
- * probabilities are the average of the "simple" models values.
+ * When used through a MixedTreeLikelihood objets, all the models have
+ * a specific probability, defined through the probabilities of the
+ * several parameter distributions. The computing of the likelihoods
+ * and probabilities are the expectation of the "simple" models
+ * values.
  *
  */
 class MixedSubstitutionModel :
@@ -94,7 +96,8 @@ private:
   std::map<std::string, DiscreteDistribution*> distributionMap_;
 
   std::vector<SubstitutionModel*> modelsContainer_;
-
+  std::vector<double> probas_;
+  
 public:
   MixedSubstitutionModel(const Alphabet* alpha,
                          SubstitutionModel* model,
@@ -122,6 +125,20 @@ public:
     return modelsContainer_[i];
   }
 
+  /**
+   * @brief Returns the  probability of a specific model from the mixture
+   */
+  
+  double getNProbability(unsigned int i) const
+  {
+    return probas_[i];
+  }
+  
+  const std::vector<double>& getProbabilities() const
+  {
+    return probas_;
+  }
+  
   unsigned int getNumberOfModels() const
   {
     return modelsContainer_.size();
