@@ -175,7 +175,7 @@ SubstitutionModel* PhylogeneticsApplicationTools::getSubstitutionModelDefaultIns
         for (map<string, string>::iterator it2 = unparsedParameterValuesNested3.begin();
              it2 != unparsedParameterValuesNested3.end(); it2++)
         {
-          unparsedParameterValuesNested2[it->first + "." + it2->first] = it2->second;
+          unparsedParameterValuesNested2[it->first + "_" + it2->first] = it2->second;
         }
       }
       else
@@ -839,18 +839,18 @@ void PhylogeneticsApplicationTools::setSubstitutionModelParametersInitialValues(
     ap.setMessageHandler(ApplicationTools::warning);
     pl.setParameter(i, ap);
   }
-
   for (unsigned int i = 0; i < pl.size(); i++)
   {
    const string pName = pl[i].getName();
-    if (!useObsFreq || (model->getParameterNameWithoutNamespace(pName).substr(0,5) != "theta"))
-    {
-      double value = ApplicationTools::getDoubleParameter(pName, unparsedParameterValues, pl[i].getValue());
-      pl[i].setValue(value);
-    }
+   if (!useObsFreq || (model->getParameterNameWithoutNamespace(pName).substr(0,5) != "theta"))
+     {
+       double value = ApplicationTools::getDoubleParameter(pName, unparsedParameterValues, pl[i].getValue());
+       pl[i].setValue(value);
+     }
     if (verbose)
       ApplicationTools::displayResult("Parameter found", pName + "=" + TextTools::toString(pl[i].getValue()));
   }
+
   model->matchParametersValues(pl);
 }
 
@@ -1373,6 +1373,30 @@ throw (Exception)
     rDist = new ConstantDistribution(TextTools::to<double>(args["value"]));
     unparsedParameterValues["Constant.value"] = args["value"];
   }
+  else if (distName == "Simple")
+    {
+      if (args.find("values") == args.end())
+        throw Exception("Missing argument 'values' in Simple distribution");
+      if (args.find("probas") == args.end())
+        throw Exception("Missing argument 'probas' in Simple distribution");
+      vector<double> probas, values;
+      
+      string rf = args["values"];
+      StringTokenizer strtok(rf.substr(1, rf.length() - 2), ",");
+      while (strtok.hasMoreToken())
+        values.push_back(TextTools::toDouble(strtok.nextToken()));
+      
+      rf = args["probas"];
+      StringTokenizer strtok2(rf.substr(1, rf.length() - 2), ",");
+      while (strtok2.hasMoreToken())
+        probas.push_back(TextTools::toDouble(strtok2.nextToken()));
+
+      rDist = new SimpleDiscreteDistribution(values, probas);
+      vector<string> v=rDist->getParameters().getParameterNames();
+
+      for (unsigned int i=0;i<v.size();i++)
+        unparsedParameterValues[v[i]] = TextTools::toString(rDist->getParameterValue(rDist->getParameterNameWithoutNamespace(v[i])));
+    }
   else
   {
     if (args.find("n") == args.end())
@@ -1391,7 +1415,7 @@ throw (Exception)
       unparsedParameterValues["Gamma.alpha"] = args["alpha"];
       unparsedParameterValues["Gamma.beta"] = args["beta"];
     }
-    if (distName == "Gaussian")
+    else if (distName == "Gaussian")
       {
         if (args.find("mu") == args.end())
           throw Exception("Missing argument 'mu' (mean) in Gaussian distribution");
@@ -1434,8 +1458,7 @@ throw (Exception)
       unparsedParameterValues["TruncExponential.lambda"] = args["lambda"];
       unparsedParameterValues["TruncExponential.tp"] = args["tp"];
     }
-    else
-      if (distName == "Uniform")
+    else if (distName == "Uniform")
         {
           if (args.find("begin") == args.end())
             throw Exception("Missing argument 'begin' (mean) in Uniform distribution");
@@ -1444,9 +1467,10 @@ throw (Exception)
           rDist = new UniformDiscreteDistribution(nbClasses, TextTools::to<double>(args["begin"]),
                                                    TextTools::to<double>(args["end"]));
         }
-    {
-      throw Exception("Unknown distribution: " + distName + ".");
-    }
+    else
+      {
+        throw Exception("Unknown distribution: " + distName + ".");
+      }
   }
   if (verbose)
   {
@@ -1643,7 +1667,7 @@ throw (Exception)
 
   //See if we should reparametrize:
   bool reparam = ApplicationTools::getBooleanParameter("optimization.reparametrization", params, false);
-  if (verbose) ApplicationTools::displayResult("Reparametrization", (reparam ? "yes" : "no"));
+  ApplicationTools::displayResult("Reparametrization", (reparam ? "yes" : "no"));
 
   unsigned int n = 0;
   if (optName == "DB")
@@ -1664,7 +1688,6 @@ throw (Exception)
     }
 
     if (verbose && nstep > 1) ApplicationTools::displayResult("# of precision steps", TextTools::toString(nstep));
-    parametersToEstimate.matchParametersValues(tl->getParameters());
     n = OptimizationTools::optimizeNumericalParameters(
       dynamic_cast<DiscreteRatesAcrossSitesTreeLikelihood*>(tl), parametersToEstimate,
       0, nstep, tolerance, nbEvalMax, messageHandler, profiler, reparam, optVerbose, optMethod);
@@ -1685,7 +1708,6 @@ throw (Exception)
         reparam, optVerbose, optMethod, nniAlgo);
     }
 
-    parametersToEstimate.matchParametersValues(tl->getParameters());
     n = OptimizationTools::optimizeNumericalParameters2(
       dynamic_cast<DiscreteRatesAcrossSitesTreeLikelihood*>(tl), parametersToEstimate,
       0, tolerance, nbEvalMax, messageHandler, profiler, reparam, optVerbose, optMethod);
