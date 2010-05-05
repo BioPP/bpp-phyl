@@ -107,7 +107,12 @@ MixedSubstitutionModel::MixedSubstitutionModel(
       {
         t = it->second->getParameters().getParameterNames()[i];
         d = it->second->getParameters().getParameter(t).getValue();
-        addParameter_(Parameter(t,d));
+        if (it->second->getParameters().getParameter(t).hasConstraint()){
+          pc = it->second->getParameters().getParameter(t).getConstraint()->clone();
+          addParameter_(Parameter(t,d,pc,true));
+        }
+        else
+          addParameter_(Parameter(t,d));
       }
     }
     else
