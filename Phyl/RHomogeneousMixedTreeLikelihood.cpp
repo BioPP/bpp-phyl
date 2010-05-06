@@ -60,7 +60,8 @@ RHomogeneousMixedTreeLikelihood::RHomogeneousMixedTreeLikelihood(
   bool verbose,
   bool usePatterns) throw (Exception) :
   RHomogeneousTreeLikelihood(tree, model, rDist, checkRooted, verbose, usePatterns),
-  treeLikelihoodsContainer_()
+  treeLikelihoodsContainer_(),
+  probas_()
 {
   MixedSubstitutionModel* mixedmodel;
   if ((mixedmodel = dynamic_cast<MixedSubstitutionModel*>(model_)) == 0)
@@ -70,6 +71,7 @@ RHomogeneousMixedTreeLikelihood::RHomogeneousMixedTreeLikelihood(
   {
    treeLikelihoodsContainer_.push_back(
        new RHomogeneousTreeLikelihood(tree, mixedmodel->getNModel(i), rDist, checkRooted, false, usePatterns));
+   probas_.push_back(1.0/s);
   }
 }
 
@@ -82,7 +84,8 @@ RHomogeneousMixedTreeLikelihood::RHomogeneousMixedTreeLikelihood(
   bool verbose,
   bool usePatterns) throw (Exception) :
   RHomogeneousTreeLikelihood(tree, model,rDist, checkRooted, verbose, usePatterns),
-  treeLikelihoodsContainer_()
+  treeLikelihoodsContainer_(),
+  probas_()
 {
   MixedSubstitutionModel* mixedmodel;
 
@@ -95,6 +98,7 @@ RHomogeneousMixedTreeLikelihood::RHomogeneousMixedTreeLikelihood(
   {
     treeLikelihoodsContainer_.push_back(
         new RHomogeneousTreeLikelihood(tree, mixedmodel->getNModel(i), rDist, checkRooted, false, usePatterns));
+    probas_.push_back(1.0/s);
   }
   setData(data);
 }
@@ -103,9 +107,13 @@ RHomogeneousMixedTreeLikelihood& RHomogeneousMixedTreeLikelihood::operator=(cons
 {
   RHomogeneousTreeLikelihood::operator=(lik);
 
+  treeLikelihoodsContainer_.clear();
+  probas_.clear();
+  
   for (unsigned int i = 0; i < treeLikelihoodsContainer_.size(); i++)
   {
    treeLikelihoodsContainer_.push_back(lik.treeLikelihoodsContainer_[i]->clone());
+   probas_.push_back(lik.probas_[i]);
   }
 
   return *this;
@@ -114,11 +122,13 @@ RHomogeneousMixedTreeLikelihood& RHomogeneousMixedTreeLikelihood::operator=(cons
 
 RHomogeneousMixedTreeLikelihood::RHomogeneousMixedTreeLikelihood(const RHomogeneousMixedTreeLikelihood& lik) :
   RHomogeneousTreeLikelihood(lik),
-  treeLikelihoodsContainer_(lik.treeLikelihoodsContainer_.size())
+  treeLikelihoodsContainer_(lik.treeLikelihoodsContainer_.size()),
+  probas_(lik.probas_.size())
 {
   for (unsigned int i = 0; i < treeLikelihoodsContainer_.size(); i++)
   {
    treeLikelihoodsContainer_[i] = lik.treeLikelihoodsContainer_[i]->clone();
+   probas_.push_back(lik.probas_[i]);
   }
 }
 
@@ -160,7 +170,7 @@ double RHomogeneousMixedTreeLikelihood::getLogLikelihood() const
    reslog.push_back(treeLikelihoodsContainer_[i]->getLogLikelihood());
   }
 
-  return VectorTools::logmeanexp(reslog);
+  return VectorTools::logsumexp(reslog,probas_);
 }
 
 double RHomogeneousMixedTreeLikelihood::getLikelihood() const
@@ -182,7 +192,7 @@ double RHomogeneousMixedTreeLikelihood::getLogLikelihoodForASite(unsigned int si
    reslog.push_back(treeLikelihoodsContainer_[i]->getLogLikelihoodForASite(site));
   }
 
-  return VectorTools::logmeanexp(reslog);
+  return VectorTools::logsumexp(reslog,probas_);
 }
 
 double RHomogeneousMixedTreeLikelihood::getLikelihoodForASiteForARateClass(unsigned int site, unsigned int rateClass) const
@@ -199,7 +209,7 @@ double RHomogeneousMixedTreeLikelihood::getLogLikelihoodForASiteForARateClass(un
    reslog.push_back(treeLikelihoodsContainer_[i]->getLogLikelihoodForASiteForARateClass(site, rateClass));
   }
 
-  return VectorTools::logmeanexp(reslog);
+  return VectorTools::logsumexp(reslog,probas_);
 }
 
 double RHomogeneousMixedTreeLikelihood::getLikelihoodForASiteForARateClassForAState(unsigned int site, unsigned int rateClass, int state) const
@@ -216,7 +226,7 @@ double RHomogeneousMixedTreeLikelihood::getLogLikelihoodForASiteForARateClassFor
    reslog.push_back(treeLikelihoodsContainer_[i]->getLogLikelihoodForASiteForARateClassForAState(site, rateClass, state));
   }
 
-  return VectorTools::logmeanexp(reslog);
+  return VectorTools::logsumexp(reslog,probas_);
 }
 
 void RHomogeneousMixedTreeLikelihood::fireParameterChanged(const ParameterList& params)
@@ -234,6 +244,7 @@ void RHomogeneousMixedTreeLikelihood::fireParameterChanged(const ParameterList& 
     treeLikelihoodsContainer_[i]->matchParametersValues(pm->getParameters());
     treeLikelihoodsContainer_[i]->matchParametersValues(getParameters());
   }
+  probas_=mixedmodel->getProbabilities();
 
   minusLogLik_ = -getLogLikelihood();
 }
@@ -247,7 +258,7 @@ double RHomogeneousMixedTreeLikelihood::getFirstOrderDerivative(const string& va
    rescontainer.push_back(treeLikelihoodsContainer_[i]->getFirstOrderDerivative(variable));
   }
 
-  return VectorTools::mean<double, double>(rescontainer);
+  return VectorTools::sum<double>(rescontainer,probas_);
 }
 
 double RHomogeneousMixedTreeLikelihood::getSecondOrderDerivative(const string& variable) const throw (Exception)
@@ -259,7 +270,7 @@ double RHomogeneousMixedTreeLikelihood::getSecondOrderDerivative(const string& v
    rescontainer.push_back(treeLikelihoodsContainer_[i]->getSecondOrderDerivative(variable));
   }
 
-  return VectorTools::mean<double, double>(rescontainer);
+  return VectorTools::sum<double>(rescontainer,probas_);
 }
 
 void RHomogeneousMixedTreeLikelihood::computeTreeLikelihood()
@@ -279,7 +290,7 @@ double RHomogeneousMixedTreeLikelihood::getDLikelihoodForASiteForARateClass(unsi
    rescontainer.push_back(treeLikelihoodsContainer_[i]->getDLikelihoodForASiteForARateClass(site,rateClass));
   }
 
-  return VectorTools::mean<double, double>(rescontainer);
+  return VectorTools::sum<double>(rescontainer,probas_);
 }
 
 double RHomogeneousMixedTreeLikelihood::getDLikelihoodForASite(unsigned int site) const
@@ -291,7 +302,7 @@ double RHomogeneousMixedTreeLikelihood::getDLikelihoodForASite(unsigned int site
    rescontainer.push_back(treeLikelihoodsContainer_[i]->getDLikelihoodForASite(site));
   }
 
-  return VectorTools::mean<double, double>(rescontainer);
+  return VectorTools::sum<double>(rescontainer,probas_);
 }
 
 void RHomogeneousMixedTreeLikelihood::computeTreeDLikelihood(const string& variable)
@@ -312,7 +323,7 @@ double RHomogeneousMixedTreeLikelihood::getD2LikelihoodForASiteForARateClass(uns
    rescontainer.push_back(treeLikelihoodsContainer_[i]->getD2LikelihoodForASiteForARateClass(site,rateClass));
   }
 
-  return VectorTools::mean<double, double>(rescontainer);
+  return VectorTools::sum<double>(rescontainer,probas_);
 }
 
 double RHomogeneousMixedTreeLikelihood::getD2LikelihoodForASite(unsigned int site) const
@@ -324,7 +335,7 @@ double RHomogeneousMixedTreeLikelihood::getD2LikelihoodForASite(unsigned int sit
    rescontainer.push_back(treeLikelihoodsContainer_[i]->getD2LikelihoodForASite(site));
   }
 
-  return VectorTools::mean<double, double>(rescontainer);
+  return VectorTools::sum<double>(rescontainer,probas_);
 }
 
 void RHomogeneousMixedTreeLikelihood::computeTreeD2Likelihood(const string& variable)

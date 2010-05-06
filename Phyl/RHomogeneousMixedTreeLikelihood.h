@@ -63,7 +63,8 @@ class RHomogeneousMixedTreeLikelihood :
 {
 private:
   std::vector<RHomogeneousTreeLikelihood*> treeLikelihoodsContainer_;
-
+  std::vector<double> probas_;
+  
 public:
   /**
    * @brief Build a new RHomogeneousMixedTreeLikelihood object without
