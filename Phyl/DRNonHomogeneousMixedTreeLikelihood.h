@@ -63,8 +63,7 @@ class DRNonHomogeneousMixedTreeLikelihood :
 {
 private:
   std::vector<DRNonHomogeneousTreeLikelihood*> treeLikelihoodsContainer_;
-
-  ParameterList internParam_;
+  std::vector<double> probas_;
 
 public:
   /**

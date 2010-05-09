@@ -65,8 +65,7 @@ class RNonHomogeneousMixedTreeLikelihood :
 {
 private:
   vector<RNonHomogeneousTreeLikelihood*> treeLikelihoodsContainer_;
-
-  ParameterList internParam_;
+  std::vector<double> probas_;
 
 public:
   /**
