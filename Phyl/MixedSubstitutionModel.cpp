@@ -52,10 +52,10 @@ MixedSubstitutionModel::MixedSubstitutionModel(
   modelsContainer_(),
   probas_()
 {
-   unsigned int c, i;
-   double d;
-   string s1, s2, t;
-   map<string, DiscreteDistribution*>::iterator it;
+  unsigned int c, i;
+  double d;
+  string s1, s2, t;
+  map<string, DiscreteDistribution*>::iterator it;
 
   // Initialization of distributionMap_.
 
@@ -143,7 +143,7 @@ MixedSubstitutionModel::MixedSubstitutionModel(const MixedSubstitutionModel& msm
   for (unsigned int i = 0; i < msm.modelsContainer_.size(); i++)
   {
     modelsContainer_.push_back(msm.modelsContainer_[i]->clone());
-    probas_.push_back(1.0/msm.modelsContainer_.size());
+    probas_.push_back(msm.probas_[i]);
   }
 }
 
@@ -166,7 +166,7 @@ MixedSubstitutionModel& MixedSubstitutionModel::operator=(const MixedSubstitutio
   for (unsigned int i = 0; i < msm.modelsContainer_.size(); i++)
   {
     modelsContainer_.push_back(msm.modelsContainer_[i]->clone());
-    probas_.push_back(1.0/msm.modelsContainer_.size());
+    probas_.push_back(msm.probas_[i]);
   }
   return *this;
 }
@@ -227,6 +227,7 @@ void MixedSubstitutionModel::updateMatrices()
     {
       s = it->first;
       l = j % it->second->getNumberOfCategories();
+
 
       d = distributionMap_.find(s)->second->getCategory(l);
       probas_[i]*=distributionMap_.find(s)->second->getProbability(l);
