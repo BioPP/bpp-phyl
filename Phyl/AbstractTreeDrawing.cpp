@@ -85,8 +85,8 @@ throw (NodeNotFoundException)
 
 bool AbstractTreeDrawing::belongsTo(const Point2D<double>& p1, const Point2D<double>& p2) const
 {
-  return (p1.getX() >= p2.getX() - pointArea_ * xUnit_ && p1.getX() <= p2.getX() + pointArea_ * xUnit_
-       && p1.getY() >= p2.getY() - pointArea_ * yUnit_ && p1.getY() <= p2.getY() + pointArea_ * yUnit_);
+  return (p1.getX() >= p2.getX() - settings_.pointArea * xUnit_ && p1.getX() <= p2.getX() + settings_.pointArea * xUnit_
+       && p1.getY() >= p2.getY() - settings_.pointArea * yUnit_ && p1.getY() <= p2.getY() + settings_.pointArea * yUnit_);
 }
 
 void AbstractTreeDrawing::drawAtNode(GraphicDevice& gDevice, const INode& node, const string& text, double xOffset, double yOffset, short hpos, short vpos, double angle) const
@@ -173,6 +173,34 @@ void LabelCollapsedNodesTreeDrawingListener::afterDrawNode(const DrawNodeEvent& 
         text += td->getTree()->getNodeName(event.getNodeId()) + " ";
       text += "(" + TextTools::toString(size) + " leaves)";
       gd->drawText(cursor.getX(), cursor.getY(), text, hpos_, vpos_, cursor.getAngle());
+    }
+  }
+}
+
+void NodeClickableAreasTreeDrawingListener::afterDrawNode(const DrawNodeEvent& event)
+{
+  if (!draw_) return;
+  const TreeDrawing* td = event.getTreeDrawing();
+  double r = td->getDisplaySettings().pointArea;
+  try
+  {
+    //Pointer-based event (efficient):
+    const DrawINodeEvent& eventC = dynamic_cast<const DrawINodeEvent&>(event);
+    if (!eventC.getINode()->getInfos().isCollapsed())
+    {
+      GraphicDevice* gd = event.getGraphicDevice();
+      Cursor cursor     = event.getCursor();
+      gd->drawRect(cursor.getX() - r * td->getXUnit(), cursor.getY() - r* td->getYUnit(), 2 * r * td->getXUnit(), 2 * r * td->getYUnit());
+    }
+  }
+  catch (std::bad_cast& e)
+  {
+    //Id-based event (less-efficient):
+    if (!td->isNodeCollapsed(event.getNodeId()))
+    {
+      GraphicDevice* gd = event.getGraphicDevice();
+      Cursor cursor     = event.getCursor();
+      gd->drawRect(cursor.getX() - r * td->getXUnit(), cursor.getY() - r * td->getYUnit(), 2 * r * td->getXUnit(), 2 * r * td->getYUnit());
     }
   }
 }

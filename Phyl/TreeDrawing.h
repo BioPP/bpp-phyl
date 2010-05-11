@@ -63,12 +63,14 @@ class TreeDrawingSettings
   public:
     bool drawLeafNames;
     Font fontLeafNames;
+    double pointArea; //this specifies the radius opf the point area
     //More options will be added in the future...
     
   public:
     TreeDrawingSettings() :
       drawLeafNames(true),
-      fontLeafNames("Courier", Font::STYLE_NORMAL, Font::WEIGHT_NORMAL, 12)
+      fontLeafNames("Courier", Font::STYLE_NORMAL, Font::WEIGHT_NORMAL, 12),
+      pointArea(0.1)
   {}
 };
 
@@ -195,6 +197,12 @@ public:
   virtual void afterDrawNode(const DrawNodeEvent& event) = 0;
   virtual void beforeDrawBranch(const DrawNodeEvent& event) = 0;
   virtual void afterDrawBranch(const DrawNodeEvent& event) = 0;
+
+  /**
+   * @brief Tells if the listener is autonomous. If so, it
+   * will never be hard-copied or deleted.
+   */
+  virtual bool isAutonomous() const = 0;
 };
 
 

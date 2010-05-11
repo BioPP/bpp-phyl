@@ -125,26 +125,27 @@ class AbstractTreeDrawing:
     std::auto_ptr<TreeTemplate<INode> > tree_;
     double xUnit_;
     double yUnit_;
-    double pointArea_;
     std::vector<std::string> drawableProperties_;
     TreeDrawingSettings settings_;
     std::vector<TreeDrawingListener*> listeners_;
  
   public:
-    AbstractTreeDrawing(): tree_(0), xUnit_(1.), yUnit_(1.), pointArea_(), drawableProperties_(), settings_(), listeners_() {};
+    AbstractTreeDrawing(): tree_(0), xUnit_(1.), yUnit_(1.), drawableProperties_(), settings_(), listeners_() {};
     
     AbstractTreeDrawing(const AbstractTreeDrawing& atd) :
       tree_(atd.tree_.get() ? dynamic_cast<TreeTemplate<INode> *>(atd.tree_->clone()) : 0),
       xUnit_(atd.xUnit_),
       yUnit_(atd.yUnit_),
-      pointArea_(atd.pointArea_),
       drawableProperties_(atd.drawableProperties_),
       settings_(atd.settings_),
       listeners_(atd.listeners_.size())
     {
       for (unsigned int i = 0; i < listeners_.size(); ++i)
       {
-        listeners_[i] = dynamic_cast<TreeDrawingListener*>(atd.listeners_[i]->clone());
+        if (listeners_[i]->isAutonomous())
+          listeners_[i] = atd.listeners_[i];
+        else
+          listeners_[i] = dynamic_cast<TreeDrawingListener*>(atd.listeners_[i]->clone());
       }
     }
      
@@ -155,12 +156,15 @@ class AbstractTreeDrawing:
       else tree_.reset();
       xUnit_              = atd.xUnit_;
       yUnit_              = atd.yUnit_;
-      pointArea_          = atd.pointArea_;
       drawableProperties_ = atd.drawableProperties_;
+      settings_           = atd.settings_;
       listeners_.resize(atd.listeners_.size());
       for (unsigned int i = 0; i < listeners_.size(); ++i)
       {
-        listeners_[i] = dynamic_cast<TreeDrawingListener*>(atd.listeners_[i]->clone());
+        if (listeners_[i]->isAutonomous())
+          listeners_[i] = atd.listeners_[i];
+        else
+          listeners_[i] = dynamic_cast<TreeDrawingListener*>(atd.listeners_[i]->clone());
       }
       return *this;
     }
@@ -168,7 +172,8 @@ class AbstractTreeDrawing:
     virtual ~AbstractTreeDrawing()
     {
       for (unsigned int i = 0; i < listeners_.size(); i++)
-        delete listeners_[i];
+        if (!listeners_[i]->isAutonomous())
+          delete listeners_[i];
     }
   
   public:
@@ -351,15 +356,17 @@ class LabelInnerNodesTreeDrawingListener :
 private:
   short hpos_;
   short vpos_;
+  bool autonomous_;
 
 public:
-  LabelInnerNodesTreeDrawingListener(short hpos, short vpos) :
-    hpos_(hpos), vpos_(vpos) {}
+  LabelInnerNodesTreeDrawingListener(short hpos, short vpos, bool autonomous = false) :
+    hpos_(hpos), vpos_(vpos), autonomous_(autonomous) {}
 
   LabelInnerNodesTreeDrawingListener* clone() const { return new LabelInnerNodesTreeDrawingListener(*this); }
 
 public :    
   void afterDrawNode(const DrawNodeEvent& event);
+  bool isAutonomous() const { return autonomous_; }
 
 };
 
@@ -376,17 +383,45 @@ class LabelCollapsedNodesTreeDrawingListener :
 private:
   short hpos_;
   short vpos_;
+  bool autonomous_;
 
 public:
-  LabelCollapsedNodesTreeDrawingListener(short hpos, short vpos) :
-    hpos_(hpos), vpos_(vpos) {}
+  LabelCollapsedNodesTreeDrawingListener(short hpos, short vpos, bool autonomous = false) :
+    hpos_(hpos), vpos_(vpos), autonomous_(autonomous) {}
 
   LabelCollapsedNodesTreeDrawingListener* clone() const { return new LabelCollapsedNodesTreeDrawingListener(*this); }
 
 public :    
   void afterDrawNode(const DrawNodeEvent& event);
+  bool isAutonomous() const { return autonomous_; }
 
 };
+
+/**
+ * @brief A TreeDrawingListener implementation that draw the clickable areas around nodes.
+ *
+ * This listener works with TreeDrawing classes, but is more efficient when used with a class that fires DrawINodeEvent events.
+ */
+class NodeClickableAreasTreeDrawingListener :
+  public TreeDrawingListenerAdapter
+{
+private:
+  bool draw_;
+  bool autonomous_;
+
+public:
+  NodeClickableAreasTreeDrawingListener(bool autonomous = false): draw_(true), autonomous_(autonomous) {}
+
+  NodeClickableAreasTreeDrawingListener* clone() const { return new NodeClickableAreasTreeDrawingListener(*this); }
+
+public :    
+  void afterDrawNode(const DrawNodeEvent& event);
+  void enable(bool yn) { draw_ = yn; }
+  bool isEnabled() const { return draw_; }
+  bool isAutonomous() const { return autonomous_; }
+
+};
+
 
 } //end of namespace bpp.
 
