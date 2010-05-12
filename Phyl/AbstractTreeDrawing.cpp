@@ -85,8 +85,8 @@ throw (NodeNotFoundException)
 
 bool AbstractTreeDrawing::belongsTo(const Point2D<double>& p1, const Point2D<double>& p2) const
 {
-  return (p1.getX() >= p2.getX() - settings_.pointArea * xUnit_ && p1.getX() <= p2.getX() + settings_.pointArea * xUnit_
-       && p1.getY() >= p2.getY() - settings_.pointArea * yUnit_ && p1.getY() <= p2.getY() + settings_.pointArea * yUnit_);
+  return (p1.getX() >= p2.getX() - settings_.pointArea && p1.getX() <= p2.getX() + settings_.pointArea
+       && p1.getY() >= p2.getY() - settings_.pointArea && p1.getY() <= p2.getY() + settings_.pointArea);
 }
 
 void AbstractTreeDrawing::drawAtNode(GraphicDevice& gDevice, const INode& node, const string& text, double xOffset, double yOffset, short hpos, short vpos, double angle) const
@@ -190,7 +190,7 @@ void NodeClickableAreasTreeDrawingListener::afterDrawNode(const DrawNodeEvent& e
     {
       GraphicDevice* gd = event.getGraphicDevice();
       Cursor cursor     = event.getCursor();
-      gd->drawRect(cursor.getX() - r * td->getXUnit(), cursor.getY() - r* td->getYUnit(), 2 * r * td->getXUnit(), 2 * r * td->getYUnit());
+      gd->drawRect(cursor.getX() - r, cursor.getY() - r, 2 * r, 2 * r);
     }
   }
   catch (std::bad_cast& e)
@@ -200,7 +200,7 @@ void NodeClickableAreasTreeDrawingListener::afterDrawNode(const DrawNodeEvent& e
     {
       GraphicDevice* gd = event.getGraphicDevice();
       Cursor cursor     = event.getCursor();
-      gd->drawRect(cursor.getX() - r * td->getXUnit(), cursor.getY() - r * td->getYUnit(), 2 * r * td->getXUnit(), 2 * r * td->getYUnit());
+      gd->drawRect(cursor.getX() - r, cursor.getY() - r, 2 * r, 2 * r);
     }
   }
 }

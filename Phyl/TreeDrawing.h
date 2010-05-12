@@ -63,14 +63,14 @@ class TreeDrawingSettings
   public:
     bool drawLeafNames;
     Font fontLeafNames;
-    double pointArea; //this specifies the radius opf the point area
+    double pointArea; //this specifies the radius of the point area
     //More options will be added in the future...
     
   public:
     TreeDrawingSettings() :
       drawLeafNames(true),
       fontLeafNames("Courier", Font::STYLE_NORMAL, Font::WEIGHT_NORMAL, 12),
-      pointArea(0.1)
+      pointArea(5)
   {}
 };
 
