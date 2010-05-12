@@ -59,13 +59,13 @@ namespace bpp
  * An example is provided in the PGMA class.
  * Another way is to use a map<Node *, NodeInfos>, with the limitation of the
  * map access.
- * One amy also wish to use the property system of the Node class, but
+ * One may also wish to use the property system of the Node class, but
  * properties are stored as in a map<string, Clonable *>, with the drawbacks
- * of the slow map access and the systematic use of dynamic_cast<NodeInfo *> t convert
- * from Clonable *.
+ * of the slow map access and the systematic use of dynamic_cast<NodeInfo *> to
+ * convert from Clonable *.
  *
- * This class redefines all constructors and access methods (get*) with return types
- * as NodeTemplate and not Node (using covariant returns).
+ * This class redefines all constructors and access methods (get*) with return
+ * types as NodeTemplate and not Node (using covariant returns).
  *
  * @see Node, TreeTemplate
  */
@@ -138,7 +138,7 @@ class NodeTemplate : public Node
  
 		NodeTemplate<NodeInfos>* getFather() { return dynamic_cast<NodeTemplate<NodeInfos> *>(father_); }
 				
-		NodeTemplate<NodeInfos>* removeFather() { NodeTemplate<NodeInfos> * f = dynamic_cast<NodeTemplate<NodeInfos> *>(father_); father_ = NULL; return f; }
+		NodeTemplate<NodeInfos>* removeFather() { NodeTemplate<NodeInfos> * f = dynamic_cast<NodeTemplate<NodeInfos> *>(father_); father_ = 0; return f; }
 
 		const NodeTemplate<NodeInfos>* getSon(unsigned int i) const throw (IndexOutOfBoundsException) { return dynamic_cast<NodeTemplate<NodeInfos> *>(sons_[i]); }
 				
