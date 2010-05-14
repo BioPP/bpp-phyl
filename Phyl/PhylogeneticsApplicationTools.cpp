@@ -1667,7 +1667,7 @@ throw (Exception)
 
   //See if we should reparametrize:
   bool reparam = ApplicationTools::getBooleanParameter("optimization.reparametrization", params, false);
-  ApplicationTools::displayResult("Reparametrization", (reparam ? "yes" : "no"));
+  if (verbose) ApplicationTools::displayResult("Reparametrization", (reparam ? "yes" : "no"));
 
   unsigned int n = 0;
   if (optName == "DB")
