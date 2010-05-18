@@ -311,7 +311,7 @@ void DRNonHomogeneousMixedTreeLikelihood::fireParameterChanged(const ParameterLi
 
   unsigned int s;
   const SubstitutionModel* psm;
-  MixedSubstitutionModel* pm;
+  const MixedSubstitutionModel* pm;
   SubstitutionModelSet* modelSet = getSubstitutionModelSet();
   SubstitutionModelSet* psms;
 
@@ -321,30 +321,31 @@ void DRNonHomogeneousMixedTreeLikelihood::fireParameterChanged(const ParameterLi
     {
       s = i;
       probas_[i]=1;
-      psms = treeLikelihoodsContainer_[i]->getSubstitutionModelSet();    
+      psms = treeLikelihoodsContainer_[i]->getSubstitutionModelSet();
       for (unsigned int j = 0; j < modelSet->getNumberOfModels(); j++)
         {
-          pm = dynamic_cast<MixedSubstitutionModel*>(modelSet->getModel(j));
+          psm = modelSet->getModel(j);
           ParameterList plj=psms->getModelParameters(j);
+          pm=dynamic_cast<const MixedSubstitutionModel*>(psm);
+
+          if (pm != NULL){
+            psm = pm->getNModel(s % pm->getNumberOfModels());
+            probas_[i]*=pm->getNProbability(s % pm->getNumberOfModels());
+            s /= pm->getNumberOfModels();
+          }
       
-          if (pm != NULL)
-            {
-              psm = pm->getNModel(s % pm->getNumberOfModels());
-
-              vp=plj.getParameterNames();
-              for (unsigned int j2=0;j2<vp.size();j2++)
-                plj.setParameterValue(vp[j2],
-                                      psm->getParameterValue(psm->getParameterNameWithoutNamespace(psms->getParameterModelName(vp[j2]))));
-              treeLikelihoodsContainer_[i]->matchParametersValues(plj);
-
-              probas_[i]*=pm->getNProbability(s % pm->getNumberOfModels());
-              s /= pm->getNumberOfModels();
-            }
+          vp=plj.getParameterNames();
+          for (unsigned int j2=0;j2<vp.size();j2++)
+            plj.setParameterValue(vp[j2],
+                                  psm->getParameterValue(psm->getParameterNameWithoutNamespace(psms->getParameterModelName(vp[j2]))));
+          treeLikelihoodsContainer_[i]->matchParametersValues(plj);
         }
+      
       treeLikelihoodsContainer_[i]->matchParametersValues(getBranchLengthsParameters());
       treeLikelihoodsContainer_[i]->matchParametersValues(getRateDistributionParameters());
       treeLikelihoodsContainer_[i]->matchParametersValues(getRootFrequenciesParameters());    
     }
+  
   minusLogLik_ = -getLogLikelihood();
 }
 

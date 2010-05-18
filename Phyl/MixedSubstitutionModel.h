@@ -101,7 +101,7 @@ private:
 public:
   MixedSubstitutionModel(const Alphabet* alpha,
                          SubstitutionModel* model,
-                         std::map<std::string, DiscreteDistribution*> parametersDistributionsList);
+                         std::map<std::string, DiscreteDistribution*> parametersDistributionsList) throw(Exception);
 
   MixedSubstitutionModel(const MixedSubstitutionModel&);
   
