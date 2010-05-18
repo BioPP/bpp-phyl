@@ -46,6 +46,23 @@ using namespace bpp;
 
 using namespace std;
 
+PhylogramDrawBranchEvent::PhylogramDrawBranchEvent(const TreeDrawing* source, GraphicDevice* gd, const INode* node, const Cursor& cursor, short orientation) :
+  DrawIBranchEvent(source, gd, node, cursor), orientation_()
+{
+  orientation_ = (orientation == AbstractDendrogramPlot::ORIENTATION_LEFT_TO_RIGHT ? -1 : 1);
+}
+
+Cursor PhylogramDrawBranchEvent::getBranchCursor(double position) const
+{
+  double offset = 0;
+  if (getINode()->hasDistanceToFather())
+  {
+    double l = getINode()->getDistanceToFather();
+    offset = orientation_ * l * position * getTreeDrawing()->getXUnit();
+  }
+  return getCursor().getTranslation(offset, 0);
+}
+
 void PhylogramPlot::setTree(const Tree* tree)
 {
   AbstractDendrogramPlot::setTree(tree);
@@ -59,7 +76,8 @@ void PhylogramPlot::drawDendrogram_(GraphicDevice& gDevice) const throw (Excepti
 {
   if (hasTree())
   {
-    fireBeforeTreeEvent_(gDevice);
+    DrawTreeEvent treeEvent(this, &gDevice);
+    fireBeforeTreeEvent_(treeEvent);
     unsigned int* tipCounter = new unsigned int(0);
     double y;
     recursivePlot_(gDevice, *const_cast<INode*>(getTree_()->getRootNode()),
@@ -68,7 +86,7 @@ void PhylogramPlot::drawDendrogram_(GraphicDevice& gDevice) const throw (Excepti
         getHorizontalOrientation() == ORIENTATION_LEFT_TO_RIGHT ? 1. : -1.,
         getVerticalOrientation() == ORIENTATION_TOP_TO_BOTTOM ? 1. : -1.,
         tipCounter);
-    fireAfterTreeEvent_(gDevice);
+    fireAfterTreeEvent_(treeEvent);
   }
 }
 
@@ -96,19 +114,24 @@ void PhylogramPlot::recursivePlot_(GraphicDevice& gDevice, INode& node, double x
   }
  
   auto_ptr<Cursor> cursor;
+  auto_ptr<DrawINodeEvent> nodeEvent;
+  auto_ptr<DrawIBranchEvent> branchEvent;
+  short hpos = (getHorizontalOrientation() == ORIENTATION_LEFT_TO_RIGHT ? GraphicDevice::TEXT_HORIZONTAL_LEFT : GraphicDevice::TEXT_HORIZONTAL_RIGHT);
   if (node.isLeaf())
   {
-    y =  ((getVerticalOrientation() == ORIENTATION_TOP_TO_BOTTOM ? 0 : getHeight()) + static_cast<double>(*tipCounter) * vDirection) * getYUnit();
+    y = ((getVerticalOrientation() == ORIENTATION_TOP_TO_BOTTOM ? 0 : getHeight()) + static_cast<double>(*tipCounter) * vDirection) * getYUnit();
     (*tipCounter)++;
-    cursor.reset(new Cursor(x2, y, 0));
-    fireBeforeNodeEvent_(gDevice, node, *cursor);
+    cursor.reset(new Cursor(x2, y, 0, hpos));
+    nodeEvent.reset(new DrawINodeEvent(this, &gDevice, &node, *cursor));
+    fireBeforeNodeEvent_(*nodeEvent);
   }
   else if (node.getInfos().isCollapsed())
   {
-    y =  ((getVerticalOrientation() == ORIENTATION_TOP_TO_BOTTOM ? 0 : getHeight()) + static_cast<double>(*tipCounter) * vDirection) * getYUnit();
+    y = ((getVerticalOrientation() == ORIENTATION_TOP_TO_BOTTOM ? 0 : getHeight()) + static_cast<double>(*tipCounter) * vDirection) * getYUnit();
     (*tipCounter)++;
-    cursor.reset(new Cursor(x2, y, 0));
-    fireBeforeNodeEvent_(gDevice, node, *cursor);
+    cursor.reset(new Cursor(x2, y, 0, hpos));
+    nodeEvent.reset(new DrawINodeEvent(this, &gDevice, &node, *cursor));
+    fireBeforeNodeEvent_(*nodeEvent);
   }
   else
   {
@@ -123,22 +146,25 @@ void PhylogramPlot::recursivePlot_(GraphicDevice& gDevice, INode& node, double x
       if(yson > maxy) maxy = yson;
     }
     y = (maxy + miny) / 2.;
-    cursor.reset(new Cursor(x2, y, 0));
-    fireBeforeNodeEvent_(gDevice, node, *cursor);
+    cursor.reset(new Cursor(x2, y, 0, hpos));
+    nodeEvent.reset(new DrawINodeEvent(this, &gDevice, &node, *cursor));
+    fireBeforeNodeEvent_(*nodeEvent);
     gDevice.drawLine(x2, miny, x2, maxy);
   }
   
   //Actualize node infos:
   node.getInfos().setX(x2);
   node.getInfos().setY(y);
-  fireAfterNodeEvent_(gDevice, node, *cursor);
+  nodeEvent.reset(new DrawINodeEvent(this, &gDevice, &node, *cursor));
+  fireAfterNodeEvent_(*nodeEvent);
 
   if (drawBranch)
   {
     //Horizontal line
-    fireBeforeBranchEvent_(gDevice, node, *cursor);
+    branchEvent.reset(new PhylogramDrawBranchEvent(this, &gDevice, &node, *cursor, getHorizontalOrientation()));
+    fireBeforeBranchEvent_(*branchEvent);
     gDevice.drawLine(x, y, x2, y);
-    fireAfterBranchEvent_(gDevice, node, *cursor);
+    fireAfterBranchEvent_(*branchEvent);
   }
 }
 

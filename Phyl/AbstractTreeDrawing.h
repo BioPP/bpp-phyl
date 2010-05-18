@@ -43,6 +43,7 @@ knowledge of the CeCILL license and that you accept its terms.
 #include "TreeTemplate.h"
 #include "NodeTemplate.h"
 #include "TreeDrawing.h"
+#include "TreeDrawingListener.h"
 
 // From ths STL:
 #include <vector>
@@ -112,6 +113,39 @@ class DrawINodeEvent :
 
 
 /**
+ * @brief Event class that uses INode object (more efficient than relying on nodes id, but less generic).
+ */
+class DrawIBranchEvent :
+  public DrawBranchEvent
+{
+  private:
+    const INode* node_;
+
+  public:
+    DrawIBranchEvent(const TreeDrawing* source, GraphicDevice* gd, const INode* node, const Cursor& cursor) :
+      DrawBranchEvent(source, gd, node->getId(), cursor),
+      node_(node)
+    {}
+
+    DrawIBranchEvent(const DrawIBranchEvent& dne) :
+      DrawBranchEvent(dne), node_(dne.node_)
+    {}
+    
+    DrawIBranchEvent& operator=(const DrawIBranchEvent& dne)
+    {
+      DrawBranchEvent::operator=(dne);
+      node_ = dne.node_;
+      return *this;
+    }
+
+  public:
+    const INode* getINode() const { return node_; }
+
+};
+
+
+
+/**
  * @brief Partial implementation of the TreeDrawing interface.
  *
  * This basic implementation uses a dedicated NodeInfo structure in combination with the NodeTemplate class.
@@ -126,7 +160,7 @@ class AbstractTreeDrawing:
     double xUnit_;
     double yUnit_;
     std::vector<std::string> drawableProperties_;
-    TreeDrawingSettings settings_;
+    const TreeDrawingSettings* settings_;
     std::vector<TreeDrawingListener*> listeners_;
  
   public:
@@ -142,7 +176,7 @@ class AbstractTreeDrawing:
     {
       for (unsigned int i = 0; i < listeners_.size(); ++i)
       {
-        if (listeners_[i]->isAutonomous())
+        if (atd.listeners_[i]->isAutonomous())
           listeners_[i] = atd.listeners_[i];
         else
           listeners_[i] = dynamic_cast<TreeDrawingListener*>(atd.listeners_[i]->clone());
@@ -161,7 +195,7 @@ class AbstractTreeDrawing:
       listeners_.resize(atd.listeners_.size());
       for (unsigned int i = 0; i < listeners_.size(); ++i)
       {
-        if (listeners_[i]->isAutonomous())
+        if (atd.listeners_[i]->isAutonomous())
           listeners_[i] = atd.listeners_[i];
         else
           listeners_[i] = dynamic_cast<TreeDrawingListener*>(atd.listeners_[i]->clone());
@@ -244,9 +278,8 @@ class AbstractTreeDrawing:
      */
     virtual void drawAtBranch(GraphicDevice& gDevice, const INode& node, const std::string& text, double xOffset = 0, double yOffset = 0, short hpos = GraphicDevice::TEXT_HORIZONTAL_LEFT, short vpos = GraphicDevice::TEXT_VERTICAL_CENTER, double angle = 0) const;
    
-    void setDisplaySettings(TreeDrawingSettings& tds) { settings_ = tds; }
-    TreeDrawingSettings& getDisplaySettings() { return settings_; }
-    const TreeDrawingSettings& getDisplaySettings() const { return settings_; }
+    void setDisplaySettings(const TreeDrawingSettings* tds) { settings_ = tds; }
+    const TreeDrawingSettings* getDisplaySettings() const { return settings_; }
 
     double getXUnit() const { return xUnit_; }
     
@@ -255,10 +288,6 @@ class AbstractTreeDrawing:
     void setXUnit(double xu) { xUnit_ = xu; }
     
     void setYUnit(double yu) { yUnit_ = yu; }
-
-    const std::vector<std::string>& getSupportedDrawableProperties() const { return drawableProperties_; }
-
-    bool isDrawable(const std::string& property) const;
 
     void collapseNode(int nodeId, bool yn) throw (NodeNotFoundException, Exception)
     {
@@ -272,9 +301,21 @@ class AbstractTreeDrawing:
       return tree_->getNode(nodeId)->getInfos().isCollapsed();
     }
 
-    void addTreeDrawingListener(TreeDrawingListener* listener)
+    void addTreeDrawingListener(TreeDrawingListener* listener) throw (Exception)
     {
+      if (find(listeners_.begin(), listeners_.end(), listener) != listeners_.end())
+        throw Exception("AbstractTreeDrawing::addTreeDrawingListener. Listener is already associated to this drawing.");
       listeners_.push_back(listener);
+    }
+
+    void removeTreeDrawingListener(TreeDrawingListener* listener) throw (Exception)
+    {
+      std::vector<TreeDrawingListener*>::iterator it = std::find(listeners_.begin(), listeners_.end(), listener);
+      if (it == listeners_.end())
+        throw Exception("AbstractTreeDrawing::addTreeDrawingListener. Listener is not associated to this drawing, and therefore can't be removed.");
+      listeners_.erase(it);
+      if (!listener->isAutonomous())
+        delete listener;
     }
     
     /**
@@ -285,143 +326,49 @@ class AbstractTreeDrawing:
   protected:
     TreeTemplate<INode>* getTree_() { return tree_.get(); }
     const TreeTemplate<INode>* getTree_() const { return tree_.get(); }
-
-    /**
-     * @brief Add a supported drawable property to the list.
-     *
-     * This method is to be used by subclasses of this class.
-     * Currently no checking is performed regarding the unicity
-     * of property names.
-     */
-    void addSupportedDrawableProperty_(const std::string& property)
+ 
+    void fireBeforeTreeEvent_(const DrawTreeEvent& event) const
     {
-      drawableProperties_.push_back(property);
-    }
-    
-    void fireBeforeTreeEvent_(GraphicDevice& gd) const
-    {
-      DrawTreeEvent event(this, &gd);
       for (unsigned int i = 0; i < listeners_.size(); i++)
-        listeners_[i]->beforeDrawTree(event);
+        if (listeners_[i]->isEnabled())
+          listeners_[i]->beforeDrawTree(event);
     }
 
-    void fireAfterTreeEvent_(GraphicDevice& gd) const
+    void fireAfterTreeEvent_(const DrawTreeEvent& event) const
     {
-      DrawTreeEvent event(this, &gd);
       for (unsigned int i = 0; i < listeners_.size(); i++)
-        listeners_[i]->afterDrawTree(event);
+        if (listeners_[i]->isEnabled())
+          listeners_[i]->afterDrawTree(event);
     }
 
-    void fireBeforeNodeEvent_(GraphicDevice& gd, const INode& node, const Cursor& cursor) const
+    void fireBeforeNodeEvent_(const DrawINodeEvent& event) const
     {
-      DrawINodeEvent event(this, &gd, &node, cursor);
       for (unsigned int i = 0; i < listeners_.size(); i++)
-        listeners_[i]->beforeDrawNode(event);
+        if (listeners_[i]->isEnabled())
+          listeners_[i]->beforeDrawNode(event);
     }
 
-    void fireAfterNodeEvent_(GraphicDevice& gd, const INode& node, const Cursor& cursor) const
+    void fireAfterNodeEvent_(const DrawINodeEvent& event) const
     {
-      DrawINodeEvent event(this, &gd, &node, cursor);
       for (unsigned int i = 0; i < listeners_.size(); i++)
-        listeners_[i]->afterDrawNode(event);
+        if (listeners_[i]->isEnabled())
+          listeners_[i]->afterDrawNode(event);
     }
 
-    void fireBeforeBranchEvent_(GraphicDevice& gd, const INode& node, const Cursor& cursor) const
+    void fireBeforeBranchEvent_(const DrawIBranchEvent& event) const
     {
-      DrawINodeEvent event(this, &gd, &node, cursor);
       for (unsigned int i = 0; i < listeners_.size(); i++)
-        listeners_[i]->beforeDrawBranch(event);
+        if (listeners_[i]->isEnabled())
+          listeners_[i]->beforeDrawBranch(event);
     }
 
-    void fireAfterBranchEvent_(GraphicDevice& gd, const INode& node, const Cursor& cursor) const
+    void fireAfterBranchEvent_(const DrawIBranchEvent& event) const
     {
-      DrawINodeEvent event(this, &gd, &node, cursor);
       for (unsigned int i = 0; i < listeners_.size(); i++)
-        listeners_[i]->afterDrawBranch(event);
+        if (listeners_[i]->isEnabled())
+          listeners_[i]->afterDrawBranch(event);
     }
 };
-
-
-
-/**
- * @brief A TreeDrawingListener implementation that write the names of inner nodes.
- *
- * Collapsed nodes are not labelled.
- *
- * This listener works with TreeDrawing classes, but is more efficient when used with a class that fires DrawINodeEvent events.
- */
-class LabelInnerNodesTreeDrawingListener :
-  public TreeDrawingListenerAdapter
-{
-private:
-  short hpos_;
-  short vpos_;
-  bool autonomous_;
-
-public:
-  LabelInnerNodesTreeDrawingListener(short hpos, short vpos, bool autonomous = false) :
-    hpos_(hpos), vpos_(vpos), autonomous_(autonomous) {}
-
-  LabelInnerNodesTreeDrawingListener* clone() const { return new LabelInnerNodesTreeDrawingListener(*this); }
-
-public :    
-  void afterDrawNode(const DrawNodeEvent& event);
-  bool isAutonomous() const { return autonomous_; }
-
-};
-
-
-
-/**
- * @brief A TreeDrawingListener implementation that label the collapsed nodes.
- *
- * This listener works with TreeDrawing classes, but is more efficient when used with a class that fires DrawINodeEvent events.
- */
-class LabelCollapsedNodesTreeDrawingListener :
-  public TreeDrawingListenerAdapter
-{
-private:
-  short hpos_;
-  short vpos_;
-  bool autonomous_;
-
-public:
-  LabelCollapsedNodesTreeDrawingListener(short hpos, short vpos, bool autonomous = false) :
-    hpos_(hpos), vpos_(vpos), autonomous_(autonomous) {}
-
-  LabelCollapsedNodesTreeDrawingListener* clone() const { return new LabelCollapsedNodesTreeDrawingListener(*this); }
-
-public :    
-  void afterDrawNode(const DrawNodeEvent& event);
-  bool isAutonomous() const { return autonomous_; }
-
-};
-
-/**
- * @brief A TreeDrawingListener implementation that draw the clickable areas around nodes.
- *
- * This listener works with TreeDrawing classes, but is more efficient when used with a class that fires DrawINodeEvent events.
- */
-class NodeClickableAreasTreeDrawingListener :
-  public TreeDrawingListenerAdapter
-{
-private:
-  bool draw_;
-  bool autonomous_;
-
-public:
-  NodeClickableAreasTreeDrawingListener(bool autonomous = false): draw_(true), autonomous_(autonomous) {}
-
-  NodeClickableAreasTreeDrawingListener* clone() const { return new NodeClickableAreasTreeDrawingListener(*this); }
-
-public :    
-  void afterDrawNode(const DrawNodeEvent& event);
-  void enable(bool yn) { draw_ = yn; }
-  bool isEnabled() const { return draw_; }
-  bool isAutonomous() const { return autonomous_; }
-
-};
-
 
 } //end of namespace bpp.
 

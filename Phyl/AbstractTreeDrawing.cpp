@@ -47,7 +47,6 @@ knowledge of the CeCILL license and that you accept its terms.
 
 // From the STL:
 #include <algorithm>
-#include <typeinfo>
 
 using namespace bpp;
 using namespace std;
@@ -85,8 +84,8 @@ throw (NodeNotFoundException)
 
 bool AbstractTreeDrawing::belongsTo(const Point2D<double>& p1, const Point2D<double>& p2) const
 {
-  return (p1.getX() >= p2.getX() - settings_.pointArea && p1.getX() <= p2.getX() + settings_.pointArea
-       && p1.getY() >= p2.getY() - settings_.pointArea && p1.getY() <= p2.getY() + settings_.pointArea);
+  return (p1.getX() >= p2.getX() - settings_->pointArea && p1.getX() <= p2.getX() + settings_->pointArea
+       && p1.getY() >= p2.getY() - settings_->pointArea && p1.getY() <= p2.getY() + settings_->pointArea);
 }
 
 void AbstractTreeDrawing::drawAtNode(GraphicDevice& gDevice, const INode& node, const string& text, double xOffset, double yOffset, short hpos, short vpos, double angle) const
@@ -101,107 +100,4 @@ void AbstractTreeDrawing::drawAtBranch(GraphicDevice& gDevice, const INode& node
     gDevice.drawText((node.getInfos().getX() + node.getFather()->getInfos().getX()) / 2. + xOffset * xUnit_, node.getInfos().getY() + yOffset * yUnit_, text, hpos, vpos, angle);
   }
 }  
-
-bool AbstractTreeDrawing::isDrawable(const string& property) const
-{
-  return find(drawableProperties_.begin(), drawableProperties_.end(), property) != drawableProperties_.end();
-}
-
-void LabelInnerNodesTreeDrawingListener::afterDrawNode(const DrawNodeEvent& event)
-{
-  try
-  {
-    //Pointer-based event (efficient):
-    const DrawINodeEvent& eventC = dynamic_cast<const DrawINodeEvent&>(event);
-    if (!eventC.getINode()->getInfos().isCollapsed())
-    {
-      GraphicDevice* gd = event.getGraphicDevice();
-      Cursor cursor     = event.getCursor();
-      if (eventC.getINode()->hasName())
-      {
-        string name = eventC.getINode()->getName();
-        gd->drawText(cursor.getX(), cursor.getY(), name, hpos_, vpos_, cursor.getAngle());
-      }
-    }
-  }
-  catch(std::bad_cast& e)
-  {
-    //Id-based event (less-efficient):
-    const TreeDrawing* td = event.getTreeDrawing();
-    if (! td->isNodeCollapsed(event.getNodeId()))
-    {
-      GraphicDevice* gd = event.getGraphicDevice();
-      Cursor cursor     = event.getCursor();
-      if (td->getTree()->hasNodeName(event.getNodeId()))
-      {
-        string name = td->getTree()->getNodeName(event.getNodeId());
-        gd->drawText(cursor.getX(), cursor.getY(), name, hpos_, vpos_, cursor.getAngle());
-      }
-    }
-  }
-}
-
-void LabelCollapsedNodesTreeDrawingListener::afterDrawNode(const DrawNodeEvent& event)
-{
-  try
-  {
-    //Pointer-based event (efficient):
-    const DrawINodeEvent& eventC = dynamic_cast<const DrawINodeEvent&>(event);
-    if (eventC.getINode()->getInfos().isCollapsed())
-    {
-      GraphicDevice* gd = event.getGraphicDevice();
-      Cursor cursor     = event.getCursor();
-      unsigned int size = TreeTemplateTools::getNumberOfLeaves(*eventC.getINode());
-      string text = "";
-      if (eventC.getINode()->hasName())
-        text += eventC.getINode()->getName() + " ";
-      text += "(" + TextTools::toString(size) + " leaves)";
-      gd->drawText(cursor.getX(), cursor.getY(), text, hpos_, vpos_, cursor.getAngle());
-    }
-  }
-  catch(std::bad_cast& e)
-  {
-    //Id-based event (less-efficient):
-    const TreeDrawing* td = event.getTreeDrawing();
-    if (td->isNodeCollapsed(event.getNodeId()))
-    {
-      GraphicDevice* gd = event.getGraphicDevice();
-      Cursor cursor     = event.getCursor();
-      unsigned int size = TreeTools::getNumberOfLeaves(*td->getTree(), event.getNodeId());
-      string text = "";
-      if (td->getTree()->hasNodeName(event.getNodeId()))
-        text += td->getTree()->getNodeName(event.getNodeId()) + " ";
-      text += "(" + TextTools::toString(size) + " leaves)";
-      gd->drawText(cursor.getX(), cursor.getY(), text, hpos_, vpos_, cursor.getAngle());
-    }
-  }
-}
-
-void NodeClickableAreasTreeDrawingListener::afterDrawNode(const DrawNodeEvent& event)
-{
-  if (!draw_) return;
-  const TreeDrawing* td = event.getTreeDrawing();
-  double r = td->getDisplaySettings().pointArea;
-  try
-  {
-    //Pointer-based event (efficient):
-    const DrawINodeEvent& eventC = dynamic_cast<const DrawINodeEvent&>(event);
-    if (!eventC.getINode()->getInfos().isCollapsed())
-    {
-      GraphicDevice* gd = event.getGraphicDevice();
-      Cursor cursor     = event.getCursor();
-      gd->drawRect(cursor.getX() - r, cursor.getY() - r, 2 * r, 2 * r);
-    }
-  }
-  catch (std::bad_cast& e)
-  {
-    //Id-based event (less-efficient):
-    if (!td->isNodeCollapsed(event.getNodeId()))
-    {
-      GraphicDevice* gd = event.getGraphicDevice();
-      Cursor cursor     = event.getCursor();
-      gd->drawRect(cursor.getX() - r, cursor.getY() - r, 2 * r, 2 * r);
-    }
-  }
-}
 

@@ -1,4 +1,7 @@
-10/06/09 -*- Version 1.9.0 -*-
+18/05/10 Julien Dutheil
+* new TreeDrawing framework, fully event-driven.
+
+24/03/10 -*- Version 1.9.0 -*-
 
 11/03/10 Julien Dutheil
 * Nexus format now allows lower case keywords ([biopp-devel-forum:287])

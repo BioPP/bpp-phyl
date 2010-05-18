@@ -63,11 +63,7 @@ class AbstractDendrogramPlot:
   public:
     AbstractDendrogramPlot():
       AbstractTreeDrawing(), horOrientation_(ORIENTATION_LEFT_TO_RIGHT), verOrientation_(ORIENTATION_TOP_TO_BOTTOM)
-    {
-      addSupportedDrawableProperty_(PROPERTY_BRLEN);
-      addSupportedDrawableProperty_(PROPERTY_BOOTSTRAP);
-      addSupportedDrawableProperty_(PROPERTY_IDS);
-    }
+    {}
 
   public:
     void setHorizontalOrientation(short orientation) { horOrientation_ = orientation; }
@@ -78,28 +74,14 @@ class AbstractDendrogramPlot:
 
     void plot(GraphicDevice& gDevice) const throw (Exception);
 
-    bool drawProperty(GraphicDevice& gDevice, const std::string& property) const;
-
   protected:
     virtual void drawDendrogram_(GraphicDevice& gDevice) const throw (Exception) = 0;
-
-    void drawNodesId_(GraphicDevice& gDevice) const;
-    
-    void drawLeafNames_(GraphicDevice& gDevice) const;
-    
-    void drawBranchLengthValues_(GraphicDevice& gDevice) const;
-    
-    void drawBootstrapValues_(GraphicDevice& gDevice) const;
    
   public:
     static short ORIENTATION_LEFT_TO_RIGHT;
     static short ORIENTATION_RIGHT_TO_LEFT;
     static short ORIENTATION_TOP_TO_BOTTOM;
     static short ORIENTATION_BOTTOM_TO_TOP;
-
-    static std::string PROPERTY_BRLEN;
-    static std::string PROPERTY_BOOTSTRAP;
-    static std::string PROPERTY_IDS;
 
 };
 

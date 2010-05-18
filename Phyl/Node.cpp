@@ -96,12 +96,18 @@ Node & Node::operator=(const Node & node)
       
 void Node::swap(unsigned int branch1, unsigned int branch2) throw (IndexOutOfBoundsException)
 {
-    Node* node1 = getSon(branch1);
-    Node* node2 = getSon(branch2);
-    removeSon(node1);
-    removeSon(node2);
-    addSon(branch1, node2);
-    addSon(branch2, node1);
+  if (branch1 > branch2)
+  {
+    unsigned int tmp = branch1;
+    branch1 = branch2;
+    branch2 = tmp;
+  }
+  Node* node1 = getSon(branch1);
+  Node* node2 = getSon(branch2);
+  removeSon(node1);
+  removeSon(node2);
+  addSon(branch1, node2);
+  addSon(branch2, node1);
 }
 
 vector<const Node *> Node::getNeighbors() const

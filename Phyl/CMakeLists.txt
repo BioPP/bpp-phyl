@@ -90,6 +90,8 @@ set(CPP_FILES
   MG94.cpp
   YN98.cpp
   AbstractTreeDrawing.cpp
+  TreeDrawingListener.cpp
+  TreeDrawingDisplayControler.cpp
   AbstractDendrogramPlot.cpp
   PhylogramPlot.cpp
   CladogramPlot.cpp
@@ -221,6 +223,8 @@ set(H_FILES
   MG94.h
   YN98.h
   TreeDrawing.h
+  TreeDrawingListener.h
+  TreeDrawingDisplayControler.h
   AbstractTreeDrawing.h
   AbstractDendrogramPlot.h
   PhylogramPlot.h

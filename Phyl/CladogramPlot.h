@@ -48,6 +48,23 @@ knowledge of the CeCILL license and that you accept its terms.
 namespace bpp
 {
 
+class CladogramDrawBranchEvent :
+  public DrawIBranchEvent
+{
+  private:
+    double orientation_;
+    double length_;
+
+  public:
+    CladogramDrawBranchEvent(const TreeDrawing* source, GraphicDevice* gd, const INode* node, double length_, const Cursor& cursor, short orientation);
+
+  public:
+    Cursor getBranchCursor(double position) const;
+    
+};
+
+
+
 /**
  * @brief Cladogram representation of trees.
  *

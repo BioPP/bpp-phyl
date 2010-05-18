@@ -45,6 +45,22 @@ knowledge of the CeCILL license and that you accept its terms.
 namespace bpp
 {
 
+class PhylogramDrawBranchEvent :
+  public DrawIBranchEvent
+{
+  private:
+    double orientation_;
+
+  public:
+    PhylogramDrawBranchEvent(const TreeDrawing* source, GraphicDevice* gd, const INode* node, const Cursor& cursor, short orientation);
+
+  public:
+    Cursor getBranchCursor(double position) const;
+    
+};
+
+
+  
 /**
  * @brief Phylogram representation of trees.
  *

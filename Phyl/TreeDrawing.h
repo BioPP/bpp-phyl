@@ -52,8 +52,9 @@ knowledge of the CeCILL license and that you accept its terms.
 namespace bpp
 {
 
-//Forward declaration:
+//Forward declarations:
 class TreeDrawing;
+class TreeDrawingListener;
 
 /**
  * @brief A set of options to tune the display of a TreeDrawing object.
@@ -61,15 +62,19 @@ class TreeDrawing;
 class TreeDrawingSettings
 {
   public:
-    bool drawLeafNames;
     Font fontLeafNames;
+    Font fontBranchLengths;
+    Font fontBootstrapValues;
+    Font fontNodesId;
     double pointArea; //this specifies the radius of the point area
     //More options will be added in the future...
     
   public:
     TreeDrawingSettings() :
-      drawLeafNames(true),
       fontLeafNames("Courier", Font::STYLE_NORMAL, Font::WEIGHT_NORMAL, 12),
+      fontBranchLengths("Courier", Font::STYLE_ITALIC, Font::WEIGHT_NORMAL, 10),
+      fontBootstrapValues("Courier", Font::STYLE_NORMAL, Font::WEIGHT_NORMAL, 10),
+      fontNodesId("Courier", Font::STYLE_NORMAL, Font::WEIGHT_BOLD, 12),
       pointArea(5)
   {}
 };
@@ -84,15 +89,29 @@ private:
   double x_;
   double y_;
   double angle_;
+  short hpos_;
+  short vpos_;
 
 public:
-  Cursor(double x, double y, double angle = 0) :
-    x_(x), y_(y), angle_(angle) {}
+  Cursor(double x, double y, double angle = 0, short hpos = GraphicDevice::TEXT_HORIZONTAL_CENTER, short vpos = GraphicDevice::TEXT_VERTICAL_CENTER) :
+    x_(x), y_(y), angle_(angle), hpos_(hpos), vpos_(vpos) {}
 
 public:
   double getX() const { return x_; }
   double getY() const { return y_; }
   double getAngle() const { return angle_; }
+  short getHPos() const { return hpos_; }
+  short getVPos() const { return vpos_; }
+  double addX(double increment) { return x_ += increment; }
+  double addY(double increment) { return y_ += increment; }
+
+  Cursor getTranslation(double x, double y) const
+  {
+    Cursor c = *this;
+    c.addX(x);
+    c.addY(y);
+    return c;
+  }
 
 };
 
@@ -142,6 +161,52 @@ class DrawNodeEvent
 /**
  * @brief Event class used by TreeDrawing classes.
  */
+class DrawBranchEvent
+{
+  private:
+    const TreeDrawing* td_;
+    GraphicDevice* gd_;
+    int id_;
+    Cursor cursor_;
+
+  public:
+    DrawBranchEvent(const TreeDrawing* source, GraphicDevice* gd, int nodeId, const Cursor& cursor) :
+      td_(source), gd_(gd), id_(nodeId), cursor_(cursor)
+    {}
+
+    DrawBranchEvent(const DrawBranchEvent& dne) :
+      td_(dne.td_), gd_(dne.gd_), id_(dne.id_), cursor_(dne.cursor_)
+    {}
+    
+    DrawBranchEvent& operator=(const DrawBranchEvent& dne)
+    {
+      td_     = dne.td_;
+      gd_     = dne.gd_;
+      id_     = dne.id_;
+      cursor_ = dne.cursor_;
+      return *this;
+    }
+
+    virtual ~DrawBranchEvent() {}
+
+  public:
+    virtual const TreeDrawing* getTreeDrawing() const { return td_; }
+    virtual GraphicDevice* getGraphicDevice() const { return gd_; }
+    virtual int getNodeId() const { return id_; }
+    virtual const Cursor& getCursor() const { return cursor_; }
+    /**
+     * @return The coordinate of a point on the branch.
+     * @param position The position of the point on the branch, as a proportion of the total branch length.
+     */
+    virtual Cursor getBranchCursor(double position) const = 0;
+
+};
+
+
+
+/**
+ * @brief Event class used by TreeDrawing classes.
+ */
 class DrawTreeEvent
 {
   private:
@@ -170,53 +235,6 @@ class DrawTreeEvent
     virtual const TreeDrawing* getTreeDrawing() const { return td_; }
     virtual GraphicDevice* getGraphicDevice() const { return gd_; }
 
-};
-
-
-
-/**
- * @brief Interface allowing to capture drawing events.
- *
- * Implementing this interface allows you to easily and efficiently tune a plot,
- * and/or add elements to it.
- */
-class TreeDrawingListener :
-  public virtual Clonable
-{
-public:
-#ifndef NO_VIRTUAL_COV
-  TreeDrawingListener*
-#else
-  Clonable*
-#endif
-  clone() const = 0;
-
-  virtual void beforeDrawTree(const DrawTreeEvent& event) = 0;
-  virtual void afterDrawTree(const DrawTreeEvent& event) = 0;
-  virtual void beforeDrawNode(const DrawNodeEvent& event) = 0;
-  virtual void afterDrawNode(const DrawNodeEvent& event) = 0;
-  virtual void beforeDrawBranch(const DrawNodeEvent& event) = 0;
-  virtual void afterDrawBranch(const DrawNodeEvent& event) = 0;
-
-  /**
-   * @brief Tells if the listener is autonomous. If so, it
-   * will never be hard-copied or deleted.
-   */
-  virtual bool isAutonomous() const = 0;
-};
-
-
-
-class TreeDrawingListenerAdapter :
-  public virtual TreeDrawingListener
-{
-public:
-  void beforeDrawTree(const DrawTreeEvent& event) {}
-  void afterDrawTree(const DrawTreeEvent& event) {}
-  void beforeDrawNode(const DrawNodeEvent& event) {}
-  void afterDrawNode(const DrawNodeEvent& event) {}
-  void beforeDrawBranch(const DrawNodeEvent& event) {}
-  void afterDrawBranch(const DrawNodeEvent& event) {}
 };
 
 
@@ -342,28 +360,6 @@ class TreeDrawing:
      */
 
     /**
-     * @brief Plot a property on the tree.
-     *
-     * @param gDevice the graphic device where to draw.
-     * @param property The name of the property to plot.
-     * @return True is the property could be drawn properly.
-     */
-    virtual bool drawProperty(GraphicDevice& gDevice, const std::string& property) const = 0;
-
-    /**
-     * @return The list of supported drawable properties by the plotting algorithm.
-     */
-    virtual const std::vector<std::string>& getSupportedDrawableProperties() const = 0;
-
-    /**
-     * @param property The name of the property to test.
-     * @return True if the given property can be plotted on the tree.
-     */
-    virtual bool isDrawable(const std::string& property) const = 0;
-
-    /** @} */
-
-    /**
      * @brief Collapsing nodes
      *
      * @{
@@ -377,20 +373,28 @@ class TreeDrawing:
      *
      * @{
      */
-    virtual void setDisplaySettings(TreeDrawingSettings& tds) = 0;
-    virtual TreeDrawingSettings& getDisplaySettings() = 0;
-    virtual const TreeDrawingSettings& getDisplaySettings() const = 0;
+    virtual void setDisplaySettings(const TreeDrawingSettings* tds) = 0;
+    virtual const TreeDrawingSettings* getDisplaySettings() const = 0;
     /** @} */
 
     /**
-     * @brief Add a drawng listener to this instance.
+     * @brief Add a drawing listener to this instance.
      *
      * @param listener a pointer toward an object implementing the TreeDrawingListener interface.
-     * This object will then be owned by the class and copied and deleted if/when needed.
+     * This object will then be owned by the class and copied and deleted if/when needed, unless
+     * it is autonomous.
+     * @see TreeDrawingListener
      */
     virtual void addTreeDrawingListener(TreeDrawingListener* listener) = 0;
      
-};
+    /**
+     * @brief Remove a drawing listener from this instance.
+     *
+     * @param listener a pointer toward an object implementing the TreeDrawingListener interface.
+     * If the listener is autonomous, it will be deleted.
+     */
+    virtual void removeTreeDrawingListener(TreeDrawingListener* listener) = 0;
+    };
 
 } //end of namespace bpp.
 
