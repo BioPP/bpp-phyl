@@ -181,7 +181,7 @@ class TreeTemplateTools
     }
 
     /**
-     * @brief Remove a leaf node and its parent node, while correcting fro branch lengths.
+     * @brief Remove a leaf node and its parent node, while correcting for branch lengths.
      *
      * @param tree The tree to edit.
      * @param leafName The name of the leaf node.
@@ -191,7 +191,7 @@ class TreeTemplateTools
     static void dropLeaf(TreeTemplate<N>& tree, const std::string& leafName) throw (NodeNotFoundException, Exception)
     {
       N* leaf = tree.getNode(leafName);
-      if (!leaf->hasfather())
+      if (!leaf->hasFather())
         throw Exception("TreeTemplateTools::dropLeaf(). Leaf is the only node in the tree, can't remove it.");
       N* parent = leaf->getFather();
       if (parent->getNumberOfSons() > 2)
@@ -203,7 +203,7 @@ class TreeTemplateTools
       else if (parent->getNumberOfSons() == 2)
       {
         //We have to delete the parent node as well:
-        N* brother = parent->getson(0);
+        N* brother = parent->getSon(0);
         if (brother == leaf) brother = parent->getSon(1);
         if (!parent->hasFather())
         {
@@ -212,7 +212,7 @@ class TreeTemplateTools
           {
             brother->setDistanceToFather(brother->getDistanceToFather() + leaf->getDistanceToFather());
           }
-          tree->setRootNode(brother);
+          tree.setRootNode(brother);
           delete parent;
           delete leaf;
         }
@@ -223,7 +223,7 @@ class TreeTemplateTools
           {
             brother->setDistanceToFather(brother->getDistanceToFather() + parent->getDistanceToFather());
           }
-          unsigned int pos = gParent->getsonPosition(parent);
+          unsigned int pos = gParent->getSonPosition(parent);
           gParent->setSon(pos, brother);
           delete parent;
           delete leaf;
@@ -233,6 +233,61 @@ class TreeTemplateTools
       {
         //Dunno what to do in that case :(
         throw Exception("TreeTemplateTools::dropLeaf. Parent node as only one child, I don't know what to do in that case :(");
+      }
+    }
+
+    /**
+     * @brief Remove a subtree defined by its root node and its parent node, while correcting for branch lengths.
+     *
+     * @param tree The tree to edit.
+     * @param subtree The subtree to remove, defined by its root node.
+     * @throw Exception If something unexpected happens :s 
+     */
+    template<class N>
+    static void dropSubtree(TreeTemplate<N>& tree, Node* subtree) throw (Exception)
+    {
+      if (!subtree->hasFather())
+        throw Exception("TreeTemplateTools::dropSubtree(). Trying to remove the full tree!");
+      N* parent = subtree->getFather();
+      if (parent->getNumberOfSons() > 2)
+      {
+        //The easy case:
+        parent->removeSon(subtree);
+        delete subtree;
+      }
+      else if (parent->getNumberOfSons() == 2)
+      {
+        //We have to delete the parent node as well:
+        N* brother = parent->getSon(0);
+        if (brother == subtree) brother = parent->getSon(1);
+        if (!parent->hasFather())
+        {
+          //The brother becomes the root:
+          if (subtree->hasDistanceToFather() && brother->hasDistanceToFather())
+          {
+            brother->setDistanceToFather(brother->getDistanceToFather() + subtree->getDistanceToFather());
+          }
+          tree.setRootNode(brother);
+          delete parent;
+          delete subtree;
+        }
+        else
+        {
+          N* gParent = parent->getFather();
+          if (brother->hasDistanceToFather() && parent->hasDistanceToFather())
+          {
+            brother->setDistanceToFather(brother->getDistanceToFather() + parent->getDistanceToFather());
+          }
+          unsigned int pos = gParent->getSonPosition(parent);
+          gParent->setSon(pos, brother);
+          delete parent;
+          delete subtree;
+        }
+      }
+      else
+      {
+        //Dunno what to do in that case :(
+        throw Exception("TreeTemplateTools::dropSubtree. Parent node as only one child, I don't know what to do in that case :(");
       }
     }
 
