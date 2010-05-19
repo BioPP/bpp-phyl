@@ -21,6 +21,7 @@
 #include "RateDistributionFactory.h"
 #include "SubstitutionModelSet.h"
 #include "RE08.h"
+#include "COA.h"
 
 #include "WordReversibleSubstitutionModel.h"
 #include "TripletReversibleSubstitutionModel.h"
