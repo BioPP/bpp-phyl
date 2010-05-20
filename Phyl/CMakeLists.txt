@@ -89,6 +89,7 @@ set(CPP_FILES
   GY94.cpp
   MG94.cpp
   YN98.cpp
+  YNGKP_M1.cpp
   AbstractTreeDrawing.cpp
   TreeDrawingListener.cpp
   TreeDrawingDisplayControler.cpp
@@ -97,6 +98,7 @@ set(CPP_FILES
   CladogramPlot.cpp
   PhyloStatistics.cpp
   MixedSubstitutionModel.cpp
+  MixtureOfSubstitutionModels.cpp
   COA.cpp
   )
 set(H_FILES
@@ -223,6 +225,7 @@ set(H_FILES
   GY94.h
   MG94.h
   YN98.h
+  YNGKP_M1.h
   TreeDrawing.h
   TreeDrawingListener.h
   TreeDrawingDisplayControler.h
@@ -232,6 +235,7 @@ set(H_FILES
   CladogramPlot.h
   PhyloStatistics.h
   MixedSubstitutionModel.h
+  MixtureOfSubstitutionModels.h
   COA.h
   )
 

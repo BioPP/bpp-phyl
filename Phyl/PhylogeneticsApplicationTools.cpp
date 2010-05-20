@@ -188,7 +188,7 @@ SubstitutionModel* PhylogeneticsApplicationTools::getSubstitutionModelDefaultIns
       unparsedParameterValues[it->first] = it->second;
     }
 
-    model = new MixedSubstitutionModel(alphabet,pSM,mdist);
+    model = new MixtureOfSubstitutionModels(alphabet,pSM,mdist);
 
     vector<string> v = model->getParameters().getParameterNames();
 
@@ -199,7 +199,7 @@ SubstitutionModel* PhylogeneticsApplicationTools::getSubstitutionModelDefaultIns
     }
 
     if (verbose)
-      ApplicationTools::displayResult("Mixed Substitution Model", nestedModelDescription );
+      ApplicationTools::displayResult("Mixture Of Substitution Models", nestedModelDescription );
   }
 
   // /////////////////////////////////
@@ -525,6 +525,40 @@ SubstitutionModel* PhylogeneticsApplicationTools::getSubstitutionModelDefaultIns
     FrequenciesSet* codonFreqs = FrequenciesSet::getFrequenciesSetForCodons(opt, *pgc);
     model = new YN98(pgc, codonFreqs);
   }
+
+  // //////////////////////////////////////
+  // YNGKP_M1
+  // //////////////////////////////////////
+
+  else if (modelName == "YNGKP_M1")
+    {
+      if (!AlphabetTools::isCodonAlphabet(alphabet))
+        throw Exception("Alphabet should be Codon Alphabet.");
+
+      const CodonAlphabet* pCA = (const CodonAlphabet*)(alphabet);
+
+      if (args.find("genetic_code") == args.end())
+        args["genetic_code"]=pCA->getAlphabetType();
+
+      GeneticCode* pgc = SequenceApplicationTools::getGeneticCode(dynamic_cast<const NucleicAlphabet*>(pCA->getNAlphabet(0)),args["genetic_code"]);
+      if (pgc->getSourceAlphabet()->getAlphabetType() != pCA->getAlphabetType())
+        throw Exception("Mismatch between genetic code and codon alphabet");
+
+      string freqOpt = ApplicationTools::getStringParameter("codon_freqs", args, "F0");
+      short opt = 0;
+      if (freqOpt == "F0")
+        opt = FrequenciesSet::F0;
+      else if (freqOpt == "F1X4")
+        opt = FrequenciesSet::F1X4;
+      else if (freqOpt == "F3X4")
+        opt = FrequenciesSet::F3X4;
+      else if (freqOpt == "F61")
+        opt = FrequenciesSet::F61;
+      else
+        throw Exception("Unvalid codon frequency option. Should be one of F0, F1X4, F3X4 or F61");
+      FrequenciesSet* codonFreqs = FrequenciesSet::getFrequenciesSetForCodons(opt, *pgc);
+      model = new YNGKP_M1(pgc, codonFreqs);
+    }
 
 
   // /////////////////////////////////
@@ -1696,6 +1730,7 @@ throw (Exception)
     }
 
     if (verbose && nstep > 1) ApplicationTools::displayResult("# of precision steps", TextTools::toString(nstep));
+    parametersToEstimate.matchParametersValues(tl->getParameters());
     n = OptimizationTools::optimizeNumericalParameters(
       dynamic_cast<DiscreteRatesAcrossSitesTreeLikelihood*>(tl), parametersToEstimate,
       0, nstep, tolerance, nbEvalMax, messageHandler, profiler, reparam, optVerbose, optMethod);
@@ -1716,6 +1751,7 @@ throw (Exception)
         reparam, optVerbose, optMethod, nniAlgo);
     }
 
+    parametersToEstimate.matchParametersValues(tl->getParameters());
     n = OptimizationTools::optimizeNumericalParameters2(
       dynamic_cast<DiscreteRatesAcrossSitesTreeLikelihood*>(tl), parametersToEstimate,
       0, tolerance, nbEvalMax, messageHandler, profiler, reparam, optVerbose, optMethod);
