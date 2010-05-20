@@ -249,13 +249,13 @@ class Tree:
 		 *
 		 * @{
 		 */
-		virtual double getDistanceToFather(int nodeId) const throw (NodeNotFoundException) = 0;
+		virtual double getDistanceToFather(int nodeId) const = 0;
 		
-		virtual void setDistanceToFather(int nodeId, double length) throw (NodeNotFoundException) = 0;
+		virtual void setDistanceToFather(int nodeId, double length) = 0;
 		
-		virtual void deleteDistanceToFather(int nodeId) throw (NodeNotFoundException) = 0;
+		virtual void deleteDistanceToFather(int nodeId) = 0;
 		
-		virtual bool hasDistanceToFather(int nodeId) const throw (NodeNotFoundException) = 0;
+		virtual bool hasDistanceToFather(int nodeId) const = 0;
 		/** @} */
 
 		/**

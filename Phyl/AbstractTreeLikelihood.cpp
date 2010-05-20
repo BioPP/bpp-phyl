@@ -81,7 +81,7 @@ VVdouble AbstractTreeLikelihood::getLikelihoodForEachSiteForEachState() const
 VVdouble AbstractTreeLikelihood::getLogLikelihoodForEachSiteForEachState() const
 {
 	VVdouble l(getNumberOfSites());
-	for(unsigned int i = 0; i < l.size(); i++)
+	for (unsigned int i = 0; i < l.size(); i++)
   {
 		Vdouble * l_i = & l[i];
 		l_i->resize(getNumberOfStates());

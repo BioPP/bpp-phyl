@@ -246,8 +246,8 @@ class AbstractTreeLikelihood :
       computeSecondOrderDerivatives_(lik.computeSecondOrderDerivatives_),
       initialized_(lik.initialized_) 
     {
-      if(lik.data_) data_ = dynamic_cast<SiteContainer *>(lik.data_->clone());
-      if(lik.tree_) tree_ = lik.tree_->clone();
+      if (lik.data_) data_ = dynamic_cast<SiteContainer *>(lik.data_->clone());
+      if (lik.tree_) tree_ = lik.tree_->clone();
     }
 
     AbstractTreeLikelihood & operator=(const AbstractTreeLikelihood & lik)

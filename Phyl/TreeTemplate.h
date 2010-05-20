@@ -187,13 +187,13 @@ class TreeTemplate:
 
 		bool isRoot(int nodeId) const throw (NodeNotFoundException) { return TreeTemplateTools::isRoot(*getNode(nodeId)); }
 
-		double getDistanceToFather(int nodeId) const throw (NodeNotFoundException) { return getNode(nodeId)->getDistanceToFather(); }
+		double getDistanceToFather(int nodeId) const { return getNode(nodeId)->getDistanceToFather(); }
 		
-		void setDistanceToFather(int nodeId, double length) throw (NodeNotFoundException) { getNode(nodeId)->setDistanceToFather(length); }
+		void setDistanceToFather(int nodeId, double length) { getNode(nodeId)->setDistanceToFather(length); }
 		
-		void deleteDistanceToFather(int nodeId) throw (NodeNotFoundException) { getNode(nodeId)->deleteDistanceToFather(); }
+		void deleteDistanceToFather(int nodeId) { getNode(nodeId)->deleteDistanceToFather(); }
 		
-		bool hasDistanceToFather(int nodeId) const throw (NodeNotFoundException) { return getNode(nodeId)->hasDistanceToFather(); }
+		bool hasDistanceToFather(int nodeId) const { return getNode(nodeId)->hasDistanceToFather(); }
 
 		bool hasNodeProperty(int nodeId, const std::string& name) const throw (NodeNotFoundException) { return getNode(nodeId)->hasNodeProperty(name); }
 	

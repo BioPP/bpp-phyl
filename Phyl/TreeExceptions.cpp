@@ -49,13 +49,9 @@ using namespace bpp;
 
 /******************************************************************************/
 
-NodeException::NodeException(const std::string& text, const Node* node) :
-  Exception("NodeException: " + text + (node != 0 ? "(id:" + TextTools::toString(node->getId()) + ")" : "")),
-  node_(node), nodeId_(node->getId()) {}
-NodeException::NodeException(const std::string& text, int nodeId) :
-  Exception("NodeException: " + text + "(id:" + TextTools::toString(nodeId) + ")"),
-  node_(0),
-  nodeId_(nodeId) {}
+NodePException::NodePException(const std::string& text, const Node* node) :
+    NodeException(text, node->getId()), node_(node)
+{}
 
 /******************************************************************************/
 

@@ -42,6 +42,7 @@
 
 // From Utils:
 #include <Utils/Exceptions.h>
+#include <Utils/TextTools.h>
 
 // From the STL:
 #include <string>
@@ -57,40 +58,69 @@ class Tree;
 class NodeException :
   public Exception
 {
-private:
-  const Node* node_;
+protected:
   int nodeId_;
 
 public:
   /**
-   * @brief Build a new NodeException.
-   * @param text A message to be passed to the exception hierarchy.
-   * @param node A const pointer toward the node that threw the exception.
-   */
-  NodeException(const std::string& text, const Node* node = 0);
-
-  NodeException(const NodeException& nex) :
-    Exception(nex),
-    node_(nex.node_),
-    nodeId_(nex.nodeId_)
-  {}
-
-  NodeException& operator=(const NodeException& nex)
-  {
-    Exception::operator=(nex);
-    node_ = nex.node_;
-    nodeId_ = nex.nodeId_;
-    return *this;
-  }
-
-  /**
-   * @brief Build a new NodeException.
+   * @brief Build a new NodePException.
    * @param text A message to be passed to the exception hierarchy.
    * @param nodeId The id of the node that threw the exception.
    */
-  NodeException(const std::string& text, int nodeId);
+  NodeException(const std::string& text, int nodeId) :
+    Exception("NodeException: " + text + "(id:" + TextTools::toString(nodeId) + ")"),
+    nodeId_(nodeId) {}
 
   virtual ~NodeException() throw () {}
+
+public:
+  /**
+   * @brief Get the id of node that threw the exception.
+   *
+   * @return The id of the faulty node.
+   */
+  virtual int getNodeId() const { return nodeId_; }
+};
+
+
+/**
+ * @brief General exception thrown when something is wrong with a particular node.
+ */
+class NodePException :
+  public NodeException
+{
+private:
+  const Node* node_;
+
+public:
+  /**
+   * @brief Build a new NodePException.
+   * @param text A message to be passed to the exception hierarchy.
+   * @param node A const pointer toward the node that threw the exception.
+   */
+  NodePException(const std::string& text, const Node* node = 0);
+
+  /**
+   * @brief Build a new NodePException.
+   * @param text A message to be passed to the exception hierarchy.
+   * @param nodeId The id of the node that threw the exception.
+   */
+  NodePException(const std::string& text, int nodeId) :
+    NodeException(text, nodeId), node_(0) {}
+
+  NodePException(const NodePException& nex) :
+    NodeException(nex),
+    node_(nex.node_)
+  {}
+
+  NodePException& operator=(const NodePException& nex)
+  {
+    NodeException::operator=(nex);
+    node_ = nex.node_;
+    return *this;
+  }
+
+  virtual ~NodePException() throw () {}
 
 public:
   /**
@@ -111,7 +141,7 @@ public:
  * @brief General exception thrown if a property could not be found.
  */
 class PropertyNotFoundException :
-  public NodeException
+  public NodePException
 {
 private:
   std::string propertyName_;
@@ -125,7 +155,7 @@ public:
    * @param node A const pointer toward the node that threw the exception.
    */
   PropertyNotFoundException(const std::string& text, const std::string& propertyName, const Node* node = 0) :
-    NodeException("Property not found: " + propertyName + ". " + text, node),
+    NodePException("Property not found: " + propertyName + ". " + text, node),
     propertyName_(propertyName) {}
 
   /**
@@ -136,7 +166,7 @@ public:
    * @param nodeId The id of the node that threw the exception.
    */
   PropertyNotFoundException(const std::string& text, const std::string& propertyName, int nodeId) :
-    NodeException("Property not found: " + propertyName + ". " + text, nodeId),
+    NodePException("Property not found: " + propertyName + ". " + text, nodeId),
     propertyName_(propertyName) {}
 
   virtual ~PropertyNotFoundException() throw () {}

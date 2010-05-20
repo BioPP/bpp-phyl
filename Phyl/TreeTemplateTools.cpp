@@ -135,15 +135,14 @@ unsigned int TreeTemplateTools::getDepth(const Node& node)
 
 /******************************************************************************/
 
-double TreeTemplateTools::getHeight(const Node& node) throw (NodeException)
+double TreeTemplateTools::getHeight(const Node& node) throw (NodePException)
 {
   double d = 0;
   for(unsigned int i = 0; i < node.getNumberOfSons(); i++)
   {
     const Node* son = node[i];
     double dist = 0;
-    if (son->hasDistanceToFather()) dist = son->getDistanceToFather();
-    else throw NodeException("Node without branch length.", son);
+    son->getDistanceToFather();
     double c = getHeight(*son) + dist;
     if(c > d) d = c;
   }
@@ -152,15 +151,14 @@ double TreeTemplateTools::getHeight(const Node& node) throw (NodeException)
 
 /******************************************************************************/
 
-double TreeTemplateTools::getHeights(const Node& node, map<const Node*, double>& heights) throw (NodeException)
+double TreeTemplateTools::getHeights(const Node& node, map<const Node*, double>& heights) throw (NodePException)
 {
   double d = 0;
   for(unsigned int i = 0; i < node.getNumberOfSons(); i++)
   {
     const Node * son = node[i];
     double dist = 0;
-    if(son->hasDistanceToFather()) dist = son->getDistanceToFather();
-    else throw NodeException("Node without branch length.", son);
+    dist = son->getDistanceToFather();
     double c = getHeights(* son, heights) + dist;
     if(c > d) d = c;
   }
@@ -551,11 +549,10 @@ string TreeTemplateTools::treeToParenthesis(const TreeTemplate<Node>& tree, bool
 
 /******************************************************************************/
 
-Vdouble TreeTemplateTools::getBranchLengths(const Node& node) throw (NodeException)
+Vdouble TreeTemplateTools::getBranchLengths(const Node& node) throw (NodePException)
 {
   Vdouble brLen(1);
-  if(node.hasDistanceToFather()) brLen[0] = node.getDistanceToFather();
-  else throw NodeException("TreeTools::getbranchLengths(). No branch length.", &node);
+  node.getDistanceToFather();
   for(unsigned int i = 0; i < node.getNumberOfSons(); i++)
   {
     Vdouble sonBrLen = getBranchLengths(* node.getSon(i));
@@ -566,9 +563,9 @@ Vdouble TreeTemplateTools::getBranchLengths(const Node& node) throw (NodeExcepti
 
 /******************************************************************************/
 
-double TreeTemplateTools::getTotalLength(const Node& node, bool includeAncestor) throw (NodeException)
+double TreeTemplateTools::getTotalLength(const Node& node, bool includeAncestor) throw (NodePException)
 {
-  if(includeAncestor && !node.hasDistanceToFather()) throw NodeException("TreeTools::getTotalLength(). No branch length.", &node);
+  if(includeAncestor && !node.hasDistanceToFather()) throw NodePException("TreeTools::getTotalLength(). No branch length.", &node);
   double length = includeAncestor ? node.getDistanceToFather() : 0;
   for(unsigned int i = 0; i < node.getNumberOfSons(); i++)
   {
@@ -612,11 +609,10 @@ void TreeTemplateTools::setVoidBranchLengths(Node& node, double brLen)
 
 /******************************************************************************/
 
-void TreeTemplateTools::scaleTree(Node& node, double factor) throw (NodeException)
+void TreeTemplateTools::scaleTree(Node& node, double factor) throw (NodePException)
 {
   if(node.hasFather())
   {
-    if(!node.hasDistanceToFather()) throw NodeException("TreeTemplateTools::scaleTree(). Branch with no length", &node);
     node.setDistanceToFather(node.getDistanceToFather() * factor);
   }
   for(unsigned int i = 0; i < node.getNumberOfSons(); i++)

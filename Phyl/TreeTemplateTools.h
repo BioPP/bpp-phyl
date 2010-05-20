@@ -598,9 +598,9 @@ class TreeTemplateTools
      *
      * @param node The node defining the subtree to check.
      * @return The height of the subtree.
-     * @throw NodeException If a branch length is lacking.
+     * @throw NodePException If a branch length is lacking.
      */ 
-    static double getHeight(const Node& node) throw (NodeException);
+    static double getHeight(const Node& node) throw (NodePException);
 
     /**
      * @brief Get the heights of all nodes within a subtree defined by node 'node', i.e. the maximum
@@ -611,9 +611,9 @@ class TreeTemplateTools
      * @param node The node defining the subtree to check.
      * @param heights The map that will contain all the heights of the nodes, with node pointers as keys.
      * @return The height of the subtree.
-     * @throw NodeException If a branch length is lacking.
+     * @throw NodePException If a branch length is lacking.
      */ 
-    static double getHeights(const Node& node, std::map<const Node*, double>& heights) throw (NodeException);
+    static double getHeights(const Node& node, std::map<const Node*, double>& heights) throw (NodePException);
 
     /**
      * @brief Tell is a subtree is multifurcating.
@@ -686,9 +686,9 @@ class TreeTemplateTools
      *
      * @param node The root node of the subtree.
      * @return A vector with all branch lengths.
-     * @throw NodeException If a branch length is lacking.
+     * @throw NodePException If a branch length is lacking.
      */
-    static Vdouble getBranchLengths(const Node & node) throw (NodeException);
+    static Vdouble getBranchLengths(const Node & node) throw (NodePException);
 
     /**
      * @brief Get the total length (sum of all branch lengths) of a subtree.
@@ -697,9 +697,9 @@ class TreeTemplateTools
      * @param includeAncestor Tell if the branch length of the most ancient node should be included in the counting.
      * (this should be set to false if this node is the root of the tree for instance).
       * @return The total length of the subtree.
-     * @throw NodeException If a branch length is lacking.
+     * @throw NodePException If a branch length is lacking.
      */
-    static double getTotalLength(const Node & node, bool includeAncestor = true) throw (NodeException);
+    static double getTotalLength(const Node & node, bool includeAncestor = true) throw (NodePException);
     
     /**
      * @brief Set all the branch lengths of a subtree.
@@ -731,9 +731,9 @@ class TreeTemplateTools
      *
      * @param node   The root node of the subtree to scale.
      * @param factor The factor to multiply all branch lengths with.
-     * @throw NodeException If a branch length is lacking.
+     * @throw NodePException If a branch length is lacking.
      */
-    static void scaleTree(Node & node, double factor) throw (NodeException);
+    static void scaleTree(Node & node, double factor) throw (NodePException);
    
     /**
      * @brief Get the total distance between to nodes.

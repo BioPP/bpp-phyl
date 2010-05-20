@@ -227,9 +227,9 @@ class Node:
      * 
      * @return The name associated to this node.
      */
-    virtual std::string getName() const throw (NodeException)
+    virtual std::string getName() const throw (NodePException)
     {
-      if(!hasName()) throw NodeException("Node::getName: no name associated to this node.", this);
+      if(!hasName()) throw NodePException("Node::getName: no name associated to this node.", this);
       return * name_;
     }
         
@@ -274,10 +274,11 @@ class Node:
      * 
      * @return The distance to the father node.
      */     
-    virtual double getDistanceToFather() const throw (NodeException) 
+    virtual double getDistanceToFather() const 
     {
-      if(!hasDistanceToFather()) throw NodeException("Node::getDistanceToFather: Node has no distance." , this);
-      return * distanceToFather_;
+      if (!hasDistanceToFather())
+        throw NodePException("Node::getDistanceToFather: Node has no distance." , this);
+      return *distanceToFather_;
     }
         
     /**
@@ -291,7 +292,8 @@ class Node:
      */
     virtual void setDistanceToFather(double distance)
     { 
-      delete distanceToFather_;
+      if (distanceToFather_)
+        delete distanceToFather_;
       distanceToFather_ = new double(distance);
     }
     
@@ -300,7 +302,8 @@ class Node:
      */
     virtual void deleteDistanceToFather()
     {
-      delete distanceToFather_;
+      if (distanceToFather_)
+        delete distanceToFather_;
       distanceToFather_ = 0;
     }
         
@@ -396,7 +399,7 @@ class Node:
       return sons_[pos];
     }
         
-    virtual void addSon(unsigned int pos, Node* node) throw (NullPointerException, NodeException)
+    virtual void addSon(unsigned int pos, Node* node) throw (NullPointerException, NodePException)
     {
       if (!node)
         throw NullPointerException("Node::addSon(). Empty node given as input.");
@@ -408,18 +411,18 @@ class Node:
       node->father_ = this;
     }
 
-    virtual void addSon(Node* node) throw (NullPointerException, NodeException)
+    virtual void addSon(Node* node) throw (NullPointerException, NodePException)
     {
       if (!node)
         throw NullPointerException("Node::addSon(). Empty node given as input.");
       if (find(sons_.begin(), sons_.end(), node) == sons_.end())
         sons_.push_back(node);
       else //Otherwise node is already present.
-        throw NodeException("Node::addSon. Trying to add a node which is already present.");
+        throw NodePException("Node::addSon. Trying to add a node which is already present.");
       node->father_ = this;
     }
 
-    virtual void setSon(unsigned int pos, Node* node) throw (IndexOutOfBoundsException, NullPointerException)
+    virtual void setSon(unsigned int pos, Node* node) throw (IndexOutOfBoundsException, NullPointerException, NodePException)
     {
       if (!node)
         throw NullPointerException("Node::setSon(). Empty node given as input.");
@@ -429,7 +432,7 @@ class Node:
       if (search == sons_.end() || search == sons_.begin() + pos)
         sons_[pos] = node;
       else
-        throw NodeException("Node::setSon. Trying to set a node which is already present.");
+        throw NodePException("Node::setSon. Trying to set a node which is already present.");
       node->father_ = this;
     }
         

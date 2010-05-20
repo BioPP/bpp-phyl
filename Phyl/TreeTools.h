@@ -323,7 +323,7 @@ class TreeTools
      * @throw NodeNotFoundException If the node is not found.
      * @throw NodeException If one branch length is lacking.
      */
-    static double convertToClockTree(Tree& tree, int nodeId, bool noneg = false) throw (NodeNotFoundException, NodeException);
+    static double convertToClockTree(Tree& tree, int nodeId, bool noneg = false);
     
     /**
      * @brief Modify a tree's branch lengths to make a clock tree, by rescaling subtrees.
@@ -340,7 +340,7 @@ class TreeTools
      * @throw NodeNotFoundException If the node is not found.
      * @throw NodeException If one branch length is lacking.
      */
-    static double convertToClockTree2(Tree& tree, int nodeId) throw (NodeNotFoundException,NodeException);
+    static double convertToClockTree2(Tree& tree, int nodeId);
  
     /**
      * @brief Get the total distance between two nodes.
@@ -353,7 +353,7 @@ class TreeTools
      * @return The sum of all branch lengths between the two nodes.
      * @throw NodeNotFoundException If the node is not found.
      */
-    static double getDistanceBetweenAnyTwoNodes(const Tree& tree, int nodeId1, int nodeId2) throw (NodeNotFoundException);
+    static double getDistanceBetweenAnyTwoNodes(const Tree& tree, int nodeId1, int nodeId2);
     
     /**
      * @brief Compute a distance matrix from a tree.
