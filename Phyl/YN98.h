@@ -92,6 +92,17 @@ private:
 
   CodonAsynonymousFrequenciesReversibleSubstitutionModel pmodel_;
 
+private:
+  /**
+   * @brief Tools to make the link between the Parameters of the
+   * object and those of pmodel_.
+   *
+   */
+
+  std::map<std::string,std::string> mapParNamesFromPmodel_;
+  
+  ParameterList lParPmodel_;
+  
 public:
   YN98(const GeneticCode* gc, FrequenciesSet* codonFreqs);
 
@@ -134,6 +145,8 @@ public:
   void enableEigenDecomposition(bool yn) { eigenDecompose_ = 1; }
 
   bool enableEigenDecomposition() { return pmodel_.enableEigenDecomposition(); }
+
+  const FrequenciesSet& getFreq() const { return pmodel_.getFreq(); }
 
 protected:
   void updateMatrices();

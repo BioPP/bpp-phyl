@@ -47,19 +47,34 @@ using namespace std;
 
 YN98::YN98(const GeneticCode* gc, FrequenciesSet* codonFreqs) :
   AbstractReversibleSubstitutionModel(gc->getSourceAlphabet(), "YN98."),
-  pmodel_(gc, codonFreqs)
+  pmodel_(gc, codonFreqs), mapParNamesFromPmodel_(), lParPmodel_()
 {
   addParameter_(Parameter("YN98.kappa", 1, &Parameter::R_PLUS_STAR));
   addParameter_(Parameter("YN98.omega", 1, new IncludingInterval(0.0001, 999), true));
+
+  
   pmodel_.setNamespace("YN98.");
   addParameters_(codonFreqs->getParameters());
+
+  ParameterList pl=pmodel_.getParameters();
+  for (unsigned int i=0;i<pl.size();i++)
+    lParPmodel_.addParameter(Parameter(pl[i]));
+
+  vector<std::string> v=pmodel_.getFreq().getParameters().getParameterNames();
+
+  for (unsigned int i=0;i<v.size();i++)
+    mapParNamesFromPmodel_[v[i]]=getParameterNameWithoutNamespace(v[i]);
+
+  mapParNamesFromPmodel_["YN98.123_K80.kappa"]="kappa";
+  mapParNamesFromPmodel_["YN98.beta"]="omega";
+  
   updateMatrices();
 }
 
 void YN98::updateMatrices()
 {
-  ParameterList pl = getParameters().subList(pmodel_.getFreq().getParameters().getParameterNames());
-  pl.addParameter(Parameter("YN98.123_K80.kappa", getParameterValue("kappa")));
-  pl.addParameter(Parameter("YN98.beta", getParameterValue("omega")));
-  pmodel_.matchParametersValues(pl);
+  
+  for (unsigned int i=0;i<lParPmodel_.size();i++){
+    lParPmodel_[i].setValue(getParameter(mapParNamesFromPmodel_[lParPmodel_[i].getName()]).getValue());}
+  pmodel_.matchParametersValues(lParPmodel_);
 }
