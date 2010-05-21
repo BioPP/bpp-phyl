@@ -135,14 +135,13 @@ unsigned int TreeTemplateTools::getDepth(const Node& node)
 
 /******************************************************************************/
 
-double TreeTemplateTools::getHeight(const Node& node) throw (NodePException)
+double TreeTemplateTools::getHeight(const Node& node)
 {
   double d = 0;
   for(unsigned int i = 0; i < node.getNumberOfSons(); i++)
   {
     const Node* son = node[i];
-    double dist = 0;
-    son->getDistanceToFather();
+    double dist = son->getDistanceToFather();
     double c = getHeight(*son) + dist;
     if(c > d) d = c;
   }
@@ -151,14 +150,13 @@ double TreeTemplateTools::getHeight(const Node& node) throw (NodePException)
 
 /******************************************************************************/
 
-double TreeTemplateTools::getHeights(const Node& node, map<const Node*, double>& heights) throw (NodePException)
+double TreeTemplateTools::getHeights(const Node& node, map<const Node*, double>& heights)
 {
   double d = 0;
   for(unsigned int i = 0; i < node.getNumberOfSons(); i++)
   {
     const Node * son = node[i];
-    double dist = 0;
-    dist = son->getDistanceToFather();
+    double dist = son->getDistanceToFather();
     double c = getHeights(* son, heights) + dist;
     if(c > d) d = c;
   }
@@ -420,7 +418,7 @@ TreeTemplate<Node>* TreeTemplateTools::parenthesisToTree(const string& descripti
 string TreeTemplateTools::nodeToParenthesis(const Node& node, bool writeId)
 {
   ostringstream s;
-  if(node.isLeaf())
+  if (node.isLeaf())
   {
     s << node.getName();
   }
@@ -428,15 +426,15 @@ string TreeTemplateTools::nodeToParenthesis(const Node& node, bool writeId)
   {
     s << "(";
     s << nodeToParenthesis(* node[0], writeId);
-    for(unsigned int i = 1; i < node.getNumberOfSons(); i++)
+    for (unsigned int i = 1; i < node.getNumberOfSons(); i++)
     {
       s << "," << nodeToParenthesis(* node[i], writeId);
     }
     s << ")";
   }
-  if(writeId)
+  if (writeId)
   {
-    if(node.isLeaf()) s << "_";
+    if (node.isLeaf()) s << "_";
     s << node.getId();
   }
   else
@@ -444,7 +442,7 @@ string TreeTemplateTools::nodeToParenthesis(const Node& node, bool writeId)
     if(node.hasBranchProperty(TreeTools::BOOTSTRAP))
       s << (dynamic_cast<const Number<double> *>(node.getBranchProperty(TreeTools::BOOTSTRAP))->getValue());
   }
-  if(node.hasDistanceToFather()) s << ":" << node.getDistanceToFather();
+  if (node.hasDistanceToFather()) s << ":" << node.getDistanceToFather();
   return s.str();  
 }
 
@@ -453,7 +451,7 @@ string TreeTemplateTools::nodeToParenthesis(const Node& node, bool writeId)
 string TreeTemplateTools::nodeToParenthesis(const Node& node, bool bootstrap, const string & propertyName)
 {
   ostringstream s;
-  if(node.isLeaf())
+  if (node.isLeaf())
   {
     s << node.getName();
   }
@@ -461,7 +459,7 @@ string TreeTemplateTools::nodeToParenthesis(const Node& node, bool bootstrap, co
   {
     s << "(";
     s << nodeToParenthesis(* node[0], bootstrap, propertyName);
-    for(unsigned int i = 1; i < node.getNumberOfSons(); i++)
+    for (unsigned int i = 1; i < node.getNumberOfSons(); i++)
     {
       s << "," << nodeToParenthesis(* node[i], bootstrap, propertyName);
     }
@@ -469,16 +467,16 @@ string TreeTemplateTools::nodeToParenthesis(const Node& node, bool bootstrap, co
   
     if(bootstrap)
     {
-      if(node.hasBranchProperty(TreeTools::BOOTSTRAP))
+      if (node.hasBranchProperty(TreeTools::BOOTSTRAP))
         s << (dynamic_cast<const Number<double> *>(node.getBranchProperty(TreeTools::BOOTSTRAP))->getValue());
     }
     else
     {
-      if(node.hasBranchProperty(propertyName))
+      if (node.hasBranchProperty(propertyName))
         s << *(dynamic_cast<const BppString*>(node.getBranchProperty(propertyName)));
     }
   }
-  if(node.hasDistanceToFather()) s << ":" << node.getDistanceToFather();
+  if (node.hasDistanceToFather()) s << ":" << node.getDistanceToFather();
   return s.str();  
 }
 
@@ -552,11 +550,11 @@ string TreeTemplateTools::treeToParenthesis(const TreeTemplate<Node>& tree, bool
 Vdouble TreeTemplateTools::getBranchLengths(const Node& node) throw (NodePException)
 {
   Vdouble brLen(1);
-  node.getDistanceToFather();
-  for(unsigned int i = 0; i < node.getNumberOfSons(); i++)
+  brLen[0] = node.getDistanceToFather();
+  for (unsigned int i = 0; i < node.getNumberOfSons(); i++)
   {
     Vdouble sonBrLen = getBranchLengths(* node.getSon(i));
-    for(unsigned int j = 0; j < sonBrLen.size(); j++) brLen.push_back(sonBrLen[j]);
+    for (unsigned int j = 0; j < sonBrLen.size(); j++) brLen.push_back(sonBrLen[j]);
   }
   return brLen;
 }
@@ -565,9 +563,10 @@ Vdouble TreeTemplateTools::getBranchLengths(const Node& node) throw (NodePExcept
 
 double TreeTemplateTools::getTotalLength(const Node& node, bool includeAncestor) throw (NodePException)
 {
-  if(includeAncestor && !node.hasDistanceToFather()) throw NodePException("TreeTools::getTotalLength(). No branch length.", &node);
+  if (includeAncestor && !node.hasDistanceToFather())
+    throw NodePException("TreeTools::getTotalLength(). No branch length.", &node);
   double length = includeAncestor ? node.getDistanceToFather() : 0;
-  for(unsigned int i = 0; i < node.getNumberOfSons(); i++)
+  for (unsigned int i = 0; i < node.getNumberOfSons(); i++)
   {
     length += getTotalLength(* node.getSon(i), true);
   }

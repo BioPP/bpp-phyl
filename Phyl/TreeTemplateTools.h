@@ -600,7 +600,7 @@ class TreeTemplateTools
      * @return The height of the subtree.
      * @throw NodePException If a branch length is lacking.
      */ 
-    static double getHeight(const Node& node) throw (NodePException);
+    static double getHeight(const Node& node);
 
     /**
      * @brief Get the heights of all nodes within a subtree defined by node 'node', i.e. the maximum
@@ -613,7 +613,7 @@ class TreeTemplateTools
      * @return The height of the subtree.
      * @throw NodePException If a branch length is lacking.
      */ 
-    static double getHeights(const Node& node, std::map<const Node*, double>& heights) throw (NodePException);
+    static double getHeights(const Node& node, std::map<const Node*, double>& heights);
 
     /**
      * @brief Tell is a subtree is multifurcating.
