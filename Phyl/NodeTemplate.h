@@ -43,6 +43,8 @@ knowledge of the CeCILL license and that you accept its terms.
 #ifndef _NODETEMPLATE_H_
 #define _NODETEMPLATE_H_
 
+#include "Node.h"
+
 namespace bpp
 {
 
