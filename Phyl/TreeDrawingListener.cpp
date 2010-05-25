@@ -169,7 +169,7 @@ void BootstrapValuesTreeDrawingListener::afterDrawBranch(const DrawBranchEvent& 
         gd->setCurrentFont(settings_->fontLeafNames);
       gd->drawText(cursor.getX(), cursor.getY(),
           TextTools::toString(dynamic_cast<const Number<double> *>(b)->getValue()),
-          cursor.getHPos(), GraphicDevice::TEXT_HORIZONTAL_CENTER, cursor.getAngle());
+          cursor.getHPos(), GraphicDevice::TEXT_VERTICAL_CENTER, cursor.getAngle());
       gd->setCurrentFont(fontBck);
     }
   }

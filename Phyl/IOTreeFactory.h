@@ -55,6 +55,7 @@ class IOTreeFactory
 {
 public:
   static const std::string NEWICK_FORMAT;  
+  static const std::string NEXUS_FORMAT;  
 
 public:
 
