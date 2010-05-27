@@ -50,18 +50,18 @@ namespace bpp
 {
 
 /**
- * @brief The Yang et al (2000) substitution model for codons, with the
- * more realistic modification in Wong & al (2004).
+ * @brief The Yang et al (2000) M1 substitution model for codons, with
+ * the more realistic modification in Wong & al (2004).
  * @author Laurent Guéguen
  *
  * This model is a mixture of models as described in YN98 class, the
  * mixture being defined on the selection parameter to allow it to
  * vary among sites. A site is either negatively selected @f$ 0 <
- * \omega_0 < 1 @f$ (with probability @f$p_0$ @f$), or neutral (@f$
- * \omega_1 = 1 @f$) with probability @f$1-p_0$ @f$.
+ * \omega_0 < 1 @f$ (with probability @f$p_0 @f$), or neutral (@f$
+ * \omega_1 = 1 @f$) with probability @f$1-p_0 @f$.
  *
- * This model includes 3 parameters (@f$\kappa@f$, @f$ p_0 @f$ and
- * @f$\omega_0@f$). The codon frequencies @f$\pi_j@f$ are either
+ * This model includes 3 parameters (@f$\kappa@f$, @f$ p0 @f$ and
+ * @f$\omega@f$). The codon frequencies @f$\pi_j@f$ are either
  * observed or infered.
  *
  * References:
