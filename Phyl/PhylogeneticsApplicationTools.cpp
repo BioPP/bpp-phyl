@@ -422,81 +422,11 @@ SubstitutionModel* PhylogeneticsApplicationTools::getSubstitutionModelDefaultIns
   }
 
   // //////////////////////////////////////
-  // GY94
+  // predefined codon models
   // //////////////////////////////////////
 
-  else if (modelName == "GY94")
-  {
-    if (!AlphabetTools::isCodonAlphabet(alphabet))
-      throw Exception("Alphabet should be Codon Alphabet.");
-
-    const CodonAlphabet* pCA = (const CodonAlphabet*)(alphabet);
-
-    if (args.find("genetic_code") == args.end())
-      args["genetic_code"] = pCA->getAlphabetType();
-
-    GeneticCode* pgc = SequenceApplicationTools::getGeneticCode(dynamic_cast<const NucleicAlphabet*>(pCA->getNAlphabet(0)),args["genetic_code"]);
-    if (pgc->getSourceAlphabet()->getAlphabetType() != pCA->getAlphabetType())
-      throw Exception("Mismatch  between genetic code and codon alphabet");
-
-    string freqOpt = ApplicationTools::getStringParameter("codon_freqs", args, "F0");
-    short opt = 0;
-    if (freqOpt == "F0")
-      opt = FrequenciesSet::F0;
-    else if (freqOpt == "F1X4")
-      opt = FrequenciesSet::F1X4;
-    else if (freqOpt == "F3X4")
-      opt = FrequenciesSet::F3X4;
-    else if (freqOpt == "F61")
-      opt = FrequenciesSet::F61;
-    else
-      throw Exception("Unvalid codon frequency option. Should be one of F0, F1X4, F3X4 or F61");
-    FrequenciesSet* codonFreqs = FrequenciesSet::getFrequenciesSetForCodons(opt, *pgc);
-
-    model = new GY94(pgc, codonFreqs);
-  }
-
-  // //////////////////////////////////////
-  // MG94
-  // //////////////////////////////////////
-
-  else if (modelName == "MG94")
-  {
-    if (!AlphabetTools::isCodonAlphabet(alphabet))
-      throw Exception("Alphabet should be Codon Alphabet.");
-
-    const CodonAlphabet* pCA = (const CodonAlphabet*)(alphabet);
-
-    if (args.find("genetic_code") == args.end())
-        args["genetic_code"]=pCA->getAlphabetType();
-
-    GeneticCode* pgc = SequenceApplicationTools::getGeneticCode(dynamic_cast<const NucleicAlphabet*>(pCA->getNAlphabet(0)),args["genetic_code"]);
-    if (pgc->getSourceAlphabet()->getAlphabetType() != pCA->getAlphabetType())
-      throw Exception("Mismatch between genetic code and codon alphabet");
-
-    string freqOpt = ApplicationTools::getStringParameter("codon_freqs", args, "F0");
-    short opt = 0;
-    if (freqOpt == "F0")
-      opt = FrequenciesSet::F0;
-    else if (freqOpt == "F1X4")
-      opt = FrequenciesSet::F1X4;
-    else if (freqOpt == "F3X4")
-      opt = FrequenciesSet::F3X4;
-    else if (freqOpt == "F61")
-      opt = FrequenciesSet::F61;
-    else
-      throw Exception("Unvalid codon frequency option. Should be one of F0, F1X4, F3X4 or F61");
-    FrequenciesSet* codonFreqs = FrequenciesSet::getFrequenciesSetForCodons(opt, *pgc);
-
-    model = new MG94(pgc, codonFreqs);
-  }
-
-
-  // //////////////////////////////////////
-  // YN98
-  // //////////////////////////////////////
-
-  else if (modelName == "YN98")
+  else if ((modelName == "MG94") || (modelName == "YN98") ||
+           (modelName == "GY94") || (modelName.substr(0,5)=="YNGKP"))
   {
     if (!AlphabetTools::isCodonAlphabet(alphabet))
       throw Exception("Alphabet should be Codon Alphabet.");
@@ -523,43 +453,27 @@ SubstitutionModel* PhylogeneticsApplicationTools::getSubstitutionModelDefaultIns
     else
       throw Exception("Unvalid codon frequency option. Should be one of F0, F1X4, F3X4 or F61");
     FrequenciesSet* codonFreqs = FrequenciesSet::getFrequenciesSetForCodons(opt, *pgc);
-    model = new YN98(pgc, codonFreqs);
-  }
 
-  // //////////////////////////////////////
-  // YNGKP_M1
-  // //////////////////////////////////////
-
-  else if (modelName == "YNGKP_M1")
-    {
-      if (!AlphabetTools::isCodonAlphabet(alphabet))
-        throw Exception("Alphabet should be Codon Alphabet.");
-
-      const CodonAlphabet* pCA = (const CodonAlphabet*)(alphabet);
-
-      if (args.find("genetic_code") == args.end())
-        args["genetic_code"]=pCA->getAlphabetType();
-
-      GeneticCode* pgc = SequenceApplicationTools::getGeneticCode(dynamic_cast<const NucleicAlphabet*>(pCA->getNAlphabet(0)),args["genetic_code"]);
-      if (pgc->getSourceAlphabet()->getAlphabetType() != pCA->getAlphabetType())
-        throw Exception("Mismatch between genetic code and codon alphabet");
-
-      string freqOpt = ApplicationTools::getStringParameter("codon_freqs", args, "F0");
-      short opt = 0;
-      if (freqOpt == "F0")
-        opt = FrequenciesSet::F0;
-      else if (freqOpt == "F1X4")
-        opt = FrequenciesSet::F1X4;
-      else if (freqOpt == "F3X4")
-        opt = FrequenciesSet::F3X4;
-      else if (freqOpt == "F61")
-        opt = FrequenciesSet::F61;
-      else
-        throw Exception("Unvalid codon frequency option. Should be one of F0, F1X4, F3X4 or F61");
-      FrequenciesSet* codonFreqs = FrequenciesSet::getFrequenciesSetForCodons(opt, *pgc);
+    if (modelName == "MG94")
+      model = new MG94(pgc, codonFreqs);
+    else if (modelName == "GY94")
+      model = new GY94(pgc, codonFreqs);
+    else if ((modelName == "YN98") || (modelName == "YNGKP_M0"))
+      model = new YN98(pgc, codonFreqs);
+    else if (modelName == "YNGKP_M1")
       model = new YNGKP_M1(pgc, codonFreqs);
-    }
+     else if (modelName == "YNGKP_M2")
+      model = new YNGKP_M2(pgc, codonFreqs);
+     else if (modelName == "YNGKP_M3"){
+       if (args.find("n") == args.end())
+         throw Exception("Missing argument 'n' (number of classes) in YNGKP_M3 distribution");
+       unsigned int nbClasses = TextTools::to<unsigned int>(args["n"]);
 
+       model = new YNGKP_M3(pgc, codonFreqs,nbClasses);
+     }
+    else
+      throw Exception("Unknown Codon model: " + modelName);
+  }
 
   // /////////////////////////////////
   // / RE08
