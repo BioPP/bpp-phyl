@@ -33,6 +33,8 @@
 #include "MG94.h"
 #include "YN98.h"
 #include "YNGKP_M1.h"
+#include "YNGKP_M2.h"
+#include "YNGKP_M3.h"
 
 #include "MixedSubstitutionModel.h"
 #include "MixtureOfSubstitutionModels.h"
