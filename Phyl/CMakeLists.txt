@@ -90,6 +90,8 @@ set(CPP_FILES
   MG94.cpp
   YN98.cpp
   YNGKP_M1.cpp
+  YNGKP_M2.cpp
+  YNGKP_M3.cpp
   AbstractTreeDrawing.cpp
   TreeDrawingListener.cpp
   TreeDrawingDisplayControler.cpp
@@ -226,6 +228,8 @@ set(H_FILES
   MG94.h
   YN98.h
   YNGKP_M1.h
+  YNGKP_M2.h
+  YNGKP_M3.h
   TreeDrawing.h
   TreeDrawingListener.h
   TreeDrawingDisplayControler.h
