@@ -56,7 +56,6 @@ MixtureOfSubstitutionModels::MixtureOfSubstitutionModels(
   probas_()
 {
   unsigned int c, i;
-  double d;
   string s1, s2, t;
   map<string, DiscreteDistribution*>::iterator it;
 
@@ -107,29 +106,31 @@ MixtureOfSubstitutionModels::MixtureOfSubstitutionModels(
       pm=model->getParameter(model->getParameterNameWithoutNamespace(getParameterNameWithoutNamespace(it->first)));
       pd=it->second;
 
-      if (pm.hasConstraint() && ! pm.getConstraint()->includes(pd->getLowerBound(),pd->getUpperBound()))
+      if (pm.hasConstraint() && ! pd->adaptToConstraint(*pm.getConstraint()))
         throw Exception("Bad Distribution for " + pm.getName() + " : " + pd->getNamespace());
-    
+
       if (dynamic_cast<ConstantDistribution*>(it->second) == NULL)
         {
           for (i = 0; i != it->second->getNumberOfParameters(); i++)
             {
               t = pd->getParameters().getParameterNames()[i];
-              d = pd->getParameter(pd->getParameterNameWithoutNamespace(t)).getValue();
-              if (pd->getParameter(pd->getParameterNameWithoutNamespace(t)).hasConstraint())
-                if (pm.hasConstraint())
-                  addParameter_(Parameter(t,d, *pd->getParameter(pd->getParameterNameWithoutNamespace(t)).getConstraint() & *pm.getConstraint(),true));
-                else
-                  addParameter_(Parameter(t,d, pd->getParameter(pd->getParameterNameWithoutNamespace(t)).getConstraint()->clone(),true));
-              else
-                if (pm.hasConstraint())
-                  addParameter_(Parameter(t,d, pm.getConstraint()->clone(),true));
-                else
-                  addParameter_(Parameter(t,d));
+              //              d = 
+              //              if (pd->getParameter(pd->getParameterNameWithoutNamespace(t)).hasConstraint())
+                //                if (pm.hasConstraint())
+              addParameter_(Parameter(t,pd->getParameter(pd->getParameterNameWithoutNamespace(t)).getValue(),
+                                      pd->getParameter(pd->getParameterNameWithoutNamespace(t)).getConstraint()->clone(),true));
+              cerr << t << endl;
+              //   else
+              //     addParameter_(Parameter(t,d, pd->getParameter(pd->getParameterNameWithoutNamespace(t)).getConstraint()->clone(),true));
+              // else
+              //   if (pm.hasConstraint())
+              //     addParameter_(Parameter(t,d, pm.getConstraint()->clone(),true));
+              //   else
+              //     addParameter_(Parameter(t,d));
             }
         }
       else
-        addParameter_(Parameter(it->first,pd->getCategory(0),pm.getConstraint()->clone(),true));
+        addParameter_(Parameter(it->first,pd->getCategory(0),pd->getParameter("value").getConstraint()->clone(),true));
     }
   updateMatrices();
 }
