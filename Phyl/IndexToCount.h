@@ -58,19 +58,31 @@ class IndexToCount:
   public SubstitutionCount
 {
 	private:
-		const AlphabetIndex2<double> * dist_;
-		bool deleteDist_;
+		const AlphabetIndex2<double> *dist_;
+		bool ownDist_;
 	
 	public:
-		IndexToCount(const AlphabetIndex2<double> * ai2, bool deleteDistance)
+		IndexToCount(const AlphabetIndex2<double>* ai2, bool ownDistance) :
+			dist_(ai2), ownDist_(ownDistance)
+    {}
+
+    IndexToCount(const IndexToCount& index) :
+      dist_(index.dist_), ownDist_(index.ownDist_)
     {
-			dist_ = ai2;
-			deleteDist_ = deleteDistance;
-		}				
+      if (ownDist_) dist_ = dynamic_cast<AlphabetIndex2<double>*>(index.dist_->clone());
+    }
+
+    IndexToCount& operator=(const IndexToCount& index)
+    {
+      ownDist_ = index.ownDist_;
+      if (ownDist_) dist_ = dynamic_cast<AlphabetIndex2<double>*>(index.dist_->clone());
+      else dist_ = index.dist_;
+      return *this;
+    }
 		
 		virtual ~IndexToCount()
     {
-			if (deleteDist_) delete dist_;
+			if (ownDist_) delete dist_;
 		}
 			
 	public:
