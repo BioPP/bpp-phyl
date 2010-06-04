@@ -114,19 +114,8 @@ MixtureOfSubstitutionModels::MixtureOfSubstitutionModels(
           for (i = 0; i != it->second->getNumberOfParameters(); i++)
             {
               t = pd->getParameters().getParameterNames()[i];
-              //              d = 
-              //              if (pd->getParameter(pd->getParameterNameWithoutNamespace(t)).hasConstraint())
-                //                if (pm.hasConstraint())
               addParameter_(Parameter(t,pd->getParameter(pd->getParameterNameWithoutNamespace(t)).getValue(),
                                       pd->getParameter(pd->getParameterNameWithoutNamespace(t)).getConstraint()->clone(),true));
-              cerr << t << endl;
-              //   else
-              //     addParameter_(Parameter(t,d, pd->getParameter(pd->getParameterNameWithoutNamespace(t)).getConstraint()->clone(),true));
-              // else
-              //   if (pm.hasConstraint())
-              //     addParameter_(Parameter(t,d, pm.getConstraint()->clone(),true));
-              //   else
-              //     addParameter_(Parameter(t,d));
             }
         }
       else
