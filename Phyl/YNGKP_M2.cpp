@@ -53,26 +53,11 @@ YNGKP_M2::YNGKP_M2(const GeneticCode* gc, FrequenciesSet* codonFreqs) :
   MixedSubstitutionModel(gc->getSourceAlphabet(), "YNGKP_M2."), pmixmodel_(0),
   mapParNamesFromPmodel_(), lParPmodel_()
 {
-  addParameter_(Parameter("YNGKP_M2.theta1", 0.3333, &Parameter::PROP_CONSTRAINT_IN));
-  addParameter_(Parameter("YNGKP_M2.theta2", 0.5, &Parameter::PROP_CONSTRAINT_IN));
-  addParameter_(Parameter("YNGKP_M2.omega0", 0.5, new IncludingExcludingInterval(0.0001,1), true));
-  addParameter_(Parameter("YNGKP_M2.omega2", 2, new ExcludingInterval(1,999), true));
-  addParameter_(Parameter("YNGKP_M2.kappa", 1, &Parameter::R_PLUS_STAR));
+  // build the submodel
 
-  ParameterList pl=codonFreqs->getParameters();
-  
-  for (unsigned int i=0;i<pl.size();i++)
-    if (pl[i].getConstraint())
-      addParameter_(Parameter("YNGKP_M2.freq_"+pl[i].getName(), pl[i].getValue(), pl[i].getConstraint()->clone(), true));
-    else
-      addParameter_(Parameter("YNGKP_M2.freq_"+pl[i].getName(), pl[i].getValue()));      
-  
   vector<double> v1, v2;
-  v1.push_back(getParameterValue("YNGKP_M2.omega0")); v1.push_back(1);
-  v1.push_back(getParameterValue("YNGKP_M2.omega2"));
-  v2.push_back(getParameterValue("YNGKP_M2.theta1"));
-  v2.push_back(getParameterValue("YNGKP_M2.theta2")*(1-v2[0]));
-  v2.push_back(1-v2[0]-v2[1]);
+  v1.push_back(0.5); v1.push_back(1); v1.push_back(2);
+  v2.push_back(0.333333); v2.push_back(0.333333); v2.push_back(0.333334);
 
   SimpleDiscreteDistribution* psdd=new SimpleDiscreteDistribution(v1,v2);
 
@@ -86,7 +71,7 @@ YNGKP_M2::YNGKP_M2(const GeneticCode* gc, FrequenciesSet* codonFreqs) :
 
   // mapping the parameters
   
-  pl=pmixmodel_->getParameters();
+  ParameterList pl=pmixmodel_->getParameters();
   for (unsigned int i=0;i<pl.size();i++)
     lParPmodel_.addParameter(Parameter(pl[i]));
 
@@ -100,6 +85,22 @@ YNGKP_M2::YNGKP_M2(const GeneticCode* gc, FrequenciesSet* codonFreqs) :
   mapParNamesFromPmodel_["YN98.omega_Simple.theta1"]="YNGKP_M2.theta1";
   mapParNamesFromPmodel_["YN98.omega_Simple.V3"]="YNGKP_M2.omega2";
   mapParNamesFromPmodel_["YN98.omega_Simple.theta2"]="YNGKP_M2.theta2";
+
+  // specific parameters
+  
+  string st;
+  for (map<string,string>::iterator it=mapParNamesFromPmodel_.begin(); it!= mapParNamesFromPmodel_.end(); it++){
+    st=pmixmodel_->getParameterNameWithoutNamespace(it->first);
+    if (st!="YN98.omega_Simple.V1" && st!="YN98.omega_Simple.V3")
+      addParameter_(Parameter(it->second, pmixmodel_->getParameterValue(st),
+                              pmixmodel_->getParameter(st).hasConstraint()? pmixmodel_->getParameter(st).getConstraint()->clone():0,true));
+  }
+  
+  addParameter_(Parameter("YNGKP_M2.omega0", 0.5, &Parameter::PROP_CONSTRAINT_EX));
+  addParameter_(Parameter("YNGKP_M2.omega2", 2, new ExcludingInterval(1,999), true));
+
+  //update Matrices
+  
   updateMatrices();
 }
 

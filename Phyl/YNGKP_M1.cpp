@@ -53,21 +53,11 @@ YNGKP_M1::YNGKP_M1(const GeneticCode* gc, FrequenciesSet* codonFreqs) :
   MixedSubstitutionModel(gc->getSourceAlphabet(), "YNGKP_M1."), pmixmodel_(0),
   mapParNamesFromPmodel_(), lParPmodel_()
 {
-  addParameter_(Parameter("YNGKP_M1.p0", 0.5, &Parameter::PROP_CONSTRAINT_IN));
-  addParameter_(Parameter("YNGKP_M1.omega", 0.5, new IncludingExcludingInterval(0.0001,1), true));
-  addParameter_(Parameter("YNGKP_M1.kappa", 1, &Parameter::R_PLUS_STAR));
+  // build the submodel
 
-  ParameterList pl=codonFreqs->getParameters();
-
-  for (unsigned int i=0;i<pl.size();i++)
-    if (pl[i].getConstraint())
-      addParameter_(Parameter("YNGKP_M1.freq_"+pl[i].getName(), pl[i].getValue(), pl[i].getConstraint()->clone(), true));
-    else
-      addParameter_(Parameter("YNGKP_M1.freq_"+pl[i].getName(), pl[i].getValue()));      
-  
   vector<double> v1, v2;
-  v1.push_back(getParameterValue("YNGKP_M1.omega")); v1.push_back(1);
-  v2.push_back(getParameterValue("YNGKP_M1.p0"));v2.push_back(1-getParameterValue("YNGKP_M1.p0"));
+  v1.push_back(0.5); v1.push_back(1);
+  v2.push_back(0.5);v2.push_back(0.5);
 
   SimpleDiscreteDistribution* psdd=new SimpleDiscreteDistribution(v1,v2);
 
@@ -79,9 +69,9 @@ YNGKP_M1::YNGKP_M1(const GeneticCode* gc, FrequenciesSet* codonFreqs) :
                                               mpdd);
   delete psdd;
 
-  // mapping the parameters
-  
-  pl=pmixmodel_->getParameters();
+  // map the parameters
+
+  ParameterList pl=pmixmodel_->getParameters();
   for (unsigned int i=0;i<pl.size();i++)
     lParPmodel_.addParameter(Parameter(pl[i]));
 
@@ -94,6 +84,20 @@ YNGKP_M1::YNGKP_M1(const GeneticCode* gc, FrequenciesSet* codonFreqs) :
   mapParNamesFromPmodel_["YN98.omega_Simple.V1"]="YNGKP_M1.omega";
   mapParNamesFromPmodel_["YN98.omega_Simple.theta1"]="YNGKP_M1.p0";
 
+  // specific parameters
+  
+  string st;
+  for (map<string,string>::iterator it=mapParNamesFromPmodel_.begin(); it!= mapParNamesFromPmodel_.end(); it++){
+    st=pmixmodel_->getParameterNameWithoutNamespace(it->first);
+    if (st!="YN98.omega_Simple.V1")
+      addParameter_(Parameter(it->second, pmixmodel_->getParameterValue(st),
+                              pmixmodel_->getParameter(st).hasConstraint()? pmixmodel_->getParameter(st).getConstraint()->clone():0,true));
+  }
+
+  addParameter_(Parameter("YNGKP_M1.omega", 0.5, &Parameter::PROP_CONSTRAINT_EX));
+
+  // update matrice
+  
   updateMatrices();
 }
 

@@ -56,36 +56,15 @@ YNGKP_M3::YNGKP_M3(const GeneticCode* gc, FrequenciesSet* codonFreqs, unsigned i
   if (nbOmega<1)
     throw Exception("At least one omega is necessary in the YNGKP_M3 model");
 
-  addParameter_(Parameter("YNGKP_M3.omega0", 0.5, new IncludingExcludingInterval(0.0001,999), true));
-  for (unsigned int i = 1; i < nbOmega;i++)
-    addParameter_(Parameter("YNGKP_M3.delta"+TextTools::toString(i), 0.5, &Parameter::R_PLUS_STAR));
-
-  for (unsigned int i = 1; i < nbOmega;i++)
-    addParameter_(Parameter("YNGKP_M3.theta"+TextTools::toString(i), 1./(nbOmega-i+1), &Parameter::PROP_CONSTRAINT_IN));
-  
-  addParameter_(Parameter("YNGKP_M3.kappa", 1, &Parameter::R_PLUS_STAR));
-
-  ParameterList pl=codonFreqs->getParameters();
-
-  for (unsigned int i=0;i<pl.size();i++)
-    if (pl[i].getConstraint())
-      addParameter_(Parameter("YNGKP_M3.freq_"+pl[i].getName(), pl[i].getValue(), pl[i].getConstraint()->clone(), true));
-    else
-      addParameter_(Parameter("YNGKP_M3.freq_"+pl[i].getName(), pl[i].getValue()));      
-
-  /*************************/
+  // build the submodel
 
   vector<double> v1, v2;
-  v1.push_back(getParameterValue("YNGKP_M3.omega0"));
+  v1.push_back(0.5); 
   for (unsigned int i=1;i<nbOmega;i++)
-    v1.push_back(getParameterValue("YNGKP_M3.delta"+TextTools::toString(i))+v1[i-1]);
+    v1.push_back(0.5+0.5*i);
 
-  double x=1;
-  for (unsigned int i=1;i<nbOmega;i++){
-    v2.push_back(getParameterValue("YNGKP_M3.theta"+TextTools::toString(i))*x);
-    x*=1-getParameterValue("YNGKP_M3.theta"+TextTools::toString(i));
-  }
-  v2.push_back(x);
+  for (unsigned int i=0;i<nbOmega;i++)
+    v2.push_back(1./nbOmega);
 
   SimpleDiscreteDistribution* psdd=new SimpleDiscreteDistribution(v1,v2);
 
@@ -99,7 +78,7 @@ YNGKP_M3::YNGKP_M3(const GeneticCode* gc, FrequenciesSet* codonFreqs, unsigned i
 
   // mapping the parameters
   
-  pl=pmixmodel_->getParameters();
+  ParameterList pl=pmixmodel_->getParameters();
   for (unsigned int i=0;i<pl.size();i++)
     lParPmodel_.addParameter(Parameter(pl[i]));
 
@@ -117,6 +96,20 @@ YNGKP_M3::YNGKP_M3(const GeneticCode* gc, FrequenciesSet* codonFreqs, unsigned i
   for (unsigned int i=1;i<nbOmega;i++)
     mapParNamesFromPmodel_["YN98.omega_Simple.V"+TextTools::toString(i+1)]="YNGKP_M3.delta"+TextTools::toString(i);
 
+  // specific parameters
+  
+  string st;
+  for (map<string,string>::iterator it=mapParNamesFromPmodel_.begin(); it!= mapParNamesFromPmodel_.end(); it++){
+    st=pmixmodel_->getParameterNameWithoutNamespace(it->first);
+    if (it->second.substr(9,5)!="delta")
+      addParameter_(Parameter(it->second, pmixmodel_->getParameterValue(st),
+                              pmixmodel_->getParameter(st).hasConstraint()? pmixmodel_->getParameter(st).getConstraint()->clone():0,true));
+  }
+  
+  for (unsigned int i = 1; i < nbOmega;i++)
+    addParameter_(Parameter("YNGKP_M3.delta"+TextTools::toString(i), 0.5, &Parameter::R_PLUS_STAR));
+
+  //update Matrices 
   updateMatrices();
 }
 
