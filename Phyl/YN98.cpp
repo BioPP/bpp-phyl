@@ -50,9 +50,8 @@ YN98::YN98(const GeneticCode* gc, FrequenciesSet* codonFreqs) :
   pmodel_(gc, codonFreqs), mapParNamesFromPmodel_(), lParPmodel_()
 {
   addParameter_(Parameter("YN98.kappa", 1, &Parameter::R_PLUS_STAR));
-  addParameter_(Parameter("YN98.omega", 1, new IncludingInterval(0.0001, 999), true));
+  addParameter_(Parameter("YN98.omega", 1, &Parameter::R_PLUS_STAR));//new IncludingInterval(0.0001, 999), true));
 
-  
   pmodel_.setNamespace("YN98.");
   addParameters_(codonFreqs->getParameters());
 
@@ -76,5 +75,7 @@ void YN98::updateMatrices()
   
   for (unsigned int i=0;i<lParPmodel_.size();i++){
     lParPmodel_[i].setValue(getParameter(mapParNamesFromPmodel_[lParPmodel_[i].getName()]).getValue());}
+
   pmodel_.matchParametersValues(lParPmodel_);
+
 }
