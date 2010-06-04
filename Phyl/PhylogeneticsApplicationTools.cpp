@@ -464,17 +464,19 @@ SubstitutionModel* PhylogeneticsApplicationTools::getSubstitutionModelDefaultIns
       model = new YNGKP_M1(pgc, codonFreqs);
      else if (modelName == "YNGKP_M2")
       model = new YNGKP_M2(pgc, codonFreqs);
-     else if (modelName == "YNGKP_M3"){
+     else if ((modelName == "YNGKP_M3") || (modelName == "YNGKP_M7")){
        if (args.find("n") == args.end())
          throw Exception("Missing argument 'n' (number of classes) in YNGKP_M3 distribution");
        unsigned int nbClasses = TextTools::to<unsigned int>(args["n"]);
 
-       model = new YNGKP_M3(pgc, codonFreqs,nbClasses);
+       if (modelName == "YNGKP_M3")
+         model = new YNGKP_M3(pgc, codonFreqs,nbClasses);
+       else if (modelName == "YNGKP_M7")
+         model = new YNGKP_M7(pgc, codonFreqs,nbClasses);
      }
     else
       throw Exception("Unknown Codon model: " + modelName);
   }
-
   // /////////////////////////////////
   // / RE08
   // ///////////////////////////////
@@ -1381,6 +1383,17 @@ throw (Exception)
                                               TextTools::to<double>(args["sigma"]));
         unparsedParameterValues["Gaussian.mu"] = args["mu"];
         unparsedParameterValues["Gaussian.sigma"] = args["sigma"];
+      }
+    else if (distName == "Beta")
+      {
+        if (args.find("alpha") == args.end())
+          throw Exception("Missing argument 'alpha' in Beta distribution");
+        if (args.find("beta") == args.end())
+          throw Exception("Missing argument 'beta' in Beta distribution");
+        rDist = new BetaDiscreteDistribution(nbClasses, TextTools::to<double>(args["alpha"]),
+                                                 TextTools::to<double>(args["beta"]));
+        unparsedParameterValues["Beta.alpha"] = args["alpha"];
+        unparsedParameterValues["Beta.beta"] = args["beta"];
       }
     else if (distName == "Exponential")
     {
