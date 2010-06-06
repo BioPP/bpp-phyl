@@ -86,7 +86,7 @@ NonHomogeneousSequenceSimulator::NonHomogeneousSequenceSimulator(
   const DiscreteDistribution* rate,
   const Tree* tree):
   modelSet_(0),
-  alphabet_(modelSet_->getAlphabet()),
+  alphabet_(model->getAlphabet()),
   rate_(rate),
   templateTree_(tree),
   tree_(*tree),
@@ -95,7 +95,7 @@ NonHomogeneousSequenceSimulator::NonHomogeneousSequenceSimulator(
   seqNames_(),
   nbNodes_(),
   nbClasses_(rate_->getNumberOfCategories()),
-  nbStates_(modelSet_->getNumberOfStates()),
+  nbStates_(model->getNumberOfStates()),
   continuousRates_(false)
 {
   FullFrequenciesSet* fSet = new FullFrequenciesSet(model->getAlphabet());
