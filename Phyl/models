@@ -36,8 +36,8 @@
 #include "YNGKP_M2.h"
 #include "YNGKP_M3.h"
 #include "YNGKP_M7.h"
+#include "YNGKP_M8.h"
 
 #include "MixedSubstitutionModel.h"
 #include "MixtureOfSubstitutionModels.h"
-
 
