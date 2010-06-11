@@ -72,7 +72,7 @@ namespace bpp
  *       theta1=0.4,
  *       theta2=TruncExponential(n=5,lambda=0.6,tp=1))
  *
- * defines 60 different HKY85 models.
+ * defines 3*4*5=60 different HKY85 models.
  *
  * If a distribution parameter does not respect the constraints of
  * this parameter, there is an Exception at the creation of the
