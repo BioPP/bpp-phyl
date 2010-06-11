@@ -82,8 +82,8 @@ YNGKP_M7::YNGKP_M7(const GeneticCode* gc, FrequenciesSet* codonFreqs, unsigned i
     mapParNamesFromPmodel_[v[i]]=getParameterNameWithoutNamespace("YNGKP_M7."+v[i].substr(5));
 
   mapParNamesFromPmodel_["YN98.kappa"]="YNGKP_M7.kappa";
-  mapParNamesFromPmodel_["YN98.omega_Beta.alpha"]="YNGKP_M7.alpha";
-  mapParNamesFromPmodel_["YN98.omega_Beta.beta"]="YNGKP_M7.beta";
+  mapParNamesFromPmodel_["YN98.omega_Beta.alpha"]="YNGKP_M7.p";
+  mapParNamesFromPmodel_["YN98.omega_Beta.beta"]="YNGKP_M7.q";
 
   // specific parameters
   
