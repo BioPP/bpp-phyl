@@ -210,7 +210,6 @@ SubstitutionModel* PhylogeneticsApplicationTools::getSubstitutionModelDefaultIns
   {
     vector<string> v_nestedModelDescription;
     vector<SubstitutionModel*> v_pSM;
-    // SubstitutionModel* pSM;
     const WordAlphabet* pWA;
 
     string s, nestedModelDescription;
@@ -477,6 +476,7 @@ SubstitutionModel* PhylogeneticsApplicationTools::getSubstitutionModelDefaultIns
     else
       throw Exception("Unknown Codon model: " + modelName);
   }
+
   // /////////////////////////////////
   // / RE08
   // ///////////////////////////////
@@ -1354,6 +1354,42 @@ throw (Exception)
 
       for (unsigned int i=0;i<v.size();i++)
         unparsedParameterValues[v[i]] = TextTools::toString(rDist->getParameterValue(rDist->getParameterNameWithoutNamespace(v[i])));
+    }
+  else if (distName == "Mixture")
+    {
+      if (args.find("probas") == args.end())
+        throw Exception("Missing argument 'probas' in Mixture distribution");
+      vector<double> probas;
+      vector<DiscreteDistribution*> v_pdd;
+      DiscreteDistribution* pdd;
+      string rf = args["probas"];
+      StringTokenizer strtok2(rf.substr(1, rf.length() - 2), ",");
+      while (strtok2.hasMoreToken())
+        probas.push_back(TextTools::toDouble(strtok2.nextToken()));
+
+      vector<string> v_nestedDistrDescr;
+      
+      unsigned int nbd=0;
+      while (args.find("distribution" + TextTools::toString(++nbd)) != args.end())
+        v_nestedDistrDescr.push_back(args["distribution" + TextTools::toString(nbd)]);
+
+      if (v_nestedDistrDescr.size()!=probas.size())
+        throw Exception("Number of distributions do not fit the number of probabilities");
+
+      map<string, string> unparsedParameterValuesNested;
+
+      for (unsigned i = 0; i < v_nestedDistrDescr.size(); i++)
+        {
+          unparsedParameterValuesNested.clear();
+          pdd = getDistributionDefaultInstance(v_nestedDistrDescr[i], unparsedParameterValuesNested, false);
+          
+          for (map<string, string>::iterator it = unparsedParameterValuesNested.begin(); it != unparsedParameterValuesNested.end(); it++)
+            {
+              unparsedParameterValues[distName + "." + TextTools::toString(i+1) + "_" + it->first] = it->second;
+            }
+          v_pdd.push_back(pdd);
+        }
+      rDist=new MixtureOfDiscreteDistributions(v_pdd,probas);
     }
   else
   {
