@@ -463,14 +463,17 @@ SubstitutionModel* PhylogeneticsApplicationTools::getSubstitutionModelDefaultIns
       model = new YNGKP_M1(pgc, codonFreqs);
      else if (modelName == "YNGKP_M2")
       model = new YNGKP_M2(pgc, codonFreqs);
-     else if ((modelName == "YNGKP_M3") || (modelName == "YNGKP_M7") || modelName == "YNGKP_M8"){
+     else if (modelName == "YNGKP_M3")
+       if (args.find("n") == args.end())
+         model = new YNGKP_M3(pgc, codonFreqs);
+       else
+         model = new YNGKP_M3(pgc, codonFreqs,TextTools::to<unsigned int>(args["n"]));
+     else if ((modelName == "YNGKP_M7") || modelName == "YNGKP_M8"){
        if (args.find("n") == args.end())
          throw Exception("Missing argument 'n' (number of classes) in " + modelName + " distribution");
        unsigned int nbClasses = TextTools::to<unsigned int>(args["n"]);
 
-       if (modelName == "YNGKP_M3")
-         model = new YNGKP_M3(pgc, codonFreqs,nbClasses);
-       else if (modelName == "YNGKP_M7")
+       if (modelName == "YNGKP_M7")
          model = new YNGKP_M7(pgc, codonFreqs,nbClasses);
        else if (modelName == "YNGKP_M8")
          model = new YNGKP_M8(pgc, codonFreqs,nbClasses);
