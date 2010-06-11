@@ -50,8 +50,7 @@ namespace bpp
 {
 
 /**
- * @brief The Yang et al (2000) M7 substitution model for codons, with
- * the more realistic modification in Wong & al (2004).
+ * @brief The Yang et al (2000) M7 substitution model for codons.
  * @author Laurent Guéguen
  *
  * This model is a mixture of models as described in YN98 class, the
@@ -67,8 +66,6 @@ namespace bpp
  * Yang, Z., R. Nielsen, N. Goldman, and A.-M. K. Pedersen (2000)
  * Genetics 155:431-449.
  * 
- * Wong, W. S. W., Z. Yang, N. Goldman, and R. Nielsen. (2004)
- * Genetics 168:1041--1051.
  */
 class YNGKP_M7:
   public MixedSubstitutionModel
