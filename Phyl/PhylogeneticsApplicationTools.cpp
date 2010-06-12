@@ -125,6 +125,8 @@ vector<Tree*> PhylogeneticsApplicationTools::getTrees(
   return trees;
 }
 
+/******************************************************************************/
+
 SubstitutionModel* PhylogeneticsApplicationTools::getSubstitutionModelDefaultInstance(
   const Alphabet* alphabet,
   const string& modelDescription,
@@ -136,7 +138,7 @@ SubstitutionModel* PhylogeneticsApplicationTools::getSubstitutionModelDefaultIns
    SubstitutionModel* model = 0;
    string modelName = "", left = "";
    map<string, string> args;
-
+    
    KeyvalTools::parseProcedure(modelDescription, modelName, args);
 
    bool word = ((modelName == "Word") || (modelName == "Triplet") || (modelName == "CodonNeutral")
@@ -678,7 +680,7 @@ SubstitutionModel* PhylogeneticsApplicationTools::getSubstitutionModelDefaultIns
         string prefix = args["name"];
         if (TextTools::isEmpty(prefix))
           throw Exception("'name' argument missing for user-defined substitution model.");
-        model = new UserProteinSubstitutionModel(alpha, args["file"], new FullProteinFrequenciesSet(alpha), prefix + ".", true);
+        model = new UserProteinSubstitutionModel(alpha, args["file"], new FullProteinFrequenciesSet(alpha), prefix + "+F.", true);
       }
       else if (modelName == "JC69")
         model = new JCprot(alpha);
@@ -700,7 +702,12 @@ SubstitutionModel* PhylogeneticsApplicationTools::getSubstitutionModelDefaultIns
       else if (modelName == "JTT92+COA")
         model = new COA(alpha, "JTT92");
       else if (modelName == "Empirical+COA")
+        {
+        string prefix = args["name"];
+        if (TextTools::isEmpty(prefix))
+          throw Exception("'name' argument missing for user-defined substitution model.");
         model = new COA(alpha, args["file"]);
+        }
       else
         throw Exception("Model '" + modelName + "' unknown.");
     }
@@ -710,11 +717,13 @@ SubstitutionModel* PhylogeneticsApplicationTools::getSubstitutionModelDefaultIns
 
   //Update parameter args:
   vector<string> pnames = model->getParameters().getParameterNames();
+
   for (unsigned int i = 0; i < pnames.size(); i++)
   {
     string name = model->getParameterNameWithoutNamespace(pnames[i]);
-    if (args.find(name) != args.end())
+    if (args.find(name) != args.end()) {
       unparsedParameterValues[modelName + "." + name] = args[name];
+    }
   }
 
   // Now look if some parameters are aliased:
@@ -723,8 +732,10 @@ SubstitutionModel* PhylogeneticsApplicationTools::getSubstitutionModelDefaultIns
   for (unsigned int i = 0; i < pl.size(); i++)
   {
     pname = model->getParameterNameWithoutNamespace(pl[i].getName());
+
     if (args.find(pname) == args.end()) continue;
     pval = args[pname];
+
     if ((pval.length() >= 5 && pval.substr(0, 5) == "model") ||
         (pval.find("(") != string::npos))
       continue;
@@ -732,6 +743,7 @@ SubstitutionModel* PhylogeneticsApplicationTools::getSubstitutionModelDefaultIns
     for (unsigned int j = 0; j < pl.size() && !found; j++)
     {
       pname2 = model->getParameterNameWithoutNamespace(pl[j].getName());
+
       //if (j == i || args.find(pname2) == args.end()) continue; Julien 03/03/2010: This extra condition prevents complicated (nested) models to work properly...
       if (j == i) continue;
       if (pval == pname2)

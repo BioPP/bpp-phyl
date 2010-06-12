@@ -111,7 +111,13 @@ class DSO78 :
     clone() const { return new DSO78(*this); }
     
 	public:
-    std::string getName() const { return "DSO78"; }
+    std::string getName() const 
+  { 
+    if (freqSet_->getNamespace() == "DSO78")
+      return "DSO78"; 
+    else 
+      return "DSO78+F"; 
+  }
 
     void fireParameterChanged(const ParameterList& parameters)
     {

@@ -58,14 +58,14 @@ JTT92::JTT92(const ProteicAlphabet* alpha) :
 }
 
 JTT92::JTT92(const ProteicAlphabet* alpha, ProteinFrequenciesSet* freqSet, bool initFreqs) :
-  AbstractReversibleSubstitutionModel(alpha, "JTT92."),
+  AbstractReversibleSubstitutionModel(alpha, "JTT92+F."),
   freqSet_(freqSet)
 {
   #include "__JTT92ExchangeabilityCode"
   #include "__JTT92FrequenciesCode"
   if (initFreqs) freqSet_->setFrequencies(freq_);
   else freq_ = freqSet_->getFrequencies();
-  freqSet_->setNamespace("JTT92.");
+  freqSet_->setNamespace("JTT92+F.");
   addParameters_(freqSet_->getParameters());
   updateMatrices();  
 }

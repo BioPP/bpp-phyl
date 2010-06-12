@@ -91,7 +91,7 @@ public:
   clone() const { return new COA(*this); }
 
 public:
-  string getName() const { return "COA"; }
+  string getName() const { return _baseModel+"+COA"; }
 
 protected:
   void readFromFile();

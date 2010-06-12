@@ -111,7 +111,13 @@ class JTT92 :
     clone() const { return new JTT92(*this); }
 
 	public:
-    std::string getName() const { return "JTT92"; }
+    std::string getName() const 
+    { 
+      if (freqSet_->getNamespace() == "JTT92")
+        return "JTT92"; 
+    else 
+      return "JTT92+F"; 
+    }
 
     void fireParameterChanged(const ParameterList& parameters)
     {

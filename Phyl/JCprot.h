@@ -190,7 +190,13 @@ class JCprot:
 		const Matrix<double>& getdPij_dt  (double d) const;
 		const Matrix<double>& getd2Pij_dt2(double d) const;
 
-    std::string getName() const { return "JC69"; }
+    std::string getName() const 
+  { 
+    if (freqSet_->getNamespace() == "JC69")
+      return "JC69"; 
+    else 
+      return "JC69+F"; 
+  }
 	
     void fireParameterChanged(const ParameterList& parameters)
     {

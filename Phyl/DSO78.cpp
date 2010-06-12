@@ -57,14 +57,14 @@ DSO78::DSO78(const ProteicAlphabet* alpha) :
 }
 
 DSO78::DSO78(const ProteicAlphabet* alpha, ProteinFrequenciesSet* freqSet, bool initFreqs) :
-  AbstractReversibleSubstitutionModel(alpha, "DSO78."),
+  AbstractReversibleSubstitutionModel(alpha, "DSO78+F."),
   freqSet_(freqSet)
 {
   #include "__DSO78ExchangeabilityCode"
   #include "__DSO78FrequenciesCode"
   if (initFreqs) freqSet_->setFrequencies(freq_);
   else freq_ = freqSet_->getFrequencies();
-  freqSet_->setNamespace("DSO78.");
+  freqSet_->setNamespace("DSO78+F.");
   addParameters_(freqSet_->getParameters());
   updateMatrices();  
 }
