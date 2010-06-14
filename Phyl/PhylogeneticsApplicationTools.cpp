@@ -1025,14 +1025,18 @@ FrequenciesSet* PhylogeneticsApplicationTools::getFrequenciesSetDefaultInstance(
     {
       pFS = new FullFrequenciesSet(alphabet);
     }
-
+  
+  
+  
     // Update parameter values:
     if (args.find("theta") != args.end())
       unparsedParameterValues["Full.theta"] = args["theta"];
-    for (unsigned i = 0; i < alphabet->getSize() - 1; i++)
+    for (unsigned int i = 1; i < alphabet->getSize() ; i++)
     {
-      if (args.find("theta_" + alphabet->intToChar(i)) != args.end())
-        unparsedParameterValues["Full.theta_" + alphabet->intToChar(i)] = args["theta_" + alphabet->intToChar(i)];
+      if (args.find("theta" + TextTools::toString(i) ) != args.end())
+        {
+        unparsedParameterValues["Full.theta" + TextTools::toString(i) ] = args["theta" + TextTools::toString(i) ];
+        }
     }
   }
   else if (freqName == "Fixed")
