@@ -671,14 +671,14 @@ void COA::computeEquilibriumFrequencies()
   }
   if (neg == true)
   {
-    cerr << "WARNING: There were negative amino-acid frequencies !!!!!" << endl;
+   // cerr << "WARNING: There were negative amino-acid frequencies !!!!!" << endl;
     double s = VectorTools::sum(freq_);
     for (int i = 0; i < 20; i++)
     {
       freq_[i] = freq_[i] / s;
     }
-    cerr << "freqs: ";
-    VectorTools::print (freq_);
+   // cerr << "freqs: ";
+   // VectorTools::print (freq_);
   }
 }
 
