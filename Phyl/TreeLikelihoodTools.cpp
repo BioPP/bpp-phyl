@@ -66,8 +66,12 @@ void TreeLikelihoodTools::getAncestralFrequencies(
   {
     w = tl.getLikelihoodData()->getWeight(i);
     sumw += w;
+  }
+  for (unsigned int i = 0; i < n; ++i)
+  {
+    w = tl.getLikelihoodData()->getWeight(i);
     getAncestralFrequencies(tl, i, siteFrequencies, alsoForLeaves);
-    //Intialization
+    //Initialization
     if (i == 0)
     {
       frequencies = siteFrequencies; //Initialize all nodes ids.
@@ -80,7 +84,7 @@ void TreeLikelihoodTools::getAncestralFrequencies(
     for (unsigned int j = 0; j < frequencies.size(); ++j)
     {
       for (unsigned int k = 0; k < ns; ++k)
-        it->second[k] += itSite->second[k] * w;
+        it->second[k] += itSite->second[k] * w / sumw;
       it++;
       itSite++;
     }
