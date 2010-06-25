@@ -80,9 +80,9 @@ class TreeTemplateTools
      * @return A vector of pointers toward each leaf in the subtree.
      */
     template<class N>
-    static std::vector<N *> getLeaves(N & node)
+    static std::vector<N*> getLeaves(N& node)
     {
-      std::vector<N *> leaves;
+      std::vector<N*> leaves;
       getLeaves<N>(node, leaves);
       return leaves;
     }
@@ -145,9 +145,9 @@ class TreeTemplateTools
      */
     static int getLeafId(const Node& node, const std::string & name) throw (NodeNotFoundException)
     {
-      int * id = NULL;
+      int* id = 0;
       searchLeaf(node, name, id);
-      if(id == NULL) throw NodeNotFoundException("TreeTemplateTools::getLeafId().", name);
+      if (id == 0) throw NodeNotFoundException("TreeTemplateTools::getLeafId().", name);
       else
       {
         int i = *id;
@@ -312,11 +312,11 @@ class TreeTemplateTools
      * @param nodes A vector of pointers toward each son node in the subtree.
      */
     template<class N>
-    static void getNodes(N & node, std::vector<N *> & nodes)
+    static void getNodes(N & node, std::vector<N*> & nodes)
     {
       for(unsigned int i = 0; i < node.getNumberOfSons(); i++)
       {
-        getNodes<N>(* node.getSon(i), nodes);
+        getNodes<N>(*node.getSon(i), nodes);
       }
       nodes.push_back(& node);
     }
@@ -897,7 +897,7 @@ class TreeTemplateTools
      * @param leavesNames A list of taxa.
      * @return A random tree with all corresponding taxa.
      */
-    static TreeTemplate<Node> * getRandomTree(std::vector<std::string>& leavesNames);
+    static TreeTemplate<Node>* getRandomTree(std::vector<std::string>& leavesNames);
 
     /** @} */
     
@@ -912,7 +912,7 @@ class TreeTemplateTools
      * @param node3 Another neighbor to exclude.
      * @return A vector of neighbors.
      */
-    static std::vector<const Node *> getRemainingNeighbors(const Node * node1, const Node * node2, const Node * node3);
+    static std::vector<const Node*> getRemainingNeighbors(const Node * node1, const Node * node2, const Node * node3);
  
     /**
      * @brief This method will add a given value (possibly negative) to all identifiers in a (sub)tree.
@@ -921,7 +921,78 @@ class TreeTemplateTools
      * @param increment The value to add.
      */
     static void incrementAllIds(Node* node, int increment);
+
+    /**
+     * @name Retrieve properties from a (sub)tree.
+     *
+     * @{
+     */
+
+    /**
+     * @brief Retrieve the names of all available node properties in the tree.
+     *
+     * @param node [in] The root node of the (sub)tree to use.
+     * @param propertyNames [out] a vector where names will be added.
+     */
+    static void getNodePropertyNames(const Node& node, std::vector<std::string>& propertyNames);
+
+    /**
+     * @brief Retrieve all node property objects with a given name over a (sub) tree (const version).
+     *
+     * @param node [in] The root node of the (sub)tree to use.
+     * @param propertyName [in] The name of the property to retrieve.
+     * @param properties [out] A map with pointers toward the properties as values, and node ids as key.
+     * If a node does not contain the given property, then no entry in the map is created.
+     * If an entry already exists in the map, it will be replaced, but the underlying property will not be destroyed.
+     * Property objects are not cloned when added to the map, but passed as pointers.
+     */
+    static void getNodeProperties(const Node& node, const std::string& propertyName, std::map<int, const Clonable*>& properties);
     
+    /**
+     * @brief Retrieve all node property objects with a given name over a (sub) tree.
+     *
+     * @param node [in] The root node of the (sub)tree to use.
+     * @param propertyName [in] The name of the property to retrieve.
+     * @param properties [out] A map with pointers toward the properties as values, and node ids as key.
+     * If a node does not contain the given property, then no entry in the map is created.
+     * If an entry already exists in the map, it will be replaced, but the underlying property will not be destroyed.
+     * Property objects are not cloned when added to the map, but passed as pointers.
+     */
+    static void getNodeProperties(Node& node, const std::string& propertyName, std::map<int, Clonable*>& properties);
+
+    /**
+     * @brief Retrieve the names of all available branch properties in the tree.
+     *
+     * @param node [in] The root node of the (sub)tree to use.
+     * @param propertyNames [out] a vector where names will be added.
+     */
+    static void getBranchPropertyNames(const Node& node, std::vector<std::string>& propertyNames);
+
+    /**
+     * @brief Retrieve all branch property objects with a given name over a (sub) tree (const version).
+     *
+     * @param node [in] The root node of the (sub)tree to use.
+     * @param propertyName [in] The name of the property to retrieve.
+     * @param properties [out] A map with pointers toward the properties as values, and node ids as key.
+     * If a node does not contain the given property, then no entry in the map is created.
+     * If an entry already exists in the map, it will be replaced, but the underlying property will not be destroyed.
+     * Property objects are not cloned when added to the map, but passed as pointers.
+     */
+    static void getBranchProperties(const Node& node, const std::string& propertyName, std::map<int, const Clonable*>& properties);
+    
+    /**
+     * @brief Retrieve all branch property objects with a given name over a (sub) tree.
+     *
+     * @param node [in] The root node of the (sub)tree to use.
+     * @param propertyName [in] The name of the property to retrieve.
+     * @param properties [out] A map with pointers toward the properties as values, and node ids as key.
+     * If a node does not contain the given property, then no entry in the map is created.
+     * If an entry already exists in the map, it will be replaced, but the underlying property will not be destroyed.
+     * Property objects are not cloned when added to the map, but passed as pointers.
+     */
+    static void getBranchProperties(Node& node, const std::string& propertyName, std::map<int, Clonable*>& properties);
+
+    /** @} */
 };
 
 } //end of namespace bpp.

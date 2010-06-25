@@ -859,5 +859,53 @@ void TreeTemplateTools::incrementAllIds(Node* node, int increment)
 
 /******************************************************************************/
 
+void TreeTemplateTools::getNodePropertyNames(const Node& node, vector<string>& propertyNames)
+{
+  VectorTools::append(propertyNames, node.getNodePropertyNames());
+  for (unsigned int i = 0; i < node.getNumberOfSons(); i++)
+    getNodePropertyNames(*node.getSon(i), propertyNames);
+}
 
+void TreeTemplateTools::getNodeProperties(const Node& node, const string& propertyName, map<int, const Clonable*>& properties)
+{
+  if (node.hasNodeProperty(propertyName))
+    properties[node.getId()] = node.getNodeProperty(propertyName);
+  for (unsigned int i = 0; i < node.getNumberOfSons(); i++)
+    getNodeProperties(*node.getSon(i), propertyName, properties);
+}
+
+void TreeTemplateTools::getNodeProperties(Node& node, const string& propertyName, map<int, Clonable*>& properties)
+{
+  if (node.hasNodeProperty(propertyName))
+    properties[node.getId()] = node.getNodeProperty(propertyName);
+  for (unsigned int i = 0; i < node.getNumberOfSons(); i++)
+    getNodeProperties(*node.getSon(i), propertyName, properties);
+}
+
+/******************************************************************************/
+
+void TreeTemplateTools::getBranchPropertyNames(const Node& node, vector<string>& propertyNames)
+{
+  VectorTools::append(propertyNames, node.getBranchPropertyNames());
+  for (unsigned int i = 0; i < node.getNumberOfSons(); i++)
+    getBranchPropertyNames(*node.getSon(i), propertyNames);
+}
+
+void TreeTemplateTools::getBranchProperties(const Node& node, const string& propertyName, map<int, const Clonable*>& properties)
+{
+  if (node.hasBranchProperty(propertyName))
+    properties[node.getId()] = node.getBranchProperty(propertyName);
+  for (unsigned int i = 0; i < node.getNumberOfSons(); i++)
+    getBranchProperties(*node.getSon(i), propertyName, properties);
+}
+
+void TreeTemplateTools::getBranchProperties(Node& node, const string& propertyName, map<int, Clonable*>& properties)
+{
+  if (node.hasBranchProperty(propertyName))
+    properties[node.getId()] = node.getBranchProperty(propertyName);
+  for (unsigned int i = 0; i < node.getNumberOfSons(); i++)
+    getBranchProperties(*node.getSon(i), propertyName, properties);
+}
+
+/******************************************************************************/
 
