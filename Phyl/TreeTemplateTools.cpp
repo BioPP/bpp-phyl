@@ -861,7 +861,7 @@ void TreeTemplateTools::incrementAllIds(Node* node, int increment)
 
 void TreeTemplateTools::getNodePropertyNames(const Node& node, vector<string>& propertyNames)
 {
-  VectorTools::append(propertyNames, node.getNodePropertyNames());
+  VectorTools::extend(propertyNames, node.getNodePropertyNames());
   for (unsigned int i = 0; i < node.getNumberOfSons(); i++)
     getNodePropertyNames(*node.getSon(i), propertyNames);
 }
@@ -886,7 +886,7 @@ void TreeTemplateTools::getNodeProperties(Node& node, const string& propertyName
 
 void TreeTemplateTools::getBranchPropertyNames(const Node& node, vector<string>& propertyNames)
 {
-  VectorTools::append(propertyNames, node.getBranchPropertyNames());
+  VectorTools::extend(propertyNames, node.getBranchPropertyNames());
   for (unsigned int i = 0; i < node.getNumberOfSons(); i++)
     getBranchPropertyNames(*node.getSon(i), propertyNames);
 }
