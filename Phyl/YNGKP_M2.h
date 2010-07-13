@@ -135,6 +135,34 @@ public:
 
   std::string getName() const { return "YNGKP_M2"; }
 
+  double Pij_t(unsigned int i, unsigned int j, double t) const {
+    return pmixmodel_->Pij_t(i,j,t);
+  }
+  double dPij_dt(unsigned int i, unsigned int j, double t) const {
+    return pmixmodel_->dPij_dt(i,j,t);
+  };
+  double d2Pij_dt2(unsigned int i, unsigned int j, double t) const {
+    return pmixmodel_->dPij_dt(i,j,t);
+  };
+  const Matrix<double>& getPij_t(double t) const {
+    return pmixmodel_->getPij_t(t);
+  };
+  const Matrix<double>& getdPij_dt(double t) const {
+    return pmixmodel_->getdPij_dt(t);
+  };
+  const Matrix<double>& getd2Pij_dt2(double t) const {
+    return pmixmodel_->getd2Pij_dt2(t);
+  };
+  
+  const Vdouble& getFrequencies() {
+    return pmixmodel_->getFrequencies();
+  };
+  
+  double freq(unsigned int i) const {
+    return pmixmodel_->freq(i);
+  };
+
+
 };
 
 } //end of namespace bpp.

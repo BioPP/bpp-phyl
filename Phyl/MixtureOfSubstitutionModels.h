@@ -143,14 +143,18 @@ public:
   std::string getName() const { return "MixtureOfSubstitutionModels"; }
 
   void updateMatrices();
-
-  /**
-   * @brief This function can not be applied here, so it is defined
-   * to prevent wrong usage.
-   */
-  void setFreq(std::map<int,double>&);
-
+  
   unsigned int getNumberOfStates() const;
+
+  double Pij_t(unsigned int i, unsigned int j, double t) const;
+  double dPij_dt(unsigned int i, unsigned int j, double t) const;
+  double d2Pij_dt2(unsigned int i, unsigned int j, double t) const;
+  const Matrix<double>& getPij_t(double t) const;
+  const Matrix<double>& getdPij_dt(double t) const;
+  const Matrix<double>& getd2Pij_dt2(double t) const;
+  const Vdouble& getFrequencies();
+  double freq(unsigned int i) const;
+
 };
 } // end of namespace bpp.
 

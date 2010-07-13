@@ -248,13 +248,88 @@ void MixtureOfSubstitutionModels::updateMatrices()
 }
 
 
-void MixtureOfSubstitutionModels::setFreq(std::map<int,double>& m)
-{
-  throw Exception("setFreq method is not available for MixtureOfSubstitutionModels.");
-}
-
 unsigned int MixtureOfSubstitutionModels::getNumberOfStates() const
 {
   return modelsContainer_[0]->getNumberOfStates();
 }
+
+
+double MixtureOfSubstitutionModels::Pij_t(unsigned int i, unsigned int j, double t) const
+{
+  double x=0;
+  for (unsigned int n = 0; n < modelsContainer_.size(); n++)
+      x+= modelsContainer_[n]->Pij_t(i,j,t)*probas_[n];
+
+  return x;
+}
+
+
+double MixtureOfSubstitutionModels::dPij_dt(unsigned int i, unsigned int j, double t) const
+{
+  double x=0;
+  for (unsigned int n = 0; n < modelsContainer_.size(); n++)
+    x+= modelsContainer_[n]->dPij_dt(i,j,t)*probas_[n];
+
+  return x;
+}
+
+
+double MixtureOfSubstitutionModels::d2Pij_dt2(unsigned int i, unsigned int j, double t) const
+{
+  double x=0;
+  for (unsigned int n = 0; n < modelsContainer_.size(); n++)
+    x+= modelsContainer_[n]->d2Pij_dt2(i,j,t)*probas_[n];
+
+  return x;
+}
+
+
+const Matrix<double>& MixtureOfSubstitutionModels::getPij_t(double t) const
+{
+  for (unsigned int i=0; i< getNumberOfStates(); i++)
+    for (unsigned int j=0; j< getNumberOfStates(); j++)
+      pijt_(i,j)=Pij_t(i,j,t);
+
+  return pijt_;
+}
+
+
+const Matrix<double>& MixtureOfSubstitutionModels::getdPij_dt(double t) const
+{
+  for (unsigned int i=0; i< getNumberOfStates(); i++)
+    for (unsigned int j=0; j< getNumberOfStates(); j++)
+      dpijt_(i,j)=dPij_dt(i,j,t);
+
+  return dpijt_;
+}
+
+
+const Matrix<double>& MixtureOfSubstitutionModels::getd2Pij_dt2(double t) const
+{
+  for (unsigned int i=0; i< getNumberOfStates(); i++)
+    for (unsigned int j=0; j< getNumberOfStates(); j++)
+      dpijt_(i,j)=d2Pij_dt2(i,j,t);
+
+  return d2pijt_;
+}
+
+
+const Vdouble& MixtureOfSubstitutionModels::getFrequencies()
+{
+  for (unsigned int i=0; i< getNumberOfStates(); i++)
+    freq_[i]=freq(i);
+  return freq_;
+}
+
+
+double MixtureOfSubstitutionModels::freq(unsigned int i) const
+{
+  double x=0;
+  for (unsigned int n = 0; n < modelsContainer_.size(); n++)
+    x+= modelsContainer_[n]->freq(i)*probas_[n];
+
+  return x;
+}
+
+
 

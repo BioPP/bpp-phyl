@@ -48,6 +48,15 @@ MixedSubstitutionModel::MixedSubstitutionModel(
                                                const Alphabet* alpha,
                                                const std::string& prefix): AbstractSubstitutionModel(alpha, "")
 {
+  for (unsigned int i=0;i<size_;i++){
+    for (unsigned int j=0; j<size_;j++){
+      generator_(i,j)=0;
+      leftEigenVectors_(i,j)=0;
+      rightEigenVectors_(i,j)=0;
+    }
+    eigenValues_[i]=0;
+  }
+  eigenDecompose_=false;
 }
 
 MixedSubstitutionModel::MixedSubstitutionModel(const MixedSubstitutionModel& msm) :
@@ -64,5 +73,10 @@ MixedSubstitutionModel& MixedSubstitutionModel::operator=(const MixedSubstitutio
 
 MixedSubstitutionModel::~MixedSubstitutionModel()
 {
+}
+
+void MixedSubstitutionModel::setFreq(std::map<int,double>& m)
+{
+  throw Exception("setFreq method is not available for MixtureOfSubstitutionModels.");
 }
 

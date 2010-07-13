@@ -91,6 +91,23 @@ namespace bpp
 
     virtual std::string getName() const { return "MixedSubstitutionModel"; }
 
+
+    virtual double Pij_t(unsigned int i, unsigned int j, double t) const = 0;
+    virtual double dPij_dt(unsigned int i, unsigned int j, double t) const = 0;
+    virtual double d2Pij_dt2(unsigned int i, unsigned int j, double t) const = 0;
+    virtual const Matrix<double>& getPij_t(double t) const = 0;
+    virtual const Matrix<double>& getdPij_dt(double t) const = 0;
+    virtual const Matrix<double>& getd2Pij_dt2(double t) const = 0;
+    virtual const Vdouble& getFrequencies()  = 0;
+    virtual double freq(unsigned int i) const = 0;
+    
+    /**
+     * @brief This functions can not be applied here, so they are defined
+     * to prevent wrong usage.
+     */
+    void setFreq(std::map<int,double>&);
+    double Qij(unsigned int i, unsigned int j) const {return 0;}
+
   };
 } // end of namespace bpp.
 
