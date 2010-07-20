@@ -502,7 +502,7 @@ SiteContainer * NonHomogeneousSequenceSimulator::multipleEvolve(const Vint& init
     {
       content[j] = model->getAlphabetChar((*states)[j]);
     }
-    sites->addSequence(Sequence(leaves_[i]->getName(), content, alphabet_), false);
+    sites->addSequence(BasicSequence(leaves_[i]->getName(), content, alphabet_), false);
   }
   return sites;
 }

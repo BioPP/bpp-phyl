@@ -137,7 +137,7 @@ Sequence* MarginalAncestralStateReconstruction::getAncestralSequenceForNode(int 
 		  allStates[i] = model->getAlphabetChar(states[(* rootPatternLinks)[i]]);
 	  }
   }
-	return new Sequence(name, allStates, alphabet_);
+	return new BasicSequence(name, allStates, alphabet_);
 }
 
 void MarginalAncestralStateReconstruction::recursiveMarginalAncestralStates(

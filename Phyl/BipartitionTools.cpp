@@ -269,18 +269,18 @@ VectorSiteContainer* BipartitionTools::MRPEncode(
   const DNA* alpha = & AlphabetTools::DNA_ALPHABET;
   vector<string> sequences;
 
-  if(vecBipartL.size() == 0)
+  if (vecBipartL.size() == 0)
     throw Exception("Empty vector passed");
 
   vector< vector<string> > vecElementLists;
-  for(unsigned int i = 0; i < vecBipartL.size(); i++)
+  for (unsigned int i = 0; i < vecBipartL.size(); i++)
     vecElementLists.push_back(vecBipartL[i]->getElementNames());
 
   all_elements = VectorTools::vectorUnion(vecElementLists);
 
   sequences.resize(all_elements.size());
 
-  for(unsigned int i = 0; i < vecBipartL.size(); i++)
+  for (unsigned int i = 0; i < vecBipartL.size(); i++)
   {
     for(unsigned int j = 0; j < vecBipartL[i]->getNumberOfBipartitions(); j++)
     {
@@ -300,14 +300,14 @@ VectorSiteContainer* BipartitionTools::MRPEncode(
   }
 
   vector<const Sequence*> vec_sequences;
-  for(unsigned int i = 0; i < all_elements.size(); i++)
+  for (unsigned int i = 0; i < all_elements.size(); i++)
   {
-    const Sequence* seq = new Sequence(all_elements[i], sequences[i], alpha);
+    const Sequence* seq = new BasicSequence(all_elements[i], sequences[i], alpha);
     vec_sequences.push_back(seq);
   }
 
   VectorSequenceContainer vec_seq_cont(vec_sequences, alpha);
-  for(unsigned int i = 0; i < all_elements.size(); i++)
+  for (unsigned int i = 0; i < all_elements.size(); i++)
     delete vec_sequences[i];
   
   VectorSiteContainer * vec_site_cont = new VectorSiteContainer(vec_seq_cont);

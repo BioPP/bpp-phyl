@@ -486,21 +486,21 @@ string TreeTemplateTools::treeToParenthesis(const TreeTemplate<Node>& tree, bool
 {
   ostringstream s;
   s << "(";
-  const Node * node = tree.getRootNode();
-  if(node->isLeaf())
+  const Node* node = tree.getRootNode();
+  if (node->isLeaf())
   {
     s << node->getName();
-    for(unsigned int i = 0; i < node->getNumberOfSons(); i++)
+    for (unsigned int i = 0; i < node->getNumberOfSons(); ++i)
     {
-      s << "," << nodeToParenthesis(* node->getSon(i), writeId);
+      s << "," << nodeToParenthesis(*node->getSon(i), writeId);
     }
   }
   else
   {
     s << nodeToParenthesis(* node->getSon(0), writeId);
-    for(unsigned int i = 1; i < node->getNumberOfSons(); i++)
+    for(unsigned int i = 1; i < node->getNumberOfSons(); ++i)
     {
-      s << "," << nodeToParenthesis(* node->getSon(i), writeId);
+      s << "," << nodeToParenthesis(*node->getSon(i), writeId);
     }
   }
   s << ");" << endl;
