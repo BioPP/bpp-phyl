@@ -56,3 +56,15 @@ Matrix<double>* SimpleSubstitutionCount::getAllNumbersOfSubstitutions(double len
   return mat;
 }
 
+LabelSubstitutionCount::LabelSubstitutionCount(const Alphabet* alphabet) :
+  alphabet_(alphabet), label_(alphabet->getSize(), alphabet->getSize())
+{
+  unsigned int count = 0;
+  for (unsigned int i = 0; i < alphabet_->getSize(); ++i) {
+    for (unsigned int j = 0; j < alphabet_->getSize(); ++j) {
+      if (i == j) label_(i, j) = 0;
+      else label_(i, j) = ++count;
+    }
+  }
+}				
+	

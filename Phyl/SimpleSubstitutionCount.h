@@ -51,7 +51,7 @@ namespace bpp
 /**
  * @brief Naive substitution count.
  *
- * This subsitution count is defined as follow:
+ * This substitution count is defined as follow:
  * - 0 if @f$i = j@f$,
  * - 1 if @f$i \neq j @f$.
  *
@@ -86,6 +86,51 @@ class SimpleSubstitutionCount:
 		}
 
     virtual Matrix<double>* getAllNumbersOfSubstitutions(double length) const;
+
+    void setSubstitutionModel(const SubstitutionModel* model) {}
+
+};
+
+/**
+ * @brief Labelling substitution count.
+ *
+ * This substitution count return a distinct number for each possible mutation.
+ * - 0 if @f$i = j@f$,
+ * - @f$a(i,j)@f$ if @f$i \neq j @f$, where 'a' is an index giving a unique value for each combination of i and j.
+ *
+ */
+class LabelSubstitutionCount:
+  public virtual SubstitutionCount
+{
+  private:
+    const Alphabet* alphabet_;
+    LinearMatrix<double> label_;
+    
+	public:
+		LabelSubstitutionCount(const Alphabet* alphabet);
+
+    LabelSubstitutionCount(const LabelSubstitutionCount& ssc) :
+      alphabet_(ssc.alphabet_), label_(ssc.label_) {}				
+    
+    LabelSubstitutionCount& operator=(const LabelSubstitutionCount& ssc)
+    {
+      alphabet_ = ssc.alphabet_;
+      label_    = ssc.label_;
+      return *this;
+    }				
+		
+    virtual ~LabelSubstitutionCount() {}
+			
+	public:
+		double getNumberOfSubstitutions(unsigned int initialState, unsigned int finalState, double length) const
+    {
+			return label_(initialState, finalState);
+		}
+
+    virtual Matrix<double>* getAllNumbersOfSubstitutions(double length) const
+    {
+      return dynamic_cast<Matrix<double>*>(label_.clone());
+    }
 
     void setSubstitutionModel(const SubstitutionModel* model) {}
 
