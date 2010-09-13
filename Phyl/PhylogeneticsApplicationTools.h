@@ -55,6 +55,7 @@
 
 // From NumCalc:
 #include <NumCalc/DiscreteDistribution.h>
+#include <NumCalc/MultipleDiscreteDistribution.h>
 #include <NumCalc/Optimizer.h>
 
 // From SeqLib:
@@ -407,6 +408,27 @@ namespace bpp
         std::map<std::string, std::string>& unparsedParameterValues,
         bool verbose = true)
       throw (Exception);
+
+    /**
+     * @brief Build a multi-dimension distribution as a
+     * MultipleDiscreteDistribution object with default parameter
+     * values according to a keyval description.
+     *
+     * Check the Bio++ Program Suite documentation for a description of the syntax.
+     * It is mainly for internal usage, you're probably looking for the getRateDistribution function.
+     *
+     * @param distDescription         A string describing the model in the keyval syntax.
+     * @param unparsedParameterValues [out] a map that will contain all the distribution parameters
+     *                                names and their corresponding unparsed value, if they were found.
+     * @param verbose                 Print some info to the 'message' output stream.
+     * @return A new MultipleDiscreteDistribution object according to options specified.
+     * @throw Exception if an error occured.
+     */
+    
+    static MultipleDiscreteDistribution* getMultipleDistributionDefaultInstance(
+                                                                        const std::string& distDescription,
+                                                                        std::map<std::string, std::string>& unparsedParameterValues,
+                                                                        bool verbose = true);
 
     /**
      * @brief Set parameter initial values of a given rate distribution according to options.

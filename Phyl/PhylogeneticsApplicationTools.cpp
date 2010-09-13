@@ -675,6 +675,8 @@ SubstitutionModel* PhylogeneticsApplicationTools::getSubstitutionModelDefaultIns
         model = new DSO78(alpha, new FullProteinFrequenciesSet(alpha), true);
       else if (modelName == "JTT92+F")
         model = new JTT92(alpha, new FullProteinFrequenciesSet(alpha), true);
+      else if (modelName == "LG08+F")
+        model = new LG08(alpha, new FullProteinFrequenciesSet(alpha), true);
       else if (modelName == "Empirical+F")
       {
         string prefix = args["name"];
@@ -688,6 +690,8 @@ SubstitutionModel* PhylogeneticsApplicationTools::getSubstitutionModelDefaultIns
         model = new DSO78(alpha);
       else if (modelName == "JTT92")
         model = new JTT92(alpha);
+      else if (modelName == "LG08")
+        model = new LG08(alpha);
       else if (modelName == "Empirical")
       {
         string prefix = args["name"];
@@ -701,6 +705,8 @@ SubstitutionModel* PhylogeneticsApplicationTools::getSubstitutionModelDefaultIns
         model = new COA(alpha, "DSO78");
       else if (modelName == "JTT92+COA")
         model = new COA(alpha, "JTT92");
+      else if (modelName == "LG08+COA")
+        model = new COA(alpha, "LG08");
       else if (modelName == "Empirical+COA")
         {
         string prefix = args["name"];
@@ -1504,6 +1510,49 @@ throw (Exception)
   return rDist;
 }
 
+/******************************************************************************/
+
+MultipleDiscreteDistribution* PhylogeneticsApplicationTools::getMultipleDistributionDefaultInstance(
+                                                                                                    const std::string& distDescription,
+                                                                                                    std::map<std::string, std::string>& unparsedParameterValues,
+                                                                                                    bool verbose)
+{
+  string distName;
+  MultipleDiscreteDistribution* pMDD  = 0;
+  map<string, string> args;
+  KeyvalTools::parseProcedure(distDescription, distName, args);
+
+  if (distName == "Dirichlet")
+    {
+      if (args.find("classes") == args.end())
+        throw Exception("Missing argument 'classes' (vector of number of classes) in " + distName
+                        + " distribution");
+      if (args.find("alphas") == args.end())
+        throw Exception("Missing argument 'alphas' (vector of Dirichlet shape parameters) in Dirichlet distribution");
+      vector<double> alphas;
+      vector<unsigned int> classes;
+      
+      string rf = args["alphas"];
+      StringTokenizer strtok(rf.substr(1, rf.length() - 2), ",");
+      while (strtok.hasMoreToken())
+        alphas.push_back(TextTools::toDouble(strtok.nextToken()));
+      
+      rf = args["classes"];
+      StringTokenizer strtok2(rf.substr(1, rf.length() - 2), ",");
+      while (strtok2.hasMoreToken())
+        classes.push_back(TextTools::toInt(strtok2.nextToken()));
+
+      pMDD = new DirichletDiscreteDistribution(classes, alphas);
+      vector<string> v=pMDD->getParameters().getParameterNames();
+
+      for (unsigned int i = 0; i < v.size(); i++)
+        unparsedParameterValues[v[i]] = TextTools::toString(pMDD->getParameterValue(pMDD->getParameterNameWithoutNamespace(v[i])));
+    }
+  else
+    throw Exception("Unknown multiple distribution name: " + distName);
+
+  return pMDD;
+}
 
 /******************************************************************************/
 

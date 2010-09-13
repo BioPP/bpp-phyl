@@ -12,7 +12,9 @@
 #include "L95.h"
 #include "DSO78.h"
 #include "JTT92.h"
+#include "LG08.h"
 #include "JCprot.h"
+
 #include "UserProteinSubstitutionModel.h"
 #include "MarkovModulatedSubstitutionModel.h"
 #include "G2001.h"
