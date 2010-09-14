@@ -68,7 +68,7 @@ namespace bpp
  * @f]
  * and
  * @f[
- * \forall 1 <= i < n, r_i = \frac{\rho_i}{1-(\rho_0+...\rho_{i-1})}
+ * \forall 1 <= i < n, r_i = \frac{\rho_i}{1-(\rho_1+...\rho_{i-1})}
  * @f]
  * where @f$\rho_i@f$ stands for the rate of position @f$i@f$.
  */
