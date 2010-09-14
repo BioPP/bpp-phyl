@@ -62,6 +62,8 @@ namespace bpp
  * (called "relratei") with:
  * @f[
  * 1 <= i < n, \rho_i = (1-r_1).(1-r_2)...(1-r_{i-1}).r_{i}
+ * @f]
+ * @f[
  * \rho_n = (1-r_1).(1-r_2)...(1-r_{n-1})
  * @f]
  * and
