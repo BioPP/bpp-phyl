@@ -59,7 +59,7 @@ namespace bpp
  * If there are @f$n@f$ models, @f$\rho_i@f$ is the rate of
  * model i (@f$\sum_{i=1}^{n} \rho_i = 1@f$) and the rates
  * are defined by relative rates parameters @f$r_i@f$
- * (called "relrate_i") with:
+ * (called "relratei") with:
  * @f[
  * 1 <= i < n, \rho_i = (1-r_1).(1-r_2)...(1-r_{i-1}).r_{i}
  * \rho_n = (1-r_1).(1-r_2)...(1-r_{n-1})
