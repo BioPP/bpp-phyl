@@ -42,8 +42,7 @@ knowledge of the CeCILL license and that you accept its terms.
 
 #include "SubstitutionModel.h"
 
-//From NumCalc:
-#include <NumCalc/AbstractParameterAliasable.h>
+#include <Bpp/Numeric/AbstractParameterAliasable.h>
 
 namespace bpp
 {

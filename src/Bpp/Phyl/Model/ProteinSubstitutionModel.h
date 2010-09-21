@@ -43,7 +43,7 @@ knowledge of the CeCILL license and that you accept its terms.
 #include "SubstitutionModel.h"
 
 // From SeqLib:
-#include <Seq/ProteicAlphabet.h>
+#include <Bpp/Seq/Alphabet/ProteicAlphabet.h>
 
 namespace bpp
 {

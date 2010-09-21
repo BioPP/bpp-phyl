@@ -44,7 +44,7 @@ knowledge of the CeCILL license and that you accept its terms.
 #include "NucleotideSubstitutionModel.h"
 
 // From SeqLib:
-#include <Seq/CodonAlphabet.h>
+#include <Bpp/Seq/Alphabet/CodonAlphabet.h>
 
 namespace bpp
 {

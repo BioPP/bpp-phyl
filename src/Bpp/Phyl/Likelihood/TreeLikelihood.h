@@ -40,20 +40,19 @@ knowledge of the CeCILL license and that you accept its terms.
 #ifndef _TREELIKELIHOOD_H_
 #define _TREELIKELIHOOD_H_
 
-#include "Node.h"
-#include "Tree.h"
-#include "SubstitutionModel.h"
+#include "../Node.h"
+#include "../Tree.h"
+#include "../Model/SubstitutionModel.h"
 #include "TreeLikelihoodData.h"
 
-// From NumCalc:
-#include <NumCalc/ParameterList.h>
-#include <NumCalc/Parametrizable.h>
-#include <NumCalc/Functions.h>
-#include <NumCalc/VectorTools.h>
+#include <Bpp/Numeric/ParameterList.h>
+#include <Bpp/Numeric/Parametrizable.h>
+#include <Bpp/Numeric/Function/Functions.h>
+#include <Bpp/Numeric/VectorTools.h>
 
 // From SeqLib:
-#include <Seq/Alphabet.h>
-#include <Seq/SiteContainer.h>
+#include <Bpp/Seq/Alphabet/Alphabet.h>
+#include <Bpp/Seq/Container/SiteContainer.h>
 
 namespace bpp
 {

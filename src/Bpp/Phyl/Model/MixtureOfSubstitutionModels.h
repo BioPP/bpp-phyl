@@ -1,6 +1,6 @@
 //
 // File: MixtureOfSubstitutionModels.h
-// Created by: Davud Fournier, Laurent Gueguen
+// Created by: David Fournier, Laurent Gueguen
 //
 
 /*
@@ -39,10 +39,9 @@
 #ifndef _MIXTUREOFSUBSTITUTIONMODELS_H_
 #define _MIXTUREOFSUBSTITUTIONMODELS_H_
 
-#include "NumCalc/distributions"
-#include "NumCalc/VectorTools.h"
 #include "MixedSubstitutionModel.h"
-//#include "Seq/alphabets"
+#include <Bpp/Numeric/Prob.all>
+#include <Bpp/Numeric/VectorTools.h>
 
 #include <vector>
 #include <string>

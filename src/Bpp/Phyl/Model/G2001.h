@@ -42,9 +42,8 @@ knowledge of the CeCILL license and that you accept its terms.
 
 #include "MarkovModulatedSubstitutionModel.h"
 
-//From NumCalc:
-#include <NumCalc/DiscreteDistribution.h>
-#include <NumCalc/Parameter.h>
+#include <Bpp/Numeric/Prob/DiscreteDistribution.h>
+#include <Bpp/Numeric/Parameter.h>
 
 namespace bpp
 {

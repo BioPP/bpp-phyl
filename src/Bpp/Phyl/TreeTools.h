@@ -45,15 +45,12 @@ knowledge of the CeCILL license and that you accept its terms.
 #include "Tree.h"
 #include "BipartitionList.h"
 
-// From Utils:
-#include <Utils/Exceptions.h>
-
-// From NumCalc:
-#include <NumCalc/VectorTools.h>
+#include <Bpp/Exceptions.h>
+#include <Bpp/Numeric/VectorTools.h>
 
 // From SeqLib:
-#include <Seq/VectorSiteContainer.h>
-#include <Seq/DistanceMatrix.h>
+#include <Bpp/Seq/Container/VectorSiteContainer.h>
+#include <Bpp/Seq/DistanceMatrix.h>
 
 namespace bpp
 {

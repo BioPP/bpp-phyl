@@ -41,26 +41,22 @@
 #ifndef _PHYLOGENETICSAPPLICATIONTOOLS_H_
 #define _PHYLOGENETICSAPPLICATIONTOOLS_H_
 
-#include "Tree.h"
-#include "SubstitutionModel.h"
-#include "SubstitutionModelSet.h"
-#include "MarkovModulatedSubstitutionModel.h"
-#include "HomogeneousTreeLikelihood.h"
-#include "ClockTreeLikelihood.h"
-
-// From Utils:
-#include <Utils/TextTools.h>
-#include <Utils/StringTokenizer.h>
-#include <Utils/OutputStream.h>
-
-// From NumCalc:
-#include <NumCalc/DiscreteDistribution.h>
-#include <NumCalc/MultipleDiscreteDistribution.h>
-#include <NumCalc/Optimizer.h>
+#include "../Tree.h"
+#include "../Model/SubstitutionModel.h"
+#include "../Model/SubstitutionModelSet.h"
+#include "../Model/MarkovModulatedSubstitutionModel.h"
+#include "../Likelihood/HomogeneousTreeLikelihood.h"
+#include "../Likelihood/ClockTreeLikelihood.h"
+#include <Bpp/Text/TextTools.h>
+#include <Bpp/Text/StringTokenizer.h>
+#include <Bpp/Io/OutputStream.h>
+#include <Bpp/Numeric/Prob/DiscreteDistribution.h>
+#include <Bpp/Numeric/Prob/MultipleDiscreteDistribution.h>
+#include <Bpp/Numeric/Function/Optimizer.h>
 
 // From SeqLib:
-#include <Seq/SiteContainer.h>
-#include <Seq/VectorSiteContainer.h>
+#include <Bpp/Seq/Container/SiteContainer.h>
+#include <Bpp/Seq/Container/VectorSiteContainer.h>
 
 // From the STL:
 #include <string>

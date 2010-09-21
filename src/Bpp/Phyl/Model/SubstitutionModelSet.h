@@ -42,21 +42,18 @@
 #define _SUBSTITUTIONMODELSET_H_
 
 
-#include "Tree.h"
+#include "../Tree.h"
 #include "SubstitutionModel.h"
 #include "AbstractSubstitutionModel.h"
 #include "FrequenciesSet.h"
 
-// From NumCalc:
-#include <NumCalc/RandomTools.h>
-#include <NumCalc/VectorTools.h>
-
-// From utils:
-#include <Utils/Exceptions.h>
+#include <Bpp/Exceptions.h>
+#include <Bpp/Numeric/RandomTools.h>
+#include <Bpp/Numeric/VectorTools.h>
 
 // From Seqlib:
-#include <Seq/Alphabet.h>
-#include <Seq/NucleicAlphabet.h>
+#include <Bpp/Seq/Alphabet/Alphabet.h>
+#include <Bpp/Seq/Alphabet/NucleicAlphabet.h>
 
 // From the STL:
 #include <vector>

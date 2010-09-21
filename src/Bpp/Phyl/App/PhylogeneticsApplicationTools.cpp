@@ -39,28 +39,25 @@
  */
 
 #include "PhylogeneticsApplicationTools.h"
-#include "models"
+#include "../Model.all"
+#include "../Likelihood.all"
 #include "OptimizationTools.h"
 #include "Tree.h"
-#include "Newick.h"
-#include "NexusIOTree.h"
-#include "treelikelihoods"
+#include "../Io/Newick.h"
+#include "../Io/NexusIOTree.h"
 
-// From Utils:
-#include <Utils/FileTools.h>
-#include <Utils/TextTools.h>
-#include <Utils/ApplicationTools.h>
-#include <Utils/StringTokenizer.h>
-#include <Utils/KeyvalTools.h>
-
-// From NumCalc:
-#include <NumCalc/distributions>
-#include <NumCalc/optimizers>
+#include <Bpp/Io/FileTools.h>
+#include <Bpp/Text/TextTools.h>
+#include <Bpp/App/ApplicationTools.h>
+#include <Bpp/Text/StringTokenizer.h>
+#include <Bpp/Text/KeyvalTools.h>
+#include <Bpp/Numeric/Prob.all>
+#include <Bpp/Numeric/Function.all>
 
 // From SeqLib:
-#include <Seq/AlphabetTools.h>
-#include <Seq/SequenceContainerTools.h>
-#include <Seq/SequenceApplicationTools.h>
+#include <Bpp/Seq/Alphabet/AlphabetTools.h>
+#include <Bpp/Seq/Container/SequenceContainerTools.h>
+#include <Bpp/Seq/App/SequenceApplicationTools.h>
 
 using namespace bpp;
 

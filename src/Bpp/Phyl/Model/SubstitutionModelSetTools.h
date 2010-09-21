@@ -41,7 +41,7 @@ knowledge of the CeCILL license and that you accept its terms.
 #define _SUBSTITUTIONMODELSETTOOLS_H_
 
 #include "SubstitutionModelSet.h"
-#include "Tree.h"
+#include "../Tree.h"
 
 //From the STL:
 #include <vector>

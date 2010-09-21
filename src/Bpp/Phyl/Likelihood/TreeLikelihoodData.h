@@ -41,12 +41,12 @@ knowledge of the CeCILL license and that you accept its terms.
 #ifndef _TREELIKELIHOODDATA_H_
 #define _TREELIKELIHOODDATA_H_
 
-#include "Node.h"
-#include "TreeTemplate.h"
+#include "../Node.h"
+#include "../TreeTemplate.h"
 
 //From SeqLib:
-#include <Seq/Alphabet.h>
-#include <Seq/SiteContainer.h>
+#include <Bpp/Seq/Alphabet/Alphabet.h>
+#include <Bpp/Seq/Container/SiteContainer.h>
 
 namespace bpp
 {

@@ -41,18 +41,15 @@
 #ifndef _FREQUENCIESSET_H_
 #define _FREQUENCIESSET_H_
 
-// From NumCalc:
-#include <NumCalc/Parametrizable.h>
-#include <NumCalc/VectorTools.h>
-#include <NumCalc/AbstractParametrizable.h>
-
-// From SeqLib:
-#include <Seq/Alphabet.h>
-#include <Seq/NucleicAlphabet.h>
-#include <Seq/ProteicAlphabet.h>
-#include <Seq/WordAlphabet.h>
-#include <Seq/CodonAlphabet.h>
-#include <Seq/GeneticCode.h>
+#include <Bpp/Numeric/Parametrizable.h>
+#include <Bpp/Numeric/VectorTools.h>
+#include <Bpp/Numeric/AbstractParametrizable.h>
+#include <Bpp/Seq/Alphabet/Alphabet.h>
+#include <Bpp/Seq/Alphabet/NucleicAlphabet.h>
+#include <Bpp/Seq/Alphabet/ProteicAlphabet.h>
+#include <Bpp/Seq/Alphabet/WordAlphabet.h>
+#include <Bpp/Seq/Alphabet/CodonAlphabet.h>
+#include <Bpp/Seq/GeneticCode/GeneticCode.h>
 
 namespace bpp
 {

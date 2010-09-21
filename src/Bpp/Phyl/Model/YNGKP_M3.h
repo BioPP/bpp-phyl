@@ -44,7 +44,7 @@ knowledge of the CeCILL license and that you accept its terms.
 #include "MixtureOfSubstitutionModels.h"
 #include "FrequenciesSet.h"
 
-#include <Seq/GeneticCode.h>
+#include <Bpp/Seq/GeneticCode/GeneticCode.h>
 
 namespace bpp
 {

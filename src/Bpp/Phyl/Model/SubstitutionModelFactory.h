@@ -41,12 +41,12 @@ knowledge of the CeCILL license and that you accept its terms.
 #ifndef _SUBSTITUTIOMODELFACTORY_H_
 #define _SUBSTITUTIOMODELFACTORY_H_
 
-#include "models"
+#include "../Model.all"
 #include "Tree.h"
 
 // From SeqLib:
-#include <Seq/Alphabet.h>
-#include <Seq/AlphabetExceptions.h>
+#include <Bpp/Seq/Alphabet/Alphabet.h>
+#include <Bpp/Seq/Alphabet/AlphabetExceptions.h>
 
 // From the STL:
 #include <string>

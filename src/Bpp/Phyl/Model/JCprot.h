@@ -40,7 +40,7 @@ knowledge of the CeCILL license and that you accept its terms.
 #ifndef _JCPROT_H_
 #define _JCPROT_H_
 
-#include <Seq/ProteicAlphabet.h>
+#include <Bpp/Seq/Alphabet/ProteicAlphabet.h>
 #include "ProteinSubstitutionModel.h"
 #include "AbstractSubstitutionModel.h"
 #include "FrequenciesSet.h"

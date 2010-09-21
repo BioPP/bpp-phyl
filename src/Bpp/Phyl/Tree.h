@@ -43,7 +43,7 @@ knowledge of the CeCILL license and that you accept its terms.
 #include "TreeExceptions.h"
 
 // From Utils:
-#include <Utils/Clonable.h>
+#include <Bpp/Clonable.h>
 
 // From the STL:
 #include <string>

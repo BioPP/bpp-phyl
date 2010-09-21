@@ -43,7 +43,7 @@
 #include "FrequenciesSet.h"
 
 // From SeqLib:
-#include <Seq/CodonAlphabet.h>
+#include <Bpp/Seq/Alphabet/CodonAlphabet.h>
 
 namespace bpp
 {

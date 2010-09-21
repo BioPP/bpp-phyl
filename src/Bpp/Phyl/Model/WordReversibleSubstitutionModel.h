@@ -41,10 +41,8 @@
 #define _WORDREVERSIBLESUBSTITUTIONMODEL_H_
 
 #include "AbstractWordReversibleSubstitutionModel.h"
-#include <NumCalc/Matrix.h>
-
-// From Utils
-#include <Utils/BppVector.h>
+#include <Bpp/Numeric/Matrix/Matrix.h>
+#include <Bpp/BppVector.h>
 
 namespace bpp
 {

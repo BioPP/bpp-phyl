@@ -43,10 +43,9 @@ knowledge of the CeCILL license and that you accept its terms.
 
 #include "TreeLikelihood.h"
 #include "DiscreteRatesAcrossSitesTreeLikelihood.h"
-#include "TreeTemplate.h"
+#include "../TreeTemplate.h"
 
-// From NumCalc:
-#include <NumCalc/ParameterList.h>
+#include <Bpp/Numeric/ParameterList.h>
 
 namespace bpp
 {

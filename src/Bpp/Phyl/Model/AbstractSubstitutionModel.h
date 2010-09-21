@@ -42,9 +42,8 @@
 
 #include "SubstitutionModel.h"
 
-//From NumCalc:
-#include <NumCalc/AbstractParameterAliasable.h>
-#include <NumCalc/VectorTools.h>
+#include <Bpp/Numeric/AbstractParameterAliasable.h>
+#include <Bpp/Numeric/VectorTools.h>
 
 namespace bpp
 {

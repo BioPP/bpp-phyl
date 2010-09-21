@@ -41,7 +41,7 @@ knowledge of the CeCILL license and that you accept its terms.
 #define _GY94_H_
 
 #include "CodonAsynonymousFrequenciesReversibleSubstitutionModel.h"
-#include <Seq/GranthamAAChemicalDistance.h>
+#include <Bpp/Seq/StateProperties/GranthamAAChemicalDistance.h>
 
 namespace bpp
 {

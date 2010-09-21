@@ -43,9 +43,9 @@
 #include "AbstractCodonFrequenciesReversibleSubstitutionModel.h"
 
 // From SeqLib:
-#include <Seq/CodonAlphabet.h>
-#include <Seq/GeneticCode.h>
-#include <Seq/AlphabetIndex2.h>
+#include <Bpp/Seq/Alphabet/CodonAlphabet.h>
+#include <Bpp/Seq/StateProperties/AlphabetIndex2.h>
+#include <Bpp/Seq/GeneticCode/GeneticCode.h>
 
 namespace bpp
 {

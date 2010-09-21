@@ -45,7 +45,7 @@ knowledge of the CeCILL license and that you accept its terms.
 #include "AbstractSubstitutionModel.h"
 
 // From SeqLib:
-#include <Seq/NucleicAlphabet.h>
+#include <Bpp/Seq/Alphabet/NucleicAlphabet.h>
 
 namespace bpp
 {

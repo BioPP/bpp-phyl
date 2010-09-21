@@ -41,7 +41,7 @@ knowledge of the CeCILL license and that you accept its terms.
 #ifndef _RATEDISTRIBUTIONFACTORY_H_
 #define _RATEDISTRIBUTIONFACTORY_H_
 
-#include <NumCalc/distributions>
+#include <Bpp/Numeric/Prob.all>
 
 // From the STL:
 #include <string>

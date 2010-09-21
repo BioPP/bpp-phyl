@@ -42,9 +42,8 @@ knowledge of the CeCILL license and that you accept its terms.
 
 #include "TreeLikelihood.h"
 
-// From the NumCalc library:
-#include <NumCalc/DiscreteDistribution.h>
-#include <NumCalc/ParameterList.h>
+#include <Bpp/Numeric/Prob/DiscreteDistribution.h>
+#include <Bpp/Numeric/ParameterList.h>
 
 namespace bpp
 {

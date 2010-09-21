@@ -42,18 +42,17 @@ knowledge of the CeCILL license and that you accept its terms.
 
 #include "TreeExceptions.h"
 
+#include <Bpp/Clonable.h>
+#include <Bpp/Utils/MapTools.h>
+#include <Bpp/BppString.h>
+#include <Bpp/Numeric/Number.h>
+
 // From the STL:
 #include <string>
 #include <vector>
 #include <map>
 #include <iostream>
 #include <algorithm>
-
-// From Utils:
-#include <Utils/Clonable.h>
-#include <Utils/MapTools.h>
-#include <Utils/BppString.h>
-#include <Utils/Number.h>
 
 namespace bpp
 {

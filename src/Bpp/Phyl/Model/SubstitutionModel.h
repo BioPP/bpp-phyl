@@ -44,19 +44,16 @@
 #include <map>
 #include <string>
 
+#include <Bpp/Exceptions.h>
+#include <Bpp/Numeric/Parameter.h>
+#include <Bpp/Numeric/ParameterList.h>
+#include <Bpp/Numeric/ParameterAliasable.h>
+#include <Bpp/Numeric/VectorTools.h>
+#include <Bpp/Numeric/Matrix/Matrix.h>
+
 //From Seqlib:
-#include <Seq/Alphabet.h>
-#include <Seq/SequenceContainer.h>
-
-// From utils:
-#include <Utils/Exceptions.h>
-
-// From NumCalc:
-#include <NumCalc/Parameter.h>
-#include <NumCalc/ParameterList.h>
-#include <NumCalc/ParameterAliasable.h>
-#include <NumCalc/VectorTools.h>
-#include <NumCalc/Matrix.h>
+#include <Bpp/Seq/Alphabet/Alphabet.h>
+#include <Bpp/Seq/Container/SequenceContainer.h>
 
 namespace bpp
 {

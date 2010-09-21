@@ -42,15 +42,12 @@ knowledge of the CeCILL license and that you accept its terms.
 
 #include "Tree.h"
 
+#include <Bpp/Utils/MapTools.h>
+#include <Bpp/Numeric/Matrix/Matrix.h>
+
 // From the STL:
 #include <map>
 #include <algorithm>
-
-// From Utils:
-#include <Utils/MapTools.h>
-
-// From NumCalc:
-#include <NumCalc/Matrix.h>
 
 namespace bpp
 {

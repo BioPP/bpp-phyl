@@ -40,9 +40,8 @@
 #ifndef _TREEEXCEPTIONS_H_
 #define _TREEEXCEPTIONS_H_
 
-// From Utils:
-#include <Utils/Exceptions.h>
-#include <Utils/TextTools.h>
+#include <Bpp/Exceptions.h>
+#include <Bpp/Text/TextTools.h>
 
 // From the STL:
 #include <string>
