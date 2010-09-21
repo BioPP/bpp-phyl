@@ -69,11 +69,10 @@ ENDMACRO(IMPROVED_FIND_LIBRARY)
 
 #Find the Bio++ libraries:
 IMPROVED_FIND_LIBRARY(LIBS bpp-seq Seq/Alphabet.h)
-IMPROVED_FIND_LIBRARY(LIBS bpp-numcalc NumCalc/NumTools.h)
-IMPROVED_FIND_LIBRARY(LIBS bpp-utils Utils/Clonable.h)
+IMPROVED_FIND_LIBRARY(LIBS bpp-core Bpp/Clonable.h)
 
 # Subdirectories
-ADD_SUBDIRECTORY(Phyl)
+ADD_SUBDIRECTORY(src)
 
 # Doxygen
 FIND_PACKAGE(Doxygen)

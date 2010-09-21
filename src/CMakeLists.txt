@@ -1,5 +1,5 @@
-# CMake script for Bio++ NumCalc
-# Author: Sylvain Gaillard
+# CMake script for Bio++ PhylLib
+# Author: Sylvain Gaillard and Julien Dutheil
 # Created: 20/08/2009
 
 # File list
@@ -269,4 +269,4 @@ target_link_libraries(bppphyl-shared ${LIBS})
 install(TARGETS bppphyl-static bppphyl-shared DESTINATION lib)
 
 # Install headers
-install(FILES ${H_FILES} DESTINATION include/Phyl)
+install(DIRECTORY Bpp/ DESTINATION include/Bpp FILES_MATCHING PATTERN ".svn" EXCLUDE PATTERN "*.h" PATTERN "*.all")
