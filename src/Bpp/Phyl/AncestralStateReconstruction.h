@@ -58,50 +58,50 @@ class Node;
  */
 class AncestralStateReconstruction
 {
-	public:
-		AncestralStateReconstruction() {}
-		virtual ~AncestralStateReconstruction() {}
+  public:
+    AncestralStateReconstruction() {}
+    virtual ~AncestralStateReconstruction() {}
 
-	public:
-		/**
-		 * @brief Get ancestral states for a given node as a vector of int.
-		 *
-		 * The size of the vector depends on the implementation.
-		 * This method is mainly for efficient internal use in other classes.
-		 * Consider using the getAncestralSequenceForNode() method for a more
-		 * general output.
-		 *
-		 * @param nodeId the id of the node at which the states must be reconstructed.
-		 * @return A vector of states indices.
-		 * @see getAncestralSequenceForNode
-		 */ 
-		virtual std::vector<unsigned int> getAncestralStatesForNode(int nodeId) const = 0;
+  public:
+    /**
+     * @brief Get ancestral states for a given node as a vector of int.
+     *
+     * The size of the vector depends on the implementation.
+     * This method is mainly for efficient internal use in other classes.
+     * Consider using the getAncestralSequenceForNode() method for a more
+     * general output.
+     *
+     * @param nodeId the id of the node at which the states must be reconstructed.
+     * @return A vector of states indices.
+     * @see getAncestralSequenceForNode
+     */ 
+    virtual std::vector<unsigned int> getAncestralStatesForNode(int nodeId) const = 0;
 
-		/**
-		 * @brief Get all ancestral states for all nodes.
-		 *
-		 * Call the getAncestralSequenceForNode() method on each node in the tree.
-		 *
-		 * @return A map with nodes id as key, and a vector of states indices as value.
-		 * @see getAncestralSequenceForNode
-		 */
-		virtual std::map<int, std::vector<unsigned int> > getAllAncestralStates() const = 0;
+    /**
+     * @brief Get all ancestral states for all nodes.
+     *
+     * Call the getAncestralSequenceForNode() method on each node in the tree.
+     *
+     * @return A map with nodes id as key, and a vector of states indices as value.
+     * @see getAncestralSequenceForNode
+     */
+    virtual std::map<int, std::vector<unsigned int> > getAllAncestralStates() const = 0;
 
-		/**
-		 * @brief Get the ancestral sequence for a given node.
-		 *
-		 * @param nodeId The id of the node at which the sequence must be reconstructed.
-		 * @return A sequence object.
-		 */ 
-		virtual Sequence* getAncestralSequenceForNode(int nodeId) const = 0;
+    /**
+     * @brief Get the ancestral sequence for a given node.
+     *
+     * @param nodeId The id of the node at which the sequence must be reconstructed.
+     * @return A sequence object.
+     */ 
+    virtual Sequence* getAncestralSequenceForNode(int nodeId) const = 0;
 
-		/**
-		 * @brief Get all the ancestral sequences for all nodes.
-		 *
-		 * @return A new SiteContainer object.
-		 */ 
+    /**
+     * @brief Get all the ancestral sequences for all nodes.
+     *
+     * @return A new SiteContainer object.
+     */ 
     virtual SiteContainer* getAncestralSequences() const = 0;
-		
+    
 };
 
 } //end of namespace bpp.
