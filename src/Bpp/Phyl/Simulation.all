@@ -1,0 +1,7 @@
+#include "Simulation/SequenceSimulationTools.h"
+#include "Simulation/DetailedSiteSimulator.h"
+#include "Simulation/SiteSimulator.h"
+#include "Simulation/SequenceSimulator.h"
+#include "Simulation/HomogeneousSequenceSimulator.h"
+#include "Simulation/NonHomogeneousSequenceSimulator.h"
+#include "Simulation/MutationProcess.h"

@@ -1,0 +1,8 @@
+#include "Mapping/SubstitutionCount.h"
+#include "Mapping/OneJumpSubstitutionCount.h"
+#include "Mapping/IndexToCount.h"
+#include "Mapping/ProbabilisticSubstitutionMapping.h"
+#include "Mapping/SimpleSubstitutionCount.h"
+#include "Mapping/AnalyticalSubstitutionCount.h"
+#include "Mapping/SubstitutionMapping.h"
+#include "Mapping/SubstitutionMappingTools.h"
