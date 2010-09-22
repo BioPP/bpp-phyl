@@ -38,7 +38,7 @@ knowledge of the CeCILL license and that you accept its terms.
 */
 
 #include "CladogramPlot.h"
-#include "TreeTemplateTools.h"
+#include "../TreeTemplateTools.h"
 
 //From the STL:
 #include <memory>

@@ -42,12 +42,11 @@ knowledge of the CeCILL license and that you accept its terms.
 
 #include "Tree.h"
 
-// From NumCalc:
-#include <NumCalc/VectorTools.h>
+#include <Bpp/Numeric/VectorTools.h>
 
 //From SeqLib:
-#include <Seq/SiteContainer.h>
-#include <Seq/Site.h>
+#include <Bpp/Seq/Site.h>
+#include <Bpp/Seq/Container/SiteContainer.h>
 
 // From the STL:
 #include <map>

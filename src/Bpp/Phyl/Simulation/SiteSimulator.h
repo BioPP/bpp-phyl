@@ -41,7 +41,7 @@ knowledge of the CeCILL license and that you accept its terms.
 #define _SITESIMULATOR_H_
 
 // From SeqLib:
-#include <Seq/Site.h>
+#include <Bpp/Seq/Site.h>
 
 namespace bpp
 {

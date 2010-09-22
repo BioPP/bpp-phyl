@@ -38,12 +38,11 @@ knowledge of the CeCILL license and that you accept its terms.
 */
 
 #include "Newick.h"
-#include "Tree.h"
-#include "TreeTemplate.h"
-#include "TreeTemplateTools.h"
+#include "../Tree.h"
+#include "../TreeTemplate.h"
+#include "../TreeTemplateTools.h"
 
-// From Utils:
-#include <Utils/TextTools.h>
+#include <Bpp/Text/TextTools.h>
 
 using namespace bpp;
 

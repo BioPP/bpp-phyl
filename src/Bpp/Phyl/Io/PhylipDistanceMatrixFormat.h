@@ -40,7 +40,7 @@ knowledge of the CeCILL license and that you accept its terms.
 #ifndef _PHYLIPDISTANCEMATRIXFORMAT_H_
 #define _PHYLIPDISTANCEMATRIXFORMAT_H_
 
-#include "IODistanceMatrix.h"
+#include "IoDistanceMatrix.h"
 
 namespace bpp
 {

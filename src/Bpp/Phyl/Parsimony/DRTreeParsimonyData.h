@@ -44,7 +44,7 @@ knowledge of the CeCILL license and that you accept its terms.
 #include "AbstractTreeParsimonyData.h"
 
 // From SeqLib
-#include <Seq/SiteContainer.h>
+#include <Bpp/Seq/Container/SiteContainer.h>
 
 // From the STL:
 #include <bitset>

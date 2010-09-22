@@ -41,7 +41,7 @@ knowledge of the CeCILL license and that you accept its terms.
 #define _ONEJUMPSUBSTITUTIONCOUNT_H_
 
 #include "SubstitutionCount.h"
-#include "SubstitutionModel.h"
+#include "../Model/SubstitutionModel.h"
 
 namespace bpp
 {

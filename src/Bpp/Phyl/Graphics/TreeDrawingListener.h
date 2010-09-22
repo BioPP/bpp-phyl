@@ -42,8 +42,7 @@ knowledge of the CeCILL license and that you accept its terms.
 
 #include "TreeDrawing.h"
 
-//From Utils:
-#include <Utils/Clonable.h>
+#include <Bpp/Clonable.h>
 
 namespace bpp {
 

@@ -42,8 +42,8 @@ knowledge of the CeCILL license and that you accept its terms.
 #include "TreeTemplateTools.h"
 
 // From SeqLib:
-#include <Seq/VectorSiteContainer.h>
-#include <Seq/SiteTools.h>
+#include <Bpp/Seq/Container/VectorSiteContainer.h>
+#include <Bpp/Seq/SiteTools.h>
 
 using namespace bpp;
 

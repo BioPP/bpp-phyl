@@ -41,9 +41,9 @@ knowledge of the CeCILL license and that you accept its terms.
 #define _DRTREEPARSIMONYSCORE_H_
 
 #include "AbstractTreeParsimonyScore.h"
-#include "NNISearchable.h"
-#include "TreeTools.h"
 #include "DRTreeParsimonyData.h"
+#include "../NNISearchable.h"
+#include "../TreeTools.h"
 
 namespace bpp
 {

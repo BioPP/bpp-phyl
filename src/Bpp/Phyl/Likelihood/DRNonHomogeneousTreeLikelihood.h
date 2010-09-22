@@ -44,9 +44,8 @@ knowledge of the CeCILL license and that you accept its terms.
 #include "DRTreeLikelihood.h"
 #include "DRASDRTreeLikelihoodData.h"
 
-// From NumCalc:
-#include <NumCalc/VectorTools.h>
-#include <NumCalc/DiscreteDistribution.h>
+#include <Bpp/Numeric/VectorTools.h>
+#include <Bpp/Numeric/Prob/DiscreteDistribution.h>
 
 namespace bpp
 {

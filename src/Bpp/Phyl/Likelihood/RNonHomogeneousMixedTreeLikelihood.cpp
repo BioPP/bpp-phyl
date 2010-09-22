@@ -39,13 +39,11 @@
 */
 
 #include "RNonHomogeneousMixedTreeLikelihood.h"
-#include "PatternTools.h"
-#include "MixedSubstitutionModel.h"
-#include "models"
+#include "../PatternTools.h"
+#include "../Model.all"
 
-// From Utils:
-#include <Utils/TextTools.h>
-#include <Utils/ApplicationTools.h>
+#include <Bpp/Text/TextTools.h>
+#include <Bpp/App/ApplicationTools.h>
 
 using namespace bpp;
 

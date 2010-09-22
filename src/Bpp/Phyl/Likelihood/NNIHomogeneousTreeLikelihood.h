@@ -41,13 +41,12 @@ knowledge of the CeCILL license and that you accept its terms.
 #define _NNIHOMOGENEOUSTREELIKELIHOOD_H_
 
 #include "DRHomogeneousTreeLikelihood.h"
-#include "NNISearchable.h"
+#include "../NNISearchable.h"
 
-// From NumCalc:
-#include <NumCalc/VectorTools.h>
-#include <NumCalc/DiscreteDistribution.h>
-#include <NumCalc/BrentOneDimension.h>
-#include <NumCalc/Parametrizable.h>
+#include <Bpp/Numeric/VectorTools.h>
+#include <Bpp/Numeric/Parametrizable.h>
+#include <Bpp/Numeric/Prob/DiscreteDistribution.h>
+#include <Bpp/Numeric/Function/BrentOneDimension.h>
 
 namespace bpp
 {

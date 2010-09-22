@@ -38,10 +38,10 @@ knowledge of the CeCILL license and that you accept its terms.
 */
 
 #include "PGMA.h"
-#include "NodeTemplate.h"
-#include "Tree.h"
-#include "TreeTemplate.h"
-#include "TreeTemplateTools.h"
+#include "../NodeTemplate.h"
+#include "../Tree.h"
+#include "../TreeTemplate.h"
+#include "../TreeTemplateTools.h"
 
 using namespace bpp;
 

@@ -39,10 +39,9 @@ knowledge of the CeCILL license and that you accept its terms.
 */
 
 #include "AbstractAgglomerativeDistanceMethod.h"
-#include "Node.h"
+#include "../Node.h"
 
-// From Utils:
-#include <Utils/ApplicationTools.h>
+#include <Bpp/App/ApplicationTools.h>
 
 using namespace bpp;
 

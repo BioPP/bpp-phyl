@@ -40,17 +40,14 @@ knowledge of the CeCILL license and that you accept its terms.
 */
 
 #include "NonHomogeneousSequenceSimulator.h"
-#include "SubstitutionModelSetTools.h"
+#include "../Model/SubstitutionModelSetTools.h"
 
-// From Utils:
-#include <Utils/ApplicationTools.h>
+#include <Bpp/App/ApplicationTools.h>
+#include <Bpp/Numeric/VectorTools.h>
+#include <Bpp/Numeric/Matrix/MatrixTools.h>
 
 // From SeqLib:
-#include <Seq/VectorSiteContainer.h>
-
-// From NumCalc:
-#include <NumCalc/VectorTools.h>
-#include <NumCalc/MatrixTools.h>
+#include <Bpp/Seq/Container/VectorSiteContainer.h>
 
 using namespace bpp;
 using namespace std;

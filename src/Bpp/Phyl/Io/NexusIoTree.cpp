@@ -37,22 +37,19 @@ The fact that you are presently reading this means that you have had
 knowledge of the CeCILL license and that you accept its terms.
 */
 
-#include "NexusIOTree.h"
-#include "Tree.h"
-#include "TreeTemplate.h"
-#include "TreeTemplateTools.h"
+#include "NexusIoTree.h"
+#include "../Tree.h"
+#include "../TreeTemplate.h"
+#include "../TreeTemplateTools.h"
 
-// From Utils:
-#include <Utils/TextTools.h>
-#include <Utils/FileTools.h>
-#include <Utils/StringTokenizer.h>
-#include <Utils/NestedStringTokenizer.h>
-
-// From NumCalc:
-#include <NumCalc/VectorTools.h>
+#include <Bpp/Text/TextTools.h>
+#include <Bpp/Io/FileTools.h>
+#include <Bpp/Text/StringTokenizer.h>
+#include <Bpp/Text/NestedStringTokenizer.h>
+#include <Bpp/Numeric/VectorTools.h>
 
 //From SeqLib:
-#include <Seq/NexusTools.h>
+#include <Bpp/Seq/Io/NexusTools.h>
 
 using namespace bpp;
 

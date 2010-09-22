@@ -39,8 +39,7 @@ knowledge of the CeCILL license and that you accept its terms.
 
 #include "AbstractDiscreteRatesAcrossSitesTreeLikelihood.h"
 
-// From NumCalc:
-#include <NumCalc/VectorTools.h>
+#include <Bpp/Numeric/VectorTools.h>
 
 using namespace bpp;
 

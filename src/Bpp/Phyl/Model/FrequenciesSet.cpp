@@ -40,17 +40,17 @@
 
 #include "FrequenciesSet.h"
 
-#include <Seq/CodonAlphabet.h>
-#include <Seq/AlphabetTools.h>
+#include <Bpp/Numeric/NumConstants.h>
+#include <Bpp/Numeric/VectorTools.h>
+
+//From SeqLib:
+#include <Bpp/Seq/Alphabet/CodonAlphabet.h>
+#include <Bpp/Seq/Alphabet/AlphabetTools.h>
 
 using namespace bpp;
 
 #include <cmath>
 using namespace std;
-
-// From NumCalc:
-#include <NumCalc/NumConstants.h>
-#include <NumCalc/VectorTools.h>
 
 // ///////////////////////////////////////
 // AbstractFrequenciesSet

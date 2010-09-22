@@ -42,7 +42,7 @@ knowledge of the CeCILL license and that you accept its terms.
 #define _NONHOMOGENEOUSTREELIKELIHOOD_H_
 
 #include "TreeLikelihood.h"
-#include "SubstitutionModelSet.h"
+#include "../Model/SubstitutionModelSet.h"
 
 namespace bpp
 {

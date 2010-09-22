@@ -39,8 +39,7 @@ knowledge of the CeCILL license and that you accept its terms.
 
 #include "RASTools.h"
 
-// From NumCalc:
-#include <NumCalc/SimpleDiscreteDistribution.h>
+#include <Bpp/Numeric/Prob/SimpleDiscreteDistribution.h>
 
 using namespace bpp;
 

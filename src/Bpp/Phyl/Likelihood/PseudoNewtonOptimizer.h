@@ -40,8 +40,7 @@ knowledge of the CeCILL license and that you accept its terms.
 #ifndef _PSEUDONEWTONOPTIMIZER_H_
 #define _PSEUDONEWTONOPTIMIZER_H_
 
-// From NumCalc:
-#include <NumCalc/AbstractOptimizer.h>
+#include <Bpp/Numeric/Function/AbstractOptimizer.h>
 
 namespace bpp
 {

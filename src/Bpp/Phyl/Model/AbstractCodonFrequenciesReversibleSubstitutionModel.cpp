@@ -39,7 +39,7 @@
 #include "AbstractCodonFrequenciesReversibleSubstitutionModel.h"
 #include "K80.h"
 
-#include <Seq/AlphabetTools.h>
+#include <Bpp/Seq/Alphabet/AlphabetTools.h>
 
 using namespace bpp;
 

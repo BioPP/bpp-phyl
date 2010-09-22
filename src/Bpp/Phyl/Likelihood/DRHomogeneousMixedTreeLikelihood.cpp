@@ -43,11 +43,10 @@
 #include <iostream>
 
 #include <math.h>
-#include "PatternTools.h"
+#include "../PatternTools.h"
 
-#include <NumCalc/VectorTools.h>
-
-#include <Utils/ApplicationTools.h>
+#include <Bpp/Numeric/VectorTools.h>
+#include <Bpp/App/ApplicationTools.h>
 
 using namespace bpp;
 using namespace std;

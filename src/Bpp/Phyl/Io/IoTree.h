@@ -40,16 +40,15 @@ knowledge of the CeCILL license and that you accept its terms.
 #ifndef _IOTREE_H_
 #define _IOTREE_H_
 
-#include "Tree.h"
+#include "../Tree.h"
 
 // From the STL:
 #include <string>
 #include <iostream>
 #include <fstream>
 
-//From Utils:
-#include <Utils/Exceptions.h>
-#include <Utils/IOFormat.h>
+#include <Bpp/Exceptions.h>
+#include <Bpp/Io/IoFormat.h>
 
 namespace bpp
 {

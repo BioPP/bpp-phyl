@@ -39,13 +39,13 @@ knowledge of the CeCILL license and that you accept its terms.
 */
 
 #include "DRASRTreeLikelihoodData.h"
-#include "PatternTools.h"
+#include "../PatternTools.h"
 
 //From SeqLib:
-#include <Seq/SiteTools.h>
-#include <Seq/AlignedSequenceContainer.h>
-#include <Seq/SequenceContainerTools.h>
-#include <Seq/VectorSiteContainer.h>
+#include <Bpp/Seq/SiteTools.h>
+#include <Bpp/Seq/Container/AlignedSequenceContainer.h>
+#include <Bpp/Seq/Container/SequenceContainerTools.h>
+#include <Bpp/Seq/Container/VectorSiteContainer.h>
 
 using namespace bpp;
 

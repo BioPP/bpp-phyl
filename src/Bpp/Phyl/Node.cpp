@@ -40,9 +40,8 @@ knowledge of the CeCILL license and that you accept its terms.
 #include "Node.h"
 #include "TreeTools.h"
 
-//From Utils:
-#include <Utils/Exceptions.h>
-#include <Utils/TextTools.h>
+#include <Bpp/Exceptions.h>
+#include <Bpp/Text/TextTools.h>
 
 using namespace bpp;
 

@@ -39,16 +39,13 @@ knowledge of the CeCILL license and that you accept its terms.
 
 /**************************************************************************/
 
+#include "../TreeTemplateTools.h"
 #include "PseudoNewtonOptimizer.h"
-#include "TreeTemplateTools.h"
 #include "DRHomogeneousTreeLikelihood.h"
 
-// From NumCalc:
-#include <NumCalc/VectorTools.h>
-
-// From Utils:
-#include <Utils/TextTools.h>
-#include <Utils/ApplicationTools.h>
+#include <Bpp/Numeric/VectorTools.h>
+#include <Bpp/Text/TextTools.h>
+#include <Bpp/App/ApplicationTools.h>
 
 using namespace bpp;
 

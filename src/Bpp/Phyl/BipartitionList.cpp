@@ -41,20 +41,16 @@ knowledge of the CeCILL license and that you accept its terms.
 #include "BipartitionTools.h"
 
 #include "TreeTemplate.h"
-#include "iotree"
 
-// From Utils:
-#include <Utils/exceptions>
-#include <Utils/TextTools.h>
-#include <Utils/FileTools.h>
+#include <Bpp/Exceptions.h>
+#include <Bpp/Text/TextTools.h>
+#include <Bpp/Io/FileTools.h>
+#include <Bpp/Numeric/RandomTools.h>
 
 // From SeqLib:
-#include <Seq/alphabets>
-#include <Seq/containers>
-#include <Seq/ioseq>
+#include <Bpp/Seq/Alphabet/Alphabet.h>
+#include <Bpp/Seq/Alphabet/AlphabetTools.h>
 
-// From NumCalc: 
-#include <NumCalc/random>
 
 using namespace bpp;
 

@@ -40,8 +40,8 @@ knowledge of the CeCILL license and that you accept its terms.
 #ifndef _NEWICK_H_
 #define _NEWICK_H_
 
-#include "IOTree.h"
-#include "TreeTemplate.h"
+#include "IoTree.h"
+#include "../TreeTemplate.h"
 
 namespace bpp
 {

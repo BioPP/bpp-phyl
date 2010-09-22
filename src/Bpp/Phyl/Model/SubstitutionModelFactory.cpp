@@ -42,7 +42,7 @@ knowledge of the CeCILL license and that you accept its terms.
 #include "SubstitutionModelSetTools.h"
 
 // From SeqLib:
-#include <Seq/AlphabetTools.h>
+#include <Bpp/Seq/Alphabet/AlphabetTools.h>
 
 using namespace bpp;
 

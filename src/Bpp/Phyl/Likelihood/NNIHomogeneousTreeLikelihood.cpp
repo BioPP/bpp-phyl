@@ -39,12 +39,9 @@ knowledge of the CeCILL license and that you accept its terms.
 
 #include "NNIHomogeneousTreeLikelihood.h"
 
-// From Utils:
-#include <Utils/TextTools.h>
-#include <Utils/ApplicationTools.h>
-
-// From NumCalc:
-#include <NumCalc/AutoParameter.h>
+#include <Bpp/Text/TextTools.h>
+#include <Bpp/App/ApplicationTools.h>
+#include <Bpp/Numeric/AutoParameter.h>
 
 using namespace bpp;
 

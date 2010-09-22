@@ -40,8 +40,7 @@ knowledge of the CeCILL license and that you accept its terms.
 #ifndef _CLADOGRAMPLOT_H_
 #define _CLADOGRAMPLOT_H_
 
-// From Utils:
-#include <Utils/Exceptions.h>
+#include <Bpp/Exceptions.h>
 
 #include "AbstractDendrogramPlot.h"
 

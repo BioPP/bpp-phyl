@@ -39,11 +39,10 @@ knowledge of the CeCILL license and that you accept its terms.
 
 #include "T92.h"
 
-// From SeqLib:
-#include <Seq/SequenceContainerTools.h>
+#include <Bpp/Numeric/Matrix/MatrixTools.h>
 
-// From NumCalc:
-#include <NumCalc/MatrixTools.h>
+// From SeqLib:
+#include <Bpp/Seq/Container/SequenceContainerTools.h>
 
 using namespace bpp;
 

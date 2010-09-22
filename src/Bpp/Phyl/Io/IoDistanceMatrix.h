@@ -40,8 +40,7 @@ knowledge of the CeCILL license and that you accept its terms.
 #ifndef _IODISTANCEMATRIX_H_
 #define _IODISTANCEMATRIX_H_
 
-// From Utils:
-#include <Utils/IOFormat.h>
+#include <Bpp/Io/IoFormat.h>
 
 // From the STL:
 #include <iostream>

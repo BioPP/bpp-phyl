@@ -45,7 +45,7 @@
 #include "FrequenciesSet.h"
 
 // From SeqLib:
-#include <Seq/ProteicAlphabet.h>
+#include <Bpp/Seq/Alphabet/ProteicAlphabet.h>
 
 namespace bpp
 {

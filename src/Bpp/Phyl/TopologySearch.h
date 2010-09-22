@@ -40,9 +40,8 @@ knowledge of the CeCILL license and that you accept its terms.
 #ifndef _TOPOLOGYSEARCH_H_
 #define _TOPOLOGYSEARCH_H_
 
-// From Utils:
-#include <Utils/Exceptions.h>
-#include <Utils/Clonable.h>
+#include <Bpp/Exceptions.h>
+#include <Bpp/Clonable.h>
 
 // From the STL:
 #include <string>

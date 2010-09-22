@@ -41,11 +41,10 @@ knowledge of the CeCILL license and that you accept its terms.
 #ifndef _TREEPARSIMONYDATA_H_
 #define _TREEPARSIMONYDATA_H_
 
-#include "Node.h"
-#include "TreeTemplate.h"
+#include "../Node.h"
+#include "../TreeTemplate.h"
 
-// From SeqLib:
-#include <Utils/Clonable.h>
+#include <Bpp/Clonable.h>
 
 namespace bpp
 {

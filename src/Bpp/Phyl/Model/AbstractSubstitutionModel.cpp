@@ -39,16 +39,13 @@
 
 #include "AbstractSubstitutionModel.h"
 
-// From Utils:
-#include <Utils/TextTools.h>
-
-// From NumCalc:
-#include <NumCalc/MatrixTools.h>
-#include <NumCalc/VectorTools.h>
-#include <NumCalc/EigenValue.h>
+#include <Bpp/Text/TextTools.h>
+#include <Bpp/Numeric/VectorTools.h>
+#include <Bpp/Numeric/Matrix/MatrixTools.h>
+#include <Bpp/Numeric/Matrix/EigenValue.h>
 
 // From SeqLib:
-#include <Seq/SequenceContainerTools.h>
+#include <Bpp/Seq/Container/SequenceContainerTools.h>
 
 using namespace bpp;
 using namespace std;

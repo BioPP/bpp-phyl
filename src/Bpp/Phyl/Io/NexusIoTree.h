@@ -40,8 +40,8 @@ knowledge of the CeCILL license and that you accept its terms.
 #ifndef _NEXUSIOTREE_H_
 #define _NEXUSIOTREE_H_
 
-#include "IOTree.h"
-#include "TreeTemplate.h"
+#include "IoTree.h"
+#include "../TreeTemplate.h"
 
 namespace bpp
 {

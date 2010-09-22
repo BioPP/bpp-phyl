@@ -38,16 +38,12 @@
  */
 #include "COA.h"
 
-// From Utils:
-#include <Utils/FileTools.h>
-#include <Utils/TextTools.h>
-#include <Utils/ApplicationTools.h>
-#include <Utils/StringTokenizer.h>
-
-// From NumCalc:
-#include <NumCalc/VectorTools.h>
-#include <NumCalc/MatrixTools.h>
-
+#include <Bpp/Io/FileTools.h>
+#include <Bpp/Text/TextTools.h>
+#include <Bpp/Text/StringTokenizer.h>
+#include <Bpp/App/ApplicationTools.h>
+#include <Bpp/Numeric/VectorTools.h>
+#include <Bpp/Numeric/Matrix/MatrixTools.h>
 
 // From the STL:
 #include <iostream>
@@ -55,7 +51,6 @@
 #include <string>
 
 using namespace bpp;
-
 using namespace std;
 
 

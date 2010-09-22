@@ -42,11 +42,10 @@
 #define _RNONHOMOGENEOUSMIXEDTREELIKELIHOOD_H_
 
 #include "RNonHomogeneousTreeLikelihood.h"
-#include "SubstitutionModelSet.h"
+#include "../Model/SubstitutionModelSet.h"
 
-// From NumCalc:
-#include <NumCalc/VectorTools.h>
-#include <NumCalc/DiscreteDistribution.h>
+#include <Bpp/Numeric/VectorTools.h>
+#include <Bpp/Numeric/Prob/DiscreteDistribution.h>
 
 using namespace std;
 namespace bpp

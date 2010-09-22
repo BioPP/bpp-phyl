@@ -42,7 +42,7 @@ knowledge of the CeCILL license and that you accept its terms.
 
 #include "AbstractTreeLikelihood.h"
 #include "DiscreteRatesAcrossSitesTreeLikelihood.h"
-#include "SubstitutionModel.h"
+#include "../Model/SubstitutionModel.h"
 
 namespace bpp
 {

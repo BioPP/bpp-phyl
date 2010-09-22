@@ -39,17 +39,16 @@ knowledge of the CeCILL license and that you accept its terms.
 
 #include "TN93.h"
 
+#include <Bpp/Numeric/Matrix/MatrixTools.h>
+#include <Bpp/Numeric/Matrix/EigenValue.h>
+
 // From SeqLib:
-#include <Seq/SequenceContainerTools.h>
+#include <Bpp/Seq/Container/SequenceContainerTools.h>
 
 // From the STL:
 #include <cmath>
 
 using namespace std;
-
-// From NumCalc:
-#include <NumCalc/MatrixTools.h>
-#include <NumCalc/EigenValue.h>
 
 using namespace bpp;
 

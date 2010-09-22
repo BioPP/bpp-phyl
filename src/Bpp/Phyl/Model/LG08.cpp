@@ -40,7 +40,7 @@ knowledge of the CeCILL license and that you accept its terms.
 #include "LG08.h"
 
 //From SeqLib:
-#include <Seq/SequenceContainerTools.h>
+#include <Bpp/Seq/Container/SequenceContainerTools.h>
 
 using namespace bpp;
 using namespace std;

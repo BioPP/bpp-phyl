@@ -42,12 +42,12 @@ knowledge of the CeCILL license and that you accept its terms.
 #define _DRASDRHOMOGENEOUSTREELIKELIHOODDATA_H_
 
 #include "AbstractTreeLikelihoodData.h"
-#include "SubstitutionModel.h"
-#include "PatternTools.h"
-#include "SitePatterns.h"
+#include "../Model/SubstitutionModel.h"
+#include "../PatternTools.h"
+#include "../SitePatterns.h"
 
 //From SeqLib:
-#include <Seq/AlignedSequenceContainer.h>
+#include <Bpp/Seq/Container/AlignedSequenceContainer.h>
 
 // From the STL:
 #include <map>

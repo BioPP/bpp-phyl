@@ -38,16 +38,15 @@ knowledge of the CeCILL license and that you accept its terms.
 */
 
 #include "DRNonHomogeneousTreeLikelihood.h"
-#include "PatternTools.h"
+#include "../PatternTools.h"
+
+#include <Bpp/Text/TextTools.h>
+#include <Bpp/App/ApplicationTools.h>
 
 //From SeqLib:
-#include <Seq/SiteTools.h>
-#include <Seq/AlignedSequenceContainer.h>
-#include <Seq/SequenceContainerTools.h>
-
-// From Utils:
-#include <Utils/TextTools.h>
-#include <Utils/ApplicationTools.h>
+#include <Bpp/Seq/SiteTools.h>
+#include <Bpp/Seq/Container/AlignedSequenceContainer.h>
+#include <Bpp/Seq/Container/SequenceContainerTools.h>
 
 using namespace bpp;
 

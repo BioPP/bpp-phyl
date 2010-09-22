@@ -38,7 +38,7 @@ knowledge of the CeCILL license and that you accept its terms.
 */
 
 #include "DRTreeLikelihoodTools.h"
-#include <NumCalc/VectorTools.h>
+#include <Bpp/Numeric/VectorTools.h>
 
 using namespace bpp;
 

@@ -41,8 +41,8 @@ knowledge of the CeCILL license and that you accept its terms.
 #define _PGMA_H_
 
 #include "AbstractAgglomerativeDistanceMethod.h"
-#include "Tree.h"
-#include "TreeTemplate.h"
+#include "../Tree.h"
+#include "../TreeTemplate.h"
 
 namespace bpp
 {

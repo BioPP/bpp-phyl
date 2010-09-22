@@ -46,7 +46,7 @@
 
 
 // From SeqLib:
-#include <Seq/ProteicAlphabet.h>
+#include <Bpp/Seq/Alphabet/ProteicAlphabet.h>
 
 using namespace std;
 

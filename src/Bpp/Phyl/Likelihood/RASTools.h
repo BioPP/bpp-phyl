@@ -44,8 +44,7 @@ knowledge of the CeCILL license and that you accept its terms.
 
 #include "DiscreteRatesAcrossSitesTreeLikelihood.h"
 
-// From NumCalc:
-#include <NumCalc/DiscreteDistribution.h>
+#include <Bpp/Numeric/Prob/DiscreteDistribution.h>
 
 namespace bpp
 {

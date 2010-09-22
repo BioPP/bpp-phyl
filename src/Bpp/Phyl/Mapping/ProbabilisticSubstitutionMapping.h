@@ -41,13 +41,12 @@ knowledge of the CeCILL license and that you accept its terms.
 #define _PROBABILISTICSUBSTITUTIONMAPPING_H_
 
 #include "SubstitutionMapping.h"
-#include "TreeExceptions.h"
+#include "../TreeExceptions.h"
+
+#include <Bpp/Text/TextTools.h>
 
 // From the STL:
 #include <vector>
-
-// From Utils:
-#include <Utils/TextTools.h>
 
 namespace bpp
 {

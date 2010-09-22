@@ -43,7 +43,7 @@ knowledge of the CeCILL license and that you accept its terms.
 #include "ProbabilisticSubstitutionMapping.h"
 #include "SubstitutionCount.h"
 #include "OneJumpSubstitutionCount.h"
-#include "DRTreeLikelihood.h"
+#include "../Likelihood/DRTreeLikelihood.h"
 
 namespace bpp
 {

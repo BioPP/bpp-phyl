@@ -38,8 +38,8 @@ knowledge of the CeCILL license and that you accept its terms.
 */
 
 #include "MarginalAncestralStateReconstruction.h"
-#include <NumCalc/VectorTools.h>
-#include <NumCalc/RandomTools.h>
+#include <Bpp/Numeric/VectorTools.h>
+#include <Bpp/Numeric/RandomTools.h>
 
 using namespace bpp;
 using namespace std;

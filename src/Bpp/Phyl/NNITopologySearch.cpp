@@ -38,14 +38,11 @@ knowledge of the CeCILL license and that you accept its terms.
 */
 
 #include "NNITopologySearch.h"
-#include "NNIHomogeneousTreeLikelihood.h"
+#include "Likelihood/NNIHomogeneousTreeLikelihood.h"
 
-//From Utils:
-#include <Utils/TextTools.h>
-#include <Utils/ApplicationTools.h>
-
-//From NumCalc:
-#include <NumCalc/VectorTools.h>
+#include <Bpp/Text/TextTools.h>
+#include <Bpp/App/ApplicationTools.h>
+#include <Bpp/Numeric/VectorTools.h>
 
 using namespace bpp;
 

@@ -41,23 +41,20 @@ knowledge of the CeCILL license and that you accept its terms.
 #ifndef _DISTANCEESTIMATION_H_
 #define _DISTANCEESTIMATION_H_
 
-#include "SubstitutionModel.h"
-#include "AbstractTreeLikelihood.h"
-#include "DRHomogeneousTreeLikelihood.h"
-#include "PseudoNewtonOptimizer.h"
+#include "../Model/SubstitutionModel.h"
+#include "../Likelihood/AbstractTreeLikelihood.h"
+#include "../Likelihood/DRHomogeneousTreeLikelihood.h"
+#include "../Likelihood/PseudoNewtonOptimizer.h"
 
-// From Utils:
-#include <Utils/Clonable.h>
-
-// From NumCalc:
-#include <NumCalc/ParameterList.h>
-#include <NumCalc/DiscreteDistribution.h>
-#include <NumCalc/Optimizer.h>
-#include <NumCalc/SimpleMultiDimensions.h>
-#include <NumCalc/MetaOptimizer.h>
+#include <Bpp/Clonable.h>
+#include <Bpp/Numeric/ParameterList.h>
+#include <Bpp/Numeric/Prob/DiscreteDistribution.h>
+#include <Bpp/Numeric/Function/Optimizer.h>
+#include <Bpp/Numeric/Function/SimpleMultiDimensions.h>
+#include <Bpp/Numeric/Function/MetaOptimizer.h>
 
 // From SeqLib:
-#include <Seq/SiteContainer.h>
+#include <Bpp/Seq/Container/SiteContainer.h>
 
 namespace bpp
 {

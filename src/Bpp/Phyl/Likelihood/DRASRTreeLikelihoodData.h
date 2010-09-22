@@ -42,11 +42,10 @@ knowledge of the CeCILL license and that you accept its terms.
 #define _DRASRHOMOGENEOUSTREELIKELIHOODDATA_H_
 
 #include "AbstractTreeLikelihoodData.h"
-#include "SubstitutionModel.h"
-#include "SitePatterns.h"
+#include "../Model/SubstitutionModel.h"
+#include "../SitePatterns.h"
 
-// From NumCalc:
-#include <NumCalc/VectorTools.h>
+#include <Bpp/Numeric/VectorTools.h>
 
 // From the STL:
 #include <map>

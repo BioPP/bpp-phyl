@@ -40,8 +40,8 @@ knowledge of the CeCILL license and that you accept its terms.
 #include "YN98.h"
 #include "FrequenciesSet.h"
 
-#include <NumCalc/SimpleDiscreteDistribution.h>
-#include <NumCalc/NumConstants.h>
+#include <Bpp/Numeric/NumConstants.h>
+#include <Bpp/Numeric/Prob/SimpleDiscreteDistribution.h>
 
 using namespace bpp;
 

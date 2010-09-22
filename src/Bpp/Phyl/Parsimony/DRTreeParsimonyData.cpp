@@ -39,10 +39,10 @@ knowledge of the CeCILL license and that you accept its terms.
 */
 
 #include "DRTreeParsimonyData.h"
-#include "SitePatterns.h"
+#include "../SitePatterns.h"
 
 // From SeqLib:
-#include <Seq/AlignedSequenceContainer.h>
+#include <Bpp/Seq/Container/AlignedSequenceContainer.h>
 
 using namespace bpp;
 using namespace std;

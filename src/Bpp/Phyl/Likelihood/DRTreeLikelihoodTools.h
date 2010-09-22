@@ -42,7 +42,7 @@ knowledge of the CeCILL license and that you accept its terms.
 
 #include "TreeLikelihoodTools.h"
 #include "DRTreeLikelihood.h"
-#include <Seq/AlignedSequenceContainer.h>
+#include <Bpp/Seq/Container/AlignedSequenceContainer.h>
 
 namespace bpp
 {

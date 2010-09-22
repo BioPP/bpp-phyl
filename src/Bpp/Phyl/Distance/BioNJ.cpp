@@ -38,10 +38,9 @@ knowledge of the CeCILL license and that you accept its terms.
 */
 
 #include "BioNJ.h"
-#include "Tree.h"
+#include "../Tree.h"
 
-//From Utils:
-#include <Utils/ApplicationTools.h>
+#include <Bpp/App/ApplicationTools.h>
 
 using namespace bpp;
 

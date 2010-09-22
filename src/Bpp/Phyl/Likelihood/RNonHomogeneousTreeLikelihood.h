@@ -42,12 +42,11 @@ knowledge of the CeCILL license and that you accept its terms.
 #define _RNONHOMOGENEOUSTREELIKELIHOOD_H_
 
 #include "AbstractNonHomogeneousTreeLikelihood.h"
-#include "SubstitutionModelSet.h"
+#include "../Model/SubstitutionModelSet.h"
 #include "DRASRTreeLikelihoodData.h"
 
-// From NumCalc:
-#include <NumCalc/VectorTools.h>
-#include <NumCalc/DiscreteDistribution.h>
+#include <Bpp/Numeric/VectorTools.h>
+#include <Bpp/Numeric/Prob/DiscreteDistribution.h>
 
 namespace bpp
 {

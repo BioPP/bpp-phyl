@@ -41,8 +41,8 @@ knowledge of the CeCILL license and that you accept its terms.
 #define _ANCESTRALSTATESRECONSTRUCTION_H_
 
 // From SeqLib:
-#include <Seq/Sequence.h>
-#include <Seq/SiteContainer.h>
+#include <Bpp/Seq/Sequence.h>
+#include <Bpp/Seq/Container/SiteContainer.h>
 
 // From the STL:
 #include <vector>

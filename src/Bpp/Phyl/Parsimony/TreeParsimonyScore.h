@@ -40,10 +40,9 @@ knowledge of the CeCILL license and that you accept its terms.
 #ifndef _TREEPARSIMONYSCORE_H_
 #define _TREEPARSIMONYSCORE_H_
 
-#include "TreeTemplate.h"
+#include "../TreeTemplate.h"
 
-// Fom utils:
-#include <Utils/Clonable.h>
+#include <Bpp/Clonable.h>
 
 // From the STL:
 #include <vector>

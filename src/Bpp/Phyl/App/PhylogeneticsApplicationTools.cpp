@@ -41,10 +41,10 @@
 #include "PhylogeneticsApplicationTools.h"
 #include "../Model.all"
 #include "../Likelihood.all"
-#include "OptimizationTools.h"
-#include "Tree.h"
+#include "../OptimizationTools.h"
+#include "../Tree.h"
 #include "../Io/Newick.h"
-#include "../Io/NexusIOTree.h"
+#include "../Io/NexusIoTree.h"
 
 #include <Bpp/Io/FileTools.h>
 #include <Bpp/Text/TextTools.h>

@@ -40,10 +40,9 @@ knowledge of the CeCILL license and that you accept its terms.
 #ifndef _SUBSTITUTIONCOUNT_H_
 #define _SUBSTITUTIONCOUNT_H_
 
-#include "SubstitutionModel.h"
+#include "../Model/SubstitutionModel.h"
 
-// From NumCalc:
-#include <NumCalc/Matrix.h>
+#include <Bpp/Numeric/Matrix/Matrix.h>
 
 namespace bpp
 {

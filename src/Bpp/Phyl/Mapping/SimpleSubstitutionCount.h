@@ -42,8 +42,7 @@ knowledge of the CeCILL license and that you accept its terms.
 
 #include "SubstitutionCount.h"
 
-// From NumCalc:
-#include <NumCalc/Matrix.h>
+#include <Bpp/Numeric/Matrix/Matrix.h>
 
 namespace bpp
 {

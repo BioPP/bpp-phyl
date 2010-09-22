@@ -41,18 +41,13 @@ knowledge of the CeCILL license and that you accept its terms.
 #include "BipartitionTools.h"
 #include "TreeTemplate.h"
 
-// From Utils:
-#include <Utils/exceptions>
-#include <Utils/TextTools.h>
-#include <Utils/FileTools.h>
+#include <Bpp/Exceptions.h>
+#include <Bpp/Text/TextTools.h>
+#include <Bpp/Io/FileTools.h>
 
 // From SeqLib
-#include <Seq/alphabets>
-#include <Seq/containers>
-#include <Seq/ioseq>
-
-// From NumCalc
-#include <NumCalc/random>
+#include <Bpp/Seq/Alphabet/DNA.h>
+#include <Bpp/Seq/Alphabet/AlphabetTools.h>
 
 using namespace bpp;
 
@@ -266,7 +261,7 @@ VectorSiteContainer* BipartitionTools::MRPEncode(
   vector<string> all_elements;
   map<string, bool> bip;
   vector<string> bip_elements;
-  const DNA* alpha = & AlphabetTools::DNA_ALPHABET;
+  const DNA* alpha = &AlphabetTools::DNA_ALPHABET;
   vector<string> sequences;
 
   if (vecBipartL.size() == 0)

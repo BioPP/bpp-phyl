@@ -40,13 +40,13 @@ knowledge of the CeCILL license and that you accept its terms.
 #ifndef _MARGINALANCESTRALSTATESRECONSTRUCTION_H_
 #define _MARGINALANCESTRALSTATESRECONSTRUCTION_H_
 
-#include "AncestralStateReconstruction.h"
+#include "../AncestralStateReconstruction.h"
 #include "DRTreeLikelihood.h"
 
 // From SeqLib:
-#include <Seq/Alphabet.h>
-#include <Seq/AlignedSequenceContainer.h>
-#include <Seq/Sequence.h>
+#include <Bpp/Seq/Alphabet/Alphabet.h>
+#include <Bpp/Seq/Container/AlignedSequenceContainer.h>
+#include <Bpp/Seq/Sequence.h>
 
 // From the STL:
 #include <vector>

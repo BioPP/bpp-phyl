@@ -38,7 +38,7 @@
 
 #include "MixtureOfSubstitutionModels.h"
 
-#include <NumCalc/NumConstants.h>
+#include <Bpp/Numeric/NumConstants.h>
 
 #include <string>
 

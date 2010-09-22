@@ -39,21 +39,18 @@
  */
 
 #include "DistanceEstimation.h"
-#include "Tree.h"
-#include "PatternTools.h"
-#include "SitePatterns.h"
+#include "../Tree.h"
+#include "../PatternTools.h"
+#include "../SitePatterns.h"
 
-// From Utils:
-#include <Utils/ApplicationTools.h>
-
-// From NumCalc:
-#include <NumCalc/AutoParameter.h>
+#include <Bpp/App/ApplicationTools.h>
+#include <Bpp/Numeric/AutoParameter.h>
 
 // From SeqLib:
-#include <Seq/SiteTools.h>
-#include <Seq/Sequence.h>
-#include <Seq/AlignedSequenceContainer.h>
-#include <Seq/DistanceMatrix.h>
+#include <Bpp/Seq/SiteTools.h>
+#include <Bpp/Seq/Sequence.h>
+#include <Bpp/Seq/Container/AlignedSequenceContainer.h>
+#include <Bpp/Seq/DistanceMatrix.h>
 
 using namespace bpp;
 

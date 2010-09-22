@@ -41,8 +41,7 @@
 #include "SubstitutionModelSet.h"
 #include "MixedSubstitutionModel.h"
 
-// From Utils:
-#include <Utils/MapTools.h>
+#include <Bpp/Utils/MapTools.h>
 
 using namespace bpp;
 using namespace std;

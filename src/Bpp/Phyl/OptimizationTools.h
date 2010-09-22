@@ -40,21 +40,18 @@ knowledge of the CeCILL license and that you accept its terms.
 #ifndef _OPTIMIZATIONTOOLS_H_
 #define _OPTIMIZATIONTOOLS_H_
 
-#include "ClockTreeLikelihood.h"
-#include "NNIHomogeneousTreeLikelihood.h"
-#include "ClockTreeLikelihood.h"
+#include "Likelihood/ClockTreeLikelihood.h"
+#include "Likelihood/NNIHomogeneousTreeLikelihood.h"
+#include "Likelihood/ClockTreeLikelihood.h"
 #include "NNITopologySearch.h"
-#include "DRTreeParsimonyScore.h"
+#include "Parsimony/DRTreeParsimonyScore.h"
 #include "TreeTemplate.h"
-#include "DistanceEstimation.h"
-#include "AgglomerativeDistanceMethod.h"
+#include "Distance/DistanceEstimation.h"
+#include "Distance/AgglomerativeDistanceMethod.h"
 
-// From Utils:
-#include <Utils/OutputStream.h>
-#include <Utils/ApplicationTools.h>
-
-// From NumCalc:
-#include <NumCalc/SimpleNewtonMultiDimensions.h>
+#include <Bpp/Io/OutputStream.h>
+#include <Bpp/App/ApplicationTools.h>
+#include <Bpp/Numeric/Function/SimpleNewtonMultiDimensions.h>
 
 namespace bpp
 {

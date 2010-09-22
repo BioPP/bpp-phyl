@@ -40,7 +40,7 @@ knowledge of the CeCILL license and that you accept its terms.
 #ifndef _IOTREEFACTORY_H_
 #define _IOTREEFACTORY_H_
 
-#include "iotree"
+#include "../Io.all"
 
 namespace bpp
 {

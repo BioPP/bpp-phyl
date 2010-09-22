@@ -39,14 +39,13 @@ knowledge of the CeCILL license and that you accept its terms.
 */
 
 #include "RHomogeneousClockTreeLikelihood.h"
-#include "TreeTemplateTools.h"
+#include "../TreeTemplateTools.h"
 
 #include <iostream>
 
 using namespace std;
 
-// From Utils:
-#include <Utils/ApplicationTools.h>
+#include <Bpp/App/ApplicationTools.h>
 
 using namespace bpp;
 

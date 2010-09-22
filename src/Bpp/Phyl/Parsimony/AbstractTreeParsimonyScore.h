@@ -41,10 +41,10 @@ knowledge of the CeCILL license and that you accept its terms.
 #define _ABSTRACTTREEPARSIMONYSCORE_H_
 
 #include "TreeParsimonyScore.h"
-#include "Node.h"
+#include "../Node.h"
 
 // From SeqLib:
-#include <Seq/SiteContainer.h>
+#include <Bpp/Seq/Container/SiteContainer.h>
 
 namespace bpp
 {

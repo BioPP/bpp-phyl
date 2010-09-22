@@ -39,7 +39,7 @@ knowledge of the CeCILL license and that you accept its terms.
 */
 
 #include "NeighborJoining.h"
-#include "Tree.h"
+#include "../Tree.h"
 
 using namespace bpp;
 

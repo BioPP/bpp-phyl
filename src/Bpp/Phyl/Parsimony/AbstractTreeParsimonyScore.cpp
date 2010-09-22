@@ -38,11 +38,10 @@ knowledge of the CeCILL license and that you accept its terms.
 */
 
 #include "AbstractTreeParsimonyScore.h"
-#include "PatternTools.h"
-#include "TreeTemplateTools.h"
+#include "../PatternTools.h"
+#include "../TreeTemplateTools.h"
 
-// From Utils:
-#include <Utils/ApplicationTools.h>
+#include <Bpp/App/ApplicationTools.h>
 
 using namespace bpp;
 using namespace std;

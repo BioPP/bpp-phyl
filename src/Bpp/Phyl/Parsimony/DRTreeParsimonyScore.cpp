@@ -38,14 +38,11 @@ knowledge of the CeCILL license and that you accept its terms.
 */
 
 #include "DRTreeParsimonyScore.h"
-#include "PatternTools.h"
-#include "TreeTemplateTools.h" //Needed for NNIs
+#include "../PatternTools.h"
+#include "../TreeTemplateTools.h" //Needed for NNIs
 
-// From Utils:
-#include <Utils/ApplicationTools.h>
-
-// From NumCalc:
-#include <NumCalc/VectorTools.h>
+#include <Bpp/App/ApplicationTools.h>
+#include <Bpp/Numeric/VectorTools.h>
 
 using namespace bpp;
 using namespace std;

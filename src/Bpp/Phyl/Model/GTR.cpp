@@ -39,14 +39,13 @@ knowledge of the CeCILL license and that you accept its terms.
 
 #include "GTR.h"
 
+#include <Bpp/Numeric/Matrix/MatrixTools.h>
+
 // From SeqLib:
-#include <Seq/SequenceContainerTools.h>
+#include <Bpp/Seq/Container/SequenceContainerTools.h>
 
 // From the STL:
 #include <cmath>
-
-// From NumCalc:
-#include <NumCalc/MatrixTools.h>
 
 using namespace bpp;
 using namespace std;

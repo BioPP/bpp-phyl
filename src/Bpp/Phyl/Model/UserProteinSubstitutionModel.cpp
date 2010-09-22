@@ -39,17 +39,14 @@ knowledge of the CeCILL license and that you accept its terms.
 
 #include "UserProteinSubstitutionModel.h"
 
-// From Utils:
-#include <Utils/FileTools.h>
-#include <Utils/TextTools.h>
-#include <Utils/ApplicationTools.h>
-#include <Utils/StringTokenizer.h>
-
-// From NumCalc:
-#include <NumCalc/VectorTools.h>
+#include <Bpp/Io/FileTools.h>
+#include <Bpp/App/ApplicationTools.h>
+#include <Bpp/Text/TextTools.h>
+#include <Bpp/Text/StringTokenizer.h>
+#include <Bpp/Numeric/VectorTools.h>
 
 //From SeqLib:
-#include <Seq/SequenceContainerTools.h>
+#include <Bpp/Seq/Container/SequenceContainerTools.h>
 
 using namespace bpp;
 

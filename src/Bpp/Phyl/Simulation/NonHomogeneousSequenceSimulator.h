@@ -43,24 +43,23 @@ knowledge of the CeCILL license and that you accept its terms.
 
 #include "DetailedSiteSimulator.h"
 #include "SequenceSimulator.h"
-#include "TreeTemplate.h"
-#include "NodeTemplate.h"
-#include "SubstitutionModel.h"
+#include "../TreeTemplate.h"
+#include "../NodeTemplate.h"
+#include "../Model/SubstitutionModel.h"
+
+#include <Bpp/Numeric/RandomTools.h>
+#include <Bpp/Numeric/Prob/DiscreteDistribution.h>
 
 // From SeqLib:
-#include <Seq/Alphabet.h>
-#include <Seq/Site.h>
-#include <Seq/SiteContainer.h>
-
-// From NumCalc:
-#include <NumCalc/DiscreteDistribution.h>
-#include <NumCalc/RandomTools.h>
+#include <Bpp/Seq/Alphabet/Alphabet.h>
+#include <Bpp/Seq/Site.h>
+#include <Bpp/Seq/Container/SiteContainer.h>
 
 // From the STL:
 #include <map>
 #include <vector>
 
-#include "SubstitutionModelSet.h"
+#include "../Model/SubstitutionModelSet.h"
 
 namespace bpp
 {

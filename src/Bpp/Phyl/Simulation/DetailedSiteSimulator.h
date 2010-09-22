@@ -43,8 +43,8 @@ knowledge of the CeCILL license and that you accept its terms.
 #define _DETAILEDSITESIMULATOR_H_
 
 #include "SiteSimulator.h"
-#include "TreeTemplate.h"
 #include "MutationProcess.h"
+#include "../TreeTemplate.h"
 
 // From the STL:
 #include <map>

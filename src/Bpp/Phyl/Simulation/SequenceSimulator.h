@@ -40,11 +40,10 @@ knowledge of the CeCILL license and that you accept its terms.
 #ifndef _SEQUENCESIMULATOR_H_
 #define _SEQUENCESIMULATOR_H_
 
-//From Utils:
-#include <Utils/Clonable.h>
+#include <Bpp/Clonable.h>
 
 // From SeqLib:
-#include <Seq/SiteContainer.h>
+#include <Bpp/Seq/Container/SiteContainer.h>
 
 namespace bpp
 {

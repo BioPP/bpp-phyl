@@ -43,11 +43,10 @@ knowledge of the CeCILL license and that you accept its terms.
 #include "NucleotideSubstitutionModel.h"
 #include "AbstractSubstitutionModel.h"
 
-// From NumCalc:
-#include <NumCalc/Constraints.h>
+#include <Bpp/Numeric/Constraints.h>
 
 // From SeqLib:
-#include <Seq/NucleicAlphabet.h>
+#include <Bpp/Seq/Alphabet/NucleicAlphabet.h>
 
 namespace bpp
 {

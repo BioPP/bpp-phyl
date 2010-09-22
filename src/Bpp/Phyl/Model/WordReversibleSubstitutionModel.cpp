@@ -39,14 +39,13 @@
 #include "WordReversibleSubstitutionModel.h"
 #include "FrequenciesSet.h"
 
-// From SeqLib:
-#include <Seq/SequenceContainerTools.h>
-#include <Seq/WordAlphabet.h>
+#include <Bpp/Numeric/Matrix/MatrixTools.h>
+#include <Bpp/Numeric/VectorTools.h>
+#include <Bpp/Numeric/Matrix/EigenValue.h>
 
-// From NumCalc:
-#include <NumCalc/MatrixTools.h>
-#include <NumCalc/VectorTools.h>
-#include <NumCalc/EigenValue.h>
+// From SeqLib:
+#include <Bpp/Seq/Alphabet/WordAlphabet.h>
+#include <Bpp/Seq/Container/SequenceContainerTools.h>
 
 using namespace bpp;
 

@@ -40,12 +40,11 @@
 #define _DRHOMOGENEOUSMIXEDTREELIKELIHOOD_H_
 
 #include "DRHomogeneousTreeLikelihood.h"
-#include "SubstitutionModel.h"
-#include "MixedSubstitutionModel.h"
+#include "../Model/SubstitutionModel.h"
+#include "../Model/MixedSubstitutionModel.h"
 
-// From NumCalc:
-#include <NumCalc/VectorTools.h>
-#include <NumCalc/DiscreteDistribution.h>
+#include <Bpp/Numeric/VectorTools.h>
+#include <Bpp/Numeric/Prob/DiscreteDistribution.h>
 
 namespace bpp
 {

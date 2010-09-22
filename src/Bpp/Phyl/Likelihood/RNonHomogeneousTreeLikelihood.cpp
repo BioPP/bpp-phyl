@@ -39,11 +39,10 @@ knowledge of the CeCILL license and that you accept its terms.
 */
 
 #include "RNonHomogeneousTreeLikelihood.h"
-#include "PatternTools.h"
+#include "../PatternTools.h"
 
-// From Utils:
-#include <Utils/TextTools.h>
-#include <Utils/ApplicationTools.h>
+#include <Bpp/Text/TextTools.h>
+#include <Bpp/App/ApplicationTools.h>
 
 using namespace bpp;
 

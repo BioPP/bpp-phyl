@@ -39,16 +39,15 @@ knowledge of the CeCILL license and that you accept its terms.
 
 #include "HKY85.h"
 
+#include <Bpp/Numeric/Matrix/MatrixTools.h>
+
 // From SeqLib:
-#include <Seq/SequenceContainerTools.h>
+#include <Bpp/Seq/Container/SequenceContainerTools.h>
 
 using namespace bpp;
 
 // From the STL:
 #include <cmath>
-
-// From NumCalc:
-#include <NumCalc/MatrixTools.h>
 
 using namespace std;
 

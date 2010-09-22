@@ -40,7 +40,9 @@ knowledge of the CeCILL license and that you accept its terms.
 #ifndef _IODISTANCEMATRIXFACTORY_H_
 #define _IODISTANCEMATRIXFACTORY_H_
 
-#include "iodistance"
+#include "../Distance.all"
+#include "IoDistanceMatrix.h"
+#include <Bpp/Exceptions.h>
 
 //From the STL:
 #include <string>

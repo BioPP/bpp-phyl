@@ -38,30 +38,27 @@ knowledge of the CeCILL license and that you accept its terms.
 */
 
 #include "OptimizationTools.h"
-#include "PseudoNewtonOptimizer.h"
+#include "Likelihood/PseudoNewtonOptimizer.h"
 #include "NNISearchable.h"
 #include "NNITopologySearch.h"
-#include "Newick.h"
+#include "Io/Newick.h"
 
-// From Utils:
-#include <Utils/ApplicationTools.h>
-
-// From NumCalc:
-#include <NumCalc/ParameterList.h>
-#include <NumCalc/PowellMultiDimensions.h>
-#include <NumCalc/SimpleNewtonMultiDimensions.h>
-#include <NumCalc/ConjugateGradientMultiDimensions.h>
-#include <NumCalc/DownhillSimplexMethod.h>
-#include <NumCalc/BrentOneDimension.h>
-#include <NumCalc/MetaOptimizer.h>
-#include <NumCalc/OptimizationStopCondition.h>
-#include <NumCalc/FivePointsNumericalDerivative.h>
-#include <NumCalc/ThreePointsNumericalDerivative.h>
-#include <NumCalc/TwoPointsNumericalDerivative.h>
-#include <NumCalc/ReparametrizationFunctionWrapper.h>
+#include <Bpp/App/ApplicationTools.h>
+#include <Bpp/Numeric/ParameterList.h>
+#include <Bpp/Numeric/Function/PowellMultiDimensions.h>
+#include <Bpp/Numeric/Function/SimpleNewtonMultiDimensions.h>
+#include <Bpp/Numeric/Function/ConjugateGradientMultiDimensions.h>
+#include <Bpp/Numeric/Function/DownhillSimplexMethod.h>
+#include <Bpp/Numeric/Function/BrentOneDimension.h>
+#include <Bpp/Numeric/Function/MetaOptimizer.h>
+#include <Bpp/Numeric/Function/OptimizationStopCondition.h>
+#include <Bpp/Numeric/Function/FivePointsNumericalDerivative.h>
+#include <Bpp/Numeric/Function/ThreePointsNumericalDerivative.h>
+#include <Bpp/Numeric/Function/TwoPointsNumericalDerivative.h>
+#include <Bpp/Numeric/Function/ReparametrizationFunctionWrapper.h>
 
 //From SeqLib:
-#include <Seq/Fasta.h>
+#include <Bpp/Seq/Io/Fasta.h>
 
 using namespace bpp;
 using namespace std;

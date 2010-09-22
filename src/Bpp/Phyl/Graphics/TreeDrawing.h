@@ -40,14 +40,13 @@ knowledge of the CeCILL license and that you accept its terms.
 #ifndef _TREEDRAWING_H_
 #define _TREEDRAWING_H_
 
-// From Utils:
-#include <Utils/GraphicDevice.h>
-#include <Utils/Point2D.h>
-#include <Utils/Clonable.h>
-#include <Utils/Font.h>
+#include <Bpp/Clonable.h>
+#include <Bpp/Graphics/GraphicDevice.h>
+#include <Bpp/Graphics/Point2D.h>
+#include <Bpp/Graphics/Font/Font.h>
 
 // From PhylLib:
-#include "Tree.h"
+#include "../Tree.h"
 
 namespace bpp
 {

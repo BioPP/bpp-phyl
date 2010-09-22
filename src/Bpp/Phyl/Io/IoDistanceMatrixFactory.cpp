@@ -37,7 +37,8 @@ The fact that you are presently reading this means that you have had
 knowledge of the CeCILL license and that you accept its terms.
 */
 
-#include "IODistanceMatrixFactory.h"
+#include "IoDistanceMatrixFactory.h"
+#include "PhylipDistanceMatrixFormat.h"
 
 using namespace bpp;
 
@@ -45,13 +46,13 @@ const std::string IODistanceMatrixFactory::PHYLIP_FORMAT = "Phylip";
 
 IDistanceMatrix* IODistanceMatrixFactory::createReader(const std::string& format) throw (Exception)
 {
-       if(format == PHYLIP_FORMAT) return new PhylipDistanceMatrixFormat();
+  if(format == PHYLIP_FORMAT) return new PhylipDistanceMatrixFormat();
   else throw Exception("Format " + format + " is not supported for input.");
 }
   
 ODistanceMatrix* IODistanceMatrixFactory::createWriter(const std::string& format) throw (Exception)
 {
-       if(format == PHYLIP_FORMAT) return new PhylipDistanceMatrixFormat();
+  if(format == PHYLIP_FORMAT) return new PhylipDistanceMatrixFormat();
   else throw Exception("Format " + format + " is not supported for input.");
 }
 

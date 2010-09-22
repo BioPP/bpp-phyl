@@ -43,7 +43,7 @@ knowledge of the CeCILL license and that you accept its terms.
 #include "BipartitionList.h"
 
 // From SeqLib:
-#include <Seq/VectorSiteContainer.h>
+#include <Bpp/Seq/Container/VectorSiteContainer.h>
 
 namespace bpp
 {

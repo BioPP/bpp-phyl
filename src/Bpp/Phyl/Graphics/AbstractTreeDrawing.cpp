@@ -38,12 +38,11 @@ knowledge of the CeCILL license and that you accept its terms.
 */
 
 #include "AbstractTreeDrawing.h"
-#include "TreeTemplateTools.h"
-#include "TreeTools.h"
+#include "../TreeTemplateTools.h"
+#include "../TreeTools.h"
 
-// From Utils:
-#include <Utils/TextTools.h>
-#include <Utils/Number.h>
+#include <Bpp/Text/TextTools.h>
+#include <Bpp/Numeric/Number.h>
 
 // From the STL:
 #include <algorithm>

@@ -40,10 +40,9 @@ knowledge of the CeCILL license and that you accept its terms.
 #ifndef _MUTATIONPROCESS_H_
 #define _MUTATIONPROCESS_H_
 
-#include "SubstitutionModel.h"
+#include "../Model/SubstitutionModel.h"
 
-// From NumCalc:
-#include <NumCalc/VectorTools.h>
+#include <Bpp/Numeric/VectorTools.h>
 
 namespace bpp
 {

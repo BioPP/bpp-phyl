@@ -39,11 +39,8 @@ knowledge of the CeCILL license and that you accept its terms.
  
 #include "MutationProcess.h"
 
-// From NumCalc:
-#include <NumCalc/RandomTools.h>
-
-// From Utils:
-#include <Utils/TextTools.h>
+#include <Bpp/Text/TextTools.h>
+#include <Bpp/Numeric/RandomTools.h>
 
 using namespace bpp;
 

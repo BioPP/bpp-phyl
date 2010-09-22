@@ -40,9 +40,8 @@ knowledge of the CeCILL license and that you accept its terms.
 #include "YN98.h"
 #include "FrequenciesSet.h"
 
-#include <NumCalc/distributions>
-
-#include <Utils/TextTools.h>
+#include <Bpp/Numeric/Prob.all>
+#include <Bpp/Text/TextTools.h>
 
 using namespace bpp;
 

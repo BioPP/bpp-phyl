@@ -38,15 +38,14 @@
 
 #include "AbstractWordReversibleSubstitutionModel.h"
 
-// From SeqLib:
-#include <Seq/SequenceContainerTools.h>
-#include <Seq/WordAlphabet.h>
-#include <Seq/AlphabetTools.h>
+#include <Bpp/Numeric/Matrix/MatrixTools.h>
+#include <Bpp/Numeric/Matrix/EigenValue.h>
+#include <Bpp/Numeric/VectorTools.h>
 
-// From NumCalc:
-#include <NumCalc/MatrixTools.h>
-#include <NumCalc/VectorTools.h>
-#include <NumCalc/EigenValue.h>
+// From SeqLib:
+#include <Bpp/Seq/Alphabet/WordAlphabet.h>
+#include <Bpp/Seq/Alphabet/AlphabetTools.h>
+#include <Bpp/Seq/Container/SequenceContainerTools.h>
 
 using namespace bpp;
 

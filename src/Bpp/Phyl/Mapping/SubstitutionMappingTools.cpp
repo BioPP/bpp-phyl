@@ -38,16 +38,13 @@ knowledge of the CeCILL license and that you accept its terms.
 */
 
 #include "SubstitutionMappingTools.h"
-#include "DRTreeLikelihoodTools.h"
-#include "MarginalAncestralStateReconstruction.h"
+#include "../Likelihood/DRTreeLikelihoodTools.h"
+#include "../Likelihood/MarginalAncestralStateReconstruction.h"
 
-// From Utils:
-#include <Utils/TextTools.h>
-#include <Utils/ApplicationTools.h>
-
-// From NumCalc:
-#include <NumCalc/MatrixTools.h>
-#include <NumCalc/DataTable.h>
+#include <Bpp/Text/TextTools.h>
+#include <Bpp/App/ApplicationTools.h>
+#include <Bpp/Numeric/Matrix/MatrixTools.h>
+#include <Bpp/Numeric/DataTable.h>
 
 using namespace bpp;
 
