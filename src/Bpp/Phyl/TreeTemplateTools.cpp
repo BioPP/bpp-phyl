@@ -42,15 +42,12 @@ knowledge of the CeCILL license and that you accept its terms.
 #include "TreeTemplateTools.h"
 #include "TreeTemplate.h"
 
-// From Utils:
-#include <Utils/Number.h>
-#include <Utils/BppString.h>
-#include <Utils/StringTokenizer.h>
-#include <Utils/NestedStringTokenizer.h>
-#include <Utils/TextTools.h>
-
-// From NumCalc:
-#include <NumCalc/RandomTools.h>
+#include <Bpp/Numeric/Number.h>
+#include <Bpp/BppString.h>
+#include <Bpp/Text/StringTokenizer.h>
+#include <Bpp/Text/NestedStringTokenizer.h>
+#include <Bpp/Text/TextTools.h>
+#include <Bpp/Numeric/RandomTools.h>
 
 using namespace bpp;
 

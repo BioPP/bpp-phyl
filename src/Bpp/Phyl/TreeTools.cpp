@@ -40,27 +40,24 @@ knowledge of the CeCILL license and that you accept its terms.
 #include "TreeTools.h"
 #include "Tree.h"
 #include "BipartitionTools.h"
-#include "JCnuc.h"
-#include "DistanceEstimation.h"
-#include "BioNJ.h"
-#include "DRTreeParsimonyScore.h"
+#include "Model/JCnuc.h"
+#include "Distance/DistanceEstimation.h"
+#include "Distance/BioNJ.h"
+#include "Parsimony/DRTreeParsimonyScore.h"
 #include "OptimizationTools.h"
 
-// From Utils:
-#include <Utils/TextTools.h>
-#include <Utils/StringTokenizer.h>
-#include <Utils/Number.h>
-#include <Utils/BppString.h>
-#include <Utils/ApplicationTools.h>
-
-// From NumCalc:
-#include <NumCalc/VectorTools.h>
-#include <NumCalc/ConstantDistribution.h>
-#include <NumCalc/MatrixTools.h>
+#include <Bpp/Text/TextTools.h>
+#include <Bpp/Text/StringTokenizer.h>
+#include <Bpp/Numeric/Number.h>
+#include <Bpp/BppString.h>
+#include <Bpp/App/ApplicationTools.h>
+#include <Bpp/Numeric/VectorTools.h>
+#include <Bpp/Numeric/Prob/ConstantDistribution.h>
+#include <Bpp/Numeric/Matrix/MatrixTools.h>
 
 // From SeqLib:
-#include <Seq/DNA.h>
-#include <Seq/VectorSiteContainer.h>
+#include <Bpp/Seq/Alphabet/DNA.h>
+#include <Bpp/Seq/Container/VectorSiteContainer.h>
 
 using namespace bpp;
 

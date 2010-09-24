@@ -43,7 +43,7 @@
 #include "Node.h"
 #include "Tree.h"
 
-#include <Utils/TextTools.h>
+#include <Bpp/Text/TextTools.h>
 
 using namespace bpp;
 

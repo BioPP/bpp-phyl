@@ -41,8 +41,8 @@ knowledge of the CeCILL license and that you accept its terms.
 #include "SitePatterns.h"
 
 // From the SeqLib library:
-#include <Seq/SiteTools.h>
-#include <Seq/VectorSiteContainer.h>
+#include <Bpp/Seq/SiteTools.h>
+#include <Bpp/Seq/Container/VectorSiteContainer.h>
 
 using namespace bpp;
 using namespace std;

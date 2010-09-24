@@ -40,7 +40,7 @@ knowledge of the CeCILL license and that you accept its terms.
 #include "SequenceSimulationTools.h"
 
 //From SeqLib:
-#include <Seq/VectorSiteContainer.h>
+#include <Bpp/Seq/Container/VectorSiteContainer.h>
 
 using namespace bpp;
 using namespace std;
