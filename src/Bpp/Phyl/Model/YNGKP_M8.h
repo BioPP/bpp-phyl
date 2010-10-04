@@ -60,8 +60,8 @@ namespace bpp
  *
  * This model includes 5 parameters (@f$\kappa@f$, @f$ \alpha @f$ and
  * @f$\beta@f$) of the Beta distribution, @f$p0@f$ the weight of the
- * Beta distribution and @f$\omega @fs the selection parameter above 1
- * (with weight @f$1-p0@f$. The codon frequencies @f$\pi_j@f$ are
+ * Beta distribution and @f$\omega @f$ the selection parameter above 1
+ * (with weight @f$ 1-p0 @f$). The codon frequencies @f$ \pi_j @f$ are
  * either observed or infered.
  *
  * References:
