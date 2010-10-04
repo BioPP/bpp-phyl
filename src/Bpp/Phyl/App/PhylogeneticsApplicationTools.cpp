@@ -674,6 +674,8 @@ SubstitutionModel* PhylogeneticsApplicationTools::getSubstitutionModelDefaultIns
         model = new JTT92(alpha, new FullProteinFrequenciesSet(alpha), true);
       else if (modelName == "LG08+F")
         model = new LG08(alpha, new FullProteinFrequenciesSet(alpha), true);
+      else if (modelName == "WAG01+F")
+        model = new WAG01(alpha, new FullProteinFrequenciesSet(alpha), true);
       else if (modelName == "Empirical+F")
       {
         string prefix = args["name"];
@@ -689,6 +691,8 @@ SubstitutionModel* PhylogeneticsApplicationTools::getSubstitutionModelDefaultIns
         model = new JTT92(alpha);
       else if (modelName == "LG08")
         model = new LG08(alpha);
+      else if (modelName == "WAG01")
+        model = new WAG01(alpha);
       else if (modelName == "Empirical")
       {
         string prefix = args["name"];
@@ -704,6 +708,8 @@ SubstitutionModel* PhylogeneticsApplicationTools::getSubstitutionModelDefaultIns
         model = new COA(alpha, "JTT92");
       else if (modelName == "LG08+COA")
         model = new COA(alpha, "LG08");
+      else if (modelName == "WAG01+COA")
+        model = new COA(alpha, "WAG01");
       else if (modelName == "Empirical+COA")
         {
         string prefix = args["name"];
