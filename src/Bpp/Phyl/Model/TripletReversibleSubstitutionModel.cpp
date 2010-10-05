@@ -63,12 +63,12 @@ TripletReversibleSubstitutionModel::TripletReversibleSubstitutionModel(
   unsigned int i;
   addParameters_(pmod->getParameters());
 
-  rate_.resize(3);
+  Vrate_.resize(3);
   for (i = 0; i < 3; i++)
   {
     VSubMod_.push_back(pmod);
     VnestedPrefix_.push_back(pmod->getNamespace());
-    rate_[i] = 1. / 3.;
+    Vrate_[i] = 1. / 3.;
   }
 
   // relative rates
@@ -119,10 +119,10 @@ TripletReversibleSubstitutionModel::TripletReversibleSubstitutionModel(
   }
 
   unsigned int i;
-  rate_.resize(3);
+  Vrate_.resize(3);
   for (i = 0; i < 3; i++)
   {
-    rate_[i] = 1.0 / 3;
+    Vrate_[i] = 1.0 / 3;
   }
 
   // relative rates

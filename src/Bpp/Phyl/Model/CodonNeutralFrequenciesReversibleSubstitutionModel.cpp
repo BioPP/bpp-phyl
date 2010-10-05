@@ -101,7 +101,7 @@ void CodonNeutralFrequenciesReversibleSubstitutionModel::updateMatrices()
     }
     if (k != nbmod - 1)
       x *= getParameterValue("relrate" + TextTools::toString(k+1));
-    rate_[k] = x;
+    Vrate_[k] = x;
   }
 
   AbstractWordReversibleSubstitutionModel::updateMatrices();

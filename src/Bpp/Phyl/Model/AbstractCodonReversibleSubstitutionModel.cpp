@@ -62,10 +62,10 @@ AbstractCodonReversibleSubstitutionModel::AbstractCodonReversibleSubstitutionMod
   pmod->setNamespace(st + "123_" + VnestedPrefix_[0]);
   addParameters_(pmod->getParameters());
 
-  rate_.resize(3);
+  Vrate_.resize(3);
   for (i = 0; i < 3; i++)
   {
-    rate_[i] = 1.0 / 3;
+    Vrate_[i] = 1.0 / 3;
   }
 }
 
@@ -109,10 +109,10 @@ AbstractCodonReversibleSubstitutionModel::AbstractCodonReversibleSubstitutionMod
     addParameters_(pmod3->getParameters());
   }
 
-  rate_.resize(3);
+  Vrate_.resize(3);
   for (unsigned int i = 0; i < 3; i++)
   {
-    rate_[i] = 1.0 / 3;
+    Vrate_[i] = 1.0 / 3;
   }
 }
 

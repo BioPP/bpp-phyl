@@ -86,7 +86,7 @@ protected:
   std::vector<SubstitutionModel*> VSubMod_;
   std::vector<std::string> VnestedPrefix_;
 
-  std::vector<double> rate_;
+  std::vector<double> Vrate_;
   mutable RowMatrix<double> p_;
 
 protected:

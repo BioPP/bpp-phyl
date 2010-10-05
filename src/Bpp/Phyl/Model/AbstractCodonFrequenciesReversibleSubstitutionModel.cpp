@@ -57,7 +57,7 @@ AbstractCodonFrequenciesReversibleSubstitutionModel::AbstractCodonFrequenciesRev
 {
   enableEigenDecomposition(1);
 
-  rate_.resize(3);
+  Vrate_.resize(3);
 
   SubstitutionModel* pmodel = new K80(palph->getNucleicAlphabet());
 
@@ -65,7 +65,7 @@ AbstractCodonFrequenciesReversibleSubstitutionModel::AbstractCodonFrequenciesRev
   {
     VSubMod_.push_back(pmodel);
     VnestedPrefix_.push_back(pmodel->getNamespace());
-    rate_[i] = 1.0 / 3;
+    Vrate_[i] = 1.0 / 3;
   }
 
   pmodel->setNamespace(prefix + "123_" + VnestedPrefix_[0]);

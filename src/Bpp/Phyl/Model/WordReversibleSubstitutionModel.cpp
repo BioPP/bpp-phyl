@@ -108,7 +108,7 @@ void WordReversibleSubstitutionModel::updateMatrices()
     }
     if (k != nbmod - 1)
       x *= getParameterValue("relrate" + TextTools::toString(k+1));
-    rate_[k] = x;
+    Vrate_[k] = x;
   }
 
   AbstractWordReversibleSubstitutionModel::updateMatrices();
@@ -148,7 +148,7 @@ double WordReversibleSubstitutionModel::Pij_t(unsigned int i, unsigned int j, do
   for (p = nbmod - 1; p >= 0; p--)
   {
     t = VSubMod_[p]->getNumberOfStates();
-    x *= VSubMod_[p]->Pij_t(i2 % t, j2 % t, d * rate_[p]);
+    x *= VSubMod_[p]->Pij_t(i2 % t, j2 % t, d * Vrate_[p]);
     i2 /= t;
     j2 /= t;
   }
@@ -191,9 +191,9 @@ double WordReversibleSubstitutionModel::dPij_dt(unsigned int i, unsigned int j, 
     {
       t = VSubMod_[p]->getNumberOfStates();
       if (q != p)
-        x *= VSubMod_[p]->Pij_t(i2 % t,j2 % t,d * rate_[p]);
+        x *= VSubMod_[p]->Pij_t(i2 % t,j2 % t,d * Vrate_[p]);
       else
-        x *= rate_[p] * VSubMod_[p]->dPij_dt(i2 % t,j2 % t,d * rate_[p]);
+        x *= Vrate_[p] * VSubMod_[p]->dPij_dt(i2 % t,j2 % t,d * Vrate_[p]);
       i2 /= t;
       j2 /= t;
     }
@@ -240,11 +240,11 @@ double WordReversibleSubstitutionModel::d2Pij_dt2(unsigned int i, unsigned int j
       {
         t = VSubMod_[p]->getNumberOfStates();
         if (p == q)
-          x *= rate_[p] * VSubMod_[p]->dPij_dt(i2 % t, j2 % t, d * rate_[p]);
+          x *= Vrate_[p] * VSubMod_[p]->dPij_dt(i2 % t, j2 % t, d * Vrate_[p]);
         else if (p == b)
-          x *= rate_[p] * VSubMod_[p]->dPij_dt(i2 % t, j2 % t, d * rate_[p]);
+          x *= Vrate_[p] * VSubMod_[p]->dPij_dt(i2 % t, j2 % t, d * Vrate_[p]);
         else
-          x *= VSubMod_[p]->Pij_t(i2 % t, j2 % t, d * rate_[p]);
+          x *= VSubMod_[p]->Pij_t(i2 % t, j2 % t, d * Vrate_[p]);
 
         i2 /= t;
         j2 /= t;
@@ -264,9 +264,9 @@ double WordReversibleSubstitutionModel::d2Pij_dt2(unsigned int i, unsigned int j
     {
       t = VSubMod_[p]->getNumberOfStates();
       if (q != p)
-        x *= VSubMod_[p]->Pij_t(i2 % t, j2 % t, d * rate_[p]);
+        x *= VSubMod_[p]->Pij_t(i2 % t, j2 % t, d * Vrate_[p]);
       else
-        x *= rate_[p] * rate_[p] * VSubMod_[p]->d2Pij_dt2(i2 % t, j2 % t, d * rate_[p]);
+        x *= Vrate_[p] * Vrate_[p] * VSubMod_[p]->d2Pij_dt2(i2 % t, j2 % t, d * Vrate_[p]);
 
       i2 /= t;
       j2 /= t;

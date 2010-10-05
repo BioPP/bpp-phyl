@@ -63,7 +63,7 @@ AbstractWordReversibleSubstitutionModel::AbstractWordReversibleSubstitutionModel
   new_alphabet_ (true),
   VSubMod_      (),
   VnestedPrefix_(),
-  rate_         (modelVector.size()),
+  Vrate_         (modelVector.size()),
   p_            (getNumberOfStates(), getNumberOfStates())
 {
   enableEigenDecomposition(false);
@@ -115,7 +115,7 @@ AbstractWordReversibleSubstitutionModel::AbstractWordReversibleSubstitutionModel
 
   for (i = 0; i < n; i++)
   {
-    rate_[i] = 1.0 / n;
+    Vrate_[i] = 1.0 / n;
   }
 }
 
@@ -126,7 +126,7 @@ AbstractWordReversibleSubstitutionModel::AbstractWordReversibleSubstitutionModel
   new_alphabet_ (false),
   VSubMod_      (),
   VnestedPrefix_(),
-  rate_         (0),
+  Vrate_         (0),
   p_            (getNumberOfStates(), getNumberOfStates())
 {
   enableEigenDecomposition(false);
@@ -140,7 +140,7 @@ AbstractWordReversibleSubstitutionModel::AbstractWordReversibleSubstitutionModel
   new_alphabet_ (true),
   VSubMod_      (),
   VnestedPrefix_(),
-  rate_         (num),
+  Vrate_         (num),
   p_            (getNumberOfStates(), getNumberOfStates())
 {
   enableEigenDecomposition(false);
@@ -151,7 +151,7 @@ AbstractWordReversibleSubstitutionModel::AbstractWordReversibleSubstitutionModel
   {
    VSubMod_.push_back(pmodel);
    VnestedPrefix_.push_back(pmodel->getNamespace());
-    rate_[i] = 1.0 / num;
+    Vrate_[i] = 1.0 / num;
     t += TextTools::toString(i+1);
   }
 
@@ -165,7 +165,7 @@ AbstractWordReversibleSubstitutionModel::AbstractWordReversibleSubstitutionModel
   new_alphabet_ (wrsm.new_alphabet_),
   VSubMod_      (),
   VnestedPrefix_(wrsm.VnestedPrefix_),
-  rate_         (wrsm.rate_),
+  Vrate_         (wrsm.Vrate_),
   p_            (wrsm.p_)
 {
    unsigned int i;
@@ -190,7 +190,7 @@ AbstractWordReversibleSubstitutionModel& AbstractWordReversibleSubstitutionModel
   AbstractReversibleSubstitutionModel::operator=(wrsm);
   new_alphabet_  = wrsm.new_alphabet_;
   VnestedPrefix_ = wrsm.VnestedPrefix_;
-  rate_          = wrsm.rate_;
+  Vrate_          = wrsm.Vrate_;
   p_             = wrsm.p_;
 
   unsigned int i;
@@ -319,8 +319,8 @@ void AbstractWordReversibleSubstitutionModel::updateMatrices()
             { // loop on prefix
               for (l = 0; l < m; l++)
               { // loop on suffix
-                generator_(n + i * m + l, n + j * m + l) = gk(i,j) * rate_[k - 1];
-                exchangeability_(n + i * m + l, n + j * m + l) = exch(i,j) * rate_[k - 1];
+                generator_(n + i * m + l, n + j * m + l) = gk(i,j) * Vrate_[k - 1];
+                exchangeability_(n + i * m + l, n + j * m + l) = exch(i,j) * Vrate_[k - 1];
               }
               n += m * vsize[k - 1];
             }
