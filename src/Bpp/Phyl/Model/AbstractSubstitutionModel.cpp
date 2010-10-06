@@ -70,6 +70,7 @@ AbstractSubstitutionModel::AbstractSubstitutionModel(const Alphabet* alpha, cons
 {
   for (unsigned int i = 0; i < size_; i++)
   {
+    freq_[i]=1.0/size_;
     chars_[i] = static_cast<int>(i);
   }
 }
