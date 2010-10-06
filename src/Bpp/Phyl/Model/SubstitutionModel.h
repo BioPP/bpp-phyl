@@ -87,9 +87,9 @@ public:
 
 public:
   /**
-   * @brief Get the model that throw the exception.
+   * @brief Get the model that throws the exception.
    *
-   * @return The model that throw the exception.
+   * @return The model that throws the exception.
    */
   virtual const SubstitutionModel* getSubstitutionModel() const { return model_; }
 };
@@ -106,19 +106,20 @@ public:
  * j at time t geven state j at time 0 (\f$P_{i,j}(t)\f$).
  * Typically, this is computed using the formula
  * \f[
- * P(t) = e^{t \times Q},
+ * P(t) = e^{r \times t \times Q},
  * \f]
- * where \f$P(t)\f$ is the matrix with all probabilities \f$P_{i,j}(t)\f$.
+ * where \f$P(t)\f$ is the matrix with all probabilities \f$P_{i,j}(t)\f$, and
+ * \f$ r \f$ the rate.
  * For some models, the \f$P_{i,j}(t)\f$'s can be computed analytically.
  * For more complexe models, we need to use a eigen-decomposition of \f$Q\f$:
  * \f[ Q = U^{-1} . D . U, \f]
  * where \f$D = diag(\lambda_i)\f$ is a diagonal matrix.
  * Hence
  * \f[
- * P(t) = e^{t \times Q} = U^{-1} . e^{D \times t} . U,
+ * P(t) = e^{r \times t \times Q} = U^{-1} . e^{r \times D \times t} . U,
  * \f]
- * where \f$e^{D \times t} = diag\left(e^{\lambda_i \times t}\right)\f$ is a
- * diagonal matrix with all terms equal to exp the terms in \f$D\f$.
+ * where \f$e^{r \times D \times t} = diag\left(e^{r \times \lambda_i \times t}\right)\f$ is a
+ * diagonal matrix with all terms equal to exp the terms in \f$D\f$ multiplied per \f$ r \times t \f$.
  * \f$U\f$ is the matrix of left eigen vectors (by row), and \f$U^{-1}\f$ is the matrix
  * of right eigen vectors (by column).
  * The values in \f$D\f$ are the eigen values of \f$Q\f$.
@@ -132,12 +133,12 @@ public:
  * Derivatives may be computed analytically, or using the general formulas:
  * \f[
  * \frac{\partial P(t)}{\partial t} =
- * U^{-1} . diag\left(\lambda_i \times e^{\lambda_i \times t}\right) . U
+ * U^{-1} . diag\left(r \times \lambda_i \times e^{r \times \lambda_i \times t}\right) . U
  * \f]
  * and
  * \f[
  * \frac{\partial^2 P(t)}{\partial t^2} =
- * U^{-1} . diag\left(\lambda_i^2 \times e^{\lambda_i \times t}\right) . U
+ * U^{-1} . diag\left(r^2 \times \lambda_i^2 \times e^{r \times \lambda_i \times t}\right) . U
  * \f]
  *
  */
@@ -194,7 +195,7 @@ public:
   virtual double freq(unsigned int i) const = 0;
 
   /**
-   * @return The rate of change from state i to state j.
+   * @return The rate in the generator of change from state i to state j.
    *
    * @see getStates();
    */
@@ -227,12 +228,16 @@ public:
   virtual const Vdouble& getFrequencies() const = 0;
 
   /**
-   * @return The Markov generator matrix, i.e. all rates of changes from state i
-   * to state j. Usually, the generator is normalized so that
-   * (i) \f$ \forall j; \sum_i Q_{i,j} = 0 \f$, meaning that $\f$ \forall j; Q_{j,j} = -\sum_{i \neq j}Q_{i,j}\f$,
-   * and (ii) \f$ \sum_i Q_{i,i} \times \pi_i = -1\f$.
-   * This means that the mean rate of replacement at equilibrium is 1 and that time \f$t\f$ are measured
-   * in units of expected number of changes per site.
+   * @return The normalized Markov generator matrix, i.e. all
+   * normalized rates of changes from state i to state j. The
+   * generator is normalized so that
+   * (i) \f$ \forall j; \sum_i Q_{i,j} = 0 \f$, meaning that
+   * $\f$ \forall j; Q_{j,j} = -\sum_{i \neq j}Q_{i,j}\f$, and
+   * (ii) \f$ \sum_i Q_{i,i} \times \pi_i = -1\f$.
+   * This means that, under normalization, the mean rate of replacement at
+   * equilibrium is 1 and that time \f$t\f$ are measured in units of
+   * expected number of changes per site. Additionnaly, the rate_ attibute provides
+   * the possibility to increase or decrease this mean rate.
    *
    * See Kosiol and Goldman (2005), Molecular Biology And Evolution 22(2) 193-9.
    * @see Qij()

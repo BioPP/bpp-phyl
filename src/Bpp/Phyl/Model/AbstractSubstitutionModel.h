@@ -42,8 +42,9 @@
 
 #include "SubstitutionModel.h"
 
-#include <Bpp/Numeric/AbstractParameterAliasable.h>
-#include <Bpp/Numeric/VectorTools.h>
+//From NumCalc:
+#include <NumCalc/AbstractParameterAliasable.h>
+#include <NumCalc/VectorTools.h>
 
 namespace bpp
 {
@@ -52,7 +53,8 @@ namespace bpp
  *
  * This abstract class provides some fields, namely:
  * - alphabet_: a pointer toward the alphabet,
- * - _size: the size of the alphabet, a parameter frequently called during various computations,
+ * - size_: the size of the alphabet, a parameter frequently called during various computations,
+ * - rate_: the rate of the model
  * - generator_, exchangeability_, leftEigenVectors_, rightEigenVectors_: usefull matrices,
  * - eigenValues_, freq_: usefull vectors.
  *
@@ -85,6 +87,14 @@ protected:
    * @brief The size of the generator, i.e. the number of states.
    */
   unsigned int size_;
+
+  /**
+   * @brief The rate of the model (default: 1). The generator (and all
+   * its vectorial components) is independent of the rate, since it
+   * should be normalized.
+   */
+  
+  double rate_;
 
   /**
    * @brief The list of supported chars.
@@ -135,6 +145,7 @@ public:
     AbstractParameterAliasable(model),
     alphabet_(model.alphabet_),
     size_(model.size_),
+    rate_(model.rate_),
     chars_(model.chars_),
     generator_(model.generator_),
     pijt_(model.pijt_),
@@ -152,6 +163,7 @@ public:
     AbstractParameterAliasable::operator=(model);
     alphabet_          = model.alphabet_;
     size_              = model.size_;
+    rate_              = model.rate_;
     chars_             = model.chars_;
     generator_         = model.generator_;
     pijt_              = model.pijt_;
@@ -233,6 +245,7 @@ protected:
    */
   virtual void updateMatrices();
 
+public:
   /**
    * @brief Get the scalar product of diagonal elements of the generator
    * and the frequencies vector.
@@ -242,6 +255,29 @@ protected:
    * @return Minus the scalar product of diagonal elements and the frequencies vector.
    */
   double getScale() const;
+
+  /**
+   * @brief Set the rate of the model, defined as the scalar product
+   * of diagonal elements of the generator and the frequencies vector.
+   *
+   * When the generator is normalized, scale=1. Otherwise each element
+   * is multiplied such that the correct scale is set.
+   *
+   */
+  void setScale(double scale);
+
+  /**
+   * @brief Get the rate
+   */
+  
+  double getRate() const;
+
+  /**
+   * @brief Set the rate of the model (must be positive).
+   * @param rate must be positive.
+   */
+  
+  void setRate(double rate);
 };
 
 
@@ -315,6 +351,7 @@ protected:
    * eigenValues_, rightEigenVectors_ and leftEigenVectors_ variables.
    */
   virtual void updateMatrices();
+
 };
 
 } //end of namespace bpp.
