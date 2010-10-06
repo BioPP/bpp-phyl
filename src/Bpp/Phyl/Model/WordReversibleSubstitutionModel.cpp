@@ -97,21 +97,18 @@ WordReversibleSubstitutionModel::WordReversibleSubstitutionModel(
 
 void WordReversibleSubstitutionModel::updateMatrices()
 {
-   int i,k, nbmod = VSubMod_.size();
-   double x;
-  for (k = nbmod - 1; k >= 0; k--)
-  {
-    x = 1.0;
-    for (i = 0; i < k; i++)
-    {
-      x *= 1 - getParameterValue("relrate" + TextTools::toString(i+1));
-    }
-    if (k != nbmod - 1)
-      x *= getParameterValue("relrate" + TextTools::toString(k+1));
-    Vrate_[k] = x;
-  }
+   unsigned int i, nbmod = VSubMod_.size();
+   double x,y;
+   x = 1.0;
 
-  AbstractWordReversibleSubstitutionModel::updateMatrices();
+   for (i = 0; i < nbmod-1; i++){
+     y =getParameterValue("relrate" + TextTools::toString(i+1));
+     Vrate_[i] = x*y;
+     x *= 1 - y;      
+   }
+   Vrate_[nbmod-1]=x;
+
+   AbstractWordReversibleSubstitutionModel::updateMatrices();
 }
 
 void WordReversibleSubstitutionModel::completeMatrices()
