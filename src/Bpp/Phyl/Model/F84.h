@@ -145,25 +145,25 @@ namespace bpp
  *
  * First and second order derivatives are also computed analytically using the formulas:
  * \f{multline*}
- * \frac{\partial P_{i,j}(t)}{\partial t} = \\
+ * \frac{\partial P_{i,j}(t)}{\partial t} = rate_ * \\
  * \frac{1}{P}
  * \footnotesize
  * \begin{pmatrix}
- * -\frac{\pi_G((-1-\kappa)*rate_)}{\pi_R}A - \frac{\pi_A\pi_Y}{\pi_R}B & \pi_CB & \frac{\pi_G((-1-\kappa)*rate_)}{\pi_R}A - \frac{\pi_G\pi_Y}{\pi_R}B & \pi_TB \\
- * \pi_AB & -\frac{\pi_T((-1-\kappa)*rate_)}{\pi_Y}A - \frac{\pi_C\pi_R}{\pi_Y}B & \pi_GB & \frac{\pi_T((-1-\kappa)*rate_)}{\pi_Y}A - \frac{\pi_T\pi_R}{\pi_Y}B \\
- * \frac{\pi_A((-1-\kappa)*rate_)}{\pi_R}A - \frac{\pi_A\pi_Y}{\pi_R}B & \pi_CB & -\frac{\pi_A((-1-\kappa)*rate_)}{\pi_R}A - \frac{\pi_G\pi_Y}{\pi_R}B & \pi_TB \\
- * \pi_AB & \frac{\pi_C((-1-\kappa)*rate_)}{\pi_Y}A - \frac{\pi_C\pi_R}{\pi_Y}B & \pi_GB & -\frac{\pi_C((-1-\kappa)*rate_)}{\pi_Y}A - \frac{\pi_R\pi_T}{\pi_Y}B \\
+ * -\frac{\pi_G((-1-\kappa))}{\pi_R}A - \frac{\pi_A\pi_Y}{\pi_R}B & \pi_CB & \frac{\pi_G((-1-\kappa))}{\pi_R}A - \frac{\pi_G\pi_Y}{\pi_R}B & \pi_TB \\
+ * \pi_AB & -\frac{\pi_T((-1-\kappa))}{\pi_Y}A - \frac{\pi_C\pi_R}{\pi_Y}B & \pi_GB & \frac{\pi_T((-1-\kappa))}{\pi_Y}A - \frac{\pi_T\pi_R}{\pi_Y}B \\
+ * \frac{\pi_A((-1-\kappa))}{\pi_R}A - \frac{\pi_A\pi_Y}{\pi_R}B & \pi_CB & -\frac{\pi_A((-1-\kappa))}{\pi_R}A - \frac{\pi_G\pi_Y}{\pi_R}B & \pi_TB \\
+ * \pi_AB & \frac{\pi_C((-1-\kappa))}{\pi_Y}A - \frac{\pi_C\pi_R}{\pi_Y}B & \pi_GB & -\frac{\pi_C((-1-\kappa))}{\pi_Y}A - \frac{\pi_R\pi_T}{\pi_Y}B \\
  * \end{pmatrix}
  * \f}
  * \f{multline*}
- * \frac{\partial^2 P_{i,j}(t)}{\partial t^2} = \\
+ * \frac{\partial^2 P_{i,j}(t)}{\partial t^2} = rate_^2 * \\
  * \frac{1}{P^2}
  * \footnotesize
  * \begin{pmatrix}
- * \frac{\pi_G{((-1-\kappa)*rate_)}^2}{\pi_R}A + \frac{\pi_A\pi_Y}{\pi_R}B & -\pi_CB & -\frac{\pi_G{((-1-\kappa)*rate_)}^2}{\pi_R}A + \frac{\pi_G\pi_Y}{\pi_R}B & -\pi_TB \\
- * -\pi_AB & \frac{\pi_T{((-1-\kappa)*rate_)}^2}{\pi_Y}A + \frac{\pi_C\pi_R}{\pi_Y}B & -\pi_GB & -\frac{\pi_T{((-1-\kappa)*rate_)}^2}{\pi_Y}A + \frac{\pi_T\pi_R}{\pi_Y}B \\
- * -\frac{\pi_A{((-1-\kappa)*rate_)}^2}{\pi_R}A + \frac{\pi_A\pi_Y}{\pi_R}B & -\pi_CB & \frac{\pi_A{((-1-\kappa)*rate_)}^2}{\pi_R}A + \frac{\pi_G\pi_Y}{\pi_R}B & -\pi_TB \\
- * -\pi_AB & -\frac{\pi_C{((-1-\kappa)*rate_)}^2}{\pi_Y}A + \frac{\pi_C\pi_R}{\pi_Y}B & -\pi_GB & \frac{\pi_C{((-1-\kappa)*rate_)}^2}{\pi_Y}A + \frac{\pi_R\pi_T}{\pi_Y}B \\
+ * \frac{\pi_G{((-1-\kappa))}^2}{\pi_R}A + \frac{\pi_A\pi_Y}{\pi_R}B & -\pi_CB & -\frac{\pi_G{((-1-\kappa))}^2}{\pi_R}A + \frac{\pi_G\pi_Y}{\pi_R}B & -\pi_TB \\
+ * -\pi_AB & \frac{\pi_T{((-1-\kappa))}^2}{\pi_Y}A + \frac{\pi_C\pi_R}{\pi_Y}B & -\pi_GB & -\frac{\pi_T{((-1-\kappa))}^2}{\pi_Y}A + \frac{\pi_T\pi_R}{\pi_Y}B \\
+ * -\frac{\pi_A{((-1-\kappa))}^2}{\pi_R}A + \frac{\pi_A\pi_Y}{\pi_R}B & -\pi_CB & \frac{\pi_A{((-1-\kappa))}^2}{\pi_R}A + \frac{\pi_G\pi_Y}{\pi_R}B & -\pi_TB \\
+ * -\pi_AB & -\frac{\pi_C{((-1-\kappa))}^2}{\pi_Y}A + \frac{\pi_C\pi_R}{\pi_Y}B & -\pi_GB & \frac{\pi_C{((-1-\kappa))}^2}{\pi_Y}A + \frac{\pi_R\pi_T}{\pi_Y}B \\
  * \end{pmatrix}
  * \f}
  *
