@@ -129,6 +129,8 @@ namespace bpp
  * \end{pmatrix}
  * \f]
  *
+ * In addition, a rate_ factor defines the mean rate of the model.
+ *
  * The probabilities of changes are computed analytically using the formulas:
  * \f{multline*}
  * P_{i,j}(t) = \\
@@ -139,7 +141,7 @@ namespace bpp
  * \pi_A - \pi_AB & -\frac{\pi_C}{\pi_Y}A + \frac{\pi_C\pi_R}{\pi_Y}B + \pi_C & \pi_G - \pi_GB & \frac{\pi_C}{\pi_Y}A + \frac{\pi_R\pi_T}{\pi_Y}B + \pi_T \\
  * \end{pmatrix}
  * \f}
- * with \f$A=e^{-\frac{(-1-\kappa)t}{P}}\f$ and \f$B = e^{-\frac{t}{P}}\f$. 
+ * with \f$A=e^{-\frac{rate_*(-1-\kappa)t}{P}}\f$ and \f$B = e^{-\frac{rate_*t}{P}}\f$. 
  *
  * First and second order derivatives are also computed analytically using the formulas:
  * \f{multline*}
@@ -147,10 +149,10 @@ namespace bpp
  * \frac{1}{P}
  * \footnotesize
  * \begin{pmatrix}
- * -\frac{\pi_G(-1-\kappa)}{\pi_R}A - \frac{\pi_A\pi_Y}{\pi_R}B & \pi_CB & \frac{\pi_G(-1-\kappa)}{\pi_R}A - \frac{\pi_G\pi_Y}{\pi_R}B & \pi_TB \\
- * \pi_AB & -\frac{\pi_T(-1-\kappa)}{\pi_Y}A - \frac{\pi_C\pi_R}{\pi_Y}B & \pi_GB & \frac{\pi_T(-1-\kappa)}{\pi_Y}A - \frac{\pi_T\pi_R}{\pi_Y}B \\
- * \frac{\pi_A(-1-\kappa)}{\pi_R}A - \frac{\pi_A\pi_Y}{\pi_R}B & \pi_CB & -\frac{\pi_A(-1-\kappa)}{\pi_R}A - \frac{\pi_G\pi_Y}{\pi_R}B & \pi_TB \\
- * \pi_AB & \frac{\pi_C(-1-\kappa)}{\pi_Y}A - \frac{\pi_C\pi_R}{\pi_Y}B & \pi_GB & -\frac{\pi_C(-1-\kappa)}{\pi_Y}A - \frac{\pi_R\pi_T}{\pi_Y}B \\
+ * -\frac{\pi_G((-1-\kappa)*rate_)}{\pi_R}A - \frac{\pi_A\pi_Y}{\pi_R}B & \pi_CB & \frac{\pi_G((-1-\kappa)*rate_)}{\pi_R}A - \frac{\pi_G\pi_Y}{\pi_R}B & \pi_TB \\
+ * \pi_AB & -\frac{\pi_T((-1-\kappa)*rate_)}{\pi_Y}A - \frac{\pi_C\pi_R}{\pi_Y}B & \pi_GB & \frac{\pi_T((-1-\kappa)*rate_)}{\pi_Y}A - \frac{\pi_T\pi_R}{\pi_Y}B \\
+ * \frac{\pi_A((-1-\kappa)*rate_)}{\pi_R}A - \frac{\pi_A\pi_Y}{\pi_R}B & \pi_CB & -\frac{\pi_A((-1-\kappa)*rate_)}{\pi_R}A - \frac{\pi_G\pi_Y}{\pi_R}B & \pi_TB \\
+ * \pi_AB & \frac{\pi_C((-1-\kappa)*rate_)}{\pi_Y}A - \frac{\pi_C\pi_R}{\pi_Y}B & \pi_GB & -\frac{\pi_C((-1-\kappa)*rate_)}{\pi_Y}A - \frac{\pi_R\pi_T}{\pi_Y}B \\
  * \end{pmatrix}
  * \f}
  * \f{multline*}
@@ -158,10 +160,10 @@ namespace bpp
  * \frac{1}{P^2}
  * \footnotesize
  * \begin{pmatrix}
- * \frac{\pi_G{(-1-\kappa)}^2}{\pi_R}A + \frac{\pi_A\pi_Y}{\pi_R}B & -\pi_CB & -\frac{\pi_G{(-1-\kappa)}^2}{\pi_R}A + \frac{\pi_G\pi_Y}{\pi_R}B & -\pi_TB \\
- * -\pi_AB & \frac{\pi_T{(-1-\kappa)}^2}{\pi_Y}A + \frac{\pi_C\pi_R}{\pi_Y}B & -\pi_GB & -\frac{\pi_T{(-1-\kappa)}^2}{\pi_Y}A + \frac{\pi_T\pi_R}{\pi_Y}B \\
- * -\frac{\pi_A{(-1-\kappa)}^2}{\pi_R}A + \frac{\pi_A\pi_Y}{\pi_R}B & -\pi_CB & \frac{\pi_A{(-1-\kappa)}^2}{\pi_R}A + \frac{\pi_G\pi_Y}{\pi_R}B & -\pi_TB \\
- * -\pi_AB & -\frac{\pi_C{(-1-\kappa)}^2}{\pi_Y}A + \frac{\pi_C\pi_R}{\pi_Y}B & -\pi_GB & \frac{\pi_C{(-1-\kappa)}^2}{\pi_Y}A + \frac{\pi_R\pi_T}{\pi_Y}B \\
+ * \frac{\pi_G{((-1-\kappa)*rate_)}^2}{\pi_R}A + \frac{\pi_A\pi_Y}{\pi_R}B & -\pi_CB & -\frac{\pi_G{((-1-\kappa)*rate_)}^2}{\pi_R}A + \frac{\pi_G\pi_Y}{\pi_R}B & -\pi_TB \\
+ * -\pi_AB & \frac{\pi_T{((-1-\kappa)*rate_)}^2}{\pi_Y}A + \frac{\pi_C\pi_R}{\pi_Y}B & -\pi_GB & -\frac{\pi_T{((-1-\kappa)*rate_)}^2}{\pi_Y}A + \frac{\pi_T\pi_R}{\pi_Y}B \\
+ * -\frac{\pi_A{((-1-\kappa)*rate_)}^2}{\pi_R}A + \frac{\pi_A\pi_Y}{\pi_R}B & -\pi_CB & \frac{\pi_A{((-1-\kappa)*rate_)}^2}{\pi_R}A + \frac{\pi_G\pi_Y}{\pi_R}B & -\pi_TB \\
+ * -\pi_AB & -\frac{\pi_C{((-1-\kappa)*rate_)}^2}{\pi_Y}A + \frac{\pi_C\pi_R}{\pi_Y}B & -\pi_GB & \frac{\pi_C{((-1-\kappa)*rate_)}^2}{\pi_Y}A + \frac{\pi_R\pi_T}{\pi_Y}B \\
  * \end{pmatrix}
  * \f}
  *
