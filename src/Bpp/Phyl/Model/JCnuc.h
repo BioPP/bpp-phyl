@@ -100,25 +100,27 @@ namespace bpp
  * \end{pmatrix}
  * \f]
  *
+ * In addition, a rate_ factor defines the mean rate of the model.
+ *
  * The probabilities of changes are computed analytically using the formulas:
  * \f[
  * P_{i,j}(t) = \begin{cases}
- * \frac{1}{4} + \frac{3}{4}e^{-\frac{4}{3}t} & \text{if $i=j$}, \\
- * \frac{1}{4} - \frac{1}{4}e^{-\frac{4}{3}t} & \text{otherwise}.
+ * \frac{1}{4} + \frac{3}{4}e^{-rate_*\frac{4}{3}t} & \text{if $i=j$}, \\
+ * \frac{1}{4} - \frac{1}{4}e^{-rate_*\frac{4}{3}t} & \text{otherwise}.
  * \end{cases}
  * \f]
  *
  * First and second order derivatives are also computed analytically using the formulas:
  * \f[
- * \frac{\partial P_{i,j}(t)}{\partial t} = \begin{cases}
- * -e^{-\frac{4}{3}t}           & \text{if $i=j$}, \\
- * \frac{1}{3}e^{-\frac{4}{3}t} & \text{otherwise}.
+ * \frac{\partial P_{i,j}(t)}{\partial t} = rate_ * \begin{cases}
+ * -e^{-rate_*\frac{4}{3}t}           & \text{if $i=j$}, \\
+ * \frac{1}{3}e^{-rate*\frac{4}{3}t} & \text{otherwise}.
  * \end{cases}
  * \f]
  * \f[
- * \frac{\partial^2 P_{i,j}(t)}{\partial t^2} = \begin{cases}
- * \frac{4}{3}e^{-\frac{4}{3}t}  & \text{if $i=j$}, \\
- * -\frac{4}{9}e^{-\frac{4}{3}t} & \text{otherwise}.
+ * \frac{\partial^2 P_{i,j}(t)}{\partial t^2} = rate_^2 *\begin{cases}
+ * \frac{4}{3}e^{-rate_*\frac{4}{3}t}  & \text{if $i=j$}, \\
+ * -\frac{4}{9}e^{-rate_*\frac{4}{3}t} & \text{otherwise}.
  * \end{cases}
  * \f]
  *
