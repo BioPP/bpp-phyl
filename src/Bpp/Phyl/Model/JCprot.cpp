@@ -55,7 +55,7 @@ JCprot::JCprot(const ProteicAlphabet* alpha) :
   freqSet_(0)
 {
   freqSet_ = new FixedProteinFrequenciesSet(alpha, freq_);
-	updateMatrices();
+  updateMatrices();
 }
 
 JCprot::JCprot(const ProteicAlphabet* alpha, ProteinFrequenciesSet* freqSet, bool initFreqs) :
@@ -111,31 +111,31 @@ void JCprot::updateMatrices()
 
 double JCprot::Pij_t(int i, int j, double d) const
 {
-	if(i == j) return 1./20. + 19./20. * exp(- 20./19. * d);
-	else       return 1./20. -  1./20. * exp(- 20./19. * d);
+  if(i == j) return 1./20. + 19./20. * exp(-  rate_ * 20./19. * d);
+  else       return 1./20. -  1./20. * exp(-  rate_ * 20./19. * d);
 }
 
 /******************************************************************************/
 
 double JCprot::dPij_dt(int i, int j, double d) const
 {
-	if(i == j) return -        exp(- 20./19. * d);
-	else       return 1./19. * exp(- 20./19. * d);
+  if(i == j) return -  rate_ *        exp(-  rate_ * 20./19. * d);
+  else       return  rate_ * 1./19. * exp(-  rate_ * 20./19. * d);
 }
 
 /******************************************************************************/
 
 double JCprot::d2Pij_dt2(int i, int j, double d) const
 {
-	if(i == j) return   20./19.  * exp(- 20./19. * d);
-	else       return - 20./361. * exp(- 20./19. * d);
+  if(i == j) return    rate_ *  rate_ * 20./19.  * exp(-  rate_ * 20./19. * d);
+  else       return -  rate_ *  rate_ * 20./361. * exp(-  rate_ * 20./19. * d);
 }
 
 /******************************************************************************/
 
 const Matrix<double>& JCprot::getPij_t(double d) const
 {
-  exp_ = exp(- 20./19. * d);
+  exp_ = exp(-  rate_ * 20./19. * d);
 	for(unsigned int i = 0; i < size_; i++)
   {
 		for(unsigned int j = 0; j < size_; j++)
@@ -148,12 +148,12 @@ const Matrix<double>& JCprot::getPij_t(double d) const
 
 const Matrix<double>& JCprot::getdPij_dt(double d) const
 {
-  exp_ = exp(- 20./19. * d);
+  exp_ = exp(-  rate_ * 20./19. * d);
 	for(unsigned int i = 0; i < size_; i++)
   {
 		for(unsigned int j = 0; j < size_; j++)
     {
-			p_(i,j) = (i==j) ? - exp_ : 1./19. * exp_;
+      p_(i,j) =  rate_ * ((i==j) ? - exp_ : 1./19. * exp_);
 		}
 	}
 	return p_;
@@ -161,12 +161,12 @@ const Matrix<double>& JCprot::getdPij_dt(double d) const
 
 const Matrix<double>& JCprot::getd2Pij_dt2(double d) const
 {
-  exp_ = exp(- 20./19. * d);
+  exp_ = exp( rate_ * - 20./19. * d);
 	for(unsigned int i = 0; i < size_; i++)
   {
 		for(unsigned int j = 0; j < size_; j++)
     {
-			p_(i,j) = (i==j) ? 20./19. * exp_ : - 20./361. * exp_;
+      p_(i,j) =  rate_ *  rate_ * ((i==j) ? 20./19. * exp_ : - 20./361. * exp_);
 		}
 	}
 	return p_;
