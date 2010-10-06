@@ -73,7 +73,7 @@ YNGKP_M8::YNGKP_M8(const GeneticCode* gc, FrequenciesSet* codonFreqs, unsigned i
   map<string, DiscreteDistribution*> mpdd;
   mpdd["omega"]=pmodd;
 
-  pmixmodel_= new MixtureOfSubstitutionModels(gc->getSourceAlphabet(),
+  pmixmodel_= new MixtureOfASubstitutionModel(gc->getSourceAlphabet(),
                                               new YN98(gc, codonFreqs),
                                               mpdd);
   delete pbdd;
@@ -113,7 +113,7 @@ YNGKP_M8::YNGKP_M8(const GeneticCode* gc, FrequenciesSet* codonFreqs, unsigned i
 }
 
 YNGKP_M8::YNGKP_M8(const YNGKP_M8& mod2) : MixedSubstitutionModel(mod2),
-                                           pmixmodel_(new MixtureOfSubstitutionModels(*mod2.pmixmodel_)),
+                                           pmixmodel_(new MixtureOfASubstitutionModel(*mod2.pmixmodel_)),
                                            mapParNamesFromPmodel_(mod2.mapParNamesFromPmodel_),
                                            lParPmodel_(mod2.lParPmodel_)
 {
@@ -124,7 +124,7 @@ YNGKP_M8& YNGKP_M8::operator=(const YNGKP_M8& mod2)
 {
   MixedSubstitutionModel::operator=(mod2);
 
-  pmixmodel_=new MixtureOfSubstitutionModels(*mod2.pmixmodel_);
+  pmixmodel_=new MixtureOfASubstitutionModel(*mod2.pmixmodel_);
   mapParNamesFromPmodel_=mod2.mapParNamesFromPmodel_;
   lParPmodel_=mod2.lParPmodel_;
   

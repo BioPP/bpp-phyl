@@ -187,7 +187,7 @@ SubstitutionModel* PhylogeneticsApplicationTools::getSubstitutionModelDefaultIns
       unparsedParameterValues[it->first] = it->second;
     }
 
-    model = new MixtureOfSubstitutionModels(alphabet,pSM,mdist);
+    model = new MixtureOfASubstitutionModel(alphabet,pSM,mdist);
 
     vector<string> v = model->getParameters().getParameterNames();
 
@@ -198,7 +198,7 @@ SubstitutionModel* PhylogeneticsApplicationTools::getSubstitutionModelDefaultIns
     }
 
     if (verbose)
-      ApplicationTools::displayResult("Mixture Of Substitution Models", nestedModelDescription );
+      ApplicationTools::displayResult("Mixture Of A Substitution Model", nestedModelDescription );
   }
 
   // /////////////////////////////////

@@ -1,5 +1,5 @@
 //
-// File: MixtureOfSubstitutionModels.cpp
+// File: MixtureOfASubstitutionModel.cpp
 // Created by: David Fournier, Laurent Gueguen
 //
 
@@ -36,7 +36,7 @@
   knowledge of the CeCILL license and that you accept its terms.
 */
 
-#include "MixtureOfSubstitutionModels.h"
+#include "MixtureOfASubstitutionModel.h"
 
 #include <Bpp/Numeric/NumConstants.h>
 
@@ -46,7 +46,7 @@ using namespace bpp;
 using namespace std;
 
 
-MixtureOfSubstitutionModels::MixtureOfSubstitutionModels(
+MixtureOfASubstitutionModel::MixtureOfASubstitutionModel(
                                                const Alphabet* alpha,
                                                SubstitutionModel* model,
                                                std::map<std::string, DiscreteDistribution*> parametersDistributionsList) throw(Exception) :
@@ -124,7 +124,7 @@ MixtureOfSubstitutionModels::MixtureOfSubstitutionModels(
   updateMatrices();
 }
 
-MixtureOfSubstitutionModels::MixtureOfSubstitutionModels(const MixtureOfSubstitutionModels& msm) :
+MixtureOfASubstitutionModel::MixtureOfASubstitutionModel(const MixtureOfASubstitutionModel& msm) :
   MixedSubstitutionModel(msm),
   distributionMap_(),
   modelsContainer_(),
@@ -144,7 +144,7 @@ MixtureOfSubstitutionModels::MixtureOfSubstitutionModels(const MixtureOfSubstitu
     }
 }
 
-MixtureOfSubstitutionModels& MixtureOfSubstitutionModels::operator=(const MixtureOfSubstitutionModels& msm)
+MixtureOfASubstitutionModel& MixtureOfASubstitutionModel::operator=(const MixtureOfASubstitutionModel& msm)
 {
   MixedSubstitutionModel::operator=(msm);
   
@@ -169,7 +169,7 @@ MixtureOfSubstitutionModels& MixtureOfSubstitutionModels::operator=(const Mixtur
 }
 
 
-MixtureOfSubstitutionModels::~MixtureOfSubstitutionModels()
+MixtureOfASubstitutionModel::~MixtureOfASubstitutionModel()
 {
   unsigned int i;
   map<string, DiscreteDistribution*>::iterator it;
@@ -184,7 +184,7 @@ MixtureOfSubstitutionModels::~MixtureOfSubstitutionModels()
     }
 }
 
-void MixtureOfSubstitutionModels::updateMatrices()
+void MixtureOfASubstitutionModel::updateMatrices()
 {
   string s,t;
   unsigned int i, j, l;
@@ -248,13 +248,13 @@ void MixtureOfSubstitutionModels::updateMatrices()
 }
 
 
-unsigned int MixtureOfSubstitutionModels::getNumberOfStates() const
+unsigned int MixtureOfASubstitutionModel::getNumberOfStates() const
 {
   return modelsContainer_[0]->getNumberOfStates();
 }
 
 
-double MixtureOfSubstitutionModels::Pij_t(unsigned int i, unsigned int j, double t) const
+double MixtureOfASubstitutionModel::Pij_t(unsigned int i, unsigned int j, double t) const
 {
   double x=0;
   for (unsigned int n = 0; n < modelsContainer_.size(); n++)
@@ -264,7 +264,7 @@ double MixtureOfSubstitutionModels::Pij_t(unsigned int i, unsigned int j, double
 }
 
 
-double MixtureOfSubstitutionModels::dPij_dt(unsigned int i, unsigned int j, double t) const
+double MixtureOfASubstitutionModel::dPij_dt(unsigned int i, unsigned int j, double t) const
 {
   double x=0;
   for (unsigned int n = 0; n < modelsContainer_.size(); n++)
@@ -274,7 +274,7 @@ double MixtureOfSubstitutionModels::dPij_dt(unsigned int i, unsigned int j, doub
 }
 
 
-double MixtureOfSubstitutionModels::d2Pij_dt2(unsigned int i, unsigned int j, double t) const
+double MixtureOfASubstitutionModel::d2Pij_dt2(unsigned int i, unsigned int j, double t) const
 {
   double x=0;
   for (unsigned int n = 0; n < modelsContainer_.size(); n++)
@@ -284,7 +284,7 @@ double MixtureOfSubstitutionModels::d2Pij_dt2(unsigned int i, unsigned int j, do
 }
 
 
-const Matrix<double>& MixtureOfSubstitutionModels::getPij_t(double t) const
+const Matrix<double>& MixtureOfASubstitutionModel::getPij_t(double t) const
 {
   for (unsigned int i=0; i< getNumberOfStates(); i++)
     for (unsigned int j=0; j< getNumberOfStates(); j++)
@@ -294,7 +294,7 @@ const Matrix<double>& MixtureOfSubstitutionModels::getPij_t(double t) const
 }
 
 
-const Matrix<double>& MixtureOfSubstitutionModels::getdPij_dt(double t) const
+const Matrix<double>& MixtureOfASubstitutionModel::getdPij_dt(double t) const
 {
   for (unsigned int i=0; i< getNumberOfStates(); i++)
     for (unsigned int j=0; j< getNumberOfStates(); j++)
@@ -304,7 +304,7 @@ const Matrix<double>& MixtureOfSubstitutionModels::getdPij_dt(double t) const
 }
 
 
-const Matrix<double>& MixtureOfSubstitutionModels::getd2Pij_dt2(double t) const
+const Matrix<double>& MixtureOfASubstitutionModel::getd2Pij_dt2(double t) const
 {
   for (unsigned int i=0; i< getNumberOfStates(); i++)
     for (unsigned int j=0; j< getNumberOfStates(); j++)
@@ -314,7 +314,7 @@ const Matrix<double>& MixtureOfSubstitutionModels::getd2Pij_dt2(double t) const
 }
 
 
-const Vdouble& MixtureOfSubstitutionModels::getFrequencies()
+const Vdouble& MixtureOfASubstitutionModel::getFrequencies()
 {
   for (unsigned int i=0; i< getNumberOfStates(); i++)
     freq_[i]=freq(i);
@@ -322,7 +322,7 @@ const Vdouble& MixtureOfSubstitutionModels::getFrequencies()
 }
 
 
-double MixtureOfSubstitutionModels::freq(unsigned int i) const
+double MixtureOfASubstitutionModel::freq(unsigned int i) const
 {
   double x=0;
   for (unsigned int n = 0; n < modelsContainer_.size(); n++)

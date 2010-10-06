@@ -1,5 +1,5 @@
 //
-// File: MixtureOfSubstitutionModels.h
+// File: MixtureOfASubstitutionModel.h
 // Created by: David Fournier, Laurent Gueguen
 //
 
@@ -36,8 +36,8 @@
    knowledge of the CeCILL license and that you accept its terms.
  */
 
-#ifndef _MIXTUREOFSUBSTITUTIONMODELS_H_
-#define _MIXTUREOFSUBSTITUTIONMODELS_H_
+#ifndef _MIXTUREOFASUBSTITUTIONMODEL_H_
+#define _MIXTUREOFASUBSTITUTIONMODEL_H_
 
 #include "MixedSubstitutionModel.h"
 #include <Bpp/Numeric/Prob.all>
@@ -84,7 +84,7 @@ namespace bpp
  * values.
  *
  */
-class MixtureOfSubstitutionModels :
+class MixtureOfASubstitutionModel :
   public MixedSubstitutionModel
 {
 private:
@@ -94,17 +94,17 @@ private:
   std::vector<double> probas_;
   
 public:
-  MixtureOfSubstitutionModels(const Alphabet* alpha,
+  MixtureOfASubstitutionModel(const Alphabet* alpha,
                          SubstitutionModel* model,
                          std::map<std::string, DiscreteDistribution*> parametersDistributionsList) throw(Exception);
 
-  MixtureOfSubstitutionModels(const MixtureOfSubstitutionModels&);
+  MixtureOfASubstitutionModel(const MixtureOfASubstitutionModel&);
   
-  MixtureOfSubstitutionModels& operator=(const MixtureOfSubstitutionModels&);
+  MixtureOfASubstitutionModel& operator=(const MixtureOfASubstitutionModel&);
 
-  ~MixtureOfSubstitutionModels();
+  ~MixtureOfASubstitutionModel();
 
-  MixtureOfSubstitutionModels* clone() const { return new MixtureOfSubstitutionModels(*this); }
+  MixtureOfASubstitutionModel* clone() const { return new MixtureOfASubstitutionModel(*this); }
 
 public:
   /**
@@ -139,7 +139,7 @@ public:
     return modelsContainer_.size();
   }
 
-  std::string getName() const { return "MixtureOfSubstitutionModels"; }
+  std::string getName() const { return "MixtureOfASubstitutionModel"; }
 
   void updateMatrices();
   
@@ -157,4 +157,4 @@ public:
 };
 } // end of namespace bpp.
 
-#endif  // _MIXTUREOFSUBSTITUTIONMODELS_H_
+#endif  // _MIXTUREOFASUBSTITUTIONMODEL_H_
