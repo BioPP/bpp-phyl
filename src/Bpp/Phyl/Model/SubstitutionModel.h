@@ -320,6 +320,19 @@ public:
   virtual double getInitValue(unsigned int i, int state) const throw (BadIntException) = 0;
 
   /**
+   * @brief Get the rate
+   */
+  
+  virtual double getRate() const { return 1.;}
+
+  /**
+   * @brief Set the rate of the model (must be positive).
+   * @param rate must be positive.
+   */
+  
+  virtual void setRate(double rate) {};
+  
+  /**
    * @brief Set equilibrium frequencies equal to the frequencies estimated
    * from the data.
    *
