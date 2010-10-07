@@ -53,19 +53,22 @@ namespace bpp
  * equilibrium frequencies between nucleotides.
  *
  * For codons @f$i=i_1i_2i_3@f$ and @f$j=j_1j_2j_3@f$, the generator term
- * @f$Q_{ij} (i \neq j)@f$ is: 0 if 2 or 3 of the pair @f$(i_1,j_1)
- * (i_2,j_2) (i_3,j_3) @f$ are different.
+ * @f$Q_{ij} (i \neq j)@f$ is:
+ *
+ * 0 if 2 or 3 of the pair @f$(i_1,j_1)(i_2,j_2) (i_3,j_3) @f$ are different.
+ *
  * @f$\mu \rho \pi_{j_k} @f$  if exactly 1 of the pairs
-   @f$(i_1,j_1) (i_2,j_2) (i_3,j_3) @f$ is different (@f$k@f$), and that
-   difference is synonymous.
+ * @f$(i_1,j_1) (i_2,j_2) (i_3,j_3) @f$ is different (@f$k@f$), and that
+ * difference is synonymous.
+ *
  * @f$\mu \pi_{j_k} @f$  if exactly 1 of the pairs
-   @f$(i_1,j_1) (i_2,j_2) (i_3,j_3) @f$ is different (@f$k@f$), and that
-   difference is non-synonymous.
+ * @f$(i_1,j_1) (i_2,j_2) (i_3,j_3) @f$ is different (@f$k@f$), and that
+ * difference is non-synonymous.
  *
  * @f$\mu@f$ is a normalization factor.
  *
- * This model includes one parameter (@f$\kappa@f$ and @f$V@f$). The
- * codon frequencies @f$\pi_j@f$ are either observed or infered. 
+ * This model includes one parameter (@f$\rho@f$). The codon
+ * frequencies @f$\pi_j@f$ are either observed or infered.
  *
  * Reference:
  * - Muse S.V. and Gaut B.S. (1994), Molecular_ Biology And Evolution_ 11(5) 715--724.
