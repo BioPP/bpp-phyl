@@ -200,7 +200,42 @@ SubstitutionModel* PhylogeneticsApplicationTools::getSubstitutionModelDefaultIns
     if (verbose)
       ApplicationTools::displayResult("Mixture Of A Substitution Model", nestedModelDescription );
   }
+  else if (modelName == "MixtureOfModels")
+    {
+      vector<string> v_nestedModelDescription;
+      vector<SubstitutionModel*> v_pSM;
+      map<string, string> unparsedParameterValuesNested;
 
+      if (args.find("model1") == args.end()) {
+        throw Exception("Missing argument 'model1' for model " + modelName + ".");
+      }
+      unsigned int nbmodels = 0;
+      
+      while (args.find("model" + TextTools::toString(nbmodels+1)) != args.end()){
+        v_nestedModelDescription.push_back(args["model" + TextTools::toString(++nbmodels)]);
+      }
+    
+      if (nbmodels < 2)
+        throw Exception("Missing nested models for model " + modelName + ".");
+
+      for (unsigned i = 0; i < v_nestedModelDescription.size(); i++)
+        {
+          unparsedParameterValuesNested.clear();
+          model = getSubstitutionModelDefaultInstance(alphabet, v_nestedModelDescription[i], unparsedParameterValuesNested, false, false, false);
+          cerr << i << endl;
+          for (map<string, string>::iterator it = unparsedParameterValuesNested.begin(); it != unparsedParameterValuesNested.end(); it++){
+            unparsedParameterValues[modelName + "." + TextTools::toString(i+1) + "_" + it->first] = it->second;
+          }
+          v_pSM.push_back(model);
+        }
+    
+      model = new MixtureOfSubstitutionModels(alphabet, v_pSM);
+
+      cerr << "ok" << endl;
+      if (verbose)
+        ApplicationTools::displayResult("Mixture Of Substitution Models", modelName );
+    }
+  
   // /////////////////////////////////
   // / WORDS and CODONS defined by models
   // ///////////////////////////////

@@ -56,12 +56,19 @@ MixtureOfSubstitutionModels::MixtureOfSubstitutionModels(
 {
   unsigned int i, nbmod = vpModel_.size();
 
+  for (i = 0; i < nbmod; i++){
+    if (vpModel_[i]==NULL)
+      throw Exception("Empty model number " + TextTools::toString(i) + " in MixtureOfSubstitutionModels constructor");
+    for (unsigned int j=i+1;j<nbmod;j++)
+      if (vpModel_[i]==vpModel_[j])
+        throw Exception("Same model at positions " + TextTools::toString(i) + " and " +
+                        TextTools::toString(j) + " in MixtureOfSubstitutionModels constructor");
+  }
+  
   // Initialization of modelsContainer_.
 
   for (i = 0; i < nbmod; i++)
     {
-      if (vpModel_[i]==NULL)
-        throw Exception("Empty model number " + TextTools::toString(i) + " in MixtureOfSubstitutionModels constructor");
       modelsContainer_.push_back(vpModel_[i]);
       Vprobas_.push_back(1.0/nbmod);
       Vrates_.push_back(1.0);
@@ -140,7 +147,7 @@ void MixtureOfSubstitutionModels::updateMatrices()
   x = 1.0;
 
   for (i = 0; i < nbmod-1; i++){
-    y =getParameterValue("relproba" + TextTools::toString(i+1));
+    y =getParameterValue("Mixture.relproba" + TextTools::toString(i+1));
     Vprobas_[i] = x*y;
     x *= 1 - y;      
   }
@@ -148,7 +155,7 @@ void MixtureOfSubstitutionModels::updateMatrices()
 
   x = 1.0;
   for (i = 0; i < nbmod-1; i++){
-    y =getParameterValue("relrate" + TextTools::toString(i+1));
+    y =getParameterValue("Mixture.relrate" + TextTools::toString(i+1));
     Vrates_[i] = x*y/Vprobas_[i];
     x *= 1 - y;      
   }
