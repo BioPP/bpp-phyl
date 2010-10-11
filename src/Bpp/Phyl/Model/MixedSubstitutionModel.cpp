@@ -46,7 +46,7 @@ using namespace std;
 
 MixedSubstitutionModel::MixedSubstitutionModel(
                                                const Alphabet* alpha,
-                                               const std::string& prefix): AbstractSubstitutionModel(alpha, "")
+                                               const std::string& prefix): AbstractSubstitutionModel(alpha, prefix)
 {
   for (unsigned int i=0;i<size_;i++){
     for (unsigned int j=0; j<size_;j++){

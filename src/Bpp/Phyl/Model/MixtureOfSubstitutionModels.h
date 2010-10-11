@@ -130,14 +130,31 @@ namespace bpp
      *@brief Constructor of a MixtureOfSubstitutionModels, where all
      *the models have rate 1 and equal probability.
      *
-     *@param a pointer to the Alphabet
-     *@param a vector of pointers to SubstitutionModels. All the
+     *@param alpha pointer to the Alphabet
+     *@param vpModel vector of pointers to SubstitutionModels. All the
      *   SubstitutionModels are owned by the instance.
      */
     
     MixtureOfSubstitutionModels(const Alphabet* alpha,
                                 std::vector<SubstitutionModel*> vpModel);
     
+    /*
+     *@brief Constructor of a MixtureOfSubstitutionModels.
+     *
+     *@param alpha pointer to the Alphabet
+     *@param vpModel vector of pointers to SubstitutionModels. All the
+     *   SubstitutionModels are owned by the instance.
+     *@param vproba vector of the probabilities of the models
+     *@param vrate vector of the rates of the models
+     *
+     * See above the constraints on the rates and the probabilities of
+     * the vectors.
+     */
+    
+    MixtureOfSubstitutionModels(const Alphabet* alpha,
+                                std::vector<SubstitutionModel*> vpModel,
+                                Vdouble& vproba, Vdouble& vrate);
+
     MixtureOfSubstitutionModels(const MixtureOfSubstitutionModels&);
     
     MixtureOfSubstitutionModels& operator=(const MixtureOfSubstitutionModels&);
