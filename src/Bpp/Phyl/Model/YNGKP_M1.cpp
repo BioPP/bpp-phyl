@@ -78,7 +78,7 @@ YNGKP_M1::YNGKP_M1(const GeneticCode* gc, FrequenciesSet* codonFreqs) :
   vector<std::string> v=dynamic_cast<YN98*>(pmixmodel_->getNModel(0))->getFreq().getParameters().getParameterNames();
 
   for (unsigned int i=0;i<v.size();i++)
-    mapParNamesFromPmodel_[v[i]]=getParameterNameWithoutNamespace("YNGKP_M1."+v[i].substr(5));
+    mapParNamesFromPmodel_[v[i]]=v[i].substr(5);
 
   mapParNamesFromPmodel_["YN98.kappa"]="kappa";
   mapParNamesFromPmodel_["YN98.omega_Simple.V1"]="omega";
