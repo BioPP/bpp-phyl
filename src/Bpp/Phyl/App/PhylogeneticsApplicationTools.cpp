@@ -725,6 +725,8 @@ SubstitutionModel* PhylogeneticsApplicationTools::getSubstitutionModelDefaultIns
         model = new LG08(alpha);
       else if (modelName == "WAG01")
         model = new WAG01(alpha);
+      else if (modelName == "LLG08_EHO")
+        model = new LLG08_EHO(alpha);
       else if (modelName == "Empirical")
       {
         string prefix = args["name"];
