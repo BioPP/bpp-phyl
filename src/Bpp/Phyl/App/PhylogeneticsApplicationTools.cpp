@@ -200,7 +200,7 @@ SubstitutionModel* PhylogeneticsApplicationTools::getSubstitutionModelDefaultIns
     if (verbose)
       ApplicationTools::displayResult("Mixture Of A Substitution Model", nestedModelDescription );
   }
-  else if (modelName == "MixtureOfModels")
+  else if (modelName == "Mixture")
     {
       vector<string> v_nestedModelDescription;
       vector<SubstitutionModel*> v_pSM;
@@ -222,16 +222,13 @@ SubstitutionModel* PhylogeneticsApplicationTools::getSubstitutionModelDefaultIns
         {
           unparsedParameterValuesNested.clear();
           model = getSubstitutionModelDefaultInstance(alphabet, v_nestedModelDescription[i], unparsedParameterValuesNested, false, false, false);
-          cerr << i << endl;
           for (map<string, string>::iterator it = unparsedParameterValuesNested.begin(); it != unparsedParameterValuesNested.end(); it++){
             unparsedParameterValues[modelName + "." + TextTools::toString(i+1) + "_" + it->first] = it->second;
           }
           v_pSM.push_back(model);
         }
-    
-      model = new MixtureOfSubstitutionModels(alphabet, v_pSM);
 
-      cerr << "ok" << endl;
+      model = new MixtureOfSubstitutionModels(alphabet, v_pSM);
       if (verbose)
         ApplicationTools::displayResult("Mixture Of Substitution Models", modelName );
     }
