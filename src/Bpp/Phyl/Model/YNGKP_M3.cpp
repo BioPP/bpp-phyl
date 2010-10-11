@@ -86,23 +86,23 @@ YNGKP_M3::YNGKP_M3(const GeneticCode* gc, FrequenciesSet* codonFreqs, unsigned i
   for (unsigned int i=0;i<v.size();i++)
     mapParNamesFromPmodel_[v[i]]=getParameterNameWithoutNamespace("YNGKP_M3."+v[i].substr(5));
 
-  mapParNamesFromPmodel_["YN98.kappa"]="YNGKP_M3.kappa";
+  mapParNamesFromPmodel_["YN98.kappa"]="kappa";
   
   for (unsigned int i=1;i<nbOmega;i++)
-    mapParNamesFromPmodel_["YN98.omega_Simple.theta"+TextTools::toString(i)]="YNGKP_M3.theta"+TextTools::toString(i);
+    mapParNamesFromPmodel_["YN98.omega_Simple.theta"+TextTools::toString(i)]="theta"+TextTools::toString(i);
 
 
-  mapParNamesFromPmodel_["YN98.omega_Simple.V1"]="YNGKP_M3.omega0";
+  mapParNamesFromPmodel_["YN98.omega_Simple.V1"]="omega0";
   for (unsigned int i=1;i<nbOmega;i++)
-    mapParNamesFromPmodel_["YN98.omega_Simple.V"+TextTools::toString(i+1)]="YNGKP_M3.delta"+TextTools::toString(i);
+    mapParNamesFromPmodel_["YN98.omega_Simple.V"+TextTools::toString(i+1)]="delta"+TextTools::toString(i);
 
   // specific parameters
   
   string st;
   for (map<string,string>::iterator it=mapParNamesFromPmodel_.begin(); it!= mapParNamesFromPmodel_.end(); it++){
     st=pmixmodel_->getParameterNameWithoutNamespace(it->first);
-    if (it->second.substr(9,5)!="delta")
-      addParameter_(Parameter(it->second, pmixmodel_->getParameterValue(st),
+    if (it->second.substr(0,5)!="delta")
+      addParameter_(Parameter("YNGKP_M3."+it->second, pmixmodel_->getParameterValue(st),
                               pmixmodel_->getParameter(st).hasConstraint()? pmixmodel_->getParameter(st).getConstraint()->clone():0,true));
   }
   
@@ -144,9 +144,9 @@ void YNGKP_M3::updateMatrices()
     if (hasParameter(mapParNamesFromPmodel_[lParPmodel_[i].getName()])){
       if (lParPmodel_[i].getName()[18]=='V'){
         unsigned int ind=TextTools::toInt(lParPmodel_[i].getName().substr(19));
-        double x=getParameterValue("YNGKP_M3.omega0");
+        double x=getParameterValue("omega0");
         for (unsigned j=1;j<ind;j++)
-          x+=getParameterValue("YNGKP_M3.delta"+TextTools::toString(j));
+          x+=getParameterValue("delta"+TextTools::toString(j));
         lParPmodel_[i].setValue(x);
       }
       else{

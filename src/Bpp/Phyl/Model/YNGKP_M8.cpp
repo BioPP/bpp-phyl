@@ -89,19 +89,19 @@ YNGKP_M8::YNGKP_M8(const GeneticCode* gc, FrequenciesSet* codonFreqs, unsigned i
   for (unsigned int i=0;i<v.size();i++)
     mapParNamesFromPmodel_[v[i]]=getParameterNameWithoutNamespace("YNGKP_M8."+v[i].substr(5));
 
-  mapParNamesFromPmodel_["YN98.kappa"]="YNGKP_M8.kappa";
-  mapParNamesFromPmodel_["YN98.omega_Mixture.theta1"]="YNGKP_M8.p0";
-  mapParNamesFromPmodel_["YN98.omega_Mixture.1_Beta.alpha"]="YNGKP_M8.p";
-  mapParNamesFromPmodel_["YN98.omega_Mixture.1_Beta.beta"]="YNGKP_M8.q";
-  mapParNamesFromPmodel_["YN98.omega_Mixture.1_Simple.V1"]="YNGKP_M8.omegas";
+  mapParNamesFromPmodel_["YN98.kappa"]="kappa";
+  mapParNamesFromPmodel_["YN98.omega_Mixture.theta1"]="p0";
+  mapParNamesFromPmodel_["YN98.omega_Mixture.1_Beta.alpha"]="p";
+  mapParNamesFromPmodel_["YN98.omega_Mixture.1_Beta.beta"]="q";
+  mapParNamesFromPmodel_["YN98.omega_Mixture.1_Simple.V1"]="omegas";
 
   // specific parameters
   
   string st;
   for (map<string,string>::iterator it=mapParNamesFromPmodel_.begin(); it!= mapParNamesFromPmodel_.end(); it++){
     st=pmixmodel_->getParameterNameWithoutNamespace(it->first);
-    if (it->second!="YNGKP_M8.omegas")
-      addParameter_(Parameter(it->second, pmixmodel_->getParameterValue(st),
+    if (it->second!="omegas")
+      addParameter_(Parameter("YNGKP_M8."+it->second, pmixmodel_->getParameterValue(st),
                               pmixmodel_->getParameter(st).hasConstraint()? pmixmodel_->getParameter(st).getConstraint()->clone():0,true));
   }
 
