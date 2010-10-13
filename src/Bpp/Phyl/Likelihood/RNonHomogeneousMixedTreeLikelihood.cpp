@@ -259,14 +259,15 @@ double RNonHomogeneousMixedTreeLikelihood::getLikelihood() const
 /******************************************************************************/
 double RNonHomogeneousMixedTreeLikelihood::getLogLikelihood() const
 {
-  vector<double> reslog;
+  unsigned int nbSites=getNumberOfSites();
+  double sum=0;
+  
+  for (unsigned int i = 0; i < nbSites; i++)
+  {
+   sum+=getLogLikelihoodForASite(i);
+  }
 
-  for (unsigned int i = 0; i < treeLikelihoodsContainer_.size(); i++)
-    {
-      reslog.push_back(treeLikelihoodsContainer_[i]->getLogLikelihood());
-    }
-
-  return VectorTools::logsumexp(reslog,probas_);
+  return sum;
 }
 
 /******************************************************************************/

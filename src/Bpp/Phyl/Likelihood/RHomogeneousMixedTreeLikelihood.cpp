@@ -162,14 +162,15 @@ void RHomogeneousMixedTreeLikelihood::setData(const SiteContainer& sites) throw 
 
 double RHomogeneousMixedTreeLikelihood::getLogLikelihood() const
 {
-   vector<double> reslog;
-
-  for (unsigned int i = 0; i < treeLikelihoodsContainer_.size(); i++)
+  unsigned int nbSites=getNumberOfSites();
+  double sum=0;
+  
+  for (unsigned int i = 0; i < nbSites; i++)
   {
-   reslog.push_back(treeLikelihoodsContainer_[i]->getLogLikelihood());
+   sum+=getLogLikelihoodForASite(i);
   }
 
-  return VectorTools::logsumexp(reslog,probas_);
+  return sum;
 }
 
 double RHomogeneousMixedTreeLikelihood::getLikelihood() const
