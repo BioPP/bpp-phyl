@@ -75,7 +75,7 @@ namespace bpp
  *
  * If a distribution parameter does not respect the constraints of
  * this parameter, there is an Exception at the creation of the
- * wrong mdel, if any.
+ * wrong model, if any.
  *
  * When used through a MixedTreeLikelihood objets, all the models have
  * a specific probability, defined through the probabilities of the
