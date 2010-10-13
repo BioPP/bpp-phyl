@@ -51,6 +51,8 @@
 #include <Bpp/Seq/Alphabet/CodonAlphabet.h>
 #include <Bpp/Seq/GeneticCode/GeneticCode.h>
 
+using namespace std;
+
 namespace bpp
 {
 /**
@@ -109,7 +111,9 @@ public:
    * @param option A code describing the option, one of F61, F1X4 or F3X4.
    * @param gc The genetic code to use.
    */
+  
   static FrequenciesSet* getFrequenciesSetForCodons(short option, const GeneticCode& gc);
+
   static const short F0;
   static const short F1X4;
   static const short F3X4;
@@ -270,6 +274,11 @@ public:
 public:
   std::string getName() const { return "Full"; }
 
+  /**
+   * @brief the given frequencies are normalized such thaat the sum of
+   * the frequencies on the non-stop codons equals 1.
+   *
+   */
   void setFrequencies(const std::vector<double>& frequencies) throw (DimensionException, Exception);
 
 #ifndef NO_VIRTUAL_COV
@@ -599,6 +608,11 @@ public:
     return dynamic_cast<const CodonAlphabet*>(AbstractFrequenciesSet::getAlphabet());
   }
 #endif
+  /**
+   * @brief the given frequencies are normalized such thaat the sum of
+   * the frequencies on the non-stop codons equals 1.
+   *
+   */
   void setFrequencies(const std::vector<double>& frequencies) throw (DimensionException, Exception);
 
   std::string getName() const { return "Fixed"; }
