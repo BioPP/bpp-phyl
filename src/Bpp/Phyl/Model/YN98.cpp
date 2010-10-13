@@ -79,3 +79,10 @@ void YN98::updateMatrices()
   pmodel_.matchParametersValues(lParPmodel_);
 
 }
+
+void YN98::setFreq(std::map<int, double>& m)
+{
+  pmodel_.setFreq(m);
+  matchParametersValues(pmodel_.getParameters());
+}
+
