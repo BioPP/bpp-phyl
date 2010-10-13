@@ -470,20 +470,36 @@ SubstitutionModel* PhylogeneticsApplicationTools::getSubstitutionModelDefaultIns
     if (pgc->getSourceAlphabet()->getAlphabetType() != pCA->getAlphabetType())
       throw Exception("Mismatch between genetic code and codon alphabet");
 
-    string freqOpt = ApplicationTools::getStringParameter("codon_freqs", args, "F0");
-    short opt = 0;
-    if (freqOpt == "F0")
-      opt = FrequenciesSet::F0;
-    else if (freqOpt == "F1X4")
-      opt = FrequenciesSet::F1X4;
-    else if (freqOpt == "F3X4")
-      opt = FrequenciesSet::F3X4;
-    else if (freqOpt == "F61")
-      opt = FrequenciesSet::F61;
-    else
-      throw Exception("Unvalid codon frequency option. Should be one of F0, F1X4, F3X4 or F61");
-    FrequenciesSet* codonFreqs = FrequenciesSet::getFrequenciesSetForCodons(opt, *pgc);
 
+    FrequenciesSet* codonFreqs;
+    
+    if (args.find("frequencies") != args.end()){
+
+      map<string, string> unparsedParameterValuesNested;
+    
+      codonFreqs = getFrequenciesSetDefaultInstance(pCA, args["frequencies"], unparsedParameterValuesNested);
+      
+
+    for (map<string, string>::iterator it = unparsedParameterValuesNested.begin(); it != unparsedParameterValuesNested.end(); it++)
+        unparsedParameterValues[modelName + "." + it->first] = it->second;
+    }
+    else {
+      string freqOpt = ApplicationTools::getStringParameter("codon_freqs", args, "F0");
+      short opt = 0;
+      if (freqOpt == "F0")
+        opt = FrequenciesSet::F0;
+      else if (freqOpt == "F1X4")
+        opt = FrequenciesSet::F1X4;
+      else if (freqOpt == "F3X4")
+        opt = FrequenciesSet::F3X4;
+      else if (freqOpt == "F61")
+        opt = FrequenciesSet::F61;
+      else
+        throw Exception("Unvalid codon frequency option. Should be one of F0, F1X4, F3X4 or F61");
+      
+      codonFreqs = FrequenciesSet::getFrequenciesSetForCodons(opt, *pgc);
+    }
+    
     if (modelName == "MG94")
       model = new MG94(pgc, codonFreqs);
     else if (modelName == "GY94")
@@ -511,6 +527,7 @@ SubstitutionModel* PhylogeneticsApplicationTools::getSubstitutionModelDefaultIns
      }
     else
       throw Exception("Unknown Codon model: " + modelName);
+
   }
 
   // /////////////////////////////////
@@ -843,6 +860,7 @@ void PhylogeneticsApplicationTools::setSubstitutionModelParametersInitialValues(
   const SiteContainer* data,
   bool verbose) throw (Exception)
 {
+  
   bool useObsFreq = ApplicationTools::getBooleanParameter(model->getNamespace() + "useObservedFreqs", unparsedParameterValues, false, "", true, false);
   if (verbose) ApplicationTools::displayResult("Use observed frequencies for model", useObsFreq ? "yes" : "no");
   if (useObsFreq && data != 0)
@@ -857,10 +875,12 @@ void PhylogeneticsApplicationTools::setSubstitutionModelParametersInitialValues(
     ap.setMessageHandler(ApplicationTools::warning);
     pl.setParameter(i, ap);
   }
+  unsigned int posp;
   for (unsigned int i = 0; i < pl.size(); i++)
   {
    const string pName = pl[i].getName();
-   if (!useObsFreq || (model->getParameterNameWithoutNamespace(pName).substr(0,5) != "theta"))
+   posp=pName.rfind(".");
+   if (!useObsFreq || (pName.substr(posp+1,5) != "theta"))
      {
        double value = ApplicationTools::getDoubleParameter(pName, unparsedParameterValues, pl[i].getValue());
        pl[i].setValue(value);
