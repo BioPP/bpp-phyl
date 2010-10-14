@@ -630,11 +630,9 @@ void WordFromIndependentFrequenciesSet::setFrequencies(const vector<double>& fre
       freq[(k / d) % s] += frequencies[k];
     }
     vFreq_[i]->setFrequencies(freq);
+    matchParametersValues(vFreq_[i]->getParameters());
   }
 
-  // updating freq_
-
-  updateFrequencies();
 }
 
 
