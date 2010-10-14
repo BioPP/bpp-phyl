@@ -62,3 +62,8 @@ void MG94::updateMatrices()
   pmodel_.matchParametersValues(pl);
 }
 
+void MG94::setFreq(std::map<int, double>& m)
+{
+  pmodel_.setFreq(m);
+  matchParametersValues(pmodel_.getParameters());
+}
