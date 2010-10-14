@@ -103,11 +103,10 @@ public:
    * @brief Build a  EH0 model, with original equilibrium frequencies, probabilities and rates.
    *
    * @param alpha A proteic alphabet.
-   * @param withParam a boolean about the existence of parameters for
-   * the rates and proportions between the embedded models
+   *
    */
 
-  LLG08_EHO(const ProteicAlphabet* alpha, bool withParam=false);
+  LLG08_EHO(const ProteicAlphabet* alpha);
 
   ~LLG08_EHO();
   
