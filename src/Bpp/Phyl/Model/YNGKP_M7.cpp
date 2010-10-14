@@ -130,5 +130,6 @@ void YNGKP_M7::updateMatrices()
     if (hasParameter(mapParNamesFromPmodel_[lParPmodel_[i].getName()]))
       lParPmodel_[i].setValue(getParameter(mapParNamesFromPmodel_[lParPmodel_[i].getName()]).getValue());
   
+  
   pmixmodel_->matchParametersValues(lParPmodel_);
 }
