@@ -118,12 +118,29 @@ namespace bpp
   class MixtureOfSubstitutionModels :
     public MixedSubstitutionModel
   {
+    //  public:
+//    class EmbeddedSubstitutionModel:
+//      public AbstractSubstitutionModel
+//    {
+//    public:
+//      EmbeddedSubstitutionModel(const Alphabet* alphabet, const string& prefix);
+//    };
+//    
+
+  private:
+
+    // List of the paramaters of the submodels
+    
+    ParameterList lParPmodel_;
+    
   protected:
     std::vector<SubstitutionModel*> modelsContainer_;
 
     std::vector<double> Vprobas_;
     std::vector<double> Vrates_;
-  
+
+
+
   public:
 
     /*

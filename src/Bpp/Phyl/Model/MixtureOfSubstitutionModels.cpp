@@ -49,6 +49,7 @@ using namespace std;
 MixtureOfSubstitutionModels::MixtureOfSubstitutionModels(const Alphabet* alpha,
                                                          vector<SubstitutionModel*> vpModel_) :
   MixedSubstitutionModel(alpha, "Mixture."),
+  lParPmodel_(),
   modelsContainer_(),
   Vprobas_(),
   Vrates_()
@@ -90,6 +91,13 @@ MixtureOfSubstitutionModels::MixtureOfSubstitutionModels(const Alphabet* alpha,
       addParameters_(vpModel_[i]->getParameters());
     }
 
+  lParPmodel_.addParameters(getParameters());
+  
+  for (i = 0; i < nbmod; i++){
+    vpModel_[i]->addRateParameter();
+    lParPmodel_.addParameter(vpModel_[i]->getParameter("rate"));
+  }
+
   updateMatrices();
 }
 
@@ -98,6 +106,7 @@ MixtureOfSubstitutionModels::MixtureOfSubstitutionModels(const Alphabet* alpha,
                                                          Vdouble& vproba,
                                                          Vdouble& vrate) :
   MixedSubstitutionModel(alpha, "Mixture."),
+  lParPmodel_(),
   modelsContainer_(),
   Vprobas_(vproba),
   Vrates_(vrate)
@@ -158,21 +167,25 @@ MixtureOfSubstitutionModels::MixtureOfSubstitutionModels(const Alphabet* alpha,
       addParameters_(vpModel_[i]->getParameters());
     }
 
+  lParPmodel_.addParameters(getParameters());
+  
+  for (i = 0; i < nbmod; i++){
+    vpModel_[i]->addRateParameter();
+    lParPmodel_.addParameter(vpModel_[i]->getParameter("rate"));
+  }
+
   updateMatrices();
 }
 
 MixtureOfSubstitutionModels::MixtureOfSubstitutionModels(const MixtureOfSubstitutionModels& msm) :
   MixedSubstitutionModel(msm),
+  lParPmodel_(msm.lParPmodel_),
   modelsContainer_(),
-  Vprobas_(),
-  Vrates_()
+  Vprobas_(msm.Vprobas_),
+  Vrates_(msm.Vrates_)
 {
   for (unsigned int i = 0; i < msm.modelsContainer_.size(); i++)
-    {
-      modelsContainer_.push_back(msm.modelsContainer_[i]->clone());
-      Vprobas_.push_back(msm.Vprobas_[i]);
-      Vrates_.push_back(msm.Vrates_[i]);
-    }
+    modelsContainer_.push_back(msm.modelsContainer_[i]->clone());
 }
 
 MixtureOfSubstitutionModels& MixtureOfSubstitutionModels::operator=(const MixtureOfSubstitutionModels& msm)
@@ -181,6 +194,7 @@ MixtureOfSubstitutionModels& MixtureOfSubstitutionModels::operator=(const Mixtur
   
   //Clear existing containers:
   modelsContainer_.clear();
+  lParPmodel_=msm.lParPmodel_;
   Vprobas_.clear();
   Vrates_.clear();
   
@@ -229,12 +243,17 @@ void MixtureOfSubstitutionModels::updateMatrices()
   Vrates_[nbmod-1]=x/Vprobas_[nbmod-1];
 
   /// models
-  
-  for ( i = 0; i < nbmod; i++){
-    modelsContainer_[i]->matchParametersValues(getParameters());
-    modelsContainer_[i]->setRate(Vrates_[i]);
-  }
 
+  const ParameterList pl=getParameters();
+  for ( i=0;i<pl.size();i++)
+    lParPmodel_.setParameterValue(pl[i].getName(),pl[i].getValue());
+    
+    for ( i = 0; i < nbmod; i++){
+    lParPmodel_.setParameterValue(modelsContainer_[i]->getParameter("rate").getName(),Vrates_[i]);
+    modelsContainer_[i]->setRate(Vrates_[i]);
+    modelsContainer_[i]->matchParametersValues(lParPmodel_);
+  }
+  
   /// freq_
   
   for (i = 0; i < getNumberOfStates(); i++){
