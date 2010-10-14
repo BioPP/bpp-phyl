@@ -46,7 +46,7 @@ using namespace std;
 /******************************************************************************/
 
 MG94::MG94(const GeneticCode* gc, FrequenciesSet* codonFreqs) :
-  AbstractSubstitutionModel(gc->getSourceAlphabet(), "MG94."),
+  AbstractReversibleSubstitutionModel(gc->getSourceAlphabet(), "MG94."),
   pmodel_(gc, codonFreqs)
 {
   addParameter_(Parameter("MG94.rho", 1, &Parameter::R_PLUS_STAR));

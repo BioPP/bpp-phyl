@@ -79,7 +79,7 @@ namespace bpp
  * - Goldman N. and Yang Z. (1994), _Molecular Biology And Evolution_ 11(5) 725--736. 
  */
 class GY94:
-  public AbstractSubstitutionModel
+  public AbstractReversibleSubstitutionModel
 {
 private:
 

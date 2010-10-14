@@ -76,7 +76,7 @@ namespace bpp
 
 
 class MG94 :
-  public AbstractSubstitutionModel
+  public AbstractReversibleSubstitutionModel
 {
 private:
   CodonAsynonymousFrequenciesReversibleSubstitutionModel pmodel_;
@@ -127,7 +127,9 @@ public:
   void enableEigenDecomposition(bool yn) { eigenDecompose_ = 1; }
 
   bool enableEigenDecomposition() { return pmodel_.enableEigenDecomposition(); }
-  
+
+  const FrequenciesSet& getFreq() const { return pmodel_.getFreq(); }
+
 protected:
   void updateMatrices();
 
