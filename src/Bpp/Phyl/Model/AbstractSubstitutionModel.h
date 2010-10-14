@@ -213,7 +213,7 @@ public:
 
   double getInitValue(unsigned int i, int state) const throw (BadIntException);
 
-  void setFreqFromData(const SequenceContainer& data, unsigned int pseudoCount = 0);
+   void setFreqFromData(const SequenceContainer& data, unsigned int pseudoCount = 0);
 
   void setFreq(std::map<int, double>&);
 
@@ -231,6 +231,8 @@ public:
     AbstractParameterAliasable::fireParameterChanged(parameters);
     updateMatrices();
   }
+
+  void addRateParameter();
 
 protected:
   /**
