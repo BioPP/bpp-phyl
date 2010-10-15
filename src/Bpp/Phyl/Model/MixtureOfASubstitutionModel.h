@@ -154,6 +154,15 @@ public:
   const Vdouble& getFrequencies();
   double freq(unsigned int i) const;
 
+  /**
+   * @brief the parameters of the submodel that are not defined
+   * through a distribution (ie that are mapped with a
+   * ConstantDistribution) are updated.
+   *
+   **/
+  
+  void setFreq(std::map<int,double>&);
+
 };
 } // end of namespace bpp.
 

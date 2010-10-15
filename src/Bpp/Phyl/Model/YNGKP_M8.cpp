@@ -83,7 +83,7 @@ YNGKP_M8::YNGKP_M8(const GeneticCode* gc, FrequenciesSet* codonFreqs, unsigned i
   ParameterList pl=pmixmodel_->getParameters();
   for (unsigned int i=0;i<pl.size();i++)
     lParPmodel_.addParameter(Parameter(pl[i]));
-  
+
   vector<std::string> v=dynamic_cast<YN98*>(pmixmodel_->getNModel(0))->getFreq().getParameters().getParameterNames();
 
   for (unsigned int i=0;i<v.size();i++)
@@ -93,7 +93,7 @@ YNGKP_M8::YNGKP_M8(const GeneticCode* gc, FrequenciesSet* codonFreqs, unsigned i
   mapParNamesFromPmodel_["YN98.omega_Mixture.theta1"]="p0";
   mapParNamesFromPmodel_["YN98.omega_Mixture.1_Beta.alpha"]="p";
   mapParNamesFromPmodel_["YN98.omega_Mixture.1_Beta.beta"]="q";
-  mapParNamesFromPmodel_["YN98.omega_Mixture.1_Simple.V1"]="omegas";
+  mapParNamesFromPmodel_["YN98.omega_Mixture.2_Simple.V1"]="omegas";
 
   // specific parameters
   
@@ -108,7 +108,6 @@ YNGKP_M8::YNGKP_M8(const GeneticCode* gc, FrequenciesSet* codonFreqs, unsigned i
   addParameter_(Parameter("YNGKP_M8.omegas",2.,new ExcludingPositiveReal(1),true));
   
   // update Matrices
-  
   updateMatrices();
 }
 
@@ -139,9 +138,22 @@ YNGKP_M8::~YNGKP_M8()
 
 void YNGKP_M8::updateMatrices()
 {
-  for (unsigned int i=0;i<lParPmodel_.size();i++)
-    if (hasParameter(mapParNamesFromPmodel_[lParPmodel_[i].getName()]))
-      lParPmodel_[i].setValue(getParameter(mapParNamesFromPmodel_[lParPmodel_[i].getName()]).getValue());
+  map<string,string>::iterator it;
+  
+  for (it=mapParNamesFromPmodel_.begin();it!=mapParNamesFromPmodel_.end();it++)
+    lParPmodel_.setParameterValue(it->first,getParameter(it->second).getValue());
   
   pmixmodel_->matchParametersValues(lParPmodel_);
+}
+
+void YNGKP_M8::setFreq(std::map<int,double>& m)
+{
+  pmixmodel_->setFreq(m);
+  map<string,string>::iterator it;
+
+  ParameterList pl;
+  for (it=mapParNamesFromPmodel_.begin();it!=mapParNamesFromPmodel_.end();it++)
+    pl.addParameter(Parameter(getNamespace()+it->second,pmixmodel_->getParameterValue(it->first)));
+
+  matchParametersValues(pl);
 }

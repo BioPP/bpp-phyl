@@ -100,12 +100,13 @@ namespace bpp
     virtual const Matrix<double>& getd2Pij_dt2(double t) const = 0;
     virtual const Vdouble& getFrequencies()  = 0;
     virtual double freq(unsigned int i) const = 0;
-    
+
+    virtual void setFreq(std::map<int,double>&) = 0;
+
     /**
      * @brief This functions can not be applied here, so they are defined
      * to prevent wrong usage.
      */
-    void setFreq(std::map<int,double>&);
     double Qij(unsigned int i, unsigned int j) const {return 0;}
 
   };

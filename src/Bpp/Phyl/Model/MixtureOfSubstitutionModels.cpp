@@ -347,5 +347,15 @@ double MixtureOfSubstitutionModels::freq(unsigned int i) const
   return x;
 }
 
+void MixtureOfSubstitutionModels::setFreq(std::map<int,double>& m)
+{
+  ParameterList pl;
+  for (unsigned int n = 0; n < modelsContainer_.size(); n++){
+    modelsContainer_[n]->setFreq(m);
+    pl.addParameters(modelsContainer_[n]->getParameters());  
+  }
+  matchParametersValues(pl);
+}
+
 
 

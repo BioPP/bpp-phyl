@@ -118,6 +118,11 @@ void LLG08_EHO::updateMatrices()
   pmixmodel_->matchParametersValues(lParPmodel_);
 }
 
+void LLG08_EHO::setFreq(std::map<int,double>& m){
+  pmixmodel_->setFreq(m);
+  matchParametersValues(pmixmodel_->getParameters());
+}
+
 /**************** sub model classes *///////////
 
 LLG08_EHO::EmbeddedModel::EmbeddedModel(const ProteicAlphabet* alpha, string name) :

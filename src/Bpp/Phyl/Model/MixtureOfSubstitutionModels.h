@@ -118,15 +118,6 @@ namespace bpp
   class MixtureOfSubstitutionModels :
     public MixedSubstitutionModel
   {
-    //  public:
-//    class EmbeddedSubstitutionModel:
-//      public AbstractSubstitutionModel
-//    {
-//    public:
-//      EmbeddedSubstitutionModel(const Alphabet* alphabet, const string& prefix);
-//    };
-//    
-
   private:
 
     // List of the paramaters of the submodels
@@ -237,6 +228,14 @@ namespace bpp
     const Matrix<double>& getd2Pij_dt2(double t) const;
     const Vdouble& getFrequencies();
     double freq(unsigned int i) const;
+
+    /**
+     * @brief applies setFreq to all the models of the mixture and
+     * recovers the parameters values.
+     *
+     **/
+  
+    void setFreq(std::map<int,double>&);
 
   };
 } // end of namespace bpp.
