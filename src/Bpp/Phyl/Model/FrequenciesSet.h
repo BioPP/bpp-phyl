@@ -228,8 +228,7 @@ class FullFrequenciesSet :
 public:
   /**
    * @brief Construction with uniform frequencies on the letters of
-   * the alphabet. If the alphabet is a CodonAlphabet, the stop codon
-   * frequencies are null.
+   * the alphabet.
    */
   FullFrequenciesSet(const Alphabet* alphabet, bool allowNullFreqs = false);
   FullFrequenciesSet(const Alphabet* alphabet, const std::vector<double>& initFreqs, bool allowNullFreqs = false) throw (Exception);
@@ -258,8 +257,7 @@ class FullCodonFrequenciesSet :
 public:
   /**
    * @brief Construction with uniform frequencies on the letters of
-   * the alphabet. If the alphabet is a CodonAlphabet, the stop codon
-   * frequencies are null.
+   * the alphabet. The stop codon frequencies are null.
    */
   FullCodonFrequenciesSet(const CodonAlphabet* alphabet, bool allowNullFreqs = false);
   FullCodonFrequenciesSet(const CodonAlphabet* alphabet, const std::vector<double>& initFreqs, bool allowNullFreqs = false) throw (Exception);
