@@ -495,23 +495,40 @@ void AbstractWordReversibleSubstitutionModel::setFreq(std::map<int, double>& fre
 
   unsigned int i, j, s, k, d, size;
 
+  
   d = size = getNumberOfStates();
 
-  for (i = 0; i < nbmod; i++)
-  {
-    tmpFreq.clear();
-    s = VSubMod_[i]->getAlphabet()->getSize();
-    d /= s;
+  if (VSubMod_.size() < 2 || VSubMod_[0] == VSubMod_[1]){
+    s = VSubMod_[0]->getAlphabet()->getSize();
     for (j = 0; j < s; j++)
-    {
-      tmpFreq[j] = 0;
-    }
-    for (k = 0; k < size; k++)
-    {
-      tmpFreq[(k / d) % s] += freqs[k];
-    }
-    VSubMod_[i]->setFreq(tmpFreq);
-  }
+        tmpFreq[j] = 0;
 
-  updateMatrices();
+    for (i = 0; i < nbmod; i++){
+      d /= s;
+      for (k = 0; k < size; k++)
+        tmpFreq[(k / d) % s] += freqs[k];
+    }
+    
+    for (k=0;k<s;k++)
+      tmpFreq[k]/=nbmod;
+    
+    VSubMod_[0]->setFreq(tmpFreq);
+    matchParametersValues(VSubMod_[0]->getParameters());
+  }
+  else
+    for (i = 0; i < nbmod; i++){
+        tmpFreq.clear();
+        s = VSubMod_[i]->getAlphabet()->getSize();
+        d /= s;
+        for (j = 0; j < s; j++)
+          {
+            tmpFreq[j] = 0;
+          }
+        for (k = 0; k < size; k++)
+          {
+            tmpFreq[(k / d) % s] += freqs[k];
+          }
+        VSubMod_[i]->setFreq(tmpFreq);
+        matchParametersValues(VSubMod_[i]->getParameters());
+      }
 }

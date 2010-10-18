@@ -149,6 +149,19 @@ protected:
 public:
   virtual unsigned int getNumberOfStates() const;
 
+  /**
+   *@brief Estimation of the parameters of the models so that the
+   *equilibrium frequencies match the given ones.
+   *
+   *@param freqs  map of the frequencies
+   *
+   * When there is one submodel for all the positions, the submodel
+   * parameters are fit on the means of the frequencies on each
+   * position. Otherwise, each model is fit on the frequencies on its
+   * corresponding position in the word.
+   *
+   **/
+  
   virtual void setFreq(std::map<int, double>& freqs);
 };
 } // end of namespace bpp.
