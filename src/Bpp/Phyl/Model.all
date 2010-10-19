@@ -20,6 +20,7 @@
 #include "Model/AbstractCodonReversibleSubstitutionModel.h"
 #include "Model/JCprot.h"
 #include "Model/TN93.h"
+#include "Model/SSR.h"
 #include "Model/TripletReversibleSubstitutionModel.h"
 #include "Model/LLG08_EX2.h"
 #include "Model/L95.h"

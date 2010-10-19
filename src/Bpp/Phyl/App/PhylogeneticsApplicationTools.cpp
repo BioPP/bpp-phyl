@@ -669,6 +669,15 @@ SubstitutionModel* PhylogeneticsApplicationTools::getSubstitutionModelDefaultIns
       // / L95
       // ///////////////////////////////
 
+      else if (modelName == "SSR")
+        {
+          model = new SSR(alpha);
+        }
+
+      // /////////////////////////////////
+      // / L95
+      // ///////////////////////////////
+
       else if (modelName == "L95")
       {
         model = new L95(alpha);
