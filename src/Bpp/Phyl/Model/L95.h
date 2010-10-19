@@ -69,7 +69,7 @@ namespace bpp
  * \f]
  * The equilibrium frequencies are
  * \f[
- * \pi = \left(1-\frac{\theta}{2}, \frac{\theta}{2}, \frac{\theta}{2}, 1-\frac{\theta}{2}\right)
+ * \pi = \left(\frac{1-\theta}{2}, \frac{\theta}{2}, \frac{\theta}{2}, \frac{1-\theta}{2}\right)
  * \f]
  *
  * and then \f$\sum_i Q_{i,i}\pi_i = -1\f$.
