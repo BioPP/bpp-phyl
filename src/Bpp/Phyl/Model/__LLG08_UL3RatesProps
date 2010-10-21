@@ -1,0 +1,18 @@
+if (getName()=="UL3_Q1"){
+	rate_ = 1.647026;
+	proportion_ = 0.3203;
+}
+
+
+if (getName()=="UL3_Q2"){
+	rate_ = 0.702126;
+	proportion_ = 0.2816;
+}
+
+
+if (getName()=="UL3_Q3"){
+	rate_ = 0.690126;
+	proportion_ = 0.3981;
+}
+
+
