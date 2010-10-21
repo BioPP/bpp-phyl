@@ -54,20 +54,20 @@ namespace bpp
  * @author Laurent Guéguen
  *
  * This model is a mixture of three models corresponding to
- * extended/helix/other sites in proteins.
+ * extended/helix/other sites in proteins. The models are considered
+ * in this order.
  *
  *
  * This model includes 4 parameters :
  *
- * - relrate1 is the rate of model of extended sites;
- * - relrate2 is the ratio of the rates of helix sites over the sum of
- * the rate of helix sites plus the rate of other sites;
+ * - relrate1 is the relative rate of model of extended sites;
+ * - relrate2 is the relative rate of helix sites;
  * - relproba1 is the proportion  of extended sites;
  * - relproba2 is the ratio of the proportions of helix sites over the sum of
  * the proportion of helix sites plus the proportion of other sites.
  *
- * See the relation between these parameters and the rates and
- * probabilities of the models in the description of
+ * Important: See the relation between these parameters and the rates
+ * and probabilities of the models in the description of
  * MixtureOfSubstitutionModels class.
  *
  * Reference:
