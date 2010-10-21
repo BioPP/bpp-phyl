@@ -59,11 +59,11 @@ namespace bpp
    *
    * This model includes 2 parameters :
    *
-   * - relrate1 is the rate of model of buried sites;
-   * - relproba1 is the proportion  of buried sites;
+   * - relrate1 is the relative rate of model of buried sites;
+   * - relproba1 is the proportion of buried sites;
    *
-   * See the relation between these parameters and the rates and
-   * probabilities of the models in the description of
+   * Important: See the relation between these parameters and the
+   * rates and probabilities of the models in the description of
    * MixtureOfSubstitutionModels class.
    *
    * Reference:
@@ -108,14 +108,13 @@ private:
 public:
 
   /**
-   * @brief Build a  EH0 model, with original equilibrium frequencies, probabilities and rates.
+   * @brief Build a  EX2 model, with original equilibrium frequencies, probabilities and rates.
    *
    * @param alpha A proteic alphabet.
-   * @param withParam a boolean about the existence of parameters for
-   * the rates and proportions between the embedded models
+   *
    */
 
-  LLG08_EX2(const ProteicAlphabet* alpha, bool withParam=false);
+  LLG08_EX2(const ProteicAlphabet* alpha);
 
   ~LLG08_EX2();
   

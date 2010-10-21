@@ -49,7 +49,7 @@ using namespace std;
 
 /******************************************************************************/
 
-LLG08_EX2::LLG08_EX2(const ProteicAlphabet* alpha, bool withParam) : 
+LLG08_EX2::LLG08_EX2(const ProteicAlphabet* alpha) : 
   MixedSubstitutionModel(alpha, "LLG08_EX2."), pmixmodel_(0),
   mapParNamesFromPmodel_(), lParPmodel_()
 {
@@ -69,23 +69,18 @@ LLG08_EX2::LLG08_EX2(const ProteicAlphabet* alpha, bool withParam) :
   pmixmodel_= new MixtureOfSubstitutionModels(alpha, vpSM, vproba, vrate);
 
   string name,st;
-  if (withParam){
-    ParameterList pl=pmixmodel_->getParameters();
-    for (unsigned int i=0;i<pl.size();i++){
-      lParPmodel_.addParameter(Parameter(pl[i]));
-      name=pl[i].getName();
-      st=pmixmodel_->getParameterNameWithoutNamespace(name);
-      mapParNamesFromPmodel_[name]=st;
-      addParameter_(Parameter("LLG08_EX2."+st,
-                              pmixmodel_->getParameterValue(st),
-                              pmixmodel_->getParameter(st).hasConstraint()? pmixmodel_->getParameter(st).getConstraint()->clone():0,true));
-      
-    }
-
+  ParameterList pl=pmixmodel_->getParameters();
+  for (unsigned int i=0;i<pl.size();i++){
+    name=pl[i].getName();
+    lParPmodel_.addParameter(Parameter(pl[i]));
+    st=pmixmodel_->getParameterNameWithoutNamespace(name);
+    mapParNamesFromPmodel_[name]=st;
+    addParameter_(Parameter("LLG08_EX2."+st,
+                            pmixmodel_->getParameterValue(st),
+                            pmixmodel_->getParameter(st).hasConstraint()? pmixmodel_->getParameter(st).getConstraint()->clone():0,true));
   }
-  // update matrice
 
-  pmixmodel_->updateMatrices();
+  updateMatrices();
 }
 
 LLG08_EX2::LLG08_EX2(const LLG08_EX2& mod2) : MixedSubstitutionModel(mod2),
