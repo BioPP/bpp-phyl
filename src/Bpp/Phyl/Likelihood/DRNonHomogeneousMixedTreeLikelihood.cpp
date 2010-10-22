@@ -316,6 +316,7 @@ void DRNonHomogeneousMixedTreeLikelihood::fireParameterChanged(const ParameterLi
 
   vector<string> vp;
 
+  ParameterList pl;
   for (unsigned int i = 0; i < treeLikelihoodsContainer_.size(); i++)
     {
       s = i;
@@ -337,12 +338,13 @@ void DRNonHomogeneousMixedTreeLikelihood::fireParameterChanged(const ParameterLi
           for (unsigned int j2=0;j2<vp.size();j2++)
             plj.setParameterValue(vp[j2],
                                   psm->getParameterValue(psm->getParameterNameWithoutNamespace(psms->getParameterModelName(vp[j2]))));
-          treeLikelihoodsContainer_[i]->matchParametersValues(plj);
+          pl.addParameters(plj);
         }
       
-      treeLikelihoodsContainer_[i]->matchParametersValues(getBranchLengthsParameters());
-      treeLikelihoodsContainer_[i]->matchParametersValues(getRateDistributionParameters());
-      treeLikelihoodsContainer_[i]->matchParametersValues(getRootFrequenciesParameters());    
+      pl.addParameters(getBranchLengthsParameters());
+      pl.addParameters(getRateDistributionParameters());
+      pl.addParameters(getRootFrequenciesParameters());    
+      treeLikelihoodsContainer_[i]->matchParametersValues(pl);
     }
   
   minusLogLik_ = -getLogLikelihood();
