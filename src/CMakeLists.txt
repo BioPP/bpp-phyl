@@ -90,6 +90,7 @@ set(CPP_FILES
   Bpp/Phyl/Model/YNGKP_M3.cpp
   Bpp/Phyl/Model/YNGKP_M7.cpp
   Bpp/Phyl/Model/YNGKP_M8.cpp
+  Bpp/Phyl/Model/YpR.cpp
   Bpp/Phyl/NNITopologySearch.cpp
   Bpp/Phyl/Node.cpp
   Bpp/Phyl/OptimizationTools.cpp
@@ -215,6 +216,7 @@ set(H_FILES
   Bpp/Phyl/Model/YNGKP_M3.h
   Bpp/Phyl/Model/YNGKP_M7.h
   Bpp/Phyl/Model/YNGKP_M8.h
+  Bpp/Phyl/Model/YpR.h
   Bpp/Phyl/NNISearchable.h
   Bpp/Phyl/NNITopologySearch.h
   Bpp/Phyl/Node.h
