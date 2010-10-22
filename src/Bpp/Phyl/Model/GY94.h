@@ -79,7 +79,7 @@ namespace bpp
  * - Goldman N. and Yang Z. (1994), _Molecular Biology And Evolution_ 11(5) 725--736. 
  */
 class GY94:
-  public AbstractSubstitutionModel
+  public AbstractReversibleSubstitutionModel
 {
 private:
 
@@ -125,7 +125,7 @@ public:
 
   const Matrix<double>& getd2Pij_dt2(double d) const { return pmodel_.getd2Pij_dt2(d);  }
 
-  void setFreq(std::map<int, double>& m)  { pmodel_.setFreq(m);  }
+  void setFreq(std::map<int, double>& m);
 
   unsigned int getNumberOfStates() const  { return pmodel_.getNumberOfStates();  }
 

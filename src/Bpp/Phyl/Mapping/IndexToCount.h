@@ -43,8 +43,8 @@ knowledge of the CeCILL license and that you accept its terms.
 #include "SubstitutionCount.h"
 
 // From SeqLib:
-#include <Seq/Alphabet.h>
-#include <Seq/AlphabetIndex2.h>
+#include <Bpp/Seq/Alphabet/Alphabet.h>
+#include <Bpp/Seq/StateProperties/AlphabetIndex2.h>
 
 namespace bpp
 {

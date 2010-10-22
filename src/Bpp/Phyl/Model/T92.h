@@ -111,6 +111,8 @@ namespace bpp
  * \end{pmatrix}
  * \f]
  *
+ * In addition, a rate_ factor defines the mean rate of the model.
+ *
  * The probabilities of changes are computed analytically using the formulas:
  * \f{multline*}
  * P_{i,j}(t) = \\
@@ -121,11 +123,11 @@ namespace bpp
  * \frac{1-\theta}{2} - \frac{1-\theta}{2}B & -\theta A + \frac{\theta}{2}B + \frac{\theta}{2} & \frac{\theta}{2} - \frac{\theta}{2}B & \theta A + \frac{1-\theta}{2}B + \frac{1-\theta}{2} \\
  * \end{pmatrix}
  * \f}
- * with \f$A=e^{-\frac{(\kappa+1)t}{P}}\f$ and \f$B = e^{-\frac{2t}{P}}\f$. 
+ * with \f$A=e^{-\frac{rate\_ * (\kappa+1)t}{P}}\f$ and \f$B = e^{-\frac{rate\_ * 2t}{P}}\f$. 
  *
  * First and second order derivatives are also computed analytically using the formulas:
  * \f{multline*}
- * \frac{\partial P_{i,j}(t)}{\partial t} = \\
+ * \frac{\partial P_{i,j}(t)}{\partial t} = rate\_ * \\
  * \frac{1}{P}
  * \footnotesize
  * \begin{pmatrix}
@@ -136,7 +138,7 @@ namespace bpp
  * \end{pmatrix}
  * \f}
  * \f{multline*}
- * \frac{\partial^2 P_{i,j}(t)}{\partial t^2} = \\
+ * \frac{\partial^2 P_{i,j}(t)}{\partial t^2} = rate\_^2 * \\
  * \frac{1}{P^2}
  * \footnotesize
  * \begin{pmatrix}

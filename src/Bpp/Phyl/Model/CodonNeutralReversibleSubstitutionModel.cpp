@@ -88,10 +88,10 @@ string CodonNeutralReversibleSubstitutionModel::getName() const
 
 void CodonNeutralReversibleSubstitutionModel::completeMatrices()
 {
-   unsigned int i, j;
-   unsigned int salph = getNumberOfStates();
-
-   CodonAlphabet* ca = (CodonAlphabet*)(alphabet_);
+  unsigned int i, j;
+  unsigned int salph = getNumberOfStates();
+  
+  const CodonAlphabet* ca = dynamic_cast<const CodonAlphabet*>(alphabet_);
 
   for (i = 0; i < salph; i++)
   {
@@ -120,7 +120,7 @@ void CodonNeutralReversibleSubstitutionModel::updateMatrices()
     }
     if (k != nbmod - 1)
       x *= getParameterValue("relrate" + TextTools::toString(k+1));
-    rate_[k] = x;
+    Vrate_[k] = x;
   }
 
   AbstractCodonReversibleSubstitutionModel::updateMatrices();

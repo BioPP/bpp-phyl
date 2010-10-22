@@ -60,8 +60,7 @@ namespace bpp
  * on the equilibrium frequency, and each position has its specific rate.
  *
  * The generator is constructed in two steps:
- * First, if there are @f$n@f$ models and @f$\rho_i@f$ is the rate of
- * model i (@f$\sum_{i=1}^{n} \rho_i = 1@f$):
+ * First, if @f$\rho_i@f$ is the rate of model i (@f$\sum_{i=1}^{3} \rho_i = 1@f$):
  * @f[
  * Q_{abc \rightarrow abd} = \rho_3 Q^{(2)}_{c \rightarrow d}
  * Q_{abc \rightarrow aed} = 0

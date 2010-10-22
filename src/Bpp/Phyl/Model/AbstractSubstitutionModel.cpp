@@ -56,6 +56,7 @@ AbstractSubstitutionModel::AbstractSubstitutionModel(const Alphabet* alpha, cons
   AbstractParameterAliasable(prefix),
   alphabet_(alpha),
   size_(alpha->getSize()),
+  rate_(1),
   chars_(size_),
   generator_(size_, size_),
   pijt_(size_, size_),
@@ -69,8 +70,10 @@ AbstractSubstitutionModel::AbstractSubstitutionModel(const Alphabet* alpha, cons
 {
   for (unsigned int i = 0; i < size_; i++)
   {
+    freq_[i]=1.0/size_;
     chars_[i] = static_cast<int>(i);
   }
+
 }
 
 /******************************************************************************/
@@ -94,20 +97,20 @@ const Matrix<double>& AbstractSubstitutionModel::getPij_t(double t) const
   }
   else
   {
-    MatrixTools::mult<double>(rightEigenVectors_, VectorTools::exp(eigenValues_ * t), leftEigenVectors_, pijt_);
+    MatrixTools::mult<double>(rightEigenVectors_, VectorTools::exp(rate_ * eigenValues_ * t), leftEigenVectors_, pijt_);
   }
   return pijt_;
 }
 
 const Matrix<double>& AbstractSubstitutionModel::getdPij_dt(double t) const
 {
-  MatrixTools::mult(rightEigenVectors_, eigenValues_ * VectorTools::exp(eigenValues_ * t), leftEigenVectors_, dpijt_);
+  MatrixTools::mult(rightEigenVectors_, rate_ * eigenValues_ * VectorTools::exp(rate_ * eigenValues_ * t), leftEigenVectors_, dpijt_);
   return dpijt_;
 }
 
 const Matrix<double>& AbstractSubstitutionModel::getd2Pij_dt2(double t) const
 {
-  MatrixTools::mult(rightEigenVectors_, NumTools::sqr(eigenValues_) * VectorTools::exp(eigenValues_ * t), leftEigenVectors_, d2pijt_);
+  MatrixTools::mult(rightEigenVectors_, NumTools::sqr(rate_ * eigenValues_) * VectorTools::exp(rate_ * eigenValues_ * t), leftEigenVectors_, d2pijt_);
   return d2pijt_;
 }
 
@@ -165,6 +168,27 @@ double AbstractSubstitutionModel::getScale() const
   vector<double> _v;
   MatrixTools::diag(generator_, _v);
   return -VectorTools::scalar<double, double>(_v, freq_);
+}
+
+/******************************************************************************/
+double AbstractSubstitutionModel::getRate() const
+{
+  return rate_;
+}
+
+/******************************************************************************/
+void AbstractSubstitutionModel::setRate(double rate)
+{
+  if (rate<=0)
+    throw Exception("Bad value for rate: " + TextTools::toString(rate));
+
+    rate_=rate;
+}
+
+void AbstractSubstitutionModel::addRateParameter()
+{
+  Parameter Rate(getNamespace()+"rate", rate_, &Parameter::R_PLUS_STAR);
+  addParameter_(Rate);
 }
 
 /******************************************************************************/

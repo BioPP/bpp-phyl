@@ -41,7 +41,7 @@ knowledge of the CeCILL license and that you accept its terms.
 #define _YNGKP_M8_H_
 
 #include "MixedSubstitutionModel.h"
-#include "MixtureOfSubstitutionModels.h"
+#include "MixtureOfASubstitutionModel.h"
 #include "FrequenciesSet.h"
 
 #include <Bpp/Seq/GeneticCode/GeneticCode.h>
@@ -60,8 +60,8 @@ namespace bpp
  *
  * This model includes 5 parameters (@f$\kappa@f$, @f$ \alpha @f$ and
  * @f$\beta@f$) of the Beta distribution, @f$p0@f$ the weight of the
- * Beta distribution and @f$\omega @fs the selection parameter above 1
- * (with weight @f$1-p0@f$. The codon frequencies @f$\pi_j@f$ are
+ * Beta distribution and @f$\omega @f$ the selection parameter above 1
+ * (with weight @f$ 1-p0 @f$). The codon frequencies @f$ \pi_j @f$ are
  * either observed or infered.
  *
  * References:
@@ -74,7 +74,7 @@ class YNGKP_M8:
   public MixedSubstitutionModel
 {
 private:
-  MixtureOfSubstitutionModels* pmixmodel_;
+  MixtureOfASubstitutionModel* pmixmodel_;
 
 private:
   /**
@@ -104,8 +104,6 @@ public:
   YNGKP_M8(const YNGKP_M8&);
 
   YNGKP_M8& operator=(const YNGKP_M8&);
-
-  void setFreq(std::map<int, double>& m) { pmixmodel_->setFreq(m);  }
 
   unsigned int getNumberOfStates() const  { return pmixmodel_->getNumberOfStates();  }
 
@@ -166,6 +164,7 @@ public:
     return pmixmodel_->freq(i);
   };
 
+  void setFreq(std::map<int,double>& m);
 
 };
 

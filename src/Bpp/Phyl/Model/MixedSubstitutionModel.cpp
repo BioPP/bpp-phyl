@@ -44,9 +44,8 @@ using namespace bpp;
 using namespace std;
 
 
-MixedSubstitutionModel::MixedSubstitutionModel(
-                                               const Alphabet* alpha,
-                                               const std::string& prefix): AbstractSubstitutionModel(alpha, "")
+MixedSubstitutionModel::MixedSubstitutionModel(const Alphabet* alpha,
+                                               const std::string& prefix): AbstractSubstitutionModel(alpha, prefix)
 {
   for (unsigned int i=0;i<size_;i++){
     for (unsigned int j=0; j<size_;j++){
@@ -73,10 +72,5 @@ MixedSubstitutionModel& MixedSubstitutionModel::operator=(const MixedSubstitutio
 
 MixedSubstitutionModel::~MixedSubstitutionModel()
 {
-}
-
-void MixedSubstitutionModel::setFreq(std::map<int,double>& m)
-{
-  throw Exception("setFreq method is not available for MixtureOfSubstitutionModels.");
 }
 

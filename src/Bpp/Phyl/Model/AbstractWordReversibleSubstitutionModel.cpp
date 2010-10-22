@@ -63,7 +63,7 @@ AbstractWordReversibleSubstitutionModel::AbstractWordReversibleSubstitutionModel
   new_alphabet_ (true),
   VSubMod_      (),
   VnestedPrefix_(),
-  rate_         (modelVector.size()),
+  Vrate_         (modelVector.size()),
   p_            (getNumberOfStates(), getNumberOfStates())
 {
   enableEigenDecomposition(false);
@@ -115,7 +115,7 @@ AbstractWordReversibleSubstitutionModel::AbstractWordReversibleSubstitutionModel
 
   for (i = 0; i < n; i++)
   {
-    rate_[i] = 1.0 / n;
+    Vrate_[i] = 1.0 / n;
   }
 }
 
@@ -126,7 +126,7 @@ AbstractWordReversibleSubstitutionModel::AbstractWordReversibleSubstitutionModel
   new_alphabet_ (false),
   VSubMod_      (),
   VnestedPrefix_(),
-  rate_         (0),
+  Vrate_         (0),
   p_            (getNumberOfStates(), getNumberOfStates())
 {
   enableEigenDecomposition(false);
@@ -140,7 +140,7 @@ AbstractWordReversibleSubstitutionModel::AbstractWordReversibleSubstitutionModel
   new_alphabet_ (true),
   VSubMod_      (),
   VnestedPrefix_(),
-  rate_         (num),
+  Vrate_         (num),
   p_            (getNumberOfStates(), getNumberOfStates())
 {
   enableEigenDecomposition(false);
@@ -151,7 +151,7 @@ AbstractWordReversibleSubstitutionModel::AbstractWordReversibleSubstitutionModel
   {
    VSubMod_.push_back(pmodel);
    VnestedPrefix_.push_back(pmodel->getNamespace());
-    rate_[i] = 1.0 / num;
+    Vrate_[i] = 1.0 / num;
     t += TextTools::toString(i+1);
   }
 
@@ -165,7 +165,7 @@ AbstractWordReversibleSubstitutionModel::AbstractWordReversibleSubstitutionModel
   new_alphabet_ (wrsm.new_alphabet_),
   VSubMod_      (),
   VnestedPrefix_(wrsm.VnestedPrefix_),
-  rate_         (wrsm.rate_),
+  Vrate_         (wrsm.Vrate_),
   p_            (wrsm.p_)
 {
    unsigned int i;
@@ -190,7 +190,7 @@ AbstractWordReversibleSubstitutionModel& AbstractWordReversibleSubstitutionModel
   AbstractReversibleSubstitutionModel::operator=(wrsm);
   new_alphabet_  = wrsm.new_alphabet_;
   VnestedPrefix_ = wrsm.VnestedPrefix_;
-  rate_          = wrsm.rate_;
+  Vrate_          = wrsm.Vrate_;
   p_             = wrsm.p_;
 
   unsigned int i;
@@ -319,8 +319,8 @@ void AbstractWordReversibleSubstitutionModel::updateMatrices()
             { // loop on prefix
               for (l = 0; l < m; l++)
               { // loop on suffix
-                generator_(n + i * m + l, n + j * m + l) = gk(i,j) * rate_[k - 1];
-                exchangeability_(n + i * m + l, n + j * m + l) = exch(i,j) * rate_[k - 1];
+                generator_(n + i * m + l, n + j * m + l) = gk(i,j) * Vrate_[k - 1];
+                exchangeability_(n + i * m + l, n + j * m + l) = exch(i,j) * Vrate_[k - 1];
               }
               n += m * vsize[k - 1];
             }
@@ -495,23 +495,40 @@ void AbstractWordReversibleSubstitutionModel::setFreq(std::map<int, double>& fre
 
   unsigned int i, j, s, k, d, size;
 
+  
   d = size = getNumberOfStates();
 
-  for (i = 0; i < nbmod; i++)
-  {
-    tmpFreq.clear();
-    s = VSubMod_[i]->getAlphabet()->getSize();
-    d /= s;
+  if (VSubMod_.size() < 2 || VSubMod_[0] == VSubMod_[1]){
+    s = VSubMod_[0]->getAlphabet()->getSize();
     for (j = 0; j < s; j++)
-    {
-      tmpFreq[j] = 0;
-    }
-    for (k = 0; k < size; k++)
-    {
-      tmpFreq[(k / d) % s] += freqs[k];
-    }
-    VSubMod_[i]->setFreq(tmpFreq);
-  }
+        tmpFreq[j] = 0;
 
-  updateMatrices();
+    for (i = 0; i < nbmod; i++){
+      d /= s;
+      for (k = 0; k < size; k++)
+        tmpFreq[(k / d) % s] += freqs[k];
+    }
+    
+    for (k=0;k<s;k++)
+      tmpFreq[k]/=nbmod;
+    
+    VSubMod_[0]->setFreq(tmpFreq);
+    matchParametersValues(VSubMod_[0]->getParameters());
+  }
+  else
+    for (i = 0; i < nbmod; i++){
+        tmpFreq.clear();
+        s = VSubMod_[i]->getAlphabet()->getSize();
+        d /= s;
+        for (j = 0; j < s; j++)
+          {
+            tmpFreq[j] = 0;
+          }
+        for (k = 0; k < size; k++)
+          {
+            tmpFreq[(k / d) % s] += freqs[k];
+          }
+        VSubMod_[i]->setFreq(tmpFreq);
+        matchParametersValues(VSubMod_[i]->getParameters());
+      }
 }

@@ -259,14 +259,15 @@ double RNonHomogeneousMixedTreeLikelihood::getLikelihood() const
 /******************************************************************************/
 double RNonHomogeneousMixedTreeLikelihood::getLogLikelihood() const
 {
-  vector<double> reslog;
+  unsigned int nbSites=getNumberOfSites();
+  double sum=0;
+  
+  for (unsigned int i = 0; i < nbSites; i++)
+  {
+   sum+=getLogLikelihoodForASite(i);
+  }
 
-  for (unsigned int i = 0; i < treeLikelihoodsContainer_.size(); i++)
-    {
-      reslog.push_back(treeLikelihoodsContainer_[i]->getLogLikelihood());
-    }
-
-  return VectorTools::logsumexp(reslog,probas_);
+  return sum;
 }
 
 /******************************************************************************/
@@ -343,6 +344,8 @@ void RNonHomogeneousMixedTreeLikelihood::fireParameterChanged(const ParameterLis
     {
       s = i;
       probas_[i]=1;
+      ParameterList pl;
+      
       psms = treeLikelihoodsContainer_[i]->getSubstitutionModelSet();    
       for (unsigned int j = 0; j < modelSet->getNumberOfModels(); j++)
         {
@@ -360,14 +363,16 @@ void RNonHomogeneousMixedTreeLikelihood::fireParameterChanged(const ParameterLis
           for (unsigned int j2=0;j2<vp.size();j2++)
             plj.setParameterValue(vp[j2],
                                   psm->getParameterValue(psm->getParameterNameWithoutNamespace(psms->getParameterModelName(vp[j2]))));
-          treeLikelihoodsContainer_[i]->matchParametersValues(plj);
+          pl.addParameters(plj);
         }
 
-      treeLikelihoodsContainer_[i]->matchParametersValues(getBranchLengthsParameters());
-      treeLikelihoodsContainer_[i]->matchParametersValues(getRateDistributionParameters());
-      treeLikelihoodsContainer_[i]->matchParametersValues(getRootFrequenciesParameters());
+      pl.addParameters(getBranchLengthsParameters());
+      pl.addParameters(getRateDistributionParameters());
+      pl.addParameters(getRootFrequenciesParameters());
+      
+      treeLikelihoodsContainer_[i]->matchParametersValues(pl);
     }
-
+  
   minusLogLik_ = -getLogLikelihood();
 }
 

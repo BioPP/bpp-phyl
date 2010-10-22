@@ -104,25 +104,27 @@ namespace bpp
  * \end{pmatrix}
  * \f]
  *
+ * In addition, a rate_ factor defines the mean rate of the model.
+ *
  * The probabilities of changes are computed analytically using the formulas:
  * \f[
  * P_{i,j}(t) = \begin{cases}
- * \frac{1}{20} + \frac{19}{20}e^{-\frac{20}{19}t}& \text{if $i=j$}, \\
- * \frac{1}{20} - \frac{1}{20}e^{-\frac{20}{19}t} & \text{otherwise}.
+ * \frac{1}{20} + \frac{19}{20}e^{- rate\_ * \frac{20}{19}t}& \text{if $i=j$}, \\
+ * \frac{1}{20} - \frac{1}{20}e^{- rate\_ * \frac{20}{19}t} & \text{otherwise}.
  * \end{cases}
  * \f]
  *
  * First and second order derivatives are also computed analytically using the formulas:
  * \f[
- * \frac{\partial P_{i,j}(t)}{\partial t} = \begin{cases}
- * -e^{-\frac{20}{19}t}           & \text{if $i=j$}, \\
- * \frac{1}{19}e^{-\frac{20}{19}t} & \text{otherwise}.
+ * \frac{\partial P_{i,j}(t)}{\partial t} = rate\_ * \begin{cases}
+ * -e^{- rate\_ * \frac{20}{19}t}           & \text{if $i=j$}, \\
+ * \frac{1}{19}e^{- rate\_ * \frac{20}{19}t} & \text{otherwise}.
  * \end{cases}
  * \f]
  * \f[
- * \frac{\partial^2 P_{i,j}(t)}{\partial t^2} = \begin{cases}
- * \frac{20}{19}e^{-\frac{20}{19}t}  & \text{if $i=j$}, \\
- * -\frac{20}{361}e^{-\frac{20}{19}t} & \text{otherwise}.
+ * \frac{\partial^2 P_{i,j}(t)}{\partial t^2} =  rate\_^2 * \begin{cases}
+ * \frac{20}{19}e^{- rate\_ * \frac{20}{19}t}  & \text{if $i=j$}, \\
+ * -\frac{20}{361}e^{- rate\_ * \frac{20}{19}t} & \text{otherwise}.
  * \end{cases}
  * \f]
  *

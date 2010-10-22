@@ -180,7 +180,7 @@ void T92::updateMatrices()
 
 double T92::Pij_t(int i, int j, double d) const
 {
-	l_ = r_ * d;
+	l_ = rate_ * r_ * d;
 	exp1_ = exp(-l_);
 	exp2_ = exp(-k_ * l_);
 	
@@ -229,7 +229,7 @@ double T92::Pij_t(int i, int j, double d) const
 
 double T92::dPij_dt(int i, int j, double d) const
 {
-	l_ = r_ * d;
+  l_ = rate_ * r_ * d;
 	exp1_ = exp(-l_);
 	exp2_ = exp(-k_ * l_);
 
@@ -237,37 +237,37 @@ double T92::dPij_dt(int i, int j, double d) const
 		//A
 		case 0 : {
 			switch(j) {
-				case 0 : return r_ * (piA_ * - exp1_ + theta_ * -k_ * exp2_); //A
-				case 1 : return r_ * (piC_ *   exp1_);                        //C
-				case 2 : return r_ * (piG_ * - exp1_ - theta_ * -k_ * exp2_); //G
-				case 3 : return r_ * (piT_ *   exp1_);                        //T, U
+				case 0 : return rate_ * r_ * (piA_ * - exp1_ + theta_ * -k_ * exp2_); //A
+				case 1 : return rate_ * r_ * (piC_ *   exp1_);                        //C
+				case 2 : return rate_ * r_ * (piG_ * - exp1_ - theta_ * -k_ * exp2_); //G
+				case 3 : return rate_ * r_ * (piT_ *   exp1_);                        //T, U
 			}
 		} 
 		//C
 		case 1 : {
 			switch(j) {
-				case 0 : return r_ * (piA_ *   exp1_);                               //A
-				case 1 : return r_ * (piC_ * - exp1_ + (1. - theta_) * -k_ * exp2_); //C
-				case 2 : return r_ * (piG_ *   exp1_);                               //G
-				case 3 : return r_ * (piT_ * - exp1_ - (1. - theta_) * -k_ * exp2_); //T, U
+				case 0 : return rate_ * r_ * (piA_ *   exp1_);                               //A
+				case 1 : return rate_ * r_ * (piC_ * - exp1_ + (1. - theta_) * -k_ * exp2_); //C
+				case 2 : return rate_ * r_ * (piG_ *   exp1_);                               //G
+				case 3 : return rate_ * r_ * (piT_ * - exp1_ - (1. - theta_) * -k_ * exp2_); //T, U
 			}
 		}
 		//G
 		case 2 : {
 			switch(j) {
-				case 0 : return r_ * (piA_ * - exp1_ - (1. - theta_) * -k_ * exp2_); //A
-				case 1 : return r_ * (piC_ *   exp1_);                               //C
-				case 2 : return r_ * (piG_ * - exp1_ + (1. - theta_) * -k_ * exp2_); //G
-				case 3 : return r_ * (piT_ *   exp1_);                               //T, U
+				case 0 : return rate_ * r_ * (piA_ * - exp1_ - (1. - theta_) * -k_ * exp2_); //A
+				case 1 : return rate_ * r_ * (piC_ *   exp1_);                               //C
+				case 2 : return rate_ * r_ * (piG_ * - exp1_ + (1. - theta_) * -k_ * exp2_); //G
+				case 3 : return rate_ * r_ * (piT_ *   exp1_);                               //T, U
 			}
 		}
 		//T, U
 		case 3 : {
 			switch(j) {
-				case 0 : return r_ * (piA_ *   exp1_);                        //A
-				case 1 : return r_ * (piC_ * - exp1_ - theta_ * -k_ * exp2_); //C
-				case 2 : return r_ * (piG_ *   exp1_);                        //G
-				case 3 : return r_ * (piT_ * - exp1_ + theta_ * -k_ * exp2_); //T, U
+				case 0 : return rate_ * r_ * (piA_ *   exp1_);                        //A
+				case 1 : return rate_ * r_ * (piC_ * - exp1_ - theta_ * -k_ * exp2_); //C
+				case 2 : return rate_ * r_ * (piG_ *   exp1_);                        //G
+				case 3 : return rate_ * r_ * (piT_ * - exp1_ + theta_ * -k_ * exp2_); //T, U
 			}
 		}
 	}
@@ -279,8 +279,8 @@ double T92::dPij_dt(int i, int j, double d) const
 double T92::d2Pij_dt2(int i, int j, double d) const
 {
 	double k2_ = k_ * k_;
-	l_ = r_ * d;
-	double r2 = r_ * r_;
+	l_ = rate_ * r_ * d;
+	double r2 = rate_ * rate_ * r_ * r_;
 	exp1_ = exp(-l_);
 	exp2_ = exp(-k_ * l_);
 
@@ -329,7 +329,7 @@ double T92::d2Pij_dt2(int i, int j, double d) const
 
 const Matrix<double>& T92::getPij_t(double d) const
 {
-	l_ = r_ * d;
+  l_ = rate_ * r_ * d;
 	exp1_ = exp(-l_);
 	exp2_ = exp(-k_ * l_);
 
@@ -362,33 +362,33 @@ const Matrix<double>& T92::getPij_t(double d) const
 
 const Matrix<double>& T92::getdPij_dt(double d) const
 {
-	l_ = r_ * d;
+  l_ = rate_ * r_ * d;
 	exp1_ = exp(-l_);
 	exp2_ = exp(-k_ * l_);
 
 	//A
-	p_(0, 0) = r_ * (piA_ * - exp1_ + theta_ * -k_ * exp2_); //A
-	p_(0, 1) = r_ * (piC_ *   exp1_);                        //C
-	p_(0, 2) = r_ * (piG_ * - exp1_ - theta_ * -k_ * exp2_); //G
-	p_(0, 3) = r_ * (piT_ *   exp1_);                        //T, U
+	p_(0, 0) = rate_ * r_ * (piA_ * - exp1_ + theta_ * -k_ * exp2_); //A
+	p_(0, 1) = rate_ * r_ * (piC_ *   exp1_);                        //C
+	p_(0, 2) = rate_ * r_ * (piG_ * - exp1_ - theta_ * -k_ * exp2_); //G
+	p_(0, 3) = rate_ * r_ * (piT_ *   exp1_);                        //T, U
 
 	//C
-	p_(1, 0) = r_ * (piA_ *   exp1_);                               //A
-	p_(1, 1) = r_ * (piC_ * - exp1_ + (1. - theta_) * -k_ * exp2_); //C
-	p_(1, 2) = r_ * (piG_ *   exp1_);                               //G
-	p_(1, 3) = r_ * (piT_ * - exp1_ - (1. - theta_) * -k_ * exp2_); //T, U
+	p_(1, 0) = rate_ * r_ * (piA_ *   exp1_);                               //A
+	p_(1, 1) = rate_ * r_ * (piC_ * - exp1_ + (1. - theta_) * -k_ * exp2_); //C
+	p_(1, 2) = rate_ * r_ * (piG_ *   exp1_);                               //G
+	p_(1, 3) = rate_ * r_ * (piT_ * - exp1_ - (1. - theta_) * -k_ * exp2_); //T, U
 
 	//G
-	p_(2, 0) = r_ * (piA_ * - exp1_ - (1. - theta_) * -k_ * exp2_); //A
-	p_(2, 1) = r_ * (piC_ *   exp1_);                               //C
-	p_(2, 2) = r_ * (piG_ * - exp1_ + (1. - theta_) * -k_ * exp2_); //G
-	p_(2, 3) = r_ * (piT_ *   exp1_);                               //T, U
+	p_(2, 0) = rate_ * r_ * (piA_ * - exp1_ - (1. - theta_) * -k_ * exp2_); //A
+	p_(2, 1) = rate_ * r_ * (piC_ *   exp1_);                               //C
+	p_(2, 2) = rate_ * r_ * (piG_ * - exp1_ + (1. - theta_) * -k_ * exp2_); //G
+	p_(2, 3) = rate_ * r_ * (piT_ *   exp1_);                               //T, U
 
 	//T, U
-	p_(3, 0) = r_ * (piA_ *   exp1_);                        //A
-	p_(3, 1) = r_ * (piC_ * - exp1_ - theta_ * -k_ * exp2_); //C
-	p_(3, 2) = r_ * (piG_ *   exp1_);                        //G
-	p_(3, 3) = r_ * (piT_ * - exp1_ + theta_ * -k_ * exp2_); //T, U
+	p_(3, 0) = rate_ * r_ * (piA_ *   exp1_);                        //A
+	p_(3, 1) = rate_ * r_ * (piC_ * - exp1_ - theta_ * -k_ * exp2_); //C
+	p_(3, 2) = rate_ * r_ * (piG_ *   exp1_);                        //G
+	p_(3, 3) = rate_ * r_ * (piT_ * - exp1_ + theta_ * -k_ * exp2_); //T, U
 
 	return p_;
 }
@@ -396,8 +396,8 @@ const Matrix<double>& T92::getdPij_dt(double d) const
 const Matrix<double>& T92::getd2Pij_dt2(double d) const
 {
 	double k2 = k_ * k_;
-	l_ = r_ * d;
-	double r2 = r_ * r_;
+	l_ = rate_ * r_ * d;
+	double r2 = rate_ * rate_ * r_ * r_;
 	exp1_ = exp(-l_);
 	exp2_ = exp(-k_ * l_);
 

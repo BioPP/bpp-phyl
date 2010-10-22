@@ -65,7 +65,7 @@ YNGKP_M7::YNGKP_M7(const GeneticCode* gc, FrequenciesSet* codonFreqs, unsigned i
   map<string, DiscreteDistribution*> mpdd;
   mpdd["omega"]=pbdd;
 
-  pmixmodel_= new MixtureOfSubstitutionModels(gc->getSourceAlphabet(),
+  pmixmodel_= new MixtureOfASubstitutionModel(gc->getSourceAlphabet(),
                                               new YN98(gc, codonFreqs),
                                               mpdd);
   delete pbdd;
@@ -81,16 +81,16 @@ YNGKP_M7::YNGKP_M7(const GeneticCode* gc, FrequenciesSet* codonFreqs, unsigned i
   for (unsigned int i=0;i<v.size();i++)
     mapParNamesFromPmodel_[v[i]]=getParameterNameWithoutNamespace("YNGKP_M7."+v[i].substr(5));
 
-  mapParNamesFromPmodel_["YN98.kappa"]="YNGKP_M7.kappa";
-  mapParNamesFromPmodel_["YN98.omega_Beta.alpha"]="YNGKP_M7.p";
-  mapParNamesFromPmodel_["YN98.omega_Beta.beta"]="YNGKP_M7.q";
+  mapParNamesFromPmodel_["YN98.kappa"]="kappa";
+  mapParNamesFromPmodel_["YN98.omega_Beta.alpha"]="p";
+  mapParNamesFromPmodel_["YN98.omega_Beta.beta"]="q";
 
   // specific parameters
   
   string st;
   for (map<string,string>::iterator it=mapParNamesFromPmodel_.begin(); it!= mapParNamesFromPmodel_.end(); it++){
     st=pmixmodel_->getParameterNameWithoutNamespace(it->first);
-    addParameter_(Parameter(it->second, pmixmodel_->getParameterValue(st),
+    addParameter_(Parameter("YNGKP_M7."+it->second, pmixmodel_->getParameterValue(st),
                             pmixmodel_->getParameter(st).hasConstraint()? pmixmodel_->getParameter(st).getConstraint()->clone():0,true));
   }
 
@@ -100,7 +100,7 @@ YNGKP_M7::YNGKP_M7(const GeneticCode* gc, FrequenciesSet* codonFreqs, unsigned i
 }
 
 YNGKP_M7::YNGKP_M7(const YNGKP_M7& mod2) : MixedSubstitutionModel(mod2),
-                                           pmixmodel_(new MixtureOfSubstitutionModels(*mod2.pmixmodel_)),
+                                           pmixmodel_(new MixtureOfASubstitutionModel(*mod2.pmixmodel_)),
                                            mapParNamesFromPmodel_(mod2.mapParNamesFromPmodel_),
                                            lParPmodel_(mod2.lParPmodel_)
 {
@@ -111,7 +111,7 @@ YNGKP_M7& YNGKP_M7::operator=(const YNGKP_M7& mod2)
 {
   MixedSubstitutionModel::operator=(mod2);
 
-  pmixmodel_=new MixtureOfSubstitutionModels(*mod2.pmixmodel_);
+  pmixmodel_=new MixtureOfASubstitutionModel(*mod2.pmixmodel_);
   mapParNamesFromPmodel_=mod2.mapParNamesFromPmodel_;
   lParPmodel_=mod2.lParPmodel_;
   
@@ -126,9 +126,22 @@ YNGKP_M7::~YNGKP_M7()
 
 void YNGKP_M7::updateMatrices()
 {
-  for (unsigned int i=0;i<lParPmodel_.size();i++)
-    if (hasParameter(mapParNamesFromPmodel_[lParPmodel_[i].getName()]))
-      lParPmodel_[i].setValue(getParameter(mapParNamesFromPmodel_[lParPmodel_[i].getName()]).getValue());
+  map<string,string>::iterator it;
+  
+  for (it=mapParNamesFromPmodel_.begin();it!=mapParNamesFromPmodel_.end();it++)
+    lParPmodel_.setParameterValue(it->first,getParameter(it->second).getValue());
   
   pmixmodel_->matchParametersValues(lParPmodel_);
+}
+
+void YNGKP_M7::setFreq(std::map<int,double>& m)
+{
+  pmixmodel_->setFreq(m);
+  map<string,string>::iterator it;
+
+  ParameterList pl;
+  for (it=mapParNamesFromPmodel_.begin();it!=mapParNamesFromPmodel_.end();it++)
+    pl.addParameter(Parameter(getNamespace()+it->second,pmixmodel_->getParameterValue(it->first)));
+
+  matchParametersValues(pl);
 }

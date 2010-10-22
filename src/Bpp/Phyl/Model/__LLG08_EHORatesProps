@@ -1,0 +1,18 @@
+if (getName()=="EHO_Other"){
+	rate_ = 0.9323975;
+	proportion_ = 0.4316;
+}
+
+
+if (getName()=="EHO_Extended"){
+	rate_ = 0.8575975;
+	proportion_ = 0.2078;
+}
+
+
+if (getName()=="EHO_Helix"){
+	rate_ = 1.162975;
+	proportion_ = 0.3606;
+}
+
+

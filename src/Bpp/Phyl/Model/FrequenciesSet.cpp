@@ -211,11 +211,6 @@ FullCodonFrequenciesSet::FullCodonFrequenciesSet(const CodonAlphabet* alphabet, 
     }
   }
 
-  if (fabs(1. - sum) > NumConstants::SMALL)
-  {
-    throw Exception("Non stop frequencies must equal 1 (sum = " + TextTools::toString(sum) + ").");
-  }
-
   double y = 1;
   for (unsigned int i = 0; i < alphabet->getSize() - 1; i++)
   {
@@ -227,17 +222,17 @@ FullCodonFrequenciesSet::FullCodonFrequenciesSet(const CodonAlphabet* alphabet, 
     {
       Parameter p(
           "Full.theta" + TextTools::toString(i + 1),
-          initFreqs[i] / y,
+          initFreqs[i] / sum / y,
           allowNullFreqs ?
           dynamic_cast<Constraint*>(&Parameter::PROP_CONSTRAINT_IN) :
           dynamic_cast<Constraint*>(&Parameter::PROP_CONSTRAINT_EX));
       addParameter_(p);
-      getFreq_(i) = initFreqs[i];
-      y -= initFreqs[i];
+      getFreq_(i) = initFreqs[i]/sum;
+      y -= initFreqs[i]/sum;
     }
   }
   unsigned int i = alphabet->getSize() - 1;
-  getFreq_(i) = (alphabet->isStop(i)) ? 0 : initFreqs[i];
+  getFreq_(i) = (alphabet->isStop(i)) ? 0 : initFreqs[i]/sum;
 }
 
 void FullCodonFrequenciesSet::setFrequencies(const vector<double>& frequencies) throw (DimensionException, Exception)
@@ -252,10 +247,6 @@ void FullCodonFrequenciesSet::setFrequencies(const vector<double>& frequencies) 
     if (!(alphabet->isStop(i)))
       sum += frequencies[i];
   }
-  if (fabs(1. - sum) > NumConstants::SMALL)
-  {
-    throw Exception("FullFrequenciesSet::setFrequencies. Non stop frequencies must equal 1 (sum = " + TextTools::toString(sum) + ").");
-  }
 
   double y = 1;
   for (i = 0; i < alphabet->getSize() - 1; i++)
@@ -266,13 +257,13 @@ void FullCodonFrequenciesSet::setFrequencies(const vector<double>& frequencies) 
     }
     else
     {
-      getParameter_("theta" + TextTools::toString(i + 1)).setValue(frequencies[i] / y);
-      y -= frequencies[i];
-      getFreq_(i) = frequencies[i];
+      getParameter_("theta" + TextTools::toString(i + 1)).setValue(frequencies[i] /sum / y);
+      y -= frequencies[i]/sum;
+      getFreq_(i) = frequencies[i]/sum;
     }
   }
   i = alphabet->getSize() - 1;
-  getFreq_(i) = (alphabet->isStop(i)) ? 0 : frequencies[i];
+  getFreq_(i) = (alphabet->isStop(i)) ? 0 : frequencies[i]/sum;
 }
 
 void FullCodonFrequenciesSet::fireParameterChanged(const ParameterList& parameters)
@@ -419,8 +410,7 @@ FixedFrequenciesSet::FixedFrequenciesSet(const Alphabet* alphabet, const vector<
 FixedFrequenciesSet::FixedFrequenciesSet(const Alphabet* alphabet) :
   AbstractFrequenciesSet(alphabet->getSize(), alphabet, "Fixed.")
 {
-   unsigned int size = alphabet->getSize();
-
+  unsigned int size = alphabet->getSize();
   for (unsigned int i = 0; i < alphabet->getSize(); i++)
   {
     getFreq_(i) = 1. / size;
@@ -462,15 +452,19 @@ FixedCodonFrequenciesSet::FixedCodonFrequenciesSet(const CodonAlphabet* alphabet
 
 void FixedCodonFrequenciesSet::setFrequencies(const vector<double>& frequencies) throw (DimensionException, Exception)
 {
-  if (frequencies.size() != getAlphabet()->getSize()) throw DimensionException("FixedFrequenciesSet::setFrequencies", frequencies.size(), getAlphabet()->getSize());
+  const CodonAlphabet* ca=dynamic_cast<const CodonAlphabet*>(getAlphabet());
+  if (frequencies.size() != ca->getSize()) throw DimensionException("FixedFrequenciesSet::setFrequencies", frequencies.size(), ca->getSize());
   double sum = 0.0;
-  for (unsigned int i = 0; i < frequencies.size(); i++)
-  {
-    sum += frequencies[i];
-  }
-  if (fabs(1. - sum) > 0.000001)
-    throw Exception("FixedCodonFrequenciesSet::setFrequencies. Frequencies sum must equal 1 (sum = " + TextTools::toString(sum) + ").");
-  setFrequencies_(frequencies);
+  unsigned int i;
+  
+  for (i = 0; i < frequencies.size(); i++)
+    {
+      if (!(ca->isStop(i)))
+        sum += frequencies[i];
+    }
+
+  for (i = 0; i < ca->getSize(); i++)
+    getFreq_(i) = (ca->isStop(i)) ? 0 : frequencies[i]/sum;
 }
 
 
@@ -636,11 +630,9 @@ void WordFromIndependentFrequenciesSet::setFrequencies(const vector<double>& fre
       freq[(k / d) % s] += frequencies[k];
     }
     vFreq_[i]->setFrequencies(freq);
+    matchParametersValues(vFreq_[i]->getParameters());
   }
 
-  // updating freq_
-
-  updateFrequencies();
 }
 
 
@@ -790,9 +782,7 @@ void WordFromUniqueFrequenciesSet::setFrequencies(const vector<double>& frequenc
   }
   pFreq_->setFrequencies(freq);
 
-  // updating freq_
-
-  updateFrequencies();
+  matchParametersValues(pFreq_->getParameters());
 }
 
 
@@ -822,7 +812,7 @@ FrequenciesSet* FrequenciesSet::getFrequenciesSetForCodons(short option, const G
   const CodonAlphabet* pCA = dynamic_cast<const CodonAlphabet*>(gc.getSourceAlphabet());
 
   if (option == F0)
-    codonFreqs = new FixedFrequenciesSet(pCA);
+    codonFreqs = new FixedCodonFrequenciesSet(pCA);
   else if (option == F1X4)
     codonFreqs = new WordFromUniqueFrequenciesSet(pCA, new FullNucleotideFrequenciesSet(pCA->getNucleicAlphabet()));
   else if (option == F3X4)
@@ -836,6 +826,7 @@ FrequenciesSet* FrequenciesSet::getFrequenciesSetForCodons(short option, const G
   else if (option == F61)
     codonFreqs = new FullCodonFrequenciesSet(pCA);
   else throw Exception("FrequenciesSet::getFrequencySetForCodons(). Unvalid codon frequency set argument.");
+
   return codonFreqs;
 }
 

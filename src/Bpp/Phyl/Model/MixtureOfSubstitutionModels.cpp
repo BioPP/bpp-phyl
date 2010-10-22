@@ -1,8 +1,8 @@
 //
 // File: MixtureOfSubstitutionModels.cpp
-// Created by: David Fournier, Laurent Gueguen
+// Created by: Laurent Gueguen
+// Date: mardi 14 septembre 2010, à 20h 43
 //
-
 /*
   Copyright or © or Copr. CNRS, (November 16, 2004)
 
@@ -39,109 +39,153 @@
 #include "MixtureOfSubstitutionModels.h"
 
 #include <Bpp/Numeric/NumConstants.h>
+#include <Bpp/Text/TextTools.h>
 
 #include <string>
 
 using namespace bpp;
 using namespace std;
 
-
-MixtureOfSubstitutionModels::MixtureOfSubstitutionModels(
-                                               const Alphabet* alpha,
-                                               SubstitutionModel* model,
-                                               std::map<std::string, DiscreteDistribution*> parametersDistributionsList) throw(Exception) :
-  MixedSubstitutionModel(alpha, ""),
-  distributionMap_(),
+MixtureOfSubstitutionModels::MixtureOfSubstitutionModels(const Alphabet* alpha,
+                                                         vector<SubstitutionModel*> vpModel_) :
+  MixedSubstitutionModel(alpha, "Mixture."),
+  lParPmodel_(),
   modelsContainer_(),
-  probas_()
+  Vprobas_(),
+  Vrates_()
 {
-  unsigned int c, i;
-  string s1, s2, t;
-  map<string, DiscreteDistribution*>::iterator it;
+  unsigned int i, nbmod = vpModel_.size();
 
-  // Initialization of distributionMap_.
-
-  vector<string> parnames = model->getParameters().getParameterNames();
-
-  for (i = 0; i < model->getNumberOfParameters(); i++)
-    {
-      s1 = parnames[i];
-      s2 = model->getParameterNameWithoutNamespace(s1);
-   
-      if (parametersDistributionsList.find(s2) != parametersDistributionsList.end())
-        distributionMap_[s1] = dynamic_cast<DiscreteDistribution*>(parametersDistributionsList.find(s2)->second->clone());
-      else
-        distributionMap_[ s1] = new ConstantDistribution(model->getParameterValue(s2));
-
-
-      if (dynamic_cast<ConstantDistribution*>(distributionMap_[s1]) == 0)
-        distributionMap_[s1]->setNamespace(s1 + "_" + distributionMap_[s1]->getNamespace());
-      else
-        distributionMap_[s1]->setNamespace(s1 + "_");
-    }
-
+  for (i = 0; i < nbmod; i++){
+    if (vpModel_[i]==NULL)
+      throw Exception("Empty model number " + TextTools::toString(i) + " in MixtureOfSubstitutionModels constructor");
+    for (unsigned int j=i+1;j<nbmod;j++)
+      if (vpModel_[i]==vpModel_[j])
+        throw Exception("Same model at positions " + TextTools::toString(i) + " and " +
+                        TextTools::toString(j) + " in MixtureOfSubstitutionModels constructor");
+  }
+  
   // Initialization of modelsContainer_.
 
-  c = 1;
-
-  for (it = distributionMap_.begin(); it != distributionMap_.end(); it++)
+  for (i = 0; i < nbmod; i++)
     {
-      c *= it->second->getNumberOfCategories();
-    }
-
-  for (i = 0; i < c; i++)
-    {
-      modelsContainer_.push_back(model->clone());
-      modelsContainer_[i]->setNamespace(model->getNamespace());
-      probas_.push_back(1.0/c);
+      modelsContainer_.push_back(vpModel_[i]);
+      Vprobas_.push_back(1.0/nbmod);
+      Vrates_.push_back(1.0);
     }
 
   // Initialization of parameters_.
 
-  Parameter pm;
-  DiscreteDistribution* pd;
-  
-  for (it = distributionMap_.begin(); it != distributionMap_.end(); it++)
+  // relative rates and probas
+  for (i = 0; i < nbmod - 1; i++)
     {
-      pm=model->getParameter(model->getParameterNameWithoutNamespace(getParameterNameWithoutNamespace(it->first)));
-      pd=it->second;
-
-      if (pm.hasConstraint() && ! pd->adaptToConstraint(*pm.getConstraint()))
-        throw Exception("Bad Distribution for " + pm.getName() + " : " + pd->getNamespace());
-
-      if (dynamic_cast<ConstantDistribution*>(it->second) == NULL)
-        {
-          for (i = 0; i != it->second->getNumberOfParameters(); i++)
-            {
-              t = pd->getParameters().getParameterNames()[i];
-              addParameter_(Parameter(t,pd->getParameter(pd->getParameterNameWithoutNamespace(t)).getValue(),
-                                      pd->getParameter(pd->getParameterNameWithoutNamespace(t)).getConstraint()->clone(),true));
-            }
-        }
-      else
-        addParameter_(Parameter(it->first,pd->getCategory(0),pd->getParameter("value").getConstraint()->clone(),true));
+      addParameter_(Parameter("Mixture.relproba" + TextTools::toString(i+1), 1.0 / (nbmod - i ), &Parameter::PROP_CONSTRAINT_EX));
+      addParameter_(Parameter("Mixture.relrate" + TextTools::toString(i+1), 1.0 / (nbmod - i), &Parameter::PROP_CONSTRAINT_EX));
     }
+
+  // models parameters
+
+  for (i = 0; i < nbmod; i++)
+    {
+      modelsContainer_[i]->setNamespace("Mixture." + TextTools::toString(i+1) + "_" + vpModel_[i]->getNamespace());
+      addParameters_(vpModel_[i]->getParameters());
+    }
+
+  lParPmodel_.addParameters(getParameters());
+  
+  for (i = 0; i < nbmod; i++){
+    vpModel_[i]->addRateParameter();
+    lParPmodel_.addParameter(vpModel_[i]->getParameter("rate"));
+  }
+
+  updateMatrices();
+}
+
+MixtureOfSubstitutionModels::MixtureOfSubstitutionModels(const Alphabet* alpha,
+                                                         vector<SubstitutionModel*> vpModel_,
+                                                         Vdouble& vproba,
+                                                         Vdouble& vrate) :
+  MixedSubstitutionModel(alpha, "Mixture."),
+  lParPmodel_(),
+  modelsContainer_(),
+  Vprobas_(vproba),
+  Vrates_(vrate)
+{
+  unsigned int i, nbmod = vpModel_.size();
+
+  for (i = 0; i < nbmod; i++){
+    if (vpModel_[i]==NULL)
+      throw Exception("Empty model number " + TextTools::toString(i) + " in MixtureOfSubstitutionModels constructor");
+    for (unsigned int j=i+1;j<nbmod;j++)
+      if (vpModel_[i]==vpModel_[j])
+        throw Exception("Same model at positions " + TextTools::toString(i) + " and " +
+                        TextTools::toString(j) + " in MixtureOfSubstitutionModels constructor");
+  }
+
+  double x=0;
+  double y=0;
+  
+  for (i=0; i < nbmod; i++){
+    if (vrate[i]<=0)
+      throw Exception("Non positive rate: " + TextTools::toString(vrate[i]) + " in MixtureOfSubstitutionModels constructor.");
+    if (vproba[i]<=0)
+      throw Exception("Non positive probability: " + TextTools::toString(vproba[i]) + " in MixtureOfSubstitutionModels constructor.");
+    x+=vproba[i];
+    y+=vproba[i]*vrate[i];
+  }
+
+  if (fabs(1. - x) > NumConstants::SMALL)
+    throw Exception("Probabilities must equal 1 (sum = " + TextTools::toString(x) + ").");
+  if (fabs(1. - y) > NumConstants::SMALL)
+    throw Exception("Expectation on rates must equal 1 (E =" + TextTools::toString(y) + ").");
+  
+  
+  // Initialization of modelsContainer_.
+
+  for (i = 0; i < nbmod; i++) 
+      modelsContainer_.push_back(vpModel_[i]);
+
+  // Initialization of parameters_.
+
+  
+  // relative rates and probas
+  x=0;y=0;
+  
+  for (i = 0; i < nbmod - 1; i++)
+    {
+      addParameter_(Parameter("Mixture.relproba" + TextTools::toString(i+1), vproba[i] / (1 - x), &Parameter::PROP_CONSTRAINT_EX));
+      x+=vproba[i];
+      addParameter_(Parameter("Mixture.relrate" + TextTools::toString(i+1), vproba[i] * vrate[i] / (1- y), &Parameter::PROP_CONSTRAINT_EX));
+      y+=vproba[i]*vrate[i];
+    }
+
+  // models parameters
+
+  for (i = 0; i < nbmod; i++)
+    {
+      modelsContainer_[i]->setNamespace("Mixture." + TextTools::toString(i+1) + "_" + vpModel_[i]->getNamespace());
+      addParameters_(vpModel_[i]->getParameters());
+    }
+
+  lParPmodel_.addParameters(getParameters());
+  
+  for (i = 0; i < nbmod; i++){
+    vpModel_[i]->addRateParameter();
+    lParPmodel_.addParameter(vpModel_[i]->getParameter("rate"));
+  }
+
   updateMatrices();
 }
 
 MixtureOfSubstitutionModels::MixtureOfSubstitutionModels(const MixtureOfSubstitutionModels& msm) :
   MixedSubstitutionModel(msm),
-  distributionMap_(),
+  lParPmodel_(msm.lParPmodel_),
   modelsContainer_(),
-  probas_()
+  Vprobas_(msm.Vprobas_),
+  Vrates_(msm.Vrates_)
 {
-  map<string, DiscreteDistribution*>::const_iterator it;
-
-  for (it = msm.distributionMap_.begin(); it != msm.distributionMap_.end(); it++)
-    {
-      distributionMap_[it->first] = dynamic_cast<DiscreteDistribution*>(it->second->clone());
-    }
-
   for (unsigned int i = 0; i < msm.modelsContainer_.size(); i++)
-    {
-      modelsContainer_.push_back(msm.modelsContainer_[i]->clone());
-      probas_.push_back(msm.probas_[i]);
-    }
+    modelsContainer_.push_back(msm.modelsContainer_[i]->clone());
 }
 
 MixtureOfSubstitutionModels& MixtureOfSubstitutionModels::operator=(const MixtureOfSubstitutionModels& msm)
@@ -149,21 +193,18 @@ MixtureOfSubstitutionModels& MixtureOfSubstitutionModels::operator=(const Mixtur
   MixedSubstitutionModel::operator=(msm);
   
   //Clear existing containers:
-  distributionMap_.clear();
   modelsContainer_.clear();
-  probas_.clear();
+  lParPmodel_=msm.lParPmodel_;
+  Vprobas_.clear();
+  Vrates_.clear();
   
   //Now copy new containers:
-  map<string, DiscreteDistribution*>::const_iterator it;
-  for (it = msm.distributionMap_.begin(); it != msm.distributionMap_.end(); it++)
-    {
-      distributionMap_[it->first] = dynamic_cast<DiscreteDistribution*>(it->second->clone());
-    }
 
   for (unsigned int i = 0; i < msm.modelsContainer_.size(); i++)
     {
       modelsContainer_.push_back(msm.modelsContainer_[i]->clone());
-      probas_.push_back(msm.probas_[i]);
+      Vprobas_.push_back(msm.Vprobas_[i]);
+      Vrates_.push_back(msm.Vrates_[i]);
     }
   return *this;
 }
@@ -171,82 +212,57 @@ MixtureOfSubstitutionModels& MixtureOfSubstitutionModels::operator=(const Mixtur
 
 MixtureOfSubstitutionModels::~MixtureOfSubstitutionModels()
 {
-  unsigned int i;
-  map<string, DiscreteDistribution*>::iterator it;
-
-  for (it = distributionMap_.begin(); it != distributionMap_.end(); it++)
-    {
-      delete it->second;
-    }
-  for (i = 0; i < modelsContainer_.size(); i++)
+  for (unsigned int i = 0; i < modelsContainer_.size(); i++)
     {
       delete modelsContainer_[i];
     }
 }
 
+
+
 void MixtureOfSubstitutionModels::updateMatrices()
 {
-  string s,t;
-  unsigned int i, j, l;
-  double d;
-  ParameterList pl;
-  map<string, DiscreteDistribution*>::iterator it;
-
-  // Update of distribution parameters from the parameters_ member
-  // data. (reverse operation compared to what has been done in the
-  // constructor).
-  vector<string> v=getParameters().getParameterNames();
-   
-  for (it = distributionMap_.begin(); it != distributionMap_.end(); it++)
-    {
-      if (dynamic_cast<ConstantDistribution*>(it->second) == NULL)
-        {
-          for (i = 0; i < it->second->getNumberOfParameters(); i++)
-            {
-              t = it->second->getParameters().getParameterNames()[i];
-              d = getParameter(getParameterNameWithoutNamespace(t)).getValue();
-              it->second->setParameterValue(it->second->getParameterNameWithoutNamespace(t),d);
-            }
-        }
-      else
-        {
-          t = it->second->getNamespace();
-          d = getParameter(getParameterNameWithoutNamespace(t.substr(0,t.length() - 1))).getValue();
-          it->second->setParameterValue("value",d);
-        }
-    }
-
-  for (i = 0; i < modelsContainer_.size(); i++)
-    {
-      probas_[i]=1;
-      j = i;
-      for (it = distributionMap_.begin(); it != distributionMap_.end(); it++)
-        {
-          s = it->first;
-          l = j % it->second->getNumberOfCategories();
-
-          d = it->second->getCategory(l);
-          probas_[i]*=it->second->getProbability(l);
-          if (pl.hasParameter(s))
-            pl.setParameterValue(s,d);
-          else
-            pl.addParameter(Parameter(s,d));
-
-          j = j / it->second->getNumberOfCategories();
-        }
-    
-      modelsContainer_[i]->matchParametersValues(pl);
-    }
+  unsigned int i, j, nbmod = modelsContainer_.size();
   
-  for (i = 0; i < getNumberOfStates(); i++)
-    {
-      freq_[i] = 0;
-      for (j = 0; j < modelsContainer_.size(); j++)
-        freq_[i] += probas_[i]*modelsContainer_[j]->freq(i);
-    }
+  double x,y;
+  x = 1.0;
+
+  for (i = 0; i < nbmod-1; i++){
+    y =getParameterValue("relproba" + TextTools::toString(i+1));
+    Vprobas_[i] = x*y;
+    x *= 1 - y;      
+  }
+  Vprobas_[nbmod-1]=x;
+
+  x = 1.0;
+  for (i = 0; i < nbmod-1; i++){
+    y =getParameterValue("relrate" + TextTools::toString(i+1));
+    Vrates_[i] = x*y/Vprobas_[i];
+    x *= 1 - y;      
+  }
+  Vrates_[nbmod-1]=x/Vprobas_[nbmod-1];
+
+  /// models
+
+  const ParameterList pl=getParameters();
+  for ( i=0;i<pl.size();i++)
+    lParPmodel_.setParameterValue(pl[i].getName(),pl[i].getValue());
+    
+    for ( i = 0; i < nbmod; i++){
+    lParPmodel_.setParameterValue(modelsContainer_[i]->getParameter("rate").getName(),Vrates_[i]);
+    modelsContainer_[i]->setRate(Vrates_[i]);
+    modelsContainer_[i]->matchParametersValues(lParPmodel_);
+  }
+  
+  /// freq_
+  
+  for (i = 0; i < getNumberOfStates(); i++){
+    freq_[i] = 0;
+    for (j = 0; j < modelsContainer_.size(); j++)
+      freq_[i] += Vprobas_[i]*modelsContainer_[j]->freq(i);
+  }
   
 }
-
 
 unsigned int MixtureOfSubstitutionModels::getNumberOfStates() const
 {
@@ -258,7 +274,7 @@ double MixtureOfSubstitutionModels::Pij_t(unsigned int i, unsigned int j, double
 {
   double x=0;
   for (unsigned int n = 0; n < modelsContainer_.size(); n++)
-      x+= modelsContainer_[n]->Pij_t(i,j,t)*probas_[n];
+      x+= modelsContainer_[n]->Pij_t(i,j,t)*Vprobas_[n];
 
   return x;
 }
@@ -268,7 +284,7 @@ double MixtureOfSubstitutionModels::dPij_dt(unsigned int i, unsigned int j, doub
 {
   double x=0;
   for (unsigned int n = 0; n < modelsContainer_.size(); n++)
-    x+= modelsContainer_[n]->dPij_dt(i,j,t)*probas_[n];
+    x+= modelsContainer_[n]->dPij_dt(i,j,t)*Vprobas_[n];
 
   return x;
 }
@@ -278,7 +294,7 @@ double MixtureOfSubstitutionModels::d2Pij_dt2(unsigned int i, unsigned int j, do
 {
   double x=0;
   for (unsigned int n = 0; n < modelsContainer_.size(); n++)
-    x+= modelsContainer_[n]->d2Pij_dt2(i,j,t)*probas_[n];
+    x+= modelsContainer_[n]->d2Pij_dt2(i,j,t)*Vprobas_[n];
 
   return x;
 }
@@ -326,9 +342,19 @@ double MixtureOfSubstitutionModels::freq(unsigned int i) const
 {
   double x=0;
   for (unsigned int n = 0; n < modelsContainer_.size(); n++)
-    x+= modelsContainer_[n]->freq(i)*probas_[n];
+    x+= modelsContainer_[n]->freq(i)*Vprobas_[n];
 
   return x;
+}
+
+void MixtureOfSubstitutionModels::setFreq(std::map<int,double>& m)
+{
+  ParameterList pl;
+  for (unsigned int n = 0; n < modelsContainer_.size(); n++){
+    modelsContainer_[n]->setFreq(m);
+    pl.addParameters(modelsContainer_[n]->getParameters());  
+  }
+  matchParametersValues(pl);
 }
 
 

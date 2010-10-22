@@ -51,6 +51,8 @@
 #include <Bpp/Seq/Alphabet/CodonAlphabet.h>
 #include <Bpp/Seq/GeneticCode/GeneticCode.h>
 
+using namespace std;
+
 namespace bpp
 {
 /**
@@ -109,7 +111,9 @@ public:
    * @param option A code describing the option, one of F61, F1X4 or F3X4.
    * @param gc The genetic code to use.
    */
+  
   static FrequenciesSet* getFrequenciesSetForCodons(short option, const GeneticCode& gc);
+
   static const short F0;
   static const short F1X4;
   static const short F3X4;
@@ -224,8 +228,7 @@ class FullFrequenciesSet :
 public:
   /**
    * @brief Construction with uniform frequencies on the letters of
-   * the alphabet. If the alphabet is a CodonAlphabet, the stop codon
-   * frequencies are null.
+   * the alphabet.
    */
   FullFrequenciesSet(const Alphabet* alphabet, bool allowNullFreqs = false);
   FullFrequenciesSet(const Alphabet* alphabet, const std::vector<double>& initFreqs, bool allowNullFreqs = false) throw (Exception);
@@ -254,8 +257,7 @@ class FullCodonFrequenciesSet :
 public:
   /**
    * @brief Construction with uniform frequencies on the letters of
-   * the alphabet. If the alphabet is a CodonAlphabet, the stop codon
-   * frequencies are null.
+   * the alphabet. The stop codon frequencies are null.
    */
   FullCodonFrequenciesSet(const CodonAlphabet* alphabet, bool allowNullFreqs = false);
   FullCodonFrequenciesSet(const CodonAlphabet* alphabet, const std::vector<double>& initFreqs, bool allowNullFreqs = false) throw (Exception);
@@ -270,6 +272,11 @@ public:
 public:
   std::string getName() const { return "Full"; }
 
+  /**
+   * @brief the given frequencies are normalized such thaat the sum of
+   * the frequencies on the non-stop codons equals 1.
+   *
+   */
   void setFrequencies(const std::vector<double>& frequencies) throw (DimensionException, Exception);
 
 #ifndef NO_VIRTUAL_COV
@@ -599,6 +606,11 @@ public:
     return dynamic_cast<const CodonAlphabet*>(AbstractFrequenciesSet::getAlphabet());
   }
 #endif
+  /**
+   * @brief the given frequencies are normalized such thaat the sum of
+   * the frequencies on the non-stop codons equals 1.
+   *
+   */
   void setFrequencies(const std::vector<double>& frequencies) throw (DimensionException, Exception);
 
   std::string getName() const { return "Fixed"; }

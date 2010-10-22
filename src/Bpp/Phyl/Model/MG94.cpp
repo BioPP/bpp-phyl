@@ -46,7 +46,7 @@ using namespace std;
 /******************************************************************************/
 
 MG94::MG94(const GeneticCode* gc, FrequenciesSet* codonFreqs) :
-  AbstractSubstitutionModel(gc->getSourceAlphabet(), "MG94."),
+  AbstractReversibleSubstitutionModel(gc->getSourceAlphabet(), "MG94."),
   pmodel_(gc, codonFreqs)
 {
   addParameter_(Parameter("MG94.rho", 1, &Parameter::R_PLUS_STAR));
@@ -62,3 +62,8 @@ void MG94::updateMatrices()
   pmodel_.matchParametersValues(pl);
 }
 
+void MG94::setFreq(std::map<int, double>& m)
+{
+  pmodel_.setFreq(m);
+  matchParametersValues(pmodel_.getParameters());
+}

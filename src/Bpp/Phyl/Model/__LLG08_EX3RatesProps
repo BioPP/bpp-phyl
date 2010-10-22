@@ -1,0 +1,18 @@
+if (getName()=="EX3_Buried"){
+	rate_ = 0.5343125;
+	proportion_ = 0.4156;
+}
+
+
+if (getName()=="EX3_Intermediate"){
+	rate_ = 1.0464125;
+	proportion_ = 0.3888;
+}
+
+
+if (getName()=="EX3_HExposed"){
+	rate_ = 1.8972125;
+	proportion_ = 0.1956;
+}
+
+

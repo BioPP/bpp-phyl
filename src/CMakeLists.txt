@@ -69,10 +69,18 @@ set(CPP_FILES
   Bpp/Phyl/Model/JTT92.cpp
   Bpp/Phyl/Model/K80.cpp
   Bpp/Phyl/Model/L95.cpp
+  Bpp/Phyl/Model/SSR.cpp
   Bpp/Phyl/Model/LG08.cpp
+  Bpp/Phyl/Model/WAG01.cpp
+  Bpp/Phyl/Model/LLG08_EHO.cpp
+  Bpp/Phyl/Model/LLG08_EX2.cpp
+  Bpp/Phyl/Model/LLG08_EX3.cpp
+  Bpp/Phyl/Model/LLG08_UL2.cpp
+  Bpp/Phyl/Model/LLG08_UL3.cpp
   Bpp/Phyl/Model/MarkovModulatedSubstitutionModel.cpp
   Bpp/Phyl/Model/MG94.cpp
   Bpp/Phyl/Model/MixedSubstitutionModel.cpp
+  Bpp/Phyl/Model/MixtureOfASubstitutionModel.cpp
   Bpp/Phyl/Model/MixtureOfSubstitutionModels.cpp
   Bpp/Phyl/Model/RateDistributionFactory.cpp
   Bpp/Phyl/Model/RE08.cpp
@@ -191,10 +199,18 @@ set(H_FILES
   Bpp/Phyl/Model/JTT92.h
   Bpp/Phyl/Model/K80.h
   Bpp/Phyl/Model/L95.h
+  Bpp/Phyl/Model/SSR.h
   Bpp/Phyl/Model/LG08.h
+  Bpp/Phyl/Model/WAG01.h
+  Bpp/Phyl/Model/LLG08_EHO.h
+  Bpp/Phyl/Model/LLG08_EX2.h
+  Bpp/Phyl/Model/LLG08_EX3.h
+  Bpp/Phyl/Model/LLG08_UL2.h
+  Bpp/Phyl/Model/LLG08_UL3.h
   Bpp/Phyl/Model/MarkovModulatedSubstitutionModel.h
   Bpp/Phyl/Model/MG94.h
   Bpp/Phyl/Model/MixedSubstitutionModel.h
+  Bpp/Phyl/Model/MixtureOfASubstitutionModel.h
   Bpp/Phyl/Model/MixtureOfSubstitutionModels.h
   Bpp/Phyl/Model/NucleotideSubstitutionModel.h
   Bpp/Phyl/Model/ProteinSubstitutionModel.h

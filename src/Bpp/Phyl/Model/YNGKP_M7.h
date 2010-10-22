@@ -41,7 +41,7 @@ knowledge of the CeCILL license and that you accept its terms.
 #define _YNGKP_M7_H_
 
 #include "MixedSubstitutionModel.h"
-#include "MixtureOfSubstitutionModels.h"
+#include "MixtureOfASubstitutionModel.h"
 #include "FrequenciesSet.h"
 
 #include <Bpp/Seq/GeneticCode/GeneticCode.h>
@@ -71,7 +71,7 @@ class YNGKP_M7:
   public MixedSubstitutionModel
 {
 private:
-  MixtureOfSubstitutionModels* pmixmodel_;
+  MixtureOfASubstitutionModel* pmixmodel_;
 
 private:
   /**
@@ -101,8 +101,6 @@ public:
   YNGKP_M7(const YNGKP_M7&);
 
   YNGKP_M7& operator=(const YNGKP_M7&);
-
-  void setFreq(std::map<int, double>& m) { pmixmodel_->setFreq(m);  }
 
   unsigned int getNumberOfStates() const  { return pmixmodel_->getNumberOfStates();  }
 
@@ -163,6 +161,7 @@ public:
     return pmixmodel_->freq(i);
   };
 
+  void setFreq(std::map<int,double>& m);
 
 };
 

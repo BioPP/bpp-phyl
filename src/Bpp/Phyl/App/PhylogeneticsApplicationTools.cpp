@@ -187,7 +187,7 @@ SubstitutionModel* PhylogeneticsApplicationTools::getSubstitutionModelDefaultIns
       unparsedParameterValues[it->first] = it->second;
     }
 
-    model = new MixtureOfSubstitutionModels(alphabet,pSM,mdist);
+    model = new MixtureOfASubstitutionModel(alphabet,pSM,mdist);
 
     vector<string> v = model->getParameters().getParameterNames();
 
@@ -198,9 +198,41 @@ SubstitutionModel* PhylogeneticsApplicationTools::getSubstitutionModelDefaultIns
     }
 
     if (verbose)
-      ApplicationTools::displayResult("Mixture Of Substitution Models", nestedModelDescription );
+      ApplicationTools::displayResult("Mixture Of A Substitution Model", nestedModelDescription );
   }
+  else if (modelName == "Mixture")
+    {
+      vector<string> v_nestedModelDescription;
+      vector<SubstitutionModel*> v_pSM;
+      map<string, string> unparsedParameterValuesNested;
 
+      if (args.find("model1") == args.end()) {
+        throw Exception("Missing argument 'model1' for model " + modelName + ".");
+      }
+      unsigned int nbmodels = 0;
+      
+      while (args.find("model" + TextTools::toString(nbmodels+1)) != args.end()){
+        v_nestedModelDescription.push_back(args["model" + TextTools::toString(++nbmodels)]);
+      }
+    
+      if (nbmodels < 2)
+        throw Exception("Missing nested models for model " + modelName + ".");
+
+      for (unsigned i = 0; i < v_nestedModelDescription.size(); i++)
+        {
+          unparsedParameterValuesNested.clear();
+          model = getSubstitutionModelDefaultInstance(alphabet, v_nestedModelDescription[i], unparsedParameterValuesNested, false, false, false);
+          for (map<string, string>::iterator it = unparsedParameterValuesNested.begin(); it != unparsedParameterValuesNested.end(); it++){
+            unparsedParameterValues[modelName + "." + TextTools::toString(i+1) + "_" + it->first] = it->second;
+          }
+          v_pSM.push_back(model);
+        }
+
+      model = new MixtureOfSubstitutionModels(alphabet, v_pSM);
+      if (verbose)
+        ApplicationTools::displayResult("Mixture Of Substitution Models", modelName );
+    }
+  
   // /////////////////////////////////
   // / WORDS and CODONS defined by models
   // ///////////////////////////////
@@ -298,15 +330,23 @@ SubstitutionModel* PhylogeneticsApplicationTools::getSubstitutionModelDefaultIns
 
     else if (modelName == "Triplet")
     {
-      model = (v_nestedModelDescription.size() != 3)
-              ? new TripletReversibleSubstitutionModel(
-                  dynamic_cast<const CodonAlphabet*>(pWA),
-                  dynamic_cast<NucleotideSubstitutionModel*>(v_pSM[0]))
-              : new TripletReversibleSubstitutionModel(
-                  dynamic_cast<const CodonAlphabet*>(pWA),
-                  dynamic_cast<NucleotideSubstitutionModel*>(v_pSM[0]),
-                  dynamic_cast<NucleotideSubstitutionModel*>(v_pSM[1]),
-                  dynamic_cast<NucleotideSubstitutionModel*>(v_pSM[2]));
+      if (dynamic_cast<NucleotideSubstitutionModel*>(v_pSM[0])==NULL)
+        throw Exception("Non simple NucleotideSubstitutionModel imbedded in " + modelName + " model.");
+      
+      if (v_nestedModelDescription.size() != 3)
+        model = new TripletReversibleSubstitutionModel(
+                                                       dynamic_cast<const CodonAlphabet*>(pWA),
+                                                       dynamic_cast<NucleotideSubstitutionModel*>(v_pSM[0]));
+      else {
+        if (dynamic_cast<NucleotideSubstitutionModel*>(v_pSM[1])==NULL || dynamic_cast<NucleotideSubstitutionModel*>(v_pSM[2])==NULL)
+        throw Exception("Non simple NucleotideSubstitutionModel imbedded in " + modelName + " model.");
+
+        model = new TripletReversibleSubstitutionModel(
+                                                       dynamic_cast<const CodonAlphabet*>(pWA),
+                                                       dynamic_cast<NucleotideSubstitutionModel*>(v_pSM[0]),
+                                                       dynamic_cast<NucleotideSubstitutionModel*>(v_pSM[1]),
+                                                       dynamic_cast<NucleotideSubstitutionModel*>(v_pSM[2]));
+      }
     }
 
     // /////////////////////////////////
@@ -315,15 +355,23 @@ SubstitutionModel* PhylogeneticsApplicationTools::getSubstitutionModelDefaultIns
 
     else if (modelName == "CodonNeutral")
     {
-      model = (v_nestedModelDescription.size() != 3)
-              ? new CodonNeutralReversibleSubstitutionModel(
-                  dynamic_cast<const CodonAlphabet*>(pWA),
-                  dynamic_cast<NucleotideSubstitutionModel*>(v_pSM[0]))
-              : new CodonNeutralReversibleSubstitutionModel(
-                  dynamic_cast<const CodonAlphabet*>(pWA),
-                  dynamic_cast<NucleotideSubstitutionModel*>(v_pSM[0]),
-                  dynamic_cast<NucleotideSubstitutionModel*>(v_pSM[1]),
-                  dynamic_cast<NucleotideSubstitutionModel*>(v_pSM[2]));
+      if (dynamic_cast<NucleotideSubstitutionModel*>(v_pSM[0])==NULL)
+        throw Exception("Non simple NucleotideSubstitutionModel imbedded in " + modelName + " model.");
+      
+      if (v_nestedModelDescription.size() != 3)
+        model = new CodonNeutralReversibleSubstitutionModel(
+                                                       dynamic_cast<const CodonAlphabet*>(pWA),
+                                                       dynamic_cast<NucleotideSubstitutionModel*>(v_pSM[0]));
+      else {
+        if (dynamic_cast<NucleotideSubstitutionModel*>(v_pSM[1])==NULL || dynamic_cast<NucleotideSubstitutionModel*>(v_pSM[2])==NULL)
+        throw Exception("Non simple NucleotideSubstitutionModel imbedded in " + modelName + " model.");
+
+        model = new CodonNeutralReversibleSubstitutionModel(
+                                                       dynamic_cast<const CodonAlphabet*>(pWA),
+                                                       dynamic_cast<NucleotideSubstitutionModel*>(v_pSM[0]),
+                                                       dynamic_cast<NucleotideSubstitutionModel*>(v_pSM[1]),
+                                                       dynamic_cast<NucleotideSubstitutionModel*>(v_pSM[2]));
+      }
     }
 
     // /////////////////////////////////
@@ -346,16 +394,22 @@ SubstitutionModel* PhylogeneticsApplicationTools::getSubstitutionModelDefaultIns
       else
         pai2 = SequenceApplicationTools::getAADistance(args["aadistance"]);
 
-      model = (v_nestedModelDescription.size() != 3)
-              ? new CodonAsynonymousReversibleSubstitutionModel(
-                  pgc,
-                  dynamic_cast<NucleotideSubstitutionModel*>(v_pSM[0]), pai2)
-              : new CodonAsynonymousReversibleSubstitutionModel(
-                  pgc,
-                  dynamic_cast<NucleotideSubstitutionModel*>(v_pSM[0]),
-                  dynamic_cast<NucleotideSubstitutionModel*>(v_pSM[1]),
-                  dynamic_cast<NucleotideSubstitutionModel*>(v_pSM[2]),
-                  pai2);
+      if (dynamic_cast<NucleotideSubstitutionModel*>(v_pSM[0])==NULL)
+        throw Exception("Non simple NucleotideSubstitutionModel imbedded in " + modelName + " model.");
+      
+      if (v_nestedModelDescription.size() != 3)
+        model = new CodonAsynonymousReversibleSubstitutionModel(pgc,
+                                                                dynamic_cast<NucleotideSubstitutionModel*>(v_pSM[0]), pai2);
+      else {
+        if (dynamic_cast<NucleotideSubstitutionModel*>(v_pSM[1])==NULL || dynamic_cast<NucleotideSubstitutionModel*>(v_pSM[2])==NULL)
+        throw Exception("Non simple NucleotideSubstitutionModel imbedded in " + modelName + " model.");
+
+        model = new CodonAsynonymousReversibleSubstitutionModel(
+                                                                pgc,
+                                                                dynamic_cast<NucleotideSubstitutionModel*>(v_pSM[0]),
+                                                                dynamic_cast<NucleotideSubstitutionModel*>(v_pSM[1]),
+                                                                dynamic_cast<NucleotideSubstitutionModel*>(v_pSM[2]), pai2);
+      }
     }
   }
 
@@ -438,20 +492,36 @@ SubstitutionModel* PhylogeneticsApplicationTools::getSubstitutionModelDefaultIns
     if (pgc->getSourceAlphabet()->getAlphabetType() != pCA->getAlphabetType())
       throw Exception("Mismatch between genetic code and codon alphabet");
 
-    string freqOpt = ApplicationTools::getStringParameter("codon_freqs", args, "F0");
-    short opt = 0;
-    if (freqOpt == "F0")
-      opt = FrequenciesSet::F0;
-    else if (freqOpt == "F1X4")
-      opt = FrequenciesSet::F1X4;
-    else if (freqOpt == "F3X4")
-      opt = FrequenciesSet::F3X4;
-    else if (freqOpt == "F61")
-      opt = FrequenciesSet::F61;
-    else
-      throw Exception("Unvalid codon frequency option. Should be one of F0, F1X4, F3X4 or F61");
-    FrequenciesSet* codonFreqs = FrequenciesSet::getFrequenciesSetForCodons(opt, *pgc);
 
+    FrequenciesSet* codonFreqs;
+    
+    if (args.find("frequencies") != args.end()){
+
+      map<string, string> unparsedParameterValuesNested;
+    
+      codonFreqs = getFrequenciesSetDefaultInstance(pCA, args["frequencies"], unparsedParameterValuesNested);
+      
+
+    for (map<string, string>::iterator it = unparsedParameterValuesNested.begin(); it != unparsedParameterValuesNested.end(); it++)
+        unparsedParameterValues[modelName + "." + it->first] = it->second;
+    }
+    else {
+      string freqOpt = ApplicationTools::getStringParameter("codon_freqs", args, "F0");
+      short opt = 0;
+      if (freqOpt == "F0")
+        opt = FrequenciesSet::F0;
+      else if (freqOpt == "F1X4")
+        opt = FrequenciesSet::F1X4;
+      else if (freqOpt == "F3X4")
+        opt = FrequenciesSet::F3X4;
+      else if (freqOpt == "F61")
+        opt = FrequenciesSet::F61;
+      else
+        throw Exception("Unvalid codon frequency option. Should be one of F0, F1X4, F3X4 or F61");
+      
+      codonFreqs = FrequenciesSet::getFrequenciesSetForCodons(opt, *pgc);
+    }
+    
     if (modelName == "MG94")
       model = new MG94(pgc, codonFreqs);
     else if (modelName == "GY94")
@@ -479,6 +549,7 @@ SubstitutionModel* PhylogeneticsApplicationTools::getSubstitutionModelDefaultIns
      }
     else
       throw Exception("Unknown Codon model: " + modelName);
+
   }
 
   // /////////////////////////////////
@@ -598,6 +669,15 @@ SubstitutionModel* PhylogeneticsApplicationTools::getSubstitutionModelDefaultIns
       // / L95
       // ///////////////////////////////
 
+      else if (modelName == "SSR")
+        {
+          model = new SSR(alpha);
+        }
+
+      // /////////////////////////////////
+      // / L95
+      // ///////////////////////////////
+
       else if (modelName == "L95")
       {
         model = new L95(alpha);
@@ -674,6 +754,8 @@ SubstitutionModel* PhylogeneticsApplicationTools::getSubstitutionModelDefaultIns
         model = new JTT92(alpha, new FullProteinFrequenciesSet(alpha), true);
       else if (modelName == "LG08+F")
         model = new LG08(alpha, new FullProteinFrequenciesSet(alpha), true);
+      else if (modelName == "WAG01+F")
+        model = new WAG01(alpha, new FullProteinFrequenciesSet(alpha), true);
       else if (modelName == "Empirical+F")
       {
         string prefix = args["name"];
@@ -689,6 +771,18 @@ SubstitutionModel* PhylogeneticsApplicationTools::getSubstitutionModelDefaultIns
         model = new JTT92(alpha);
       else if (modelName == "LG08")
         model = new LG08(alpha);
+      else if (modelName == "WAG01")
+        model = new WAG01(alpha);
+      else if (modelName == "LLG08_EHO")
+        model = new LLG08_EHO(alpha);
+      else if (modelName == "LLG08_EX2")
+        model = new LLG08_EX2(alpha);
+      else if (modelName == "LLG08_EX3")
+        model = new LLG08_EX3(alpha);
+      else if (modelName == "LLG08_UL2")
+        model = new LLG08_UL2(alpha);
+      else if (modelName == "LLG08_UL3")
+        model = new LLG08_UL3(alpha);
       else if (modelName == "Empirical")
       {
         string prefix = args["name"];
@@ -704,6 +798,8 @@ SubstitutionModel* PhylogeneticsApplicationTools::getSubstitutionModelDefaultIns
         model = new COA(alpha, "JTT92");
       else if (modelName == "LG08+COA")
         model = new COA(alpha, "LG08");
+      else if (modelName == "WAG01+COA")
+        model = new COA(alpha, "WAG01");
       else if (modelName == "Empirical+COA")
         {
         string prefix = args["name"];
@@ -803,6 +899,7 @@ void PhylogeneticsApplicationTools::setSubstitutionModelParametersInitialValues(
   const SiteContainer* data,
   bool verbose) throw (Exception)
 {
+  
   bool useObsFreq = ApplicationTools::getBooleanParameter(model->getNamespace() + "useObservedFreqs", unparsedParameterValues, false, "", true, false);
   if (verbose) ApplicationTools::displayResult("Use observed frequencies for model", useObsFreq ? "yes" : "no");
   if (useObsFreq && data != 0)
@@ -817,10 +914,12 @@ void PhylogeneticsApplicationTools::setSubstitutionModelParametersInitialValues(
     ap.setMessageHandler(ApplicationTools::warning);
     pl.setParameter(i, ap);
   }
+  unsigned int posp;
   for (unsigned int i = 0; i < pl.size(); i++)
   {
    const string pName = pl[i].getName();
-   if (!useObsFreq || (model->getParameterNameWithoutNamespace(pName).substr(0,5) != "theta"))
+   posp=pName.rfind(".");
+   if (!useObsFreq || (pName.substr(posp+1,5) != "theta"))
      {
        double value = ApplicationTools::getDoubleParameter(pName, unparsedParameterValues, pl[i].getValue());
        pl[i].setValue(value);

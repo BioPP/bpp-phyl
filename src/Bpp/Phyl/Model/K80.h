@@ -106,6 +106,8 @@ namespace bpp
  * \end{pmatrix}
  * \f]
  *
+ * In addition, a rate_ factor defines the mean rate of the model.
+ *
  * The probabilities of changes are computed analytically using the formulas:
  * \f[
  * P_{i,j}(t) = \begin{pmatrix}
@@ -115,11 +117,11 @@ namespace bpp
  * \frac{1}{4} - \frac{1}{4}B & -\frac{1}{2}A + \frac{1}{4}B + \frac{1}{4} & \frac{1}{4} - \frac{1}{4}B & \frac{1}{2}A + \frac{1}{4}B + \frac{1}{4} \\
  * \end{pmatrix}
  * \f]
- * with \f$A=e^{-\frac{(2\kappa+2)t}{\kappa+2}}\f$ and \f$B = e^{-\frac{4t}{\kappa+2}}\f$. 
+ * with \f$A=e^{-\frac{rate\_ * (2\kappa+2)t}{\kappa+2}}\f$ and \f$B = e^{-\frac{rate\_ * 4t}{\kappa+2}}\f$. 
  *
  * First and second order derivatives are also computed analytically using the formulas:
  * \f[
- * \frac{\partial P_{i,j}(t)}{\partial t} = \begin{pmatrix}
+ * \frac{\partial P_{i,j}(t)}{\partial t} = rate\_ * \begin{pmatrix}
  * -\frac{2\kappa+2}{2(\kappa+2)}A - \frac{1}{\kappa+2}B & \frac{1}{\kappa+2}B & \frac{2\kappa+2}{2(\kappa+2)}A - \frac{1}{\kappa+2}B & \frac{1}{\kappa+2}B \\
  * \frac{1}{\kappa+2}B & -\frac{2\kappa+2}{2(\kappa+2)}A - \frac{1}{\kappa+2}B & \frac{1}{\kappa+2}B & \frac{2\kappa+2}{2(\kappa+2)}A - \frac{1}{\kappa+2}B \\
  * \frac{2\kappa+2}{2(\kappa+2)}A - \frac{1}{\kappa+2}B & \frac{1}{\kappa+2}B & -\frac{2\kappa+2}{2(\kappa+2)}A - \frac{1}{\kappa+2}B & \frac{1}{\kappa+2}B \\
@@ -127,7 +129,7 @@ namespace bpp
  * \end{pmatrix}
  * \f]
  * \f{multline*}
- * \frac{\partial^2 P_{i,j}(t)}{\partial t^2} = \\
+ * \frac{\partial^2 P_{i,j}(t)}{\partial t^2} = rate\_^2 * \\
  * \begin{pmatrix}
  * \frac{{(2\kappa+2)}^2}{2{(\kappa+2)}^2}A - \frac{4}{{(\kappa+2)}^2}B & -\frac{4}{{(\kappa+2)}^2}B & -\frac{{(2\kappa+2)}^2}{2{(\kappa+2)}^2}A + \frac{4}{{(\kappa+2)}^2}B & -\frac{4}{{(\kappa+2)}^2}B \\
  * -\frac{4}{{(\kappa+2)}^2}B & \frac{{(2\kappa+2)}^2}{2{(\kappa+2)}^2}A + \frac{4}{{(\kappa+2)}^2}B & -\frac{4}{{(\kappa+2)}^2}B & -\frac{{(2\kappa+2)}^2}{2{(\kappa+2)}^2}A + \frac{4}{{(\kappa+2)}^2}B \\
