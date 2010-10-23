@@ -1,7 +1,7 @@
 //
-// File: LLG08_EX2.cpp
+// File: LLG08_UL2.cpp
 // Created by:  Laurent Gueguen
-// Created on: mardi 12 octobre 2010, à 09h 43
+// Created on: jeudi 21 octobre 2010, à 14h 28
 //
 
 /*
@@ -36,7 +36,7 @@ The fact that you are presently reading this means that you have had
 knowledge of the CeCILL license and that you accept its terms.
 */
 
-#include "LLG08_EX2.h"
+#include "LLG08_UL2.h"
 #include "YN98.h"
 #include "FrequenciesSet.h"
 
@@ -49,20 +49,20 @@ using namespace std;
 
 /******************************************************************************/
 
-LLG08_EX2::LLG08_EX2(const ProteicAlphabet* alpha) : 
-  MixedSubstitutionModel(alpha, "LLG08_EX2."), pmixmodel_(0),
+LLG08_UL2::LLG08_UL2(const ProteicAlphabet* alpha) : 
+  MixedSubstitutionModel(alpha, "LLG08_UL2."), pmixmodel_(0),
   mapParNamesFromPmodel_(), lParPmodel_()
 {
   // build the submodel
 
   vector<SubstitutionModel*> vpSM;
-  vpSM.push_back(new LLG08_EX2::EmbeddedModel(alpha,"EX2_Buried"));
-  vpSM.push_back(new LLG08_EX2::EmbeddedModel(alpha,"EX2_Exposed"));
+  vpSM.push_back(new LLG08_UL2::EmbeddedModel(alpha,"UL2_M1"));
+  vpSM.push_back(new LLG08_UL2::EmbeddedModel(alpha,"UL2_M2"));
 
   Vdouble vrate, vproba;
   
   for (unsigned int i=0;i<vpSM.size();i++){
-    vproba.push_back((dynamic_cast<LLG08_EX2::EmbeddedModel*> (vpSM[i]))->getProportion());
+    vproba.push_back((dynamic_cast<LLG08_UL2::EmbeddedModel*> (vpSM[i]))->getProportion());
     vrate.push_back(vpSM[i]->getRate());
   }
 
@@ -75,7 +75,7 @@ LLG08_EX2::LLG08_EX2(const ProteicAlphabet* alpha) :
     lParPmodel_.addParameter(Parameter(pl[i]));
     st=pmixmodel_->getParameterNameWithoutNamespace(name);
     mapParNamesFromPmodel_[name]=st;
-    addParameter_(Parameter("LLG08_EX2."+st,
+    addParameter_(Parameter("LLG08_UL2."+st,
                             pmixmodel_->getParameterValue(st),
                             pmixmodel_->getParameter(st).hasConstraint()? pmixmodel_->getParameter(st).getConstraint()->clone():0,true));
   }
@@ -83,7 +83,7 @@ LLG08_EX2::LLG08_EX2(const ProteicAlphabet* alpha) :
   updateMatrices();
 }
 
-LLG08_EX2::LLG08_EX2(const LLG08_EX2& mod2) : MixedSubstitutionModel(mod2),
+LLG08_UL2::LLG08_UL2(const LLG08_UL2& mod2) : MixedSubstitutionModel(mod2),
                                               pmixmodel_(new MixtureOfSubstitutionModels(*mod2.pmixmodel_)),
                                               mapParNamesFromPmodel_(mod2.mapParNamesFromPmodel_),
                                               lParPmodel_(mod2.lParPmodel_)
@@ -91,7 +91,7 @@ LLG08_EX2::LLG08_EX2(const LLG08_EX2& mod2) : MixedSubstitutionModel(mod2),
   
 }
 
-LLG08_EX2& LLG08_EX2::operator=(const LLG08_EX2& mod2)
+LLG08_UL2& LLG08_UL2::operator=(const LLG08_UL2& mod2)
 {
   MixedSubstitutionModel::operator=(mod2);
 
@@ -102,13 +102,13 @@ LLG08_EX2& LLG08_EX2::operator=(const LLG08_EX2& mod2)
   return *this;
 }
 
-LLG08_EX2::~LLG08_EX2()
+LLG08_UL2::~LLG08_UL2()
 {
   if (pmixmodel_)
     delete pmixmodel_;
 }
 
-void LLG08_EX2::updateMatrices()
+void LLG08_UL2::updateMatrices()
 {
   for (unsigned int i=0;i<lParPmodel_.size();i++)
     if (hasParameter(mapParNamesFromPmodel_[lParPmodel_[i].getName()]))
@@ -117,19 +117,19 @@ void LLG08_EX2::updateMatrices()
   pmixmodel_->matchParametersValues(lParPmodel_);
 }
 
-void LLG08_EX2::setFreq(std::map<int,double>& m){
+void LLG08_UL2::setFreq(std::map<int,double>& m){
   pmixmodel_->setFreq(m);
   matchParametersValues(pmixmodel_->getParameters());
 }
 
 /**************** sub model classes *///////////
 
-LLG08_EX2::EmbeddedModel::EmbeddedModel(const ProteicAlphabet* alpha, string name) :
+LLG08_UL2::EmbeddedModel::EmbeddedModel(const ProteicAlphabet* alpha, string name) :
   AbstractReversibleSubstitutionModel(alpha, ""), proportion_(1), name_(name)
 {
-#include "__LLG08_EX2ExchangeabilityCode"
-#include "__LLG08_EX2FrequenciesCode"
-#include "__LLG08_EX2RatesProps"
+#include "__LLG08_UL2ExchangeabilityCode"
+#include "__LLG08_UL2FrequenciesCode"
+#include "__LLG08_UL2RatesProps"
   updateMatrices();
 }
 

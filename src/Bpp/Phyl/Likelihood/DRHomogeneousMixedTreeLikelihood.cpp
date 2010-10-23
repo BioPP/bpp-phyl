@@ -171,7 +171,6 @@ double DRHomogeneousMixedTreeLikelihood::getLogLikelihood() const
   {
    sum+=getLogLikelihoodForASite(i);
   }
-
   return sum;
 }
 
@@ -240,9 +239,11 @@ void DRHomogeneousMixedTreeLikelihood::fireParameterChanged(const ParameterList&
   const SubstitutionModel* pm;
   for (unsigned int i = 0; i < s; i++)
   {
+    ParameterList pl;
     pm = mixedmodel->getNModel(i);
-    treeLikelihoodsContainer_[i]->matchParametersValues(pm->getParameters());
-    treeLikelihoodsContainer_[i]->matchParametersValues(getParameters());
+    pl.addParameters(pm->getParameters());
+    pl.includeParameters(getParameters());
+    treeLikelihoodsContainer_[i]->matchParametersValues(pl);
   }
   probas_=mixedmodel->getProbabilities();
 

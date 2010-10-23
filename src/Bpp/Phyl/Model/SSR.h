@@ -1,7 +1,7 @@
 //
-// File: L95.h
-// Created by: Laurent Guéguen
-// Created on: lundi 18 octobre 2010, à 22h 21
+// File: SSR.h
+// Created by: Julien Dutheil
+// Created on: Tue Nov 4 11:46 2008
 //
 
 /*
@@ -37,8 +37,8 @@ The fact that you are presently reading this means that you have had
 knowledge of the CeCILL license and that you accept its terms.
 */
 
-#ifndef _L95_H_
-#define _L95_H_
+#ifndef _SSR_H_
+#define _SSR_H_
 
 #include "NucleotideSubstitutionModel.h"
 #include "AbstractSubstitutionModel.h"
@@ -52,70 +52,74 @@ namespace bpp
 {
 
 /**
- * @brief The no-strand bias substitution model for nucleotides, from
- * Lobry 1995. The point of this model is that the substitution rate
- * from a nucleotide N towards another M is the same as the rate from
- * the complement of N towards the complement of M. Note that this
- * model is not reversible.
+ * @brief The strand Symmetric Reversible substitution model for
+ * nucleotides.
  *
- * After normalization, this model contains 5 parameters:
+ * We use a parametrization derived from Hobolth et al 2007
  * \f[
- * Q = \frac 1{\kappa+1} \begin{pmatrix}
- * \cdots & \kappa.\beta.\theta & \kappa.(1-\beta).\theta & \gamma \\ 
- * \kappa.\alpha.(1-\theta) & \cdots & 1-\gamma & \kappa.(1-\alpha).(1-\theta) \\ 
- * \kappa.(1-\alpha).(1-\theta) & 1-\gamma & \cdots & \kappa.\alpha.(1-\theta) \\ 
- * \gamma & \kappa.(1-\beta).\theta & \kappa.\beta.\theta & \cdots \\ 
+ * S = \begin{pmatrix}
+ * \cdots & \beta & 1 & \gamma \\ 
+ * \beta & \cdots & \delta & 1 \\ 
+ * 1 & \delta & \cdots & \beta \\ 
+ * \gamma & 1 & \beta & \cdots \\ 
  * \end{pmatrix}
  * \f]
- * The equilibrium frequencies are
+ * The equilibrium frequencies 
  * \f[
- * \pi = \left(\frac{1-\theta}{2}, \frac{\theta}{2}, \frac{\theta}{2}, \frac{1-\theta}{2}\right)
+ * \pi = \left(1-\frac{\theta}{2}, \frac{\theta}{2}, \frac{\theta}{2}, 1-\frac{\theta}{2}\right)
  * \f]
+ * This models hence includes four parameters, three relative rates \f$\beta, \gamma, \delta\f$ and the GC content \f$\theta\f$.
  *
- * and then \f$\sum_i Q_{i,i}\pi_i = -1\f$.
- *
- * The generator of this model is diagonalized numerically.
+ * Normalization: we set \f$f\f$ to 1, and scale the matrix so that \f$\sum_i Q_{i,i}\pi_i = -1\f$.
+ * The normalized generator is obtained by taking the dot product of \f$S\f$ and \f$\pi\f$:
+ * \f[
+ * Q = S . \pi = \frac{1}{P}\begin{pmatrix}
+ * -\gamma\pi_T-\pi_G-\beta\pi_C & \beta\pi_C & \pi_G & \gamma\pi_T \\ 
+ * \beta\pi_A & -\pi_T-\delta\pi_G-\beta\pi_A & \delta\pi_G & \pi_T \\ 
+ * \pi_A & \delta\pi_C & -\beta\pi_T-\delta\pi_C-\pi_A & \beta\pi_T \\ 
+ * \gamma\pi_A & \pi_C & \beta\pi_G & -\beta\pi_G-\pi_C-\gamma\pi_A \\ 
+ * \end{pmatrix}
+ * \f]
+ * where P is the normalization constant.
+ * For now, the generator of this model is diagonalized numericaly.
  * See AbstractSubstitutionModel for details of how the probabilities are computed.
  *
- * The parameters are named \c "alpha", \c "beta", \c "gamma", \c
- * "kappa" and \c "theta". Their values are between 0 and 1, excluded
- * with the exception of \c "kappa" which is positive. Their values
- * may be retrieved with the command:
- *
+ * The parameters are named \c "beta", \c "gamma", \c "delta", and \c "theta"
+ * and their values may be retrieved with the command 
  * \code
- * getParameterValue("alpha")
- * \endcode for instance.
+ * getParameterValue("beta")
+ * \endcode
+ * for instance.
  * 
  * Reference:
- * - Lobry J R (1995), Journal_ Of Molecular Evolution_ 40 326-330.
+ * - Hobolth A, Christensen O Fm Mailund T, Schierup M H (2007), PLoS_ Genetics_ 3(2) e7.
+ * - Yap VB, Speed TP (1995), Journal_ Of Molecular Evolution_ 58(1) 12-18
  */
-class L95:
+class SSR:
   public virtual NucleotideSubstitutionModel,
-  public AbstractSubstitutionModel
+  public AbstractReversibleSubstitutionModel
 {
 private:
-  double alpha_, beta_, gamma_, kappa_, theta_;
+  double beta_, gamma_, delta_, theta_, piA_, piC_, piG_, piT_;
   
 public:
-  L95(
-      const NucleicAlphabet* alphabet,
-      double alpha = 0.5,
-      double beta = 0.5,
-      double gamma = 0.5,
-      double kappa = 1.,
+  SSR( const NucleicAlphabet* alpha,
+      double beta = 1.,
+      double gamma = 1.,
+      double delta = 1.,
       double theta = 0.5);
   
-  virtual ~L95() {}
+  virtual ~SSR() {}
   
 #ifndef NO_VIRTUAL_COV
-  L95*
+  SSR*
 #else
   Clonable*
 #endif
-  clone() const { return new L95(*this); }
+  clone() const { return new SSR(*this); }
   
 public:
-  std::string getName() const { return "Lobry 1995"; }
+  std::string getName() const { return "Strand Symmetric Reversible"; }
   
   void updateMatrices();
   
@@ -127,5 +131,5 @@ public:
 
 } //end of namespace bpp.
 
-#endif	//_L95_H_
+#endif	//_SSR_H_
 
