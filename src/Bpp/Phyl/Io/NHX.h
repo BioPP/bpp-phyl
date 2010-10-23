@@ -1,7 +1,7 @@
 //
-// File: Newick.h
-// Created by: Julien Dutheil
-// Created on: Thu Oct 23 15:35:03 2003
+// File: NHX.h
+// Created by: Bastien Boussau
+// Created on: Tu Oct 19 10:24:03 2010
 //
 
 /*
@@ -37,8 +37,8 @@ The fact that you are presently reading this means that you have had
 knowledge of the CeCILL license and that you accept its terms.
 */
 
-#ifndef _NEWICK_H_
-#define _NEWICK_H_
+#ifndef _NHX_H_
+#define _NHX_H_
 
 #include "IoTree.h"
 #include "../TreeTemplate.h"
@@ -47,82 +47,74 @@ namespace bpp
 {
 
 /**
- * @brief The so-called 'newick' parenthetic format.
+ * @brief The so-called 'NHX - New Hampshire eXtended' parenthetic format. 
  *
- * Branch lengths and bootstraps are supported:
+ * See http://www.phylosoft.org/NHX/ for details.
+ *
+ * Branch lengths and node annotations are supported:
  *
  * ex:
  * <code>
- * ((A:0.1, B:0.15)90:0.2, C:0.27);
+ * ((A:0.1[&&NHX:S=human], B:0.15[&&NHX:S=chimp]):0.2[&&NHX:B=90:D=N:S=primates], C:0.27[&&NHX:S=mouse]);
  * </code>
+ *
+ * Where e.g. "S=human" means that the sequence A comes from species "human", "B=90" stands for a support value, 
+ * and "D=N" means that there was no duplication at the node. Other tags are allowed, see http://www.phylosoft.org/NHX/.
+ * By default, comments between "[" and "]" are removed, unless the opening bracket is followed by "&&NHX".
  *
  * Code example:
  * @code
- * #include <Phyl/Newick.h>
+ * #include <Phyl/NHX.h>
  * #include <Phyl/Tree.h>
  * 
- * Newick * newickReader = new Newick(false); //No comment allowed!
+ * NHX * nhxReader = new NHX();
  * try {
- * 	Tree * tree = newickReader->read("MyTestTree.dnd"); // Tree in file MyTestTree.dnd
+ * 	Tree * tree = nhxReader->read("MyTestTree.dnd"); // Tree in file MyTestTree.dnd
  * 	cout << "Tree has " << tree->getNumberOfLeaves() << " leaves." << endl;
  * } catch (Exception e) {
  *	cout << "Error when reading tree." << endl;
  * }
  * delete tree;
- * delete newickReader;
+ * delete nhxReader;
  * @endcode
  *
- * Bootstrap values are stored as node properties, as Number<double> objects and with the tag TreeTools::BOOTSTRAP.
+ * All node annotations are stored as node properties, with type bppString for all properties except for support values, where a Number is used.
  *
- * This is also possible to read a "tagged" tree, where additional info is provided in place of bootstrap values:
- * ((A,B)N2,(C,D)N3)N1;
- * This is achieved by calling the enableExtendedBootstrapProperty method, and providing a property name to use.
- * The additional information will be stored at each node as a property, in a String object.
- * The disableExtendedBootstrapProperty method restores the default behavior.
  */
-class Newick:
+class NHX:
   public AbstractITree,
   public AbstractOTree,
   public AbstractIMultiTree,
   public AbstractOMultiTree
 {
 	protected:
-		bool allowComments_;
-    bool writeId_;
-    bool useBootstrap_;
-    std::string bootstrapPropertyName_;
 	
 	public:
 		
 		/**
-		 * @brief Build a new Newick reader/writer.
+		 * @brief Build a new NHX reader/writer.
 		 *
-		 * Some newick format allow comments between hooks ('[' ']').
+		 * Comments between hooks ('[' ']') are ignored.
 		 * 
-		 * @param allowComments Tell if comments between [] are allowed in file.
-		 * @param writeId       If true, nodes ids will be written in place of bootstrap values.
 		 */
-		Newick(bool allowComments = false, bool writeId = false):
-      allowComments_(allowComments),
-      writeId_(writeId),
-      useBootstrap_(true),
-      bootstrapPropertyName_(TreeTools::BOOTSTRAP) {}
+  NHX() {}
 
-		virtual ~Newick() {}
+		virtual ~NHX() {}
 	
 	public:
 
-    void enableExtendedBootstrapProperty(const std::string& propertyName)
-    {
-      useBootstrap_ = false;
-      bootstrapPropertyName_ = propertyName;
-    }
-    void disableExtendedBootstrapProperty()
-    {
-      useBootstrap_ = true;
-      bootstrapPropertyName_ = TreeTools::BOOTSTRAP;
-    }
-
+  struct Element
+  {
+  public:
+  std::string content;
+  std::string length;
+  std::string annotation;
+  
+  public:
+  Element() : content(), length(), annotation() {}
+  };
+  
+  
 		/**
 		 * @name The IOTree interface
 		 *
@@ -199,9 +191,22 @@ class Newick:
     template<class N>
     void write_(const std::vector<TreeTemplate<N>*>& trees, std::ostream& out) const throw (Exception);
 
+    Element getElement(const std::string& elt) const throw (IOException);
+
+    Node* parenthesisToNode(const std::string& description) const;
+  
+    TreeTemplate<Node>* parenthesisToTree(const std::string& description) const throw (Exception);
+   
+    std::string propertiesToParenthesis(const Node& node) const;
+  
+    std::string nodeToParenthesis(const Node& node) const;
+  
+    std::string treeToParenthesis(const TreeTemplate<Node>& tree) const;
+  
+    bool setNodeProperties(Node& node, const std::string properties) const;
 };
 
 } //end of namespace bpp.
 
-#endif	//_NEWICK_H_
+#endif	//_NHX_H_
 
