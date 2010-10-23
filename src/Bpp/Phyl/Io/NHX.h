@@ -5,7 +5,7 @@
 //
 
 /*
-Copyright or © or Copr. CNRS, (November 16, 2004)
+Copyright or © or Copr. Bio++ Development Team, (November 16, 2004)
 
 This software is a computer program whose purpose is to provide classes
 for phylogenetic data analysis.
@@ -69,10 +69,10 @@ namespace bpp
  * 
  * NHX * nhxReader = new NHX();
  * try {
- * 	Tree * tree = nhxReader->read("MyTestTree.dnd"); // Tree in file MyTestTree.dnd
- * 	cout << "Tree has " << tree->getNumberOfLeaves() << " leaves." << endl;
+ *   Tree * tree = nhxReader->read("MyTestTree.dnd"); // Tree in file MyTestTree.dnd
+ *   cout << "Tree has " << tree->getNumberOfLeaves() << " leaves." << endl;
  * } catch (Exception e) {
- *	cout << "Error when reading tree." << endl;
+ *  cout << "Error when reading tree." << endl;
  * }
  * delete tree;
  * delete nhxReader;
@@ -87,105 +87,103 @@ class NHX:
   public AbstractIMultiTree,
   public AbstractOMultiTree
 {
-	protected:
-	
-	public:
-		
-		/**
-		 * @brief Build a new NHX reader/writer.
-		 *
-		 * Comments between hooks ('[' ']') are ignored.
-		 * 
-		 */
-  NHX() {}
+  public:
+    
+    /**
+     * @brief Build a new NHX reader/writer.
+     *
+     * Comments between hooks ('[' ']') are ignored.
+     * 
+     */
+    NHX() {}
 
-		virtual ~NHX() {}
-	
-	public:
+    virtual ~NHX() {}
+  
+  public:
 
   struct Element
   {
   public:
-  std::string content;
-  std::string length;
-  std::string annotation;
+    std::string content;
+    std::string length;
+    std::string annotation;
   
   public:
-  Element() : content(), length(), annotation() {}
+    Element() : content(), length(), annotation() {}
   };
   
   
-		/**
-		 * @name The IOTree interface
-		 *
-		 * @{
-		 */
-		const std::string getFormatName() const;
-		const std::string getFormatDescription() const;
-		/* @} */
+    /**
+     * @name The IOTree interface
+     *
+     * @{
+     */
+    const std::string getFormatName() const;
+    const std::string getFormatDescription() const;
+    /* @} */
 
-		/**
-		 * @name The ITree interface
-		 *
-		 * @{
-		 */		
-		TreeTemplate<Node>* read(const std::string& path) const throw (Exception)
-		{
-			return dynamic_cast<TreeTemplate<Node>*>(AbstractITree::read(path));
-		}
-		
-		TreeTemplate<Node>* read(std::istream& in) const throw (Exception);
-		/** @} */
+    /**
+     * @name The ITree interface
+     *
+     * @{
+     */    
+    TreeTemplate<Node>* read(const std::string& path) const throw (Exception)
+    {
+      return dynamic_cast<TreeTemplate<Node>*>(AbstractITree::read(path));
+    }
+    
+    TreeTemplate<Node>* read(std::istream& in) const throw (Exception);
+    /** @} */
 
-		/**
-		 * @name The OTree interface
-		 *
-		 * @{
-		 */
-		void write(const Tree& tree, const std::string& path, bool overwrite = true) const throw (Exception)
-		{
-			AbstractOTree::write(tree, path, overwrite);
-		}
-		
+    /**
+     * @name The OTree interface
+     *
+     * @{
+     */
+    void write(const Tree& tree, const std::string& path, bool overwrite = true) const throw (Exception)
+    {
+      AbstractOTree::write(tree, path, overwrite);
+    }
+    
     void write(const Tree& tree, std::ostream& out) const throw (Exception)
     {
       write_(tree, out);
     }
-		/** @} */
+    /** @} */
 
-		/**
-		 * @name The IMultiTree interface
-		 *
-		 * @{
-		 */
-		void read(const std::string& path, std::vector<Tree*>& trees) const throw (Exception)
-		{
-			AbstractIMultiTree::read(path, trees);
-		}
-		void read(std::istream& in, std::vector<Tree*>& trees) const throw (Exception);
+    /**
+     * @name The IMultiTree interface
+     *
+     * @{
+     */
+    void read(const std::string& path, std::vector<Tree*>& trees) const throw (Exception)
+    {
+      AbstractIMultiTree::read(path, trees);
+    }
+    void read(std::istream& in, std::vector<Tree*>& trees) const throw (Exception);
     /**@}*/
 
-		/**
-		 * @name The OMultiTree interface
-		 *
-		 * @{
-		 */
-		void write(const std::vector<Tree*>& trees, const std::string& path, bool overwrite = true) const throw (Exception)
-		{
-			AbstractOMultiTree::write(trees, path, overwrite);
-		}
-		void write(const std::vector<Tree*>& trees, std::ostream& out) const throw (Exception)
+    /**
+     * @name The OMultiTree interface
+     *
+     * @{
+     */
+    void write(const std::vector<Tree*>& trees, const std::string& path, bool overwrite = true) const throw (Exception)
+    {
+      AbstractOMultiTree::write(trees, path, overwrite);
+    }
+    void write(const std::vector<Tree*>& trees, std::ostream& out) const throw (Exception)
     {
       write_(trees, out);
     }
-		/** @} */
+    /** @} */
 
   protected:
     void write_(const Tree& tree, std::ostream& out) const throw (Exception);
     
     template<class N>
     void write_(const TreeTemplate<N>& tree, std::ostream& out) const throw (Exception);
-		
+    
     void write_(const std::vector<Tree*>& trees, std::ostream& out) const throw (Exception);
     
     template<class N>
@@ -208,5 +206,5 @@ class NHX:
 
 } //end of namespace bpp.
 
-#endif	//_NHX_H_
+#endif  //_NHX_H_
 

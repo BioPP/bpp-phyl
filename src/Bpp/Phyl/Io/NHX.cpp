@@ -5,7 +5,7 @@
 //
 
 /*
-Copyright or © or Copr. CNRS, (November 16, 2004)
+Copyright or © or Copr. Bio++ Development Team, (November 16, 2004)
 
 This software is a computer program whose purpose is to provide classes
 for phylogenetic data analysis.
@@ -59,48 +59,48 @@ const string NHX::getFormatName() const { return "NHX"; }
 
 const string NHX::getFormatDescription() const
 {
-	return string("New Hampshire eXtended parenthesis format. ") +
-		"See http://www.phylosoft.org/NHX/ for more info.";
+  return string("New Hampshire eXtended parenthesis format. ") +
+    "See http://www.phylosoft.org/NHX/ for more info.";
 }
 
 /******************************************************************************/
 
 #if defined(NO_VIRTUAL_COV)
-		Tree*
+    Tree*
 #else
-		TreeTemplate<Node> * 
+    TreeTemplate<Node> * 
 #endif
 NHX::read(istream& in) const throw (Exception)
 {
-	// Checking the existence of specified file
-	if (! in) { throw IOException ("NHX ::read: failed to read from stream"); }
-	
-	//We concatenate all line in file till we reach the ending semi colon:
-	string temp, description;// Initialization
-	// Main loop : for all file lines
-	while (! in.eof())
+  // Checking the existence of specified file
+  if (! in) { throw IOException ("NHX ::read: failed to read from stream"); }
+  
+  //We concatenate all line in file till we reach the ending semi colon:
+  string temp, description;// Initialization
+  // Main loop : for all file lines
+  while (! in.eof())
   {
-		getline(in, temp, '\n');  // Copy current line in temporary string
+    getline(in, temp, '\n');  // Copy current line in temporary string
     string::size_type index = temp.find(";");
-		if(index != string::npos)
+    if(index != string::npos)
     {
-			description += temp.substr(0, index + 1);
-			break;
-		}
+      description += temp.substr(0, index + 1);
+      break;
+    }
     else description += temp;
-	}
+  }
   vector <string > beginnings, endings;
   beginnings.push_back("[&&NHX:");
-	description = TextTools::removeSubstrings(description, '[', ']', beginnings, endings);
-	return parenthesisToTree(description);
+  description = TextTools::removeSubstrings(description, '[', ']', beginnings, endings);
+  return parenthesisToTree(description);
 }
 
 /******************************************************************************/
 
 void NHX::write_(const Tree& tree, ostream& out) const throw (Exception)
 {
-	// Checking the existence of specified file, and possibility to open it in write mode
-	if (! out) { throw IOException ("NHX::writeTree: failed to write to stream"); }
+  // Checking the existence of specified file, and possibility to open it in write mode
+  if (! out) { throw IOException ("NHX::writeTree: failed to write to stream"); }
     out << treeToParenthesis(tree);
 }
 
@@ -109,8 +109,8 @@ void NHX::write_(const Tree& tree, ostream& out) const throw (Exception)
 template<class N>
 void NHX::write_(const TreeTemplate<N>& tree, ostream& out) const throw (Exception)
 {
-	// Checking the existence of specified file, and possibility to open it in write mode
-	if (! out) { throw IOException ("NHX::writeTree: failed to write to stream"); }
+  // Checking the existence of specified file, and possibility to open it in write mode
+  if (! out) { throw IOException ("NHX::writeTree: failed to write to stream"); }
     out << treeToParenthesis(tree);
 }
 
@@ -118,30 +118,30 @@ void NHX::write_(const TreeTemplate<N>& tree, ostream& out) const throw (Excepti
 
 void NHX::read(istream& in, vector<Tree*>& trees) const throw (Exception)
 {
-	// Checking the existence of specified file
-	if (! in) { throw IOException ("NHX::read: failed to read from stream"); }
-	
-	// Main loop : for all file lines
-	string temp, description;// Initialization
+  // Checking the existence of specified file
+  if (! in) { throw IOException ("NHX::read: failed to read from stream"); }
+  
+  // Main loop : for all file lines
+  string temp, description;// Initialization
   string::size_type index;
   vector <string > beginnings, endings;
   beginnings.push_back("[&&NHX:");
   while (!in.eof())
   {
-	  //We concatenate all line in file till we reach the ending semi colon:
-	  while (!in.eof())
+    //We concatenate all line in file till we reach the ending semi colon:
+    while (!in.eof())
     {
-		  getline(in, temp, '\n');  // Copy current line in temporary string
+      getline(in, temp, '\n');  // Copy current line in temporary string
       index = temp.find(";");
-		  if (index != string::npos)
+      if (index != string::npos)
       {
-			  description += temp.substr(0, index + 1);
-	      description = TextTools::removeSubstrings(description, '[', ']', beginnings, endings);
-	      trees.push_back(parenthesisToTree(description));
+        description += temp.substr(0, index + 1);
+        description = TextTools::removeSubstrings(description, '[', ']', beginnings, endings);
+        trees.push_back(parenthesisToTree(description));
         description = temp.substr(index + 1);
-		  }
+      }
       else description += temp;
-	  }
+    }
   }
 }
 
@@ -149,8 +149,8 @@ void NHX::read(istream& in, vector<Tree*>& trees) const throw (Exception)
 
 void NHX::write_(const vector<Tree*>& trees, ostream& out) const throw (Exception)
 {
-	// Checking the existence of specified file, and possibility to open it in write mode
-	if (! out) { throw IOException ("NHX::write: failed to write to stream"); }
+  // Checking the existence of specified file, and possibility to open it in write mode
+  if (! out) { throw IOException ("NHX::write: failed to write to stream"); }
   for(unsigned int i = 0; i < trees.size(); i++)
   {
       out << treeToParenthesis(*trees[i]);
@@ -162,8 +162,8 @@ void NHX::write_(const vector<Tree*>& trees, ostream& out) const throw (Exceptio
 template<class N>
 void NHX::write_(const vector<TreeTemplate<N>*>& trees, ostream& out) const throw (Exception)
 {
-	// Checking the existence of specified file, and possibility to open it in write mode
-	if (! out) { throw IOException ("NHX::write: failed to write to stream"); }
+  // Checking the existence of specified file, and possibility to open it in write mode
+  if (! out) { throw IOException ("NHX::write: failed to write to stream"); }
   for(unsigned int i = 0; i < trees.size(); i++)
   {
       out << treeToParenthesis(*trees[i]);
