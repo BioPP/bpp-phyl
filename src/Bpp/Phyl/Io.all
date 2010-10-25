@@ -5,3 +5,4 @@
 #include "Io/IoTree.h"
 #include "Io/IoTreeFactory.h"
 #include "Io/IoDistanceMatrixFactory.h"
+#include "Io/NHX.h"

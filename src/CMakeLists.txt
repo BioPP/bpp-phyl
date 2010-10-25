@@ -22,6 +22,7 @@ set(CPP_FILES
   Bpp/Phyl/Io/IoTreeFactory.cpp
   Bpp/Phyl/Io/Newick.cpp
   Bpp/Phyl/Io/NexusIoTree.cpp
+  Bpp/Phyl/Io/NHX.cpp
   Bpp/Phyl/Io/PhylipDistanceMatrixFormat.cpp
   Bpp/Phyl/Likelihood/AbstractDiscreteRatesAcrossSitesTreeLikelihood.cpp
   Bpp/Phyl/Likelihood/AbstractHomogeneousTreeLikelihood.cpp
@@ -137,6 +138,7 @@ set(H_FILES
   Bpp/Phyl/Io/IoTreeFactory.h
   Bpp/Phyl/Io/IoTree.h
   Bpp/Phyl/Io/Newick.h
+  Bpp/Phyl/Io/NHX.h
   Bpp/Phyl/Io/NexusIoTree.h
   Bpp/Phyl/Io/PhylipDistanceMatrixFormat.h
   Bpp/Phyl/Likelihood/AbstractDiscreteRatesAcrossSitesTreeLikelihood.h

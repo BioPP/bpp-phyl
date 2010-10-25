@@ -148,7 +148,6 @@ namespace bpp
  * \f{multline*}
  * \frac{\partial P_{i,j}(t)}{\partial t} = rate\_ * \\
  * \frac{1}{P}
- * \footnotesize
  * \begin{pmatrix}
  * -\frac{\pi_G(\pi_Y+\kappa\pi_R)}{\pi_R}A - \frac{\pi_A\pi_Y}{\pi_R}B & \pi_CB & \frac{\pi_G(\pi_Y+\kappa\pi_R)}{\pi_R}A - \frac{\pi_G\pi_Y}{\pi_R}B & \pi_TB \\
  * \pi_AB & -\frac{\pi_T(\pi_R+\kappa\pi_Y)}{\pi_Y}A - \frac{\pi_C\pi_R}{\pi_Y}B & \pi_GB & \frac{\pi_T(\pi_R+\kappa\pi_Y)}{\pi_Y}A - \frac{\pi_T\pi_R}{\pi_Y}B \\
@@ -159,7 +158,6 @@ namespace bpp
  * \f{multline*}
  * \frac{\partial^2 P_{i,j}(t)}{\partial t^2} = rate\_^2 * \\
  * \frac{1}{P^2}
- * \footnotesize
  * \begin{pmatrix}
  * \frac{\pi_G{(\pi_Y+\kappa\pi_R)}^2}{\pi_R}A + \frac{\pi_A\pi_Y}{\pi_R}B & -\pi_CB & -\frac{\pi_G{(\pi_Y+\kappa\pi_R)}^2}{\pi_R}A + \frac{\pi_G\pi_Y}{\pi_R}B & -\pi_TB \\
  * -\pi_AB & \frac{\pi_T{(\pi_R+\kappa\pi_Y)}^2}{\pi_Y}A + \frac{\pi_C\pi_R}{\pi_Y}B & -\pi_GB & -\frac{\pi_T{(\pi_R+\kappa\pi_Y)}^2}{\pi_Y}A + \frac{\pi_T\pi_R}{\pi_Y}B \\

@@ -76,7 +76,7 @@ namespace bpp
  *
  * This is also possible to read a "tagged" tree, where additional info is provided in place of bootstrap values:
  * ((A,B)N2,(C,D)N3)N1;
- * This is achieved by calling the enableExtendedBootstrapProperty method, and porviding a property name to use.
+ * This is achieved by calling the enableExtendedBootstrapProperty method, and providing a property name to use.
  * The additional information will be stored at each node as a property, in a String object.
  * The disableExtendedBootstrapProperty method restores the default behavior.
  */

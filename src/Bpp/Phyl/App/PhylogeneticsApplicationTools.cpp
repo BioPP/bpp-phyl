@@ -45,6 +45,7 @@
 #include "../Tree.h"
 #include "../Io/Newick.h"
 #include "../Io/NexusIoTree.h"
+#include "../Io/NHX.h"
 
 #include <Bpp/Io/FileTools.h>
 #include <Bpp/Text/TextTools.h>
@@ -84,6 +85,8 @@ Tree* PhylogeneticsApplicationTools::getTree(
     treeReader = new Newick(true);
   else if (format == "Nexus")
     treeReader = new NexusIOTree();
+  else if (format == "NHX")
+    treeReader = new NHX();
   else throw Exception("Unknow format for tree reading: " + format);
   Tree* tree = treeReader->read(treeFilePath);
   delete treeReader;
@@ -109,6 +112,8 @@ vector<Tree*> PhylogeneticsApplicationTools::getTrees(
     treeReader = new Newick(true);
   else if (format == "Nexus")
     treeReader = new NexusIOTree();
+  else if (format == "NHX")
+    treeReader = new NHX();  
   else throw Exception("Unknow format for tree reading: " + format);
   vector<Tree*> trees;
   treeReader->read(treeFilePath, trees);
@@ -2099,6 +2104,8 @@ void PhylogeneticsApplicationTools::writeTree(
     treeWriter = new Newick();
   else if (format == "Nexus")
     treeWriter = new NexusIOTree();
+  else if (format == "NHX")
+    treeWriter = new NHX();
   else throw Exception("Unknow format for tree writing: " + format);
   if (!checkOnly)
     treeWriter->write(tree, file, true);
@@ -2124,6 +2131,8 @@ void PhylogeneticsApplicationTools::writeTrees(
     treeWriter = new Newick();
   else if (format == "Nexus")
     treeWriter = new NexusIOTree();
+  else if (format == "NHX")
+    treeWriter = new NHX();
   else throw Exception("Unknow format for tree writing: " + format);
   if (!checkOnly)
     treeWriter->write(trees, file, true);
