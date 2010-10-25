@@ -316,11 +316,12 @@ void DRNonHomogeneousMixedTreeLikelihood::fireParameterChanged(const ParameterLi
 
   vector<string> vp;
 
-  ParameterList pl;
   for (unsigned int i = 0; i < treeLikelihoodsContainer_.size(); i++)
     {
       s = i;
       probas_[i]=1;
+      ParameterList pl;
+
       psms = treeLikelihoodsContainer_[i]->getSubstitutionModelSet();
       for (unsigned int j = 0; j < modelSet->getNumberOfModels(); j++)
         {
@@ -340,7 +341,7 @@ void DRNonHomogeneousMixedTreeLikelihood::fireParameterChanged(const ParameterLi
                                   psm->getParameterValue(psm->getParameterNameWithoutNamespace(psms->getParameterModelName(vp[j2]))));
           pl.addParameters(plj);
         }
-      
+
       pl.addParameters(getBranchLengthsParameters());
       pl.addParameters(getRateDistributionParameters());
       pl.addParameters(getRootFrequenciesParameters());    
