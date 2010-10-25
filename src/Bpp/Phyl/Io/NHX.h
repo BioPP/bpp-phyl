@@ -178,6 +178,10 @@ class NHX:
     }
     /** @} */
 
+    TreeTemplate<Node>* parenthesisToTree(const std::string& description) const throw (Exception);
+
+    std::string treeToParenthesis(const TreeTemplate<Node>& tree) const;
+
   protected:
     void write_(const Tree& tree, std::ostream& out) const throw (Exception);
     
@@ -193,13 +197,9 @@ class NHX:
 
     Node* parenthesisToNode(const std::string& description) const;
   
-    TreeTemplate<Node>* parenthesisToTree(const std::string& description) const throw (Exception);
-   
     std::string propertiesToParenthesis(const Node& node) const;
   
     std::string nodeToParenthesis(const Node& node) const;
-  
-    std::string treeToParenthesis(const TreeTemplate<Node>& tree) const;
   
     bool setNodeProperties(Node& node, const std::string properties) const;
 };
