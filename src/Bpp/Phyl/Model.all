@@ -25,6 +25,7 @@
 #include "Model/TripletReversibleSubstitutionModel.h"
 #include "Model/LLG08_EX2.h"
 #include "Model/L95.h"
+#include "Model/YpR.h"
 #include "Model/T92.h"
 #include "Model/LG08.h"
 #include "Model/MixedSubstitutionModel.h"
