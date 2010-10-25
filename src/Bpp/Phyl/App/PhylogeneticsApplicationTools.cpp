@@ -552,6 +552,79 @@ SubstitutionModel* PhylogeneticsApplicationTools::getSubstitutionModelDefaultIns
 
   }
 
+  ////////////////////////////////////                                                                                                                                             
+  // YpR                                                                                                                                                                           
+  ////////////////////////////////////                                                                                                                                             
+
+  else if (modelName == "YpR_Sym")
+    {
+      if (alphabet->getAlphabetType()!="RNY alphabet")
+        throw Exception("Mismatch alphabet: " + alphabet->getAlphabetType() + " for model: " + modelName);
+      const RNY* prny=dynamic_cast<const RNY*>(alphabet);
+
+      string nestedModelDescription = args["model"];
+      if (TextTools::isEmpty(nestedModelDescription))
+        throw Exception("PhylogeneticsApplicationTools::getSubstitutionModelDefaultInstance. Missing argument 'model' for model 'YpR_sym'.");
+      if (verbose)
+        ApplicationTools::displayResult("Symetric YpR model" , modelName);
+      map<string, string> unparsedParameterValuesNested;
+      SubstitutionModel* nestedModel = getSubstitutionModelDefaultInstance(&prny->getLetterAlphabet(), nestedModelDescription, unparsedParameterValuesNested,
+                                                                           allowCovarions, false, verbose);
+
+      if (args.find("rCgT")!=args.end())
+        unparsedParameterValues["YpR_Sym.rCgT"]=args["rCgT"];
+      if (args.find("rTgC")!=args.end())
+        unparsedParameterValues["YpR_Sym.rTgC"]=args["rTgC"];
+      if (args.find("rCaT")!=args.end())
+        unparsedParameterValues["YpR_Sym.rCaT"]=args["rCaT"];
+      if (args.find("rTaC")!=args.end())
+        unparsedParameterValues["YpR_Sym.rTaC"]=args["rTaC"];
+
+
+      for (map<string, string>::iterator it = unparsedParameterValuesNested.begin(); it != unparsedParameterValuesNested.end(); it++)
+        unparsedParameterValues["YpR_Sym." + it->first] = it->second;
+
+      model=new YpR_Sym(prny, nestedModel);
+    }
+  else if (modelName=="YpR_Gen"){
+    if (alphabet->getAlphabetType()!="RNY alphabet")
+      throw Exception("Mismatch alphabet: " + alphabet->getAlphabetType() + " for model: " + modelName);
+    const RNY* prny=dynamic_cast<const RNY*>(alphabet);
+
+    string nestedModelDescription = args["model"];
+    if (TextTools::isEmpty(nestedModelDescription))
+      throw Exception("PhylogeneticsApplicationTools::getSubstitutionModelDefaultInstance. Missing argument 'model' for model 'YpR_gen'.");
+    if (verbose)
+      ApplicationTools::displayResult("General YpR model" , modelName);
+    map<string, string> unparsedParameterValuesNested;
+    SubstitutionModel* nestedModel = getSubstitutionModelDefaultInstance(&prny->getLetterAlphabet(), nestedModelDescription, unparsedParameterValuesNested, allowCovarions,
+                                                                         false,verbose);
+
+    if (args.find("rCgT")!=args.end())
+      unparsedParameterValues["YpR_Gen.rCgT"]=args["rCgT"];
+    if (args.find("rTgC")!=args.end())
+      unparsedParameterValues["YpR_Gen.rTgC"]=args["rTgC"];
+    if (args.find("rCaT")!=args.end())
+      unparsedParameterValues["YpR_Gen.rCaT"]=args["rCaT"];
+    if (args.find("rTaC")!=args.end())
+      unparsedParameterValues["YpR_Gen.rTaC"]=args["rTaC"];
+    if (args.find("rcGA")!=args.end())
+      unparsedParameterValues["YpR_Gen.rcGA"]=args["rcGA"];
+    if (args.find("rtGA")!=args.end())
+      unparsedParameterValues["YpR_Gen.rtGA"]=args["rtGA"];
+    if (args.find("rcAG")!=args.end())
+      unparsedParameterValues["YpR_Gen.rcAG"]=args["rcAG"];
+    if (args.find("rtAG")!=args.end())
+      unparsedParameterValues["YpR_Gen.rtAG"]=args["rtAG"];
+
+
+    for (map<string, string>::iterator it = unparsedParameterValuesNested.begin(); it != unparsedParameterValuesNested.end(); it++)
+      unparsedParameterValues["YpR_Gen." + it->first] = it->second;
+
+    model=new YpR_Gen(prny, nestedModel);
+  }
+
+
   // /////////////////////////////////
   // / RE08
   // ///////////////////////////////
