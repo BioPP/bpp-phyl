@@ -1,7 +1,7 @@
 //
-// File: LLG08_EHO.h
+// File: LLG08_UL3.h
 // Created by: Laurent Gueguen
-// Created on: jeudi 7 octobre 2010, à 21h 47
+// Created on: jeudi 21 octobre 2010, à 13h 50
 //
 
 /*
@@ -37,8 +37,8 @@ The fact that you are presently reading this means that you have had
 knowledge of the CeCILL license and that you accept its terms.
 */
 
-#ifndef _LLG08_EHO_H_
-#define _LLG08_EHO_H_
+#ifndef _LLG08_UL3_H_
+#define _LLG08_UL3_H_
 
 #include "MixtureOfSubstitutionModels.h"
 #include "ProteinSubstitutionModel.h"
@@ -49,33 +49,33 @@ using namespace std;
 namespace bpp
 {
 
-/**
- * @brief The Le et al  (2008) EH0 substitution model for proteins.
- * @author Laurent Guéguen
- *
- * This model is a mixture of three models corresponding to
- * extended/helix/other sites in proteins. The models are considered
- * in this order.
- *
- *
- * This model includes 4 parameters :
- *
- * - relrate1 is the relative rate of model of extended sites;
- * - relrate2 is the relative rate of helix sites;
- * - relproba1 is the proportion  of extended sites;
- * - relproba2 is the ratio of the proportions of helix sites over the sum of
- * the proportion of helix sites plus the proportion of other sites.
- *
- * Important: See the relation between these parameters and the rates
- * and probabilities of the models in the description of
- * MixtureOfSubstitutionModels class.
- *
- * Reference:
- *
- * Le S.Q., Lartillot N., Gascuel O. (2008) Phil. Trans. R. Soc. B 363:3965--3976.
- */
+  /**
+   * @brief The Le et al  (2008) UL3 substitution model for proteins.
+   * @author Laurent Guéguen
+   *
+   * This model is a mixture of three models built by an unsupervised
+   * method (see ref). The submodels are called Q1, Q2 & Q3.
+   *
+   *
+   * This model includes 4 parameters :
+   *
+   * - relrate1 is the relative rate of model Q1;
+   * - relrate2 is the relative rate of model Q2;
+   * - relproba1 is the proportion  of model Q1;
+   * - relproba2 is the ratio of the proportions of model Q2 over the
+   * sum of the proportion of model Q2 plus the proportion of model
+   * Q3.
+   *
+   * Important: See the relation between these parameters and the
+   * rates and probabilities of the models in the description of
+   * MixtureOfSubstitutionModels class.
+   *
+   * Reference:
+   *
+   * Le S.Q., Lartillot N., Gascuel O. (2008) Phil. Trans. R. Soc. B 363:3965--3976.
+   */
   
-class LLG08_EHO:
+class LLG08_UL3:
   public MixedSubstitutionModel
 {
 public:
@@ -112,21 +112,21 @@ private:
 public:
 
   /**
-   * @brief Build a  EH0 model, with original equilibrium frequencies, probabilities and rates.
+   * @brief Build a  UL3 model, with original equilibrium frequencies, probabilities and rates.
    *
    * @param alpha A proteic alphabet.
    *
    */
 
-  LLG08_EHO(const ProteicAlphabet* alpha);
+  LLG08_UL3(const ProteicAlphabet* alpha);
 
-  ~LLG08_EHO();
+  ~LLG08_UL3();
   
-  LLG08_EHO* clone() const { return new LLG08_EHO(*this); }
+  LLG08_UL3* clone() const { return new LLG08_UL3(*this); }
 
-  LLG08_EHO(const LLG08_EHO&);
+  LLG08_UL3(const LLG08_UL3&);
 
-  LLG08_EHO& operator=(const LLG08_EHO&);
+  LLG08_UL3& operator=(const LLG08_UL3&);
 
   unsigned int getNumberOfStates() const  { return pmixmodel_->getNumberOfStates();  }
 
@@ -158,7 +158,7 @@ public:
     return pmixmodel_->getNumberOfModels();
   }
 
-  std::string getName() const { return "LLG08_EHO"; }
+  std::string getName() const { return "LLG08_UL3"; }
 
   double Pij_t(unsigned int i, unsigned int j, double t) const {
     return pmixmodel_->Pij_t(i,j,t);
@@ -193,5 +193,5 @@ public:
 
 } //end of namespace bpp.
 
-#endif	//_LLG08_EHO_H_
+#endif	//_LLG08_UL3_H_
 

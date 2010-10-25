@@ -1,5 +1,5 @@
 //
-// File: Newick.h
+// File: Newick.cpp
 // Created by: Julien Dutheil
 // Created on: Thu Oct 23 15:35:03 2003
 //
