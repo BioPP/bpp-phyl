@@ -1046,8 +1046,13 @@ FrequenciesSet* PhylogeneticsApplicationTools::getFrequenciesSet(
     {
       if (!data)
         throw Exception("Missing data for observed frequencies");
+      unsigned int psc=0;
+      if (unparsedParameterValues.find("pseudoCount") != unparsedParameterValues.end())
+        psc=TextTools::toInt(unparsedParameterValues["pseudoCount"]);
+      
       map<int, double> freqs;
-      SequenceContainerTools::getFrequencies(*data, freqs);
+      SequenceContainerTools::getFrequencies(*data, freqs, psc);
+
       pFS->setFrequenciesFromMap(freqs);
     }
     else if (init == "balanced")
@@ -1144,25 +1149,6 @@ FrequenciesSet* PhylogeneticsApplicationTools::getFrequenciesSetDefaultInstance(
         }
     }
   }
-//  else if (freqName == "Fixed")
-//  {
-//    if (AlphabetTools::isNucleicAlphabet(alphabet))
-//    {
-//      pFS = new FixedNucleotideFrequenciesSet(dynamic_cast<const NucleicAlphabet*>(alphabet));
-//    }
-//    else if (AlphabetTools::isProteicAlphabet(alphabet))
-//    {
-//      pFS = new FixedProteinFrequenciesSet(dynamic_cast<const ProteicAlphabet*>(alphabet));
-//    }
-//    else if (AlphabetTools::isCodonAlphabet(alphabet))
-//    {
-//      pFS = new FixedCodonFrequenciesSet(dynamic_cast<const CodonAlphabet*>(alphabet));
-//    }
-//    else
-//    {
-//      pFS = new FixedFrequenciesSet(alphabet);
-//    }
-//  }
   else if (freqName == "GC")
   {
     if (!AlphabetTools::isNucleicAlphabet(alphabet))
@@ -1240,6 +1226,8 @@ FrequenciesSet* PhylogeneticsApplicationTools::getFrequenciesSetDefaultInstance(
   // Forward arguments:
   if (args.find("init") != args.end())
     unparsedParameterValues["init"] = args["init"];
+  if (args.find("pseudoCount") != args.end())
+    unparsedParameterValues["pseudoCount"] = args["pseudoCount"];
   if (args.find("values") != args.end())
     unparsedParameterValues["values"] = args["values"];
 
