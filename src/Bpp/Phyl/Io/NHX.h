@@ -1,5 +1,5 @@
 //
-// File: NHX.h
+// File: Nhx.h
 // Created by: Bastien Boussau
 // Created on: Tu Oct 19 10:24:03 2010
 //
@@ -37,8 +37,8 @@ The fact that you are presently reading this means that you have had
 knowledge of the CeCILL license and that you accept its terms.
 */
 
-#ifndef _NHX_H_
-#define _NHX_H_
+#ifndef _Nhx_H_
+#define _Nhx_H_
 
 #include "IoTree.h"
 #include "../TreeTemplate.h"
@@ -47,9 +47,9 @@ namespace bpp
 {
 
 /**
- * @brief The so-called 'NHX - New Hampshire eXtended' parenthetic format. 
+ * @brief The so-called 'Nhx - New Hampshire eXtended' parenthetic format. 
  *
- * See http://www.phylosoft.org/NHX/ for details.
+ * See http://www.phylosoft.org/Nhx/ for details.
  *
  * Branch lengths and node annotations are supported:
  *
@@ -64,10 +64,10 @@ namespace bpp
  *
  * Code example:
  * @code
- * #include <Phyl/NHX.h>
+ * #include <Phyl/Nhx.h>
  * #include <Phyl/Tree.h>
  * 
- * NHX * nhxReader = new NHX();
+ * Nhx * NhxReader = new Nhx();
  * try {
  *   Tree * tree = nhxReader->read("MyTestTree.dnd"); // Tree in file MyTestTree.dnd
  *   cout << "Tree has " << tree->getNumberOfLeaves() << " leaves." << endl;
@@ -81,7 +81,7 @@ namespace bpp
  * All node annotations are stored as node properties, with type bppString for all properties except for support values, where a Number is used.
  *
  */
-class NHX:
+class Nhx:
   public AbstractITree,
   public AbstractOTree,
   public AbstractIMultiTree,
@@ -90,14 +90,14 @@ class NHX:
   public:
     
     /**
-     * @brief Build a new NHX reader/writer.
+     * @brief Build a new Nhx reader/writer.
      *
      * Comments between hooks ('[' ']') are ignored.
      * 
      */
-    NHX() {}
+    Nhx() {}
 
-    virtual ~NHX() {}
+    virtual ~Nhx() {}
   
   public:
 
@@ -206,5 +206,5 @@ class NHX:
 
 } //end of namespace bpp.
 
-#endif  //_NHX_H_
+#endif  //_Nhx_H_
 
