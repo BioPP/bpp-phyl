@@ -90,7 +90,10 @@ RNonHomogeneousMixedTreeLikelihood::RNonHomogeneousMixedTreeLikelihood(
     {
       s = i;
 
-      psms = new SubstitutionModelSet(modelSet->getAlphabet(),modelSet->getRootFrequenciesSet()->clone());
+      if (modelSet->getRootFrequenciesSet())
+        psms = new SubstitutionModelSet(modelSet->getAlphabet(),modelSet->getRootFrequenciesSet()->clone());
+      else
+        psms = new SubstitutionModelSet(modelSet->getAlphabet());
 
       for (unsigned int j = 0; j < nbmodels; j++)
         {
@@ -153,8 +156,10 @@ RNonHomogeneousMixedTreeLikelihood::RNonHomogeneousMixedTreeLikelihood(
   for (unsigned int i = 0; i < ttmodels; i++)
     {
       s = i;
-
-      psms = new SubstitutionModelSet(modelSet->getAlphabet(),modelSet->getRootFrequenciesSet()->clone());
+      if (modelSet->getRootFrequenciesSet())
+        psms = new SubstitutionModelSet(modelSet->getAlphabet(),modelSet->getRootFrequenciesSet()->clone());
+      else
+        psms = new SubstitutionModelSet(modelSet->getAlphabet());
 
       for (unsigned int j = 0; j < nbmodels; j++)
         {
