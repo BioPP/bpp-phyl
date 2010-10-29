@@ -13,7 +13,6 @@
 #include "Model/YNGKP_M8.h"
 #include "Model/LLG08_EX3.h"
 #include "Model/G2001.h"
-#include "Model/SubstitutionMixedModelSet.h"
 #include "Model/WordReversibleSubstitutionModel.h"
 #include "Model/K80.h"
 #include "Model/GTR.h"
