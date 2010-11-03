@@ -70,7 +70,7 @@ DRHomogeneousMixedTreeLikelihood::DRHomogeneousMixedTreeLikelihood(
   {
     treeLikelihoodsContainer_.push_back(
       new DRHomogeneousTreeLikelihood(tree, mixedmodel->getNModel(i), rDist, checkRooted, false));
-    probas_.push_back(1.0/s);
+    probas_.push_back(mixedmodel->getNProbability(i));
  }
 }
 
@@ -96,7 +96,7 @@ throw (Exception) :
   {
    treeLikelihoodsContainer_.push_back(
      new DRHomogeneousTreeLikelihood(tree, mixedmodel->getNModel(i), rDist, checkRooted, false));
-   probas_.push_back(1.0/s);
+   probas_.push_back(mixedmodel->getNProbability(i));
   }
   setData(data);
 }
@@ -157,77 +157,6 @@ void DRHomogeneousMixedTreeLikelihood::setData(const SiteContainer& sites) throw
 }
 
 
-double DRHomogeneousMixedTreeLikelihood::getLikelihood() const
-{
-  return exp(getLogLikelihood());
-}
-
-double DRHomogeneousMixedTreeLikelihood::getLogLikelihood() const
-{
-  unsigned int nbSites=getNumberOfSites();
-  double sum=0;
-  
-  for (unsigned int i = 0; i < nbSites; i++)
-  {
-   sum+=getLogLikelihoodForASite(i);
-  }
-  return sum;
-}
-
-double DRHomogeneousMixedTreeLikelihood::getLikelihoodForASite(unsigned int site) const
-{
-  return exp(getLogLikelihoodForASite(site));
-}
-
-double DRHomogeneousMixedTreeLikelihood::getLogLikelihoodForASite(unsigned int site) const
-{
-  vector<double> reslog;
-  unsigned int i;
-
-  for (i = 0; i < treeLikelihoodsContainer_.size(); i++)
-  {
-   reslog.push_back(treeLikelihoodsContainer_[i]->getLogLikelihoodForASite(site));
-  }
-
-  return VectorTools::logsumexp(reslog,probas_);
-}
-
-double DRHomogeneousMixedTreeLikelihood::getLikelihoodForASiteForARateClass(unsigned int site, unsigned int rateClass) const
-{
-  return exp(getLogLikelihoodForASiteForARateClass(site, rateClass));
-}
-
-double DRHomogeneousMixedTreeLikelihood::getLogLikelihoodForASiteForARateClass(unsigned int site, unsigned int rateClass) const
-{
-  vector<double> reslog;
-  unsigned int i;
-
-  for (i = 0; i < treeLikelihoodsContainer_.size(); i++)
-  {
-   reslog.push_back(treeLikelihoodsContainer_[i]->getLogLikelihoodForASiteForARateClass(site, rateClass));
-  }
-
-  return VectorTools::logsumexp(reslog,probas_);
-}
-
-double DRHomogeneousMixedTreeLikelihood::getLikelihoodForASiteForARateClassForAState(unsigned int site, unsigned int rateClass, int state) const
-{
-  return exp(getLogLikelihoodForASiteForARateClassForAState(site, rateClass, state));
-}
-
-double DRHomogeneousMixedTreeLikelihood::getLogLikelihoodForASiteForARateClassForAState(unsigned int site, unsigned int rateClass, int state) const
-{
-  vector<double> reslog;
-  unsigned int i;
-
-  for (i = 0; i < treeLikelihoodsContainer_.size(); i++)
-  {
-   reslog.push_back(treeLikelihoodsContainer_[i]->getLogLikelihoodForASiteForARateClassForAState(site, rateClass, state));
-  }
-
-  return VectorTools::logsumexp(reslog,probas_);
-}
-
 void DRHomogeneousMixedTreeLikelihood::fireParameterChanged(const ParameterList& params)
 {
   applyParameters();
@@ -250,56 +179,6 @@ void DRHomogeneousMixedTreeLikelihood::fireParameterChanged(const ParameterList&
   minusLogLik_ = -getLogLikelihood();
 }
 
-void DRHomogeneousMixedTreeLikelihood::computeTreeDLikelihoods()
-{
-  for (unsigned int i = 0; i < treeLikelihoodsContainer_.size(); i++)
-  {
-    treeLikelihoodsContainer_[i]->computeTreeDLikelihoods();
-  }
-}
-
-double DRHomogeneousMixedTreeLikelihood::getFirstOrderDerivative(const string& variable) const throw (Exception)
-{
-   vector<double> rescontainer;
-   unsigned int i;
-
-  for (i = 0; i < treeLikelihoodsContainer_.size(); i++)
-  {
-   rescontainer.push_back(treeLikelihoodsContainer_[i]->getFirstOrderDerivative(variable));
-  }
-
-  return VectorTools::sum<double>(rescontainer,probas_);
-}
-
-void DRHomogeneousMixedTreeLikelihood::computeTreeD2LikelihoodAtNode(const Node* node)
-{
-  for (unsigned int i = 0; i < treeLikelihoodsContainer_.size(); i++)
-  {
-    treeLikelihoodsContainer_[i]->computeTreeD2LikelihoodAtNode(node);
-  }
-}
-
-void DRHomogeneousMixedTreeLikelihood::computeTreeD2Likelihoods()
-{
-  for (unsigned int i = 0; i < treeLikelihoodsContainer_.size(); i++)
-  {
-    treeLikelihoodsContainer_[i]->computeTreeD2Likelihoods();
-  }
-}
-
-double DRHomogeneousMixedTreeLikelihood::getSecondOrderDerivative(const string& variable) const throw (Exception)
-{
-   vector<double> rescontainer;
-   unsigned int i;
-
-  for (i = 0; i < treeLikelihoodsContainer_.size(); i++)
-  {
-   rescontainer.push_back(treeLikelihoodsContainer_[i]->getSecondOrderDerivative(variable));
-  }
-
-  return VectorTools::sum<double>(rescontainer,probas_);
-}
-
 void DRHomogeneousMixedTreeLikelihood::resetLikelihoodArrays(const Node* node)
 {
   for (unsigned int i = 0; i < treeLikelihoodsContainer_.size(); i++)
@@ -315,6 +194,67 @@ void DRHomogeneousMixedTreeLikelihood::computeTreeLikelihood()
     treeLikelihoodsContainer_[i]->computeTreeLikelihood();
   }
 }
+
+/******************************************************************************
+ *                           Likelihoods                          *
+ ******************************************************************************/  
+
+
+double DRHomogeneousMixedTreeLikelihood::getLikelihoodForASite(unsigned int site) const
+{
+  double res=0;
+
+  for (unsigned int i = 0; i < treeLikelihoodsContainer_.size(); i++) {
+    res+=treeLikelihoodsContainer_[i]->getLikelihoodForASite(site) * probas_[i];
+  }
+
+  return res;
+}
+
+double DRHomogeneousMixedTreeLikelihood::getLogLikelihoodForASite(unsigned int site) const
+{
+  double x=getLikelihoodForASite(site);
+  if (x<0) x=0;
+  return log(x);
+}
+
+double DRHomogeneousMixedTreeLikelihood::getLikelihoodForASiteForARateClass(unsigned int site, unsigned int rateClass) const
+{
+  double res=0;
+
+  for (unsigned int i = 0; i < treeLikelihoodsContainer_.size(); i++) {
+    res+=treeLikelihoodsContainer_[i]->getLikelihoodForASiteForARateClass(site, rateClass) * probas_[i];
+  }
+
+  return res;
+}
+
+double DRHomogeneousMixedTreeLikelihood::getLogLikelihoodForASiteForARateClass(unsigned int site, unsigned int rateClass) const
+{
+  double x=getLikelihoodForASiteForARateClass(site, rateClass);
+  if (x<0) x=0;
+  return log(x);
+}
+
+double DRHomogeneousMixedTreeLikelihood::getLikelihoodForASiteForARateClassForAState(unsigned int site, unsigned int rateClass, int state) const
+{
+  double res=0;
+
+  for (unsigned int i = 0; i < treeLikelihoodsContainer_.size(); i++) {
+    res+=treeLikelihoodsContainer_[i]->getLikelihoodForASiteForARateClassForAState(site, rateClass, state) * probas_[i];
+  }
+
+  return res;
+}
+
+double DRHomogeneousMixedTreeLikelihood::getLogLikelihoodForASiteForARateClassForAState(unsigned int site, unsigned int rateClass, int state) const
+{
+  double x=getLikelihoodForASiteForARateClassForAState(site, rateClass, state);
+  if (x<0) x=0;
+  return log(x);
+}
+
+
 
 void DRHomogeneousMixedTreeLikelihood::computeSubtreeLikelihoodPostfix(const Node* node)
 {
@@ -378,6 +318,60 @@ void DRHomogeneousMixedTreeLikelihood::computeLikelihoodFromArrays(
   exit(0);
 }
 
+/******************************************************************************
+ *                           First Order Derivatives                          *
+ ******************************************************************************/  
+
+void DRHomogeneousMixedTreeLikelihood::computeTreeDLikelihoods()
+{
+  for (unsigned int i = 0; i < treeLikelihoodsContainer_.size(); i++)
+    {
+      treeLikelihoodsContainer_[i]->computeTreeDLikelihoods();
+    }
+}
+
+double DRHomogeneousMixedTreeLikelihood::getFirstOrderDerivative(const string& variable) const throw (Exception)
+{
+  double res=0;
+
+  for (unsigned int i = 0; i < treeLikelihoodsContainer_.size(); i++) {
+    res+=treeLikelihoodsContainer_[i]->getFirstOrderDerivative(variable) * probas_[i];
+  }
+
+    return res;
+}
+
+/******************************************************************************
+ *                           Second Order Derivatives                          *
+ ******************************************************************************/  
+
+void DRHomogeneousMixedTreeLikelihood::computeTreeD2LikelihoodAtNode(const Node* node)
+{
+  for (unsigned int i = 0; i < treeLikelihoodsContainer_.size(); i++)
+    {
+      treeLikelihoodsContainer_[i]->computeTreeD2LikelihoodAtNode(node);
+    }
+}
+
+void DRHomogeneousMixedTreeLikelihood::computeTreeD2Likelihoods()
+{
+  for (unsigned int i = 0; i < treeLikelihoodsContainer_.size(); i++)
+    {
+      treeLikelihoodsContainer_[i]->computeTreeD2Likelihoods();
+    }
+}
+
+double DRHomogeneousMixedTreeLikelihood::getSecondOrderDerivative(const string& variable) const throw (Exception)
+{
+  double res=0;
+
+  for (unsigned int i = 0; i < treeLikelihoodsContainer_.size(); i++) {
+    res+=treeLikelihoodsContainer_[i]->getSecondOrderDerivative(variable) * probas_[i];
+  }
+  
+  return res;
+}
+
 void DRHomogeneousMixedTreeLikelihood::displayLikelihood(const Node* node)
 {
   for (unsigned int i = 0; i < treeLikelihoodsContainer_.size(); i++)
@@ -385,3 +379,4 @@ void DRHomogeneousMixedTreeLikelihood::displayLikelihood(const Node* node)
     treeLikelihoodsContainer_[i]->displayLikelihood(node);
   }
 }
+
