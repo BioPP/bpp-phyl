@@ -199,11 +199,27 @@ void DRHomogeneousMixedTreeLikelihood::computeTreeLikelihood()
  *                           Likelihoods                          *
  ******************************************************************************/  
 
+double DRHomogeneousMixedTreeLikelihood::getLikelihood() const
+{
+  double res=0;
+  for (unsigned int i = 0; i < treeLikelihoodsContainer_.size(); i++) {
+    res+=treeLikelihoodsContainer_[i]->getLikelihood() * probas_[i];
+  }
+
+  return res;
+}
+
+double DRHomogeneousMixedTreeLikelihood::getLogLikelihood() const
+{
+  double x=getLikelihood();
+  if (x<0) x=0;
+  return log(x);
+}
+
 
 double DRHomogeneousMixedTreeLikelihood::getLikelihoodForASite(unsigned int site) const
 {
   double res=0;
-
   for (unsigned int i = 0; i < treeLikelihoodsContainer_.size(); i++) {
     res+=treeLikelihoodsContainer_[i]->getLikelihoodForASite(site) * probas_[i];
   }
@@ -221,7 +237,6 @@ double DRHomogeneousMixedTreeLikelihood::getLogLikelihoodForASite(unsigned int s
 double DRHomogeneousMixedTreeLikelihood::getLikelihoodForASiteForARateClass(unsigned int site, unsigned int rateClass) const
 {
   double res=0;
-
   for (unsigned int i = 0; i < treeLikelihoodsContainer_.size(); i++) {
     res+=treeLikelihoodsContainer_[i]->getLikelihoodForASiteForARateClass(site, rateClass) * probas_[i];
   }

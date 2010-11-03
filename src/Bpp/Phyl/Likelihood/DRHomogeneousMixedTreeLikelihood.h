@@ -128,6 +128,9 @@ public:
    *
    * @{
    */
+  double getLikelihood() const;
+  double getLogLikelihood() const;
+  
   void setData(const SiteContainer& sites) throw (Exception);
   double getLikelihoodForASite (unsigned int site) const;
   double getLogLikelihoodForASite(unsigned int site) const;
