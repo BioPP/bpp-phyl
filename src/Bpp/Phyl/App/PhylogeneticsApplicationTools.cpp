@@ -2024,6 +2024,21 @@ throw (Exception)
 
 /******************************************************************************/
 
+void PhylogeneticsApplicationTools::checkEstimatedParameters(const ParameterList& pl)
+{
+  for (unsigned int i = 0; i < pl.size(); ++i) {
+    const Constraint* constraint = pl[i].getConstraint();
+    if (constraint) {
+      double value = pl[i].getValue();
+      if (!constraint->isCorrect(value - 1e-6) || !constraint->isCorrect(value + 1e-6)) {
+        ApplicationTools::displayWarning("This parameter has a value close to the boundary: " + pl[i].getName() + "(" + TextTools::toString(value) + ").");
+      }
+    }
+  }
+}
+
+/******************************************************************************/
+
 void PhylogeneticsApplicationTools::writeTree(
   const TreeTemplate<Node>& tree,
   map<string, string>& params,

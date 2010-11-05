@@ -992,6 +992,14 @@ class TreeTemplateTools
      */
     static void getBranchProperties(Node& node, const std::string& propertyName, std::map<int, Clonable*>& properties);
 
+    /**
+     * @brief Swap nodes in the subtree so that they are ordered according to the underlying number of leaves.
+     *
+     * @param node The root node of the (sub)tree to use.
+     * @param downward If yes, biggest subtrees (in terms of number of leaves) will come first. Otherwise, the smallest subtrees will come first.
+     * @return The number of leaves of the subtree, meeded for recursion purposes.
+     */
+    static unsigned int orderTree(Node& node, bool downward = true);
     /** @} */
 };
 
