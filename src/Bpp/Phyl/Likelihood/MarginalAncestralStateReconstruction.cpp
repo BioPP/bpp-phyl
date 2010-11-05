@@ -57,7 +57,7 @@ vector<unsigned int> MarginalAncestralStateReconstruction::getAncestralStatesFor
     {
 	    Vdouble * probs_i = & probs[i];
 	    probs_i->resize(nbStates_);
-			unsigned int j = VectorTools::whichmax(larray[i]);
+			unsigned int j = VectorTools::whichMax(larray[i]);
 			ancestors[i] = (int)j;
       (*probs_i)[j] = 1.;
 		}
@@ -67,20 +67,20 @@ vector<unsigned int> MarginalAncestralStateReconstruction::getAncestralStatesFor
     VVVdouble larray;
     
     likelihood_->computeLikelihoodAtNode(nodeId, larray);
-		for(unsigned int i = 0; i < nbDistinctSites_; i++)
+		for (unsigned int i = 0; i < nbDistinctSites_; i++)
     {
 			VVdouble * larray_i = & larray[i];
 			Vdouble * probs_i = & probs[i];
 			probs_i->resize(nbStates_);
-			for(unsigned int c = 0; c < nbClasses_; c++)
+			for (unsigned int c = 0; c < nbClasses_; c++)
       {
 				Vdouble * larray_i_c = & (* larray_i)[c];
-				for(unsigned int x = 0; x < nbStates_; x++)
+				for (unsigned int x = 0; x < nbStates_; x++)
         {
 					(*probs_i)[x] += (* larray_i_c)[x] * r_[c] / l_[i];
 				}
 			}
-      if(sample)
+      if (sample)
       {
         cumProb = 0;
         r = RandomTools::giveRandomNumberBetweenZeroAndEntry(1.);
@@ -95,7 +95,7 @@ vector<unsigned int> MarginalAncestralStateReconstruction::getAncestralStatesFor
         }
       }
       else
-			  ancestors[i] = VectorTools::whichmax(*probs_i);
+			  ancestors[i] = VectorTools::whichMax(*probs_i);
 		}
 	}
 	return ancestors;

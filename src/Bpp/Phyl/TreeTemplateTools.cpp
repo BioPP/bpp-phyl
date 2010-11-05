@@ -910,9 +910,9 @@ unsigned int TreeTemplateTools::orderTree(Node& node, bool downward)
 {
   if (node.isLeaf()) return 1;
 
-  vector<unsigned int> nbSons
-  for (unsigned int i = 0; i < node.getNumberOfSons(); i++)
-    nbSons.push_back(orderTree(node.getSon(i), downward));    
+  vector<unsigned int> nbSons;
+  for (unsigned int i = 0; i < node.getNumberOfSons(); i++) {
+    nbSons.push_back(orderTree(*node.getSon(i), downward));    
   }
   unsigned int s = VectorTools::sum(nbSons);
 
