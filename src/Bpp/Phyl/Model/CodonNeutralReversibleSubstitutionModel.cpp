@@ -88,10 +88,10 @@ string CodonNeutralReversibleSubstitutionModel::getName() const
 
 void CodonNeutralReversibleSubstitutionModel::completeMatrices()
 {
-   unsigned int i, j;
-   unsigned int salph = getNumberOfStates();
-
-   CodonAlphabet* ca = (CodonAlphabet*)(alphabet_);
+  unsigned int i, j;
+  unsigned int salph = getNumberOfStates();
+  
+  const CodonAlphabet* ca = dynamic_cast<const CodonAlphabet*>(alphabet_);
 
   for (i = 0; i < salph; i++)
   {

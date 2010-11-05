@@ -55,10 +55,8 @@ YN98::YN98(const GeneticCode* gc, FrequenciesSet* codonFreqs) :
   pmodel_.setNamespace("YN98.");
   addParameters_(codonFreqs->getParameters());
 
-  ParameterList pl=pmodel_.getParameters();
-  for (unsigned int i=0;i<pl.size();i++)
-    lParPmodel_.addParameter(Parameter(pl[i]));
-
+  lParPmodel_.addParameters(pmodel_.getParameters());
+  
   vector<std::string> v=pmodel_.getFreq().getParameters().getParameterNames();
 
   for (unsigned int i=0;i<v.size();i++)
@@ -71,11 +69,16 @@ YN98::YN98(const GeneticCode* gc, FrequenciesSet* codonFreqs) :
 }
 
 void YN98::updateMatrices()
-{
-  
+{  
   for (unsigned int i=0;i<lParPmodel_.size();i++){
     lParPmodel_[i].setValue(getParameter(mapParNamesFromPmodel_[lParPmodel_[i].getName()]).getValue());}
 
   pmodel_.matchParametersValues(lParPmodel_);
-
 }
+
+void YN98::setFreq(std::map<int, double>& m)
+{
+  pmodel_.setFreq(m);
+  matchParametersValues(pmodel_.getParameters());
+}
+

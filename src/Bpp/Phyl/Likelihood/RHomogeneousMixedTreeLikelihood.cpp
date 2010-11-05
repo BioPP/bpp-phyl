@@ -70,7 +70,7 @@ RHomogeneousMixedTreeLikelihood::RHomogeneousMixedTreeLikelihood(
   {
    treeLikelihoodsContainer_.push_back(
        new RHomogeneousTreeLikelihood(tree, mixedmodel->getNModel(i), rDist, checkRooted, false, usePatterns));
-   probas_.push_back(1.0/s);
+   probas_.push_back(mixedmodel->getNProbability(i));
   }
 }
 
@@ -97,7 +97,7 @@ RHomogeneousMixedTreeLikelihood::RHomogeneousMixedTreeLikelihood(
   {
     treeLikelihoodsContainer_.push_back(
         new RHomogeneousTreeLikelihood(tree, mixedmodel->getNModel(i), rDist, checkRooted, false, usePatterns));
-    probas_.push_back(1.0/s);
+    probas_.push_back(mixedmodel->getNProbability(i));
   }
   setData(data);
 }
@@ -160,74 +160,6 @@ void RHomogeneousMixedTreeLikelihood::setData(const SiteContainer& sites) throw 
 }
 
 
-double RHomogeneousMixedTreeLikelihood::getLogLikelihood() const
-{
-   vector<double> reslog;
-
-  for (unsigned int i = 0; i < treeLikelihoodsContainer_.size(); i++)
-  {
-   reslog.push_back(treeLikelihoodsContainer_[i]->getLogLikelihood());
-  }
-
-  return VectorTools::logsumexp(reslog,probas_);
-}
-
-double RHomogeneousMixedTreeLikelihood::getLikelihood() const
-{
-  return exp(getLogLikelihood());
-}
-
-double RHomogeneousMixedTreeLikelihood::getLikelihoodForASite(unsigned int site) const
-{
-  return exp(getLogLikelihoodForASite(site));
-}
-
-double RHomogeneousMixedTreeLikelihood::getLogLikelihoodForASite(unsigned int site) const
-{
-   vector<double> reslog;
-
-  for (unsigned int i = 0; i < treeLikelihoodsContainer_.size(); i++)
-  {
-   reslog.push_back(treeLikelihoodsContainer_[i]->getLogLikelihoodForASite(site));
-  }
-
-  return VectorTools::logsumexp(reslog,probas_);
-}
-
-double RHomogeneousMixedTreeLikelihood::getLikelihoodForASiteForARateClass(unsigned int site, unsigned int rateClass) const
-{
-  return exp(getLogLikelihoodForASiteForARateClass(site, rateClass));
-}
-
-double RHomogeneousMixedTreeLikelihood::getLogLikelihoodForASiteForARateClass(unsigned int site, unsigned int rateClass) const
-{
-   vector<double> reslog;
-
-  for (unsigned int i = 0; i < treeLikelihoodsContainer_.size(); i++)
-  {
-   reslog.push_back(treeLikelihoodsContainer_[i]->getLogLikelihoodForASiteForARateClass(site, rateClass));
-  }
-
-  return VectorTools::logsumexp(reslog,probas_);
-}
-
-double RHomogeneousMixedTreeLikelihood::getLikelihoodForASiteForARateClassForAState(unsigned int site, unsigned int rateClass, int state) const
-{
-  return exp(getLogLikelihoodForASiteForARateClassForAState(site, rateClass, state));
-}
-
-double RHomogeneousMixedTreeLikelihood::getLogLikelihoodForASiteForARateClassForAState(unsigned int site, unsigned int rateClass, int state) const
-{
-   vector<double> reslog;
-
-  for (unsigned int i = 0; i < treeLikelihoodsContainer_.size(); i++)
-  {
-   reslog.push_back(treeLikelihoodsContainer_[i]->getLogLikelihoodForASiteForARateClassForAState(site, rateClass, state));
-  }
-
-  return VectorTools::logsumexp(reslog,probas_);
-}
-
 void RHomogeneousMixedTreeLikelihood::fireParameterChanged(const ParameterList& params)
 {
   applyParameters();
@@ -239,9 +171,11 @@ void RHomogeneousMixedTreeLikelihood::fireParameterChanged(const ParameterList& 
   const SubstitutionModel* pm;
   for (unsigned int i = 0; i < s; i++)
   {
+    ParameterList pl;
     pm = mixedmodel->getNModel(i);
-    treeLikelihoodsContainer_[i]->matchParametersValues(pm->getParameters());
-    treeLikelihoodsContainer_[i]->matchParametersValues(getParameters());
+    pl.addParameters(pm->getParameters());
+    pl.includeParameters(getParameters());
+    treeLikelihoodsContainer_[i]->matchParametersValues(pl);
   }
   probas_=mixedmodel->getProbabilities();
 
@@ -280,28 +214,90 @@ void RHomogeneousMixedTreeLikelihood::computeTreeLikelihood()
   }
 }
 
-double RHomogeneousMixedTreeLikelihood::getDLikelihoodForASiteForARateClass(unsigned int site, unsigned int rateClass) const
-{
-   vector<double> rescontainer;
+/******************************************************************************
+ *                           Likelihoods                          *
+ ******************************************************************************/  
 
-  for (unsigned int i = 0; i < treeLikelihoodsContainer_.size(); i++)
-  {
-   rescontainer.push_back(treeLikelihoodsContainer_[i]->getDLikelihoodForASiteForARateClass(site,rateClass));
+
+double RHomogeneousMixedTreeLikelihood::getLikelihoodForASite(unsigned int site) const
+{
+  double res=0;
+
+  for (unsigned int i = 0; i < treeLikelihoodsContainer_.size(); i++) {
+    res+=treeLikelihoodsContainer_[i]->getLikelihoodForASite(site) * probas_[i];
   }
 
-  return VectorTools::sum<double>(rescontainer,probas_);
+  return res;
 }
+
+double RHomogeneousMixedTreeLikelihood::getLogLikelihoodForASite(unsigned int site) const
+{
+  double x=getLikelihoodForASite(site);
+  if (x<0) x=0;
+  return log(x);
+}
+
+double RHomogeneousMixedTreeLikelihood::getLikelihoodForASiteForARateClass(unsigned int site, unsigned int rateClass) const
+{
+  double res=0;
+
+  for (unsigned int i = 0; i < treeLikelihoodsContainer_.size(); i++) {
+    res+=treeLikelihoodsContainer_[i]->getLikelihoodForASiteForARateClass(site, rateClass) * probas_[i];
+  }
+
+  return res;
+}
+
+double RHomogeneousMixedTreeLikelihood::getLogLikelihoodForASiteForARateClass(unsigned int site, unsigned int rateClass) const
+{
+  double x=getLikelihoodForASiteForARateClass(site, rateClass);
+  if (x<0) x=0;
+  return log(x);
+}
+
+double RHomogeneousMixedTreeLikelihood::getLikelihoodForASiteForARateClassForAState(unsigned int site, unsigned int rateClass, int state) const
+{
+  double res=0;
+
+  for (unsigned int i = 0; i < treeLikelihoodsContainer_.size(); i++) {
+    res+=treeLikelihoodsContainer_[i]->getLikelihoodForASiteForARateClassForAState(site, rateClass, state) * probas_[i];
+  }
+
+  return res;
+}
+
+double RHomogeneousMixedTreeLikelihood::getLogLikelihoodForASiteForARateClassForAState(unsigned int site, unsigned int rateClass, int state) const
+{
+  double x=getLikelihoodForASiteForARateClassForAState(site, rateClass, state);
+  if (x<0) x=0;
+  return log(x);
+}
+
+
+/******************************************************************************
+ *                           First Order Derivatives                          *
+ ******************************************************************************/  
 
 double RHomogeneousMixedTreeLikelihood::getDLikelihoodForASite(unsigned int site) const
 {
-   vector<double> rescontainer;
+  double res=0;
 
-  for (unsigned int i = 0; i < treeLikelihoodsContainer_.size(); i++)
-  {
-   rescontainer.push_back(treeLikelihoodsContainer_[i]->getDLikelihoodForASite(site));
+  for (unsigned int i = 0; i < treeLikelihoodsContainer_.size(); i++) {
+    res+=treeLikelihoodsContainer_[i]->getDLikelihoodForASite(site) * probas_[i];
   }
 
-  return VectorTools::sum<double>(rescontainer,probas_);
+  return res;
+}
+
+double RHomogeneousMixedTreeLikelihood::getDLikelihoodForASiteForARateClass(unsigned int site, unsigned int rateClass) const
+{
+  double res=0;
+
+  for (unsigned int i = 0; i < treeLikelihoodsContainer_.size(); i++) {
+    res+=treeLikelihoodsContainer_[i]->getDLikelihoodForASiteForARateClass(site, rateClass) * probas_[i];
+  }
+
+  return res;
 }
 
 void RHomogeneousMixedTreeLikelihood::computeTreeDLikelihood(const string& variable)
@@ -312,30 +308,33 @@ void RHomogeneousMixedTreeLikelihood::computeTreeDLikelihood(const string& varia
   }
 }
 
-
-double RHomogeneousMixedTreeLikelihood::getD2LikelihoodForASiteForARateClass(unsigned int site, unsigned int rateClass) const
-{
-   vector<double> rescontainer;
-
-  for (unsigned int i = 0; i < treeLikelihoodsContainer_.size(); i++)
-  {
-   rescontainer.push_back(treeLikelihoodsContainer_[i]->getD2LikelihoodForASiteForARateClass(site,rateClass));
-  }
-
-  return VectorTools::sum<double>(rescontainer,probas_);
-}
+/******************************************************************************
+ *                           Second Order Derivatives                          *
+ ******************************************************************************/  
 
 double RHomogeneousMixedTreeLikelihood::getD2LikelihoodForASite(unsigned int site) const
 {
-   vector<double> rescontainer;
+  double res=0;
 
-  for (unsigned int i = 0; i < treeLikelihoodsContainer_.size(); i++)
-  {
-   rescontainer.push_back(treeLikelihoodsContainer_[i]->getD2LikelihoodForASite(site));
+  for (unsigned int i = 0; i < treeLikelihoodsContainer_.size(); i++) {
+    res+=treeLikelihoodsContainer_[i]->getD2LikelihoodForASite(site) * probas_[i];
   }
 
-  return VectorTools::sum<double>(rescontainer,probas_);
+  return res;
 }
+
+
+double RHomogeneousMixedTreeLikelihood::getD2LikelihoodForASiteForARateClass(unsigned int site, unsigned int rateClass) const
+{
+  double res=0;
+
+  for (unsigned int i = 0; i < treeLikelihoodsContainer_.size(); i++) {
+    res+=treeLikelihoodsContainer_[i]->getD2LikelihoodForASiteForARateClass(site, rateClass) * probas_[i];
+  }
+
+  return res;
+}
+
 
 void RHomogeneousMixedTreeLikelihood::computeTreeD2Likelihood(const string& variable)
 {

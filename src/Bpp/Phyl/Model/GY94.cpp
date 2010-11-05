@@ -46,7 +46,7 @@ using namespace std;
 /******************************************************************************/
 
 GY94::GY94(const GeneticCode* gc, FrequenciesSet* codonFreqs) :
-  AbstractSubstitutionModel(gc->getSourceAlphabet(), "GY94."),
+  AbstractReversibleSubstitutionModel(gc->getSourceAlphabet(), "GY94."),
   gacd_(),
   pmodel_(gc, codonFreqs, &gacd_)
 {
@@ -58,14 +58,14 @@ GY94::GY94(const GeneticCode* gc, FrequenciesSet* codonFreqs) :
 }
 
 GY94::GY94(const GY94& gy94) :
-  AbstractSubstitutionModel(gy94),
+  AbstractReversibleSubstitutionModel(gy94),
   gacd_(),
   pmodel_(gy94.pmodel_)
 {}
 
 GY94& GY94::operator=(const GY94& gy94)
 {
-  AbstractSubstitutionModel::operator=(gy94);
+  AbstractReversibleSubstitutionModel::operator=(gy94);
   pmodel_ = CodonAsynonymousFrequenciesReversibleSubstitutionModel(gy94.pmodel_.getGeneticCode(), gy94.pmodel_.getFreq().clone(), &gacd_);
   return *this;
 }
@@ -78,3 +78,8 @@ void GY94::updateMatrices()
   pmodel_.matchParametersValues(pl);
 }
 
+void GY94::setFreq(std::map<int, double>& m)
+{
+  pmodel_.setFreq(m);
+  matchParametersValues(pmodel_.getParameters());
+}

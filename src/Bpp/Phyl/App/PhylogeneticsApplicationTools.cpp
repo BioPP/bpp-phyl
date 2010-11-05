@@ -45,6 +45,7 @@
 #include "../Tree.h"
 #include "../Io/Newick.h"
 #include "../Io/NexusIoTree.h"
+#include "../Io/Nhx.h"
 
 #include <Bpp/Io/FileTools.h>
 #include <Bpp/Text/TextTools.h>
@@ -84,6 +85,8 @@ Tree* PhylogeneticsApplicationTools::getTree(
     treeReader = new Newick(true);
   else if (format == "Nexus")
     treeReader = new NexusIOTree();
+  else if (format == "NHX")
+    treeReader = new Nhx();
   else throw Exception("Unknow format for tree reading: " + format);
   Tree* tree = treeReader->read(treeFilePath);
   delete treeReader;
@@ -109,6 +112,8 @@ vector<Tree*> PhylogeneticsApplicationTools::getTrees(
     treeReader = new Newick(true);
   else if (format == "Nexus")
     treeReader = new NexusIOTree();
+  else if (format == "NHX")
+    treeReader = new Nhx();  
   else throw Exception("Unknow format for tree reading: " + format);
   vector<Tree*> trees;
   treeReader->read(treeFilePath, trees);
@@ -330,15 +335,23 @@ SubstitutionModel* PhylogeneticsApplicationTools::getSubstitutionModelDefaultIns
 
     else if (modelName == "Triplet")
     {
-      model = (v_nestedModelDescription.size() != 3)
-              ? new TripletReversibleSubstitutionModel(
-                  dynamic_cast<const CodonAlphabet*>(pWA),
-                  dynamic_cast<NucleotideSubstitutionModel*>(v_pSM[0]))
-              : new TripletReversibleSubstitutionModel(
-                  dynamic_cast<const CodonAlphabet*>(pWA),
-                  dynamic_cast<NucleotideSubstitutionModel*>(v_pSM[0]),
-                  dynamic_cast<NucleotideSubstitutionModel*>(v_pSM[1]),
-                  dynamic_cast<NucleotideSubstitutionModel*>(v_pSM[2]));
+      if (dynamic_cast<NucleotideSubstitutionModel*>(v_pSM[0])==NULL)
+        throw Exception("Non simple NucleotideSubstitutionModel imbedded in " + modelName + " model.");
+      
+      if (v_nestedModelDescription.size() != 3)
+        model = new TripletReversibleSubstitutionModel(
+                                                       dynamic_cast<const CodonAlphabet*>(pWA),
+                                                       dynamic_cast<NucleotideSubstitutionModel*>(v_pSM[0]));
+      else {
+        if (dynamic_cast<NucleotideSubstitutionModel*>(v_pSM[1])==NULL || dynamic_cast<NucleotideSubstitutionModel*>(v_pSM[2])==NULL)
+        throw Exception("Non simple NucleotideSubstitutionModel imbedded in " + modelName + " model.");
+
+        model = new TripletReversibleSubstitutionModel(
+                                                       dynamic_cast<const CodonAlphabet*>(pWA),
+                                                       dynamic_cast<NucleotideSubstitutionModel*>(v_pSM[0]),
+                                                       dynamic_cast<NucleotideSubstitutionModel*>(v_pSM[1]),
+                                                       dynamic_cast<NucleotideSubstitutionModel*>(v_pSM[2]));
+      }
     }
 
     // /////////////////////////////////
@@ -347,15 +360,23 @@ SubstitutionModel* PhylogeneticsApplicationTools::getSubstitutionModelDefaultIns
 
     else if (modelName == "CodonNeutral")
     {
-      model = (v_nestedModelDescription.size() != 3)
-              ? new CodonNeutralReversibleSubstitutionModel(
-                  dynamic_cast<const CodonAlphabet*>(pWA),
-                  dynamic_cast<NucleotideSubstitutionModel*>(v_pSM[0]))
-              : new CodonNeutralReversibleSubstitutionModel(
-                  dynamic_cast<const CodonAlphabet*>(pWA),
-                  dynamic_cast<NucleotideSubstitutionModel*>(v_pSM[0]),
-                  dynamic_cast<NucleotideSubstitutionModel*>(v_pSM[1]),
-                  dynamic_cast<NucleotideSubstitutionModel*>(v_pSM[2]));
+      if (dynamic_cast<NucleotideSubstitutionModel*>(v_pSM[0])==NULL)
+        throw Exception("Non simple NucleotideSubstitutionModel imbedded in " + modelName + " model.");
+      
+      if (v_nestedModelDescription.size() != 3)
+        model = new CodonNeutralReversibleSubstitutionModel(
+                                                       dynamic_cast<const CodonAlphabet*>(pWA),
+                                                       dynamic_cast<NucleotideSubstitutionModel*>(v_pSM[0]));
+      else {
+        if (dynamic_cast<NucleotideSubstitutionModel*>(v_pSM[1])==NULL || dynamic_cast<NucleotideSubstitutionModel*>(v_pSM[2])==NULL)
+        throw Exception("Non simple NucleotideSubstitutionModel imbedded in " + modelName + " model.");
+
+        model = new CodonNeutralReversibleSubstitutionModel(
+                                                       dynamic_cast<const CodonAlphabet*>(pWA),
+                                                       dynamic_cast<NucleotideSubstitutionModel*>(v_pSM[0]),
+                                                       dynamic_cast<NucleotideSubstitutionModel*>(v_pSM[1]),
+                                                       dynamic_cast<NucleotideSubstitutionModel*>(v_pSM[2]));
+      }
     }
 
     // /////////////////////////////////
@@ -378,16 +399,22 @@ SubstitutionModel* PhylogeneticsApplicationTools::getSubstitutionModelDefaultIns
       else
         pai2 = SequenceApplicationTools::getAADistance(args["aadistance"]);
 
-      model = (v_nestedModelDescription.size() != 3)
-              ? new CodonAsynonymousReversibleSubstitutionModel(
-                  pgc,
-                  dynamic_cast<NucleotideSubstitutionModel*>(v_pSM[0]), pai2)
-              : new CodonAsynonymousReversibleSubstitutionModel(
-                  pgc,
-                  dynamic_cast<NucleotideSubstitutionModel*>(v_pSM[0]),
-                  dynamic_cast<NucleotideSubstitutionModel*>(v_pSM[1]),
-                  dynamic_cast<NucleotideSubstitutionModel*>(v_pSM[2]),
-                  pai2);
+      if (dynamic_cast<NucleotideSubstitutionModel*>(v_pSM[0])==NULL)
+        throw Exception("Non simple NucleotideSubstitutionModel imbedded in " + modelName + " model.");
+      
+      if (v_nestedModelDescription.size() != 3)
+        model = new CodonAsynonymousReversibleSubstitutionModel(pgc,
+                                                                dynamic_cast<NucleotideSubstitutionModel*>(v_pSM[0]), pai2);
+      else {
+        if (dynamic_cast<NucleotideSubstitutionModel*>(v_pSM[1])==NULL || dynamic_cast<NucleotideSubstitutionModel*>(v_pSM[2])==NULL)
+        throw Exception("Non simple NucleotideSubstitutionModel imbedded in " + modelName + " model.");
+
+        model = new CodonAsynonymousReversibleSubstitutionModel(
+                                                                pgc,
+                                                                dynamic_cast<NucleotideSubstitutionModel*>(v_pSM[0]),
+                                                                dynamic_cast<NucleotideSubstitutionModel*>(v_pSM[1]),
+                                                                dynamic_cast<NucleotideSubstitutionModel*>(v_pSM[2]), pai2);
+      }
     }
   }
 
@@ -470,20 +497,36 @@ SubstitutionModel* PhylogeneticsApplicationTools::getSubstitutionModelDefaultIns
     if (pgc->getSourceAlphabet()->getAlphabetType() != pCA->getAlphabetType())
       throw Exception("Mismatch between genetic code and codon alphabet");
 
-    string freqOpt = ApplicationTools::getStringParameter("codon_freqs", args, "F0");
-    short opt = 0;
-    if (freqOpt == "F0")
-      opt = FrequenciesSet::F0;
-    else if (freqOpt == "F1X4")
-      opt = FrequenciesSet::F1X4;
-    else if (freqOpt == "F3X4")
-      opt = FrequenciesSet::F3X4;
-    else if (freqOpt == "F61")
-      opt = FrequenciesSet::F61;
-    else
-      throw Exception("Unvalid codon frequency option. Should be one of F0, F1X4, F3X4 or F61");
-    FrequenciesSet* codonFreqs = FrequenciesSet::getFrequenciesSetForCodons(opt, *pgc);
 
+    FrequenciesSet* codonFreqs;
+    
+    if (args.find("frequencies") != args.end()){
+
+      map<string, string> unparsedParameterValuesNested;
+    
+      codonFreqs = getFrequenciesSetDefaultInstance(pCA, args["frequencies"], unparsedParameterValuesNested);
+      
+
+    for (map<string, string>::iterator it = unparsedParameterValuesNested.begin(); it != unparsedParameterValuesNested.end(); it++)
+        unparsedParameterValues[modelName + "." + it->first] = it->second;
+    }
+    else {
+      string freqOpt = ApplicationTools::getStringParameter("codon_freqs", args, "F0");
+      short opt = 0;
+      if (freqOpt == "F0")
+        opt = FrequenciesSet::F0;
+      else if (freqOpt == "F1X4")
+        opt = FrequenciesSet::F1X4;
+      else if (freqOpt == "F3X4")
+        opt = FrequenciesSet::F3X4;
+      else if (freqOpt == "F61")
+        opt = FrequenciesSet::F61;
+      else
+        throw Exception("Unvalid codon frequency option. Should be one of F0, F1X4, F3X4 or F61");
+      
+      codonFreqs = FrequenciesSet::getFrequenciesSetForCodons(opt, *pgc);
+    }
+    
     if (modelName == "MG94")
       model = new MG94(pgc, codonFreqs);
     else if (modelName == "GY94")
@@ -511,6 +554,7 @@ SubstitutionModel* PhylogeneticsApplicationTools::getSubstitutionModelDefaultIns
      }
     else
       throw Exception("Unknown Codon model: " + modelName);
+
   }
 
   // /////////////////////////////////
@@ -630,6 +674,15 @@ SubstitutionModel* PhylogeneticsApplicationTools::getSubstitutionModelDefaultIns
       // / L95
       // ///////////////////////////////
 
+      else if (modelName == "SSR")
+        {
+          model = new SSR(alpha);
+        }
+
+      // /////////////////////////////////
+      // / L95
+      // ///////////////////////////////
+
       else if (modelName == "L95")
       {
         model = new L95(alpha);
@@ -727,6 +780,14 @@ SubstitutionModel* PhylogeneticsApplicationTools::getSubstitutionModelDefaultIns
         model = new WAG01(alpha);
       else if (modelName == "LLG08_EHO")
         model = new LLG08_EHO(alpha);
+      else if (modelName == "LLG08_EX2")
+        model = new LLG08_EX2(alpha);
+      else if (modelName == "LLG08_EX3")
+        model = new LLG08_EX3(alpha);
+      else if (modelName == "LLG08_UL2")
+        model = new LLG08_UL2(alpha);
+      else if (modelName == "LLG08_UL3")
+        model = new LLG08_UL3(alpha);
       else if (modelName == "Empirical")
       {
         string prefix = args["name"];
@@ -843,6 +904,7 @@ void PhylogeneticsApplicationTools::setSubstitutionModelParametersInitialValues(
   const SiteContainer* data,
   bool verbose) throw (Exception)
 {
+  
   bool useObsFreq = ApplicationTools::getBooleanParameter(model->getNamespace() + "useObservedFreqs", unparsedParameterValues, false, "", true, false);
   if (verbose) ApplicationTools::displayResult("Use observed frequencies for model", useObsFreq ? "yes" : "no");
   if (useObsFreq && data != 0)
@@ -857,10 +919,12 @@ void PhylogeneticsApplicationTools::setSubstitutionModelParametersInitialValues(
     ap.setMessageHandler(ApplicationTools::warning);
     pl.setParameter(i, ap);
   }
+  unsigned int posp;
   for (unsigned int i = 0; i < pl.size(); i++)
   {
    const string pName = pl[i].getName();
-   if (!useObsFreq || (model->getParameterNameWithoutNamespace(pName).substr(0,5) != "theta"))
+   posp=pName.rfind(".");
+   if (!useObsFreq || (pName.substr(posp+1,5) != "theta"))
      {
        double value = ApplicationTools::getDoubleParameter(pName, unparsedParameterValues, pl[i].getValue());
        pl[i].setValue(value);
@@ -947,7 +1011,7 @@ FrequenciesSet* PhylogeneticsApplicationTools::getRootFrequenciesSet(
   bool suffixIsOptional,
   bool verbose) throw (Exception)
 {
-  string freqDescription = ApplicationTools::getStringParameter("nonhomogeneous.root_freq", params, "Fixed(init=observed)", suffix, suffixIsOptional);
+  string freqDescription = ApplicationTools::getStringParameter("nonhomogeneous.root_freq", params, "Full(init=observed)", suffix, suffixIsOptional);
   if (freqDescription == "None")
   {
     return 0;
@@ -982,8 +1046,13 @@ FrequenciesSet* PhylogeneticsApplicationTools::getFrequenciesSet(
     {
       if (!data)
         throw Exception("Missing data for observed frequencies");
+      unsigned int psc=0;
+      if (unparsedParameterValues.find("pseudoCount") != unparsedParameterValues.end())
+        psc=TextTools::toInt(unparsedParameterValues["pseudoCount"]);
+      
       map<int, double> freqs;
-      SequenceContainerTools::getFrequencies(*data, freqs);
+      SequenceContainerTools::getFrequencies(*data, freqs, psc);
+
       pFS->setFrequenciesFromMap(freqs);
     }
     else if (init == "balanced")
@@ -1080,25 +1149,6 @@ FrequenciesSet* PhylogeneticsApplicationTools::getFrequenciesSetDefaultInstance(
         }
     }
   }
-//  else if (freqName == "Fixed")
-//  {
-//    if (AlphabetTools::isNucleicAlphabet(alphabet))
-//    {
-//      pFS = new FixedNucleotideFrequenciesSet(dynamic_cast<const NucleicAlphabet*>(alphabet));
-//    }
-//    else if (AlphabetTools::isProteicAlphabet(alphabet))
-//    {
-//      pFS = new FixedProteinFrequenciesSet(dynamic_cast<const ProteicAlphabet*>(alphabet));
-//    }
-//    else if (AlphabetTools::isCodonAlphabet(alphabet))
-//    {
-//      pFS = new FixedCodonFrequenciesSet(dynamic_cast<const CodonAlphabet*>(alphabet));
-//    }
-//    else
-//    {
-//      pFS = new FixedFrequenciesSet(alphabet);
-//    }
-//  }
   else if (freqName == "GC")
   {
     if (!AlphabetTools::isNucleicAlphabet(alphabet))
@@ -1176,6 +1226,8 @@ FrequenciesSet* PhylogeneticsApplicationTools::getFrequenciesSetDefaultInstance(
   // Forward arguments:
   if (args.find("init") != args.end())
     unparsedParameterValues["init"] = args["init"];
+  if (args.find("pseudoCount") != args.end())
+    unparsedParameterValues["pseudoCount"] = args["pseudoCount"];
   if (args.find("values") != args.end())
     unparsedParameterValues["values"] = args["values"];
 
@@ -2055,6 +2107,8 @@ void PhylogeneticsApplicationTools::writeTree(
     treeWriter = new Newick();
   else if (format == "Nexus")
     treeWriter = new NexusIOTree();
+  else if (format == "NHX")
+    treeWriter = new Nhx();
   else throw Exception("Unknow format for tree writing: " + format);
   if (!checkOnly)
     treeWriter->write(tree, file, true);
@@ -2080,6 +2134,8 @@ void PhylogeneticsApplicationTools::writeTrees(
     treeWriter = new Newick();
   else if (format == "Nexus")
     treeWriter = new NexusIOTree();
+  else if (format == "NHX")
+    treeWriter = new Nhx();
   else throw Exception("Unknow format for tree writing: " + format);
   if (!checkOnly)
     treeWriter->write(trees, file, true);

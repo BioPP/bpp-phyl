@@ -332,4 +332,11 @@ double MixtureOfASubstitutionModel::freq(unsigned int i) const
 }
 
 
+void MixtureOfASubstitutionModel::setFreq(std::map<int,double>& m)
+{
+  modelsContainer_[0]->setFreq(m);
+  matchParametersValues(modelsContainer_[0]->getParameters());
+}
+
+
 

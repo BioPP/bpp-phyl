@@ -126,9 +126,22 @@ YNGKP_M7::~YNGKP_M7()
 
 void YNGKP_M7::updateMatrices()
 {
-  for (unsigned int i=0;i<lParPmodel_.size();i++)
-    if (hasParameter(mapParNamesFromPmodel_[lParPmodel_[i].getName()]))
-      lParPmodel_[i].setValue(getParameter(mapParNamesFromPmodel_[lParPmodel_[i].getName()]).getValue());
+  map<string,string>::iterator it;
+  
+  for (it=mapParNamesFromPmodel_.begin();it!=mapParNamesFromPmodel_.end();it++)
+    lParPmodel_.setParameterValue(it->first,getParameter(it->second).getValue());
   
   pmixmodel_->matchParametersValues(lParPmodel_);
+}
+
+void YNGKP_M7::setFreq(std::map<int,double>& m)
+{
+  pmixmodel_->setFreq(m);
+  map<string,string>::iterator it;
+
+  ParameterList pl;
+  for (it=mapParNamesFromPmodel_.begin();it!=mapParNamesFromPmodel_.end();it++)
+    pl.addParameter(Parameter(getNamespace()+it->second,pmixmodel_->getParameterValue(it->first)));
+
+  matchParametersValues(pl);
 }

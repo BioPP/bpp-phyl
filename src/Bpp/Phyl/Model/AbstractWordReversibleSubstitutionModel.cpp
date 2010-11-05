@@ -340,7 +340,6 @@ void AbstractWordReversibleSubstitutionModel::updateMatrices()
 
   // Eigen values:
 
-
   if (enableEigenDecomposition())
   {
     unsigned int i, j;
@@ -437,13 +436,37 @@ void AbstractWordReversibleSubstitutionModel::updateMatrices()
 
     MatrixTools::inv(rightEigenVectors_, leftEigenVectors_);
 
-    // looking for the 0 eigenvector
+    // looking for the 0 eigenvector for which the eigen vector
+    // elements are of the same sign
 
     unsigned int nulleigen = 0;
+    int signe=0;
+
     while (nulleigen < salph - nbStop)
     {
-      if (abs(eigenValues_[nulleigen]) < 0.000001 && abs(vi[nulleigen]) < 0.000001)
-        break;
+      signe=0;
+      if (abs(eigenValues_[nulleigen]) < 0.000001 && abs(vi[nulleigen]) < 0.000001){
+        i=0;
+        while (signe==0 && i< salph){
+          x=leftEigenVectors_(nulleigen, i);
+          signe=x>0.000001?1:x<-0.000001?-1:0;
+          i++;
+        }
+        if (signe==0)
+          nulleigen++;
+        else {
+          while (i<salph){
+            x=leftEigenVectors_(nulleigen, i);
+            if ((signe==-1 && x>0.000001) || (signe==1 && x<-0.000001))
+              break;
+            i++;
+          }
+          if (i<salph)
+            nulleigen++;
+          else
+            break;
+        }
+      }
       else
         nulleigen++;
     }
@@ -485,6 +508,7 @@ void AbstractWordReversibleSubstitutionModel::updateMatrices()
       eigenValues_[i] /= -x;
     }
   }
+
 }
 
 
@@ -494,24 +518,39 @@ void AbstractWordReversibleSubstitutionModel::setFreq(std::map<int, double>& fre
   unsigned int nbmod = VSubMod_.size();
 
   unsigned int i, j, s, k, d, size;
-
   d = size = getNumberOfStates();
 
-  for (i = 0; i < nbmod; i++)
-  {
-    tmpFreq.clear();
-    s = VSubMod_[i]->getAlphabet()->getSize();
-    d /= s;
+  if (VSubMod_.size() < 2 || VSubMod_[0] == VSubMod_[1]){
+    s = VSubMod_[0]->getAlphabet()->getSize();
     for (j = 0; j < s; j++)
-    {
-      tmpFreq[j] = 0;
-    }
-    for (k = 0; k < size; k++)
-    {
-      tmpFreq[(k / d) % s] += freqs[k];
-    }
-    VSubMod_[i]->setFreq(tmpFreq);
-  }
+        tmpFreq[j] = 0;
 
-  updateMatrices();
+    for (i = 0; i < nbmod; i++){
+      d /= s;
+      for (k = 0; k < size; k++)
+        tmpFreq[(k / d) % s] += freqs[k];
+    }
+    
+    for (k=0;k<s;k++)
+      tmpFreq[k]/=nbmod;
+    
+    VSubMod_[0]->setFreq(tmpFreq);
+    matchParametersValues(VSubMod_[0]->getParameters());
+  }
+  else
+    for (i = 0; i < nbmod; i++){
+        tmpFreq.clear();
+        s = VSubMod_[i]->getAlphabet()->getSize();
+        d /= s;
+        for (j = 0; j < s; j++)
+          {
+            tmpFreq[j] = 0;
+          }
+        for (k = 0; k < size; k++)
+          {
+            tmpFreq[(k / d) % s] += freqs[k];
+          }
+        VSubMod_[i]->setFreq(tmpFreq);
+        matchParametersValues(VSubMod_[i]->getParameters());
+      }
 }

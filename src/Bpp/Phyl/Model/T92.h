@@ -129,7 +129,6 @@ namespace bpp
  * \f{multline*}
  * \frac{\partial P_{i,j}(t)}{\partial t} = rate\_ * \\
  * \frac{1}{P}
- * \footnotesize
  * \begin{pmatrix}
  * -\theta(\kappa+1)A - (1-\theta)B & \theta B & \theta(\kappa+1)A - \theta B & (1-\theta)B \\
  * (1-\theta)B & -(1-\theta)(\kappa+1)A - \theta B & \theta B & (1-\theta)(\kappa+1)A - (1-\theta)B \\
@@ -140,7 +139,6 @@ namespace bpp
  * \f{multline*}
  * \frac{\partial^2 P_{i,j}(t)}{\partial t^2} = rate\_^2 * \\
  * \frac{1}{P^2}
- * \footnotesize
  * \begin{pmatrix}
  * \theta{(\kappa+1)}^2A + 2(1-\theta)B & -2\theta B & -\theta{(\kappa+1)}^2A + 2\theta B & -2(1-\theta)B \\
  * -2(1-\theta)B & (1-\theta){(\kappa+1)}^2A + 2\theta B & -2\theta B & -(1-\theta){(\kappa+1)}^2A + 2(1-\theta)B \\

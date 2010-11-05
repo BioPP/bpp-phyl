@@ -102,8 +102,6 @@ public:
 
   YNGKP_M7& operator=(const YNGKP_M7&);
 
-  void setFreq(std::map<int, double>& m) { pmixmodel_->setFreq(m);  }
-
   unsigned int getNumberOfStates() const  { return pmixmodel_->getNumberOfStates();  }
 
 protected:
@@ -163,6 +161,7 @@ public:
     return pmixmodel_->freq(i);
   };
 
+  void setFreq(std::map<int,double>& m);
 
 };
 

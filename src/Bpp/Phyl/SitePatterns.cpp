@@ -50,7 +50,7 @@ using namespace std;
 /******************************************************************************/
 
 SitePatterns::SitePatterns(const SiteContainer* sequences, bool own):
-	names_(sequences->getSequencesNames()),
+  names_(sequences->getSequencesNames()),
   sites_(),
   weights_(),
   indices_(),
@@ -58,47 +58,50 @@ SitePatterns::SitePatterns(const SiteContainer* sequences, bool own):
   alpha_(sequences->getAlphabet()),
   own_(own)
 {
-	unsigned int nbSites = sequences->getNumberOfSites();
-	vector<SortableSite> ss(nbSites);
-	for(unsigned int i = 0; i < nbSites; i++)
-  {
-		const Site* currentSite = &sequences->getSite(i);
-		SortableSite* ssi = &ss[i];
-		ssi->siteS = currentSite->toString();
-		ssi->siteP = currentSite;
-		ssi->originalPosition = i;
-	}
+  unsigned int nbSites = sequences->getNumberOfSites();
+  vector<SortableSite> ss(nbSites);
+  for(unsigned int i = 0; i < nbSites; i++)
+    {
+      const Site* currentSite = &sequences->getSite(i);
+      SortableSite* ssi = &ss[i];
+      ssi->siteS = currentSite->toString();
+      ssi->siteP = currentSite;
+      ssi->originalPosition = i;
+    }
 
-	// Quick sort according to site contents:
-	sort(ss.begin(), ss.end());
+  if (nbSites>0){
+    // Quick sort according to site contents:
+    sort(ss.begin(), ss.end());
 	
-	// Now build patterns:
-	SortableSite* ss0 = &ss[0];
-	const Site* previousSite = ss0->siteP;
-	indices_.resize(nbSites);
-	indices_[ss0->originalPosition] = 0;
-	sites_.push_back(previousSite);
-	weights_.push_back(1);
-	
-	unsigned int currentPos = 0;
-	for(unsigned int i = 1; i < nbSites; i++)
-  {
-		SortableSite* ssi = &ss[i];
-		const Site* currentSite = ssi->siteP;
-		bool siteExists = SiteTools::areSitesIdentical(*currentSite, *previousSite);
-		if (siteExists)
-    {
-			weights_[currentPos]++;
-		}
-    else
-    {
-			sites_.push_back(currentSite);
-			weights_.push_back(1);
-			currentPos++;
-		}
-		indices_[ssi->originalPosition] = currentPos;
-		previousSite = currentSite;
-	}
+    // Now build patterns:
+
+    SortableSite* ss0 = &ss[0];
+    const Site* previousSite = ss0->siteP;
+    indices_.resize(nbSites);
+    indices_[ss0->originalPosition] = 0;
+    sites_.push_back(previousSite);
+    weights_.push_back(1);
+
+    unsigned int currentPos = 0;
+    for(unsigned int i = 1; i < nbSites; i++)
+      {
+        SortableSite* ssi = &ss[i];
+        const Site* currentSite = ssi->siteP;
+        bool siteExists = SiteTools::areSitesIdentical(*currentSite, *previousSite);
+        if (siteExists)
+          {
+            weights_[currentPos]++;
+          }
+        else
+          {
+            sites_.push_back(currentSite);
+            weights_.push_back(1);
+            currentPos++;
+          }
+        indices_[ssi->originalPosition] = currentPos;
+        previousSite = currentSite;
+      }
+  }
 }
 
 /******************************************************************************/

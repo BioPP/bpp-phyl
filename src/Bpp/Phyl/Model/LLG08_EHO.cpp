@@ -49,7 +49,7 @@ using namespace std;
 
 /******************************************************************************/
 
-LLG08_EHO::LLG08_EHO(const ProteicAlphabet* alpha, bool withParam) : 
+LLG08_EHO::LLG08_EHO(const ProteicAlphabet* alpha) : 
   MixedSubstitutionModel(alpha, "LLG08_EHO."), pmixmodel_(0),
   mapParNamesFromPmodel_(), lParPmodel_()
 {
@@ -70,21 +70,16 @@ LLG08_EHO::LLG08_EHO(const ProteicAlphabet* alpha, bool withParam) :
   pmixmodel_= new MixtureOfSubstitutionModels(alpha, vpSM, vproba, vrate);
 
   string name,st;
-  if (withParam){
-    ParameterList pl=pmixmodel_->getParameters();
-    for (unsigned int i=0;i<pl.size();i++){
-      lParPmodel_.addParameter(Parameter(pl[i]));
-      name=pl[i].getName();
-      st=pmixmodel_->getParameterNameWithoutNamespace(name);
-      mapParNamesFromPmodel_[name]=st;
-      addParameter_(Parameter("LLG08_EHO."+st,
-                              pmixmodel_->getParameterValue(st),
-                              pmixmodel_->getParameter(st).hasConstraint()? pmixmodel_->getParameter(st).getConstraint()->clone():0,true));
-      
-    }
-
+  ParameterList pl=pmixmodel_->getParameters();
+  for (unsigned int i=0;i<pl.size();i++){
+    name=pl[i].getName();
+    lParPmodel_.addParameter(Parameter(pl[i]));
+    st=pmixmodel_->getParameterNameWithoutNamespace(name);
+    mapParNamesFromPmodel_[name]=st;
+    addParameter_(Parameter("LLG08_EHO."+st,
+                            pmixmodel_->getParameterValue(st),
+                            pmixmodel_->getParameter(st).hasConstraint()? pmixmodel_->getParameter(st).getConstraint()->clone():0,true));
   }
-  // update matrice
   
   updateMatrices();
 }
@@ -118,9 +113,14 @@ void LLG08_EHO::updateMatrices()
 {
   for (unsigned int i=0;i<lParPmodel_.size();i++)
     if (hasParameter(mapParNamesFromPmodel_[lParPmodel_[i].getName()]))
-      lParPmodel_[i].setValue(getParameter(mapParNamesFromPmodel_[lParPmodel_[i].getName()]).getValue());
+        lParPmodel_[i].setValue(getParameter(mapParNamesFromPmodel_[lParPmodel_[i].getName()]).getValue());
   
   pmixmodel_->matchParametersValues(lParPmodel_);
+}
+
+void LLG08_EHO::setFreq(std::map<int,double>& m){
+  pmixmodel_->setFreq(m);
+  matchParametersValues(pmixmodel_->getParameters());
 }
 
 /**************** sub model classes *///////////

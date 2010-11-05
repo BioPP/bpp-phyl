@@ -140,19 +140,29 @@ YNGKP_M3::~YNGKP_M3()
 
 void YNGKP_M3::updateMatrices()
 {
-  for (unsigned int i=0;i<lParPmodel_.size();i++)
-    if (hasParameter(mapParNamesFromPmodel_[lParPmodel_[i].getName()])){
-      if (lParPmodel_[i].getName()[18]=='V'){
-        unsigned int ind=TextTools::toInt(lParPmodel_[i].getName().substr(19));
+  map<string,string>::iterator it;
+  
+  for (it=mapParNamesFromPmodel_.begin();it!=mapParNamesFromPmodel_.end();it++)
+      if (it->first[18]=='V'){
+        unsigned int ind=TextTools::toInt(it->first.substr(19));
         double x=getParameterValue("omega0");
         for (unsigned j=1;j<ind;j++)
           x+=getParameterValue("delta"+TextTools::toString(j));
-        lParPmodel_[i].setValue(x);
+        lParPmodel_.setParameterValue(it->first,x);
       }
-      else{
-        lParPmodel_[i].setValue(getParameterValue(mapParNamesFromPmodel_[lParPmodel_[i].getName()]));
-      }
-    }
+      else
+        lParPmodel_.setParameterValue(it->first,getParameterValue(it->second));
   
   pmixmodel_->matchParametersValues(lParPmodel_);
+}
+
+void YNGKP_M3::setFreq(std::map<int,double>& m){
+  pmixmodel_->setFreq(m);
+  map<string,string>::iterator it;
+
+  ParameterList pl;
+  for (it=mapParNamesFromPmodel_.begin();it!=mapParNamesFromPmodel_.end();it++)
+    pl.addParameter(Parameter(getNamespace()+it->second,pmixmodel_->getParameterValue(it->first)));
+
+  matchParametersValues(pl);
 }

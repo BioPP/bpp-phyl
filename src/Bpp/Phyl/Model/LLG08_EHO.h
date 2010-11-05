@@ -44,6 +44,8 @@ knowledge of the CeCILL license and that you accept its terms.
 #include "ProteinSubstitutionModel.h"
 #include "AbstractSubstitutionModel.h"
 
+using namespace std;
+
 namespace bpp
 {
 
@@ -52,11 +54,21 @@ namespace bpp
  * @author Laurent Guéguen
  *
  * This model is a mixture of three models corresponding to
- * extended/helix/other sites in proteins.
+ * extended/helix/other sites in proteins. The models are considered
+ * in this order.
  *
- * This model includes 3 parameters (@f$\kappa@f$, @f$ p0 @f$ and
- * @f$\omega@f$). The codon frequencies @f$\pi_j@f$ are either
- * observed or infered.
+ *
+ * This model includes 4 parameters :
+ *
+ * - relrate1 is the relative rate of model of extended sites;
+ * - relrate2 is the relative rate of helix sites;
+ * - relproba1 is the proportion  of extended sites;
+ * - relproba2 is the ratio of the proportions of helix sites over the sum of
+ * the proportion of helix sites plus the proportion of other sites.
+ *
+ * Important: See the relation between these parameters and the rates
+ * and probabilities of the models in the description of
+ * MixtureOfSubstitutionModels class.
  *
  * Reference:
  *
@@ -103,11 +115,10 @@ public:
    * @brief Build a  EH0 model, with original equilibrium frequencies, probabilities and rates.
    *
    * @param alpha A proteic alphabet.
-   * @param withParam a boolean about the existence of parameters for
-   * the rates and proportions between the embedded models
+   *
    */
 
-  LLG08_EHO(const ProteicAlphabet* alpha, bool withParam=false);
+  LLG08_EHO(const ProteicAlphabet* alpha);
 
   ~LLG08_EHO();
   
@@ -175,6 +186,8 @@ public:
   double freq(unsigned int i) const {
     return pmixmodel_->freq(i);
   };
+
+  void setFreq(std::map<int,double>& m);
 
 };
 

@@ -73,6 +73,7 @@ AbstractSubstitutionModel::AbstractSubstitutionModel(const Alphabet* alpha, cons
     freq_[i]=1.0/size_;
     chars_[i] = static_cast<int>(i);
   }
+
 }
 
 /******************************************************************************/
@@ -180,8 +181,14 @@ void AbstractSubstitutionModel::setRate(double rate)
 {
   if (rate<=0)
     throw Exception("Bad value for rate: " + TextTools::toString(rate));
-  
-  rate_=rate;
+
+    rate_=rate;
+}
+
+void AbstractSubstitutionModel::addRateParameter()
+{
+  Parameter Rate(getNamespace()+"rate", rate_, &Parameter::R_PLUS_STAR);
+  addParameter_(Rate);
 }
 
 /******************************************************************************/

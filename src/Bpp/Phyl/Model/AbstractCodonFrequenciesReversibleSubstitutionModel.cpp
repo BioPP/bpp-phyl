@@ -94,6 +94,8 @@ void AbstractCodonFrequenciesReversibleSubstitutionModel::fireParameterChanged(c
 void AbstractCodonFrequenciesReversibleSubstitutionModel::setFreq(map<int,double>& frequencies)
 {
   pfreqset_->setFrequenciesFromMap(frequencies);
+  matchParametersValues(pfreqset_->getParameters());
+
   updateMatrices();
 }
 

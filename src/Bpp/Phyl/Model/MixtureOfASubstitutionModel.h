@@ -75,7 +75,7 @@ namespace bpp
  *
  * If a distribution parameter does not respect the constraints of
  * this parameter, there is an Exception at the creation of the
- * wrong mdel, if any.
+ * wrong model, if any.
  *
  * When used through a MixedTreeLikelihood objets, all the models have
  * a specific probability, defined through the probabilities of the
@@ -153,6 +153,15 @@ public:
   const Matrix<double>& getd2Pij_dt2(double t) const;
   const Vdouble& getFrequencies();
   double freq(unsigned int i) const;
+
+  /**
+   * @brief the parameters of the submodel that are not defined
+   * through a distribution (ie that are mapped with a
+   * ConstantDistribution) are updated.
+   *
+   **/
+  
+  void setFreq(std::map<int,double>&);
 
 };
 } // end of namespace bpp.
