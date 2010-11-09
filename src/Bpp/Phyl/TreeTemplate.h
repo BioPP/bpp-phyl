@@ -160,6 +160,8 @@ class TreeTemplate:
     std::vector<int> getLeavesId() const { return TreeTemplateTools::getLeavesId(*root_); }
 
     std::vector<int> getNodesId() const { return TreeTemplateTools::getNodesId(*root_); }
+    
+    std::vector<int> getInnerNodesId() const { return TreeTemplateTools::getInnerNodesId(*root_); }
 		
     std::vector<int> getBranchesId() const { return TreeTemplateTools::getBranchesId(*root_); }
 

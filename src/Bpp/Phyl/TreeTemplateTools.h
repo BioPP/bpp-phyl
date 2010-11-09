@@ -384,7 +384,7 @@ class TreeTemplateTools
      * @return A vector of pointers toward each inner node in the subtree.
      */
     template<class N>
-    static std::vector<N*> getInnerNodes(N & node)
+    static std::vector<N*> getInnerNodes(N& node)
     {
       std::vector<N *> nodes;
       getInnerNodes<N>(node, nodes);

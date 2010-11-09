@@ -119,21 +119,16 @@ Sequence* MarginalAncestralStateReconstruction::getAncestralSequenceForNode(int 
 	vector<unsigned int> states;
 	vector<int> allStates(nbSites_);
   VVdouble patternedProbs;
-  if(probs)
-  {
+  if (probs) {
     states = getAncestralStatesForNode(nodeId, patternedProbs, sample);
     probs->resize(nbSites_);
-  	for(unsigned int i = 0; i < nbSites_; i++)
-    {
+  	for (unsigned int i = 0; i < nbSites_; i++) {
 		  allStates[i] = model->getAlphabetChar(states[(*rootPatternLinks)[i]]);
 		  (*probs)[i] = patternedProbs[(*rootPatternLinks)[i]];
  	  }
-  }
-  else
-  {
+  } else {
     states = getAncestralStatesForNode(nodeId, patternedProbs, sample);
-  	for(unsigned int i = 0; i < nbSites_; i++)
-    {
+  	for (unsigned int i = 0; i < nbSites_; i++) {
 		  allStates[i] = model->getAlphabetChar(states[(* rootPatternLinks)[i]]);
 	  }
   }
@@ -145,8 +140,7 @@ void MarginalAncestralStateReconstruction::recursiveMarginalAncestralStates(
 			map<int, vector<unsigned int> >& ancestors,
 			AlignedSequenceContainer& data) const
 {
-	if(node->isLeaf())
-  {
+	if (node->isLeaf()) {
     vector<int> content = data.getContent(node->getName());
 		vector<unsigned int>* v = &ancestors[node->getId()];
     v->resize(content.size());
@@ -154,14 +148,11 @@ void MarginalAncestralStateReconstruction::recursiveMarginalAncestralStates(
     //In case of Markov Modulated models, we consider that the real sequences
     //Are all in the first category.
     const SubstitutionModel* model = likelihood_->getSubstitutionModel(tree_.getNodesId()[0], 0); //We assume all nodes have a model with the same number of states.
-    for(unsigned int i = 0; i < content.size(); i++)
+    for (unsigned int i = 0; i < content.size(); i++)
       (*v)[i] = model->getModelStates(content[i])[0];
-	}
-  else
-  {
+	} else {
 		ancestors[node->getId()] = getAncestralStatesForNode(node->getId());
-		for(unsigned int i = 0; i < node->getNumberOfSons(); i++)
-    {
+		for(unsigned int i = 0; i < node->getNumberOfSons(); i++) {
 			recursiveMarginalAncestralStates(node->getSon(i), ancestors, data);
 		}
 	}
@@ -170,8 +161,8 @@ void MarginalAncestralStateReconstruction::recursiveMarginalAncestralStates(
 AlignedSequenceContainer* MarginalAncestralStateReconstruction::getAncestralSequences(bool sample) const
 {
   AlignedSequenceContainer * asc = new AlignedSequenceContainer(alphabet_);
-  vector<int> ids = tree_.getNodesId();
-  for(unsigned int i = 0; i < ids.size(); i++)
+  vector<int> ids = tree_.getInnerNodesId();
+  for (unsigned int i = 0; i < ids.size(); i++)
   {
     Sequence* seq = getAncestralSequenceForNode(ids[i], NULL, sample);
     asc->addSequence(*seq);
