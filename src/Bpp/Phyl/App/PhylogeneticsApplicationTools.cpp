@@ -1119,7 +1119,7 @@ FrequenciesSet* PhylogeneticsApplicationTools::getFrequenciesSetDefaultInstance(
    KeyvalTools::parseProcedure(freqDescription, freqName, args);
    FrequenciesSet* pFS;
 
-  if (freqName == "Full")
+  if (freqName.substr(0, 4) == "Full")
   {
     if (AlphabetTools::isNucleicAlphabet(alphabet))
     {
