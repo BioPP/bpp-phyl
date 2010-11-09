@@ -113,10 +113,10 @@ class JTT92 :
 	public:
     std::string getName() const 
     { 
-      if (freqSet_->getNamespace() == "JTT92")
+      if (freqSet_->getNamespace() == "JTT92+F.")
+        return "JTT92+F"; 
+      else 
         return "JTT92"; 
-    else 
-      return "JTT92+F"; 
     }
 
     void fireParameterChanged(const ParameterList& parameters)
