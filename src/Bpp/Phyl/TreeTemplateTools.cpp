@@ -906,3 +906,38 @@ void TreeTemplateTools::getBranchProperties(Node& node, const string& propertyNa
 
 /******************************************************************************/
 
+unsigned int TreeTemplateTools::orderTree(Node& node, bool downward)
+{
+  if (node.isLeaf()) return 1;
+
+  vector<unsigned int> nbSons;
+  for (unsigned int i = 0; i < node.getNumberOfSons(); i++) {
+    nbSons.push_back(orderTree(*node.getSon(i), downward));    
+  }
+  unsigned int s = VectorTools::sum(nbSons);
+
+  //Now swap nodes:
+  if (downward) {
+    for (unsigned int i = 0; i < nbSons.size() - 1; ++i) {
+      unsigned int pos = VectorTools::whichMax(nbSons);
+      if (pos != i) {
+        node.swap(i, pos);
+        nbSons[pos] = nbSons[i];
+      }
+      nbSons[i] = 0;
+    }
+  } else {
+    for (unsigned int i = 0; i < nbSons.size() - 1; ++i) {
+      unsigned int pos = VectorTools::whichMin(nbSons);
+      if (pos != i) {
+        node.swap(i, pos);
+        nbSons[pos] = nbSons[i];
+      }
+      nbSons[i] = s + 1;
+    }
+  }
+  return s;
+}
+
+/******************************************************************************/
+

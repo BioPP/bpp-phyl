@@ -194,10 +194,10 @@ class JCprot:
 
     std::string getName() const 
   { 
-    if (freqSet_->getNamespace() == "JC69")
-      return "JC69"; 
-    else 
+    if (freqSet_->getNamespace() == "JC69+F.")
       return "JC69+F"; 
+    else 
+      return "JC69"; 
   }
 	
     void fireParameterChanged(const ParameterList& parameters)

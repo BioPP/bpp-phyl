@@ -113,10 +113,10 @@ class DSO78 :
 	public:
     std::string getName() const 
   { 
-    if (freqSet_->getNamespace() == "DSO78")
-      return "DSO78"; 
-    else 
+    if (freqSet_->getNamespace() == "DSO78+F.")
       return "DSO78+F"; 
+    else 
+      return "DSO78"; 
   }
 
     void fireParameterChanged(const ParameterList& parameters)

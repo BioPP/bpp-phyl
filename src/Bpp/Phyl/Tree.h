@@ -195,6 +195,8 @@ namespace bpp
 
     virtual std::vector<int> getNodesId() const = 0;
 		
+    virtual std::vector<int> getInnerNodesId() const = 0;
+		
     virtual std::vector<int> getBranchesId() const = 0;
 
     virtual std::vector<int> getSonsId(int parentId) const throw (NodeNotFoundException) = 0;

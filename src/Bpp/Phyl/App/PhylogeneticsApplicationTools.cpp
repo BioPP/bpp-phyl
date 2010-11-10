@@ -1119,7 +1119,7 @@ FrequenciesSet* PhylogeneticsApplicationTools::getFrequenciesSetDefaultInstance(
    KeyvalTools::parseProcedure(freqDescription, freqName, args);
    FrequenciesSet* pFS;
 
-  if (freqName == "Full")
+  if (freqName.substr(0, 4) == "Full")
   {
     if (AlphabetTools::isNucleicAlphabet(alphabet))
     {
@@ -2076,6 +2076,21 @@ throw (Exception)
 
 /******************************************************************************/
 
+void PhylogeneticsApplicationTools::checkEstimatedParameters(const ParameterList& pl)
+{
+  for (unsigned int i = 0; i < pl.size(); ++i) {
+    const Constraint* constraint = pl[i].getConstraint();
+    if (constraint) {
+      double value = pl[i].getValue();
+      if (!constraint->isCorrect(value - 1e-6) || !constraint->isCorrect(value + 1e-6)) {
+        ApplicationTools::displayWarning("This parameter has a value close to the boundary: " + pl[i].getName() + "(" + TextTools::toString(value) + ").");
+      }
+    }
+  }
+}
+
+/******************************************************************************/
+
 void PhylogeneticsApplicationTools::writeTree(
   const TreeTemplate<Node>& tree,
   map<string, string>& params,
@@ -2180,56 +2195,56 @@ void PhylogeneticsApplicationTools::describeSubstitutionModel_(const Substitutio
   }
   else
   {
-      const MarkovModulatedSubstitutionModel* trial3 = dynamic_cast<const MarkovModulatedSubstitutionModel*>(model);
-      if (trial3)
+    const MarkovModulatedSubstitutionModel* trial3 = dynamic_cast<const MarkovModulatedSubstitutionModel*>(model);
+    if (trial3)
+    {
+      out << trial3->getName() << "(model=";
+      const SubstitutionModel* nestedModel = trial3->getNestedModel();
+      describeSubstitutionModel_(nestedModel, out, globalAliases);
+      out << ", ";
+      vector<string> names;
+      const G2001* trial4 = dynamic_cast<const G2001*>(model);
+      if (trial4)
       {
-        out << trial3->getName() << "(model=";
-        const SubstitutionModel* nestedModel = trial3->getNestedModel();
+        // Also print distribution here:
+        out << "rdist=";
+        const DiscreteDistribution* nestedDist = trial4->getRateDistribution();
+        describeDiscreteDistribution_(nestedDist, out, globalAliases);
+        out << ", ";
+        names.push_back(trial4->getParameter("nu").getName());
+      }
+      const TS98* trial5 = dynamic_cast<const TS98*>(model);
+      if (trial5)
+      {
+        names.push_back(trial5->getParameter("s1").getName());
+        names.push_back(trial5->getParameter("s2").getName());
+      }
+      describeParameters_(trial3, out, globalAliases, names);
+      out << ")";
+    }
+    else
+    {
+      const RE08* trial4 = dynamic_cast<const RE08*>(model);
+      if (trial4)
+      {
+        out << trial4->getName() << "(model=";
+        const SubstitutionModel* nestedModel = trial4->getNestedModel();
         describeSubstitutionModel_(nestedModel, out, globalAliases);
         out << ", ";
         vector<string> names;
-        const G2001* trial4 = dynamic_cast<const G2001*>(model);
-        if (trial4)
-        {
-          // Also print distribution here:
-          out << "rdist=";
-          const DiscreteDistribution* nestedDist = trial4->getRateDistribution();
-          describeDiscreteDistribution_(nestedDist, out, globalAliases);
-          out << ", ";
-          names.push_back(trial4->getParameter("nu").getName());
-        }
-        const TS98* trial5 = dynamic_cast<const TS98*>(model);
-        if (trial5)
-        {
-          names.push_back(trial5->getParameter("s1").getName());
-          names.push_back(trial5->getParameter("s2").getName());
-        }
-        describeParameters_(trial3, out, globalAliases, names);
+        names.push_back(trial4->getParameter("lambda").getName());
+        names.push_back(trial4->getParameter("mu").getName());
+        describeParameters_(trial4, out, globalAliases, names);
         out << ")";
       }
       else
       {
-        const RE08* trial4 = dynamic_cast<const RE08*>(model);
-        if (trial4)
-        {
-          out << trial4->getName() << "(model=";
-          const SubstitutionModel* nestedModel = trial4->getNestedModel();
-          describeSubstitutionModel_(nestedModel, out, globalAliases);
-          out << ", ";
-          vector<string> names;
-          names.push_back(trial4->getParameter("lambda").getName());
-          names.push_back(trial4->getParameter("mu").getName());
-          describeParameters_(trial4, out, globalAliases, names);
-          out << ")";
-        }
-        else
-        {
-          out << model->getName() << "(";
-          describeParameters_(model, out, globalAliases, model->getIndependentParameters().getParameterNames());
-          out << ")";
-        }
+        out << model->getName() << "(";
+        describeParameters_(model, out, globalAliases, model->getIndependentParameters().getParameterNames());
+        out << ")";
       }
     }
+  }
 }
 
 /******************************************************************************/

@@ -563,6 +563,15 @@ namespace bpp
       throw (Exception);
     
     /**
+     * @brief Check if parameter values are close to their definition boundary.
+     *
+     * This allows the detection of potential optimization issues.
+     * A warning message will be output for each problematic parameter.
+     *
+     * @param pl A list of parameters. Parameters without constraint will be ignored.
+     */
+    static void checkEstimatedParameters(const ParameterList& pl);
+    /**
      * @brief Write a tree according to options.
      *
      * See the Bio++ Program Suite manual for a descriptio of all available options.
