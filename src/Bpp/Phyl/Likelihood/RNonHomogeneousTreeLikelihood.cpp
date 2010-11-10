@@ -299,7 +299,6 @@ void RNonHomogeneousTreeLikelihood::fireParameterChanged(const ParameterList& pa
     }
     rootFreqs_ = modelSet_->getRootFrequencies();
   }
-  computeAllTransitionProbabilities();
   computeTreeLikelihood();
 
   minusLogLik_ = - getLogLikelihood();
@@ -1347,6 +1346,4 @@ void RNonHomogeneousTreeLikelihood::displayLikelihood(const Node * node)
   displayLikelihoodArray(likelihoodData_->getLikelihoodArray(node->getId()));
   cout << "                                         ***" << endl;
 }
-
-/*******************************************************************************/
 
