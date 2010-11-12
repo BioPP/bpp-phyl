@@ -49,10 +49,14 @@ namespace bpp
 
 /**
  * @brief This class is used by MutationProcess to store detailed results of simulations.
+ *
+ * @author Julien Dutheil
  */
 class MutationPath
 {
 	private:
+
+    const Alphabet* alphabet_;
 
 		/**
 		 * @brief The states taken, without intiial state.
@@ -84,8 +88,20 @@ class MutationPath
 		 * @param initialState The initial state.
 		 * @param time         The total time of evolution.
 		 */
-		MutationPath(int initialState, double time) :
-      states_(), times_(), initialState_(initialState), totalTime_(time) {};
+		MutationPath(const Alphabet* alphabet, int initialState, double time) :
+      alphabet_(alphabet), states_(), times_(), initialState_(initialState), totalTime_(time) {};
+		
+    MutationPath(const MutationPath& path) :
+      alphabet_(path.alphabet_), states_(path.states_), times_(path.times_), initialState_(path.initialState_), totalTime_(path.totalTime_) {};
+
+    MutationPath& operator=(const MutationPath& path) {
+      alphabet_     = path.alphabet_;
+      states_       = path.states_;
+      times_        = path.times_;
+      initialState_ = path.initialState_;
+      totalTime_    = path.totalTime_;
+      return *this;
+    }
 
 		virtual ~MutationPath() {};
 
@@ -117,11 +133,28 @@ class MutationPath
 		double getTotalTime() const { return totalTime_; }
 		
 		/**
-		 * @brief Retrieve the number of mutation events.
+		 * @brief Retrieve the number of substitution events.
 		 *
-		 * @return The numbe rof mutation events, i.e. the numer of states (without initial state).
+		 * @return The number of substitution events, i.e. the number of states (without initial state).
 		 */
 		unsigned int getNumberOfEvents() const { return states_.size(); }
+
+    /**
+     * @brief Retrieve the number of substitution events per type of substitution.
+     *
+     * @param counts A matrix with the same size as the alphabet. The substitution counts will be incremented according to the mutation path, which allows to efficiently sum various mutation paths with a look.
+     */
+    void getEventCounts(Matrix<unsigned int>& counts) const {
+      if (counts.getNumberOfRows()    != alphabet_->getSize()
+       || counts.getNumberOfColumns() != alphabet_->getSize())
+        throw Exception("MutationPath::getEventCounts. Incorrect input matrix, does not match alphabet size.");
+      int currentState = initialState_;
+      for (size_t i = 0; i < states_.size(); ++i) {
+        int newState = states_[i];
+        counts(currentState, newState)++;
+        currentState = newState;
+      }
+    }
 
 		/**
 		 * @brief Retrieve the final state of this path.
@@ -129,7 +162,7 @@ class MutationPath
 		 * @return The initial state if no mutation occured, otherwise sends the state after last mutation event.
 		 */
 		int getFinalState() const {
-			if(states_.size() == 0) return initialState_;
+			if (states_.size() == 0) return initialState_;
 			else return states_[states_.size() - 1];
 		}
 };

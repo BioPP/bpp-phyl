@@ -125,6 +125,10 @@ class SiteSimulationResult
 
     virtual int getAncestralState(int nodeId) const { return ancestralStates_[indexes_[nodeId]]; }
 
+    virtual const MutationPath& getMutationPath(unsigned int i) const { return paths_[i]; }
+
+    virtual const MutationPath& getMutationPath(int nodeId) const { return paths_[indexes_[nodeId]]; }
+
     virtual unsigned int getSubstitutionCount(unsigned int i) const { return paths_[i].getNumberOfEvents(); }
     
     virtual unsigned int getSubstitutionCount(int nodeId) const { return paths_[indexes_[nodeId]].getNumberOfEvents(); }

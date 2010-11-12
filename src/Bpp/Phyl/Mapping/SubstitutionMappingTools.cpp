@@ -590,7 +590,7 @@ ProbabilisticSubstitutionMapping* SubstitutionMappingTools::computeSubstitutionV
         // Now the vector computation:
         // Here we do not average over all possible pair of ancestral states,
         // We only consider the one with max likelihood:
-        vector<unsigned int> xy = MatrixTools::whichmax(pairProbabilities);
+        vector<unsigned int> xy = MatrixTools::whichMax(pairProbabilities);
         substitutionsForCurrentNode[i] += subsCounts(xy[0], xy[1]) / pairProbabilities(xy[0], xy[1]);
       }
     }
