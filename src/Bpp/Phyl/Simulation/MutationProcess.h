@@ -85,6 +85,7 @@ class MutationPath
 		/**
 		 * @brief Builds a new MutationPath object with initial state 'initialState' and total time 'time'.
 		 *
+     * @param alphabet     The alphabet associated to the states in this path.
 		 * @param initialState The initial state.
 		 * @param time         The total time of evolution.
 		 */
