@@ -81,7 +81,7 @@ CodonAsynonymousReversibleSubstitutionModel::CodonAsynonymousReversibleSubstitut
   if (pdistance_)
     addParameter_(Parameter("CodonAsynonymous.alpha",1,&Parameter::R_PLUS_STAR));
 
-  addParameter_(Parameter("CodonAsynonymous.beta",1,&Parameter::R_PLUS));
+  addParameter_(Parameter("CodonAsynonymous.beta",1,&Parameter::R_PLUS_STAR));
 
   updateMatrices();
 }
