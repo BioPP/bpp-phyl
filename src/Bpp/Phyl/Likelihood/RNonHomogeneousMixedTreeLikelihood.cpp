@@ -1,8 +1,7 @@
 //
 // File: RNonHomogeneousMixedTreeLikelihood.cpp
 // Created by: Laurent Gueguen
-// Created on: December 2009
-// From file: RHomogeneousMixedTreeLikelihood.cpp
+// Created on: jeudi 11 novembre 2010, à 07h 56
 //
 
 /*
@@ -41,6 +40,7 @@
 #include "RNonHomogeneousMixedTreeLikelihood.h"
 #include "../PatternTools.h"
 #include "../Model.all"
+#include "../TreeTools.h"
 
 #include <Bpp/Text/TextTools.h>
 #include <Bpp/App/ApplicationTools.h>
@@ -54,151 +54,225 @@ using namespace std;
 
 /******************************************************************************/
 
-RNonHomogeneousMixedTreeLikelihood::RNonHomogeneousMixedTreeLikelihood(
-                                                                       const Tree& tree,
+RNonHomogeneousMixedTreeLikelihood::RNonHomogeneousMixedTreeLikelihood(const Tree& tree,
                                                                        SubstitutionModelSet* modelSet,
                                                                        DiscreteDistribution* rDist,
                                                                        bool verbose,
                                                                        bool usePatterns)
   throw (Exception) :
   RNonHomogeneousTreeLikelihood(tree, modelSet, rDist, verbose, usePatterns),
-  treeLikelihoodsContainer_(),
-  probas_()
+  mvTreeLikelihoods_(),
+  mvProbas_(),
+  vNumModels_(),
+  upperNode_(tree.getRootId())
 {
   if (!modelSet->isFullySetUpFor(tree))
     throw Exception("RNonHomogeneousMixedTreeLikelihood(constructor). Model set is not fully specified.");
 
-  map<int, int> mapmodels;
-  unsigned int ttmodels = 1;
   unsigned int nbmodels = modelSet->getNumberOfModels();
-  MixedSubstitutionModel* pmsm;
-  SubstitutionModel* psm;
+
+  vector<int> vsubmod;
   for (unsigned int i = 0; i < nbmodels; i++)
-    {
-      if ((pmsm = dynamic_cast< MixedSubstitutionModel*>(modelSet->getModel(i))) != 0)
-        mapmodels[i] = pmsm->getNumberOfModels();
-      else
-        mapmodels[i] = 1;
-      ttmodels *= mapmodels[i];
-    }
+    if (dynamic_cast<MixedSubstitutionModel*>(modelSet->getModel(i))!= NULL)
+      vsubmod.push_back(-1); 
+    else
+      vsubmod.push_back(0);
+  
+  init(tree, NULL, modelSet, vsubmod, rDist, verbose, usePatterns);
 
-  SubstitutionModelSet* psms;
-  int s;
-  vector<string> vn;
-
-  for (unsigned int i = 0; i < ttmodels; i++)
-    {
-      s = i;
-
-      if (modelSet->getRootFrequenciesSet())
-        psms = new SubstitutionModelSet(modelSet->getAlphabet(),modelSet->getRootFrequenciesSet()->clone());
-      else
-        psms = new SubstitutionModelSet(modelSet->getAlphabet());
-
-      for (unsigned int j = 0; j < nbmodels; j++)
-        {
-          if (mapmodels[j] == 1)
-            psms->addModel(modelSet->getModel(j)->clone(),modelSet->getNodesWithModel(j),
-                           modelSet->getModel(j)->getParameters().getParameterNames());
-          else
-            {
-              pmsm = dynamic_cast< MixedSubstitutionModel*>(modelSet->getModel(j));
-              psm = pmsm->getNModel(s % mapmodels[j]);
-              psms->addModel(psm->clone(),modelSet->getNodesWithModel(j),
-                             psm->getParameters().getParameterNames());
-
-              vn = psms->getModelParameters(j).getParameterNames();
-              s /= mapmodels[j];
-            }
-        }
-      treeLikelihoodsContainer_.push_back(
-                                          new RNonHomogeneousTreeLikelihood(tree, psms, rDist, false, usePatterns));
-      probas_.push_back(1.0/ttmodels);
-
-    }
 }
 
 /******************************************************************************/
 
-RNonHomogeneousMixedTreeLikelihood::RNonHomogeneousMixedTreeLikelihood(
-                                                                       const Tree& tree,
+RNonHomogeneousMixedTreeLikelihood::RNonHomogeneousMixedTreeLikelihood(const Tree& tree,
                                                                        const SiteContainer& data,
                                                                        SubstitutionModelSet* modelSet,
                                                                        DiscreteDistribution* rDist,
                                                                        bool verbose,
                                                                        bool usePatterns)
   throw (Exception) :
-  RNonHomogeneousTreeLikelihood(tree, modelSet, rDist, verbose, usePatterns),
-  treeLikelihoodsContainer_(),
-  probas_()
+  RNonHomogeneousTreeLikelihood(tree, data, modelSet, rDist, verbose, usePatterns),
+  mvTreeLikelihoods_(),
+  mvProbas_(),
+  vNumModels_(),
+  upperNode_(tree.getRootId())
 {
   if (!modelSet->isFullySetUpFor(tree))
     throw Exception("RNonHomogeneousMixedTreeLikelihood(constructor). Model set is not fully specified.");
 
-  map<int, int> mapmodels;
-  unsigned int ttmodels = 1;
   unsigned int nbmodels = modelSet->getNumberOfModels();
-  MixedSubstitutionModel* pmsm;
-  SubstitutionModel* psm;
+
+  vector<int> vsubmod;
   for (unsigned int i = 0; i < nbmodels; i++)
-    {
-      if ((pmsm = dynamic_cast< MixedSubstitutionModel*>(modelSet->getModel(i))) != 0)
-        mapmodels[i] = pmsm->getNumberOfModels();
-      else
-        mapmodels[i] = 1;
-      ttmodels *= mapmodels[i];
-    }
+    if (dynamic_cast<MixedSubstitutionModel*>(modelSet->getModel(i))!= NULL)
+      vsubmod.push_back(-1); 
+    else
+      vsubmod.push_back(0);
 
-  SubstitutionModelSet* psms;
-  int s=0;
-  vector<string> vn;
-
-  for (unsigned int i = 0; i < ttmodels; i++)
-    {
-      s = i;
-      if (modelSet->getRootFrequenciesSet())
-        psms = new SubstitutionModelSet(modelSet->getAlphabet(),modelSet->getRootFrequenciesSet()->clone());
-      else
-        psms = new SubstitutionModelSet(modelSet->getAlphabet());
-
-      for (unsigned int j = 0; j < nbmodels; j++)
-        {
-          if (mapmodels[j] == 1)
-            psms->addModel(modelSet->getModel(j)->clone(),modelSet->getNodesWithModel(j),
-                           modelSet->getModel(j)->getParameters().getParameterNames());
-          else
-            {
-              pmsm = dynamic_cast< MixedSubstitutionModel*>(modelSet->getModel(j));
-              psm = pmsm->getNModel(s % mapmodels[j]);
-
-              psms->addModel(psm->clone(),modelSet->getNodesWithModel(j),
-                             psm->getParameters().getParameterNames());
-
-              vn = psms->getModelParameters(j).getParameterNames();
-              s /= mapmodels[j];
-            }
-        }
-      treeLikelihoodsContainer_.push_back(
-                                          new RNonHomogeneousTreeLikelihood(tree, psms, rDist, false, usePatterns));
-      probas_.push_back(1.0/ttmodels);
-    }
-
-  setData(data);
+  init(tree, &data, modelSet, vsubmod, rDist, verbose, usePatterns);
 }
+
+/******************************************************************************/
+
+RNonHomogeneousMixedTreeLikelihood::RNonHomogeneousMixedTreeLikelihood(const Tree& tree,
+                                                                       SubstitutionModelSet* modelSet,
+                                                                       std::vector<int> &vsubmod,
+                                                                       int upperNode,
+                                                                       DiscreteDistribution* rDist,
+                                                                       bool verbose,
+                                                                       bool usePatterns): 
+  RNonHomogeneousTreeLikelihood(tree, modelSet, rDist, verbose, usePatterns),
+  mvTreeLikelihoods_(),
+  mvProbas_(),
+  vNumModels_(),
+  upperNode_(upperNode)
+{
+  if (!modelSet->isFullySetUpFor(tree))
+    throw Exception("RNonHomogeneousMixedTreeLikelihood(constructor). Model set is not fully specified.");
+
+  init(tree, NULL, modelSet, vsubmod, rDist, verbose, usePatterns);
+}
+
+/******************************************************************************/
+
+RNonHomogeneousMixedTreeLikelihood::RNonHomogeneousMixedTreeLikelihood(const Tree& tree,
+                                                                       const SiteContainer& data,
+                                                                       SubstitutionModelSet* modelSet,
+                                                                       std::vector<int> &vsubmod,
+                                                                       int upperNode,
+                                                                       DiscreteDistribution* rDist,
+                                                                       bool verbose,
+                                                                       bool usePatterns) :
+  RNonHomogeneousTreeLikelihood(tree, data, modelSet, rDist, verbose, usePatterns),
+  mvTreeLikelihoods_(),
+  mvProbas_(),
+  vNumModels_(),
+  upperNode_(upperNode)
+{
+  if (!modelSet->isFullySetUpFor(tree))
+    throw Exception("RNonHomogeneousMixedTreeLikelihood(constructor). Model set is not fully specified.");
+
+  init(tree, &data, modelSet, vsubmod, rDist, verbose, usePatterns);
+}
+
+/******************************************************************************/
+
+void RNonHomogeneousMixedTreeLikelihood::init(const Tree& tree,
+                                              const SiteContainer* pdata,
+                                              SubstitutionModelSet* modelSet,
+                                              std::vector<int> &vsubmod,
+                                              DiscreteDistribution* rDist,
+                                              bool verbose,
+                                              bool usePatterns)
+{
+  std::vector<int> vDesc; // vector of the explorated descendents
+  int desc;
+  vector<int> vn;
+  unsigned int nbmodels = modelSet->getNumberOfModels();
+
+  for (unsigned int i = 0; i < nbmodels; i++)
+    vNumModels_.push_back(vsubmod[i]); 
+
+  vDesc.push_back(upperNode_); // start of the exploration
+
+  while (vDesc.size()!=0){    
+    desc=vDesc.back();
+    vDesc.pop_back();
+    vector<int> vExpMod; // vector of the ids of the MixedModels which
+                         // nodes are not in only one subtree under desc
+
+    vector<int> vson=tree.getSonsId(desc);
+    std::map<int, vector<int> > mdesc; // map of the subtree nodes for
+                                       // each son of desc
+    for (unsigned int i=0;i<vson.size();i++){
+      std::vector<int> vi;
+      TreeTools::getNodesId(tree,vson[i],vi);
+      mdesc[vson[i]]=vi;
+    }
+  
+    for (unsigned int i = 0; i < nbmodels; i++){
+      if (vNumModels_[i]==-1){
+        vn=modelSet->getNodesWithModel(i); // nodes associated to model
+
+        /* Check if the vn members are in the same subtree */
+        unsigned int flag=0; // count of the subtrees that have vn members
+        std::map<int, vector<int> >::iterator it;
+        for (it=mdesc.begin();it!=mdesc.end();it++){
+          for (unsigned int j=0; j<it->second.size();j++){
+            if (it->second[j]!=it->first){
+              if (find(vn.begin(),vn.end(),it->second[j])!=vn.end()){
+                flag+=(find(vn.begin(),vn.end(),it->first)!=vn.end())?2:1; // check if the son
+                                                               // has this model too
+              break;
+              }
+            }
+            else 
+              if (find(vn.begin(),vn.end(),it->first)!=vn.end())
+                flag++;
+          }
+          if (flag>=2)
+            break;
+        }
+        if (flag>=2)
+          vExpMod.push_back(i); //mixed model that must be expanded
+      }
+    }
+
+    if (vExpMod.size()!=0){
+      std::map<int, int> mapmodels;
+      unsigned int ttmodels=1;
+      for (vector<int>::iterator it=vExpMod.begin(); it!=vExpMod.end(); it++){
+        mapmodels[*it] = dynamic_cast< MixedSubstitutionModel*>(modelSet->getModel(*it))->getNumberOfModels();
+        ttmodels *= mapmodels[*it];
+      }
+
+      for (unsigned int i = 0; i < ttmodels; i++){
+        double proba=1;
+        std::vector<int> vind;
+        unsigned int s = i;        
+        for (unsigned int j = 0; j < nbmodels; j++){
+          if ((vNumModels_[j] != -1) || find(vExpMod.begin(),vExpMod.end(),j)==vExpMod.end())
+            vind.push_back(vNumModels_[j]);
+          else {
+            vind.push_back(s % mapmodels[j]);
+            proba*=dynamic_cast< MixedSubstitutionModel*>(modelSet->getModel(j))->getNProbability(s % mapmodels[j]);
+            s /= mapmodels[j];
+          }
+        }
+        RNonHomogeneousMixedTreeLikelihood* pr;
+        if (pdata!=NULL)
+          pr=new RNonHomogeneousMixedTreeLikelihood(tree, *pdata, modelSet, vind, desc, rDist, false, usePatterns);
+        else 
+          pr=new RNonHomogeneousMixedTreeLikelihood(tree, modelSet, vind, desc, rDist, false, usePatterns);
+        pr->resetParameters_();
+        mvTreeLikelihoods_[desc].push_back(pr);
+        mvProbas_[desc].push_back(proba);
+      }
+    }
+    else
+      for (unsigned int i=0;i<vson.size();i++)
+        vDesc.push_back(vson[i]);
+  }
+}
+
 
 /******************************************************************************/
 
 RNonHomogeneousMixedTreeLikelihood::RNonHomogeneousMixedTreeLikelihood(
                                                                        const RNonHomogeneousMixedTreeLikelihood& lik) :
   RNonHomogeneousTreeLikelihood(lik),
-  treeLikelihoodsContainer_(lik.treeLikelihoodsContainer_.size()),
-  probas_(lik.probas_.size())
+  mvTreeLikelihoods_(),
+  mvProbas_(lik.mvProbas_),
+  vNumModels_(lik.vNumModels_),
+  upperNode_(lik.upperNode_)
 {
-  for (unsigned int i = 0; i < lik.treeLikelihoodsContainer_.size(); i++)
-    {
-      treeLikelihoodsContainer_[i] =lik.treeLikelihoodsContainer_[i]->clone();
-      probas_[i]=lik.probas_[i];
+  map<int, vector<RNonHomogeneousMixedTreeLikelihood*> >::const_iterator it;
+  for (it=lik.mvTreeLikelihoods_.begin();it!=lik.mvTreeLikelihoods_.end();it++){
+    for (unsigned int i = 0; i<it->second.size(); i++){
+        mvTreeLikelihoods_[it->first].push_back(new RNonHomogeneousMixedTreeLikelihood(*it->second[i]));
+
     }
+  }
 }
 
 /******************************************************************************/
@@ -208,14 +282,28 @@ RNonHomogeneousMixedTreeLikelihood& RNonHomogeneousMixedTreeLikelihood::operator
 {
   RNonHomogeneousTreeLikelihood::operator=(lik);
 
-  treeLikelihoodsContainer_.clear();
-  probas_.clear();
+  vNumModels_.clear();
+  mvTreeLikelihoods_.clear();
+  mvProbas_.clear();
 
-  for (unsigned int i = 0; i < lik.treeLikelihoodsContainer_.size(); i++)
-    {
-      treeLikelihoodsContainer_.push_back(lik.treeLikelihoodsContainer_[i]->clone());
-      probas_.push_back(lik.probas_[i]);
+  upperNode_=lik.upperNode_;
+  
+  map<int, vector<RNonHomogeneousMixedTreeLikelihood*> >::const_iterator it;
+  for (it=lik.mvTreeLikelihoods_.begin();it!=lik.mvTreeLikelihoods_.end();it++){
+    for (unsigned int i = 0; i < it->second.size(); i++){
+      mvTreeLikelihoods_[it->first].push_back(new RNonHomogeneousMixedTreeLikelihood(*it->second[i]));
+
     }
+  }
+  map<int, vector<double> >::const_iterator it2;
+  for (it2=lik.mvProbas_.begin();it2!=lik.mvProbas_.end();it2++){
+    for (unsigned int i = 0; i < it2->second.size(); i++){
+      mvProbas_[it2->first].push_back(it2->second[i]);
+    }
+  }
+  for (unsigned int i = 0; i < lik.vNumModels_.size(); i++)
+      vNumModels_.push_back(lik.vNumModels_[i]);
+
   return *this;
 }
 
@@ -223,309 +311,344 @@ RNonHomogeneousMixedTreeLikelihood& RNonHomogeneousMixedTreeLikelihood::operator
 
 RNonHomogeneousMixedTreeLikelihood::~RNonHomogeneousMixedTreeLikelihood()
 {
-  unsigned s = treeLikelihoodsContainer_.size();
-  for (unsigned int i = 0; i < s; i++)
-    {
-      delete treeLikelihoodsContainer_[i];
-    }
+  map<int, vector<RNonHomogeneousMixedTreeLikelihood*> >::iterator it;
+  for (it=mvTreeLikelihoods_.begin();it!=mvTreeLikelihoods_.end();it++)
+    for (unsigned int i = 0; i < it->second.size(); i++)
+      delete it->second[i];
 }
-
 
 /******************************************************************************/
 void RNonHomogeneousMixedTreeLikelihood::initialize() throw (Exception)
 {
-
-  for (unsigned int i = 0; i < treeLikelihoodsContainer_.size(); i++)
-    {
-      treeLikelihoodsContainer_[i]->initialize();
-    }
   initParameters();
   initialized_ = true;
+  map<int, vector<RNonHomogeneousMixedTreeLikelihood*> >::iterator it;
+  for (it=mvTreeLikelihoods_.begin();it!=mvTreeLikelihoods_.end();it++)
+    for (unsigned int i = 0; i < it->second.size(); i++)
+      it->second[i] ->initialize();
+
   fireParameterChanged(getParameters());
 }
 
+/******************************************************************************/
+
+void RNonHomogeneousMixedTreeLikelihood::fireParameterChanged(const ParameterList& params)
+{
+  applyParameters();
+
+  map<int, vector<RNonHomogeneousMixedTreeLikelihood*> >::iterator it;
+  for (it=mvTreeLikelihoods_.begin();it!=mvTreeLikelihoods_.end();it++)
+    for (unsigned int i = 0; i < it->second.size(); i++)
+      it->second[i] ->matchParametersValues(params);
+
+  if(params.getCommonParametersWith(rateDistribution_->getIndependentParameters()).size() > 0)
+    {
+      computeAllTransitionProbabilities();
+    }
+  else
+    {
+      vector<int> ids;
+      vector<string> tmp = params.getCommonParametersWith(modelSet_->getNodeParameters()).getParameterNames();
+      for(unsigned int i = 0; i < tmp.size(); i++)
+        {
+          vector<int> tmpv = modelSet_->getNodesWithParameter(tmp[i]);
+          ids = VectorTools::vectorUnion(ids, tmpv);
+        }
+      tmp = params.getCommonParametersWith(brLenParameters_).getParameterNames();
+      vector<const Node *> nodes;
+      for(unsigned int i = 0; i < ids.size(); i++) {
+          nodes.push_back(idToNode_[ids[i]]);
+        }
+      vector<const Node *> tmpv;
+      bool test = false;
+      for(unsigned int i = 0; i < tmp.size(); i++)
+        {
+          if(tmp[i] == "BrLenRoot" || tmp[i] == "RootPosition")
+            {
+              if(!test)
+                {
+                  tmpv.push_back(tree_->getRootNode()->getSon(0));
+                  tmpv.push_back(tree_->getRootNode()->getSon(1));
+                  test = true; //Add only once.
+                }
+            }
+          else
+            tmpv.push_back(nodes_[TextTools::to<unsigned int>(tmp[i].substr(5))]);
+        }
+      nodes = VectorTools::vectorUnion(nodes, tmpv);
+
+      for(unsigned int i = 0; i < nodes.size(); i++)
+        {
+          computeTransitionProbabilitiesForNode(nodes[i]);
+        }
+      rootFreqs_ = modelSet_->getRootFrequencies();
+    }
+  computeTreeLikelihood();
+
+  minusLogLik_ = - getLogLikelihood();
+}
 
 /******************************************************************************/
 void RNonHomogeneousMixedTreeLikelihood::setData(const SiteContainer& sites) throw (Exception)
 {
   RNonHomogeneousTreeLikelihood::setData(sites);
-  for (unsigned int i = 0; i < treeLikelihoodsContainer_.size(); i++)
-    {
-      treeLikelihoodsContainer_[i]->setData(sites);
-    }
+  map<int, vector<RNonHomogeneousMixedTreeLikelihood*> >::iterator it;
+  for (it=mvTreeLikelihoods_.begin();it!=mvTreeLikelihoods_.end();it++)
+    for (unsigned int i = 0; i < it->second.size(); i++)
+      it->second[i]->setData(sites);
 }
+
 
 /******************************************************************************/
-double RNonHomogeneousMixedTreeLikelihood::getLikelihood() const
-{
-  return exp(getLogLikelihood());
-}
-
-/******************************************************************************/
-double RNonHomogeneousMixedTreeLikelihood::getLogLikelihood() const
-{
-  unsigned int nbSites=getNumberOfSites();
-  double sum=0;
-  
-  for (unsigned int i = 0; i < nbSites; i++)
-  {
-   sum+=getLogLikelihoodForASite(i);
-  }
-
-  return sum;
-}
-
-/******************************************************************************/
-double RNonHomogeneousMixedTreeLikelihood::getLikelihoodForASite(unsigned int site) const
-{
-  return exp(getLogLikelihoodForASite(site));
-}
-
-/******************************************************************************/
-double RNonHomogeneousMixedTreeLikelihood::getLogLikelihoodForASite(unsigned int site) const
-{
-  vector<double> reslog;
-
-  for (unsigned int i = 0; i < treeLikelihoodsContainer_.size(); i++)
-    {
-      reslog.push_back(treeLikelihoodsContainer_[i]->getLogLikelihoodForASite(site));
-    }
-
-  return VectorTools::logsumexp(reslog,probas_);
-}
-
-/******************************************************************************/
-double RNonHomogeneousMixedTreeLikelihood::getLikelihoodForASiteForARateClass(unsigned int site, unsigned int rateClass) const
-{
-  return exp(getLogLikelihoodForASiteForARateClass(site, rateClass));
-}
-
-/******************************************************************************/
-double RNonHomogeneousMixedTreeLikelihood::getLogLikelihoodForASiteForARateClass(unsigned int site, unsigned int rateClass) const
-{
-  vector<double> reslog;
-
-  for (unsigned int i = 0; i < treeLikelihoodsContainer_.size(); i++)
-    {
-      reslog.push_back(treeLikelihoodsContainer_[i]->getLogLikelihoodForASiteForARateClass(site, rateClass));
-    }
-
-  return VectorTools::logsumexp(reslog,probas_);
-}
-
-/******************************************************************************/
-double RNonHomogeneousMixedTreeLikelihood::getLikelihoodForASiteForARateClassForAState(unsigned int site, unsigned int rateClass, int state) const
-{
-  return exp(getLogLikelihoodForASiteForARateClassForAState(site, rateClass, state));
-}
-
-/******************************************************************************/
-double RNonHomogeneousMixedTreeLikelihood::getLogLikelihoodForASiteForARateClassForAState(unsigned int site, unsigned int rateClass, int state) const
-{
-  vector<double> reslog;
-
-  for (unsigned int i = 0; i < treeLikelihoodsContainer_.size(); i++)
-    {
-      reslog.push_back(treeLikelihoodsContainer_[i]->getLogLikelihoodForASiteForARateClassForAState(site, rateClass, state));
-    }
-
-  return VectorTools::logsumexp(reslog,probas_);
-}
-
-/******************************************************************************/
-void RNonHomogeneousMixedTreeLikelihood::fireParameterChanged(const ParameterList& params)
-{
-  applyParameters();
-
-  unsigned int s;
-  const SubstitutionModel* psm;
-  const MixedSubstitutionModel* pm;
-  SubstitutionModelSet* modelSet = getSubstitutionModelSet();
-  SubstitutionModelSet* psms;
-
-  vector<string> vp;
-
-  for (unsigned int i = 0; i < treeLikelihoodsContainer_.size(); i++)
-    {
-      s = i;
-      probas_[i]=1;
-      ParameterList pl;
-      
-      psms = treeLikelihoodsContainer_[i]->getSubstitutionModelSet();    
-      for (unsigned int j = 0; j < modelSet->getNumberOfModels(); j++)
-        {
-          psm = modelSet->getModel(j);
-          ParameterList plj=psms->getModelParameters(j);
-          pm=dynamic_cast<const MixedSubstitutionModel*>(psm);
-
-          if (pm != NULL){
-            psm = pm->getNModel(s % pm->getNumberOfModels());
-            probas_[i]*=pm->getNProbability(s % pm->getNumberOfModels());
-            s /= pm->getNumberOfModels();
-          }
-      
-          vp=plj.getParameterNames();
-          for (unsigned int j2=0;j2<vp.size();j2++)
-            plj.setParameterValue(vp[j2],
-                                  psm->getParameterValue(psm->getParameterNameWithoutNamespace(psms->getParameterModelName(vp[j2]))));
-          pl.addParameters(plj);
-        }
-
-      pl.addParameters(getBranchLengthsParameters());
-      pl.addParameters(getRateDistributionParameters());
-      pl.addParameters(getRootFrequenciesParameters());
-      
-      treeLikelihoodsContainer_[i]->matchParametersValues(pl);
-    }
-  
-  minusLogLik_ = -getLogLikelihood();
-}
-
-/******************************************************************************/
-void RNonHomogeneousMixedTreeLikelihood::computeTreeLikelihood()
-{
-  for (unsigned int i = 0; i < treeLikelihoodsContainer_.size(); i++)
-    {
-      treeLikelihoodsContainer_[i]->computeTreeLikelihood();
-    }
-}
 
 void RNonHomogeneousMixedTreeLikelihood::computeSubtreeLikelihood(const Node* node)
 {
-  for (unsigned int i = 0; i < treeLikelihoodsContainer_.size(); i++)
-    {
-      treeLikelihoodsContainer_[i]->computeSubtreeLikelihood(node);
-    }
+  // if the subtree is divided in several RNonHomogeneousMixedTreeLikelihood*
+  int nodeId=node->getId();
+  if (mvTreeLikelihoods_.find(nodeId)!=mvTreeLikelihoods_.end()){
+    if(node->isLeaf()) return;
+    
+    unsigned int nbSites  = likelihoodData_->getLikelihoodArray(nodeId).size();
+    
+    // Must reset the likelihood array first (i.e. set all of them to 0):
+    VVVdouble * _likelihoods_node = & likelihoodData_->getLikelihoodArray(nodeId);
+    for(unsigned int i = 0; i < nbSites; i++)
+      {
+        //For each site in the sequence,
+        VVdouble * _likelihoods_node_i = & (* _likelihoods_node)[i];
+        for(unsigned int c = 0; c < nbClasses_; c++)
+          {
+            //For each rate classe,
+            Vdouble * _likelihoods_node_i_c = & (* _likelihoods_node_i)[c];
+            for(unsigned int x = 0; x < nbStates_; x++)
+              {
+                //For each initial state,
+                (* _likelihoods_node_i_c)[x] = 0.;
+              }
+          }
+      }
+
+    
+    vector<RNonHomogeneousMixedTreeLikelihood* > vr=mvTreeLikelihoods_[nodeId];
+    for (unsigned int t=0;t<vr.size();t++)
+      vr[t]->computeSubtreeLikelihood(node);
+
+    // for each specific subtree 
+    for (unsigned int t=0;t<vr.size();t++){
+      VVVdouble * _vt_likelihoods_node = & vr[t]->likelihoodData_->getLikelihoodArray(nodeId);
+      for(unsigned int i = 0; i < nbSites; i++)
+        {
+          //For each site in the sequence,
+          VVdouble * _likelihoods_node_i = & (* _likelihoods_node)[i];
+          for(unsigned int c = 0; c < nbClasses_; c++)
+            {
+              //For each rate classe,
+              Vdouble * _likelihoods_node_i_c = & (* _likelihoods_node_i)[c];
+              Vdouble* _vt_likelihoods_node_i_c=&(*_vt_likelihoods_node)[i][c];
+              for(unsigned int x = 0; x < nbStates_; x++)
+                {
+                  (* _likelihoods_node_i_c)[x] +=  (*_vt_likelihoods_node_i_c)[x] * mvProbas_[nodeId][t];
+                }
+            }
+          }
+      }
+  }
+  
+  // otherwise...
+
+  // nb: if the subtree is made of independent branches the computing is
+  // has in the non mixed case, where the mean of the probas of
+  // transition of a mixed model are taken.
+  
+  else 
+    RNonHomogeneousTreeLikelihood::computeSubtreeLikelihood(node);
+    
 }
 
 /******************************************************************************
  *                           First Order Derivatives                          *
  ******************************************************************************/
-double RNonHomogeneousMixedTreeLikelihood::getDLikelihoodForASiteForARateClass(unsigned int site, unsigned int rateClass) const
-{
-  vector<double> rescontainer;
-  unsigned int i;
-
-  for (i = 0; i < treeLikelihoodsContainer_.size(); i++)
-    {
-      rescontainer.push_back(treeLikelihoodsContainer_[i]->getDLikelihoodForASiteForARateClass(site,rateClass));
-    }
-
-  return VectorTools::sum<double>(rescontainer,probas_);
-}
-
-double RNonHomogeneousMixedTreeLikelihood::getDLikelihoodForASite(unsigned int site) const
-{
-  vector<double> rescontainer;
-  unsigned int i;
-
-  for (i = 0; i < treeLikelihoodsContainer_.size(); i++)
-    {
-      rescontainer.push_back(treeLikelihoodsContainer_[i]->getDLikelihoodForASite(site));
-    }
-
-  return VectorTools::sum<double>(rescontainer,probas_);
-}
-
+ 
 void RNonHomogeneousMixedTreeLikelihood::computeTreeDLikelihood(const string& variable)
 {
-  for (unsigned int i = 0; i < treeLikelihoodsContainer_.size(); i++)
-    {
-      treeLikelihoodsContainer_[i]->computeTreeDLikelihood(variable);
+  const Node* father, father2;
+  
+  if ((variable == "BrLenRoot") ||  (variable=="RootPosition"))
+    father = tree_->getRootNode();
+  else {
+    unsigned int brI = TextTools::to<unsigned int>(variable.substr(5));
+    const Node * branch = nodes_[brI];
+    father = branch->getFather();
+  }
+
+  bool flok=0;
+  while (father){
+    if (mvTreeLikelihoods_.find(father->getId())!=mvTreeLikelihoods_.end()){
+      flok=1;
+      break;
     }
-}
+    if (father->getId()==upperNode_)
+      break;
+    father=father->getFather();
+  }
 
-double RNonHomogeneousMixedTreeLikelihood::getFirstOrderDerivative(const string& variable) const
-  throw (Exception)
-{
-  vector<double> rescontainer;
-  unsigned int i;
+  if (flok){ // there is an expanded model above the derivated branch
+    int fatherId=father->getId();
+    // Compute dLikelihoods array for the father node.
+    // Fist initialize to 0:
+    VVVdouble * _dLikelihoods_father = & likelihoodData_->getDLikelihoodArray(fatherId);
+    unsigned int nbSites  = _dLikelihoods_father->size();
+    for(unsigned int i = 0; i < nbSites; i++)
+      {
+        VVdouble * _dLikelihoods_father_i = & (* _dLikelihoods_father)[i];
+        for(unsigned int c = 0; c < nbClasses_; c++)
+          {
+            Vdouble * _dLikelihoods_father_i_c = & (* _dLikelihoods_father_i)[c];
+            for(unsigned int s = 0; s < nbStates_; s++)
+              {
+                (* _dLikelihoods_father_i_c)[s] = 0.;  
+              }
+          }
+      }
 
-  for (i = 0; i < treeLikelihoodsContainer_.size(); i++)
-    {
-      rescontainer.push_back(treeLikelihoodsContainer_[i]->getFirstOrderDerivative(variable));
+    vector<RNonHomogeneousMixedTreeLikelihood* > vr=mvTreeLikelihoods_[fatherId];
+    for (unsigned int t=0;t<vr.size();t++){
+      vr[t]->computeTreeDLikelihood(variable);
     }
-
-  return VectorTools::sum<double>(rescontainer,probas_);
+    // for each specific subtree 
+    for (unsigned int t=0;t<vr.size();t++){
+      VVVdouble * _vt_dLikelihoods_father = & vr[t]->likelihoodData_->getDLikelihoodArray(fatherId);
+      for(unsigned int i = 0; i < nbSites; i++)
+        {
+          //For each site in the sequence,
+          VVdouble * _dLikelihoods_father_i = & (* _dLikelihoods_father)[i];
+          for(unsigned int c = 0; c < nbClasses_; c++)
+            {
+              //For each rate classe,
+              Vdouble * _dLikelihoods_father_i_c = & (* _dLikelihoods_father_i)[c];
+              Vdouble* _vt_dLikelihoods_father_i_c=&(*_vt_dLikelihoods_father)[i][c];
+              for(unsigned int x = 0; x < nbStates_; x++)
+                {
+                  (* _dLikelihoods_father_i_c)[x] +=  (*_vt_dLikelihoods_father_i_c)[x] * mvProbas_[fatherId][t];
+                }
+            }
+        }
+    }
+    computeDownSubtreeDLikelihood(father);
+  }
+  else{
+    RNonHomogeneousTreeLikelihood::computeTreeDLikelihood(variable);
+  }
 }
 
 void RNonHomogeneousMixedTreeLikelihood::computeDownSubtreeDLikelihood(const Node* node)
 {
-  for (unsigned int i = 0; i < treeLikelihoodsContainer_.size(); i++)
-    {
-      treeLikelihoodsContainer_[i]->computeDownSubtreeDLikelihood(node);
-    }
-}
+  const Node * father = node->getFather();
+  // // We assume that the _dLikelihoods array has been filled for the current node 'node'.
+  // // We will evaluate the array for the father node.
+  if(father == 0) return; // We reached the up!
 
+  if (node->getId()==upperNode_)
+    return; // We reached the top of the subtree
+
+  RNonHomogeneousTreeLikelihood::computeDownSubtreeDLikelihood(node);
+}
 
 /******************************************************************************
  *                           Second Order Derivatives                         *
  ******************************************************************************/
-double RNonHomogeneousMixedTreeLikelihood::getSecondOrderDerivative(const string& variable) const throw (Exception)
-{
-  vector<double> rescontainer;
-  unsigned int i;
-
-  for (i = 0; i < treeLikelihoodsContainer_.size(); i++)
-    {
-      rescontainer.push_back(treeLikelihoodsContainer_[i]->getSecondOrderDerivative(variable));
-    }
-
-  return VectorTools::sum<double>(rescontainer, probas_);
-}
-
-
-double RNonHomogeneousMixedTreeLikelihood::getD2LikelihoodForASiteForARateClass(unsigned int site, unsigned int rateClass) const
-{
-  vector<double> rescontainer;
-  unsigned int i;
-
-  for (i = 0; i < treeLikelihoodsContainer_.size(); i++)
-    {
-      rescontainer.push_back(treeLikelihoodsContainer_[i]->getD2LikelihoodForASiteForARateClass(site,rateClass));
-    }
-
-  return VectorTools::sum<double>(rescontainer,probas_);
-}
-
-double RNonHomogeneousMixedTreeLikelihood::getD2LikelihoodForASite(unsigned int site) const
-{
-  vector<double> rescontainer;
-  unsigned int i;
-
-  for (i = 0; i < treeLikelihoodsContainer_.size(); i++)
-    {
-      rescontainer.push_back(treeLikelihoodsContainer_[i]->getD2LikelihoodForASite(site));
-    }
-
-  return VectorTools::sum<double>(rescontainer,probas_);
-}
 
 void RNonHomogeneousMixedTreeLikelihood::computeTreeD2Likelihood(const string& variable)
 {
-  for (unsigned int i = 0; i < treeLikelihoodsContainer_.size(); i++)
-    {
-      treeLikelihoodsContainer_[i]->computeTreeD2Likelihood(variable);
-    }
+//  for (unsigned int i = 0; i < treeLikelihoodsContainer_.size(); i++)
+//    {
+//      treeLikelihoodsContainer_[i]->computeTreeD2Likelihood(variable);
+//    }
 }
 
 void RNonHomogeneousMixedTreeLikelihood::computeDownSubtreeD2Likelihood(const Node* node)
 {
-  for (unsigned int i = 0; i < treeLikelihoodsContainer_.size(); i++)
-    {
-      treeLikelihoodsContainer_[i]->computeDownSubtreeD2Likelihood(node);
-    }
+//  for (unsigned int i = 0; i < treeLikelihoodsContainer_.size(); i++)
+//    {
+//      treeLikelihoodsContainer_[i]->computeDownSubtreeD2Likelihood(node);
+//    }
 }
 
 
-/******************************************************************************/
-void RNonHomogeneousMixedTreeLikelihood::displayLikelihood(const Node* node)
-{
-  for (unsigned int i = 0; i < treeLikelihoodsContainer_.size(); i++)
-    {
-      treeLikelihoodsContainer_[i]->displayLikelihood(node);
-    }
-}
+
+
+/*******************************************************************************/
+
+ void RNonHomogeneousMixedTreeLikelihood::computeTransitionProbabilitiesForNode(const Node* node)
+ {
+   
+   const SubstitutionModel* model = modelSet_->getModelForNode(node->getId());
+   int modelnum= modelSet_->getModelIndexForNode(node->getId());
+   const MixedSubstitutionModel* pmsm=dynamic_cast<const MixedSubstitutionModel*>(model);
+
+   if (pmsm!=NULL && vNumModels_[modelnum]!=-1)
+     model=pmsm->getNModel(vNumModels_[modelnum]);
+   
+   double l = node->getDistanceToFather(); 
+
+   //Computes all pxy and pyx once for all:
+   VVVdouble * pxy__node = & pxy_[node->getId()];
+   for(unsigned int c = 0; c < nbClasses_; c++)
+     {
+       VVdouble * pxy__node_c = & (* pxy__node)[c];
+       RowMatrix<double> Q = model->getPij_t(l * rateDistribution_->getCategory(c));
+       for(unsigned int x = 0; x < nbStates_; x++)
+         {
+           Vdouble * pxy__node_c_x = & (* pxy__node_c)[x];
+           for(unsigned int y = 0; y < nbStates_; y++)
+             {
+               (* pxy__node_c_x)[y] = Q(x, y);
+             }
+         }
+     }
+
+   if(computeFirstOrderDerivatives_)
+     {
+       //Computes all dpxy/dt once for all:
+       VVVdouble * dpxy__node = & dpxy_[node->getId()];
+
+       for(unsigned int c = 0; c < nbClasses_; c++)
+         {
+           VVdouble * dpxy__node_c = & (* dpxy__node)[c];
+           double rc = rateDistribution_->getCategory(c);
+
+           RowMatrix<double> dQ = model->getdPij_dt(l * rc);  
+
+           for(unsigned int x = 0; x < nbStates_; x++)
+             {
+               Vdouble * dpxy__node_c_x = & (* dpxy__node_c)[x];
+               for(unsigned int y = 0; y < nbStates_; y++)
+                 (* dpxy__node_c_x)[y] = rc * dQ(x, y); 
+             }
+         }
+     }
+
+   if(computeSecondOrderDerivatives_)
+     {
+       //Computes all d2pxy/dt2 once for all:
+       VVVdouble * d2pxy__node = & d2pxy_[node->getId()];
+       for(unsigned int c = 0; c < nbClasses_; c++)
+         {
+           VVdouble * d2pxy__node_c = & (* d2pxy__node)[c];
+           double rc =  rateDistribution_->getCategory(c);
+           RowMatrix<double> d2Q = model->getd2Pij_dt2(l * rc);
+           for(unsigned int x = 0; x < nbStates_; x++)
+             {
+               Vdouble * d2pxy__node_c_x = & (* d2pxy__node_c)[x];
+               for(unsigned int y = 0; y < nbStates_; y++)
+                 {
+                   (* d2pxy__node_c_x)[y] = rc * rc * d2Q(x, y);
+                 }
+             }
+         }
+     }
+
+ }
 
 /*******************************************************************************/
 
