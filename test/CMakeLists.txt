@@ -24,16 +24,20 @@ ENDMACRO(TEST_FIND_LIBRARY)
 #Find the bpp-phyl library library:
 TEST_FIND_LIBRARY(LIBS bpp-phyl Bpp/Phyl/Tree.h)
 
+ADD_EXECUTABLE(test_tree test_tree.cpp)
+TARGET_LINK_LIBRARIES(test_tree ${LIBS})
+ADD_TEST(test_tree "test_tree")
+
 ADD_EXECUTABLE(test_detailed_simulations test_detailed_simulations.cpp)
 TARGET_LINK_LIBRARIES(test_detailed_simulations ${LIBS})
 ADD_TEST(test_detailed_simulations "test_detailed_simulations")
 
 IF(UNIX)
-  SET_PROPERTY(TEST test_detailed_simulations PROPERTY ENVIRONMENT "LD_LIBRARY_PATH=$ENV{LD_LIBRARY_PATH}:../src")
+  SET_PROPERTY(TEST test_detailed_simulations test_tree PROPERTY ENVIRONMENT "LD_LIBRARY_PATH=$ENV{LD_LIBRARY_PATH}:../src")
 ENDIF()
 
 IF(APPLE)
-  SET_PROPERTY(TEST test_detailed_simulations PROPERTY ENVIRONMENT "DYLD_LIBRARY_PATH=$ENV{DYLD_LIBRARY_PATH}:../src")
+  SET_PROPERTY(TEST test_detailed_simulations test_tree PROPERTY ENVIRONMENT "DYLD_LIBRARY_PATH=$ENV{DYLD_LIBRARY_PATH}:../src")
 ENDIF()
 
 IF(WIN32)
