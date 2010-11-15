@@ -295,6 +295,43 @@ namespace bpp
         }
       return b;
     }
+
+    /**
+     * @brief Tells if this tree has the same topology as the one given for comparison.
+     *
+     * This method compares recursively all subtrees. The comparison is performed only on the nodes names and the parental relationships.
+     * Nodes ids are ignored, and so are branch lengths and any branch/node properties. The default is to ignore the ordering of the descendants,
+     * that is (A,B),C) will be considered as having the same topology as (B,A),C). Multifurcations are permited.
+     * If ordering is ignored, a copy of the two trees to be compared is performed and are ordered before comparison, making the whole comparison
+     * slower and more memory greedy.
+     *
+     * @param tree The tree to be compared with.
+     * @param ordered Should the ordering of the branching be taken into account?
+     * @return True if the input tree has the same topology as this one.
+     */
+    template<class N2>
+    bool hasSameTopologyAs(const TreeTemplate<N2>& tree, bool ordered = false) const
+    {
+      const TreeTemplate<N>* t1 = 0;
+      const TreeTemplate<N2>* t2 = 0;
+      if (ordered) {
+        t1 = this;
+        t2 = &tree;
+      } else {
+        TreeTemplate<N>* t1tmp = this->clone();
+        TreeTemplate<N2>* t2tmp = tree.clone();
+        TreeTemplateTools::orderTree(*t1tmp->getRootNode(), true, true);
+        TreeTemplateTools::orderTree(*t2tmp->getRootNode(), true, true);
+        t1 = t1tmp;
+        t2 = t2tmp;
+      }
+      bool test = TreeTemplateTools::haveSameOrderedTopology(*t1->getRootNode(), *t2->getRootNode());
+      if (!ordered) {
+        delete t1;
+        delete t2;
+      }
+      return test;
+    }
 		
     std::vector<double> getBranchLengths() throw (NodeException)
     {

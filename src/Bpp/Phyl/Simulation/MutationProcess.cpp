@@ -102,11 +102,11 @@ int AbstractMutationProcess::evolve(int initialState, double time) const
 
 MutationPath AbstractMutationProcess::detailedEvolve(int initialState, double time) const
 {
-	MutationPath mp(initialState, time);
+	MutationPath mp(model_->getAlphabet(), initialState, time);
 	double t = 0;
 	int currentState = initialState;
   t += getTimeBeforeNextMutationEvent(currentState);
-	while(t < time)
+	while (t < time)
   {
    	currentState = mutate(currentState);
 		mp.addEvent(currentState, t);

@@ -630,7 +630,7 @@ void TreeTools::midpointRooting(Tree& tree)
 {
   if (tree.isRooted()) tree.unroot();
   DistanceMatrix * dist = getDistanceMatrix(tree);
-  vector<unsigned int> pos = MatrixTools::whichmax(*dist);
+  vector<unsigned int> pos = MatrixTools::whichMax(*dist);
   double dmid = (*dist)(pos[0],pos[1]) / 2;
   int id1 = tree.getLeafId(dist->getName(pos[0])); 
   int id2 = tree.getLeafId(dist->getName(pos[1])); 

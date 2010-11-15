@@ -1,14 +1,14 @@
 //
-// File: HomogeneousSequenceSimulator.h
+// File: test_tree.cpp
 // Created by: Julien Dutheil
-// Created on: Wed Aug  24 15:20 2005
+// Created on: Sun Nov 14 10:20 2010
 //
 
 /*
-Copyright or © or Copr. CNRS, (November 16, 2004)
+Copyright or © or Copr. Bio++ Development Team, (November 17, 2004)
 
 This software is a computer program whose purpose is to provide classes
-for phylogenetic data analysis.
+for numerical calculus. This file is part of the Bio++ project.
 
 This software is governed by the CeCILL  license under French law and
 abiding by the rules of distribution of free software.  You can  use, 
@@ -37,41 +37,45 @@ The fact that you are presently reading this means that you have had
 knowledge of the CeCILL license and that you accept its terms.
 */
 
-#ifndef _HOMOGENEOUSSEQUENCESIMULATOR_H_
-#define _HOMOGENEOUSSEQUENCESIMULATOR_H_
+#include <Bpp/Phyl/TreeTemplate.h>
+#include <Bpp/Phyl/TreeTemplateTools.h>
+#include <string>
+#include <vector>
+#include <iostream>
 
-#include "NonHomogeneousSequenceSimulator.h"
+using namespace bpp;
+using namespace std;
 
-namespace bpp
-{
+int main() {
+  //Get some leaf names:
+  vector<string> leaves(100);
+  for (size_t i = 0; i < leaves.size(); ++i)
+    leaves[i] = "leaf" + TextTools::toString(i);
+  
+  for (unsigned int j = 0; j < 1000; ++j) {
+    //Generate a random tree, without branch lengths:
+    TreeTemplate<Node>* tree = TreeTemplateTools::getRandomTree(leaves, true);
+    TreeTemplate<Node>* tree2 = new TreeTemplate<Node>(*tree);
+    if (!tree->hasSameTopologyAs(*tree2))
+      return 1; //Error!!!
+    tree2->getRootNode()->swap(0,1);
+    cout << "First test passed." << endl;
+    if (!tree->hasSameTopologyAs(*tree2))
+      return 1; //Error!!!
+    cout << "Second test passed." << endl;
+  
+    //Convert tree to string and read it again:
+    string newick = TreeTemplateTools::treeToParenthesis(*tree);
+    TreeTemplate<Node>* tree3 = TreeTemplateTools::parenthesisToTree(newick);
+    if (!tree->hasSameTopologyAs(*tree3))
+      return 1; //Error!!!
+    cout << "Third test passed." << endl;
+    
+    //-------------
+    delete tree;
+    delete tree2;
+    delete tree3;
+  }
 
-/**
- * @brief Site and sequences simulation under homogeneous models.
- *
- * This is an alias class, for clarity and backward compatibility.
- */
-class HomogeneousSequenceSimulator:
-  public NonHomogeneousSequenceSimulator
-{
-	public:
-		
-		HomogeneousSequenceSimulator(
-			const SubstitutionModel* model,
-			const DiscreteDistribution* rate,
-			const Tree* tree
-		) : NonHomogeneousSequenceSimulator(model, rate, tree) {}
-			
-		virtual ~HomogeneousSequenceSimulator() {}
-
-	public:
-    const SubstitutionModel* getSubstitutionModel() const
-    {
-      return getSubstitutionModelSet()->getModel(0);
-    }
-	
-};
-
-} //end of namespace bpp.
-
-#endif //_HOMOGENEOUSSEQUENCESIMULATOR_H_
-
+  return 0;
+}
