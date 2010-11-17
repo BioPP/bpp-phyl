@@ -524,7 +524,7 @@ SubstitutionModel* PhylogeneticsApplicationTools::getSubstitutionModelDefaultIns
       else
         throw Exception("Unvalid codon frequency option. Should be one of F0, F1X4, F3X4 or F61");
       
-      codonFreqs = FrequenciesSet::getFrequenciesSetForCodons(opt, *pgc);
+      codonFreqs = FrequenciesSet::getFrequenciesSetForCodons(opt, *pCA);
     }
     
     if (modelName == "MG94")
@@ -1219,6 +1219,20 @@ FrequenciesSet* PhylogeneticsApplicationTools::getFrequenciesSetDefaultInstance(
 
       pFS = new WordFromIndependentFrequenciesSet(pWA, v_AFS);
     }
+  }
+  else if (AlphabetTools::isCodonAlphabet(alphabet)){
+      short opt = 0;
+      if (freqName == "F0")
+        opt = FrequenciesSet::F0;
+      else if (freqName == "F1X4")
+        opt = FrequenciesSet::F1X4;
+      else if (freqName == "F3X4")
+        opt = FrequenciesSet::F3X4;
+      else if (freqName == "F61")
+        opt = FrequenciesSet::F61;
+
+      if (opt)
+        pFS = FrequenciesSet::getFrequenciesSetForCodons(opt, *dynamic_cast<const CodonAlphabet*>(alphabet));
   }
   else
     throw Exception("Unknown frequency option: " + freqName);
