@@ -1,8 +1,7 @@
 //
 // File: RNonHomogeneousMixedLikelihood.h
 // Created by: Laurent Gueguen
-// Created on: 12 2009
-// From file: jeudi 11 novembre 2010, à 07h 56
+// Created on: jeudi 11 novembre 2010, à 07h 56
 //
 
 /*
