@@ -112,7 +112,7 @@ public:
    * @param gc The genetic code to use.
    */
   
-  static FrequenciesSet* getFrequenciesSetForCodons(short option, const GeneticCode& gc);
+  static FrequenciesSet* getFrequenciesSetForCodons(short option, const CodonAlphabet& CA);
 
   static const short F0;
   static const short F1X4;
