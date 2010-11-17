@@ -135,6 +135,23 @@ class TreeTemplateTools
       }
     }
     
+  /**
+   * @brief Retrieve all nodes ids that are ancestors of a node.
+   *
+   * @param node The node
+   * @return A vector of ids.
+   */
+  static std::vector<int> getAncestorsId(const Node& node)
+  {
+    std::vector<int> ids;
+    Node n=node;
+    while (n.hasFather()){
+      n=*n.getFather();
+      ids.push_back(n.getId());
+    }
+    return ids;
+  }
+
     /**
      * @brief Get the id of a leaf given its name in a subtree.
      *

@@ -201,10 +201,13 @@ namespace bpp
 
     virtual std::vector<int> getSonsId(int parentId) const throw (NodeNotFoundException) = 0;
 
+    virtual std::vector<int> getAncestorsId(int nodeId) const throw (NodeNotFoundException) = 0;
+
     virtual int getFatherId(int parentId) const throw (NodeNotFoundException) = 0;
 
     virtual bool hasFather(int nodeId) const throw (NodeNotFoundException) = 0;
-    /** @} */
+
+/** @} */
 
     /**
      * @name Dealing with node names.

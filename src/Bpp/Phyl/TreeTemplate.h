@@ -177,6 +177,8 @@ namespace bpp
 
     std::vector<int> getSonsId(int parentId) const throw (NodeNotFoundException)	{ return getNode(parentId)->getSonsId(); }
 
+    std::vector<int> getAncestorsId(int nodeId) const throw (NodeNotFoundException)	{ return TreeTemplateTools::getAncestorsId(*getNode(nodeId));}
+
     int getFatherId(int parentId) const throw (NodeNotFoundException) { return getNode(parentId)->getFatherId(); }
 
     bool hasFather(int nodeId) const throw (NodeNotFoundException) { return getNode(nodeId)->hasFather(); }
