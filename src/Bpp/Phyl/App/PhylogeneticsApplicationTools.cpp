@@ -646,7 +646,7 @@ SubstitutionModel* PhylogeneticsApplicationTools::getSubstitutionModelDefaultIns
     // Then we update the parameter set:
     for (map<string, string>::iterator it = unparsedParameterValuesNestedModel.begin(); it != unparsedParameterValuesNestedModel.end(); it++)
     {
-      unparsedParameterValues["G01.model_" + it->first] = it->second;
+        unparsedParameterValues["G01.model_" + it->first] = it->second;
     }
     for (map<string, string>::iterator it = unparsedParameterValuesNestedDist.begin(); it != unparsedParameterValuesNestedDist.end(); it++)
     {
@@ -1760,6 +1760,7 @@ throw (Exception)
       ApplicationTools::displayResult("New tree likelihood", -tl->getValue());
   }
 
+  unsigned int i;
   // Should I ignore some parameters?
   ParameterList parametersToEstimate = parameters;
   string paramListDesc = ApplicationTools::getStringParameter("optimization.ignore_parameter", params, "", suffix, suffixIsOptional, false);
@@ -1788,19 +1789,31 @@ throw (Exception)
         if (verbose)
           ApplicationTools::displayResult("Parameter ignored", string("Root frequencies"));
       }
-      else
-      {
+      else if ((i=param.find("*"))!=string::npos){
+        string pref=param.substr(0,i);
+        vector<string> vs;
+        for (unsigned int j=0;j<parametersToEstimate.size();j++){
+          if (parametersToEstimate[j].getName().find(pref)==0)
+            vs.push_back(parametersToEstimate[j].getName());
+        }
+        for (vector<string>::iterator it=vs.begin();it!=vs.end();it++){
+          parametersToEstimate.deleteParameter(*it);
+          if (verbose)
+            ApplicationTools::displayResult("Parameter ignored", *it);
+        }
+      }
+      else {
         parametersToEstimate.deleteParameter(param);
         if (verbose)
           ApplicationTools::displayResult("Parameter ignored", param);
       }
     }
     catch (ParameterNotFoundException& pnfe)
-    {
-      ApplicationTools::displayWarning("Parameter '" + pnfe.getParameter() + "' not found, and so can't be ignored!");
-    }
+      {
+        ApplicationTools::displayWarning("Parameter '" + pnfe.getParameter() + "' not found, and so can't be ignored!");
+      } 
   }
-
+  
   unsigned int nbEvalMax = ApplicationTools::getParameter<unsigned int>("optimization.max_number_f_eval", params, 1000000, suffix, suffixIsOptional);
   if (verbose) ApplicationTools::displayResult("Max # ML evaluations", TextTools::toString(nbEvalMax));
 
