@@ -86,7 +86,7 @@ SubstitutionModelSet* SubstitutionModelSetTools::createNonHomogeneousModelSet(
   for (unsigned int i = 0; i < globalParameterNames.size(); i++)
   {
     if (!globalParameters.hasParameter(globalParameterNames[i]))
-      throw Exception("SubstitutionModelSet::createNonHomogeneousModelSet. Parameter '" + globalParameterNames[i] + "' is not valid.");
+      throw Exception("SubstitutionModelSetTools::createNonHomogeneousModelSet. Parameter '" + globalParameterNames[i] + "' is not valid.");
   }
   for (unsigned int i = globalParameters.size(); i > 0; i--)
   {
