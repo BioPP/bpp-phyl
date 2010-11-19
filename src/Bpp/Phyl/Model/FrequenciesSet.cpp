@@ -652,10 +652,10 @@ void WordFromIndependentFrequenciesSet::setNamespace(const std::string& prefix)
 
 std::string WordFromIndependentFrequenciesSet::getName() const
 {
-  string s = "Word From Independent Frequencies : ";
-  for (unsigned int i = 0; i < vFreq_.size(); i++)
+  string s = "Word From Independent Frequencies : " + vFreq_[0]->getName();
+  for (unsigned int i = 1; i < vFreq_.size(); i++)
   {
-    s += vFreq_[i]->getName();
+    s += " * " + vFreq_[i]->getName();
   }
   return s;
 }
