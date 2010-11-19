@@ -437,46 +437,47 @@ void AbstractWordReversibleSubstitutionModel::updateMatrices()
     MatrixTools::inv(rightEigenVectors_, leftEigenVectors_);
 
     // looking for the 0 eigenvector for which the eigen vector
-    // elements are of the same sign
+    // elements are of the same sign.
+    // There is a threshold value in case of approximations
 
-    unsigned int nulleigen = 0;
-    int signe=0;
+    double seuil=0.00000001;
+    bool flag=true;
+    unsigned int nulleigen;
+    while(flag){
+      seuil*=10;
+      nulleigen=0;
+      int signe=0;
 
-    while (nulleigen < salph - nbStop)
-    {
-      signe=0;
-      if (abs(eigenValues_[nulleigen]) < 0.000001 && abs(vi[nulleigen]) < 0.000001){
-        i=0;
-        while (signe==0 && i< salph){
-          x=leftEigenVectors_(nulleigen, i);
-          signe=x>0.000001?1:x<-0.000001?-1:0;
-          i++;
-        }
-        if (signe==0)
-          nulleigen++;
-        else {
-          while (i<salph){
-            x=leftEigenVectors_(nulleigen, i);
-            if ((signe==-1 && x>0.000001) || (signe==1 && x<-0.000001))
-              break;
-            i++;
+      while (flag && (nulleigen < salph - nbStop)) {
+          if (abs(eigenValues_[nulleigen]) < 0.0000001 && abs(vi[nulleigen]) < 0.0000001){
+            signe=0;
+            i=0;
+            while (signe==0 && i< salph){
+              x=leftEigenVectors_(nulleigen, i);
+              signe=x>seuil?1:x< -seuil?-1:0;
+              i++;
+            }
+            if (signe==0)
+              nulleigen++;
+            else {
+              while (i<salph){
+                x=leftEigenVectors_(nulleigen, i);
+                if ((signe==-1 && x>seuil) || (signe==1 && x<-seuil))
+                  break;
+                
+                i++;
+              }
+              if (i<salph-nbStop)
+                nulleigen++;
+              else
+                flag=false;
+            }
           }
-          if (i<salph)
-            nulleigen++;
           else
-            break;
-        }
+            nulleigen++;
       }
-      else
-        nulleigen++;
     }
-
-    if (nulleigen >= salph - nbStop)
-    {
-      cerr << "AbstractWordReversibleSubstitutionModel::updateMatrices : Problem in eigenspace of " << getName() << endl;
-      exit(0);
-    }
-
+    
     for (i = 0; i < salph; i++)
     {
       freq_[i] = leftEigenVectors_(nulleigen, i);
