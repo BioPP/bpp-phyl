@@ -48,10 +48,8 @@ using namespace std;
 
 MixtureOfSubstitutionModels::MixtureOfSubstitutionModels(const Alphabet* alpha,
                                                          vector<SubstitutionModel*> vpModel_) :
-  MixedSubstitutionModel(alpha, "Mixture."),
+  AbstractMixedSubstitutionModel(alpha, "Mixture."),
   lParPmodel_(),
-  modelsContainer_(),
-  Vprobas_(),
   Vrates_()
 {
   unsigned int i, nbmod = vpModel_.size();
@@ -105,10 +103,8 @@ MixtureOfSubstitutionModels::MixtureOfSubstitutionModels(const Alphabet* alpha,
                                                          vector<SubstitutionModel*> vpModel_,
                                                          Vdouble& vproba,
                                                          Vdouble& vrate) :
-  MixedSubstitutionModel(alpha, "Mixture."),
+  AbstractMixedSubstitutionModel(alpha, "Mixture."),
   lParPmodel_(),
-  modelsContainer_(),
-  Vprobas_(vproba),
   Vrates_(vrate)
 {
   unsigned int i, nbmod = vpModel_.size();
@@ -178,32 +174,24 @@ MixtureOfSubstitutionModels::MixtureOfSubstitutionModels(const Alphabet* alpha,
 }
 
 MixtureOfSubstitutionModels::MixtureOfSubstitutionModels(const MixtureOfSubstitutionModels& msm) :
-  MixedSubstitutionModel(msm),
+  AbstractMixedSubstitutionModel(msm),
   lParPmodel_(msm.lParPmodel_),
-  modelsContainer_(),
-  Vprobas_(msm.Vprobas_),
   Vrates_(msm.Vrates_)
 {
-  for (unsigned int i = 0; i < msm.modelsContainer_.size(); i++)
-    modelsContainer_.push_back(msm.modelsContainer_[i]->clone());
 }
 
 MixtureOfSubstitutionModels& MixtureOfSubstitutionModels::operator=(const MixtureOfSubstitutionModels& msm)
 {
-  MixedSubstitutionModel::operator=(msm);
+  AbstractMixedSubstitutionModel::operator=(msm);
   
   //Clear existing containers:
-  modelsContainer_.clear();
   lParPmodel_=msm.lParPmodel_;
-  Vprobas_.clear();
   Vrates_.clear();
   
   //Now copy new containers:
 
   for (unsigned int i = 0; i < msm.modelsContainer_.size(); i++)
     {
-      modelsContainer_.push_back(msm.modelsContainer_[i]->clone());
-      Vprobas_.push_back(msm.Vprobas_[i]);
       Vrates_.push_back(msm.Vrates_[i]);
     }
   return *this;
@@ -212,12 +200,7 @@ MixtureOfSubstitutionModels& MixtureOfSubstitutionModels::operator=(const Mixtur
 
 MixtureOfSubstitutionModels::~MixtureOfSubstitutionModels()
 {
-  for (unsigned int i = 0; i < modelsContainer_.size(); i++)
-    {
-      delete modelsContainer_[i];
-    }
 }
-
 
 
 void MixtureOfSubstitutionModels::updateMatrices()
@@ -262,89 +245,6 @@ void MixtureOfSubstitutionModels::updateMatrices()
       freq_[i] += Vprobas_[i]*modelsContainer_[j]->freq(i);
   }
   
-}
-
-unsigned int MixtureOfSubstitutionModels::getNumberOfStates() const
-{
-  return modelsContainer_[0]->getNumberOfStates();
-}
-
-
-double MixtureOfSubstitutionModels::Pij_t(unsigned int i, unsigned int j, double t) const
-{
-  double x=0;
-  for (unsigned int n = 0; n < modelsContainer_.size(); n++)
-      x+= modelsContainer_[n]->Pij_t(i,j,t)*Vprobas_[n];
-
-  return x;
-}
-
-
-double MixtureOfSubstitutionModels::dPij_dt(unsigned int i, unsigned int j, double t) const
-{
-  double x=0;
-  for (unsigned int n = 0; n < modelsContainer_.size(); n++)
-    x+= modelsContainer_[n]->dPij_dt(i,j,t)*Vprobas_[n];
-
-  return x;
-}
-
-
-double MixtureOfSubstitutionModels::d2Pij_dt2(unsigned int i, unsigned int j, double t) const
-{
-  double x=0;
-  for (unsigned int n = 0; n < modelsContainer_.size(); n++)
-    x+= modelsContainer_[n]->d2Pij_dt2(i,j,t)*Vprobas_[n];
-
-  return x;
-}
-
-
-const Matrix<double>& MixtureOfSubstitutionModels::getPij_t(double t) const
-{
-  for (unsigned int i=0; i< getNumberOfStates(); i++)
-    for (unsigned int j=0; j< getNumberOfStates(); j++)
-      pijt_(i,j)=Pij_t(i,j,t);
-
-  return pijt_;
-}
-
-
-const Matrix<double>& MixtureOfSubstitutionModels::getdPij_dt(double t) const
-{
-  for (unsigned int i=0; i< getNumberOfStates(); i++)
-    for (unsigned int j=0; j< getNumberOfStates(); j++)
-      dpijt_(i,j)=dPij_dt(i,j,t);
-
-  return dpijt_;
-}
-
-
-const Matrix<double>& MixtureOfSubstitutionModels::getd2Pij_dt2(double t) const
-{
-  for (unsigned int i=0; i< getNumberOfStates(); i++)
-    for (unsigned int j=0; j< getNumberOfStates(); j++)
-      dpijt_(i,j)=d2Pij_dt2(i,j,t);
-
-  return d2pijt_;
-}
-
-
-const Vdouble& MixtureOfSubstitutionModels::getFrequencies()
-{
-  for (unsigned int i=0; i< getNumberOfStates(); i++)
-    freq_[i]=freq(i);
-  return freq_;
-}
-
-
-double MixtureOfSubstitutionModels::freq(unsigned int i) const
-{
-  double x=0;
-  for (unsigned int n = 0; n < modelsContainer_.size(); n++)
-    x+= modelsContainer_[n]->freq(i)*Vprobas_[n];
-
-  return x;
 }
 
 void MixtureOfSubstitutionModels::setFreq(std::map<int,double>& m)
