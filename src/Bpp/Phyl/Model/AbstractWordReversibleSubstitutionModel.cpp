@@ -63,8 +63,7 @@ AbstractWordReversibleSubstitutionModel::AbstractWordReversibleSubstitutionModel
   new_alphabet_ (true),
   VSubMod_      (),
   VnestedPrefix_(),
-  Vrate_         (modelVector.size()),
-  p_            (getNumberOfStates(), getNumberOfStates())
+  Vrate_         (modelVector.size())
 {
   enableEigenDecomposition(false);
   unsigned int i, j;
@@ -126,8 +125,7 @@ AbstractWordReversibleSubstitutionModel::AbstractWordReversibleSubstitutionModel
   new_alphabet_ (false),
   VSubMod_      (),
   VnestedPrefix_(),
-  Vrate_         (0),
-  p_            (getNumberOfStates(), getNumberOfStates())
+  Vrate_         (0)
 {
   enableEigenDecomposition(false);
 }
@@ -140,8 +138,7 @@ AbstractWordReversibleSubstitutionModel::AbstractWordReversibleSubstitutionModel
   new_alphabet_ (true),
   VSubMod_      (),
   VnestedPrefix_(),
-  Vrate_         (num),
-  p_            (getNumberOfStates(), getNumberOfStates())
+  Vrate_         (num)
 {
   enableEigenDecomposition(false);
   unsigned int i;
@@ -165,8 +162,7 @@ AbstractWordReversibleSubstitutionModel::AbstractWordReversibleSubstitutionModel
   new_alphabet_ (wrsm.new_alphabet_),
   VSubMod_      (),
   VnestedPrefix_(wrsm.VnestedPrefix_),
-  Vrate_         (wrsm.Vrate_),
-  p_            (wrsm.p_)
+  Vrate_         (wrsm.Vrate_)
 {
    unsigned int i;
    unsigned int num = wrsm.VSubMod_.size();
@@ -191,7 +187,6 @@ AbstractWordReversibleSubstitutionModel& AbstractWordReversibleSubstitutionModel
   new_alphabet_  = wrsm.new_alphabet_;
   VnestedPrefix_ = wrsm.VnestedPrefix_;
   Vrate_          = wrsm.Vrate_;
-  p_             = wrsm.p_;
 
   unsigned int i;
   unsigned int num = wrsm.VSubMod_.size();
