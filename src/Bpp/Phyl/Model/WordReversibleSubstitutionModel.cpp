@@ -132,164 +132,148 @@ void WordReversibleSubstitutionModel::completeMatrices()
   }
 }
 
-double WordReversibleSubstitutionModel::Pij_t(unsigned int i, unsigned int j, double d) const
-{
-   double x = 1;
-   unsigned int nbmod = VSubMod_.size();
-   unsigned int t;
-   int p;
-
-   unsigned int i2 = i;
-   unsigned int j2 = j;
-
-  for (p = nbmod - 1; p >= 0; p--)
-  {
-    t = VSubMod_[p]->getNumberOfStates();
-    x *= VSubMod_[p]->Pij_t(i2 % t, j2 % t, d * Vrate_[p]);
-    i2 /= t;
-    j2 /= t;
-  }
-
-  return x;
-}
-
 const RowMatrix<double>& WordReversibleSubstitutionModel::getPij_t(double d) const
 {
-   unsigned int nbStates = getNumberOfStates();
-   unsigned int i, j;
+  vector<const Matrix<double>*> vM;
+  unsigned int nbmod = VSubMod_.size();
+  unsigned int i, j;
+
+  for ( i=0;i<nbmod;i++)
+    vM.push_back(&VSubMod_[i]->getPij_t(d * Vrate_[i]));
+
+  unsigned int t;
+  double x;
+  unsigned int i2, j2;
+  unsigned int nbStates = getNumberOfStates();
+  int p;
 
   for (i = 0; i < nbStates; i++)
-  {
-    for (j = 0; j < nbStates; j++)
-    {
-      p_(i,j) = Pij_t(i,j,d);
+    for (j = 0; j < nbStates; j++){
+      x=1.;
+      i2=i;
+      j2=j;
+      for (p = nbmod - 1; p >= 0; p--) {
+        t = VSubMod_[p]->getNumberOfStates();
+        x *= (*vM[p])(i2 % t, j2 % t);
+        i2 /= t;
+        j2 /= t;
+      }
+      pijt_(i,j)=x;
     }
-  }
-  return p_;
-}
-
-double WordReversibleSubstitutionModel::dPij_dt(unsigned int i, unsigned int j, double d) const
-{
-   double r, x;
-   int nbmod = VSubMod_.size();
-   int t;
-   int p,q;
-
-   int i2 = i;
-   int j2 = j;
-
-  r = 0;
-  for (q = 0; q < nbmod; q++)
-  {
-    i2 = i;
-    j2 = j;
-    x = 1;
-    for (p = nbmod - 1; p >= 0; p--)
-    {
-      t = VSubMod_[p]->getNumberOfStates();
-      if (q != p)
-        x *= VSubMod_[p]->Pij_t(i2 % t,j2 % t,d * Vrate_[p]);
-      else
-        x *= Vrate_[p] * VSubMod_[p]->dPij_dt(i2 % t,j2 % t,d * Vrate_[p]);
-      i2 /= t;
-      j2 /= t;
-    }
-    r += x;
-  }
-  return r;
+  return pijt_;
 }
 
 const RowMatrix<double>& WordReversibleSubstitutionModel::getdPij_dt(double d) const
 {
-   unsigned int nbetats = getNumberOfStates();
-   unsigned int i, j;
+  vector<const Matrix<double>*> vM, vdM;
+  unsigned int nbmod = VSubMod_.size();
+  unsigned int i, j;
 
-  for (i = 0; i < nbetats; i++)
-  {
-    for (j = 0; j < nbetats; j++)
-    {
-      p_(i,j) = dPij_dt(i,j,d);
-    }
-  }
-  return p_;
-}
-
-double WordReversibleSubstitutionModel::d2Pij_dt2(unsigned int i, unsigned int j, double d) const
-{
-   double r, x;
-   int nbmod = VSubMod_.size();
-   int b, q, t;
-   int p;
-
-   int i2 = i;
-   int j2 = j;
-
-  r = 0;
-
-  for (q = 1; q < nbmod; q++)
-  {
-    for (b = 0; b < q; b++)
-    {
-      x = 1;
-      i2 = i;
-      j2 = j;
-      for (p = nbmod - 1; p >= 0; p--)
-      {
-        t = VSubMod_[p]->getNumberOfStates();
-        if (p == q)
-          x *= Vrate_[p] * VSubMod_[p]->dPij_dt(i2 % t, j2 % t, d * Vrate_[p]);
-        else if (p == b)
-          x *= Vrate_[p] * VSubMod_[p]->dPij_dt(i2 % t, j2 % t, d * Vrate_[p]);
-        else
-          x *= VSubMod_[p]->Pij_t(i2 % t, j2 % t, d * Vrate_[p]);
-
-        i2 /= t;
-        j2 /= t;
-      }
-      r += x;
-    }
+  for ( i=0;i<nbmod;i++){
+    vM.push_back(&VSubMod_[i]->getPij_t(d * Vrate_[i]));
+    vdM.push_back(&VSubMod_[i]->getdPij_dt(d * Vrate_[i]));
   }
 
-  r *= 2;
+  unsigned int t;
+  double x,r;
+  unsigned int i2, j2;
+  unsigned int nbStates = getNumberOfStates();
+  int p,q;
 
-  for (q = 0; q < nbmod; q++)
-  {
-    x = 1;
-    i2 = i;
-    j2 = j;
-    for (p = nbmod - 1; p >= 0; p--)
-    {
-      t = VSubMod_[p]->getNumberOfStates();
-      if (q != p)
-        x *= VSubMod_[p]->Pij_t(i2 % t, j2 % t, d * Vrate_[p]);
-      else
-        x *= Vrate_[p] * Vrate_[p] * VSubMod_[p]->d2Pij_dt2(i2 % t, j2 % t, d * Vrate_[p]);
-
-      i2 /= t;
-      j2 /= t;
+  for (i = 0; i < nbStates; i++)
+    for (j = 0; j < nbStates; j++){
+      r = 0;
+      for (q = 0; q < (int)nbmod; q++)
+        {
+          i2 = i;
+          j2 = j;
+          x = 1;
+          for (p = nbmod - 1; p >= 0; p--)
+            {
+              t = VSubMod_[p]->getNumberOfStates();
+              if (q != p)
+                x *= (*vM[p])(i2 % t,j2 % t);
+              else
+                x *= Vrate_[p] * (*vdM[p])(i2 % t,j2 % t);
+              i2 /= t;
+              j2 /= t;
+            }
+          r += x;
+        }
+      dpijt_(i,j)=r;
     }
-    r += x;
-  }
-
-  return r;
+  return dpijt_;
 }
 
 const RowMatrix<double>& WordReversibleSubstitutionModel::getd2Pij_dt2(double d) const
-{
-   unsigned int nbetats = getNumberOfStates();
-   unsigned int i,j;
 
-  for (i = 0; i < nbetats; i++)
-  {
-    for (j = 0; j < nbetats; j++)
-    {
-      p_(i,j) = Pij_t(i,j,d);
-    }
+{
+  vector<const Matrix<double>*> vM, vdM, vd2M;
+  unsigned int nbmod = VSubMod_.size();
+  unsigned int i, j;
+
+  for ( i=0;i<nbmod;i++){
+    vM.push_back(&VSubMod_[i]->getPij_t(d * Vrate_[i]));
+    vdM.push_back(&VSubMod_[i]->getdPij_dt(d * Vrate_[i]));
+    vd2M.push_back(&VSubMod_[i]->getd2Pij_dt2(d * Vrate_[i]));
   }
 
-  return p_;
-}
+  
+  double r, x;
+  int p, b, q, t;
+  
+  unsigned int i2, j2;
+  unsigned int nbStates = getNumberOfStates();
 
+
+  for (i = 0; i < nbStates; i++)
+    for (j = 0; j < nbStates; j++){
+      r=0;
+      for (q = 1; q < (int)nbmod; q++){
+        for (b = 0; b < q; b++)
+          {
+            x = 1;
+            i2 = i;
+            j2 = j;
+            for (p = nbmod - 1; p >= 0; p--)
+              {
+                t = VSubMod_[p]->getNumberOfStates();
+                if ((p == q) || (p == b))
+                  x *= Vrate_[p] * (*vdM[p])(i2 % t, j2 % t);
+                else
+                  x *= (*vM[p])(i2 % t, j2 % t);
+                
+                i2 /= t;
+                j2 /= t;
+              }
+            r += x;
+          }
+      }
+      
+      r *= 2;
+
+      for (q = 0; q < (int)nbmod; q++)
+        {
+          x = 1;
+          i2 = i;
+          j2 = j;
+          for (p = nbmod - 1; p >= 0; p--)
+            {
+              t = VSubMod_[p]->getNumberOfStates();
+              if (q != p)
+                x *= (*vM[p])(i2 % t, j2 % t);
+              else
+                x *= Vrate_[p] * Vrate_[p] * (*vd2M[p])(i2 % t, j2 % t);
+              
+              i2 /= t;
+              j2 /= t;
+            }
+          r += x;
+        }
+      d2pijt_(i,j)=r;
+    }
+  return d2pijt_;
+}
 
 string WordReversibleSubstitutionModel::getName() const
 {
