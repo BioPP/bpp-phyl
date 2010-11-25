@@ -8,7 +8,6 @@
 #include "Likelihood/DRASRTreeLikelihoodData.h"
 #include "Likelihood/DRHomogeneousMixedTreeLikelihood.h"
 #include "Likelihood/DRHomogeneousTreeLikelihood.h"
-#include "Likelihood/DRNonHomogeneousMixedTreeLikelihood.h"
 #include "Likelihood/DRNonHomogeneousTreeLikelihood.h"
 #include "Likelihood/DRTreeLikelihood.h"
 #include "Likelihood/DRTreeLikelihoodTools.h"
