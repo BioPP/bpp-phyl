@@ -32,7 +32,6 @@ set(CPP_FILES
   Bpp/Phyl/Likelihood/DRASRTreeLikelihoodData.cpp
   Bpp/Phyl/Likelihood/DRHomogeneousMixedTreeLikelihood.cpp
   Bpp/Phyl/Likelihood/DRHomogeneousTreeLikelihood.cpp
-  Bpp/Phyl/Likelihood/DRNonHomogeneousMixedTreeLikelihood.cpp
   Bpp/Phyl/Likelihood/DRNonHomogeneousTreeLikelihood.cpp
   Bpp/Phyl/Likelihood/DRTreeLikelihoodTools.cpp
   Bpp/Phyl/Likelihood/MarginalAncestralStateReconstruction.cpp
@@ -153,7 +152,6 @@ set(H_FILES
   Bpp/Phyl/Likelihood/DRASRTreeLikelihoodData.h
   Bpp/Phyl/Likelihood/DRHomogeneousMixedTreeLikelihood.h
   Bpp/Phyl/Likelihood/DRHomogeneousTreeLikelihood.h
-  Bpp/Phyl/Likelihood/DRNonHomogeneousMixedTreeLikelihood.h
   Bpp/Phyl/Likelihood/DRNonHomogeneousTreeLikelihood.h
   Bpp/Phyl/Likelihood/DRTreeLikelihood.h
   Bpp/Phyl/Likelihood/DRTreeLikelihoodTools.h
