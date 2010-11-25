@@ -115,8 +115,8 @@ class SiteSimulationResult
     
     virtual void addNode(int nodeId, MutationPath path)
     {
-      currentIndex_++;
       indexes_[nodeId] = currentIndex_;
+      currentIndex_++;
       paths_.push_back(path);
       ancestralStates_.push_back(path.getFinalState());
     }
