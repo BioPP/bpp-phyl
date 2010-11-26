@@ -1,7 +1,7 @@
 //
-// File: test_detailed_simulations.cpp
+// File: test_mapping.cpp
 // Created by: Julien Dutheil
-// Created on: Fri Nov 12 15:41 2010
+// Created on: Thu Nov 25 16:02 2010
 //
 
 /*
@@ -37,21 +37,26 @@ The fact that you are presently reading this means that you have had
 knowledge of the CeCILL license and that you accept its terms.
 */
 
+#include <Bpp/App/ApplicationTools.h>
 #include <Bpp/Numeric/Prob.all>
 #include <Bpp/Numeric/Matrix.all>
 #include <Bpp/Seq/Alphabet.all>
+#include <Bpp/Seq/Io/Fasta.h>
 #include <Bpp/Phyl/TreeTemplate.h>
 #include <Bpp/Phyl/Model.all>
 #include <Bpp/Phyl/Simulation.all>
+#include <Bpp/Phyl/Likelihood.all>
+#include <Bpp/Phyl/Mapping.all>
 #include <iostream>
 
 using namespace bpp;
 using namespace std;
 
 int main() {
-  TreeTemplate<Node>* tree = TreeTemplateTools::parenthesisToTree("((A:0.001, B:0.002):0.003,C:0.01,D:0.1);");
-  cout << tree->getNumberOfLeaves() << endl;
+  TreeTemplate<Node>* tree = TreeTemplateTools::parenthesisToTree("((A:0.001, B:0.002):0.008,C:0.01,D:0.1);");
   vector<int> ids = tree->getNodesId();
+  ids.pop_back(); //Ignore root
+
   //-------------
 
   NucleicAlphabet* alphabet = new DNA();
@@ -60,49 +65,58 @@ int main() {
   DiscreteDistribution* rdist = new ConstantDistribution(1.0);
   HomogeneousSequenceSimulator simulator(model, rdist, tree);
 
-  unsigned int n = 100000;
-  map<int, RowMatrix<unsigned int> > counts;
-  for (size_t j = 0; j < ids.size() - 1; ++j) //ignore root, the last id
-    counts[ids[j]].resize(4, 4);
+  unsigned int n = 20000;
+  vector< vector<double> > realMap(n);
+  VectorSiteContainer sites(tree->getLeavesNames(), alphabet);
   for (unsigned int i = 0; i < n; ++i) {
+    ApplicationTools::displayGauge(i, n-1, '=');
     RASiteSimulationResult* result = simulator.dSimulate();
-    for (size_t j = 0; j < ids.size() - 1; ++j) { //ignore root, the last id
-      result->getMutationPath(ids[j]).getEventCounts(counts[ids[j]]);
+    realMap[i].resize(ids.size());
+    for (size_t j = 0; j < ids.size(); ++j) {
+      realMap[i][j] = result->getSubstitutionCount(ids[j]);
     }
+    auto_ptr<Site> site(result->getSite());
+    site->setPosition(i);
+    sites.addSite(*site);
     delete result;
   }
-  map<int, RowMatrix<double> >freqs;
-  map<int, double> sums;
-  for (size_t k = 0; k < ids.size() - 1; ++k) { //ignore root, the last id
-    RowMatrix<double>* freqsP = &freqs[ids[k]];
-    RowMatrix<unsigned int>* countsP = &counts[ids[k]];
-    freqsP->resize(4, 4);
-    for (unsigned int i = 0; i < 4; ++i)
-      for (unsigned int j = 0; j < 4; ++j)
-        (*freqsP)(i, j) = static_cast<double>((*countsP)(i, j)) / (static_cast<double>(n));
-    
-    //For now we simply compare the total number of substitutions:
-    sums[ids[k]] = MatrixTools::sumElements(*freqsP);
+  ApplicationTools::displayTaskDone();
   
-    cout << "Br" << ids[k] << " BrLen = " << tree->getDistanceToFather(ids[k]) << " counts = " << sums[ids[k]] << endl;
-    MatrixTools::print(*freqsP);
-  }
-  //We should compare this matrix with the expected one!
+  //-------------
+  //Now build the substitution vectors with the true model:
+  //Fasta fasta;
+  //fasta.write("Simulations.fasta", sites);
+  DRHomogeneousTreeLikelihood drhtl(*tree, sites, model, rdist);
+  drhtl.initialize();
+  cout << drhtl.getValue() << endl;
+  
+  SubstitutionCount* sCount = new SimpleSubstitutionCount(alphabet);
+  ProbabilisticSubstitutionMapping* probMap = 
+    SubstitutionMappingTools::computeSubstitutionVectors(drhtl, *sCount);
 
-  for (size_t k = 0; k < ids.size() - 1; ++k) { //ignore root, the last id
-    if (abs(sums[ids[k]] - tree->getDistanceToFather(ids[k])) > 0.01) {
-      delete tree;
-      delete alphabet;
-      delete model;
-      delete rdist;
-      return 1;
+  //Check per branch:
+  for (unsigned int j = 0; j < ids.size(); ++j) {
+    double totalReal = 0;
+    double totalObs  = 0;
+    for (unsigned int i = 0; i < n; ++i) {
+      totalReal += realMap[i][j];
+      totalObs  += probMap->getNumberOfSubstitutions(ids[j], i);
     }
+    if (tree->isLeaf(ids[j])) cout << tree->getNodeName(ids[j]) << "\t";
+    cout << tree->getDistanceToFather(ids[j]) << "\t" << totalReal << "\t" << totalObs << endl;
+    if (abs(totalReal - totalObs) / totalReal > 0.1) return 1;
   }
+  //Check per site:
+  for (unsigned int i = 0; i < n; ++i) {
+  }
+
   //-------------
   delete tree;
   delete alphabet;
   delete model;
   delete rdist;
+  delete sCount;
+  delete probMap;
 
   //return (abs(obs - 0.001) < 0.001 ? 0 : 1);
   return 0;
