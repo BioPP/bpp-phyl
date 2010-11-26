@@ -123,7 +123,7 @@ class SiteSimulationResult
 
     virtual int getAncestralState(unsigned int i)    const { return ancestralStates_[i]; }
 
-    virtual int getAncestralState(int nodeId) const { return ancestralStates_[indexes_[nodeId]]; }
+    virtual int getAncestralState(int nodeId) const { return ancestralStates_[1 + indexes_[nodeId]]; }
 
     virtual const MutationPath& getMutationPath(unsigned int i) const { return paths_[i]; }
 
@@ -138,7 +138,7 @@ class SiteSimulationResult
       unsigned int n = paths_.size();
       std::vector<double> counts(n);
       for (unsigned int i = 0; i < n; i++)
-        counts[i] = (double)paths_[i].getNumberOfEvents();
+        counts[i] = static_cast<double>(paths_[i].getNumberOfEvents());
       return counts;
     }
 
@@ -151,7 +151,7 @@ class SiteSimulationResult
       std::vector<int> states(n);
       for (unsigned int i = 0; i < n; i++)
       {
-        states[i] = ancestralStates_[indexes_[leavesId_[i]]];
+        states[i] = ancestralStates_[1 + indexes_[leavesId_[i]]];
       }
       return states;
     }
