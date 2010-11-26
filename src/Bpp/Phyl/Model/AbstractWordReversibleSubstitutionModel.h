@@ -87,7 +87,6 @@ protected:
   std::vector<std::string> VnestedPrefix_;
 
   std::vector<double> Vrate_;
-  mutable RowMatrix<double> p_;
 
 protected:
   static Alphabet* extractAlph(const std::vector<SubstitutionModel*>& modelVector);

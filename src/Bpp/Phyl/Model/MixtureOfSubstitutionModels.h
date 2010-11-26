@@ -42,7 +42,7 @@
 
 #include <Bpp/Numeric/Prob.all>
 #include <Bpp/Numeric/VectorTools.h>
-#include "MixedSubstitutionModel.h"
+#include "AbstractMixedSubstitutionModel.h"
 
 #include <vector>
 #include <string>
@@ -116,7 +116,7 @@ namespace bpp
    */
 
   class MixtureOfSubstitutionModels :
-    public MixedSubstitutionModel
+    public AbstractMixedSubstitutionModel
   {
   private:
 
@@ -125,12 +125,7 @@ namespace bpp
     ParameterList lParPmodel_;
     
   protected:
-    std::vector<SubstitutionModel*> modelsContainer_;
-
-    std::vector<double> Vprobas_;
     std::vector<double> Vrates_;
-
-
 
   public:
 
@@ -172,36 +167,9 @@ namespace bpp
     MixtureOfSubstitutionModels* clone() const { return new MixtureOfSubstitutionModels(*this); }
 
   public:
-    /**
-     * @brief Returns a specific model from the mixture
-     */
-    const SubstitutionModel* getNModel(unsigned int i) const
-    {
-      return modelsContainer_[i];
-    }
-
-    SubstitutionModel* getNModel(unsigned int i)
-    {
-      return modelsContainer_[i];
-    }
-
-    /**
-     * @brief Returns the  probability of a specific model from the mixture
-     */
-  
-    double getNProbability(unsigned int i) const
-    {
-      return Vprobas_[i];
-    }
-  
     double getNRate(unsigned int i) const
     {
       return Vrates_[i];
-    }
-  
-    const std::vector<double>& getProbabilities() const
-    {
-      return Vprobas_;
     }
   
     const std::vector<double>& getRates() const
@@ -209,26 +177,10 @@ namespace bpp
       return Vrates_;
     }
   
-    unsigned int getNumberOfModels() const
-    {
-      return modelsContainer_.size();
-    }
-
     std::string getName() const { return "MixtureOfSubstitutionModels"; }
 
     void updateMatrices();
   
-    unsigned int getNumberOfStates() const;
-
-    double Pij_t(unsigned int i, unsigned int j, double t) const;
-    double dPij_dt(unsigned int i, unsigned int j, double t) const;
-    double d2Pij_dt2(unsigned int i, unsigned int j, double t) const;
-    const Matrix<double>& getPij_t(double t) const;
-    const Matrix<double>& getdPij_dt(double t) const;
-    const Matrix<double>& getd2Pij_dt2(double t) const;
-    const Vdouble& getFrequencies();
-    double freq(unsigned int i) const;
-
     /**
      * @brief applies setFreq to all the models of the mixture and
      * recovers the parameters values.

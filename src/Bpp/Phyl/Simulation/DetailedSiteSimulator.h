@@ -139,7 +139,7 @@ class SiteSimulationResult
       unsigned int n = paths_.size();
       std::vector<double> counts(n);
       for (unsigned int i = 0; i < n; i++)
-        counts[i] = (double)paths_[i].getNumberOfEvents();
+        counts[i] = static_cast<double>(paths_[i].getNumberOfEvents());
       return counts;
     }
 

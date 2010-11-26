@@ -904,7 +904,6 @@ void PhylogeneticsApplicationTools::setSubstitutionModelParametersInitialValues(
   const SiteContainer* data,
   bool verbose) throw (Exception)
 {
-  
   bool useObsFreq = ApplicationTools::getBooleanParameter(model->getNamespace() + "useObservedFreqs", unparsedParameterValues, false, "", true, false);
   if (verbose) ApplicationTools::displayResult("Use observed frequencies for model", useObsFreq ? "yes" : "no");
   if (useObsFreq && data != 0)
@@ -967,8 +966,9 @@ void PhylogeneticsApplicationTools::setSubstitutionModelParametersInitialValues(
   for (unsigned int i = 0; i < pl.size(); i++)
   {
    const string pName = pl[i].getName();
+   unsigned int posp=model->getParameterNameWithoutNamespace(pName).rfind(".");
    string value;
-    if (!useObsFreq || (model->getParameterNameWithoutNamespace(pName).substr(0,5) != "theta"))
+    if (!useObsFreq || (model->getParameterNameWithoutNamespace(pName).substr(posp+1,5) != "theta"))
     {
       value = ApplicationTools::getStringParameter(pName, unparsedParameterValues, TextTools::toString(pl[i].getValue()));
       if (value.size() > 5 && value.substr(0, 5) == "model")

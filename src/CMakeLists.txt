@@ -32,7 +32,6 @@ set(CPP_FILES
   Bpp/Phyl/Likelihood/DRASRTreeLikelihoodData.cpp
   Bpp/Phyl/Likelihood/DRHomogeneousMixedTreeLikelihood.cpp
   Bpp/Phyl/Likelihood/DRHomogeneousTreeLikelihood.cpp
-  Bpp/Phyl/Likelihood/DRNonHomogeneousMixedTreeLikelihood.cpp
   Bpp/Phyl/Likelihood/DRNonHomogeneousTreeLikelihood.cpp
   Bpp/Phyl/Likelihood/DRTreeLikelihoodTools.cpp
   Bpp/Phyl/Likelihood/MarginalAncestralStateReconstruction.cpp
@@ -81,6 +80,7 @@ set(CPP_FILES
   Bpp/Phyl/Model/MarkovModulatedSubstitutionModel.cpp
   Bpp/Phyl/Model/MG94.cpp
   Bpp/Phyl/Model/MixedSubstitutionModel.cpp
+  Bpp/Phyl/Model/AbstractMixedSubstitutionModel.cpp
   Bpp/Phyl/Model/MixtureOfASubstitutionModel.cpp
   Bpp/Phyl/Model/MixtureOfSubstitutionModels.cpp
   Bpp/Phyl/Model/RateDistributionFactory.cpp
@@ -152,7 +152,6 @@ set(H_FILES
   Bpp/Phyl/Likelihood/DRASRTreeLikelihoodData.h
   Bpp/Phyl/Likelihood/DRHomogeneousMixedTreeLikelihood.h
   Bpp/Phyl/Likelihood/DRHomogeneousTreeLikelihood.h
-  Bpp/Phyl/Likelihood/DRNonHomogeneousMixedTreeLikelihood.h
   Bpp/Phyl/Likelihood/DRNonHomogeneousTreeLikelihood.h
   Bpp/Phyl/Likelihood/DRTreeLikelihood.h
   Bpp/Phyl/Likelihood/DRTreeLikelihoodTools.h
@@ -211,6 +210,7 @@ set(H_FILES
   Bpp/Phyl/Model/MarkovModulatedSubstitutionModel.h
   Bpp/Phyl/Model/MG94.h
   Bpp/Phyl/Model/MixedSubstitutionModel.h
+  Bpp/Phyl/Model/AbstractMixedSubstitutionModel.h
   Bpp/Phyl/Model/MixtureOfASubstitutionModel.h
   Bpp/Phyl/Model/MixtureOfSubstitutionModels.h
   Bpp/Phyl/Model/NucleotideSubstitutionModel.h

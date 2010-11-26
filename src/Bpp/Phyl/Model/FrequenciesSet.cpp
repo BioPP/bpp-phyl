@@ -600,6 +600,7 @@ void WordFromIndependentFrequenciesSet::updateFrequencies()
 
 void WordFromIndependentFrequenciesSet::setFrequencies(const vector<double>& frequencies) throw (DimensionException, Exception)
 {
+  cerr << " WordFromIndep::setFrequencies" << endl;
   if (frequencies.size() != getAlphabet()->getSize())
     throw DimensionException("WordFromIndependentFrequenciesSet::setFrequencies", frequencies.size(), getAlphabet()->getSize());
   double sum = 0.0;
@@ -630,9 +631,12 @@ void WordFromIndependentFrequenciesSet::setFrequencies(const vector<double>& fre
       freq[(k / d) % s] += frequencies[k];
     }
     vFreq_[i]->setFrequencies(freq);
-    matchParametersValues(vFreq_[i]->getParameters());
   }
+  
+  for (i = 0; i < l; i++)
+    matchParametersValues(vFreq_[i]->getParameters());
 
+  updateFrequencies();
 }
 
 
@@ -780,9 +784,12 @@ void WordFromUniqueFrequenciesSet::setFrequencies(const vector<double>& frequenc
   {
     freq[j] /= length_;
   }
+
   pFreq_->setFrequencies(freq);
 
   matchParametersValues(pFreq_->getParameters());
+
+  updateFrequencies();
 }
 
 
@@ -809,7 +816,6 @@ string WordFromUniqueFrequenciesSet::getName() const
 FrequenciesSet* FrequenciesSet::getFrequenciesSetForCodons(short option, const CodonAlphabet& CA)
 {
   FrequenciesSet* codonFreqs;
-  //  const CodonAlphabet* pCA = dynamic_cast<const CodonAlphabet*>(gc.getSourceAlphabet());
 
   if (option == F0)
     codonFreqs = new FixedCodonFrequenciesSet(&CA);

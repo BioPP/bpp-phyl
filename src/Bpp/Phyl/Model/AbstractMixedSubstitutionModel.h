@@ -1,6 +1,7 @@
 //
 // File: MixedSubstitutionModel.h
 // Created by: Laurent Gueguen
+// On: vendredi 19 novembre 2010, à 15h 48
 //
 
 /*
@@ -36,10 +37,10 @@
   knowledge of the CeCILL license and that you accept its terms.
 */
 
-#ifndef _MIXEDSUBSTITUTIONMODEL_H_
-#define _MIXEDSUBSTITUTIONMODEL_H_
+#ifndef _ABSTRACTMIXEDSUBSTITUTIONMODEL_H_
+#define _ABSTRACTMIXEDSUBSTITUTIONMODEL_H_
 
-#include "AbstractSubstitutionModel.h"
+#include "MixedSubstitutionModel.h"
 #include <Bpp/Seq/Alphabet.all>
 
 #include <vector>
@@ -50,53 +51,93 @@
 namespace bpp
 {
   /**
-   * @brief Interface for Substitution models, defined as a mixture
-   * of "simple" substitution models.
+   * @brief Partial implementation for Mixed Substitution models,
+   defined as a mixture of "simple" substitution models.
    * @author Laurent Guéguen
    *
    */
 
-  class MixedSubstitutionModel :
-    public AbstractSubstitutionModel
+  class AbstractMixedSubstitutionModel :
+    public MixedSubstitutionModel
   {
-  public:
+  protected:
 
-    MixedSubstitutionModel(const Alphabet*, const std::string& prefix);
+    /*
+     * @brief vector of pointers to SubstitutionModels.
+     *
+     * Beware: these SubstitutionModels are owned by the object, so
+     * will be deleted at destruction
+     *
+     */
     
-    MixedSubstitutionModel(const MixedSubstitutionModel&);
+    std::vector<SubstitutionModel*> modelsContainer_;
+
+    std::vector<double> Vprobas_;
+    
+  public:
+
+    AbstractMixedSubstitutionModel(const Alphabet*, const std::string& prefix);
+    
+    AbstractMixedSubstitutionModel(const AbstractMixedSubstitutionModel&);
   
-    MixedSubstitutionModel& operator=(const MixedSubstitutionModel&);
+    AbstractMixedSubstitutionModel& operator=(const AbstractMixedSubstitutionModel&);
 
-    virtual ~MixedSubstitutionModel();
+    virtual ~AbstractMixedSubstitutionModel();
 
-    virtual MixedSubstitutionModel* clone() const = 0;
+    virtual AbstractMixedSubstitutionModel* clone() const = 0;
 
   public:
+
     /**
      * @brief Returns a specific model from the mixture
      */
-    virtual const SubstitutionModel* getNModel(unsigned int i) const = 0;
+    const SubstitutionModel* getNModel(unsigned int i) const
+    {
+      return modelsContainer_[i];
+    }
+    
+    SubstitutionModel* getNModel(unsigned int i)
+    {
+      return modelsContainer_[i];
+    }
 
-    virtual SubstitutionModel* getNModel(unsigned int i) = 0;
-
+    /**
+     * @brief returns the number of models in the mixture
+     */
+    
+    unsigned int getNumberOfModels() const
+    {
+      return modelsContainer_.size();
+    }
+ 
     /**
      * @brief Returns the  probability of a specific model from the mixture
      */
   
-    virtual double getNProbability(unsigned int i) const = 0;
-  
-    virtual const std::vector<double>& getProbabilities() const = 0;
+    double getNProbability(unsigned int i) const
+    {
+      return Vprobas_[i];
+    }
     
-    virtual unsigned int getNumberOfModels() const = 0;
-
+    const std::vector<double>& getProbabilities() const
+    {
+      return Vprobas_;
+    }
+    
     /**
-     * @brief This function can not be applied here, so it is defined
-     * to prevent wrong usage.
+     * @brief From SubstitutionModel interface
+     *
      */
+
+    unsigned int getNumberOfStates() const;
     
-    double Qij(unsigned int i, unsigned int j) const {return 0;}
+    const Matrix<double>& getPij_t(double t) const;
+    const Matrix<double>& getdPij_dt(double t) const;
+    const Matrix<double>& getd2Pij_dt2(double t) const;
+    const Vdouble& getFrequencies();
+    double freq(unsigned int i) const;
 
   };
 } // end of namespace bpp.
 
-#endif  // _MIXEDSUBSTITUTIONMODEL_H_
+#endif  // _ABSTRACTMIXEDSUBSTITUTIONMODEL_H_
