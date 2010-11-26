@@ -80,6 +80,7 @@ class SiteSimulationResult
       alphabet_       (alphabet)
     {
       indexes_[tree->getRootId()] = 0;
+      //Warning, watch out the indices there!
       ancestralStates_.push_back(ancestralState);
     }
 
@@ -115,15 +116,15 @@ class SiteSimulationResult
     
     virtual void addNode(int nodeId, MutationPath path)
     {
-      currentIndex_++;
       indexes_[nodeId] = currentIndex_;
+      currentIndex_++;
       paths_.push_back(path);
       ancestralStates_.push_back(path.getFinalState());
     }
 
     virtual int getAncestralState(unsigned int i)    const { return ancestralStates_[i]; }
 
-    virtual int getAncestralState(int nodeId) const { return ancestralStates_[indexes_[nodeId]]; }
+    virtual int getAncestralState(int nodeId) const { return ancestralStates_[1 + indexes_[nodeId]]; }
 
     virtual const MutationPath& getMutationPath(unsigned int i) const { return paths_[i]; }
 
@@ -151,7 +152,7 @@ class SiteSimulationResult
       std::vector<int> states(n);
       for (unsigned int i = 0; i < n; i++)
       {
-        states[i] = ancestralStates_[indexes_[leavesId_[i]]];
+        states[i] = ancestralStates_[1 + indexes_[leavesId_[i]]];
       }
       return states;
     }
