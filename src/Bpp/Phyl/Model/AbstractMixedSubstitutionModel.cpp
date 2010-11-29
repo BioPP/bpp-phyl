@@ -49,20 +49,23 @@ using namespace std;
 
 AbstractMixedSubstitutionModel::AbstractMixedSubstitutionModel(const Alphabet* alpha,
                                                                const std::string& prefix): MixedSubstitutionModel(alpha, prefix),
-  modelsContainer_(),
-  Vprobas_()
+                                                                                           modelsContainer_(),
+                                                                                           vProbas_(),
+                                                                                           vRates_()
 {
 }
 
 AbstractMixedSubstitutionModel::AbstractMixedSubstitutionModel(const AbstractMixedSubstitutionModel& msm) :
   MixedSubstitutionModel(msm),
   modelsContainer_(),
-  Vprobas_()
+  vProbas_(),
+  vRates_()
 {
   for (unsigned int i = 0; i < msm.modelsContainer_.size(); i++)
     {
       modelsContainer_.push_back(msm.modelsContainer_[i]->clone());
-      Vprobas_.push_back(msm.Vprobas_[i]);
+      vProbas_.push_back(msm.vProbas_[i]);
+      vRates_.push_back(msm.vRates_[i]);
     }
 }
 
@@ -72,12 +75,14 @@ AbstractMixedSubstitutionModel& AbstractMixedSubstitutionModel::operator=(const 
   
   //Clear existing containers:
   modelsContainer_.clear();
-  Vprobas_.clear();
+  vProbas_.clear();
+  vRates_.clear();
   
   for (unsigned int i = 0; i < msm.modelsContainer_.size(); i++)
     {
       modelsContainer_.push_back(msm.modelsContainer_[i]->clone());
-      Vprobas_.push_back(msm.Vprobas_[i]);
+      vProbas_.push_back(msm.vProbas_[i]);
+      vRates_.push_back(msm.vRates_[i]);
     }
   
   return *this;
@@ -107,7 +112,7 @@ double AbstractMixedSubstitutionModel::freq(unsigned int i) const
 {
   double x=0;
   for (unsigned int n = 0; n < modelsContainer_.size(); n++)
-    x+= modelsContainer_[n]->freq(i)*Vprobas_[n];
+    x+= modelsContainer_[n]->freq(i)*vProbas_[n];
 
   return x;
 }
@@ -123,7 +128,7 @@ const Matrix<double>& AbstractMixedSubstitutionModel::getPij_t(double t) const
     for (unsigned int j=0; j< getNumberOfStates(); j++){
       double x=0;
       for (unsigned int n = 0; n < modelsContainer_.size(); n++)
-        x+= (*vM[n])(i,j)*Vprobas_[n];
+        x+= (*vM[n])(i,j)*vProbas_[n];
       pijt_(i,j)=x;
     }
   return pijt_;
@@ -140,7 +145,7 @@ const Matrix<double>& AbstractMixedSubstitutionModel::getdPij_dt(double t) const
     for (unsigned int j=0; j< getNumberOfStates(); j++){
       double x=0;
       for (unsigned int n = 0; n < modelsContainer_.size(); n++)
-        x+= (*vM[n])(i,j)*Vprobas_[n];
+        x+= (*vM[n])(i,j)*vProbas_[n];
       dpijt_(i,j)=x;
     }
   return dpijt_;
@@ -157,10 +162,44 @@ const Matrix<double>& AbstractMixedSubstitutionModel::getd2Pij_dt2(double t) con
     for (unsigned int j=0; j< getNumberOfStates(); j++){
       double x=0;
       for (unsigned int n = 0; n < modelsContainer_.size(); n++)
-        x+= (*vM[n])(i,j)*Vprobas_[n];
+        x+= (*vM[n])(i,j)*vProbas_[n];
       d2pijt_(i,j)=x;
     }
   return d2pijt_;
 }
 
 
+/**
+ * @brief Set the rate of the model (must be positive).
+ * @param rate must be positive.
+ */
+  
+void AbstractMixedSubstitutionModel::setRate(double rate)
+{
+  AbstractSubstitutionModel::setRate(rate);
+
+  double sum=0;
+  for (unsigned int n = 0; n < modelsContainer_.size(); n++)
+    sum+=vRates_[n]*vProbas_[n];
+  
+  for (unsigned int n = 0; n < modelsContainer_.size(); n++){
+    vRates_[n]*=rate_/sum;
+    modelsContainer_[n]->setRate(vRates_[n]);
+  }
+}
+
+void AbstractMixedSubstitutionModel::setVRates(Vdouble& vd)
+{
+  if (vd.size()!=modelsContainer_.size())
+    throw Exception("AbstractMixedSubstitutionModel::setVRates  bad size of Vdouble argument.");
+
+  double sum=0;
+  for (unsigned int i=0;i<vd.size();i++){
+    sum+=vd[i]*vProbas_[i];
+  }
+  
+  for (unsigned int i=0;i<vd.size();i++){
+    vRates_[i]=vd[i]*rate_/sum;
+    modelsContainer_[i]->setRate(vRates_[i]);
+  }
+}
