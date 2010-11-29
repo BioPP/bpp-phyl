@@ -88,13 +88,14 @@ SubstitutionModelSet* SubstitutionModelSetTools::createNonHomogeneousModelSet(
   
   for ( i = 0; i < globalParameterNames.size(); i++)
   {
-    if ((j=globalParameterNames[i].find("*"))!=string::npos){
+    if (globalParameterNames[i].find("*")!=string::npos){
+      j=globalParameterNames[i].find("*");
       globalParameterPrefs.push_back(globalParameterNames[i].substr(0,j));
-      //      globalParameterNames.erase(i);
     }
     else if (!globalParameters.hasParameter(globalParameterNames[i]))
       throw Exception("SubstitutionModelSetTools::createNonHomogeneousModelSet. Parameter '" + globalParameterNames[i] + "' is not valid.");
   }
+  
   for (i= globalParameters.size(); i > 0; i--)
   {
     string gN=globalParameters[i-1].getName();
@@ -107,7 +108,7 @@ SubstitutionModelSet* SubstitutionModelSetTools::createNonHomogeneousModelSet(
     if (!flag)
       flag=(find(globalParameterNames.begin(), globalParameterNames.end(), globalParameters[i-1].getName()) != globalParameterNames.end());
 
-    if (flag){
+    if (!flag){
       //not a global parameter:
       branchParameters.addParameter(globalParameters[i - 1]);
       globalParameters.deleteParameter(i - 1);
