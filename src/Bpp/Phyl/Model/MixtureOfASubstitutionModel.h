@@ -55,11 +55,11 @@ namespace bpp
  * substitution models.
  * @author Laurent Guéguen
  *
- * All the models are of the same type (for example T92 or GY94),
- * and their parameter values can follow discrete distributions.
+ * All the models are of the same type (for example T92 or GY94), and
+ * their parameter values can follow discrete distributions. At the
+ * construction, the rates of the models are all equal to one.
  *
- * In this kind of model, there is no generator or transition
- * probabilities.
+ * In this kind of model, there is no generator.
  *
  * There is a map with connection from parameter names to discrete
  * distributions, and then a related vector of "simple" substitution
@@ -108,15 +108,9 @@ public:
 
   void updateMatrices();
   
-  /**
-   * @brief the parameters of the submodel that are not defined
-   * through a distribution (ie that are mapped with a
-   * ConstantDistribution) are updated.
-   *
-   **/
-  
   void setFreq(std::map<int,double>&);
 
+  
 };
 } // end of namespace bpp.
 
