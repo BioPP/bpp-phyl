@@ -91,7 +91,7 @@ MixtureOfASubstitutionModel::MixtureOfASubstitutionModel(
     {
       modelsContainer_.push_back(model->clone());
       modelsContainer_[i]->setNamespace(model->getNamespace());
-      Vprobas_.push_back(1.0/c);
+      vProbas_.push_back(1.0/c);
     }
 
   // Initialization of parameters_.
@@ -196,7 +196,7 @@ void MixtureOfASubstitutionModel::updateMatrices()
 
   for (i = 0; i < modelsContainer_.size(); i++)
     {
-      Vprobas_[i]=1;
+      vProbas_[i]=1;
       j = i;
       for (it = distributionMap_.begin(); it != distributionMap_.end(); it++)
         {
@@ -204,7 +204,7 @@ void MixtureOfASubstitutionModel::updateMatrices()
           l = j % it->second->getNumberOfCategories();
 
           d = it->second->getCategory(l);
-          Vprobas_[i]*=it->second->getProbability(l);
+          vProbas_[i]*=it->second->getProbability(l);
           if (pl.hasParameter(s))
             pl.setParameterValue(s,d);
           else
@@ -220,7 +220,7 @@ void MixtureOfASubstitutionModel::updateMatrices()
     {
       freq_[i] = 0;
       for (j = 0; j < modelsContainer_.size(); j++)
-        freq_[i] += Vprobas_[i]*modelsContainer_[j]->freq(i);
+        freq_[i] += vProbas_[i]*modelsContainer_[j]->freq(i);
     }
   
 }
