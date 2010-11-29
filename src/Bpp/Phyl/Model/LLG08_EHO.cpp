@@ -123,6 +123,12 @@ void LLG08_EHO::setFreq(std::map<int,double>& m){
   matchParametersValues(pmixmodel_->getParameters());
 }
 
+void LLG08_EHO::setVRates(Vdouble & vd){
+  pmixmodel_->setVRates(vd);
+  matchParametersValues(pmixmodel_->getParameters());
+}
+
+
 /**************** sub model classes *///////////
 
 LLG08_EHO::EmbeddedModel::EmbeddedModel(const ProteicAlphabet* alpha, string name) :

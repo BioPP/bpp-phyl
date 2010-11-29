@@ -161,6 +161,8 @@ public:
 
   std::string getName() const { return "LLG08_EX3"; }
 
+  void setVRates(Vdouble & vd);
+
   double Pij_t(unsigned int i, unsigned int j, double t) const {
     return pmixmodel_->Pij_t(i,j,t);
   }

@@ -113,8 +113,13 @@ void LLG08_UL2::updateMatrices()
   for (unsigned int i=0;i<lParPmodel_.size();i++)
     if (hasParameter(mapParNamesFromPmodel_[lParPmodel_[i].getName()]))
       lParPmodel_[i].setValue(getParameter(mapParNamesFromPmodel_[lParPmodel_[i].getName()]).getValue());
-  
+
   pmixmodel_->matchParametersValues(lParPmodel_);
+}
+
+void LLG08_UL2::setVRates(Vdouble & vd){
+  pmixmodel_->setVRates(vd);
+  matchParametersValues(pmixmodel_->getParameters());
 }
 
 void LLG08_UL2::setFreq(std::map<int,double>& m){

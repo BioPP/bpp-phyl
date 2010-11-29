@@ -154,6 +154,8 @@ public:
     return pmixmodel_->getNumberOfModels();
   }
 
+  void setVRates(Vdouble & vd);
+
   std::string getName() const { return "LLG08_EX2"; }
 
   double Pij_t(unsigned int i, unsigned int j, double t) const {
