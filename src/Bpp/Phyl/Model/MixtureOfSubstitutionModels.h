@@ -57,12 +57,13 @@ namespace bpp
    * @author Laurent Guéguen
    *
    * All the models can be of different types (for example T92 or
-   * GY94), and each model has a specific probability and rate. The
-   * expectation of the rates on the distribution of the models must
-   * equal one.
+   * GY94), and each model has a specific probability and rate. 
    *
-   * In this kind of model, there is no generator nor transition
-   * matrice.
+   *
+   * The probabilities and rates of the models are independent
+   * parameters, handled directly, under the constraint that the
+   * expectation of the rates on the distribution of the models must
+   * equal one. 
    *
    * If there are @f$n@f$ models, @f$p_i@f$ is the probability of
    * model i (@f$\sum_{i=1}^{n} p_i = 1@f$) and the probabilities
@@ -118,15 +119,6 @@ namespace bpp
   class MixtureOfSubstitutionModels :
     public AbstractMixedSubstitutionModel
   {
-  private:
-
-    // List of the paramaters of the submodels
-    
-    ParameterList lParPmodel_;
-    
-  protected:
-    std::vector<double> Vrates_;
-
   public:
 
     /*
@@ -167,20 +159,20 @@ namespace bpp
     MixtureOfSubstitutionModels* clone() const { return new MixtureOfSubstitutionModels(*this); }
 
   public:
-    double getNRate(unsigned int i) const
-    {
-      return Vrates_[i];
-    }
-  
-    const std::vector<double>& getRates() const
-    {
-      return Vrates_;
-    }
-  
     std::string getName() const { return "MixtureOfSubstitutionModels"; }
 
     void updateMatrices();
   
+    /**
+     * @brief Sets the rates of the submodels to follow the constraint
+     * that the mean rate of the mixture equals rate_.
+     
+     * @param vd a vector of positive values such that the rates of
+     * the respective submodels are in the same proportions (ie this
+     * vector does not need to be normalized).
+     */
+
+    virtual void setVRates(Vdouble& vd);
     /**
      * @brief applies setFreq to all the models of the mixture and
      * recovers the parameters values.
