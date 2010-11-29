@@ -243,6 +243,9 @@ protected:
    *
    * Eigen values and vectors are computed from the generator and assigned to the
    * eigenValues_, rightEigenVectors_ and leftEigenVectors_ variables.
+   *
+   * The optional rate parameter is not taken into account in this
+   * method to prevent unnecessary computation.
    */
   virtual void updateMatrices();
 
@@ -258,8 +261,9 @@ public:
   double getScale() const;
 
   /**
-   * @brief Set the rate of the model, defined as the scalar product
-   * of diagonal elements of the generator and the frequencies vector.
+   * @brief Set the rate of the generator, defined as the scalar
+   * product of diagonal elements of the generator and the frequencies
+   * vector.
    *
    * When the generator is normalized, scale=1. Otherwise each element
    * is multiplied such that the correct scale is set.
@@ -268,7 +272,7 @@ public:
   void setScale(double scale);
 
   /**
-   * @brief Get the rate
+   * @brief Get the rate of the model
    */
   
   double getRate() const;
@@ -278,7 +282,7 @@ public:
    * @param rate must be positive.
    */
   
-  void setRate(double rate);
+  virtual void setRate(double rate);
 };
 
 
