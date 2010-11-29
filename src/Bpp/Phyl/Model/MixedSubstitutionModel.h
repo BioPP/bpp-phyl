@@ -72,6 +72,7 @@ namespace bpp
     virtual MixedSubstitutionModel* clone() const = 0;
 
   public:
+
     /**
      * @brief Returns a specific model from the mixture
      */
@@ -88,6 +89,18 @@ namespace bpp
     virtual const std::vector<double>& getProbabilities() const = 0;
     
     virtual unsigned int getNumberOfModels() const = 0;
+
+    
+    /**
+     * @brief Sets the rates of the submodels to follow the constraint
+     * that the mean rate of the mixture equals rate_.
+     
+     * @param vd a vector of positive values such that the rates of
+     * the respective submodels are in the same proportions (ie this
+     * vector does not need to be normalized).
+     */
+
+    virtual void setVRates(Vdouble& vd) = 0;
 
     /**
      * @brief This function can not be applied here, so it is defined
