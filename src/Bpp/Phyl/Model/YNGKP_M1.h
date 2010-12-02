@@ -182,6 +182,9 @@ public:
 
   void setFreq(std::map<int,double>& m);
 
+  double getRate() const { return pmixmodel_->getRate();}
+  
+  void setRate(double rate) { pmixmodel_->setRate(rate);}
 };
 
 } //end of namespace bpp.

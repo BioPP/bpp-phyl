@@ -130,10 +130,10 @@ YNGKP_M1& YNGKP_M1::operator=(const YNGKP_M1& mod2)
   MixedSubstitutionModel::operator=(mod2);
 
   pmixmodel_=new MixtureOfASubstitutionModel(*mod2.pmixmodel_);
-  mapParNamesFromPmodel_=mod2.mapParNamesFromPmodel_;
-  lParPmodel_=mod2.lParPmodel_;
   synfrom_=mod2.synfrom_;
   synto_=mod2.synto_;
+  mapParNamesFromPmodel_=mod2.mapParNamesFromPmodel_;
+  lParPmodel_=mod2.lParPmodel_;
   
   return *this;
 }
@@ -157,9 +157,8 @@ void YNGKP_M1::updateMatrices()
 
   Vdouble vd;
 
-  // ! proper order to have equal synonymous rates 
-  vd.push_back(pmixmodel_->getNModel(1)->Qij(synfrom_,synto_));
-  vd.push_back(pmixmodel_->getNModel(0)->Qij(synfrom_,synto_));
+  vd.push_back(1/pmixmodel_->getNModel(0)->Qij(synfrom_,synto_));
+  vd.push_back(1/pmixmodel_->getNModel(1)->Qij(synfrom_,synto_));
 
   pmixmodel_->setVRates(vd);
 }
