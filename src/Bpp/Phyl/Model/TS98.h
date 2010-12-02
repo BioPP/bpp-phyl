@@ -112,7 +112,11 @@ class TS98:
 
   public:
     std::string getName() const { return "TS98"; }
-    
+
+  double getRate() const { return 1.;}
+
+  void setRate(double rate) {};
+
   protected:
     void updateRatesModel()
     {
