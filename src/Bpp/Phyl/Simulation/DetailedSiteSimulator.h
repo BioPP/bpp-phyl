@@ -80,6 +80,7 @@ class SiteSimulationResult
       alphabet_       (alphabet)
     {
       indexes_[tree->getRootId()] = 0;
+      //Warning, watch out the indices there!
       ancestralStates_.push_back(ancestralState);
     }
 

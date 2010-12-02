@@ -5,7 +5,7 @@
 //
 
 /*
-Copyright or © or Copr. CNRS, (November 16, 2004, 2005, 2006)
+Copyright or © or Copr. Bio++ Development Team, (November 16, 2004, 2005, 2006)
 
 This software is a computer program whose purpose is to provide classes
 for phylogenetic data analysis.
@@ -44,6 +44,9 @@ knowledge of the CeCILL license and that you accept its terms.
 
 #include <Bpp/Numeric/Matrix/Matrix.h>
 
+//From the STL:
+#include <vector>
+
 namespace bpp
 {
 
@@ -53,6 +56,12 @@ namespace bpp
  * Provide a method to compute the @f$n_{x,y}(t)@f$ function,
  * namely the number of substitutions on a branch of length @f$t@f$, with initial state @f$x@f$ and final state @f$y@f$.
  * 
+ * The new implementation offers to perform several counts simultaneously, distinguishing between different types of substitutions.
+ * The types are registered as unsigned int, so that all counts can be retrieved in one go as a vector, the type serving as an indice.
+ * The type indice for a given substitution can be obtained using the getSubstitutionType method.
+ *
+ * @author Julien Dutheil
+ *
  * See:
  * Dutheil J, Pupko T, Jean-Marie A, Galtier N.
  * A model-based approach for detecting coevolving positions in a molecule.
@@ -68,21 +77,47 @@ class SubstitutionCount
 		/**
 		 * @brief Get the number of susbstitutions on a branch, given the initial and final states, and the branch length.
 		 *
-		 * @param initialState The intial state.
+		 * @param initialState The initial state.
 		 * @param finalState   The final state.
 		 * @param length       The length of the branch.
+     * @param type         The type of susbstitution to count.
 		 * @return The number of substitutions on a branch of specified length and
 		 * according to initial and final states.
 		 */
-		virtual double getNumberOfSubstitutions(unsigned int initialState, unsigned int finalState, double length) const = 0;
+		virtual double getNumberOfSubstitutions(unsigned int initialState, unsigned int finalState, double length, unsigned int type) const = 0;
 		
 		/**
 		 * @brief Get the numbers of susbstitutions on a branch, for each initial and final states, and given the branch length.
 		 *
 		 * @param length       The length of the branch.
+     * @param type         The type of susbstitution to count.
 		 * @return A matrix with all numbers of substitutions for each initial and final states.
 		 */
-    virtual Matrix<double>* getAllNumbersOfSubstitutions(double length) const = 0;
+    virtual Matrix<double>* getAllNumbersOfSubstitutions(double length, unsigned int type) const = 0;
+
+    /**
+		 * @brief Get the numbers of susbstitutions on a branch for all types, for an initial and final states, given the branch length.
+		 *
+		 * @param initialState The initial state.
+		 * @param finalState   The final state.
+		 * @param length       The length of the branch.
+		 * @return A matrix with all numbers of substitutions for each initial and final states.
+		 */
+    virtual std::vector<double> getNumberOfSubstitutionsForEachType(unsigned int initialState, unsigned int finalState, double length) const = 0;
+
+    /**
+     * @brief Get the substitution type according to initial and final states indices.
+     *
+		 * @param initialState The initial state.
+		 * @param finalState   The final state.
+     * @throw Exception if the substitution type is not supported.
+     */
+    virtual unsigned int getSubstitutionType(unsigned int initialState, unsigned int finalState) const throw (Exception) = 0;
+
+    /**
+     * @return The number of substitution types supported by this class.
+     */
+    virtual unsigned int getNumberOfSubstitutionTypes() const = 0;
 
     /**
      * @brief Set the substitution model associated with this count, if relevent.

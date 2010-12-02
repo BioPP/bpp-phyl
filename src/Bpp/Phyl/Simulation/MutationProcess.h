@@ -107,8 +107,13 @@ class MutationPath
 		virtual ~MutationPath() {};
 
 	public:
+	
+    /**
+     * @return A pointer toward the alphabet associated to this path.
+     */
+    const Alphabet* getAlphabet() const { return alphabet_; }
 		
-		/**
+    /**
 		 * @brief Add a new mutation event.
 		 *
 		 * @param state The new state after mutation event.

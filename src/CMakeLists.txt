@@ -175,6 +175,7 @@ set(H_FILES
   Bpp/Phyl/Mapping/OneJumpSubstitutionCount.h
   Bpp/Phyl/Mapping/ProbabilisticSubstitutionMapping.h
   Bpp/Phyl/Mapping/SimpleSubstitutionCount.h
+  Bpp/Phyl/Mapping/SimpleGCSubstitutionCount.h
   Bpp/Phyl/Mapping/SubstitutionCount.h
   Bpp/Phyl/Mapping/SubstitutionMapping.h
   Bpp/Phyl/Mapping/SubstitutionMappingTools.h

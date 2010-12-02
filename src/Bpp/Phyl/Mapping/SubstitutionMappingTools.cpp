@@ -58,6 +58,7 @@ using namespace std;
 ProbabilisticSubstitutionMapping* SubstitutionMappingTools::computeSubstitutionVectors(
   const DRTreeLikelihood& drtl,
   SubstitutionCount& substitutionCount,
+  unsigned int type,
   bool verbose) throw (Exception)
 {
   //Preamble:
@@ -266,7 +267,7 @@ ProbabilisticSubstitutionMapping* SubstitutionMappingTools::computeSubstitutionV
       {
         VVdouble* nxy_c = &nxy[c];
         double rc = rcRates[c];
-        Matrix<double>* nijt = substitutionCount.getAllNumbersOfSubstitutions(d * rc);
+        Matrix<double>* nijt = substitutionCount.getAllNumbersOfSubstitutions(d * rc, type);
         nxy_c->resize(nbStates);
         for (unsigned int x = 0; x < nbStates; x++)
         {
@@ -344,6 +345,7 @@ ProbabilisticSubstitutionMapping* SubstitutionMappingTools::computeSubstitutionV
 ProbabilisticSubstitutionMapping* SubstitutionMappingTools::computeSubstitutionVectorsNoAveraging(
   const DRTreeLikelihood& drtl,
   SubstitutionCount & substitutionCount,
+  unsigned int type,
   bool verbose) throw (Exception)
 {
   //Preamble:
@@ -533,7 +535,7 @@ ProbabilisticSubstitutionMapping* SubstitutionMappingTools::computeSubstitutionV
       {
         VVdouble* nxy_c = &nxy[c];
         double rc = rcRates[c];
-        Matrix<double>* nijt = substitutionCount.getAllNumbersOfSubstitutions(d * rc);
+        Matrix<double>* nijt = substitutionCount.getAllNumbersOfSubstitutions(d * rc, type);
         nxy_c->resize(nbStates);
         for (unsigned int x = 0; x < nbStates; x++)
         {
@@ -611,8 +613,9 @@ ProbabilisticSubstitutionMapping* SubstitutionMappingTools::computeSubstitutionV
 /**************************************************************************************************/
 
 ProbabilisticSubstitutionMapping* SubstitutionMappingTools::computeSubstitutionVectorsNoAveragingMarginal(
-  const DRTreeLikelihood & drtl,
-  SubstitutionCount & substitutionCount,
+  const DRTreeLikelihood& drtl,
+  SubstitutionCount& substitutionCount,
+  unsigned int type,
   bool verbose) throw (Exception)
 {
   //Preamble:
@@ -676,7 +679,7 @@ ProbabilisticSubstitutionMapping* SubstitutionMappingTools::computeSubstitutionV
       TreeLikelihood::ConstBranchModelDescription* bmd = mit->next();
       substitutionCount.setSubstitutionModel(bmd->getModel());
       //compute all nxy first:
-      Matrix<double>* nxy = substitutionCount.getAllNumbersOfSubstitutions(d);
+      Matrix<double>* nxy = substitutionCount.getAllNumbersOfSubstitutions(d, type);
       //Now loop over sites:
       auto_ptr<TreeLikelihood::SiteIterator> sit(bmd->getNewSiteIterator());
       first = true;
@@ -711,6 +714,7 @@ ProbabilisticSubstitutionMapping* SubstitutionMappingTools::computeSubstitutionV
 ProbabilisticSubstitutionMapping* SubstitutionMappingTools::computeSubstitutionVectorsMarginal(
   const DRTreeLikelihood& drtl,
   SubstitutionCount& substitutionCount,
+  unsigned int type,
   bool verbose) throw (Exception)
 {
   //Preamble:
@@ -772,7 +776,7 @@ ProbabilisticSubstitutionMapping* SubstitutionMappingTools::computeSubstitutionV
       {
         VVdouble* nxy_c = &nxy[c];
         double rc = rcRates[c];
-        Matrix<double>* nijt = substitutionCount.getAllNumbersOfSubstitutions(d * rc);
+        Matrix<double>* nijt = substitutionCount.getAllNumbersOfSubstitutions(d * rc, type);
         nxy_c->resize(nbStates);
         for (unsigned int x = 0; x < nbStates; x++)
         {

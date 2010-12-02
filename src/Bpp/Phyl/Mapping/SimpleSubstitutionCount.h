@@ -5,7 +5,7 @@
 //
 
 /*
-Copyright or © or Copr. CNRS, (November 16, 2004, 2005, 2006)
+Copyright or © or Copr. Bio++ Development Team, (November 16, 2004, 2005, 2006)
 
 This software is a computer program whose purpose is to provide classes
 for phylogenetic data analysis.
@@ -58,6 +58,8 @@ namespace bpp
  * Tufféry P, Darlu P.
  * Exploring a phylogenetic approach for the detection of correlated substitutions in proteins.
  * Mol Biol Evol. 2000 Nov;17(11):1753-9
+ *
+ * @author Julien Dutheil
  */
 class SimpleSubstitutionCount:
   public virtual SubstitutionCount
@@ -79,12 +81,26 @@ class SimpleSubstitutionCount:
     virtual ~SimpleSubstitutionCount() {}
 			
 	public:
-		double getNumberOfSubstitutions(unsigned int initialState, unsigned int finalState, double length) const
+		double getNumberOfSubstitutions(unsigned int initialState, unsigned int finalState, double length, unsigned int type = 0) const
     {
 			return initialState == finalState ? 0. : 1.;
 		}
 
-    virtual Matrix<double>* getAllNumbersOfSubstitutions(double length) const;
+    Matrix<double>* getAllNumbersOfSubstitutions(double length, unsigned int type = 0) const;
+    
+    std::vector<double> getNumberOfSubstitutionsForEachType(unsigned int initialState, unsigned int finalState, double length) const
+    {
+      std::vector<double> v(1);
+      v[0] = (initialState == finalState ? 0. : 1.);
+      return v;
+    }
+    
+    unsigned int getSubstitutionType(unsigned int initialState, unsigned int finalState) const throw (Exception) {
+      if (initialState == finalState)
+        throw Exception("SimpleSubstitutionCount::getSubstitutionType. Not a substitution!");
+      return 0;
+    }
+    unsigned int getNumberOfSubstitutionTypes() const { return 1; }
 
     void setSubstitutionModel(const SubstitutionModel* model) {}
 
@@ -121,16 +137,30 @@ class LabelSubstitutionCount:
     virtual ~LabelSubstitutionCount() {}
 			
 	public:
-		double getNumberOfSubstitutions(unsigned int initialState, unsigned int finalState, double length) const
+		double getNumberOfSubstitutions(unsigned int initialState, unsigned int finalState, double length, unsigned int type = 0) const
     {
 			return label_(initialState, finalState);
 		}
 
-    virtual Matrix<double>* getAllNumbersOfSubstitutions(double length) const
+    Matrix<double>* getAllNumbersOfSubstitutions(double length, unsigned int type = 0) const
     {
       return dynamic_cast<Matrix<double>*>(label_.clone());
     }
+    
+    std::vector<double> getNumberOfSubstitutionsForEachType(unsigned int initialState, unsigned int finalState, double length) const
+    {
+      std::vector<double> v(1);
+      v[0] = label_(initialState, finalState);
+      return v;
+    }
 
+    unsigned int getSubstitutionType(unsigned int initialState, unsigned int finalState) const throw (Exception) {
+      if (initialState == finalState)
+        throw Exception("LabelSubstitutionCount::getSubstitutionType. Not a substitution!");
+      return 0;
+    }
+    unsigned int getNumberOfSubstitutionTypes() const { return 1; }
+    
     void setSubstitutionModel(const SubstitutionModel* model) {}
 
 };

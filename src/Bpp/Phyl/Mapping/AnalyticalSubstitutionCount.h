@@ -53,6 +53,8 @@ namespace bpp
  * Dutheil J, Pupko T, Jean-Marie A, Galtier N.
  * A model-based approach for detecting coevolving positions in a molecule.
  * Mol Biol Evol. 2005 Sep;22(9):1919-28.
+ *
+ * @author Julien Dutheil
  */
 class AnalyticalSubstitutionCount:
   public virtual SubstitutionCount
@@ -90,8 +92,21 @@ class AnalyticalSubstitutionCount:
 		virtual ~AnalyticalSubstitutionCount() {}
 			
 	public:
-		double getNumberOfSubstitutions(unsigned int initialState, unsigned int finalState, double length) const;
-    Matrix<double>* getAllNumbersOfSubstitutions(double length) const;
+		double getNumberOfSubstitutions(unsigned int initialState, unsigned int finalState, double length, unsigned int type = 0) const;
+    Matrix<double>* getAllNumbersOfSubstitutions(double length, unsigned int type = 0) const;
+    std::vector<double> getNumberOfSubstitutionsForEachType(unsigned int initialState, unsigned int finalState, double length) const
+    {
+      std::vector<double> v(0);
+      v[0] = getNumberOfSubstitutions(initialState, finalState, length, 0);
+      return v;
+    }
+    unsigned int getSubstitutionType(unsigned int initialState, unsigned int finalState) const throw (Exception) {
+      if (initialState == finalState)
+        throw Exception("AnalyticalSubstitutionCount::getSubstitutionType. Not a substitution!");
+      return 0;
+    }
+    unsigned int getNumberOfSubstitutionTypes() const { return 1; }
+
     void setSubstitutionModel(const SubstitutionModel* model);
 
   protected:

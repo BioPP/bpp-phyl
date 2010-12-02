@@ -5,7 +5,7 @@
 //
 
 /*
-Copyright or © or Copr. CNRS, (November 16, 2004, 2005, 2006)
+Copyright or © or Copr. Bio++ Development Team, (November 16, 2004, 2005, 2006)
 
 This software is a computer program whose purpose is to provide classes
 for phylogenetic data analysis.
@@ -57,6 +57,8 @@ namespace bpp
  * Dutheil J, Pupko T, Jean-Marie A, Galtier N.
  * A model-based approach for detecting coevolving positions in a molecule.
  * Mol Biol Evol. 2005 Sep;22(9):1919-28. Epub 2005 Jun 8.
+ *
+ * @author Julien Dutheil
  */
 class SubstitutionMappingTools
 {
@@ -72,6 +74,7 @@ class SubstitutionMappingTools
 		 *
 		 * @param drtl              A DRTreeLikelihood object.
 		 * @param substitutionCount The SubstitutionCount to use.
+     * @param type              The type of susbstitution to count (see SubstitutionCount).
 		 * @param verbose           Print info to screen.
 		 * @return A vector of substitutions vectors (one for each site).
      * @throw Exception If the likelihood object is not initialized.
@@ -79,6 +82,7 @@ class SubstitutionMappingTools
 		static ProbabilisticSubstitutionMapping* computeSubstitutionVectors(
 			const DRTreeLikelihood & drtl,
 			SubstitutionCount& substitutionCount,
+      unsigned int type,
 			bool verbose = true) throw (Exception);
 		
 		/**
@@ -97,6 +101,7 @@ class SubstitutionMappingTools
 		 *
 		 * @param drtl              A DRTreeLikelihood object.
 		 * @param substitutionCount The substitutionsCount to use.
+     * @param type              The type of susbstitution to count (see SubstitutionCount).
 		 * @param verbose           Print info to screen.
 		 * @return A vector of substitutions vectors (one for each site).
      * @throw Exception If the likelihood object is not initialized.
@@ -104,6 +109,7 @@ class SubstitutionMappingTools
 		static ProbabilisticSubstitutionMapping* computeSubstitutionVectorsNoAveraging(
 			const DRTreeLikelihood & drtl,
 			SubstitutionCount& substitutionCount,
+      unsigned int type,
 			bool verbose = true) throw (Exception);
 		
 		/**
@@ -120,6 +126,7 @@ class SubstitutionMappingTools
 		 * 
 		 * @param drtl              A DRTreeLikelihood object.
 		 * @param substitutionCount The substitutionsCount to use.
+     * @param type              The type of susbstitution to count (see SubstitutionCount).
 		 * @param verbose           Print info to screen.
 		 * @return A vector of substitutions vectors (one for each site).
      * @throw Exception If the likelihood object is not initialized.
@@ -127,6 +134,7 @@ class SubstitutionMappingTools
 		static ProbabilisticSubstitutionMapping* computeSubstitutionVectorsNoAveragingMarginal(
 			const DRTreeLikelihood& drtl,
 			SubstitutionCount& substitutionCount,
+      unsigned int type,
 			bool verbose = true) throw (Exception);
 		
 		/**
@@ -140,6 +148,7 @@ class SubstitutionMappingTools
 		 *
 		 * @param drtl              A DRTreeLikelihood object.
 		 * @param substitutionCount The substitutionsCount to use.
+     * @param type              The type of susbstitution to count (see SubstitutionCount).
 		 * @param verbose           Print info to screen.
 		 * @return A vector of substitutions vectors (one for each site).
      * @throw Exception If the likelihood object is not initialized.
@@ -147,6 +156,7 @@ class SubstitutionMappingTools
 		static ProbabilisticSubstitutionMapping* computeSubstitutionVectorsMarginal(
 			const DRTreeLikelihood& drtl,
 			SubstitutionCount& substitutionCount,
+      unsigned int type,
 			bool verbose = true) throw (Exception);
 	
 
@@ -162,7 +172,7 @@ class SubstitutionMappingTools
 			bool verbose = true) throw (Exception)
     {
       OneJumpSubstitutionCount ojsm(0);
-      return computeSubstitutionVectors(drtl, ojsm);
+      return computeSubstitutionVectors(drtl, ojsm, 0);
     }
 
 		/**
