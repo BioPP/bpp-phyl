@@ -227,7 +227,6 @@ void MixtureOfSubstitutionModels::updateMatrices()
     for (j = 0; j < modelsContainer_.size(); j++)
       freq_[i] += vProbas_[i]*modelsContainer_[j]->freq(i);
   }
-  
 }
 
 void MixtureOfSubstitutionModels::setFreq(std::map<int,double>& m)
@@ -249,9 +248,9 @@ void MixtureOfSubstitutionModels::setVRates(Vdouble& vd)
   unsigned int i, nbmod = modelsContainer_.size();
   double y=0;
   
-  for (i = 0; i < nbmod - 1; i++)
-    {
-      setParameterValue("Mixture.relrate" + TextTools::toString(i+1), vProbas_[i] * vRates_[i] / (1- y));
-      y+=vProbas_[i]*vRates_[i];
-    }
+   for (i = 0; i < nbmod - 1; i++)
+     {
+       setParameterValue("relrate" + TextTools::toString(i+1), vProbas_[i] * vRates_[i] / (1- y));
+       y+=vProbas_[i]*vRates_[i];
+     }
 }
