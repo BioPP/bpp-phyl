@@ -1,3 +1,6 @@
+02/12/10 Julien Dutheil
+* Improved SubstitutionCount class to allow multiple counts.
+
 15/11/10 Julien Dutheil
 * Added topology comparison tools.
 * New unit testing framework.

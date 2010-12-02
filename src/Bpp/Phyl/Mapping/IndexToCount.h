@@ -5,7 +5,7 @@
 //
 
 /*
-Copyright or © or Copr. CNRS, (November 16, 2004, 2005, 2006)
+Copyright or © or Copr. Bio++ Development Team, (November 16, 2004, 2005, 2006)
 
 This software is a computer program whose purpose is to provide classes
 for phylogenetic data analysis.
@@ -87,16 +87,26 @@ class IndexToCount:
 			
 	public:
 
-		double getNumberOfSubstitutions(unsigned int initialState, unsigned int finalState, double length) const
+		double getNumberOfSubstitutions(unsigned int initialState, unsigned int finalState, double length, unsigned int type = 0) const
     {
 			return dist_->getIndex(initialState, finalState);
 		}
 
-		Matrix<double>* getAllNumbersOfSubstitutions(double length) const
+		Matrix<double>* getAllNumbersOfSubstitutions(double length, unsigned int type = 0) const
     {
       return dist_->getIndexMatrix();
     }
+
+    std::vector<double> getNumberOfSubstitutionsForEachType(unsigned int initialState, unsigned int finalState, double length) const
+    {
+      std::vector<double> v(0);
+      v[0] = getNumberOfSubstitutions(initialState, finalState, length, 0);
+      return v;
+    }
     
+    unsigned int getSubstitutionType(unsigned int initialState, unsigned int finalState) const { return 0; }
+    unsigned int getNumberOfSubstitutionTypes() const { return 1; }
+
     void setSubstitutionModel(const SubstitutionModel* model) {}
 
 	public:

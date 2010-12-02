@@ -53,6 +53,8 @@ namespace bpp
  * @f[
  * p_{x,y}(l) = \left\{\begin{array}{ll}1 & \mathrm{if} x \neq y \\ 1 - \exp{\left(Q \cdot t\right)}_{x,y} & \mathrm{otherwise.}\end{array}\right.
  * @f]
+ *
+ * @author Julien Dutheil
  */
 class OneJumpSubstitutionCount:
   public virtual SubstitutionCount
@@ -77,14 +79,24 @@ class OneJumpSubstitutionCount:
 		virtual ~OneJumpSubstitutionCount() {}
 			
 	public:
-		double getNumberOfSubstitutions(unsigned int initialState, unsigned int finalState, double length) const
+		double getNumberOfSubstitutions(unsigned int initialState, unsigned int finalState, double length, unsigned int type = 0) const
     {
       if (finalState != initialState) return 1.;
       else return 1. - model_->Pij_t(initialState, finalState, length);
     }
 
-    Matrix<double>* getAllNumbersOfSubstitutions(double length) const;
+    Matrix<double>* getAllNumbersOfSubstitutions(double length, unsigned int type = 0) const;
     
+    std::vector<double> getNumberOfSubstitutionsForEachType(unsigned int initialState, unsigned int finalState, double length) const
+    {
+      std::vector<double> v(0);
+      v[0] = getNumberOfSubstitutions(initialState, finalState, length, 0);
+      return v;
+    }
+    
+    unsigned int getSubstitutionType(unsigned int initialState, unsigned int finalState) const { return 0; }
+    unsigned int getNumberOfSubstitutionTypes() const { return 1; }
+
     void setSubstitutionModel(const SubstitutionModel* model) { model_ = model; }
 
 };

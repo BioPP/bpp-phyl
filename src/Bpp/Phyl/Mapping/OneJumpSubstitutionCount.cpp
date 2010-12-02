@@ -41,7 +41,7 @@ knowledge of the CeCILL license and that you accept its terms.
 
 using namespace bpp;
 
-Matrix<double>* OneJumpSubstitutionCount::getAllNumbersOfSubstitutions(double length) const
+Matrix<double>* OneJumpSubstitutionCount::getAllNumbersOfSubstitutions(double length, unsigned int type) const
 {
   tmp_ = model_->getPij_t(length);
   unsigned int n = model_->getNumberOfStates();

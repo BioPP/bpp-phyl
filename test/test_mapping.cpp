@@ -92,7 +92,7 @@ int main() {
   
   SubstitutionCount* sCount = new SimpleSubstitutionCount(alphabet);
   ProbabilisticSubstitutionMapping* probMap = 
-    SubstitutionMappingTools::computeSubstitutionVectors(drhtl, *sCount);
+    SubstitutionMappingTools::computeSubstitutionVectors(drhtl, *sCount, 0);
 
   //Check per branch:
   for (unsigned int j = 0; j < ids.size(); ++j) {
