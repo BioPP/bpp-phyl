@@ -73,6 +73,14 @@ class YNGKP_M7:
 private:
   MixtureOfASubstitutionModel* pmixmodel_;
 
+  /*
+   *@brief indexes of 2 codons between which the substitution is
+   * synonymous, to set a basis to the homogeneization of the rates.
+   *
+   */
+
+  int synfrom_, synto_;
+  
 private:
   /**
    * @brief Tools to make the link between the Parameters of the
@@ -134,6 +142,13 @@ public:
 
   std::string getName() const { return "YNGKP_M7"; }
 
+  /**
+   * @brief inactivated method to prevent out of model manipulations
+   *
+   **/
+  
+  void setVRates(Vdouble & vd){};
+
   double Pij_t(unsigned int i, unsigned int j, double t) const {
     return pmixmodel_->Pij_t(i,j,t);
   }
@@ -163,6 +178,9 @@ public:
 
   void setFreq(std::map<int,double>& m);
 
+  double getRate() const { return pmixmodel_->getRate();}
+  
+  void setRate(double rate) { pmixmodel_->setRate(rate);}
 };
 
 } //end of namespace bpp.

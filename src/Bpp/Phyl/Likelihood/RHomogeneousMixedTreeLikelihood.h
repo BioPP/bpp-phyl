@@ -133,8 +133,7 @@ public:
    * @{
    */
   void setData(const SiteContainer& sites) throw (Exception);
-  double getLikelihoodForASite (unsigned int site) const;
-  double getLogLikelihoodForASite(unsigned int site) const;
+
   /** @} */
 
 
@@ -149,23 +148,6 @@ public:
   double getLogLikelihoodForASiteForARateClassForAState(unsigned int site, unsigned int rateClass, int state) const;
   /** @} */
 
-  /**
-   * @name DerivableFirstOrder interface.
-   *
-   * @{
-   */
-  double getFirstOrderDerivative(const std::string& variable) const throw (Exception);
-  /** @} */
-
-  /**
-   * @name DerivableSecondOrder interface.
-   *
-   * @{
-   */
-  double getSecondOrderDerivative(const std::string& variable) const throw (Exception);
-  double getSecondOrderDerivative(const std::string& variable1, const std::string& variable2) const throw (Exception) { return 0; } // Not implemented for now.
-  /** @} */
-
 public:
   // Specific methods:
   void initialize() throw (Exception);
@@ -176,13 +158,9 @@ public:
 
   virtual double getDLikelihoodForASiteForARateClass(unsigned int site, unsigned int rateClass) const;
 
-  virtual double getDLikelihoodForASite(unsigned int site) const;
-
   virtual void computeTreeDLikelihood(const std::string& variable);
 
   virtual double getD2LikelihoodForASiteForARateClass(unsigned int site, unsigned int rateClass) const;
-
-  virtual double getD2LikelihoodForASite(unsigned int site) const;
 
   virtual void computeTreeD2Likelihood(const std::string& variable);
 

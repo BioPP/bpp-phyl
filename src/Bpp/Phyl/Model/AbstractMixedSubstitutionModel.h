@@ -52,7 +52,13 @@ namespace bpp
 {
   /**
    * @brief Partial implementation for Mixed Substitution models,
-   defined as a mixture of "simple" substitution models.
+   * defined as a mixture of "simple" substitution models. Each model
+   * has a specific probability and rate, with the constraint that the
+   * expectation (on the distribution of the models) of the rate of
+   * all the models equals one.
+   *
+   * In this kind of model, there is no generator.
+   *
    * @author Laurent Guéguen
    *
    */
@@ -72,8 +78,28 @@ namespace bpp
     
     std::vector<SubstitutionModel*> modelsContainer_;
 
-    std::vector<double> Vprobas_;
+    /*
+     *@brief vector of the probabilities of the models
+     *
+     */
     
+    std::vector<double> vProbas_;
+
+    /*
+     *@brief vector of the rates of the models.
+     *
+     * For the computation of the transition probabilities, the rates
+     * are included in the submodels while updating the mixture, so
+     * there is no need to multiply here the transition times with the
+     * rates.
+     *
+     * The mean (on the distribution of the models) of the elements of
+     * this vector equals the overall rate of the mixture model, that
+     * is rate_;
+     */
+    
+    std::vector<double> vRates_;
+
   public:
 
     AbstractMixedSubstitutionModel(const Alphabet*, const std::string& prefix);
@@ -89,6 +115,15 @@ namespace bpp
   public:
 
     /**
+     * @brief returns the number of models in the mixture
+     */
+    
+    unsigned int getNumberOfModels() const
+    {
+      return modelsContainer_.size();
+    }
+ 
+    /**
      * @brief Returns a specific model from the mixture
      */
     const SubstitutionModel* getNModel(unsigned int i) const
@@ -102,26 +137,59 @@ namespace bpp
     }
 
     /**
-     * @brief returns the number of models in the mixture
+     * @brief Returns the rate of a specific model from the mixture
      */
-    
-    unsigned int getNumberOfModels() const
+  
+    double getNRate(unsigned int i) const
     {
-      return modelsContainer_.size();
+      return vRates_[i];
     }
- 
+  
     /**
-     * @brief Returns the  probability of a specific model from the mixture
+     * @brief Returns the vector of all the rates of the mixture
+     */
+
+    const std::vector<double>& getRates() const
+    {
+      return vRates_;
+    }
+  
+    /**
+     * @brief Set the rate of the model and the submodels.
+     * @param rate must be positive.
+     */
+  
+    void setRate(double rate);
+
+    /**
+     * @brief Sets the rates of the submodels to follow the constraint
+     * that the mean rate of the mixture equals rate_.
+     
+     * @param vd a vector of positive values such that the rates of
+     * the respective submodels are in the same proportions (ie this
+     * vector does not need to be normalized).
+     */
+
+    virtual void setVRates(Vdouble& vd);
+
+    /**
+     * @brief Returns the probability of a specific model from the
+     * mixture
      */
   
     double getNProbability(unsigned int i) const
     {
-      return Vprobas_[i];
+      return vProbas_[i];
     }
     
+    /**
+     * @brief Returns the vector of probabilities
+     *
+     */
+  
     const std::vector<double>& getProbabilities() const
     {
-      return Vprobas_;
+      return vProbas_;
     }
     
     /**

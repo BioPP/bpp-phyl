@@ -91,7 +91,8 @@ MixtureOfASubstitutionModel::MixtureOfASubstitutionModel(
     {
       modelsContainer_.push_back(model->clone());
       modelsContainer_[i]->setNamespace(model->getNamespace());
-      Vprobas_.push_back(1.0/c);
+      vProbas_.push_back(1.0/c);
+      vRates_.push_back(1.0);
     }
 
   // Initialization of parameters_.
@@ -175,54 +176,47 @@ void MixtureOfASubstitutionModel::updateMatrices()
   // constructor).
   vector<string> v=getParameters().getParameterNames();
    
-  for (it = distributionMap_.begin(); it != distributionMap_.end(); it++)
-    {
-      if (dynamic_cast<ConstantDistribution*>(it->second) == NULL)
-        {
-          for (i = 0; i < it->second->getNumberOfParameters(); i++)
-            {
-              t = it->second->getParameters().getParameterNames()[i];
-              d = getParameter(getParameterNameWithoutNamespace(t)).getValue();
-              it->second->setParameterValue(it->second->getParameterNameWithoutNamespace(t),d);
-            }
-        }
-      else
-        {
-          t = it->second->getNamespace();
-          d = getParameter(getParameterNameWithoutNamespace(t.substr(0,t.length() - 1))).getValue();
-          it->second->setParameterValue("value",d);
-        }
+  for (it = distributionMap_.begin(); it != distributionMap_.end(); it++) {
+    if (dynamic_cast<ConstantDistribution*>(it->second) == NULL) {
+      for (i = 0; i < it->second->getNumberOfParameters(); i++) {
+        t = it->second->getParameters().getParameterNames()[i];
+        d = getParameter(getParameterNameWithoutNamespace(t)).getValue();
+        it->second->setParameterValue(it->second->getParameterNameWithoutNamespace(t),d);
+      }
     }
+    else {
+      t = it->second->getNamespace();
+      d = getParameter(getParameterNameWithoutNamespace(t.substr(0,t.length() - 1))).getValue();
+      it->second->setParameterValue("value",d);
+    }
+  }
 
-  for (i = 0; i < modelsContainer_.size(); i++)
-    {
-      Vprobas_[i]=1;
-      j = i;
-      for (it = distributionMap_.begin(); it != distributionMap_.end(); it++)
-        {
-          s = it->first;
-          l = j % it->second->getNumberOfCategories();
-
-          d = it->second->getCategory(l);
-          Vprobas_[i]*=it->second->getProbability(l);
-          if (pl.hasParameter(s))
-            pl.setParameterValue(s,d);
-          else
-            pl.addParameter(Parameter(s,d));
-
-          j = j / it->second->getNumberOfCategories();
-        }
+  for (i = 0; i < modelsContainer_.size(); i++) {
+    vProbas_[i]=1;
+    j = i;
+    for (it = distributionMap_.begin(); it != distributionMap_.end(); it++)
+      {
+        s = it->first;
+        l = j % it->second->getNumberOfCategories();
+        
+        d = it->second->getCategory(l);
+        vProbas_[i]*=it->second->getProbability(l);
+        if (pl.hasParameter(s))
+          pl.setParameterValue(s,d);
+        else
+          pl.addParameter(Parameter(s,d));
+        
+        j = j / it->second->getNumberOfCategories();
+      }
     
-      modelsContainer_[i]->matchParametersValues(pl);
-    }
+    modelsContainer_[i]->matchParametersValues(pl);
+  }
   
-  for (i = 0; i < getNumberOfStates(); i++)
-    {
-      freq_[i] = 0;
-      for (j = 0; j < modelsContainer_.size(); j++)
-        freq_[i] += Vprobas_[i]*modelsContainer_[j]->freq(i);
-    }
-  
+  for (i = 0; i < getNumberOfStates(); i++) {
+    freq_[i] = 0;
+    for (j = 0; j < modelsContainer_.size(); j++)
+      freq_[i] += vProbas_[i]*modelsContainer_[j]->freq(i);
+  }
 }
 
 void MixtureOfASubstitutionModel::setFreq(std::map<int,double>& m)

@@ -139,7 +139,7 @@ const RowMatrix<double>& WordReversibleSubstitutionModel::getPij_t(double d) con
   unsigned int i, j;
 
   for ( i=0;i<nbmod;i++)
-    vM.push_back(&VSubMod_[i]->getPij_t(d * Vrate_[i]));
+    vM.push_back(&VSubMod_[i]->getPij_t(d * Vrate_[i] * rate_));
 
   unsigned int t;
   double x;
@@ -170,8 +170,8 @@ const RowMatrix<double>& WordReversibleSubstitutionModel::getdPij_dt(double d) c
   unsigned int i, j;
 
   for ( i=0;i<nbmod;i++){
-    vM.push_back(&VSubMod_[i]->getPij_t(d * Vrate_[i]));
-    vdM.push_back(&VSubMod_[i]->getdPij_dt(d * Vrate_[i]));
+    vM.push_back(&VSubMod_[i]->getPij_t(d * Vrate_[i] * rate_));
+    vdM.push_back(&VSubMod_[i]->getdPij_dt(d * Vrate_[i] * rate_));
   }
 
   unsigned int t;
@@ -194,7 +194,7 @@ const RowMatrix<double>& WordReversibleSubstitutionModel::getdPij_dt(double d) c
               if (q != p)
                 x *= (*vM[p])(i2 % t,j2 % t);
               else
-                x *= Vrate_[p] * (*vdM[p])(i2 % t,j2 % t);
+                x *= rate_ * Vrate_[p] * (*vdM[p])(i2 % t,j2 % t);
               i2 /= t;
               j2 /= t;
             }
@@ -213,9 +213,9 @@ const RowMatrix<double>& WordReversibleSubstitutionModel::getd2Pij_dt2(double d)
   unsigned int i, j;
 
   for ( i=0;i<nbmod;i++){
-    vM.push_back(&VSubMod_[i]->getPij_t(d * Vrate_[i]));
-    vdM.push_back(&VSubMod_[i]->getdPij_dt(d * Vrate_[i]));
-    vd2M.push_back(&VSubMod_[i]->getd2Pij_dt2(d * Vrate_[i]));
+    vM.push_back(&VSubMod_[i]->getPij_t(d * Vrate_[i] * rate_));
+    vdM.push_back(&VSubMod_[i]->getdPij_dt(d * Vrate_[i] * rate_));
+    vd2M.push_back(&VSubMod_[i]->getd2Pij_dt2(d * Vrate_[i] * rate_));
   }
 
   
@@ -239,7 +239,7 @@ const RowMatrix<double>& WordReversibleSubstitutionModel::getd2Pij_dt2(double d)
               {
                 t = VSubMod_[p]->getNumberOfStates();
                 if ((p == q) || (p == b))
-                  x *= Vrate_[p] * (*vdM[p])(i2 % t, j2 % t);
+                  x *= rate_ * Vrate_[p] * (*vdM[p])(i2 % t, j2 % t);
                 else
                   x *= (*vM[p])(i2 % t, j2 % t);
                 
@@ -263,7 +263,7 @@ const RowMatrix<double>& WordReversibleSubstitutionModel::getd2Pij_dt2(double d)
               if (q != p)
                 x *= (*vM[p])(i2 % t, j2 % t);
               else
-                x *= Vrate_[p] * Vrate_[p] * (*vd2M[p])(i2 % t, j2 % t);
+                x *= rate_ * rate_* Vrate_[p] * Vrate_[p] * (*vd2M[p])(i2 % t, j2 % t);
               
               i2 /= t;
               j2 /= t;
