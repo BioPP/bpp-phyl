@@ -174,15 +174,17 @@ void MixtureOfASubstitutionModel::updateMatrices()
   // Update of distribution parameters from the parameters_ member
   // data. (reverse operation compared to what has been done in the
   // constructor).
-  vector<string> v=getParameters().getParameterNames();
+  //  vector<string> v=getParameters().getParameterNames();
    
   for (it = distributionMap_.begin(); it != distributionMap_.end(); it++) {
     if (dynamic_cast<ConstantDistribution*>(it->second) == NULL) {
+      vector<string> vDistnames=it->second->getParameters().getParameterNames();
       for (i = 0; i < it->second->getNumberOfParameters(); i++) {
-        t = it->second->getParameters().getParameterNames()[i];
-        d = getParameter(getParameterNameWithoutNamespace(t)).getValue();
-        it->second->setParameterValue(it->second->getParameterNameWithoutNamespace(t),d);
+        d = getParameterValue(getParameterNameWithoutNamespace(vDistnames[i]));
+        pl.addParameter(Parameter(vDistnames[i],d));
       }
+      it->second->matchParametersValues(pl);
+      pl.reset();
     }
     else {
       t = it->second->getNamespace();
