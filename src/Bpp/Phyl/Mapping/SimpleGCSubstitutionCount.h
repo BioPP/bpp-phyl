@@ -93,14 +93,14 @@ class SimpleGCSubstitutionCount:
       return v;
     }
     
-    unsigned int getSubstitutionType(unsigned int initialState, unsigned int finalState) const {
+    unsigned int getSubstitutionType(unsigned int initialState, unsigned int finalState) const throw (Exception) {
       if (initialState == finalState)
         throw Exception("SimpleGCSubstitutionCount::getSubstitutionType. Not a substitution!");
       if ((initialState == 1 || initialState == 2) && (finalState == 0 || finalState == 3))
         return 0;
       if ((initialState == 0 || initialState == 3) && (finalState == 1 || finalState == 2))
         return 1;
-      throw Exception("SimpleGCSubstitutionCount::getSubstitutionType. Not a supported substitution! (either G<->C or A<->T, which are ignored.")");
+      throw Exception("SimpleGCSubstitutionCount::getSubstitutionType. Not a supported substitution! (either G<->C or A<->T, which are ignored.");
     }
     unsigned int getNumberOfSubstitutionTypes() const { return 2; }
 
