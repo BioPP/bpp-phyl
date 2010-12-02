@@ -110,8 +110,9 @@ class SubstitutionCount
      *
 		 * @param initialState The initial state.
 		 * @param finalState   The final state.
+     * @throw Exception if the substitution type is not supported.
      */
-    virtual unsigned int getSubstitutionType(unsigned int initialState, unsigned int finalState) const = 0;
+    virtual unsigned int getSubstitutionType(unsigned int initialState, unsigned int finalState) const throw (Exception) = 0;
 
     /**
      * @return The number of substitution types supported by this class.

@@ -95,7 +95,11 @@ class SimpleSubstitutionCount:
       return v;
     }
     
-    unsigned int getSubstitutionType(unsigned int initialState, unsigned int finalState) const { return 0; }
+    unsigned int getSubstitutionType(unsigned int initialState, unsigned int finalState) const throw (Exception) {
+      if (initialState == finalState)
+        throw Exception("SimpleSubstitutionCount::getSubstitutionType. Not a substitution!");
+      return 0;
+    }
     unsigned int getNumberOfSubstitutionTypes() const { return 1; }
 
     void setSubstitutionModel(const SubstitutionModel* model) {}
@@ -150,7 +154,11 @@ class LabelSubstitutionCount:
       return v;
     }
 
-    unsigned int getSubstitutionType(unsigned int initialState, unsigned int finalState) const { return 0; }
+    unsigned int getSubstitutionType(unsigned int initialState, unsigned int finalState) const throw (Exception) {
+      if (initialState == finalState)
+        throw Exception("LabelSubstitutionCount::getSubstitutionType. Not a substitution!");
+      return 0;
+    }
     unsigned int getNumberOfSubstitutionTypes() const { return 1; }
     
     void setSubstitutionModel(const SubstitutionModel* model) {}

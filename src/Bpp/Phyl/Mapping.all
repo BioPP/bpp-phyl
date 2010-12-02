@@ -2,6 +2,7 @@
 #include "Mapping/IndexToCount.h"
 #include "Mapping/OneJumpSubstitutionCount.h"
 #include "Mapping/ProbabilisticSubstitutionMapping.h"
+#include "Mapping/SimpleGCSubstitutionCount.h"
 #include "Mapping/SimpleSubstitutionCount.h"
 #include "Mapping/SubstitutionCount.h"
 #include "Mapping/SubstitutionMapping.h"

@@ -104,7 +104,11 @@ class IndexToCount:
       return v;
     }
     
-    unsigned int getSubstitutionType(unsigned int initialState, unsigned int finalState) const { return 0; }
+    unsigned int getSubstitutionType(unsigned int initialState, unsigned int finalState) const {
+      if (initialState == finalState)
+        throw Exception("IndexToCount::getSubstitutionType. Not a substitution!");
+      return 0;
+    }
     unsigned int getNumberOfSubstitutionTypes() const { return 1; }
 
     void setSubstitutionModel(const SubstitutionModel* model) {}

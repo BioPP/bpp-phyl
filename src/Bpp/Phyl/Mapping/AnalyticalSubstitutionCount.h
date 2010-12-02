@@ -100,7 +100,11 @@ class AnalyticalSubstitutionCount:
       v[0] = getNumberOfSubstitutions(initialState, finalState, length, 0);
       return v;
     }
-    unsigned int getSubstitutionType(unsigned int initialState, unsigned int finalState) const { return 0; }
+    unsigned int getSubstitutionType(unsigned int initialState, unsigned int finalState) const throw (Exception) {
+      if (initialState == finalState)
+        throw Exception("AnalyticalSubstitutionCount::getSubstitutionType. Not a substitution!");
+      return 0;
+    }
     unsigned int getNumberOfSubstitutionTypes() const { return 1; }
 
     void setSubstitutionModel(const SubstitutionModel* model);

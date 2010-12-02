@@ -1,11 +1,11 @@
 //
-// File: OneJumpSubstitutionCount.h
+// File: SimpleGCSubstitutionCount.h
 // Created by: Julien Dutheil
-// Created on: Tue Nov 24 17:00 2009
+// Created on: Thu Dec 02 16:23 2010
 //
 
 /*
-Copyright or © or Copr. CNRS, (November 16, 2004)
+Copyright or © or Copr. Bio++ Development Team, (November 16, 2004, 2005, 2006)
 
 This software is a computer program whose purpose is to provide classes
 for phylogenetic data analysis.
@@ -37,75 +37,78 @@ The fact that you are presently reading this means that you have had
 knowledge of the CeCILL license and that you accept its terms.
 */
 
-#ifndef _ONEJUMPSUBSTITUTIONCOUNT_H_
-#define _ONEJUMPSUBSTITUTIONCOUNT_H_
+#ifndef _SIMPLEGCSUBSTITUTIONCOUNT_H_
+#define _SIMPLEGCSUBSTITUTIONCOUNT_H_
 
 #include "SubstitutionCount.h"
-#include "../Model/SubstitutionModel.h"
+
+#include <Bpp/Numeric/Matrix/Matrix.h>
 
 namespace bpp
 {
 
 /**
- * @brief Computes the probability that at least one jump occured on a branch, givne the initial and final state.
+ * @brief Simple GC substitution count, ignoring multiple substitutions.
  *
- * This probability is defined as
- * @f[
- * p_{x,y}(l) = \left\{\begin{array}{ll}1 & \mathrm{if} x \neq y \\ 1 - \exp{\left(Q \cdot t\right)}_{x,y} & \mathrm{otherwise.}\end{array}\right.
- * @f]
+ * This substitution count is defined as follow:
+ * - 1 if i is A or T and j is G or C and type is 0,
+ * - 1 if i is G or C and j is A or T and type is 1,
+ * - 0 in all other cases.
+ *
+ * @see SimpleSubstitutionCount
  *
  * @author Julien Dutheil
  */
-class OneJumpSubstitutionCount:
+class SimpleGCSubstitutionCount:
   public virtual SubstitutionCount
 {
-	private:
-		const SubstitutionModel* model_;
-		mutable RowMatrix<double> tmp_;
-	
+  private:
+    const NucleicAlphabet* alphabet_;
+    
 	public:
-		OneJumpSubstitutionCount(const SubstitutionModel* model) : model_(model), tmp_() {}
+		SimpleSubstitutionCount(const NucleicAlphabet* alphabet) : alphabet_(alphabet) {}				
 		
-    OneJumpSubstitutionCount(const OneJumpSubstitutionCount& ojsc) :
-      model_(ojsc.model_), tmp_(ojsc.tmp_) {}
-				
-    OneJumpSubstitutionCount& operator=(const OneJumpSubstitutionCount& ojsc)
+    SimpleSubstitutionCount(const SimpleSubstitutionCount& ssc) : alphabet_(ssc.alphabet_) {}				
+    
+    SimpleSubstitutionCount& operator=(const SimpleSubstitutionCount& ssc)
     {
-      model_ = ojsc.model_;
-      tmp_   = ojsc.tmp_;
+      alphabet_ = ssc.alphabet_;
       return *this;
-    }
-				
-		virtual ~OneJumpSubstitutionCount() {}
+    }				
+		
+    virtual ~SimpleSubstitutionCount() {}
 			
 	public:
 		double getNumberOfSubstitutions(unsigned int initialState, unsigned int finalState, double length, unsigned int type = 0) const
     {
-      if (finalState != initialState) return 1.;
-      else return 1. - model_->Pij_t(initialState, finalState, length);
-    }
+			return initialState == finalState ? 0. : 1.;
+		}
 
     Matrix<double>* getAllNumbersOfSubstitutions(double length, unsigned int type = 0) const;
     
     std::vector<double> getNumberOfSubstitutionsForEachType(unsigned int initialState, unsigned int finalState, double length) const
     {
-      std::vector<double> v(0);
-      v[0] = getNumberOfSubstitutions(initialState, finalState, length, 0);
+      std::vector<double> v(1);
+      v[0] = (initialState == finalState ? 0. : 1.);
       return v;
     }
     
-    unsigned int getSubstitutionType(unsigned int initialState, unsigned int finalState) const throw (Exception) {
+    unsigned int getSubstitutionType(unsigned int initialState, unsigned int finalState) const {
       if (initialState == finalState)
-        throw Exception("OneJumpSubstitutionCount::getSubstitutionType. Not a substitution!");
-      return 0;
+        throw Exception("SimpleGCSubstitutionCount::getSubstitutionType. Not a substitution!");
+      if ((initialState == 1 || initialState == 2) && (finalState == 0 || finalState == 3))
+        return 0;
+      if ((initialState == 0 || initialState == 3) && (finalState == 1 || finalState == 2))
+        return 1;
+      throw Exception("SimpleGCSubstitutionCount::getSubstitutionType. Not a supported substitution! (either G<->C or A<->T, which are ignored.")");
     }
-    unsigned int getNumberOfSubstitutionTypes() const { return 1; }
+    unsigned int getNumberOfSubstitutionTypes() const { return 2; }
 
-    void setSubstitutionModel(const SubstitutionModel* model) { model_ = model; }
+    void setSubstitutionModel(const SubstitutionModel* model) {}
 
 };
 
 } //end of namespace bpp.
 
-#endif //_ONEJUMPSUBSTITUTIONCOUNT_H_
+#endif // _SIMPLEGCSUBSTITUTIONCOUNT_H_
 

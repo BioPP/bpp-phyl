@@ -1,5 +1,6 @@
 02/12/10 Julien Dutheil
 * Improved SubstitutionCount class to allow multiple counts.
+* Added simple GC<->AT substitution count.
 
 15/11/10 Julien Dutheil
 * Added topology comparison tools.
