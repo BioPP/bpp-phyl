@@ -323,14 +323,14 @@ public:
    * @brief Get the rate
    */
   
-  virtual double getRate() const { return 1.;}
+  virtual double getRate() const = 0;
 
   /**
    * @brief Set the rate of the model (must be positive).
    * @param rate must be positive.
    */
   
-  virtual void setRate(double rate) {};
+  virtual void setRate(double rate) = 0;
 
   virtual void addRateParameter() {};
   
