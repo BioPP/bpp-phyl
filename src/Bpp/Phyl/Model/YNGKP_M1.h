@@ -60,6 +60,10 @@ namespace bpp
  * \omega_0 < 1 @f$ (with probability @f$p_0 @f$), or neutral (@f$
  * \omega_1 = 1 @f$) with probability @f$1-p_0 @f$.
  *
+ * The synonymous rates must be the same between both models, so the
+ * overall rates of the models are modified to respect this constraint
+ * and such that the mean rate of the mixed model equals one.
+ *
  * This model includes 3 parameters (@f$\kappa@f$, @f$ p0 @f$ and
  * @f$\omega@f$). The codon frequencies @f$\pi_j@f$ are either
  * observed or infered.
@@ -78,6 +82,15 @@ class YNGKP_M1:
 private:
   MixtureOfASubstitutionModel* pmixmodel_;
 
+
+  /*
+   *@brief indexes of 2 codons between which the substitution is
+   * synonymous, to set a basis to the homogeneization of the rates.
+   *
+   */
+
+  int synfrom_, synto_;
+  
 private:
   /**
    * @brief Tools to make the link between the Parameters of the
@@ -130,6 +143,13 @@ public:
   unsigned int getNumberOfModels() const {
     return pmixmodel_->getNumberOfModels();
   }
+
+  /**
+   * @brief inactivated method to prevent out of model manipulations
+   *
+   **/
+  
+  void setVRates(Vdouble & vd){};
 
   std::string getName() const { return "YNGKP_M1"; }
 
