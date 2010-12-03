@@ -66,17 +66,17 @@ class SimpleGCSubstitutionCount:
     const NucleicAlphabet* alphabet_;
     
 	public:
-		SimpleSubstitutionCount(const NucleicAlphabet* alphabet) : alphabet_(alphabet) {}				
+		SimpleGCSubstitutionCount(const NucleicAlphabet* alphabet) : alphabet_(alphabet) {}				
 		
-    SimpleSubstitutionCount(const SimpleSubstitutionCount& ssc) : alphabet_(ssc.alphabet_) {}				
+    SimpleGCSubstitutionCount(const SimpleGCSubstitutionCount& ssc) : alphabet_(ssc.alphabet_) {}				
     
-    SimpleSubstitutionCount& operator=(const SimpleSubstitutionCount& ssc)
+    SimpleGCSubstitutionCount& operator=(const SimpleGCSubstitutionCount& ssc)
     {
       alphabet_ = ssc.alphabet_;
       return *this;
     }				
 		
-    virtual ~SimpleSubstitutionCount() {}
+    virtual ~SimpleGCSubstitutionCount() {}
 			
 	public:
 		double getNumberOfSubstitutions(unsigned int initialState, unsigned int finalState, double length, unsigned int type = 0) const

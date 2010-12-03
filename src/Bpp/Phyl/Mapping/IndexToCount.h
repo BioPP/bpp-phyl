@@ -104,7 +104,7 @@ class IndexToCount:
       return v;
     }
     
-    unsigned int getSubstitutionType(unsigned int initialState, unsigned int finalState) const {
+    unsigned int getSubstitutionType(unsigned int initialState, unsigned int finalState) const throw (Exception) {
       if (initialState == finalState)
         throw Exception("IndexToCount::getSubstitutionType. Not a substitution!");
       return 0;
