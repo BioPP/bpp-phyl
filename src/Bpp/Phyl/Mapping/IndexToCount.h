@@ -55,25 +55,27 @@ namespace bpp
  * This class uses a AlphabetIndex2 object to weight substitutions.
  */
 class IndexToCount:
-  public SubstitutionCount
+  public AbstractSubstitutionCount
 {
 	private:
 		const AlphabetIndex2<double> *dist_;
 		bool ownDist_;
 	
 	public:
-		IndexToCount(const AlphabetIndex2<double>* ai2, bool ownDistance) :
-			dist_(ai2), ownDist_(ownDistance)
+		IndexToCount(SubstitutionRegister* reg, const AlphabetIndex2<double>* ai2, bool ownDistance) :
+      AbstractSubstitutionCount(reg), dist_(ai2), ownDist_(ownDistance)
     {}
 
     IndexToCount(const IndexToCount& index) :
-      dist_(index.dist_), ownDist_(index.ownDist_)
+      AbstractSubstitutionCount(index), dist_(index.dist_), ownDist_(index.ownDist_)
     {
-      if (ownDist_) dist_ = dynamic_cast<AlphabetIndex2<double>*>(index.dist_->clone());
+      if (ownDist_)
+        dist_ = dynamic_cast<AlphabetIndex2<double>*>(index.dist_->clone());
     }
 
     IndexToCount& operator=(const IndexToCount& index)
     {
+      AbstractSubstitutionCount::operator=(index);
       ownDist_ = index.ownDist_;
       if (ownDist_) dist_ = dynamic_cast<AlphabetIndex2<double>*>(index.dist_->clone());
       else dist_ = index.dist_;
@@ -82,35 +84,17 @@ class IndexToCount:
 		
 		virtual ~IndexToCount()
     {
-			if (ownDist_) delete dist_;
+			if (ownDist_)
+        delete dist_;
 		}
 			
 	public:
+		double getNumberOfSubstitutions(unsigned int initialState, unsigned int finalState, double length, unsigned int type = 1) const;
 
-		double getNumberOfSubstitutions(unsigned int initialState, unsigned int finalState, double length, unsigned int type = 0) const
-    {
-			return dist_->getIndex(initialState, finalState);
-		}
+		Matrix<double>* getAllNumbersOfSubstitutions(double length, unsigned int type = 1) const;
 
-		Matrix<double>* getAllNumbersOfSubstitutions(double length, unsigned int type = 0) const
-    {
-      return dist_->getIndexMatrix();
-    }
-
-    std::vector<double> getNumberOfSubstitutionsForEachType(unsigned int initialState, unsigned int finalState, double length) const
-    {
-      std::vector<double> v(0);
-      v[0] = getNumberOfSubstitutions(initialState, finalState, length, 0);
-      return v;
-    }
+    std::vector<double> getNumberOfSubstitutionsForEachType(unsigned int initialState, unsigned int finalState, double length) const;
     
-    unsigned int getSubstitutionType(unsigned int initialState, unsigned int finalState) const throw (Exception) {
-      if (initialState == finalState)
-        throw Exception("IndexToCount::getSubstitutionType. Not a substitution!");
-      return 0;
-    }
-    unsigned int getNumberOfSubstitutionTypes() const { return 1; }
-
     void setSubstitutionModel(const SubstitutionModel* model) {}
 
 	public:

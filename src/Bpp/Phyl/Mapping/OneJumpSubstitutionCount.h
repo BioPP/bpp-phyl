@@ -5,7 +5,7 @@
 //
 
 /*
-Copyright or © or Copr. CNRS, (November 16, 2004)
+Copyright or © or Copr. Bio++ Development Team, (November 16, 2004)
 
 This software is a computer program whose purpose is to provide classes
 for phylogenetic data analysis.
@@ -57,35 +57,39 @@ namespace bpp
  * @author Julien Dutheil
  */
 class OneJumpSubstitutionCount:
-  public virtual SubstitutionCount
+  public AbstractSubstitutionCount
 {
 	private:
 		const SubstitutionModel* model_;
 		mutable RowMatrix<double> tmp_;
 	
 	public:
-		OneJumpSubstitutionCount(const SubstitutionModel* model) : model_(model), tmp_() {}
+		OneJumpSubstitutionCount(const SubstitutionModel* model) :
+      AbstractSubstitutionCount(new TotalSubstitutionRegister(model->getAlphabet())),
+      model_(model), tmp_() {}
 		
     OneJumpSubstitutionCount(const OneJumpSubstitutionCount& ojsc) :
+      AbstractSubstitutionCount(ojsc),
       model_(ojsc.model_), tmp_(ojsc.tmp_) {}
 				
     OneJumpSubstitutionCount& operator=(const OneJumpSubstitutionCount& ojsc)
     {
-      model_ = ojsc.model_;
-      tmp_   = ojsc.tmp_;
+      AbstractSubstitutionCount::operator=(ojsc),
+      model_    = ojsc.model_;
+      tmp_      = ojsc.tmp_;
       return *this;
     }
 				
 		virtual ~OneJumpSubstitutionCount() {}
 			
 	public:
-		double getNumberOfSubstitutions(unsigned int initialState, unsigned int finalState, double length, unsigned int type = 0) const
+		double getNumberOfSubstitutions(unsigned int initialState, unsigned int finalState, double length, unsigned int type = 1) const
     {
       if (finalState != initialState) return 1.;
       else return 1. - model_->Pij_t(initialState, finalState, length);
     }
 
-    Matrix<double>* getAllNumbersOfSubstitutions(double length, unsigned int type = 0) const;
+    Matrix<double>* getAllNumbersOfSubstitutions(double length, unsigned int type = 1) const;
     
     std::vector<double> getNumberOfSubstitutionsForEachType(unsigned int initialState, unsigned int finalState, double length) const
     {
@@ -94,13 +98,6 @@ class OneJumpSubstitutionCount:
       return v;
     }
     
-    unsigned int getSubstitutionType(unsigned int initialState, unsigned int finalState) const throw (Exception) {
-      if (initialState == finalState)
-        throw Exception("OneJumpSubstitutionCount::getSubstitutionType. Not a substitution!");
-      return 0;
-    }
-    unsigned int getNumberOfSubstitutionTypes() const { return 1; }
-
     void setSubstitutionModel(const SubstitutionModel* model) { model_ = model; }
 
 };

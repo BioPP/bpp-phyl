@@ -57,7 +57,7 @@ namespace bpp
  * @author Julien Dutheil
  */
 class AnalyticalSubstitutionCount:
-  public virtual SubstitutionCount
+  public AbstractSubstitutionCount
 {
 	private:
 		const SubstitutionModel* model_;
@@ -67,6 +67,7 @@ class AnalyticalSubstitutionCount:
 	
 	public:
 		AnalyticalSubstitutionCount(const SubstitutionModel* model, int cutOff) :
+      AbstractSubstitutionCount(new TotalSubstitutionRegister(model->getAlphabet())),
       model_        (model),
       cutOff_       (cutOff),
       currentLength_(-1),
@@ -74,6 +75,7 @@ class AnalyticalSubstitutionCount:
     {}
 	
     AnalyticalSubstitutionCount(const AnalyticalSubstitutionCount& asc) :
+      AbstractSubstitutionCount(asc),
       model_        (asc.model_),
       cutOff_       (asc.cutOff_),
       currentLength_(asc.currentLength_),
@@ -82,6 +84,7 @@ class AnalyticalSubstitutionCount:
 				
 	  AnalyticalSubstitutionCount& operator=(const AnalyticalSubstitutionCount& asc)
     {
+      AbstractSubstitutionCount::operator=(asc);
       model_         = asc.model_;
       cutOff_        = asc.cutOff_;
       currentLength_ = asc.currentLength_;
@@ -92,20 +95,14 @@ class AnalyticalSubstitutionCount:
 		virtual ~AnalyticalSubstitutionCount() {}
 			
 	public:
-		double getNumberOfSubstitutions(unsigned int initialState, unsigned int finalState, double length, unsigned int type = 0) const;
-    Matrix<double>* getAllNumbersOfSubstitutions(double length, unsigned int type = 0) const;
+		double getNumberOfSubstitutions(unsigned int initialState, unsigned int finalState, double length, unsigned int type = 1) const;
+    Matrix<double>* getAllNumbersOfSubstitutions(double length, unsigned int type = 1) const;
     std::vector<double> getNumberOfSubstitutionsForEachType(unsigned int initialState, unsigned int finalState, double length) const
     {
       std::vector<double> v(0);
       v[0] = getNumberOfSubstitutions(initialState, finalState, length, 0);
       return v;
     }
-    unsigned int getSubstitutionType(unsigned int initialState, unsigned int finalState) const throw (Exception) {
-      if (initialState == finalState)
-        throw Exception("AnalyticalSubstitutionCount::getSubstitutionType. Not a substitution!");
-      return 0;
-    }
-    unsigned int getNumberOfSubstitutionTypes() const { return 1; }
 
     void setSubstitutionModel(const SubstitutionModel* model);
 

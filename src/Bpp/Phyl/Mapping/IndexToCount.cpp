@@ -1,7 +1,7 @@
 //
-// File: SimpleSubstitutionCount.h
+// File: IndexToCount.cpp
 // Created by: Julien Dutheil
-// Created on: Wed Apr 5 11:08 2006
+// Created on: Mon Dec 6 21:35 2010
 //
 
 /*
@@ -37,33 +37,33 @@ The fact that you are presently reading this means that you have had
 knowledge of the CeCILL license and that you accept its terms.
 */
 
-#include "SimpleSubstitutionCount.h"
+#include "IndexToCount.h"
 
 using namespace bpp;
+      
+inline double IndexToCount::getNumberOfSubstitutions(unsigned int initialState, unsigned int finalState, double length, unsigned int type) const
+{
+  if (register_->getType(initialState, finalState) == type)
+    return dist_->getIndex(initialState, finalState);
+  else
+    return 0;
+}
 
-Matrix<double>* SimpleSubstitutionCount::getAllNumbersOfSubstitutions(double length, unsigned int type) const
-{ 
-  unsigned int n = register_->getAlphabet()->getSize();
-  RowMatrix<double>* mat = new RowMatrix<double>(n, n);
-  for (unsigned int i = 0; i < n; ++i)
-  {
-    for (unsigned int j = 0; j < n; ++j)
-    {
-      (*mat)(i, j) = (register_->getType(i, j) == type ? 1. : 0.);
-    }
-  }
+inline Matrix<double>* IndexToCount::getAllNumbersOfSubstitutions(double length, unsigned int type) const
+{
+  Matrix<double>* mat = dist_->getIndexMatrix();
+  for (unsigned int i = 0; i < mat->getNumberOfRows(); ++i)
+    for (unsigned int j = 0; j < mat->getNumberOfColumns(); ++j)
+      if (register_->getType(i, j) != type)
+        (*mat)(i, j) = 0;
   return mat;
 }
 
-LabelSubstitutionCount::LabelSubstitutionCount(const Alphabet* alphabet) :
-  AbstractSubstitutionCount(new TotalSubstitutionRegister(alphabet)), label_(alphabet->getSize(), alphabet->getSize())
+inline std::vector<double> IndexToCount::getNumberOfSubstitutionsForEachType(unsigned int initialState, unsigned int finalState, double length) const
 {
-  unsigned int count = 0;
-  for (unsigned int i = 0; i < alphabet->getSize(); ++i) {
-    for (unsigned int j = 0; j < alphabet->getSize(); ++j) {
-      if (i == j) label_(i, j) = 0;
-      else label_(i, j) = ++count;
-    }
-  }
-}			
-
+  std::vector<double> v(register_->getNumberOfSubstitutionTypes());
+  for (unsigned int t = 1; t <= register_->getNumberOfSubstitutionTypes(); ++t)
+    v[t - 1] = getNumberOfSubstitutions(initialState, finalState, length, t);
+  return v;
+}
+    

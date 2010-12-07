@@ -5,7 +5,7 @@
 //
 
 /*
-Copyright or © or Copr. CNRS, (November 16, 2004)
+Copyright or © or Copr. Bio++ Development Team, (November 16, 2004)
 
 This software is a computer program whose purpose is to provide classes
 for phylogenetic data analysis.
@@ -41,6 +41,7 @@ knowledge of the CeCILL license and that you accept its terms.
 #define _MUTATIONPROCESS_H_
 
 #include "../Model/SubstitutionModel.h"
+#include "../Mapping/SubstitutionRegister.h"
 
 #include <Bpp/Numeric/VectorTools.h>
 
@@ -150,7 +151,8 @@ class MutationPath
      *
      * @param counts A matrix with the same size as the alphabet. The substitution counts will be incremented according to the mutation path, which allows to efficiently sum various mutation paths with a look.
      */
-    void getEventCounts(Matrix<unsigned int>& counts) const {
+    template<class Scalar>
+    void getEventCounts(Matrix<Scalar>& counts) const {
       if (counts.getNumberOfRows()    != alphabet_->getSize()
        || counts.getNumberOfColumns() != alphabet_->getSize())
         throw Exception("MutationPath::getEventCounts. Incorrect input matrix, does not match alphabet size.");
@@ -158,6 +160,24 @@ class MutationPath
       for (size_t i = 0; i < states_.size(); ++i) {
         int newState = states_[i];
         counts(currentState, newState)++;
+        currentState = newState;
+      }
+    }
+
+    /**
+     * @brief Retrieve the number of substitution events per type of substitution, defined by a SubstitutionRegister object.
+     *
+     * @param counts A vector with the appropriate size, as defined by SubstitutionRegister::getNumberOfSubstitutionTypes(). The substitution counts will be incremented according to the mutation path, which allows to efficiently sum various mutation paths with a look.
+     */
+    template<class Scalar>
+    void getEventCounts(std::vector<Scalar>& counts, const SubstitutionRegister& reg) const {
+      if (counts.size() != reg.getNumberOfSubstitutionTypes())
+        throw Exception("MutationPath::getEventCounts. Incorrect input vector, does not match alphabet size.");
+      int currentState = initialState_;
+      for (size_t i = 0; i < states_.size(); ++i) {
+        int newState = states_[i];
+        unsigned int type = reg.getType(currentState, newState);
+        if (type > 0) counts[type - 1]++;
         currentState = newState;
       }
     }

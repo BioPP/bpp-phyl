@@ -70,24 +70,22 @@ class SubstitutionMappingTools
 		
 		/**
 		 * @brief Compute the substitutions vectors for a particular dataset using the
-		 * double-recurvive likelihood computation.
+		 * double-recursive likelihood computation.
 		 *
 		 * @param drtl              A DRTreeLikelihood object.
 		 * @param substitutionCount The SubstitutionCount to use.
-     * @param type              The type of susbstitution to count (see SubstitutionCount).
 		 * @param verbose           Print info to screen.
 		 * @return A vector of substitutions vectors (one for each site).
      * @throw Exception If the likelihood object is not initialized.
 		 */
 		static ProbabilisticSubstitutionMapping* computeSubstitutionVectors(
-			const DRTreeLikelihood & drtl,
+			const DRTreeLikelihood& drtl,
 			SubstitutionCount& substitutionCount,
-      unsigned int type,
 			bool verbose = true) throw (Exception);
 		
 		/**
 		 * @brief Compute the substitutions vectors for a particular dataset using the
-		 * double-recurvive likelihood computation.
+		 * double-recursive likelihood computation.
 		 *
 		 * In this method, substitution counts are computed using the pair of ancestral
 		 * states with maximum likelihood.
@@ -101,7 +99,6 @@ class SubstitutionMappingTools
 		 *
 		 * @param drtl              A DRTreeLikelihood object.
 		 * @param substitutionCount The substitutionsCount to use.
-     * @param type              The type of susbstitution to count (see SubstitutionCount).
 		 * @param verbose           Print info to screen.
 		 * @return A vector of substitutions vectors (one for each site).
      * @throw Exception If the likelihood object is not initialized.
@@ -109,12 +106,11 @@ class SubstitutionMappingTools
 		static ProbabilisticSubstitutionMapping* computeSubstitutionVectorsNoAveraging(
 			const DRTreeLikelihood & drtl,
 			SubstitutionCount& substitutionCount,
-      unsigned int type,
 			bool verbose = true) throw (Exception);
 		
 		/**
 		 * @brief Compute the substitutions vectors for a particular dataset using the
-		 * double-recurvive likelihood computation.
+		 * double-recursive likelihood computation.
 		 *
 		 * In this method, all ancestral states are estimated using marginal likelihoods,
 		 * putatively intregated over several rate classes.
@@ -126,7 +122,6 @@ class SubstitutionMappingTools
 		 * 
 		 * @param drtl              A DRTreeLikelihood object.
 		 * @param substitutionCount The substitutionsCount to use.
-     * @param type              The type of susbstitution to count (see SubstitutionCount).
 		 * @param verbose           Print info to screen.
 		 * @return A vector of substitutions vectors (one for each site).
      * @throw Exception If the likelihood object is not initialized.
@@ -134,12 +129,11 @@ class SubstitutionMappingTools
 		static ProbabilisticSubstitutionMapping* computeSubstitutionVectorsNoAveragingMarginal(
 			const DRTreeLikelihood& drtl,
 			SubstitutionCount& substitutionCount,
-      unsigned int type,
 			bool verbose = true) throw (Exception);
 		
 		/**
 		 * @brief Compute the substitutions vectors for a particular dataset using the
-		 * double-recurvive likelihood computation.
+		 * double-recursive likelihood computation.
 		 *
 		 * The marginal probability is used for weighting, i.e. the product of probabilities for the pair.
 		 *
@@ -148,7 +142,6 @@ class SubstitutionMappingTools
 		 *
 		 * @param drtl              A DRTreeLikelihood object.
 		 * @param substitutionCount The substitutionsCount to use.
-     * @param type              The type of susbstitution to count (see SubstitutionCount).
 		 * @param verbose           Print info to screen.
 		 * @return A vector of substitutions vectors (one for each site).
      * @throw Exception If the likelihood object is not initialized.
@@ -156,7 +149,6 @@ class SubstitutionMappingTools
 		static ProbabilisticSubstitutionMapping* computeSubstitutionVectorsMarginal(
 			const DRTreeLikelihood& drtl,
 			SubstitutionCount& substitutionCount,
-      unsigned int type,
 			bool verbose = true) throw (Exception);
 	
 
@@ -181,12 +173,15 @@ class SubstitutionMappingTools
 		 * @param substitutions The substitutions vectors to write.
 		 * @param sites         The dataset associated to the vectors
 		 * (needed to know the position of each site in the dataset).
+     * @param type          The type of substitutions to be output. See SubstitutionCount class.
+     * Only one type of substitution can be output at a time.
 		 * @param out           The output stream where to write the vectors.
 		 * @throw IOException If an output error happens.
 		 */
 		static void writeToStream(
 			const ProbabilisticSubstitutionMapping& substitutions,
 			const SiteContainer& sites,
+      unsigned int type,
 			std::ostream& out)
 			throw (IOException);
 	
@@ -195,11 +190,33 @@ class SubstitutionMappingTools
 		 *
 		 * @param in            The input stream where to read the vectors.
 		 * @param substitutions The mapping object to fill.
+     * @param type          The type of substitutions that are read. Should be in supported by the substittuion count obect assiciated to the mapping, if any.
 		 * @throw IOException If an input error happens.
 		 */
-		static void readFromStream(std::istream& in, ProbabilisticSubstitutionMapping& substitutions)
+		static void readFromStream(std::istream& in, ProbabilisticSubstitutionMapping& substitutions, unsigned int type)
 			throw (IOException);
+
+    /**
+     * @brief Sum all type of substitutions for each branch of a given position (specified by its index).
+     *
+     * @param smap The substitution map to use.
+     * @param siteIndex The index of the substitution vector for which the norm should be computed.
+     * @return A vector will all counts for all types of substitutions summed. 
+     */
+    static std::vector<double> computeTotalSubstitutionVectorForSite(const SubstitutionMapping& smap, unsigned int siteIndex);
     
+    /**
+     * @brief Compute the norm of a substitution vector for a given position (specified by its index).
+     *
+     * The norm is computed as:
+     * @f$ N_i = \sqrt\left(\sum_l {\left(\sum_t n_{l, i, t}\right)}^2\right)@f$,
+     * where @f$n_{l, i, t}@f$ is the number of substitutions of type t on site i on branch l, obtained using the () operator for the SubstitutionMapping object.
+     *
+     * @param smap The substitution map to use.
+     * @param siteIndex The index of the substitution vector for which the norm should be computed.
+     * @return The norm of the substitution vector.
+     */
+    static double computeNormForSite(const SubstitutionMapping& smap, unsigned int siteIndex);
 };
 
 } //end of namespace bpp.

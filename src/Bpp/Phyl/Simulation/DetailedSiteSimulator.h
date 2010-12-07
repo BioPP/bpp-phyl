@@ -7,7 +7,7 @@
 //
 
 /*
-Copyright or © or Copr. CNRS, (November 16, 2004)
+Copyright or © or Copr. Bio++ Development Team, (November 16, 2004)
 
 This software is a computer program whose purpose is to provide classes
 for phylogenetic data analysis.
@@ -132,14 +132,24 @@ class SiteSimulationResult
 
     virtual unsigned int getSubstitutionCount(unsigned int i) const { return paths_[i].getNumberOfEvents(); }
     
+    virtual void getSubstitutionCount(unsigned int i, const SubstitutionRegister& reg, std::vector<double>& counts) const {
+      paths_[i].getEventCounts(counts, reg);
+    }
+    
     virtual unsigned int getSubstitutionCount(int nodeId) const { return paths_[indexes_[nodeId]].getNumberOfEvents(); }
     
-    virtual std::vector<double> getSubstitutionVector() const
+    virtual void getSubstitutionCount(int nodeId, const SubstitutionRegister& reg, std::vector<double>& counts) const {
+      paths_[indexes_[nodeId]].getEventCounts(counts, reg);
+    }
+    
+    virtual VVdouble getSubstitutionVector(const SubstitutionRegister& reg) const
     {
       unsigned int n = paths_.size();
-      std::vector<double> counts(n);
-      for (unsigned int i = 0; i < n; i++)
-        counts[i] = static_cast<double>(paths_[i].getNumberOfEvents());
+      VVdouble counts(n);
+      for (unsigned int i = 0; i < n; ++i) {
+        counts[i].resize(reg.getNumberOfSubstitutionTypes());
+        paths_[i].getEventCounts(counts[i], reg);
+      }
       return counts;
     }
 

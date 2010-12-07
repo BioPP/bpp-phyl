@@ -40,6 +40,7 @@ knowledge of the CeCILL license and that you accept its terms.
 #ifndef _SUBSTITUTIONCOUNT_H_
 #define _SUBSTITUTIONCOUNT_H_
 
+#include "SubstitutionRegister.h"
 #include "../Model/SubstitutionModel.h"
 
 #include <Bpp/Numeric/Matrix/Matrix.h>
@@ -56,9 +57,8 @@ namespace bpp
  * Provide a method to compute the @f$n_{x,y}(t)@f$ function,
  * namely the number of substitutions on a branch of length @f$t@f$, with initial state @f$x@f$ and final state @f$y@f$.
  * 
- * The new implementation offers to perform several counts simultaneously, distinguishing between different types of substitutions.
- * The types are registered as unsigned int, so that all counts can be retrieved in one go as a vector, the type serving as an indice.
- * The type indice for a given substitution can be obtained using the getSubstitutionType method.
+ * The new implementation offers to perform several counts simultaneously, distinguishing between different types of substitutions. Therefore substitution count object takes as input a SubstitutionRegister, which describes all
+ * types of substitutions and associate them with an index. All counts can be retrieved in one go as a vector, the type serving as an indice.
  *
  * @author Julien Dutheil
  *
@@ -74,6 +74,18 @@ class SubstitutionCount
 		virtual ~SubstitutionCount() {}
 	
 	public:
+    /**
+     * @return The SubstitutionRegister object associated to this instance. The register contains the description of the various substitutions types that are mapped.
+     */
+    virtual const SubstitutionRegister& getSubstitutionRegister() const = 0;
+
+    /**
+     * @brief Short cut function, equivalent to getSubstitutionRegister().getNumberOfSubstitutionTypes().
+     *
+     * @return The number of substitution types supported by this instance.
+     */
+    virtual unsigned int getNumberOfSubstitutionTypes() const { return getSubstitutionRegister().getNumberOfSubstitutionTypes(); }
+
 		/**
 		 * @brief Get the number of susbstitutions on a branch, given the initial and final states, and the branch length.
 		 *
@@ -106,25 +118,45 @@ class SubstitutionCount
     virtual std::vector<double> getNumberOfSubstitutionsForEachType(unsigned int initialState, unsigned int finalState, double length) const = 0;
 
     /**
-     * @brief Get the substitution type according to initial and final states indices.
-     *
-		 * @param initialState The initial state.
-		 * @param finalState   The final state.
-     * @throw Exception if the substitution type is not supported.
-     */
-    virtual unsigned int getSubstitutionType(unsigned int initialState, unsigned int finalState) const throw (Exception) = 0;
-
-    /**
-     * @return The number of substitution types supported by this class.
-     */
-    virtual unsigned int getNumberOfSubstitutionTypes() const = 0;
-
-    /**
      * @brief Set the substitution model associated with this count, if relevent.
      *
      * @param model The substitution model to use with this count.
      */
     virtual void setSubstitutionModel(const SubstitutionModel* model) = 0;
+};
+
+/**
+ * @brief Basic implementation of the the SubstitutionCount interface.
+ *
+ * This partial implementation deals with the SubstitutionRegister gestion, by maintaining a pointer.
+ */
+class AbstractSubstitutionCount:
+  public virtual SubstitutionCount
+{
+  protected:
+    SubstitutionRegister* register_;
+
+  public:
+    AbstractSubstitutionCount(SubstitutionRegister* reg):
+      register_(reg)
+    {}
+
+    AbstractSubstitutionCount(const AbstractSubstitutionCount& asc):
+      register_(dynamic_cast<SubstitutionRegister*>(register_->clone()))
+    {}
+
+    AbstractSubstitutionCount& operator=(const AbstractSubstitutionCount& asc) {
+      delete register_;
+      register_ = dynamic_cast<SubstitutionRegister*>(register_->clone());
+      return *this;
+    }
+
+    ~AbstractSubstitutionCount() {
+      delete register_;
+    }
+
+  public:
+    const SubstitutionRegister& getSubstitutionRegister() const { return *register_; }
 };
 
 } //end of namespace bpp.
