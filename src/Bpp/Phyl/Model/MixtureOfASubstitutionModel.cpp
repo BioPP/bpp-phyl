@@ -105,8 +105,9 @@ MixtureOfASubstitutionModel::MixtureOfASubstitutionModel(
       pm=model->getParameter(model->getParameterNameWithoutNamespace(getParameterNameWithoutNamespace(it->first)));
       pd=it->second;
 
-      if (pm.hasConstraint() && ! pd->adaptToConstraint(*pm.getConstraint()))
-        throw Exception("Bad Distribution for " + pm.getName() + " : " + pd->getNamespace());
+      if (pm.hasConstraint())
+        pd->restrictToConstraint(*pm.getConstraint());
+        //        throw Exception("Bad Distribution for " + pm.getName() + " : " + pd->getNamespace());
 
       if (dynamic_cast<ConstantDistribution*>(it->second) == NULL)
         {

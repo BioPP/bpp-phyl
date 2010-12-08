@@ -1562,12 +1562,10 @@ throw (Exception)
     {
       if (args.find("lambda") == args.end())
         throw Exception("Missing argument 'lambda' in Exponential distribution");
-      if (args.find("median") == args.end())
-        rDist = new ExponentialDiscreteDistribution(nbClasses,
-                                                    TextTools::to<double>(args["lambda"]));
-      else
-        rDist = new ExponentialDiscreteDistribution(nbClasses,
-                                                    TextTools::to<double>(args["lambda"]), true);
+      rDist = new ExponentialDiscreteDistribution(nbClasses,
+                                                  TextTools::to<double>(args["lambda"]));
+      if (args.find("median") != args.end())
+        rDist->setMedian(true);
 
       unparsedParameterValues["Exponential.lambda"] = args["lambda"];
     }
@@ -1577,15 +1575,11 @@ throw (Exception)
         throw Exception("Missing argument 'lambda' in Truncated Exponential distribution");
       if (args.find("tp") == args.end())
         throw Exception("Missing argument 'tp' (truncation point) in Truncated Exponential distribution");
-      if (args.find("median") == args.end())
-        rDist = new TruncatedExponentialDiscreteDistribution(nbClasses,
-                                                             TextTools::to<double>(args["lambda"]),
-                                                             TextTools::to<double>(args["tp"]));
-      else
-        rDist = new TruncatedExponentialDiscreteDistribution(nbClasses,
-                                                             TextTools::to<double>(args["lambda"]),
-                                                             TextTools::to<double>(args["tp"]),
-                                                             true);
+      rDist = new TruncatedExponentialDiscreteDistribution(nbClasses,
+                                                           TextTools::to<double>(args["lambda"]),
+                                                           TextTools::to<double>(args["tp"]));
+      if (args.find("median") != args.end())
+        rDist->setMedian(true);
 
       unparsedParameterValues["TruncExponential.lambda"] = args["lambda"];
       unparsedParameterValues["TruncExponential.tp"] = args["tp"];
