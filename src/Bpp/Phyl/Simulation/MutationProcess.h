@@ -168,6 +168,7 @@ class MutationPath
      * @brief Retrieve the number of substitution events per type of substitution, defined by a SubstitutionRegister object.
      *
      * @param counts A vector with the appropriate size, as defined by SubstitutionRegister::getNumberOfSubstitutionTypes(). The substitution counts will be incremented according to the mutation path, which allows to efficiently sum various mutation paths with a look.
+     * @param reg The substitution register to use to categorize substitutions.
      */
     template<class Scalar>
     void getEventCounts(std::vector<Scalar>& counts, const SubstitutionRegister& reg) const {

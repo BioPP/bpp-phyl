@@ -209,7 +209,7 @@ class SubstitutionMappingTools
      * @brief Compute the norm of a substitution vector for a given position (specified by its index).
      *
      * The norm is computed as:
-     * @f$ N_i = \sqrt\left(\sum_l {\left(\sum_t n_{l, i, t}\right)}^2\right)@f$,
+     * @f$ N_i = \sqrt{\left(\sum_l {\left(\sum_t n_{l, i, t}\right)}^2\right)}@f$,
      * where @f$n_{l, i, t}@f$ is the number of substitutions of type t on site i on branch l, obtained using the () operator for the SubstitutionMapping object.
      *
      * @param smap The substitution map to use.
