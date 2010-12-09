@@ -99,7 +99,7 @@ MixtureOfASubstitutionModel::MixtureOfASubstitutionModel(
 
   Parameter pm;
   DiscreteDistribution* pd;
-  
+
   for (it = distributionMap_.begin(); it != distributionMap_.end(); it++)
     {
       pm=model->getParameter(model->getParameterNameWithoutNamespace(getParameterNameWithoutNamespace(it->first)));
@@ -107,21 +107,16 @@ MixtureOfASubstitutionModel::MixtureOfASubstitutionModel(
 
       if (pm.hasConstraint())
         pd->restrictToConstraint(*pm.getConstraint());
-        //        throw Exception("Bad Distribution for " + pm.getName() + " : " + pd->getNamespace());
 
       if (dynamic_cast<ConstantDistribution*>(it->second) == NULL)
         {
+          const ParameterList pl = pd->getParameters();
           for (i = 0; i != it->second->getNumberOfParameters(); i++)
-            {
-              t = pd->getParameters().getParameterNames()[i];
-              addParameter_(Parameter(t,pd->getParameter(pd->getParameterNameWithoutNamespace(t)).getValue(),
-                                      pd->getParameter(pd->getParameterNameWithoutNamespace(t)).getConstraint()->clone(),true));
-            }
+            addParameter_(*pl[i].clone());
         }
       else
-        addParameter_(Parameter(it->first,pd->getCategory(0),pd->getParameter("value").getConstraint()->clone(),true));
+        addParameter_(Parameter(it->first,pd->getCategory(0),(pd->getParameter("value").getConstraint())?pd->getParameter("value").getConstraint()->clone():0,true));
     }
-
   updateMatrices();
 }
 
