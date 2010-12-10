@@ -48,7 +48,7 @@
 #include "FrequenciesSet.h"
 
 #include <Bpp/Exceptions.h>
-#include <Bpp/Numeric/RandomTools.h>
+#include <Bpp/Numeric/Random/RandomTools.h>
 #include <Bpp/Numeric/VectorTools.h>
 
 // From Seqlib:

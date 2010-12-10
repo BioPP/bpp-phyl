@@ -47,7 +47,7 @@ knowledge of the CeCILL license and that you accept its terms.
 #include "../NodeTemplate.h"
 #include "../Model/SubstitutionModel.h"
 
-#include <Bpp/Numeric/RandomTools.h>
+#include <Bpp/Numeric/Random/RandomTools.h>
 #include <Bpp/Numeric/Prob/DiscreteDistribution.h>
 
 // From SeqLib:

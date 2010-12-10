@@ -104,7 +104,7 @@ class SubstitutionMappingTools
      * @throw Exception If the likelihood object is not initialized.
 		 */
 		static ProbabilisticSubstitutionMapping* computeSubstitutionVectorsNoAveraging(
-			const DRTreeLikelihood & drtl,
+			const DRTreeLikelihood& drtl,
 			SubstitutionCount& substitutionCount,
 			bool verbose = true) throw (Exception);
 		
@@ -200,11 +200,11 @@ class SubstitutionMappingTools
      * @brief Sum all type of substitutions for each branch of a given position (specified by its index).
      *
      * @param smap The substitution map to use.
-     * @param siteIndex The index of the substitution vector for which the norm should be computed.
+     * @param siteIndex The index of the substitution vector for which the counts should be computed.
      * @return A vector will all counts for all types of substitutions summed. 
      */
     static std::vector<double> computeTotalSubstitutionVectorForSite(const SubstitutionMapping& smap, unsigned int siteIndex);
-    
+
     /**
      * @brief Compute the norm of a substitution vector for a given position (specified by its index).
      *
@@ -217,7 +217,25 @@ class SubstitutionMappingTools
      * @return The norm of the substitution vector.
      */
     static double computeNormForSite(const SubstitutionMapping& smap, unsigned int siteIndex);
-};
+    
+    /**
+     * @brief Sum all substitutions for each type of a given branch (specified by its index).
+     *
+     * @param smap The substitution map to use.
+     * @param branchIndex The index of the substitution vector for which the counts should be computed.
+     * @return A vector will all counts summed for each types of substitutions. 
+     */
+    static std::vector<double> computeSumForBranch(const SubstitutionMapping& smap, unsigned int branchIndex);
+ 
+    /**
+     * @brief Sum all substitutions for each type of a given site (specified by its index).
+     *
+     * @param smap The substitution map to use.
+     * @param siteIndex The index of the substitution vector for which the counts should be computed.
+     * @return A vector will all counts summed for each types of substitutions. 
+     */
+    static std::vector<double> computeSumForSite(const SubstitutionMapping& smap, unsigned int siteIndex);
+ };
 
 } //end of namespace bpp.
 
