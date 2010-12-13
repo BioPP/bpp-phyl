@@ -982,4 +982,34 @@ double SubstitutionMappingTools::computeNormForSite(const SubstitutionMapping& s
 }
 
 /**************************************************************************************************/
+    
+vector<double> SubstitutionMappingTools::computeSumForBranch(const SubstitutionMapping& smap, unsigned int branchIndex)
+{
+  unsigned int nbSites = smap.getNumberOfSites();
+  unsigned int nbTypes = smap.getNumberOfSubstitutionTypes();
+  Vdouble v(nbTypes, 0);
+  for (unsigned int i = 0; i < nbSites; ++i) {
+    for (unsigned int t = 0; t < nbTypes; ++t) {
+      v[t] += smap(branchIndex, i, t);
+    }
+  }
+  return v;
+}
+
+/**************************************************************************************************/
+
+vector<double> SubstitutionMappingTools::computeSumForSite(const SubstitutionMapping& smap, unsigned int siteIndex)
+{
+  unsigned int nbBranches = smap.getNumberOfBranches();
+  unsigned int nbTypes = smap.getNumberOfSubstitutionTypes();
+  Vdouble v(nbTypes, 0);
+  for (unsigned int i = 0; i < nbBranches; ++i) {
+    for (unsigned int t = 0; t < nbTypes; ++t) {
+      v[t] += smap(i, siteIndex, t);
+    }
+  }
+  return v;
+}
+
+/**************************************************************************************************/
 
