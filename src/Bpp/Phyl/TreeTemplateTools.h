@@ -43,6 +43,7 @@ knowledge of the CeCILL license and that you accept its terms.
 #define _TREETEMPLATETOOLS_H_
 
 #include "TreeTools.h"
+#include <Bpp/Numeric/Random/RandomTools.h>
 
 //From the STL:
 #include <string>
@@ -160,7 +161,7 @@ class TreeTemplateTools
      * @return The id of the node.
      * @throw NodeNotFoundException If the node is not found.
      */
-    static int getLeafId(const Node& node, const std::string & name) throw (NodeNotFoundException)
+    static int getLeafId(const Node& node, const std::string& name) throw (NodeNotFoundException)
     {
       int* id = 0;
       searchLeaf(node, name, id);
@@ -181,7 +182,7 @@ class TreeTemplateTools
      * @param id The id of the node.
      * @throw NodeNotFoundException If the node is not found.
      */
-    static void searchLeaf(const Node& node, const std::string & name, int * & id) throw (NodeNotFoundException)
+    static void searchLeaf(const Node& node, const std::string& name, int*& id) throw (NodeNotFoundException)
     {
       if (node.isLeaf())
       {
@@ -309,13 +310,31 @@ class TreeTemplateTools
     }
 
     /**
+     * @brief Sample a subtree by removing leaves randomly.
+     *
+     * @param tree The tree to edit.
+     * @param leaves The leafs names that should be sampled. They must be found in the tree otherwise an exception will be thrown.
+     * @param size The number of leaves in the final sample. If greater or equal to the number of leaf names, the function returns without doing anything.
+     */
+    template<class N>
+    static void sampleSubtree(TreeTemplate<N>& tree, const std::vector<std::string>& leaves, unsigned int size)
+    {
+      std::vector<std::string> names = leaves;
+      for (unsigned int n = names.size(); n > size; --n) {
+        unsigned int i = RandomTools::giveIntRandomNumberBetweenZeroAndEntry(n);
+        dropLeaf(tree, names[i]);
+        names.erase(names.begin() + i);
+      }
+    }
+
+    /**
      * @brief Retrieve all son nodes from a subtree.
      *
      * @param node The node that defines the subtree.
      * @return A vector of pointers toward each son node in the subtree.
      */
     template<class N>
-    static std::vector<N *> getNodes(N& node)
+    static std::vector<N*> getNodes(N& node)
     {
       std::vector<N *> nodes;
       getNodes<N>(node, nodes);
@@ -524,13 +543,13 @@ class TreeTemplateTools
      * @param nodes A vector to be filled with the matching nodes.
      */
     template<class N>
-    static void searchNodeWithName(N & node, const std::string& name, std::vector<N *> & nodes)
+    static void searchNodeWithName(N& node, const std::string& name, std::vector<N*> & nodes)
     {
       for(unsigned int i = 0; i < node.getNumberOfSons(); i++)
       {
-        searchNodeWithName<N>(* node.getSon(i), name, nodes);
+        searchNodeWithName<N>(*node.getSon(i), name, nodes);
       }
-      if(node.hasName() && node.getName() == name) nodes.push_back(& node);
+      if(node.hasName() && node.getName() == name) nodes.push_back(&node);
     }
 
     /**

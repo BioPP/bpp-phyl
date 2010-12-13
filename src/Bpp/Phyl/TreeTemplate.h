@@ -433,8 +433,8 @@ namespace bpp
     {	
       std::vector<N*> nodes;
       TreeTemplateTools::searchNodeWithName(*root_, name, nodes);
-      if(nodes.size() > 1)  throw NodeNotFoundException("TreeTemplate::getNode(): Non-unique name.", "" + name);
-      if(nodes.size() == 0) throw NodeNotFoundException("TreeTemplate::getNode(): Node with name not found.", "" + name);
+      if (nodes.size() > 1)  throw NodeNotFoundException("TreeTemplate::getNode(): Non-unique name.", "" + name);
+      if (nodes.size() == 0) throw NodeNotFoundException("TreeTemplate::getNode(): Node with name not found.", "" + name);
       return nodes[0];
     }
 
