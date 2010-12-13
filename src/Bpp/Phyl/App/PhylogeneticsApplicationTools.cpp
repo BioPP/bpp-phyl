@@ -1389,7 +1389,7 @@ DiscreteDistribution* PhylogeneticsApplicationTools::getRateDistributionDefaultI
   else if (distName == "Uniform")
   {
     if (!constDistAllowed) throw Exception("You can't use a constant distribution here!");
-    rDist = new ConstantDistribution(1.,true);
+    rDist = new ConstantDistribution(1., false);
   }
   else if (distName == "Gamma")
   {
