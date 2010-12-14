@@ -600,7 +600,6 @@ void WordFromIndependentFrequenciesSet::updateFrequencies()
 
 void WordFromIndependentFrequenciesSet::setFrequencies(const vector<double>& frequencies) throw (DimensionException, Exception)
 {
-  cerr << " WordFromIndep::setFrequencies" << endl;
   if (frequencies.size() != getAlphabet()->getSize())
     throw DimensionException("WordFromIndependentFrequenciesSet::setFrequencies", frequencies.size(), getAlphabet()->getSize());
   double sum = 0.0;

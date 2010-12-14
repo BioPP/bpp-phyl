@@ -923,15 +923,11 @@ void PhylogeneticsApplicationTools::setSubstitutionModelParametersInitialValues(
     {
       const string pName = pl[i].getName();
       posp=pName.rfind(".");
-      if (!useObsFreq || (pName.substr(posp+1,5) != "theta"))
+      if (!useObsFreq || (pName.substr(posp+1,5) != "theta") || unparsedParameterValues.find(pName)!=unparsedParameterValues.end())
         {
           double value = ApplicationTools::getDoubleParameter(pName, unparsedParameterValues, pl[i].getValue());
           pl[i].setValue(value);
         }
-      else if (unparsedParameterValues.find(pName)!=unparsedParameterValues.end()){
-        double value = ApplicationTools::getDoubleParameter(pName, unparsedParameterValues, pl[i].getValue());
-        pl[i].setValue(value);
-      }
       if (verbose)
         ApplicationTools::displayResult("Parameter found", pName + "=" + TextTools::toString(pl[i].getValue()));
     }
@@ -972,7 +968,7 @@ void PhylogeneticsApplicationTools::setSubstitutionModelParametersInitialValues(
       const string pName = pl[i].getName();
       unsigned int posp=model->getParameterNameWithoutNamespace(pName).rfind(".");
       string value;
-      if (!useObsFreq || (model->getParameterNameWithoutNamespace(pName).substr(posp+1,5) != "theta"))
+      if (!useObsFreq || (model->getParameterNameWithoutNamespace(pName).substr(posp+1,5) != "theta") || unparsedParameterValues.find(pName)!=unparsedParameterValues.end())
         {
           value = ApplicationTools::getStringParameter(pName, unparsedParameterValues, TextTools::toString(pl[i].getValue()));
           if (value.size() > 5 && value.substr(0, 5) == "model")
