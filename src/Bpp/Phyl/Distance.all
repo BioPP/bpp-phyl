@@ -2,5 +2,6 @@
 #include "Distance/AgglomerativeDistanceMethod.h"
 #include "Distance/BioNJ.h"
 #include "Distance/DistanceEstimation.h"
+#include "Distance/HierarchicalClustering.h"
 #include "Distance/NeighborJoining.h"
 #include "Distance/PGMA.h"
