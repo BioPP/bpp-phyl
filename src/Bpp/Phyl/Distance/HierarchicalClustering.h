@@ -45,10 +45,13 @@ knowledge of the CeCILL license and that you accept its terms.
 
 namespace bpp {
 
-struct ClusterInfos
+class ClusterInfos
 {
-	unsigned int numberOfLeaves;
-	double length;
+  public:
+  	unsigned int numberOfLeaves;
+	  double length;
+  public:
+    ClusterInfos(): numberOfLeaves(0), length(0) {}
 };
 
 /**
