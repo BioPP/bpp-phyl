@@ -12,6 +12,7 @@ set(CPP_FILES
   Bpp/Phyl/Distance/DistanceEstimation.cpp
   Bpp/Phyl/Distance/NeighborJoining.cpp
   Bpp/Phyl/Distance/PGMA.cpp
+  Bpp/Phyl/Distance/HierarchicalClustering.cpp
   Bpp/Phyl/Graphics/AbstractDendrogramPlot.cpp
   Bpp/Phyl/Graphics/AbstractTreeDrawing.cpp
   Bpp/Phyl/Graphics/CladogramPlot.cpp
@@ -127,6 +128,7 @@ set(H_FILES
   Bpp/Phyl/Distance/DistanceEstimation.h
   Bpp/Phyl/Distance/NeighborJoining.h
   Bpp/Phyl/Distance/PGMA.h
+  Bpp/Phyl/Distance/HierarchicalClustering.h
   Bpp/Phyl/Graphics/AbstractDendrogramPlot.h
   Bpp/Phyl/Graphics/AbstractTreeDrawing.h
   Bpp/Phyl/Graphics/CladogramPlot.h
