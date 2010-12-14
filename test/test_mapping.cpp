@@ -108,8 +108,15 @@ int main() {
   drhtl.initialize();
   cout << drhtl.getValue() << endl;
  
+  SubstitutionCount* sCountAna = new AnalyticalSubstitutionCount(model, 10);
+  Matrix<double>* m = sCountAna->getAllNumbersOfSubstitutions(0.001,1);
+  MatrixTools::print(*m);
+  delete m;
+  ProbabilisticSubstitutionMapping* probMapAna = 
+    SubstitutionMappingTools::computeSubstitutionVectors(drhtl, *sCountAna);
+
   SubstitutionCount* sCountTot = new SimpleSubstitutionCount(totReg);
-  Matrix<double>* m = sCountTot->getAllNumbersOfSubstitutions(0.001,1);
+  m = sCountTot->getAllNumbersOfSubstitutions(0.001,1);
   MatrixTools::print(*m);
   delete m;
   ProbabilisticSubstitutionMapping* probMapTot = 
@@ -129,14 +136,17 @@ int main() {
     double totalReal = 0;
     double totalObs  = 0;
     double totalObs2 = 0;
+    double totalObs3 = 0;
     for (unsigned int i = 0; i < n; ++i) {
       totalReal += realMap[i][j];
-      totalObs  += probMapTot->getNumberOfSubstitutions(ids[j], i, 0);
-      totalObs2 += VectorTools::sum(probMapDet->getNumberOfSubstitutions(ids[j], i));
+      totalObs  += probMapAna->getNumberOfSubstitutions(ids[j], i, 0);
+      totalObs2 += probMapTot->getNumberOfSubstitutions(ids[j], i, 0);
+      totalObs3 += VectorTools::sum(probMapDet->getNumberOfSubstitutions(ids[j], i));
     }
     if (tree->isLeaf(ids[j])) cout << tree->getNodeName(ids[j]) << "\t";
-    cout << tree->getDistanceToFather(ids[j]) << "\t" << totalReal << "\t" << totalObs << "\t" << totalObs2 << endl;
+    cout << tree->getDistanceToFather(ids[j]) << "\t" << totalReal << "\t" << totalObs << "\t" << totalObs2 << "\t" << totalObs3 << endl;
     if (abs(totalReal - totalObs) / totalReal > 0.1) return 1;
+    if (abs(totalReal - totalObs2) / totalReal > 0.1) return 1;
   }
   //2. Detail:
   for (unsigned int j = 0; j < ids.size(); ++j) {
@@ -155,10 +165,6 @@ int main() {
       cout << obs[t] << "/" << real[t] << "\t";
     cout << endl;
     //if (abs(totalReal - totalObs) / totalReal > 0.1) return 1;
-  }
-
-  //Check per site:
-  for (unsigned int i = 0; i < n; ++i) {
   }
 
   //-------------
