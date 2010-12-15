@@ -415,8 +415,8 @@ namespace bpp
     {
       std::vector<N*> nodes;
       TreeTemplateTools::searchNodeWithId<N>(*root_, id, nodes);
-      if(nodes.size() > 1) throw Exception("TreeTemplate::getNode(): Non-unique id! (" + TextTools::toString(id) + ").");
-      if(nodes.size() == 0) throw NodeNotFoundException("TreeTemplate::getNode(): Node with id not found.", "" + id);
+      if (nodes.size() > 1) throw Exception("TreeTemplate::getNode(): Non-unique id! (" + TextTools::toString(id) + ").");
+      if (nodes.size() == 0) throw NodeNotFoundException("TreeTemplate::getNode(): Node with id not found.", TextTools::toString(id));
       return nodes[0];
     }
 		
@@ -424,8 +424,8 @@ namespace bpp
     {
       std::vector<const N*> nodes;
       TreeTemplateTools::searchNodeWithId<const N>(*root_, id, nodes);
-      if(nodes.size() > 1) throw Exception("TreeTemplate::getNode(): Non-unique id! (" + TextTools::toString(id) + ").");
-      if(nodes.size() == 0) throw NodeNotFoundException("TreeTemplate::getNode(): Node with id not found.", "" + id);
+      if (nodes.size() > 1) throw Exception("TreeTemplate::getNode(): Non-unique id! (" + TextTools::toString(id) + ").");
+      if (nodes.size() == 0) throw NodeNotFoundException("TreeTemplate::getNode(): Node with id not found.", TextTools::toString(id));
       return nodes[0];
     }
 
