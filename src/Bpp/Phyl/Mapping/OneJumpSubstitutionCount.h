@@ -5,7 +5,7 @@
 //
 
 /*
-Copyright or © or Copr. CNRS, (November 16, 2004)
+Copyright or © or Copr. Bio++ Development Team, (November 16, 2004)
 
 This software is a computer program whose purpose is to provide classes
 for phylogenetic data analysis.
@@ -53,37 +53,50 @@ namespace bpp
  * @f[
  * p_{x,y}(l) = \left\{\begin{array}{ll}1 & \mathrm{if} x \neq y \\ 1 - \exp{\left(Q \cdot t\right)}_{x,y} & \mathrm{otherwise.}\end{array}\right.
  * @f]
+ *
+ * @author Julien Dutheil
  */
 class OneJumpSubstitutionCount:
-  public virtual SubstitutionCount
+  public AbstractSubstitutionCount
 {
 	private:
 		const SubstitutionModel* model_;
 		mutable RowMatrix<double> tmp_;
 	
 	public:
-		OneJumpSubstitutionCount(const SubstitutionModel* model) : model_(model), tmp_() {}
+		OneJumpSubstitutionCount(const SubstitutionModel* model) :
+      AbstractSubstitutionCount(new TotalSubstitutionRegister(model->getAlphabet())),
+      model_(model), tmp_() {}
 		
     OneJumpSubstitutionCount(const OneJumpSubstitutionCount& ojsc) :
+      AbstractSubstitutionCount(ojsc),
       model_(ojsc.model_), tmp_(ojsc.tmp_) {}
 				
     OneJumpSubstitutionCount& operator=(const OneJumpSubstitutionCount& ojsc)
     {
-      model_ = ojsc.model_;
-      tmp_   = ojsc.tmp_;
+      AbstractSubstitutionCount::operator=(ojsc),
+      model_    = ojsc.model_;
+      tmp_      = ojsc.tmp_;
       return *this;
     }
 				
 		virtual ~OneJumpSubstitutionCount() {}
 			
 	public:
-		double getNumberOfSubstitutions(unsigned int initialState, unsigned int finalState, double length) const
+		double getNumberOfSubstitutions(unsigned int initialState, unsigned int finalState, double length, unsigned int type = 1) const
     {
       if (finalState != initialState) return 1.;
       else return 1. - model_->Pij_t(initialState, finalState, length);
     }
 
-    Matrix<double>* getAllNumbersOfSubstitutions(double length) const;
+    Matrix<double>* getAllNumbersOfSubstitutions(double length, unsigned int type = 1) const;
+    
+    std::vector<double> getNumberOfSubstitutionsForEachType(unsigned int initialState, unsigned int finalState, double length) const
+    {
+      std::vector<double> v(0);
+      v[0] = getNumberOfSubstitutions(initialState, finalState, length, 0);
+      return v;
+    }
     
     void setSubstitutionModel(const SubstitutionModel* model) { model_ = model; }
 

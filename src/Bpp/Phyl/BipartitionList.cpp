@@ -45,7 +45,7 @@ knowledge of the CeCILL license and that you accept its terms.
 #include <Bpp/Exceptions.h>
 #include <Bpp/Text/TextTools.h>
 #include <Bpp/Io/FileTools.h>
-#include <Bpp/Numeric/RandomTools.h>
+#include <Bpp/Numeric/Random/RandomTools.h>
 
 // From SeqLib:
 #include <Bpp/Seq/Alphabet/Alphabet.h>

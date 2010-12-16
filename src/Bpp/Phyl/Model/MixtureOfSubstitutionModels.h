@@ -42,7 +42,7 @@
 
 #include <Bpp/Numeric/Prob.all>
 #include <Bpp/Numeric/VectorTools.h>
-#include "MixedSubstitutionModel.h"
+#include "AbstractMixedSubstitutionModel.h"
 
 #include <vector>
 #include <string>
@@ -57,12 +57,13 @@ namespace bpp
    * @author Laurent Guéguen
    *
    * All the models can be of different types (for example T92 or
-   * GY94), and each model has a specific probability and rate. The
-   * expectation of the rates on the distribution of the models must
-   * equal one.
+   * GY94), and each model has a specific probability and rate. 
    *
-   * In this kind of model, there is no generator nor transition
-   * matrice.
+   *
+   * The probabilities and rates of the models are independent
+   * parameters, handled directly, under the constraint that the
+   * expectation of the rates on the distribution of the models must
+   * equal one. 
    *
    * If there are @f$n@f$ models, @f$p_i@f$ is the probability of
    * model i (@f$\sum_{i=1}^{n} p_i = 1@f$) and the probabilities
@@ -116,22 +117,8 @@ namespace bpp
    */
 
   class MixtureOfSubstitutionModels :
-    public MixedSubstitutionModel
+    public AbstractMixedSubstitutionModel
   {
-  private:
-
-    // List of the paramaters of the submodels
-    
-    ParameterList lParPmodel_;
-    
-  protected:
-    std::vector<SubstitutionModel*> modelsContainer_;
-
-    std::vector<double> Vprobas_;
-    std::vector<double> Vrates_;
-
-
-
   public:
 
     /*
@@ -172,63 +159,20 @@ namespace bpp
     MixtureOfSubstitutionModels* clone() const { return new MixtureOfSubstitutionModels(*this); }
 
   public:
-    /**
-     * @brief Returns a specific model from the mixture
-     */
-    const SubstitutionModel* getNModel(unsigned int i) const
-    {
-      return modelsContainer_[i];
-    }
-
-    SubstitutionModel* getNModel(unsigned int i)
-    {
-      return modelsContainer_[i];
-    }
-
-    /**
-     * @brief Returns the  probability of a specific model from the mixture
-     */
-  
-    double getNProbability(unsigned int i) const
-    {
-      return Vprobas_[i];
-    }
-  
-    double getNRate(unsigned int i) const
-    {
-      return Vrates_[i];
-    }
-  
-    const std::vector<double>& getProbabilities() const
-    {
-      return Vprobas_;
-    }
-  
-    const std::vector<double>& getRates() const
-    {
-      return Vrates_;
-    }
-  
-    unsigned int getNumberOfModels() const
-    {
-      return modelsContainer_.size();
-    }
-
     std::string getName() const { return "MixtureOfSubstitutionModels"; }
 
     void updateMatrices();
   
-    unsigned int getNumberOfStates() const;
+    /**
+     * @brief Sets the rates of the submodels to follow the constraint
+     * that the mean rate of the mixture equals rate_.
+     
+     * @param vd a vector of positive values such that the rates of
+     * the respective submodels are in the same proportions (ie this
+     * vector does not need to be normalized).
+     */
 
-    double Pij_t(unsigned int i, unsigned int j, double t) const;
-    double dPij_dt(unsigned int i, unsigned int j, double t) const;
-    double d2Pij_dt2(unsigned int i, unsigned int j, double t) const;
-    const Matrix<double>& getPij_t(double t) const;
-    const Matrix<double>& getdPij_dt(double t) const;
-    const Matrix<double>& getd2Pij_dt2(double t) const;
-    const Vdouble& getFrequencies();
-    double freq(unsigned int i) const;
-
+    virtual void setVRates(Vdouble& vd);
     /**
      * @brief applies setFreq to all the models of the mixture and
      * recovers the parameters values.

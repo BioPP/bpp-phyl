@@ -1,5 +1,5 @@
 //
-// File: NHX.cpp
+// File: Nhx.cpp
 // Created by: Bastien Boussau
 // Created on: Thu Oct 19 11:06:03 2010
 //
@@ -37,7 +37,7 @@ The fact that you are presently reading this means that you have had
 knowledge of the CeCILL license and that you accept its terms.
 */
 
-#include "NHX.h"
+#include "Nhx.h"
 #include "../Tree.h"
 #include "../TreeTemplate.h"
 
@@ -53,11 +53,11 @@ using namespace std;
 
 /******************************************************************************/
 
-const string NHX::getFormatName() const { return "NHX"; }
+const string Nhx::getFormatName() const { return "Nhx"; }
 
 /******************************************************************************/
 
-const string NHX::getFormatDescription() const
+const string Nhx::getFormatDescription() const
 {
   return string("New Hampshire eXtended parenthesis format. ") +
     "See http://www.phylosoft.org/NHX/ for more info.";
@@ -70,10 +70,10 @@ const string NHX::getFormatDescription() const
 #else
     TreeTemplate<Node> * 
 #endif
-NHX::read(istream& in) const throw (Exception)
+Nhx::read(istream& in) const throw (Exception)
 {
   // Checking the existence of specified file
-  if (! in) { throw IOException ("NHX ::read: failed to read from stream"); }
+  if (! in) { throw IOException ("Nhx ::read: failed to read from stream"); }
   
   //We concatenate all line in file till we reach the ending semi colon:
   string temp, description;// Initialization
@@ -97,29 +97,29 @@ NHX::read(istream& in) const throw (Exception)
 
 /******************************************************************************/
 
-void NHX::write_(const Tree& tree, ostream& out) const throw (Exception)
+void Nhx::write_(const Tree& tree, ostream& out) const throw (Exception)
 {
   // Checking the existence of specified file, and possibility to open it in write mode
-  if (! out) { throw IOException ("NHX::writeTree: failed to write to stream"); }
+  if (! out) { throw IOException ("Nhx::writeTree: failed to write to stream"); }
     out << treeToParenthesis(tree);
 }
 
 /******************************************************************************/
 
 template<class N>
-void NHX::write_(const TreeTemplate<N>& tree, ostream& out) const throw (Exception)
+void Nhx::write_(const TreeTemplate<N>& tree, ostream& out) const throw (Exception)
 {
   // Checking the existence of specified file, and possibility to open it in write mode
-  if (! out) { throw IOException ("NHX::writeTree: failed to write to stream"); }
+  if (! out) { throw IOException ("Nhx::writeTree: failed to write to stream"); }
     out << treeToParenthesis(tree);
 }
 
 /******************************************************************************/
 
-void NHX::read(istream& in, vector<Tree*>& trees) const throw (Exception)
+void Nhx::read(istream& in, vector<Tree*>& trees) const throw (Exception)
 {
   // Checking the existence of specified file
-  if (! in) { throw IOException ("NHX::read: failed to read from stream"); }
+  if (! in) { throw IOException ("Nhx::read: failed to read from stream"); }
   
   // Main loop : for all file lines
   string temp, description;// Initialization
@@ -147,10 +147,10 @@ void NHX::read(istream& in, vector<Tree*>& trees) const throw (Exception)
 
 /******************************************************************************/
 
-void NHX::write_(const vector<Tree*>& trees, ostream& out) const throw (Exception)
+void Nhx::write_(const vector<Tree*>& trees, ostream& out) const throw (Exception)
 {
   // Checking the existence of specified file, and possibility to open it in write mode
-  if (! out) { throw IOException ("NHX::write: failed to write to stream"); }
+  if (! out) { throw IOException ("Nhx::write: failed to write to stream"); }
   for(unsigned int i = 0; i < trees.size(); i++)
   {
       out << treeToParenthesis(*trees[i]);
@@ -160,10 +160,10 @@ void NHX::write_(const vector<Tree*>& trees, ostream& out) const throw (Exceptio
 /******************************************************************************/
 
 template<class N>
-void NHX::write_(const vector<TreeTemplate<N>*>& trees, ostream& out) const throw (Exception)
+void Nhx::write_(const vector<TreeTemplate<N>*>& trees, ostream& out) const throw (Exception)
 {
   // Checking the existence of specified file, and possibility to open it in write mode
-  if (! out) { throw IOException ("NHX::write: failed to write to stream"); }
+  if (! out) { throw IOException ("Nhx::write: failed to write to stream"); }
   for(unsigned int i = 0; i < trees.size(); i++)
   {
       out << treeToParenthesis(*trees[i]);
@@ -172,7 +172,7 @@ void NHX::write_(const vector<TreeTemplate<N>*>& trees, ostream& out) const thro
 
 /******************************************************************************/
 
-NHX::Element NHX::getElement(const string& elt) const throw (IOException)
+Nhx::Element Nhx::getElement(const string& elt) const throw (IOException)
 {
   Element element;
   element.length    = ""; //default
@@ -224,7 +224,7 @@ NHX::Element NHX::getElement(const string& elt) const throw (IOException)
   else
     {
     //This is a node:
-    if(lastP < firstP) throw IOException("NHX::getElement(). Invalid format: bad closing parenthesis in " + elt2);
+    if(lastP < firstP) throw IOException("Nhx::getElement(). Invalid format: bad closing parenthesis in " + elt2);
     element.content = elt2.substr(firstP + 1, lastP - firstP - 1);
     }
   }
@@ -238,7 +238,7 @@ NHX::Element NHX::getElement(const string& elt) const throw (IOException)
 /******************************************************************************/
 
 
-Node* NHX::parenthesisToNode(const string& description) const
+Node* Nhx::parenthesisToNode(const string& description) const
 {
   //cout << "NODE: " << description << endl;
   Element elt = getElement(description);
@@ -281,20 +281,20 @@ Node* NHX::parenthesisToNode(const string& description) const
 
 /******************************************************************************/
 
-TreeTemplate<Node>* NHX::parenthesisToTree(const string& description) const throw (Exception) 
+TreeTemplate<Node>* Nhx::parenthesisToTree(const string& description) const throw (Exception) 
 {
   string::size_type lastP  = description.rfind(')');
   bool hasId = false;
   if (lastP == string::npos)
-    throw Exception("NHX::parenthesisToTree(). Bad format: no closing parenthesis found.");
+    throw Exception("Nhx::parenthesisToTree(). Bad format: no closing parenthesis found.");
   string::size_type firstP = description.find('(');
   if (firstP == string::npos)
-    throw Exception("NHX::parenthesisToTree(). Bad format: no opening parenthesis found.");
+    throw Exception("Nhx::parenthesisToTree(). Bad format: no opening parenthesis found.");
   string::size_type semi = description.rfind(';');
   if (semi == string::npos)
-    throw Exception("NHX::parenthesisToTree(). Bad format: no semi-colon found.");
+    throw Exception("Nhx::parenthesisToTree(). Bad format: no semi-colon found.");
   if (lastP <= firstP)
-    throw Exception("NHX::parenthesisToTree(). Bad format: closing parenthesis before opening parenthesis.");
+    throw Exception("Nhx::parenthesisToTree(). Bad format: closing parenthesis before opening parenthesis.");
   string content = description.substr(firstP + 1, lastP - firstP - 1);
   string element = (semi == string::npos) ? description.substr(lastP + 1) : description.substr(lastP + 1, semi - lastP - 1);
   //cout << "TREE: " << content << endl;
@@ -352,7 +352,7 @@ TreeTemplate<Node>* NHX::parenthesisToTree(const string& description) const thro
 
 /******************************************************************************/
 
-string NHX::propertiesToParenthesis(const Node& node) const
+string Nhx::propertiesToParenthesis(const Node& node) const
 {
   ostringstream s;
   s << "[&&NHX";
@@ -365,13 +365,49 @@ string NHX::propertiesToParenthesis(const Node& node) const
       }
     else
       {
-      s << ":"<<bProps[i]<<"="<< *(dynamic_cast<const BppString*>(node.getBranchProperty(bProps[i])));
+      const Clonable* ppt = node.getBranchProperty(bProps[i]);
+      const BppString* strPpt = dynamic_cast<const BppString*>(ppt);
+      if (strPpt) 
+        {
+        s << ":"<<bProps[i]<<"="<<*strPpt;
+      } 
+      else 
+        {
+        const Number<double>* numPpt = dynamic_cast<const Number<double> *>(ppt);
+        if (numPpt) 
+          {
+          s << ":"<<bProps[i]<<"="<< numPpt->getValue();
+          } 
+        else 
+          {
+          throw Exception("Unsupported property type");
+          }
+        } 
       }
     }
   vector <string> nProps = node.getNodePropertyNames();
   for (unsigned int i= 0 ; i <nProps.size(); i++)
     {
-    s << ":"<<nProps[i]<<"="<<*(dynamic_cast<const BppString*>(node.getNodeProperty(nProps[i])));
+    const Clonable* ppt = node.getNodeProperty(nProps[i]);
+    const BppString* strPpt = dynamic_cast<const BppString*>(ppt);
+    if (strPpt) 
+      {
+      s << ":"<<nProps[i]<<"="<<*strPpt;
+      } 
+    else 
+      {
+      const Number<double>*  numPpt = dynamic_cast<const Number<double> *>(ppt);
+
+      if (numPpt) 
+        {
+
+        s << ":"<<nProps[i]<<"="<< numPpt->getValue();
+        } 
+      else 
+        {
+        throw Exception("Unsupported property type");
+        }
+      } 
     }
   if (!node.hasNodeProperty ("ND"))
     {
@@ -383,7 +419,7 @@ string NHX::propertiesToParenthesis(const Node& node) const
 
 /******************************************************************************/
 
-string NHX::nodeToParenthesis(const Node& node) const
+string Nhx::nodeToParenthesis(const Node& node) const
 {
   ostringstream s;
   if (node.isLeaf())
@@ -407,7 +443,7 @@ string NHX::nodeToParenthesis(const Node& node) const
 
 /******************************************************************************/
 
-string NHX::treeToParenthesis(const TreeTemplate<Node>& tree) const
+string Nhx::treeToParenthesis(const TreeTemplate<Node>& tree) const
 {
   ostringstream s;
   s << "(";
@@ -444,7 +480,7 @@ string NHX::treeToParenthesis(const TreeTemplate<Node>& tree) const
 
 /******************************************************************************/
 
-bool NHX::setNodeProperties(Node& node, const string properties) const
+bool Nhx::setNodeProperties(Node& node, const string properties) const
 {
   string prop = TextTools::removeChar(properties, ']');
   StringTokenizer st(prop, ":", true, true);

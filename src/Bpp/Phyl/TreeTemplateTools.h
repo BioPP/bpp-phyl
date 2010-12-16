@@ -43,6 +43,7 @@ knowledge of the CeCILL license and that you accept its terms.
 #define _TREETEMPLATETOOLS_H_
 
 #include "TreeTools.h"
+#include <Bpp/Numeric/Random/RandomTools.h>
 
 //From the STL:
 #include <string>
@@ -135,6 +136,23 @@ class TreeTemplateTools
       }
     }
     
+  /**
+   * @brief Retrieve all nodes ids that are ancestors of a node.
+   *
+   * @param node The node
+   * @return A vector of ids.
+   */
+  static std::vector<int> getAncestorsId(const Node& node)
+  {
+    std::vector<int> ids;
+    Node n=node;
+    while (n.hasFather()){
+      n=*n.getFather();
+      ids.push_back(n.getId());
+    }
+    return ids;
+  }
+
     /**
      * @brief Get the id of a leaf given its name in a subtree.
      *
@@ -143,7 +161,7 @@ class TreeTemplateTools
      * @return The id of the node.
      * @throw NodeNotFoundException If the node is not found.
      */
-    static int getLeafId(const Node& node, const std::string & name) throw (NodeNotFoundException)
+    static int getLeafId(const Node& node, const std::string& name) throw (NodeNotFoundException)
     {
       int* id = 0;
       searchLeaf(node, name, id);
@@ -164,7 +182,7 @@ class TreeTemplateTools
      * @param id The id of the node.
      * @throw NodeNotFoundException If the node is not found.
      */
-    static void searchLeaf(const Node& node, const std::string & name, int * & id) throw (NodeNotFoundException)
+    static void searchLeaf(const Node& node, const std::string& name, int*& id) throw (NodeNotFoundException)
     {
       if (node.isLeaf())
       {
@@ -292,13 +310,31 @@ class TreeTemplateTools
     }
 
     /**
+     * @brief Sample a subtree by removing leaves randomly.
+     *
+     * @param tree The tree to edit.
+     * @param leaves The leafs names that should be sampled. They must be found in the tree otherwise an exception will be thrown.
+     * @param size The number of leaves in the final sample. If greater or equal to the number of leaf names, the function returns without doing anything.
+     */
+    template<class N>
+    static void sampleSubtree(TreeTemplate<N>& tree, const std::vector<std::string>& leaves, unsigned int size)
+    {
+      std::vector<std::string> names = leaves;
+      for (unsigned int n = names.size(); n > size; --n) {
+        unsigned int i = RandomTools::giveIntRandomNumberBetweenZeroAndEntry(n);
+        dropLeaf(tree, names[i]);
+        names.erase(names.begin() + i);
+      }
+    }
+
+    /**
      * @brief Retrieve all son nodes from a subtree.
      *
      * @param node The node that defines the subtree.
      * @return A vector of pointers toward each son node in the subtree.
      */
     template<class N>
-    static std::vector<N *> getNodes(N& node)
+    static std::vector<N*> getNodes(N& node)
     {
       std::vector<N *> nodes;
       getNodes<N>(node, nodes);
@@ -384,7 +420,7 @@ class TreeTemplateTools
      * @return A vector of pointers toward each inner node in the subtree.
      */
     template<class N>
-    static std::vector<N*> getInnerNodes(N & node)
+    static std::vector<N*> getInnerNodes(N& node)
     {
       std::vector<N *> nodes;
       getInnerNodes<N>(node, nodes);
@@ -507,13 +543,13 @@ class TreeTemplateTools
      * @param nodes A vector to be filled with the matching nodes.
      */
     template<class N>
-    static void searchNodeWithName(N & node, const std::string& name, std::vector<N *> & nodes)
+    static void searchNodeWithName(N& node, const std::string& name, std::vector<N*> & nodes)
     {
       for(unsigned int i = 0; i < node.getNumberOfSons(); i++)
       {
-        searchNodeWithName<N>(* node.getSon(i), name, nodes);
+        searchNodeWithName<N>(*node.getSon(i), name, nodes);
       }
-      if(node.hasName() && node.getName() == name) nodes.push_back(& node);
+      if(node.hasName() && node.getName() == name) nodes.push_back(&node);
     }
 
     /**
@@ -624,6 +660,19 @@ class TreeTemplateTools
      */
     static bool isMultifurcating(const Node& node);
 
+    /**
+     * @brief Tells if two subtrees have the same topology.
+     *
+     * The comparison is based on parental relationships and leaf names only, node ids and all branch/node properties are ignored.
+     * The ordering of son nodes is taken into account so that ((A,B),C) will be considered different from ((B,A),C). Considerer
+     * ordering the trees first if you want to perform a strict topological comparison.
+     *
+     * @param n1 Root node of the first subtree.
+     * @param n2 Root node of the second subtree.
+     * @return true if the two subtrees have the same topology.
+     */
+    static bool haveSameOrderedTopology(const Node& n1, const Node& n2);
+
     static std::vector<Node*> getPathBetweenAnyTwoNodes(Node& node1, Node& node2, bool includeAncestor = true);
     
     static std::vector<const Node*> getPathBetweenAnyTwoNodes(const Node & node1, const Node & node2, bool includeAncestor = true);
@@ -654,19 +703,19 @@ class TreeTemplateTools
         clone->setDistanceToFather(tree.getDistanceToFather(nodeId));
       //Now we copy all sons:
       std::vector<int> sonsId = tree.getSonsId(nodeId);
-      for(unsigned int i = 0; i < sonsId.size(); i++)
+      for (size_t i = 0; i < sonsId.size(); i++)
       {
         clone->addSon(cloneSubtree<N>(tree, sonsId[i]));
       }
       //Must copy all properties too:
       std::vector<std::string> names;
       names = tree.getNodePropertyNames(nodeId);
-      for(unsigned int i = 0; i < names.size(); i++)
+      for (size_t i = 0; i < names.size(); i++)
       {
         clone->setNodeProperty(names[i], *tree.getNodeProperty(nodeId, names[i]));
       }
       names = tree.getBranchPropertyNames(nodeId);
-      for(unsigned int i = 0; i < names.size(); i++)
+      for (size_t i = 0; i < names.size(); i++)
       {
         clone->setBranchProperty(names[i], *tree.getBranchProperty(nodeId, names[i]));
       }
@@ -688,7 +737,7 @@ class TreeTemplateTools
      * @return A vector with all branch lengths.
      * @throw NodePException If a branch length is lacking.
      */
-    static Vdouble getBranchLengths(const Node & node) throw (NodePException);
+    static Vdouble getBranchLengths(const Node& node) throw (NodePException);
 
     /**
      * @brief Get the total length (sum of all branch lengths) of a subtree.
@@ -699,7 +748,7 @@ class TreeTemplateTools
       * @return The total length of the subtree.
      * @throw NodePException If a branch length is lacking.
      */
-    static double getTotalLength(const Node & node, bool includeAncestor = true) throw (NodePException);
+    static double getTotalLength(const Node& node, bool includeAncestor = true) throw (NodePException);
     
     /**
      * @brief Set all the branch lengths of a subtree.
@@ -707,14 +756,14 @@ class TreeTemplateTools
      * @param node  The root node of the subtree.
      * @param brLen The branch length to apply.
      */
-    static void setBranchLengths(Node & node, double brLen);
+    static void setBranchLengths(Node& node, double brLen);
      
     /**
      * @brief Remove all the branch lengths of a subtree.
      *
      * @param node  The root node of the subtree.
      */
-    static void deleteBranchLengths(Node & node);
+    static void deleteBranchLengths(Node& node);
 
     /**
      * @brief Give a length to branches that don't have one in a subtree.
@@ -722,7 +771,7 @@ class TreeTemplateTools
      * @param node  The root node of the subtree.
      * @param brLen The branch length to apply.
      */
-    static void setVoidBranchLengths(Node & node, double brLen);
+    static void setVoidBranchLengths(Node& node, double brLen);
         
     /**
      * @brief Scale a given tree.
@@ -733,7 +782,7 @@ class TreeTemplateTools
      * @param factor The factor to multiply all branch lengths with.
      * @throw NodePException If a branch length is lacking.
      */
-    static void scaleTree(Node & node, double factor) throw (NodePException);
+    static void scaleTree(Node& node, double factor) throw (NodePException);
    
     /**
      * @brief Get the total distance between to nodes.
@@ -744,7 +793,7 @@ class TreeTemplateTools
      * @param node2 The second node.
      * @return The sum of all branch lengths between the two nodes.
      */
-    static double getDistanceBetweenAnyTwoNodes(const Node & node1, const Node & node2);
+    static double getDistanceBetweenAnyTwoNodes(const Node& node1, const Node& node2);
 
     /**
      * @brief Compute a distance matrix from a tree.
@@ -892,12 +941,13 @@ class TreeTemplateTools
      */
 
     /**
-     * @brief Draw a random tree from a list of taxa.
+     * @brief Draw a random tree from a list of taxa, using a Yule process.
      *
      * @param leavesNames A list of taxa.
+     * @param rooted Tell is the output tree should be rooted.
      * @return A random tree with all corresponding taxa.
      */
-    static TreeTemplate<Node>* getRandomTree(std::vector<std::string>& leavesNames);
+    static TreeTemplate<Node>* getRandomTree(std::vector<std::string>& leavesNames, bool rooted=true);
 
     /** @} */
     
@@ -912,8 +962,8 @@ class TreeTemplateTools
      * @param node3 Another neighbor to exclude.
      * @return A vector of neighbors.
      */
-    static std::vector<const Node*> getRemainingNeighbors(const Node * node1, const Node * node2, const Node * node3);
- 
+    static std::vector<const Node*> getRemainingNeighbors(const Node* node1, const Node* node2, const Node* node3);
+
     /**
      * @brief This method will add a given value (possibly negative) to all identifiers in a (sub)tree.
      *
@@ -992,7 +1042,26 @@ class TreeTemplateTools
      */
     static void getBranchProperties(Node& node, const std::string& propertyName, std::map<int, Clonable*>& properties);
 
+    /**
+     * @brief Swap nodes in the subtree so that they are ordered according to the underlying number of leaves.
+     *
+     * @param node The root node of the (sub)tree to use.
+     * @param downward If yes, biggest subtrees (in terms of number of leaves) will come first. Otherwise, the smallest subtrees will come first.
+     * @param orderLeaves Tell if leaves have to be ordered alphabetically. This ensures that two identical topology will always have the same ordered tree, whatever the initial ordering of nodes.
+     */
+    static void orderTree(Node& node, bool downward = true, bool orderLeaves = false) {
+      orderTree_(node, downward, orderLeaves);
+    }
     /** @} */
+
+  private:
+    struct OrderTreeData_ {
+      unsigned int size;
+      std::string firstLeaf;
+      OrderTreeData_(): size(0), firstLeaf("") {}
+    };
+
+    static OrderTreeData_ orderTree_(Node& node, bool downward, bool orderLeaves);
 };
 
 } //end of namespace bpp.

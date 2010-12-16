@@ -39,7 +39,7 @@
 #ifndef _MIXTUREOFASUBSTITUTIONMODEL_H_
 #define _MIXTUREOFASUBSTITUTIONMODEL_H_
 
-#include "MixedSubstitutionModel.h"
+#include "AbstractMixedSubstitutionModel.h"
 #include <Bpp/Numeric/Prob.all>
 #include <Bpp/Numeric/VectorTools.h>
 
@@ -55,11 +55,11 @@ namespace bpp
  * substitution models.
  * @author Laurent Guéguen
  *
- * All the models are of the same type (for example T92 or GY94),
- * and their parameter values can follow discrete distributions.
+ * All the models are of the same type (for example T92 or GY94), and
+ * their parameter values can follow discrete distributions. At the
+ * construction, the rates of the models are all equal to one.
  *
- * In this kind of model, there is no generator or transition
- * probabilities.
+ * In this kind of model, there is no generator.
  *
  * There is a map with connection from parameter names to discrete
  * distributions, and then a related vector of "simple" substitution
@@ -85,14 +85,11 @@ namespace bpp
  *
  */
 class MixtureOfASubstitutionModel :
-  public MixedSubstitutionModel
+  public AbstractMixedSubstitutionModel
 {
 private:
   std::map<std::string, DiscreteDistribution*> distributionMap_;
 
-  std::vector<SubstitutionModel*> modelsContainer_;
-  std::vector<double> probas_;
-  
 public:
   MixtureOfASubstitutionModel(const Alphabet* alpha,
                          SubstitutionModel* model,
@@ -107,62 +104,13 @@ public:
   MixtureOfASubstitutionModel* clone() const { return new MixtureOfASubstitutionModel(*this); }
 
 public:
-  /**
-   * @brief Returns a specific model from the mixture
-   */
-  const SubstitutionModel* getNModel(unsigned int i) const
-  {
-    return modelsContainer_[i];
-  }
-
-  SubstitutionModel* getNModel(unsigned int i)
-  {
-    return modelsContainer_[i];
-  }
-
-  /**
-   * @brief Returns the  probability of a specific model from the mixture
-   */
-  
-  double getNProbability(unsigned int i) const
-  {
-    return probas_[i];
-  }
-  
-  const std::vector<double>& getProbabilities() const
-  {
-    return probas_;
-  }
-  
-  unsigned int getNumberOfModels() const
-  {
-    return modelsContainer_.size();
-  }
-
   std::string getName() const { return "MixtureOfASubstitutionModel"; }
 
   void updateMatrices();
   
-  unsigned int getNumberOfStates() const;
-
-  double Pij_t(unsigned int i, unsigned int j, double t) const;
-  double dPij_dt(unsigned int i, unsigned int j, double t) const;
-  double d2Pij_dt2(unsigned int i, unsigned int j, double t) const;
-  const Matrix<double>& getPij_t(double t) const;
-  const Matrix<double>& getdPij_dt(double t) const;
-  const Matrix<double>& getd2Pij_dt2(double t) const;
-  const Vdouble& getFrequencies();
-  double freq(unsigned int i) const;
-
-  /**
-   * @brief the parameters of the submodel that are not defined
-   * through a distribution (ie that are mapped with a
-   * ConstantDistribution) are updated.
-   *
-   **/
-  
   void setFreq(std::map<int,double>&);
 
+  
 };
 } // end of namespace bpp.
 

@@ -233,7 +233,7 @@ vector<unsigned int> AbstractDiscreteRatesAcrossSitesTreeLikelihood::getRateClas
 	VVdouble l = getLikelihoodForEachSiteForEachRateClass();
 	vector<unsigned int>classes(nbSites);
 	for(unsigned int i = 0; i < nbSites; i++)
-    classes[i] = VectorTools::whichmax<double>(l[i]);
+    classes[i] = VectorTools::whichMax<double>(l[i]);
 	return classes;
 }
 
@@ -246,7 +246,7 @@ Vdouble AbstractDiscreteRatesAcrossSitesTreeLikelihood::getRateWithMaxPostProbOf
 	Vdouble rates(nbSites);
 	for(unsigned int i = 0; i < nbSites; i++)
   {
-		rates[i] = rateDistribution_->getCategory(VectorTools::whichmax<double>(l[i]));
+		rates[i] = rateDistribution_->getCategory(VectorTools::whichMax<double>(l[i]));
 	}
 	return rates;
 }

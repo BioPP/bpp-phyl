@@ -47,7 +47,7 @@ knowledge of the CeCILL license and that you accept its terms.
 #include <Bpp/Text/StringTokenizer.h>
 #include <Bpp/Text/NestedStringTokenizer.h>
 #include <Bpp/Text/TextTools.h>
-#include <Bpp/Numeric/RandomTools.h>
+#include <Bpp/Numeric/Random/RandomTools.h>
 
 using namespace bpp;
 
@@ -619,20 +619,20 @@ void TreeTemplateTools::scaleTree(Node& node, double factor) throw (NodePExcepti
     
 /******************************************************************************/
 
-TreeTemplate<Node>* TreeTemplateTools::getRandomTree(vector<string>& leavesNames)
+TreeTemplate<Node>* TreeTemplateTools::getRandomTree(vector<string>& leavesNames, bool rooted)
 {
-  if(leavesNames.size() == 0) return NULL; // No taxa.
+  if (leavesNames.size() == 0) return 0; // No taxa.
   // This vector will contain all nodes.
   // Start with all leaves, and then group nodes randomly 2 by 2.
   // Att the end, contains only the root node of the tree.
   vector<Node *> nodes(leavesNames.size());
   // Create all leaves nodes:
-  for(unsigned int i = 0; i < leavesNames.size(); i++)
+  for (unsigned int i = 0; i < leavesNames.size(); ++i)
   {
     nodes[i] = new Node(leavesNames[i]);
   }
   // Now group all nodes:
-  while(nodes.size() > 1)
+  while (nodes.size() > (rooted ? 2 : 3))
   {
     // Select random nodes:
     int pos1 = RandomTools::giveIntRandomNumberBetweenZeroAndEntry(nodes.size());
@@ -648,7 +648,10 @@ TreeTemplate<Node>* TreeTemplateTools::getRandomTree(vector<string>& leavesNames
     nodes.push_back(parent);
   }
   // Return tree with last node as root node:
-  TreeTemplate<Node>* tree = new TreeTemplate<Node>(nodes[0]);
+  Node* root = new Node();
+  for (size_t i = 0; i < nodes.size(); ++i)
+    root->addSon(nodes[i]);
+  TreeTemplate<Node>* tree = new TreeTemplate<Node>(root);
   tree->resetNodesId();
   return tree;
 }
@@ -902,6 +905,92 @@ void TreeTemplateTools::getBranchProperties(Node& node, const string& propertyNa
     properties[node.getId()] = node.getBranchProperty(propertyName);
   for (unsigned int i = 0; i < node.getNumberOfSons(); i++)
     getBranchProperties(*node.getSon(i), propertyName, properties);
+}
+
+/******************************************************************************/
+
+bool TreeTemplateTools::haveSameOrderedTopology(const Node& n1, const Node& n2)
+{
+  if (n1.isLeaf() && n2.isLeaf() && n1.getName() != n2.getName()) return false;
+  unsigned int nl1 = n1.getNumberOfSons();
+  unsigned int nl2 = n2.getNumberOfSons();
+  if (nl1 != nl2) return false;
+
+  bool test = true;
+  for (unsigned int i = 0; test && i < n1.getNumberOfSons(); ++i) {
+    test &= haveSameOrderedTopology(*n1.getSon(i), *n2.getSon(i));
+  }
+  return test;
+}
+
+/******************************************************************************/
+
+TreeTemplateTools::OrderTreeData_ TreeTemplateTools::orderTree_(Node& node, bool downward, bool orderLeaves)
+{
+  OrderTreeData_ otd;
+
+  if (node.isLeaf() && node.hasFather()) {
+    otd.size = 1;
+    otd.firstLeaf = node.getName();
+  } else {
+    vector<unsigned int> nbSons;
+    vector<string> firstLeaves;
+    for (unsigned int i = 0; i < node.getNumberOfSons(); i++) {
+      OrderTreeData_ otdsub = orderTree_(*node.getSon(i), downward, orderLeaves);
+      if (i == 0)
+        otd.firstLeaf = otdsub.firstLeaf;
+      else 
+        if (orderLeaves && otdsub.firstLeaf < otd.firstLeaf)
+          otd.firstLeaf = otdsub.firstLeaf;
+      nbSons.push_back(otdsub.size);    
+      firstLeaves.push_back(otdsub.firstLeaf);    
+    }
+    otd.size = VectorTools::sum(nbSons);
+
+    //Now swap nodes:
+    if (downward) {
+      for (size_t i = 0; i < nbSons.size() - 1; ++i) {
+        size_t pos;
+        vector<size_t> index = VectorTools::whichMaxAll(nbSons);
+        if (index.size() == 1 || !orderLeaves) {
+          pos = index[0];
+        } else {
+          //There are ties to solve:
+          vector<string> v;
+          for (size_t j = 0; j < index.size(); ++j)
+            v.push_back(firstLeaves[index[j]]);
+          size_t mx = VectorTools::whichMax(v);
+          pos = index[mx];
+        }
+        if (pos != i) {
+          node.swap(i, pos);
+          nbSons[pos] = nbSons[i];
+        }
+        nbSons[i] = 0;
+      }
+    } else {
+      for (size_t i = 0; i < nbSons.size() - 1; ++i) {
+        size_t pos;
+        vector<size_t> index = VectorTools::whichMinAll(nbSons);
+        if (index.size() == 1 || !orderLeaves) {
+          pos = index[0];
+        } else {
+          //There are ties to solve:
+          vector<string> v;
+          for (size_t j = 0; j < index.size(); ++j)
+            v.push_back(firstLeaves[index[j]]);
+          size_t mx = VectorTools::whichMin(v);
+          pos = index[mx];
+        }
+        if (pos != i) {
+          node.swap(i, pos);
+          nbSons[pos] = nbSons[i];
+        }
+        nbSons[i] = otd.size + 1;
+      }
+    }
+  }
+  return otd;
 }
 
 /******************************************************************************/

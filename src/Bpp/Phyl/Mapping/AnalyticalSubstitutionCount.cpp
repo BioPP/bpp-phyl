@@ -5,7 +5,7 @@
 //
 
 /*
-Copyright or © or Copr. CNRS, (November 16, 2004, 2005, 2006)
+Copyright or © or Copr. Bio++ Development Team, (November 16, 2004, 2005, 2006)
 
 This software is a computer program whose purpose is to provide classes
 for phylogenetic data analysis.
@@ -92,10 +92,10 @@ void AnalyticalSubstitutionCount::computeCounts(double length) const
 
 /******************************************************************************/
 
-double AnalyticalSubstitutionCount::getNumberOfSubstitutions(unsigned int initialState, unsigned int finalState, double length) const
+double AnalyticalSubstitutionCount::getNumberOfSubstitutions(unsigned int initialState, unsigned int finalState, double length, unsigned int type) const
 {
   if (length == currentLength_) return m_(initialState, finalState);
-  if(length < 0.000001) return initialState == finalState ? 0. : 1.; //Limit case!
+  if (length < 0.000001) return initialState == finalState ? 0. : 1.; //Limit case!
   // Else we need to recompute M:
   computeCounts(length);
 
@@ -105,7 +105,7 @@ double AnalyticalSubstitutionCount::getNumberOfSubstitutions(unsigned int initia
 
 /******************************************************************************/
 
-Matrix<double>* AnalyticalSubstitutionCount::getAllNumbersOfSubstitutions(double length) const
+Matrix<double>* AnalyticalSubstitutionCount::getAllNumbersOfSubstitutions(double length, unsigned int type) const
 {
   if (length == currentLength_) return new RowMatrix<double>(m_);
   if (length < 0.000001) // Limit case!

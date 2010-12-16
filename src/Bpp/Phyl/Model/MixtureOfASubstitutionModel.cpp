@@ -50,10 +50,8 @@ MixtureOfASubstitutionModel::MixtureOfASubstitutionModel(
                                                const Alphabet* alpha,
                                                SubstitutionModel* model,
                                                std::map<std::string, DiscreteDistribution*> parametersDistributionsList) throw(Exception) :
-  MixedSubstitutionModel(alpha, ""),
-  distributionMap_(),
-  modelsContainer_(),
-  probas_()
+  AbstractMixedSubstitutionModel(alpha, ""),
+  distributionMap_()
 {
   unsigned int c, i;
   string s1, s2, t;
@@ -93,42 +91,38 @@ MixtureOfASubstitutionModel::MixtureOfASubstitutionModel(
     {
       modelsContainer_.push_back(model->clone());
       modelsContainer_[i]->setNamespace(model->getNamespace());
-      probas_.push_back(1.0/c);
+      vProbas_.push_back(1.0/c);
+      vRates_.push_back(1.0);
     }
 
   // Initialization of parameters_.
 
   Parameter pm;
   DiscreteDistribution* pd;
-  
+
   for (it = distributionMap_.begin(); it != distributionMap_.end(); it++)
     {
       pm=model->getParameter(model->getParameterNameWithoutNamespace(getParameterNameWithoutNamespace(it->first)));
       pd=it->second;
 
-      if (pm.hasConstraint() && ! pd->adaptToConstraint(*pm.getConstraint()))
-        throw Exception("Bad Distribution for " + pm.getName() + " : " + pd->getNamespace());
+      if (pm.hasConstraint())
+        pd->restrictToConstraint(*pm.getConstraint());
 
       if (dynamic_cast<ConstantDistribution*>(it->second) == NULL)
         {
+          const ParameterList pl = pd->getParameters();
           for (i = 0; i != it->second->getNumberOfParameters(); i++)
-            {
-              t = pd->getParameters().getParameterNames()[i];
-              addParameter_(Parameter(t,pd->getParameter(pd->getParameterNameWithoutNamespace(t)).getValue(),
-                                      pd->getParameter(pd->getParameterNameWithoutNamespace(t)).getConstraint()->clone(),true));
-            }
+            addParameter_(*pl[i].clone());
         }
       else
-        addParameter_(Parameter(it->first,pd->getCategory(0),pd->getParameter("value").getConstraint()->clone(),true));
+        addParameter_(Parameter(it->first,pd->getCategory(0),(pd->getParameter("value").getConstraint())?pd->getParameter("value").getConstraint()->clone():0,true));
     }
   updateMatrices();
 }
 
 MixtureOfASubstitutionModel::MixtureOfASubstitutionModel(const MixtureOfASubstitutionModel& msm) :
-  MixedSubstitutionModel(msm),
-  distributionMap_(),
-  modelsContainer_(),
-  probas_()
+  AbstractMixedSubstitutionModel(msm),
+  distributionMap_()
 {
   map<string, DiscreteDistribution*>::const_iterator it;
 
@@ -136,22 +130,14 @@ MixtureOfASubstitutionModel::MixtureOfASubstitutionModel(const MixtureOfASubstit
     {
       distributionMap_[it->first] = dynamic_cast<DiscreteDistribution*>(it->second->clone());
     }
-
-  for (unsigned int i = 0; i < msm.modelsContainer_.size(); i++)
-    {
-      modelsContainer_.push_back(msm.modelsContainer_[i]->clone());
-      probas_.push_back(msm.probas_[i]);
-    }
 }
 
 MixtureOfASubstitutionModel& MixtureOfASubstitutionModel::operator=(const MixtureOfASubstitutionModel& msm)
 {
-  MixedSubstitutionModel::operator=(msm);
+  AbstractMixedSubstitutionModel::operator=(msm);
   
   //Clear existing containers:
   distributionMap_.clear();
-  modelsContainer_.clear();
-  probas_.clear();
   
   //Now copy new containers:
   map<string, DiscreteDistribution*>::const_iterator it;
@@ -159,28 +145,17 @@ MixtureOfASubstitutionModel& MixtureOfASubstitutionModel::operator=(const Mixtur
     {
       distributionMap_[it->first] = dynamic_cast<DiscreteDistribution*>(it->second->clone());
     }
-
-  for (unsigned int i = 0; i < msm.modelsContainer_.size(); i++)
-    {
-      modelsContainer_.push_back(msm.modelsContainer_[i]->clone());
-      probas_.push_back(msm.probas_[i]);
-    }
   return *this;
 }
 
 
 MixtureOfASubstitutionModel::~MixtureOfASubstitutionModel()
 {
-  unsigned int i;
   map<string, DiscreteDistribution*>::iterator it;
 
   for (it = distributionMap_.begin(); it != distributionMap_.end(); it++)
     {
       delete it->second;
-    }
-  for (i = 0; i < modelsContainer_.size(); i++)
-    {
-      delete modelsContainer_[i];
     }
 }
 
@@ -195,142 +170,52 @@ void MixtureOfASubstitutionModel::updateMatrices()
   // Update of distribution parameters from the parameters_ member
   // data. (reverse operation compared to what has been done in the
   // constructor).
-  vector<string> v=getParameters().getParameterNames();
+  //  vector<string> v=getParameters().getParameterNames();
    
-  for (it = distributionMap_.begin(); it != distributionMap_.end(); it++)
-    {
-      if (dynamic_cast<ConstantDistribution*>(it->second) == NULL)
-        {
-          for (i = 0; i < it->second->getNumberOfParameters(); i++)
-            {
-              t = it->second->getParameters().getParameterNames()[i];
-              d = getParameter(getParameterNameWithoutNamespace(t)).getValue();
-              it->second->setParameterValue(it->second->getParameterNameWithoutNamespace(t),d);
-            }
-        }
-      else
-        {
-          t = it->second->getNamespace();
-          d = getParameter(getParameterNameWithoutNamespace(t.substr(0,t.length() - 1))).getValue();
-          it->second->setParameterValue("value",d);
-        }
+  for (it = distributionMap_.begin(); it != distributionMap_.end(); it++) {
+    if (dynamic_cast<ConstantDistribution*>(it->second) == NULL) {
+      vector<string> vDistnames=it->second->getParameters().getParameterNames();
+      for (i = 0; i < it->second->getNumberOfParameters(); i++) {
+        d = getParameterValue(getParameterNameWithoutNamespace(vDistnames[i]));
+        pl.addParameter(Parameter(vDistnames[i],d));
+      }
+      it->second->matchParametersValues(pl);
+      pl.reset();
     }
+    else {
+      t = it->second->getNamespace();
+      d = getParameter(getParameterNameWithoutNamespace(t.substr(0,t.length() - 1))).getValue();
+      it->second->setParameterValue("value",d);
+    }
+  }
 
-  for (i = 0; i < modelsContainer_.size(); i++)
-    {
-      probas_[i]=1;
-      j = i;
-      for (it = distributionMap_.begin(); it != distributionMap_.end(); it++)
-        {
-          s = it->first;
-          l = j % it->second->getNumberOfCategories();
-
-          d = it->second->getCategory(l);
-          probas_[i]*=it->second->getProbability(l);
-          if (pl.hasParameter(s))
-            pl.setParameterValue(s,d);
-          else
-            pl.addParameter(Parameter(s,d));
-
-          j = j / it->second->getNumberOfCategories();
-        }
+  for (i = 0; i < modelsContainer_.size(); i++) {
+    vProbas_[i]=1;
+    j = i;
+    for (it = distributionMap_.begin(); it != distributionMap_.end(); it++)
+      {
+        s = it->first;
+        l = j % it->second->getNumberOfCategories();
+        
+        d = it->second->getCategory(l);
+        vProbas_[i]*=it->second->getProbability(l);
+        if (pl.hasParameter(s))
+          pl.setParameterValue(s,d);
+        else
+          pl.addParameter(Parameter(s,d));
+        
+        j = j / it->second->getNumberOfCategories();
+      }
     
-      modelsContainer_[i]->matchParametersValues(pl);
-    }
+    modelsContainer_[i]->matchParametersValues(pl);
+  }
   
-  for (i = 0; i < getNumberOfStates(); i++)
-    {
-      freq_[i] = 0;
-      for (j = 0; j < modelsContainer_.size(); j++)
-        freq_[i] += probas_[i]*modelsContainer_[j]->freq(i);
-    }
-  
+  for (i = 0; i < getNumberOfStates(); i++) {
+    freq_[i] = 0;
+    for (j = 0; j < modelsContainer_.size(); j++)
+      freq_[i] += vProbas_[i]*modelsContainer_[j]->freq(i);
+  }
 }
-
-
-unsigned int MixtureOfASubstitutionModel::getNumberOfStates() const
-{
-  return modelsContainer_[0]->getNumberOfStates();
-}
-
-
-double MixtureOfASubstitutionModel::Pij_t(unsigned int i, unsigned int j, double t) const
-{
-  double x=0;
-  for (unsigned int n = 0; n < modelsContainer_.size(); n++)
-      x+= modelsContainer_[n]->Pij_t(i,j,t)*probas_[n];
-
-  return x;
-}
-
-
-double MixtureOfASubstitutionModel::dPij_dt(unsigned int i, unsigned int j, double t) const
-{
-  double x=0;
-  for (unsigned int n = 0; n < modelsContainer_.size(); n++)
-    x+= modelsContainer_[n]->dPij_dt(i,j,t)*probas_[n];
-
-  return x;
-}
-
-
-double MixtureOfASubstitutionModel::d2Pij_dt2(unsigned int i, unsigned int j, double t) const
-{
-  double x=0;
-  for (unsigned int n = 0; n < modelsContainer_.size(); n++)
-    x+= modelsContainer_[n]->d2Pij_dt2(i,j,t)*probas_[n];
-
-  return x;
-}
-
-
-const Matrix<double>& MixtureOfASubstitutionModel::getPij_t(double t) const
-{
-  for (unsigned int i=0; i< getNumberOfStates(); i++)
-    for (unsigned int j=0; j< getNumberOfStates(); j++)
-      pijt_(i,j)=Pij_t(i,j,t);
-
-  return pijt_;
-}
-
-
-const Matrix<double>& MixtureOfASubstitutionModel::getdPij_dt(double t) const
-{
-  for (unsigned int i=0; i< getNumberOfStates(); i++)
-    for (unsigned int j=0; j< getNumberOfStates(); j++)
-      dpijt_(i,j)=dPij_dt(i,j,t);
-
-  return dpijt_;
-}
-
-
-const Matrix<double>& MixtureOfASubstitutionModel::getd2Pij_dt2(double t) const
-{
-  for (unsigned int i=0; i< getNumberOfStates(); i++)
-    for (unsigned int j=0; j< getNumberOfStates(); j++)
-      dpijt_(i,j)=d2Pij_dt2(i,j,t);
-
-  return d2pijt_;
-}
-
-
-const Vdouble& MixtureOfASubstitutionModel::getFrequencies()
-{
-  for (unsigned int i=0; i< getNumberOfStates(); i++)
-    freq_[i]=freq(i);
-  return freq_;
-}
-
-
-double MixtureOfASubstitutionModel::freq(unsigned int i) const
-{
-  double x=0;
-  for (unsigned int n = 0; n < modelsContainer_.size(); n++)
-    x+= modelsContainer_[n]->freq(i)*probas_[n];
-
-  return x;
-}
-
 
 void MixtureOfASubstitutionModel::setFreq(std::map<int,double>& m)
 {

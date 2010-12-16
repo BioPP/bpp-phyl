@@ -63,8 +63,7 @@ AbstractWordReversibleSubstitutionModel::AbstractWordReversibleSubstitutionModel
   new_alphabet_ (true),
   VSubMod_      (),
   VnestedPrefix_(),
-  Vrate_         (modelVector.size()),
-  p_            (getNumberOfStates(), getNumberOfStates())
+  Vrate_         (modelVector.size())
 {
   enableEigenDecomposition(false);
   unsigned int i, j;
@@ -126,8 +125,7 @@ AbstractWordReversibleSubstitutionModel::AbstractWordReversibleSubstitutionModel
   new_alphabet_ (false),
   VSubMod_      (),
   VnestedPrefix_(),
-  Vrate_         (0),
-  p_            (getNumberOfStates(), getNumberOfStates())
+  Vrate_         (0)
 {
   enableEigenDecomposition(false);
 }
@@ -140,8 +138,7 @@ AbstractWordReversibleSubstitutionModel::AbstractWordReversibleSubstitutionModel
   new_alphabet_ (true),
   VSubMod_      (),
   VnestedPrefix_(),
-  Vrate_         (num),
-  p_            (getNumberOfStates(), getNumberOfStates())
+  Vrate_         (num)
 {
   enableEigenDecomposition(false);
   unsigned int i;
@@ -165,8 +162,7 @@ AbstractWordReversibleSubstitutionModel::AbstractWordReversibleSubstitutionModel
   new_alphabet_ (wrsm.new_alphabet_),
   VSubMod_      (),
   VnestedPrefix_(wrsm.VnestedPrefix_),
-  Vrate_         (wrsm.Vrate_),
-  p_            (wrsm.p_)
+  Vrate_         (wrsm.Vrate_)
 {
    unsigned int i;
    unsigned int num = wrsm.VSubMod_.size();
@@ -191,7 +187,6 @@ AbstractWordReversibleSubstitutionModel& AbstractWordReversibleSubstitutionModel
   new_alphabet_  = wrsm.new_alphabet_;
   VnestedPrefix_ = wrsm.VnestedPrefix_;
   Vrate_          = wrsm.Vrate_;
-  p_             = wrsm.p_;
 
   unsigned int i;
   unsigned int num = wrsm.VSubMod_.size();
@@ -340,7 +335,6 @@ void AbstractWordReversibleSubstitutionModel::updateMatrices()
 
   // Eigen values:
 
-
   if (enableEigenDecomposition())
   {
     unsigned int i, j;
@@ -437,23 +431,48 @@ void AbstractWordReversibleSubstitutionModel::updateMatrices()
 
     MatrixTools::inv(rightEigenVectors_, leftEigenVectors_);
 
-    // looking for the 0 eigenvector
+    // looking for the 0 eigenvector for which the eigen vector
+    // elements are of the same sign.
+    // There is a threshold value in case of approximations
 
-    unsigned int nulleigen = 0;
-    while (nulleigen < salph - nbStop)
-    {
-      if (abs(eigenValues_[nulleigen]) < 0.000001 && abs(vi[nulleigen]) < 0.000001)
-        break;
-      else
-        nulleigen++;
+    double seuil=0.00000001;
+    bool flag=true;
+    unsigned int nulleigen;
+    while(flag){
+      seuil*=10;
+      nulleigen=0;
+      int signe=0;
+
+      while (flag && (nulleigen < salph - nbStop)) {
+          if (abs(eigenValues_[nulleigen]) < 0.0000001 && abs(vi[nulleigen]) < 0.0000001){
+            signe=0;
+            i=0;
+            while (signe==0 && i< salph){
+              x=leftEigenVectors_(nulleigen, i);
+              signe=x>seuil?1:x< -seuil?-1:0;
+              i++;
+            }
+            if (signe==0)
+              nulleigen++;
+            else {
+              while (i<salph){
+                x=leftEigenVectors_(nulleigen, i);
+                if ((signe==-1 && x>seuil) || (signe==1 && x<-seuil))
+                  break;
+                
+                i++;
+              }
+              if (i<salph-nbStop)
+                nulleigen++;
+              else
+                flag=false;
+            }
+          }
+          else
+            nulleigen++;
+      }
     }
-
-    if (nulleigen >= salph - nbStop)
-    {
-      cerr << "AbstractWordReversibleSubstitutionModel::updateMatrices : Problem in eigenspace of " << getName() << endl;
-      exit(0);
-    }
-
+    
     for (i = 0; i < salph; i++)
     {
       freq_[i] = leftEigenVectors_(nulleigen, i);
@@ -485,6 +504,7 @@ void AbstractWordReversibleSubstitutionModel::updateMatrices()
       eigenValues_[i] /= -x;
     }
   }
+
 }
 
 
@@ -494,8 +514,6 @@ void AbstractWordReversibleSubstitutionModel::setFreq(std::map<int, double>& fre
   unsigned int nbmod = VSubMod_.size();
 
   unsigned int i, j, s, k, d, size;
-
-  
   d = size = getNumberOfStates();
 
   if (VSubMod_.size() < 2 || VSubMod_[0] == VSubMod_[1]){

@@ -109,10 +109,10 @@ public:
    * according to PAML option.
    *
    * @param option A code describing the option, one of F61, F1X4 or F3X4.
-   * @param gc The genetic code to use.
+   * @param CA the Codon Alphabet to use.
    */
   
-  static FrequenciesSet* getFrequenciesSetForCodons(short option, const GeneticCode& gc);
+  static FrequenciesSet* getFrequenciesSetForCodons(short option, const CodonAlphabet& CA);
 
   static const short F0;
   static const short F1X4;

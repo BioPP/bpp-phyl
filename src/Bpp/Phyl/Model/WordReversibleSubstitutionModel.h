@@ -117,15 +117,9 @@ protected:
   virtual void completeMatrices();
 
 public:
-  virtual double Pij_t(unsigned int i, unsigned int j, double d) const;
-
   virtual const RowMatrix<double>& getPij_t(double d) const;
 
-  virtual double dPij_dt(unsigned int i, unsigned int j, double d) const;
-
   virtual const RowMatrix<double>& getdPij_dt(double d) const;
-
-  virtual double d2Pij_dt2(unsigned int i, unsigned int j, double d) const;
 
   virtual const RowMatrix<double>& getd2Pij_dt2(double d) const;
 

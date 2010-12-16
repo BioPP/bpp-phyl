@@ -51,6 +51,7 @@ using namespace std;
 
 YNGKP_M3::YNGKP_M3(const GeneticCode* gc, FrequenciesSet* codonFreqs, unsigned int nbOmega) :
   MixedSubstitutionModel(gc->getSourceAlphabet(), "YNGKP_M3."), pmixmodel_(0),
+  synfrom_(-1), synto_(-1),
   mapParNamesFromPmodel_(), lParPmodel_()
 {
   if (nbOmega<1)
@@ -109,12 +110,27 @@ YNGKP_M3::YNGKP_M3(const GeneticCode* gc, FrequenciesSet* codonFreqs, unsigned i
   for (unsigned int i = 1; i < nbOmega;i++)
     addParameter_(Parameter("YNGKP_M3.delta"+TextTools::toString(i), 0.5, &Parameter::R_PLUS_STAR));
 
+  // look for synonymous codons
+  for (synfrom_=1;synfrom_<(int)gc->getSourceAlphabet()->getSize();synfrom_++){
+    for (synto_=0;synto_<synfrom_;synto_++)
+      if ((gc->areSynonymous(synfrom_,synto_))
+          && (pmixmodel_->getNModel(0)->Qij(synfrom_,synto_)!=0) 
+          && (pmixmodel_->getNModel(1)->Qij(synfrom_,synto_)!=0))
+        break;
+    if (synto_<synfrom_)
+      break;
+  }
+
+  if (synto_==(int)gc->getSourceAlphabet()->getSize())
+    throw Exception("Impossible to find synonymous codons");
+  
   //update Matrices 
   updateMatrices();
 }
 
 YNGKP_M3::YNGKP_M3(const YNGKP_M3& mod2) : MixedSubstitutionModel(mod2),
                                            pmixmodel_(new MixtureOfASubstitutionModel(*mod2.pmixmodel_)),
+                                           synfrom_(mod2.synfrom_), synto_(mod2.synto_),
                                            mapParNamesFromPmodel_(mod2.mapParNamesFromPmodel_),
                                            lParPmodel_(mod2.lParPmodel_)
 {
@@ -128,6 +144,8 @@ YNGKP_M3& YNGKP_M3::operator=(const YNGKP_M3& mod2)
   pmixmodel_=new MixtureOfASubstitutionModel(*mod2.pmixmodel_);
   mapParNamesFromPmodel_=mod2.mapParNamesFromPmodel_;
   lParPmodel_=mod2.lParPmodel_;
+  synfrom_=mod2.synfrom_;
+  synto_=mod2.synto_;
   
   return *this;
 }
@@ -154,6 +172,15 @@ void YNGKP_M3::updateMatrices()
         lParPmodel_.setParameterValue(it->first,getParameterValue(it->second));
   
   pmixmodel_->matchParametersValues(lParPmodel_);
+
+  // homogeneization of the synonymous substittion rates
+
+  Vdouble vd;
+
+  for (unsigned int i=0;i<pmixmodel_->getNumberOfModels();i++)
+    vd.push_back(1/pmixmodel_->getNModel(i)->Qij(synfrom_,synto_));
+
+  pmixmodel_->setVRates(vd);
 }
 
 void YNGKP_M3::setFreq(std::map<int,double>& m){

@@ -138,8 +138,12 @@ class G2001:
       rDist_->setNamespace(prefix + nestedRatePrefix_);
     }
 
-    
-  protected:
+
+  double getRate() const{  return 1.;}
+
+  void setRate(double rate) {};
+
+protected:
     void updateRatesModel()
     {
       double nu = getParameterValue("nu");

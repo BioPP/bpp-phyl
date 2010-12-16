@@ -182,7 +182,9 @@ void AbstractSubstitutionModel::setRate(double rate)
   if (rate<=0)
     throw Exception("Bad value for rate: " + TextTools::toString(rate));
 
-    rate_=rate;
+  if (hasParameter("rate"))
+    setParameterValue("rate",rate_);
+  rate_=rate;
 }
 
 void AbstractSubstitutionModel::addRateParameter()

@@ -122,6 +122,11 @@ void LLG08_EX2::setFreq(std::map<int,double>& m){
   matchParametersValues(pmixmodel_->getParameters());
 }
 
+void LLG08_EX2::setVRates(Vdouble & vd){
+  pmixmodel_->setVRates(vd);
+  matchParametersValues(pmixmodel_->getParameters());
+}
+
 /**************** sub model classes *///////////
 
 LLG08_EX2::EmbeddedModel::EmbeddedModel(const ProteicAlphabet* alpha, string name) :

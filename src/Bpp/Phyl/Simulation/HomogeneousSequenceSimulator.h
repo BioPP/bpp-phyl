@@ -58,7 +58,7 @@ class HomogeneousSequenceSimulator:
 		HomogeneousSequenceSimulator(
 			const SubstitutionModel* model,
 			const DiscreteDistribution* rate,
-			const TreeTemplate<Node>* tree
+			const Tree* tree
 		) : NonHomogeneousSequenceSimulator(model, rate, tree) {}
 			
 		virtual ~HomogeneousSequenceSimulator() {}

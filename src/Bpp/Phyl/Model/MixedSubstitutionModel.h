@@ -50,7 +50,7 @@
 namespace bpp
 {
   /**
-   * @brief Abstract class for Substitution models, defined as a mixture
+   * @brief Interface for Substitution models, defined as a mixture
    * of "simple" substitution models.
    * @author Laurent Guéguen
    *
@@ -72,6 +72,7 @@ namespace bpp
     virtual MixedSubstitutionModel* clone() const = 0;
 
   public:
+
     /**
      * @brief Returns a specific model from the mixture
      */
@@ -89,24 +90,23 @@ namespace bpp
     
     virtual unsigned int getNumberOfModels() const = 0;
 
-    virtual std::string getName() const { return "MixedSubstitutionModel"; }
+    
+    /**
+     * @brief Sets the rates of the submodels to follow the constraint
+     * that the mean rate of the mixture equals rate_.
+     
+     * @param vd a vector of positive values such that the rates of
+     * the respective submodels are in the same proportions (ie this
+     * vector does not need to be normalized).
+     */
 
-
-    virtual double Pij_t(unsigned int i, unsigned int j, double t) const = 0;
-    virtual double dPij_dt(unsigned int i, unsigned int j, double t) const = 0;
-    virtual double d2Pij_dt2(unsigned int i, unsigned int j, double t) const = 0;
-    virtual const Matrix<double>& getPij_t(double t) const = 0;
-    virtual const Matrix<double>& getdPij_dt(double t) const = 0;
-    virtual const Matrix<double>& getd2Pij_dt2(double t) const = 0;
-    virtual const Vdouble& getFrequencies()  = 0;
-    virtual double freq(unsigned int i) const = 0;
-
-    virtual void setFreq(std::map<int,double>&) = 0;
+    virtual void setVRates(Vdouble& vd) = 0;
 
     /**
-     * @brief This functions can not be applied here, so they are defined
+     * @brief This function can not be applied here, so it is defined
      * to prevent wrong usage.
      */
+    
     double Qij(unsigned int i, unsigned int j) const {return 0;}
 
   };

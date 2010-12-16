@@ -155,7 +155,7 @@ void NNITopologySearch::searchBetter() throw (Exception)
 		vector<Node *> improving;
 		vector<double> improvement;
 		if (verbose_ >= 2 && ApplicationTools::message) ApplicationTools::message->endLine();
-		for(unsigned int i = 0; i < nodesSub.size(); i++)
+		for (unsigned int i = 0; i < nodesSub.size(); i++)
     {
 			Node* node = nodesSub[i];
 			double diff = searchableTree_->testNNI(node->getId());
@@ -172,13 +172,13 @@ void NNITopologySearch::searchBetter() throw (Exception)
 				improvement.push_back(diff);
 			}
 		}
-		if(verbose_ >= 3) ApplicationTools::displayTaskDone();
+		if (verbose_ >= 3) ApplicationTools::displayTaskDone();
 		test = improving.size() > 0;
-		if(test)
+		if (test)
     {
-			unsigned int nodeMin = VectorTools::posmin(improvement);
+			unsigned int nodeMin = VectorTools::whichMin(improvement);
 			Node * node = improving[nodeMin];
-			if(verbose_ >=2)
+			if (verbose_ >=2)
         ApplicationTools::displayResult("   Swapping node " + TextTools::toString(node->getId())
           + " at " + TextTools::toString(node->getFather()->getId()),
           TextTools::toString(improvement[nodeMin]));
@@ -187,10 +187,10 @@ void NNITopologySearch::searchBetter() throw (Exception)
 			// Notify:
 			notifyAllPerformed(TopologyChangeEvent());
       
-      if(verbose_ >= 1)
+      if (verbose_ >= 1)
         ApplicationTools::displayResult("   Current value", TextTools::toString(searchableTree_->getTopologyValue(), 10));
 		}
-	} while(test);	
+	} while (test);	
 }
 
 void NNITopologySearch::searchPhyML() throw (Exception)

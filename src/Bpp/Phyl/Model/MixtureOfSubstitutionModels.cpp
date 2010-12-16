@@ -48,11 +48,7 @@ using namespace std;
 
 MixtureOfSubstitutionModels::MixtureOfSubstitutionModels(const Alphabet* alpha,
                                                          vector<SubstitutionModel*> vpModel_) :
-  MixedSubstitutionModel(alpha, "Mixture."),
-  lParPmodel_(),
-  modelsContainer_(),
-  Vprobas_(),
-  Vrates_()
+  AbstractMixedSubstitutionModel(alpha, "Mixture.")
 {
   unsigned int i, nbmod = vpModel_.size();
 
@@ -64,14 +60,14 @@ MixtureOfSubstitutionModels::MixtureOfSubstitutionModels(const Alphabet* alpha,
         throw Exception("Same model at positions " + TextTools::toString(i) + " and " +
                         TextTools::toString(j) + " in MixtureOfSubstitutionModels constructor");
   }
-  
+
   // Initialization of modelsContainer_.
 
   for (i = 0; i < nbmod; i++)
     {
       modelsContainer_.push_back(vpModel_[i]);
-      Vprobas_.push_back(1.0/nbmod);
-      Vrates_.push_back(1.0);
+      vProbas_.push_back(1.0/nbmod);
+      vRates_.push_back(1.0);
     }
 
   // Initialization of parameters_.
@@ -91,11 +87,11 @@ MixtureOfSubstitutionModels::MixtureOfSubstitutionModels(const Alphabet* alpha,
       addParameters_(vpModel_[i]->getParameters());
     }
 
-  lParPmodel_.addParameters(getParameters());
+  //  lParPmodel_.addParameters(getParameters());
   
   for (i = 0; i < nbmod; i++){
     vpModel_[i]->addRateParameter();
-    lParPmodel_.addParameter(vpModel_[i]->getParameter("rate"));
+  //   lParPmodel_.addParameter(vpModel_[i]->getParameter("rate"));
   }
 
   updateMatrices();
@@ -105,11 +101,7 @@ MixtureOfSubstitutionModels::MixtureOfSubstitutionModels(const Alphabet* alpha,
                                                          vector<SubstitutionModel*> vpModel_,
                                                          Vdouble& vproba,
                                                          Vdouble& vrate) :
-  MixedSubstitutionModel(alpha, "Mixture."),
-  lParPmodel_(),
-  modelsContainer_(),
-  Vprobas_(vproba),
-  Vrates_(vrate)
+  AbstractMixedSubstitutionModel(alpha, "Mixture.")
 {
   unsigned int i, nbmod = vpModel_.size();
 
@@ -145,6 +137,14 @@ MixtureOfSubstitutionModels::MixtureOfSubstitutionModels(const Alphabet* alpha,
   for (i = 0; i < nbmod; i++) 
       modelsContainer_.push_back(vpModel_[i]);
 
+  // rates & probas
+  
+  for (i = 0; i < nbmod; i++)
+    {
+      vProbas_.push_back(1.0/nbmod);
+      vRates_.push_back(1.0);
+    }
+
   // Initialization of parameters_.
 
   
@@ -167,184 +167,66 @@ MixtureOfSubstitutionModels::MixtureOfSubstitutionModels(const Alphabet* alpha,
       addParameters_(vpModel_[i]->getParameters());
     }
 
-  lParPmodel_.addParameters(getParameters());
-  
-  for (i = 0; i < nbmod; i++){
+  for (i = 0; i < nbmod; i++)
     vpModel_[i]->addRateParameter();
-    lParPmodel_.addParameter(vpModel_[i]->getParameter("rate"));
-  }
 
   updateMatrices();
 }
 
 MixtureOfSubstitutionModels::MixtureOfSubstitutionModels(const MixtureOfSubstitutionModels& msm) :
-  MixedSubstitutionModel(msm),
-  lParPmodel_(msm.lParPmodel_),
-  modelsContainer_(),
-  Vprobas_(msm.Vprobas_),
-  Vrates_(msm.Vrates_)
+  AbstractMixedSubstitutionModel(msm)
 {
-  for (unsigned int i = 0; i < msm.modelsContainer_.size(); i++)
-    modelsContainer_.push_back(msm.modelsContainer_[i]->clone());
 }
 
 MixtureOfSubstitutionModels& MixtureOfSubstitutionModels::operator=(const MixtureOfSubstitutionModels& msm)
 {
-  MixedSubstitutionModel::operator=(msm);
+  AbstractMixedSubstitutionModel::operator=(msm);
   
-  //Clear existing containers:
-  modelsContainer_.clear();
-  lParPmodel_=msm.lParPmodel_;
-  Vprobas_.clear();
-  Vrates_.clear();
-  
-  //Now copy new containers:
-
-  for (unsigned int i = 0; i < msm.modelsContainer_.size(); i++)
-    {
-      modelsContainer_.push_back(msm.modelsContainer_[i]->clone());
-      Vprobas_.push_back(msm.Vprobas_[i]);
-      Vrates_.push_back(msm.Vrates_[i]);
-    }
   return *this;
 }
 
 
 MixtureOfSubstitutionModels::~MixtureOfSubstitutionModels()
 {
-  for (unsigned int i = 0; i < modelsContainer_.size(); i++)
-    {
-      delete modelsContainer_[i];
-    }
 }
-
 
 
 void MixtureOfSubstitutionModels::updateMatrices()
 {
   unsigned int i, j, nbmod = modelsContainer_.size();
-  
+
   double x,y;
   x = 1.0;
 
   for (i = 0; i < nbmod-1; i++){
     y =getParameterValue("relproba" + TextTools::toString(i+1));
-    Vprobas_[i] = x*y;
+    vProbas_[i] = x*y;
     x *= 1 - y;      
   }
-  Vprobas_[nbmod-1]=x;
+  vProbas_[nbmod-1]=x;
 
   x = 1.0;
   for (i = 0; i < nbmod-1; i++){
     y =getParameterValue("relrate" + TextTools::toString(i+1));
-    Vrates_[i] = x*y/Vprobas_[i];
+    vRates_[i] = x*y/vProbas_[i];
     x *= 1 - y;      
   }
-  Vrates_[nbmod-1]=x/Vprobas_[nbmod-1];
+  vRates_[nbmod-1]=x/vProbas_[nbmod-1];
 
   /// models
 
-  const ParameterList pl=getParameters();
-  for ( i=0;i<pl.size();i++)
-    lParPmodel_.setParameterValue(pl[i].getName(),pl[i].getValue());
-    
-    for ( i = 0; i < nbmod; i++){
-    lParPmodel_.setParameterValue(modelsContainer_[i]->getParameter("rate").getName(),Vrates_[i]);
-    modelsContainer_[i]->setRate(Vrates_[i]);
-    modelsContainer_[i]->matchParametersValues(lParPmodel_);
+  for ( i = 0; i < nbmod; i++){
+    modelsContainer_[i]->setRate(vRates_[i]);
+    modelsContainer_[i]->matchParametersValues(getParameters());
   }
-  
+
   /// freq_
   
   for (i = 0; i < getNumberOfStates(); i++){
     freq_[i] = 0;
     for (j = 0; j < modelsContainer_.size(); j++)
-      freq_[i] += Vprobas_[i]*modelsContainer_[j]->freq(i);
+      freq_[i] += vProbas_[i]*modelsContainer_[j]->freq(i);
   }
-  
-}
-
-unsigned int MixtureOfSubstitutionModels::getNumberOfStates() const
-{
-  return modelsContainer_[0]->getNumberOfStates();
-}
-
-
-double MixtureOfSubstitutionModels::Pij_t(unsigned int i, unsigned int j, double t) const
-{
-  double x=0;
-  for (unsigned int n = 0; n < modelsContainer_.size(); n++)
-      x+= modelsContainer_[n]->Pij_t(i,j,t)*Vprobas_[n];
-
-  return x;
-}
-
-
-double MixtureOfSubstitutionModels::dPij_dt(unsigned int i, unsigned int j, double t) const
-{
-  double x=0;
-  for (unsigned int n = 0; n < modelsContainer_.size(); n++)
-    x+= modelsContainer_[n]->dPij_dt(i,j,t)*Vprobas_[n];
-
-  return x;
-}
-
-
-double MixtureOfSubstitutionModels::d2Pij_dt2(unsigned int i, unsigned int j, double t) const
-{
-  double x=0;
-  for (unsigned int n = 0; n < modelsContainer_.size(); n++)
-    x+= modelsContainer_[n]->d2Pij_dt2(i,j,t)*Vprobas_[n];
-
-  return x;
-}
-
-
-const Matrix<double>& MixtureOfSubstitutionModels::getPij_t(double t) const
-{
-  for (unsigned int i=0; i< getNumberOfStates(); i++)
-    for (unsigned int j=0; j< getNumberOfStates(); j++)
-      pijt_(i,j)=Pij_t(i,j,t);
-
-  return pijt_;
-}
-
-
-const Matrix<double>& MixtureOfSubstitutionModels::getdPij_dt(double t) const
-{
-  for (unsigned int i=0; i< getNumberOfStates(); i++)
-    for (unsigned int j=0; j< getNumberOfStates(); j++)
-      dpijt_(i,j)=dPij_dt(i,j,t);
-
-  return dpijt_;
-}
-
-
-const Matrix<double>& MixtureOfSubstitutionModels::getd2Pij_dt2(double t) const
-{
-  for (unsigned int i=0; i< getNumberOfStates(); i++)
-    for (unsigned int j=0; j< getNumberOfStates(); j++)
-      dpijt_(i,j)=d2Pij_dt2(i,j,t);
-
-  return d2pijt_;
-}
-
-
-const Vdouble& MixtureOfSubstitutionModels::getFrequencies()
-{
-  for (unsigned int i=0; i< getNumberOfStates(); i++)
-    freq_[i]=freq(i);
-  return freq_;
-}
-
-
-double MixtureOfSubstitutionModels::freq(unsigned int i) const
-{
-  double x=0;
-  for (unsigned int n = 0; n < modelsContainer_.size(); n++)
-    x+= modelsContainer_[n]->freq(i)*Vprobas_[n];
-
-  return x;
 }
 
 void MixtureOfSubstitutionModels::setFreq(std::map<int,double>& m)
@@ -359,3 +241,16 @@ void MixtureOfSubstitutionModels::setFreq(std::map<int,double>& m)
 
 
 
+void MixtureOfSubstitutionModels::setVRates(Vdouble& vd)
+{
+  AbstractMixedSubstitutionModel::setVRates(vd);
+
+  unsigned int i, nbmod = modelsContainer_.size();
+  double y=0;
+  
+   for (i = 0; i < nbmod - 1; i++)
+     {
+       setParameterValue("relrate" + TextTools::toString(i+1), vProbas_[i] * vRates_[i] / (1- y));
+       y+=vProbas_[i]*vRates_[i];
+     }
+}

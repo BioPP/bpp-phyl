@@ -59,15 +59,15 @@ Node::Node(const Node& node):
 {
   name_             = node.hasName() ? new string(* node.name_) : 0;
   distanceToFather_ = node.hasDistanceToFather() ? new double(* node.distanceToFather_) : 0;
-  for(map<string, Clonable *>::iterator i = node.nodeProperties_.begin(); i != node.nodeProperties_.end(); i++)
+  for (map<string, Clonable *>::iterator i = node.nodeProperties_.begin(); i != node.nodeProperties_.end(); i++)
     nodeProperties_[i->first] = i->second->clone();
-  for(map<string, Clonable *>::iterator i = node.branchProperties_.begin(); i != node.branchProperties_.end(); i++)
+  for (map<string, Clonable *>::iterator i = node.branchProperties_.begin(); i != node.branchProperties_.end(); i++)
     branchProperties_[i->first] = i->second->clone();
 }
 
 /** Assignation operator: *****************************************************/
 
-Node & Node::operator=(const Node & node)
+Node& Node::operator=(const Node & node)
 {
   id_               = node.id_;
   if(name_) delete name_;

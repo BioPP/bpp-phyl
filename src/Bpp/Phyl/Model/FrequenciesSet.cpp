@@ -630,9 +630,12 @@ void WordFromIndependentFrequenciesSet::setFrequencies(const vector<double>& fre
       freq[(k / d) % s] += frequencies[k];
     }
     vFreq_[i]->setFrequencies(freq);
-    matchParametersValues(vFreq_[i]->getParameters());
   }
+  
+  for (i = 0; i < l; i++)
+    matchParametersValues(vFreq_[i]->getParameters());
 
+  updateFrequencies();
 }
 
 
@@ -652,10 +655,10 @@ void WordFromIndependentFrequenciesSet::setNamespace(const std::string& prefix)
 
 std::string WordFromIndependentFrequenciesSet::getName() const
 {
-  string s = "Word From Independent Frequencies : ";
-  for (unsigned int i = 0; i < vFreq_.size(); i++)
+  string s = "Word From Independent Frequencies : " + vFreq_[0]->getName();
+  for (unsigned int i = 1; i < vFreq_.size(); i++)
   {
-    s += vFreq_[i]->getName();
+    s += " * " + vFreq_[i]->getName();
   }
   return s;
 }
@@ -780,9 +783,12 @@ void WordFromUniqueFrequenciesSet::setFrequencies(const vector<double>& frequenc
   {
     freq[j] /= length_;
   }
+
   pFreq_->setFrequencies(freq);
 
   matchParametersValues(pFreq_->getParameters());
+
+  updateFrequencies();
 }
 
 
@@ -806,25 +812,24 @@ string WordFromUniqueFrequenciesSet::getName() const
 
 /*********************************************************************/
 
-FrequenciesSet* FrequenciesSet::getFrequenciesSetForCodons(short option, const GeneticCode& gc)
+FrequenciesSet* FrequenciesSet::getFrequenciesSetForCodons(short option, const CodonAlphabet& CA)
 {
   FrequenciesSet* codonFreqs;
-  const CodonAlphabet* pCA = dynamic_cast<const CodonAlphabet*>(gc.getSourceAlphabet());
 
   if (option == F0)
-    codonFreqs = new FixedCodonFrequenciesSet(pCA);
+    codonFreqs = new FixedCodonFrequenciesSet(&CA);
   else if (option == F1X4)
-    codonFreqs = new WordFromUniqueFrequenciesSet(pCA, new FullNucleotideFrequenciesSet(pCA->getNucleicAlphabet()));
+    codonFreqs = new WordFromUniqueFrequenciesSet(&CA, new FullNucleotideFrequenciesSet(CA.getNucleicAlphabet()));
   else if (option == F3X4)
   {
     vector<FrequenciesSet*> v_AFS(3);
-    v_AFS[0] = new FullNucleotideFrequenciesSet(pCA->getNucleicAlphabet());
-    v_AFS[1] = new FullNucleotideFrequenciesSet(pCA->getNucleicAlphabet());
-    v_AFS[2] = new FullNucleotideFrequenciesSet(pCA->getNucleicAlphabet());
-    codonFreqs = new WordFromIndependentFrequenciesSet(pCA,v_AFS);
+    v_AFS[0] = new FullNucleotideFrequenciesSet(CA.getNucleicAlphabet());
+    v_AFS[1] = new FullNucleotideFrequenciesSet(CA.getNucleicAlphabet());
+    v_AFS[2] = new FullNucleotideFrequenciesSet(CA.getNucleicAlphabet());
+    codonFreqs = new WordFromIndependentFrequenciesSet(&CA,v_AFS);
   }
   else if (option == F61)
-    codonFreqs = new FullCodonFrequenciesSet(pCA);
+    codonFreqs = new FullCodonFrequenciesSet(&CA);
   else throw Exception("FrequenciesSet::getFrequencySetForCodons(). Unvalid codon frequency set argument.");
 
   return codonFreqs;

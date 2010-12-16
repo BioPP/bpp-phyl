@@ -5,7 +5,7 @@
 //
 
 /*
-Copyright or © or Copr. CNRS, (November 16, 2004, 2005, 2006)
+Copyright or © or Copr. Bio++ Development Team, (November 16, 2004, 2005, 2006)
 
 This software is a computer program whose purpose is to provide classes
 for phylogenetic data analysis.
@@ -60,7 +60,7 @@ namespace bpp
  * - Probabilistic mapping, storing the number of substitutions onto each branch.
  *
  * Since only probabilistic substitution mapping is implemented for now, the basal 
- * interfac only contains one method.
+ * interface only contains a few methods.
  * More methods are expected to be added later.
  */
 class SubstitutionMapping:
@@ -98,6 +98,11 @@ class SubstitutionMapping:
     virtual unsigned int getNumberOfBranches() const = 0;
     
     /**
+     * @return The number of distinct types of substitutions mapped.
+     */
+    virtual unsigned int getNumberOfSubstitutionTypes() const = 0;
+    
+    /**
      * @param index The site index.
      * @return The site position corresponding to the index.
      */
@@ -123,6 +128,8 @@ class SubstitutionMapping:
      */
     virtual void setSitePosition(unsigned int index, int position) = 0;
 
+    virtual double& operator()(unsigned int nodeIndex, unsigned int siteIndex, unsigned int type) = 0;
+    virtual const double& operator()(unsigned int nodeIndex, unsigned int siteIndex, unsigned int type) const = 0;
 };
 
 
@@ -209,10 +216,10 @@ class AbstractSubstitutionMapping:
       sitesPositions_[index] = position;
     }
 		
-    virtual unsigned int getNumberOfSites() const { return nbSites_; }
+    unsigned int getNumberOfSites() const { return nbSites_; }
 
-    virtual unsigned int getNumberOfBranches() const { return nbBranches_; }
-     
+    unsigned int getNumberOfBranches() const { return nbBranches_; }
+    
     virtual const Node* getNode(unsigned int nodeIndex) const { return nodes_[nodeIndex]; }
 
     virtual void setNumberOfSites(unsigned int numberOfSites)

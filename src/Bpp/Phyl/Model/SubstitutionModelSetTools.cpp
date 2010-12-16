@@ -82,16 +82,33 @@ SubstitutionModelSet* SubstitutionModelSetTools::createNonHomogeneousModelSet(
     throw AlphabetMismatchException("SubstitutionModelSetTools::createNonHomogeneousModelSet()", model->getAlphabet(), rootFreqs->getAlphabet());
   ParameterList globalParameters, branchParameters;
   globalParameters = model->getParameters();
+  vector<string> globalParameterPrefs; // vector of the prefixes (when there is a '*' in the declaration)
   //First check if parameter names are valid:
-  for (unsigned int i = 0; i < globalParameterNames.size(); i++)
+  unsigned int i,j;
+  
+  for ( i = 0; i < globalParameterNames.size(); i++)
   {
-    if (!globalParameters.hasParameter(globalParameterNames[i]))
-      throw Exception("SubstitutionModelSet::createNonHomogeneousModelSet. Parameter '" + globalParameterNames[i] + "' is not valid.");
+    if (globalParameterNames[i].find("*")!=string::npos){
+      j=globalParameterNames[i].find("*");
+      globalParameterPrefs.push_back(globalParameterNames[i].substr(0,j));
+    }
+    else if (!globalParameters.hasParameter(globalParameterNames[i]))
+      throw Exception("SubstitutionModelSetTools::createNonHomogeneousModelSet. Parameter '" + globalParameterNames[i] + "' is not valid.");
   }
-  for (unsigned int i = globalParameters.size(); i > 0; i--)
+  
+  for (i= globalParameters.size(); i > 0; i--)
   {
-    if (find(globalParameterNames.begin(), globalParameterNames.end(), globalParameters[i-1].getName()) == globalParameterNames.end())
-    {
+    string gN=globalParameters[i-1].getName();
+    bool flag=false;
+    for ( j=0; j< globalParameterPrefs.size();j++)
+      if (gN.find(globalParameterPrefs[j])==0){
+        flag=true;
+        break;
+      }
+    if (!flag)
+      flag=(find(globalParameterNames.begin(), globalParameterNames.end(), globalParameters[i-1].getName()) != globalParameterNames.end());
+
+    if (!flag){
       //not a global parameter:
       branchParameters.addParameter(globalParameters[i - 1]);
       globalParameters.deleteParameter(i - 1);
@@ -104,7 +121,7 @@ SubstitutionModelSet* SubstitutionModelSetTools::createNonHomogeneousModelSet(
   vector<int> ids = tree->getNodesId();
   int rootId = tree->getRootId();
   unsigned int pos = 0;
-  for (unsigned int i = 0; i < ids.size(); i++)
+  for (i= 0; i < ids.size(); i++)
   {
     if (ids[i] == rootId)
     {
@@ -113,7 +130,7 @@ SubstitutionModelSet* SubstitutionModelSetTools::createNonHomogeneousModelSet(
     }
   }
   ids.erase(ids.begin() + pos);
-  for (unsigned int i = 0; i < ids.size(); i++)
+  for (i= 0; i < ids.size(); i++)
   {
     modelSet->addModel(dynamic_cast<SubstitutionModel*>(model->clone()), vector<int>(1, ids[i]), branchParameters.getParameterNames());
   }

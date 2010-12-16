@@ -1,8 +1,7 @@
 //
 // File: RNonHomogeneousMixedLikelihood.h
 // Created by: Laurent Gueguen
-// Created on: 12 2009
-// From file: RHomogeneousMixedTreeLikelihood.h
+// Created on: jeudi 11 novembre 2010, à 07h 56
 //
 
 /*
@@ -55,17 +54,132 @@ namespace bpp
  *RNonHomogeneousTreeLikelihood defined from a Mixed Substitution
  *Model.
  *
- * In all the calculs, the average of the likelihoods, probabilities
- * are computed.
+ * This class is made recursively. At each node, we test if an
+ * expansion of a mixed model is necessary. This is the case when this
+ * model points towards different subtrees under this node, or towards
+ * a son of this node and a branch under it. If an expansion is
+ * necessary, a vector of RNonHomogeneousMixedLikelihood* is built
+ * with all the submodels combinations.
+ *
+ * Note that this approach is not the most efficient, since a graph
+ * based one would avoid some computations, but it seems much more
+ * difficult to do it in the extant hierarchy.
  **/
 
 class RNonHomogeneousMixedTreeLikelihood :
   public RNonHomogeneousTreeLikelihood
 {
 private:
-  vector<RNonHomogeneousTreeLikelihood*> treeLikelihoodsContainer_;
-  std::vector<double> probas_;
 
+  /**
+   * @brief the map of the branch numbers to the vectors of the
+   * TreeLikelihoods for the expanded model on this branch.
+   *
+   */
+  map<int, vector<RNonHomogeneousMixedTreeLikelihood*> > mvTreeLikelihoods_;
+
+
+  /**
+   * @brief the map of the branch numbers to the vector of the probabilities of the
+   * TreeLikelihoods for the expanded model on this branch.
+   *
+   */
+  
+  map<int, vector<double> > mvProbas_;
+
+  /**
+   * @brief the vector of the number of the submodels that are taken
+   * into account in each mixed model. If the model is not mixed, the
+   * associated value is 0. If the model is not expanded at that
+   * point, the associated value is -1.
+   *
+   */
+  
+  vector<int>   vNumModels_;
+
+  /**
+   * @brief the number of the number of the node under which tree the
+   * Treelikelihood is computed.
+   *
+   */
+  
+  int  upperNode_;
+
+  /**
+   * @brief Build a new RNonHomogeneousMixeTreeLikelihood object
+   * without data.
+   *
+   * This constructor only initialize the parameters. To compute a
+   * likelihood, you will need to call the setData() and the
+   * computeTreeLikelihood() methods.
+   *
+   * @param tree The tree to use.
+   * @param modelSet The set of substitution models to use.
+   * @param vsubmod the vector of the numbers of the sub models used in
+   *  the mixed models.
+   * @param upperNode the number of the node under which the treelikelihood
+   *  is computed.
+   * @param rDist The rate across sites distribution to use.
+   *  If true, any rooted tree will be unrooted before likelihood computation.
+   * @param verbose Should I display some info?
+   * @param usePatterns Tell if recursive site compression should be performed.
+   * @throw Exception in an error occured.
+   */
+
+  RNonHomogeneousMixedTreeLikelihood(const Tree& tree,
+                                     SubstitutionModelSet* modelSet,
+                                     std::vector<int> &vsubmod,
+                                     int upperNode,
+                                     DiscreteDistribution* rDist,
+                                     bool verbose,
+                                     bool usePatterns);
+
+  /**
+   * @brief Build a new RNonHomogeneousMixeTreeLikelihood object
+   * with data.
+   *
+   * This constructor only initialize the parameters. To compute a
+   * likelihood, you will need to call the setData() and the
+   * computeTreeLikelihood() methods.
+   *
+   * @param tree The tree to use.
+   * @param data Sequences to use.
+   * @param modelSet The set of substitution models to use.
+   * @param vsubmod the vector of the numbers of the sub models used in
+   *  the mixed models.
+   * @param upperNode the number of the node under which the treelikelihood
+   *  is computed.
+   * @param rDist The rate across sites distribution to use.
+   *  If true, any rooted tree will be unrooted before likelihood computation.
+   * @param verbose Should I display some info?
+   * @param usePatterns Tell if recursive site compression should be performed.
+   * @throw Exception in an error occured.
+   */
+
+  RNonHomogeneousMixedTreeLikelihood(const Tree& tree,
+                                     const SiteContainer& data,
+                                     SubstitutionModelSet* modelSet,
+                                     std::vector<int> &vsubmod,
+                                     int upperNode,
+                                     DiscreteDistribution* rDist,
+                                     bool verbose,
+                                     bool usePatterns);
+
+
+  /**
+   * brief method where the recursive structure is built.
+   *
+   */
+  
+  void init(const Tree& tree,
+            const SiteContainer* pdata,
+            SubstitutionModelSet* modelSet,
+            std::vector<int> &vsubmod,
+            DiscreteDistribution* rDist,
+            bool verbose,
+            bool usePatterns);
+
+  
 public:
   /**
    * @brief Build a new RNonHomogeneousMixeTreeLikelihood object
@@ -106,14 +220,13 @@ public:
    * @param usePatterns Tell if recursive site compression should be performed.
    * @throw Exception in an error occured.
    */
-  RNonHomogeneousMixedTreeLikelihood(
-    const Tree& tree,
-    const SiteContainer& data,
-    SubstitutionModelSet* modelSet,
-    DiscreteDistribution* rDist,
-    bool verbose = true,
-    bool usePatterns = true)
-  throw (Exception);
+  RNonHomogeneousMixedTreeLikelihood(const Tree& tree,
+                                     const SiteContainer& data,
+                                     SubstitutionModelSet* modelSet,
+                                     DiscreteDistribution* rDist,
+                                     bool verbose = true,
+                                     bool usePatterns = true)
+    throw (Exception);
 
   RNonHomogeneousMixedTreeLikelihood(const RNonHomogeneousMixedTreeLikelihood& lik);
 
@@ -132,56 +245,12 @@ public:
    * @{
    */
   void setData(const SiteContainer& sites) throw (Exception);
-  double getLikelihood() const;
-  double getLogLikelihood() const;
-  double getLikelihoodForASite(unsigned int site) const;
-  double getLogLikelihoodForASite(unsigned int site) const;
-  /** @} */
-
-
-  /**
-   * @name The DiscreteRatesAcrossSites interface implementation:
-   *
-   * @{
-   */
-  double getLikelihoodForASiteForARateClass(unsigned int site, unsigned int rateClass) const;
-  double getLogLikelihoodForASiteForARateClass(unsigned int site, unsigned int rateClass) const;
-  double getLikelihoodForASiteForARateClassForAState(unsigned int site, unsigned int rateClass, int state) const;
-  double getLogLikelihoodForASiteForARateClassForAState(unsigned int site, unsigned int rateClass, int state) const;
-  /** @} */
-
-  /**
-   * @name DerivableFirstOrder interface.
-   *
-   * @{
-   */
-  double getFirstOrderDerivative(const string& variable) const throw (Exception);
-  /** @} */
-
-  /**
-   * @name DerivableSecondOrder interface.
-   *
-   * @{
-   */
-  double getSecondOrderDerivative(const string& variable) const throw (Exception);
-  double getSecondOrderDerivative(const string& variable1, const string& variable2) const throw (Exception) { return 0; } // Not implemented for now.
-  /** @} */
 
 public:
   // Specific methods:
   void initialize() throw (Exception);
 
-  void computeTreeLikelihood();
-
-  virtual double getDLikelihoodForASiteForARateClass(unsigned int site, unsigned int rateClass) const;
-
-  virtual double getDLikelihoodForASite(unsigned int site) const;
-
   virtual void computeTreeDLikelihood(const string& variable);
-
-  virtual double getD2LikelihoodForASiteForARateClass(unsigned int site, unsigned int rateClass) const;
-
-  virtual double getD2LikelihoodForASite(unsigned int site) const;
 
   virtual void computeTreeD2Likelihood(const string& variable);
 
@@ -199,14 +268,10 @@ protected:
 
   void fireParameterChanged(const ParameterList& params);
 
-  /**
-   * @brief This method is mainly for debugging purpose.
-   *
-   * @param node The node at which likelihood values must be displayed.
-   */
-  virtual void displayLikelihood(const Node* node);
+  void computeTransitionProbabilitiesForNode(const Node* node);
+
 };
 } // end of namespace bpp.
 
-#endif  // _RNONHOMOGENEOUSTREELIKELIHOOD_H_
+#endif  // _RNONHOMOGENEOUSMIXEDTREELIKELIHOOD_H_
 

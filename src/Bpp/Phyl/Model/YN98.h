@@ -148,6 +148,10 @@ public:
 
   const FrequenciesSet& getFreq() const { return pmodel_.getFreq(); }
 
+  double getRate() const { return pmodel_.getRate();}
+  
+  void setRate(double rate) { pmodel_.setRate(rate);}
+
 protected:
   void updateMatrices();
 

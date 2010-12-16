@@ -5,7 +5,7 @@
 //
 
 /*
-Copyright or © or Copr. CNRS, (November 16, 2004, 2005, 2006)
+Copyright or © or Copr. Bio++ Development Team, (November 16, 2004, 2005, 2006)
 
 This software is a computer program whose purpose is to provide classes
 for phylogenetic data analysis.
@@ -41,30 +41,29 @@ knowledge of the CeCILL license and that you accept its terms.
 
 using namespace bpp;
 
-Matrix<double>* SimpleSubstitutionCount::getAllNumbersOfSubstitutions(double length) const
+Matrix<double>* SimpleSubstitutionCount::getAllNumbersOfSubstitutions(double length, unsigned int type) const
 { 
-  unsigned int n = alphabet_->getSize();
+  unsigned int n = register_->getAlphabet()->getSize();
   RowMatrix<double>* mat = new RowMatrix<double>(n, n);
-  for (unsigned int i = 0; i < n; i++)
+  for (unsigned int i = 0; i < n; ++i)
   {
-    (*mat)(i,i) = 0.;
-    for (unsigned int j = 0; j < i; j++)
+    for (unsigned int j = 0; j < n; ++j)
     {
-      (*mat)(i,j) = (*mat)(j,i) = 1.;
+      (*mat)(i, j) = (register_->getType(i, j) == type ? 1. : 0.);
     }
   }
   return mat;
 }
 
 LabelSubstitutionCount::LabelSubstitutionCount(const Alphabet* alphabet) :
-  alphabet_(alphabet), label_(alphabet->getSize(), alphabet->getSize())
+  AbstractSubstitutionCount(new TotalSubstitutionRegister(alphabet)), label_(alphabet->getSize(), alphabet->getSize())
 {
   unsigned int count = 0;
-  for (unsigned int i = 0; i < alphabet_->getSize(); ++i) {
-    for (unsigned int j = 0; j < alphabet_->getSize(); ++j) {
+  for (unsigned int i = 0; i < alphabet->getSize(); ++i) {
+    for (unsigned int j = 0; j < alphabet->getSize(); ++j) {
       if (i == j) label_(i, j) = 0;
       else label_(i, j) = ++count;
     }
   }
-}				
-	
+}			
+

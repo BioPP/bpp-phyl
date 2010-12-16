@@ -5,7 +5,7 @@
 //
 
 /*
-Copyright or © or Copr. CNRS, (November 16, 2004, 2005, 2006)
+Copyright or © or Copr. Bio++ Development Team, (November 16, 2004, 2005, 2006)
 
 This software is a computer program whose purpose is to provide classes
 for phylogenetic data analysis.
@@ -58,34 +58,44 @@ namespace bpp
  * Tufféry P, Darlu P.
  * Exploring a phylogenetic approach for the detection of correlated substitutions in proteins.
  * Mol Biol Evol. 2000 Nov;17(11):1753-9
+ *
+ * @author Julien Dutheil
  */
 class SimpleSubstitutionCount:
-  public virtual SubstitutionCount
+  public AbstractSubstitutionCount
 {
-  private:
-    const Alphabet* alphabet_;
-    
 	public:
-		SimpleSubstitutionCount(const Alphabet* alphabet) : alphabet_(alphabet) {}				
+		SimpleSubstitutionCount(SubstitutionRegister* reg) :
+      AbstractSubstitutionCount(reg) {}				
 		
-    SimpleSubstitutionCount(const SimpleSubstitutionCount& ssc) : alphabet_(ssc.alphabet_) {}				
+    SimpleSubstitutionCount(const SimpleSubstitutionCount& ssc) :
+      AbstractSubstitutionCount(ssc) {}				
     
     SimpleSubstitutionCount& operator=(const SimpleSubstitutionCount& ssc)
     {
-      alphabet_ = ssc.alphabet_;
+      AbstractSubstitutionCount::operator=(ssc);
       return *this;
     }				
 		
     virtual ~SimpleSubstitutionCount() {}
 			
 	public:
-		double getNumberOfSubstitutions(unsigned int initialState, unsigned int finalState, double length) const
+		double getNumberOfSubstitutions(unsigned int initialState, unsigned int finalState, double length, unsigned int type = 1) const
     {
-			return initialState == finalState ? 0. : 1.;
+      return (register_->getType(initialState, finalState) == type ? 1. : 0.);
 		}
 
-    virtual Matrix<double>* getAllNumbersOfSubstitutions(double length) const;
-
+    Matrix<double>* getAllNumbersOfSubstitutions(double length, unsigned int type = 1) const;
+    
+    std::vector<double> getNumberOfSubstitutionsForEachType(unsigned int initialState, unsigned int finalState, double length) const
+    {
+      std::vector<double> v(getNumberOfSubstitutionTypes());
+      for (unsigned int t = 1; t <= getNumberOfSubstitutionTypes(); ++t) {
+        v[t - 1] = (register_->getType(initialState, finalState) == t ? 1. : 0.);
+      }
+      return v;
+    }
+    
     void setSubstitutionModel(const SubstitutionModel* model) {}
 
 };
@@ -96,39 +106,34 @@ class SimpleSubstitutionCount:
  * This substitution count return a distinct number for each possible mutation.
  * - 0 if @f$i = j@f$,
  * - @f$a(i,j)@f$ if @f$i \neq j @f$, where 'a' is an index giving a unique value for each combination of i and j.
- *
  */
 class LabelSubstitutionCount:
-  public virtual SubstitutionCount
+  public AbstractSubstitutionCount
 {
   private:
-    const Alphabet* alphabet_;
     LinearMatrix<double> label_;
     
 	public:
 		LabelSubstitutionCount(const Alphabet* alphabet);
 
-    LabelSubstitutionCount(const LabelSubstitutionCount& ssc) :
-      alphabet_(ssc.alphabet_), label_(ssc.label_) {}				
-    
-    LabelSubstitutionCount& operator=(const LabelSubstitutionCount& ssc)
-    {
-      alphabet_ = ssc.alphabet_;
-      label_    = ssc.label_;
-      return *this;
-    }				
-		
     virtual ~LabelSubstitutionCount() {}
 			
 	public:
-		double getNumberOfSubstitutions(unsigned int initialState, unsigned int finalState, double length) const
+		double getNumberOfSubstitutions(unsigned int initialState, unsigned int finalState, double length, unsigned int type = 1) const
     {
 			return label_(initialState, finalState);
 		}
 
-    virtual Matrix<double>* getAllNumbersOfSubstitutions(double length) const
+    Matrix<double>* getAllNumbersOfSubstitutions(double length, unsigned int type = 1) const
     {
       return dynamic_cast<Matrix<double>*>(label_.clone());
+    }
+    
+    std::vector<double> getNumberOfSubstitutionsForEachType(unsigned int initialState, unsigned int finalState, double length) const
+    {
+      std::vector<double> v(1);
+      v[0] = label_(initialState, finalState);
+      return v;
     }
 
     void setSubstitutionModel(const SubstitutionModel* model) {}

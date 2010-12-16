@@ -118,10 +118,10 @@ namespace bpp
   public:
     std::string getName() const 
     { 
-      if (freqSet_->getNamespace() == "WAG01")
-        return "WAG01"; 
-      else 
+      if (freqSet_->getNamespace() == "WAG01+F.")
         return "WAG01+F"; 
+      else 
+        return "WAG01"; 
     }
 
     void fireParameterChanged(const ParameterList& parameters)

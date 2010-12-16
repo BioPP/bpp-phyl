@@ -7,7 +7,7 @@
 //
 
 /*
-Copyright or © or Copr. CNRS, (November 16, 2004)
+Copyright or © or Copr. Bio++ Development Team, (November 16, 2004)
 
 This software is a computer program whose purpose is to provide classes
 for phylogenetic data analysis.
@@ -80,6 +80,7 @@ class SiteSimulationResult
       alphabet_       (alphabet)
     {
       indexes_[tree->getRootId()] = 0;
+      //Warning, watch out the indices there!
       ancestralStates_.push_back(ancestralState);
     }
 
@@ -115,26 +116,40 @@ class SiteSimulationResult
     
     virtual void addNode(int nodeId, MutationPath path)
     {
-      currentIndex_++;
       indexes_[nodeId] = currentIndex_;
+      currentIndex_++;
       paths_.push_back(path);
       ancestralStates_.push_back(path.getFinalState());
     }
 
     virtual int getAncestralState(unsigned int i)    const { return ancestralStates_[i]; }
 
-    virtual int getAncestralState(int nodeId) const { return ancestralStates_[indexes_[nodeId]]; }
+    virtual int getAncestralState(int nodeId) const { return ancestralStates_[1 + indexes_[nodeId]]; }
+
+    virtual const MutationPath& getMutationPath(unsigned int i) const { return paths_[i]; }
+
+    virtual const MutationPath& getMutationPath(int nodeId) const { return paths_[indexes_[nodeId]]; }
 
     virtual unsigned int getSubstitutionCount(unsigned int i) const { return paths_[i].getNumberOfEvents(); }
     
+    virtual void getSubstitutionCount(unsigned int i, const SubstitutionRegister& reg, std::vector<double>& counts) const {
+      paths_[i].getEventCounts(counts, reg);
+    }
+    
     virtual unsigned int getSubstitutionCount(int nodeId) const { return paths_[indexes_[nodeId]].getNumberOfEvents(); }
     
-    virtual std::vector<double> getSubstitutionVector() const
+    virtual void getSubstitutionCount(int nodeId, const SubstitutionRegister& reg, std::vector<double>& counts) const {
+      paths_[indexes_[nodeId]].getEventCounts(counts, reg);
+    }
+    
+    virtual VVdouble getSubstitutionVector(const SubstitutionRegister& reg) const
     {
       unsigned int n = paths_.size();
-      std::vector<double> counts(n);
-      for (unsigned int i = 0; i < n; i++)
-        counts[i] = (double)paths_[i].getNumberOfEvents();
+      VVdouble counts(n);
+      for (unsigned int i = 0; i < n; ++i) {
+        counts[i].resize(reg.getNumberOfSubstitutionTypes());
+        paths_[i].getEventCounts(counts[i], reg);
+      }
       return counts;
     }
 
@@ -147,7 +162,7 @@ class SiteSimulationResult
       std::vector<int> states(n);
       for (unsigned int i = 0; i < n; i++)
       {
-        states[i] = ancestralStates_[indexes_[leavesId_[i]]];
+        states[i] = ancestralStates_[1 + indexes_[leavesId_[i]]];
       }
       return states;
     }

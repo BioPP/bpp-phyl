@@ -7,6 +7,7 @@ for root, dirs, files in os.walk('src/Bpp'):
     print "Creating generic include file " + str(root) + ".all"
     f = open(str(root) + ".all", 'w')
     head, tail = split(root)
+    files.sort()
     for file in files:
         base, ext = splitext(file)
         if (ext == ".h"):

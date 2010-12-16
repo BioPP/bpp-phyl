@@ -12,6 +12,7 @@ set(CPP_FILES
   Bpp/Phyl/Distance/DistanceEstimation.cpp
   Bpp/Phyl/Distance/NeighborJoining.cpp
   Bpp/Phyl/Distance/PGMA.cpp
+  Bpp/Phyl/Distance/HierarchicalClustering.cpp
   Bpp/Phyl/Graphics/AbstractDendrogramPlot.cpp
   Bpp/Phyl/Graphics/AbstractTreeDrawing.cpp
   Bpp/Phyl/Graphics/CladogramPlot.cpp
@@ -22,7 +23,7 @@ set(CPP_FILES
   Bpp/Phyl/Io/IoTreeFactory.cpp
   Bpp/Phyl/Io/Newick.cpp
   Bpp/Phyl/Io/NexusIoTree.cpp
-  Bpp/Phyl/Io/NHX.cpp
+  Bpp/Phyl/Io/Nhx.cpp
   Bpp/Phyl/Io/PhylipDistanceMatrixFormat.cpp
   Bpp/Phyl/Likelihood/AbstractDiscreteRatesAcrossSitesTreeLikelihood.cpp
   Bpp/Phyl/Likelihood/AbstractHomogeneousTreeLikelihood.cpp
@@ -32,7 +33,6 @@ set(CPP_FILES
   Bpp/Phyl/Likelihood/DRASRTreeLikelihoodData.cpp
   Bpp/Phyl/Likelihood/DRHomogeneousMixedTreeLikelihood.cpp
   Bpp/Phyl/Likelihood/DRHomogeneousTreeLikelihood.cpp
-  Bpp/Phyl/Likelihood/DRNonHomogeneousMixedTreeLikelihood.cpp
   Bpp/Phyl/Likelihood/DRNonHomogeneousTreeLikelihood.cpp
   Bpp/Phyl/Likelihood/DRTreeLikelihoodTools.cpp
   Bpp/Phyl/Likelihood/MarginalAncestralStateReconstruction.cpp
@@ -49,6 +49,7 @@ set(CPP_FILES
   Bpp/Phyl/Mapping/OneJumpSubstitutionCount.cpp
   Bpp/Phyl/Mapping/ProbabilisticSubstitutionMapping.cpp
   Bpp/Phyl/Mapping/SimpleSubstitutionCount.cpp
+  Bpp/Phyl/Mapping/IndexToCount.cpp
   Bpp/Phyl/Mapping/SubstitutionMappingTools.cpp
   Bpp/Phyl/Model/AbstractCodonFrequenciesReversibleSubstitutionModel.cpp
   Bpp/Phyl/Model/AbstractCodonReversibleSubstitutionModel.cpp
@@ -81,6 +82,7 @@ set(CPP_FILES
   Bpp/Phyl/Model/MarkovModulatedSubstitutionModel.cpp
   Bpp/Phyl/Model/MG94.cpp
   Bpp/Phyl/Model/MixedSubstitutionModel.cpp
+  Bpp/Phyl/Model/AbstractMixedSubstitutionModel.cpp
   Bpp/Phyl/Model/MixtureOfASubstitutionModel.cpp
   Bpp/Phyl/Model/MixtureOfSubstitutionModels.cpp
   Bpp/Phyl/Model/RateDistributionFactory.cpp
@@ -127,6 +129,7 @@ set(H_FILES
   Bpp/Phyl/Distance/DistanceEstimation.h
   Bpp/Phyl/Distance/NeighborJoining.h
   Bpp/Phyl/Distance/PGMA.h
+  Bpp/Phyl/Distance/HierarchicalClustering.h
   Bpp/Phyl/Graphics/AbstractDendrogramPlot.h
   Bpp/Phyl/Graphics/AbstractTreeDrawing.h
   Bpp/Phyl/Graphics/CladogramPlot.h
@@ -139,7 +142,7 @@ set(H_FILES
   Bpp/Phyl/Io/IoTreeFactory.h
   Bpp/Phyl/Io/IoTree.h
   Bpp/Phyl/Io/Newick.h
-  Bpp/Phyl/Io/NHX.h
+  Bpp/Phyl/Io/Nhx.h
   Bpp/Phyl/Io/NexusIoTree.h
   Bpp/Phyl/Io/PhylipDistanceMatrixFormat.h
   Bpp/Phyl/Likelihood/AbstractDiscreteRatesAcrossSitesTreeLikelihood.h
@@ -153,7 +156,6 @@ set(H_FILES
   Bpp/Phyl/Likelihood/DRASRTreeLikelihoodData.h
   Bpp/Phyl/Likelihood/DRHomogeneousMixedTreeLikelihood.h
   Bpp/Phyl/Likelihood/DRHomogeneousTreeLikelihood.h
-  Bpp/Phyl/Likelihood/DRNonHomogeneousMixedTreeLikelihood.h
   Bpp/Phyl/Likelihood/DRNonHomogeneousTreeLikelihood.h
   Bpp/Phyl/Likelihood/DRTreeLikelihood.h
   Bpp/Phyl/Likelihood/DRTreeLikelihoodTools.h
@@ -177,6 +179,7 @@ set(H_FILES
   Bpp/Phyl/Mapping/OneJumpSubstitutionCount.h
   Bpp/Phyl/Mapping/ProbabilisticSubstitutionMapping.h
   Bpp/Phyl/Mapping/SimpleSubstitutionCount.h
+  Bpp/Phyl/Mapping/SubstitutionRegister.h
   Bpp/Phyl/Mapping/SubstitutionCount.h
   Bpp/Phyl/Mapping/SubstitutionMapping.h
   Bpp/Phyl/Mapping/SubstitutionMappingTools.h
@@ -212,6 +215,7 @@ set(H_FILES
   Bpp/Phyl/Model/MarkovModulatedSubstitutionModel.h
   Bpp/Phyl/Model/MG94.h
   Bpp/Phyl/Model/MixedSubstitutionModel.h
+  Bpp/Phyl/Model/AbstractMixedSubstitutionModel.h
   Bpp/Phyl/Model/MixtureOfASubstitutionModel.h
   Bpp/Phyl/Model/MixtureOfSubstitutionModels.h
   Bpp/Phyl/Model/NucleotideSubstitutionModel.h

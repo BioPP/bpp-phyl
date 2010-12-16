@@ -5,7 +5,7 @@
 //
 
 /*
-Copyright or © or Copr. CNRS, (November 16, 2004, 2005, 2006)
+Copyright or © or Copr. Bio++ Development Team, (November 16, 2004, 2005, 2006)
 
 This software is a computer program whose purpose is to provide classes
 for phylogenetic data analysis.
@@ -44,15 +44,23 @@ using namespace bpp;
 void ProbabilisticSubstitutionMapping::setTree(const Tree& tree)
 {
   AbstractSubstitutionMapping::setTree(tree);
-  for (unsigned int i = 0; i < getNumberOfSites(); i++)
+  for (unsigned int i = 0; i < getNumberOfSites(); i++) {
     mapping_[i].resize(getNumberOfBranches());
+    for (unsigned int j = 0; j < getNumberOfBranches(); j++) {
+      mapping_[i][j].resize(1);
+    }
+  }
 }
 
 void ProbabilisticSubstitutionMapping::setNumberOfSites(unsigned int numberOfSites)
 {
   AbstractSubstitutionMapping::setNumberOfSites(numberOfSites);
   mapping_.resize(numberOfSites);
-  for (unsigned int i = 0; i < numberOfSites; i++)
+  for (unsigned int i = 0; i < numberOfSites; i++) {
     mapping_[i].resize(getNumberOfBranches());
+    for (unsigned int j = 0; j < getNumberOfBranches(); j++) {
+      mapping_[i][j].resize(getNumberOfSubstitutionTypes());
+    }
+  }
 }
  
