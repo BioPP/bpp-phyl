@@ -5,36 +5,36 @@
 //
 
 /*
-Copyright or © or Copr. CNRS, (November 16, 2004)
+  Copyright or © or Copr. CNRS, (November 16, 2004)
 
-This software is a computer program whose purpose is to provide classes
-for phylogenetic data analysis.
+  This software is a computer program whose purpose is to provide classes
+  for phylogenetic data analysis.
 
-This software is governed by the CeCILL  license under French law and
-abiding by the rules of distribution of free software.  You can  use, 
-modify and/ or redistribute the software under the terms of the CeCILL
-license as circulated by CEA, CNRS and INRIA at the following URL
-"http://www.cecill.info". 
+  This software is governed by the CeCILL  license under French law and
+  abiding by the rules of distribution of free software.  You can  use, 
+  modify and/ or redistribute the software under the terms of the CeCILL
+  license as circulated by CEA, CNRS and INRIA at the following URL
+  "http://www.cecill.info". 
 
-As a counterpart to the access to the source code and  rights to copy,
-modify and redistribute granted by the license, users are provided only
-with a limited warranty  and the software's author,  the holder of the
-economic rights,  and the successive licensors  have only  limited
-liability. 
+  As a counterpart to the access to the source code and  rights to copy,
+  modify and redistribute granted by the license, users are provided only
+  with a limited warranty  and the software's author,  the holder of the
+  economic rights,  and the successive licensors  have only  limited
+  liability. 
 
-In this respect, the user's attention is drawn to the risks associated
-with loading,  using,  modifying and/or developing or reproducing the
-software by the user in light of its specific status of free software,
-that may mean  that it is complicated to manipulate,  and  that  also
-therefore means  that it is reserved for developers  and  experienced
-professionals having in-depth computer knowledge. Users are therefore
-encouraged to load and test the software's suitability as regards their
-requirements in conditions enabling the security of their systems and/or 
-data to be ensured and,  more generally, to use and operate it in the 
-same conditions as regards security. 
+  In this respect, the user's attention is drawn to the risks associated
+  with loading,  using,  modifying and/or developing or reproducing the
+  software by the user in light of its specific status of free software,
+  that may mean  that it is complicated to manipulate,  and  that  also
+  therefore means  that it is reserved for developers  and  experienced
+  professionals having in-depth computer knowledge. Users are therefore
+  encouraged to load and test the software's suitability as regards their
+  requirements in conditions enabling the security of their systems and/or 
+  data to be ensured and,  more generally, to use and operate it in the 
+  same conditions as regards security. 
 
-The fact that you are presently reading this means that you have had
-knowledge of the CeCILL license and that you accept its terms.
+  The fact that you are presently reading this means that you have had
+  knowledge of the CeCILL license and that you accept its terms.
 */
 
 #ifndef _OPTIMIZATIONTOOLS_H_
@@ -57,11 +57,11 @@ namespace bpp
 {
  
   
-/**
- * @brief Debugging wrapper: output data to a log file if a 0 likelihood is obtained during optimization.
- */
-class NaNWatcher: public DerivableSecondOrderWrapper
-{
+  /**
+   * @brief Debugging wrapper: output data to a log file if a 0 likelihood is obtained during optimization.
+   */
+  class NaNWatcher: public DerivableSecondOrderWrapper
+  {
 
   public:
     NaNWatcher(TreeLikelihood* tl) :
@@ -76,16 +76,16 @@ class NaNWatcher: public DerivableSecondOrderWrapper
      */
     double getValue() const throw (Exception);
 
-};
+  };
 
 
 
-/**
- * @brief Listener used internally by the optimizeTreeNNI method.
- */
-class NNITopologyListener:
-  public virtual TopologyListener
-{
+  /**
+   * @brief Listener used internally by the optimizeTreeNNI method.
+   */
+  class NNITopologyListener:
+    public virtual TopologyListener
+  {
   private:
     NNITopologySearch* topoSearch_;
     ParameterList parameters_;
@@ -118,15 +118,15 @@ class NNITopologyListener:
      *                          This can improve optimization, but is a bit slower.
      */
     NNITopologyListener(
-        NNITopologySearch* ts,
-        const ParameterList& parameters,
-        double tolerance,
-        OutputStream* messenger,
-        OutputStream* profiler,
-        unsigned int verbose,
-        const std::string& optMethod,
-        unsigned int nStep,
-        bool reparametrization) :
+                        NNITopologySearch* ts,
+                        const ParameterList& parameters,
+                        double tolerance,
+                        OutputStream* messenger,
+                        OutputStream* profiler,
+                        unsigned int verbose,
+                        const std::string& optMethod,
+                        unsigned int nStep,
+                        bool reparametrization) :
       topoSearch_(ts), parameters_(parameters), tolerance_(tolerance),
       messenger_(messenger), profiler_(profiler),
       verbose_(verbose),
@@ -172,14 +172,14 @@ class NNITopologyListener:
     void topologyChangeSuccessful(const TopologyChangeEvent& event);
     void setNumericalOptimizationCounter(unsigned int c) { optimizeNumerical_ = c; }
 
-};
+  };
 
-/**
- * @brief Listener used internally by the optimizeTreeNNI2 method.
- */
-class NNITopologyListener2:
-  public TopologyListener
-{
+  /**
+   * @brief Listener used internally by the optimizeTreeNNI2 method.
+   */
+  class NNITopologyListener2:
+    public TopologyListener
+  {
   private:
     NNITopologySearch* topoSearch_;
     ParameterList parameters_;
@@ -210,14 +210,14 @@ class NNITopologyListener2:
      *                          This can improve optimization, but is a bit slower.
      */
     NNITopologyListener2(
-        NNITopologySearch* ts,
-        const ParameterList& parameters,
-        double tolerance,
-        OutputStream* messenger,
-        OutputStream* profiler,
-        unsigned int verbose,
-        const std::string& optMethod,
-        bool reparametrization) :
+                         NNITopologySearch* ts,
+                         const ParameterList& parameters,
+                         double tolerance,
+                         OutputStream* messenger,
+                         OutputStream* profiler,
+                         unsigned int verbose,
+                         const std::string& optMethod,
+                         bool reparametrization) :
       topoSearch_(ts), parameters_(parameters), tolerance_(tolerance),
       messenger_(messenger), profiler_(profiler),
       verbose_(verbose),
@@ -261,7 +261,7 @@ class NNITopologyListener2:
     void topologyChangeSuccessful(const TopologyChangeEvent& event);
     void setNumericalOptimizationCounter(unsigned int c) { optimizeNumerical_ = c; }
 
-};
+  };
 
 
 
@@ -269,282 +269,286 @@ class NNITopologyListener2:
 
 
 
-/**
- * @brief Optimization methods for phylogenetic inference.
- *
- * This class provides optimization methods for phylogenetics.
- * Parameters of the optimization methods are set to work with TreeLikelihood
- * object. Some non trivial parameters are left to the user choice (tolerance, maximum
- * number of function evaluation, output streams).
- */
-class OptimizationTools
-{
-	public:
-		OptimizationTools();
-		virtual ~OptimizationTools();
+  /**
+   * @brief Optimization methods for phylogenetic inference.
+   *
+   * This class provides optimization methods for phylogenetics.
+   * Parameters of the optimization methods are set to work with TreeLikelihood
+   * object. Some non trivial parameters are left to the user choice (tolerance, maximum
+   * number of function evaluation, output streams).
+   */
+  class OptimizationTools
+  {
+  public:
+    OptimizationTools();
+    virtual ~OptimizationTools();
 	
-	public:
+  public:
 
     static std::string OPTIMIZATION_GRADIENT;
     static std::string OPTIMIZATION_NEWTON;
+    static std::string OPTIMIZATION_BRENT;
+    static std::string OPTIMIZATION_BFGS;
 		
-		/**
-		 * @brief Optimize numerical parameters (branch length, substitution model & rate distribution) of a TreeLikelihood function.
-		 *
-		 * Uses Newton's method for branch length and Brent's one dimensional method for other parameters
-		 * (NewtonBrentMetaOptimizer).
-		 *
-		 * A condition over function values is used as a stop condition for the algorithm.
-		 *
-		 * @see NewtonBrentMetaOptimizer
-		 *
-		 * @param tl             A pointer toward the TreeLikelihood object to optimize.
+    /**
+     * @brief Optimize numerical parameters (branch length, substitution model & rate distribution) of a TreeLikelihood function.
+     *
+     * Uses Newton's method for branch length and Brent or BFGS one dimensional method for other parameters.
+     *
+     * A condition over function values is used as a stop condition for the algorithm.
+     *
+     * @see BrentOneDimension, BFGSMultiDimensions
+     *
+     * @param tl             A pointer toward the TreeLikelihood object to optimize.
      * @param parameters     The list of parameters to optimize. Use tl->getIndependentParameters() in order to estimate all parameters.
      * @param listener       A pointer toward an optimization listener, if needed.
      * @param nstep          The number of progressive steps to perform (see NewtonBrentMetaOptimizer). 1 means full precision from start.
-		 * @param tolerance      The tolerance to use in the algorithm.
-		 * @param tlEvalMax      The maximum number of function evaluations.
-		 * @param messageHandler The massage handler.
-		 * @param profiler       The profiler.
+     * @param tolerance      The tolerance to use in the algorithm.
+     * @param tlEvalMax      The maximum number of function evaluations.
+     * @param messageHandler The massage handler.
+     * @param profiler       The profiler.
      * @param reparametrization Tell if parameters should be transformed in order to remove constraints.
      *                          This can improve optimization, but is a bit slower.
-		 * @param verbose        The verbose level.
-     * @param method         Optimization type for derivable parameters (first or second order derivatives).
+     * @param verbose        The verbose level.
+     * @param optMethodDeriv Optimization type for derivable parameters (first or second order derivatives).
      * @see OPTIMIZATION_NEWTON, OPTIMIZATION_GRADIENT
-		 * @throw Exception any exception thrown by the Optimizer.
-		 */
-		static unsigned int optimizeNumericalParameters(
-			DiscreteRatesAcrossSitesTreeLikelihood* tl,
-      const ParameterList& parameters,
-      OptimizationListener* listener = 0,
-      unsigned int nstep             = 1,
-			double tolerance               = 0.000001,
-			unsigned int tlEvalMax         = 1000000,
-			OutputStream* messageHandler   = ApplicationTools::message,
-			OutputStream* profiler         = ApplicationTools::message,
-      bool reparametrization         = false,
-			unsigned int verbose           = 1,
-      const std::string& method      = OPTIMIZATION_NEWTON)
-			throw (Exception);
+     * @param optMethodModel Optimization type for model parameters (Brent or BFGS).
+     * @see OPTIMIZATION_BRENT, OPTIMIZATION_BFGS     
+     * @throw Exception any exception thrown by the Optimizer.
+     */
+    static unsigned int optimizeNumericalParameters(
+                                                    DiscreteRatesAcrossSitesTreeLikelihood* tl,
+                                                    const ParameterList& parameters,
+                                                    OptimizationListener* listener = 0,
+                                                    unsigned int nstep             = 1,
+                                                    double tolerance               = 0.000001,
+                                                    unsigned int tlEvalMax         = 1000000,
+                                                    OutputStream* messageHandler   = ApplicationTools::message,
+                                                    OutputStream* profiler         = ApplicationTools::message,
+                                                    bool reparametrization         = false,
+                                                    unsigned int verbose           = 1,
+                                                    const std::string& OptMethodDeriv      = OPTIMIZATION_NEWTON,
+                                                    const std::string& OptMethodModel      = OPTIMIZATION_BFGS)
+      throw (Exception);
 	
-		/**
-		 * @brief Optimize numerical parameters (branch length, substitution model & rate distribution) of a TreeLikelihood function.
-		 *
-		 * Uses Newton's method for all parameters, branch length derivatives are computed analytically, derivatives for other parameters numerically.
-		 *
-		 * @see PseudoNewtonOptimizer
-		 *
-		 * @param tl             A pointer toward the TreeLikelihood object to optimize.
+    /**
+     * @brief Optimize numerical parameters (branch length, substitution model & rate distribution) of a TreeLikelihood function.
+     *
+     * Uses Newton's method for all parameters, branch length derivatives are computed analytically, derivatives for other parameters numerically.
+     *
+     * @see PseudoNewtonOptimizer
+     *
+     * @param tl             A pointer toward the TreeLikelihood object to optimize.
      * @param parameters     The list of parameters to optimize. Use tl->getIndependentParameters() in order to estimate all parameters.
      * @param listener       A pointer toward an optimization listener, if needed.
-		 * @param tolerance      The tolerance to use in the algorithm.
-		 * @param tlEvalMax      The maximum number of function evaluations.
-		 * @param messageHandler The massage handler.
-		 * @param profiler       The profiler.
+     * @param tolerance      The tolerance to use in the algorithm.
+     * @param tlEvalMax      The maximum number of function evaluations.
+     * @param messageHandler The massage handler.
+     * @param profiler       The profiler.
      * @param reparametrization Tell if parameters should be transformed in order to remove constraints.
      *                          This can improve optimization, but is a bit slower.
-		 * @param verbose        The verbose level.
+     * @param verbose        The verbose level.
      * @param optMethod      Optimization type for derivable parameters (first or second order derivatives).
      * @see OPTIMIZATION_NEWTON, OPTIMIZATION_GRADIENT
-		 * @throw Exception any exception thrown by the Optimizer.
-		 */
-		static unsigned int optimizeNumericalParameters2(
-			DiscreteRatesAcrossSitesTreeLikelihood* tl,
-      const ParameterList& parameters,
-      OptimizationListener* listener = 0,
-			double tolerance               = 0.000001,
-			unsigned int tlEvalMax         = 1000000,
-			OutputStream* messageHandler   = ApplicationTools::message,
-			OutputStream* profiler         = ApplicationTools::message,
-      bool reparametrization         = false,
-			unsigned int verbose           = 1,
-      const std::string& optMethod   = OPTIMIZATION_NEWTON)
-			throw (Exception);
+     * @throw Exception any exception thrown by the Optimizer.
+     */
+    static unsigned int optimizeNumericalParameters2(
+                                                     DiscreteRatesAcrossSitesTreeLikelihood* tl,
+                                                     const ParameterList& parameters,
+                                                     OptimizationListener* listener = 0,
+                                                     double tolerance               = 0.000001,
+                                                     unsigned int tlEvalMax         = 1000000,
+                                                     OutputStream* messageHandler   = ApplicationTools::message,
+                                                     OutputStream* profiler         = ApplicationTools::message,
+                                                     bool reparametrization         = false,
+                                                     unsigned int verbose           = 1,
+                                                     const std::string& optMethod   = OPTIMIZATION_NEWTON)
+      throw (Exception);
 
     /**
-		 * @brief Optimize branch lengths parameters of a TreeLikelihood function.
-		 *
-		 * Uses Newton's method.
-		 *
-		 * A condition over function values is used as a stop condition for the algorithm.
-		 *
-		 * @see NewtonBrentMetaOptimizer
-		 *
-		 * @param tl             A pointer toward the TreeLikelihood object to optimize.
+     * @brief Optimize branch lengths parameters of a TreeLikelihood function.
+     *
+     * Uses Newton's method.
+     *
+     * A condition over function values is used as a stop condition for the algorithm.
+     *
+     * @see NewtonBrentMetaOptimizer
+     *
+     * @param tl             A pointer toward the TreeLikelihood object to optimize.
      * @param parameters     The list of parameters to optimize. The intersection of branch length parameters and the input set will be used. Use tl->getBranchLengthsParameters() in order to estimate all branch length parameters.
      * @param listener       A pointer toward an optimization listener, if needed.
-		 * @param tolerance      The tolerance to use in the algorithm.
-		 * @param tlEvalMax      The maximum number of function evaluations.
-		 * @param messageHandler The massage handler.
-		 * @param profiler       The profiler.
-		 * @param verbose        The verbose level.
-     * @param optMethod      Optimization type for derivable parameters (first or second order derivatives).
+     * @param tolerance      The tolerance to use in the algorithm.
+     * @param tlEvalMax      The maximum number of function evaluations.
+     * @param messageHandler The massage handler.
+     * @param profiler       The profiler.
+     * @param verbose        The verbose level.
+     * @param optMethodDeriv Optimization type for derivable parameters (first or second order derivatives).
      * @see OPTIMIZATION_NEWTON, OPTIMIZATION_GRADIENT
-		 * @throw Exception any exception thrown by the Optimizer.
-		 */
-		static unsigned int optimizeBranchLengthsParameters(
-			DiscreteRatesAcrossSitesTreeLikelihood * tl,
-      const ParameterList& parameters,
-      OptimizationListener* listener = 0,
-			double tolerance               = 0.000001,
-			unsigned int tlEvalMax         = 1000000,
-			OutputStream* messageHandler   = ApplicationTools::message,
-			OutputStream* profiler         = ApplicationTools::message,
-			unsigned int verbose           = 1,
-      const std::string& optMethod   = OPTIMIZATION_NEWTON)
-			throw (Exception);
+     * @throw Exception any exception thrown by the Optimizer.
+     */
+    static unsigned int optimizeBranchLengthsParameters(
+                                                        DiscreteRatesAcrossSitesTreeLikelihood * tl,
+                                                        const ParameterList& parameters,
+                                                        OptimizationListener* listener = 0,
+                                                        double tolerance               = 0.000001,
+                                                        unsigned int tlEvalMax         = 1000000,
+                                                        OutputStream* messageHandler   = ApplicationTools::message,
+                                                        OutputStream* profiler         = ApplicationTools::message,
+                                                        unsigned int verbose           = 1,
+                                                        const std::string& optMethod   = OPTIMIZATION_NEWTON)
+      throw (Exception);
 		
-		/**
-		 * @brief Optimize numerical parameters assuming a global clock (branch heights, substitution model & rate distribution) of a ClockTreeLikelihood function.
-		 *
-		 * Uses Newton or conjugate gradient method for branch length and Brent's one dimensional method for other parameters
-		 * (NewtonBrentMetaOptimizer).
+    /**
+     * @brief Optimize numerical parameters assuming a global clock (branch heights, substitution model & rate distribution) of a ClockTreeLikelihood function.
+     *
+     * Uses Newton or conjugate gradient method for branch length and Brent's one dimensional method for other parameters
+     * (NewtonBrentMetaOptimizer).
      * Derivatives are computed analytically.
-		 *
-		 * A condition over function values is used as a stop condition for the algorithm.
-		 *
-		 * @see NewtonBrentMetaOptimizer
-		 *
-		 * @param cl             A pointer toward the ClockTreeLikelihood object to optimize.
+     *
+     * A condition over function values is used as a stop condition for the algorithm.
+     *
+     * @see NewtonBrentMetaOptimizer
+     *
+     * @param cl             A pointer toward the ClockTreeLikelihood object to optimize.
      * @param parameters     The list of parameters to optimize. Use cl->getIndependentParameters() in order to estimate all parameters.
      * @param listener       A pointer toward an optimization listener, if needed.
      * @param nstep          The number of progressive steps to perform (see NewtonBrentMetaOptimizer). 1 means full precision from start.
-		 * @param tolerance      The tolerance to use in the algorithm.
-		 * @param tlEvalMax      The maximum number of function evaluations.
-		 * @param messageHandler The massage handler.
-		 * @param profiler       The profiler.
-		 * @param verbose        The verbose level.
+     * @param tolerance      The tolerance to use in the algorithm.
+     * @param tlEvalMax      The maximum number of function evaluations.
+     * @param messageHandler The massage handler.
+     * @param profiler       The profiler.
+     * @param verbose        The verbose level.
      * @param optMethod      Optimization type for derivable parameters (first or second order derivatives).
      * @see OPTIMIZATION_NEWTON, OPTIMIZATION_GRADIENT
-		 * @throw Exception any exception thrown by the Optimizer.
-		 */
-		static unsigned int optimizeNumericalParametersWithGlobalClock(
-			DiscreteRatesAcrossSitesClockTreeLikelihood* cl,
-      const ParameterList& parameters,
-      OptimizationListener* listener = 0,
-      unsigned int nstep = 1,
-			double tolerance = 0.000001,
-			unsigned int tlEvalMax = 1000000,
-			OutputStream* messageHandler = ApplicationTools::message,
-			OutputStream* profiler       = ApplicationTools::message,
-			unsigned int verbose = 1,
-      const std::string& optMethod = OPTIMIZATION_GRADIENT)
-			throw (Exception);
+     * @throw Exception any exception thrown by the Optimizer.
+     */
+    static unsigned int optimizeNumericalParametersWithGlobalClock(
+                                                                   DiscreteRatesAcrossSitesClockTreeLikelihood* cl,
+                                                                   const ParameterList& parameters,
+                                                                   OptimizationListener* listener = 0,
+                                                                   unsigned int nstep = 1,
+                                                                   double tolerance = 0.000001,
+                                                                   unsigned int tlEvalMax = 1000000,
+                                                                   OutputStream* messageHandler = ApplicationTools::message,
+                                                                   OutputStream* profiler       = ApplicationTools::message,
+                                                                   unsigned int verbose = 1,
+                                                                   const std::string& optMethod = OPTIMIZATION_GRADIENT)
+      throw (Exception);
 
     /**
-		 * @brief Optimize numerical parameters assuming a global clock (branch heights, substitution model & rate distribution) of a ClockTreeLikelihood function.
-		 *
-		 * Uses Newton or conjugate gradient method for all parameters, branch length derivatives are computed analytically, derivatives for other parameters numerically.
-		 *
-		 * @see PseudoNewtonOptimizer
-		 *
-		 * @param cl             A pointer toward the ClockTreeLikelihood object to optimize.
+     * @brief Optimize numerical parameters assuming a global clock (branch heights, substitution model & rate distribution) of a ClockTreeLikelihood function.
+     *
+     * Uses Newton or conjugate gradient method for all parameters, branch length derivatives are computed analytically, derivatives for other parameters numerically.
+     *
+     * @see PseudoNewtonOptimizer
+     *
+     * @param cl             A pointer toward the ClockTreeLikelihood object to optimize.
      * @param parameters     The list of parameters to optimize. Use cl->getIndependentParameters() in order to estimate all parameters.
      * @param listener       A pointer toward an optimization listener, if needed.
-		 * @param tolerance      The tolerance to use in the algorithm.
-		 * @param tlEvalMax      The maximum number of function evaluations.
-		 * @param messageHandler The massage handler.
-		 * @param profiler       The profiler.
-		 * @param verbose        The verbose level.
+     * @param tolerance      The tolerance to use in the algorithm.
+     * @param tlEvalMax      The maximum number of function evaluations.
+     * @param messageHandler The massage handler.
+     * @param profiler       The profiler.
+     * @param verbose        The verbose level.
      * @param optMethod      Optimization type for derivable parameters (first or second order derivatives).
      * @see OPTIMIZATION_NEWTON, OPTIMIZATION_GRADIENT
-		 * @throw Exception any exception thrown by the Optimizer.
-		 */
-		static unsigned int optimizeNumericalParametersWithGlobalClock2(
-			DiscreteRatesAcrossSitesClockTreeLikelihood* cl,
-      const ParameterList& parameters,
-      OptimizationListener* listener = 0,
-			double tolerance = 0.000001,
-			unsigned int tlEvalMax = 1000000,
-			OutputStream* messageHandler = ApplicationTools::message,
-			OutputStream* profiler       = ApplicationTools::message,
-			unsigned int verbose = 1,
-      const std::string& optMethod = OPTIMIZATION_GRADIENT)
-			throw (Exception);
+     * @throw Exception any exception thrown by the Optimizer.
+     */
+    static unsigned int optimizeNumericalParametersWithGlobalClock2(
+                                                                    DiscreteRatesAcrossSitesClockTreeLikelihood* cl,
+                                                                    const ParameterList& parameters,
+                                                                    OptimizationListener* listener = 0,
+                                                                    double tolerance = 0.000001,
+                                                                    unsigned int tlEvalMax = 1000000,
+                                                                    OutputStream* messageHandler = ApplicationTools::message,
+                                                                    OutputStream* profiler       = ApplicationTools::message,
+                                                                    unsigned int verbose = 1,
+                                                                    const std::string& optMethod = OPTIMIZATION_GRADIENT)
+      throw (Exception);
 
 
-	private:
+  private:
 		
-		class ScaleFunction:
+    class ScaleFunction:
       public virtual Function,
       public ParametrizableAdapter
     {				
-			private:
-				TreeLikelihood* tl_;
-				mutable ParameterList brLen_, lambda_;
+    private:
+      TreeLikelihood* tl_;
+      mutable ParameterList brLen_, lambda_;
 				
-			public:
-				ScaleFunction(TreeLikelihood* tl);
+    public:
+      ScaleFunction(TreeLikelihood* tl);
 				
-        ScaleFunction(const ScaleFunction& sf) :
-          tl_(sf.tl_), brLen_(sf.brLen_), lambda_(sf.lambda_)
-        {}
+      ScaleFunction(const ScaleFunction& sf) :
+        tl_(sf.tl_), brLen_(sf.brLen_), lambda_(sf.lambda_)
+      {}
 
-        ScaleFunction& operator=(const ScaleFunction& sf)
-        {
-          tl_     = sf.tl_;
-          brLen_  = sf.brLen_;
-          lambda_ = sf.lambda_;
-          return *this;
-        }
+      ScaleFunction& operator=(const ScaleFunction& sf)
+      {
+        tl_     = sf.tl_;
+        brLen_  = sf.brLen_;
+        lambda_ = sf.lambda_;
+        return *this;
+      }
 
-				virtual ~ScaleFunction();
+      virtual ~ScaleFunction();
 
 #ifndef NO_VIRTUAL_COV
-        ScaleFunction*
+      ScaleFunction*
 #else
-        Clonable*
+      Clonable*
 #endif
-        clone() const { return new ScaleFunction(*this); }
+      clone() const { return new ScaleFunction(*this); }
 				
-			public:
-				void setParameters(const ParameterList& lambda) throw (ParameterNotFoundException, ConstraintException);
-				double getValue() const throw (ParameterException);
-				const ParameterList& getParameters() const throw (Exception) { return lambda_; }
-        const Parameter& getParameter(const std::string& name) const throw (ParameterNotFoundException)
-        {
-          if(name == "lambda") return lambda_[0];
-          else throw ParameterNotFoundException("ScaleFunction::getParameter.", name);
-        }
-				double getParameterValue(const std::string& name) const throw (ParameterNotFoundException)
-        {
-          return lambda_.getParameter(name).getValue();
-        }
-		    unsigned int getNumberOfParameters() const { return 1; }
-		    unsigned int getNumberOfIndependentParameters() const { return 1; }
-		};
+    public:
+      void setParameters(const ParameterList& lambda) throw (ParameterNotFoundException, ConstraintException);
+      double getValue() const throw (ParameterException);
+      const ParameterList& getParameters() const throw (Exception) { return lambda_; }
+      const Parameter& getParameter(const std::string& name) const throw (ParameterNotFoundException)
+      {
+        if(name == "lambda") return lambda_[0];
+        else throw ParameterNotFoundException("ScaleFunction::getParameter.", name);
+      }
+      double getParameterValue(const std::string& name) const throw (ParameterNotFoundException)
+      {
+        return lambda_.getParameter(name).getValue();
+      }
+      unsigned int getNumberOfParameters() const { return 1; }
+      unsigned int getNumberOfIndependentParameters() const { return 1; }
+    };
 	
-	public:
+  public:
 
-		/**
-		 * @brief Optimize the scale of a TreeLikelihood.
-		 *
-		 * This method only works on branch lengths parameters.
-		 * It multiply all branch length by a factor 'x' which is optimized
-		 * using Brent's algorithm in one dimension.
-		 * This method may be usefull for scaling a tree whose branch lengths
-		 * come from the Neighbor-Joining algorithm for instance.
-		 *
-		 * Practically, and contrarily to what one may expect, this does not
-		 * speed up the optimization!
-		 *
-		 * A condition over parameters is used as a stop condition for the algorithm.
-		 *
-		 * @param tl             A pointer toward the TreeLikelihood object to optimize.
-		 * @param tolerance      The tolerance to use in the algorithm.
-		 * @param tlEvalMax      The maximum number of function evaluations.
-		 * @param messageHandler The massage handler.
-		 * @param profiler       The profiler.
-		 * @param verbose        The verbose level.
-		 * @throw Exception any exception thrown by the optimizer.
-		 */
-		static unsigned int optimizeTreeScale(
-			  TreeLikelihood* tl,
-			  double tolerance = 0.000001,
-			  int tlEvalMax = 1000000,
-			  OutputStream* messageHandler = ApplicationTools::message,
-			  OutputStream* profiler       = ApplicationTools::message,
-			  unsigned int verbose = 1)
+    /**
+     * @brief Optimize the scale of a TreeLikelihood.
+     *
+     * This method only works on branch lengths parameters.
+     * It multiply all branch length by a factor 'x' which is optimized
+     * using Brent's algorithm in one dimension.
+     * This method may be usefull for scaling a tree whose branch lengths
+     * come from the Neighbor-Joining algorithm for instance.
+     *
+     * Practically, and contrarily to what one may expect, this does not
+     * speed up the optimization!
+     *
+     * A condition over parameters is used as a stop condition for the algorithm.
+     *
+     * @param tl             A pointer toward the TreeLikelihood object to optimize.
+     * @param tolerance      The tolerance to use in the algorithm.
+     * @param tlEvalMax      The maximum number of function evaluations.
+     * @param messageHandler The massage handler.
+     * @param profiler       The profiler.
+     * @param verbose        The verbose level.
+     * @throw Exception any exception thrown by the optimizer.
+     */
+    static unsigned int optimizeTreeScale(
+                                          TreeLikelihood* tl,
+                                          double tolerance = 0.000001,
+                                          int tlEvalMax = 1000000,
+                                          OutputStream* messageHandler = ApplicationTools::message,
+                                          OutputStream* profiler       = ApplicationTools::message,
+                                          unsigned int verbose = 1)
       throw (Exception);
 
     /**
@@ -562,18 +566,18 @@ class OptimizationTools
      * The tolerance passed to this function is specified as input parameters.
      * They are generally very high to avoid local optima.
      *
-		 * @param tl                A pointer toward the TreeLikelihood object to optimize.
+     * @param tl                A pointer toward the TreeLikelihood object to optimize.
      * @param parameters        The list of parameters to optimize. Use tl->getIndependentParameters() in order to estimate all parameters.
      * @param optimizeNumFirst  Tell if we must optimize numerical parameters before searching topology.
-		 * @param tolBefore         The tolerance to use when estimating numerical parameters before topology search (if optimizeNumFirst is set to 'true').
-		 * @param tolDuring         The tolerance to use when estimating numerical parameters during the topology search.
-		 * @param tlEvalMax         The maximum number of function evaluations.
+     * @param tolBefore         The tolerance to use when estimating numerical parameters before topology search (if optimizeNumFirst is set to 'true').
+     * @param tolDuring         The tolerance to use when estimating numerical parameters during the topology search.
+     * @param tlEvalMax         The maximum number of function evaluations.
      * @param numStep           Number of NNI rounds before re-estimating numerical parameters.
-		 * @param messageHandler    The massage handler.
-		 * @param profiler          The profiler.
+     * @param messageHandler    The massage handler.
+     * @param profiler          The profiler.
      * @param reparametrization Tell if parameters should be transformed in order to remove constraints.
      *                          This can improve optimization, but is a bit slower.
-		 * @param verbose           The verbose level.
+     * @param verbose           The verbose level.
      * @param optMethod         Option passed to optimizeNumericalParameters.
      * @param nStep             Option passed to optimizeNumericalParameters.
      * @param nniMethod         NNI algorithm to use.
@@ -584,23 +588,23 @@ class OptimizationTools
      * @code
      * tl = OptimizationTools::optimizeTreeNNI(tl, ...);
      * @endcode
-		 * @throw Exception any exception thrown by the optimizer.
+     * @throw Exception any exception thrown by the optimizer.
      */
     static NNIHomogeneousTreeLikelihood* optimizeTreeNNI(
-        NNIHomogeneousTreeLikelihood* tl,
-        const ParameterList& parameters,
-        bool optimizeNumFirst        = true,
-			  double tolBefore             = 100,
-			  double tolDuring             = 100,
-			  int tlEvalMax                = 1000000,
-        unsigned int numStep         = 1,
-			  OutputStream* messageHandler = ApplicationTools::message,
-			  OutputStream* profiler       = ApplicationTools::message,
-        bool reparametrization       = false,
-			  unsigned int verbose         = 1,
-        const std::string& optMethod = OptimizationTools::OPTIMIZATION_NEWTON,
-        unsigned int nStep           = 1,
-        const std::string& nniMethod = NNITopologySearch::PHYML)
+                                                         NNIHomogeneousTreeLikelihood* tl,
+                                                         const ParameterList& parameters,
+                                                         bool optimizeNumFirst        = true,
+                                                         double tolBefore             = 100,
+                                                         double tolDuring             = 100,
+                                                         int tlEvalMax                = 1000000,
+                                                         unsigned int numStep         = 1,
+                                                         OutputStream* messageHandler = ApplicationTools::message,
+                                                         OutputStream* profiler       = ApplicationTools::message,
+                                                         bool reparametrization       = false,
+                                                         unsigned int verbose         = 1,
+                                                         const std::string& optMethod = OptimizationTools::OPTIMIZATION_NEWTON,
+                                                         unsigned int nStep           = 1,
+                                                         const std::string& nniMethod = NNITopologySearch::PHYML)
       throw (Exception);
 
     /**
@@ -618,18 +622,18 @@ class OptimizationTools
      * The tolerance passed to this function is specified as input parameters.
      * They are generally very high to avoid local optima.
      *
-		 * @param tl                A pointer toward the TreeLikelihood object to optimize.
+     * @param tl                A pointer toward the TreeLikelihood object to optimize.
      * @param parameters        The list of parameters to optimize. Use tl->getIndependentParameters() in order to estimate all parameters.
      * @param optimizeNumFirst  Tell if we must optimize numerical parameters before searching topology.
-		 * @param tolBefore         The tolerance to use when estimating numerical parameters before topology search (if optimizeNumFirst is set to 'true').
-		 * @param tolDuring         The tolerance to use when estimating numerical parameters during the topology search.
-		 * @param tlEvalMax         The maximum number of function evaluations.
+     * @param tolBefore         The tolerance to use when estimating numerical parameters before topology search (if optimizeNumFirst is set to 'true').
+     * @param tolDuring         The tolerance to use when estimating numerical parameters during the topology search.
+     * @param tlEvalMax         The maximum number of function evaluations.
      * @param numStep           Number of NNI rounds before re-estimating numerical parameters.
-		 * @param messageHandler    The massage handler.
-		 * @param profiler          The profiler.
+     * @param messageHandler    The massage handler.
+     * @param profiler          The profiler.
      * @param reparametrization Tell if parameters should be transformed in order to remove constraints.
      *                          This can improve optimization, but is a bit slower.
-		 * @param verbose           The verbose level.
+     * @param verbose           The verbose level.
      * @param optMethod         Option passed to optimizeNumericalParameters2.
      * @param nniMethod         NNI algorithm to use.
      * @return A pointer toward the final likelihood object.
@@ -639,29 +643,29 @@ class OptimizationTools
      * @code
      * tl = OptimizationTools::optimizeTreeNNI2(tl, ...);
      * @endcode
-		 * @throw Exception any exception thrown by the optimizer.
+     * @throw Exception any exception thrown by the optimizer.
      */
     static NNIHomogeneousTreeLikelihood* optimizeTreeNNI2(
-        NNIHomogeneousTreeLikelihood* tl,
-        const ParameterList& parameters,
-        bool optimizeNumFirst        = true,
-			  double tolBefore             = 100,
-			  double tolDuring             = 100,
-			  int tlEvalMax                = 1000000,
-        unsigned int numStep         = 1,
-			  OutputStream* messageHandler = ApplicationTools::message,
-			  OutputStream* profiler       = ApplicationTools::message,
-        bool reparametrization       = false,
-			  unsigned int verbose         = 1,
-        const std::string& optMethod = OptimizationTools::OPTIMIZATION_NEWTON,
-        const std::string& nniMethod = NNITopologySearch::PHYML)
+                                                          NNIHomogeneousTreeLikelihood* tl,
+                                                          const ParameterList& parameters,
+                                                          bool optimizeNumFirst        = true,
+                                                          double tolBefore             = 100,
+                                                          double tolDuring             = 100,
+                                                          int tlEvalMax                = 1000000,
+                                                          unsigned int numStep         = 1,
+                                                          OutputStream* messageHandler = ApplicationTools::message,
+                                                          OutputStream* profiler       = ApplicationTools::message,
+                                                          bool reparametrization       = false,
+                                                          unsigned int verbose         = 1,
+                                                          const std::string& optMethod = OptimizationTools::OPTIMIZATION_NEWTON,
+                                                          const std::string& nniMethod = NNITopologySearch::PHYML)
       throw (Exception);
 
     /**
      * @brief Optimize tree topology from a DRTreeParsimonyScore using Nearest Neighbor Interchanges.
      *
-		 * @param tp               A pointer toward the DRTreeParsimonyScore object to optimize.
-		 * @param verbose          The verbose level.
+     * @param tp               A pointer toward the DRTreeParsimonyScore object to optimize.
+     * @param verbose          The verbose level.
      * @return A pointer toward the final parsimony score object.
      * This pointer may be the same as passed in argument (tl), but in some cases the algorithm
      * clone this object. We may change this bahavior in the future...
@@ -672,8 +676,8 @@ class OptimizationTools
      */
     
     static DRTreeParsimonyScore* optimizeTreeNNI(
-        DRTreeParsimonyScore* tp,
-        unsigned int verbose = 1);
+                                                 DRTreeParsimonyScore* tp,
+                                                 unsigned int verbose = 1);
 
     /**
      * @brief Build a tree using a distance method.
@@ -701,23 +705,23 @@ class OptimizationTools
      * @param verbose Verbose level.
      */
     static TreeTemplate<Node>* buildDistanceTree(
-        DistanceEstimation& estimationMethod,
-        AgglomerativeDistanceMethod& reconstructionMethod,
-        const ParameterList& parametersToIgnore,
-        bool optimizeBrLen = false,
-        bool rooted = false,
-        const std::string& param = DISTANCEMETHOD_INIT,
-        double tolerance = 0.000001,
-        unsigned int tlEvalMax = 1000000,
-        OutputStream* profiler = 0,
-        OutputStream* messenger = 0,
-        unsigned int verbose = 0) throw (Exception);
+                                                 DistanceEstimation& estimationMethod,
+                                                 AgglomerativeDistanceMethod& reconstructionMethod,
+                                                 const ParameterList& parametersToIgnore,
+                                                 bool optimizeBrLen = false,
+                                                 bool rooted = false,
+                                                 const std::string& param = DISTANCEMETHOD_INIT,
+                                                 double tolerance = 0.000001,
+                                                 unsigned int tlEvalMax = 1000000,
+                                                 OutputStream* profiler = 0,
+                                                 OutputStream* messenger = 0,
+                                                 unsigned int verbose = 0) throw (Exception);
 
   public:
     static std::string DISTANCEMETHOD_INIT;
     static std::string DISTANCEMETHOD_PAIRWISE;
     static std::string DISTANCEMETHOD_ITERATIONS;
-};
+  };
 
 
 } //end of namespace bpp.
