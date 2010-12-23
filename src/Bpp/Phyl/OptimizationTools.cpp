@@ -261,7 +261,7 @@ unsigned int OptimizationTools::optimizeNumericalParameters2(
   OutputStream* profiler,
   bool reparametrization,
   unsigned int verbose,
-  const std::string& optMethod)
+  const std::string& optMethodDeriv)
 throw (Exception)
 {
   DerivableSecondOrder* f = tl;
@@ -280,19 +280,19 @@ throw (Exception)
   auto_ptr<AbstractNumericalDerivative> fnum;
   // Build optimizer:
   auto_ptr<Optimizer> optimizer;
-  if (optMethod == OPTIMIZATION_GRADIENT)
+  if (optMethodDeriv == OPTIMIZATION_GRADIENT)
   {
     fnum.reset(new TwoPointsNumericalDerivative(f));
     fnum->setInterval(0.0000001);
     optimizer.reset(new ConjugateGradientMultiDimensions(reinterpret_cast<DerivableFirstOrder *>(fnum.get()))); //Removes strict-aliasing warning with gcc 4.4
   }
-  else if (optMethod == OPTIMIZATION_NEWTON)
+  else if (optMethodDeriv == OPTIMIZATION_NEWTON)
   {
     fnum.reset(new ThreePointsNumericalDerivative(f));
     fnum->setInterval(0.0001);
     optimizer.reset(new PseudoNewtonOptimizer(fnum.get()));
   }
-  else throw Exception("OptimizationTools::optimizeNumericalParameters2. Unknown optimization method: " + optMethod);
+  else throw Exception("OptimizationTools::optimizeNumericalParameters2. Unknown optimization method: " + optMethodDeriv);
   
   //Numerical derivatives:
   ParameterList tmp = parameters.getCommonParametersWith(tl->getSubstitutionModelParameters());
@@ -328,16 +328,16 @@ unsigned int OptimizationTools::optimizeBranchLengthsParameters(
   OutputStream* messageHandler,
   OutputStream* profiler,
   unsigned int verbose,
-  const std::string& optMethod)
+  const std::string& optMethodDeriv)
 throw (Exception)
 {
   // Build optimizer:
   Optimizer* optimizer = 0;
-  if(optMethod == OPTIMIZATION_GRADIENT)
+  if(optMethodDeriv == OPTIMIZATION_GRADIENT)
     optimizer = new ConjugateGradientMultiDimensions(tl);
-  else if(optMethod == OPTIMIZATION_NEWTON)
+  else if(optMethodDeriv == OPTIMIZATION_NEWTON)
     optimizer = new PseudoNewtonOptimizer(tl);
-  else throw Exception("OptimizationTools::optimizeBranchLengthsParameters. Unknown optimization method: " + optMethod);
+  else throw Exception("OptimizationTools::optimizeBranchLengthsParameters. Unknown optimization method: " + optMethodDeriv);
   optimizer->setVerbose(verbose);
   optimizer->setProfiler(profiler);
   optimizer->setMessageHandler(messageHandler);
@@ -370,26 +370,26 @@ unsigned int OptimizationTools::optimizeNumericalParametersWithGlobalClock(
   OutputStream* messageHandler,
   OutputStream* profiler,
   unsigned int verbose,
-  const std::string& optMethod)
+  const std::string& optMethodDeriv)
 throw (Exception)
 {
   AbstractNumericalDerivative* fun = 0;
 
   // Build optimizer:
   MetaOptimizerInfos* desc = new MetaOptimizerInfos();
-  if(optMethod == OPTIMIZATION_GRADIENT)
+  if(optMethodDeriv == OPTIMIZATION_GRADIENT)
   {
     fun = new TwoPointsNumericalDerivative(cl);
     fun->setInterval(0.0000001);
     desc->addOptimizer("Branch length parameters", new ConjugateGradientMultiDimensions(fun), cl->getBranchLengthsParameters().getParameterNames(), 2, MetaOptimizerInfos::IT_TYPE_FULL);
   }
-  else if(optMethod == OPTIMIZATION_NEWTON) 
+  else if(optMethodDeriv == OPTIMIZATION_NEWTON) 
   {
     fun = new ThreePointsNumericalDerivative(cl);
     fun->setInterval(0.0001);
     desc->addOptimizer("Branch length parameters", new PseudoNewtonOptimizer(fun), cl->getBranchLengthsParameters().getParameterNames(), 2, MetaOptimizerInfos::IT_TYPE_FULL);
   }
-  else throw Exception("OptimizationTools::optimizeNumericalParametersWithGlobalClock. Unknown optimization method: " + optMethod);
+  else throw Exception("OptimizationTools::optimizeNumericalParametersWithGlobalClock. Unknown optimization method: " + optMethodDeriv);
 
   //Numerical derivatives:
   ParameterList tmp = parameters.getCommonParametersWith(cl->getBranchLengthsParameters());
@@ -436,26 +436,26 @@ unsigned int OptimizationTools::optimizeNumericalParametersWithGlobalClock2(
   OutputStream* messageHandler,
   OutputStream* profiler,
   unsigned int verbose,
-  const std::string& optMethod)
+  const std::string& optMethodDeriv)
 throw (Exception)
 {
   AbstractNumericalDerivative* fun = 0;
 
   // Build optimizer:
   Optimizer* optimizer = 0;
-  if(optMethod == OPTIMIZATION_GRADIENT)
+  if(optMethodDeriv == OPTIMIZATION_GRADIENT)
   {
     fun = new TwoPointsNumericalDerivative(cl);
     fun->setInterval(0.0000001);
     optimizer = new ConjugateGradientMultiDimensions(fun);
   }
-  else if(optMethod == OPTIMIZATION_NEWTON)
+  else if(optMethodDeriv == OPTIMIZATION_NEWTON)
   {
     fun = new ThreePointsNumericalDerivative(cl);
     fun->setInterval(0.0001);
     optimizer = new PseudoNewtonOptimizer(fun);
   }
-  else throw Exception("OptimizationTools::optimizeBranchLengthsParameters. Unknown optimization method: " + optMethod);
+  else throw Exception("OptimizationTools::optimizeBranchLengthsParameters. Unknown optimization method: " + optMethodDeriv);
   
   //Numerical derivatives:
   ParameterList tmp = parameters.getCommonParametersWith(cl->getParameters());
@@ -524,7 +524,7 @@ NNIHomogeneousTreeLikelihood* OptimizationTools::optimizeTreeNNI(
     OutputStream* profiler,
     bool reparametrization,
     unsigned int verbose,
-    const std::string& optMethod,
+    const std::string& optMethodDeriv,
     unsigned int nStep,
     const std::string& nniMethod)
   throw (Exception)
@@ -532,11 +532,11 @@ NNIHomogeneousTreeLikelihood* OptimizationTools::optimizeTreeNNI(
   //Roughly optimize parameter
   if (optimizeNumFirst)
   {
-    OptimizationTools::optimizeNumericalParameters(tl, parameters, NULL, nStep, tolBefore, 1000000, messageHandler, profiler, reparametrization, verbose, optMethod);
+    OptimizationTools::optimizeNumericalParameters(tl, parameters, NULL, nStep, tolBefore, 1000000, messageHandler, profiler, reparametrization, verbose, optMethodDeriv);
   }
   //Begin topo search:
   NNITopologySearch topoSearch(*tl, nniMethod, verbose > 2 ? verbose - 2 : 0);
-  NNITopologyListener *topoListener = new NNITopologyListener(&topoSearch, parameters, tolDuring, messageHandler, profiler, verbose, optMethod, nStep, reparametrization);
+  NNITopologyListener *topoListener = new NNITopologyListener(&topoSearch, parameters, tolDuring, messageHandler, profiler, verbose, optMethodDeriv, nStep, reparametrization);
   topoListener->setNumericalOptimizationCounter(numStep);
   topoSearch.addTopologyListener(topoListener);
   topoSearch.search();
@@ -557,18 +557,18 @@ NNIHomogeneousTreeLikelihood* OptimizationTools::optimizeTreeNNI2(
     OutputStream* profiler,
     bool reparametrization,
     unsigned int verbose,
-    const std::string& optMethod,
+    const std::string& optMethodDeriv,
     const std::string& nniMethod)
   throw (Exception)
 {
   //Roughly optimize parameter
   if (optimizeNumFirst)
   {
-    OptimizationTools::optimizeNumericalParameters2(tl, parameters, NULL, tolBefore, 1000000, messageHandler, profiler, reparametrization, verbose, optMethod);
+    OptimizationTools::optimizeNumericalParameters2(tl, parameters, NULL, tolBefore, 1000000, messageHandler, profiler, reparametrization, verbose, optMethodDeriv);
   }
   //Begin topo search:
   NNITopologySearch topoSearch(*tl, nniMethod, verbose > 2 ? verbose - 2 : 0);
-  NNITopologyListener2 *topoListener = new NNITopologyListener2(&topoSearch, parameters, tolDuring, messageHandler, profiler, verbose, optMethod, reparametrization);
+  NNITopologyListener2 *topoListener = new NNITopologyListener2(&topoSearch, parameters, tolDuring, messageHandler, profiler, verbose, optMethodDeriv, reparametrization);
   topoListener->setNumericalOptimizationCounter(numStep);
   topoSearch.addTopologyListener(topoListener);
   topoSearch.search();

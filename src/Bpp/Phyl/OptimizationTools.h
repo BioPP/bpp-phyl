@@ -327,8 +327,8 @@ namespace bpp
                                                     OutputStream* profiler         = ApplicationTools::message,
                                                     bool reparametrization         = false,
                                                     unsigned int verbose           = 1,
-                                                    const std::string& OptMethodDeriv      = OPTIMIZATION_NEWTON,
-                                                    const std::string& OptMethodModel      = OPTIMIZATION_BFGS)
+                                                    const std::string& optMethodDeriv      = OPTIMIZATION_NEWTON,
+                                                    const std::string& optMethodModel      = OPTIMIZATION_BFGS)
       throw (Exception);
 	
     /**
@@ -348,7 +348,7 @@ namespace bpp
      * @param reparametrization Tell if parameters should be transformed in order to remove constraints.
      *                          This can improve optimization, but is a bit slower.
      * @param verbose        The verbose level.
-     * @param optMethod      Optimization type for derivable parameters (first or second order derivatives).
+     * @param optMethodDeriv Optimization type for derivable parameters (first or second order derivatives).
      * @see OPTIMIZATION_NEWTON, OPTIMIZATION_GRADIENT
      * @throw Exception any exception thrown by the Optimizer.
      */
@@ -362,7 +362,7 @@ namespace bpp
                                                      OutputStream* profiler         = ApplicationTools::message,
                                                      bool reparametrization         = false,
                                                      unsigned int verbose           = 1,
-                                                     const std::string& optMethod   = OPTIMIZATION_NEWTON)
+                                                     const std::string& optMethodDeriv  = OPTIMIZATION_NEWTON)
       throw (Exception);
 
     /**
@@ -395,7 +395,7 @@ namespace bpp
                                                         OutputStream* messageHandler   = ApplicationTools::message,
                                                         OutputStream* profiler         = ApplicationTools::message,
                                                         unsigned int verbose           = 1,
-                                                        const std::string& optMethod   = OPTIMIZATION_NEWTON)
+                                                        const std::string& optMethodDeriv  = OPTIMIZATION_NEWTON)
       throw (Exception);
 		
     /**
@@ -418,7 +418,7 @@ namespace bpp
      * @param messageHandler The massage handler.
      * @param profiler       The profiler.
      * @param verbose        The verbose level.
-     * @param optMethod      Optimization type for derivable parameters (first or second order derivatives).
+     * @param optMethodDeriv Optimization type for derivable parameters (first or second order derivatives).
      * @see OPTIMIZATION_NEWTON, OPTIMIZATION_GRADIENT
      * @throw Exception any exception thrown by the Optimizer.
      */
@@ -432,7 +432,7 @@ namespace bpp
                                                                    OutputStream* messageHandler = ApplicationTools::message,
                                                                    OutputStream* profiler       = ApplicationTools::message,
                                                                    unsigned int verbose = 1,
-                                                                   const std::string& optMethod = OPTIMIZATION_GRADIENT)
+                                                                   const std::string& optMethodDeriv = OPTIMIZATION_GRADIENT)
       throw (Exception);
 
     /**
@@ -450,7 +450,7 @@ namespace bpp
      * @param messageHandler The massage handler.
      * @param profiler       The profiler.
      * @param verbose        The verbose level.
-     * @param optMethod      Optimization type for derivable parameters (first or second order derivatives).
+     * @param optMethodDeriv Optimization type for derivable parameters (first or second order derivatives).
      * @see OPTIMIZATION_NEWTON, OPTIMIZATION_GRADIENT
      * @throw Exception any exception thrown by the Optimizer.
      */
@@ -463,7 +463,7 @@ namespace bpp
                                                                     OutputStream* messageHandler = ApplicationTools::message,
                                                                     OutputStream* profiler       = ApplicationTools::message,
                                                                     unsigned int verbose = 1,
-                                                                    const std::string& optMethod = OPTIMIZATION_GRADIENT)
+                                                                    const std::string& optMethodDeriv = OPTIMIZATION_GRADIENT)
       throw (Exception);
 
 
