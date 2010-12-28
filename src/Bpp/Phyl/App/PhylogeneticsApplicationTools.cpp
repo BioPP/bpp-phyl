@@ -130,12 +130,13 @@ vector<Tree*> PhylogeneticsApplicationTools::getTrees(
 /******************************************************************************/
 
 SubstitutionModel* PhylogeneticsApplicationTools::getSubstitutionModelDefaultInstance(
-                                                                                      const Alphabet* alphabet,
-                                                                                      const string& modelDescription,
-                                                                                      map<string, string>& unparsedParameterValues,
-                                                                                      bool allowCovarions,
-                                                                                      bool allowGaps,
-                                                                                      bool verbose) throw (Exception)
+  const Alphabet* alphabet,
+  const string& modelDescription,
+  map<string, string>& unparsedParameterValues,
+  bool allowCovarions,
+  bool allowMixed,
+  bool allowGaps,
+  bool verbose) throw (Exception)
 {
   SubstitutionModel* model = 0;
   string modelName = "", left = "";
@@ -153,269 +154,268 @@ SubstitutionModel* PhylogeneticsApplicationTools::getSubstitutionModelDefaultIns
   // / MIXED MODELS
   // ////////////////////////////////
 
-  if (modelName == "MixedModel")
+  if (modelName == "MixedModel" && allowMixed)
+  {
+    map<string, string> unparsedParameterValuesNested;
+    if (args.find("model") == args.end())
+      throw Exception("The argument 'model' is missing from MixedSubstitutionModel description");
+    string nestedModelDescription = args["model"];
+    SubstitutionModel* pSM = getSubstitutionModelDefaultInstance(alphabet,
+                                                                 nestedModelDescription,
+                                                                 unparsedParameterValuesNested,
+                                                                 allowCovarions,
+                                                                 allowMixed,
+                                                                 allowGaps,
+                                                                 verbose);
+    map<string,DiscreteDistribution*> mdist;
+    map<string, string> unparsedParameterValuesNested2, unparsedParameterValuesNested3;
+
+    for (map<string, string>::iterator it = unparsedParameterValuesNested.begin();
+         it != unparsedParameterValuesNested.end(); it++)
     {
-      map<string, string> unparsedParameterValuesNested;
-      if (args.find("model") == args.end())
-        throw Exception("The argument 'model' is missing from MixedSubstitutionModel description");
-      string nestedModelDescription = args["model"];
-      SubstitutionModel* pSM = getSubstitutionModelDefaultInstance(alphabet,
-                                                                   nestedModelDescription,
-                                                                   unparsedParameterValuesNested,
-                                                                   allowCovarions,
-                                                                   allowGaps,
-                                                                   verbose);
-      map<string,DiscreteDistribution*> mdist;
-      map<string, string> unparsedParameterValuesNested2, unparsedParameterValuesNested3;
-
-      for (map<string, string>::iterator it = unparsedParameterValuesNested.begin();
-           it != unparsedParameterValuesNested.end(); it++)
+      if (it->second.find("(") != string::npos)
+      {
+        unparsedParameterValuesNested3.clear();
+        mdist[pSM->getParameterNameWithoutNamespace(it->first)] = getDistributionDefaultInstance(it->second, unparsedParameterValuesNested3,true);
+        for (map<string, string>::iterator it2 = unparsedParameterValuesNested3.begin();
+             it2 != unparsedParameterValuesNested3.end(); it2++)
         {
-          if (it->second.find("(") != string::npos)
-            {
-              unparsedParameterValuesNested3.clear();
-
-              mdist[pSM->getParameterNameWithoutNamespace(it->first)] = getDistributionDefaultInstance(it->second, unparsedParameterValuesNested3,true);
-              for (map<string, string>::iterator it2 = unparsedParameterValuesNested3.begin();
-                   it2 != unparsedParameterValuesNested3.end(); it2++)
-                {
-                  unparsedParameterValuesNested2[it->first + "_" + it2->first] = it2->second;
-                }
-            }
-          else
-            unparsedParameterValuesNested2[it->first] = it->second;
+          unparsedParameterValuesNested2[it->first + "_" + it2->first] = it2->second;
         }
-
-      for (map<string, string>::iterator it = unparsedParameterValuesNested2.begin();
-           it != unparsedParameterValuesNested2.end(); it++)
-        {
-          unparsedParameterValues[it->first] = it->second;
-        }
-
-      model = new MixtureOfASubstitutionModel(alphabet,pSM,mdist);
-
-      vector<string> v = model->getParameters().getParameterNames();
-
-      for (map<string,DiscreteDistribution*>::iterator it = mdist.begin();
-           it != mdist.end(); it++)
-        {
-          delete it->second;
-        }
-
-      if (verbose)
-        ApplicationTools::displayResult("Mixture Of A Substitution Model", nestedModelDescription );
-    }
-  else if (modelName == "Mixture")
-    {
-      vector<string> v_nestedModelDescription;
-      vector<SubstitutionModel*> v_pSM;
-      map<string, string> unparsedParameterValuesNested;
-
-      if (args.find("model1") == args.end()) {
-        throw Exception("Missing argument 'model1' for model " + modelName + ".");
       }
-      unsigned int nbmodels = 0;
+      else
+        unparsedParameterValuesNested2[it->first] = it->second;
+    }
+
+    for (map<string, string>::iterator it = unparsedParameterValuesNested2.begin();
+      it != unparsedParameterValuesNested2.end(); it++)
+    {
+      unparsedParameterValues[it->first] = it->second;
+    }
+
+    model = new MixtureOfASubstitutionModel(alphabet,pSM,mdist);
+
+    vector<string> v = model->getParameters().getParameterNames();
+
+    for (map<string,DiscreteDistribution*>::iterator it = mdist.begin();
+         it != mdist.end(); it++)
+    {
+      delete it->second;
+    }
+
+    if (verbose)
+      ApplicationTools::displayResult("Mixture Of A Substitution Model", nestedModelDescription );
+  }
+  else if (modelName == "Mixture" && allowMixed)
+  {
+    vector<string> v_nestedModelDescription;
+    vector<SubstitutionModel*> v_pSM;
+    map<string, string> unparsedParameterValuesNested;
+
+    if (args.find("model1") == args.end()) {
+      throw Exception("Missing argument 'model1' for model " + modelName + ".");
+    }
+    unsigned int nbmodels = 0;
       
-      while (args.find("model" + TextTools::toString(nbmodels+1)) != args.end()){
-        v_nestedModelDescription.push_back(args["model" + TextTools::toString(++nbmodels)]);
-      }
-    
-      if (nbmodels < 2)
-        throw Exception("Missing nested models for model " + modelName + ".");
-
-      for (unsigned i = 0; i < v_nestedModelDescription.size(); i++)
-        {
-          unparsedParameterValuesNested.clear();
-          model = getSubstitutionModelDefaultInstance(alphabet, v_nestedModelDescription[i], unparsedParameterValuesNested, false, false, false);
-          for (map<string, string>::iterator it = unparsedParameterValuesNested.begin(); it != unparsedParameterValuesNested.end(); it++){
-            unparsedParameterValues[modelName + "." + TextTools::toString(i+1) + "_" + it->first] = it->second;
-          }
-          v_pSM.push_back(model);
-        }
-
-      model = new MixtureOfSubstitutionModels(alphabet, v_pSM);
-      if (verbose)
-        ApplicationTools::displayResult("Mixture Of Substitution Models", modelName );
+    while (args.find("model" + TextTools::toString(nbmodels+1)) != args.end()){
+      v_nestedModelDescription.push_back(args["model" + TextTools::toString(++nbmodels)]);
     }
+    
+    if (nbmodels < 2)
+      throw Exception("Missing nested models for model " + modelName + ".");
+    for (unsigned i = 0; i < v_nestedModelDescription.size(); i++)
+    {
+      unparsedParameterValuesNested.clear();
+      model = getSubstitutionModelDefaultInstance(alphabet, v_nestedModelDescription[i], unparsedParameterValuesNested, false, true, false, false);
+      for (map<string, string>::iterator it = unparsedParameterValuesNested.begin(); it != unparsedParameterValuesNested.end(); it++) {
+        unparsedParameterValues[modelName + "." + TextTools::toString(i+1) + "_" + it->first] = it->second;
+      }
+      v_pSM.push_back(model);
+    }
+
+    model = new MixtureOfSubstitutionModels(alphabet, v_pSM);
+    if (verbose)
+      ApplicationTools::displayResult("Mixture Of Substitution Models", modelName );
+  }
   
   // /////////////////////////////////
   // / WORDS and CODONS defined by models
   // ///////////////////////////////
 
   else if (word)
+  {
+    vector<string> v_nestedModelDescription;
+    vector<SubstitutionModel*> v_pSM;
+    const WordAlphabet* pWA;
+
+    string s, nestedModelDescription;
+    unsigned int nbmodels;
+
+    if ((modelName == "Word" && !AlphabetTools::isWordAlphabet(alphabet)) ||
+        (modelName != "Word" && !AlphabetTools::isCodonAlphabet(alphabet)))
+      throw Exception("Bad alphabet type "
+                        + alphabet->getAlphabetType() + " for  model " + modelName + ".");
+
+    pWA = dynamic_cast<const WordAlphabet*>(alphabet);
+
+    if (args.find("model") != args.end())
     {
-      vector<string> v_nestedModelDescription;
-      vector<SubstitutionModel*> v_pSM;
-      const WordAlphabet* pWA;
-
-      string s, nestedModelDescription;
-      unsigned int nbmodels;
-
-      if ((modelName == "Word" && !AlphabetTools::isWordAlphabet(alphabet)) ||
-          (modelName != "Word" && !AlphabetTools::isCodonAlphabet(alphabet)))
-        throw Exception("Bad alphabet type "
-                        + alphabet->getAlphabetType() + " for  model " + modelName + ".");
-
-      pWA = dynamic_cast<const WordAlphabet*>(alphabet);
-
-      if (args.find("model") != args.end())
-        {
-          nestedModelDescription = args["model"];
-          if (modelName == "Word")
-            {
-              v_nestedModelDescription.push_back(nestedModelDescription);
-              nbmodels = pWA->getLength();
-            }
-          else
-            {
-              v_nestedModelDescription.push_back(nestedModelDescription);
-              nbmodels = 3;
-            }
-        }
-      else
-        {
-          if (args.find("model1") == args.end())
-            {
-              throw Exception("Missing argument 'model' or 'model1' for model " + modelName + ".");
-            }
-          nbmodels = 0;
-
-          while (args.find("model" + TextTools::toString(nbmodels+1)) != args.end())
-            {
-              v_nestedModelDescription.push_back(args["model" + TextTools::toString(++nbmodels)]);
-            }
-        }
-
-      if (nbmodels < 2)
-        throw Exception("Missing nested models for model " + modelName + ".");
-
-      if (pWA->getLength() != nbmodels)
-        throw Exception("Bad alphabet type "
-                        + alphabet->getAlphabetType() + " for  model " + modelName + ".");
-
-      map<string, string> unparsedParameterValuesNested;
-
-      if (v_nestedModelDescription.size() != nbmodels)
-        {
-          model = getSubstitutionModelDefaultInstance(pWA->getNAlphabet(0), v_nestedModelDescription[0], unparsedParameterValuesNested, false, false, false);
-          for (map<string, string>::iterator it = unparsedParameterValuesNested.begin(); it != unparsedParameterValuesNested.end(); it++)
-            {
-              unparsedParameterValues[modelName + "._" + it->first] = it->second;
-            }
-          v_pSM.push_back(model);
-        }
-      else
-        {
-          for (unsigned i = 0; i < v_nestedModelDescription.size(); i++)
-            {
-              unparsedParameterValuesNested.clear();
-              model = getSubstitutionModelDefaultInstance(pWA->getNAlphabet(i), v_nestedModelDescription[i], unparsedParameterValuesNested, false, false, false);
-              for (map<string, string>::iterator it = unparsedParameterValuesNested.begin(); it != unparsedParameterValuesNested.end(); it++)
-                {
-                  unparsedParameterValues[modelName + "." + TextTools::toString(i+1) + "_" + it->first] = it->second;
-                }
-              v_pSM.push_back(model);
-            }
-        }
-
-      // /////////////////////////////////
-      // / WORD
-      // ///////////////////////////////
-
+      nestedModelDescription = args["model"];
       if (modelName == "Word")
+      {
+        v_nestedModelDescription.push_back(nestedModelDescription);
+        nbmodels = pWA->getLength();
+      }
+      else
+      {
+        v_nestedModelDescription.push_back(nestedModelDescription);
+        nbmodels = 3;
+      }
+    }
+    else
+    {
+      if (args.find("model1") == args.end())
+      {
+        throw Exception("Missing argument 'model' or 'model1' for model " + modelName + ".");
+      }
+      nbmodels = 0;
+
+      while (args.find("model" + TextTools::toString(nbmodels+1)) != args.end())
+      {
+        v_nestedModelDescription.push_back(args["model" + TextTools::toString(++nbmodels)]);
+      }
+    }
+
+    if (nbmodels < 2)
+      throw Exception("Missing nested models for model " + modelName + ".");
+
+    if (pWA->getLength() != nbmodels)
+      throw Exception("Bad alphabet type "
+                        + alphabet->getAlphabetType() + " for  model " + modelName + ".");
+
+    map<string, string> unparsedParameterValuesNested;
+
+    if (v_nestedModelDescription.size() != nbmodels)
+    {
+      model = getSubstitutionModelDefaultInstance(pWA->getNAlphabet(0), v_nestedModelDescription[0], unparsedParameterValuesNested, false, true, false, false);
+      for (map<string, string>::iterator it = unparsedParameterValuesNested.begin(); it != unparsedParameterValuesNested.end(); it++)
+      {
+        unparsedParameterValues[modelName + "._" + it->first] = it->second;
+      }
+      v_pSM.push_back(model);
+    }
+    else
+    {
+      for (unsigned i = 0; i < v_nestedModelDescription.size(); i++)
+      {
+        unparsedParameterValuesNested.clear();
+        model = getSubstitutionModelDefaultInstance(pWA->getNAlphabet(i), v_nestedModelDescription[i], unparsedParameterValuesNested, false, true, false, false);
+        for (map<string, string>::iterator it = unparsedParameterValuesNested.begin(); it != unparsedParameterValuesNested.end(); it++)
         {
-          model = (v_nestedModelDescription.size() != nbmodels)
+          unparsedParameterValues[modelName + "." + TextTools::toString(i+1) + "_" + it->first] = it->second;
+        }
+        v_pSM.push_back(model);
+      }
+    }
+
+    // /////////////////////////////////
+    // / WORD
+    // ///////////////////////////////
+
+    if (modelName == "Word")
+    {
+      model = (v_nestedModelDescription.size() != nbmodels)
             ? new WordReversibleSubstitutionModel(v_pSM[0], nbmodels)
             : new WordReversibleSubstitutionModel(v_pSM);
-        }
+    }
 
-      // /////////////////////////////////
-      // / TRIPLET
-      // ///////////////////////////////
+    // /////////////////////////////////
+    // / TRIPLET
+    // ///////////////////////////////
 
-      else if (modelName == "Triplet")
-        {
-          if (dynamic_cast<NucleotideSubstitutionModel*>(v_pSM[0])==NULL)
-            throw Exception("Non simple NucleotideSubstitutionModel imbedded in " + modelName + " model.");
+    else if (modelName == "Triplet")
+    {
+      if (dynamic_cast<NucleotideSubstitutionModel*>(v_pSM[0])==NULL)
+        throw Exception("Non simple NucleotideSubstitutionModel imbedded in " + modelName + " model.");
       
-          if (v_nestedModelDescription.size() != 3)
-            model = new TripletReversibleSubstitutionModel(
-                                                           dynamic_cast<const CodonAlphabet*>(pWA),
-                                                           dynamic_cast<NucleotideSubstitutionModel*>(v_pSM[0]));
-          else {
-            if (dynamic_cast<NucleotideSubstitutionModel*>(v_pSM[1])==NULL || dynamic_cast<NucleotideSubstitutionModel*>(v_pSM[2])==NULL)
-              throw Exception("Non simple NucleotideSubstitutionModel imbedded in " + modelName + " model.");
+      if (v_nestedModelDescription.size() != 3)
+        model = new TripletReversibleSubstitutionModel(
+            dynamic_cast<const CodonAlphabet*>(pWA),
+            dynamic_cast<NucleotideSubstitutionModel*>(v_pSM[0]));
+      else {
+        if (dynamic_cast<NucleotideSubstitutionModel*>(v_pSM[1])==NULL || dynamic_cast<NucleotideSubstitutionModel*>(v_pSM[2])==NULL)
+          throw Exception("Non simple NucleotideSubstitutionModel imbedded in " + modelName + " model.");
 
-            model = new TripletReversibleSubstitutionModel(
-                                                           dynamic_cast<const CodonAlphabet*>(pWA),
-                                                           dynamic_cast<NucleotideSubstitutionModel*>(v_pSM[0]),
-                                                           dynamic_cast<NucleotideSubstitutionModel*>(v_pSM[1]),
-                                                           dynamic_cast<NucleotideSubstitutionModel*>(v_pSM[2]));
-          }
-        }
+        model = new TripletReversibleSubstitutionModel(
+            dynamic_cast<const CodonAlphabet*>(pWA),
+            dynamic_cast<NucleotideSubstitutionModel*>(v_pSM[0]),
+            dynamic_cast<NucleotideSubstitutionModel*>(v_pSM[1]),
+            dynamic_cast<NucleotideSubstitutionModel*>(v_pSM[2]));
+      }
+    }
 
-      // /////////////////////////////////
-      // / CODON NEUTRAL
-      // ///////////////////////////////
+    // /////////////////////////////////
+    // / CODON NEUTRAL
+    // ///////////////////////////////
 
-      else if (modelName == "CodonNeutral")
-        {
-          if (dynamic_cast<NucleotideSubstitutionModel*>(v_pSM[0])==NULL)
-            throw Exception("Non simple NucleotideSubstitutionModel imbedded in " + modelName + " model.");
+    else if (modelName == "CodonNeutral")
+    {
+      if (dynamic_cast<NucleotideSubstitutionModel*>(v_pSM[0])==NULL)
+        throw Exception("Non simple NucleotideSubstitutionModel imbedded in " + modelName + " model.");
       
-          if (v_nestedModelDescription.size() != 3)
-            model = new CodonNeutralReversibleSubstitutionModel(
-                                                                dynamic_cast<const CodonAlphabet*>(pWA),
-                                                                dynamic_cast<NucleotideSubstitutionModel*>(v_pSM[0]));
-          else {
-            if (dynamic_cast<NucleotideSubstitutionModel*>(v_pSM[1])==NULL || dynamic_cast<NucleotideSubstitutionModel*>(v_pSM[2])==NULL)
-              throw Exception("Non simple NucleotideSubstitutionModel imbedded in " + modelName + " model.");
+      if (v_nestedModelDescription.size() != 3)
+        model = new CodonNeutralReversibleSubstitutionModel(
+            dynamic_cast<const CodonAlphabet*>(pWA),
+            dynamic_cast<NucleotideSubstitutionModel*>(v_pSM[0]));
+      else {
+        if (dynamic_cast<NucleotideSubstitutionModel*>(v_pSM[1])==NULL || dynamic_cast<NucleotideSubstitutionModel*>(v_pSM[2])==NULL)
+          throw Exception("Non simple NucleotideSubstitutionModel imbedded in " + modelName + " model.");
 
-            model = new CodonNeutralReversibleSubstitutionModel(
-                                                                dynamic_cast<const CodonAlphabet*>(pWA),
-                                                                dynamic_cast<NucleotideSubstitutionModel*>(v_pSM[0]),
-                                                                dynamic_cast<NucleotideSubstitutionModel*>(v_pSM[1]),
-                                                                dynamic_cast<NucleotideSubstitutionModel*>(v_pSM[2]));
-          }
-        }
+        model = new CodonNeutralReversibleSubstitutionModel(
+            dynamic_cast<const CodonAlphabet*>(pWA),
+            dynamic_cast<NucleotideSubstitutionModel*>(v_pSM[0]),
+            dynamic_cast<NucleotideSubstitutionModel*>(v_pSM[1]),
+            dynamic_cast<NucleotideSubstitutionModel*>(v_pSM[2]));
+      }
+    }
 
-      // /////////////////////////////////
-      // / CODON ASYNONYMOUS
-      // ///////////////////////////////
+    // /////////////////////////////////
+    // / CODON ASYNONYMOUS
+    // ///////////////////////////////
 
-      else if (modelName == "CodonAsynonymous")
-        {
-          if (args.find("genetic_code") == args.end())
-            args["genetic_code"]=pWA->getAlphabetType();
+    else if (modelName == "CodonAsynonymous")
+    {
+      if (args.find("genetic_code") == args.end())
+        args["genetic_code"] = pWA->getAlphabetType();
       
-          GeneticCode* pgc = SequenceApplicationTools::getGeneticCode(dynamic_cast<const NucleicAlphabet*>(pWA->getNAlphabet(0)),args["genetic_code"]);
-          if (pgc->getSourceAlphabet()->getAlphabetType() != pWA->getAlphabetType())
-            throw Exception("Mismatch between genetic code and codon alphabet");
+        GeneticCode* pgc = SequenceApplicationTools::getGeneticCode(dynamic_cast<const NucleicAlphabet*>(pWA->getNAlphabet(0)),args["genetic_code"]);
+        if (pgc->getSourceAlphabet()->getAlphabetType() != pWA->getAlphabetType())
+          throw Exception("Mismatch between genetic code and codon alphabet");
 
-          AlphabetIndex2<double>* pai2;
+        AlphabetIndex2<double>* pai2;
 
-          if (args.find("aadistance") == args.end())
-            pai2 = 0;
-          else
-            pai2 = SequenceApplicationTools::getAADistance(args["aadistance"]);
+        if (args.find("aadistance") == args.end())
+          pai2 = 0;
+        else
+          pai2 = SequenceApplicationTools::getAADistance(args["aadistance"]);
 
-          if (dynamic_cast<NucleotideSubstitutionModel*>(v_pSM[0])==NULL)
-            throw Exception("Non simple NucleotideSubstitutionModel imbedded in " + modelName + " model.");
+        if (dynamic_cast<NucleotideSubstitutionModel*>(v_pSM[0])==NULL)
+          throw Exception("Non simple NucleotideSubstitutionModel imbedded in " + modelName + " model.");
       
-          if (v_nestedModelDescription.size() != 3)
-            model = new CodonAsynonymousReversibleSubstitutionModel(pgc,
-                                                                    dynamic_cast<NucleotideSubstitutionModel*>(v_pSM[0]), pai2);
-          else {
+        if (v_nestedModelDescription.size() != 3)
+          model = new CodonAsynonymousReversibleSubstitutionModel(pgc,
+              dynamic_cast<NucleotideSubstitutionModel*>(v_pSM[0]), pai2);
+        else {
             if (dynamic_cast<NucleotideSubstitutionModel*>(v_pSM[1])==NULL || dynamic_cast<NucleotideSubstitutionModel*>(v_pSM[2])==NULL)
               throw Exception("Non simple NucleotideSubstitutionModel imbedded in " + modelName + " model.");
 
             model = new CodonAsynonymousReversibleSubstitutionModel(
-                                                                    pgc,
-                                                                    dynamic_cast<NucleotideSubstitutionModel*>(v_pSM[0]),
-                                                                    dynamic_cast<NucleotideSubstitutionModel*>(v_pSM[1]),
-                                                                    dynamic_cast<NucleotideSubstitutionModel*>(v_pSM[2]), pai2);
-          }
+                pgc,
+                dynamic_cast<NucleotideSubstitutionModel*>(v_pSM[0]),
+                dynamic_cast<NucleotideSubstitutionModel*>(v_pSM[1]),
+                dynamic_cast<NucleotideSubstitutionModel*>(v_pSM[2]), pai2);
         }
+      }
     }
 
   // /////////////////////////////////
@@ -573,7 +573,7 @@ SubstitutionModel* PhylogeneticsApplicationTools::getSubstitutionModelDefaultIns
       if (verbose)
         ApplicationTools::displayResult("Gap model", modelName);
       map<string, string> unparsedParameterValuesNested;
-      SubstitutionModel* nestedModel = getSubstitutionModelDefaultInstance(alphabet, nestedModelDescription, unparsedParameterValuesNested, allowCovarions, false, verbose);
+      SubstitutionModel* nestedModel = getSubstitutionModelDefaultInstance(alphabet, nestedModelDescription, unparsedParameterValuesNested, allowCovarions, allowMixed, false, verbose);
 
       // Now we create the RE08 substitution model:
       ReversibleSubstitutionModel* tmp = dynamic_cast<ReversibleSubstitutionModel*>(nestedModel);
@@ -602,7 +602,7 @@ SubstitutionModel* PhylogeneticsApplicationTools::getSubstitutionModelDefaultIns
       if (verbose)
         ApplicationTools::displayResult("Covarion model", modelName);
       map<string, string> unparsedParameterValuesNested;
-      SubstitutionModel* nestedModel = getSubstitutionModelDefaultInstance(alphabet, nestedModelDescription, unparsedParameterValuesNested, false, allowGaps, verbose);
+      SubstitutionModel* nestedModel = getSubstitutionModelDefaultInstance(alphabet, nestedModelDescription, unparsedParameterValuesNested, false, allowMixed, allowGaps, verbose);
 
       // Now we create the TS98 substitution model:
       ReversibleSubstitutionModel* tmp = dynamic_cast<ReversibleSubstitutionModel*>(nestedModel);
@@ -635,7 +635,7 @@ SubstitutionModel* PhylogeneticsApplicationTools::getSubstitutionModelDefaultIns
         ApplicationTools::displayResult("Covarion model", modelName);
 
       map<string, string> unparsedParameterValuesNestedModel;
-      SubstitutionModel* nestedModel = getSubstitutionModelDefaultInstance(alphabet, nestedModelDescription, unparsedParameterValuesNestedModel, false, allowGaps, verbose);
+      SubstitutionModel* nestedModel = getSubstitutionModelDefaultInstance(alphabet, nestedModelDescription, unparsedParameterValuesNestedModel, false, allowMixed, allowGaps, verbose);
       map<string, string> unparsedParameterValuesNestedDist;
       DiscreteDistribution* nestedRDist = getRateDistributionDefaultInstance(nestedRateDistDescription, unparsedParameterValuesNestedDist, false, verbose);
 
@@ -891,7 +891,7 @@ SubstitutionModel* PhylogeneticsApplicationTools::getSubstitutionModel(
     modelDescription = ApplicationTools::getStringParameter("model", params, "JC69", suffix, suffixIsOptional, verbose);
   
   map<string, string> unparsedParameterValues;
-  SubstitutionModel* model = getSubstitutionModelDefaultInstance(alphabet, modelDescription, unparsedParameterValues, true, true, verbose);
+  SubstitutionModel* model = getSubstitutionModelDefaultInstance(alphabet, modelDescription, unparsedParameterValues, true, true, true, verbose);
   setSubstitutionModelParametersInitialValues(model, unparsedParameterValues, data, verbose);
   return model;
 }

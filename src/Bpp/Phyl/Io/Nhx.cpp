@@ -303,11 +303,11 @@ TreeTemplate<Node>* Nhx::parenthesisToTree(const string& description) const thro
   NestedStringTokenizer nt(content,"(", ")", ",");
   vector<string> elements;
   while (nt.hasMoreToken())
-    {
+  {
     elements.push_back(nt.nextToken());
-    }
+  }
   if (elements.size() == 1)
-    {
+  {
     //This is a leaf:
     StringTokenizer st(elements[0], "[&&NHX", true, true);
     StringTokenizer st2(st.getToken(0), ":", true, true);
@@ -316,37 +316,37 @@ TreeTemplate<Node>* Nhx::parenthesisToTree(const string& description) const thro
     }
     node->setDistanceToFather(TextTools::toDouble(st2.getToken(1)));
     hasId = setNodeProperties(*node, st.getToken(1));
-    }
+  }
   else
-    {
+  {
     //This is a node:
-    for(unsigned int i = 0; i < elements.size(); i++)
-      {
+    for (unsigned int i = 0; i < elements.size(); i++)
+    {
       Node* son = parenthesisToNode(elements[i]);
       node->addSon(son);
-      }
-    if(! TextTools::isEmpty(element))
-      {
+    }
+    if (! TextTools::isEmpty(element))
+    {
       StringTokenizer st(element, "[&&NHX", true, true);
       StringTokenizer st2(st.getToken(0), ":", true, true);
       if (st2.getToken(0) != "") 
-        {
+      {
         node->setName(st2.getToken(0));
-        }
+      }
       if (st2.numberOfRemainingTokens () >= 1) 
-        {
+      {
         if (st2.numberOfRemainingTokens ()>1 )
           node->setDistanceToFather(TextTools::toDouble(st2.getToken(1)));       
       }
       hasId = setNodeProperties(*node, st.getToken(1));
-      }
     }
+  }
   TreeTemplate<Node>* tree = new TreeTemplate<Node>();
   tree->setRootNode(node);
   if (!hasId)
-    {
+  {
     tree->resetNodesId();
-    }
+  }
   return tree;
 }
 
@@ -358,13 +358,13 @@ string Nhx::propertiesToParenthesis(const Node& node) const
   s << "[&&NHX";
   vector <string> bProps = node.getBranchPropertyNames();
   for (unsigned int i= 0 ; i <bProps.size(); i++)
+  {
+    if (bProps[i] == TreeTools::BOOTSTRAP)
     {
-    if (bProps[i]==TreeTools::BOOTSTRAP)
-      {
       s << ":"<<"B"<<"="<< (dynamic_cast<const Number<double> *>(node.getBranchProperty(bProps[i]))->getValue());
-      }
+    }
     else
-      {
+    {
       const Clonable* ppt = node.getBranchProperty(bProps[i]);
       const BppString* strPpt = dynamic_cast<const BppString*>(ppt);
       if (strPpt) 
@@ -372,47 +372,45 @@ string Nhx::propertiesToParenthesis(const Node& node) const
         s << ":"<<bProps[i]<<"="<<*strPpt;
       } 
       else 
-        {
+      {
         const Number<double>* numPpt = dynamic_cast<const Number<double> *>(ppt);
         if (numPpt) 
-          {
+        {
           s << ":"<<bProps[i]<<"="<< numPpt->getValue();
-          } 
+        } 
         else 
-          {
+        {
           throw Exception("Unsupported property type");
-          }
-        } 
-      }
-    }
-  vector <string> nProps = node.getNodePropertyNames();
-  for (unsigned int i= 0 ; i <nProps.size(); i++)
-    {
-    const Clonable* ppt = node.getNodeProperty(nProps[i]);
-    const BppString* strPpt = dynamic_cast<const BppString*>(ppt);
-    if (strPpt) 
-      {
-      s << ":"<<nProps[i]<<"="<<*strPpt;
-      } 
-    else 
-      {
-      const Number<double>*  numPpt = dynamic_cast<const Number<double> *>(ppt);
-
-      if (numPpt) 
-        {
-
-        s << ":"<<nProps[i]<<"="<< numPpt->getValue();
-        } 
-      else 
-        {
-        throw Exception("Unsupported property type");
         }
       } 
     }
-  if (!node.hasNodeProperty ("ND"))
+  }
+  vector <string> nProps = node.getNodePropertyNames();
+  for (unsigned int i= 0 ; i <nProps.size(); i++)
+  {
+    const Clonable* ppt = node.getNodeProperty(nProps[i]);
+    const BppString* strPpt = dynamic_cast<const BppString*>(ppt);
+    if (strPpt) 
     {
+      s << ":"<<nProps[i]<<"="<<*strPpt;
+    } 
+    else 
+    {
+      const Number<double>*  numPpt = dynamic_cast<const Number<double> *>(ppt);
+      if (numPpt) 
+      {
+        s << ":"<<nProps[i]<<"="<< numPpt->getValue();
+      } 
+      else 
+      {
+        throw Exception("Unsupported property type");
+      }
+    } 
+  }
+  if (!node.hasNodeProperty ("ND"))
+  {
     s << ":ND="<<TextTools::toString(node.getId());
-    }
+  }
   s << "]";
   return s.str();  
 }
@@ -423,19 +421,19 @@ string Nhx::nodeToParenthesis(const Node& node) const
 {
   ostringstream s;
   if (node.isLeaf())
-    {
+  {
     s << node.getName();
-    }
+  }
   else
-    {
+  {
     s << "(";
     s << nodeToParenthesis(* node[0]);
     for (unsigned int i = 1; i < node.getNumberOfSons(); i++)
-      {
+    {
       s << "," << nodeToParenthesis(* node[i]);
-      }
+    }
     s << ")";
-        }
+  }
   if (node.hasDistanceToFather()) s << ":" << node.getDistanceToFather();
   s << propertiesToParenthesis(node);
   return s.str();  
@@ -451,25 +449,21 @@ string Nhx::treeToParenthesis(const TreeTemplate<Node>& tree) const
   const Node* node = tree.getRootNode();
 
   if (node->isLeaf())
-    {
-
+  {
     s << node->getName();
-
     for (unsigned int i = 0; i < node->getNumberOfSons(); ++i)
-      {
-      s << "," << nodeToParenthesis(*node->getSon(i));
-      }
-    }
-  else
     {
+      s << "," << nodeToParenthesis(*node->getSon(i));
+    }
+  }
+  else
+  {
     s << nodeToParenthesis(* node->getSon(0));
     for(unsigned int i = 1; i < node->getNumberOfSons(); ++i)
-      {
-
+    {
       s << "," << nodeToParenthesis(*node->getSon(i));
-
-      }
     }
+  }
 
   s << ")" ;
   if (node->hasDistanceToFather()) s << ":" << node->getDistanceToFather();
@@ -487,47 +481,47 @@ bool Nhx::setNodeProperties(Node& node, const string properties) const
   vector <string> props ; 
   bool hasId = false;
   while (st.hasMoreToken())
-    {
+  {
     props.push_back(st.nextToken());
-    }
+  }
   //This is a node:
 
-  for(unsigned int i = 0; i < props.size(); i++)
-    {
+  for (size_t i = 0; i < props.size(); i++)
+  {
     if (TextTools::hasSubstring(st.getToken(i), "="))
-      {
-      
+    {
       StringTokenizer pt(st.getToken(i), "=", true, true);
       
       BppString property (pt.getToken(1));
       
       //Set branch properties, like support values ("B"), presence or absence of a duplication ("D"), of an event ("Ev"), 
       //width of parent branch ("W"), color of parent branch ("C"), custom data ("XB")
-      if (pt.getToken(0)=="D" || pt.getToken(0)=="Ev" || pt.getToken(0)=="W" || pt.getToken(0)=="C" || pt.getToken(0)=="XB")
-        {
+      if (pt.getToken(0) == "D" || pt.getToken(0) == "Ev" || pt.getToken(0) == "W" || pt.getToken(0) == "C" || pt.getToken(0) == "XB")
+      {
         node.setBranchProperty (pt.getToken(0), property);        
+      }
+      else if (pt.getToken(0) == "B" )
+      {        
+        node.setBranchProperty (TreeTools::BOOTSTRAP, Number<double> (TextTools::toDouble(pt.getToken(1))));        
+      }
+      else if ((pt.getToken(0) == "ND") )//&& ((double) ((int) property.getValue())) == property.getValue())
+      {        
+        if (TextTools::isDecimalNumber(property.toSTL()))
+        {          
+          node.setId(TextTools::toInt(property.toSTL()));          
+          hasId = true;   
         }
-      else if (pt.getToken(0)=="B" )
-        {        
-          node.setBranchProperty (TreeTools::BOOTSTRAP, Number<double> (TextTools::toDouble(pt.getToken(1))));        
+        else 
+        {          
+          node.setNodeProperty ("ND", property);           
         }
-      else if ((pt.getToken(0)=="ND") )//&& ((double) ((int) property.getValue())) == property.getValue())
-        {        
-          if (TextTools::isDecimalNumber(property.toSTL()))
-            {          
-              node.setId (TextTools::toInt(property.toSTL()));          
-              hasId = true;   
-            }
-          else 
-            {          
-              node.setNodeProperty ("ND", property);           
-            }
-        }
-      else {
+      }
+      else
+      {
         node.setNodeProperty (pt.getToken(0), property);   
       }
-      }
     }
+  }
   return hasId;
 }
 
