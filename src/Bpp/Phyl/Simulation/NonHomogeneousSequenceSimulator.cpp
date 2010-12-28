@@ -116,19 +116,19 @@ void NonHomogeneousSequenceSimulator::init()
   
   for (unsigned int i = 0; i < nodes.size(); i++)
   {
-    SNode * node = nodes[i];
+    SNode* node = nodes[i];
     node->getInfos().model = modelSet_->getModelForNode(node->getId());
     double d = node->getDistanceToFather();
-    VVVdouble * cumpxy_node_ = &node->getInfos().cumpxy;
+    VVVdouble* cumpxy_node_ = &node->getInfos().cumpxy;
     cumpxy_node_->resize(nbClasses_);
     for(unsigned int c = 0; c < nbClasses_; c++)
     {
       VVdouble * cumpxy_node_c_ = & (* cumpxy_node_)[c];
       cumpxy_node_c_->resize(nbStates_);
       RowMatrix<double> P = node->getInfos().model->getPij_t(d * rate_->getCategory(c));
-      for(unsigned int x = 0; x < nbStates_; x++)
+      for (unsigned int x = 0; x < nbStates_; x++)
       {
-        Vdouble * cumpxy_node_c_x_ = & (* cumpxy_node_c_)[x];
+        Vdouble* cumpxy_node_c_x_ = & (* cumpxy_node_c_)[x];
         cumpxy_node_c_x_->resize(nbStates_);
         (* cumpxy_node_c_x_)[0] = P(x, 0);
         for(unsigned int y = 1; y < nbStates_; y++)
@@ -152,7 +152,7 @@ Site* NonHomogeneousSequenceSimulator::simulate() const
   for (unsigned int i = 0; i < nbStates_; i++)
   {
     cumprob += freqs[i];
-    if(r <= cumprob)
+    if (r <= cumprob)
     {
       initialState = (int)i;
       break;
@@ -165,7 +165,7 @@ Site* NonHomogeneousSequenceSimulator::simulate() const
   
 Site* NonHomogeneousSequenceSimulator::simulate(int initialState) const
 {
-  if(continuousRates_)
+  if (continuousRates_)
   {
     // Draw a random rate:
     double rate = rate_->randC();
@@ -175,7 +175,7 @@ Site* NonHomogeneousSequenceSimulator::simulate(int initialState) const
   else
   {
     // Draw a random rate:
-    unsigned int rateClass = (unsigned int)RandomTools::giveIntRandomNumberBetweenZeroAndEntry(rate_->getNumberOfCategories());
+    unsigned int rateClass = static_cast<unsigned int>(RandomTools::giveIntRandomNumberBetweenZeroAndEntry(rate_->getNumberOfCategories()));
     // Make this state evolve:
     return simulate(initialState, rateClass);
   }
@@ -188,13 +188,13 @@ Site* NonHomogeneousSequenceSimulator::simulate(int initialState, unsigned int r
   // Launch recursion:
   SNode* root = tree_.getRootNode();
   root->getInfos().state = initialState;
-  for(unsigned int i = 0; i < root->getNumberOfSons(); i++)
+  for (unsigned int i = 0; i < root->getNumberOfSons(); i++)
   {
     evolveInternal(root->getSon(i), rateClass);
   }
   // Now create a Site object:
   Vint site(leaves_.size());
-  for(unsigned int i = 0; i < leaves_.size(); i++)
+  for (unsigned int i = 0; i < leaves_.size(); i++)
   {
     site[i] = leaves_[i]->getInfos().model->getAlphabetChar(leaves_[i]->getInfos().state);
   }
@@ -208,13 +208,13 @@ Site* NonHomogeneousSequenceSimulator::simulate(int initialState, double rate) c
   // Launch recursion:
   SNode* root = tree_.getRootNode();
   root->getInfos().state = initialState;
-  for(unsigned int i = 0; i < root->getNumberOfSons(); i++)
+  for (unsigned int i = 0; i < root->getNumberOfSons(); i++)
   {
     evolveInternal(root->getSon(i), rate);
   }
   // Now create a Site object:
   Vint site(leaves_.size());
-  for(unsigned int i = 0; i < leaves_.size(); i++)
+  for (unsigned int i = 0; i < leaves_.size(); i++)
   {
     site[i] = leaves_[i]->getInfos().model->getAlphabetChar(leaves_[i]->getInfos().state);
   }
@@ -302,7 +302,7 @@ RASiteSimulationResult* NonHomogeneousSequenceSimulator::dSimulate() const
   for (unsigned int i = 0; i < nbStates_; i++)
   {
     cumprob += freqs[i];
-    if(r <= cumprob)
+    if (r <= cumprob)
     {
       initialState = i;
       break;
@@ -317,14 +317,14 @@ RASiteSimulationResult* NonHomogeneousSequenceSimulator::dSimulate() const
 RASiteSimulationResult* NonHomogeneousSequenceSimulator::dSimulate(int initialState) const
 {
   // Draw a random rate:
-  if(continuousRates_)
+  if (continuousRates_)
   {
     double rate = rate_->randC();
     return dSimulate(initialState, rate);
   }
   else
   {
-    unsigned int rateClass = (unsigned int)RandomTools::giveIntRandomNumberBetweenZeroAndEntry(rate_->getNumberOfCategories());
+    unsigned int rateClass = static_cast<unsigned int>(RandomTools::giveIntRandomNumberBetweenZeroAndEntry(rate_->getNumberOfCategories()));
     return dSimulate(initialState, rateClass);
     //NB: this is more efficient than dSimulate(initialState, rDist_->rand())
   }
@@ -335,7 +335,7 @@ RASiteSimulationResult* NonHomogeneousSequenceSimulator::dSimulate(int initialSt
 RASiteSimulationResult* NonHomogeneousSequenceSimulator::dSimulate(int initialState, double rate) const
 {
   // Make this state evolve:
-  RASiteSimulationResult * hssr = new RASiteSimulationResult(templateTree_, modelSet_->getAlphabet(), initialState, rate);
+  RASiteSimulationResult* hssr = new RASiteSimulationResult(templateTree_, modelSet_->getAlphabet(), initialState, rate);
   dEvolve(initialState, rate, *hssr);
   return hssr;
 }
@@ -372,9 +372,9 @@ RASiteSimulationResult* NonHomogeneousSequenceSimulator::dSimulate(double rate) 
 
 int NonHomogeneousSequenceSimulator::evolve(const SNode* node, int initialState, unsigned int rateClass) const
 {
-  const Vdouble * cumpxy_node_c_x_ = & node->getInfos().cumpxy[rateClass][initialState];
+  const Vdouble* cumpxy_node_c_x_ = & node->getInfos().cumpxy[rateClass][initialState];
   double rand = RandomTools::giveRandomNumberBetweenZeroAndEntry(1.);
-  for(int y = 0; y < (int)nbStates_; y++)
+  for (int y = 0; y < static_cast<int>(nbStates_); y++)
   {
     if(rand < (* cumpxy_node_c_x_)[y]) return y;
   }
@@ -391,10 +391,10 @@ int NonHomogeneousSequenceSimulator::evolve(const SNode* node, int initialState,
   double rand = RandomTools::giveRandomNumberBetweenZeroAndEntry(1.);
   double l = rate * node->getDistanceToFather();
   const SubstitutionModel* model = node->getInfos().model;
-  for(int y = 0; y < (int)nbStates_; y++)
+  for (int y = 0; y < static_cast<int>(nbStates_); y++)
   {
     cumpxy += model->Pij_t(initialState, y, l);
-    if(rand < cumpxy) return y;
+    if (rand < cumpxy) return y;
   }
   cerr << "DEBUG: This message should never happen! (NonHomogeneousSequenceSimulator::evolve)" << endl;
   cout << "  rand = " << rand << endl;
@@ -407,14 +407,14 @@ int NonHomogeneousSequenceSimulator::evolve(const SNode* node, int initialState,
 
 void NonHomogeneousSequenceSimulator::multipleEvolve(const SNode* node, const Vint & initialStates, const vector<unsigned int> & rateClasses, Vint & finalStates) const
 {
-  const VVVdouble * cumpxy_node_ = & node->getInfos().cumpxy;
+  const VVVdouble* cumpxy_node_ = & node->getInfos().cumpxy;
   for(unsigned int i = 0; i < initialStates.size(); i++)
   {
     const Vdouble * cumpxy_node_c_x_ = & (* cumpxy_node_)[rateClasses[i]][initialStates[i]];
     double rand = RandomTools::giveRandomNumberBetweenZeroAndEntry(1.);
-    for(unsigned int y = 0; y < nbStates_; y++)
+    for (unsigned int y = 0; y < nbStates_; y++)
     {
-      if(rand < (* cumpxy_node_c_x_)[y])
+      if (rand < (* cumpxy_node_c_x_)[y])
       {
         finalStates[i] = (int)y;
         break;
@@ -433,7 +433,7 @@ void NonHomogeneousSequenceSimulator::evolveInternal(SNode* node, unsigned int r
     return;
   }
   node->getInfos().state = evolve(node, node->getFather()->getInfos().state, rateClass);
-  for(unsigned int i = 0; i < node->getNumberOfSons(); i++)
+  for (unsigned int i = 0; i < node->getNumberOfSons(); i++)
   {
     evolveInternal(node->getSon(i), rateClass);
   }
@@ -443,13 +443,13 @@ void NonHomogeneousSequenceSimulator::evolveInternal(SNode* node, unsigned int r
 
 void NonHomogeneousSequenceSimulator::evolveInternal(SNode* node, double rate) const
 {
-  if(!node->hasFather())
+  if (!node->hasFather())
   { 
     cerr << "DEBUG: NonHomogeneousSequenceSimulator::evolveInternal. Forbidden call of method on root node." << endl;
     return;
   }
   node->getInfos().state = evolve(node, node->getFather()->getInfos().state, rate);
-  for(unsigned int i = 0; i < node->getNumberOfSons(); i++)
+  for (unsigned int i = 0; i < node->getNumberOfSons(); i++)
   {
     evolveInternal(node->getSon(i), rate);
   }
@@ -464,7 +464,7 @@ void NonHomogeneousSequenceSimulator::multipleEvolveInternal(SNode* node, const 
     cerr << "DEBUG: NonHomogeneousSequenceSimulator::multipleEvolveInternal. Forbidden call of method on root node." << endl;
     return;
   }
-  const vector<int> * initialStates = &node->getFather()->getInfos().states;
+  const vector<int>* initialStates = &node->getFather()->getInfos().states;
   unsigned int n = initialStates->size();
   node->getInfos().states.resize(n); //allocation.
   multipleEvolve(node, node->getFather()->getInfos().states, rateClasses, node->getInfos().states);
@@ -476,7 +476,7 @@ void NonHomogeneousSequenceSimulator::multipleEvolveInternal(SNode* node, const 
 
 /******************************************************************************/
 
-SiteContainer * NonHomogeneousSequenceSimulator::multipleEvolve(const Vint& initialStates, const vector<unsigned int> & rateClasses) const
+SiteContainer* NonHomogeneousSequenceSimulator::multipleEvolve(const Vint& initialStates, const vector<unsigned int> & rateClasses) const
 {
   // Launch recursion:
   SNode * root = tree_.getRootNode();
@@ -493,7 +493,7 @@ SiteContainer * NonHomogeneousSequenceSimulator::multipleEvolve(const Vint& init
   for(unsigned int i = 0; i < n; i++)
   {
     vector<int> content(nbSites);
-    vector<int> * states = &leaves_[i]->getInfos().states;
+    vector<int>* states = &leaves_[i]->getInfos().states;
     model = leaves_[i]->getInfos().model;
     for(unsigned int j = 0; j < nbSites; j++)
     {
@@ -506,12 +506,12 @@ SiteContainer * NonHomogeneousSequenceSimulator::multipleEvolve(const Vint& init
 
 /******************************************************************************/
   
-void NonHomogeneousSequenceSimulator::dEvolve(int initialState, double rate, RASiteSimulationResult & rassr) const
+void NonHomogeneousSequenceSimulator::dEvolve(int initialState, double rate, RASiteSimulationResult& rassr) const
 {
   // Launch recursion:
-  SNode * root = tree_.getRootNode();
+  SNode* root = tree_.getRootNode();
   root->getInfos().state = initialState;
-  for(unsigned int i = 0; i < root->getNumberOfSons(); i++)
+  for (unsigned int i = 0; i < root->getNumberOfSons(); i++)
   {
     dEvolveInternal(root->getSon(i), rate, rassr);
   }
@@ -519,22 +519,22 @@ void NonHomogeneousSequenceSimulator::dEvolve(int initialState, double rate, RAS
 
 /******************************************************************************/
 
-void NonHomogeneousSequenceSimulator::dEvolveInternal(SNode* node, double rate, RASiteSimulationResult & rassr) const
+void NonHomogeneousSequenceSimulator::dEvolveInternal(SNode* node, double rate, RASiteSimulationResult& rassr) const
 {
-  if(!node->hasFather())
+  if (!node->hasFather())
   { 
     cerr << "DEBUG: NonHomogeneousSequenceSimulator::evolveInternal. Forbidden call of method on root node." << endl;
     return;
   }
-  SimpleMutationProcess* process = new SimpleMutationProcess(node->getInfos().model);
-  MutationPath mp = process->detailedEvolve(node->getFather()->getInfos().state, node->getDistanceToFather() * rate);
+  SimpleMutationProcess process(node->getInfos().model);
+  MutationPath mp = process.detailedEvolve(node->getFather()->getInfos().state, node->getDistanceToFather() * rate);
   node->getInfos().state = mp.getFinalState();
 
   // Now append infos in rassr:
   rassr.addNode(node->getId(), mp);
 
   // Now jump to son nodes:
-  for(unsigned int i = 0; i < node->getNumberOfSons(); i++)
+  for (unsigned int i = 0; i < node->getNumberOfSons(); i++)
   {
     dEvolveInternal(node->getSon(i), rate, rassr);
   }

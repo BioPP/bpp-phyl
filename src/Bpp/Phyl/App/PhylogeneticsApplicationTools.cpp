@@ -1891,14 +1891,14 @@ TreeLikelihood* PhylogeneticsApplicationTools::optimizeParameters(
 
 
   string order  = ApplicationTools::getStringParameter("derivatives", optArgs, "Newton", "", true, false);
-  string optMethod;
+  string optMethodDeriv;
   if (order == "Gradient")
     {
-      optMethod = OptimizationTools::OPTIMIZATION_GRADIENT;
+      optMethodDeriv = OptimizationTools::OPTIMIZATION_GRADIENT;
     }
   else if (order == "Newton")
     {
-      optMethod = OptimizationTools::OPTIMIZATION_NEWTON;
+      optMethodDeriv = OptimizationTools::OPTIMIZATION_NEWTON;
     }
   else throw Exception("Unknown derivatives algorithm: '" + order + "'.");
   if (verbose) ApplicationTools::displayResult("Optimization method", optName);
@@ -1909,10 +1909,15 @@ TreeLikelihood* PhylogeneticsApplicationTools::optimizeParameters(
   if (verbose) ApplicationTools::displayResult("Reparametrization", (reparam ? "yes" : "no"));
 
   unsigned int n = 0;
-  if (optName == "DB")
+  if ((optName == "D-Brent") || (optName == "D-BFGS"))
     {
-      // Uses Newton-Brent method:
-
+      // Uses Newton-Brent method or Newton-BFGS method
+      string optMethodModel;
+      if (optName == "D-Brent")
+        optMethodModel= OptimizationTools::OPTIMIZATION_BRENT;
+      else 
+        optMethodModel= OptimizationTools::OPTIMIZATION_BFGS;
+      
       unsigned int nstep = ApplicationTools::getParameter<unsigned int>("nstep", optArgs, 1, "", true, false);
       if (optimizeTopo)
         {
@@ -1923,18 +1928,18 @@ TreeLikelihood* PhylogeneticsApplicationTools::optimizeParameters(
           tl = OptimizationTools::optimizeTreeNNI(
                                                   dynamic_cast<NNIHomogeneousTreeLikelihood*>(tl), parametersToEstimate,
                                                   optNumFirst, tolBefore, tolDuring, nbEvalMax, topoNbStep, messageHandler, profiler,
-                                                  reparam, optVerbose, optMethod, nstep, nniAlgo);
+                                                  reparam, optVerbose, optMethodDeriv, nstep, nniAlgo);
         }
 
       if (verbose && nstep > 1) ApplicationTools::displayResult("# of precision steps", TextTools::toString(nstep));
       parametersToEstimate.matchParametersValues(tl->getParameters());
       n = OptimizationTools::optimizeNumericalParameters(
                                                          dynamic_cast<DiscreteRatesAcrossSitesTreeLikelihood*>(tl), parametersToEstimate,
-                                                         0, nstep, tolerance, nbEvalMax, messageHandler, profiler, reparam, optVerbose, optMethod);
+                                                         0, nstep, tolerance, nbEvalMax, messageHandler, profiler, reparam, optVerbose, optMethodDeriv, optMethodModel);
     }
   else if (optName == "FullD")
     {
-      // Uses Newton-raphson alogrithm with numerical derivatives when required.
+      // Uses Newton-raphson algorithm with numerical derivatives when required.
 
       if (optimizeTopo)
         {
@@ -1945,13 +1950,13 @@ TreeLikelihood* PhylogeneticsApplicationTools::optimizeParameters(
           tl = OptimizationTools::optimizeTreeNNI2(
                                                    dynamic_cast<NNIHomogeneousTreeLikelihood*>(tl), parametersToEstimate,
                                                    optNumFirst, tolBefore, tolDuring, nbEvalMax, topoNbStep, messageHandler, profiler,
-                                                   reparam, optVerbose, optMethod, nniAlgo);
+                                                   reparam, optVerbose, optMethodDeriv, nniAlgo);
         }
 
       parametersToEstimate.matchParametersValues(tl->getParameters());
       n = OptimizationTools::optimizeNumericalParameters2(
                                                           dynamic_cast<DiscreteRatesAcrossSitesTreeLikelihood*>(tl), parametersToEstimate,
-                                                          0, tolerance, nbEvalMax, messageHandler, profiler, reparam, optVerbose, optMethod);
+                                                          0, tolerance, nbEvalMax, messageHandler, profiler, reparam, optVerbose, optMethodDeriv);
     }
   else throw Exception("Unknown optimization method: " + optName);
 
@@ -2086,7 +2091,7 @@ void PhylogeneticsApplicationTools::optimizeParameters(
   if (verbose) ApplicationTools::displayResult("Algorithm used for derivable parameters", order);
 
   unsigned int n = 0;
-  if (optName == "DB")
+  if (optName == "D-Brent")
     {
       // Uses Newton-Brent method:
       unsigned int nstep = ApplicationTools::getParameter<unsigned int>("nstep", optArgs, 1, "", true, false);
