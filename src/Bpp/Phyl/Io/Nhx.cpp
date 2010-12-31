@@ -41,7 +41,11 @@ knowledge of the CeCILL license and that you accept its terms.
 #include "../Tree.h"
 #include "../TreeTemplate.h"
 
+//From bpp-core:
 #include <Bpp/Text/TextTools.h>
+#include <Bpp/BppString.h>
+#include <Bpp/BppBoolean.h>
+#include <Bpp/Numeric/Number.h>
 
 using namespace bpp;
 
@@ -50,6 +54,32 @@ using namespace bpp;
 #include <fstream>
 
 using namespace std;
+
+/******************************************************************************/
+
+Nhx::Nhx(bool useTagsAsPropertyNames):
+  supportedProperties_(),
+  useTagsAsPropertyNames_(useTagsAsPropertyNames)
+{
+  registerProperty(Property("Gene name", "GN", false, 0));
+  registerProperty(Property("Sequence accession", "AC", false, 0));
+  registerProperty(Property("Node ID", "ND", false, 0));
+  registerProperty(Property(TreeTools::BOOTSTRAP, "B", true, 2));
+  registerProperty(Property("Event", "Ev", true, 0));
+  registerProperty(Property("EC number", "E", false, 0));
+  registerProperty(Property("Function", "Fu", false, 0));
+  registerProperty(Property("Domain structure", "DS", false, 0));
+  registerProperty(Property("Species name", "S", false, 0));
+  registerProperty(Property("Taxonomy ID", "T", false, 1));
+  registerProperty(Property("Width of parent branch", "W", true, 1));
+  registerProperty(Property("Color of parent branch", "C", true, 0));
+  registerProperty(Property("Collapse", "C", false, 3));
+  registerProperty(Property("Custom", "XB", true, 0));
+  registerProperty(Property("Custom", "XN", false, 0));
+  registerProperty(Property("Orthologous", "O", false, 1));
+  registerProperty(Property("Subtree neighbors", "SN", false, 1));
+  registerProperty(Property("Super orthologous", "SO", false, 1));
+}
 
 /******************************************************************************/
 
@@ -68,7 +98,7 @@ const string Nhx::getFormatDescription() const
 #if defined(NO_VIRTUAL_COV)
     Tree*
 #else
-    TreeTemplate<Node> * 
+    TreeTemplate<Node>* 
 #endif
 Nhx::read(istream& in) const throw (Exception)
 {
@@ -82,14 +112,14 @@ Nhx::read(istream& in) const throw (Exception)
   {
     getline(in, temp, '\n');  // Copy current line in temporary string
     string::size_type index = temp.find(";");
-    if(index != string::npos)
+    if (index != string::npos)
     {
       description += temp.substr(0, index + 1);
       break;
     }
     else description += temp;
   }
-  vector <string > beginnings, endings;
+  vector<string> beginnings, endings;
   beginnings.push_back("[&&NHX:");
   description = TextTools::removeSubstrings(description, '[', ']', beginnings, endings);
   return parenthesisToTree(description);
@@ -175,62 +205,63 @@ void Nhx::write_(const vector<TreeTemplate<N>*>& trees, ostream& out) const thro
 Nhx::Element Nhx::getElement(const string& elt) const throw (IOException)
 {
   Element element;
-  element.length    = ""; //default
+  element.length     = ""; //default
   element.annotation = ""; //default
-    
-  StringTokenizer st(elt, "[&&NHX:", true, true);
-  
-  StringTokenizer st2(st.getToken(st.numberOfRemainingTokens()-1), "]", true, true);
-  element.annotation = st2.getToken(0);
-  
-  
+ 
+  //cout << "ELT=" << elt << endl;
+  size_t beginAnno = elt.rfind("[&&NHX:");
+  if (beginAnno == string::npos)
+    throw Exception("Nhx::getElement. Node without annotation.");
+  size_t endAnno = elt.find("]", beginAnno + 7);
+  element.annotation = elt.substr(beginAnno + 7, endAnno - beginAnno - 7);
+  //cout << "ANNO=" << element.annotation << endl;
+
   unsigned int colonIndex;
   bool hasColon = false;
-  string::size_type lastAnnot = elt.rfind("[&&NHX");
-  string elementWithoutAnnotation=elt.substr(0,lastAnnot-1);
+  //string::size_type lastAnnot = elt.rfind("[&&NHX");
+  //string elementWithoutAnnotation = elt.substr(0, lastAnnot - 1);
+  string elementWithoutAnnotation = elt.substr(0, beginAnno);
   for (colonIndex = elementWithoutAnnotation.size(); colonIndex > 0 && elementWithoutAnnotation[colonIndex] != ')'; colonIndex--)
-    {
+  {
     if (elementWithoutAnnotation[colonIndex] == ':')
-      {
+    {
       hasColon = true;
       break;
-      }
     }
+  }
   try
   {
-  string elt2;
-  if(hasColon)
+    string elt2;
+    if (hasColon)
     {
-    //this is an element with length:
-    elt2 = elementWithoutAnnotation.substr(0, colonIndex);
-  //  if (st2.numberOfRemainingTokens()>1)
-    element.length = elt.substr(colonIndex + 1);
+      //this is an element with length:
+      elt2 = elementWithoutAnnotation.substr(0, colonIndex);
+      //  if (st2.numberOfRemainingTokens()>1)
+      element.length = elt.substr(colonIndex + 1);
     }
-  else
+    else
     {
-    //this is an element without length;
-   // elt2 = st.getToken(0);
-    //if (st2.numberOfRemainingTokens()>1)
+      //this is an element without length;
       elt2 = elementWithoutAnnotation;
     }
   
-  string::size_type lastP = elt2.rfind(')');
-  string::size_type firstP = elt2.find('(');
-  if(firstP == string::npos)
+    string::size_type lastP = elt2.rfind(')');
+    string::size_type firstP = elt2.find('(');
+    if (firstP == string::npos)
     {
-    //This is a leaf:
-    element.content = elt2;
+      //This is a leaf:
+      element.content = elt2;
     }
-  else
+    else
     {
-    //This is a node:
-    if(lastP < firstP) throw IOException("Nhx::getElement(). Invalid format: bad closing parenthesis in " + elt2);
-    element.content = elt2.substr(firstP + 1, lastP - firstP - 1);
+      //This is a node:
+      if (lastP < firstP) throw IOException("Nhx::getElement(). Invalid format: bad closing parenthesis in " + elt2);
+      element.content = elt2.substr(firstP + 1, lastP - firstP - 1);
     }
   }
-  catch(exception e)
+  catch (exception& e)
   {
-  throw IOException("Bad tree description: " + elt);
+    throw IOException("Bad tree description: " + elt);
   }
   return element;
 }  
@@ -244,38 +275,38 @@ Node* Nhx::parenthesisToNode(const string& description) const
   Element elt = getElement(description);
   //New node:
   Node* node = new Node();
-  if(!TextTools::isEmpty(elt.length))
-    {
+  if (!TextTools::isEmpty(elt.length))
+  {
     node->setDistanceToFather(TextTools::toDouble(elt.length));
-    }
-  if(!TextTools::isEmpty(elt.annotation))
-    {
+  }
+  if (!TextTools::isEmpty(elt.annotation))
+  {
     setNodeProperties(*node, elt.annotation);
-    }
-  
+  }
+ 
+  //cout << elt.content << endl;
   NestedStringTokenizer nt(elt.content, "(", ")", ",");
   vector<string> elements;
   while (nt.hasMoreToken())
-    {
+  {
     elements.push_back(nt.nextToken());
-    }
-  if(elements.size() == 1)
-    {
+  }
+  if (elements.size() == 1)
+  {
     //This is a leaf:
-    
     string name = TextTools::removeSurroundingWhiteSpaces(elements[0]);
     node->setName(name);
-    }
+  }
   else
-    {
+  {
     //This is a node:
-    for(unsigned int i = 0; i < elements.size(); i++)
-      {
+    for (size_t i = 0; i < elements.size(); ++i)
+    {
       //cout << "NODE: SUBNODE: " << i << ", " << elements[i] << endl;
       Node* son = parenthesisToNode(elements[i]);
       node->addSon(son);
-      }
     }
+  }
   return node;
 }
 
@@ -352,62 +383,77 @@ TreeTemplate<Node>* Nhx::parenthesisToTree(const string& description) const thro
 
 /******************************************************************************/
 
+string Nhx::propertyToString_(const Clonable* pptObject, short type) throw (Exception)
+{
+  if (type == 0) {
+    const BppString* castedPptObject = dynamic_cast<const BppString*>(pptObject);
+    if (castedPptObject)
+      return castedPptObject->toSTL();
+    else
+      throw Exception("Nhx::propertyToString_. Unvalid property type, should be of class BppString.");
+  } else if (type == 1) {
+    const Number<int>* castedPptObject = dynamic_cast<const Number<int>*>(pptObject);
+    if (castedPptObject)
+      return TextTools::toString(castedPptObject->getValue());
+    else
+      throw Exception("Nhx::propertyToString_. Unvalid property type, should be of class Number<int>.");
+  } else if (type == 2) {
+    const Number<double>* castedPptObject = dynamic_cast<const Number<double>*>(pptObject);
+    if (castedPptObject)
+      return TextTools::toString(castedPptObject->getValue());
+    else
+      throw Exception("Nhx::propertyToString_. Unvalid property type, should be of class Number<double>.");
+  } else if (type == 3) {
+    const BppBoolean* castedPptObject = dynamic_cast<const BppBoolean*>(pptObject);
+    if (castedPptObject)
+      return TextTools::toString(castedPptObject->getValue());
+    else
+      throw Exception("Nhx::propertyToString_. Unvalid property type, should be of class BppBoolean.");
+  } else {
+    throw Exception("Nhx::propertyToString_. Unsupported type: " + TextTools::toString(type));
+  }
+}
+
+/******************************************************************************/
+
+Clonable* Nhx::stringToProperty_(const string& pptDesc, short type) throw (Exception)
+{
+  if (type == 0) {
+    return new BppString(pptDesc);
+  } else if (type == 1) {
+    return new Number<int>(TextTools::toInt(pptDesc));
+  } else if (type == 2) {
+    return new Number<double>(TextTools::toDouble(pptDesc));
+  } else if (type == 3) {
+    return new BppBoolean(TextTools::to<bool>(pptDesc));
+  } else {
+    throw Exception("Nhx::stringToProperty_. Unsupported type: " + TextTools::toString(type));
+  }
+}
+
+
+/******************************************************************************/
+
 string Nhx::propertiesToParenthesis(const Node& node) const
 {
   ostringstream s;
   s << "[&&NHX";
-  vector <string> bProps = node.getBranchPropertyNames();
-  for (unsigned int i= 0 ; i <bProps.size(); i++)
-  {
-    if (bProps[i] == TreeTools::BOOTSTRAP)
-    {
-      s << ":"<<"B"<<"="<< (dynamic_cast<const Number<double> *>(node.getBranchProperty(bProps[i]))->getValue());
-    }
-    else
-    {
-      const Clonable* ppt = node.getBranchProperty(bProps[i]);
-      const BppString* strPpt = dynamic_cast<const BppString*>(ppt);
-      if (strPpt) 
-        {
-        s << ":"<<bProps[i]<<"="<<*strPpt;
-      } 
-      else 
-      {
-        const Number<double>* numPpt = dynamic_cast<const Number<double> *>(ppt);
-        if (numPpt) 
-        {
-          s << ":"<<bProps[i]<<"="<< numPpt->getValue();
-        } 
-        else 
-        {
-          throw Exception("Unsupported property type");
-        }
-      } 
-    }
-  }
-  vector <string> nProps = node.getNodePropertyNames();
-  for (unsigned int i= 0 ; i <nProps.size(); i++)
-  {
-    const Clonable* ppt = node.getNodeProperty(nProps[i]);
-    const BppString* strPpt = dynamic_cast<const BppString*>(ppt);
-    if (strPpt) 
-    {
-      s << ":"<<nProps[i]<<"="<<*strPpt;
-    } 
-    else 
-    {
-      const Number<double>*  numPpt = dynamic_cast<const Number<double> *>(ppt);
-      if (numPpt) 
-      {
-        s << ":"<<nProps[i]<<"="<< numPpt->getValue();
-      } 
-      else 
-      {
-        throw Exception("Unsupported property type");
+  for (set<Property>::iterator it = supportedProperties_.begin(); it != supportedProperties_.end(); ++it) {
+    string ppt = (useTagsAsPropertyNames_ ? it->tag : it->name);
+    if (it->onBranch) {
+      if (node.hasBranchProperty(ppt)) {
+        const Clonable* pptObject = node.getBranchProperty(ppt);
+        s << ":" << it->tag << "=" << propertyToString_(pptObject, it->type);
       }
-    } 
+    } else {
+      if (node.hasNodeProperty(ppt)) {
+        const Clonable* pptObject = node.getNodeProperty(ppt);
+        s << ":" << it->tag << "=" << propertyToString_(pptObject, it->type);
+      }
+    }
   }
-  if (!node.hasNodeProperty ("ND"))
+  //If no special node id is provided, we output the one from the tree:
+  if (!node.hasNodeProperty(useTagsAsPropertyNames_ ? "ND" : "Node ID"))
   {
     s << ":ND="<<TextTools::toString(node.getId());
   }
@@ -476,50 +522,40 @@ string Nhx::treeToParenthesis(const TreeTemplate<Node>& tree) const
 
 bool Nhx::setNodeProperties(Node& node, const string properties) const
 {
-  string prop = TextTools::removeChar(properties, ']');
-  StringTokenizer st(prop, ":", true, true);
-  vector <string> props ; 
-  bool hasId = false;
+  string propsDesc = TextTools::removeChar(properties, ']');
+  StringTokenizer st(propsDesc, ":", true, true);
+  map<string, string> props; 
   while (st.hasMoreToken())
   {
-    props.push_back(st.nextToken());
+    string token = st.nextToken();
+    if (TextTools::hasSubstring(token, "=")) {
+      StringTokenizer pt(token, "=", true, true);
+      string tag = pt.nextToken();
+      string value = pt.nextToken();
+      props[tag] = value;
+    }
   }
-  //This is a node:
 
-  for (size_t i = 0; i < props.size(); i++)
-  {
-    if (TextTools::hasSubstring(st.getToken(i), "="))
-    {
-      StringTokenizer pt(st.getToken(i), "=", true, true);
-      
-      BppString property (pt.getToken(1));
-      
-      //Set branch properties, like support values ("B"), presence or absence of a duplication ("D"), of an event ("Ev"), 
-      //width of parent branch ("W"), color of parent branch ("C"), custom data ("XB")
-      if (pt.getToken(0) == "D" || pt.getToken(0) == "Ev" || pt.getToken(0) == "W" || pt.getToken(0) == "C" || pt.getToken(0) == "XB")
-      {
-        node.setBranchProperty (pt.getToken(0), property);        
+  for (set<Property>::iterator it = supportedProperties_.begin(); it != supportedProperties_.end(); ++it) {
+    if (props.find(it->tag) != props.end()) {
+      //Property found
+      string ppt = (useTagsAsPropertyNames_ ? it->tag : it->name);
+      if (it->onBranch) {
+        node.setBranchProperty(ppt, *auto_ptr<Clonable>(stringToProperty_(props[it->tag], it->type)));
+      } else {
+        node.setNodeProperty(ppt, *auto_ptr<Clonable>(stringToProperty_(props[it->tag], it->type)));
       }
-      else if (pt.getToken(0) == "B" )
-      {        
-        node.setBranchProperty (TreeTools::BOOTSTRAP, Number<double> (TextTools::toDouble(pt.getToken(1))));        
-      }
-      else if ((pt.getToken(0) == "ND") )//&& ((double) ((int) property.getValue())) == property.getValue())
-      {        
-        if (TextTools::isDecimalNumber(property.toSTL()))
-        {          
-          node.setId(TextTools::toInt(property.toSTL()));          
-          hasId = true;   
-        }
-        else 
-        {          
-          node.setNodeProperty ("ND", property);           
-        }
-      }
-      else
-      {
-        node.setNodeProperty (pt.getToken(0), property);   
-      }
+    }
+  }
+     
+  //If the ND tag is present and is decimal, we use it has the node id:
+  bool hasId = false;
+  if (props.find("ND") != props.end()) {
+    string prop = props["ND"];
+    if (TextTools::isDecimalNumber(prop))
+    {          
+      node.setId(TextTools::toInt(prop));          
+      hasId = true;   
     }
   }
   return hasId;

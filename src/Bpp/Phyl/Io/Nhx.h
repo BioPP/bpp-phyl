@@ -43,6 +43,9 @@ knowledge of the CeCILL license and that you accept its terms.
 #include "IoTree.h"
 #include "../TreeTemplate.h"
 
+//From the STL:
+#include <set>
+
 namespace bpp
 {
 
@@ -87,32 +90,67 @@ class Nhx:
   public AbstractIMultiTree,
   public AbstractOMultiTree
 {
+  private:
+    struct Element
+    {
+      public:
+        std::string content;
+        std::string length;
+        std::string annotation;
+  
+      public:
+        Element() : content(), length(), annotation() {}
+    };
+  
+  public:
+    struct Property
+    {
+      public:
+        /**
+         * @brief The name of the property, which will be used in parsed trees.
+         */
+        std::string name;
+        /**
+         * @brief The tag of the property, as it will be found in the tree file.
+         */
+        std::string tag;
+        /**
+         * @brief Tells if the property is a branch property instead of a node property.
+         */
+        bool onBranch;
+        /**
+         * @brief The type of the property. 0 is string, 1 is integer, 2 is double, 3 is boolean.
+         */
+        short type;
+
+      public:
+        Property(const std::string& pptName, const std::string& pptTag, bool pptOnBranch = false, short pptType = 0):
+          name(pptName), tag(pptTag), onBranch(pptOnBranch), type(pptType) {}
+
+        bool operator<(const Property& ppt) const {
+          return (name < ppt.name);
+        }
+
+    };
+
+  private:
+    std::set<Property> supportedProperties_;
+    bool useTagsAsPropertyNames_;
+
   public:
     
     /**
      * @brief Build a new Nhx reader/writer.
      *
      * Comments between hooks ('[' ']') are ignored.
-     * 
+     *
+     * @param useTagsAsPropertyNames Tells if the NHX tag should be used as a property name in the parsed tree.
      */
-    Nhx() {}
-
+    Nhx(bool useTagsAsPropertyNames = true);
     virtual ~Nhx() {}
   
   public:
 
-  struct Element
-  {
-  public:
-    std::string content;
-    std::string length;
-    std::string annotation;
-  
-  public:
-    Element() : content(), length(), annotation() {}
-  };
-  
-  
     /**
      * @name The IOTree interface
      *
@@ -182,6 +220,10 @@ class Nhx:
 
     std::string treeToParenthesis(const TreeTemplate<Node>& tree) const;
 
+    void registerProperty(const Property& property) {
+      supportedProperties_.insert(property);
+    }
+
   protected:
     void write_(const Tree& tree, std::ostream& out) const throw (Exception);
     
@@ -202,6 +244,9 @@ class Nhx:
     std::string nodeToParenthesis(const Node& node) const;
   
     bool setNodeProperties(Node& node, const std::string properties) const;
+
+    static std::string propertyToString_(const Clonable* pptObject, short type) throw (Exception);
+    static Clonable* stringToProperty_(const std::string& pptDesc, short type) throw (Exception);
 };
 
 } //end of namespace bpp.

@@ -1282,7 +1282,7 @@ SubstitutionModelSet* PhylogeneticsApplicationTools::getSubstitutionModelSet(
   
 
   map<string, string> tmpUnparsedParameterValues;
-  auto_ptr<SubstitutionModel> tmp(getSubstitutionModelDefaultInstance(alphabet, tmpDesc, tmpUnparsedParameterValues, true, true, 0));
+  auto_ptr<SubstitutionModel> tmp(getSubstitutionModelDefaultInstance(alphabet, tmpDesc, tmpUnparsedParameterValues, true, true, true, 0));
   if (tmp->getNumberOfStates() != alphabet->getSize())
     {
       // Markov-Modulated Markov Model...
@@ -1325,7 +1325,7 @@ SubstitutionModelSet* PhylogeneticsApplicationTools::getSubstitutionModelSet(
     
 
       map<string, string> unparsedParameterValues;
-      SubstitutionModel* model = getSubstitutionModelDefaultInstance(alphabet, modelDesc, unparsedParameterValues, true, true, verbose);
+      SubstitutionModel* model = getSubstitutionModelDefaultInstance(alphabet, modelDesc, unparsedParameterValues, true, true, true, verbose);
       prefix += ".";
 
       vector<string> specificParameters, sharedParameters;
@@ -1354,10 +1354,10 @@ SubstitutionModelSet* PhylogeneticsApplicationTools::getSubstitutionModelSet(
 /******************************************************************************/
 
 DiscreteDistribution* PhylogeneticsApplicationTools::getRateDistributionDefaultInstance(
-                                                                                        const string& distDescription,
-                                                                                        map<string, string>& unparsedParameterValues,
-                                                                                        bool constDistAllowed,
-                                                                                        bool verbose) throw (Exception)
+    const string& distDescription,
+    map<string, string>& unparsedParameterValues,
+    bool constDistAllowed,
+    bool verbose) throw (Exception)
 {
   string distName;
   DiscreteDistribution* rDist = 0;
@@ -1417,9 +1417,9 @@ DiscreteDistribution* PhylogeneticsApplicationTools::getRateDistributionDefaultI
 /******************************************************************************/
 
 DiscreteDistribution* PhylogeneticsApplicationTools::getDistributionDefaultInstance(
-                                                                                    const std::string& distDescription,
-                                                                                    std::map<std::string, std::string>& unparsedParameterValues,
-                                                                                    bool verbose)
+    const std::string& distDescription,
+    std::map<std::string, std::string>& unparsedParameterValues,
+    bool verbose)
   throw (Exception)
 {
   string distName;
@@ -1594,9 +1594,9 @@ DiscreteDistribution* PhylogeneticsApplicationTools::getDistributionDefaultInsta
 /******************************************************************************/
 
 MultipleDiscreteDistribution* PhylogeneticsApplicationTools::getMultipleDistributionDefaultInstance(
-                                                                                                    const std::string& distDescription,
-                                                                                                    std::map<std::string, std::string>& unparsedParameterValues,
-                                                                                                    bool verbose)
+    const std::string& distDescription,
+    std::map<std::string, std::string>& unparsedParameterValues,
+    bool verbose)
 {
   string distName;
   MultipleDiscreteDistribution* pMDD  = 0;
@@ -1638,9 +1638,9 @@ MultipleDiscreteDistribution* PhylogeneticsApplicationTools::getMultipleDistribu
 /******************************************************************************/
 
 void PhylogeneticsApplicationTools::setRateDistributionParametersInitialValues(
-                                                                               DiscreteDistribution* rDist,
-                                                                               map<string, string>& unparsedParameterValues,
-                                                                               bool verbose) throw (Exception)
+    DiscreteDistribution* rDist,
+    map<string, string>& unparsedParameterValues,
+    bool verbose) throw (Exception)
 {
   ParameterList pl = rDist->getIndependentParameters();
   for (unsigned int i = 0; i < pl.size(); i++)
@@ -1673,10 +1673,10 @@ void PhylogeneticsApplicationTools::setRateDistributionParametersInitialValues(
 /******************************************************************************/
 
 DiscreteDistribution* PhylogeneticsApplicationTools::getRateDistribution(
-                                                                         map<string, string>& params,
-                                                                         const string& suffix,
-                                                                         bool suffixIsOptional,
-                                                                         bool verbose) throw (Exception)
+    map<string, string>& params,
+    const string& suffix,
+    bool suffixIsOptional,
+    bool verbose) throw (Exception)
 {
   string distDescription = ApplicationTools::getStringParameter("rate_distribution", params, "Uniform()", suffix, suffixIsOptional);
   map<string, string> unparsedParameterValues;
@@ -1688,12 +1688,12 @@ DiscreteDistribution* PhylogeneticsApplicationTools::getRateDistribution(
 /******************************************************************************/
 
 TreeLikelihood* PhylogeneticsApplicationTools::optimizeParameters(
-                                                                  TreeLikelihood* tl,
-                                                                  const ParameterList& parameters,
-                                                                  std::map<std::string, std::string>& params,
-                                                                  const std::string& suffix,
-                                                                  bool suffixIsOptional,
-                                                                  bool verbose)
+    TreeLikelihood* tl,
+    const ParameterList& parameters,
+    std::map<std::string, std::string>& params,
+    const std::string& suffix,
+    bool suffixIsOptional,
+    bool verbose)
   throw (Exception)
 {
   string optimization = ApplicationTools::getStringParameter("optimization", params, "FullD(derivatives=Newton)", suffix, suffixIsOptional, false);
@@ -2192,69 +2192,69 @@ void PhylogeneticsApplicationTools::describeSubstitutionModel_(const Substitutio
 {
   const UserProteinSubstitutionModel* trial1 = dynamic_cast<const UserProteinSubstitutionModel*>(model);
   if (trial1)
-    {
-      out << "Empirical";
-      vector<string> pnames = trial1->getParameters().getParameterNames();
-      if (pnames.size() > 0)
-        out << "+F";
-      out << "(file=" << trial1->getPath();
-      for (unsigned int i = 0; i < pnames.size(); i++)
-        out << ", " << pnames[i] << "=" << trial1->getParameterValue(pnames[i]);
-      out << ")";
-      out.endLine();
-    }
+  {
+    out << "Empirical";
+    vector<string> pnames = trial1->getParameters().getParameterNames();
+    if (pnames.size() > 0)
+      out << "+F";
+    out << "(file=" << trial1->getPath();
+    for (unsigned int i = 0; i < pnames.size(); i++)
+      out << ", " << pnames[i] << "=" << trial1->getParameterValue(pnames[i]);
+    out << ")";
+    out.endLine();
+  }
   else
+  {
+    const MarkovModulatedSubstitutionModel* trial3 = dynamic_cast<const MarkovModulatedSubstitutionModel*>(model);
+    if (trial3)
     {
-      const MarkovModulatedSubstitutionModel* trial3 = dynamic_cast<const MarkovModulatedSubstitutionModel*>(model);
-      if (trial3)
-        {
-          out << trial3->getName() << "(model=";
-          const SubstitutionModel* nestedModel = trial3->getNestedModel();
-          describeSubstitutionModel_(nestedModel, out, globalAliases);
-          out << ", ";
-          vector<string> names;
-          const G2001* trial4 = dynamic_cast<const G2001*>(model);
-          if (trial4)
-            {
-              // Also print distribution here:
-              out << "rdist=";
-              const DiscreteDistribution* nestedDist = trial4->getRateDistribution();
-              describeDiscreteDistribution_(nestedDist, out, globalAliases);
-              out << ", ";
-              names.push_back(trial4->getParameter("nu").getName());
-            }
-          const TS98* trial5 = dynamic_cast<const TS98*>(model);
-          if (trial5)
-            {
-              names.push_back(trial5->getParameter("s1").getName());
-              names.push_back(trial5->getParameter("s2").getName());
-            }
-          describeParameters_(trial3, out, globalAliases, names);
-          out << ")";
-        }
-      else
-        {
-          const RE08* trial4 = dynamic_cast<const RE08*>(model);
-          if (trial4)
-            {
-              out << trial4->getName() << "(model=";
-              const SubstitutionModel* nestedModel = trial4->getNestedModel();
-              describeSubstitutionModel_(nestedModel, out, globalAliases);
-              out << ", ";
-              vector<string> names;
-              names.push_back(trial4->getParameter("lambda").getName());
-              names.push_back(trial4->getParameter("mu").getName());
-              describeParameters_(trial4, out, globalAliases, names);
-              out << ")";
-            }
-          else
-            {
-              out << model->getName() << "(";
-              describeParameters_(model, out, globalAliases, model->getIndependentParameters().getParameterNames());
-              out << ")";
-            }
-        }
+      out << trial3->getName() << "(model=";
+      const SubstitutionModel* nestedModel = trial3->getNestedModel();
+      describeSubstitutionModel_(nestedModel, out, globalAliases);
+      out << ", ";
+      vector<string> names;
+      const G2001* trial4 = dynamic_cast<const G2001*>(model);
+      if (trial4)
+      {
+        // Also print distribution here:
+        out << "rdist=";
+        const DiscreteDistribution* nestedDist = trial4->getRateDistribution();
+        describeDiscreteDistribution_(nestedDist, out, globalAliases);
+        out << ", ";
+        names.push_back(trial4->getParameter("nu").getName());
+      }
+      const TS98* trial5 = dynamic_cast<const TS98*>(model);
+      if (trial5)
+      {
+        names.push_back(trial5->getParameter("s1").getName());
+        names.push_back(trial5->getParameter("s2").getName());
+      }
+      describeParameters_(trial3, out, globalAliases, names);
+      out << ")";
     }
+    else
+    {
+      const RE08* trial4 = dynamic_cast<const RE08*>(model);
+      if (trial4)
+      {
+        out << trial4->getName() << "(model=";
+        const SubstitutionModel* nestedModel = trial4->getNestedModel();
+        describeSubstitutionModel_(nestedModel, out, globalAliases);
+        out << ", ";
+        vector<string> names;
+        names.push_back(trial4->getParameter("lambda").getName());
+        names.push_back(trial4->getParameter("mu").getName());
+        describeParameters_(trial4, out, globalAliases, names);
+        out << ")";
+      }
+      else
+      {
+        out << model->getName() << "(";
+        describeParameters_(model, out, globalAliases, model->getIndependentParameters().getParameterNames());
+        out << ")";
+      }
+    }
+  }
 }
 
 /******************************************************************************/
@@ -2263,20 +2263,20 @@ void PhylogeneticsApplicationTools::describeSubstitutionModel_(const Substitutio
 void PhylogeneticsApplicationTools::describeFrequenciesSet_(const FrequenciesSet* pfreqset, OutputStream& out)
 {
   if (!pfreqset)
-    {
-      out << "None";
-      return;
-    }
+  {
+    out << "None";
+    return;
+  }
   out << pfreqset->getName() << "(";
   ParameterList pl = pfreqset->getParameters();
   unsigned int p = out.getPrecision();
   out.setPrecision(12);
   for (unsigned int i = 0; i < pl.size(); i++)
-    {
-      if (i > 0) out << ", ";
-      string pname = pfreqset->getParameterNameWithoutNamespace(pl[i].getName());
-      (out << pname << "=").enableScientificNotation(false) << pl[i].getValue();
-    }
+  {
+    if (i > 0) out << ", ";
+    string pname = pfreqset->getParameterNameWithoutNamespace(pl[i].getName());
+    (out << pname << "=").enableScientificNotation(false) << pl[i].getValue();
+  }
   out << ")";
   out.setPrecision(p);
 }
@@ -2304,52 +2304,52 @@ void PhylogeneticsApplicationTools::printParameters(const SubstitutionModelSet* 
   ParameterList pl = modelSet->getParameters();
   ParameterList plroot = modelSet->getRootFrequenciesParameters();
   for (unsigned int i = 0; i < pl.size(); i++)
+  {
+    if (!plroot.hasParameter(pl[i].getName()))
     {
-      if (!plroot.hasParameter(pl[i].getName()))
-        {
-          string name = pl[i].getName();
-          vector<unsigned int> models = modelSet->getModelsWithParameter(name);
-          for (unsigned int j = 0; j < models.size(); j++)
-            {
-              modelLinks[models[j]].push_back(name);
-              parameterLinks[name].push_back(models[j]);
-            }
-        }
+      string name = pl[i].getName();
+      vector<unsigned int> models = modelSet->getModelsWithParameter(name);
+      for (unsigned int j = 0; j < models.size(); j++)
+      {
+        modelLinks[models[j]].push_back(name);
+        parameterLinks[name].push_back(models[j]);
+      }
     }
+  }
 
   // Loop over all models:
   for (unsigned int i = 0; i < modelSet->getNumberOfModels(); i++)
+  {
+    const SubstitutionModel* model = modelSet->getModel(i);
+
+    // First get the global aliases for this model:
+    map<string, string> globalAliases;
+    vector<string> names = modelLinks[i];
+    for (unsigned int j = 0; j < names.size(); j++)
     {
-      const SubstitutionModel* model = modelSet->getModel(i);
-
-      // First get the global aliases for this model:
-      map<string, string> globalAliases;
-      vector<string> names = modelLinks[i];
-      for (unsigned int j = 0; j < names.size(); j++)
+      const string name = names[j];
+      if (parameterLinks[name].size() > 1)
+      {
+        // there is a global alias here
+        if (parameterLinks[name][0] != i) // Otherwise, this is the 'reference' value
         {
-          const string name = names[j];
-          if (parameterLinks[name].size() > 1)
-            {
-              // there is a global alias here
-              if (parameterLinks[name][0] != i) // Otherwise, this is the 'reference' value
-                {
-                  globalAliases[modelSet->getParameterModelName(name)] = "model" + TextTools::toString(parameterLinks[name][0] + 1) + "." + modelSet->getParameterModelName(name);
-                }
-            }
+          globalAliases[modelSet->getParameterModelName(name)] = "model" + TextTools::toString(parameterLinks[name][0] + 1) + "." + modelSet->getParameterModelName(name);
         }
-
-      // Now print it:
-      out.endLine() << "model" << (i + 1) << " = ";
-      describeSubstitutionModel_(model, out, globalAliases);
-      out.endLine();
-      vector<int> ids = modelSet->getNodesWithModel(i);
-      out << "model" << (i + 1) << ".nodes_id = " << ids[0];
-      for (unsigned int j = 1; j < ids.size(); j++)
-        {
-          out << "," << ids[j];
-        }
-      out.endLine();
+      }
     }
+
+    // Now print it:
+    out.endLine() << "model" << (i + 1) << " = ";
+    describeSubstitutionModel_(model, out, globalAliases);
+    out.endLine();
+    vector<int> ids = modelSet->getNodesWithModel(i);
+    out << "model" << (i + 1) << ".nodes_id = " << ids[0];
+    for (unsigned int j = 1; j < ids.size(); j++)
+    {
+      out << "," << ids[j];
+    }
+    out.endLine();
+  }
 
   // Root frequencies:
   out.endLine();
@@ -2365,32 +2365,32 @@ void PhylogeneticsApplicationTools::describeDiscreteDistribution_(const Discrete
   const InvariantMixedDiscreteDistribution* invar = dynamic_cast<const InvariantMixedDiscreteDistribution*>(rDist);
   const DiscreteDistribution* test = rDist;
   if (invar)
-    {
-      test = invar->getVariableSubDistribution();
-      out << "Invariant(dist=";
-      describeDiscreteDistribution_(test, out, globalAliases);
-      out << ", ";
-      vector<string> names;
-      names.push_back(invar->getParameter("p").getName());
-      describeParameters_(invar, out, globalAliases, names);
-      out << ")";
-    }
+  {
+    test = invar->getVariableSubDistribution();
+    out << "Invariant(dist=";
+    describeDiscreteDistribution_(test, out, globalAliases);
+    out << ", ";
+    vector<string> names;
+    names.push_back(invar->getParameter("p").getName());
+    describeParameters_(invar, out, globalAliases, names);
+    out << ")";
+  }
   else
+  {
+    test = dynamic_cast<const ConstantDistribution*>(rDist);
+    if (test) out << "Uniform()";
+    else
     {
-      test = dynamic_cast<const ConstantDistribution*>(rDist);
-      if (test) out << "Uniform()";
-      else
-        {
-          test = dynamic_cast<const GammaDiscreteDistribution*>(rDist);
-          if (test)
-            {
-              out << "Gamma(n=" << rDist->getNumberOfCategories() << ", ";
-              describeParameters_(rDist, out, globalAliases, rDist->getIndependentParameters().getParameterNames(), false);
-              out << ")";
-            }
-          else throw Exception("PhylogeneticsApplicationTools::printParameters(DiscreteDistribution). Unsupported distribution.");
-        }
+      test = dynamic_cast<const GammaDiscreteDistribution*>(rDist);
+      if (test)
+      {
+        out << "Gamma(n=" << rDist->getNumberOfCategories() << ", ";
+        describeParameters_(rDist, out, globalAliases, rDist->getIndependentParameters().getParameterNames(), false);
+        out << ")";
+      }
+      else throw Exception("PhylogeneticsApplicationTools::printParameters(DiscreteDistribution). Unsupported distribution.");
     }
+  }
 }
 
 void PhylogeneticsApplicationTools::printParameters(const DiscreteDistribution* rDist, OutputStream& out)

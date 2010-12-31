@@ -288,10 +288,13 @@ void SubstitutionModelSet::addParameters(const ParameterList& parameters, const 
   addParameters_(pl);
   // Build model indexes:
   vector<unsigned int> modelIndexes(nodesId.size());
-  for (unsigned int i = 0; i < nodesId.size(); i++)
+  map<unsigned int, unsigned int> counts; //Check is a model is affected to several nodes.
+  for (size_t i = 0; i < nodesId.size(); i++)
   {
     unsigned int pos = nodeToModel_[nodesId[i]];
-    modelParameters_[pos].addParameters(parameters);
+    unsigned int count = counts[pos]++;
+    if (count == 0)
+      modelParameters_[pos].addParameters(parameters);
     modelIndexes[i] = pos;
   }
   for (unsigned int i = 0; i < pl.size(); i++)
