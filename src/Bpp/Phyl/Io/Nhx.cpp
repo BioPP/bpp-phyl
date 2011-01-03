@@ -57,9 +57,9 @@ using namespace std;
 
 /******************************************************************************/
 
-Nhx::Nhx(bool useTagsAsPropertyNames):
+Nhx::Nhx(bool useTagsAsPptNames):
   supportedProperties_(),
-  useTagsAsPropertyNames_(useTagsAsPropertyNames)
+  useTagsAsPropertyNames_(useTagsAsPptNames)
 {
   registerProperty(Property("Gene name", "GN", false, 0));
   registerProperty(Property("Sequence accession", "AC", false, 0));
@@ -563,4 +563,43 @@ bool Nhx::setNodeProperties(Node& node, const string properties) const
 
 /******************************************************************************/
 
+void Nhx::changeTagsToNames(Node& node) const {
+  for (set<Property>::iterator it = supportedProperties_.begin(); it != supportedProperties_.end(); ++it) {
+    if (it->onBranch) {
+      if (node.hasBranchProperty(it->tag)) {
+        node.setBranchProperty(it->name, *node.getBranchProperty(it->tag));
+        node.deleteBranchProperty(it->tag);
+      }
+    } else {
+      if (node.hasNodeProperty(it->tag)) {
+        node.setNodeProperty(it->name, *node.getNodeProperty(it->tag));
+        node.deleteNodeProperty(it->tag);
+      }
+    }
+  }
+  for (unsigned int i = 0; i < node.getNumberOfSons(); ++i)
+    changeTagsToNames(*node.getSon(i));
+}
+
+/******************************************************************************/
+
+void Nhx::changeNamesToTags(Node& node) const {
+  for (set<Property>::iterator it = supportedProperties_.begin(); it != supportedProperties_.end(); ++it) {
+    if (it->onBranch) {
+      if (node.hasBranchProperty(it->name)) {
+        node.setBranchProperty(it->tag, *node.getBranchProperty(it->name));
+        node.deleteBranchProperty(it->name);
+      }
+    } else {
+      if (node.hasNodeProperty(it->name)) {
+        node.setNodeProperty(it->tag, *node.getNodeProperty(it->name));
+        node.deleteNodeProperty(it->name);
+      }
+    }
+  }
+  for (unsigned int i = 0; i < node.getNumberOfSons(); ++i)
+    changeNamesToTags(*node.getSon(i));
+}
+
+/******************************************************************************/
 

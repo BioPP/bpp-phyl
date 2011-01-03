@@ -144,9 +144,9 @@ class Nhx:
      *
      * Comments between hooks ('[' ']') are ignored.
      *
-     * @param useTagsAsPropertyNames Tells if the NHX tag should be used as a property name in the parsed tree.
+     * @param useTagsAsPptNames Tells if the NHX tag should be used as a property name in the parsed tree.
      */
-    Nhx(bool useTagsAsPropertyNames = true);
+    Nhx(bool useTagsAsPptNames = true);
     virtual ~Nhx() {}
   
   public:
@@ -223,6 +223,31 @@ class Nhx:
     void registerProperty(const Property& property) {
       supportedProperties_.insert(property);
     }
+
+    /**
+     * @brief Convert property names from tag to names.
+     *
+     * If a tree has been parsed using useTagsAsPropertyNames=true,
+     * this method allows to convert the tree as is it was parsed using
+     * the option set to false.
+     *
+     * @param The root node of the subtree to convert.
+     */
+    void changeTagsToNames(Node& node) const;
+
+    /**
+     * @brief Convert property names from names to tags.
+     *
+     * If a tree has been parsed using useTagsAsPropertyNames=false,
+     * this method allows to convert the tree as is it was parsed using
+     * the option set to true.
+     *
+     * @param The root node of the subtree to convert.
+     */
+    void changeNamesToTags(Node& node) const;
+
+    void useTagsAsPropertyNames(bool yn) { useTagsAsPropertyNames_ = yn; }
+    bool useTagsAsPropertyNames() const { return useTagsAsPropertyNames_; }
 
   protected:
     void write_(const Tree& tree, std::ostream& out) const throw (Exception);

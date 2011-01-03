@@ -65,6 +65,8 @@ using namespace bpp;
 // From the STL:
 #include <fstream>
 #include <memory>
+#include <set>
+#include <vector>
 
 using namespace std;
 
@@ -2102,13 +2104,13 @@ void PhylogeneticsApplicationTools::checkEstimatedParameters(const ParameterList
 /******************************************************************************/
 
 void PhylogeneticsApplicationTools::writeTree(
-                                              const TreeTemplate<Node>& tree,
-                                              map<string, string>& params,
-                                              const string& prefix,
-                                              const string& suffix,
-                                              bool suffixIsOptional,
-                                              bool verbose,
-                                              bool checkOnly) throw (Exception)
+    const TreeTemplate<Node>& tree,
+    map<string, string>& params,
+    const string& prefix,
+    const string& suffix,
+    bool suffixIsOptional,
+    bool verbose,
+    bool checkOnly) throw (Exception)
 {
   string format = ApplicationTools::getStringParameter(prefix + "tree.format", params, "Newick", suffix, suffixIsOptional, false);
   string file = ApplicationTools::getAFilePath(prefix + "tree.file", params, true, false, suffix, suffixIsOptional);
@@ -2118,8 +2120,8 @@ void PhylogeneticsApplicationTools::writeTree(
   else if (format == "Nexus")
     treeWriter = new NexusIOTree();
   else if (format == "NHX")
-    treeWriter = new Nhx();
-  else throw Exception("Unknow format for tree writing: " + format);
+    treeWriter = new Nhx(false);
+  else throw Exception("Unknown format for tree writing: " + format);
   if (!checkOnly)
     treeWriter->write(tree, file, true);
   delete treeWriter;
@@ -2300,7 +2302,7 @@ void PhylogeneticsApplicationTools::printParameters(const SubstitutionModelSet* 
 
   // Get the parameter links:
   map< unsigned int, vector<string> > modelLinks; // for each model index, stores the list of global parameters.
-  map< string, vector<unsigned int> > parameterLinks; // for each parameter name, stores the list of model indices.
+  map< string, set<unsigned int> > parameterLinks; // for each parameter name, stores the list of model indices, wich should be sorted.
   ParameterList pl = modelSet->getParameters();
   ParameterList plroot = modelSet->getRootFrequenciesParameters();
   for (unsigned int i = 0; i < pl.size(); i++)
@@ -2309,10 +2311,10 @@ void PhylogeneticsApplicationTools::printParameters(const SubstitutionModelSet* 
     {
       string name = pl[i].getName();
       vector<unsigned int> models = modelSet->getModelsWithParameter(name);
-      for (unsigned int j = 0; j < models.size(); j++)
+      for (size_t j = 0; j < models.size(); ++j)
       {
         modelLinks[models[j]].push_back(name);
-        parameterLinks[name].push_back(models[j]);
+        parameterLinks[name].insert(models[j]);
       }
     }
   }
@@ -2331,9 +2333,9 @@ void PhylogeneticsApplicationTools::printParameters(const SubstitutionModelSet* 
       if (parameterLinks[name].size() > 1)
       {
         // there is a global alias here
-        if (parameterLinks[name][0] != i) // Otherwise, this is the 'reference' value
+        if (*parameterLinks[name].begin() != i) // Otherwise, this is the 'reference' value
         {
-          globalAliases[modelSet->getParameterModelName(name)] = "model" + TextTools::toString(parameterLinks[name][0] + 1) + "." + modelSet->getParameterModelName(name);
+          globalAliases[modelSet->getParameterModelName(name)] = "model" + TextTools::toString((*parameterLinks[name].begin()) + 1) + "." + modelSet->getParameterModelName(name);
         }
       }
     }
