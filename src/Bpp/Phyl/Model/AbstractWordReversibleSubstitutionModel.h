@@ -77,9 +77,8 @@ class AbstractWordReversibleSubstitutionModel :
 {
 private:
   /**
-   *@ brief boolean flag to check if a specific WordAlphabet has been built
+   * @ brief boolean flag to check if a specific WordAlphabet has been built
    */
-
   bool new_alphabet_;
 
 protected:

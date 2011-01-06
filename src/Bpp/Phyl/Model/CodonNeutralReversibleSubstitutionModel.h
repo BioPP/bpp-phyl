@@ -67,7 +67,7 @@ namespace bpp
  * Q_{abc \rightarrow abc} = \rho_1 Q^{(0)}_{a \rightarrow a} + \rho_2 Q^{(1)}_{b \rightarrow b} + \rho_3 Q^{(2)}_{c \rightarrow c})
  * @f]
  *
- * Second, the subsitution between STOP codons and non-STOP codons are
+ * Second, the substitution between STOP codons and non-STOP codons are
  * nullified, and the lines of Q are normalized in accordance.
  *
  * The parameters of this word model are the same as the ones of the
