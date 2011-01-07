@@ -231,7 +231,7 @@ class Nhx:
      * this method allows to convert the tree as is it was parsed using
      * the option set to false.
      *
-     * @param The root node of the subtree to convert.
+     * @param node The root node of the subtree to convert.
      */
     void changeTagsToNames(Node& node) const;
 
@@ -242,7 +242,7 @@ class Nhx:
      * this method allows to convert the tree as is it was parsed using
      * the option set to true.
      *
-     * @param The root node of the subtree to convert.
+     * @param node The root node of the subtree to convert.
      */
     void changeNamesToTags(Node& node) const;
 
