@@ -194,6 +194,7 @@ throw (Exception)
   // Branch lengths
   
   MetaOptimizerInfos* desc = new MetaOptimizerInfos();
+  MetaOptimizer* poptimizer = 0;
   AbstractNumericalDerivative* fnum=new ThreePointsNumericalDerivative(f);
 
   if (optMethodDeriv == OPTIMIZATION_GRADIENT)
@@ -206,11 +207,12 @@ throw (Exception)
 
   if (optMethodModel == OPTIMIZATION_BRENT){
     ParameterList plsm = parameters.getCommonParametersWith(tl->getSubstitutionModelParameters());
-    desc->addOptimizer("Substitution model parameter", new SimpleMultiDimensions(fnum), plsm.getParameterNames(), 0, MetaOptimizerInfos::IT_TYPE_STEP);
+    desc->addOptimizer("Substitution model parameter", new SimpleMultiDimensions(f), plsm.getParameterNames(), 0, MetaOptimizerInfos::IT_TYPE_STEP);
     
     
     ParameterList plrd = parameters.getCommonParametersWith(tl->getRateDistributionParameters());
-    desc->addOptimizer("Rate distribution parameter", new SimpleMultiDimensions(fnum), plrd.getParameterNames(), 0, MetaOptimizerInfos::IT_TYPE_STEP);
+    desc->addOptimizer("Rate distribution parameter", new SimpleMultiDimensions(f), plrd.getParameterNames(), 0, MetaOptimizerInfos::IT_TYPE_STEP);
+    poptimizer= new MetaOptimizer(f, desc, nstep);
   }
   else if (optMethodModel == OPTIMIZATION_BFGS){
     vector<string> vNameDer;
@@ -224,29 +226,30 @@ throw (Exception)
 
     vNameDer.insert(vNameDer.begin(), vNameDer2.begin(), vNameDer2.end());
     fnum->setParametersToDerivate(vNameDer);
-    
+
     desc->addOptimizer("Rate & model distribution parameters", new BFGSMultiDimensions(fnum), vNameDer, 1, MetaOptimizerInfos::IT_TYPE_FULL);
+    poptimizer= new MetaOptimizer(fnum, desc, nstep);
   }
   else throw Exception("OptimizationTools::optimizeNumericalParameters. Unknown optimization method: " + optMethodModel);
   
-  MetaOptimizer optimizer(fnum, desc, nstep);
-
-  optimizer.setVerbose(verbose);
-  optimizer.setProfiler(profiler);
-  optimizer.setMessageHandler(messageHandler);
-  optimizer.setMaximumNumberOfEvaluations(tlEvalMax);
-  optimizer.getStopCondition()->setTolerance(tolerance);
+  poptimizer->setVerbose(verbose);
+  poptimizer->setProfiler(profiler);
+  poptimizer->setMessageHandler(messageHandler);
+  poptimizer->setMaximumNumberOfEvaluations(tlEvalMax);
+  poptimizer->getStopCondition()->setTolerance(tolerance);
   
   // Optimize TreeLikelihood function:
-  optimizer.setConstraintPolicy(AutoParameter::CONSTRAINTS_AUTO);
-  if (listener) optimizer.addOptimizationListener(listener);
-  optimizer.init(pl);
-  optimizer.optimize();
+  poptimizer->setConstraintPolicy(AutoParameter::CONSTRAINTS_AUTO);
+  if (listener) poptimizer->addOptimizationListener(listener);
+  poptimizer->init(pl);
+  poptimizer->optimize();
 
   if (verbose > 0) ApplicationTools::displayMessage("\n");
 
   // We're done.
-  return optimizer.getNumberOfEvaluations(); 
+  int nb=poptimizer->getNumberOfEvaluations();
+  delete poptimizer;
+  return nb;
 }
   
 /******************************************************************************/
