@@ -122,10 +122,10 @@ vector<Tree*> PhylogeneticsApplicationTools::getTrees(
   delete treeReader;
 
   if (verbose)
-    {
-      ApplicationTools::displayResult("Tree file", treeFilePath);
-      ApplicationTools::displayResult("Number of trees in file", trees.size());
-    }
+  {
+    ApplicationTools::displayResult("Tree file", treeFilePath);
+    ApplicationTools::displayResult("Number of trees in file", trees.size());
+  }
   return trees;
 }
 

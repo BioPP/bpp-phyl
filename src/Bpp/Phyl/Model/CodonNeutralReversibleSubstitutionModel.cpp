@@ -45,15 +45,17 @@ using namespace std;
 
 /******************************************************************************/
 
-CodonNeutralReversibleSubstitutionModel::CodonNeutralReversibleSubstitutionModel(const CodonAlphabet* palph,
-                                                                                 NucleotideSubstitutionModel* pmod1) : AbstractCodonReversibleSubstitutionModel(palph, pmod1,"CodonNeutral.")
+CodonNeutralReversibleSubstitutionModel::CodonNeutralReversibleSubstitutionModel(
+    const CodonAlphabet* palph,
+    NucleotideSubstitutionModel* pmod1) :
+  AbstractCodonReversibleSubstitutionModel(palph, pmod1, "CodonNeutral.")
 {
-   int i;
+  int i;
 
   // relative rates
   for (i = 0; i < 2; i++)
   {
-    addParameter_(Parameter("CodonNeutral.relrate" + TextTools::toString(i+1), 1.0 / (3 - i),&Parameter::PROP_CONSTRAINT_EX));
+    addParameter_(Parameter("CodonNeutral.relrate" + TextTools::toString(i + 1), 1.0 / (3 - i), &Parameter::PROP_CONSTRAINT_EX));
   }
 
   updateMatrices();

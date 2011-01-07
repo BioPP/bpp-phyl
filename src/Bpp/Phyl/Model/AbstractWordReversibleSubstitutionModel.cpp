@@ -214,7 +214,7 @@ AbstractWordReversibleSubstitutionModel::~AbstractWordReversibleSubstitutionMode
       delete VSubMod_[0];
   }
   else
-    for (unsigned int i = 0; i < VSubMod_.size(); i++)
+    for (size_t i = 0; i < VSubMod_.size(); i++)
     {
       if (VSubMod_[i])
         delete VSubMod_[i];
@@ -504,7 +504,6 @@ void AbstractWordReversibleSubstitutionModel::updateMatrices()
       eigenValues_[i] /= -x;
     }
   }
-
 }
 
 

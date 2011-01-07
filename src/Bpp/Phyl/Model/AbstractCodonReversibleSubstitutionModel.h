@@ -67,13 +67,13 @@ class AbstractCodonReversibleSubstitutionModel :
 {
 public:
   /**
-   *@brief Build a new AbstractCodonReversibleSubstitutionModel object from
-   *a pointer to an AbstractReversibleSubstitutionModel.
+   * @brief Build a new AbstractCodonReversibleSubstitutionModel object from
+   * a pointer to an AbstractReversibleSubstitutionModel.
    *
-   *@param palph pointer to a CodonAlphabet
-   *@param pmod pointer to the NucleotideSubstitutionModel to use in the three positions.
-   *       It is owned by the instance.
-   *@param st string of the Namespace
+   * @param palph pointer to a CodonAlphabet
+   * @param pmod pointer to the NucleotideSubstitutionModel to use in the three positions.
+   *        It is owned by the instance.
+   * @param st string of the Namespace
    */
 
   AbstractCodonReversibleSubstitutionModel(
@@ -82,15 +82,15 @@ public:
     const std::string& st);
 
   /**
-   *@brief Build a new AbstractReversibleSubstitutionModel object
-   *from three pointers to AbstractReversibleSubstitutionModels.
+   * @brief Build a new AbstractReversibleSubstitutionModel object
+   * from three pointers to AbstractReversibleSubstitutionModels.
    *
-   *@param palph pointer to a CodonAlphabet
-   *@param pmod1, pmod2, pmod3 are pointers to the
+   * @param palph pointer to a CodonAlphabet
+   * @param pmod1, pmod2, pmod3 are pointers to the
    * NucleotideSubstitutionModel to use in the three positions.
    * All the models must be different objects to avoid redundant
    * parameters.  They are owned by the instance.
-   *@param st string of the Namespace
+   * @param st string of the Namespace
    */
 
   AbstractCodonReversibleSubstitutionModel(
