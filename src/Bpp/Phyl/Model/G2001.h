@@ -143,6 +143,8 @@ class G2001:
 
   void setRate(double rate) {};
 
+  void addRateParameter() {};
+
 protected:
     void updateRatesModel()
     {

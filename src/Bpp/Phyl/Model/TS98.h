@@ -5,36 +5,36 @@
 //
 
 /*
-Copyright or © or Copr. CNRS, (November 16, 2004)
+  Copyright or © or Copr. CNRS, (November 16, 2004)
 
-This software is a computer program whose purpose is to provide classes
-for phylogenetic data analysis.
+  This software is a computer program whose purpose is to provide classes
+  for phylogenetic data analysis.
 
-This software is governed by the CeCILL  license under French law and
-abiding by the rules of distribution of free software.  You can  use, 
-modify and/ or redistribute the software under the terms of the CeCILL
-license as circulated by CEA, CNRS and INRIA at the following URL
-"http://www.cecill.info". 
+  This software is governed by the CeCILL  license under French law and
+  abiding by the rules of distribution of free software.  You can  use, 
+  modify and/ or redistribute the software under the terms of the CeCILL
+  license as circulated by CEA, CNRS and INRIA at the following URL
+  "http://www.cecill.info". 
 
-As a counterpart to the access to the source code and  rights to copy,
-modify and redistribute granted by the license, users are provided only
-with a limited warranty  and the software's author,  the holder of the
-economic rights,  and the successive licensors  have only  limited
-liability. 
+  As a counterpart to the access to the source code and  rights to copy,
+  modify and redistribute granted by the license, users are provided only
+  with a limited warranty  and the software's author,  the holder of the
+  economic rights,  and the successive licensors  have only  limited
+  liability. 
 
-In this respect, the user's attention is drawn to the risks associated
-with loading,  using,  modifying and/or developing or reproducing the
-software by the user in light of its specific status of free software,
-that may mean  that it is complicated to manipulate,  and  that  also
-therefore means  that it is reserved for developers  and  experienced
-professionals having in-depth computer knowledge. Users are therefore
-encouraged to load and test the software's suitability as regards their
-requirements in conditions enabling the security of their systems and/or 
-data to be ensured and,  more generally, to use and operate it in the 
-same conditions as regards security. 
+  In this respect, the user's attention is drawn to the risks associated
+  with loading,  using,  modifying and/or developing or reproducing the
+  software by the user in light of its specific status of free software,
+  that may mean  that it is complicated to manipulate,  and  that  also
+  therefore means  that it is reserved for developers  and  experienced
+  professionals having in-depth computer knowledge. Users are therefore
+  encouraged to load and test the software's suitability as regards their
+  requirements in conditions enabling the security of their systems and/or 
+  data to be ensured and,  more generally, to use and operate it in the 
+  same conditions as regards security. 
 
-The fact that you are presently reading this means that you have had
-knowledge of the CeCILL license and that you accept its terms.
+  The fact that you are presently reading this means that you have had
+  knowledge of the CeCILL license and that you accept its terms.
 */
 
 #ifndef _TS98_H_
@@ -49,34 +49,34 @@ knowledge of the CeCILL license and that you accept its terms.
 namespace bpp
 {
 
-/**
- * @brief Tuffley and Steel's 1998 covarion model.
- *
- * This model is a subclass of the so-called Markov-modulated substitution models,
- * with a rate matrix
- * @f[
- * G = \begin{pmatrix}
- * -s_1 & s_1\\
- * s_2 & -s_2
- * \end{pmatrix}
- * @f]
- * and
- * @f[
- * D_R = \begin{pmatrix}
- * 0 & 0\\
- * 0 & \dfrac{s_1+s_2}{s_1}
- * \end{pmatrix}.
- * @f]
- * This model was originally designed for nucleotides sequences, but it can be used with other alphabets.
- *
- * @see MarkovModulatedSubstitutionModel
- *
- * Tuffley C. and Steel M. A., Modelling the covarion hypothesis of nucleotide substitution (1998),
- * _Math. Biosci._, 147:63-91.
- */
-class TS98:
-  public MarkovModulatedSubstitutionModel
-{
+  /**
+   * @brief Tuffley and Steel's 1998 covarion model.
+   *
+   * This model is a subclass of the so-called Markov-modulated substitution models,
+   * with a rate matrix
+   * @f[
+   * G = \begin{pmatrix}
+   * -s_1 & s_1\\
+   * s_2 & -s_2
+   * \end{pmatrix}
+   * @f]
+   * and
+   * @f[
+   * D_R = \begin{pmatrix}
+   * 0 & 0\\
+   * 0 & \dfrac{s_1+s_2}{s_1}
+   * \end{pmatrix}.
+   * @f]
+   * This model was originally designed for nucleotides sequences, but it can be used with other alphabets.
+   *
+   * @see MarkovModulatedSubstitutionModel
+   *
+   * Tuffley C. and Steel M. A., Modelling the covarion hypothesis of nucleotide substitution (1998),
+   * _Math. Biosci._, 147:63-91.
+   */
+  class TS98:
+    public MarkovModulatedSubstitutionModel
+  {
   public:
     /**
      * @brief Build a new TS98 substitution model.
@@ -113,9 +113,11 @@ class TS98:
   public:
     std::string getName() const { return "TS98"; }
 
-  double getRate() const { return 1.;}
+    double getRate() const { return 1.;}
 
-  void setRate(double rate) {};
+    void setRate(double rate) {};
+
+    void addRateParameter() {};
 
   protected:
     void updateRatesModel()
@@ -130,7 +132,7 @@ class TS98:
       ratesExchangeability_(1,1) = -s2*(s1+s2)/s1;
     }
 	
-};
+  };
 
 } //end of namespace bpp.
 
