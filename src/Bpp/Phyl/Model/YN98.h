@@ -106,6 +106,10 @@ private:
 public:
   YN98(const GeneticCode* gc, FrequenciesSet* codonFreqs);
 
+  YN98(const YN98& yn98) : AbstractReversibleSubstitutionModel(yn98),
+                           pmodel_(yn98.pmodel_),
+                           mapParNamesFromPmodel_(yn98.mapParNamesFromPmodel_),
+                           lParPmodel_(yn98.lParPmodel_) {}
   ~YN98() {}
   
   YN98* clone() const { return new YN98(*this); }
@@ -152,6 +156,8 @@ public:
   
   void setRate(double rate) { pmodel_.setRate(rate);}
 
+  void addRateParameter();
+  
 protected:
   void updateMatrices();
 
