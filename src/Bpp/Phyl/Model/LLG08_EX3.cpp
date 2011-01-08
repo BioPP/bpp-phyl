@@ -50,7 +50,7 @@ using namespace std;
 /******************************************************************************/
 
 LLG08_EX3::LLG08_EX3(const ProteicAlphabet* alpha) : 
-  MixedSubstitutionModel(alpha, "LLG08_EX3."), pmixmodel_(0),
+  AbstractMixedSubstitutionModel(alpha, "LLG08_EX3."), pmixmodel_(0),
   mapParNamesFromPmodel_(), lParPmodel_()
 {
   // build the submodel
@@ -84,7 +84,7 @@ LLG08_EX3::LLG08_EX3(const ProteicAlphabet* alpha) :
   updateMatrices();
 }
 
-LLG08_EX3::LLG08_EX3(const LLG08_EX3& mod2) : MixedSubstitutionModel(mod2),
+LLG08_EX3::LLG08_EX3(const LLG08_EX3& mod2) : AbstractMixedSubstitutionModel(mod2),
                                               pmixmodel_(new MixtureOfSubstitutionModels(*mod2.pmixmodel_)),
                                               mapParNamesFromPmodel_(mod2.mapParNamesFromPmodel_),
                                               lParPmodel_(mod2.lParPmodel_)
@@ -94,7 +94,7 @@ LLG08_EX3::LLG08_EX3(const LLG08_EX3& mod2) : MixedSubstitutionModel(mod2),
 
 LLG08_EX3& LLG08_EX3::operator=(const LLG08_EX3& mod2)
 {
-  MixedSubstitutionModel::operator=(mod2);
+  AbstractMixedSubstitutionModel::operator=(mod2);
 
   pmixmodel_=new MixtureOfSubstitutionModels(*mod2.pmixmodel_);
   mapParNamesFromPmodel_=mod2.mapParNamesFromPmodel_;

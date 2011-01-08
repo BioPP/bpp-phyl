@@ -76,7 +76,7 @@ namespace bpp
  */
   
 class LLG08_EHO:
-  public MixedSubstitutionModel
+  public AbstractMixedSubstitutionModel
 {
 public:
   class EmbeddedModel:

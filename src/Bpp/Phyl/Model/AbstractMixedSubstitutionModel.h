@@ -41,6 +41,7 @@
 #define _ABSTRACTMIXEDSUBSTITUTIONMODEL_H_
 
 #include "MixedSubstitutionModel.h"
+#include "AbstractSubstitutionModel.h"
 #include <Bpp/Seq/Alphabet.all>
 
 #include <vector>
@@ -64,7 +65,8 @@ namespace bpp
    */
 
   class AbstractMixedSubstitutionModel :
-    public MixedSubstitutionModel
+    public virtual MixedSubstitutionModel,
+    public AbstractSubstitutionModel
   {
   protected:
 
@@ -192,6 +194,13 @@ namespace bpp
       return vProbas_;
     }
     
+    /**
+     * @brief This function can not be applied here, so it is defined
+     * to prevent wrong usage.
+     */
+    
+    double Qij(unsigned int i, unsigned int j) const {return 0;}
+
     /**
      * @brief From SubstitutionModel interface
      *

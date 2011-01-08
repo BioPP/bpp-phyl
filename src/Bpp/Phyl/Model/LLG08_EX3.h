@@ -77,7 +77,7 @@ namespace bpp
    */
   
 class LLG08_EX3:
-  public MixedSubstitutionModel
+  public AbstractMixedSubstitutionModel
 {
 public:
   class EmbeddedModel:

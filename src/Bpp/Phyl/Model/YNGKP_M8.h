@@ -40,7 +40,6 @@ knowledge of the CeCILL license and that you accept its terms.
 #ifndef _YNGKP_M8_H_
 #define _YNGKP_M8_H_
 
-#include "MixedSubstitutionModel.h"
 #include "MixtureOfASubstitutionModel.h"
 #include "FrequenciesSet.h"
 
@@ -71,7 +70,7 @@ namespace bpp
  * 
  */
 class YNGKP_M8:
-  public MixedSubstitutionModel
+  public AbstractMixedSubstitutionModel
 {
 private:
   MixtureOfASubstitutionModel* pmixmodel_;

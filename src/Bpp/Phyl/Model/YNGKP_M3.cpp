@@ -50,7 +50,7 @@ using namespace std;
 /******************************************************************************/
 
 YNGKP_M3::YNGKP_M3(const GeneticCode* gc, FrequenciesSet* codonFreqs, unsigned int nbOmega) :
-  MixedSubstitutionModel(gc->getSourceAlphabet(), "YNGKP_M3."), pmixmodel_(0),
+  AbstractMixedSubstitutionModel(gc->getSourceAlphabet(), "YNGKP_M3."), pmixmodel_(0),
   synfrom_(-1), synto_(-1),
   mapParNamesFromPmodel_(), lParPmodel_()
 {
@@ -128,7 +128,7 @@ YNGKP_M3::YNGKP_M3(const GeneticCode* gc, FrequenciesSet* codonFreqs, unsigned i
   updateMatrices();
 }
 
-YNGKP_M3::YNGKP_M3(const YNGKP_M3& mod2) : MixedSubstitutionModel(mod2),
+YNGKP_M3::YNGKP_M3(const YNGKP_M3& mod2) : AbstractMixedSubstitutionModel(mod2),
                                            pmixmodel_(new MixtureOfASubstitutionModel(*mod2.pmixmodel_)),
                                            synfrom_(mod2.synfrom_), synto_(mod2.synto_),
                                            mapParNamesFromPmodel_(mod2.mapParNamesFromPmodel_),
@@ -139,7 +139,7 @@ YNGKP_M3::YNGKP_M3(const YNGKP_M3& mod2) : MixedSubstitutionModel(mod2),
 
 YNGKP_M3& YNGKP_M3::operator=(const YNGKP_M3& mod2)
 {
-  MixedSubstitutionModel::operator=(mod2);
+  AbstractMixedSubstitutionModel::operator=(mod2);
 
   pmixmodel_=new MixtureOfASubstitutionModel(*mod2.pmixmodel_);
   mapParNamesFromPmodel_=mod2.mapParNamesFromPmodel_;

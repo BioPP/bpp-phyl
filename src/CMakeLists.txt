@@ -81,7 +81,6 @@ set(CPP_FILES
   Bpp/Phyl/Model/LLG08_UL3.cpp
   Bpp/Phyl/Model/MarkovModulatedSubstitutionModel.cpp
   Bpp/Phyl/Model/MG94.cpp
-  Bpp/Phyl/Model/MixedSubstitutionModel.cpp
   Bpp/Phyl/Model/AbstractMixedSubstitutionModel.cpp
   Bpp/Phyl/Model/MixtureOfASubstitutionModel.cpp
   Bpp/Phyl/Model/MixtureOfSubstitutionModels.cpp

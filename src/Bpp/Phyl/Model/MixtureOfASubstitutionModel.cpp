@@ -90,7 +90,9 @@ MixtureOfASubstitutionModel::MixtureOfASubstitutionModel(
   for (i = 0; i < c; i++)
     {
       modelsContainer_.push_back(model->clone());
+      modelsContainer_[i]->addRateParameter();
       modelsContainer_[i]->setNamespace(model->getNamespace());
+
       vProbas_.push_back(1.0/c);
       vRates_.push_back(1.0);
     }
