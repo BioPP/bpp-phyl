@@ -106,6 +106,13 @@ private:
   int  upperNode_;
 
   /**
+   * @brief a flag to say if this object is the head of the hierarchy
+   *
+   **/
+
+  bool main_;
+  
+  /**
    * @brief Build a new RNonHomogeneousMixeTreeLikelihood object
    * without data.
    *
@@ -132,7 +139,8 @@ private:
                                      int upperNode,
                                      DiscreteDistribution* rDist,
                                      bool verbose,
-                                     bool usePatterns);
+                                     bool usePatterns,
+                                     bool main=false);
 
   /**
    * @brief Build a new RNonHomogeneousMixeTreeLikelihood object
@@ -163,7 +171,8 @@ private:
                                      int upperNode,
                                      DiscreteDistribution* rDist,
                                      bool verbose,
-                                     bool usePatterns);
+                                     bool usePatterns,
+                                     bool main=false);
 
 
   /**
@@ -202,7 +211,8 @@ public:
     SubstitutionModelSet* modelSet,
     DiscreteDistribution* rDist,
     bool verbose = true,
-    bool usePatterns = true)
+    bool usePatterns = true,
+    bool main = true)
   throw (Exception);
 
   /**
@@ -225,7 +235,8 @@ public:
                                      SubstitutionModelSet* modelSet,
                                      DiscreteDistribution* rDist,
                                      bool verbose = true,
-                                     bool usePatterns = true)
+                                     bool usePatterns = true,
+                                     bool main = true)
     throw (Exception);
 
   RNonHomogeneousMixedTreeLikelihood(const RNonHomogeneousMixedTreeLikelihood& lik);
@@ -254,6 +265,12 @@ public:
 
   virtual void computeTreeD2Likelihood(const string& variable);
 
+  /**
+   * @brief return the probability of this objetct in the hierarchy
+   *
+   */
+  
+  double getProbability() const;
 protected:
   /**
    * @brief Compute the likelihood for a subtree defined by the Tree::Node <i>node</i>.
