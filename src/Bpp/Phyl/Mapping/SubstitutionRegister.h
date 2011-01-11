@@ -197,19 +197,27 @@ class ExhaustiveSubstitutionRegister:
  * - 0 not a substitution
  * - 1 a AT->GC substitution
  * - 2 a GC->AT substitution
+ * If "includeZeroCounts" is set to true, then two additionnal types are mapped:
+ * - 3 AT->AT
+ * - 4 GC->GC
+ * so that 0 is never returned.
  */
 class GCSubstitutionRegister:
   public AbstractSubstitutionRegister
 {
+  private:
+    bool includeZeroCounts_;
+
   public:
-    GCSubstitutionRegister(const NucleicAlphabet* alphabet):
-      AbstractSubstitutionRegister(alphabet)
+    GCSubstitutionRegister(const NucleicAlphabet* alphabet, bool includeZeroCounts = false):
+      AbstractSubstitutionRegister(alphabet),
+      includeZeroCounts_(includeZeroCounts)
     {}
     
     GCSubstitutionRegister* clone() const { return new GCSubstitutionRegister(*this); }
 
   public:
-    unsigned int getNumberOfSubstitutionTypes() const { return 2; }
+    unsigned int getNumberOfSubstitutionTypes() const { return includeZeroCounts_ ? 4 : 2; }
 
     unsigned int getType(int fromState, int toState) const
     {
@@ -217,7 +225,15 @@ class GCSubstitutionRegister:
         return 1;
       if ((fromState == 1 || fromState == 2) && (toState == 0 || toState == 3))
         return 2;
-      return 0;
+      if (includeZeroCounts_) {
+        if ((fromState == 0 || fromState == 3) && (toState == 0 || toState == 3))
+          return 3;
+        if ((fromState == 1 || fromState == 2) && (toState == 1 || toState == 2))
+          return 4;
+        throw Exception("GCSubstitutionRegister::getType. Unvalid substitution type?");
+      } else  {
+        return 0;
+      }
     }
 };
 
