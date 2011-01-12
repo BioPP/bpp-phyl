@@ -57,7 +57,7 @@ namespace bpp
 /**
  * @brief The SubstitutionRegister interface.
  *
- * Substitution registers are simple classes that defines categories of substitutions, and assign them an index.
+ * Substitution registers are simple classes that define categories of substitutions, and assign them an index.
  *
  * @author Julien Dutheil
  */
@@ -286,8 +286,8 @@ class DnDsSubstitutionRegister:
     const GeneticCode* code_;
 
   public:
-    DnDsSubstitutionRegister(const GeneticCode* gc):
-      AbstractSubstitutionRegister(code_->getSourceAlphabet()),
+    DnDsSubstitutionRegister(const CodonAlphabet* alphabet, const GeneticCode* gc):
+      AbstractSubstitutionRegister(alphabet),
       code_(gc)
     {}
 
