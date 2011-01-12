@@ -211,8 +211,6 @@ namespace bpp
     const Matrix<double>& getPij_t(double t) const;
     const Matrix<double>& getdPij_dt(double t) const;
     const Matrix<double>& getd2Pij_dt2(double t) const;
-    const Vdouble& getFrequencies();
-    double freq(unsigned int i) const;
 
   };
 } // end of namespace bpp.

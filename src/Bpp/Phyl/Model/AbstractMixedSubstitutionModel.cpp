@@ -108,25 +108,6 @@ unsigned int AbstractMixedSubstitutionModel::getNumberOfStates() const
   return modelsContainer_[0]->getNumberOfStates();
 }
 
-
-const Vdouble& AbstractMixedSubstitutionModel::getFrequencies()
-{
-  for (unsigned int i=0; i< getNumberOfStates(); i++)
-    freq_[i]=freq(i);
-  return freq_;
-}
-
-
-double AbstractMixedSubstitutionModel::freq(unsigned int i) const
-{
-  double x=0;
-  for (unsigned int n = 0; n < modelsContainer_.size(); n++)
-    x+= modelsContainer_[n]->freq(i)*vProbas_[n];
-
-  return x;
-}
-
-
 const Matrix<double>& AbstractMixedSubstitutionModel::getPij_t(double t) const
 {
   vector<const Matrix<double>* > vM;
