@@ -194,9 +194,9 @@ public:
 
   const Matrix<double>& getGenerator() const { return generator_; }
 
-  const Matrix<double>& getPij_t(double t) const;
-  const Matrix<double>& getdPij_dt(double t) const;
-  const Matrix<double>& getd2Pij_dt2(double t) const;
+  virtual const Matrix<double>& getPij_t(double t) const;
+  virtual const Matrix<double>& getdPij_dt(double t) const;
+  virtual const Matrix<double>& getd2Pij_dt2(double t) const;
 
   const Vdouble& getEigenValues() const { return eigenValues_; }
 
@@ -205,7 +205,7 @@ public:
 
   double freq(unsigned int i) const { return freq_[i]; }
 
-  double Qij(unsigned int i, unsigned int j) const { return generator_(i, j); }
+  virtual double Qij(unsigned int i, unsigned int j) const { return generator_(i, j); }
 
   double Pij_t    (unsigned int i, unsigned int j, double t) const { return getPij_t(t) (i, j); }
   double dPij_dt  (unsigned int i, unsigned int j, double t) const { return getdPij_dt(t) (i, j); }
@@ -213,7 +213,7 @@ public:
 
   double getInitValue(unsigned int i, int state) const throw (BadIntException);
 
-   void setFreqFromData(const SequenceContainer& data, unsigned int pseudoCount = 0);
+  void setFreqFromData(const SequenceContainer& data, unsigned int pseudoCount = 0);
 
   void setFreq(std::map<int, double>&);
 
