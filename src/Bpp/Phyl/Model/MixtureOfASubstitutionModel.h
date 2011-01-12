@@ -107,7 +107,13 @@ public:
   std::string getName() const { return "MixtureOfASubstitutionModel"; }
 
   void updateMatrices();
-  
+
+  /**
+   * @brief sets the eq frequencies of the first nested model, and
+   * adapts the parameters at best to it (surely there is a better way
+   * to manage this).
+   *
+   */
   void setFreq(std::map<int,double>&);
 
   
