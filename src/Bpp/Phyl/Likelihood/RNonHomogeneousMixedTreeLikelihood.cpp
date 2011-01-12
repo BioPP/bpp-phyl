@@ -58,15 +58,14 @@ RNonHomogeneousMixedTreeLikelihood::RNonHomogeneousMixedTreeLikelihood(const Tre
                                                                        SubstitutionModelSet* modelSet,
                                                                        DiscreteDistribution* rDist,
                                                                        bool verbose,
-                                                                       bool usePatterns,
-                                                                       bool main)
+                                                                       bool usePatterns)
   throw (Exception) :
   RNonHomogeneousTreeLikelihood(tree, modelSet, rDist, verbose, usePatterns),
   mvTreeLikelihoods_(),
   mvProbas_(),
   vNumModels_(),
   upperNode_(tree.getRootId()),
-  main_(main)
+  main_(true)
 {
   if (!modelSet->isFullySetUpFor(tree))
     throw Exception("RNonHomogeneousMixedTreeLikelihood(constructor). Model set is not fully specified.");
@@ -91,15 +90,14 @@ RNonHomogeneousMixedTreeLikelihood::RNonHomogeneousMixedTreeLikelihood(const Tre
                                                                        SubstitutionModelSet* modelSet,
                                                                        DiscreteDistribution* rDist,
                                                                        bool verbose,
-                                                                       bool usePatterns,
-                                                                       bool main)
+                                                                       bool usePatterns)
   throw (Exception) :
   RNonHomogeneousTreeLikelihood(tree, data, modelSet, rDist, verbose, usePatterns),
   mvTreeLikelihoods_(),
   mvProbas_(),
   vNumModels_(),
   upperNode_(tree.getRootId()),
-  main_(main)
+  main_(true)
 {
   if (!modelSet->isFullySetUpFor(tree))
     throw Exception("RNonHomogeneousMixedTreeLikelihood(constructor). Model set is not fully specified.");
@@ -124,14 +122,13 @@ RNonHomogeneousMixedTreeLikelihood::RNonHomogeneousMixedTreeLikelihood(const Tre
                                                                        int upperNode,
                                                                        DiscreteDistribution* rDist,
                                                                        bool verbose,
-                                                                       bool usePatterns,
-                                                                       bool main): 
+                                                                       bool usePatterns): 
   RNonHomogeneousTreeLikelihood(tree, modelSet, rDist, verbose, usePatterns),
   mvTreeLikelihoods_(),
   mvProbas_(),
   vNumModels_(),
   upperNode_(upperNode),
-  main_(main)
+  main_(false)
 {
   if (!modelSet->isFullySetUpFor(tree))
     throw Exception("RNonHomogeneousMixedTreeLikelihood(constructor). Model set is not fully specified.");
@@ -148,14 +145,13 @@ RNonHomogeneousMixedTreeLikelihood::RNonHomogeneousMixedTreeLikelihood(const Tre
                                                                        int upperNode,
                                                                        DiscreteDistribution* rDist,
                                                                        bool verbose,
-                                                                       bool usePatterns,
-                                                                       bool main) :
+                                                                       bool usePatterns) :
   RNonHomogeneousTreeLikelihood(tree, data, modelSet, rDist, verbose, usePatterns),
   mvTreeLikelihoods_(),
   mvProbas_(),
   vNumModels_(),
   upperNode_(upperNode),
-  main_(main)
+  main_(false)
 {
   if (!modelSet->isFullySetUpFor(tree))
     throw Exception("RNonHomogeneousMixedTreeLikelihood(constructor). Model set is not fully specified.");
@@ -249,9 +245,9 @@ void RNonHomogeneousMixedTreeLikelihood::init(const Tree& tree,
         }
         RNonHomogeneousMixedTreeLikelihood* pr;
         if (pdata!=NULL)
-          pr=new RNonHomogeneousMixedTreeLikelihood(tree, *pdata, modelSet, vind, desc, rDist, false, usePatterns, false);
+          pr=new RNonHomogeneousMixedTreeLikelihood(tree, *pdata, modelSet, vind, desc, rDist, false, usePatterns);
         else 
-          pr=new RNonHomogeneousMixedTreeLikelihood(tree, modelSet, vind, desc, rDist, false, usePatterns, false);
+          pr=new RNonHomogeneousMixedTreeLikelihood(tree, modelSet, vind, desc, rDist, false, usePatterns);
         pr->resetParameters_();
         mvTreeLikelihoods_[desc].push_back(pr);
         mvProbas_[desc].push_back(proba);
@@ -330,14 +326,15 @@ RNonHomogeneousMixedTreeLikelihood::~RNonHomogeneousMixedTreeLikelihood()
 /******************************************************************************/
 void RNonHomogeneousMixedTreeLikelihood::initialize() throw (Exception)
 {
-  initParameters();
-  initialized_ = true;
+  if (main_)
+    initParameters();
+
   map<int, vector<RNonHomogeneousMixedTreeLikelihood*> >::iterator it;
   for (it=mvTreeLikelihoods_.begin();it!=mvTreeLikelihoods_.end();it++)
     for (unsigned int i = 0; i < it->second.size(); i++)
       it->second[i] ->initialize();
 
-  fireParameterChanged(getParameters());
+  RNonHomogeneousTreeLikelihood::initialize();
 }
 
 /******************************************************************************/

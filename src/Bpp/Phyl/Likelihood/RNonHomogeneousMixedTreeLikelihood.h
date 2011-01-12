@@ -139,8 +139,7 @@ private:
                                      int upperNode,
                                      DiscreteDistribution* rDist,
                                      bool verbose,
-                                     bool usePatterns,
-                                     bool main=false);
+                                     bool usePatterns);
 
   /**
    * @brief Build a new RNonHomogeneousMixeTreeLikelihood object
@@ -171,8 +170,7 @@ private:
                                      int upperNode,
                                      DiscreteDistribution* rDist,
                                      bool verbose,
-                                     bool usePatterns,
-                                     bool main=false);
+                                     bool usePatterns);
 
 
   /**
@@ -211,8 +209,7 @@ public:
     SubstitutionModelSet* modelSet,
     DiscreteDistribution* rDist,
     bool verbose = true,
-    bool usePatterns = true,
-    bool main = true)
+    bool usePatterns = true)
   throw (Exception);
 
   /**
@@ -235,8 +232,7 @@ public:
                                      SubstitutionModelSet* modelSet,
                                      DiscreteDistribution* rDist,
                                      bool verbose = true,
-                                     bool usePatterns = true,
-                                     bool main = true)
+                                     bool usePatterns = true)
     throw (Exception);
 
   RNonHomogeneousMixedTreeLikelihood(const RNonHomogeneousMixedTreeLikelihood& lik);
