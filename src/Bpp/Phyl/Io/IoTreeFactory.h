@@ -5,7 +5,7 @@
 //
 
 /*
-Copyright or © or Copr. CNRS, (November 17, 2004)
+Copyright or © or Copr. Bio++ Development Team, (November 17, 2004)
 
 This software is a computer program whose purpose is to provide classes
 for sequences analysis.
@@ -56,6 +56,7 @@ class IOTreeFactory
 public:
   static const std::string NEWICK_FORMAT;  
   static const std::string NEXUS_FORMAT;  
+  static const std::string NHX_FORMAT;  
 
 public:
 
