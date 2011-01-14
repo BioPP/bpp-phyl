@@ -190,7 +190,7 @@ public:
 
   std::vector<unsigned int> getModelStates(int i) const { return VectorTools::whichAll(chars_, i); }
 
-  const Vdouble& getFrequencies() const { return freq_; }
+  virtual const Vdouble& getFrequencies() const { return freq_; }
 
   const Matrix<double>& getGenerator() const { return generator_; }
 
@@ -203,19 +203,19 @@ public:
   const Matrix<double>& getRowLeftEigenVectors() const { return leftEigenVectors_; }
   const Matrix<double>& getColumnRightEigenVectors() const { return rightEigenVectors_; }
 
-  double freq(unsigned int i) const { return freq_[i]; }
+  virtual double freq(unsigned int i) const { return freq_[i]; }
 
   virtual double Qij(unsigned int i, unsigned int j) const { return generator_(i, j); }
 
-  double Pij_t    (unsigned int i, unsigned int j, double t) const { return getPij_t(t) (i, j); }
-  double dPij_dt  (unsigned int i, unsigned int j, double t) const { return getdPij_dt(t) (i, j); }
-  double d2Pij_dt2(unsigned int i, unsigned int j, double t) const { return getd2Pij_dt2(t) (i, j); }
+  virtual double Pij_t    (unsigned int i, unsigned int j, double t) const { return getPij_t(t) (i, j); }
+  virtual double dPij_dt  (unsigned int i, unsigned int j, double t) const { return getdPij_dt(t) (i, j); }
+  virtual double d2Pij_dt2(unsigned int i, unsigned int j, double t) const { return getd2Pij_dt2(t) (i, j); }
 
   double getInitValue(unsigned int i, int state) const throw (BadIntException);
 
   void setFreqFromData(const SequenceContainer& data, unsigned int pseudoCount = 0);
 
-  void setFreq(std::map<int, double>&);
+  virtual void setFreq(std::map<int, double>&);
 
   void enableEigenDecomposition(bool yn) { eigenDecompose_ = yn; }
 
@@ -276,7 +276,7 @@ public:
    * @brief Get the rate of the model
    */
   
-  double getRate() const;
+  virtual double getRate() const;
 
   /**
    * @brief Set the rate of the model (must be positive).

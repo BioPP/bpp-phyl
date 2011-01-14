@@ -120,7 +120,7 @@ namespace bpp
      * @brief returns the number of models in the mixture
      */
     
-    unsigned int getNumberOfModels() const
+    virtual unsigned int getNumberOfModels() const
     {
       return modelsContainer_.size();
     }
@@ -128,12 +128,12 @@ namespace bpp
     /**
      * @brief Returns a specific model from the mixture
      */
-    const SubstitutionModel* getNModel(unsigned int i) const
+    virtual const SubstitutionModel* getNModel(unsigned int i) const
     {
       return modelsContainer_[i];
     }
     
-    SubstitutionModel* getNModel(unsigned int i)
+    virtual SubstitutionModel* getNModel(unsigned int i)
     {
       return modelsContainer_[i];
     }
@@ -161,7 +161,7 @@ namespace bpp
      * @param rate must be positive.
      */
   
-    void setRate(double rate);
+    virtual void setRate(double rate);
 
     /**
      * @brief Sets the rates of the submodels to follow the constraint
@@ -179,7 +179,7 @@ namespace bpp
      * mixture
      */
   
-    double getNProbability(unsigned int i) const
+    virtual double getNProbability(unsigned int i) const
     {
       return vProbas_[i];
     }
@@ -189,7 +189,7 @@ namespace bpp
      *
      */
   
-    const std::vector<double>& getProbabilities() const
+    virtual const std::vector<double>& getProbabilities() const
     {
       return vProbas_;
     }
@@ -206,11 +206,11 @@ namespace bpp
      *
      */
 
-    unsigned int getNumberOfStates() const;
+    virtual unsigned int getNumberOfStates() const;
     
-    const Matrix<double>& getPij_t(double t) const;
-    const Matrix<double>& getdPij_dt(double t) const;
-    const Matrix<double>& getd2Pij_dt2(double t) const;
+    virtual const Matrix<double>& getPij_t(double t) const;
+    virtual const Matrix<double>& getdPij_dt(double t) const;
+    virtual const Matrix<double>& getd2Pij_dt2(double t) const;
 
   };
 } // end of namespace bpp.
