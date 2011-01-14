@@ -177,7 +177,7 @@ public:
     return pmixmodel_->getd2Pij_dt2(t);
   };
   
-  const Vdouble& getFrequencies() {
+  const Vdouble& getFrequencies() const {
     return pmixmodel_->getFrequencies();
   };
   

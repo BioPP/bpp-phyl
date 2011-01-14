@@ -171,7 +171,7 @@ public:
     return pmixmodel_->getd2Pij_dt2(t);
   };
   
-  const Vdouble& getFrequencies() {
+  const Vdouble& getFrequencies() const {
     return pmixmodel_->getFrequencies();
   };
   
@@ -179,7 +179,7 @@ public:
     return pmixmodel_->freq(i);
   };
 
-  void setFreq(std::map<int,double>& m);
+  void setFreq(std::map<int,double>&);
 
   double getRate() const { return pmixmodel_->getRate();}
   
