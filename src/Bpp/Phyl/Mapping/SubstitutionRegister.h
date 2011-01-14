@@ -286,8 +286,8 @@ class DnDsSubstitutionRegister:
     const GeneticCode* code_;
 
   public:
-    DnDsSubstitutionRegister(const CodonAlphabet* alphabet, const GeneticCode* gc):
-      AbstractSubstitutionRegister(alphabet),
+    DnDsSubstitutionRegister(const GeneticCode* gc):
+      AbstractSubstitutionRegister(gc->getSourceAlphabet()),
       code_(gc)
     {}
 
@@ -310,6 +310,9 @@ class DnDsSubstitutionRegister:
 
     unsigned int getType(int fromState, int toState) const
     {
+      if (dynamic_cast<const CodonAlphabet*>(alphabet_)->isStop(fromState)
+       || dynamic_cast<const CodonAlphabet*>(alphabet_)->isStop(toState))
+        return 0;
       if (fromState == toState)
         return 0; //nothing happens
       return code_->areSynonymous(fromState, toState) ? 1 : 2;
