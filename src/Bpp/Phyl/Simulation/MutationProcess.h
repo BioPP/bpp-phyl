@@ -347,7 +347,7 @@ class SimpleMutationProcess : public AbstractMutationProcess
 		 *
 		 * @param model The substitution model to use.
 		 */
-  	SimpleMutationProcess(const SubstitutionModel * model);
+  	SimpleMutationProcess(const SubstitutionModel* model);
 	
 		virtual ~SimpleMutationProcess();
 

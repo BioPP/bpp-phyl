@@ -7,37 +7,37 @@
 //
 
 /*
-Copyright or © or Copr. CNRS, (November 16, 2004)
+   Copyright or © or Copr. CNRS, (November 16, 2004)
 
-This software is a computer program whose purpose is to provide classes
-for phylogenetic data analysis.
+   This software is a computer program whose purpose is to provide classes
+   for phylogenetic data analysis.
 
-This software is governed by the CeCILL  license under French law and
-abiding by the rules of distribution of free software.  You can  use, 
-modify and/ or redistribute the software under the terms of the CeCILL
-license as circulated by CEA, CNRS and INRIA at the following URL
-"http://www.cecill.info". 
+   This software is governed by the CeCILL  license under French law and
+   abiding by the rules of distribution of free software.  You can  use,
+   modify and/ or redistribute the software under the terms of the CeCILL
+   license as circulated by CEA, CNRS and INRIA at the following URL
+   "http://www.cecill.info".
 
-As a counterpart to the access to the source code and  rights to copy,
-modify and redistribute granted by the license, users are provided only
-with a limited warranty  and the software's author,  the holder of the
-economic rights,  and the successive licensors  have only  limited
-liability. 
+   As a counterpart to the access to the source code and  rights to copy,
+   modify and redistribute granted by the license, users are provided only
+   with a limited warranty  and the software's author,  the holder of the
+   economic rights,  and the successive licensors  have only  limited
+   liability.
 
-In this respect, the user's attention is drawn to the risks associated
-with loading,  using,  modifying and/or developing or reproducing the
-software by the user in light of its specific status of free software,
-that may mean  that it is complicated to manipulate,  and  that  also
-therefore means  that it is reserved for developers  and  experienced
-professionals having in-depth computer knowledge. Users are therefore
-encouraged to load and test the software's suitability as regards their
-requirements in conditions enabling the security of their systems and/or 
-data to be ensured and,  more generally, to use and operate it in the 
-same conditions as regards security. 
+   In this respect, the user's attention is drawn to the risks associated
+   with loading,  using,  modifying and/or developing or reproducing the
+   software by the user in light of its specific status of free software,
+   that may mean  that it is complicated to manipulate,  and  that  also
+   therefore means  that it is reserved for developers  and  experienced
+   professionals having in-depth computer knowledge. Users are therefore
+   encouraged to load and test the software's suitability as regards their
+   requirements in conditions enabling the security of their systems and/or
+   data to be ensured and,  more generally, to use and operate it in the
+   same conditions as regards security.
 
-The fact that you are presently reading this means that you have had
-knowledge of the CeCILL license and that you accept its terms.
-*/
+   The fact that you are presently reading this means that you have had
+   knowledge of the CeCILL license and that you accept its terms.
+ */
 
 #include "NonHomogeneousSequenceSimulator.h"
 #include "../Model/SubstitutionModelSetTools.h"
@@ -55,9 +55,9 @@ using namespace std;
 /******************************************************************************/
 
 NonHomogeneousSequenceSimulator::NonHomogeneousSequenceSimulator(
-    const SubstitutionModelSet* modelSet,
-    const DiscreteDistribution* rate,
-    const Tree* tree) throw(Exception) :
+  const SubstitutionModelSet* modelSet,
+  const DiscreteDistribution* rate,
+  const Tree* tree) throw (Exception) :
   modelSet_(modelSet),
   alphabet_(modelSet_->getAlphabet()),
   rate_(rate),
@@ -71,7 +71,7 @@ NonHomogeneousSequenceSimulator::NonHomogeneousSequenceSimulator(
   nbStates_(modelSet_->getNumberOfStates()),
   continuousRates_(false)
 {
-  if(!modelSet->isFullySetUpFor(*tree))
+  if (!modelSet->isFullySetUpFor(*tree))
     throw Exception("NonHomogeneousSequenceSimulator(constructor). Model set is not fully specified.");
   init();
 }
@@ -81,7 +81,7 @@ NonHomogeneousSequenceSimulator::NonHomogeneousSequenceSimulator(
 NonHomogeneousSequenceSimulator::NonHomogeneousSequenceSimulator(
   const SubstitutionModel* model,
   const DiscreteDistribution* rate,
-  const Tree* tree):
+  const Tree* tree) :
   modelSet_(0),
   alphabet_(model->getAlphabet()),
   rate_(rate),
@@ -101,19 +101,20 @@ NonHomogeneousSequenceSimulator::NonHomogeneousSequenceSimulator(
   modelSet_ = SubstitutionModelSetTools::createHomogeneousModelSet(dynamic_cast<SubstitutionModel*>(model->clone()), fSet, templateTree_);
   init();
 }
-  
-/******************************************************************************/
 
+/******************************************************************************/
 void NonHomogeneousSequenceSimulator::init()
 {
   seqNames_.resize(leaves_.size());
   for (unsigned int i = 0; i < seqNames_.size(); i++)
+  {
     seqNames_[i] = leaves_[i]->getName();
+  }
   // Initialize cumulative pxy:
   vector<SNode*> nodes = tree_.getNodes();
-  nodes.pop_back(); //remove root
+  nodes.pop_back(); // remove root
   nbNodes_ = nodes.size();
-  
+
   for (unsigned int i = 0; i < nodes.size(); i++)
   {
     SNode* node = nodes[i];
@@ -121,19 +122,19 @@ void NonHomogeneousSequenceSimulator::init()
     double d = node->getDistanceToFather();
     VVVdouble* cumpxy_node_ = &node->getInfos().cumpxy;
     cumpxy_node_->resize(nbClasses_);
-    for(unsigned int c = 0; c < nbClasses_; c++)
+    for (unsigned int c = 0; c < nbClasses_; c++)
     {
-      VVdouble * cumpxy_node_c_ = & (* cumpxy_node_)[c];
+      VVdouble* cumpxy_node_c_ = &(*cumpxy_node_)[c];
       cumpxy_node_c_->resize(nbStates_);
       RowMatrix<double> P = node->getInfos().model->getPij_t(d * rate_->getCategory(c));
       for (unsigned int x = 0; x < nbStates_; x++)
       {
-        Vdouble* cumpxy_node_c_x_ = & (* cumpxy_node_c_)[x];
+        Vdouble* cumpxy_node_c_x_ = &(*cumpxy_node_c_)[x];
         cumpxy_node_c_x_->resize(nbStates_);
-        (* cumpxy_node_c_x_)[0] = P(x, 0);
-        for(unsigned int y = 1; y < nbStates_; y++)
+        (*cumpxy_node_c_x_)[0] = P(x, 0);
+        for (unsigned int y = 1; y < nbStates_; y++)
         {
-          (* cumpxy_node_c_x_)[y] = (* cumpxy_node_c_x_)[y - 1] + P(x, y);
+          (*cumpxy_node_c_x_)[y] = (*cumpxy_node_c_x_)[y - 1] + P(x, y);
         }
       }
     }
@@ -141,7 +142,6 @@ void NonHomogeneousSequenceSimulator::init()
 }
 
 /******************************************************************************/
-
 Site* NonHomogeneousSequenceSimulator::simulate() const
 {
   // Draw an initial state randomly according to equilibrum frequencies:
@@ -162,7 +162,6 @@ Site* NonHomogeneousSequenceSimulator::simulate() const
 }
 
 /******************************************************************************/
-  
 Site* NonHomogeneousSequenceSimulator::simulate(int initialState) const
 {
   if (continuousRates_)
@@ -182,7 +181,6 @@ Site* NonHomogeneousSequenceSimulator::simulate(int initialState) const
 }
 
 /******************************************************************************/
-
 Site* NonHomogeneousSequenceSimulator::simulate(int initialState, unsigned int rateClass) const
 {
   // Launch recursion:
@@ -202,7 +200,6 @@ Site* NonHomogeneousSequenceSimulator::simulate(int initialState, unsigned int r
 }
 
 /******************************************************************************/
-  
 Site* NonHomogeneousSequenceSimulator::simulate(int initialState, double rate) const
 {
   // Launch recursion:
@@ -222,18 +219,17 @@ Site* NonHomogeneousSequenceSimulator::simulate(int initialState, double rate) c
 }
 
 /******************************************************************************/
-
 Site* NonHomogeneousSequenceSimulator::simulate(double rate) const
 {
   // Draw an initial state randomly according to equilibrum frequencies:
   int initialState = 0;
   double r = RandomTools::giveRandomNumberBetweenZeroAndEntry(1.);
-  double cumprob = 0;  
+  double cumprob = 0;
   vector<double> freqs = modelSet_->getRootFrequencies();
   for (unsigned int i = 0; i < nbStates_; i++)
   {
     cumprob += freqs[i];
-    if(r <= cumprob)
+    if (r <= cumprob)
     {
       initialState = (int)i;
       break;
@@ -244,18 +240,17 @@ Site* NonHomogeneousSequenceSimulator::simulate(double rate) const
 }
 
 /******************************************************************************/
-    
 SiteContainer* NonHomogeneousSequenceSimulator::simulate(unsigned int numberOfSites) const
 {
   Vint initialStates(numberOfSites, 0);
   for (unsigned int j = 0; j < numberOfSites; j++)
-  { 
+  {
     double r = RandomTools::giveRandomNumberBetweenZeroAndEntry(1.);
-    double cumprob = 0;  
+    double cumprob = 0;
     vector<double> freqs = modelSet_->getRootFrequencies();
     for (unsigned int i = 0; i < nbStates_; i++)
     {
-      cumprob += freqs[i]; 
+      cumprob += freqs[i];
       if (r <= cumprob)
       {
         initialStates[j] = (int)i;
@@ -277,13 +272,15 @@ SiteContainer* NonHomogeneousSequenceSimulator::simulate(unsigned int numberOfSi
     return sites;
   }
   else
-  { 
-    //More efficient to do site this way:
+  {
+    // More efficient to do site this way:
     // Draw random rates:
     vector<unsigned int> rateClasses(numberOfSites);
     unsigned int nCat = rate_->getNumberOfCategories();
     for (unsigned int j = 0; j < numberOfSites; j++)
+    {
       rateClasses[j] = static_cast<unsigned int>(RandomTools::giveIntRandomNumberBetweenZeroAndEntry(nCat));
+    }
     // Make these states evolve:
     SiteContainer* sites = multipleEvolve(initialStates, rateClasses);
     return sites;
@@ -291,13 +288,12 @@ SiteContainer* NonHomogeneousSequenceSimulator::simulate(unsigned int numberOfSi
 }
 
 /******************************************************************************/
-
 RASiteSimulationResult* NonHomogeneousSequenceSimulator::dSimulate() const
 {
   // Draw an initial state randomly according to equilibrum frequencies:
   int initialState = 0;
   double r = RandomTools::giveRandomNumberBetweenZeroAndEntry(1.);
-  double cumprob = 0;  
+  double cumprob = 0;
   vector<double> freqs = modelSet_->getRootFrequencies();
   for (unsigned int i = 0; i < nbStates_; i++)
   {
@@ -308,12 +304,11 @@ RASiteSimulationResult* NonHomogeneousSequenceSimulator::dSimulate() const
       break;
     }
   }
-  
+
   return dSimulate(initialState);
 }
 
 /******************************************************************************/
-
 RASiteSimulationResult* NonHomogeneousSequenceSimulator::dSimulate(int initialState) const
 {
   // Draw a random rate:
@@ -326,12 +321,11 @@ RASiteSimulationResult* NonHomogeneousSequenceSimulator::dSimulate(int initialSt
   {
     unsigned int rateClass = static_cast<unsigned int>(RandomTools::giveIntRandomNumberBetweenZeroAndEntry(rate_->getNumberOfCategories()));
     return dSimulate(initialState, rateClass);
-    //NB: this is more efficient than dSimulate(initialState, rDist_->rand())
+    // NB: this is more efficient than dSimulate(initialState, rDist_->rand())
   }
 }
 
 /******************************************************************************/
-
 RASiteSimulationResult* NonHomogeneousSequenceSimulator::dSimulate(int initialState, double rate) const
 {
   // Make this state evolve:
@@ -341,14 +335,12 @@ RASiteSimulationResult* NonHomogeneousSequenceSimulator::dSimulate(int initialSt
 }
 
 /******************************************************************************/
-
 RASiteSimulationResult* NonHomogeneousSequenceSimulator::dSimulate(int initialState, unsigned int rateClass) const
 {
   return dSimulate(initialState, rate_->getCategory(rateClass));
 }
 
 /******************************************************************************/
-
 RASiteSimulationResult* NonHomogeneousSequenceSimulator::dSimulate(double rate) const
 {
   // Draw an initial state randomly according to equilibrum frequencies:
@@ -359,7 +351,7 @@ RASiteSimulationResult* NonHomogeneousSequenceSimulator::dSimulate(double rate) 
   for (unsigned int i = 0; i < nbStates_; i++)
   {
     cumprob += freqs[i];
-    if(r <= cumprob)
+    if (r <= cumprob)
     {
       initialState = i;
       break;
@@ -369,14 +361,13 @@ RASiteSimulationResult* NonHomogeneousSequenceSimulator::dSimulate(double rate) 
 }
 
 /******************************************************************************/
-
 int NonHomogeneousSequenceSimulator::evolve(const SNode* node, int initialState, unsigned int rateClass) const
 {
-  const Vdouble* cumpxy_node_c_x_ = & node->getInfos().cumpxy[rateClass][initialState];
+  const Vdouble* cumpxy_node_c_x_ = &node->getInfos().cumpxy[rateClass][initialState];
   double rand = RandomTools::giveRandomNumberBetweenZeroAndEntry(1.);
   for (int y = 0; y < static_cast<int>(nbStates_); y++)
   {
-    if(rand < (* cumpxy_node_c_x_)[y]) return y;
+    if (rand < (*cumpxy_node_c_x_)[y]) return y;
   }
   cerr << "DEBUG: This message should never happen! (HomogeneousSequenceSimulator::evolve)" << endl;
   cout << "   rand = " << rand << endl;
@@ -384,7 +375,6 @@ int NonHomogeneousSequenceSimulator::evolve(const SNode* node, int initialState,
 }
 
 /******************************************************************************/
-
 int NonHomogeneousSequenceSimulator::evolve(const SNode* node, int initialState, double rate) const
 {
   double cumpxy = 0;
@@ -404,17 +394,16 @@ int NonHomogeneousSequenceSimulator::evolve(const SNode* node, int initialState,
 }
 
 /******************************************************************************/
-
-void NonHomogeneousSequenceSimulator::multipleEvolve(const SNode* node, const Vint & initialStates, const vector<unsigned int> & rateClasses, Vint & finalStates) const
+void NonHomogeneousSequenceSimulator::multipleEvolve(const SNode* node, const Vint& initialStates, const vector<unsigned int>& rateClasses, Vint& finalStates) const
 {
-  const VVVdouble* cumpxy_node_ = & node->getInfos().cumpxy;
-  for(unsigned int i = 0; i < initialStates.size(); i++)
+  const VVVdouble* cumpxy_node_ = &node->getInfos().cumpxy;
+  for (unsigned int i = 0; i < initialStates.size(); i++)
   {
-    const Vdouble * cumpxy_node_c_x_ = & (* cumpxy_node_)[rateClasses[i]][initialStates[i]];
+    const Vdouble* cumpxy_node_c_x_ = &(*cumpxy_node_)[rateClasses[i]][initialStates[i]];
     double rand = RandomTools::giveRandomNumberBetweenZeroAndEntry(1.);
     for (unsigned int y = 0; y < nbStates_; y++)
     {
-      if (rand < (* cumpxy_node_c_x_)[y])
+      if (rand < (*cumpxy_node_c_x_)[y])
       {
         finalStates[i] = (int)y;
         break;
@@ -424,11 +413,10 @@ void NonHomogeneousSequenceSimulator::multipleEvolve(const SNode* node, const Vi
 }
 
 /******************************************************************************/
-
 void NonHomogeneousSequenceSimulator::evolveInternal(SNode* node, unsigned int rateClass) const
 {
-  if(!node->hasFather())
-  { 
+  if (!node->hasFather())
+  {
     cerr << "DEBUG: NonHomogeneousSequenceSimulator::evolveInternal. Forbidden call of method on root node." << endl;
     return;
   }
@@ -440,11 +428,10 @@ void NonHomogeneousSequenceSimulator::evolveInternal(SNode* node, unsigned int r
 }
 
 /******************************************************************************/
-
 void NonHomogeneousSequenceSimulator::evolveInternal(SNode* node, double rate) const
 {
   if (!node->hasFather())
-  { 
+  {
     cerr << "DEBUG: NonHomogeneousSequenceSimulator::evolveInternal. Forbidden call of method on root node." << endl;
     return;
   }
@@ -456,46 +443,44 @@ void NonHomogeneousSequenceSimulator::evolveInternal(SNode* node, double rate) c
 }
 
 /******************************************************************************/
-
-void NonHomogeneousSequenceSimulator::multipleEvolveInternal(SNode* node, const vector<unsigned int> & rateClasses) const
+void NonHomogeneousSequenceSimulator::multipleEvolveInternal(SNode* node, const vector<unsigned int>& rateClasses) const
 {
-  if(!node->hasFather())
-  { 
+  if (!node->hasFather())
+  {
     cerr << "DEBUG: NonHomogeneousSequenceSimulator::multipleEvolveInternal. Forbidden call of method on root node." << endl;
     return;
   }
   const vector<int>* initialStates = &node->getFather()->getInfos().states;
   unsigned int n = initialStates->size();
-  node->getInfos().states.resize(n); //allocation.
+  node->getInfos().states.resize(n); // allocation.
   multipleEvolve(node, node->getFather()->getInfos().states, rateClasses, node->getInfos().states);
-  for(unsigned int i = 0; i < node->getNumberOfSons(); i++)
+  for (unsigned int i = 0; i < node->getNumberOfSons(); i++)
   {
     multipleEvolveInternal(node->getSon(i), rateClasses);
   }
 }
 
 /******************************************************************************/
-
-SiteContainer* NonHomogeneousSequenceSimulator::multipleEvolve(const Vint& initialStates, const vector<unsigned int> & rateClasses) const
+SiteContainer* NonHomogeneousSequenceSimulator::multipleEvolve(const Vint& initialStates, const vector<unsigned int>& rateClasses) const
 {
   // Launch recursion:
-  SNode * root = tree_.getRootNode();
+  SNode* root = tree_.getRootNode();
   root->getInfos().states = initialStates;
-  for(unsigned int i = 0; i < root->getNumberOfSons(); i++)
+  for (unsigned int i = 0; i < root->getNumberOfSons(); i++)
   {
     multipleEvolveInternal(root->getSon(i), rateClasses);
   }
   // Now create a SiteContainer object:
-  AlignedSequenceContainer * sites = new AlignedSequenceContainer(alphabet_);
+  AlignedSequenceContainer* sites = new AlignedSequenceContainer(alphabet_);
   unsigned int n = leaves_.size();
   unsigned int nbSites = initialStates.size();
-  const SubstitutionModel * model = NULL;
-  for(unsigned int i = 0; i < n; i++)
+  const SubstitutionModel* model = 0;
+  for (unsigned int i = 0; i < n; i++)
   {
     vector<int> content(nbSites);
     vector<int>* states = &leaves_[i]->getInfos().states;
     model = leaves_[i]->getInfos().model;
-    for(unsigned int j = 0; j < nbSites; j++)
+    for (unsigned int j = 0; j < nbSites; j++)
     {
       content[j] = model->getAlphabetChar((*states)[j]);
     }
@@ -505,7 +490,6 @@ SiteContainer* NonHomogeneousSequenceSimulator::multipleEvolve(const Vint& initi
 }
 
 /******************************************************************************/
-  
 void NonHomogeneousSequenceSimulator::dEvolve(int initialState, double rate, RASiteSimulationResult& rassr) const
 {
   // Launch recursion:
@@ -518,11 +502,10 @@ void NonHomogeneousSequenceSimulator::dEvolve(int initialState, double rate, RAS
 }
 
 /******************************************************************************/
-
 void NonHomogeneousSequenceSimulator::dEvolveInternal(SNode* node, double rate, RASiteSimulationResult& rassr) const
 {
   if (!node->hasFather())
-  { 
+  {
     cerr << "DEBUG: NonHomogeneousSequenceSimulator::evolveInternal. Forbidden call of method on root node." << endl;
     return;
   }
