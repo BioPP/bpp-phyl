@@ -6,7 +6,7 @@
 //
 
 /*
-   Copyright or (c) or Copr. CNRS, (November 16, 2004)
+   Copyright or (c) or Copr. Bio++ Development Team, (November 16, 2004)
 
    This software is a computer program whose purpose is to provide classes
    for phylogenetic data analysis.
@@ -58,12 +58,12 @@ using namespace std;
 
 void AbstractFrequenciesSet::setFrequenciesFromMap(const map<int, double>& frequencies)
 {
-   unsigned int s = getAlphabet()->getSize();
-   vector<double> freq(s);
-   double x = 0;
+  unsigned int s = getAlphabet()->getSize();
+  vector<double> freq(s);
+  double x = 0;
   for (unsigned int i = 0; i < s; i++)
   {
-   map<int, double>::const_iterator it = frequencies.find(i);
+    map<int, double>::const_iterator it = frequencies.find(i);
     if (it != frequencies.end())
       freq[i] = it->second;
     else
@@ -80,19 +80,19 @@ void AbstractFrequenciesSet::setFrequenciesFromMap(const map<int, double>& frequ
 // ////////////////////////////
 // FullFrequenciesSet
 
-FullFrequenciesSet::FullFrequenciesSet(const Alphabet* alphabet, bool allowNullFreqs) :
-  AbstractFrequenciesSet(alphabet->getSize(), alphabet, "Full.")
+FullFrequenciesSet::FullFrequenciesSet(const Alphabet* alphabet, bool allowNullFreqs, const string& name) :
+  AbstractFrequenciesSet(alphabet->getSize(), alphabet, "Full.", name)
 {
-   unsigned int size = alphabet->getSize();
+  unsigned int size = alphabet->getSize();
 
   for (unsigned int i = 0; i < alphabet->getSize() - 1; i++)
   {
     Parameter p(
-        "Full.theta" + TextTools::toString(i + 1),
-        1. / (size - i),
-        allowNullFreqs ?
-        dynamic_cast<Constraint*>(&Parameter::PROP_CONSTRAINT_IN) :
-        dynamic_cast<Constraint*>(&Parameter::PROP_CONSTRAINT_EX));
+      "Full.theta" + TextTools::toString(i + 1),
+      1. / (size - i),
+      allowNullFreqs ?
+      dynamic_cast<Constraint*>(&Parameter::PROP_CONSTRAINT_IN) :
+      dynamic_cast<Constraint*>(&Parameter::PROP_CONSTRAINT_EX));
     addParameter_(p);
     getFreq_(i) = 1. / size;
   }
@@ -100,8 +100,8 @@ FullFrequenciesSet::FullFrequenciesSet(const Alphabet* alphabet, bool allowNullF
   getFreq_(i) = 1. / size;
 }
 
-FullFrequenciesSet::FullFrequenciesSet(const Alphabet* alphabet, const vector<double>& initFreqs, bool allowNullFreqs) throw (Exception) :
-  AbstractFrequenciesSet(alphabet->getSize(), alphabet, "Full.")
+FullFrequenciesSet::FullFrequenciesSet(const Alphabet* alphabet, const vector<double>& initFreqs, bool allowNullFreqs, const string& name) throw (Exception) :
+  AbstractFrequenciesSet(alphabet->getSize(), alphabet, "Full.", name)
 {
   if (initFreqs.size() != alphabet->getSize())
     throw Exception("FullFrequenciesSet(constructor). There must be " + TextTools::toString(alphabet->getSize()) + " frequencies.");
@@ -115,11 +115,11 @@ FullFrequenciesSet::FullFrequenciesSet(const Alphabet* alphabet, const vector<do
   for (unsigned int i = 0; i < alphabet->getSize() - 1; i++)
   {
     Parameter p(
-        "Full.theta" + TextTools::toString(i + 1),
-        initFreqs[i] / y,
-        allowNullFreqs ?
-        dynamic_cast<Constraint*>(&Parameter::PROP_CONSTRAINT_IN) :
-        dynamic_cast<Constraint*>(&Parameter::PROP_CONSTRAINT_EX));
+      "Full.theta" + TextTools::toString(i + 1),
+      initFreqs[i] / y,
+      allowNullFreqs ?
+      dynamic_cast<Constraint*>(&Parameter::PROP_CONSTRAINT_IN) :
+      dynamic_cast<Constraint*>(&Parameter::PROP_CONSTRAINT_EX));
     addParameter_(p);
     getFreq_(i) = initFreqs[i];
     y -= initFreqs[i];
@@ -130,7 +130,7 @@ FullFrequenciesSet::FullFrequenciesSet(const Alphabet* alphabet, const vector<do
 
 void FullFrequenciesSet::setFrequencies(const vector<double>& frequencies) throw (DimensionException, Exception)
 {
-   const Alphabet* alphabet = getAlphabet();
+  const Alphabet* alphabet = getAlphabet();
   if (frequencies.size() != getNumberOfFrequencies())
     throw DimensionException("FullFrequenciesSet::setFrequencies. Invalid number of frequencies.", frequencies.size(), getNumberOfFrequencies());
 
@@ -149,9 +149,9 @@ void FullFrequenciesSet::setFrequencies(const vector<double>& frequencies) throw
 
 void FullFrequenciesSet::fireParameterChanged(const ParameterList& parameters)
 {
-   const Alphabet* alphabet = getAlphabet();
-   double y = 1;
-   unsigned int i;
+  const Alphabet* alphabet = getAlphabet();
+  double y = 1;
+  unsigned int i;
   for (i = 0; i < alphabet->getSize() - 1; i++)
   {
     getFreq_(i) = getParameter_("theta" + TextTools::toString(i + 1)).getValue() * y;
@@ -166,11 +166,11 @@ void FullFrequenciesSet::fireParameterChanged(const ParameterList& parameters)
 // ////////////////////////////
 // FullCodonFrequenciesSet
 
-FullCodonFrequenciesSet::FullCodonFrequenciesSet(const CodonAlphabet* alphabet, bool allowNullFreqs) :
-  AbstractFrequenciesSet(alphabet->getSize(), alphabet, "Full.")
+FullCodonFrequenciesSet::FullCodonFrequenciesSet(const CodonAlphabet* alphabet, bool allowNullFreqs, const string& name) :
+  AbstractFrequenciesSet(alphabet->getSize(), alphabet, "Full.", name)
 {
-   unsigned int size = alphabet->getSize() - alphabet->numberOfStopCodons();
-   unsigned int j = 0;
+  unsigned int size = alphabet->getSize() - alphabet->numberOfStopCodons();
+  unsigned int j = 0;
 
   for (unsigned int i = 0; i < alphabet->getSize() - 1; i++)
   {
@@ -181,11 +181,11 @@ FullCodonFrequenciesSet::FullCodonFrequenciesSet(const CodonAlphabet* alphabet, 
     else
     {
       Parameter p(
-          "Full.theta" + TextTools::toString(i + 1),
-          1. / (size - j),
-          allowNullFreqs ?
-          dynamic_cast<Constraint*>(&Parameter::PROP_CONSTRAINT_IN) :
-          dynamic_cast<Constraint*>(&Parameter::PROP_CONSTRAINT_EX));
+        "Full.theta" + TextTools::toString(i + 1),
+        1. / (size - j),
+        allowNullFreqs ?
+        dynamic_cast<Constraint*>(&Parameter::PROP_CONSTRAINT_IN) :
+        dynamic_cast<Constraint*>(&Parameter::PROP_CONSTRAINT_EX));
       addParameter_(p);
       getFreq_(i) = 1. / size;
       j++;
@@ -196,8 +196,8 @@ FullCodonFrequenciesSet::FullCodonFrequenciesSet(const CodonAlphabet* alphabet, 
 }
 
 
-FullCodonFrequenciesSet::FullCodonFrequenciesSet(const CodonAlphabet* alphabet, const vector<double>& initFreqs, bool allowNullFreqs) throw (Exception) :
-  AbstractFrequenciesSet(alphabet->getSize(), alphabet, "Full.")
+FullCodonFrequenciesSet::FullCodonFrequenciesSet(const CodonAlphabet* alphabet, const vector<double>& initFreqs, bool allowNullFreqs, const string& name) throw (Exception) :
+  AbstractFrequenciesSet(alphabet->getSize(), alphabet, "Full.", name)
 {
   if (initFreqs.size() != alphabet->getSize())
     throw Exception("FullCodonFrequenciesSet(constructor). There must be " + TextTools::toString(alphabet->getSize()) + " frequencies.");
@@ -221,18 +221,18 @@ FullCodonFrequenciesSet::FullCodonFrequenciesSet(const CodonAlphabet* alphabet, 
     else
     {
       Parameter p(
-          "Full.theta" + TextTools::toString(i + 1),
-          initFreqs[i] / sum / y,
-          allowNullFreqs ?
-          dynamic_cast<Constraint*>(&Parameter::PROP_CONSTRAINT_IN) :
-          dynamic_cast<Constraint*>(&Parameter::PROP_CONSTRAINT_EX));
+        "Full.theta" + TextTools::toString(i + 1),
+        initFreqs[i] / sum / y,
+        allowNullFreqs ?
+        dynamic_cast<Constraint*>(&Parameter::PROP_CONSTRAINT_IN) :
+        dynamic_cast<Constraint*>(&Parameter::PROP_CONSTRAINT_EX));
       addParameter_(p);
-      getFreq_(i) = initFreqs[i]/sum;
-      y -= initFreqs[i]/sum;
+      getFreq_(i) = initFreqs[i] / sum;
+      y -= initFreqs[i] / sum;
     }
   }
   unsigned int i = alphabet->getSize() - 1;
-  getFreq_(i) = (alphabet->isStop(i)) ? 0 : initFreqs[i]/sum;
+  getFreq_(i) = (alphabet->isStop(i)) ? 0 : initFreqs[i] / sum;
 }
 
 void FullCodonFrequenciesSet::setFrequencies(const vector<double>& frequencies) throw (DimensionException, Exception)
@@ -257,23 +257,24 @@ void FullCodonFrequenciesSet::setFrequencies(const vector<double>& frequencies) 
     }
     else
     {
-      getParameter_("theta" + TextTools::toString(i + 1)).setValue(frequencies[i] /sum / y);
-      y -= frequencies[i]/sum;
-      getFreq_(i) = frequencies[i]/sum;
+      getParameter_("theta" + TextTools::toString(i + 1)).setValue(frequencies[i] / sum / y);
+      y -= frequencies[i] / sum;
+      getFreq_(i) = frequencies[i] / sum;
     }
   }
   i = alphabet->getSize() - 1;
-  getFreq_(i) = (alphabet->isStop(i)) ? 0 : frequencies[i]/sum;
+  getFreq_(i) = (alphabet->isStop(i)) ? 0 : frequencies[i] / sum;
 }
 
 void FullCodonFrequenciesSet::fireParameterChanged(const ParameterList& parameters)
 {
-   const CodonAlphabet* alphabet = getAlphabet();
-   double y = 1;
-   unsigned int i;
+  const CodonAlphabet* alphabet = getAlphabet();
+  double y = 1;
+  unsigned int i;
   for (i = 0; i < alphabet->getSize() - 1; i++)
   {
-    if (!(alphabet->isStop(i))){
+    if (!(alphabet->isStop(i)))
+    {
       getFreq_(i) = getParameter_("theta" + TextTools::toString(i + 1)).getValue() * y;
       y *= 1 - getParameter_("theta" + TextTools::toString(i + 1)).getValue();
     }
@@ -288,8 +289,10 @@ void FullCodonFrequenciesSet::fireParameterChanged(const ParameterList& paramete
 // FullNucleotideFrequenciesSet
 
 
-FullNucleotideFrequenciesSet::FullNucleotideFrequenciesSet(const NucleicAlphabet* alphabet, bool allowNullFreqs) :
-  AbstractFrequenciesSet(4, alphabet, "Full.")
+FullNucleotideFrequenciesSet::FullNucleotideFrequenciesSet(
+  const NucleicAlphabet* alphabet, bool allowNullFreqs,
+  const string& name) :
+  AbstractFrequenciesSet(4, alphabet, "Full.", name)
 {
   Parameter thetaP(
     "Full.theta", 0.5,
@@ -298,21 +301,23 @@ FullNucleotideFrequenciesSet::FullNucleotideFrequenciesSet(const NucleicAlphabet
     dynamic_cast<Constraint*>(&Parameter::PROP_CONSTRAINT_EX));
   addParameter_(thetaP);
   Parameter theta1P(
-      "Full.theta1", 0.5,
-      allowNullFreqs ?
-      dynamic_cast<Constraint*>(&Parameter::PROP_CONSTRAINT_IN) :
-      dynamic_cast<Constraint*>(&Parameter::PROP_CONSTRAINT_EX));
+    "Full.theta1", 0.5,
+    allowNullFreqs ?
+    dynamic_cast<Constraint*>(&Parameter::PROP_CONSTRAINT_IN) :
+    dynamic_cast<Constraint*>(&Parameter::PROP_CONSTRAINT_EX));
   addParameter_(theta1P);
   Parameter theta2P("Full.theta2", 0.5,
-      allowNullFreqs ?
-      dynamic_cast<Constraint*>(&Parameter::PROP_CONSTRAINT_IN) :
-      dynamic_cast<Constraint*>(&Parameter::PROP_CONSTRAINT_EX));
+                    allowNullFreqs ?
+                    dynamic_cast<Constraint*>(&Parameter::PROP_CONSTRAINT_IN) :
+                    dynamic_cast<Constraint*>(&Parameter::PROP_CONSTRAINT_EX));
   addParameter_(theta2P);
   getFreq_(0) = getFreq_(1) = getFreq_(2) = getFreq_(3) = 0.25;
 }
 
-FullNucleotideFrequenciesSet::FullNucleotideFrequenciesSet(const NucleicAlphabet* alphabet, double theta, double theta1, double theta2, bool allowNullFreqs) :
-  AbstractFrequenciesSet(4, alphabet, "Full.")
+FullNucleotideFrequenciesSet::FullNucleotideFrequenciesSet(
+  const NucleicAlphabet* alphabet, double theta, double theta1, double theta2,
+  bool allowNullFreqs, const string& name) :
+  AbstractFrequenciesSet(4, alphabet, "Full.", name)
 {
   Parameter thetaP(
     "Full.theta",
@@ -322,18 +327,18 @@ FullNucleotideFrequenciesSet::FullNucleotideFrequenciesSet(const NucleicAlphabet
     dynamic_cast<Constraint*>(&Parameter::PROP_CONSTRAINT_EX));
   addParameter_(thetaP);
   Parameter theta1P(
-      "Full.theta1",
-      theta1,
-      allowNullFreqs ?
-      dynamic_cast<Constraint*>(&Parameter::PROP_CONSTRAINT_IN) :
-      dynamic_cast<Constraint*>(&Parameter::PROP_CONSTRAINT_EX));
+    "Full.theta1",
+    theta1,
+    allowNullFreqs ?
+    dynamic_cast<Constraint*>(&Parameter::PROP_CONSTRAINT_IN) :
+    dynamic_cast<Constraint*>(&Parameter::PROP_CONSTRAINT_EX));
   addParameter_(theta1P);
   Parameter theta2P(
-      "Full.theta2",
-      theta2,
-      allowNullFreqs ?
-      dynamic_cast<Constraint*>(&Parameter::PROP_CONSTRAINT_IN) :
-      dynamic_cast<Constraint*>(&Parameter::PROP_CONSTRAINT_EX));
+    "Full.theta2",
+    theta2,
+    allowNullFreqs ?
+    dynamic_cast<Constraint*>(&Parameter::PROP_CONSTRAINT_IN) :
+    dynamic_cast<Constraint*>(&Parameter::PROP_CONSTRAINT_EX));
   addParameter_(theta2P);
   getFreq_(0) = theta1 * (1. - theta);
   getFreq_(1) = (1 - theta2) * theta;
@@ -392,7 +397,7 @@ void GCFrequenciesSet::setFrequencies(const vector<double>& frequencies) throw (
 
 void GCFrequenciesSet::fireParameterChanged(const ParameterList& parameters)
 {
-   double theta = getParameter_(0).getValue();
+  double theta = getParameter_(0).getValue();
   getFreq_(0) = getFreq_(3) = (1. - theta) / 2.;
   getFreq_(1) = getFreq_(2) = theta / 2.;
 }
@@ -401,14 +406,14 @@ void GCFrequenciesSet::fireParameterChanged(const ParameterList& parameters)
 // ///////////////////////////////////////////
 // / FixedFrequenciesSet
 
-FixedFrequenciesSet::FixedFrequenciesSet(const Alphabet* alphabet, const vector<double>& initFreqs) :
-  AbstractFrequenciesSet(alphabet->getSize(), alphabet, "Fixed.")
+FixedFrequenciesSet::FixedFrequenciesSet(const Alphabet* alphabet, const vector<double>& initFreqs, const string& name) :
+  AbstractFrequenciesSet(alphabet->getSize(), alphabet, "Fixed.", name)
 {
   setFrequencies(initFreqs);
 }
 
-FixedFrequenciesSet::FixedFrequenciesSet(const Alphabet* alphabet) :
-  AbstractFrequenciesSet(alphabet->getSize(), alphabet, "Fixed.")
+FixedFrequenciesSet::FixedFrequenciesSet(const Alphabet* alphabet, const string& name) :
+  AbstractFrequenciesSet(alphabet->getSize(), alphabet, "Fixed.", name)
 {
   unsigned int size = alphabet->getSize();
   for (unsigned int i = 0; i < alphabet->getSize(); i++)
@@ -433,16 +438,16 @@ void FixedFrequenciesSet::setFrequencies(const vector<double>& frequencies) thro
 // ///////////////////////////////////////////
 // / FixedCodonFrequenciesSet
 
-FixedCodonFrequenciesSet::FixedCodonFrequenciesSet(const CodonAlphabet* alphabet, const vector<double>& initFreqs) :
-  AbstractFrequenciesSet(alphabet->getSize(), alphabet, "Fixed.")
+FixedCodonFrequenciesSet::FixedCodonFrequenciesSet(const CodonAlphabet* alphabet, const vector<double>& initFreqs, const string& name) :
+  AbstractFrequenciesSet(alphabet->getSize(), alphabet, "Fixed.", name)
 {
   setFrequencies(initFreqs);
 }
 
-FixedCodonFrequenciesSet::FixedCodonFrequenciesSet(const CodonAlphabet* alphabet) :
-  AbstractFrequenciesSet(alphabet->getSize(), alphabet, "Fixed.")
+FixedCodonFrequenciesSet::FixedCodonFrequenciesSet(const CodonAlphabet* alphabet, const string& name) :
+  AbstractFrequenciesSet(alphabet->getSize(), alphabet, "Fixed.", name)
 {
-   unsigned int size = alphabet->getSize() - alphabet->numberOfStopCodons();
+  unsigned int size = alphabet->getSize() - alphabet->numberOfStopCodons();
 
   for (unsigned int i = 0; i < alphabet->getSize(); i++)
   {
@@ -452,19 +457,21 @@ FixedCodonFrequenciesSet::FixedCodonFrequenciesSet(const CodonAlphabet* alphabet
 
 void FixedCodonFrequenciesSet::setFrequencies(const vector<double>& frequencies) throw (DimensionException, Exception)
 {
-  const CodonAlphabet* ca=dynamic_cast<const CodonAlphabet*>(getAlphabet());
+  const CodonAlphabet* ca = dynamic_cast<const CodonAlphabet*>(getAlphabet());
   if (frequencies.size() != ca->getSize()) throw DimensionException("FixedFrequenciesSet::setFrequencies", frequencies.size(), ca->getSize());
   double sum = 0.0;
   unsigned int i;
-  
+
   for (i = 0; i < frequencies.size(); i++)
-    {
-      if (!(ca->isStop(i)))
-        sum += frequencies[i];
-    }
+  {
+    if (!(ca->isStop(i)))
+      sum += frequencies[i];
+  }
 
   for (i = 0; i < ca->getSize(); i++)
-    getFreq_(i) = (ca->isStop(i)) ? 0 : frequencies[i]/sum;
+  {
+    getFreq_(i) = (ca->isStop(i)) ? 0 : frequencies[i] / sum;
+  }
 }
 
 
@@ -485,8 +492,8 @@ unsigned int WordFrequenciesSet::getSizeFromVector(const std::vector<Frequencies
   return s;
 }
 
-WordFrequenciesSet::WordFrequenciesSet(unsigned int size, const Alphabet* palph) :
-  AbstractFrequenciesSet(size, palph, "Word.")
+WordFrequenciesSet::WordFrequenciesSet(unsigned int size, const Alphabet* palph, const string& name) :
+  AbstractFrequenciesSet(size, palph, "Word.", name)
 {}
 
 unsigned int WordFrequenciesSet::getLength() const
@@ -503,21 +510,21 @@ WordFrequenciesSet::~WordFrequenciesSet()
 
 
 WordFromIndependentFrequenciesSet::WordFromIndependentFrequenciesSet(
-  const WordAlphabet* pWA, const std::vector<FrequenciesSet*>& freqvector) throw (Exception) :
-  WordFrequenciesSet(pWA->getSize(), pWA),
+  const WordAlphabet* pWA, const std::vector<FrequenciesSet*>& freqVector, const string& name) throw (Exception) :
+  WordFrequenciesSet(pWA->getSize(), pWA, name),
   vFreq_(),
   vNestedPrefix_()
 {
-  unsigned int sf = getSizeFromVector(freqvector);
+  unsigned int sf = getSizeFromVector(freqVector);
   if (pWA->getSize() !=  sf)
     throw Exception("WordFromIndependentFrequenciesSet: Size of the frequencies does not match size of the alphabet : " + TextTools::toString(sf) + " vs " + TextTools::toString(pWA->getSize()));
 
-  unsigned int l = freqvector.size();
+  unsigned int l = freqVector.size();
 
   for (unsigned int i = 0; i < l; i++)
   {
-    vFreq_.push_back(freqvector[i]);
-    vNestedPrefix_.push_back(freqvector[i]->getNamespace());
+    vFreq_.push_back(freqVector[i]);
+    vNestedPrefix_.push_back(freqVector[i]->getNamespace());
     vFreq_[i]->setNamespace("Word." + TextTools::toString(i + 1) + "_" + vNestedPrefix_[i]);
     addParameters_(vFreq_[i]->getParameters());
   }
@@ -531,14 +538,18 @@ WordFromIndependentFrequenciesSet::WordFromIndependentFrequenciesSet(const WordF
   vNestedPrefix_(iwfs.vNestedPrefix_)
 {
   for (unsigned i = 0; i < iwfs.vFreq_.size(); i++)
+  {
     vFreq_[i] =  iwfs.vFreq_[i]->clone();
+  }
   updateFrequencies();
 }
 
 WordFromIndependentFrequenciesSet::~WordFromIndependentFrequenciesSet()
 {
   for (unsigned i = 0; i < vFreq_.size(); i++)
+  {
     delete vFreq_[i];
+  }
 }
 
 WordFromIndependentFrequenciesSet& WordFromIndependentFrequenciesSet::operator=(const WordFromIndependentFrequenciesSet& iwfs)
@@ -548,11 +559,15 @@ WordFromIndependentFrequenciesSet& WordFromIndependentFrequenciesSet::operator=(
 
   //Clean current frequencies first:
   for (unsigned i = 0; i < vFreq_.size(); i++)
+  {
     delete vFreq_[i];
+  }
 
   vFreq_.resize(iwfs.vFreq_.size());
   for (unsigned i = 0; i < vFreq_.size(); i++)
+  {
     vFreq_[i] = iwfs.vFreq_[i]->clone();
+  }
   updateFrequencies();
 
   return *this;
@@ -611,7 +626,7 @@ void WordFromIndependentFrequenciesSet::setFrequencies(const vector<double>& fre
   if (fabs(1. - sum) > 0.000001)
     throw Exception("WordFromIndependentFrequenciesSet::setFrequencies. Frequencies must equal 1 (sum = " + TextTools::toString(sum) + ").");
 
-  unsigned int d,i,j,s,l = vFreq_.size();
+  unsigned int d, i, j, s, l = vFreq_.size();
   int k;
   vector<double> freq;
 
@@ -631,9 +646,11 @@ void WordFromIndependentFrequenciesSet::setFrequencies(const vector<double>& fre
     }
     vFreq_[i]->setFrequencies(freq);
   }
-  
+
   for (i = 0; i < l; i++)
+  {
     matchParametersValues(vFreq_[i]->getParameters());
+  }
 
   updateFrequencies();
 }
@@ -646,14 +663,14 @@ unsigned int WordFromIndependentFrequenciesSet::getLength() const
 
 void WordFromIndependentFrequenciesSet::setNamespace(const std::string& prefix)
 {
-   AbstractFrequenciesSet::setNamespace(prefix);
+  AbstractFrequenciesSet::setNamespace(prefix);
   for (unsigned int i = 0; i < vFreq_.size(); i++)
   {
     vFreq_[i]->setNamespace(prefix + TextTools::toString(i + 1) + "_" + vNestedPrefix_[i]);
   }
 }
 
-std::string WordFromIndependentFrequenciesSet::getName() const
+std::string WordFromIndependentFrequenciesSet::getDescription() const
 {
   string s = "Word From Independent Frequencies : " + vFreq_[0]->getName();
   for (unsigned int i = 1; i < vFreq_.size(); i++)
@@ -668,8 +685,8 @@ std::string WordFromIndependentFrequenciesSet::getName() const
 // // WordFromUniqueFrequenciesSet
 
 
-WordFromUniqueFrequenciesSet::WordFromUniqueFrequenciesSet(const WordAlphabet* pWA, FrequenciesSet* pabsfreq) :
-  WordFrequenciesSet(pWA->getSize(), pWA),
+WordFromUniqueFrequenciesSet::WordFromUniqueFrequenciesSet(const WordAlphabet* pWA, FrequenciesSet* pabsfreq, const string& name) :
+  WordFrequenciesSet(pWA->getSize(), pWA, name),
   pFreq_(pabsfreq),
   NestedPrefix_(pabsfreq->getNamespace()),
   length_(pWA->getLength())
@@ -758,7 +775,7 @@ void WordFromUniqueFrequenciesSet::setFrequencies(const vector<double>& frequenc
   if (fabs(1. - sum) > 0.000001)
     throw Exception("WordFromUniqueFrequenciesSet::setFrequencies. Frequencies must equal 1 (sum = " + TextTools::toString(sum) + ").");
 
-  unsigned int d,i,j;
+  unsigned int d, i, j;
   int k;
   vector<double> freq;
 
@@ -804,7 +821,7 @@ void WordFromUniqueFrequenciesSet::setNamespace(const string& prefix)
 }
 
 
-string WordFromUniqueFrequenciesSet::getName() const
+string WordFromUniqueFrequenciesSet::getDescription() const
 {
   return "Word From Unique Frequency : " + pFreq_->getName() + " * " + TextTools::toString(length_);
 }
@@ -817,19 +834,19 @@ FrequenciesSet* FrequenciesSet::getFrequenciesSetForCodons(short option, const C
   FrequenciesSet* codonFreqs;
 
   if (option == F0)
-    codonFreqs = new FixedCodonFrequenciesSet(&CA);
+    codonFreqs = new FixedCodonFrequenciesSet(&CA, "F0");
   else if (option == F1X4)
-    codonFreqs = new WordFromUniqueFrequenciesSet(&CA, new FullNucleotideFrequenciesSet(CA.getNucleicAlphabet()));
+    codonFreqs = new WordFromUniqueFrequenciesSet(&CA, new FullNucleotideFrequenciesSet(CA.getNucleicAlphabet()), "F1X4");
   else if (option == F3X4)
   {
     vector<FrequenciesSet*> v_AFS(3);
     v_AFS[0] = new FullNucleotideFrequenciesSet(CA.getNucleicAlphabet());
     v_AFS[1] = new FullNucleotideFrequenciesSet(CA.getNucleicAlphabet());
     v_AFS[2] = new FullNucleotideFrequenciesSet(CA.getNucleicAlphabet());
-    codonFreqs = new WordFromIndependentFrequenciesSet(&CA,v_AFS);
+    codonFreqs = new WordFromIndependentFrequenciesSet(&CA, v_AFS, "F3X4");
   }
   else if (option == F61)
-    codonFreqs = new FullCodonFrequenciesSet(&CA);
+    codonFreqs = new FullCodonFrequenciesSet(&CA, "F61");
   else throw Exception("FrequenciesSet::getFrequencySetForCodons(). Unvalid codon frequency set argument.");
 
   return codonFreqs;
