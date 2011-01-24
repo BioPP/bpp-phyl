@@ -42,6 +42,7 @@
 #include "../Model.all"
 #include "../TreeTools.h"
 
+#include <Bpp/Numeric/NumConstants.h>
 #include <Bpp/Text/TextTools.h>
 #include <Bpp/App/ApplicationTools.h>
 
@@ -345,6 +346,11 @@ void RNonHomogeneousMixedTreeLikelihood::fireParameterChanged(const ParameterLis
     applyParameters();
 
   double pb=getProbability();
+
+  // No need to compute more 
+  if (pb<=NumConstants::TINY)
+    return;
+  
   map<int, vector<double> >::const_iterator it2;
   for (it2=mvProbas_.begin();it2!=mvProbas_.end();it2++){
     for (unsigned int i = 0; i < it2->second.size(); i++){
@@ -436,7 +442,6 @@ void RNonHomogeneousMixedTreeLikelihood::computeSubtreeLikelihood(const Node* no
 {
   // if the subtree is divided in several RNonHomogeneousMixedTreeLikelihood*
   int nodeId=node->getId();
-  
   if (mvTreeLikelihoods_.find(nodeId)!=mvTreeLikelihoods_.end()){
     if(node->isLeaf()) return;
     
