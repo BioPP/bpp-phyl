@@ -633,28 +633,75 @@ protected:
  * Interface class.
  * @author Laurent Guéguen
  */
+
 class WordFrequenciesSet :
+  public virtual FrequenciesSet
+{
+protected:
+  
+  virtual unsigned int getSizeFromVector(const std::vector<FrequenciesSet*>& freqVector) = 0;
+  
+public:
+#ifndef NO_VIRTUAL_COV
+  WordFrequenciesSet* clone() const = 0;
+
+  const WordAlphabet* getAlphabet() const = 0;
+#endif
+
+  /**
+   *@ brief Returns the n-th FrequenciesSet*
+   **/
+
+  virtual const FrequenciesSet& getFrequenciesSetForLetter(unsigned int i) const = 0;
+
+  /**
+   *@ brief Returns the length of the words
+   **/
+
+  virtual unsigned int getLength() const = 0;
+};
+
+
+class AbstractWordFrequenciesSet :
+  public virtual WordFrequenciesSet,
   public AbstractFrequenciesSet
 {
 protected:
   unsigned int getSizeFromVector(const std::vector<FrequenciesSet*>& freqVector);
-
+  
 public:
-  WordFrequenciesSet(unsigned int size, const Alphabet* palph);
+  AbstractWordFrequenciesSet(unsigned int size, const Alphabet* palph, string prefix="");
 
-  virtual ~WordFrequenciesSet();
+#ifndef NO_VIRTUAL_COV
+  AbstractWordFrequenciesSet*
+#else
+  Clonable*
+#endif
+  clone() const = 0;
 
-  /**
-   *@ brief Return the n-th FrequenciesSet*
-   **/
+  AbstractWordFrequenciesSet(const AbstractWordFrequenciesSet& af) :
+    AbstractFrequenciesSet(af) {}
 
-  const FrequenciesSet& getFrequenciesSetForLetter(unsigned int i) const;
+  AbstractWordFrequenciesSet & operator=(const AbstractWordFrequenciesSet& af)
+  {
+    AbstractFrequenciesSet::operator=(af);
+    return *this;
+  }
 
+#ifndef NO_VIRTUAL_COV
+  const WordAlphabet* getAlphabet() const
+  {
+    return dynamic_cast<const WordAlphabet*>(AbstractFrequenciesSet::getAlphabet());
+  }
+#endif
+
+  virtual ~AbstractWordFrequenciesSet();
+  
   /**
    *@ brief Return the length of the words
    **/
-
-  virtual unsigned int getLength() const;
+  
+  unsigned int getLength() const;
 };
 
 
@@ -664,9 +711,9 @@ public:
  */
 
 class WordFromIndependentFrequenciesSet :
-  public WordFrequenciesSet
+    public AbstractWordFrequenciesSet
 {
-private:
+protected:
   std::vector<FrequenciesSet*> vFreq_;
   std::vector<std::string> vNestedPrefix_;
 
@@ -675,7 +722,7 @@ public:
    * @brief Constructor from a WordAlphabet* and a vector of different FrequenciesSet*.
    * Throws an Exception if their lengths do not match.
    */
-  WordFromIndependentFrequenciesSet(const WordAlphabet*, const std::vector<FrequenciesSet*>&) throw (Exception);
+  WordFromIndependentFrequenciesSet(const WordAlphabet*, const std::vector<FrequenciesSet*>&, string prefix="Word") throw (Exception);
 
   WordFromIndependentFrequenciesSet(const WordFromIndependentFrequenciesSet& iwfs);
 
@@ -688,7 +735,7 @@ public:
 public:
   void fireParameterChanged(const ParameterList& pl);
 
-  void updateFrequencies();
+  virtual void updateFrequencies();
 
   /**
    *@ brief Independent letter frequencies from given word frequencies.
@@ -696,7 +743,7 @@ public:
    *    frequencies of the words that have this letter at this
    *    position.
    */
-  void setFrequencies(const std::vector<double>& frequencies) throw (DimensionException, Exception);
+  virtual void setFrequencies(const std::vector<double>& frequencies) throw (DimensionException, Exception);
 
   /**
    *@ brief Return the n-th FrequenciesSet*
@@ -715,24 +762,60 @@ public:
 };
 
 /**
+ * @brief the Frequencies in codons are the product of Independent Frequencies in letters
+ * with the frequencies of stop codons set to zero
+ * @author Laurent Guéguen
+ */
+
+class CodonFromIndependentFrequenciesSet :
+  public WordFromIndependentFrequenciesSet
+{
+  public:
+  /**
+   * @brief Constructor from a WordAlphabet* and a vector of different FrequenciesSet*.
+   * Throws an Exception if their lengths do not match.
+   */
+  CodonFromIndependentFrequenciesSet(const CodonAlphabet*, const std::vector<FrequenciesSet*>&) throw (Exception);
+  
+  CodonFromIndependentFrequenciesSet(const CodonFromIndependentFrequenciesSet& iwfs);
+  
+  ~CodonFromIndependentFrequenciesSet(){};
+  
+  CodonFromIndependentFrequenciesSet& operator=(const CodonFromIndependentFrequenciesSet& iwfs);
+  
+  CodonFromIndependentFrequenciesSet* clone() const { return new CodonFromIndependentFrequenciesSet(*this); }
+  
+public:
+  void updateFrequencies();
+  
+  /**
+   *@ brief Independent letter frequencies from given word frequencies.
+   * The frequencies of a letter at a position is the sum of the
+   *    frequencies of the words that have this letter at this
+   *    position.
+   */
+  void setFrequencies(const std::vector<double>& frequencies) throw (DimensionException, Exception);
+};
+
+/**
  * @brief the Frequencies in words are the product of the frequencies for a unique FrequenciesSet in letters
  * @author Laurent Guéguen
  */
 
 class WordFromUniqueFrequenciesSet :
-  public WordFrequenciesSet
+  public AbstractWordFrequenciesSet
 {
-private:
+protected:
   FrequenciesSet* pFreq_;
   std::string NestedPrefix_;
   unsigned int length_;
 
 public:
   /**
-   * @brief Constructor from a WordAlphabet* and an AbstractFrequenciesSet* repeated as
-   *  many times as the length of the words.
+   * @brief Constructor from a WordAlphabet* and a FrequenciesSet*
+   *  repeated as many times as the length of the words.
    */
-  WordFromUniqueFrequenciesSet(const WordAlphabet* pWA, FrequenciesSet* pabsfreq);
+  WordFromUniqueFrequenciesSet(const WordAlphabet* pWA, FrequenciesSet* pabsfreq, string prefix="Word");
 
   WordFromUniqueFrequenciesSet(const WordFromUniqueFrequenciesSet& iwfs);
 
@@ -743,7 +826,7 @@ public:
   WordFromUniqueFrequenciesSet* clone() const { return new WordFromUniqueFrequenciesSet(*this); }
 
 public:
-  void fireParameterChanged(const ParameterList& pl);
+  virtual void fireParameterChanged(const ParameterList& pl);
 
   /**
    *@ brief letter frequencies from given word frequencies. The
@@ -752,14 +835,14 @@ public:
    * The frequencies of each letter is the average of the frequencies
    * of that letter at all positions.
    */
-  void setFrequencies(const std::vector<double>& frequencies) throw (DimensionException, Exception);
+  virtual void setFrequencies(const std::vector<double>& frequencies) throw (DimensionException, Exception);
 
-  void updateFrequencies();
+  virtual void updateFrequencies();
 
   /**
    *@ brief Return the n-th FrequenciesSet*
    **/
-  const FrequenciesSet& getFrequenciesSetForLetter(unsigned int i){ return *pFreq_; }
+  const FrequenciesSet& getFrequenciesSetForLetter(unsigned int i) const { return *pFreq_; }
 
   unsigned int getLength() const { return length_; }
 
@@ -767,6 +850,47 @@ public:
 
   std::string getName() const;
 };
+
+/**
+ * @brief the Frequencies in codons are the product of the frequencies
+ * for a unique FrequenciesSet in letters, with the frequencies of
+ * stop codons set to zero.
+ *
+ * @author Laurent Guéguen
+ */
+
+class CodonFromUniqueFrequenciesSet :
+  public WordFromUniqueFrequenciesSet
+{
+public:
+  /**
+   * @brief Constructor from a CodonAlphabet* and a FrequenciesSet*
+   *  repeated three times.
+   */
+
+  CodonFromUniqueFrequenciesSet(const CodonAlphabet*, FrequenciesSet*) throw (Exception);
+  
+  CodonFromUniqueFrequenciesSet(const CodonFromUniqueFrequenciesSet& iwfs);
+  
+  ~CodonFromUniqueFrequenciesSet(){};
+  
+  CodonFromUniqueFrequenciesSet& operator=(const CodonFromUniqueFrequenciesSet& iwfs);
+  
+  CodonFromUniqueFrequenciesSet* clone() const { return new CodonFromUniqueFrequenciesSet(*this); }
+  
+public:
+  void updateFrequencies();
+  
+  /**
+   *@ brief letter frequencies from given word frequencies. The
+   * frequencies of a letter at a position is the sum of the
+   * frequencies of the words that have this letter at this position.
+   * The frequencies of each letter is the average of the frequencies
+   * of that letter at all positions.
+   */
+  void setFrequencies(const std::vector<double>& frequencies) throw (DimensionException, Exception);
+};
+
 
 } // end of namespace bpp.
 
