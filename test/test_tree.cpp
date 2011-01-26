@@ -77,5 +77,14 @@ int main() {
     delete tree3;
   }
 
+  //Try to parse a string:
+  TreeTemplate<Node>* tree4 = TreeTemplateTools::parenthesisToTree("((A:1,B:2):3,C:4);");
+  cout << TreeTemplateTools::treeToParenthesis(*tree4) << endl;
+  delete tree4;
+
+  TreeTemplate<Node>* tree5 = TreeTemplateTools::parenthesisToTree("((A:1,B:2):3,C:4):5;");
+  cout << TreeTemplateTools::treeToParenthesis(*tree5) << endl;
+  delete tree5;
+
   return 0;
 }
