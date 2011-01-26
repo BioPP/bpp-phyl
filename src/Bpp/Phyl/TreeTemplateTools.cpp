@@ -7,7 +7,7 @@
 //
 
 /*
-   Copyright or © or Copr. Bio++ Develpment Team, (November 16, 2004)
+   Copyright or © or Copr. Bio++ Development Team, (November 16, 2004)
 
    This software is a computer program whose purpose is to provide classes
    for phylogenetic data analysis.
@@ -486,7 +486,13 @@ string TreeTemplateTools::nodeToParenthesis(const Node& node, bool bootstrap, co
     else
     {
       if (node.hasBranchProperty(propertyName))
-        s << *(dynamic_cast<const BppString*>(node.getBranchProperty(propertyName)));
+      {
+        const BppString* ppt = dynamic_cast<const BppString*>(node.getBranchProperty(propertyName));
+        if (ppt) 
+          s << *ppt;
+        else
+          throw Exception("TreeTemplateTools::nodeToParenthesis. Property should be a BppString.");
+      }
     }
   }
   if (node.hasDistanceToFather())
@@ -555,8 +561,13 @@ string TreeTemplateTools::treeToParenthesis(const TreeTemplate<Node>& tree, bool
   }
   else
   {
-    if (node->hasBranchProperty(propertyName))
-      s << *(dynamic_cast<const BppString*>(node->getBranchProperty(propertyName)));
+    if (node->hasBranchProperty(propertyName)) {
+      const BppString* ppt =dynamic_cast<const BppString*>(node->getBranchProperty(propertyName));
+      if (ppt)
+        s << *ppt;
+      else
+        throw Exception("TreeTemplateTools::nodeToParenthesis. Property should be a BppString.");
+    }
   }
   s << ";" << endl;
   return s.str();
