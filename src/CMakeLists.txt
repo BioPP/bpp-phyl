@@ -25,6 +25,7 @@ set(CPP_FILES
   Bpp/Phyl/Io/NexusIoTree.cpp
   Bpp/Phyl/Io/Nhx.cpp
   Bpp/Phyl/Io/PhylipDistanceMatrixFormat.cpp
+  Bpp/Phyl/Io/IoPairedSiteLikelihoods.cpp
   Bpp/Phyl/Likelihood/AbstractDiscreteRatesAcrossSitesTreeLikelihood.cpp
   Bpp/Phyl/Likelihood/AbstractHomogeneousTreeLikelihood.cpp
   Bpp/Phyl/Likelihood/AbstractNonHomogeneousTreeLikelihood.cpp
@@ -45,6 +46,7 @@ set(CPP_FILES
   Bpp/Phyl/Likelihood/RNonHomogeneousMixedTreeLikelihood.cpp
   Bpp/Phyl/Likelihood/RNonHomogeneousTreeLikelihood.cpp
   Bpp/Phyl/Likelihood/TreeLikelihoodTools.cpp
+  Bpp/Phyl/Likelihood/PairedSiteLikelihoods.cpp
   Bpp/Phyl/Mapping/AnalyticalSubstitutionCount.cpp
   Bpp/Phyl/Mapping/OneJumpSubstitutionCount.cpp
   Bpp/Phyl/Mapping/ProbabilisticSubstitutionMapping.cpp
@@ -143,6 +145,7 @@ set(H_FILES
   Bpp/Phyl/Io/Nhx.h
   Bpp/Phyl/Io/NexusIoTree.h
   Bpp/Phyl/Io/PhylipDistanceMatrixFormat.h
+  Bpp/Phyl/Io/IoPairedSiteLikelihoods.h
   Bpp/Phyl/Likelihood/AbstractDiscreteRatesAcrossSitesTreeLikelihood.h
   Bpp/Phyl/Likelihood/AbstractHomogeneousTreeLikelihood.h
   Bpp/Phyl/Likelihood/AbstractNonHomogeneousTreeLikelihood.h
@@ -172,6 +175,7 @@ set(H_FILES
   Bpp/Phyl/Likelihood/TreeLikelihoodData.h
   Bpp/Phyl/Likelihood/TreeLikelihood.h
   Bpp/Phyl/Likelihood/TreeLikelihoodTools.h
+  Bpp/Phyl/Likelihood/PairedSiteLikelihoods.h
   Bpp/Phyl/Mapping/AnalyticalSubstitutionCount.h
   Bpp/Phyl/Mapping/IndexToCount.h
   Bpp/Phyl/Mapping/OneJumpSubstitutionCount.h
