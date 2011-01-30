@@ -46,6 +46,7 @@ knowledge of the CeCILL license and that you accept its terms.
 //From bpp-seq:
 #include <Bpp/Seq/Alphabet/Alphabet.h>
 #include <Bpp/Seq/Alphabet/NucleicAlphabet.h>
+#include <Bpp/Seq/GeneticCode/GeneticCode.h>
 
 //From the STL:
 #include <vector>
@@ -56,7 +57,7 @@ namespace bpp
 /**
  * @brief The SubstitutionRegister interface.
  *
- * Substitution registers are simple classes that defines categories of substitutions, and assign them an index.
+ * Substitution registers are simple classes that define categories of substitutions, and assign them an index.
  *
  * @author Julien Dutheil
  */
@@ -120,6 +121,13 @@ class AbstractSubstitutionRegister:
 
 };
 
+/**
+ * @brief Count all substitutions.
+ *
+ * This register has only 1 substitution type, mapped as:
+ * - 0 not a substitution
+ * - 1 a substitution
+ */
 class TotalSubstitutionRegister:
   public AbstractSubstitutionRegister
 {
@@ -139,6 +147,13 @@ class TotalSubstitutionRegister:
 
 };
 
+/**
+ * @brief Distinguishes all types of substitutions.
+ *
+ * This register has only n * (n-1) substitution type, where n is the size of the alphabet, mapped as:
+ * - 0 not a substitution
+ * - x in [1, n(n-1)] a substitution
+ */
 class ExhaustiveSubstitutionRegister:
   public AbstractSubstitutionRegister
 {
@@ -175,18 +190,34 @@ class ExhaustiveSubstitutionRegister:
 
 };
 
+/**
+ * @brief Distinguishes AT<->GC from GC<->AT.
+ *
+ * This register has two substitution types, mapped as:
+ * - 0 not a substitution
+ * - 1 a AT->GC substitution
+ * - 2 a GC->AT substitution
+ * If "includeZeroCounts" is set to true, then two additionnal types are mapped:
+ * - 3 AT->AT
+ * - 4 GC->GC
+ * so that 0 is never returned.
+ */
 class GCSubstitutionRegister:
   public AbstractSubstitutionRegister
 {
+  private:
+    bool includeZeroCounts_;
+
   public:
-    GCSubstitutionRegister(const NucleicAlphabet* alphabet):
-      AbstractSubstitutionRegister(alphabet)
+    GCSubstitutionRegister(const NucleicAlphabet* alphabet, bool includeZeroCounts = false):
+      AbstractSubstitutionRegister(alphabet),
+      includeZeroCounts_(includeZeroCounts)
     {}
     
     GCSubstitutionRegister* clone() const { return new GCSubstitutionRegister(*this); }
 
   public:
-    unsigned int getNumberOfSubstitutionTypes() const { return 2; }
+    unsigned int getNumberOfSubstitutionTypes() const { return includeZeroCounts_ ? 4 : 2; }
 
     unsigned int getType(int fromState, int toState) const
     {
@@ -194,9 +225,101 @@ class GCSubstitutionRegister:
         return 1;
       if ((fromState == 1 || fromState == 2) && (toState == 0 || toState == 3))
         return 2;
-      return 0;
+      if (includeZeroCounts_) {
+        if ((fromState == 0 || fromState == 3) && (toState == 0 || toState == 3))
+          return 3;
+        if ((fromState == 1 || fromState == 2) && (toState == 1 || toState == 2))
+          return 4;
+        throw Exception("GCSubstitutionRegister::getType. Unvalid substitution type?");
+      } else  {
+        return 0;
+      }
     }
 };
+
+/**
+ * @brief Distinguishes transitions from transversions.
+ *
+ * This register has two substitution types, mapped as:
+ * - 0 not a substitution
+ * - 1 a transition
+ * - 2 a transversion
+ */
+class TsTvSubstitutionRegister:
+  public AbstractSubstitutionRegister
+{
+  public:
+    TsTvSubstitutionRegister(const NucleicAlphabet* alphabet):
+      AbstractSubstitutionRegister(alphabet)
+    {}
+    
+    TsTvSubstitutionRegister* clone() const { return new TsTvSubstitutionRegister(*this); }
+
+  public:
+    unsigned int getNumberOfSubstitutionTypes() const { return 2; }
+
+    unsigned int getType(int fromState, int toState) const
+    {
+      if (fromState == toState)
+        return 0; //nothing happens
+      if ((fromState == 0 && toState == 2)
+       || (fromState == 2 && toState == 0)
+       || (fromState == 1 && toState == 3)
+       || (fromState == 3 && toState == 1))
+        return 1; //This is a transition
+      return 2; //This is a transversion
+    }
+};
+
+/**
+ * @brief Distinguishes synonymous from non-synonymous substitutions.
+ *
+ * This register has two substitution types, mapped as:
+ * - 0 not a substitution
+ * - 1 a synonymous substitution
+ * - 2 a non-synonymous substitution
+ */
+class DnDsSubstitutionRegister:
+  public AbstractSubstitutionRegister
+{
+  private:
+    const GeneticCode* code_;
+
+  public:
+    DnDsSubstitutionRegister(const GeneticCode* gc):
+      AbstractSubstitutionRegister(gc->getSourceAlphabet()),
+      code_(gc)
+    {}
+
+    DnDsSubstitutionRegister(const DnDsSubstitutionRegister& reg):
+      AbstractSubstitutionRegister(reg),
+      code_(reg.code_)
+    {}
+ 
+    DnDsSubstitutionRegister& operator=(const DnDsSubstitutionRegister& reg)
+    {
+      AbstractSubstitutionRegister::operator=(reg);
+      code_ = reg.code_;
+      return *this;
+    }
+   
+    DnDsSubstitutionRegister* clone() const { return new DnDsSubstitutionRegister(*this); }
+
+  public:
+    unsigned int getNumberOfSubstitutionTypes() const { return 2; }
+
+    unsigned int getType(int fromState, int toState) const
+    {
+      if (dynamic_cast<const CodonAlphabet*>(alphabet_)->isStop(fromState)
+       || dynamic_cast<const CodonAlphabet*>(alphabet_)->isStop(toState))
+        return 0;
+      if (fromState == toState)
+        return 0; //nothing happens
+      return code_->areSynonymous(fromState, toState) ? 1 : 2;
+    }
+};
+
+
 
 
 } //end of namespace bpp.

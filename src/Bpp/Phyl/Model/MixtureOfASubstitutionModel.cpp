@@ -90,7 +90,9 @@ MixtureOfASubstitutionModel::MixtureOfASubstitutionModel(
   for (i = 0; i < c; i++)
     {
       modelsContainer_.push_back(model->clone());
+      modelsContainer_[i]->addRateParameter();
       modelsContainer_[i]->setNamespace(model->getNamespace());
+
       vProbas_.push_back(1.0/c);
       vRates_.push_back(1.0);
     }
@@ -209,11 +211,11 @@ void MixtureOfASubstitutionModel::updateMatrices()
     
     modelsContainer_[i]->matchParametersValues(pl);
   }
-  
+
   for (i = 0; i < getNumberOfStates(); i++) {
     freq_[i] = 0;
     for (j = 0; j < modelsContainer_.size(); j++)
-      freq_[i] += vProbas_[i]*modelsContainer_[j]->freq(i);
+      freq_[i] += vProbas_[j]*modelsContainer_[j]->freq(i);
   }
 }
 

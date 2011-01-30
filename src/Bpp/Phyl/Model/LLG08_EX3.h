@@ -77,7 +77,7 @@ namespace bpp
    */
   
 class LLG08_EX3:
-  public MixedSubstitutionModel
+  public AbstractMixedSubstitutionModel
 {
 public:
   class EmbeddedModel:
@@ -182,7 +182,7 @@ public:
     return pmixmodel_->getd2Pij_dt2(t);
   };
   
-  const Vdouble& getFrequencies() {
+  const Vdouble& getFrequencies() const {
     return pmixmodel_->getFrequencies();
   };
   

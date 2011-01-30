@@ -47,7 +47,7 @@ namespace bpp
 {
 
 /**
- * @brief The Goldman  and Yang (1994) substitution model for codons.
+ * @brief The Goldman and Yang (1994) substitution model for codons.
  * @author Laurent Guéguen
  *
  * This model has one rate of transitions and one rate of
@@ -134,6 +134,8 @@ public:
   void enableEigenDecomposition(bool yn) { eigenDecompose_ = 1; }
 
   bool enableEigenDecomposition() { return pmodel_.enableEigenDecomposition(); }
+
+  const FrequenciesSet& getFreq() const { return pmodel_.getFreq(); }
 
 protected:
   void updateMatrices();

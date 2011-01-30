@@ -332,7 +332,7 @@ public:
   
   virtual void setRate(double rate) = 0;
 
-  virtual void addRateParameter() {};
+  virtual void addRateParameter() = 0;
   
   /**
    * @brief Set equilibrium frequencies equal to the frequencies estimated

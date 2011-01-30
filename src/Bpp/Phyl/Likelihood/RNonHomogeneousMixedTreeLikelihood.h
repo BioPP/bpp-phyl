@@ -106,6 +106,13 @@ private:
   int  upperNode_;
 
   /**
+   * @brief a flag to say if this object is the head of the hierarchy
+   *
+   **/
+
+  bool main_;
+  
+  /**
    * @brief Build a new RNonHomogeneousMixeTreeLikelihood object
    * without data.
    *
@@ -254,6 +261,12 @@ public:
 
   virtual void computeTreeD2Likelihood(const string& variable);
 
+  /**
+   * @brief return the probability of this objetct in the hierarchy
+   *
+   */
+  
+  double getProbability() const;
 protected:
   /**
    * @brief Compute the likelihood for a subtree defined by the Tree::Node <i>node</i>.

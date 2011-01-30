@@ -39,7 +39,7 @@
 #ifndef _MIXEDSUBSTITUTIONMODEL_H_
 #define _MIXEDSUBSTITUTIONMODEL_H_
 
-#include "AbstractSubstitutionModel.h"
+#include "SubstitutionModel.h"
 #include <Bpp/Seq/Alphabet.all>
 
 #include <vector>
@@ -57,17 +57,12 @@ namespace bpp
    */
 
   class MixedSubstitutionModel :
-    public AbstractSubstitutionModel
+    public virtual SubstitutionModel
   {
   public:
+    MixedSubstitutionModel() {};
 
-    MixedSubstitutionModel(const Alphabet*, const std::string& prefix);
-    
-    MixedSubstitutionModel(const MixedSubstitutionModel&);
-  
-    MixedSubstitutionModel& operator=(const MixedSubstitutionModel&);
-
-    virtual ~MixedSubstitutionModel();
+    virtual ~MixedSubstitutionModel(){};
 
     virtual MixedSubstitutionModel* clone() const = 0;
 
@@ -101,13 +96,6 @@ namespace bpp
      */
 
     virtual void setVRates(Vdouble& vd) = 0;
-
-    /**
-     * @brief This function can not be applied here, so it is defined
-     * to prevent wrong usage.
-     */
-    
-    double Qij(unsigned int i, unsigned int j) const {return 0;}
 
   };
 } // end of namespace bpp.

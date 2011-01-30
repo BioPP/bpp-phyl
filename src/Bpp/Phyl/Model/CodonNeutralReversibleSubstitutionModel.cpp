@@ -45,15 +45,17 @@ using namespace std;
 
 /******************************************************************************/
 
-CodonNeutralReversibleSubstitutionModel::CodonNeutralReversibleSubstitutionModel(const CodonAlphabet* palph,
-                                                                                 NucleotideSubstitutionModel* pmod1) : AbstractCodonReversibleSubstitutionModel(palph, pmod1,"CodonNeutral.")
+CodonNeutralReversibleSubstitutionModel::CodonNeutralReversibleSubstitutionModel(
+    const CodonAlphabet* palph,
+    NucleotideSubstitutionModel* pmod1) :
+  AbstractCodonReversibleSubstitutionModel(palph, pmod1, "CodonNeutral.")
 {
-   int i;
+  int i;
 
   // relative rates
   for (i = 0; i < 2; i++)
   {
-    addParameter_(Parameter("CodonNeutral.relrate" + TextTools::toString(i+1), 1.0 / (3 - i),&Parameter::PROP_CONSTRAINT_EX));
+    addParameter_(Parameter("CodonNeutral.relrate" + TextTools::toString(i + 1), 1.0 / (3 - i), &Parameter::PROP_CONSTRAINT_EX));
   }
 
   updateMatrices();
@@ -77,8 +79,8 @@ CodonNeutralReversibleSubstitutionModel::CodonNeutralReversibleSubstitutionModel
 
 string CodonNeutralReversibleSubstitutionModel::getName() const
 {
-   string s = "CodonNeutralReversibleSubstitutionModel model:";
-  for (unsigned int i = 0; i < VSubMod_.size(); i++)
+  string s = "CodonNeutralReversibleSubstitutionModel model:";
+  for (size_t i = 0; i < VSubMod_.size(); i++)
   {
     s += " " + VSubMod_[i]->getName();
   }
@@ -108,18 +110,18 @@ void CodonNeutralReversibleSubstitutionModel::completeMatrices()
 
 void CodonNeutralReversibleSubstitutionModel::updateMatrices()
 {
-   int i, nbmod = VSubMod_.size();
-   double x;
-   int k;
+  int i, nbmod = VSubMod_.size();
+  double x;
+  int k;
   for (k = nbmod - 1; k >= 0; k--)
   {
     x = 1.0;
     for (i = 0; i < k; i++)
     {
-      x *= 1 - getParameterValue("relrate" + TextTools::toString(i+1));
+      x *= 1 - getParameterValue("relrate" + TextTools::toString(i + 1));
     }
     if (k != nbmod - 1)
-      x *= getParameterValue("relrate" + TextTools::toString(k+1));
+      x *= getParameterValue("relrate" + TextTools::toString(k + 1));
     Vrate_[k] = x;
   }
 

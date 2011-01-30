@@ -1,14 +1,14 @@
 //
-// File IOTreeFactory.h
+// File: test_nhx.cpp
 // Created by: Julien Dutheil
-// Created on: Tue 18/04/06 10:24
+// Created on: Fri Dec 31 15:43 2010
 //
 
 /*
 Copyright or © or Copr. Bio++ Development Team, (November 17, 2004)
 
 This software is a computer program whose purpose is to provide classes
-for sequences analysis.
+for numerical calculus. This file is part of the Bio++ project.
 
 This software is governed by the CeCILL  license under French law and
 abiding by the rules of distribution of free software.  You can  use, 
@@ -37,62 +37,46 @@ The fact that you are presently reading this means that you have had
 knowledge of the CeCILL license and that you accept its terms.
 */
 
-#ifndef _IOTREEFACTORY_H_
-#define _IOTREEFACTORY_H_
+#include <Bpp/Phyl/TreeTemplate.h>
+#include <Bpp/Phyl/TreeTemplateTools.h>
+#include <Bpp/Phyl/Io/Nhx.h>
+#include <string>
+#include <vector>
+#include <iostream>
 
-#include "../Io.all"
+using namespace bpp;
+using namespace std;
 
-namespace bpp
-{
-
-/**
- * @brief Utilitary class for creating tree readers and writers.
- *
- * @see IOSequenceFactory
- * @see IODistanceMatrixFactory
- */
-class IOTreeFactory
-{
-public:
-  static const std::string NEWICK_FORMAT;  
-  static const std::string NEXUS_FORMAT;  
-  static const std::string NHX_FORMAT;  
-
-public:
-
-  /**
-   * @brief Creates a new factory object.
-   *
-   * Example:
-   * @code
-   * ITree * treeReader = IOTreeFactory().createReader(IOTreeFactory::NEWICK);
-   * Tree * tree = treeReader->read("file.dnd");
-   * delete treeReader;
-   * @endcode
-   */
-  IOTreeFactory() {}
-  virtual ~IOTreeFactory() {}
+int main() {
+  //Get some leaf names:
+  vector<string> leaves(5);
+  for (size_t i = 0; i < leaves.size(); ++i)
+    leaves[i] = "leaf" + TextTools::toString(i);
   
-  /**
-   * @brief Get a new dynamically created ITree object.
-   *
-   * @param format The input file format.
-   * @return A pointer toward a new ITree object.
-   * @throw Exception If the format name do not match any available format.
-   */
-  virtual ITree* createReader(const std::string& format) throw (Exception);
+  //Generate a random tree, without branch lengths:
+  TreeTemplate<Node>* tree = TreeTemplateTools::getRandomTree(leaves, true);
+
+  //Now assign random properties:
+  vector<Node*> nodes = tree->getNodes();
+  for (size_t i = 0; i < nodes.size(); ++i) {
+    nodes[i]->setDistanceToFather(RandomTools::giveRandomNumberBetweenZeroAndEntry(1.0));
+    nodes[i]->setNodeProperty("GN", BppString("Gene" + TextTools::toString(i)));
+    nodes[i]->setNodeProperty("AC", BppString("XXXXXX"));
+    nodes[i]->setBranchProperty("B", Number<double>(floor(RandomTools::giveRandomNumberBetweenZeroAndEntry(100.) + 0.5)));
+    nodes[i]->setBranchProperty("W", Number<int>(floor(RandomTools::giveRandomNumberBetweenZeroAndEntry(5.) + 0.5)));
+  }
   
-  /**
-   * @brief Get a new dynamically created OTree object.
-   *
-   * @param format The output file format.
-   * @return A pointer toward a new OTree object.
-   * @throw Exception If the format name do not match any available format.
-   */
-  virtual OTree* createWriter(const std::string& format) throw (Exception);
-};
+  //Convert tree to string and read it again:
+  Nhx nhxParser(true);
+  ofstream out("randomTree.nhx", ios::out);
+  nhxParser.write(*tree, out);
+  out.close();
+  TreeTemplate<Node>* tree2 = nhxParser.read("randomTree.nhx");
+  ofstream out2("randomTree2.nhx", ios::out);
+  nhxParser.write(*tree2, out2);
+  out2.close();
 
-} //end of namespace bpp.
-
-#endif //_IOTREEFACTORY_H_
-
+  delete tree;
+  delete tree2;
+  return 0;
+}

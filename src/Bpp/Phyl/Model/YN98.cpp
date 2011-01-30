@@ -69,7 +69,7 @@ YN98::YN98(const GeneticCode* gc, FrequenciesSet* codonFreqs) :
 }
 
 void YN98::updateMatrices()
-{  
+{
   for (unsigned int i=0;i<lParPmodel_.size();i++){
     lParPmodel_[i].setValue(getParameter(mapParNamesFromPmodel_[lParPmodel_[i].getName()]).getValue());}
 
@@ -82,3 +82,10 @@ void YN98::setFreq(std::map<int, double>& m)
   matchParametersValues(pmodel_.getParameters());
 }
 
+void YN98::addRateParameter(){
+  AbstractSubstitutionModel::addRateParameter();
+  pmodel_.addRateParameter();
+  mapParNamesFromPmodel_["YN98.rate"]="rate";
+  lParPmodel_.reset();
+  lParPmodel_.addParameters(pmodel_.getParameters());
+}

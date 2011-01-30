@@ -259,15 +259,17 @@ void SubstitutionModelSet::unsetParameterToModel(unsigned int parameterIndex, un
 
 void SubstitutionModelSet::addParameter(const Parameter& parameter, const vector<int>& nodesId) throw (Exception)
 {
-   modelParameterNames_.push_back(parameter.getName());
+  modelParameterNames_.push_back(parameter.getName());
   Parameter p(parameter);
   p.setName(p.getName() + "_" + TextTools::toString(++paramNamesCount_[p.getName()]));
   addParameter_(p);
   // Build model indexes:
   vector<unsigned int> modelIndexes(nodesId.size());
-  for (unsigned int i = 0; i < nodesId.size(); i++)
+  for (size_t i = 0; i < nodesId.size(); ++i)
   {
-   unsigned int pos = nodeToModel_[nodesId[i]];
+    if (nodeToModel_.find(nodesId[i]) == nodeToModel_.end())
+      throw Exception("SubstitutionModelSet::addParameter. This node has no associated model: " + TextTools::toString(nodesId[i]));
+    unsigned int pos = nodeToModel_[nodesId[i]];
     modelParameters_[pos].addParameter(parameter);
     modelIndexes[i] = pos;
   }
@@ -288,10 +290,15 @@ void SubstitutionModelSet::addParameters(const ParameterList& parameters, const 
   addParameters_(pl);
   // Build model indexes:
   vector<unsigned int> modelIndexes(nodesId.size());
-  for (unsigned int i = 0; i < nodesId.size(); i++)
+  map<unsigned int, unsigned int> counts; //Check is a model is affected to several nodes.
+  for (size_t i = 0; i < nodesId.size(); i++)
   {
+    if (nodeToModel_.find(nodesId[i]) == nodeToModel_.end())
+      throw Exception("SubstitutionModelSet::addParameters. This node has no associated model: " + TextTools::toString(nodesId[i]));
     unsigned int pos = nodeToModel_[nodesId[i]];
-    modelParameters_[pos].addParameters(parameters);
+    unsigned int count = counts[pos]++;
+    if (count == 0)
+      modelParameters_[pos].addParameters(parameters);
     modelIndexes[i] = pos;
   }
   for (unsigned int i = 0; i < pl.size(); i++)

@@ -48,15 +48,24 @@ using namespace std;
 
 
 AbstractMixedSubstitutionModel::AbstractMixedSubstitutionModel(const Alphabet* alpha,
-                                                               const std::string& prefix): MixedSubstitutionModel(alpha, prefix),
+                                                               const std::string& prefix): AbstractSubstitutionModel(alpha, prefix),
                                                                                            modelsContainer_(),
                                                                                            vProbas_(),
                                                                                            vRates_()
 {
+  for (unsigned int i=0;i<size_;i++){
+    for (unsigned int j=0; j<size_;j++){
+      generator_(i,j)=0;
+      leftEigenVectors_(i,j)=0;
+      rightEigenVectors_(i,j)=0;
+    }
+    eigenValues_[i]=0;
+  }
+  eigenDecompose_=false;
 }
 
 AbstractMixedSubstitutionModel::AbstractMixedSubstitutionModel(const AbstractMixedSubstitutionModel& msm) :
-  MixedSubstitutionModel(msm),
+  AbstractSubstitutionModel(msm),
   modelsContainer_(),
   vProbas_(),
   vRates_()
@@ -71,7 +80,7 @@ AbstractMixedSubstitutionModel::AbstractMixedSubstitutionModel(const AbstractMix
 
 AbstractMixedSubstitutionModel& AbstractMixedSubstitutionModel::operator=(const AbstractMixedSubstitutionModel& msm)
 {
-  MixedSubstitutionModel::operator=(msm);
+  AbstractSubstitutionModel::operator=(msm);
   
   //Clear existing containers:
   modelsContainer_.clear();
@@ -98,25 +107,6 @@ unsigned int AbstractMixedSubstitutionModel::getNumberOfStates() const
 {
   return modelsContainer_[0]->getNumberOfStates();
 }
-
-
-const Vdouble& AbstractMixedSubstitutionModel::getFrequencies()
-{
-  for (unsigned int i=0; i< getNumberOfStates(); i++)
-    freq_[i]=freq(i);
-  return freq_;
-}
-
-
-double AbstractMixedSubstitutionModel::freq(unsigned int i) const
-{
-  double x=0;
-  for (unsigned int n = 0; n < modelsContainer_.size(); n++)
-    x+= modelsContainer_[n]->freq(i)*vProbas_[n];
-
-  return x;
-}
-
 
 const Matrix<double>& AbstractMixedSubstitutionModel::getPij_t(double t) const
 {
@@ -169,11 +159,6 @@ const Matrix<double>& AbstractMixedSubstitutionModel::getd2Pij_dt2(double t) con
 }
 
 
-/**
- * @brief Set the rate of the model (must be positive).
- * @param rate must be positive.
- */
-  
 void AbstractMixedSubstitutionModel::setRate(double rate)
 {
   AbstractSubstitutionModel::setRate(rate);

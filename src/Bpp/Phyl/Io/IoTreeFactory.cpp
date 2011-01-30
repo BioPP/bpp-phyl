@@ -5,7 +5,7 @@
 //
 
 /*
-Copyright or © or Copr. CNRS, (November 17, 2004)
+Copyright or © or Copr. Bio++ Development Team, (November 17, 2004)
 
 This software is a computer program whose purpose is to provide classes
 for sequences analysis.
@@ -43,18 +43,21 @@ using namespace bpp;
 
 const std::string IOTreeFactory::NEWICK_FORMAT = "Newick"; 
 const std::string IOTreeFactory::NEXUS_FORMAT = "Nexus"; 
+const std::string IOTreeFactory::NHX_FORMAT = "Nhx"; 
 
 ITree* IOTreeFactory::createReader(const std::string& format) throw (Exception)
 {
-       if(format == NEWICK_FORMAT) return new Newick();
-  else if(format == NEXUS_FORMAT) return new NexusIOTree();
+       if (format == NEWICK_FORMAT) return new Newick();
+  else if (format == NEXUS_FORMAT) return new NexusIOTree();
+  else if (format == NHX_FORMAT) return new Nhx();
   else throw Exception("Format " + format + " is not supported for input.");
 }
   
 OTree* IOTreeFactory::createWriter(const std::string& format) throw (Exception)
 {
-       if(format == NEWICK_FORMAT) return new Newick();
-  else if(format == NEXUS_FORMAT) return new NexusIOTree();
+       if (format == NEWICK_FORMAT) return new Newick();
+  else if (format == NEXUS_FORMAT) return new NexusIOTree();
+  else if (format == NHX_FORMAT) return new Nhx();
   else throw Exception("Format " + format + " is not supported for output.");
 }
 

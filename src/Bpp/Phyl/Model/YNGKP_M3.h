@@ -40,7 +40,6 @@ knowledge of the CeCILL license and that you accept its terms.
 #ifndef _YNGKP_M3_H_
 #define _YNGKP_M3_H_
 
-#include "MixedSubstitutionModel.h"
 #include "MixtureOfASubstitutionModel.h"
 #include "FrequenciesSet.h"
 
@@ -73,7 +72,7 @@ namespace bpp
  * 
  */
 class YNGKP_M3:
-  public MixedSubstitutionModel
+  public AbstractMixedSubstitutionModel
 {
 private:
   MixtureOfASubstitutionModel* pmixmodel_;
@@ -167,7 +166,7 @@ public:
     return pmixmodel_->getd2Pij_dt2(t);
   };
   
-  const Vdouble& getFrequencies() {
+  const Vdouble& getFrequencies() const {
     return pmixmodel_->getFrequencies();
   };
   

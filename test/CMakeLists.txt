@@ -32,16 +32,24 @@ ADD_EXECUTABLE(test_detailed_simulations test_detailed_simulations.cpp)
 TARGET_LINK_LIBRARIES(test_detailed_simulations ${LIBS})
 ADD_TEST(test_detailed_simulations "test_detailed_simulations")
 
+ADD_EXECUTABLE(test_simulations test_simulations.cpp)
+TARGET_LINK_LIBRARIES(test_simulations ${LIBS})
+ADD_TEST(test_simulations "test_simulations")
+
 ADD_EXECUTABLE(test_mapping test_mapping.cpp)
 TARGET_LINK_LIBRARIES(test_mapping ${LIBS})
 ADD_TEST(test_mapping "test_mapping")
 
+ADD_EXECUTABLE(test_nhx test_nhx.cpp)
+TARGET_LINK_LIBRARIES(test_nhx ${LIBS})
+ADD_TEST(test_nhx "test_nhx")
+
 IF(UNIX)
-  SET_PROPERTY(TEST test_detailed_simulations test_tree test_mapping PROPERTY ENVIRONMENT "LD_LIBRARY_PATH=$ENV{LD_LIBRARY_PATH}:../src")
+  SET_PROPERTY(TEST test_detailed_simulations test_simulations test_tree test_mapping test_nhx PROPERTY ENVIRONMENT "LD_LIBRARY_PATH=$ENV{LD_LIBRARY_PATH}:../src")
 ENDIF()
 
 IF(APPLE)
-  SET_PROPERTY(TEST test_detailed_simulations test_tree test_mapping PROPERTY ENVIRONMENT "DYLD_LIBRARY_PATH=$ENV{DYLD_LIBRARY_PATH}:../src")
+  SET_PROPERTY(TEST test_detailed_simulations test_simulations test_tree test_mapping test_nhx PROPERTY ENVIRONMENT "DYLD_LIBRARY_PATH=$ENV{DYLD_LIBRARY_PATH}:../src")
 ENDIF()
 
 IF(WIN32)
