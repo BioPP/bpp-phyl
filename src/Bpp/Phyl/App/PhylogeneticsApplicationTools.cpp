@@ -1900,7 +1900,7 @@ throw (Exception)
   else throw Exception("Unknown NNI algorithm: '" + nniMethod + "'.");
 
 
-  string order  = ApplicationTools::getStringParameter("derivatives", optArgs, "Newton", "", true, false);
+  string order = ApplicationTools::getStringParameter("derivatives", optArgs, "Newton", "", true, false);
   string optMethodDeriv;
   if (order == "Gradient")
   {
@@ -1909,6 +1909,10 @@ throw (Exception)
   else if (order == "Newton")
   {
     optMethodDeriv = OptimizationTools::OPTIMIZATION_NEWTON;
+  }
+  else if (order == "BFGS")
+  {
+    optMethodDeriv = OptimizationTools::OPTIMIZATION_BFGS;
   }
   else throw Exception("Unknown derivatives algorithm: '" + order + "'.");
   if (verbose) ApplicationTools::displayResult("Optimization method", optName);
@@ -1929,6 +1933,7 @@ throw (Exception)
       optMethodModel = OptimizationTools::OPTIMIZATION_BFGS;
 
     unsigned int nstep = ApplicationTools::getParameter<unsigned int>("nstep", optArgs, 1, "", true, false);
+
     if (optimizeTopo)
     {
       bool optNumFirst = ApplicationTools::getBooleanParameter("optimization.topology.numfirst", params, true, suffix, suffixIsOptional, false);
