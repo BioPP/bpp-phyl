@@ -86,7 +86,7 @@ public:
    * @brief Append a model.
    *
    * @param siteLogLikelihoods The loglikelihoods of the sites under this model.
-   * @param model_name <i>(Optional)</i> The name of the model.
+   * @param modelName The name of the model.
    *
    * @throw Exception If the number of sites is not the same as in the container.
    */
@@ -112,13 +112,17 @@ public:
    */
   void appendModels(const PairedSiteLikelihoods& psl) throw (Exception);
 
-  /** @brief Get the site-likelihoods of all models. */
+  /**
+   * @return The site-likelihoods of all models.
+   */
   const std::vector<std::vector<double> >& getLikelihoods() const
   {
     return logLikelihoods_;
   }
 
-  /** @Brief Get the model names. */
+  /**
+   * @return The model names.
+   */
   const std::vector<std::string>& getModelNames() const
   {
     return modelNames_;
@@ -160,7 +164,6 @@ public:
   /**
    * @brief Compute the Expected Likelihood Weights of the models.
    *
-   * @detailed
    * The weight \f$W_m\f$ of a model is :
    * \f[
    * W_m
@@ -168,9 +171,9 @@ public:
    * = \frac{1}{B} \sum_{b \in B} \frac{exp(Y^{(b)}_m - Ymax^{(b)})}{\sum exp(Y_k^{(b)} - Y_{max}^{(b)})}
    * \f]
    * where \f$Y_k^{(b)}\f$ is the loglikelihood of model k for replicate b.
-   * @returns A pair of vectors containing the names and weights of the models.
+   * @return A pair of vectors containing the names and weights of the models.
    *
-   * @param replicates <i>(Optional)</i> The number of pseudoreplicates over which the weights are to be averaged.
+   * @param replicates The number of pseudoreplicates over which the weights are to be averaged.
    */
   std::pair< std::vector<std::string>, std::vector<double> > computeExpectedLikelihoodWeights(int replicates = 10000) const;
 

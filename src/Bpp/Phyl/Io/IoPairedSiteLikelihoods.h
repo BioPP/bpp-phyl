@@ -87,7 +87,7 @@ public:
    *
    * @param psl The PairedSiteLikelihoods object to write.
    * @param os The output stream.
-   * @param <i>(Optional)</i> delim The delimiter between model names and likelihoods. The defaut is a tab but two spaces might be used.
+   * @param delim The delimiter between model names and likelihoods. The defaut is a tab but two spaces might be used.
    */
   static void write(const PairedSiteLikelihoods& psl, std::ostream& os, const std::string& delim = "\t");
 
@@ -95,7 +95,7 @@ public:
    * @brief Write paired-site likelihoods to a file.
    *
    * @param psl The PairedSiteLikelihoods object to write.
-   * @param os The path of the output file.
+   * @param path The path of the output file.
    * @param delim The delimiter between model names and likelihoods. (The defaut is a tab but two spaces might be used.)
    */
   static void write(const PairedSiteLikelihoods& psl, const std::string& path, const std::string& delim = "\t");
