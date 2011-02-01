@@ -5,7 +5,7 @@
 //
 
 /*
-Copyright or © or Copr. CNRS, (November 16, 2004)
+Copyright or © or Copr. Bio++ Development Team, (November 16, 2004)
 
 This software is a computer program whose purpose is to provide classes
 for phylogenetic data analysis.
@@ -245,19 +245,19 @@ class AbstractTreeLikelihood :
       computeSecondOrderDerivatives_(lik.computeSecondOrderDerivatives_),
       initialized_(lik.initialized_) 
     {
-      if (lik.data_) data_ = dynamic_cast<SiteContainer *>(lik.data_->clone());
+      if (lik.data_) data_ = dynamic_cast<SiteContainer*>(lik.data_->clone());
       if (lik.tree_) tree_ = lik.tree_->clone();
     }
 
-    AbstractTreeLikelihood & operator=(const AbstractTreeLikelihood & lik)
+    AbstractTreeLikelihood & operator=(const AbstractTreeLikelihood& lik)
     {
       AbstractParametrizable::operator=(lik);
-      if(data_) delete data_;
-      if(lik.data_) data_ = dynamic_cast<SiteContainer *>(lik.data_->clone());
-      else          data_ = 0;
-      if(tree_) delete tree_;
-      if(lik.tree_) tree_ = lik.tree_->clone();
-      else          tree_ = 0;
+      if (data_) delete data_;
+      if (lik.data_) data_ = dynamic_cast<SiteContainer*>(lik.data_->clone());
+      else           data_ = 0;
+      if (tree_) delete tree_;
+      if (lik.tree_) tree_ = lik.tree_->clone();
+      else           tree_ = 0;
       computeFirstOrderDerivatives_ = lik.computeFirstOrderDerivatives_;
       computeSecondOrderDerivatives_ = lik.computeSecondOrderDerivatives_;
       initialized_ = lik.initialized_;
@@ -302,7 +302,7 @@ class AbstractTreeLikelihood :
 	protected:
 		
 		/**
-		 * @brief Recompute _pxy, _dpxy and _d2pxy arrays, and derivatives if needed.
+		 * @brief Recompute pxy_, dpxy_ and d2pxy_ arrays, and derivatives if needed.
 		 *
 		 * This method is called when some parameter has changed.
 		 *
