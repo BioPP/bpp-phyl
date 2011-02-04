@@ -342,8 +342,7 @@ void RNonHomogeneousMixedTreeLikelihood::initialize() throw (Exception)
 
 void RNonHomogeneousMixedTreeLikelihood::fireParameterChanged(const ParameterList& params)
 {
-  if (main_)
-    applyParameters();
+  applyParameters();
 
   double pb=getProbability();
 
