@@ -5,37 +5,37 @@
 //
 
 /*
-Copyright or © or Copr. CNRS, (November 16, 2004)
+   Copyright or © or Copr. Bio++ Development Team, (November 16, 2004)
 
-This software is a computer program whose purpose is to provide classes
-for phylogenetic data analysis.
+   This software is a computer program whose purpose is to provide classes
+   for phylogenetic data analysis.
 
-This software is governed by the CeCILL  license under French law and
-abiding by the rules of distribution of free software.  You can  use, 
-modify and/ or redistribute the software under the terms of the CeCILL
-license as circulated by CEA, CNRS and INRIA at the following URL
-"http://www.cecill.info". 
+   This software is governed by the CeCILL  license under French law and
+   abiding by the rules of distribution of free software.  You can  use,
+   modify and/ or redistribute the software under the terms of the CeCILL
+   license as circulated by CEA, CNRS and INRIA at the following URL
+   "http://www.cecill.info".
 
-As a counterpart to the access to the source code and  rights to copy,
-modify and redistribute granted by the license, users are provided only
-with a limited warranty  and the software's author,  the holder of the
-economic rights,  and the successive licensors  have only  limited
-liability. 
+   As a counterpart to the access to the source code and  rights to copy,
+   modify and redistribute granted by the license, users are provided only
+   with a limited warranty  and the software's author,  the holder of the
+   economic rights,  and the successive licensors  have only  limited
+   liability.
 
-In this respect, the user's attention is drawn to the risks associated
-with loading,  using,  modifying and/or developing or reproducing the
-software by the user in light of its specific status of free software,
-that may mean  that it is complicated to manipulate,  and  that  also
-therefore means  that it is reserved for developers  and  experienced
-professionals having in-depth computer knowledge. Users are therefore
-encouraged to load and test the software's suitability as regards their
-requirements in conditions enabling the security of their systems and/or 
-data to be ensured and,  more generally, to use and operate it in the 
-same conditions as regards security. 
+   In this respect, the user's attention is drawn to the risks associated
+   with loading,  using,  modifying and/or developing or reproducing the
+   software by the user in light of its specific status of free software,
+   that may mean  that it is complicated to manipulate,  and  that  also
+   therefore means  that it is reserved for developers  and  experienced
+   professionals having in-depth computer knowledge. Users are therefore
+   encouraged to load and test the software's suitability as regards their
+   requirements in conditions enabling the security of their systems and/or
+   data to be ensured and,  more generally, to use and operate it in the
+   same conditions as regards security.
 
-The fact that you are presently reading this means that you have had
-knowledge of the CeCILL license and that you accept its terms.
-*/
+   The fact that you are presently reading this means that you have had
+   knowledge of the CeCILL license and that you accept its terms.
+ */
 
 #include "AbstractHomogeneousTreeLikelihood.h"
 #include "../PatternTools.h"
@@ -43,7 +43,7 @@ knowledge of the CeCILL license and that you accept its terms.
 #include <Bpp/Text/TextTools.h>
 #include <Bpp/App/ApplicationTools.h>
 
-//From SeqLib:
+// From SeqLib:
 #include <Bpp/Seq/SiteTools.h>
 #include <Bpp/Seq/Container/SequenceContainerTools.h>
 
@@ -62,7 +62,7 @@ AbstractHomogeneousTreeLikelihood::AbstractHomogeneousTreeLikelihood(
   DiscreteDistribution* rDist,
   bool checkRooted,
   bool verbose)
-  throw (Exception):
+throw (Exception) :
   AbstractDiscreteRatesAcrossSitesTreeLikelihood(rDist, verbose),
   model_(0),
   brLenParameters_(),
@@ -86,7 +86,7 @@ AbstractHomogeneousTreeLikelihood::AbstractHomogeneousTreeLikelihood(
 /******************************************************************************/
 
 AbstractHomogeneousTreeLikelihood::AbstractHomogeneousTreeLikelihood(
-    const AbstractHomogeneousTreeLikelihood& lik) :
+  const AbstractHomogeneousTreeLikelihood& lik) :
   AbstractDiscreteRatesAcrossSitesTreeLikelihood(lik),
   model_(lik.model_),
   brLenParameters_(lik.brLenParameters_),
@@ -105,13 +105,13 @@ AbstractHomogeneousTreeLikelihood::AbstractHomogeneousTreeLikelihood(
   brLenConstraint_(lik.brLenConstraint_->clone())
 {
   nodes_ = tree_->getNodes();
-  nodes_.pop_back(); //Remove the root node (the last added!).  
+  nodes_.pop_back(); // Remove the root node (the last added!).
 }
 
 /******************************************************************************/
 
 AbstractHomogeneousTreeLikelihood& AbstractHomogeneousTreeLikelihood::operator=(
-    const AbstractHomogeneousTreeLikelihood& lik)
+  const AbstractHomogeneousTreeLikelihood& lik)
 {
   AbstractDiscreteRatesAcrossSitesTreeLikelihood::operator=(lik);
   model_           = lik.model_;
@@ -121,7 +121,7 @@ AbstractHomogeneousTreeLikelihood& AbstractHomogeneousTreeLikelihood::operator=(
   d2pxy_           = lik.d2pxy_;
   rootFreqs_       = lik.rootFreqs_;
   nodes_ = tree_->getNodes();
-  nodes_.pop_back(); //Remove the root node (the last added!).  
+  nodes_.pop_back(); // Remove the root node (the last added!).
   nbSites_         = lik.nbSites_;
   nbDistinctSites_ = lik.nbDistinctSites_;
   nbClasses_       = lik.nbClasses_;
@@ -143,21 +143,22 @@ AbstractHomogeneousTreeLikelihood::~AbstractHomogeneousTreeLikelihood()
 /******************************************************************************/
 
 void AbstractHomogeneousTreeLikelihood::init_(
-    const Tree& tree,
-    SubstitutionModel* model,
-    DiscreteDistribution* rDist,
-    bool checkRooted,
-    bool verbose) throw (Exception)
+  const Tree& tree,
+  SubstitutionModel* model,
+  DiscreteDistribution* rDist,
+  bool checkRooted,
+  bool verbose) throw (Exception)
 {
   TreeTools::checkIds(tree, true);
   tree_ = new TreeTemplate<Node>(tree);
-  if(checkRooted && tree_->isRooted())
+  if (checkRooted && tree_->isRooted())
   {
-    if(verbose) ApplicationTools::displayWarning("Tree has been unrooted.");
+    if (verbose)
+      ApplicationTools::displayWarning("Tree has been unrooted.");
     tree_->unroot();
   }
   nodes_ = tree_->getNodes();
-  nodes_.pop_back(); //Remove the root node (the last added!).  
+  nodes_.pop_back(); // Remove the root node (the last added!).
   nbNodes_ = nodes_.size();
   nbClasses_ = rateDistribution_->getNumberOfCategories();
   setSubstitutionModel(model);
@@ -172,62 +173,62 @@ void AbstractHomogeneousTreeLikelihood::init_(
 
 void AbstractHomogeneousTreeLikelihood::setSubstitutionModel(SubstitutionModel* model) throw (Exception)
 {
-  //Check:
-  if(data_)
+  // Check:
+  if (data_)
   {
-    if(model->getAlphabet()->getAlphabetType() != data_->getAlphabet()->getAlphabetType())
+    if (model->getAlphabet()->getAlphabetType() != data_->getAlphabet()->getAlphabetType())
       throw Exception("AbstractHomogeneousTreeLikelihood::setSubstitutionModel(). Model alphabet do not match existing data.");
   }
 
   model_ = model;
-  
-  if(data_)
+
+  if (data_)
   {
-    if(model->getNumberOfStates() != model_->getNumberOfStates())
-      setData(*data_); //Have to reinitialize the whole data structure.
+    if (model->getNumberOfStates() != model_->getNumberOfStates())
+      setData(*data_);  // Have to reinitialize the whole data structure.
   }
-  
+
   nbStates_ = model->getNumberOfStates();
 
-  //Allocate transition probabilities arrays:
-  for(unsigned int l = 0; l < nbNodes_; l++)
+  // Allocate transition probabilities arrays:
+  for (unsigned int l = 0; l < nbNodes_; l++)
   {
-    //For each son node,i
-    Node * son = nodes_[l];
+    // For each son node,i
+    Node* son = nodes_[l];
 
-    VVVdouble * pxy__son = & pxy_[son->getId()];
+    VVVdouble* pxy__son = &pxy_[son->getId()];
     pxy__son->resize(nbClasses_);
-    for(unsigned int c = 0; c < nbClasses_; c++)
+    for (unsigned int c = 0; c < nbClasses_; c++)
     {
-      VVdouble * pxy__son_c = & (* pxy__son)[c];
+      VVdouble* pxy__son_c = &(*pxy__son)[c];
       pxy__son_c->resize(nbStates_);
-      for(unsigned int x = 0; x < nbStates_; x++)
+      for (unsigned int x = 0; x < nbStates_; x++)
       {
         (*pxy__son_c)[x].resize(nbStates_);
       }
     }
-  
-    VVVdouble * dpxy__son = & dpxy_[son->getId()];
+
+    VVVdouble* dpxy__son = &dpxy_[son->getId()];
     dpxy__son->resize(nbClasses_);
-    for(unsigned int c = 0; c < nbClasses_; c++)
+    for (unsigned int c = 0; c < nbClasses_; c++)
     {
-      VVdouble * dpxy__son_c = & (* dpxy__son)[c];
+      VVdouble* dpxy__son_c = &(*dpxy__son)[c];
       dpxy__son_c->resize(nbStates_);
-      for(unsigned int x = 0; x < nbStates_; x++)
+      for (unsigned int x = 0; x < nbStates_; x++)
       {
-        (* dpxy__son_c)[x].resize(nbStates_);
+        (*dpxy__son_c)[x].resize(nbStates_);
       }
     }
-      
-    VVVdouble * d2pxy__son = & d2pxy_[son->getId()];
+
+    VVVdouble* d2pxy__son = &d2pxy_[son->getId()];
     d2pxy__son->resize(nbClasses_);
-    for(unsigned int c = 0; c < nbClasses_; c++)
+    for (unsigned int c = 0; c < nbClasses_; c++)
     {
-      VVdouble * d2pxy__son_c = & (* d2pxy__son)[c];
+      VVdouble* d2pxy__son_c = &(*d2pxy__son)[c];
       d2pxy__son_c->resize(nbStates_);
-      for(unsigned int x = 0; x < nbStates_; x++)
+      for (unsigned int x = 0; x < nbStates_; x++)
       {
-        (* d2pxy__son_c)[x].resize(nbStates_);
+        (*d2pxy__son_c)[x].resize(nbStates_);
       }
     }
   }
@@ -237,8 +238,10 @@ void AbstractHomogeneousTreeLikelihood::setSubstitutionModel(SubstitutionModel* 
 
 void AbstractHomogeneousTreeLikelihood::initialize() throw (Exception)
 {
-  if(initialized_) throw Exception("AbstractHomogeneousTreeLikelihood::initialize(). Object is already initialized.");
-  if(data_ == NULL) throw Exception("AbstractHomogeneousTreeLikelihood::initialize(). Data are no set.");
+  if (initialized_)
+    throw Exception("AbstractHomogeneousTreeLikelihood::initialize(). Object is already initialized.");
+  if (!data_)
+    throw Exception("AbstractHomogeneousTreeLikelihood::initialize(). Data are no set.");
   initParameters();
   initialized_ = true;
   fireParameterChanged(getParameters());
@@ -248,7 +251,8 @@ void AbstractHomogeneousTreeLikelihood::initialize() throw (Exception)
 
 ParameterList AbstractHomogeneousTreeLikelihood::getBranchLengthsParameters() const
 {
-  if(!initialized_) throw Exception("AbstractHomogeneousTreeLikelihood::getBranchLengthsParameters(). Object is not initialized.");
+  if (!initialized_)
+    throw Exception("AbstractHomogeneousTreeLikelihood::getBranchLengthsParameters(). Object is not initialized.");
   return brLenParameters_.getCommonParametersWith(getParameters());
 }
 
@@ -256,7 +260,8 @@ ParameterList AbstractHomogeneousTreeLikelihood::getBranchLengthsParameters() co
 
 ParameterList AbstractHomogeneousTreeLikelihood::getSubstitutionModelParameters() const
 {
-  if(!initialized_) throw Exception("AbstractHomogeneousTreeLikelihood::getSubstitutionModelParameters(). Object is not initialized.");
+  if (!initialized_)
+    throw Exception("AbstractHomogeneousTreeLikelihood::getSubstitutionModelParameters(). Object is not initialized.");
   return model_->getParameters().getCommonParametersWith(getParameters());
 }
 
@@ -266,14 +271,14 @@ void AbstractHomogeneousTreeLikelihood::initParameters()
 {
   // Reset parameters:
   resetParameters_();
-  
+
   // Branch lengths:
   initBranchLengthsParameters();
   addParameters_(brLenParameters_);
-  
+
   // Substitution model:
   addParameters_(model_->getIndependentParameters());
-  
+
   // Rate distribution:
   addParameters_(rateDistribution_->getIndependentParameters());
 }
@@ -282,18 +287,20 @@ void AbstractHomogeneousTreeLikelihood::initParameters()
 
 void AbstractHomogeneousTreeLikelihood::applyParameters() throw (Exception)
 {
-  if(!initialized_) throw Exception("AbstractHomogeneousTreeLikelihood::applyParameters(). Object not initialized.");
-  //Apply branch lengths:
-  //brLenParameters_.matchParametersValues(parameters_); Not necessary!
-  for(unsigned int i = 0; i < nbNodes_; i++)
+  if (!initialized_)
+    throw Exception("AbstractHomogeneousTreeLikelihood::applyParameters(). Object not initialized.");
+  // Apply branch lengths:
+  // brLenParameters_.matchParametersValues(parameters_); Not necessary!
+  for (unsigned int i = 0; i < nbNodes_; i++)
   {
-    const Parameter * brLen = &getParameter(string("BrLen") + TextTools::toString(i));
-    if(brLen != NULL) nodes_[i]->setDistanceToFather(brLen->getValue());
+    const Parameter* brLen = &getParameter(string("BrLen") + TextTools::toString(i));
+    if (brLen)
+      nodes_[i]->setDistanceToFather(brLen->getValue());
   }
-  //Apply substitution model parameters:
+  // Apply substitution model parameters:
   model_->matchParametersValues(getParameters());
   rootFreqs_ = model_->getFrequencies();
-  //Apply rate distribution parameters:
+  // Apply rate distribution parameters:
   rateDistribution_->matchParametersValues(getParameters());
 }
 
@@ -302,10 +309,10 @@ void AbstractHomogeneousTreeLikelihood::applyParameters() throw (Exception)
 void AbstractHomogeneousTreeLikelihood::initBranchLengthsParameters()
 {
   brLenParameters_.reset();
-  for(unsigned int i = 0; i < nbNodes_; i++)
+  for (unsigned int i = 0; i < nbNodes_; i++)
   {
     double d = minimumBrLen_;
-    if(!nodes_[i]->hasDistanceToFather())
+    if (!nodes_[i]->hasDistanceToFather())
     {
       ApplicationTools::displayWarning("Missing branch length " + TextTools::toString(i) + ". Value is set to " + TextTools::toString(minimumBrLen_));
       nodes_[i]->setDistanceToFather(minimumBrLen_);
@@ -320,7 +327,7 @@ void AbstractHomogeneousTreeLikelihood::initBranchLengthsParameters()
         d = minimumBrLen_;
       }
     }
-    brLenParameters_.addParameter(Parameter("BrLen" + TextTools::toString(i), d, brLenConstraint_->clone(), true)); //Attach constraint to avoid clonage problems!
+    brLenParameters_.addParameter(Parameter("BrLen" + TextTools::toString(i), d, brLenConstraint_->clone(), true)); // Attach constraint to avoid clonage problems!
   }
 }
 
@@ -328,10 +335,10 @@ void AbstractHomogeneousTreeLikelihood::initBranchLengthsParameters()
 
 void AbstractHomogeneousTreeLikelihood::computeAllTransitionProbabilities()
 {
-  for(unsigned int l = 0; l < nbNodes_; l++)
+  for (unsigned int l = 0; l < nbNodes_; l++)
   {
-    //For each node,
-    Node * node = nodes_[l];
+    // For each node,
+    Node* node = nodes_[l];
     computeTransitionProbabilitiesForNode(node);
   }
   rootFreqs_ = model_->getFrequencies();
@@ -341,59 +348,59 @@ void AbstractHomogeneousTreeLikelihood::computeAllTransitionProbabilities()
 
 void AbstractHomogeneousTreeLikelihood::computeTransitionProbabilitiesForNode(const Node* node)
 {
-  double l = node->getDistanceToFather(); 
+  double l = node->getDistanceToFather();
 
-  //Computes all pxy and pyx once for all:
-  VVVdouble * pxy__node = & pxy_[node->getId()];
-  for(unsigned int c = 0; c < nbClasses_; c++)
+  // Computes all pxy and pyx once for all:
+  VVVdouble* pxy__node = &pxy_[node->getId()];
+  for (unsigned int c = 0; c < nbClasses_; c++)
   {
-    VVdouble * pxy__node_c = & (* pxy__node)[c];
+    VVdouble* pxy__node_c = &(*pxy__node)[c];
     RowMatrix<double> Q = model_->getPij_t(l * rateDistribution_->getCategory(c));
-    for(unsigned int x = 0; x < nbStates_; x++)
+    for (unsigned int x = 0; x < nbStates_; x++)
     {
-      Vdouble * pxy__node_c_x = & (* pxy__node_c)[x];
-      for(unsigned int y = 0; y < nbStates_; y++)
+      Vdouble* pxy__node_c_x = &(*pxy__node_c)[x];
+      for (unsigned int y = 0; y < nbStates_; y++)
       {
-        (* pxy__node_c_x)[y] = Q(x, y);
+        (*pxy__node_c_x)[y] = Q(x, y);
       }
     }
   }
-  
-  if(computeFirstOrderDerivatives_)
+
+  if (computeFirstOrderDerivatives_)
   {
-    //Computes all dpxy/dt once for all:
-    VVVdouble * dpxy__node = & dpxy_[node->getId()];
-    for(unsigned int c = 0; c < nbClasses_; c++)
+    // Computes all dpxy/dt once for all:
+    VVVdouble* dpxy__node = &dpxy_[node->getId()];
+    for (unsigned int c = 0; c < nbClasses_; c++)
     {
-      VVdouble * dpxy__node_c = & (* dpxy__node)[c];
+      VVdouble* dpxy__node_c = &(*dpxy__node)[c];
       double rc = rateDistribution_->getCategory(c);
-      RowMatrix<double> dQ = model_->getdPij_dt(l * rc);  
-      for(unsigned int x = 0; x < nbStates_; x++)
+      RowMatrix<double> dQ = model_->getdPij_dt(l * rc);
+      for (unsigned int x = 0; x < nbStates_; x++)
       {
-        Vdouble * dpxy__node_c_x = & (* dpxy__node_c)[x];
-        for(unsigned int y = 0; y < nbStates_; y++)
+        Vdouble* dpxy__node_c_x = &(*dpxy__node_c)[x];
+        for (unsigned int y = 0; y < nbStates_; y++)
         {
-          (* dpxy__node_c_x)[y] = rc * dQ(x, y); 
+          (*dpxy__node_c_x)[y] = rc * dQ(x, y);
         }
       }
     }
   }
-      
-  if(computeSecondOrderDerivatives_)
+
+  if (computeSecondOrderDerivatives_)
   {
-    //Computes all d2pxy/dt2 once for all:
-    VVVdouble * d2pxy__node = & d2pxy_[node->getId()];
-    for(unsigned int c = 0; c < nbClasses_; c++)
+    // Computes all d2pxy/dt2 once for all:
+    VVVdouble* d2pxy__node = &d2pxy_[node->getId()];
+    for (unsigned int c = 0; c < nbClasses_; c++)
     {
-      VVdouble * d2pxy__node_c = & (* d2pxy__node)[c];
+      VVdouble* d2pxy__node_c = &(*d2pxy__node)[c];
       double rc =  rateDistribution_->getCategory(c);
       RowMatrix<double> d2Q = model_->getd2Pij_dt2(l * rc);
-      for(unsigned int x = 0; x < nbStates_; x++)
+      for (unsigned int x = 0; x < nbStates_; x++)
       {
-        Vdouble * d2pxy__node_c_x = & (* d2pxy__node_c)[x];
-        for(unsigned int y = 0; y < nbStates_; y++)
+        Vdouble* d2pxy__node_c_x = &(*d2pxy__node_c)[x];
+        for (unsigned int y = 0; y < nbStates_; y++)
         {
-          (* d2pxy__node_c_x)[y] = rc * rc * d2Q(x, y);
+          (*d2pxy__node_c_x)[y] = rc * rc * d2Q(x, y);
         }
       }
     }
