@@ -175,13 +175,13 @@ pair<vector<string>, vector<double> > PairedSiteLikelihoods::computeExpectedLike
   return make_pair(modelNames_, weights);
 }
 
-vector<int> PairedSiteLikelihoods::bootstrap(size_t length, double scaling)
+std::vector<int> PairedSiteLikelihoods::bootstrap(std::size_t length, double scaling)
 {
-  vector<int> v (length, 0);
+  vector<int> v(length, 0);
 
   for (size_t i = 0; i < static_cast<size_t>(length * scaling + 0.5); ++i)
   {
-    ++v.at(RandomTools::giveIntRandomNumberBetweenZeroAndEntry(length) );
+    ++v.at(RandomTools::giveIntRandomNumberBetweenZeroAndEntry(length));
   }
 
   return v;

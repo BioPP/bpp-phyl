@@ -181,13 +181,13 @@ public:
    * @brief Draw a nonparametric pseudoreplicate
    *
    * @param length The length of the data.
-   * @param scaling <i>(Optional)</i> The length of the pseudoreplicate, in fraction of
+   * @param scaling The length of the pseudoreplicate, in fraction of
    *  the length of the data.
    *
    * @return A vector of the same length as the data, containing the count
    * of each element in the pseudoreplicate.
    */
-  static std::vector<int> bootstrap(std::size_t length, double scaling=1);
+  static std::vector<int> bootstrap(std::size_t length, double scaling = 1);
   
 };
 } // namespace bpp.
