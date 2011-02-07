@@ -195,7 +195,14 @@ SubstitutionModel* PhylogeneticsApplicationTools::getSubstitutionModelDefaultIns
       unparsedParameterValues[it->first] = it->second;
     }
 
-    model = new MixtureOfASubstitutionModel(alphabet, pSM, mdist);
+    int fi(-1), ti(-1);
+    
+    if (args.find("from") != args.end())
+      fi=alphabet->charToInt(args["from"]);
+    if (args.find("to") != args.end())
+      ti=alphabet->charToInt(args["to"]);
+    
+    model = new MixtureOfASubstitutionModel(alphabet, pSM, mdist, fi, ti);
 
     vector<string> v = model->getParameters().getParameterNames();
 
