@@ -95,9 +95,8 @@ NonHomogeneousSequenceSimulator::NonHomogeneousSequenceSimulator(
   nbStates_(model->getNumberOfStates()),
   continuousRates_(false)
 {
-  FullFrequenciesSet* fSet = new FullFrequenciesSet(model->getAlphabet());
+  FixedFrequenciesSet* fSet = new FixedFrequenciesSet(model->getAlphabet(), model->getFrequencies());
   fSet->setNamespace("anc.");
-  fSet->setFrequencies(model->getFrequencies());
   modelSet_ = SubstitutionModelSetTools::createHomogeneousModelSet(dynamic_cast<SubstitutionModel*>(model->clone()), fSet, templateTree_);
   init();
 }
