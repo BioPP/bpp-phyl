@@ -294,7 +294,7 @@ void AbstractNonHomogeneousTreeLikelihood::initParameters()
   addParameters_(brLenParameters_);
   
   // Substitution model:
-  addParameters_(modelSet_->getParameters());
+  addParameters_(modelSet_->getIndependentParameters());
   
   // Rate distribution:
   addParameters_(rateDistribution_->getIndependentParameters());
