@@ -201,6 +201,8 @@ throw (Exception)
     desc->addOptimizer("Branch length parameters", new ConjugateGradientMultiDimensions(f), tl->getBranchLengthsParameters().getParameterNames(), 2, MetaOptimizerInfos::IT_TYPE_FULL);
   else if (optMethodDeriv == OPTIMIZATION_NEWTON)
     desc->addOptimizer("Branch length parameters", new PseudoNewtonOptimizer(f), tl->getBranchLengthsParameters().getParameterNames(), 2, MetaOptimizerInfos::IT_TYPE_FULL);
+  else if (optMethodDeriv == OPTIMIZATION_BFGS)
+    desc->addOptimizer("Branch length parameters", new BfgsMultiDimensions(f), tl->getBranchLengthsParameters().getParameterNames(), 2, MetaOptimizerInfos::IT_TYPE_FULL);
   else throw Exception("OptimizationTools::optimizeNumericalParameters. Unknown optimization method: " + optMethodDeriv);
 
   // Other parameters
@@ -227,7 +229,7 @@ throw (Exception)
     vNameDer.insert(vNameDer.begin(), vNameDer2.begin(), vNameDer2.end());
     fnum->setParametersToDerivate(vNameDer);
 
-    desc->addOptimizer("Rate & model distribution parameters", new BFGSMultiDimensions(fnum), vNameDer, 1, MetaOptimizerInfos::IT_TYPE_FULL);
+    desc->addOptimizer("Rate & model distribution parameters", new BfgsMultiDimensions(fnum), vNameDer, 1, MetaOptimizerInfos::IT_TYPE_FULL);
     poptimizer= new MetaOptimizer(fnum, desc, nstep);
   }
   else throw Exception("OptimizationTools::optimizeNumericalParameters. Unknown optimization method: " + optMethodModel);
@@ -295,6 +297,12 @@ throw (Exception)
     fnum->setInterval(0.0001);
     optimizer.reset(new PseudoNewtonOptimizer(fnum.get()));
   }
+  else if (optMethodDeriv == OPTIMIZATION_BFGS)
+  {
+    fnum.reset(new TwoPointsNumericalDerivative(f));
+    fnum->setInterval(0.0001);
+    optimizer.reset(new BfgsMultiDimensions(fnum.get()));
+  }
   else throw Exception("OptimizationTools::optimizeNumericalParameters2. Unknown optimization method: " + optMethodDeriv);
   
   //Numerical derivatives:
@@ -336,11 +344,19 @@ throw (Exception)
 {
   // Build optimizer:
   Optimizer* optimizer = 0;
-  if(optMethodDeriv == OPTIMIZATION_GRADIENT)
+  if (optMethodDeriv == OPTIMIZATION_GRADIENT) {
+    tl->enableFirstOrderDerivatives(true);
+    tl->enableSecondOrderDerivatives(false);
     optimizer = new ConjugateGradientMultiDimensions(tl);
-  else if(optMethodDeriv == OPTIMIZATION_NEWTON)
+  } else if(optMethodDeriv == OPTIMIZATION_NEWTON) {
+    tl->enableFirstOrderDerivatives(true);
+    tl->enableSecondOrderDerivatives(true);
     optimizer = new PseudoNewtonOptimizer(tl);
-  else throw Exception("OptimizationTools::optimizeBranchLengthsParameters. Unknown optimization method: " + optMethodDeriv);
+  } else if(optMethodDeriv == OPTIMIZATION_BFGS) {
+    tl->enableFirstOrderDerivatives(true);
+    tl->enableSecondOrderDerivatives(false);
+    optimizer = new BfgsMultiDimensions(tl);
+  } else throw Exception("OptimizationTools::optimizeBranchLengthsParameters. Unknown optimization method: " + optMethodDeriv);
   optimizer->setVerbose(verbose);
   optimizer->setProfiler(profiler);
   optimizer->setMessageHandler(messageHandler);

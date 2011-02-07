@@ -1,3 +1,13 @@
+libbpp-phyl (2.0.0) unstable; urgency=low
+
+  * Better mixed models
+  * Extended substitution mapping framework
+  * More bug fixed, notably in simulation procedures
+  * Topology comparison tools (ELW)
+  * Improved graphic classes
+
+ -- Julien Dutheil <julien.dutheil@univ-montp2.fr>  Mon, 07 Feb 2011 09:00:00 +0100
+
 libbpp-phyl (1.9.0) unstable; urgency=low
 
   * Several bugs fixed and improvements, compilation with -Weffc++

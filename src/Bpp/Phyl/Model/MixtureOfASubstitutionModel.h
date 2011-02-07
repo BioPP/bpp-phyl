@@ -51,13 +51,13 @@
 namespace bpp
 {
 /**
- * @brief Substitution models defined as a mixture of "simple"
+ * @brief Substitution models defined as a mixture of nested
  * substitution models.
  * @author Laurent Guéguen
  *
- * All the models are of the same type (for example T92 or GY94), and
- * their parameter values can follow discrete distributions. At the
- * construction, the rates of the models are all equal to one.
+ * All the nested models are of the same type (for example T92 or
+ * GY94), and their parameter values can follow discrete
+ * distributions.
  *
  * In this kind of model, there is no generator.
  *
@@ -71,7 +71,22 @@ namespace bpp
  *       theta1=0.4,
  *       theta2=TruncExponential(n=5,lambda=0.6,tp=1))
  *
- * defines 3*4*5=60 different HKY85 models.
+ * defines 3*4*5=60 different HKY85 nested models with rate one.
+ *
+ * Optionnal arguments are used to homogeneize the rates of the nested
+ * models. Default values sets all the rates to 1, and given values
+ * are the two letters (from_ & to_) between which the substitution
+ * rates are the same in all nested models.
+ *
+ * For example:
+ * HKY85(kappa=Gamma(n=3,alpha=2,beta=5),
+ *       theta=TruncExponential(n=4,lambda=0.2,tp=1),
+ *       theta1=0.4,
+ *       theta2=TruncExponential(n=5,lambda=0.6,tp=1),
+ *       from=A, to=C)
+ *
+ * defines 3*4*5=60 different HKY85 nested models with the same A->C
+ * substitution rate.
  *
  * If a distribution parameter does not respect the constraints of
  * this parameter, there is an Exception at the creation of the
@@ -89,11 +104,13 @@ class MixtureOfASubstitutionModel :
 {
 private:
   std::map<std::string, DiscreteDistribution*> distributionMap_;
-
+  int from_, to_;
+  
 public:
   MixtureOfASubstitutionModel(const Alphabet* alpha,
                          SubstitutionModel* model,
-                         std::map<std::string, DiscreteDistribution*> parametersDistributionsList) throw(Exception);
+                              std::map<std::string, DiscreteDistribution*> parametersDistributionsList,
+                              int ffrom=-1, int tto=-1) throw(Exception);
 
   MixtureOfASubstitutionModel(const MixtureOfASubstitutionModel&);
   

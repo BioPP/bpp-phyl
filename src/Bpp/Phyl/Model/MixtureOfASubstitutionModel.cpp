@@ -39,6 +39,7 @@
 #include "MixtureOfASubstitutionModel.h"
 
 #include <Bpp/Numeric/NumConstants.h>
+#include <Bpp/Exceptions.h>
 
 #include <string>
 
@@ -47,12 +48,22 @@ using namespace std;
 
 
 MixtureOfASubstitutionModel::MixtureOfASubstitutionModel(
-                                               const Alphabet* alpha,
-                                               SubstitutionModel* model,
-                                               std::map<std::string, DiscreteDistribution*> parametersDistributionsList) throw(Exception) :
+                                                         const Alphabet* alpha,
+                                                         SubstitutionModel* model,
+                                                         std::map<std::string, DiscreteDistribution*> parametersDistributionsList,
+                                                         int ffrom,
+                                                         int tto) throw(Exception) :
   AbstractMixedSubstitutionModel(alpha, ""),
-  distributionMap_()
+  distributionMap_(),
+  from_(ffrom),
+  to_(tto)
 {
+
+  if (to_>= int(alpha->getSize()))
+    throw BadIntegerException("Bad state in alphabet",to_);
+  if (from_ >= int(alpha->getSize()))
+    throw BadIntegerException("Bad state in alphabet",from_);
+  
   unsigned int c, i;
   string s1, s2, t;
   map<string, DiscreteDistribution*>::iterator it;
@@ -124,7 +135,9 @@ MixtureOfASubstitutionModel::MixtureOfASubstitutionModel(
 
 MixtureOfASubstitutionModel::MixtureOfASubstitutionModel(const MixtureOfASubstitutionModel& msm) :
   AbstractMixedSubstitutionModel(msm),
-  distributionMap_()
+  distributionMap_(),
+  from_(msm.from_),
+  to_(msm.to_)
 {
   map<string, DiscreteDistribution*>::const_iterator it;
 
@@ -137,6 +150,8 @@ MixtureOfASubstitutionModel::MixtureOfASubstitutionModel(const MixtureOfASubstit
 MixtureOfASubstitutionModel& MixtureOfASubstitutionModel::operator=(const MixtureOfASubstitutionModel& msm)
 {
   AbstractMixedSubstitutionModel::operator=(msm);
+  from_=msm.from_;
+  to_=msm.to_;
   
   //Clear existing containers:
   distributionMap_.clear();
@@ -212,11 +227,24 @@ void MixtureOfASubstitutionModel::updateMatrices()
     modelsContainer_[i]->matchParametersValues(pl);
   }
 
+  //  setting the equilibrium freqs
   for (i = 0; i < getNumberOfStates(); i++) {
     freq_[i] = 0;
     for (j = 0; j < modelsContainer_.size(); j++)
       freq_[i] += vProbas_[j]*modelsContainer_[j]->freq(i);
   }
+
+  //setting the rates, if to_ & from_ are different from -1
+
+  if (to_>=0 && from_>=0){
+    Vdouble vd;
+
+    for (j = 0; j < modelsContainer_.size(); j++)
+      vd.push_back(1/getNModel(j)->Qij(from_,to_));
+
+    setVRates(vd);
+  }
+    
 }
 
 void MixtureOfASubstitutionModel::setFreq(std::map<int,double>& m)
