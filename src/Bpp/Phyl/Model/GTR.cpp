@@ -76,11 +76,15 @@ GTR::GTR(
   addParameter_(dP);
   Parameter eP("GTR.e", e, &Parameter::R_PLUS_STAR);
   addParameter_(eP);
-  Parameter thetaP("GTR.theta" , theta_ , new IncludingInterval(0.001, 0.999), true); //Avoid numerical errors close to the bounds.
+  //jdutheil on 07/02/11: is this still needed? If yes, we should also change it in all models in order to facilitate parameter aliasing...
+  //Parameter thetaP("GTR.theta", theta_ , new IncludingInterval(0.001, 0.999), true); //Avoid numerical errors close to the bounds.
+  Parameter thetaP("GTR.theta", theta_, &Parameter::PROP_CONSTRAINT_EX);
   addParameter_(thetaP);
-  Parameter theta1P("GTR.theta1", theta1_, new IncludingInterval(0.001, 0.999), true);
+  //Parameter theta1P("GTR.theta1", theta1_, new IncludingInterval(0.001, 0.999), true);
+  Parameter theta1P("GTR.theta1", theta1_, &Parameter::PROP_CONSTRAINT_EX);
   addParameter_(theta1P);
-  Parameter theta2P("GTR.theta2", theta2_, new IncludingInterval(0.001, 0.999), true);
+  //Parameter theta2P("GTR.theta2", theta2_, new IncludingInterval(0.001, 0.999), true);
+  Parameter theta2P("GTR.theta2", theta2_, &Parameter::PROP_CONSTRAINT_EX);
   addParameter_(theta2P);
   updateMatrices();
 }

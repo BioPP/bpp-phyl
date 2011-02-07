@@ -1426,8 +1426,29 @@ SubstitutionModelSet* PhylogeneticsApplicationTools::getSubstitutionModelSet(
       string::size_type index = pName.find(".");
       if (index == string::npos) throw Exception("PhylogeneticsApplicationTools::getSubstitutionModelSet. Bad parameter name: " + pName);
       string name = pName.substr(index + 1) + "_" + pName.substr(5, index - 5);
-      modelSet->setParameterToModel(modelSet->getParameterIndex(name), modelSet->getNumberOfModels() - 1);
+      //namespace checking:
+      vector<unsigned int> models = modelSet->getModelsWithParameter(name);
+      if (models.size() == 0)
+        throw Exception("PhylogeneticsApplicationTools::getSubstitutionModelSet. Parameter `" + name + "' is not associated to any model.");
+      if (model->getNamespace() == modelSet->getModel(models[0])->getNamespace())
+        modelSet->setParameterToModel(modelSet->getParameterIndex(name), modelSet->getNumberOfModels() - 1);
+      else {
+        throw Exception("Assigning a value to a parameter with a distinct namespace is not (yet) allowed. Consider using parameter aliasing instead.");
+      }
     }
+  }
+  //Finally check parameter aliasing:
+  string aliasDesc = ApplicationTools::getStringParameter("nonhomogeneous.alias", params, "", suffix, suffixIsOptional, verbose);
+  StringTokenizer st(aliasDesc, ",");
+  while (st.hasMoreToken()) {
+    string alias = st.nextToken();
+    string::size_type index = alias.find("->");
+    if (index == string::npos)
+      throw Exception("PhylogeneticsApplicationTools::getSubstitutionModelSet. Bad alias syntax, should contain `->' symbol: " + alias);
+    string p1 = alias.substr(0, index);
+    string p2 = alias.substr(index + 2);
+    ApplicationTools::displayResult("Parameter alias found", p1 + "->" + p2);
+    modelSet->aliasParameters(p1, p2);
   }
 
   return modelSet;

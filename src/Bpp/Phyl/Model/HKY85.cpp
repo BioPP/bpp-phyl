@@ -68,11 +68,11 @@ HKY85::HKY85(
 {
 	Parameter kappaP("HKY85.kappa", kappa, &Parameter::R_PLUS_STAR);
 	addParameter_(kappaP);
-	Parameter thetaP("HKY85.theta" , theta_ , &Parameter::PROP_CONSTRAINT_EX);
+	Parameter thetaP("HKY85.theta" , theta_, new IncludingInterval(0.001, 0.999), true);
 	addParameter_(thetaP);
-	Parameter theta1P("HKY85.theta1", theta1_, &Parameter::PROP_CONSTRAINT_EX);
+	Parameter theta1P("HKY85.theta1", theta1_, new IncludingInterval(0.001, 0.999), true);
 	addParameter_(theta1P);
-	Parameter theta2P("HKY85.theta2", theta2_, &Parameter::PROP_CONSTRAINT_EX);
+	Parameter theta2P("HKY85.theta2", theta2_, new IncludingInterval(0.001, 0.999), true);
 	addParameter_(theta2P);
 	updateMatrices();
 }
