@@ -347,7 +347,7 @@ SubstitutionModel* PhylogeneticsApplicationTools::getSubstitutionModelDefaultIns
 
     else if (modelName == "Triplet")
     {
-      if (dynamic_cast<NucleotideSubstitutionModel*>(v_pSM[0]) == NULL)
+      if (dynamic_cast<NucleotideSubstitutionModel*>(v_pSM[0]) == 0)
         throw Exception("Non simple NucleotideSubstitutionModel imbedded in " + modelName + " model.");
 
       if (v_nestedModelDescription.size() != 3)
@@ -356,7 +356,7 @@ SubstitutionModel* PhylogeneticsApplicationTools::getSubstitutionModelDefaultIns
           dynamic_cast<NucleotideSubstitutionModel*>(v_pSM[0]));
       else
       {
-        if (dynamic_cast<NucleotideSubstitutionModel*>(v_pSM[1]) == NULL || dynamic_cast<NucleotideSubstitutionModel*>(v_pSM[2]) == NULL)
+        if (dynamic_cast<NucleotideSubstitutionModel*>(v_pSM[1]) == 0 || dynamic_cast<NucleotideSubstitutionModel*>(v_pSM[2]) == 0)
           throw Exception("Non simple NucleotideSubstitutionModel imbedded in " + modelName + " model.");
 
         model = new TripletReversibleSubstitutionModel(
@@ -373,7 +373,7 @@ SubstitutionModel* PhylogeneticsApplicationTools::getSubstitutionModelDefaultIns
 
     else if (modelName == "CodonNeutral")
     {
-      if (dynamic_cast<NucleotideSubstitutionModel*>(v_pSM[0]) == NULL)
+      if (dynamic_cast<NucleotideSubstitutionModel*>(v_pSM[0]) == 0)
         throw Exception("Non simple NucleotideSubstitutionModel imbedded in " + modelName + " model.");
 
       if (v_nestedModelDescription.size() != 3)
@@ -382,7 +382,7 @@ SubstitutionModel* PhylogeneticsApplicationTools::getSubstitutionModelDefaultIns
           dynamic_cast<NucleotideSubstitutionModel*>(v_pSM[0]));
       else
       {
-        if (dynamic_cast<NucleotideSubstitutionModel*>(v_pSM[1]) == NULL || dynamic_cast<NucleotideSubstitutionModel*>(v_pSM[2]) == NULL)
+        if (dynamic_cast<NucleotideSubstitutionModel*>(v_pSM[1]) == 0 || dynamic_cast<NucleotideSubstitutionModel*>(v_pSM[2]) == 0)
           throw Exception("Non simple NucleotideSubstitutionModel imbedded in " + modelName + " model.");
 
         model = new CodonNeutralReversibleSubstitutionModel(
@@ -413,7 +413,7 @@ SubstitutionModel* PhylogeneticsApplicationTools::getSubstitutionModelDefaultIns
       else
         pai2 = SequenceApplicationTools::getAADistance(args["aadistance"]);
 
-      if (dynamic_cast<NucleotideSubstitutionModel*>(v_pSM[0]) == NULL)
+      if (dynamic_cast<NucleotideSubstitutionModel*>(v_pSM[0]) == 0)
         throw Exception("Non simple NucleotideSubstitutionModel imbedded in " + modelName + " model.");
 
       if (v_nestedModelDescription.size() != 3)
@@ -421,7 +421,7 @@ SubstitutionModel* PhylogeneticsApplicationTools::getSubstitutionModelDefaultIns
                                                                 dynamic_cast<NucleotideSubstitutionModel*>(v_pSM[0]), pai2);
       else
       {
-        if (dynamic_cast<NucleotideSubstitutionModel*>(v_pSM[1]) == NULL || dynamic_cast<NucleotideSubstitutionModel*>(v_pSM[2]) == NULL)
+        if (dynamic_cast<NucleotideSubstitutionModel*>(v_pSM[1]) == 0 || dynamic_cast<NucleotideSubstitutionModel*>(v_pSM[2]) == 0)
           throw Exception("Non simple NucleotideSubstitutionModel imbedded in " + modelName + " model.");
 
         model = new CodonAsynonymousReversibleSubstitutionModel(
