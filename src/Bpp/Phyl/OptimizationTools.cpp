@@ -5,7 +5,7 @@
 //
 
 /*
-Copyright or © or Copr. CNRS, (November 16, 2004)
+Copyright or © or Copr. Bio++ Development Tools, (November 16, 2004)
 
 This software is a computer program whose purpose is to provide classes
 for phylogenetic data analysis.
@@ -195,7 +195,7 @@ throw (Exception)
   
   MetaOptimizerInfos* desc = new MetaOptimizerInfos();
   MetaOptimizer* poptimizer = 0;
-  AbstractNumericalDerivative* fnum=new ThreePointsNumericalDerivative(f);
+  AbstractNumericalDerivative* fnum = new ThreePointsNumericalDerivative(f);
 
   if (optMethodDeriv == OPTIMIZATION_GRADIENT)
     desc->addOptimizer("Branch length parameters", new ConjugateGradientMultiDimensions(f), tl->getBranchLengthsParameters().getParameterNames(), 2, MetaOptimizerInfos::IT_TYPE_FULL);

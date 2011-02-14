@@ -6,7 +6,7 @@
 //
 
 /*
-   Copyright or (c) or Copr. CNRS, (November 16, 2004)
+   Copyright or (c) or Copr. Bio++ Development Team, (November 16, 2004)
 
    This software is a computer program whose purpose is to provide classes
    for phylogenetic data analysis.
@@ -97,7 +97,7 @@ namespace bpp
  * @see SubstitutionModelSetTools for methods that provide instances of the SubstitutionModelSet for general cases.
  */
 class SubstitutionModelSet :
-  public AbstractParametrizable
+  public AbstractParameterAliasable
 {
 private:
   /**
@@ -155,7 +155,7 @@ public:
    * a FullFrequenciesSet class is used for root frequencies.
    */
   SubstitutionModelSet(const Alphabet* alpha, bool assumeStationarity = false) :
-    AbstractParametrizable(""),
+    AbstractParameterAliasable(""),
     alphabet_(alpha),
     nbStates_(0),
     modelSet_(),
@@ -179,7 +179,7 @@ public:
    * @param rootFreqs The model for root frequencies.
    */
   SubstitutionModelSet(const Alphabet* alpha, FrequenciesSet* rootFreqs) :
-    AbstractParametrizable(""),
+    AbstractParameterAliasable(""),
     alphabet_(alpha),
     nbStates_(rootFreqs->getFrequencies().size()),
     modelSet_(),

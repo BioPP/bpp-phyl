@@ -47,7 +47,7 @@ using namespace bpp;
 using namespace std;
 
 SubstitutionModelSet::SubstitutionModelSet(const SubstitutionModelSet& set) :
-  AbstractParametrizable(set),
+  AbstractParameterAliasable(set),
   alphabet_             (set.alphabet_),
   nbStates_             (set.nbStates_),
   modelSet_(set.modelSet_.size()),
@@ -69,7 +69,7 @@ SubstitutionModelSet::SubstitutionModelSet(const SubstitutionModelSet& set) :
 
 SubstitutionModelSet& SubstitutionModelSet::operator=(const SubstitutionModelSet& set)
 {
-  AbstractParametrizable::operator=(set);
+  AbstractParameterAliasable::operator=(set);
   alphabet_            = set.alphabet_;
   nbStates_            = set.nbStates_;
   nodeToModel_         = set.nodeToModel_;

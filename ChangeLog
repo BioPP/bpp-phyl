@@ -1,4 +1,8 @@
-24/03/10 -*- Version 2.0.0 -*-
+07/02/11 -*- Version 2.0.0 -*-
+
+07/02/11 Julien Dutheil
+* Proposed a fix for bug #25. SubstitutionModelSet now inherits from
+  ParameterAliasable.
 
 02/12/10 Julien Dutheil
 * Improved SubstitutionCount class to allow multiple counts.
