@@ -590,8 +590,8 @@ SubstitutionModel* PhylogeneticsApplicationTools::getSubstitutionModelDefaultIns
       if (verbose)
         ApplicationTools::displayResult("Symetric YpR model" , modelName);
       map<string, string> unparsedParameterValuesNested;
-      SubstitutionModel* nestedModel = getSubstitutionModelDefaultInstance(&prny->getLetterAlphabet(), nestedModelDescription, unparsedParameterValuesNested,
-                                                                           allowCovarions, false, verbose);
+      SubstitutionModel* nestedModel = getSubstitutionModelDefaultInstance(&prny->getLetterAlphabet(), nestedModelDescription, unparsedParameterValuesNested, allowCovarions, 
+                                                                           allowMixed, false, verbose);
 
       if (args.find("rCgT")!=args.end())
         unparsedParameterValues["YpR_Sym.rCgT"]=args["rCgT"];
@@ -619,7 +619,7 @@ SubstitutionModel* PhylogeneticsApplicationTools::getSubstitutionModelDefaultIns
     if (verbose)
       ApplicationTools::displayResult("General YpR model" , modelName);
     map<string, string> unparsedParameterValuesNested;
-    SubstitutionModel* nestedModel = getSubstitutionModelDefaultInstance(&prny->getLetterAlphabet(), nestedModelDescription, unparsedParameterValuesNested, allowCovarions,
+    SubstitutionModel* nestedModel = getSubstitutionModelDefaultInstance(&prny->getLetterAlphabet(), nestedModelDescription, unparsedParameterValuesNested, allowCovarions, allowMixed,
                                                                          false,verbose);
 
     if (args.find("rCgT")!=args.end())
