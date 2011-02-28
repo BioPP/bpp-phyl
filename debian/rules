@@ -27,9 +27,9 @@ else
 endif
 
 # shared library versions
-version=`ls Phyl/.libs/lib*.so.* | \
+version=`ls src/lib*.so.* | \
  awk '{if (match($$0,/[0-9]+\.[0-9]+\.[0-9]+$$/)) print substr($$0,RSTART)}'`
-major=`ls Phyl/.libs/lib*.so.* | \
+major=`ls src/lib*.so.* | \
  awk '{if (match($$0,/\.so\.[0-9]+$$/)) print substr($$0,RSTART+4)}'`
 
 configure:
