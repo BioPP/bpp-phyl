@@ -33,7 +33,7 @@ building applications which use %{name}.
 %setup -q
 
 %build
-CFLAGS="$RPM_OPT_FLAGS" cmake -DCMAKE_INSTALL_PREFIX=%{_prefix}
+CFLAGS="$RPM_OPT_FLAGS" cmake -DCMAKE_INSTALL_PREFIX=%{_prefix} -DBUILD_TESTING=OFF
 make
 
 %install

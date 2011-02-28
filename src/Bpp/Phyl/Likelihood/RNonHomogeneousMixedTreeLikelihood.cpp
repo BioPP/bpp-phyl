@@ -5,7 +5,7 @@
 //
 
 /*
-   Copyright or © or Copr. CNRS, (November 16, 2004)
+   Copyright or © or Copr. Bio++ Development Team, (November 16, 2004)
 
    This software is a computer program whose purpose is to provide classes
    for phylogenetic data analysis.
@@ -252,7 +252,7 @@ void RNonHomogeneousMixedTreeLikelihood::init(const Tree& tree,
         unsigned int s = i;
         for (unsigned int j = 0; j < nbmodels; j++)
         {
-          if ((vNumModels_[j] != -1) || find(vExpMod.begin(), vExpMod.end(), j) == vExpMod.end())
+          if ((vNumModels_[j] != -1) || find(vExpMod.begin(), vExpMod.end(), static_cast<int>(j)) == vExpMod.end())
             vind.push_back(vNumModels_[j]);
           else
           {
