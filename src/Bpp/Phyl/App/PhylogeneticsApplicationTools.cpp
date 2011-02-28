@@ -1845,7 +1845,7 @@ throw (Exception)
       ApplicationTools::displayResult("New tree likelihood", -tl->getValue());
   }
 
-  unsigned int i;
+  size_t i;
   // Should I ignore some parameters?
   ParameterList parametersToEstimate = parameters;
   string paramListDesc = ApplicationTools::getStringParameter("optimization.ignore_parameter", params, "", suffix, suffixIsOptional, false);
