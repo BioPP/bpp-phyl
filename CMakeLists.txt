@@ -86,10 +86,10 @@ ENDIF (DOXYGEN_FOUND)
 # Packager
 SET(CPACK_PACKAGE_NAME "libbpp-phyl")
 SET(CPACK_PACKAGE_VENDOR "Bio++ Development Team")
-SET(CPACK_PACKAGE_VERSION "2.0.0")
+SET(CPACK_PACKAGE_VERSION "2.0.1")
 SET(CPACK_PACKAGE_VERSION_MAJOR "2")
 SET(CPACK_PACKAGE_VERSION_MINOR "0")
-SET(CPACK_PACKAGE_VERSION_PATCH "0")
+SET(CPACK_PACKAGE_VERSION_PATCH "1")
 SET(CPACK_PACKAGE_DESCRIPTION_SUMMARY "The Bio++ Phylogenetics library")
 SET(CPACK_RESOURCE_FILE_LICENSE "${CMAKE_SOURCE_DIR}/COPYING.txt")
 SET(CPACK_RESOURCE_FILE_AUTHORS "${CMAKE_SOURCE_DIR}/AUTHORS.txt")
@@ -101,17 +101,25 @@ SET(CPACK_SOURCE_IGNORE_FILES
  "_CPack_Packages"
  "CMakeCache.txt"
  ".*\\\\.cmake"
- ".*\\\\.svn"
+ ".*\\\\.git"
  ".*\\\\.gz"
  ".*\\\\.deb"
  ".*\\\\.rpm"
  "\\\\..*\\\\.swp"
  "src/\\\\..*"
  "src/libbpp*"
- "debian/libbpp*"
+ "debian/libbpp.*/"
+ "debian/libbpp.*\\\\.so.*"
+ "debian/libbpp.*\\\\.a"
+ "debian/libbpp.*\\\\.substvars"
+ "debian/libbpp.*\\\\.debhelper"
+ "debian/debhelper\\\\.log"
  "debian/tmp"
  "html"
  "Phyl.tag"
+ "Testing"
+ "build-stamp"
+ "genIncludes.py"
  ${CPACK_SOURCE_IGNORE_FILES}
 )
 IF (MACOS)

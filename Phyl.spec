@@ -1,5 +1,5 @@
 %define name bpp-phyl
-%define version 2.0.0
+%define version 2.0.1
 %define release 1
 %define _prefix /usr
 
@@ -33,7 +33,7 @@ building applications which use %{name}.
 %setup -q
 
 %build
-CFLAGS="$RPM_OPT_FLAGS" cmake -DCMAKE_INSTALL_PREFIX=%{_prefix}
+CFLAGS="$RPM_OPT_FLAGS" cmake -DCMAKE_INSTALL_PREFIX=%{_prefix} -DBUILD_TESTING=OFF
 make
 
 %install
@@ -60,6 +60,8 @@ rm -rf $RPM_BUILD_ROOT
 %{_prefix}/include/*
 
 %changelog
+* Mon Feb 28 2011 Julien Dutheil <julien.dutheil@univ-montp2.fr>
+- Version 2.0.1
 * Mon Feb 07 2011 Julien Dutheil <julien.dutheil@univ-montp2.fr>
 - Version 2.0.0
 * Thu Mar 25 2010 Julien Dutheil <julien.dutheil@univ-montp2.fr>
