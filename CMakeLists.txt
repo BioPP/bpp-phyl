@@ -113,6 +113,7 @@ SET(CPACK_SOURCE_IGNORE_FILES
  "debian/libbpp.*\\\\.a"
  "debian/libbpp.*\\\\.substvars"
  "debian/libbpp.*\\\\.debhelper"
+ "debian/debhelper\\\\.log"
  "debian/tmp"
  "html"
  "Phyl.tag"
