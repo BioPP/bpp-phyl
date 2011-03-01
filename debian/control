@@ -3,7 +3,6 @@ Section: libs
 Priority: optional
 Maintainer: Julien Dutheil <julien.dutheil@univ-montp2.fr>
 Build-Depends: debhelper (>= 5), cmake (>= 2.6), libbpp-core-dev (>= 2.0.0), libbpp-seq-dev (>= 2.0.0), libbpp-core (>= 2.0.0), libbpp-seq (>= 2.0.0)
-
 Standards-Version: 3.7.2
 
 Package: libbpp-phyl-dev
