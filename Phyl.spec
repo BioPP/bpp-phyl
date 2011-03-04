@@ -39,6 +39,7 @@ if [ %{_lib} == 'lib64' ] ; then
   CMAKE_FLAGS="$CMAKE_FLAGS -DLIB_SUFFIX=64"
 fi
 cmake $CMAKE_FLAGS .
+make
 
 %install
 rm -rf $RPM_BUILD_ROOT
