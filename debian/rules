@@ -27,9 +27,9 @@ else
 endif
 
 # shared library versions
-version=`ls Phyl/.libs/lib*.so.* | \
+version=`ls src/lib*.so.* | \
  awk '{if (match($$0,/[0-9]+\.[0-9]+\.[0-9]+$$/)) print substr($$0,RSTART)}'`
-major=`ls Phyl/.libs/lib*.so.* | \
+major=`ls src/lib*.so.* | \
  awk '{if (match($$0,/\.so\.[0-9]+$$/)) print substr($$0,RSTART+4)}'`
 
 configure:
@@ -50,11 +50,14 @@ build-stamp:  config.status
 clean:
 	dh_testdir
 	dh_testroot
-	rm -f build-stamp 
+	rm -f build-stamp
 	rm -f CMakeCache.txt
 
 	# Add here commands to clean up after the build process.
 	[ ! -f Makefile ] || $(MAKE) clean
+	[ ! -f Makefile ] || rm Makefile;
+	[ ! -f Makefile ] || rm src/Makefile;
+	rm -f config.sub config.guess
 
 	dh_clean 
 

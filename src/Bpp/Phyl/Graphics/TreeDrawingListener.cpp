@@ -112,7 +112,7 @@ void BranchLengthsTreeDrawingListener::afterDrawBranch(const DrawBranchEvent& ev
         gd->setCurrentFont(settings_->fontBranchLengths);
       gd->drawText(cursor.getX(), cursor.getY(),
           TextTools::toString(eventC.getINode()->getDistanceToFather()),
-          GraphicDevice::TEXT_HORIZONTAL_CENTER, cursor.getVPos(), cursor.getAngle());
+          GraphicDevice::TEXT_HORIZONTAL_CENTER, GraphicDevice::TEXT_VERTICAL_BOTTOM, cursor.getAngle());
       gd->setCurrentFont(fontBck);
     }
   }
@@ -129,7 +129,7 @@ void BranchLengthsTreeDrawingListener::afterDrawBranch(const DrawBranchEvent& ev
         gd->setCurrentFont(settings_->fontLeafNames);
       gd->drawText(cursor.getX(), cursor.getY(),
           TextTools::toString(td->getTree()->getDistanceToFather(event.getNodeId())),
-          GraphicDevice::TEXT_HORIZONTAL_CENTER, cursor.getVPos(), cursor.getAngle());
+          GraphicDevice::TEXT_HORIZONTAL_CENTER, GraphicDevice::TEXT_VERTICAL_BOTTOM, cursor.getAngle());
       gd->setCurrentFont(fontBck);
     }
   }

@@ -1,7 +1,7 @@
 This package was debianized by Julien Dutheil <julien.dutheil@univ-montp2.fr> on
-Thu, 25 Mar 2010 13:47:24 +0100.
+Mon, 28 Feb 2011 09:00:00 +0100.
 
-It was downloaded from <http://kimura.univ-montp2.fr/BioPP/Repositories/sources>
+It was downloaded from <http://biopp.univ-montp2.fr/Repositories/sources>
 
 Upstream Author(s): 
 
@@ -9,7 +9,7 @@ Upstream Author(s):
 
 Copyright: 
 
-    Copyright (C) 2010 Bio++ Development Team
+    Copyright (C) 2011 Bio++ Development Team
 
 License:
 
@@ -30,7 +30,7 @@ License:
 On Debian systems, the complete text of the GNU General
 Public License can be found in `/usr/share/common-licenses/GPL'.
 
-The Debian packaging is (C) 2010, Julien Dutheil <julien.dutheil@univ-montp2.fr> and
+The Debian packaging is (C) 2011, Julien Dutheil <julien.dutheil@univ-montp2.fr> and
 is licensed under the GPL, see above.
 
 The provided software is distributed under the CeCILL license:

@@ -290,7 +290,7 @@ set_target_properties(bppphyl-shared
 target_link_libraries(bppphyl-shared ${LIBS})
 
 # Install libs
-install(TARGETS bppphyl-static bppphyl-shared DESTINATION lib)
+install(TARGETS bppphyl-static bppphyl-shared DESTINATION lib${LIB_SUFFIX})
 
 # Install headers
 install(DIRECTORY Bpp/ DESTINATION include/Bpp FILES_MATCHING PATTERN ".svn" EXCLUDE PATTERN "*.h" PATTERN "*.all")
