@@ -110,18 +110,20 @@ SET(CPACK_SOURCE_IGNORE_FILES
  ".*\\\\..*\\\\.swp"
  "src/\\\\..*"
  "src/libbpp*"
+ "debian/tmp"
  "debian/libbpp.*/"
  "debian/libbpp.*\\\\.so.*"
  "debian/libbpp.*\\\\.a"
  "debian/libbpp.*\\\\.substvars"
  "debian/libbpp.*\\\\.debhelper"
  "debian/debhelper\\\\.log"
- "debian/tmp"
  "html"
  "Phyl.tag"
  "Testing"
  "build-stamp"
  "genIncludes.py"
+ "install_manifest.txt"
+ "DartConfiguration.tcl"
  ${CPACK_SOURCE_IGNORE_FILES}
 )
 IF (MACOS)
@@ -137,11 +139,9 @@ ADD_CUSTOM_TARGET(dist COMMAND ${CMAKE_MAKE_PROGRAM} package_source)
 IF (UNIX)
 #This creates deb packages:
 ADD_CUSTOM_TARGET(deb dpkg-buildpackage)
-ADD_DEPENDENCIES(deb dist)
 
 #This creates rpm packages:
 ADD_CUSTOM_TARGET(rpm rpmbuild -ta ${CPACK_SOURCE_PACKAGE_FILE_NAME}.tar.gz)
-ADD_DEPENDENCIES(rpm dist)
 
 ENDIF()
 
