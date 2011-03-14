@@ -1,5 +1,6 @@
 libbpp-phyl (2.0.1) unstable; urgency=low
 
+  * RFP: Bio++ -- The Bio++ bioinformatics libraries. (Closes: #616373).
   * Fixed bug #27
   * Improved tree drawing algorithms.
 
