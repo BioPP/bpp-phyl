@@ -50,14 +50,23 @@ build-stamp:  config.status
 clean:
 	dh_testdir
 	dh_testroot
-	rm -f build-stamp
-	rm -f CMakeCache.txt
 
 	# Add here commands to clean up after the build process.
-	[ ! -f Makefile ] || $(MAKE) clean
+	[ ! -f Makefile ] || $(MAKE) clean;
 	[ ! -f Makefile ] || rm Makefile;
 	[ ! -f Makefile ] || rm src/Makefile;
 	rm -f config.sub config.guess
+	rm -f build-stamp
+	rm -f CMakeCache.txt
+	rm -f *.cmake
+	rm -f src/*.cmake
+	rm -f test/*.cmake
+	rm -rf CMakeFiles
+	rm -rf src/CMakeFiles
+	rm -rf test/CMakeFiles
+	rm -rf _CPack_Packages
+	rm -rf Testing
+	rm -f DartConfiguration.tcl
 
 	dh_clean 
 
