@@ -688,7 +688,7 @@ SubstitutionModel* PhylogeneticsApplicationTools::getSubstitutionModelDefaultIns
 
 
       // /////////////////////////////////
-      // / L95
+      // / SSR
       // ///////////////////////////////
 
       else if (modelName == "SSR")
@@ -705,6 +705,15 @@ SubstitutionModel* PhylogeneticsApplicationTools::getSubstitutionModelDefaultIns
         model = new L95(alpha);
       }
 
+      // /////////////////////////////////
+      // / RN95
+      // ///////////////////////////////
+
+      else if (modelName == "RN95")
+        {
+          model = new RN95(alpha);
+        }
+      
       // /////////////////////////////////
       // / TN93
       // //////////////////////////////
