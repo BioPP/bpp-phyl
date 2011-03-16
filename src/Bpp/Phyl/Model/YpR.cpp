@@ -230,6 +230,7 @@ void YpR::updateMatrices(double CgT, double cGA,
 
   EigenValue<double> ev(generator_);
   eigenValues_ = ev.getRealEigenValues();
+  
   rightEigenVectors_ = ev.getV();
   MatrixTools::inv(rightEigenVectors_,leftEigenVectors_);
 
@@ -243,6 +244,7 @@ void YpR::updateMatrices(double CgT, double cGA,
   {
     if (abs(eigenValues_[j]) < 0.000001 && abs(vi[j]) < 0.000001)
     {
+      eigenValues_[j]=0; //to avoid approximation problems in the future
       for (i = 0; i < 36; i++)
       {
         freq_[i] = leftEigenVectors_(j,i);
