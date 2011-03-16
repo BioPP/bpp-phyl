@@ -5,7 +5,7 @@
 //
 
 /*
-Copyright or © or Copr. CNRS, (November 16, 2004)
+Copyright or © or Copr. Bio++ Development Team, (November 16, 2004)
 
 This software is a computer program whose purpose is to provide classes
 for phylogenetic data analysis.
@@ -90,7 +90,7 @@ Newick::read(istream& in) const throw (Exception)
 		}
     else description += temp;
 	}
-	if(allowComments_) description = TextTools::removeSubstrings(description, '[', ']');
+	if (allowComments_) description = TextTools::removeSubstrings(description, '[', ']');
 	return TreeTemplateTools::parenthesisToTree(description, useBootstrap_, bootstrapPropertyName_);
 }
 

@@ -119,7 +119,6 @@ void RN95::updateMatrices()
   generator_(3,2) = 1;
 
   generator_(3,3)= -(beta1_+ alpha3_+ 1);
-
   
   EigenValue<double> ev(generator_);
   rightEigenVectors_ = ev.getV();

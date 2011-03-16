@@ -5,7 +5,7 @@
 //
 
 /*
-  Copyright or © or Copr. CNRS, (November 16, 2004)
+  Copyright or © or Copr. Bio++ Development Team, (November 16, 2004)
 
   This software is a computer program whose purpose is to provide classes
   for phylogenetic data analysis.
@@ -52,8 +52,30 @@ namespace bpp
 {
 
   /**
-   * @brief RN95
+   * @brief The model described by Rhetsky \& Ney, where the only
+   * hypothesis is that the transversion rates are only dependent of
+   * the target nucleotide. This model is not reversible.
    *
+   * After normalization (not analytic) this model has 7 parameters:
+   * \f[
+   * Q= \frac 1K
+   * \begin{pmatrix}
+   * . & \beta_3 & \alpha_4 & \beta_2 \\
+   * \beta_1 & . &  1 & \alpha_2 \\
+   * \alpha_1 & \beta_3 & . & \beta_2 \\
+   * \beta_1 & \alpha_3 & 1 & .\\
+   * \end{pmatrix}
+   *\f]
+   *
+   * The generator of this model is diagonalized numerically.
+   * See AbstractSubstitutionModel for details of how the probabilities are computed.
+   *
+   * The parameters are named \c "alpha1", \c "alpha2", \c "alpha3",
+   * \c "alpha4", \c "beta1", \c "beta2", \c "beta3". Their values are
+   * positive.
+   *
+   * Reference:
+   * - Rhetsky A. \& Ney M. (1995) MBE 12(1) 131-151.
    */
   
   class RN95:

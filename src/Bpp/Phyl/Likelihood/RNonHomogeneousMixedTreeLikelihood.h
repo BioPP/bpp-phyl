@@ -5,7 +5,7 @@
 //
 
 /*
-   Copyright or © or Copr. CNRS, (November 16, 2004)
+   Copyright or © or Copr. Bio++ Development Team, (November 16, 2004)
 
    This software is a computer program whose purpose is to provide classes
    for phylogenetic data analysis.
@@ -95,7 +95,7 @@ private:
    *
    */
   
-  vector<int>   vNumModels_;
+  vector<int> vNumModels_;
 
   /**
    * @brief the number of the number of the node under which tree the
@@ -103,7 +103,7 @@ private:
    *
    */
   
-  int  upperNode_;
+  int upperNode_;
 
   /**
    * @brief a flag to say if this object is the head of the hierarchy

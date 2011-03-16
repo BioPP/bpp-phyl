@@ -60,7 +60,7 @@ namespace bpp
  *
  * After normalization, this model contains 5 parameters:
  * \f[
- * Q = \frac 1{\kappa+1} \begin{pmatrix}
+ * Q = \frac 1{2*\kappa*\theta*(1-\theta)+\gamma+\theta-2*\theta*\gamma} \begin{pmatrix}
  * \cdots & \kappa.\beta.\theta & \kappa.(1-\beta).\theta & \gamma \\ 
  * \kappa.\alpha.(1-\theta) & \cdots & 1-\gamma & \kappa.(1-\alpha).(1-\theta) \\ 
  * \kappa.(1-\alpha).(1-\theta) & 1-\gamma & \cdots & \kappa.\alpha.(1-\theta) \\ 

@@ -1,5 +1,5 @@
 %define name bpp-phyl
-%define version 2.0.0
+%define version 2.0.1
 %define release 1
 %define _prefix /usr
 
@@ -33,7 +33,12 @@ building applications which use %{name}.
 %setup -q
 
 %build
-CFLAGS="$RPM_OPT_FLAGS" cmake -DCMAKE_INSTALL_PREFIX=%{_prefix}
+CFLAGS="$RPM_OPT_FLAGS"
+CMAKE_FLAGS="-DCMAKE_INSTALL_PREFIX=%{_prefix} -DBUILD_TESTING=OFF"
+if [ %{_lib} == 'lib64' ] ; then
+  CMAKE_FLAGS="$CMAKE_FLAGS -DLIB_SUFFIX=64"
+fi
+cmake $CMAKE_FLAGS .
 make
 
 %install
@@ -50,16 +55,18 @@ rm -rf $RPM_BUILD_ROOT
 %files
 %defattr(-,root,root)
 %doc AUTHORS.txt COPYING.txt INSTALL.txt ChangeLog
-%{_prefix}/lib/lib*.so
-%{_prefix}/lib/lib*.so.*
+%{_prefix}/%{_lib}/lib*.so
+%{_prefix}/%{_lib}/lib*.so.*
 
 %files devel
 %defattr(-,root,root)
 %doc AUTHORS.txt COPYING.txt INSTALL.txt ChangeLog
-%{_prefix}/lib/lib*.a
+%{_prefix}/%{_lib}/lib*.a
 %{_prefix}/include/*
 
 %changelog
+* Mon Feb 28 2011 Julien Dutheil <julien.dutheil@univ-montp2.fr>
+- Version 2.0.1
 * Mon Feb 07 2011 Julien Dutheil <julien.dutheil@univ-montp2.fr>
 - Version 2.0.0
 * Thu Mar 25 2010 Julien Dutheil <julien.dutheil@univ-montp2.fr>
