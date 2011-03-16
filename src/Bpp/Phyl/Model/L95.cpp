@@ -99,9 +99,8 @@ void L95::updateMatrices()
   generator_(3,2) = kappa_* beta_ * theta_;
   generator_(3,3) = -kappa_ * theta_ - gamma_;
 
-  MatrixTools::scale(generator_, 1. / (kappa_+1));
+  MatrixTools::scale(generator_, 1. / (2*kappa_*theta_*(1-theta_)+gamma_+theta_-2*theta_*gamma_));
   AbstractSubstitutionModel::updateMatrices();
-
 }
 
 /******************************************************************************/
