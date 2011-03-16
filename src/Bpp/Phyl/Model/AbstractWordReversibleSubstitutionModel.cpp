@@ -472,7 +472,9 @@ void AbstractWordReversibleSubstitutionModel::updateMatrices()
             nulleigen++;
       }
     }
-    
+
+    eigenValues_[nulleigen]=0; // to avoid approximation errors on long long branches
+  
     for (i = 0; i < salph; i++)
     {
       freq_[i] = leftEigenVectors_(nulleigen, i);
