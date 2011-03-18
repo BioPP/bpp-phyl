@@ -60,7 +60,8 @@ int main() {
   //-------------
 
   NucleicAlphabet* alphabet = new DNA();
-  SubstitutionModel* model = new GTR(alphabet, 1, 0.2, 0.3, 0.4, 0.4, 0.1, 0.35, 0.35, 0.2);
+  ReversibleSubstitutionModel* model = new GTR(alphabet, 1, 0.2, 0.3, 0.4, 0.4, 0.1, 0.35, 0.35, 0.2);
+  MatrixTools::print(model->getGenerator());
   //DiscreteDistribution* rdist = new GammaDiscreteDistribution(4, 0.4, 0.4);
   DiscreteDistribution* rdist = new ConstantDistribution(1.0);
   HomogeneousSequenceSimulator simulator(model, rdist, tree);
@@ -110,6 +111,7 @@ int main() {
  
   SubstitutionCount* sCountAna = new AnalyticalSubstitutionCount(model, 10);
   Matrix<double>* m = sCountAna->getAllNumbersOfSubstitutions(0.001,1);
+  cout << "Analytical total count:" << endl;
   MatrixTools::print(*m);
   delete m;
   ProbabilisticSubstitutionMapping* probMapAna = 
@@ -117,6 +119,7 @@ int main() {
 
   SubstitutionCount* sCountTot = new SimpleSubstitutionCount(totReg);
   m = sCountTot->getAllNumbersOfSubstitutions(0.001,1);
+  cout << "Simple total count:" << endl;
   MatrixTools::print(*m);
   delete m;
   ProbabilisticSubstitutionMapping* probMapTot = 
@@ -124,45 +127,72 @@ int main() {
 
   SubstitutionCount* sCountDet = new SimpleSubstitutionCount(detReg);
   m = sCountDet->getAllNumbersOfSubstitutions(0.001,1);
+  cout << "Detailed count, type 1:" << endl;
   MatrixTools::print(*m);
   delete m;
   ProbabilisticSubstitutionMapping* probMapDet = 
     SubstitutionMappingTools::computeSubstitutionVectors(drhtl, *sCountDet);
+
+  SubstitutionCount* sCountDecTot = new DecompositionSubstitutionCount(model, totReg);
+  m = sCountDecTot->getAllNumbersOfSubstitutions(0.001,1);
+  cout << "Total count, decomposition method:" << endl;
+  MatrixTools::print(*m);
+  delete m;
+  ProbabilisticSubstitutionMapping* probMapDecTot = 
+    SubstitutionMappingTools::computeSubstitutionVectors(drhtl, *sCountDecTot);
+
+  SubstitutionCount* sCountDecDet = new DecompositionSubstitutionCount(model, detReg);
+  m = sCountDecDet->getAllNumbersOfSubstitutions(0.001,1);
+  cout << "Detailed count, decomposition method, type 1:" << endl;
+  MatrixTools::print(*m);
+  delete m;
+  ProbabilisticSubstitutionMapping* probMapDecDet = 
+    SubstitutionMappingTools::computeSubstitutionVectors(drhtl, *sCountDecDet);
 
   //Check per branch:
   
   //1. Total:
   for (unsigned int j = 0; j < ids.size(); ++j) {
     double totalReal = 0;
-    double totalObs  = 0;
+    double totalObs1 = 0;
     double totalObs2 = 0;
     double totalObs3 = 0;
+    double totalObs4 = 0;
+    double totalObs5 = 0;
     for (unsigned int i = 0; i < n; ++i) {
       totalReal += realMap[i][j];
-      totalObs  += probMapAna->getNumberOfSubstitutions(ids[j], i, 0);
+      totalObs1 += probMapAna->getNumberOfSubstitutions(ids[j], i, 0);
       totalObs2 += probMapTot->getNumberOfSubstitutions(ids[j], i, 0);
       totalObs3 += VectorTools::sum(probMapDet->getNumberOfSubstitutions(ids[j], i));
+      totalObs4 += probMapDecTot->getNumberOfSubstitutions(ids[j], i, 0);
+      totalObs5 += VectorTools::sum(probMapDecDet->getNumberOfSubstitutions(ids[j], i));
     }
     if (tree->isLeaf(ids[j])) cout << tree->getNodeName(ids[j]) << "\t";
-    cout << tree->getDistanceToFather(ids[j]) << "\t" << totalReal << "\t" << totalObs << "\t" << totalObs2 << "\t" << totalObs3 << endl;
-    if (abs(totalReal - totalObs) / totalReal > 0.1) return 1;
+    cout << tree->getDistanceToFather(ids[j]) << "\t" << totalReal << "\t" << totalObs1 << "\t" << totalObs2 << "\t" << totalObs3 << "\t" << totalObs4 << "\t" << totalObs5 << endl;
+    if (abs(totalReal - totalObs1) / totalReal > 0.1) return 1;
     if (abs(totalReal - totalObs2) / totalReal > 0.1) return 1;
+    if (abs(totalReal - totalObs3) / totalReal > 0.1) return 1;
+    if (abs(totalReal - totalObs4) / totalReal > 0.1) return 1;
   }
   //2. Detail:
   for (unsigned int j = 0; j < ids.size(); ++j) {
     vector<double> real(4, 0);
-    vector<double> obs(4, 0);
+    vector<double> obs1(4, 0);
+    vector<double> obs2(4, 0);
     for (unsigned int i = 0; i < n; ++i) {
       real += realMapDetailed[i][j];
       //VectorTools::print(real);
       vector<double> c = probMapDet->getNumberOfSubstitutions(ids[j], i);
       //VectorTools::print(c);
-      obs  += probMapDet->getNumberOfSubstitutions(ids[j], i);
+      obs1 += probMapDet->getNumberOfSubstitutions(ids[j], i);
+      obs2 += probMapDecDet->getNumberOfSubstitutions(ids[j], i);
     }
     if (tree->isLeaf(ids[j])) cout << tree->getNodeName(ids[j]) << "\t";
     cout << tree->getDistanceToFather(ids[j]) << "\t";
-    for (unsigned int t = 0; t < 4; ++t)
-      cout << obs[t] << "/" << real[t] << "\t";
+    for (unsigned int t = 0; t < 4; ++t) {
+      cout << obs1[t] << "/" << real[t] << "\t";
+      cout << obs2[t] << "/" << real[t] << "\t";
+    }
     cout << endl;
     //if (abs(totalReal - totalObs) / totalReal > 0.1) return 1;
   }
@@ -176,7 +206,8 @@ int main() {
   delete sCountDet;
   delete probMapTot;
   delete probMapDet;
-
+  delete probMapDecTot;
+  delete probMapDecDet;
   //return (abs(obs - 0.001) < 0.001 ? 0 : 1);
   return 0;
 }

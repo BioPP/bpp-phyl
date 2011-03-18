@@ -1,5 +1,6 @@
 #include "Io/IoDistanceMatrix.h"
 #include "Io/IoDistanceMatrixFactory.h"
+#include "Io/IoPairedSiteLikelihoods.h"
 #include "Io/IoTree.h"
 #include "Io/IoTreeFactory.h"
 #include "Io/Newick.h"

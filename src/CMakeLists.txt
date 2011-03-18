@@ -51,6 +51,7 @@ set(CPP_FILES
   Bpp/Phyl/Mapping/OneJumpSubstitutionCount.cpp
   Bpp/Phyl/Mapping/ProbabilisticSubstitutionMapping.cpp
   Bpp/Phyl/Mapping/SimpleSubstitutionCount.cpp
+  Bpp/Phyl/Mapping/DecompositionSubstitutionCount.cpp
   Bpp/Phyl/Mapping/IndexToCount.cpp
   Bpp/Phyl/Mapping/SubstitutionMappingTools.cpp
   Bpp/Phyl/Model/AbstractCodonFrequenciesReversibleSubstitutionModel.cpp
@@ -182,6 +183,7 @@ set(H_FILES
   Bpp/Phyl/Mapping/OneJumpSubstitutionCount.h
   Bpp/Phyl/Mapping/ProbabilisticSubstitutionMapping.h
   Bpp/Phyl/Mapping/SimpleSubstitutionCount.h
+  Bpp/Phyl/Mapping/DecompositionSubstitutionCount.h
   Bpp/Phyl/Mapping/SubstitutionRegister.h
   Bpp/Phyl/Mapping/SubstitutionCount.h
   Bpp/Phyl/Mapping/SubstitutionMapping.h

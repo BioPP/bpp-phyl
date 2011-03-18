@@ -1,3 +1,6 @@
+18/03/11 Julien Dutheil
+* Added the the decomposition method in order to perform analytical substitution mapping (cf work by Asger Hobolth and co-workers).
+
 28/02/11 -*- Version 2.0.1 -*-
 
 25/02/11 Julien Dutheil
