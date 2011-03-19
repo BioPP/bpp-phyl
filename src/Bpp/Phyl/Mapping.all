@@ -8,3 +8,4 @@
 #include "Mapping/SubstitutionMapping.h"
 #include "Mapping/SubstitutionMappingTools.h"
 #include "Mapping/SubstitutionRegister.h"
+#include "Mapping/UniformizationSubstitutionCount.h"

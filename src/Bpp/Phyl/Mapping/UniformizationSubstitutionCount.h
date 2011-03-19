@@ -1,7 +1,7 @@
 //
-// File: DecompositionSubstitutionCount.h
+// File: UniformizationSubstitutionCount.h
 // Created by: Julien Dutheil
-// Created on: Thu Mar 17 16:08 2011
+// Created on: Sat Mar 19 13:54 2011
 //
 
 /*
@@ -37,8 +37,8 @@ The fact that you are presently reading this means that you have had
 knowledge of the CeCILL license and that you accept its terms.
 */
 
-#ifndef _DECOMPOSITIONSUBSTITUTIONCOUNT_H_
-#define _DECOMPOSITIONSUBSTITUTIONCOUNT_H_
+#ifndef _UNIFORMIZATIONSUBSTITUTIONCOUNT_H_
+#define _UNIFORMIZATIONSUBSTITUTIONCOUNT_H_
 
 #include "SubstitutionCount.h"
 
@@ -48,58 +48,54 @@ namespace bpp
 {
 
 /**
- * @brief Analytical substitution count using the eigen decomposition method.
+ * @brief Analytical substitution count using the uniformization method.
  *
  * The codes is adapted from the original R code by Paula Tataru and Asger Hobolth.
- * Only reversible models are supported for now.
  *
  * @author Julien Dutheil
  */
-class DecompositionSubstitutionCount:
+class UniformizationSubstitutionCount:
   public AbstractSubstitutionCount
 {
 	private:
-		const ReversibleSubstitutionModel* model_;
+		const SubstitutionModel* model_;
     unsigned int nbStates_;
-		mutable RowMatrix<double> jMat_, v_, vInv_;
-    mutable std::vector<double> lambda_;
-    std::vector< RowMatrix<double> > bMatrices_, insideProducts_;
+    std::vector< RowMatrix<double> > bMatrices_;
+    mutable std::vector< RowMatrix<double> > power_;
+    mutable std::vector < std::vector< RowMatrix<double> > > s_;
+    double miu_;
     mutable std::vector< RowMatrix<double> > counts_;
     mutable double currentLength_;
 	
 	public:
-		DecompositionSubstitutionCount(const ReversibleSubstitutionModel* model, SubstitutionRegister* reg);
+		UniformizationSubstitutionCount(const SubstitutionModel* model, SubstitutionRegister* reg);
 		
-    DecompositionSubstitutionCount(const DecompositionSubstitutionCount& dsc) :
-      AbstractSubstitutionCount(dsc), model_(dsc.model_),
-      nbStates_(dsc.nbStates_),
-      jMat_(dsc.jMat_),
-      v_(dsc.v_),
-      vInv_(dsc.vInv_),
-      lambda_(dsc.lambda_),
-      bMatrices_(dsc.bMatrices_),
-      insideProducts_(dsc.insideProducts_),
-      counts_(dsc.counts_),
-      currentLength_(dsc.currentLength_)
+    UniformizationSubstitutionCount(const UniformizationSubstitutionCount& usc) :
+      AbstractSubstitutionCount(usc), model_(usc.model_),
+      nbStates_(usc.nbStates_),
+      bMatrices_(usc.bMatrices_),
+      power_(usc.power_),
+      s_(usc.s_),
+      miu_(usc.miu_),
+      counts_(usc.counts_),
+      currentLength_(usc.currentLength_)
     {}				
     
-    DecompositionSubstitutionCount& operator=(const DecompositionSubstitutionCount& dsc)
+    UniformizationSubstitutionCount& operator=(const UniformizationSubstitutionCount& usc)
     {
-      AbstractSubstitutionCount::operator=(dsc);
-      model_          = dsc.model_;
-      nbStates_       = dsc.nbStates_;
-      jMat_           = dsc.jMat_;
-      v_              = dsc.v_;
-      vInv_           = dsc.vInv_;
-      lambda_         = dsc.lambda_;
-      bMatrices_      = dsc.bMatrices_;
-      insideProducts_ = dsc.insideProducts_;
-      counts_         = dsc.counts_;
-      currentLength_  = dsc.currentLength_;
+      AbstractSubstitutionCount::operator=(usc);
+      model_          = usc.model_;
+      nbStates_       = usc.nbStates_;
+      bMatrices_      = usc.bMatrices_;
+      power_          = usc.power_;
+      s_              = usc.s_;
+      miu_            = usc.miu_;
+      counts_         = usc.counts_;
+      currentLength_  = usc.currentLength_;
       return *this;
     }				
 		
-    virtual ~DecompositionSubstitutionCount() {}
+    virtual ~UniformizationSubstitutionCount() {}
 			
 	public:
 		double getNumberOfSubstitutions(unsigned int initialState, unsigned int finalState, double length, unsigned int type = 1) const;
@@ -108,20 +104,14 @@ class DecompositionSubstitutionCount:
     
     std::vector<double> getNumberOfSubstitutionsForEachType(unsigned int initialState, unsigned int finalState, double length) const;
    
-    /**
-     * @brief Set the substitution model.
-     *
-     * @param model A pointer toward the substitution model to use. Only reversible models are currently supported. Setting a non-reversible model will throw an exception.
-     */
     void setSubstitutionModel(const SubstitutionModel* model);
 
   protected:
     void computeCounts_(double length) const;
-    void jFunction_(const std::vector<double>& lambda, double t, RowMatrix<double>& result) const;
 
 };
 
 } //end of namespace bpp.
 
-#endif // _DECOMPOSITIONSUBSTITUTIONCOUNT_H_
+#endif // _UNIFORMIZATIONSUBSTITUTIONCOUNT_H_
 
