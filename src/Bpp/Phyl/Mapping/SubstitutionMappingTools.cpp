@@ -280,9 +280,7 @@ ProbabilisticSubstitutionMapping* SubstitutionMappingTools::computeSubstitutionV
             Vdouble* nxy_c_t_x = &(*nxy_c_t)[x];
             nxy_c_t_x->resize(nbStates);
             for (unsigned int y = 0; y < nbStates; ++y)
-            {
               (*nxy_c_t_x)[y] = (*nijt)(x, y);
-            }
           }
           delete nijt;
         }

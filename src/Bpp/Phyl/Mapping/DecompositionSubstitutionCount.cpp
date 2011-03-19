@@ -121,10 +121,16 @@ void DecompositionSubstitutionCount::computeCounts_(double length) const
 	}
   // Now we must divide by pijt:
   RowMatrix<double> P = model_->getPij_t(length);
-  for (unsigned int i = 0; i < register_->getNumberOfSubstitutionTypes(); i++)
-    for (unsigned int j = 0; j < nbStates_; j++)
-      for(unsigned int k = 0; k < nbStates_; k++)
+  for (unsigned int i = 0; i < register_->getNumberOfSubstitutionTypes(); i++) {
+    for (unsigned int j = 0; j < nbStates_; j++) {
+      for(unsigned int k = 0; k < nbStates_; k++) {
         counts_[i](j, k) /= P(j, k);
+        if (isnan(counts_[i](j, k))) {
+          counts_[i](j, k) = 0.;
+        }
+      }
+    }
+  }
 }
 
 /******************************************************************************/
@@ -214,12 +220,12 @@ void DecompositionSubstitutionCount::setSubstitutionModel(const SubstitutionMode
       insideProducts_[i].resize(nbStates_, nbStates_);
       counts_[i].resize(nbStates_, nbStates_);
     }
-    for (unsigned int j = 0; j < nbStates_; ++j) {
-      for (unsigned int k = 0; k < nbStates_; ++k) {
-        unsigned int i = register_->getType(static_cast<int>(j), static_cast<int>(k));
-        if (i > 0) {
-          bMatrices_[i - 1](j, k) = model->Qij(j, k);
-        }
+  }
+  for (unsigned int j = 0; j < nbStates_; ++j) {
+    for (unsigned int k = 0; k < nbStates_; ++k) {
+      unsigned int i = register_->getType(static_cast<int>(j), static_cast<int>(k));
+      if (i > 0) {
+        bMatrices_[i - 1](j, k) = model->Qij(j, k);
       }
     }
   }
