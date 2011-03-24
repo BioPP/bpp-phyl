@@ -210,6 +210,7 @@ int main() {
   delete rdist;
   delete sCountTot;
   delete sCountDnDs;
+  delete probMapAna;
   delete probMapTot;
   delete probMapDnDs;
   delete probMapUniTot;

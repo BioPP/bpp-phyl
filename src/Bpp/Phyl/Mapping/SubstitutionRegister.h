@@ -284,22 +284,26 @@ class DnDsSubstitutionRegister:
 {
   private:
     const GeneticCode* code_;
+    bool countMultiple_;
 
   public:
-    DnDsSubstitutionRegister(const GeneticCode* gc):
+    DnDsSubstitutionRegister(const GeneticCode* gc, bool countMultiple = false):
       AbstractSubstitutionRegister(gc->getSourceAlphabet()),
-      code_(gc)
+      code_(gc),
+      countMultiple_(countMultiple)
     {}
 
     DnDsSubstitutionRegister(const DnDsSubstitutionRegister& reg):
       AbstractSubstitutionRegister(reg),
-      code_(reg.code_)
+      code_(reg.code_),
+      countMultiple_(reg.countMultiple_)
     {}
  
     DnDsSubstitutionRegister& operator=(const DnDsSubstitutionRegister& reg)
     {
       AbstractSubstitutionRegister::operator=(reg);
       code_ = reg.code_;
+      countMultiple_ = reg.countMultiple_;
       return *this;
     }
    
@@ -310,11 +314,22 @@ class DnDsSubstitutionRegister:
 
     unsigned int getType(int fromState, int toState) const
     {
-      if (dynamic_cast<const CodonAlphabet*>(alphabet_)->isStop(fromState)
-       || dynamic_cast<const CodonAlphabet*>(alphabet_)->isStop(toState))
+      const CodonAlphabet* cAlpha = dynamic_cast<const CodonAlphabet*>(alphabet_);
+      if (cAlpha->isStop(fromState) || cAlpha->isStop(toState))
         return 0;
       if (fromState == toState)
         return 0; //nothing happens
+      if (!countMultiple_) {
+        unsigned int countPos = 0;
+        if (cAlpha->getFirstPosition(fromState) == cAlpha->getFirstPosition(toState))
+          countPos++;
+        if (cAlpha->getSecondPosition(fromState) == cAlpha->getSecondPosition(toState))
+          countPos++;
+        if (cAlpha->getThirdPosition(fromState) == cAlpha->getThirdPosition(toState))
+          countPos++;
+        if (countPos > 1)
+          return 0;
+      }
       return code_->areSynonymous(fromState, toState) ? 1 : 2;
     }
 };
