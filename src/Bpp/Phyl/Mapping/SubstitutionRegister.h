@@ -321,11 +321,11 @@ class DnDsSubstitutionRegister:
         return 0; //nothing happens
       if (!countMultiple_) {
         unsigned int countPos = 0;
-        if (cAlpha->getFirstPosition(fromState) == cAlpha->getFirstPosition(toState))
+        if (cAlpha->getFirstPosition(fromState) != cAlpha->getFirstPosition(toState))
           countPos++;
-        if (cAlpha->getSecondPosition(fromState) == cAlpha->getSecondPosition(toState))
+        if (cAlpha->getSecondPosition(fromState) != cAlpha->getSecondPosition(toState))
           countPos++;
-        if (cAlpha->getThirdPosition(fromState) == cAlpha->getThirdPosition(toState))
+        if (cAlpha->getThirdPosition(fromState) != cAlpha->getThirdPosition(toState))
           countPos++;
         if (countPos > 1)
           return 0;
