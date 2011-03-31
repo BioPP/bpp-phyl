@@ -70,10 +70,12 @@ protected:
   string _baseModel;
   static IncludingInterval _WeightConstraint; // = IncludingInterval(-1.0, 1.0);
   RowMatrix<double>* _P;
+  const string path;
 
 public:
   COA(const ProteicAlphabet* alpha,
       const string baseModel = "JTT92",
+      const string path = "",
       vector<double> axisWeights = vector<double>( 19, 0.0 ),
       vector<double> equilibriumFrequencies = vector<double>( 380, 0.05 ));
 

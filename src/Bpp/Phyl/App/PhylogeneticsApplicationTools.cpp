@@ -836,7 +836,7 @@ SubstitutionModel* PhylogeneticsApplicationTools::getSubstitutionModelDefaultIns
         string prefix = args["name"];
         if (TextTools::isEmpty(prefix))
           throw Exception("'name' argument missing for user-defined substitution model.");
-        model = new COA(alpha, args["file"]);
+        model = new COA(alpha, prefix, args["file"]);
       }
       else
         throw Exception("Model '" + modelName + "' unknown.");

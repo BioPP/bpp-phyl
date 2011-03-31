@@ -62,6 +62,7 @@ IncludingInterval COA::_WeightConstraint (-1.0, 1.0);
 COA::COA(
   const ProteicAlphabet* alpha,
   string baseModel,
+  string path,
   vector<double> axisWeights,
   vector<double> equilibriumFrequencies) :
   /*,
@@ -70,6 +71,7 @@ COA::COA(
   ProteinSubstitutionModel(),
   AbstractReversibleSubstitutionModel(alpha, "COA."),
   _baseModel(""),
+  _path(path),
   _P(0)
 {
   _baseModel = baseModel;
@@ -536,8 +538,10 @@ COA::COA(const COA& coa) :
   ProteinSubstitutionModel(coa),
   AbstractReversibleSubstitutionModel(coa),
   _baseModel(""),
+  _path("")
   _P(0)
 {
+  _path(coa._path);
   _P = coa._P->clone();
   _baseModel = coa._baseModel;
   _WeightConstraint = coa._WeightConstraint;
@@ -551,6 +555,7 @@ COA & COA::operator=(const COA& coa)
   AbstractReversibleSubstitutionModel::operator=(coa);
   if (_P)
     delete _P;
+  _path = coa._path;
   _P = coa._P->clone();
   _baseModel = coa._baseModel;
   _WeightConstraint = coa._WeightConstraint;
@@ -561,7 +566,7 @@ COA & COA::operator=(const COA& coa)
 
 void COA::readFromFile()
 {
-  ifstream in(_baseModel.c_str(), ios::in);
+  ifstream in(_path.c_str(), ios::in);
   // Read exchangeability matrix:
   for (unsigned int i = 1; i < 20; i++)
   {
