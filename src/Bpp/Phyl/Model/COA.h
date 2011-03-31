@@ -70,7 +70,7 @@ protected:
   string _baseModel;
   static IncludingInterval _WeightConstraint; // = IncludingInterval(-1.0, 1.0);
   RowMatrix<double>* _P;
-  const string _path;
+  string _path;
 
 public:
   COA(const ProteicAlphabet* alpha,

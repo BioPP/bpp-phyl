@@ -71,8 +71,8 @@ COA::COA(
   ProteinSubstitutionModel(),
   AbstractReversibleSubstitutionModel(alpha, "COA."),
   _baseModel(""),
-  _path(path),
-  _P(0)
+  _P(0),
+  _path(path)
 {
   _baseModel = baseModel;
   setNamespace(_baseModel+"+COA.");
@@ -537,15 +537,10 @@ COA::COA(
 COA::COA(const COA& coa) :
   ProteinSubstitutionModel(coa),
   AbstractReversibleSubstitutionModel(coa),
-  _baseModel(""),
-  _path("")
-  _P(0)
-{
-  _path(coa._path);
-  _P = coa._P->clone();
-  _baseModel = coa._baseModel;
-  _WeightConstraint = coa._WeightConstraint;
-}
+  _baseModel(coa._baseModel),
+  _P(coa._P->clone()),
+  _path(coa._path)
+{}
 
 /******************************************************************************/
 
@@ -558,7 +553,6 @@ COA & COA::operator=(const COA& coa)
   _path = coa._path;
   _P = coa._P->clone();
   _baseModel = coa._baseModel;
-  _WeightConstraint = coa._WeightConstraint;
   return *this;
 }
 
