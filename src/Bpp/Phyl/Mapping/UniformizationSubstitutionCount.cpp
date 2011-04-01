@@ -72,7 +72,7 @@ UniformizationSubstitutionCount::UniformizationSubstitutionCount(const Substitut
     for (unsigned int k = 0; k < nbStates_; ++k) {
       unsigned int i = reg->getType(static_cast<int>(j), static_cast<int>(k));
       if (i > 0) {
-        bMatrices_[i - 1](j, k) = abs(model->Qij(j, k));
+        bMatrices_[i - 1](j, k) = model->Qij(j, k);
       }
     }
   }
