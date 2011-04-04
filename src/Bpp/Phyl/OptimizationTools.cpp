@@ -123,7 +123,11 @@ throw (ParameterException)
   double s = exp(lambda_[0].getValue());
   for(unsigned int i = 0; i < brLen.size(); i++)
   {
-    brLen[i].setValue(brLen[i].getValue() * s);
+    try {
+      brLen[i].setValue(brLen[i].getValue() * s);
+    } catch (ConstraintException& cex) {
+      //Do nothing. Branch value is already at bound...
+    }
   }
   return tl_->f(brLen);
 }

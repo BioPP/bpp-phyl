@@ -36,6 +36,10 @@ ADD_EXECUTABLE(test_simulations test_simulations.cpp)
 TARGET_LINK_LIBRARIES(test_simulations ${LIBS})
 ADD_TEST(test_simulations "test_simulations")
 
+ADD_EXECUTABLE(test_likelihood test_likelihood.cpp)
+TARGET_LINK_LIBRARIES(test_likelihood ${LIBS})
+ADD_TEST(test_likelihood "test_likelihood")
+
 ADD_EXECUTABLE(test_mapping test_mapping.cpp)
 TARGET_LINK_LIBRARIES(test_mapping ${LIBS})
 ADD_TEST(test_mapping "test_mapping")
