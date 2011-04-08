@@ -511,37 +511,13 @@ SubstitutionModel* PhylogeneticsApplicationTools::getSubstitutionModelDefaultIns
     if (pgc->getSourceAlphabet()->getAlphabetType() != pCA->getAlphabetType())
       throw Exception("Mismatch between genetic code and codon alphabet");
 
+    string freqOpt = ApplicationTools::getStringParameter("frequencies", args, "F0");
+    map<string, string> unparsedParameterValuesNested;
+    FrequenciesSet* codonFreqs = getFrequenciesSetDefaultInstance(pCA, freqOpt, unparsedParameterValuesNested);
 
-    FrequenciesSet* codonFreqs;
-
-    if (args.find("frequencies") != args.end())
+    for (map<string, string>::iterator it = unparsedParameterValuesNested.begin(); it != unparsedParameterValuesNested.end(); it++)
     {
-      map<string, string> unparsedParameterValuesNested;
-
-      codonFreqs = getFrequenciesSetDefaultInstance(pCA, args["frequencies"], unparsedParameterValuesNested);
-
-
-      for (map<string, string>::iterator it = unparsedParameterValuesNested.begin(); it != unparsedParameterValuesNested.end(); it++)
-      {
-        unparsedParameterValues[modelName + ".freq_" + it->first] = it->second;
-      }
-    }
-    else
-    {
-      string freqOpt = ApplicationTools::getStringParameter("codon_freqs", args, "F0");
-      short opt = 0;
-      if (freqOpt == "F0")
-        opt = FrequenciesSet::F0;
-      else if (freqOpt == "F1X4")
-        opt = FrequenciesSet::F1X4;
-      else if (freqOpt == "F3X4")
-        opt = FrequenciesSet::F3X4;
-      else if (freqOpt == "F61")
-        opt = FrequenciesSet::F61;
-      else
-        throw Exception("Unvalid codon frequency option. Should be one of F0, F1X4, F3X4 or F61");
-
-      codonFreqs = FrequenciesSet::getFrequenciesSetForCodons(opt, *pCA);
+      unparsedParameterValues[modelName + ".freq_" + it->first] = it->second;
     }
 
     if (modelName == "MG94")
@@ -1918,6 +1894,41 @@ throw (Exception)
   double tolerance = ApplicationTools::getDoubleParameter("optimization.tolerance", params, .000001, suffix, suffixIsOptional);
   if (verbose) ApplicationTools::displayResult("Tolerance", TextTools::toString(tolerance));
 
+  //Backing up or restoring?
+  auto_ptr<BackupListener> backupListener;
+  string backupFile = ApplicationTools::getAFilePath("optimization.backup.file", params, false, false);
+  if (backupFile != "none") {
+    ApplicationTools::displayResult("Parameters will be backup to", backupFile);
+    backupListener.reset(new BackupListener(backupFile));
+    if (FileTools::fileExists(backupFile)) {
+      ApplicationTools::displayMessage("A backup file was found! Try to restore parameters from previous run...");
+      ifstream bck(backupFile.c_str(), ios::in);
+      vector<string> lines = FileTools::putStreamIntoVectorOfStrings(bck);
+      double fval = TextTools::toDouble(lines[0].substr(5));
+      ParameterList pl = tl->getParameters();
+      for (size_t l = 1; l < lines.size(); ++l) {
+        if (!TextTools::isEmpty(lines[l])) {
+          StringTokenizer stp(lines[l], "=");
+          if (stp.numberOfRemainingTokens() != 2) {
+            cerr << "Corrupted backup file!!!" << endl;
+            cerr << "at line " << l << ": " << lines[l] << endl;
+          } 
+          string pname  = stp.nextToken();
+          string pvalue = stp.nextToken();
+          unsigned int p = pl.whichParameterHasName(pname);
+          pl.setParameter(p, AutoParameter(pl[p]));
+          pl[p].setValue(TextTools::toDouble(pvalue));
+        }
+      }
+      bck.close();
+      tl->setParameters(pl);
+      if (abs(tl->getValue() - fval) > 0.000001)
+        throw Exception("Incorrect likelihood value after restoring, from backup file. Remove backup file and start from scratch :s");
+      ApplicationTools::displayResult("Restoring log-likelihood", -fval);
+    }
+  }
+
+  //There it goes...
   bool optimizeTopo = ApplicationTools::getBooleanParameter("optimization.topology", params, false, suffix, suffixIsOptional, false);
   if (verbose) ApplicationTools::displayResult("Optimize topology", optimizeTopo ? "yes" : "no");
   string nniMethod = ApplicationTools::getStringParameter("optimization.topology.algorithm_nni.method", params, "phyml", suffix, suffixIsOptional, false);
@@ -1987,7 +1998,7 @@ throw (Exception)
     parametersToEstimate.matchParametersValues(tl->getParameters());
     n = OptimizationTools::optimizeNumericalParameters(
       dynamic_cast<DiscreteRatesAcrossSitesTreeLikelihood*>(tl), parametersToEstimate,
-      0, nstep, tolerance, nbEvalMax, messageHandler, profiler, reparam, optVerbose, optMethodDeriv, optMethodModel);
+      backupListener.get(), nstep, tolerance, nbEvalMax, messageHandler, profiler, reparam, optVerbose, optMethodDeriv, optMethodModel);
   }
   else if (optName == "FullD")
   {
@@ -2008,7 +2019,7 @@ throw (Exception)
     parametersToEstimate.matchParametersValues(tl->getParameters());
     n = OptimizationTools::optimizeNumericalParameters2(
       dynamic_cast<DiscreteRatesAcrossSitesTreeLikelihood*>(tl), parametersToEstimate,
-      0, tolerance, nbEvalMax, messageHandler, profiler, reparam, optVerbose, optMethodDeriv);
+      backupListener.get(), tolerance, nbEvalMax, messageHandler, profiler, reparam, optVerbose, optMethodDeriv);
   }
   else throw Exception("Unknown optimization method: " + optName);
 
@@ -2043,6 +2054,9 @@ throw (Exception)
   }
 
   if (verbose) ApplicationTools::displayResult("Performed", TextTools::toString(n) + " function evaluations.");
+  if (backupFile != "none") {
+    remove(backupFile.c_str());
+  }
   return tl;
 }
 
@@ -2142,6 +2156,40 @@ throw (Exception)
   if (verbose) ApplicationTools::displayResult("Optimization method", optName);
   if (verbose) ApplicationTools::displayResult("Algorithm used for derivable parameters", order);
 
+  //Backing up or restoring?
+  auto_ptr<BackupListener> backupListener;
+  string backupFile = ApplicationTools::getAFilePath("optimization.backup.file", params, false, false);
+  if (backupFile != "none") {
+    ApplicationTools::displayResult("Parameters will be backup to", backupFile);
+    backupListener.reset(new BackupListener(backupFile));
+    if (FileTools::fileExists(backupFile)) {
+      ApplicationTools::displayMessage("A backup file was found! Try to restore parameters from previous run...");
+      ifstream bck(backupFile.c_str(), ios::in);
+      vector<string> lines = FileTools::putStreamIntoVectorOfStrings(bck);
+      double fval = TextTools::toDouble(lines[0].substr(5));
+      ParameterList pl = tl->getParameters();
+      for (size_t l = 1; l < lines.size(); ++l) {
+        if (!TextTools::isEmpty(lines[l])) {
+          StringTokenizer stp(lines[l], "=");
+          if (stp.numberOfRemainingTokens() != 2) {
+            cerr << "Corrupted backup file!!!" << endl;
+            cerr << "at line " << l << ": " << lines[l] << endl;
+          } 
+          string pname  = stp.nextToken();
+          string pvalue = stp.nextToken();
+          unsigned int p = pl.whichParameterHasName(pname);
+          pl.setParameter(p, AutoParameter(pl[p]));
+          pl[p].setValue(TextTools::toDouble(pvalue));
+        }
+      }
+      bck.close();
+      tl->setParameters(pl);
+      if (abs(tl->getValue() - fval) > 0.000001)
+        throw Exception("Incorrect likelihood value after restoring, from backup file. Remove backup file and start from scratch :s"); 
+      ApplicationTools::displayResult("Restoring log-likelihood", -fval);
+    }
+  }
+
   unsigned int n = 0;
   if (optName == "D-Brent")
   {
@@ -2151,7 +2199,7 @@ throw (Exception)
     n = OptimizationTools::optimizeNumericalParametersWithGlobalClock(
       tl,
       parametersToEstimate,
-      0,
+      backupListener.get(),
       nstep,
       tolerance,
       nbEvalMax,
@@ -2166,7 +2214,7 @@ throw (Exception)
     n = OptimizationTools::optimizeNumericalParametersWithGlobalClock2(
       tl,
       parametersToEstimate,
-      0,
+      backupListener.get(),
       tolerance,
       nbEvalMax,
       messageHandler,
@@ -2206,7 +2254,11 @@ throw (Exception)
     delete finalOptimizer;
   }
 
-  if (verbose) ApplicationTools::displayResult("Performed", TextTools::toString(n) + " function evaluations.");
+  if (verbose)
+    ApplicationTools::displayResult("Performed", TextTools::toString(n) + " function evaluations.");
+  if (backupFile != "none") {
+    remove(backupFile.c_str());
+  }
 }
 
 /******************************************************************************/

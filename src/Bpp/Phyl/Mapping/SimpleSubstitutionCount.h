@@ -64,25 +64,29 @@ namespace bpp
 class SimpleSubstitutionCount:
   public AbstractSubstitutionCount
 {
+  private:
+    bool allowSelf_;
+
 	public:
-		SimpleSubstitutionCount(SubstitutionRegister* reg) :
-      AbstractSubstitutionCount(reg) {}				
-		
-    SimpleSubstitutionCount(const SimpleSubstitutionCount& ssc) :
-      AbstractSubstitutionCount(ssc) {}				
-    
-    SimpleSubstitutionCount& operator=(const SimpleSubstitutionCount& ssc)
-    {
-      AbstractSubstitutionCount::operator=(ssc);
-      return *this;
-    }				
+    /**
+     * @brief Build a new simple substitution count.
+     *
+     * @param reg A pointer toward a substitution register object which discribes the type of substitutions to map.
+     * @param allowSelf Tells if "self" mutations, from X to X should be counted together with the ones of type X to Y where X and Y are in the same category, if relevent.
+     * The default is "no", to be consistent with other types of substitution counts which account for multiple substitutions, in which case it does not make sense to count "X to X".
+     */
+		SimpleSubstitutionCount(SubstitutionRegister* reg, bool allowSelf = false) :
+      AbstractSubstitutionCount(reg), allowSelf_(allowSelf) {}				
 		
     virtual ~SimpleSubstitutionCount() {}
 			
 	public:
 		double getNumberOfSubstitutions(unsigned int initialState, unsigned int finalState, double length, unsigned int type = 1) const
     {
-      return (register_->getType(initialState, finalState) == type ? 1. : 0.);
+      if (initialState == finalState && !allowSelf_)
+        return 0;
+      else
+        return (register_->getType(initialState, finalState) == type ? 1. : 0.);
 		}
 
     Matrix<double>* getAllNumbersOfSubstitutions(double length, unsigned int type = 1) const;
@@ -91,7 +95,7 @@ class SimpleSubstitutionCount:
     {
       std::vector<double> v(getNumberOfSubstitutionTypes());
       for (unsigned int t = 1; t <= getNumberOfSubstitutionTypes(); ++t) {
-        v[t - 1] = (register_->getType(initialState, finalState) == t ? 1. : 0.);
+        v[t - 1] = getNumberOfSubstitutions(initialState, finalState, length, t);
       }
       return v;
     }

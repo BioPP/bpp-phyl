@@ -73,7 +73,7 @@ DecompositionSubstitutionCount::DecompositionSubstitutionCount(const ReversibleS
   for (unsigned int j = 0; j < nbStates_; ++j) {
     for (unsigned int k = 0; k < nbStates_; ++k) {
       unsigned int i = reg->getType(static_cast<int>(j), static_cast<int>(k));
-      if (i > 0) {
+      if (i > 0 && k != j) {
         bMatrices_[i - 1](j, k) = model->Qij(j, k);
       }
     }
