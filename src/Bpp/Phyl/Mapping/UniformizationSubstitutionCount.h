@@ -1,7 +1,7 @@
 //
-// File: AnalyticalSubstitutionCount.h
+// File: UniformizationSubstitutionCount.h
 // Created by: Julien Dutheil
-// Created on: Wed Apr 5 11:21 2006
+// Created on: Sat Mar 19 13:54 2011
 //
 
 /*
@@ -37,80 +37,81 @@ The fact that you are presently reading this means that you have had
 knowledge of the CeCILL license and that you accept its terms.
 */
 
-#ifndef _ANALYTICALSUBSTITUTIONCOUNT_H_
-#define _ANALYTICALSUBSTITUTIONCOUNT_H_
+#ifndef _UNIFORMIZATIONSUBSTITUTIONCOUNT_H_
+#define _UNIFORMIZATIONSUBSTITUTIONCOUNT_H_
 
 #include "SubstitutionCount.h"
-#include "../Model/SubstitutionModel.h"
+
+#include <Bpp/Numeric/Matrix/Matrix.h>
 
 namespace bpp
 {
 
 /**
- * @brief Analytical estimate of the substitution count.
+ * @brief Analytical substitution count using the uniformization method.
  *
- * This method uses Laplace transforms, as described in 
- * Dutheil J, Pupko T, Jean-Marie A, Galtier N.
- * A model-based approach for detecting coevolving positions in a molecule.
- * Mol Biol Evol. 2005 Sep;22(9):1919-28.
+ * The codes is adapted from the original R code by Paula Tataru and Asger Hobolth.
  *
  * @author Julien Dutheil
  */
-class AnalyticalSubstitutionCount:
+class UniformizationSubstitutionCount:
   public AbstractSubstitutionCount
 {
 	private:
 		const SubstitutionModel* model_;
-		int cutOff_;
-		mutable double currentLength_;
-		mutable RowMatrix<double> m_;
+    unsigned int nbStates_;
+    std::vector< RowMatrix<double> > bMatrices_;
+    mutable std::vector< RowMatrix<double> > power_;
+    mutable std::vector < std::vector< RowMatrix<double> > > s_;
+    double miu_;
+    mutable std::vector< RowMatrix<double> > counts_;
+    mutable double currentLength_;
 	
 	public:
-		AnalyticalSubstitutionCount(const SubstitutionModel* model, int cutOff) :
-      AbstractSubstitutionCount(new TotalSubstitutionRegister(model->getAlphabet())),
-      model_        (model),
-      cutOff_       (cutOff),
-      currentLength_(-1),
-      m_            (model->getNumberOfStates(), model->getNumberOfStates())
-    {}
-	
-    AnalyticalSubstitutionCount(const AnalyticalSubstitutionCount& asc) :
-      AbstractSubstitutionCount(asc),
-      model_        (asc.model_),
-      cutOff_       (asc.cutOff_),
-      currentLength_(asc.currentLength_),
-      m_            (asc.m_)
-    {}
-				
-	  AnalyticalSubstitutionCount& operator=(const AnalyticalSubstitutionCount& asc)
+		UniformizationSubstitutionCount(const SubstitutionModel* model, SubstitutionRegister* reg);
+		
+    UniformizationSubstitutionCount(const UniformizationSubstitutionCount& usc) :
+      AbstractSubstitutionCount(usc), model_(usc.model_),
+      nbStates_(usc.nbStates_),
+      bMatrices_(usc.bMatrices_),
+      power_(usc.power_),
+      s_(usc.s_),
+      miu_(usc.miu_),
+      counts_(usc.counts_),
+      currentLength_(usc.currentLength_)
+    {}				
+    
+    UniformizationSubstitutionCount& operator=(const UniformizationSubstitutionCount& usc)
     {
-      AbstractSubstitutionCount::operator=(asc);
-      model_         = asc.model_;
-      cutOff_        = asc.cutOff_;
-      currentLength_ = asc.currentLength_;
-      m_             = asc.m_;
+      AbstractSubstitutionCount::operator=(usc);
+      model_          = usc.model_;
+      nbStates_       = usc.nbStates_;
+      bMatrices_      = usc.bMatrices_;
+      power_          = usc.power_;
+      s_              = usc.s_;
+      miu_            = usc.miu_;
+      counts_         = usc.counts_;
+      currentLength_  = usc.currentLength_;
       return *this;
-    }
-				
-		virtual ~AnalyticalSubstitutionCount() {}
+    }				
+		
+    virtual ~UniformizationSubstitutionCount() {}
 			
 	public:
 		double getNumberOfSubstitutions(unsigned int initialState, unsigned int finalState, double length, unsigned int type = 1) const;
-    Matrix<double>* getAllNumbersOfSubstitutions(double length, unsigned int type = 1) const;
-    std::vector<double> getNumberOfSubstitutionsForEachType(unsigned int initialState, unsigned int finalState, double length) const
-    {
-      std::vector<double> v(0);
-      v[0] = getNumberOfSubstitutions(initialState, finalState, length, 0);
-      return v;
-    }
 
+    Matrix<double>* getAllNumbersOfSubstitutions(double length, unsigned int type = 1) const;
+    
+    std::vector<double> getNumberOfSubstitutionsForEachType(unsigned int initialState, unsigned int finalState, double length) const;
+   
     void setSubstitutionModel(const SubstitutionModel* model);
 
   protected:
-    void computeCounts(double length) const;
+    void computeCounts_(double length) const;
+
 };
 
 } //end of namespace bpp.
 
-#endif //_ANALYTICALSUBSTITUTIONCOUNT_H_
+#endif // _UNIFORMIZATIONSUBSTITUTIONCOUNT_H_
 

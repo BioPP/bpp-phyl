@@ -95,7 +95,7 @@ class SubstitutionRegister:
 };
 
 class AbstractSubstitutionRegister:
-  public SubstitutionRegister
+  public virtual SubstitutionRegister
 {
   protected:
     const Alphabet* alphabet_;
@@ -120,6 +120,100 @@ class AbstractSubstitutionRegister:
     const Alphabet* getAlphabet() const { return alphabet_; }
 
 };
+
+/**
+ * @brief Gather states into defined categories, and count the changes between categories.
+ *
+ * Optionally allows for within categories substitutions.
+ */
+class CategorySubstitutionRegister:
+  public AbstractSubstitutionRegister
+{
+  protected:
+    bool within_;
+    unsigned int nbCategories_;
+    mutable std::map<int, unsigned int> categories_;
+    std::vector< std::vector<unsigned int> > index_;
+
+  public:
+    /**
+     * @brief Build a new substitution register with categories. This class is mean to be inherited.
+     *
+     * @param alphabet The input alphabet.
+     * @param within Specifies if within categories substitutions should be counted as well.
+     */
+    CategorySubstitutionRegister(const Alphabet* alphabet, bool within = false):
+      AbstractSubstitutionRegister(alphabet),
+      within_(within), nbCategories_(0), categories_(), index_()
+    {}
+
+  protected:
+    template<class T>
+    void setCategories(const std::map<int, T>& categories) {
+      //First index categories:
+      nbCategories_ = 0;
+      std::map<T, unsigned int> cats;
+      for (typename std::map<int, T>::const_iterator it = categories.begin(); it != categories.end(); ++it) {
+        if (cats.find(it->second) == cats.end()) {
+          ++nbCategories_;
+          cats[it->second] = nbCategories_;
+        }
+      }
+
+      //Now creates categories:
+      std::vector<int> types = alphabet_->getSupportedInts();
+      for (size_t i = 0; i < types.size(); ++i) {
+        typename std::map<int, T>::const_iterator it = categories.find(types[i]);
+        if (it != categories.end()) {
+          categories_[types[i]] = cats[it->second];
+        } else {
+          categories_[types[i]] = 0;
+        }
+      }
+      
+      unsigned int count = 1;
+      index_.resize(nbCategories_);
+      for (size_t i = 0; i < index_.size(); ++i) {
+        index_[i].resize(nbCategories_);
+        for (size_t j = 0; j < index_.size(); ++j) {
+          if (j != i)
+            index_[i][j] = count++;
+        }
+      }
+      if (within_) {
+        for (size_t i = 0; i < index_.size(); ++i) {
+          index_[i][i] = count++;
+        }
+      }
+ 
+    } 
+
+  public:
+
+    virtual unsigned int getCategory(int type) const {
+      if (!alphabet_->isIntInAlphabet(type))
+        throw Exception("CategorySubstitutionRegister::getCategory(). Type is not supported by alphabet.");
+      return categories_[type];
+    }
+
+    virtual bool allowWithin() const { return within_; }
+    
+    unsigned int getNumberOfCategories() const { return nbCategories_; }
+
+    unsigned int getNumberOfSubstitutionTypes() const { return static_cast<double>(nbCategories_ * (nbCategories_ - 1)) + (within_ ? nbCategories_ : 0); }
+
+    unsigned int getType(int fromState, int toState) const {
+      unsigned int fromCat = categories_[fromState];
+      unsigned int toCat   = categories_[toState];
+      if (fromCat > 0 && toCat > 0)
+        return index_[fromCat - 1][toCat - 1];
+      else
+        return 0;
+    }
+
+};
+
+
 
 /**
  * @brief Count all substitutions.
@@ -155,38 +249,20 @@ class TotalSubstitutionRegister:
  * - x in [1, n(n-1)] a substitution
  */
 class ExhaustiveSubstitutionRegister:
-  public AbstractSubstitutionRegister
+  public CategorySubstitutionRegister
 {
-  private:
-    unsigned int nbTypes_;
-    std::vector< std::vector<unsigned int> > index_;
-
   public:
-    ExhaustiveSubstitutionRegister(const Alphabet* alphabet):
-      AbstractSubstitutionRegister(alphabet),
-      nbTypes_(0),
-      index_(alphabet->getSize())
+    ExhaustiveSubstitutionRegister(const Alphabet* alphabet, bool within = false):
+      CategorySubstitutionRegister(alphabet, within)
     {
-      nbTypes_ = alphabet->getSize() * (alphabet->getSize() - 1);
-      unsigned int count = 1;
-      for (size_t i = 0; i < index_.size(); ++i) {
-        index_[i].resize(alphabet_->getSize());
-        for (size_t j = 0; j < index_.size(); ++j) {
-          if (j != i)
-            index_[i][j] = count++;
-        }
+      std::map<int, int> categories;
+      for (int i = 0; i < static_cast<int>(alphabet->getSize()); ++i) {
+        categories[i] = i;
       }
+      setCategories<int>(categories);
     }
     
     ExhaustiveSubstitutionRegister* clone() const { return new ExhaustiveSubstitutionRegister(*this); }
-
-  public:
-    unsigned int getNumberOfSubstitutionTypes() const { return nbTypes_; }
-
-    unsigned int getType(int fromState, int toState) const {
-      return (fromState == toState ? 0 : index_[static_cast<int>(fromState)][static_cast<int>(toState)]);
-    }
-
 
 };
 
@@ -197,44 +273,24 @@ class ExhaustiveSubstitutionRegister:
  * - 0 not a substitution
  * - 1 a AT->GC substitution
  * - 2 a GC->AT substitution
- * If "includeZeroCounts" is set to true, then two additionnal types are mapped:
- * - 3 AT->AT
- * - 4 GC->GC
- * so that 0 is never returned.
  */
 class GCSubstitutionRegister:
-  public AbstractSubstitutionRegister
+  public CategorySubstitutionRegister
 {
-  private:
-    bool includeZeroCounts_;
-
   public:
-    GCSubstitutionRegister(const NucleicAlphabet* alphabet, bool includeZeroCounts = false):
-      AbstractSubstitutionRegister(alphabet),
-      includeZeroCounts_(includeZeroCounts)
-    {}
+    GCSubstitutionRegister(const NucleicAlphabet* alphabet, bool within = false):
+      CategorySubstitutionRegister(alphabet, within)
+    {
+      std::map<int, int> categories;
+      categories[0] = 1;
+      categories[1] = 2;
+      categories[2] = 2;
+      categories[3] = 1;
+      setCategories<int>(categories);
+    }
     
     GCSubstitutionRegister* clone() const { return new GCSubstitutionRegister(*this); }
 
-  public:
-    unsigned int getNumberOfSubstitutionTypes() const { return includeZeroCounts_ ? 4 : 2; }
-
-    unsigned int getType(int fromState, int toState) const
-    {
-      if ((fromState == 0 || fromState == 3) && (toState == 1 || toState == 2))
-        return 1;
-      if ((fromState == 1 || fromState == 2) && (toState == 0 || toState == 3))
-        return 2;
-      if (includeZeroCounts_) {
-        if ((fromState == 0 || fromState == 3) && (toState == 0 || toState == 3))
-          return 3;
-        if ((fromState == 1 || fromState == 2) && (toState == 1 || toState == 2))
-          return 4;
-        throw Exception("GCSubstitutionRegister::getType. Unvalid substitution type?");
-      } else  {
-        return 0;
-      }
-    }
 };
 
 /**
@@ -284,22 +340,26 @@ class DnDsSubstitutionRegister:
 {
   private:
     const GeneticCode* code_;
+    bool countMultiple_;
 
   public:
-    DnDsSubstitutionRegister(const GeneticCode* gc):
+    DnDsSubstitutionRegister(const GeneticCode* gc, bool countMultiple = false):
       AbstractSubstitutionRegister(gc->getSourceAlphabet()),
-      code_(gc)
+      code_(gc),
+      countMultiple_(countMultiple)
     {}
 
     DnDsSubstitutionRegister(const DnDsSubstitutionRegister& reg):
       AbstractSubstitutionRegister(reg),
-      code_(reg.code_)
+      code_(reg.code_),
+      countMultiple_(reg.countMultiple_)
     {}
  
     DnDsSubstitutionRegister& operator=(const DnDsSubstitutionRegister& reg)
     {
       AbstractSubstitutionRegister::operator=(reg);
       code_ = reg.code_;
+      countMultiple_ = reg.countMultiple_;
       return *this;
     }
    
@@ -310,11 +370,22 @@ class DnDsSubstitutionRegister:
 
     unsigned int getType(int fromState, int toState) const
     {
-      if (dynamic_cast<const CodonAlphabet*>(alphabet_)->isStop(fromState)
-       || dynamic_cast<const CodonAlphabet*>(alphabet_)->isStop(toState))
+      const CodonAlphabet* cAlpha = dynamic_cast<const CodonAlphabet*>(alphabet_);
+      if (cAlpha->isStop(fromState) || cAlpha->isStop(toState))
         return 0;
       if (fromState == toState)
         return 0; //nothing happens
+      if (!countMultiple_) {
+        unsigned int countPos = 0;
+        if (cAlpha->getFirstPosition(fromState) != cAlpha->getFirstPosition(toState))
+          countPos++;
+        if (cAlpha->getSecondPosition(fromState) != cAlpha->getSecondPosition(toState))
+          countPos++;
+        if (cAlpha->getThirdPosition(fromState) != cAlpha->getThirdPosition(toState))
+          countPos++;
+        if (countPos > 1)
+          return 0;
+      }
       return code_->areSynonymous(fromState, toState) ? 1 : 2;
     }
 };

@@ -1,3 +1,9 @@
+19/03/11 Julien Dutheil
+* Added uniformization method for analytical substitution mapping.
+
+18/03/11 Julien Dutheil
+* Added the decomposition method in order to perform analytical substitution mapping (cf work by Asger Hobolth and co-workers).
+
 28/02/11 -*- Version 2.0.1 -*-
 
 25/02/11 Julien Dutheil

@@ -67,13 +67,15 @@ class COA :
   public AbstractReversibleSubstitutionModel
 {
 protected:
-  string _baseModel;
-  static IncludingInterval _WeightConstraint; // = IncludingInterval(-1.0, 1.0);
-  RowMatrix<double>* _P;
+  string baseModel_;
+ // static IncludingInterval _WeightConstraint; // = IncludingInterval(-1.0, 1.0);
+  RowMatrix<double>* P_;
+  string path_;
 
 public:
   COA(const ProteicAlphabet* alpha,
       const string baseModel = "JTT92",
+      const string path = "",
       vector<double> axisWeights = vector<double>( 19, 0.0 ),
       vector<double> equilibriumFrequencies = vector<double>( 380, 0.05 ));
 
@@ -91,7 +93,7 @@ public:
   clone() const { return new COA(*this); }
 
 public:
-  string getName() const { return _baseModel+"+COA"; }
+  string getName() const { return baseModel_ + "+COA"; }
 
 protected:
   void readFromFile();

@@ -274,6 +274,8 @@ void SubstitutionModelSet::addParameter(const Parameter& parameter, const vector
     modelIndexes[i] = pos;
   }
   paramToModels_.push_back(modelIndexes);
+  //Update model values:
+  fireParameterChanged(getParameters().subList(p.getName()));
 }
 
 void SubstitutionModelSet::addParameters(const ParameterList& parameters, const vector<int>& nodesId) throw (Exception)
@@ -305,6 +307,8 @@ void SubstitutionModelSet::addParameters(const ParameterList& parameters, const 
   {
     paramToModels_.push_back(modelIndexes);
   }
+  //Update model values:
+  fireParameterChanged(pl);
 }
 
 void SubstitutionModelSet::removeParameter(const string& name) throw (ParameterNotFoundException)

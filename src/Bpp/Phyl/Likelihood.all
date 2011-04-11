@@ -16,6 +16,7 @@
 #include "Likelihood/MarginalAncestralStateReconstruction.h"
 #include "Likelihood/NNIHomogeneousTreeLikelihood.h"
 #include "Likelihood/NonHomogeneousTreeLikelihood.h"
+#include "Likelihood/PairedSiteLikelihoods.h"
 #include "Likelihood/PseudoNewtonOptimizer.h"
 #include "Likelihood/RASTools.h"
 #include "Likelihood/RHomogeneousClockTreeLikelihood.h"
