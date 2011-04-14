@@ -125,7 +125,7 @@ void DecompositionSubstitutionCount::computeCounts_(double length) const
     for (unsigned int j = 0; j < nbStates_; j++) {
       for(unsigned int k = 0; k < nbStates_; k++) {
         counts_[i](j, k) /= P(j, k);
-        if (isnan(counts_[i](j, k))) {
+        if (isnan(counts_[i](j, k)) || counts_[i](j, k) < 0.) {
           counts_[i](j, k) = 0.;
         }
       }
