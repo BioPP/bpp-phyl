@@ -56,26 +56,70 @@ namespace bpp
    * hypothesis is that the transversion rates are only dependent of
    * the target nucleotide. This model is not reversible.
    *
-   * After normalization (not analytic) this model has 7 parameters:
+   * This model has been thoroughly studied by Schadt & al, and we
+   * follow their notations and formula. The parameters are defined to
+   * allow allow the direct definition of the stationnary frequencies.
+   *
+   * After normalization this model has 7 parameters:
    * \f[
-   * Q= \frac 1K
+   * Q= \frac 1P
    * \begin{pmatrix}
-   * . & \beta_3 & \alpha_4 & \beta_2 \\
-   * \beta_1 & . &  1 & \alpha_2 \\
-   * \alpha_1 & \beta_3 & . & \beta_2 \\
-   * \beta_1 & \alpha_3 & 1 & .\\
+   * . & \gamma & \alpha & \lambda \\
+   * \delta & . &  \kappa & \beta \\
+   * \epsilon & \gamma & . & \lambda \\
+   * \delta & \sigma & \kappa & .\\
    * \end{pmatrix}
    *\f]
    *
-   * The generator of this model is diagonalized numerically.
-   * See AbstractSubstitutionModel for details of how the probabilities are computed.
+   * so in the parametrization process we set: \f[\gamma+\lambda+\delta+\kappa=1\f]
    *
-   * The parameters are named \c "alpha1", \c "alpha2", \c "alpha3",
-   * \c "alpha4", \c "beta1", \c "beta2", \c "beta3". Their values are
-   * positive.
+   * The stationnary distribution
+   * \f[
+   * \pi = \left(\pi_A, \pi_C, \pi_G, \pi_T\right)
+   * \f]
+   * can be computed analytically, so we define parameters for it (values between 0 and 1):
+   *\f[
+   * \begin{cases}
+   * \theta_R = \pi_A + \pi_G\\
+   * \theta_C = frac{\pi_C}{1 - \theta_R} = \frac{\pi_C}{\pi_C + \pi_G}\\
+   * \theta_G = \frac{\pi_G}{\theta_R} = \frac{\pi_G}{\pi_A + \pi_G}\\
+   * \end{cases}
+   * \f]
    *
-   * Reference:
+   * and parameters with values between 0 and 1:
+   *
+   *\f[
+   * \begin{cases}
+   * \kappa'=\frac{\kappa}{\theta_R}\f]\\
+   * \gamma'=\frac{\gamma}{1-\theta_R}\\
+   * \end{cases}
+   * \f]
+   *
+   * and parameters with positive values: \f[\sigma\f] and
+   * \f[\alpha\f].
+   *
+   *
+   * The generator is then computed as:
+   *
+   *\f[
+   * \begin{cases}
+   * \kappa=\kappa' *  \theta_R\\
+   * \gamma=\gamma' * (1-\theta_R)\\
+   * \delta=\theta_R - \kappa\\
+   * \lambda=1-\theta_R-\gamma\\
+   * \epsilon=\frac{\alpha*\theta_R+\kappa*(1-\theta_R)}{\theta_G}-\alpha-(1-\theta_R)\\
+   * \beta=\frac{\gamma*\theta_R+\sigma*(1-\theta_R)}{\theta_C}-\beta-\theta_R\\
+   * \end{cases}
+   * \f]
+   *
+   * and \f[P\f] is set for normalization.
+   *
+   * The parameters are named \c "thetaR", \c "thetaC", \c "thetaG",
+   * \c "kappaP", \c "gammaP", \c "sigma", \c "alpha".   
+   *
+   * References:
    * - Rhetsky A. \& Ney M. (1995) MBE 12(1) 131-151.
+   * - Schadt, Sinsheimer \& Lange (1998) Genome Research 8 222-233.
    */
   
   class RN95:
@@ -83,18 +127,26 @@ namespace bpp
     public AbstractSubstitutionModel
   {
   private:
-    double alpha1_, alpha2_, alpha3_, alpha4_, beta1_, beta2_, beta3_;
-  
+    double alpha_, beta_, gamma_, delta_, epsilon_, kappa_, lambda_, sigma_;
+    double r_;
+    /**
+     * For calculation purposes as in Schadt & al. (with c1_=1)
+     */
+    double c1_,c2_, c3_, c4_, c5_, c6_, c7_, c8_, c9_;
+    mutable RowMatrix<double> p_;
+    mutable double exp1_,exp3_,exp6_,l_;
+    
   public:
     RN95(
          const NucleicAlphabet* alphabet,
-         double alpha1 = 1,
-         double alpha2 = 1,
-         double alpha3 = 1,
-         double alpha4 = 1,
-         double beta1 = 1,
-         double beta2 = 1,
-         double beta3 = 1);
+         double alpha = 1,
+         double beta = 1,
+         double gamma = 1,
+         double delta = 1,
+         double epsilon = 1,
+         double kappa = 1,
+         double lambda = 1,
+         double sigma = 1);
   
     virtual ~RN95() {}
   
@@ -106,6 +158,12 @@ namespace bpp
     clone() const { return new RN95(*this); }
   
   public:
+    double Pij_t    (int i, int j, double d) const;
+    double dPij_dt  (int i, int j, double d) const;
+    double d2Pij_dt2(int i, int j, double d) const;
+    const Matrix<double>& getPij_t    (double d) const;
+    const Matrix<double>& getdPij_dt  (double d) const;
+    const Matrix<double>& getd2Pij_dt2(double d) const;
     std::string getName() const { return "RN95"; }
   
     void updateMatrices();
