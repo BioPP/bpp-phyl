@@ -5,7 +5,7 @@
 //
 
 /*
-Copyright or © or Copr. CNRS, (November 16, 2004)
+Copyright or © or Copr. Bio++ Development Team, (November 16, 2004)
 
 This software is a computer program whose purpose is to provide
 graphic components to develop bioinformatics applications.
@@ -50,6 +50,8 @@ knowledge of the CeCILL license and that you accept its terms.
 using namespace bpp;
 using namespace std;
 
+const TreeDrawingSettings AbstractTreeDrawing::DEFAULT_SETTINGS;
+  
 Point2D<double> AbstractTreeDrawing::getNodePosition(int nodeId) const
 throw (NodeNotFoundException)
 {
@@ -94,8 +96,7 @@ void AbstractTreeDrawing::drawAtNode(GraphicDevice& gDevice, const INode& node, 
 
 void AbstractTreeDrawing::drawAtBranch(GraphicDevice& gDevice, const INode& node, const string& text, double xOffset, double yOffset, short hpos, short vpos, double angle) const
 {
-  if(node.hasFather())
-  {
+  if (node.hasFather()) {
     gDevice.drawText((node.getInfos().getX() + node.getFather()->getInfos().getX()) / 2. + xOffset * xUnit_, node.getInfos().getY() + yOffset * yUnit_, text, hpos, vpos, angle);
   }
 }  

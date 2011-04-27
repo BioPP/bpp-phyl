@@ -52,12 +52,16 @@ ADD_EXECUTABLE(test_nhx test_nhx.cpp)
 TARGET_LINK_LIBRARIES(test_nhx ${LIBS})
 ADD_TEST(test_nhx "test_nhx")
 
+ADD_EXECUTABLE(test_bowker test_bowker.cpp)
+TARGET_LINK_LIBRARIES(test_bowker ${LIBS})
+ADD_TEST(test_bowker "test_bowker")
+
 IF(UNIX)
-  SET_PROPERTY(TEST test_detailed_simulations test_simulations test_tree test_mapping test_mapping_codon test_nhx PROPERTY ENVIRONMENT "LD_LIBRARY_PATH=$ENV{LD_LIBRARY_PATH}:../src")
+  SET_PROPERTY(TEST test_detailed_simulations test_simulations test_tree test_mapping test_mapping_codon test_nhx test_bowker PROPERTY ENVIRONMENT "LD_LIBRARY_PATH=$ENV{LD_LIBRARY_PATH}:../src")
 ENDIF()
 
 IF(APPLE)
-  SET_PROPERTY(TEST test_detailed_simulations test_simulations test_tree test_mapping test_mapping_codon test_nhx PROPERTY ENVIRONMENT "DYLD_LIBRARY_PATH=$ENV{DYLD_LIBRARY_PATH}:../src")
+  SET_PROPERTY(TEST test_detailed_simulations test_simulations test_tree test_mapping test_mapping_codon test_nhx test_bowker PROPERTY ENVIRONMENT "DYLD_LIBRARY_PATH=$ENV{DYLD_LIBRARY_PATH}:../src")
 ENDIF()
 
 IF(WIN32)

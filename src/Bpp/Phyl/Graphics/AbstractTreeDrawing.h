@@ -159,18 +159,16 @@ class AbstractTreeDrawing:
     std::auto_ptr<TreeTemplate<INode> > tree_;
     double xUnit_;
     double yUnit_;
-    std::vector<std::string> drawableProperties_;
     const TreeDrawingSettings* settings_;
     std::vector<TreeDrawingListener*> listeners_;
  
   public:
-    AbstractTreeDrawing(): tree_(0), xUnit_(1.), yUnit_(1.), drawableProperties_(), settings_(), listeners_() {};
+    AbstractTreeDrawing(): tree_(0), xUnit_(1.), yUnit_(1.), settings_(&DEFAULT_SETTINGS), listeners_() {};
     
     AbstractTreeDrawing(const AbstractTreeDrawing& atd) :
       tree_(atd.tree_.get() ? dynamic_cast<TreeTemplate<INode> *>(atd.tree_->clone()) : 0),
       xUnit_(atd.xUnit_),
       yUnit_(atd.yUnit_),
-      drawableProperties_(atd.drawableProperties_),
       settings_(atd.settings_),
       listeners_(atd.listeners_.size())
     {
@@ -190,7 +188,6 @@ class AbstractTreeDrawing:
       else tree_.reset();
       xUnit_              = atd.xUnit_;
       yUnit_              = atd.yUnit_;
-      drawableProperties_ = atd.drawableProperties_;
       settings_           = atd.settings_;
       listeners_.resize(atd.listeners_.size());
       for (unsigned int i = 0; i < listeners_.size(); ++i)
@@ -278,8 +275,12 @@ class AbstractTreeDrawing:
      */
     virtual void drawAtBranch(GraphicDevice& gDevice, const INode& node, const std::string& text, double xOffset = 0, double yOffset = 0, short hpos = GraphicDevice::TEXT_HORIZONTAL_LEFT, short vpos = GraphicDevice::TEXT_VERTICAL_CENTER, double angle = 0) const;
    
-    void setDisplaySettings(const TreeDrawingSettings* tds) { settings_ = tds; }
-    const TreeDrawingSettings* getDisplaySettings() const { return settings_; }
+    void setDisplaySettings(const TreeDrawingSettings* tds) throw (NullPointerException) {
+      if (!tds)
+        throw NullPointerException("AbstractTreeDrawing::setDisplaySettings. Null pointer provided.");
+      settings_ = tds;
+    }
+    const TreeDrawingSettings& getDisplaySettings() const { return *settings_; }
 
     double getXUnit() const { return xUnit_; }
     
@@ -368,6 +369,8 @@ class AbstractTreeDrawing:
         if (listeners_[i]->isEnabled())
           listeners_[i]->afterDrawBranch(event);
     }
+  public:
+    static const TreeDrawingSettings DEFAULT_SETTINGS;
 };
 
 } //end of namespace bpp.
