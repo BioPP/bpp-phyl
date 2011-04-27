@@ -81,7 +81,7 @@ namespace bpp
    *\f[
    * \begin{cases}
    * \theta_R = \pi_A + \pi_G\\
-   * \theta_C = frac{\pi_C}{1 - \theta_R} = \frac{\pi_C}{\pi_C + \pi_G}\\
+   * \theta_C = \frac{\pi_C}{1 - \theta_R} = \frac{\pi_C}{\pi_C + \pi_G}\\
    * \theta_G = \frac{\pi_G}{\theta_R} = \frac{\pi_G}{\pi_A + \pi_G}\\
    * \end{cases}
    * \f]
@@ -90,7 +90,7 @@ namespace bpp
    *
    *\f[
    * \begin{cases}
-   * \kappa'=\frac{\kappa}{\theta_R}\f]\\
+   * \kappa'=\frac{\kappa}{\theta_R}\\
    * \gamma'=\frac{\gamma}{1-\theta_R}\\
    * \end{cases}
    * \f]
