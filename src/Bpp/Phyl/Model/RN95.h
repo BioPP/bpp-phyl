@@ -168,9 +168,6 @@ namespace bpp
   
     void updateMatrices();
   
-    /**
-     * @brief This method is undefined in this model
-     */
     void setFreq(std::map<int, double>&);
   };
 
