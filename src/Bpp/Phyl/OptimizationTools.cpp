@@ -103,7 +103,7 @@ OptimizationTools::ScaleFunction::ScaleFunction(TreeLikelihood* tl) :
   brLen_ = tl->getBranchLengthsParameters();
   if (brLen_.hasParameter("RootPosition"))
     brLen_.deleteParameter("RootPosition");
-  lambda_.addParameter(Parameter("scale factor", 2.718282)); 
+  lambda_.addParameter(Parameter("scale factor", 0)); 
 }
   
 OptimizationTools::ScaleFunction::~ScaleFunction() {}
@@ -121,7 +121,7 @@ throw (ParameterException)
   // Scale the tree:
   ParameterList brLen = brLen_;
   double s = exp(lambda_[0].getValue());
-  for(unsigned int i = 0; i < brLen.size(); i++)
+  for (unsigned int i = 0; i < brLen.size(); i++)
   {
     try {
       brLen[i].setValue(brLen[i].getValue() * s);
@@ -148,8 +148,8 @@ throw (Exception)
   bod.setMessageHandler(messageHandler);
   bod.setProfiler(profiler);
   ParameterList singleParameter;
-  singleParameter.addParameter(Parameter("scale factor", 2.718282));
-  bod.setInitialInterval(2.7, 2.8);
+  singleParameter.addParameter(Parameter("scale factor", 0));
+  bod.setInitialInterval(-0.5, 0.5);
   bod.init(singleParameter);
   ParametersStopCondition PS(&bod, tolerance);
   bod.setStopCondition(PS);
