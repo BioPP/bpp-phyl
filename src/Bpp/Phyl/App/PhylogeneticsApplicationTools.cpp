@@ -691,6 +691,15 @@ SubstitutionModel* PhylogeneticsApplicationTools::getSubstitutionModelDefaultIns
         }
       
       // /////////////////////////////////
+      // / RN95s
+      // ///////////////////////////////
+
+      else if (modelName == "RN95s")
+        {
+          model = new RN95s(alpha);
+        }
+      
+      // /////////////////////////////////
       // / TN93
       // //////////////////////////////
 
