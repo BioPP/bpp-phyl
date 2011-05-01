@@ -86,7 +86,7 @@ namespace bpp
    * \end{cases}
    * \f]
    *
-   * and parameters with values between 0 and 1:
+   * with parameters with values in [0;1[:
    *
    *\f[
    * \begin{cases}
@@ -95,27 +95,34 @@ namespace bpp
    * \end{cases}
    * \f]
    *
-   * and parameters with positive values: \f[\sigma\f] and
-   * \f[\alpha\f].
+   * and parameters with values > 1:
    *
+   *\f[
+   * \begin{cases}
+   * \alpha'=\frac{\alpha(1-\theta_G)+min(\theta_G,\kappa')(1-\theta_R)}{\theta_G(1-\theta_R)}\\
+   * \sigma'=\frac{\sigma(1-\theta_C)+min(\theta_C,\gamma')\theta_R}{\theta_C\theta_R}\\
+   * \end{cases}
+   * \f]
    *
    * The generator is then computed as:
    *
    *\f[
    * \begin{cases}
-   * \kappa=\kappa' *  \theta_R\\
-   * \gamma=\gamma' * (1-\theta_R)\\
+   * \kappa=\kappa' \theta_R\\
+   * \gamma=\gamma' (1-\theta_R)\\
    * \delta=\theta_R - \kappa\\
    * \lambda=1-\theta_R-\gamma\\
-   * \epsilon=\frac{\alpha*\theta_R+\kappa*(1-\theta_R)}{\theta_G}-\alpha-(1-\theta_R)\\
-   * \beta=\frac{\gamma*\theta_R+\sigma*(1-\theta_R)}{\theta_C}-\beta-\theta_R\\
+   * \alpha=\frac{\alpha'(1-\theta_R)\theta_G-min(\theta_G,\kappa')(1-\theta_R)}{1-\theta_G}\\
+   * \sigma=\frac{\sigma'\theta_R\theta_C-min(\theta_C,\gamma')\theta_R}{1-\theta_C}\\
+   * \beta=\frac{\gamma'*\theta_R+\sigma}{\theta_C}-\sigma-\theta_R\\
+   * \epsilon=\frac{\kappa'*(1-\theta_R)+\alpha}{\theta_G}-\alpha-(1-\theta_R)\\
    * \end{cases}
    * \f]
    *
    * and \f[P\f] is set for normalization.
    *
    * The parameters are named \c "thetaR", \c "thetaC", \c "thetaG",
-   * \c "kappaP", \c "gammaP", \c "sigma", \c "alpha".   
+   * \c "kappaP", \c "gammaP", \c "sigmaP", \c "alphaP".   
    *
    * References:
    * - Rhetsky A. \& Ney M. (1995) MBE 12(1) 131-151.

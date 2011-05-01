@@ -77,26 +77,29 @@ RN95::RN95(
 {
   double f=gamma+lambda+delta+kappa;
   
-  alpha_=alpha/f;   
-  beta_=beta/f;    
-  gamma_=gamma/f;   
-  delta_=delta/f;   
+  alpha_  =alpha/f;   
+  beta_   =beta/f;    
+  gamma_  =gamma/f;   
+  delta_  =delta/f;   
   epsilon_=epsilon/f; 
-  kappa_=kappa/f;   
-  lambda_=lambda/f;   
-  sigma_=sigma/f;
+  kappa_  =kappa/f;   
+  lambda_ =lambda/f;   
+  sigma_  =sigma/f;
 
   double thetaR=delta_+kappa_;
-  
-  addParameter_(Parameter("RN95.thetaR" , thetaR , &Parameter::PROP_CONSTRAINT_EX));
-  double gammaP=gamma_/(1-thetaR);
-  addParameter_(Parameter("RN95.gammaP" , gammaP , &Parameter::PROP_CONSTRAINT_EX));
+  double thetaC=(gamma_*thetaR+sigma_*(1-thetaR))/(beta_+sigma_+thetaR)/(1-thetaR);
+  double thetaG=(alpha_*thetaR+kappa_*(1-thetaR))/(alpha_+epsilon_+1-thetaR)/thetaR;
   double kappaP=kappa_/thetaR;
+  double gammaP=gamma_/(1-thetaR);
+  double alphaP=(alpha_*(1-thetaG)+(thetaG<kappaP?thetaG:kappaP)*(1-thetaR))/(thetaG*(1-thetaR));
+  double sigmaP=(sigma_*(1-thetaC)+(thetaC<gammaP?thetaC:gammaP)*thetaR)/(thetaC*thetaR);
+  addParameter_(Parameter("RN95.thetaR" , thetaR , &Parameter::PROP_CONSTRAINT_EX));
+  addParameter_(Parameter("RN95.thetaC" , thetaC , &Parameter::PROP_CONSTRAINT_EX));
+  addParameter_(Parameter("RN95.thetaG" , thetaG , &Parameter::PROP_CONSTRAINT_EX));
+  addParameter_(Parameter("RN95.gammaP" , gammaP , &Parameter::PROP_CONSTRAINT_EX));
   addParameter_(Parameter("RN95.kappaP" , kappaP , &Parameter::PROP_CONSTRAINT_EX));
-  addParameter_(Parameter("RN95.thetaC" , (gammaP*thetaR+sigma_)/(beta_+sigma_+thetaR)  , &Parameter::PROP_CONSTRAINT_EX));
-  addParameter_(Parameter("RN95.thetaG" , (kappaP*(1-thetaR)+alpha_)/(alpha_+epsilon_+1-thetaR) , &Parameter::PROP_CONSTRAINT_EX));
-  addParameter_(Parameter("RN95.alpha" , alpha_ , &Parameter::R_PLUS_STAR));
-  addParameter_(Parameter("RN95.sigma" , sigma_ , &Parameter::R_PLUS_STAR));
+  addParameter_(Parameter("RN95.alphaP" , alphaP , new ExcludingPositiveReal(1), true));
+  addParameter_(Parameter("RN95.sigmaP" , sigmaP , new ExcludingPositiveReal(1), true));
 
   updateMatrices();
 }
@@ -105,20 +108,22 @@ RN95::RN95(
 	
 void RN95::updateMatrices()
 {
-  alpha_  = getParameterValue("alpha");
-  sigma_  = getParameterValue("sigma");
+  double alphaP  = getParameterValue("alphaP");
+  double sigmaP  = getParameterValue("sigmaP");
   double thetaR  = getParameterValue("thetaR");
   double thetaC  = getParameterValue("thetaC");
   double thetaG  = getParameterValue("thetaG");
   double gammaP  = getParameterValue("gammaP");
   double kappaP  = getParameterValue("kappaP");
 
-  kappa_=kappaP * thetaR;
-  gamma_=gammaP *(1-thetaR);
+  kappa_=kappaP*thetaR; 
+  gamma_= gammaP*(1-thetaR);
   delta_=thetaR - kappa_;
   lambda_=1-thetaR-gamma_;
-  epsilon_=(alpha_+kappaP*(1-thetaR))/thetaG-alpha_-(1-thetaR);
-  beta_=(gammaP*thetaR+sigma_)/thetaC-sigma_-thetaR;
+  alpha_=(alphaP*(1-thetaR)*thetaG-(thetaG<kappaP?thetaG:kappaP)*(1-thetaR))/(1-thetaG);
+  sigma_=(sigmaP*thetaR*thetaC-(thetaC<gammaP?thetaC:gammaP)*thetaR)/(1-thetaC);
+  epsilon_=(alpha_*thetaR+kappa_*(1-thetaR))/(thetaG*thetaR)-alpha_-(1-thetaR);
+  beta_=(gamma_*thetaR+sigma_*(1-thetaR))/(thetaC*(1-thetaR))-sigma_-thetaR;
 
   // stationnary frequencies
 
