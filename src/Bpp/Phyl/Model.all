@@ -3,7 +3,6 @@
 #include "Model/AbstractMixedSubstitutionModel.h"
 #include "Model/AbstractSubstitutionModel.h"
 #include "Model/AbstractWordReversibleSubstitutionModel.h"
-#include "Model/BG11.h"
 #include "Model/COA.h"
 #include "Model/CodonAsynonymousFrequenciesReversibleSubstitutionModel.h"
 #include "Model/CodonAsynonymousReversibleSubstitutionModel.h"
