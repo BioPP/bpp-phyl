@@ -190,10 +190,21 @@ class CategorySubstitutionRegister:
 
   public:
 
-    virtual unsigned int getCategory(int type) const {
-      if (!alphabet_->isIntInAlphabet(type))
-        throw Exception("CategorySubstitutionRegister::getCategory(). Type is not supported by alphabet.");
-      return categories_[type];
+    virtual unsigned int getCategory(int state) const {
+      if (!alphabet_->isIntInAlphabet(state))
+        throw Exception("CategorySubstitutionRegister::getCategory(). State is not supported by alphabet.");
+      return categories_[state];
+    }
+
+    virtual unsigned int getCategoryFrom(unsigned int type) const {
+      if (type <= nbCategories_ * (nbCategories_ - 1)) {
+        return ((type - 1) / nbCategories_) + 1;
+      } else {
+        if (within_) 
+          return type - nbCategories_ * (nbCategories_ - 1);
+        else
+          throw Exception("CategorySubstitutionRegister::getCategoryFrom. Bad substitution type.");
+      }
     }
 
     virtual bool allowWithin() const { return within_; }

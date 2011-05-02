@@ -65,6 +65,7 @@ class TreeDrawingSettings
     Font fontBranchLengths;
     Font fontBootstrapValues;
     Font fontNodesId;
+    unsigned int pointSize;
     double pointArea; //this specifies the radius of the point area
     //More options will be added in the future...
     
@@ -74,6 +75,7 @@ class TreeDrawingSettings
       fontBranchLengths("Courier", Font::STYLE_ITALIC, Font::WEIGHT_NORMAL, 10),
       fontBootstrapValues("Courier", Font::STYLE_NORMAL, Font::WEIGHT_NORMAL, 10),
       fontNodesId("Courier", Font::STYLE_NORMAL, Font::WEIGHT_BOLD, 12),
+      pointSize(1),
       pointArea(5)
   {}
 };
@@ -373,7 +375,7 @@ class TreeDrawing:
      * @{
      */
     virtual void setDisplaySettings(const TreeDrawingSettings* tds) = 0;
-    virtual const TreeDrawingSettings* getDisplaySettings() const = 0;
+    virtual const TreeDrawingSettings& getDisplaySettings() const = 0;
     /** @} */
 
     /**

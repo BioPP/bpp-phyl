@@ -36,6 +36,7 @@
 #include "Model/ProteinSubstitutionModel.h"
 #include "Model/RE08.h"
 #include "Model/RN95.h"
+#include "Model/RN95s.h"
 #include "Model/RateDistributionFactory.h"
 #include "Model/SSR.h"
 #include "Model/SubstitutionModel.h"

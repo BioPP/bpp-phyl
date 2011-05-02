@@ -57,14 +57,14 @@ void fitModelH(SubstitutionModel* model, DiscreteDistribution* rdist, const Tree
   ApplicationTools::displayResult("Test model", model->getName());
   //cout << setprecision(20) << tl.getValue() << endl;
   ApplicationTools::displayResult("* initial likelihood", tl.getValue());
-  if (abs(tl.getValue() - initialValue) > 0.000001)
+  if (abs(tl.getValue() - initialValue) > 0.00001)
     throw Exception("Incorrect initial value.");
   OptimizationTools::optimizeTreeScale(&tl);
   ApplicationTools::displayResult("* likelihood after tree scale", tl.getValue());
   OptimizationTools::optimizeNumericalParameters2(&tl, tl.getParameters(), 0, 0.000001, 10000, 0, 0);
   //cout << setprecision(20) << tl.getValue() << endl;
   ApplicationTools::displayResult("* likelihood after full optimization", tl.getValue());
-  if (abs(tl.getValue() - finalValue) > 0.000001)
+  if (abs(tl.getValue() - finalValue) > 0.00001)
     throw Exception("Incorrect final value.");
 }
 

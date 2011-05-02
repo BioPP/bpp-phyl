@@ -77,6 +77,7 @@ set(CPP_FILES
   Bpp/Phyl/Model/L95.cpp
   Bpp/Phyl/Model/BG11.cpp
   Bpp/Phyl/Model/RN95.cpp
+  Bpp/Phyl/Model/RN95s.cpp
   Bpp/Phyl/Model/SSR.cpp
   Bpp/Phyl/Model/LG08.cpp
   Bpp/Phyl/Model/WAG01.cpp
@@ -215,6 +216,7 @@ set(H_FILES
   Bpp/Phyl/Model/L95.h
   Bpp/Phyl/Model/BG11.h
   Bpp/Phyl/Model/RN95.h
+  Bpp/Phyl/Model/RN95s.h
   Bpp/Phyl/Model/SSR.h
   Bpp/Phyl/Model/LG08.h
   Bpp/Phyl/Model/WAG01.h

@@ -118,7 +118,8 @@ void UniformizationSubstitutionCount::computeCounts_(double length) const
     MatrixTools::fill(counts_[i], 0);
 	  for (unsigned int l = 0; l < nMax + 1; ++l) {
       tmp = s_[i][l];
-      MatrixTools::scale(tmp, (pow(lam, static_cast<double>(l + 1)) * exp(-lam) / NumTools::fact(l + 1))/miu_);
+      double f = (pow(lam, static_cast<double>(l + 1)) * exp(-lam) / NumTools::fact(l + 1)) / miu_;
+      MatrixTools::scale(tmp, f);
       MatrixTools::add(counts_[i], tmp);
     }
   }
@@ -129,7 +130,7 @@ void UniformizationSubstitutionCount::computeCounts_(double length) const
     for (unsigned int j = 0; j < nbStates_; j++) {
       for(unsigned int k = 0; k < nbStates_; k++) {
         counts_[i](j, k) /= P(j, k);
-        if (isnan(counts_[i](j, k)))
+        if (isnan(counts_[i](j, k)) || counts_[i](j, k) < 0.)
           counts_[i](j, k) = 0;
       }
     }
