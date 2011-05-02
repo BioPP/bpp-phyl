@@ -755,15 +755,6 @@ SubstitutionModel* PhylogeneticsApplicationTools::getSubstitutionModelDefaultIns
       }
 
       // /////////////////////////////////
-      // / BG11
-      // ///////////////////////////////
-
-      else if (modelName == "BG11")
-        {
-          model = new BG11(alpha);
-        }
-
-      // /////////////////////////////////
       // / RN95
       // ///////////////////////////////
 
