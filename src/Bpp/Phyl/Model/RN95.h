@@ -68,8 +68,7 @@ namespace bpp
    * \delta & . &  \kappa & \beta \\
    * \epsilon & \gamma & . & \lambda \\
    * \delta & \sigma & \kappa & .\\
-   * \end{pmatrix}
-   *\f]
+   * \end{pmatrix}\f]
    *
    * so in the parametrization process we set: \f[\gamma+\lambda+\delta+\kappa=1\f]
    *

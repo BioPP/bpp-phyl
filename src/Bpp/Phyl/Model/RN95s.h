@@ -65,8 +65,7 @@ namespace bpp
    * \delta & . &  \gamma & \beta \\
    * \beta & \gamma & . & \delta \\
    * \delta & \alpha & \gamma & .\\
-   * \end{pmatrix}
-   *\f]
+   * \end{pmatrix}\f]
    *
    * so in the parametrization process we set: \f[\gamma+\delta=\frac 12\f]
    *
@@ -93,8 +92,8 @@ namespace bpp
    *\f[
    * \begin{cases}
    * \delta=\frac 12-\gamma\\
-   * \alpha=\frac{\alpha'(0.5-\pi_A)-min(0.5-\pi_A,\gamma)}{2\pi_A}
-   * \beta=\frac{\delta-2*\pi_A*(\alpha+\frac 12)}{2*\pi_A-1}\  \
+   * \alpha=\frac{\alpha'(0.5-\pi_A)-min(0.5-\pi_A,\gamma)}{2\pi_A}\\
+   * \beta=\frac{\delta-2*\pi_A*(\alpha+\frac 12)}{2*\pi_A-1}\\
    * \end{cases}
    * \f]
    *
