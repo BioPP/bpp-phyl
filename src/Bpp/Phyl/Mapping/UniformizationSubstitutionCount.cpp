@@ -56,7 +56,7 @@ UniformizationSubstitutionCount::UniformizationSubstitutionCount(const Substitut
   s_(reg->getNumberOfSubstitutionTypes()),
   miu_(0),
   counts_(reg->getNumberOfSubstitutionTypes()),
-  currentLength_(-1.)
+  currentLength_(1.)
 {
   //Check compatiblity between model and substitution register:
   if (model->getAlphabet()->getAlphabetType() != reg->getAlphabet()->getAlphabetType())

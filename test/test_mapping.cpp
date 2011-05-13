@@ -75,7 +75,7 @@ int main() {
   VectorSiteContainer sites(tree->getLeavesNames(), alphabet);
   for (unsigned int i = 0; i < n; ++i) {
     ApplicationTools::displayGauge(i, n-1, '=');
-    RASiteSimulationResult* result = simulator.dSimulate();
+    auto_ptr<RASiteSimulationResult> result(simulator.dSimulate());
     realMap[i].resize(ids.size());
     realMapTotal[i].resize(ids.size());
     realMapDetailed[i].resize(ids.size());
@@ -97,7 +97,6 @@ int main() {
     auto_ptr<Site> site(result->getSite());
     site->setPosition(i);
     sites.addSite(*site, false);
-    delete result;
   }
   ApplicationTools::displayTaskDone();
   
