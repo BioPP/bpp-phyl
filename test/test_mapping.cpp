@@ -66,7 +66,7 @@ int main() {
   DiscreteDistribution* rdist = new ConstantDistribution(1.0);
   HomogeneousSequenceSimulator simulator(model, rdist, tree);
   TotalSubstitutionRegister* totReg = new TotalSubstitutionRegister(alphabet);
-  ExhaustiveSubstitutionRegister* detReg = new ExhaustiveSubstitutionRegister(alphabet);
+  ComprehensiveSubstitutionRegister* detReg = new ComprehensiveSubstitutionRegister(alphabet);
 
   unsigned int n = 20000;
   vector< vector<double> > realMap(n);
