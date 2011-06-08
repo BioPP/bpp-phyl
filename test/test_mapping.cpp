@@ -157,7 +157,7 @@ int main() {
   MatrixTools::print(*m);
   delete m;
   ProbabilisticSubstitutionMapping* probMapUniTot = 
-    SubstitutionMappingTools::computeSubstitutionVectors(drhtl, *sCountUniTot);
+    SubstitutionMappingTools::computeSubstitutionVectors(drhtl, *sCountUniTot);  
 
   SubstitutionCount* sCountUniDet = new UniformizationSubstitutionCount(model, detReg);
   m = sCountUniDet->getAllNumbersOfSubstitutions(0.001,1);
@@ -166,6 +166,38 @@ int main() {
   delete m;
   ProbabilisticSubstitutionMapping* probMapUniDet = 
     SubstitutionMappingTools::computeSubstitutionVectors(drhtl, *sCountUniDet);
+
+  //Check saturation:
+  cout << "checking saturation..." << endl;
+  m = sCountUniDet->getAllNumbersOfSubstitutions(0.001,1);
+  cout << "Total count, uniformization method:" << endl;
+  MatrixTools::print(*m);
+  delete m;
+  m = sCountUniDet->getAllNumbersOfSubstitutions(0.01,1);
+  cout << "Total count, uniformization method:" << endl;
+  MatrixTools::print(*m);
+  delete m;
+  m = sCountUniDet->getAllNumbersOfSubstitutions(0.1,1);
+  cout << "Total count, uniformization method:" << endl;
+  MatrixTools::print(*m);
+  delete m;
+  m = sCountUniDet->getAllNumbersOfSubstitutions(1,1);
+  cout << "Total count, uniformization method:" << endl;
+  MatrixTools::print(*m);
+  delete m;
+  m = sCountUniDet->getAllNumbersOfSubstitutions(2,1);
+  cout << "Total count, uniformization method:" << endl;
+  MatrixTools::print(*m);
+  delete m;
+  m = sCountUniDet->getAllNumbersOfSubstitutions(3,1);
+  cout << "Total count, uniformization method:" << endl;
+  MatrixTools::print(*m);
+  delete m;
+  m = sCountUniDet->getAllNumbersOfSubstitutions(4,1);
+  cout << "Total count, uniformization method:" << endl;
+  MatrixTools::print(*m);
+  delete m;
+
 
   //Check per branch:
   

@@ -96,7 +96,7 @@ void UniformizationSubstitutionCount::computeCounts_(double length) const
   MatrixTools::add(R, I);
 	
 	//compute the stopping point
-	//use the tail of Poission distribution
+	//use the tail of Poisson distribution
 	//can be approximated by 4 + 6 * sqrt(lam) + lam
 	unsigned int nMax = ceil(4 + 6 * sqrt(lam) + lam);
 
@@ -118,8 +118,9 @@ void UniformizationSubstitutionCount::computeCounts_(double length) const
     MatrixTools::fill(counts_[i], 0);
 	  for (unsigned int l = 0; l < nMax + 1; ++l) {
       tmp = s_[i][l];
-      double f = (pow(lam, static_cast<double>(l + 1)) * exp(-lam) / NumTools::fact(l + 1)) / miu_;
-      MatrixTools::scale(tmp, f);
+      //double f = (pow(lam, static_cast<double>(l + 1)) * exp(-lam) / static_cast<double>(NumTools::fact(l + 1))) / miu_;
+      double logF = static_cast<double>(l + 1) * log(lam) - lam - log(miu_) - NumTools::logFact(static_cast<double>(l + 1));
+      MatrixTools::scale(tmp, exp(logF));
       MatrixTools::add(counts_[i], tmp);
     }
   }
