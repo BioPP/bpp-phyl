@@ -1,5 +1,8 @@
 09/06/11 -*- Version 2.0.2 -*-
 
+09/06/11 Julien Dutheil
+* Removed COA model, which was buggy (and not used). A fixed version will be added once it is published.
+
 08/04/11 Julien Dutheil (after suggestion from Mathieu Groussin)
 * Added backup system in optimization of likelihood function.
 
