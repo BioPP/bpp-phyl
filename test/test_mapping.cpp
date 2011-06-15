@@ -172,31 +172,44 @@ int main() {
   m = sCountUniDet->getAllNumbersOfSubstitutions(0.001,1);
   cout << "Total count, uniformization method:" << endl;
   MatrixTools::print(*m);
+  cout << MatrixTools::sumElements(*m) << endl;
   delete m;
   m = sCountUniDet->getAllNumbersOfSubstitutions(0.01,1);
   cout << "Total count, uniformization method:" << endl;
   MatrixTools::print(*m);
+  cout << MatrixTools::sumElements(*m) << endl;
   delete m;
   m = sCountUniDet->getAllNumbersOfSubstitutions(0.1,1);
   cout << "Total count, uniformization method:" << endl;
   MatrixTools::print(*m);
+  cout << MatrixTools::sumElements(*m) << endl;
   delete m;
   m = sCountUniDet->getAllNumbersOfSubstitutions(1,1);
   cout << "Total count, uniformization method:" << endl;
   MatrixTools::print(*m);
+  cout << MatrixTools::sumElements(*m) << endl;
   delete m;
   m = sCountUniDet->getAllNumbersOfSubstitutions(2,1);
   cout << "Total count, uniformization method:" << endl;
   MatrixTools::print(*m);
+  cout << MatrixTools::sumElements(*m) << endl;
   delete m;
   m = sCountUniDet->getAllNumbersOfSubstitutions(3,1);
   cout << "Total count, uniformization method:" << endl;
   MatrixTools::print(*m);
+  cout << MatrixTools::sumElements(*m) << endl;
   delete m;
   m = sCountUniDet->getAllNumbersOfSubstitutions(4,1);
   cout << "Total count, uniformization method:" << endl;
   MatrixTools::print(*m);
+  cout << MatrixTools::sumElements(*m) << endl;
   delete m;
+  m = sCountUniDet->getAllNumbersOfSubstitutions(10,1);
+  cout << "Total count, uniformization method:" << endl;
+  MatrixTools::print(*m);
+  cout << MatrixTools::sumElements(*m) << endl;
+  delete m;
+
 
 
   //Check per branch:
