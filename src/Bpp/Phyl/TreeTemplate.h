@@ -57,7 +57,8 @@ namespace bpp
    * @brief The phylogenetic tree class.
    * 
    * This class is part of the object implementation of phylogenetic trees. Tree are made
-   * made of nodes, instances of the class Node.
+   * made of nodes, instances of the class Node. It is possible to use a tree with more 
+   * complexe Node classes, but currently all nodes of a tree have to be of the same class.
    * 
    * Trees are oriented (rooted), i.e. each node has one <i>father node</i> and possibly
    * many <i>son nodes</i>. Leaves are nodes without descendant and root is defined has the without
@@ -125,7 +126,7 @@ namespace bpp
     TreeTemplate<N> & operator=(const TreeTemplate<N>& t)
     {
       //Perform a hard copy of the nodes:
-      if(root_) { destroySubtree_(root_); delete root_; }
+      if(root_) { TreeTemplateTools::deleteSubtree(root_); delete root_; }
       root_ = TreeTemplateTools::cloneSubtree<N>(* t.getRootNode());
       name_ = t.name_;
       return *this;
@@ -139,7 +140,7 @@ namespace bpp
 
     virtual ~TreeTemplate()
     {
-      destroySubtree_(root_);
+      TreeTemplateTools::deleteSubtree(root_);
       delete root_;
     }
 
@@ -481,7 +482,7 @@ namespace bpp
 
     void newOutGroup(N* outGroup)
     {
-      if(root_ == outGroup) return;
+      if (root_ == outGroup) return;
       int rootId;
       if(isRooted())
         {
@@ -513,18 +514,6 @@ namespace bpp
     }
 
     /** @} */
-		
-  private:
-		
-    virtual void destroySubtree_(N* node)
-    {
-      for(unsigned int i = 0; i < node->getNumberOfSons(); i++)
-        {
-          N* son = node->getSon(i);
-          destroySubtree_(son);
-          delete son;
-        }
-    }
 		
   };
 

@@ -271,7 +271,7 @@ class TreeTemplateTools
       {
         //The easy case:
         parent->removeSon(subtree);
-        delete subtree;
+        deleteSubtree(subtree);
       }
       else if (parent->getNumberOfSons() == 2)
       {
@@ -287,7 +287,7 @@ class TreeTemplateTools
           }
           tree.setRootNode(brother);
           delete parent;
-          delete subtree;
+          deleteSubtree(subtree);
         }
         else
         {
@@ -299,7 +299,7 @@ class TreeTemplateTools
           unsigned int pos = gParent->getSonPosition(parent);
           gParent->setSon(pos, brother);
           delete parent;
-          delete subtree;
+          deleteSubtree(subtree);
         }
       }
       else
@@ -676,7 +676,16 @@ class TreeTemplateTools
     static std::vector<Node*> getPathBetweenAnyTwoNodes(Node& node1, Node& node2, bool includeAncestor = true);
     
     static std::vector<const Node*> getPathBetweenAnyTwoNodes(const Node & node1, const Node & node2, bool includeAncestor = true);
-     
+    
+    /**
+     * @brief Recursively clone a subtree structure.
+     *
+     * This is a template function allowing to specify the class of the copy.
+     * The template class has to have a constructor accepting const Node& as signle argument.
+     *
+     * @param node The basal node of the subtree.
+     * @return The basal node of the new copy.
+     */
     template<class N>
     static N* cloneSubtree(const Node& node) 
     {
@@ -692,6 +701,23 @@ class TreeTemplateTools
       }
       return clone;
     }
+
+    /**
+     * @brief Recursively delete a subtree structure.
+     *
+     * @param node The basal node of the subtree.
+     */
+    template<class N>
+    static void deleteSubtree(N* node)
+    {
+      for (unsigned int i = 0; i < node->getNumberOfSons(); ++i)
+      {
+        N* son = node->getSon(i);
+        deleteSubtree(son);
+        delete son;
+      }
+    }
+
     
     template<class N>
     static N* cloneSubtree(const Tree& tree, int nodeId) 
