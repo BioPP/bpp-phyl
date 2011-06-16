@@ -38,6 +38,7 @@ knowledge of the CeCILL license and that you accept its terms.
 */
 
 #include "HKY85.h"
+#include "FrequenciesSet.h"
 
 #include <Bpp/Numeric/Matrix/MatrixTools.h>
 
@@ -68,11 +69,11 @@ HKY85::HKY85(
 {
 	Parameter kappaP("HKY85.kappa", kappa, &Parameter::R_PLUS_STAR);
 	addParameter_(kappaP);
-	Parameter thetaP("HKY85.theta" , theta_, new IncludingInterval(0.001, 0.999), true);
+	Parameter thetaP("HKY85.theta" , theta_, &FrequenciesSet::FREQUENCE_CONSTRAINT);
 	addParameter_(thetaP);
-	Parameter theta1P("HKY85.theta1", theta1_, new IncludingInterval(0.001, 0.999), true);
+	Parameter theta1P("HKY85.theta1", theta1_, &FrequenciesSet::FREQUENCE_CONSTRAINT);
 	addParameter_(theta1P);
-	Parameter theta2P("HKY85.theta2", theta2_, new IncludingInterval(0.001, 0.999), true);
+	Parameter theta2P("HKY85.theta2", theta2_, &FrequenciesSet::FREQUENCE_CONSTRAINT);
 	addParameter_(theta2P);
 	updateMatrices();
 }

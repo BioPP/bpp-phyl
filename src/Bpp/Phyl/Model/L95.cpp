@@ -38,6 +38,7 @@ knowledge of the CeCILL license and that you accept its terms.
 */
 
 #include "L95.h"
+#include "FrequenciesSet.h"
 
 #include <Bpp/Numeric/Matrix/MatrixTools.h>
 
@@ -61,7 +62,7 @@ L95::L95(
   addParameter_(Parameter("L95.beta" , beta , &Parameter::PROP_CONSTRAINT_EX));
   addParameter_(Parameter("L95.gamma" , gamma , &Parameter::PROP_CONSTRAINT_EX));
   addParameter_(Parameter("L95.kappa" , kappa , &Parameter::R_PLUS_STAR));
-  addParameter_(Parameter("L95.theta" , theta , &Parameter::PROP_CONSTRAINT_EX));
+  addParameter_(Parameter("L95.theta" , theta , &FrequenciesSet::FREQUENCE_CONSTRAINT));
 
   updateMatrices();
 }
