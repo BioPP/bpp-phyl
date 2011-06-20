@@ -1328,13 +1328,56 @@ FrequenciesSet* PhylogeneticsApplicationTools::getFrequenciesSetDefaultInstance(
 /******************************************************************************/
 
 SubstitutionModelSet* PhylogeneticsApplicationTools::getSubstitutionModelSet(
-  const Alphabet* alphabet,
-  const SiteContainer* data,
-  map<string, string>& params,
-  const string& suffix,
-  bool suffixIsOptional,
-  bool verbose) throw (Exception)
+                                                                                    const Alphabet* alphabet,
+                                                                                    const SiteContainer* data, 
+                                                                                    std::map<std::string, std::string>& params,
+                                                                                    const std::string& suffix ,
+                                                                                    bool suffixIsOptional,
+                                                                                    bool verbose)
 {
+  if (!ApplicationTools::parameterExists("nonhomogeneous.number_of_models", params))
+    throw Exception("You must specify this parameter: nonhomogeneous.number_of_models .");
+  unsigned int nbModels = ApplicationTools::getParameter<unsigned int>("nonhomogeneous.number_of_models", params, 1, suffix, suffixIsOptional, false);
+  if (nbModels == 0)
+    throw Exception("The number of models can't be 0 !");
+
+  bool nomix=true;
+  for (unsigned int i = 0; nomix & (i < nbModels); i++)
+    {
+      string prefix = "model" + TextTools::toString(i + 1);
+      string modelDesc;
+      modelDesc = ApplicationTools::getStringParameter(prefix, params, "", suffix, suffixIsOptional, verbose);
+
+      if (modelDesc.find("Mixed")!=string::npos)
+        nomix=false;
+    }
+
+  SubstitutionModelSet* modelSet=0;
+
+  if (nomix){
+    modelSet= new SubstitutionModelSet(alphabet);
+    setSubstitutionModelSet(*modelSet, alphabet, data, params, suffix, suffixIsOptional, verbose);
+  }
+  else{
+    modelSet= new MixedSubstitutionModelSet(alphabet);
+    setMixedSubstitutionModelSet(*dynamic_cast<MixedSubstitutionModelSet*>(modelSet), alphabet, data, params, suffix, suffixIsOptional, verbose);
+  }
+  return modelSet;
+  
+}
+
+/******************************************************************************/
+
+void PhylogeneticsApplicationTools::setSubstitutionModelSet(
+                                                            SubstitutionModelSet& modelSet,
+                                                            const Alphabet* alphabet,
+                                                            const SiteContainer* data,
+                                                            map<string, string>& params,
+                                                            const string& suffix,
+                                                            bool suffixIsOptional,
+                                                            bool verbose)
+{
+  modelSet.clear();
   if (!ApplicationTools::parameterExists("nonhomogeneous.number_of_models", params))
     throw Exception("You must specify this parameter: nonhomogeneous.number_of_models .");
   unsigned int nbModels = ApplicationTools::getParameter<unsigned int>("nonhomogeneous.number_of_models", params, 1, suffix, suffixIsOptional, false);
@@ -1378,9 +1421,8 @@ SubstitutionModelSet* PhylogeneticsApplicationTools::getSubstitutionModelSet(
   }
   ApplicationTools::displayBooleanResult("Stationarity assumed", stationarity);
 
-  SubstitutionModelSet* modelSet = stationarity ?
-                                   new SubstitutionModelSet(alphabet, true) : //Stationarity assumed.
-  new SubstitutionModelSet(alphabet, rootFrequencies);
+  if (!stationarity)
+    modelSet.setRootFrequencies(rootFrequencies);
 
   // //////////////////////////////////////
   // Now parse all models:
@@ -1412,7 +1454,7 @@ SubstitutionModelSet* PhylogeneticsApplicationTools::getSubstitutionModelSet(
     vector<int> nodesId = ApplicationTools::getVectorParameter<int>(prefix + "nodes_id", params, ',', ':', TextTools::toString(i), suffix, suffixIsOptional, true);
     if (verbose) ApplicationTools::displayResult("Model" + TextTools::toString(i + 1) + " is associated to", TextTools::toString(nodesId.size()) + " node(s).");
     // Add model and specific parameters:
-    modelSet->addModel(model, nodesId, specificParameters);
+    modelSet.addModel(model, nodesId, specificParameters);
     // Now set shared parameters:
     for (unsigned int j = 0; j < sharedParameters.size(); j++)
     {
@@ -1421,11 +1463,11 @@ SubstitutionModelSet* PhylogeneticsApplicationTools::getSubstitutionModelSet(
       if (index == string::npos) throw Exception("PhylogeneticsApplicationTools::getSubstitutionModelSet. Bad parameter name: " + pName);
       string name = pName.substr(index + 1) + "_" + pName.substr(5, index - 5);
       //namespace checking:
-      vector<unsigned int> models = modelSet->getModelsWithParameter(name);
+      vector<unsigned int> models = modelSet.getModelsWithParameter(name);
       if (models.size() == 0)
         throw Exception("PhylogeneticsApplicationTools::getSubstitutionModelSet. Parameter `" + name + "' is not associated to any model.");
-      if (model->getNamespace() == modelSet->getModel(models[0])->getNamespace())
-        modelSet->setParameterToModel(modelSet->getParameterIndex(name), modelSet->getNumberOfModels() - 1);
+      if (model->getNamespace() == modelSet.getModel(models[0])->getNamespace())
+        modelSet.setParameterToModel(modelSet.getParameterIndex(name), modelSet.getNumberOfModels() - 1);
       else {
         throw Exception("Assigning a value to a parameter with a distinct namespace is not (yet) allowed. Consider using parameter aliasing instead.");
       }
@@ -1442,10 +1484,66 @@ SubstitutionModelSet* PhylogeneticsApplicationTools::getSubstitutionModelSet(
     string p1 = alias.substr(0, index);
     string p2 = alias.substr(index + 2);
     ApplicationTools::displayResult("Parameter alias found", p1 + "->" + p2);
-    modelSet->aliasParameters(p1, p2);
+    modelSet.aliasParameters(p1, p2);
   }
 
-  return modelSet;
+}
+
+/******************************************************************************/
+void PhylogeneticsApplicationTools::setMixedSubstitutionModelSet(
+                                                                 MixedSubstitutionModelSet& mixedModelSet,
+                                                                 const Alphabet* alphabet,
+                                                                 const SiteContainer* data,
+                                                                 map<string, string>& params,
+                                                                 const string& suffix,
+                                                                 bool suffixIsOptional,
+                                                                 bool verbose)
+{
+  mixedModelSet.clear();
+  
+  setSubstitutionModelSet(mixedModelSet, alphabet, data, params, suffix, suffixIsOptional, verbose);
+  
+  ///////////////////////////////////////////
+  // Looks for the allowed paths
+
+  unsigned int numd=1;
+  vector<string> vdesc;
+  while (numd<100){
+    string desc = ApplicationTools::getStringParameter("site.path"+TextTools::toString(numd), params, "",  suffix, suffixIsOptional, verbose);
+    if (desc.size()==0)
+      break;
+    else
+      vdesc.push_back(desc);
+    numd++;
+  }
+  
+  if (vdesc.size()==0)
+    return;
+
+  for (vector<string>::iterator it(vdesc.begin()); it != vdesc.end(); it++){
+    mixedModelSet.addHyperNode();
+    StringTokenizer st(*it, "&");
+    while (st.hasMoreToken()) {
+      string submodel = st.nextToken();
+      string::size_type indexo = submodel.find("[");
+      string::size_type indexf = submodel.find("]");
+      if ((indexo == string::npos) | (indexf == string::npos))
+        throw Exception("PhylogeneticsApplicationTools::setMixedSubstitutionModelSet. Bad path syntax, should contain `[]' symbols: " + submodel);
+      int num = TextTools::toInt(submodel.substr(5, indexo-5));
+      string p2 = submodel.substr(indexo+1, indexf-indexo-1);
+      
+      const MixtureOfASubstitutionModel* pSM=dynamic_cast<const MixtureOfASubstitutionModel*>(mixedModelSet.getModel(num-1));
+    if (pSM==NULL)
+      throw BadIntegerException("PhylogeneticsApplicationTools::setMixedSubstitutionModelSet: Wrongmodel for number",num-1);
+    Vint submodnb=pSM->getSubmodelNumbers(p2);
+    
+    mixedModelSet.addToHyperNode(num-1,submodnb);
+    }
+  }
+  /////////////////////////////////////////
+  // Sets the probabilities parameters
+
+    
 }
 
 /******************************************************************************/

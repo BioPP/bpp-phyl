@@ -94,6 +94,7 @@ set(CPP_FILES
   Bpp/Phyl/Model/RE08.cpp
   Bpp/Phyl/Model/SubstitutionModelFactory.cpp
   Bpp/Phyl/Model/SubstitutionModelSet.cpp
+  Bpp/Phyl/Model/MixedSubstitutionModelSet.cpp
   Bpp/Phyl/Model/SubstitutionModelSetTools.cpp
   Bpp/Phyl/Model/T92.cpp
   Bpp/Phyl/Model/TN93.cpp
@@ -235,6 +236,7 @@ set(H_FILES
   Bpp/Phyl/Model/SubstitutionModelFactory.h
   Bpp/Phyl/Model/SubstitutionModel.h
   Bpp/Phyl/Model/SubstitutionModelSet.h
+  Bpp/Phyl/Model/MixedSubstitutionModelSet.h
   Bpp/Phyl/Model/SubstitutionModelSetTools.h
   Bpp/Phyl/Model/T92.h
   Bpp/Phyl/Model/TN93.h

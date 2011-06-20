@@ -29,6 +29,7 @@
 #include "Model/MG94.h"
 #include "Model/MarkovModulatedSubstitutionModel.h"
 #include "Model/MixedSubstitutionModel.h"
+#include "Model/MixedSubstitutionModelSet.h"
 #include "Model/MixtureOfASubstitutionModel.h"
 #include "Model/MixtureOfSubstitutionModels.h"
 #include "Model/NucleotideSubstitutionModel.h"
