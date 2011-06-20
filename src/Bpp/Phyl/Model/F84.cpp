@@ -38,6 +38,7 @@ knowledge of the CeCILL license and that you accept its terms.
 */
 
 #include "F84.h"
+#include "FrequenciesSet.h"
 
 #include <Bpp/Numeric/Matrix/MatrixTools.h>
 
@@ -66,11 +67,11 @@ F84::F84(
 {
   Parameter kappaP("F84.kappa", kappa, &Parameter::R_PLUS);
   addParameter_(kappaP);
-  Parameter thetaP("F84.theta" , theta_ , &Parameter::PROP_CONSTRAINT_EX);
+  Parameter thetaP("F84.theta" , theta_ , &FrequenciesSet::FREQUENCE_CONSTRAINT);
   addParameter_(thetaP);
-  Parameter theta1P("F84.theta1", theta1_, &Parameter::PROP_CONSTRAINT_EX);
+  Parameter theta1P("F84.theta1", theta1_, &FrequenciesSet::FREQUENCE_CONSTRAINT);
   addParameter_(theta1P);
-  Parameter theta2P("F84.theta2", theta2_, &Parameter::PROP_CONSTRAINT_EX);
+  Parameter theta2P("F84.theta2", theta2_, &FrequenciesSet::FREQUENCE_CONSTRAINT);
   addParameter_(theta2P);
   updateMatrices();
 }

@@ -806,23 +806,6 @@ SubstitutionModel* PhylogeneticsApplicationTools::getSubstitutionModelDefaultIns
           throw Exception("'name' argument missing for user-defined substitution model.");
         model = new UserProteinSubstitutionModel(alpha, args["file"], prefix);
       }
-      else if (modelName == "JC69+COA")
-        model = new COA(alpha, "JC69");
-      else if (modelName == "DSO78+COA")
-        model = new COA(alpha, "DSO78");
-      else if (modelName == "JTT92+COA")
-        model = new COA(alpha, "JTT92");
-      else if (modelName == "LG08+COA")
-        model = new COA(alpha, "LG08");
-      else if (modelName == "WAG01+COA")
-        model = new COA(alpha, "WAG01");
-      else if (modelName == "Empirical+COA")
-      {
-        string prefix = args["name"];
-        if (TextTools::isEmpty(prefix))
-          throw Exception("'name' argument missing for user-defined substitution model.");
-        model = new COA(alpha, prefix, args["file"]);
-      }
       else
         throw Exception("Model '" + modelName + "' unknown.");
     }

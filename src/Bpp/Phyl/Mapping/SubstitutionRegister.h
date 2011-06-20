@@ -92,6 +92,18 @@ class SubstitutionRegister:
      * as non-substitution (that is when fromState == toState) will always return 0.
      */
     virtual unsigned int getType(int fromState, int toState) const = 0;
+
+    /**
+     * @brief Get the name of a given substitution type.
+     *
+     * This method is only used for user-friendlyness purposes, not computational goal.
+     * I can therefore be left unimplemented in some cases.
+     *
+     * @param type Index of the substitution (should be an unsigned int contained in the register).
+     * @return A string describing the substitution type.
+     */
+    virtual std::string getTypeName(unsigned int type) const = 0;
+
 };
 
 class AbstractSubstitutionRegister:
@@ -133,7 +145,9 @@ class CategorySubstitutionRegister:
     bool within_;
     unsigned int nbCategories_;
     mutable std::map<int, unsigned int> categories_;
+    std::vector<std::string> categoryNames_;
     std::vector< std::vector<unsigned int> > index_;
+    std::vector< std::vector<unsigned int> > revIndex_;
 
   public:
     /**
@@ -144,7 +158,7 @@ class CategorySubstitutionRegister:
      */
     CategorySubstitutionRegister(const Alphabet* alphabet, bool within = false):
       AbstractSubstitutionRegister(alphabet),
-      within_(within), nbCategories_(0), categories_(), index_()
+      within_(within), nbCategories_(0), categories_(), categoryNames_(), index_(), revIndex_()
     {}
 
   protected:
@@ -161,11 +175,14 @@ class CategorySubstitutionRegister:
       }
 
       //Now creates categories:
+      categories_.clear();
+      categoryNames_.resize(nbCategories_);
       std::vector<int> types = alphabet_->getSupportedInts();
       for (size_t i = 0; i < types.size(); ++i) {
         typename std::map<int, T>::const_iterator it = categories.find(types[i]);
         if (it != categories.end()) {
           categories_[types[i]] = cats[it->second];
+          categoryNames_[cats[it->second] - 1] += alphabet_->intToChar(types[i]);
         } else {
           categories_[types[i]] = 0;
         }
@@ -176,13 +193,22 @@ class CategorySubstitutionRegister:
       for (size_t i = 0; i < index_.size(); ++i) {
         index_[i].resize(nbCategories_);
         for (size_t j = 0; j < index_.size(); ++j) {
-          if (j != i)
+          if (j != i) {
             index_[i][j] = count++;
+            std::vector<unsigned int> pos(2);
+            pos[0] = i;
+            pos[1] = j;
+            revIndex_.push_back(pos);
+          }
         }
       }
       if (within_) {
         for (size_t i = 0; i < index_.size(); ++i) {
           index_[i][i] = count++;
+          std::vector<unsigned int> pos(2);
+          pos[0] = i;
+          pos[1] = i;
+          revIndex_.push_back(pos);
         }
       }
  
@@ -198,13 +224,28 @@ class CategorySubstitutionRegister:
 
     virtual unsigned int getCategoryFrom(unsigned int type) const {
       if (type <= nbCategories_ * (nbCategories_ - 1)) {
-        return ((type - 1) / nbCategories_) + 1;
+        return revIndex_[type - 1][0] + 1;
       } else {
         if (within_) 
-          return type - nbCategories_ * (nbCategories_ - 1);
+          return revIndex_[type - 1][0] + 1;
         else
           throw Exception("CategorySubstitutionRegister::getCategoryFrom. Bad substitution type.");
       }
+    }
+
+    virtual unsigned int getCategoryTo(unsigned int type) const {
+      if (type <= nbCategories_ * (nbCategories_ - 1)) {
+        return revIndex_[type - 1][1] + 1;
+      } else {
+        if (within_) 
+          return revIndex_[type - 1][1] + 1;
+        else
+          throw Exception("CategorySubstitutionRegister::getCategoryTo. Bad substitution type.");
+      }
+    }
+
+    virtual std::string getCategoryName(unsigned int category) const {
+      return categoryNames_[category - 1];
     }
 
     virtual bool allowWithin() const { return within_; }
@@ -220,6 +261,10 @@ class CategorySubstitutionRegister:
         return index_[fromCat - 1][toCat - 1];
       else
         return 0;
+    }
+
+    std::string getTypeName(unsigned int type) const {
+      return getCategoryName(getCategoryFrom(type)) + "->" +  getCategoryName(getCategoryTo(type));
     }
 
 };
@@ -249,7 +294,18 @@ class TotalSubstitutionRegister:
     unsigned int getType(int fromState, int toState) const {
       return (fromState == toState ? 0 : 1);
     }
-
+   
+    std::string getTypeName(unsigned int type) const {
+      if (type == 0) {
+        return "no substitution";
+      }
+      else if (type == 1) {
+        return "substitution";
+      }
+      else {
+        throw Exception("TotalSubstitutionRegister::getTypeName. Bad substitution type.");
+      }
+    }
 };
 
 /**
@@ -259,11 +315,11 @@ class TotalSubstitutionRegister:
  * - 0 not a substitution
  * - x in [1, n(n-1)] a substitution
  */
-class ExhaustiveSubstitutionRegister:
+class ComprehensiveSubstitutionRegister:
   public CategorySubstitutionRegister
 {
   public:
-    ExhaustiveSubstitutionRegister(const Alphabet* alphabet, bool within = false):
+    ComprehensiveSubstitutionRegister(const Alphabet* alphabet, bool within = false):
       CategorySubstitutionRegister(alphabet, within)
     {
       std::map<int, int> categories;
@@ -273,7 +329,7 @@ class ExhaustiveSubstitutionRegister:
       setCategories<int>(categories);
     }
     
-    ExhaustiveSubstitutionRegister* clone() const { return new ExhaustiveSubstitutionRegister(*this); }
+    ComprehensiveSubstitutionRegister* clone() const { return new ComprehensiveSubstitutionRegister(*this); }
 
 };
 
@@ -335,6 +391,21 @@ class TsTvSubstitutionRegister:
        || (fromState == 3 && toState == 1))
         return 1; //This is a transition
       return 2; //This is a transversion
+    }
+
+    std::string getTypeName(unsigned int type) const {
+      if (type == 0) {
+        return "no substitution";
+      }
+      else if (type == 1) {
+        return "transition";
+      }
+      else if (type == 2) {
+        return "transversion";
+      }
+      else {
+        throw Exception("TsTvSubstitutionRegister::getTypeName. Bad substitution type.");
+      }
     }
 };
 
@@ -398,6 +469,21 @@ class DnDsSubstitutionRegister:
           return 0;
       }
       return code_->areSynonymous(fromState, toState) ? 1 : 2;
+    }
+
+    std::string getTypeName (unsigned int type) const {
+      if (type == 0) {
+        return "no substitution";
+      }
+      else if (type == 1) {
+        return "synonymous";
+      }
+      else if (type == 2) {
+        return "non synonymous";
+      }
+      else {
+        throw Exception("DnDsSubstitutionRegister::getTypeName. Bad substitution type.");
+      }
     }
 };
 
