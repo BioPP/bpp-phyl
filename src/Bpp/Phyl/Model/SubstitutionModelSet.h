@@ -99,9 +99,9 @@ namespace bpp
 class SubstitutionModelSet :
   public AbstractParameterAliasable
 {
-private:
+protected:
   /**
-   * @brief A pointer toward the comon alphabet to all models in the set.
+   * @brief A pointer toward the common alphabet to all models in the set.
    */
   const Alphabet* alphabet_;
 
@@ -112,6 +112,7 @@ private:
    */
   std::vector<SubstitutionModel*> modelSet_;
 
+private:
   /**
    * @brief Root frequencies.
    */
@@ -149,51 +150,40 @@ private:
 public:
   /**
    * @brief Create a model set according to the specified alphabet.
+   * Stationarity is assumed.
    *
    * @param alpha The alphabet to use for this set.
-   * @param assumeStationarity Tell if the model should be considered as stationary. If false
-   * a FullFrequenciesSet class is used for root frequencies.
    */
-  SubstitutionModelSet(const Alphabet* alpha, bool assumeStationarity = false) :
+  SubstitutionModelSet(const Alphabet* alpha):
     AbstractParameterAliasable(""),
     alphabet_(alpha),
     nbStates_(0),
     modelSet_(),
-    rootFrequencies_(assumeStationarity ? 0 : new FullFrequenciesSet(alpha)),
+    rootFrequencies_(0),
     nodeToModel_(),
     modelToNodes_(),
     paramToModels_(),
     paramNamesCount_(),
     modelParameterNames_(),
     modelParameters_(),
-    stationarity_(assumeStationarity)
+    stationarity_(true)
   {
-    if (!assumeStationarity)
-      addParameters_(rootFrequencies_->getParameters());
   }
 
   /**
-   * @brief Create a model set according to the specified alphabet and a given model for root frequencies.
-   *:
-   * @param alpha The alphabet to use for this set.
-   * @param rootFreqs The model for root frequencies.
+   * @brief Resets all the information contained in this object.
+   *
    */
-  SubstitutionModelSet(const Alphabet* alpha, FrequenciesSet* rootFreqs) :
-    AbstractParameterAliasable(""),
-    alphabet_(alpha),
-    nbStates_(rootFreqs->getFrequencies().size()),
-    modelSet_(),
-    rootFrequencies_(rootFreqs),
-    nodeToModel_(),
-    modelToNodes_(),
-    paramToModels_(),
-    paramNamesCount_(),
-    modelParameterNames_(),
-    modelParameters_(),
-    stationarity_(false)
-  {
-    addParameters_(rootFrequencies_->getParameters());
-  }
+   
+  void clear();
+  
+  /**
+   * @brief Sets a  given FrequenciesSet for root frequencies.
+   *
+   * @param rootFreqs The FrequenciesSet for root frequencies.
+   */
+
+  void setRootFrequencies(FrequenciesSet* rootFreqs);
 
   SubstitutionModelSet(const SubstitutionModelSet& set);
 

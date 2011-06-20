@@ -52,7 +52,8 @@ SubstitutionModelSet* SubstitutionModelSetTools::createHomogeneousModelSet(
   //Check alphabet:
   if(model->getAlphabet()->getAlphabetType() != rootFreqs->getAlphabet()->getAlphabetType())
     throw AlphabetMismatchException("SubstitutionModelSetTools::createHomogeneousModelSet()", model->getAlphabet(), rootFreqs->getAlphabet());
-  SubstitutionModelSet * modelSet = new SubstitutionModelSet(model->getAlphabet(), rootFreqs);
+  SubstitutionModelSet * modelSet = new SubstitutionModelSet(model->getAlphabet());
+  modelSet->setRootFrequencies(rootFreqs);
   //We assign this model to all nodes in the tree (excepted root node), and link all parameters with it.
   vector<int> ids = tree->getNodesId();
   int rootId = tree->getRootId();
@@ -114,9 +115,10 @@ SubstitutionModelSet* SubstitutionModelSetTools::createNonHomogeneousModelSet(
       globalParameters.deleteParameter(i - 1);
     }
   }
-  SubstitutionModelSet* modelSet = rootFreqs ?
-    new SubstitutionModelSet(model->getAlphabet(), rootFreqs) :
-    new SubstitutionModelSet(model->getAlphabet(), true);
+  SubstitutionModelSet* modelSet = new SubstitutionModelSet(model->getAlphabet());
+  if (rootFreqs)
+    modelSet->setRootFrequencies(rootFreqs);
+
   //We assign a copy of this model to all nodes in the tree (excepted root node), and link all parameters with it.
   vector<int> ids = tree->getNodesId();
   int rootId = tree->getRootId();
