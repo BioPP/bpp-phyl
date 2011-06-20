@@ -98,8 +98,8 @@ private:
   vector<int> vNumModels_;
 
   /**
-   * @brief the number of the number of the node under which tree the
-   * Treelikelihood is computed.
+   * @brief the number of the node under which tree the Treelikelihood
+   * is computed.
    *
    */
   
