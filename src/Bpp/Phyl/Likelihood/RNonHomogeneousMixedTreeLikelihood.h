@@ -41,7 +41,7 @@
 #define _RNONHOMOGENEOUSMIXEDTREELIKELIHOOD_H_
 
 #include "RNonHomogeneousTreeLikelihood.h"
-#include "../Model/SubstitutionModelSet.h"
+#include "../Model/MixedSubstitutionModelSet.h"
 
 #include <Bpp/Numeric/VectorTools.h>
 #include <Bpp/Numeric/Prob/DiscreteDistribution.h>
@@ -76,26 +76,20 @@ private:
    * TreeLikelihoods for the expanded model on this branch.
    *
    */
+
   map<int, vector<RNonHomogeneousMixedTreeLikelihood*> > mvTreeLikelihoods_;
 
-
   /**
-   * @brief the map of the branch numbers to the vector of the probabilities of the
-   * TreeLikelihoods for the expanded model on this branch.
+   * @brief A specific HyperNode in which the computation is
+   * processed. If the probability of this HyperNode is -1, it means
+   * that it should not be used, and the HyperNodes are all in the
+   * MixedSubstitutionModelSet object.
    *
+   * This object owns the HyperNode pointers of the owned
+   * RNonHomogeneousMixedTreeLikelihood.
    */
   
-  map<int, vector<double> > mvProbas_;
-
-  /**
-   * @brief the vector of the number of the submodels that are taken
-   * into account in each mixed model. If the model is not mixed, the
-   * associated value is 0. If the model is not expanded at that
-   * point, the associated value is -1.
-   *
-   */
-  
-  vector<int> vNumModels_;
+  MixedSubstitutionModelSet::HyperNode hyperNode_;
 
   /**
    * @brief the number of the node under which tree the Treelikelihood
@@ -122,8 +116,8 @@ private:
    *
    * @param tree The tree to use.
    * @param modelSet The set of substitution models to use.
-   * @param vsubmod the vector of the numbers of the sub models used in
-   *  the mixed models.
+   * @param hyperNode an hypernode of the numbers of the submodels
+   *  used in the mixed models.
    * @param upperNode the number of the node under which the treelikelihood
    *  is computed.
    * @param rDist The rate across sites distribution to use.
@@ -134,8 +128,8 @@ private:
    */
 
   RNonHomogeneousMixedTreeLikelihood(const Tree& tree,
-                                     SubstitutionModelSet* modelSet,
-                                     std::vector<int> &vsubmod,
+                                     MixedSubstitutionModelSet* modelSet,
+                                     const MixedSubstitutionModelSet::HyperNode& hyperNode,
                                      int upperNode,
                                      DiscreteDistribution* rDist,
                                      bool verbose,
@@ -152,8 +146,8 @@ private:
    * @param tree The tree to use.
    * @param data Sequences to use.
    * @param modelSet The set of substitution models to use.
-   * @param vsubmod the vector of the numbers of the sub models used in
-   *  the mixed models.
+   * @param hyperNode an hypernode of the numbers of the submodels
+   *  used in the mixed models.
    * @param upperNode the number of the node under which the treelikelihood
    *  is computed.
    * @param rDist The rate across sites distribution to use.
@@ -165,8 +159,8 @@ private:
 
   RNonHomogeneousMixedTreeLikelihood(const Tree& tree,
                                      const SiteContainer& data,
-                                     SubstitutionModelSet* modelSet,
-                                     std::vector<int> &vsubmod,
+                                     MixedSubstitutionModelSet* modelSet,
+                                     const MixedSubstitutionModelSet::HyperNode& hyperNode,
                                      int upperNode,
                                      DiscreteDistribution* rDist,
                                      bool verbose,
@@ -178,13 +172,7 @@ private:
    *
    */
   
-  void init(const Tree& tree,
-            const SiteContainer* pdata,
-            SubstitutionModelSet* modelSet,
-            std::vector<int> &vsubmod,
-            DiscreteDistribution* rDist,
-            bool verbose,
-            bool usePatterns);
+  void init(bool usePatterns);
 
   
 public:
@@ -206,7 +194,7 @@ public:
    */
   RNonHomogeneousMixedTreeLikelihood(
     const Tree& tree,
-    SubstitutionModelSet* modelSet,
+    MixedSubstitutionModelSet* modelSet,
     DiscreteDistribution* rDist,
     bool verbose = true,
     bool usePatterns = true)
@@ -229,7 +217,7 @@ public:
    */
   RNonHomogeneousMixedTreeLikelihood(const Tree& tree,
                                      const SiteContainer& data,
-                                     SubstitutionModelSet* modelSet,
+                                     MixedSubstitutionModelSet* modelSet,
                                      DiscreteDistribution* rDist,
                                      bool verbose = true,
                                      bool usePatterns = true)
@@ -257,17 +245,33 @@ public:
   // Specific methods:
   void initialize() throw (Exception);
 
-  virtual void computeTreeDLikelihood(const string& variable);
+  void computeTreeDLikelihood(const string& variable);
 
-  virtual void computeTreeD2Likelihood(const string& variable);
+  void computeTreeD2Likelihood(const string& variable);
 
   /**
-   * @brief return the probability of this objetct in the hierarchy
+   * @brief returns the probability of this object in the hierarchy
    *
    */
   
   double getProbability() const;
+
+  /**
+   * @brief sets the probability of this object in the hierarchy
+   *
+   */
+  
+  void setProbability(double x);
+
+  /**
+   * @brief returns the HyperNode describing the owned submodels.
+   *
+   */
+
+  const MixedSubstitutionModelSet::HyperNode& getHyperNode() { return hyperNode_;}
 protected:
+
+
   /**
    * @brief Compute the likelihood for a subtree defined by the Tree::Node <i>node</i>.
    *

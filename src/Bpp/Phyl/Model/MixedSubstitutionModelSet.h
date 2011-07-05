@@ -57,7 +57,7 @@ namespace bpp
    * submodels of mixed substitution models. Each branch of the tree
    * is labelled by a mixed model, and a site may be restricted to a
    * set of submodels it is allowed to follow. These sets are defined
-   * through an hypergrap, ie a list of HyperNodes.
+   * through an hypergrap, ie a list of hypernodes.
    *
    * For example, suppose there are 3 mixed models (M1,M2 and M3),
    * with 2, 3, 4 submodels (S1, S2, ...) each.
@@ -70,31 +70,52 @@ namespace bpp
    * ((<1>,<1,2>,<1,2>),(<2>,<3>,<3,4>)) means that a site either
    * follows 6 combinations:
    *
-   * M1-S1, M2-S1 or M2-S2, and M3-S1 or M3-S2.
+   * M1:S1, M2:S1 or M2:S2, and M3:S1 or M3:S2.
    *
    * or
    *
-   * M1-S2, M2-S3, and M3-S3 or M3-S4.
+   * M1:S2, M2:S3, and M3:S3 or M3:S4.
+   *
+   *
+   * Actually, additional coordinates are set when there are non mixed
+   * models, with no value in them, and not used in practice.
+   *
+   * An hypernode is valid only if each mixed model is represented at
+   * least by one submodel.
    *
    * Dependency of the submodels entails constraints in the
    * probabilities of the submodels, and definition of the hypernodes
    * must be taken with care for the whole modelling to be possible.
-   * In the previous example, (if P is the probability), the
-   * constaints are P(M1-S1)=P(M2-S1)+P(M2-S2)=P(M3-S1)+P(M3-S2) and
-   * P(M1-S2)=P(M2-S3)=P(M3-S3)+P(M3-S4).
+   *
    *
    *
    * In this implementation, for sake of simplification (and for
    * reason of time), all the submodels must belong to exactly one
-   * given hypernode, but more complex dependencies are in theory
+   * given hypernode, but in theory more complex dependencies are 
    * possible.
    *
-   * Because of the dependencies, the probabilities of the mixture
-   * models belong to this class, which sends them to the models.
+   * Concerning the probabilities of the submodels in each hypernode,
+   * the first coordinate (ie set of submodels inside a mixed model)
+   * in the list defines the probability of each hypernode. For each
+   * coordinate (the first included), when there are several
+   * submodels, their probabilities are conditional probabilities,
+   * which means that they sum 1 and their ratio are unchanged.
    *
-   * To ensure that all submodels belong to at least an HyperNode, an
-   * HyperNode with all the remaining submodels is automatically
-   * created.
+   * For instance, for hypergraph ((<1>,<1,2>,<1,2>),(<2>,<3>,<3,4>)),
+   * the probabilities of hypernodes are the probabilities of M1:S1
+   * and M1:S2. In the first hypernode, the probabilities of M2:S1 and
+   * M2:S2 are P(M2:S1)/(P(M2:S1)+P(M2:S2)) and
+   * P(M2:S2)/(P(M2:S1)+P(M2:S2)).
+   *
+   * We do not certify that the probability parameters of the mixed
+   * models are all useful, and then identifiability problems may be
+   * encountered. 
+   *
+   * There is a method ("complete") that creates an additional
+   * hypernode to ensure that all submodels belong to at least an
+   * hypernode.
+   * 
+   *
    */
   
   class MixedSubstitutionModelSet :
@@ -124,14 +145,23 @@ namespace bpp
          
          ~Node(){};
 
+         Node& operator=(const Vint& n) {
+           vNumb_=n;
+           return *this;
+         }
+
          void insertN(const Vint& vn);
+
          unsigned int size() const{
            return vNumb_.size();
          }
+
          /*
-          *@brief inclusion test operator.
+          *@brief Cumulates the elements of the given Node into this one.
           *
           */
+
+         Node& operator+=(const Node&);
          
          /*
           *@brief checks if this Node is included in another one.
@@ -148,25 +178,49 @@ namespace bpp
          bool operator>=(const Node&) const;
 
          /*
-          *@briefs checks if this Node intersects another one.
+          *@brief checks if this Node intersects another one.
           *
           */
        
          bool intersects(const Node&) const;
 
          int operator[](unsigned int i) const {return vNumb_[i];}
-         
+
        };
 
      private:
        
        std::vector<Node> vNumbers_;
+
+       /*
+        *@brief the coordinates of the Nodes that are not used.
+        *
+        */
+       
+       Vint vUnused_;
+
+       /*
+        *@brief probability of this HyperNode.
+        *
+        */
+
+       double proba_;
        
      public:
        HyperNode(const MixedSubstitutionModelSet*);
        HyperNode(const HyperNode&);
        HyperNode& operator=(const HyperNode&);
        ~HyperNode(){};
+
+       /*
+        *@brief sets submodel numbers in the nMth mixed model. Checks
+        *  if all the numbers are valid.
+        *
+        *@param nM number of the mixed model
+        *@param vnS vector of numbers of the submodel
+        */
+    
+       void setModel(int nM, const Vint& vnS);
 
        /*
         *@brief adds submodel numbers to the nMth mixed model. Checks
@@ -177,7 +231,13 @@ namespace bpp
         */
     
        void addToModel(int nM, const Vint& vnS);
+       /*
+        *@brief Cumulates the Nodes of the given HyperNode into this one.
+        *
+        */
 
+       HyperNode& operator+=(const HyperNode&);
+         
        /*
         *@brief checks if this HyperNode is included in another one.
         *
@@ -186,19 +246,38 @@ namespace bpp
        bool operator<=(const HyperNode&) const;
 
        /*
+        *@brief checks if this HyperNode includes at least a submodel of each mixed model
+        *
+        */
+       bool isComplete() const;
+       /*
         *@brief checks if this HyperNode includes another one.
         *
         */
        bool operator>=(const HyperNode&) const;
 
        /*
-        *@briefs checks if this HyperNode intersects another one.
+        *@brief checks if this HyperNode intersects another one.
         *
-        */
-       
+        */       
        bool intersects(const HyperNode&) const;
 
+       /*
+        *@brief returns the probability
+        *
+        */
+
+       double getProbability() const {return proba_;}
+
+       /*
+        *@brief sets the probability
+        *
+        */
+
+       void setProbability(double x) { proba_=x;}
+       
        const Node& getNode(unsigned int i) const {return vNumbers_[i];}
+
      };
 
   private:
@@ -234,12 +313,27 @@ namespace bpp
     void clear();
 
     /*
-     *@brief adds a new empty HyperNode to the beginning of the HyperNodes
+     *@brief adds a new empty HyperNode to the end of the HyperNodes
      * list.
      */
     
-    void addHyperNode();
+    void addEmptyHyperNode();
 
+    /*
+     *@brief adds the copy of an HyperNode to the end of the
+     * HyperNodes list.
+     */
+    
+    void addHyperNode(const HyperNode& hn);
+
+    /*
+     *@brief Adds a new HyperNode such that all submodels of the
+     *       mixture models are at least in an HyperNode.
+     *
+     */
+
+    void complete();
+    
     /*
      *@brief adds a submodel number to the nMth mixed model of the
      *  nHth HyperNode of the list (default nH=0). Checks if all the
@@ -255,9 +349,47 @@ namespace bpp
 
     unsigned int getNumberOfHyperNodes() const{ return vpHyperNodes_.size();}
 
+    HyperNode& getHyperNode(unsigned int i) {return *vpHyperNodes_[i];} 
+
     const HyperNode& getHyperNode(unsigned int i) const {return *vpHyperNodes_[i];} 
-       
-  }; } // end of namespace bpp.
+
+    /*
+     *@brief Checks if all the path (ie hypernodes) are exclusive.
+     *
+     */
+    
+    bool hasExclusivePaths() const;
+
+    void fireParameterChanged(const ParameterList& parameters);
+
+    /*
+     *@brief compute the probabilities in all the HyperNodes
+     *
+     */
+
+    void computeHyperNodesProbabilities();
+
+    /*
+     *@brief computes the probability of an HyperNode, given
+     *     the conditional probabilities of the submodels computed
+     *     from the hypernodes of this MixedSubstitutionModelSet
+     *     object. If the HyperNode does not match the structure of
+     *     allowed by this MixedSubstitutionModelSet, an Exception
+     *     is thrown.
+     *
+     *     The probability of an HyperNode is the product -- on the
+     *     set of the mixed models -- of the sums of the
+     *     conditional probabilities of the submodels that belon to
+     *     this hypernode for each mixed model.
+     *
+     *@param hn the HyperNode which conditional probability is computed.
+     */
+
+    double getHyperNodeProbability(const HyperNode& hn) const;
+
+  };
+  
+} // end of namespace bpp.
 
 #endif // _MIXEDSUBSTITUTIONMODELSET_H_
 

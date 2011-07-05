@@ -1489,22 +1489,29 @@ void PhylogeneticsApplicationTools::setMixedSubstitutionModelSet(
   ///////////////////////////////////////////
   // Looks for the allowed paths
 
-  unsigned int numd=1;
+  unsigned int numd;
+  if (!ApplicationTools::parameterExists("site.number_of_paths", params))
+    numd=0;
+  else
+    numd = ApplicationTools::getParameter<unsigned int>("site.number_of_paths", params, 1, suffix, suffixIsOptional, false);
+
   vector<string> vdesc;
-  while (numd<100){
+  while (numd){
     string desc = ApplicationTools::getStringParameter("site.path"+TextTools::toString(numd), params, "",  suffix, suffixIsOptional, verbose);
     if (desc.size()==0)
       break;
     else
       vdesc.push_back(desc);
-    numd++;
+    numd--;
   }
   
-  if (vdesc.size()==0)
+  if (vdesc.size()==0){
+    mixedModelSet.complete();
     return;
+  }  
 
   for (vector<string>::iterator it(vdesc.begin()); it != vdesc.end(); it++){
-    mixedModelSet.addHyperNode();
+    mixedModelSet.addEmptyHyperNode();
     StringTokenizer st(*it, "&");
     while (st.hasMoreToken()) {
       string submodel = st.nextToken();
@@ -1522,12 +1529,22 @@ void PhylogeneticsApplicationTools::setMixedSubstitutionModelSet(
     
     mixedModelSet.addToHyperNode(num-1,submodnb);
     }
-  }
-  /////////////////////////////////////////
-  // Sets the probabilities parameters
 
-    
+    if (!mixedModelSet.getHyperNode(mixedModelSet.getNumberOfHyperNodes()-1).isComplete())
+      throw Exception("A path should own at least a submodel of each mixed model: " + *it);
+  }
+
+  /// Checks if the paths are separate
+  if (! mixedModelSet.hasExclusivePaths())
+    throw Exception("All paths must be disjoint");
+
+  /// Puts all the remaining models in a new path
+  mixedModelSet.complete();
+
+  if (!mixedModelSet.getHyperNode(mixedModelSet.getNumberOfHyperNodes()-1).isComplete())
+    throw Exception("The remaining submodels can not create a complete path.");
 }
+
 
 /******************************************************************************/
 
@@ -1682,7 +1699,8 @@ throw (Exception)
       v_nestedDistrDescr.push_back(args["distribution" + TextTools::toString(nbd)]);
 
     if (v_nestedDistrDescr.size() != probas.size())
-      throw Exception("Number of distributions do not fit the number of probabilities");
+      throw Exception("Number of distributions (keyword 'distribution"+TextTools::toString(probas.size())+"') do not fit the number of probabilities");
+    
     map<string, string> unparsedParameterValuesNested;
 
     for (unsigned i = 0; i < v_nestedDistrDescr.size(); i++)

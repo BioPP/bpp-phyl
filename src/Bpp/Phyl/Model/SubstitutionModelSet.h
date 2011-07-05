@@ -255,7 +255,7 @@ public:
    * Depending on parameters, this will actualize the _initialFrequencies vector or the corresponding models in the set.
    * @param parameters The modified parameters.
    */
-  void fireParameterChanged(const ParameterList& parameters);
+  virtual void fireParameterChanged(const ParameterList& parameters);
 
   /**
    * @return The current number of distinct substitution models in this set.

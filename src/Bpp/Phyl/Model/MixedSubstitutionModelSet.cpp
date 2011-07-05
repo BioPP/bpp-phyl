@@ -39,6 +39,7 @@
 
 #include "MixedSubstitutionModelSet.h"
 #include "MixedSubstitutionModel.h"
+#include "MixtureOfASubstitutionModel.h"
 
 using namespace bpp;
 using namespace std;
@@ -77,9 +78,55 @@ MixedSubstitutionModelSet& MixedSubstitutionModelSet::operator=(const MixedSubst
   return *this;
 }
 
-void MixedSubstitutionModelSet::addHyperNode()
+void MixedSubstitutionModelSet::addEmptyHyperNode()
 {
   vpHyperNodes_.push_back(new HyperNode(this));
+}
+
+void MixedSubstitutionModelSet::addHyperNode(const HyperNode& hn)
+{
+  vpHyperNodes_.push_back(new HyperNode(hn));
+}
+
+void MixedSubstitutionModelSet::complete()
+{
+  MixedSubstitutionModelSet::HyperNode nhn(this);
+  unsigned int i;
+  for ( i=0;i<vpHyperNodes_.size();i++)
+    nhn+=*vpHyperNodes_[i];
+
+  unsigned int nbm=getNumberOfModels();
+  for (i=0;i<nbm;i++){
+    const MixedSubstitutionModel* pSM=dynamic_cast<const MixedSubstitutionModel*>(getModel(i));
+    if (pSM!=NULL){
+      if (nhn.getNode(i).size()!=pSM->getNumberOfModels())
+        break;
+    }
+  }
+
+  if (i==nbm)
+    return;
+  
+  addEmptyHyperNode();
+  for ( i=0;i<nbm;i++){
+    const MixedSubstitutionModel* pSM=dynamic_cast<const MixedSubstitutionModel*>(getModel(i));
+    if (pSM!=NULL){
+      const MixedSubstitutionModelSet::HyperNode::Node& nd=nhn.getNode(i);
+      int snd=(int)nd.size();
+      int vs=(int)pSM->getNumberOfModels();
+      Vint an;
+
+      int j(0), k(0);
+      while (j<vs){
+        while ((k<snd) && (nd[k]<j))
+          k++;
+        if ((k>=snd) || (nd[k]>j))
+          an.push_back(j);
+        j++;
+      }
+      addToHyperNode(i,an);
+    }
+  }
 }
 
 void MixedSubstitutionModelSet::addToHyperNode(int nM, const Vint& vnS, int nH)
@@ -95,17 +142,111 @@ void MixedSubstitutionModelSet::addToHyperNode(int nM, const Vint& vnS, int nH)
   vpHyperNodes_[nH]->addToModel(nM,vnS);
 }
 
+bool MixedSubstitutionModelSet::hasExclusivePaths() const
+{
+  HyperNode tthn(this);
+
+  unsigned int nhn=getNumberOfHyperNodes();
+  for (unsigned int i=0;i<nhn;i++){
+    if (tthn.intersects(getHyperNode(i)))
+      return false;
+    else
+      tthn+=getHyperNode(i);
+    }
+  
+  return true;
+}
+
+void MixedSubstitutionModelSet::fireParameterChanged(const ParameterList& parameters)
+{
+  SubstitutionModelSet::fireParameterChanged(parameters);
+
+  // should be restricted only when probability related parameters are changed 
+  computeHyperNodesProbabilities();
+}
+
+
+void MixedSubstitutionModelSet::computeHyperNodesProbabilities()
+{
+  unsigned int nbm=getNumberOfModels();
+
+  // Looking for the first Mixed model
+  unsigned int fmM=0;
+  
+  const MixedSubstitutionModel* pfSM;
+  for (fmM=0;fmM<nbm;fmM++){
+    pfSM=dynamic_cast<const MixedSubstitutionModel*>(getModel(fmM));
+    if (pfSM!=NULL)
+      break;
+  }
+  if (fmM==nbm){
+    return;
+  }
+  unsigned int nbh=getNumberOfHyperNodes();
+  for (unsigned int nh=0;nh<nbh;nh++){
+    MixedSubstitutionModelSet::HyperNode& h=getHyperNode(nh);
+    const MixedSubstitutionModelSet::HyperNode::Node& fnd=h.getNode(fmM);
+
+    double fprob=0;
+    for (unsigned int i=0;i<fnd.size();i++)
+      fprob+=pfSM->getNProbability(fnd[i]);
+
+    h.setProbability(fprob);
+      
+    for (unsigned int i=fmM+1;i<nbm;i++){
+      MixedSubstitutionModel* pSM=dynamic_cast<MixedSubstitutionModel*>(getModel(i));
+      if (pSM!=NULL){
+        const MixedSubstitutionModelSet::HyperNode::Node& nd=h.getNode(i);
+        double prob=0;
+        for (unsigned int j=0;j<nd.size();j++)
+          prob+=pSM->getNProbability(nd[j]);
+        for (unsigned int j=0;j<nd.size();j++){
+          pSM->setNProbability(nd[j],pSM->getNProbability(nd[j])/prob);
+        }
+      }
+    }
+  }
+}
+
+double MixedSubstitutionModelSet::getHyperNodeProbability(const HyperNode& hn) const
+{
+  unsigned int nbm=getNumberOfModels();
+  double fprob=1;
+  
+  for (unsigned int fmM=0;fmM<nbm;fmM++){
+    
+    const MixedSubstitutionModelSet::HyperNode::Node& fnd=hn.getNode(fmM);
+    const MixedSubstitutionModel* pfSM=dynamic_cast<const MixedSubstitutionModel*>(getModel(fmM));
+    if (pfSM!=NULL){
+      double x=0;
+
+      for (unsigned int i=0;i<fnd.size();i++)
+        x+=pfSM->getNProbability(fnd[i]);
+
+      fprob*=x;
+    }
+  }
+
+  return fprob;
+}
+
 /**********************************************************/
 /*************** HYPERNODE ********************************/
 /***********************************************************/
 
 
-MixedSubstitutionModelSet::HyperNode::HyperNode(const MixedSubstitutionModelSet *pMSMS): vNumbers_(pMSMS->getNumberOfModels())
+MixedSubstitutionModelSet::HyperNode::HyperNode(const MixedSubstitutionModelSet *pMSMS): vNumbers_(pMSMS->getNumberOfModels()), vUnused_(), proba_(1)
+{
+  for (unsigned int i=0;i<pMSMS->getNumberOfModels();i++){
+    const MixedSubstitutionModel* pSM=dynamic_cast<const MixedSubstitutionModel*>(pMSMS->getModel(i));
+    if (pSM==NULL)
+      vUnused_.push_back(i);
+  }
+}
+
+MixedSubstitutionModelSet::HyperNode::HyperNode(const HyperNode& hn): vNumbers_(hn.vNumbers_), vUnused_(hn.vUnused_), proba_(hn.proba_)
 {}
 
-
-MixedSubstitutionModelSet::HyperNode::HyperNode(const HyperNode& hn): vNumbers_(hn.vNumbers_)
-{}
 
 MixedSubstitutionModelSet::HyperNode& MixedSubstitutionModelSet::HyperNode::operator=(const MixedSubstitutionModelSet::HyperNode& hn)
 {
@@ -113,6 +254,12 @@ MixedSubstitutionModelSet::HyperNode& MixedSubstitutionModelSet::HyperNode::oper
   vNumbers_.resize(hn.vNumbers_.size());
   for (unsigned int i=0;i<hn.vNumbers_.size();i++)
     vNumbers_[i]=hn.vNumbers_[i];
+  vUnused_.clear();
+  vUnused_.resize(hn.vUnused_.size());
+  for (unsigned int i=0;i<hn.vUnused_.size();i++)
+    vUnused_[i]=hn.vUnused_[i];
+
+  proba_=hn.proba_;
   
   return *this;
 }
@@ -120,9 +267,31 @@ MixedSubstitutionModelSet::HyperNode& MixedSubstitutionModelSet::HyperNode::oper
 void MixedSubstitutionModelSet::HyperNode::addToModel(int nM, const Vint& vnS)
 {
   if ((nM<0) || (nM>=(int)vNumbers_.size()))
-    throw BadIntegerException("Bad Mixed model",nM);
+    throw BadIntegerException("Bad Mixed model Number",nM);
       
   vNumbers_[nM].insertN(vnS);
+}
+
+void MixedSubstitutionModelSet::HyperNode::setModel(int nM, const Vint& vnS)
+{
+  if ((nM<0) || (nM>=(int)vNumbers_.size()))
+    throw BadIntegerException("Bad Mixed model Number",nM);
+      
+  vNumbers_[nM]=vnS;
+}
+
+bool MixedSubstitutionModelSet::HyperNode::isComplete() const
+{
+  int k;
+  int vUs=(int)vUnused_.size();
+  for (int i=0;i<(int)vNumbers_.size();i++){
+    for (k=0;k<vUs;k++)
+      if (vUnused_[k]==i)
+        break;
+    if ((k==vUs) && vNumbers_[i].size()==0)
+      return false;
+  }
+  return true;
 }
 
 bool MixedSubstitutionModelSet::HyperNode::operator<=(const HyperNode& hn) const
@@ -137,17 +306,24 @@ bool MixedSubstitutionModelSet::HyperNode::operator<=(const HyperNode& hn) const
 
 bool MixedSubstitutionModelSet::HyperNode::intersects(const HyperNode& hn) const
 {
-  for (unsigned int i=0;i<vNumbers_.size();i++){
+  for (unsigned int i=0;i<vNumbers_.size();i++)
     if (vNumbers_[i].intersects(hn.vNumbers_[i]))
       return true;
-  }
-
+  
   return false;
 }
 
 bool MixedSubstitutionModelSet::HyperNode::operator>=(const HyperNode& hn) const
 {
   return hn>=*this;
+}
+
+MixedSubstitutionModelSet::HyperNode& MixedSubstitutionModelSet::HyperNode::operator+=(const HyperNode& hn)
+{
+  for (unsigned int i=0;i<vNumbers_.size();i++)
+    vNumbers_[i]+=hn.vNumbers_[i];
+  
+  return *this;
 }
 
 /**********************************************************/
@@ -168,6 +344,13 @@ void MixedSubstitutionModelSet::HyperNode::Node::insertN(const Vint& vn)
     else if (*it!=*it2)
       vNumb_.insert(it,*it2);
   }
+}
+
+MixedSubstitutionModelSet::HyperNode::Node& MixedSubstitutionModelSet::HyperNode::Node::operator+=(const Node& n)
+{
+  insertN(n.vNumb_);
+
+  return *this;
 }
 
 bool MixedSubstitutionModelSet::HyperNode::Node::operator<=(const Node& n) const
@@ -198,10 +381,11 @@ bool MixedSubstitutionModelSet::HyperNode::Node::intersects(const Node& n) const
   for (;it!=vNumb_.end();it++){
     while (it2!=n.vNumb_.end()  && (*it2<*it))
       it2++;
-    if (*it2==*it)
-      return true;
+
     if (it2==n.vNumb_.end())
       return false;
+    if (*it2==*it)
+      return true;
     it++;
   }
   return false;
