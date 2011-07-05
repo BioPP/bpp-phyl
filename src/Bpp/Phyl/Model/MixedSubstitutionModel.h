@@ -80,9 +80,15 @@ namespace bpp
      */
   
     virtual double getNProbability(unsigned int i) const = 0;
-  
+
     virtual const std::vector<double>& getProbabilities() const = 0;
-    
+
+    /**
+     * @brief Sets the  probability of a specific model from the mixture
+     */
+  
+    virtual void setNProbability(unsigned int i, double prob) = 0;
+
     virtual unsigned int getNumberOfModels() const = 0;
 
     

@@ -253,8 +253,6 @@ void MixtureOfASubstitutionModel::setFreq(std::map<int,double>& m)
   matchParametersValues(modelsContainer_[0]->getParameters());
 }
 
-
-
 Vint MixtureOfASubstitutionModel::getSubmodelNumbers(string& desc) const
 {
   vector<string> parnames = modelsContainer_[0]->getParameters().getParameterNames();
