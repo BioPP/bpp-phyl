@@ -511,7 +511,7 @@ SubstitutionModel* PhylogeneticsApplicationTools::getSubstitutionModelDefaultIns
     if (pgc->getSourceAlphabet()->getAlphabetType() != pCA->getAlphabetType())
       throw Exception("Mismatch between genetic code and codon alphabet");
 
-    string freqOpt = ApplicationTools::getStringParameter("frequencies", args, "F0");
+    string freqOpt = ApplicationTools::getStringParameter("frequencies", args, "F0", "", true, verbose);
     map<string, string> unparsedParameterValuesNested;
     FrequenciesSet* codonFreqs = getFrequenciesSetDefaultInstance(pCA, freqOpt, unparsedParameterValuesNested);
 
@@ -1376,15 +1376,15 @@ void PhylogeneticsApplicationTools::setSubstitutionModelSet(
   vector<double> rateFreqs;
   string tmpDesc;
   if (AlphabetTools::isCodonAlphabet(alphabet))
-    tmpDesc = ApplicationTools::getStringParameter("model1", params, "CodonNeutral(model=JC69)", suffix, suffixIsOptional, verbose);
+    tmpDesc = ApplicationTools::getStringParameter("model1", params, "CodonNeutral(model=JC69)", suffix, suffixIsOptional, false);
   else if (AlphabetTools::isWordAlphabet(alphabet))
-    tmpDesc = ApplicationTools::getStringParameter("model1", params, "Word(model=JC69)", suffix, suffixIsOptional, verbose);
+    tmpDesc = ApplicationTools::getStringParameter("model1", params, "Word(model=JC69)", suffix, suffixIsOptional, false);
   else
-    tmpDesc = ApplicationTools::getStringParameter("model1", params, "JC69", suffix, suffixIsOptional, verbose);
-
+    tmpDesc = ApplicationTools::getStringParameter("model1", params, "JC69", suffix, suffixIsOptional, false);
 
   map<string, string> tmpUnparsedParameterValues;
-  auto_ptr<SubstitutionModel> tmp(getSubstitutionModelDefaultInstance(alphabet, tmpDesc, tmpUnparsedParameterValues, true, true, true, 0));
+
+  auto_ptr<SubstitutionModel> tmp(getSubstitutionModelDefaultInstance(alphabet, tmpDesc, tmpUnparsedParameterValues, true, true, true, false));
   if (tmp->getNumberOfStates() != alphabet->getSize())
   {
     // Markov-Modulated Markov Model...
