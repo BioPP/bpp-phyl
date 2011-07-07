@@ -66,7 +66,7 @@ int main() {
   DiscreteDistribution* rdist = new ConstantDistribution(1.0);
   HomogeneousSequenceSimulator simulator(model, rdist, tree);
   TotalSubstitutionRegister* totReg = new TotalSubstitutionRegister(alphabet);
-  ExhaustiveSubstitutionRegister* detReg = new ExhaustiveSubstitutionRegister(alphabet);
+  ComprehensiveSubstitutionRegister* detReg = new ComprehensiveSubstitutionRegister(alphabet);
 
   unsigned int n = 20000;
   vector< vector<double> > realMap(n);
@@ -75,7 +75,7 @@ int main() {
   VectorSiteContainer sites(tree->getLeavesNames(), alphabet);
   for (unsigned int i = 0; i < n; ++i) {
     ApplicationTools::displayGauge(i, n-1, '=');
-    RASiteSimulationResult* result = simulator.dSimulate();
+    auto_ptr<RASiteSimulationResult> result(simulator.dSimulate());
     realMap[i].resize(ids.size());
     realMapTotal[i].resize(ids.size());
     realMapDetailed[i].resize(ids.size());
@@ -97,7 +97,6 @@ int main() {
     auto_ptr<Site> site(result->getSite());
     site->setPosition(i);
     sites.addSite(*site, false);
-    delete result;
   }
   ApplicationTools::displayTaskDone();
   
@@ -158,7 +157,7 @@ int main() {
   MatrixTools::print(*m);
   delete m;
   ProbabilisticSubstitutionMapping* probMapUniTot = 
-    SubstitutionMappingTools::computeSubstitutionVectors(drhtl, *sCountUniTot);
+    SubstitutionMappingTools::computeSubstitutionVectors(drhtl, *sCountUniTot);  
 
   SubstitutionCount* sCountUniDet = new UniformizationSubstitutionCount(model, detReg);
   m = sCountUniDet->getAllNumbersOfSubstitutions(0.001,1);
@@ -167,6 +166,51 @@ int main() {
   delete m;
   ProbabilisticSubstitutionMapping* probMapUniDet = 
     SubstitutionMappingTools::computeSubstitutionVectors(drhtl, *sCountUniDet);
+
+  //Check saturation:
+  cout << "checking saturation..." << endl;
+  m = sCountUniDet->getAllNumbersOfSubstitutions(0.001,1);
+  cout << "Total count, uniformization method:" << endl;
+  MatrixTools::print(*m);
+  cout << MatrixTools::sumElements(*m) << endl;
+  delete m;
+  m = sCountUniDet->getAllNumbersOfSubstitutions(0.01,1);
+  cout << "Total count, uniformization method:" << endl;
+  MatrixTools::print(*m);
+  cout << MatrixTools::sumElements(*m) << endl;
+  delete m;
+  m = sCountUniDet->getAllNumbersOfSubstitutions(0.1,1);
+  cout << "Total count, uniformization method:" << endl;
+  MatrixTools::print(*m);
+  cout << MatrixTools::sumElements(*m) << endl;
+  delete m;
+  m = sCountUniDet->getAllNumbersOfSubstitutions(1,1);
+  cout << "Total count, uniformization method:" << endl;
+  MatrixTools::print(*m);
+  cout << MatrixTools::sumElements(*m) << endl;
+  delete m;
+  m = sCountUniDet->getAllNumbersOfSubstitutions(2,1);
+  cout << "Total count, uniformization method:" << endl;
+  MatrixTools::print(*m);
+  cout << MatrixTools::sumElements(*m) << endl;
+  delete m;
+  m = sCountUniDet->getAllNumbersOfSubstitutions(3,1);
+  cout << "Total count, uniformization method:" << endl;
+  MatrixTools::print(*m);
+  cout << MatrixTools::sumElements(*m) << endl;
+  delete m;
+  m = sCountUniDet->getAllNumbersOfSubstitutions(4,1);
+  cout << "Total count, uniformization method:" << endl;
+  MatrixTools::print(*m);
+  cout << MatrixTools::sumElements(*m) << endl;
+  delete m;
+  m = sCountUniDet->getAllNumbersOfSubstitutions(10,1);
+  cout << "Total count, uniformization method:" << endl;
+  MatrixTools::print(*m);
+  cout << MatrixTools::sumElements(*m) << endl;
+  delete m;
+
+
 
   //Check per branch:
   

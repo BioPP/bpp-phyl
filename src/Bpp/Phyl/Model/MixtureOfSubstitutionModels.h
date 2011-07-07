@@ -173,6 +173,7 @@ namespace bpp
      */
 
     virtual void setVRates(Vdouble& vd);
+
     /**
      * @brief applies setFreq to all the models of the mixture and
      * recovers the parameters values.

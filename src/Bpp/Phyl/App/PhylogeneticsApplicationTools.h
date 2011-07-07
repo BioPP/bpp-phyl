@@ -44,6 +44,7 @@
 #include "../Tree.h"
 #include "../Model/SubstitutionModel.h"
 #include "../Model/SubstitutionModelSet.h"
+#include "../Model/MixedSubstitutionModelSet.h"
 #include "../Model/MarkovModulatedSubstitutionModel.h"
 #include "../Likelihood/HomogeneousTreeLikelihood.h"
 #include "../Likelihood/ClockTreeLikelihood.h"
@@ -305,7 +306,21 @@ namespace bpp
     
 
     /**
-     * @brief Build a SubstitutionModelSet object according to options.
+     * @brief Gets a SubstitutionModelSet object according to options.
+     *
+     * See setSubstitutionModelSet and setMixedSubstitutionModelSet
+     * methods.
+     */
+
+     static SubstitutionModelSet* getSubstitutionModelSet(
+                                        const Alphabet* alphabet,
+                                        const SiteContainer* data, 
+                                        std::map<std::string, std::string>& params,
+                                        const std::string& suffix = "",
+                                        bool suffixIsOptional = true,
+                                        bool verbose = true);    
+    /**
+     * @brief Sets a SubstitutionModelSet object according to options.
      *
      * This model set is meant to be used with non-homogeneous substitution models of sequence evolution.
      *
@@ -344,6 +359,7 @@ namespace bpp
      * @endcode
      * but will require more memory and use more CPU, since some calculations will be performed twice.
      *
+     * @param modelSet The modified SubstitutionModelSet object according to options specified.
      * @param alphabet The alpabet to use in all models.
      * @param data     A pointer toward the SiteContainer for which the substitution model is designed.
      *                  The alphabet associated to the data must be of the same type as the one specified for the model.
@@ -352,18 +368,89 @@ namespace bpp
      * @param suffix   A suffix to be applied to each attribute name.
      * @param suffixIsOptional Tell if the suffix is absolutely required.
      * @param verbose Print some info to the 'message' output stream.
-     * @return A new SubstitutionModelSet object according to options specified.
      * @throw Exception if an error occured.
      */
-    static SubstitutionModelSet* getSubstitutionModelSet(
-        const Alphabet* alphabet,
-        const SiteContainer* data, 
-        std::map<std::string, std::string>& params,
-        const std::string& suffix = "",
-        bool suffixIsOptional = true,
-        bool verbose = true)
-      throw (Exception);
-  
+    static void setSubstitutionModelSet(
+                                        SubstitutionModelSet& modelSet,
+                                        const Alphabet* alphabet,
+                                        const SiteContainer* data, 
+                                        std::map<std::string, std::string>& params,
+                                        const std::string& suffix = "",
+                                        bool suffixIsOptional = true,
+                                        bool verbose = true);
+    
+    /**
+     * @brief Build a MixedSubstitutionModelSet object according to
+     * options.
+     *
+     * This model uses setSubstitutionModelSet function to build the
+     * SubstitutionModelSet part, and the specific part builds the
+     * allowed combinations of submodels of the different mixed
+     * models.
+     *
+     * If none combination is given, then all possible submodels
+     * combinations will be considered.
+     *
+     * The submodels dependencies are given a sets of combinations of
+     * the mixed variables of the mixed models. For instance, if we
+     * have:
+     *
+     * @code
+     * model1=MixedModel(model=T92(kappa=Gamma(n=4), theta=0.5))
+     * model2=MixedModel(model=T92(kappa=Gaussian(n=5), theta=Beta(n=3)))
+     * @endcode
+     *
+     * In this case model1 is a mixture of 4 T92 submodels and model2
+     * a mixture of 15 T92 submodels. These submodels are denoted with
+     * the parameter name and the class number. For example, the
+     * submodels of model1 are denoted model1[kappa_1], ...,
+     * model1[kappa_4], and the submodels of model2 are denoted
+     * model2[kappa_1,theta_1], ..., model2[kappa_5, theta_3].
+     * Additionnaly, for instance, model2[kappa_2] denotes all the
+     * submodels whose description has kappa_2.
+     *
+     * By default, when switching from model1 to model2, a site is
+     * allowed to switch between any submodel of model1 and any
+     * submodel of model2. If the only allowed combination is that a
+     * site follows submodels model1(kappa_1) and
+     * model2(kappa_3,theta_2), it is denoted:
+     *
+     * @code
+     * site.allowedpaths= model1[kappa_1] & model2[kappa_3,theta_2]
+     * @endcode
+     *
+     * With additional combination saying that a site can follow
+     * submodels model1[kappa_2] and any submodel of model2[kappa_3]
+     * is denoted:
+     *
+     * @code
+     * site.allowedpaths= model1[kappa_1] & model2[kappa_3,theta_2] |
+     *                    model1[kappa_2] & model2[kappa_3]
+     * @endcode
+     *
+     * See MixedSubstitutionModelSet description for further
+     * information.
+     *
+     * @param mixedModelSet The modified MixedSubstitutionModelSet object according to options specified.
+     * @param alphabet The alpabet to use in all models.
+     * @param data     A pointer toward the SiteContainer for which the substitution model is designed.
+     *                  The alphabet associated to the data must be of the same type as the one specified for the model.
+     *                 May be equal to NULL, but in this cas use_observed_freq option will be unavailable.
+     * @param params   The attribute map where options may be found.
+     * @param suffix   A suffix to be applied to each attribute name.
+     * @param suffixIsOptional Tell if the suffix is absolutely required.
+     * @param verbose Print some info to the 'message' output stream.
+     * @throw Exception if an error occured.
+     */
+    
+    static void setMixedSubstitutionModelSet(
+                                             MixedSubstitutionModelSet& mixedModelSet,
+                                             const Alphabet* alphabet,
+                                             const SiteContainer* data, 
+                                             std::map<std::string, std::string>& params,
+                                             const std::string& suffix = "",
+                                             bool suffixIsOptional = true,
+                                             bool verbose = true);
     /**
      * @brief Build a rate distribution as a DiscreteDistribution object with default parameter values according to a keyval description.
      *

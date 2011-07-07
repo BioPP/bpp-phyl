@@ -52,6 +52,8 @@ using namespace bpp;
 #include <cmath>
 using namespace std;
 
+ExcludingInterval FrequenciesSet::FREQUENCE_CONSTRAINT(0.000001, 0.999999);
+
 // ///////////////////////////////////////
 // AbstractFrequenciesSet
 
@@ -92,7 +94,7 @@ FullFrequenciesSet::FullFrequenciesSet(const Alphabet* alphabet, bool allowNullF
       1. / (size - i),
       allowNullFreqs ?
       dynamic_cast<Constraint*>(&Parameter::PROP_CONSTRAINT_IN) :
-      dynamic_cast<Constraint*>(&Parameter::PROP_CONSTRAINT_EX));
+      dynamic_cast<Constraint*>(&FrequenciesSet::FREQUENCE_CONSTRAINT));
     addParameter_(p);
     getFreq_(i) = 1. / size;
   }
@@ -119,7 +121,7 @@ FullFrequenciesSet::FullFrequenciesSet(const Alphabet* alphabet, const vector<do
       initFreqs[i] / y,
       allowNullFreqs ?
       dynamic_cast<Constraint*>(&Parameter::PROP_CONSTRAINT_IN) :
-      dynamic_cast<Constraint*>(&Parameter::PROP_CONSTRAINT_EX));
+      dynamic_cast<Constraint*>(&FrequenciesSet::FREQUENCE_CONSTRAINT));
     addParameter_(p);
     getFreq_(i) = initFreqs[i];
     y -= initFreqs[i];
@@ -185,7 +187,7 @@ FullCodonFrequenciesSet::FullCodonFrequenciesSet(const CodonAlphabet* alphabet, 
         1. / (size - j),
         allowNullFreqs ?
         dynamic_cast<Constraint*>(&Parameter::PROP_CONSTRAINT_IN) :
-        dynamic_cast<Constraint*>(&Parameter::PROP_CONSTRAINT_EX));
+        dynamic_cast<Constraint*>(&FrequenciesSet::FREQUENCE_CONSTRAINT));
       addParameter_(p);
       getFreq_(i) = 1. / size;
       j++;
@@ -225,7 +227,7 @@ FullCodonFrequenciesSet::FullCodonFrequenciesSet(const CodonAlphabet* alphabet, 
         initFreqs[i] / sum / y,
         allowNullFreqs ?
         dynamic_cast<Constraint*>(&Parameter::PROP_CONSTRAINT_IN) :
-        dynamic_cast<Constraint*>(&Parameter::PROP_CONSTRAINT_EX));
+        dynamic_cast<Constraint*>(&FrequenciesSet::FREQUENCE_CONSTRAINT));
       addParameter_(p);
       getFreq_(i) = initFreqs[i] / sum;
       y -= initFreqs[i] / sum;
@@ -298,18 +300,18 @@ FullNucleotideFrequenciesSet::FullNucleotideFrequenciesSet(
     "Full.theta", 0.5,
     allowNullFreqs ?
     dynamic_cast<Constraint*>(&Parameter::PROP_CONSTRAINT_IN) :
-    dynamic_cast<Constraint*>(&Parameter::PROP_CONSTRAINT_EX));
+    dynamic_cast<Constraint*>(&FrequenciesSet::FREQUENCE_CONSTRAINT));
   addParameter_(thetaP);
   Parameter theta1P(
     "Full.theta1", 0.5,
     allowNullFreqs ?
     dynamic_cast<Constraint*>(&Parameter::PROP_CONSTRAINT_IN) :
-    dynamic_cast<Constraint*>(&Parameter::PROP_CONSTRAINT_EX));
+    dynamic_cast<Constraint*>(&FrequenciesSet::FREQUENCE_CONSTRAINT));
   addParameter_(theta1P);
   Parameter theta2P("Full.theta2", 0.5,
                     allowNullFreqs ?
                     dynamic_cast<Constraint*>(&Parameter::PROP_CONSTRAINT_IN) :
-                    dynamic_cast<Constraint*>(&Parameter::PROP_CONSTRAINT_EX));
+                    dynamic_cast<Constraint*>(&FrequenciesSet::FREQUENCE_CONSTRAINT));
   addParameter_(theta2P);
   getFreq_(0) = getFreq_(1) = getFreq_(2) = getFreq_(3) = 0.25;
 }
@@ -324,14 +326,14 @@ FullNucleotideFrequenciesSet::FullNucleotideFrequenciesSet(
     theta,
     allowNullFreqs ?
     dynamic_cast<Constraint*>(&Parameter::PROP_CONSTRAINT_IN) :
-    dynamic_cast<Constraint*>(&Parameter::PROP_CONSTRAINT_EX));
+    dynamic_cast<Constraint*>(&FrequenciesSet::FREQUENCE_CONSTRAINT));
   addParameter_(thetaP);
   Parameter theta1P(
     "Full.theta1",
     theta1,
     allowNullFreqs ?
     dynamic_cast<Constraint*>(&Parameter::PROP_CONSTRAINT_IN) :
-    dynamic_cast<Constraint*>(&Parameter::PROP_CONSTRAINT_EX));
+    dynamic_cast<Constraint*>(&FrequenciesSet::FREQUENCE_CONSTRAINT));
   addParameter_(theta1P);
   Parameter theta2P(
     "Full.theta2",

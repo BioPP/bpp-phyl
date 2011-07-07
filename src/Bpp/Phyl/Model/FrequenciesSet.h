@@ -118,6 +118,8 @@ public:
   static const short F1X4;
   static const short F3X4;
   static const short F61;
+
+  static ExcludingInterval FREQUENCE_CONSTRAINT;
 };
 
 /**

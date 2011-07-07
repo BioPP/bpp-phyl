@@ -253,5 +253,40 @@ void MixtureOfASubstitutionModel::setFreq(std::map<int,double>& m)
   matchParametersValues(modelsContainer_[0]->getParameters());
 }
 
+Vint MixtureOfASubstitutionModel::getSubmodelNumbers(string& desc) const
+{
+  vector<string> parnames = modelsContainer_[0]->getParameters().getParameterNames();
+  std::map<std::string, unsigned int> msubn;
+  map<string, DiscreteDistribution*>::const_iterator it;
+  
+  StringTokenizer st(desc, ",");
+  while (st.hasMoreToken()) {
+    string param = st.nextToken();
+    string::size_type index = param.find("_");
+    if (index == string::npos)
+      throw Exception("MixtureOfASubstitutionModel::getSubmodelNumbers parameter descripion should contain a number" + param);
+    msubn[param.substr(0,index)]=TextTools::toInt(param.substr(index+1,4))-1;
+  }
 
+  Vint submodnb;
+  unsigned int i,j,l;
+  string s;
 
+  for (i = 0; i < modelsContainer_.size(); i++) {
+    j = i;
+    for (it = distributionMap_.begin(); it != distributionMap_.end(); it++)
+      {
+        s = it->first;
+        l = j % it->second->getNumberOfCategories();
+          
+        if ((msubn.find(s)!=msubn.end()) && (msubn[s]!=l))
+          break;
+        
+        j = j / it->second->getNumberOfCategories();
+      }
+    if (it==distributionMap_.end())
+      submodnb.push_back(i);
+  }
+
+  return submodnb;
+}

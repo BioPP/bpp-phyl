@@ -183,7 +183,7 @@ namespace bpp
     {
       return vProbas_[i];
     }
-    
+
     /**
      * @brief Returns the vector of probabilities
      *
@@ -193,7 +193,17 @@ namespace bpp
     {
       return vProbas_;
     }
-    
+
+    /**
+     * @brief Sets the  probability of a specific model from the mixture
+     */
+  
+    virtual void setNProbability(unsigned int i, double prob)
+    {
+      if ((prob>=0) && (prob<=1))
+        vProbas_[i]=prob;
+    }
+
     /**
      * @brief This function can not be applied here, so it is defined
      * to prevent wrong usage.

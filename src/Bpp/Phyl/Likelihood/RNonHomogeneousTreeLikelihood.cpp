@@ -1351,6 +1351,7 @@ void RNonHomogeneousTreeLikelihood::computeSubtreeLikelihood(const Node* node)
   }
 }
 
+
 /******************************************************************************/
 
 void RNonHomogeneousTreeLikelihood::displayLikelihood(const Node* node)

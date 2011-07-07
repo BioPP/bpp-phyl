@@ -59,7 +59,6 @@ set(CPP_FILES
   Bpp/Phyl/Model/AbstractCodonReversibleSubstitutionModel.cpp
   Bpp/Phyl/Model/AbstractSubstitutionModel.cpp
   Bpp/Phyl/Model/AbstractWordReversibleSubstitutionModel.cpp
-  Bpp/Phyl/Model/COA.cpp
   Bpp/Phyl/Model/CodonAsynonymousFrequenciesReversibleSubstitutionModel.cpp
   Bpp/Phyl/Model/CodonAsynonymousReversibleSubstitutionModel.cpp
   Bpp/Phyl/Model/CodonNeutralFrequenciesReversibleSubstitutionModel.cpp
@@ -94,6 +93,7 @@ set(CPP_FILES
   Bpp/Phyl/Model/RE08.cpp
   Bpp/Phyl/Model/SubstitutionModelFactory.cpp
   Bpp/Phyl/Model/SubstitutionModelSet.cpp
+  Bpp/Phyl/Model/MixedSubstitutionModelSet.cpp
   Bpp/Phyl/Model/SubstitutionModelSetTools.cpp
   Bpp/Phyl/Model/T92.cpp
   Bpp/Phyl/Model/TN93.cpp
@@ -196,7 +196,6 @@ set(H_FILES
   Bpp/Phyl/Model/AbstractCodonReversibleSubstitutionModel.h
   Bpp/Phyl/Model/AbstractSubstitutionModel.h
   Bpp/Phyl/Model/AbstractWordReversibleSubstitutionModel.h
-  Bpp/Phyl/Model/COA.h
   Bpp/Phyl/Model/CodonAsynonymousFrequenciesReversibleSubstitutionModel.h
   Bpp/Phyl/Model/CodonAsynonymousReversibleSubstitutionModel.h
   Bpp/Phyl/Model/CodonNeutralFrequenciesReversibleSubstitutionModel.h
@@ -236,6 +235,7 @@ set(H_FILES
   Bpp/Phyl/Model/SubstitutionModelFactory.h
   Bpp/Phyl/Model/SubstitutionModel.h
   Bpp/Phyl/Model/SubstitutionModelSet.h
+  Bpp/Phyl/Model/MixedSubstitutionModelSet.h
   Bpp/Phyl/Model/SubstitutionModelSetTools.h
   Bpp/Phyl/Model/T92.h
   Bpp/Phyl/Model/TN93.h

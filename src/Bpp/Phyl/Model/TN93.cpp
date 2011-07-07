@@ -38,6 +38,7 @@ knowledge of the CeCILL license and that you accept its terms.
 */
 
 #include "TN93.h"
+#include "FrequenciesSet.h"
 
 #include <Bpp/Numeric/Matrix/MatrixTools.h>
 #include <Bpp/Numeric/Matrix/EigenValue.h>
@@ -73,11 +74,11 @@ TN93::TN93(
 	addParameter_(kappa1P);
 	Parameter kappa2P("TN93.kappa2", kappa2, &Parameter::R_PLUS_STAR);
 	addParameter_(kappa2P);
-	Parameter thetaP("TN93.theta" , theta_ , &Parameter::PROP_CONSTRAINT_EX);
+	Parameter thetaP("TN93.theta" , theta_ , &FrequenciesSet::FREQUENCE_CONSTRAINT);
 	addParameter_(thetaP);
-	Parameter theta1P("TN93.theta1", theta1_, &Parameter::PROP_CONSTRAINT_EX);
+	Parameter theta1P("TN93.theta1", theta1_, &FrequenciesSet::FREQUENCE_CONSTRAINT);
 	addParameter_(theta1P);
-	Parameter theta2P("TN93.theta2", theta2_, &Parameter::PROP_CONSTRAINT_EX);
+	Parameter theta2P("TN93.theta2", theta2_, &FrequenciesSet::FREQUENCE_CONSTRAINT);
 	addParameter_(theta2P);
   p_.resize(size_, size_);
 	updateMatrices();
