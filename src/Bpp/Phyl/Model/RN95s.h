@@ -73,7 +73,8 @@ namespace bpp
    * \f[
    * \pi = \left(\pi_A, \pi_C, \pi_G, \pi_T\right)
    * \f]
-   * is such as \f[\pi_A=\pi_T\f] and \f[\pi_C=\pi_G\f]. It can be computed analytically.
+   * is such as \f[\pi_A=\pi_T\f] and \f[\pi_C=\pi_G\f]
+   * It can be computed analytically.
    *
    * We use as  parameters:
    *

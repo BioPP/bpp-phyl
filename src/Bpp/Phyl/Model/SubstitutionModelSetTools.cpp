@@ -38,6 +38,8 @@ knowledge of the CeCILL license and that you accept its terms.
 */
 
 #include "SubstitutionModelSetTools.h"
+#include "MixedSubstitutionModelSet.h"
+#include "MixedSubstitutionModel.h"
 
 using namespace bpp;
 
@@ -52,7 +54,10 @@ SubstitutionModelSet* SubstitutionModelSetTools::createHomogeneousModelSet(
   //Check alphabet:
   if(model->getAlphabet()->getAlphabetType() != rootFreqs->getAlphabet()->getAlphabetType())
     throw AlphabetMismatchException("SubstitutionModelSetTools::createHomogeneousModelSet()", model->getAlphabet(), rootFreqs->getAlphabet());
-  SubstitutionModelSet * modelSet = new SubstitutionModelSet(model->getAlphabet(), rootFreqs);
+
+  SubstitutionModelSet*  modelSet = new SubstitutionModelSet(model->getAlphabet());
+
+  modelSet->setRootFrequencies(rootFreqs);
   //We assign this model to all nodes in the tree (excepted root node), and link all parameters with it.
   vector<int> ids = tree->getNodesId();
   int rootId = tree->getRootId();
@@ -67,6 +72,7 @@ SubstitutionModelSet* SubstitutionModelSetTools::createHomogeneousModelSet(
   }
   ids.erase(ids.begin() + pos);
   modelSet->addModel(model, ids, model->getParameters().getParameterNames());
+
   return modelSet;
 }
 
@@ -114,9 +120,17 @@ SubstitutionModelSet* SubstitutionModelSetTools::createNonHomogeneousModelSet(
       globalParameters.deleteParameter(i - 1);
     }
   }
-  SubstitutionModelSet* modelSet = rootFreqs ?
-    new SubstitutionModelSet(model->getAlphabet(), rootFreqs) :
-    new SubstitutionModelSet(model->getAlphabet(), true);
+
+  bool mixed=(dynamic_cast<MixedSubstitutionModel*>(model)!=NULL);
+  SubstitutionModelSet*  modelSet;
+  if (mixed)
+    modelSet = new MixedSubstitutionModelSet(model->getAlphabet());
+  else
+    modelSet = new SubstitutionModelSet(model->getAlphabet());
+    
+  if (rootFreqs)
+    modelSet->setRootFrequencies(rootFreqs);
+
   //We assign a copy of this model to all nodes in the tree (excepted root node), and link all parameters with it.
   vector<int> ids = tree->getNodesId();
   int rootId = tree->getRootId();
@@ -134,8 +148,24 @@ SubstitutionModelSet* SubstitutionModelSetTools::createNonHomogeneousModelSet(
   {
     modelSet->addModel(dynamic_cast<SubstitutionModel*>(model->clone()), vector<int>(1, ids[i]), branchParameters.getParameterNames());
   }
+  
   //Now add global parameters to all nodes:
   modelSet->addParameters(globalParameters, ids);
+
+  // Defines the hypernodes if mixed
+  if (mixed){
+    MixedSubstitutionModelSet* pMSMS=dynamic_cast<MixedSubstitutionModelSet*>(modelSet);
+    MixedSubstitutionModel* pMSM=dynamic_cast<MixedSubstitutionModel*>(model);
+
+    unsigned int nbm=pMSM->getNumberOfModels();
+    for ( i=0;i<nbm;i++){
+      pMSMS->addEmptyHyperNode();
+      for ( j=0;j<ids.size();j++)
+        pMSMS->addToHyperNode(j,vector<int>(1,i));
+    }
+    
+  }
+
   delete model; //delete template model.
   return modelSet;
 }

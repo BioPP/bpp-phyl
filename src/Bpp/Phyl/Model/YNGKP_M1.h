@@ -139,7 +139,12 @@ public:
     return pmixmodel_->getProbabilities();
   }
     
-  unsigned int getNumberOfModels() const {
+  void setNProbability(unsigned int i, double prob)
+  {
+    pmixmodel_->setNProbability(i, prob);
+  }
+
+    unsigned int getNumberOfModels() const {
     return pmixmodel_->getNumberOfModels();
   }
 

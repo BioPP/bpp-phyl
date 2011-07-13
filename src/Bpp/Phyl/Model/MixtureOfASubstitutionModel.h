@@ -108,7 +108,7 @@ private:
   
 public:
   MixtureOfASubstitutionModel(const Alphabet* alpha,
-                         SubstitutionModel* model,
+                              SubstitutionModel* model,
                               std::map<std::string, DiscreteDistribution*> parametersDistributionsList,
                               int ffrom=-1, int tto=-1) throw(Exception);
 
@@ -125,12 +125,24 @@ public:
 
   void updateMatrices();
 
+  /*
+   *@brief Returns the vector of numbers of the submodels in the
+   *mixture that match a description of the parameters numbers.
+   *
+   *@param desc is the description of the class indexes of the mixed
+   *parameters. Syntax is like: kappa_1,gamma_3,delta_2
+   *
+   */
+  
+  Vint getSubmodelNumbers(std::string& desc) const;
+
   /**
    * @brief sets the eq frequencies of the first nested model, and
    * adapts the parameters at best to it (surely there is a better way
    * to manage this).
    *
    */
+
   void setFreq(std::map<int,double>&);
 
   

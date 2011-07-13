@@ -93,6 +93,34 @@ SubstitutionModelSet& SubstitutionModelSet::operator=(const SubstitutionModelSet
   return *this;
 }
 
+void SubstitutionModelSet::clear()
+{
+  resetParameters_();
+  nbStates_=0;
+  for (unsigned int i = 0; i < modelSet_.size(); i++)
+    {
+      delete modelSet_[i];
+    }
+  modelSet_.clear();
+  rootFrequencies_.reset();
+  nodeToModel_.clear();
+  paramToModels_.clear();
+  paramNamesCount_.clear();
+  modelParameterNames_.clear();
+  modelParameters_.clear();
+  stationarity_=true;
+
+}
+
+void SubstitutionModelSet::setRootFrequencies(FrequenciesSet* rootFreqs)
+{
+  if (rootFreqs){
+    stationarity_=false;
+    rootFrequencies_.reset(rootFreqs);
+    addParameters_(rootFrequencies_->getParameters());
+  }
+}
+
 std::vector<int> SubstitutionModelSet::getNodesWithParameter(const std::string& name) const
 throw (ParameterNotFoundException)
 {

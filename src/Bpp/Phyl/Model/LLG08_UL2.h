@@ -146,7 +146,12 @@ public:
     return pmixmodel_->getNProbability(i);
   }
 
-  const std::vector<double>& getProbabilities() const {
+  void setNProbability(unsigned int i, double prob)
+  {
+    pmixmodel_->setNProbability(i, prob);
+  }
+
+    const std::vector<double>& getProbabilities() const {
     return pmixmodel_->getProbabilities();
   }
     
