@@ -125,6 +125,7 @@ class AbstractNonHomogeneousTreeLikelihood:
     double minimumBrLen_;
     std::auto_ptr<Constraint> brLenConstraint_;
 
+    bool reparametrizeRoot_;
     int root1_, root2_;
 
   public:
@@ -132,7 +133,8 @@ class AbstractNonHomogeneousTreeLikelihood:
       const Tree& tree,
       SubstitutionModelSet* modelSet,
       DiscreteDistribution* rDist,
-      bool verbose = true)
+      bool verbose = true,
+      bool reparametrizeRoot = true)
       throw (Exception);
 
     /**

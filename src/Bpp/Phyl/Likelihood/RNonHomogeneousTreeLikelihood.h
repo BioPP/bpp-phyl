@@ -104,6 +104,7 @@ class RNonHomogeneousTreeLikelihood :
      * If true, any rooted tree will be unrooted before likelihood computation.
      * @param verbose Should I display some info?
      * @param usePatterns Tell if recursive site compression should be performed.
+     * @param reparametrizeRoot Should we reparametrize the branch lengths at root?
      * @throw Exception in an error occured.
      */
 		RNonHomogeneousTreeLikelihood(
@@ -111,7 +112,8 @@ class RNonHomogeneousTreeLikelihood :
 			SubstitutionModelSet* modelSet,
 			DiscreteDistribution* rDist,
 			bool verbose = true,
-      bool usePatterns = true)
+      bool usePatterns = true,
+      bool reparametrizeRoot = false)
 			throw (Exception);
 	
     /**
@@ -125,6 +127,7 @@ class RNonHomogeneousTreeLikelihood :
      * @param rDist The rate across sites distribution to use.
      * @param verbose Should I display some info?
      * @param usePatterns Tell if recursive site compression should be performed.
+     * @param reparametrizeRoot Should we reparametrize the branch lengths at root?
      * @throw Exception in an error occured.
      */
 		RNonHomogeneousTreeLikelihood(
@@ -133,7 +136,8 @@ class RNonHomogeneousTreeLikelihood :
 			SubstitutionModelSet* modelSet,
 			DiscreteDistribution* rDist,
 			bool verbose = true,
-      bool usePatterns = true)
+      bool usePatterns = true,
+      bool reparametrizeRoot = false)
 			throw (Exception);
 
     RNonHomogeneousTreeLikelihood(const RNonHomogeneousTreeLikelihood& lik);

@@ -12,6 +12,7 @@
 #include "Likelihood/DRTreeLikelihood.h"
 #include "Likelihood/DRTreeLikelihoodTools.h"
 #include "Likelihood/DiscreteRatesAcrossSitesTreeLikelihood.h"
+#include "Likelihood/GlobalClockTreeLikelihoodFunctionWrapper.h"
 #include "Likelihood/HomogeneousTreeLikelihood.h"
 #include "Likelihood/MarginalAncestralStateReconstruction.h"
 #include "Likelihood/NNIHomogeneousTreeLikelihood.h"
