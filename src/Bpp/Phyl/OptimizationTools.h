@@ -421,6 +421,7 @@ public:
    * @param optMethodDeriv Optimization type for derivable parameters (first or second order derivatives).
    * @see OPTIMIZATION_NEWTON, OPTIMIZATION_GRADIENT
    * @throw Exception any exception thrown by the Optimizer.
+   * @deprecated See optimizeNumericalParameters2 as a more general replacement.
    */
   static unsigned int optimizeNumericalParametersWithGlobalClock(
     DiscreteRatesAcrossSitesClockTreeLikelihood* cl,
@@ -453,6 +454,7 @@ public:
    * @param optMethodDeriv Optimization type for derivable parameters (first or second order derivatives).
    * @see OPTIMIZATION_NEWTON, OPTIMIZATION_GRADIENT
    * @throw Exception any exception thrown by the Optimizer.
+   * @deprecated See optimizeNumericalParameters2 as a more general replacement.
    */
   static unsigned int optimizeNumericalParametersWithGlobalClock2(
     DiscreteRatesAcrossSitesClockTreeLikelihood* cl,
