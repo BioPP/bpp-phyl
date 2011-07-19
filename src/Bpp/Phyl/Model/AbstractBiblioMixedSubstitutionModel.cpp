@@ -1,7 +1,7 @@
 //
-// File: GY94.cpp
+// File: AbstractBiblioMixedSubstitutionModel.cpp
 // Created by:  Laurent Gueguen
-// Created on: July 2009
+// Created on: lundi 18 juillet 2011, à 15h 27
 //
 
 /*
@@ -36,56 +36,25 @@ The fact that you are presently reading this means that you have had
 knowledge of the CeCILL license and that you accept its terms.
 */
 
-#include "GY94.h"
-#include "FrequenciesSet.h"
-
+#include "AbstractBiblioMixedSubstitutionModel.h"
 using namespace bpp;
 
 using namespace std;
 
 /******************************************************************************/
 
-GY94::GY94(const GeneticCode* gc, FrequenciesSet* codonFreqs) :
-  AbstractBiblioSubstitutionModel("GY94."),
-  gacd_(),
-  pmodel_(new CodonAsynonymousFrequenciesReversibleSubstitutionModel(gc, codonFreqs, &gacd_))
-{
-  addParameter_(Parameter("GY94.kappa",1,&Parameter::R_PLUS_STAR));
-  addParameter_(Parameter("GY94.V",10000,&Parameter::R_PLUS_STAR));
+AbstractBiblioMixedSubstitutionModel::AbstractBiblioMixedSubstitutionModel(const std::string& prefix):
+  AbstractBiblioSubstitutionModel(prefix)
+{}
   
-  pmodel_->setNamespace("GY94.");
-  addParameters_(codonFreqs->getParameters());
-
-  lParPmodel_.addParameters(pmodel_->getParameters());
-  
-  vector<std::string> v=pmodel_->getFreq().getParameters().getParameterNames();
-  for (unsigned int i=0;i<v.size();i++)
-    mapParNamesFromPmodel_[v[i]]=getParameterNameWithoutNamespace(v[i]);
-
-  mapParNamesFromPmodel_["GY94.123_K80.kappa"]="kappa";
-  mapParNamesFromPmodel_["GY94.alpha"]="V";
-  
-  updateMatrices();
-}
-
-GY94::GY94(const GY94& gy94) :
-  AbstractBiblioSubstitutionModel(gy94),
-  gacd_(),
-  pmodel_(new CodonAsynonymousFrequenciesReversibleSubstitutionModel(*gy94.pmodel_))
+AbstractBiblioMixedSubstitutionModel::AbstractBiblioMixedSubstitutionModel(const AbstractBiblioMixedSubstitutionModel& mod2) : AbstractBiblioSubstitutionModel(mod2)
 {}
 
-GY94& GY94::operator=(const GY94& gy94)
+AbstractBiblioMixedSubstitutionModel& AbstractBiblioMixedSubstitutionModel::operator=(const AbstractBiblioMixedSubstitutionModel& mod2)
 {
-  AbstractBiblioSubstitutionModel::operator=(gy94);
-  if (pmodel_)
-    delete pmodel_;
-  pmodel_ = new CodonAsynonymousFrequenciesReversibleSubstitutionModel(*gy94.pmodel_);
-  return *this;
+  AbstractBiblioSubstitutionModel::operator=(mod2);
 }
 
-GY94::~GY94()
-{
-  if (pmodel_)
-    delete pmodel_;
-}
+AbstractBiblioMixedSubstitutionModel::~AbstractBiblioMixedSubstitutionModel()
+{}
 

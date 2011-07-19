@@ -68,7 +68,8 @@ AbstractBiblioSubstitutionModel& AbstractBiblioSubstitutionModel::operator=(cons
 void AbstractBiblioSubstitutionModel::updateMatrices()
 {
   for (unsigned int i=0;i<lParPmodel_.size();i++){
-    lParPmodel_[i].setValue(getParameter(mapParNamesFromPmodel_[lParPmodel_[i].getName()]).getValue());
+    if (mapParNamesFromPmodel_.find(lParPmodel_[i].getName())!=mapParNamesFromPmodel_.end())
+      lParPmodel_[i].setValue(getParameter(getParameterNameWithoutNamespace(mapParNamesFromPmodel_[lParPmodel_[i].getName()])).getValue());
   }
 
   getModel()->matchParametersValues(lParPmodel_);
@@ -79,6 +80,7 @@ void AbstractBiblioSubstitutionModel::updateMatrices()
 void AbstractBiblioSubstitutionModel::addRateParameter()
 {
   getModel()->addRateParameter();
+  addParameter_(Parameter(getNamespace()+"rate", getModel()->getRate(), &Parameter::R_PLUS_STAR));
   mapParNamesFromPmodel_[getNamespace()+"rate"]="rate";
   lParPmodel_.reset();
   lParPmodel_.addParameters(getModel()->getParameters());
@@ -89,13 +91,26 @@ void AbstractBiblioSubstitutionModel::addRateParameter()
 void AbstractBiblioSubstitutionModel::setFreq(std::map<int, double>& m)
 {
   getModel()->setFreq(m);
-  matchParametersValues(getModel()->getParameters());
+
+  map<string,string>::iterator it;
+  ParameterList pl;
+  for (it=mapParNamesFromPmodel_.begin();it!=mapParNamesFromPmodel_.end();it++){
+    pl.addParameter(Parameter(getNamespace()+it->second,getModel()->getParameterValue(getModel()->getParameterNameWithoutNamespace(it->first))));
+  }
+  
+  matchParametersValues(pl);
 }
 
 
 void AbstractBiblioSubstitutionModel::setFreqFromData(const SequenceContainer& data, unsigned int pseudoCount)
 {
   getModel()->setFreqFromData(data, pseudoCount);
-  matchParametersValues(getModel()->getParameters());
+  map<string,string>::iterator it;
+  ParameterList pl;
+  for (it=mapParNamesFromPmodel_.begin();it!=mapParNamesFromPmodel_.end();it++){
+    pl.addParameter(Parameter(getNamespace()+it->second,getModel()->getParameterValue(getModel()->getParameterNameWithoutNamespace(it->first))));
+  }
+  
+  matchParametersValues(pl);
 }
 

@@ -79,6 +79,8 @@ set(CPP_FILES
   Bpp/Phyl/Model/SSR.cpp
   Bpp/Phyl/Model/LG08.cpp
   Bpp/Phyl/Model/WAG01.cpp
+  Bpp/Phyl/Model/AbstractBiblioSubstitutionModel.cpp
+  Bpp/Phyl/Model/AbstractBiblioMixedSubstitutionModel.cpp
   Bpp/Phyl/Model/LLG08_EHO.cpp
   Bpp/Phyl/Model/LLG08_EX2.cpp
   Bpp/Phyl/Model/LLG08_EX3.cpp
@@ -216,6 +218,8 @@ set(H_FILES
   Bpp/Phyl/Model/SSR.h
   Bpp/Phyl/Model/LG08.h
   Bpp/Phyl/Model/WAG01.h
+  Bpp/Phyl/Model/AbstractBiblioSubstitutionModel.h
+  Bpp/Phyl/Model/AbstractBiblioMixedSubstitutionModel.h
   Bpp/Phyl/Model/LLG08_EHO.h
   Bpp/Phyl/Model/LLG08_EX2.h
   Bpp/Phyl/Model/LLG08_EX3.h

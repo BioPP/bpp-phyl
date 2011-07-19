@@ -170,7 +170,7 @@ public:
 
 protected:
 
-  void updateMatrices();
+  virtual void updateMatrices();
 
 public:
 
