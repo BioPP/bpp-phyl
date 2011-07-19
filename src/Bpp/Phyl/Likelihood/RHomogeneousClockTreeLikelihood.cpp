@@ -92,7 +92,7 @@ void RHomogeneousClockTreeLikelihood::init_()
 
 void RHomogeneousClockTreeLikelihood::applyParameters() throw (Exception)
 {
-  if(!initialized_) throw Exception("RHomogeneousClockTreeLikelihood::applyParameters(). Object not initialized.");
+  if (!initialized_) throw Exception("RHomogeneousClockTreeLikelihood::applyParameters(). Object not initialized.");
    //Apply branch lengths:
   brLenParameters_.matchParametersValues(getParameters());
   computeBranchLengthsFromHeights(tree_->getRootNode(), brLenParameters_.getParameter("TotalHeight").getValue());

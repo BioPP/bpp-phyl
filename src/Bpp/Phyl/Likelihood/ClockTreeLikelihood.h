@@ -51,7 +51,9 @@ namespace bpp
 {
 
 /**
- *@brief Interface for likelihood computation with a global clock.
+ * @brief Interface for likelihood computation with a global clock.
+ *
+ * @deprecated See GlobalClockTreeLikelihoodFunctionWrapper as a more general replacement.
  */
 class ClockTreeLikelihood:
   public virtual TreeLikelihood
@@ -65,7 +67,9 @@ class ClockTreeLikelihood:
 };
 
 /**
- *@brief Interface for likelihood computation with a global clock and rate across sites variation.
+ * @brief Interface for likelihood computation with a global clock and rate across sites variation.
+ *
+ * @deprecated See GlobalClockTreeLikelihoodFunctionWrapper as a more general replacement.
  */
 class DiscreteRatesAcrossSitesClockTreeLikelihood:
   public virtual ClockTreeLikelihood,

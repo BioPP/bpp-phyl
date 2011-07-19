@@ -1,7 +1,7 @@
 //
-// File: test_likelihood.cpp
+// File: test_likelihood_clock.cpp
 // Created by: Julien Dutheil
-// Created on: Mon Apr 04 10:18 2011
+// Created on: Mon Jul 12 14:57 2011
 //
 
 /*
@@ -52,45 +52,76 @@ using namespace std;
 
 void fitModelH(SubstitutionModel* model, DiscreteDistribution* rdist, const Tree& tree, const SiteContainer& sites,
     double initialValue, double finalValue) {
-  RHomogeneousTreeLikelihood tl(tree, sites, model, rdist);
+  RHomogeneousTreeLikelihood tl(tree, sites, model, rdist, false);
+  tl.enableFirstOrderDerivatives(false);
+  tl.enableSecondOrderDerivatives(false);
+  tl.initialize();
+  ApplicationTools::displayResult("Test model", model->getName());
+  cout << setprecision(20) << tl.getValue() << endl;
+  ApplicationTools::displayResult("* initial likelihood", tl.getValue());
+  if (abs(tl.getValue() - initialValue) > 0.0001)
+    throw Exception("Incorrect initial value.");
+  auto_ptr<OutputStream> messenger(new StlOutputStream(auto_ptr<ostream>(new ofstream("messages.txt", ios::out))));
+  auto_ptr<OutputStream> profiler(new StlOutputStream(auto_ptr<ostream>(new ofstream("profile.txt", ios::out))));
+  profiler->setPrecision(20);
+  OptimizationTools::optimizeNumericalParameters2(&tl, tl.getParameters(), 0, 0.000001, 10000, messenger.get(), profiler.get(), false, true, 2, OptimizationTools::OPTIMIZATION_NEWTON);
+  cout << setprecision(20) << tl.getValue() << endl;
+  ApplicationTools::displayResult("* likelihood after full optimization", tl.getValue());
+  tl.getParameters().printParameters(cout);
+  if (abs(tl.getValue() - finalValue) > 0.0001)
+    throw Exception("Incorrect final value.");
+}
+
+void fitModelHClock(SubstitutionModel* model, DiscreteDistribution* rdist, const Tree& tree, const SiteContainer& sites,
+    double initialValue, double finalValue) {
+  RHomogeneousClockTreeLikelihood tl(tree, sites, model, rdist);
+  tl.enableFirstOrderDerivatives(false);
+  tl.enableSecondOrderDerivatives(false);
   tl.initialize();
   ApplicationTools::displayResult("Test model", model->getName());
   cout << setprecision(20) << tl.getValue() << endl;
   ApplicationTools::displayResult("* initial likelihood", tl.getValue());
   if (abs(tl.getValue() - initialValue) > 0.001)
     throw Exception("Incorrect initial value.");
-  OptimizationTools::optimizeTreeScale(&tl);
-  ApplicationTools::displayResult("* likelihood after tree scale", tl.getValue());
-  OptimizationTools::optimizeNumericalParameters2(&tl, tl.getParameters(), 0, 0.000001, 10000, 0, 0);
+  auto_ptr<OutputStream> messenger(new StlOutputStream(auto_ptr<ostream>(new ofstream("messages.txt", ios::out))));
+  auto_ptr<OutputStream> profiler(new StlOutputStream(auto_ptr<ostream>(new ofstream("profile.txt", ios::out))));
+  profiler->setPrecision(20);
+  OptimizationTools::optimizeNumericalParametersWithGlobalClock2(&tl, tl.getParameters(), 0, 0.000001, 10000, messenger.get(), profiler.get());
   cout << setprecision(20) << tl.getValue() << endl;
   ApplicationTools::displayResult("* likelihood after full optimization", tl.getValue());
+  tl.getParameters().printParameters(cout);
   if (abs(tl.getValue() - finalValue) > 0.001)
     throw Exception("Incorrect final value.");
 }
-
 int main() {
-  TreeTemplate<Node>* tree = TreeTemplateTools::parenthesisToTree("((A:0.01, B:0.02):0.03,C:0.01,D:0.1);");
+  TreeTemplate<Node>* tree = TreeTemplateTools::parenthesisToTree("(((A:0.01, B:0.01):0.02,C:0.03):0.01,D:0.04);");
   vector<string> seqNames= tree->getLeavesNames();
   vector<int> ids = tree->getNodesId();
   //-------------
 
   const NucleicAlphabet* alphabet = &AlphabetTools::DNA_ALPHABET;
   SubstitutionModel* model = new T92(alphabet, 3.);
-  DiscreteDistribution* rdist = new GammaDiscreteDistribution(1.0, 4);
+  DiscreteDistribution* rdist = new GammaDiscreteDistribution(4, 1.0);
   rdist->aliasParameters("alpha", "beta");
 
   VectorSiteContainer sites(alphabet);
   sites.addSequence(BasicSequence("A", "AAATGGCTGTGCACGTC", alphabet));
-  sites.addSequence(BasicSequence("B", "GACTGGATCTGCACGTC", alphabet));
-  sites.addSequence(BasicSequence("C", "CTCTGGATGTGCACGTG", alphabet));
-  sites.addSequence(BasicSequence("D", "AAATGGCGGTGCGCCTA", alphabet));
+  sites.addSequence(BasicSequence("B", "AACTGGATCTGCATGTC", alphabet));
+  sites.addSequence(BasicSequence("C", "ATCTGGACGTGCACGTG", alphabet));
+  sites.addSequence(BasicSequence("D", "CAACGGGAGTGCGCCTA", alphabet));
 
   try {
-    fitModelH(model, rdist, *tree, sites, 75.031104151696752069, 65.03473753351640596065);
+    fitModelH(model, rdist, *tree, sites, 93.017264552603336369, 71.265543199977557265);
   } catch (Exception& ex) {
     cerr << ex.what() << endl;
     return 1;
-  }  
+  }
+  try {
+    fitModelHClock(model, rdist, *tree, sites, 92.27912072473920090943, 71.26554020984087856050);
+  } catch (Exception& ex) {
+    cerr << ex.what() << endl;
+    return 1;
+  }
 
   //-------------
   delete tree;

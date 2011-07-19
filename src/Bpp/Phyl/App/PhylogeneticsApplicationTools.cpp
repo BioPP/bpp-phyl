@@ -2078,6 +2078,16 @@ throw (Exception)
   bool reparam = ApplicationTools::getBooleanParameter("optimization.reparametrization", params, false);
   if (verbose) ApplicationTools::displayResult("Reparametrization", (reparam ? "yes" : "no"));
 
+  //See if we should use a molecular clock constraint:
+  string clock = ApplicationTools::getStringParameter("optimization.clock", params, "None", "", true, false);
+  if (clock != "None" || clock != "Global")
+    throw Exception("Molecular clock option not recognized, should be one of 'Global' or 'None'.");
+  bool useClock = (clock == "Global");
+  if (useClock && optimizeTopo)
+    throw Exception("PhylogeneticsApplicationTools::optimizeParameters. Cannot optimize topology with a molecular clock.");
+  if (verbose)
+    ApplicationTools::displayResult("Molecular clock", clock);
+
   unsigned int n = 0;
   if ((optName == "D-Brent") || (optName == "D-BFGS"))
   {
@@ -2127,7 +2137,7 @@ throw (Exception)
     parametersToEstimate.matchParametersValues(tl->getParameters());
     n = OptimizationTools::optimizeNumericalParameters2(
       dynamic_cast<DiscreteRatesAcrossSitesTreeLikelihood*>(tl), parametersToEstimate,
-      backupListener.get(), tolerance, nbEvalMax, messageHandler, profiler, reparam, optVerbose, optMethodDeriv);
+      backupListener.get(), tolerance, nbEvalMax, messageHandler, profiler, reparam, useClock, optVerbose, optMethodDeriv);
   }
   else throw Exception("Unknown optimization method: " + optName);
 
