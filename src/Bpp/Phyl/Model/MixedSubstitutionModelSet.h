@@ -297,6 +297,8 @@ namespace bpp
     
     MixedSubstitutionModelSet(const MixedSubstitutionModelSet& set);
     
+    MixedSubstitutionModelSet(const SubstitutionModelSet& set);
+
     MixedSubstitutionModelSet& operator=(const MixedSubstitutionModelSet& set);
     
 #ifndef NO_VIRTUAL_COV

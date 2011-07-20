@@ -53,6 +53,7 @@ namespace bpp
  **/
   
   class AbstractBiblioMixedSubstitutionModel:
+    public  virtual MixedSubstitutionModel,
     public AbstractBiblioSubstitutionModel
   {
   public:
@@ -128,7 +129,9 @@ namespace bpp
      *
      **/
     
-    //    virtual void setVRates(Vdouble & vd){};
+    void setVRates(Vdouble & vd){
+      getMixedModel()->setVRates(vd);
+    }
 
   };
   

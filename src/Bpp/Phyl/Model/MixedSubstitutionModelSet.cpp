@@ -51,6 +51,11 @@ MixedSubstitutionModelSet::MixedSubstitutionModelSet(const MixedSubstitutionMode
     vpHyperNodes_.push_back(new HyperNode(*set.vpHyperNodes_[i]));  
 }
 
+MixedSubstitutionModelSet::MixedSubstitutionModelSet(const SubstitutionModelSet& set) :
+  SubstitutionModelSet(set), vpHyperNodes_()
+{
+}
+
 MixedSubstitutionModelSet::~MixedSubstitutionModelSet() 
 {
   for (unsigned int i=0;i<vpHyperNodes_.size();i++)

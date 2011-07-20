@@ -1335,16 +1335,17 @@ SubstitutionModelSet* PhylogeneticsApplicationTools::getSubstitutionModelSet(
         nomix=false;
     }
 
-  SubstitutionModelSet* modelSet=0;
+  SubstitutionModelSet* modelSet, *modelSet1=0;
+  modelSet1= new SubstitutionModelSet(alphabet);
+  setSubstitutionModelSet(*modelSet1, alphabet, data, params, suffix, suffixIsOptional, verbose);
 
-  if (nomix){
-    modelSet= new SubstitutionModelSet(alphabet);
-    setSubstitutionModelSet(*modelSet, alphabet, data, params, suffix, suffixIsOptional, verbose);
+  if (modelSet1->hasMixedSubstitutionModel()){
+    modelSet= new MixedSubstitutionModelSet(*modelSet1);
+    completeMixedSubstitutionModelSet(*dynamic_cast<MixedSubstitutionModelSet*>(modelSet), alphabet, data, params, suffix, suffixIsOptional, verbose);
   }
-  else{
-    modelSet= new MixedSubstitutionModelSet(alphabet);
-    setMixedSubstitutionModelSet(*dynamic_cast<MixedSubstitutionModelSet*>(modelSet), alphabet, data, params, suffix, suffixIsOptional, verbose);
-  }
+  else
+    modelSet=modelSet1;
+  
   return modelSet;
   
 }
@@ -1473,7 +1474,7 @@ void PhylogeneticsApplicationTools::setSubstitutionModelSet(
 }
 
 /******************************************************************************/
-void PhylogeneticsApplicationTools::setMixedSubstitutionModelSet(
+void PhylogeneticsApplicationTools::completeMixedSubstitutionModelSet(
                                                                  MixedSubstitutionModelSet& mixedModelSet,
                                                                  const Alphabet* alphabet,
                                                                  const SiteContainer* data,
@@ -1482,10 +1483,6 @@ void PhylogeneticsApplicationTools::setMixedSubstitutionModelSet(
                                                                  bool suffixIsOptional,
                                                                  bool verbose)
 {
-  mixedModelSet.clear();
-  
-  setSubstitutionModelSet(mixedModelSet, alphabet, data, params, suffix, suffixIsOptional, verbose);
-  
   ///////////////////////////////////////////
   // Looks for the allowed paths
 
@@ -2080,7 +2077,7 @@ throw (Exception)
 
   //See if we should use a molecular clock constraint:
   string clock = ApplicationTools::getStringParameter("optimization.clock", params, "None", "", true, false);
-  if (clock != "None" || clock != "Global")
+  if (clock != "None" && clock != "Global")
     throw Exception("Molecular clock option not recognized, should be one of 'Global' or 'None'.");
   bool useClock = (clock == "Global");
   if (useClock && optimizeTopo)
