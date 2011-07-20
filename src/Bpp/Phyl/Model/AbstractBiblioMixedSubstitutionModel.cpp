@@ -53,6 +53,7 @@ AbstractBiblioMixedSubstitutionModel::AbstractBiblioMixedSubstitutionModel(const
 AbstractBiblioMixedSubstitutionModel& AbstractBiblioMixedSubstitutionModel::operator=(const AbstractBiblioMixedSubstitutionModel& mod2)
 {
   AbstractBiblioSubstitutionModel::operator=(mod2);
+  return *this;
 }
 
 AbstractBiblioMixedSubstitutionModel::~AbstractBiblioMixedSubstitutionModel()
