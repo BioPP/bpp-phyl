@@ -93,7 +93,7 @@ int main() {
 
   OptimizationTools::optimizeNumericalParameters2(
       &tl, tl.getParameters(), 0,
-      0.0001, 10000, messenger, profiler, false, 1, OptimizationTools::OPTIMIZATION_NEWTON);
+      0.0001, 10000, messenger, profiler, false, false, 1, OptimizationTools::OPTIMIZATION_NEWTON);
 
   //Now compare estimated values to real ones:
   for (size_t i = 0; i < thetas.size(); ++i) {
@@ -123,7 +123,7 @@ int main() {
 
   OptimizationTools::optimizeNumericalParameters2(
       &tl2, tl2.getParameters(), 0,
-      0.0001, 10000, messenger, profiler, false, 1, OptimizationTools::OPTIMIZATION_NEWTON);
+      0.0001, 10000, messenger, profiler, false, false, 1, OptimizationTools::OPTIMIZATION_NEWTON);
 
   //Now compare estimated values to real ones:
   for (size_t i = 0; i < thetas.size(); ++i) {

@@ -47,6 +47,7 @@ set(CPP_FILES
   Bpp/Phyl/Likelihood/RNonHomogeneousTreeLikelihood.cpp
   Bpp/Phyl/Likelihood/TreeLikelihoodTools.cpp
   Bpp/Phyl/Likelihood/PairedSiteLikelihoods.cpp
+  Bpp/Phyl/Likelihood/GlobalClockTreeLikelihoodFunctionWrapper.cpp
   Bpp/Phyl/Mapping/AnalyticalSubstitutionCount.cpp
   Bpp/Phyl/Mapping/OneJumpSubstitutionCount.cpp
   Bpp/Phyl/Mapping/ProbabilisticSubstitutionMapping.cpp
@@ -79,6 +80,8 @@ set(CPP_FILES
   Bpp/Phyl/Model/SSR.cpp
   Bpp/Phyl/Model/LG08.cpp
   Bpp/Phyl/Model/WAG01.cpp
+  Bpp/Phyl/Model/AbstractBiblioSubstitutionModel.cpp
+  Bpp/Phyl/Model/AbstractBiblioMixedSubstitutionModel.cpp
   Bpp/Phyl/Model/LLG08_EHO.cpp
   Bpp/Phyl/Model/LLG08_EX2.cpp
   Bpp/Phyl/Model/LLG08_EX3.cpp
@@ -180,6 +183,7 @@ set(H_FILES
   Bpp/Phyl/Likelihood/TreeLikelihood.h
   Bpp/Phyl/Likelihood/TreeLikelihoodTools.h
   Bpp/Phyl/Likelihood/PairedSiteLikelihoods.h
+  Bpp/Phyl/Likelihood/GlobalClockTreeLikelihoodFunctionWrapper.h
   Bpp/Phyl/Mapping/AnalyticalSubstitutionCount.h
   Bpp/Phyl/Mapping/IndexToCount.h
   Bpp/Phyl/Mapping/OneJumpSubstitutionCount.h
@@ -216,6 +220,8 @@ set(H_FILES
   Bpp/Phyl/Model/SSR.h
   Bpp/Phyl/Model/LG08.h
   Bpp/Phyl/Model/WAG01.h
+  Bpp/Phyl/Model/AbstractBiblioSubstitutionModel.h
+  Bpp/Phyl/Model/AbstractBiblioMixedSubstitutionModel.h
   Bpp/Phyl/Model/LLG08_EHO.h
   Bpp/Phyl/Model/LLG08_EX2.h
   Bpp/Phyl/Model/LLG08_EX3.h

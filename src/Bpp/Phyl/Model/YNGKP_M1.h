@@ -40,6 +40,7 @@ knowledge of the CeCILL license and that you accept its terms.
 #ifndef _YNGKP_M1_H_
 #define _YNGKP_M1_H_
 
+#include "AbstractBiblioMixedSubstitutionModel.h"
 #include "MixtureOfASubstitutionModel.h"
 #include "FrequenciesSet.h"
 
@@ -76,7 +77,7 @@ namespace bpp
  * Genetics 168:1041--1051.
  */
 class YNGKP_M1:
-  public AbstractMixedSubstitutionModel
+    public AbstractBiblioMixedSubstitutionModel
 {
 private:
   MixtureOfASubstitutionModel* pmixmodel_;
@@ -90,18 +91,6 @@ private:
 
   int synfrom_, synto_;
   
-private:
-  /**
-   * @brief Tools to make the link between the Parameters of the
-   * object and those of pmixmodel_.
-   *
-   */
-
-  std::map<std::string,std::string> mapParNamesFromPmodel_;
-  
-  ParameterList lParPmodel_;
-  
-
 public:
   YNGKP_M1(const GeneticCode* gc, FrequenciesSet* codonFreqs);
 
@@ -113,82 +102,29 @@ public:
 
   YNGKP_M1& operator=(const YNGKP_M1&);
 
-  unsigned int getNumberOfStates() const  { return pmixmodel_->getNumberOfStates();  }
-
 protected:
   void updateMatrices();
 
 public:
-  const SubstitutionModel* getNModel(unsigned int i) const {
-    return pmixmodel_->getNModel(i);
+  const AbstractSubstitutionModel* getModel() const {
+    return pmixmodel_;
   }
 
-  SubstitutionModel* getNModel(unsigned int i) {
-    return pmixmodel_->getNModel(i);
+  AbstractSubstitutionModel* getModel() {
+    return pmixmodel_;
   }
 
-  /**
-   * @brief Returns the  probability of a specific model from the mixture
-   */
-  
-  double getNProbability(unsigned int i) const {
-    return pmixmodel_->getNProbability(i);
+
+  const MixedSubstitutionModel* getMixedModel() const {
+    return pmixmodel_;
   }
 
-  const std::vector<double>& getProbabilities() const {
-    return pmixmodel_->getProbabilities();
+  MixedSubstitutionModel* getMixedModel() {
+    return pmixmodel_;
   }
-    
-  void setNProbability(unsigned int i, double prob)
-  {
-    pmixmodel_->setNProbability(i, prob);
-  }
-
-    unsigned int getNumberOfModels() const {
-    return pmixmodel_->getNumberOfModels();
-  }
-
-  /**
-   * @brief inactivated method to prevent out of model manipulations
-   *
-   **/
-  
-  void setVRates(Vdouble & vd){};
 
   std::string getName() const { return "YNGKP_M1"; }
 
-  double Pij_t(unsigned int i, unsigned int j, double t) const {
-    return pmixmodel_->Pij_t(i,j,t);
-  }
-  double dPij_dt(unsigned int i, unsigned int j, double t) const {
-    return pmixmodel_->dPij_dt(i,j,t);
-  };
-  double d2Pij_dt2(unsigned int i, unsigned int j, double t) const {
-    return pmixmodel_->dPij_dt(i,j,t);
-  };
-  const Matrix<double>& getPij_t(double t) const {
-    return pmixmodel_->getPij_t(t);
-  };
-  const Matrix<double>& getdPij_dt(double t) const {
-    return pmixmodel_->getdPij_dt(t);
-  };
-  const Matrix<double>& getd2Pij_dt2(double t) const {
-    return pmixmodel_->getd2Pij_dt2(t);
-  };
-  
-  const Vdouble& getFrequencies() const {
-    return pmixmodel_->getFrequencies();
-  };
-  
-  double freq(unsigned int i) const {
-    return pmixmodel_->freq(i);
-  };
-
-  void setFreq(std::map<int,double>&);
-
-  double getRate() const { return pmixmodel_->getRate();}
-  
-  void setRate(double rate) { pmixmodel_->setRate(rate);}
 };
 
 } //end of namespace bpp.

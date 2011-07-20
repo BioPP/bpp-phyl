@@ -40,6 +40,7 @@ knowledge of the CeCILL license and that you accept its terms.
 #ifndef _GY94_H_
 #define _GY94_H_
 
+#include "AbstractBiblioSubstitutionModel.h"
 #include "CodonAsynonymousFrequenciesReversibleSubstitutionModel.h"
 #include <Bpp/Seq/StateProperties/GranthamAAChemicalDistance.h>
 
@@ -79,66 +80,38 @@ namespace bpp
  * - Goldman N. and Yang Z. (1994), _Molecular Biology And Evolution_ 11(5) 725--736. 
  */
 class GY94:
-  public AbstractReversibleSubstitutionModel
+  public AbstractBiblioSubstitutionModel
 {
 private:
 
   GranthamAAChemicalDistance gacd_;
-  CodonAsynonymousFrequenciesReversibleSubstitutionModel pmodel_;
+  CodonAsynonymousFrequenciesReversibleSubstitutionModel* pmodel_;
 
 public:
   GY94(const GeneticCode* gc, FrequenciesSet* codonFreqs);
        
-  ~GY94() {}
+  ~GY94();
 
   GY94(const GY94& gy94);
   
   GY94& operator=(const GY94& gy94);
-  
-  GY94* clone() const { return new GY94(*this); }
+
+#ifndef NOVIRTUAL_COV_
+  GY94* 
+#else
+  Clonable*
+#endif
+  clone() const { return new GY94(*this); }
 
 public:
 
   std::string getName() const { return "GY94"; }
 	
-  const Vdouble& getFrequencies() const { return pmodel_.getFrequencies(); }
-       
-  const Matrix<double>& getGenerator() const { return pmodel_.getGenerator(); }
-    
-  const Vdouble& getEigenValues() const { return pmodel_.getEigenValues(); }
-    
-  const Matrix<double>& getRowLeftEigenVectors() const { return pmodel_.getRowLeftEigenVectors(); }
-  
-  const Matrix<double>& getColumnRightEigenVectors() const { return pmodel_.getColumnRightEigenVectors(); }
-    
-  double freq(unsigned int i) const { return pmodel_.freq(i); }
-    
-  double Qij(unsigned int i, unsigned int j) const { return pmodel_.Qij(i,j); }
-    
-  double Pij_t    (unsigned int i, unsigned int j, double t) const { return pmodel_.Pij_t(i, j, t); }
-  double dPij_dt  (unsigned int i, unsigned int j, double t) const { return pmodel_.dPij_dt(i, j, t); }
-  double d2Pij_dt2(unsigned int i, unsigned int j, double t) const { return pmodel_.d2Pij_dt2(i, j, t); }
+  const AbstractSubstitutionModel* getModel() const { return pmodel_;}
 
-  const Matrix<double>& getPij_t    (double d) const { return pmodel_.getPij_t(d);  }
+  AbstractSubstitutionModel* getModel() { return pmodel_;}
 
-  const Matrix<double>& getdPij_dt  (double d) const { return pmodel_.getdPij_dt(d);  }
-
-  const Matrix<double>& getd2Pij_dt2(double d) const { return pmodel_.getd2Pij_dt2(d);  }
-
-  void setFreq(std::map<int, double>& m);
-
-  unsigned int getNumberOfStates() const  { return pmodel_.getNumberOfStates();  }
-
-  double getInitValue(unsigned int i, int state) const throw (BadIntException) { return pmodel_.getInitValue(i,state); }
-
-  void enableEigenDecomposition(bool yn) { eigenDecompose_ = 1; }
-
-  bool enableEigenDecomposition() { return pmodel_.enableEigenDecomposition(); }
-
-  const FrequenciesSet& getFreq() const { return pmodel_.getFreq(); }
-
-protected:
-  void updateMatrices();
+  const FrequenciesSet& getFreq() const { return pmodel_->getFreq(); }
 
 };
 

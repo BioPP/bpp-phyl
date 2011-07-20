@@ -59,7 +59,8 @@ AbstractNonHomogeneousTreeLikelihood::AbstractNonHomogeneousTreeLikelihood(
   const Tree& tree,
   SubstitutionModelSet* modelSet,
   DiscreteDistribution* rDist,
-  bool verbose)
+  bool verbose,
+  bool reparametrizeRoot)
   throw (Exception) :
   AbstractDiscreteRatesAcrossSitesTreeLikelihood(rDist, verbose),
   modelSet_(0),
@@ -78,6 +79,7 @@ AbstractNonHomogeneousTreeLikelihood::AbstractNonHomogeneousTreeLikelihood(
   verbose_(),
   minimumBrLen_(),
   brLenConstraint_(0),
+  reparametrizeRoot_(reparametrizeRoot),
   root1_(),
   root2_()
 {
@@ -105,6 +107,7 @@ AbstractNonHomogeneousTreeLikelihood::AbstractNonHomogeneousTreeLikelihood(
   verbose_(lik.verbose_),
   minimumBrLen_(lik.minimumBrLen_),
   brLenConstraint_(dynamic_cast<Constraint*>(lik.brLenConstraint_->clone())),
+  reparametrizeRoot_(lik.reparametrizeRoot_),
   root1_(lik.root1_),
   root2_(lik.root2_)
 { 
@@ -124,24 +127,25 @@ AbstractNonHomogeneousTreeLikelihood& AbstractNonHomogeneousTreeLikelihood::oper
     const AbstractNonHomogeneousTreeLikelihood& lik)
 {
   AbstractDiscreteRatesAcrossSitesTreeLikelihood::operator=(lik);
-  modelSet_        = lik.modelSet_;
-  brLenParameters_ = lik.brLenParameters_;
-  pxy_             = lik.pxy_;
-  dpxy_            = lik.dpxy_;
-  d2pxy_           = lik.d2pxy_;
-  rootFreqs_       = lik.rootFreqs_;
-  nodes_           = tree_->getNodes();
+  modelSet_          = lik.modelSet_;
+  brLenParameters_   = lik.brLenParameters_;
+  pxy_               = lik.pxy_;
+  dpxy_              = lik.dpxy_;
+  d2pxy_             = lik.d2pxy_;
+  rootFreqs_         = lik.rootFreqs_;
+  nodes_             = tree_->getNodes();
   nodes_.pop_back(); //Remove the root node (the last added!).  
-	nbSites_         = lik.nbSites_;
-  nbDistinctSites_ = lik.nbDistinctSites_;
-	nbClasses_       = lik.nbClasses_;
-	nbStates_        = lik.nbStates_;
-	nbNodes_         = lik.nbNodes_;
-  verbose_         = lik.verbose_;
-  minimumBrLen_    = lik.minimumBrLen_;
+	nbSites_           = lik.nbSites_;
+  nbDistinctSites_   = lik.nbDistinctSites_;
+	nbClasses_         = lik.nbClasses_;
+	nbStates_          = lik.nbStates_;
+	nbNodes_           = lik.nbNodes_;
+  verbose_           = lik.verbose_;
+  minimumBrLen_      = lik.minimumBrLen_;
   brLenConstraint_.reset(dynamic_cast<Constraint*>(lik.brLenConstraint_->clone()));
-  root1_           = lik.root1_;
-  root2_           = lik.root2_;
+  reparametrizeRoot_ = lik.reparametrizeRoot_;
+  root1_             = lik.root1_;
+  root2_             = lik.root2_;
   //Rebuild nodes index:
   for( unsigned int i = 0; i < nodes_.size(); i++)
   {
@@ -270,7 +274,7 @@ void AbstractNonHomogeneousTreeLikelihood::initialize() throw (Exception)
 
 ParameterList AbstractNonHomogeneousTreeLikelihood::getBranchLengthsParameters() const
 {
-  if(!initialized_) throw Exception("AbstractBranchNonHomogeneousTreeLikelihood::getBranchLengthsParameters(). Object is not initialized.");
+  if (!initialized_) throw Exception("AbstractBranchNonHomogeneousTreeLikelihood::getBranchLengthsParameters(). Object is not initialized.");
   return brLenParameters_.getCommonParametersWith(getParameters());
 }
 
@@ -304,27 +308,27 @@ void AbstractNonHomogeneousTreeLikelihood::initParameters()
 
 void AbstractNonHomogeneousTreeLikelihood::applyParameters() throw (Exception)
 {
-  if(!initialized_) throw Exception("AbstractBranchNonHomogeneousTreeLikelihood::applyParameters(). Object not initialized.");
+  if (!initialized_) throw Exception("AbstractBranchNonHomogeneousTreeLikelihood::applyParameters(). Object not initialized.");
   //Apply branch lengths:
-  for(unsigned int i = 0; i < nbNodes_; i++)
+  for (unsigned int i = 0; i < nbNodes_; i++)
   {
     int id = nodes_[i]->getId();
-    if(id == root1_)
+    if (reparametrizeRoot_ && id == root1_)
     {
-      const Parameter * rootBrLen = &getParameter("BrLenRoot");
-      const Parameter * rootPos = &getParameter("RootPosition");
+      const Parameter* rootBrLen = &getParameter("BrLenRoot");
+      const Parameter* rootPos = &getParameter("RootPosition");
       nodes_[i]->setDistanceToFather(rootBrLen->getValue() * rootPos->getValue());
     }
-    else if(id == root2_)
+    else if (reparametrizeRoot_ && id == root2_)
     {
-      const Parameter * rootBrLen = &getParameter("BrLenRoot");
-      const Parameter * rootPos = &getParameter("RootPosition");
+      const Parameter* rootBrLen = &getParameter("BrLenRoot");
+      const Parameter* rootPos = &getParameter("RootPosition");
       nodes_[i]->setDistanceToFather(rootBrLen->getValue() * (1. - rootPos->getValue()));
     }
     else
     {
-      const Parameter * brLen = &getParameter(string("BrLen") + TextTools::toString(i));
-      if(brLen != NULL) nodes_[i]->setDistanceToFather(brLen->getValue());
+      const Parameter* brLen = &getParameter(string("BrLen") + TextTools::toString(i));
+      if (brLen) nodes_[i]->setDistanceToFather(brLen->getValue());
     }
   }
   //Apply substitution model parameters:
@@ -357,17 +361,19 @@ void AbstractNonHomogeneousTreeLikelihood::initBranchLengthsParameters()
         d = minimumBrLen_;
       }
     }
-    if (nodes_[i]->getId() == root1_)
+    if (reparametrizeRoot_ && nodes_[i]->getId() == root1_)
       l1 = d;
-    else if(nodes_[i]->getId() == root2_)
+    else if (reparametrizeRoot_ && nodes_[i]->getId() == root2_)
       l2 = d;
     else
     {
       brLenParameters_.addParameter(Parameter("BrLen" + TextTools::toString(i), d, brLenConstraint_->clone(), true)); //Attach constraint to avoid clonage problems!
     }
   }
-  brLenParameters_.addParameter(Parameter("BrLenRoot", l1 + l2, brLenConstraint_->clone(), true));
-  brLenParameters_.addParameter(Parameter("RootPosition", l1 / (l1 + l2), &Parameter::PROP_CONSTRAINT_EX));
+  if (reparametrizeRoot_) {
+    brLenParameters_.addParameter(Parameter("BrLenRoot", l1 + l2, brLenConstraint_->clone(), true));
+    brLenParameters_.addParameter(Parameter("RootPosition", l1 / (l1 + l2), &Parameter::PROP_CONSTRAINT_EX));
+  }
 }
 
 /*******************************************************************************/

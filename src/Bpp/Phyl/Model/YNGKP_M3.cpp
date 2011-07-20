@@ -50,9 +50,9 @@ using namespace std;
 /******************************************************************************/
 
 YNGKP_M3::YNGKP_M3(const GeneticCode* gc, FrequenciesSet* codonFreqs, unsigned int nbOmega) :
-  AbstractMixedSubstitutionModel(gc->getSourceAlphabet(), "YNGKP_M3."), pmixmodel_(0),
-  synfrom_(-1), synto_(-1),
-  mapParNamesFromPmodel_(), lParPmodel_()
+  AbstractBiblioMixedSubstitutionModel("YNGKP_M3."),
+  pmixmodel_(0),
+  synfrom_(-1), synto_(-1)
 {
   if (nbOmega<1)
     throw Exception("At least one omega is necessary in the YNGKP_M3 model");
@@ -128,22 +128,20 @@ YNGKP_M3::YNGKP_M3(const GeneticCode* gc, FrequenciesSet* codonFreqs, unsigned i
   updateMatrices();
 }
 
-YNGKP_M3::YNGKP_M3(const YNGKP_M3& mod2) : AbstractMixedSubstitutionModel(mod2),
+YNGKP_M3::YNGKP_M3(const YNGKP_M3& mod2) : AbstractBiblioMixedSubstitutionModel(mod2),
                                            pmixmodel_(new MixtureOfASubstitutionModel(*mod2.pmixmodel_)),
-                                           synfrom_(mod2.synfrom_), synto_(mod2.synto_),
-                                           mapParNamesFromPmodel_(mod2.mapParNamesFromPmodel_),
-                                           lParPmodel_(mod2.lParPmodel_)
+                                           synfrom_(mod2.synfrom_), synto_(mod2.synto_)
 {
   
 }
 
 YNGKP_M3& YNGKP_M3::operator=(const YNGKP_M3& mod2)
 {
-  AbstractMixedSubstitutionModel::operator=(mod2);
+  AbstractBiblioMixedSubstitutionModel::operator=(mod2);
 
+  if (pmixmodel_)
+    delete pmixmodel_;
   pmixmodel_=new MixtureOfASubstitutionModel(*mod2.pmixmodel_);
-  mapParNamesFromPmodel_=mod2.mapParNamesFromPmodel_;
-  lParPmodel_=mod2.lParPmodel_;
   synfrom_=mod2.synfrom_;
   synto_=mod2.synto_;
   
@@ -158,22 +156,9 @@ YNGKP_M3::~YNGKP_M3()
 
 void YNGKP_M3::updateMatrices()
 {
-  map<string,string>::iterator it;
-  
-  for (it=mapParNamesFromPmodel_.begin();it!=mapParNamesFromPmodel_.end();it++)
-      if (it->first[18]=='V'){
-        unsigned int ind=TextTools::toInt(it->first.substr(19));
-        double x=getParameterValue("omega0");
-        for (unsigned j=1;j<ind;j++)
-          x+=getParameterValue("delta"+TextTools::toString(j));
-        lParPmodel_.setParameterValue(it->first,x);
-      }
-      else
-        lParPmodel_.setParameterValue(it->first,getParameterValue(it->second));
-  
-  pmixmodel_->matchParametersValues(lParPmodel_);
+  AbstractBiblioSubstitutionModel::updateMatrices();
 
-  // homogeneization of the synonymous substittion rates
+  // homogeneization of the synonymous substitution rates
 
   Vdouble vd;
 
@@ -183,13 +168,3 @@ void YNGKP_M3::updateMatrices()
   pmixmodel_->setVRates(vd);
 }
 
-void YNGKP_M3::setFreq(std::map<int,double>& m){
-  pmixmodel_->setFreq(m);
-  map<string,string>::iterator it;
-
-  ParameterList pl;
-  for (it=mapParNamesFromPmodel_.begin();it!=mapParNamesFromPmodel_.end();it++)
-    pl.addParameter(Parameter(getNamespace()+it->second,pmixmodel_->getParameterValue(it->first)));
-
-  matchParametersValues(pl);
-}

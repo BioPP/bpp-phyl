@@ -1,13 +1,11 @@
 //
-// File: ClockTreeLikelihood.h
-// Created by: Benoît Nabholz
-//             Julien Dutheil
-// Created on: Fri Apr 06 14:11 2007
+// File: AbstractBiblioMixedSubstitutionModel.cpp
+// Created by:  Laurent Gueguen
+// Created on: lundi 18 juillet 2011, à 15h 27
 //
 
 /*
 Copyright or © or Copr. CNRS, (November 16, 2004)
-
 This software is a computer program whose purpose is to provide classes
 for phylogenetic data analysis.
 
@@ -38,53 +36,26 @@ The fact that you are presently reading this means that you have had
 knowledge of the CeCILL license and that you accept its terms.
 */
 
-#ifndef _CLOCKTREELIKELIHOOD_H_
-#define _CLOCKTREELIKELIHOOD_H_
+#include "AbstractBiblioMixedSubstitutionModel.h"
+using namespace bpp;
 
-#include "TreeLikelihood.h"
-#include "DiscreteRatesAcrossSitesTreeLikelihood.h"
-#include "../TreeTemplate.h"
+using namespace std;
 
-#include <Bpp/Numeric/ParameterList.h>
+/******************************************************************************/
 
-namespace bpp
+AbstractBiblioMixedSubstitutionModel::AbstractBiblioMixedSubstitutionModel(const std::string& prefix):
+  AbstractBiblioSubstitutionModel(prefix)
+{}
+  
+AbstractBiblioMixedSubstitutionModel::AbstractBiblioMixedSubstitutionModel(const AbstractBiblioMixedSubstitutionModel& mod2) : AbstractBiblioSubstitutionModel(mod2)
+{}
+
+AbstractBiblioMixedSubstitutionModel& AbstractBiblioMixedSubstitutionModel::operator=(const AbstractBiblioMixedSubstitutionModel& mod2)
 {
+  AbstractBiblioSubstitutionModel::operator=(mod2);
+  return *this;
+}
 
-/**
- * @brief Interface for likelihood computation with a global clock.
- *
- * @deprecated See GlobalClockTreeLikelihoodFunctionWrapper as a more general replacement.
- */
-class ClockTreeLikelihood:
-  public virtual TreeLikelihood
-{
-  public:
-#ifndef NO_VIRTUAL_COV
-    ClockTreeLikelihood * clone() const = 0;
-#endif
-
-    virtual ~ClockTreeLikelihood() {}
-};
-
-/**
- * @brief Interface for likelihood computation with a global clock and rate across sites variation.
- *
- * @deprecated See GlobalClockTreeLikelihoodFunctionWrapper as a more general replacement.
- */
-class DiscreteRatesAcrossSitesClockTreeLikelihood:
-  public virtual ClockTreeLikelihood,
-  public virtual DiscreteRatesAcrossSitesTreeLikelihood
-{
-  public:
-#ifndef NO_VIRTUAL_COV
-    DiscreteRatesAcrossSitesClockTreeLikelihood * clone() const = 0;
-#endif
-
-    virtual ~DiscreteRatesAcrossSitesClockTreeLikelihood() {}
-
-};
-
-} //end of namespace bpp.
-
-#endif // _CLOCKTREELIKELIHOOD_H_
+AbstractBiblioMixedSubstitutionModel::~AbstractBiblioMixedSubstitutionModel()
+{}
 

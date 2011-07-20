@@ -40,6 +40,7 @@ knowledge of the CeCILL license and that you accept its terms.
 #ifndef _YN98_H_
 #define _YN98_H_
 
+#include "AbstractBiblioSubstitutionModel.h"
 #include "CodonAsynonymousFrequenciesReversibleSubstitutionModel.h"
 
 namespace bpp
@@ -85,81 +86,36 @@ namespace bpp
  * Reference:
  * -  Yang Z. and Nielsen R. (1998), _Journal of Molecular Evolution_ 46:409--418.
  */
-class YN98:
-  public AbstractReversibleSubstitutionModel
+class YN98:  public AbstractBiblioSubstitutionModel
 {
 private:
+  CodonAsynonymousFrequenciesReversibleSubstitutionModel* pmodel_;
 
-  CodonAsynonymousFrequenciesReversibleSubstitutionModel pmodel_;
-
-private:
-  /**
-   * @brief Tools to make the link between the Parameters of the
-   * object and those of pmodel_.
-   *
-   */
-
-  std::map<std::string,std::string> mapParNamesFromPmodel_;
-  
-  ParameterList lParPmodel_;
-  
 public:
   YN98(const GeneticCode* gc, FrequenciesSet* codonFreqs);
 
-  YN98(const YN98& yn98) : AbstractReversibleSubstitutionModel(yn98),
-                           pmodel_(yn98.pmodel_),
-                           mapParNamesFromPmodel_(yn98.mapParNamesFromPmodel_),
-                           lParPmodel_(yn98.lParPmodel_) {}
-  ~YN98() {}
+  YN98(const YN98& yn98);
   
-  YN98* clone() const { return new YN98(*this); }
+  YN98& operator=(const YN98&);
+  
+  ~YN98();
+
+#ifndef NOVIRTUAL_COV_
+  YN98*
+#else
+  Clonable*
+#endif
+  clone() const { return new YN98(*this); }
 
 public:
 
   std::string getName() const { return "YN98"; }
 	
-  const Vdouble& getFrequencies() const { return pmodel_.getFrequencies(); }
-       
-  const Matrix<double>& getGenerator() const { return pmodel_.getGenerator(); }
-    
-  const Vdouble& getEigenValues() const { return pmodel_.getEigenValues(); }
-    
-  const Matrix<double>& getRowLeftEigenVectors() const { return pmodel_.getRowLeftEigenVectors(); }
-  
-  const Matrix<double>& getColumnRightEigenVectors() const { return pmodel_.getColumnRightEigenVectors(); }
-    
-  double freq(unsigned int i) const { return pmodel_.freq(i); }
-    
-  double Qij(unsigned int i, unsigned int j) const { return pmodel_.Qij(i,j); }
-    
-  double Pij_t    (unsigned int i, unsigned int j, double t) const { return pmodel_.Pij_t(i, j, t); }
-  double dPij_dt  (unsigned int i, unsigned int j, double t) const { return pmodel_.dPij_dt(i, j, t); }
-  double d2Pij_dt2(unsigned int i, unsigned int j, double t) const { return pmodel_.d2Pij_dt2(i, j, t); }
+  const AbstractSubstitutionModel* getModel() const { return pmodel_;}
 
-  const Matrix<double>& getPij_t    (double d) const { return pmodel_.getPij_t(d);  }
-  const Matrix<double>& getdPij_dt  (double d) const { return pmodel_.getdPij_dt(d);  }
-  const Matrix<double>& getd2Pij_dt2(double d) const { return pmodel_.getd2Pij_dt2(d);  }
+  AbstractSubstitutionModel* getModel() { return pmodel_;}
 
-  void setFreq(std::map<int, double>& m);
-  
-  unsigned int getNumberOfStates() const  { return pmodel_.getNumberOfStates();  }
-
-  double getInitValue(unsigned int i, int state) const throw (BadIntException) { return pmodel_.getInitValue(i,state); }
-
-  void enableEigenDecomposition(bool yn) { eigenDecompose_ = 1; }
-
-  bool enableEigenDecomposition() { return pmodel_.enableEigenDecomposition(); }
-
-  const FrequenciesSet& getFreq() const { return pmodel_.getFreq(); }
-
-  double getRate() const { return pmodel_.getRate();}
-  
-  void setRate(double rate) { pmodel_.setRate(rate);}
-
-  void addRateParameter();
-  
-protected:
-  void updateMatrices();
+  const FrequenciesSet& getFreq() const { return pmodel_->getFreq(); }
 
 };
 

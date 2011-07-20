@@ -284,6 +284,10 @@ public:
    */
   
   virtual void setRate(double rate);
+
+
+  friend class AbstractBiblioSubstitutionModel;
+
 };
 
 
@@ -357,7 +361,6 @@ protected:
    * eigenValues_, rightEigenVectors_ and leftEigenVectors_ variables.
    */
   virtual void updateMatrices();
-
 };
 
 } //end of namespace bpp.
