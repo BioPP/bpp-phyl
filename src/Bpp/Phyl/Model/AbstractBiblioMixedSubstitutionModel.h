@@ -139,10 +139,7 @@ namespace bpp
      *
      */
   
-    Vint getSubmodelNumbers(std::string& desc) const {
-      return getMixedModel()->getSubmodelNumbers(desc);
-    }
-    
+    Vint getSubmodelNumbers(std::string& desc) const;
 
   };
   

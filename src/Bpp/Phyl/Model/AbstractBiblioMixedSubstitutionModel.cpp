@@ -59,3 +59,18 @@ AbstractBiblioMixedSubstitutionModel& AbstractBiblioMixedSubstitutionModel::oper
 AbstractBiblioMixedSubstitutionModel::~AbstractBiblioMixedSubstitutionModel()
 {}
 
+Vint AbstractBiblioMixedSubstitutionModel::getSubmodelNumbers(std::string& desc) const
+{
+  std::string desc2;
+
+  StringTokenizer st(desc, ",");
+  while (st.hasMoreToken()) {
+    string param = st.nextToken();
+
+    desc2+=getParameterNameWithoutNamespace(param);
+    if (st.hasMoreToken())
+      desc2+=",";
+  }
+
+  return getMixedModel()->getSubmodelNumbers(desc2);
+}

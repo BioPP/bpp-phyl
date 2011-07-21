@@ -252,8 +252,16 @@ void MixtureOfSubstitutionModels::setVRates(Vdouble& vd)
 
 Vint MixtureOfSubstitutionModels::getSubmodelNumbers(string& desc) const
 {
-  throw Exception("Constraints between mixtures of models not implemented yet. Sorry");
-  
+  unsigned int i;
+  for (i=0;i< getNumberOfModels(); i++){
+    if (getNModel(i)->getName()==desc)
+      break;
+  }
+  if (i==getNumberOfModels())
+    throw Exception("MixtureOfSubstitutionModels::getSubmodelNumbers model description do not match " + desc);
+
   Vint submodnb;
+  submodnb.push_back(i);
+  
   return submodnb;
 }
