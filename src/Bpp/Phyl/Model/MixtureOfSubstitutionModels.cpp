@@ -87,11 +87,8 @@ MixtureOfSubstitutionModels::MixtureOfSubstitutionModels(const Alphabet* alpha,
       addParameters_(vpModel_[i]->getParameters());
     }
 
-  //  lParPmodel_.addParameters(getParameters());
-  
   for (i = 0; i < nbmod; i++){
     vpModel_[i]->addRateParameter();
-  //   lParPmodel_.addParameter(vpModel_[i]->getParameter("rate"));
   }
 
   updateMatrices();
@@ -251,4 +248,12 @@ void MixtureOfSubstitutionModels::setVRates(Vdouble& vd)
        setParameterValue("relrate" + TextTools::toString(i+1), vProbas_[i] * vRates_[i] / (1- y));
        y+=vProbas_[i]*vRates_[i];
      }
+}
+
+Vint MixtureOfSubstitutionModels::getSubmodelNumbers(string& desc) const
+{
+  throw Exception("Constraints between mixtures of models not implemented yet. Sorry");
+  
+  Vint submodnb;
+  return submodnb;
 }

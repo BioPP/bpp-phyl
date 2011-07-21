@@ -103,6 +103,15 @@ namespace bpp
 
     virtual void setVRates(Vdouble& vd) = 0;
 
+    /*
+     *@brief Returns the vector of numbers of the submodels in the
+     *mixture that match a description.
+     *
+     */
+  
+    virtual Vint getSubmodelNumbers(std::string& desc) const = 0;
+
+
   };
 } // end of namespace bpp.
 

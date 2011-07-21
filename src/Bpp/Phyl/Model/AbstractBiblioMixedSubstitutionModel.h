@@ -125,13 +125,24 @@ namespace bpp
     }
   
     /**
-     * @brief inactivated method to prevent out of model manipulations
+     * @brief sets the relative rates.
      *
      **/
     
     void setVRates(Vdouble & vd){
       getMixedModel()->setVRates(vd);
     }
+
+    /*
+     *@brief Returns the vector of numbers of the submodels in the
+     *mixture that match a description.
+     *
+     */
+  
+    Vint getSubmodelNumbers(std::string& desc) const {
+      return getMixedModel()->getSubmodelNumbers(desc);
+    }
+    
 
   };
   
