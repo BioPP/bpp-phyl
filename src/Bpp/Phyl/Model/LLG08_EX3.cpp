@@ -50,8 +50,8 @@ using namespace std;
 /******************************************************************************/
 
 LLG08_EX3::LLG08_EX3(const ProteicAlphabet* alpha) : 
-  AbstractMixedSubstitutionModel(alpha, "LLG08_EX3."), pmixmodel_(0),
-  mapParNamesFromPmodel_(), lParPmodel_()
+  AbstractBiblioMixedSubstitutionModel("LLG08_EX3."),
+  pmixmodel_(0)
 {
   // build the submodel
 
@@ -84,21 +84,18 @@ LLG08_EX3::LLG08_EX3(const ProteicAlphabet* alpha) :
   updateMatrices();
 }
 
-LLG08_EX3::LLG08_EX3(const LLG08_EX3& mod2) : AbstractMixedSubstitutionModel(mod2),
-                                              pmixmodel_(new MixtureOfSubstitutionModels(*mod2.pmixmodel_)),
-                                              mapParNamesFromPmodel_(mod2.mapParNamesFromPmodel_),
-                                              lParPmodel_(mod2.lParPmodel_)
+LLG08_EX3::LLG08_EX3(const LLG08_EX3& mod2) : AbstractBiblioMixedSubstitutionModel(mod2),
+                                              pmixmodel_(new MixtureOfSubstitutionModels(*mod2.pmixmodel_))
 {
-  
 }
 
 LLG08_EX3& LLG08_EX3::operator=(const LLG08_EX3& mod2)
 {
-  AbstractMixedSubstitutionModel::operator=(mod2);
+  AbstractBiblioMixedSubstitutionModel::operator=(mod2);
 
+  if (pmixmodel_)
+    delete pmixmodel_;
   pmixmodel_=new MixtureOfSubstitutionModels(*mod2.pmixmodel_);
-  mapParNamesFromPmodel_=mod2.mapParNamesFromPmodel_;
-  lParPmodel_=mod2.lParPmodel_;
   
   return *this;
 }
@@ -107,25 +104,6 @@ LLG08_EX3::~LLG08_EX3()
 {
   if (pmixmodel_)
     delete pmixmodel_;
-}
-
-void LLG08_EX3::updateMatrices()
-{
-  for (unsigned int i=0;i<lParPmodel_.size();i++)
-    if (hasParameter(mapParNamesFromPmodel_[lParPmodel_[i].getName()]))
-      lParPmodel_[i].setValue(getParameter(mapParNamesFromPmodel_[lParPmodel_[i].getName()]).getValue());
-  
-  pmixmodel_->matchParametersValues(lParPmodel_);
-}
-
-void LLG08_EX3::setFreq(std::map<int,double>& m){
-  pmixmodel_->setFreq(m);
-  matchParametersValues(pmixmodel_->getParameters());
-}
-
-void LLG08_EX3::setVRates(Vdouble & vd){
-  pmixmodel_->setVRates(vd);
-  matchParametersValues(pmixmodel_->getParameters());
 }
 
 /**************** sub model classes *///////////

@@ -43,6 +43,7 @@ knowledge of the CeCILL license and that you accept its terms.
 #include "MixtureOfSubstitutionModels.h"
 #include "ProteinSubstitutionModel.h"
 #include "AbstractSubstitutionModel.h"
+#include "AbstractBiblioMixedSubstitutionModel.h"
 
 using namespace std;
 
@@ -72,7 +73,7 @@ namespace bpp
    */
   
 class LLG08_EX2:
-  public AbstractMixedSubstitutionModel
+  public AbstractBiblioMixedSubstitutionModel
 {
 public:
   class EmbeddedModel:
@@ -93,18 +94,6 @@ public:
 private:
   MixtureOfSubstitutionModels* pmixmodel_;
 
-private:
-  /**
-   * @brief Tools to make the link between the Parameters of the
-   * object and those of pmixmodel_.
-   *
-   */
-
-  std::map<std::string,std::string> mapParNamesFromPmodel_;
-  
-  ParameterList lParPmodel_;
-  
-
 public:
 
   /**
@@ -124,74 +113,23 @@ public:
 
   LLG08_EX2& operator=(const LLG08_EX2&);
 
-  unsigned int getNumberOfStates() const  { return pmixmodel_->getNumberOfStates();  }
-
-protected:
-  void updateMatrices();
-
-public:
-  const SubstitutionModel* getNModel(unsigned int i) const {
-    return pmixmodel_->getNModel(i);
+  const AbstractSubstitutionModel* getModel() const {
+    return pmixmodel_;
   }
 
-  SubstitutionModel* getNModel(unsigned int i) {
-    return pmixmodel_->getNModel(i);
+  AbstractSubstitutionModel* getModel() {
+    return pmixmodel_;
   }
 
-  /**
-   * @brief Returns the  probability of a specific model from the mixture
-   */
-  
-  double getNProbability(unsigned int i) const {
-    return pmixmodel_->getNProbability(i);
+  const MixedSubstitutionModel* getMixedModel() const {
+    return pmixmodel_;
   }
 
-  const std::vector<double>& getProbabilities() const {
-    return pmixmodel_->getProbabilities();
+  MixedSubstitutionModel* getMixedModel() {
+    return pmixmodel_;
   }
-    
-  void setNProbability(unsigned int i, double prob)
-  {
-    pmixmodel_->setNProbability(i, prob);
-  }
-
-  unsigned int getNumberOfModels() const {
-    return pmixmodel_->getNumberOfModels();
-  }
-
-  void setVRates(Vdouble & vd);
 
   std::string getName() const { return "LLG08_EX2"; }
-
-  double Pij_t(unsigned int i, unsigned int j, double t) const {
-    return pmixmodel_->Pij_t(i,j,t);
-  }
-  double dPij_dt(unsigned int i, unsigned int j, double t) const {
-    return pmixmodel_->dPij_dt(i,j,t);
-  };
-  double d2Pij_dt2(unsigned int i, unsigned int j, double t) const {
-    return pmixmodel_->dPij_dt(i,j,t);
-  };
-  const Matrix<double>& getPij_t(double t) const {
-    return pmixmodel_->getPij_t(t);
-  };
-  const Matrix<double>& getdPij_dt(double t) const {
-    return pmixmodel_->getdPij_dt(t);
-  };
-  const Matrix<double>& getd2Pij_dt2(double t) const {
-    return pmixmodel_->getd2Pij_dt2(t);
-  };
-  
-  const Vdouble& getFrequencies() const {
-    return pmixmodel_->getFrequencies();
-  };
-  
-  double freq(unsigned int i) const {
-    return pmixmodel_->freq(i);
-  };
-
-  void setFreq(std::map<int,double>& m);
-
 };
 
 } //end of namespace bpp.
