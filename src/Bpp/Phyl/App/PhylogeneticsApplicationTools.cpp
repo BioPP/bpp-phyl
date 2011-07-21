@@ -1519,12 +1519,12 @@ void PhylogeneticsApplicationTools::completeMixedSubstitutionModelSet(
       int num = TextTools::toInt(submodel.substr(5, indexo-5));
       string p2 = submodel.substr(indexo+1, indexf-indexo-1);
       
-      const MixtureOfASubstitutionModel* pSM=dynamic_cast<const MixtureOfASubstitutionModel*>(mixedModelSet.getModel(num-1));
-    if (pSM==NULL)
-      throw BadIntegerException("PhylogeneticsApplicationTools::setMixedSubstitutionModelSet: Wrongmodel for number",num-1);
-    Vint submodnb=pSM->getSubmodelNumbers(p2);
+      const MixedSubstitutionModel* pSM=dynamic_cast<const MixedSubstitutionModel*>(mixedModelSet.getModel(num-1));
+      if (pSM==NULL)
+        throw BadIntegerException("PhylogeneticsApplicationTools::setMixedSubstitutionModelSet: Wron gmodel for number",num-1);
+      Vint submodnb=pSM->getSubmodelNumbers(p2);
     
-    mixedModelSet.addToHyperNode(num-1,submodnb);
+      mixedModelSet.addToHyperNode(num-1,submodnb);
     }
 
     if (!mixedModelSet.getHyperNode(mixedModelSet.getNumberOfHyperNodes()-1).isComplete())
