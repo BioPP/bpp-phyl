@@ -236,7 +236,7 @@ void MixtureOfSubstitutionModels::setFreq(std::map<int,double>& m)
   matchParametersValues(pl);
 }
 
-void MixtureOfSubstitutionModels::setVRates(Vdouble& vd)
+void MixtureOfSubstitutionModels::setVRates(const Vdouble& vd)
 {
   AbstractMixedSubstitutionModel::setVRates(vd);
 

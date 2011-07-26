@@ -173,18 +173,27 @@ void AbstractMixedSubstitutionModel::setRate(double rate)
   }
 }
 
-void AbstractMixedSubstitutionModel::setVRates(Vdouble& vd)
+void AbstractMixedSubstitutionModel::setVRates(const Vdouble& vd)
 {
   if (vd.size()!=modelsContainer_.size())
     throw Exception("AbstractMixedSubstitutionModel::setVRates  bad size of Vdouble argument.");
 
   double sum=0;
-  for (unsigned int i=0;i<vd.size();i++){
-    sum+=vd[i]*vProbas_[i];
+  for (unsigned int i=0;i<vd.size();i++)
+    vRates_[i]=vd[i];
+ 
+  normalizeVRates();
+}
+
+void AbstractMixedSubstitutionModel::normalizeVRates()
+{
+  double sum=0;
+  for (unsigned int i=0;i<vRates_.size();i++){
+    sum+=vRates_[i]*vProbas_[i];
   }
   
-  for (unsigned int i=0;i<vd.size();i++){
-    vRates_[i]=vd[i]*rate_/sum;
+  for (unsigned int i=0;i<vRates_.size();i++){
+    vRates_[i]*=rate_/sum;
     modelsContainer_[i]->setRate(vRates_[i]);
   }
 }

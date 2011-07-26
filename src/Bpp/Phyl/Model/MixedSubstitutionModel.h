@@ -91,17 +91,36 @@ namespace bpp
 
     virtual unsigned int getNumberOfModels() const = 0;
 
-    
     /**
-     * @brief Sets the rates of the submodels to follow the constraint
-     * that the mean rate of the mixture equals rate_.
+     * @brief Returns the rates of the submodels.
+     */
+
+    virtual const std::vector<double>& getVRates() const = 0;
+
+    /**
+     * @brief Returns the rate of a specific submodel.
+     */
+
+    virtual double getNRate(unsigned int i) const = 0;
+
+    /**
+     * @brief Sets the rates of the submodels to be proportional to a
+     * given vector, and normalizes them so that the mean rate of the
+     * mixture equals rate_.
      
      * @param vd a vector of positive values such that the rates of
      * the respective submodels are in the same proportions (ie this
      * vector does not need to be normalized).
      */
 
-    virtual void setVRates(Vdouble& vd) = 0;
+    virtual void setVRates(const Vdouble& vd) = 0;
+
+    /**
+     * @brief Normalizes the rates of the submodels so that the mean
+     * rate of the mixture equals rate_.
+     */
+
+    virtual void normalizeVRates() = 0;
 
     /*
      *@brief Returns the vector of numbers of the submodels in the

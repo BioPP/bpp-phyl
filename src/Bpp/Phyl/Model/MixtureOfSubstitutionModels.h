@@ -172,7 +172,7 @@ namespace bpp
      * vector does not need to be normalized).
      */
 
-    virtual void setVRates(Vdouble& vd);
+    virtual void setVRates(const Vdouble& vd);
 
     /*
      *@brief Returns the vector of numbers of the submodels in the

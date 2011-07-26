@@ -176,41 +176,65 @@ void MixedSubstitutionModelSet::computeHyperNodesProbabilities()
   unsigned int nbm=getNumberOfModels();
 
   // Looking for the first Mixed model
+  
   unsigned int fmM=0;
   
-  const MixedSubstitutionModel* pfSM;
+  MixedSubstitutionModel* pfSM=0;
   for (fmM=0;fmM<nbm;fmM++){
-    pfSM=dynamic_cast<const MixedSubstitutionModel*>(getModel(fmM));
+    pfSM=dynamic_cast<MixedSubstitutionModel*>(getModel(fmM));
     if (pfSM!=NULL)
       break;
   }
-  if (fmM==nbm){
+  if (fmM==nbm)
     return;
-  }
+
+  // Compute the probabilities of the hypernodes from the first mixed
+  // model
+  
   unsigned int nbh=getNumberOfHyperNodes();
+
+  
   for (unsigned int nh=0;nh<nbh;nh++){
     MixedSubstitutionModelSet::HyperNode& h=getHyperNode(nh);
     const MixedSubstitutionModelSet::HyperNode::Node& fnd=h.getNode(fmM);
-
+    
     double fprob=0;
     for (unsigned int i=0;i<fnd.size();i++)
       fprob+=pfSM->getNProbability(fnd[i]);
-
     h.setProbability(fprob);
-      
-    for (unsigned int i=fmM+1;i<nbm;i++){
-      MixedSubstitutionModel* pSM=dynamic_cast<MixedSubstitutionModel*>(getModel(i));
-      if (pSM!=NULL){
-        const MixedSubstitutionModelSet::HyperNode::Node& nd=h.getNode(i);
+  }
+
+  // Sets the new probabilities & rates of the mixmodels
+  
+  for (unsigned int iM=fmM+1;iM<nbm;iM++){
+    pfSM=dynamic_cast<MixedSubstitutionModel*>(getModel(iM));
+    if (pfSM!=NULL){
+      for (unsigned int nh=0;nh<nbh;nh++){
+        MixedSubstitutionModelSet::HyperNode& h=getHyperNode(nh);
+        const MixedSubstitutionModelSet::HyperNode::Node& fnd=h.getNode(iM);
         double prob=0;
-        for (unsigned int j=0;j<nd.size();j++)
-          prob+=pSM->getNProbability(nd[j]);
-        for (unsigned int j=0;j<nd.size();j++){
-          pSM->setNProbability(nd[j],pSM->getNProbability(nd[j])/prob);
-        }
+        for (unsigned int j=0;j<fnd.size();j++)
+          prob+=pfSM->getNProbability(fnd[j]);
+
+        // sets the real probabilities
+        for (unsigned int j=0;j<fnd.size();j++)
+          pfSM->setNProbability(fnd[j],h.getProbability()*pfSM->getNProbability(fnd[j])/prob);
+      }
+
+      // normalizes Vrates with the real probabilities
+
+      pfSM->normalizeVRates();
+
+      // sets the conditional probabilities
+
+      for (unsigned int nh=0;nh<nbh;nh++){
+        MixedSubstitutionModelSet::HyperNode& h=getHyperNode(nh);
+        const MixedSubstitutionModelSet::HyperNode::Node& fnd=h.getNode(iM);
+        for (unsigned int j=0;j<fnd.size();j++)
+          pfSM->setNProbability(fnd[j],pfSM->getNProbability(fnd[j])/h.getProbability());
       }
     }
-  }
+  }  
 }
 
 double MixedSubstitutionModelSet::getHyperNodeProbability(const HyperNode& hn) const
