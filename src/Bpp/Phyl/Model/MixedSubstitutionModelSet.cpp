@@ -93,7 +93,7 @@ void MixedSubstitutionModelSet::addHyperNode(const HyperNode& hn)
   vpHyperNodes_.push_back(new HyperNode(hn));
 }
 
-void MixedSubstitutionModelSet::complete()
+bool MixedSubstitutionModelSet::complete()
 {
   MixedSubstitutionModelSet::HyperNode nhn(this);
   unsigned int i;
@@ -110,7 +110,7 @@ void MixedSubstitutionModelSet::complete()
   }
 
   if (i==nbm)
-    return;
+    return false;
   
   addEmptyHyperNode();
   for ( i=0;i<nbm;i++){
@@ -132,6 +132,8 @@ void MixedSubstitutionModelSet::complete()
       addToHyperNode(i,an);
     }
   }
+  
+  return true;
 }
 
 void MixedSubstitutionModelSet::addToHyperNode(int nM, const Vint& vnS, int nH)

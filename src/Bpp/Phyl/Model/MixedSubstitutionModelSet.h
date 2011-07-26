@@ -329,12 +329,15 @@ namespace bpp
     void addHyperNode(const HyperNode& hn);
 
     /*
-     *@brief Adds a new HyperNode such that all submodels of the
-     *       mixture models are at least in an HyperNode.
+     *@brief If necessary, adds a new HyperNode such that all
+     *       submodels of the mixture models are at least in an
+     *       HyperNode.
      *
+     * Returns true iff a new path has been built.
+     * 
      */
 
-    void complete();
+    bool complete();
     
     /*
      *@brief adds a submodel number to the nMth mixed model of the

@@ -1492,6 +1492,8 @@ void PhylogeneticsApplicationTools::completeMixedSubstitutionModelSet(
   else
     numd = ApplicationTools::getParameter<unsigned int>("site.number_of_paths", params, 1, suffix, suffixIsOptional, false);
 
+  if (verbose) ApplicationTools::displayResult("Number of distinct paths", TextTools::toString(numd));
+
   vector<string> vdesc;
   while (numd){
     string desc = ApplicationTools::getStringParameter("site.path"+TextTools::toString(numd), params, "",  suffix, suffixIsOptional, verbose);
@@ -1529,15 +1531,22 @@ void PhylogeneticsApplicationTools::completeMixedSubstitutionModelSet(
 
     if (!mixedModelSet.getHyperNode(mixedModelSet.getNumberOfHyperNodes()-1).isComplete())
       throw Exception("A path should own at least a submodel of each mixed model: " + *it);
+
+    if (verbose) ApplicationTools::displayResult("Site Path", *it);
   }
 
   /// Checks if the paths are separate
   if (! mixedModelSet.hasExclusivePaths())
-    throw Exception("All paths must be disjoint");
+    throw Exception("All paths must be disjoint.");
 
   /// Puts all the remaining models in a new path
-  mixedModelSet.complete();
-
+  string st;
+  st=(mixedModelSet.complete())?"Yes":"No";
+  
+  if (verbose)
+    ApplicationTools::displayResult("Site Path Completion", st);
+  
+  
   if (!mixedModelSet.getHyperNode(mixedModelSet.getNumberOfHyperNodes()-1).isComplete())
     throw Exception("The remaining submodels can not create a complete path.");
 }
