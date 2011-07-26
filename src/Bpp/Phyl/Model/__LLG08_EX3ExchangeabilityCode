@@ -1,4 +1,4 @@
-if (getName()=="EX3_Buried"){
+if (getName()=="Buried"){
 	exchangeability_(10,17)=0.37729;
 	exchangeability_(17,10)=0.37729;
 	exchangeability_(6,11)=4.17612;
@@ -382,7 +382,7 @@ if (getName()=="EX3_Buried"){
 }
 
 
-if (getName()=="EX3_Intermediate"){
+if (getName()=="Intermediate"){
 	exchangeability_(10,17)=0.67791;
 	exchangeability_(17,10)=0.67791;
 	exchangeability_(6,11)=0.7924;
@@ -766,7 +766,7 @@ if (getName()=="EX3_Intermediate"){
 }
 
 
-if (getName()=="EX3_HExposed"){
+if (getName()=="HExposed"){
 	exchangeability_(10,17)=3.29015;
 	exchangeability_(17,10)=3.29015;
 	exchangeability_(6,11)=0.62329;
@@ -1150,7 +1150,7 @@ if (getName()=="EX3_HExposed"){
 }
 
 
-if (getName()=="EX3_Buried"){
+if (getName()=="Buried"){
 	exchangeability_(0,0)=-19.555;
 	exchangeability_(4,4)=-19.2782;
 	exchangeability_(6,6)=-33.2674;
@@ -1174,7 +1174,7 @@ if (getName()=="EX3_Buried"){
 }
 
 
-if (getName()=="EX3_Intermediate"){
+if (getName()=="Intermediate"){
 	exchangeability_(0,0)=-22.206;
 	exchangeability_(4,4)=-27.6779;
 	exchangeability_(6,6)=-12.2404;
@@ -1198,7 +1198,7 @@ if (getName()=="EX3_Intermediate"){
 }
 
 
-if (getName()=="EX3_HExposed"){
+if (getName()=="HExposed"){
 	exchangeability_(0,0)=-21.4094;
 	exchangeability_(4,4)=-55.2496;
 	exchangeability_(6,6)=-10.3538;

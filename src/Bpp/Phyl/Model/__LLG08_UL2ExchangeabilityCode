@@ -1,4 +1,4 @@
-if (getName()=="UL2_M2"){
+if (getName()=="M2"){
 	exchangeability_(10,17)=0.31286;
 	exchangeability_(17,10)=0.31286;
 	exchangeability_(6,11)=0.92316;
@@ -382,7 +382,7 @@ if (getName()=="UL2_M2"){
 }
 
 
-if (getName()=="UL2_M1"){
+if (getName()=="M1"){
 	exchangeability_(10,17)=2.26293;
 	exchangeability_(17,10)=2.26293;
 	exchangeability_(6,11)=0.75029;
@@ -766,7 +766,7 @@ if (getName()=="UL2_M1"){
 }
 
 
-if (getName()=="UL2_M2"){
+if (getName()=="M2"){
 	exchangeability_(0,0)=-26.3857;
 	exchangeability_(4,4)=-20.7458;
 	exchangeability_(6,6)=-14.411;
@@ -790,7 +790,7 @@ if (getName()=="UL2_M2"){
 }
 
 
-if (getName()=="UL2_M1"){
+if (getName()=="M1"){
 	exchangeability_(0,0)=-22.2535;
 	exchangeability_(4,4)=-78.1715;
 	exchangeability_(6,6)=-11.0877;

@@ -56,9 +56,9 @@ LLG08_EHO::LLG08_EHO(const ProteicAlphabet* alpha) :
   // build the submodel
 
   vector<SubstitutionModel*> vpSM;
-  vpSM.push_back(new LLG08_EHO::EmbeddedModel(alpha,"EHO_Extended"));
-  vpSM.push_back(new LLG08_EHO::EmbeddedModel(alpha,"EHO_Helix"));
-  vpSM.push_back(new LLG08_EHO::EmbeddedModel(alpha,"EHO_Other"));
+  vpSM.push_back(new LLG08_EHO::EmbeddedModel(alpha,"Extended"));
+  vpSM.push_back(new LLG08_EHO::EmbeddedModel(alpha,"Helix"));
+  vpSM.push_back(new LLG08_EHO::EmbeddedModel(alpha,"Other"));
 
   Vdouble vrate, vproba;
   

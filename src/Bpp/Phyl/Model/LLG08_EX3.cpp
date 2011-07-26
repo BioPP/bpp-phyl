@@ -56,9 +56,9 @@ LLG08_EX3::LLG08_EX3(const ProteicAlphabet* alpha) :
   // build the submodel
 
   vector<SubstitutionModel*> vpSM;
-  vpSM.push_back(new LLG08_EX3::EmbeddedModel(alpha,"EX3_Buried"));
-  vpSM.push_back(new LLG08_EX3::EmbeddedModel(alpha,"EX3_Intermediate"));
-  vpSM.push_back(new LLG08_EX3::EmbeddedModel(alpha,"EX3_HExposed"));
+  vpSM.push_back(new LLG08_EX3::EmbeddedModel(alpha,"Buried"));
+  vpSM.push_back(new LLG08_EX3::EmbeddedModel(alpha,"Intermediate"));
+  vpSM.push_back(new LLG08_EX3::EmbeddedModel(alpha,"HExposed"));
 
   Vdouble vrate, vproba;
   

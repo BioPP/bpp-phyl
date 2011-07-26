@@ -1,4 +1,4 @@
-if (getName()=="UL2_M1"){
+if (getName()=="M1"){
 	freq_[0] = 0.089881;
 	freq_[4] = 0.002739;
 	freq_[6] = 0.141889;
@@ -22,7 +22,7 @@ if (getName()=="UL2_M1"){
 }
 
 
-if (getName()=="UL2_M2"){
+if (getName()=="M2"){
 	freq_[0] = 0.107894;
 	freq_[4] = 0.017151;
 	freq_[6] = 0.021895;
