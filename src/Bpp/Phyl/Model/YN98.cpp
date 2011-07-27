@@ -38,6 +38,7 @@ knowledge of the CeCILL license and that you accept its terms.
 
 #include "YN98.h"
 #include "FrequenciesSet.h"
+#include <Bpp/Numeric/NumConstants.h>
 
 using namespace bpp;
 
@@ -46,18 +47,18 @@ using namespace std;
 /******************************************************************************/
 
 YN98::YN98(const GeneticCode* gc, FrequenciesSet* codonFreqs) :
-  AbstractReversibleSubstitutionModel(gc->getSourceAlphabet(), "YN98."),
-  pmodel_(gc, codonFreqs), mapParNamesFromPmodel_(), lParPmodel_()
+  AbstractBiblioSubstitutionModel("YN98."),
+  pmodel_(new CodonAsynonymousFrequenciesReversibleSubstitutionModel(gc, codonFreqs))
 {
   addParameter_(Parameter("YN98.kappa", 1, &Parameter::R_PLUS_STAR));
-  addParameter_(Parameter("YN98.omega", 1, &Parameter::R_PLUS_STAR));//new IncludingInterval(0.0001, 999), true));
+  addParameter_(Parameter("YN98.omega", 1, new IncludingInterval(NumConstants::TINY, 999), true));
 
-  pmodel_.setNamespace("YN98.");
+  pmodel_->setNamespace("YN98.");
   addParameters_(codonFreqs->getParameters());
 
-  lParPmodel_.addParameters(pmodel_.getParameters());
+  lParPmodel_.addParameters(pmodel_->getParameters());
   
-  vector<std::string> v=pmodel_.getFreq().getParameters().getParameterNames();
+  vector<std::string> v=pmodel_->getFreq().getParameters().getParameterNames();
 
   for (unsigned int i=0;i<v.size();i++)
     mapParNamesFromPmodel_[v[i]]=getParameterNameWithoutNamespace(v[i]);
@@ -68,24 +69,19 @@ YN98::YN98(const GeneticCode* gc, FrequenciesSet* codonFreqs) :
   updateMatrices();
 }
 
-void YN98::updateMatrices()
-{
-  for (unsigned int i=0;i<lParPmodel_.size();i++){
-    lParPmodel_[i].setValue(getParameter(mapParNamesFromPmodel_[lParPmodel_[i].getName()]).getValue());}
 
-  pmodel_.matchParametersValues(lParPmodel_);
+YN98::YN98(const YN98& yn98) : AbstractBiblioSubstitutionModel(yn98),
+                               pmodel_(new CodonAsynonymousFrequenciesReversibleSubstitutionModel(*yn98.pmodel_))
+{}
+
+YN98& YN98::operator=(const YN98& yn98){
+  AbstractBiblioSubstitutionModel::operator=(yn98);
+  pmodel_=new CodonAsynonymousFrequenciesReversibleSubstitutionModel(*yn98.pmodel_);
+  return *this;
 }
 
-void YN98::setFreq(std::map<int, double>& m)
+YN98::~YN98()
 {
-  pmodel_.setFreq(m);
-  matchParametersValues(pmodel_.getParameters());
-}
-
-void YN98::addRateParameter(){
-  AbstractSubstitutionModel::addRateParameter();
-  pmodel_.addRateParameter();
-  mapParNamesFromPmodel_["YN98.rate"]="rate";
-  lParPmodel_.reset();
-  lParPmodel_.addParameters(pmodel_.getParameters());
+  if (pmodel_)
+    delete pmodel_;
 }

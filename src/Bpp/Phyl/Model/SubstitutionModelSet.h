@@ -171,6 +171,30 @@ public:
   }
 
   /**
+   * @brief Create a model set according to the specified alphabet and root frequencies.
+   * Stationarity is not assumed.
+   *
+   * @param alpha The alphabet to use for this set.
+   * @param rootFreqs The frequencies at root node. The underlying object will be owned by this instance.
+   */
+  SubstitutionModelSet(const Alphabet* alpha, FrequenciesSet* rootFreqs):
+    AbstractParameterAliasable(""),
+    alphabet_(alpha),
+    nbStates_(0),
+    modelSet_(),
+    rootFrequencies_(0),
+    nodeToModel_(),
+    modelToNodes_(),
+    paramToModels_(),
+    paramNamesCount_(),
+    modelParameterNames_(),
+    modelParameters_(),
+    stationarity_(true)
+  {
+    setRootFrequencies(rootFreqs);
+  }
+
+  /**
    * @brief Resets all the information contained in this object.
    *
    */
@@ -178,7 +202,7 @@ public:
   void clear();
   
   /**
-   * @brief Sets a  given FrequenciesSet for root frequencies.
+   * @brief Sets a given FrequenciesSet for root frequencies.
    *
    * @param rootFreqs The FrequenciesSet for root frequencies.
    */

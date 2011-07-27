@@ -46,24 +46,43 @@ using namespace std;
 /******************************************************************************/
 
 MG94::MG94(const GeneticCode* gc, FrequenciesSet* codonFreqs) :
-  AbstractReversibleSubstitutionModel(gc->getSourceAlphabet(), "MG94."),
-  pmodel_(gc, codonFreqs)
+  AbstractBiblioSubstitutionModel("MG94."),
+  pmodel_(new CodonAsynonymousFrequenciesReversibleSubstitutionModel(gc, codonFreqs))
 {
   addParameter_(Parameter("MG94.rho", 1, &Parameter::R_PLUS_STAR));
-  pmodel_.setNamespace("MG94.");
+
+  pmodel_->setNamespace("MG94.");
   addParameters_(codonFreqs->getParameters());
+
+  lParPmodel_.addParameters(pmodel_->getParameters());
+  
+  vector<std::string> v=pmodel_->getFreq().getParameters().getParameterNames();
+  for (unsigned int i=0;i<v.size();i++)
+    mapParNamesFromPmodel_[v[i]]=getParameterNameWithoutNamespace(v[i]);
+
+  mapParNamesFromPmodel_["MG94.beta"]="rho";
+  
   updateMatrices();
 }
 
-void MG94::updateMatrices()
+MG94::MG94(const MG94& mg94) :
+  AbstractBiblioSubstitutionModel(mg94),
+  pmodel_(new CodonAsynonymousFrequenciesReversibleSubstitutionModel(*mg94.pmodel_))
+{}
+
+MG94& MG94::operator=(const MG94& mg94)
 {
-  ParameterList pl;
-  pl.addParameter(Parameter("MG94.beta", getParameterValue("rho")));
-  pmodel_.matchParametersValues(pl);
+  AbstractBiblioSubstitutionModel::operator=(mg94);
+  if (pmodel_)
+    delete pmodel_;
+  pmodel_ = new CodonAsynonymousFrequenciesReversibleSubstitutionModel(*mg94.pmodel_);
+  return *this;
 }
 
-void MG94::setFreq(std::map<int, double>& m)
+MG94::~MG94()
 {
-  pmodel_.setFreq(m);
-  matchParametersValues(pmodel_.getParameters());
+  if (pmodel_)
+    delete pmodel_;
 }
+
+

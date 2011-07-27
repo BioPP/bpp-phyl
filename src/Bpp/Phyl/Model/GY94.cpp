@@ -46,40 +46,46 @@ using namespace std;
 /******************************************************************************/
 
 GY94::GY94(const GeneticCode* gc, FrequenciesSet* codonFreqs) :
-  AbstractReversibleSubstitutionModel(gc->getSourceAlphabet(), "GY94."),
+  AbstractBiblioSubstitutionModel("GY94."),
   gacd_(),
-  pmodel_(gc, codonFreqs, &gacd_)
+  pmodel_(new CodonAsynonymousFrequenciesReversibleSubstitutionModel(gc, codonFreqs, &gacd_))
 {
   addParameter_(Parameter("GY94.kappa",1,&Parameter::R_PLUS_STAR));
   addParameter_(Parameter("GY94.V",10000,&Parameter::R_PLUS_STAR));
-  pmodel_.setNamespace("GY94.");
+  
+  pmodel_->setNamespace("GY94.");
   addParameters_(codonFreqs->getParameters());
+
+  lParPmodel_.addParameters(pmodel_->getParameters());
+  
+  vector<std::string> v=pmodel_->getFreq().getParameters().getParameterNames();
+  for (unsigned int i=0;i<v.size();i++)
+    mapParNamesFromPmodel_[v[i]]=getParameterNameWithoutNamespace(v[i]);
+
+  mapParNamesFromPmodel_["GY94.123_K80.kappa"]="kappa";
+  mapParNamesFromPmodel_["GY94.alpha"]="V";
+  
   updateMatrices();
 }
 
 GY94::GY94(const GY94& gy94) :
-  AbstractReversibleSubstitutionModel(gy94),
+  AbstractBiblioSubstitutionModel(gy94),
   gacd_(),
-  pmodel_(gy94.pmodel_)
+  pmodel_(new CodonAsynonymousFrequenciesReversibleSubstitutionModel(*gy94.pmodel_))
 {}
 
 GY94& GY94::operator=(const GY94& gy94)
 {
-  AbstractReversibleSubstitutionModel::operator=(gy94);
-  pmodel_ = CodonAsynonymousFrequenciesReversibleSubstitutionModel(gy94.pmodel_.getGeneticCode(), gy94.pmodel_.getFreq().clone(), &gacd_);
+  AbstractBiblioSubstitutionModel::operator=(gy94);
+  if (pmodel_)
+    delete pmodel_;
+  pmodel_ = new CodonAsynonymousFrequenciesReversibleSubstitutionModel(*gy94.pmodel_);
   return *this;
 }
 
-void GY94::updateMatrices()
+GY94::~GY94()
 {
-  ParameterList pl;
-  pl.addParameter(Parameter("GY94.123_K80.kappa", getParameterValue("kappa")));
-  pl.addParameter(Parameter("GY94.alpha", getParameterValue("V")));
-  pmodel_.matchParametersValues(pl);
+  if (pmodel_)
+    delete pmodel_;
 }
 
-void GY94::setFreq(std::map<int, double>& m)
-{
-  pmodel_.setFreq(m);
-  matchParametersValues(pmodel_.getParameters());
-}

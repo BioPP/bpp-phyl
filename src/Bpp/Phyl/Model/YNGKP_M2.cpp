@@ -50,9 +50,9 @@ using namespace std;
 /******************************************************************************/
 
 YNGKP_M2::YNGKP_M2(const GeneticCode* gc, FrequenciesSet* codonFreqs) :
-  AbstractMixedSubstitutionModel(gc->getSourceAlphabet(), "YNGKP_M2."), pmixmodel_(0),
-  synfrom_(-1), synto_(-1),
-  mapParNamesFromPmodel_(), lParPmodel_()
+  AbstractBiblioMixedSubstitutionModel("YNGKP_M2."),
+  pmixmodel_(0),
+  synfrom_(-1), synto_(-1)
 {
   // build the submodel
 
@@ -119,22 +119,20 @@ YNGKP_M2::YNGKP_M2(const GeneticCode* gc, FrequenciesSet* codonFreqs) :
   updateMatrices();
 }
 
-YNGKP_M2::YNGKP_M2(const YNGKP_M2& mod2) : AbstractMixedSubstitutionModel(mod2),
+YNGKP_M2::YNGKP_M2(const YNGKP_M2& mod2) : AbstractBiblioMixedSubstitutionModel(mod2),
                                            pmixmodel_(new MixtureOfASubstitutionModel(*mod2.pmixmodel_)),
-                                           synfrom_(mod2.synfrom_), synto_(mod2.synto_),
-                                           mapParNamesFromPmodel_(mod2.mapParNamesFromPmodel_),
-                                           lParPmodel_(mod2.lParPmodel_)
+                                           synfrom_(mod2.synfrom_), synto_(mod2.synto_)
 {
   
 }
 
 YNGKP_M2& YNGKP_M2::operator=(const YNGKP_M2& mod2)
 {
-  AbstractMixedSubstitutionModel::operator=(mod2);
+  AbstractBiblioMixedSubstitutionModel::operator=(mod2);
 
+  if (pmixmodel_)
+    delete pmixmodel_;
   pmixmodel_=new MixtureOfASubstitutionModel(*mod2.pmixmodel_);
-  mapParNamesFromPmodel_=mod2.mapParNamesFromPmodel_;
-  lParPmodel_=mod2.lParPmodel_;
   synfrom_=mod2.synfrom_;
   synto_=mod2.synto_;
   
@@ -149,12 +147,7 @@ YNGKP_M2::~YNGKP_M2()
 
 void YNGKP_M2::updateMatrices()
 {
-  map<string,string>::iterator it;
-  
-  for (it=mapParNamesFromPmodel_.begin();it!=mapParNamesFromPmodel_.end();it++)
-    lParPmodel_.setParameterValue(it->first,getParameter(it->second).getValue());
-  
-  pmixmodel_->matchParametersValues(lParPmodel_);
+  AbstractBiblioSubstitutionModel::updateMatrices();
 
   // homogeneization of the synonymous substittion rates
 
@@ -167,13 +160,3 @@ void YNGKP_M2::updateMatrices()
   pmixmodel_->setVRates(vd);
 }
 
-void YNGKP_M2::setFreq(std::map<int,double>& m){
-  pmixmodel_->setFreq(m);
-  map<string,string>::iterator it;
-
-  ParameterList pl;
-  for (it=mapParNamesFromPmodel_.begin();it!=mapParNamesFromPmodel_.end();it++)
-    pl.addParameter(Parameter(getNamespace()+it->second,pmixmodel_->getParameterValue(it->first)));
-
-  matchParametersValues(pl);
-}

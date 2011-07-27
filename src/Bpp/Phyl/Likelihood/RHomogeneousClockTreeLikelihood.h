@@ -62,6 +62,8 @@ namespace bpp
  * The tree must be rooted and fully resolved (no multifurcation).
  *
  * Constraint on parameters HeightP are of class IncludingInterval, initially set to [0,1].
+ *
+ * @deprecated See GlobalClockTreeLikelihoodFunctionWrapper as a more general replacement.
  */
 class RHomogeneousClockTreeLikelihood:
   public RHomogeneousTreeLikelihood,

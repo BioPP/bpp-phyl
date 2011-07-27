@@ -49,17 +49,17 @@ using namespace std;
 
 /******************************************************************************/
 
-YNGKP_M8::YNGKP_M8(const GeneticCode* gc, FrequenciesSet* codonFreqs, unsigned int nbclass) :
-  AbstractMixedSubstitutionModel(gc->getSourceAlphabet(), "YNGKP_M8."), pmixmodel_(0),
-  synfrom_(-1), synto_(-1),
-  mapParNamesFromPmodel_(), lParPmodel_()
+YNGKP_M8::YNGKP_M8(const GeneticCode* gc, FrequenciesSet* codonFreqs, unsigned int nclass) :
+  AbstractBiblioMixedSubstitutionModel("YNGKP_M8."),
+  pmixmodel_(0),
+  synfrom_(-1), synto_(-1)
 {
-  if (nbclass<=0)
-    throw Exception("Bad number of classes for model YNGKP_M8: " + TextTools::toString(nbclass));
+  if (nclass<=0)
+    throw Exception("Bad number of classes for model YNGKP_M8: " + TextTools::toString(nclass));
 
   // build the submodel
   
-  BetaDiscreteDistribution* pbdd=new BetaDiscreteDistribution(nbclass,2,2);
+  BetaDiscreteDistribution* pbdd=new BetaDiscreteDistribution(nclass,2,2);
 
   vector<double> val; val.push_back(2);
   vector<double> prob; prob.push_back(1);
@@ -126,22 +126,20 @@ YNGKP_M8::YNGKP_M8(const GeneticCode* gc, FrequenciesSet* codonFreqs, unsigned i
   updateMatrices();
 }
 
-YNGKP_M8::YNGKP_M8(const YNGKP_M8& mod2) : AbstractMixedSubstitutionModel(mod2),
+YNGKP_M8::YNGKP_M8(const YNGKP_M8& mod2) : AbstractBiblioMixedSubstitutionModel(mod2),
                                            pmixmodel_(new MixtureOfASubstitutionModel(*mod2.pmixmodel_)),
-                                           synfrom_(mod2.synfrom_), synto_(mod2.synto_),
-                                           mapParNamesFromPmodel_(mod2.mapParNamesFromPmodel_),
-                                           lParPmodel_(mod2.lParPmodel_)
+                                           synfrom_(mod2.synfrom_), synto_(mod2.synto_)
 {
   
 }
 
 YNGKP_M8& YNGKP_M8::operator=(const YNGKP_M8& mod2)
 {
-  AbstractMixedSubstitutionModel::operator=(mod2);
+  AbstractBiblioMixedSubstitutionModel::operator=(mod2);
 
+  if (pmixmodel_)
+    delete pmixmodel_;
   pmixmodel_=new MixtureOfASubstitutionModel(*mod2.pmixmodel_);
-  mapParNamesFromPmodel_=mod2.mapParNamesFromPmodel_;
-  lParPmodel_=mod2.lParPmodel_;
   synfrom_=mod2.synfrom_;
   synto_=mod2.synto_;
   
@@ -156,12 +154,7 @@ YNGKP_M8::~YNGKP_M8()
 
 void YNGKP_M8::updateMatrices()
 {
-  map<string,string>::iterator it;
-  
-  for (it=mapParNamesFromPmodel_.begin();it!=mapParNamesFromPmodel_.end();it++)
-    lParPmodel_.setParameterValue(it->first,getParameter(it->second).getValue());
-  
-  pmixmodel_->matchParametersValues(lParPmodel_);
+  AbstractBiblioSubstitutionModel::updateMatrices();
 
   // homogeneization of the synonymous substittion rates
 
@@ -173,14 +166,3 @@ void YNGKP_M8::updateMatrices()
   pmixmodel_->setVRates(vd);
 }
 
-void YNGKP_M8::setFreq(std::map<int,double>& m)
-{
-  pmixmodel_->setFreq(m);
-  map<string,string>::iterator it;
-
-  ParameterList pl;
-  for (it=mapParNamesFromPmodel_.begin();it!=mapParNamesFromPmodel_.end();it++)
-    pl.addParameter(Parameter(getNamespace()+it->second,pmixmodel_->getParameterValue(it->first)));
-
-  matchParametersValues(pl);
-}

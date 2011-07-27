@@ -1,4 +1,4 @@
-if (getName()=="UL3_Q2"){
+if (getName()=="Q2"){
 	freq_[0] = 0.044015;
 	freq_[4] = 0.00326;
 	freq_[6] = 0.041364;
@@ -22,7 +22,7 @@ if (getName()=="UL3_Q2"){
 }
 
 
-if (getName()=="UL3_Q3"){
+if (getName()=="Q3"){
 	freq_[0] = 0.134055;
 	freq_[4] = 0.021008;
 	freq_[6] = 0.028587;
@@ -46,7 +46,7 @@ if (getName()=="UL3_Q3"){
 }
 
 
-if (getName()=="UL3_Q1"){
+if (getName()=="Q1"){
 	freq_[0] = 0.104307;
 	freq_[4] = 0.003218;
 	freq_[6] = 0.163928;

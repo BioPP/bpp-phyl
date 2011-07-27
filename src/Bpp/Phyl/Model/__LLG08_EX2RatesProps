@@ -1,10 +1,10 @@
-if (getName()=="EX2_Buried"){
+if (getName()=="Buried"){
 	rate_ = 0.556689;
 	proportion_ = 0.448;
 }
 
 
-if (getName()=="EX2_Exposed"){
+if (getName()=="Exposed"){
 	rate_ = 1.359789;
 	proportion_ = 0.552;
 }

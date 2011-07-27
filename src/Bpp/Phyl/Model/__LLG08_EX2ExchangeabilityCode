@@ -1,4 +1,4 @@
-if (getName()=="EX2_Exposed"){
+if (getName()=="Exposed"){
 	exchangeability_(10,17)=1.13072;
 	exchangeability_(17,10)=1.13072;
 	exchangeability_(6,11)=0.73034;
@@ -382,7 +382,7 @@ if (getName()=="EX2_Exposed"){
 }
 
 
-if (getName()=="EX2_Buried"){
+if (getName()=="Buried"){
 	exchangeability_(10,17)=0.37457;
 	exchangeability_(17,10)=0.37457;
 	exchangeability_(6,11)=3.48294;
@@ -766,7 +766,7 @@ if (getName()=="EX2_Buried"){
 }
 
 
-if (getName()=="EX2_Exposed"){
+if (getName()=="Exposed"){
 	exchangeability_(0,0)=-21.9536;
 	exchangeability_(4,4)=-33.8123;
 	exchangeability_(6,6)=-10.7974;
@@ -790,7 +790,7 @@ if (getName()=="EX2_Exposed"){
 }
 
 
-if (getName()=="EX2_Buried"){
+if (getName()=="Buried"){
 	exchangeability_(0,0)=-19.2989;
 	exchangeability_(4,4)=-19.2161;
 	exchangeability_(6,6)=-28.5891;

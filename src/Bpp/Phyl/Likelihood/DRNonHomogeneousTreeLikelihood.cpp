@@ -61,9 +61,10 @@ DRNonHomogeneousTreeLikelihood::DRNonHomogeneousTreeLikelihood(
   const Tree& tree,
   SubstitutionModelSet* modelSet,
   DiscreteDistribution* rDist,
-  bool verbose)
+  bool verbose,
+  bool reparametrizeRoot)
 throw (Exception) :
-  AbstractNonHomogeneousTreeLikelihood(tree, modelSet, rDist, verbose),
+  AbstractNonHomogeneousTreeLikelihood(tree, modelSet, rDist, verbose, reparametrizeRoot),
   likelihoodData_(0),
   minusLogLik_(-1.)
 {
@@ -79,9 +80,10 @@ DRNonHomogeneousTreeLikelihood::DRNonHomogeneousTreeLikelihood(
   const SiteContainer& data,
   SubstitutionModelSet* modelSet,
   DiscreteDistribution* rDist,
-  bool verbose)
+  bool verbose,
+  bool reparametrizeRoot)
 throw (Exception) :
-  AbstractNonHomogeneousTreeLikelihood(tree, modelSet, rDist, verbose),
+  AbstractNonHomogeneousTreeLikelihood(tree, modelSet, rDist, verbose, reparametrizeRoot),
   likelihoodData_(0),
   minusLogLik_(-1.)
 {

@@ -85,13 +85,15 @@ class DRNonHomogeneousTreeLikelihood:
      * @param rDist The rate across sites distribution to use.
      * If true, any rooted tree will be unrooted before likelihood computation.
      * @param verbose Should I display some info?
+     * @param reparametrizeRoot Should we reparametrize the branch lengths at root?
      * @throw Exception in an error occured.
      */
     DRNonHomogeneousTreeLikelihood(
       const Tree& tree,
       SubstitutionModelSet* modelSet,
       DiscreteDistribution* rDist,
-      bool verbose = true)
+      bool verbose = true,
+      bool reparametrizeRoot = false)
       throw (Exception);
   
     /**
@@ -105,6 +107,7 @@ class DRNonHomogeneousTreeLikelihood:
      * @param rDist The rate across sites distribution to use.
      * If true, any rooted tree will be unrooted before likelihood computation.
      * @param verbose Should I display some info?
+     * @param reparametrizeRoot Should we reparametrize the branch lengths at root?
      * @throw Exception in an error occured.
      */
     DRNonHomogeneousTreeLikelihood(
@@ -112,7 +115,8 @@ class DRNonHomogeneousTreeLikelihood:
       const SiteContainer& data,
       SubstitutionModelSet* modelSet,
       DiscreteDistribution* rDist,
-      bool verbose = true)
+      bool verbose = true,
+      bool reparametrizeRoot = false)
       throw (Exception);
 
     /**

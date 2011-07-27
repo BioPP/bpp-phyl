@@ -1,4 +1,4 @@
-if (getName()=="EX3_Buried"){
+if (getName()=="Buried"){
 	freq_[0] = 0.123992;
 	freq_[4] = 0.019325;
 	freq_[6] = 0.01594;
@@ -22,7 +22,7 @@ if (getName()=="EX3_Buried"){
 }
 
 
-if (getName()=="EX3_Intermediate"){
+if (getName()=="Intermediate"){
 	freq_[0] = 0.086346;
 	freq_[4] = 0.006655;
 	freq_[6] = 0.09211;
@@ -46,7 +46,7 @@ if (getName()=="EX3_Intermediate"){
 }
 
 
-if (getName()=="EX3_HExposed"){
+if (getName()=="HExposed"){
 	freq_[0] = 0.094155;
 	freq_[4] = 0.002213;
 	freq_[6] = 0.165272;
