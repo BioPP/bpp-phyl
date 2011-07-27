@@ -178,7 +178,6 @@ void AbstractMixedSubstitutionModel::setVRates(const Vdouble& vd)
   if (vd.size()!=modelsContainer_.size())
     throw Exception("AbstractMixedSubstitutionModel::setVRates  bad size of Vdouble argument.");
 
-  double sum=0;
   for (unsigned int i=0;i<vd.size();i++)
     vRates_[i]=vd[i];
  
