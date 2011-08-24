@@ -781,7 +781,7 @@ class CodonFromIndependentFrequenciesSet :
 {
   public:
   /**
-   * @brief Constructor from a WordAlphabet* and a vector of different FrequenciesSet*.
+   * @brief Constructor from a CodonAlphabet* and a vector of different FrequenciesSet*.
    * Throws an Exception if their lengths do not match.
    */
   CodonFromIndependentFrequenciesSet(const CodonAlphabet* pCA, const std::vector<FrequenciesSet*>& freqvector, const string& name="") throw (Exception);
@@ -807,7 +807,8 @@ public:
 };
 
 /**
- * @brief the Frequencies in words are the product of the frequencies for a unique FrequenciesSet in letters
+ * @brief the Frequencies in words are the product of the frequencies
+ * for a unique FrequenciesSet in letters
  * @author Laurent Guéguen
  */
 

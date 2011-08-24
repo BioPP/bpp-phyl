@@ -1,4 +1,4 @@
-if (getName()=="EHO_Other"){
+if (getName()=="Other"){
 	freq_[0] = 0.076458;
 	freq_[4] = 0.007473;
 	freq_[6] = 0.080952;
@@ -22,7 +22,7 @@ if (getName()=="EHO_Other"){
 }
 
 
-if (getName()=="EHO_Extended"){
+if (getName()=="Extended"){
 	freq_[0] = 0.062087;
 	freq_[4] = 0.013132;
 	freq_[6] = 0.061043;
@@ -46,7 +46,7 @@ if (getName()=="EHO_Extended"){
 }
 
 
-if (getName()=="EHO_Helix"){
+if (getName()=="Helix"){
 	freq_[0] = 0.121953;
 	freq_[4] = 0.006842;
 	freq_[6] = 0.131841;

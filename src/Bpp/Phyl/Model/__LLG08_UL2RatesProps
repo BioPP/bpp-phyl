@@ -1,10 +1,10 @@
-if (getName()=="UL2_M1"){
+if (getName()=="M1"){
 	rate_ = 1.446612;
 	proportion_ = 0.4883;
 }
 
 
-if (getName()=="UL2_M2"){
+if (getName()=="M2"){
 	rate_ = 0.573812;
 	proportion_ = 0.5117;
 }

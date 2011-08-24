@@ -1335,16 +1335,17 @@ SubstitutionModelSet* PhylogeneticsApplicationTools::getSubstitutionModelSet(
         nomix=false;
     }
 
-  SubstitutionModelSet* modelSet=0;
+  SubstitutionModelSet* modelSet, *modelSet1=0;
+  modelSet1= new SubstitutionModelSet(alphabet);
+  setSubstitutionModelSet(*modelSet1, alphabet, data, params, suffix, suffixIsOptional, verbose);
 
-  if (nomix){
-    modelSet= new SubstitutionModelSet(alphabet);
-    setSubstitutionModelSet(*modelSet, alphabet, data, params, suffix, suffixIsOptional, verbose);
+  if (modelSet1->hasMixedSubstitutionModel()){
+    modelSet= new MixedSubstitutionModelSet(*modelSet1);
+    completeMixedSubstitutionModelSet(*dynamic_cast<MixedSubstitutionModelSet*>(modelSet), alphabet, data, params, suffix, suffixIsOptional, verbose);
   }
-  else{
-    modelSet= new MixedSubstitutionModelSet(alphabet);
-    setMixedSubstitutionModelSet(*dynamic_cast<MixedSubstitutionModelSet*>(modelSet), alphabet, data, params, suffix, suffixIsOptional, verbose);
-  }
+  else
+    modelSet=modelSet1;
+  
   return modelSet;
   
 }
@@ -1473,7 +1474,7 @@ void PhylogeneticsApplicationTools::setSubstitutionModelSet(
 }
 
 /******************************************************************************/
-void PhylogeneticsApplicationTools::setMixedSubstitutionModelSet(
+void PhylogeneticsApplicationTools::completeMixedSubstitutionModelSet(
                                                                  MixedSubstitutionModelSet& mixedModelSet,
                                                                  const Alphabet* alphabet,
                                                                  const SiteContainer* data,
@@ -1482,10 +1483,6 @@ void PhylogeneticsApplicationTools::setMixedSubstitutionModelSet(
                                                                  bool suffixIsOptional,
                                                                  bool verbose)
 {
-  mixedModelSet.clear();
-  
-  setSubstitutionModelSet(mixedModelSet, alphabet, data, params, suffix, suffixIsOptional, verbose);
-  
   ///////////////////////////////////////////
   // Looks for the allowed paths
 
@@ -1494,6 +1491,8 @@ void PhylogeneticsApplicationTools::setMixedSubstitutionModelSet(
     numd=0;
   else
     numd = ApplicationTools::getParameter<unsigned int>("site.number_of_paths", params, 1, suffix, suffixIsOptional, false);
+
+  if (verbose) ApplicationTools::displayResult("Number of distinct paths", TextTools::toString(numd));
 
   vector<string> vdesc;
   while (numd){
@@ -1522,25 +1521,32 @@ void PhylogeneticsApplicationTools::setMixedSubstitutionModelSet(
       int num = TextTools::toInt(submodel.substr(5, indexo-5));
       string p2 = submodel.substr(indexo+1, indexf-indexo-1);
       
-      const MixtureOfASubstitutionModel* pSM=dynamic_cast<const MixtureOfASubstitutionModel*>(mixedModelSet.getModel(num-1));
-    if (pSM==NULL)
-      throw BadIntegerException("PhylogeneticsApplicationTools::setMixedSubstitutionModelSet: Wrongmodel for number",num-1);
-    Vint submodnb=pSM->getSubmodelNumbers(p2);
+      const MixedSubstitutionModel* pSM=dynamic_cast<const MixedSubstitutionModel*>(mixedModelSet.getModel(num-1));
+      if (pSM==NULL)
+        throw BadIntegerException("PhylogeneticsApplicationTools::setMixedSubstitutionModelSet: Wron gmodel for number",num-1);
+      Vint submodnb=pSM->getSubmodelNumbers(p2);
     
-    mixedModelSet.addToHyperNode(num-1,submodnb);
+      mixedModelSet.addToHyperNode(num-1,submodnb);
     }
 
     if (!mixedModelSet.getHyperNode(mixedModelSet.getNumberOfHyperNodes()-1).isComplete())
       throw Exception("A path should own at least a submodel of each mixed model: " + *it);
+
+    if (verbose) ApplicationTools::displayResult("Site Path", *it);
   }
 
   /// Checks if the paths are separate
   if (! mixedModelSet.hasExclusivePaths())
-    throw Exception("All paths must be disjoint");
+    throw Exception("All paths must be disjoint.");
 
   /// Puts all the remaining models in a new path
-  mixedModelSet.complete();
-
+  string st;
+  st=(mixedModelSet.complete())?"Yes":"No";
+  
+  if (verbose)
+    ApplicationTools::displayResult("Site Path Completion", st);
+  
+  
   if (!mixedModelSet.getHyperNode(mixedModelSet.getNumberOfHyperNodes()-1).isComplete())
     throw Exception("The remaining submodels can not create a complete path.");
 }
@@ -2080,7 +2086,7 @@ throw (Exception)
 
   //See if we should use a molecular clock constraint:
   string clock = ApplicationTools::getStringParameter("optimization.clock", params, "None", "", true, false);
-  if (clock != "None" || clock != "Global")
+  if (clock != "None" && clock != "Global")
     throw Exception("Molecular clock option not recognized, should be one of 'Global' or 'None'.");
   bool useClock = (clock == "Global");
   if (useClock && optimizeTopo)

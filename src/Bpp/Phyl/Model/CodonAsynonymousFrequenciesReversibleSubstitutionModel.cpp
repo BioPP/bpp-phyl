@@ -58,7 +58,7 @@ CodonAsynonymousFrequenciesReversibleSubstitutionModel::CodonAsynonymousFrequenc
   if (pdistance_)
     addParameter_(Parameter("CodonAsynonymousFrequencies.alpha", 10000, &Parameter::R_PLUS_STAR));
 
-  addParameter_(Parameter("CodonAsynonymousFrequencies.beta", 1, &Parameter::R_PLUS_STAR));
+  addParameter_(Parameter("CodonAsynonymousFrequencies.beta", 1, new IncludingInterval(NumConstants::TINY, 999), true));
   updateMatrices();
 }
 
