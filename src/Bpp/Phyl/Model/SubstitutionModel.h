@@ -231,8 +231,8 @@ public:
    * @return The normalized Markov generator matrix, i.e. all
    * normalized rates of changes from state i to state j. The
    * generator is normalized so that
-   * (i) \f$ \forall j; \sum_i Q_{i,j} = 0 \f$, meaning that
-   * $\f$ \forall j; Q_{j,j} = -\sum_{i \neq j}Q_{i,j}\f$, and
+   * (i) \f$ \forall i; \sum_j Q_{i,j} = 0 \f$, meaning that
+   * $\f$ \forall i; Q_{i,i} = -\sum_{j \neq i}Q_{i,j}\f$, and
    * (ii) \f$ \sum_i Q_{i,i} \times \pi_i = -1\f$.
    * This means that, under normalization, the mean rate of replacement at
    * equilibrium is 1 and that time \f$t\f$ are measured in units of
