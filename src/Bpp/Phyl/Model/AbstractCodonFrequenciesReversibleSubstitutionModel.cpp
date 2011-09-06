@@ -51,7 +51,7 @@ AbstractCodonFrequenciesReversibleSubstitutionModel::AbstractCodonFrequenciesRev
   const CodonAlphabet* palph,
   FrequenciesSet* pfreq,
   const std::string& prefix) throw (Exception) :
-  AbstractWordReversibleSubstitutionModel(palph, prefix),
+  AbstractWordSubstitutionModel(palph, prefix),
   pfreqset_(pfreq),
   freqPrefix_(pfreq->getNamespace())
 {
@@ -87,7 +87,7 @@ AbstractCodonFrequenciesReversibleSubstitutionModel::~AbstractCodonFrequenciesRe
 void AbstractCodonFrequenciesReversibleSubstitutionModel::fireParameterChanged(const ParameterList& parameters)
 {
   pfreqset_->matchParametersValues(parameters);
-  AbstractWordReversibleSubstitutionModel::fireParameterChanged(parameters);
+  AbstractWordSubstitutionModel::fireParameterChanged(parameters);
 }
 
 

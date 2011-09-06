@@ -40,7 +40,7 @@
 #ifndef _WORDREVERSIBLESUBSTITUTIONMODEL_H_
 #define _WORDREVERSIBLESUBSTITUTIONMODEL_H_
 
-#include "AbstractWordReversibleSubstitutionModel.h"
+#include "AbstractWordSubstitutionModel.h"
 #include <Bpp/Numeric/Matrix/Matrix.h>
 #include <Bpp/BppVector.h>
 
@@ -72,7 +72,7 @@ namespace bpp
  */
 
 class WordReversibleSubstitutionModel :
-  public AbstractWordReversibleSubstitutionModel
+  public AbstractWordSubstitutionModel
 {
 public:
   /**

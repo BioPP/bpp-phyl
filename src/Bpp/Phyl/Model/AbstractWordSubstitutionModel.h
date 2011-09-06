@@ -1,5 +1,5 @@
 //
-// File: AbstractWordReversibleSubstitutionModel.h
+// File: AbstractWordSubstitutionModel.h
 // Created by: Laurent Gueguen
 // Created on: Jan 2009
 //
@@ -37,8 +37,8 @@
    knowledge of the CeCILL license and that you accept its terms.
  */
 
-#ifndef _ABSTRACTWORDREVERSIBLESUBSTITUTIONMODEL_H_
-#define _ABSTRACTWORDREVERSIBLESUBSTITUTIONMODEL_H_
+#ifndef _ABSTRACTWORDSUBSTITUTIONMODEL_H_
+#define _ABSTRACTWORDSUBSTITUTIONMODEL_H_
 
 #include "AbstractSubstitutionModel.h"
 
@@ -48,12 +48,12 @@
 namespace bpp
 {
 /**
- * @brief Abstract Basal class for words of reversible substitution models.
+ * @brief Abstract Basal class for words of substitution models.
  * @author Laurent Guéguen
  *
- * Objects of this class are built from several reversible
- * substitution models. Each model corresponds to a position in the
- * word. No model is directly accessible. </p>
+ * Objects of this class are built from several substitution models.
+ * Each model corresponds to a position in the word. No model is
+ * directly accessible. </p>
  *
  * Only substitutions with one letter changed are accepted. </p>
  *
@@ -72,8 +72,8 @@ namespace bpp
  * for the position (i.e. the phase) in the word.
  *
  */
-class AbstractWordReversibleSubstitutionModel :
-  public AbstractReversibleSubstitutionModel
+class AbstractWordSubstitutionModel :
+  public AbstractSubstitutionModel
 {
 private:
   /**
@@ -101,7 +101,7 @@ protected:
 
 public:
   /**
-   * @brief Build a new AbstractWordReversibleSubstitutionModel object from a
+   * @brief Build a new AbstractWordSubstitutionModel object from a
    * vector of pointers to SubstitutionModels.
    *
    * @param modelVector the vector of substitution models to use, in
@@ -111,12 +111,12 @@ public:
    *   are owned by the instance.
    * @param st the Namespace.
    */
-  AbstractWordReversibleSubstitutionModel(
+  AbstractWordSubstitutionModel(
     const std::vector<SubstitutionModel*>& modelVector,
     const std::string& st);
 
   /**
-   * @brief Build a new AbstractWordReversibleSubstitutionModel object from a
+   * @brief Build a new AbstractWordSubstitutionModel object from a
    * pointer to an SubstitutionModel and a number of
    * desired models.
    *
@@ -125,16 +125,16 @@ public:
    * @param num The number of models involved.
    * @param st the Namespace.
    */
-  AbstractWordReversibleSubstitutionModel(
+  AbstractWordSubstitutionModel(
     SubstitutionModel* pmodel,
     unsigned int num,
     const std::string& st);
 
-  AbstractWordReversibleSubstitutionModel(const AbstractWordReversibleSubstitutionModel&);
+  AbstractWordSubstitutionModel(const AbstractWordSubstitutionModel&);
 
-  AbstractWordReversibleSubstitutionModel& operator=(const AbstractWordReversibleSubstitutionModel&);
+  AbstractWordSubstitutionModel& operator=(const AbstractWordSubstitutionModel&);
 
-  virtual ~AbstractWordReversibleSubstitutionModel();
+  virtual ~AbstractWordSubstitutionModel();
 
   void setNamespace(const std::string& prefix);
 
@@ -142,7 +142,7 @@ protected:
   /**
    *@brief Constructor for the derived classes only
    */
-  AbstractWordReversibleSubstitutionModel(const Alphabet* alph, const std::string&);
+  AbstractWordSubstitutionModel(const Alphabet* alph, const std::string&);
 
 public:
   virtual unsigned int getNumberOfStates() const;
@@ -164,5 +164,5 @@ public:
 };
 } // end of namespace bpp.
 
-#endif  // ABSTRACTWORDREVERSIBLESUBSTITUTIONMODEL_
+#endif  // ABSTRACTWORDSUBSTITUTIONMODEL_
 

@@ -59,7 +59,7 @@ using namespace std;
 WordReversibleSubstitutionModel::WordReversibleSubstitutionModel(
   const std::vector<SubstitutionModel*>& modelVector,
   const std::string& st) :
-  AbstractWordReversibleSubstitutionModel(modelVector, (st == "") ? "Word." : st)
+  AbstractWordSubstitutionModel(modelVector, (st == "") ? "Word." : st)
 {
    unsigned int i, nbmod = VSubMod_.size();
 
@@ -75,14 +75,14 @@ WordReversibleSubstitutionModel::WordReversibleSubstitutionModel(
 WordReversibleSubstitutionModel::WordReversibleSubstitutionModel(
   const Alphabet* alph,
   const std::string& st) :
-  AbstractWordReversibleSubstitutionModel(alph, (st == "") ? "Word." : st)
+  AbstractWordSubstitutionModel(alph, (st == "") ? "Word." : st)
 {}
 
 WordReversibleSubstitutionModel::WordReversibleSubstitutionModel(
   SubstitutionModel* pmodel,
   unsigned int num,
   const std::string& st) :
-  AbstractWordReversibleSubstitutionModel(pmodel, num,  (st == "") ? "Word." : st)
+  AbstractWordSubstitutionModel(pmodel, num,  (st == "") ? "Word." : st)
 {
    unsigned int i;
 
@@ -108,7 +108,7 @@ void WordReversibleSubstitutionModel::updateMatrices()
    }
    Vrate_[nbmod-1]=x;
 
-   AbstractWordReversibleSubstitutionModel::updateMatrices();
+   AbstractWordSubstitutionModel::updateMatrices();
 }
 
 void WordReversibleSubstitutionModel::completeMatrices()

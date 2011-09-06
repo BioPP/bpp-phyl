@@ -39,7 +39,7 @@
 #ifndef _ABSTRACTCODONFREQUENCIESREVERSIBLESUBSTITUTIONMODEL_H_
 #define _ABSTRACTCODONFREQUENCIESREVERSIBLESUBSTITUTIONMODEL_H_
 
-#include "AbstractWordReversibleSubstitutionModel.h"
+#include "AbstractWordSubstitutionModel.h"
 #include "FrequenciesSet.h"
 
 // From SeqLib:
@@ -63,7 +63,7 @@ namespace bpp
  */
 
 class AbstractCodonFrequenciesReversibleSubstitutionModel :
-  public AbstractWordReversibleSubstitutionModel
+  public AbstractWordSubstitutionModel
 {
 protected:
   FrequenciesSet* pfreqset_;
@@ -86,14 +86,14 @@ public:
       const std::string& prefix) throw (Exception);
 
   AbstractCodonFrequenciesReversibleSubstitutionModel(const AbstractCodonFrequenciesReversibleSubstitutionModel& wrsm) :
-    AbstractWordReversibleSubstitutionModel(wrsm),
+    AbstractWordSubstitutionModel(wrsm),
     pfreqset_(wrsm.pfreqset_->clone()),
     freqPrefix_(wrsm.freqPrefix_)
   {}
 
   AbstractCodonFrequenciesReversibleSubstitutionModel& operator=(const AbstractCodonFrequenciesReversibleSubstitutionModel& wrsm)
   {
-    AbstractWordReversibleSubstitutionModel::operator=(wrsm);
+    AbstractWordSubstitutionModel::operator=(wrsm);
     if (pfreqset_) delete pfreqset_;
     pfreqset_   = wrsm.pfreqset_->clone();
     freqPrefix_ = wrsm.freqPrefix_;
@@ -110,7 +110,7 @@ public:
 
   void setNamespace(const std::string& prefix)
   {
-    AbstractWordReversibleSubstitutionModel::setNamespace(prefix);
+    AbstractWordSubstitutionModel::setNamespace(prefix);
     pfreqset_->setNamespace(prefix + "freq_" + freqPrefix_);
   }
 

@@ -40,7 +40,7 @@
 #ifndef _ABSTRACTCODONREVERSIBLESUBSTITUTIONMODEL_H_
 #define _ABSTRACTCODONREVERSIBLESUBSTITUTIONMODEL_H_
 
-#include "AbstractWordReversibleSubstitutionModel.h"
+#include "AbstractWordSubstitutionModel.h"
 #include "NucleotideSubstitutionModel.h"
 
 // From SeqLib:
@@ -63,7 +63,7 @@ namespace bpp
  */
 
 class AbstractCodonReversibleSubstitutionModel :
-  public AbstractWordReversibleSubstitutionModel
+  public AbstractWordSubstitutionModel
 {
 public:
   /**

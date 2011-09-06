@@ -48,7 +48,7 @@ AbstractCodonReversibleSubstitutionModel::AbstractCodonReversibleSubstitutionMod
   const CodonAlphabet* palph,
   NucleotideSubstitutionModel* pmod,
   const std::string& st) :
-  AbstractWordReversibleSubstitutionModel(palph,st)
+  AbstractWordSubstitutionModel(palph,st)
 {
   enableEigenDecomposition(1);
 
@@ -75,7 +75,7 @@ AbstractCodonReversibleSubstitutionModel::AbstractCodonReversibleSubstitutionMod
   NucleotideSubstitutionModel* pmod2,
   NucleotideSubstitutionModel* pmod3,
   const std::string& st) :
-  AbstractWordReversibleSubstitutionModel(palph,st)
+  AbstractWordSubstitutionModel(palph,st)
 {
   enableEigenDecomposition(1);
 

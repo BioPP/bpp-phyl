@@ -104,6 +104,6 @@ void CodonNeutralFrequenciesReversibleSubstitutionModel::updateMatrices()
     Vrate_[k] = x;
   }
 
-  AbstractWordReversibleSubstitutionModel::updateMatrices();
+  AbstractWordSubstitutionModel::updateMatrices();
 }
 
