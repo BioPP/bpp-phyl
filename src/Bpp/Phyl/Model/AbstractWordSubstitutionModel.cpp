@@ -302,7 +302,6 @@ void AbstractWordSubstitutionModel::updateMatrices()
     for (k = nbmod; k > 0; k--)
     {
       gk = VSubMod_[k - 1]->getGenerator();
-      exch = (dynamic_cast<AbstractSubstitutionModel*>(VSubMod_[k - 1]))->getExchangeabilityMatrix();
       for (i = 0; i < vsize[k - 1]; i++)
       {
         for (j = 0; j < vsize[k - 1]; j++)
@@ -315,7 +314,6 @@ void AbstractWordSubstitutionModel::updateMatrices()
               for (l = 0; l < m; l++)
               { // loop on suffix
                 generator_(n + i * m + l, n + j * m + l) = gk(i,j) * Vrate_[k - 1];
-                exchangeability_(n + i * m + l, n + j * m + l) = exch(i,j) * Vrate_[k - 1];
               }
               n += m * vsize[k - 1];
             }

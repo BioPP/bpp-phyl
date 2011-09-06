@@ -110,7 +110,7 @@ void AbstractCodonFrequenciesReversibleSubstitutionModel::completeMatrices()
   {
     for (j = 0; j < salph; j++)
     {
-      generator_(i, j) = exchangeability_(i, j) * freq_[j];
+      generator_(i, j) *= freq_[j];
     }
   }
 }

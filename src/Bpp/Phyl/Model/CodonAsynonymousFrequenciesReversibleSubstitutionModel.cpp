@@ -84,14 +84,14 @@ void CodonAsynonymousFrequenciesReversibleSubstitutionModel::completeMatrices()
         if (ca->isStop(j) || ca->isStop(i))
         {
           generator_(i,j) = 0;
-          exchangeability_(i,j) = 0;
+          //          exchangeability_(i,j) = 0;
         }
         else
         {
           if (!geneticCode_->areSynonymous(i,j))
           {
             generator_(i,j) *= beta * (pdistance_ ? exp(-pdistance_->getIndex(geneticCode_->translate(i), geneticCode_->translate(j)) / alpha) : 1);
-            exchangeability_(i,j) *= beta * (pdistance_ ? exp(-pdistance_->getIndex(geneticCode_->translate(i), geneticCode_->translate(j)) / alpha) : 1);
+            //            exchangeability_(i,j) *= beta * (pdistance_ ? exp(-pdistance_->getIndex(geneticCode_->translate(i), geneticCode_->translate(j)) / alpha) : 1);
           }
         }
       }

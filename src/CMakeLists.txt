@@ -57,13 +57,13 @@ set(CPP_FILES
   Bpp/Phyl/Mapping/IndexToCount.cpp
   Bpp/Phyl/Mapping/SubstitutionMappingTools.cpp
   Bpp/Phyl/Model/AbstractCodonFrequenciesReversibleSubstitutionModel.cpp
-  Bpp/Phyl/Model/AbstractCodonReversibleSubstitutionModel.cpp
+  Bpp/Phyl/Model/AbstractCodonSubstitutionModel.cpp
   Bpp/Phyl/Model/AbstractSubstitutionModel.cpp
   Bpp/Phyl/Model/AbstractWordSubstitutionModel.cpp
   Bpp/Phyl/Model/CodonAsynonymousFrequenciesReversibleSubstitutionModel.cpp
-  Bpp/Phyl/Model/CodonAsynonymousReversibleSubstitutionModel.cpp
+  Bpp/Phyl/Model/CodonAsynonymousSubstitutionModel.cpp
   Bpp/Phyl/Model/CodonNeutralFrequenciesReversibleSubstitutionModel.cpp
-  Bpp/Phyl/Model/CodonNeutralReversibleSubstitutionModel.cpp
+  Bpp/Phyl/Model/CodonNeutralSubstitutionModel.cpp
   Bpp/Phyl/Model/DSO78.cpp
   Bpp/Phyl/Model/F84.cpp
   Bpp/Phyl/Model/FrequenciesSet.cpp
@@ -100,9 +100,9 @@ set(CPP_FILES
   Bpp/Phyl/Model/SubstitutionModelSetTools.cpp
   Bpp/Phyl/Model/T92.cpp
   Bpp/Phyl/Model/TN93.cpp
-  Bpp/Phyl/Model/TripletReversibleSubstitutionModel.cpp
+  Bpp/Phyl/Model/TripletSubstitutionModel.cpp
   Bpp/Phyl/Model/UserProteinSubstitutionModel.cpp
-  Bpp/Phyl/Model/WordReversibleSubstitutionModel.cpp
+  Bpp/Phyl/Model/WordSubstitutionModel.cpp
   Bpp/Phyl/Model/YN98.cpp
   Bpp/Phyl/Model/YNGKP_M1.cpp
   Bpp/Phyl/Model/YNGKP_M2.cpp
@@ -196,13 +196,13 @@ set(H_FILES
   Bpp/Phyl/Mapping/SubstitutionMapping.h
   Bpp/Phyl/Mapping/SubstitutionMappingTools.h
   Bpp/Phyl/Model/AbstractCodonFrequenciesReversibleSubstitutionModel.h
-  Bpp/Phyl/Model/AbstractCodonReversibleSubstitutionModel.h
+  Bpp/Phyl/Model/AbstractCodonSubstitutionModel.h
   Bpp/Phyl/Model/AbstractSubstitutionModel.h
   Bpp/Phyl/Model/AbstractWordSubstitutionModel.h
   Bpp/Phyl/Model/CodonAsynonymousFrequenciesReversibleSubstitutionModel.h
-  Bpp/Phyl/Model/CodonAsynonymousReversibleSubstitutionModel.h
+  Bpp/Phyl/Model/CodonAsynonymousSubstitutionModel.h
   Bpp/Phyl/Model/CodonNeutralFrequenciesReversibleSubstitutionModel.h
-  Bpp/Phyl/Model/CodonNeutralReversibleSubstitutionModel.h
+  Bpp/Phyl/Model/CodonNeutralSubstitutionModel.h
   Bpp/Phyl/Model/DSO78.h
   Bpp/Phyl/Model/F84.h
   Bpp/Phyl/Model/FrequenciesSet.h
@@ -244,10 +244,10 @@ set(H_FILES
   Bpp/Phyl/Model/SubstitutionModelSetTools.h
   Bpp/Phyl/Model/T92.h
   Bpp/Phyl/Model/TN93.h
-  Bpp/Phyl/Model/TripletReversibleSubstitutionModel.h
+  Bpp/Phyl/Model/TripletSubstitutionModel.h
   Bpp/Phyl/Model/TS98.h
   Bpp/Phyl/Model/UserProteinSubstitutionModel.h
-  Bpp/Phyl/Model/WordReversibleSubstitutionModel.h
+  Bpp/Phyl/Model/WordSubstitutionModel.h
   Bpp/Phyl/Model/YN98.h
   Bpp/Phyl/Model/YNGKP_M1.h
   Bpp/Phyl/Model/YNGKP_M2.h

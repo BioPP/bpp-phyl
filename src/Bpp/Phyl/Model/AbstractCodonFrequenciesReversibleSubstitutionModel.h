@@ -48,12 +48,14 @@
 namespace bpp
 {
 /**
- * @brief Class for reversible substitution models on codons
+ * @brief Class for substitution models on codons
  *  parametrized by the equilibrium frequencies. The basic
- *  substitution model is the K80 model. </p>
+ *  substitution model is K80 model. </p>
+ *
  * @author Laurent Guéguen
- * Objects of this class are built from three reversible substitution
- *  models of NucleicAlphabets. No model is directly accessible. </p>
+ *
+ * Objects of this class are built from three K80 models of
+ *  NucleicAlphabets. No model is directly accessible. </p>
  *
  * Only substitutions with one letter changed are accepted. </p>
  *

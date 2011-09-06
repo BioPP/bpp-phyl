@@ -79,7 +79,6 @@ void CodonNeutralFrequenciesReversibleSubstitutionModel::completeMatrices()
       if (ca->isStop(i) || ca->isStop(j))
       {
         generator_(i, j) = 0;
-        exchangeability_(i, j) = 0;
       }
     }
   }
