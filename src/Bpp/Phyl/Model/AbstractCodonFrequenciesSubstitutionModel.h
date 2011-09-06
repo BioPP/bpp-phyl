@@ -1,5 +1,5 @@
 //
-// File: AbstractCodonFrequenciesReversibleSubstitutionModel.h
+// File: AbstractCodonFrequenciesSubstitutionModel.h
 // Created by: Laurent Gueguen
 //
 
@@ -36,8 +36,8 @@
    knowledge of the CeCILL license and that you accept its terms.
  */
 
-#ifndef _ABSTRACTCODONFREQUENCIESREVERSIBLESUBSTITUTIONMODEL_H_
-#define _ABSTRACTCODONFREQUENCIESREVERSIBLESUBSTITUTIONMODEL_H_
+#ifndef _ABSTRACTCODONFREQUENCIESSUBSTITUTIONMODEL_H_
+#define _ABSTRACTCODONFREQUENCIESSUBSTITUTIONMODEL_H_
 
 #include "AbstractWordSubstitutionModel.h"
 #include "FrequenciesSet.h"
@@ -48,23 +48,27 @@
 namespace bpp
 {
 /**
- * @brief Class for substitution models on codons
- *  parametrized by the equilibrium frequencies. The basic
- *  substitution model is K80 model. </p>
+ * @brief Class for substitution models on codons parametrized by the
+ *  codon frequencies. The basic substitution model is built
+ *  from a nucleotide model with equiparted equilibrium distribution.
+ *  Here we use K80 model, but it could be more general. </p>
  *
  * @author Laurent Guéguen
  *
- * Objects of this class are built from three K80 models of
- *  NucleicAlphabets. No model is directly accessible. </p>
+ * This class is built from three K80 models. No model is directly
+ *  accessible. </p>
  *
  * Only substitutions with one letter changed are accepted. </p>
  *
  * There is one substitution per word per unit of time
  * on the equilibrium frequency, and each position has its specific rate.</p>
  *
+ * The nucleotide model parameter is the same as for K80, named \c  "kappa".
+ * The other parameters are the parameters of the equilibrium
+ * distribution.
  */
 
-class AbstractCodonFrequenciesReversibleSubstitutionModel :
+class AbstractCodonFrequenciesSubstitutionModel :
   public AbstractWordSubstitutionModel
 {
 protected:
@@ -74,26 +78,27 @@ protected:
 public:
   /**
    *@brief Build a new
-   *AbstractCodonFrequenciesReversibleSubstitutionModel object from
-   *three instances of the K80 model.
+   * AbstractCodonFrequenciesSubstitutionModel object from
+   * three instances of K80 model.
    *
    *@param palph pointer to a CodonAlphabet
    *@param pfreq pointer to the AbstractFrequenciesSet equilibrium frequencies.
    *        It is owned by the instance.
    *@param prefix the Namespace
    */
-  AbstractCodonFrequenciesReversibleSubstitutionModel(
+  
+  AbstractCodonFrequenciesSubstitutionModel(
       const CodonAlphabet* palph,
       FrequenciesSet* pfreq,
       const std::string& prefix) throw (Exception);
 
-  AbstractCodonFrequenciesReversibleSubstitutionModel(const AbstractCodonFrequenciesReversibleSubstitutionModel& wrsm) :
+  AbstractCodonFrequenciesSubstitutionModel(const AbstractCodonFrequenciesSubstitutionModel& wrsm) :
     AbstractWordSubstitutionModel(wrsm),
     pfreqset_(wrsm.pfreqset_->clone()),
     freqPrefix_(wrsm.freqPrefix_)
   {}
 
-  AbstractCodonFrequenciesReversibleSubstitutionModel& operator=(const AbstractCodonFrequenciesReversibleSubstitutionModel& wrsm)
+  AbstractCodonFrequenciesSubstitutionModel& operator=(const AbstractCodonFrequenciesSubstitutionModel& wrsm)
   {
     AbstractWordSubstitutionModel::operator=(wrsm);
     if (pfreqset_) delete pfreqset_;
@@ -102,7 +107,7 @@ public:
     return *this;
   }
 
-  virtual ~AbstractCodonFrequenciesReversibleSubstitutionModel();
+  virtual ~AbstractCodonFrequenciesSubstitutionModel();
 
   void fireParameterChanged(const ParameterList& parameters);
 

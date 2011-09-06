@@ -462,7 +462,7 @@ SubstitutionModel* PhylogeneticsApplicationTools::getSubstitutionModelDefaultIns
 
     if (modelName == "CodonNeutralFrequencies")
     {
-      model = new CodonNeutralFrequenciesReversibleSubstitutionModel(pCA, pFS);
+      model = new CodonNeutralFrequenciesSubstitutionModel(pCA, pFS);
 
       // for description
       modelName += args["frequencies"];
@@ -488,7 +488,7 @@ SubstitutionModel* PhylogeneticsApplicationTools::getSubstitutionModelDefaultIns
       else
         pai2  = SequenceApplicationTools::getAADistance(args["aadistance"]);
 
-      model = new CodonAsynonymousFrequenciesReversibleSubstitutionModel(pgc, pFS, pai2);
+      model = new CodonAsynonymousFrequenciesSubstitutionModel(pgc, pFS, pai2);
     }
   }
 

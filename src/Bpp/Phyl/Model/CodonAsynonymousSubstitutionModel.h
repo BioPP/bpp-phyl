@@ -1,5 +1,5 @@
 //
-// File: CodonAsynonymousFrequenciesReversibleSubstitutionModel.h
+// File: CodonAsynonymousSubstitutionModel.h
 // Created by: Laurent Gueguen
 // Created on: Tue Dec 24 11:03:53 2003
 //
@@ -37,28 +37,28 @@
    knowledge of the CeCILL license and that you accept its terms.
  */
 
-#ifndef _CODONASYNONYMOUSFREQUENCIESREVERSIBLESUBSTITUTIONMODEL_H_
-#define _CODONASYNONYMOUSFREQUENCIESREVERSIBLESUBSTITUTIONMODEL_H_
+#ifndef _CODONASYNONYMOUSSUBSTITUTIONMODEL_H_
+#define _CODONASYNONYMOUSSUBSTITUTIONMODEL_H_
 
-#include "AbstractCodonFrequenciesReversibleSubstitutionModel.h"
+#include "AbstractCodonSubstitutionModel.h"
+#include "NucleotideSubstitutionModel.h"
 
 // From SeqLib:
 #include <Bpp/Seq/Alphabet/CodonAlphabet.h>
-#include <Bpp/Seq/StateProperties/AlphabetIndex2.h>
 #include <Bpp/Seq/GeneticCode/GeneticCode.h>
+#include <Bpp/Seq/StateProperties/AlphabetIndex2.h>
 
 namespace bpp
 {
 /**
- * @brief Class for asynonymous substitution models on codons with
- * parameterized equilibrium frequencies and K80 basic model.
+ * @brief Class for asynonymous substitution models on codons.
  * @author Laurent Guéguen
+ *
+ * Objects of this class are built from three substitution models of
+ * NucleicAlphabets. No model is directly accessible. </p>
  *
  * Only substitutions with one letter changed are accepted. </p>
  *
- * The additional parameter to
- * AbstractCodonFrequenciesReversibleSubstitutionModel is the ratio of
- * nonsynonymous over synonymous substitutions.
  *
  * If a distance @f$d@f$ between amino-acids is defined, the ratio between
  * non-synonymous and synonymous substitutions rates is, if the codied
@@ -70,8 +70,8 @@ namespace bpp
  * parameter @f$\beta@f$.
  */
 
-class CodonAsynonymousFrequenciesReversibleSubstitutionModel :
-  public AbstractCodonFrequenciesReversibleSubstitutionModel
+class CodonAsynonymousSubstitutionModel :
+  public AbstractCodonSubstitutionModel
 {
 private:
   const GeneticCode* geneticCode_;
@@ -79,51 +79,68 @@ private:
 
 public:
   /**
-   * @brief Build a new CodonAsynonymousFrequenciesReversibleSubstitutionModel object
-   * from three pointers to AbstractReversibleSubstitutionModels. NEW
-   * AbstractReversibleSubstitutionModels are copied from the given ones.
+   * @brief Build a new CodonNeutralSubstitutionModel object from
+   * a pointer to NucleotideSubstitutionModel.
    *
    * @param palph pointer to a GeneticCode
-   * @param pfreq pointer to the FrequenciesSet* equilibrium frequencies
+   * @param pmod  pointer to the NucleotideSubstitutionModel to use in the three positions.
+   * The instance will then own this substitution model.
+   * @param pdist optional pointer to a distance between amino-acids
+   */
+  CodonAsynonymousSubstitutionModel(
+    const GeneticCode* palph,
+    NucleotideSubstitutionModel* pmod,
+    const AlphabetIndex2<double>* pdist = 0);
+
+  /**
+   * @brief Build a new CodonNeutralSubstitutionModel object
+   * from three pointers to NucleotideSubstitutionModels.
+   *
+   * @param palph pointer to a GeneticCode
+   * @param pmod1, pmod2, pmod3 pointers to the
+   * NucleotideSubstitutionModels to use in the three
+   * positions. Either all the models are different objects to avoid
+   * parameters redondancy, or only the first model is used in every
+   * position. The used models are owned by the instance.
    * @param pdist optional pointer to the AlphabetIndex2<double> amino-acids distance object.
    */
-  CodonAsynonymousFrequenciesReversibleSubstitutionModel(
+  CodonAsynonymousSubstitutionModel(
     const GeneticCode* palph,
-    FrequenciesSet* pfreq,
-    const AlphabetIndex2<double>* pdist = 0) throw (Exception);
+    NucleotideSubstitutionModel* pmod1,
+    NucleotideSubstitutionModel* pmod2,
+    NucleotideSubstitutionModel* pmod3,
+    const AlphabetIndex2<double>* pdist = 0);
 
-  CodonAsynonymousFrequenciesReversibleSubstitutionModel(
-    const CodonAsynonymousFrequenciesReversibleSubstitutionModel& cfm) :
-    AbstractCodonFrequenciesReversibleSubstitutionModel(cfm),
-    geneticCode_(cfm.geneticCode_),
-    pdistance_(cfm.pdistance_)
+  CodonAsynonymousSubstitutionModel(
+    const CodonAsynonymousSubstitutionModel& cm) :
+    AbstractCodonSubstitutionModel(cm),
+    geneticCode_(cm.geneticCode_),
+    pdistance_(cm.pdistance_)
   {}
 
-  CodonAsynonymousFrequenciesReversibleSubstitutionModel& operator=(
-    const CodonAsynonymousFrequenciesReversibleSubstitutionModel& cfm)
+  CodonAsynonymousSubstitutionModel & operator=(
+    const CodonAsynonymousSubstitutionModel& cm)
   {
-    AbstractCodonFrequenciesReversibleSubstitutionModel::operator=(cfm);
-    geneticCode_ = cfm.geneticCode_;
-    pdistance_   = cfm.pdistance_;
+    AbstractCodonSubstitutionModel::operator=(cm);
+    geneticCode_ = cm.geneticCode_;
+    pdistance_ = cm.pdistance_;
     return *this;
   }
 
-  ~CodonAsynonymousFrequenciesReversibleSubstitutionModel() {}
+  ~CodonAsynonymousSubstitutionModel() {}
 
-  CodonAsynonymousFrequenciesReversibleSubstitutionModel* clone() const
+  CodonAsynonymousSubstitutionModel* clone() const
   {
-    return new CodonAsynonymousFrequenciesReversibleSubstitutionModel(*this);
+    return new CodonAsynonymousSubstitutionModel(*this);
   }
 
-protected:
+public:
   void completeMatrices();
 
-public:
   std::string getName() const;
 
   const GeneticCode* getGeneticCode() const { return geneticCode_; }
 };
-
 } // end of namespace bpp.
 
 #endif

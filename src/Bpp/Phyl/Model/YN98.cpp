@@ -48,7 +48,7 @@ using namespace std;
 
 YN98::YN98(const GeneticCode* gc, FrequenciesSet* codonFreqs) :
   AbstractBiblioSubstitutionModel("YN98."),
-  pmodel_(new CodonAsynonymousFrequenciesReversibleSubstitutionModel(gc, codonFreqs))
+  pmodel_(new CodonAsynonymousFrequenciesSubstitutionModel(gc, codonFreqs))
 {
   addParameter_(Parameter("YN98.kappa", 1, &Parameter::R_PLUS_STAR));
   addParameter_(Parameter("YN98.omega", 1, new IncludingInterval(NumConstants::TINY, 999), true));
@@ -71,12 +71,12 @@ YN98::YN98(const GeneticCode* gc, FrequenciesSet* codonFreqs) :
 
 
 YN98::YN98(const YN98& yn98) : AbstractBiblioSubstitutionModel(yn98),
-                               pmodel_(new CodonAsynonymousFrequenciesReversibleSubstitutionModel(*yn98.pmodel_))
+                               pmodel_(new CodonAsynonymousFrequenciesSubstitutionModel(*yn98.pmodel_))
 {}
 
 YN98& YN98::operator=(const YN98& yn98){
   AbstractBiblioSubstitutionModel::operator=(yn98);
-  pmodel_=new CodonAsynonymousFrequenciesReversibleSubstitutionModel(*yn98.pmodel_);
+  pmodel_=new CodonAsynonymousFrequenciesSubstitutionModel(*yn98.pmodel_);
   return *this;
 }
 

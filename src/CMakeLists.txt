@@ -56,13 +56,13 @@ set(CPP_FILES
   Bpp/Phyl/Mapping/UniformizationSubstitutionCount.cpp
   Bpp/Phyl/Mapping/IndexToCount.cpp
   Bpp/Phyl/Mapping/SubstitutionMappingTools.cpp
-  Bpp/Phyl/Model/AbstractCodonFrequenciesReversibleSubstitutionModel.cpp
+  Bpp/Phyl/Model/AbstractCodonFrequenciesSubstitutionModel.cpp
   Bpp/Phyl/Model/AbstractCodonSubstitutionModel.cpp
   Bpp/Phyl/Model/AbstractSubstitutionModel.cpp
   Bpp/Phyl/Model/AbstractWordSubstitutionModel.cpp
-  Bpp/Phyl/Model/CodonAsynonymousFrequenciesReversibleSubstitutionModel.cpp
+  Bpp/Phyl/Model/CodonAsynonymousFrequenciesSubstitutionModel.cpp
   Bpp/Phyl/Model/CodonAsynonymousSubstitutionModel.cpp
-  Bpp/Phyl/Model/CodonNeutralFrequenciesReversibleSubstitutionModel.cpp
+  Bpp/Phyl/Model/CodonNeutralFrequenciesSubstitutionModel.cpp
   Bpp/Phyl/Model/CodonNeutralSubstitutionModel.cpp
   Bpp/Phyl/Model/DSO78.cpp
   Bpp/Phyl/Model/F84.cpp
@@ -195,13 +195,13 @@ set(H_FILES
   Bpp/Phyl/Mapping/SubstitutionCount.h
   Bpp/Phyl/Mapping/SubstitutionMapping.h
   Bpp/Phyl/Mapping/SubstitutionMappingTools.h
-  Bpp/Phyl/Model/AbstractCodonFrequenciesReversibleSubstitutionModel.h
+  Bpp/Phyl/Model/AbstractCodonFrequenciesSubstitutionModel.h
   Bpp/Phyl/Model/AbstractCodonSubstitutionModel.h
   Bpp/Phyl/Model/AbstractSubstitutionModel.h
   Bpp/Phyl/Model/AbstractWordSubstitutionModel.h
-  Bpp/Phyl/Model/CodonAsynonymousFrequenciesReversibleSubstitutionModel.h
+  Bpp/Phyl/Model/CodonAsynonymousFrequenciesSubstitutionModel.h
   Bpp/Phyl/Model/CodonAsynonymousSubstitutionModel.h
-  Bpp/Phyl/Model/CodonNeutralFrequenciesReversibleSubstitutionModel.h
+  Bpp/Phyl/Model/CodonNeutralFrequenciesSubstitutionModel.h
   Bpp/Phyl/Model/CodonNeutralSubstitutionModel.h
   Bpp/Phyl/Model/DSO78.h
   Bpp/Phyl/Model/F84.h

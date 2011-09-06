@@ -48,7 +48,7 @@ using namespace std;
 GY94::GY94(const GeneticCode* gc, FrequenciesSet* codonFreqs) :
   AbstractBiblioSubstitutionModel("GY94."),
   gacd_(),
-  pmodel_(new CodonAsynonymousFrequenciesReversibleSubstitutionModel(gc, codonFreqs, &gacd_))
+  pmodel_(new CodonAsynonymousFrequenciesSubstitutionModel(gc, codonFreqs, &gacd_))
 {
   addParameter_(Parameter("GY94.kappa",1,&Parameter::R_PLUS_STAR));
   addParameter_(Parameter("GY94.V",10000,&Parameter::R_PLUS_STAR));
@@ -71,7 +71,7 @@ GY94::GY94(const GeneticCode* gc, FrequenciesSet* codonFreqs) :
 GY94::GY94(const GY94& gy94) :
   AbstractBiblioSubstitutionModel(gy94),
   gacd_(),
-  pmodel_(new CodonAsynonymousFrequenciesReversibleSubstitutionModel(*gy94.pmodel_))
+  pmodel_(new CodonAsynonymousFrequenciesSubstitutionModel(*gy94.pmodel_))
 {}
 
 GY94& GY94::operator=(const GY94& gy94)
@@ -79,7 +79,7 @@ GY94& GY94::operator=(const GY94& gy94)
   AbstractBiblioSubstitutionModel::operator=(gy94);
   if (pmodel_)
     delete pmodel_;
-  pmodel_ = new CodonAsynonymousFrequenciesReversibleSubstitutionModel(*gy94.pmodel_);
+  pmodel_ = new CodonAsynonymousFrequenciesSubstitutionModel(*gy94.pmodel_);
   return *this;
 }
 

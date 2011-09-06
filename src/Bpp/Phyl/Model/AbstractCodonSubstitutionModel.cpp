@@ -1,5 +1,5 @@
 //
-// File: AbstractCodonFrequenciesReversibleSubstitutionModel.cpp
+// File: CodonSubstitutionModel.cpp
 // Created by:  Laurent Gueguen
 // Created on: Feb 2009
 //
@@ -36,10 +36,7 @@
    knowledge of the CeCILL license and that you accept its terms.
  */
 
-#include "AbstractCodonFrequenciesReversibleSubstitutionModel.h"
-#include "K80.h"
-
-#include <Bpp/Seq/Alphabet/AlphabetTools.h>
+#include "AbstractCodonSubstitutionModel.h"
 
 using namespace bpp;
 
@@ -47,71 +44,76 @@ using namespace std;
 
 /******************************************************************************/
 
-AbstractCodonFrequenciesReversibleSubstitutionModel::AbstractCodonFrequenciesReversibleSubstitutionModel(
+AbstractCodonSubstitutionModel::AbstractCodonSubstitutionModel(
   const CodonAlphabet* palph,
-  FrequenciesSet* pfreq,
-  const std::string& prefix) throw (Exception) :
-  AbstractWordSubstitutionModel(palph, prefix),
-  pfreqset_(pfreq),
-  freqPrefix_(pfreq->getNamespace())
+  NucleotideSubstitutionModel* pmod,
+  const std::string& st) :
+  AbstractWordSubstitutionModel(palph,st)
 {
   enableEigenDecomposition(1);
 
-  Vrate_.resize(3);
-
-  SubstitutionModel* pmodel = new K80(palph->getNucleicAlphabet());
-
-  for (unsigned i = 0; i < 3; i++)
+  unsigned int i;
+  for (i = 0; i < 3; i++)
   {
-    VSubMod_.push_back(pmodel);
-    VnestedPrefix_.push_back(pmodel->getNamespace());
+   VSubMod_.push_back(pmod);
+   VnestedPrefix_.push_back(pmod->getNamespace());
+  }
+
+  pmod->setNamespace(st + "123_" + VnestedPrefix_[0]);
+  addParameters_(pmod->getParameters());
+
+  Vrate_.resize(3);
+  for (i = 0; i < 3; i++)
+  {
     Vrate_[i] = 1.0 / 3;
   }
-
-  pmodel->setNamespace(prefix + "123_" + VnestedPrefix_[0]);
-  addParameters_(pmodel->getParameters());
-
-  if (pfreqset_->getAlphabet()->getSize() != 64)
-    throw Exception("Bad Alphabet for equilibrium frequencies " + pfreqset_->getAlphabet()->getAlphabetType());
-
-  pfreqset_->setNamespace(prefix + "freq_" + freqPrefix_);
-  addParameters_(pfreqset_->getParameters());
 }
 
-AbstractCodonFrequenciesReversibleSubstitutionModel::~AbstractCodonFrequenciesReversibleSubstitutionModel()
+AbstractCodonSubstitutionModel::AbstractCodonSubstitutionModel(
+  const CodonAlphabet* palph,
+  NucleotideSubstitutionModel* pmod1,
+  NucleotideSubstitutionModel* pmod2,
+  NucleotideSubstitutionModel* pmod3,
+  const std::string& st) :
+  AbstractWordSubstitutionModel(palph,st)
 {
-  if (pfreqset_)
-    delete pfreqset_;
-}
+  enableEigenDecomposition(1);
 
-void AbstractCodonFrequenciesReversibleSubstitutionModel::fireParameterChanged(const ParameterList& parameters)
-{
-  pfreqset_->matchParametersValues(parameters);
-  AbstractWordSubstitutionModel::fireParameterChanged(parameters);
-}
-
-
-void AbstractCodonFrequenciesReversibleSubstitutionModel::setFreq(map<int,double>& frequencies)
-{
-  pfreqset_->setFrequenciesFromMap(frequencies);
-  matchParametersValues(pfreqset_->getParameters());
-
-  updateMatrices();
-}
-
-void AbstractCodonFrequenciesReversibleSubstitutionModel::completeMatrices()
-{
-  unsigned int i, j;
-  unsigned int salph = getNumberOfStates();
-
-  freq_ = pfreqset_->getFrequencies();
-  
-  for (i = 0; i < salph; i++)
+  if ((pmod1 == pmod2) || (pmod2 == pmod3) || (pmod1 == pmod3))
   {
-    for (j = 0; j < salph; j++)
+   unsigned int i;
+    for (i = 0; i < 3; i++)
     {
-      generator_(i, j) *= freq_[j];
+   VSubMod_.push_back(pmod1);
+   VnestedPrefix_.push_back(pmod1->getNamespace());
     }
+
+    pmod1->setNamespace(st + "123_" + VnestedPrefix_[0]);
+    addParameters_(pmod1->getParameters());
+  }
+  else
+  {
+   VSubMod_.push_back(pmod1);
+   VnestedPrefix_.push_back(pmod1->getNamespace());
+    VSubMod_[0]->setNamespace(st + "1_" + VnestedPrefix_[0]);
+    addParameters_(pmod1->getParameters());
+
+    VSubMod_.push_back(pmod2);
+    VnestedPrefix_.push_back(pmod2->getNamespace());
+    VSubMod_[1]->setNamespace(st + "2_" + VnestedPrefix_[1]);
+    addParameters_(pmod2->getParameters());
+
+    VSubMod_.push_back(pmod3);
+    VnestedPrefix_.push_back(pmod3->getNamespace());
+    VSubMod_[2]->setNamespace(st + "3_" + VnestedPrefix_[2]);
+    addParameters_(pmod3->getParameters());
+  }
+
+  Vrate_.resize(3);
+  for (unsigned int i = 0; i < 3; i++)
+  {
+    Vrate_[i] = 1.0 / 3;
   }
 }
+
 

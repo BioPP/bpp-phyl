@@ -1,5 +1,5 @@
 //
-// File: CodonFrequenciesReversibleSubstitutionModel.cpp
+// File: CodonAsynonymousFrequenciesSubstitutionModel.cpp
 // Created by:  Laurent Gueguen
 // Created on: Feb 2009
 //
@@ -36,7 +36,7 @@
    knowledge of the CeCILL license and that you accept its terms.
  */
 
-#include "CodonNeutralFrequenciesReversibleSubstitutionModel.h"
+#include "CodonAsynonymousFrequenciesSubstitutionModel.h"
 
 using namespace bpp;
 
@@ -44,65 +44,58 @@ using namespace std;
 
 /******************************************************************************/
 
-CodonNeutralFrequenciesReversibleSubstitutionModel::CodonNeutralFrequenciesReversibleSubstitutionModel(
-  const CodonAlphabet* palph,
-  FrequenciesSet* pfreq) :
-  AbstractCodonFrequenciesReversibleSubstitutionModel(palph, pfreq, "CodonNeutralFrequencies.")
+CodonAsynonymousFrequenciesSubstitutionModel::CodonAsynonymousFrequenciesSubstitutionModel(
+  const GeneticCode* palph,
+  FrequenciesSet* pfreq,
+  const AlphabetIndex2<double>* pdist) throw (Exception) :
+  AbstractCodonFrequenciesSubstitutionModel(
+    dynamic_cast<const CodonAlphabet*>(palph->getSourceAlphabet()),
+    pfreq,
+    "CodonAsynonymousFrequencies."),
+  geneticCode_(palph),
+  pdistance_(pdist)
 {
-   unsigned int i;
+  if (pdistance_)
+    addParameter_(Parameter("CodonAsynonymousFrequencies.alpha", 10000, &Parameter::R_PLUS_STAR));
 
-  // relative rates
-  for (i = 0; i < 2; i++)
-  {
-    addParameter_(Parameter("CodonNeutralFrequencies.relrate" + TextTools::toString(i+1), 1.0 / (3 - i),&Parameter::PROP_CONSTRAINT_EX));
-  }
-
+  addParameter_(Parameter("CodonAsynonymousFrequencies.beta", 1, new IncludingInterval(NumConstants::TINY, 999), true));
   updateMatrices();
 }
 
-string CodonNeutralFrequenciesReversibleSubstitutionModel::getName() const
+string CodonAsynonymousFrequenciesSubstitutionModel::getName() const
 {
-  return "CodonNeutralFrequenciesReversibleSubstitutionModel model:" + pfreqset_->getName();
+  return "CodonAsynonymousFrequenciesSubstitutionModel model : " + pfreqset_->getName();
 }
 
-void CodonNeutralFrequenciesReversibleSubstitutionModel::completeMatrices()
+void CodonAsynonymousFrequenciesSubstitutionModel::completeMatrices()
 {
-   unsigned int i, j;
-   unsigned int salph = getNumberOfStates();
-
-   const CodonAlphabet* ca = dynamic_cast<const CodonAlphabet*>(alphabet_);
+  unsigned int i, j;
+  unsigned int salph = getNumberOfStates();
+  double alpha = pdistance_ ? getParameterValue("alpha") : 1;
+  double beta = getParameterValue("beta");
+  const CodonAlphabet* ca = dynamic_cast<const CodonAlphabet*>(geneticCode_->getSourceAlphabet());
 
   for (i = 0; i < salph; i++)
   {
     for (j = 0; j < salph; j++)
     {
-      if (ca->isStop(i) || ca->isStop(j))
+      if (i != j)
       {
-        generator_(i, j) = 0;
+        if (ca->isStop(j) || ca->isStop(i))
+        {
+          generator_(i,j) = 0;
+        }
+        else
+        {
+          if (!geneticCode_->areSynonymous(i,j))
+          {
+            generator_(i,j) *= beta * (pdistance_ ? exp(-pdistance_->getIndex(geneticCode_->translate(i), geneticCode_->translate(j)) / alpha) : 1);
+          }
+        }
       }
     }
   }
 
-  AbstractCodonFrequenciesReversibleSubstitutionModel::completeMatrices();
-}
-
-
-void CodonNeutralFrequenciesReversibleSubstitutionModel::updateMatrices()
-{
-   int i, k, nbmod = VSubMod_.size();
-   double x;
-  for (k = nbmod - 1; k >= 0; k--)
-  {
-    x = 1.0;
-    for (i = 0; i < k; i++)
-    {
-      x *= 1 - getParameterValue("relrate" + TextTools::toString(i+1));
-    }
-    if (k != nbmod - 1)
-      x *= getParameterValue("relrate" + TextTools::toString(k+1));
-    Vrate_[k] = x;
-  }
-
-  AbstractWordSubstitutionModel::updateMatrices();
+  AbstractCodonFrequenciesSubstitutionModel::completeMatrices();
 }
 

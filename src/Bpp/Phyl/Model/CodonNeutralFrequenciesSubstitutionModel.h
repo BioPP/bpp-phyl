@@ -1,5 +1,5 @@
 //
-// File: CodonNeutralFrequenciesReversibleSubstitutionModel.h
+// File: CodonNeutralFrequenciesSubstitutionModel.h
 // Created by: Laurent Gueguen
 // Created on: Tue Dec 24 11:03:53 2003
 //
@@ -37,10 +37,10 @@
    knowledge of the CeCILL license and that you accept its terms.
  */
 
-#ifndef _CODONNEUTRALFREQUENCIESREVERSIBLESUBSTITUTIONMODEL_H_
-#define _CODONNEUTRALFREQUENCIESREVERSIBLESUBSTITUTIONMODEL_H_
+#ifndef _CODONNEUTRALFREQUENCIESSUBSTITUTIONMODEL_H_
+#define _CODONNEUTRALFREQUENCIESSUBSTITUTIONMODEL_H_
 
-#include "AbstractCodonFrequenciesReversibleSubstitutionModel.h"
+#include "AbstractCodonFrequenciesSubstitutionModel.h"
 
 // From SeqLib:
 #include <Bpp/Seq/Alphabet/CodonAlphabet.h>
@@ -63,13 +63,13 @@ namespace bpp
  *
  */
 
-class CodonNeutralFrequenciesReversibleSubstitutionModel :
-  public AbstractCodonFrequenciesReversibleSubstitutionModel
+class CodonNeutralFrequenciesSubstitutionModel :
+  public AbstractCodonFrequenciesSubstitutionModel
 {
 public:
   /**
    *@brief Build a new
-   *CodonNeutralFrequenciesReversibleSubstitutionModel object from
+   *CodonNeutralFrequenciesSubstitutionModel object from
    *three instances of the K80 model.
    *
    *@param palph pointer to a CodonAlphabet
@@ -77,17 +77,17 @@ public:
    *       owned by the instance.
    */
 
-  CodonNeutralFrequenciesReversibleSubstitutionModel(const CodonAlphabet* palph,
+  CodonNeutralFrequenciesSubstitutionModel(const CodonAlphabet* palph,
                                                      FrequenciesSet* pfreq);
 
-  ~CodonNeutralFrequenciesReversibleSubstitutionModel(){}
+  ~CodonNeutralFrequenciesSubstitutionModel(){}
 
 #ifndef NO_VIRTUAL_COV
-  CodonNeutralFrequenciesReversibleSubstitutionModel*
+  CodonNeutralFrequenciesSubstitutionModel*
 #else
   Clonable*
 #endif
-  clone() const { return new CodonNeutralFrequenciesReversibleSubstitutionModel(*this); }
+  clone() const { return new CodonNeutralFrequenciesSubstitutionModel(*this); }
 
 public:
   std::string getName() const;
