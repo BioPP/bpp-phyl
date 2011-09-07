@@ -79,7 +79,7 @@ private:
 
 public:
   /**
-   * @brief Build a new CodonNeutralSubstitutionModel object from
+   * @brief Build a new CodonAsynonymousSubstitutionModel object from
    * a pointer to NucleotideSubstitutionModel.
    *
    * @param palph pointer to a GeneticCode
@@ -93,7 +93,7 @@ public:
     const AlphabetIndex2<double>* pdist = 0);
 
   /**
-   * @brief Build a new CodonNeutralSubstitutionModel object
+   * @brief Build a new CodonAsynonymousSubstitutionModel object
    * from three pointers to NucleotideSubstitutionModels.
    *
    * @param palph pointer to a GeneticCode
