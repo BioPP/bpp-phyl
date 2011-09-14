@@ -806,6 +806,13 @@ SubstitutionModel* PhylogeneticsApplicationTools::getSubstitutionModelDefaultIns
           throw Exception("'name' argument missing for user-defined substitution model.");
         model = new UserProteinSubstitutionModel(alpha, args["file"], prefix);
       }
+      else if (AlphabetTools::isBinaryAlphabet(alphabet))
+        {
+          const BinaryAlphabet* alpha = dynamic_cast<const BinaryAlphabet*>(alphabet);
+
+          if (modelName == "Binary")
+            model = new BinarySubstitutionModel(alpha);
+        }
       else
         throw Exception("Model '" + modelName + "' unknown.");
     }
