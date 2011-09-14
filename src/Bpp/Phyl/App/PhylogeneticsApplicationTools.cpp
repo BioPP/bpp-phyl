@@ -808,10 +808,10 @@ SubstitutionModel* PhylogeneticsApplicationTools::getSubstitutionModelDefaultIns
       }
       else if (AlphabetTools::isBinaryAlphabet(alphabet))
         {
-          const BinaryAlphabet* alpha = dynamic_cast<const BinaryAlphabet*>(alphabet);
+          const BinaryAlphabet* balpha = dynamic_cast<const BinaryAlphabet*>(alphabet);
 
           if (modelName == "Binary")
-            model = new BinarySubstitutionModel(alpha);
+            model = new BinarySubstitutionModel(balpha);
         }
       else
         throw Exception("Model '" + modelName + "' unknown.");

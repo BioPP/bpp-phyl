@@ -44,7 +44,7 @@
 
 using namespace bpp;
 
-#include <NumCalc/MatrixTools.h>
+#include <Bpp/Numeric/Matrix/MatrixTools.h>
 
 using namespace std;
 
