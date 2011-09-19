@@ -5,6 +5,7 @@
 #include "Model/AbstractMixedSubstitutionModel.h"
 #include "Model/AbstractSubstitutionModel.h"
 #include "Model/AbstractWordReversibleSubstitutionModel.h"
+#include "Model/BinarySubstitutionModel.h"
 #include "Model/CodonAsynonymousFrequenciesReversibleSubstitutionModel.h"
 #include "Model/CodonAsynonymousReversibleSubstitutionModel.h"
 #include "Model/CodonNeutralFrequenciesReversibleSubstitutionModel.h"
