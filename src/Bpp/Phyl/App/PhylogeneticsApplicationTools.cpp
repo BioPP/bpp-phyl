@@ -456,7 +456,7 @@ SubstitutionModel* PhylogeneticsApplicationTools::getSubstitutionModelDefaultIns
         
         map<string, string> unparsedParameterValuesNested2;
         
-        FrequenciesSet* pFS = getFrequenciesSet(pCA, args["frequencies"], unparsedParameterValuesNested2);
+        FrequenciesSet* pFS = getFrequenciesSetDefaultInstance(pCA, args["frequencies"], unparsedParameterValuesNested2);
         
         for (map<string, string>::iterator it = unparsedParameterValuesNested2.begin(); it != unparsedParameterValuesNested2.end(); it++)
           {
