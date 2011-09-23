@@ -51,6 +51,7 @@ using namespace std;
 /******************************************************************************/
 
 BinarySubstitutionModel::BinarySubstitutionModel(const BinaryAlphabet* alpha, double kappa) :
+  AbstractParameterAliasable("BinarySubstitutionModel."),
   AbstractSubstitutionModel(alpha, "BinarySubstitutionModel."),
   _kappa(kappa),
   _lambda(0),

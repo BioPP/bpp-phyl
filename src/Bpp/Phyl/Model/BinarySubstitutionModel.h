@@ -128,6 +128,7 @@ public:
 
   BinarySubstitutionModel* clone() const { return new BinarySubstitutionModel(*this); }
 
+  
 public:
   double Pij_t    (unsigned int i, unsigned int j, double d) const;
   double dPij_dt  (unsigned int i, unsigned int j, double d) const;
