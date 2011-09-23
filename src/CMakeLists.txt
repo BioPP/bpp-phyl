@@ -56,6 +56,7 @@ set(CPP_FILES
   Bpp/Phyl/Mapping/UniformizationSubstitutionCount.cpp
   Bpp/Phyl/Mapping/IndexToCount.cpp
   Bpp/Phyl/Mapping/SubstitutionMappingTools.cpp
+  Bpp/Phyl/Model/BinarySubstitutionModel.cpp
   Bpp/Phyl/Model/AbstractSubstitutionModel.cpp
   Bpp/Phyl/Model/DSO78.cpp
   Bpp/Phyl/Model/F84.cpp
@@ -196,6 +197,7 @@ set(H_FILES
   Bpp/Phyl/Mapping/SubstitutionCount.h
   Bpp/Phyl/Mapping/SubstitutionMapping.h
   Bpp/Phyl/Mapping/SubstitutionMappingTools.h
+  Bpp/Phyl/Model/BinarySubstitutionModel.h
   Bpp/Phyl/Model/AbstractSubstitutionModel.h
   Bpp/Phyl/Model/DSO78.h
   Bpp/Phyl/Model/F84.h
