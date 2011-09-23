@@ -42,6 +42,7 @@
 
 #include "AbstractWordSubstitutionModel.h"
 #include "NucleotideSubstitutionModel.h"
+#include "CodonSubstitutionModel.h"
 
 // From SeqLib:
 #include <Bpp/Seq/Alphabet/CodonAlphabet.h>
@@ -49,58 +50,123 @@
 namespace bpp
 {
 /**
- * @brief Abstract class for reversible substitution models on codons.
+ * @brief Abstract class for substitution models on codons.
  * @author Laurent Guéguen
  *
- * Objects of this class are built from three reversible substitution
- * models of NucleicAlphabets. No model is directly accessible. </p>
+ * Objects of this class are built from either one (repeated three
+ * times) or three different substitution models of NucleicAlphabets.
+ * No model is directly accessible. </p>
  *
  * Only substitutions with one letter changed are accepted. </p>
  *
- * There is one substitution per word per unit of time
+ * There is one substitution per codon per unit of time
  * on the equilibrium frequency, and each position has its specific rate.
  *
+ * The parameters of this codon are the same as the ones of the models
+ * used. Their names have a new prefix, "i_" where i stands for the
+ * the phase (1,2 or 3) in the codon.
  */
 
 class AbstractCodonSubstitutionModel :
-  public AbstractWordSubstitutionModel
+    public virtual CodonSubstitutionModel,
+    public AbstractWordSubstitutionModel
 {
+private:
+
+  /**
+   * @brief boolean for the parametrization of the position relative
+   * rates. Default : false.
+   *
+   */
+  bool hasParametrizedRates_;
 public:
   /**
    * @brief Build a new AbstractCodonSubstitutionModel object from
-   * a pointer to an AbstractSubstitutionModel.
+   * a pointer to a NucleotideSubstitutionModel.
    *
    * @param palph pointer to a CodonAlphabet
-   * @param pmod pointer to the NucleotideSubstitutionModel to use in the three positions.
-   *        It is owned by the instance.
+   * @param pmod pointer to the NucleotideSubstitutionModel to use in
+   *        the three positions. It is owned by the instance.
    * @param st string of the Namespace
+   * @param paramRates boolean concerning the presence of position
+   * relative rates (default: false)
    */
 
-  AbstractCodonSubstitutionModel(
-    const CodonAlphabet* palph,
-    NucleotideSubstitutionModel* pmod,
-    const std::string& st);
+  AbstractCodonSubstitutionModel(const CodonAlphabet* palph,
+                                 NucleotideSubstitutionModel* pmod,
+                                 const std::string& st,
+                                 bool paramRates = false);
 
   /**
-   * @brief Build a new AbstractSubstitutionModel object
-   * from three pointers to AbstractSubstitutionModels.
+   * @brief Build a new AbstractCodonSubstitutionModel object
+   * from three pointers to NucleotideSubstitutionModels.
    *
    * @param palph pointer to a CodonAlphabet
    * @param pmod1, pmod2, pmod3 are pointers to the
-   * NucleotideSubstitutionModel to use in the three positions.
-   * All the models must be different objects to avoid redundant
-   * parameters.  They are owned by the instance.
-   * @param st string of the Namespace
+   *   NucleotideSubstitutionModel to use in the three positions.
+   *   All the models must be different objects to avoid redundant
+   *   parameters.  They are owned by the instance.
+   * @param st string of the Namespace 
+   * @param paramRates boolean concerning the presence of position
+   * relative rates (default: false)
    */
 
-  AbstractCodonSubstitutionModel(
-    const CodonAlphabet*,
-    NucleotideSubstitutionModel* pmod1,
-    NucleotideSubstitutionModel* pmod2,
-    NucleotideSubstitutionModel* pmod3,
-    const std::string& st);
+  AbstractCodonSubstitutionModel(const CodonAlphabet*,
+                                 NucleotideSubstitutionModel* pmod1,
+                                 NucleotideSubstitutionModel* pmod2,
+                                 NucleotideSubstitutionModel* pmod3,
+                                 const std::string& st,
+                                 bool paramRates = false);
+
 
   virtual ~AbstractCodonSubstitutionModel() {}
+
+  AbstractCodonSubstitutionModel(const AbstractCodonSubstitutionModel& model) :
+    AbstractParameterAliasable(model.getNamespace()),
+    AbstractWordSubstitutionModel(model),
+    hasParametrizedRates_(model.hasParametrizedRates_)
+  {}
+  
+  AbstractCodonSubstitutionModel& operator=(const AbstractCodonSubstitutionModel& model)
+  {
+    AbstractParameterAliasable::operator=(model);
+    AbstractWordSubstitutionModel::operator=(model);
+    hasParametrizedRates_=model.hasParametrizedRates_;
+    return(*this);
+  }
+
+#ifndef NO_VIRTUAL_COV
+  AbstractCodonSubstitutionModel*
+#else
+  Clonable*
+#endif
+  clone() const = 0;
+
+  
+protected:
+
+  /**
+   * @brief Method inherited from AbstractWordSubstitutionModel
+   *
+   * This method sets the rates to/from stop codons to zero and
+   * performs the multiplication by the specific codon-codon rate.
+   *
+   **/
+  
+  void completeMatrices();
+
+public:
+  void updateMatrices();
+
+  /**
+   * @brief Method inherited from CodonSubstitutionModel
+   *
+   * Here this methods returns 1;
+   *
+   **/
+  
+  virtual double getCodonsMulRate(unsigned int, unsigned int) const {return 1.;}
+  
 };
 } // end of namespace bpp.
 

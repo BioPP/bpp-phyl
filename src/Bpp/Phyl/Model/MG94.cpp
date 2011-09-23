@@ -38,6 +38,7 @@ knowledge of the CeCILL license and that you accept its terms.
 
 #include "MG94.h"
 #include "FrequenciesSet.h"
+#include "K80.h"
 
 using namespace bpp;
 
@@ -47,7 +48,7 @@ using namespace std;
 
 MG94::MG94(const GeneticCode* gc, FrequenciesSet* codonFreqs) :
   AbstractBiblioSubstitutionModel("MG94."),
-  pmodel_(new CodonAsynonymousFrequenciesSubstitutionModel(gc, codonFreqs))
+  pmodel_(new CodonDistanceFrequenciesSubstitutionModel(gc, new K80(dynamic_cast<const CodonAlphabet*>(gc->getSourceAlphabet())->getNucleicAlphabet()), codonFreqs))
 {
   addParameter_(Parameter("MG94.rho", 1, &Parameter::R_PLUS_STAR));
 
@@ -67,7 +68,7 @@ MG94::MG94(const GeneticCode* gc, FrequenciesSet* codonFreqs) :
 
 MG94::MG94(const MG94& mg94) :
   AbstractBiblioSubstitutionModel(mg94),
-  pmodel_(new CodonAsynonymousFrequenciesSubstitutionModel(*mg94.pmodel_))
+  pmodel_(new CodonDistanceFrequenciesSubstitutionModel(*mg94.pmodel_))
 {}
 
 MG94& MG94::operator=(const MG94& mg94)
@@ -75,7 +76,7 @@ MG94& MG94::operator=(const MG94& mg94)
   AbstractBiblioSubstitutionModel::operator=(mg94);
   if (pmodel_)
     delete pmodel_;
-  pmodel_ = new CodonAsynonymousFrequenciesSubstitutionModel(*mg94.pmodel_);
+  pmodel_ = new CodonDistanceFrequenciesSubstitutionModel(*mg94.pmodel_);
   return *this;
 }
 

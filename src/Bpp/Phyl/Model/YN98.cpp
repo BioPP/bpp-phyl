@@ -37,6 +37,7 @@ knowledge of the CeCILL license and that you accept its terms.
 */
 
 #include "YN98.h"
+#include "K80.h"
 #include "FrequenciesSet.h"
 #include <Bpp/Numeric/NumConstants.h>
 
@@ -48,7 +49,7 @@ using namespace std;
 
 YN98::YN98(const GeneticCode* gc, FrequenciesSet* codonFreqs) :
   AbstractBiblioSubstitutionModel("YN98."),
-  pmodel_(new CodonAsynonymousFrequenciesSubstitutionModel(gc, codonFreqs))
+  pmodel_(new CodonDistanceFrequenciesSubstitutionModel(gc, new K80(dynamic_cast<const CodonAlphabet*>(gc->getSourceAlphabet())->getNucleicAlphabet()), codonFreqs))
 {
   addParameter_(Parameter("YN98.kappa", 1, &Parameter::R_PLUS_STAR));
   addParameter_(Parameter("YN98.omega", 1, new IncludingInterval(NumConstants::TINY, 999), true));
@@ -60,9 +61,9 @@ YN98::YN98(const GeneticCode* gc, FrequenciesSet* codonFreqs) :
   
   vector<std::string> v=pmodel_->getFreq().getParameters().getParameterNames();
 
-  for (unsigned int i=0;i<v.size();i++)
+  for (unsigned int i=0;i<v.size();i++){
     mapParNamesFromPmodel_[v[i]]=getParameterNameWithoutNamespace(v[i]);
-
+  }
   mapParNamesFromPmodel_["YN98.123_K80.kappa"]="kappa";
   mapParNamesFromPmodel_["YN98.beta"]="omega";
   
@@ -71,12 +72,12 @@ YN98::YN98(const GeneticCode* gc, FrequenciesSet* codonFreqs) :
 
 
 YN98::YN98(const YN98& yn98) : AbstractBiblioSubstitutionModel(yn98),
-                               pmodel_(new CodonAsynonymousFrequenciesSubstitutionModel(*yn98.pmodel_))
+                               pmodel_(new CodonDistanceFrequenciesSubstitutionModel(*yn98.pmodel_))
 {}
 
 YN98& YN98::operator=(const YN98& yn98){
   AbstractBiblioSubstitutionModel::operator=(yn98);
-  pmodel_=new CodonAsynonymousFrequenciesSubstitutionModel(*yn98.pmodel_);
+  pmodel_=new CodonDistanceFrequenciesSubstitutionModel(*yn98.pmodel_);
   return *this;
 }
 

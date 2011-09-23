@@ -1,5 +1,5 @@
 //
-// File: CodonAsynonymousFrequenciesSubstitutionModel.cpp
+// File: CodonSubstitutionModel.cpp
 // Created by:  Laurent Gueguen
 // Created on: Feb 2009
 //
@@ -36,7 +36,8 @@
    knowledge of the CeCILL license and that you accept its terms.
  */
 
-#include "CodonAsynonymousFrequenciesSubstitutionModel.h"
+#include "CodonRateSubstitutionModel.h"
+
 
 using namespace bpp;
 
@@ -44,58 +45,36 @@ using namespace std;
 
 /******************************************************************************/
 
-CodonAsynonymousFrequenciesSubstitutionModel::CodonAsynonymousFrequenciesSubstitutionModel(
-  const GeneticCode* palph,
-  FrequenciesSet* pfreq,
-  const AlphabetIndex2<double>* pdist) throw (Exception) :
-  AbstractCodonFrequenciesSubstitutionModel(
-    dynamic_cast<const CodonAlphabet*>(palph->getSourceAlphabet()),
-    pfreq,
-    "CodonAsynonymousFrequencies."),
-  geneticCode_(palph),
-  pdistance_(pdist)
+CodonRateSubstitutionModel::CodonRateSubstitutionModel(const CodonAlphabet* palph,
+                                                       NucleotideSubstitutionModel* pmod) :
+  AbstractParameterAliasable("CodonRate."),
+  AbstractCodonSubstitutionModel(palph, pmod, "CodonRate.", true)
 {
-  if (pdistance_)
-    addParameter_(Parameter("CodonAsynonymousFrequencies.alpha", 10000, &Parameter::R_PLUS_STAR));
-
-  addParameter_(Parameter("CodonAsynonymousFrequencies.beta", 1, new IncludingInterval(NumConstants::TINY, 999), true));
   updateMatrices();
 }
 
-string CodonAsynonymousFrequenciesSubstitutionModel::getName() const
+CodonRateSubstitutionModel::CodonRateSubstitutionModel(const CodonAlphabet* palph,
+                                                       NucleotideSubstitutionModel* pmod1,
+                                                       NucleotideSubstitutionModel* pmod2,
+                                                       NucleotideSubstitutionModel* pmod3) :
+  AbstractParameterAliasable("CodonRate."),
+  AbstractCodonSubstitutionModel(palph, pmod1, pmod2, pmod3, "CodonRate.", true)
 {
-  return "CodonAsynonymousFrequenciesSubstitutionModel model : " + pfreqset_->getName();
+  updateMatrices();
 }
 
-void CodonAsynonymousFrequenciesSubstitutionModel::completeMatrices()
+std::string CodonRateSubstitutionModel::getName() const
 {
-  unsigned int i, j;
-  unsigned int salph = getNumberOfStates();
-  double alpha = pdistance_ ? getParameterValue("alpha") : 1;
-  double beta = getParameterValue("beta");
-  const CodonAlphabet* ca = dynamic_cast<const CodonAlphabet*>(geneticCode_->getSourceAlphabet());
+  return ("CodonRate");
+}
 
-  for (i = 0; i < salph; i++)
-  {
-    for (j = 0; j < salph; j++)
-    {
-      if (i != j)
-      {
-        if (ca->isStop(j) || ca->isStop(i))
-        {
-          generator_(i,j) = 0;
-        }
-        else
-        {
-          if (!geneticCode_->areSynonymous(i,j))
-          {
-            generator_(i,j) *= beta * (pdistance_ ? exp(-pdistance_->getIndex(geneticCode_->translate(i), geneticCode_->translate(j)) / alpha) : 1);
-          }
-        }
-      }
-    }
-  }
+void CodonRateSubstitutionModel::fireParameterChanged(const ParameterList& parameters)
+{
+  AbstractCodonSubstitutionModel::fireParameterChanged(parameters);
+}
 
-  AbstractCodonFrequenciesSubstitutionModel::completeMatrices();
+double CodonRateSubstitutionModel::getCodonsMulRate(unsigned int i, unsigned int j) const
+{
+  return AbstractCodonSubstitutionModel::getCodonsMulRate(i,j);
 }
 

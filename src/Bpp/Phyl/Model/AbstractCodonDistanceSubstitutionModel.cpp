@@ -1,5 +1,5 @@
 //
-// File: CodonFrequenciesSubstitutionModel.cpp
+// File: AbstractCodonDistanceSubstitutionModel.cpp
 // Created by:  Laurent Gueguen
 // Created on: Feb 2009
 //
@@ -36,7 +36,7 @@
    knowledge of the CeCILL license and that you accept its terms.
  */
 
-#include "CodonNeutralFrequenciesSubstitutionModel.h"
+#include "AbstractCodonDistanceSubstitutionModel.h"
 
 using namespace bpp;
 
@@ -44,65 +44,33 @@ using namespace std;
 
 /******************************************************************************/
 
-CodonNeutralFrequenciesSubstitutionModel::CodonNeutralFrequenciesSubstitutionModel(
-  const CodonAlphabet* palph,
-  FrequenciesSet* pfreq) :
-  AbstractCodonFrequenciesSubstitutionModel(palph, pfreq, "CodonNeutralFrequencies.")
+AbstractCodonDistanceSubstitutionModel::AbstractCodonDistanceSubstitutionModel(
+                                                                               const GeneticCode* palph,
+                                                                               const AlphabetIndex2<double>* pdist,
+                                                                               const std::string& prefix) :
+  CodonSubstitutionModel(),
+  AbstractParameterAliasable(prefix),
+  geneticCode_(palph),
+  pdistance_(pdist),
+  alpha_(10000),
+  beta_(1)
 {
-   unsigned int i;
+  if (pdistance_)
+    addParameter_(Parameter(prefix+"alpha",10000,&Parameter::R_PLUS_STAR));
 
-  // relative rates
-  for (i = 0; i < 2; i++)
-  {
-    addParameter_(Parameter("CodonNeutralFrequencies.relrate" + TextTools::toString(i+1), 1.0 / (3 - i),&Parameter::PROP_CONSTRAINT_EX));
-  }
-
-  updateMatrices();
+  addParameter_(Parameter(prefix+"beta",1,new IncludingInterval(NumConstants::TINY, 999), true));
 }
 
-string CodonNeutralFrequenciesSubstitutionModel::getName() const
+void AbstractCodonDistanceSubstitutionModel::fireParameterChanged(const ParameterList& parameters)
 {
-  return "CodonNeutralFrequenciesSubstitutionModel model:" + pfreqset_->getName();
+  if (pdistance_)
+    alpha_ = getParameterValue("alpha");
+  beta_ = getParameterValue("beta");
 }
 
-void CodonNeutralFrequenciesSubstitutionModel::completeMatrices()
+double AbstractCodonDistanceSubstitutionModel::getCodonsMulRate(unsigned int i, unsigned int j) const
 {
-   unsigned int i, j;
-   unsigned int salph = getNumberOfStates();
-
-   const CodonAlphabet* ca = dynamic_cast<const CodonAlphabet*>(alphabet_);
-
-  for (i = 0; i < salph; i++)
-  {
-    for (j = 0; j < salph; j++)
-    {
-      if (ca->isStop(i) || ca->isStop(j))
-      {
-        generator_(i, j) = 0;
-      }
-    }
-  }
-
-  AbstractCodonFrequenciesSubstitutionModel::completeMatrices();
-}
-
-
-void CodonNeutralFrequenciesSubstitutionModel::updateMatrices()
-{
-   int i, k, nbmod = VSubMod_.size();
-   double x;
-  for (k = nbmod - 1; k >= 0; k--)
-  {
-    x = 1.0;
-    for (i = 0; i < k; i++)
-    {
-      x *= 1 - getParameterValue("relrate" + TextTools::toString(i+1));
-    }
-    if (k != nbmod - 1)
-      x *= getParameterValue("relrate" + TextTools::toString(k+1));
-    Vrate_[k] = x;
-  }
-
-  AbstractWordSubstitutionModel::updateMatrices();
+  return (geneticCode_->areSynonymous(i,j)?1:
+          beta_ * (pdistance_ ? exp(-pdistance_->getIndex(geneticCode_->translate(i), geneticCode_->translate(j)) / alpha_) : 1));
 }
 

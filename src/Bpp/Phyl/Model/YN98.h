@@ -41,7 +41,7 @@ knowledge of the CeCILL license and that you accept its terms.
 #define _YN98_H_
 
 #include "AbstractBiblioSubstitutionModel.h"
-#include "CodonAsynonymousFrequenciesSubstitutionModel.h"
+#include "CodonDistanceFrequenciesSubstitutionModel.h"
 
 namespace bpp
 {
@@ -89,7 +89,7 @@ namespace bpp
 class YN98:  public AbstractBiblioSubstitutionModel
 {
 private:
-  CodonAsynonymousFrequenciesSubstitutionModel* pmodel_;
+  CodonDistanceFrequenciesSubstitutionModel* pmodel_;
 
 public:
   YN98(const GeneticCode* gc, FrequenciesSet* codonFreqs);

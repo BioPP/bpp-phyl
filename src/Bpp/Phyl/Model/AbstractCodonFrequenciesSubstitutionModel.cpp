@@ -1,7 +1,7 @@
 //
 // File: AbstractCodonFrequenciesSubstitutionModel.cpp
 // Created by:  Laurent Gueguen
-// Created on: Feb 2009
+// Created on: jeudi 15 septembre 2011, à 15h 02
 //
 
 /*
@@ -37,9 +37,8 @@
  */
 
 #include "AbstractCodonFrequenciesSubstitutionModel.h"
-#include "K80.h"
 
-#include <Bpp/Seq/Alphabet/AlphabetTools.h>
+//#include <Bpp/Seq/Alphabet/AlphabetTools.h>
 
 using namespace bpp;
 
@@ -48,33 +47,18 @@ using namespace std;
 /******************************************************************************/
 
 AbstractCodonFrequenciesSubstitutionModel::AbstractCodonFrequenciesSubstitutionModel(
-  const CodonAlphabet* palph,
   FrequenciesSet* pfreq,
-  const std::string& prefix) throw (Exception) :
-  AbstractWordSubstitutionModel(palph, prefix),
+  const std::string& prefix) :
+  CodonSubstitutionModel(),
+  AbstractParameterAliasable(prefix),
   pfreqset_(pfreq),
-  freqPrefix_(pfreq->getNamespace())
+  freqName_("")
 {
-  enableEigenDecomposition(1);
-
-  Vrate_.resize(3);
-
-  SubstitutionModel* pmodel = new K80(palph->getNucleicAlphabet());
-
-  for (unsigned i = 0; i < 3; i++)
-  {
-    VSubMod_.push_back(pmodel);
-    VnestedPrefix_.push_back(pmodel->getNamespace());
-    Vrate_[i] = 1.0 / 3;
-  }
-
-  pmodel->setNamespace(prefix + "123_" + VnestedPrefix_[0]);
-  addParameters_(pmodel->getParameters());
-
   if (pfreqset_->getAlphabet()->getSize() != 64)
     throw Exception("Bad Alphabet for equilibrium frequencies " + pfreqset_->getAlphabet()->getAlphabetType());
 
-  pfreqset_->setNamespace(prefix + "freq_" + freqPrefix_);
+  freqName_=pfreqset_->getNamespace();
+  pfreqset_->setNamespace(prefix + pfreqset_->getNamespace());
   addParameters_(pfreqset_->getParameters());
 }
 
@@ -87,7 +71,6 @@ AbstractCodonFrequenciesSubstitutionModel::~AbstractCodonFrequenciesSubstitution
 void AbstractCodonFrequenciesSubstitutionModel::fireParameterChanged(const ParameterList& parameters)
 {
   pfreqset_->matchParametersValues(parameters);
-  AbstractWordSubstitutionModel::fireParameterChanged(parameters);
 }
 
 
@@ -95,23 +78,10 @@ void AbstractCodonFrequenciesSubstitutionModel::setFreq(map<int,double>& frequen
 {
   pfreqset_->setFrequenciesFromMap(frequencies);
   matchParametersValues(pfreqset_->getParameters());
-
-  updateMatrices();
 }
 
-void AbstractCodonFrequenciesSubstitutionModel::completeMatrices()
+double AbstractCodonFrequenciesSubstitutionModel::getCodonsMulRate(unsigned int i, unsigned int j) const
 {
-  unsigned int i, j;
-  unsigned int salph = getNumberOfStates();
-
-  freq_ = pfreqset_->getFrequencies();
-  
-  for (i = 0; i < salph; i++)
-  {
-    for (j = 0; j < salph; j++)
-    {
-      generator_(i, j) *= freq_[j];
-    }
-  }
+  return pfreqset_->getFrequencies()[j];
 }
 

@@ -1,129 +1,113 @@
 //
 // File: AbstractCodonFrequenciesSubstitutionModel.h
-// Created by: Laurent Gueguen
+// Created by: jeudi 15 septembre 2011, à 15h 02
 //
 
 /*
-   Copyright or © or Copr. CNRS, (November 16, 2004)
+  Copyright or © or Copr. CNRS, (November 16, 2004)
 
-   This software is a computer program whose purpose is to provide classes
-   for phylogenetic data analysis.
+  This software is a computer program whose purpose is to provide classes
+  for phylogenetic data analysis.
 
-   This software is governed by the CeCILL  license under French law and
-   abiding by the rules of distribution of free software.  You can  use,
-   modify and/ or redistribute the software under the terms of the CeCILL
-   license as circulated by CEA, CNRS and INRIA at the following URL
-   "http://www.cecill.info".
+  This software is governed by the CeCILL  license under French law and
+  abiding by the rules of distribution of free software.  You can  use,
+  modify and/ or redistribute the software under the terms of the CeCILL
+  license as circulated by CEA, CNRS and INRIA at the following URL
+  "http://www.cecill.info".
 
-   As a counterpart to the access to the source code and  rights to copy,
-   modify and redistribute granted by the license, users are provided only
-   with a limited warranty  and the software's author,  the holder of the
-   economic rights,  and the successive licensors  have only  limited
-   liability.
+  As a counterpart to the access to the source code and  rights to copy,
+  modify and redistribute granted by the license, users are provided only
+  with a limited warranty  and the software's author,  the holder of the
+  economic rights,  and the successive licensors  have only  limited
+  liability.
 
-   In this respect, the user's attention is drawn to the risks associated
-   with loading,  using,  modifying and/or developing or reproducing the
-   software by the user in light of its specific status of free software,
-   that may mean  that it is complicated to manipulate,  and  that  also
-   therefore means  that it is reserved for developers  and  experienced
-   professionals having in-depth computer knowledge. Users are therefore
-   encouraged to load and test the software's suitability as regards their
-   requirements in conditions enabling the security of their systems and/or
-   data to be ensured and,  more generally, to use and operate it in the
-   same conditions as regards security.
+  In this respect, the user's attention is drawn to the risks associated
+  with loading,  using,  modifying and/or developing or reproducing the
+  software by the user in light of its specific status of free software,
+  that may mean  that it is complicated to manipulate,  and  that  also
+  therefore means  that it is reserved for developers  and  experienced
+  professionals having in-depth computer knowledge. Users are therefore
+  encouraged to load and test the software's suitability as regards their
+  requirements in conditions enabling the security of their systems and/or
+  data to be ensured and,  more generally, to use and operate it in the
+  same conditions as regards security.
 
-   The fact that you are presently reading this means that you have had
-   knowledge of the CeCILL license and that you accept its terms.
- */
+  The fact that you are presently reading this means that you have had
+  knowledge of the CeCILL license and that you accept its terms.
+*/
 
 #ifndef _ABSTRACTCODONFREQUENCIESSUBSTITUTIONMODEL_H_
 #define _ABSTRACTCODONFREQUENCIESSUBSTITUTIONMODEL_H_
 
-#include "AbstractWordSubstitutionModel.h"
+#include "AbstractCodonSubstitutionModel.h"
 #include "FrequenciesSet.h"
 
-// From SeqLib:
-#include <Bpp/Seq/Alphabet/CodonAlphabet.h>
-
-namespace bpp
+ namespace bpp
 {
-/**
- * @brief Class for substitution models on codons parametrized by the
- *  codon frequencies. The basic substitution model is built
- *  from a nucleotide model with equiparted equilibrium distribution.
- *  Here we use K80 model, but it could be more general. </p>
- *
- * @author Laurent Guéguen
- *
- * This class is built from three K80 models. No model is directly
- *  accessible. </p>
- *
- * Only substitutions with one letter changed are accepted. </p>
- *
- * There is one substitution per word per unit of time
- * on the equilibrium frequency, and each position has its specific rate.</p>
- *
- * The nucleotide model parameter is the same as for K80, named \c  "kappa".
- * The other parameters are the parameters of the equilibrium
- * distribution.
- */
-
-class AbstractCodonFrequenciesSubstitutionModel :
-  public AbstractWordSubstitutionModel
-{
-protected:
-  FrequenciesSet* pfreqset_;
-  std::string freqPrefix_;
-
-public:
   /**
-   *@brief Build a new
-   * AbstractCodonFrequenciesSubstitutionModel object from
-   * three instances of K80 model.
+   * @brief Abstract Class for substitution models on codons
+   *  parametrized by frequencies.
    *
-   *@param palph pointer to a CodonAlphabet
-   *@param pfreq pointer to the AbstractFrequenciesSet equilibrium frequencies.
-   *        It is owned by the instance.
-   *@param prefix the Namespace
+   * @author Laurent Guéguen
+   *
+   * If we denote @f$F@f$ the equilibrium frequency, the generator term
+   * defined from inherited and inheriting classes, @f$Q_{ij})@f$, is
+   * multiplied by F_{j}.
+   *
    */
+
+  class AbstractCodonFrequenciesSubstitutionModel :
+    virtual public CodonSubstitutionModel,
+    virtual public AbstractParameterAliasable
+  {
+  private:
+    FrequenciesSet* pfreqset_;
+    std::string freqName_;
+    
+  public:
+    /**
+     *@brief Build a AbstractCodonFrequenciesSubstitutionModel instance
+     *
+     *@param pfreq pointer to the AbstractFrequenciesSet equilibrium frequencies.
+     *        It is owned by the instance.
+     *@param prefix the Namespace
+     */
   
-  AbstractCodonFrequenciesSubstitutionModel(
-      const CodonAlphabet* palph,
-      FrequenciesSet* pfreq,
-      const std::string& prefix) throw (Exception);
+    AbstractCodonFrequenciesSubstitutionModel(FrequenciesSet* pfreq,
+                                              const std::string& prefix);
 
-  AbstractCodonFrequenciesSubstitutionModel(const AbstractCodonFrequenciesSubstitutionModel& wrsm) :
-    AbstractWordSubstitutionModel(wrsm),
-    pfreqset_(wrsm.pfreqset_->clone()),
-    freqPrefix_(wrsm.freqPrefix_)
-  {}
+    AbstractCodonFrequenciesSubstitutionModel(const AbstractCodonFrequenciesSubstitutionModel& model) :
+      AbstractParameterAliasable(model.getNamespace()),
+      pfreqset_(model.pfreqset_->clone()),
+      freqName_(model.freqName_)
+    {}
 
-  AbstractCodonFrequenciesSubstitutionModel& operator=(const AbstractCodonFrequenciesSubstitutionModel& wrsm)
-  {
-    AbstractWordSubstitutionModel::operator=(wrsm);
-    if (pfreqset_) delete pfreqset_;
-    pfreqset_   = wrsm.pfreqset_->clone();
-    freqPrefix_ = wrsm.freqPrefix_;
-    return *this;
-  }
+    AbstractCodonFrequenciesSubstitutionModel& operator=(const AbstractCodonFrequenciesSubstitutionModel& model)
+    {
+      AbstractParameterAliasable::operator=(model);
+      if (pfreqset_) delete pfreqset_;
+      pfreqset_   = model.pfreqset_->clone();
+      freqName_   = model.freqName_;
+      return *this;
+    }
 
-  virtual ~AbstractCodonFrequenciesSubstitutionModel();
+    virtual ~AbstractCodonFrequenciesSubstitutionModel();
 
-  void fireParameterChanged(const ParameterList& parameters);
+    void fireParameterChanged(const ParameterList& parameters);
 
-  void setFreq(std::map<int, double>& frequencies);
+    void setFreq(std::map<int, double>& frequencies);
 
-  const FrequenciesSet& getFreq() const { return *pfreqset_; }
+    const FrequenciesSet& getFreq() const { return *pfreqset_; }
 
-  void setNamespace(const std::string& prefix)
-  {
-    AbstractWordSubstitutionModel::setNamespace(prefix);
-    pfreqset_->setNamespace(prefix + "freq_" + freqPrefix_);
-  }
+    void setNamespace(const std::string& prefix)
+    {
+      pfreqset_->setNamespace(prefix + freqName_);
+    }
 
-protected:
-  virtual void completeMatrices();
-};
+  public:
+    double getCodonsMulRate(unsigned int, unsigned int) const;
+
+  };
 
 } // end of namespace bpp.
 

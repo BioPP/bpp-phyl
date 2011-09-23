@@ -1,5 +1,5 @@
 //
-// File: CodonNeutralFrequenciesSubstitutionModel.h
+// File: CodonRateSubstitutionModel.h
 // Created by: Laurent Gueguen
 // Created on: Tue Dec 24 11:03:53 2003
 //
@@ -37,64 +37,73 @@
    knowledge of the CeCILL license and that you accept its terms.
  */
 
-#ifndef _CODONNEUTRALFREQUENCIESSUBSTITUTIONMODEL_H_
-#define _CODONNEUTRALFREQUENCIESSUBSTITUTIONMODEL_H_
+#ifndef _CODONRATESUBSTITUTIONMODEL_H_
+#define _CODONRATESUBSTITUTIONMODEL_H_
 
-#include "AbstractCodonFrequenciesSubstitutionModel.h"
-
-// From SeqLib:
-#include <Bpp/Seq/Alphabet/CodonAlphabet.h>
+#include "AbstractCodonSubstitutionModel.h"
+#include "NucleotideSubstitutionModel.h"
 
 namespace bpp
 {
 /**
- * @brief Class for reversible substitution models on codons
- *  parametrized by the equilibrium frequencies. The basic
- *  substitution model is the K80 model. </p>
+ * @brief Class for substitution models on non stop codons, with
+ * different rates on the models, depending on their phase.
+ *
  * @author Laurent Guéguen
  *
- * Objects of this class are built from three reversible substitution
- *  models of NucleicAlphabets. No model is directly accessible. </p>
- *
- * Only substitutions with one letter changed are accepted. </p>
- *
- * There is one substitution per word per unit of time
- * on the equilibrium frequency, and each position has its specific rate.
+ * See description in AbstractCodonRateSubstitutionModel class.
  *
  */
 
-class CodonNeutralFrequenciesSubstitutionModel :
-  public AbstractCodonFrequenciesSubstitutionModel
+class CodonRateSubstitutionModel :
+  public AbstractCodonSubstitutionModel
 {
 public:
   /**
-   *@brief Build a new
-   *CodonNeutralFrequenciesSubstitutionModel object from
-   *three instances of the K80 model.
+   *@brief Build a new CodonRateSubstitutionModel object from
+   *a pointer to NucleotideSubstitutionModels.
+   * @author Laurent Guéguen
    *
    *@param palph pointer to a CodonAlphabet
-   *@param pfreq pointer to the FrequenciesSet* equilibrium frequencies. It is
-   *       owned by the instance.
+   *@param pmod pointer to the NucleotideSubstitutionModel to use in the
+   *       three positions. It is owned by the instabce.
    */
 
-  CodonNeutralFrequenciesSubstitutionModel(const CodonAlphabet* palph,
-                                                     FrequenciesSet* pfreq);
+  CodonRateSubstitutionModel(const CodonAlphabet* palph,
+                             NucleotideSubstitutionModel* pmod);
 
-  ~CodonNeutralFrequenciesSubstitutionModel(){}
+  /**
+   *@brief Build a new CodonRateSubstitutionModel object
+   *from three pointers to NucleotideSubstitutionModels.
+   *
+   *@param palph pointer to a CodonAlphabet
+   *@param pmod1, pmod2, pmod3 pointers to the
+   *   NucleotideSubstitutionModel to use in the three positions.
+   *   All the models must be different objects to avoid parameters
+   *   redondancy, otherwise only the first model is used. The used models
+   *   are owned by the instance.
+   */
+
+  CodonRateSubstitutionModel(const CodonAlphabet* palph,
+                             NucleotideSubstitutionModel* pmod1,
+                             NucleotideSubstitutionModel* pmod2,
+                             NucleotideSubstitutionModel* pmod3);
+
+  ~CodonRateSubstitutionModel(){}
 
 #ifndef NO_VIRTUAL_COV
-  CodonNeutralFrequenciesSubstitutionModel*
+  CodonRateSubstitutionModel*
 #else
   Clonable*
 #endif
-  clone() const { return new CodonNeutralFrequenciesSubstitutionModel(*this); }
+  clone() const { return new CodonRateSubstitutionModel(*this); }
 
 public:
+  void fireParameterChanged(const ParameterList& parameterlist);
+  
   std::string getName() const;
-  void updateMatrices();
 
-protected:
-  void completeMatrices();
+  double getCodonsMulRate(unsigned int, unsigned int) const;
 };
 } // end of namespace bpp.
 

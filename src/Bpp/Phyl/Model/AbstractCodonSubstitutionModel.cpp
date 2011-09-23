@@ -45,10 +45,13 @@ using namespace std;
 /******************************************************************************/
 
 AbstractCodonSubstitutionModel::AbstractCodonSubstitutionModel(
-  const CodonAlphabet* palph,
-  NucleotideSubstitutionModel* pmod,
-  const std::string& st) :
-  AbstractWordSubstitutionModel(palph,st)
+                                                               const CodonAlphabet* palph,
+                                                               NucleotideSubstitutionModel* pmod,
+                                                               const std::string& st,
+                                                               bool paramRates) :
+  AbstractParameterAliasable(st),
+  AbstractWordSubstitutionModel(palph,st),
+  hasParametrizedRates_(paramRates)
 {
   enableEigenDecomposition(1);
 
@@ -67,21 +70,36 @@ AbstractCodonSubstitutionModel::AbstractCodonSubstitutionModel(
   {
     Vrate_[i] = 1.0 / 3;
   }
+
+
+  if (hasParametrizedRates_){
+
+  // relative rates
+    for (i = 0; i < 2; i++)
+      {
+        addParameter_(Parameter(st+"relrate" + TextTools::toString(i + 1), 1.0 / (3 - i), &Parameter::PROP_CONSTRAINT_EX));
+      }
+    
+  }
+     
 }
 
 AbstractCodonSubstitutionModel::AbstractCodonSubstitutionModel(
-  const CodonAlphabet* palph,
-  NucleotideSubstitutionModel* pmod1,
-  NucleotideSubstitutionModel* pmod2,
-  NucleotideSubstitutionModel* pmod3,
-  const std::string& st) :
-  AbstractWordSubstitutionModel(palph,st)
+                                                               const CodonAlphabet* palph,
+                                                               NucleotideSubstitutionModel* pmod1,
+                                                               NucleotideSubstitutionModel* pmod2,
+                                                               NucleotideSubstitutionModel* pmod3,
+                                                               const std::string& st,
+                                                               bool paramRates) :
+  AbstractParameterAliasable(st),
+  AbstractWordSubstitutionModel(palph,st),
+  hasParametrizedRates_(paramRates)
 {
+  unsigned int i;
   enableEigenDecomposition(1);
 
   if ((pmod1 == pmod2) || (pmod2 == pmod3) || (pmod1 == pmod3))
   {
-   unsigned int i;
     for (i = 0; i < 3; i++)
     {
    VSubMod_.push_back(pmod1);
@@ -110,10 +128,64 @@ AbstractCodonSubstitutionModel::AbstractCodonSubstitutionModel(
   }
 
   Vrate_.resize(3);
-  for (unsigned int i = 0; i < 3; i++)
+  for (i = 0; i < 3; i++)
   {
     Vrate_[i] = 1.0 / 3;
   }
+
+  if (hasParametrizedRates_){
+    // relative rates
+    for (i = 0; i < 2; i++)
+      {
+        addParameter_(Parameter(st+"relrate" + TextTools::toString(i + 1), 1.0 / (3 - i), &Parameter::PROP_CONSTRAINT_EX));
+      }
+  }
 }
+
+void AbstractCodonSubstitutionModel::updateMatrices()
+{
+  if (hasParametrizedRates_){
+    int i, nbmod = VSubMod_.size();
+    double x;
+    int k;
+    for (k = nbmod - 1; k >= 0; k--)
+      {
+        x = 1.0;
+        for (i = 0; i < k; i++)
+          {
+            x *= 1 - getParameterValue("relrate" + TextTools::toString(i + 1));
+          }
+        if (k != nbmod - 1)
+          x *= getParameterValue("relrate" + TextTools::toString(k + 1));
+        Vrate_[k] = x;
+      }
+  }
+  
+  AbstractWordSubstitutionModel::updateMatrices();
+}
+
+void AbstractCodonSubstitutionModel::completeMatrices()
+{
+  unsigned int i, j;
+  unsigned int salph = getNumberOfStates();
+  
+  const CodonAlphabet* ca = dynamic_cast<const CodonAlphabet*>(alphabet_);
+
+  for (i = 0; i < salph; i++)
+    {
+      for (j = 0; j < salph; j++)
+        {
+          if (ca->isStop(i) || ca->isStop(j))
+            {
+              generator_(i, j) = 0;
+            }
+          else
+            generator_(i, j) *= getCodonsMulRate(i,j);
+        }
+    }  
+}
+
+  
+
 
 
