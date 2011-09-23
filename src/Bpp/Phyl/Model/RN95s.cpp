@@ -52,12 +52,12 @@ using namespace std;
 
 /******************************************************************************/
  
-RN95s::RN95s(
-	const NucleicAlphabet* alphabet,
-        double alpha,
-        double beta,
-        double gamma,
-        double delta): 
+RN95s::RN95s(const NucleicAlphabet* alphabet,
+             double alpha,
+             double beta,
+             double gamma,
+             double delta): 
+  AbstractParameterAliasable("RN95s."),
   AbstractSubstitutionModel(alphabet, "RN95s."),
   alpha_(),
   beta_(),
@@ -92,7 +92,7 @@ void RN95s::updateMatrices()
   gamma_  =getParameterValue("gamma");
   alpha_  =(alphaP*(0.5-freq_[0])-((0.5-freq_[0]<gamma_)?0.5-freq_[0]:gamma_))/(2*freq_[0]);
   delta_  =0.5-gamma_;
-  beta_   =(delta_-2*freq_[0]*(alpha_+0.5))/(2*freq_[0]-1);
+  beta_   =(2*freq_[0]*(alpha_+0.5)-delta_)/(1-2*freq_[0]);
 
   // stationnary frequencies
 
@@ -161,14 +161,14 @@ void RN95s::updateMatrices()
   rightEigenVectors_(3, 1) = -1;
 
   rightEigenVectors_(0, 2) = (alpha_*(0.5-c3_)+gamma_*0.5)/(delta_*(c3_-0.5)-beta_*0.5);
- rightEigenVectors_(1, 2) = 1.;
- rightEigenVectors_(2, 2) = (-beta_*(0.5-c3_)-delta_*0.5)/(delta_*(c3_-0.5)-beta_*0.5);
- rightEigenVectors_(3, 2) = 1.;
-
- rightEigenVectors_(0, 3) = 1.;
- rightEigenVectors_(1, 3) = (beta_*(0.5-c3_)+delta_*0.5)/(gamma_*(c3_-0.5)-alpha_*0.5);
- rightEigenVectors_(2, 3) = 1;
- rightEigenVectors_(3, 3) = (-alpha_*(0.5-c3_)-gamma_*0.5)/(gamma_*(c3_-0.5)-alpha_*0.5);
+  rightEigenVectors_(1, 2) = 1.;
+  rightEigenVectors_(2, 2) = (-beta_*(0.5-c3_)-delta_*0.5)/(delta_*(c3_-0.5)-beta_*0.5);
+  rightEigenVectors_(3, 2) = 1.;
+  
+  rightEigenVectors_(0, 3) = 1.;
+  rightEigenVectors_(1, 3) = (beta_*(0.5-c3_)+delta_*0.5)/(gamma_*(c3_-0.5)-alpha_*0.5);
+  rightEigenVectors_(2, 3) = 1;
+  rightEigenVectors_(3, 3) = (-alpha_*(0.5-c3_)-gamma_*0.5)/(gamma_*(c3_-0.5)-alpha_*0.5);
 
 // Need formula
   

@@ -74,7 +74,7 @@ namespace bpp
  */
 class AbstractSubstitutionModel :
   public virtual SubstitutionModel,
-  public AbstractParameterAliasable
+  public virtual AbstractParameterAliasable
 {
 protected:
   /**
@@ -324,6 +324,7 @@ protected:
 
 public:
   AbstractReversibleSubstitutionModel(const Alphabet* alpha, const std::string& prefix) :
+    AbstractParameterAliasable(prefix),
     AbstractSubstitutionModel(alpha, prefix),
     exchangeability_(size_, size_) {}
 

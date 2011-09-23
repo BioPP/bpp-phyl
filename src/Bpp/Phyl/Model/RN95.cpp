@@ -62,6 +62,7 @@ RN95::RN95(
         double kappa,
         double lambda,
         double sigma): 
+  AbstractParameterAliasable("RN95."),
   AbstractSubstitutionModel(alphabet, "RN95."),
   alpha_(),   
   beta_(),    

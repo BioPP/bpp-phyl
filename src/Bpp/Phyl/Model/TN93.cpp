@@ -63,7 +63,8 @@ TN93::TN93(
 	double piC,
 	double piG,
 	double piT):
-	AbstractReversibleSubstitutionModel(alpha, "TN93."),
+  AbstractParameterAliasable("TN93."),
+  AbstractReversibleSubstitutionModel(alpha, "TN93."),
   kappa1_(kappa1), kappa2_(kappa2), 
   piA_(piA), piC_(piC), piG_(piG), piT_(piT), piY_(), piR_(),
   r_(), k1_(), k2_(),

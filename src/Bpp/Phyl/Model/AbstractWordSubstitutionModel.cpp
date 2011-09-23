@@ -59,6 +59,7 @@ using namespace std;
 AbstractWordSubstitutionModel::AbstractWordSubstitutionModel(
   const std::vector<SubstitutionModel*>& modelVector,
   const std::string& st) :
+  AbstractParameterAliasable(st),
   AbstractSubstitutionModel(AbstractWordSubstitutionModel::extractAlph(modelVector), st),
   new_alphabet_ (true),
   VSubMod_      (),
@@ -121,6 +122,7 @@ AbstractWordSubstitutionModel::AbstractWordSubstitutionModel(
 AbstractWordSubstitutionModel::AbstractWordSubstitutionModel(
   const Alphabet* alph,
   const std::string& st) :
+  AbstractParameterAliasable(st),
   AbstractSubstitutionModel(alph, st),
   new_alphabet_ (false),
   VSubMod_      (),
@@ -134,6 +136,7 @@ AbstractWordSubstitutionModel::AbstractWordSubstitutionModel(
   SubstitutionModel* pmodel,
   unsigned int num,
   const std::string& st) :
+  AbstractParameterAliasable(st),
   AbstractSubstitutionModel(new WordAlphabet(pmodel->getAlphabet(), num),st),
   new_alphabet_ (true),
   VSubMod_      (),
@@ -158,6 +161,7 @@ AbstractWordSubstitutionModel::AbstractWordSubstitutionModel(
 
 AbstractWordSubstitutionModel::AbstractWordSubstitutionModel(
   const AbstractWordSubstitutionModel& wrsm) :
+  AbstractParameterAliasable(wrsm.getNamespace()),
   AbstractSubstitutionModel(wrsm),
   new_alphabet_ (wrsm.new_alphabet_),
   VSubMod_      (),
@@ -181,26 +185,27 @@ AbstractWordSubstitutionModel::AbstractWordSubstitutionModel(
 }
 
 AbstractWordSubstitutionModel& AbstractWordSubstitutionModel::operator=(
-  const AbstractWordSubstitutionModel& wrsm)
+  const AbstractWordSubstitutionModel& model)
 {
-  AbstractSubstitutionModel::operator=(wrsm);
-  new_alphabet_  = wrsm.new_alphabet_;
-  VnestedPrefix_ = wrsm.VnestedPrefix_;
-  Vrate_          = wrsm.Vrate_;
+  AbstractParameterAliasable::operator=(model);
+  AbstractSubstitutionModel::operator=(model);
+  new_alphabet_  = model.new_alphabet_;
+  VnestedPrefix_ = model.VnestedPrefix_;
+  Vrate_          = model.Vrate_;
 
   unsigned int i;
-  unsigned int num = wrsm.VSubMod_.size();
+  unsigned int num = model.VSubMod_.size();
 
-  if (wrsm.new_alphabet_)
-    alphabet_ = new WordAlphabet(*(dynamic_cast<const WordAlphabet*>(wrsm.getAlphabet())));
+  if (model.new_alphabet_)
+    alphabet_ = new WordAlphabet(*(dynamic_cast<const WordAlphabet*>(model.getAlphabet())));
 
   SubstitutionModel* pSM = 0;
-  if ((num > 1) & (wrsm.VSubMod_[0] == wrsm.VSubMod_[1]))
-    pSM = wrsm.VSubMod_[0]->clone();
+  if ((num > 1) & (model.VSubMod_[0] == model.VSubMod_[1]))
+    pSM = model.VSubMod_[0]->clone();
 
   for (i = 0; i < num; i++)
   {
-    VSubMod_[i] =  (pSM ? pSM : wrsm.VSubMod_[i]->clone());
+    VSubMod_[i] =  (pSM ? pSM : model.VSubMod_[i]->clone());
   }
 
   return *this;
@@ -268,9 +273,9 @@ void AbstractWordSubstitutionModel::setNamespace(const std::string& prefix)
 
 void AbstractWordSubstitutionModel::updateMatrices()
 {
-  //First we update position specific models. This need to be done here and not
-  //in fireParameterChanged, has some parameter aliases might have been defined
-  //and need to be resolved first.
+  //First we update position specific models. This need to be done
+  //here and not in fireParameterChanged, as some parameter aliases
+  //might have been defined and need to be resolved first.
   if (VSubMod_.size() < 2 || VSubMod_[0] == VSubMod_[1])
     VSubMod_[0]->matchParametersValues(getParameters());
   else
@@ -353,6 +358,7 @@ void AbstractWordSubstitutionModel::updateMatrices()
     }
 
     //02/03/10 Julien: this should be avoided, we have to find a way to avoid particular cases like this...
+    
     if (AlphabetTools::isCodonAlphabet(getAlphabet()))
     {
       int gi = 0, gj = 0;

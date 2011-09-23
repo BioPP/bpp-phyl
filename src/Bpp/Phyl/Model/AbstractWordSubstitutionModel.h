@@ -73,7 +73,7 @@ namespace bpp
  *
  */
 class AbstractWordSubstitutionModel :
-  public AbstractSubstitutionModel
+    public AbstractSubstitutionModel
 {
 private:
   /**

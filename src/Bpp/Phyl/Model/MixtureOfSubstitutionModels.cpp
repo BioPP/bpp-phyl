@@ -48,7 +48,8 @@ using namespace std;
 
 MixtureOfSubstitutionModels::MixtureOfSubstitutionModels(const Alphabet* alpha,
                                                          vector<SubstitutionModel*> vpModel_) :
-  AbstractMixedSubstitutionModel(alpha, "Mixture.")
+ AbstractParameterAliasable("Mixture."),
+ AbstractMixedSubstitutionModel(alpha, "Mixture.")
 {
   unsigned int i, nbmod = vpModel_.size();
 
@@ -98,7 +99,8 @@ MixtureOfSubstitutionModels::MixtureOfSubstitutionModels(const Alphabet* alpha,
                                                          vector<SubstitutionModel*> vpModel_,
                                                          Vdouble& vproba,
                                                          Vdouble& vrate) :
-  AbstractMixedSubstitutionModel(alpha, "Mixture.")
+ AbstractParameterAliasable("Mixture."),
+ AbstractMixedSubstitutionModel(alpha, "Mixture.")
 {
   unsigned int i, nbmod = vpModel_.size();
 
@@ -171,6 +173,7 @@ MixtureOfSubstitutionModels::MixtureOfSubstitutionModels(const Alphabet* alpha,
 }
 
 MixtureOfSubstitutionModels::MixtureOfSubstitutionModels(const MixtureOfSubstitutionModels& msm) :
+  AbstractParameterAliasable(msm.getNamespace()),
   AbstractMixedSubstitutionModel(msm)
 {
 }

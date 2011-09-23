@@ -58,6 +58,7 @@ using namespace std;
 TripletSubstitutionModel::TripletSubstitutionModel(
     const CodonAlphabet* palph,
     NucleotideSubstitutionModel* pmod) :
+  AbstractParameterAliasable("Triplet."),
   WordSubstitutionModel(palph,"Triplet.")
 {
   unsigned int i;
@@ -84,7 +85,9 @@ TripletSubstitutionModel::TripletSubstitutionModel(
     const CodonAlphabet* palph,
     NucleotideSubstitutionModel* pmod1,
     NucleotideSubstitutionModel* pmod2,
-    NucleotideSubstitutionModel* pmod3) : WordSubstitutionModel(palph,"Triplet.")
+    NucleotideSubstitutionModel* pmod3) :
+  AbstractParameterAliasable("Triplet."),
+  WordSubstitutionModel(palph,"Triplet.")
 {
   string st = "Triplet.";
 
