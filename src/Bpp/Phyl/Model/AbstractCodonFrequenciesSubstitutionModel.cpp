@@ -57,8 +57,8 @@ AbstractCodonFrequenciesSubstitutionModel::AbstractCodonFrequenciesSubstitutionM
   if (pfreqset_->getAlphabet()->getSize() != 64)
     throw Exception("Bad Alphabet for equilibrium frequencies " + pfreqset_->getAlphabet()->getAlphabetType());
 
-  freqName_=pfreqset_->getNamespace();
-  pfreqset_->setNamespace(prefix + pfreqset_->getNamespace());
+  freqName_="freq_"+pfreqset_->getNamespace();
+  pfreqset_->setNamespace(prefix + freqName_);
   addParameters_(pfreqset_->getParameters());
 }
 

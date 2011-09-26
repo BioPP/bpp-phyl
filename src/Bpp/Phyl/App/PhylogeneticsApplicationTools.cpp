@@ -1292,14 +1292,14 @@ FrequenciesSet* PhylogeneticsApplicationTools::getFrequenciesSetDefaultInstance(
 
           for (map<string, string>::iterator it = unparsedParameterValuesNested.begin(); it != unparsedParameterValuesNested.end(); it++)
             {
-              unparsedParameterValues["Codon" + st + "_" + it->first] = it->second;
+              unparsedParameterValues["freq_Codon" + st + "_" + it->first] = it->second;
             }
           pFS = new CodonFromUniqueFrequenciesSet(pWA,pFS2);
         }
       else
         {
           if (args.find("frequency1") == args.end())
-            throw Exception("PhylogeneticsApplicationTools::getFrequenciesSetDefaultInstance. Missing argument 'frequency' or 'frequency1' for frequencies set 'Codon'.");
+            throw Exception("PhylogeneticsApplicationTools::getFrequenciesSetDefaultInstance. Missing argument 'frequency' or 'frequency1' for frequencies set 'freq_Codon'.");
           vector<string> v_sAFS;
           vector<FrequenciesSet*> v_AFS;
           unsigned int nbfreq = 1;
@@ -1319,7 +1319,7 @@ FrequenciesSet* PhylogeneticsApplicationTools::getFrequenciesSetDefaultInstance(
               pFS = getFrequenciesSetDefaultInstance(pWA->getNAlphabet(i), v_sAFS[i], unparsedParameterValuesNested);
               for (map<string, string>::iterator it = unparsedParameterValuesNested.begin(); it != unparsedParameterValuesNested.end(); it++)
                 {
-                  unparsedParameterValues["Codon" + TextTools::toString(i+1) + "_" + it->first] = it->second;
+                  unparsedParameterValues["freq_Codon" + TextTools::toString(i+1) + "_" + it->first] = it->second;
                 }
               v_AFS.push_back(pFS);
             }

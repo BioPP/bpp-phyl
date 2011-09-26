@@ -52,7 +52,7 @@
    *
    * If we denote @f$F@f$ the equilibrium frequency, the generator term
    * defined from inherited and inheriting classes, @f$Q_{ij})@f$, is
-   * multiplied by F_{j}.
+   * multiplied by @f$F_{j}@f$.
    *
    */
 
