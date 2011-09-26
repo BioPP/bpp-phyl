@@ -697,6 +697,11 @@ CodonFromIndependentFrequenciesSet::CodonFromIndependentFrequenciesSet(
 {
 }
 
+const CodonAlphabet* CodonFromIndependentFrequenciesSet::getAlphabet() const
+{
+  return dynamic_cast<const CodonAlphabet*>(WordFromIndependentFrequenciesSet::getAlphabet());
+}
+
 CodonFromIndependentFrequenciesSet::CodonFromIndependentFrequenciesSet(const CodonFromIndependentFrequenciesSet& iwfs) :
   WordFromIndependentFrequenciesSet(iwfs)
 {
@@ -902,6 +907,12 @@ CodonFromUniqueFrequenciesSet::CodonFromUniqueFrequenciesSet(const CodonAlphabet
   WordFromUniqueFrequenciesSet(pCA, pfreq, "Codon", name)
 {
 }
+
+const CodonAlphabet* CodonFromUniqueFrequenciesSet::getAlphabet() const
+{
+  return dynamic_cast<const CodonAlphabet*>(WordFromUniqueFrequenciesSet::getAlphabet());
+}
+
 
 CodonFromUniqueFrequenciesSet::CodonFromUniqueFrequenciesSet(const CodonFromUniqueFrequenciesSet& iwfs) :
   WordFromUniqueFrequenciesSet(iwfs)

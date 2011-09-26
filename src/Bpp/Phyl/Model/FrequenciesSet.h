@@ -161,6 +161,8 @@ public:
   CodonFrequenciesSet* clone() const = 0;
 
   const CodonAlphabet* getAlphabet() const = 0;
+
+  
 #endif
 };
 
@@ -504,7 +506,7 @@ public:
    * @param alphabet The alphabet for wich this frequencies set should be build. Will determine the number of frequencies.
    * @param name The name of the set.
    */
-  FixedFrequenciesSet(const Alphabet* alphabet, const string& name);
+  FixedFrequenciesSet(const Alphabet* alphabet, const string& name = "Fixed");
 
   FixedFrequenciesSet* clone() const { return new FixedFrequenciesSet(*this); }
 
@@ -658,7 +660,7 @@ public:
 #endif
 
   /**
-   *@ brief Returns the n-th FrequenciesSet*
+   *@ brief Returns the n-th FrequenciesSet&
    **/
 
   virtual const FrequenciesSet& getFrequenciesSetForLetter(unsigned int i) const = 0;
@@ -755,7 +757,7 @@ public:
   virtual void setFrequencies(const std::vector<double>& frequencies);
 
   /**
-   *@ brief Return the n-th FrequenciesSet*
+   *@ brief Return the n-th FrequenciesSet&
    **/
   const FrequenciesSet& getFrequenciesSetForLetter(unsigned int i) const { return *vFreq_[i]; }
 
@@ -777,6 +779,7 @@ public:
  */
 
 class CodonFromIndependentFrequenciesSet :
+  public virtual CodonFrequenciesSet,
   public WordFromIndependentFrequenciesSet
 {
   public:
@@ -787,13 +790,14 @@ class CodonFromIndependentFrequenciesSet :
   CodonFromIndependentFrequenciesSet(const CodonAlphabet* pCA, const std::vector<FrequenciesSet*>& freqvector, const string& name="");
   
   CodonFromIndependentFrequenciesSet(const CodonFromIndependentFrequenciesSet& iwfs);
-  
+
   ~CodonFromIndependentFrequenciesSet(){};
   
   CodonFromIndependentFrequenciesSet& operator=(const CodonFromIndependentFrequenciesSet& iwfs);
   
   CodonFromIndependentFrequenciesSet* clone() const { return new CodonFromIndependentFrequenciesSet(*this); }
-  
+
+  const CodonAlphabet* getAlphabet() const;
 public:
   void updateFrequencies();
   
@@ -850,7 +854,7 @@ public:
   virtual void updateFrequencies();
 
   /**
-   *@ brief Return the n-th FrequenciesSet*
+   *@ brief Return the n-th FrequenciesSet&
    **/
   const FrequenciesSet& getFrequenciesSetForLetter(unsigned int i) const { return *pFreq_; }
 
@@ -870,6 +874,7 @@ public:
  */
 
 class CodonFromUniqueFrequenciesSet :
+  public virtual CodonFrequenciesSet,
   public WordFromUniqueFrequenciesSet
 {
 public:
@@ -889,6 +894,8 @@ public:
   CodonFromUniqueFrequenciesSet* clone() const { return new CodonFromUniqueFrequenciesSet(*this); }
   
 public:
+  const CodonAlphabet* getAlphabet() const;
+
   void updateFrequencies();
   
   /**
