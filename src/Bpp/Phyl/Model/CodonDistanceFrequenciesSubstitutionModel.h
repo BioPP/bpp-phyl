@@ -123,7 +123,6 @@ public:
     AbstractParameterAliasable::operator=(model);
     AbstractCodonFrequenciesSubstitutionModel::operator=(model);
     AbstractCodonDistanceSubstitutionModel::operator=(model);
-    AbstractCodonFrequenciesSubstitutionModel::operator=(model);
     return *this;
   }
 
