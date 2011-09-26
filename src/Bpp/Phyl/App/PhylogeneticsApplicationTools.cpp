@@ -147,6 +147,7 @@ SubstitutionModel* PhylogeneticsApplicationTools::getSubstitutionModelDefaultIns
   KeyvalTools::parseProcedure(modelDescription, modelName, args);
 
   bool wordfreq = ((modelName == "CodonDistanceFrequencies")
+                   || (modelName == "CodonDistancePhaseFrequencies")
                    || (modelName == "CodonRateFrequencies"));
 
   bool word = ((modelName == "Word") || (modelName == "Triplet") || (modelName == "CodonRate")
@@ -529,6 +530,50 @@ SubstitutionModel* PhylogeneticsApplicationTools::getSubstitutionModelDefaultIns
                                                                       dynamic_cast<NucleotideSubstitutionModel*>(v_pSM[2]),
                                                                       pFS,
                                                                       pai2);
+              }
+          }
+
+        // /////////////////////////////////
+        // / CODON DISTANCE PHASE FREQUENCIES
+        // ///////////////////////////////
+        
+        else if (modelName == "CodonDistancePhaseFrequencies")
+          {
+            if (args.find("genetic_code") == args.end())
+              args["genetic_code"] = pCA->getAlphabetType();
+
+            GeneticCode* pgc = SequenceApplicationTools::getGeneticCode(dynamic_cast<const NucleicAlphabet*>(pCA->getNAlphabet(0)), args["genetic_code"]);
+            if (pgc->getSourceAlphabet()->getAlphabetType() != pCA->getAlphabetType())
+              throw Exception("Mismatch between genetic code and codon alphabet");
+            
+            AlphabetIndex2<double> * pai2;
+            
+            if (args.find("aadistance") == args.end())
+              pai2 = 0;
+            else
+              pai2  = SequenceApplicationTools::getAADistance(args["aadistance"]);
+
+
+            if (dynamic_cast<NucleotideSubstitutionModel*>(v_pSM[0]) == 0)
+              throw Exception("Non simple NucleotideSubstitutionModel imbedded in " + modelName + " model.");
+            
+            if (v_nestedModelDescription.size() != 3)
+              model = new CodonDistancePhaseFrequenciesSubstitutionModel(pgc,
+                                                                         dynamic_cast<NucleotideSubstitutionModel*>(v_pSM[0]),
+                                                                         pFS,
+                                                                         pai2);
+            else
+              {
+                if (dynamic_cast<NucleotideSubstitutionModel*>(v_pSM[1]) == 0 || dynamic_cast<NucleotideSubstitutionModel*>(v_pSM[2]) == 0)
+                  throw Exception("Non simple NucleotideSubstitutionModel imbedded in " + modelName + " model.");
+
+                model = new CodonDistancePhaseFrequenciesSubstitutionModel(
+                                                                           pgc,
+                                                                           dynamic_cast<NucleotideSubstitutionModel*>(v_pSM[0]),
+                                                                           dynamic_cast<NucleotideSubstitutionModel*>(v_pSM[1]),
+                                                                           dynamic_cast<NucleotideSubstitutionModel*>(v_pSM[2]),
+                                                                           pFS,
+                                                                           pai2);
               }
           }
       }
@@ -991,6 +1036,7 @@ void PhylogeneticsApplicationTools::setSubstitutionModelParametersInitialValues(
   std::vector<std::string>& sharedParams,
   bool verbose) throw (Exception)
 {
+  cerr << "PhylogeneticsApplicationTools::setSubstitutionModelParametersInitialValues" << endl;
   bool useObsFreq = ApplicationTools::getBooleanParameter(model->getNamespace() + "useObservedFreqs", unparsedParameterValues, false, "", "", false);
   if (verbose) ApplicationTools::displayResult("Use observed frequencies for model", useObsFreq ? "yes" : "no");
   if (useObsFreq && data != 0)
@@ -1002,6 +1048,7 @@ void PhylogeneticsApplicationTools::setSubstitutionModelParametersInitialValues(
   ParameterList pl = model->getIndependentParameters();
   for (unsigned int i = 0; i < pl.size(); i++)
   {
+    cerr << pl[i].getName() << endl;
     AutoParameter ap(pl[i]);
     ap.setMessageHandler(ApplicationTools::warning);
     pl.setParameter(i, ap);
@@ -1413,6 +1460,7 @@ void PhylogeneticsApplicationTools::setSubstitutionModelSet(
                                                             bool suffixIsOptional,
                                                             bool verbose)
 {
+  cerr << "void PhylogeneticsApplicationTools::setSubstitutionModelSet(" << endl;
   modelSet.clear();
   if (!ApplicationTools::parameterExists("nonhomogeneous.number_of_models", params))
     throw Exception("You must specify this parameter: nonhomogeneous.number_of_models .");
@@ -1522,6 +1570,7 @@ void PhylogeneticsApplicationTools::setSubstitutionModelSet(
     ApplicationTools::displayResult("Parameter alias found", p1 + "->" + p2);
     modelSet.aliasParameters(p1, p2);
   }
+  cerr << "VOID PHYLOGENETICSAPPLICATIONTOOLS::SETSUBSTITUTIONMODELSET(" << endl;
 
 }
 

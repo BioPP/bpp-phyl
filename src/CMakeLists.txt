@@ -100,9 +100,11 @@ set(CPP_FILES
   Bpp/Phyl/Model/TripletSubstitutionModel.cpp
   Bpp/Phyl/Model/AbstractCodonSubstitutionModel.cpp
   Bpp/Phyl/Model/AbstractCodonFrequenciesSubstitutionModel.cpp
+  Bpp/Phyl/Model/AbstractCodonPhaseFrequenciesSubstitutionModel.cpp
   Bpp/Phyl/Model/AbstractCodonDistanceSubstitutionModel.cpp
   Bpp/Phyl/Model/CodonDistanceSubstitutionModel.cpp
   Bpp/Phyl/Model/CodonDistanceFrequenciesSubstitutionModel.cpp
+  Bpp/Phyl/Model/CodonDistancePhaseFrequenciesSubstitutionModel.cpp
   Bpp/Phyl/Model/CodonRateSubstitutionModel.cpp
   Bpp/Phyl/Model/CodonRateFrequenciesSubstitutionModel.cpp
   Bpp/Phyl/Model/YN98.cpp
@@ -248,9 +250,11 @@ set(H_FILES
   Bpp/Phyl/Model/CodonSubstitutionModel.h
   Bpp/Phyl/Model/AbstractCodonSubstitutionModel.h
   Bpp/Phyl/Model/AbstractCodonFrequenciesSubstitutionModel.h
+  Bpp/Phyl/Model/AbstractCodonPhaseFrequenciesSubstitutionModel.h
   Bpp/Phyl/Model/AbstractCodonDistanceSubstitutionModel.h
   Bpp/Phyl/Model/CodonDistanceSubstitutionModel.h
   Bpp/Phyl/Model/CodonDistanceFrequenciesSubstitutionModel.h
+  Bpp/Phyl/Model/CodonDistancePhaseFrequenciesSubstitutionModel.h
   Bpp/Phyl/Model/CodonRateSubstitutionModel.h
   Bpp/Phyl/Model/CodonRateFrequenciesSubstitutionModel.h
   Bpp/Phyl/Model/YN98.h
