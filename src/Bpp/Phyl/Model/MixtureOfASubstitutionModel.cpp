@@ -135,7 +135,7 @@ MixtureOfASubstitutionModel::MixtureOfASubstitutionModel(
 }
 
 MixtureOfASubstitutionModel::MixtureOfASubstitutionModel(const MixtureOfASubstitutionModel& msm) :
-  AbstractParameterAliasable(msm.getNamespace()),
+  AbstractParameterAliasable(msm),
   AbstractMixedSubstitutionModel(msm),
   distributionMap_(),
   from_(msm.from_),

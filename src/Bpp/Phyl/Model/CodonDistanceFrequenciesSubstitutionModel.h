@@ -111,11 +111,12 @@ public:
 
   CodonDistanceFrequenciesSubstitutionModel(
     const CodonDistanceFrequenciesSubstitutionModel& model) :
-    AbstractParameterAliasable(model.getNamespace()),
+    AbstractParameterAliasable(model),
     AbstractCodonSubstitutionModel(model),
     AbstractCodonDistanceSubstitutionModel(model),
     AbstractCodonFrequenciesSubstitutionModel(model)
-  {}
+  {
+  }
 
   CodonDistanceFrequenciesSubstitutionModel& operator=(
     const CodonDistanceFrequenciesSubstitutionModel& model)

@@ -122,10 +122,11 @@ public:
   virtual ~AbstractCodonSubstitutionModel() {}
 
   AbstractCodonSubstitutionModel(const AbstractCodonSubstitutionModel& model) :
-    AbstractParameterAliasable(model.getNamespace()),
+    AbstractParameterAliasable(model),
     AbstractWordSubstitutionModel(model),
     hasParametrizedRates_(model.hasParametrizedRates_)
-  {}
+  {
+  }
   
   AbstractCodonSubstitutionModel& operator=(const AbstractCodonSubstitutionModel& model)
   {

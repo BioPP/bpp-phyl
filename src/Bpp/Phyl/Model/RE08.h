@@ -121,7 +121,7 @@ class RE08:
 		RE08(ReversibleSubstitutionModel* simpleModel, double lambda = 0, double mu = 0);
 
     RE08(const RE08& model):
-      AbstractParameterAliasable(model.getNamespace()),
+      AbstractParameterAliasable(model),
       AbstractReversibleSubstitutionModel(model),
       simpleModel_(dynamic_cast<ReversibleSubstitutionModel*>(model.simpleModel_->clone())),
       simpleGenerator_(model.simpleGenerator_),

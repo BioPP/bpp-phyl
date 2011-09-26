@@ -89,7 +89,7 @@ class DSO78 :
 		DSO78(const ProteicAlphabet* alpha, ProteinFrequenciesSet* freqSet, bool initFreqs=false);
 
     DSO78(const DSO78& model) :
-      AbstractParameterAliasable(model.getNamespace()),
+      AbstractParameterAliasable(model),
       AbstractReversibleSubstitutionModel(model),
       freqSet_(dynamic_cast<ProteinFrequenciesSet *>(model.freqSet_->clone()))
     {}

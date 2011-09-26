@@ -94,7 +94,7 @@ public:
   
   AbstractCodonDistanceSubstitutionModel(
     const AbstractCodonDistanceSubstitutionModel& model) :
-    AbstractParameterAliasable(model.getNamespace()),
+    AbstractParameterAliasable(model),
     geneticCode_(model.geneticCode_),
     pdistance_(model.pdistance_),
     alpha_(model.alpha_),

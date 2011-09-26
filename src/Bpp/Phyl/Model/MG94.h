@@ -41,7 +41,7 @@
 #define _MG94_H_
 
 #include "AbstractBiblioSubstitutionModel.h"
-#include "CodonDistanceFrequenciesSubstitutionModel.h"
+#include "CodonDistancePhaseFrequenciesSubstitutionModel.h"
 
 namespace bpp
 {
@@ -80,7 +80,7 @@ class MG94 :
   public AbstractBiblioSubstitutionModel
 {
 private:
-  CodonDistanceFrequenciesSubstitutionModel* pmodel_;
+  CodonDistancePhaseFrequenciesSubstitutionModel* pmodel_;
 
 public:
   MG94(const GeneticCode* gc, FrequenciesSet* codonFreqs);

@@ -173,7 +173,7 @@ MixtureOfSubstitutionModels::MixtureOfSubstitutionModels(const Alphabet* alpha,
 }
 
 MixtureOfSubstitutionModels::MixtureOfSubstitutionModels(const MixtureOfSubstitutionModels& msm) :
-  AbstractParameterAliasable(msm.getNamespace()),
+  AbstractParameterAliasable(msm),
   AbstractMixedSubstitutionModel(msm)
 {
 }

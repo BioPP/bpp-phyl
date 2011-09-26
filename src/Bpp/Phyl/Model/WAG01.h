@@ -94,7 +94,7 @@ namespace bpp
     WAG01(const ProteicAlphabet* alpha, ProteinFrequenciesSet* freqSet, bool initFreqs=false);
 
     WAG01(const WAG01& model) :
-      AbstractParameterAliasable(model.getNamespace()),
+      AbstractParameterAliasable(model),
       AbstractReversibleSubstitutionModel(model),
       freqSet_(dynamic_cast<ProteinFrequenciesSet *>(model.freqSet_->clone()))
     {}

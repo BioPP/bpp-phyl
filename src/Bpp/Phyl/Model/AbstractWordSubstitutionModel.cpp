@@ -161,7 +161,7 @@ AbstractWordSubstitutionModel::AbstractWordSubstitutionModel(
 
 AbstractWordSubstitutionModel::AbstractWordSubstitutionModel(
   const AbstractWordSubstitutionModel& wrsm) :
-  AbstractParameterAliasable(wrsm.getNamespace()),
+  AbstractParameterAliasable(wrsm),
   AbstractSubstitutionModel(wrsm),
   new_alphabet_ (wrsm.new_alphabet_),
   VSubMod_      (),

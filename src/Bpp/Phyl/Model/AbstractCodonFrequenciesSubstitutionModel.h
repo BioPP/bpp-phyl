@@ -77,7 +77,7 @@
                                               const std::string& prefix);
 
     AbstractCodonFrequenciesSubstitutionModel(const AbstractCodonFrequenciesSubstitutionModel& model) :
-      AbstractParameterAliasable(model.getNamespace()),
+      AbstractParameterAliasable(model),
       pfreqset_(model.pfreqset_->clone()),
       freqName_(model.freqName_)
     {}

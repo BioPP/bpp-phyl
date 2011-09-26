@@ -66,7 +66,7 @@ AbstractSubstitutionModel(alpha, prefix),
 }
 
 AbstractMixedSubstitutionModel::AbstractMixedSubstitutionModel(const AbstractMixedSubstitutionModel& msm) :
-  AbstractParameterAliasable(msm.getNamespace()),
+  AbstractParameterAliasable(msm),
   AbstractSubstitutionModel(msm),
   modelsContainer_(),
   vProbas_(),

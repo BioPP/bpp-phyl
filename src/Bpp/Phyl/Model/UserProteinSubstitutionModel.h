@@ -101,7 +101,7 @@ class UserProteinSubstitutionModel:
         );
 
     UserProteinSubstitutionModel(const UserProteinSubstitutionModel& model) :
-      AbstractParameterAliasable(model.getNamespace()),
+      AbstractParameterAliasable(model),
       AbstractReversibleSubstitutionModel(model),
       path_(model.path_),
       freqSet_(dynamic_cast<ProteinFrequenciesSet *>(model.freqSet_->clone()))

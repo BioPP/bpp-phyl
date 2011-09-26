@@ -159,7 +159,7 @@ class JCprot:
 		JCprot(const ProteicAlphabet* alpha, ProteinFrequenciesSet* freqSet, bool initFreqs = false);
 
     JCprot(const JCprot& model) :
-      AbstractParameterAliasable(model.getNamespace()),
+      AbstractParameterAliasable(model),
       AbstractReversibleSubstitutionModel(model),
       exp_(model.exp_),
       p_(model.p_),

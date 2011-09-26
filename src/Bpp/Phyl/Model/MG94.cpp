@@ -48,7 +48,7 @@ using namespace std;
 
 MG94::MG94(const GeneticCode* gc, FrequenciesSet* codonFreqs) :
   AbstractBiblioSubstitutionModel("MG94."),
-  pmodel_(new CodonDistanceFrequenciesSubstitutionModel(gc, new K80(dynamic_cast<const CodonAlphabet*>(gc->getSourceAlphabet())->getNucleicAlphabet()), codonFreqs))
+  pmodel_(new CodonDistancePhaseFrequenciesSubstitutionModel(gc, new K80(dynamic_cast<const CodonAlphabet*>(gc->getSourceAlphabet())->getNucleicAlphabet()), codonFreqs))
 {
   addParameter_(Parameter("MG94.rho", 1, &Parameter::R_PLUS_STAR));
 
@@ -68,7 +68,7 @@ MG94::MG94(const GeneticCode* gc, FrequenciesSet* codonFreqs) :
 
 MG94::MG94(const MG94& mg94) :
   AbstractBiblioSubstitutionModel(mg94),
-  pmodel_(new CodonDistanceFrequenciesSubstitutionModel(*mg94.pmodel_))
+  pmodel_(new CodonDistancePhaseFrequenciesSubstitutionModel(*mg94.pmodel_))
 {}
 
 MG94& MG94::operator=(const MG94& mg94)
@@ -76,7 +76,7 @@ MG94& MG94::operator=(const MG94& mg94)
   AbstractBiblioSubstitutionModel::operator=(mg94);
   if (pmodel_)
     delete pmodel_;
-  pmodel_ = new CodonDistanceFrequenciesSubstitutionModel(*mg94.pmodel_);
+  pmodel_ = new CodonDistancePhaseFrequenciesSubstitutionModel(*mg94.pmodel_);
   return *this;
 }
 

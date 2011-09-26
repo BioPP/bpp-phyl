@@ -106,7 +106,7 @@ namespace bpp
                                    const AlphabetIndex2<double>* pdist);
 
     CodonDistanceSubstitutionModel(const CodonDistanceSubstitutionModel& model) :
-      AbstractParameterAliasable(model.getNamespace()),
+      AbstractParameterAliasable(model),
       AbstractCodonSubstitutionModel(model),
       AbstractCodonDistanceSubstitutionModel(model)
     {}
