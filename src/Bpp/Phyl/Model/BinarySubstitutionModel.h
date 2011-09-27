@@ -137,7 +137,7 @@ public:
   const Matrix<double>& getdPij_dt  (double d) const;
   const Matrix<double>& getd2Pij_dt2(double d) const;
 
-  std::string getName() const { return "BinarySubstitutionModel"; }
+  std::string getName() const { return "Binary"; }
 
   void setFreq(std::map<int, double>& freqs);
 
