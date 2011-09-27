@@ -50,6 +50,11 @@
    *
    * @author Laurent Guéguen
    *
+   * This class should be used with models which equilibrium
+   * distribution is fixed, ans does not depend on the parameters.
+   * Otherwise there may be problems of identifiability of the
+   * parameters.
+   *
    * If we denote @f$F@f$ the given frequencies for codons,
    * @f$F_{j_k}@f$ is the frequency of letter @f$j@f$ in phase
    * @f$k@f$.

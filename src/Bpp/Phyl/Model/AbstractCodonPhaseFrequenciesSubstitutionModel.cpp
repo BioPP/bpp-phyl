@@ -78,7 +78,7 @@ AbstractCodonPhaseFrequenciesSubstitutionModel::AbstractCodonPhaseFrequenciesSub
   
   freqName_=pfreq->getNamespace();
   posfreqset_->setNamespace(prefix + pfreq->getNamespace());
-  if (dynamic_cast<FixedCodonFrequenciesSet*>(pCFS)!=NULL)
+  //  if (dynamic_cast<FixedCodonFrequenciesSet*>(pCFS)!=NULL)
     addParameters_(posfreqset_->getParameters());
 }
 

@@ -48,6 +48,11 @@
    * @brief Abstract Class for substitution models on codons
    *  parametrized by frequencies.
    *
+   * This class should be used with models which equilibrium
+   * distribution is fixed, ans does not depend on the parameters.
+   * Otherwise there may be problems of identifiability of the
+   * parameters.
+   *
    * @author Laurent Guéguen
    *
    * If we denote @f$F@f$ the equilibrium frequency, the generator term
