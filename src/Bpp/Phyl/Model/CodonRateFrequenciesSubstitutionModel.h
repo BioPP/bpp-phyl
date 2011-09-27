@@ -52,6 +52,11 @@ namespace bpp
  *
  * @author Laurent Guéguen
  *
+ * This class should be used with models which equilibrium
+ * distribution is fixed, ans does not depend on the parameters.
+ * Otherwise there may be problems of identifiability of the
+ * parameters.
+ *
  * See description in AbstractCodonRateSubstitutionModel and
  * AbstractCodonFrequenciesSubstitutionModel class.
  *
@@ -114,6 +119,7 @@ public:
 
   void setNamespace(const std::string& st);
 
+  void setFreq(map<int,double>& frequencies);
 };
 } // end of namespace bpp.
 

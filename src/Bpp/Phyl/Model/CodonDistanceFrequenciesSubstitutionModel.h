@@ -48,19 +48,27 @@ namespace bpp
 {
 /**
  * @brief Class for asynonymous substitution models on codons with
- * parameterized equilibrium frequencies and K80 basic model.
+ * parameterized equilibrium frequencies and nucleotidic models.
  * @author Laurent Guéguen
+ *
+ * This class should be used with models which equilibrium
+ * distribution is fixed, ans does not depend on the parameters.
+ * Otherwise there may be problems of identifiability of the
+ * parameters.
+ *
+ * See description in AbstractCodonDistanceSubstitutionModel and
+ * AbstractCodonFrequenciesSubstitutionModel class.
  *
  * Only substitutions with one letter changed are accepted. </p>
  *
- * The additional parameter to
- * CodonFrequenciesSubstitutionModel is the ratio of
- * nonsynonymous over synonymous substitutions.
+ * The additional parameter to CodonFrequenciesSubstitutionModel is
+ * the ratio of nonsynonymous over synonymous substitutions.
  *
- * If a distance @f$d@f$ between amino-acids is defined, the ratio between
- * non-synonymous and synonymous substitutions rates is, if the codied
- * amino-acids are @f$x@f$ and @f$y@f$, @f$\beta*\exp(-\alpha.d(x,y))@f$ with
- * non-negative parameter @f$\alpha@f$ and positive parameter @f$\beta@f$.
+ * If a distance @f$d@f$ between amino-acids is defined, the ratio
+ * between non-synonymous and synonymous substitutions rates is, if
+ * the coded amino-acids are @f$x@f$ and @f$y@f$,
+ * @f$\beta*\exp(-\alpha.d(x,y))@f$ with non-negative parameter
+ * @f$\alpha@f$ and positive parameter @f$\beta@f$.
  *
  * If such a distance is not defined, the ratio between non-synonymous
  * and synonymous substitutions rates is @f$\beta@f$ with positive
@@ -142,6 +150,9 @@ public:
   double getCodonsMulRate(unsigned int, unsigned int) const;
 
   void setNamespace(const std::string&);
+
+  void setFreq(map<int,double>& frequencies);
+
 };
 
 } // end of namespace bpp.

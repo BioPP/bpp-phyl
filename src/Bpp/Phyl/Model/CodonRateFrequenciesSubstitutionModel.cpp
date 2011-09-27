@@ -89,3 +89,8 @@ void CodonRateFrequenciesSubstitutionModel::setNamespace(const std::string& st)
   AbstractCodonSubstitutionModel::setNamespace(st);
   AbstractCodonFrequenciesSubstitutionModel::setNamespace(st);
 }
+
+void CodonRateFrequenciesSubstitutionModel::setFreq(map<int,double>& frequencies)
+{
+  AbstractCodonFrequenciesSubstitutionModel::setFreq(frequencies);
+}
