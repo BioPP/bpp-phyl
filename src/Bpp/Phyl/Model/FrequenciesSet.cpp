@@ -716,13 +716,12 @@ CodonFromIndependentFrequenciesSet& CodonFromIndependentFrequenciesSet::operator
 void CodonFromIndependentFrequenciesSet::updateFrequencies()
 {
   WordFromIndependentFrequenciesSet::updateFrequencies();
-  const CodonAlphabet* pCA=dynamic_cast<const CodonAlphabet*>(getAlphabet());
   
   unsigned int s = getAlphabet()->getSize();
   double sum=0;
   for (unsigned int i = 0; i < s; i++)
     {
-      if (pCA->isStop(i))
+      if (getAlphabet()->isStop(i))
         getFreq_(i) = 0;
       else
         sum+=getFreq_(i);
@@ -734,17 +733,15 @@ void CodonFromIndependentFrequenciesSet::updateFrequencies()
 
 void CodonFromIndependentFrequenciesSet::setFrequencies(const vector<double>& frequencies) 
 {
-  const CodonAlphabet* pCA=dynamic_cast<const CodonAlphabet*>(getAlphabet());
-  
   unsigned int s = getAlphabet()->getSize();
   double sum=0;
   vector<double> freq;
   for (unsigned int i = 0; i < s; i++)
-    if (!pCA->isStop(i))
+    if (!getAlphabet()->isStop(i))
       sum+=frequencies[i];
 
   for (unsigned int i = 0; i < s; i++)
-    if (pCA->isStop(i))
+    if (getAlphabet()->isStop(i))
       freq.push_back(0);
     else
       freq.push_back(frequencies[i]/sum);
