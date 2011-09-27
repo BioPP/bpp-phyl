@@ -56,7 +56,7 @@
    *
    * For codons @f$i=i_1i_2i_3@f$ and @f$j=j_1j_2j_3@f$, the generator
    * term defined from inherited and inheriting classes,
-   * @f$Q_{ij})@f$, is multiplied by the product of the @f$\F_{j_k}@f$
+   * @f$Q_{ij})@f$, is multiplied by the product of the @f$F_{j_k}@f$
    * for each @f$k \in 1, 2, 3@f$ such that @f$i_k \neq j_k@f$.
    *
    */

@@ -56,13 +56,8 @@ namespace bpp
   {
   public:
     /**
-     * @brief Build a new CodonSubstitutionModel object from
-     * a pointer to an SubstitutionModel.
+     * @brief Build a new CodonSubstitutionModel.
      *
-     * @param palph pointer to a CodonAlphabet
-     * @param pmod pointer to the NucleotideSubstitutionModel to use in the three positions.
-     *        It is owned by the instance.
-     * @param st string of the Namespace
      */
 
     CodonSubstitutionModel() {}
