@@ -626,6 +626,28 @@ class TreeTemplateTools
     static unsigned int getDepth(const Node& node);
 
     /**
+     * @brief Get the depths for all nodes of the subtree defined by node 'node', i.e. the maximum
+     * number of sons 'generations'.
+     *
+     * ex:
+     * @verbatim
+     *    +----------A
+     *    |
+     * ---+ N1     +-------B
+     *    |        |
+     *    +--------+ N2
+     *             |
+     *             +------C
+     * @endverbatim
+     * Depth of node 'N1' id 2, depth of node 'N2' is 1, depth of leaves is 0.
+     *
+     * @param node The node defining the subtree to check.
+     * @param depths The map that will contain all the depths of the nodes, with node pointers as keys.
+     * @return The depth of the subtree.
+     */
+    static unsigned int getDepths(const Node& node, std::map<const Node*, unsigned int>& depths);
+
+    /**
      * @brief Get the height of the subtree defined by node 'node', i.e. the maximum
      * distance between leaves and the root of the subtree.
      *
