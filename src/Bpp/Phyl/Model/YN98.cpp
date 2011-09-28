@@ -50,7 +50,7 @@ YN98::YN98(const GeneticCode* gc, FrequenciesSet* codonFreqs) :
   pmodel_(new CodonAsynonymousFrequenciesReversibleSubstitutionModel(gc, codonFreqs))
 {
   addParameter_(Parameter("YN98.kappa", 1, &Parameter::R_PLUS_STAR));
-  addParameter_(Parameter("YN98.omega", 1, new IncludingInterval(0.00000001, 999), true));
+  addParameter_(Parameter("YN98.omega", 1, new IncludingInterval(0.000001, 999), true));
 
   pmodel_->setNamespace("YN98.");
   addParameters_(codonFreqs->getParameters());

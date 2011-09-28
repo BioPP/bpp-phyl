@@ -44,6 +44,7 @@ knowledge of the CeCILL license and that you accept its terms.
 #include "DRHomogeneousTreeLikelihood.h"
 
 #include <Bpp/Numeric/VectorTools.h>
+#include <Bpp/Numeric/Function/ConjugateGradientMultiDimensions.h>
 #include <Bpp/Text/TextTools.h>
 #include <Bpp/App/ApplicationTools.h>
 
@@ -51,11 +52,18 @@ using namespace bpp;
 
 /**************************************************************************/
            
-bool PseudoNewtonOptimizer::PNStopCondition::isToleranceReached() const
+double PseudoNewtonOptimizer::PNStopCondition::getCurrentTolerance() const
 {
   return NumTools::abs<double>(
       dynamic_cast<const PseudoNewtonOptimizer*>(optimizer_)->currentValue_ -
-      dynamic_cast<const PseudoNewtonOptimizer *>(optimizer_)->previousValue_) < tolerance_; 
+      dynamic_cast<const PseudoNewtonOptimizer*>(optimizer_)->previousValue_); 
+}
+ 
+/**************************************************************************/
+           
+bool PseudoNewtonOptimizer::PNStopCondition::isToleranceReached() const
+{
+  return getCurrentTolerance() < tolerance_; 
 }
    
 /**************************************************************************/
@@ -66,7 +74,7 @@ PseudoNewtonOptimizer::PseudoNewtonOptimizer(DerivableSecondOrder* function) :
   previousValue_(0),
   n_(0),
   params_(),
-  maxCorrection_(10)
+  maxCorrection_(3)
 {
   setDefaultStopCondition_(new FunctionStopCondition(this));
   setStopCondition(*getDefaultStopCondition());
@@ -120,31 +128,48 @@ double PseudoNewtonOptimizer::doStep() throw (Exception)
   newValue = getFunction()->f(newPoint);
 
   // Check newValue:
-  unsigned int count = 0;
-  while (newValue > currentValue_)
-  {
-    //Restore previous point (all parameters in case of global constraint):
-    if (updateParameters()) getFunction()->setParameters(*bckPoint);
-
-    count++;
-    if (count >= maxCorrection_)
+  if (newValue > currentValue_) {
+  
+    unsigned int count = 0;
+    while (newValue > currentValue_)
     {
-      printMessage("!!! Felsenstein-Churchill correction applied too much time. Stopping here. Convergence probably not reached.");
-      tolIsReached_ = true;
-      if (!updateParameters()) getFunction()->setParameters(getParameters());
-      return currentValue_;
-      //throw Exception("PseudoNewtonOptimizer::step(). Felsenstein-Churchill correction applied more than 10 times.");
-    }
+      //Restore previous point (all parameters in case of global constraint):
+      if (updateParameters()) getFunction()->setParameters(*bckPoint);
 
-    printMessage("!!! Function at new point is greater than at current point: " + TextTools::toString(newValue) + ">" + TextTools::toString(currentValue_) + ". Applying Felsenstein-Churchill correction.");
-    if (getMessageHandler())
-      getParameters().printParameters(*getMessageHandler());
-    for (unsigned int i = 0; i < movements.size(); i++)
-    {
-      movements[i] = movements[i] / 2;
-      newPoint[i].setValue(getParameters()[i].getValue() - movements[i]);
+      count++;
+      if (count > maxCorrection_)
+      {
+        printMessage("!!! Felsenstein-Churchill correction applied too much time. Use sequential optimization.");
+        //Use one round of sequential optimization:
+        
+        //getFunction()->enableFirstOrderDerivatives(false);
+        getFunction()->enableSecondOrderDerivatives(false);
+        ConjugateGradientMultiDimensions opt(getFunction());
+        opt.setConstraintPolicy(getConstraintPolicy());
+        opt.setProfiler(getProfiler());
+        opt.setMessageHandler(getMessageHandler());
+        opt.setVerbose(getVerbose());
+        opt.getStopCondition()->setTolerance(std::max(getStopCondition()->getCurrentTolerance() / 2., getStopCondition()->getTolerance()));
+        opt.setMaximumNumberOfEvaluations(3);
+        opt.init(getParameters());
+        opt.optimize();
+        newPoint = opt.getParameters();
+        newValue = opt.getFunctionValue();
+        //getFunction()->enableFirstOrderDerivatives(true);
+        getFunction()->enableSecondOrderDerivatives(true);
+        getFunction()->setParameters(newPoint); //Compute derivatives for this point
+      } else {
+        printMessage("!!! Function at new point is greater than at current point: " + TextTools::toString(newValue) + ">" + TextTools::toString(currentValue_) + ". Applying Felsenstein-Churchill correction.");
+        //if (getMessageHandler())
+        //  getParameters().printParameters(*getMessageHandler());
+        for (unsigned int i = 0; i < movements.size(); i++)
+        {
+          movements[i] = movements[i] / 2;
+          newPoint[i].setValue(getParameters()[i].getValue() - movements[i]);
+        }
+        newValue = getFunction()->f(newPoint);
+      }
     }
-    newValue = getFunction()->f(newPoint);
   }
   
   previousPoint_ = getParameters();

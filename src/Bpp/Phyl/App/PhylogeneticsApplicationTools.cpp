@@ -2080,7 +2080,7 @@ throw (Exception)
 
   //See if we should use a molecular clock constraint:
   string clock = ApplicationTools::getStringParameter("optimization.clock", params, "None", "", true, false);
-  if (clock != "None" || clock != "Global")
+  if (clock != "None" && clock != "Global")
     throw Exception("Molecular clock option not recognized, should be one of 'Global' or 'None'.");
   bool useClock = (clock == "Global");
   if (useClock && optimizeTopo)
