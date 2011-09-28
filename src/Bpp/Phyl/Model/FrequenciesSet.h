@@ -84,7 +84,7 @@ public:
    * @throw DimensionException If the number of frequencies does not match the size of the alphabet.
    * @throw Exception If the frequencies do not sum to 1.
    */
-  virtual void setFrequencies(const std::vector<double>& frequencies) throw (DimensionException, Exception) = 0;
+  virtual void setFrequencies(const std::vector<double>& frequencies) = 0;
 
   /**
    * @brief Set the Frequencies from the one of the map which keys
@@ -161,6 +161,8 @@ public:
   CodonFrequenciesSet* clone() const = 0;
 
   const CodonAlphabet* getAlphabet() const = 0;
+
+  
 #endif
 };
 
@@ -241,12 +243,12 @@ public:
    * the alphabet.
    */
   FullFrequenciesSet(const Alphabet* alphabet, bool allowNullFreqs = false, const string& name = "Full");
-  FullFrequenciesSet(const Alphabet* alphabet, const std::vector<double>& initFreqs, bool allowNullFreqs = false, const string& name="Full") throw (Exception);
+  FullFrequenciesSet(const Alphabet* alphabet, const std::vector<double>& initFreqs, bool allowNullFreqs = false, const string& name="Full");
 
   FullFrequenciesSet* clone() const { return new FullFrequenciesSet(*this); }
 
 public:
-  void setFrequencies(const std::vector<double>& frequencies) throw (DimensionException, Exception);
+  void setFrequencies(const std::vector<double>& frequencies);
 
 protected:
   void fireParameterChanged(const ParameterList& parameters);
@@ -268,7 +270,7 @@ public:
    * the alphabet. The stop codon frequencies are null.
    */
   FullCodonFrequenciesSet(const CodonAlphabet* alphabet, bool allowNullFreqs = false, const string& name = "FullCodon");
-  FullCodonFrequenciesSet(const CodonAlphabet* alphabet, const std::vector<double>& initFreqs, bool allowNullFreqs = false, const string& name = "FullCodon") throw (Exception);
+  FullCodonFrequenciesSet(const CodonAlphabet* alphabet, const std::vector<double>& initFreqs, bool allowNullFreqs = false, const string& name = "FullCodon");
 
 #ifndef NO_VIRTUAL_COV
   FullCodonFrequenciesSet*
@@ -283,7 +285,7 @@ public:
    * the frequencies on the non-stop codons equals 1.
    *
    */
-  void setFrequencies(const std::vector<double>& frequencies) throw (DimensionException, Exception);
+  void setFrequencies(const std::vector<double>& frequencies);
 
 #ifndef NO_VIRTUAL_COV
   const CodonAlphabet* getAlphabet() const
@@ -337,7 +339,7 @@ public:
   }
 #endif
 
-  void setFrequencies(const std::vector<double>& frequencies) throw (DimensionException, Exception);
+  void setFrequencies(const std::vector<double>& frequencies);
 
 protected:
   void fireParameterChanged(const ParameterList& parameters);
@@ -370,7 +372,7 @@ public:
   }
 #endif
 
-  void setFrequencies(const std::vector<double>& frequencies) throw (DimensionException, Exception);
+  void setFrequencies(const std::vector<double>& frequencies);
 
 protected:
   void fireParameterChanged(const ParameterList& parameters);
@@ -390,7 +392,7 @@ class FullProteinFrequenciesSet :
 public:
   FullProteinFrequenciesSet(const ProteicAlphabet* alphabet, bool allowNullFreqs = false, const string& name = "FullProtein") :
     FullFrequenciesSet(alphabet, allowNullFreqs, name) {}
-  FullProteinFrequenciesSet(const ProteicAlphabet* alphabet, const std::vector<double>& initFreqs, bool allowNullFreqs = false, const string& name = "FullProtein") throw (Exception) :
+  FullProteinFrequenciesSet(const ProteicAlphabet* alphabet, const std::vector<double>& initFreqs, bool allowNullFreqs = false, const string& name = "FullProtein") :
     FullFrequenciesSet(alphabet, initFreqs, allowNullFreqs, name) {}
 
 #ifndef NO_VIRTUAL_COV
@@ -453,7 +455,7 @@ public:
   virtual ~MarkovModulatedFrequenciesSet() { delete freqSet_; }
 
 public:
-  void setFrequencies(const std::vector<double>& frequencies) throw (DimensionException, Exception)
+  void setFrequencies(const std::vector<double>& frequencies)
   {
     // Just forward this method to the sequence state frequencies set. This may change in the future...
     freqSet_->setFrequencies(frequencies);
@@ -504,12 +506,12 @@ public:
    * @param alphabet The alphabet for wich this frequencies set should be build. Will determine the number of frequencies.
    * @param name The name of the set.
    */
-  FixedFrequenciesSet(const Alphabet* alphabet, const string& name);
+  FixedFrequenciesSet(const Alphabet* alphabet, const string& name = "Fixed");
 
   FixedFrequenciesSet* clone() const { return new FixedFrequenciesSet(*this); }
 
 public:
-  void setFrequencies(const std::vector<double>& frequencies) throw (DimensionException, Exception);
+  void setFrequencies(const std::vector<double>& frequencies);
 
 protected:
   void fireParameterChanged(const ParameterList& parameters) {}
@@ -622,7 +624,7 @@ public:
    * the frequencies on the non-stop codons equals 1.
    *
    */
-  void setFrequencies(const std::vector<double>& frequencies) throw (DimensionException, Exception);
+  void setFrequencies(const std::vector<double>& frequencies);
 
 protected:
   void fireParameterChanged(const ParameterList& parameters) {}
@@ -658,7 +660,7 @@ public:
 #endif
 
   /**
-   *@ brief Returns the n-th FrequenciesSet*
+   *@ brief Returns the n-th FrequenciesSet&
    **/
 
   virtual const FrequenciesSet& getFrequenciesSetForLetter(unsigned int i) const = 0;
@@ -731,7 +733,7 @@ public:
    * @brief Constructor from a WordAlphabet* and a vector of different FrequenciesSet*.
    * Throws an Exception if their lengths do not match.
    */
-  WordFromIndependentFrequenciesSet(const WordAlphabet* pWA, const std::vector<FrequenciesSet*>& freqVector, const string& prefix = "Word", const string& name="") throw (Exception);
+  WordFromIndependentFrequenciesSet(const WordAlphabet* pWA, const std::vector<FrequenciesSet*>& freqVector, const string& prefix = "Word", const string& name="");
 
   WordFromIndependentFrequenciesSet(const WordFromIndependentFrequenciesSet& iwfs);
 
@@ -752,10 +754,10 @@ public:
    *    frequencies of the words that have this letter at this
    *    position.
    */
-  virtual void setFrequencies(const std::vector<double>& frequencies) throw (DimensionException, Exception);
+  virtual void setFrequencies(const std::vector<double>& frequencies);
 
   /**
-   *@ brief Return the n-th FrequenciesSet*
+   *@ brief Return the n-th FrequenciesSet&
    **/
   const FrequenciesSet& getFrequenciesSetForLetter(unsigned int i) const { return *vFreq_[i]; }
 
@@ -777,23 +779,25 @@ public:
  */
 
 class CodonFromIndependentFrequenciesSet :
+  public virtual CodonFrequenciesSet,
   public WordFromIndependentFrequenciesSet
 {
   public:
   /**
-   * @brief Constructor from a WordAlphabet* and a vector of different FrequenciesSet*.
+   * @brief Constructor from a CodonAlphabet* and a vector of different FrequenciesSet*.
    * Throws an Exception if their lengths do not match.
    */
-  CodonFromIndependentFrequenciesSet(const CodonAlphabet* pCA, const std::vector<FrequenciesSet*>& freqvector, const string& name="") throw (Exception);
+  CodonFromIndependentFrequenciesSet(const CodonAlphabet* pCA, const std::vector<FrequenciesSet*>& freqvector, const string& name="");
   
   CodonFromIndependentFrequenciesSet(const CodonFromIndependentFrequenciesSet& iwfs);
-  
+
   ~CodonFromIndependentFrequenciesSet(){};
   
   CodonFromIndependentFrequenciesSet& operator=(const CodonFromIndependentFrequenciesSet& iwfs);
   
   CodonFromIndependentFrequenciesSet* clone() const { return new CodonFromIndependentFrequenciesSet(*this); }
-  
+
+  const CodonAlphabet* getAlphabet() const;
 public:
   void updateFrequencies();
   
@@ -803,11 +807,12 @@ public:
    *    frequencies of the words that have this letter at this
    *    position.
    */
-  void setFrequencies(const std::vector<double>& frequencies) throw (DimensionException, Exception);
+  void setFrequencies(const std::vector<double>& frequencies);
 };
 
 /**
- * @brief the Frequencies in words are the product of the frequencies for a unique FrequenciesSet in letters
+ * @brief the Frequencies in words are the product of the frequencies
+ * for a unique FrequenciesSet in letters
  * @author Laurent Guéguen
  */
 
@@ -844,12 +849,12 @@ public:
    * The frequencies of each letter is the average of the frequencies
    * of that letter at all positions.
    */
-  virtual void setFrequencies(const std::vector<double>& frequencies) throw (DimensionException, Exception);
+  virtual void setFrequencies(const std::vector<double>& frequencies);
 
   virtual void updateFrequencies();
 
   /**
-   *@ brief Return the n-th FrequenciesSet*
+   *@ brief Return the n-th FrequenciesSet&
    **/
   const FrequenciesSet& getFrequenciesSetForLetter(unsigned int i) const { return *pFreq_; }
 
@@ -869,6 +874,7 @@ public:
  */
 
 class CodonFromUniqueFrequenciesSet :
+  public virtual CodonFrequenciesSet,
   public WordFromUniqueFrequenciesSet
 {
 public:
@@ -877,7 +883,7 @@ public:
    *  repeated three times.
    */
 
-  CodonFromUniqueFrequenciesSet(const CodonAlphabet* pCA, FrequenciesSet* pfreq, const string& name="") throw (Exception);
+  CodonFromUniqueFrequenciesSet(const CodonAlphabet* pCA, FrequenciesSet* pfreq, const string& name="");
   
   CodonFromUniqueFrequenciesSet(const CodonFromUniqueFrequenciesSet& iwfs);
   
@@ -888,6 +894,8 @@ public:
   CodonFromUniqueFrequenciesSet* clone() const { return new CodonFromUniqueFrequenciesSet(*this); }
   
 public:
+  const CodonAlphabet* getAlphabet() const;
+
   void updateFrequencies();
   
   /**
@@ -897,7 +905,7 @@ public:
    * The frequencies of each letter is the average of the frequencies
    * of that letter at all positions.
    */
-  void setFrequencies(const std::vector<double>& frequencies) throw (DimensionException, Exception);
+  void setFrequencies(const std::vector<double>& frequencies);
 };
 
 

@@ -1,4 +1,4 @@
-if (getName()=="EX2_Exposed"){
+if (getName()=="Exposed"){
 	freq_[0] = 0.088367;
 	freq_[4] = 0.004517;
 	freq_[6] = 0.128039;
@@ -22,7 +22,7 @@ if (getName()=="EX2_Exposed"){
 }
 
 
-if (getName()=="EX2_Buried"){
+if (getName()=="Buried"){
 	freq_[0] = 0.123119;
 	freq_[4] = 0.018712;
 	freq_[6] = 0.018723;

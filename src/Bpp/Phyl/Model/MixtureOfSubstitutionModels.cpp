@@ -48,7 +48,8 @@ using namespace std;
 
 MixtureOfSubstitutionModels::MixtureOfSubstitutionModels(const Alphabet* alpha,
                                                          vector<SubstitutionModel*> vpModel_) :
-  AbstractMixedSubstitutionModel(alpha, "Mixture.")
+ AbstractParameterAliasable("Mixture."),
+ AbstractMixedSubstitutionModel(alpha, "Mixture.")
 {
   unsigned int i, nbmod = vpModel_.size();
 
@@ -87,11 +88,8 @@ MixtureOfSubstitutionModels::MixtureOfSubstitutionModels(const Alphabet* alpha,
       addParameters_(vpModel_[i]->getParameters());
     }
 
-  //  lParPmodel_.addParameters(getParameters());
-  
   for (i = 0; i < nbmod; i++){
     vpModel_[i]->addRateParameter();
-  //   lParPmodel_.addParameter(vpModel_[i]->getParameter("rate"));
   }
 
   updateMatrices();
@@ -101,7 +99,8 @@ MixtureOfSubstitutionModels::MixtureOfSubstitutionModels(const Alphabet* alpha,
                                                          vector<SubstitutionModel*> vpModel_,
                                                          Vdouble& vproba,
                                                          Vdouble& vrate) :
-  AbstractMixedSubstitutionModel(alpha, "Mixture.")
+ AbstractParameterAliasable("Mixture."),
+ AbstractMixedSubstitutionModel(alpha, "Mixture.")
 {
   unsigned int i, nbmod = vpModel_.size();
 
@@ -174,6 +173,7 @@ MixtureOfSubstitutionModels::MixtureOfSubstitutionModels(const Alphabet* alpha,
 }
 
 MixtureOfSubstitutionModels::MixtureOfSubstitutionModels(const MixtureOfSubstitutionModels& msm) :
+  AbstractParameterAliasable(msm),
   AbstractMixedSubstitutionModel(msm)
 {
 }
@@ -239,7 +239,7 @@ void MixtureOfSubstitutionModels::setFreq(std::map<int,double>& m)
   matchParametersValues(pl);
 }
 
-void MixtureOfSubstitutionModels::setVRates(Vdouble& vd)
+void MixtureOfSubstitutionModels::setVRates(const Vdouble& vd)
 {
   AbstractMixedSubstitutionModel::setVRates(vd);
 
@@ -251,4 +251,20 @@ void MixtureOfSubstitutionModels::setVRates(Vdouble& vd)
        setParameterValue("relrate" + TextTools::toString(i+1), vProbas_[i] * vRates_[i] / (1- y));
        y+=vProbas_[i]*vRates_[i];
      }
+}
+
+Vint MixtureOfSubstitutionModels::getSubmodelNumbers(string& desc) const
+{
+  unsigned int i;
+  for (i=0;i< getNumberOfModels(); i++){
+    if (getNModel(i)->getName()==desc)
+      break;
+  }
+  if (i==getNumberOfModels())
+    throw Exception("MixtureOfSubstitutionModels::getSubmodelNumbers model description do not match " + desc);
+
+  Vint submodnb;
+  submodnb.push_back(i);
+  
+  return submodnb;
 }

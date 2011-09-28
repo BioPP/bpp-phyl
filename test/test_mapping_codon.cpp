@@ -63,7 +63,7 @@ int main() {
   CodonAlphabet* alphabet = new StandardCodonAlphabet(&AlphabetTools::DNA_ALPHABET);
   GeneticCode* gc = new StandardGeneticCode(&AlphabetTools::DNA_ALPHABET);
   //ReversibleSubstitutionModel* model = new YN98(gc, FrequenciesSet::getFrequenciesSetForCodons(FrequenciesSet::F0, *alphabet));
-  ReversibleSubstitutionModel* model = new CodonNeutralReversibleSubstitutionModel(
+  SubstitutionModel* model = new CodonRateSubstitutionModel(
         dynamic_cast<const CodonAlphabet*>(gc->getSourceAlphabet()),
         new JCnuc(dynamic_cast<CodonAlphabet*>(alphabet)->getNucleicAlphabet()));
   MatrixTools::printForR(model->getGenerator(), "g");

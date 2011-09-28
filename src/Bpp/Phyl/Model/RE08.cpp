@@ -48,6 +48,7 @@ using namespace std;
 /******************************************************************************/
 
 RE08::RE08(ReversibleSubstitutionModel *simpleModel, double lambda, double mu) :
+  AbstractParameterAliasable("RE08."),
   AbstractReversibleSubstitutionModel(simpleModel->getAlphabet(), "RE08."),
   simpleModel_(simpleModel),
   simpleGenerator_(),

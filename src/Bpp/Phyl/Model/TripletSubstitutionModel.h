@@ -1,5 +1,5 @@
 //
-// File: TripletReversibleSubstitutionModel.h
+// File: TripletSubstitutionModel.h
 // Created by: Laurent Gueguen
 // Created on: Tue Dec 24 11:03:53 2003
 //
@@ -37,10 +37,10 @@ The fact that you are presently reading this means that you have had
 knowledge of the CeCILL license and that you accept its terms.
 */
 
-#ifndef _TRIPLETREVERSIBLESUBSTITUTIONMODEL_H_
-#define _TRIPLETREVERSIBLESUBSTITUTIONMODEL_H_
+#ifndef _TRIPLETSUBSTITUTIONMODEL_H_
+#define _TRIPLETSUBSTITUTIONMODEL_H_
 
-#include "WordReversibleSubstitutionModel.h"
+#include "WordSubstitutionModel.h"
 #include "NucleotideSubstitutionModel.h"
 
 // From SeqLib:
@@ -50,23 +50,23 @@ namespace bpp
 {
 
 /**
- * @brief Class for neutral reversible substitution models on triplets,
+ * @brief Class for neutral substitution models on triplets,
  * which correspond to codons that do not have any significance
  * (whether they are STOP or functional).
  * @author Laurent Guéguen
  *
- * Objects of this class are built from three reversible substitution
+ * Objects of this class are built from three substitution
  * models of NucleicAlphabets. No model is directly accessible. </p>
  *
  */
   
-class TripletReversibleSubstitutionModel :
-  public WordReversibleSubstitutionModel
+class TripletSubstitutionModel :
+  public WordSubstitutionModel
 {
 public:
 
   /**
-   *@brief Build a new TripletReversibleSubstitutionModel object from
+   *@brief Build a new TripletSubstitutionModel object from
    *a pointer to a NucleotideSubstitutionModel. 
    *
    *@param palph pointer to a CodonAlphabet
@@ -74,11 +74,11 @@ public:
    *       in the three positions. It is owned by the instance.
    */
   
-  TripletReversibleSubstitutionModel(const CodonAlphabet* palph,
+  TripletSubstitutionModel(const CodonAlphabet* palph,
                                      NucleotideSubstitutionModel* pmod);
   
   /**
-   *@brief Build a new TripletReversibleSubstitutionModel object
+   *@brief Build a new TripletSubstitutionModel object
    *from three pointers to NucleotideSubstitutionModels. 
    *
    *@param palph pointer to a CodonAlphabet
@@ -89,19 +89,19 @@ public:
    *   models are owned by the instance.
    */
 
-  TripletReversibleSubstitutionModel(const CodonAlphabet* palph,
+  TripletSubstitutionModel(const CodonAlphabet* palph,
                                      NucleotideSubstitutionModel* pmod1,
                                      NucleotideSubstitutionModel* pmod2, 
                                      NucleotideSubstitutionModel* pmod3);
 
-  ~TripletReversibleSubstitutionModel() {};
+  ~TripletSubstitutionModel() {};
   
 #ifndef NO_VIRTUAL_COV
-  TripletReversibleSubstitutionModel*
+  TripletSubstitutionModel*
 #else
   Clonable*
 #endif
-  clone() const { return new TripletReversibleSubstitutionModel(*this);}
+  clone() const { return new TripletSubstitutionModel(*this);}
   
 public:
   std::string getName() const;

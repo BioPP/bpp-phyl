@@ -94,11 +94,11 @@ namespace bpp
    * \begin{cases}
    * \delta=\frac 12-\gamma\\
    * \alpha=\frac{\alpha'(0.5-\pi_A)-min(0.5-\pi_A,\gamma)}{2\pi_A}\\
-   * \beta=\frac{\delta-2*\pi_A*(\alpha+\frac 12)}{2*\pi_A-1}\\
+   * \beta=\frac{2*\pi_A*(\alpha+\frac 12)-\delta}{1-2*\pi_A}\\
    * \end{cases}
    * \f]
    *
-   * and \f[P\f] is set for normalization.
+   * and @f$P@f$ is set for normalization.
    *
    * The parameters are named \c "piA", \c "gamma", \c "alphaP".
    *
@@ -123,13 +123,12 @@ namespace bpp
     mutable double exp1_,exp3_,l_;
 
   public:
-    RN95s(
-         const NucleicAlphabet* alphabet,
-         double alpha = 1,
-         double beta = 1,
-         double gamma = 1,
-         double delta = 1);
-  
+    RN95s(const NucleicAlphabet* alphabet,
+          double alpha = 1,
+          double beta = 1,
+          double gamma = 1,
+          double delta = 1);
+
     virtual ~RN95s() {}
   
 #ifndef NO_VIRTUAL_COV
@@ -139,7 +138,6 @@ namespace bpp
 #endif
     clone() const { return new RN95s(*this); }
   
-  public:
   public:
     double Pij_t    (int i, int j, double d) const;
     double dPij_dt  (int i, int j, double d) const;
@@ -153,7 +151,7 @@ namespace bpp
     void updateMatrices();
   
     /**
-     * @brief This method takes the average value between observed \f[\pi_A\f] and \f[\pi_T\f].
+     * @brief This method takes the average value between observed @f$\pi_A@f$ and @f$\pi_T@f$.
      */
     
     void setFreq(std::map<int, double>&);

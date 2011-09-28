@@ -41,7 +41,7 @@ knowledge of the CeCILL license and that you accept its terms.
 #define _GY94_H_
 
 #include "AbstractBiblioSubstitutionModel.h"
-#include "CodonAsynonymousFrequenciesReversibleSubstitutionModel.h"
+#include "CodonDistanceFrequenciesSubstitutionModel.h"
 #include <Bpp/Seq/StateProperties/GranthamAAChemicalDistance.h>
 
 namespace bpp
@@ -85,7 +85,7 @@ class GY94:
 private:
 
   GranthamAAChemicalDistance gacd_;
-  CodonAsynonymousFrequenciesReversibleSubstitutionModel* pmodel_;
+  CodonDistanceFrequenciesSubstitutionModel* pmodel_;
 
 public:
   GY94(const GeneticCode* gc, FrequenciesSet* codonFreqs);

@@ -1,5 +1,5 @@
 //
-// File: CodonFrequenciesReversibleSubstitutionModel.cpp
+// File: CodonSubstitutionModel.cpp
 // Created by:  Laurent Gueguen
 // Created on: Feb 2009
 //
@@ -36,7 +36,8 @@
    knowledge of the CeCILL license and that you accept its terms.
  */
 
-#include "CodonNeutralFrequenciesReversibleSubstitutionModel.h"
+#include "CodonRateSubstitutionModel.h"
+
 
 using namespace bpp;
 
@@ -44,66 +45,36 @@ using namespace std;
 
 /******************************************************************************/
 
-CodonNeutralFrequenciesReversibleSubstitutionModel::CodonNeutralFrequenciesReversibleSubstitutionModel(
-  const CodonAlphabet* palph,
-  FrequenciesSet* pfreq) :
-  AbstractCodonFrequenciesReversibleSubstitutionModel(palph, pfreq, "CodonNeutralFrequencies.")
+CodonRateSubstitutionModel::CodonRateSubstitutionModel(const CodonAlphabet* palph,
+                                                       NucleotideSubstitutionModel* pmod) :
+  AbstractParameterAliasable("CodonRate."),
+  AbstractCodonSubstitutionModel(palph, pmod, "CodonRate.", true)
 {
-   unsigned int i;
-
-  // relative rates
-  for (i = 0; i < 2; i++)
-  {
-    addParameter_(Parameter("CodonNeutralFrequencies.relrate" + TextTools::toString(i+1), 1.0 / (3 - i),&Parameter::PROP_CONSTRAINT_EX));
-  }
-
   updateMatrices();
 }
 
-string CodonNeutralFrequenciesReversibleSubstitutionModel::getName() const
+CodonRateSubstitutionModel::CodonRateSubstitutionModel(const CodonAlphabet* palph,
+                                                       NucleotideSubstitutionModel* pmod1,
+                                                       NucleotideSubstitutionModel* pmod2,
+                                                       NucleotideSubstitutionModel* pmod3) :
+  AbstractParameterAliasable("CodonRate."),
+  AbstractCodonSubstitutionModel(palph, pmod1, pmod2, pmod3, "CodonRate.", true)
 {
-  return "CodonNeutralFrequenciesReversibleSubstitutionModel model:" + pfreqset_->getName();
+  updateMatrices();
 }
 
-void CodonNeutralFrequenciesReversibleSubstitutionModel::completeMatrices()
+std::string CodonRateSubstitutionModel::getName() const
 {
-   unsigned int i, j;
-   unsigned int salph = getNumberOfStates();
-
-   const CodonAlphabet* ca = dynamic_cast<const CodonAlphabet*>(alphabet_);
-
-  for (i = 0; i < salph; i++)
-  {
-    for (j = 0; j < salph; j++)
-    {
-      if (ca->isStop(i) || ca->isStop(j))
-      {
-        generator_(i, j) = 0;
-        exchangeability_(i, j) = 0;
-      }
-    }
-  }
-
-  AbstractCodonFrequenciesReversibleSubstitutionModel::completeMatrices();
+  return ("CodonRate");
 }
 
-
-void CodonNeutralFrequenciesReversibleSubstitutionModel::updateMatrices()
+void CodonRateSubstitutionModel::fireParameterChanged(const ParameterList& parameters)
 {
-   int i, k, nbmod = VSubMod_.size();
-   double x;
-  for (k = nbmod - 1; k >= 0; k--)
-  {
-    x = 1.0;
-    for (i = 0; i < k; i++)
-    {
-      x *= 1 - getParameterValue("relrate" + TextTools::toString(i+1));
-    }
-    if (k != nbmod - 1)
-      x *= getParameterValue("relrate" + TextTools::toString(k+1));
-    Vrate_[k] = x;
-  }
+  AbstractCodonSubstitutionModel::fireParameterChanged(parameters);
+}
 
-  AbstractWordReversibleSubstitutionModel::updateMatrices();
+double CodonRateSubstitutionModel::getCodonsMulRate(unsigned int i, unsigned int j) const
+{
+  return AbstractCodonSubstitutionModel::getCodonsMulRate(i,j);
 }
 

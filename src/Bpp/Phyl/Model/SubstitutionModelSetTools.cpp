@@ -143,6 +143,7 @@ SubstitutionModelSet* SubstitutionModelSetTools::createNonHomogeneousModelSet(
       break;
     }
   }
+
   ids.erase(ids.begin() + pos);
   for (i = 0; i < ids.size(); i++)
   {

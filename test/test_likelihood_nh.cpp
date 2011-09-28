@@ -84,22 +84,28 @@ int main() {
   DiscreteDistribution* rdist = new GammaDiscreteDistribution(4, 1.0);
   rdist->aliasParameters("alpha", "beta");
 
-  vector<double> thetas;
-  for (unsigned int i = 0; i < modelSet->getNumberOfModels(); ++i) {
+  unsigned int nsites = 1000;
+  unsigned int nrep = 20;
+  unsigned int nmodels = modelSet->getNumberOfModels();
+  vector<double> thetas(nmodels);
+  vector<double> thetasEst1(nmodels);
+  vector<double> thetasEst2(nmodels);
+
+  for (unsigned int i = 0; i < nmodels; ++i) {
     double theta = RandomTools::giveRandomNumberBetweenZeroAndEntry(0.99) + 0.005;
     cout << "Theta" << i << " set to " << theta << endl; 
     modelSet->setParameterValue("T92.theta_" + TextTools::toString(i + 1), theta);
-    thetas.push_back(theta);
+    thetas[i] = theta;
   }
   NonHomogeneousSequenceSimulator simulator(modelSet, rdist, tree);
+ 
+  for (unsigned int j = 0; j < nrep; j++) {
 
-  unsigned int n = 10000;
-  OutputStream* profiler  = new StlOutputStream(auto_ptr<ostream>(new ofstream("profile.txt", ios::out)));
-  OutputStream* messenger = new StlOutputStream(auto_ptr<ostream>(new ofstream("messages.txt", ios::out)));
+    OutputStream* profiler  = new StlOutputStream(auto_ptr<ostream>(new ofstream("profile.txt", ios::out)));
+    OutputStream* messenger = new StlOutputStream(auto_ptr<ostream>(new ofstream("messages.txt", ios::out)));
 
-  for (size_t i = 0; i < 3; ++i) {
     //Simulate data:
-    auto_ptr<SiteContainer> sites (simulator.simulate(n));
+    auto_ptr<SiteContainer> sites(simulator.simulate(nsites));
     //Now fit model:
     auto_ptr<SubstitutionModelSet> modelSet2(modelSet->clone());
     auto_ptr<SubstitutionModelSet> modelSet3(modelSet->clone());
@@ -117,55 +123,26 @@ int main() {
         0.0001, 10000, messenger, profiler, false, false, 1, OptimizationTools::OPTIMIZATION_NEWTON);
 
     cout << c1 << ": " << tl.getValue() << "\t" << c2 << ": " << tl2.getValue() << endl;
-    //Now compare estimated values to real ones:
-    for (size_t j = 0; j < thetas.size(); ++j) {
-      cout << thetas[j] << "\t" << modelSet2->getModel(j)->getParameter("theta").getValue() << endl;
-      double diff = abs(thetas[j] - modelSet2->getModel(j)->getParameter("theta").getValue());
-      if (diff > 0.2)
-        return 1;
+      
+    for (unsigned int i = 0; i < nmodels; ++i) {
+      cout << modelSet2->getModel(i)->getParameter("theta").getValue() << "\t" << modelSet3->getModel(i)->getParameter("theta").getValue() << endl;
+      //if (abs(modelSet2->getModel(i)->getParameter("theta").getValue() - modelSet3->getModel(i)->getParameter("theta").getValue()) > 0.1)
+      //  return 1;
+      thetasEst1[i] +=  modelSet2->getModel(i)->getParameter("theta").getValue();
+      thetasEst2[i] +=  modelSet3->getModel(i)->getParameter("theta").getValue();
     }
   }
-
-  //VectorSiteContainer sites(alphabet);
-  //sites.addSequence(BasicSequence("A", "AAATGGCTGTGCACGTC", alphabet));
-  //sites.addSequence(BasicSequence("B", "GACTGGATCTGCACGTC", alphabet));
-  //sites.addSequence(BasicSequence("C", "CTCTGGATGTGCACGTG", alphabet));
-  //sites.addSequence(BasicSequence("D", "AAATGGCGGTGCGCCTA", alphabet));
-
-  //try {
-  //  fitModelNH(modelSet, rdist, *tree, sites, 75.031104151696752069, 63.65522451096224187950, true);
-  //} catch (Exception& ex) {
-  //  cerr << ex.what() << endl;
-  //  return 1;
-  //}
-  
-  //Now try NH model:
-/*
-  DiscreteDistribution* rdist = new ConstantDistribution(1.0, true);
-
-  unsigned int n = 100000;
-  OutputStream* profiler  = new StlOutputStream(auto_ptr<ostream>(new ofstream("profile.txt", ios::out)));
-  OutputStream* messenger = new StlOutputStream(auto_ptr<ostream>(new ofstream("messages.txt", ios::out)));
-
-  //Now fit model:
-  SubstitutionModelSet* modelSet2 = modelSet->clone();
-  RNonHomogeneousTreeLikelihood tl(*tree, sites, modelSet2, rdist);
-  tl.initialize();
-
-  OptimizationTools::optimizeNumericalParameters2(
-      &tl, tl.getParameters(), 0,
-      0.0001, 10000, messenger, profiler, false, 1, OptimizationTools::OPTIMIZATION_NEWTON);
+  thetasEst1 /= static_cast<double>(nrep);
+  thetasEst2 /= static_cast<double>(nrep);
 
   //Now compare estimated values to real ones:
   for (size_t i = 0; i < thetas.size(); ++i) {
-    cout << thetas[i] << "\t" << modelSet2->getModel(i)->getParameter("theta").getValue() << endl;
-    double diff = abs(thetas[i] - modelSet2->getModel(i)->getParameter("theta").getValue());
-    if (diff > 0.1)
-      return 1;
+     cout << thetas[i] << "\t" << thetasEst1[i] << "\t" << thetasEst2[i] << endl;
+     double diff1 = abs(thetas[i] - thetasEst1[i]);
+     double diff2 = abs(thetas[i] - thetasEst2[i]);
+     if (diff1 > 0.2 || diff2 > 0.2)
+        return 1;
   }
-  delete modelSet2;
-
-  */
 
   //-------------
   delete tree;

@@ -53,6 +53,7 @@ MixtureOfASubstitutionModel::MixtureOfASubstitutionModel(
                                                          std::map<std::string, DiscreteDistribution*> parametersDistributionsList,
                                                          int ffrom,
                                                          int tto) throw(Exception) :
+  AbstractParameterAliasable(""),
   AbstractMixedSubstitutionModel(alpha, ""),
   distributionMap_(),
   from_(ffrom),
@@ -134,6 +135,7 @@ MixtureOfASubstitutionModel::MixtureOfASubstitutionModel(
 }
 
 MixtureOfASubstitutionModel::MixtureOfASubstitutionModel(const MixtureOfASubstitutionModel& msm) :
+  AbstractParameterAliasable(msm),
   AbstractMixedSubstitutionModel(msm),
   distributionMap_(),
   from_(msm.from_),
@@ -262,9 +264,9 @@ Vint MixtureOfASubstitutionModel::getSubmodelNumbers(string& desc) const
   StringTokenizer st(desc, ",");
   while (st.hasMoreToken()) {
     string param = st.nextToken();
-    string::size_type index = param.find("_");
+    string::size_type index = param.rfind("_");
     if (index == string::npos)
-      throw Exception("MixtureOfASubstitutionModel::getSubmodelNumbers parameter descripion should contain a number" + param);
+      throw Exception("MixtureOfASubstitutionModel::getSubmodelNumbers parameter description should contain a number" + param);
     msubn[param.substr(0,index)]=TextTools::toInt(param.substr(index+1,4))-1;
   }
 

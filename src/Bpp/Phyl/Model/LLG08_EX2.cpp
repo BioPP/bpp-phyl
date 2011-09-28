@@ -50,14 +50,14 @@ using namespace std;
 /******************************************************************************/
 
 LLG08_EX2::LLG08_EX2(const ProteicAlphabet* alpha) : 
-  AbstractMixedSubstitutionModel(alpha, "LLG08_EX2."), pmixmodel_(0),
-  mapParNamesFromPmodel_(), lParPmodel_()
+  AbstractBiblioMixedSubstitutionModel("LLG08_EX2."),
+  pmixmodel_(0)
 {
   // build the submodel
 
   vector<SubstitutionModel*> vpSM;
-  vpSM.push_back(new LLG08_EX2::EmbeddedModel(alpha,"EX2_Buried"));
-  vpSM.push_back(new LLG08_EX2::EmbeddedModel(alpha,"EX2_Exposed"));
+  vpSM.push_back(new LLG08_EX2::EmbeddedModel(alpha,"Buried"));
+  vpSM.push_back(new LLG08_EX2::EmbeddedModel(alpha,"Exposed"));
 
   Vdouble vrate, vproba;
   
@@ -83,21 +83,18 @@ LLG08_EX2::LLG08_EX2(const ProteicAlphabet* alpha) :
   updateMatrices();
 }
 
-LLG08_EX2::LLG08_EX2(const LLG08_EX2& mod2) : AbstractMixedSubstitutionModel(mod2),
-                                              pmixmodel_(new MixtureOfSubstitutionModels(*mod2.pmixmodel_)),
-                                              mapParNamesFromPmodel_(mod2.mapParNamesFromPmodel_),
-                                              lParPmodel_(mod2.lParPmodel_)
-{
-  
+LLG08_EX2::LLG08_EX2(const LLG08_EX2& mod2) : AbstractBiblioMixedSubstitutionModel(mod2),
+                                              pmixmodel_(new MixtureOfSubstitutionModels(*mod2.pmixmodel_))
+{  
 }
 
 LLG08_EX2& LLG08_EX2::operator=(const LLG08_EX2& mod2)
 {
-  AbstractMixedSubstitutionModel::operator=(mod2);
+  AbstractBiblioMixedSubstitutionModel::operator=(mod2);
 
+  if (pmixmodel_)
+    delete pmixmodel_;
   pmixmodel_=new MixtureOfSubstitutionModels(*mod2.pmixmodel_);
-  mapParNamesFromPmodel_=mod2.mapParNamesFromPmodel_;
-  lParPmodel_=mod2.lParPmodel_;
   
   return *this;
 }
@@ -108,28 +105,10 @@ LLG08_EX2::~LLG08_EX2()
     delete pmixmodel_;
 }
 
-void LLG08_EX2::updateMatrices()
-{
-  for (unsigned int i=0;i<lParPmodel_.size();i++)
-    if (hasParameter(mapParNamesFromPmodel_[lParPmodel_[i].getName()]))
-      lParPmodel_[i].setValue(getParameter(mapParNamesFromPmodel_[lParPmodel_[i].getName()]).getValue());
-  
-  pmixmodel_->matchParametersValues(lParPmodel_);
-}
-
-void LLG08_EX2::setFreq(std::map<int,double>& m){
-  pmixmodel_->setFreq(m);
-  matchParametersValues(pmixmodel_->getParameters());
-}
-
-void LLG08_EX2::setVRates(Vdouble & vd){
-  pmixmodel_->setVRates(vd);
-  matchParametersValues(pmixmodel_->getParameters());
-}
-
 /**************** sub model classes *///////////
 
 LLG08_EX2::EmbeddedModel::EmbeddedModel(const ProteicAlphabet* alpha, string name) :
+  AbstractParameterAliasable(""),
   AbstractReversibleSubstitutionModel(alpha, ""), proportion_(1), name_(name)
 {
 #include "__LLG08_EX2ExchangeabilityCode"

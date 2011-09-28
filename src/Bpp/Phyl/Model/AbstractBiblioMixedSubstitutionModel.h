@@ -53,6 +53,7 @@ namespace bpp
  **/
   
   class AbstractBiblioMixedSubstitutionModel:
+    public  virtual MixedSubstitutionModel,
     public AbstractBiblioSubstitutionModel
   {
   public:
@@ -124,11 +125,48 @@ namespace bpp
     }
   
     /**
-     * @brief inactivated method to prevent out of model manipulations
+     * @brief sets the rates of the submodels.
      *
      **/
     
-    //    virtual void setVRates(Vdouble & vd){};
+    void setVRates(const Vdouble & vd){
+      getMixedModel()->setVRates(vd);
+    }
+
+    /**
+     * @brief normalizes the rates of the submodels.
+     *
+     **/
+    
+    void normalizeVRates(){
+      getMixedModel()->normalizeVRates();
+    }
+
+    /**
+     * @brief Returns the vector of all the rates of the mixture
+     */
+
+    const std::vector<double>& getVRates() const
+    {
+      return getMixedModel()->getVRates();
+    }
+
+    /**
+    * @brief Returns the rate of a specific model from the mixture
+    */
+  
+    double getNRate(unsigned int i) const
+    {
+      return getMixedModel()->getNRate(i);
+    }
+  
+    /*
+     *@brief Returns the vector of numbers of the submodels in the
+     *mixture that match a description.
+     *
+     */
+  
+    Vint getSubmodelNumbers(std::string& desc) const;
 
   };
   

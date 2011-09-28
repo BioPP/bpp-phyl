@@ -148,15 +148,6 @@ namespace bpp
     }
   
     /**
-     * @brief Returns the vector of all the rates of the mixture
-     */
-
-    const std::vector<double>& getRates() const
-    {
-      return vRates_;
-    }
-  
-    /**
      * @brief Set the rate of the model and the submodels.
      * @param rate must be positive.
      */
@@ -164,16 +155,33 @@ namespace bpp
     virtual void setRate(double rate);
 
     /**
-     * @brief Sets the rates of the submodels to follow the constraint
-     * that the mean rate of the mixture equals rate_.
+     * @brief Sets the rates of the submodels to be proportional to a
+     * given vector, with the constraint that the mean rate of the
+     * mixture equals rate_.
      
      * @param vd a vector of positive values such that the rates of
      * the respective submodels are in the same proportions (ie this
      * vector does not need to be normalized).
      */
 
-    virtual void setVRates(Vdouble& vd);
+    virtual void setVRates(const Vdouble& vd);
 
+    /**
+     * @brief Normalizes the rates of the submodels so that the mean
+     * rate of the mixture equals rate_.
+     */
+
+    virtual void normalizeVRates();
+
+    /**
+     * @brief Returns the vector of all the rates of the mixture
+     */
+
+    const std::vector<double>& getVRates() const
+    {
+      return vRates_;
+    }
+  
     /**
      * @brief Returns the probability of a specific model from the
      * mixture

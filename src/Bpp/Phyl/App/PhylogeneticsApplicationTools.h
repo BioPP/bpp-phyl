@@ -380,13 +380,12 @@ namespace bpp
                                         bool verbose = true);
     
     /**
-     * @brief Build a MixedSubstitutionModelSet object according to
-     * options.
+     * @brief Complete a MixedSubstitutionModelSet object according to
+     * options, given this model has already been filled through
+     * setSubstitutionModelSet method.
      *
-     * This model uses setSubstitutionModelSet function to build the
-     * SubstitutionModelSet part, and the specific part builds the
-     * allowed combinations of submodels of the different mixed
-     * models.
+     * In addition, this method builds the allowed combinations of
+     * submodels of the different mixed models.
      *
      * If none combination is given, then all possible submodels
      * combinations will be considered.
@@ -443,7 +442,7 @@ namespace bpp
      * @throw Exception if an error occured.
      */
     
-    static void setMixedSubstitutionModelSet(
+    static void completeMixedSubstitutionModelSet(
                                              MixedSubstitutionModelSet& mixedModelSet,
                                              const Alphabet* alphabet,
                                              const SiteContainer* data, 
