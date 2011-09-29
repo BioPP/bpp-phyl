@@ -76,8 +76,6 @@ void AbstractCodonFrequenciesSubstitutionModel::fireParameterChanged(const Param
 
 void AbstractCodonFrequenciesSubstitutionModel::setFreq(map<int,double>& frequencies)
 {
-  cerr << "void AbstractCodonFrequenciesSubstitutionModel::setFreq(map<int,double>& frequencies)" << endl;
-  
   pfreqset_->setFrequenciesFromMap(frequencies);
   matchParametersValues(pfreqset_->getParameters());
 }
