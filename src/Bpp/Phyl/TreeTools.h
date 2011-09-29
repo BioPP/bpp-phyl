@@ -5,7 +5,7 @@
 //
 
 /*
-Copyright or © or Copr. Bio++ Development Tools, (November 16, 2004)
+Copyright or © or Copr. Bio++ Development Team, (November 16, 2004)
 
 This software is a computer program whose purpose is to provide classes
 for phylogenetic data analysis.
@@ -186,6 +186,30 @@ class TreeTools
     static unsigned int getDepth(const Tree& tree, int nodeId) throw (NodeNotFoundException);
 
     /**
+     * @brief Get the depths for all nodes of the subtree defined by node 'node', i.e. the maximum
+     * number of sons 'generations'.
+     *
+     * ex:
+     * @verbatim
+     *    +----------A
+     *    |
+     * ---+ N1     +-------B
+     *    |        |
+     *    +--------+ N2
+     *             |
+     *             +------C
+     * @endverbatim
+     * Depth of node 'N1' id 2, depth of node 'N2' is 1, depth of leaves is 0.
+     *
+     * @param tree The tree.
+     * @param nodeId The id of node defining the subtree.
+     * @param depths The map that will contain all the depths of the nodes, with node ids as keys.
+     * @return The depth of the subtree.
+     * @throw NodeNotFoundException If the node is not found.
+     */
+    static unsigned int getDepths(const Tree& tree, int nodeId, std::map<int, unsigned int>& depths) throw (NodeNotFoundException);
+
+    /**
      * @brief Get the height of the subtree defined by node 'node', i.e. the maximum
      * distance between leaves and the root of the subtree.
      *
@@ -199,6 +223,22 @@ class TreeTools
      * @throw NodeException If a branch length is lacking.
      */ 
     static double getHeight(const Tree& tree, int nodeId) throw (NodeNotFoundException,NodeException);
+
+    /**
+     * @brief Get the heights of all nodes within a subtree defined by node 'node', i.e. the maximum
+     * distance between leaves and the root of the subtree.
+     *
+     * The height of a leaf is 0.
+     *
+     * @param tree The tree.
+     * @param nodeId The id of node defining the subtree.
+     * @param heights The map that will contain all the heights of the nodes, with node ids as keys.
+     * @return The height of the subtree.
+     * @throw NodeNotFoundException If the node is not found.
+     * @throw NodeException If a branch length is lacking.
+     */ 
+    static double getHeights(const Tree& tree, int nodeId, std::map<int, double>& heights) throw (NodeNotFoundException,NodeException);
+
     /** @} */
 
     /**

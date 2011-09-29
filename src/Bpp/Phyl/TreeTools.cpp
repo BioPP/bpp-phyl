@@ -170,10 +170,11 @@ void TreeTools::getNodesId(const Tree& tree, int nodeId, vector<int> & nodes) th
 
 unsigned int TreeTools::getDepth(const Tree& tree, int nodeId) throw (NodeNotFoundException)
 {
-  if(!tree.hasNode(nodeId)) throw NodeNotFoundException("TreeTools::getDepth", nodeId);
+  if (!tree.hasNode(nodeId))
+    throw NodeNotFoundException("TreeTools::getDepth", nodeId);
   unsigned int d = 0;
   vector<int> sons = tree.getSonsId(nodeId);
-  for(unsigned int i = 0; i < sons.size(); i++)
+  for (size_t i = 0; i < sons.size(); i++)
   {
     unsigned int c = getDepth(tree, sons[i]) + 1;
     if( c > d) d = c;
@@ -183,19 +184,57 @@ unsigned int TreeTools::getDepth(const Tree& tree, int nodeId) throw (NodeNotFou
 
 /******************************************************************************/
 
+unsigned int TreeTools::getDepths(const Tree& tree, int nodeId, map<int, unsigned int>& depths) throw (NodeNotFoundException)
+{
+  if (!tree.hasNode(nodeId))
+    throw NodeNotFoundException("TreeTools::getDepth", nodeId);
+  unsigned int d = 0;
+  vector<int> sons = tree.getSonsId(nodeId);
+  for (size_t i = 0; i < sons.size(); i++)
+  {
+    unsigned int c = getDepths(tree, sons[i], depths) + 1;
+    if( c > d) d = c;
+  }
+  depths[nodeId] = d;
+  return d;
+}
+
+/******************************************************************************/
+
 double TreeTools::getHeight(const Tree& tree, int nodeId) throw (NodeNotFoundException,NodeException)
 {
-  if(!tree.hasNode(nodeId)) throw NodeNotFoundException("TreeTools::getHeight", nodeId);
+  if (!tree.hasNode(nodeId))
+    throw NodeNotFoundException("TreeTools::getHeight", nodeId);
   double d = 0;
   vector<int> sons = tree.getSonsId(nodeId);
-  for(unsigned int i = 0; i < sons.size(); i++)
+  for (size_t i = 0; i < sons.size(); i++)
   {
     double dist = 0;
-    if(tree.hasDistanceToFather(sons[i])) dist = tree.getDistanceToFather(sons[i]);
+    if (tree.hasDistanceToFather(sons[i])) dist = tree.getDistanceToFather(sons[i]);
     else throw NodeException("Node without branch length.", sons[i]);
     double c = getHeight(tree, sons[i]) + dist;
-    if(c > d) d = c;
+    if (c > d) d = c;
   }
+  return d;
+}
+
+/******************************************************************************/
+
+double TreeTools::getHeights(const Tree& tree, int nodeId, map<int, double>& heights) throw (NodeNotFoundException,NodeException)
+{
+  if (!tree.hasNode(nodeId))
+    throw NodeNotFoundException("TreeTools::getHeight", nodeId);
+  double d = 0;
+  vector<int> sons = tree.getSonsId(nodeId);
+  for (size_t i = 0; i < sons.size(); i++)
+  {
+    double dist = 0;
+    if (tree.hasDistanceToFather(sons[i])) dist = tree.getDistanceToFather(sons[i]);
+    else throw NodeException("Node without branch length.", sons[i]);
+    double c = getHeights(tree, sons[i], heights) + dist;
+    if (c > d) d = c;
+  }
+  heights[nodeId] = d;
   return d;
 }
 
