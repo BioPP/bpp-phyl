@@ -47,6 +47,7 @@ using namespace bpp;
 /******************************************************************************/
 
 DSO78::DSO78(const ProteicAlphabet* alpha) :
+  AbstractParameterAliasable("DSO78."),
   AbstractReversibleSubstitutionModel(alpha, "DSO78."),
   freqSet_(0)
 {
@@ -57,6 +58,7 @@ DSO78::DSO78(const ProteicAlphabet* alpha) :
 }
 
 DSO78::DSO78(const ProteicAlphabet* alpha, ProteinFrequenciesSet* freqSet, bool initFreqs) :
+  AbstractParameterAliasable("DSO78."),
   AbstractReversibleSubstitutionModel(alpha, "DSO78+F."),
   freqSet_(freqSet)
 {

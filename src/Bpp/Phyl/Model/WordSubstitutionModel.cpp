@@ -1,5 +1,5 @@
 //
-// File: WordReversibleSubstitutionModel.cpp
+// File: WordSubstitutionModel.cpp
 // Created by:  Laurent Gueguen
 // Created on: Jan 2009
 //
@@ -36,7 +36,7 @@
    knowledge of the CeCILL license and that you accept its terms.
  */
 
-#include "WordReversibleSubstitutionModel.h"
+#include "WordSubstitutionModel.h"
 #include "FrequenciesSet.h"
 
 #include <Bpp/Numeric/Matrix/MatrixTools.h>
@@ -56,10 +56,11 @@ using namespace std;
 
 /******************************************************************************/
 
-WordReversibleSubstitutionModel::WordReversibleSubstitutionModel(
+WordSubstitutionModel::WordSubstitutionModel(
   const std::vector<SubstitutionModel*>& modelVector,
   const std::string& st) :
-  AbstractWordReversibleSubstitutionModel(modelVector, (st == "") ? "Word." : st)
+  AbstractParameterAliasable((st == "") ? "Word." : st),
+  AbstractWordSubstitutionModel(modelVector, (st == "") ? "Word." : st)
 {
    unsigned int i, nbmod = VSubMod_.size();
 
@@ -69,20 +70,22 @@ WordReversibleSubstitutionModel::WordReversibleSubstitutionModel(
     addParameter_(Parameter("Word.relrate" + TextTools::toString(i+1), 1.0 / (nbmod - i), &Parameter::PROP_CONSTRAINT_EX));
   }
 
-  WordReversibleSubstitutionModel::updateMatrices();
+  WordSubstitutionModel::updateMatrices();
 }
 
-WordReversibleSubstitutionModel::WordReversibleSubstitutionModel(
+WordSubstitutionModel::WordSubstitutionModel(
   const Alphabet* alph,
   const std::string& st) :
-  AbstractWordReversibleSubstitutionModel(alph, (st == "") ? "Word." : st)
+  AbstractParameterAliasable((st == "") ? "Word." : st),  
+  AbstractWordSubstitutionModel(alph, (st == "") ? "Word." : st)
 {}
 
-WordReversibleSubstitutionModel::WordReversibleSubstitutionModel(
+WordSubstitutionModel::WordSubstitutionModel(
   SubstitutionModel* pmodel,
   unsigned int num,
   const std::string& st) :
-  AbstractWordReversibleSubstitutionModel(pmodel, num,  (st == "") ? "Word." : st)
+  AbstractParameterAliasable((st == "") ? "Word." : st),
+  AbstractWordSubstitutionModel(pmodel, num,  (st == "") ? "Word." : st)
 {
    unsigned int i;
 
@@ -92,10 +95,10 @@ WordReversibleSubstitutionModel::WordReversibleSubstitutionModel(
     addParameter_(Parameter("Word.relrate" + TextTools::toString(i+1), 1.0 / (num - i ), &Parameter::PROP_CONSTRAINT_EX));
   }
 
-  WordReversibleSubstitutionModel::updateMatrices();
+  WordSubstitutionModel::updateMatrices();
 }
 
-void WordReversibleSubstitutionModel::updateMatrices()
+void WordSubstitutionModel::updateMatrices()
 {
    unsigned int i, nbmod = VSubMod_.size();
    double x,y;
@@ -108,10 +111,10 @@ void WordReversibleSubstitutionModel::updateMatrices()
    }
    Vrate_[nbmod-1]=x;
 
-   AbstractWordReversibleSubstitutionModel::updateMatrices();
+   AbstractWordSubstitutionModel::updateMatrices();
 }
 
-void WordReversibleSubstitutionModel::completeMatrices()
+void WordSubstitutionModel::completeMatrices()
 {
    int nbmod = VSubMod_.size();
    int i,p,j,m;
@@ -132,7 +135,7 @@ void WordReversibleSubstitutionModel::completeMatrices()
   }
 }
 
-const RowMatrix<double>& WordReversibleSubstitutionModel::getPij_t(double d) const
+const RowMatrix<double>& WordSubstitutionModel::getPij_t(double d) const
 {
   vector<const Matrix<double>*> vM;
   unsigned int nbmod = VSubMod_.size();
@@ -163,7 +166,7 @@ const RowMatrix<double>& WordReversibleSubstitutionModel::getPij_t(double d) con
   return pijt_;
 }
 
-const RowMatrix<double>& WordReversibleSubstitutionModel::getdPij_dt(double d) const
+const RowMatrix<double>& WordSubstitutionModel::getdPij_dt(double d) const
 {
   vector<const Matrix<double>*> vM, vdM;
   unsigned int nbmod = VSubMod_.size();
@@ -205,7 +208,7 @@ const RowMatrix<double>& WordReversibleSubstitutionModel::getdPij_dt(double d) c
   return dpijt_;
 }
 
-const RowMatrix<double>& WordReversibleSubstitutionModel::getd2Pij_dt2(double d) const
+const RowMatrix<double>& WordSubstitutionModel::getd2Pij_dt2(double d) const
 
 {
   vector<const Matrix<double>*> vM, vdM, vd2M;
@@ -275,10 +278,10 @@ const RowMatrix<double>& WordReversibleSubstitutionModel::getd2Pij_dt2(double d)
   return d2pijt_;
 }
 
-string WordReversibleSubstitutionModel::getName() const
+string WordSubstitutionModel::getName() const
 {
    unsigned int nbmod = VSubMod_.size();
-   string s = "WordReversibleSubstitutionModel model: " + VSubMod_[0]->getName();
+   string s = "WordSubstitutionModel model: " + VSubMod_[0]->getName();
   for (unsigned int i = 1; i < nbmod - 1; i++)
   {
     s += " " + VSubMod_[i]->getName();

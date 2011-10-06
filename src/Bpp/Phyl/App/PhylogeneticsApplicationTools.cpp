@@ -146,11 +146,13 @@ SubstitutionModel* PhylogeneticsApplicationTools::getSubstitutionModelDefaultIns
 
   KeyvalTools::parseProcedure(modelDescription, modelName, args);
 
-  bool word = ((modelName == "Word") || (modelName == "Triplet") || (modelName == "CodonNeutral")
-               || (modelName == "CodonAsynonymous"));
+  bool wordfreq = ((modelName == "CodonDistanceFrequencies")
+                   || (modelName == "CodonDistancePhaseFrequencies")
+                   || (modelName == "CodonRateFrequencies"));
 
-  bool wordfreq = ((modelName == "CodonAsynonymousFrequencies")
-                   || (modelName == "CodonNeutralFrequencies"));
+  bool word = ((modelName == "Word") || (modelName == "Triplet") || (modelName == "CodonRate")
+               || (modelName == "CodonDistance") || wordfreq);
+
 
   // //////////////////////////////////
   // / MIXED MODELS
@@ -250,8 +252,12 @@ SubstitutionModel* PhylogeneticsApplicationTools::getSubstitutionModelDefaultIns
       ApplicationTools::displayResult("Mixture Of Substitution Models", modelName );
   }
 
+
+
+
+
   // /////////////////////////////////
-  // / WORDS and CODONS defined by models
+  // / WORDS and CODONS 
   // ///////////////////////////////
 
   else if (word)
@@ -310,9 +316,12 @@ SubstitutionModel* PhylogeneticsApplicationTools::getSubstitutionModelDefaultIns
     if (v_nestedModelDescription.size() != nbmodels)
     {
       model = getSubstitutionModelDefaultInstance(pWA->getNAlphabet(0), v_nestedModelDescription[0], unparsedParameterValuesNested, false, true, false, false);
+      string pref="";
+      for (unsigned int i=0;i<nbmodels;i++)
+        pref+=TextTools::toString(i+1);
       for (map<string, string>::iterator it = unparsedParameterValuesNested.begin(); it != unparsedParameterValuesNested.end(); it++)
       {
-        unparsedParameterValues[modelName + "._" + it->first] = it->second;
+        unparsedParameterValues[modelName + "." + pref + "_" + it->first] = it->second;
       }
       v_pSM.push_back(model);
     }
@@ -337,8 +346,8 @@ SubstitutionModel* PhylogeneticsApplicationTools::getSubstitutionModelDefaultIns
     if (modelName == "Word")
     {
       model = (v_nestedModelDescription.size() != nbmodels)
-              ? new WordReversibleSubstitutionModel(v_pSM[0], nbmodels)
-      : new WordReversibleSubstitutionModel(v_pSM);
+              ? new WordSubstitutionModel(v_pSM[0], nbmodels)
+      : new WordSubstitutionModel(v_pSM);
     }
 
     // /////////////////////////////////
@@ -351,7 +360,7 @@ SubstitutionModel* PhylogeneticsApplicationTools::getSubstitutionModelDefaultIns
         throw Exception("Non simple NucleotideSubstitutionModel imbedded in " + modelName + " model.");
 
       if (v_nestedModelDescription.size() != 3)
-        model = new TripletReversibleSubstitutionModel(
+        model = new TripletSubstitutionModel(
           dynamic_cast<const CodonAlphabet*>(pWA),
           dynamic_cast<NucleotideSubstitutionModel*>(v_pSM[0]));
       else
@@ -359,7 +368,7 @@ SubstitutionModel* PhylogeneticsApplicationTools::getSubstitutionModelDefaultIns
         if (dynamic_cast<NucleotideSubstitutionModel*>(v_pSM[1]) == 0 || dynamic_cast<NucleotideSubstitutionModel*>(v_pSM[2]) == 0)
           throw Exception("Non simple NucleotideSubstitutionModel imbedded in " + modelName + " model.");
 
-        model = new TripletReversibleSubstitutionModel(
+        model = new TripletSubstitutionModel(
           dynamic_cast<const CodonAlphabet*>(pWA),
           dynamic_cast<NucleotideSubstitutionModel*>(v_pSM[0]),
           dynamic_cast<NucleotideSubstitutionModel*>(v_pSM[1]),
@@ -368,36 +377,36 @@ SubstitutionModel* PhylogeneticsApplicationTools::getSubstitutionModelDefaultIns
     }
 
     // /////////////////////////////////
-    // / CODON NEUTRAL
+    // / CODON RATE
     // ///////////////////////////////
 
-    else if (modelName == "CodonNeutral")
+    else if (modelName == "CodonRate")
     {
       if (dynamic_cast<NucleotideSubstitutionModel*>(v_pSM[0]) == 0)
         throw Exception("Non simple NucleotideSubstitutionModel imbedded in " + modelName + " model.");
 
       if (v_nestedModelDescription.size() != 3)
-        model = new CodonNeutralReversibleSubstitutionModel(
-          dynamic_cast<const CodonAlphabet*>(pWA),
-          dynamic_cast<NucleotideSubstitutionModel*>(v_pSM[0]));
+        model = new CodonRateSubstitutionModel(
+                                               dynamic_cast<const CodonAlphabet*>(pWA),
+                                               dynamic_cast<NucleotideSubstitutionModel*>(v_pSM[0]));
       else
       {
         if (dynamic_cast<NucleotideSubstitutionModel*>(v_pSM[1]) == 0 || dynamic_cast<NucleotideSubstitutionModel*>(v_pSM[2]) == 0)
           throw Exception("Non simple NucleotideSubstitutionModel imbedded in " + modelName + " model.");
 
-        model = new CodonNeutralReversibleSubstitutionModel(
-          dynamic_cast<const CodonAlphabet*>(pWA),
-          dynamic_cast<NucleotideSubstitutionModel*>(v_pSM[0]),
-          dynamic_cast<NucleotideSubstitutionModel*>(v_pSM[1]),
-          dynamic_cast<NucleotideSubstitutionModel*>(v_pSM[2]));
+        model = new CodonRateSubstitutionModel(
+                                               dynamic_cast<const CodonAlphabet*>(pWA),
+                                               dynamic_cast<NucleotideSubstitutionModel*>(v_pSM[0]),
+                                               dynamic_cast<NucleotideSubstitutionModel*>(v_pSM[1]),
+                                               dynamic_cast<NucleotideSubstitutionModel*>(v_pSM[2]));
       }
     }
 
     // /////////////////////////////////
-    // / CODON ASYNONYMOUS
+    // / CODON DISTANCE
     // ///////////////////////////////
 
-    else if (modelName == "CodonAsynonymous")
+    else if (modelName == "CodonDistance")
     {
       if (args.find("genetic_code") == args.end())
         args["genetic_code"] = pWA->getAlphabetType();
@@ -417,85 +426,163 @@ SubstitutionModel* PhylogeneticsApplicationTools::getSubstitutionModelDefaultIns
         throw Exception("Non simple NucleotideSubstitutionModel imbedded in " + modelName + " model.");
 
       if (v_nestedModelDescription.size() != 3)
-        model = new CodonAsynonymousReversibleSubstitutionModel(pgc,
-                                                                dynamic_cast<NucleotideSubstitutionModel*>(v_pSM[0]), pai2);
+        model = new CodonDistanceSubstitutionModel(pgc,
+                                                   dynamic_cast<NucleotideSubstitutionModel*>(v_pSM[0]), pai2);
       else
       {
         if (dynamic_cast<NucleotideSubstitutionModel*>(v_pSM[1]) == 0 || dynamic_cast<NucleotideSubstitutionModel*>(v_pSM[2]) == 0)
           throw Exception("Non simple NucleotideSubstitutionModel imbedded in " + modelName + " model.");
 
-        model = new CodonAsynonymousReversibleSubstitutionModel(
+        model = new CodonDistanceSubstitutionModel(
           pgc,
           dynamic_cast<NucleotideSubstitutionModel*>(v_pSM[0]),
           dynamic_cast<NucleotideSubstitutionModel*>(v_pSM[1]),
           dynamic_cast<NucleotideSubstitutionModel*>(v_pSM[2]), pai2);
       }
     }
-  }
-
-  // /////////////////////////////////
-  // / CODON MODELS with FREQUENCIES
-  // ///////////////////////////////
-
-  else if (wordfreq)
-  {
-    if (!AlphabetTools::isCodonAlphabet(alphabet))
-      throw Exception("Alphabet should be Codon Alphabet.");
-
-    const CodonAlphabet* pCA = dynamic_cast<const CodonAlphabet*>(alphabet);
-
-    if (args.find("frequencies") == args.end())
-      throw Exception("Missing equilibrium frequencies.");
-
-    map<string, string> unparsedParameterValuesNested;
-
-    FrequenciesSet* pFS = getFrequenciesSetDefaultInstance(pCA, args["frequencies"], unparsedParameterValuesNested);
-
-    for (map<string, string>::iterator it = unparsedParameterValuesNested.begin(); it != unparsedParameterValuesNested.end(); it++)
-    {
-      unparsedParameterValues[modelName + ".freq_" + it->first] = it->second;
-    }
 
     // /////////////////////////////////
-    // / CODONNEUTRALFREQUENCIES
+    // / CODON FREQUENCIES
     // ///////////////////////////////
+    
+    else if (wordfreq)
+      {
+        if (!AlphabetTools::isCodonAlphabet(alphabet))
+          throw Exception("Alphabet should be Codon Alphabet.");
+        
+        const CodonAlphabet* pCA = dynamic_cast<const CodonAlphabet*>(alphabet);
+        
+        if (args.find("frequencies") == args.end())
+          throw Exception("Missing equilibrium frequencies.");
+        
+        map<string, string> unparsedParameterValuesNested2;
+        
+        FrequenciesSet* pFS = getFrequenciesSetDefaultInstance(pCA, args["frequencies"], unparsedParameterValuesNested2);
+        
+        for (map<string, string>::iterator it = unparsedParameterValuesNested2.begin(); it != unparsedParameterValuesNested2.end(); it++)
+          {
+            unparsedParameterValues[modelName + "." + it->first] = it->second;
+          }
+        
+        // /////////////////////////////////
+        // / CODON RATE FREQUENCIES
+        // ///////////////////////////////
+        
+        if (modelName == "CodonRateFrequencies")
+          {
+            if (dynamic_cast<NucleotideSubstitutionModel*>(v_pSM[0]) == 0)
+              throw Exception("Non simple NucleotideSubstitutionModel imbedded in " + modelName + " model.");
+            
+            if (v_nestedModelDescription.size() != 3)
+              model = new CodonRateFrequenciesSubstitutionModel(pCA,
+                                                                dynamic_cast<NucleotideSubstitutionModel*>(v_pSM[0]), pFS);
+            else
+              {
+                if (dynamic_cast<NucleotideSubstitutionModel*>(v_pSM[1]) == 0 || dynamic_cast<NucleotideSubstitutionModel*>(v_pSM[2]) == 0)
+                  throw Exception("Non simple NucleotideSubstitutionModel imbedded in " + modelName + " model.");
 
-    if (modelName == "CodonNeutralFrequencies")
-    {
-      model = new CodonNeutralFrequenciesReversibleSubstitutionModel(pCA, pFS);
+                model = new CodonRateFrequenciesSubstitutionModel(pCA,
+                                                                  dynamic_cast<NucleotideSubstitutionModel*>(v_pSM[0]),
+                                                                  dynamic_cast<NucleotideSubstitutionModel*>(v_pSM[1]),
+                                                                  dynamic_cast<NucleotideSubstitutionModel*>(v_pSM[2]),
+                                                                  pFS);
+              }
+          }
+        
+        // /////////////////////////////////
+        // / CODON DISTANCE FREQUENCIES
+        // ///////////////////////////////
+        
+        else if (modelName == "CodonDistanceFrequencies")
+          {
+            if (args.find("genetic_code") == args.end())
+              args["genetic_code"] = pCA->getAlphabetType();
 
-      // for description
-      modelName += args["frequencies"];
-    }
+            GeneticCode* pgc = SequenceApplicationTools::getGeneticCode(dynamic_cast<const NucleicAlphabet*>(pCA->getNAlphabet(0)), args["genetic_code"]);
+            if (pgc->getSourceAlphabet()->getAlphabetType() != pCA->getAlphabetType())
+              throw Exception("Mismatch between genetic code and codon alphabet");
+            
+            AlphabetIndex2<double> * pai2;
+            
+            if (args.find("aadistance") == args.end())
+              pai2 = 0;
+            else
+              pai2  = SequenceApplicationTools::getAADistance(args["aadistance"]);
 
-    // /////////////////////////////////
-    // / CODONASYNONYMOUSFREQUENCIES
-    // ///////////////////////////////
 
-    else if (modelName == "CodonAsynonymousFrequencies")
-    {
-      if (args.find("genetic_code") == args.end())
-        args["genetic_code"] = pCA->getAlphabetType();
+            if (dynamic_cast<NucleotideSubstitutionModel*>(v_pSM[0]) == 0)
+              throw Exception("Non simple NucleotideSubstitutionModel imbedded in " + modelName + " model.");
+            
+            if (v_nestedModelDescription.size() != 3)
+              model = new CodonDistanceFrequenciesSubstitutionModel(pgc,
+                                                                    dynamic_cast<NucleotideSubstitutionModel*>(v_pSM[0]),
+                                                                    pFS,
+                                                                    pai2);
+            else
+              {
+                if (dynamic_cast<NucleotideSubstitutionModel*>(v_pSM[1]) == 0 || dynamic_cast<NucleotideSubstitutionModel*>(v_pSM[2]) == 0)
+                  throw Exception("Non simple NucleotideSubstitutionModel imbedded in " + modelName + " model.");
 
-      GeneticCode* pgc = SequenceApplicationTools::getGeneticCode(dynamic_cast<const NucleicAlphabet*>(pCA->getNAlphabet(0)), args["genetic_code"]);
-      if (pgc->getSourceAlphabet()->getAlphabetType() != pCA->getAlphabetType())
-        throw Exception("Mismatch between genetic code and codon alphabet");
+                model = new CodonDistanceFrequenciesSubstitutionModel(
+                                                                      pgc,
+                                                                      dynamic_cast<NucleotideSubstitutionModel*>(v_pSM[0]),
+                                                                      dynamic_cast<NucleotideSubstitutionModel*>(v_pSM[1]),
+                                                                      dynamic_cast<NucleotideSubstitutionModel*>(v_pSM[2]),
+                                                                      pFS,
+                                                                      pai2);
+              }
+          }
 
-      AlphabetIndex2<double> * pai2;
+        // /////////////////////////////////
+        // / CODON DISTANCE PHASE FREQUENCIES
+        // ///////////////////////////////
+        
+        else if (modelName == "CodonDistancePhaseFrequencies")
+          {
+            if (args.find("genetic_code") == args.end())
+              args["genetic_code"] = pCA->getAlphabetType();
 
-      if (args.find("aadistance") == args.end())
-        pai2 = 0;
-      else
-        pai2  = SequenceApplicationTools::getAADistance(args["aadistance"]);
+            GeneticCode* pgc = SequenceApplicationTools::getGeneticCode(dynamic_cast<const NucleicAlphabet*>(pCA->getNAlphabet(0)), args["genetic_code"]);
+            if (pgc->getSourceAlphabet()->getAlphabetType() != pCA->getAlphabetType())
+              throw Exception("Mismatch between genetic code and codon alphabet");
+            
+            AlphabetIndex2<double> * pai2;
+            
+            if (args.find("aadistance") == args.end())
+              pai2 = 0;
+            else
+              pai2  = SequenceApplicationTools::getAADistance(args["aadistance"]);
 
-      model = new CodonAsynonymousFrequenciesReversibleSubstitutionModel(pgc, pFS, pai2);
-    }
+
+            if (dynamic_cast<NucleotideSubstitutionModel*>(v_pSM[0]) == 0)
+              throw Exception("Non simple NucleotideSubstitutionModel imbedded in " + modelName + " model.");
+            
+            if (v_nestedModelDescription.size() != 3)
+              model = new CodonDistancePhaseFrequenciesSubstitutionModel(pgc,
+                                                                         dynamic_cast<NucleotideSubstitutionModel*>(v_pSM[0]),
+                                                                         pFS,
+                                                                         pai2);
+            else
+              {
+                if (dynamic_cast<NucleotideSubstitutionModel*>(v_pSM[1]) == 0 || dynamic_cast<NucleotideSubstitutionModel*>(v_pSM[2]) == 0)
+                  throw Exception("Non simple NucleotideSubstitutionModel imbedded in " + modelName + " model.");
+
+                model = new CodonDistancePhaseFrequenciesSubstitutionModel(
+                                                                           pgc,
+                                                                           dynamic_cast<NucleotideSubstitutionModel*>(v_pSM[0]),
+                                                                           dynamic_cast<NucleotideSubstitutionModel*>(v_pSM[1]),
+                                                                           dynamic_cast<NucleotideSubstitutionModel*>(v_pSM[2]),
+                                                                           pFS,
+                                                                           pai2);
+              }
+          }
+      }
   }
-
+  
   // //////////////////////////////////////
-  // predefined codon models
+  // PREDEFINED CODON MODELS
   // //////////////////////////////////////
-
+  
   else if ((modelName == "MG94") || (modelName == "YN98") ||
            (modelName == "GY94") || (modelName.substr(0, 5) == "YNGKP"))
   {
@@ -517,7 +604,7 @@ SubstitutionModel* PhylogeneticsApplicationTools::getSubstitutionModelDefaultIns
 
     for (map<string, string>::iterator it = unparsedParameterValuesNested.begin(); it != unparsedParameterValuesNested.end(); it++)
     {
-      unparsedParameterValues[modelName + ".freq_" + it->first] = it->second;
+      unparsedParameterValues[modelName + "." + it->first] = it->second;
     }
 
     if (modelName == "MG94")
@@ -959,7 +1046,7 @@ SubstitutionModel* PhylogeneticsApplicationTools::getSubstitutionModel(
 {
   string modelDescription;
   if (AlphabetTools::isCodonAlphabet(alphabet))
-    modelDescription = ApplicationTools::getStringParameter("model", params, "CodonNeutral(model=JC69)", suffix, suffixIsOptional, verbose);
+    modelDescription = ApplicationTools::getStringParameter("model", params, "CodonRate(model=JC69)", suffix, suffixIsOptional, verbose);
   else if (AlphabetTools::isWordAlphabet(alphabet))
     modelDescription = ApplicationTools::getStringParameter("model", params, "Word(model=JC69)", suffix, suffixIsOptional, verbose);
   else
@@ -1022,6 +1109,7 @@ void PhylogeneticsApplicationTools::setSubstitutionModelParametersInitialValues(
   std::vector<std::string>& sharedParams,
   bool verbose) throw (Exception)
 {
+  cerr << "PhylogeneticsApplicationTools::setSubstitutionModelParametersInitialValues" << endl;
   bool useObsFreq = ApplicationTools::getBooleanParameter(model->getNamespace() + "useObservedFreqs", unparsedParameterValues, false, "", "", false);
   if (verbose) ApplicationTools::displayResult("Use observed frequencies for model", useObsFreq ? "yes" : "no");
   if (useObsFreq && data != 0)
@@ -1033,6 +1121,7 @@ void PhylogeneticsApplicationTools::setSubstitutionModelParametersInitialValues(
   ParameterList pl = model->getIndependentParameters();
   for (unsigned int i = 0; i < pl.size(); i++)
   {
+    cerr << pl[i].getName() << endl;
     AutoParameter ap(pl[i]);
     ap.setMessageHandler(ApplicationTools::warning);
     pl.setParameter(i, ap);
@@ -1112,6 +1201,7 @@ FrequenciesSet* PhylogeneticsApplicationTools::getFrequenciesSet(
   map<string, string> unparsedParameterValues;
   FrequenciesSet* pFS = getFrequenciesSetDefaultInstance(alphabet, freqDescription, unparsedParameterValues);
 
+  cerr << 1111 << endl;
   // Now we set the initial frequencies according to options:
   if (unparsedParameterValues.find("init") != unparsedParameterValues.end())
   {
@@ -1139,6 +1229,7 @@ FrequenciesSet* PhylogeneticsApplicationTools::getFrequenciesSet(
   }
   else if (unparsedParameterValues.find("values") != unparsedParameterValues.end())
   {
+    cerr << 2 << endl;
     // Initialization using the "values" argument
     vector<double> frequencies;
     string rf = unparsedParameterValues["values"];
@@ -1260,7 +1351,7 @@ FrequenciesSet* PhylogeneticsApplicationTools::getFrequenciesSetDefaultInstance(
       pFS2 = getFrequenciesSetDefaultInstance(pWA->getNAlphabet(0), sAFS, unparsedParameterValuesNested);
       for (map<string, string>::iterator it = unparsedParameterValuesNested.begin(); it != unparsedParameterValuesNested.end(); it++)
       {
-        unparsedParameterValues["Word." + st + "_" + it->first] = it->second;
+        unparsedParameterValues["Word" + st + "_" + it->first] = it->second;
       }
       pFS = new WordFromUniqueFrequenciesSet(pWA, pFS2);
     }
@@ -1287,7 +1378,7 @@ FrequenciesSet* PhylogeneticsApplicationTools::getFrequenciesSetDefaultInstance(
         pFS = getFrequenciesSetDefaultInstance(pWA->getNAlphabet(i), v_sAFS[i], unparsedParameterValuesNested);
         for (map<string, string>::iterator it = unparsedParameterValuesNested.begin(); it != unparsedParameterValuesNested.end(); it++)
         {
-          unparsedParameterValues["Word." + TextTools::toString(i + 1) + "_" + it->first] = it->second;
+          unparsedParameterValues["Word" + TextTools::toString(i + 1) + "_" + it->first] = it->second;
         }
         v_AFS.push_back(pFS);
       }
@@ -1318,16 +1409,17 @@ FrequenciesSet* PhylogeneticsApplicationTools::getFrequenciesSetDefaultInstance(
 
           map<string, string> unparsedParameterValuesNested;
           pFS2 = getFrequenciesSetDefaultInstance(pWA->getNAlphabet(0), sAFS, unparsedParameterValuesNested);
+
           for (map<string, string>::iterator it = unparsedParameterValuesNested.begin(); it != unparsedParameterValuesNested.end(); it++)
             {
-              unparsedParameterValues["Codon." + st + "_" + it->first] = it->second;
+              unparsedParameterValues["freq_Codon" + st + "_" + it->first] = it->second;
             }
           pFS = new CodonFromUniqueFrequenciesSet(pWA,pFS2);
         }
       else
         {
           if (args.find("frequency1") == args.end())
-            throw Exception("PhylogeneticsApplicationTools::getFrequenciesSetDefaultInstance. Missing argument 'frequency' or 'frequency1' for frequencies set 'Codon'.");
+            throw Exception("PhylogeneticsApplicationTools::getFrequenciesSetDefaultInstance. Missing argument 'frequency' or 'frequency1' for frequencies set 'freq_Codon'.");
           vector<string> v_sAFS;
           vector<FrequenciesSet*> v_AFS;
           unsigned int nbfreq = 1;
@@ -1347,7 +1439,7 @@ FrequenciesSet* PhylogeneticsApplicationTools::getFrequenciesSetDefaultInstance(
               pFS = getFrequenciesSetDefaultInstance(pWA->getNAlphabet(i), v_sAFS[i], unparsedParameterValuesNested);
               for (map<string, string>::iterator it = unparsedParameterValuesNested.begin(); it != unparsedParameterValuesNested.end(); it++)
                 {
-                  unparsedParameterValues["Codon." + TextTools::toString(i+1) + "_" + it->first] = it->second;
+                  unparsedParameterValues["freq_Codon" + TextTools::toString(i+1) + "_" + it->first] = it->second;
                 }
               v_AFS.push_back(pFS);
             }
@@ -1441,6 +1533,7 @@ void PhylogeneticsApplicationTools::setSubstitutionModelSet(
                                                             bool suffixIsOptional,
                                                             bool verbose)
 {
+  cerr << "void PhylogeneticsApplicationTools::setSubstitutionModelSet(" << endl;
   modelSet.clear();
   if (!ApplicationTools::parameterExists("nonhomogeneous.number_of_models", params))
     throw Exception("You must specify this parameter: nonhomogeneous.number_of_models .");
@@ -1457,7 +1550,7 @@ void PhylogeneticsApplicationTools::setSubstitutionModelSet(
   vector<double> rateFreqs;
   string tmpDesc;
   if (AlphabetTools::isCodonAlphabet(alphabet))
-    tmpDesc = ApplicationTools::getStringParameter("model1", params, "CodonNeutral(model=JC69)", suffix, suffixIsOptional, false);
+    tmpDesc = ApplicationTools::getStringParameter("model1", params, "CodonRate(model=JC69)", suffix, suffixIsOptional, false);
   else if (AlphabetTools::isWordAlphabet(alphabet))
     tmpDesc = ApplicationTools::getStringParameter("model1", params, "Word(model=JC69)", suffix, suffixIsOptional, false);
   else
@@ -1498,7 +1591,7 @@ void PhylogeneticsApplicationTools::setSubstitutionModelSet(
     string prefix = "model" + TextTools::toString(i + 1);
     string modelDesc;
     if (AlphabetTools::isCodonAlphabet(alphabet))
-      modelDesc = ApplicationTools::getStringParameter(prefix, params, "CodonNeutral(model=JC69)", suffix, suffixIsOptional, verbose);
+      modelDesc = ApplicationTools::getStringParameter(prefix, params, "CodonRate(model=JC69)", suffix, suffixIsOptional, verbose);
     else
     if (AlphabetTools::isWordAlphabet(alphabet))
       modelDesc = ApplicationTools::getStringParameter(prefix, params, "Word(model=JC69)", suffix, suffixIsOptional, verbose);
@@ -1550,6 +1643,7 @@ void PhylogeneticsApplicationTools::setSubstitutionModelSet(
     ApplicationTools::displayResult("Parameter alias found", p1 + "->" + p2);
     modelSet.aliasParameters(p1, p2);
   }
+  cerr << "VOID PHYLOGENETICSAPPLICATIONTOOLS::SETSUBSTITUTIONMODELSET(" << endl;
 
 }
 

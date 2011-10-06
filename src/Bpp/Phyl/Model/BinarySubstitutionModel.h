@@ -66,7 +66,7 @@ namespace bpp
  * \f]
  *
  * The eigen values are \f$\left(0, - \frac{(\kappa+1)^2}{2\kappa}\right)\f$,
- * and IF $\kappa \neq 1$, the left eigen vectors are, by row:
+ * and IF \f$\kappa \neq 1\f$, the left eigen vectors are, by row:
  * \f[
  * U = \begin{pmatrix}
  *  \frac{1}{1+\kappa} &  \frac{\kappa}{1+\kappa} \\
@@ -81,7 +81,7 @@ namespace bpp
  * \end{pmatrix}
  * \f]
  *
- * The probabilities of changes are computed analytically using the formulas, with $\lambda= \frac{(\kappa+1)^2}{2\kappa}$ :
+ * The probabilities of changes are computed analytically using the formulas, with \f$\lambda= \frac{(\kappa+1)^2}{2\kappa}\f$ :
  * \f[
  * P_{i,j}(t) = \begin{pmatrix}
  * \frac{1}{\kappa+1} + \frac{\kappa}{\kappa+1}e^{-\lambda t} & \frac{\kappa}{\kappa+1} - \frac{\kappa}{\kappa+1}e^{-\lambda t} \\
@@ -128,6 +128,7 @@ public:
 
   BinarySubstitutionModel* clone() const { return new BinarySubstitutionModel(*this); }
 
+  
 public:
   double Pij_t    (unsigned int i, unsigned int j, double d) const;
   double dPij_dt  (unsigned int i, unsigned int j, double d) const;
@@ -136,7 +137,7 @@ public:
   const Matrix<double>& getdPij_dt  (double d) const;
   const Matrix<double>& getd2Pij_dt2(double d) const;
 
-  std::string getName() const { return "BinarySubstitutionModel"; }
+  std::string getName() const { return "Binary"; }
 
   void setFreq(std::map<int, double>& freqs);
 

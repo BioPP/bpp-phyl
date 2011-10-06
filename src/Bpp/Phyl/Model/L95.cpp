@@ -56,7 +56,8 @@ using namespace std;
 L95::L95(
 	const NucleicAlphabet* alphabet,
 	double alpha, double beta, double gamma, double kappa, double theta):
-  AbstractSubstitutionModel(alphabet, "L95."), alpha_(alpha), beta_(beta), gamma_(gamma), kappa_(kappa), theta_(theta)
+    AbstractParameterAliasable("L95."),
+    AbstractSubstitutionModel(alphabet, "L95."), alpha_(alpha), beta_(beta), gamma_(gamma), kappa_(kappa), theta_(theta)
 {
   addParameter_(Parameter("L95.alpha" , alpha , &Parameter::PROP_CONSTRAINT_EX));
   addParameter_(Parameter("L95.beta" , beta , &Parameter::PROP_CONSTRAINT_EX));

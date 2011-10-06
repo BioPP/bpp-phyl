@@ -108,6 +108,7 @@ LLG08_EX2::~LLG08_EX2()
 /**************** sub model classes *///////////
 
 LLG08_EX2::EmbeddedModel::EmbeddedModel(const ProteicAlphabet* alpha, string name) :
+  AbstractParameterAliasable(""),
   AbstractReversibleSubstitutionModel(alpha, ""), proportion_(1), name_(name)
 {
 #include "__LLG08_EX2ExchangeabilityCode"

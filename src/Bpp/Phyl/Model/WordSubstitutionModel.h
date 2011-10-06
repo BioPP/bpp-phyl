@@ -1,5 +1,5 @@
 //
-// File: WordReversibleSubstitutionModel.h
+// File: WordSubstitutionModel.h
 // Created by: Laurent Gueguen
 // Created on: Jan 2009
 //
@@ -37,10 +37,10 @@
    knowledge of the CeCILL license and that you accept its terms.
  */
 
-#ifndef _WORDREVERSIBLESUBSTITUTIONMODEL_H_
-#define _WORDREVERSIBLESUBSTITUTIONMODEL_H_
+#ifndef _WORDSUBSTITUTIONMODEL_H_
+#define _WORDSUBSTITUTIONMODEL_H_
 
-#include "AbstractWordReversibleSubstitutionModel.h"
+#include "AbstractWordSubstitutionModel.h"
 #include <Bpp/Numeric/Matrix/Matrix.h>
 #include <Bpp/BppVector.h>
 
@@ -71,12 +71,12 @@ namespace bpp
  * where @f$\rho_i@f$ stands for the rate of position @f$i@f$.
  */
 
-class WordReversibleSubstitutionModel :
-  public AbstractWordReversibleSubstitutionModel
+class WordSubstitutionModel :
+  public AbstractWordSubstitutionModel
 {
 public:
   /**
-   *@brief Build a new WordReversibleSubstitutionModel object from a
+   *@brief Build a new WordSubstitutionModel object from a
    *Vector of pointers to SubstitutionModels.
    *
    *@param modelVector the Vector of substitution models to use, in
@@ -87,10 +87,10 @@ public:
    * @param st the Namespace.
    */
 
-  WordReversibleSubstitutionModel(const std::vector<SubstitutionModel*>& modelVector, const std::string& st = "");
+  WordSubstitutionModel(const std::vector<SubstitutionModel*>& modelVector, const std::string& st = "");
 
   /**
-   *@brief Build a new WordReversibleSubstitutionModel object from a
+   *@brief Build a new WordSubstitutionModel object from a
    *pointer to an SubstitutionModel and a number of
    *desired models.
    *
@@ -100,18 +100,18 @@ public:
    * @param st the Namespace.
    */
 
-  WordReversibleSubstitutionModel(SubstitutionModel* pmodel, unsigned int num, const std::string& st = "");
+  WordSubstitutionModel(SubstitutionModel* pmodel, unsigned int num, const std::string& st = "");
 
-  virtual ~WordReversibleSubstitutionModel() {}
+  virtual ~WordSubstitutionModel() {}
 
-  WordReversibleSubstitutionModel* clone() const { return new WordReversibleSubstitutionModel(*this); }
+  WordSubstitutionModel* clone() const { return new WordSubstitutionModel(*this); }
 
 protected:
   /**
    *@brief Constructor for the derived classes only
    */
 
-  WordReversibleSubstitutionModel(const Alphabet* alph, const std::string& = "");
+  WordSubstitutionModel(const Alphabet* alph, const std::string& = "");
 
   virtual void updateMatrices();
   virtual void completeMatrices();
@@ -127,5 +127,5 @@ public:
 };
 } // end of namespace bpp.
 
-#endif  // _WORDREVERSIBLESUBSTITUTIONMODEL
+#endif  // _WORDSUBSTITUTIONMODEL
 

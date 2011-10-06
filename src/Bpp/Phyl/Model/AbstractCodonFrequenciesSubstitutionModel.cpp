@@ -1,7 +1,7 @@
 //
-// File: AbstractCodonFrequenciesReversibleSubstitutionModel.cpp
+// File: AbstractCodonFrequenciesSubstitutionModel.cpp
 // Created by:  Laurent Gueguen
-// Created on: Feb 2009
+// Created on: jeudi 15 septembre 2011, à 15h 02
 //
 
 /*
@@ -36,10 +36,9 @@
    knowledge of the CeCILL license and that you accept its terms.
  */
 
-#include "AbstractCodonFrequenciesReversibleSubstitutionModel.h"
-#include "K80.h"
+#include "AbstractCodonFrequenciesSubstitutionModel.h"
 
-#include <Bpp/Seq/Alphabet/AlphabetTools.h>
+//#include <Bpp/Seq/Alphabet/AlphabetTools.h>
 
 using namespace bpp;
 
@@ -47,71 +46,42 @@ using namespace std;
 
 /******************************************************************************/
 
-AbstractCodonFrequenciesReversibleSubstitutionModel::AbstractCodonFrequenciesReversibleSubstitutionModel(
-  const CodonAlphabet* palph,
+AbstractCodonFrequenciesSubstitutionModel::AbstractCodonFrequenciesSubstitutionModel(
   FrequenciesSet* pfreq,
-  const std::string& prefix) throw (Exception) :
-  AbstractWordReversibleSubstitutionModel(palph, prefix),
+  const std::string& prefix) :
+  CodonSubstitutionModel(),
+  AbstractParameterAliasable(prefix),
   pfreqset_(pfreq),
-  freqPrefix_(pfreq->getNamespace())
+  freqName_("")
 {
-  enableEigenDecomposition(1);
+  if (dynamic_cast<CodonFrequenciesSet*>(pfreq)==NULL)
+    throw Exception("Bad type for equilibrium frequencies " + pfreq->getName());
 
-  Vrate_.resize(3);
-
-  SubstitutionModel* pmodel = new K80(palph->getNucleicAlphabet());
-
-  for (unsigned i = 0; i < 3; i++)
-  {
-    VSubMod_.push_back(pmodel);
-    VnestedPrefix_.push_back(pmodel->getNamespace());
-    Vrate_[i] = 1.0 / 3;
-  }
-
-  pmodel->setNamespace(prefix + "123_" + VnestedPrefix_[0]);
-  addParameters_(pmodel->getParameters());
-
-  if (pfreqset_->getAlphabet()->getSize() != 64)
-    throw Exception("Bad Alphabet for equilibrium frequencies " + pfreqset_->getAlphabet()->getAlphabetType());
-
-  pfreqset_->setNamespace(prefix + "freq_" + freqPrefix_);
+  freqName_="freq_"+pfreqset_->getNamespace();
+  pfreqset_->setNamespace(prefix + freqName_);
   addParameters_(pfreqset_->getParameters());
 }
 
-AbstractCodonFrequenciesReversibleSubstitutionModel::~AbstractCodonFrequenciesReversibleSubstitutionModel()
+AbstractCodonFrequenciesSubstitutionModel::~AbstractCodonFrequenciesSubstitutionModel()
 {
   if (pfreqset_)
     delete pfreqset_;
 }
 
-void AbstractCodonFrequenciesReversibleSubstitutionModel::fireParameterChanged(const ParameterList& parameters)
+void AbstractCodonFrequenciesSubstitutionModel::fireParameterChanged(const ParameterList& parameters)
 {
   pfreqset_->matchParametersValues(parameters);
-  AbstractWordReversibleSubstitutionModel::fireParameterChanged(parameters);
 }
 
 
-void AbstractCodonFrequenciesReversibleSubstitutionModel::setFreq(map<int,double>& frequencies)
+void AbstractCodonFrequenciesSubstitutionModel::setFreq(map<int,double>& frequencies)
 {
   pfreqset_->setFrequenciesFromMap(frequencies);
   matchParametersValues(pfreqset_->getParameters());
-
-  updateMatrices();
 }
 
-void AbstractCodonFrequenciesReversibleSubstitutionModel::completeMatrices()
+double AbstractCodonFrequenciesSubstitutionModel::getCodonsMulRate(unsigned int i, unsigned int j) const
 {
-  unsigned int i, j;
-  unsigned int salph = getNumberOfStates();
-
-  freq_ = pfreqset_->getFrequencies();
-  
-  for (i = 0; i < salph; i++)
-  {
-    for (j = 0; j < salph; j++)
-    {
-      generator_(i, j) = exchangeability_(i, j) * freq_[j];
-    }
-  }
+  return pfreqset_->getFrequencies()[j];
 }
 

@@ -48,7 +48,8 @@ using namespace std;
 
 
 AbstractMixedSubstitutionModel::AbstractMixedSubstitutionModel(const Alphabet* alpha,
-                                                               const std::string& prefix): AbstractSubstitutionModel(alpha, prefix),
+                                                               const std::string& prefix): AbstractParameterAliasable(prefix),
+AbstractSubstitutionModel(alpha, prefix),
                                                                                            modelsContainer_(),
                                                                                            vProbas_(),
                                                                                            vRates_()
@@ -65,6 +66,7 @@ AbstractMixedSubstitutionModel::AbstractMixedSubstitutionModel(const Alphabet* a
 }
 
 AbstractMixedSubstitutionModel::AbstractMixedSubstitutionModel(const AbstractMixedSubstitutionModel& msm) :
+  AbstractParameterAliasable(msm),
   AbstractSubstitutionModel(msm),
   modelsContainer_(),
   vProbas_(),
@@ -78,20 +80,21 @@ AbstractMixedSubstitutionModel::AbstractMixedSubstitutionModel(const AbstractMix
     }
 }
 
-AbstractMixedSubstitutionModel& AbstractMixedSubstitutionModel::operator=(const AbstractMixedSubstitutionModel& msm)
+AbstractMixedSubstitutionModel& AbstractMixedSubstitutionModel::operator=(const AbstractMixedSubstitutionModel& model)
 {
-  AbstractSubstitutionModel::operator=(msm);
+  AbstractParameterAliasable::operator=(model);
+  AbstractSubstitutionModel::operator=(model);
   
   //Clear existing containers:
   modelsContainer_.clear();
   vProbas_.clear();
   vRates_.clear();
   
-  for (unsigned int i = 0; i < msm.modelsContainer_.size(); i++)
+  for (unsigned int i = 0; i < model.modelsContainer_.size(); i++)
     {
-      modelsContainer_.push_back(msm.modelsContainer_[i]->clone());
-      vProbas_.push_back(msm.vProbas_[i]);
-      vRates_.push_back(msm.vRates_[i]);
+      modelsContainer_.push_back(model.modelsContainer_[i]->clone());
+      vProbas_.push_back(model.vProbas_[i]);
+      vRates_.push_back(model.vRates_[i]);
     }
   
   return *this;

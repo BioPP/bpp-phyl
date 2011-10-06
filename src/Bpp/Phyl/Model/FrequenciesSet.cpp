@@ -102,7 +102,7 @@ FullFrequenciesSet::FullFrequenciesSet(const Alphabet* alphabet, bool allowNullF
   getFreq_(i) = 1. / size;
 }
 
-FullFrequenciesSet::FullFrequenciesSet(const Alphabet* alphabet, const vector<double>& initFreqs, bool allowNullFreqs, const string& name) throw (Exception) :
+FullFrequenciesSet::FullFrequenciesSet(const Alphabet* alphabet, const vector<double>& initFreqs, bool allowNullFreqs, const string& name) :
   AbstractFrequenciesSet(alphabet->getSize(), alphabet, "Full.", name)
 {
   if (initFreqs.size() != alphabet->getSize())
@@ -130,7 +130,7 @@ FullFrequenciesSet::FullFrequenciesSet(const Alphabet* alphabet, const vector<do
   getFreq_(i) = initFreqs[i];
 }
 
-void FullFrequenciesSet::setFrequencies(const vector<double>& frequencies) throw (DimensionException, Exception)
+void FullFrequenciesSet::setFrequencies(const vector<double>& frequencies) 
 {
   const Alphabet* alphabet = getAlphabet();
   if (frequencies.size() != getNumberOfFrequencies())
@@ -198,7 +198,7 @@ FullCodonFrequenciesSet::FullCodonFrequenciesSet(const CodonAlphabet* alphabet, 
 }
 
 
-FullCodonFrequenciesSet::FullCodonFrequenciesSet(const CodonAlphabet* alphabet, const vector<double>& initFreqs, bool allowNullFreqs, const string& name) throw (Exception) :
+FullCodonFrequenciesSet::FullCodonFrequenciesSet(const CodonAlphabet* alphabet, const vector<double>& initFreqs, bool allowNullFreqs, const string& name) :
   AbstractFrequenciesSet(alphabet->getSize(), alphabet, "Full.", name)
 {
   if (initFreqs.size() != alphabet->getSize())
@@ -237,7 +237,7 @@ FullCodonFrequenciesSet::FullCodonFrequenciesSet(const CodonAlphabet* alphabet, 
   getFreq_(i) = (alphabet->isStop(i)) ? 0 : initFreqs[i] / sum;
 }
 
-void FullCodonFrequenciesSet::setFrequencies(const vector<double>& frequencies) throw (DimensionException, Exception)
+void FullCodonFrequenciesSet::setFrequencies(const vector<double>& frequencies)
 {
   if (frequencies.size() != getAlphabet()->getSize()) throw DimensionException("FullFrequenciesSet::setFrequencies", frequencies.size(), getAlphabet()->getSize());
   const CodonAlphabet* alphabet = getAlphabet();
@@ -348,7 +348,7 @@ FullNucleotideFrequenciesSet::FullNucleotideFrequenciesSet(
   getFreq_(3) = (1 - theta1) * (1. - theta);
 }
 
-void FullNucleotideFrequenciesSet::setFrequencies(const vector<double>& frequencies) throw (DimensionException, Exception)
+void FullNucleotideFrequenciesSet::setFrequencies(const vector<double>& frequencies) 
 {
   if (frequencies.size() != 4) throw DimensionException(" FullNucleotideFrequenciesSet::setFrequencies", frequencies.size(), 4);
   double sum = 0.0;
@@ -380,7 +380,7 @@ void FullNucleotideFrequenciesSet::fireParameterChanged(const ParameterList& par
 // /////////////////////////////////////////
 // GCFrequenciesSet
 
-void GCFrequenciesSet::setFrequencies(const vector<double>& frequencies) throw (DimensionException, Exception)
+void GCFrequenciesSet::setFrequencies(const vector<double>& frequencies) 
 {
   if (frequencies.size() != 4) throw DimensionException("GCFrequenciesSet::setFrequencies", frequencies.size(), 4);
   double sum = 0.0;
@@ -424,7 +424,7 @@ FixedFrequenciesSet::FixedFrequenciesSet(const Alphabet* alphabet, const string&
   }
 }
 
-void FixedFrequenciesSet::setFrequencies(const vector<double>& frequencies) throw (DimensionException, Exception)
+void FixedFrequenciesSet::setFrequencies(const vector<double>& frequencies) 
 {
   if (frequencies.size() != getAlphabet()->getSize()) throw DimensionException("FixedFrequenciesSet::setFrequencies", frequencies.size(), getAlphabet()->getSize());
   double sum = 0.0;
@@ -457,7 +457,7 @@ FixedCodonFrequenciesSet::FixedCodonFrequenciesSet(const CodonAlphabet* alphabet
   }
 }
 
-void FixedCodonFrequenciesSet::setFrequencies(const vector<double>& frequencies) throw (DimensionException, Exception)
+void FixedCodonFrequenciesSet::setFrequencies(const vector<double>& frequencies)
 {
   const CodonAlphabet* ca = dynamic_cast<const CodonAlphabet*>(getAlphabet());
   if (frequencies.size() != ca->getSize()) throw DimensionException("FixedFrequenciesSet::setFrequencies", frequencies.size(), ca->getSize());
@@ -512,7 +512,9 @@ AbstractWordFrequenciesSet::~AbstractWordFrequenciesSet()
 
 
 WordFromIndependentFrequenciesSet::WordFromIndependentFrequenciesSet(
-                                                                     const WordAlphabet* pWA, const std::vector<FrequenciesSet*>& freqVector, const string& prefix, const string& name) throw (Exception) :
+                                                                     const WordAlphabet* pWA,
+                                                                     const std::vector<FrequenciesSet*>& freqVector,
+                                                                     const string& prefix, const string& name) :
   AbstractWordFrequenciesSet(pWA->getSize(), pWA, prefix, name),
   vFreq_(),
   vNestedPrefix_()
@@ -527,7 +529,7 @@ WordFromIndependentFrequenciesSet::WordFromIndependentFrequenciesSet(
   {
     vFreq_.push_back(freqVector[i]);
     vNestedPrefix_.push_back(freqVector[i]->getNamespace());
-    vFreq_[i]->setNamespace(prefix+"." + TextTools::toString(i + 1) + "_" + vNestedPrefix_[i]);
+    vFreq_[i]->setNamespace(prefix + TextTools::toString(i + 1) + "_" + vNestedPrefix_[i]);
     addParameters_(vFreq_[i]->getParameters());
   }
 
@@ -615,7 +617,7 @@ void WordFromIndependentFrequenciesSet::updateFrequencies()
   }
 }
 
-void WordFromIndependentFrequenciesSet::setFrequencies(const vector<double>& frequencies) throw (DimensionException, Exception)
+void WordFromIndependentFrequenciesSet::setFrequencies(const vector<double>& frequencies) 
 {
   if (frequencies.size() != getAlphabet()->getSize())
     throw DimensionException("WordFromIndependentFrequenciesSet::setFrequencies", frequencies.size(), getAlphabet()->getSize());
@@ -668,7 +670,7 @@ void WordFromIndependentFrequenciesSet::setNamespace(const std::string& prefix)
   AbstractFrequenciesSet::setNamespace(prefix);
   for (unsigned int i = 0; i < vFreq_.size(); i++)
   {
-    vFreq_[i]->setNamespace(prefix + "." + TextTools::toString(i + 1) + "_" + vNestedPrefix_[i]);
+    vFreq_[i]->setNamespace(prefix + TextTools::toString(i + 1) + "_" + vNestedPrefix_[i]);
   }
 }
 
@@ -688,9 +690,16 @@ std::string WordFromIndependentFrequenciesSet::getDescription() const
 
 
 CodonFromIndependentFrequenciesSet::CodonFromIndependentFrequenciesSet(
-                                                                       const CodonAlphabet* pCA, const std::vector<FrequenciesSet*>& freqvector, const string& name) throw (Exception) :
+                                                                       const CodonAlphabet* pCA,
+                                                                       const std::vector<FrequenciesSet*>& freqvector,
+                                                                       const string& name) :
   WordFromIndependentFrequenciesSet(pCA, freqvector, "Codon", name)
 {
+}
+
+const CodonAlphabet* CodonFromIndependentFrequenciesSet::getAlphabet() const
+{
+  return dynamic_cast<const CodonAlphabet*>(WordFromIndependentFrequenciesSet::getAlphabet());
 }
 
 CodonFromIndependentFrequenciesSet::CodonFromIndependentFrequenciesSet(const CodonFromIndependentFrequenciesSet& iwfs) :
@@ -707,13 +716,12 @@ CodonFromIndependentFrequenciesSet& CodonFromIndependentFrequenciesSet::operator
 void CodonFromIndependentFrequenciesSet::updateFrequencies()
 {
   WordFromIndependentFrequenciesSet::updateFrequencies();
-  const CodonAlphabet* pCA=dynamic_cast<const CodonAlphabet*>(getAlphabet());
   
   unsigned int s = getAlphabet()->getSize();
   double sum=0;
   for (unsigned int i = 0; i < s; i++)
     {
-      if (pCA->isStop(i))
+      if (getAlphabet()->isStop(i))
         getFreq_(i) = 0;
       else
         sum+=getFreq_(i);
@@ -723,19 +731,17 @@ void CodonFromIndependentFrequenciesSet::updateFrequencies()
     getFreq_(i)=getFreq_(i)/sum;
 }
 
-void CodonFromIndependentFrequenciesSet::setFrequencies(const vector<double>& frequencies) throw (DimensionException, Exception)
+void CodonFromIndependentFrequenciesSet::setFrequencies(const vector<double>& frequencies) 
 {
-  const CodonAlphabet* pCA=dynamic_cast<const CodonAlphabet*>(getAlphabet());
-  
   unsigned int s = getAlphabet()->getSize();
   double sum=0;
   vector<double> freq;
   for (unsigned int i = 0; i < s; i++)
-    if (!pCA->isStop(i))
+    if (!getAlphabet()->isStop(i))
       sum+=frequencies[i];
 
   for (unsigned int i = 0; i < s; i++)
-    if (pCA->isStop(i))
+    if (getAlphabet()->isStop(i))
       freq.push_back(0);
     else
       freq.push_back(frequencies[i]/sum);
@@ -747,7 +753,10 @@ void CodonFromIndependentFrequenciesSet::setFrequencies(const vector<double>& fr
 // // WordFromUniqueFrequenciesSet
 
 
-WordFromUniqueFrequenciesSet::WordFromUniqueFrequenciesSet(const WordAlphabet* pWA, FrequenciesSet* pabsfreq, const string& prefix, const string& name) :
+WordFromUniqueFrequenciesSet::WordFromUniqueFrequenciesSet(const WordAlphabet* pWA,
+                                                           FrequenciesSet* pabsfreq,
+                                                           const string& prefix,
+                                                           const string& name) :
   AbstractWordFrequenciesSet(pWA->getSize(), pWA, prefix, name),
   pFreq_(pabsfreq),
   NestedPrefix_(pabsfreq->getNamespace()),
@@ -761,7 +770,7 @@ WordFromUniqueFrequenciesSet::WordFromUniqueFrequenciesSet(const WordAlphabet* p
     st += TextTools::toString(i + 1);
   }
 
-  pFreq_->setNamespace(prefix+"." + st + "_" + NestedPrefix_);
+  pFreq_->setNamespace(prefix+ st + "_" + NestedPrefix_);
   addParameters_(pFreq_->getParameters());
 
   updateFrequencies();
@@ -824,7 +833,7 @@ void WordFromUniqueFrequenciesSet::updateFrequencies()
   }
 }
 
-void WordFromUniqueFrequenciesSet::setFrequencies(const vector<double>& frequencies) throw (DimensionException, Exception)
+void WordFromUniqueFrequenciesSet::setFrequencies(const vector<double>& frequencies) 
 {
   if (frequencies.size() != getAlphabet()->getSize())
     throw DimensionException("WordFromUniqueFrequenciesSet::setFrequencies", frequencies.size(), getAlphabet()->getSize());
@@ -877,7 +886,7 @@ void WordFromUniqueFrequenciesSet::setNamespace(const string& prefix)
   {
     st += TextTools::toString(i + 1);
   }
-  pFreq_->setNamespace(prefix + "." + st + "_" + NestedPrefix_);
+  pFreq_->setNamespace(prefix + st + "_" + NestedPrefix_);
 }
 
 
@@ -891,10 +900,16 @@ string WordFromUniqueFrequenciesSet::getDescription() const
 // // CodonFromUniqueFrequenciesSet
 
 
-CodonFromUniqueFrequenciesSet::CodonFromUniqueFrequenciesSet(const CodonAlphabet* pCA, FrequenciesSet* pfreq, const string& name) throw (Exception) :
+CodonFromUniqueFrequenciesSet::CodonFromUniqueFrequenciesSet(const CodonAlphabet* pCA, FrequenciesSet* pfreq, const string& name) :
   WordFromUniqueFrequenciesSet(pCA, pfreq, "Codon", name)
 {
 }
+
+const CodonAlphabet* CodonFromUniqueFrequenciesSet::getAlphabet() const
+{
+  return dynamic_cast<const CodonAlphabet*>(WordFromUniqueFrequenciesSet::getAlphabet());
+}
+
 
 CodonFromUniqueFrequenciesSet::CodonFromUniqueFrequenciesSet(const CodonFromUniqueFrequenciesSet& iwfs) :
   WordFromUniqueFrequenciesSet(iwfs)
@@ -927,7 +942,7 @@ void CodonFromUniqueFrequenciesSet::updateFrequencies()
   }
 }
 
-void CodonFromUniqueFrequenciesSet::setFrequencies(const vector<double>& frequencies) throw (DimensionException, Exception)
+void CodonFromUniqueFrequenciesSet::setFrequencies(const vector<double>& frequencies) 
 {
   const CodonAlphabet* pCA=dynamic_cast<const CodonAlphabet*>(getAlphabet());
   

@@ -138,6 +138,21 @@ unsigned int TreeTemplateTools::getDepth(const Node& node)
 
 /******************************************************************************/
 
+unsigned int TreeTemplateTools::getDepths(const Node& node, map<const Node*, unsigned int>& depths)
+{
+  unsigned int d = 0;
+  for (unsigned int i = 0; i < node.getNumberOfSons(); i++)
+  {
+    unsigned int c = getDepths(*node[i], depths) + 1;
+    if (c > d)
+      d = c;
+  }
+  depths[&node] = d;
+  return d;
+}
+
+/******************************************************************************/
+
 double TreeTemplateTools::getHeight(const Node& node)
 {
   double d = 0;

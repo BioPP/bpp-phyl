@@ -89,12 +89,14 @@ class DSO78 :
 		DSO78(const ProteicAlphabet* alpha, ProteinFrequenciesSet* freqSet, bool initFreqs=false);
 
     DSO78(const DSO78& model) :
+      AbstractParameterAliasable(model),
       AbstractReversibleSubstitutionModel(model),
       freqSet_(dynamic_cast<ProteinFrequenciesSet *>(model.freqSet_->clone()))
     {}
 
     DSO78& operator=(const DSO78& model)
     {
+      AbstractParameterAliasable::operator=(model);
       AbstractReversibleSubstitutionModel::operator=(model);
       if (freqSet_) delete freqSet_;
       freqSet_ = dynamic_cast<ProteinFrequenciesSet *>(model.freqSet_->clone());

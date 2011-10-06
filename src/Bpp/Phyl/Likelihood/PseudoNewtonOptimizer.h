@@ -70,15 +70,15 @@ class PseudoNewtonOptimizer:
         PNStopCondition* clone() const { return new PNStopCondition(*this); }
           
       public:
-				void init() {}
         bool isToleranceReached() const;
+        double getCurrentTolerance() const;
     };
    
   friend class PNStopCondition;
          
 	private:
 
-		ParameterList previousPoint_; // Current point is in _parameters
+		ParameterList previousPoint_; // Current point is in parameters_
 
 		double previousValue_;
 

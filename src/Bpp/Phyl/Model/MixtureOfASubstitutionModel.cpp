@@ -53,6 +53,7 @@ MixtureOfASubstitutionModel::MixtureOfASubstitutionModel(
                                                          std::map<std::string, DiscreteDistribution*> parametersDistributionsList,
                                                          int ffrom,
                                                          int tto) throw(Exception) :
+  AbstractParameterAliasable(""),
   AbstractMixedSubstitutionModel(alpha, ""),
   distributionMap_(),
   from_(ffrom),
@@ -134,6 +135,7 @@ MixtureOfASubstitutionModel::MixtureOfASubstitutionModel(
 }
 
 MixtureOfASubstitutionModel::MixtureOfASubstitutionModel(const MixtureOfASubstitutionModel& msm) :
+  AbstractParameterAliasable(msm),
   AbstractMixedSubstitutionModel(msm),
   distributionMap_(),
   from_(msm.from_),

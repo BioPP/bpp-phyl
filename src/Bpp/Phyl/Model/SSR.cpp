@@ -58,7 +58,8 @@ SSR::SSR(
 	double gamma,
 	double delta,
 	double theta):
-	AbstractReversibleSubstitutionModel(alpha, "SSR."), beta_(beta), gamma_(gamma), delta_(delta_), theta_(theta),
+  AbstractParameterAliasable("SSR."),
+  AbstractReversibleSubstitutionModel(alpha, "SSR."), beta_(beta), gamma_(gamma), delta_(delta_), theta_(theta),
   piA_((1. - theta) / 2.), piC_(theta / 2.), piG_(theta / 2.), piT_((1. - theta) / 2.)
 {
 	Parameter betaP("SSR.beta" , beta , &Parameter::R_PLUS_STAR);

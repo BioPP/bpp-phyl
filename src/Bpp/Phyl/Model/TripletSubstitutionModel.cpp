@@ -1,5 +1,5 @@
 //
-// File: CodonReversibleSubstitutionModel.cpp
+// File: TripletSubstitutionModel.cpp
 // Created by:  Laurent Gueguen
 // Created on: Feb 2009
 //
@@ -36,56 +36,68 @@
    knowledge of the CeCILL license and that you accept its terms.
  */
 
-#include "AbstractCodonReversibleSubstitutionModel.h"
+#include "TripletSubstitutionModel.h"
+
+#include <Bpp/Numeric/VectorTools.h>
+#include <Bpp/Numeric/Matrix/MatrixTools.h>
+#include <Bpp/Numeric/Matrix/EigenValue.h>
+
+// From SeqLib:
+#include <Bpp/Seq/Alphabet/WordAlphabet.h>
+#include <Bpp/Seq/Container/SequenceContainerTools.h>
 
 using namespace bpp;
+
+// From the STL:
+#include <cmath>
 
 using namespace std;
 
 /******************************************************************************/
 
-AbstractCodonReversibleSubstitutionModel::AbstractCodonReversibleSubstitutionModel(
-  const CodonAlphabet* palph,
-  NucleotideSubstitutionModel* pmod,
-  const std::string& st) :
-  AbstractWordReversibleSubstitutionModel(palph,st)
+TripletSubstitutionModel::TripletSubstitutionModel(
+    const CodonAlphabet* palph,
+    NucleotideSubstitutionModel* pmod) :
+  AbstractParameterAliasable("Triplet."),
+  WordSubstitutionModel(palph,"Triplet.")
 {
-  enableEigenDecomposition(1);
-
   unsigned int i;
-  for (i = 0; i < 3; i++)
-  {
-   VSubMod_.push_back(pmod);
-   VnestedPrefix_.push_back(pmod->getNamespace());
-  }
-
-  pmod->setNamespace(st + "123_" + VnestedPrefix_[0]);
   addParameters_(pmod->getParameters());
 
   Vrate_.resize(3);
   for (i = 0; i < 3; i++)
   {
-    Vrate_[i] = 1.0 / 3;
+    VSubMod_.push_back(pmod);
+    VnestedPrefix_.push_back(pmod->getNamespace());
+    Vrate_[i] = 1. / 3.;
   }
+
+  // relative rates
+  for (i = 0; i < 2; i++)
+  {
+    addParameter_(Parameter("Triplet.relrate" + TextTools::toString(i+1), 1.0 / (3 - i), &Parameter::PROP_CONSTRAINT_EX));
+  }
+
+  WordSubstitutionModel::updateMatrices();
 }
 
-AbstractCodonReversibleSubstitutionModel::AbstractCodonReversibleSubstitutionModel(
-  const CodonAlphabet* palph,
-  NucleotideSubstitutionModel* pmod1,
-  NucleotideSubstitutionModel* pmod2,
-  NucleotideSubstitutionModel* pmod3,
-  const std::string& st) :
-  AbstractWordReversibleSubstitutionModel(palph,st)
+TripletSubstitutionModel::TripletSubstitutionModel(
+    const CodonAlphabet* palph,
+    NucleotideSubstitutionModel* pmod1,
+    NucleotideSubstitutionModel* pmod2,
+    NucleotideSubstitutionModel* pmod3) :
+  AbstractParameterAliasable("Triplet."),
+  WordSubstitutionModel(palph,"Triplet.")
 {
-  enableEigenDecomposition(1);
+  string st = "Triplet.";
 
   if ((pmod1 == pmod2) || (pmod2 == pmod3) || (pmod1 == pmod3))
   {
-   unsigned int i;
+    int i;
     for (i = 0; i < 3; i++)
     {
-   VSubMod_.push_back(pmod1);
-   VnestedPrefix_.push_back(pmod1->getNamespace());
+      VSubMod_.push_back(pmod1);
+      VnestedPrefix_.push_back(pmod1->getNamespace());
     }
 
     pmod1->setNamespace(st + "123_" + VnestedPrefix_[0]);
@@ -93,8 +105,8 @@ AbstractCodonReversibleSubstitutionModel::AbstractCodonReversibleSubstitutionMod
   }
   else
   {
-   VSubMod_.push_back(pmod1);
-   VnestedPrefix_.push_back(pmod1->getNamespace());
+    VSubMod_.push_back(pmod1);
+    VnestedPrefix_.push_back(pmod1->getNamespace());
     VSubMod_[0]->setNamespace(st + "1_" + VnestedPrefix_[0]);
     addParameters_(pmod1->getParameters());
 
@@ -109,11 +121,31 @@ AbstractCodonReversibleSubstitutionModel::AbstractCodonReversibleSubstitutionMod
     addParameters_(pmod3->getParameters());
   }
 
+  unsigned int i;
   Vrate_.resize(3);
-  for (unsigned int i = 0; i < 3; i++)
+  for (i = 0; i < 3; i++)
   {
     Vrate_[i] = 1.0 / 3;
   }
+
+  // relative rates
+  for (i = 0; i < 2; i++)
+  {
+    addParameter_(Parameter(st + "relrate" + TextTools::toString(i+1), 1.0 / (3 - i),&Parameter::PROP_CONSTRAINT_EX));
+  }
+
+  WordSubstitutionModel::updateMatrices();
+}
+
+string TripletSubstitutionModel::getName() const
+{
+  string s = "TripletSubstitutionModel model:";
+  for (unsigned int i = 0; i < VSubMod_.size(); i++)
+  {
+    s += " " + VSubMod_[i]->getName();
+  }
+
+  return s;
 }
 
 

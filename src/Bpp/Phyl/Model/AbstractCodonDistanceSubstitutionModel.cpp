@@ -1,11 +1,11 @@
 //
-// File: YN98.cpp
+// File: AbstractCodonDistanceSubstitutionModel.cpp
 // Created by:  Laurent Gueguen
-// Created on: July 2009
+// Created on: Feb 2009
 //
 
 /*
-   Copyright or © or Copr. Bio++ Development Team, (November 16, 2004)
+   Copyright or © or Copr. CNRS, (November 16, 2004)
    This software is a computer program whose purpose is to provide classes
    for phylogenetic data analysis.
 
@@ -36,10 +36,7 @@
    knowledge of the CeCILL license and that you accept its terms.
  */
 
-#include "YN98.h"
-#include "K80.h"
-#include "FrequenciesSet.h"
-#include <Bpp/Numeric/NumConstants.h>
+#include "AbstractCodonDistanceSubstitutionModel.h"
 
 using namespace bpp;
 
@@ -47,44 +44,33 @@ using namespace std;
 
 /******************************************************************************/
 
-YN98::YN98(const GeneticCode* gc, FrequenciesSet* codonFreqs) :
-  AbstractBiblioSubstitutionModel("YN98."),
-  pmodel_(new CodonDistanceFrequenciesSubstitutionModel(gc, new K80(dynamic_cast<const CodonAlphabet*>(gc->getSourceAlphabet())->getNucleicAlphabet()), codonFreqs))
+AbstractCodonDistanceSubstitutionModel::AbstractCodonDistanceSubstitutionModel(
+                                                                               const GeneticCode* palph,
+                                                                               const AlphabetIndex2<double>* pdist,
+                                                                               const std::string& prefix) :
+  CodonSubstitutionModel(),
+  AbstractParameterAliasable(prefix),
+  geneticCode_(palph),
+  pdistance_(pdist),
+  alpha_(10000),
+  beta_(1)
 {
-  addParameter_(Parameter("YN98.kappa", 1, &Parameter::R_PLUS_STAR));
-  addParameter_(Parameter("YN98.omega", 1, new IncludingInterval(NumConstants::SMALL, 999), true));
+  if (pdistance_)
+    addParameter_(Parameter(prefix+"alpha",10000,&Parameter::R_PLUS_STAR));
 
-  pmodel_->setNamespace("YN98.");
-  addParameters_(codonFreqs->getParameters());
-
-  lParPmodel_.addParameters(pmodel_->getParameters());
-
-  vector<std::string> v = pmodel_->getFreq().getParameters().getParameterNames();
-
-  for (size_t i = 0; i < v.size(); i++)
-  {
-    mapParNamesFromPmodel_[v[i]] = getParameterNameWithoutNamespace(v[i]);
-  }
-  mapParNamesFromPmodel_["YN98.123_K80.kappa"] = "kappa";
-  mapParNamesFromPmodel_["YN98.beta"] = "omega";
-
-  updateMatrices();
+  addParameter_(Parameter(prefix+"beta",1,new IncludingInterval(NumConstants::TINY, 999), true));
 }
 
-
-YN98::YN98(const YN98& yn98) : AbstractBiblioSubstitutionModel(yn98),
-  pmodel_(new CodonDistanceFrequenciesSubstitutionModel(*yn98.pmodel_))
-{}
-
-YN98& YN98::operator=(const YN98& yn98)
+void AbstractCodonDistanceSubstitutionModel::fireParameterChanged(const ParameterList& parameters)
 {
-  AbstractBiblioSubstitutionModel::operator=(yn98);
-  pmodel_ = new CodonDistanceFrequenciesSubstitutionModel(*yn98.pmodel_);
-  return *this;
+  if (pdistance_)
+    alpha_ = getParameterValue("alpha");
+  beta_ = getParameterValue("beta");
 }
 
-YN98::~YN98()
+double AbstractCodonDistanceSubstitutionModel::getCodonsMulRate(unsigned int i, unsigned int j) const
 {
-  if (pmodel_)
-    delete pmodel_;
+  return (geneticCode_->areSynonymous(i,j)?1:
+          beta_ * (pdistance_ ? exp(-pdistance_->getIndex(geneticCode_->translate(i), geneticCode_->translate(j)) / alpha_) : 1));
 }
+
