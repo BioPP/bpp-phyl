@@ -50,6 +50,7 @@ using namespace bpp;
 /******************************************************************************/
 
 YpR::YpR(const RNY* alph, SubstitutionModel* const pm, const std::string& prefix) :
+  AbstractParameterAliasable(prefix),
   AbstractSubstitutionModel(alph,prefix),
   _pmodel(pm->clone()),
   _nestedPrefix(pm->getNamespace())
@@ -59,6 +60,7 @@ YpR::YpR(const RNY* alph, SubstitutionModel* const pm, const std::string& prefix
 }
 
 YpR::YpR(const YpR& ypr, const std::string& prefix) :
+  AbstractParameterAliasable(ypr),
   AbstractSubstitutionModel(ypr),
   _pmodel(ypr._pmodel->clone()),
   _nestedPrefix(ypr.getNestedPrefix())
@@ -68,6 +70,7 @@ YpR::YpR(const YpR& ypr, const std::string& prefix) :
 }
 
 YpR::YpR(const YpR& ypr) :
+  AbstractParameterAliasable(ypr),
   AbstractSubstitutionModel(ypr),
   _pmodel(ypr._pmodel->clone()),
   _nestedPrefix(ypr.getNestedPrefix())
@@ -340,7 +343,7 @@ void YpR::setNamespace(const std::string& prefix)
 YpR_Sym::YpR_Sym(const RNY* alph,
                  SubstitutionModel* const pm,
                  double CgT, double TgC,
-                 double CaT, double TaC) : YpR(alph, pm,"YpR_Sym.")
+                 double CaT, double TaC) : AbstractParameterAliasable("YpR_Sym."), YpR(alph, pm,"YpR_Sym.")
 {
   addParameter_(Parameter("YpR_Sym.rCgT", CgT, &Parameter::R_PLUS));
   addParameter_(Parameter("YpR_Sym.rTgC", TgC, &Parameter::R_PLUS));
@@ -360,7 +363,7 @@ void YpR_Sym::updateMatrices()
    YpR::updateMatrices(rCgT, rCgT, rTgC, rTgC, rCaT, rCaT, rTaC, rTaC);
 }
 
-YpR_Sym::YpR_Sym(const YpR_Sym& ypr) : YpR(ypr,"YpR_Sym.")
+YpR_Sym::YpR_Sym(const YpR_Sym& ypr) : AbstractParameterAliasable(ypr), YpR(ypr,"YpR_Sym.")
 {}
 
 /******************************************************************************/
@@ -381,7 +384,7 @@ YpR_Gen::YpR_Gen(const RNY* alph,
                  double CgT, double cGA,
                  double TgC, double tGA,
                  double CaT, double cAG,
-                 double TaC, double tAG) : YpR(alph, pm,"YpR_Gen.")
+                 double TaC, double tAG) : AbstractParameterAliasable("YpR_Gen."), YpR(alph, pm,"YpR_Gen.")
 {
   addParameter_(Parameter("YpR_Gen.rCgT", CgT, &Parameter::R_PLUS));
   addParameter_(Parameter("YpR_Gen.rcGA", cGA, &Parameter::R_PLUS));
@@ -409,7 +412,7 @@ void YpR_Gen::updateMatrices()
    YpR::updateMatrices(rCgT, rcGA, rTgC, rtGA, rCaT, rcAG, rTaC, rtAG);
 }
 
-YpR_Gen::YpR_Gen(const YpR_Gen& ypr) : YpR(ypr,"YpR_Gen.")
+YpR_Gen::YpR_Gen(const YpR_Gen& ypr) : AbstractParameterAliasable(ypr), YpR(ypr,"YpR_Gen.")
 {
   updateMatrices();
 }

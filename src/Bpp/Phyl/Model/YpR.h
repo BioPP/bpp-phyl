@@ -146,6 +146,7 @@ protected:
 
   YpR& operator=(const YpR& ypr)
   {
+    AbstractParameterAliasable::operator=(ypr);
     AbstractSubstitutionModel::operator=(ypr);
     _nestedPrefix = ypr._nestedPrefix;
     _pmodel = ypr._pmodel->clone();
