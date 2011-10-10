@@ -39,6 +39,7 @@ knowledge of the CeCILL license and that you accept its terms.
 
 #include <Bpp/Phyl/TreeTemplate.h>
 #include <Bpp/Phyl/TreeTemplateTools.h>
+#include <Bpp/Phyl/Io/Newick.h>
 #include <string>
 #include <vector>
 #include <iostream>
@@ -59,17 +60,17 @@ int main() {
     if (!tree->hasSameTopologyAs(*tree2))
       return 1; //Error!!!
     tree2->getRootNode()->swap(0,1);
-    cout << "First test passed." << endl;
+    //cout << "First test passed." << endl;
     if (!tree->hasSameTopologyAs(*tree2))
       return 1; //Error!!!
-    cout << "Second test passed." << endl;
+    //cout << "Second test passed." << endl;
   
     //Convert tree to string and read it again:
     string newick = TreeTemplateTools::treeToParenthesis(*tree);
     TreeTemplate<Node>* tree3 = TreeTemplateTools::parenthesisToTree(newick);
     if (!tree->hasSameTopologyAs(*tree3))
       return 1; //Error!!!
-    cout << "Third test passed." << endl;
+    //cout << "Third test passed." << endl;
     
     //-------------
     delete tree;
@@ -85,6 +86,36 @@ int main() {
   TreeTemplate<Node>* tree5 = TreeTemplateTools::parenthesisToTree("((A:1,B:2):3,C:4):5;");
   cout << TreeTemplateTools::treeToParenthesis(*tree5) << endl;
   delete tree5;
+
+  Newick tReader;
+  istringstream iss6("((A,B),C);");
+  TreeTemplate<Node>* tree6 = tReader.read(iss6);
+  cout << TreeTemplateTools::treeToParenthesis(*tree6) << endl;
+  delete tree6;
+  
+  istringstream iss7("((A:1,B:2):3,C:4):5;");
+  TreeTemplate<Node>* tree7 = tReader.read(iss7);
+  cout << TreeTemplateTools::treeToParenthesis(*tree7) << endl;
+  delete tree7;
+
+  istringstream iss8("((A,B)aa,C)2;");
+  tReader.enableExtendedBootstrapProperty("ESS");
+  TreeTemplate<Node>* tree8 = tReader.read(iss8);
+  cout << TreeTemplateTools::treeToParenthesis(*tree8) << endl;
+  vector<int> ids = tree8->getNodesId();
+  for (size_t i = 0; i < ids.size(); ++i) {
+    cout << "Node " << ids[i] << ":" << endl;
+    vector<string> nodePpt = tree8->getNode(ids[i])->getNodePropertyNames();
+    for (size_t j = 0; j < nodePpt.size(); ++j)
+      if (tree8->getNode(ids[i])->hasNodeProperty(nodePpt[j]))
+        cout << "N: " << nodePpt[j] << "=" << dynamic_cast<BppString*>(tree8->getNode(ids[i])->getNodeProperty(nodePpt[j]))->toSTL() << endl;
+    vector<string> branchPpt = tree8->getNode(ids[i])->getBranchPropertyNames();
+    for (size_t j = 0; j < branchPpt.size(); ++j)
+      if (tree8->getNode(ids[i])->hasBranchProperty(branchPpt[j]))
+        cout << "B: " << branchPpt[j] << "=" << dynamic_cast<BppString*>(tree8->getNode(ids[i])->getBranchProperty(branchPpt[j]))->toSTL() << endl;
+  }
+  delete tree8;
+
 
   return 0;
 }
