@@ -694,7 +694,6 @@ ProbabilisticSubstitutionMapping* SubstitutionMappingTools::computeSubstitutionV
     // ('y' is the state at 'node' and 'x' the state at 'father'.)
     // Iterate over all site partitions:
     auto_ptr<TreeLikelihood::ConstBranchModelIterator> mit(drtl.getNewBranchModelIterator(currentNode->getId()));
-    bool first;
     while (mit->hasNext())
     {
       TreeLikelihood::ConstBranchModelDescription* bmd = mit->next();
@@ -715,7 +714,6 @@ ProbabilisticSubstitutionMapping* SubstitutionMappingTools::computeSubstitutionV
       }
       //Now loop over sites:
       auto_ptr<TreeLikelihood::SiteIterator> sit(bmd->getNewSiteIterator());
-      first = true;
       while (sit->hasNext())
       {
         unsigned int i = sit->next();
