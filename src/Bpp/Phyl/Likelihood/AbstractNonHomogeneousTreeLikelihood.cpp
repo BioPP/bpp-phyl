@@ -6,7 +6,7 @@
 //
 
 /*
-Copyright or © or Copr. CNRS, (November 16, 2004)
+Copyright or © or Copr. Bio++ Development Team, (November 16, 2004)
 
 This software is a computer program whose purpose is to provide classes
 for phylogenetic data analysis.
@@ -78,6 +78,7 @@ AbstractNonHomogeneousTreeLikelihood::AbstractNonHomogeneousTreeLikelihood(
   nbNodes_(),
   verbose_(),
   minimumBrLen_(),
+  maximumBrLen_(),
   brLenConstraint_(0),
   reparametrizeRoot_(reparametrizeRoot),
   root1_(),
@@ -106,6 +107,7 @@ AbstractNonHomogeneousTreeLikelihood::AbstractNonHomogeneousTreeLikelihood(
 	nbNodes_(lik.nbNodes_),
   verbose_(lik.verbose_),
   minimumBrLen_(lik.minimumBrLen_),
+  maximumBrLen_(lik.maximumBrLen_),
   brLenConstraint_(dynamic_cast<Constraint*>(lik.brLenConstraint_->clone())),
   reparametrizeRoot_(lik.reparametrizeRoot_),
   root1_(lik.root1_),
@@ -142,7 +144,9 @@ AbstractNonHomogeneousTreeLikelihood& AbstractNonHomogeneousTreeLikelihood::oper
 	nbNodes_           = lik.nbNodes_;
   verbose_           = lik.verbose_;
   minimumBrLen_      = lik.minimumBrLen_;
-  brLenConstraint_.reset(dynamic_cast<Constraint*>(lik.brLenConstraint_->clone()));
+  maximumBrLen_      = lik.maximumBrLen_;
+  if (brLenConstraint_.get()) brLenConstraint_.release();
+  brLenConstraint_.reset(lik.brLenConstraint_->clone());
   reparametrizeRoot_ = lik.reparametrizeRoot_;
   root1_             = lik.root1_;
   root2_             = lik.root2_;
@@ -181,7 +185,8 @@ void AbstractNonHomogeneousTreeLikelihood::init_(
   verbose_ = verbose;
 
   minimumBrLen_ = 0.000001;
-  brLenConstraint_.reset(new IncludingPositiveReal(minimumBrLen_));
+  maximumBrLen_ = 10000;
+  brLenConstraint_.reset(new IncludingInterval(minimumBrLen_, maximumBrLen_));
   setSubstitutionModelSet(modelSet);
 }
 
