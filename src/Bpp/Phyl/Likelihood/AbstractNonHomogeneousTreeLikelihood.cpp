@@ -365,6 +365,12 @@ void AbstractNonHomogeneousTreeLikelihood::initBranchLengthsParameters()
         nodes_[i]->setDistanceToFather(minimumBrLen_);
         d = minimumBrLen_;
       }
+      if (d > maximumBrLen_)
+      {
+        ApplicationTools::displayWarning("Branch length " + TextTools::toString(i) + " is too big: " + TextTools::toString(d) + ". Value is set to " + TextTools::toString(maximumBrLen_));
+        nodes_[i]->setDistanceToFather(maximumBrLen_);
+        d = maximumBrLen_;
+      }
     }
     if (reparametrizeRoot_ && nodes_[i]->getId() == root1_)
       l1 = d;
