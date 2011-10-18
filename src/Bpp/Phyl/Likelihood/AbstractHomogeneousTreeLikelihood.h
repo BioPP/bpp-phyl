@@ -222,7 +222,7 @@ class AbstractHomogeneousTreeLikelihood:
 
     virtual void setMinimumBranchLength(double minimum) throw (Exception)
     {
-      if (maximumBrLen_ > minimum)
+      if (minimum > maximumBrLen_)
         throw Exception("AbstractHomogeneousTreeLikelihood::setMinimumBranchLength. Minimum branch length sould be lower than the maximum one: " + TextTools::toString(maximumBrLen_));
       minimumBrLen_ = minimum;
       if (brLenConstraint_.get()) brLenConstraint_.release();
@@ -232,7 +232,7 @@ class AbstractHomogeneousTreeLikelihood:
 
     virtual void setMaximumBranchLength(double maximum) throw (Exception)
     {
-      if (maximum > minimumBrLen_)
+      if (maximum < minimumBrLen_)
         throw Exception("AbstractHomogeneousTreeLikelihood::setMaximumBranchLength. Maximum branch length sould be higher than the minimum one: " + TextTools::toString(minimumBrLen_));
       maximumBrLen_ = maximum;
       if (brLenConstraint_.get()) brLenConstraint_.release();
