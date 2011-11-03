@@ -139,7 +139,7 @@ double PseudoNewtonOptimizer::doStep() throw (Exception)
       count++;
       if (count > maxCorrection_)
       {
-        printMessage("!!! Felsenstein-Churchill correction applied too much time. Use sequential optimization.");
+        printMessage("!!! Felsenstein-Churchill correction applied too much time. Use conjugate gradients optimization.");
         //Use one round of sequential optimization:
         
         //getFunction()->enableFirstOrderDerivatives(false);
