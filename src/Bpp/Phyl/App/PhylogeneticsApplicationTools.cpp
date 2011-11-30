@@ -1078,31 +1078,34 @@ void PhylogeneticsApplicationTools::setSubstitutionModelParametersInitialValues(
   bool verbose) throw (Exception)
 {
   string initFreqs = ApplicationTools::getStringParameter(model->getNamespace() + "initFreqs", unparsedParameterValues, "", "", true, false);
+
   if (verbose) 
     ApplicationTools::displayResult("Frequencies Initialization for model", (initFreqs=="")? "None" : initFreqs);
+
+  if (initFreqs!=""){
+    if (initFreqs=="observed")
+      {
+        if (!data)
+          throw Exception("Missing data for observed frequencies");
+        unsigned int psi = ApplicationTools::getParameter<unsigned int>(model->getNamespace() + "initFreqs.observedPseudoCount", unparsedParameterValues, 0);
+        model->setFreqFromData(*data, psi);
+      }
+    else if (initFreqs.substr(0,6)== "values")
+      {
+        // Initialization using the "values" argument
+        map<int, double> frequencies;
+        
+        string rf = initFreqs.substr(6);
+        StringTokenizer strtok(rf.substr(1, rf.length() - 2), ",");
+        unsigned int i=0;
+        while (strtok.hasMoreToken())
+          frequencies[i++]=TextTools::toDouble(strtok.nextToken());
+        model->setFreq(frequencies);
+      }
+    else
+      throw Exception("Unknown initFreqs argument");
+  }
   
-  if (initFreqs=="observed")
-    {
-      if (!data)
-        throw Exception("Missing data for observed frequencies");
-      unsigned int psi = ApplicationTools::getParameter<unsigned int>(model->getNamespace() + "initFreqs.observedPseudoCount", unparsedParameterValues, 0);
-      model->setFreqFromData(*data, psi);
-    }
-  else if (initFreqs.substr(0,6)== "values")
-    {
-      // Initialization using the "values" argument
-      map<int, double> frequencies;
-
-      string rf = initFreqs.substr(6);
-      StringTokenizer strtok(rf.substr(1, rf.length() - 2), ",");
-      unsigned int i=0;
-      while (strtok.hasMoreToken())
-        frequencies[i++]=TextTools::toDouble(strtok.nextToken());
-      model->setFreq(frequencies);
-    }
-  else
-    throw Exception("Unknown initFreqs argument");
-
   ParameterList pl = model->getIndependentParameters();
   for (unsigned int i = 0; i < pl.size(); i++)
   {
