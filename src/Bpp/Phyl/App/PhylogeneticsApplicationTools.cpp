@@ -1679,6 +1679,7 @@ void PhylogeneticsApplicationTools::completeMixedSubstitutionModelSet(
   
   if (vdesc.size()==0){
     mixedModelSet.complete();
+    mixedModelSet.computeHyperNodesProbabilities();
     return;
   }  
 
@@ -1719,6 +1720,7 @@ void PhylogeneticsApplicationTools::completeMixedSubstitutionModelSet(
   if (verbose)
     ApplicationTools::displayResult("Site Path Completion", st);
   
+  mixedModelSet.computeHyperNodesProbabilities();
   
   if (!mixedModelSet.getHyperNode(mixedModelSet.getNumberOfHyperNodes()-1).isComplete())
     throw Exception("The remaining submodels can not create a complete path.");

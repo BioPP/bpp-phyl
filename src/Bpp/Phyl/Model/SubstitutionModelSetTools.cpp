@@ -164,6 +164,7 @@ SubstitutionModelSet* SubstitutionModelSetTools::createNonHomogeneousModelSet(
       for ( j=0;j<ids.size();j++)
         pMSMS->addToHyperNode(j,vector<int>(1,i));
     }
+    pMSMS->computeHyperNodesProbabilities();
     
   }
 
