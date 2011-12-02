@@ -225,7 +225,7 @@ void MixtureOfSubstitutionModels::updateMatrices()
   for (i = 0; i < getNumberOfStates(); i++){
     freq_[i] = 0;
     for (j = 0; j < modelsContainer_.size(); j++)
-      freq_[i] += vProbas_[i]*modelsContainer_[j]->freq(i);
+      freq_[i] += vProbas_[j]*modelsContainer_[j]->freq(i);
   }
 }
 

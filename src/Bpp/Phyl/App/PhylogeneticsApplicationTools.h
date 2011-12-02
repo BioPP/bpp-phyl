@@ -133,7 +133,8 @@ namespace bpp
      * @brief Build a SubstitutionModel object with default parameter values according to a keyval description.
      *
      * Check the Bio++ Program Suite documentation for a description of the syntax.
-     * This function will resolve parameter aliasing, but will not assign initial values.
+     * This function will resolve parameter aliasing, but will not assign initial values, with the
+     *     exception of FrequenciesSet instances that will be initialized.
      * It is mainly for internal usage, you're probably looking for the getSubstitutionModel or getSubstitutionModelSet function.
      *
      * @param alphabet         The alpabet to use in the model.
@@ -158,6 +159,32 @@ namespace bpp
 
 
     /**
+     * @brief Build a SubstitutionModel object according to options.
+     *
+     * Creates a new substitution model object according to model description syntax
+     * (see the Bio++ Progam Suite manual for a detailed description of this syntax). The
+     * function also parses the parameter values and set them accordingly.
+     *
+     * @param alphabet The alphabet to use in the model.
+     * @param data     A pointer toward the SiteContainer for which the substitution model is designed.
+     *                 The alphabet associated to the data must be of the same type as the one specified for the model.
+     *                 May be equal to NULL, but in this case use_observed_freq option will be unavailable.
+     * @param params   The attribute map where options may be found.
+     * @param suffix   A suffix to be applied to each attribute name.
+     * @param suffixIsOptional Tell if the suffix is absolutely required.
+     * @param verbose Print some info to the 'message' output stream.
+     * @return A new SubstitutionModel object according to options specified.
+     * @throw Exception if an error occured.
+     */
+    static SubstitutionModel* getSubstitutionModel(
+                                                   const Alphabet* alphabet,
+                                                   const SiteContainer* data, 
+                                                   std::map<std::string, std::string>& params,
+                                                   const std::string& suffix = "",
+                                                   bool suffixIsOptional = true,
+                                                   bool verbose = true) throw (Exception);
+  
+    /**
      * @brief Set parameter initial values of a given model according to options.
      *
      * Parameters actually depends on the model passed as argument.
@@ -180,32 +207,6 @@ namespace bpp
         const SiteContainer* data,
         bool verbose) throw (Exception);
 
-    /**
-     * @brief Build a SubstitutionModel object according to options.
-     *
-     * Creates a new substitution model object according to model description syntax
-     * (see the Bio++ Progam Suite manual for a detailed description of this syntax). The
-     * function also parses the parameter values and set them accordingly.
-     *
-     * @param alphabet The alphabet to use in the model.
-     * @param data     A pointer toward the SiteContainer for which the substitution model is designed.
-     *                 The alphabet associated to the data must be of the same type as the one specified for the model.
-     *                 May be equal to NULL, but in this case use_observed_freq option will be unavailable.
-     * @param params   The attribute map where options may be found.
-     * @param suffix   A suffix to be applied to each attribute name.
-     * @param suffixIsOptional Tell if the suffix is absolutely required.
-     * @param verbose Print some info to the 'message' output stream.
-     * @return A new SubstitutionModel object according to options specified.
-     * @throw Exception if an error occured.
-     */
-    static SubstitutionModel* getSubstitutionModel(
-        const Alphabet* alphabet,
-        const SiteContainer* data, 
-        std::map<std::string, std::string>& params,
-        const std::string& suffix = "",
-        bool suffixIsOptional = true,
-        bool verbose = true) throw (Exception);
-  
     /**
      * @brief Set parameter initial values of a given model in a set according to options.
      *

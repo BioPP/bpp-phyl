@@ -70,6 +70,12 @@ using namespace bpp;
 
 using namespace std;
 
+
+/*************************************************************/
+/*****************  TREES ************************************/
+/*************************************************************/
+
+
 /******************************************************************************/
 
 Tree* PhylogeneticsApplicationTools::getTree(
@@ -128,6 +134,14 @@ vector<Tree*> PhylogeneticsApplicationTools::getTrees(
   }
   return trees;
 }
+
+
+
+
+
+/*************************************************************/
+/******* MODELS **********************************************/
+/*************************************************************/
 
 /******************************************************************************/
 
@@ -456,7 +470,7 @@ SubstitutionModel* PhylogeneticsApplicationTools::getSubstitutionModelDefaultIns
           throw Exception("Missing equilibrium frequencies.");
         
         map<string, string> unparsedParameterValuesNested2;
-        
+
         FrequenciesSet* pFS = getFrequenciesSetDefaultInstance(pCA, args["frequencies"], unparsedParameterValuesNested2);
         
         for (map<string, string>::iterator it = unparsedParameterValuesNested2.begin(); it != unparsedParameterValuesNested2.end(); it++)
@@ -953,10 +967,15 @@ SubstitutionModel* PhylogeneticsApplicationTools::getSubstitutionModelDefaultIns
       throw Exception("Incorrect parameter syntax: parameter " + pval + " was not found and can't be used as a value for parameter " + pname + ".");
   }
 
-  if (args.find("useObservedFreqs") != args.end())
-    unparsedParameterValues[model->getNamespace() + "useObservedFreqs"] = args["useObservedFreqs"];
-  if (args.find("useObservedFreqs.pseudoCount") != args.end())
-    unparsedParameterValues[model->getNamespace() + "useObservedFreqs.pseudoCount"] = args["useObservedFreqs.pseudoCount"];
+  if (args.find("useObservedFreqs")!=args.end())
+    throw Exception("useObservedFreqs argument is obsolete. Please use 'initFreqs=observed' instead.");
+  if (args.find("useObservedFreqs.pseudoCount")!=args.end())
+    throw Exception("useObservedFreqs.pseudoCount argument is obsolete. Please use 'initFreqs.observedPseudoCount' instead.");
+  
+  if (args.find("initFreqs") != args.end())
+    unparsedParameterValues[model->getNamespace() + "initFreqs"] = args["initFreqs"];
+  if (args.find("initFreqs.observedPseudoCount") != args.end())
+    unparsedParameterValues[model->getNamespace() + "initFreqs.observedPseudoCount"] = args["initFreqs.observedPseudoCount"];
 
   return model;
 }
@@ -993,13 +1012,34 @@ void PhylogeneticsApplicationTools::setSubstitutionModelParametersInitialValues(
   const SiteContainer* data,
   bool verbose) throw (Exception)
 {
-  bool useObsFreq = ApplicationTools::getBooleanParameter(model->getNamespace() + "useObservedFreqs", unparsedParameterValues, false, "", true, false);
-  if (verbose) ApplicationTools::displayResult("Use observed frequencies for model", useObsFreq ? "yes" : "no");
-  if (useObsFreq && data != 0)
-  {
-    unsigned int psi = ApplicationTools::getParameter<unsigned int>(model->getNamespace() + "useObservedFreqs.pseudoCount", unparsedParameterValues, 0);
-    model->setFreqFromData(*data, psi);
+  string initFreqs = ApplicationTools::getStringParameter(model->getNamespace() + "initFreqs", unparsedParameterValues, "", "", true, false);
+  if (verbose) 
+    ApplicationTools::displayResult("Frequencies Initialization for model", (initFreqs=="")? "None" : initFreqs);
+
+  if (initFreqs!=""){
+    if (initFreqs=="observed")
+      {
+        if (!data)
+          throw Exception("Missing data for observed frequencies");
+        unsigned int psi = ApplicationTools::getParameter<unsigned int>(model->getNamespace() + "initFreqs.observedPseudoCount", unparsedParameterValues, 0);
+        model->setFreqFromData(*data, psi);
+      }
+    else if (initFreqs.substr(0,6)== "values")
+      {
+        // Initialization using the "values" argument
+        map<int, double> frequencies;
+        
+        string rf = initFreqs.substr(6);
+        StringTokenizer strtok(rf.substr(1, rf.length() - 2), ",");
+        unsigned int i=0;
+        while (strtok.hasMoreToken())
+          frequencies[i++]=TextTools::toDouble(strtok.nextToken());
+        model->setFreq(frequencies);
+      }
+    else
+      throw Exception("Unknown initFreqs argument");
   }
+
   ParameterList pl = model->getIndependentParameters();
   for (unsigned int i = 0; i < pl.size(); i++)
   {
@@ -1012,7 +1052,8 @@ void PhylogeneticsApplicationTools::setSubstitutionModelParametersInitialValues(
   {
     const string pName = pl[i].getName();
     posp = pName.rfind(".");
-    if (!useObsFreq || (pName.substr(posp + 1, 5) != "theta") || unparsedParameterValues.find(pName) != unparsedParameterValues.end())
+    if ((initFreqs=="") || (pName.substr(posp + 1, 5) != "theta")
+        || unparsedParameterValues.find(pName) != unparsedParameterValues.end())
     {
       double value = ApplicationTools::getDoubleParameter(pName, unparsedParameterValues, pl[i].getValue());
       pl[i].setValue(value);
@@ -1036,19 +1077,38 @@ void PhylogeneticsApplicationTools::setSubstitutionModelParametersInitialValues(
   std::vector<std::string>& sharedParams,
   bool verbose) throw (Exception)
 {
-  cerr << "PhylogeneticsApplicationTools::setSubstitutionModelParametersInitialValues" << endl;
-  bool useObsFreq = ApplicationTools::getBooleanParameter(model->getNamespace() + "useObservedFreqs", unparsedParameterValues, false, "", "", false);
-  if (verbose) ApplicationTools::displayResult("Use observed frequencies for model", useObsFreq ? "yes" : "no");
-  if (useObsFreq && data != 0)
-  {
-    unsigned int psi = ApplicationTools::getParameter<unsigned int>(model->getNamespace() + "useObservedFreqs.pseudoCount", unparsedParameterValues, 0);
-    model->setFreqFromData(*data, psi);
-  }
+  string initFreqs = ApplicationTools::getStringParameter(model->getNamespace() + "initFreqs", unparsedParameterValues, "", "", true, false);
 
+  if (verbose) 
+    ApplicationTools::displayResult("Frequencies Initialization for model", (initFreqs=="")? "None" : initFreqs);
+
+  if (initFreqs!=""){
+    if (initFreqs=="observed")
+      {
+        if (!data)
+          throw Exception("Missing data for observed frequencies");
+        unsigned int psi = ApplicationTools::getParameter<unsigned int>(model->getNamespace() + "initFreqs.observedPseudoCount", unparsedParameterValues, 0);
+        model->setFreqFromData(*data, psi);
+      }
+    else if (initFreqs.substr(0,6)== "values")
+      {
+        // Initialization using the "values" argument
+        map<int, double> frequencies;
+        
+        string rf = initFreqs.substr(6);
+        StringTokenizer strtok(rf.substr(1, rf.length() - 2), ",");
+        unsigned int i=0;
+        while (strtok.hasMoreToken())
+          frequencies[i++]=TextTools::toDouble(strtok.nextToken());
+        model->setFreq(frequencies);
+      }
+    else
+      throw Exception("Unknown initFreqs argument");
+  }
+  
   ParameterList pl = model->getIndependentParameters();
   for (unsigned int i = 0; i < pl.size(); i++)
   {
-    cerr << pl[i].getName() << endl;
     AutoParameter ap(pl[i]);
     ap.setMessageHandler(ApplicationTools::warning);
     pl.setParameter(i, ap);
@@ -1059,7 +1119,7 @@ void PhylogeneticsApplicationTools::setSubstitutionModelParametersInitialValues(
     const string pName = pl[i].getName();
     unsigned int posp = model->getParameterNameWithoutNamespace(pName).rfind(".");
     string value;
-    if (!useObsFreq || (model->getParameterNameWithoutNamespace(pName).substr(posp + 1, 5) != "theta") || unparsedParameterValues.find(pName) != unparsedParameterValues.end())
+    if ((initFreqs=="") || (model->getParameterNameWithoutNamespace(pName).substr(posp + 1, 5) != "theta") || unparsedParameterValues.find(pName) != unparsedParameterValues.end())
     {
       value = ApplicationTools::getStringParameter(pName, unparsedParameterValues, TextTools::toString(pl[i].getValue()));
       if (value.size() > 5 && value.substr(0, 5) == "model")
@@ -1090,6 +1150,16 @@ void PhylogeneticsApplicationTools::setSubstitutionModelParametersInitialValues(
   }
   model->matchParametersValues(pl);
 }
+
+
+
+
+
+
+
+/******************************************************/
+/**** FREQUENCIES SET *********************************/
+/******************************************************/
 
 /******************************************************************************/
 
@@ -1128,74 +1198,73 @@ FrequenciesSet* PhylogeneticsApplicationTools::getFrequenciesSet(
   map<string, string> unparsedParameterValues;
   FrequenciesSet* pFS = getFrequenciesSetDefaultInstance(alphabet, freqDescription, unparsedParameterValues);
 
-  cerr << 1111 << endl;
   // Now we set the initial frequencies according to options:
   if (unparsedParameterValues.find("init") != unparsedParameterValues.end())
-  {
-    // Initialization using the "init" option
-    string init = unparsedParameterValues["init"];
-    if (init == "observed")
     {
-      if (!data)
-        throw Exception("Missing data for observed frequencies");
-      unsigned int psc = 0;
-      if (unparsedParameterValues.find("pseudoCount") != unparsedParameterValues.end())
-        psc = TextTools::toInt(unparsedParameterValues["pseudoCount"]);
-
-      map<int, double> freqs;
-      SequenceContainerTools::getFrequencies(*data, freqs, psc);
-
-      pFS->setFrequenciesFromMap(freqs);
+      // Initialization using the "init" option
+      string init = unparsedParameterValues["init"];
+      if (init == "observed")
+        {
+          if (!data)
+            throw Exception("Missing data for observed frequencies");
+          unsigned int psc = 0;
+          if (unparsedParameterValues.find("init.observedPseudoCount") != unparsedParameterValues.end())
+            psc = TextTools::toInt(unparsedParameterValues["init.observedPseudoCount"]);
+          
+          map<int, double> freqs;
+          SequenceContainerTools::getFrequencies(*data, freqs, psc);
+          
+          pFS->setFrequenciesFromMap(freqs);
+        }
+      else if (init.substr(0,6)== "values")
+        {
+          // Initialization using the "values" argument
+          vector<double> frequencies;
+          string rf = init.substr(6);
+          
+          StringTokenizer strtok(rf.substr(1, rf.length() - 2), ",");
+          while (strtok.hasMoreToken())
+            frequencies.push_back(TextTools::toDouble(strtok.nextToken()));
+          pFS->setFrequencies(frequencies);
+        }
+      else if (init == "balanced")
+        {
+          // Nothing to do here, this is the default instanciation.
+        }
+      else
+        throw Exception("Unknown init argument");
     }
-    else if (init == "balanced")
-    {
-      // Nothing to do here, this is the default instanciation.
-    }
-    else
-      throw Exception("Unknown init argument");
-  }
-  else if (unparsedParameterValues.find("values") != unparsedParameterValues.end())
-  {
-    cerr << 2 << endl;
-    // Initialization using the "values" argument
-    vector<double> frequencies;
-    string rf = unparsedParameterValues["values"];
-    StringTokenizer strtok(rf.substr(1, rf.length() - 2), ",");
-    while (strtok.hasMoreToken())
-      frequencies.push_back(TextTools::toDouble(strtok.nextToken()));
-    pFS->setFrequencies(frequencies);
-  }
   else
-  {
-    // Explicit initialization of each parameter
-    ParameterList pl = pFS->getParameters();
-
-    for (unsigned int i = 0; i < pl.size(); i++)
     {
-      AutoParameter ap(pl[i]);
-      if (verbose)
-        ap.setMessageHandler(ApplicationTools::warning);
-      pl.setParameter(i, ap);
+      // Explicit initialization of each parameter
+      ParameterList pl = pFS->getParameters();
+      
+      for (unsigned int i = 0; i < pl.size(); i++)
+        {
+          AutoParameter ap(pl[i]);
+          if (verbose)
+            ap.setMessageHandler(ApplicationTools::warning);
+          pl.setParameter(i, ap);
+        }
+      
+      for (unsigned int i = 0; i < pl.size(); i++)
+        {
+          const string pName = pl[i].getName();
+          double value = ApplicationTools::getDoubleParameter(pName, unparsedParameterValues, pl[i].getValue());
+          pl[i].setValue(value);
+          if (verbose)
+            ApplicationTools::displayResult("Parameter found", pName + "=" + TextTools::toString(pl[i].getValue()));
+        }
+      
+      pFS->matchParametersValues(pl);
     }
-
-    for (unsigned int i = 0; i < pl.size(); i++)
-    {
-      const string pName = pl[i].getName();
-      double value = ApplicationTools::getDoubleParameter(pName, unparsedParameterValues, pl[i].getValue());
-      pl[i].setValue(value);
-      if (verbose)
-        ApplicationTools::displayResult("Parameter found", pName + "=" + TextTools::toString(pl[i].getValue()));
-    }
-
-    pFS->matchParametersValues(pl);
-  }
-
+  
   // /////// To be changed for input normalization
   if (rateFreqs.size() > 0)
-  {
-    pFS = new MarkovModulatedFrequenciesSet(pFS, rateFreqs);
-  }
-
+    {
+      pFS = new MarkovModulatedFrequenciesSet(pFS, rateFreqs);
+    }
+  
   return pFS;
 }
 
@@ -1396,16 +1465,22 @@ FrequenciesSet* PhylogeneticsApplicationTools::getFrequenciesSetDefaultInstance(
     throw Exception("Unknown frequency option: " + freqName);
 
   // Forward arguments:
-  if (args.find("init") != args.end())
+  if (args.find("init") != args.end()){
     unparsedParameterValues["init"] = args["init"];
-  if (args.find("pseudoCount") != args.end())
-    unparsedParameterValues["pseudoCount"] = args["pseudoCount"];
-  if (args.find("values") != args.end())
-    unparsedParameterValues["values"] = args["values"];
-
+    unparsedParameterValues["initFreqs"] = args["init"];
+  }
+  if (args.find("init.observedPseudoCount") != args.end()){
+    unparsedParameterValues["init.observedPseudoCount"] = args["init.observedPseudoCount"];
+    unparsedParameterValues["initFreqs.observedPseudoCount"] = args["init.observedPseudoCount"];
+  }
   return pFS;
 }
 
+
+
+/******************************************************/
+/**** SUBSTITUTION MODEL SET **************************/
+/******************************************************/
 
 /******************************************************************************/
 
@@ -1460,7 +1535,6 @@ void PhylogeneticsApplicationTools::setSubstitutionModelSet(
                                                             bool suffixIsOptional,
                                                             bool verbose)
 {
-  cerr << "void PhylogeneticsApplicationTools::setSubstitutionModelSet(" << endl;
   modelSet.clear();
   if (!ApplicationTools::parameterExists("nonhomogeneous.number_of_models", params))
     throw Exception("You must specify this parameter: nonhomogeneous.number_of_models .");
@@ -1570,8 +1644,6 @@ void PhylogeneticsApplicationTools::setSubstitutionModelSet(
     ApplicationTools::displayResult("Parameter alias found", p1 + "->" + p2);
     modelSet.aliasParameters(p1, p2);
   }
-  cerr << "VOID PHYLOGENETICSAPPLICATIONTOOLS::SETSUBSTITUTIONMODELSET(" << endl;
-
 }
 
 /******************************************************************************/
@@ -1651,6 +1723,13 @@ void PhylogeneticsApplicationTools::completeMixedSubstitutionModelSet(
   if (!mixedModelSet.getHyperNode(mixedModelSet.getNumberOfHyperNodes()-1).isComplete())
     throw Exception("The remaining submodels can not create a complete path.");
 }
+
+
+
+
+/******************************************************/
+/*** DISTRIBUTIONS ********************************/
+/******************************************************/
 
 
 /******************************************************************************/
@@ -1991,6 +2070,14 @@ DiscreteDistribution* PhylogeneticsApplicationTools::getRateDistribution(
   setRateDistributionParametersInitialValues(rDist, unparsedParameterValues, verbose);
   return rDist;
 }
+
+
+
+
+
+/*************************************************************/
+/*****  OPTIMIZATORS *****************************************/
+/*************************************************************/
 
 /******************************************************************************/
 
@@ -2503,6 +2590,14 @@ void PhylogeneticsApplicationTools::checkEstimatedParameters(const ParameterList
     }
   }
 }
+
+
+
+
+
+/*************************************************************/
+/**************  OUTPUT **************************************/
+/*************************************************************/
 
 /******************************************************************************/
 
