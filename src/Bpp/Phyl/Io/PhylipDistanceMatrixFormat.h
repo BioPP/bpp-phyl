@@ -5,7 +5,7 @@
 //
 
 /*
-Copyright or © or Copr. CNRS, (November 16, 2004)
+Copyright or © or Copr. Bio++ Development Team, (November 16, 2004)
 
 This software is a computer program whose purpose is to provide classes
 for phylogenetic data analysis.
@@ -47,13 +47,20 @@ namespace bpp
 
 /**
  * @brief Distance matrix I/O in Phylip format.
+ *
+ * Entry names must be 10 characters long. If 'extended' is set to true, then
+ * entry names can be of any size, and should be separated from the data by at least two spaces.
+ * Names should therefor not contian more than one consecutive space.
  */
 class PhylipDistanceMatrixFormat:
   public AbstractIDistanceMatrix,
   public AbstractODistanceMatrix
 {
+  private:
+    bool extended_;
+
 	public:
-		PhylipDistanceMatrixFormat() {}
+		PhylipDistanceMatrixFormat(bool extended = false): extended_(extended) {}
 		virtual ~PhylipDistanceMatrixFormat() {}
 
 	public:

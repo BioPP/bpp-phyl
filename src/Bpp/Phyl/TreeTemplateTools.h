@@ -409,7 +409,6 @@ class TreeTemplateTools
       for (unsigned int i = 0; i < node.getNumberOfSons(); i++)
       {
         getNodesId(*node.getSon(i), ids);
-        ids.push_back(node.getSon(i)->getId());
       }
     }
 

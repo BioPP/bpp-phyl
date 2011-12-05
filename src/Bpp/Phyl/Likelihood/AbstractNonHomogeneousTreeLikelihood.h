@@ -6,7 +6,7 @@
 //
 
 /*
-Copyright or © or Copr. CNRS, (November 16, 2004)
+Copyright or © or Copr. Bio++ Development Team, (November 16, 2004)
 
 This software is a computer program whose purpose is to provide classes
 for phylogenetic data analysis.
@@ -123,6 +123,7 @@ class AbstractNonHomogeneousTreeLikelihood:
     bool verbose_;
 
     double minimumBrLen_;
+    double maximumBrLen_;
     std::auto_ptr<Constraint> brLenConstraint_;
 
     bool reparametrizeRoot_;
@@ -246,15 +247,29 @@ class AbstractNonHomogeneousTreeLikelihood:
 
     virtual void initBranchLengthsParameters();
 
-    virtual void setMinimumBranchLength(double minimum)
+    virtual void setMinimumBranchLength(double minimum) throw (Exception)
     {
+      if (minimum > maximumBrLen_)
+        throw Exception("AbstractNonHomogeneousTreeLikelihood::setMinimumBranchLength. Minimum branch length sould be lower than the maximum one: " + TextTools::toString(maximumBrLen_));
       minimumBrLen_ = minimum;
       if (brLenConstraint_.get()) brLenConstraint_.release();
-      brLenConstraint_.reset(new IncludingPositiveReal(minimumBrLen_));
+      brLenConstraint_.reset(new IncludingInterval(minimumBrLen_, maximumBrLen_));
+      initBranchLengthsParameters();
+    }
+
+    virtual void setMaximumBranchLength(double maximum) throw (Exception)
+    {
+      if (maximum < minimumBrLen_)
+        throw Exception("AbstractNonHomogeneousTreeLikelihood::setMaximumBranchLength. Maximum branch length sould be higher than the minimum one: " + TextTools::toString(minimumBrLen_));
+      maximumBrLen_ = maximum;
+      if (brLenConstraint_.get()) brLenConstraint_.release();
+      brLenConstraint_.reset(new IncludingInterval(minimumBrLen_, maximumBrLen_));
       initBranchLengthsParameters();
     }
 
     virtual double getMinimumBranchLength() const { return minimumBrLen_; }
+    virtual double getMaximumBranchLength() const { return maximumBrLen_; }
+
 
   protected:
     /**

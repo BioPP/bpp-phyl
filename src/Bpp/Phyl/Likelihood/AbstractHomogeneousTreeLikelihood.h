@@ -43,6 +43,9 @@ knowledge of the CeCILL license and that you accept its terms.
 #include "AbstractDiscreteRatesAcrossSitesTreeLikelihood.h"
 #include "HomogeneousTreeLikelihood.h"
 
+//From STL:
+#include<memory>
+
 namespace bpp
 {
 
@@ -111,7 +114,8 @@ class AbstractHomogeneousTreeLikelihood:
     bool verbose_;
 
     double minimumBrLen_;
-    Constraint* brLenConstraint_;
+    double maximumBrLen_;
+    std::auto_ptr<Constraint> brLenConstraint_;
 
 	public:
 		AbstractHomogeneousTreeLikelihood(
@@ -136,7 +140,7 @@ class AbstractHomogeneousTreeLikelihood:
      */
     AbstractHomogeneousTreeLikelihood& operator=(const AbstractHomogeneousTreeLikelihood& lik);
  
-		virtual ~AbstractHomogeneousTreeLikelihood();
+		virtual ~AbstractHomogeneousTreeLikelihood() {}
 		
 	private:
 
@@ -216,15 +220,28 @@ class AbstractHomogeneousTreeLikelihood:
 
 		virtual void initBranchLengthsParameters();
 
-    virtual void setMinimumBranchLength(double minimum)
+    virtual void setMinimumBranchLength(double minimum) throw (Exception)
     {
+      if (minimum > maximumBrLen_)
+        throw Exception("AbstractHomogeneousTreeLikelihood::setMinimumBranchLength. Minimum branch length sould be lower than the maximum one: " + TextTools::toString(maximumBrLen_));
       minimumBrLen_ = minimum;
-      if (brLenConstraint_) delete brLenConstraint_;
-      brLenConstraint_ = new IncludingPositiveReal(minimumBrLen_);
+      if (brLenConstraint_.get()) brLenConstraint_.release();
+      brLenConstraint_.reset(new IncludingInterval(minimumBrLen_, maximumBrLen_));
+      initBranchLengthsParameters();
+    }
+
+    virtual void setMaximumBranchLength(double maximum) throw (Exception)
+    {
+      if (maximum < minimumBrLen_)
+        throw Exception("AbstractHomogeneousTreeLikelihood::setMaximumBranchLength. Maximum branch length sould be higher than the minimum one: " + TextTools::toString(minimumBrLen_));
+      maximumBrLen_ = maximum;
+      if (brLenConstraint_.get()) brLenConstraint_.release();
+      brLenConstraint_.reset(new IncludingInterval(minimumBrLen_, maximumBrLen_));
       initBranchLengthsParameters();
     }
 
     virtual double getMinimumBranchLength() const { return minimumBrLen_; }
+    virtual double getMaximumBranchLength() const { return maximumBrLen_; }
 
   protected:
     /**

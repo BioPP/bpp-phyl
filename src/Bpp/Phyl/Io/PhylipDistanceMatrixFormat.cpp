@@ -5,7 +5,7 @@
 //
 
 /*
-Copyright or © or Copr. CNRS, (November 16, 2004)
+Copyright or © or Copr. Bio++ Development Team, (November 16, 2004)
 
 This software is a computer program whose purpose is to provide classes
 for phylogenetic data analysis.
@@ -53,7 +53,7 @@ using namespace bpp;
 
 using namespace std;
 
-DistanceMatrix * PhylipDistanceMatrixFormat::read(istream & in) const throw (Exception)
+DistanceMatrix * PhylipDistanceMatrixFormat::read(istream& in) const throw (Exception)
 {
 	string s = FileTools::getNextLine(in);
 	// the size of the matrix:
@@ -62,19 +62,28 @@ DistanceMatrix * PhylipDistanceMatrixFormat::read(istream & in) const throw (Exc
 	unsigned int rowNumber = 0;
 	unsigned int colNumber = 0;
 	s = FileTools::getNextLine(in);
-	while(in)
+	while (in)
   {
-		StringTokenizer st(s, "\t ");
-		if(colNumber == 0)
+		if (colNumber == 0)
     { // New row
-			dist->setName(rowNumber, st.nextToken());
-		}
-		for(; colNumber < n && st.hasMoreToken(); colNumber++)
+      if (extended_) {
+        size_t pos = s.find("  ");
+        if (pos == string::npos)
+          throw Exception("PhylipDistanceMatrixFormat::read. Bad format, probably not 'extended' Phylip.");
+        dist->setName(rowNumber, s.substr(0, pos));
+        s = s.substr(pos + 2);
+      } else {
+        dist->setName(rowNumber, s.substr(0, 10));
+        s = s.substr(11);
+      }
+    }
+		StringTokenizer st(s, "\t ");
+		for (; colNumber < n && st.hasMoreToken(); colNumber++)
     {
 			double d = TextTools::fromString<double>(st.nextToken());
 			(* dist)(rowNumber, colNumber) = d;
 		}
-		if(colNumber == n)
+		if (colNumber == n)
     {
 			colNumber = 0;
 			rowNumber++;
@@ -84,17 +93,30 @@ DistanceMatrix * PhylipDistanceMatrixFormat::read(istream & in) const throw (Exc
 	return dist;
 }
 
-void PhylipDistanceMatrixFormat::write(const DistanceMatrix & dist, ostream & out) const throw (Exception)
+void PhylipDistanceMatrixFormat::write(const DistanceMatrix& dist, ostream& out) const throw (Exception)
 {
-	unsigned int n= dist.size();
+	unsigned int n = dist.size();
 	out << "   " << n << endl;
-	for(unsigned int i = 0; i < n; i++)
+  unsigned int offset = 10;
+  if (extended_) {
+    offset = 0;
+    for (unsigned int i = 0; i < n; ++i) {
+      unsigned int s = dist.getName(i).size();
+      if (s > offset) offset = s;
+    }
+  }
+	for (unsigned int i = 0; i < n; i++)
   {
-		out << TextTools::resizeRight(dist.getName(i), 10, ' ');
-		for(unsigned int j = 0; j < n; j++)
-    {
-			out << "  " << setprecision(8) << dist(i, j); 
-		}
+    out << TextTools::resizeRight(dist.getName(i), offset, ' ');
+    if (extended_) {
+      out << "  ";
+    } else {
+      out << " ";
+    }
+    for (unsigned int j = 0; j < n; j++) {
+      if (j > 0) out << " ";
+		  out << setprecision(8) << dist(i, j); 
+    }
 		out << endl;
 	}
 }

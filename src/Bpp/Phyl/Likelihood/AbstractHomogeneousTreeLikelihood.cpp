@@ -78,6 +78,7 @@ throw (Exception) :
   nbNodes_(),
   verbose_(),
   minimumBrLen_(),
+  maximumBrLen_(),
   brLenConstraint_()
 {
   init_(tree, model, rDist, checkRooted, verbose);
@@ -102,6 +103,7 @@ AbstractHomogeneousTreeLikelihood::AbstractHomogeneousTreeLikelihood(
   nbNodes_(lik.nbNodes_),
   verbose_(lik.verbose_),
   minimumBrLen_(lik.minimumBrLen_),
+  maximumBrLen_(lik.maximumBrLen_),
   brLenConstraint_(lik.brLenConstraint_->clone())
 {
   nodes_ = tree_->getNodes();
@@ -129,15 +131,10 @@ AbstractHomogeneousTreeLikelihood& AbstractHomogeneousTreeLikelihood::operator=(
   nbNodes_         = lik.nbNodes_;
   verbose_         = lik.verbose_;
   minimumBrLen_    = lik.minimumBrLen_;
-  brLenConstraint_ = lik.brLenConstraint_->clone();
+  maximumBrLen_    = lik.maximumBrLen_;
+  if (brLenConstraint_.get()) brLenConstraint_.release();
+  brLenConstraint_.reset(lik.brLenConstraint_->clone());
   return *this;
-}
-
-/******************************************************************************/
-
-AbstractHomogeneousTreeLikelihood::~AbstractHomogeneousTreeLikelihood()
-{
-  delete brLenConstraint_;
 }
 
 /******************************************************************************/
@@ -166,7 +163,8 @@ void AbstractHomogeneousTreeLikelihood::init_(
   verbose_ = verbose;
 
   minimumBrLen_ = 0.000001;
-  brLenConstraint_ = new IncludingPositiveReal(minimumBrLen_);
+  maximumBrLen_ = 10000;
+  brLenConstraint_.reset(new IncludingInterval(minimumBrLen_, maximumBrLen_));
 }
 
 /******************************************************************************/
@@ -325,6 +323,12 @@ void AbstractHomogeneousTreeLikelihood::initBranchLengthsParameters()
         ApplicationTools::displayWarning("Branch length " + TextTools::toString(i) + " is too small: " + TextTools::toString(d) + ". Value is set to " + TextTools::toString(minimumBrLen_));
         nodes_[i]->setDistanceToFather(minimumBrLen_);
         d = minimumBrLen_;
+      }
+      if (d > maximumBrLen_)
+      {
+        ApplicationTools::displayWarning("Branch length " + TextTools::toString(i) + " is too big: " + TextTools::toString(d) + ". Value is set to " + TextTools::toString(maximumBrLen_));
+        nodes_[i]->setDistanceToFather(maximumBrLen_);
+        d = maximumBrLen_;
       }
     }
     brLenParameters_.addParameter(Parameter("BrLen" + TextTools::toString(i), d, brLenConstraint_->clone(), true)); // Attach constraint to avoid clonage problems!

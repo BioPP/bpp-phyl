@@ -346,8 +346,28 @@ protected:
 };
 
 /**
- * @brief Nucleotide FrequenciesSet using three independent parameters to modelize the four frequencies.
+ * @brief Nucleotide FrequenciesSet using three independent parameters
+ * (theta, theta1, theta2) to modelize the four frequencies:
+ *
+ * \f[
+ * \begin{cases}
+ * \theta = \pi_C + \pi_G\\
+ * \theta_1 = \frac{\pi_A}{1 - \theta} = \frac{\pi_A}{\pi_A + \pi_T}\\
+ * \theta_2 = \frac{\pi_G}{\theta} = \frac{\pi_G}{\pi_C + \pi_G}\\
+ * \end{cases}
+ * \Longleftrightarrow
+ * \begin{cases}
+ * \pi_A = \theta_1 (1 - \theta)\\
+ * \pi_C = (1 - \theta_2) \theta\\
+ * \pi_G = \theta_2 \theta\\
+ * \pi_T = (1 - \theta_1)(1 - \theta).
+ * \end{cases}
+ * \f]
+ *
+ * with \f$\pi_x\f$ the frequency of nucleotide \f$x\f$.
+ *
  */
+  
 class FullNucleotideFrequenciesSet :
   public virtual NucleotideFrequenciesSet,
   public AbstractFrequenciesSet
@@ -773,8 +793,11 @@ public:
 };
 
 /**
- * @brief the Frequencies in codons are the product of Independent Frequencies in letters
- * with the frequencies of stop codons set to zero
+ * @brief the Frequencies in codons are the product of Independent
+ * Frequencies in letters with the frequencies of stop codons set to
+ * zero.
+ *
+ *
  * @author Laurent Guéguen
  */
 
