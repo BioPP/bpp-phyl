@@ -55,24 +55,45 @@
 
 namespace bpp
 {
+
 /**
- * @brief Debugging wrapper: output data to a log file if a 0 likelihood is obtained during optimization.
+ * @brief A listener which capture NaN function values and throw an exception in case this happens.
  */
-class NaNWatcher : public DerivableSecondOrderWrapper
+class NaNListener: public OptimizationListener
 {
-public:
-  NaNWatcher(TreeLikelihood* tl) :
-    DerivableSecondOrderWrapper(tl) {}
+  private:
+    Optimizer* optimizer_;
+    Function* function_;
 
-  NaNWatcher* clone() const { return new NaNWatcher(*this); }
+  public:
+    NaNListener(Optimizer* optimizer, Function* function): optimizer_(optimizer), function_(function) {}
 
-  /**
-   * @brief This function is redefined to output an error message if there is a 0 likelihood.
-   *
-   * @return The value of the likelihood function;
-   */
-  double getValue() const throw (Exception);
+    NaNListener(const NaNListener& lr):
+      optimizer_(lr.optimizer_),
+      function_(lr.function_)
+    {}
+  
+    NaNListener& operator=(const NaNListener& lr)
+    {
+      optimizer_ = lr.optimizer_;
+      function_  = lr.function_;
+      return *this;
+    }
+  
+  public:
+    void optimizationInitializationPerformed(const OptimizationEvent &event) {}
+    void optimizationStepPerformed(const OptimizationEvent &event) throw (Exception)
+    {
+      if (isnan(optimizer_->getFunction()->getValue()))
+      {
+         cerr << "Oups... something abnormal happened!" << endl;
+         function_->getParameters().printParameters(cerr);
+         throw Exception("Optimization failed because likelihood function returned NaN.");
+      }
+    }
+    bool listenerModifiesParameters () const { return false; }
 };
+
 
 
 /**

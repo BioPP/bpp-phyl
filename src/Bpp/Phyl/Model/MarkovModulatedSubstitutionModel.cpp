@@ -5,7 +5,7 @@
 //
 
 /*
-Copyright or © or Copr. CNRS, (November 16, 2004)
+Copyright or © or Copr. Bio++ Development Team, (November 16, 2004)
 
 This software is a computer program whose purpose is to provide classes
 for phylogenetic data analysis.
@@ -107,6 +107,7 @@ void MarkovModulatedSubstitutionModel::updateMatrices()
   //ratesGenerator_ and rates_ must be initialized!
   nbStates_        = model_->getNumberOfStates();
   nbRates_         = rates_.getNumberOfColumns();
+  chars_           = VectorTools::rep(model_->getAlphabetChars(), nbRates_);
   RowMatrix<double> Tmp1, Tmp2;
   MatrixTools::diag(ratesFreq_, Tmp1);
   MatrixTools::mult(ratesExchangeability_, Tmp1, ratesGenerator_);
@@ -197,10 +198,12 @@ const Matrix<double>& MarkovModulatedSubstitutionModel::getd2Pij_dt2(double t) c
 
 double MarkovModulatedSubstitutionModel::getInitValue(unsigned int i, int state) const throw (BadIntException)
 {
-	if(i >= (nbStates_*nbRates_)) throw BadIntException(i, "MarkovModulatedSubstitutionModel::getInitValue");
-	if(state < 0 || !model_->getAlphabet()->isIntInAlphabet(state)) throw BadIntException(state, "MarkovModulatedSubstitutionModel::getInitValue. Character " + model_->getAlphabet()->intToChar(state) + " is not allowed in model.");
+	if (i >= (nbStates_ * nbRates_))
+    throw BadIntException(i, "MarkovModulatedSubstitutionModel::getInitValue");
+	if (state < 0 || !model_->getAlphabet()->isIntInAlphabet(state))
+    throw BadIntException(state, "MarkovModulatedSubstitutionModel::getInitValue. Character " + model_->getAlphabet()->intToChar(state) + " is not allowed in model.");
 	vector<int> states = model_->getAlphabet()->getAlias(state);
-	for (unsigned int j = 0; j < states.size(); j++)
+	for (size_t j = 0; j < states.size(); j++)
     if (getAlphabetChar(i) == states[j])
       return 1.;
 	return 0.;
