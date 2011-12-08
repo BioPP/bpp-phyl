@@ -1133,7 +1133,7 @@ void PhylogeneticsApplicationTools::setSubstitutionModelParametersInitialValues(
           sharedParams.push_back(value);
         }
         else
-          throw Exception("Error, unknown parameter " + modelPrefix + pName);
+          throw Exception("Error, unknown parameter " + value);
       }
       else
       {
@@ -1612,11 +1612,14 @@ void PhylogeneticsApplicationTools::setSubstitutionModelSet(
     if (verbose)
       ApplicationTools::displayResult("Model" + TextTools::toString(i + 1) + " is associated to", TextTools::toString(nodesId.size()) + " node(s).");
     // Add model and specific parameters:
+    //DEBUG: cout << "Specific parameters:" << endl;
+    //DEBUG: VectorTools::print(specificParameters);
     modelSet.addModel(model, nodesId, specificParameters);
     // Now set shared parameters:
     for (unsigned int j = 0; j < sharedParameters.size(); j++)
     {
       string pName = sharedParameters[j];
+      //DEBUG: cout << "Shared parameter found: " << pName << endl;
       string::size_type index = pName.find(".");
       if (index == string::npos)
         throw Exception("PhylogeneticsApplicationTools::getSubstitutionModelSet. Bad parameter name: " + pName);
