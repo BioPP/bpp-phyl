@@ -151,7 +151,7 @@ public:
 
   void setNamespace(const std::string&);
 
-  void setFreq(map<int,double>& frequencies);
+  void setFreq(std::map<int,double>& frequencies);
 
 };
 

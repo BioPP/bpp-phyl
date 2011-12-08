@@ -506,6 +506,15 @@ unsigned int AbstractWordFrequenciesSet::getLength() const
 AbstractWordFrequenciesSet::~AbstractWordFrequenciesSet()
 {}
 
+MarkovModulatedFrequenciesSet::MarkovModulatedFrequenciesSet(FrequenciesSet* freqSet, const std::vector<double>& rateFreqs) :
+  AbstractFrequenciesSet(freqSet->getAlphabet()->getSize() * rateFreqs.size(), freqSet->getAlphabet(), "MarkovModulated.", "MarkovModulated." + freqSet->getName()),
+  freqSet_(freqSet),
+  rateFreqs_(rateFreqs)
+{
+  freqSet_->setNamespace(std::string("MarkovModulated.") + freqSet_->getNamespace());
+  addParameters_(freqSet_->getParameters());
+  setFrequencies_(VectorTools::kroneckerMult(rateFreqs, freqSet_->getFrequencies()));
+}
 
 // ///////////////////////////////////////////////////////////////////
 // // WordFromIndependentFrequenciesSet
