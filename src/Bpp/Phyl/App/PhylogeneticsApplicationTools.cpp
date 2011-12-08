@@ -1133,7 +1133,7 @@ void PhylogeneticsApplicationTools::setSubstitutionModelParametersInitialValues(
           sharedParams.push_back(value);
         }
         else
-          throw Exception("Error, unknown parameter" + modelPrefix + pName);
+          throw Exception("Error, unknown parameter " + modelPrefix + pName);
       }
       else
       {
