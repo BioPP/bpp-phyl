@@ -76,7 +76,7 @@ RN95s::RN95s(const NucleicAlphabet* alphabet,
 
   double piA=0.5*(beta_+delta_)/(alpha_+beta_+0.5);
   double alphaP=(2*alpha_*piA+((0.5-piA<gamma_)?0.5-piA:gamma_))/(0.5-piA);
-  addParameter_(Parameter("RN95s.piA" , piA , new ExcludingInterval(0,0.5), true));
+  addParameter_(Parameter("RN95s.thetaA" , piA , new ExcludingInterval(0,0.5), true));
   addParameter_(Parameter("RN95s.gamma" , gamma_ ,  new ExcludingInterval(0,0.5), true));
   addParameter_(Parameter("RN95s.alphaP" , alphaP , new ExcludingPositiveReal(1), true));
 
@@ -87,7 +87,7 @@ RN95s::RN95s(const NucleicAlphabet* alphabet,
 	
 void RN95s::updateMatrices()
 {
-  freq_[0]  = getParameterValue("piA");
+  freq_[0]  = getParameterValue("thetaA");
   double alphaP  = getParameterValue("alphaP");
   gamma_  =getParameterValue("gamma");
   alpha_  =(alphaP*(0.5-freq_[0])-((0.5-freq_[0]<gamma_)?0.5-freq_[0]:gamma_))/(2*freq_[0]);
@@ -439,7 +439,7 @@ const Matrix<double>&  RN95s::getd2Pij_dt2(double d) const
 
 void RN95s::setFreq(map<int, double>& freqs)
 {
-  setParameterValue("piA", (freqs[0] + freqs[3]) / 2);
+  setParameterValue("thetaA", (freqs[0] + freqs[3]) / 2);
                     
   updateMatrices();
 }

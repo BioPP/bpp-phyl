@@ -119,7 +119,7 @@ public:
 
   void setNamespace(const std::string& st);
 
-  void setFreq(map<int,double>& frequencies);
+  void setFreq(std::map<int,double>& frequencies);
 };
 } // end of namespace bpp.
 

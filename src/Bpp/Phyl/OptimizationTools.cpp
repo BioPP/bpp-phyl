@@ -56,34 +56,6 @@ using namespace std;
 
 /******************************************************************************/
 
-double NaNWatcher::getValue() const throw (Exception)
-{
-  double value = function_->getValue();
-  if (isnan(value))
-  {
-    std::cerr << "Oups... something abnormal happened! A log file has been dumped to DEBUB.LOG" << std::endl;
-    std::ofstream debug("DEBUG.LOG", std::ios::out);
-    debug << "<<< DEBUGGING INFORMATION >>>" << std::endl;
-    debug << "<<< SEND TO julien.dutheil@univ-montp2.fr >>>" << std::endl;
-    debug << std::endl;
-    debug << "<<< PARAMETERS >>>" << std::endl;
-    function_->getParameters().printParameters(debug);
-    debug << std::endl;
-    debug << "<<< TREE >>>" << std::endl;
-    Newick newick;
-    newick.write(dynamic_cast<TreeLikelihood*>(function_)->getTree(), debug);
-    debug << std::endl;
-    debug << "<<< SEQUENCES >>>" << std::endl;
-    Fasta fasta;
-    fasta.write(debug, *dynamic_cast<TreeLikelihood*>(function_)->getData());
-    debug.close();
-    throw Exception("Optimization failed because likelihood function returned NaN.");
-  }
-  return value;
-}
-
-/******************************************************************************/
-
 OptimizationTools::OptimizationTools() {}
 
 OptimizationTools::~OptimizationTools() {}
@@ -185,8 +157,7 @@ unsigned int OptimizationTools::optimizeNumericalParameters(
   const std::string& optMethodModel)
 throw (Exception)
 {
-  auto_ptr<DerivableSecondOrder> watcher(new NaNWatcher(tl));
-  DerivableSecondOrder* f = watcher.get();
+  DerivableSecondOrder* f = tl;
   ParameterList pl = parameters;
 
   // Shall we reparametrize the function to remove constraints?
@@ -258,6 +229,8 @@ throw (Exception)
 
   // Optimize TreeLikelihood function:
   poptimizer->setConstraintPolicy(AutoParameter::CONSTRAINTS_AUTO);
+  NaNListener* nanListener = new NaNListener(poptimizer, tl);
+  poptimizer->addOptimizationListener(nanListener);
   if (listener)
     poptimizer->addOptimizationListener(listener);
   poptimizer->init(pl);
@@ -352,6 +325,8 @@ throw (Exception)
 
   // Optimize TreeLikelihood function:
   optimizer->setConstraintPolicy(AutoParameter::CONSTRAINTS_AUTO);
+  NaNListener* nanListener = new NaNListener(optimizer.get(), tl);
+  optimizer->addOptimizationListener(nanListener);
   if (listener)
     optimizer->addOptimizationListener(listener);
   optimizer->init(pl);

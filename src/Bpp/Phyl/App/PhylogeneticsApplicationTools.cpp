@@ -95,11 +95,13 @@ Tree* PhylogeneticsApplicationTools::getTree(
     treeReader = new NexusIOTree();
   else if (format == "NHX")
     treeReader = new Nhx();
-  else throw Exception("Unknow format for tree reading: " + format);
+  else
+    throw Exception("Unknow format for tree reading: " + format);
   Tree* tree = treeReader->read(treeFilePath);
   delete treeReader;
 
-  if (verbose) ApplicationTools::displayResult("Tree file", treeFilePath);
+  if (verbose)
+    ApplicationTools::displayResult("Tree file", treeFilePath);
   return tree;
 }
 
@@ -122,7 +124,8 @@ vector<Tree*> PhylogeneticsApplicationTools::getTrees(
     treeReader = new NexusIOTree();
   else if (format == "NHX")
     treeReader = new Nhx();
-  else throw Exception("Unknow format for tree reading: " + format);
+  else
+    throw Exception("Unknow format for tree reading: " + format);
   vector<Tree*> trees;
   treeReader->read(treeFilePath, trees);
   delete treeReader;
@@ -134,9 +137,6 @@ vector<Tree*> PhylogeneticsApplicationTools::getTrees(
   }
   return trees;
 }
-
-
-
 
 
 /*************************************************************/
@@ -212,12 +212,12 @@ SubstitutionModel* PhylogeneticsApplicationTools::getSubstitutionModelDefaultIns
     }
 
     int fi(-1), ti(-1);
-    
+
     if (args.find("from") != args.end())
-      fi=alphabet->charToInt(args["from"]);
+      fi = alphabet->charToInt(args["from"]);
     if (args.find("to") != args.end())
-      ti=alphabet->charToInt(args["to"]);
-    
+      ti = alphabet->charToInt(args["to"]);
+
     model = new MixtureOfASubstitutionModel(alphabet, pSM, mdist, fi, ti);
 
     vector<string> v = model->getParameters().getParameterNames();
@@ -267,11 +267,8 @@ SubstitutionModel* PhylogeneticsApplicationTools::getSubstitutionModelDefaultIns
   }
 
 
-
-
-
   // /////////////////////////////////
-  // / WORDS and CODONS 
+  // / WORDS and CODONS
   // ///////////////////////////////
 
   else if (word)
@@ -330,9 +327,11 @@ SubstitutionModel* PhylogeneticsApplicationTools::getSubstitutionModelDefaultIns
     if (v_nestedModelDescription.size() != nbmodels)
     {
       model = getSubstitutionModelDefaultInstance(pWA->getNAlphabet(0), v_nestedModelDescription[0], unparsedParameterValuesNested, false, true, false, false);
-      string pref="";
-      for (unsigned int i=0;i<nbmodels;i++)
-        pref+=TextTools::toString(i+1);
+      string pref = "";
+      for (unsigned int i = 0; i < nbmodels; i++)
+      {
+        pref += TextTools::toString(i + 1);
+      }
       for (map<string, string>::iterator it = unparsedParameterValuesNested.begin(); it != unparsedParameterValuesNested.end(); it++)
       {
         unparsedParameterValues[modelName + "." + pref + "_" + it->first] = it->second;
@@ -361,7 +360,7 @@ SubstitutionModel* PhylogeneticsApplicationTools::getSubstitutionModelDefaultIns
     {
       model = (v_nestedModelDescription.size() != nbmodels)
               ? new WordSubstitutionModel(v_pSM[0], nbmodels)
-      : new WordSubstitutionModel(v_pSM);
+              : new WordSubstitutionModel(v_pSM);
     }
 
     // /////////////////////////////////
@@ -401,18 +400,18 @@ SubstitutionModel* PhylogeneticsApplicationTools::getSubstitutionModelDefaultIns
 
       if (v_nestedModelDescription.size() != 3)
         model = new CodonRateSubstitutionModel(
-                                               dynamic_cast<const CodonAlphabet*>(pWA),
-                                               dynamic_cast<NucleotideSubstitutionModel*>(v_pSM[0]));
+          dynamic_cast<const CodonAlphabet*>(pWA),
+          dynamic_cast<NucleotideSubstitutionModel*>(v_pSM[0]));
       else
       {
         if (dynamic_cast<NucleotideSubstitutionModel*>(v_pSM[1]) == 0 || dynamic_cast<NucleotideSubstitutionModel*>(v_pSM[2]) == 0)
           throw Exception("Non simple NucleotideSubstitutionModel imbedded in " + modelName + " model.");
 
         model = new CodonRateSubstitutionModel(
-                                               dynamic_cast<const CodonAlphabet*>(pWA),
-                                               dynamic_cast<NucleotideSubstitutionModel*>(v_pSM[0]),
-                                               dynamic_cast<NucleotideSubstitutionModel*>(v_pSM[1]),
-                                               dynamic_cast<NucleotideSubstitutionModel*>(v_pSM[2]));
+          dynamic_cast<const CodonAlphabet*>(pWA),
+          dynamic_cast<NucleotideSubstitutionModel*>(v_pSM[0]),
+          dynamic_cast<NucleotideSubstitutionModel*>(v_pSM[1]),
+          dynamic_cast<NucleotideSubstitutionModel*>(v_pSM[2]));
       }
     }
 
@@ -429,7 +428,7 @@ SubstitutionModel* PhylogeneticsApplicationTools::getSubstitutionModelDefaultIns
       if (pgc->getSourceAlphabet()->getAlphabetType() != pWA->getAlphabetType())
         throw Exception("Mismatch between genetic code and codon alphabet");
 
-      AlphabetIndex2<double> * pai2;
+      AlphabetIndex2<double>* pai2;
 
       if (args.find("aadistance") == args.end())
         pai2 = 0;
@@ -458,145 +457,145 @@ SubstitutionModel* PhylogeneticsApplicationTools::getSubstitutionModelDefaultIns
     // /////////////////////////////////
     // / CODON FREQUENCIES
     // ///////////////////////////////
-    
+
     else if (wordfreq)
+    {
+      if (!AlphabetTools::isCodonAlphabet(alphabet))
+        throw Exception("Alphabet should be Codon Alphabet.");
+
+      const CodonAlphabet* pCA = dynamic_cast<const CodonAlphabet*>(alphabet);
+
+      if (args.find("frequencies") == args.end())
+        throw Exception("Missing equilibrium frequencies.");
+
+      map<string, string> unparsedParameterValuesNested2;
+
+      FrequenciesSet* pFS = getFrequenciesSetDefaultInstance(pCA, args["frequencies"], unparsedParameterValuesNested2);
+
+      for (map<string, string>::iterator it = unparsedParameterValuesNested2.begin(); it != unparsedParameterValuesNested2.end(); it++)
       {
-        if (!AlphabetTools::isCodonAlphabet(alphabet))
-          throw Exception("Alphabet should be Codon Alphabet.");
-        
-        const CodonAlphabet* pCA = dynamic_cast<const CodonAlphabet*>(alphabet);
-        
-        if (args.find("frequencies") == args.end())
-          throw Exception("Missing equilibrium frequencies.");
-        
-        map<string, string> unparsedParameterValuesNested2;
-
-        FrequenciesSet* pFS = getFrequenciesSetDefaultInstance(pCA, args["frequencies"], unparsedParameterValuesNested2);
-        
-        for (map<string, string>::iterator it = unparsedParameterValuesNested2.begin(); it != unparsedParameterValuesNested2.end(); it++)
-          {
-            unparsedParameterValues[modelName + "." + it->first] = it->second;
-          }
-        
-        // /////////////////////////////////
-        // / CODON RATE FREQUENCIES
-        // ///////////////////////////////
-        
-        if (modelName == "CodonRateFrequencies")
-          {
-            if (dynamic_cast<NucleotideSubstitutionModel*>(v_pSM[0]) == 0)
-              throw Exception("Non simple NucleotideSubstitutionModel imbedded in " + modelName + " model.");
-            
-            if (v_nestedModelDescription.size() != 3)
-              model = new CodonRateFrequenciesSubstitutionModel(pCA,
-                                                                dynamic_cast<NucleotideSubstitutionModel*>(v_pSM[0]), pFS);
-            else
-              {
-                if (dynamic_cast<NucleotideSubstitutionModel*>(v_pSM[1]) == 0 || dynamic_cast<NucleotideSubstitutionModel*>(v_pSM[2]) == 0)
-                  throw Exception("Non simple NucleotideSubstitutionModel imbedded in " + modelName + " model.");
-
-                model = new CodonRateFrequenciesSubstitutionModel(pCA,
-                                                                  dynamic_cast<NucleotideSubstitutionModel*>(v_pSM[0]),
-                                                                  dynamic_cast<NucleotideSubstitutionModel*>(v_pSM[1]),
-                                                                  dynamic_cast<NucleotideSubstitutionModel*>(v_pSM[2]),
-                                                                  pFS);
-              }
-          }
-        
-        // /////////////////////////////////
-        // / CODON DISTANCE FREQUENCIES
-        // ///////////////////////////////
-        
-        else if (modelName == "CodonDistanceFrequencies")
-          {
-            if (args.find("genetic_code") == args.end())
-              args["genetic_code"] = pCA->getAlphabetType();
-
-            GeneticCode* pgc = SequenceApplicationTools::getGeneticCode(dynamic_cast<const NucleicAlphabet*>(pCA->getNAlphabet(0)), args["genetic_code"]);
-            if (pgc->getSourceAlphabet()->getAlphabetType() != pCA->getAlphabetType())
-              throw Exception("Mismatch between genetic code and codon alphabet");
-            
-            AlphabetIndex2<double> * pai2;
-            
-            if (args.find("aadistance") == args.end())
-              pai2 = 0;
-            else
-              pai2  = SequenceApplicationTools::getAADistance(args["aadistance"]);
-
-
-            if (dynamic_cast<NucleotideSubstitutionModel*>(v_pSM[0]) == 0)
-              throw Exception("Non simple NucleotideSubstitutionModel imbedded in " + modelName + " model.");
-            
-            if (v_nestedModelDescription.size() != 3)
-              model = new CodonDistanceFrequenciesSubstitutionModel(pgc,
-                                                                    dynamic_cast<NucleotideSubstitutionModel*>(v_pSM[0]),
-                                                                    pFS,
-                                                                    pai2);
-            else
-              {
-                if (dynamic_cast<NucleotideSubstitutionModel*>(v_pSM[1]) == 0 || dynamic_cast<NucleotideSubstitutionModel*>(v_pSM[2]) == 0)
-                  throw Exception("Non simple NucleotideSubstitutionModel imbedded in " + modelName + " model.");
-
-                model = new CodonDistanceFrequenciesSubstitutionModel(
-                                                                      pgc,
-                                                                      dynamic_cast<NucleotideSubstitutionModel*>(v_pSM[0]),
-                                                                      dynamic_cast<NucleotideSubstitutionModel*>(v_pSM[1]),
-                                                                      dynamic_cast<NucleotideSubstitutionModel*>(v_pSM[2]),
-                                                                      pFS,
-                                                                      pai2);
-              }
-          }
-
-        // /////////////////////////////////
-        // / CODON DISTANCE PHASE FREQUENCIES
-        // ///////////////////////////////
-        
-        else if (modelName == "CodonDistancePhaseFrequencies")
-          {
-            if (args.find("genetic_code") == args.end())
-              args["genetic_code"] = pCA->getAlphabetType();
-
-            GeneticCode* pgc = SequenceApplicationTools::getGeneticCode(dynamic_cast<const NucleicAlphabet*>(pCA->getNAlphabet(0)), args["genetic_code"]);
-            if (pgc->getSourceAlphabet()->getAlphabetType() != pCA->getAlphabetType())
-              throw Exception("Mismatch between genetic code and codon alphabet");
-            
-            AlphabetIndex2<double> * pai2;
-            
-            if (args.find("aadistance") == args.end())
-              pai2 = 0;
-            else
-              pai2  = SequenceApplicationTools::getAADistance(args["aadistance"]);
-
-
-            if (dynamic_cast<NucleotideSubstitutionModel*>(v_pSM[0]) == 0)
-              throw Exception("Non simple NucleotideSubstitutionModel imbedded in " + modelName + " model.");
-            
-            if (v_nestedModelDescription.size() != 3)
-              model = new CodonDistancePhaseFrequenciesSubstitutionModel(pgc,
-                                                                         dynamic_cast<NucleotideSubstitutionModel*>(v_pSM[0]),
-                                                                         pFS,
-                                                                         pai2);
-            else
-              {
-                if (dynamic_cast<NucleotideSubstitutionModel*>(v_pSM[1]) == 0 || dynamic_cast<NucleotideSubstitutionModel*>(v_pSM[2]) == 0)
-                  throw Exception("Non simple NucleotideSubstitutionModel imbedded in " + modelName + " model.");
-
-                model = new CodonDistancePhaseFrequenciesSubstitutionModel(
-                                                                           pgc,
-                                                                           dynamic_cast<NucleotideSubstitutionModel*>(v_pSM[0]),
-                                                                           dynamic_cast<NucleotideSubstitutionModel*>(v_pSM[1]),
-                                                                           dynamic_cast<NucleotideSubstitutionModel*>(v_pSM[2]),
-                                                                           pFS,
-                                                                           pai2);
-              }
-          }
+        unparsedParameterValues[modelName + "." + it->first] = it->second;
       }
+
+      // /////////////////////////////////
+      // / CODON RATE FREQUENCIES
+      // ///////////////////////////////
+
+      if (modelName == "CodonRateFrequencies")
+      {
+        if (dynamic_cast<NucleotideSubstitutionModel*>(v_pSM[0]) == 0)
+          throw Exception("Non simple NucleotideSubstitutionModel imbedded in " + modelName + " model.");
+
+        if (v_nestedModelDescription.size() != 3)
+          model = new CodonRateFrequenciesSubstitutionModel(pCA,
+                                                            dynamic_cast<NucleotideSubstitutionModel*>(v_pSM[0]), pFS);
+        else
+        {
+          if (dynamic_cast<NucleotideSubstitutionModel*>(v_pSM[1]) == 0 || dynamic_cast<NucleotideSubstitutionModel*>(v_pSM[2]) == 0)
+            throw Exception("Non simple NucleotideSubstitutionModel imbedded in " + modelName + " model.");
+
+          model = new CodonRateFrequenciesSubstitutionModel(pCA,
+                                                            dynamic_cast<NucleotideSubstitutionModel*>(v_pSM[0]),
+                                                            dynamic_cast<NucleotideSubstitutionModel*>(v_pSM[1]),
+                                                            dynamic_cast<NucleotideSubstitutionModel*>(v_pSM[2]),
+                                                            pFS);
+        }
+      }
+
+      // /////////////////////////////////
+      // / CODON DISTANCE FREQUENCIES
+      // ///////////////////////////////
+
+      else if (modelName == "CodonDistanceFrequencies")
+      {
+        if (args.find("genetic_code") == args.end())
+          args["genetic_code"] = pCA->getAlphabetType();
+
+        GeneticCode* pgc = SequenceApplicationTools::getGeneticCode(dynamic_cast<const NucleicAlphabet*>(pCA->getNAlphabet(0)), args["genetic_code"]);
+        if (pgc->getSourceAlphabet()->getAlphabetType() != pCA->getAlphabetType())
+          throw Exception("Mismatch between genetic code and codon alphabet");
+
+        AlphabetIndex2<double>* pai2;
+
+        if (args.find("aadistance") == args.end())
+          pai2 = 0;
+        else
+          pai2  = SequenceApplicationTools::getAADistance(args["aadistance"]);
+
+
+        if (dynamic_cast<NucleotideSubstitutionModel*>(v_pSM[0]) == 0)
+          throw Exception("Non simple NucleotideSubstitutionModel imbedded in " + modelName + " model.");
+
+        if (v_nestedModelDescription.size() != 3)
+          model = new CodonDistanceFrequenciesSubstitutionModel(pgc,
+                                                                dynamic_cast<NucleotideSubstitutionModel*>(v_pSM[0]),
+                                                                pFS,
+                                                                pai2);
+        else
+        {
+          if (dynamic_cast<NucleotideSubstitutionModel*>(v_pSM[1]) == 0 || dynamic_cast<NucleotideSubstitutionModel*>(v_pSM[2]) == 0)
+            throw Exception("Non simple NucleotideSubstitutionModel imbedded in " + modelName + " model.");
+
+          model = new CodonDistanceFrequenciesSubstitutionModel(
+            pgc,
+            dynamic_cast<NucleotideSubstitutionModel*>(v_pSM[0]),
+            dynamic_cast<NucleotideSubstitutionModel*>(v_pSM[1]),
+            dynamic_cast<NucleotideSubstitutionModel*>(v_pSM[2]),
+            pFS,
+            pai2);
+        }
+      }
+
+      // /////////////////////////////////
+      // / CODON DISTANCE PHASE FREQUENCIES
+      // ///////////////////////////////
+
+      else if (modelName == "CodonDistancePhaseFrequencies")
+      {
+        if (args.find("genetic_code") == args.end())
+          args["genetic_code"] = pCA->getAlphabetType();
+
+        GeneticCode* pgc = SequenceApplicationTools::getGeneticCode(dynamic_cast<const NucleicAlphabet*>(pCA->getNAlphabet(0)), args["genetic_code"]);
+        if (pgc->getSourceAlphabet()->getAlphabetType() != pCA->getAlphabetType())
+          throw Exception("Mismatch between genetic code and codon alphabet");
+
+        AlphabetIndex2<double>* pai2;
+
+        if (args.find("aadistance") == args.end())
+          pai2 = 0;
+        else
+          pai2  = SequenceApplicationTools::getAADistance(args["aadistance"]);
+
+
+        if (dynamic_cast<NucleotideSubstitutionModel*>(v_pSM[0]) == 0)
+          throw Exception("Non simple NucleotideSubstitutionModel imbedded in " + modelName + " model.");
+
+        if (v_nestedModelDescription.size() != 3)
+          model = new CodonDistancePhaseFrequenciesSubstitutionModel(pgc,
+                                                                     dynamic_cast<NucleotideSubstitutionModel*>(v_pSM[0]),
+                                                                     pFS,
+                                                                     pai2);
+        else
+        {
+          if (dynamic_cast<NucleotideSubstitutionModel*>(v_pSM[1]) == 0 || dynamic_cast<NucleotideSubstitutionModel*>(v_pSM[2]) == 0)
+            throw Exception("Non simple NucleotideSubstitutionModel imbedded in " + modelName + " model.");
+
+          model = new CodonDistancePhaseFrequenciesSubstitutionModel(
+            pgc,
+            dynamic_cast<NucleotideSubstitutionModel*>(v_pSM[0]),
+            dynamic_cast<NucleotideSubstitutionModel*>(v_pSM[1]),
+            dynamic_cast<NucleotideSubstitutionModel*>(v_pSM[2]),
+            pFS,
+            pai2);
+        }
+      }
+    }
   }
-  
+
   // //////////////////////////////////////
   // PREDEFINED CODON MODELS
   // //////////////////////////////////////
-  
+
   else if ((modelName == "MG94") || (modelName == "YN98") ||
            (modelName == "GY94") || (modelName.substr(0, 5) == "YNGKP"))
   {
@@ -860,19 +859,19 @@ SubstitutionModel* PhylogeneticsApplicationTools::getSubstitutionModelDefaultIns
       // ///////////////////////////////
 
       else if (modelName == "RN95")
-        {
-          model = new RN95(alpha);
-        }
+      {
+        model = new RN95(alpha);
+      }
 
       // /////////////////////////////////
       // / RN95s
       // ///////////////////////////////
 
       else if (modelName == "RN95s")
-        {
-          model = new RN95s(alpha);
-        }
-      
+      {
+        model = new RN95s(alpha);
+      }
+
       // /////////////////////////////////
       // / TN93
       // //////////////////////////////
@@ -981,12 +980,12 @@ SubstitutionModel* PhylogeneticsApplicationTools::getSubstitutionModelDefaultIns
         model = new UserProteinSubstitutionModel(alpha, args["file"], prefix);
       }
       else if (AlphabetTools::isBinaryAlphabet(alphabet))
-        {
-          const BinaryAlphabet* balpha = dynamic_cast<const BinaryAlphabet*>(alphabet);
+      {
+        const BinaryAlphabet* balpha = dynamic_cast<const BinaryAlphabet*>(alphabet);
 
-          if (modelName == "Binary")
-            model = new BinarySubstitutionModel(balpha);
-        }
+        if (modelName == "Binary")
+          model = new BinarySubstitutionModel(balpha);
+      }
       else
         throw Exception("Model '" + modelName + "' unknown.");
     }
@@ -994,7 +993,7 @@ SubstitutionModel* PhylogeneticsApplicationTools::getSubstitutionModelDefaultIns
       ApplicationTools::displayResult("Substitution model", modelName);
   }
 
-  //Update parameter args:
+  // Update parameter args:
   vector<string> pnames = model->getParameters().getParameterNames();
 
   for (unsigned int i = 0; i < pnames.size(); i++)
@@ -1013,7 +1012,8 @@ SubstitutionModel* PhylogeneticsApplicationTools::getSubstitutionModelDefaultIns
   {
     pname = model->getParameterNameWithoutNamespace(pl[i].getName());
 
-    if (args.find(pname) == args.end()) continue;
+    if (args.find(pname) == args.end())
+      continue;
     pval = args[pname];
 
     if ((pval.length() >= 5 && pval.substr(0, 5) == "model") ||
@@ -1024,8 +1024,9 @@ SubstitutionModel* PhylogeneticsApplicationTools::getSubstitutionModelDefaultIns
     {
       pname2 = model->getParameterNameWithoutNamespace(pl[j].getName());
 
-      //if (j == i || args.find(pname2) == args.end()) continue; Julien 03/03/2010: This extra condition prevents complicated (nested) models to work properly...
-      if (j == i) continue;
+      // if (j == i || args.find(pname2) == args.end()) continue; Julien 03/03/2010: This extra condition prevents complicated (nested) models to work properly...
+      if (j == i)
+        continue;
       if (pval == pname2)
       {
         // This is an alias...
@@ -1040,11 +1041,11 @@ SubstitutionModel* PhylogeneticsApplicationTools::getSubstitutionModelDefaultIns
       throw Exception("Incorrect parameter syntax: parameter " + pval + " was not found and can't be used as a value for parameter " + pname + ".");
   }
 
-  if (args.find("useObservedFreqs")!=args.end())
+  if (args.find("useObservedFreqs") != args.end())
     throw Exception("useObservedFreqs argument is obsolete. Please use 'initFreqs=observed' instead.");
-  if (args.find("useObservedFreqs.pseudoCount")!=args.end())
+  if (args.find("useObservedFreqs.pseudoCount") != args.end())
     throw Exception("useObservedFreqs.pseudoCount argument is obsolete. Please use 'initFreqs.observedPseudoCount' instead.");
-  
+
   if (args.find("initFreqs") != args.end())
     unparsedParameterValues[model->getNamespace() + "initFreqs"] = args["initFreqs"];
   if (args.find("initFreqs.observedPseudoCount") != args.end())
@@ -1086,29 +1087,30 @@ void PhylogeneticsApplicationTools::setSubstitutionModelParametersInitialValues(
   bool verbose) throw (Exception)
 {
   string initFreqs = ApplicationTools::getStringParameter(model->getNamespace() + "initFreqs", unparsedParameterValues, "", "", true, false);
-  if (verbose) 
-    ApplicationTools::displayResult("Frequencies Initialization for model", (initFreqs=="")? "None" : initFreqs);
+  if (verbose)
+    ApplicationTools::displayResult("Frequencies initialization for model", (initFreqs == "") ? "None" : initFreqs);
 
-  if (initFreqs!=""){
-    if (initFreqs=="observed")
-      {
-        if (!data)
-          throw Exception("Missing data for observed frequencies");
-        unsigned int psi = ApplicationTools::getParameter<unsigned int>(model->getNamespace() + "initFreqs.observedPseudoCount", unparsedParameterValues, 0);
-        model->setFreqFromData(*data, psi);
-      }
-    else if (initFreqs.substr(0,6)== "values")
-      {
-        // Initialization using the "values" argument
-        map<int, double> frequencies;
-        
-        string rf = initFreqs.substr(6);
-        StringTokenizer strtok(rf.substr(1, rf.length() - 2), ",");
-        unsigned int i=0;
-        while (strtok.hasMoreToken())
-          frequencies[i++]=TextTools::toDouble(strtok.nextToken());
-        model->setFreq(frequencies);
-      }
+  if (initFreqs != "")
+  {
+    if (initFreqs == "observed")
+    {
+      if (!data)
+        throw Exception("Missing data for observed frequencies");
+      unsigned int psi = ApplicationTools::getParameter<unsigned int>(model->getNamespace() + "initFreqs.observedPseudoCount", unparsedParameterValues, 0);
+      model->setFreqFromData(*data, psi);
+    }
+    else if (initFreqs.substr(0, 6) == "values")
+    {
+      // Initialization using the "values" argument
+      map<int, double> frequencies;
+
+      string rf = initFreqs.substr(6);
+      StringTokenizer strtok(rf.substr(1, rf.length() - 2), ",");
+      unsigned int i = 0;
+      while (strtok.hasMoreToken())
+        frequencies[i++] = TextTools::toDouble(strtok.nextToken());
+      model->setFreq(frequencies);
+    }
     else
       throw Exception("Unknown initFreqs argument");
   }
@@ -1125,7 +1127,7 @@ void PhylogeneticsApplicationTools::setSubstitutionModelParametersInitialValues(
   {
     const string pName = pl[i].getName();
     posp = pName.rfind(".");
-    if ((initFreqs=="") || (pName.substr(posp + 1, 5) != "theta")
+    if ((initFreqs == "") || (pName.substr(posp + 1, 5) != "theta")
         || unparsedParameterValues.find(pName) != unparsedParameterValues.end())
     {
       double value = ApplicationTools::getDoubleParameter(pName, unparsedParameterValues, pl[i].getValue());
@@ -1152,33 +1154,34 @@ void PhylogeneticsApplicationTools::setSubstitutionModelParametersInitialValues(
 {
   string initFreqs = ApplicationTools::getStringParameter(model->getNamespace() + "initFreqs", unparsedParameterValues, "", "", true, false);
 
-  if (verbose) 
-    ApplicationTools::displayResult("Frequencies Initialization for model", (initFreqs=="")? "None" : initFreqs);
+  if (verbose)
+    ApplicationTools::displayResult("Frequencies Initialization for model", (initFreqs == "") ? "None" : initFreqs);
 
-  if (initFreqs!=""){
-    if (initFreqs=="observed")
-      {
-        if (!data)
-          throw Exception("Missing data for observed frequencies");
-        unsigned int psi = ApplicationTools::getParameter<unsigned int>(model->getNamespace() + "initFreqs.observedPseudoCount", unparsedParameterValues, 0);
-        model->setFreqFromData(*data, psi);
-      }
-    else if (initFreqs.substr(0,6)== "values")
-      {
-        // Initialization using the "values" argument
-        map<int, double> frequencies;
-        
-        string rf = initFreqs.substr(6);
-        StringTokenizer strtok(rf.substr(1, rf.length() - 2), ",");
-        unsigned int i=0;
-        while (strtok.hasMoreToken())
-          frequencies[i++]=TextTools::toDouble(strtok.nextToken());
-        model->setFreq(frequencies);
-      }
+  if (initFreqs != "")
+  {
+    if (initFreqs == "observed")
+    {
+      if (!data)
+        throw Exception("Missing data for observed frequencies");
+      unsigned int psi = ApplicationTools::getParameter<unsigned int>(model->getNamespace() + "initFreqs.observedPseudoCount", unparsedParameterValues, 0);
+      model->setFreqFromData(*data, psi);
+    }
+    else if (initFreqs.substr(0, 6) == "values")
+    {
+      // Initialization using the "values" argument
+      map<int, double> frequencies;
+
+      string rf = initFreqs.substr(6);
+      StringTokenizer strtok(rf.substr(1, rf.length() - 2), ",");
+      unsigned int i = 0;
+      while (strtok.hasMoreToken())
+        frequencies[i++] = TextTools::toDouble(strtok.nextToken());
+      model->setFreq(frequencies);
+    }
     else
       throw Exception("Unknown initFreqs argument");
   }
-  
+
   ParameterList pl = model->getIndependentParameters();
   for (unsigned int i = 0; i < pl.size(); i++)
   {
@@ -1192,7 +1195,7 @@ void PhylogeneticsApplicationTools::setSubstitutionModelParametersInitialValues(
     const string pName = pl[i].getName();
     unsigned int posp = model->getParameterNameWithoutNamespace(pName).rfind(".");
     string value;
-    if ((initFreqs=="") || (model->getParameterNameWithoutNamespace(pName).substr(posp + 1, 5) != "theta") || unparsedParameterValues.find(pName) != unparsedParameterValues.end())
+    if ((initFreqs == "") || (model->getParameterNameWithoutNamespace(pName).substr(posp + 1, 5) != "theta") || unparsedParameterValues.find(pName) != unparsedParameterValues.end())
     {
       value = ApplicationTools::getStringParameter(pName, unparsedParameterValues, TextTools::toString(pl[i].getValue()));
       if (value.size() > 5 && value.substr(0, 5) == "model")
@@ -1203,7 +1206,7 @@ void PhylogeneticsApplicationTools::setSubstitutionModelParametersInitialValues(
           sharedParams.push_back(value);
         }
         else
-          throw Exception("Error, unknown parameter" + modelPrefix + pName);
+          throw Exception("Error, unknown parameter " + value);
       }
       else
       {
@@ -1223,11 +1226,6 @@ void PhylogeneticsApplicationTools::setSubstitutionModelParametersInitialValues(
   }
   model->matchParametersValues(pl);
 }
-
-
-
-
-
 
 
 /******************************************************/
@@ -1273,71 +1271,71 @@ FrequenciesSet* PhylogeneticsApplicationTools::getFrequenciesSet(
 
   // Now we set the initial frequencies according to options:
   if (unparsedParameterValues.find("init") != unparsedParameterValues.end())
+  {
+    // Initialization using the "init" option
+    string init = unparsedParameterValues["init"];
+    if (init == "observed")
     {
-      // Initialization using the "init" option
-      string init = unparsedParameterValues["init"];
-      if (init == "observed")
-        {
-          if (!data)
-            throw Exception("Missing data for observed frequencies");
-          unsigned int psc = 0;
-          if (unparsedParameterValues.find("init.observedPseudoCount") != unparsedParameterValues.end())
-            psc = TextTools::toInt(unparsedParameterValues["init.observedPseudoCount"]);
-          
-          map<int, double> freqs;
-          SequenceContainerTools::getFrequencies(*data, freqs, psc);
-          
-          pFS->setFrequenciesFromMap(freqs);
-        }
-      else if (init.substr(0,6)== "values")
-        {
-          // Initialization using the "values" argument
-          vector<double> frequencies;
-          string rf = init.substr(6);
-          
-          StringTokenizer strtok(rf.substr(1, rf.length() - 2), ",");
-          while (strtok.hasMoreToken())
-            frequencies.push_back(TextTools::toDouble(strtok.nextToken()));
-          pFS->setFrequencies(frequencies);
-        }
-      else if (init == "balanced")
-        {
-          // Nothing to do here, this is the default instanciation.
-        }
-      else
-        throw Exception("Unknown init argument");
+      if (!data)
+        throw Exception("Missing data for observed frequencies");
+      unsigned int psc = 0;
+      if (unparsedParameterValues.find("init.observedPseudoCount") != unparsedParameterValues.end())
+        psc = TextTools::toInt(unparsedParameterValues["init.observedPseudoCount"]);
+
+      map<int, double> freqs;
+      SequenceContainerTools::getFrequencies(*data, freqs, psc);
+
+      pFS->setFrequenciesFromMap(freqs);
     }
+    else if (init.substr(0, 6) == "values")
+    {
+      // Initialization using the "values" argument
+      vector<double> frequencies;
+      string rf = init.substr(6);
+
+      StringTokenizer strtok(rf.substr(1, rf.length() - 2), ",");
+      while (strtok.hasMoreToken())
+        frequencies.push_back(TextTools::toDouble(strtok.nextToken()));
+      pFS->setFrequencies(frequencies);
+    }
+    else if (init == "balanced")
+    {
+      // Nothing to do here, this is the default instanciation.
+    }
+    else
+      throw Exception("Unknown init argument");
+  }
   else
+  {
+    // Explicit initialization of each parameter
+    ParameterList pl = pFS->getParameters();
+
+    for (unsigned int i = 0; i < pl.size(); i++)
     {
-      // Explicit initialization of each parameter
-      ParameterList pl = pFS->getParameters();
-      
-      for (unsigned int i = 0; i < pl.size(); i++)
-        {
-          AutoParameter ap(pl[i]);
-          if (verbose)
-            ap.setMessageHandler(ApplicationTools::warning);
-          pl.setParameter(i, ap);
-        }
-      
-      for (unsigned int i = 0; i < pl.size(); i++)
-        {
-          const string pName = pl[i].getName();
-          double value = ApplicationTools::getDoubleParameter(pName, unparsedParameterValues, pl[i].getValue());
-          pl[i].setValue(value);
-          if (verbose)
-            ApplicationTools::displayResult("Parameter found", pName + "=" + TextTools::toString(pl[i].getValue()));
-        }
-      
-      pFS->matchParametersValues(pl);
+      AutoParameter ap(pl[i]);
+      if (verbose)
+        ap.setMessageHandler(ApplicationTools::warning);
+      pl.setParameter(i, ap);
     }
-  
+
+    for (unsigned int i = 0; i < pl.size(); i++)
+    {
+      const string pName = pl[i].getName();
+      double value = ApplicationTools::getDoubleParameter(pName, unparsedParameterValues, pl[i].getValue());
+      pl[i].setValue(value);
+      if (verbose)
+        ApplicationTools::displayResult("Parameter found", pName + "=" + TextTools::toString(pl[i].getValue()));
+    }
+
+    pFS->matchParametersValues(pl);
+  }
+
   // /////// To be changed for input normalization
   if (rateFreqs.size() > 0)
-    {
-      pFS = new MarkovModulatedFrequenciesSet(pFS, rateFreqs);
-    }
-  
+  {
+    pFS = new MarkovModulatedFrequenciesSet(pFS, rateFreqs);
+  }
+
   return pFS;
 }
 
@@ -1457,65 +1455,65 @@ FrequenciesSet* PhylogeneticsApplicationTools::getFrequenciesSetDefaultInstance(
   }
   // INDEPENDENT CODON
   else if (freqName == "Codon")
+  {
+    if (!AlphabetTools::isCodonAlphabet(alphabet))
+      throw Exception("PhylogeneticsApplicationTools::getFrequenciesSetDefaultInstance.\n\t Bad alphabet type "
+                      + alphabet->getAlphabetType() + " for frequenciesset " + freqName + ".");
+
+    const CodonAlphabet* pWA = dynamic_cast<const CodonAlphabet*>(alphabet);
+
+    if (args.find("frequency") != args.end())
     {
-      if (!AlphabetTools::isCodonAlphabet(alphabet))
-        throw Exception("PhylogeneticsApplicationTools::getFrequenciesSetDefaultInstance.\n\t Bad alphabet type "
-                        + alphabet->getAlphabetType() + " for frequenciesset " + freqName + ".");
+      string sAFS = args["frequency"];
 
-      const CodonAlphabet* pWA = dynamic_cast<const CodonAlphabet*>(alphabet);
+      unsigned int nbfreq = pWA->getLength();
+      FrequenciesSet* pFS2;
+      string st = "";
+      for (unsigned i = 0; i < nbfreq; i++)
+      {
+        st += TextTools::toString(i + 1);
+      }
 
-      if (args.find("frequency") != args.end())
-        {
-          string sAFS = args["frequency"];
+      map<string, string> unparsedParameterValuesNested;
+      pFS2 = getFrequenciesSetDefaultInstance(pWA->getNAlphabet(0), sAFS, unparsedParameterValuesNested);
 
-          unsigned int nbfreq = pWA->getLength();
-          FrequenciesSet* pFS2;
-          string st = "";
-          for (unsigned i = 0; i < nbfreq; i++)
-            {
-              st += TextTools::toString(i+1);
-            }
-
-          map<string, string> unparsedParameterValuesNested;
-          pFS2 = getFrequenciesSetDefaultInstance(pWA->getNAlphabet(0), sAFS, unparsedParameterValuesNested);
-
-          for (map<string, string>::iterator it = unparsedParameterValuesNested.begin(); it != unparsedParameterValuesNested.end(); it++)
-            {
-              unparsedParameterValues["freq_Codon" + st + "_" + it->first] = it->second;
-            }
-          pFS = new CodonFromUniqueFrequenciesSet(pWA,pFS2);
-        }
-      else
-        {
-          if (args.find("frequency1") == args.end())
-            throw Exception("PhylogeneticsApplicationTools::getFrequenciesSetDefaultInstance. Missing argument 'frequency' or 'frequency1' for frequencies set 'freq_Codon'.");
-          vector<string> v_sAFS;
-          vector<FrequenciesSet*> v_AFS;
-          unsigned int nbfreq = 1;
-
-          while (args.find("frequency" + TextTools::toString(nbfreq)) != args.end())
-            {
-              v_sAFS.push_back(args["frequency" + TextTools::toString(nbfreq++)]);
-            }
-
-          if (v_sAFS.size() != 3)
-            throw Exception("PhylogeneticsApplicationTools::getFrequenciesSetDefaultInstance. Number of frequencies (" + TextTools::toString(v_sAFS.size()) + ") is not three");
-
-          map<string, string> unparsedParameterValuesNested;
-          for (unsigned i = 0; i < v_sAFS.size(); i++)
-            {
-              unparsedParameterValuesNested.clear();
-              pFS = getFrequenciesSetDefaultInstance(pWA->getNAlphabet(i), v_sAFS[i], unparsedParameterValuesNested);
-              for (map<string, string>::iterator it = unparsedParameterValuesNested.begin(); it != unparsedParameterValuesNested.end(); it++)
-                {
-                  unparsedParameterValues["freq_Codon" + TextTools::toString(i+1) + "_" + it->first] = it->second;
-                }
-              v_AFS.push_back(pFS);
-            }
-
-          pFS = new CodonFromIndependentFrequenciesSet(pWA, v_AFS);
-        }
+      for (map<string, string>::iterator it = unparsedParameterValuesNested.begin(); it != unparsedParameterValuesNested.end(); it++)
+      {
+        unparsedParameterValues["freq_Codon" + st + "_" + it->first] = it->second;
+      }
+      pFS = new CodonFromUniqueFrequenciesSet(pWA, pFS2);
     }
+    else
+    {
+      if (args.find("frequency1") == args.end())
+        throw Exception("PhylogeneticsApplicationTools::getFrequenciesSetDefaultInstance. Missing argument 'frequency' or 'frequency1' for frequencies set 'freq_Codon'.");
+      vector<string> v_sAFS;
+      vector<FrequenciesSet*> v_AFS;
+      unsigned int nbfreq = 1;
+
+      while (args.find("frequency" + TextTools::toString(nbfreq)) != args.end())
+      {
+        v_sAFS.push_back(args["frequency" + TextTools::toString(nbfreq++)]);
+      }
+
+      if (v_sAFS.size() != 3)
+        throw Exception("PhylogeneticsApplicationTools::getFrequenciesSetDefaultInstance. Number of frequencies (" + TextTools::toString(v_sAFS.size()) + ") is not three");
+
+      map<string, string> unparsedParameterValuesNested;
+      for (unsigned i = 0; i < v_sAFS.size(); i++)
+      {
+        unparsedParameterValuesNested.clear();
+        pFS = getFrequenciesSetDefaultInstance(pWA->getNAlphabet(i), v_sAFS[i], unparsedParameterValuesNested);
+        for (map<string, string>::iterator it = unparsedParameterValuesNested.begin(); it != unparsedParameterValuesNested.end(); it++)
+        {
+          unparsedParameterValues["freq_Codon" + TextTools::toString(i + 1) + "_" + it->first] = it->second;
+        }
+        v_AFS.push_back(pFS);
+      }
+
+      pFS = new CodonFromIndependentFrequenciesSet(pWA, v_AFS);
+    }
+  }
   else if (AlphabetTools::isCodonAlphabet(alphabet))
   {
     short opt = -1;
@@ -1538,17 +1536,18 @@ FrequenciesSet* PhylogeneticsApplicationTools::getFrequenciesSetDefaultInstance(
     throw Exception("Unknown frequency option: " + freqName);
 
   // Forward arguments:
-  if (args.find("init") != args.end()){
+  if (args.find("init") != args.end())
+  {
     unparsedParameterValues["init"] = args["init"];
     unparsedParameterValues["initFreqs"] = args["init"];
   }
-  if (args.find("init.observedPseudoCount") != args.end()){
+  if (args.find("init.observedPseudoCount") != args.end())
+  {
     unparsedParameterValues["init.observedPseudoCount"] = args["init.observedPseudoCount"];
     unparsedParameterValues["initFreqs.observedPseudoCount"] = args["init.observedPseudoCount"];
   }
   return pFS;
 }
-
 
 
 /******************************************************/
@@ -1558,12 +1557,12 @@ FrequenciesSet* PhylogeneticsApplicationTools::getFrequenciesSetDefaultInstance(
 /******************************************************************************/
 
 SubstitutionModelSet* PhylogeneticsApplicationTools::getSubstitutionModelSet(
-                                                                                    const Alphabet* alphabet,
-                                                                                    const SiteContainer* data, 
-                                                                                    std::map<std::string, std::string>& params,
-                                                                                    const std::string& suffix ,
-                                                                                    bool suffixIsOptional,
-                                                                                    bool verbose)
+  const Alphabet* alphabet,
+  const SiteContainer* data,
+  std::map<std::string, std::string>& params,
+  const std::string& suffix,
+  bool suffixIsOptional,
+  bool verbose)
 {
   if (!ApplicationTools::parameterExists("nonhomogeneous.number_of_models", params))
     throw Exception("You must specify this parameter: nonhomogeneous.number_of_models .");
@@ -1571,42 +1570,42 @@ SubstitutionModelSet* PhylogeneticsApplicationTools::getSubstitutionModelSet(
   if (nbModels == 0)
     throw Exception("The number of models can't be 0 !");
 
-  bool nomix=true;
-  for (unsigned int i = 0; nomix & (i < nbModels); i++)
-    {
-      string prefix = "model" + TextTools::toString(i + 1);
-      string modelDesc;
-      modelDesc = ApplicationTools::getStringParameter(prefix, params, "", suffix, suffixIsOptional, verbose);
+  bool nomix = true;
+  for (unsigned int i = 0; nomix &(i < nbModels); i++)
+  {
+    string prefix = "model" + TextTools::toString(i + 1);
+    string modelDesc;
+    modelDesc = ApplicationTools::getStringParameter(prefix, params, "", suffix, suffixIsOptional, verbose);
 
-      if (modelDesc.find("Mixed")!=string::npos)
-        nomix=false;
-    }
+    if (modelDesc.find("Mixed") != string::npos)
+      nomix = false;
+  }
 
-  SubstitutionModelSet* modelSet, *modelSet1=0;
-  modelSet1= new SubstitutionModelSet(alphabet);
+  SubstitutionModelSet* modelSet, * modelSet1 = 0;
+  modelSet1 = new SubstitutionModelSet(alphabet);
   setSubstitutionModelSet(*modelSet1, alphabet, data, params, suffix, suffixIsOptional, verbose);
 
-  if (modelSet1->hasMixedSubstitutionModel()){
-    modelSet= new MixedSubstitutionModelSet(*modelSet1);
+  if (modelSet1->hasMixedSubstitutionModel())
+  {
+    modelSet = new MixedSubstitutionModelSet(*modelSet1);
     completeMixedSubstitutionModelSet(*dynamic_cast<MixedSubstitutionModelSet*>(modelSet), alphabet, data, params, suffix, suffixIsOptional, verbose);
   }
   else
-    modelSet=modelSet1;
-  
+    modelSet = modelSet1;
+
   return modelSet;
-  
 }
 
 /******************************************************************************/
 
 void PhylogeneticsApplicationTools::setSubstitutionModelSet(
-                                                            SubstitutionModelSet& modelSet,
-                                                            const Alphabet* alphabet,
-                                                            const SiteContainer* data,
-                                                            map<string, string>& params,
-                                                            const string& suffix,
-                                                            bool suffixIsOptional,
-                                                            bool verbose)
+  SubstitutionModelSet& modelSet,
+  const Alphabet* alphabet,
+  const SiteContainer* data,
+  map<string, string>& params,
+  const string& suffix,
+  bool suffixIsOptional,
+  bool verbose)
 {
   modelSet.clear();
   if (!ApplicationTools::parameterExists("nonhomogeneous.number_of_models", params))
@@ -1615,7 +1614,8 @@ void PhylogeneticsApplicationTools::setSubstitutionModelSet(
   if (nbModels == 0)
     throw Exception("The number of models can't be 0 !");
 
-  if (verbose) ApplicationTools::displayResult("Number of distinct models", TextTools::toString(nbModels));
+  if (verbose)
+    ApplicationTools::displayResult("Number of distinct models", TextTools::toString(nbModels));
 
 
   // ///////////////////////////////////////////
@@ -1636,8 +1636,8 @@ void PhylogeneticsApplicationTools::setSubstitutionModelSet(
   if (tmp->getNumberOfStates() != alphabet->getSize())
   {
     // Markov-Modulated Markov Model...
-    unsigned int n = (unsigned int)(tmp->getNumberOfStates() / alphabet->getSize());
-    rateFreqs = vector<double>(n, 1. / (double)n); // Equal rates assumed for now, may be changed later (actually, in the most general case,
+    unsigned int n = static_cast<unsigned int>(tmp->getNumberOfStates() / alphabet->getSize());
+    rateFreqs = vector<double>(n, 1. / static_cast<double>(n)); // Equal rates assumed for now, may be changed later (actually, in the most general case,
   }
 
   // ////////////////////////////////////
@@ -1666,8 +1666,7 @@ void PhylogeneticsApplicationTools::setSubstitutionModelSet(
     string modelDesc;
     if (AlphabetTools::isCodonAlphabet(alphabet))
       modelDesc = ApplicationTools::getStringParameter(prefix, params, "CodonRate(model=JC69)", suffix, suffixIsOptional, verbose);
-    else
-    if (AlphabetTools::isWordAlphabet(alphabet))
+    else if (AlphabetTools::isWordAlphabet(alphabet))
       modelDesc = ApplicationTools::getStringParameter(prefix, params, "Word(model=JC69)", suffix, suffixIsOptional, verbose);
     else
       modelDesc = ApplicationTools::getStringParameter(prefix, params, "JC69", suffix, suffixIsOptional, verbose);
@@ -1683,31 +1682,38 @@ void PhylogeneticsApplicationTools::setSubstitutionModelSet(
                                                 existingParameters, specificParameters, sharedParameters,
                                                 verbose);
     vector<int> nodesId = ApplicationTools::getVectorParameter<int>(prefix + "nodes_id", params, ',', ':', TextTools::toString(i), suffix, suffixIsOptional, true);
-    if (verbose) ApplicationTools::displayResult("Model" + TextTools::toString(i + 1) + " is associated to", TextTools::toString(nodesId.size()) + " node(s).");
+    if (verbose)
+      ApplicationTools::displayResult("Model" + TextTools::toString(i + 1) + " is associated to", TextTools::toString(nodesId.size()) + " node(s).");
     // Add model and specific parameters:
+    //DEBUG: cout << "Specific parameters:" << endl;
+    //DEBUG: VectorTools::print(specificParameters);
     modelSet.addModel(model, nodesId, specificParameters);
     // Now set shared parameters:
     for (unsigned int j = 0; j < sharedParameters.size(); j++)
     {
       string pName = sharedParameters[j];
+      //DEBUG: cout << "Shared parameter found: " << pName << endl;
       string::size_type index = pName.find(".");
-      if (index == string::npos) throw Exception("PhylogeneticsApplicationTools::getSubstitutionModelSet. Bad parameter name: " + pName);
+      if (index == string::npos)
+        throw Exception("PhylogeneticsApplicationTools::getSubstitutionModelSet. Bad parameter name: " + pName);
       string name = pName.substr(index + 1) + "_" + pName.substr(5, index - 5);
-      //namespace checking:
+      // namespace checking:
       vector<unsigned int> models = modelSet.getModelsWithParameter(name);
       if (models.size() == 0)
         throw Exception("PhylogeneticsApplicationTools::getSubstitutionModelSet. Parameter `" + name + "' is not associated to any model.");
       if (model->getNamespace() == modelSet.getModel(models[0])->getNamespace())
         modelSet.setParameterToModel(modelSet.getParameterIndex(name), modelSet.getNumberOfModels() - 1);
-      else {
+      else
+      {
         throw Exception("Assigning a value to a parameter with a distinct namespace is not (yet) allowed. Consider using parameter aliasing instead.");
       }
     }
   }
-  //Finally check parameter aliasing:
+  // Finally check parameter aliasing:
   string aliasDesc = ApplicationTools::getStringParameter("nonhomogeneous.alias", params, "", suffix, suffixIsOptional, verbose);
   StringTokenizer st(aliasDesc, ",");
-  while (st.hasMoreToken()) {
+  while (st.hasMoreToken())
+  {
     string alias = st.nextToken();
     string::size_type index = alias.find("->");
     if (index == string::npos)
@@ -1721,85 +1727,89 @@ void PhylogeneticsApplicationTools::setSubstitutionModelSet(
 
 /******************************************************************************/
 void PhylogeneticsApplicationTools::completeMixedSubstitutionModelSet(
-                                                                 MixedSubstitutionModelSet& mixedModelSet,
-                                                                 const Alphabet* alphabet,
-                                                                 const SiteContainer* data,
-                                                                 map<string, string>& params,
-                                                                 const string& suffix,
-                                                                 bool suffixIsOptional,
-                                                                 bool verbose)
+  MixedSubstitutionModelSet& mixedModelSet,
+  const Alphabet* alphabet,
+  const SiteContainer* data,
+  map<string, string>& params,
+  const string& suffix,
+  bool suffixIsOptional,
+  bool verbose)
 {
-  ///////////////////////////////////////////
+  // /////////////////////////////////////////
   // Looks for the allowed paths
 
   unsigned int numd;
   if (!ApplicationTools::parameterExists("site.number_of_paths", params))
-    numd=0;
+    numd = 0;
   else
     numd = ApplicationTools::getParameter<unsigned int>("site.number_of_paths", params, 1, suffix, suffixIsOptional, false);
 
-  if (verbose) ApplicationTools::displayResult("Number of distinct paths", TextTools::toString(numd));
+  if (verbose)
+    ApplicationTools::displayResult("Number of distinct paths", TextTools::toString(numd));
 
   vector<string> vdesc;
-  while (numd){
-    string desc = ApplicationTools::getStringParameter("site.path"+TextTools::toString(numd), params, "",  suffix, suffixIsOptional, verbose);
-    if (desc.size()==0)
+  while (numd)
+  {
+    string desc = ApplicationTools::getStringParameter("site.path" + TextTools::toString(numd), params, "",  suffix, suffixIsOptional, verbose);
+    if (desc.size() == 0)
       break;
     else
       vdesc.push_back(desc);
     numd--;
   }
-  
-  if (vdesc.size()==0){
+
+  if (vdesc.size() == 0)
+  {
     mixedModelSet.complete();
     mixedModelSet.computeHyperNodesProbabilities();
     return;
-  }  
+  }
 
-  for (vector<string>::iterator it(vdesc.begin()); it != vdesc.end(); it++){
+  for (vector<string>::iterator it(vdesc.begin()); it != vdesc.end(); it++)
+  {
     mixedModelSet.addEmptyHyperNode();
     StringTokenizer st(*it, "&");
-    while (st.hasMoreToken()) {
+    while (st.hasMoreToken())
+    {
       string submodel = st.nextToken();
       string::size_type indexo = submodel.find("[");
       string::size_type indexf = submodel.find("]");
       if ((indexo == string::npos) | (indexf == string::npos))
         throw Exception("PhylogeneticsApplicationTools::setMixedSubstitutionModelSet. Bad path syntax, should contain `[]' symbols: " + submodel);
-      int num = TextTools::toInt(submodel.substr(5, indexo-5));
-      string p2 = submodel.substr(indexo+1, indexf-indexo-1);
-      
-      const MixedSubstitutionModel* pSM=dynamic_cast<const MixedSubstitutionModel*>(mixedModelSet.getModel(num-1));
-      if (pSM==NULL)
-        throw BadIntegerException("PhylogeneticsApplicationTools::setMixedSubstitutionModelSet: Wron gmodel for number",num-1);
-      Vint submodnb=pSM->getSubmodelNumbers(p2);
-    
-      mixedModelSet.addToHyperNode(num-1,submodnb);
+      int num = TextTools::toInt(submodel.substr(5, indexo - 5));
+      string p2 = submodel.substr(indexo + 1, indexf - indexo - 1);
+
+      const MixedSubstitutionModel* pSM = dynamic_cast<const MixedSubstitutionModel*>(mixedModelSet.getModel(num - 1));
+      if (pSM == NULL)
+        throw BadIntegerException("PhylogeneticsApplicationTools::setMixedSubstitutionModelSet: Wron gmodel for number", num - 1);
+      Vint submodnb = pSM->getSubmodelNumbers(p2);
+
+      mixedModelSet.addToHyperNode(num - 1, submodnb);
     }
 
-    if (!mixedModelSet.getHyperNode(mixedModelSet.getNumberOfHyperNodes()-1).isComplete())
+    if (!mixedModelSet.getHyperNode(mixedModelSet.getNumberOfHyperNodes() - 1).isComplete())
       throw Exception("A path should own at least a submodel of each mixed model: " + *it);
 
-    if (verbose) ApplicationTools::displayResult("Site Path", *it);
+    if (verbose)
+      ApplicationTools::displayResult("Site Path", *it);
   }
 
-  /// Checks if the paths are separate
-  if (! mixedModelSet.hasExclusivePaths())
+  // / Checks if the paths are separate
+  if (!mixedModelSet.hasExclusivePaths())
     throw Exception("All paths must be disjoint.");
 
-  /// Puts all the remaining models in a new path
+  // / Puts all the remaining models in a new path
   string st;
-  st=(mixedModelSet.complete())?"Yes":"No";
-  
+  st = (mixedModelSet.complete()) ? "Yes" : "No";
+
   if (verbose)
     ApplicationTools::displayResult("Site Path Completion", st);
-  
+
   mixedModelSet.computeHyperNodesProbabilities();
-  
-  if (!mixedModelSet.getHyperNode(mixedModelSet.getNumberOfHyperNodes()-1).isComplete())
+
+  if (!mixedModelSet.getHyperNode(mixedModelSet.getNumberOfHyperNodes() - 1).isComplete())
     throw Exception("The remaining submodels can not create a complete path.");
 }
-
-
 
 
 /******************************************************/
@@ -1844,7 +1854,8 @@ DiscreteDistribution* PhylogeneticsApplicationTools::getRateDistributionDefaultI
   }
   else if (distName == "Uniform")
   {
-    if (!constDistAllowed) throw Exception("You can't use a constant distribution here!");
+    if (!constDistAllowed)
+      throw Exception("You can't use a constant distribution here!");
     rDist = new ConstantDistribution(1., true);
   }
   else if (distName == "Gamma")
@@ -1960,8 +1971,8 @@ throw (Exception)
       v_nestedDistrDescr.push_back(args["distribution" + TextTools::toString(nbd)]);
 
     if (v_nestedDistrDescr.size() != probas.size())
-      throw Exception("Number of distributions (keyword 'distribution"+TextTools::toString(probas.size())+"') do not fit the number of probabilities");
-    
+      throw Exception("Number of distributions (keyword 'distribution" + TextTools::toString(probas.size()) + "') do not fit the number of probabilities");
+
     map<string, string> unparsedParameterValuesNested;
 
     for (unsigned i = 0; i < v_nestedDistrDescr.size(); i++)
@@ -2147,9 +2158,6 @@ DiscreteDistribution* PhylogeneticsApplicationTools::getRateDistribution(
 }
 
 
-
-
-
 /*************************************************************/
 /*****  OPTIMIZATORS *****************************************/
 /*************************************************************/
@@ -2166,7 +2174,8 @@ TreeLikelihood* PhylogeneticsApplicationTools::optimizeParameters(
 throw (Exception)
 {
   string optimization = ApplicationTools::getStringParameter("optimization", params, "FullD(derivatives=Newton)", suffix, suffixIsOptional, false);
-  if (optimization == "None") return tl;
+  if (optimization == "None")
+    return tl;
   string optName;
   map<string, string> optArgs;
   KeyvalTools::parseProcedure(optimization, optName, optArgs);
@@ -2178,25 +2187,31 @@ throw (Exception)
     (mhPath == "none") ? 0 :
     (mhPath == "std") ? ApplicationTools::message :
     new StlOutputStream(auto_ptr<ostream>(new ofstream(mhPath.c_str(), ios::out)));
-  if (verbose) ApplicationTools::displayResult("Message handler", mhPath);
+  if (verbose)
+    ApplicationTools::displayResult("Message handler", mhPath);
 
   string prPath = ApplicationTools::getAFilePath("optimization.profiler", params, false, false, suffix, suffixIsOptional);
   OutputStream* profiler =
     (prPath == "none") ? 0 :
     (prPath == "std") ? ApplicationTools::message :
     new StlOutputStream(auto_ptr<ostream>(new ofstream(prPath.c_str(), ios::out)));
-  if (profiler) profiler->setPrecision(20);
-  if (verbose) ApplicationTools::displayResult("Profiler", prPath);
+  if (profiler)
+    profiler->setPrecision(20);
+  if (verbose)
+    ApplicationTools::displayResult("Profiler", prPath);
 
   bool scaleFirst = ApplicationTools::getBooleanParameter("optimization.scale_first", params, false, suffix, suffixIsOptional, false);
   if (scaleFirst)
   {
     // We scale the tree before optimizing each branch length separately:
-    if (verbose) ApplicationTools::displayMessage("Scaling the tree before optimizing each branch length separately.");
+    if (verbose)
+      ApplicationTools::displayMessage("Scaling the tree before optimizing each branch length separately.");
     double tolerance = ApplicationTools::getDoubleParameter("optimization.scale_first.tolerance", params, .0001, suffix, suffixIsOptional, true);
-    if (verbose) ApplicationTools::displayResult("Scaling tolerance", TextTools::toString(tolerance));
+    if (verbose)
+      ApplicationTools::displayResult("Scaling tolerance", TextTools::toString(tolerance));
     int nbEvalMax = ApplicationTools::getIntParameter("optimization.scale_first.max_number_f_eval", params, 1000000, suffix, suffixIsOptional, true);
-    if (verbose) ApplicationTools::displayResult("Scaling max # f eval", TextTools::toString(nbEvalMax));
+    if (verbose)
+      ApplicationTools::displayResult("Scaling max # f eval", TextTools::toString(nbEvalMax));
     OptimizationTools::optimizeTreeScale(
       tl,
       tolerance,
@@ -2227,7 +2242,8 @@ throw (Exception)
       else if (param == "Ancient")
       {
         NonHomogeneousTreeLikelihood* nhtl = dynamic_cast<NonHomogeneousTreeLikelihood*>(tl);
-        if (!nhtl) ApplicationTools::displayWarning("The 'Ancient' parameters do not exist in homogeneous models, and will be ignored.");
+        if (!nhtl)
+          ApplicationTools::displayWarning("The 'Ancient' parameters do not exist in homogeneous models, and will be ignored.");
         else
         {
           vector<string> vs = nhtl->getRootFrequenciesParameters().getParameterNames();
@@ -2266,30 +2282,37 @@ throw (Exception)
   }
 
   unsigned int nbEvalMax = ApplicationTools::getParameter<unsigned int>("optimization.max_number_f_eval", params, 1000000, suffix, suffixIsOptional);
-  if (verbose) ApplicationTools::displayResult("Max # ML evaluations", TextTools::toString(nbEvalMax));
+  if (verbose)
+    ApplicationTools::displayResult("Max # ML evaluations", TextTools::toString(nbEvalMax));
 
   double tolerance = ApplicationTools::getDoubleParameter("optimization.tolerance", params, .000001, suffix, suffixIsOptional);
-  if (verbose) ApplicationTools::displayResult("Tolerance", TextTools::toString(tolerance));
+  if (verbose)
+    ApplicationTools::displayResult("Tolerance", TextTools::toString(tolerance));
 
-  //Backing up or restoring?
+  // Backing up or restoring?
   auto_ptr<BackupListener> backupListener;
   string backupFile = ApplicationTools::getAFilePath("optimization.backup.file", params, false, false);
-  if (backupFile != "none") {
+  if (backupFile != "none")
+  {
     ApplicationTools::displayResult("Parameters will be backup to", backupFile);
     backupListener.reset(new BackupListener(backupFile));
-    if (FileTools::fileExists(backupFile)) {
+    if (FileTools::fileExists(backupFile))
+    {
       ApplicationTools::displayMessage("A backup file was found! Try to restore parameters from previous run...");
       ifstream bck(backupFile.c_str(), ios::in);
       vector<string> lines = FileTools::putStreamIntoVectorOfStrings(bck);
       double fval = TextTools::toDouble(lines[0].substr(5));
       ParameterList pl = tl->getParameters();
-      for (size_t l = 1; l < lines.size(); ++l) {
-        if (!TextTools::isEmpty(lines[l])) {
+      for (size_t l = 1; l < lines.size(); ++l)
+      {
+        if (!TextTools::isEmpty(lines[l]))
+        {
           StringTokenizer stp(lines[l], "=");
-          if (stp.numberOfRemainingTokens() != 2) {
+          if (stp.numberOfRemainingTokens() != 2)
+          {
             cerr << "Corrupted backup file!!!" << endl;
             cerr << "at line " << l << ": " << lines[l] << endl;
-          } 
+          }
           string pname  = stp.nextToken();
           string pvalue = stp.nextToken();
           unsigned int p = pl.whichParameterHasName(pname);
@@ -2305,9 +2328,10 @@ throw (Exception)
     }
   }
 
-  //There it goes...
+  // There it goes...
   bool optimizeTopo = ApplicationTools::getBooleanParameter("optimization.topology", params, false, suffix, suffixIsOptional, false);
-  if (verbose) ApplicationTools::displayResult("Optimize topology", optimizeTopo ? "yes" : "no");
+  if (verbose)
+    ApplicationTools::displayResult("Optimize topology", optimizeTopo ? "yes" : "no");
   string nniMethod = ApplicationTools::getStringParameter("optimization.topology.algorithm_nni.method", params, "phyml", suffix, suffixIsOptional, false);
   string nniAlgo;
   if (nniMethod == "fast")
@@ -2322,7 +2346,8 @@ throw (Exception)
   {
     nniAlgo = NNITopologySearch::PHYML;
   }
-  else throw Exception("Unknown NNI algorithm: '" + nniMethod + "'.");
+  else
+    throw Exception("Unknown NNI algorithm: '" + nniMethod + "'.");
 
 
   string order = ApplicationTools::getStringParameter("derivatives", optArgs, "Newton", "", true, false);
@@ -2339,15 +2364,19 @@ throw (Exception)
   {
     optMethodDeriv = OptimizationTools::OPTIMIZATION_BFGS;
   }
-  else throw Exception("Unknown derivatives algorithm: '" + order + "'.");
-  if (verbose) ApplicationTools::displayResult("Optimization method", optName);
-  if (verbose) ApplicationTools::displayResult("Algorithm used for derivable parameters", order);
+  else
+    throw Exception("Unknown derivatives algorithm: '" + order + "'.");
+  if (verbose)
+    ApplicationTools::displayResult("Optimization method", optName);
+  if (verbose)
+    ApplicationTools::displayResult("Algorithm used for derivable parameters", order);
 
-  //See if we should reparametrize:
+  // See if we should reparametrize:
   bool reparam = ApplicationTools::getBooleanParameter("optimization.reparametrization", params, false);
-  if (verbose) ApplicationTools::displayResult("Reparametrization", (reparam ? "yes" : "no"));
+  if (verbose)
+    ApplicationTools::displayResult("Reparametrization", (reparam ? "yes" : "no"));
 
-  //See if we should use a molecular clock constraint:
+  // See if we should use a molecular clock constraint:
   string clock = ApplicationTools::getStringParameter("optimization.clock", params, "None", "", true, false);
   if (clock != "None" && clock != "Global")
     throw Exception("Molecular clock option not recognized, should be one of 'Global' or 'None'.");
@@ -2381,7 +2410,8 @@ throw (Exception)
         reparam, optVerbose, optMethodDeriv, nstep, nniAlgo);
     }
 
-    if (verbose && nstep > 1) ApplicationTools::displayResult("# of precision steps", TextTools::toString(nstep));
+    if (verbose && nstep > 1)
+      ApplicationTools::displayResult("# of precision steps", TextTools::toString(nstep));
     parametersToEstimate.matchParametersValues(tl->getParameters());
     n = OptimizationTools::optimizeNumericalParameters(
       dynamic_cast<DiscreteRatesAcrossSitesTreeLikelihood*>(tl), parametersToEstimate,
@@ -2408,7 +2438,8 @@ throw (Exception)
       dynamic_cast<DiscreteRatesAcrossSitesTreeLikelihood*>(tl), parametersToEstimate,
       backupListener.get(), tolerance, nbEvalMax, messageHandler, profiler, reparam, useClock, optVerbose, optMethodDeriv);
   }
-  else throw Exception("Unknown optimization method: " + optName);
+  else
+    throw Exception("Unknown optimization method: " + optName);
 
   string finalMethod = ApplicationTools::getStringParameter("optimization.final", params, "none", suffix, suffixIsOptional, true);
   Optimizer* finalOptimizer  = 0;
@@ -2422,12 +2453,14 @@ throw (Exception)
   {
     finalOptimizer = new PowellMultiDimensions(tl);
   }
-  else throw Exception("Unknown final optimization method: " + finalMethod);
+  else
+    throw Exception("Unknown final optimization method: " + finalMethod);
 
   if (finalOptimizer)
   {
     parametersToEstimate.matchParametersValues(tl->getParameters());
-    if (verbose) ApplicationTools::displayResult("Final optimization step", finalMethod);
+    if (verbose)
+      ApplicationTools::displayResult("Final optimization step", finalMethod);
     finalOptimizer->setProfiler(profiler);
     finalOptimizer->setMessageHandler(messageHandler);
     finalOptimizer->setMaximumNumberOfEvaluations(nbEvalMax);
@@ -2440,8 +2473,10 @@ throw (Exception)
     delete finalOptimizer;
   }
 
-  if (verbose) ApplicationTools::displayResult("Performed", TextTools::toString(n) + " function evaluations.");
-  if (backupFile != "none") {
+  if (verbose)
+    ApplicationTools::displayResult("Performed", TextTools::toString(n) + " function evaluations.");
+  if (backupFile != "none")
+  {
     remove(backupFile.c_str());
   }
   return tl;
@@ -2459,7 +2494,8 @@ void PhylogeneticsApplicationTools::optimizeParameters(
 throw (Exception)
 {
   string optimization = ApplicationTools::getStringParameter("optimization", params, "FullD(derivatives=Newton)", suffix, suffixIsOptional, false);
-  if (optimization == "None") return;
+  if (optimization == "None")
+    return;
   string optName;
   map<string, string> optArgs;
   KeyvalTools::parseProcedure(optimization, optName, optArgs);
@@ -2471,15 +2507,18 @@ throw (Exception)
     (mhPath == "none") ? 0 :
     (mhPath == "std") ? ApplicationTools::message :
     new StlOutputStream(auto_ptr<ostream>(new ofstream(mhPath.c_str(), ios::out)));
-  if (verbose) ApplicationTools::displayResult("Message handler", mhPath);
+  if (verbose)
+    ApplicationTools::displayResult("Message handler", mhPath);
 
   string prPath = ApplicationTools::getAFilePath("optimization.profiler", params, false, false, suffix, suffixIsOptional);
   OutputStream* profiler =
     (prPath == "none") ? 0 :
     (prPath == "std") ? ApplicationTools::message :
     new StlOutputStream(auto_ptr<ostream>(new ofstream(prPath.c_str(), ios::out)));
-  if (profiler) profiler->setPrecision(20);
-  if (verbose) ApplicationTools::displayResult("Profiler", prPath);
+  if (profiler)
+    profiler->setPrecision(20);
+  if (verbose)
+    ApplicationTools::displayResult("Profiler", prPath);
 
   ParameterList parametersToEstimate = parameters;
 
@@ -2501,7 +2540,8 @@ throw (Exception)
       else if (param == "Ancient")
       {
         NonHomogeneousTreeLikelihood* nhtl = dynamic_cast<NonHomogeneousTreeLikelihood*>(tl);
-        if (!nhtl) ApplicationTools::displayWarning("The 'Ancient' parameters do not exist in homogeneous models, and will be ignored.");
+        if (!nhtl)
+          ApplicationTools::displayWarning("The 'Ancient' parameters do not exist in homogeneous models, and will be ignored.");
         else
         {
           vector<string> vs = nhtl->getRootFrequenciesParameters().getParameterNames();
@@ -2524,10 +2564,12 @@ throw (Exception)
   }
 
   unsigned int nbEvalMax = ApplicationTools::getParameter<unsigned int>("optimization.max_number_f_eval", params, 1000000, suffix, suffixIsOptional);
-  if (verbose) ApplicationTools::displayResult("Max # ML evaluations", TextTools::toString(nbEvalMax));
+  if (verbose)
+    ApplicationTools::displayResult("Max # ML evaluations", TextTools::toString(nbEvalMax));
 
   double tolerance = ApplicationTools::getDoubleParameter("optimization.tolerance", params, .000001, suffix, suffixIsOptional);
-  if (verbose) ApplicationTools::displayResult("Tolerance", TextTools::toString(tolerance));
+  if (verbose)
+    ApplicationTools::displayResult("Tolerance", TextTools::toString(tolerance));
 
   string order  = ApplicationTools::getStringParameter("derivatives", optArgs, "Gradient", "", true, false);
   string optMethod, derMethod;
@@ -2539,29 +2581,37 @@ throw (Exception)
   {
     optMethod = OptimizationTools::OPTIMIZATION_NEWTON;
   }
-  else throw Exception("Option '" + order + "' is not known for 'optimization.method.derivatives'.");
-  if (verbose) ApplicationTools::displayResult("Optimization method", optName);
-  if (verbose) ApplicationTools::displayResult("Algorithm used for derivable parameters", order);
+  else
+    throw Exception("Option '" + order + "' is not known for 'optimization.method.derivatives'.");
+  if (verbose)
+    ApplicationTools::displayResult("Optimization method", optName);
+  if (verbose)
+    ApplicationTools::displayResult("Algorithm used for derivable parameters", order);
 
-  //Backing up or restoring?
+  // Backing up or restoring?
   auto_ptr<BackupListener> backupListener;
   string backupFile = ApplicationTools::getAFilePath("optimization.backup.file", params, false, false);
-  if (backupFile != "none") {
+  if (backupFile != "none")
+  {
     ApplicationTools::displayResult("Parameters will be backup to", backupFile);
     backupListener.reset(new BackupListener(backupFile));
-    if (FileTools::fileExists(backupFile)) {
+    if (FileTools::fileExists(backupFile))
+    {
       ApplicationTools::displayMessage("A backup file was found! Try to restore parameters from previous run...");
       ifstream bck(backupFile.c_str(), ios::in);
       vector<string> lines = FileTools::putStreamIntoVectorOfStrings(bck);
       double fval = TextTools::toDouble(lines[0].substr(5));
       ParameterList pl = tl->getParameters();
-      for (size_t l = 1; l < lines.size(); ++l) {
-        if (!TextTools::isEmpty(lines[l])) {
+      for (size_t l = 1; l < lines.size(); ++l)
+      {
+        if (!TextTools::isEmpty(lines[l]))
+        {
           StringTokenizer stp(lines[l], "=");
-          if (stp.numberOfRemainingTokens() != 2) {
+          if (stp.numberOfRemainingTokens() != 2)
+          {
             cerr << "Corrupted backup file!!!" << endl;
             cerr << "at line " << l << ": " << lines[l] << endl;
-          } 
+          }
           string pname  = stp.nextToken();
           string pvalue = stp.nextToken();
           unsigned int p = pl.whichParameterHasName(pname);
@@ -2572,7 +2622,7 @@ throw (Exception)
       bck.close();
       tl->setParameters(pl);
       if (abs(tl->getValue() - fval) > 0.000001)
-        throw Exception("Incorrect likelihood value after restoring, from backup file. Remove backup file and start from scratch :s"); 
+        throw Exception("Incorrect likelihood value after restoring, from backup file. Remove backup file and start from scratch :s");
       ApplicationTools::displayResult("Restoring log-likelihood", -fval);
     }
   }
@@ -2582,7 +2632,8 @@ throw (Exception)
   {
     // Uses Newton-Brent method:
     unsigned int nstep = ApplicationTools::getParameter<unsigned int>("nstep", optArgs, 1, "", true, false);
-    if (verbose && nstep > 1) ApplicationTools::displayResult("# of precision steps", TextTools::toString(nstep));
+    if (verbose && nstep > 1)
+      ApplicationTools::displayResult("# of precision steps", TextTools::toString(nstep));
     n = OptimizationTools::optimizeNumericalParametersWithGlobalClock(
       tl,
       parametersToEstimate,
@@ -2609,7 +2660,8 @@ throw (Exception)
       optVerbose,
       optMethod);
   }
-  else throw Exception("Unknown optimization method: " + optName);
+  else
+    throw Exception("Unknown optimization method: " + optName);
 
   string finalMethod = ApplicationTools::getStringParameter("optimization.final", params, "none", suffix, suffixIsOptional, false);
   Optimizer* finalOptimizer  = 0;
@@ -2623,7 +2675,8 @@ throw (Exception)
   {
     finalOptimizer = new PowellMultiDimensions(tl);
   }
-  else throw Exception("Unknown final optimization method: " + finalMethod);
+  else
+    throw Exception("Unknown final optimization method: " + finalMethod);
 
   if (finalOptimizer)
   {
@@ -2643,7 +2696,8 @@ throw (Exception)
 
   if (verbose)
     ApplicationTools::displayResult("Performed", TextTools::toString(n) + " function evaluations.");
-  if (backupFile != "none") {
+  if (backupFile != "none")
+  {
     remove(backupFile.c_str());
   }
 }
@@ -2665,9 +2719,6 @@ void PhylogeneticsApplicationTools::checkEstimatedParameters(const ParameterList
     }
   }
 }
-
-
-
 
 
 /*************************************************************/
@@ -2694,11 +2745,13 @@ void PhylogeneticsApplicationTools::writeTree(
     treeWriter = new NexusIOTree();
   else if (format == "NHX")
     treeWriter = new Nhx(false);
-  else throw Exception("Unknown format for tree writing: " + format);
+  else
+    throw Exception("Unknown format for tree writing: " + format);
   if (!checkOnly)
     treeWriter->write(tree, file, true);
   delete treeWriter;
-  if (verbose) ApplicationTools::displayResult("Wrote tree to file ", file);
+  if (verbose)
+    ApplicationTools::displayResult("Wrote tree to file ", file);
 }
 
 /******************************************************************************/
@@ -2721,11 +2774,13 @@ void PhylogeneticsApplicationTools::writeTrees(
     treeWriter = new NexusIOTree();
   else if (format == "NHX")
     treeWriter = new Nhx();
-  else throw Exception("Unknow format for tree writing: " + format);
+  else
+    throw Exception("Unknow format for tree writing: " + format);
   if (!checkOnly)
     treeWriter->write(trees, file, true);
   delete treeWriter;
-  if (verbose) ApplicationTools::displayResult("Wrote trees to file ", file);
+  if (verbose)
+    ApplicationTools::displayResult("Wrote trees to file ", file);
 }
 
 /******************************************************************************/
@@ -2737,7 +2792,8 @@ void PhylogeneticsApplicationTools::describeParameters_(const ParameterAliasable
   out.setPrecision(12);
   for (unsigned int i = 0; i < pl.size(); i++)
   {
-    if (i > 0) out << ", ";
+    if (i > 0)
+      out << ", ";
     string pname = parametrizable->getParameterNameWithoutNamespace(pl[i].getName());
 
     // Check for global aliases:
@@ -2765,7 +2821,7 @@ void PhylogeneticsApplicationTools::describeParameters_(const ParameterAliasable
 
 void PhylogeneticsApplicationTools::describeSubstitutionModel_(const SubstitutionModel* model, OutputStream& out, map<string, string>& globalAliases)
 {
-  //Is it a protein user defined model?
+  // Is it a protein user defined model?
   const UserProteinSubstitutionModel* userModel = dynamic_cast<const UserProteinSubstitutionModel*>(model);
   if (userModel)
   {
@@ -2783,7 +2839,7 @@ void PhylogeneticsApplicationTools::describeSubstitutionModel_(const Substitutio
     return;
   }
 
-  //Is it a markov-modulated model?
+  // Is it a markov-modulated model?
   const MarkovModulatedSubstitutionModel* mmModel = dynamic_cast<const MarkovModulatedSubstitutionModel*>(model);
   if (mmModel)
   {
@@ -2813,7 +2869,7 @@ void PhylogeneticsApplicationTools::describeSubstitutionModel_(const Substitutio
     return;
   }
 
-  //Is it a model with gaps?
+  // Is it a model with gaps?
   const RE08* reModel = dynamic_cast<const RE08*>(model);
   if (reModel)
   {
@@ -2829,7 +2885,7 @@ void PhylogeneticsApplicationTools::describeSubstitutionModel_(const Substitutio
     return;
   }
 
-  //Is it a codon model?
+  // Is it a codon model?
   const YN98* codonModel1 = dynamic_cast<const YN98*>(model);
   if (codonModel1)
   {
@@ -2855,7 +2911,7 @@ void PhylogeneticsApplicationTools::describeSubstitutionModel_(const Substitutio
     return;
   }
 
-  //General procedure:
+  // General procedure:
   out << model->getName() << "(";
   describeParameters_(model, out, globalAliases, model->getIndependentParameters().getParameterNames());
   out << ")";
@@ -2877,7 +2933,8 @@ void PhylogeneticsApplicationTools::describeFrequenciesSet_(const FrequenciesSet
   out.setPrecision(12);
   for (unsigned int i = 0; i < pl.size(); i++)
   {
-    if (i > 0) out << ", ";
+    if (i > 0)
+      out << ", ";
     string pname = pfreqset->getParameterNameWithoutNamespace(pl[i].getName());
     (out << pname << "=").enableScientificNotation(false) << pl[i].getValue();
   }
@@ -2982,7 +3039,8 @@ void PhylogeneticsApplicationTools::describeDiscreteDistribution_(const Discrete
   else
   {
     test = dynamic_cast<const ConstantDistribution*>(rDist);
-    if (test) out << "Uniform()";
+    if (test)
+      out << "Uniform()";
     else
     {
       test = dynamic_cast<const GammaDiscreteDistribution*>(rDist);
@@ -2992,7 +3050,8 @@ void PhylogeneticsApplicationTools::describeDiscreteDistribution_(const Discrete
         describeParameters_(rDist, out, globalAliases, rDist->getIndependentParameters().getParameterNames(), false);
         out << ")";
       }
-      else throw Exception("PhylogeneticsApplicationTools::printParameters(DiscreteDistribution). Unsupported distribution.");
+      else
+        throw Exception("PhylogeneticsApplicationTools::printParameters(DiscreteDistribution). Unsupported distribution.");
     }
   }
 }

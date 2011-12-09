@@ -80,7 +80,7 @@ namespace bpp
    *
    *\f[
    * \begin{cases}
-   * \pi_A \in ]0;1/2[\\
+   * \theta_A (=\pi_A) \in ]0;1/2[\\
    * \gamma \in ]0;1/2[\\
    * \alpha' > 1
    * \end{cases}
@@ -100,7 +100,7 @@ namespace bpp
    *
    * and @f$P@f$ is set for normalization.
    *
-   * The parameters are named \c "piA", \c "gamma", \c "alphaP".
+   * The parameters are named \c "thetaA", \c "gamma", \c "alphaP".
    *
    * References:
    * - Rhetsky A. \& Ney M. (1995) MBE 12(1) 131-151.

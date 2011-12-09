@@ -5,7 +5,7 @@
 //
 
 /*
-Copyright or © or Copr. CNRS, (November 16, 2004)
+Copyright or © or Copr. Bio++ Development Team, (November 16, 2004)
 
 This software is a computer program whose purpose is to provide classes
 for phylogenetic data analysis.
@@ -163,7 +163,6 @@ class MarkovModulatedSubstitutionModel:
       normalizeRateChanges_(normalizeRateChanges),
       nestedPrefix_("model_" + model->getNamespace())
     {
-      chars_ = VectorTools::rep(model_->getAlphabetChars(), nbRates_);
       model_->setNamespace(prefix + nestedPrefix_);
       addParameters_(model_->getIndependentParameters());
     }
