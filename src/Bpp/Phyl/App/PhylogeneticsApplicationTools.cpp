@@ -1054,9 +1054,13 @@ void PhylogeneticsApplicationTools::setSubstitutionModelParametersInitialValues(
   {
     const string pName = pl[i].getName();
     posp = pName.rfind(".");
-    if ((initFreqs == "") || (pName.substr(posp + 1, 5) != "theta")
-        || unparsedParameterValues.find(pName) != unparsedParameterValues.end())
+    bool test1 = (initFreqs == "");
+    bool test2 = (model->getParameterNameWithoutNamespace(pName).substr(posp + 1, 5) != "theta");
+    bool test3 = (unparsedParameterValues.find(pName) != unparsedParameterValues.end());
+    if (test1 || test2 || test3)
     {
+      if (!test1 && !test2 && test3)
+        ApplicationTools::displayWarning("Warning, initFreqs argument is set and a value is set for parameter " + pName);
       double value = ApplicationTools::getDoubleParameter(pName, unparsedParameterValues, pl[i].getValue());
       pl[i].setValue(value);
     }
@@ -1122,8 +1126,13 @@ void PhylogeneticsApplicationTools::setSubstitutionModelParametersInitialValues(
     const string pName = pl[i].getName();
     unsigned int posp = model->getParameterNameWithoutNamespace(pName).rfind(".");
     string value;
-    if ((initFreqs == "") || (model->getParameterNameWithoutNamespace(pName).substr(posp + 1, 5) != "theta") || unparsedParameterValues.find(pName) != unparsedParameterValues.end())
+    bool test1 = (initFreqs == "");
+    bool test2 = (model->getParameterNameWithoutNamespace(pName).substr(posp + 1, 5) != "theta");
+    bool test3 = (unparsedParameterValues.find(pName) != unparsedParameterValues.end());
+    if (test1 || test2 || test3)
     {
+      if (!test1 && !test2 && test3)
+        ApplicationTools::displayWarning("Warning, initFreqs argument is set and a value is set for parameter " + pName);
       value = ApplicationTools::getStringParameter(pName, unparsedParameterValues, TextTools::toString(pl[i].getValue()));
       if (value.size() > 5 && value.substr(0, 5) == "model")
       {
