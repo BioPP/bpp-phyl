@@ -79,7 +79,7 @@ MixtureOfASubstitutionModel::MixtureOfASubstitutionModel(
       s2 = model->getParameterNameWithoutNamespace(s1);
    
       if (parametersDistributionsList.find(s2) != parametersDistributionsList.end())
-        distributionMap_[s1] = dynamic_cast<DiscreteDistribution*>(parametersDistributionsList.find(s2)->second->clone());
+        distributionMap_[s1] = parametersDistributionsList.find(s2)->second->clone();
       else
         distributionMap_[ s1] = new ConstantDistribution(model->getParameterValue(s2));
 
@@ -145,12 +145,13 @@ MixtureOfASubstitutionModel::MixtureOfASubstitutionModel(const MixtureOfASubstit
 
   for (it = msm.distributionMap_.begin(); it != msm.distributionMap_.end(); it++)
     {
-      distributionMap_[it->first] = dynamic_cast<DiscreteDistribution*>(it->second->clone());
+      distributionMap_[it->first] = it->second->clone();
     }
 }
 
 MixtureOfASubstitutionModel& MixtureOfASubstitutionModel::operator=(const MixtureOfASubstitutionModel& msm)
 {
+  AbstractParameterAliasable::operator=(msm);
   AbstractMixedSubstitutionModel::operator=(msm);
   from_=msm.from_;
   to_=msm.to_;
@@ -162,7 +163,7 @@ MixtureOfASubstitutionModel& MixtureOfASubstitutionModel::operator=(const Mixtur
   map<string, DiscreteDistribution*>::const_iterator it;
   for (it = msm.distributionMap_.begin(); it != msm.distributionMap_.end(); it++)
     {
-      distributionMap_[it->first] = dynamic_cast<DiscreteDistribution*>(it->second->clone());
+      distributionMap_[it->first] = it->second->clone();
     }
   return *this;
 }
@@ -246,7 +247,6 @@ void MixtureOfASubstitutionModel::updateMatrices()
 
     setVRates(vd);
   }
-    
 }
 
 void MixtureOfASubstitutionModel::setFreq(std::map<int,double>& m)
