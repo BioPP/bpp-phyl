@@ -37,6 +37,7 @@
  */
 
 #include "AbstractCodonDistanceSubstitutionModel.h"
+#include <Bpp/Numeric/NumConstants.h>
 
 using namespace bpp;
 
@@ -58,7 +59,7 @@ AbstractCodonDistanceSubstitutionModel::AbstractCodonDistanceSubstitutionModel(
   if (pdistance_)
     addParameter_(Parameter(prefix+"alpha",10000,&Parameter::R_PLUS_STAR));
 
-  addParameter_(Parameter(prefix+"beta",1,new IncludingInterval(NumConstants::TINY, 999), true));
+  addParameter_(Parameter(prefix+"beta",1,new IncludingInterval(NumConstants::SMALL, 999), true));
 }
 
 void AbstractCodonDistanceSubstitutionModel::fireParameterChanged(const ParameterList& parameters)

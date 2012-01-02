@@ -1128,7 +1128,7 @@ void PhylogeneticsApplicationTools::setSubstitutionModelParametersInitialValues(
     const string pName = pl[i].getName();
     posp = pName.rfind(".");
     bool test1 = (initFreqs == "");
-    bool test2 = (model->getParameterNameWithoutNamespace(pName).substr(posp + 1, 5) != "theta");
+    bool test2 = (model->getParameterNameWithoutNamespace(pName).size() < posp + 6) || (model->getParameterNameWithoutNamespace(pName).substr(posp + 1, 5) != "theta");
     bool test3 = (unparsedParameterValues.find(pName) != unparsedParameterValues.end());
     if (test1 || test2 || test3)
     {
