@@ -39,8 +39,6 @@
 
 #include "AbstractMixedSubstitutionModel.h"
 
-#include <Bpp/Numeric/NumConstants.h>
-
 #include <string>
 
 using namespace bpp;
