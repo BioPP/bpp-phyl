@@ -108,7 +108,7 @@ YNGKP_M3::YNGKP_M3(const GeneticCode* gc, FrequenciesSet* codonFreqs, unsigned i
   }
   
   for (unsigned int i = 1; i < nbOmega;i++)
-    addParameter_(Parameter("YNGKP_M3.delta"+TextTools::toString(i), 0.5, &Parameter::R_PLUS_STAR));
+    addParameter_(Parameter("YNGKP_M3.delta"+TextTools::toString(i), 0.5, new IncludingInterval(NumConstants::SMALL, 999), true));
 
   // look for synonymous codons
   for (synfrom_=1;synfrom_<(int)gc->getSourceAlphabet()->getSize();synfrom_++){
