@@ -67,7 +67,7 @@ YNGKP_M3::YNGKP_M3(const GeneticCode* gc, FrequenciesSet* codonFreqs, unsigned i
   for (unsigned int i=0;i<nbOmega;i++)
     v2.push_back(1./nbOmega);
 
-  SimpleDiscreteDistribution* psdd=new SimpleDiscreteDistribution(v1,v2);
+  SimpleDiscreteDistribution* psdd=new SimpleDiscreteDistribution(v1,v2,NumConstants::SMALL);
 
   map<string, DiscreteDistribution*> mpdd;
   mpdd["omega"]=psdd;
@@ -156,9 +156,24 @@ YNGKP_M3::~YNGKP_M3()
 
 void YNGKP_M3::updateMatrices()
 {
-  AbstractBiblioSubstitutionModel::updateMatrices();
+  for (unsigned int i=0;i<lParPmodel_.size();i++)
+    if (mapParNamesFromPmodel_.find(lParPmodel_[i].getName())!=mapParNamesFromPmodel_.end()){
+      if (lParPmodel_[i].getName()[18]=='V'){
+        unsigned int ind=TextTools::toInt(lParPmodel_[i].getName().substr(19));
+        double x=getParameterValue("omega0");
+        for (unsigned j=1;j<ind;j++)
+          x+=getParameterValue("delta"+TextTools::toString(j));
+        lParPmodel_[i].setValue(x);
+      }
+      else{
+        lParPmodel_[i].setValue(getParameter(getParameterNameWithoutNamespace(mapParNamesFromPmodel_[lParPmodel_[i].getName()])).getValue());
+      }
+    }
+  
+  pmixmodel_->matchParametersValues(lParPmodel_);
 
   // homogeneization of the synonymous substitution rates
+
 
   Vdouble vd;
 
@@ -167,4 +182,5 @@ void YNGKP_M3::updateMatrices()
 
   pmixmodel_->setVRates(vd);
 }
+
 

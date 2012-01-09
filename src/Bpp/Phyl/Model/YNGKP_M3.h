@@ -63,7 +63,7 @@ namespace bpp
  *
  * This model includes 2*K parameters (@f$\kappa@f$, relative
  * probabilities @f$ theta1, theta2, ..., thetaK-1 @f$ and @f$omega0,
- * delta1, deltaK@f$). The codon frequencies @f$\pi_j@f$ are either
+ * delta1, deltaK-1@f$). The codon frequencies @f$\pi_j@f$ are either
  * observed or infered.
  *
  * References:
