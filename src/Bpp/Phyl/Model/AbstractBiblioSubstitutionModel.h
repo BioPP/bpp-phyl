@@ -164,7 +164,7 @@ public:
   virtual void fireParameterChanged(const ParameterList& parameters)
   {
     AbstractParameterAliasable::fireParameterChanged(parameters);
-    if ((parameters.size()!=1) || (parameters[0].getName()!=getNamespace()+"rate"))
+    if (parameters.size()>1 || (parameters.size()==1 && parameters[0].getName()!=getNamespace()+"rate"))
       updateMatrices();
   }
 
