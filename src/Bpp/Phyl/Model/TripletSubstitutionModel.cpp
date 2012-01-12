@@ -5,7 +5,7 @@
 //
 
 /*
-   Copyright or © or Copr. CNRS, (November 16, 2004)
+   Copyright or © or Copr. Bio++ Development Team, (November 16, 2004)
    This software is a computer program whose purpose is to provide classes
    for phylogenetic data analysis.
 
@@ -59,7 +59,8 @@ TripletSubstitutionModel::TripletSubstitutionModel(
     const CodonAlphabet* palph,
     NucleotideSubstitutionModel* pmod) :
   AbstractParameterAliasable("Triplet."),
-  WordSubstitutionModel(palph,"Triplet.")
+  AbstractSubstitutionModel(palph, "Triplet."),
+  WordSubstitutionModel(palph, "Triplet.")
 {
   unsigned int i;
   addParameters_(pmod->getParameters());
@@ -87,7 +88,8 @@ TripletSubstitutionModel::TripletSubstitutionModel(
     NucleotideSubstitutionModel* pmod2,
     NucleotideSubstitutionModel* pmod3) :
   AbstractParameterAliasable("Triplet."),
-  WordSubstitutionModel(palph,"Triplet.")
+  AbstractSubstitutionModel(palph, "Triplet."),
+  WordSubstitutionModel(palph, "Triplet.")
 {
   string st = "Triplet.";
 

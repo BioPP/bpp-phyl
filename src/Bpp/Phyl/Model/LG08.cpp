@@ -5,7 +5,7 @@
 //
 
 /*
-Copyright or © or Copr. CNRS, (November 16, 2004)
+Copyright or © or Copr. Bio++ Development Team, (November 16, 2004)
 
 This software is a computer program whose purpose is to provide classes
 for phylogenetic data analysis.
@@ -49,6 +49,7 @@ using namespace std;
 
 LG08::LG08(const ProteicAlphabet* alpha) :
   AbstractParameterAliasable("LG08."),
+  AbstractSubstitutionModel(alpha, "LG08."),
   AbstractReversibleSubstitutionModel(alpha, "LG08."),
   freqSet_(0)
 {
@@ -60,6 +61,7 @@ LG08::LG08(const ProteicAlphabet* alpha) :
 
 LG08::LG08(const ProteicAlphabet* alpha, ProteinFrequenciesSet* freqSet, bool initFreqs) :
   AbstractParameterAliasable("LG08+F."),
+  AbstractSubstitutionModel(alpha, "LG08+F."),
   AbstractReversibleSubstitutionModel(alpha, "LG08+F."),
   freqSet_(freqSet)
 {

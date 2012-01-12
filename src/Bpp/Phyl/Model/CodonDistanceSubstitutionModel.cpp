@@ -5,7 +5,7 @@
 //
 
 /*
-  Copyright or © or Copr. CNRS, (November 16, 2004)
+  Copyright or © or Copr. Bio++ Development Team, (November 16, 2004)
   This software is a computer program whose purpose is to provide classes
   for phylogenetic data analysis.
 
@@ -48,8 +48,12 @@ CodonDistanceSubstitutionModel::CodonDistanceSubstitutionModel(const GeneticCode
                                                                NucleotideSubstitutionModel* pmod,
                                                                const AlphabetIndex2<double>* pdist) :
   AbstractParameterAliasable("CodonDistance."),
+  AbstractSubstitutionModel(dynamic_cast<const CodonAlphabet*>(palph->getSourceAlphabet()),
+      "CodonDistance."),
+  AbstractWordSubstitutionModel(dynamic_cast<const CodonAlphabet*>(palph->getSourceAlphabet()),
+      "CodonDistance."),
   AbstractCodonSubstitutionModel(dynamic_cast<const CodonAlphabet*>(palph->getSourceAlphabet()),
-                                 pmod, "CodonDistance."),
+      pmod, "CodonDistance."),
   AbstractCodonDistanceSubstitutionModel(palph, pdist, "CodonDistance.")
 {
   updateMatrices();
@@ -61,8 +65,12 @@ CodonDistanceSubstitutionModel::CodonDistanceSubstitutionModel(const GeneticCode
                                                                NucleotideSubstitutionModel* pmod3,
                                                                const AlphabetIndex2<double>* pdist) :
   AbstractParameterAliasable("CodonDistance."),
+  AbstractSubstitutionModel(dynamic_cast<const CodonAlphabet*>(palph->getSourceAlphabet()),
+      "CodonDistance."),
+  AbstractWordSubstitutionModel(dynamic_cast<const CodonAlphabet*>(palph->getSourceAlphabet()),
+      "CodonDistance."),
   AbstractCodonSubstitutionModel(dynamic_cast<const CodonAlphabet*>(palph->getSourceAlphabet()),
-                                 pmod1, pmod2, pmod3, "CodonDistance."),
+      pmod1, pmod2, pmod3, "CodonDistance."),
   AbstractCodonDistanceSubstitutionModel(palph, pdist, "CodonDistance.")
 {
   updateMatrices();

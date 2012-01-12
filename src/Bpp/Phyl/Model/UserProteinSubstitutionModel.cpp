@@ -5,7 +5,7 @@
 //
 
 /*
-Copyright or © or Copr. CNRS, (November 16, 2004)
+Copyright or © or Copr. Bio++ Development Team, (November 16, 2004)
 
 This software is a computer program whose purpose is to provide classes
 for phylogenetic data analysis.
@@ -62,6 +62,7 @@ using namespace std;
 UserProteinSubstitutionModel::UserProteinSubstitutionModel(
     const ProteicAlphabet* alpha, const std::string& path, const std::string& prefix) : 
   AbstractParameterAliasable(prefix),
+  AbstractSubstitutionModel(alpha, prefix),
   AbstractReversibleSubstitutionModel(alpha, prefix),
   path_(path),
   freqSet_(0)
@@ -76,6 +77,7 @@ UserProteinSubstitutionModel::UserProteinSubstitutionModel(
     ProteinFrequenciesSet* freqSet, const std::string& prefix,
     bool initFreqs) : 
   AbstractParameterAliasable(prefix),
+  AbstractSubstitutionModel(alpha, prefix),
   AbstractReversibleSubstitutionModel(alpha, prefix),
   path_(path),
   freqSet_(freqSet)

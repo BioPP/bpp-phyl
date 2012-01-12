@@ -160,6 +160,7 @@ class JCprot:
 
     JCprot(const JCprot& model) :
       AbstractParameterAliasable(model),
+      AbstractSubstitutionModel(model),
       AbstractReversibleSubstitutionModel(model),
       exp_(model.exp_),
       p_(model.p_),
@@ -169,6 +170,7 @@ class JCprot:
     JCprot& operator=(const JCprot& model)
     {
       AbstractParameterAliasable::operator=(model);
+      AbstractSubstitutionModel::operator=(model);
       AbstractReversibleSubstitutionModel::operator=(model);
       exp_ = model.exp_;
       p_   = model.p_;

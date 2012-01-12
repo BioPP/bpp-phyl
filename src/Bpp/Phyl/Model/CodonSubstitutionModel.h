@@ -5,7 +5,7 @@
 //
 
 /*
-  Copyright or © or Copr. CNRS, (November 16, 2004)
+  Copyright or © or Copr. Bio++ Development Team, (November 16, 2004)
 
   This software is a computer program whose purpose is to provide classes
   for phylogenetic data analysis.
@@ -42,6 +42,8 @@
 
 #include <Bpp/Numeric/ParameterAliasable.h>
 
+#include "WordSubstitutionModel.h"
+
 namespace bpp
 {
   /**
@@ -52,14 +54,10 @@ namespace bpp
    *
    */
   
-  class CodonSubstitutionModel 
+  class CodonSubstitutionModel:
+    public virtual SubstitutionModel
   {
   public:
-    /**
-     * @brief Build a new CodonSubstitutionModel.
-     *
-     */
-
     CodonSubstitutionModel() {}
     virtual ~CodonSubstitutionModel() {}
 

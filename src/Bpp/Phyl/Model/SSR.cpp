@@ -5,7 +5,7 @@
 //
 
 /*
-Copyright or © or Copr. CNRS, (November 16, 2004)
+Copyright or © or Copr. Bio++ Development Team, (November 16, 2004)
 
 This software is a computer program whose purpose is to provide classes
 for phylogenetic data analysis.
@@ -59,7 +59,9 @@ SSR::SSR(
 	double delta,
 	double theta):
   AbstractParameterAliasable("SSR."),
-  AbstractReversibleSubstitutionModel(alpha, "SSR."), beta_(beta), gamma_(gamma), delta_(delta_), theta_(theta),
+  AbstractSubstitutionModel(alpha, "SSR."),
+  AbstractReversibleSubstitutionModel(alpha, "SSR."),
+  beta_(beta), gamma_(gamma), delta_(delta_), theta_(theta),
   piA_((1. - theta) / 2.), piC_(theta / 2.), piG_(theta / 2.), piT_((1. - theta) / 2.)
 {
 	Parameter betaP("SSR.beta" , beta , &Parameter::R_PLUS_STAR);

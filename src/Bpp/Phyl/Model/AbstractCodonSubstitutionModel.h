@@ -5,7 +5,7 @@
 //
 
 /*
-   Copyright or © or Copr. CNRS, (November 16, 2004)
+   Copyright or © or Copr. Bio++ Development Team, (November 16, 2004)
 
    This software is a computer program whose purpose is to provide classes
    for phylogenetic data analysis.
@@ -69,7 +69,7 @@ namespace bpp
 
 class AbstractCodonSubstitutionModel :
     public virtual CodonSubstitutionModel,
-    public AbstractWordSubstitutionModel
+    public virtual AbstractWordSubstitutionModel
 {
 private:
 
@@ -79,6 +79,7 @@ private:
    *
    */
   bool hasParametrizedRates_;
+
 public:
   /**
    * @brief Build a new AbstractCodonSubstitutionModel object from
@@ -123,6 +124,7 @@ public:
 
   AbstractCodonSubstitutionModel(const AbstractCodonSubstitutionModel& model) :
     AbstractParameterAliasable(model),
+    AbstractSubstitutionModel(model),
     AbstractWordSubstitutionModel(model),
     hasParametrizedRates_(model.hasParametrizedRates_)
   {
@@ -131,6 +133,7 @@ public:
   AbstractCodonSubstitutionModel& operator=(const AbstractCodonSubstitutionModel& model)
   {
     AbstractParameterAliasable::operator=(model);
+    AbstractSubstitutionModel::operator=(model);
     AbstractWordSubstitutionModel::operator=(model);
     hasParametrizedRates_=model.hasParametrizedRates_;
     return(*this);
@@ -169,6 +172,7 @@ public:
   virtual double getCodonsMulRate(unsigned int, unsigned int) const {return 1.;}
   
 };
+
 } // end of namespace bpp.
 
 #endif

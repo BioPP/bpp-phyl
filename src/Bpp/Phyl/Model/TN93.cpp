@@ -5,7 +5,7 @@
 //
 
 /*
-Copyright or © or Copr. Bio++ Developement Tools, (November 16, 2004)
+Copyright or © or Copr. Bio++ Developement Team, (November 16, 2004)
 
 This software is a computer program whose purpose is to provide classes
 for phylogenetic data analysis.
@@ -64,6 +64,7 @@ TN93::TN93(
 	double piG,
 	double piT):
   AbstractParameterAliasable("TN93."),
+  AbstractSubstitutionModel(alpha, "TN93."),
   AbstractReversibleSubstitutionModel(alpha, "TN93."),
   kappa1_(kappa1), kappa2_(kappa2), 
   piA_(piA), piC_(piC), piG_(piG), piT_(piT), piY_(), piR_(),

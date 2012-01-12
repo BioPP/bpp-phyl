@@ -107,6 +107,8 @@ namespace bpp
 
     CodonDistanceSubstitutionModel(const CodonDistanceSubstitutionModel& model) :
       AbstractParameterAliasable(model),
+      AbstractSubstitutionModel(model),
+      AbstractWordSubstitutionModel(model),
       AbstractCodonSubstitutionModel(model),
       AbstractCodonDistanceSubstitutionModel(model)
     {}
@@ -114,6 +116,8 @@ namespace bpp
     CodonDistanceSubstitutionModel & operator=(const CodonDistanceSubstitutionModel& model)
     {
       AbstractParameterAliasable::operator=(model);
+      AbstractSubstitutionModel::operator=(model);
+      AbstractWordSubstitutionModel::operator=(model);
       AbstractCodonSubstitutionModel::operator=(model);
       AbstractCodonDistanceSubstitutionModel::operator=(model);
       return *this;

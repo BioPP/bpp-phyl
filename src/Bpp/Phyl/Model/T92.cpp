@@ -5,7 +5,7 @@
 //
 
 /*
-   Copyright or © or Copr. CNRS, (November 16, 2004)
+   Copyright or © or Copr. Bio++ Development Team, (November 16, 2004)
 
    This software is a computer program whose purpose is to provide classes
    for phylogenetic data analysis.
@@ -56,6 +56,7 @@ using namespace std;
 
 T92::T92(const NucleicAlphabet* alpha, double kappa, double theta) :
   AbstractParameterAliasable("T92."),
+  AbstractSubstitutionModel(alpha, "T92."),
   AbstractReversibleSubstitutionModel(alpha, "T92."),
   kappa_(kappa),
   theta_(theta),

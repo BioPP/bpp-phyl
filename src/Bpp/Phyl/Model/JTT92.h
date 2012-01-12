@@ -90,6 +90,7 @@ class JTT92 :
 
     JTT92(const JTT92& model) :
       AbstractParameterAliasable(model),
+      AbstractSubstitutionModel(model),
       AbstractReversibleSubstitutionModel(model),
       freqSet_(dynamic_cast<ProteinFrequenciesSet *>(model.freqSet_->clone()))
     {}
@@ -97,6 +98,7 @@ class JTT92 :
     JTT92& operator=(const JTT92& model)
     {
       AbstractParameterAliasable::operator=(model);
+      AbstractSubstitutionModel::operator=(model);
       AbstractReversibleSubstitutionModel::operator=(model);
       if (freqSet_) delete freqSet_;
       freqSet_ = dynamic_cast<ProteinFrequenciesSet *>(model.freqSet_->clone());

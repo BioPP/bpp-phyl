@@ -5,7 +5,7 @@
 //
 
 /*
-  Copyright or © or Copr. CNRS, (November 16, 2004)
+  Copyright or © or Copr. Bio++ Development Team, (November 16, 2004)
 
   This software is a computer program whose purpose is to provide classes
   for phylogenetic data analysis.
@@ -95,6 +95,7 @@ namespace bpp
 
     WAG01(const WAG01& model) :
       AbstractParameterAliasable(model),
+      AbstractSubstitutionModel(model),
       AbstractReversibleSubstitutionModel(model),
       freqSet_(dynamic_cast<ProteinFrequenciesSet *>(model.freqSet_->clone()))
     {}
@@ -102,6 +103,7 @@ namespace bpp
     WAG01& operator=(const WAG01& model)
     {
       AbstractParameterAliasable::operator=(model);
+      AbstractSubstitutionModel::operator=(model);
       AbstractReversibleSubstitutionModel::operator=(model);
       if (freqSet_) delete freqSet_;
       freqSet_ = dynamic_cast<ProteinFrequenciesSet *>(model.freqSet_->clone());

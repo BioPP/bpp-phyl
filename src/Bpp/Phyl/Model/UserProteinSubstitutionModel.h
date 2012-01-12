@@ -102,17 +102,19 @@ class UserProteinSubstitutionModel:
 
     UserProteinSubstitutionModel(const UserProteinSubstitutionModel& model) :
       AbstractParameterAliasable(model),
+      AbstractSubstitutionModel(model),
       AbstractReversibleSubstitutionModel(model),
       path_(model.path_),
-      freqSet_(dynamic_cast<ProteinFrequenciesSet *>(model.freqSet_->clone()))
+      freqSet_(dynamic_cast<ProteinFrequenciesSet*>(model.freqSet_->clone()))
     {}
  
     UserProteinSubstitutionModel& operator=(const UserProteinSubstitutionModel& model)
     {
       AbstractParameterAliasable::operator=(model);
+      AbstractSubstitutionModel::operator=(model);
       AbstractReversibleSubstitutionModel::operator=(model);
       path_ = model.path_;
-      freqSet_ = dynamic_cast<ProteinFrequenciesSet *>(model.freqSet_->clone());
+      freqSet_ = dynamic_cast<ProteinFrequenciesSet*>(model.freqSet_->clone());
       return *this;
     }
  
