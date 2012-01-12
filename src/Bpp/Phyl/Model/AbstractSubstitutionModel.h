@@ -313,7 +313,7 @@ public:
  * Consider using the MarkovModulatedSubstitutionModel for more complexe cases.
  */
 class AbstractReversibleSubstitutionModel :
-  public AbstractSubstitutionModel,
+  public virtual AbstractSubstitutionModel,
   public virtual ReversibleSubstitutionModel
 {
 protected:

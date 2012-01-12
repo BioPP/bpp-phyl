@@ -5,7 +5,7 @@
 //
 
 /*
-Copyright or © or Copr. CNRS, (November 16, 2004)
+Copyright or © or Copr. Bio++ Development Team, (November 16, 2004)
 
 This software is a computer program whose purpose is to provide classes
 for phylogenetic data analysis.
@@ -52,6 +52,7 @@ using namespace std;
 
 K80::K80(const NucleicAlphabet* alpha, double kappa) :
   AbstractParameterAliasable("K80."),
+  AbstractSubstitutionModel(alpha, "K80."),
   AbstractReversibleSubstitutionModel(alpha, "K80."),
   kappa_(kappa), r_(), l_(), k_(), exp1_(), exp2_(), p_(size_, size_)
 {

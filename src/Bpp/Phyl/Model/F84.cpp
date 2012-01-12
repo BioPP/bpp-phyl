@@ -5,7 +5,7 @@
 //
 
 /*
-Copyright or © or Copr. Bio++ Development Tools, (November 16, 2004)
+Copyright or © or Copr. Bio++ Development Team, (November 16, 2004)
 
 This software is a computer program whose purpose is to provide classes
 for phylogenetic data analysis.
@@ -61,6 +61,7 @@ F84::F84(
     double piG,
     double piT) :
   AbstractParameterAliasable("F84."),
+  AbstractSubstitutionModel(alpha, "F84."),
   AbstractReversibleSubstitutionModel(alpha, "F84."),
   kappa_(kappa), piA_(piA), piC_(piC), piG_(piG), piT_(piT), piY_(), piR_(),
   r_(), k1_(), k2_(), theta_(piG + piC), theta1_(piA / (1. - theta_)), theta2_(piG / theta_),

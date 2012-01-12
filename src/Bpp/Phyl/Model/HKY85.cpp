@@ -5,7 +5,7 @@
 //
 
 /*
-Copyright or © or Copr. CNRS, (November 16, 2004)
+Copyright or © or Copr. Bio++ Development Team, (November 16, 2004)
 
 This software is a computer program whose purpose is to provide classes
 for phylogenetic data analysis.
@@ -62,6 +62,7 @@ HKY85::HKY85(
 	double piG,
 	double piT):
   AbstractParameterAliasable("HKY85."),
+  AbstractSubstitutionModel(alpha, "HKY85."),
   AbstractReversibleSubstitutionModel(alpha, "HKY85."),
   kappa_(kappa), k1_(), k2_(), r_(),
   piA_(piA), piC_(piC), piG_(piG), piT_(piT), piY_(), piR_(),

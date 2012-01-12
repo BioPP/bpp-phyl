@@ -5,7 +5,7 @@
 //
 
 /*
-Copyright or © or Copr. CNRS, (November 16, 2004)
+Copyright or © or Copr. Bio++ Development Team, (November 16, 2004)
 
 This software is a computer program whose purpose is to provide classes
 for phylogenetic data analysis.
@@ -49,6 +49,7 @@ using namespace std;
 
 RE08::RE08(ReversibleSubstitutionModel *simpleModel, double lambda, double mu) :
   AbstractParameterAliasable("RE08."),
+  AbstractSubstitutionModel(simpleModel->getAlphabet(), "RE08."),
   AbstractReversibleSubstitutionModel(simpleModel->getAlphabet(), "RE08."),
   simpleModel_(simpleModel),
   simpleGenerator_(),

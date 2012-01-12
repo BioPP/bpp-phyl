@@ -88,16 +88,18 @@ namespace bpp
 
     LG08(const LG08& model) :
       AbstractParameterAliasable(model),
+      AbstractSubstitutionModel(model),
       AbstractReversibleSubstitutionModel(model),
-      freqSet_(dynamic_cast<ProteinFrequenciesSet *>(model.freqSet_->clone()))
+      freqSet_(dynamic_cast<ProteinFrequenciesSet*>(model.freqSet_->clone()))
     {}
 
     LG08& operator=(const LG08& model)
     {
       AbstractParameterAliasable::operator=(model);
+      AbstractSubstitutionModel::operator=(model);
       AbstractReversibleSubstitutionModel::operator=(model);
       if (freqSet_) delete freqSet_;
-      freqSet_ = dynamic_cast<ProteinFrequenciesSet *>(model.freqSet_->clone());
+      freqSet_ = dynamic_cast<ProteinFrequenciesSet*>(model.freqSet_->clone());
       return *this;
     }
 

@@ -48,6 +48,8 @@ using namespace std;
 CodonRateSubstitutionModel::CodonRateSubstitutionModel(const CodonAlphabet* palph,
                                                        NucleotideSubstitutionModel* pmod) :
   AbstractParameterAliasable("CodonRate."),
+  AbstractSubstitutionModel(palph, "CodonRate."),
+  AbstractWordSubstitutionModel(palph, "CodonRate."),
   AbstractCodonSubstitutionModel(palph, pmod, "CodonRate.", true)
 {
   updateMatrices();
@@ -58,6 +60,8 @@ CodonRateSubstitutionModel::CodonRateSubstitutionModel(const CodonAlphabet* palp
                                                        NucleotideSubstitutionModel* pmod2,
                                                        NucleotideSubstitutionModel* pmod3) :
   AbstractParameterAliasable("CodonRate."),
+  AbstractSubstitutionModel(palph, "CodonRate."),
+  AbstractWordSubstitutionModel(palph, "CodonRate."),
   AbstractCodonSubstitutionModel(palph, pmod1, pmod2, pmod3, "CodonRate.", true)
 {
   updateMatrices();

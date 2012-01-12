@@ -120,6 +120,8 @@ public:
   CodonDistancePhaseFrequenciesSubstitutionModel(
     const CodonDistancePhaseFrequenciesSubstitutionModel& model) :
     AbstractParameterAliasable(model),
+    AbstractSubstitutionModel(model),
+    AbstractWordSubstitutionModel(model),
     AbstractCodonSubstitutionModel(model),
     AbstractCodonDistanceSubstitutionModel(model),
     AbstractCodonPhaseFrequenciesSubstitutionModel(model)
@@ -129,8 +131,11 @@ public:
     const CodonDistancePhaseFrequenciesSubstitutionModel& model)
   {
     AbstractParameterAliasable::operator=(model);
-    AbstractCodonPhaseFrequenciesSubstitutionModel::operator=(model);
+    AbstractSubstitutionModel::operator=(model);
+    AbstractWordSubstitutionModel::operator=(model);
+    AbstractCodonSubstitutionModel::operator=(model);
     AbstractCodonDistanceSubstitutionModel::operator=(model);
+    AbstractCodonPhaseFrequenciesSubstitutionModel::operator=(model);
     return *this;
   }
 

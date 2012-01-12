@@ -5,7 +5,7 @@
 //
 
 /*
-Copyright or © or Copr. CNRS, (November 16, 2004)
+Copyright or © or Copr. Bio++ Development Team, (November 16, 2004)
 
 This software is a computer program whose purpose is to provide classes
 for phylogenetic data analysis.
@@ -49,6 +49,7 @@ using namespace std;
 
 JTT92::JTT92(const ProteicAlphabet* alpha) :
   AbstractParameterAliasable("JTT92."),
+  AbstractSubstitutionModel(alpha, "JTT92."),
   AbstractReversibleSubstitutionModel(alpha, "JTT92."),
   freqSet_(0)
 {
@@ -60,6 +61,7 @@ JTT92::JTT92(const ProteicAlphabet* alpha) :
 
 JTT92::JTT92(const ProteicAlphabet* alpha, ProteinFrequenciesSet* freqSet, bool initFreqs) :
   AbstractParameterAliasable("JTT92+F."),
+  AbstractSubstitutionModel(alpha, "JTT92+F."),
   AbstractReversibleSubstitutionModel(alpha, "JTT92+F."),
   freqSet_(freqSet)
 {
