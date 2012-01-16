@@ -286,7 +286,8 @@ void AbstractWordSubstitutionModel::updateMatrices()
 
   unsigned int nbmod = VSubMod_.size();
   unsigned int salph = getNumberOfStates();
-
+  unsigned int nbStop;
+  
   // Generator
 
   if (enableEigenDecomposition())
@@ -343,7 +344,7 @@ void AbstractWordSubstitutionModel::updateMatrices()
     unsigned int i, j;
     double x;
 
-    unsigned int nbStop;
+    //    unsigned int nbStop;
     Vdouble vi;
 
     for (i = 0; i < salph; i++)
@@ -358,13 +359,13 @@ void AbstractWordSubstitutionModel::updateMatrices()
     }
 
     //02/03/10 Julien: this should be avoided, we have to find a way to avoid particular cases like this...
+
+    const CodonAlphabet* pca = dynamic_cast<const CodonAlphabet*>(getAlphabet());
     
-    if (AlphabetTools::isCodonAlphabet(getAlphabet()))
+    if (pca)
     {
       int gi = 0, gj = 0;
-
-      const CodonAlphabet* pca = dynamic_cast<const CodonAlphabet*>(getAlphabet());
-
+      
       RowMatrix<double> gk;
 
       nbStop = pca->numberOfStopCodons();
@@ -435,8 +436,9 @@ void AbstractWordSubstitutionModel::updateMatrices()
 
     MatrixTools::inv(rightEigenVectors_, leftEigenVectors_);
 
-    // looking for the 0 eigenvector for which the eigen vector
-    // elements are of the same sign.
+    // looking for the 0 eigenvector for which the non-stop right
+    // eigen vector elements are equal.
+    
     // There is a threshold value in case of approximations
 
     double seuil=0.00000001;
@@ -445,68 +447,56 @@ void AbstractWordSubstitutionModel::updateMatrices()
     while(flag){
       seuil*=10;
       nulleigen=0;
-      int signe=0;
+      double val;
 
-      while (flag && (nulleigen < salph - nbStop)) {
-          if (abs(eigenValues_[nulleigen]) < 0.0000001 && abs(vi[nulleigen]) < 0.0000001){
-            signe=0;
-            i=0;
-            while (signe==0 && i< salph){
-              x=leftEigenVectors_(nulleigen, i);
-              signe=x>seuil?1:x< -seuil?-1:0;
-              i++;
+      while (nulleigen < salph-nbStop) {
+        if (abs(eigenValues_[nulleigen]) < 0.0000001 && abs(vi[nulleigen]) < 0.0000001){
+          i=0;
+          while (pca && pca->isStop(i))
+            i++;
+          
+          val=rightEigenVectors_(i,nulleigen);
+          i++;
+          while (i < salph){
+            if (!(pca && pca->isStop(i))){
+              if (abs(rightEigenVectors_(i, nulleigen)-val)>seuil)
+                break;
             }
-            if (signe==0)
-              nulleigen++;
-            else {
-              while (i<salph){
-                x=leftEigenVectors_(nulleigen, i);
-                if ((signe==-1 && x>seuil) || (signe==1 && x<-seuil))
-                  break;
-                
-                i++;
-              }
-              if (i<salph-nbStop)
-                nulleigen++;
-              else
-                flag=false;
-            }
+            i++;
           }
-          else
+          
+          if (i<salph)
             nulleigen++;
+          else {
+            flag=false;
+            break;
+          }
+        }
+        else
+          nulleigen++;
       }
     }
     
     for (i = 0; i < salph; i++)
-    {
       freq_[i] = leftEigenVectors_(nulleigen, i);
-    }
-
+ 
     x = 0;
     for (i = 0; i < salph; i++)
-    {
       x += freq_[i];
-    }
 
     for (i = 0; i < salph; i++)
-    {
       freq_[i] /= x;
-    }
 
     // normalization
 
     x = 0;
     for (i = 0; i < salph; i++)
-    {
       x += freq_[i] * generator_(i, i);
-    }
 
     MatrixTools::scale(generator_, -1. / x);
 
     for (i = 0; i < salph; i++)
-    {
       eigenValues_[i] /= -x;
-    }
   }
 }
 

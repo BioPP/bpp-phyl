@@ -94,7 +94,7 @@ YNGKP_M1::YNGKP_M1(const GeneticCode* gc, FrequenciesSet* codonFreqs) :
     }
   }
 
-  addParameter_(Parameter("YNGKP_M1.omega", 0.5, &Parameter::PROP_CONSTRAINT_EX));
+  addParameter_(Parameter("YNGKP_M1.omega", 0.5, new IncludingExcludingInterval(NumConstants::SMALL, 1), true));
 
   // look for synonymous codons
   for (synfrom_=1;synfrom_<(int)gc->getSourceAlphabet()->getSize();synfrom_++){
