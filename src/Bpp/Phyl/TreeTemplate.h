@@ -242,8 +242,7 @@ public:
   bool unroot() throw (UnrootedTreeException)
   {
     if (!isRooted()) throw UnrootedTreeException("Tree::unroot", this);
-
-    if (root_->getNumberOfSons() == 2)
+    else
     {
       N* son1 = root_->getSon(0);
       N* son2 = root_->getSon(1);
@@ -280,7 +279,6 @@ public:
       setRootNode(son1);
       return true;
     }
-    else return false;  // Tree is already unrooted.
   }
 
   void resetNodesId()

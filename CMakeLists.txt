@@ -122,6 +122,8 @@ SET(CPACK_SOURCE_IGNORE_FILES
  ".*\\\\..*\\\\.swp"
  "src/\\\\..*"
  "src/libbpp*"
+ "test/tmp_*"
+ "tmp_*"
  "debian/tmp"
  "debian/libbpp.*/"
  "debian/libbpp.*\\\\.so.*"
