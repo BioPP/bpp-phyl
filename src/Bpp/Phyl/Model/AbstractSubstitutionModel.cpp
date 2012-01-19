@@ -43,6 +43,7 @@
 #include <Bpp/Numeric/VectorTools.h>
 #include <Bpp/Numeric/Matrix/MatrixTools.h>
 #include <Bpp/Numeric/Matrix/EigenValue.h>
+#include <Bpp/Numeric/NumConstants.h>
 
 // From SeqLib:
 #include <Bpp/Seq/Container/SequenceContainerTools.h>
@@ -65,6 +66,8 @@ AbstractSubstitutionModel::AbstractSubstitutionModel(const Alphabet* alpha, cons
   leftEigenVectors_(size_, size_),
   rightEigenVectors_(size_, size_),
   eigenValues_(size_),
+  iEigenValues_(size_),
+  isDiagonalizable_(false),
   freq_(size_),
   eigenDecompose_(true)
 {
@@ -85,6 +88,12 @@ void AbstractSubstitutionModel::updateMatrices()
   rightEigenVectors_ = ev.getV();
   MatrixTools::inv(rightEigenVectors_, leftEigenVectors_);
   eigenValues_ = ev.getRealEigenValues();
+  iEigenValues_ = ev.getImagEigenValues();
+  isDiagonalizable_=true;
+  for (unsigned int i=0;i<size_ && isDiagonalizable_;i++)
+    if (abs(iEigenValues_[i])> NumConstants::SMALL)
+      isDiagonalizable_=false;
+    
 }
 
 /******************************************************************************/
@@ -96,21 +105,110 @@ const Matrix<double>& AbstractSubstitutionModel::getPij_t(double t) const
     MatrixTools::getId(size_, pijt_);
   }
   else
-  {
-    MatrixTools::mult<double>(rightEigenVectors_, VectorTools::exp(rate_ * eigenValues_ * t), leftEigenVectors_, pijt_);
-  }
+    if (isDiagonalizable_)
+      {
+        MatrixTools::mult<double>(rightEigenVectors_, VectorTools::exp(eigenValues_ * (rate_ * t)), leftEigenVectors_, pijt_);
+      }
+    else {
+      std::vector<double> vdia(size_);
+      std::vector<double> vup(size_-1);
+      std::vector<double> vlo(size_-1);
+      double c=0,s=0;
+      double l=rate_ * t;
+      for (unsigned int i=0;i<size_;i++){
+        vdia[i]=std::exp(eigenValues_[i] * l);
+        if (iEigenValues_[i]!=0){
+          s=std::sin(iEigenValues_[i] * l);
+          c=std::cos(iEigenValues_[i] * l);
+          vdia[i]*=c;
+          vup[i]=vdia[i]*s;
+          vlo[i]=-vup[i];
+          vdia[i+1]=vdia[i]; // trick to avoid computation
+          i++;
+        }
+        else {
+          if (i<size_-1){
+            vup[i]=0;
+            vlo[i]=0;
+          }
+        }
+      }
+      MatrixTools::mult<double>(rightEigenVectors_, vdia, vup, vlo, leftEigenVectors_, pijt_);      
+    }
   return pijt_;
 }
 
 const Matrix<double>& AbstractSubstitutionModel::getdPij_dt(double t) const
 {
-  MatrixTools::mult(rightEigenVectors_, rate_ * eigenValues_ * VectorTools::exp(rate_ * eigenValues_ * t), leftEigenVectors_, dpijt_);
+  if (isDiagonalizable_)
+    {
+      MatrixTools::mult(rightEigenVectors_, rate_ * eigenValues_ * VectorTools::exp(eigenValues_ * (rate_ * t)), leftEigenVectors_, dpijt_);
+    }
+  else {
+    std::vector<double> vdia(size_);
+    std::vector<double> vup(size_-1);
+    std::vector<double> vlo(size_-1);
+    double c,s,e;
+    double l=rate_ * t;
+    for (unsigned int i=0;i<size_;i++){
+      e=std::exp(eigenValues_[i] * l);
+      if (iEigenValues_[i]!=0){
+        s=std::sin(iEigenValues_[i] * l);
+        c=std::cos(iEigenValues_[i] * l);
+        vdia[i]=rate_ * (eigenValues_[i] * c - iEigenValues_[i] * s) * e;
+        vup[i]=rate_ * (eigenValues_[i] * s + iEigenValues_[i] * c) * e;
+        vlo[i]=-vup[i];
+        vdia[i+1]=vdia[i]; // trick to avoid computation
+        i++;
+      }
+      else {
+        if (i<size_-1){
+          vup[i]=0;
+          vlo[i]=0;
+        }
+      }
+    }
+    MatrixTools::mult<double>(rightEigenVectors_, vdia, vup, vlo, leftEigenVectors_, dpijt_);      
+  }
   return dpijt_;
 }
 
 const Matrix<double>& AbstractSubstitutionModel::getd2Pij_dt2(double t) const
 {
-  MatrixTools::mult(rightEigenVectors_, NumTools::sqr(rate_ * eigenValues_) * VectorTools::exp(rate_ * eigenValues_ * t), leftEigenVectors_, d2pijt_);
+  if (isDiagonalizable_)
+    {
+      MatrixTools::mult(rightEigenVectors_, NumTools::sqr(rate_ * eigenValues_) * VectorTools::exp(eigenValues_ * (rate_ * t)), leftEigenVectors_, d2pijt_);
+    }
+  else {
+    std::vector<double> vdia(size_);
+    std::vector<double> vup(size_-1);
+    std::vector<double> vlo(size_-1);
+    double c,s,e;
+    double l=rate_ * t;
+    for (unsigned int i=0;i<size_;i++){
+      e=std::exp(eigenValues_[i] * l);
+      if (iEigenValues_[i]!=0){
+        s=std::sin(iEigenValues_[i] * l);
+        c=std::cos(iEigenValues_[i] * l);
+        vdia[i]=NumTools::sqr(rate_)
+          * ((NumTools::sqr(eigenValues_[i]) - NumTools::sqr(iEigenValues_[i])) * c 
+             - 2 * eigenValues_[i] * iEigenValues_[i] * s) * e;
+        vup[i]= NumTools::sqr(rate_)
+          * ((NumTools::sqr(eigenValues_[i]) - NumTools::sqr(iEigenValues_[i])) * s
+             - 2 * eigenValues_[i] * iEigenValues_[i] * c) * e;
+        vlo[i]=-vup[i];
+        vdia[i+1]=vdia[i]; // trick to avoid computation
+        i++;
+      }
+      else {
+        if (i<size_-1){
+          vup[i]=0;
+          vlo[i]=0;
+        }
+      }
+    }
+    MatrixTools::mult<double>(rightEigenVectors_, vdia, vup, vlo, leftEigenVectors_, d2pijt_);      
+  }
   return d2pijt_;
 }
 

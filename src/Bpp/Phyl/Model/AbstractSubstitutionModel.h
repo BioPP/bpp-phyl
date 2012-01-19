@@ -54,8 +54,9 @@ namespace bpp
  * - alphabet_: a pointer toward the alphabet,
  * - size_: the size of the alphabet, a parameter frequently called during various computations,
  * - rate_: the rate of the model
- * - generator_, exchangeability_, leftEigenVectors_, rightEigenVectors_: usefull matrices,
- * - eigenValues_, freq_: usefull vectors.
+ * - generator_, leftEigenVectors_, rightEigenVectors_: useful matrices,
+ * - eigenValues_, iEigenValues_, freq_: useful vectors.
+ * - isDiagonalizable_ : boolean value useful for computation of the exponential
  *
  * Access methods for these fields are implemented.
  *
@@ -128,6 +129,17 @@ protected:
   Vdouble eigenValues_;
 
   /**
+   * @brief The vector of the imaginary part of the eigen values.
+   */
+  Vdouble iEigenValues_;
+
+  /**
+   * @brief boolean value for diagonalizability in R of the generator_
+   */
+  
+  bool isDiagonalizable_;
+
+  /**
    * @brief The vector of equilibrium frequencies.
    */
   Vdouble freq_;
@@ -153,6 +165,8 @@ public:
     leftEigenVectors_(model.leftEigenVectors_),
     rightEigenVectors_(model.rightEigenVectors_),
     eigenValues_(model.eigenValues_),
+    iEigenValues_(model.iEigenValues_),
+    isDiagonalizable_(model.isDiagonalizable_),
     freq_(model.freq_),
     eigenDecompose_(model.eigenDecompose_)
   {}
@@ -171,6 +185,8 @@ public:
     leftEigenVectors_  = model.leftEigenVectors_;
     rightEigenVectors_ = model.rightEigenVectors_;
     eigenValues_       = model.eigenValues_;
+    iEigenValues_      = model.iEigenValues_;
+    isDiagonalizable_  = model.isDiagonalizable_;
     freq_              = model.freq_;
     eigenDecompose_    = model.eigenDecompose_;
     return *this;
@@ -200,6 +216,10 @@ public:
 
   const Vdouble& getEigenValues() const { return eigenValues_; }
 
+  const Vdouble& getIEigenValues() const { return iEigenValues_; }
+
+  bool isDiagonalizable() const { return isDiagonalizable_;}
+  
   const Matrix<double>& getRowLeftEigenVectors() const { return leftEigenVectors_; }
   const Matrix<double>& getColumnRightEigenVectors() const { return rightEigenVectors_; }
 
@@ -237,13 +257,16 @@ public:
 
 protected:
   /**
-   * @brief Diagonalize the \f$Q\f$ matrix, and fill the eigenValues_,
+   * @brief Diagonalize the \f$Q\f$ matrix, and fill the eigenValues_, iEigenValues_, 
    * leftEigenVectors_ and rightEigenVectors_ matrices.
    *
    * The generator_ matrix and freq_ vector must be initialized.
    *
-   * Eigen values and vectors are computed from the generator and assigned to the
-   * eigenValues_, rightEigenVectors_ and leftEigenVectors_ variables.
+   * Eigen values and vectors are computed from the generator and
+   * assigned to the eigenValues_ for the real part, iEigenValues_ for
+   * the imaginary part, rightEigenVectors_ and leftEigenVectors_
+   * variables. isDiagonalizable_ checks if the generator_ is
+   * diagonalizable in R.
    *
    * The optional rate parameter is not taken into account in this
    * method to prevent unnecessary computation.
@@ -297,10 +320,12 @@ public:
  * This abstract class adds the exchangeability_ fields to the AbstractSubstitutionModel class.
  * Access methods for this field is implemented.
  *
- * This class also overrides the updateMatrices() method, which updates
- * the generator_ matrix from the exchangeability_ matrix and freq_ vector.
- * It then computes eigen values and vectors and fills the corresponding vector (eigenValues_)
- * and matrices (leftEigenVectors_ and rightEigenVectors_).
+ * This class also overrides the updateMatrices() method, which
+ * updates the generator_ matrix from the exchangeability_ matrix and
+ * freq_ vector. It then computes eigen values and vectors and fills
+ * the corresponding vector (eigenValues_) and matrices
+ * (leftEigenVectors_ and rightEigenVectors_). Because of
+ * reversibility, isDiagonalizable_ is set to true.
  *
  * The freq_ vector and exchangeability_ matrices are hence the only things to provide to
  * create a substitution model.
@@ -326,7 +351,9 @@ public:
   AbstractReversibleSubstitutionModel(const Alphabet* alpha, const std::string& prefix) :
     AbstractParameterAliasable(prefix),
     AbstractSubstitutionModel(alpha, prefix),
-    exchangeability_(size_, size_) {}
+    exchangeability_(size_, size_) {
+    isDiagonalizable_=true;
+  }
 
   virtual ~AbstractReversibleSubstitutionModel() {}
 

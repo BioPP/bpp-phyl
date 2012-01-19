@@ -275,9 +275,21 @@ public:
   virtual bool enableEigenDecomposition() = 0;
 
   /**
-   * @return A vector with all eigen values of the generator of this model;
+   * @return A vector with all real parts of the eigen values of the generator of this model;
    */
   virtual const Vdouble& getEigenValues() const = 0;
+
+  /**
+   * @return A vector with all imaginary parts of the eigen values of the generator of this model;
+   */
+  
+  virtual const Vdouble& getIEigenValues() const = 0;
+
+  /**
+   * @return if the model is diagonalizable in R.
+   */
+
+  virtual bool isDiagonalizable() const = 0;
 
   /**
    * @return A matrix with left eigen vectors.

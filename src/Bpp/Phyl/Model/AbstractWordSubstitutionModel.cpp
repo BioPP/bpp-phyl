@@ -51,6 +51,7 @@ using namespace bpp;
 
 // From the STL:
 #include <cmath>
+#include <complex>
 
 using namespace std;
 
@@ -345,7 +346,6 @@ void AbstractWordSubstitutionModel::updateMatrices()
     double x;
 
     //    unsigned int nbStop;
-    Vdouble vi;
 
     for (i = 0; i < salph; i++)
     {
@@ -391,7 +391,7 @@ void AbstractWordSubstitutionModel::updateMatrices()
 
       EigenValue<double> ev(gk);
       eigenValues_ = ev.getRealEigenValues();
-      vi = ev.getImagEigenValues();
+      iEigenValues_ = ev.getImagEigenValues();
 
       for (i = 0; i < nbStop; i++)
       {
@@ -429,7 +429,7 @@ void AbstractWordSubstitutionModel::updateMatrices()
     {
       EigenValue<double> ev(generator_);
       eigenValues_ = ev.getRealEigenValues();
-      vi = ev.getImagEigenValues();
+      iEigenValues_ = ev.getImagEigenValues();
       rightEigenVectors_ = ev.getV();
       nbStop = 0;
     }
@@ -450,7 +450,7 @@ void AbstractWordSubstitutionModel::updateMatrices()
       double val;
 
       while (nulleigen < salph-nbStop) {
-        if (abs(eigenValues_[nulleigen]) < 0.0000001 && abs(vi[nulleigen]) < 0.0000001){
+        if (abs(eigenValues_[nulleigen]) < 0.0000001 && abs(iEigenValues_[nulleigen]) < 0.0000001){
           i=0;
           while (pca && pca->isStop(i))
             i++;
@@ -498,8 +498,8 @@ void AbstractWordSubstitutionModel::updateMatrices()
     for (i = 0; i < salph; i++)
       eigenValues_[i] /= -x;
   }
-}
 
+}
 
 void AbstractWordSubstitutionModel::setFreq(std::map<int, double>& freqs)
 {

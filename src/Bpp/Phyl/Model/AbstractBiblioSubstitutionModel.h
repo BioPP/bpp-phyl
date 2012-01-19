@@ -123,7 +123,11 @@ public:
 
   bool enableEigenDecomposition() { return getModel()->enableEigenDecomposition(); }
 
+  bool isDiagonalizable() const { return getModel()->isDiagonalizable();}
+
   const Vdouble& getEigenValues() const { return getModel()->getEigenValues(); }
+
+  const Vdouble& getIEigenValues() const { return getModel()->getIEigenValues(); }
 
   const Matrix<double>& getRowLeftEigenVectors() const { return getModel()->getRowLeftEigenVectors(); }
   const Matrix<double>& getColumnRightEigenVectors() const { return getModel()->getColumnRightEigenVectors(); }
