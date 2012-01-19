@@ -112,15 +112,18 @@ unsigned int AbstractMixedSubstitutionModel::getNumberOfStates() const
 const Matrix<double>& AbstractMixedSubstitutionModel::getPij_t(double t) const
 {
   vector<const Matrix<double>* > vM;
-  for (unsigned int n = 0; n < modelsContainer_.size(); n++)
+  double sP=0;
+  for (unsigned int n = 0; n < modelsContainer_.size(); n++){
     vM.push_back(&modelsContainer_[n]->getPij_t(t));
+    sP+=vProbas_[n];
+  }
   
   for (unsigned int i=0; i< getNumberOfStates(); i++)
     for (unsigned int j=0; j< getNumberOfStates(); j++){
       double x=0;
       for (unsigned int n = 0; n < modelsContainer_.size(); n++)
         x+= (*vM[n])(i,j)*vProbas_[n];
-      pijt_(i,j)=x;
+      pijt_(i,j)=x/sP;
     }
   return pijt_;
 }
@@ -129,15 +132,18 @@ const Matrix<double>& AbstractMixedSubstitutionModel::getPij_t(double t) const
 const Matrix<double>& AbstractMixedSubstitutionModel::getdPij_dt(double t) const
 {
   vector<const Matrix<double>* > vM;
-  for (unsigned int n = 0; n < modelsContainer_.size(); n++)
+  double sP=0;
+  for (unsigned int n = 0; n < modelsContainer_.size(); n++){
     vM.push_back(&modelsContainer_[n]->getdPij_dt(t));
+    sP+=vProbas_[n];
+  }
   
   for (unsigned int i=0; i< getNumberOfStates(); i++)
     for (unsigned int j=0; j< getNumberOfStates(); j++){
       double x=0;
       for (unsigned int n = 0; n < modelsContainer_.size(); n++)
         x+= (*vM[n])(i,j)*vProbas_[n];
-      dpijt_(i,j)=x;
+      dpijt_(i,j)=x/sP;
     }
   return dpijt_;
 }
@@ -146,15 +152,18 @@ const Matrix<double>& AbstractMixedSubstitutionModel::getdPij_dt(double t) const
 const Matrix<double>& AbstractMixedSubstitutionModel::getd2Pij_dt2(double t) const
 {
   vector<const Matrix<double>* > vM;
-  for (unsigned int n = 0; n < modelsContainer_.size(); n++)
+  double sP=0;
+  for (unsigned int n = 0; n < modelsContainer_.size(); n++){
     vM.push_back(&modelsContainer_[n]->getd2Pij_dt2(t));
+    sP+=vProbas_[n];
+  }
   
   for (unsigned int i=0; i< getNumberOfStates(); i++)
     for (unsigned int j=0; j< getNumberOfStates(); j++){
       double x=0;
       for (unsigned int n = 0; n < modelsContainer_.size(); n++)
         x+= (*vM[n])(i,j)*vProbas_[n];
-      d2pijt_(i,j)=x;
+      d2pijt_(i,j)=x/sP;
     }
   return d2pijt_;
 }
@@ -165,8 +174,12 @@ void AbstractMixedSubstitutionModel::setRate(double rate)
   AbstractSubstitutionModel::setRate(rate);
 
   double sum=0;
-  for (unsigned int n = 0; n < modelsContainer_.size(); n++)
+  double sP=0;
+  for (unsigned int n = 0; n < modelsContainer_.size(); n++){
     sum+=vRates_[n]*vProbas_[n];
+    sP+=vProbas_[n];
+  }
+  sum/=sP;
   
   for (unsigned int n = 0; n < modelsContainer_.size(); n++){
     vRates_[n]*=rate_/sum;
@@ -188,9 +201,12 @@ void AbstractMixedSubstitutionModel::setVRates(const Vdouble& vd)
 void AbstractMixedSubstitutionModel::normalizeVRates()
 {
   double sum=0;
+  double sP=0;
   for (unsigned int i=0;i<vRates_.size();i++){
     sum+=vRates_[i]*vProbas_[i];
+    sP+=vProbas_[i];
   }
+  sum/=sP;
   
   for (unsigned int i=0;i<vRates_.size();i++){
     vRates_[i]*=rate_/sum;

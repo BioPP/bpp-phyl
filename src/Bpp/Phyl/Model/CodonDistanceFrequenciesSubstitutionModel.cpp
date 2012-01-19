@@ -49,6 +49,8 @@ CodonDistanceFrequenciesSubstitutionModel::CodonDistanceFrequenciesSubstitutionM
                                                                                      FrequenciesSet* pfreq,
                                                                                      const AlphabetIndex2<double>* pdist) :
   AbstractParameterAliasable("CodonDistanceFrequencies."),
+  AbstractSubstitutionModel(dynamic_cast<const CodonAlphabet*>(palph->getSourceAlphabet()), "CodonDistanceFrequencies."),
+  AbstractWordSubstitutionModel(dynamic_cast<const CodonAlphabet*>(palph->getSourceAlphabet()), "CodonDistanceFrequencies."),
   AbstractCodonSubstitutionModel(dynamic_cast<const CodonAlphabet*>(palph->getSourceAlphabet()), pmod, "CodonDistanceFrequencies."),
   AbstractCodonDistanceSubstitutionModel(palph, pdist, "CodonDistanceFrequencies."),
   AbstractCodonFrequenciesSubstitutionModel(pfreq, "CodonDistanceFrequencies.")
@@ -63,6 +65,8 @@ CodonDistanceFrequenciesSubstitutionModel::CodonDistanceFrequenciesSubstitutionM
                                                                                      FrequenciesSet* pfreq,
                                                                                      const AlphabetIndex2<double>* pdist) :
   AbstractParameterAliasable("CodonDistanceFrequencies."),
+  AbstractSubstitutionModel(dynamic_cast<const CodonAlphabet*>(palph->getSourceAlphabet()), "CodonDistanceFrequencies."),
+  AbstractWordSubstitutionModel(dynamic_cast<const CodonAlphabet*>(palph->getSourceAlphabet()), "CodonDistanceFrequencies."),
   AbstractCodonSubstitutionModel(dynamic_cast<const CodonAlphabet*>(palph->getSourceAlphabet()), pmod1, pmod2, pmod3, "CodonDistanceFrequencies."),
   AbstractCodonDistanceSubstitutionModel(palph, pdist, "CodonDistanceFrequencies."),
   AbstractCodonFrequenciesSubstitutionModel(pfreq, "CodonDistanceFrequencies.")

@@ -5,7 +5,7 @@
 //
 
 /*
-   Copyright or © or Copr. CNRS, (November 16, 2004)
+   Copyright or © or Copr. Bio++ Development Team, (November 16, 2004)
    This software is a computer program whose purpose is to provide classes
    for phylogenetic data analysis.
 
@@ -60,6 +60,7 @@ WordSubstitutionModel::WordSubstitutionModel(
   const std::vector<SubstitutionModel*>& modelVector,
   const std::string& st) :
   AbstractParameterAliasable((st == "") ? "Word." : st),
+  AbstractSubstitutionModel(AbstractWordSubstitutionModel::extractAlph(modelVector), (st == "") ? "Word." : st),
   AbstractWordSubstitutionModel(modelVector, (st == "") ? "Word." : st)
 {
    unsigned int i, nbmod = VSubMod_.size();
@@ -77,6 +78,7 @@ WordSubstitutionModel::WordSubstitutionModel(
   const Alphabet* alph,
   const std::string& st) :
   AbstractParameterAliasable((st == "") ? "Word." : st),  
+  AbstractSubstitutionModel(alph, (st == "") ? "Word." : st),
   AbstractWordSubstitutionModel(alph, (st == "") ? "Word." : st)
 {}
 
@@ -85,6 +87,7 @@ WordSubstitutionModel::WordSubstitutionModel(
   unsigned int num,
   const std::string& st) :
   AbstractParameterAliasable((st == "") ? "Word." : st),
+  AbstractSubstitutionModel(pmodel->getAlphabet(),  (st == "") ? "Word." : st),
   AbstractWordSubstitutionModel(pmodel, num,  (st == "") ? "Word." : st)
 {
    unsigned int i;

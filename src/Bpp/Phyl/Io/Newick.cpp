@@ -60,46 +60,48 @@ const string Newick::getFormatName() const { return "Newick"; }
 
 const string Newick::getFormatDescription() const
 {
-	return string("New hampshire parenthesis format. ") +
-		"See http://evolution.genetics.washington.edu/phylip/newicktree.html for more info.";
+  return string("New hampshire parenthesis format. ") +
+    "See http://evolution.genetics.washington.edu/phylip/newicktree.html for more info.";
 }
 
 /******************************************************************************/
 
 #if defined(NO_VIRTUAL_COV)
-		Tree*
+    Tree*
 #else
-		TreeTemplate<Node> * 
+    TreeTemplate<Node> * 
 #endif
 Newick::read(istream& in) const throw (Exception)
 {
-	// Checking the existence of specified file
-	if (! in) { throw IOException ("Newick::read: failed to read from stream"); }
-	
-	//We concatenate all line in file till we reach the ending semi colon:
-	string temp, description;// Initialization
-	// Main loop : for all file lines
-	while (! in.eof())
+  // Checking the existence of specified file
+  if (! in) { throw IOException ("Newick::read: failed to read from stream"); }
+  
+  //We concatenate all line in file till we reach the ending semi colon:
+  string temp, description;// Initialization
+  // Main loop : for all file lines
+  while (getline(in, temp, '\n'))
   {
-		getline(in, temp, '\n');  // Copy current line in temporary string
     string::size_type index = temp.find(";");
-		if(index != string::npos)
+    if(index != string::npos)
     {
-			description += temp.substr(0, index + 1);
-			break;
-		}
+      description += temp.substr(0, index + 1);
+      break;
+    }
     else description += temp;
-	}
-	if (allowComments_) description = TextTools::removeSubstrings(description, '[', ']');
-	return TreeTemplateTools::parenthesisToTree(description, useBootstrap_, bootstrapPropertyName_);
+  }
+
+  if (allowComments_) description = TextTools::removeSubstrings(description, '[', ']');
+  if (TextTools::isEmpty(description))
+    throw IOException("Newick::read: no tree was found!");
+  return TreeTemplateTools::parenthesisToTree(description, useBootstrap_, bootstrapPropertyName_);
 }
 
 /******************************************************************************/
 
 void Newick::write_(const Tree& tree, ostream& out) const throw (Exception)
 {
-	// Checking the existence of specified file, and possibility to open it in write mode
-	if (! out) { throw IOException ("Newick::writeTree: failed to write to stream"); }
+  // Checking the existence of specified file, and possibility to open it in write mode
+  if (! out) { throw IOException ("Newick::writeTree: failed to write to stream"); }
   if(useBootstrap_)
   {
     out << TreeTools::treeToParenthesis(tree, writeId_);
@@ -115,8 +117,8 @@ void Newick::write_(const Tree& tree, ostream& out) const throw (Exception)
 template<class N>
 void Newick::write_(const TreeTemplate<N>& tree, ostream& out) const throw (Exception)
 {
-	// Checking the existence of specified file, and possibility to open it in write mode
-	if (! out) { throw IOException ("Newick::writeTree: failed to write to stream"); }
+  // Checking the existence of specified file, and possibility to open it in write mode
+  if (! out) { throw IOException ("Newick::writeTree: failed to write to stream"); }
   if(useBootstrap_)
   {
     out << TreeTemplateTools::treeToParenthesis(tree, writeId_);
@@ -131,37 +133,34 @@ void Newick::write_(const TreeTemplate<N>& tree, ostream& out) const throw (Exce
 
 void Newick::read(istream& in, vector<Tree*>& trees) const throw (Exception)
 {
-	// Checking the existence of specified file
-	if (! in) { throw IOException ("Newick::read: failed to read from stream"); }
-	
-	// Main loop : for all file lines
-	string temp, description;// Initialization
+  // Checking the existence of specified file
+  if (! in) { throw IOException ("Newick::read: failed to read from stream"); }
+  
+  // Main loop : for all file lines
+  string temp, description;// Initialization
   string::size_type index;
-  while (!in.eof())
+  //We concatenate all line in file till we reach the ending semi colon:
+  while (getline(in, temp, '\n'))
   {
-	  //We concatenate all line in file till we reach the ending semi colon:
-	  while (!in.eof())
+    index = temp.find(";");
+    if (index != string::npos)
     {
-		  getline(in, temp, '\n');  // Copy current line in temporary string
-      index = temp.find(";");
-		  if (index != string::npos)
-      {
-			  description += temp.substr(0, index + 1);
-	      if (allowComments_) description = TextTools::removeSubstrings(description, '[', ']');
-	      trees.push_back(TreeTemplateTools::parenthesisToTree(description, useBootstrap_, bootstrapPropertyName_));
-        description = temp.substr(index + 1);
-		  }
-      else description += temp;
-	  }
+      description += temp.substr(0, index + 1);
+      if (allowComments_) description = TextTools::removeSubstrings(description, '[', ']');
+      trees.push_back(TreeTemplateTools::parenthesisToTree(description, useBootstrap_, bootstrapPropertyName_));
+      description = temp.substr(index + 1);
+    }
+    else description += temp;
   }
+  //In case the file is empty, the method will not add any neww tree to the vector.
 }
 
 /******************************************************************************/
 
 void Newick::write_(const vector<Tree*>& trees, ostream& out) const throw (Exception)
 {
-	// Checking the existence of specified file, and possibility to open it in write mode
-	if (! out) { throw IOException ("Newick::write: failed to write to stream"); }
+  // Checking the existence of specified file, and possibility to open it in write mode
+  if (! out) { throw IOException ("Newick::write: failed to write to stream"); }
   for(unsigned int i = 0; i < trees.size(); i++)
   {
     if(useBootstrap_)
@@ -180,8 +179,8 @@ void Newick::write_(const vector<Tree*>& trees, ostream& out) const throw (Excep
 template<class N>
 void Newick::write_(const vector<TreeTemplate<N>*>& trees, ostream& out) const throw (Exception)
 {
-	// Checking the existence of specified file, and possibility to open it in write mode
-	if (! out) { throw IOException ("Newick::write: failed to write to stream"); }
+  // Checking the existence of specified file, and possibility to open it in write mode
+  if (! out) { throw IOException ("Newick::write: failed to write to stream"); }
   for(unsigned int i = 0; i < trees.size(); i++)
   {
     if(useBootstrap_)

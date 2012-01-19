@@ -244,13 +244,15 @@ void MixtureOfSubstitutionModels::setVRates(const Vdouble& vd)
   AbstractMixedSubstitutionModel::setVRates(vd);
 
   unsigned int i, nbmod = modelsContainer_.size();
-  double y=0;
+  double sP=0;
+  for (i = 0; i < nbmod - 1; i++)
+    sP+=vProbas_[i];
   
-   for (i = 0; i < nbmod - 1; i++)
-     {
-       setParameterValue("relrate" + TextTools::toString(i+1), vProbas_[i] * vRates_[i] / (1- y));
-       y+=vProbas_[i]*vRates_[i];
-     }
+  double y=0;
+  for (i = 0; i < nbmod - 1; i++) {
+    setParameterValue("relrate" + TextTools::toString(i+1), vProbas_[i]/sP * vRates_[i] / (1- y));
+    y+=vProbas_[i]/sP*vRates_[i];
+  }
 }
 
 Vint MixtureOfSubstitutionModels::getSubmodelNumbers(string& desc) const

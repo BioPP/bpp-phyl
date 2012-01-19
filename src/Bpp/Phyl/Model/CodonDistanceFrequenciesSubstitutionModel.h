@@ -5,7 +5,7 @@
 //
 
 /*
-   Copyright or © or Copr. CNRS, (November 16, 2004)
+   Copyright or © or Copr. Bio++ Development Team, (November 16, 2004)
 
    This software is a computer program whose purpose is to provide classes
    for phylogenetic data analysis.
@@ -120,6 +120,8 @@ public:
   CodonDistanceFrequenciesSubstitutionModel(
     const CodonDistanceFrequenciesSubstitutionModel& model) :
     AbstractParameterAliasable(model),
+    AbstractSubstitutionModel(model),
+    AbstractWordSubstitutionModel(model),
     AbstractCodonSubstitutionModel(model),
     AbstractCodonDistanceSubstitutionModel(model),
     AbstractCodonFrequenciesSubstitutionModel(model)
@@ -130,8 +132,11 @@ public:
     const CodonDistanceFrequenciesSubstitutionModel& model)
   {
     AbstractParameterAliasable::operator=(model);
-    AbstractCodonFrequenciesSubstitutionModel::operator=(model);
+    AbstractSubstitutionModel::operator=(model);
+    AbstractWordSubstitutionModel::operator=(model);
+    AbstractCodonSubstitutionModel::operator=(model);
     AbstractCodonDistanceSubstitutionModel::operator=(model);
+    AbstractCodonFrequenciesSubstitutionModel::operator=(model);
     return *this;
   }
 

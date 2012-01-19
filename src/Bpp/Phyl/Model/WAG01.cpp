@@ -5,7 +5,7 @@
 //
 
 /*
-Copyright or © or Copr. CNRS, (November 16, 2004)
+Copyright or © or Copr. Bio++ Development Team, (November 16, 2004)
 
 This software is a computer program whose purpose is to provide classes
 for phylogenetic data analysis.
@@ -49,6 +49,7 @@ using namespace std;
 
 WAG01::WAG01(const ProteicAlphabet* alpha) :
   AbstractParameterAliasable("WAG01."),
+  AbstractSubstitutionModel(alpha, "WAG01."),
   AbstractReversibleSubstitutionModel(alpha, "WAG01."),
   freqSet_(0)
 {
@@ -60,6 +61,7 @@ WAG01::WAG01(const ProteicAlphabet* alpha) :
 
 WAG01::WAG01(const ProteicAlphabet* alpha, ProteinFrequenciesSet* freqSet, bool initFreqs) :
   AbstractParameterAliasable("WAG01+F."),
+  AbstractSubstitutionModel(alpha, "WAG01+F."),
   AbstractReversibleSubstitutionModel(alpha, "WAG01+F."),
   freqSet_(freqSet)
 {

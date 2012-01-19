@@ -5,7 +5,7 @@
 //
 
 /*
-Copyright or © or Copr. CNRS, (November 16, 2004)
+Copyright or © or Copr. Bio++ Development Team, (November 16, 2004)
 
 This software is a computer program whose purpose is to provide classes
 for phylogenetic data analysis.
@@ -48,6 +48,7 @@ using namespace bpp;
 
 DSO78::DSO78(const ProteicAlphabet* alpha) :
   AbstractParameterAliasable("DSO78."),
+  AbstractSubstitutionModel(alpha, "DSO78."),
   AbstractReversibleSubstitutionModel(alpha, "DSO78."),
   freqSet_(0)
 {
@@ -58,7 +59,8 @@ DSO78::DSO78(const ProteicAlphabet* alpha) :
 }
 
 DSO78::DSO78(const ProteicAlphabet* alpha, ProteinFrequenciesSet* freqSet, bool initFreqs) :
-  AbstractParameterAliasable("DSO78."),
+  AbstractParameterAliasable("DSO78+F."),
+  AbstractSubstitutionModel(alpha, "DSO78+F."),
   AbstractReversibleSubstitutionModel(alpha, "DSO78+F."),
   freqSet_(freqSet)
 {

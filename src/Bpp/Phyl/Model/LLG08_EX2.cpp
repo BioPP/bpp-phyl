@@ -5,7 +5,7 @@
 //
 
 /*
-Copyright or © or Copr. CNRS, (November 16, 2004)
+Copyright or © or Copr. Bio++ Development Team, (November 16, 2004)
 This software is a computer program whose purpose is to provide classes
 for phylogenetic data analysis.
 
@@ -108,7 +108,9 @@ LLG08_EX2::~LLG08_EX2()
 
 LLG08_EX2::EmbeddedModel::EmbeddedModel(const ProteicAlphabet* alpha, string name) :
   AbstractParameterAliasable(""),
-  AbstractReversibleSubstitutionModel(alpha, ""), proportion_(1), name_(name)
+  AbstractSubstitutionModel(alpha, ""),
+  AbstractReversibleSubstitutionModel(alpha, ""),
+  proportion_(1), name_(name)
 {
 #include "__LLG08_EX2ExchangeabilityCode"
 #include "__LLG08_EX2FrequenciesCode"

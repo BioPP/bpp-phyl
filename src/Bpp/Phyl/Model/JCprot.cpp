@@ -5,7 +5,7 @@
 //
 
 /*
-Copyright or © or Copr. CNRS, (November 16, 2004)
+Copyright or © or Copr. Bio++ Development Team, (November 16, 2004)
 
 This software is a computer program whose purpose is to provide classes
 for phylogenetic data analysis.
@@ -52,8 +52,9 @@ using namespace std;
 
 JCprot::JCprot(const ProteicAlphabet* alpha) :
   AbstractParameterAliasable("JC69."),
-  AbstractReversibleSubstitutionModel(alpha, "JC69."), exp_(), p_(size_, size_),
-  freqSet_(0)
+  AbstractSubstitutionModel(alpha, "JC69."),
+  AbstractReversibleSubstitutionModel(alpha, "JC69."),
+  exp_(), p_(size_, size_), freqSet_(0)
 {
   freqSet_ = new FixedProteinFrequenciesSet(alpha, freq_);
   updateMatrices();
@@ -61,8 +62,9 @@ JCprot::JCprot(const ProteicAlphabet* alpha) :
 
 JCprot::JCprot(const ProteicAlphabet* alpha, ProteinFrequenciesSet* freqSet, bool initFreqs) :
   AbstractParameterAliasable("JC69+F."),
-  AbstractReversibleSubstitutionModel(alpha, "JC69+F."), exp_(), p_(size_, size_),
-  freqSet_(freqSet)
+  AbstractSubstitutionModel(alpha, "JC69+F."),
+  AbstractReversibleSubstitutionModel(alpha, "JC69+F."),
+  exp_(), p_(size_, size_), freqSet_(freqSet)
 {
   if (initFreqs) freqSet_->setFrequencies(freq_);
   else freq_ = freqSet_->getFrequencies();

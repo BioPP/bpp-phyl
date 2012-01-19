@@ -347,7 +347,7 @@ public:
     bool reparametrization            = false,
     unsigned int verbose              = 1,
     const std::string& optMethodDeriv = OPTIMIZATION_NEWTON,
-    const std::string& optMethodModel = OPTIMIZATION_BFGS)
+    const std::string& optMethodModel = OPTIMIZATION_BRENT)
   throw (Exception);
 
   /**

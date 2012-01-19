@@ -49,6 +49,7 @@ using namespace std;
 
 JCnuc::JCnuc(const NucleicAlphabet* alpha) :
   AbstractParameterAliasable("JC69."),
+  AbstractSubstitutionModel(alpha, "JC69."),
   AbstractReversibleSubstitutionModel(alpha, "JC69."),
   exp_(),
   p_(size_, size_)

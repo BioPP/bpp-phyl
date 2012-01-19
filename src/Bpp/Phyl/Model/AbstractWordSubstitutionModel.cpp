@@ -51,6 +51,7 @@ using namespace bpp;
 
 // From the STL:
 #include <cmath>
+#include <complex>
 
 using namespace std;
 
@@ -286,7 +287,8 @@ void AbstractWordSubstitutionModel::updateMatrices()
 
   unsigned int nbmod = VSubMod_.size();
   unsigned int salph = getNumberOfStates();
-
+  unsigned int nbStop;
+  
   // Generator
 
   if (enableEigenDecomposition())
@@ -296,25 +298,28 @@ void AbstractWordSubstitutionModel::updateMatrices()
     vector<unsigned int> vsize;
 
     for (k = 0; k < nbmod; k++)
+    {
       vsize.push_back(VSubMod_[k]->getNumberOfStates());
+    }
 
     RowMatrix<double> gk, exch;
-    for (i = 0; i < salph; i++)
-      for (j = 0; j < salph; j++)
-        generator_(i, j)=0;
 
     m = 1;
 
     for (k = nbmod; k > 0; k--)
     {
       gk = VSubMod_[k - 1]->getGenerator();
-
-      for (i = 0; i < vsize[k - 1]; i++) {
-        for (j = 0; j < vsize[k - 1]; j++) {
-          if (i != j) {
+      for (i = 0; i < vsize[k - 1]; i++)
+      {
+        for (j = 0; j < vsize[k - 1]; j++)
+        {
+          if (i != j)
+          {
             n = 0;
-            while (n < salph) { // loop on prefix
-              for (l = 0; l < m; l++) { // loop on suffix
+            while (n < salph)
+            { // loop on prefix
+              for (l = 0; l < m; l++)
+              { // loop on suffix
                 generator_(n + i * m + l, n + j * m + l) = gk(i,j) * Vrate_[k - 1];
               }
               n += m * vsize[k - 1];
@@ -337,11 +342,10 @@ void AbstractWordSubstitutionModel::updateMatrices()
 
   if (enableEigenDecomposition())
   {
-    double x;
     unsigned int i, j;
+    double x;
 
-    unsigned int nbStop;
-    Vdouble vi;
+    //    unsigned int nbStop;
 
     for (i = 0; i < salph; i++)
     {
@@ -356,16 +360,16 @@ void AbstractWordSubstitutionModel::updateMatrices()
 
     //02/03/10 Julien: this should be avoided, we have to find a way to avoid particular cases like this...
 
-    if (AlphabetTools::isCodonAlphabet(getAlphabet()))
+    const CodonAlphabet* pca = dynamic_cast<const CodonAlphabet*>(getAlphabet());
+    
+    if (pca)
     {
       int gi = 0, gj = 0;
-
-      const CodonAlphabet* pca = dynamic_cast<const CodonAlphabet*>(getAlphabet());
-
-      RowMatrix<double> tgk;
+      
+      RowMatrix<double> gk;
 
       nbStop = pca->numberOfStopCodons();
-      tgk.resize(salph - nbStop, salph - nbStop);
+      gk.resize(salph - nbStop, salph - nbStop);
       for (i = 0; i < salph; i++)
       {
         if (!pca->isStop(i))
@@ -374,7 +378,9 @@ void AbstractWordSubstitutionModel::updateMatrices()
           for (j = 0; j < salph; j++)
           {
             if (!pca->isStop(j))
-              tgk(j - gj, i - gi) = generator_(i, j);
+            {
+              gk(i - gi, j - gj) = generator_(i, j);
+            }
             else
               gj++;
           }
@@ -383,88 +389,91 @@ void AbstractWordSubstitutionModel::updateMatrices()
           gi++;
       }
 
-      EigenValue<double> ev(tgk);
+      EigenValue<double> ev(gk);
       eigenValues_ = ev.getRealEigenValues();
-      vi = ev.getImagEigenValues();
-      RowMatrix<double> tlev = ev.getV();
+      iEigenValues_ = ev.getImagEigenValues();
 
       for (i = 0; i < nbStop; i++)
+      {
         eigenValues_.push_back(0);
-
-      leftEigenVectors_.resize(salph, salph);
-      
-      gj = 0;
-      for (j = 0; j < salph; j++) {
-        if (pca->isStop(j)) {
-          for (i = 0; i < salph; i++)
-            leftEigenVectors_(i,j) = 0;
-              
-          gj++;
-          leftEigenVectors_(salph - nbStop + gj - 1,j) = 1;
-        }
-        else {
-          for (i = 0; i < salph - nbStop; i++)
-            leftEigenVectors_(i, j) = tlev(j-gj,i);
-          
-          for (i = salph - nbStop; i < salph; i++)
-            leftEigenVectors_(i,j) = 0;
-        }
       }
 
+      RowMatrix<double> rev = ev.getV();
       rightEigenVectors_.resize(salph, salph);
-      MatrixTools::inv(leftEigenVectors_, rightEigenVectors_);
+      gi = 0;
+      for (i = 0; i < salph; i++)
+      {
+        if (pca->isStop(i))
+        {
+          gi++;
+          for (j = 0; j < salph; j++)
+          {
+            rightEigenVectors_(i,j) = 0;
+          }
+          rightEigenVectors_(i,salph - nbStop + gi - 1) = 1;
+        }
+        else
+        {
+          for (j = 0; j < salph - nbStop; j++)
+          {
+            rightEigenVectors_(i, j) = rev(i - gi,j);
+          }
+          for (j = salph - nbStop; j < salph; j++)
+          {
+            rightEigenVectors_(i,j) = 0;
+          }
+        }
+      }
     }
     else
     {
       EigenValue<double> ev(generator_);
       eigenValues_ = ev.getRealEigenValues();
-      vi = ev.getImagEigenValues();
+      iEigenValues_ = ev.getImagEigenValues();
       rightEigenVectors_ = ev.getV();
-      MatrixTools::inv(rightEigenVectors_, leftEigenVectors_);
       nbStop = 0;
     }
 
+    MatrixTools::inv(rightEigenVectors_, leftEigenVectors_);
 
-    // looking for the 0 eigenvector for which the eigen vector
-    // elements are of the same sign.
+    // looking for the 0 eigenvector for which the non-stop right
+    // eigen vector elements are equal.
+    
     // There is a threshold value in case of approximations
 
     double seuil=0.00000001;
     bool flag=true;
     unsigned int nulleigen;
-
-    while(flag && seuil==0.00000001){
+    while(flag){
       seuil*=10;
       nulleigen=0;
-      int signe=0;
+      double val;
 
-      while (flag && (nulleigen < salph - nbStop)) {
-        if (abs(eigenValues_[nulleigen]) < 0.0000001 && abs(vi[nulleigen]) < 0.0000001){
-          signe=0;
-            i=0;
-            while (signe==0 && i< salph){
-              x=leftEigenVectors_(nulleigen, i);
-              signe=x>seuil?1:x< -seuil?-1:0;
-              i++;
+      while (nulleigen < salph-nbStop) {
+        if (abs(eigenValues_[nulleigen]) < 0.0000001 && abs(iEigenValues_[nulleigen]) < 0.0000001){
+          i=0;
+          while (pca && pca->isStop(i))
+            i++;
+          
+          val=rightEigenVectors_(i,nulleigen);
+          i++;
+          while (i < salph){
+            if (!(pca && pca->isStop(i))){
+              if (abs(rightEigenVectors_(i, nulleigen)-val)>seuil)
+                break;
             }
-            if (signe==0)
-              nulleigen++;
-            else {
-              while (i<salph){
-                x=leftEigenVectors_(nulleigen, i);
-                if ((signe==-1 && x>seuil) || (signe==1 && x<-seuil))
-                  break;
-                
-                i++;
-              }
-              if (i<salph-nbStop)
-                nulleigen++;
-              else
-                flag=false;
-            }
+            i++;
           }
-          else
+          
+          if (i<salph)
             nulleigen++;
+          else {
+            flag=false;
+            break;
+          }
+        }
+        else
+          nulleigen++;
       }
     }
 
@@ -472,7 +481,7 @@ void AbstractWordSubstitutionModel::updateMatrices()
   
     for (i = 0; i < salph; i++)
       freq_[i] = leftEigenVectors_(nulleigen, i);
-
+ 
     x = 0;
     for (i = 0; i < salph; i++)
       x += freq_[i];
@@ -491,8 +500,8 @@ void AbstractWordSubstitutionModel::updateMatrices()
     for (i = 0; i < salph; i++)
       eigenValues_[i] /= -x;
   }
-}
 
+}
 
 void AbstractWordSubstitutionModel::setFreq(std::map<int, double>& freqs)
 {

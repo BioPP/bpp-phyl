@@ -116,6 +116,65 @@ int main() {
   }
   delete tree8;
 
+  //Test file parsing:
+  TreeTemplate<Node>* tree9 = TreeTemplateTools::getRandomTree(leaves, true);
+  Newick tWriter;
+  tWriter.write(*tree9, "tmp_tree.dnd");
+  Tree* test = tReader.read("tmp_tree.dnd");
+  if (!TreeTools::haveSameTopology(*tree9, *test))
+    return 1;
+  cout << "Newick I/O ok." << endl;
+
+  //Multiple trees:
+  vector<Tree *> trees;
+  for (unsigned int i = 0; i < 100; ++i) {
+    trees.push_back(TreeTemplateTools::getRandomTree(leaves, true));
+  }
+  tWriter.write(trees, "tmp_trees.dnd");
+
+  vector<Tree *> trees2;
+  tReader.read("tmp_trees.dnd", trees2);
+
+  for (unsigned int i = 0; i < 100; ++i) {
+    if (!TreeTools::haveSameTopology(*trees[i], *trees2[i]))
+    {
+      cerr << "Tree " << i << " failed to write and/or read!" << endl;
+      return 1;
+    }
+  }
+  cout << "Newick multiple I/O ok." << endl;
+
+  for (unsigned int i = 0; i < 100; ++i) {
+    delete trees[i];
+    delete trees2[i];
+  }
+
+  //Try newick read on non-file:
+  cout << "Testing parsing a directory..." << endl;
+  try {
+    Tree* tmp = tReader.read("test/");
+    cerr << "Arg, reading on directory should fail!" << endl;
+    if (tmp != NULL) {
+      cerr << "Output of read on directory is not NULL!" << endl;
+    }
+    return 1;
+  } catch(Exception& ex) {
+    cout << "Ok, reading on directory throws exception!" << endl;
+  }
+
+  cout << "Testing parsing a directory for multiple trees..." << endl;
+  try {
+    vector<Tree*> treesTmp;
+    tReader.read("test/", treesTmp);
+    if (treesTmp.size() != 0) {
+      cerr << "Output of multiple read on directory is not 0!" << endl;
+      return 1;
+    } else {
+      cout << "Ok, reading on directory returns a vector of size 0!" << endl;
+    }
+  } catch(Exception& ex) {
+    cout << "Error, no exception should be thrown here!" << endl;
+  }
 
   return 0;
 }
