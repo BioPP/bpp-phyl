@@ -55,7 +55,8 @@ YpR::YpR(const RNY* alph, SubstitutionModel* const pm, const std::string& prefix
   _pmodel(pm->clone()),
   _nestedPrefix(pm->getNamespace())
 {
-   _pmodel->setNamespace(prefix + _nestedPrefix);
+  _pmodel->setNamespace(prefix + _nestedPrefix);
+  _pmodel->enableEigenDecomposition(0);
   addParameters_(_pmodel->getParameters());
 }
 
@@ -66,7 +67,7 @@ YpR::YpR(const YpR& ypr, const std::string& prefix) :
   _nestedPrefix(ypr.getNestedPrefix())
 
 {
-   _pmodel->setNamespace(prefix + _nestedPrefix);
+  _pmodel->setNamespace(prefix + _nestedPrefix);
 }
 
 YpR::YpR(const YpR& ypr) :
@@ -87,7 +88,7 @@ void YpR::updateMatrices(double CgT, double cGA,
                          double CaT, double cAG,
                          double TaC, double tAC)
 {
-  check_model(_pmodel);
+  //  check_model(_pmodel);
 
   // Generator:
   const Alphabet* alph = _pmodel->getAlphabet();
@@ -237,31 +238,27 @@ void YpR::updateMatrices(double CgT, double cGA,
   rightEigenVectors_ = ev.getV();
   MatrixTools::inv(rightEigenVectors_,leftEigenVectors_);
 
-  std::vector<double> vi = ev.getImagEigenValues();
+  iEigenValues_ = ev.getImagEigenValues();
 
   // frequence stationnaire
 
   x = 0;
   j = 0;
-  while (j < 36)
-  {
-    if (abs(eigenValues_[j]) < 0.000001 && abs(vi[j]) < 0.000001)
-    {
+  while (j < 36){
+    if (abs(eigenValues_[j]) < 0.000001 && abs(iEigenValues_[j]) < 0.000001) {
       eigenValues_[j]=0; //to avoid approximation problems in the future
       for (i = 0; i < 36; i++)
-      {
-        freq_[i] = leftEigenVectors_(j,i);
-        x += freq_[i];
-      }
+        {
+          freq_[i] = leftEigenVectors_(j,i);
+          x += freq_[i];
+        }
       break;
     }
     j++;
   }
 
   for (i = 0; i < 36; i++)
-  {
     freq_[i] /= x;
-  }
 
   // mise a l'echelle
 
@@ -288,9 +285,12 @@ void YpR::updateMatrices(double CgT, double cGA,
   MatrixTools::scale(generator_,1 / x);
 
   for (i = 0; i < 36; i++)
-  {
     eigenValues_[i] /= x;
-  }
+
+  isDiagonalizable_=true;
+  for (i=0; i<size_ && isDiagonalizable_; i++)
+    if (abs(iEigenValues_[i])> NumConstants::SMALL)
+      isDiagonalizable_=false;  
 }
 
 
@@ -370,7 +370,7 @@ YpR_Sym::YpR_Sym(const YpR_Sym& ypr) : AbstractParameterAliasable(ypr), YpR(ypr,
 
 std::string YpR_Sym::getName() const
 {
-  return "YpR_Sym " + _pmodel->getName();
+  return "YpR_Sym(model=" + _pmodel->getName()+")";
 }
 
 
@@ -421,7 +421,7 @@ YpR_Gen::YpR_Gen(const YpR_Gen& ypr) : AbstractParameterAliasable(ypr), YpR(ypr,
 
 std::string YpR_Gen::getName() const
 {
-  return "YpR_Gen " + _pmodel->getName();
+  return "YpR_Gen(model=" + _pmodel->getName()+")";
 }
 
 

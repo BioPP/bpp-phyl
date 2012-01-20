@@ -192,7 +192,7 @@ AbstractWordSubstitutionModel& AbstractWordSubstitutionModel::operator=(
   AbstractSubstitutionModel::operator=(model);
   new_alphabet_  = model.new_alphabet_;
   VnestedPrefix_ = model.VnestedPrefix_;
-  Vrate_          = model.Vrate_;
+  Vrate_         = model.Vrate_;
 
   unsigned int i;
   unsigned int num = model.VSubMod_.size();
@@ -335,6 +335,20 @@ void AbstractWordSubstitutionModel::updateMatrices()
 
   completeMatrices();
 
+  unsigned int i, j;
+  double x;
+
+  for (i = 0; i < salph; i++)
+    {
+      x = 0;
+      for (j = 0; j < salph; j++)
+        {
+          if (j != i)
+            x += generator_(i, j);
+        }
+      generator_(i, i) = -x;
+    }
+
   // at that point generator_ and freq_ are done for models without
   // enableEigenDecomposition
 
@@ -342,22 +356,6 @@ void AbstractWordSubstitutionModel::updateMatrices()
 
   if (enableEigenDecomposition())
   {
-    unsigned int i, j;
-    double x;
-
-    //    unsigned int nbStop;
-
-    for (i = 0; i < salph; i++)
-    {
-      x = 0;
-      for (j = 0; j < salph; j++)
-      {
-        if (j != i)
-          x += generator_(i, j);
-      }
-      generator_(i, i) = -x;
-    }
-
     //02/03/10 Julien: this should be avoided, we have to find a way to avoid particular cases like this...
 
     const CodonAlphabet* pca = dynamic_cast<const CodonAlphabet*>(getAlphabet());
@@ -499,8 +497,12 @@ void AbstractWordSubstitutionModel::updateMatrices()
 
     for (i = 0; i < salph; i++)
       eigenValues_[i] /= -x;
-  }
 
+    isDiagonalizable_=true;
+    for (i=0; i<size_ && isDiagonalizable_; i++)
+      if (abs(iEigenValues_[i])> NumConstants::SMALL)
+        isDiagonalizable_=false;  
+  }
 }
 
 void AbstractWordSubstitutionModel::setFreq(std::map<int, double>& freqs)
