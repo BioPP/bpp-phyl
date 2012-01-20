@@ -84,16 +84,17 @@ AbstractSubstitutionModel::AbstractSubstitutionModel(const Alphabet* alpha, cons
 void AbstractSubstitutionModel::updateMatrices()
 {
   // Compute eigen values and vectors:
-  EigenValue<double> ev(generator_);
-  rightEigenVectors_ = ev.getV();
-  MatrixTools::inv(rightEigenVectors_, leftEigenVectors_);
-  eigenValues_ = ev.getRealEigenValues();
-  iEigenValues_ = ev.getImagEigenValues();
-  isDiagonalizable_=true;
-  for (unsigned int i=0;i<size_ && isDiagonalizable_;i++)
-    if (abs(iEigenValues_[i])> NumConstants::SMALL)
-      isDiagonalizable_=false;
-    
+  if (enableEigenDecomposition()){
+    EigenValue<double> ev(generator_);
+    rightEigenVectors_ = ev.getV();
+    MatrixTools::inv(rightEigenVectors_, leftEigenVectors_);
+    eigenValues_ = ev.getRealEigenValues();
+    iEigenValues_ = ev.getImagEigenValues();
+    isDiagonalizable_=true;
+    for (unsigned int i=0;i<size_ && isDiagonalizable_;i++)
+      if (abs(iEigenValues_[i])> NumConstants::SMALL)
+        isDiagonalizable_=false;
+  }
 }
 
 /******************************************************************************/
