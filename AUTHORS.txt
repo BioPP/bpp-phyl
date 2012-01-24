@@ -1,10 +1,10 @@
 Julien Dutheil     <julien.dutheil@univ-montp2.fr>
 Vincent Ranwez     <ranwez@univ-montp2.fr>
 Nicolas Galtier    <galtier@univ-montp2.fr>
-Bastien Boussau    <boussau@biomserv.univ-lyon1.fr>
+Bastien Boussau    <bastien.boussau@univ-lyon1.fr>
 Céline Scornavacca <celine.scornavacca@lirmm.fr>
-Laurent Guéguen    <gueguen@biomserv.univ-lyon1.fr>
-Nicolas Rochette   <rochette@biomserv.univ-lyon1.fr>
+Laurent Guéguen    <laurent.gueguen@univ-lyon1.fr>
+Nicolas Rochette   <nicolas.rochette@univ-lyon1.fr>
 
 Contributed code to Bio++ was enabled thanks to the following institutions and resources:
 
