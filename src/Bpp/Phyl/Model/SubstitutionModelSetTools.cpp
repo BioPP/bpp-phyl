@@ -54,7 +54,9 @@ SubstitutionModelSet* SubstitutionModelSetTools::createHomogeneousModelSet(
   //Check alphabet:
   if(model->getAlphabet()->getAlphabetType() != rootFreqs->getAlphabet()->getAlphabetType())
     throw AlphabetMismatchException("SubstitutionModelSetTools::createHomogeneousModelSet()", model->getAlphabet(), rootFreqs->getAlphabet());
-
+  if (dynamic_cast<MixedSubstitutionModel*>(model)!=NULL)
+    throw Exception("createHomogeneousModelSet non yet programmed for mixture models.");
+  
   SubstitutionModelSet*  modelSet = new SubstitutionModelSet(model->getAlphabet());
 
   modelSet->setRootFrequencies(rootFreqs);
@@ -123,8 +125,16 @@ SubstitutionModelSet* SubstitutionModelSetTools::createNonHomogeneousModelSet(
 
   bool mixed=(dynamic_cast<MixedSubstitutionModel*>(model)!=NULL);
   SubstitutionModelSet*  modelSet;
-  if (mixed)
+  if (mixed){
     modelSet = new MixedSubstitutionModelSet(model->getAlphabet());
+    // Remove the "relproba" parameters from the branch parameters and put them in the global parameters, for the hypernodes
+    for (i=branchParameters.size(); i>0; i--){
+      if (branchParameters[i-1].getName().find("relproba")!=string::npos){
+        globalParameters.addParameter(branchParameters[i - 1]);
+        branchParameters.deleteParameter(i - 1);
+      }
+    }
+  }
   else
     modelSet = new SubstitutionModelSet(model->getAlphabet());
     
