@@ -341,10 +341,11 @@ RNonHomogeneousMixedTreeLikelihood::~RNonHomogeneousMixedTreeLikelihood()
       (it2->second)[i]->setProbability((dynamic_cast<MixedSubstitutionModelSet*>(modelSet_))->getHyperNodeProbability((it2->second)[i]->getHyperNode()));
     
 
-  if (main_)
+  if (main_){
     for (unsigned int i=0;i< mvTreeLikelihoods_[upperNode_].size(); i++)
       mvTreeLikelihoods_[upperNode_][i]->fireParameterChanged(params);
-  
+    rootFreqs_ = modelSet_->getRootFrequencies();
+  }
   else {
     
     if (params.getCommonParametersWith(rateDistribution_->getIndependentParameters()).size() > 0)
@@ -388,9 +389,8 @@ RNonHomogeneousMixedTreeLikelihood::~RNonHomogeneousMixedTreeLikelihood()
           {
             computeTransitionProbabilitiesForNode(nodes[i]);
           }
-        rootFreqs_ = modelSet_->getRootFrequencies();
       }
-    
+
     map<int, vector<RNonHomogeneousMixedTreeLikelihood*> >::iterator it;
     for (it = mvTreeLikelihoods_.begin(); it != mvTreeLikelihoods_.end(); it++)
       {
