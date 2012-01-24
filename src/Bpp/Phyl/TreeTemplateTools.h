@@ -497,11 +497,51 @@ class TreeTemplateTools
     template<class N>
     static void searchNodeWithId(N& node, int id, std::vector<N*>& nodes)
     {
-      for (unsigned int i = 0; i < node.getNumberOfSons(); i++)
+      for (unsigned int i = 0; i < node.getNumberOfSons(); ++i)
       {
         searchNodeWithId<N>(*node.getSon(i), id, nodes);
       }
       if (node.getId() == id) nodes.push_back(&node);
+    }
+
+    /**
+     * @param node  The node defining the subtree to be searched.
+     * @param id    The id to search for.
+     * @return The first node encountered with the given id, or 0 if no node with the given id is found.
+     */
+    static Node* searchFirstNodeWithId(Node& node, int id)
+    {
+      if (node.getId() == id) 
+        return &node;
+      else {
+        for (unsigned int i = 0; i < node.getNumberOfSons(); ++i)
+        {
+          Node* result = searchFirstNodeWithId(*node.getSon(i), id);
+          if (result)
+            return result;
+        }
+      }
+      return 0;
+    }
+
+    /**
+     * @param node  The node defining the subtree to be searched.
+     * @param id    The id to search for.
+     * @return The first node encountered with the given id, or 0 if no node with the given id is found.
+     */
+    static const Node* searchFirstNodeWithId(const Node& node, int id)
+    {
+      if (node.getId() == id) 
+        return &node;
+      else {
+        for (unsigned int i = 0; i < node.getNumberOfSons(); ++i)
+        {
+          const Node* result = searchFirstNodeWithId(*node.getSon(i), id);
+          if (result)
+            return result;
+        }
+      }
+      return 0;
     }
 
     /**
