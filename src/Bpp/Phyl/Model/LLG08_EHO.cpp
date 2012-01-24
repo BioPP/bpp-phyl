@@ -108,9 +108,9 @@ LLG08_EHO::~LLG08_EHO()
 /**************** sub model classes *///////////
 
 LLG08_EHO::EmbeddedModel::EmbeddedModel(const ProteicAlphabet* alpha, string name) :
-  AbstractParameterAliasable(""),
-  AbstractSubstitutionModel(alpha, ""),
-  AbstractReversibleSubstitutionModel(alpha, ""),
+  AbstractParameterAliasable(name),
+  AbstractSubstitutionModel(alpha, name),
+  AbstractReversibleSubstitutionModel(alpha, name),
   proportion_(1), name_(name)
 {
 #include "__LLG08_EHOExchangeabilityCode"
