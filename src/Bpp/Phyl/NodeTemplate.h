@@ -6,9 +6,7 @@
 //
 
 /*
-Copyright or © or Copr. Julien Dutheil, (November 16, 2004)
-
-Julien.Dutheil@univ-montp2.fr
+Copyright or © or Copr. Bio++ Development Team, (November 16, 2004)
 
 This software is a computer program whose purpose is to provide classes
 for phylogenetic data analysis.

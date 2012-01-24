@@ -15,6 +15,7 @@ Contributed code to Bio++ was enabled thanks to the following institutions and r
 2007 - 2010 Bioinformatics Research Center, University of Aarhus (Julien Dutheil).
             Funded by European research Area on Plant Genomics (ERA-PG) ARelatives.
 2010 -      ISE-M UMR CNRS 5554 Université Montpellier 2 (Julien Dutheil)
+2011 -      Max Planck Institute for Terrestrial Microbiology (Julien Dutheil)
 2007 -      Genetics and Horticulture UMR INRA 1259 Angers-Nantes INRA Center (Sylvain Gaillard)
 2008 - 2009 Laboratoire BBE - UMR CNRS 5558 Université Lyon 1 (Bastien Boussau)
 2009 - 2010 Berkeley University (Bastien Boussau)

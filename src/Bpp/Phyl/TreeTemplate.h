@@ -416,22 +416,38 @@ public:
 
   virtual std::vector<N*> getInnerNodes() { return TreeTemplateTools::getInnerNodes(*root_); }
 
-  virtual N* getNode(int id) throw (NodeNotFoundException, Exception)
+  virtual N* getNode(int id, bool checkId = false) throw (NodeNotFoundException, Exception)
   {
-    std::vector<N*> nodes;
-    TreeTemplateTools::searchNodeWithId<N>(*root_, id, nodes);
-    if (nodes.size() > 1) throw Exception("TreeTemplate::getNode(): Non-unique id! (" + TextTools::toString(id) + ").");
-    if (nodes.size() == 0) throw NodeNotFoundException("TreeTemplate::getNode(): Node with id not found.", TextTools::toString(id));
-    return nodes[0];
+    if (checkId) {
+      std::vector<N*> nodes;
+      TreeTemplateTools::searchNodeWithId<N>(*root_, id, nodes);
+      if (nodes.size() > 1) throw Exception("TreeTemplate::getNode(): Non-unique id! (" + TextTools::toString(id) + ").");
+      if (nodes.size() == 0) throw NodeNotFoundException("TreeTemplate::getNode(): Node with id not found.", TextTools::toString(id));
+      return nodes[0];
+    } else {
+      N* node = dynamic_cast<N*>(TreeTemplateTools::searchFirstNodeWithId(*root_, id));
+      if (node)
+        return node;
+      else
+        throw NodeNotFoundException("TreeTemplate::getNode(): Node with id not found.", TextTools::toString(id));
+    }
   }
 
-  virtual const N* getNode(int id) const throw (NodeNotFoundException, Exception)
+  virtual const N* getNode(int id, bool checkId = false) const throw (NodeNotFoundException, Exception)
   {
-    std::vector<const N*> nodes;
-    TreeTemplateTools::searchNodeWithId<const N>(*root_, id, nodes);
-    if (nodes.size() > 1) throw Exception("TreeTemplate::getNode(): Non-unique id! (" + TextTools::toString(id) + ").");
-    if (nodes.size() == 0) throw NodeNotFoundException("TreeTemplate::getNode(): Node with id not found.", TextTools::toString(id));
-    return nodes[0];
+    if (checkId) {
+      std::vector<const N*> nodes;
+      TreeTemplateTools::searchNodeWithId<const N>(*root_, id, nodes);
+      if (nodes.size() > 1) throw Exception("TreeTemplate::getNode(): Non-unique id! (" + TextTools::toString(id) + ").");
+      if (nodes.size() == 0) throw NodeNotFoundException("TreeTemplate::getNode(): Node with id not found.", TextTools::toString(id));
+      return nodes[0];
+    } else {
+      const N* node = dynamic_cast<const N*>(TreeTemplateTools::searchFirstNodeWithId(*root_, id));
+      if (node)
+        return node;
+      else
+        throw NodeNotFoundException("TreeTemplate::getNode(): Node with id not found.", TextTools::toString(id));
+    }
   }
 
   virtual N* getNode(const std::string& name) throw (NodeNotFoundException, Exception)
