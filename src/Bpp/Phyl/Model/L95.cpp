@@ -59,11 +59,12 @@ L95::L95(
     AbstractParameterAliasable("L95."),
     AbstractSubstitutionModel(alphabet, "L95."), alpha_(alpha), beta_(beta), gamma_(gamma), kappa_(kappa), theta_(theta)
 {
-  addParameter_(Parameter("L95.alpha" , alpha , &Parameter::PROP_CONSTRAINT_EX));
-  addParameter_(Parameter("L95.beta" , beta , &Parameter::PROP_CONSTRAINT_EX));
-  addParameter_(Parameter("L95.gamma" , gamma , &Parameter::PROP_CONSTRAINT_EX));
-  addParameter_(Parameter("L95.kappa" , kappa , &Parameter::R_PLUS_STAR));
-  addParameter_(Parameter("L95.theta" , theta , &FrequenciesSet::FREQUENCE_CONSTRAINT));
+
+  addParameter_(Parameter("L95.alpha" , alpha , &Parameter::PROP_CONSTRAINT_IN));
+  addParameter_(Parameter("L95.beta" , beta , &Parameter::PROP_CONSTRAINT_IN));
+  addParameter_(Parameter("L95.gamma" , gamma , &Parameter::PROP_CONSTRAINT_IN));
+  addParameter_(Parameter("L95.kappa" , kappa , new ExcludingPositiveReal(0,NumConstants::MILLI), true));
+  addParameter_(Parameter("L95.theta" , theta , new ExcludingInterval(0,1,NumConstants::MILLI), true));
 
   updateMatrices();
 }
