@@ -47,6 +47,8 @@
 #include <Bpp/Seq/Alphabet/AlphabetTools.h>
 #include <Bpp/Seq/Container/SequenceContainerTools.h>
 
+#include <Bpp/App/ApplicationTools.h>
+
 using namespace bpp;
 
 // From the STL:
@@ -392,9 +394,7 @@ void AbstractWordSubstitutionModel::updateMatrices()
       iEigenValues_ = ev.getImagEigenValues();
 
       for (i = 0; i < nbStop; i++)
-      {
         eigenValues_.push_back(0);
-      }
 
       RowMatrix<double> rev = ev.getV();
       rightEigenVectors_.resize(salph, salph);
@@ -405,21 +405,17 @@ void AbstractWordSubstitutionModel::updateMatrices()
         {
           gi++;
           for (j = 0; j < salph; j++)
-          {
             rightEigenVectors_(i,j) = 0;
-          }
+
           rightEigenVectors_(i,salph - nbStop + gi - 1) = 1;
         }
         else
         {
           for (j = 0; j < salph - nbStop; j++)
-          {
             rightEigenVectors_(i, j) = rev(i - gi,j);
-          }
+
           for (j = salph - nbStop; j < salph; j++)
-          {
             rightEigenVectors_(i,j) = 0;
-          }
         }
       }
     }
@@ -436,19 +432,19 @@ void AbstractWordSubstitutionModel::updateMatrices()
 
     // looking for the 0 eigenvector for which the non-stop right
     // eigen vector elements are equal.
+    //
+    // there is a tolerance for numerical problems
+    //
     
-    // There is a threshold value in case of approximations
-
-    double seuil=0.00000001;
-    bool flag=true;
     unsigned int nulleigen;
-    while(flag){
-      seuil*=10;
+    double val;
+    double seuil=1;
+    
+    bool flag=true;
+    while (flag){
       nulleigen=0;
-      double val;
-
       while (nulleigen < salph-nbStop) {
-        if (abs(eigenValues_[nulleigen]) < 0.0000001 && abs(iEigenValues_[nulleigen]) < 0.0000001){
+        if ((abs(eigenValues_[nulleigen]) < NumConstants::SMALL) && (abs(iEigenValues_[nulleigen]) < NumConstants::SMALL)){
           i=0;
           while (pca && pca->isStop(i))
             i++;
@@ -457,12 +453,12 @@ void AbstractWordSubstitutionModel::updateMatrices()
           i++;
           while (i < salph){
             if (!(pca && pca->isStop(i))){
-              if (abs(rightEigenVectors_(i, nulleigen)-val)>seuil)
+              if (abs(rightEigenVectors_(i, nulleigen)-val)> seuil*NumConstants::SMALL)
                 break;
             }
             i++;
           }
-          
+        
           if (i<salph)
             nulleigen++;
           else {
@@ -473,7 +469,11 @@ void AbstractWordSubstitutionModel::updateMatrices()
         else
           nulleigen++;
       }
+      seuil*=10;
     }
+
+    if (seuil> 10000)
+      ApplicationTools::displayWarning("!!! Equilibrium frequency of the model " + getName() + " has a precision less than """  + TextTools::toString(seuil/100*NumConstants::SMALL) + ". There may be some computing issues.");
 
     eigenValues_[nulleigen]=0; // to avoid approximation errors on long long branches
   
