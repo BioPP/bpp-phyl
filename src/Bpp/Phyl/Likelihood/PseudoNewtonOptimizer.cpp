@@ -124,6 +124,8 @@ double PseudoNewtonOptimizer::doStep() throw (Exception)
     //DEBUG:
     //cout << "PN[" << i << "]=" << _parameters.getParameter(params_[i])->getValue() << "\t" << movements[i] << "\t " << firstOrderDerivative << "\t" << secondOrderDerivative << endl;
     newPoint[i].setValue(getParameters()[i].getValue() - movements[i]);
+    //Correct the movement in case of constraint (this is used in case of Felsenstein-Churchill correction:
+    movements[i] = getParameters()[i].getValue() - newPoint[i].getValue(); 
   }
   newValue = getFunction()->f(newPoint);
 
