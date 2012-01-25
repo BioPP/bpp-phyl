@@ -52,7 +52,7 @@ using namespace bpp;
 #include <cmath>
 using namespace std;
 
-ExcludingInterval FrequenciesSet::FREQUENCE_CONSTRAINT(0.000001, 0.999999);
+ExcludingInterval FrequenciesSet::FREQUENCE_CONSTRAINT(NumConstants::SMALL, 1-NumConstants::SMALL);
 
 // ///////////////////////////////////////
 // AbstractFrequenciesSet
