@@ -393,8 +393,10 @@ void AbstractWordSubstitutionModel::updateMatrices()
       eigenValues_ = ev.getRealEigenValues();
       iEigenValues_ = ev.getImagEigenValues();
 
-      for (i = 0; i < nbStop; i++)
+      for (i = 0; i < nbStop; i++) {
         eigenValues_.push_back(0);
+        iEigenValues_.push_back(0);
+      }
 
       RowMatrix<double> rev = ev.getV();
       rightEigenVectors_.resize(salph, salph);
@@ -500,7 +502,7 @@ void AbstractWordSubstitutionModel::updateMatrices()
 
     isDiagonalizable_=true;
     for (i=0; i<size_ && isDiagonalizable_; i++)
-      if (abs(iEigenValues_[i])> NumConstants::SMALL)
+      if (abs(iEigenValues_[i]) > NumConstants::SMALL)
         isDiagonalizable_=false;  
   }
 }
