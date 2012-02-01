@@ -160,6 +160,9 @@ double PseudoNewtonOptimizer::doStep() throw (Exception)
         //getFunction()->enableFirstOrderDerivatives(true);
         getFunction()->enableSecondOrderDerivatives(true);
         getFunction()->setParameters(newPoint); //Compute derivatives for this point
+        if (newValue > currentValue_) {
+          throw Exception("PseudoNewtonOptimizer::doStep. No minimum could be found at the specified precision. This could be a parametrization issue of the current model.");
+        }
       } else {
         printMessage("!!! Function at new point is greater than at current point: " + TextTools::toString(newValue) + ">" + TextTools::toString(currentValue_) + ". Applying Felsenstein-Churchill correction.");
         //if (getMessageHandler())
