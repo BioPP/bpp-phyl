@@ -122,7 +122,7 @@ double PseudoNewtonOptimizer::doStep() throw (Exception)
       movements[i] = 0; // Either first or second order derivative is infinity. This may happen when the function == inf at this point.
     }
     //DEBUG:
-    //cout << "PN[" << i << "]=" << _parameters.getParameter(params_[i])->getValue() << "\t" << movements[i] << "\t " << firstOrderDerivative << "\t" << secondOrderDerivative << endl;
+    //cerr << "PN[" << params_[i] << "]=" << getParameters().getParameter(params_[i]).getValue() << "\t" << movements[i] << "\t " << firstOrderDerivative << "\t" << secondOrderDerivative << endl;
     newPoint[i].setValue(getParameters()[i].getValue() - movements[i]);
     //Correct the movement in case of constraint (this is used in case of Felsenstein-Churchill correction:
     movements[i] = getParameters()[i].getValue() - newPoint[i].getValue(); 
@@ -130,16 +130,15 @@ double PseudoNewtonOptimizer::doStep() throw (Exception)
   newValue = getFunction()->f(newPoint);
 
   // Check newValue:
-  if (newValue > currentValue_) {
+  if (newValue > currentValue_ + getStopCondition()->getTolerance()) {
   
     unsigned int count = 0;
-    while (newValue > currentValue_)
+    while (newValue > currentValue_ + getStopCondition()->getTolerance())
     {
       //Restore previous point (all parameters in case of global constraint):
       if (updateParameters()) getFunction()->setParameters(*bckPoint);
 
-      count++;
-      if (count > maxCorrection_)
+      if (count == maxCorrection_)
       {
         printMessage("!!! Felsenstein-Churchill correction applied too much time. Use conjugate gradients optimization.");
         //Use one round of sequential optimization:
@@ -157,11 +156,11 @@ double PseudoNewtonOptimizer::doStep() throw (Exception)
         opt.optimize();
         newPoint = opt.getParameters();
         newValue = opt.getFunctionValue();
-        //getFunction()->enableFirstOrderDerivatives(true);
-        getFunction()->enableSecondOrderDerivatives(true);
-        getFunction()->setParameters(newPoint); //Compute derivatives for this point
       } else {
-        printMessage("!!! Function at new point is greater than at current point: " + TextTools::toString(newValue) + ">" + TextTools::toString(currentValue_) + ". Applying Felsenstein-Churchill correction.");
+        if (count == maxCorrection_+1)
+          printMessage("!!! Conjugate gradients optimization does not work. Back at Felsenstein-Churchill optimization.");
+        else
+          printMessage("!!! Function at new point is greater than at current point: " + TextTools::toString(newValue) + ">" + TextTools::toString(currentValue_) + ". Applying Felsenstein-Churchill correction.");
         //if (getMessageHandler())
         //  getParameters().printParameters(*getMessageHandler());
         for (unsigned int i = 0; i < movements.size(); i++)
@@ -171,9 +170,14 @@ double PseudoNewtonOptimizer::doStep() throw (Exception)
         }
         newValue = getFunction()->f(newPoint);
       }
+      count++;
     }
   }
-  
+
+  //getFunction()->enableFirstOrderDerivatives(true);
+  getFunction()->enableSecondOrderDerivatives(true);
+  getFunction()->setParameters(newPoint); //Compute derivatives for this point
+
   previousPoint_ = getParameters();
   previousValue_ = currentValue_;
   getParameters_() = newPoint;
