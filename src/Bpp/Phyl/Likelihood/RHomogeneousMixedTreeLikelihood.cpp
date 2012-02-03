@@ -162,10 +162,11 @@ void RHomogeneousMixedTreeLikelihood::setData(const SiteContainer& sites) throw 
 
 void RHomogeneousMixedTreeLikelihood::fireParameterChanged(const ParameterList& params)
 {
+  // checks in the model will change
+  bool modelC=model_->getParameters().testParametersValues(params);
+
   applyParameters();
-
   MixedSubstitutionModel* mixedmodel = dynamic_cast<MixedSubstitutionModel*>(model_);
-
   unsigned int s = mixedmodel->getNumberOfModels();
 
   const SubstitutionModel* pm;
@@ -173,12 +174,16 @@ void RHomogeneousMixedTreeLikelihood::fireParameterChanged(const ParameterList& 
   {
     ParameterList pl;
     pm = mixedmodel->getNModel(i);
-    pl.addParameters(pm->getParameters());
     pl.includeParameters(getParameters());
-    treeLikelihoodsContainer_[i]->matchParametersValues(pl);
-  }
-  probas_ = mixedmodel->getProbabilities();
+    pl.addParameters(pm->getParameters());
 
+    if (modelC)
+      treeLikelihoodsContainer_[i]->setParameters(pl);
+    else
+      treeLikelihoodsContainer_[i]->matchParametersValues(pl);
+  }
+  
+  probas_ = mixedmodel->getProbabilities();
   minusLogLik_ = -getLogLikelihood();
 }
 
