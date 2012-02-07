@@ -315,6 +315,10 @@ RNonHomogeneousMixedTreeLikelihood::~RNonHomogeneousMixedTreeLikelihood()
 {
   if (main_)
     initParameters();
+  else {
+    initBranchLengthsParameters();
+    addParameters_(brLenParameters_);
+  }
 
   map<int, vector<RNonHomogeneousMixedTreeLikelihood*> >::iterator it;
   for (it = mvTreeLikelihoods_.begin(); it != mvTreeLikelihoods_.end(); it++)
@@ -334,12 +338,35 @@ RNonHomogeneousMixedTreeLikelihood::~RNonHomogeneousMixedTreeLikelihood()
 {
   if (main_)
     applyParameters();
+  else {
+    for (unsigned int i = 0; i < nbNodes_; i++)
+      {
+        int id = nodes_[i]->getId();
+        if (reparametrizeRoot_ && id == root1_)
+          {
+            const Parameter* rootBrLen = &getParameter("BrLenRoot");
+            const Parameter* rootPos = &getParameter("RootPosition");
+            nodes_[i]->setDistanceToFather(rootBrLen->getValue() * rootPos->getValue());
+          }
+        else if (reparametrizeRoot_ && id == root2_)
+          {
+            const Parameter* rootBrLen = &getParameter("BrLenRoot");
+            const Parameter* rootPos = &getParameter("RootPosition");
+            nodes_[i]->setDistanceToFather(rootBrLen->getValue() * (1. - rootPos->getValue()));
+          }
+        else
+          {
+            const Parameter* brLen = &getParameter(string("BrLen") + TextTools::toString(i));
+            if (brLen) nodes_[i]->setDistanceToFather(brLen->getValue());
+          }
+      }
+  }
 
   map<int, vector<RNonHomogeneousMixedTreeLikelihood*> >::const_iterator it2;
   for (it2 = mvTreeLikelihoods_.begin(); it2 != mvTreeLikelihoods_.end(); it2++)
-    for (unsigned int i = 0; i < it2->second.size(); i++)
+    for (unsigned int i = 0; i < it2->second.size(); i++){
       (it2->second)[i]->setProbability((dynamic_cast<MixedSubstitutionModelSet*>(modelSet_))->getHyperNodeProbability((it2->second)[i]->getHyperNode()));
-    
+    }
 
   if (main_){
     for (unsigned int i=0;i< mvTreeLikelihoods_[upperNode_].size(); i++)
@@ -386,9 +413,7 @@ RNonHomogeneousMixedTreeLikelihood::~RNonHomogeneousMixedTreeLikelihood()
         nodes = VectorTools::vectorUnion(nodes, tmpv);
         
         for (unsigned int i = 0; i < nodes.size(); i++)
-          {
             computeTransitionProbabilitiesForNode(nodes[i]);
-          }
       }
 
     map<int, vector<RNonHomogeneousMixedTreeLikelihood*> >::iterator it;
@@ -500,7 +525,7 @@ void RNonHomogeneousMixedTreeLikelihood::computeSubtreeLikelihood(const Node* no
   // transition of a mixed model are taken.
 
   else
-    RNonHomogeneousTreeLikelihood::computeSubtreeLikelihood(node);
+    RNonHomogeneousTreeLikelihood::computeSubtreeLikelihood(node); 
 }
 
 /******************************************************************************
