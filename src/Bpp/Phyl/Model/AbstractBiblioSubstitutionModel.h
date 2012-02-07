@@ -1,4 +1,4 @@
- //
+//
 // File: AbstractBiblioSubstitutionModel.h
 // Created by: Laurent Guéguen
 // Created on: vendredi 8 juillet 2011, à 20h 17
@@ -53,7 +53,7 @@ namespace bpp
  *   only defined through a link to a "real" model.
  *
  */
-  
+
 class AbstractBiblioSubstitutionModel :
   public virtual SubstitutionModel,
   public AbstractParameterAliasable
@@ -65,36 +65,35 @@ protected:
    *
    */
 
-  std::map<std::string,std::string> mapParNamesFromPmodel_;
-  
+  std::map<std::string, std::string> mapParNamesFromPmodel_;
+
   ParameterList lParPmodel_;
-  
+
 public:
   AbstractBiblioSubstitutionModel(const std::string& prefix);
-  
+
   AbstractBiblioSubstitutionModel(const AbstractBiblioSubstitutionModel& model);
 
   AbstractBiblioSubstitutionModel& operator=(const AbstractBiblioSubstitutionModel& model);
-  
-  virtual ~AbstractBiblioSubstitutionModel() {};
+
+  virtual ~AbstractBiblioSubstitutionModel() {}
 
 #ifndef NO_VIRTUAL_COV
   virtual AbstractBiblioSubstitutionModel* clone() const = 0;
 #endif
 
 public:
-
   virtual const AbstractSubstitutionModel* getModel() const = 0;
 
   virtual AbstractSubstitutionModel* getModel() = 0;
 
 
   /*
-   *@ brief Methods to supersede SubstitutionModel methods.
+     *@ brief Methods to supersede SubstitutionModel methods.
    *
    * @{
    */
-  
+
   const std::vector<int>& getAlphabetChars() const { return getModel()->getAlphabetChars(); }
 
   int getAlphabetChar(unsigned int i) const { return getModel()->getAlphabetChar(i); }
@@ -105,7 +104,7 @@ public:
 
   virtual double Qij(unsigned int i, unsigned int j) const { return getModel()->Qij(i, j); }
 
-  virtual double Pij_t    (unsigned int i, unsigned int j, double t) const { return getModel()->Pij_t(i,j,t); }
+  virtual double Pij_t    (unsigned int i, unsigned int j, double t) const { return getModel()->Pij_t(i, j, t); }
   virtual double dPij_dt  (unsigned int i, unsigned int j, double t) const { return getModel()->dPij_dt (i, j, t); }
   virtual double d2Pij_dt2(unsigned int i, unsigned int j, double t) const { return getModel()->d2Pij_dt2(i, j, t); }
 
@@ -123,7 +122,7 @@ public:
 
   bool enableEigenDecomposition() { return getModel()->enableEigenDecomposition(); }
 
-  bool isDiagonalizable() const { return getModel()->isDiagonalizable();}
+  bool isDiagonalizable() const { return getModel()->isDiagonalizable(); }
 
   const Vdouble& getEigenValues() const { return getModel()->getEigenValues(); }
 
@@ -135,11 +134,11 @@ public:
   double getRate() const { return getModel()->getRate(); }
 
   void setRate(double rate) { return getModel()->setRate(rate); }
-  
+
   void addRateParameter();
 
   void setFreqFromData(const SequenceContainer& data, unsigned int pseudoCount = 0);
-  
+
   void setFreq(std::map<int, double>& frequ);
 
   const Alphabet* getAlphabet() const { return getModel()->getAlphabet(); }
@@ -152,9 +151,9 @@ public:
    * @}
    *
    */
-  
+
   /*
-   *@ brief Methods to supersede AbstractSubstitutionModel methods.
+     *@ brief Methods to supersede AbstractSubstitutionModel methods.
    *
    * @{
    */
@@ -164,31 +163,26 @@ public:
    *
    * This updates the matrices consequently.
    */
-
   virtual void fireParameterChanged(const ParameterList& parameters)
   {
     AbstractParameterAliasable::fireParameterChanged(parameters);
-    if (parameters.size()>1 || (parameters.size()==1 && parameters[0].getName()!=getNamespace()+"rate"))
+    if (parameters.size() > 1 || (parameters.size() == 1 && parameters[0].getName() != getNamespace() + "rate"))
       updateMatrices();
   }
 
 protected:
-
   virtual void updateMatrices();
 
 public:
+  double getScale() const { return getModel()->getScale(); }
 
-  double getScale() const { return getModel()->getScale();}
-
-  void setScale(double scale) { getModel()->setScale(scale);}
+  void setScale(double scale) { getModel()->setScale(scale); }
 
   /*
-   *@}
+     *@}
    */
-    
 };
+} // end of namespace bpp.
 
-} //end of namespace bpp.
-
-#endif  //_ABSTRACTBIBLIOSUBSTITUTIONMODEL_H_
+#endif  // _ABSTRACTBIBLIOSUBSTITUTIONMODEL_H_
 

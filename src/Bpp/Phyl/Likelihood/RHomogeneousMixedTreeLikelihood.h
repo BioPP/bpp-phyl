@@ -1,10 +1,10 @@
 //
 // File: RHomogeneousMixedTreeLikelihood.h
-// Created by: Davud Fournier, Laurent Gueguen
+// Created by: David Fournier, Laurent Gueguen
 //
 
 /*
-   Copyright or © or Copr. CNRS, (November 16, 2004)
+   Copyright or © or Copr. Bio++ Development Team, (November 16, 2004)
 
    This software is a computer program whose purpose is to provide classes
    for phylogenetic data analysis.
@@ -193,6 +193,17 @@ protected:
    * @param node The node at which likelihood values must be displayed.
    */
   virtual void displayLikelihood(const Node* node);
+
+  virtual void setMinimumBranchLength(double brlen) throw (Exception) {
+    RHomogeneousMixedTreeLikelihood::setMinimumBranchLength(brlen);
+    for (unsigned int i = 0; i < treeLikelihoodsContainer_.size(); ++i)
+      treeLikelihoodsContainer_[i]->setMinimumBranchLength(brlen);
+  }
+  virtual void setMaximumBranchLength(double brlen) throw (Exception) {
+    RHomogeneousMixedTreeLikelihood::setMaximumBranchLength(brlen);
+    for (unsigned int i = 0; i < treeLikelihoodsContainer_.size(); ++i)
+      treeLikelihoodsContainer_[i]->setMaximumBranchLength(brlen);
+  }
 };
 } // end of namespace bpp.
 

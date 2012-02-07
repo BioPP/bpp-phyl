@@ -5,36 +5,36 @@
 //
 
 /*
-Copyright or © or Copr. CNRS, (November 16, 2004)
-This software is a computer program whose purpose is to provide classes
-for phylogenetic data analysis.
+   Copyright or © or Copr. Bio++ Development Team, (November 16, 2004)
+   This software is a computer program whose purpose is to provide classes
+   for phylogenetic data analysis.
 
-This software is governed by the CeCILL  license under French law and
-abiding by the rules of distribution of free software.  You can  use, 
-modify and/ or redistribute the software under the terms of the CeCILL
-license as circulated by CEA, CNRS and INRIA at the following URL
-"http://www.cecill.info". 
+   This software is governed by the CeCILL  license under French law and
+   abiding by the rules of distribution of free software.  You can  use,
+   modify and/ or redistribute the software under the terms of the CeCILL
+   license as circulated by CEA, CNRS and INRIA at the following URL
+   "http://www.cecill.info".
 
-As a counterpart to the access to the source code and  rights to copy,
-modify and redistribute granted by the license, users are provided only
-with a limited warranty  and the software's author,  the holder of the
-economic rights,  and the successive licensors  have only  limited
-liability. 
+   As a counterpart to the access to the source code and  rights to copy,
+   modify and redistribute granted by the license, users are provided only
+   with a limited warranty  and the software's author,  the holder of the
+   economic rights,  and the successive licensors  have only  limited
+   liability.
 
-In this respect, the user's attention is drawn to the risks associated
-with loading,  using,  modifying and/or developing or reproducing the
-software by the user in light of its specific status of free software,
-that may mean  that it is complicated to manipulate,  and  that  also
-therefore means  that it is reserved for developers  and  experienced
-professionals having in-depth computer knowledge. Users are therefore
-encouraged to load and test the software's suitability as regards their
-requirements in conditions enabling the security of their systems and/or 
-data to be ensured and,  more generally, to use and operate it in the 
-same conditions as regards security. 
+   In this respect, the user's attention is drawn to the risks associated
+   with loading,  using,  modifying and/or developing or reproducing the
+   software by the user in light of its specific status of free software,
+   that may mean  that it is complicated to manipulate,  and  that  also
+   therefore means  that it is reserved for developers  and  experienced
+   professionals having in-depth computer knowledge. Users are therefore
+   encouraged to load and test the software's suitability as regards their
+   requirements in conditions enabling the security of their systems and/or
+   data to be ensured and,  more generally, to use and operate it in the
+   same conditions as regards security.
 
-The fact that you are presently reading this means that you have had
-knowledge of the CeCILL license and that you accept its terms.
-*/
+   The fact that you are presently reading this means that you have had
+   knowledge of the CeCILL license and that you accept its terms.
+ */
 
 #include "YNGKP_M1.h"
 #include "YN98.h"
@@ -52,72 +52,81 @@ using namespace std;
 YNGKP_M1::YNGKP_M1(const GeneticCode* gc, FrequenciesSet* codonFreqs) :
   AbstractBiblioMixedSubstitutionModel("YNGKP_M1."),
   pmixmodel_(0),
-  synfrom_(-1), synto_(-1)
+  synfrom_(-1),
+  synto_(-1)
 {
   // build the submodel
-  
+
   vector<double> v1, v2;
   v1.push_back(0.5); v1.push_back(1);
-  v2.push_back(0.5);v2.push_back(0.5);
+  v2.push_back(0.5); v2.push_back(0.5);
 
-  SimpleDiscreteDistribution* psdd=new SimpleDiscreteDistribution(v1,v2);
+  SimpleDiscreteDistribution* psdd = new SimpleDiscreteDistribution(v1, v2);
 
   map<string, DiscreteDistribution*> mpdd;
-  mpdd["omega"]=psdd;
+  mpdd["omega"] = psdd;
 
-  pmixmodel_= new MixtureOfASubstitutionModel(gc->getSourceAlphabet(),
-                                              new YN98(gc, codonFreqs),
-                                              mpdd);
+  pmixmodel_ = new MixtureOfASubstitutionModel(gc->getSourceAlphabet(),
+                                               new YN98(gc, codonFreqs),
+                                               mpdd);
   delete psdd;
 
   // map the parameters
 
   lParPmodel_.addParameters(pmixmodel_->getParameters());
 
-  vector<std::string> v=dynamic_cast<YN98*>(pmixmodel_->getNModel(0))->getFreq().getParameters().getParameterNames();
+  vector<std::string> v = dynamic_cast<YN98*>(pmixmodel_->getNModel(0))->getFreq().getParameters().getParameterNames();
 
-  for (unsigned int i=0;i<v.size();i++)
-    mapParNamesFromPmodel_[v[i]]=v[i].substr(5);
+  for (unsigned int i = 0; i < v.size(); i++)
+  {
+    mapParNamesFromPmodel_[v[i]] = v[i].substr(5);
+  }
 
-  mapParNamesFromPmodel_["YN98.kappa"]="kappa";
-  mapParNamesFromPmodel_["YN98.omega_Simple.V1"]="omega";
-  mapParNamesFromPmodel_["YN98.omega_Simple.theta1"]="p0";
+  mapParNamesFromPmodel_["YN98.kappa"] = "kappa";
+  mapParNamesFromPmodel_["YN98.omega_Simple.V1"] = "omega";
+  mapParNamesFromPmodel_["YN98.omega_Simple.theta1"] = "p0";
 
   // specific parameters
-  
+
   string st;
-  for (map<string,string>::iterator it=mapParNamesFromPmodel_.begin(); it!= mapParNamesFromPmodel_.end(); it++){
-    st=pmixmodel_->getParameterNameWithoutNamespace(it->first);
-    if (st!="YN98.omega_Simple.V1"){
-      addParameter_(Parameter("YNGKP_M1."+it->second, pmixmodel_->getParameterValue(st),
-                              pmixmodel_->getParameter(st).hasConstraint()? pmixmodel_->getParameter(st).getConstraint()->clone():0,true));
+  for (map<string, string>::iterator it = mapParNamesFromPmodel_.begin(); it != mapParNamesFromPmodel_.end(); it++)
+  {
+    st = pmixmodel_->getParameterNameWithoutNamespace(it->first);
+    if (st != "YN98.omega_Simple.V1")
+    {
+      addParameter_(Parameter("YNGKP_M1." + it->second, pmixmodel_->getParameterValue(st),
+                              pmixmodel_->getParameter(st).hasConstraint() ? pmixmodel_->getParameter(st).getConstraint()->clone() : 0, true));
     }
   }
 
   addParameter_(Parameter("YNGKP_M1.omega", 0.5, new IncludingExcludingInterval(NumConstants::SMALL, 1), true));
 
   // look for synonymous codons
-  for (synfrom_=1;synfrom_<(int)gc->getSourceAlphabet()->getSize();synfrom_++){
-    for (synto_=0;synto_<synfrom_;synto_++)
-      if ((gc->areSynonymous(synfrom_,synto_))
-          && (pmixmodel_->getNModel(0)->Qij(synfrom_,synto_)!=0) 
-          && (pmixmodel_->getNModel(1)->Qij(synfrom_,synto_)!=0))
+  for (synfrom_ = 1; synfrom_ < (int)gc->getSourceAlphabet()->getSize(); synfrom_++)
+  {
+    for (synto_ = 0; synto_ < synfrom_; synto_++)
+    {
+      if ((gc->areSynonymous(synfrom_, synto_))
+          && (pmixmodel_->getNModel(0)->Qij(synfrom_, synto_) != 0)
+          && (pmixmodel_->getNModel(1)->Qij(synfrom_, synto_) != 0))
         break;
-    if (synto_<synfrom_)
+    }
+    if (synto_ < synfrom_)
       break;
   }
 
-  if (synto_==(int)gc->getSourceAlphabet()->getSize())
+  if (synto_ == (int)gc->getSourceAlphabet()->getSize())
     throw Exception("Impossible to find synonymous codons");
-  
+
   // update matrice
 
   updateMatrices();
 }
 
 YNGKP_M1::YNGKP_M1(const YNGKP_M1& mod2) : AbstractBiblioMixedSubstitutionModel(mod2),
-                                           pmixmodel_(new MixtureOfASubstitutionModel(*mod2.pmixmodel_)),
-                                           synfrom_(mod2.synfrom_), synto_(mod2.synto_)
+  pmixmodel_(new MixtureOfASubstitutionModel(*mod2.pmixmodel_)),
+  synfrom_(mod2.synfrom_),
+  synto_(mod2.synto_)
 {}
 
 YNGKP_M1& YNGKP_M1::operator=(const YNGKP_M1& mod2)
@@ -126,10 +135,10 @@ YNGKP_M1& YNGKP_M1::operator=(const YNGKP_M1& mod2)
 
   if (pmixmodel_)
     delete pmixmodel_;
-  pmixmodel_=new MixtureOfASubstitutionModel(*mod2.pmixmodel_);
-  synfrom_=mod2.synfrom_;
-  synto_=mod2.synto_;
-  
+  pmixmodel_ = new MixtureOfASubstitutionModel(*mod2.pmixmodel_);
+  synfrom_ = mod2.synfrom_;
+  synto_ = mod2.synto_;
+
   return *this;
 }
 
@@ -142,13 +151,13 @@ YNGKP_M1::~YNGKP_M1()
 void YNGKP_M1::updateMatrices()
 {
   AbstractBiblioSubstitutionModel::updateMatrices();
-  
+
   // homogeneization of the synonymous substitution rates
 
   Vdouble vd;
 
-  vd.push_back(1/pmixmodel_->getNModel(0)->Qij(synfrom_,synto_));
-  vd.push_back(1/pmixmodel_->getNModel(1)->Qij(synfrom_,synto_));
+  vd.push_back(1. / pmixmodel_->getNModel(0)->Qij(synfrom_, synto_));
+  vd.push_back(1. / pmixmodel_->getNModel(1)->Qij(synfrom_, synto_));
 
   pmixmodel_->setVRates(vd);
 }
