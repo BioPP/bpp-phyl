@@ -5,7 +5,7 @@
 //
 
 /*
-Copyright or © or Copr. CNRS, (November 16, 2004)
+Copyright or © or Copr. Bio++ Development Team, (November 16, 2004)
 This software is a computer program whose purpose is to provide classes
 for phylogenetic data analysis.
 
@@ -67,9 +67,9 @@ Vint AbstractBiblioMixedSubstitutionModel::getSubmodelNumbers(std::string& desc)
   while (st.hasMoreToken()) {
     string param = st.nextToken();
 
-    desc2+=getParameterNameWithoutNamespace(param);
+    desc2 += getParameterNameWithoutNamespace(param);
     if (st.hasMoreToken())
-      desc2+=",";
+      desc2 += ",";
   }
 
   return getMixedModel()->getSubmodelNumbers(desc2);

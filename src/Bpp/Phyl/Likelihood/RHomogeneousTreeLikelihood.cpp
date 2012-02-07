@@ -273,7 +273,7 @@ void RHomogeneousTreeLikelihood::fireParameterChanged(const ParameterList& param
       if (s.substr(0, 5) == "BrLen")
       {
         //Branch length parameter:
-        computeTransitionProbabilitiesForNode(nodes_[TextTools::to < unsigned int > (s.substr(5))]);
+        computeTransitionProbabilitiesForNode(nodes_[TextTools::to<unsigned int>(s.substr(5))]);
       }
     }
     rootFreqs_ = model_->getFrequencies();

@@ -67,8 +67,8 @@ AbstractBiblioSubstitutionModel& AbstractBiblioSubstitutionModel::operator=(cons
 
 void AbstractBiblioSubstitutionModel::updateMatrices()
 {
-  for (unsigned int i=0;i<lParPmodel_.size();i++){
-    if (mapParNamesFromPmodel_.find(lParPmodel_[i].getName())!=mapParNamesFromPmodel_.end())
+  for (unsigned int i = 0; i < lParPmodel_.size(); i++) {
+    if (mapParNamesFromPmodel_.find(lParPmodel_[i].getName()) != mapParNamesFromPmodel_.end())
       lParPmodel_[i].setValue(getParameter(getParameterNameWithoutNamespace(mapParNamesFromPmodel_[lParPmodel_[i].getName()])).getValue());
   }
 

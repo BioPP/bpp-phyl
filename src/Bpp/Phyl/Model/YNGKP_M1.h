@@ -5,7 +5,7 @@
 //
 
 /*
-Copyright or © or Copr. CNRS, (November 16, 2004)
+Copyright or © or Copr. Bio++ Development Team, (November 16, 2004)
 
 This software is a computer program whose purpose is to provide classes
 for phylogenetic data analysis.
@@ -94,7 +94,7 @@ private:
 public:
   YNGKP_M1(const GeneticCode* gc, FrequenciesSet* codonFreqs);
 
-  ~YNGKP_M1();
+  virtual ~YNGKP_M1();
   
   YNGKP_M1* clone() const { return new YNGKP_M1(*this); }
 
