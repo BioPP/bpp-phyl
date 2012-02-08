@@ -191,6 +191,7 @@ TreeTemplateTools::Element TreeTemplateTools::getElement(const string& elt) thro
   Element element;
   element.length    = ""; // default
   element.bootstrap = ""; // default
+  element.isLeaf    = false; // default
 
   unsigned int colonIndex;
   bool hasColon = false;
@@ -223,6 +224,7 @@ TreeTemplateTools::Element TreeTemplateTools::getElement(const string& elt) thro
     {
       // This is a leaf:
       element.content = elt2;
+      element.isLeaf = true;
     }
     else
     {
@@ -250,7 +252,7 @@ TreeTemplateTools::Element TreeTemplateTools::getElement(const string& elt) thro
 
 Node* TreeTemplateTools::parenthesisToNode(const string& description, bool bootstrap, const string& propertyName, bool withId)
 {
-  // cout << "NODE: " << description << endl;
+  //cout << "NODE: " << description << endl;
   Element elt = getElement(description);
 
   // New node:
@@ -287,10 +289,9 @@ Node* TreeTemplateTools::parenthesisToNode(const string& description, bool boots
     elements.push_back(nt.nextToken());
   }
 
-  if (elements.size() == 1)
+  if (elt.isLeaf)
   {
-    // This is a leaf:
-    // cout << "NODE: LEAF: " << elements[0] << endl;
+    //This is a leaf:
     string name = TextTools::removeSurroundingWhiteSpaces(elements[0]);
     if (withId)
     {
@@ -355,26 +356,34 @@ TreeTemplate<Node>* TreeTemplateTools::parenthesisToTree(const string& descripti
 
   if (elements.size() == 1)
   {
-    // This is a leaf:
-    if (withId)
-    {
-      StringTokenizer st(elements[0], "_", true, true);
-      ostringstream realName;
-      for (int i = 0; i < (int)st.numberOfRemainingTokens() - 1; i++)
+    // This is a single node:
+    //cout << "IN TREE, NODE: SINGLE: " << elements[0] << endl;
+    if (*elements[0].begin() == '(') {
+      //This is a single node:
+      //cout << "creating single node" << endl;
+      Node* son = parenthesisToNode(elements[0], bootstrap, propertyName, withId);
+      node->addSon(son);
+    } else {
+      //This is a leaf:
+      if (withId)
       {
-        if (i != 0)
+        StringTokenizer st(elements[0], "_", true, true);
+        ostringstream realName;
+        for (int i = 0; i < static_cast<int>(st.numberOfRemainingTokens()) - 1; i++)
         {
-          realName << "_";
+          if (i != 0)
+          {
+            realName << "_";
+          }
+          realName << st.getToken(i);
         }
-        realName << st.getToken(i);
+        node->setName(realName.str());
+        node->setId(TextTools::toInt(st.getToken(1)));
       }
-      node->setName(realName.str());
-      node->setName(realName.str());
-      node->setId(TextTools::toInt(st.getToken(1)));
-    }
-    else
-    {
-      node->setName(elements[0]);
+      else
+      {
+        node->setName(elements[0]);
+      }
     }
   }
   else

@@ -52,7 +52,7 @@ int main() {
   vector<string> leaves(100);
   for (size_t i = 0; i < leaves.size(); ++i)
     leaves[i] = "leaf" + TextTools::toString(i);
-  
+ /* 
   for (unsigned int j = 0; j < 1000; ++j) {
     //Generate a random tree, without branch lengths:
     TreeTemplate<Node>* tree = TreeTemplateTools::getRandomTree(leaves, true);
@@ -76,7 +76,7 @@ int main() {
     delete tree;
     delete tree2;
     delete tree3;
-  }
+  }*/
 
   //Try to parse a string:
   TreeTemplate<Node>* tree4 = TreeTemplateTools::parenthesisToTree("((A:1,B:2):3,C:4);");
@@ -125,7 +125,7 @@ int main() {
     return 1;
   cout << "Newick I/O ok." << endl;
 
-  //Multiple trees:
+/*  //Multiple trees:
   vector<Tree *> trees;
   for (unsigned int i = 0; i < 100; ++i) {
     trees.push_back(TreeTemplateTools::getRandomTree(leaves, true));
@@ -147,7 +147,7 @@ int main() {
   for (unsigned int i = 0; i < 100; ++i) {
     delete trees[i];
     delete trees2[i];
-  }
+  }*/
 
   //Try newick read on non-file:
   cout << "Testing parsing a directory..." << endl;
@@ -175,6 +175,61 @@ int main() {
   } catch(Exception& ex) {
     cout << "Error, no exception should be thrown here!" << endl;
   }
+
+  //Now try some weird cases, to see if we handle them properly:
+  //single node tree:
+  cout << "Testing a tree with a node of degree 2:" << endl;
+  TreeTemplate<Node>* weird1 = TreeTemplateTools::parenthesisToTree("((A:1):2.0,B);");
+  if (weird1->getNodes().size() != 4) {
+    cout << "Error, tree has " << weird1->getNodes().size() << " node(s) instead of 4!" << endl;
+    VectorTools::print(weird1->getLeavesNames());
+    return 1;
+  }
+  cout << TreeTemplateTools::treeToParenthesis(*weird1) << endl;
+  delete weird1;
+
+  cout << "Testing a tree with a node of degree 2, without branch length:" << endl;
+  TreeTemplate<Node>* weird2 = TreeTemplateTools::parenthesisToTree("((A),B);");
+  if (weird2->getNodes().size() != 4) {
+    cout << "Error, tree has " << weird2->getNodes().size() << " node(s) instead of 4!" << endl;
+    VectorTools::print(weird2->getLeavesNames());
+    return 1;
+  }
+  cout << TreeTemplateTools::treeToParenthesis(*weird2) << endl;
+  delete weird2;
+
+  cout << "Testing a tree with several single nodes:" << endl;
+  TreeTemplate<Node>* weird3 = TreeTemplateTools::parenthesisToTree("((((((A)):1)):3),B);");
+  if (weird3->getNodes().size() != 8) {
+    cout << "Error, tree has " << weird3->getNodes().size() << " node(s) instead of 8!" << endl;
+    VectorTools::print(weird3->getLeavesNames());
+    return 1;
+  }
+  cout << TreeTemplateTools::treeToParenthesis(*weird3) << endl;
+  delete weird3;
+
+  cout << "Testing a tree with a single leaf:" << endl;
+  TreeTemplate<Node>* weird4 = TreeTemplateTools::parenthesisToTree("(A:1.0);");
+  if (weird4->getNodes().size() != 1) {
+    cout << "Error, tree has " << weird4->getNodes().size() << " node(s) instead of 1!" << endl;
+    VectorTools::print(weird4->getLeavesNames());
+    return 1;
+  }
+  cout << TreeTemplateTools::treeToParenthesis(*weird4) << endl;
+  delete weird4;
+
+  cout << "Testing a tree with a single node:" << endl;
+  TreeTemplate<Node>* weird5 = TreeTemplateTools::parenthesisToTree("((A:1.0));");
+  if (weird5->getNodes().size() != 3) {
+    cout << "Error, tree has " << weird5->getNodes().size() << " node(s) instead of 3!" << endl;
+    VectorTools::print(weird5->getLeavesNames());
+    return 1;
+  }
+  cout << TreeTemplateTools::treeToParenthesis(*weird5) << endl;
+  delete weird5;
+
+
+
 
   return 0;
 }

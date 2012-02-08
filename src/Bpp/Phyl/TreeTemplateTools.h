@@ -935,9 +935,10 @@ class TreeTemplateTools
         std::string content;
         std::string length;
         std::string bootstrap;
+        bool isLeaf;
 
       public:
-        Element() : content(), length(), bootstrap() {}
+        Element() : content(), length(), bootstrap(), isLeaf(false) {}
     };
 
     static Element getElement(const std::string& elt) throw (IOException);
