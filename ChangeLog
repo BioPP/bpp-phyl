@@ -1,9 +1,27 @@
-08/02/1é Julien Dutheil
+08/02/12 L. Guéguen
+* PseudoNewtonOptimizer accepts to stop after too many trials
+
+08/02/12 Julien Dutheil
 * Newick parsing improved!
+
+19/01/12 L. Guéguen
+* Complex eigenvalues are taken into account
 
 16/01/12 Julien Dutheil
 * Bug #43 solved.
 * Bug #41 solved.
+
+16/12/11 L. Guéguen
+* Addition of neigbour-dependent models
+
+23/09/11 L. Guéguen
+* New hierarchy in codon models
+
+26/07/11 L. Guéguen
+* Mgmt of constraints (paths) between submodels in non-homogeneous trees with mixed models
+
+19/07/11 L. Guéguen
+* Biblio models
 
 16/06/11 Julien Dutheil
 * Bug #40 solved.
