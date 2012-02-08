@@ -131,58 +131,49 @@ double PseudoNewtonOptimizer::doStep() throw (Exception)
   newValue = getFunction()->f(newPoint);
   
   // Check newValue:
-  if (newValue > currentValue_ + getStopCondition()->getTolerance()) {
-    unsigned int count = 0;
-    while (newValue > currentValue_ + getStopCondition()->getTolerance())
-    {
-      //Restore previous point (all parameters in case of global constraint):
-      if (updateParameters()) getFunction()->setParameters(*bckPoint);
+  unsigned int count = 0;
+  while ((count < maxCorrection_) && (newValue > currentValue_ + getStopCondition()->getTolerance())) {
+    //Restore previous point (all parameters in case of global constraint):
+    if ((count==0) && updateParameters()) getFunction()->setParameters(*bckPoint);
 
-      if (count < maxCorrection_)
-      {
-        printMessage("!!! Function at new point is greater than at current point: " + TextTools::toString(newValue) + ">" + TextTools::toString(currentValue_) + ". Applying Felsenstein-Churchill correction: " + TextTools::toString(count));
-        for (unsigned int i = 0; i < movements.size(); i++)
-        {
-          movements[i] = movements[i] / 2;
-          newPoint[i].setValue(getParameters()[i].getValue() - movements[i]);
-        }
-        newValue = getFunction()->f(newPoint);
-      } else if (count == maxCorrection_) {
-        printMessage("!!! Felsenstein-Churchill correction applied too many times.");
-                    
-        if (useCJ_) {
-          printMessage("Use conjugate gradients optimization.");
-          getFunction()->enableSecondOrderDerivatives(false);
-          ConjugateGradientMultiDimensions opt(getFunction());
-          opt.setConstraintPolicy(getConstraintPolicy());
-          opt.setProfiler(getProfiler());
-          opt.setMessageHandler(getMessageHandler());
-          opt.setVerbose(getVerbose());
-          double tol = std::max(getStopCondition()->getCurrentTolerance() / 2., getStopCondition()->getTolerance());
-          opt.getStopCondition()->setTolerance(tol);
-          opt.setMaximumNumberOfEvaluations(nbEvalMax_);
-          getFunction()->setParameters(getParameters());
-          opt.init(getParameters());
-          opt.optimize();
-          newPoint = opt.getParameters();
-          newValue = opt.getFunctionValue();
-
-          if (newValue > currentValue_ + tol) {
-            printMessage("!!! Conjugate gradient method failed to improve likelihood.");
-            throw Exception("PseudoNewtonOptimizer::doStep. Convergence could not be reached!");
-          }
-
-          //Resetting count of corrections:
-          count = 0;
-        } else {
-          throw Exception("PseudoNewtonOptimizer::doStep. Convergence could not be reached!");
-        }
-
+    if (!(useCJ_ && (count==3))){
+      printMessage("!!! Function at new point is greater than at current point: " + TextTools::toString(newValue) + ">" + TextTools::toString(currentValue_) + ". Applying Felsenstein-Churchill correction: " + TextTools::toString(count));
+        
+      for (unsigned int i = 0; i < movements.size(); i++) {
+        movements[i] = movements[i] / 2;
+        newPoint[i].setValue(getParameters()[i].getValue() - movements[i]);
       }
-      count++;
+      newValue = getFunction()->f(newPoint);
     }
+    else {
+      printMessage("!!! Felsenstein-Churchill correction applied too many times.");
+      printMessage("Use conjugate gradients optimization.");
+      getFunction()->enableSecondOrderDerivatives(false);
+      ConjugateGradientMultiDimensions opt(getFunction());
+      opt.setConstraintPolicy(getConstraintPolicy());
+      opt.setProfiler(getProfiler());
+      opt.setMessageHandler(getMessageHandler());
+      opt.setVerbose(getVerbose());
+      double tol = std::max(getStopCondition()->getCurrentTolerance() / 2., getStopCondition()->getTolerance());
+      opt.getStopCondition()->setTolerance(tol);
+      opt.setMaximumNumberOfEvaluations(nbEvalMax_);
+      getFunction()->setParameters(getParameters());
+      opt.init(getParameters());
+      opt.optimize();
+      newPoint = opt.getParameters();
+      newValue = opt.getFunctionValue();
+      
+      if (newValue > currentValue_ + tol) {
+        printMessage("!!! Conjugate gradient method failed to improve likelihood.");
+        printMessage("Back to Felsenstein-Churchill method.");
+      }
+    }
+    count++;
   }
-
+  
+  if (newValue > currentValue_ + getStopCondition()->getTolerance())
+    printMessage("PseudoNewtonOptimizer::doStep. Convergence could not be reached!");
+  
   //getFunction()->enableFirstOrderDerivatives(true);
   getFunction()->enableSecondOrderDerivatives(true);
   getFunction()->setParameters(newPoint); //Compute derivatives for this point
