@@ -52,7 +52,7 @@ int main() {
   vector<string> leaves(100);
   for (size_t i = 0; i < leaves.size(); ++i)
     leaves[i] = "leaf" + TextTools::toString(i);
- /* 
+  
   for (unsigned int j = 0; j < 1000; ++j) {
     //Generate a random tree, without branch lengths:
     TreeTemplate<Node>* tree = TreeTemplateTools::getRandomTree(leaves, true);
@@ -76,7 +76,7 @@ int main() {
     delete tree;
     delete tree2;
     delete tree3;
-  }*/
+  }
 
   //Try to parse a string:
   TreeTemplate<Node>* tree4 = TreeTemplateTools::parenthesisToTree("((A:1,B:2):3,C:4);");
@@ -125,7 +125,7 @@ int main() {
     return 1;
   cout << "Newick I/O ok." << endl;
 
-/*  //Multiple trees:
+  //Multiple trees:
   vector<Tree *> trees;
   for (unsigned int i = 0; i < 100; ++i) {
     trees.push_back(TreeTemplateTools::getRandomTree(leaves, true));
@@ -147,7 +147,7 @@ int main() {
   for (unsigned int i = 0; i < 100; ++i) {
     delete trees[i];
     delete trees2[i];
-  }*/
+  }
 
   //Try newick read on non-file:
   cout << "Testing parsing a directory..." << endl;
@@ -210,8 +210,8 @@ int main() {
 
   cout << "Testing a tree with a single leaf:" << endl;
   TreeTemplate<Node>* weird4 = TreeTemplateTools::parenthesisToTree("(A:1.0);");
-  if (weird4->getNodes().size() != 1) {
-    cout << "Error, tree has " << weird4->getNodes().size() << " node(s) instead of 1!" << endl;
+  if (weird4->getNodes().size() != 2) {
+    cout << "Error, tree has " << weird4->getNodes().size() << " node(s) instead of 2!" << endl;
     VectorTools::print(weird4->getLeavesNames());
     return 1;
   }
@@ -227,6 +227,16 @@ int main() {
   }
   cout << TreeTemplateTools::treeToParenthesis(*weird5) << endl;
   delete weird5;
+
+  cout << "Testing a tree with a single node and branch lengths:" << endl;
+  TreeTemplate<Node>* weird6 = TreeTemplateTools::parenthesisToTree("((A:1.0):2.0);");
+  if (weird6->getNodes().size() != 3) {
+    cout << "Error, tree has " << weird6->getNodes().size() << " node(s) instead of 3!" << endl;
+    VectorTools::print(weird6->getLeavesNames());
+    return 1;
+  }
+  cout << TreeTemplateTools::treeToParenthesis(*weird6) << endl;
+  delete weird6;
 
 
 

@@ -237,10 +237,10 @@ class DetailedSiteSimulator:
      * @return A SiteSimulationResult object with all ancestral
      * states for all nodes and branches.
      */
-    virtual SiteSimulationResult * dSimulate() const = 0;
-    virtual SiteSimulationResult * dSimulate(int ancestralState) const = 0;
-    virtual SiteSimulationResult * dSimulate(int ancestralState, double rate) const = 0;
-    virtual SiteSimulationResult * dSimulate(double rate) const = 0;
+    virtual SiteSimulationResult* dSimulate() const = 0;
+    virtual SiteSimulationResult* dSimulate(int ancestralState) const = 0;
+    virtual SiteSimulationResult* dSimulate(int ancestralState, double rate) const = 0;
+    virtual SiteSimulationResult* dSimulate(double rate) const = 0;
     
 };
 

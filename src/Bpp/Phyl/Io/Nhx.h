@@ -97,9 +97,10 @@ class Nhx:
         std::string content;
         std::string length;
         std::string annotation;
+        bool isLeaf;
   
       public:
-        Element() : content(), length(), annotation() {}
+        Element() : content(), length(), annotation(), isLeaf(false) {}
     };
   
   public:

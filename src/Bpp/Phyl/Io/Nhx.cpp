@@ -207,6 +207,7 @@ Nhx::Element Nhx::getElement(const string& elt) const throw (IOException)
   Element element;
   element.length     = ""; //default
   element.annotation = ""; //default
+  element.isLeaf     = false; // default
  
   //cout << "ELT=" << elt << endl;
   size_t beginAnno = elt.rfind("[&&NHX:");
@@ -251,6 +252,7 @@ Nhx::Element Nhx::getElement(const string& elt) const throw (IOException)
     {
       //This is a leaf:
       element.content = elt2;
+      element.isLeaf  = true;
     }
     else
     {
@@ -291,7 +293,7 @@ Node* Nhx::parenthesisToNode(const string& description) const
   {
     elements.push_back(nt.nextToken());
   }
-  if (elements.size() == 1)
+  if (elt.isLeaf)
   {
     //This is a leaf:
     string name = TextTools::removeSurroundingWhiteSpaces(elements[0]);
@@ -314,64 +316,12 @@ Node* Nhx::parenthesisToNode(const string& description) const
 
 TreeTemplate<Node>* Nhx::parenthesisToTree(const string& description) const throw (Exception) 
 {
-  string::size_type lastP  = description.rfind(')');
   bool hasId = false;
-  if (lastP == string::npos)
-    throw Exception("Nhx::parenthesisToTree(). Bad format: no closing parenthesis found.");
-  string::size_type firstP = description.find('(');
-  if (firstP == string::npos)
-    throw Exception("Nhx::parenthesisToTree(). Bad format: no opening parenthesis found.");
   string::size_type semi = description.rfind(';');
   if (semi == string::npos)
     throw Exception("Nhx::parenthesisToTree(). Bad format: no semi-colon found.");
-  if (lastP <= firstP)
-    throw Exception("Nhx::parenthesisToTree(). Bad format: closing parenthesis before opening parenthesis.");
-  string content = description.substr(firstP + 1, lastP - firstP - 1);
-  string element = (semi == string::npos) ? description.substr(lastP + 1) : description.substr(lastP + 1, semi - lastP - 1);
-  //cout << "TREE: " << content << endl;
-  //New root node:
-  Node* node = new Node();
-  NestedStringTokenizer nt(content,"(", ")", ",");
-  vector<string> elements;
-  while (nt.hasMoreToken())
-  {
-    elements.push_back(nt.nextToken());
-  }
-  if (elements.size() == 1)
-  {
-    //This is a leaf:
-    StringTokenizer st(elements[0], "[&&NHX", true, true);
-    StringTokenizer st2(st.getToken(0), ":", true, true);
-    if (st2.getToken(0) != "") {
-      node->setName(st2.getToken(0));
-    }
-    node->setDistanceToFather(TextTools::toDouble(st2.getToken(1)));
-    hasId = setNodeProperties(*node, st.getToken(1));
-  }
-  else
-  {
-    //This is a node:
-    for (unsigned int i = 0; i < elements.size(); i++)
-    {
-      Node* son = parenthesisToNode(elements[i]);
-      node->addSon(son);
-    }
-    if (! TextTools::isEmpty(element))
-    {
-      StringTokenizer st(element, "[&&NHX", true, true);
-      StringTokenizer st2(st.getToken(0), ":", true, true);
-      if (st2.getToken(0) != "") 
-      {
-        node->setName(st2.getToken(0));
-      }
-      if (st2.numberOfRemainingTokens () >= 1) 
-      {
-        if (st2.numberOfRemainingTokens ()>1 )
-          node->setDistanceToFather(TextTools::toDouble(st2.getToken(1)));       
-      }
-      hasId = setNodeProperties(*node, st.getToken(1));
-    }
-  }
+  string content = description.substr(0, semi);
+  Node* node = parenthesisToNode(content);
   TreeTemplate<Node>* tree = new TreeTemplate<Node>();
   tree->setRootNode(node);
   if (!hasId)

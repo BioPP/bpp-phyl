@@ -330,115 +330,11 @@ Node* TreeTemplateTools::parenthesisToNode(const string& description, bool boots
 
 TreeTemplate<Node>* TreeTemplateTools::parenthesisToTree(const string& description, bool bootstrap, const string& propertyName, bool withId) throw (Exception)
 {
-  string::size_type lastP  = description.rfind(')');
-  if (lastP == string::npos)
-    throw Exception("TreeTemplateTools::parenthesisToTree(). Bad format: no closing parenthesis found.");
-  string::size_type firstP = description.find('(');
-  if (firstP == string::npos)
-    throw Exception("TreeTemplateTools::parenthesisToTree(). Bad format: no opening parenthesis found.");
   string::size_type semi = description.rfind(';');
   if (semi == string::npos)
     throw Exception("TreeTemplateTools::parenthesisToTree(). Bad format: no semi-colon found.");
-  if (lastP <= firstP)
-    throw Exception("TreeTemplateTools::parenthesisToTree(). Bad format: closing parenthesis before opening parenthesis.");
-  string content = description.substr(firstP + 1, lastP - firstP - 1);
-  string element = (semi == string::npos) ? description.substr(lastP + 1) : description.substr(lastP + 1, semi - lastP - 1);
-  // cout << "TREE: " << content << endl;
-  // New root node:
-  Node* node = new Node();
-
-  NestedStringTokenizer nt(content, "(", ")", ",");
-  vector<string> elements;
-  while (nt.hasMoreToken())
-  {
-    elements.push_back(nt.nextToken());
-  }
-
-  if (elements.size() == 1)
-  {
-    // This is a single node:
-    //cout << "IN TREE, NODE: SINGLE: " << elements[0] << endl;
-    if (*elements[0].begin() == '(') {
-      //This is a single node:
-      //cout << "creating single node" << endl;
-      Node* son = parenthesisToNode(elements[0], bootstrap, propertyName, withId);
-      node->addSon(son);
-    } else {
-      //This is a leaf:
-      if (withId)
-      {
-        StringTokenizer st(elements[0], "_", true, true);
-        ostringstream realName;
-        for (int i = 0; i < static_cast<int>(st.numberOfRemainingTokens()) - 1; i++)
-        {
-          if (i != 0)
-          {
-            realName << "_";
-          }
-          realName << st.getToken(i);
-        }
-        node->setName(realName.str());
-        node->setId(TextTools::toInt(st.getToken(1)));
-      }
-      else
-      {
-        node->setName(elements[0]);
-      }
-    }
-  }
-  else
-  {
-    //cout << element << endl;
-    // This is a node:
-    for (unsigned int i = 0; i < elements.size(); i++)
-    {
-      Node* son = parenthesisToNode(elements[i], bootstrap, propertyName, withId);
-      node->addSon(son);
-    }
-    if (!TextTools::isEmpty(element))
-    {
-      StringTokenizer st(element, ":");
-      string lengthS = "";
-      string bootstrapS = "";
-      if (st.numberOfRemainingTokens() == 1)
-      {
-        if (element[0] == ':')
-          lengthS = st.nextToken();
-        else 
-          bootstrapS = st.nextToken();
-      }
-      else
-      {
-        bootstrapS = st.nextToken();
-        lengthS = st.nextToken();
-      }
-      //cout << "L=" << lengthS << "\tB=" << bootstrapS << endl;
-      if (!TextTools::isEmpty(lengthS))
-      {
-        node->setDistanceToFather(TextTools::toDouble(lengthS));
-        //cout << "NODE: LENGTH: " << lengthS << endl;
-      }
-      if (!TextTools::isEmpty(bootstrapS))
-      {
-        if (withId)
-        {
-          node->setId(TextTools::toInt(bootstrapS));
-        }
-        else
-        {
-          if (bootstrap)
-          {
-            node->setBranchProperty(TreeTools::BOOTSTRAP, Number<double>(TextTools::toDouble(bootstrapS)));
-            // cout << "NODE: BOOTSTRAP: " << * elt.bootstrap << endl;
-          }
-          else
-          {
-            node->setBranchProperty(propertyName, BppString(bootstrapS));
-          }
-        }
-      }
-    }
-  }
+  string content = description.substr(0, semi);
+  Node* node = parenthesisToNode(content, bootstrap, propertyName, withId);
   TreeTemplate<Node>* tree = new TreeTemplate<Node>();
   tree->setRootNode(node);
   if (!withId)
@@ -531,7 +427,7 @@ string TreeTemplateTools::treeToParenthesis(const TreeTemplate<Node>& tree, bool
   ostringstream s;
   s << "(";
   const Node* node = tree.getRootNode();
-  if (node->isLeaf())
+  if (node->isLeaf() && node->hasName()) //In case we have a tree like ((A:1.0)); where the root node is an unamed leaf!
   {
     s << node->getName();
     for (unsigned int i = 0; i < node->getNumberOfSons(); ++i)
