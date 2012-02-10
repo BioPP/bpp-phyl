@@ -370,11 +370,10 @@ RNonHomogeneousMixedTreeLikelihood::~RNonHomogeneousMixedTreeLikelihood()
 
   if (main_){
     for (unsigned int i=0;i< mvTreeLikelihoods_[upperNode_].size(); i++)
-      mvTreeLikelihoods_[upperNode_][i]->fireParameterChanged(params);
+      mvTreeLikelihoods_[upperNode_][i]->matchParametersValues(params);
     rootFreqs_ = modelSet_->getRootFrequencies();
   }
   else {
-    
     if (params.getCommonParametersWith(rateDistribution_->getIndependentParameters()).size() > 0)
       {
         computeAllTransitionProbabilities();
@@ -412,8 +411,9 @@ RNonHomogeneousMixedTreeLikelihood::~RNonHomogeneousMixedTreeLikelihood()
           }
         nodes = VectorTools::vectorUnion(nodes, tmpv);
         
-        for (unsigned int i = 0; i < nodes.size(); i++)
-            computeTransitionProbabilitiesForNode(nodes[i]);
+        for (unsigned int i = 0; i < nodes.size(); i++){
+          computeTransitionProbabilitiesForNode(nodes[i]);
+        }
       }
 
     map<int, vector<RNonHomogeneousMixedTreeLikelihood*> >::iterator it;
@@ -736,7 +736,6 @@ void RNonHomogeneousMixedTreeLikelihood::computeTransitionProbabilitiesForNode(c
   }
 
   double l = node->getDistanceToFather();
-
   // Computes all pxy and pyx once for all:
   VVVdouble* pxy__node = &pxy_[node->getId()];
   for (unsigned int c = 0; c < nbClasses_; c++){
