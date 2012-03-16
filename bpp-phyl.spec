@@ -11,7 +11,7 @@ Release: %{_release}
 License: CECILL-2.0
 Vendor: The Bio++ Project
 Source: http://biopp.univ-montp2.fr/repos/sources/%{_basename}-%{_version}.tar.gz
-Summary: Bio++ Phylogenetics library.
+Summary: Bio++ Phylogenetics library
 Group: Development/Libraries/C and C++
 Requires: bpp-core = %{_version}
 Requires: bpp-seq = %{_version}
@@ -34,8 +34,6 @@ It is part of the Bio++ project.
 %package -n libbpp-phyl9
 Summary: Bio++ Phylogenetics library
 Group: Development/Libraries/C and C++
-Requires: libbpp-core2 = %{_version}
-Requires: libbpp-seq9 = %{_version}
 
 %description -n libbpp-phyl9
 This library contains utilitary and classes for phylogenetics and molecular evolution analysis.
@@ -43,7 +41,7 @@ It is part of the Bio++ project.
 
 
 %package -n libbpp-phyl-devel
-Summary: Libraries, includes to develop applications with %{_basename}.
+Summary: Libraries, includes to develop applications with %{_basename}
 Group: Development/Libraries/C and C++
 Requires: libbpp-phyl9 = %{_version}
 Requires: libbpp-seq9 = %{_version}
