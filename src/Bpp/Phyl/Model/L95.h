@@ -77,7 +77,7 @@ namespace bpp
  * The generator of this model is diagonalized numerically.
  * See AbstractSubstitutionModel for details of how the probabilities are computed.
  *
- * The parameters are name d\c "alpha", \c "beta", \c "gamma", \c
+ * The parameters are named \c "alpha", \c "beta", \c "gamma", \c
  * "kappa" and \c "theta". The values of \c "alpha", \c "beta", \c
  * "gamma" are between 0 and 1, The values of \c "gamma" are between 0
  * and 1 excluded, the values of "kappa" which are positive. Their
