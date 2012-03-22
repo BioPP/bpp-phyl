@@ -94,6 +94,7 @@ set(CPP_FILES
   Bpp/Phyl/Model/SubstitutionModelSetTools.cpp
   Bpp/Phyl/Model/T92.cpp
   Bpp/Phyl/Model/TN93.cpp
+  Bpp/Phyl/Model/gBGC.cpp
   Bpp/Phyl/Model/UserProteinSubstitutionModel.cpp
   Bpp/Phyl/Model/AbstractWordSubstitutionModel.cpp
   Bpp/Phyl/Model/WordSubstitutionModel.cpp
@@ -243,6 +244,7 @@ set(H_FILES
   Bpp/Phyl/Model/SubstitutionModelSetTools.h
   Bpp/Phyl/Model/T92.h
   Bpp/Phyl/Model/TN93.h
+  Bpp/Phyl/Model/gBGC.h
   Bpp/Phyl/Model/TripletSubstitutionModel.h
   Bpp/Phyl/Model/TS98.h
   Bpp/Phyl/Model/UserProteinSubstitutionModel.h
