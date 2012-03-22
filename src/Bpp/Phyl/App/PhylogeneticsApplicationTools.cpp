@@ -160,12 +160,12 @@ SubstitutionModel* PhylogeneticsApplicationTools::getSubstitutionModelDefaultIns
 
   KeyvalTools::parseProcedure(modelDescription, modelName, args);
 
-  bool wordfreq = ((modelName == "CodonDistanceFrequencies")
-                   || (modelName == "CodonDistancePhaseFrequencies")
-                   || (modelName == "CodonRateFrequencies"));
+  bool wordfreq = ((modelName == "CodonDistFreq")
+                   || (modelName == "CodonDistPhasFreq")
+                   || (modelName == "CodonRateFreq"));
 
   bool word = ((modelName == "Word") || (modelName == "Triplet") || (modelName == "CodonRate")
-               || (modelName == "CodonDistance") || wordfreq);
+               || (modelName == "CodonDist") || wordfreq);
 
 
   // //////////////////////////////////
@@ -419,7 +419,7 @@ SubstitutionModel* PhylogeneticsApplicationTools::getSubstitutionModelDefaultIns
     // / CODON DISTANCE
     // ///////////////////////////////
 
-    else if (modelName == "CodonDistance")
+    else if (modelName == "CodonDist")
     {
       if (args.find("genetic_code") == args.end())
         args["genetic_code"] = pWA->getAlphabetType();
@@ -481,7 +481,7 @@ SubstitutionModel* PhylogeneticsApplicationTools::getSubstitutionModelDefaultIns
       // / CODON RATE FREQUENCIES
       // ///////////////////////////////
 
-      if (modelName == "CodonRateFrequencies")
+      if (modelName == "CodonRateFreq")
       {
         if (dynamic_cast<NucleotideSubstitutionModel*>(v_pSM[0]) == 0)
           throw Exception("Non simple NucleotideSubstitutionModel imbedded in " + modelName + " model.");
@@ -506,7 +506,7 @@ SubstitutionModel* PhylogeneticsApplicationTools::getSubstitutionModelDefaultIns
       // / CODON DISTANCE FREQUENCIES
       // ///////////////////////////////
 
-      else if (modelName == "CodonDistanceFrequencies")
+      else if (modelName == "CodonDistFreq")
       {
         if (args.find("genetic_code") == args.end())
           args["genetic_code"] = pCA->getAlphabetType();
@@ -550,7 +550,7 @@ SubstitutionModel* PhylogeneticsApplicationTools::getSubstitutionModelDefaultIns
       // / CODON DISTANCE PHASE FREQUENCIES
       // ///////////////////////////////
 
-      else if (modelName == "CodonDistancePhaseFrequencies")
+      else if (modelName == "CodonDistPhasFreq")
       {
         if (args.find("genetic_code") == args.end())
           args["genetic_code"] = pCA->getAlphabetType();
@@ -650,6 +650,32 @@ SubstitutionModel* PhylogeneticsApplicationTools::getSubstitutionModelDefaultIns
       throw Exception("Unknown Codon model: " + modelName);
   }
 
+  
+  ////////////////////////////////////                                                                                                                                             
+  // gBGC                                                                                                                                                                           
+  ////////////////////////////////////
+  
+  else if (modelName == "gBGC")
+    {
+      // We have to parse the nested model first:
+      string nestedModelDescription = args["model"];
+      if (TextTools::isEmpty(nestedModelDescription))
+        throw Exception("PhylogeneticsApplicationTools::getSubstitutionModelDefaultInstance. Missing argument 'model' for model 'gBGC'.");
+      if (verbose)
+        ApplicationTools::displayResult("Biased gene conversion", modelName);
+      map<string, string> unparsedParameterValuesNested;
+      SubstitutionModel* nestedModel = getSubstitutionModelDefaultInstance(alphabet, nestedModelDescription, unparsedParameterValuesNested, allowCovarions, allowMixed, false, verbose);
+
+      // Now we create the RE08 substitution model:
+      model = new gBGC(dynamic_cast<const NucleicAlphabet*>(alphabet), dynamic_cast<NucleotideSubstitutionModel*>(nestedModel));
+
+      // Then we update the parameter set:
+      for (map<string, string>::iterator it = unparsedParameterValuesNested.begin(); it != unparsedParameterValuesNested.end(); it++)
+        {
+          unparsedParameterValues["gBGC." + it->first] = it->second;
+        }
+    }
+  
   ////////////////////////////////////                                                                                                                                             
   // YpR                                                                                                                                                                           
   ////////////////////////////////////                                                                                                                                             

@@ -63,3 +63,4 @@
 #include "Model/YNGKP_M7.h"
 #include "Model/YNGKP_M8.h"
 #include "Model/YpR.h"
+#include "Model/gBGC.h"
