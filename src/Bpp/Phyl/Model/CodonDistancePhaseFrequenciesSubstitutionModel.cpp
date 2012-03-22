@@ -48,12 +48,12 @@ CodonDistancePhaseFrequenciesSubstitutionModel::CodonDistancePhaseFrequenciesSub
                                                                                      NucleotideSubstitutionModel* pmod,
                                                                                      FrequenciesSet* pfreq,
                                                                                      const AlphabetIndex2<double>* pdist) :
-  AbstractParameterAliasable("CodonDistancePhaseFrequencies."),
-  AbstractSubstitutionModel(dynamic_cast<const CodonAlphabet*>(palph->getSourceAlphabet()), "CodonDistancePhaseFrequencies."),
-  AbstractWordSubstitutionModel(dynamic_cast<const CodonAlphabet*>(palph->getSourceAlphabet()), "CodonDistancePhaseFrequencies."),
-  AbstractCodonSubstitutionModel(dynamic_cast<const CodonAlphabet*>(palph->getSourceAlphabet()), pmod, "CodonDistancePhaseFrequencies."),
-  AbstractCodonDistanceSubstitutionModel(palph, pdist, "CodonDistancePhaseFrequencies."),
-  AbstractCodonPhaseFrequenciesSubstitutionModel(pfreq, "CodonDistancePhaseFrequencies.")
+  AbstractParameterAliasable("CodonDistPhasFreq."),
+  AbstractSubstitutionModel(dynamic_cast<const CodonAlphabet*>(palph->getSourceAlphabet()), "CodonDistPhasFreq."),
+  AbstractWordSubstitutionModel(dynamic_cast<const CodonAlphabet*>(palph->getSourceAlphabet()), "CodonDistPhasFreq."),
+  AbstractCodonSubstitutionModel(dynamic_cast<const CodonAlphabet*>(palph->getSourceAlphabet()), pmod, "CodonDistPhasFreq."),
+  AbstractCodonDistanceSubstitutionModel(palph, pdist, "CodonDistPhasFreq."),
+  AbstractCodonPhaseFrequenciesSubstitutionModel(pfreq, "CodonDistPhasFreq.")
 {
   updateMatrices();
 }
@@ -64,19 +64,19 @@ CodonDistancePhaseFrequenciesSubstitutionModel::CodonDistancePhaseFrequenciesSub
                                                                                      NucleotideSubstitutionModel* pmod3,
                                                                                      FrequenciesSet* pfreq,
                                                                                      const AlphabetIndex2<double>* pdist) :
-  AbstractParameterAliasable("CodonDistancePhaseFrequencies."),
-  AbstractSubstitutionModel(dynamic_cast<const CodonAlphabet*>(palph->getSourceAlphabet()), "CodonDistancePhaseFrequencies."),
-  AbstractWordSubstitutionModel(dynamic_cast<const CodonAlphabet*>(palph->getSourceAlphabet()), "CodonDistancePhaseFrequencies."),
-  AbstractCodonSubstitutionModel(dynamic_cast<const CodonAlphabet*>(palph->getSourceAlphabet()), pmod1, pmod2, pmod3, "CodonDistancePhaseFrequencies."),
-  AbstractCodonDistanceSubstitutionModel(palph, pdist, "CodonDistancePhaseFrequencies."),
-  AbstractCodonPhaseFrequenciesSubstitutionModel(pfreq, "CodonDistancePhaseFrequencies.")
+  AbstractParameterAliasable("CodonDistPhasFreq."),
+  AbstractSubstitutionModel(dynamic_cast<const CodonAlphabet*>(palph->getSourceAlphabet()), "CodonDistPhasFreq."),
+  AbstractWordSubstitutionModel(dynamic_cast<const CodonAlphabet*>(palph->getSourceAlphabet()), "CodonDistPhasFreq."),
+  AbstractCodonSubstitutionModel(dynamic_cast<const CodonAlphabet*>(palph->getSourceAlphabet()), pmod1, pmod2, pmod3, "CodonDistPhasFreq."),
+  AbstractCodonDistanceSubstitutionModel(palph, pdist, "CodonDistPhasFreq."),
+  AbstractCodonPhaseFrequenciesSubstitutionModel(pfreq, "CodonDistPhasFreq.")
 {
   updateMatrices();
 }
 
 std::string CodonDistancePhaseFrequenciesSubstitutionModel::getName() const
 {
-  return ("CodonDistancePhaseFrequencies");
+  return ("CodonDistPhasFreq");
 }
 
 void CodonDistancePhaseFrequenciesSubstitutionModel::fireParameterChanged(const ParameterList& parameters)
