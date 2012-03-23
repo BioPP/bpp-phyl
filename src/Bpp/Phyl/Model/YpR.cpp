@@ -271,6 +271,7 @@ void YpR::updateMatrices(double CgT, double cGA,
        freq_[i] /= x;
    }
    catch (ZeroDivisionException& e){
+     ApplicationTools::displayMessage("Singularity during  diagonalization. Taylor series used instead.");
      isNonSingular_=false;
      isDiagonalizable_=false;
 

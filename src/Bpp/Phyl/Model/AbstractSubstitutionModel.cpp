@@ -101,6 +101,8 @@ void AbstractSubstitutionModel::updateMatrices()
           isDiagonalizable_=false;
     }
     catch (ZeroDivisionException& e){
+      ApplicationTools::displayMessage("Singularity during  diagonalization. Taylor series used instead.");
+        
       isNonSingular_=false;
       isDiagonalizable_=false;
       MatrixTools::Taylor(generator_,30,vPowGen_);
