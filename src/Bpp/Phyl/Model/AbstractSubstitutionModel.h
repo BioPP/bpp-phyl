@@ -107,6 +107,12 @@ protected:
   RowMatrix<double> generator_;
 
   /**
+   * @brief The vector of equilibrium frequencies.
+   */
+
+  Vdouble freq_;
+
+  /**
    * @brief These ones are for bookkeeping:
    */
   mutable RowMatrix<double> pijt_;
@@ -114,14 +120,9 @@ protected:
   mutable RowMatrix<double> d2pijt_;
 
   /**
-   * @brief The \f$U\f$ matrix made of left eigen vectors (by row).
+   * @brief Tell if the eigen decomposition should be performed.
    */
-  RowMatrix<double> leftEigenVectors_;
-
-  /**
-   * @brief The \f$U^-1\f$ matrix made of right eigen vectors (by column).
-   */
-  RowMatrix<double> rightEigenVectors_;
+  bool eigenDecompose_;
 
   /**
    * @brief The vector of eigen values.
@@ -140,15 +141,37 @@ protected:
   bool isDiagonalizable_;
 
   /**
-   * @brief The vector of equilibrium frequencies.
+   * @brief The \f$U^-1\f$ matrix made of right eigen vectors (by column).
    */
-  Vdouble freq_;
+  RowMatrix<double> rightEigenVectors_;
 
   /**
-   * @brief Tell if the eigen decomposition should be performed.
+   * @brief boolean value for non-singularity of rightEigenVectors_
    */
-  bool eigenDecompose_;
+  
+  bool isNonSingular_;
 
+  /**
+   * @brief The \f$U\f$ matrix made of left eigen vectors (by row) if
+   * rightEigenVectors_ is non-singular.
+   */
+  
+  RowMatrix<double> leftEigenVectors_;
+
+  /**
+   * @brief vector of the powers of generator_ for Taylor development (if
+   * rightEigenVectors_ is singular).
+   */
+
+  std::vector< RowMatrix<double> > vPowGen_;
+
+  /**
+   * @brief For computational issues
+   *
+   */
+
+  mutable RowMatrix<double> tmpMat_;
+  
 public:
   AbstractSubstitutionModel(const Alphabet* alpha, const std::string& prefix);
 
@@ -159,16 +182,19 @@ public:
     rate_(model.rate_),
     chars_(model.chars_),
     generator_(model.generator_),
+    freq_(model.freq_),
     pijt_(model.pijt_),
     dpijt_(model.dpijt_),
     d2pijt_(model.d2pijt_),
-    leftEigenVectors_(model.leftEigenVectors_),
-    rightEigenVectors_(model.rightEigenVectors_),
+    eigenDecompose_(model.eigenDecompose_),
     eigenValues_(model.eigenValues_),
     iEigenValues_(model.iEigenValues_),
     isDiagonalizable_(model.isDiagonalizable_),
-    freq_(model.freq_),
-    eigenDecompose_(model.eigenDecompose_)
+    rightEigenVectors_(model.rightEigenVectors_),
+    isNonSingular_(model.isNonSingular_),
+    leftEigenVectors_(model.leftEigenVectors_),
+    vPowGen_(model.vPowGen_),
+    tmpMat_(model.tmpMat_)
   {}
 
   AbstractSubstitutionModel& operator=(const AbstractSubstitutionModel& model)
@@ -179,18 +205,22 @@ public:
     rate_              = model.rate_;
     chars_             = model.chars_;
     generator_         = model.generator_;
+    freq_              = model.freq_;
     pijt_              = model.pijt_;
     dpijt_             = model.dpijt_;
     d2pijt_            = model.d2pijt_;
-    leftEigenVectors_  = model.leftEigenVectors_;
-    rightEigenVectors_ = model.rightEigenVectors_;
+    eigenDecompose_    = model.eigenDecompose_;
     eigenValues_       = model.eigenValues_;
     iEigenValues_      = model.iEigenValues_;
     isDiagonalizable_  = model.isDiagonalizable_;
-    freq_              = model.freq_;
-    eigenDecompose_    = model.eigenDecompose_;
+    rightEigenVectors_ = model.rightEigenVectors_;
+    isNonSingular_     = model.isNonSingular_;
+    leftEigenVectors_  = model.leftEigenVectors_;
+    vPowGen_           = model.vPowGen_;
+    tmpMat_            = model.tmpMat_;
     return *this;
   }
+  
   virtual ~AbstractSubstitutionModel() {}
 
 #ifndef NO_VIRTUAL_COV
@@ -220,7 +250,10 @@ public:
 
   bool isDiagonalizable() const { return isDiagonalizable_;}
   
+  bool isNonSingular() const { return isNonSingular_;}
+
   const Matrix<double>& getRowLeftEigenVectors() const { return leftEigenVectors_; }
+
   const Matrix<double>& getColumnRightEigenVectors() const { return rightEigenVectors_; }
 
   virtual double freq(unsigned int i) const { return freq_[i]; }
@@ -353,6 +386,7 @@ public:
     AbstractSubstitutionModel(alpha, prefix),
     exchangeability_(size_, size_) {
     isDiagonalizable_=true;
+    isNonSingular_=true;
   }
 
   virtual ~AbstractReversibleSubstitutionModel() {}
