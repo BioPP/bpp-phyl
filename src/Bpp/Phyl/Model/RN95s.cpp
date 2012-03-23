@@ -171,8 +171,22 @@ void RN95s::updateMatrices()
   rightEigenVectors_(3, 3) = (-alpha_*(0.5-c3_)-gamma_*0.5)/(gamma_*(c3_-0.5)-alpha_*0.5);
 
 // Need formula
-  
-MatrixTools::inv(rightEigenVectors_, leftEigenVectors_);
+
+  try {
+    MatrixTools::inv(rightEigenVectors_, leftEigenVectors_);
+    isNonSingular_=true;
+    isDiagonalizable_=true;
+    for (unsigned int i=0;i<size_ && isDiagonalizable_;i++)
+      if (abs(iEigenValues_[i])> NumConstants::TINY)
+        isDiagonalizable_=false;
+  }
+  catch (ZeroDivisionException& e){
+    ApplicationTools::displayMessage("Singularity during  diagonalization. Taylor series used instead.");
+
+    isNonSingular_=false;
+    isDiagonalizable_=false;
+    MatrixTools::Taylor(generator_,30,vPowGen_);
+  }
 }
 
 /******************************************************************************/

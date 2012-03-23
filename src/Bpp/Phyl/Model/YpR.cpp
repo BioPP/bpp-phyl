@@ -47,6 +47,8 @@ using namespace bpp;
 #include <Bpp/Numeric/VectorTools.h>
 #include <Bpp/Numeric/Matrix/EigenValue.h>
 
+#include <Bpp/Text/TextTools.h>
+
 /******************************************************************************/
 
 YpR::YpR(const RNY* alph, SubstitutionModel* const pm, const std::string& prefix) :
@@ -234,32 +236,66 @@ void YpR::updateMatrices(double CgT, double cGA,
 
   EigenValue<double> ev(generator_);
   eigenValues_ = ev.getRealEigenValues();
-  
-  rightEigenVectors_ = ev.getV();
-  MatrixTools::inv(rightEigenVectors_,leftEigenVectors_);
-
   iEigenValues_ = ev.getImagEigenValues();
 
-  // frequence stationnaire
+  rightEigenVectors_ = ev.getV();
 
-  x = 0;
-  j = 0;
-  while (j < 36){
-    if (abs(eigenValues_[j]) < 0.000001 && abs(iEigenValues_[j]) < 0.000001) {
-      eigenValues_[j]=0; //to avoid approximation problems in the future
-      for (i = 0; i < 36; i++)
-        {
-          freq_[i] = leftEigenVectors_(j,i);
-          x += freq_[i];
-        }
-      break;
-    }
-    j++;
-  }
+   try {
+     MatrixTools::inv(rightEigenVectors_,leftEigenVectors_);
 
-  for (i = 0; i < 36; i++)
-    freq_[i] /= x;
+     isNonSingular_=true;
+     isDiagonalizable_=true;
+     for (i=0; i<size_; i++)
+       if (abs(iEigenValues_[i])> NumConstants::TINY){
+         isDiagonalizable_=false;
+       }
 
+     // frequence stationnaire
+    
+     x = 0;
+     j = 0;
+     while (j < 36){
+       if (abs(eigenValues_[j]) < NumConstants::SMALL &&
+           abs(iEigenValues_[j]) < NumConstants::SMALL) {
+         eigenValues_[j]=0; //to avoid approximation problems in the future
+         for (i = 0; i < 36; i++)
+           {
+             freq_[i] = leftEigenVectors_(j,i);
+             x += freq_[i];
+           }
+         break;
+       }
+       j++;
+     }
+     for (i = 0; i < 36; i++)
+       freq_[i] /= x;
+   }
+   catch (ZeroDivisionException& e){
+     ApplicationTools::displayMessage("Singularity during  diagonalization. Taylor series used instead.");
+     isNonSingular_=false;
+     isDiagonalizable_=false;
+
+     if (vPowGen_.size()==0)
+       vPowGen_.resize(30);
+
+     double min=generator_(0,0);
+     for (i = 1; i < 36; i++)
+       if (min>generator_(i,i))
+         min=generator_(i,i);
+     
+     MatrixTools::scale(generator_,-1/min);
+     
+     MatrixTools::getId(36,tmpMat_);    // to compute the equilibrium frequency  (Q+Id)^256
+     
+     MatrixTools::add(tmpMat_,generator_);
+     MatrixTools::pow(tmpMat_,256,vPowGen_[0]);
+     
+     for (i=0;i<36;i++)
+       freq_[i]=vPowGen_[0](0,i);
+     
+     MatrixTools::getId(36,vPowGen_[0]);
+   }
+  
   // mise a l'echelle
 
   x = 0;
@@ -284,15 +320,14 @@ void YpR::updateMatrices(double CgT, double cGA,
 
   MatrixTools::scale(generator_,1 / x);
 
-  for (i = 0; i < 36; i++)
+  if (!isNonSingular_)
+    MatrixTools::Taylor(generator_,30,vPowGen_);
+
+  for (i = 0; i < 36; i++){
     eigenValues_[i] /= x;
-
-  isDiagonalizable_=true;
-  for (i=0; i<size_ && isDiagonalizable_; i++)
-    if (abs(iEigenValues_[i])> NumConstants::SMALL)
-      isDiagonalizable_=false;  
+    iEigenValues_[i] /= x;
+  }
 }
-
 
 void YpR::check_model(SubstitutionModel* const pm) const
 throw (Exception)

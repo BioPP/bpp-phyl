@@ -124,6 +124,8 @@ public:
 
   bool isDiagonalizable() const { return getModel()->isDiagonalizable(); }
 
+  bool isNonSingular() const { return getModel()->isNonSingular(); }
+
   const Vdouble& getEigenValues() const { return getModel()->getEigenValues(); }
 
   const Vdouble& getIEigenValues() const { return getModel()->getIEigenValues(); }
