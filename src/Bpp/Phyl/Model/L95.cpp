@@ -63,8 +63,8 @@ L95::L95(
   addParameter_(Parameter("L95.alpha", alpha, &Parameter::PROP_CONSTRAINT_IN));
   addParameter_(Parameter("L95.beta", beta, &Parameter::PROP_CONSTRAINT_IN));
   addParameter_(Parameter("L95.gamma", gamma, &Parameter::PROP_CONSTRAINT_IN));
-  addParameter_(Parameter("L95.kappa", kappa, new ExcludingInterval(0, 1000, NumConstants::MILLI), true));
-  addParameter_(Parameter("L95.theta", theta, new ExcludingInterval(0, 1, NumConstants::MILLI), true));
+  addParameter_(Parameter("L95.kappa", kappa, new IntervalConstraint(0, 1000, false, false, NumConstants::MILLI), true));
+  addParameter_(Parameter("L95.theta", theta, new IntervalConstraint(0, 1, false, false, NumConstants::MILLI), true));
 
   updateMatrices();
 }

@@ -253,7 +253,7 @@ class AbstractNonHomogeneousTreeLikelihood:
         throw Exception("AbstractNonHomogeneousTreeLikelihood::setMinimumBranchLength. Minimum branch length sould be lower than the maximum one: " + TextTools::toString(maximumBrLen_));
       minimumBrLen_ = minimum;
       if (brLenConstraint_.get()) brLenConstraint_.release();
-      brLenConstraint_.reset(new IncludingInterval(minimumBrLen_, maximumBrLen_));
+      brLenConstraint_.reset(new IntervalConstraint(minimumBrLen_, maximumBrLen_, true, true));
       initBranchLengthsParameters();
     }
 
@@ -263,7 +263,7 @@ class AbstractNonHomogeneousTreeLikelihood:
         throw Exception("AbstractNonHomogeneousTreeLikelihood::setMaximumBranchLength. Maximum branch length sould be higher than the minimum one: " + TextTools::toString(minimumBrLen_));
       maximumBrLen_ = maximum;
       if (brLenConstraint_.get()) brLenConstraint_.release();
-      brLenConstraint_.reset(new IncludingInterval(minimumBrLen_, maximumBrLen_));
+      brLenConstraint_.reset(new IntervalConstraint(minimumBrLen_, maximumBrLen_, true, true));
       initBranchLengthsParameters();
     }
 

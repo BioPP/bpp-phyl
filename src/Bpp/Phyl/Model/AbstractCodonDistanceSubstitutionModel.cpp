@@ -5,7 +5,7 @@
 //
 
 /*
-   Copyright or © or Copr. CNRS, (November 16, 2004)
+   Copyright or © or Copr. Bio++ Development Team, (November 16, 2004)
    This software is a computer program whose purpose is to provide classes
    for phylogenetic data analysis.
 
@@ -46,9 +46,9 @@ using namespace std;
 /******************************************************************************/
 
 AbstractCodonDistanceSubstitutionModel::AbstractCodonDistanceSubstitutionModel(
-                                                                               const GeneticCode* palph,
-                                                                               const AlphabetIndex2<double>* pdist,
-                                                                               const std::string& prefix) :
+  const GeneticCode* palph,
+  const AlphabetIndex2<double>* pdist,
+  const std::string& prefix) :
   CodonSubstitutionModel(),
   AbstractParameterAliasable(prefix),
   geneticCode_(palph),
@@ -57,9 +57,9 @@ AbstractCodonDistanceSubstitutionModel::AbstractCodonDistanceSubstitutionModel(
   beta_(1)
 {
   if (pdistance_)
-    addParameter_(Parameter(prefix+"alpha",10000,&Parameter::R_PLUS_STAR));
+    addParameter_(Parameter(prefix + "alpha", 10000, &Parameter::R_PLUS_STAR));
 
-  addParameter_(Parameter(prefix+"beta",1,new IncludingInterval(NumConstants::SMALL, 999), true));
+  addParameter_(Parameter(prefix + "beta", 1, new IntervalConstraint(NumConstants::SMALL, 999, true, true), true));
 }
 
 void AbstractCodonDistanceSubstitutionModel::fireParameterChanged(const ParameterList& parameters)
@@ -71,7 +71,7 @@ void AbstractCodonDistanceSubstitutionModel::fireParameterChanged(const Paramete
 
 double AbstractCodonDistanceSubstitutionModel::getCodonsMulRate(unsigned int i, unsigned int j) const
 {
-  return (geneticCode_->areSynonymous(i,j)?1:
-          beta_ * (pdistance_ ? exp(-pdistance_->getIndex(geneticCode_->translate(i), geneticCode_->translate(j)) / alpha_) : 1));
+  return geneticCode_->areSynonymous(i, j) ? 1 :
+         beta_ * (pdistance_ ? exp(-pdistance_->getIndex(geneticCode_->translate(i), geneticCode_->translate(j)) / alpha_) : 1);
 }
 

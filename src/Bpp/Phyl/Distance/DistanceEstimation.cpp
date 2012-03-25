@@ -109,7 +109,7 @@ TwoTreeLikelihood::TwoTreeLikelihood(
   delete sequences;
 
   brLen_ = minimumBrLen_;
-  brLenConstraint_ = new IncludingPositiveReal(minimumBrLen_);
+  brLenConstraint_ = new IntervalConstraint(1, minimumBrLen_, true);
 
   if (verbose) ApplicationTools::displayTaskDone();
 }

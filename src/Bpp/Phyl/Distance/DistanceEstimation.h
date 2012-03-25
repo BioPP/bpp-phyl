@@ -238,8 +238,8 @@ class TwoTreeLikelihood:
     virtual void setMinimumBranchLength(double minimum)
     {
       minimumBrLen_ = minimum;
-      if(brLenConstraint_ != 0) delete brLenConstraint_;
-      brLenConstraint_ = new IncludingPositiveReal(minimumBrLen_);
+      if (brLenConstraint_) delete brLenConstraint_;
+      brLenConstraint_ = new IntervalConstraint(1, minimumBrLen_, true);
       initBranchLengthsParameters();
     }
 
