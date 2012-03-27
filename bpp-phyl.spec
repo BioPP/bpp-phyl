@@ -80,7 +80,7 @@ rm -rf $RPM_BUILD_ROOT
 %doc AUTHORS.txt COPYING.txt INSTALL.txt ChangeLog
 %{_prefix}/%{_lib}/lib*.so.*
 
-%files  -n libbpp-phyl-devel
+%files -n libbpp-phyl-devel
 %defattr(-,root,root)
 %doc AUTHORS.txt COPYING.txt INSTALL.txt ChangeLog
 %{_prefix}/%{_lib}/lib*.so

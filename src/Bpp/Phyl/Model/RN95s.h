@@ -5,7 +5,7 @@
 //
 
 /*
-   Copyright or © or Copr. CNRS, (November 16, 2004)
+   Copyright or © or Copr. Bio++ Development Team, (November 16, 2004)
 
    This software is a computer program whose purpose is to provide classes
    for phylogenetic data analysis.
@@ -60,10 +60,10 @@ namespace bpp
  * \f[
  * Q= \frac 1P
  * \begin{pmatrix}
- * . & \gamma & \alpha & \delta \ \
- * \delta & . &  \gamma & \beta \ \
- * \beta & \gamma & . & \delta \ \
- * \delta & \alpha & \gamma & .\ \
+ * . & \gamma & \alpha & \delta \\
+ * \delta & . &  \gamma & \beta \\
+ * \beta & \gamma & . & \delta \\
+ * \delta & \alpha & \gamma & .\\
  * \end{pmatrix}\f]
  *
  * so in the parametrization process we set: \f[\gamma+\delta=\frac 12\f]
@@ -79,8 +79,8 @@ namespace bpp
  *
  *\f[
  * \begin{cases}
- * \theta_A (=\pi_A) \in ]0;1/2[\ \
- * \gamma \in ]0;1/2[\ \
+ * \theta_A (=\pi_A) \in ]0;1/2[\\
+ * \gamma \in ]0;1/2[\\
  * \alpha' > 1
  * \end{cases}
  * \f]
@@ -91,9 +91,9 @@ namespace bpp
  *
  *\f[
  * \begin{cases}
- * \delta=\frac 12-\gamma\ \
- * \alpha=\frac{\alpha'(0.5-\pi_A)-min(0.5-\pi_A,\gamma)}{2\pi_A}\ \
- * \beta=\frac{2*\pi_A*(\alpha+\frac 12)-\delta}{1-2*\pi_A}\ \
+ * \delta=\frac 12-\gamma\\
+ * \alpha=\frac{\alpha'(0.5-\pi_A)-min(0.5-\pi_A,\gamma)}{2\pi_A}\\
+ * \beta=\frac{2*\pi_A*(\alpha+\frac 12)-\delta}{1-2*\pi_A}\\
  * \end{cases}
  * \f]
  *

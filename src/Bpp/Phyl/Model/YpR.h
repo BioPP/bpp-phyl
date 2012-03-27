@@ -212,11 +212,12 @@ public:
   /**
    * @brief Build a new YpR_Sym substitution model.
    * @param CgT, TgC, CaT, TaC neighbour dependency parameters
-   *
+   * @param alph RNY alphabet
+   * @param pm Substitution model.
    */
 
-  YpR_Sym(const RNY*,
-          SubstitutionModel* const,
+  YpR_Sym(const RNY* alph,
+          SubstitutionModel* pm,
           double CgT = 0., double TgC = 0.,
           double CaT = 0., double TaC = 0.);
 
@@ -257,11 +258,12 @@ public:
    * @brief Build a new YpR_Gen substitution model.
    * @param CgT, cGA, TgC, tGA, CaT, cAG, TaC, tAG neighbour
    * dependency parameters
-   *
+   * @param alph RNY alphabet
+   * @param pm Substitution model.
    */
 
-  YpR_Gen(const RNY*,
-          SubstitutionModel* const,
+  YpR_Gen(const RNY* alph,
+          SubstitutionModel* pm,
           double CgT = 0., double cGA = 0.,
           double TgC = 0., double tGA = 0.,
           double CaT = 0., double cAG = 0.,

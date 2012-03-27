@@ -63,10 +63,10 @@ namespace bpp
  * \f[
  * Q= \frac 1P
  * \begin{pmatrix}
- * . & \gamma & \alpha & \lambda \ \
- * \delta & . &  \kappa & \beta \ \
- * \epsilon & \gamma & . & \lambda \ \
- * \delta & \sigma & \kappa & .\ \
+ * . & \gamma & \alpha & \lambda \\
+ * \delta & . &  \kappa & \beta \\
+ * \epsilon & \gamma & . & \lambda \\
+ * \delta & \sigma & \kappa & .\\
  * \end{pmatrix}\f]
  *
  * so in the parametrization process we set: \f[\gamma+\lambda+\delta+\kappa=1\f]
@@ -78,9 +78,9 @@ namespace bpp
  * can be computed analytically, so we define parameters for it (values between 0 and 1):
  *\f[
  * \begin{cases}
- * \theta_R = \pi_A + \pi_G\ \
- * \theta_C = \frac{\pi_C}{1 - \theta_R} = \frac{\pi_C}{\pi_C + \pi_G}\ \
- * \theta_G = \frac{\pi_G}{\theta_R} = \frac{\pi_G}{\pi_A + \pi_G}\ \
+ * \theta_R = \pi_A + \pi_G\\
+ * \theta_C = \frac{\pi_C}{1 - \theta_R} = \frac{\pi_C}{\pi_C + \pi_G}\\
+ * \theta_G = \frac{\pi_G}{\theta_R} = \frac{\pi_G}{\pi_A + \pi_G}\\
  * \end{cases}
  * \f]
  *
@@ -88,8 +88,8 @@ namespace bpp
  *
  *\f[
  * \begin{cases}
- * \kappa'=\frac{\kappa}{\theta_R}\ \
- * \gamma'=\frac{\gamma}{1-\theta_R}\ \
+ * \kappa'=\frac{\kappa}{\theta_R}\\
+ * \gamma'=\frac{\gamma}{1-\theta_R}\\
  * \end{cases}
  * \f]
  *
@@ -97,8 +97,8 @@ namespace bpp
  *
  *\f[
  * \begin{cases}
- * \alpha'=\frac{\alpha(1-\theta_G)+min(\theta_G,\kappa')(1-\theta_R)}{\theta_G(1-\theta_R)}\ \
- * \sigma'=\frac{\sigma(1-\theta_C)+min(\theta_C,\gamma')\theta_R}{\theta_C\theta_R}\ \
+ * \alpha'=\frac{\alpha(1-\theta_G)+min(\theta_G,\kappa')(1-\theta_R)}{\theta_G(1-\theta_R)}\\
+ * \sigma'=\frac{\sigma(1-\theta_C)+min(\theta_C,\gamma')\theta_R}{\theta_C\theta_R}\\
  * \end{cases}
  * \f]
  *
@@ -106,14 +106,14 @@ namespace bpp
  *
  *\f[
  * \begin{cases}
- * \kappa=\kappa' \theta_R\ \
- * \gamma=\gamma' (1-\theta_R)\ \
- * \delta=\theta_R - \kappa\ \
- * \lambda=1-\theta_R-\gamma\ \
- * \alpha=\frac{\alpha'(1-\theta_R)\theta_G-min(\theta_G,\kappa')(1-\theta_R)}{1-\theta_G}\ \
- * \sigma=\frac{\sigma'\theta_R\theta_C-min(\theta_C,\gamma')\theta_R}{1-\theta_C}\ \
- * \beta=\frac{\gamma'*\theta_R+\sigma}{\theta_C}-\sigma-\theta_R\ \
- * \epsilon=\frac{\kappa'*(1-\theta_R)+\alpha}{\theta_G}-\alpha-(1-\theta_R)\ \
+ * \kappa=\kappa' \theta_R\\
+ * \gamma=\gamma' (1-\theta_R)\\
+ * \delta=\theta_R - \kappa\\
+ * \lambda=1-\theta_R-\gamma\\
+ * \alpha=\frac{\alpha'(1-\theta_R)\theta_G-min(\theta_G,\kappa')(1-\theta_R)}{1-\theta_G}\\
+ * \sigma=\frac{\sigma'\theta_R\theta_C-min(\theta_C,\gamma')\theta_R}{1-\theta_C}\\
+ * \beta=\frac{\gamma'*\theta_R+\sigma}{\theta_C}-\sigma-\theta_R\\
+ * \epsilon=\frac{\kappa'*(1-\theta_R)+\alpha}{\theta_G}-\alpha-(1-\theta_R)\\
  * \end{cases}
  * \f]
  *
