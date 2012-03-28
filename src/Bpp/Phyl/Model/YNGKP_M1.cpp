@@ -99,10 +99,10 @@ YNGKP_M1::YNGKP_M1(const GeneticCode* gc, FrequenciesSet* codonFreqs) :
     }
   }
 
-  addParameter_(Parameter("YNGKP_M1.omega", 0.5, new IncludingExcludingInterval(NumConstants::SMALL, 1), true));
+  addParameter_(Parameter("YNGKP_M1.omega", 0.5, new IntervalConstraint(NumConstants::SMALL, 1, true, false), true));
 
   // look for synonymous codons
-  for (synfrom_ = 1; synfrom_ < (int)gc->getSourceAlphabet()->getSize(); synfrom_++)
+  for (synfrom_ = 1; synfrom_ < static_cast<int>(gc->getSourceAlphabet()->getSize()); synfrom_++)
   {
     for (synto_ = 0; synto_ < synfrom_; synto_++)
     {
@@ -115,7 +115,7 @@ YNGKP_M1::YNGKP_M1(const GeneticCode* gc, FrequenciesSet* codonFreqs) :
       break;
   }
 
-  if (synto_ == (int)gc->getSourceAlphabet()->getSize())
+  if (synto_ == static_cast<int>(gc->getSourceAlphabet()->getSize()))
     throw Exception("Impossible to find synonymous codons");
 
   // update matrice
