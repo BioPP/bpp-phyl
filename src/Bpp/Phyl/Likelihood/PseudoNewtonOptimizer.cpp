@@ -153,7 +153,7 @@ double PseudoNewtonOptimizer::doStep() throw (Exception)
       opt.setConstraintPolicy(getConstraintPolicy());
       opt.setProfiler(getProfiler());
       opt.setMessageHandler(getMessageHandler());
-      opt.setVerbose(getVerbose());
+      opt.setVerbose(0);
       double tol = std::max(getStopCondition()->getCurrentTolerance() / 2., getStopCondition()->getTolerance());
       opt.getStopCondition()->setTolerance(tol);
       opt.setMaximumNumberOfEvaluations(nbEvalMax_);
@@ -171,19 +171,23 @@ double PseudoNewtonOptimizer::doStep() throw (Exception)
     count++;
   }
   
-  if (newValue > currentValue_ + getStopCondition()->getTolerance())
-    printMessage("PseudoNewtonOptimizer::doStep. Convergence could not be reached!");
-  
-  //getFunction()->enableFirstOrderDerivatives(true);
-  getFunction()->enableSecondOrderDerivatives(true);
-  getFunction()->setParameters(newPoint); //Compute derivatives for this point
-
-  previousPoint_ = getParameters();
-  previousValue_ = currentValue_;
-  getParameters_() = newPoint;
+  if (newValue > currentValue_ + getStopCondition()->getTolerance()){
+    printMessage("PseudoNewtonOptimizer::doStep. Value could not be ameliorated!");
+    newValue = currentValue_;
+  }
+  else  {
+    //getFunction()->enableFirstOrderDerivatives(true);
+    getFunction()->enableSecondOrderDerivatives(true);
+    getFunction()->setParameters(newPoint); //Compute derivatives for this point
+    
+    previousPoint_ = getParameters();
+    previousValue_ = currentValue_;
+    getParameters_() = newPoint;
+  }
 
   if (updateParameters()) delete bckPoint;
   return newValue;
+  
 }
 
 /**************************************************************************/
