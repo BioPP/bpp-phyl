@@ -481,21 +481,25 @@ void AbstractWordSubstitutionModel::updateMatrices()
         seuil*=10;
       }
       
-      if (seuil> 10000)
+      if (seuil> 10000){
         ApplicationTools::displayWarning("!!! Equilibrium frequency of the model " + getName() + " has a precision less than """  + TextTools::toString(seuil/100*NumConstants::SMALL) + ". There may be some computing issues.");
-      
-      eigenValues_[nulleigen]=0; // to avoid approximation errors on long long branches
-      iEigenValues_[nulleigen]=0; // to avoid approximation errors on long long branches
-    
-      for (i = 0; i < salph; i++)
-        freq_[i] = leftEigenVectors_(nulleigen, i);
-
-      x = 0;
-      for (i = 0; i < salph; i++)
-        x += freq_[i];
-    
-      for (i = 0; i < salph; i++)
-        freq_[i] /= x;
+        ApplicationTools::displayWarning("!!! Taylor series used instead");
+        isNonSingular_=false;
+      }
+      else {
+        eigenValues_[nulleigen]=0; // to avoid approximation errors on long long branches
+        iEigenValues_[nulleigen]=0; // to avoid approximation errors on long long branches
+        
+        for (i = 0; i < salph; i++)
+          freq_[i] = leftEigenVectors_(nulleigen, i);
+        
+        x = 0;
+        for (i = 0; i < salph; i++)
+          x += freq_[i];
+        
+        for (i = 0; i < salph; i++)
+          freq_[i] /= x;
+      }
     }
 
     // if rightEigenVectors_ is singular
@@ -503,24 +507,26 @@ void AbstractWordSubstitutionModel::updateMatrices()
       ApplicationTools::displayMessage("Singularity during  diagonalization. Taylor series used instead.");
       isNonSingular_=false;
       isDiagonalizable_=false;
-     
+    }
+
+    if (!isNonSingular_){
       double min=generator_(0,0);
       for (i = 1; i < salph; i++)
         if (min>generator_(i,i))
           min=generator_(i,i);
-     
+      
       MatrixTools::scale(generator_,-1/min);
-
+      
       if (vPowGen_.size()==0)
         vPowGen_.resize(30);
       
       MatrixTools::getId(salph,tmpMat_);    // to compute the equilibrium frequency  (Q+Id)^256
       MatrixTools::add(tmpMat_,generator_);
       MatrixTools::pow(tmpMat_,256,vPowGen_[0]);
-     
+      
       for (i=0;i<salph;i++)
         freq_[i]=vPowGen_[0](0,i);
-
+      
       MatrixTools::getId(salph,vPowGen_[0]);
     }
     
@@ -535,7 +541,7 @@ void AbstractWordSubstitutionModel::updateMatrices()
       eigenValues_[i] /= -x;
       iEigenValues_[i]/=-x;
     }
-
+    
     if (!isNonSingular_)
       MatrixTools::Taylor(generator_,30,vPowGen_);
   }
