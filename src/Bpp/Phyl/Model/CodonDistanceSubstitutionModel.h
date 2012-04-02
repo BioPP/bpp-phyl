@@ -136,8 +136,6 @@ namespace bpp
     std::string getName() const;
 
     double getCodonsMulRate(unsigned int, unsigned int) const;
-
-    void setNamespace(const std::string&);
   };
 } // end of namespace bpp.
 

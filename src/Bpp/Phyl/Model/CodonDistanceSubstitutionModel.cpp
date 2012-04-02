@@ -87,13 +87,6 @@ void CodonDistanceSubstitutionModel::fireParameterChanged(const ParameterList& p
   AbstractCodonSubstitutionModel::fireParameterChanged(parameters);
 }
 
-void CodonDistanceSubstitutionModel::setNamespace(const std::string& prefix)
-{
-  AbstractParameterAliasable::setNamespace(prefix);
-  AbstractCodonSubstitutionModel::setNamespace(prefix);
-  AbstractCodonDistanceSubstitutionModel::setNamespace(prefix);
-}
-
 double CodonDistanceSubstitutionModel::getCodonsMulRate(unsigned int i, unsigned int j) const
 {
   return AbstractCodonDistanceSubstitutionModel::getCodonsMulRate(i,j)
