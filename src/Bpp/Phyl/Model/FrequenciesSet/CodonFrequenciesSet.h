@@ -42,6 +42,7 @@
 
 #include "WordFrequenciesSet.h"
 #include "FrequenciesSet.h"
+#include "ProteinFrequenciesSet.h"
 
 #include <Bpp/Seq/Alphabet/CodonAlphabet.h>
 #include <Bpp/Seq/GeneticCode/GeneticCode.h>

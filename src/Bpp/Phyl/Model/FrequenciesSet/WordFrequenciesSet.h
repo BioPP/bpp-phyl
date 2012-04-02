@@ -42,7 +42,6 @@
 
 #include <Bpp/Seq/Alphabet/WordAlphabet.h>
 #include "FrequenciesSet.h"
-#include "ProteinFrequenciesSet.h"
 
 namespace bpp
 {

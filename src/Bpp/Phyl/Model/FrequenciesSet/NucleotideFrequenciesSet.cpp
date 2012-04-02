@@ -41,10 +41,6 @@
 #include "NucleotideFrequenciesSet.h"
 
 #include <Bpp/Numeric/NumConstants.h>
-#include <Bpp/Numeric/VectorTools.h>
-
-//From SeqLib:
-#include <Bpp/Seq/Alphabet/AlphabetTools.h>
 
 using namespace bpp;
 

@@ -41,7 +41,6 @@
 #ifndef _PROTEINFREQUENCIESSET_H_
 #define _PROTEINFREQUENCIESSET_H_
 
-#include <Bpp/Numeric/VectorTools.h>
 #include <Bpp/Seq/Alphabet/ProteicAlphabet.h>
 #include "FrequenciesSet.h"
 
