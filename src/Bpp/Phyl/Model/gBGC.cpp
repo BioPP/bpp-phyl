@@ -59,7 +59,7 @@ gBGC::gBGC(const NucleicAlphabet* alph, NucleotideSubstitutionModel* const pm, d
   pmodel_->setNamespace("gBGC."+nestedPrefix_);
   pmodel_->enableEigenDecomposition(0);
   addParameters_(pmodel_->getParameters());
-  Parameter gammaP("gBGC.gamma", gamma_,new IntervalConstraint(-999, 10, true, true), true);
+  Parameter gammaP("gBGC.gamma", gamma_,new IncludingInterval(-999, 10), true);
   addParameter_(gammaP);
 
   updateMatrices();
