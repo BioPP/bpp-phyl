@@ -45,6 +45,7 @@ knowledge of the CeCILL license and that you accept its terms.
 #include <Bpp/Seq/GeneticCode.all>
 #include <Bpp/Phyl/TreeTemplate.h>
 #include <Bpp/Phyl/Model.all>
+#include <Bpp/Phyl/Model/FrequenciesSet/CodonFrequenciesSet.h>
 #include <Bpp/Phyl/Simulation.all>
 #include <Bpp/Phyl/Likelihood.all>
 #include <Bpp/Phyl/Mapping.all>
@@ -62,7 +63,7 @@ int main() {
 
   CodonAlphabet* alphabet = new StandardCodonAlphabet(&AlphabetTools::DNA_ALPHABET);
   GeneticCode* gc = new StandardGeneticCode(&AlphabetTools::DNA_ALPHABET);
-  //ReversibleSubstitutionModel* model = new YN98(gc, FrequenciesSet::getFrequenciesSetForCodons(FrequenciesSet::F0, *alphabet));
+  //ReversibleSubstitutionModel* model = new YN98(gc, CodonFrequenciesSet::getFrequenciesSetForCodons(FrequenciesSet::F0, *alphabet));
   SubstitutionModel* model = new CodonRateSubstitutionModel(
         dynamic_cast<const CodonAlphabet*>(gc->getSourceAlphabet()),
         new JCnuc(dynamic_cast<CodonAlphabet*>(alphabet)->getNucleicAlphabet()));

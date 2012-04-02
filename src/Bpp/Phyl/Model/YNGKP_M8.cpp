@@ -38,7 +38,6 @@
 
 #include "YNGKP_M8.h"
 #include "YN98.h"
-#include "FrequenciesSet.h"
 
 #include <Bpp/Numeric/Prob.all>
 #include <Bpp/Text/TextTools.h>

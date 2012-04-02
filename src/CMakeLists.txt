@@ -60,7 +60,10 @@ set(CPP_FILES
   Bpp/Phyl/Model/AbstractSubstitutionModel.cpp
   Bpp/Phyl/Model/DSO78.cpp
   Bpp/Phyl/Model/F84.cpp
-  Bpp/Phyl/Model/FrequenciesSet.cpp
+  Bpp/Phyl/Model/FrequenciesSet/FrequenciesSet.cpp
+  Bpp/Phyl/Model/FrequenciesSet/NucleotideFrequenciesSet.cpp
+  Bpp/Phyl/Model/FrequenciesSet/WordFrequenciesSet.cpp
+  Bpp/Phyl/Model/FrequenciesSet/CodonFrequenciesSet.cpp
   Bpp/Phyl/Model/GTR.cpp
   Bpp/Phyl/Model/GY94.cpp
   Bpp/Phyl/Model/HKY85.cpp
@@ -205,7 +208,11 @@ set(H_FILES
   Bpp/Phyl/Model/AbstractSubstitutionModel.h
   Bpp/Phyl/Model/DSO78.h
   Bpp/Phyl/Model/F84.h
-  Bpp/Phyl/Model/FrequenciesSet.h
+  Bpp/Phyl/Model/FrequenciesSet/FrequenciesSet.h
+  Bpp/Phyl/Model/FrequenciesSet/NucleotideFrequenciesSet.h
+  Bpp/Phyl/Model/FrequenciesSet/ProteinFrequenciesSet.h
+  Bpp/Phyl/Model/FrequenciesSet/WordFrequenciesSet.h
+  Bpp/Phyl/Model/FrequenciesSet/CodonFrequenciesSet.h
   Bpp/Phyl/Model/G2001.h
   Bpp/Phyl/Model/GTR.h
   Bpp/Phyl/Model/GY94.h

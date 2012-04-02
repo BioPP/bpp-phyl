@@ -38,7 +38,6 @@
 
 #include "YNGKP_M1.h"
 #include "YN98.h"
-#include "FrequenciesSet.h"
 
 #include <Bpp/Numeric/NumConstants.h>
 #include <Bpp/Numeric/Prob/SimpleDiscreteDistribution.h>

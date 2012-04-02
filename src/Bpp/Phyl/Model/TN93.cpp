@@ -38,7 +38,7 @@ knowledge of the CeCILL license and that you accept its terms.
 */
 
 #include "TN93.h"
-#include "FrequenciesSet.h"
+#include "FrequenciesSet/NucleotideFrequenciesSet.h"
 
 #include <Bpp/Numeric/Matrix/MatrixTools.h>
 #include <Bpp/Numeric/Matrix/EigenValue.h>

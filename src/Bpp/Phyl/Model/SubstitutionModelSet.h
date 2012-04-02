@@ -45,7 +45,7 @@
 #include "../Tree.h"
 #include "SubstitutionModel.h"
 #include "AbstractSubstitutionModel.h"
-#include "FrequenciesSet.h"
+#include "FrequenciesSet.all"
 
 #include <Bpp/Exceptions.h>
 #include <Bpp/Numeric/Random/RandomTools.h>

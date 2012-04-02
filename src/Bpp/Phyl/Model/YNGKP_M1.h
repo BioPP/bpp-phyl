@@ -42,7 +42,7 @@ knowledge of the CeCILL license and that you accept its terms.
 
 #include "AbstractBiblioMixedSubstitutionModel.h"
 #include "MixtureOfASubstitutionModel.h"
-#include "FrequenciesSet.h"
+#include "FrequenciesSet/CodonFrequenciesSet.h"
 
 #include <Bpp/Seq/GeneticCode/GeneticCode.h>
 

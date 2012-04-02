@@ -111,7 +111,8 @@ public:
  * where \f$P(t)\f$ is the matrix with all probabilities \f$P_{i,j}(t)\f$, and
  * \f$ r \f$ the rate.
  * For some models, the \f$P_{i,j}(t)\f$'s can be computed analytically.
- * For more complexe models, we need to use a eigen-decomposition of \f$Q\f$:
+ *
+ * For more complex models, we need to use a eigen-decomposition of \f$Q\f$:
  * \f[ Q = U^{-1} . D . U, \f]
  * where \f$D = diag(\lambda_i)\f$ is a diagonal matrix.
  * Hence
@@ -140,6 +141,53 @@ public:
  * \frac{\partial^2 P(t)}{\partial t^2} =
  * U^{-1} . diag\left(r^2 \times \lambda_i^2 \times e^{r \times \lambda_i \times t}\right) . U
  * \f]
+ *
+ *
+ * If Q is not symmetric, then the eigenvalue matrix D is block diagonal
+ * with the real eigenvalues in 1-by-1 blocks and any complex eigenvalues,
+ * a + i*b, in 2-by-2 blocks, [a, b; -b, a].  That is, if the complex
+ * eigenvalues look like
+ * <pre>
+ * 
+ *           a + ib   .        .    .
+ *           .        a - ib   .    .
+ *           .        .        x    .
+ *           .        .        .    y
+ * </pre>
+ * then D looks like
+ * <pre>
+ * 
+ *           a          b      .    .
+ *          -b          a      .    .
+ *           .          .      x    .
+ *           .          .      .    y
+ * </pre>
+ *
+ * and exp(tD) equals
+ * <pre>
+ * 
+ *           exp(ta)cos(tb)   exp(ta)sin(tb)  .        .
+ *          -exp(ta)sin(tb)   exp(ta)cos(tb)  .        . 
+ *           .                .               exp(tx)  .
+ *           .                .               .        exp(ty)
+ * </pre>
+ *
+ *
+ *
+ * If U is singular, it cannot be inverted. In this case exp(tQ) is
+ * approximated using Taylor decomposition:
+ *
+ * \f[
+ * P(t) = Id + tQ + \frac{(tQ)^2}{2!} + ... + \frac{(tQ)^n}{n!} + ... 
+ * \f]
+ *
+ * To prevent approximation issues, if @\f$ max(tQ) @\f$ is too high
+ * (currently above 0.5), @\f$ t @\fs is divided in an ad hoc way
+ * (e.g. by @\f$ N @\f$), and we compute @\f$ P(t) = (P(t/N))^N @\f$
+ * with a Taylor decomposition for @\f$ P(t/N) @\f$.
+ *
+ * In this case, derivatives according to @\f$ t @\f$ are computed
+ * analytically too.
  *
  */
 

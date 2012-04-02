@@ -38,7 +38,7 @@
 
 #include "YN98.h"
 #include "K80.h"
-#include "FrequenciesSet.h"
+#include "FrequenciesSet/CodonFrequenciesSet.h"
 #include <Bpp/Numeric/NumConstants.h>
 
 using namespace bpp;

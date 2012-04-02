@@ -38,7 +38,7 @@ knowledge of the CeCILL license and that you accept its terms.
 
 #include "LLG08_UL2.h"
 #include "YN98.h"
-#include "FrequenciesSet.h"
+#include "FrequenciesSet/ProteinFrequenciesSet.h"
 
 #include <Bpp/Numeric/Prob/SimpleDiscreteDistribution.h>
 

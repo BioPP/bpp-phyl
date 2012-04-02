@@ -38,7 +38,7 @@
  */
 
 #include "T92.h"
-#include "FrequenciesSet.h"
+#include "FrequenciesSet/NucleotideFrequenciesSet.h"
 
 #include <Bpp/Numeric/Matrix/MatrixTools.h>
 

@@ -43,7 +43,7 @@ knowledge of the CeCILL license and that you accept its terms.
 #include <Bpp/Seq/Alphabet/ProteicAlphabet.h>
 #include "ProteinSubstitutionModel.h"
 #include "AbstractSubstitutionModel.h"
-#include "FrequenciesSet.h"
+#include "FrequenciesSet/ProteinFrequenciesSet.h"
 
 namespace bpp
 {

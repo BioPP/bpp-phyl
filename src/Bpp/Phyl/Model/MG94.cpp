@@ -37,7 +37,7 @@ knowledge of the CeCILL license and that you accept its terms.
 */
 
 #include "MG94.h"
-#include "FrequenciesSet.h"
+#include "FrequenciesSet/CodonFrequenciesSet.h"
 #include "K80.h"
 
 using namespace bpp;

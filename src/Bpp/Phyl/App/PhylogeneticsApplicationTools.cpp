@@ -40,6 +40,7 @@
 
 #include "PhylogeneticsApplicationTools.h"
 #include "../Model.all"
+#include "../Model/FrequenciesSet.all"
 #include "../Likelihood.all"
 #include "../OptimizationTools.h"
 #include "../Tree.h"
@@ -1554,16 +1555,16 @@ FrequenciesSet* PhylogeneticsApplicationTools::getFrequenciesSetDefaultInstance(
     short opt = -1;
 
     if (freqName == "F0")
-      opt = FrequenciesSet::F0;
+      opt = CodonFrequenciesSet::F0;
     else if (freqName == "F1X4")
-      opt = FrequenciesSet::F1X4;
+      opt = CodonFrequenciesSet::F1X4;
     else if (freqName == "F3X4")
-      opt = FrequenciesSet::F3X4;
+      opt = CodonFrequenciesSet::F3X4;
     else if (freqName == "F61")
-      opt = FrequenciesSet::F61;
+      opt = CodonFrequenciesSet::F61;
 
     if (opt != -1)
-      pFS = FrequenciesSet::getFrequenciesSetForCodons(opt, *dynamic_cast<const CodonAlphabet*>(alphabet));
+      pFS = CodonFrequenciesSet::getFrequenciesSetForCodons(opt, *dynamic_cast<const CodonAlphabet*>(alphabet));
     else
       throw Exception("Unknown frequency option: " + freqName);
   }
