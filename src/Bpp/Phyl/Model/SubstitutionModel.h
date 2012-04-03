@@ -182,7 +182,7 @@ public:
  * \f]
  *
  * To prevent approximation issues, if @\f$ max(tQ) @\f$ is too high
- * (currently above 0.5), @\f$ t @\fs is divided in an ad hoc way
+ * (currently above 0.5), @\f$ t @\f$ is divided in an ad hoc way
  * (e.g. by @\f$ N @\f$), and we compute @\f$ P(t) = (P(t/N))^N @\f$
  * with a Taylor decomposition for @\f$ P(t/N) @\f$.
  *
