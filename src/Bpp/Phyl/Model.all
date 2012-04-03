@@ -16,6 +16,7 @@
 #include "Model/CodonSubstitutionModel.h"
 #include "Model/DSO78.h"
 #include "Model/F84.h"
+#include "Model/FrequenciesSet.all"
 #include "Model/G2001.h"
 #include "Model/GTR.h"
 #include "Model/GY94.h"

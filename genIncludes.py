@@ -10,8 +10,6 @@ for root, dirs, files in os.walk('src/Bpp'):
     files.sort()
     for file in files:
         base, ext = splitext(file)
-        if (ext == ".h"):
+        if (ext == ".h") or (ext == ".all"):
           f.write("#include \"" + tail + "/" + file + "\"\n")
     f.close()
-    if '.svn' in dirs:
-        dirs.remove('.svn')  # don't visit SVN directories
