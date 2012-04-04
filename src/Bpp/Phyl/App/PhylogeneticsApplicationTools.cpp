@@ -523,7 +523,6 @@ SubstitutionModel* PhylogeneticsApplicationTools::getSubstitutionModelDefaultIns
         else
           pai2  = SequenceApplicationTools::getAADistance(args["aadistance"]);
 
-
         if (dynamic_cast<NucleotideSubstitutionModel*>(v_pSM[0]) == 0)
           throw Exception("Non simple NucleotideSubstitutionModel imbedded in " + modelName + " model.");
 
@@ -1388,7 +1387,7 @@ FrequenciesSet* PhylogeneticsApplicationTools::getFrequenciesSetDefaultInstance(
   KeyvalTools::parseProcedure(freqDescription, freqName, args);
   FrequenciesSet* pFS;
 
-  if (freqName.substr(0, 4) == "Full")
+  if (freqName == "Full")
   {
     if (AlphabetTools::isNucleicAlphabet(alphabet))
     {
@@ -1550,6 +1549,42 @@ FrequenciesSet* PhylogeneticsApplicationTools::getFrequenciesSetDefaultInstance(
       pFS = new CodonFromIndependentFrequenciesSet(pWA, v_AFS);
     }
   }
+  // CODON PER AA Frequencies 
+  else if (freqName == "FullPerAA")
+    {
+      if (!AlphabetTools::isCodonAlphabet(alphabet))
+        throw Exception("PhylogeneticsApplicationTools::getFrequenciesSetDefaultInstance.\n\t Bad alphabet type "
+                        + alphabet->getAlphabetType() + " for frequenciesset " + freqName + ".");
+
+      const CodonAlphabet* pWA = dynamic_cast<const CodonAlphabet*>(alphabet);
+
+      if (args.find("genetic_code") == args.end())
+        args["genetic_code"] = pWA->getAlphabetType();
+
+      GeneticCode* pgc = SequenceApplicationTools::getGeneticCode(dynamic_cast<const NucleicAlphabet*>(pWA->getNAlphabet(0)), args["genetic_code"]);
+      if (pgc->getSourceAlphabet()->getAlphabetType() != pWA->getAlphabetType())
+        throw Exception("Mismatch between genetic code and codon alphabet");
+
+      const ProteicAlphabet* pPA=dynamic_cast<const ProteicAlphabet*>(pgc->getTargetAlphabet());
+
+      ProteinFrequenciesSet* pPFS=0;
+      
+      map<string, string> unparsedParameterValuesNested;
+      
+      if (args.find("protein_frequencies") != args.end()){
+        string sPFS= args["protein_frequencies"];
+        pPFS= dynamic_cast<ProteinFrequenciesSet*>(getFrequenciesSetDefaultInstance(pPA, sPFS, unparsedParameterValuesNested));
+
+        for (map<string, string>::iterator it = unparsedParameterValuesNested.begin(); it != unparsedParameterValuesNested.end(); it++)
+          {
+            unparsedParameterValues["FullPerAA." + it->first] = it->second;
+          }
+        pFS = new FullPerAACodonFrequenciesSet(pgc, pPFS);
+      }
+
+      else
+        pFS = new FullPerAACodonFrequenciesSet(pgc);
+    }
   else if (AlphabetTools::isCodonAlphabet(alphabet))
   {
     short opt = -1;
