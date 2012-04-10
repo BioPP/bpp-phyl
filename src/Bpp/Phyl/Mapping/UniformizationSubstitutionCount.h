@@ -96,7 +96,9 @@ class UniformizationSubstitutionCount:
     }				
 		
     virtual ~UniformizationSubstitutionCount() {}
-			
+		
+    UniformizationSubstitutionCount* clone() const { return new UniformizationSubstitutionCount(*this); }
+
 	public:
 		double getNumberOfSubstitutions(unsigned int initialState, unsigned int finalState, double length, unsigned int type = 1) const;
 
@@ -108,6 +110,12 @@ class UniformizationSubstitutionCount:
 
   protected:
     void computeCounts_(double length) const;
+    void substitutionRegisterHasChanged();
+
+  private:
+    void resetBMatrices_();
+    void initBMatrices_();
+    void fillBMatrices_();
 
 };
 

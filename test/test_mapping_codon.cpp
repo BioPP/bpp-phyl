@@ -114,7 +114,7 @@ int main() {
   drhtl.initialize();
   cout << drhtl.getValue() << endl;
  
-  SubstitutionCount* sCountAna = new AnalyticalSubstitutionCount(model, 10);
+  SubstitutionCount* sCountAna = new LaplaceSubstitutionCount(model, 10);
   Matrix<double>* m = sCountAna->getAllNumbersOfSubstitutions(0.001,1);
   cout << "Analytical total count:" << endl;
   MatrixTools::print(*m);

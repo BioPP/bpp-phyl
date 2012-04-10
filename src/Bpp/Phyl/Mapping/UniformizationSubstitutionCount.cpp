@@ -64,18 +64,8 @@ UniformizationSubstitutionCount::UniformizationSubstitutionCount(const Substitut
 
   //Initialize all B matrices according to substitution register. This is done once for all,
   //unless the number of states changes:
-  for (unsigned int i = 0; i < reg->getNumberOfSubstitutionTypes(); ++i) {
-    bMatrices_[i].resize(nbStates_, nbStates_);
-    counts_[i].resize(nbStates_, nbStates_);
-  }
-  for (unsigned int j = 0; j < nbStates_; ++j) {
-    for (unsigned int k = 0; k < nbStates_; ++k) {
-      unsigned int i = reg->getType(static_cast<int>(j), static_cast<int>(k));
-      if (i > 0 && k != j) {
-        bMatrices_[i - 1](j, k) = model->Qij(j, k);
-      }
-    }
-  }
+  initBMatrices_();
+  fillBMatrices_();
 
   for (unsigned int i = 0; i < nbStates_; ++i) {
     double diagQ = abs(model_->Qij(i, i));
@@ -83,7 +73,39 @@ UniformizationSubstitutionCount::UniformizationSubstitutionCount(const Substitut
       miu_ = diagQ;
   }
 }				
-    
+
+/******************************************************************************/
+
+void UniformizationSubstitutionCount::resetBMatrices_()
+{
+  unsigned int nbTypes = register_->getNumberOfSubstitutionTypes();
+  bMatrices_.resize(nbTypes);
+  counts_.resize(nbTypes);
+}
+
+
+void UniformizationSubstitutionCount::initBMatrices_()
+{
+  //Re-initialize all B matrices according to substitution register.
+  for (unsigned int i = 0; i < register_->getNumberOfSubstitutionTypes(); ++i) {
+    bMatrices_[i].resize(nbStates_, nbStates_);
+    counts_[i].resize(nbStates_, nbStates_);
+  }
+}
+
+void UniformizationSubstitutionCount::fillBMatrices_()
+{
+  for (unsigned int j = 0; j < nbStates_; ++j) {
+    for (unsigned int k = 0; k < nbStates_; ++k) {
+      unsigned int i = register_->getType(static_cast<int>(j), static_cast<int>(k));
+      if (i > 0 && k != j) {
+        bMatrices_[i - 1](j, k) = model_->Qij(j, k);
+      }
+    }
+  }
+}
+
+
 /******************************************************************************/
 
 void UniformizationSubstitutionCount::computeCounts_(double length) const
@@ -191,24 +213,15 @@ void UniformizationSubstitutionCount::setSubstitutionModel(const SubstitutionMod
   //Check compatiblity between model and substitution register:
   if (model->getAlphabet()->getAlphabetType() != register_->getAlphabet()->getAlphabetType())
     throw Exception("UniformizationSubstitutionCount::setSubstitutionModel: alphabets do not match between register and model.");
+
   model_ = model;
   unsigned int n = model->getAlphabet()->getSize();
   if (n != nbStates_) {
     nbStates_ = n;
     //Re-initialize all B matrices according to substitution register.
-    for (unsigned int i = 0; i < register_->getNumberOfSubstitutionTypes(); ++i) {
-      bMatrices_[i].resize(nbStates_, nbStates_);
-      counts_[i].resize(nbStates_, nbStates_);
-    }
+    initBMatrices_();
   }
-  for (unsigned int j = 0; j < nbStates_; ++j) {
-    for (unsigned int k = 0; k < nbStates_; ++k) {
-      unsigned int i = register_->getType(static_cast<int>(j), static_cast<int>(k));
-      if (i > 0) {
-        bMatrices_[i - 1](j, k) = abs(model->Qij(j, k));
-      }
-    }
-  }
+  fillBMatrices_();
 	
   miu_ = 0;
   for (unsigned int i = 0; i < nbStates_; ++i) {
@@ -219,6 +232,19 @@ void UniformizationSubstitutionCount::setSubstitutionModel(const SubstitutionMod
 
   //Recompute counts:
   computeCounts_(currentLength_);
+}
+
+/******************************************************************************/
+
+void UniformizationSubstitutionCount::substitutionRegisterHasChanged()
+{
+  //Check compatiblity between model and substitution register:
+  if (model_->getAlphabet()->getAlphabetType() != register_->getAlphabet()->getAlphabetType())
+    throw Exception("UniformizationSubstitutionCount::substitutionRegisterHasChanged: alphabets do not match between register and model.");
+
+  resetBMatrices_();
+  initBMatrices_();
+  fillBMatrices_();
 }
 
 /******************************************************************************/

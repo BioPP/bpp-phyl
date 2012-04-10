@@ -47,7 +47,7 @@ namespace bpp
 {
 
 /**
- * @brief Computes the probability that at least one jump occured on a branch, givne the initial and final state.
+ * @brief Computes the probability that at least one jump occured on a branch, given the initial and final state.
  *
  * This probability is defined as
  * @f[
@@ -81,7 +81,9 @@ class OneJumpSubstitutionCount:
     }
 				
 		virtual ~OneJumpSubstitutionCount() {}
-			
+		
+    virtual OneJumpSubstitutionCount* clone() const { return new OneJumpSubstitutionCount(*this); }
+
 	public:
 		double getNumberOfSubstitutions(unsigned int initialState, unsigned int finalState, double length, unsigned int type = 1) const
     {
@@ -99,6 +101,13 @@ class OneJumpSubstitutionCount:
     }
     
     void setSubstitutionModel(const SubstitutionModel* model) { model_ = model; }
+    
+    void setSubstitutionRegister(SubstitutionRegister* reg) throw (Exception) {
+      throw Exception("OneJumpSubstitutionCount::setSubstitutionRegister. This SubstitutionsCount only works with a TotalSubstitutionRegister.");
+    }
+
+  private:
+    void substitutionRegisterHasChanged() {}
 
 };
 

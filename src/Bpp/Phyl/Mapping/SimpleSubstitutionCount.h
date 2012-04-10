@@ -79,7 +79,9 @@ class SimpleSubstitutionCount:
       AbstractSubstitutionCount(reg), allowSelf_(allowSelf) {}				
 		
     virtual ~SimpleSubstitutionCount() {}
-			
+	
+    SimpleSubstitutionCount* clone() const { return new SimpleSubstitutionCount(*this); }
+
 	public:
 		double getNumberOfSubstitutions(unsigned int initialState, unsigned int finalState, double length, unsigned int type = 1) const
     {
@@ -101,6 +103,9 @@ class SimpleSubstitutionCount:
     }
     
     void setSubstitutionModel(const SubstitutionModel* model) {}
+
+  private:
+    void substitutionRegisterHasChanged() {}
 
 };
 

@@ -1,5 +1,5 @@
 //
-// File: AnalyticalSubstitutionCount.h
+// File: LaplaceSubstitutionCount.h
 // Created by: Julien Dutheil
 // Created on: Wed Apr 5 11:21 2006
 //
@@ -47,16 +47,18 @@ namespace bpp
 {
 
 /**
- * @brief Analytical estimate of the substitution count.
+ * @brief Laplace estimate of the substitution count.
  *
  * This method uses Laplace transforms, as described in 
  * Dutheil J, Pupko T, Jean-Marie A, Galtier N.
  * A model-based approach for detecting coevolving positions in a molecule.
  * Mol Biol Evol. 2005 Sep;22(9):1919-28.
  *
+ * @see UniformizationSubstitutionCount
+ * @see DecompositionSubstitutionCount
  * @author Julien Dutheil
  */
-class AnalyticalSubstitutionCount:
+class LaplaceSubstitutionCount:
   public AbstractSubstitutionCount
 {
 	private:
@@ -66,7 +68,7 @@ class AnalyticalSubstitutionCount:
 		mutable RowMatrix<double> m_;
 	
 	public:
-		AnalyticalSubstitutionCount(const SubstitutionModel* model, int cutOff) :
+		LaplaceSubstitutionCount(const SubstitutionModel* model, int cutOff) :
       AbstractSubstitutionCount(new TotalSubstitutionRegister(model->getAlphabet())),
       model_        (model),
       cutOff_       (cutOff),
@@ -74,7 +76,7 @@ class AnalyticalSubstitutionCount:
       m_            (model->getNumberOfStates(), model->getNumberOfStates())
     {}
 	
-    AnalyticalSubstitutionCount(const AnalyticalSubstitutionCount& asc) :
+    LaplaceSubstitutionCount(const LaplaceSubstitutionCount& asc) :
       AbstractSubstitutionCount(asc),
       model_        (asc.model_),
       cutOff_       (asc.cutOff_),
@@ -82,7 +84,7 @@ class AnalyticalSubstitutionCount:
       m_            (asc.m_)
     {}
 				
-	  AnalyticalSubstitutionCount& operator=(const AnalyticalSubstitutionCount& asc)
+	  LaplaceSubstitutionCount& operator=(const LaplaceSubstitutionCount& asc)
     {
       AbstractSubstitutionCount::operator=(asc);
       model_         = asc.model_;
@@ -92,9 +94,11 @@ class AnalyticalSubstitutionCount:
       return *this;
     }
 				
-		virtual ~AnalyticalSubstitutionCount() {}
-			
-	public:
+		virtual ~LaplaceSubstitutionCount() {}
+		
+    LaplaceSubstitutionCount* clone() const { return new LaplaceSubstitutionCount(*this); }
+	
+  public:
 		double getNumberOfSubstitutions(unsigned int initialState, unsigned int finalState, double length, unsigned int type = 1) const;
     Matrix<double>* getAllNumbersOfSubstitutions(double length, unsigned int type = 1) const;
     std::vector<double> getNumberOfSubstitutionsForEachType(unsigned int initialState, unsigned int finalState, double length) const
@@ -106,8 +110,13 @@ class AnalyticalSubstitutionCount:
 
     void setSubstitutionModel(const SubstitutionModel* model);
 
+    void setSubstitutionRegister(SubstitutionRegister* reg) throw (Exception) {
+      throw Exception("LaplaceSubstitutionCount::setSubstitutionRegister. This SubstitutionsCount only works with a TotalSubstitutionRegister.");
+    }
+
   protected:
     void computeCounts(double length) const;
+    void substitutionRegisterHasChanged() {}
 };
 
 } //end of namespace bpp.

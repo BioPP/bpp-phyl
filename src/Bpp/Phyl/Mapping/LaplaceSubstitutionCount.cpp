@@ -1,5 +1,5 @@
 //
-// File: AnalyticalSubstitutionCount.cpp
+// File: LaplaceSubstitutionCount.cpp
 // Created by: Julien Dutheil
 // Created on: Wed Apr 5 11:21 2006
 //
@@ -37,7 +37,7 @@ The fact that you are presently reading this means that you have had
 knowledge of the CeCILL license and that you accept its terms.
 */
 
-#include "AnalyticalSubstitutionCount.h"
+#include "LaplaceSubstitutionCount.h"
 
 #include <Bpp/Numeric/Matrix/MatrixTools.h>
 
@@ -45,7 +45,7 @@ using namespace bpp;
 
 /******************************************************************************/
 
-void AnalyticalSubstitutionCount::computeCounts(double length) const
+void LaplaceSubstitutionCount::computeCounts(double length) const
 {
   RowMatrix<double> Q = model_->getGenerator();
   // L is the diagonal matrix with all substitution rates.
@@ -92,7 +92,7 @@ void AnalyticalSubstitutionCount::computeCounts(double length) const
 
 /******************************************************************************/
 
-double AnalyticalSubstitutionCount::getNumberOfSubstitutions(unsigned int initialState, unsigned int finalState, double length, unsigned int type) const
+double LaplaceSubstitutionCount::getNumberOfSubstitutions(unsigned int initialState, unsigned int finalState, double length, unsigned int type) const
 {
   if (length == currentLength_) return m_(initialState, finalState);
   if (length < 0.000001) return initialState == finalState ? 0. : 1.; //Limit case!
@@ -105,7 +105,7 @@ double AnalyticalSubstitutionCount::getNumberOfSubstitutions(unsigned int initia
 
 /******************************************************************************/
 
-Matrix<double>* AnalyticalSubstitutionCount::getAllNumbersOfSubstitutions(double length, unsigned int type) const
+Matrix<double>* LaplaceSubstitutionCount::getAllNumbersOfSubstitutions(double length, unsigned int type) const
 {
   if (length == currentLength_) return new RowMatrix<double>(m_);
   if (length < 0.000001) // Limit case!
@@ -132,7 +132,7 @@ Matrix<double>* AnalyticalSubstitutionCount::getAllNumbersOfSubstitutions(double
 
 /******************************************************************************/
 
-void AnalyticalSubstitutionCount::setSubstitutionModel(const SubstitutionModel* model)
+void LaplaceSubstitutionCount::setSubstitutionModel(const SubstitutionModel* model)
 {
   model_ = model;
   unsigned int n = model->getAlphabet()->getSize();

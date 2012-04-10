@@ -65,33 +65,68 @@ DecompositionSubstitutionCount::DecompositionSubstitutionCount(const ReversibleS
 
   //Initialize all B matrices according to substitution register. This is done once for all,
   //unless the number of states changes:
-  for (unsigned int i = 0; i < reg->getNumberOfSubstitutionTypes(); ++i) {
-    bMatrices_[i].resize(nbStates_, nbStates_);
-    insideProducts_[i].resize(nbStates_, nbStates_);
-    counts_[i].resize(nbStates_, nbStates_);
-  }
+  initBMatrices_();
+  fillBMatrices_();
+  computeEigen_();
+  computeProducts_();
+}				
+    
+/******************************************************************************/
+
+void DecompositionSubstitutionCount::fillBMatrices_()
+{
   for (unsigned int j = 0; j < nbStates_; ++j) {
     for (unsigned int k = 0; k < nbStates_; ++k) {
-      unsigned int i = reg->getType(static_cast<int>(j), static_cast<int>(k));
+      unsigned int i = register_->getType(static_cast<int>(j), static_cast<int>(k));
       if (i > 0 && k != j) {
-        bMatrices_[i - 1](j, k) = model->Qij(j, k);
+        bMatrices_[i - 1](j, k) = model_->Qij(j, k);
       }
     }
   }
- 
-	v_      = model->getColumnRightEigenVectors();
-  vInv_   = model->getRowLeftEigenVectors();
-	lambda_ = model->getEigenValues();
-	for (unsigned int i = 0; i < register_->getNumberOfSubstitutionTypes(); ++i) {
+}
+
+void DecompositionSubstitutionCount::computeEigen_()
+{
+	v_      = model_->getColumnRightEigenVectors();
+  vInv_   = model_->getRowLeftEigenVectors();
+	lambda_ = model_->getEigenValues();
+}
+
+void DecompositionSubstitutionCount::computeProducts_()
+{
+  for (unsigned int i = 0; i < register_->getNumberOfSubstitutionTypes(); ++i) {
     //vInv_ %*% bMatrices_[i] %*% v_;
     RowMatrix<double> tmp(nbStates_, nbStates_);
     MatrixTools::mult(vInv_, bMatrices_[i], tmp);
     MatrixTools::mult(tmp, v_, insideProducts_[i]);
   }
+}
 
-}				
-    
-/******************************************************************************/
+void DecompositionSubstitutionCount::resetBMatrices_()
+{
+  unsigned int nbTypes = register_->getNumberOfSubstitutionTypes();
+  bMatrices_.resize(nbTypes);
+  insideProducts_.resize(nbTypes);
+  counts_.resize(nbTypes);
+}
+
+void DecompositionSubstitutionCount::resetStates_()
+{
+  jMat_.resize(nbStates_, nbStates_);
+  v_.resize(nbStates_, nbStates_);
+  vInv_.resize(nbStates_, nbStates_);
+  lambda_.resize(nbStates_);
+}
+
+void DecompositionSubstitutionCount::initBMatrices_()
+{
+  //Re-initialize all B matrices according to substitution register.
+  for (unsigned int i = 0; i < register_->getNumberOfSubstitutionTypes(); ++i) {
+    bMatrices_[i].resize(nbStates_, nbStates_);
+    insideProducts_[i].resize(nbStates_, nbStates_);
+    counts_[i].resize(nbStates_, nbStates_);
+  }
+}
 
 void DecompositionSubstitutionCount::jFunction_(const std::vector<double>& lambda, double t, RowMatrix<double>& result) const
 {
@@ -210,35 +245,29 @@ void DecompositionSubstitutionCount::setSubstitutionModel(const SubstitutionMode
   unsigned int n = model->getAlphabet()->getSize();
   if (n != nbStates_) {
     nbStates_ = n;
-    jMat_.resize(n, n);
-    v_.resize(n, n);
-    vInv_.resize(n, n);
-    lambda_.resize(n);
-    //Re-initialize all B matrices according to substitution register.
-    for (unsigned int i = 0; i < register_->getNumberOfSubstitutionTypes(); ++i) {
-      bMatrices_[i].resize(nbStates_, nbStates_);
-      insideProducts_[i].resize(nbStates_, nbStates_);
-      counts_[i].resize(nbStates_, nbStates_);
-    }
+    resetStates_();
+    initBMatrices_();
   }
-  for (unsigned int j = 0; j < nbStates_; ++j) {
-    for (unsigned int k = 0; k < nbStates_; ++k) {
-      unsigned int i = register_->getType(static_cast<int>(j), static_cast<int>(k));
-      if (i > 0) {
-        bMatrices_[i - 1](j, k) = model->Qij(j, k);
-      }
-    }
-  }
+  fillBMatrices_();
+  computeEigen_();
+  computeProducts_();
 
-	v_      = model->getColumnRightEigenVectors();
-	vInv_   = model->getRowLeftEigenVectors();
-	lambda_ = model->getEigenValues();
-	for (unsigned int i = 0; i < register_->getNumberOfSubstitutionTypes(); ++i) {
-    //vInv_ %*% bMatrices_[i] %*% v_;
-    RowMatrix<double> tmp(nbStates_, nbStates_);
-    MatrixTools::mult(vInv_, bMatrices_[i], tmp);
-    MatrixTools::mult(tmp, v_, insideProducts_[i]);
-  }
+  //Recompute counts:
+  computeCounts_(currentLength_);
+}
+
+/******************************************************************************/
+
+void DecompositionSubstitutionCount::substitutionRegisterHasChanged()
+{
+  //Check compatiblity between model and substitution register:
+  if (model_->getAlphabet()->getAlphabetType() != register_->getAlphabet()->getAlphabetType())
+    throw Exception("DecompositionSubstitutionCount::substitutionRegisterHasChanged: alphabets do not match between register and model.");
+
+  resetBMatrices_();
+  initBMatrices_();
+  fillBMatrices_();
+  computeProducts_();
 
   //Recompute counts:
   computeCounts_(currentLength_);

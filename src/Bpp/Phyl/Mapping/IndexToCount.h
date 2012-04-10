@@ -50,25 +50,39 @@ namespace bpp
 {
 
 /**
- * @brief Naive substitution count weighted by amino-acids properties.
+ * @brief Weight substitution counts according to state properties.
  *
- * This class uses a AlphabetIndex2 object to weight substitutions.
+ * This class uses a ComprehensiveSubstitutionRegister to map all types of substitutions,
+ * and multiplies each counts by a weight specified via an AlphabetIndex2 object.
+ * Weighted counts are then summed according the specified substitution register.
  */
 class IndexToCount:
   public AbstractSubstitutionCount
 {
 	private:
-		const AlphabetIndex2<double> *dist_;
+    SubstitutionCount* subCount_;
+		const AlphabetIndex2<double>* dist_;
 		bool ownDist_;
 	
 	public:
-		IndexToCount(SubstitutionRegister* reg, const AlphabetIndex2<double>* ai2, bool ownDistance) :
-      AbstractSubstitutionCount(reg), dist_(ai2), ownDist_(ownDistance)
-    {}
+		IndexToCount(SubstitutionCount* subCount, SubstitutionRegister* reg, const AlphabetIndex2<double>* ai2, bool ownDistance) :
+      AbstractSubstitutionCount(reg), 
+      subCount_(subCount),
+      dist_(ai2),
+      ownDist_(ownDistance)
+    {
+      if (!subCount)
+        throw NullPointerException("IndexToCount, constructor: input pointer should not be null.");
+      subCount_->setSubstitutionRegister(new ComprehensiveSubstitutionRegister(subCount->getAlphabet(), false));
+    }
 
     IndexToCount(const IndexToCount& index) :
-      AbstractSubstitutionCount(index), dist_(index.dist_), ownDist_(index.ownDist_)
+      AbstractSubstitutionCount(index),
+      subCount_(index.subCount_),
+      dist_(index.dist_),
+      ownDist_(index.ownDist_)
     {
+      subCount_ = dynamic_cast<SubstitutionCount*>(index.subCount_->clone());
       if (ownDist_)
         dist_ = dynamic_cast<AlphabetIndex2<double>*>(index.dist_->clone());
     }
@@ -76,14 +90,19 @@ class IndexToCount:
     IndexToCount& operator=(const IndexToCount& index)
     {
       AbstractSubstitutionCount::operator=(index);
+
+      subCount_ = dynamic_cast<SubstitutionCount*>(index.subCount_->clone());
+      
       ownDist_ = index.ownDist_;
       if (ownDist_) dist_ = dynamic_cast<AlphabetIndex2<double>*>(index.dist_->clone());
       else dist_ = index.dist_;
+      
       return *this;
     }
 		
 		virtual ~IndexToCount()
     {
+      delete subCount_;
 			if (ownDist_)
         delete dist_;
 		}
@@ -95,10 +114,12 @@ class IndexToCount:
 
     std::vector<double> getNumberOfSubstitutionsForEachType(unsigned int initialState, unsigned int finalState, double length) const;
     
-    void setSubstitutionModel(const SubstitutionModel* model) {}
+    void setSubstitutionModel(SubstitutionModel* model) { subCount_->setSubstitutionModel(model); }
 
-	public:
-		const AlphabetIndex2<double>* getAlphabetIndex2() const { return dist_; }
+		const SubstitutionRegister* getSubstitutionRegister() const { return subCount_->getSubstitutionRegister(); }
+		
+  public:
+    const AlphabetIndex2<double>* getAlphabetIndex2() const { return dist_; }
 };
 
 } //end of namespace bpp.
