@@ -106,7 +106,9 @@ class IndexToCount:
 			if (ownDist_)
         delete dist_;
 		}
-			
+		
+    IndexToCount* clone() const { return new IndexToCount(*this); }
+
 	public:
 		double getNumberOfSubstitutions(unsigned int initialState, unsigned int finalState, double length, unsigned int type = 1) const;
 
@@ -114,12 +116,15 @@ class IndexToCount:
 
     std::vector<double> getNumberOfSubstitutionsForEachType(unsigned int initialState, unsigned int finalState, double length) const;
     
-    void setSubstitutionModel(SubstitutionModel* model) { subCount_->setSubstitutionModel(model); }
+    void setSubstitutionModel(const SubstitutionModel* model) { subCount_->setSubstitutionModel(model); }
 
 		const SubstitutionRegister* getSubstitutionRegister() const { return subCount_->getSubstitutionRegister(); }
 		
   public:
     const AlphabetIndex2<double>* getAlphabetIndex2() const { return dist_; }
+
+  protected:
+    void substitutionRegisterHasChanged() {}
 };
 
 } //end of namespace bpp.

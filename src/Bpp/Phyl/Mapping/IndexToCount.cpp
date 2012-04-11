@@ -56,11 +56,10 @@ double IndexToCount::getNumberOfSubstitutions(unsigned int initialState, unsigne
 
 Matrix<double>* IndexToCount::getAllNumbersOfSubstitutions(double length, unsigned int type) const
 {
-  Matrix<double>* mat = dist_->getIndexMatrix();
+  Matrix<double>* mat = new RowMatrix<double>(getNumberOfStates(), getNumberOfStates());
   for (unsigned int i = 0; i < mat->getNumberOfRows(); ++i)
     for (unsigned int j = 0; j < mat->getNumberOfColumns(); ++j)
-      if (register_->getType(i, j) != type)
-        (*mat)(i, j) = 0;
+      (*mat)(i, j) = getNumberOfSubstitutions(i, j, length, type);
   return mat;
 }
 

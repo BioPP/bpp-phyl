@@ -105,11 +105,19 @@ class SubstitutionCount:
     virtual unsigned int getNumberOfSubstitutionTypes() const { return getSubstitutionRegister()->getNumberOfSubstitutionTypes(); }
 
     /**
-     * @brief Short cut function, equivalent to getSubstitutionRegister().getAlphabet().
+     * @brief Short cut function, equivalent to getSubstitutionRegister()->getAlphabet().
      *
      * @return The alphabet associated to this substitution count.
      */
     virtual const Alphabet* getAlphabet() const { return getSubstitutionRegister()->getAlphabet(); }
+
+    /**
+     * @brief Short cut function, equivalent to getSubstitutionRegister()->getAlphabet()->getSize().
+     *
+     * @return The number of states in the model/alphabet.
+     */
+    virtual unsigned int getNumberOfStates() const { return getSubstitutionRegister()->getAlphabet()->getSize(); }
+
 
 		/**
 		 * @brief Get the number of susbstitutions on a branch, given the initial and final states, and the branch length.
