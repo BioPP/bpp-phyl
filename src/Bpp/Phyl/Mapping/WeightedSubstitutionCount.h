@@ -1,5 +1,5 @@
 //
-// File: IndexToCount.h
+// File: WeightedSubstitutionCount.h
 // Created by: Julien Dutheil
 // Created on: Wed Apr 5 15:12 2006
 //
@@ -37,8 +37,8 @@ The fact that you are presently reading this means that you have had
 knowledge of the CeCILL license and that you accept its terms.
 */
 
-#ifndef _INDEXTOCOUNT_H_
-#define _INDEXTOCOUNT_H_
+#ifndef _WEIGHTEDSUBSTITUTIONCOUNT_H_
+#define _WEIGHTEDSUBSTITUTIONCOUNT_H_
 
 #include "SubstitutionCount.h"
 
@@ -56,7 +56,7 @@ namespace bpp
  * and multiplies each counts by a weight specified via an AlphabetIndex2 object.
  * Weighted counts are then summed according the specified substitution register.
  */
-class IndexToCount:
+class WeightedSubstitutionCount:
   public AbstractSubstitutionCount
 {
 	private:
@@ -65,18 +65,18 @@ class IndexToCount:
 		bool ownDist_;
 	
 	public:
-		IndexToCount(SubstitutionCount* subCount, SubstitutionRegister* reg, const AlphabetIndex2<double>* ai2, bool ownDistance) :
+		WeightedSubstitutionCount(SubstitutionCount* subCount, SubstitutionRegister* reg, const AlphabetIndex2<double>* ai2, bool ownDistance) :
       AbstractSubstitutionCount(reg), 
       subCount_(subCount),
       dist_(ai2),
       ownDist_(ownDistance)
     {
       if (!subCount)
-        throw NullPointerException("IndexToCount, constructor: input pointer should not be null.");
+        throw NullPointerException("WeightedSubstitutionCount, constructor: input pointer should not be null.");
       subCount_->setSubstitutionRegister(new ComprehensiveSubstitutionRegister(subCount->getAlphabet(), false));
     }
 
-    IndexToCount(const IndexToCount& index) :
+    WeightedSubstitutionCount(const WeightedSubstitutionCount& index) :
       AbstractSubstitutionCount(index),
       subCount_(index.subCount_),
       dist_(index.dist_),
@@ -87,7 +87,7 @@ class IndexToCount:
         dist_ = dynamic_cast<AlphabetIndex2<double>*>(index.dist_->clone());
     }
 
-    IndexToCount& operator=(const IndexToCount& index)
+    WeightedSubstitutionCount& operator=(const WeightedSubstitutionCount& index)
     {
       AbstractSubstitutionCount::operator=(index);
 
@@ -100,14 +100,14 @@ class IndexToCount:
       return *this;
     }
 		
-		virtual ~IndexToCount()
+		virtual ~WeightedSubstitutionCount()
     {
       delete subCount_;
 			if (ownDist_)
         delete dist_;
 		}
 		
-    IndexToCount* clone() const { return new IndexToCount(*this); }
+    WeightedSubstitutionCount* clone() const { return new WeightedSubstitutionCount(*this); }
 
 	public:
 		double getNumberOfSubstitutions(unsigned int initialState, unsigned int finalState, double length, unsigned int type = 1) const;

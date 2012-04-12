@@ -1,5 +1,5 @@
 //
-// File: IndexToCount.cpp
+// File: WeightedSubstitutionCount.cpp
 // Created by: Julien Dutheil
 // Created on: Mon Dec 6 21:35 2010
 //
@@ -37,11 +37,11 @@ The fact that you are presently reading this means that you have had
 knowledge of the CeCILL license and that you accept its terms.
 */
 
-#include "IndexToCount.h"
+#include "WeightedSubstitutionCount.h"
 
 using namespace bpp;
       
-double IndexToCount::getNumberOfSubstitutions(unsigned int initialState, unsigned int finalState, double length, unsigned int type) const
+double WeightedSubstitutionCount::getNumberOfSubstitutions(unsigned int initialState, unsigned int finalState, double length, unsigned int type) const
 {
   double weightedCount = 0;
   for (unsigned int x = 0; x < getAlphabet()->getSize(); ++x) {
@@ -54,7 +54,7 @@ double IndexToCount::getNumberOfSubstitutions(unsigned int initialState, unsigne
   return weightedCount;
 }
 
-Matrix<double>* IndexToCount::getAllNumbersOfSubstitutions(double length, unsigned int type) const
+Matrix<double>* WeightedSubstitutionCount::getAllNumbersOfSubstitutions(double length, unsigned int type) const
 {
   Matrix<double>* mat = new RowMatrix<double>(getNumberOfStates(), getNumberOfStates());
   for (unsigned int i = 0; i < mat->getNumberOfRows(); ++i)
@@ -63,7 +63,7 @@ Matrix<double>* IndexToCount::getAllNumbersOfSubstitutions(double length, unsign
   return mat;
 }
 
-std::vector<double> IndexToCount::getNumberOfSubstitutionsForEachType(unsigned int initialState, unsigned int finalState, double length) const
+std::vector<double> WeightedSubstitutionCount::getNumberOfSubstitutionsForEachType(unsigned int initialState, unsigned int finalState, double length) const
 {
   std::vector<double> v(register_->getNumberOfSubstitutionTypes());
   for (unsigned int t = 1; t <= register_->getNumberOfSubstitutionTypes(); ++t)
