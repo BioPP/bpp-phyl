@@ -676,10 +676,10 @@ SubstitutionModel* PhylogeneticsApplicationTools::getSubstitutionModelDefaultIns
         }
     }
   
-  ////////////////////////////////////                                                                                                                                             
-  // YpR                                                                                                                                                                           
-  ////////////////////////////////////                                                                                                                                             
-
+  ////////////////////////////////////
+  // YpR
+  ////////////////////////////////////
+  
   else if (modelName == "YpR_Sym")
     {
       if (alphabet->getAlphabetType()!="RNY alphabet")
@@ -2076,7 +2076,7 @@ throw (Exception)
     }
     else if (distName == "Gaussian")
     {
-      rDist = new GaussianDiscreteDistribution(nbClasses, 1, 1);
+      rDist = new GaussianDiscreteDistribution(nbClasses, 0, 1);
       if (args.find("mu") != args.end())
         unparsedParameterValues["Gaussian.mu"] = args["mu"];
       if (args.find("sigma") != args.end())
