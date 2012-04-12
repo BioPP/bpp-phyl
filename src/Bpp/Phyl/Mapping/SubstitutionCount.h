@@ -67,24 +67,57 @@ namespace bpp
  * A model-based approach for detecting coevolving positions in a molecule.
  * Mol Biol Evol. 2005 Sep;22(9):1919-28. Epub 2005 Jun 8.
  */
-class SubstitutionCount
+class SubstitutionCount:
+  public virtual Clonable
 {
 	public:
 		SubstitutionCount() {}
 		virtual ~SubstitutionCount() {}
+    virtual SubstitutionCount* clone() const = 0;
 	
 	public:
     /**
+     * @return Tell if a substitution register has been attached to this class.
+     */
+    virtual bool hasSubstitutionRegister() const = 0;
+
+    /**
      * @return The SubstitutionRegister object associated to this instance. The register contains the description of the various substitutions types that are mapped.
      */
-    virtual const SubstitutionRegister& getSubstitutionRegister() const = 0;
+    virtual const SubstitutionRegister* getSubstitutionRegister() const = 0;
+
+    /**
+     * @return The SubstitutionRegister object associated to this instance. The register contains the description of the various substitutions types that are mapped.
+     */
+    virtual SubstitutionRegister* getSubstitutionRegister() = 0;
+
+    /**
+     * @param The new SubstitutionRegister object to be associated to this instance.
+     * The register contains the description of the various substitutions types that are mapped.
+     */
+    virtual void setSubstitutionRegister(SubstitutionRegister* reg) = 0;
 
     /**
      * @brief Short cut function, equivalent to getSubstitutionRegister().getNumberOfSubstitutionTypes().
      *
      * @return The number of substitution types supported by this instance.
      */
-    virtual unsigned int getNumberOfSubstitutionTypes() const { return getSubstitutionRegister().getNumberOfSubstitutionTypes(); }
+    virtual unsigned int getNumberOfSubstitutionTypes() const { return getSubstitutionRegister()->getNumberOfSubstitutionTypes(); }
+
+    /**
+     * @brief Short cut function, equivalent to getSubstitutionRegister()->getAlphabet().
+     *
+     * @return The alphabet associated to this substitution count.
+     */
+    virtual const Alphabet* getAlphabet() const { return getSubstitutionRegister()->getAlphabet(); }
+
+    /**
+     * @brief Short cut function, equivalent to getSubstitutionRegister()->getAlphabet()->getSize().
+     *
+     * @return The number of states in the model/alphabet.
+     */
+    virtual unsigned int getNumberOfStates() const { return getSubstitutionRegister()->getAlphabet()->getSize(); }
+
 
 		/**
 		 * @brief Get the number of susbstitutions on a branch, given the initial and final states, and the branch length.
@@ -146,17 +179,32 @@ class AbstractSubstitutionCount:
     {}
 
     AbstractSubstitutionCount& operator=(const AbstractSubstitutionCount& asc) {
-      delete register_;
+      if (register_)
+        delete register_;
       register_ = dynamic_cast<SubstitutionRegister*>(register_->clone());
       return *this;
     }
 
     ~AbstractSubstitutionCount() {
-      delete register_;
+      if (register_)
+        delete register_;
     }
 
   public:
-    const SubstitutionRegister& getSubstitutionRegister() const { return *register_; }
+    bool hasSubstitutionRegister() const { return (register_ != 0); }
+    
+    void setSubstitutionRegister(SubstitutionRegister* reg) {
+      if (register_) delete register_;
+      register_ = reg;
+      substitutionRegisterHasChanged();
+    }
+
+    const SubstitutionRegister* getSubstitutionRegister() const { return register_; }
+    
+    SubstitutionRegister* getSubstitutionRegister() { return register_; }
+
+  protected:
+    virtual void substitutionRegisterHasChanged() = 0;
 };
 
 } //end of namespace bpp.

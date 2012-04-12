@@ -41,25 +41,29 @@ knowledge of the CeCILL license and that you accept its terms.
 
 using namespace bpp;
       
-inline double IndexToCount::getNumberOfSubstitutions(unsigned int initialState, unsigned int finalState, double length, unsigned int type) const
+double IndexToCount::getNumberOfSubstitutions(unsigned int initialState, unsigned int finalState, double length, unsigned int type) const
 {
-  if (register_->getType(initialState, finalState) == type)
-    return dist_->getIndex(initialState, finalState);
-  else
-    return 0;
+  double weightedCount = 0;
+  for (unsigned int x = 0; x < getAlphabet()->getSize(); ++x) {
+    for (unsigned int y = 0; y < getAlphabet()->getSize(); ++y) {
+      if (register_->getType(x, y) == type) {
+        weightedCount += subCount_->getNumberOfSubstitutions(initialState, finalState, length, subCount_->getSubstitutionRegister()->getType(x, y)) * dist_->getIndex(x, y);
+      }
+    }
+  }
+  return weightedCount;
 }
 
-inline Matrix<double>* IndexToCount::getAllNumbersOfSubstitutions(double length, unsigned int type) const
+Matrix<double>* IndexToCount::getAllNumbersOfSubstitutions(double length, unsigned int type) const
 {
-  Matrix<double>* mat = dist_->getIndexMatrix();
+  Matrix<double>* mat = new RowMatrix<double>(getNumberOfStates(), getNumberOfStates());
   for (unsigned int i = 0; i < mat->getNumberOfRows(); ++i)
     for (unsigned int j = 0; j < mat->getNumberOfColumns(); ++j)
-      if (register_->getType(i, j) != type)
-        (*mat)(i, j) = 0;
+      (*mat)(i, j) = getNumberOfSubstitutions(i, j, length, type);
   return mat;
 }
 
-inline std::vector<double> IndexToCount::getNumberOfSubstitutionsForEachType(unsigned int initialState, unsigned int finalState, double length) const
+std::vector<double> IndexToCount::getNumberOfSubstitutionsForEachType(unsigned int initialState, unsigned int finalState, double length) const
 {
   std::vector<double> v(register_->getNumberOfSubstitutionTypes());
   for (unsigned int t = 1; t <= register_->getNumberOfSubstitutionTypes(); ++t)

@@ -100,7 +100,9 @@ class DecompositionSubstitutionCount:
     }				
 		
     virtual ~DecompositionSubstitutionCount() {}
-			
+		
+    DecompositionSubstitutionCount* clone() const { return new DecompositionSubstitutionCount(*this); }
+
 	public:
 		double getNumberOfSubstitutions(unsigned int initialState, unsigned int finalState, double length, unsigned int type = 1) const;
 
@@ -118,7 +120,15 @@ class DecompositionSubstitutionCount:
   protected:
     void computeCounts_(double length) const;
     void jFunction_(const std::vector<double>& lambda, double t, RowMatrix<double>& result) const;
+    void substitutionRegisterHasChanged();
 
+  private:
+    void resetStates_();
+    void resetBMatrices_();
+    void initBMatrices_();
+    void fillBMatrices_();
+    void computeEigen_();
+    void computeProducts_();
 };
 
 } //end of namespace bpp.
