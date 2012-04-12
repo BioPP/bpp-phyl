@@ -83,6 +83,8 @@ void CodonDistancePhaseFrequenciesSubstitutionModel::fireParameterChanged(const 
 {
   AbstractCodonDistanceSubstitutionModel::fireParameterChanged(parameters);
   AbstractCodonPhaseFrequenciesSubstitutionModel::fireParameterChanged(parameters);
+  
+  // Beware: must be call at the end
   AbstractCodonSubstitutionModel::fireParameterChanged(parameters);
 }
 

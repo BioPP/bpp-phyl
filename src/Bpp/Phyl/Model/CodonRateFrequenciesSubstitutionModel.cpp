@@ -78,6 +78,8 @@ std::string CodonRateFrequenciesSubstitutionModel::getName() const
 void CodonRateFrequenciesSubstitutionModel::fireParameterChanged(const ParameterList& parameters)
 {
   AbstractCodonFrequenciesSubstitutionModel::fireParameterChanged(parameters);
+
+  // Beware: must be call at the end
   AbstractCodonSubstitutionModel::fireParameterChanged(parameters);
 }
 

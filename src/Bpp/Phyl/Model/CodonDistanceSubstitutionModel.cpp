@@ -84,6 +84,8 @@ std::string CodonDistanceSubstitutionModel::getName() const
 void CodonDistanceSubstitutionModel::fireParameterChanged(const ParameterList& parameters)
 {
   AbstractCodonDistanceSubstitutionModel::fireParameterChanged(parameters);
+
+  // Beware: must be call at the end
   AbstractCodonSubstitutionModel::fireParameterChanged(parameters);
 }
 
