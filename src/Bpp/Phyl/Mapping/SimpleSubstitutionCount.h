@@ -126,6 +126,8 @@ class LabelSubstitutionCount:
 		LabelSubstitutionCount(const Alphabet* alphabet);
 
     virtual ~LabelSubstitutionCount() {}
+
+    LabelSubstitutionCount* clone() const { return new LabelSubstitutionCount(*this); }
 			
 	public:
 		double getNumberOfSubstitutions(unsigned int initialState, unsigned int finalState, double length, unsigned int type = 1) const
@@ -146,6 +148,13 @@ class LabelSubstitutionCount:
     }
 
     void setSubstitutionModel(const SubstitutionModel* model) {}
+
+    void setSubstitutionRegister(SubstitutionRegister* reg) throw (Exception) {
+      throw Exception("OneJumpSubstitutionCount::setSubstitutionRegister. This SubstitutionsCount only works with a TotalSubstitutionRegister.");
+    }
+
+  private:
+    void substitutionRegisterHasChanged() {}
 
 };
 

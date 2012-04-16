@@ -54,7 +54,7 @@ set(CPP_FILES
   Bpp/Phyl/Mapping/SimpleSubstitutionCount.cpp
   Bpp/Phyl/Mapping/DecompositionSubstitutionCount.cpp
   Bpp/Phyl/Mapping/UniformizationSubstitutionCount.cpp
-  Bpp/Phyl/Mapping/IndexToCount.cpp
+  Bpp/Phyl/Mapping/WeightedSubstitutionCount.cpp
   Bpp/Phyl/Mapping/SubstitutionMappingTools.cpp
   Bpp/Phyl/Model/BinarySubstitutionModel.cpp
   Bpp/Phyl/Model/AbstractSubstitutionModel.cpp
@@ -194,7 +194,7 @@ set(H_FILES
   Bpp/Phyl/Likelihood/PairedSiteLikelihoods.h
   Bpp/Phyl/Likelihood/GlobalClockTreeLikelihoodFunctionWrapper.h
   Bpp/Phyl/Mapping/LaplaceSubstitutionCount.h
-  Bpp/Phyl/Mapping/IndexToCount.h
+  Bpp/Phyl/Mapping/WeightedSubstitutionCount.h
   Bpp/Phyl/Mapping/OneJumpSubstitutionCount.h
   Bpp/Phyl/Mapping/ProbabilisticSubstitutionMapping.h
   Bpp/Phyl/Mapping/SimpleSubstitutionCount.h
