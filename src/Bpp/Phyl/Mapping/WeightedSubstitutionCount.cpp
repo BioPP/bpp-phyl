@@ -41,33 +41,11 @@ knowledge of the CeCILL license and that you accept its terms.
 
 using namespace bpp;
       
-double WeightedSubstitutionCount::getNumberOfSubstitutions(unsigned int initialState, unsigned int finalState, double length, unsigned int type) const
-{
-  double weightedCount = 0;
-  for (unsigned int x = 0; x < getAlphabet()->getSize(); ++x) {
-    for (unsigned int y = 0; y < getAlphabet()->getSize(); ++y) {
-      if (register_->getType(x, y) == type) {
-        weightedCount += subCount_->getNumberOfSubstitutions(initialState, finalState, length, subCount_->getSubstitutionRegister()->getType(x, y)) * dist_->getIndex(x, y);
-      }
-    }
-  }
-  return weightedCount;
+void AbstractWeightedSubstitutionCount::setWeights(const AlphabetIndex2<double>* weights, bool ownWeights) {
+  if (ownWeights_)
+    delete weights_;
+  weights_ = weights;
+  ownWeights_ = ownWeights;
+  weightsHaveChanged();
 }
 
-Matrix<double>* WeightedSubstitutionCount::getAllNumbersOfSubstitutions(double length, unsigned int type) const
-{
-  Matrix<double>* mat = new RowMatrix<double>(getNumberOfStates(), getNumberOfStates());
-  for (unsigned int i = 0; i < mat->getNumberOfRows(); ++i)
-    for (unsigned int j = 0; j < mat->getNumberOfColumns(); ++j)
-      (*mat)(i, j) = getNumberOfSubstitutions(i, j, length, type);
-  return mat;
-}
-
-std::vector<double> WeightedSubstitutionCount::getNumberOfSubstitutionsForEachType(unsigned int initialState, unsigned int finalState, double length) const
-{
-  std::vector<double> v(register_->getNumberOfSubstitutionTypes());
-  for (unsigned int t = 1; t <= register_->getNumberOfSubstitutionTypes(); ++t)
-    v[t - 1] = getNumberOfSubstitutions(initialState, finalState, length, t);
-  return v;
-}
-    

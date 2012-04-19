@@ -47,8 +47,10 @@ using namespace std;
 
 /******************************************************************************/
 
-DecompositionSubstitutionCount::DecompositionSubstitutionCount(const ReversibleSubstitutionModel* model, SubstitutionRegister* reg) :
-  AbstractSubstitutionCount(reg), model_(model),
+DecompositionSubstitutionCount::DecompositionSubstitutionCount(const ReversibleSubstitutionModel* model, SubstitutionRegister* reg, const AlphabetIndex2<double>* weights) :
+  AbstractSubstitutionCount(reg),
+  AbstractWeightedSubstitutionCount(weights, true),
+  model_(model),
   nbStates_(model->getNumberOfStates()),
   jMat_(nbStates_, nbStates_),
   v_(nbStates_, nbStates_),
@@ -79,7 +81,7 @@ void DecompositionSubstitutionCount::fillBMatrices_()
     for (unsigned int k = 0; k < nbStates_; ++k) {
       unsigned int i = register_->getType(static_cast<int>(j), static_cast<int>(k));
       if (i > 0 && k != j) {
-        bMatrices_[i - 1](j, k) = model_->Qij(j, k);
+        bMatrices_[i - 1](j, k) = model_->Qij(j, k) * (weights_ ? weights_->getIndex(j, k) : 1);
       }
     }
   }
@@ -258,7 +260,7 @@ void DecompositionSubstitutionCount::setSubstitutionModel(const SubstitutionMode
 
 /******************************************************************************/
 
-void DecompositionSubstitutionCount::substitutionRegisterHasChanged()
+void DecompositionSubstitutionCount::substitutionRegisterHasChanged() throw (Exception)
 {
   //Check compatiblity between model and substitution register:
   if (model_->getAlphabet()->getAlphabetType() != register_->getAlphabet()->getAlphabetType())
@@ -270,7 +272,22 @@ void DecompositionSubstitutionCount::substitutionRegisterHasChanged()
   computeProducts_();
 
   //Recompute counts:
-  computeCounts_(currentLength_);
+  if (currentLength_ > 0)
+   computeCounts_(currentLength_);
+}
+
+/******************************************************************************/
+
+void DecompositionSubstitutionCount::weightsHaveChanged() throw (Exception)
+{
+  if (weights_->getAlphabet()->getAlphabetType() != register_->getAlphabet()->getAlphabetType())
+    throw Exception("DecompositionSubstitutionCount::weightsHaveChanged. Incorrect alphabet type.");
+
+  fillBMatrices_();
+  
+  //Recompute counts:
+  if (currentLength_ > 0)
+    computeCounts_(currentLength_);
 }
 
 /******************************************************************************/

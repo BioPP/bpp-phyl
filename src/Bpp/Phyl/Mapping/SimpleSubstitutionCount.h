@@ -40,7 +40,7 @@ knowledge of the CeCILL license and that you accept its terms.
 #ifndef _SIMPLESUBSTITUTIONCOUNT_H_
 #define _SIMPLESUBSTITUTIONCOUNT_H_
 
-#include "SubstitutionCount.h"
+#include "WeightedSubstitutionCount.h"
 
 #include <Bpp/Numeric/Matrix/Matrix.h>
 
@@ -61,8 +61,9 @@ namespace bpp
  *
  * @author Julien Dutheil
  */
-class SimpleSubstitutionCount:
-  public AbstractSubstitutionCount
+class NaiveSubstitutionCount:
+  public AbstractSubstitutionCount,
+  public AbstractWeightedSubstitutionCount
 {
   private:
     bool allowSelf_;
@@ -75,12 +76,14 @@ class SimpleSubstitutionCount:
      * @param allowSelf Tells if "self" mutations, from X to X should be counted together with the ones of type X to Y where X and Y are in the same category, if relevent.
      * The default is "no", to be consistent with other types of substitution counts which account for multiple substitutions, in which case it does not make sense to count "X to X".
      */
-		SimpleSubstitutionCount(SubstitutionRegister* reg, bool allowSelf = false) :
-      AbstractSubstitutionCount(reg), allowSelf_(allowSelf) {}				
+		NaiveSubstitutionCount(SubstitutionRegister* reg, bool allowSelf = false, const AlphabetIndex2<double>* weights = NULL) :
+      AbstractSubstitutionCount(reg),
+      AbstractWeightedSubstitutionCount(weights, true),
+      allowSelf_(allowSelf) {}				
 		
-    virtual ~SimpleSubstitutionCount() {}
+    virtual ~NaiveSubstitutionCount() {}
 	
-    SimpleSubstitutionCount* clone() const { return new SimpleSubstitutionCount(*this); }
+    NaiveSubstitutionCount* clone() const { return new NaiveSubstitutionCount(*this); }
 
 	public:
 		double getNumberOfSubstitutions(unsigned int initialState, unsigned int finalState, double length, unsigned int type = 1) const
@@ -88,7 +91,7 @@ class SimpleSubstitutionCount:
       if (initialState == finalState && !allowSelf_)
         return 0;
       else
-        return (register_->getType(initialState, finalState) == type ? 1. : 0.);
+        return (register_->getType(initialState, finalState) == type ? (weights_ ? weights_->getIndex(initialState, finalState) : 1.) : 0.);
 		}
 
     Matrix<double>* getAllNumbersOfSubstitutions(double length, unsigned int type = 1) const;
@@ -106,6 +109,7 @@ class SimpleSubstitutionCount:
 
   private:
     void substitutionRegisterHasChanged() {}
+    void weightsHaveChanged() {}
 
 };
 

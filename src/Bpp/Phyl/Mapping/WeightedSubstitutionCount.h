@@ -50,84 +50,68 @@ namespace bpp
 {
 
 /**
- * @brief Weight substitution counts according to state properties.
- *
- * This class uses a ComprehensiveSubstitutionRegister to map all types of substitutions,
- * and multiplies each counts by a weight specified via an AlphabetIndex2 object.
- * Weighted counts are then summed according the specified substitution register.
+ * @brief Interface allowing for weighting of  substitution counts according to state properties.
  */
 class WeightedSubstitutionCount:
-  public AbstractSubstitutionCount
+  public virtual SubstitutionCount
 {
-	private:
-    SubstitutionCount* subCount_;
-		const AlphabetIndex2<double>* dist_;
-		bool ownDist_;
+  public:
+    virtual void setWeights(const AlphabetIndex2<double>* index, bool ownWeights) = 0;
+    virtual bool hasWeights() const = 0;
+    virtual const AlphabetIndex2<double>* getWeights() const = 0;
+};
+
+/**
+ * @brief Partial implementation of the WeightedSubstitutionCount interface.
+ */
+class AbstractWeightedSubstitutionCount:
+  public virtual WeightedSubstitutionCount
+{
+	protected:
+		const AlphabetIndex2<double>* weights_;
+		bool ownWeights_;
 	
 	public:
-		WeightedSubstitutionCount(SubstitutionCount* subCount, SubstitutionRegister* reg, const AlphabetIndex2<double>* ai2, bool ownDistance) :
-      AbstractSubstitutionCount(reg), 
-      subCount_(subCount),
-      dist_(ai2),
-      ownDist_(ownDistance)
+		AbstractWeightedSubstitutionCount(const AlphabetIndex2<double>* weights, bool ownWeights) :
+      weights_(weights),
+      ownWeights_(ownWeights)
     {
-      if (!subCount)
-        throw NullPointerException("WeightedSubstitutionCount, constructor: input pointer should not be null.");
-      subCount_->setSubstitutionRegister(new ComprehensiveSubstitutionRegister(subCount->getAlphabet(), false));
     }
 
-    WeightedSubstitutionCount(const WeightedSubstitutionCount& index) :
-      AbstractSubstitutionCount(index),
-      subCount_(index.subCount_),
-      dist_(index.dist_),
-      ownDist_(index.ownDist_)
+    AbstractWeightedSubstitutionCount(const AbstractWeightedSubstitutionCount& index) :
+      weights_(index.weights_),
+      ownWeights_(index.ownWeights_)
     {
-      subCount_ = dynamic_cast<SubstitutionCount*>(index.subCount_->clone());
-      if (ownDist_)
-        dist_ = dynamic_cast<AlphabetIndex2<double>*>(index.dist_->clone());
+      if (ownWeights_)
+        weights_ = dynamic_cast<AlphabetIndex2<double>*>(index.weights_->clone());
     }
 
-    WeightedSubstitutionCount& operator=(const WeightedSubstitutionCount& index)
+    AbstractWeightedSubstitutionCount& operator=(const AbstractWeightedSubstitutionCount& index)
     {
-      AbstractSubstitutionCount::operator=(index);
-
-      subCount_ = dynamic_cast<SubstitutionCount*>(index.subCount_->clone());
-      
-      ownDist_ = index.ownDist_;
-      if (ownDist_) dist_ = dynamic_cast<AlphabetIndex2<double>*>(index.dist_->clone());
-      else dist_ = index.dist_;
+      ownWeights_ = index.ownWeights_;
+      if (ownWeights_) weights_ = dynamic_cast<AlphabetIndex2<double>*>(index.weights_->clone());
+      else weights_ = index.weights_;
       
       return *this;
     }
 		
-		virtual ~WeightedSubstitutionCount()
+		virtual ~AbstractWeightedSubstitutionCount()
     {
-      delete subCount_;
-			if (ownDist_)
-        delete dist_;
+			if (ownWeights_)
+        delete weights_;
 		}
 		
-    WeightedSubstitutionCount* clone() const { return new WeightedSubstitutionCount(*this); }
-
-	public:
-		double getNumberOfSubstitutions(unsigned int initialState, unsigned int finalState, double length, unsigned int type = 1) const;
-
-		Matrix<double>* getAllNumbersOfSubstitutions(double length, unsigned int type = 1) const;
-
-    std::vector<double> getNumberOfSubstitutionsForEachType(unsigned int initialState, unsigned int finalState, double length) const;
-    
-    void setSubstitutionModel(const SubstitutionModel* model) { subCount_->setSubstitutionModel(model); }
-
-		const SubstitutionRegister* getSubstitutionRegister() const { return subCount_->getSubstitutionRegister(); }
-		
   public:
-    const AlphabetIndex2<double>* getAlphabetIndex2() const { return dist_; }
+    void setWeights(const AlphabetIndex2<double>* weights, bool ownWeights);
+    bool hasWeights() const { return weights_ != 0; }
+    const AlphabetIndex2<double>* getWeights() const { return weights_; }
 
   protected:
-    void substitutionRegisterHasChanged() {}
+    virtual void weightsHaveChanged() = 0;
+
 };
 
 } //end of namespace bpp.
 
-#endif //_INDEXTOCOUNT_H_
+#endif //_WEIGHTEDSUBSTITUTIONCOUNT_H_
 

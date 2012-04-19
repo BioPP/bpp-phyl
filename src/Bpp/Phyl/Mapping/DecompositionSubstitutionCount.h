@@ -40,7 +40,7 @@ knowledge of the CeCILL license and that you accept its terms.
 #ifndef _DECOMPOSITIONSUBSTITUTIONCOUNT_H_
 #define _DECOMPOSITIONSUBSTITUTIONCOUNT_H_
 
-#include "SubstitutionCount.h"
+#include "WeightedSubstitutionCount.h"
 
 #include <Bpp/Numeric/Matrix/Matrix.h>
 
@@ -56,7 +56,8 @@ namespace bpp
  * @author Julien Dutheil
  */
 class DecompositionSubstitutionCount:
-  public AbstractSubstitutionCount
+  public AbstractSubstitutionCount,
+  public AbstractWeightedSubstitutionCount
 {
 	private:
 		const ReversibleSubstitutionModel* model_;
@@ -68,10 +69,12 @@ class DecompositionSubstitutionCount:
     mutable double currentLength_;
 	
 	public:
-		DecompositionSubstitutionCount(const ReversibleSubstitutionModel* model, SubstitutionRegister* reg);
+		DecompositionSubstitutionCount(const ReversibleSubstitutionModel* model, SubstitutionRegister* reg, const AlphabetIndex2<double>* weights = NULL);
 		
     DecompositionSubstitutionCount(const DecompositionSubstitutionCount& dsc) :
-      AbstractSubstitutionCount(dsc), model_(dsc.model_),
+      AbstractSubstitutionCount(dsc),
+      AbstractWeightedSubstitutionCount(dsc),
+      model_(dsc.model_),
       nbStates_(dsc.nbStates_),
       jMat_(dsc.jMat_),
       v_(dsc.v_),
@@ -86,6 +89,7 @@ class DecompositionSubstitutionCount:
     DecompositionSubstitutionCount& operator=(const DecompositionSubstitutionCount& dsc)
     {
       AbstractSubstitutionCount::operator=(dsc);
+      AbstractWeightedSubstitutionCount::operator=(dsc);
       model_          = dsc.model_;
       nbStates_       = dsc.nbStates_;
       jMat_           = dsc.jMat_;
@@ -120,7 +124,8 @@ class DecompositionSubstitutionCount:
   protected:
     void computeCounts_(double length) const;
     void jFunction_(const std::vector<double>& lambda, double t, RowMatrix<double>& result) const;
-    void substitutionRegisterHasChanged();
+    void substitutionRegisterHasChanged() throw (Exception);
+    void weightsHaveChanged() throw (Exception);
 
   private:
     void resetStates_();
