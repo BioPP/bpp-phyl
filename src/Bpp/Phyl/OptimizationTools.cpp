@@ -312,10 +312,9 @@ throw (Exception)
     throw Exception("OptimizationTools::optimizeNumericalParameters2. Unknown optimization method: " + optMethodDeriv);
 
   // Numerical derivatives:
-  ParameterList tmp = parameters.getCommonParametersWith(tl->getSubstitutionModelParameters());
-  tmp.addParameters(parameters.getCommonParametersWith(tl->getRateDistributionParameters()));
-  if (useClock)
-    tmp.addParameters(fclock->getHeightParameters());
+  
+  ParameterList tmp=tl->getNonDerivableParameters();
+  
   fnum->setParametersToDerivate(tmp.getParameterNames());
   optimizer->setVerbose(verbose);
   optimizer->setProfiler(profiler);
