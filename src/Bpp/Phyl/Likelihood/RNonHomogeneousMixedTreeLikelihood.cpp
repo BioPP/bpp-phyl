@@ -731,8 +731,9 @@ void RNonHomogeneousMixedTreeLikelihood::computeTransitionProbabilitiesForNode(c
       vProba.push_back(mmodel->getNProbability(nd[i]));
       x+=vProba[i];
     }
-    for (unsigned int i=0;i<nd.size();i++)
-      vProba[i]/=x;
+    if (x!=0)
+      for (unsigned int i=0;i<nd.size();i++)
+        vProba[i]/=x;
   }
 
   double l = node->getDistanceToFather();
