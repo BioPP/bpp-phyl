@@ -40,7 +40,7 @@ knowledge of the CeCILL license and that you accept its terms.
 #include "TreeTools.h"
 #include "Tree.h"
 #include "BipartitionTools.h"
-#include "Model/JCnuc.h"
+#include "Model/Nucleotide/JCnuc.h"
 #include "Distance/DistanceEstimation.h"
 #include "Distance/BioNJ.h"
 #include "Parsimony/DRTreeParsimonyScore.h"
