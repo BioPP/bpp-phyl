@@ -102,9 +102,9 @@ YNGKP_M2::YNGKP_M2(const GeneticCode* gc, FrequenciesSet* codonFreqs) :
                               pmixmodel_->getParameter(st).hasConstraint() ? pmixmodel_->getParameter(st).getConstraint()->clone() : 0, true));
   }
 
-  addParameter_(Parameter("YNGKP_M2.omega0", 0.5, new IntervalConstraint(NumConstants::SMALL, 1, true, false), true));
+  addParameter_(Parameter("YNGKP_M2.omega0", 0.5, new IntervalConstraint(NumConstants::MILLI, 1, true, false), true));
 
-  addParameter_(Parameter("YNGKP_M2.omega2", 2, new IntervalConstraint(1, 999, false, false), true));
+  addParameter_(Parameter("YNGKP_M2.omega2", 2, new IntervalConstraint(1, 999, false, false, NumConstants::MILLI), true));
 
   // look for synonymous codons
   for (synfrom_ = 1; synfrom_ < (int)gc->getSourceAlphabet()->getSize(); synfrom_++)

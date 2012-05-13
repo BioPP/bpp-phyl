@@ -52,7 +52,7 @@ YN98::YN98(const GeneticCode* gc, FrequenciesSet* codonFreqs) :
   pmodel_(new CodonDistanceFrequenciesSubstitutionModel(gc, new K80(dynamic_cast<const CodonAlphabet*>(gc->getSourceAlphabet())->getNucleicAlphabet()), codonFreqs))
 {
   addParameter_(Parameter("YN98.kappa", 1, &Parameter::R_PLUS_STAR));
-  addParameter_(Parameter("YN98.omega", 1, new IntervalConstraint(NumConstants::SMALL, 999, true, true), true));
+  addParameter_(Parameter("YN98.omega", 1, new IntervalConstraint(NumConstants::MILLI, 999, true, true), true));
 
   pmodel_->setNamespace("YN98.");
   addParameters_(codonFreqs->getParameters());
