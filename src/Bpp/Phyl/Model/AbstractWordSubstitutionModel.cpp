@@ -478,15 +478,17 @@ void AbstractWordSubstitutionModel::updateMatrices()
           else
             nulleigen++;
         }
-        seuil*=10;
+        if (seuil> 100){
+          ApplicationTools::displayWarning("!!! Equilibrium frequency of the model " + getName() + " has a precision less than """  + TextTools::toString(seuil*NumConstants::SMALL) + ". There may be some computing issues.");
+          ApplicationTools::displayWarning("!!! Taylor series used instead");
+          break;
+        }
+        else 
+          seuil*=10;
       }
-      
-      if (seuil> 10000){
-        ApplicationTools::displayWarning("!!! Equilibrium frequency of the model " + getName() + " has a precision less than """  + TextTools::toString(seuil/100*NumConstants::SMALL) + ". There may be some computing issues.");
-        ApplicationTools::displayWarning("!!! Taylor series used instead");
+
+      if (flag){
         isNonSingular_=false;
-      }
-      else {
         eigenValues_[nulleigen]=0; // to avoid approximation errors on long long branches
         iEigenValues_[nulleigen]=0; // to avoid approximation errors on long long branches
         
