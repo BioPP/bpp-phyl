@@ -97,7 +97,8 @@ public:
   virtual unsigned int getNumberOfFrequencies() const = 0;
 
 public:
-  static IntervalConstraint FREQUENCE_CONSTRAINT;
+  static IntervalConstraint FREQUENCE_CONSTRAINT_SMALL;
+  static IntervalConstraint FREQUENCE_CONSTRAINT_MILLI;
 };
 
 /**

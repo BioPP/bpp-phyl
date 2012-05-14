@@ -81,13 +81,13 @@ GTR::GTR(
   addParameter_(eP);
   //jdutheil on 07/02/11: is this still needed? If yes, we should also change it in all models in order to facilitate parameter aliasing...
   //Parameter thetaP("GTR.theta", theta_ , new IncludingInterval(0.001, 0.999), true); //Avoid numerical errors close to the bounds.
-  Parameter thetaP("GTR.theta", theta_, &FrequenciesSet::FREQUENCE_CONSTRAINT);
+  Parameter thetaP("GTR.theta", theta_, &FrequenciesSet::FREQUENCE_CONSTRAINT_SMALL);
   addParameter_(thetaP);
   //Parameter theta1P("GTR.theta1", theta1_, new IncludingInterval(0.001, 0.999), true);
-  Parameter theta1P("GTR.theta1", theta1_, &FrequenciesSet::FREQUENCE_CONSTRAINT);
+  Parameter theta1P("GTR.theta1", theta1_, &FrequenciesSet::FREQUENCE_CONSTRAINT_SMALL);
   addParameter_(theta1P);
   //Parameter theta2P("GTR.theta2", theta2_, new IncludingInterval(0.001, 0.999), true);
-  Parameter theta2P("GTR.theta2", theta2_, &FrequenciesSet::FREQUENCE_CONSTRAINT);
+  Parameter theta2P("GTR.theta2", theta2_, &FrequenciesSet::FREQUENCE_CONSTRAINT_SMALL);
   addParameter_(theta2P);
   updateMatrices();
 }

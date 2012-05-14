@@ -48,7 +48,8 @@ using namespace bpp;
 #include <cmath>
 using namespace std;
 
-IntervalConstraint FrequenciesSet::FREQUENCE_CONSTRAINT(NumConstants::SMALL, 1 - NumConstants::SMALL, false, false);
+IntervalConstraint FrequenciesSet::FREQUENCE_CONSTRAINT_MILLI(NumConstants::MILLI, 1 - NumConstants::MILLI, false, false);
+IntervalConstraint FrequenciesSet::FREQUENCE_CONSTRAINT_SMALL(NumConstants::SMALL, 1 - NumConstants::SMALL, false, false);
 
 // ///////////////////////////////////////
 // AbstractFrequenciesSet
@@ -90,7 +91,7 @@ FullFrequenciesSet::FullFrequenciesSet(const Alphabet* alphabet, bool allowNullF
       1. / (size - i),
       allowNullFreqs ?
       &Parameter::PROP_CONSTRAINT_IN :
-      &FrequenciesSet::FREQUENCE_CONSTRAINT);
+      &FrequenciesSet::FREQUENCE_CONSTRAINT_SMALL);
     addParameter_(p);
     getFreq_(i) = 1. / size;
   }
@@ -117,7 +118,7 @@ FullFrequenciesSet::FullFrequenciesSet(const Alphabet* alphabet, const vector<do
       initFreqs[i] / y,
       allowNullFreqs ?
       &Parameter::PROP_CONSTRAINT_IN :
-      &FrequenciesSet::FREQUENCE_CONSTRAINT);
+      &FrequenciesSet::FREQUENCE_CONSTRAINT_SMALL);
     addParameter_(p);
     getFreq_(i) = initFreqs[i];
     y -= initFreqs[i];

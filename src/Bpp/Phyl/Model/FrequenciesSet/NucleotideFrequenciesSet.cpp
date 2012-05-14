@@ -60,18 +60,18 @@ FullNucleotideFrequenciesSet::FullNucleotideFrequenciesSet(
     "Full.theta", 0.5,
     allowNullFreqs ?
     &Parameter::PROP_CONSTRAINT_IN :
-    &FrequenciesSet::FREQUENCE_CONSTRAINT);
+    &FrequenciesSet::FREQUENCE_CONSTRAINT_SMALL);
   addParameter_(thetaP);
   Parameter theta1P(
     "Full.theta1", 0.5,
     allowNullFreqs ?
     &Parameter::PROP_CONSTRAINT_IN :
-    &FrequenciesSet::FREQUENCE_CONSTRAINT);
+    &FrequenciesSet::FREQUENCE_CONSTRAINT_SMALL);
   addParameter_(theta1P);
   Parameter theta2P("Full.theta2", 0.5,
                     allowNullFreqs ?
                     &Parameter::PROP_CONSTRAINT_IN :
-                    &FrequenciesSet::FREQUENCE_CONSTRAINT);
+                    &FrequenciesSet::FREQUENCE_CONSTRAINT_SMALL);
   addParameter_(theta2P);
   getFreq_(0) = getFreq_(1) = getFreq_(2) = getFreq_(3) = 0.25;
 }
@@ -86,14 +86,14 @@ FullNucleotideFrequenciesSet::FullNucleotideFrequenciesSet(
     theta,
     allowNullFreqs ?
     &Parameter::PROP_CONSTRAINT_IN :
-    &FrequenciesSet::FREQUENCE_CONSTRAINT);
+    &FrequenciesSet::FREQUENCE_CONSTRAINT_SMALL);
   addParameter_(thetaP);
   Parameter theta1P(
     "Full.theta1",
     theta1,
     allowNullFreqs ?
     &Parameter::PROP_CONSTRAINT_IN :
-    &FrequenciesSet::FREQUENCE_CONSTRAINT);
+    &FrequenciesSet::FREQUENCE_CONSTRAINT_SMALL);
   addParameter_(theta1P);
   Parameter theta2P(
     "Full.theta2",

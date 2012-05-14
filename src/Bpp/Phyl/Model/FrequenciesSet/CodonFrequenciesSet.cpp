@@ -65,7 +65,7 @@ FullCodonFrequenciesSet::FullCodonFrequenciesSet(const CodonAlphabet* alphabet, 
         1. / (size - j),
         allowNullFreqs ?
         &Parameter::PROP_CONSTRAINT_IN :
-        &FrequenciesSet::FREQUENCE_CONSTRAINT);
+        &FrequenciesSet::FREQUENCE_CONSTRAINT_MILLI);
       addParameter_(p);
       getFreq_(i) = 1. / size;
       j++;
@@ -105,7 +105,7 @@ FullCodonFrequenciesSet::FullCodonFrequenciesSet(const CodonAlphabet* alphabet, 
         initFreqs[i] / sum / y,
         allowNullFreqs ?
         &Parameter::PROP_CONSTRAINT_IN :
-        &FrequenciesSet::FREQUENCE_CONSTRAINT);
+        &FrequenciesSet::FREQUENCE_CONSTRAINT_MILLI);
       addParameter_(p);
       getFreq_(i) = initFreqs[i] / sum;
       y -= initFreqs[i] / sum;

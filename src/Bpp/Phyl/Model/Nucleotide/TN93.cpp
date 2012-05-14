@@ -76,11 +76,11 @@ TN93::TN93(
 	addParameter_(kappa1P);
 	Parameter kappa2P("TN93.kappa2", kappa2, &Parameter::R_PLUS_STAR);
 	addParameter_(kappa2P);
-	Parameter thetaP("TN93.theta" , theta_ , &FrequenciesSet::FREQUENCE_CONSTRAINT);
+	Parameter thetaP("TN93.theta" , theta_ , &FrequenciesSet::FREQUENCE_CONSTRAINT_SMALL);
 	addParameter_(thetaP);
-	Parameter theta1P("TN93.theta1", theta1_, &FrequenciesSet::FREQUENCE_CONSTRAINT);
+	Parameter theta1P("TN93.theta1", theta1_, &FrequenciesSet::FREQUENCE_CONSTRAINT_SMALL);
 	addParameter_(theta1P);
-	Parameter theta2P("TN93.theta2", theta2_, &FrequenciesSet::FREQUENCE_CONSTRAINT);
+	Parameter theta2P("TN93.theta2", theta2_, &FrequenciesSet::FREQUENCE_CONSTRAINT_SMALL);
 	addParameter_(theta2P);
   p_.resize(size_, size_);
 	updateMatrices();

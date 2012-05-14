@@ -73,7 +73,7 @@ T92::T92(const NucleicAlphabet* alpha, double kappa, double theta) :
 {
   Parameter kappaP("T92.kappa", kappa, &Parameter::R_PLUS_STAR);
   addParameter_(kappaP);
-  Parameter thetaP("T92.theta", theta, &FrequenciesSet::FREQUENCE_CONSTRAINT);
+  Parameter thetaP("T92.theta", theta, &FrequenciesSet::FREQUENCE_CONSTRAINT_SMALL);
   addParameter_(thetaP);
   p_.resize(size_, size_);
   updateMatrices();
