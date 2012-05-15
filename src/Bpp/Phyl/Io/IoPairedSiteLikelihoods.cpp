@@ -43,7 +43,7 @@
 
 // From Bio++
 #include <Bpp/Text/TextTools.h>
-#include "../Likelihood/PairedSiteLikelihoods.h"
+#include "../OldLikelihood/PairedSiteLikelihoods.h"
 
 #include "IoPairedSiteLikelihoods.h"
 

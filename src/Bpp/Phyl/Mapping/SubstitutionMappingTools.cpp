@@ -38,8 +38,8 @@ knowledge of the CeCILL license and that you accept its terms.
 */
 
 #include "SubstitutionMappingTools.h"
-#include "../Likelihood/DRTreeLikelihoodTools.h"
-#include "../Likelihood/MarginalAncestralStateReconstruction.h"
+#include "../OldLikelihood/DRTreeLikelihoodTools.h"
+#include "../OldLikelihood/MarginalAncestralStateReconstruction.h"
 
 #include <Bpp/Text/TextTools.h>
 #include <Bpp/App/ApplicationTools.h>

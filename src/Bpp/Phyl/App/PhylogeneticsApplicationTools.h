@@ -46,8 +46,8 @@
 #include "../Model/SubstitutionModelSet.h"
 #include "../Model/MixedSubstitutionModelSet.h"
 #include "../Model/MarkovModulatedSubstitutionModel.h"
-#include "../Likelihood/HomogeneousTreeLikelihood.h"
-#include "../Likelihood/ClockTreeLikelihood.h"
+#include "../OldLikelihood/HomogeneousTreeLikelihood.h"
+#include "../OldLikelihood/ClockTreeLikelihood.h"
 #include <Bpp/Text/TextTools.h>
 #include <Bpp/Text/StringTokenizer.h>
 #include <Bpp/Io/OutputStream.h>

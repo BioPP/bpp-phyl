@@ -38,8 +38,8 @@
  */
 
 #include "OptimizationTools.h"
-#include "Likelihood/PseudoNewtonOptimizer.h"
-#include "Likelihood/GlobalClockTreeLikelihoodFunctionWrapper.h"
+#include "OldLikelihood/PseudoNewtonOptimizer.h"
+#include "OldLikelihood/GlobalClockTreeLikelihoodFunctionWrapper.h"
 #include "NNISearchable.h"
 #include "NNITopologySearch.h"
 #include "Io/Newick.h"

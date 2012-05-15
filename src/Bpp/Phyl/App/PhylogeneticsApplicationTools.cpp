@@ -41,7 +41,7 @@
 #include "PhylogeneticsApplicationTools.h"
 #include "../Model.all"
 #include "../Model/FrequenciesSet.all"
-#include "../Likelihood.all"
+#include "../OldLikelihood.all"
 #include "../OptimizationTools.h"
 #include "../Tree.h"
 #include "../Io/Newick.h"

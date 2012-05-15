@@ -40,9 +40,9 @@
 #ifndef _OPTIMIZATIONTOOLS_H_
 #define _OPTIMIZATIONTOOLS_H_
 
-#include "Likelihood/ClockTreeLikelihood.h"
-#include "Likelihood/NNIHomogeneousTreeLikelihood.h"
-#include "Likelihood/ClockTreeLikelihood.h"
+#include "OldLikelihood/ClockTreeLikelihood.h"
+#include "OldLikelihood/NNIHomogeneousTreeLikelihood.h"
+#include "OldLikelihood/ClockTreeLikelihood.h"
 #include "NNITopologySearch.h"
 #include "Parsimony/DRTreeParsimonyScore.h"
 #include "TreeTemplate.h"
