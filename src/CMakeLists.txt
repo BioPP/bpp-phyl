@@ -48,6 +48,7 @@ set(CPP_FILES
   Bpp/Phyl/OldLikelihood/TreeLikelihoodTools.cpp
   Bpp/Phyl/OldLikelihood/PairedSiteLikelihoods.cpp
   Bpp/Phyl/OldLikelihood/GlobalClockTreeLikelihoodFunctionWrapper.cpp
+  Bpp/Phyl/Likelihood/RTreeLikelihoodData.cpp
   Bpp/Phyl/Mapping/LaplaceSubstitutionCount.cpp
   Bpp/Phyl/Mapping/OneJumpSubstitutionCount.cpp
   Bpp/Phyl/Mapping/ProbabilisticSubstitutionMapping.cpp
@@ -193,6 +194,10 @@ set(H_FILES
   Bpp/Phyl/OldLikelihood/TreeLikelihoodTools.h
   Bpp/Phyl/OldLikelihood/PairedSiteLikelihoods.h
   Bpp/Phyl/OldLikelihood/GlobalClockTreeLikelihoodFunctionWrapper.h
+  Bpp/Phyl/Likelihood/TreeLikelihoodData.h
+  Bpp/Phyl/Likelihood/AbstractTreeLikelihoodData.h
+  Bpp/Phyl/Likelihood/RTreeLikelihoodData.h
+  Bpp/Phyl/Likelihood/TreeLikelihood.h
   Bpp/Phyl/Mapping/LaplaceSubstitutionCount.h
   Bpp/Phyl/Mapping/WeightedSubstitutionCount.h
   Bpp/Phyl/Mapping/OneJumpSubstitutionCount.h
