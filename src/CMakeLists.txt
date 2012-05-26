@@ -198,6 +198,7 @@ set(H_FILES
   Bpp/Phyl/Likelihood/AbstractTreeLikelihoodData.h
   Bpp/Phyl/Likelihood/RTreeLikelihoodData.h
   Bpp/Phyl/Likelihood/TreeLikelihood.h
+  Bpp/Phyl/Likelihood/SubstitutionProcess.h
   Bpp/Phyl/Mapping/LaplaceSubstitutionCount.h
   Bpp/Phyl/Mapping/WeightedSubstitutionCount.h
   Bpp/Phyl/Mapping/OneJumpSubstitutionCount.h
