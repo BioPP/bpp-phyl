@@ -73,13 +73,13 @@ CodonFitnessSubstitutionModel::CodonFitnessSubstitutionModel(const GeneticCode* 
                                                              FrequenciesSet* pfit,
                                                              FrequenciesSet* pfreq,
                                                              const AlphabetIndex2<double>* pdist) :
-  AbstractParameterAliasable("CodFitness."),
-  AbstractSubstitutionModel(dynamic_cast<const CodonAlphabet*>(palph->getSourceAlphabet()), "CodFitness."),
-  AbstractWordSubstitutionModel(dynamic_cast<const CodonAlphabet*>(palph->getSourceAlphabet()), "CodFitness."),
-  AbstractCodonSubstitutionModel(dynamic_cast<const CodonAlphabet*>(palph->getSourceAlphabet()), pmod, "CodFitness."),
-  AbstractCodonDistanceSubstitutionModel(palph, pdist, "CodFitness."),
-  AbstractCodonPhaseFrequenciesSubstitutionModel(pfreq, "CodFitness."),
-  AbstractCodonFitnessSubstitutionModel(pfit, "CodFitness.")
+  AbstractParameterAliasable("CodonFitness."),
+  AbstractSubstitutionModel(dynamic_cast<const CodonAlphabet*>(palph->getSourceAlphabet()), "CodonFitness."),
+  AbstractWordSubstitutionModel(dynamic_cast<const CodonAlphabet*>(palph->getSourceAlphabet()), "CodonFitness."),
+  AbstractCodonSubstitutionModel(dynamic_cast<const CodonAlphabet*>(palph->getSourceAlphabet()), pmod, "CodonFitness."),
+  AbstractCodonDistanceSubstitutionModel(palph, pdist, "CodonFitness."),
+  AbstractCodonPhaseFrequenciesSubstitutionModel(pfreq, "CodonFitness."),
+  AbstractCodonFitnessSubstitutionModel(pfit, "CodonFitness.")
 {
   updateMatrices();
 }
@@ -91,20 +91,20 @@ CodonFitnessSubstitutionModel::CodonFitnessSubstitutionModel(const GeneticCode* 
                                                              FrequenciesSet* pfit,
                                                              FrequenciesSet* pfreq,
                                                              const AlphabetIndex2<double>* pdist) :
-  AbstractParameterAliasable("CodFitness."),
-  AbstractSubstitutionModel(dynamic_cast<const CodonAlphabet*>(palph->getSourceAlphabet()), "CodFitness."),
-  AbstractWordSubstitutionModel(dynamic_cast<const CodonAlphabet*>(palph->getSourceAlphabet()), "CodFitness."),
-  AbstractCodonSubstitutionModel(dynamic_cast<const CodonAlphabet*>(palph->getSourceAlphabet()), pmod1, pmod2, pmod3, "CodFitness."),
-  AbstractCodonDistanceSubstitutionModel(palph, pdist, "CodFitness."),
-  AbstractCodonPhaseFrequenciesSubstitutionModel(pfreq, "CodFitness."),
-  AbstractCodonFitnessSubstitutionModel(pfit,"CodFitness.")
+  AbstractParameterAliasable("CodonFitness."),
+  AbstractSubstitutionModel(dynamic_cast<const CodonAlphabet*>(palph->getSourceAlphabet()), "CodonFitness."),
+  AbstractWordSubstitutionModel(dynamic_cast<const CodonAlphabet*>(palph->getSourceAlphabet()), "CodonFitness."),
+  AbstractCodonSubstitutionModel(dynamic_cast<const CodonAlphabet*>(palph->getSourceAlphabet()), pmod1, pmod2, pmod3, "CodonFitness."),
+  AbstractCodonDistanceSubstitutionModel(palph, pdist, "CodonFitness."),
+  AbstractCodonPhaseFrequenciesSubstitutionModel(pfreq, "CodonFitness."),
+  AbstractCodonFitnessSubstitutionModel(pfit,"CodonFitness.")
 {
   updateMatrices();
 }
 
 string CodonFitnessSubstitutionModel::getName() const
 {
-  return ("CodFitness.");
+  return ("CodonFitness.");
 }
 
 void CodonFitnessSubstitutionModel::fireParameterChanged(const ParameterList& parameters)
