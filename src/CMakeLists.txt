@@ -109,11 +109,13 @@ set(CPP_FILES
   Bpp/Phyl/Model/Codon/AbstractCodonFrequenciesSubstitutionModel.cpp
   Bpp/Phyl/Model/Codon/AbstractCodonPhaseFrequenciesSubstitutionModel.cpp
   Bpp/Phyl/Model/Codon/AbstractCodonDistanceSubstitutionModel.cpp
+  Bpp/Phyl/Model/Codon/AbstractCodonFitnessSubstitutionModel.cpp
   Bpp/Phyl/Model/Codon/CodonDistanceSubstitutionModel.cpp
   Bpp/Phyl/Model/Codon/CodonDistanceFrequenciesSubstitutionModel.cpp
   Bpp/Phyl/Model/Codon/CodonDistancePhaseFrequenciesSubstitutionModel.cpp
   Bpp/Phyl/Model/Codon/CodonRateSubstitutionModel.cpp
   Bpp/Phyl/Model/Codon/CodonRateFrequenciesSubstitutionModel.cpp
+  Bpp/Phyl/Model/Codon/CodonFitnessSubstitutionModel.cpp
   Bpp/Phyl/Model/Codon/YN98.cpp
   Bpp/Phyl/Model/Codon/YNGKP_M1.cpp
   Bpp/Phyl/Model/Codon/YNGKP_M2.cpp
