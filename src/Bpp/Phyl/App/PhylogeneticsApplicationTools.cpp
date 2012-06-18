@@ -1405,159 +1405,146 @@ FrequenciesSet* PhylogeneticsApplicationTools::getFrequenciesSetDefaultInstance(
     {
       pFS = new FullFrequenciesSet(alphabet);
     }
-
-    // Update parameter values:
-    if (args.find("theta") != args.end())
-      unparsedParameterValues["Full.theta"] = args["theta"];
-    for (unsigned int i = 1; i < alphabet->getSize(); i++)
-    {
-      if (args.find("theta" + TextTools::toString(i) ) != args.end())
-      {
-        unparsedParameterValues["Full.theta" + TextTools::toString(i) ] = args["theta" + TextTools::toString(i) ];
-      }
-    }
   }
   else if (freqName == "GC")
-  {
-    if (!AlphabetTools::isNucleicAlphabet(alphabet))
-      throw Exception("Error, unvalid frequencies " + freqName + " with non-nucleic alphabet.");
-
-    pFS = new GCFrequenciesSet(dynamic_cast<const NucleicAlphabet*>(alphabet));
-
-    if (args.find("theta") != args.end())
-      unparsedParameterValues["GC.theta"] = args["theta"];
-  }
-
+    {
+      if (!AlphabetTools::isNucleicAlphabet(alphabet))
+        throw Exception("Error, unvalid frequencies " + freqName + " with non-nucleic alphabet.");
+      
+      pFS = new GCFrequenciesSet(dynamic_cast<const NucleicAlphabet*>(alphabet));
+    }
+  
   // INDEPENDENTWORD
   else if (freqName == "Word")
-  {
-    if (!AlphabetTools::isWordAlphabet(alphabet))
-      throw Exception("PhylogeneticsApplicationTools::getFrequenciesSetDefaultInstance.\n\t Bad alphabet type "
-                      + alphabet->getAlphabetType() + " for frequenciesset " + freqName + ".");
-
-    const WordAlphabet* pWA = dynamic_cast<const WordAlphabet*>(alphabet);
-
-    if (args.find("frequency") != args.end())
     {
-      string sAFS = args["frequency"];
-
-      unsigned int nbfreq = pWA->getLength();
-      FrequenciesSet* pFS2;
-      string st = "";
-      for (unsigned i = 0; i < nbfreq; i++)
-      {
-        st += TextTools::toString(i + 1);
-      }
-
-      map<string, string> unparsedParameterValuesNested;
-      pFS2 = getFrequenciesSetDefaultInstance(pWA->getNAlphabet(0), sAFS, unparsedParameterValuesNested);
-      for (map<string, string>::iterator it = unparsedParameterValuesNested.begin(); it != unparsedParameterValuesNested.end(); it++)
-      {
-        unparsedParameterValues["Word" + st + "_" + it->first] = it->second;
-      }
-      pFS = new WordFromUniqueFrequenciesSet(pWA, pFS2);
-    }
-    else
-    {
-      if (args.find("frequency1") == args.end())
-        throw Exception("PhylogeneticsApplicationTools::getFrequenciesSetDefaultInstance. Missing argument 'frequency' or 'frequency1' for frequencies set 'Word'.");
-      vector<string> v_sAFS;
-      vector<FrequenciesSet*> v_AFS;
-      unsigned int nbfreq = 1;
-
-      while (args.find("frequency" + TextTools::toString(nbfreq)) != args.end())
-      {
-        v_sAFS.push_back(args["frequency" + TextTools::toString(nbfreq++)]);
-      }
-
-      if (v_sAFS.size() != pWA->getLength())
-        throw Exception("PhylogeneticsApplicationTools::getFrequenciesSetDefaultInstance. Number of frequencies (" + TextTools::toString(v_sAFS.size()) + ") does not match length of the words (" + TextTools::toString(pWA->getLength()) + ")");
-
-      map<string, string> unparsedParameterValuesNested;
-      for (unsigned i = 0; i < v_sAFS.size(); i++)
-      {
-        unparsedParameterValuesNested.clear();
-        pFS = getFrequenciesSetDefaultInstance(pWA->getNAlphabet(i), v_sAFS[i], unparsedParameterValuesNested);
-        for (map<string, string>::iterator it = unparsedParameterValuesNested.begin(); it != unparsedParameterValuesNested.end(); it++)
+      if (!AlphabetTools::isWordAlphabet(alphabet))
+        throw Exception("PhylogeneticsApplicationTools::getFrequenciesSetDefaultInstance.\n\t Bad alphabet type "
+                        + alphabet->getAlphabetType() + " for frequenciesset " + freqName + ".");
+      
+      const WordAlphabet* pWA = dynamic_cast<const WordAlphabet*>(alphabet);
+      
+      if (args.find("frequency") != args.end())
         {
-          unparsedParameterValues["Word" + TextTools::toString(i + 1) + "_" + it->first] = it->second;
+          string sAFS = args["frequency"];
+          
+          unsigned int nbfreq = pWA->getLength();
+          FrequenciesSet* pFS2;
+          string st = "";
+          for (unsigned i = 0; i < nbfreq; i++)
+            {
+              st += TextTools::toString(i + 1);
+            }
+          
+          map<string, string> unparsedParameterValuesNested;
+          pFS2 = getFrequenciesSetDefaultInstance(pWA->getNAlphabet(0), sAFS, unparsedParameterValuesNested);
+          for (map<string, string>::iterator it = unparsedParameterValuesNested.begin(); it != unparsedParameterValuesNested.end(); it++)
+            {
+              unparsedParameterValues["Word" + st + "_" + it->first] = it->second;
+            }
+          pFS = new WordFromUniqueFrequenciesSet(pWA, pFS2);
         }
-        v_AFS.push_back(pFS);
-      }
-
-      pFS = new WordFromIndependentFrequenciesSet(pWA, v_AFS);
+      else
+        {
+          if (args.find("frequency1") == args.end())
+            throw Exception("PhylogeneticsApplicationTools::getFrequenciesSetDefaultInstance. Missing argument 'frequency' or 'frequency1' for frequencies set 'Word'.");
+          vector<string> v_sAFS;
+          vector<FrequenciesSet*> v_AFS;
+          unsigned int nbfreq = 1;
+          
+          while (args.find("frequency" + TextTools::toString(nbfreq)) != args.end())
+            {
+              v_sAFS.push_back(args["frequency" + TextTools::toString(nbfreq++)]);
+            }
+          
+          if (v_sAFS.size() != pWA->getLength())
+            throw Exception("PhylogeneticsApplicationTools::getFrequenciesSetDefaultInstance. Number of frequencies (" + TextTools::toString(v_sAFS.size()) + ") does not match length of the words (" + TextTools::toString(pWA->getLength()) + ")");
+          
+          map<string, string> unparsedParameterValuesNested;
+          for (unsigned i = 0; i < v_sAFS.size(); i++)
+            {
+              unparsedParameterValuesNested.clear();
+              pFS = getFrequenciesSetDefaultInstance(pWA->getNAlphabet(i), v_sAFS[i], unparsedParameterValuesNested);
+              for (map<string, string>::iterator it = unparsedParameterValuesNested.begin(); it != unparsedParameterValuesNested.end(); it++)
+                {
+                  unparsedParameterValues["Word" + TextTools::toString(i + 1) + "_" + it->first] = it->second;
+                }
+              v_AFS.push_back(pFS);
+            }
+          
+          pFS = new WordFromIndependentFrequenciesSet(pWA, v_AFS);
+        }
     }
-  }
   // INDEPENDENT CODON
   else if (freqName == "Codon")
-  {
-    if (!AlphabetTools::isCodonAlphabet(alphabet))
-      throw Exception("PhylogeneticsApplicationTools::getFrequenciesSetDefaultInstance.\n\t Bad alphabet type "
-                      + alphabet->getAlphabetType() + " for frequenciesset " + freqName + ".");
-
-    const CodonAlphabet* pWA = dynamic_cast<const CodonAlphabet*>(alphabet);
-
-    if (args.find("frequency") != args.end())
     {
-      string sAFS = args["frequency"];
-
-      unsigned int nbfreq = pWA->getLength();
-      FrequenciesSet* pFS2;
-      string st = "";
-      for (unsigned i = 0; i < nbfreq; i++)
-      {
-        st += TextTools::toString(i + 1);
-      }
-
-      map<string, string> unparsedParameterValuesNested;
-      pFS2 = getFrequenciesSetDefaultInstance(pWA->getNAlphabet(0), sAFS, unparsedParameterValuesNested);
-
-      for (map<string, string>::iterator it = unparsedParameterValuesNested.begin(); it != unparsedParameterValuesNested.end(); it++)
-      {
-        unparsedParameterValues["freq_Codon" + st + "_" + it->first] = it->second;
-      }
-      pFS = new CodonFromUniqueFrequenciesSet(pWA, pFS2);
-    }
-    else
-    {
-      if (args.find("frequency1") == args.end())
-        throw Exception("PhylogeneticsApplicationTools::getFrequenciesSetDefaultInstance. Missing argument 'frequency' or 'frequency1' for frequencies set 'freq_Codon'.");
-      vector<string> v_sAFS;
-      vector<FrequenciesSet*> v_AFS;
-      unsigned int nbfreq = 1;
-
-      while (args.find("frequency" + TextTools::toString(nbfreq)) != args.end())
-      {
-        v_sAFS.push_back(args["frequency" + TextTools::toString(nbfreq++)]);
-      }
-
-      if (v_sAFS.size() != 3)
-        throw Exception("PhylogeneticsApplicationTools::getFrequenciesSetDefaultInstance. Number of frequencies (" + TextTools::toString(v_sAFS.size()) + ") is not three");
-
-      map<string, string> unparsedParameterValuesNested;
-      for (unsigned i = 0; i < v_sAFS.size(); i++)
-      {
-        unparsedParameterValuesNested.clear();
-        pFS = getFrequenciesSetDefaultInstance(pWA->getNAlphabet(i), v_sAFS[i], unparsedParameterValuesNested);
-        for (map<string, string>::iterator it = unparsedParameterValuesNested.begin(); it != unparsedParameterValuesNested.end(); it++)
+      if (!AlphabetTools::isCodonAlphabet(alphabet))
+        throw Exception("PhylogeneticsApplicationTools::getFrequenciesSetDefaultInstance.\n\t Bad alphabet type "
+                        + alphabet->getAlphabetType() + " for frequenciesset " + freqName + ".");
+      
+      const CodonAlphabet* pWA = dynamic_cast<const CodonAlphabet*>(alphabet);
+      
+      if (args.find("frequency") != args.end())
         {
-          unparsedParameterValues["freq_Codon" + TextTools::toString(i + 1) + "_" + it->first] = it->second;
+          string sAFS = args["frequency"];
+          
+          unsigned int nbfreq = pWA->getLength();
+          FrequenciesSet* pFS2;
+          string st = "";
+          for (unsigned i = 0; i < nbfreq; i++)
+            {
+              st += TextTools::toString(i + 1);
+            }
+          
+          map<string, string> unparsedParameterValuesNested;
+          pFS2 = getFrequenciesSetDefaultInstance(pWA->getNAlphabet(0), sAFS, unparsedParameterValuesNested);
+          
+          for (map<string, string>::iterator it = unparsedParameterValuesNested.begin(); it != unparsedParameterValuesNested.end(); it++)
+            {
+              unparsedParameterValues["freq_Codon" + st + "_" + it->first] = it->second;
+            }
+          pFS = new CodonFromUniqueFrequenciesSet(pWA, pFS2);
         }
-        v_AFS.push_back(pFS);
-      }
+      else
+        {
+          if (args.find("frequency1") == args.end())
+            throw Exception("PhylogeneticsApplicationTools::getFrequenciesSetDefaultInstance. Missing argument 'frequency' or 'frequency1' for frequencies set 'freq_Codon'.");
+          vector<string> v_sAFS;
+          vector<FrequenciesSet*> v_AFS;
+          unsigned int nbfreq = 1;
 
-      pFS = new CodonFromIndependentFrequenciesSet(pWA, v_AFS);
+          while (args.find("frequency" + TextTools::toString(nbfreq)) != args.end())
+            {
+              v_sAFS.push_back(args["frequency" + TextTools::toString(nbfreq++)]);
+            }
+          
+          if (v_sAFS.size() != 3)
+            throw Exception("PhylogeneticsApplicationTools::getFrequenciesSetDefaultInstance. Number of frequencies (" + TextTools::toString(v_sAFS.size()) + ") is not three");
+          
+          map<string, string> unparsedParameterValuesNested;
+          for (unsigned i = 0; i < v_sAFS.size(); i++)
+            {
+              unparsedParameterValuesNested.clear();
+              pFS = getFrequenciesSetDefaultInstance(pWA->getNAlphabet(i), v_sAFS[i], unparsedParameterValuesNested);
+              for (map<string, string>::iterator it = unparsedParameterValuesNested.begin(); it != unparsedParameterValuesNested.end(); it++)
+                {
+                  unparsedParameterValues["Codon" + TextTools::toString(i + 1) + "_" + it->first] = it->second;
+                }
+              v_AFS.push_back(pFS);
+            }
+          
+         pFS = new CodonFromIndependentFrequenciesSet(pWA, v_AFS);
+        }
     }
-  }
+  
   // CODON PER AA Frequencies 
   else if (freqName == "FullPerAA")
     {
       if (!AlphabetTools::isCodonAlphabet(alphabet))
         throw Exception("PhylogeneticsApplicationTools::getFrequenciesSetDefaultInstance.\n\t Bad alphabet type "
                         + alphabet->getAlphabetType() + " for frequenciesset " + freqName + ".");
-
+      
       const CodonAlphabet* pWA = dynamic_cast<const CodonAlphabet*>(alphabet);
-
+      
       if (args.find("genetic_code") == args.end())
         args["genetic_code"] = pWA->getAlphabetType();
 
@@ -1589,15 +1576,22 @@ FrequenciesSet* PhylogeneticsApplicationTools::getFrequenciesSetDefaultInstance(
   {
     short opt = -1;
 
-    if (freqName == "F0")
+    if (freqName == "F0"){
       opt = CodonFrequenciesSet::F0;
-    else if (freqName == "F1X4")
+      freqName="Codon";
+    }
+    else if (freqName == "F1X4"){
       opt = CodonFrequenciesSet::F1X4;
-    else if (freqName == "F3X4")
+      freqName="Codon";
+    }
+    else if (freqName == "F3X4"){
       opt = CodonFrequenciesSet::F3X4;
-    else if (freqName == "F61")
+      freqName="Codon";
+    }
+    else if (freqName == "F61"){
       opt = CodonFrequenciesSet::F61;
-
+      freqName="Codon";
+    }
     if (opt != -1)
       pFS = CodonFrequenciesSet::getFrequenciesSetForCodons(opt, *dynamic_cast<const CodonAlphabet*>(alphabet));
     else
@@ -1617,7 +1611,23 @@ FrequenciesSet* PhylogeneticsApplicationTools::getFrequenciesSetDefaultInstance(
     unparsedParameterValues["init.observedPseudoCount"] = args["init.observedPseudoCount"];
     unparsedParameterValues["initFreqs.observedPseudoCount"] = args["init.observedPseudoCount"];
   }
-  return pFS;
+
+  vector<string> pnames = pFS->getParameters().getParameterNames();
+
+  for (unsigned int i = 0; i < pnames.size(); i++)
+    {
+      string name = pFS->getParameterNameWithoutNamespace(pnames[i]);
+      if (args.find(name) != args.end())
+        {
+          unparsedParameterValues[freqName + "." + name] = args[name];
+        }
+      else if (args.find(pnames[i]) != args.end())
+        {
+          unparsedParameterValues[pnames[i]] = args[pnames[i]];
+        }
+    }
+
+return pFS;
 }
 
 
