@@ -46,6 +46,7 @@ knowledge of the CeCILL license and that you accept its terms.
 #include <string>
 #include <iostream>
 #include <fstream>
+#include <sstream>
 
 #include <Bpp/Exceptions.h>
 #include <Bpp/Io/IoFormat.h>
@@ -163,10 +164,20 @@ class AbstractOTree:
 		void write(const Tree& tree, std::ostream& out) const throw (Exception) = 0;
 		virtual void write(const Tree& tree, const std::string& path, bool overwrite) const throw (Exception)
 		{
+		  try {
 			// Open file in specified mode
-      std::ofstream output(path.c_str(), overwrite ? (std::ios::out) : (std::ios::out|std::ios::app));
-			write(tree, output);
-			output.close();
+		    std::ofstream output(path.c_str(), overwrite ? (std::ios::out) : (std::ios::out|std::ios::app));
+		    write(tree, output);
+		    output.close();
+		  }
+		  catch (IOException e)
+		    {
+		      std::stringstream ss ;
+		      ss << e.what() <<"\nProblem writing tree to file "<< path <<"\n Is the file path correct and do \
+you have the proper authorizations? ";
+		      throw (IOException ( ss.str() ) );
+		    }
+
 		}
 };
 

@@ -6,37 +6,37 @@
 //
 
 /*
-Copyright or © or Copr. CNRS, (November 16, 2004)
+   Copyright or © or Copr. CNRS, (November 16, 2004)
 
-This software is a computer program whose purpose is to provide classes
-for phylogenetic data analysis.
+   This software is a computer program whose purpose is to provide classes
+   for phylogenetic data analysis.
 
-This software is governed by the CeCILL  license under French law and
-abiding by the rules of distribution of free software.  You can  use, 
-modify and/ or redistribute the software under the terms of the CeCILL
-license as circulated by CEA, CNRS and INRIA at the following URL
-"http://www.cecill.info". 
+   This software is governed by the CeCILL  license under French law and
+   abiding by the rules of distribution of free software.  You can  use,
+   modify and/ or redistribute the software under the terms of the CeCILL
+   license as circulated by CEA, CNRS and INRIA at the following URL
+   "http://www.cecill.info".
 
-As a counterpart to the access to the source code and  rights to copy,
-modify and redistribute granted by the license, users are provided only
-with a limited warranty  and the software's author,  the holder of the
-economic rights,  and the successive licensors  have only  limited
-liability. 
+   As a counterpart to the access to the source code and  rights to copy,
+   modify and redistribute granted by the license, users are provided only
+   with a limited warranty  and the software's author,  the holder of the
+   economic rights,  and the successive licensors  have only  limited
+   liability.
 
-In this respect, the user's attention is drawn to the risks associated
-with loading,  using,  modifying and/or developing or reproducing the
-software by the user in light of its specific status of free software,
-that may mean  that it is complicated to manipulate,  and  that  also
-therefore means  that it is reserved for developers  and  experienced
-professionals having in-depth computer knowledge. Users are therefore
-encouraged to load and test the software's suitability as regards their
-requirements in conditions enabling the security of their systems and/or 
-data to be ensured and,  more generally, to use and operate it in the 
-same conditions as regards security. 
+   In this respect, the user's attention is drawn to the risks associated
+   with loading,  using,  modifying and/or developing or reproducing the
+   software by the user in light of its specific status of free software,
+   that may mean  that it is complicated to manipulate,  and  that  also
+   therefore means  that it is reserved for developers  and  experienced
+   professionals having in-depth computer knowledge. Users are therefore
+   encouraged to load and test the software's suitability as regards their
+   requirements in conditions enabling the security of their systems and/or
+   data to be ensured and,  more generally, to use and operate it in the
+   same conditions as regards security.
 
-The fact that you are presently reading this means that you have had
-knowledge of the CeCILL license and that you accept its terms.
-*/
+   The fact that you are presently reading this means that you have had
+   knowledge of the CeCILL license and that you accept its terms.
+ */
 
 #ifndef _ABSTRACTTREEPARSIMONYDATA_H_
 #define _ABSTRACTTREEPARSIMONYDATA_H_
@@ -45,7 +45,6 @@ knowledge of the CeCILL license and that you accept its terms.
 
 namespace bpp
 {
-
 /**
  * @brief Partial implementation of the TreeParsimonyData interface.
  *
@@ -64,57 +63,56 @@ namespace bpp
  * The global parsimony score is then given by the sum of all scores for each array position,
  * weighted by the corresponding number of sites.
  */
-class AbstractTreeParsimonyData:
+class AbstractTreeParsimonyData :
   public TreeParsimonyData
 {
-	protected:
-    std::vector<unsigned int> rootPatternLinks_;
-    std::vector<unsigned int> rootWeights_;
-		const TreeTemplate<Node>* tree_;
-    
-  public:
-    AbstractTreeParsimonyData(const TreeTemplate<Node>* tree) :
-      rootPatternLinks_(),
-      rootWeights_(),
-      tree_(tree)
-    {}
+protected:
+  std::vector<unsigned int> rootPatternLinks_;
+  std::vector<unsigned int> rootWeights_;
+  const TreeTemplate<Node>* tree_;
 
-    AbstractTreeParsimonyData(const AbstractTreeParsimonyData& atpd) :
-      rootPatternLinks_(atpd.rootPatternLinks_),
-      rootWeights_(atpd.rootWeights_),
-      tree_(atpd.tree_)
-    {}
+public:
+  AbstractTreeParsimonyData(const TreeTemplate<Node>* tree) :
+    rootPatternLinks_(),
+    rootWeights_(),
+    tree_(tree)
+  {}
 
-    AbstractTreeParsimonyData& operator=(const AbstractTreeParsimonyData& atpd)
-    {
-      rootPatternLinks_ = atpd.rootPatternLinks_;
-      rootWeights_      = atpd.rootWeights_;
-      tree_             = atpd.tree_;
-      return *this;
-    }
+  AbstractTreeParsimonyData(const AbstractTreeParsimonyData& atpd) :
+    rootPatternLinks_(atpd.rootPatternLinks_),
+    rootWeights_(atpd.rootWeights_),
+    tree_(atpd.tree_)
+  {}
+
+  AbstractTreeParsimonyData& operator=(const AbstractTreeParsimonyData& atpd)
+  {
+    rootPatternLinks_ = atpd.rootPatternLinks_;
+    rootWeights_      = atpd.rootWeights_;
+    tree_             = atpd.tree_;
+    return *this;
+  }
 
 
-    virtual ~AbstractTreeParsimonyData() {}
-    
-	public:
-		unsigned int getRootArrayPosition(const unsigned int site) const
-		{
-			return rootPatternLinks_[site];
-		}
+  virtual ~AbstractTreeParsimonyData() {}
 
-		unsigned int getWeight(unsigned int pos) const
-		{ 
-			return rootWeights_[pos];
-		}
+public:
+  unsigned int getRootArrayPosition(const unsigned int site) const
+  {
+    return rootPatternLinks_[site];
+  }
 
-		const TreeTemplate<Node>* getTree() const { return tree_; }
+  unsigned int getWeight(unsigned int pos) const
+  {
+    return rootWeights_[pos];
+  }
 
-  protected:
-    void setTreeP_(const TreeTemplate<Node>* tree) { tree_ = tree; }
-    const TreeTemplate<Node>* getTreeP_() const { return tree_; }
+  const TreeTemplate<Node>* getTree() const { return tree_; }
+
+protected:
+  void setTreeP_(const TreeTemplate<Node>* tree) { tree_ = tree; }
+  const TreeTemplate<Node>* getTreeP_() const { return tree_; }
 };
+} // end of namespace bpp.
 
-} //end of namespace bpp.
-
-#endif //_ABSTRACTTREEPARSIMONYDATA_H_
+#endif // _ABSTRACTTREEPARSIMONYDATA_H_
 
