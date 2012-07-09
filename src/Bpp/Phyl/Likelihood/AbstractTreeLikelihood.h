@@ -41,6 +41,7 @@ knowledge of the CeCILL license and that you accept its terms.
 #define _ABSTRACTTREELIKELIHOOD_H_
 
 #include "TreeLikelihood.h"
+#include "SubstitutionProcess.h"
 #include "../Tree.h"
 #include "../TreeTemplate.h"
 
@@ -224,6 +225,7 @@ class AbstractTreeLikelihood :
 	protected:
 		const SiteContainer* data_;
 		mutable TreeTemplate<Node>* tree_;
+    SubstitutionProcess* process_;
 		bool computeFirstOrderDerivatives_;
 		bool computeSecondOrderDerivatives_;
     bool initialized_;
@@ -233,20 +235,23 @@ class AbstractTreeLikelihood :
       AbstractParametrizable(""),
       data_(0),
       tree_(0),
+      process_(0),
       computeFirstOrderDerivatives_(true),
       computeSecondOrderDerivatives_(true),
       initialized_(false) {}
 
-    AbstractTreeLikelihood(const AbstractTreeLikelihood & lik):
+    AbstractTreeLikelihood(const AbstractTreeLikelihood& lik):
       AbstractParametrizable(lik),
       data_(0),
       tree_(0),
+      process_(0),
       computeFirstOrderDerivatives_(lik.computeFirstOrderDerivatives_),
       computeSecondOrderDerivatives_(lik.computeSecondOrderDerivatives_),
       initialized_(lik.initialized_) 
     {
       if (lik.data_) data_ = dynamic_cast<SiteContainer*>(lik.data_->clone());
       if (lik.tree_) tree_ = lik.tree_->clone();
+      if (lik.process_) process_ = lik.process_->clone();
     }
 
     AbstractTreeLikelihood & operator=(const AbstractTreeLikelihood& lik)
@@ -258,6 +263,9 @@ class AbstractTreeLikelihood :
       if (tree_) delete tree_;
       if (lik.tree_) tree_ = lik.tree_->clone();
       else           tree_ = 0;
+      if (process_) delete process_;
+      if (lik.process_) process_ = lik.process_->clone();
+      else              process_ = 0;
       computeFirstOrderDerivatives_ = lik.computeFirstOrderDerivatives_;
       computeSecondOrderDerivatives_ = lik.computeSecondOrderDerivatives_;
       initialized_ = lik.initialized_;
@@ -273,6 +281,7 @@ class AbstractTreeLikelihood :
     {
       if (data_) delete data_;
       if (tree_) delete tree_;
+      if (process_) delete process_;
     }
 	
 	public:
