@@ -26,6 +26,10 @@ set(CPP_FILES
   Bpp/Phyl/Io/Nhx.cpp
   Bpp/Phyl/Io/PhylipDistanceMatrixFormat.cpp
   Bpp/Phyl/Io/IoPairedSiteLikelihoods.cpp
+  Bpp/Phyl/Io/IoSubstitutionModelFactory.cpp
+  Bpp/Phyl/Io/BppOSubstitutionModelFormat.cpp
+  Bpp/Phyl/Io/IoFrequenciesSetFactory.cpp
+  Bpp/Phyl/Io/BppOFrequenciesSetFormat.cpp
   Bpp/Phyl/Likelihood/AbstractDiscreteRatesAcrossSitesTreeLikelihood.cpp
   Bpp/Phyl/Likelihood/AbstractHomogeneousTreeLikelihood.cpp
   Bpp/Phyl/Likelihood/AbstractNonHomogeneousTreeLikelihood.cpp
@@ -163,6 +167,12 @@ set(H_FILES
   Bpp/Phyl/Io/NexusIoTree.h
   Bpp/Phyl/Io/PhylipDistanceMatrixFormat.h
   Bpp/Phyl/Io/IoPairedSiteLikelihoods.h
+  Bpp/Phyl/Io/IoSubstitutionModel.h
+  Bpp/Phyl/Io/IoSubstitutionModelFactory.h
+  Bpp/Phyl/Io/BppOSubstitutionModelFormat.h
+  Bpp/Phyl/Io/IoFrequenciesSet.h
+  Bpp/Phyl/Io/IoFrequenciesSetFactory.h
+  Bpp/Phyl/Io/BppOFrequenciesSetFormat.h
   Bpp/Phyl/Likelihood/AbstractDiscreteRatesAcrossSitesTreeLikelihood.h
   Bpp/Phyl/Likelihood/AbstractHomogeneousTreeLikelihood.h
   Bpp/Phyl/Likelihood/AbstractNonHomogeneousTreeLikelihood.h
