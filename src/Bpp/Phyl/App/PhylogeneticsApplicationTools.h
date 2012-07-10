@@ -739,11 +739,13 @@ namespace bpp
     static void printParameters(const DiscreteDistribution* rDist, OutputStream& out);
 
   private:
-    static void describeParameters_(const ParameterAliasable* parametrizable, OutputStream& out, std::map<std::string, std::string>& globalAliases, const std::vector<std::string>& names, bool printLocalAliases = true);
-    static void describeSubstitutionModel_(const SubstitutionModel* model, OutputStream& out, std::map<std::string, std::string>& globalAliases);
-    static void describeFrequenciesSet_(const FrequenciesSet* pfreqset, OutputStream& out);
-    static void describeDiscreteDistribution_(const DiscreteDistribution* rDist, OutputStream& out, std::map<std::string,std:: string>& globalAliases);
+    static void describeParameters_(const ParameterAliasable* parametrizable, OutputStream& out, std::map<std::string, std::string>& globalAliases, const std::vector<std::string>& names,  std::vector<std::string>& writtenNames, bool printLocalAliases = true, bool printComma=false);
+    static void describeParameters_(const Parametrizable* parametrizable, OutputStream& out, const std::vector<std::string>& names,  std::vector<std::string>& writtenNames, bool printComma=false);
+    static void describeSubstitutionModel_(const SubstitutionModel* model, OutputStream& out, std::map<std::string, std::string>& globalAliases,  std::vector<std::string>& writtenNames);
+    static void describeFrequenciesSet_(const FrequenciesSet* pfreqset, OutputStream& out, std::vector<std::string>& writtenNames);
+    static void describeDiscreteDistribution_(const DiscreteDistribution* rDist, OutputStream& out, std::map<std::string,std:: string>& globalAliases, std::vector<std::string>& writtenNames);
 
+    friend class BppOSubstitutionModelFormat;
   };
 
 } //end of namespace bpp.

@@ -1,7 +1,7 @@
 //
-// File IODistanceMatrixFactory.cpp
-// Created by: Julien Dutheil
-// Created on: Tue 18/04/06 10:24
+// File IOFrequenciesSetFactory.cpp
+// Created by: Laurent Guéguen
+// Created on: lundi 9 juillet 2012, à 12h 59
 //
 
 /*
@@ -37,22 +37,21 @@ The fact that you are presently reading this means that you have had
 knowledge of the CeCILL license and that you accept its terms.
 */
 
-#include "IoDistanceMatrixFactory.h"
-#include "PhylipDistanceMatrixFormat.h"
+#include "BppOFrequenciesSetFormat.h"
 
 using namespace bpp;
 
-const std::string IODistanceMatrixFactory::PHYLIP_FORMAT = "Phylip"; 
+const std::string IOFrequenciesSetFactory::BPPO_FORMAT = "Bpp0"; 
 
-IDistanceMatrix* IODistanceMatrixFactory::createReader(const std::string& format) throw (Exception)
+IFrequenciesSet* IOFrequenciesSetFactory::createReader(const std::string& format) throw (Exception)
 {
-  if(format == PHYLIP_FORMAT) return new PhylipDistanceMatrixFormat();
+  if(format == BPPO_FORMAT) return new BppOFrequenciesSetFormat();
   else throw Exception("Format " + format + " is not supported for input.");
 }
   
-ODistanceMatrix* IODistanceMatrixFactory::createWriter(const std::string& format) throw (Exception)
+OFrequenciesSet* IOFrequenciesSetFactory::createWriter(const std::string& format) throw (Exception)
 {
-  if(format == PHYLIP_FORMAT) return new PhylipDistanceMatrixFormat();
+  if(format == BPPO_FORMAT) return new BppOFrequenciesSetFormat();
   else throw Exception("Format " + format + " is not supported for output.");
 }
 
