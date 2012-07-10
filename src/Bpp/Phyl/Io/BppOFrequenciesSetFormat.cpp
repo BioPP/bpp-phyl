@@ -287,22 +287,31 @@ FrequenciesSet* BppOFrequenciesSetFormat::read(const Alphabet* alphabet,
 
       if (freqName == "F0"){
         opt = CodonFrequenciesSet::F0;
-        freqName="";
       }
       else if (freqName == "F1X4"){
         opt = CodonFrequenciesSet::F1X4;
-        freqName="";
       }
       else if (freqName == "F3X4"){
         opt = CodonFrequenciesSet::F3X4;
-        freqName="";
       }
       else if (freqName == "F61"){
         opt = CodonFrequenciesSet::F61;
-        freqName="";
       }
-      if (opt != -1)
+      if (opt != -1){
         pFS = CodonFrequenciesSet::getFrequenciesSetForCodons(opt, *dynamic_cast<const CodonAlphabet*>(alphabet));
+        if (freqName=="F0"){
+          if (args.find("values")!= args.end())
+            {
+              string rf= args["values"];
+              // Initialization using the "values" argument
+              vector<double> frequencies;
+              StringTokenizer strtok(rf.substr(1, rf.length() - 2), ",");
+              while (strtok.hasMoreToken())
+                frequencies.push_back(TextTools::toDouble(strtok.nextToken()));
+              pFS->setFrequencies(frequencies);
+            }
+        }
+      }
       else
         throw Exception("Unknown frequency option: " + freqName);
     }
@@ -350,7 +359,7 @@ void BppOFrequenciesSetFormat::write(const FrequenciesSet* pfreqset,
   out << pfreqset->getName() << "(";
 
   
-  if (pfreqset->getName()=="Fixed"){
+  if ((pfreqset->getName()=="Fixed") || (pfreqset->getName()=="F0")){
     vector<double> vf=pfreqset->getFrequencies();
     out << "values=(" ;
     for (unsigned int i=0;i<vf.size();i++){
