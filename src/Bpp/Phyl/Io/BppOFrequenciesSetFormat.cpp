@@ -295,17 +295,14 @@ FrequenciesSet* BppOFrequenciesSetFormat::read(const Alphabet* alphabet,
   else
     throw Exception("Unknown frequency option: " + freqName);
 
-  // initial values
-  
-  if (args.find("values")!= args.end())
+  vector<string> pnames = pFS->getParameters().getParameterNames();
+
+  string pref=pFS->getNamespace();
+  for (unsigned int i = 0; i < pnames.size(); i++)
     {
-      string rf= args["values"];
-      // Initialization using the "values" argument
-      vector<double> frequencies;
-      StringTokenizer strtok(rf.substr(1, rf.length() - 2), ",");
-      while (strtok.hasMoreToken())
-        frequencies.push_back(TextTools::toDouble(strtok.nextToken()));
-      pFS->setFrequencies(frequencies);
+      string name = pFS->getParameterNameWithoutNamespace(pnames[i]);
+      if (args.find(name) != args.end())
+        unparsedParameterValues[pref + name] = args[name];
     }
 
   // Forward arguments:
@@ -319,17 +316,11 @@ FrequenciesSet* BppOFrequenciesSetFormat::read(const Alphabet* alphabet,
       unparsedParameterValues["init.observedPseudoCount"] = args["init.observedPseudoCount"];
       unparsedParameterValues["initFreqs.observedPseudoCount"] = args["init.observedPseudoCount"];
     }
-
-  vector<string> pnames = pFS->getParameters().getParameterNames();
-
-  string pref=pFS->getNamespace();
-  for (unsigned int i = 0; i < pnames.size(); i++)
-    {
-      string name = pFS->getParameterNameWithoutNamespace(pnames[i]);
-      if (args.find(name) != args.end())
-          unparsedParameterValues[pref + name] = args[name];
-    }
-
+  if (args.find("values")!= args.end()){
+    unparsedParameterValues["initFreqs"]="values"+args["values"];
+    unparsedParameterValues["init"]="values"+args["values"];
+  }
+  
   return pFS;
 }
 
