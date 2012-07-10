@@ -487,6 +487,116 @@ class DnDsSubstitutionRegister:
     }
 };
 
+  /**
+   * @brief Distinguishes AT->GC vs GC->AT inside synonymous substitutions.
+   *
+   * This register has two substitution types, mapped as:
+   * - 0 not a counted substitution
+   * - 1 a AT->GC synonymous substitution
+   * - 2 a GC->AT synonymous substitution
+   *
+   * Multiple substitutions are forbidden.
+   *
+   */
+  
+  class GCSynonymousSubstitutionRegister:
+    public AbstractSubstitutionRegister
+  {
+  private:
+    const GeneticCode* code_;
+
+  public:
+    GCSynonymousSubstitutionRegister(const GeneticCode* gc):
+      AbstractSubstitutionRegister(gc->getSourceAlphabet()),
+      code_(gc)
+    {}
+
+    GCSynonymousSubstitutionRegister(const GCSynonymousSubstitutionRegister& reg):
+      AbstractSubstitutionRegister(reg),
+      code_(reg.code_)
+    {}
+ 
+    GCSynonymousSubstitutionRegister& operator=(const GCSynonymousSubstitutionRegister& reg)
+    {
+      AbstractSubstitutionRegister::operator=(reg);
+      code_ = reg.code_;
+      return *this;
+    }
+   
+    GCSynonymousSubstitutionRegister* clone() const { return new GCSynonymousSubstitutionRegister(*this); }
+
+  public:
+    unsigned int getNumberOfSubstitutionTypes() const { return 2; }
+
+    unsigned int getType(int fromState, int toState) const
+    {
+      const CodonAlphabet* cAlpha = dynamic_cast<const CodonAlphabet*>(alphabet_);
+      if (fromState == toState)
+        return 0; //nothing happens
+      if (cAlpha->isStop(fromState) || cAlpha->isStop(toState) || !code_->areSynonymous(fromState, toState))
+        return 0;
+
+      bool ch(false);
+      unsigned int fromNuc, toNuc;
+      if (cAlpha->getFirstPosition(fromState) != cAlpha->getFirstPosition(toState)){
+        fromNuc=cAlpha->getFirstPosition(fromState);
+        toNuc= cAlpha->getFirstPosition(toState);
+        ch=true;
+      }
+      if (cAlpha->getSecondPosition(fromState) != cAlpha->getSecondPosition(toState)){
+        if (ch)
+          return 0;
+        else
+          ch=true;
+        fromNuc=cAlpha->getSecondPosition(fromState);
+        toNuc= cAlpha->getSecondPosition(toState);
+      }
+      if (cAlpha->getThirdPosition(fromState) != cAlpha->getThirdPosition(toState)){
+        if (ch)
+          return 0;
+        else
+          ch=true;
+        fromNuc=cAlpha->getThirdPosition(fromState);
+        toNuc= cAlpha->getThirdPosition(toState);
+      }
+
+      switch (fromNuc){
+      case 0:
+      case 3:
+        switch (toNuc){
+        case 1:
+        case 2:
+          return 1;
+        default:
+          return 0;
+        }
+      default:
+        switch (toNuc){
+        case 0:
+        case 3:
+          return 2;
+        default:
+          return 0;
+        }
+      }
+    }
+
+    std::string getTypeName (unsigned int type) const {
+      if (type == 0) {
+        return "no AT<->GC substitution or non-synonymous substitution";
+      }
+      else if (type == 1) {
+        return "AT->GC synonymous";
+      }
+      else if (type == 2) {
+        return "GC->AT synonymous";
+      }
+      else {
+        throw Exception("GCSynonymousSubstitutionRegister::getTypeName. Bad substitution type.");
+      }
+    }
+  };
+
 
 
 
