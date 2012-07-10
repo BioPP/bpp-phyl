@@ -148,7 +148,7 @@ public:
    * @brief Constructor from a WordAlphabet* and a vector of different FrequenciesSet*.
    * Throws an Exception if their lengths do not match.
    */
-  WordFromIndependentFrequenciesSet(const WordAlphabet* pWA, const std::vector<FrequenciesSet*>& freqVector, const std::string& prefix = "Word", const std::string& name="");
+  WordFromIndependentFrequenciesSet(const WordAlphabet* pWA, const std::vector<FrequenciesSet*>& freqVector, const std::string& prefix = "", const std::string& name="WordFromIndependent");
 
   WordFromIndependentFrequenciesSet(const WordFromIndependentFrequenciesSet& iwfs);
 
@@ -200,7 +200,7 @@ public:
    * @brief Constructor from a WordAlphabet* and a FrequenciesSet*
    *  repeated as many times as the length of the words.
    */
-  WordFromUniqueFrequenciesSet(const WordAlphabet* pWA, FrequenciesSet* pabsfreq, const std::string& prefix = "Word", const std::string& name = "");
+  WordFromUniqueFrequenciesSet(const WordAlphabet* pWA, FrequenciesSet* pabsfreq, const std::string& prefix = "", const std::string& name = "WordFromUnique");
 
   WordFromUniqueFrequenciesSet(const WordFromUniqueFrequenciesSet& iwfs);
 

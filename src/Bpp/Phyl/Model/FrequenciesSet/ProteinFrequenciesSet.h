@@ -71,9 +71,9 @@ class FullProteinFrequenciesSet :
   public FullFrequenciesSet
 {
 public:
-  FullProteinFrequenciesSet(const ProteicAlphabet* alphabet, bool allowNullFreqs = false, const std::string& name = "FullProtein") :
+  FullProteinFrequenciesSet(const ProteicAlphabet* alphabet, bool allowNullFreqs = false, const std::string& name = "Full") :
     FullFrequenciesSet(alphabet, allowNullFreqs, name) {}
-  FullProteinFrequenciesSet(const ProteicAlphabet* alphabet, const std::vector<double>& initFreqs, bool allowNullFreqs = false, const std::string& name = "FullProtein") :
+  FullProteinFrequenciesSet(const ProteicAlphabet* alphabet, const std::vector<double>& initFreqs, bool allowNullFreqs = false, const std::string& name = "Full") :
     FullFrequenciesSet(alphabet, initFreqs, allowNullFreqs, name) {}
 
 #ifndef NO_VIRTUAL_COV
@@ -102,14 +102,14 @@ class FixedProteinFrequenciesSet :
   public FixedFrequenciesSet
 {
 public:
-  FixedProteinFrequenciesSet(const ProteicAlphabet* alphabet, const std::vector<double>& initFreqs, const std::string& name = "FixedProtein") :
+  FixedProteinFrequenciesSet(const ProteicAlphabet* alphabet, const std::vector<double>& initFreqs, const std::string& name = "Fixed") :
     FixedFrequenciesSet(alphabet, initFreqs, name) {}
 
   /**
    * @brief Construction with uniform frequencies on the letters of
    * the alphabet.
    */
-  FixedProteinFrequenciesSet(const ProteicAlphabet* alphabet, const std::string& name = "FixedProtein") :
+  FixedProteinFrequenciesSet(const ProteicAlphabet* alphabet, const std::string& name = "Fixed") :
     FixedFrequenciesSet(alphabet, name) {}
 
 #ifndef NO_VIRTUAL_COV

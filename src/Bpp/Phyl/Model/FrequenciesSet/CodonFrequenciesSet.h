@@ -99,8 +99,8 @@ namespace bpp
      * @brief Construction with uniform frequencies on the letters of
      * the alphabet. The stop codon frequencies are null.
      */
-    FullCodonFrequenciesSet(const CodonAlphabet* alphabet, bool allowNullFreqs = false, const std::string& name = "FullCodon");
-    FullCodonFrequenciesSet(const CodonAlphabet* alphabet, const std::vector<double>& initFreqs, bool allowNullFreqs = false, const std::string& name = "FullCodon");
+    FullCodonFrequenciesSet(const CodonAlphabet* alphabet, bool allowNullFreqs = false, const std::string& name = "Full");
+    FullCodonFrequenciesSet(const CodonAlphabet* alphabet, const std::vector<double>& initFreqs, bool allowNullFreqs = false, const std::string& name = "Full");
 
 #ifndef NO_VIRTUAL_COV
     FullCodonFrequenciesSet*
@@ -139,13 +139,13 @@ namespace bpp
     public AbstractFrequenciesSet
   {
   public:
-    FixedCodonFrequenciesSet(const CodonAlphabet* alphabet, const std::vector<double>& initFreqs, const std::string& name = "FixedCodon");
+    FixedCodonFrequenciesSet(const CodonAlphabet* alphabet, const std::vector<double>& initFreqs, const std::string& name = "Fixed");
 
     /**
      * @brief Construction with uniform frequencies on the letters of
      * the alphabet. The stop codon frequencies are null.
      */
-    FixedCodonFrequenciesSet(const CodonAlphabet* alphabet, const std::string& name = "FixedCodon");
+    FixedCodonFrequenciesSet(const CodonAlphabet* alphabet, const std::string& name = "Fixed");
 
 #ifndef NO_VIRTUAL_COV
     FixedCodonFrequenciesSet*
@@ -202,14 +202,14 @@ namespace bpp
   
   public:
   
-    FullPerAACodonFrequenciesSet(const GeneticCode* gencode, const ProteinFrequenciesSet* ppfs, const std::string& name = "FullPerAACodon");
+    FullPerAACodonFrequenciesSet(const GeneticCode* gencode, const ProteinFrequenciesSet* ppfs);
 
     /**
      * @brief Construction with fixed uniform frequencies on the amino acids.
      * The stop codon frequencies are null.
      */
   
-    FullPerAACodonFrequenciesSet(const GeneticCode* gencode, const std::string& name = "FixedCodon");
+    FullPerAACodonFrequenciesSet(const GeneticCode* gencode);
 
     FullPerAACodonFrequenciesSet(const FullPerAACodonFrequenciesSet&);
 
@@ -263,7 +263,7 @@ namespace bpp
      * @brief Constructor from a CodonAlphabet* and a vector of different FrequenciesSet*.
      * Throws an Exception if their lengths do not match.
      */
-    CodonFromIndependentFrequenciesSet(const CodonAlphabet* pCA, const std::vector<FrequenciesSet*>& freqvector, const std::string& name = "");
+    CodonFromIndependentFrequenciesSet(const CodonAlphabet* pCA, const std::vector<FrequenciesSet*>& freqvector, const std::string& name = "Codon");
   
     CodonFromIndependentFrequenciesSet(const CodonFromIndependentFrequenciesSet& iwfs);
 
@@ -305,7 +305,7 @@ namespace bpp
      *  repeated three times.
      */
 
-    CodonFromUniqueFrequenciesSet(const CodonAlphabet* pCA, FrequenciesSet* pfreq, const std::string& name = "");
+    CodonFromUniqueFrequenciesSet(const CodonAlphabet* pCA, FrequenciesSet* pfreq, const std::string& name = "Codon");
   
     CodonFromUniqueFrequenciesSet(const CodonFromUniqueFrequenciesSet& iwfs);
   

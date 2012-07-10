@@ -134,9 +134,9 @@ class FullNucleotideFrequenciesSet :
   public AbstractFrequenciesSet
 {
 public:
-  FullNucleotideFrequenciesSet(const NucleicAlphabet* alphabet, bool allowNullFreqs = false, const std::string& name = "FullNucleotide");
+  FullNucleotideFrequenciesSet(const NucleicAlphabet* alphabet, bool allowNullFreqs = false, const std::string& name = "Full");
 
-  FullNucleotideFrequenciesSet(const NucleicAlphabet* alphabet, double theta, double theta1, double theta2, bool allowNullFreqs = false, const std::string& name = "FullNucleotide");
+  FullNucleotideFrequenciesSet(const NucleicAlphabet* alphabet, double theta, double theta1, double theta2, bool allowNullFreqs = false, const std::string& name = "Full");
 
 #ifndef NO_VIRTUAL_COV
   FullNucleotideFrequenciesSet*
@@ -170,14 +170,14 @@ class FixedNucleotideFrequenciesSet :
   public FixedFrequenciesSet
 {
 public:
-  FixedNucleotideFrequenciesSet(const NucleicAlphabet* alphabet, const std::vector<double>& initFreqs, const std::string& name = "FixedNucleotide") :
+  FixedNucleotideFrequenciesSet(const NucleicAlphabet* alphabet, const std::vector<double>& initFreqs, const std::string& name = "Fixed") :
     FixedFrequenciesSet(alphabet, initFreqs, name) {}
 
   /**
    * @brief Construction with uniform frequencies on the letters of
    * the alphabet.
    */
-  FixedNucleotideFrequenciesSet(const NucleicAlphabet* alphabet, const std::string& name = "FixedNucleotide") :
+  FixedNucleotideFrequenciesSet(const NucleicAlphabet* alphabet, const std::string& name = "Fixed") :
     FixedFrequenciesSet(alphabet, name) {}
 
 #ifndef NO_VIRTUAL_COV
