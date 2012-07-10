@@ -537,7 +537,7 @@ class DnDsSubstitutionRegister:
         return 0;
 
       bool ch(false);
-      unsigned int fromNuc, toNuc;
+      unsigned int fromNuc(0), toNuc(0);
       if (cAlpha->getFirstPosition(fromState) != cAlpha->getFirstPosition(toState)){
         fromNuc=cAlpha->getFirstPosition(fromState);
         toNuc= cAlpha->getFirstPosition(toState);
