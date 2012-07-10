@@ -146,7 +146,7 @@ namespace bpp
       addParameters_(freqSet_->getParameters());
     }
 
-    const ProteinFrequenciesSet* getFrequenciesSet() const { return freqSet_; }
+    const FrequenciesSet* getFrequenciesSet() const { return freqSet_; }
 
     void setFreqFromData(const SequenceContainer& data);
 
