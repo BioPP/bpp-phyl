@@ -102,14 +102,13 @@ namespace bpp
 
     void setFreq(std::map<int, double>& frequencies);
 
-    const FrequenciesSet& getFreq() const { return *pfreqset_; }
+    const FrequenciesSet* getFrequenciesSet() const { return pfreqset_; }
 
     void setNamespace(const std::string& prefix)
     {
       pfreqset_->setNamespace(prefix + freqName_);
     }
 
-  public:
     double getCodonsMulRate(unsigned int, unsigned int) const;
 
   };

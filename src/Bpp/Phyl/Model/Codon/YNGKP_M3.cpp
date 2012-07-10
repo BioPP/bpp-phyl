@@ -89,7 +89,7 @@ YNGKP_M3::YNGKP_M3(const GeneticCode* gc, FrequenciesSet* codonFreqs, unsigned i
     lParPmodel_.addParameter(Parameter(pl[i]));
   }
 
-  vector<std::string> v = dynamic_cast<YN98*>(pmixmodel_->getNModel(0))->getFreq().getParameters().getParameterNames();
+  vector<std::string> v = dynamic_cast<YN98*>(pmixmodel_->getNModel(0))->getFrequenciesSet()->getParameters().getParameterNames();
   for (unsigned int i = 0; i < v.size(); i++)
   {
     mapParNamesFromPmodel_[v[i]] = getParameterNameWithoutNamespace("YNGKP_M3." + v[i].substr(5));

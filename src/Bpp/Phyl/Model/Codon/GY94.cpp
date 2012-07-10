@@ -59,7 +59,7 @@ GY94::GY94(const GeneticCode* gc, FrequenciesSet* codonFreqs) :
 
   lParPmodel_.addParameters(pmodel_->getParameters());
   
-  vector<std::string> v=pmodel_->getFreq().getParameters().getParameterNames();
+  vector<std::string> v=pmodel_->getFrequenciesSet()->getParameters().getParameterNames();
   for (unsigned int i=0;i<v.size();i++)
     mapParNamesFromPmodel_[v[i]]=getParameterNameWithoutNamespace(v[i]);
 

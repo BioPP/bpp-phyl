@@ -57,7 +57,7 @@ AbstractCodonFrequenciesSubstitutionModel::AbstractCodonFrequenciesSubstitutionM
   if (dynamic_cast<CodonFrequenciesSet*>(pfreq)==NULL)
     throw Exception("Bad type for equilibrium frequencies " + pfreq->getName());
 
-  freqName_="freq_"+pfreqset_->getNamespace();
+  freqName_=pfreqset_->getNamespace();
   pfreqset_->setNamespace(prefix + freqName_);
   addParameters_(pfreqset_->getParameters());
 }
