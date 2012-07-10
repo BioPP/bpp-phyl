@@ -85,16 +85,6 @@ FrequenciesSet* BppOFrequenciesSetFormat::read(const Alphabet* alphabet,
         {
           pFS = new FixedFrequenciesSet(alphabet);
         }
-      if (args.find("values")!= args.end())
-          {
-            string rf= args["values"];
-            // Initialization using the "values" argument
-            vector<double> frequencies;
-            StringTokenizer strtok(rf.substr(1, rf.length() - 2), ",");
-            while (strtok.hasMoreToken())
-              frequencies.push_back(TextTools::toDouble(strtok.nextToken()));
-            pFS->setFrequencies(frequencies);
-          }
     }
   else if (freqName == "Full")
     {
@@ -297,26 +287,26 @@ FrequenciesSet* BppOFrequenciesSetFormat::read(const Alphabet* alphabet,
       else if (freqName == "F61"){
         opt = CodonFrequenciesSet::F61;
       }
-      if (opt != -1){
+      if (opt != -1)
         pFS = CodonFrequenciesSet::getFrequenciesSetForCodons(opt, *dynamic_cast<const CodonAlphabet*>(alphabet));
-        if (freqName=="F0"){
-          if (args.find("values")!= args.end())
-            {
-              string rf= args["values"];
-              // Initialization using the "values" argument
-              vector<double> frequencies;
-              StringTokenizer strtok(rf.substr(1, rf.length() - 2), ",");
-              while (strtok.hasMoreToken())
-                frequencies.push_back(TextTools::toDouble(strtok.nextToken()));
-              pFS->setFrequencies(frequencies);
-            }
-        }
-      }
       else
         throw Exception("Unknown frequency option: " + freqName);
     }
   else
     throw Exception("Unknown frequency option: " + freqName);
+
+  // initial values
+  
+  if (args.find("values")!= args.end())
+    {
+      string rf= args["values"];
+      // Initialization using the "values" argument
+      vector<double> frequencies;
+      StringTokenizer strtok(rf.substr(1, rf.length() - 2), ",");
+      while (strtok.hasMoreToken())
+        frequencies.push_back(TextTools::toDouble(strtok.nextToken()));
+      pFS->setFrequencies(frequencies);
+    }
 
   // Forward arguments:
   if (args.find("init") != args.end())
