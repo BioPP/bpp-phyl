@@ -180,6 +180,14 @@ MixtureOfASubstitutionModel::~MixtureOfASubstitutionModel()
   }
 }
 
+const DiscreteDistribution* MixtureOfASubstitutionModel::getDistribution(std::string& parName) const
+{
+  if (distributionMap_.find(parName)!=distributionMap_.end())
+    return distributionMap_.find(parName)->second;
+  else
+    return NULL;
+}
+
 void MixtureOfASubstitutionModel::updateMatrices()
 {
   string s, t;
@@ -306,3 +314,4 @@ Vint MixtureOfASubstitutionModel::getSubmodelNumbers(string& desc) const
 
   return submodnb;
 }
+

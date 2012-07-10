@@ -159,7 +159,7 @@ namespace bpp
     MixtureOfSubstitutionModels* clone() const { return new MixtureOfSubstitutionModels(*this); }
 
   public:
-    std::string getName() const { return "MixtureOfSubstitutionModels"; }
+    std::string getName() const { return "Mixture"; }
 
     void updateMatrices();
   

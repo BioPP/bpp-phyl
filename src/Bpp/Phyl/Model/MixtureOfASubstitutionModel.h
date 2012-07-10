@@ -121,7 +121,7 @@ public:
   MixtureOfASubstitutionModel* clone() const { return new MixtureOfASubstitutionModel(*this); }
 
 public:
-  std::string getName() const { return "MixtureOfASubstitutionModel"; }
+  std::string getName() const { return "MixedModel"; }
 
   void updateMatrices();
 
@@ -145,7 +145,23 @@ public:
 
   void setFreq(std::map<int,double>&);
 
+  /**
+   * @brief returns the DiscreteDistribution associated with a given
+   * parameter name.
+   * @param the name of the parameter
+   **/
+
+  const DiscreteDistribution* getDistribution(std::string& parName) const;
+
+  /**
+   *@brief Numbers of the states between which the substitution rates
+   *of all the submodels must be equal. If they are set to -1, this
+   *constraint does not exist among the submodels.
+   *
+   */
   
+  int from() const { return from_;}
+  int to() const { return to_;}
 };
 } // end of namespace bpp.
 
