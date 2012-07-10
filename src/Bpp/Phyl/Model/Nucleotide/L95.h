@@ -116,7 +116,7 @@ public:
   clone() const { return new L95(*this); }
   
 public:
-  std::string getName() const { return "Lobry 1995"; }
+  std::string getName() const { return "L95"; }
   
   void updateMatrices();
   
