@@ -337,10 +337,11 @@ void BppOFrequenciesSetFormat::write(const FrequenciesSet* pfreqset,
   unsigned int p = out.getPrecision();
   out.setPrecision(12);
   bool flag(false);
-  out << pfreqset->getName() << "(";
+  string name=pfreqset->getName();
+  out << name << "(";
 
   
-  if ((pfreqset->getName()=="Fixed") || (pfreqset->getName()=="F0")){
+  if ((name=="Fixed") || (name=="F0")){
     vector<double> vf=pfreqset->getFrequencies();
     out << "values=(" ;
     for (unsigned int i=0;i<vf.size();i++){
@@ -351,27 +352,28 @@ void BppOFrequenciesSetFormat::write(const FrequenciesSet* pfreqset,
     out << ")";
   }
   else {
-    const WordFromIndependentFrequenciesSet* pWFI=dynamic_cast<const WordFromIndependentFrequenciesSet*>(pfreqset);
-    if (pWFI!=NULL){
-      for (unsigned int i=0; i< pWFI->getLength(); i++){
-        if (i!=0)
-          out << ", ";
-        out << "frequency" << i+1 << "="; 
-        write(&pWFI->getFrequenciesSetForLetter(i), out, writtenNames);
+    if (name!="F1X4" && name!="F3X4" && name!="F61"){
+      const WordFromIndependentFrequenciesSet* pWFI=dynamic_cast<const WordFromIndependentFrequenciesSet*>(pfreqset);
+      if (pWFI!=NULL){
+        for (unsigned int i=0; i< pWFI->getLength(); i++){
+          if (i!=0)
+            out << ", ";
+          out << "frequency" << i+1 << "="; 
+          write(&pWFI->getFrequenciesSetForLetter(i), out, writtenNames);
+        }
+        flag=true;
       }
-      flag=true;
-    }
-    const WordFromUniqueFrequenciesSet* pWFU=dynamic_cast<const WordFromUniqueFrequenciesSet*>(pfreqset);
-    if (pWFU!=NULL){
-      for (unsigned int i=0; i< pWFU->getLength(); i++){
-        if (i!=0)
-          out << ", ";
-        out << "frequency=";
-        write(&pWFU->getFrequenciesSetForLetter(i), out, writtenNames);
+      const WordFromUniqueFrequenciesSet* pWFU=dynamic_cast<const WordFromUniqueFrequenciesSet*>(pfreqset);
+      if (pWFU!=NULL){
+        for (unsigned int i=0; i< pWFU->getLength(); i++){
+          if (i!=0)
+            out << ", ";
+          out << "frequency=";
+          write(&pWFU->getFrequenciesSetForLetter(i), out, writtenNames);
+        }
+        flag=true;
       }
-      flag=true;
     }
-
     for (unsigned int i = 0; i < pl.size(); i++)
       {
         if (find(writtenNames.begin(),writtenNames.end(),pl[i].getName())==writtenNames.end()){
