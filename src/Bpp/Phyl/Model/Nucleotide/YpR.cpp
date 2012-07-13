@@ -405,7 +405,7 @@ YpR_Sym::YpR_Sym(const YpR_Sym& ypr) : AbstractParameterAliasable(ypr), YpR(ypr,
 
 std::string YpR_Sym::getName() const
 {
-  return "YpR_Sym(model=" + _pmodel->getName()+")";
+  return "YpR_Sym";
 }
 
 
@@ -456,7 +456,7 @@ YpR_Gen::YpR_Gen(const YpR_Gen& ypr) : AbstractParameterAliasable(ypr), YpR(ypr,
 
 std::string YpR_Gen::getName() const
 {
-  return "YpR_Gen(model=" + _pmodel->getName()+")";
+  return "YpR_Gen";
 }
 
 

@@ -173,6 +173,8 @@ protected:
 public:
   //  virtual std::string getName() const;
 
+  const SubstitutionModel* getNestedModel() const {return _pmodel;}
+  
   unsigned int getNumberOfStates() const { return 36; }
 
   virtual void updateMatrices();

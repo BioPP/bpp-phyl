@@ -968,6 +968,18 @@ void BppOSubstitutionModelFormat::write(const SubstitutionModel& model,
       return;
     }
 
+  // Is it a YpR model?
+  const YpR* yprModel= dynamic_cast<const YpR*>(&model);
+  if (yprModel)
+    {
+      out << yprModel->getName() << "(model=";
+      const SubstitutionModel* nestedModel = yprModel->getNestedModel();
+      write(*nestedModel, out, globalAliases, writtenNames);
+      out << ", ";
+      PhylogeneticsApplicationTools::describeParameters_(yprModel, out, globalAliases, model.getIndependentParameters().getParameterNames(), writtenNames);
+      out << ")";
+      return;
+    }
   // Regular model
 
   out << model.getName() << "(";
