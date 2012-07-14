@@ -40,6 +40,8 @@ knowledge of the CeCILL license and that you accept its terms.
 #ifndef _SUBSTITUTIONPROCESS_H_
 #define _SUBSTITUTIONPROCESS_H_
 
+#include "ParametrizableTree.h"
+
 #include <Bpp/Numeric/ParameterAliasable.h>
 #include <Bpp/Numeric/AbstractParameterAliasable.h>
 
@@ -52,6 +54,10 @@ namespace bpp
     public:
       virtual SubstitutionProcess* clone() const = 0;
 
+    public:
+      virtual void registerWithTree(ParametrizableTree* pTree) = 0;
+      virtual bool isRegistered() const = 0;
+
       virtual VVdouble getTransitionProbabilities(int nodeId, unsigned int siteIndex, unsigned int classIndex) const = 0;
       virtual VVdouble getGenerator(int nodeId, unsigned int siteIndex, unsigned int classIndex) const = 0;
 
@@ -63,8 +69,37 @@ namespace bpp
   };
 
 
+
+  class AbstractSubstitutionProcess:
+    public virtual SubstitutionProcess
+  {
+    protected:
+      ParametrizableTree* pTree_;
+   
+    protected:
+      AbstractSubstitutionProcess(): pTree_(0) {}
+
+      /**
+       * When a process is copied, it becomes unregistered,
+       * instead of being registered with the same tree. This will avoid some hidden
+       * bugs...
+       */
+      AbstractSubstitutionProcess(const AbstractSubstitutionProcess& asp): pTree_(0) {}
+      AbstractSubstitutionProcess& operator=(const AbstractSubstitutionProcess& asp) {
+        pTree_ = 0;
+        return *this;
+      }
+
+    public:
+      void registerWithTree(ParametrizableTree* pTree) { pTree_ =  pTree; }
+      bool isRegistered() const { return pTree_ != 0;}
+
+  };
+
+
+
   class SimpleSubstitutionProcess:
-    public virtual SubstitutionProcess,
+    public AbstractSubstitutionProcess,
     public AbstractParameterAliasable
   {
     private:
@@ -95,14 +130,19 @@ namespace bpp
     public:
       virtual SimpleSubstitutionProcess* clone() const { return new SimpleSubstitutionProcess(*this); }
 
-      virtual VVdouble getTransitionProbabilities(int nodeId, unsigned int siteIndex, unsigned int classIndex) const = 0;
-      virtual VVdouble getGenerator(int nodeId, unsigned int siteIndex, unsigned int classIndex) const = 0;
+      virtual VVdouble getTransitionProbabilities(int nodeId, unsigned int siteIndex, unsigned int classIndex) const {
+        pTree_->
+      }
+
+      virtual VVdouble getGenerator(int nodeId, unsigned int siteIndex, unsigned int classIndex) const {
+        
+      }
  
       bool transitionProbabilitiesHaveChanged() const { return true; }
   };
 
   class RateAcrossSitesSubstitutionProcess:
-    public virtual SubstitutionProcess,
+    public AbstractSubstitutionProcess,
     public AbstractParameterAliasable
   {
     private:
