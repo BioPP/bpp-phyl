@@ -69,14 +69,10 @@ HKY85::HKY85(
   theta_(piG + piC), theta1_(piA / (1. - theta_)), theta2_(piG / theta_),
   exp1_(), exp21_(), exp22_(), l_(), p_(size_, size_)
 {
-	Parameter kappaP("HKY85.kappa", kappa, &Parameter::R_PLUS_STAR);
-	addParameter_(kappaP);
-	Parameter thetaP("HKY85.theta" , theta_, &FrequenciesSet::FREQUENCE_CONSTRAINT_SMALL);
-	addParameter_(thetaP);
-	Parameter theta1P("HKY85.theta1", theta1_, &FrequenciesSet::FREQUENCE_CONSTRAINT_SMALL);
-	addParameter_(theta1P);
-	Parameter theta2P("HKY85.theta2", theta2_, &FrequenciesSet::FREQUENCE_CONSTRAINT_SMALL);
-	addParameter_(theta2P);
+	addParameter_(new Parameter("HKY85.kappa", kappa, &Parameter::R_PLUS_STAR));
+	addParameter_(new Parameter("HKY85.theta" , theta_, &FrequenciesSet::FREQUENCE_CONSTRAINT_SMALL));
+	addParameter_(new Parameter("HKY85.theta1", theta1_, &FrequenciesSet::FREQUENCE_CONSTRAINT_SMALL));
+	addParameter_(new Parameter("HKY85.theta2", theta2_, &FrequenciesSet::FREQUENCE_CONSTRAINT_SMALL));
 	updateMatrices();
 }
 

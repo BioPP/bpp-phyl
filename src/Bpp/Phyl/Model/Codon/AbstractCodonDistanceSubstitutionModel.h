@@ -68,14 +68,15 @@ namespace bpp
  */
 
 class AbstractCodonDistanceSubstitutionModel :
-    virtual public CodonSubstitutionModel,
-    virtual public AbstractParameterAliasable
+  virtual public CodonSubstitutionModel,
+  virtual public AbstractParameterAliasable
 {
 private:
   const GeneticCode* geneticCode_;
   const AlphabetIndex2<double>* pdistance_;
 
   double alpha_, beta_;
+
 public:
   /**
    *@brief Build a new AbstractCodonDistanceSubstitutionModel object from
@@ -85,13 +86,13 @@ public:
    *@param pdist optional pointer to a distance between amino-acids
    *@param prefix the Namespace
    */
-  
+
   AbstractCodonDistanceSubstitutionModel(
     const GeneticCode* palph,
     const AlphabetIndex2<double>* pdist,
     const std::string& prefix);
 
-  
+
   AbstractCodonDistanceSubstitutionModel(
     const AbstractCodonDistanceSubstitutionModel& model) :
     AbstractParameterAliasable(model),
@@ -101,7 +102,7 @@ public:
     beta_(model.beta_)
   {}
 
-  AbstractCodonDistanceSubstitutionModel & operator=(
+  AbstractCodonDistanceSubstitutionModel& operator=(
     const AbstractCodonDistanceSubstitutionModel& model)
   {
     AbstractParameterAliasable::operator=(model);
@@ -121,8 +122,6 @@ public:
 
 public:
   double getCodonsMulRate(unsigned int, unsigned int) const;
-
-
 };
 } // end of namespace bpp.
 

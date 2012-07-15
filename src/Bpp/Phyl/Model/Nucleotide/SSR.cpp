@@ -64,14 +64,10 @@ SSR::SSR(
   beta_(beta), gamma_(gamma), delta_(delta_), theta_(theta),
   piA_((1. - theta) / 2.), piC_(theta / 2.), piG_(theta / 2.), piT_((1. - theta) / 2.)
 {
-	Parameter betaP("SSR.beta" , beta , &Parameter::R_PLUS_STAR);
-	addParameter_(betaP);
-	Parameter gammaP("SSR.gamma", gamma, &Parameter::R_PLUS_STAR);
-	addParameter_(gammaP);
-	Parameter deltaP("SSR.delta", delta, &Parameter::R_PLUS_STAR);
-	addParameter_(deltaP);
-	Parameter thetaP("SSR.theta" , theta , &Parameter::PROP_CONSTRAINT_EX);
-	addParameter_(thetaP);
+	addParameter_(new Parameter("SSR.beta" , beta , &Parameter::R_PLUS_STAR));
+	addParameter_(new Parameter("SSR.gamma", gamma, &Parameter::R_PLUS_STAR));
+	addParameter_(new Parameter("SSR.delta", delta, &Parameter::R_PLUS_STAR));
+	addParameter_(new Parameter("SSR.theta" , theta , &Parameter::PROP_CONSTRAINT_EX));
 	updateMatrices();
 }
 

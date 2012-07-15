@@ -96,7 +96,7 @@ YNGKP_M7::YNGKP_M7(const GeneticCode* gc, FrequenciesSet* codonFreqs, unsigned i
   for (map<string, string>::iterator it = mapParNamesFromPmodel_.begin(); it != mapParNamesFromPmodel_.end(); it++)
   {
     st = pmixmodel_->getParameterNameWithoutNamespace(it->first);
-    addParameter_(Parameter("YNGKP_M7." + it->second, pmixmodel_->getParameterValue(st),
+    addParameter_(new Parameter("YNGKP_M7." + it->second, pmixmodel_->getParameterValue(st),
                             pmixmodel_->getParameter(st).hasConstraint() ? pmixmodel_->getParameter(st).getConstraint()->clone() : 0, true));
   }
 

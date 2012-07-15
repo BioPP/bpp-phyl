@@ -47,7 +47,7 @@ using namespace std;
 
 /******************************************************************************/
 
-RE08::RE08(ReversibleSubstitutionModel *simpleModel, double lambda, double mu) :
+RE08::RE08(ReversibleSubstitutionModel* simpleModel, double lambda, double mu) :
   AbstractParameterAliasable("RE08."),
   AbstractSubstitutionModel(simpleModel->getAlphabet(), "RE08."),
   AbstractReversibleSubstitutionModel(simpleModel->getAlphabet(), "RE08."),
@@ -57,10 +57,8 @@ RE08::RE08(ReversibleSubstitutionModel *simpleModel, double lambda, double mu) :
   exp_(), p_(), lambda_(lambda), mu_(mu),
   nestedPrefix_("model_" + simpleModel->getNamespace())
 {
-  Parameter lambdaP("RE08.lambda", lambda, &Parameter::R_PLUS);  
-  addParameter_(lambdaP);  
-  Parameter muP("RE08.mu", mu, &Parameter::R_PLUS);
-  addParameter_(muP);
+  addParameter_(new Parameter("RE08.lambda", lambda, &Parameter::R_PLUS));  
+  addParameter_(new Parameter("RE08.mu", mu, &Parameter::R_PLUS));
   simpleModel_->setNamespace("RE08." + nestedPrefix_);
   addParameters_(simpleModel->getParameters());
   //We need to overrired this from the AbstractSubstitutionModel constructor,

@@ -69,26 +69,18 @@ GTR::GTR(
   AbstractReversibleSubstitutionModel(alpha, "GTR."),
   a_(a), b_(b), c_(c), d_(d), e_(e), piA_(piA), piC_(piC), piG_(piG), piT_(piT), theta_(piG + piC), theta1_(piA / (1. - theta_)), theta2_(piG / theta_), p_()
 {
-  Parameter aP("GTR.a", a, &Parameter::R_PLUS_STAR);
-  addParameter_(aP);
-  Parameter bP("GTR.b", b, &Parameter::R_PLUS_STAR);
-  addParameter_(bP);
-  Parameter cP("GTR.c", c, &Parameter::R_PLUS_STAR);
-  addParameter_(cP);
-  Parameter dP("GTR.d", d, &Parameter::R_PLUS_STAR);
-  addParameter_(dP);
-  Parameter eP("GTR.e", e, &Parameter::R_PLUS_STAR);
-  addParameter_(eP);
+  addParameter_(new Parameter("GTR.a", a, &Parameter::R_PLUS_STAR));
+  addParameter_(new Parameter("GTR.b", b, &Parameter::R_PLUS_STAR));
+  addParameter_(new Parameter("GTR.c", c, &Parameter::R_PLUS_STAR));
+  addParameter_(new Parameter("GTR.d", d, &Parameter::R_PLUS_STAR));
+  addParameter_(new Parameter("GTR.e", e, &Parameter::R_PLUS_STAR));
   //jdutheil on 07/02/11: is this still needed? If yes, we should also change it in all models in order to facilitate parameter aliasing...
   //Parameter thetaP("GTR.theta", theta_ , new IncludingInterval(0.001, 0.999), true); //Avoid numerical errors close to the bounds.
-  Parameter thetaP("GTR.theta", theta_, &FrequenciesSet::FREQUENCE_CONSTRAINT_SMALL);
-  addParameter_(thetaP);
+  addParameter_(new Parameter("GTR.theta", theta_, &FrequenciesSet::FREQUENCE_CONSTRAINT_SMALL));
   //Parameter theta1P("GTR.theta1", theta1_, new IncludingInterval(0.001, 0.999), true);
-  Parameter theta1P("GTR.theta1", theta1_, &FrequenciesSet::FREQUENCE_CONSTRAINT_SMALL);
-  addParameter_(theta1P);
+  addParameter_(new Parameter("GTR.theta1", theta1_, &FrequenciesSet::FREQUENCE_CONSTRAINT_SMALL));
   //Parameter theta2P("GTR.theta2", theta2_, new IncludingInterval(0.001, 0.999), true);
-  Parameter theta2P("GTR.theta2", theta2_, &FrequenciesSet::FREQUENCE_CONSTRAINT_SMALL);
-  addParameter_(theta2P);
+  addParameter_(new Parameter("GTR.theta2", theta2_, &FrequenciesSet::FREQUENCE_CONSTRAINT_SMALL));
   updateMatrices();
 }
 

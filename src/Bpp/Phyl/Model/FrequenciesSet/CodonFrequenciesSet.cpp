@@ -60,13 +60,12 @@ FullCodonFrequenciesSet::FullCodonFrequenciesSet(const CodonAlphabet* alphabet, 
     }
     else
     {
-      Parameter p(
+      addParameter_(new Parameter(
         "Full.theta" + TextTools::toString(i + 1),
         1. / (size - j),
         allowNullFreqs ?
         &Parameter::PROP_CONSTRAINT_IN :
-        &FrequenciesSet::FREQUENCE_CONSTRAINT_MILLI);
-      addParameter_(p);
+        &FrequenciesSet::FREQUENCE_CONSTRAINT_MILLI));
       getFreq_(i) = 1. / size;
       j++;
     }
@@ -100,13 +99,12 @@ FullCodonFrequenciesSet::FullCodonFrequenciesSet(const CodonAlphabet* alphabet, 
     }
     else
     {
-      Parameter p(
+      addParameter_(new Parameter(
         "Full.theta" + TextTools::toString(i + 1),
         initFreqs[i] / sum / y,
         allowNullFreqs ?
         &Parameter::PROP_CONSTRAINT_IN :
-        &FrequenciesSet::FREQUENCE_CONSTRAINT_MILLI);
-      addParameter_(p);
+        &FrequenciesSet::FREQUENCE_CONSTRAINT_MILLI));
       getFreq_(i) = initFreqs[i] / sum;
       y -= initFreqs[i] / sum;
     }

@@ -126,11 +126,11 @@ MixtureOfASubstitutionModel::MixtureOfASubstitutionModel(
       const ParameterList pl = pd->getParameters();
       for (i = 0; i != it->second->getNumberOfParameters(); i++)
       {
-        addParameter_(*pl[i].clone());
+        addParameter_(pl[i].clone());
       }
     }
     else
-      addParameter_(Parameter(it->first, pd->getCategory(0), (pd->getParameter("value").getConstraint()) ? pd->getParameter("value").getConstraint()->clone() : 0, true));
+      addParameter_(new Parameter(it->first, pd->getCategory(0), (pd->getParameter("value").getConstraint()) ? pd->getParameter("value").getConstraint()->clone() : 0, true));
   }
   updateMatrices();
 }

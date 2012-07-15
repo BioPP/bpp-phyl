@@ -60,11 +60,11 @@ L95::L95(
     AbstractSubstitutionModel(alphabet, "L95."), alpha_(alpha), beta_(beta), gamma_(gamma), kappa_(kappa), theta_(theta)
 {
 
-  addParameter_(Parameter("L95.alpha", alpha, &Parameter::PROP_CONSTRAINT_IN));
-  addParameter_(Parameter("L95.beta", beta, &Parameter::PROP_CONSTRAINT_IN));
-  addParameter_(Parameter("L95.gamma", gamma, &Parameter::PROP_CONSTRAINT_IN));
-  addParameter_(Parameter("L95.kappa", kappa, new IntervalConstraint(0, 1000, false, false, NumConstants::MILLI), true));
-  addParameter_(Parameter("L95.theta", theta, new IntervalConstraint(0, 1, false, false, NumConstants::MILLI), true));
+  addParameter_(new Parameter("L95.alpha", alpha, &Parameter::PROP_CONSTRAINT_IN));
+  addParameter_(new Parameter("L95.beta", beta, &Parameter::PROP_CONSTRAINT_IN));
+  addParameter_(new Parameter("L95.gamma", gamma, &Parameter::PROP_CONSTRAINT_IN));
+  addParameter_(new Parameter("L95.kappa", kappa, new IntervalConstraint(0, 1000, false, false, NumConstants::MILLI), true));
+  addParameter_(new Parameter("L95.theta", theta, new IntervalConstraint(0, 1, false, false, NumConstants::MILLI), true));
 
   updateMatrices();
 }

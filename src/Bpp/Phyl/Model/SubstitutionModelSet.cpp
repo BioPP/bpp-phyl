@@ -181,9 +181,9 @@ void SubstitutionModelSet::addModel(SubstitutionModel* model, const std::vector<
       modelParameterNames_.push_back(pname);
       vector<unsigned int> modelsIndex(1, thisModelIndex);
       paramToModels_.push_back(modelsIndex);
-      Parameter p(model->getParameters().getParameter(pname)); // We work with namespaces here, so model->getParameter(pname) does not work.
-      modelParameters_[thisModelIndex].addParameter(p);
-      p.setName(pname + "_" + TextTools::toString(++paramNamesCount_[pname])); // Change name to unique name in case of shared parameters.
+      Parameter* p = new Parameter(model->getParameters().getParameter(pname)); // We work with namespaces here, so model->getParameter(pname) does not work.
+      modelParameters_[thisModelIndex].addParameter(p->clone());
+      p->setName(pname + "_" + TextTools::toString(++paramNamesCount_[pname])); // Change name to unique name in case of shared parameters.
       addParameter_(p);
     }
 }
@@ -288,22 +288,22 @@ void SubstitutionModelSet::unsetParameterToModel(unsigned int parameterIndex, un
 void SubstitutionModelSet::addParameter(const Parameter& parameter, const vector<int>& nodesId) throw (Exception)
 {
   modelParameterNames_.push_back(parameter.getName());
-  Parameter p(parameter);
-  p.setName(p.getName() + "_" + TextTools::toString(++paramNamesCount_[p.getName()]));
+  Parameter* p = parameter.clone();
+  p->setName(p->getName() + "_" + TextTools::toString(++paramNamesCount_[p->getName()]));
   addParameter_(p);
   // Build model indexes:
   vector<unsigned int> modelIndexes(nodesId.size());
   for (size_t i = 0; i < nodesId.size(); ++i)
-    {
-      if (nodeToModel_.find(nodesId[i]) == nodeToModel_.end())
-        throw Exception("SubstitutionModelSet::addParameter. This node has no associated model: " + TextTools::toString(nodesId[i]));
-      unsigned int pos = nodeToModel_[nodesId[i]];
-      modelParameters_[pos].addParameter(parameter);
-      modelIndexes[i] = pos;
-    }
+  {
+    if (nodeToModel_.find(nodesId[i]) == nodeToModel_.end())
+      throw Exception("SubstitutionModelSet::addParameter. This node has no associated model: " + TextTools::toString(nodesId[i]));
+    unsigned int pos = nodeToModel_[nodesId[i]];
+    modelParameters_[pos].addParameter(parameter);
+    modelIndexes[i] = pos;
+  }
   paramToModels_.push_back(modelIndexes);
   //Update model values:
-  fireParameterChanged(getParameters().subList(p.getName()));
+  fireParameterChanged(getParameters().subList(p->getName()));
 }
 
 void SubstitutionModelSet::addParameters(const ParameterList& parameters, const vector<int>& nodesId) throw (Exception)

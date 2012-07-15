@@ -51,8 +51,8 @@ GY94::GY94(const GeneticCode* gc, FrequenciesSet* codonFreqs) :
   gacd_(),
   pmodel_(new CodonDistanceFrequenciesSubstitutionModel(gc, new K80(dynamic_cast<const CodonAlphabet*>(gc->getSourceAlphabet())->getNucleicAlphabet()), codonFreqs, &gacd_))
 {
-  addParameter_(Parameter("GY94.kappa",1,&Parameter::R_PLUS_STAR));
-  addParameter_(Parameter("GY94.V",10000,&Parameter::R_PLUS_STAR));
+  addParameter_(new Parameter("GY94.kappa",1,&Parameter::R_PLUS_STAR));
+  addParameter_(new Parameter("GY94.V",10000,&Parameter::R_PLUS_STAR));
   
   pmodel_->setNamespace("GY94.");
   addParameters_(codonFreqs->getParameters());

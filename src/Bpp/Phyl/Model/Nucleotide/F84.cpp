@@ -67,14 +67,10 @@ F84::F84(
   r_(), k1_(), k2_(), theta_(piG + piC), theta1_(piA / (1. - theta_)), theta2_(piG / theta_),
   l_(), exp1_(), exp2_(), p_(size_, size_)
 {
-  Parameter kappaP("F84.kappa", kappa, &Parameter::R_PLUS);
-  addParameter_(kappaP);
-  Parameter thetaP("F84.theta" , theta_ , &FrequenciesSet::FREQUENCE_CONSTRAINT_SMALL);
-  addParameter_(thetaP);
-  Parameter theta1P("F84.theta1", theta1_, &FrequenciesSet::FREQUENCE_CONSTRAINT_SMALL);
-  addParameter_(theta1P);
-  Parameter theta2P("F84.theta2", theta2_, &FrequenciesSet::FREQUENCE_CONSTRAINT_SMALL);
-  addParameter_(theta2P);
+  addParameter_(new Parameter("F84.kappa", kappa, &Parameter::R_PLUS));
+  addParameter_(new Parameter("F84.theta" , theta_ , &FrequenciesSet::FREQUENCE_CONSTRAINT_SMALL));
+  addParameter_(new Parameter("F84.theta1", theta1_, &FrequenciesSet::FREQUENCE_CONSTRAINT_SMALL));
+  addParameter_(new Parameter("F84.theta2", theta2_, &FrequenciesSet::FREQUENCE_CONSTRAINT_SMALL));
   updateMatrices();
 }
 

@@ -107,11 +107,11 @@ YNGKP_M8::YNGKP_M8(const GeneticCode* gc, FrequenciesSet* codonFreqs, unsigned i
   {
     st = pmixmodel_->getParameterNameWithoutNamespace(it->first);
     if (it->second != "omegas")
-      addParameter_(Parameter("YNGKP_M8." + it->second, pmixmodel_->getParameterValue(st),
+      addParameter_(new Parameter("YNGKP_M8." + it->second, pmixmodel_->getParameterValue(st),
                               pmixmodel_->getParameter(st).hasConstraint() ? pmixmodel_->getParameter(st).getConstraint()->clone() : 0, true));
   }
 
-  addParameter_(Parameter("YNGKP_M8.omegas", 1., new IntervalConstraint(1, 1, false), true));
+  addParameter_(new Parameter("YNGKP_M8.omegas", 1., new IntervalConstraint(1, 1, false), true));
 
   // look for synonymous codons
   for (synfrom_ = 1; synfrom_ < (int)gc->getSourceAlphabet()->getSize(); synfrom_++)

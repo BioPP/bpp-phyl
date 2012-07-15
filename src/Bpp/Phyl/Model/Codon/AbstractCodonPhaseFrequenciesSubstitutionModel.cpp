@@ -38,7 +38,7 @@
 
 #include "AbstractCodonPhaseFrequenciesSubstitutionModel.h"
 
-//#include <Bpp/Seq/Alphabet/AlphabetTools.h>
+// #include <Bpp/Seq/Alphabet/AlphabetTools.h>
 
 using namespace bpp;
 
@@ -54,32 +54,37 @@ AbstractCodonPhaseFrequenciesSubstitutionModel::AbstractCodonPhaseFrequenciesSub
   posfreqset_(),
   freqName_("")
 {
-  CodonFrequenciesSet* pCFS=dynamic_cast<CodonFrequenciesSet*>(pfreq);
-  if (pCFS==NULL)
+  CodonFrequenciesSet* pCFS = dynamic_cast<CodonFrequenciesSet*>(pfreq);
+  if (pCFS == NULL)
     throw Exception("Bad type for equilibrium frequencies " + pfreq->getName());
-  
-  if ((dynamic_cast<CodonFromUniqueFrequenciesSet*>(pCFS)!=NULL)
-      || (dynamic_cast<CodonFromIndependentFrequenciesSet*>(pCFS)!=NULL))
-    posfreqset_=dynamic_cast<WordFrequenciesSet*>(pfreq)->clone();
-  else {
+
+  if ((dynamic_cast<CodonFromUniqueFrequenciesSet*>(pCFS) != NULL)
+      || (dynamic_cast<CodonFromIndependentFrequenciesSet*>(pCFS) != NULL))
+    posfreqset_ = dynamic_cast<WordFrequenciesSet*>(pfreq)->clone();
+  else
+  {
     vector<FrequenciesSet*> vFS;
-    if (dynamic_cast<FixedCodonFrequenciesSet*>(pCFS)!=NULL)
-      for (unsigned int i=0;i<3;i++)
+    if (dynamic_cast<FixedCodonFrequenciesSet*>(pCFS) != NULL)
+      for (unsigned int i = 0; i < 3; i++)
+      {
         vFS.push_back(new FixedFrequenciesSet(pCFS->getAlphabet()->getNucleicAlphabet()));
+      }
     else
-      for (unsigned int i=0;i<3;i++)
+      for (unsigned int i = 0; i < 3; i++)
+      {
         vFS.push_back(new FullFrequenciesSet(pCFS->getAlphabet()->getNucleicAlphabet()));
-    
-    posfreqset_=new CodonFromIndependentFrequenciesSet(pCFS->getAlphabet(),
-                                                       vFS,"");
+      }
+
+    posfreqset_ = new CodonFromIndependentFrequenciesSet(pCFS->getAlphabet(),
+                                                         vFS, "");
 
     posfreqset_->setFrequencies(pfreq->getFrequencies());
   }
-  
-  freqName_=pfreq->getNamespace();
+
+  freqName_ = pfreq->getNamespace();
   posfreqset_->setNamespace(prefix + pfreq->getNamespace());
   //  if (dynamic_cast<FixedCodonFrequenciesSet*>(pCFS)!=NULL)
-    addParameters_(posfreqset_->getParameters());
+  addParameters_(posfreqset_->getParameters());
 }
 
 AbstractCodonPhaseFrequenciesSubstitutionModel::~AbstractCodonPhaseFrequenciesSubstitutionModel()
@@ -94,7 +99,7 @@ void AbstractCodonPhaseFrequenciesSubstitutionModel::fireParameterChanged(const 
 }
 
 
-void AbstractCodonPhaseFrequenciesSubstitutionModel::setFreq(map<int,double>& frequencies)
+void AbstractCodonPhaseFrequenciesSubstitutionModel::setFreq(map<int, double>& frequencies)
 {
   posfreqset_->setFrequenciesFromMap(frequencies);
   matchParametersValues(posfreqset_->getParameters());
@@ -103,13 +108,14 @@ void AbstractCodonPhaseFrequenciesSubstitutionModel::setFreq(map<int,double>& fr
 double AbstractCodonPhaseFrequenciesSubstitutionModel::getCodonsMulRate(unsigned int i, unsigned int j) const
 {
   unsigned int i2(i), j2(j);
-  
-  double x=1.;
-  for (unsigned int k=0;k<3;k++){
-    if ((i2%4)!=(j2%4))
-      x*= posfreqset_->getFrequenciesSetForLetter(2-k).getFrequencies()[j2%4];
-    i2/=4;
-    j2/=4;
+
+  double x = 1.;
+  for (unsigned int k = 0; k < 3; k++)
+  {
+    if ((i2 % 4) != (j2 % 4))
+      x *= posfreqset_->getFrequenciesSetForLetter(2 - k).getFrequencies()[j2 % 4];
+    i2 /= 4;
+    j2 /= 4;
   }
   return x;
 }

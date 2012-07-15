@@ -71,16 +71,14 @@ public:
   GCFrequenciesSet(const NucleicAlphabet* alphabet) :
     AbstractFrequenciesSet(4, alphabet, "GC.", "GC")
   {
-    Parameter p("GC.theta", 0.5, &Parameter::PROP_CONSTRAINT_IN);
-    addParameter_(p);
+    addParameter_(new Parameter("GC.theta", 0.5, &Parameter::PROP_CONSTRAINT_IN));
     getFreq_(0) = getFreq_(1) = getFreq_(2) = getFreq_(3) = 0.25;
   }
 
   GCFrequenciesSet(const NucleicAlphabet* alphabet, double theta) :
     AbstractFrequenciesSet(4, alphabet, "GC.", "GC")
   {
-    Parameter p("GC.theta", theta, &Parameter::PROP_CONSTRAINT_IN);
-    addParameter_(p);
+    addParameter_(new Parameter("GC.theta", theta, &Parameter::PROP_CONSTRAINT_IN));
     getFreq_(0) = getFreq_(3) = (1. - theta) / 2.;
     getFreq_(1) = getFreq_(2) = theta / 2.;
   }

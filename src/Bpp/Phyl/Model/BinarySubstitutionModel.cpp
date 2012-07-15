@@ -58,8 +58,7 @@ BinarySubstitutionModel::BinarySubstitutionModel(const BinaryAlphabet* alpha, do
   _exp(0),
   _p(size_,size_)
 {
-  Parameter kappap(getNamespace() + "kappa", _kappa, &Parameter::R_PLUS_STAR);
-  addParameter_(kappap);
+  addParameter_(new Parameter(getNamespace() + "kappa", _kappa, &Parameter::R_PLUS_STAR));
   updateMatrices();
 }
 

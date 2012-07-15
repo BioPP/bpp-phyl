@@ -68,11 +68,10 @@ namespace bpp
  */
 
 class AbstractCodonSubstitutionModel :
-    public virtual CodonSubstitutionModel,
-    public virtual AbstractWordSubstitutionModel
+  public virtual CodonSubstitutionModel,
+  public virtual AbstractWordSubstitutionModel
 {
 private:
-
   /**
    * @brief boolean for the parametrization of the position relative
    * rates. Default : false.
@@ -107,7 +106,7 @@ public:
    *   NucleotideSubstitutionModel to use in the three positions.
    *   All the models must be different objects to avoid redundant
    *   parameters.  They are owned by the instance.
-   * @param st string of the Namespace 
+   * @param st string of the Namespace
    * @param paramRates boolean concerning the presence of position
    * relative rates (default: false)
    */
@@ -127,16 +126,15 @@ public:
     AbstractSubstitutionModel(model),
     AbstractWordSubstitutionModel(model),
     hasParametrizedRates_(model.hasParametrizedRates_)
-  {
-  }
-  
+  {}
+
   AbstractCodonSubstitutionModel& operator=(const AbstractCodonSubstitutionModel& model)
   {
     AbstractParameterAliasable::operator=(model);
     AbstractSubstitutionModel::operator=(model);
     AbstractWordSubstitutionModel::operator=(model);
-    hasParametrizedRates_=model.hasParametrizedRates_;
-    return(*this);
+    hasParametrizedRates_ = model.hasParametrizedRates_;
+    return *this;
   }
 
 #ifndef NO_VIRTUAL_COV
@@ -146,9 +144,7 @@ public:
 #endif
   clone() const = 0;
 
-  
 protected:
-
   /**
    * @brief Method inherited from AbstractWordSubstitutionModel
    *
@@ -156,7 +152,7 @@ protected:
    * performs the multiplication by the specific codon-codon rate.
    *
    **/
-  
+
   void completeMatrices();
 
 public:
@@ -168,11 +164,8 @@ public:
    * Here this methods returns 1;
    *
    **/
-  
-  virtual double getCodonsMulRate(unsigned int, unsigned int) const {return 1.;}
-  
+  virtual double getCodonsMulRate(unsigned int, unsigned int) const { return 1.;}
 };
-
 } // end of namespace bpp.
 
 #endif

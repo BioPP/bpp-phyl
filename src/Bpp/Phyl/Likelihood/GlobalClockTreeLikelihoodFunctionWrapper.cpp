@@ -77,20 +77,20 @@ void GlobalClockTreeLikelihoodFunctionWrapper::initParameters_() {
       std::map<const Node*, double> heights;
       TreeTemplateTools::getHeights(*(tree.getRootNode()), heights);
       double totalHeight = heights[tree.getRootNode()];
-      addParameter_(Parameter("TotalHeight", totalHeight, &Parameter::R_PLUS_STAR)); 
+      addParameter_(new Parameter("TotalHeight", totalHeight, &Parameter::R_PLUS_STAR)); 
       for (std::map<const Node *, double>::iterator it = heights.begin(); it != heights.end(); it++)
       {
         if (!it->first->isLeaf() && it->first->hasFather())
         {
           double fatherHeight = heights[it->first->getFather()];
-          addParameter_(Parameter("HeightP" + TextTools::toString(it->first->getId()), it->second / fatherHeight, &Parameter::PROP_CONSTRAINT_IN));
+          addParameter_(new Parameter("HeightP" + TextTools::toString(it->first->getId()), it->second / fatherHeight, &Parameter::PROP_CONSTRAINT_IN));
         }
       }
       //We add other parameters:
       ParameterList pl = tl_->getParameters();
       for (unsigned int i = 0; i < pl.size(); ++i) { 
         if (pl[i].getName().substr(0,5) != "BrLen")
-          addParameter_(pl[i]);
+          addParameter_(pl[i].clone());
       }
       //Compute everything:
       fireParameterChanged(getParameters());
