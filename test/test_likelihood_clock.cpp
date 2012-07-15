@@ -93,9 +93,10 @@ void fitModelHClock(SubstitutionModel* model, DiscreteDistribution* rdist, const
   if (abs(tl.getValue() - finalValue) > 0.001)
     throw Exception("Incorrect final value.");
 }
+
 int main() {
   TreeTemplate<Node>* tree = TreeTemplateTools::parenthesisToTree("(((A:0.01, B:0.01):0.02,C:0.03):0.01,D:0.04);");
-  vector<string> seqNames= tree->getLeavesNames();
+  vector<string> seqNames = tree->getLeavesNames();
   vector<int> ids = tree->getNodesId();
   //-------------
 

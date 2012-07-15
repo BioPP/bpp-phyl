@@ -63,10 +63,11 @@ int main() {
 
   CodonAlphabet* alphabet = new StandardCodonAlphabet(&AlphabetTools::DNA_ALPHABET);
   GeneticCode* gc = new StandardGeneticCode(&AlphabetTools::DNA_ALPHABET);
-  //ReversibleSubstitutionModel* model = new YN98(gc, CodonFrequenciesSet::getFrequenciesSetForCodons(FrequenciesSet::F0, *alphabet));
+  //SubstitutionModel* model = new YN98(gc, CodonFrequenciesSet::getFrequenciesSetForCodons(CodonFrequenciesSet::F0, *alphabet));
   SubstitutionModel* model = new CodonRateSubstitutionModel(
         dynamic_cast<const CodonAlphabet*>(gc->getSourceAlphabet()),
         new JCnuc(dynamic_cast<CodonAlphabet*>(alphabet)->getNucleicAlphabet()));
+  cout << model->getNumberOfStates() << endl;
   MatrixTools::printForR(model->getGenerator(), "g");
   DiscreteDistribution* rdist = new ConstantDistribution(1.0);
   HomogeneousSequenceSimulator simulator(model, rdist, tree);
