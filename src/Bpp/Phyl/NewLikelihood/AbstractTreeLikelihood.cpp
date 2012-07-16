@@ -43,36 +43,10 @@ using namespace bpp;
 
 /******************************************************************************/
 
-Vdouble AbstractTreeLikelihood::getLikelihoodForEachSite() const
-{
-	Vdouble l(getNumberOfSites());
-	for(unsigned int i = 0; i < l.size(); i++) l[i] = getLikelihoodForASite(i);
-	return l;
-}
-
-/******************************************************************************/
-
 Vdouble AbstractTreeLikelihood::getLogLikelihoodForEachSite() const
 {
 	Vdouble l(getNumberOfSites());
-	for(unsigned int i = 0; i < l.size(); i++) l[i] = getLogLikelihoodForASite(i);
-	return l;
-}
-
-/******************************************************************************/
-
-VVdouble AbstractTreeLikelihood::getLikelihoodForEachSiteForEachState() const
-{
-	VVdouble l(getNumberOfSites());
-	for(unsigned int i = 0; i < l.size(); i++)
-  {
-		Vdouble * l_i = & l[i];
-		l_i->resize(getNumberOfStates());
-		for(unsigned int x = 0; x < l_i->size(); x++)
-    {
-			(* l_i)[x] = getLikelihoodForASiteForAState(i, x);
-		}
-	}
+	for(size_t i = 0; i < l.size(); i++) l[i] = getLogLikelihoodForASite(i);
 	return l;
 }
 
@@ -81,7 +55,7 @@ VVdouble AbstractTreeLikelihood::getLikelihoodForEachSiteForEachState() const
 VVdouble AbstractTreeLikelihood::getLogLikelihoodForEachSiteForEachState() const
 {
 	VVdouble l(getNumberOfSites());
-	for (unsigned int i = 0; i < l.size(); i++)
+	for (size_t i = 0; i < l.size(); i++)
   {
 		Vdouble * l_i = & l[i];
 		l_i->resize(getNumberOfStates());

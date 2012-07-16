@@ -44,6 +44,7 @@ knowledge of the CeCILL license and that you accept its terms.
 
 #include <Bpp/Numeric/ParameterAliasable.h>
 #include <Bpp/Numeric/AbstractParameterAliasable.h>
+#include <Bpp/Numeric/Prob/DiscreteDistribution.h>
 
 namespace bpp
 {
@@ -58,8 +59,10 @@ namespace bpp
       virtual void registerWithTree(ParametrizableTree* pTree) = 0;
       virtual bool isRegistered() const = 0;
 
-      virtual VVdouble getTransitionProbabilities(int nodeId, unsigned int siteIndex, unsigned int classIndex) const = 0;
-      virtual VVdouble getGenerator(int nodeId, unsigned int siteIndex, unsigned int classIndex) const = 0;
+      virtual unsigned int getNumberOfClasses() const = 0;
+
+      virtual const Matrix<double>& getTransitionProbabilities(int nodeId, unsigned int siteIndex, unsigned int classIndex) const = 0;
+      virtual const Matrix<double>& getGenerator(int nodeId, unsigned int siteIndex, unsigned int classIndex) const = 0;
 
       /**
        * @brief Tell if the transition probabilities have changed after the last call to setParameters().
@@ -130,12 +133,15 @@ namespace bpp
     public:
       virtual SimpleSubstitutionProcess* clone() const { return new SimpleSubstitutionProcess(*this); }
 
-      virtual VVdouble getTransitionProbabilities(int nodeId, unsigned int siteIndex, unsigned int classIndex) const {
-        //pTree_->
+      virtual unsigned int getNumberOfClasses() const { return 1; }
+      
+      virtual const Matrix<double>& getTransitionProbabilities(int nodeId, unsigned int siteIndex, unsigned int classIndex) const {
+        double l = pTree_->getBranchLengthParameter(nodeId).getValue();
+        return model_->getPij_t(l);
       }
 
-      virtual VVdouble getGenerator(int nodeId, unsigned int siteIndex, unsigned int classIndex) const {
-        
+      virtual const Matrix<double>& getGenerator(int nodeId, unsigned int siteIndex, unsigned int classIndex) const {
+        return model_->getGenerator(); 
       }
  
       bool transitionProbabilitiesHaveChanged() const { return true; }
@@ -154,24 +160,25 @@ namespace bpp
         AbstractParameterAliasable(model->getNamespace()), model_(model), rDist_(rdist)
       {
         if (!model) throw Exception("RateAcrossSitesSubstitutionProcess. A model instance must be provided.");
-        if (!rDist) throw Exception("RateAcrossSitesSubstitutionProcess. A rate distribution instance must be provided.");
+        if (!rdist) throw Exception("RateAcrossSitesSubstitutionProcess. A rate distribution instance must be provided.");
         //Add parameters:
         addParameters_(model->getParameters());
         addParameters_(rdist->getParameters());
       }
 
       RateAcrossSitesSubstitutionProcess(const RateAcrossSitesSubstitutionProcess& rassp):
-        model_(rassp.model_.clone()),
-        rDist_(rassp.rDist_.clone())
+        AbstractParameterAliasable(rassp),
+        model_(rassp.model_->clone()),
+        rDist_(rassp.rDist_->clone())
       {}
 
-      RateAcrossSitesSubstitutionProcess& operator=(const RateAcrossSitesSubstitutionProcess& ssp)
+      RateAcrossSitesSubstitutionProcess& operator=(const RateAcrossSitesSubstitutionProcess& rassp)
       {
         AbstractParameterAliasable::operator=(rassp),
         delete model_;
-        model_ = ssp.model_.clone();
+        model_ = rassp.model_->clone();
         delete rDist_;
-        rDist_ = ssp.rDist_.clone();
+        rDist_ = rassp.rDist_->clone();
         return *this;
       }
 
@@ -179,9 +186,18 @@ namespace bpp
     public:
       virtual RateAcrossSitesSubstitutionProcess* clone() const { return new RateAcrossSitesSubstitutionProcess(*this); }
 
-      virtual VVdouble getTransitionProbabilities(int nodeId, unsigned int siteIndex, unsigned int classIndex) const = 0;
-      virtual VVdouble getGenerator(int nodeId, unsigned int siteIndex, unsigned int classIndex) const = 0;
- 
+      virtual unsigned int getNumberOfClasses() const { return rDist_->getNumberOfCategories(); }
+      
+      virtual const Matrix<double>& getTransitionProbabilities(int nodeId, unsigned int siteIndex, unsigned int classIndex) const {
+        double l = pTree_->getBranchLengthParameter(nodeId).getValue();
+        double r = rDist_->getCategory(classIndex);
+        return model_->getPij_t(l * r);
+      }
+      
+      virtual const Matrix<double>& getGenerator(int nodeId, unsigned int siteIndex, unsigned int classIndex) const {
+        return model_->getGenerator(); 
+      }
+
       //TODO: it actually depend on the distribution used, how it is parameterized. If classes are fixed and parameters after probabilities only, this should return false to save computational time! 
       bool transitionProbabilitiesHaveChanged() const { return true; }
   };

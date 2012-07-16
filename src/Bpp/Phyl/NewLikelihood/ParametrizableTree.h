@@ -40,6 +40,8 @@ knowledge of the CeCILL license and that you accept its terms.
 #ifndef _PARAMETRIZABLETREE_H_
 #define _PARAMETRIZABLETREE_H_
 
+#include "../TreeTemplate.h"
+
 #include <Bpp/Numeric/AbstractParametrizable.h>
 
 //From the stl:
@@ -55,8 +57,8 @@ namespace bpp
       TreeTemplate<Node> tree_;
       bool liveIndex_;
       std::map<int, unsigned int> index_;
-      std::map<std::string, Node*> reverseIndex_; //Watch out when copying!
-      bool isSynchronized_; //If no live index is performed, record any parameter change that has been made.
+      mutable std::map<std::string, Node*> reverseIndex_; //Watch out when copying!
+      mutable bool isSynchronized_; //If no live index is performed, record any parameter change that has been made.
 
       double minimumBrLen_;
       double maximumBrLen_;
@@ -108,7 +110,7 @@ namespace bpp
     private:
       void buildIndex_(Node& node);
       void buildReverseIndex_(Node* node);
-      void updateTreeFromParameters_();
+      void updateTreeFromParameters_() const;
       void fireParameterChanged (const ParameterList& parameters);
   };
 
