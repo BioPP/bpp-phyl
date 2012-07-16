@@ -239,7 +239,7 @@ void WordFromIndependentFrequenciesSet::setNamespace(const std::string& prefix)
 
 std::string WordFromIndependentFrequenciesSet::getDescription() const
 {
-  string s = getNamespace() + " From Independent Frequencies : " + vFreq_[0]->getName();
+  string s = getName() +" : " + vFreq_[0]->getName();
   for (unsigned int i = 1; i < vFreq_.size(); i++)
   {
     s += " * " + vFreq_[i]->getName();
@@ -390,7 +390,7 @@ void WordFromUniqueFrequenciesSet::setNamespace(const string& prefix)
 
 string WordFromUniqueFrequenciesSet::getDescription() const
 {
-  return getNamespace() + " From Unique Frequency : " + pFreq_->getName() + " * " + TextTools::toString(length_);
+  return getName() + " : " + pFreq_->getName() + " * " + TextTools::toString(length_);
 }
 
 

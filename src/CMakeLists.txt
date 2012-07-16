@@ -26,32 +26,32 @@ set(CPP_FILES
   Bpp/Phyl/Io/Nhx.cpp
   Bpp/Phyl/Io/PhylipDistanceMatrixFormat.cpp
   Bpp/Phyl/Io/IoPairedSiteLikelihoods.cpp
-  Bpp/Phyl/OldLikelihood/AbstractDiscreteRatesAcrossSitesTreeLikelihood.cpp
-  Bpp/Phyl/OldLikelihood/AbstractHomogeneousTreeLikelihood.cpp
-  Bpp/Phyl/OldLikelihood/AbstractNonHomogeneousTreeLikelihood.cpp
-  Bpp/Phyl/OldLikelihood/AbstractTreeLikelihood.cpp
-  Bpp/Phyl/OldLikelihood/DRASDRTreeLikelihoodData.cpp
-  Bpp/Phyl/OldLikelihood/DRASRTreeLikelihoodData.cpp
-  Bpp/Phyl/OldLikelihood/DRHomogeneousMixedTreeLikelihood.cpp
-  Bpp/Phyl/OldLikelihood/DRHomogeneousTreeLikelihood.cpp
-  Bpp/Phyl/OldLikelihood/DRNonHomogeneousTreeLikelihood.cpp
-  Bpp/Phyl/OldLikelihood/DRTreeLikelihoodTools.cpp
-  Bpp/Phyl/OldLikelihood/MarginalAncestralStateReconstruction.cpp
-  Bpp/Phyl/OldLikelihood/NNIHomogeneousTreeLikelihood.cpp
-  Bpp/Phyl/OldLikelihood/PseudoNewtonOptimizer.cpp
-  Bpp/Phyl/OldLikelihood/RASTools.cpp
-  Bpp/Phyl/OldLikelihood/RHomogeneousClockTreeLikelihood.cpp
-  Bpp/Phyl/OldLikelihood/RHomogeneousMixedTreeLikelihood.cpp
-  Bpp/Phyl/OldLikelihood/RHomogeneousTreeLikelihood.cpp
-  Bpp/Phyl/OldLikelihood/RNonHomogeneousMixedTreeLikelihood.cpp
-  Bpp/Phyl/OldLikelihood/RNonHomogeneousTreeLikelihood.cpp
-  Bpp/Phyl/OldLikelihood/TreeLikelihoodTools.cpp
-  Bpp/Phyl/OldLikelihood/PairedSiteLikelihoods.cpp
-  Bpp/Phyl/OldLikelihood/GlobalClockTreeLikelihoodFunctionWrapper.cpp
-  Bpp/Phyl/Likelihood/RTreeLikelihoodData.cpp
+  Bpp/Phyl/Likelihood/AbstractDiscreteRatesAcrossSitesTreeLikelihood.cpp
+  Bpp/Phyl/Likelihood/AbstractHomogeneousTreeLikelihood.cpp
+  Bpp/Phyl/Likelihood/AbstractNonHomogeneousTreeLikelihood.cpp
   Bpp/Phyl/Likelihood/AbstractTreeLikelihood.cpp
-  Bpp/Phyl/Likelihood/RTreeLikelihood.cpp
-  Bpp/Phyl/Likelihood/ParametrizableTree.cpp
+  Bpp/Phyl/Likelihood/DRASDRTreeLikelihoodData.cpp
+  Bpp/Phyl/Likelihood/DRASRTreeLikelihoodData.cpp
+  Bpp/Phyl/Likelihood/DRHomogeneousMixedTreeLikelihood.cpp
+  Bpp/Phyl/Likelihood/DRHomogeneousTreeLikelihood.cpp
+  Bpp/Phyl/Likelihood/DRNonHomogeneousTreeLikelihood.cpp
+  Bpp/Phyl/Likelihood/DRTreeLikelihoodTools.cpp
+  Bpp/Phyl/Likelihood/MarginalAncestralStateReconstruction.cpp
+  Bpp/Phyl/Likelihood/NNIHomogeneousTreeLikelihood.cpp
+  Bpp/Phyl/Likelihood/PseudoNewtonOptimizer.cpp
+  Bpp/Phyl/Likelihood/RASTools.cpp
+  Bpp/Phyl/Likelihood/RHomogeneousClockTreeLikelihood.cpp
+  Bpp/Phyl/Likelihood/RHomogeneousMixedTreeLikelihood.cpp
+  Bpp/Phyl/Likelihood/RHomogeneousTreeLikelihood.cpp
+  Bpp/Phyl/Likelihood/RNonHomogeneousMixedTreeLikelihood.cpp
+  Bpp/Phyl/Likelihood/RNonHomogeneousTreeLikelihood.cpp
+  Bpp/Phyl/Likelihood/TreeLikelihoodTools.cpp
+  Bpp/Phyl/Likelihood/PairedSiteLikelihoods.cpp
+  Bpp/Phyl/Likelihood/GlobalClockTreeLikelihoodFunctionWrapper.cpp
+  Bpp/Phyl/NewLikelihood/RTreeLikelihoodData.cpp
+  Bpp/Phyl/NewLikelihood/AbstractTreeLikelihood.cpp
+  Bpp/Phyl/NewLikelihood/RTreeLikelihood.cpp
+  Bpp/Phyl/NewLikelihood/ParametrizableTree.cpp
   Bpp/Phyl/Mapping/LaplaceSubstitutionCount.cpp
   Bpp/Phyl/Mapping/OneJumpSubstitutionCount.cpp
   Bpp/Phyl/Mapping/ProbabilisticSubstitutionMapping.cpp
@@ -166,45 +166,45 @@ set(H_FILES
   Bpp/Phyl/Io/NexusIoTree.h
   Bpp/Phyl/Io/PhylipDistanceMatrixFormat.h
   Bpp/Phyl/Io/IoPairedSiteLikelihoods.h
-  Bpp/Phyl/OldLikelihood/AbstractDiscreteRatesAcrossSitesTreeLikelihood.h
-  Bpp/Phyl/OldLikelihood/AbstractHomogeneousTreeLikelihood.h
-  Bpp/Phyl/OldLikelihood/AbstractNonHomogeneousTreeLikelihood.h
-  Bpp/Phyl/OldLikelihood/AbstractTreeLikelihoodData.h
-  Bpp/Phyl/OldLikelihood/AbstractTreeLikelihood.h
-  Bpp/Phyl/OldLikelihood/ClockTreeLikelihood.h
-  Bpp/Phyl/OldLikelihood/DiscreteRatesAcrossSitesTreeLikelihood.h
-  Bpp/Phyl/OldLikelihood/DRASDRTreeLikelihoodData.h
-  Bpp/Phyl/OldLikelihood/DRASRTreeLikelihoodData.h
-  Bpp/Phyl/OldLikelihood/DRHomogeneousMixedTreeLikelihood.h
-  Bpp/Phyl/OldLikelihood/DRHomogeneousTreeLikelihood.h
-  Bpp/Phyl/OldLikelihood/DRNonHomogeneousTreeLikelihood.h
-  Bpp/Phyl/OldLikelihood/DRTreeLikelihood.h
-  Bpp/Phyl/OldLikelihood/DRTreeLikelihoodTools.h
-  Bpp/Phyl/OldLikelihood/HomogeneousTreeLikelihood.h
-  Bpp/Phyl/OldLikelihood/MarginalAncestralStateReconstruction.h
-  Bpp/Phyl/OldLikelihood/NNIHomogeneousTreeLikelihood.h
-  Bpp/Phyl/OldLikelihood/NonHomogeneousTreeLikelihood.h
-  Bpp/Phyl/OldLikelihood/PseudoNewtonOptimizer.h
-  Bpp/Phyl/OldLikelihood/RASTools.h
-  Bpp/Phyl/OldLikelihood/RHomogeneousClockTreeLikelihood.h
-  Bpp/Phyl/OldLikelihood/RHomogeneousMixedTreeLikelihood.h
-  Bpp/Phyl/OldLikelihood/RHomogeneousTreeLikelihood.h
-  Bpp/Phyl/OldLikelihood/RNonHomogeneousMixedTreeLikelihood.h
-  Bpp/Phyl/OldLikelihood/RNonHomogeneousTreeLikelihood.h
-  Bpp/Phyl/OldLikelihood/SitePartitionTreeLikelihood.h
-  Bpp/Phyl/OldLikelihood/TreeLikelihoodData.h
-  Bpp/Phyl/OldLikelihood/TreeLikelihood.h
-  Bpp/Phyl/OldLikelihood/TreeLikelihoodTools.h
-  Bpp/Phyl/OldLikelihood/PairedSiteLikelihoods.h
-  Bpp/Phyl/OldLikelihood/GlobalClockTreeLikelihoodFunctionWrapper.h
-  Bpp/Phyl/Likelihood/TreeLikelihoodData.h
+  Bpp/Phyl/Likelihood/AbstractDiscreteRatesAcrossSitesTreeLikelihood.h
+  Bpp/Phyl/Likelihood/AbstractHomogeneousTreeLikelihood.h
+  Bpp/Phyl/Likelihood/AbstractNonHomogeneousTreeLikelihood.h
   Bpp/Phyl/Likelihood/AbstractTreeLikelihoodData.h
-  Bpp/Phyl/Likelihood/RTreeLikelihoodData.h
-  Bpp/Phyl/Likelihood/RTreeLikelihood.h
-  Bpp/Phyl/Likelihood/TreeLikelihood.h
   Bpp/Phyl/Likelihood/AbstractTreeLikelihood.h
-  Bpp/Phyl/Likelihood/ParametrizableTree.h
-  Bpp/Phyl/Likelihood/SubstitutionProcess.h
+  Bpp/Phyl/Likelihood/ClockTreeLikelihood.h
+  Bpp/Phyl/Likelihood/DiscreteRatesAcrossSitesTreeLikelihood.h
+  Bpp/Phyl/Likelihood/DRASDRTreeLikelihoodData.h
+  Bpp/Phyl/Likelihood/DRASRTreeLikelihoodData.h
+  Bpp/Phyl/Likelihood/DRHomogeneousMixedTreeLikelihood.h
+  Bpp/Phyl/Likelihood/DRHomogeneousTreeLikelihood.h
+  Bpp/Phyl/Likelihood/DRNonHomogeneousTreeLikelihood.h
+  Bpp/Phyl/Likelihood/DRTreeLikelihood.h
+  Bpp/Phyl/Likelihood/DRTreeLikelihoodTools.h
+  Bpp/Phyl/Likelihood/HomogeneousTreeLikelihood.h
+  Bpp/Phyl/Likelihood/MarginalAncestralStateReconstruction.h
+  Bpp/Phyl/Likelihood/NNIHomogeneousTreeLikelihood.h
+  Bpp/Phyl/Likelihood/NonHomogeneousTreeLikelihood.h
+  Bpp/Phyl/Likelihood/PseudoNewtonOptimizer.h
+  Bpp/Phyl/Likelihood/RASTools.h
+  Bpp/Phyl/Likelihood/RHomogeneousClockTreeLikelihood.h
+  Bpp/Phyl/Likelihood/RHomogeneousMixedTreeLikelihood.h
+  Bpp/Phyl/Likelihood/RHomogeneousTreeLikelihood.h
+  Bpp/Phyl/Likelihood/RNonHomogeneousMixedTreeLikelihood.h
+  Bpp/Phyl/Likelihood/RNonHomogeneousTreeLikelihood.h
+  Bpp/Phyl/Likelihood/SitePartitionTreeLikelihood.h
+  Bpp/Phyl/Likelihood/TreeLikelihoodData.h
+  Bpp/Phyl/Likelihood/TreeLikelihood.h
+  Bpp/Phyl/Likelihood/TreeLikelihoodTools.h
+  Bpp/Phyl/Likelihood/PairedSiteLikelihoods.h
+  Bpp/Phyl/Likelihood/GlobalClockTreeLikelihoodFunctionWrapper.h
+  Bpp/Phyl/NewLikelihood/TreeLikelihoodData.h
+  Bpp/Phyl/NewLikelihood/AbstractTreeLikelihoodData.h
+  Bpp/Phyl/NewLikelihood/RTreeLikelihoodData.h
+  Bpp/Phyl/NewLikelihood/RTreeLikelihood.h
+  Bpp/Phyl/NewLikelihood/TreeLikelihood.h
+  Bpp/Phyl/NewLikelihood/AbstractTreeLikelihood.h
+  Bpp/Phyl/NewLikelihood/ParametrizableTree.h
+  Bpp/Phyl/NewLikelihood/SubstitutionProcess.h
   Bpp/Phyl/Mapping/LaplaceSubstitutionCount.h
   Bpp/Phyl/Mapping/WeightedSubstitutionCount.h
   Bpp/Phyl/Mapping/OneJumpSubstitutionCount.h

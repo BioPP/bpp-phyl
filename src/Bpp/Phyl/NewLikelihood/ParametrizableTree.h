@@ -56,6 +56,11 @@ namespace bpp
       bool liveIndex_;
       std::map<int, unsigned int> index_;
       std::map<std::string, Node*> reverseIndex_; //Watch out when copying!
+      bool isSynchronized_; //If no live index is performed, record any parameter change that has been made.
+
+      double minimumBrLen_;
+      double maximumBrLen_;
+      std::auto_ptr<Constraint> brLenConstraint_;
 
     public:
       ParametrizableTree(const Tree& tree, bool liveIndex = false, const std::string& prefix = "");
@@ -65,15 +70,46 @@ namespace bpp
       ParametrizableTree& operator=(const ParametrizableTree& pTree);
 
     public:
-      const Parameter& getBranchLengthParameter(int nodeId) const throw (NodeIdNotFound) {
+      const Parameter& getBranchLengthParameter(int nodeId) const throw (NodeNotFoundException) {
         std::map<int, unsigned int>::const_iterator it = index_.find(nodeId);
         if (it != index_.end())
-          return getParameter(it->second);
+          return getParameter_(it->second);
+        else
+          throw NodeNotFoundException("ParametrizableTree::getBranchLengthParameter.", nodeId);
       }
 
-    private:
-      void buildIndexes_();
+      const TreeTemplate<Node>& getTree() const;
 
+    virtual void setMinimumBranchLength(double minimum) throw (Exception)
+    {
+      if (minimum > maximumBrLen_)
+        throw Exception("ParametrizableTree::setMinimumBranchLength. Minimum branch length sould be lower than the maximum one: " + TextTools::toString(maximumBrLen_));
+      minimumBrLen_ = minimum;
+      if (brLenConstraint_.get()) brLenConstraint_.release();
+      brLenConstraint_.reset(new IntervalConstraint(minimumBrLen_, maximumBrLen_, true, true));
+      resetParameters_();
+      buildIndex_(*tree_.getRootNode());
+    }
+
+    virtual void setMaximumBranchLength(double maximum) throw (Exception)
+    {
+      if (maximum < minimumBrLen_)
+        throw Exception("ParametrizableTree::setMaximumBranchLength. Maximum branch length sould be higher than the minimum one: " + TextTools::toString(minimumBrLen_));
+      maximumBrLen_ = maximum;
+      if (brLenConstraint_.get()) brLenConstraint_.release();
+      brLenConstraint_.reset(new IntervalConstraint(minimumBrLen_, maximumBrLen_, true, true));
+      resetParameters_();
+      buildIndex_(*tree_.getRootNode());
+    }
+
+    virtual double getMinimumBranchLength() const { return minimumBrLen_; }
+    virtual double getMaximumBranchLength() const { return maximumBrLen_; }
+
+    private:
+      void buildIndex_(Node& node);
+      void buildReverseIndex_(Node* node);
+      void updateTreeFromParameters_();
+      void fireParameterChanged (const ParameterList& parameters);
   };
 
 } //end of namespace bpp

@@ -89,7 +89,7 @@ YNGKP_M3::YNGKP_M3(const GeneticCode* gc, FrequenciesSet* codonFreqs, unsigned i
     lParPmodel_.addParameter(Parameter(pl[i]));
   }
 
-  vector<std::string> v = dynamic_cast<YN98*>(pmixmodel_->getNModel(0))->getFreq().getParameters().getParameterNames();
+  vector<std::string> v = dynamic_cast<YN98*>(pmixmodel_->getNModel(0))->getFrequenciesSet()->getParameters().getParameterNames();
   for (unsigned int i = 0; i < v.size(); i++)
   {
     mapParNamesFromPmodel_[v[i]] = getParameterNameWithoutNamespace("YNGKP_M3." + v[i].substr(5));
@@ -116,13 +116,13 @@ YNGKP_M3::YNGKP_M3(const GeneticCode* gc, FrequenciesSet* codonFreqs, unsigned i
   {
     st = pmixmodel_->getParameterNameWithoutNamespace(it->first);
     if (it->second.substr(0, 5) != "delta")
-      addParameter_(Parameter("YNGKP_M3." + it->second, pmixmodel_->getParameterValue(st),
+      addParameter_(new Parameter("YNGKP_M3." + it->second, pmixmodel_->getParameterValue(st),
                               pmixmodel_->getParameter(st).hasConstraint() ? pmixmodel_->getParameter(st).getConstraint()->clone() : 0, true));
   }
 
   for (unsigned int i = 1; i < nbOmega; i++)
   {
-    addParameter_(Parameter("YNGKP_M3.delta" + TextTools::toString(i), 0.5, new IntervalConstraint(NumConstants::MILLI, 999, true, true, NumConstants::MILLI), true));
+    addParameter_(new Parameter("YNGKP_M3.delta" + TextTools::toString(i), 0.5, new IntervalConstraint(NumConstants::MILLI, 999, true, true, NumConstants::MILLI), true));
   }
 
   // look for synonymous codons

@@ -47,7 +47,7 @@
 
 // From Bio++
 #include <Bpp/Io/IoFormat.h>
-#include "../OldLikelihood/PairedSiteLikelihoods.h"
+#include "../Likelihood/PairedSiteLikelihoods.h"
 
 namespace bpp
 {

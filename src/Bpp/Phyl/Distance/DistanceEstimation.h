@@ -42,9 +42,9 @@ knowledge of the CeCILL license and that you accept its terms.
 #define _DISTANCEESTIMATION_H_
 
 #include "../Model/SubstitutionModel.h"
-#include "../OldLikelihood/AbstractTreeLikelihood.h"
-#include "../OldLikelihood/DRHomogeneousTreeLikelihood.h"
-#include "../OldLikelihood/PseudoNewtonOptimizer.h"
+#include "../Likelihood/AbstractTreeLikelihood.h"
+#include "../Likelihood/DRHomogeneousTreeLikelihood.h"
+#include "../Likelihood/PseudoNewtonOptimizer.h"
 
 #include <Bpp/Clonable.h>
 #include <Bpp/Numeric/ParameterList.h>

@@ -81,7 +81,7 @@ YpR::YpR(const YpR& ypr) :
 
 void YpR::updateMatrices()
 {
-  updateMatrices(0,0,0,0,0,0,0,0);
+  updateMatrices(0, 0, 0, 0, 0, 0, 0, 0);
 }
 
 
@@ -380,10 +380,10 @@ YpR_Sym::YpR_Sym(const RNY* alph,
                  double CgT, double TgC,
                  double CaT, double TaC) : AbstractParameterAliasable("YpR_Sym."), YpR(alph, pm,"YpR_Sym.")
 {
-  addParameter_(Parameter("YpR_Sym.rCgT", CgT, &Parameter::R_PLUS));
-  addParameter_(Parameter("YpR_Sym.rTgC", TgC, &Parameter::R_PLUS));
-  addParameter_(Parameter("YpR_Sym.rCaT", CaT, &Parameter::R_PLUS));
-  addParameter_(Parameter("YpR_Sym.rTaC", TaC, &Parameter::R_PLUS));
+  addParameter_(new Parameter("YpR_Sym.rCgT", CgT, &Parameter::R_PLUS));
+  addParameter_(new Parameter("YpR_Sym.rTgC", TgC, &Parameter::R_PLUS));
+  addParameter_(new Parameter("YpR_Sym.rCaT", CaT, &Parameter::R_PLUS));
+  addParameter_(new Parameter("YpR_Sym.rTaC", TaC, &Parameter::R_PLUS));
 
   updateMatrices();
 }
@@ -405,7 +405,7 @@ YpR_Sym::YpR_Sym(const YpR_Sym& ypr) : AbstractParameterAliasable(ypr), YpR(ypr,
 
 std::string YpR_Sym::getName() const
 {
-  return "YpR_Sym(model=" + _pmodel->getName()+")";
+  return "YpR_Sym";
 }
 
 
@@ -421,14 +421,14 @@ YpR_Gen::YpR_Gen(const RNY* alph,
                  double CaT, double cAG,
                  double TaC, double tAG) : AbstractParameterAliasable("YpR_Gen."), YpR(alph, pm,"YpR_Gen.")
 {
-  addParameter_(Parameter("YpR_Gen.rCgT", CgT, &Parameter::R_PLUS));
-  addParameter_(Parameter("YpR_Gen.rcGA", cGA, &Parameter::R_PLUS));
-  addParameter_(Parameter("YpR_Gen.rTgC", TgC, &Parameter::R_PLUS));
-  addParameter_(Parameter("YpR_Gen.rtGA", tGA, &Parameter::R_PLUS));
-  addParameter_(Parameter("YpR_Gen.rCaT", CaT, &Parameter::R_PLUS));
-  addParameter_(Parameter("YpR_Gen.rcAG", cAG, &Parameter::R_PLUS));
-  addParameter_(Parameter("YpR_Gen.rTaC", TaC, &Parameter::R_PLUS));
-  addParameter_(Parameter("YpR_Gen.rtAG", tAG, &Parameter::R_PLUS));
+  addParameter_(new Parameter("YpR_Gen.rCgT", CgT, &Parameter::R_PLUS));
+  addParameter_(new Parameter("YpR_Gen.rcGA", cGA, &Parameter::R_PLUS));
+  addParameter_(new Parameter("YpR_Gen.rTgC", TgC, &Parameter::R_PLUS));
+  addParameter_(new Parameter("YpR_Gen.rtGA", tGA, &Parameter::R_PLUS));
+  addParameter_(new Parameter("YpR_Gen.rCaT", CaT, &Parameter::R_PLUS));
+  addParameter_(new Parameter("YpR_Gen.rcAG", cAG, &Parameter::R_PLUS));
+  addParameter_(new Parameter("YpR_Gen.rTaC", TaC, &Parameter::R_PLUS));
+  addParameter_(new Parameter("YpR_Gen.rtAG", tAG, &Parameter::R_PLUS));
 
   updateMatrices();
 }
@@ -456,7 +456,7 @@ YpR_Gen::YpR_Gen(const YpR_Gen& ypr) : AbstractParameterAliasable(ypr), YpR(ypr,
 
 std::string YpR_Gen::getName() const
 {
-  return "YpR_Gen(model=" + _pmodel->getName()+")";
+  return "YpR_Gen";
 }
 
 

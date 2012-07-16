@@ -60,13 +60,12 @@ FullCodonFrequenciesSet::FullCodonFrequenciesSet(const CodonAlphabet* alphabet, 
     }
     else
     {
-      Parameter p(
+      addParameter_(new Parameter(
         "Full.theta" + TextTools::toString(i + 1),
         1. / (size - j),
         allowNullFreqs ?
         &Parameter::PROP_CONSTRAINT_IN :
-        &FrequenciesSet::FREQUENCE_CONSTRAINT_MILLI);
-      addParameter_(p);
+        &FrequenciesSet::FREQUENCE_CONSTRAINT_MILLI));
       getFreq_(i) = 1. / size;
       j++;
     }
@@ -100,13 +99,12 @@ FullCodonFrequenciesSet::FullCodonFrequenciesSet(const CodonAlphabet* alphabet, 
     }
     else
     {
-      Parameter p(
+      addParameter_(new Parameter(
         "Full.theta" + TextTools::toString(i + 1),
         initFreqs[i] / sum / y,
         allowNullFreqs ?
         &Parameter::PROP_CONSTRAINT_IN :
-        &FrequenciesSet::FREQUENCE_CONSTRAINT_MILLI);
-      addParameter_(p);
+        &FrequenciesSet::FREQUENCE_CONSTRAINT_MILLI));
       getFreq_(i) = initFreqs[i] / sum;
       y -= initFreqs[i] / sum;
     }
@@ -169,9 +167,8 @@ void FullCodonFrequenciesSet::fireParameterChanged(const ParameterList& paramete
 // FullPerAACodonFrequenciesSet
 
 FullPerAACodonFrequenciesSet::FullPerAACodonFrequenciesSet(const GeneticCode* gencode,
-                                                           const ProteinFrequenciesSet* ppfs,
-                                                           const string& name) :
-  AbstractFrequenciesSet(gencode->getSourceAlphabet()->getSize(), gencode->getSourceAlphabet(), "FullPerAA.", name),
+                                                           const ProteinFrequenciesSet* ppfs):
+  AbstractFrequenciesSet(gencode->getSourceAlphabet()->getSize(), gencode->getSourceAlphabet(), "FullPerAA.", "FullPerAA"),
   pgc_(gencode),
   ppfs_(ppfs->clone()),
   vS_()
@@ -195,9 +192,8 @@ FullPerAACodonFrequenciesSet::FullPerAACodonFrequenciesSet(const GeneticCode* ge
   updateFrequencies();
 }
 
-FullPerAACodonFrequenciesSet::FullPerAACodonFrequenciesSet(const GeneticCode* gencode,
-                                                           const string& name) :
-  AbstractFrequenciesSet(gencode->getSourceAlphabet()->getSize(), gencode->getSourceAlphabet(), "FullPerAA.", name),
+FullPerAACodonFrequenciesSet::FullPerAACodonFrequenciesSet(const GeneticCode* gencode) :
+  AbstractFrequenciesSet(gencode->getSourceAlphabet()->getSize(), gencode->getSourceAlphabet(), "FullPerAA.", "FullPerAA"),
   pgc_(gencode),
   ppfs_(new FixedProteinFrequenciesSet(dynamic_cast<const ProteicAlphabet*>(gencode->getTargetAlphabet()), "FullPerAA.")),
   vS_()
@@ -352,7 +348,7 @@ CodonFromIndependentFrequenciesSet::CodonFromIndependentFrequenciesSet(
                                                                        const CodonAlphabet* pCA,
                                                                        const std::vector<FrequenciesSet*>& freqvector,
                                                                        const string& name) :
-  WordFromIndependentFrequenciesSet(pCA, freqvector, "Codon", name)
+  WordFromIndependentFrequenciesSet(pCA, freqvector, "", name)
 {
 }
 
@@ -414,7 +410,7 @@ void CodonFromIndependentFrequenciesSet::setFrequencies(const vector<double>& fr
 
 
 CodonFromUniqueFrequenciesSet::CodonFromUniqueFrequenciesSet(const CodonAlphabet* pCA, FrequenciesSet* pfreq, const string& name) :
-  WordFromUniqueFrequenciesSet(pCA, pfreq, "Codon", name)
+  WordFromUniqueFrequenciesSet(pCA, pfreq, "", name)
 {
 }
 

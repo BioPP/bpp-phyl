@@ -51,15 +51,15 @@ YN98::YN98(const GeneticCode* gc, FrequenciesSet* codonFreqs) :
   AbstractBiblioSubstitutionModel("YN98."),
   pmodel_(new CodonDistanceFrequenciesSubstitutionModel(gc, new K80(dynamic_cast<const CodonAlphabet*>(gc->getSourceAlphabet())->getNucleicAlphabet()), codonFreqs))
 {
-  addParameter_(Parameter("YN98.kappa", 1, &Parameter::R_PLUS_STAR));
-  addParameter_(Parameter("YN98.omega", 1, new IntervalConstraint(NumConstants::MILLI, 999, true, true), true));
+  addParameter_(new Parameter("YN98.kappa", 1, &Parameter::R_PLUS_STAR));
+  addParameter_(new Parameter("YN98.omega", 1, new IntervalConstraint(NumConstants::MILLI, 999, true, true), true));
 
   pmodel_->setNamespace("YN98.");
   addParameters_(codonFreqs->getParameters());
 
   lParPmodel_.addParameters(pmodel_->getParameters());
 
-  vector<std::string> v = pmodel_->getFreq().getParameters().getParameterNames();
+  vector<std::string> v = pmodel_->getFrequenciesSet()->getParameters().getParameterNames();
 
   for (size_t i = 0; i < v.size(); i++)
   {

@@ -375,7 +375,7 @@ void AbstractSubstitutionModel::setRate(double rate)
 
 void AbstractSubstitutionModel::addRateParameter()
 {
-  addParameter_(Parameter(getNamespace()+"rate", rate_, &Parameter::R_PLUS_STAR));
+  addParameter_(new Parameter(getNamespace()+"rate", rate_, &Parameter::R_PLUS_STAR));
 }
 
 /******************************************************************************/

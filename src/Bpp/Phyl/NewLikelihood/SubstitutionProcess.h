@@ -131,7 +131,7 @@ namespace bpp
       virtual SimpleSubstitutionProcess* clone() const { return new SimpleSubstitutionProcess(*this); }
 
       virtual VVdouble getTransitionProbabilities(int nodeId, unsigned int siteIndex, unsigned int classIndex) const {
-        pTree_->
+        //pTree_->
       }
 
       virtual VVdouble getGenerator(int nodeId, unsigned int siteIndex, unsigned int classIndex) const {

@@ -93,10 +93,8 @@ namespace bpp
       ratesExchangeability_.resize(2, 2);
       rates_.resize(2, 2);
       ratesFreq_.resize(2);
-      Parameter p1("TS98.s1", s1, &Parameter::R_PLUS_STAR);
-      addParameter_(p1);
-      Parameter p2("TS98.s2", s2, &Parameter::R_PLUS_STAR);
-      addParameter_(p2);
+      addParameter_(new Parameter("TS98.s1", s1, &Parameter::R_PLUS_STAR));
+      addParameter_(new Parameter("TS98.s2", s2, &Parameter::R_PLUS_STAR));
       updateRatesModel();
       updateMatrices();
     }

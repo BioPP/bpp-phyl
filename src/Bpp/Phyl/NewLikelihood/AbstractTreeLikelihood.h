@@ -41,6 +41,7 @@ knowledge of the CeCILL license and that you accept its terms.
 #define _ABSTRACTTREELIKELIHOOD_H_
 
 #include "TreeLikelihood.h"
+#include "SubstitutionProcess.h"
 #include "../Tree.h"
 #include "../TreeTemplate.h"
 
@@ -224,6 +225,7 @@ class AbstractTreeLikelihood :
 	protected:
 		const SiteContainer* data_;
 		mutable TreeTemplate<Node>* tree_;
+    SubstitutionProcess* process_;
 		bool computeFirstOrderDerivatives_;
 		bool computeSecondOrderDerivatives_;
     bool initialized_;
@@ -233,20 +235,23 @@ class AbstractTreeLikelihood :
       AbstractParametrizable(""),
       data_(0),
       tree_(0),
+      process_(0),
       computeFirstOrderDerivatives_(true),
       computeSecondOrderDerivatives_(true),
       initialized_(false) {}
 
-    AbstractTreeLikelihood(const AbstractTreeLikelihood & lik):
+    AbstractTreeLikelihood(const AbstractTreeLikelihood& lik):
       AbstractParametrizable(lik),
       data_(0),
       tree_(0),
+      process_(0),
       computeFirstOrderDerivatives_(lik.computeFirstOrderDerivatives_),
       computeSecondOrderDerivatives_(lik.computeSecondOrderDerivatives_),
       initialized_(lik.initialized_) 
     {
       if (lik.data_) data_ = dynamic_cast<SiteContainer*>(lik.data_->clone());
       if (lik.tree_) tree_ = lik.tree_->clone();
+      if (lik.process_) process_ = lik.process_->clone();
     }
 
     AbstractTreeLikelihood & operator=(const AbstractTreeLikelihood& lik)
@@ -258,6 +263,9 @@ class AbstractTreeLikelihood :
       if (tree_) delete tree_;
       if (lik.tree_) tree_ = lik.tree_->clone();
       else           tree_ = 0;
+      if (process_) delete process_;
+      if (lik.process_) process_ = lik.process_->clone();
+      else              process_ = 0;
       computeFirstOrderDerivatives_ = lik.computeFirstOrderDerivatives_;
       computeSecondOrderDerivatives_ = lik.computeSecondOrderDerivatives_;
       initialized_ = lik.initialized_;
@@ -273,6 +281,7 @@ class AbstractTreeLikelihood :
     {
       if (data_) delete data_;
       if (tree_) delete tree_;
+      if (process_) delete process_;
     }
 	
 	public:
@@ -283,12 +292,16 @@ class AbstractTreeLikelihood :
 		 */
 		const SiteContainer* getData() const { return data_; }
 		const Alphabet* getAlphabet() const { return data_->getAlphabet(); }	
-		Vdouble getLikelihoodForEachSite()                 const;
-		Vdouble getLogLikelihoodForEachSite()              const;
-		VVdouble getLikelihoodForEachSiteForEachState()    const;
+		
+    Vdouble getLogLikelihoodForEachSite() const;
 		VVdouble getLogLikelihoodForEachSiteForEachState() const;
-		unsigned int getNumberOfSites() const { return data_->getNumberOfSites(); }
+		VVdouble getLogLikelihoodForEachSiteForEachClass() const;
+		VVVdouble getLogLikelihoodForEachSiteForEachClassForEachState() const;
+		
+    unsigned int getNumberOfSites() const { return data_->getNumberOfSites(); }
 		unsigned int getNumberOfStates() const { return data_->getAlphabet()->getSize(); }
+		unsigned int getNumberOfClasses() const { return process_->getNumberOfClasses(); }
+
 		const Tree& getTree() const { return *tree_; }
 		void enableDerivatives(bool yn) { computeFirstOrderDerivatives_ = computeSecondOrderDerivatives_ = yn; }
 		void enableFirstOrderDerivatives(bool yn) { computeFirstOrderDerivatives_ = yn; }
@@ -297,18 +310,32 @@ class AbstractTreeLikelihood :
 		bool enableSecondOrderDerivatives() const { return computeSecondOrderDerivatives_; }
     bool isInitialized() const { return initialized_; }
     void initialize() throw (Exception) { initialized_ = true; }
+		
+    VVdouble getPosteriorProbabilitiesOfEachClass() const;
+    std::vector<unsigned int> getClassWithMaxPostProbOfEachSite() const;
 		/** @} */
 
-//	protected:
-//		
-//		/**
-//		 * @brief Recompute pxy_, dpxy_ and d2pxy_ arrays, and derivatives if needed.
-//		 *
-//		 * This method is called when some parameter has changed.
-//		 *
-//		 * @param params The parameters that changed.
-//		 */
-//		virtual void fireParameterChanged(const ParameterList & params) = 0;
+		/**
+     * @name Generic tools to deal with likelihood arrays
+     *
+     * @{
+     */
+    
+    /**
+     * @brief Set all conditional likelihoods to 1.
+     *
+     * @param likelihoodArray the likelihood array.
+     */
+    static void resetLikelihoodArray(VVVdouble & likelihoodArray);
+
+    /**
+     * @brief Print the likelihood array to terminal (debugging tool).
+     * 
+     * @param likelihoodArray the likelihood array.
+     */
+		static void displayLikelihoodArray(const VVVdouble & likelihoodArray);
+
+
 		
 };
 

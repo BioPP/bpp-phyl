@@ -56,23 +56,20 @@ FullNucleotideFrequenciesSet::FullNucleotideFrequenciesSet(
   const string& name) :
   AbstractFrequenciesSet(4, alphabet, "Full.", name)
 {
-  Parameter thetaP(
+  addParameter_(new Parameter(
     "Full.theta", 0.5,
     allowNullFreqs ?
     &Parameter::PROP_CONSTRAINT_IN :
-    &FrequenciesSet::FREQUENCE_CONSTRAINT_SMALL);
-  addParameter_(thetaP);
-  Parameter theta1P(
+    &FrequenciesSet::FREQUENCE_CONSTRAINT_SMALL));
+  addParameter_(new Parameter(
     "Full.theta1", 0.5,
     allowNullFreqs ?
     &Parameter::PROP_CONSTRAINT_IN :
-    &FrequenciesSet::FREQUENCE_CONSTRAINT_SMALL);
-  addParameter_(theta1P);
-  Parameter theta2P("Full.theta2", 0.5,
+    &FrequenciesSet::FREQUENCE_CONSTRAINT_SMALL));
+  addParameter_(new Parameter("Full.theta2", 0.5,
                     allowNullFreqs ?
                     &Parameter::PROP_CONSTRAINT_IN :
-                    &FrequenciesSet::FREQUENCE_CONSTRAINT_SMALL);
-  addParameter_(theta2P);
+                    &FrequenciesSet::FREQUENCE_CONSTRAINT_SMALL));
   getFreq_(0) = getFreq_(1) = getFreq_(2) = getFreq_(3) = 0.25;
 }
 
@@ -81,27 +78,24 @@ FullNucleotideFrequenciesSet::FullNucleotideFrequenciesSet(
   bool allowNullFreqs, const string& name) :
   AbstractFrequenciesSet(4, alphabet, "Full.", name)
 {
-  Parameter thetaP(
+  addParameter_(new Parameter(
     "Full.theta",
     theta,
     allowNullFreqs ?
     &Parameter::PROP_CONSTRAINT_IN :
-    &FrequenciesSet::FREQUENCE_CONSTRAINT_SMALL);
-  addParameter_(thetaP);
-  Parameter theta1P(
+    &FrequenciesSet::FREQUENCE_CONSTRAINT_SMALL));
+  addParameter_(new Parameter(
     "Full.theta1",
     theta1,
     allowNullFreqs ?
     &Parameter::PROP_CONSTRAINT_IN :
-    &FrequenciesSet::FREQUENCE_CONSTRAINT_SMALL);
-  addParameter_(theta1P);
-  Parameter theta2P(
+    &FrequenciesSet::FREQUENCE_CONSTRAINT_SMALL));
+  addParameter_(new Parameter(
     "Full.theta2",
     theta2,
     allowNullFreqs ?
     &Parameter::PROP_CONSTRAINT_IN :
-    &Parameter::PROP_CONSTRAINT_EX);
-  addParameter_(theta2P);
+    &Parameter::PROP_CONSTRAINT_EX));
   getFreq_(0) = theta1 * (1. - theta);
   getFreq_(1) = (1 - theta2) * theta;
   getFreq_(2) = theta2 * theta;

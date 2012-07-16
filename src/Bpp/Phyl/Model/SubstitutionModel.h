@@ -54,6 +54,7 @@
 //From Seqlib:
 #include <Bpp/Seq/Alphabet/Alphabet.h>
 #include <Bpp/Seq/Container/SequenceContainer.h>
+#include "FrequenciesSet/FrequenciesSet.h"
 
 namespace bpp
 {
@@ -414,6 +415,14 @@ public:
    * @param frequencies The map of the frequencies to use.
    */
   virtual void setFreq(std::map<int, double>& frequencies) {}
+
+  /**
+   * @brief If the model owns a FrequenciesSet, returns a pointer to
+   * it, otherwise return 0.
+   *
+   */
+
+  virtual const FrequenciesSet* getFrequenciesSet() const {return NULL;}
 };
 
 

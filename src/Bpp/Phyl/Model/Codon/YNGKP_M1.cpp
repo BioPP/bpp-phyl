@@ -74,7 +74,7 @@ YNGKP_M1::YNGKP_M1(const GeneticCode* gc, FrequenciesSet* codonFreqs) :
 
   lParPmodel_.addParameters(pmixmodel_->getParameters());
 
-  vector<std::string> v = dynamic_cast<YN98*>(pmixmodel_->getNModel(0))->getFreq().getParameters().getParameterNames();
+  vector<std::string> v = dynamic_cast<YN98*>(pmixmodel_->getNModel(0))->getFrequenciesSet()->getParameters().getParameterNames();
 
   for (unsigned int i = 0; i < v.size(); i++)
   {
@@ -93,12 +93,12 @@ YNGKP_M1::YNGKP_M1(const GeneticCode* gc, FrequenciesSet* codonFreqs) :
     st = pmixmodel_->getParameterNameWithoutNamespace(it->first);
     if (st != "YN98.omega_Simple.V1")
     {
-      addParameter_(Parameter("YNGKP_M1." + it->second, pmixmodel_->getParameterValue(st),
+      addParameter_(new Parameter("YNGKP_M1." + it->second, pmixmodel_->getParameterValue(st),
                               pmixmodel_->getParameter(st).hasConstraint() ? pmixmodel_->getParameter(st).getConstraint()->clone() : 0, true));
     }
   }
 
-  addParameter_(Parameter("YNGKP_M1.omega", 0.5, new IntervalConstraint(NumConstants::MILLI, 1, true, false, NumConstants::MILLI), true));
+  addParameter_(new Parameter("YNGKP_M1.omega", 0.5, new IntervalConstraint(NumConstants::MILLI, 1, true, false, NumConstants::MILLI), true));
 
   // look for synonymous codons
   for (synfrom_ = 1; synfrom_ < static_cast<int>(gc->getSourceAlphabet()->getSize()); synfrom_++)

@@ -45,7 +45,10 @@ ParametrizableTree::ParametrizableTree(const Tree& tree, bool liveIndex, const s
   AbstractParametrizable(prefix),
   tree_(tree),
   liveIndex_(liveIndex),
-  isSynchronized_(true)
+  isSynchronized_(true),
+  minimumBrLen_(0.000001),
+  maximumBrLen_(10000),
+  brLenConstraint_(new IntervalConstraint(minimumBrLen_, maximumBrLen_, true, true))
 {
   buildIndex_(*tree_.getRootNode()); 
   if (liveIndex_)
@@ -56,7 +59,10 @@ ParametrizableTree::ParametrizableTree(const ParametrizableTree& pTree):
   AbstractParametrizable(pTree),
   tree_(pTree.tree_),
   liveIndex_(pTree.liveIndex_),
-  isSynchronized_(true)
+  isSynchronized_(true),
+  minimumBrLen_(pTree.minimumBrLen_),
+  maximumBrLen_(pTree.maximumBrLen_),
+  brLenConstraint_(new IntervalConstraint(pTree.minimumBrLen_, pTree.maximumBrLen_, true, true))
 {
   buildIndex_(*tree_.getRootNode()); 
   if (liveIndex_)
@@ -75,25 +81,84 @@ ParametrizableTree& ParametrizableTree::operator=(const ParametrizableTree& pTre
     buildReverseIndex_(*tree_.getRootNode());
   }
   isSynchronized_ = true;
+  minimumBrLen_ = pTree.minimumBrLen_;
+  maximumBrLen_ = pTree.maximumBrLen_;
+  brLenConstraint_.reset(new IntervalConstraint(pTree.minimumBrLen_, pTree.maximumBrLen_, true, true));
   return *this;
 }
 
-ParametrizableTree::buildIndex_(const Node& node) {
+void ParametrizableTree::buildIndex_(Node& node)
+{
   if (!node.isRoot()) {
     index_[node.getId()] = getNumberOfParameters();
-    addParameter_(
+  
+    double d = minimumBrLen_;
+    if (!node.hasDistanceToFather())
+    {
+      ApplicationTools::displayWarning("Missing branch length " + TextTools::toString(node.getId()) + ". Value is set to " + TextTools::toString(minimumBrLen_));
+      node.setDistanceToFather(minimumBrLen_);
+    }
+    else
+    {
+      d = node.getDistanceToFather();
+      if (d < minimumBrLen_)
+      {
+        ApplicationTools::displayWarning("Branch length " + TextTools::toString(node.getId()) + " is too small: " + TextTools::toString(d) + ". Value is set to " + TextTools::toString(minimumBrLen_));
+        node.setDistanceToFather(minimumBrLen_);
+        d = minimumBrLen_;
+      }
+      if (d > maximumBrLen_)
+      {
+        ApplicationTools::displayWarning("Branch length " + TextTools::toString(node.getId()) + " is too big: " + TextTools::toString(d) + ". Value is set to " + TextTools::toString(maximumBrLen_));
+        node.setDistanceToFather(maximumBrLen_);
+        d = maximumBrLen_;
+      }
+    }
+    addParameter_(new Parameter("BrLen" + TextTools::toString(node.getId()), l, br ));
+    brLenParameters_.addParameter(Parameter("BrLen" + TextTools::toString(i), d, brLenConstraint_->clone(), true)); // Attach constraint to avoid clonage problems!
   }
+
+  //Now apply recursively:
+  for (unsigned int i = 0; i < node.getNumberOfSons(); ++i)
+    buildIndex_(node[i]);
+  
+}
+
+void ParametrizableTree::buildReverseIndex_(Node* node)
+{
+  if (!node.isRoot()) {
+    reverseIndex_["BrLen" + TextTools::toString(node->getId())] = node; 
+  }
+
+  for (unsigned int i = 0; i < node.getNumberOfSons(); ++i)
+    buildReverseIndex_(node[i]);
 }
 
 const TreeTemplate& ParametrizableTree::getTree() const
 {
-  if (!liveIndex_ && hasModification_)
+  if (!liveIndex_ && !isSynchronized_)
     updateTreeFromParameters_();
   return tree_;
 }
 
 void ParametrizableTree::updateTreeFromParameters_()
 {
-  //TODO the job...
+  for (unsigned int i = 0; i < getNumberOfParameters(); ++i) {
+    Parameter& param = getParameter(i);
+    reverseIndex_[param.getName()]->setDistanceToFather(param.getValue());
+  }
   isSynchronized_ = true;
 }
+
+void ParametrizableTree::fireParameterChanged(const ParameterList& parameters)
+{
+  isSynchronized_ = false;
+  if (liveIndex_) {
+    for (unsigned int i = 0; i < parameters.size(); ++i) {
+      const Parameter& param = parameters.getParameter(i);
+      reverseIndex_[param.getName()]->setDistanceToFather(param.getValue());
+    }
+    isSynchronized_ = true;
+  }
+}
+

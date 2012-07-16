@@ -38,7 +38,7 @@
 
 #include "AbstractCodonFrequenciesSubstitutionModel.h"
 
-//#include <Bpp/Seq/Alphabet/AlphabetTools.h>
+// #include <Bpp/Seq/Alphabet/AlphabetTools.h>
 
 using namespace bpp;
 
@@ -54,10 +54,10 @@ AbstractCodonFrequenciesSubstitutionModel::AbstractCodonFrequenciesSubstitutionM
   pfreqset_(pfreq),
   freqName_("")
 {
-  if (dynamic_cast<CodonFrequenciesSet*>(pfreq)==NULL)
+  if (dynamic_cast<CodonFrequenciesSet*>(pfreq) == NULL)
     throw Exception("Bad type for equilibrium frequencies " + pfreq->getName());
 
-  freqName_="freq_"+pfreqset_->getNamespace();
+  freqName_ = pfreqset_->getNamespace();
   pfreqset_->setNamespace(prefix + freqName_);
   addParameters_(pfreqset_->getParameters());
 }
@@ -74,7 +74,7 @@ void AbstractCodonFrequenciesSubstitutionModel::fireParameterChanged(const Param
 }
 
 
-void AbstractCodonFrequenciesSubstitutionModel::setFreq(map<int,double>& frequencies)
+void AbstractCodonFrequenciesSubstitutionModel::setFreq(map<int, double>& frequencies)
 {
   pfreqset_->setFrequenciesFromMap(frequencies);
   matchParametersValues(pfreqset_->getParameters());

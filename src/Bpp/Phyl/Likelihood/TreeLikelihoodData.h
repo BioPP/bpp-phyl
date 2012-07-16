@@ -6,7 +6,7 @@
 //
 
 /*
-Copyright or © or Copr. Bio++ Development Team, (November 16, 2004)
+Copyright or © or Copr. CNRS, (November 16, 2004)
 
 This software is a computer program whose purpose is to provide classes
 for phylogenetic data analysis.
@@ -132,11 +132,6 @@ class TreeLikelihoodData:
      * @return Get the number of states used in the model.
      */
     virtual unsigned int getNumberOfStates() const = 0;
-    
-    /**
-     * @return The number of classes used in the model.
-     */
-    virtual unsigned int getNumberOfClasses() const = 0;
 
     /**
      * @return The frequency of a given pattern.

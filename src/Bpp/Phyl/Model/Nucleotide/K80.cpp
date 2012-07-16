@@ -56,8 +56,7 @@ K80::K80(const NucleicAlphabet* alpha, double kappa) :
   AbstractReversibleSubstitutionModel(alpha, "K80."),
   kappa_(kappa), r_(), l_(), k_(), exp1_(), exp2_(), p_(size_, size_)
 {
-	Parameter kappaP(getNamespace() + "kappa", kappa, &Parameter::R_PLUS_STAR);
-	addParameter_(kappaP);
+	addParameter_(new Parameter(getNamespace() + "kappa", kappa, &Parameter::R_PLUS_STAR));
 	updateMatrices();
 }
 

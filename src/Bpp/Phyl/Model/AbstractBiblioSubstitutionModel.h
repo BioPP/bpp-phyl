@@ -149,6 +149,8 @@ public:
 
   double getInitValue(unsigned int i, int state) const throw (BadIntException) { return getModel()->getInitValue(i, state); }
 
+  const FrequenciesSet* getFrequenciesSet() const {return getModel()->getFrequenciesSet(); }
+
   /*
    * @}
    *

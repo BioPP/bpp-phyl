@@ -86,13 +86,12 @@ FullFrequenciesSet::FullFrequenciesSet(const Alphabet* alphabet, bool allowNullF
 
   for (unsigned int i = 0; i < alphabet->getSize() - 1; i++)
   {
-    Parameter p(
+    addParameter_(new Parameter(
       "Full.theta" + TextTools::toString(i + 1),
       1. / (size - i),
       allowNullFreqs ?
       &Parameter::PROP_CONSTRAINT_IN :
-      &FrequenciesSet::FREQUENCE_CONSTRAINT_SMALL);
-    addParameter_(p);
+      &FrequenciesSet::FREQUENCE_CONSTRAINT_SMALL));
     getFreq_(i) = 1. / size;
   }
   unsigned int i = alphabet->getSize() - 1;
@@ -113,13 +112,12 @@ FullFrequenciesSet::FullFrequenciesSet(const Alphabet* alphabet, const vector<do
   double y = 1;
   for (unsigned int i = 0; i < alphabet->getSize() - 1; i++)
   {
-    Parameter p(
+    addParameter_(new Parameter(
       "Full.theta" + TextTools::toString(i + 1),
       initFreqs[i] / y,
       allowNullFreqs ?
       &Parameter::PROP_CONSTRAINT_IN :
-      &FrequenciesSet::FREQUENCE_CONSTRAINT_SMALL);
-    addParameter_(p);
+      &FrequenciesSet::FREQUENCE_CONSTRAINT_SMALL));
     getFreq_(i) = initFreqs[i];
     y -= initFreqs[i];
   }

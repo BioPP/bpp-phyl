@@ -105,7 +105,6 @@ public:
 
   AbstractSubstitutionModel* getModel() { return pmodel_;}
 
-  const FrequenciesSet& getFreq() const { return pmodel_->getFreq(); }
 };
 
 } // end of namespace bpp.

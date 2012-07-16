@@ -79,7 +79,7 @@ YNGKP_M7::YNGKP_M7(const GeneticCode* gc, FrequenciesSet* codonFreqs, unsigned i
     lParPmodel_.addParameter(Parameter(pl[i]));
   }
 
-  vector<std::string> v = dynamic_cast<YN98*>(pmixmodel_->getNModel(0))->getFreq().getParameters().getParameterNames();
+  vector<std::string> v = dynamic_cast<YN98*>(pmixmodel_->getNModel(0))->getFrequenciesSet()->getParameters().getParameterNames();
 
   for (unsigned int i = 0; i < v.size(); i++)
   {
@@ -96,7 +96,7 @@ YNGKP_M7::YNGKP_M7(const GeneticCode* gc, FrequenciesSet* codonFreqs, unsigned i
   for (map<string, string>::iterator it = mapParNamesFromPmodel_.begin(); it != mapParNamesFromPmodel_.end(); it++)
   {
     st = pmixmodel_->getParameterNameWithoutNamespace(it->first);
-    addParameter_(Parameter("YNGKP_M7." + it->second, pmixmodel_->getParameterValue(st),
+    addParameter_(new Parameter("YNGKP_M7." + it->second, pmixmodel_->getParameterValue(st),
                             pmixmodel_->getParameter(st).hasConstraint() ? pmixmodel_->getParameter(st).getConstraint()->clone() : 0, true));
   }
 
