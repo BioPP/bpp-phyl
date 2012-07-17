@@ -41,6 +41,7 @@
 #define _SUBSTITUTIONPROCESS_H_
 
 #include "ParametrizableTree.h"
+#include "SitePartition.h"
 #include "ModelIterator.h"
 
 #include <Bpp/Numeric/ParameterAliasable.h>
@@ -73,6 +74,7 @@ public:
 
 public:
   virtual void registerWithTree(ParametrizableTree* pTree) = 0;
+  virtual void registerWithSitePartition(SitePartition* sitePartition) = 0;
   virtual bool isRegistered() const = 0;
 
   virtual unsigned int getNumberOfClasses() const = 0;
@@ -97,25 +99,30 @@ class AbstractSubstitutionProcess :
 {
 protected:
   ParametrizableTree* pTree_;
+  SitePartition* sitePartition_;
 
 protected:
-  AbstractSubstitutionProcess() : pTree_(0) {}
+  AbstractSubstitutionProcess() : pTree_(0), sitePartition_(0) {}
 
   /**
    * When a process is copied, it becomes unregistered,
-   * instead of being registered with the same tree. This will avoid some hidden
+   * instead of being registered with the same tree and site partition. This will avoid some hidden
    * bugs...
    */
-  AbstractSubstitutionProcess(const AbstractSubstitutionProcess& asp) : pTree_(0) {}
+  AbstractSubstitutionProcess(const AbstractSubstitutionProcess& asp) :
+    pTree_(0), sitePartition_(0) {}
+
   AbstractSubstitutionProcess& operator=(const AbstractSubstitutionProcess& asp)
   {
     pTree_ = 0;
+    sitePartition_ = 0;
     return *this;
   }
 
 public:
-  void registerWithTree(ParametrizableTree* pTree) { pTree_ =  pTree; }
-  bool isRegistered() const { return pTree_ != 0;}
+  void registerWithTree(ParametrizableTree* pTree) { pTree_ = pTree; }
+  void registerWithSitePartition(SitePartition* sitePartition) { sitePartition_ = sitePartition; }
+  bool isRegistered() const { return pTree_ != 0 && sitePartition_ != 0;}
 };
 
 
@@ -164,11 +171,11 @@ public:
   }
 
   ConstBranchModelIterator* getNewBranchModelIterator(int nodeId) const {
-    return new ConstNoPartitionBranchModelIterator(model_, nbDistinctSites_);
+    return new ConstNoPartitionBranchModelIterator(model_, sitePartition_->getNumberOfPatternsForPartition(0));
   }
 
   ConstSiteModelIterator* getNewSiteModelIterator(unsigned int siteIndex) const {
-    return new ConstHomogeneousSiteModelIterator(*tree_, model_);
+    return new ConstHomogeneousSiteModelIterator(*pTree_, model_);
   }
 
   bool transitionProbabilitiesHaveChanged() const { return true; }
@@ -229,11 +236,11 @@ public:
   }
 
   ConstBranchModelIterator* getNewBranchModelIterator(int nodeId) const {
-    return new ConstNoPartitionBranchModelIterator(model_, nbDistinctSites_);
+    return new ConstNoPartitionBranchModelIterator(model_, sitePartition_->getNumberOfPatternsForPartition(0));
   }
 
   ConstSiteModelIterator* getNewSiteModelIterator(unsigned int siteIndex) const {
-    return new ConstHomogeneousSiteModelIterator(*tree_, model_);
+    return new ConstHomogeneousSiteModelIterator(*pTree_, model_);
   }
 
   // TODO: it actually depend on the distribution used, how it is parameterized. If classes are fixed and parameters after probabilities only, this should return false to save computational time!

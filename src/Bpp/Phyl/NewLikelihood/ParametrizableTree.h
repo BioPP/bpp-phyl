@@ -71,6 +71,8 @@ namespace bpp
 
       ParametrizableTree& operator=(const ParametrizableTree& pTree);
 
+      ParametrizableTree* clone() const { return new ParametrizableTree(*this); }
+
     public:
       const Parameter& getBranchLengthParameter(int nodeId) const throw (NodeNotFoundException) {
         std::map<int, unsigned int>::const_iterator it = index_.find(nodeId);
@@ -106,6 +108,8 @@ namespace bpp
 
     virtual double getMinimumBranchLength() const { return minimumBrLen_; }
     virtual double getMaximumBranchLength() const { return maximumBrLen_; }
+
+    std::vector<int> getBranchesId() const { return tree_.getBranchesId(); }
 
     private:
       void buildIndex_(Node& node);

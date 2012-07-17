@@ -40,6 +40,7 @@ knowledge of the CeCILL license and that you accept its terms.
 #include "AbstractTreeLikelihood.h"
 
 using namespace bpp;
+using namespace newlik;
 
 /******************************************************************************/
 
@@ -57,7 +58,7 @@ VVdouble AbstractTreeLikelihood::getLogLikelihoodForEachSiteForEachState() const
 	VVdouble l(getNumberOfSites());
 	for (size_t i = 0; i < l.size(); i++)
   {
-		Vdouble * l_i = & l[i];
+		Vdouble* l_i = & l[i];
 		l_i->resize(getNumberOfStates());
 		for(unsigned int x = 0; x < l_i->size(); x++)
     {
@@ -69,3 +70,16 @@ VVdouble AbstractTreeLikelihood::getLogLikelihoodForEachSiteForEachState() const
 
 /******************************************************************************/
 
+VVdouble AbstractTreeLikelihood::getLogLikelihoodForEachSiteForEachClass() const
+{
+
+}
+
+/******************************************************************************/
+
+VVVdouble AbstractTreeLikelihood::getLogLikelihoodForEachSiteForEachClassForEachState() const
+{
+
+}
+
+/******************************************************************************/

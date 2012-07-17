@@ -52,6 +52,8 @@ knowledge of the CeCILL license and that you accept its terms.
 
 namespace bpp
 {
+namespace newlik //To avoid name conflick with old likelihood
+{
 
 /**
  * @brief Partial implementation of the TreeLikelihood interface. 
@@ -72,9 +74,9 @@ class AbstractTreeLikelihood :
 	public AbstractParametrizable
 {
 	protected:
-		const SiteContainer* data_;
-		mutable TreeTemplate<Node>* tree_;
-    SubstitutionProcess* process_;
+    std::auto_ptr<SiteContainer> data_;
+    std::auto_ptr<ParametrizableTree> tree_;
+    std::auto_ptr<SubstitutionProcess> process_;
 		bool computeFirstOrderDerivatives_;
 		bool computeSecondOrderDerivatives_;
     bool initialized_;
@@ -98,26 +100,23 @@ class AbstractTreeLikelihood :
       computeSecondOrderDerivatives_(lik.computeSecondOrderDerivatives_),
       initialized_(lik.initialized_) 
     {
-      if (lik.data_) data_ = dynamic_cast<SiteContainer*>(lik.data_->clone());
-      if (lik.tree_) tree_ = lik.tree_->clone();
-      if (lik.process_) process_ = lik.process_->clone();
+      if (lik.data_.get()) data_.reset(lik.data_->clone());
+      if (lik.tree_.get()) tree_.reset(lik.tree_->clone());
+      if (lik.process_.get()) process_.reset(lik.process_->clone());
     }
 
-    AbstractTreeLikelihood & operator=(const AbstractTreeLikelihood& lik)
+    AbstractTreeLikelihood& operator=(const AbstractTreeLikelihood& lik)
     {
       AbstractParametrizable::operator=(lik);
-      if (data_) delete data_;
-      if (lik.data_) data_ = dynamic_cast<SiteContainer*>(lik.data_->clone());
-      else           data_ = 0;
-      if (tree_) delete tree_;
-      if (lik.tree_) tree_ = lik.tree_->clone();
-      else           tree_ = 0;
-      if (process_) delete process_;
-      if (lik.process_) process_ = lik.process_->clone();
-      else              process_ = 0;
-      computeFirstOrderDerivatives_ = lik.computeFirstOrderDerivatives_;
+      if (lik.data_.get())    data_.reset(lik.data_->clone());
+      else                    data_.reset();
+      if (lik.tree_.get())    tree_.reset(lik.tree_->clone());
+      else                    tree_.reset();
+      if (lik.process_.get()) process_.reset(lik.process_->clone());
+      else                    process_.reset();
+      computeFirstOrderDerivatives_  = lik.computeFirstOrderDerivatives_;
       computeSecondOrderDerivatives_ = lik.computeSecondOrderDerivatives_;
-      initialized_ = lik.initialized_;
+      initialized_                   = lik.initialized_;
       return *this;
     }
 
@@ -128,9 +127,7 @@ class AbstractTreeLikelihood :
      */
 		virtual ~AbstractTreeLikelihood()
     {
-      if (data_) delete data_;
-      if (tree_) delete tree_;
-      if (process_) delete process_;
+      //Auto pointers take care of everything!
     }
 	
 	public:
@@ -139,7 +136,7 @@ class AbstractTreeLikelihood :
 		 *
 		 * @{
 		 */
-		const SiteContainer* getData() const { return data_; }
+		const SiteContainer* getData() const { return data_.get(); }
 		const Alphabet* getAlphabet() const { return data_->getAlphabet(); }	
 		
     Vdouble getLogLikelihoodForEachSite() const;
@@ -151,7 +148,7 @@ class AbstractTreeLikelihood :
 		unsigned int getNumberOfStates() const { return data_->getAlphabet()->getSize(); }
 		unsigned int getNumberOfClasses() const { return process_->getNumberOfClasses(); }
 
-		const Tree& getTree() const { return *tree_; }
+		const Tree& getTree() const { return tree_->getTree(); }
 		void enableDerivatives(bool yn) { computeFirstOrderDerivatives_ = computeSecondOrderDerivatives_ = yn; }
 		void enableFirstOrderDerivatives(bool yn) { computeFirstOrderDerivatives_ = yn; }
 		void enableSecondOrderDerivatives(bool yn) { computeFirstOrderDerivatives_ = computeSecondOrderDerivatives_ = yn; }
@@ -188,6 +185,7 @@ class AbstractTreeLikelihood :
 		
 };
 
+} //end of namespace newlik.
 } //end of namespace bpp.
 
 #endif	//_ABSTRACTTREELIKELIHOOD_H_
