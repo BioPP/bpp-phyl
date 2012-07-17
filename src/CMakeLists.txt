@@ -201,6 +201,7 @@ set(H_FILES
   Bpp/Phyl/NewLikelihood/TreeLikelihood.h
   Bpp/Phyl/NewLikelihood/ParametrizableTree.h
   Bpp/Phyl/NewLikelihood/SubstitutionProcess.h
+  Bpp/Phyl/NewLikelihood/ModelIterator.h
   Bpp/Phyl/Mapping/LaplaceSubstitutionCount.h
   Bpp/Phyl/Mapping/WeightedSubstitutionCount.h
   Bpp/Phyl/Mapping/OneJumpSubstitutionCount.h

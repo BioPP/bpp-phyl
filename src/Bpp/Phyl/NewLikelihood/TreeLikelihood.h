@@ -67,99 +67,6 @@ class TreeLikelihood:
   public virtual DerivableSecondOrder
 {
   public:
-    /**
-     * @brief An iterator over a set of branches, specified by their node ids.
-     */
-    class BranchIterator
-    {
-      public:
-        virtual ~BranchIterator() {}
-
-      public:
-        /**
-         * @return The id of the next node in the set.
-         */
-        virtual int next() throw (Exception) = 0;
-        /**
-         * @return True if there is at least another node in the set.
-         */
-        virtual bool hasNext() const = 0;
-    };
-
-    /**
-     * @brief An iterator over a set of sites, speicfied by their position.
-     *
-     * In most cases, the position will reflect the index of an inner array used for likelihood storage.
-     */
-    class SiteIterator
-    {
-      public:
-        virtual ~SiteIterator() {}
-
-      public:
-        /**
-         * @return The position of the next site in the set.
-         */
-        virtual unsigned int next() throw (Exception) = 0;
-        /**
-         * @return True is there is at least another site in the set.
-         */
-        virtual bool hasNext() const = 0;
-    };
-
-    /**
-     * @brief A pair of SubstitutionModel / SiteIterator.
-     */
-    class ConstBranchModelDescription
-    {
-      public:
-        virtual ~ConstBranchModelDescription() {}
-
-      public:
-        virtual const SubstitutionModel* getModel() const = 0;
-        virtual SiteIterator* getNewSiteIterator() const = 0;
-    };
-
-    /**
-     * @brief Iterates through all models used for all sites on a given branch.
-     */
-    class ConstBranchModelIterator
-    {
-      public:
-        virtual ~ConstBranchModelIterator() {}
-
-      public:
-        virtual ConstBranchModelDescription* next() throw (Exception) = 0;
-        virtual bool hasNext() const = 0;
-    };
-
-    /**
-     * @brief A pair of SubstitutionModel / BranchIterator.
-     */
-    class ConstSiteModelDescription
-    {
-      public:
-        virtual ~ConstSiteModelDescription() {}
-
-      public:
-        virtual const SubstitutionModel* getModel() const = 0;
-        virtual BranchIterator* getNewBranchIterator() const = 0;
-    };
-
-    /**
-     * @brief Iterates through all models used for all branches on a given site.
-     */
-    class ConstSiteModelIterator
-    {
-      public:
-        virtual ~ConstSiteModelIterator() {}
-
-      public:
-        virtual ConstSiteModelDescription* next() throw (Exception) = 0;
-        virtual bool hasNext() const = 0;
-    };
-
-  public:
     TreeLikelihood() {}
     virtual ~TreeLikelihood() {}
 
@@ -379,10 +286,6 @@ class TreeLikelihood:
      * @return An array of dimension 2, where a[x][y] is the probability of substituting from x to y.
      */
     virtual VVdouble getTransitionProbabilities(int nodeId, unsigned int siteIndex, unsigned int modelClass) const = 0;
-
-    virtual ConstBranchModelIterator* getNewBranchModelIterator(int nodeId) const = 0;
-
-    virtual ConstSiteModelIterator* getNewSiteModelIterator(unsigned int siteIndex) const = 0;
 
     /**
      * @brief Get the index (used for inner computations) of a given site (original alignment column).
