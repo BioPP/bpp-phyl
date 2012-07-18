@@ -172,14 +172,14 @@ class AbstractTreeLikelihood :
      *
      * @param likelihoodArray the likelihood array.
      */
-    static void resetLikelihoodArray(VVVdouble & likelihoodArray);
+    static void resetLikelihoodArray(VVVdouble& likelihoodArray);
 
     /**
      * @brief Print the likelihood array to terminal (debugging tool).
      * 
      * @param likelihoodArray the likelihood array.
      */
-		static void displayLikelihoodArray(const VVVdouble & likelihoodArray);
+		static void displayLikelihoodArray(const VVVdouble& likelihoodArray);
 
 
 		
