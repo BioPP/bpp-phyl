@@ -112,7 +112,7 @@ namespace bpp
  */
 
 class BinarySubstitutionModel :
-  public AbstractSubstitutionModel
+  public AbstractReversibleSubstitutionModel
 {
 private:
   double _kappa;
