@@ -327,6 +327,12 @@ void YpR::updateMatrices(double CgT, double cGA,
     eigenValues_[i] /= x;
     iEigenValues_[i] /= x;
   }
+
+  // and the exchangeability_
+  for (unsigned int i = 0; i < size_; i++)
+    for (unsigned int j = 0; j < size_; j++)
+      exchangeability_(i,j) = generator_(i,j) / freq_[j];
+
 }
 
 void YpR::check_model(SubstitutionModel* const pm) const

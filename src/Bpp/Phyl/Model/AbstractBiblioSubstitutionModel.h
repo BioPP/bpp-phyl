@@ -112,6 +112,10 @@ public:
 
   const Matrix<double>& getGenerator() const { return getModel()->getGenerator(); }
 
+  const Matrix<double>& getExchangeabilityMatrix() const { return getModel()->getExchangeabilityMatrix(); }
+
+  double Sij(unsigned int i, unsigned int j) const { return getModel()->Sij(i,j);}
+
   const Matrix<double>& getPij_t(double t) const { return getModel()->getPij_t(t); }
 
   const Matrix<double>& getdPij_dt(double t) const { return getModel()->getdPij_dt(t); }
@@ -186,7 +190,11 @@ public:
      *@}
    */
 };
+
 } // end of namespace bpp.
+
+
+
 
 #endif  // _ABSTRACTBIBLIOSUBSTITUTIONMODEL_H_
 

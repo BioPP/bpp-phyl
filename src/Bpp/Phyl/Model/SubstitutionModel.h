@@ -294,6 +294,20 @@ public:
   virtual const Matrix<double>& getGenerator() const = 0;
 
   /**
+   * @return The matrix of exchangeability terms.
+   * It is recommended that exchangeability matrix be normalized so that the normalized
+   * generator be obtained directly by the dot product \f$S . \pi\f$.
+   */
+  virtual const Matrix<double>& getExchangeabilityMatrix() const = 0;
+
+  /**
+   * @return The exchangeability between state i and state j.
+   *
+   * By definition Sij(i,j) = Sij(j,i).
+   */
+  
+  virtual double Sij(unsigned int i, unsigned int j) const = 0;
+  /**
    * @return All probabilities of change from state i to state j during time t.
    * @see Pij_t()
    */
@@ -447,21 +461,6 @@ public:
 #ifndef NO_VIRTUAL_COV
   ReversibleSubstitutionModel* clone() const = 0;
 #endif
-
-public:
-  /**
-   * @return The matrix of exchangeability terms.
-   * It is recommended that exchangeability matrix be normalized so that the normalized
-   * generator be obtained directly by the dot product \f$S . \pi\f$.
-   */
-  virtual const Matrix<double>& getExchangeabilityMatrix() const = 0;
-
-  /**
-   * @return The exchangeability between state i and state j.
-   *
-   * By definition Sij(i,j) = Sij(j,i).
-   */
-  virtual double Sij(unsigned int i, unsigned int j) const = 0;
 };
 
 } //end of namespace bpp.

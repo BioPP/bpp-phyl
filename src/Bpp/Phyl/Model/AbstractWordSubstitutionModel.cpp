@@ -547,6 +547,12 @@ void AbstractWordSubstitutionModel::updateMatrices()
     if (!isNonSingular_)
       MatrixTools::Taylor(generator_,30,vPowGen_);
   }
+  
+  // compute the exchangeability_
+  
+  for (unsigned int i = 0; i < size_; i++)
+    for (unsigned int j = 0; j < size_; j++)
+      exchangeability_(i,j) = generator_(i,j) / freq_[j];
 }
 
 void AbstractWordSubstitutionModel::setFreq(std::map<int, double>& freqs)

@@ -61,6 +61,7 @@ AbstractSubstitutionModel::AbstractSubstitutionModel(const Alphabet* alpha, cons
   chars_(size_),
   generator_(size_, size_),
   freq_(size_),
+  exchangeability_(size_, size_),
   pijt_(size_, size_),
   dpijt_(size_, size_),
   d2pijt_(size_, size_),
@@ -86,6 +87,15 @@ AbstractSubstitutionModel::AbstractSubstitutionModel(const Alphabet* alpha, cons
 
 void AbstractSubstitutionModel::updateMatrices()
 {
+  // if the object is not an AbstractReversibleSubstitutionModel,
+  // computes the exchangeability_ Matrix (otherwise the generator_
+  // has been computed from the exchangeability_)
+
+  if (dynamic_cast<AbstractReversibleSubstitutionModel*>(this)==NULL)
+    for (unsigned int i = 0; i < size_; i++)
+      for (unsigned int j = 0; j < size_; j++)
+        exchangeability_(i,j) = generator_(i,j) / freq_[j];
+
   // Compute eigen values and vectors:
   if (enableEigenDecomposition()){
     EigenValue<double> ev(generator_);

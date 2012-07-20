@@ -107,10 +107,19 @@ protected:
   RowMatrix<double> generator_;
 
   /**
-   * @brief The vector of equilibrium frequencies.
+   * @brief The vector \f$\pi_e\f$ of equilibrium frequencies.
    */
 
   Vdouble freq_;
+
+  /**
+   * @brief The exchangeability matrix \f$S\f$ of the model, defined
+   * as \f$ S_{ij}=\frac{Q_{ij}}{\pi_j}\f$. When the model is
+   * reversible, this matrix is symetric.
+   *
+   */
+  
+  RowMatrix<double> exchangeability_;
 
   /**
    * @brief These ones are for bookkeeping:
@@ -183,6 +192,7 @@ public:
     chars_(model.chars_),
     generator_(model.generator_),
     freq_(model.freq_),
+    exchangeability_(model.exchangeability_),
     pijt_(model.pijt_),
     dpijt_(model.dpijt_),
     d2pijt_(model.d2pijt_),
@@ -206,6 +216,7 @@ public:
     chars_             = model.chars_;
     generator_         = model.generator_;
     freq_              = model.freq_;
+    exchangeability_   = model.exchangeability_;
     pijt_              = model.pijt_;
     dpijt_             = model.dpijt_;
     d2pijt_            = model.d2pijt_;
@@ -239,6 +250,10 @@ public:
   virtual const Vdouble& getFrequencies() const { return freq_; }
 
   const Matrix<double>& getGenerator() const { return generator_; }
+
+  const Matrix<double>& getExchangeabilityMatrix() const { return exchangeability_; }
+
+  double Sij(unsigned int i, unsigned int j) const { return exchangeability_(i, j); }
 
   virtual const Matrix<double>& getPij_t(double t) const;
   virtual const Matrix<double>& getdPij_dt(double t) const;
@@ -304,6 +319,7 @@ protected:
    * The optional rate parameter is not taken into account in this
    * method to prevent unnecessary computation.
    */
+  
   virtual void updateMatrices();
 
 public:
@@ -350,41 +366,36 @@ public:
 /**
  * @brief Partial implementation of the ReversibleSubstitutionModel interface.
  *
- * This abstract class adds the exchangeability_ fields to the AbstractSubstitutionModel class.
- * Access methods for this field is implemented.
+ * This class overrides the updateMatrices() method, which updates the
+ * generator_ matrix from the exchangeability_ matrix and freq_
+ * vector. It then computes eigen values and vectors and fills the
+ * corresponding vector (eigenValues_) and matrices (leftEigenVectors_
+ * and rightEigenVectors_). Because of reversibility,
+ * isDiagonalizable_ is set to true.
  *
- * This class also overrides the updateMatrices() method, which
- * updates the generator_ matrix from the exchangeability_ matrix and
- * freq_ vector. It then computes eigen values and vectors and fills
- * the corresponding vector (eigenValues_) and matrices
- * (leftEigenVectors_ and rightEigenVectors_). Because of
- * reversibility, isDiagonalizable_ is set to true.
+ * The freq_ vector and exchangeability_ matrices are hence the only
+ * things to provide to create a substitution model. It is also
+ * possible to redefine one of these methods for better efficiency.
+ * The Pij_t, dPij_dt and d2Pij_dt2 are particularly inefficient since
+ * the matrix formula is used to compute all probabilities, and then
+ * the result for the initial and final state of interest is
+ * retrieved.
  *
- * The freq_ vector and exchangeability_ matrices are hence the only things to provide to
- * create a substitution model.
- * It is also possible to redefine one of these methods for better efficiency.
- * The Pij_t, dPij_dt and d2Pij_dt2 are particularly inefficient since the matrix formula
- * is used to compute all probabilities, and then the result for the initial and final state
- * of interest is retrieved.
- *
- * @note This class is dedicated to "simple" substitution models, for which the number of states is equivalent to the number of characters in the alphabet.
- * Consider using the MarkovModulatedSubstitutionModel for more complexe cases.
+ * @note This class is dedicated to "simple" substitution models, for
+ * which the number of states is equivalent to the number of
+ * characters in the alphabet. Consider using the
+ * MarkovModulatedSubstitutionModel for more complexe cases.
  */
+  
 class AbstractReversibleSubstitutionModel :
   public virtual AbstractSubstitutionModel,
   public virtual ReversibleSubstitutionModel
 {
-protected:
-  /**
-   * @brief The exchangeability matrix \f$S\f$ of the model.
-   */
-  RowMatrix<double> exchangeability_;
-
 public:
   AbstractReversibleSubstitutionModel(const Alphabet* alpha, const std::string& prefix) :
     AbstractParameterAliasable(prefix),
-    AbstractSubstitutionModel(alpha, prefix),
-    exchangeability_(size_, size_) {
+    AbstractSubstitutionModel(alpha, prefix)
+  {
     isDiagonalizable_=true;
     isNonSingular_=true;
   }
@@ -395,12 +406,8 @@ public:
   virtual AbstractReversibleSubstitutionModel* clone() const = 0;
 #endif
 
-
-public:
-  const Matrix<double>& getExchangeabilityMatrix() const { return exchangeability_; }
-  double Sij(unsigned int i, unsigned int j) const { return exchangeability_(i, j); }
-
 protected:
+
   /**
    * @brief Compute and diagonalize the \f$Q\f$ matrix, and fill the eigenValues_,
    * leftEigenVectors_ and rightEigenVectors_ matrices.
