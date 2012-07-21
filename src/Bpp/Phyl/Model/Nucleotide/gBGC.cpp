@@ -156,8 +156,8 @@ void gBGC::updateMatrices()
     }
 
   // and the exchangeability_
-  for (unsigned int i = 0; i < size_; i++)
-    for (unsigned int j = 0; j < size_; j++)
+  for ( i = 0; i < size_; i++)
+    for ( j = 0; j < size_; j++)
       exchangeability_(i,j) = generator_(i,j) / freq_[j];
 
 }
