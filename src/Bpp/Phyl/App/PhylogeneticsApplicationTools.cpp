@@ -1806,10 +1806,8 @@ void PhylogeneticsApplicationTools::printParameters(const SubstitutionModel* mod
 
 void PhylogeneticsApplicationTools::printParameters(const SubstitutionModelSet* modelSet, OutputStream& out)
 {
-  out << "model = ";
-
-  (out << "nonhomogeneous = general").endLine();
-  (out << "nonhomogeneous.number_of_models = " << modelSet->getNumberOfModels()).endLine();
+  (out << "nonhomogeneous=general").endLine();
+  (out << "nonhomogeneous.number_of_models=" << modelSet->getNumberOfModels()).endLine();
 
   // Get the parameter links:
   map< unsigned int, vector<string> > modelLinks; // for each model index, stores the list of global parameters.
@@ -1854,11 +1852,11 @@ void PhylogeneticsApplicationTools::printParameters(const SubstitutionModelSet* 
 
     // Now print it:
     writtenNames.clear();
-    out.endLine() << "model" << (i + 1) << " = ";
+    out.endLine() << "model" << (i + 1) << "=";
     describeSubstitutionModel_(model, out, globalAliases, writtenNames);
     out.endLine();
     vector<int> ids = modelSet->getNodesWithModel(i);
-    out << "model" << (i + 1) << ".nodes_id = " << ids[0];
+    out << "model" << (i + 1) << ".nodes_id=" << ids[0];
     for (unsigned int j = 1; j < ids.size(); j++)
     {
       out << "," << ids[j];
@@ -1869,7 +1867,7 @@ void PhylogeneticsApplicationTools::printParameters(const SubstitutionModelSet* 
   // Root frequencies:
   out.endLine();
   (out << "# Root frequencies:").endLine();
-  out << "nonhomogeneous.root_freq = ";
+  out << "nonhomogeneous.root_freq=";
   describeFrequenciesSet_(modelSet->getRootFrequenciesSet(), out, writtenNames);
 }
 
@@ -1895,7 +1893,7 @@ void PhylogeneticsApplicationTools::describeDiscreteDistribution_(const Discrete
     test = dynamic_cast<const ConstantDistribution*>(rDist);
     if (test)
       out << "Uniform()";
-    else
+    else 
     {
       test = dynamic_cast<const GammaDiscreteDistribution*>(rDist);
       if (test)
@@ -1912,7 +1910,7 @@ void PhylogeneticsApplicationTools::describeDiscreteDistribution_(const Discrete
 
 void PhylogeneticsApplicationTools::printParameters(const DiscreteDistribution* rDist, OutputStream& out)
 {
-  out << "rate_distribution = ";
+  out << "rate_distribution=";
   map<string, string> globalAliases;
   vector<string> writtenNames;
   describeDiscreteDistribution_(rDist, out, globalAliases, writtenNames);

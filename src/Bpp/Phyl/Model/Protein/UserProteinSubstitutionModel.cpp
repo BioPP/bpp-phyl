@@ -95,9 +95,9 @@ UserProteinSubstitutionModel::UserProteinSubstitutionModel(
 std::string UserProteinSubstitutionModel::getName() const
 {
   if (TextTools::hasSubstring(freqSet_->getNamespace(), "+F.") )
-    return "User model from file '" + path_ + "'+F"; 
+    return "Empirical+F"; 
   else  
-    return "User model from file '" + path_ + "'";
+    return "Empirical";
 }
 
 /******************************************************************************/

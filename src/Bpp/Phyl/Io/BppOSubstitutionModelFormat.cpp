@@ -902,98 +902,113 @@ void BppOSubstitutionModelFormat::write(const SubstitutionModel& model,
                                         std::map<std::string, std::string>& globalAliases,
                                         std::vector<std::string>& writtenNames) const
 {
-
-  BppOFrequenciesSetFormat* bIOFreq=new BppOFrequenciesSetFormat();
+  bool comma=false;
+  
   // Mixed Model
 
   if (dynamic_cast<const MixedSubstitutionModel*>(&model)!=NULL){
     write(*dynamic_cast<const MixedSubstitutionModel*>(&model), out, globalAliases, writtenNames);
     return;
   }
+
+  
+  out << model.getName() + "(";
   
   // Is it a protein user defined model?
   const UserProteinSubstitutionModel* userModel = dynamic_cast<const UserProteinSubstitutionModel*>(&model);
   if (userModel)
     {
-      out << "Empirical";
-      vector<string> pnames = userModel->getParameters().getParameterNames();
-      if (pnames.size() > 0)
-        out << "+F";
-      out << "(file=" << userModel->getPath();
-      for (unsigned int i = 0; i < pnames.size(); i++)
-        {
-          if (find(writtenNames.begin(),writtenNames.end(),pnames[i])==writtenNames.end()){
-            out << ", " << pnames[i] << "=" << userModel->getParameterValue(pnames[i]);
-            writtenNames.push_back(pnames[i]);
-          }
-        }
-      out << ")";
-      out.endLine();
-      return;
+      out << "file=" << userModel->getPath();
+      comma=true;
     }
-
+  
   // Is it a markov-modulated model?
   const MarkovModulatedSubstitutionModel* mmModel = dynamic_cast<const MarkovModulatedSubstitutionModel*>(&model);
   if (mmModel)
     {
-      out << mmModel->getName() << "(model=";
+      out << "model=";
       const SubstitutionModel* nestedModel = mmModel->getNestedModel();
       write(*nestedModel, out, globalAliases, writtenNames);
-      out << ", ";
-
+      
       const G2001* gModel = dynamic_cast<const G2001*>(&model);
       if (gModel)
         {
           // Also print distribution here:
-          out << "rdist=";
+          out << ",rdist=";
           const DiscreteDistribution* nestedDist = gModel->getRateDistribution();
           PhylogeneticsApplicationTools::describeDiscreteDistribution_(nestedDist, out, globalAliases, writtenNames);
-          out << ", ";
         }
-      PhylogeneticsApplicationTools::describeParameters_(mmModel, out, globalAliases, model.getIndependentParameters().getParameterNames(), writtenNames);
-      out << ")";
-      return;
+      comma=true;
     }
 
   // Is it a model with gaps?
   const RE08* reModel = dynamic_cast<const RE08*>(&model);
   if (reModel)
     {
-      out << reModel->getName() << "(model=";
+      out << "model=";
       const SubstitutionModel* nestedModel = reModel->getNestedModel();
       write(*nestedModel, out, globalAliases, writtenNames);
-      out << ", ";
-      PhylogeneticsApplicationTools::describeParameters_(reModel, out, globalAliases, model.getIndependentParameters().getParameterNames(), writtenNames);
-      out << ")";
-      return;
+      comma=true;
     }
-
+  
   // Is it a YpR model?
   const YpR* yprModel= dynamic_cast<const YpR*>(&model);
   if (yprModel)
     {
-      out << yprModel->getName() << "(model=";
+      out << "model=";
       const SubstitutionModel* nestedModel = yprModel->getNestedModel();
       write(*nestedModel, out, globalAliases, writtenNames);
-      out << ", ";
-      PhylogeneticsApplicationTools::describeParameters_(yprModel, out, globalAliases, model.getIndependentParameters().getParameterNames(), writtenNames);
-      out << ")";
-      return;
+      comma=true;
     }
-  // Regular model
-
-  out << model.getName() << "(";
-
-  const FrequenciesSet* pfs=model.getFrequenciesSet();
-  if (pfs){ 
-    out << "frequencies=";
-    bIOFreq->write(pfs, out, writtenNames);
-  }
-  PhylogeneticsApplicationTools::describeParameters_(&model, out, globalAliases, model.getIndependentParameters().getParameterNames(), writtenNames, true, pfs!=NULL);
+    
+  // Is it a word model?
   
+  const AbstractWordSubstitutionModel* wM= dynamic_cast<const AbstractWordSubstitutionModel*>(&model);
+  if (wM){
+    unsigned nmod=wM->getNumberOfModels();
+    const SubstitutionModel* mod0=wM->getNModel(0);
+    if (nmod==1){
+      out << "model=";
+      write(*mod0,out,globalAliases, writtenNames);
+    }
+    else {
+      const SubstitutionModel* mod1=wM->getNModel(1);
+      if (mod1==mod0){
+        out << "model=";
+        write(*mod0,out,globalAliases, writtenNames);
+      }
+      else {
+        out << "model1=";
+        write(*mod0,out,globalAliases, writtenNames);
+        for (unsigned int i=1;i<nmod;i++){
+          out << ",model"+TextTools::toString(i+1)+"=";
+          write(*wM->getNModel(i),out,globalAliases,writtenNames);
+        }
+      }
+    }
+    comma=true;
+  }
+    
+  // Regular model
+    
+    
+  const FrequenciesSet* pfs=model.getFrequenciesSet();
+  if (pfs){
+    if (comma)
+      out << ",";
+    out << "frequencies=";
+
+    BppOFrequenciesSetFormat* bIOFreq=new BppOFrequenciesSetFormat();
+    bIOFreq->write(pfs, out, writtenNames);
+    delete bIOFreq;
+    comma=true;
+  }
+
+  PhylogeneticsApplicationTools::describeParameters_(&model, out, globalAliases, model.getIndependentParameters().getParameterNames(), writtenNames, true, comma);
+      
   out << ")";
-  delete bIOFreq;
 }
+
 
 
 
