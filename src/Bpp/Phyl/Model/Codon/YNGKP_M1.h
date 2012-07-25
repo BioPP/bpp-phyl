@@ -77,7 +77,8 @@ namespace bpp
  * Genetics 168:1041--1051.
  */
 class YNGKP_M1:
-    public AbstractBiblioMixedSubstitutionModel
+    public AbstractBiblioMixedSubstitutionModel,
+    virtual public ReversibleSubstitutionModel
 {
 private:
   MixtureOfASubstitutionModel* pmixmodel_;

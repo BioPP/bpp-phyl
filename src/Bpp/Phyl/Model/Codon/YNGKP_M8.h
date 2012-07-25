@@ -71,7 +71,8 @@ namespace bpp
  * 
  */
 class YNGKP_M8:
-  public AbstractBiblioMixedSubstitutionModel
+    public AbstractBiblioMixedSubstitutionModel,
+    virtual public ReversibleSubstitutionModel
 {
 private:
   MixtureOfASubstitutionModel* pmixmodel_;
