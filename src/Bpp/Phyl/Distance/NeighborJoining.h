@@ -6,7 +6,7 @@
 //
 
 /*
-Copyright or © or Copr. CNRS, (November 16, 2004)
+Copyright or © or Copr. Bio++ Development Team, (November 16, 2004)
 
 This software is a computer program whose purpose is to provide classes
 for phylogenetic data analysis.
@@ -77,7 +77,11 @@ class NeighborJoining :
    
 		virtual ~NeighborJoining() {}
 
+    NeighborJoining* clone() const { return new NeighborJoining(*this); }
+
 	public:
+    std::string getName() const { return "NJ"; }
+
 		virtual void setDistanceMatrix(const DistanceMatrix& matrix)
 		{ 
 			AbstractAgglomerativeDistanceMethod::setDistanceMatrix(matrix);

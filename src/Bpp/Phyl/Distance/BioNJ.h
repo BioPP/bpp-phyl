@@ -5,7 +5,7 @@
 //
 
 /*
-Copyright or © or Copr. CNRS, (November 16, 2004, 2005, 2006)
+Copyright or © or Copr. Bio++ Development Team, (November 16, 2004, 2005, 2006)
 
 This software is a computer program whose purpose is to provide classes
 for phylogenetic data analysis.
@@ -78,14 +78,15 @@ public:
 	virtual ~BioNJ() {};
 	
 public:
-  
-	virtual void setDistanceMatrix(const DistanceMatrix & matrix)
+  std::string getName() const { return "BioNJ"; }
+
+	void setDistanceMatrix(const DistanceMatrix& matrix)
   { 
 		NeighborJoining::setDistanceMatrix(matrix);
 		variance_ = matrix;
 	}
-	virtual void computeTree(bool rooted) throw (Exception);
-	virtual double computeDistancesFromPair(const std::vector<unsigned int>& pair, const std::vector<double>& branchLengths, unsigned int pos);
+	void computeTree(bool rooted) throw (Exception);
+	double computeDistancesFromPair(const std::vector<unsigned int>& pair, const std::vector<double>& branchLengths, unsigned int pos);
   
 };
 

@@ -145,7 +145,7 @@ set(H_FILES
   Bpp/Phyl/BipartitionList.h
   Bpp/Phyl/BipartitionTools.h
   Bpp/Phyl/Distance/AbstractAgglomerativeDistanceMethod.h
-  Bpp/Phyl/Distance/AgglomerativeDistanceMethod.h
+  Bpp/Phyl/Distance/DistanceMethod.h
   Bpp/Phyl/Distance/BioNJ.h
   Bpp/Phyl/Distance/DistanceEstimation.h
   Bpp/Phyl/Distance/NeighborJoining.h

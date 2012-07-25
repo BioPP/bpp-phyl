@@ -5,7 +5,7 @@
 //
 
 /*
-Copyright or © or Copr. CNRS, (November 16, 2004)
+Copyright or © or Copr. Bio++ Development Team, (November 16, 2004)
 
 This software is a computer program whose purpose is to provide classes
 for phylogenetic data analysis.
@@ -80,13 +80,17 @@ class PGMA:
 		}
 		virtual ~PGMA() {}
 
+    PGMA* clone() const { return new PGMA(*this); }
+
 	public:
-		void setDistanceMatrix(const DistanceMatrix & matrix)
+    std::string getName() const { return std::string(weighted_ ? "W" : "U") + "PGMA"; }
+
+		void setDistanceMatrix(const DistanceMatrix& matrix)
 		{ 
 			AbstractAgglomerativeDistanceMethod::setDistanceMatrix(matrix);
 		}
 
-		TreeTemplate<Node> * getTree() const;
+		TreeTemplate<Node>* getTree() const;
 		
 		void setWeighted(bool weighted) { weighted_ = weighted; }
 		bool isWeighted() const { return weighted_; }
