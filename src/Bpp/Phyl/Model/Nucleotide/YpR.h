@@ -183,8 +183,9 @@ public:
 
   void fireParameterChanged(const ParameterList& parameters)
   {
+    AbstractSubstitutionModel::fireParameterChanged(parameters);
    _pmodel->matchParametersValues(parameters);
-    updateMatrices();
+   updateMatrices();
   }
 };
 }

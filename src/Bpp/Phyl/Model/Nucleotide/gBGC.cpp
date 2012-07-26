@@ -86,6 +86,7 @@ gBGC& gBGC::operator=(const gBGC& gbgc)
 void gBGC::fireParameterChanged(const ParameterList& parameters)
 {
   pmodel_->matchParametersValues(parameters);
+  AbstractSubstitutionModel::matchParametersValues(parameters);
   updateMatrices();
 }
 
