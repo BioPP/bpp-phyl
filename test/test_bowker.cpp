@@ -41,6 +41,8 @@ knowledge of the CeCILL license and that you accept its terms.
 #include <Bpp/Seq/SequenceTools.h>
 #include <Bpp/Phyl/TreeTemplate.h>
 #include <Bpp/Phyl/Model.all>
+#include <Bpp/Phyl/Model/FrequenciesSet/NucleotideFrequenciesSet.h>
+#include <Bpp/Phyl/Model/FrequenciesSet/FrequenciesSet.h>
 #include <Bpp/Phyl/Simulation.all>
 #include <iostream>
 

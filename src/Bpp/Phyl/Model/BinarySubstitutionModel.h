@@ -92,14 +92,14 @@ namespace bpp
  * \f[
  * \frac{\partial P_{i,j}(t)}{\partial t} = \begin{pmatrix}
  * -\frac {\kappa+1} 2 e^{-\lambda t}  & \frac {\kappa+1} 2 e^{-\lambda t} \\
- * \frac {\kappa+1} {2\kappa} e^{-\lambda t}  & - \frac {\kappa+1} {2\kappa} e^{-\lambda t} \ \
+ * \frac {\kappa+1} {2\kappa} e^{-\lambda t}  & - \frac {\kappa+1} {2\kappa} e^{-\lambda t} \\
  * \end{pmatrix}
  * \f]
  * \f{multline*}
  * \frac{\partial^2 P_{i,j}(t)}{\partial t^2} = \\
  * \begin{pmatrix}
  * \frac {\lambda (\kappa+1)} 2 e^{-\lambda t}  & -\ frac {\lambda (\kappa+1)} 2 e^{-\lambda t} \\
- * \frac {\lambda (\kappa+1)} {2\kappa} e^{-\lambda t}  & - \frac {\lambda (\kappa+1)} {2\kappa} e^{-\lambda t} \ \
+ * \frac {\lambda (\kappa+1)} {2\kappa} e^{-\lambda t}  & - \frac {\lambda (\kappa+1)} {2\kappa} e^{-\lambda t} \\
  * \end{pmatrix}
  * \f}
  *
@@ -112,7 +112,7 @@ namespace bpp
  */
 
 class BinarySubstitutionModel :
-  public AbstractSubstitutionModel
+  public AbstractReversibleSubstitutionModel
 {
 private:
   double _kappa;

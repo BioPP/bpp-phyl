@@ -1,6 +1,5 @@
-#include "Mapping/AnalyticalSubstitutionCount.h"
 #include "Mapping/DecompositionSubstitutionCount.h"
-#include "Mapping/IndexToCount.h"
+#include "Mapping/LaplaceSubstitutionCount.h"
 #include "Mapping/OneJumpSubstitutionCount.h"
 #include "Mapping/ProbabilisticSubstitutionMapping.h"
 #include "Mapping/SimpleSubstitutionCount.h"
@@ -9,3 +8,4 @@
 #include "Mapping/SubstitutionMappingTools.h"
 #include "Mapping/SubstitutionRegister.h"
 #include "Mapping/UniformizationSubstitutionCount.h"
+#include "Mapping/WeightedSubstitutionCount.h"

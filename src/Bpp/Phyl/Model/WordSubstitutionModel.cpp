@@ -37,7 +37,7 @@
  */
 
 #include "WordSubstitutionModel.h"
-#include "FrequenciesSet.h"
+#include "FrequenciesSet/WordFrequenciesSet.h"
 
 #include <Bpp/Numeric/Matrix/MatrixTools.h>
 #include <Bpp/Numeric/VectorTools.h>
@@ -68,7 +68,7 @@ WordSubstitutionModel::WordSubstitutionModel(
   // relative rates
   for (i = 0; i < nbmod - 1; i++)
   {
-    addParameter_(Parameter("Word.relrate" + TextTools::toString(i+1), 1.0 / (nbmod - i), &Parameter::PROP_CONSTRAINT_EX));
+    addParameter_(new Parameter("Word.relrate" + TextTools::toString(i+1), 1.0 / (nbmod - i), &Parameter::PROP_CONSTRAINT_EX));
   }
 
   WordSubstitutionModel::updateMatrices();
@@ -95,7 +95,7 @@ WordSubstitutionModel::WordSubstitutionModel(
   // relative rates
   for (i = 0; i < num - 1; i++)
   {
-    addParameter_(Parameter("Word.relrate" + TextTools::toString(i+1), 1.0 / (num - i ), &Parameter::PROP_CONSTRAINT_EX));
+    addParameter_(new Parameter("Word.relrate" + TextTools::toString(i+1), 1.0 / (num - i ), &Parameter::PROP_CONSTRAINT_EX));
   }
 
   WordSubstitutionModel::updateMatrices();

@@ -45,6 +45,7 @@ knowledge of the CeCILL license and that you accept its terms.
 #include <Bpp/Seq/GeneticCode.all>
 #include <Bpp/Phyl/TreeTemplate.h>
 #include <Bpp/Phyl/Model.all>
+#include <Bpp/Phyl/Model/FrequenciesSet/CodonFrequenciesSet.h>
 #include <Bpp/Phyl/Simulation.all>
 #include <Bpp/Phyl/Likelihood.all>
 #include <Bpp/Phyl/Mapping.all>
@@ -62,7 +63,7 @@ int main() {
 
   CodonAlphabet* alphabet = new StandardCodonAlphabet(&AlphabetTools::DNA_ALPHABET);
   GeneticCode* gc = new StandardGeneticCode(&AlphabetTools::DNA_ALPHABET);
-  //ReversibleSubstitutionModel* model = new YN98(gc, FrequenciesSet::getFrequenciesSetForCodons(FrequenciesSet::F0, *alphabet));
+  //SubstitutionModel* model = new YN98(gc, CodonFrequenciesSet::getFrequenciesSetForCodons(CodonFrequenciesSet::F0, *alphabet));
   SubstitutionModel* model = new CodonRateSubstitutionModel(
         dynamic_cast<const CodonAlphabet*>(gc->getSourceAlphabet()),
         new JCnuc(dynamic_cast<CodonAlphabet*>(alphabet)->getNucleicAlphabet()));
@@ -113,7 +114,7 @@ int main() {
   drhtl.initialize();
   cout << drhtl.getValue() << endl;
  
-  SubstitutionCount* sCountAna = new AnalyticalSubstitutionCount(model, 10);
+  SubstitutionCount* sCountAna = new LaplaceSubstitutionCount(model, 10);
   Matrix<double>* m = sCountAna->getAllNumbersOfSubstitutions(0.001,1);
   cout << "Analytical total count:" << endl;
   MatrixTools::print(*m);
@@ -121,7 +122,7 @@ int main() {
   ProbabilisticSubstitutionMapping* probMapAna = 
     SubstitutionMappingTools::computeSubstitutionVectors(drhtl, *sCountAna);
 
-  SubstitutionCount* sCountTot = new SimpleSubstitutionCount(totReg);
+  SubstitutionCount* sCountTot = new NaiveSubstitutionCount(totReg);
   m = sCountTot->getAllNumbersOfSubstitutions(0.001,1);
   cout << "Simple total count:" << endl;
   MatrixTools::print(*m);
@@ -129,7 +130,7 @@ int main() {
   ProbabilisticSubstitutionMapping* probMapTot = 
     SubstitutionMappingTools::computeSubstitutionVectors(drhtl, *sCountTot);
 
-  SubstitutionCount* sCountDnDs = new SimpleSubstitutionCount(dndsReg);
+  SubstitutionCount* sCountDnDs = new NaiveSubstitutionCount(dndsReg);
   m = sCountDnDs->getAllNumbersOfSubstitutions(0.001,1);
   cout << "Detailed count, type 1:" << endl;
   MatrixTools::print(*m);

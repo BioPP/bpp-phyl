@@ -1,0 +1,5 @@
+#include "FrequenciesSet/CodonFrequenciesSet.h"
+#include "FrequenciesSet/FrequenciesSet.h"
+#include "FrequenciesSet/NucleotideFrequenciesSet.h"
+#include "FrequenciesSet/ProteinFrequenciesSet.h"
+#include "FrequenciesSet/WordFrequenciesSet.h"

@@ -5,36 +5,36 @@
 //
 
 /*
-Copyright or © or Copr. Bio++ Development Team, (November 16, 2004, 2005, 2006)
+  Copyright or © or Copr. Bio++ Development Team, (November 16, 2004, 2005, 2006)
 
-This software is a computer program whose purpose is to provide classes
-for phylogenetic data analysis.
+  This software is a computer program whose purpose is to provide classes
+  for phylogenetic data analysis.
 
-This software is governed by the CeCILL  license under French law and
-abiding by the rules of distribution of free software.  You can  use, 
-modify and/ or redistribute the software under the terms of the CeCILL
-license as circulated by CEA, CNRS and INRIA at the following URL
-"http://www.cecill.info". 
+  This software is governed by the CeCILL  license under French law and
+  abiding by the rules of distribution of free software.  You can  use, 
+  modify and/ or redistribute the software under the terms of the CeCILL
+  license as circulated by CEA, CNRS and INRIA at the following URL
+  "http://www.cecill.info". 
 
-As a counterpart to the access to the source code and  rights to copy,
-modify and redistribute granted by the license, users are provided only
-with a limited warranty  and the software's author,  the holder of the
-economic rights,  and the successive licensors  have only  limited
-liability. 
+  As a counterpart to the access to the source code and  rights to copy,
+  modify and redistribute granted by the license, users are provided only
+  with a limited warranty  and the software's author,  the holder of the
+  economic rights,  and the successive licensors  have only  limited
+  liability. 
 
-In this respect, the user's attention is drawn to the risks associated
-with loading,  using,  modifying and/or developing or reproducing the
-software by the user in light of its specific status of free software,
-that may mean  that it is complicated to manipulate,  and  that  also
-therefore means  that it is reserved for developers  and  experienced
-professionals having in-depth computer knowledge. Users are therefore
-encouraged to load and test the software's suitability as regards their
-requirements in conditions enabling the security of their systems and/or 
-data to be ensured and,  more generally, to use and operate it in the 
-same conditions as regards security. 
+  In this respect, the user's attention is drawn to the risks associated
+  with loading,  using,  modifying and/or developing or reproducing the
+  software by the user in light of its specific status of free software,
+  that may mean  that it is complicated to manipulate,  and  that  also
+  therefore means  that it is reserved for developers  and  experienced
+  professionals having in-depth computer knowledge. Users are therefore
+  encouraged to load and test the software's suitability as regards their
+  requirements in conditions enabling the security of their systems and/or 
+  data to be ensured and,  more generally, to use and operate it in the 
+  same conditions as regards security. 
 
-The fact that you are presently reading this means that you have had
-knowledge of the CeCILL license and that you accept its terms.
+  The fact that you are presently reading this means that you have had
+  knowledge of the CeCILL license and that you accept its terms.
 */
 
 #ifndef _SUBSTITUTIONREGISTER_H_
@@ -54,25 +54,25 @@ knowledge of the CeCILL license and that you accept its terms.
 namespace bpp
 {
 
-/**
- * @brief The SubstitutionRegister interface.
- *
- * Substitution registers are simple classes that define categories of substitutions, and assign them an index.
- *
- * @author Julien Dutheil
- */
-class SubstitutionRegister:
-  public virtual Clonable
-{
-	public:
-		SubstitutionRegister() {}
-		virtual ~SubstitutionRegister() {}
+  /**
+   * @brief The SubstitutionRegister interface.
+   *
+   * Substitution registers are simple classes that define categories of substitutions, and assign them an index.
+   *
+   * @author Julien Dutheil
+   */
+  class SubstitutionRegister:
+    public virtual Clonable
+  {
+  public:
+    SubstitutionRegister() {}
+    virtual ~SubstitutionRegister() {}
 
 #ifndef NO_VIRTUAL_COV
     virtual SubstitutionRegister* clone() const = 0;
 #endif
 
-	public:
+  public:
     /**
      * @return The alphabet associated to this instance.
      */
@@ -104,11 +104,11 @@ class SubstitutionRegister:
      */
     virtual std::string getTypeName(unsigned int type) const = 0;
 
-};
+  };
 
-class AbstractSubstitutionRegister:
-  public virtual SubstitutionRegister
-{
+  class AbstractSubstitutionRegister:
+    public virtual SubstitutionRegister
+  {
   protected:
     const Alphabet* alphabet_;
 
@@ -131,16 +131,16 @@ class AbstractSubstitutionRegister:
   public:
     const Alphabet* getAlphabet() const { return alphabet_; }
 
-};
+  };
 
-/**
- * @brief Gather states into defined categories, and count the changes between categories.
- *
- * Optionally allows for within categories substitutions.
- */
-class CategorySubstitutionRegister:
-  public AbstractSubstitutionRegister
-{
+  /**
+   * @brief Gather states into defined categories, and count the changes between categories.
+   *
+   * Optionally allows for within categories substitutions.
+   */
+  class CategorySubstitutionRegister:
+    public AbstractSubstitutionRegister
+  {
   protected:
     bool within_;
     unsigned int nbCategories_;
@@ -160,7 +160,7 @@ class CategorySubstitutionRegister:
       AbstractSubstitutionRegister(alphabet),
       within_(within), nbCategories_(0), categories_(), categoryNames_(), index_(), revIndex_()
     {}
-
+    
   protected:
     template<class T>
     void setCategories(const std::map<int, T>& categories) {
@@ -254,7 +254,7 @@ class CategorySubstitutionRegister:
 
     unsigned int getNumberOfSubstitutionTypes() const { return static_cast<double>(nbCategories_ * (nbCategories_ - 1)) + (within_ ? nbCategories_ : 0); }
 
-    unsigned int getType(int fromState, int toState) const {
+    virtual unsigned int getType(int fromState, int toState) const {
       unsigned int fromCat = categories_[fromState];
       unsigned int toCat   = categories_[toState];
       if (fromCat > 0 && toCat > 0)
@@ -267,20 +267,20 @@ class CategorySubstitutionRegister:
       return getCategoryName(getCategoryFrom(type)) + "->" +  getCategoryName(getCategoryTo(type));
     }
 
-};
+  };
 
 
 
-/**
- * @brief Count all substitutions.
- *
- * This register has only 1 substitution type, mapped as:
- * - 0 not a substitution
- * - 1 a substitution
- */
-class TotalSubstitutionRegister:
-  public AbstractSubstitutionRegister
-{
+  /**
+   * @brief Count all substitutions.
+   *
+   * This register has only 1 substitution type, mapped as:
+   * - 0 not a substitution
+   * - 1 a substitution
+   */
+  class TotalSubstitutionRegister:
+    public AbstractSubstitutionRegister
+  {
   public:
     TotalSubstitutionRegister(const Alphabet* alphabet):
       AbstractSubstitutionRegister(alphabet)
@@ -306,18 +306,18 @@ class TotalSubstitutionRegister:
         throw Exception("TotalSubstitutionRegister::getTypeName. Bad substitution type.");
       }
     }
-};
+  };
 
-/**
- * @brief Distinguishes all types of substitutions.
- *
- * This register has only n * (n-1) substitution type, where n is the size of the alphabet, mapped as:
- * - 0 not a substitution
- * - x in [1, n(n-1)] a substitution
- */
-class ComprehensiveSubstitutionRegister:
-  public CategorySubstitutionRegister
-{
+  /**
+   * @brief Distinguishes all types of substitutions.
+   *
+   * This register has only n * (n-1) substitution type, where n is the size of the alphabet, mapped as:
+   * - 0 not a substitution
+   * - x in [1, n(n-1)] a substitution
+   */
+  class ComprehensiveSubstitutionRegister:
+    public CategorySubstitutionRegister
+  {
   public:
     ComprehensiveSubstitutionRegister(const Alphabet* alphabet, bool within = false):
       CategorySubstitutionRegister(alphabet, within)
@@ -331,19 +331,19 @@ class ComprehensiveSubstitutionRegister:
     
     ComprehensiveSubstitutionRegister* clone() const { return new ComprehensiveSubstitutionRegister(*this); }
 
-};
+  };
 
-/**
- * @brief Distinguishes AT<->GC from GC<->AT.
- *
- * This register has two substitution types, mapped as:
- * - 0 not a substitution
- * - 1 a AT->GC substitution
- * - 2 a GC->AT substitution
- */
-class GCSubstitutionRegister:
-  public CategorySubstitutionRegister
-{
+  /**
+   * @brief Distinguishes AT<->GC from GC<->AT.
+   *
+   * This register has two substitution types, mapped as:
+   * - 0 not a substitution
+   * - 1 a AT->GC substitution
+   * - 2 a GC->AT substitution
+   */
+  class GCSubstitutionRegister:
+    public CategorySubstitutionRegister
+  {
   public:
     GCSubstitutionRegister(const NucleicAlphabet* alphabet, bool within = false):
       CategorySubstitutionRegister(alphabet, within)
@@ -358,19 +358,19 @@ class GCSubstitutionRegister:
     
     GCSubstitutionRegister* clone() const { return new GCSubstitutionRegister(*this); }
 
-};
+  };
 
-/**
- * @brief Distinguishes transitions from transversions.
- *
- * This register has two substitution types, mapped as:
- * - 0 not a substitution
- * - 1 a transition
- * - 2 a transversion
- */
-class TsTvSubstitutionRegister:
-  public AbstractSubstitutionRegister
-{
+  /**
+   * @brief Distinguishes transitions from transversions.
+   *
+   * This register has two substitution types, mapped as:
+   * - 0 not a substitution
+   * - 1 a transition
+   * - 2 a transversion
+   */
+  class TsTvSubstitutionRegister:
+    public AbstractSubstitutionRegister
+  {
   public:
     TsTvSubstitutionRegister(const NucleicAlphabet* alphabet):
       AbstractSubstitutionRegister(alphabet)
@@ -386,9 +386,9 @@ class TsTvSubstitutionRegister:
       if (fromState == toState)
         return 0; //nothing happens
       if ((fromState == 0 && toState == 2)
-       || (fromState == 2 && toState == 0)
-       || (fromState == 1 && toState == 3)
-       || (fromState == 3 && toState == 1))
+          || (fromState == 2 && toState == 0)
+          || (fromState == 1 && toState == 3)
+          || (fromState == 3 && toState == 1))
         return 1; //This is a transition
       return 2; //This is a transversion
     }
@@ -407,19 +407,19 @@ class TsTvSubstitutionRegister:
         throw Exception("TsTvSubstitutionRegister::getTypeName. Bad substitution type.");
       }
     }
-};
+  };
 
-/**
- * @brief Distinguishes synonymous from non-synonymous substitutions.
- *
- * This register has two substitution types, mapped as:
- * - 0 not a substitution
- * - 1 a synonymous substitution
- * - 2 a non-synonymous substitution
- */
-class DnDsSubstitutionRegister:
-  public AbstractSubstitutionRegister
-{
+  /**
+   * @brief Distinguishes synonymous from non-synonymous substitutions.
+   *
+   * This register has two substitution types, mapped as:
+   * - 0 not a substitution
+   * - 1 a synonymous substitution
+   * - 2 a non-synonymous substitution
+   */
+  class DnDsSubstitutionRegister:
+    public AbstractSubstitutionRegister
+  {
   private:
     const GeneticCode* code_;
     bool countMultiple_;
@@ -483,6 +483,103 @@ class DnDsSubstitutionRegister:
       }
       else {
         throw Exception("DnDsSubstitutionRegister::getTypeName. Bad substitution type.");
+      }
+    }
+  };
+
+  /**
+   * @brief Distinguishes AT->GC vs GC->AT inside synonymous
+   * substitutions on third codon position.
+   *
+   * This register has two substitution types, mapped as:
+   * - 0 not a counted substitution
+   * - 1 a AT->GC synonymous substitution
+   * - 2 a GC->AT synonymous substitution
+   *
+   * Multiple substitutions are forbidden.
+   *
+   */
+  
+  class GCSynonymousSubstitutionRegister:
+    public CategorySubstitutionRegister
+  {
+  private:
+    const GeneticCode* code_;
+
+  public:
+    GCSynonymousSubstitutionRegister(const GeneticCode* gc, bool within=false):
+      CategorySubstitutionRegister(gc->getSourceAlphabet(), within),
+      code_(gc)
+    {
+      const CodonAlphabet* pCA=dynamic_cast<const CodonAlphabet*>(gc->getSourceAlphabet());
+
+      std::map<int, int> categories;
+      for (unsigned int i=0;i<pCA->getSize();i++){
+        int n=pCA->getThirdPosition(i);
+        switch(n){
+        case 0:
+        case 3:
+          categories[i] = 1;
+          break;
+        case 1:
+        case 2:
+          categories[i] = 2;
+          break;
+        }
+      }
+      setCategories<int>(categories);
+    }
+
+    GCSynonymousSubstitutionRegister(const GCSynonymousSubstitutionRegister& reg):
+      CategorySubstitutionRegister(reg),
+      code_(reg.code_)
+    {}
+ 
+    GCSynonymousSubstitutionRegister& operator=(const GCSynonymousSubstitutionRegister& reg)
+    {
+      CategorySubstitutionRegister::operator=(reg);
+      code_ = reg.code_;
+      return *this;
+    }
+   
+    GCSynonymousSubstitutionRegister* clone() const { return new GCSynonymousSubstitutionRegister(*this); }
+
+  public:
+    unsigned int getNumberOfSubstitutionTypes() const { return 2; }
+
+    unsigned int getType(int fromState, int toState) const
+    {
+      const CodonAlphabet* pCA=dynamic_cast<const CodonAlphabet*>(code_->getSourceAlphabet());
+      if (pCA->isStop(fromState) || pCA->isStop(toState) || !code_->areSynonymous(fromState, toState))
+        return 0;
+
+      // only substitutions between 3rd positions
+
+      if ((pCA->getFirstPosition(fromState) != pCA->getFirstPosition(toState)) ||
+          (pCA->getSecondPosition(fromState) != pCA->getSecondPosition(toState)))
+        return 0;
+          
+      unsigned int fromCat = categories_[fromState];
+      unsigned int toCat   = categories_[toState];
+      
+      if (fromCat > 0 && toCat > 0)
+        return index_[fromCat - 1][toCat - 1];
+      else
+        return 0;
+    }
+
+    std::string getTypeName (unsigned int type) const {
+      if (type == 0) {
+        return "no AT<->GC substitution or non-synonymous substitution";
+      }
+      else if (type == 1) {
+        return "AT->GC synonymous";
+      }
+      else if (type == 2) {
+        return "GC->AT synonymous";
+      }
+      else {
+        throw Exception("GCSynonymousSubstitutionRegister::getTypeName. Bad substitution type.");
       }
     }
 };

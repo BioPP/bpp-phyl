@@ -430,81 +430,129 @@ void AbstractWordSubstitutionModel::updateMatrices()
       nbStop = 0;
     }
 
-    MatrixTools::inv(rightEigenVectors_, leftEigenVectors_);
+    try {
+      MatrixTools::inv(rightEigenVectors_, leftEigenVectors_);
+      isNonSingular_=true;
+      
+      isDiagonalizable_=true;
+      for (i=0; i<size_ && isDiagonalizable_; i++)
+        if (abs(iEigenValues_[i]) > NumConstants::SMALL)
+          isDiagonalizable_=false;
 
-    // looking for the 0 eigenvector for which the non-stop right
-    // eigen vector elements are equal.
-    //
-    // there is a tolerance for numerical problems
-    //
+      // looking for the 0 eigenvector for which the non-stop right
+      // eigen vector elements are equal.
+      //
+      // there is a tolerance for numerical problems
+      //
     
-    unsigned int nulleigen;
-    double val;
-    double seuil=1;
+      unsigned int nulleigen;
+      double val;
+      double seuil=1;
     
-    bool flag=true;
-    while (flag){
-      nulleigen=0;
-      while (nulleigen < salph-nbStop) {
-        if ((abs(eigenValues_[nulleigen]) < NumConstants::SMALL) && (abs(iEigenValues_[nulleigen]) < NumConstants::SMALL)){
-          i=0;
-          while (pca && pca->isStop(i))
+      bool flag=true;
+      while (flag){
+        nulleigen=0;
+        while (nulleigen < salph-nbStop) {
+          if ((abs(eigenValues_[nulleigen]) < NumConstants::SMALL) && (abs(iEigenValues_[nulleigen]) < NumConstants::SMALL)){
+            i=0;
+            while (pca && pca->isStop(i))
+              i++;
+            
+            val=rightEigenVectors_(i,nulleigen);
             i++;
-          
-          val=rightEigenVectors_(i,nulleigen);
-          i++;
-          while (i < salph){
-            if (!(pca && pca->isStop(i))){
-              if (abs(rightEigenVectors_(i, nulleigen)-val)> seuil*NumConstants::SMALL)
-                break;
+            while (i < salph){
+              if (!(pca && pca->isStop(i))){
+                if (abs(rightEigenVectors_(i, nulleigen)-val)> seuil*NumConstants::SMALL)
+                  break;
+              }
+              i++;
             }
-            i++;
+            
+            if (i<salph)
+              nulleigen++;
+            else {
+              flag=false;
+              break;
+            }
           }
-        
-          if (i<salph)
+          else
             nulleigen++;
-          else {
-            flag=false;
-            break;
-          }
         }
-        else
-          nulleigen++;
+        if (seuil> 100){
+          ApplicationTools::displayWarning("!!! Equilibrium frequency of the model " + getName() + " has a precision less than """  + TextTools::toString(seuil*NumConstants::SMALL) + ". There may be some computing issues.");
+          ApplicationTools::displayWarning("!!! Taylor series used instead");
+          break;
+        }
+        else 
+          seuil*=10;
       }
-      seuil*=10;
+
+      if (flag){
+        isNonSingular_=false;
+        eigenValues_[nulleigen]=0; // to avoid approximation errors on long long branches
+        iEigenValues_[nulleigen]=0; // to avoid approximation errors on long long branches
+        
+        for (i = 0; i < salph; i++)
+          freq_[i] = leftEigenVectors_(nulleigen, i);
+        
+        x = 0;
+        for (i = 0; i < salph; i++)
+          x += freq_[i];
+        
+        for (i = 0; i < salph; i++)
+          freq_[i] /= x;
+      }
     }
 
-    if (seuil> 10000)
-      ApplicationTools::displayWarning("!!! Equilibrium frequency of the model " + getName() + " has a precision less than """  + TextTools::toString(seuil/100*NumConstants::SMALL) + ". There may be some computing issues.");
+    // if rightEigenVectors_ is singular
+    catch (ZeroDivisionException& e){
+      ApplicationTools::displayMessage("Singularity during  diagonalization. Taylor series used instead.");
+      isNonSingular_=false;
+      isDiagonalizable_=false;
+    }
 
-    eigenValues_[nulleigen]=0; // to avoid approximation errors on long long branches
-  
-    for (i = 0; i < salph; i++)
-      freq_[i] = leftEigenVectors_(nulleigen, i);
- 
-    x = 0;
-    for (i = 0; i < salph; i++)
-      x += freq_[i];
-
-    for (i = 0; i < salph; i++)
-      freq_[i] /= x;
-
+    if (!isNonSingular_){
+      double min=generator_(0,0);
+      for (i = 1; i < salph; i++)
+        if (min>generator_(i,i))
+          min=generator_(i,i);
+      
+      MatrixTools::scale(generator_,-1/min);
+      
+      if (vPowGen_.size()==0)
+        vPowGen_.resize(30);
+      
+      MatrixTools::getId(salph,tmpMat_);    // to compute the equilibrium frequency  (Q+Id)^256
+      MatrixTools::add(tmpMat_,generator_);
+      MatrixTools::pow(tmpMat_,256,vPowGen_[0]);
+      
+      for (i=0;i<salph;i++)
+        freq_[i]=vPowGen_[0](0,i);
+      
+      MatrixTools::getId(salph,vPowGen_[0]);
+    }
+    
     // normalization
-
+  
     x = 0;
     for (i = 0; i < salph; i++)
       x += freq_[i] * generator_(i, i);
-
+    
     MatrixTools::scale(generator_, -1. / x);
-
-    for (i = 0; i < salph; i++)
+    for (i = 0; i < salph; i++){
       eigenValues_[i] /= -x;
-
-    isDiagonalizable_=true;
-    for (i=0; i<size_ && isDiagonalizable_; i++)
-      if (abs(iEigenValues_[i]) > NumConstants::SMALL)
-        isDiagonalizable_=false;  
+      iEigenValues_[i]/=-x;
+    }
+    
+    if (!isNonSingular_)
+      MatrixTools::Taylor(generator_,30,vPowGen_);
   }
+  
+  // compute the exchangeability_
+  
+  for ( i = 0; i < size_; i++)
+    for ( j = 0; j < size_; j++)
+      exchangeability_(i,j) = generator_(i,j) / freq_[j];
 }
 
 void AbstractWordSubstitutionModel::setFreq(std::map<int, double>& freqs)

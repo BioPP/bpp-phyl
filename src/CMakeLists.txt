@@ -26,6 +26,10 @@ set(CPP_FILES
   Bpp/Phyl/Io/Nhx.cpp
   Bpp/Phyl/Io/PhylipDistanceMatrixFormat.cpp
   Bpp/Phyl/Io/IoPairedSiteLikelihoods.cpp
+  Bpp/Phyl/Io/IoSubstitutionModelFactory.cpp
+  Bpp/Phyl/Io/BppOSubstitutionModelFormat.cpp
+  Bpp/Phyl/Io/IoFrequenciesSetFactory.cpp
+  Bpp/Phyl/Io/BppOFrequenciesSetFormat.cpp
   Bpp/Phyl/Likelihood/AbstractDiscreteRatesAcrossSitesTreeLikelihood.cpp
   Bpp/Phyl/Likelihood/AbstractHomogeneousTreeLikelihood.cpp
   Bpp/Phyl/Likelihood/AbstractNonHomogeneousTreeLikelihood.cpp
@@ -48,41 +52,20 @@ set(CPP_FILES
   Bpp/Phyl/Likelihood/TreeLikelihoodTools.cpp
   Bpp/Phyl/Likelihood/PairedSiteLikelihoods.cpp
   Bpp/Phyl/Likelihood/GlobalClockTreeLikelihoodFunctionWrapper.cpp
-  Bpp/Phyl/Mapping/AnalyticalSubstitutionCount.cpp
+  Bpp/Phyl/Mapping/LaplaceSubstitutionCount.cpp
   Bpp/Phyl/Mapping/OneJumpSubstitutionCount.cpp
   Bpp/Phyl/Mapping/ProbabilisticSubstitutionMapping.cpp
   Bpp/Phyl/Mapping/SimpleSubstitutionCount.cpp
   Bpp/Phyl/Mapping/DecompositionSubstitutionCount.cpp
   Bpp/Phyl/Mapping/UniformizationSubstitutionCount.cpp
-  Bpp/Phyl/Mapping/IndexToCount.cpp
+  Bpp/Phyl/Mapping/WeightedSubstitutionCount.cpp
   Bpp/Phyl/Mapping/SubstitutionMappingTools.cpp
+  Bpp/Phyl/Model/StateMap.cpp
   Bpp/Phyl/Model/BinarySubstitutionModel.cpp
   Bpp/Phyl/Model/AbstractSubstitutionModel.cpp
-  Bpp/Phyl/Model/DSO78.cpp
-  Bpp/Phyl/Model/F84.cpp
-  Bpp/Phyl/Model/FrequenciesSet.cpp
-  Bpp/Phyl/Model/GTR.cpp
-  Bpp/Phyl/Model/GY94.cpp
-  Bpp/Phyl/Model/HKY85.cpp
-  Bpp/Phyl/Model/JCnuc.cpp
-  Bpp/Phyl/Model/JCprot.cpp
-  Bpp/Phyl/Model/JTT92.cpp
-  Bpp/Phyl/Model/K80.cpp
-  Bpp/Phyl/Model/L95.cpp
-  Bpp/Phyl/Model/RN95.cpp
-  Bpp/Phyl/Model/RN95s.cpp
-  Bpp/Phyl/Model/SSR.cpp
-  Bpp/Phyl/Model/LG08.cpp
-  Bpp/Phyl/Model/WAG01.cpp
   Bpp/Phyl/Model/AbstractBiblioSubstitutionModel.cpp
   Bpp/Phyl/Model/AbstractBiblioMixedSubstitutionModel.cpp
-  Bpp/Phyl/Model/LLG08_EHO.cpp
-  Bpp/Phyl/Model/LLG08_EX2.cpp
-  Bpp/Phyl/Model/LLG08_EX3.cpp
-  Bpp/Phyl/Model/LLG08_UL2.cpp
-  Bpp/Phyl/Model/LLG08_UL3.cpp
   Bpp/Phyl/Model/MarkovModulatedSubstitutionModel.cpp
-  Bpp/Phyl/Model/MG94.cpp
   Bpp/Phyl/Model/AbstractMixedSubstitutionModel.cpp
   Bpp/Phyl/Model/MixtureOfASubstitutionModel.cpp
   Bpp/Phyl/Model/MixtureOfSubstitutionModels.cpp
@@ -92,28 +75,54 @@ set(CPP_FILES
   Bpp/Phyl/Model/SubstitutionModelSet.cpp
   Bpp/Phyl/Model/MixedSubstitutionModelSet.cpp
   Bpp/Phyl/Model/SubstitutionModelSetTools.cpp
-  Bpp/Phyl/Model/T92.cpp
-  Bpp/Phyl/Model/TN93.cpp
-  Bpp/Phyl/Model/UserProteinSubstitutionModel.cpp
   Bpp/Phyl/Model/AbstractWordSubstitutionModel.cpp
   Bpp/Phyl/Model/WordSubstitutionModel.cpp
-  Bpp/Phyl/Model/TripletSubstitutionModel.cpp
-  Bpp/Phyl/Model/AbstractCodonSubstitutionModel.cpp
-  Bpp/Phyl/Model/AbstractCodonFrequenciesSubstitutionModel.cpp
-  Bpp/Phyl/Model/AbstractCodonPhaseFrequenciesSubstitutionModel.cpp
-  Bpp/Phyl/Model/AbstractCodonDistanceSubstitutionModel.cpp
-  Bpp/Phyl/Model/CodonDistanceSubstitutionModel.cpp
-  Bpp/Phyl/Model/CodonDistanceFrequenciesSubstitutionModel.cpp
-  Bpp/Phyl/Model/CodonDistancePhaseFrequenciesSubstitutionModel.cpp
-  Bpp/Phyl/Model/CodonRateSubstitutionModel.cpp
-  Bpp/Phyl/Model/CodonRateFrequenciesSubstitutionModel.cpp
-  Bpp/Phyl/Model/YN98.cpp
-  Bpp/Phyl/Model/YNGKP_M1.cpp
-  Bpp/Phyl/Model/YNGKP_M2.cpp
-  Bpp/Phyl/Model/YNGKP_M3.cpp
-  Bpp/Phyl/Model/YNGKP_M7.cpp
-  Bpp/Phyl/Model/YNGKP_M8.cpp
-  Bpp/Phyl/Model/YpR.cpp
+  Bpp/Phyl/Model/Nucleotide/F84.cpp
+  Bpp/Phyl/Model/Nucleotide/HKY85.cpp
+  Bpp/Phyl/Model/Nucleotide/JCnuc.cpp
+  Bpp/Phyl/Model/Nucleotide/GTR.cpp
+  Bpp/Phyl/Model/Nucleotide/K80.cpp
+  Bpp/Phyl/Model/Nucleotide/L95.cpp
+  Bpp/Phyl/Model/Nucleotide/RN95.cpp
+  Bpp/Phyl/Model/Nucleotide/RN95s.cpp
+  Bpp/Phyl/Model/Nucleotide/SSR.cpp
+  Bpp/Phyl/Model/Nucleotide/T92.cpp
+  Bpp/Phyl/Model/Nucleotide/TN93.cpp
+  Bpp/Phyl/Model/Nucleotide/gBGC.cpp
+  Bpp/Phyl/Model/Nucleotide/YpR.cpp
+  Bpp/Phyl/Model/Protein/DSO78.cpp
+  Bpp/Phyl/Model/Protein/UserProteinSubstitutionModel.cpp
+  Bpp/Phyl/Model/Protein/JCprot.cpp
+  Bpp/Phyl/Model/Protein/JTT92.cpp
+  Bpp/Phyl/Model/Protein/LG08.cpp
+  Bpp/Phyl/Model/Protein/WAG01.cpp
+  Bpp/Phyl/Model/Protein/LLG08_EHO.cpp
+  Bpp/Phyl/Model/Protein/LLG08_EX2.cpp
+  Bpp/Phyl/Model/Protein/LLG08_EX3.cpp
+  Bpp/Phyl/Model/Protein/LLG08_UL2.cpp
+  Bpp/Phyl/Model/Protein/LLG08_UL3.cpp
+  Bpp/Phyl/Model/Codon/GY94.cpp
+  Bpp/Phyl/Model/Codon/MG94.cpp
+  Bpp/Phyl/Model/Codon/TripletSubstitutionModel.cpp
+  Bpp/Phyl/Model/Codon/AbstractCodonSubstitutionModel.cpp
+  Bpp/Phyl/Model/Codon/AbstractCodonFrequenciesSubstitutionModel.cpp
+  Bpp/Phyl/Model/Codon/AbstractCodonPhaseFrequenciesSubstitutionModel.cpp
+  Bpp/Phyl/Model/Codon/AbstractCodonDistanceSubstitutionModel.cpp
+  Bpp/Phyl/Model/Codon/CodonDistanceSubstitutionModel.cpp
+  Bpp/Phyl/Model/Codon/CodonDistanceFrequenciesSubstitutionModel.cpp
+  Bpp/Phyl/Model/Codon/CodonDistancePhaseFrequenciesSubstitutionModel.cpp
+  Bpp/Phyl/Model/Codon/CodonRateSubstitutionModel.cpp
+  Bpp/Phyl/Model/Codon/CodonRateFrequenciesSubstitutionModel.cpp
+  Bpp/Phyl/Model/Codon/YN98.cpp
+  Bpp/Phyl/Model/Codon/YNGKP_M1.cpp
+  Bpp/Phyl/Model/Codon/YNGKP_M2.cpp
+  Bpp/Phyl/Model/Codon/YNGKP_M3.cpp
+  Bpp/Phyl/Model/Codon/YNGKP_M7.cpp
+  Bpp/Phyl/Model/Codon/YNGKP_M8.cpp
+  Bpp/Phyl/Model/FrequenciesSet/FrequenciesSet.cpp
+  Bpp/Phyl/Model/FrequenciesSet/NucleotideFrequenciesSet.cpp
+  Bpp/Phyl/Model/FrequenciesSet/WordFrequenciesSet.cpp
+  Bpp/Phyl/Model/FrequenciesSet/CodonFrequenciesSet.cpp
   Bpp/Phyl/NNITopologySearch.cpp
   Bpp/Phyl/Node.cpp
   Bpp/Phyl/OptimizationTools.cpp
@@ -136,7 +145,7 @@ set(H_FILES
   Bpp/Phyl/BipartitionList.h
   Bpp/Phyl/BipartitionTools.h
   Bpp/Phyl/Distance/AbstractAgglomerativeDistanceMethod.h
-  Bpp/Phyl/Distance/AgglomerativeDistanceMethod.h
+  Bpp/Phyl/Distance/DistanceMethod.h
   Bpp/Phyl/Distance/BioNJ.h
   Bpp/Phyl/Distance/DistanceEstimation.h
   Bpp/Phyl/Distance/NeighborJoining.h
@@ -158,6 +167,12 @@ set(H_FILES
   Bpp/Phyl/Io/NexusIoTree.h
   Bpp/Phyl/Io/PhylipDistanceMatrixFormat.h
   Bpp/Phyl/Io/IoPairedSiteLikelihoods.h
+  Bpp/Phyl/Io/IoSubstitutionModel.h
+  Bpp/Phyl/Io/IoSubstitutionModelFactory.h
+  Bpp/Phyl/Io/BppOSubstitutionModelFormat.h
+  Bpp/Phyl/Io/IoFrequenciesSet.h
+  Bpp/Phyl/Io/IoFrequenciesSetFactory.h
+  Bpp/Phyl/Io/BppOFrequenciesSetFormat.h
   Bpp/Phyl/Likelihood/AbstractDiscreteRatesAcrossSitesTreeLikelihood.h
   Bpp/Phyl/Likelihood/AbstractHomogeneousTreeLikelihood.h
   Bpp/Phyl/Likelihood/AbstractNonHomogeneousTreeLikelihood.h
@@ -189,8 +204,8 @@ set(H_FILES
   Bpp/Phyl/Likelihood/TreeLikelihoodTools.h
   Bpp/Phyl/Likelihood/PairedSiteLikelihoods.h
   Bpp/Phyl/Likelihood/GlobalClockTreeLikelihoodFunctionWrapper.h
-  Bpp/Phyl/Mapping/AnalyticalSubstitutionCount.h
-  Bpp/Phyl/Mapping/IndexToCount.h
+  Bpp/Phyl/Mapping/LaplaceSubstitutionCount.h
+  Bpp/Phyl/Mapping/WeightedSubstitutionCount.h
   Bpp/Phyl/Mapping/OneJumpSubstitutionCount.h
   Bpp/Phyl/Mapping/ProbabilisticSubstitutionMapping.h
   Bpp/Phyl/Mapping/SimpleSubstitutionCount.h
@@ -200,40 +215,17 @@ set(H_FILES
   Bpp/Phyl/Mapping/SubstitutionCount.h
   Bpp/Phyl/Mapping/SubstitutionMapping.h
   Bpp/Phyl/Mapping/SubstitutionMappingTools.h
-  Bpp/Phyl/Model/BinarySubstitutionModel.h
+  Bpp/Phyl/Model/StateMap.h
   Bpp/Phyl/Model/AbstractSubstitutionModel.h
-  Bpp/Phyl/Model/DSO78.h
-  Bpp/Phyl/Model/F84.h
-  Bpp/Phyl/Model/FrequenciesSet.h
+  Bpp/Phyl/Model/BinarySubstitutionModel.h
   Bpp/Phyl/Model/G2001.h
-  Bpp/Phyl/Model/GTR.h
-  Bpp/Phyl/Model/GY94.h
-  Bpp/Phyl/Model/HKY85.h
-  Bpp/Phyl/Model/JCnuc.h
-  Bpp/Phyl/Model/JCprot.h
-  Bpp/Phyl/Model/JTT92.h
-  Bpp/Phyl/Model/K80.h
-  Bpp/Phyl/Model/L95.h
-  Bpp/Phyl/Model/RN95.h
-  Bpp/Phyl/Model/RN95s.h
-  Bpp/Phyl/Model/SSR.h
-  Bpp/Phyl/Model/LG08.h
-  Bpp/Phyl/Model/WAG01.h
   Bpp/Phyl/Model/AbstractBiblioSubstitutionModel.h
   Bpp/Phyl/Model/AbstractBiblioMixedSubstitutionModel.h
-  Bpp/Phyl/Model/LLG08_EHO.h
-  Bpp/Phyl/Model/LLG08_EX2.h
-  Bpp/Phyl/Model/LLG08_EX3.h
-  Bpp/Phyl/Model/LLG08_UL2.h
-  Bpp/Phyl/Model/LLG08_UL3.h
   Bpp/Phyl/Model/MarkovModulatedSubstitutionModel.h
-  Bpp/Phyl/Model/MG94.h
   Bpp/Phyl/Model/MixedSubstitutionModel.h
   Bpp/Phyl/Model/AbstractMixedSubstitutionModel.h
   Bpp/Phyl/Model/MixtureOfASubstitutionModel.h
   Bpp/Phyl/Model/MixtureOfSubstitutionModels.h
-  Bpp/Phyl/Model/NucleotideSubstitutionModel.h
-  Bpp/Phyl/Model/ProteinSubstitutionModel.h
   Bpp/Phyl/Model/RateDistributionFactory.h
   Bpp/Phyl/Model/RE08.h
   Bpp/Phyl/Model/SubstitutionModelFactory.h
@@ -241,30 +233,63 @@ set(H_FILES
   Bpp/Phyl/Model/SubstitutionModelSet.h
   Bpp/Phyl/Model/MixedSubstitutionModelSet.h
   Bpp/Phyl/Model/SubstitutionModelSetTools.h
-  Bpp/Phyl/Model/T92.h
-  Bpp/Phyl/Model/TN93.h
-  Bpp/Phyl/Model/TripletSubstitutionModel.h
   Bpp/Phyl/Model/TS98.h
-  Bpp/Phyl/Model/UserProteinSubstitutionModel.h
   Bpp/Phyl/Model/AbstractWordSubstitutionModel.h
   Bpp/Phyl/Model/WordSubstitutionModel.h
-  Bpp/Phyl/Model/CodonSubstitutionModel.h
-  Bpp/Phyl/Model/AbstractCodonSubstitutionModel.h
-  Bpp/Phyl/Model/AbstractCodonFrequenciesSubstitutionModel.h
-  Bpp/Phyl/Model/AbstractCodonPhaseFrequenciesSubstitutionModel.h
-  Bpp/Phyl/Model/AbstractCodonDistanceSubstitutionModel.h
-  Bpp/Phyl/Model/CodonDistanceSubstitutionModel.h
-  Bpp/Phyl/Model/CodonDistanceFrequenciesSubstitutionModel.h
-  Bpp/Phyl/Model/CodonDistancePhaseFrequenciesSubstitutionModel.h
-  Bpp/Phyl/Model/CodonRateSubstitutionModel.h
-  Bpp/Phyl/Model/CodonRateFrequenciesSubstitutionModel.h
-  Bpp/Phyl/Model/YN98.h
-  Bpp/Phyl/Model/YNGKP_M1.h
-  Bpp/Phyl/Model/YNGKP_M2.h
-  Bpp/Phyl/Model/YNGKP_M3.h
-  Bpp/Phyl/Model/YNGKP_M7.h
-  Bpp/Phyl/Model/YNGKP_M8.h
-  Bpp/Phyl/Model/YpR.h
+  Bpp/Phyl/Model/Nucleotide/NucleotideSubstitutionModel.h
+  Bpp/Phyl/Model/Nucleotide/F84.h
+  Bpp/Phyl/Model/Nucleotide/HKY85.h
+  Bpp/Phyl/Model/Nucleotide/JCnuc.h
+  Bpp/Phyl/Model/Nucleotide/GTR.h
+  Bpp/Phyl/Model/Nucleotide/K80.h
+  Bpp/Phyl/Model/Nucleotide/L95.h
+  Bpp/Phyl/Model/Nucleotide/RN95.h
+  Bpp/Phyl/Model/Nucleotide/RN95s.h
+  Bpp/Phyl/Model/Nucleotide/SSR.h
+  Bpp/Phyl/Model/Nucleotide/T92.h
+  Bpp/Phyl/Model/Nucleotide/TN93.h
+  Bpp/Phyl/Model/Nucleotide/gBGC.h
+  Bpp/Phyl/Model/Nucleotide/YpR.h
+  Bpp/Phyl/Model/Protein/ProteinSubstitutionModel.h
+  Bpp/Phyl/Model/Protein/DSO78.h
+  Bpp/Phyl/Model/Protein/UserProteinSubstitutionModel.h
+  Bpp/Phyl/Model/Protein/JCprot.h
+  Bpp/Phyl/Model/Protein/JTT92.h
+  Bpp/Phyl/Model/Protein/LG08.h
+  Bpp/Phyl/Model/Protein/WAG01.h
+  Bpp/Phyl/Model/Protein/LLG08_EHO.h
+  Bpp/Phyl/Model/Protein/LLG08_EX2.h
+  Bpp/Phyl/Model/Protein/LLG08_EX3.h
+  Bpp/Phyl/Model/Protein/LLG08_UL2.h
+  Bpp/Phyl/Model/Protein/LLG08_UL3.h
+  Bpp/Phyl/Model/Codon/GY94.h
+  Bpp/Phyl/Model/Codon/MG94.h
+  Bpp/Phyl/Model/Codon/CodonSubstitutionModel.h
+  Bpp/Phyl/Model/Codon/TripletSubstitutionModel.h
+  Bpp/Phyl/Model/Codon/AbstractCodonSubstitutionModel.h
+  Bpp/Phyl/Model/Codon/AbstractCodonFrequenciesSubstitutionModel.h
+  Bpp/Phyl/Model/Codon/AbstractCodonPhaseFrequenciesSubstitutionModel.h
+  Bpp/Phyl/Model/Codon/AbstractCodonDistanceSubstitutionModel.h
+  Bpp/Phyl/Model/Codon/CodonDistanceSubstitutionModel.h
+  Bpp/Phyl/Model/Codon/CodonDistanceFrequenciesSubstitutionModel.h
+  Bpp/Phyl/Model/Codon/CodonDistancePhaseFrequenciesSubstitutionModel.h
+  Bpp/Phyl/Model/Codon/CodonRateSubstitutionModel.h
+  Bpp/Phyl/Model/Codon/CodonRateFrequenciesSubstitutionModel.h
+  Bpp/Phyl/Model/Codon/YN98.h
+  Bpp/Phyl/Model/Codon/YNGKP_M1.h
+  Bpp/Phyl/Model/Codon/YNGKP_M2.h
+  Bpp/Phyl/Model/Codon/YNGKP_M3.h
+  Bpp/Phyl/Model/Codon/YNGKP_M7.h
+  Bpp/Phyl/Model/Codon/YNGKP_M8.h
+  Bpp/Phyl/Model/FrequenciesSet/FrequenciesSet.h
+  Bpp/Phyl/Model/FrequenciesSet/NucleotideFrequenciesSet.h
+  Bpp/Phyl/Model/FrequenciesSet/WordFrequenciesSet.h
+  Bpp/Phyl/Model/FrequenciesSet/CodonFrequenciesSet.h
+  Bpp/Phyl/Model/FrequenciesSet/FrequenciesSet.h
+  Bpp/Phyl/Model/FrequenciesSet/NucleotideFrequenciesSet.h
+  Bpp/Phyl/Model/FrequenciesSet/ProteinFrequenciesSet.h
+  Bpp/Phyl/Model/FrequenciesSet/WordFrequenciesSet.h
+  Bpp/Phyl/Model/FrequenciesSet/CodonFrequenciesSet.h
   Bpp/Phyl/NNISearchable.h
   Bpp/Phyl/NNITopologySearch.h
   Bpp/Phyl/Node.h

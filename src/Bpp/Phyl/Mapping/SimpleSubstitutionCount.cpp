@@ -41,7 +41,7 @@ knowledge of the CeCILL license and that you accept its terms.
 
 using namespace bpp;
 
-Matrix<double>* SimpleSubstitutionCount::getAllNumbersOfSubstitutions(double length, unsigned int type) const
+Matrix<double>* NaiveSubstitutionCount::getAllNumbersOfSubstitutions(double length, unsigned int type) const
 { 
   unsigned int n = register_->getAlphabet()->getSize();
   RowMatrix<double>* mat = new RowMatrix<double>(n, n);
@@ -49,7 +49,7 @@ Matrix<double>* SimpleSubstitutionCount::getAllNumbersOfSubstitutions(double len
   {
     for (unsigned int j = 0; j < n; ++j)
     {
-      (*mat)(i, j) = (register_->getType(i, j) == type ? 1. : 0.);
+      (*mat)(i, j) = (register_->getType(i, j) == type ? (weights_ ? weights_->getIndex(i, j) : 1.) : 0.);
     }
   }
   return mat;

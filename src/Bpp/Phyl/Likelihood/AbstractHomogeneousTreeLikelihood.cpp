@@ -164,7 +164,7 @@ void AbstractHomogeneousTreeLikelihood::init_(
 
   minimumBrLen_ = 0.000001;
   maximumBrLen_ = 10000;
-  brLenConstraint_.reset(new IncludingInterval(minimumBrLen_, maximumBrLen_));
+  brLenConstraint_.reset(new IntervalConstraint(minimumBrLen_, maximumBrLen_, true, true));
 }
 
 /******************************************************************************/

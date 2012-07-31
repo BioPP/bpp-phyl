@@ -153,7 +153,7 @@ Site* NonHomogeneousSequenceSimulator::simulate() const
     cumprob += freqs[i];
     if (r <= cumprob)
     {
-      initialState = (int)i;
+      initialState = static_cast<int>(i);
       break;
     }
   }

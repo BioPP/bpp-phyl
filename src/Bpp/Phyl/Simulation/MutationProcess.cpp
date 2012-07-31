@@ -52,7 +52,7 @@ int AbstractMutationProcess::mutate(int state) const
   {
     if (alea < repartition_[state][j]) return j;
   }
-  return size_;
+  throw Exception("AbstractMutationProcess::mutate. Repartition function is incomplete for state " + TextTools::toString(state));
 }
 
 /******************************************************************************/
@@ -137,7 +137,8 @@ SimpleMutationProcess::SimpleMutationProcess(const SubstitutionModel* model) :
         cum += model->Qij(i, j) / sum_Q;
         repartition_[i][j] = cum;
       }
-      else repartition_[i][j] = -1;                                     // Forbiden value: does not correspond to a change.
+      else repartition_[i][j] = -1;
+      // Forbiden value: does not correspond to a change.
     }
   }
   // Note that I use cumulative probabilities in repartition_ (hence the name).
@@ -167,7 +168,7 @@ int SimpleMutationProcess::evolve(int initialState, double time) const
 /******************************************************************************/
 
 SelfMutationProcess::SelfMutationProcess(int alphabetSize) :
-  AbstractMutationProcess(NULL)
+  AbstractMutationProcess(0)
 {
   size_ = alphabetSize;
   repartition_ = VVdouble(size_);

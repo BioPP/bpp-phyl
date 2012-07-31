@@ -76,8 +76,8 @@ MixtureOfSubstitutionModels::MixtureOfSubstitutionModels(const Alphabet* alpha,
   // relative rates and probas
   for (i = 0; i < nbmod - 1; i++)
     {
-      addParameter_(Parameter("Mixture.relproba" + TextTools::toString(i+1), 1.0 / (nbmod - i ), &Parameter::PROP_CONSTRAINT_EX));
-      addParameter_(Parameter("Mixture.relrate" + TextTools::toString(i+1), 1.0 / (nbmod - i), &Parameter::PROP_CONSTRAINT_EX));
+      addParameter_(new Parameter("Mixture.relproba" + TextTools::toString(i+1), 1.0 / (nbmod - i ), &Parameter::PROP_CONSTRAINT_EX));
+      addParameter_(new Parameter("Mixture.relrate" + TextTools::toString(i+1), 1.0 / (nbmod - i), &Parameter::PROP_CONSTRAINT_EX));
     }
 
   // models parameters
@@ -152,9 +152,9 @@ MixtureOfSubstitutionModels::MixtureOfSubstitutionModels(const Alphabet* alpha,
   
   for (i = 0; i < nbmod - 1; i++)
     {
-      addParameter_(Parameter("Mixture.relproba" + TextTools::toString(i+1), vproba[i] / (1 - x), &Parameter::PROP_CONSTRAINT_EX));
+      addParameter_(new Parameter("Mixture.relproba" + TextTools::toString(i+1), vproba[i] / (1 - x), &Parameter::PROP_CONSTRAINT_EX));
       x+=vproba[i];
-      addParameter_(Parameter("Mixture.relrate" + TextTools::toString(i+1), vproba[i] * vrate[i] / (1- y), &Parameter::PROP_CONSTRAINT_EX));
+      addParameter_(new Parameter("Mixture.relrate" + TextTools::toString(i+1), vproba[i] * vrate[i] / (1- y), &Parameter::PROP_CONSTRAINT_EX));
       y+=vproba[i]*vrate[i];
     }
 
@@ -206,12 +206,33 @@ void MixtureOfSubstitutionModels::updateMatrices()
   vProbas_[nbmod-1]=x;
 
   x = 1.0;
+  bool approx=false; //used when some categories are avoided
+  double s=0;
   for (i = 0; i < nbmod-1; i++){
     y =getParameterValue("relrate" + TextTools::toString(i+1));
-    vRates_[i] = x*y/vProbas_[i];
+    if (vProbas_[i]<NumConstants::SMALL){
+      vRates_[i]=NumConstants::SMALL;
+      approx=true;
+    }
+    else {
+      vRates_[i] = x*y/vProbas_[i];
+      s+= x*y;
+    }
     x *= 1 - y;      
   }
-  vRates_[nbmod-1]=x/vProbas_[nbmod-1];
+  
+  if (vProbas_[nbmod-1]<NumConstants::SMALL){
+    vRates_[nbmod-1]=NumConstants::SMALL;
+    approx=true;
+  }
+  else{
+    vRates_[nbmod-1]=x/vProbas_[nbmod-1];
+    s+=x;
+  }
+
+  if (approx)
+    for (i = 0; i < nbmod; i++)
+      vRates_[i]/=s;
 
   /// models
 

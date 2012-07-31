@@ -40,7 +40,7 @@ knowledge of the CeCILL license and that you accept its terms.
 #ifndef _UNIFORMIZATIONSUBSTITUTIONCOUNT_H_
 #define _UNIFORMIZATIONSUBSTITUTIONCOUNT_H_
 
-#include "SubstitutionCount.h"
+#include "WeightedSubstitutionCount.h"
 
 #include <Bpp/Numeric/Matrix/Matrix.h>
 
@@ -48,14 +48,15 @@ namespace bpp
 {
 
 /**
- * @brief Analytical substitution count using the uniformization method.
+ * @brief Analytical (weighted) substitution count using the uniformization method.
  *
  * The codes is adapted from the original R code by Paula Tataru and Asger Hobolth.
  *
  * @author Julien Dutheil
  */
 class UniformizationSubstitutionCount:
-  public AbstractSubstitutionCount
+  public AbstractSubstitutionCount,
+  public AbstractWeightedSubstitutionCount
 {
 	private:
 		const SubstitutionModel* model_;
@@ -68,10 +69,12 @@ class UniformizationSubstitutionCount:
     mutable double currentLength_;
 	
 	public:
-		UniformizationSubstitutionCount(const SubstitutionModel* model, SubstitutionRegister* reg);
+		UniformizationSubstitutionCount(const SubstitutionModel* model, SubstitutionRegister* reg, const AlphabetIndex2<double>* weights = NULL);
 		
     UniformizationSubstitutionCount(const UniformizationSubstitutionCount& usc) :
-      AbstractSubstitutionCount(usc), model_(usc.model_),
+      AbstractSubstitutionCount(usc), 
+      AbstractWeightedSubstitutionCount(usc),
+      model_(usc.model_),
       nbStates_(usc.nbStates_),
       bMatrices_(usc.bMatrices_),
       power_(usc.power_),
@@ -84,6 +87,7 @@ class UniformizationSubstitutionCount:
     UniformizationSubstitutionCount& operator=(const UniformizationSubstitutionCount& usc)
     {
       AbstractSubstitutionCount::operator=(usc);
+      AbstractWeightedSubstitutionCount::operator=(usc);
       model_          = usc.model_;
       nbStates_       = usc.nbStates_;
       bMatrices_      = usc.bMatrices_;
@@ -96,7 +100,9 @@ class UniformizationSubstitutionCount:
     }				
 		
     virtual ~UniformizationSubstitutionCount() {}
-			
+		
+    UniformizationSubstitutionCount* clone() const { return new UniformizationSubstitutionCount(*this); }
+
 	public:
 		double getNumberOfSubstitutions(unsigned int initialState, unsigned int finalState, double length, unsigned int type = 1) const;
 
@@ -108,6 +114,13 @@ class UniformizationSubstitutionCount:
 
   protected:
     void computeCounts_(double length) const;
+    void substitutionRegisterHasChanged() throw (Exception);
+    void weightsHaveChanged() throw (Exception);
+
+  private:
+    void resetBMatrices_();
+    void initBMatrices_();
+    void fillBMatrices_();
 
 };
 

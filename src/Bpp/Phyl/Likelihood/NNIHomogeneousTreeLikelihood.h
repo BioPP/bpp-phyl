@@ -85,8 +85,7 @@ public:
     lnL_(log(0.)),
     weights_(weights)
   {
-    Parameter p("BrLen", 1, 0);
-    addParameter_(p);
+    addParameter_(new Parameter("BrLen", 1, 0));
   }
 
   BranchLikelihood(const BranchLikelihood& bl) :

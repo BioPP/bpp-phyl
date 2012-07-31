@@ -92,7 +92,6 @@ RHomogeneousMixedTreeLikelihood::RHomogeneousMixedTreeLikelihood(
     throw Exception("Bad model: RHomogeneousMixedTreeLikelihood needs a MixedSubstitutionModel.");
 
   unsigned int s = mixedmodel->getNumberOfModels();
-
   for (unsigned int i = 0; i < s; i++)
   {
     treeLikelihoodsContainer_.push_back(
@@ -146,6 +145,7 @@ void RHomogeneousMixedTreeLikelihood::initialize() throw (Exception)
   {
     treeLikelihoodsContainer_[i]->initialize();
   }
+  
   RHomogeneousTreeLikelihood::initialize();
 }
 
@@ -174,11 +174,12 @@ void RHomogeneousMixedTreeLikelihood::fireParameterChanged(const ParameterList& 
   {
     ParameterList pl;
     pm = mixedmodel->getNModel(i);
-    pl.includeParameters(getParameters());
     pl.addParameters(pm->getParameters());
+    pl.includeParameters(getParameters());
 
-    if (modelC)
+    if (modelC){
       treeLikelihoodsContainer_[i]->setParameters(pl);
+    }
     else
       treeLikelihoodsContainer_[i]->matchParametersValues(pl);
   }

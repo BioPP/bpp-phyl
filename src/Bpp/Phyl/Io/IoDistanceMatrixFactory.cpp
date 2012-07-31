@@ -53,6 +53,6 @@ IDistanceMatrix* IODistanceMatrixFactory::createReader(const std::string& format
 ODistanceMatrix* IODistanceMatrixFactory::createWriter(const std::string& format) throw (Exception)
 {
   if(format == PHYLIP_FORMAT) return new PhylipDistanceMatrixFormat();
-  else throw Exception("Format " + format + " is not supported for input.");
+  else throw Exception("Format " + format + " is not supported for output.");
 }
 

@@ -112,6 +112,10 @@ public:
 
   const Matrix<double>& getGenerator() const { return getModel()->getGenerator(); }
 
+  const Matrix<double>& getExchangeabilityMatrix() const { return getModel()->getExchangeabilityMatrix(); }
+
+  double Sij(unsigned int i, unsigned int j) const { return getModel()->Sij(i,j);}
+
   const Matrix<double>& getPij_t(double t) const { return getModel()->getPij_t(t); }
 
   const Matrix<double>& getdPij_dt(double t) const { return getModel()->getdPij_dt(t); }
@@ -123,6 +127,8 @@ public:
   bool enableEigenDecomposition() { return getModel()->enableEigenDecomposition(); }
 
   bool isDiagonalizable() const { return getModel()->isDiagonalizable(); }
+
+  bool isNonSingular() const { return getModel()->isNonSingular(); }
 
   const Vdouble& getEigenValues() const { return getModel()->getEigenValues(); }
 
@@ -146,6 +152,8 @@ public:
   unsigned int getNumberOfStates() const { return getModel()->getNumberOfStates(); }
 
   double getInitValue(unsigned int i, int state) const throw (BadIntException) { return getModel()->getInitValue(i, state); }
+
+  const FrequenciesSet* getFrequenciesSet() const {return getModel()->getFrequenciesSet(); }
 
   /*
    * @}
@@ -182,7 +190,11 @@ public:
      *@}
    */
 };
+
 } // end of namespace bpp.
+
+
+
 
 #endif  // _ABSTRACTBIBLIOSUBSTITUTIONMODEL_H_
 

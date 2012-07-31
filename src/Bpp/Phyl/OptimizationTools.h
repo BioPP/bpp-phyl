@@ -47,7 +47,7 @@
 #include "Parsimony/DRTreeParsimonyScore.h"
 #include "TreeTemplate.h"
 #include "Distance/DistanceEstimation.h"
-#include "Distance/AgglomerativeDistanceMethod.h"
+#include "Distance/DistanceMethod.h"
 
 #include <Bpp/Io/OutputStream.h>
 #include <Bpp/App/ApplicationTools.h>
