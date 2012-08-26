@@ -6,7 +6,7 @@
 //
 
 /*
-Copyright or © or Copr. CNRS, (November 16, 2004)
+Copyright or © or Copr. Bio++ Development Team, (November 16, 2004)
 
 This software is a computer program whose purpose is to provide classes
 for phylogenetic data analysis.
@@ -86,7 +86,16 @@ class DistanceMethod:
      * @return The name of the distance method.
      */
     virtual std::string getName() const = 0;
-	
+
+    /**
+     * @param yn Enable/Disable verbose mode.
+     */
+    virtual void setVerbose(bool yn) = 0;
+
+    /**
+     * @return True if verbose mode is enabled.
+     */
+    virtual bool isVerbose() const = 0;
 };
 
 /**

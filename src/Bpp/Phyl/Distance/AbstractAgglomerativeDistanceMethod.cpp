@@ -53,6 +53,7 @@ using namespace std;
 void AbstractAgglomerativeDistanceMethod::setDistanceMatrix(const DistanceMatrix& matrix)
 {
   matrix_ = matrix;
+  currentNodes_.clear();
   if (tree_) delete tree_;
 }
     
@@ -83,8 +84,9 @@ void AbstractAgglomerativeDistanceMethod::computeTree(bool rooted) throw (Except
     for (map<unsigned int, Node *>::iterator i = currentNodes_.begin(); i != currentNodes_.end(); i++)
     {
       unsigned int id = i->first;
-      if(id != bestPair[0] && id != bestPair[1])
+      if (id != bestPair[0] && id != bestPair[1])
       {
+        assert (id < newDist.size()); //DEBUG
         newDist[id] = computeDistancesFromPair(bestPair, distances, id);
       }
       else
