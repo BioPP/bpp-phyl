@@ -1,12 +1,12 @@
 //
-// File: AgglomerativeDistanceMethod.h
+// File: DistanceMethod.h
 // Created by: Julien Dutheil
 //             Vincent Ranwez
 // Created on: Wed jun 22 10:00 2005
 //
 
 /*
-Copyright or © or Copr. CNRS, (November 16, 2004)
+Copyright or © or Copr. Bio++ Development Team, (November 16, 2004)
 
 This software is a computer program whose purpose is to provide classes
 for phylogenetic data analysis.
@@ -38,8 +38,14 @@ The fact that you are presently reading this means that you have had
 knowledge of the CeCILL license and that you accept its terms.
 */
 
-#ifndef _AGGLOMERATIVEDISTANCEMETHOD_H_
-#define _AGGLOMERATIVEDISTANCEMETHOD_H_
+#ifndef _DISTANCEMETHOD_H_
+#define _DISTANCEMETHOD_H_
+
+//From bpp-core:
+#include <Bpp/Clonable.h>
+
+//From the STL:
+#include <string>
 
 namespace bpp
 {
@@ -49,13 +55,14 @@ class Node;
 class Tree;
 
 /**
- * @brief Interface for agglomerative distance methods.
+ * @brief General interface for distance-based phylogenetic reconstruction methods.
  */
-class AgglomerativeDistanceMethod
+class DistanceMethod:
+  public virtual Clonable
 {
 	public:
-		AgglomerativeDistanceMethod() {}
-		virtual ~AgglomerativeDistanceMethod() {}
+		DistanceMethod() {}
+		virtual ~DistanceMethod() {}
 
 	public:
     /**
@@ -63,7 +70,7 @@ class AgglomerativeDistanceMethod
      *
      * @param matrix The matrix to use.
      */
-		virtual void setDistanceMatrix(const DistanceMatrix & matrix) = 0;
+		virtual void setDistanceMatrix(const DistanceMatrix& matrix) = 0;
 		/**
      * @brief Perform the clustering.
      *
@@ -73,11 +80,41 @@ class AgglomerativeDistanceMethod
     /**
      * @return The computed tree.
      */
-		virtual Tree * getTree() const = 0;
-	
+		virtual Tree* getTree() const = 0;
+
+    /**
+     * @return The name of the distance method.
+     */
+    virtual std::string getName() const = 0;
+
+    /**
+     * @param yn Enable/Disable verbose mode.
+     */
+    virtual void setVerbose(bool yn) = 0;
+
+    /**
+     * @return True if verbose mode is enabled.
+     */
+    virtual bool isVerbose() const = 0;
+};
+
+/**
+ * @brief Interface for agglomerative distance methods.
+ *
+ * This interface does not contain any specific method and
+ * is there only for "ontology" purposes. Specific methods
+ * might be added later.
+ */
+class AgglomerativeDistanceMethod:
+  public DistanceMethod
+{
+	public:
+		AgglomerativeDistanceMethod() {}
+		virtual ~AgglomerativeDistanceMethod() {}
+
 };
 
 } //end of namespace bpp.
 
-#endif //_AGGLOMERATIVEDISTANCEMETHOD_H_
+#endif //_DISTANCEMETHOD_H_
 

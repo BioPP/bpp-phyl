@@ -41,7 +41,7 @@ knowledge of the CeCILL license and that you accept its terms.
 #ifndef _ABSTRACTAGGLOMERATIVEDISTANCEMETHOD_H_
 #define _ABSTRACTAGGLOMERATIVEDISTANCEMETHOD_H_
 
-#include "AgglomerativeDistanceMethod.h"
+#include "DistanceMethod.h"
 #include "../Node.h"
 #include "../TreeTemplate.h"
 

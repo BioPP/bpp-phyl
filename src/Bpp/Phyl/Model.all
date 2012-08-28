@@ -16,6 +16,7 @@
 #include "Model/Protein.all"
 #include "Model/RE08.h"
 #include "Model/RateDistributionFactory.h"
+#include "Model/StateMap.h"
 #include "Model/SubstitutionModel.h"
 #include "Model/SubstitutionModelFactory.h"
 #include "Model/SubstitutionModelSet.h"
