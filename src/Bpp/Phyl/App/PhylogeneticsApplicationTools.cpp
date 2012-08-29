@@ -57,6 +57,7 @@
 #include <Bpp/Numeric/Prob.all>
 #include <Bpp/Numeric/Function.all>
 
+
 // From SeqLib:
 #include <Bpp/Seq/Alphabet/AlphabetTools.h>
 #include <Bpp/Seq/Container/SequenceContainerTools.h>
@@ -397,8 +398,8 @@ FrequenciesSet* PhylogeneticsApplicationTools::getFrequenciesSet(
       if (!data)
         throw Exception("Missing data for observed frequencies");
       unsigned int psc = 0;
-      if (unparsedParameterValues.find("init.observedPseudoCount") != unparsedParameterValues.end())
-        psc = TextTools::toInt(unparsedParameterValues["init.observedPseudoCount"]);
+      if (unparsedParameterValues.find("observedPseudoCount") != unparsedParameterValues.end())
+        psc = TextTools::toInt(unparsedParameterValues["observedPseudoCount"]);
 
       map<int, double> freqs;
       SequenceContainerTools::getFrequencies(*data, freqs, psc);
@@ -1145,10 +1146,11 @@ throw (Exception)
       ApplicationTools::displayResult("New tree likelihood", -tl->getValue());
   }
 
-  size_t i;
   // Should I ignore some parameters?
   ParameterList parametersToEstimate = parameters;
   string paramListDesc = ApplicationTools::getStringParameter("optimization.ignore_parameter", params, "", suffix, suffixIsOptional, false);
+  if (paramListDesc.length()==0)
+    paramListDesc = ApplicationTools::getStringParameter("optimization.ignore_parameters", params, "", suffix, suffixIsOptional, false);
   StringTokenizer st(paramListDesc, ",");
   while (st.hasMoreToken())
   {
@@ -1175,15 +1177,34 @@ throw (Exception)
         if (verbose)
           ApplicationTools::displayResult("Parameter ignored", string("Root frequencies"));
       }
-      else if ((i = param.find("*")) != string::npos)
+      else if (param.find("*") != string::npos)
       {
-        string pref = param.substr(0, i);
         vector<string> vs;
         for (unsigned int j = 0; j < parametersToEstimate.size(); j++)
         {
-          if (parametersToEstimate[j].getName().find(pref) == 0)
-            vs.push_back(parametersToEstimate[j].getName());
+          StringTokenizer stj(param, "*", true, false);
+          size_t pos1, pos2;
+          string parn=parametersToEstimate[j].getName();
+          bool flag(true);
+          string g=stj.nextToken();
+          pos1=parn.find(g);
+          if (pos1!=0)
+            flag=false;
+          pos1+=g.length();
+          while (flag && stj.hasMoreToken()){
+            g=stj.nextToken();
+            pos2=parn.find(g,pos1);
+            if (pos2 == string::npos){
+              flag=false;
+              break;
+            }
+            pos1=pos2+g.length();
+          }
+          if (flag &&
+              ((g.length()==0) || (pos1==parn.length()) || (parn.rfind(g)==parn.length()-g.length())))
+            vs.push_back(parn);
         }
+        
         for (vector<string>::iterator it = vs.begin(); it != vs.end(); it++)
         {
           parametersToEstimate.deleteParameter(*it);
