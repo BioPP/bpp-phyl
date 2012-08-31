@@ -717,7 +717,7 @@ SubstitutionModel* BppOSubstitutionModelFormat::readWord(const Alphabet* alphabe
                                         dynamic_cast<NucleotideSubstitutionModel*>(v_pSM[2]));
 
     
-    else if (modelName == "CodonDistance")
+    else if (modelName == "CodonDist")
       {
         if (v_nestedModelDescription.size() != 3)
           model = new CodonDistanceSubstitutionModel(pgc,
