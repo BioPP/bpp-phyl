@@ -64,7 +64,7 @@ void AbstractAgglomerativeDistanceMethod::computeTree(bool rooted) throw (Except
   {
     currentNodes_[i] = getLeafNode(i, matrix_.getName(i));
   }
-  int idNextNode = (int)matrix_.size();
+  int idNextNode = static_cast<int>(matrix_.size());
   vector<double> newDist(matrix_.size());
   
   // Build tree:

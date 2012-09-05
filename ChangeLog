@@ -1,3 +1,6 @@
+26/08/12 Julien Dutheil
+* Bug #57 fixed in distance methods
+  
 13/06/12 Julien Dutheil
 * Added new class StateMap, and enable support for gaps in parsimony calculation.
 
