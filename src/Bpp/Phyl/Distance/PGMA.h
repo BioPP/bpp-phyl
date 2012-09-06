@@ -60,7 +60,7 @@ struct PGMAInfos
  * @brief Compute WPGMA and UPGMA trees from a distance matrix.
  * 
  * WPGMA = Weighted pair group method using arithmetic averaging,
- * is equivalent to the average linkegage hierarchical clustering method.
+ * is equivalent to the average linkage hierarchical clustering method.
  * The distance between two taxa is the average distance between all individuals in each taxa.
  * The unweighted version (named UPGMA), uses a weighted average, with the number of individuals in a group as a weight.
  */
@@ -71,12 +71,21 @@ class PGMA:
 		bool weighted_;
 		
 	public:
-		PGMA(bool weighted = true): weighted_(weighted) {}
+		PGMA(bool weighted = true):
+      AbstractAgglomerativeDistanceMethod(true, true),
+      weighted_(weighted) {}
 
-		PGMA(const DistanceMatrix & matrix, bool weighted = true, bool verbose = true) throw (Exception):
-      AbstractAgglomerativeDistanceMethod(matrix, verbose), weighted_(weighted)
+    /**
+     * @brief Create a (U/W)PGMA object instance.
+     *
+     * @param matrix Input distance matrix.
+     * @param weighted Tell if we should perform Weighted or Unweighted pair group method.
+     * @param verbose Allow to display extra information, like progress bars.
+     */
+		PGMA(const DistanceMatrix& matrix, bool weighted = true, bool verbose = true) throw (Exception):
+      AbstractAgglomerativeDistanceMethod(matrix, verbose, true), weighted_(weighted)
 		{
-			computeTree(true);
+			computeTree();
 		}
 		virtual ~PGMA() {}
 
