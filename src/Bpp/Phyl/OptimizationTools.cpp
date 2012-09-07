@@ -644,7 +644,6 @@ TreeTemplate<Node>* OptimizationTools::buildDistanceTree(
   AgglomerativeDistanceMethod& reconstructionMethod,
   const ParameterList& parametersToIgnore,
   bool optimizeBrLen,
-  bool rooted,
   const std::string& param,
   double tolerance,
   unsigned int tlEvalMax,
@@ -678,7 +677,7 @@ TreeTemplate<Node>* OptimizationTools::buildDistanceTree(
     if (verbose > 0)
       ApplicationTools::displayTask("Building tree");
     reconstructionMethod.setDistanceMatrix(*matrix);
-    reconstructionMethod.computeTree(rooted);
+    reconstructionMethod.computeTree();
     previousTree = tree;
     delete matrix;
     tree = dynamic_cast<TreeTemplate<Node>*>(reconstructionMethod.getTree());

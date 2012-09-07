@@ -71,12 +71,12 @@ class DistanceMethod:
      * @param matrix The matrix to use.
      */
 		virtual void setDistanceMatrix(const DistanceMatrix& matrix) = 0;
-		/**
+		
+    /**
      * @brief Perform the clustering.
-     *
-     * @param rooted Tell is the final tree must be rooted.
      */
-    virtual void computeTree(bool rooted) = 0;
+    virtual void computeTree() = 0;
+    
     /**
      * @return The computed tree.
      */

@@ -60,19 +60,34 @@ class NeighborJoining :
     bool positiveLengths_;
 		
 	public:
-		NeighborJoining() :
-      AbstractAgglomerativeDistanceMethod(),
+    /**
+     * @brief Create a new NeighborJoining object instance, without performing any computation.
+     *
+     * @param rooted Tell if the output tree should be rooted.
+     * @param positiveLengths Tell if negative lengths should be avoided.
+     * @param verbose Allow to display extra information, like progress bars.
+     */
+    NeighborJoining(bool rooted = false, bool positiveLengths = false, bool verbose = true) :
+      AbstractAgglomerativeDistanceMethod(verbose, rooted),
       sumDist_(),
       positiveLengths_(false)
     {}
 
-		NeighborJoining(const DistanceMatrix& matrix, bool rooted=false, bool positiveLengths=false) throw (Exception) :
-      AbstractAgglomerativeDistanceMethod(matrix),
+    /**
+     * @brief Create a new NeighborJoining object instance and compute a tree from a distance matrix.
+     *
+     * @param matrix Input distance matrix.
+     * @param rooted Tell if the output tree should be rooted.
+     * @param positiveLengths Tell if negative lengths should be avoided.
+     * @param verbose Allow to display extra information, like progress bars.
+     */
+		NeighborJoining(const DistanceMatrix& matrix, bool rooted = false, bool positiveLengths = false, bool verbose = true) throw (Exception) :
+      AbstractAgglomerativeDistanceMethod(matrix, verbose, rooted),
       sumDist_(),
       positiveLengths_(positiveLengths) 
 		{
 			sumDist_.resize(matrix.size());
-			computeTree(rooted);
+			computeTree();
 		}
    
 		virtual ~NeighborJoining() {}
