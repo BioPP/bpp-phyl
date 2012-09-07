@@ -45,7 +45,6 @@
 #include <Bpp/Text/KeyvalTools.h>
 
 #include "../Model/FrequenciesSet.all"
-#include "../App/PhylogeneticsApplicationTools.h"
 
 #include <Bpp/Seq/App/SequenceApplicationTools.h>
 
