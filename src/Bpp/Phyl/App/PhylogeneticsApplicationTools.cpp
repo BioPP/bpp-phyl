@@ -156,8 +156,8 @@ SubstitutionModel* PhylogeneticsApplicationTools::getSubstitutionModelDefaultIns
   bool allowGaps,
   bool verbose) throw (Exception)
 {
-  BppOSubstitutionModelFormat* bIO=new BppOSubstitutionModelFormat();
-  SubstitutionModel* pS= bIO->read(alphabet, modelDescription, unparsedParameterValues, allowCovarions, allowMixed, allowMixed, verbose);
+  BppOSubstitutionModelFormat* bIO = new BppOSubstitutionModelFormat();
+  SubstitutionModel* pS = bIO->read(alphabet, modelDescription, unparsedParameterValues, allowCovarions, allowMixed, allowMixed, verbose);
   delete bIO;
   return pS;
   
