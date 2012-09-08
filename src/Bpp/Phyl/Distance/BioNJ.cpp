@@ -57,7 +57,7 @@ double BioNJ::computeDistancesFromPair(const vector<unsigned int> & pair, const 
   :          lambda_ * (matrix_(pair[0], pos) - branchLengths[0]) + (1-lambda_)*(matrix_(pair[1], pos) - branchLengths[1]); 
 }
 
-void BioNJ::computeTree(bool rooted) throw (Exception)
+void BioNJ::computeTree() throw (Exception)
 {
   // Initialization:
   for (unsigned int i = 0; i < matrix_.size(); i++)
@@ -69,10 +69,10 @@ void BioNJ::computeTree(bool rooted) throw (Exception)
   vector<double> newVar(matrix_.size());
   
   // Build tree:
-  while (currentNodes_.size() > (rooted ? 2 : 3))
+  while (currentNodes_.size() > (rootTree_ ? 2 : 3))
   {
     if (verbose_)
-      ApplicationTools::displayGauge(matrix_.size() - currentNodes_.size(), matrix_.size() - (rooted ? 2 : 3) - 1);
+      ApplicationTools::displayGauge(matrix_.size() - currentNodes_.size(), matrix_.size() - (rootTree_ ? 2 : 3) - 1);
     vector<unsigned int> bestPair = getBestPair();
     vector<double> distances = computeBranchLengthsForPair(bestPair);
     Node * best1 = currentNodes_[bestPair[0]];

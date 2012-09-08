@@ -1,5 +1,5 @@
 //
-// File: BppOSubstitutionModelFormatFormat.cpp
+// File: BppOSubstitutionModelFormat.cpp
 // Created by: Laurent Guéguen
 // Created on: mercredi 4 juillet 2012, à 13h 58
 //
@@ -50,7 +50,8 @@
 #include "BppOFrequenciesSetFormat.h"
 
 #include <Bpp/Seq/App/SequenceApplicationTools.h>
-
+#include <Bpp/Io/BppOParametrizableFormat.h>
+#include <Bpp/Io/BppODiscreteDistributionFormat.h>
 #include <Bpp/Numeric/Prob.all>
 
 using namespace bpp;
@@ -160,7 +161,7 @@ SubstitutionModel* BppOSubstitutionModelFormat::read(const Alphabet* alphabet,
       // We have to parse the nested model first:
       string nestedModelDescription = args["model"];
       if (TextTools::isEmpty(nestedModelDescription))
-        throw Exception("PhylogeneticsApplicationTools::read. Missing argument 'model' for model 'gBGC'.");
+        throw Exception("BppOSubstitutionModelFormat::read. Missing argument 'model' for model 'gBGC'.");
       if (verbose)
         ApplicationTools::displayResult("Biased gene conversion", modelName);
       map<string, string> unparsedParameterValuesNested;
@@ -188,7 +189,7 @@ SubstitutionModel* BppOSubstitutionModelFormat::read(const Alphabet* alphabet,
 
       string nestedModelDescription = args["model"];
       if (TextTools::isEmpty(nestedModelDescription))
-        throw Exception("PhylogeneticsApplicationTools::read. Missing argument 'model' for model 'YpR_sym'.");
+        throw Exception("BppOSubstitutionModelFormat::read. Missing argument 'model' for model 'YpR_sym'.");
       if (verbose)
         ApplicationTools::displayResult("Symetric YpR model" , modelName);
       map<string, string> unparsedParameterValuesNested;
@@ -206,7 +207,7 @@ SubstitutionModel* BppOSubstitutionModelFormat::read(const Alphabet* alphabet,
 
     string nestedModelDescription = args["model"];
     if (TextTools::isEmpty(nestedModelDescription))
-      throw Exception("PhylogeneticsApplicationTools::read. Missing argument 'model' for model 'YpR_gen'.");
+      throw Exception("BppOSubstitutionModelFormat::read. Missing argument 'model' for model 'YpR_gen'.");
     if (verbose)
       ApplicationTools::displayResult("General YpR model" , modelName);
     map<string, string> unparsedParameterValuesNested;
@@ -231,7 +232,7 @@ SubstitutionModel* BppOSubstitutionModelFormat::read(const Alphabet* alphabet,
       // We have to parse the nested model first:
       string nestedModelDescription = args["model"];
       if (TextTools::isEmpty(nestedModelDescription))
-        throw Exception("PhylogeneticsApplicationTools::read. Missing argument 'model' for model 'RE08'.");
+        throw Exception("BppOSubstitutionModelFormat::read. Missing argument 'model' for model 'RE08'.");
       if (verbose)
         ApplicationTools::displayResult("Gap model", modelName);
       map<string, string> unparsedParameterValuesNested;
@@ -255,12 +256,12 @@ SubstitutionModel* BppOSubstitutionModelFormat::read(const Alphabet* alphabet,
   else if (modelName == "TS98")
     {
       if (!allowCovarions)
-        throw Exception("PhylogeneticsApplicationTools::read. No Covarion model allowed here.");
+        throw Exception("BppOSubstitutionModelFormat::read. No Covarion model allowed here.");
 
       // We have to parse the nested model first:
       string nestedModelDescription = args["model"];
       if (TextTools::isEmpty(nestedModelDescription))
-        throw Exception("PhylogeneticsApplicationTools::read. Missing argument 'model' for model 'TS98'.");
+        throw Exception("BppOSubstitutionModelFormat::read. Missing argument 'model' for model 'TS98'.");
       if (verbose)
         ApplicationTools::displayResult("Covarion model", modelName);
       map<string, string> unparsedParameterValuesNested;
@@ -284,15 +285,15 @@ SubstitutionModel* BppOSubstitutionModelFormat::read(const Alphabet* alphabet,
   else if (modelName == "G01")
     {
       if (!allowCovarions)
-        throw Exception("PhylogeneticsApplicationTools::read. No Covarion model allowed here.");
+        throw Exception("BppOSubstitutionModelFormat::read. No Covarion model allowed here.");
 
       // We have to parse the nested model first:
       string nestedModelDescription = args["model"];
       if (TextTools::isEmpty(nestedModelDescription))
-        throw Exception("PhylogeneticsApplicationTools::read. Missing argument 'model' for model 'G01'.");
+        throw Exception("BppOSubstitutionModelFormat::read. Missing argument 'model' for model 'G01'.");
       string nestedRateDistDescription = args["rdist"];
       if (TextTools::isEmpty(nestedRateDistDescription))
-        throw Exception("PhylogeneticsApplicationTools::read. Missing argument 'rdist' for model 'G01'.");
+        throw Exception("BppOSubstitutionModelFormat::read. Missing argument 'rdist' for model 'G01'.");
       if (verbose)
         ApplicationTools::displayResult("Covarion model", modelName);
 
@@ -724,7 +725,7 @@ SubstitutionModel* BppOSubstitutionModelFormat::readWord(const Alphabet* alphabe
                                         dynamic_cast<NucleotideSubstitutionModel*>(v_pSM[2]));
 
     
-    else if (modelName == "CodonDistance")
+    else if (modelName == "CodonDist")
       {
         if (v_nestedModelDescription.size() != 3)
           model = new CodonDistanceSubstitutionModel(pgc,
@@ -826,7 +827,10 @@ MixedSubstitutionModel* BppOSubstitutionModelFormat::readMixed(const Alphabet* a
          it++){
       if (it->second.find("(") != string::npos){
         unparsedParameterValuesNested3.clear();
-        mdist[pSM->getParameterNameWithoutNamespace(it->first)] = PhylogeneticsApplicationTools::getDistributionDefaultInstance(it->second, unparsedParameterValuesNested3, true);
+
+        BppODiscreteDistributionFormat* bIO=new BppODiscreteDistributionFormat();
+        mdist[pSM->getParameterNameWithoutNamespace(it->first)] = bIO->read(it->second, unparsedParameterValuesNested3, false);
+        delete bIO;
         for (map<string, string>::iterator it2 = unparsedParameterValuesNested3.begin();
              it2 != unparsedParameterValuesNested3.end();
              it2++)
@@ -943,7 +947,10 @@ void BppOSubstitutionModelFormat::write(const SubstitutionModel& model,
           // Also print distribution here:
           out << ",rdist=";
           const DiscreteDistribution* nestedDist = gModel->getRateDistribution();
-          PhylogeneticsApplicationTools::describeDiscreteDistribution_(nestedDist, out, globalAliases, writtenNames);
+          const BppODiscreteDistributionFormat* bIO=new BppODiscreteDistributionFormat();
+  
+          bIO->write(*nestedDist, out, globalAliases, writtenNames);
+          delete bIO;
         }
       comma=true;
     }
@@ -1011,8 +1018,10 @@ void BppOSubstitutionModelFormat::write(const SubstitutionModel& model,
     comma=true;
   }
 
-  PhylogeneticsApplicationTools::describeParameters_(&model, out, globalAliases, model.getIndependentParameters().getParameterNames(), writtenNames, true, comma);
-      
+  const BppOParametrizableFormat* bIO=new BppOParametrizableFormat();
+  bIO->write(&model, out, globalAliases, model.getIndependentParameters().getParameterNames(), writtenNames, true, comma);
+  delete bIO;
+
   out << ")";
 }
 
@@ -1049,7 +1058,7 @@ void BppOSubstitutionModelFormat::write(const MixedSubstitutionModel& model,
   }
   else {
     const MixtureOfASubstitutionModel* pMS=dynamic_cast<const MixtureOfASubstitutionModel*>(&model);
-    out << "MixedModel(model= ";
+    out << "MixedModel(model=";
     const SubstitutionModel* eM=pMS->getNModel(0);
 
     ParameterList pl=eM->getIndependentParameters();
@@ -1067,8 +1076,12 @@ void BppOSubstitutionModelFormat::write(const MixedSubstitutionModel& model,
           
           out << eM->getParameterNameWithoutNamespace(vpl[j]) << "=" ;
           const DiscreteDistribution* pDD=pMS->getDistribution(vpl[j]);
-          if (pDD && dynamic_cast<const ConstantDistribution*>(pDD)==NULL)
-            PhylogeneticsApplicationTools::describeDiscreteDistribution_(pDD, out, globalAliases, writtenNames);
+          if (pDD && dynamic_cast<const ConstantDistribution*>(pDD)==NULL){
+            const BppODiscreteDistributionFormat* bIO=new BppODiscreteDistributionFormat();
+  
+            bIO->write(*pDD, out, globalAliases, writtenNames);
+            delete bIO;
+          }
           else
             out << pl[j].getValue();
         }
@@ -1077,10 +1090,11 @@ void BppOSubstitutionModelFormat::write(const MixedSubstitutionModel& model,
     }
     out << ")";
     if (pMS->from()!=-1)
-      out << ", from=" << model.getAlphabet()->intToChar(pMS->from()) << ", to=" << model.getAlphabet()->intToChar(pMS->to());
+      out << ",from=" << model.getAlphabet()->intToChar(pMS->from()) << ",to=" << model.getAlphabet()->intToChar(pMS->to());
   }
 
-  PhylogeneticsApplicationTools::describeParameters_(&model, out, globalAliases, model.getIndependentParameters().getParameterNames(), writtenNames, true, true);
+  const BppOParametrizableFormat* bIO=new BppOParametrizableFormat();
+  bIO->write(&model, out, globalAliases, model.getIndependentParameters().getParameterNames(), writtenNames, true, true);
 
   out << ")";
 }

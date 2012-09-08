@@ -5,7 +5,7 @@
 //
 
 /*
-   Copyright or © or Copr. CNRS, (November 16, 2004)
+   Copyright or © or Copr. Bio++ Development Team, (November 16, 2004)
 
    This software is a computer program whose purpose is to provide classes
    for phylogenetic data analysis.
@@ -718,7 +718,6 @@ public:
    * @param reconstructionMethod The tree reconstruction object to use.
    * @param parametersToIgnore A list of parameters to ignore while optimizing parameters.
    * @param optimizeBrLen Tell if branch lengths should be optimized together with other parameters. This may lead to more accurate parameter estimation, but is slower.
-   * @param rooted Tell if rooted trees must be produced.
    * @param param String describing the type of optimization to use.
    * @param tolerance Threshold on likelihood for stopping the iterative procedure. Used only with param=DISTANCEMETHOD_ITERATIONS.
    * @param tlEvalMax Maximum number of likelihood computations to perform when optimizing parameters. Used only with param=DISTANCEMETHOD_ITERATIONS.
@@ -731,7 +730,6 @@ public:
     AgglomerativeDistanceMethod& reconstructionMethod,
     const ParameterList& parametersToIgnore,
     bool optimizeBrLen = false,
-    bool rooted = false,
     const std::string& param = DISTANCEMETHOD_INIT,
     double tolerance = 0.000001,
     unsigned int tlEvalMax = 1000000,

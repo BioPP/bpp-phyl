@@ -6,7 +6,7 @@
 //
 
 /*
-Copyright or © or Copr. CNRS, (November 16, 2004)
+Copyright or © or Copr. Bio++ Development Team, (November 16, 2004)
 
 This software is a computer program whose purpose is to provide classes
 for phylogenetic data analysis.
@@ -71,12 +71,12 @@ class DistanceMethod:
      * @param matrix The matrix to use.
      */
 		virtual void setDistanceMatrix(const DistanceMatrix& matrix) = 0;
-		/**
+		
+    /**
      * @brief Perform the clustering.
-     *
-     * @param rooted Tell is the final tree must be rooted.
      */
-    virtual void computeTree(bool rooted) = 0;
+    virtual void computeTree() = 0;
+    
     /**
      * @return The computed tree.
      */
@@ -86,7 +86,16 @@ class DistanceMethod:
      * @return The name of the distance method.
      */
     virtual std::string getName() const = 0;
-	
+
+    /**
+     * @param yn Enable/Disable verbose mode.
+     */
+    virtual void setVerbose(bool yn) = 0;
+
+    /**
+     * @return True if verbose mode is enabled.
+     */
+    virtual bool isVerbose() const = 0;
 };
 
 /**

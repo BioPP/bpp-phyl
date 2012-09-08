@@ -475,26 +475,6 @@ namespace bpp
       throw (Exception);
 
     /**
-     * @brief Build a distribution as a DiscreteDistribution object with default parameter values according to a keyval description.
-     *
-     * Check the Bio++ Program Suite documentation for a description of the syntax.
-     * It is mainly for internal usage, you're probably looking for the getRateDistribution function.
-     *
-     * @param distDescription         A string describing the model in the keyval syntax.
-     * @param unparsedParameterValues [out] a map that will contain all the distribution parameters
-     *                                names and their corresponding unparsed value, if they were found.
-     * @param verbose                 Print some info to the 'message' output stream.
-     * @return A new DiscreteDistribution object according to options specified.
-     * @throw Exception if an error occured.
-     */
-    
-    static DiscreteDistribution* getDistributionDefaultInstance(
-        const std::string& distDescription,
-        std::map<std::string, std::string>& unparsedParameterValues,
-        bool verbose = true)
-      throw (Exception);
-
-    /**
      * @brief Build a multi-dimension distribution as a
      * MultipleDiscreteDistribution object with default parameter
      * values according to a keyval description.
@@ -738,14 +718,6 @@ namespace bpp
      */
     static void printParameters(const DiscreteDistribution* rDist, OutputStream& out);
 
-  private:
-    static void describeParameters_(const ParameterAliasable* parametrizable, OutputStream& out, std::map<std::string, std::string>& globalAliases, const std::vector<std::string>& names,  std::vector<std::string>& writtenNames, bool printLocalAliases = true, bool printComma=false);
-    static void describeParameters_(const Parametrizable* parametrizable, OutputStream& out, const std::vector<std::string>& names,  std::vector<std::string>& writtenNames, bool printComma=false);
-    static void describeSubstitutionModel_(const SubstitutionModel* model, OutputStream& out, std::map<std::string, std::string>& globalAliases,  std::vector<std::string>& writtenNames);
-    static void describeFrequenciesSet_(const FrequenciesSet* pfreqset, OutputStream& out, std::vector<std::string>& writtenNames);
-    static void describeDiscreteDistribution_(const DiscreteDistribution* rDist, OutputStream& out, std::map<std::string,std:: string>& globalAliases, std::vector<std::string>& writtenNames);
-
-    friend class BppOSubstitutionModelFormat;
   };
 
 } //end of namespace bpp.

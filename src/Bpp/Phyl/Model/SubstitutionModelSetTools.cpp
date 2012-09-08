@@ -90,37 +90,55 @@ SubstitutionModelSet* SubstitutionModelSetTools::createNonHomogeneousModelSet(
     throw AlphabetMismatchException("SubstitutionModelSetTools::createNonHomogeneousModelSet()", model->getAlphabet(), rootFreqs->getAlphabet());
   ParameterList globalParameters, branchParameters;
   globalParameters = model->getParameters();
-  vector<string> globalParameterPrefs; // vector of the prefixes (when there is a '*' in the declaration)
-  //First check if parameter names are valid:
+  
+  vector<string> globalParameterNames2; // vector of the complete names of global parameters
+
+  //First get correct parameter names
   unsigned int i,j;
   
   for ( i = 0; i < globalParameterNames.size(); i++) {
     if (globalParameterNames[i].find("*") != string::npos) {
-      j = globalParameterNames[i].find("*");
-      globalParameterPrefs.push_back(globalParameterNames[i].substr(0, j));
+
+      for ( j = 0; j < globalParameters.size(); j++)
+        {
+          StringTokenizer stj(globalParameterNames[i], "*", true, false);
+          size_t pos1, pos2;
+          string parn=globalParameters[j].getName();
+          bool flag(true);
+          string g=stj.nextToken();
+          pos1=parn.find(g);
+          if (pos1!=0)
+            flag=false;
+          pos1+=g.length();
+          while (flag && stj.hasMoreToken()){
+            g=stj.nextToken();
+            pos2=parn.find(g,pos1);
+            if (pos2 == string::npos){
+              flag=false;
+              break;
+            }
+            pos1=pos2+g.length();
+          }
+          if (flag &&
+              ((g.length()==0) || (pos1==parn.length()) || (parn.rfind(g)==parn.length()-g.length())))
+            globalParameterNames2.push_back(parn);
+        }
     }
     else if (!globalParameters.hasParameter(globalParameterNames[i]))
       throw Exception("SubstitutionModelSetTools::createNonHomogeneousModelSet. Parameter '" + globalParameterNames[i] + "' is not valid.");
+      else
+        globalParameterNames2.push_back(globalParameterNames[i]);
   }
-  
+
+  // remove non global parameters
   for (i = globalParameters.size(); i > 0; i--)
   {
-    string gN = globalParameters[i-1].getName();
-    bool flag = false;
-    for (j = 0; j < globalParameterPrefs.size(); j++) {
-      if (gN.find(globalParameterPrefs[j]) == 0) {
-        flag = true;
-        break;
-      }
-    }
-    if (!flag)
-      flag = (find(globalParameterNames.begin(), globalParameterNames.end(), globalParameters[i-1].getName()) != globalParameterNames.end());
-
-    if (!flag) {
+    if (find(globalParameterNames2.begin(), globalParameterNames2.end(), globalParameters[i-1].getName()) == globalParameterNames2.end())
+      {
       //not a global parameter:
-      branchParameters.addParameter(globalParameters[i - 1]);
-      globalParameters.deleteParameter(i - 1);
-    }
+        branchParameters.addParameter(globalParameters[i - 1]);
+        globalParameters.deleteParameter(i - 1);
+      }
   }
 
   bool mixed=(dynamic_cast<MixedSubstitutionModel*>(model)!=NULL);
