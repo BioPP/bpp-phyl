@@ -755,7 +755,10 @@ DiscreteDistribution* PhylogeneticsApplicationTools::getRateDistributionDefaultI
   string distName;
   map<string, string> args;
   KeyvalTools::parseProcedure(distDescription, distName, args);
-  
+
+  if (distName == "Uniforl")
+    throw Exception("Warning, Uniform distribution is deprecated, use Constant instead.");
+
   if (distName == "Constant") {
     if (!constDistAllowed)
       throw Exception("You can't use a constant distribution here!");
