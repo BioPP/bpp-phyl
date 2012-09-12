@@ -72,7 +72,7 @@ SubstitutionModel* BppOSubstitutionModelFormat::read(const Alphabet* alphabet,
   SubstitutionModel* model = 0;
   string modelName = "";
   map<string, string> args;
-  BppOFrequenciesSetFormat* bIOFreq=new BppOFrequenciesSetFormat();
+  BppOFrequenciesSetFormat* bIOFreq = new BppOFrequenciesSetFormat();
 
   KeyvalTools::parseProcedure(modelDescription, modelName, args);
 
@@ -81,7 +81,7 @@ SubstitutionModel* BppOSubstitutionModelFormat::read(const Alphabet* alphabet,
   // ////////////////////////////////
 
   if ((modelName == "MixedModel" || (modelName == "Mixture")) && allowMixed)
-    model=readMixed(alphabet, modelDescription, unparsedParameterValues, allowCovarions, allowGaps, verbose);
+    model = readMixed(alphabet, modelDescription, unparsedParameterValues, allowCovarions, allowGaps, verbose);
   
   
   // /////////////////////////////////
@@ -92,9 +92,9 @@ SubstitutionModel* BppOSubstitutionModelFormat::read(const Alphabet* alphabet,
     model=readWord(alphabet, modelDescription, unparsedParameterValues, allowCovarions, allowMixed, allowGaps, verbose);
 
 
-// //////////////////////////////////////
-// PREDEFINED CODON MODELS
-// //////////////////////////////////////
+  // //////////////////////////////////////
+  // PREDEFINED CODON MODELS
+  // //////////////////////////////////////
 
   else if ((modelName == "MG94") || (modelName == "YN98") ||
            (modelName == "GY94") || (modelName.substr(0, 5) == "YNGKP"))
@@ -403,6 +403,9 @@ SubstitutionModel* BppOSubstitutionModelFormat::read(const Alphabet* alphabet,
           else if (modelName == "T92")
             {
               model = new T92(alpha);
+
+  cout << "ok here" << endl;
+  model->getParameters().printParameters(cout);
             }
 
           // /////////////////////////////////
@@ -488,12 +491,14 @@ SubstitutionModel* BppOSubstitutionModelFormat::read(const Alphabet* alphabet,
         }
       if (verbose)
         ApplicationTools::displayResult("Substitution model", modelName);
+  cout << "ok here" << endl;
+  model->getParameters().printParameters(cout);
     }
 
   // Update parameter args:
   vector<string> pnames = model->getParameters().getParameterNames();
 
-  string pref=model->getNamespace();
+  string pref = model->getNamespace();
 
   for (unsigned int i = 0; i < pnames.size(); i++)
     {
@@ -551,6 +556,8 @@ SubstitutionModel* BppOSubstitutionModelFormat::read(const Alphabet* alphabet,
     unparsedParameterValues[pref + "initFreqs.observedPseudoCount"] = args["initFreqs.observedPseudoCount"];
 
   delete bIOFreq;
+
+  model->getParameters().printParameters(cout);
   return model;
 
 }

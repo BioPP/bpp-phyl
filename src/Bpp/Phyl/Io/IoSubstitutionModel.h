@@ -1,11 +1,11 @@
 //
-// File: IOSubstitutionModel.h
+// File: IoSubstitutionModel.h
 // Created by: Laurent Guéguen
 // Created on: mercredi 4 juillet 2012, à 13h 03
 //
 
 /*
-  Copyright or © or Copr. CNRS, (November 16, 2004)
+  Copyright or © or Copr. Bio++ Development Team, (November 16, 2004)
 
   This software is a computer program whose purpose is to provide classes
   for phylogenetic data analysis.
