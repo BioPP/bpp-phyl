@@ -71,7 +71,6 @@ T92::T92(const NucleicAlphabet* alpha, double kappa, double theta) :
   l_(),
   p_(size_, size_)
 {
-  cout << Parameter::R_PLUS_STAR.getDescription() << endl;
   addParameter_(new Parameter("T92.kappa", kappa, &Parameter::R_PLUS_STAR));
   addParameter_(new Parameter("T92.theta", theta, &FrequenciesSet::FREQUENCE_CONSTRAINT_SMALL));
   p_.resize(size_, size_);

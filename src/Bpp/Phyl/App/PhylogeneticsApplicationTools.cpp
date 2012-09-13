@@ -151,24 +151,6 @@ vector<Tree*> PhylogeneticsApplicationTools::getTrees(
 
 /******************************************************************************/
 
-SubstitutionModel* PhylogeneticsApplicationTools::getSubstitutionModelDefaultInstance(
-  const Alphabet* alphabet,
-  const string& modelDescription,
-  map<string, string>& unparsedParameterValues,
-  bool allowCovarions,
-  bool allowMixed,
-  bool allowGaps,
-  bool verbose) throw (Exception)
-{
-  BppOSubstitutionModelFormat* bIO = new BppOSubstitutionModelFormat();
-  SubstitutionModel* pS = bIO->read(alphabet, modelDescription, unparsedParameterValues, allowCovarions, allowMixed, allowMixed, verbose);
-  delete bIO;
-  return pS;
-  
-}
-
-/******************************************************************************/
-
 SubstitutionModel* PhylogeneticsApplicationTools::getSubstitutionModel(
   const Alphabet* alphabet,
   const SiteContainer* data,
@@ -186,7 +168,10 @@ SubstitutionModel* PhylogeneticsApplicationTools::getSubstitutionModel(
     modelDescription = ApplicationTools::getStringParameter("model", params, "JC69", suffix, suffixIsOptional, verbose);
 
   map<string, string> unparsedParameterValues;
-  SubstitutionModel* model = getSubstitutionModelDefaultInstance(alphabet, modelDescription, unparsedParameterValues, true, true, true, verbose);
+
+  BppOSubstitutionModelFormat* bIO = new BppOSubstitutionModelFormat();
+  SubstitutionModel* model = bIO->read(alphabet, modelDescription, unparsedParameterValues, true, true, true, verbose);
+  delete bIO;
   setSubstitutionModelParametersInitialValues(model, unparsedParameterValues, data, verbose);
   return model;
 }
@@ -544,6 +529,7 @@ void PhylogeneticsApplicationTools::setSubstitutionModelSet(
   if (verbose)
     ApplicationTools::displayResult("Number of distinct models", TextTools::toString(nbModels));
 
+  BppOSubstitutionModelFormat* bIO = new BppOSubstitutionModelFormat();
 
   // ///////////////////////////////////////////
   // Build a new model set object:
@@ -559,7 +545,7 @@ void PhylogeneticsApplicationTools::setSubstitutionModelSet(
 
   map<string, string> tmpUnparsedParameterValues;
 
-  auto_ptr<SubstitutionModel> tmp(getSubstitutionModelDefaultInstance(alphabet, tmpDesc, tmpUnparsedParameterValues, true, true, true, false));
+  auto_ptr<SubstitutionModel> tmp(bIO->read(alphabet, tmpDesc, tmpUnparsedParameterValues, true, true, true, false));
   if (tmp->getNumberOfStates() != alphabet->getSize())
   {
     // Markov-Modulated Markov Model...
@@ -600,7 +586,7 @@ void PhylogeneticsApplicationTools::setSubstitutionModelSet(
 
 
     map<string, string> unparsedParameterValues;
-    SubstitutionModel* model = getSubstitutionModelDefaultInstance(alphabet, modelDesc, unparsedParameterValues, true, true, true, verbose);
+    SubstitutionModel* model = bIO->read(alphabet, modelDesc, unparsedParameterValues, true, true, true, verbose);
     prefix += ".";
 
     vector<string> specificParameters, sharedParameters;
@@ -650,6 +636,8 @@ void PhylogeneticsApplicationTools::setSubstitutionModelSet(
     ApplicationTools::displayResult("Parameter alias found", p1 + "->" + p2);
     modelSet.aliasParameters(p1, p2);
   }
+
+  delete bIO;
 }
 
 /******************************************************************************/
@@ -756,7 +744,7 @@ DiscreteDistribution* PhylogeneticsApplicationTools::getRateDistributionDefaultI
   map<string, string> args;
   KeyvalTools::parseProcedure(distDescription, distName, args);
 
-  if (distName == "Uniforl")
+  if (distName == "Uniform")
     throw Exception("Warning, Uniform distribution is deprecated, use Constant instead.");
 
   if (distName == "Constant") {

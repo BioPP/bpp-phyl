@@ -73,7 +73,7 @@ SubstitutionModel* BppOSubstitutionModelFormat::read(const Alphabet* alphabet,
   string modelName = "";
   map<string, string> args;
   BppOFrequenciesSetFormat* bIOFreq = new BppOFrequenciesSetFormat();
-
+  
   KeyvalTools::parseProcedure(modelDescription, modelName, args);
 
   // //////////////////////////////////
@@ -403,9 +403,6 @@ SubstitutionModel* BppOSubstitutionModelFormat::read(const Alphabet* alphabet,
           else if (modelName == "T92")
             {
               model = new T92(alpha);
-
-  cout << "ok here" << endl;
-  model->getParameters().printParameters(cout);
             }
 
           // /////////////////////////////////
@@ -491,8 +488,6 @@ SubstitutionModel* BppOSubstitutionModelFormat::read(const Alphabet* alphabet,
         }
       if (verbose)
         ApplicationTools::displayResult("Substitution model", modelName);
-  cout << "ok here" << endl;
-  model->getParameters().printParameters(cout);
     }
 
   // Update parameter args:
@@ -557,7 +552,6 @@ SubstitutionModel* BppOSubstitutionModelFormat::read(const Alphabet* alphabet,
 
   delete bIOFreq;
 
-  model->getParameters().printParameters(cout);
   return model;
 
 }

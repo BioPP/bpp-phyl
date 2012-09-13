@@ -130,35 +130,6 @@ namespace bpp
                                        bool verbose = true) throw (Exception);
   
     /**
-     * @brief Build a SubstitutionModel object with default parameter values according to a keyval description.
-     *
-     * Check the Bio++ Program Suite documentation for a description of the syntax.
-     * This function will resolve parameter aliasing, but will not assign initial values, with the
-     *     exception of FrequenciesSet instances that will be initialized.
-     * It is mainly for internal usage, you're probably looking for the getSubstitutionModel or getSubstitutionModelSet function.
-     *
-     * @param alphabet         The alpabet to use in the model.
-     * @param modelDescription A string describing the model in the keyval syntax.
-     * @param allowCovarions   Tell is a covarion model can be returned.
-     * @param allowMixed       Tell is a mixture model can be returned.
-     * @param allowGaps        Tell is a gap model can be returned.
-     * @param unparsedParameterValues [out] a map that will contain all the model parameters
-     *                                names and their corresponding unparsed value, if they were found.
-     * @param verbose Print some info to the 'message' output stream.
-     * @return A new SubstitutionModel object according to options specified.
-     * @throw Exception if an error occured.
-     */
-    static SubstitutionModel* getSubstitutionModelDefaultInstance(
-        const Alphabet* alphabet,
-        const std::string& modelDescription,
-        std::map<std::string, std::string>& unparsedParameterValues,
-        bool allowCovarions,
-        bool allowMixed,
-        bool allowGaps,
-        bool verbose) throw (Exception);
-
-
-    /**
      * @brief Build a SubstitutionModel object according to options.
      *
      * Creates a new substitution model object according to model description syntax
