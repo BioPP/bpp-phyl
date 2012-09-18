@@ -129,13 +129,13 @@ double PseudoNewtonOptimizer::doStep() throw (Exception)
     movements[i] = getParameters()[i].getValue() - newPoint[i].getValue(); 
   }
   newValue = getFunction()->f(newPoint);
-  
+
   // Check newValue:
   unsigned int count = 0;
-  while ((count < maxCorrection_) && (newValue > currentValue_ + getStopCondition()->getTolerance())) {
+  while ((count < maxCorrection_) && ((newValue > currentValue_ + getStopCondition()->getTolerance()) || std::isnan(newValue))) {
     //Restore previous point (all parameters in case of global constraint):
     if ((count==0) && updateParameters()) getFunction()->setParameters(*bckPoint);
-
+    
     if (!(useCJ_ && (count==3))){
       printMessage("!!! Function at new point is greater than at current point: " + TextTools::toString(newValue) + ">" + TextTools::toString(currentValue_) + ". Applying Felsenstein-Churchill correction: " + TextTools::toString(count));
         
