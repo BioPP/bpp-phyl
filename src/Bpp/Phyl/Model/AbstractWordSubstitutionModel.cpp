@@ -488,7 +488,7 @@ void AbstractWordSubstitutionModel::updateMatrices()
       }
 
       if (flag){
-        isNonSingular_=false;
+        isNonSingular_=true;
         eigenValues_[nulleigen]=0; // to avoid approximation errors on long long branches
         iEigenValues_[nulleigen]=0; // to avoid approximation errors on long long branches
         
@@ -501,6 +501,11 @@ void AbstractWordSubstitutionModel::updateMatrices()
         
         for (i = 0; i < salph; i++)
           freq_[i] /= x;
+      }
+      else {
+        ApplicationTools::displayMessage("Unable to find eigenvector for eigenvalue 1. Taylor series used instead.");
+        isNonSingular_=false;
+        isDiagonalizable_=false;
       }
     }
 
