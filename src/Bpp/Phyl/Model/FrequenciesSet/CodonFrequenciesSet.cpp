@@ -219,7 +219,9 @@ FullPerAACodonFrequenciesSet::FullPerAACodonFrequenciesSet(const FullPerAACodonF
   pgc_(ffs.pgc_),
   ppfs_(ffs.ppfs_->clone()),
   vS_(ffs.vS_)
-{}
+{
+  updateFrequencies();
+}
 
 FullPerAACodonFrequenciesSet::~FullPerAACodonFrequenciesSet()
 {
@@ -350,6 +352,7 @@ CodonFromIndependentFrequenciesSet::CodonFromIndependentFrequenciesSet(
                                                                        const string& name) :
   WordFromIndependentFrequenciesSet(pCA, freqvector, "", name)
 {
+  updateFrequencies();
 }
 
 const CodonAlphabet* CodonFromIndependentFrequenciesSet::getAlphabet() const
@@ -360,6 +363,7 @@ const CodonAlphabet* CodonFromIndependentFrequenciesSet::getAlphabet() const
 CodonFromIndependentFrequenciesSet::CodonFromIndependentFrequenciesSet(const CodonFromIndependentFrequenciesSet& iwfs) :
   WordFromIndependentFrequenciesSet(iwfs)
 {
+  updateFrequencies();
 }
 
 CodonFromIndependentFrequenciesSet& CodonFromIndependentFrequenciesSet::operator=(const CodonFromIndependentFrequenciesSet& iwfs)
@@ -412,6 +416,7 @@ void CodonFromIndependentFrequenciesSet::setFrequencies(const vector<double>& fr
 CodonFromUniqueFrequenciesSet::CodonFromUniqueFrequenciesSet(const CodonAlphabet* pCA, FrequenciesSet* pfreq, const string& name) :
   WordFromUniqueFrequenciesSet(pCA, pfreq, "", name)
 {
+  updateFrequencies();
 }
 
 const CodonAlphabet* CodonFromUniqueFrequenciesSet::getAlphabet() const
@@ -423,6 +428,7 @@ const CodonAlphabet* CodonFromUniqueFrequenciesSet::getAlphabet() const
 CodonFromUniqueFrequenciesSet::CodonFromUniqueFrequenciesSet(const CodonFromUniqueFrequenciesSet& iwfs) :
   WordFromUniqueFrequenciesSet(iwfs)
 {
+  updateFrequencies();
 }
 
 CodonFromUniqueFrequenciesSet& CodonFromUniqueFrequenciesSet::operator=(const CodonFromUniqueFrequenciesSet& iwfs)
