@@ -432,13 +432,17 @@ void AbstractWordSubstitutionModel::updateMatrices()
 
     try {
       MatrixTools::inv(rightEigenVectors_, leftEigenVectors_);
-      isNonSingular_=true;
+
+      // is it diagonalizable ?
       
       isDiagonalizable_=true;
       for (i=0; i<size_ && isDiagonalizable_; i++)
         if (abs(iEigenValues_[i]) > NumConstants::SMALL)
           isDiagonalizable_=false;
 
+
+      // is it singular?
+      
       // looking for the 0 eigenvector for which the non-stop right
       // eigen vector elements are equal.
       //
@@ -449,8 +453,8 @@ void AbstractWordSubstitutionModel::updateMatrices()
       double val;
       double seuil=1;
     
-      bool flag=true;
-      while (flag){
+      isNonSingular_=false;
+      while (!isNonSingular_){
         nulleigen=0;
         while (nulleigen < salph-nbStop) {
           if ((abs(eigenValues_[nulleigen]) < NumConstants::SMALL) && (abs(iEigenValues_[nulleigen]) < NumConstants::SMALL)){
@@ -471,7 +475,7 @@ void AbstractWordSubstitutionModel::updateMatrices()
             if (i<salph)
               nulleigen++;
             else {
-              flag=false;
+              isNonSingular_=true;
               break;
             }
           }
@@ -487,8 +491,7 @@ void AbstractWordSubstitutionModel::updateMatrices()
           seuil*=10;
       }
 
-      if (flag){
-        isNonSingular_=true;
+      if (isNonSingular_){
         eigenValues_[nulleigen]=0; // to avoid approximation errors on long long branches
         iEigenValues_[nulleigen]=0; // to avoid approximation errors on long long branches
         
@@ -504,7 +507,6 @@ void AbstractWordSubstitutionModel::updateMatrices()
       }
       else {
         ApplicationTools::displayMessage("Unable to find eigenvector for eigenvalue 1. Taylor series used instead.");
-        isNonSingular_=false;
         isDiagonalizable_=false;
       }
     }
