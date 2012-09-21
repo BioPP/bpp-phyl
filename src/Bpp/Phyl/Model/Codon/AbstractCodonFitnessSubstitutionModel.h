@@ -76,6 +76,7 @@ namespace bpp
   public:
     double getCodonsMulRate( unsigned int i , unsigned int j) const;
 
+    const FrequenciesSet* getFitness() const { return pfitset_;}
 
   };
 } // end of namespace bpp
