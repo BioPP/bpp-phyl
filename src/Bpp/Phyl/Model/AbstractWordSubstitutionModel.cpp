@@ -449,7 +449,7 @@ void AbstractWordSubstitutionModel::updateMatrices()
       // there is a tolerance for numerical problems
       //
     
-      unsigned int nulleigen;
+      unsigned int nulleigen=0;
       double val;
       double seuil=1;
     
