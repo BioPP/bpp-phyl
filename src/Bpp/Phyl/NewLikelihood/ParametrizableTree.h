@@ -65,7 +65,7 @@ namespace bpp
       std::auto_ptr<Constraint> brLenConstraint_;
 
     public:
-      ParametrizableTree(const Tree& tree, bool liveIndex = false, const std::string& prefix = "");
+      ParametrizableTree(const Tree& tree, bool reparametrizeRoot = false, bool liveIndex = false, const std::string& prefix = "");
 
       ParametrizableTree(const ParametrizableTree& pTree);
 

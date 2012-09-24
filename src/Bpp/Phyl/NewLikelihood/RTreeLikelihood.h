@@ -50,9 +50,11 @@
 
 namespace bpp
 {
+namespace newlik
+{
 
   /**
-   * @brief This class implement the single recursion likelihood computation for a tree.
+   * @brief This class implements the single recursion likelihood computation for a tree.
    *
    * This class uses an instance of the RTreeLikelihoodData for conditionnal likelihood storage.
    *
@@ -86,7 +88,7 @@ namespace bpp
   {
   private:
 
-    mutable RTreeLikelihoodData* likelihoodData_;
+    mutable std::auto_ptr<RTreeLikelihoodData> likelihoodData_;
     double minusLogLik_;
 
   public:
@@ -138,9 +140,9 @@ namespace bpp
 
     RTreeLikelihood(const RTreeLikelihood& lik);
     
-    RTreeLikelihood & operator=(const RTreeLikelihood& lik);
+    RTreeLikelihood& operator=(const RTreeLikelihood& lik);
 
-    virtual ~RTreeLikelihood();
+    virtual ~RTreeLikelihood() {} //smart pointers take care of everything.
 
     RTreeLikelihood* clone() const { return new RTreeLikelihood(*this); }
 	
@@ -161,15 +163,12 @@ namespace bpp
      * @{
      */
     void setData(const SiteContainer& sites) throw (Exception);
-    double getLikelihood() const;
-    double getLogLikelihood() const;
-    double getLikelihoodForASite(unsigned int site) const;
-    double getLogLikelihoodForASite(unsigned int site) const;
     unsigned int getSiteIndex(unsigned int site) const throw (IndexOutOfBoundsException) { return likelihoodData_->getRootArrayPosition(site); }
 		
-    double getLikelihoodForASiteForAClass(unsigned int site, unsigned int modelClass) const;
+    double getLogLikelihood() const;
+    double getLogLikelihoodForASite(unsigned int site) const;
     double getLogLikelihoodForASiteForAClass(unsigned int site, unsigned int modelClass) const;
-    double getLikelihoodForASiteForAClassForAState(unsigned int site, unsigned int modelClass, int state) const;
+    double getLogLikelihoodForASiteForAState(unsigned int site, int state) const;
     double getLogLikelihoodForASiteForAClassForAState(unsigned int site, unsigned int modelClass, int state) const;
     /** @} */
 
@@ -214,21 +213,15 @@ namespace bpp
     virtual void computeTreeLikelihood();
 
     virtual double getDLikelihoodForASiteForARateClass(unsigned int site, unsigned int rateClass) const;
-
     virtual double getDLikelihoodForASite(unsigned int site) const;
-
     virtual double getDLogLikelihoodForASite(unsigned int site) const;
-		
     virtual double getDLogLikelihood() const;
-		
+    
     virtual void computeTreeDLikelihood(const std::string& variable);
 
     virtual double getD2LikelihoodForASiteForARateClass(unsigned int site, unsigned int rateClass) const;
-
     virtual double getD2LikelihoodForASite(unsigned int site) const;
-
     virtual double getD2LogLikelihoodForASite(unsigned int site) const;
-		
     virtual double getD2LogLikelihood() const;
 		
     virtual void computeTreeD2Likelihood(const std::string& variable);
@@ -242,9 +235,7 @@ namespace bpp
      * @param node The root of the subtree.
      */
     virtual void computeSubtreeLikelihood(const Node * node); //Recursive method.			
-
     virtual void computeDownSubtreeDLikelihood(const Node *);
-		
     virtual void computeDownSubtreeD2Likelihood(const Node *);
 	
     void fireParameterChanged(const ParameterList & params);
@@ -259,6 +250,7 @@ namespace bpp
   };
 
 
+} //end of namespace newlik.
 } //end of namespace bpp.
 
 #endif	//_RTREELIKELIHOOD_H_

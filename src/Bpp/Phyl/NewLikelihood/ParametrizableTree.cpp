@@ -41,7 +41,7 @@ knowledge of the CeCILL license and that you accept its terms.
 
 using namespace bpp;
 
-ParametrizableTree::ParametrizableTree(const Tree& tree, bool liveIndex, const std::string& prefix): 
+ParametrizableTree::ParametrizableTree(const Tree& tree, bool reparametrizeRoot, bool liveIndex, const std::string& prefix): 
   AbstractParametrizable(prefix),
   tree_(tree),
   liveIndex_(liveIndex),
@@ -52,6 +52,9 @@ ParametrizableTree::ParametrizableTree(const Tree& tree, bool liveIndex, const s
   maximumBrLen_(10000),
   brLenConstraint_(new IntervalConstraint(minimumBrLen_, maximumBrLen_, true, true))
 {
+  //TODO allow root reparametrization
+  if (reparametrizeRoot)
+    throw Exception("ParametrizableTree::constructor. Reparametrization of root is not implemented yet.");
   buildIndex_(*tree_.getRootNode()); 
   if (liveIndex_)
     buildReverseIndex_(tree_.getRootNode());

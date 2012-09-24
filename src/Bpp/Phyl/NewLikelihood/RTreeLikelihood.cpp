@@ -45,6 +45,7 @@
 #include <Bpp/App/ApplicationTools.h>
 
 using namespace bpp;
+using namespace newlik;
 
 // From the STL:
 #include <iostream>
@@ -53,47 +54,45 @@ using namespace std;
 
 /******************************************************************************/
 
-RNonHomogeneousTreeLikelihood::RNonHomogeneousTreeLikelihood(
+RTreeLikelihood::RTreeLikelihood(
   const Tree& tree,
-  SubstitutionModelSet* modelSet,
-  DiscreteDistribution* rDist,
+  SubstitutionProcess* process,
   bool verbose,
   bool usePatterns,
   bool reparametrizeRoot)
 throw (Exception) :
-  AbstractNonHomogeneousTreeLikelihood(tree, modelSet, rDist, verbose, reparametrizeRoot),
+  AbstractTreeLikelihood(new ParametrizableTree(tree, reparametrizeRoot), 0, process),
   likelihoodData_(0),
   minusLogLik_(-1.)
 {
-  if (!modelSet->isFullySetUpFor(tree))
-    throw Exception("RNonHomogeneousTreeLikelihood(constructor). Model set is not fully specified.");
+  if (!process->isCompatibleWith(tree))
+    throw Exception("RTreeLikelihood(constructor). Substitution process set is not compatible with the given tree.");
   init_(usePatterns);
 }
 
 /******************************************************************************/
 
-RNonHomogeneousTreeLikelihood::RNonHomogeneousTreeLikelihood(
+RTreeLikelihood::RTreeLikelihood(
   const Tree& tree,
   const SiteContainer& data,
-  SubstitutionModelSet* modelSet,
-  DiscreteDistribution* rDist,
+  SubstitutionProcess* process,
   bool verbose,
   bool usePatterns,
   bool reparametrizeRoot)
 throw (Exception) :
-  AbstractNonHomogeneousTreeLikelihood(tree, modelSet, rDist, verbose, reparametrizeRoot),
+  AbstractTreeLikelihood(new ParametrizableTree(tree, reparametrizeRoot), data.clone(), process),
   likelihoodData_(0),
   minusLogLik_(-1.)
 {
-  if (!modelSet->isFullySetUpFor(tree))
-    throw Exception("RNonHomogeneousTreeLikelihood(constructor). Model set is not fully specified.");
+  if (!process->isCompatibleWith(tree))
+    throw Exception("RTreeLikelihood(constructor). Substitution process set is not compatible with the given tree.");
   init_(usePatterns);
   setData(data);
 }
 
 /******************************************************************************/
 
-void RNonHomogeneousTreeLikelihood::init_(bool usePatterns) throw (Exception)
+void RTreeLikelihood::init_(bool usePatterns) throw (Exception)
 {
   likelihoodData_ = new DRASRTreeLikelihoodData(
     tree_,
@@ -103,9 +102,9 @@ void RNonHomogeneousTreeLikelihood::init_(bool usePatterns) throw (Exception)
 
 /******************************************************************************/
 
-RNonHomogeneousTreeLikelihood::RNonHomogeneousTreeLikelihood(
-  const RNonHomogeneousTreeLikelihood& lik) :
-  AbstractNonHomogeneousTreeLikelihood(lik),
+RTreeLikelihood::RTreeLikelihood(
+  const RTreeLikelihood& lik) :
+  AbstractTreeLikelihood(lik),
   likelihoodData_(0),
   minusLogLik_(lik.minusLogLik_)
 {
@@ -115,10 +114,10 @@ RNonHomogeneousTreeLikelihood::RNonHomogeneousTreeLikelihood(
 
 /******************************************************************************/
 
-RNonHomogeneousTreeLikelihood& RNonHomogeneousTreeLikelihood::operator=(
-  const RNonHomogeneousTreeLikelihood& lik)
+RTreeLikelihood& RTreeLikelihood::operator=(
+  const RTreeLikelihood& lik)
 {
-  AbstractNonHomogeneousTreeLikelihood::operator=(lik);
+  AbstractTreeLikelihood::operator=(lik);
   if (likelihoodData_) delete likelihoodData_;
   likelihoodData_ = dynamic_cast<DRASRTreeLikelihoodData*>(lik.likelihoodData_->clone());
   likelihoodData_->setTree(tree_);
@@ -128,14 +127,7 @@ RNonHomogeneousTreeLikelihood& RNonHomogeneousTreeLikelihood::operator=(
 
 /******************************************************************************/
 
-RNonHomogeneousTreeLikelihood::~RNonHomogeneousTreeLikelihood()
-{
-  delete likelihoodData_;
-}
-
-/******************************************************************************/
-
-void RNonHomogeneousTreeLikelihood::setData(const SiteContainer& sites) throw (Exception)
+void RTreeLikelihood::setData(const SiteContainer& sites) throw (Exception)
 {
   if (data_) delete data_;
   data_ = PatternTools::getSequenceSubset(sites, *tree_->getRootNode());

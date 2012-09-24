@@ -47,7 +47,7 @@ using namespace newlik;
 Vdouble AbstractTreeLikelihood::getLogLikelihoodForEachSite() const
 {
 	Vdouble l(getNumberOfSites());
-	for(size_t i = 0; i < l.size(); i++) l[i] = getLogLikelihoodForASite(i);
+	for(unsigned int i = 0; i < l.size(); i++) l[i] = getLogLikelihoodForASite(i);
 	return l;
 }
 
@@ -56,9 +56,9 @@ Vdouble AbstractTreeLikelihood::getLogLikelihoodForEachSite() const
 VVdouble AbstractTreeLikelihood::getLogLikelihoodForEachSiteForEachState() const
 {
 	VVdouble l(getNumberOfSites());
-	for (size_t i = 0; i < l.size(); i++)
+	for (unsigned int i = 0; i < l.size(); i++)
   {
-		Vdouble* l_i = & l[i];
+		Vdouble* l_i = &l[i];
 		l_i->resize(getNumberOfStates());
 		for(unsigned int x = 0; x < l_i->size(); x++)
     {
@@ -72,13 +72,39 @@ VVdouble AbstractTreeLikelihood::getLogLikelihoodForEachSiteForEachState() const
 
 VVdouble AbstractTreeLikelihood::getLogLikelihoodForEachSiteForEachClass() const
 {
-
+	VVdouble l(getNumberOfSites());
+	for (unsigned int i = 0; i < l.size(); i++)
+  {
+		Vdouble* l_i = &l[i];
+		l_i->resize(getNumberOfClasses());
+		for(unsigned int c = 0; c < l_i->size(); c++)
+    {
+			(* l_i)[c] = getLogLikelihoodForASiteForAClass(i, c);
+		}
+	}
+	return l;
 }
 
 /******************************************************************************/
 
 VVVdouble AbstractTreeLikelihood::getLogLikelihoodForEachSiteForEachClassForEachState() const
 {
+	VVVdouble l(getNumberOfSites());
+	for (unsigned int i = 0; i < l.size(); i++)
+  {
+		VVdouble* l_i = &l[i];
+		l_i->resize(getNumberOfClasses());
+		for (unsigned int c = 0; c < l_i->size(); c++)
+    {
+		  Vdouble* l_ic = &(*l_i)[c];
+		  l_ic->resize(getNumberOfStates());
+		  for (unsigned int x = 0; x < l_ic->size(); x++)
+      {
+			  (* l_ic)[x] = getLogLikelihoodForASiteForAClassForAState(i, c, x);
+      }
+		}
+	}
+	return l;
 
 }
 

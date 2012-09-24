@@ -56,6 +56,8 @@ knowledge of the CeCILL license and that you accept its terms.
 
 namespace bpp
 {
+namespace newlik
+{
 
 /**
  * @brief The TreeLikelihood interface.
@@ -106,12 +108,41 @@ class TreeLikelihood:
     virtual bool isInitialized() const = 0;
 
     /**
+     * @brief Get the number of sites in the dataset.
+     *
+     * @return the number of sites in the dataset.
+     */
+    virtual unsigned int getNumberOfSites() const = 0;
+
+    /**
+     * @brief Get the number of states in the alphabet associated to the dataset.
+     *
+     * @return the number of states in the alphabet associated to the dataset.
+     */    
+    virtual unsigned int getNumberOfStates() const = 0;
+ 
+    /**
 		 * @brief Get the number of model classes.
 		 *
 		 * @return The Number of model classes.
 		 */
 		virtual unsigned int getNumberOfClasses() const = 0;
 
+    /**
+     * @brief Get the tree (topology and branch lengths).
+     *
+     * @return The tree of this TreeLikelihood object.
+      */
+    virtual const Tree& getTree() const = 0;
+   
+    /**
+     * @brief Get the alphabet associated to the dataset.
+     *
+     * @return the alphabet associated to the dataset.
+     */    
+    virtual const Alphabet* getAlphabet() const = 0;
+ 
+    
     /**
      * @return The underlying likelihood data structure.
      */
@@ -122,6 +153,18 @@ class TreeLikelihood:
      */
     virtual const TreeLikelihoodData* getLikelihoodData() const = 0;
 
+    /**
+     * @name The likelihood functions.
+     *
+     * @{
+     */
+    /**
+     * @brief Get the logarithm of the likelihood for the whole dataset.
+     *
+     * @return The logarithm of the likelihood of the dataset.
+     */
+    virtual double getLogLikelihood() const = 0;
+ 
     /**
      * @brief Get the logarithm of the likelihood for a site.
      *
@@ -187,14 +230,8 @@ class TreeLikelihood:
 		 * <code>V[i][j][k} =</code> likelihood of site i and model class j and state k.
 		 */
 		virtual VVVdouble getLogLikelihoodForEachSiteForEachClassForEachState() const = 0;
-	
-    /**
-     * @brief Get the logarithm of the likelihood for the whole dataset.
-     *
-     * @return The logarithm of the likelihood of the dataset.
-     */
-    virtual double getLogLikelihood() const = 0;
- 
+	  /** @} */
+
     /**
 		 * @brief Get the posterior model class (the one with maximum posterior
 		 * probability) for each site.
@@ -203,34 +240,6 @@ class TreeLikelihood:
 		 */
 		virtual std::vector<unsigned int> getClassWithMaxPostProbOfEachSite() const = 0;
 
- 
-    /**
-     * @brief Get the tree (topology and branch lengths).
-     *
-     * @return The tree of this TreeLikelihood object.
-      */
-    virtual const Tree& getTree() const = 0;
-
-    /**
-     * @brief Get the number of sites in the dataset.
-     *
-     * @return the number of sites in the dataset.
-     */
-    virtual unsigned int getNumberOfSites() const = 0;
-
-    /**
-     * @brief Get the number of states in the alphabet associated to the dataset.
-     *
-     * @return the number of states in the alphabet associated to the dataset.
-     */    
-    virtual unsigned int getNumberOfStates() const = 0;
-    
-    /**
-     * @brief Get the alphabet associated to the dataset.
-     *
-     * @return the alphabet associated to the dataset.
-     */    
-    virtual const Alphabet* getAlphabet() const = 0;
    
     /**
      * @name Retrieve some particular parameters subsets.
@@ -250,76 +259,7 @@ class TreeLikelihood:
      *
      * @return A ParameterList.
      */
-    virtual ParameterList getSubstitutionModelParameters() const = 0;
-
-    /**
-     * @brief Get the substitution model associated to a given node and alignment column.
-     *
-     * @param nodeId The id of the request node.
-     * @param siteIndex The index of the alignment position.
-     * @see getSiteIndex
-     * @return A pointer toward the corresponding model.
-     * @throw NodeNotFoundException This exception may be thrown if the node is not found (depending on the implementation).
-     */
-    virtual const SubstitutionModel* getSubstitutionModel(int nodeId, unsigned int siteIndex) const throw (NodeNotFoundException) = 0;
-
-    /**
-     * @brief Get the substitution model associated to a given node and alignment column.
-     *
-     * @param nodeId The id of the request node.
-     * @param siteIndex The index of the alignment position.
-     * @see getSiteIndex
-     * @return A pointer toward the corresponding model.
-     * @throw NodeNotFoundException This exception may be thrown if the node is not found (depending on the implementation).
-     */
-    virtual SubstitutionModel* getSubstitutionModel(int nodeId, unsigned int siteIndex) throw (NodeNotFoundException) = 0;
-
-    /**
-     * @brief Retrieves all Pij(t) for a particular branch, defined by the upper node and site.
-     *
-     * These intermediate results may be used by other methods.
-     *
-     * @param nodeId The node defining the branch of interest.
-     * @param siteIndex The index of the alignment position.
-     * @param modelClass The class of the model.
-     * @see getSiteIndex
-     * @return An array of dimension 2, where a[x][y] is the probability of substituting from x to y.
-     */
-    virtual VVdouble getTransitionProbabilities(int nodeId, unsigned int siteIndex, unsigned int modelClass) const = 0;
-
-    /**
-     * @brief Get the index (used for inner computations) of a given site (original alignment column).
-     *
-     * @param site An alignment position.
-     * @return The site index corresponding to the given input alignment position.
-     */
-    virtual unsigned int getSiteIndex(unsigned int site) const throw (IndexOutOfBoundsException) = 0;
-
-    /**
-     * @brief Get the values of the frequencies for each state in the alphabet at the root node.
-     *
-     * For reversible models, these are the equilibrium frequencies.
-     * For non-reversible models, these usually are distinct parameters.
-     *
-     * For models without site partitioning, the set of frequencies is the same for all positions.
-     * For partition models, the frequencies may differ from one site to another.
-     *
-     * @param siteIndex The index of the alignment position.
-     * @see getSiteIndex
-     * @return A vector with ancestral frequencies for each state in the alphabet;
-     */
-    virtual const std::vector<double>& getRootFrequencies(unsigned int siteIndex) const = 0;
-    
-    /** @} */
-
-    /**
-     * @brief Tell if derivatives must be computed.
-     *
-     * This methods calls the enableFirstOrderDerivatives and enableSecondOrderDerivatives.
-     *
-     * @param yn Yes or no.
-     */
-    virtual void enableDerivatives(bool yn) = 0;
+    virtual ParameterList getSubstitutionProcessParameters() const = 0;
 
     /**
      * @brief All derivable parameters.
@@ -339,8 +279,66 @@ class TreeLikelihood:
      */
     virtual ParameterList getNonDerivableParameters() const = 0;
 
+    /** @} */
+
+    /**
+     * @brief Get the substitution model associated to a given node and alignment column.
+     *
+     * @param nodeId The id of the request node.
+     * @param siteIndex The index of the alignment position.
+     * @see getSiteIndex
+     * @return A pointer toward the corresponding model.
+     * @throw NodeNotFoundException This exception may be thrown if the node is not found (depending on the implementation).
+     */
+    //virtual const SubstitutionModel* getSubstitutionModel(int nodeId, unsigned int siteIndex) const throw (NodeNotFoundException) = 0;
+
+    /**
+     * DEPRECATED. Use iterators instead.
+     * @brief Get the substitution model associated to a given node and alignment column.
+     *
+     * @param nodeId The id of the request node.
+     * @param siteIndex The index of the alignment position.
+     * @see getSiteIndex
+     * @return A pointer toward the corresponding model.
+     * @throw NodeNotFoundException This exception may be thrown if the node is not found (depending on the implementation).
+     */
+    //virtual SubstitutionModel* getSubstitutionModel(int nodeId, unsigned int siteIndex) throw (NodeNotFoundException) = 0;
+
+    /**
+     * DEPRECATED. Use iterators instead.
+     * @brief Retrieves all Pij(t) for a particular branch, defined by the upper node and site.
+     *
+     * These intermediate results may be used by other methods.
+     *
+     * @param nodeId The node defining the branch of interest.
+     * @param siteIndex The index of the alignment position.
+     * @param modelClass The class of the model.
+     * @see getSiteIndex
+     * @return An array of dimension 2, where a[x][y] is the probability of substituting from x to y.
+     */
+    //virtual VVdouble getTransitionProbabilities(int nodeId, unsigned int siteIndex, unsigned int modelClass) const = 0;
+
+    /**
+     * @brief Get the index (used for inner computations) of a given site (original alignment column).
+     *
+     * @param site An alignment position.
+     * @return The site index corresponding to the given input alignment position.
+     */
+    virtual unsigned int getSiteIndex(unsigned int site) const throw (IndexOutOfBoundsException) = 0;   
+    /** @} */
+
+    /**
+     * @brief Tell if derivatives must be computed.
+     *
+     * This methods calls the enableFirstOrderDerivatives and enableSecondOrderDerivatives.
+     *
+     * @param yn Yes or no.
+     */
+    virtual void enableDerivatives(bool yn) = 0;
+
 };
 
+} //end of namespace newlik.
 } //end of namespace bpp.
 
 #endif  //_TREELIKELIHOOD_H_

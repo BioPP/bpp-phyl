@@ -56,15 +56,17 @@ namespace bpp
  *
  * It main purpose is to provide the necessary calculus for each branch-site-model class combination,
  * such as Markov generator and transition probabilities.
- * These are typically provided by a SubstitutionModel class, applied in various combination along the tree (eg non-homogeneous models)
- * and alignment (eg partition models). The model class is there to account for putative mixture models.
+ * These are typically provided by a SubstitutionModel class, applied in various combination along the
+ * tree (eg non-homogeneous models) and alignment (eg partition models).
+ * The so-called "model class" refers to mixture models.
  *
  * As several branches and sites can share the same generator/transition probabilities, calling these values
- * and therefore performing the underlying calculation for each branch-site can result in a very unefficient code.
- * Therefore, "model iterators" are provided, to allow smarter loops over the model structure, by minimizing
- * the amount of computation to be done.
- * Such iterator allow to loop over branches and sites in a clever way, through both direcions, but do not perform
- * any calculations. These are achieved through calls to the corresponding SubstitutionProcess class.
+ * and therefore performing the underlying calculation for each branch-site can result in a very unefficient
+ * code. Therefore, "model iterators" are provided, to allow smarter loops over the model structure,
+ * by minimizing the amount of computation to be done.
+ * Such iterator allow to loop over branches and sites in a clever way, through both direcions, but do not
+ * perform any calculations.
+ * These are achieved through calls to the corresponding SubstitutionProcess class.
  */
 class SubstitutionProcess :
   public virtual ParameterAliasable
@@ -76,12 +78,49 @@ public:
   virtual void registerWithTree(ParametrizableTree* pTree) = 0;
   virtual void registerWithSitePartition(SitePartition* sitePartition) = 0;
   virtual bool isRegistered() const = 0;
+  virtual bool isCompatibleWith(const Tree& tree) const = 0;
 
   virtual unsigned int getNumberOfClasses() const = 0;
 
+  /**
+   * @brief Get the transition probabilities corresponding to a certain branch, site pattern, and model class.
+   *
+   * For an efficient use of this method, see the getNewBranchModelIterator and getNewSiteModelIterator,
+   * in order to avoid performing computations several times.
+   *
+   * @param nodeId The id of the node.
+   * @param siteIndex The site pattern.
+   * @param modelClass The model class index.
+   */
   virtual const Matrix<double>& getTransitionProbabilities(int nodeId, unsigned int siteIndex, unsigned int classIndex) const = 0;
+  
+  /**
+   * @brief Get the generator corresponding to a certain branch, site pattern, and model class.
+   *
+   * For an efficient use of this method, see the getNewBranchModelIterator and getNewSiteModelIterator,
+   * in order to avoid performing computations several times.
+   *
+   * @param nodeId The id of the node.
+   * @param siteIndex The site pattern.
+   * @param modelClass The model class index.
+   */
   virtual const Matrix<double>& getGenerator(int nodeId, unsigned int siteIndex, unsigned int classIndex) const = 0;
 
+  /**
+   * @brief Get the values of the frequencies for each state in the alphabet at the root node.
+   *
+   * For reversible models, these are the equilibrium frequencies.
+   * For non-reversible models, these usually are distinct parameters.
+   *
+   * For models without site partitioning, the set of frequencies is the same for all positions.
+   * For partition models, the frequencies may differ from one site to another.
+   *
+   * @param siteIndex The index of the alignment position.
+   * @see TreeLikelihood::getSiteIndex
+   * @return A vector with ancestral frequencies for each state in the alphabet;
+   */
+  virtual const std::vector<double>& getRootFrequencies(unsigned int siteIndex) const = 0;
+ 
   virtual ConstBranchModelIterator* getNewBranchModelIterator(int nodeId) const = 0;
   virtual ConstSiteModelIterator* getNewSiteModelIterator(unsigned int siteIndex) const = 0;
 
@@ -130,7 +169,7 @@ class SimpleSubstitutionProcess :
   public AbstractSubstitutionProcess,
   public AbstractParameterAliasable
 {
-private:
+protected:
   SubstitutionModel* model_;
 
 public:
@@ -161,6 +200,11 @@ public:
 
   virtual unsigned int getNumberOfClasses() const { return 1; }
 
+  /**
+   * @return True. A simple subsitution process is compatible with any tree.
+   */
+  virtual bool isCompatibleWith(const Tree& tree) const { return tree;}
+  
   virtual const Matrix<double>& getTransitionProbabilities(int nodeId, unsigned int siteIndex, unsigned int classIndex) const {
     double l = pTree_->getBranchLengthParameter(nodeId).getValue();
     return model_->getPij_t(l);
@@ -170,6 +214,10 @@ public:
     return model_->getGenerator();
   }
 
+  virtual const std::vector<double>& getRootFrequencies(unsigned int siteIndex) const {
+    return model_->getFrequencies();
+  }
+  
   ConstBranchModelIterator* getNewBranchModelIterator(int nodeId) const {
     return new ConstNoPartitionBranchModelIterator(model_, sitePartition_->getNumberOfPatternsForPartition(0));
   }
@@ -182,37 +230,29 @@ public:
 };
 
 class RateAcrossSitesSubstitutionProcess :
-  public AbstractSubstitutionProcess,
-  public AbstractParameterAliasable
+  public SimpleSubstitutionProcess
 {
 private:
-  SubstitutionModel* model_;
   DiscreteDistribution* rDist_;
 
 public:
   RateAcrossSitesSubstitutionProcess(SubstitutionModel* model, DiscreteDistribution* rdist) :
-    AbstractParameterAliasable(model->getNamespace()),
-    model_(model),
+    SimpleSubstitutionProcess(model),
     rDist_(rdist)
   {
-    if (!model) throw Exception("RateAcrossSitesSubstitutionProcess. A model instance must be provided.");
     if (!rdist) throw Exception("RateAcrossSitesSubstitutionProcess. A rate distribution instance must be provided.");
     // Add parameters:
-    addParameters_(model->getParameters());
     addParameters_(rdist->getParameters());
   }
 
   RateAcrossSitesSubstitutionProcess(const RateAcrossSitesSubstitutionProcess& rassp) :
-    AbstractParameterAliasable(rassp),
-    model_(rassp.model_->clone()),
+    SimpleSubstitutionProcess(rassp),
     rDist_(rassp.rDist_->clone())
   {}
 
   RateAcrossSitesSubstitutionProcess& operator=(const RateAcrossSitesSubstitutionProcess& rassp)
   {
-    AbstractParameterAliasable::operator=(rassp),
-    delete model_;
-    model_ = rassp.model_->clone();
+    SimpleSubstitutionProcess::operator=(rassp),
     delete rDist_;
     rDist_ = rassp.rDist_->clone();
     return *this;
@@ -230,22 +270,10 @@ public:
     return model_->getPij_t(l * r);
   }
 
-  virtual const Matrix<double>& getGenerator(int nodeId, unsigned int siteIndex, unsigned int classIndex) const
-  {
-    return model_->getGenerator();
-  }
-
-  ConstBranchModelIterator* getNewBranchModelIterator(int nodeId) const {
-    return new ConstNoPartitionBranchModelIterator(model_, sitePartition_->getNumberOfPatternsForPartition(0));
-  }
-
-  ConstSiteModelIterator* getNewSiteModelIterator(unsigned int siteIndex) const {
-    return new ConstHomogeneousSiteModelIterator(*pTree_, model_);
-  }
-
   // TODO: it actually depend on the distribution used, how it is parameterized. If classes are fixed and parameters after probabilities only, this should return false to save computational time!
   bool transitionProbabilitiesHaveChanged() const { return true; }
 };
+
 } // end namespace bpp
 
 #endif // _SUBSTITUTIONPROCESS_H_

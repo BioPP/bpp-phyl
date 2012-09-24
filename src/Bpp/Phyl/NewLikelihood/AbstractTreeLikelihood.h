@@ -91,6 +91,18 @@ class AbstractTreeLikelihood :
       computeSecondOrderDerivatives_(true),
       initialized_(false) {}
 
+    AbstractTreeLikelihood(
+        ParametrizableTree* tree,
+        const SiteContainer* data,
+        SubstitutionProcess* process):
+      AbstractParametrizable(""),
+      data_(data),
+      tree_(tree),
+      process_(process),
+      computeFirstOrderDerivatives_(true),
+      computeSecondOrderDerivatives_(true),
+      initialized_(false) {}
+
     AbstractTreeLikelihood(const AbstractTreeLikelihood& lik):
       AbstractParametrizable(lik),
       data_(0),
@@ -139,15 +151,18 @@ class AbstractTreeLikelihood :
 		const SiteContainer* getData() const { return data_.get(); }
 		const Alphabet* getAlphabet() const { return data_->getAlphabet(); }	
 		
+    unsigned int getNumberOfSites() const { return data_->getNumberOfSites(); }
+		unsigned int getNumberOfStates() const { return data_->getAlphabet()->getSize(); }
+		unsigned int getNumberOfClasses() const { return process_->getNumberOfClasses(); }
+
     Vdouble getLogLikelihoodForEachSite() const;
 		VVdouble getLogLikelihoodForEachSiteForEachState() const;
 		VVdouble getLogLikelihoodForEachSiteForEachClass() const;
 		VVVdouble getLogLikelihoodForEachSiteForEachClassForEachState() const;
 		
-    unsigned int getNumberOfSites() const { return data_->getNumberOfSites(); }
-		unsigned int getNumberOfStates() const { return data_->getAlphabet()->getSize(); }
-		unsigned int getNumberOfClasses() const { return process_->getNumberOfClasses(); }
-
+    VVdouble getPosteriorProbabilitiesOfEachClass() const;
+    std::vector<unsigned int> getClassWithMaxPostProbOfEachSite() const;
+    
 		const Tree& getTree() const { return tree_->getTree(); }
 		void enableDerivatives(bool yn) { computeFirstOrderDerivatives_ = computeSecondOrderDerivatives_ = yn; }
 		void enableFirstOrderDerivatives(bool yn) { computeFirstOrderDerivatives_ = yn; }
@@ -157,10 +172,15 @@ class AbstractTreeLikelihood :
     bool isInitialized() const { return initialized_; }
     void initialize() throw (Exception) { initialized_ = true; }
 		
-    VVdouble getPosteriorProbabilitiesOfEachClass() const;
-    std::vector<unsigned int> getClassWithMaxPostProbOfEachSite() const;
+    ParameterList getBranchLengthsParameters() const { return tree_->getParameters(); }
+    ParameterList getSubstitutionProcessParameters() const { return process_->getParameters(); }
+    //TODO: this has to be modified to deal with special cases...
+    ParameterList getDerivableParameters() const { return tree_->getParameters(); }
+    ParameterList getNonDerivableParameters() const { return process_->getParameters(); }
+    
 		/** @} */
 
+  protected:
 		/**
      * @name Generic tools to deal with likelihood arrays
      *
@@ -181,8 +201,6 @@ class AbstractTreeLikelihood :
      */
 		static void displayLikelihoodArray(const VVVdouble& likelihoodArray);
 
-
-		
 };
 
 } //end of namespace newlik.

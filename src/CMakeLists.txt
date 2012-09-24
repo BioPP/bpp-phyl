@@ -51,6 +51,7 @@ set(CPP_FILES
   Bpp/Phyl/NewLikelihood/RTreeLikelihoodData.cpp
   Bpp/Phyl/NewLikelihood/ParametrizableTree.cpp
   Bpp/Phyl/NewLikelihood/AbstractTreeLikelihood.cpp
+  Bpp/Phyl/NewLikelihood/RTreeLikelihood.cpp
   Bpp/Phyl/Mapping/LaplaceSubstitutionCount.cpp
   Bpp/Phyl/Mapping/OneJumpSubstitutionCount.cpp
   Bpp/Phyl/Mapping/ProbabilisticSubstitutionMapping.cpp
@@ -204,6 +205,7 @@ set(H_FILES
   Bpp/Phyl/NewLikelihood/SubstitutionProcess.h
   Bpp/Phyl/NewLikelihood/ModelIterator.h
   Bpp/Phyl/NewLikelihood/AbstractTreeLikelihood.h
+  Bpp/Phyl/NewLikelihood/RTreeLikelihood.h
   Bpp/Phyl/NewLikelihood/SitePartition.h
   Bpp/Phyl/Mapping/LaplaceSubstitutionCount.h
   Bpp/Phyl/Mapping/WeightedSubstitutionCount.h

@@ -91,8 +91,6 @@ public:
   virtual ~ConstBranchModelDescription() {}
 
 public:
-  //jdutheil 170712: this is not possible/needed anymore.
-  //virtual const SubstitutionModel* getModel() const = 0;
   virtual SiteIterator* getNewSiteIterator() const = 0;
 };
 
@@ -118,8 +116,6 @@ public:
   virtual ~ConstSiteModelDescription() {}
 
 public:
-  //jdutheil 170712: this is not possible/needed anymore.
-  //virtual const SubstitutionModel* getModel() const = 0;
   virtual BranchIterator* getNewBranchIterator() const = 0;
 };
 
@@ -168,7 +164,7 @@ public:
  * @brief A very simple site iterator.
  *
  * This iterator loops over a continuous range of sites.
- * The ocnstructor takes as input the number of sites to iterate over,
+ * The constructor takes as input the number of sites to iterate over,
  * and optionally an offset argument, specifying the index of the first site.
  */
 class SimpleSiteIterator :
@@ -189,7 +185,7 @@ public:
   unsigned int next() throw (Exception)
   {
     if (!hasNext())
-      throw Exception("AbstractTreeLikelihood::SimpleSiteIterator::next(). No more site in the set.");
+      throw Exception("SimpleSiteIterator::next(). No more site in the set.");
     return offset_ + index_++;
   }
 
@@ -205,29 +201,23 @@ class ConstNoPartitionBranchModelDescription :
   public ConstBranchModelDescription
 {
 private:
-  //const SubstitutionModel* model_;
   unsigned int nbSites_;
 
 public:
   ConstNoPartitionBranchModelDescription(const SubstitutionModel* model, unsigned int nbSites) :
-    //model_(model),
     nbSites_(nbSites) {}
 
   ConstNoPartitionBranchModelDescription(const ConstNoPartitionBranchModelDescription& bmd) :
-    //model_(bmd.model_),
     nbSites_(bmd.nbSites_)
   {}
 
   ConstNoPartitionBranchModelDescription& operator=(const ConstNoPartitionBranchModelDescription& bmd)
   {
-    //model_ = bmd.model_;
     nbSites_ = bmd.nbSites_;
     return *this;
   }
 
 public:
-  //const SubstitutionModel* getModel() const { return model_; }
-
   SiteIterator* getNewSiteIterator() const { return new SimpleSiteIterator(nbSites_); }
 };
 
@@ -259,29 +249,23 @@ class ConstNoPartitionSiteModelDescription :
   public ConstSiteModelDescription
 {
 private:
-  //const SubstitutionModel* model_;
   std::vector<int> nodesId_;
 
 public:
   ConstNoPartitionSiteModelDescription(const SubstitutionModel* model, const std::vector<int> nodesId) :
-    //model_(model),
     nodesId_(nodesId) {}
 
   ConstNoPartitionSiteModelDescription(const ConstNoPartitionSiteModelDescription& smd) :
-    //model_(smd.model_),
     nodesId_(smd.nodesId_)
   {}
 
   ConstNoPartitionSiteModelDescription& operator=(const ConstNoPartitionSiteModelDescription& smd)
   {
-    //model_ = smd.model_;
     nodesId_ = smd.nodesId_;
     return *this;
   }
 
 public:
-  //const SubstitutionModel* getModel() const { return model_; }
-
   BranchIterator* getNewBranchIterator() const { return new SimpleBranchIterator(nodesId_); }
 };
 
@@ -309,8 +293,6 @@ public:
 
         bool hasNext() const { return index_ == 0; }
     };
-
-
 
 
 } // end of namespace bpp.
