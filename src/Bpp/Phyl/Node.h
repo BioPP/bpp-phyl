@@ -86,9 +86,10 @@ namespace bpp
  *
  * @see Tree, TreeTemplate
  */
-class Node :
-  public Clonable
+class Node
 {
+  friend class TreeTemplateTools;
+
 protected:
   int id_;
   std::string* name_;
@@ -151,6 +152,7 @@ public:
     branchProperties_()
   {}
 
+protected:
   /**
    * @brief Copy constructor.
    *
@@ -166,6 +168,9 @@ public:
    */
   Node& operator=(const Node& node);
 
+  Node* clone() const { return new Node(*this); }
+
+public:
   virtual ~Node()
   {
     if (name_) delete name_;
@@ -179,8 +184,6 @@ public:
       delete i->second;
     }
   }
-
-  Node* clone() const { return new Node(*this); }
 
 public:
   /**
@@ -684,6 +687,7 @@ public:
   // Tests:
 
   virtual bool isLeaf() const { return degree() <= 1; }
+
 };
 } // end of namespace bpp.
 

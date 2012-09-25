@@ -145,10 +145,10 @@ class TreeTemplateTools
   static std::vector<int> getAncestorsId(const Node& node)
   {
     std::vector<int> ids;
-    Node n=node;
-    while (n.hasFather()){
-      n=*n.getFather();
-      ids.push_back(n.getId());
+    const Node* n = &node;
+    while (n->hasFather()) {
+      n = n->getFather();
+      ids.push_back(n->getId());
     }
     return ids;
   }
@@ -742,7 +742,7 @@ class TreeTemplateTools
      * @brief Recursively clone a subtree structure.
      *
      * This is a template function allowing to specify the class of the copy.
-     * The template class has to have a constructor accepting const Node& as signle argument.
+     * The template class has to have a constructor accepting const Node& as single argument.
      *
      * @param node The basal node of the subtree.
      * @return The basal node of the new copy.
@@ -756,7 +756,7 @@ class TreeTemplateTools
       clone->removeFather();
 
       //Now we perform a hard copy:
-      for(unsigned int i = 0; i < node.getNumberOfSons(); i++)
+      for (unsigned int i = 0; i < node.getNumberOfSons(); i++)
       {
         clone->setSon(i, cloneSubtree<N>(*node[i]));
       }
