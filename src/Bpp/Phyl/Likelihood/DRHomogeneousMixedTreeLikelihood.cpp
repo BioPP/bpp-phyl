@@ -340,9 +340,37 @@ void DRHomogeneousMixedTreeLikelihood::computeRootLikelihood()
 
 void DRHomogeneousMixedTreeLikelihood::computeLikelihoodAtNode_(const Node* node, VVVdouble& likelihoodArray) const
 {
-  for (unsigned int i = 0; i < treeLikelihoodsContainer_.size(); i++)
+  likelihoodArray.resize(nbDistinctSites_);
+  for (unsigned int i = 0; i < nbDistinctSites_; i++){
+    VVdouble* likelihoodArray_i = &likelihoodArray[i];
+    likelihoodArray_i->resize(nbClasses_);
+    for (unsigned int c = 0; c < nbClasses_; c++) {
+      Vdouble* likelihoodArray_i_c = &(*likelihoodArray_i)[c];
+      likelihoodArray_i_c->resize(nbStates_);
+      for (unsigned int x = 0; x < nbStates_; x++)
+        (*likelihoodArray_i_c)[x] = 0;
+    }
+  }
+
+  VVVdouble lArray;
+  for (unsigned int nm = 0; nm < treeLikelihoodsContainer_.size(); nm++)
   {
-    treeLikelihoodsContainer_[i]->computeLikelihoodAtNode_(node, likelihoodArray);
+    treeLikelihoodsContainer_[nm]->computeLikelihoodAtNode_(node, lArray);
+    
+    for (unsigned int i = 0; i < nbDistinctSites_; i++)
+      {
+        VVdouble* likelihoodArray_i = &likelihoodArray[i];
+        VVdouble* lArray_i = &lArray[i];
+        
+        for (unsigned int c = 0; c < nbClasses_; c++)
+          {
+            Vdouble* likelihoodArray_i_c = &(*likelihoodArray_i)[c];
+            Vdouble* lArray_i_c = &(*lArray_i)[c];
+            for (unsigned int x = 0; x < nbStates_; x++)
+              (*likelihoodArray_i_c)[x] += (*lArray_i_c)[x] * probas_[nm];
+         }
+      }
+    
   }
 }
 
