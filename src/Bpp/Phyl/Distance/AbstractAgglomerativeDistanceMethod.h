@@ -6,36 +6,36 @@
 //
 
 /*
-  Copyright or © or Copr. Bio++ Development Team, (November 16, 2004)
+Copyright or © or Copr. Bio++ Development Team, (November 16, 2004)
 
-  This software is a computer program whose purpose is to provide classes
-  for phylogenetic data analysis.
+This software is a computer program whose purpose is to provide classes
+for phylogenetic data analysis.
 
-  This software is governed by the CeCILL  license under French law and
-  abiding by the rules of distribution of free software.  You can  use, 
-  modify and/ or redistribute the software under the terms of the CeCILL
-  license as circulated by CEA, CNRS and INRIA at the following URL
-  "http://www.cecill.info". 
+This software is governed by the CeCILL  license under French law and
+abiding by the rules of distribution of free software.  You can  use, 
+modify and/ or redistribute the software under the terms of the CeCILL
+license as circulated by CEA, CNRS and INRIA at the following URL
+"http://www.cecill.info". 
 
-  As a counterpart to the access to the source code and  rights to copy,
-  modify and redistribute granted by the license, users are provided only
-  with a limited warranty  and the software's author,  the holder of the
-  economic rights,  and the successive licensors  have only  limited
-  liability. 
+As a counterpart to the access to the source code and  rights to copy,
+modify and redistribute granted by the license, users are provided only
+with a limited warranty  and the software's author,  the holder of the
+economic rights,  and the successive licensors  have only  limited
+liability. 
 
-  In this respect, the user's attention is drawn to the risks associated
-  with loading,  using,  modifying and/or developing or reproducing the
-  software by the user in light of its specific status of free software,
-  that may mean  that it is complicated to manipulate,  and  that  also
-  therefore means  that it is reserved for developers  and  experienced
-  professionals having in-depth computer knowledge. Users are therefore
-  encouraged to load and test the software's suitability as regards their
-  requirements in conditions enabling the security of their systems and/or 
-  data to be ensured and,  more generally, to use and operate it in the 
-  same conditions as regards security. 
+In this respect, the user's attention is drawn to the risks associated
+with loading,  using,  modifying and/or developing or reproducing the
+software by the user in light of its specific status of free software,
+that may mean  that it is complicated to manipulate,  and  that  also
+therefore means  that it is reserved for developers  and  experienced
+professionals having in-depth computer knowledge. Users are therefore
+encouraged to load and test the software's suitability as regards their
+requirements in conditions enabling the security of their systems and/or 
+data to be ensured and,  more generally, to use and operate it in the 
+same conditions as regards security. 
 
-  The fact that you are presently reading this means that you have had
-  knowledge of the CeCILL license and that you accept its terms.
+The fact that you are presently reading this means that you have had
+knowledge of the CeCILL license and that you accept its terms.
 */
 
 #ifndef _ABSTRACTAGGLOMERATIVEDISTANCEMETHOD_H_
@@ -51,27 +51,30 @@
 namespace bpp
 {
 
-  /**
-   * @brief Partial implementation of the AgglomerativeDistanceMethod interface.
-   *
-   * This class provides a DistanceMatrix object for computations, and a map
-   * with pivot indices and a pointer toward the corresponding subtree.
-   *
-   * Several methods, commons to several algorithm are provided.
-   */
-  class AbstractAgglomerativeDistanceMethod:
-    public virtual AgglomerativeDistanceMethod
-  {
-  protected:
-    DistanceMatrix matrix_;
-    Tree* tree_;
+/**
+ * @brief Partial implementation of the AgglomerativeDistanceMethod interface.
+ *
+ * This class provides a DistanceMatrix object for computations, and a map
+ * with pivot indices and a pointer toward the corresponding subtree.
+ *
+ * Several methods, commons to several algorithm are provided.
+ */
+class AbstractAgglomerativeDistanceMethod:
+  public virtual AgglomerativeDistanceMethod
+{
+	protected:
+		DistanceMatrix matrix_;
+		Tree* tree_;
 
     std::map<unsigned int, Node*> currentNodes_;
     bool verbose_;
     bool rootTree_;
 	
-  public:
-    AbstractAgglomerativeDistanceMethod(bool verbose = true, bool rootTree = false) :
+	public:
+		//AbstractAgglomerativeDistanceMethod() :
+    //  matrix_(0), tree_(0), currentNodes_(), verbose_(true), rootTree_(false) {}
+
+		AbstractAgglomerativeDistanceMethod(bool verbose = true, bool rootTree = false) :
       matrix_(0), tree_(0), currentNodes_(), verbose_(verbose), rootTree_(rootTree) {}
 		
     AbstractAgglomerativeDistanceMethod(const DistanceMatrix& matrix, bool verbose = true, bool rootTree = false) :
@@ -80,7 +83,7 @@ namespace bpp
       setDistanceMatrix(matrix);
     }
 
-    virtual ~AbstractAgglomerativeDistanceMethod()
+		virtual ~AbstractAgglomerativeDistanceMethod()
     {
       if (tree_)
         delete tree_;
@@ -107,8 +110,8 @@ namespace bpp
       return *this;
     }
 
-  public:
-    virtual void setDistanceMatrix(const DistanceMatrix& matrix);
+	public:
+		virtual void setDistanceMatrix(const DistanceMatrix& matrix);
 
     /**
      * @brief Get the computed tree, if there is one.
@@ -117,14 +120,14 @@ namespace bpp
      */
     virtual
 #if defined(NO_VIRTUAL_COV)
-    Tree *
+		Tree *
 #else
-    TreeTemplate<Node> * 
+		TreeTemplate<Node> * 
 #endif
-    getTree() const
+		getTree() const
     {
-      //Node * root = TreeTools::cloneSubtree<Node>(* dynamic_cast<TreeTemplate<Node> *>(tree_) -> getRootNode());
-      //return new TreeTemplate<Node>(* root);
+    	//Node * root = TreeTools::cloneSubtree<Node>(* dynamic_cast<TreeTemplate<Node> *>(tree_) -> getRootNode());
+	    //return new TreeTemplate<Node>(* root);
       return tree_ == 0 ? 0 : new TreeTemplate<Node>(*tree_);
     }
 		
@@ -140,12 +143,12 @@ namespace bpp
      * 6) Return to step 2 while there are more than 3 remaining nodes.
      * 7) Perform the final step, and send a rooted or unrooted tree.
      */
-    virtual void computeTree() throw (Exception);
+		virtual void computeTree() throw (Exception);
 
     void setVerbose(bool yn) { verbose_ = yn; }
     bool isVerbose() const { return verbose_; }
 
-  protected:
+	protected:
     /**
      * @name Specific methods.
      *
@@ -161,7 +164,7 @@ namespace bpp
      * @return A size 2 vector with the indices of the nodes.
      * @throw Exception If an error occured.
      */
-    virtual std::vector<unsigned int> getBestPair() throw (Exception) = 0;
+		virtual std::vector<unsigned int> getBestPair() throw (Exception) = 0;
 		
     /**
      * @brief Compute the branch lengths for two nodes to agglomerate.
@@ -186,7 +189,7 @@ namespace bpp
      * @param pos The index of the node whose distance ust be updated.
      * @return The distance between the 'pos' node and the agglomerated pair.
      */
-    virtual double computeDistancesFromPair(const std::vector<unsigned int>& pair, const std::vector<double>& branchLengths, unsigned int pos) = 0;
+		virtual double computeDistancesFromPair(const std::vector<unsigned int>& pair, const std::vector<double>& branchLengths, unsigned int pos) = 0;
 		
     /**
      * @brief Method called when there ar eonly three remaining node to agglomerate, and creates the root node of the tree.
@@ -204,7 +207,7 @@ namespace bpp
      * @param name The name of the node.
      * @return A pointer toward a new node object.
      */
-    virtual Node* getLeafNode(int id, const std::string& name);
+		virtual Node* getLeafNode(int id, const std::string& name);
 
     /**
      * @brief Get an inner node.
@@ -216,24 +219,10 @@ namespace bpp
      * @param son2 The second son of the node.
      * @return A pointer toward a new node object.
      */
-    virtual Node* getParentNode(int id, Node * son1, Node * son2);
+		virtual Node* getParentNode(int id, Node * son1, Node * son2);
     /** @} */
-
-    /**
-     * @brief set if the tree is rooted or not
-     *
-     */
-
-    void setRootedTree(bool rootTree) { rootTree_=rootTree;}
-
-    /**
-     * @brief returns if the tree is rooted
-     *
-     */
-
-    bool hasRootedTree() const { return rootTree_;}
-
-  };
+		
+};
 
 } //end of namespace bpp.
 
