@@ -50,6 +50,7 @@
 #include "BppOFrequenciesSetFormat.h"
 
 #include <Bpp/Seq/App/SequenceApplicationTools.h>
+#include <Bpp/Io/OutputStream.h>
 #include <Bpp/Io/BppOParametrizableFormat.h>
 #include <Bpp/Io/BppODiscreteDistributionFormat.h>
 #include <Bpp/Numeric/Prob.all>
@@ -1027,9 +1028,6 @@ void BppOSubstitutionModelFormat::write(const MixedSubstitutionModel& model,
                                         std::map<std::string, std::string>& globalAliases,
                                         std::vector<std::string>& writtenNames) const
 {
-  bool flag(false);
-
-  
   if (dynamic_cast<const MixtureOfSubstitutionModels*>(&model)!=NULL){
     const MixtureOfSubstitutionModels* pMS=dynamic_cast<const MixtureOfSubstitutionModels*>(&model);
 
@@ -1057,38 +1055,31 @@ void BppOSubstitutionModelFormat::write(const MixedSubstitutionModel& model,
 
     ParameterList pl=eM->getIndependentParameters();
     vector<string> vpl=pl.getParameterNames();
+    const BppODiscreteDistributionFormat* bIO=new BppODiscreteDistributionFormat();
 
-    
-    out << eM->getName() << "(";
+    // adding distribution descriptions of parameters in globalAliases
     for (unsigned j=0;j<vpl.size();j++){
-      if (find(writtenNames.begin(),writtenNames.end(),vpl[j])==writtenNames.end()){
-        if (eM->getParameterNameWithoutNamespace(vpl[j])!="rate"){
-          if (flag)
-            out << ",";
-          else
-            flag=true;
-          
-          out << eM->getParameterNameWithoutNamespace(vpl[j]) << "=" ;
-          const DiscreteDistribution* pDD=pMS->getDistribution(vpl[j]);
-          if (pDD && dynamic_cast<const ConstantDistribution*>(pDD)==NULL){
-            const BppODiscreteDistributionFormat* bIO=new BppODiscreteDistributionFormat();
-  
-            bIO->write(*pDD, out, globalAliases, writtenNames);
-            delete bIO;
-          }
-          else
-            out << pl[j].getValue();
-        }
+      if (eM->getParameterNameWithoutNamespace(vpl[j])=="rate")
         writtenNames.push_back(vpl[j]);
+      
+      const DiscreteDistribution* pDD=pMS->getDistribution(vpl[j]);
+      if (pDD && dynamic_cast<const ConstantDistribution*>(pDD)==NULL){
+        StdStr out2;
+        bIO->write(*pDD, out2, globalAliases, writtenNames);
+        globalAliases[vpl[j]]=out2.str();
       }
     }
-    out << ")";
+    delete bIO;
+    
+    write(*eM, out, globalAliases, writtenNames);
+    
     if (pMS->from()!=-1)
       out << ",from=" << model.getAlphabet()->intToChar(pMS->from()) << ",to=" << model.getAlphabet()->intToChar(pMS->to());
   }
 
   const BppOParametrizableFormat* bIO=new BppOParametrizableFormat();
   bIO->write(&model, out, globalAliases, model.getIndependentParameters().getParameterNames(), writtenNames, true, true);
+  delete bIO;
 
   out << ")";
 }
