@@ -79,6 +79,7 @@ public:
   virtual void registerWithSitePartition(SitePartition* sitePartition) = 0;
   virtual bool isRegistered() const = 0;
   virtual bool isCompatibleWith(const Tree& tree) const = 0;
+  virtual bool isCompatibleWith(const SiteContainer& data) const = 0;
 
   virtual unsigned int getNumberOfClasses() const = 0;
 
@@ -121,6 +122,21 @@ public:
    */
   virtual const std::vector<double>& getRootFrequencies(unsigned int siteIndex) const = 0;
  
+  /**
+   * This method is used to initialize likelihoods in reccursions.
+   * It typically sends 1 if i = state, 0 otherwise, where
+   * i is one of the possible states of the alphabet allowed in the model
+   * and state is the observed state in the considered sequence/site.
+   *
+   * @param i the index of the state in the model.
+   * @param state An observed state in the sequence/site.
+   * @return 1 or 0 depending if the two states are compatible.
+   * @throw BadIntException if states are not allowed in the associated alphabet.
+   * @see getStates();
+   * @see SubstitutionModel
+   */
+  virtual double getInitValue(unsigned int i, int state) const throw (BadIntException) = 0;
+
   virtual ConstBranchModelIterator* getNewBranchModelIterator(int nodeId) const = 0;
   virtual ConstSiteModelIterator* getNewSiteModelIterator(unsigned int siteIndex) const = 0;
 
@@ -204,6 +220,9 @@ public:
    * @return True. A simple subsitution process is compatible with any tree.
    */
   virtual bool isCompatibleWith(const Tree& tree) const { return true;}
+  virtual bool isCompatibleWith(const SiteContainer& data) const {
+    return data.getAlphabet()->getAlphabetType() == model_->getAlphabet()->getAlphabetType();
+  }
   
   virtual const Matrix<double>& getTransitionProbabilities(int nodeId, unsigned int siteIndex, unsigned int classIndex) const {
     double l = pTree_->getBranchLengthParameter(nodeId).getValue();
@@ -216,6 +235,10 @@ public:
 
   virtual const std::vector<double>& getRootFrequencies(unsigned int siteIndex) const {
     return model_->getFrequencies();
+  }
+  
+  virtual double getInitValue(unsigned int i, int state) const throw (BadIntException) {
+    return model_->getInitValue(i, state);
   }
   
   ConstBranchModelIterator* getNewBranchModelIterator(int nodeId) const {

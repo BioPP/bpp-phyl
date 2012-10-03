@@ -42,7 +42,7 @@ knowledge of the CeCILL license and that you accept its terms.
 #define _RTREELIKELIHOODDATA_H_
 
 #include "AbstractTreeLikelihoodData.h"
-#include "../Model/SubstitutionModel.h"
+#include "SubstitutionProcess.h"
 #include "../SitePatterns.h"
 
 #include <Bpp/Numeric/VectorTools.h>
@@ -266,7 +266,7 @@ class RTreeLikelihoodData :
     unsigned int getNumberOfStates() const { return nbStates_; }
     unsigned int getNumberOfClasses() const { return nbClasses_; }
     
-    void initLikelihoods(const SiteContainer& sites, const SubstitutionModel& model) throw (Exception);
+    void initLikelihoods(const SiteContainer& sites, const SubstitutionProcess& process) throw (Exception);
 
   protected:
     /**

@@ -40,6 +40,8 @@
 #ifndef _MODELITERATOR_H_
 #define _MODELITERATOR_H_
 
+#include "../Model/SubstitutionModel.h"
+
 namespace bpp
 {
 /**

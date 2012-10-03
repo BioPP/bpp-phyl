@@ -51,18 +51,15 @@ using namespace bpp;
 
 /******************************************************************************/
 
-void RTreeLikelihoodData::initLikelihoods(const SiteContainer& sites, const SubstitutionModel& model)
+void RTreeLikelihoodData::initLikelihoods(const SiteContainer& sites, const SubstitutionProcess& process)
 throw (Exception)
 {
   if (sites.getNumberOfSequences() == 1) throw Exception("Error, only 1 sequence!");
   if (sites.getNumberOfSequences() == 0) throw Exception("Error, no sequence!");
-  if (sites.getAlphabet()->getAlphabetType()
-      != model.getAlphabet()->getAlphabetType())
-    throw AlphabetMismatchException("DRTreeLikelihoodData::initLikelihoods. Data and model must have the same alphabet type.",
-                                    sites.getAlphabet(),
-                                    model.getAlphabet());
+  if (!process.isCompatibleWith(sites))
+    throw Exception("RTreeLikelihoodData::initLikelihoods. Data and model are not compatible.");
   alphabet_ = sites.getAlphabet();
-  nbStates_ = model.getNumberOfStates();
+  nbStates_ = process.getNumberOfStates();
   nbSites_  = sites.getNumberOfSites();
   if (shrunkData_) delete shrunkData_;
   SitePatterns* patterns;
