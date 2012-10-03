@@ -74,12 +74,13 @@ class AbstractTreeLikelihood :
 	public AbstractParametrizable
 {
 	protected:
-    std::auto_ptr<SiteContainer> data_;
+    std::auto_ptr<const SiteContainer> data_;
     std::auto_ptr<ParametrizableTree> tree_;
     std::auto_ptr<SubstitutionProcess> process_;
 		bool computeFirstOrderDerivatives_;
 		bool computeSecondOrderDerivatives_;
     bool initialized_;
+    bool verbose_;
 
 	public:
 		AbstractTreeLikelihood():
@@ -89,19 +90,24 @@ class AbstractTreeLikelihood :
       process_(0),
       computeFirstOrderDerivatives_(true),
       computeSecondOrderDerivatives_(true),
-      initialized_(false) {}
+      initialized_(false),
+      verbose_(true)
+    {}
 
     AbstractTreeLikelihood(
         ParametrizableTree* tree,
         const SiteContainer* data,
-        SubstitutionProcess* process):
+        SubstitutionProcess* process,
+        bool verbose = true):
       AbstractParametrizable(""),
       data_(data),
       tree_(tree),
       process_(process),
       computeFirstOrderDerivatives_(true),
       computeSecondOrderDerivatives_(true),
-      initialized_(false) {}
+      initialized_(false),
+      verbose_(verbose)
+    {}
 
     AbstractTreeLikelihood(const AbstractTreeLikelihood& lik):
       AbstractParametrizable(lik),
@@ -110,7 +116,8 @@ class AbstractTreeLikelihood :
       process_(0),
       computeFirstOrderDerivatives_(lik.computeFirstOrderDerivatives_),
       computeSecondOrderDerivatives_(lik.computeSecondOrderDerivatives_),
-      initialized_(lik.initialized_) 
+      initialized_(lik.initialized_), 
+      verbose_(lik.verbose_) 
     {
       if (lik.data_.get()) data_.reset(lik.data_->clone());
       if (lik.tree_.get()) tree_.reset(lik.tree_->clone());
@@ -129,6 +136,7 @@ class AbstractTreeLikelihood :
       computeFirstOrderDerivatives_  = lik.computeFirstOrderDerivatives_;
       computeSecondOrderDerivatives_ = lik.computeSecondOrderDerivatives_;
       initialized_                   = lik.initialized_;
+      verbose_                       = lik.verbose_;
       return *this;
     }
 

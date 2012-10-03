@@ -203,7 +203,7 @@ public:
   /**
    * @return True. A simple subsitution process is compatible with any tree.
    */
-  virtual bool isCompatibleWith(const Tree& tree) const { return tree;}
+  virtual bool isCompatibleWith(const Tree& tree) const { return true;}
   
   virtual const Matrix<double>& getTransitionProbabilities(int nodeId, unsigned int siteIndex, unsigned int classIndex) const {
     double l = pTree_->getBranchLengthParameter(nodeId).getValue();

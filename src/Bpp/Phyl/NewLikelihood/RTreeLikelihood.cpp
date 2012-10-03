@@ -94,10 +94,10 @@ throw (Exception) :
 
 void RTreeLikelihood::init_(bool usePatterns) throw (Exception)
 {
-  likelihoodData_ = new DRASRTreeLikelihoodData(
-    tree_,
-    rateDistribution_->getNumberOfCategories(),
-    usePatterns);
+  likelihoodData_.reset(new RTreeLikelihoodData(
+    &tree_->getTree(),
+    process_->getNumberOfClasses(),
+    usePatterns));
 }
 
 /******************************************************************************/
@@ -108,8 +108,8 @@ RTreeLikelihood::RTreeLikelihood(
   likelihoodData_(0),
   minusLogLik_(lik.minusLogLik_)
 {
-  likelihoodData_ = dynamic_cast<DRASRTreeLikelihoodData*>(lik.likelihoodData_->clone());
-  likelihoodData_->setTree(tree_);
+  likelihoodData_.reset(lik.likelihoodData_->clone());
+  likelihoodData_->setTree(&tree_->getTree());
 }
 
 /******************************************************************************/
@@ -118,9 +118,8 @@ RTreeLikelihood& RTreeLikelihood::operator=(
   const RTreeLikelihood& lik)
 {
   AbstractTreeLikelihood::operator=(lik);
-  if (likelihoodData_) delete likelihoodData_;
-  likelihoodData_ = dynamic_cast<DRASRTreeLikelihoodData*>(lik.likelihoodData_->clone());
-  likelihoodData_->setTree(tree_);
+  likelihoodData_.reset(lik.likelihoodData_->clone());
+  likelihoodData_->setTree(&tree_->getTree());
   minusLogLik_ = lik.minusLogLik_;
   return *this;
 }
@@ -129,8 +128,7 @@ RTreeLikelihood& RTreeLikelihood::operator=(
 
 void RTreeLikelihood::setData(const SiteContainer& sites) throw (Exception)
 {
-  if (data_) delete data_;
-  data_ = PatternTools::getSequenceSubset(sites, *tree_->getRootNode());
+  data_.reset(PatternTools::getSequenceSubset(sites, *tree_->getTree().getRootNode()));
   if (verbose_) ApplicationTools::displayTask("Initializing data structure");
   likelihoodData_->initLikelihoods(*data_, *modelSet_->getModel(0)); //We assume here that all models have the same number of states, and that they have the same 'init' method,
                                                                      //Which is a reasonable assumption as long as they share the same alphabet.

@@ -207,8 +207,8 @@ namespace newlik
 	
   public:	// Specific methods:
 	
-    RTreeLikelihoodData* getLikelihoodData() { return likelihoodData_; }
-    const RTreeLikelihoodData* getLikelihoodData() const { return likelihoodData_; }
+    RTreeLikelihoodData* getLikelihoodData() { return likelihoodData_.get(); }
+    const RTreeLikelihoodData* getLikelihoodData() const { return likelihoodData_.get(); }
  
     virtual void computeTreeLikelihood();
 
