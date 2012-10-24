@@ -88,7 +88,6 @@ namespace bpp
  */
 class Node
 {
-  friend class TreeTemplateTools;
 
 protected:
   int id_;
@@ -152,7 +151,6 @@ public:
     branchProperties_()
   {}
 
-protected:
   /**
    * @brief Copy constructor.
    *

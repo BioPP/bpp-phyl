@@ -89,7 +89,7 @@ DRTreeParsimonyData& DRTreeParsimonyData::operator=(const DRTreeParsimonyData& d
 /******************************************************************************/
 void DRTreeParsimonyData::init(const SiteContainer& sites, const StateMap& stateMap) throw (Exception)
 {
-  nbStates_         = sites.getAlphabet()->getSize();
+  nbStates_         = stateMap.getNumberOfStates();
   nbSites_          = sites.getNumberOfSites();
   SitePatterns pattern(&sites);
   shrunkData_       = pattern.getSites();

@@ -91,6 +91,8 @@ class HierarchicalClustering:
 		virtual ~HierarchicalClustering() {}
 
 	public:
+    std::string getName() const { return "Hierarchical clustering: " + method_; }
+
 		TreeTemplate<Node>* getTree() const;
 
 	protected:
