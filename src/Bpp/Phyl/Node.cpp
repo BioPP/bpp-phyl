@@ -54,7 +54,9 @@ using namespace std;
 /** Copy constructor: *********************************************************/
   
 Node::Node(const Node& node):
-  id_(node.id_), name_(0), sons_(node.sons_), father_(node.father_),
+  id_(node.id_), name_(0),
+  sons_(), father_(0),
+  //, sons_(node.sons_), father_(node.father_),
   distanceToFather_(0), nodeProperties_(), branchProperties_()
 {
   name_             = node.hasName() ? new string(* node.name_) : 0;
@@ -72,10 +74,10 @@ Node& Node::operator=(const Node & node)
   id_               = node.id_;
   if(name_) delete name_;
   name_             = node.hasName() ? new string(* node.name_) : 0;
-  father_           = node.father_;
+  //father_           = node.father_;
   if(distanceToFather_) delete distanceToFather_;
   distanceToFather_ = node.hasDistanceToFather() ? new double(* node.distanceToFather_) : 0;
-  sons_             = node.sons_;
+  //sons_             = node.sons_;
   for(map<string, Clonable *>::iterator i = node.nodeProperties_.begin(); i != node.nodeProperties_.end(); i++)
   {
     Clonable * p = nodeProperties_[i->first];
