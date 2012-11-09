@@ -753,12 +753,12 @@ class TreeTemplateTools
       //First we copy this node using default copy constuctor:
       N* clone = new N(node);
       //We remove the link toward the father:
-      clone->removeFather();
+      //clone->removeFather();
 
       //Now we perform a hard copy:
       for (unsigned int i = 0; i < node.getNumberOfSons(); i++)
       {
-        clone->setSon(i, cloneSubtree<N>(*node[i]));
+        clone->addSon(cloneSubtree<N>(*node[i]));
       }
       return clone;
     }

@@ -272,6 +272,7 @@ void FullPerAACodonFrequenciesSet::setFrequencies(const vector<double>& frequenc
   const ProteicAlphabet* ppa = dynamic_cast<const ProteicAlphabet*>(pgc_->getTargetAlphabet());
 
   vector<double> vaa;
+  double S=0;
   for (unsigned int i=0;i<ppa->getSize();i++){
     vector<double> vp;
     double s=0;
@@ -280,12 +281,14 @@ void FullPerAACodonFrequenciesSet::setFrequencies(const vector<double>& frequenc
       vp.push_back(frequencies[vc[j]]);
       s+=frequencies[vc[j]];
     }
+    S+=s;
     vaa.push_back(s);
     vp/=s;
     vS_[i].setFrequencies(vp);
     matchParametersValues(vS_[i].getParameters());
   }
 
+  vaa/=S; // to avoid counting of stop codons
   ppfs_->setFrequencies(vaa);
   matchParametersValues(ppfs_->getParameters());
   updateFrequencies();

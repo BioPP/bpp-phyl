@@ -154,12 +154,16 @@ public:
   /**
    * @brief Copy constructor.
    *
+   * @warning This constructor copies all fields, excepted father and son node pointers.
+   *
    * @param node The node to copy.
    */
   Node(const Node& node);
 
   /**
    * @brief Assignation operator.
+   *
+   * @warning This operator copies all fields, excepted father and son node pointers.
    *
    * @param node the node to copy.
    * @return A reference toward this node.

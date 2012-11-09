@@ -910,13 +910,13 @@ void BppOSubstitutionModelFormat::write(const SubstitutionModel& model,
 {
   bool comma=false;
   
-  // Mixed Model
+  //  Mixed Model that are defined as "Mixture" and "Mixed"
 
-  if (dynamic_cast<const MixedSubstitutionModel*>(&model)!=NULL){
-    write(*dynamic_cast<const MixedSubstitutionModel*>(&model), out, globalAliases, writtenNames);
-    return;
-  }
-
+  if ((dynamic_cast<const MixedSubstitutionModel*>(&model)!=NULL) && (dynamic_cast<const AbstractBiblioMixedSubstitutionModel*>(&model)==NULL))
+    {
+      write(*dynamic_cast<const MixedSubstitutionModel*>(&model), out, globalAliases, writtenNames);
+      return;
+    }
   
   out << model.getName() + "(";
   
