@@ -230,6 +230,7 @@ class TreeTemplateTools
           {
             brother->setDistanceToFather(brother->getDistanceToFather() + leaf->getDistanceToFather());
           }
+          brother->removeFather();
           tree.setRootNode(brother);
           delete parent;
           delete leaf;
