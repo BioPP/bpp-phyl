@@ -61,8 +61,8 @@ void fitModelH(SubstitutionModel* model, DiscreteDistribution* rdist, const Tree
   ApplicationTools::displayResult("* initial likelihood", tl.getValue());
   if (abs(tl.getValue() - initialValue) > 0.0001)
     throw Exception("Incorrect initial value.");
-  auto_ptr<OutputStream> messenger(new StlOutputStream(auto_ptr<ostream>(new ofstream("messages.txt", ios::out))));
-  auto_ptr<OutputStream> profiler(new StlOutputStream(auto_ptr<ostream>(new ofstream("profile.txt", ios::out))));
+  auto_ptr<OutputStream> messenger(new StlOutputStream(new ofstream("messages.txt", ios::out)));
+  auto_ptr<OutputStream> profiler(new StlOutputStream(new ofstream("profile.txt", ios::out)));
   profiler->setPrecision(20);
   OptimizationTools::optimizeNumericalParameters2(&tl, tl.getParameters(), 0, 0.000001, 10000, messenger.get(), profiler.get(), false, true, 2, OptimizationTools::OPTIMIZATION_NEWTON);
   cout << setprecision(20) << tl.getValue() << endl;
@@ -83,8 +83,8 @@ void fitModelHClock(SubstitutionModel* model, DiscreteDistribution* rdist, const
   ApplicationTools::displayResult("* initial likelihood", tl.getValue());
   if (abs(tl.getValue() - initialValue) > 0.001)
     throw Exception("Incorrect initial value.");
-  auto_ptr<OutputStream> messenger(new StlOutputStream(auto_ptr<ostream>(new ofstream("messages.txt", ios::out))));
-  auto_ptr<OutputStream> profiler(new StlOutputStream(auto_ptr<ostream>(new ofstream("profile.txt", ios::out))));
+  auto_ptr<OutputStream> messenger(new StlOutputStream(new ofstream("messages.txt", ios::out)));
+  auto_ptr<OutputStream> profiler(new StlOutputStream(new ofstream("profile.txt", ios::out)));
   profiler->setPrecision(20);
   OptimizationTools::optimizeNumericalParametersWithGlobalClock2(&tl, tl.getParameters(), 0, 0.000001, 10000, messenger.get(), profiler.get());
   cout << setprecision(20) << tl.getValue() << endl;

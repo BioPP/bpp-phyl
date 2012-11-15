@@ -43,10 +43,11 @@
 #include "../PatternTools.h"
 #include "../SitePatterns.h"
 
+// From bpp-core:
 #include <Bpp/App/ApplicationTools.h>
 #include <Bpp/Numeric/AutoParameter.h>
 
-// From SeqLib:
+// From bpp-seq:
 #include <Bpp/Seq/SiteTools.h>
 #include <Bpp/Seq/Sequence.h>
 #include <Bpp/Seq/Container/AlignedSequenceContainer.h>
@@ -674,7 +675,7 @@ void DistanceEstimation::computeMatrix() throw (NullPointerException)
       lik->enableDerivatives(true);
       unsigned int d = SymbolListTools::getNumberOfDistinctPositions(sites_->getSequence(i), sites_->getSequence(j));
       unsigned int g = SymbolListTools::getNumberOfPositionsWithoutGap(sites_->getSequence(i), sites_->getSequence(j));
-      lik->setParameterValue("BrLen", g == 0 ? lik->getMinimumBranchLength() : std::max(lik->getMinimumBranchLength(),(double)d / (double)g));
+      lik->setParameterValue("BrLen", g == 0 ? lik->getMinimumBranchLength() : std::max(lik->getMinimumBranchLength(), static_cast<double>(d) / static_cast<double>(g)));
       // Optimization:
       optimizer_->setFunction(lik);
       optimizer_->setConstraintPolicy(AutoParameter::CONSTRAINTS_AUTO);

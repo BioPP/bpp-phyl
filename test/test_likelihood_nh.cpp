@@ -102,8 +102,8 @@ int main() {
  
   for (unsigned int j = 0; j < nrep; j++) {
 
-    OutputStream* profiler  = new StlOutputStream(auto_ptr<ostream>(new ofstream("profile.txt", ios::out)));
-    OutputStream* messenger = new StlOutputStream(auto_ptr<ostream>(new ofstream("messages.txt", ios::out)));
+    OutputStream* profiler  = new StlOutputStream(new ofstream("profile.txt", ios::out));
+    OutputStream* messenger = new StlOutputStream(new ofstream("messages.txt", ios::out));
 
     //Simulate data:
     auto_ptr<SiteContainer> sites(simulator.simulate(nsites));
