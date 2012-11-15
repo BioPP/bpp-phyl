@@ -295,6 +295,8 @@ Vint MixtureOfASubstitutionModel::getSubmodelNumbers(string& desc) const
   unsigned int i, j, l;
   string s;
 
+  bool nameok=false;
+  
   for (i = 0; i < modelsContainer_.size(); i++)
   {
     j = i;
@@ -303,12 +305,15 @@ Vint MixtureOfASubstitutionModel::getSubmodelNumbers(string& desc) const
       s = it->first;
       l = j % it->second->getNumberOfCategories();
 
-      if ((msubn.find(s) != msubn.end()) && (msubn[s] != l))
-        break;
-
+      if (msubn.find(s) != msubn.end()){
+        nameok=true;
+        if (msubn[s] != l)
+          break;
+      }
+      
       j = j / it->second->getNumberOfCategories();
     }
-    if (it == distributionMap_.end())
+    if (nameok && it == distributionMap_.end())
       submodnb.push_back(i);
   }
 
