@@ -50,6 +50,7 @@
 #include "BppOFrequenciesSetFormat.h"
 
 #include <Bpp/Seq/App/SequenceApplicationTools.h>
+#include <Bpp/Io/OutputStream.h>
 #include <Bpp/Io/BppOParametrizableFormat.h>
 #include <Bpp/Io/BppODiscreteDistributionFormat.h>
 #include <Bpp/Numeric/Prob.all>
@@ -1089,7 +1090,6 @@ void BppOSubstitutionModelFormat::write(const MixedSubstitutionModel& model,
     ParameterList pl = eM->getIndependentParameters();
     vector<string> vpl = pl.getParameterNames();
 
-
     out << eM->getName() << "(";
     for (unsigned j = 0; j < vpl.size(); j++)
     {
@@ -1124,6 +1124,7 @@ void BppOSubstitutionModelFormat::write(const MixedSubstitutionModel& model,
 
   const BppOParametrizableFormat* bIO = new BppOParametrizableFormat();
   bIO->write(&model, out, globalAliases, model.getIndependentParameters().getParameterNames(), writtenNames, true, true);
+  delete bIO;
 
   out << ")";
 }
