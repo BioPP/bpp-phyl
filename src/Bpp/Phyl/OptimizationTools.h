@@ -702,13 +702,35 @@ public:
     unsigned int verbose = 1);
 
   /**
+   * @brief Estimate a distance matrix using maximum likelihood.
+   *
+   * This method estimate a distance matrix using a DistanceEstimation object.
+   * The main issue here is to estimate non-branch lengths parameters, as substitution model and rate distribution parameters.
+   * Twoe options are provideed here:
+   * - DISTANCEMETHOD_INIT (default) keep parameters to there initial value,
+   * - DISTANCEMETHOD_PAIRWISE estimated parameters in a pairwise manner, which is standard but not that satisfying...
+   *
+   * @param estimationMethod The distance estimation object to use.
+   * @param parametersToIgnore A list of parameters to ignore while optimizing parameters.
+   * @param param String describing the type of optimization to use.
+   * @param verbose Verbose level.
+   *
+   * @see buildDistanceTree for a procedure to jointly estimate the distance matrix and underlying tree.
+   */
+  static DistanceMatrix* estimateDistanceMatrix(
+    DistanceEstimation& estimationMethod,
+    const ParameterList& parametersToIgnore,
+    const std::string& param = DISTANCEMETHOD_INIT,
+    unsigned int verbose = 0) throw (Exception);
+
+  /**
    * @brief Build a tree using a distance method.
    *
    * This method estimate a distance matrix using a DistanceEstimation object, and then builds the phylogenetic tree using a AgglomerativeDistanceMethod object.
    * The main issue here is to estimate non-branch lengths parameters, as substitution model and rate distribution parameters.
    * Three options are provideed here:
    * - DISTANCEMETHOD_INIT (default) keep parameters to there initial value,
-   * - DISTANCEMETHOD_PAIRWISE estimated parameters in a pairwise manner, which is standard but not good at all...
+   * - DISTANCEMETHOD_PAIRWISE estimated parameters in a pairwise manner, which is standard but not that satisfying...
    * - DISTANCEMETHOD_ITERATIONS uses Ninio et al's iterative algorithm, which uses Maximum Likelihood to estimate these parameters, and then update the distance matrix.
    * Ninio M, Privman E, Pupko T, Friedman N.
    * Phylogeny reconstruction: increasing the accuracy of pairwise distance estimation using Bayesian inference of evolutionary rates.

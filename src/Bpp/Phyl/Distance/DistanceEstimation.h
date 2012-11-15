@@ -6,7 +6,7 @@
 //
 
 /*
-Copyright or © or Copr. CNRS, (November 16, 2004)
+Copyright or © or Copr. Bio++ Development Team, (November 16, 2004)
 
 This software is a computer program whose purpose is to provide classes
 for phylogenetic data analysis.
@@ -298,7 +298,7 @@ class TwoTreeLikelihood:
 class DistanceEstimation:
   public virtual Clonable
 {
-	protected:
+	private:
 		SubstitutionModel* model_;
 		DiscreteDistribution* rateDist_;
 		const SiteContainer* sites_;
@@ -309,7 +309,35 @@ class DistanceEstimation:
 		ParameterList parameters_;
 
 	public:
-		
+	
+    /**
+		 * @brief Create a new DistanceEstimation object according to a given substitution model and a rate distribution.
+		 *
+		 * @param model    The substitution model to use.
+		 * @param rateDist The discrete rate distribution to use.
+		 * @param verbose  The verbose level:
+		 *  - 0=Off,
+		 *  - 1=one * by row computation
+		 *  - 2=one * by row computation and one . by column computation
+		 *  - 3=2 + optimization verbose enabled
+		 *  - 4=3 + likelihood object verbose enabled
+		 */
+		DistanceEstimation(
+        SubstitutionModel* model,
+        DiscreteDistribution* rateDist,
+        unsigned int verbose = 1) :
+      model_(model),
+      rateDist_(rateDist),
+      sites_(0),
+      dist_(0),
+      optimizer_(0),
+      defaultOptimizer_(0),
+      verbose_(verbose),
+      parameters_()
+    {
+	    init_();
+    }
+	
 		/**
 		 * @brief Create a new DistanceEstimation object and compute distances
 		 * according to a given substitution model and a rate distribution.
@@ -340,7 +368,7 @@ class DistanceEstimation:
       verbose_(verbose),
       parameters_()
     {
-	    _init();
+	    init_();
       if(computeMat) computeMatrix();
     }
 		
@@ -406,7 +434,7 @@ class DistanceEstimation:
     clone() const { return new DistanceEstimation(*this); }
 		
   private:
-    void _init()
+    void init_()
     {
       MetaOptimizerInfos* desc = new MetaOptimizerInfos();
       std::vector<std::string> name;
@@ -453,11 +481,11 @@ class DistanceEstimation:
 		
 		void setOptimizer(const Optimizer * optimizer)
     { 
-      if(optimizer_) delete optimizer_;
+      if (optimizer_) delete optimizer_;
       optimizer_ = dynamic_cast<Optimizer *>(optimizer->clone());
     }
-		const Optimizer * getOptimizer() const { return optimizer_; }
-		Optimizer * getOptimizer() { return optimizer_; }
+		const Optimizer* getOptimizer() const { return optimizer_; }
+		Optimizer* getOptimizer() { return optimizer_; }
 		void resetOptimizer() { optimizer_ = dynamic_cast<Optimizer*>(defaultOptimizer_->clone()); }
 
 		/**

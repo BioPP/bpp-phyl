@@ -48,7 +48,7 @@
 #include <Bpp/Numeric/ParameterList.h>
 #include <Bpp/Numeric/Function.all>
 
-// From SeqLib:
+// From bpp-seq:
 #include <Bpp/Seq/Io/Fasta.h>
 
 using namespace bpp;
@@ -636,6 +636,36 @@ DRTreeParsimonyScore* OptimizationTools::optimizeTreeNNI(
 std::string OptimizationTools::DISTANCEMETHOD_INIT       = "init";
 std::string OptimizationTools::DISTANCEMETHOD_PAIRWISE   = "pairwise";
 std::string OptimizationTools::DISTANCEMETHOD_ITERATIONS = "iterations";
+
+/******************************************************************************/
+
+DistanceMatrix* OptimizationTools::estimateDistanceMatrix(
+  DistanceEstimation& estimationMethod,
+  const ParameterList& parametersToIgnore,
+  const std::string& param,
+  unsigned int verbose) throw (Exception)
+{
+  if (param != DISTANCEMETHOD_PAIRWISE && param != DISTANCEMETHOD_INIT)
+    throw Exception("OptimizationTools::estimateDistanceMatrix. Invalid option param=" + param + ".");
+  estimationMethod.resetAdditionalParameters();
+  estimationMethod.setVerbose(verbose);
+  if (param == DISTANCEMETHOD_PAIRWISE)
+  {
+    ParameterList tmp = estimationMethod.getModel()->getIndependentParameters();
+    tmp.addParameters(estimationMethod.getRateDistribution()->getIndependentParameters());
+    tmp.deleteParameters(parametersToIgnore.getParameterNames());
+    estimationMethod.setAdditionalParameters(tmp);
+  }
+  // Compute matrice:
+  if (verbose > 0)
+    ApplicationTools::displayTask("Estimating distance matrix", true);
+  estimationMethod.computeMatrix();
+  auto_ptr<DistanceMatrix> matrix(estimationMethod.getMatrix());
+  if (verbose > 0)
+    ApplicationTools::displayTaskDone();
+
+  return matrix.release();
+}
 
 /******************************************************************************/
 
