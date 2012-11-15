@@ -145,7 +145,7 @@ TwoTreeLikelihood::TwoTreeLikelihood(const TwoTreeLikelihood& lik) :
 
 /******************************************************************************/
 
-TwoTreeLikelihood & TwoTreeLikelihood::operator=(const TwoTreeLikelihood& lik)
+TwoTreeLikelihood& TwoTreeLikelihood::operator=(const TwoTreeLikelihood& lik)
 {
   AbstractDiscreteRatesAcrossSitesTreeLikelihood::operator=(lik);
   shrunkData_        = dynamic_cast<SiteContainer*>(lik.shrunkData_->clone());
@@ -669,7 +669,7 @@ void DistanceEstimation::computeMatrix() throw (NullPointerException)
         ApplicationTools::displayGauge(j - i - 1, n - i - 2, '=');
       }
       TwoTreeLikelihood* lik =
-        new TwoTreeLikelihood(names[i], names[j], *sites_, model_, rateDist_, verbose_ > 3);
+        new TwoTreeLikelihood(names[i], names[j], *sites_, model_.get(), rateDist_.get(), verbose_ > 3);
       lik->initialize();
       lik->enableDerivatives(true);
       unsigned int d = SymbolListTools::getNumberOfDistinctPositions(sites_->getSequence(i), sites_->getSequence(j));

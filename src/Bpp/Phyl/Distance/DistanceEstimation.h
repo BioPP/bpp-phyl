@@ -299,8 +299,8 @@ class DistanceEstimation:
   public virtual Clonable
 {
 	private:
-		SubstitutionModel* model_;
-		DiscreteDistribution* rateDist_;
+		auto_ptr<SubstitutionModel> model_;
+		auto_ptr<DiscreteDistribution> rateDist_;
 		const SiteContainer* sites_;
 		DistanceMatrix* dist_;
 		Optimizer* optimizer_;
@@ -313,6 +313,8 @@ class DistanceEstimation:
     /**
 		 * @brief Create a new DistanceEstimation object according to a given substitution model and a rate distribution.
 		 *
+     * This instance will own the model and distribution, and will take car of their recopy and destruction.
+     *
 		 * @param model    The substitution model to use.
 		 * @param rateDist The discrete rate distribution to use.
 		 * @param verbose  The verbose level:
@@ -342,6 +344,8 @@ class DistanceEstimation:
 		 * @brief Create a new DistanceEstimation object and compute distances
 		 * according to a given substitution model and a rate distribution.
 		 *
+     * This instance will own the model and distribution, and will take car of their recopy and destruction.
+     *
 		 * @param model    The substitution model to use.
 		 * @param rateDist The discrete rate distribution to use.
 		 * @param sites    The sequence data.
@@ -380,8 +384,8 @@ class DistanceEstimation:
      * @param distanceEstimation The object to copy.
      */
     DistanceEstimation(const DistanceEstimation& distanceEstimation):
-      model_(distanceEstimation.model_),
-      rateDist_(distanceEstimation.rateDist_),
+      model_(distanceEstimation.model_->clone()),
+      rateDist_(distanceEstimation.rateDist_->clone()),
       sites_(distanceEstimation.sites_),
       dist_(0),
       optimizer_(dynamic_cast<Optimizer *>(distanceEstimation.optimizer_->clone())),
@@ -405,10 +409,10 @@ class DistanceEstimation:
      */
     DistanceEstimation& operator=(const DistanceEstimation& distanceEstimation)
     {
-      model_      = distanceEstimation.model_;
-      rateDist_   = distanceEstimation.rateDist_;
+      model_.reset(distanceEstimation.model_->clone());
+      rateDist_.reset(distanceEstimation.rateDist_->clone());
       sites_      = distanceEstimation.sites_;
-      if(distanceEstimation.dist_ != 0)
+      if (distanceEstimation.dist_ != 0)
         dist_     = new DistanceMatrix(*distanceEstimation.dist_);
       else
         dist_     = 0;
@@ -469,11 +473,27 @@ class DistanceEstimation:
 		 */
 		DistanceMatrix* getMatrix() const { return dist_ == 0 ? 0 : new DistanceMatrix(*dist_); }
 
-		SubstitutionModel* getModel() const { return model_; }
-		void resetModel() { model_ = 0; }
+    bool hasSubstitutionModel() const { return model_.get(); }
 
-		DiscreteDistribution* getRateDistribution() const { return rateDist_; }
-		void resetRateDistribution() { rateDist_ = 0; }
+		const SubstitutionModel& getSubstitutionModel() const throw (Exception) {
+      if (hasSubstitutionModel())
+        return *model_;
+      else
+        throw Exception("DistanceEstimation::getSubstitutionModel(). No model assciated to this instance.");
+    }
+
+		void resetSubstitutionModel(SubstitutionModel* model = 0) { model_.reset(model); }
+
+    bool hasRateDistribution() const { return rateDist_.get(); }
+
+    const DiscreteDistribution& getRateDistribution() const throw (Exception) {
+      if (hasRateDistribution())
+        return *rateDist_;
+      else
+        throw Exception("DistanceEstimation::getRateDistribution(). No rate distribution assciated to this instance.");
+    }
+
+		void resetRateDistribution(DiscreteDistribution* rateDist = 0) { rateDist_.reset(rateDist); }
 
 		void setData(const SiteContainer* sites) { sites_ = sites; }
 		const SiteContainer* getData() const { return sites_; }

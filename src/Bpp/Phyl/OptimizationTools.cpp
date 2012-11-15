@@ -651,8 +651,8 @@ DistanceMatrix* OptimizationTools::estimateDistanceMatrix(
   estimationMethod.setVerbose(verbose);
   if (param == DISTANCEMETHOD_PAIRWISE)
   {
-    ParameterList tmp = estimationMethod.getModel()->getIndependentParameters();
-    tmp.addParameters(estimationMethod.getRateDistribution()->getIndependentParameters());
+    ParameterList tmp = estimationMethod.getSubstitutionModel().getIndependentParameters();
+    tmp.addParameters(estimationMethod.getRateDistribution().getIndependentParameters());
     tmp.deleteParameters(parametersToIgnore.getParameterNames());
     estimationMethod.setAdditionalParameters(tmp);
   }
@@ -685,8 +685,8 @@ TreeTemplate<Node>* OptimizationTools::buildDistanceTree(
   estimationMethod.setVerbose(verbose);
   if (param == DISTANCEMETHOD_PAIRWISE)
   {
-    ParameterList tmp = estimationMethod.getModel()->getIndependentParameters();
-    tmp.addParameters(estimationMethod.getRateDistribution()->getIndependentParameters());
+    ParameterList tmp = estimationMethod.getSubstitutionModel().getIndependentParameters();
+    tmp.addParameters(estimationMethod.getRateDistribution().getIndependentParameters());
     tmp.deleteParameters(parametersToIgnore.getParameterNames());
     estimationMethod.setAdditionalParameters(tmp);
   }
@@ -724,7 +724,13 @@ TreeTemplate<Node>* OptimizationTools::buildDistanceTree(
       break;  // Ends here.
 
     // Now, re-estimate parameters:
-    DRHomogeneousTreeLikelihood tl(*tree, *estimationMethod.getData(), estimationMethod.getModel(), estimationMethod.getRateDistribution(), true, verbose > 1);
+    auto_ptr<SubstitutionModel> model(estimationMethod.getSubstitutionModel().clone());
+    auto_ptr<DiscreteDistribution> rdist(estimationMethod.getRateDistribution().clone());
+    DRHomogeneousTreeLikelihood tl(*tree,
+        *estimationMethod.getData(),
+        model.get(),
+        rdist.get(),
+        true, verbose > 1);
     tl.initialize();
     ParameterList parameters = tl.getParameters();
     if (!optimizeBrLen)
