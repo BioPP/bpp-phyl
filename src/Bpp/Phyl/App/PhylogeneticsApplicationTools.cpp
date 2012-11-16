@@ -891,7 +891,7 @@ throw (Exception)
   OutputStream* messageHandler =
     (mhPath == "none") ? 0 :
     (mhPath == "std") ? ApplicationTools::message :
-    new StlOutputStream(auto_ptr<ostream>(new ofstream(mhPath.c_str(), ios::out)));
+    new StlOutputStream(new ofstream(mhPath.c_str(), ios::out));
   if (verbose)
     ApplicationTools::displayResult("Message handler", mhPath);
 
@@ -899,7 +899,7 @@ throw (Exception)
   OutputStream* profiler =
     (prPath == "none") ? 0 :
     (prPath == "std") ? ApplicationTools::message :
-    new StlOutputStream(auto_ptr<ostream>(new ofstream(prPath.c_str(), ios::out)));
+    new StlOutputStream(new ofstream(prPath.c_str(), ios::out));
   if (profiler)
     profiler->setPrecision(20);
   if (verbose)
@@ -1231,7 +1231,7 @@ throw (Exception)
   OutputStream* messageHandler =
     (mhPath == "none") ? 0 :
     (mhPath == "std") ? ApplicationTools::message :
-    new StlOutputStream(auto_ptr<ostream>(new ofstream(mhPath.c_str(), ios::out)));
+    new StlOutputStream(new ofstream(mhPath.c_str(), ios::out));
   if (verbose)
     ApplicationTools::displayResult("Message handler", mhPath);
 
@@ -1239,7 +1239,7 @@ throw (Exception)
   OutputStream* profiler =
     (prPath == "none") ? 0 :
     (prPath == "std") ? ApplicationTools::message :
-    new StlOutputStream(auto_ptr<ostream>(new ofstream(prPath.c_str(), ios::out)));
+    new StlOutputStream(new ofstream(prPath.c_str(), ios::out));
   if (profiler)
     profiler->setPrecision(20);
   if (verbose)

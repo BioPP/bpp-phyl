@@ -74,8 +74,8 @@ int main() {
   NonHomogeneousSequenceSimulator simulator(modelSet, rdist, tree);
 
   unsigned int n = 100000;
-  OutputStream* profiler  = new StlOutputStream(auto_ptr<ostream>(new ofstream("profile.txt", ios::out)));
-  OutputStream* messenger = new StlOutputStream(auto_ptr<ostream>(new ofstream("messages.txt", ios::out)));
+  OutputStream* profiler  = new StlOutputStream(new ofstream("profile.txt", ios::out));
+  OutputStream* messenger = new StlOutputStream(new ofstream("messages.txt", ios::out));
 
   //Check fast simulation first:
   
