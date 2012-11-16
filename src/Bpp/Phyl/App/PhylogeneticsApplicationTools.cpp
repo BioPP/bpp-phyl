@@ -48,6 +48,7 @@
 #include "../Io/Nhx.h"
 #include "../Io/BppOSubstitutionModelFormat.h"
 #include "../Io/BppOFrequenciesSetFormat.h"
+#include "../Io/BppORateDistributionFormat.h"
 
 #include <Bpp/Io/BppODiscreteDistributionFormat.h>
 #include <Bpp/Io/BppOParametrizableFormat.h>
@@ -747,19 +748,11 @@ DiscreteDistribution* PhylogeneticsApplicationTools::getRateDistributionDefaultI
   if (distName == "Uniform")
     throw Exception("Warning, Uniform distribution is deprecated, use Constant instead.");
 
-  if (distName == "Constant") {
-    if (!constDistAllowed)
-      throw Exception("You can't use a constant distribution here!");
-    return new ConstantDistribution(1., true);
-  }
+  if (distName == "Constant" && !constDistAllowed)
+    throw Exception("You can't use a constant distribution here!");
 
-  BppODiscreteDistributionFormat* bIO=new BppODiscreteDistributionFormat();
-  DiscreteDistribution* rDist = bIO->read(distDescription, unparsedParameterValues, false);
-  delete bIO;
-
-  GammaDiscreteDistribution* pGD=dynamic_cast<GammaDiscreteDistribution*>(rDist);
-  if (pGD)
-    pGD->normalize();
+  BppORateDistributionFormat bIO;
+  auto_ptr<DiscreteDistribution> rDist(bIO.read(distDescription, unparsedParameterValues, false));
 
   if (verbose)
   {
@@ -768,7 +761,7 @@ DiscreteDistribution* PhylogeneticsApplicationTools::getRateDistributionDefaultI
   }
 
   
-  return rDist;
+  return rDist.release();
 }
 
 /******************************************************************************/
