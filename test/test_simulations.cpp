@@ -43,6 +43,7 @@ knowledge of the CeCILL license and that you accept its terms.
 #include <Bpp/Phyl/TreeTemplate.h>
 #include <Bpp/Phyl/Model.all>
 #include <Bpp/Phyl/Model/FrequenciesSet/NucleotideFrequenciesSet.h>
+#include <Bpp/Phyl/Model/RateDistribution/ConstantRateDistribution.h>
 #include <Bpp/Phyl/Simulation.all>
 #include <Bpp/Phyl/Likelihood.all>
 #include <Bpp/Phyl/OptimizationTools.h>
@@ -63,7 +64,7 @@ int main() {
   std::vector<std::string> globalParameterNames;
   globalParameterNames.push_back("T92.kappa");
   SubstitutionModelSet* modelSet = SubstitutionModelSetTools::createNonHomogeneousModelSet(model, rootFreqs, tree, globalParameterNames);
-  DiscreteDistribution* rdist = new ConstantDistribution(1.0, true);
+  DiscreteDistribution* rdist = new ConstantRateDistribution();
   vector<double> thetas;
   for (unsigned int i = 0; i < modelSet->getNumberOfModels(); ++i) {
     double theta = RandomTools::giveRandomNumberBetweenZeroAndEntry(0.99) + 0.005;

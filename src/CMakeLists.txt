@@ -30,6 +30,7 @@ set(CPP_FILES
   Bpp/Phyl/Io/BppOSubstitutionModelFormat.cpp
   Bpp/Phyl/Io/IoFrequenciesSetFactory.cpp
   Bpp/Phyl/Io/BppOFrequenciesSetFormat.cpp
+  Bpp/Phyl/Io/BppORateDistributionFormat.cpp
   Bpp/Phyl/Likelihood/AbstractDiscreteRatesAcrossSitesTreeLikelihood.cpp
   Bpp/Phyl/Likelihood/AbstractHomogeneousTreeLikelihood.cpp
   Bpp/Phyl/Likelihood/AbstractNonHomogeneousTreeLikelihood.cpp
@@ -173,6 +174,7 @@ set(H_FILES
   Bpp/Phyl/Io/IoFrequenciesSet.h
   Bpp/Phyl/Io/IoFrequenciesSetFactory.h
   Bpp/Phyl/Io/BppOFrequenciesSetFormat.h
+  Bpp/Phyl/Io/BppORateDistributionFormat.h
   Bpp/Phyl/Likelihood/AbstractDiscreteRatesAcrossSitesTreeLikelihood.h
   Bpp/Phyl/Likelihood/AbstractHomogeneousTreeLikelihood.h
   Bpp/Phyl/Likelihood/AbstractNonHomogeneousTreeLikelihood.h
@@ -290,6 +292,10 @@ set(H_FILES
   Bpp/Phyl/Model/FrequenciesSet/ProteinFrequenciesSet.h
   Bpp/Phyl/Model/FrequenciesSet/WordFrequenciesSet.h
   Bpp/Phyl/Model/FrequenciesSet/CodonFrequenciesSet.h
+  Bpp/Phyl/Model/RateDistribution/ConstantRateDistribution.h
+  Bpp/Phyl/Model/RateDistribution/GammaDiscreteRateDistribution.h
+  Bpp/Phyl/Model/RateDistribution/GaussianDiscreteRateDistribution.h
+  Bpp/Phyl/Model/RateDistribution/ExponentialDiscreteRateDistribution.h
   Bpp/Phyl/NNISearchable.h
   Bpp/Phyl/NNITopologySearch.h
   Bpp/Phyl/Node.h

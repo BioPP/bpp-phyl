@@ -170,9 +170,8 @@ SubstitutionModel* PhylogeneticsApplicationTools::getSubstitutionModel(
 
   map<string, string> unparsedParameterValues;
 
-  BppOSubstitutionModelFormat* bIO = new BppOSubstitutionModelFormat();
-  SubstitutionModel* model = bIO->read(alphabet, modelDescription, unparsedParameterValues, true, true, true, verbose);
-  delete bIO;
+  BppOSubstitutionModelFormat bIO;
+  SubstitutionModel* model = bIO.read(alphabet, modelDescription, unparsedParameterValues, true, true, true, verbose);
   setSubstitutionModelParametersInitialValues(model, unparsedParameterValues, data, verbose);
   return model;
 }
@@ -375,7 +374,8 @@ FrequenciesSet* PhylogeneticsApplicationTools::getFrequenciesSet(
   bool verbose) throw (Exception)
 {
   map<string, string> unparsedParameterValues;
-  FrequenciesSet* pFS = getFrequenciesSetDefaultInstance(alphabet, freqDescription, unparsedParameterValues);
+  BppOFrequenciesSetFormat bIO;
+  FrequenciesSet* pFS = bIO.read(alphabet, freqDescription, unparsedParameterValues);
 
   // Now we set the initial frequencies according to options:
   if (unparsedParameterValues.find("init") != unparsedParameterValues.end())
@@ -447,21 +447,6 @@ FrequenciesSet* PhylogeneticsApplicationTools::getFrequenciesSet(
 
   return pFS;
 }
-
-/******************************************************************************/
-
-
-FrequenciesSet* PhylogeneticsApplicationTools::getFrequenciesSetDefaultInstance(
-  const Alphabet* alphabet,
-  const std::string& freqDescription,
-  std::map<std::string, std::string>& unparsedParameterValues) throw (Exception)
-{
-  BppOFrequenciesSetFormat* bIO=new BppOFrequenciesSetFormat();
-  FrequenciesSet* pFS= bIO->read(alphabet, freqDescription, unparsedParameterValues);
-  delete bIO;
-  return pFS;
-}
-
 
 /******************************************************/
 /**** SUBSTITUTION MODEL SET **************************/
@@ -735,37 +720,6 @@ void PhylogeneticsApplicationTools::completeMixedSubstitutionModelSet(
 
 /******************************************************************************/
 
-DiscreteDistribution* PhylogeneticsApplicationTools::getRateDistributionDefaultInstance(
-                                                                                        const string& distDescription,
-                                                                                        map<string, string>& unparsedParameterValues,
-                                                                                        bool constDistAllowed,
-                                                                                        bool verbose) throw (Exception)
-{
-  string distName;
-  map<string, string> args;
-  KeyvalTools::parseProcedure(distDescription, distName, args);
-
-  if (distName == "Uniform")
-    throw Exception("Warning, Uniform distribution is deprecated, use Constant instead.");
-
-  if (distName == "Constant" && !constDistAllowed)
-    throw Exception("You can't use a constant distribution here!");
-
-  BppORateDistributionFormat bIO;
-  auto_ptr<DiscreteDistribution> rDist(bIO.read(distDescription, unparsedParameterValues, false));
-
-  if (verbose)
-  {
-    ApplicationTools::displayResult("Rate distribution", distName);
-    ApplicationTools::displayResult("Number of classes", TextTools::toString(rDist->getNumberOfCategories()));
-  }
-
-  
-  return rDist.release();
-}
-
-/******************************************************************************/
-
 MultipleDiscreteDistribution* PhylogeneticsApplicationTools::getMultipleDistributionDefaultInstance(
   const std::string& distDescription,
   std::map<std::string, std::string>& unparsedParameterValues,
@@ -812,43 +766,6 @@ MultipleDiscreteDistribution* PhylogeneticsApplicationTools::getMultipleDistribu
 
 /******************************************************************************/
 
-void PhylogeneticsApplicationTools::setRateDistributionParametersInitialValues(
-  DiscreteDistribution* rDist,
-  map<string, string>& unparsedParameterValues,
-  bool verbose) throw (Exception)
-{
-  ParameterList pl = rDist->getIndependentParameters();
-
-  for (unsigned int i = 0; i < pl.size(); i++)
-  {
-    AutoParameter ap(pl[i]);
-    ap.setMessageHandler(ApplicationTools::warning);
-    pl.setParameter(i, ap);
-  }
-
-  for (unsigned int i = 0; i < pl.size(); i++)
-  {
-    const string pName = pl[i].getName();
-    double value = ApplicationTools::getDoubleParameter(pName, unparsedParameterValues, pl[i].getValue());
-    pl[i].setValue(value);
-    if (verbose)
-      ApplicationTools::displayResult("Parameter found", pName + "=" + TextTools::toString(pl[i].getValue()));
-  }
-  
-  rDist->matchParametersValues(pl);
-  if (verbose)
-  {
-    for (unsigned int c = 0; c < rDist->getNumberOfCategories(); c++)
-    {
-      ApplicationTools::displayResult("- Category " + TextTools::toString(c)
-                                      + " (Pr = " + TextTools::toString(rDist->getProbability(c)) + ") rate", TextTools::toString(rDist->getCategory(c)));
-    }
-  }
-}
-
-
-/******************************************************************************/
-
 DiscreteDistribution* PhylogeneticsApplicationTools::getRateDistribution(
   map<string, string>& params,
   const string& suffix,
@@ -856,10 +773,21 @@ DiscreteDistribution* PhylogeneticsApplicationTools::getRateDistribution(
   bool verbose) throw (Exception)
 {
   string distDescription = ApplicationTools::getStringParameter("rate_distribution", params, "Constant()", suffix, suffixIsOptional);
-  map<string, string> unparsedParameterValues;
-  DiscreteDistribution* rDist = getRateDistributionDefaultInstance(distDescription, unparsedParameterValues, verbose);
-  setRateDistributionParametersInitialValues(rDist, unparsedParameterValues, verbose);
-  return rDist;
+
+  string distName;
+  map<string, string> args;
+  KeyvalTools::parseProcedure(distDescription, distName, args);
+
+  BppORateDistributionFormat bIO(true);
+  auto_ptr<DiscreteDistribution> rDist(bIO.read(distDescription, verbose, false));
+
+  if (verbose)
+  {
+    ApplicationTools::displayResult("Rate distribution", distName);
+    ApplicationTools::displayResult("Number of classes", TextTools::toString(rDist->getNumberOfCategories()));
+  }
+  
+  return rDist.release();
 }
 
 

@@ -15,6 +15,7 @@
 #include "Model/Nucleotide.all"
 #include "Model/Protein.all"
 #include "Model/RE08.h"
+#include "Model/RateDistribution.all"
 #include "Model/RateDistributionFactory.h"
 #include "Model/StateMap.h"
 #include "Model/SubstitutionModel.h"

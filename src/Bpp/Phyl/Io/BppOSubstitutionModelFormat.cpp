@@ -38,6 +38,7 @@
  */
 
 #include "BppOSubstitutionModelFormat.h"
+#include "BppORateDistributionFormat.h"
 
 #include <Bpp/Io/FileTools.h>
 #include <Bpp/Text/TextTools.h>
@@ -305,8 +306,9 @@ SubstitutionModel* BppOSubstitutionModelFormat::read(const Alphabet* alphabet,
 
     map<string, string> unparsedParameterValuesNestedModel;
     SubstitutionModel* nestedModel = read(alphabet, nestedModelDescription, unparsedParameterValuesNestedModel, false, allowMixed, allowGaps, verbose);
-    map<string, string> unparsedParameterValuesNestedDist;
-    DiscreteDistribution* nestedRDist = PhylogeneticsApplicationTools::getRateDistributionDefaultInstance(nestedRateDistDescription, unparsedParameterValuesNestedDist, false, verbose);
+    BppORateDistributionFormat rateReader(false);
+    DiscreteDistribution* nestedRDist = rateReader.read(nestedRateDistDescription, verbose, true);
+    map<string, string> unparsedParameterValuesNestedDist(rateReader.getUnparsedArguments());
 
     // Now we create the G01 substitution model:
     ReversibleSubstitutionModel* tmp = dynamic_cast<ReversibleSubstitutionModel*>(nestedModel);
@@ -828,7 +830,7 @@ MixedSubstitutionModel* BppOSubstitutionModelFormat::readMixed(const Alphabet* a
                verbose);
 
     map<string, DiscreteDistribution*> mdist;
-    map<string, string> unparsedParameterValuesNested2, unparsedParameterValuesNested3;
+    map<string, string> unparsedParameterValuesNested2;
 
     for (map<string, string>::iterator it = unparsedParameterValuesNested.begin();
          it != unparsedParameterValuesNested.end();
@@ -836,11 +838,9 @@ MixedSubstitutionModel* BppOSubstitutionModelFormat::readMixed(const Alphabet* a
     {
       if (it->second.find("(") != string::npos)
       {
-        unparsedParameterValuesNested3.clear();
-
-        BppODiscreteDistributionFormat* bIO = new BppODiscreteDistributionFormat();
-        mdist[pSM->getParameterNameWithoutNamespace(it->first)] = bIO->read(it->second, unparsedParameterValuesNested3, false);
-        delete bIO;
+        BppODiscreteDistributionFormat bIO;
+        mdist[pSM->getParameterNameWithoutNamespace(it->first)] = bIO.read(it->second, verbose, true);
+        map<string, string> unparsedParameterValuesNested3(bIO.getUnparsedArguments());
         for (map<string, string>::iterator it2 = unparsedParameterValuesNested3.begin();
              it2 != unparsedParameterValuesNested3.end();
              it2++)

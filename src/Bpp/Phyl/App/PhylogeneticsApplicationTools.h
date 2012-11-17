@@ -259,31 +259,11 @@ namespace bpp
       throw (Exception);
 
     /**
-     * @brief Get An AbstractFrequenciesSet object according to a
-     *              description following keyval syntax.
-     *
-     * @param alphabet The alpabet to use.
-     * @param freqDescription  The description of the Frequencies set. See the Bio++ Program Suite
-     * Manual for a detailed list of supported options.
-     * @param unparsedParameterValues map<string,string>& keyval description of the parameters
-     *     of the FrequenciesSet
-     * @return A new FrequenciesSet object according to options specified.
-     * @throw Exception if an error occured.
-     */
-    static FrequenciesSet* getFrequenciesSetDefaultInstance(
-        const Alphabet* alphabet,
-        const std::string& freqDescription,
-        std::map<std::string, std::string>& unparsedParameterValues)
-      throw (Exception);
-    
-
-    /**
      * @brief Gets a SubstitutionModelSet object according to options.
      *
      * See setSubstitutionModelSet and setMixedSubstitutionModelSet
      * methods.
      */
-
      static SubstitutionModelSet* getSubstitutionModelSet(
                                         const Alphabet* alphabet,
                                         const SiteContainer* data, 
@@ -291,7 +271,8 @@ namespace bpp
                                         const std::string& suffix = "",
                                         bool suffixIsOptional = true,
                                         bool verbose = true);    
-    /**
+
+     /**
      * @brief Sets a SubstitutionModelSet object according to options.
      *
      * This model set is meant to be used with non-homogeneous substitution models of sequence evolution.
@@ -422,28 +403,6 @@ namespace bpp
                                              const std::string& suffix = "",
                                              bool suffixIsOptional = true,
                                              bool verbose = true);
-    /**
-     * @brief Build a rate distribution as a DiscreteDistribution object with default parameter values according to a keyval description.
-     *
-     * Any kind of discrete distribution with a mean of 1 can be used as a rate distribution.
-     * Check the Bio++ Program Suite documentation for a description of the syntax.
-     * This function will resolve parameter aliasing, but will not assign initial values.
-     * It is mainly for internal usage, you're probably looking for the getRateDistribution function.
-     *
-     * @param distDescription         A string describing the model in the keyval syntax.
-     * @param constDistAllowed        Tell if the constant distribution is allowed as a choice.
-     * @param unparsedParameterValues [out] a map that will contain all the distribution parameters
-     *                                names and their corresponding unparsed value, if they were found.
-     * @param verbose                 Print some info to the 'message' output stream.
-     * @return A new DiscreteDistribution object according to options specified.
-     * @throw Exception if an error occured.
-     */
-    static DiscreteDistribution* getRateDistributionDefaultInstance(
-        const std::string& distDescription,
-        std::map<std::string, std::string>& unparsedParameterValues,
-        bool constDistAllowed = true,
-        bool verbose = true)
-      throw (Exception);
 
     /**
      * @brief Build a multi-dimension distribution as a
@@ -467,26 +426,6 @@ namespace bpp
                                                                         bool verbose = true);
 
     /**
-     * @brief Set parameter initial values of a given rate distribution according to options.
-     *
-     * Parameters actually depends on the rate distribution passed as argument.
-     * See getRateDistribution for more information.
-     *
-     * This function is mainly for internal usage, you're probably looking for the getRateDistribution function.
-     *
-     * @param rDist                   The distribution to set.
-     * @param unparsedParameterValues a map that contains all the distribution parameters
-     *                                names and their corresponding unparsed value, if they were found.
-     * @param verbose                 Print some info to the 'message' output stream.
-     * @throw Exception if an error occured.
-     */
-    static void setRateDistributionParametersInitialValues(
-        DiscreteDistribution* rDist,
-        std::map<std::string, std::string>& unparsedParameterValues,
-        bool verbose = true)
-      throw (Exception);
-
-    /**
      * @brief Build a DiscreteDistribution object according to options.
      *
      * Creates a new rate distribution object according to distribution description syntax
@@ -501,7 +440,7 @@ namespace bpp
      * @throw Exception if an error occured.
      */
     static DiscreteDistribution* getRateDistribution(
-        std::map<std::string, std::string> & params,
+        std::map<std::string, std::string>& params,
         const std::string& suffix = "",
         bool suffixIsOptional = true,
         bool verbose = true)

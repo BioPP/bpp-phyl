@@ -43,6 +43,7 @@ knowledge of the CeCILL license and that you accept its terms.
 #include <Bpp/Phyl/Model.all>
 #include <Bpp/Phyl/Model/FrequenciesSet/NucleotideFrequenciesSet.h>
 #include <Bpp/Phyl/Model/FrequenciesSet/FrequenciesSet.h>
+#include <Bpp/Phyl/Model/RateDistribution/ConstantRateDistribution.h>
 #include <Bpp/Phyl/Simulation.all>
 #include <iostream>
 
@@ -63,7 +64,7 @@ int main() {
   auto_ptr<NucleicAlphabet> alphabet(new DNA());
   SubstitutionModel* model = new T92(alphabet.get(), 3., 0.65);
   FrequenciesSet* rootFreqs = new GCFrequenciesSet(alphabet.get(), 0.65);
-  auto_ptr<DiscreteDistribution> rdist(new ConstantDistribution(1.0, true));
+  auto_ptr<DiscreteDistribution> rdist(new ConstantRateDistribution());
   auto_ptr<SubstitutionModelSet> modelSetH(SubstitutionModelSetTools::createHomogeneousModelSet(model, rootFreqs, tree.get()));
   NonHomogeneousSequenceSimulator simulatorH(modelSetH.get(), rdist.get(), tree.get());
 
