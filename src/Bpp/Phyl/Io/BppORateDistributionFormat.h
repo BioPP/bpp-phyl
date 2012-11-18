@@ -78,9 +78,7 @@ public:
 
 public:
 
-  DiscreteDistribution* read(const std::string& distDescription,
-                             bool verbose,
-                             bool doNotParseArguments);
+  DiscreteDistribution* read(const std::string& distDescription, bool parseArguments);
 
   void write(const DiscreteDistribution& dist,
              OutputStream& out,

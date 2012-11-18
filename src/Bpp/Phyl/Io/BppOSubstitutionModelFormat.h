@@ -57,7 +57,41 @@ class BppOSubstitutionModelFormat :
   public OSubstitutionModel
 {
 public:
-  BppOSubstitutionModelFormat() {}
+  static unsigned char DNA;
+  static unsigned char RNA;
+  static unsigned char NUCLEOTIDE;
+  static unsigned char PROTEIN;
+  static unsigned char CODON;
+  static unsigned char WORD;
+  static unsigned char BINARY;
+  static unsigned char ALL;
+
+private:
+  unsigned char alphabetCode_;
+  bool allowCovarions_;
+  bool allowMixed_;
+  bool allowGaps_;
+  bool verbose_;
+  std::map<std::string, std::string> unparsedArguments_;
+
+public:
+  /**
+   * @brief Create a new BppOSubstitutionModelFormat object.
+   *
+   * @param alphabetCode     Bit saying which alphabets are allowed in the model specification.
+   * @param allowCovarions   Tell is a covarion model can be returned.
+   * @param allowMixed       Tell is a mixture model can be returned.
+   * @param allowGaps        Tell is a gap model can be returned.
+   */
+  BppOSubstitutionModelFormat(unsigned char alphabetCode, bool allowCovarions, bool allowMixed, bool allowGaps, bool verbose):
+    alphabetCode_(alphabetCode),
+    allowCovarions_(allowCovarions),
+    allowMixed_(allowMixed),
+    allowGaps_(allowGaps),
+    verbose_(verbose),
+    unparsedArguments_()
+  {}
+
   virtual ~BppOSubstitutionModelFormat() {}
 
 public:
@@ -65,57 +99,9 @@ public:
 
   const std::string getFormatDescription() const { return "Bpp Options format."; }
 
+  SubstitutionModel* read(const Alphabet* alphabet, const std::string& modelDescription, const SiteContainer* data = 0, bool parseArguments = true);
 
-  /**
-   * @brief Read a substitution model from a string.
-   *
-   * @param alphabet         The alpabet to use in the model.
-   * @param modelDescription A string describing the model in the keyval syntax.
-   * @param allowCovarions   Tell is a covarion model can be returned.
-   * @param allowMixed       Tell is a mixture model can be returned.
-   * @param allowGaps        Tell is a gap model can be returned.
-   * @param unparsedParameterValues [out] a map that will contain
-   *                                all the model parameters names
-   *                                and their corresponding unparsed
-   *                                value, if they were found.
-   * @param verbose Print some info to the 'message' output stream.
-   * @return A new SubstitutionModel object according to options specified.
-   * @throw Exception if an error occured.
-   */
-
-  SubstitutionModel* read(const Alphabet* alphabet,
-                          const std::string& modelDescription,
-                          std::map<std::string, std::string>& unparsedParameterValues,
-                          bool allowCovarions,
-                          bool allowMixed,
-                          bool allowGaps,
-                          bool verbose);
-
-  /**
-   * @brief If the substitution model is a mixed substitution model.
-   *
-   */
-
-  MixedSubstitutionModel* readMixed(const Alphabet* alphabet,
-                                    const std::string& modelDescription,
-                                    std::map<std::string, std::string>& unparsedParameterValues,
-                                    bool allowCovarions,
-                                    bool allowGaps,
-                                    bool verbose);
-
-  /**
-   * @brief If the substitution model is a substitution model on
-   * words.
-   *
-   */
-
-  SubstitutionModel* readWord(const Alphabet* alphabet,
-                              const std::string& modelDescription,
-                              std::map<std::string, std::string>& unparsedParameterValues,
-                              bool allowCovarions,
-                              bool allowMixed,
-                              bool allowGaps,
-                              bool verbose);
+  const std::map<std::string, std::string>& getUnparsedArguments() const { return unparsedArguments_; }
 
   /**
    * @brief Write a substitution model to a stream.
@@ -128,17 +114,38 @@ public:
    * parameters so far [in, out];
    * @throw Exception If an error occured.
    */
-
   void write(const SubstitutionModel& model,
              OutputStream& out,
              std::map<std::string, std::string>& globalAliases,
              std::vector<std::string>& writtenNames) const;
 
-  void write(const MixedSubstitutionModel& model,
+private:
+  MixedSubstitutionModel* readMixed_(const Alphabet* alphabet, const std::string& modelDescription, const SiteContainer* data);
+
+  SubstitutionModel* readWord_(const Alphabet* alphabet, const std::string& modelDescription, const SiteContainer* data);
+
+  /**
+   * @brief Set parameter initial values of a given model according to options.
+   *
+   * Parameters actually depends on the model passed as argument.
+   * See getSubstitutionModel for more information.
+   *
+   * This function is mainly for internal usage, you're probably looking for the getSubstitutionModel or getSubstitutionModelSet function.
+   *
+   * @param model                   The model to set.
+   * @param data   A pointer toward the SiteContainer for which the substitution model is designed.
+   *               The alphabet associated to the data must be of the same type as the one specified for the model.
+   *               May be equal to NULL, but in this case use_observed_freq option will be unavailable.
+   * @throw Exception if an error occured.
+   */
+  void initialize_(SubstitutionModel& model, const SiteContainer* data) throw (Exception);
+
+  void writeMixed_(const MixedSubstitutionModel& model,
              OutputStream& out,
              std::map<std::string, std::string>& globalAliases,
              std::vector<std::string>& writtenNames) const;
 };
+
 } // end of namespace bpp.
 
 #endif // _BPPOSUBSTITUTIONMODELFORMAT_H_

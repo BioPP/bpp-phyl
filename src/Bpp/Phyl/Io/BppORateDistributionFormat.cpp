@@ -57,9 +57,9 @@ using namespace std;
 
 DiscreteDistribution* BppORateDistributionFormat::read(
     const std::string& distDescription,
-    bool verbose,
     bool parseArguments)
 {
+  unparsedArguments_.clear();
   string distName;
   map<string, string> args;
   KeyvalTools::parseProcedure(distDescription, distName, args);
@@ -74,10 +74,10 @@ DiscreteDistribution* BppORateDistributionFormat::read(
     string nestedDistDescription = args["dist"];
     if (TextTools::isEmpty(nestedDistDescription))
       throw Exception("BppORateDistributionFormat::read. Missing argument 'dist' for distribution 'Invariant'.");
-    if (verbose)
+    if (verbose_)
       ApplicationTools::displayResult("Invariant Mixed distribution", distName );
-    BppODiscreteDistributionFormat nestedReader;
-    DiscreteDistribution* nestedDistribution = nestedReader.read(nestedDistDescription, verbose, true);
+    BppODiscreteDistributionFormat nestedReader(false);
+    DiscreteDistribution* nestedDistribution = nestedReader.read(nestedDistDescription, false);
     map<string, string> unparsedArgumentsNested(nestedReader.getUnparsedArguments());
 
     // Now we create the Invariant rate distribution:
@@ -163,7 +163,6 @@ DiscreteDistribution* BppORateDistributionFormat::read(
       throw Exception("Missing argument 'probas' in Mixture distribution");
     vector<double> probas;
     vector<DiscreteDistribution*> v_pdd;
-    DiscreteDistribution* pdd;
     string rf = args["probas"];
     StringTokenizer strtok2(rf.substr(1, rf.length() - 2), ",");
     while (strtok2.hasMoreToken())
@@ -178,18 +177,17 @@ DiscreteDistribution* BppORateDistributionFormat::read(
     if (v_nestedDistrDescr.size() != probas.size())
       throw Exception("Number of distributions (keyword 'dist" + TextTools::toString(probas.size()) + "') do not fit the number of probabilities");
 
-    BppODiscreteDistributionFormat nestedReader;
-
     for (unsigned i = 0; i < v_nestedDistrDescr.size(); i++)
     {
-      pdd = nestedReader.read(v_nestedDistrDescr[i], verbose, true);
+      BppODiscreteDistributionFormat nestedReader(false);
+      auto_ptr<DiscreteDistribution> pdd(nestedReader.read(v_nestedDistrDescr[i], false));
       map<string, string> unparsedArgumentsNested(nestedReader.getUnparsedArguments());
 
       for (map<string, string>::iterator it = unparsedArgumentsNested.begin(); it != unparsedArgumentsNested.end(); it++)
       {
         unparsedArguments_[distName + "." + TextTools::toString(i + 1) + "_" + it->first] = it->second;
       }
-      v_pdd.push_back(pdd);
+      v_pdd.push_back(pdd.release());
     }
     rDist.reset(new MixtureOfDiscreteDistributions(v_pdd, probas));
   }
@@ -228,23 +226,24 @@ DiscreteDistribution* BppORateDistributionFormat::read(
       throw Exception("Unsupported rate distribution: " + distName + ".");
     }
   }
-  if (verbose)
+  if (verbose_)
   {
     ApplicationTools::displayResult("Distribution", distName);
     ApplicationTools::displayResult("Number of classes", TextTools::toString(rDist->getNumberOfCategories()));
   }
 
   if (parseArguments)
-    setDiscreteDistributionParametersInitialValues_(*rDist, verbose);
+    initialize_(*rDist);
 
   return rDist.release();
 }
 
 
-void BppORateDistributionFormat::write(const DiscreteDistribution& dist,
-                                           OutputStream& out,
-                                           std::map<std::string, std::string>& globalAliases,
-                                           std::vector<std::string>& writtenNames) const
+void BppORateDistributionFormat::write(
+    const DiscreteDistribution& dist,
+    OutputStream& out,
+    std::map<std::string, std::string>& globalAliases,
+    std::vector<std::string>& writtenNames) const
 {
   bool comma = false;
 

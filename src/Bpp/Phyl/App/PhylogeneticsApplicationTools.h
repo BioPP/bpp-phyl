@@ -155,28 +155,6 @@ namespace bpp
                                                    bool suffixIsOptional = true,
                                                    bool verbose = true) throw (Exception);
   
-    /**
-     * @brief Set parameter initial values of a given model according to options.
-     *
-     * Parameters actually depends on the model passed as argument.
-     * See getSubstitutionModel for more information.
-     *
-     * This function is mainly for internal usage, you're probably looking for the getSubstitutionModel or getSubstitutionModelSet function.
-     *
-     * @param model                   The model to set.
-     * @param unparsedParameterValues A map that contains all the model parameters
-     *                                names and their corresponding unparsed value, if they were found.
-     * @param data   A pointer toward the SiteContainer for which the substitution model is designed.
-     *               The alphabet associated to the data must be of the same type as the one specified for the model.
-     *               May be equal to NULL, but in this case use_observed_freq option will be unavailable.
-     * @param verbose Print some info to the 'message' output stream.
-     * @throw Exception if an error occured.
-     */
-    static void setSubstitutionModelParametersInitialValues(
-        SubstitutionModel* model,
-        std::map<std::string, std::string>& unparsedParameterValues,
-        const SiteContainer* data,
-        bool verbose) throw (Exception);
 
     /**
      * @brief Set parameter initial values of a given model in a set according to options.
@@ -200,15 +178,15 @@ namespace bpp
      * @param verbose Print some info to the 'message' output stream.
      * @throw Exception if an error occured.
      */
-    static void setSubstitutionModelParametersInitialValues(
-                                                            SubstitutionModel* model,
-                                                            std::map<std::string, std::string>& unparsedParameterValues,
-                                                            const std::string& modelPrefix,
-                                                            const SiteContainer* data,
-                                                            std::map<std::string, double>& existingParams,
-                                                            std::vector<std::string>& specificParams,
-                                                            std::vector<std::string>& sharedParams,
-                                                            bool verbose) throw (Exception);
+    static void setSubstitutionModelParametersInitialValuesWithAliases(
+        SubstitutionModel& model,
+        std::map<std::string, std::string>& unparsedParameterValues,
+        const std::string& modelPrefix,
+        const SiteContainer* data,
+        std::map<std::string, double>& existingParams,
+        std::vector<std::string>& specificParams,
+        std::vector<std::string>& sharedParams,
+        bool verbose) throw (Exception);
 
     /**
      * @brief Get A FrequenciesSet object for root frequencies (NH models) according to options.
