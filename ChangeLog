@@ -1,3 +1,7 @@
+18/11/12 Julien Dutheil
+* New RateDistribution classes.
+* Better BppO parser and PhylogeneticsApplicationTools.
+
 26/08/12 Julien Dutheil
 * Bug #57 fixed in distance methods
   
