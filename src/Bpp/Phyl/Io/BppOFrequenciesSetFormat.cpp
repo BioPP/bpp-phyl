@@ -60,13 +60,13 @@ using namespace bpp;
 
 using namespace std;
 
-unsigned char BppOFrequenciesSetFormat::DNA = 0;
+unsigned char BppOFrequenciesSetFormat::DNA = 1;
 unsigned char BppOFrequenciesSetFormat::RNA = 2;
-unsigned char BppOFrequenciesSetFormat::NUCLEOTIDE = 0 | 2;
+unsigned char BppOFrequenciesSetFormat::NUCLEOTIDE = 1 | 2;
 unsigned char BppOFrequenciesSetFormat::PROTEIN = 4;
 unsigned char BppOFrequenciesSetFormat::CODON = 8;
 unsigned char BppOFrequenciesSetFormat::WORD = 16;
-unsigned char BppOFrequenciesSetFormat::ALL = 0 | 2 | 4 | 8 | 16;
+unsigned char BppOFrequenciesSetFormat::ALL = 1 | 2 | 4 | 8 | 16;
 
 FrequenciesSet* BppOFrequenciesSetFormat::read(const Alphabet* alphabet, const std::string& freqDescription, const SiteContainer* data, bool parseArguments)
 {

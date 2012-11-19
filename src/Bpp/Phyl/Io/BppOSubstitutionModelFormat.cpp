@@ -64,14 +64,14 @@ using namespace bpp;
 
 using namespace std;
 
-unsigned char BppOSubstitutionModelFormat::DNA = 0;
+unsigned char BppOSubstitutionModelFormat::DNA = 1;
 unsigned char BppOSubstitutionModelFormat::RNA = 2;
-unsigned char BppOSubstitutionModelFormat::NUCLEOTIDE = 0 | 2;
+unsigned char BppOSubstitutionModelFormat::NUCLEOTIDE = 1 | 2;
 unsigned char BppOSubstitutionModelFormat::PROTEIN = 4;
 unsigned char BppOSubstitutionModelFormat::CODON = 8;
 unsigned char BppOSubstitutionModelFormat::WORD = 16;
 unsigned char BppOSubstitutionModelFormat::BINARY = 32;
-unsigned char BppOSubstitutionModelFormat::ALL = 0 | 2 | 4 | 8 | 16 | 32;
+unsigned char BppOSubstitutionModelFormat::ALL = 1 | 2 | 4 | 8 | 16 | 32;
 
 
 SubstitutionModel* BppOSubstitutionModelFormat::read(const Alphabet* alphabet,
