@@ -221,13 +221,12 @@ Nhx::Element Nhx::getElement(const string& elt) const throw (IOException)
   bool hasColon = false;
   //string::size_type lastAnnot = elt.rfind("[&&NHX");
   //string elementWithoutAnnotation = elt.substr(0, lastAnnot - 1);
-  string elementWithoutAnnotation = elt.substr(0, beginAnno);
-  for (colonIndex = elementWithoutAnnotation.size(); colonIndex > 0 && elementWithoutAnnotation[colonIndex] != ')'; colonIndex--)
+  string elementWithoutAnnotation = elt.substr(1, beginAnno);
+  for (colonIndex = elementWithoutAnnotation.size() - 1; colonIndex > 0 && elementWithoutAnnotation[colonIndex] != ')' && !hasColon; --colonIndex)
   {
     if (elementWithoutAnnotation[colonIndex] == ':')
     {
       hasColon = true;
-      break;
     }
   }
   try
@@ -236,8 +235,7 @@ Nhx::Element Nhx::getElement(const string& elt) const throw (IOException)
     if (hasColon)
     {
       //this is an element with length:
-      elt2 = elementWithoutAnnotation.substr(0, colonIndex);
-      //  if (st2.numberOfRemainingTokens()>1)
+      elt2 = elementWithoutAnnotation.substr(0, colonIndex + 1);
       element.length = elt.substr(colonIndex + 1);
     }
     else
@@ -292,6 +290,7 @@ Node* Nhx::parenthesisToNode(const string& description) const
   while (nt.hasMoreToken())
   {
     elements.push_back(nt.nextToken());
+    //cout << "HERE: " << *elements.rbegin() << endl;
   }
   if (elt.isLeaf)
   {
