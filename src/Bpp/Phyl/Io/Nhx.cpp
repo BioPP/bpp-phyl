@@ -219,9 +219,7 @@ Nhx::Element Nhx::getElement(const string& elt) const throw (IOException)
 
   unsigned int colonIndex;
   bool hasColon = false;
-  //string::size_type lastAnnot = elt.rfind("[&&NHX");
-  //string elementWithoutAnnotation = elt.substr(0, lastAnnot - 1);
-  string elementWithoutAnnotation = elt.substr(1, beginAnno);
+  string elementWithoutAnnotation = elt.substr(0, beginAnno + 1);
   for (colonIndex = elementWithoutAnnotation.size() - 1; colonIndex > 0 && elementWithoutAnnotation[colonIndex] != ')' && !hasColon; --colonIndex)
   {
     if (elementWithoutAnnotation[colonIndex] == ':')
@@ -263,6 +261,12 @@ Nhx::Element Nhx::getElement(const string& elt) const throw (IOException)
   {
     throw IOException("Bad tree description: " + elt);
   }
+  //cout << endl;
+  //cout << "CONTENT:" << endl << element.content << endl;
+  //cout << endl;
+  //cout << "ANNOTATION:" << endl << element.annotation << endl;
+  //cout << endl;
+ 
   return element;
 }  
 
@@ -284,13 +288,11 @@ Node* Nhx::parenthesisToNode(const string& description) const
     setNodeProperties(*node, elt.annotation);
   }
  
-  //cout << elt.content << endl;
   NestedStringTokenizer nt(elt.content, "(", ")", ",");
   vector<string> elements;
   while (nt.hasMoreToken())
   {
     elements.push_back(nt.nextToken());
-    //cout << "HERE: " << *elements.rbegin() << endl;
   }
   if (elt.isLeaf)
   {
