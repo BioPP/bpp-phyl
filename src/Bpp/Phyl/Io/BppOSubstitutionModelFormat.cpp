@@ -814,28 +814,29 @@ SubstitutionModel* BppOSubstitutionModelFormat::readWord_(const Alphabet* alphab
         if (args.find("fitness") == args.end())
           throw Exception("Missing fitness in model " + modelName + ".");
         
-        auto_ptr<FrequenciesSet> pFit = bIOFreq.read(pCA, args["fitness"]);
+        BppOFrequenciesSetFormat bIOFreq(alphabetCode_, verbose_);
+        auto_ptr<FrequenciesSet> pFit(bIOFreq.read(pCA, args["fitness"], data, false));
         map<string, string> unparsedParameterValuesNested(bIOFreq.getUnparsedArguments());
         
         for (map<string, string>::iterator it = unparsedParameterValuesNested.begin(); it != unparsedParameterValuesNested.end(); it++)
-          unparsedParameterValues[modelName + ".fit." + it->first] = it->second;
+          unparsedArguments_[modelName + ".fit." + it->first] = it->second;
         
         if (v_nestedModelDescription.size() != 3){
-          model.reset(CodonFitnessSubstitutionModel(pgc,
-                                                    dynamic_cast<NucleotideSubstitutionModel*>(v_pSM[0]),
-                                                    pFit.release(),
-                                                    pFS.release(),
-                                                    pai2.release())); 
+          model.reset(new CodonFitnessSubstitutionModel(pgc.release(),
+                                                        dynamic_cast<NucleotideSubstitutionModel*>(v_pSM[0]),
+                                                        pFit.release(),
+                                                        pFS.release(),
+                                                        pai2.release())); 
         }
         else
-          model.reset(CodonFitnessSubstitutionModel(
-                                                    pgc,
-                                                    dynamic_cast<NucleotideSubstitutionModel*>(v_pSM[0]),
-                                                    dynamic_cast<NucleotideSubstitutionModel*>(v_pSM[1]),
-                                                    dynamic_cast<NucleotideSubstitutionModel*>(v_pSM[2]),
-                                                    pFit.release(),
-                                                    pFS.release(),
-                                                    pai2.release()));
+          model.reset(new CodonFitnessSubstitutionModel(
+                                                        pgc.release(),
+                                                        dynamic_cast<NucleotideSubstitutionModel*>(v_pSM[0]),
+                                                        dynamic_cast<NucleotideSubstitutionModel*>(v_pSM[1]),
+                                                        dynamic_cast<NucleotideSubstitutionModel*>(v_pSM[2]),
+                                                        pFit.release(),
+                                                        pFS.release(),
+                                                        pai2.release()));
       }
   }
   return model.release();
