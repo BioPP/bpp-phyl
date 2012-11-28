@@ -465,21 +465,33 @@ void BppOFrequenciesSetFormat::write(const FrequenciesSet* pfreqset,
         }
         flag = true;
       }
-    }
-    for (unsigned int i = 0; i < pl.size(); i++)
-    {
-      if (find(writtenNames.begin(), writtenNames.end(), pl[i].getName()) == writtenNames.end())
-      {
-        if (flag)
-          out << ",";
-        else
+      const FullPerAACodonFrequenciesSet* pFPA=dynamic_cast<const FullPerAACodonFrequenciesSet*>(pfreqset);
+      if (pFPA != NULL)
+        {
+          const ProteinFrequenciesSet* ppfs=pFPA->getProteinFrequenciesSet();
+          out << "protein_frequencies=";
+          
+          write(ppfs, out, writtenNames);
+      
           flag = true;
-        string pname = pfreqset->getParameterNameWithoutNamespace(pl[i].getName());
-        (out << pname << "=").enableScientificNotation(false) << pl[i].getValue();
-        writtenNames.push_back(pl[i].getName());
-      }
+        }
     }
+
+    for (unsigned int i = 0; i < pl.size(); i++)
+      {
+        if (find(writtenNames.begin(), writtenNames.end(), pl[i].getName()) == writtenNames.end())
+          {
+            if (flag)
+              out << ",";
+            else
+              flag = true;
+            string pname = pfreqset->getParameterNameWithoutNamespace(pl[i].getName());
+            (out << pname << "=").enableScientificNotation(false) << pl[i].getValue();
+            writtenNames.push_back(pl[i].getName());
+          }
+      }
   }
+  
   out << ")";
   out.setPrecision(p);
 }
