@@ -210,24 +210,30 @@ Nhx::Element Nhx::getElement(const string& elt) const throw (IOException)
   element.isLeaf     = false; // default
  
   //cout << "ELT=" << elt << endl;
-  size_t beginAnno = elt.rfind("[&&NHX:");
-  if (beginAnno == string::npos)
-    throw Exception("Nhx::getElement. Node without annotation.");
-  size_t endAnno = elt.find("]", beginAnno + 7);
-  element.annotation = elt.substr(beginAnno + 7, endAnno - beginAnno - 7);
+  size_t lastP = elt.rfind(")"), firstP;
+  size_t beginAnno = string::npos;
+  if (lastP == string::npos)
+    beginAnno = elt.rfind("[&&NHX:");
+  else
+    beginAnno = elt.find("[&&NHX:", lastP + 1);
+  string elementWithoutAnnotation;
+  if (beginAnno != string::npos) {
+    size_t endAnno = elt.find("]", beginAnno + 7);
+    element.annotation = elt.substr(beginAnno + 7, endAnno - beginAnno - 7);
+    elementWithoutAnnotation = elt.substr(0, beginAnno + 1);
+  } else {
+    element.annotation = "";
+    elementWithoutAnnotation = elt;
+  } 
   //cout << "ANNO=" << element.annotation << endl;
 
   unsigned int colonIndex;
   bool hasColon = false;
-  //string::size_type lastAnnot = elt.rfind("[&&NHX");
-  //string elementWithoutAnnotation = elt.substr(0, lastAnnot - 1);
-  string elementWithoutAnnotation = elt.substr(0, beginAnno);
-  for (colonIndex = elementWithoutAnnotation.size(); colonIndex > 0 && elementWithoutAnnotation[colonIndex] != ')'; colonIndex--)
+  for (colonIndex = elementWithoutAnnotation.size() - 1; colonIndex > 0 && elementWithoutAnnotation[colonIndex] != ')' && !hasColon; --colonIndex)
   {
     if (elementWithoutAnnotation[colonIndex] == ':')
     {
       hasColon = true;
-      break;
     }
   }
   try
@@ -236,8 +242,7 @@ Nhx::Element Nhx::getElement(const string& elt) const throw (IOException)
     if (hasColon)
     {
       //this is an element with length:
-      elt2 = elementWithoutAnnotation.substr(0, colonIndex);
-      //  if (st2.numberOfRemainingTokens()>1)
+      elt2 = elementWithoutAnnotation.substr(0, colonIndex + 1);
       element.length = elt.substr(colonIndex + 1);
     }
     else
@@ -246,8 +251,8 @@ Nhx::Element Nhx::getElement(const string& elt) const throw (IOException)
       elt2 = elementWithoutAnnotation;
     }
   
-    string::size_type lastP = elt2.rfind(')');
-    string::size_type firstP = elt2.find('(');
+    lastP = elt2.rfind(')');
+    firstP = elt2.find('(');
     if (firstP == string::npos)
     {
       //This is a leaf:
@@ -265,6 +270,12 @@ Nhx::Element Nhx::getElement(const string& elt) const throw (IOException)
   {
     throw IOException("Bad tree description: " + elt);
   }
+  //cout << endl;
+  //cout << "CONTENT:" << endl << element.content << endl;
+  //cout << endl;
+  //cout << "ANNOTATION:" << endl << element.annotation << endl;
+  //cout << endl;
+ 
   return element;
 }  
 
@@ -286,7 +297,6 @@ Node* Nhx::parenthesisToNode(const string& description) const
     setNodeProperties(*node, elt.annotation);
   }
  
-  //cout << elt.content << endl;
   NestedStringTokenizer nt(elt.content, "(", ")", ",");
   vector<string> elements;
   while (nt.hasMoreToken())

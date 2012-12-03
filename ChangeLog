@@ -1,3 +1,13 @@
+18/11/12 Julien Dutheil
+* New RateDistribution classes.
+* Better BppO parser and PhylogeneticsApplicationTools.
+
+26/08/12 Julien Dutheil
+* Bug #57 fixed in distance methods
+  
+13/06/12 Julien Dutheil
+* Added new class StateMap, and enable support for gaps in parsimony calculation.
+
 09/02/12 -*- Version 2.0.3 -*-
 
 08/02/12 L. Guéguen

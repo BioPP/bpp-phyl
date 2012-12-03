@@ -995,9 +995,9 @@ Tree* TreeTools::MRP(const vector<Tree*>& vecTr)
   JCnuc jc(alphabet);
   ConstantDistribution constRate(1.);
   DistanceEstimation distFunc(&jc, &constRate, sites, 0, true);
-  BioNJ bionjTreeBuilder;
+  BioNJ bionjTreeBuilder(false, false);
   bionjTreeBuilder.setDistanceMatrix(*(distFunc.getMatrix()));
-  bionjTreeBuilder.computeTree(false);
+  bionjTreeBuilder.computeTree();
   if (ApplicationTools::message) ApplicationTools::message->endLine();
   TreeTemplate<Node>* startTree = new TreeTemplate<Node>(*bionjTreeBuilder.getTree());
 

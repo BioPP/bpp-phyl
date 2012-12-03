@@ -289,7 +289,8 @@ void AbstractWordSubstitutionModel::updateMatrices()
 
   unsigned int nbmod = VSubMod_.size();
   unsigned int salph = getNumberOfStates();
-  unsigned int nbStop;
+  unsigned int nbStop=0;
+  vector<bool> vnull; // vector of the indices of lines with only zeros
   
   // Generator
 
@@ -358,27 +359,32 @@ void AbstractWordSubstitutionModel::updateMatrices()
 
   if (enableEigenDecomposition())
   {
-    //02/03/10 Julien: this should be avoided, we have to find a way to avoid particular cases like this...
-
-    const CodonAlphabet* pca = dynamic_cast<const CodonAlphabet*>(getAlphabet());
     
-    if (pca)
+    for (i = 0; i < salph; i++){
+      bool flag=true;
+      for (j = 0; j < salph; j++)
+        if ((i!=j) && abs(generator_(i, j))>NumConstants::TINY){
+          flag=false;
+          break;
+        }
+      if (flag)
+        nbStop++;
+      vnull.push_back(flag);
+    }
+    
+    if (nbStop!=0)
     {
       int gi = 0, gj = 0;
       
       RowMatrix<double> gk;
 
-      nbStop = pca->numberOfStopCodons();
       gk.resize(salph - nbStop, salph - nbStop);
       for (i = 0; i < salph; i++)
       {
-        if (!pca->isStop(i))
-        {
+        if (!vnull[i]){
           gj = 0;
-          for (j = 0; j < salph; j++)
-          {
-            if (!pca->isStop(j))
-            {
+          for (j = 0; j < salph; j++){
+            if (!vnull[j]) {
               gk(i - gi, j - gj) = generator_(i, j);
             }
             else
@@ -388,7 +394,7 @@ void AbstractWordSubstitutionModel::updateMatrices()
         else
           gi++;
       }
-
+      
       EigenValue<double> ev(gk);
       eigenValues_ = ev.getRealEigenValues();
       iEigenValues_ = ev.getImagEigenValues();
@@ -403,7 +409,7 @@ void AbstractWordSubstitutionModel::updateMatrices()
       gi = 0;
       for (i = 0; i < salph; i++)
       {
-        if (pca->isStop(i))
+        if (vnull[i])
         {
           gi++;
           for (j = 0; j < salph; j++)
@@ -432,36 +438,40 @@ void AbstractWordSubstitutionModel::updateMatrices()
 
     try {
       MatrixTools::inv(rightEigenVectors_, leftEigenVectors_);
-      isNonSingular_=true;
+
+      // is it diagonalizable ?
       
       isDiagonalizable_=true;
       for (i=0; i<size_ && isDiagonalizable_; i++)
         if (abs(iEigenValues_[i]) > NumConstants::SMALL)
           isDiagonalizable_=false;
 
+
+      // is it singular?
+      
       // looking for the 0 eigenvector for which the non-stop right
       // eigen vector elements are equal.
       //
       // there is a tolerance for numerical problems
       //
     
-      unsigned int nulleigen;
+      unsigned int nulleigen=0;
       double val;
       double seuil=1;
     
-      bool flag=true;
-      while (flag){
+      isNonSingular_=false;
+      while (!isNonSingular_){
         nulleigen=0;
         while (nulleigen < salph-nbStop) {
           if ((abs(eigenValues_[nulleigen]) < NumConstants::SMALL) && (abs(iEigenValues_[nulleigen]) < NumConstants::SMALL)){
             i=0;
-            while (pca && pca->isStop(i))
+            while (vnull[i])
               i++;
             
             val=rightEigenVectors_(i,nulleigen);
             i++;
             while (i < salph){
-              if (!(pca && pca->isStop(i))){
+              if (!vnull[i]){
                 if (abs(rightEigenVectors_(i, nulleigen)-val)> seuil*NumConstants::SMALL)
                   break;
               }
@@ -471,7 +481,7 @@ void AbstractWordSubstitutionModel::updateMatrices()
             if (i<salph)
               nulleigen++;
             else {
-              flag=false;
+              isNonSingular_=true;
               break;
             }
           }
@@ -487,8 +497,7 @@ void AbstractWordSubstitutionModel::updateMatrices()
           seuil*=10;
       }
 
-      if (flag){
-        isNonSingular_=false;
+      if (isNonSingular_){
         eigenValues_[nulleigen]=0; // to avoid approximation errors on long long branches
         iEigenValues_[nulleigen]=0; // to avoid approximation errors on long long branches
         
@@ -501,6 +510,10 @@ void AbstractWordSubstitutionModel::updateMatrices()
         
         for (i = 0; i < salph; i++)
           freq_[i] /= x;
+      }
+      else {
+        ApplicationTools::displayMessage("Unable to find eigenvector for eigenvalue 1. Taylor series used instead.");
+        isDiagonalizable_=false;
       }
     }
 
@@ -547,6 +560,12 @@ void AbstractWordSubstitutionModel::updateMatrices()
     if (!isNonSingular_)
       MatrixTools::Taylor(generator_,30,vPowGen_);
   }
+  
+  // compute the exchangeability_
+  
+  for ( i = 0; i < size_; i++)
+    for ( j = 0; j < size_; j++)
+      exchangeability_(i,j) = generator_(i,j) / freq_[j];
 }
 
 void AbstractWordSubstitutionModel::setFreq(std::map<int, double>& freqs)

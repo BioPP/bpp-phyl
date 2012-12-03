@@ -6,7 +6,7 @@
 //
 
 /*
-Copyright or © or Copr. CNRS, (November 16, 2004, 2005, 2006)
+Copyright or © or Copr. Bio++ Development Team, (November 16, 2004, 2005, 2006)
 
 This software is a computer program whose purpose is to provide classes
 for phylogenetic data analysis.
@@ -59,6 +59,8 @@ class RateDistributionFactory
 public:
   static const std::string CONSTANT_DISTRIBUTION;
   static const std::string GAMMA_DISTRIBUTION;
+  static const std::string GAUSSIAN_DISTRIBUTION;
+  static const std::string EXPONENTIAL_DISTRIBUTION;
 
 private:
   unsigned int nbClasses_; // For discrete distributions. 
@@ -69,9 +71,9 @@ public:
    *
    * Example:
    * @code
-   * DiscreteDistribution * dist = RateDistributionFactory().createDiscreteDistribution(RateDistributionFactory::GAMMA_DISTRIBUTION);
-   * // or DiscreteDistribution * dist = RateDistributionFactory(10).createDiscreteDistribution(RateDistributionFactory::GAMMA_DISTRIBUTION);
-   * // or DiscreteDistribution * dist = RateDistributionFactory().createDiscreteDistribution(RateDistributionFactory::GAMMA_DISTRIBUTION, 10);
+   * DiscreteDistribution* dist = RateDistributionFactory().createDiscreteDistribution(RateDistributionFactory::GAMMA_DISTRIBUTION);
+   * // or DiscreteDistribution* dist = RateDistributionFactory(10).createDiscreteDistribution(RateDistributionFactory::GAMMA_DISTRIBUTION);
+   * // or DiscreteDistribution* dist = RateDistributionFactory().createDiscreteDistribution(RateDistributionFactory::GAMMA_DISTRIBUTION, 10);
    * // dist can be used in any object dealing with rate distributions.
    * @endcode
    */

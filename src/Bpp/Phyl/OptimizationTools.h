@@ -5,7 +5,7 @@
 //
 
 /*
-   Copyright or © or Copr. CNRS, (November 16, 2004)
+   Copyright or © or Copr. Bio++ Development Team, (November 16, 2004)
 
    This software is a computer program whose purpose is to provide classes
    for phylogenetic data analysis.
@@ -47,7 +47,7 @@
 #include "Parsimony/DRTreeParsimonyScore.h"
 #include "TreeTemplate.h"
 #include "Distance/DistanceEstimation.h"
-#include "Distance/AgglomerativeDistanceMethod.h"
+#include "Distance/DistanceMethod.h"
 
 #include <Bpp/Io/OutputStream.h>
 #include <Bpp/App/ApplicationTools.h>
@@ -702,13 +702,35 @@ public:
     unsigned int verbose = 1);
 
   /**
+   * @brief Estimate a distance matrix using maximum likelihood.
+   *
+   * This method estimate a distance matrix using a DistanceEstimation object.
+   * The main issue here is to estimate non-branch lengths parameters, as substitution model and rate distribution parameters.
+   * Twoe options are provideed here:
+   * - DISTANCEMETHOD_INIT (default) keep parameters to there initial value,
+   * - DISTANCEMETHOD_PAIRWISE estimated parameters in a pairwise manner, which is standard but not that satisfying...
+   *
+   * @param estimationMethod The distance estimation object to use.
+   * @param parametersToIgnore A list of parameters to ignore while optimizing parameters.
+   * @param param String describing the type of optimization to use.
+   * @param verbose Verbose level.
+   *
+   * @see buildDistanceTree for a procedure to jointly estimate the distance matrix and underlying tree.
+   */
+  static DistanceMatrix* estimateDistanceMatrix(
+    DistanceEstimation& estimationMethod,
+    const ParameterList& parametersToIgnore,
+    const std::string& param = DISTANCEMETHOD_INIT,
+    unsigned int verbose = 0) throw (Exception);
+
+  /**
    * @brief Build a tree using a distance method.
    *
    * This method estimate a distance matrix using a DistanceEstimation object, and then builds the phylogenetic tree using a AgglomerativeDistanceMethod object.
    * The main issue here is to estimate non-branch lengths parameters, as substitution model and rate distribution parameters.
    * Three options are provideed here:
    * - DISTANCEMETHOD_INIT (default) keep parameters to there initial value,
-   * - DISTANCEMETHOD_PAIRWISE estimated parameters in a pairwise manner, which is standard but not good at all...
+   * - DISTANCEMETHOD_PAIRWISE estimated parameters in a pairwise manner, which is standard but not that satisfying...
    * - DISTANCEMETHOD_ITERATIONS uses Ninio et al's iterative algorithm, which uses Maximum Likelihood to estimate these parameters, and then update the distance matrix.
    * Ninio M, Privman E, Pupko T, Friedman N.
    * Phylogeny reconstruction: increasing the accuracy of pairwise distance estimation using Bayesian inference of evolutionary rates.
@@ -718,7 +740,6 @@ public:
    * @param reconstructionMethod The tree reconstruction object to use.
    * @param parametersToIgnore A list of parameters to ignore while optimizing parameters.
    * @param optimizeBrLen Tell if branch lengths should be optimized together with other parameters. This may lead to more accurate parameter estimation, but is slower.
-   * @param rooted Tell if rooted trees must be produced.
    * @param param String describing the type of optimization to use.
    * @param tolerance Threshold on likelihood for stopping the iterative procedure. Used only with param=DISTANCEMETHOD_ITERATIONS.
    * @param tlEvalMax Maximum number of likelihood computations to perform when optimizing parameters. Used only with param=DISTANCEMETHOD_ITERATIONS.
@@ -731,7 +752,6 @@ public:
     AgglomerativeDistanceMethod& reconstructionMethod,
     const ParameterList& parametersToIgnore,
     bool optimizeBrLen = false,
-    bool rooted = false,
     const std::string& param = DISTANCEMETHOD_INIT,
     double tolerance = 0.000001,
     unsigned int tlEvalMax = 1000000,

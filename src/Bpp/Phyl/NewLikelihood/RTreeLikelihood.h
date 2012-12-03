@@ -6,7 +6,7 @@
 //
 
 /*
-  Copyright or © or Copr. CNRS, (November 16, 2004)
+  Copyright or © or Copr. Bio++ Development Team, (November 16, 2004)
 
   This software is a computer program whose purpose is to provide classes
   for phylogenetic data analysis.
@@ -167,9 +167,9 @@ namespace newlik
 		
     double getLogLikelihood() const;
     double getLogLikelihoodForASite(unsigned int site) const;
-    double getLogLikelihoodForASiteForAClass(unsigned int site, unsigned int modelClass) const;
-    double getLogLikelihoodForASiteForAState(unsigned int site, int state) const;
-    double getLogLikelihoodForASiteForAClassForAState(unsigned int site, unsigned int modelClass, int state) const;
+    double getLikelihoodForASiteForAClass(unsigned int site, unsigned int modelClass) const;
+    double getLikelihoodForASiteForAState(unsigned int site, int state) const;
+    double getLikelihoodForASiteForAClassForAState(unsigned int site, unsigned int modelClass, int state) const;
     /** @} */
 
     /**

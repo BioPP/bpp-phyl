@@ -5,7 +5,7 @@
 //
 
 /*
-Copyright or © or Copr. CNRS, (November 16, 2004, 2005, 2006)
+Copyright or © or Copr. Bio++ Development Team, (November 16, 2004, 2005, 2006)
 
 This software is a computer program whose purpose is to provide classes
 for phylogenetic data analysis.
@@ -62,15 +62,32 @@ private:
   
 public:
   
-  BioNJ(): NeighborJoining(), variance_(0), lambda_(0) {}
+  /**
+   * @brief Create a new BioNJ object instance and compute a tree from a distance matrix.
+   *
+   * @param rooted Tell if the output tree should be rooted.
+   * @param positiveLengths Tell if negative lengths should be avoided.
+   * @param verbose Allow to display extra information, like progress bars.
+   */
+  BioNJ(bool rooted = false, bool positiveLengths = false, bool verbose = true):
+    NeighborJoining(rooted, positiveLengths, verbose),
+    variance_(0), lambda_(0) {}
   
-	BioNJ(const DistanceMatrix& matrix, bool rooted = false, bool positiveLengths = false) throw (Exception):
-    NeighborJoining(), //Use the default constructor, because the other one call computeTree.
+  /**
+   * @brief Create a new BioNJ object instance and compute a tree from a distance matrix.
+   *
+   * @param matrix Input distance matrix.
+   * @param rooted Tell if the output tree should be rooted.
+   * @param positiveLengths Tell if negative lengths should be avoided.
+   * @param verbose Allow to display extra information, like progress bars.
+   */
+	BioNJ(const DistanceMatrix& matrix, bool rooted = false, bool positiveLengths = false, bool verbose = true) throw (Exception):
+    NeighborJoining(rooted, positiveLengths, verbose), //Use the default constructor, because the other one call computeTree.
     variance_(matrix), lambda_(0)
 	{
     setDistanceMatrix(matrix);
     outputPositiveLengths(positiveLengths);
-		computeTree(rooted);
+		computeTree();
   }
   
   BioNJ* clone() const { return new BioNJ(*this); }
@@ -78,14 +95,15 @@ public:
 	virtual ~BioNJ() {};
 	
 public:
-  
-	virtual void setDistanceMatrix(const DistanceMatrix & matrix)
+  std::string getName() const { return "BioNJ"; }
+
+	void setDistanceMatrix(const DistanceMatrix& matrix)
   { 
 		NeighborJoining::setDistanceMatrix(matrix);
 		variance_ = matrix;
 	}
-	virtual void computeTree(bool rooted) throw (Exception);
-	virtual double computeDistancesFromPair(const std::vector<unsigned int>& pair, const std::vector<double>& branchLengths, unsigned int pos);
+	void computeTree() throw (Exception);
+	double computeDistancesFromPair(const std::vector<unsigned int>& pair, const std::vector<double>& branchLengths, unsigned int pos);
   
 };
 

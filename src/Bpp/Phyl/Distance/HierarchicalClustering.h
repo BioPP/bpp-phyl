@@ -82,14 +82,17 @@ class HierarchicalClustering:
      */
 		HierarchicalClustering(const std::string& method, bool verbose = false):
       AbstractAgglomerativeDistanceMethod(verbose), method_(method) {}
-		HierarchicalClustering(const std::string& method, const DistanceMatrix& matrix, bool verbose = false) throw (Exception): AbstractAgglomerativeDistanceMethod(matrix, verbose), method_(method) 
+		HierarchicalClustering(const std::string& method, const DistanceMatrix& matrix, bool verbose = false) throw (Exception):
+      AbstractAgglomerativeDistanceMethod(matrix, verbose, true), method_(method) 
 		{
-			computeTree(true);
+			computeTree();
 		}
 
 		virtual ~HierarchicalClustering() {}
 
 	public:
+    std::string getName() const { return "Hierarchical clustering: " + method_; }
+
 		TreeTemplate<Node>* getTree() const;
 
 	protected:

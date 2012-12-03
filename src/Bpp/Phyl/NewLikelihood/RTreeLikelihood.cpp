@@ -129,10 +129,12 @@ RTreeLikelihood& RTreeLikelihood::operator=(
 void RTreeLikelihood::setData(const SiteContainer& sites) throw (Exception)
 {
   data_.reset(PatternTools::getSequenceSubset(sites, *tree_->getTree().getRootNode()));
-  if (verbose_) ApplicationTools::displayTask("Initializing data structure");
-  likelihoodData_->initLikelihoods(*data_, *modelSet_->getModel(0)); //We assume here that all models have the same number of states, and that they have the same 'init' method,
+  if (verbose_)
+    ApplicationTools::displayTask("Initializing data structure");
+  likelihoodData_->initLikelihoods(*data_, *process_); //We assume here that all models have the same number of states, and that they have the same 'init' method,
                                                                      //Which is a reasonable assumption as long as they share the same alphabet.
-  if (verbose_) ApplicationTools::displayTaskDone();
+  if (verbose_)
+    ApplicationTools::displayTaskDone();
 
   nbSites_         = likelihoodData_->getNumberOfSites();
   nbDistinctSites_ = likelihoodData_->getNumberOfDistinctSites();
@@ -145,19 +147,7 @@ void RTreeLikelihood::setData(const SiteContainer& sites) throw (Exception)
 
 /******************************************************************************/
 
-double RNonHomogeneousTreeLikelihood::getLikelihood() const
-{
-  double l = 1.;
-  for (unsigned int i = 0; i < nbSites_; i++)
-  {
-    l *= getLikelihoodForASite(i);
-  }
-  return l;
-}
-
-/******************************************************************************/
-
-double RNonHomogeneousTreeLikelihood::getLogLikelihood() const
+double RTreeLikelihood::getLogLikelihood() const
 {
   double ll = 0;
   vector<double> la(nbSites_);
@@ -175,24 +165,12 @@ double RNonHomogeneousTreeLikelihood::getLogLikelihood() const
 
 /******************************************************************************/
 
-double RNonHomogeneousTreeLikelihood::getLikelihoodForASite(unsigned int site) const
+double RTreeLikelihood::getLogLikelihoodForASite(unsigned int site) const
 {
   double l = 0;
-  for (unsigned int i = 0; i < nbClasses_; i++)
+  for (unsigned int i = 0; i < nbClasses_; ++i)
   {
-    l += getLikelihoodForASiteForARateClass(site, i) * rateDistribution_->getProbability(i);
-  }
-  return l;
-}
-
-/******************************************************************************/
-
-double RNonHomogeneousTreeLikelihood::getLogLikelihoodForASite(unsigned int site) const
-{
-  double l = 0;
-  for (unsigned int i = 0; i < nbClasses_; i++)
-  {
-    l += getLikelihoodForASiteForARateClass(site, i) * rateDistribution_->getProbability(i);
+    l += getLikelihoodForASiteForAClass(site, i) * process_->getProbabilityForModel(i);
   }
   //if(l <= 0.) cerr << "WARNING!!! Negative likelihood." << endl;
   if (l < 0) l = 0; //May happen because of numerical errors.
@@ -201,47 +179,29 @@ double RNonHomogeneousTreeLikelihood::getLogLikelihoodForASite(unsigned int site
 
 /******************************************************************************/
 
-double RNonHomogeneousTreeLikelihood::getLikelihoodForASiteForARateClass(unsigned int site, unsigned int rateClass) const
+double RTreeLikelihood::getLikelihoodForASiteForAClass(unsigned int site, unsigned int classIndex) const
 {
   double l = 0;
-  Vdouble* la = &likelihoodData_->getLikelihoodArray(tree_->getRootNode()->getId())[likelihoodData_->getRootArrayPosition(site)][rateClass];
-  for (unsigned int i = 0; i < nbStates_; i++)
+  Vdouble* la = &likelihoodData_->getLikelihoodArray(
+      tree_->getTree().getRootNode()->getId())[likelihoodData_->getRootArrayPosition(site)][classIndex];
+  for (unsigned int i = 0; i < nbStates_; ++i)
   {
-    l += (*la)[i] * rootFreqs_[i];
+    l += (*la)[i] * process_->getRootFrequencies(site)[i];
   }
   return l;
 }
 
 /******************************************************************************/
 
-double RNonHomogeneousTreeLikelihood::getLogLikelihoodForASiteForARateClass(unsigned int site, unsigned int rateClass) const
+double RTreeLikelihood::getLikelihoodForASiteForAClassForAState(unsigned int site, unsigned int classIndex, int state) const
 {
-  double l = 0;
-  Vdouble* la = &likelihoodData_->getLikelihoodArray(tree_->getRootNode()->getId())[likelihoodData_->getRootArrayPosition(site)][rateClass];
-  for (unsigned int i = 0; i < nbStates_; i++)
-  {
-    l += (*la)[i] * rootFreqs_[i];
-  }
-  return log(l);
+  return likelihoodData_->getLikelihoodArray(
+      tree_->getTree().getRootNode()->getId())[likelihoodData_->getRootArrayPosition(site)][classIndex][state];
 }
 
 /******************************************************************************/
 
-double RNonHomogeneousTreeLikelihood::getLikelihoodForASiteForARateClassForAState(unsigned int site, unsigned int rateClass, int state) const
-{
-  return likelihoodData_->getLikelihoodArray(tree_->getRootNode()->getId())[likelihoodData_->getRootArrayPosition(site)][rateClass][state];
-}
-
-/******************************************************************************/
-
-double RNonHomogeneousTreeLikelihood::getLogLikelihoodForASiteForARateClassForAState(unsigned int site, unsigned int rateClass, int state) const
-{
-  return log(likelihoodData_->getLikelihoodArray(tree_->getRootNode()->getId())[likelihoodData_->getRootArrayPosition(site)][rateClass][state]);
-}
-
-/******************************************************************************/
-
-void RNonHomogeneousTreeLikelihood::setParameters(const ParameterList& parameters)
+void RTreeLikelihood::setParameters(const ParameterList& parameters)
 throw (ParameterNotFoundException, ConstraintException)
 {
   setParametersValues(parameters);
@@ -249,11 +209,13 @@ throw (ParameterNotFoundException, ConstraintException)
 
 /******************************************************************************/
 
-void RNonHomogeneousTreeLikelihood::fireParameterChanged(const ParameterList& params)
+void RTreeLikelihood::fireParameterChanged(const ParameterList& params)
 {
-  applyParameters();
+  //TODO: check if that is still needed (jdutheil 03/12/12)
+  //applyParameters();
 
-  if (params.getCommonParametersWith(rateDistribution_->getIndependentParameters()).size() > 0)
+  //Here we need to know which transition matrix should be recomputed. TODO
+  if (params.getCommonParametersWith(process_->getIndependentParameters()).size() > 0)
   {
     computeAllTransitionProbabilities();
   }
@@ -261,7 +223,7 @@ void RNonHomogeneousTreeLikelihood::fireParameterChanged(const ParameterList& pa
   {
     vector<int> ids;
     vector<string> tmp = params.getCommonParametersWith(modelSet_->getNodeParameters()).getParameterNames();
-    for (unsigned int i = 0; i < tmp.size(); i++)
+    for (unsigned int i = 0; i < tmp.size(); ++i)
     {
       vector<int> tmpv = modelSet_->getNodesWithParameter(tmp[i]);
       ids = VectorTools::vectorUnion(ids, tmpv);

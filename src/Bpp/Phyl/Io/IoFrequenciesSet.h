@@ -1,11 +1,11 @@
 //
-// File: IOFrequenciesSet.h
+// File: IoFrequenciesSet.h
 // Created by: Laurent Guéguen
 // Created on: lundi 9 juillet 2012, à 12h 49
 //
 
 /*
-  Copyright or © or Copr. CNRS, (November 16, 2004)
+  Copyright or © or Copr. Bio++ Development Team, (November 16, 2004)
 
   This software is a computer program whose purpose is to provide classes
   for phylogenetic data analysis.
@@ -42,9 +42,13 @@
 
 #include "../Model/FrequenciesSet/FrequenciesSet.h"
 
+//From bpp-core:
 #include <Bpp/Exceptions.h>
 #include <Bpp/Io/IoFormat.h>
 #include <Bpp/Io/OutputStream.h>
+
+//From bpp-seq:
+#include <Bpp/Seq/Container/SiteContainer.h>
 
 namespace bpp
 {
@@ -54,12 +58,12 @@ namespace bpp
   /**
    * @brief General interface for model I/O.
    */
-  class IOFrequenciesSet:
+  class IoFrequenciesSet:
     public virtual IOFormat
   {
   public:
-    IOFrequenciesSet() {}
-    virtual ~IOFrequenciesSet() {}
+    IoFrequenciesSet() {}
+    virtual ~IoFrequenciesSet() {}
 
   public:
     virtual const std::string getDataType() const { return "Frequencies Set"; }
@@ -69,7 +73,7 @@ namespace bpp
    * @brief General interface for distance matrix readers.
    */
   class IFrequenciesSet:
-    public virtual IOFrequenciesSet
+    public virtual IoFrequenciesSet
   {
   public:
     IFrequenciesSet() {}
@@ -81,25 +85,24 @@ namespace bpp
      *
      * @param alphabet         The alpabet to use in the model.
      * @param freqDescription  A string describing the frequencies set.
-     * @param unparsedParameterValues [out] a map that will contain
-     *                                all the frequencies set parameters names
-     *                                and their corresponding unparsed
-     *                                value, if they were found.
+     * @param data             A SiteContainer with the data to use to initialize fequency parameters. Can be set to 0.
+     * @param parseArguments   Attempt to parse function arguments. If not, only store them and use default values instead.
      * @return A new FrequenciesSet object according to options specified.
      * @throw Exception if an error occured.
      */
+    virtual FrequenciesSet* read(const Alphabet* alphabet, const std::string& freqDescription, const SiteContainer* data, bool parseArguments) = 0;
 
-    virtual FrequenciesSet* read(const Alphabet* alphabet,
-                                 const std::string& freqDescription,
-                                 std::map<std::string, std::string>& unparsedParameterValues) = 0;
-
+    /**
+     * @return The arguments and their unparsed values from the last call of the read function, if there are any.
+     */
+    virtual const std::map<std::string, std::string>& getUnparsedArguments() const = 0;
   };
 
   /**
    * @brief General interface for distance matrix writers.
    */
   class OFrequenciesSet:
-    public virtual IOFrequenciesSet
+    public virtual IoFrequenciesSet
   {
   public:
     OFrequenciesSet() {}

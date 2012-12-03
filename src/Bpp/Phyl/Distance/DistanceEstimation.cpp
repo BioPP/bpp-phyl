@@ -43,10 +43,11 @@
 #include "../PatternTools.h"
 #include "../SitePatterns.h"
 
+// From bpp-core:
 #include <Bpp/App/ApplicationTools.h>
 #include <Bpp/Numeric/AutoParameter.h>
 
-// From SeqLib:
+// From bpp-seq:
 #include <Bpp/Seq/SiteTools.h>
 #include <Bpp/Seq/Sequence.h>
 #include <Bpp/Seq/Container/AlignedSequenceContainer.h>
@@ -145,7 +146,7 @@ TwoTreeLikelihood::TwoTreeLikelihood(const TwoTreeLikelihood& lik) :
 
 /******************************************************************************/
 
-TwoTreeLikelihood & TwoTreeLikelihood::operator=(const TwoTreeLikelihood& lik)
+TwoTreeLikelihood& TwoTreeLikelihood::operator=(const TwoTreeLikelihood& lik)
 {
   AbstractDiscreteRatesAcrossSitesTreeLikelihood::operator=(lik);
   shrunkData_        = dynamic_cast<SiteContainer*>(lik.shrunkData_->clone());
@@ -669,12 +670,12 @@ void DistanceEstimation::computeMatrix() throw (NullPointerException)
         ApplicationTools::displayGauge(j - i - 1, n - i - 2, '=');
       }
       TwoTreeLikelihood* lik =
-        new TwoTreeLikelihood(names[i], names[j], *sites_, model_, rateDist_, verbose_ > 3);
+        new TwoTreeLikelihood(names[i], names[j], *sites_, model_.get(), rateDist_.get(), verbose_ > 3);
       lik->initialize();
       lik->enableDerivatives(true);
       unsigned int d = SymbolListTools::getNumberOfDistinctPositions(sites_->getSequence(i), sites_->getSequence(j));
       unsigned int g = SymbolListTools::getNumberOfPositionsWithoutGap(sites_->getSequence(i), sites_->getSequence(j));
-      lik->setParameterValue("BrLen", g == 0 ? lik->getMinimumBranchLength() : std::max(lik->getMinimumBranchLength(),(double)d / (double)g));
+      lik->setParameterValue("BrLen", g == 0 ? lik->getMinimumBranchLength() : std::max(lik->getMinimumBranchLength(), static_cast<double>(d) / static_cast<double>(g)));
       // Optimization:
       optimizer_->setFunction(lik);
       optimizer_->setConstraintPolicy(AutoParameter::CONSTRAINTS_AUTO);

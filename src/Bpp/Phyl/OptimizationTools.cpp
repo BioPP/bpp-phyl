@@ -48,7 +48,7 @@
 #include <Bpp/Numeric/ParameterList.h>
 #include <Bpp/Numeric/Function.all>
 
-// From SeqLib:
+// From bpp-seq:
 #include <Bpp/Seq/Io/Fasta.h>
 
 using namespace bpp;
@@ -312,12 +312,18 @@ throw (Exception)
     throw Exception("OptimizationTools::optimizeNumericalParameters2. Unknown optimization method: " + optMethodDeriv);
 
   // Numerical derivatives:
+<<<<<<< HEAD
   ParameterList tmp = parameters.getCommonParametersWith(tl->getSubstitutionModelParameters());
   tmp.addParameters(parameters.getCommonParametersWith(tl->getRateDistributionParameters()));
   if (useClock)
     tmp.addParameters(fclock->getHeightParameters());
   //jdutheil 150712, this does not work with clock: 
   //ParameterList tmp = tl->getNonDerivableParameters(); 
+=======
+  ParameterList tmp = tl->getNonDerivableParameters(); 
+  if (useClock)
+    tmp.addParameters(fclock->getHeightParameters());
+>>>>>>> master
   fnum->setParametersToDerivate(tmp.getParameterNames());
   optimizer->setVerbose(verbose);
   optimizer->setProfiler(profiler);
@@ -642,12 +648,41 @@ std::string OptimizationTools::DISTANCEMETHOD_ITERATIONS = "iterations";
 
 /******************************************************************************/
 
+DistanceMatrix* OptimizationTools::estimateDistanceMatrix(
+  DistanceEstimation& estimationMethod,
+  const ParameterList& parametersToIgnore,
+  const std::string& param,
+  unsigned int verbose) throw (Exception)
+{
+  if (param != DISTANCEMETHOD_PAIRWISE && param != DISTANCEMETHOD_INIT)
+    throw Exception("OptimizationTools::estimateDistanceMatrix. Invalid option param=" + param + ".");
+  estimationMethod.resetAdditionalParameters();
+  estimationMethod.setVerbose(verbose);
+  if (param == DISTANCEMETHOD_PAIRWISE)
+  {
+    ParameterList tmp = estimationMethod.getSubstitutionModel().getIndependentParameters();
+    tmp.addParameters(estimationMethod.getRateDistribution().getIndependentParameters());
+    tmp.deleteParameters(parametersToIgnore.getParameterNames());
+    estimationMethod.setAdditionalParameters(tmp);
+  }
+  // Compute matrice:
+  if (verbose > 0)
+    ApplicationTools::displayTask("Estimating distance matrix", true);
+  estimationMethod.computeMatrix();
+  auto_ptr<DistanceMatrix> matrix(estimationMethod.getMatrix());
+  if (verbose > 0)
+    ApplicationTools::displayTaskDone();
+
+  return matrix.release();
+}
+
+/******************************************************************************/
+
 TreeTemplate<Node>* OptimizationTools::buildDistanceTree(
   DistanceEstimation& estimationMethod,
   AgglomerativeDistanceMethod& reconstructionMethod,
   const ParameterList& parametersToIgnore,
   bool optimizeBrLen,
-  bool rooted,
   const std::string& param,
   double tolerance,
   unsigned int tlEvalMax,
@@ -659,8 +694,8 @@ TreeTemplate<Node>* OptimizationTools::buildDistanceTree(
   estimationMethod.setVerbose(verbose);
   if (param == DISTANCEMETHOD_PAIRWISE)
   {
-    ParameterList tmp = estimationMethod.getModel()->getIndependentParameters();
-    tmp.addParameters(estimationMethod.getRateDistribution()->getIndependentParameters());
+    ParameterList tmp = estimationMethod.getSubstitutionModel().getIndependentParameters();
+    tmp.addParameters(estimationMethod.getRateDistribution().getIndependentParameters());
     tmp.deleteParameters(parametersToIgnore.getParameterNames());
     estimationMethod.setAdditionalParameters(tmp);
   }
@@ -681,7 +716,7 @@ TreeTemplate<Node>* OptimizationTools::buildDistanceTree(
     if (verbose > 0)
       ApplicationTools::displayTask("Building tree");
     reconstructionMethod.setDistanceMatrix(*matrix);
-    reconstructionMethod.computeTree(rooted);
+    reconstructionMethod.computeTree();
     previousTree = tree;
     delete matrix;
     tree = dynamic_cast<TreeTemplate<Node>*>(reconstructionMethod.getTree());
@@ -698,7 +733,13 @@ TreeTemplate<Node>* OptimizationTools::buildDistanceTree(
       break;  // Ends here.
 
     // Now, re-estimate parameters:
-    DRHomogeneousTreeLikelihood tl(*tree, *estimationMethod.getData(), estimationMethod.getModel(), estimationMethod.getRateDistribution(), true, verbose > 1);
+    auto_ptr<SubstitutionModel> model(estimationMethod.getSubstitutionModel().clone());
+    auto_ptr<DiscreteDistribution> rdist(estimationMethod.getRateDistribution().clone());
+    DRHomogeneousTreeLikelihood tl(*tree,
+        *estimationMethod.getData(),
+        model.get(),
+        rdist.get(),
+        true, verbose > 1);
     tl.initialize();
     ParameterList parameters = tl.getParameters();
     if (!optimizeBrLen)

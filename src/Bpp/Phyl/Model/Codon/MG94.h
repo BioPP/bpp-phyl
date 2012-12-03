@@ -77,7 +77,8 @@ namespace bpp
 
 
 class MG94 :
-  public AbstractBiblioSubstitutionModel
+    public AbstractBiblioSubstitutionModel,
+    virtual public ReversibleSubstitutionModel
 {
 private:
   CodonDistancePhaseFrequenciesSubstitutionModel* pmodel_;

@@ -45,13 +45,13 @@ const std::string IOSubstitutionModelFactory::BPPO_FORMAT = "Bpp0";
 
 ISubstitutionModel* IOSubstitutionModelFactory::createReader(const std::string& format) throw (Exception)
 {
-  if(format == BPPO_FORMAT) return new BppOSubstitutionModelFormat();
+  if (format == BPPO_FORMAT) return new BppOSubstitutionModelFormat(BppOSubstitutionModelFormat::ALL, true, true, true, true);
   else throw Exception("Format " + format + " is not supported for input.");
 }
   
 OSubstitutionModel* IOSubstitutionModelFactory::createWriter(const std::string& format) throw (Exception)
 {
-  if(format == BPPO_FORMAT) return new BppOSubstitutionModelFormat();
+  if(format == BPPO_FORMAT) return new BppOSubstitutionModelFormat(BppOSubstitutionModelFormat::ALL, true, true, true, true);
   else throw Exception("Format " + format + " is not supported for output.");
 }
 

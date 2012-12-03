@@ -148,6 +148,22 @@ public:
   virtual unsigned int getNumberOfStates() const;
 
   /**
+   * @brief returns the ith model, or Null if i is not a valid number.
+   *
+   */
+  
+  const SubstitutionModel* getNModel(unsigned int i) const {
+    if (i< VSubMod_.size())
+        return dynamic_cast<const SubstitutionModel*>(VSubMod_[i]);
+    else
+      return NULL;
+  }
+
+  unsigned int getNumberOfModels() const {
+    return VSubMod_.size();
+  }
+  
+  /**
    *@brief Estimation of the parameters of the models so that the
    *equilibrium frequencies match the given ones.
    *

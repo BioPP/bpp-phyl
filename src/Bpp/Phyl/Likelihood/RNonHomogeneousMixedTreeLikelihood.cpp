@@ -71,7 +71,7 @@ throw (Exception) :
     throw Exception("RNonHomogeneousMixedTreeLikelihood(constructor). Model set is not fully specified.");
 
   for (unsigned int i=0;i<modelSet->getNumberOfHyperNodes();i++){
-    mvTreeLikelihoods_[tree.getRootId()].push_back(new RNonHomogeneousMixedTreeLikelihood(tree, modelSet, modelSet->getHyperNode(i), upperNode_, rDist, verbose, usePatterns));
+    mvTreeLikelihoods_[tree.getRootId()].push_back(new RNonHomogeneousMixedTreeLikelihood(tree, modelSet, modelSet->getHyperNode(i), upperNode_, rDist, false, usePatterns));
   }
 
 }
@@ -95,7 +95,7 @@ throw (Exception) :
     throw Exception("RNonHomogeneousMixedTreeLikelihood(constructor). Model set is not fully specified.");
 
   for (unsigned int i=0;i<modelSet->getNumberOfHyperNodes();i++)
-    mvTreeLikelihoods_[tree.getRootId()].push_back(new RNonHomogeneousMixedTreeLikelihood(tree, data, modelSet, modelSet->getHyperNode(i), upperNode_, rDist, verbose, usePatterns));
+    mvTreeLikelihoods_[tree.getRootId()].push_back(new RNonHomogeneousMixedTreeLikelihood(tree, data, modelSet, modelSet->getHyperNode(i), upperNode_, rDist, false, usePatterns));
 }
 
 /******************************************************************************/
@@ -481,7 +481,7 @@ void RNonHomogeneousMixedTreeLikelihood::computeSubtreeLikelihood(const Node* no
         VVdouble* _likelihoods_node_i = &(*_likelihoods_node)[i];
         for (unsigned int c = 0; c < nbClasses_; c++)
           {
-            // For each rate classe,
+              // For each rate classe,
             Vdouble* _likelihoods_node_i_c = &(*_likelihoods_node_i)[c];
             for (unsigned int x = 0; x < nbStates_; x++)
               {
@@ -491,6 +491,9 @@ void RNonHomogeneousMixedTreeLikelihood::computeSubtreeLikelihood(const Node* no
           }
       }
 
+    if (getProbability()==0)
+      return;
+  
     vector<RNonHomogeneousMixedTreeLikelihood* > vr = mvTreeLikelihoods_[nodeId];
     for (unsigned int t = 0; t < vr.size(); t++)
       vr[t]->computeSubtreeLikelihood(node);
@@ -575,24 +578,26 @@ void RNonHomogeneousMixedTreeLikelihood::computeTreeDLikelihood(const string& va
         }
       }
     }
-        
-    vector<RNonHomogeneousMixedTreeLikelihood* > vr = mvTreeLikelihoods_[fatherId];
-    for (unsigned int t = 0; t < vr.size(); t++)
-      vr[t]->computeTreeDLikelihood(variable);
-   
+
+    if (getProbability()!=0){
+      vector<RNonHomogeneousMixedTreeLikelihood* > vr = mvTreeLikelihoods_[fatherId];
+      for (unsigned int t = 0; t < vr.size(); t++)
+        vr[t]->computeTreeDLikelihood(variable);
+      
     
-    // for each specific subtree
-    for (unsigned int t = 0; t < vr.size(); t++) {
-      VVVdouble* _vt_dLikelihoods_father = &vr[t]->likelihoodData_->getDLikelihoodArray(fatherId);
-      for (unsigned int i = 0; i < nbSites; i++){
-        // For each site in the sequence,
-        VVdouble* _dLikelihoods_father_i = &(*_dLikelihoods_father)[i];
-        for (unsigned int c = 0; c < nbClasses_; c++){
-          // For each rate classe,
-          Vdouble* _dLikelihoods_father_i_c = &(*_dLikelihoods_father_i)[c];
-          Vdouble* _vt_dLikelihoods_father_i_c = &(*_vt_dLikelihoods_father)[i][c];
-          for (unsigned int x = 0; x < nbStates_; x++) {
-            (*_dLikelihoods_father_i_c)[x] +=  (*_vt_dLikelihoods_father_i_c)[x] * vr[t]->getProbability()/getProbability();
+      // for each specific subtree
+      for (unsigned int t = 0; t < vr.size(); t++) {
+        VVVdouble* _vt_dLikelihoods_father = &vr[t]->likelihoodData_->getDLikelihoodArray(fatherId);
+        for (unsigned int i = 0; i < nbSites; i++){
+          // For each site in the sequence,
+          VVdouble* _dLikelihoods_father_i = &(*_dLikelihoods_father)[i];
+          for (unsigned int c = 0; c < nbClasses_; c++){
+            // For each rate classe,
+            Vdouble* _dLikelihoods_father_i_c = &(*_dLikelihoods_father_i)[c];
+            Vdouble* _vt_dLikelihoods_father_i_c = &(*_vt_dLikelihoods_father)[i][c];
+            for (unsigned int x = 0; x < nbStates_; x++) {
+              (*_dLikelihoods_father_i_c)[x] +=  (*_vt_dLikelihoods_father_i_c)[x] * vr[t]->getProbability()/getProbability();
+            }
           }
         }
       }
@@ -666,22 +671,25 @@ void RNonHomogeneousMixedTreeLikelihood::computeTreeD2Likelihood(const string& v
         }
       }
 
-      vector<RNonHomogeneousMixedTreeLikelihood* > vr = mvTreeLikelihoods_[fatherId];
-      for (unsigned int t = 0; t < vr.size(); t++)
-        vr[t]->computeTreeD2Likelihood(variable);
+      if (getProbability()!=0){
+        
+        vector<RNonHomogeneousMixedTreeLikelihood* > vr = mvTreeLikelihoods_[fatherId];
+        for (unsigned int t = 0; t < vr.size(); t++)
+          vr[t]->computeTreeD2Likelihood(variable);
       
-      // for each specific subtree
-      for (unsigned int t = 0; t < vr.size(); t++) {
-        VVVdouble* _vt_d2Likelihoods_father = &vr[t]->likelihoodData_->getD2LikelihoodArray(fatherId);
-        for (unsigned int i = 0; i < nbSites; i++) {
-          // For each site in the sequence,
-          VVdouble* _d2Likelihoods_father_i = &(*_d2Likelihoods_father)[i];
-          for (unsigned int c = 0; c < nbClasses_; c++){
-            // For each rate classe,
-            Vdouble* _d2Likelihoods_father_i_c = &(*_d2Likelihoods_father_i)[c];
-            Vdouble* _vt_d2Likelihoods_father_i_c = &(*_vt_d2Likelihoods_father)[i][c];
-            for (unsigned int x = 0; x < nbStates_; x++) {
-              (*_d2Likelihoods_father_i_c)[x] +=  (*_vt_d2Likelihoods_father_i_c)[x] * vr[t]->getProbability() / getProbability();
+        // for each specific subtree
+        for (unsigned int t = 0; t < vr.size(); t++) {
+          VVVdouble* _vt_d2Likelihoods_father = &vr[t]->likelihoodData_->getD2LikelihoodArray(fatherId);
+          for (unsigned int i = 0; i < nbSites; i++) {
+            // For each site in the sequence,
+            VVdouble* _d2Likelihoods_father_i = &(*_d2Likelihoods_father)[i];
+            for (unsigned int c = 0; c < nbClasses_; c++){
+              // For each rate classe,
+              Vdouble* _d2Likelihoods_father_i_c = &(*_d2Likelihoods_father_i)[c];
+              Vdouble* _vt_d2Likelihoods_father_i_c = &(*_vt_d2Likelihoods_father)[i][c];
+              for (unsigned int x = 0; x < nbStates_; x++) {
+                (*_d2Likelihoods_father_i_c)[x] +=  (*_vt_d2Likelihoods_father_i_c)[x] * vr[t]->getProbability() / getProbability();
+              }
             }
           }
         }

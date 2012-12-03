@@ -5,7 +5,7 @@
 //
 
 /*
-Copyright or © or Copr. CNRS, (November 16, 2004)
+Copyright or © or Copr. Bio++ Development Team, (November 16, 2004)
 
 This software is a computer program whose purpose is to provide classes
 for phylogenetic data analysis.
@@ -60,7 +60,7 @@ struct PGMAInfos
  * @brief Compute WPGMA and UPGMA trees from a distance matrix.
  * 
  * WPGMA = Weighted pair group method using arithmetic averaging,
- * is equivalent to the average linkegage hierarchical clustering method.
+ * is equivalent to the average linkage hierarchical clustering method.
  * The distance between two taxa is the average distance between all individuals in each taxa.
  * The unweighted version (named UPGMA), uses a weighted average, with the number of individuals in a group as a weight.
  */
@@ -71,22 +71,35 @@ class PGMA:
 		bool weighted_;
 		
 	public:
-		PGMA(bool weighted = true): weighted_(weighted) {}
+		PGMA(bool weighted = true):
+      AbstractAgglomerativeDistanceMethod(true, true),
+      weighted_(weighted) {}
 
-		PGMA(const DistanceMatrix & matrix, bool weighted = true, bool verbose = true) throw (Exception):
-      AbstractAgglomerativeDistanceMethod(matrix, verbose), weighted_(weighted)
+    /**
+     * @brief Create a (U/W)PGMA object instance.
+     *
+     * @param matrix Input distance matrix.
+     * @param weighted Tell if we should perform Weighted or Unweighted pair group method.
+     * @param verbose Allow to display extra information, like progress bars.
+     */
+		PGMA(const DistanceMatrix& matrix, bool weighted = true, bool verbose = true) throw (Exception):
+      AbstractAgglomerativeDistanceMethod(matrix, verbose, true), weighted_(weighted)
 		{
-			computeTree(true);
+			computeTree();
 		}
 		virtual ~PGMA() {}
 
+    PGMA* clone() const { return new PGMA(*this); }
+
 	public:
-		void setDistanceMatrix(const DistanceMatrix & matrix)
+    std::string getName() const { return std::string(weighted_ ? "W" : "U") + "PGMA"; }
+
+		void setDistanceMatrix(const DistanceMatrix& matrix)
 		{ 
 			AbstractAgglomerativeDistanceMethod::setDistanceMatrix(matrix);
 		}
 
-		TreeTemplate<Node> * getTree() const;
+		TreeTemplate<Node>* getTree() const;
 		
 		void setWeighted(bool weighted) { weighted_ = weighted; }
 		bool isWeighted() const { return weighted_; }

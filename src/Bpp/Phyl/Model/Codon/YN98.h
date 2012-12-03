@@ -85,7 +85,9 @@ namespace bpp
  * Reference:
  * -  Yang Z. and Nielsen R. (1998), _Journal of Molecular Evolution_ 46:409--418.
  */
-class YN98 : public AbstractBiblioSubstitutionModel
+class YN98 :
+    public AbstractBiblioSubstitutionModel,
+    virtual public ReversibleSubstitutionModel
 {
 private:
   CodonDistanceFrequenciesSubstitutionModel* pmodel_;

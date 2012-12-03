@@ -1,11 +1,11 @@
 //
-// File: IOSubstitutionModel.h
+// File: IoSubstitutionModel.h
 // Created by: Laurent Guéguen
 // Created on: mercredi 4 juillet 2012, à 13h 03
 //
 
 /*
-  Copyright or © or Copr. CNRS, (November 16, 2004)
+  Copyright or © or Copr. Bio++ Development Team, (November 16, 2004)
 
   This software is a computer program whose purpose is to provide classes
   for phylogenetic data analysis.
@@ -42,9 +42,13 @@
 
 #include "../Model/SubstitutionModel.h"
 
+//From bpp-core:
 #include <Bpp/Exceptions.h>
 #include <Bpp/Io/IoFormat.h>
 #include <Bpp/Io/OutputStream.h>
+
+//From bpp-seq:
+#include <Bpp/Seq/Container/SiteContainer.h>
 
 namespace bpp
 {
@@ -54,12 +58,12 @@ namespace bpp
   /**
    * @brief General interface for model I/O.
    */
-  class IOSubstitutionModel:
+  class IoSubstitutionModel:
     public virtual IOFormat
   {
   public:
-    IOSubstitutionModel() {}
-    virtual ~IOSubstitutionModel() {}
+    IoSubstitutionModel() {}
+    virtual ~IoSubstitutionModel() {}
 
   public:
     virtual const std::string getDataType() const { return "Substitution Model"; }
@@ -69,7 +73,7 @@ namespace bpp
    * @brief General interface for distance matrix readers.
    */
   class ISubstitutionModel:
-    public virtual IOSubstitutionModel
+    public virtual IoSubstitutionModel
   {
   public:
     ISubstitutionModel() {}
@@ -81,25 +85,22 @@ namespace bpp
      *
      * @param alphabet         The alpabet to use in the model.
      * @param modelDescription A string describing the model in the format.
-     * @param allowCovarions   Tell is a covarion model can be returned.
-     * @param allowMixed       Tell is a mixture model can be returned.
-     * @param allowGaps        Tell is a gap model can be returned.
-     * @param unparsedParameterValues [out] a map that will contain
-     *                                all the model parameters names
-     *                                and their corresponding unparsed
-     *                                value, if they were found.
-     * @param verbose Print some info to the 'message' output stream.
+     * @param data             A pointer toward a SiteContainer, which can be used to initial some parmaeters like frequencies.
+     * @param parseArguments Attempt to parse function arguments. If not, only store them and use default values instead.
      * @return A new SubstitutionModel object according to options specified.
      * @throw Exception if an error occured.
      */
 
     virtual SubstitutionModel* read(const Alphabet* alphabet,
                                     const std::string& modelDescription,
-                                    std::map<std::string, std::string>& unparsedParameterValues,
-                                    bool allowCovarions,
-                                    bool allowMixed,
-                                    bool allowGaps,
-                                    bool verbose) = 0;
+                                    const SiteContainer* data = 0,
+                                    bool parseArguments = true) = 0;
+
+    /**
+     * @return The arguments and their unparsed values from the last call of the read function, if there are any.
+     */
+    virtual const std::map<std::string, std::string>& getUnparsedArguments() const = 0;
+
 
   };
 
@@ -107,7 +108,7 @@ namespace bpp
    * @brief General interface for distance matrix writers.
    */
   class OSubstitutionModel:
-    public virtual IOSubstitutionModel
+    public virtual IoSubstitutionModel
   {
   public:
     OSubstitutionModel() {}

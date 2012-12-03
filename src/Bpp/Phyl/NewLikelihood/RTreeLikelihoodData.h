@@ -281,9 +281,9 @@ class RTreeLikelihoodData :
      *
      * @param node      The node defining the subtree to analyse.
      * @param sequences The data to be used for initialization.
-     * @param model     The model to use.
+     * @param process   The substitution process to use.
      */
-    virtual void initLikelihoods(const Node* node, const SiteContainer& sequences, const SubstitutionModel& model) throw (Exception);
+    virtual void initLikelihoodsWithoutPatterns_(const Node* node, const SiteContainer& sequences, const SubstitutionProcess& process) throw (Exception);
 
     /**
      * @brief This method initializes the leaves according to a sequence file.
@@ -298,10 +298,10 @@ class RTreeLikelihoodData :
      *
      * @param node      The node defining the subtree to analyse.
      * @param sequences The data to be used for initialization.
-     * @param model     The model to use.
+     * @param process   The substitution process to use.
      * @return The shrunk sub-dataset + indices for the subtree defined by <i>node</i>.
      */
-    virtual SitePatterns* initLikelihoodsWithPatterns(const Node* node, const SiteContainer& sequences, const SubstitutionModel& model) throw (Exception);
+    virtual SitePatterns* initLikelihoodsWithPatterns_(const Node* node, const SiteContainer& sequences, const SubstitutionProcess& process) throw (Exception);
   
 };
 

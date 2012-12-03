@@ -75,34 +75,34 @@ SSR::SSR(
 	
 void SSR::updateMatrices()
 {
-	beta_  = getParameterValue("beta");
-	gamma_ = getParameterValue("gamma");
-	delta_ = getParameterValue("delta");
-	theta_ = getParameterValue("theta");
-
+  beta_  = getParameterValue("beta");
+  gamma_ = getParameterValue("gamma");
+  delta_ = getParameterValue("delta");
+  theta_ = getParameterValue("theta");
+  
   freq_[0] = piA_ = (1. - theta_)/2.;
   freq_[1] = piC_ = theta_/2.;
   freq_[2] = piG_ = theta_/2;
   freq_[3] = piT_ = (1. - theta_)/2.;
 	
   // Exchangeability matrix:
-	exchangeability_(0,0) = -gamma_*piT_-piG_-beta_*piC_;
-	exchangeability_(1,0) = beta_;
-	exchangeability_(0,1) = beta_;
-	exchangeability_(2,0) = 1.;
-	exchangeability_(0,2) = 1.;
-	exchangeability_(3,0) = gamma_;
-	exchangeability_(0,3) = gamma_;
-	exchangeability_(1,1) = -piT_-delta_*piG_-beta_*piA_;
-	exchangeability_(1,2) = delta_;
-	exchangeability_(2,1) = delta_;
-	exchangeability_(1,3) = 1.;
-	exchangeability_(3,1) = 1.;
-	exchangeability_(2,2) = -beta_*piT_-delta_*piC_-piA_;
-	exchangeability_(2,3) = beta_;
-	exchangeability_(3,2) = beta_;
-	exchangeability_(3,3) = -beta_*piG_-piC_-gamma_*piA_;
-
+  exchangeability_(0,0) = -gamma_*piT_-piG_-beta_*piC_;
+  exchangeability_(1,0) = beta_;
+  exchangeability_(0,1) = beta_;
+  exchangeability_(2,0) = 1.;
+  exchangeability_(0,2) = 1.;
+  exchangeability_(3,0) = gamma_;
+  exchangeability_(0,3) = gamma_;
+  exchangeability_(1,1) = -piT_-delta_*piG_-beta_*piA_;
+  exchangeability_(1,2) = delta_;
+  exchangeability_(2,1) = delta_;
+  exchangeability_(1,3) = 1.;
+  exchangeability_(3,1) = 1.;
+  exchangeability_(2,2) = -beta_*piT_-delta_*piC_-piA_;
+  exchangeability_(2,3) = beta_;
+  exchangeability_(3,2) = beta_;
+  exchangeability_(3,3) = -beta_*piG_-piC_-gamma_*piA_;
+  
   AbstractReversibleSubstitutionModel::updateMatrices();
 }
 

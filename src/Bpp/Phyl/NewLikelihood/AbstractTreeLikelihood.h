@@ -81,6 +81,11 @@ class AbstractTreeLikelihood :
 		bool computeSecondOrderDerivatives_;
     bool initialized_;
     bool verbose_;
+    unsigned int nbSites_;
+    unsigned int nbDistinctSites_; //Cross-check with SitePartition ! TODO
+    unsigned int nbStates_;
+    unsigned int nbClasses_;
+
 
 	public:
 		AbstractTreeLikelihood():
@@ -91,7 +96,11 @@ class AbstractTreeLikelihood :
       computeFirstOrderDerivatives_(true),
       computeSecondOrderDerivatives_(true),
       initialized_(false),
-      verbose_(true)
+      verbose_(true),
+      nbSites_(0),
+      nbDistinctSites_(0),
+      nbStates_(0),
+      nbClasses_(0)
     {}
 
     AbstractTreeLikelihood(
@@ -106,7 +115,11 @@ class AbstractTreeLikelihood :
       computeFirstOrderDerivatives_(true),
       computeSecondOrderDerivatives_(true),
       initialized_(false),
-      verbose_(verbose)
+      verbose_(verbose),
+      nbSites_(data->getNumberOfSites()),
+      nbDistinctSites_(0),
+      nbStates_(process->getNumberOfStates()),
+      nbClasses_(process->getNumberOfClasses())
     {}
 
     AbstractTreeLikelihood(const AbstractTreeLikelihood& lik):
@@ -117,7 +130,11 @@ class AbstractTreeLikelihood :
       computeFirstOrderDerivatives_(lik.computeFirstOrderDerivatives_),
       computeSecondOrderDerivatives_(lik.computeSecondOrderDerivatives_),
       initialized_(lik.initialized_), 
-      verbose_(lik.verbose_) 
+      verbose_(lik.verbose_),
+      nbSites_(lik.nbSites_),
+      nbDistinctSites_(lik.nbDistinctSites_),
+      nbStates_(lik.nbStates_),
+      nbClasses_(lik.nbClasses_)
     {
       if (lik.data_.get()) data_.reset(lik.data_->clone());
       if (lik.tree_.get()) tree_.reset(lik.tree_->clone());
@@ -137,6 +154,10 @@ class AbstractTreeLikelihood :
       computeSecondOrderDerivatives_ = lik.computeSecondOrderDerivatives_;
       initialized_                   = lik.initialized_;
       verbose_                       = lik.verbose_;
+      nbSites_                       = lik.nbSites_;
+      nbDistinctSites_               = lik.nbDistinctSites_;
+      nbStates_                      = lik.nbStates_;
+      nbClasses_                     = lik.nbClasses_;
       return *this;
     }
 
@@ -159,14 +180,14 @@ class AbstractTreeLikelihood :
 		const SiteContainer* getData() const { return data_.get(); }
 		const Alphabet* getAlphabet() const { return data_->getAlphabet(); }	
 		
-    unsigned int getNumberOfSites() const { return data_->getNumberOfSites(); }
-		unsigned int getNumberOfStates() const { return data_->getAlphabet()->getSize(); }
-		unsigned int getNumberOfClasses() const { return process_->getNumberOfClasses(); }
+    unsigned int getNumberOfSites() const { return nbSites_; }
+		unsigned int getNumberOfStates() const { return nbStates_; }
+		unsigned int getNumberOfClasses() const { return nbClasses_; }
 
     Vdouble getLogLikelihoodForEachSite() const;
-		VVdouble getLogLikelihoodForEachSiteForEachState() const;
-		VVdouble getLogLikelihoodForEachSiteForEachClass() const;
-		VVVdouble getLogLikelihoodForEachSiteForEachClassForEachState() const;
+		VVdouble getLikelihoodForEachSiteForEachState() const;
+		VVdouble getLikelihoodForEachSiteForEachClass() const;
+		VVVdouble getLikelihoodForEachSiteForEachClassForEachState() const;
 		
     VVdouble getPosteriorProbabilitiesOfEachClass() const;
     std::vector<unsigned int> getClassWithMaxPostProbOfEachSite() const;

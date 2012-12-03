@@ -48,6 +48,10 @@
 #include "../Io/Nhx.h"
 #include "../Io/BppOSubstitutionModelFormat.h"
 #include "../Io/BppOFrequenciesSetFormat.h"
+#include "../Io/BppORateDistributionFormat.h"
+
+#include <Bpp/Io/BppODiscreteDistributionFormat.h>
+#include <Bpp/Io/BppOParametrizableFormat.h>
 
 #include <Bpp/Io/FileTools.h>
 #include <Bpp/Text/TextTools.h>
@@ -56,6 +60,7 @@
 #include <Bpp/Text/KeyvalTools.h>
 #include <Bpp/Numeric/Prob.all>
 #include <Bpp/Numeric/Function.all>
+
 
 // From SeqLib:
 #include <Bpp/Seq/Alphabet/AlphabetTools.h>
@@ -147,24 +152,6 @@ vector<Tree*> PhylogeneticsApplicationTools::getTrees(
 
 /******************************************************************************/
 
-SubstitutionModel* PhylogeneticsApplicationTools::getSubstitutionModelDefaultInstance(
-  const Alphabet* alphabet,
-  const string& modelDescription,
-  map<string, string>& unparsedParameterValues,
-  bool allowCovarions,
-  bool allowMixed,
-  bool allowGaps,
-  bool verbose) throw (Exception)
-{
-  BppOSubstitutionModelFormat* bIO=new BppOSubstitutionModelFormat();
-  SubstitutionModel* pS= bIO->read(alphabet, modelDescription, unparsedParameterValues, allowCovarions, allowMixed, allowMixed, verbose);
-  delete bIO;
-  return pS;
-  
-}
-
-/******************************************************************************/
-
 SubstitutionModel* PhylogeneticsApplicationTools::getSubstitutionModel(
   const Alphabet* alphabet,
   const SiteContainer* data,
@@ -182,81 +169,16 @@ SubstitutionModel* PhylogeneticsApplicationTools::getSubstitutionModel(
     modelDescription = ApplicationTools::getStringParameter("model", params, "JC69", suffix, suffixIsOptional, verbose);
 
   map<string, string> unparsedParameterValues;
-  SubstitutionModel* model = getSubstitutionModelDefaultInstance(alphabet, modelDescription, unparsedParameterValues, true, true, true, verbose);
-  setSubstitutionModelParametersInitialValues(model, unparsedParameterValues, data, verbose);
+  BppOSubstitutionModelFormat bIO(BppOSubstitutionModelFormat::ALL, true, true, true, verbose);
+  SubstitutionModel* model = bIO.read(alphabet, modelDescription, data, true);
+
   return model;
 }
 
 /******************************************************************************/
 
-void PhylogeneticsApplicationTools::setSubstitutionModelParametersInitialValues(
-  SubstitutionModel* model,
-  std::map<std::string, std::string>& unparsedParameterValues,
-  const SiteContainer* data,
-  bool verbose) throw (Exception)
-{
-  string initFreqs = ApplicationTools::getStringParameter(model->getNamespace() + "initFreqs", unparsedParameterValues, "", "", true, false);
-  if (verbose)
-    ApplicationTools::displayResult("Frequencies initialization for model", (initFreqs == "") ? "None" : initFreqs);
-
-  if (initFreqs != "")
-  {
-    if (initFreqs == "observed")
-    {
-      if (!data)
-        throw Exception("Missing data for observed frequencies");
-      unsigned int psi = ApplicationTools::getParameter<unsigned int>(model->getNamespace() + "initFreqs.observedPseudoCount", unparsedParameterValues, 0);
-      model->setFreqFromData(*data, psi);
-    }
-    else if (initFreqs.substr(0, 6) == "values")
-    {
-      // Initialization using the "values" argument
-      map<int, double> frequencies;
-
-      string rf = initFreqs.substr(6);
-      StringTokenizer strtok(rf.substr(1, rf.length() - 2), ",");
-      unsigned int i = 0;
-      while (strtok.hasMoreToken())
-        frequencies[i++] = TextTools::toDouble(strtok.nextToken());
-      model->setFreq(frequencies);
-    }
-    else
-      throw Exception("Unknown initFreqs argument");
-  }
-
-  ParameterList pl = model->getIndependentParameters();
-  for (unsigned int i = 0; i < pl.size(); i++)
-  {
-    AutoParameter ap(pl[i]);
-    ap.setMessageHandler(ApplicationTools::warning);
-    pl.setParameter(i, ap);
-  }
-  unsigned int posp;
-  for (unsigned int i = 0; i < pl.size(); i++)
-  {
-    const string pName = pl[i].getName();
-    posp = pName.rfind(".");
-    bool test1 = (initFreqs == "");
-    bool test2 = (model->getParameterNameWithoutNamespace(pName).size() < posp + 6) || (model->getParameterNameWithoutNamespace(pName).substr(posp + 1, 5) != "theta");
-    bool test3 = (unparsedParameterValues.find(pName) != unparsedParameterValues.end());
-    if (test1 || test2 || test3)
-    {
-      if (!test1 && !test2 && test3)
-        ApplicationTools::displayWarning("Warning, initFreqs argument is set and a value is set for parameter " + pName);
-      double value = ApplicationTools::getDoubleParameter(pName, unparsedParameterValues, pl[i].getValue());
-      pl[i].setValue(value);
-    }
-    if (verbose)
-      ApplicationTools::displayResult("Parameter found", pName + "=" + TextTools::toString(pl[i].getValue()));
-  }
-
-  model->matchParametersValues(pl);
-}
-
-/******************************************************************************/
-
-void PhylogeneticsApplicationTools::setSubstitutionModelParametersInitialValues(
-  SubstitutionModel* model,
+void PhylogeneticsApplicationTools::setSubstitutionModelParametersInitialValuesWithAliases(
+  SubstitutionModel& model,
   std::map<std::string, std::string>& unparsedParameterValues,
   const std::string& modelPrefix,
   const SiteContainer* data,
@@ -265,7 +187,7 @@ void PhylogeneticsApplicationTools::setSubstitutionModelParametersInitialValues(
   std::vector<std::string>& sharedParams,
   bool verbose) throw (Exception)
 {
-  string initFreqs = ApplicationTools::getStringParameter(model->getNamespace() + "initFreqs", unparsedParameterValues, "", "", true, false);
+  string initFreqs = ApplicationTools::getStringParameter(model.getNamespace() + "initFreqs", unparsedParameterValues, "", "", true, false);
 
   if (verbose)
     ApplicationTools::displayResult("Frequencies Initialization for model", (initFreqs == "") ? "None" : initFreqs);
@@ -276,8 +198,8 @@ void PhylogeneticsApplicationTools::setSubstitutionModelParametersInitialValues(
     {
       if (!data)
         throw Exception("Missing data for observed frequencies");
-      unsigned int psi = ApplicationTools::getParameter<unsigned int>(model->getNamespace() + "initFreqs.observedPseudoCount", unparsedParameterValues, 0);
-      model->setFreqFromData(*data, psi);
+      unsigned int psi = ApplicationTools::getParameter<unsigned int>(model.getNamespace() + "initFreqs.observedPseudoCount", unparsedParameterValues, 0);
+      model.setFreqFromData(*data, psi);
     }
     else if (initFreqs.substr(0, 6) == "values")
     {
@@ -289,27 +211,27 @@ void PhylogeneticsApplicationTools::setSubstitutionModelParametersInitialValues(
       unsigned int i = 0;
       while (strtok.hasMoreToken())
         frequencies[i++] = TextTools::toDouble(strtok.nextToken());
-      model->setFreq(frequencies);
+      model.setFreq(frequencies);
     }
     else
       throw Exception("Unknown initFreqs argument");
   }
 
-  ParameterList pl = model->getIndependentParameters();
-  for (unsigned int i = 0; i < pl.size(); i++)
+  ParameterList pl = model.getIndependentParameters();
+  for (unsigned int i = 0; i < pl.size(); ++i)
   {
     AutoParameter ap(pl[i]);
     ap.setMessageHandler(ApplicationTools::warning);
     pl.setParameter(i, ap);
   }
 
-  for (unsigned int i = 0; i < pl.size(); i++)
+  for (unsigned int i = 0; i < pl.size(); ++i)
   {
     const string pName = pl[i].getName();
-    unsigned int posp = model->getParameterNameWithoutNamespace(pName).rfind(".");
+    unsigned int posp = model.getParameterNameWithoutNamespace(pName).rfind(".");
     string value;
     bool test1 = (initFreqs == "");
-    bool test2 = (model->getParameterNameWithoutNamespace(pName).substr(posp + 1, 5) != "theta");
+    bool test2 = (model.getParameterNameWithoutNamespace(pName).substr(posp + 1, 5) != "theta");
     bool test3 = (unparsedParameterValues.find(pName) != unparsedParameterValues.end());
     if (test1 || test2 || test3)
     {
@@ -342,7 +264,7 @@ void PhylogeneticsApplicationTools::setSubstitutionModelParametersInitialValues(
     if (verbose)
       ApplicationTools::displayResult("Parameter found", modelPrefix + pName + "=" + TextTools::toString(pl[i].getValue()));
   }
-  model->matchParametersValues(pl);
+  model.matchParametersValues(pl);
 }
 
 
@@ -385,93 +307,17 @@ FrequenciesSet* PhylogeneticsApplicationTools::getFrequenciesSet(
   bool verbose) throw (Exception)
 {
   map<string, string> unparsedParameterValues;
-  FrequenciesSet* pFS = getFrequenciesSetDefaultInstance(alphabet, freqDescription, unparsedParameterValues);
-
-  // Now we set the initial frequencies according to options:
-  if (unparsedParameterValues.find("init") != unparsedParameterValues.end())
-  {
-    // Initialization using the "init" option
-    string init = unparsedParameterValues["init"];
-    if (init == "observed")
-    {
-      if (!data)
-        throw Exception("Missing data for observed frequencies");
-      unsigned int psc = 0;
-      if (unparsedParameterValues.find("init.observedPseudoCount") != unparsedParameterValues.end())
-        psc = TextTools::toInt(unparsedParameterValues["init.observedPseudoCount"]);
-
-      map<int, double> freqs;
-      SequenceContainerTools::getFrequencies(*data, freqs, psc);
-
-      pFS->setFrequenciesFromMap(freqs);
-    }
-    else if (init.substr(0, 6) == "values")
-    {
-      // Initialization using the "values" argument
-      vector<double> frequencies;
-      string rf = init.substr(6);
-
-      StringTokenizer strtok(rf.substr(1, rf.length() - 2), ",");
-      while (strtok.hasMoreToken())
-        frequencies.push_back(TextTools::toDouble(strtok.nextToken()));
-      pFS->setFrequencies(frequencies);
-    }
-    else if (init == "balanced")
-    {
-      // Nothing to do here, this is the default instanciation.
-    }
-    else
-      throw Exception("Unknown init argument");
-  }
-  else
-  {
-    // Explicit initialization of each parameter
-    ParameterList pl = pFS->getParameters();
-
-    for (unsigned int i = 0; i < pl.size(); i++)
-    {
-      AutoParameter ap(pl[i]);
-      if (verbose)
-        ap.setMessageHandler(ApplicationTools::warning);
-      pl.setParameter(i, ap);
-    }
-
-    for (unsigned int i = 0; i < pl.size(); i++)
-    {
-      const string pName = pl[i].getName();
-      double value = ApplicationTools::getDoubleParameter(pName, unparsedParameterValues, pl[i].getValue());
-
-      pl[i].setValue(value);
-      if (verbose)
-        ApplicationTools::displayResult("Parameter found", pName + "=" + TextTools::toString(pl[i].getValue()));
-    }
-
-    pFS->matchParametersValues(pl);
-  }
+  BppOFrequenciesSetFormat bIO(BppOFrequenciesSetFormat::ALL, verbose);
+  auto_ptr<FrequenciesSet> pFS(bIO.read(alphabet, freqDescription, data, true));
 
   // /////// To be changed for input normalization
   if (rateFreqs.size() > 0)
   {
-    pFS = new MarkovModulatedFrequenciesSet(pFS, rateFreqs);
+    pFS.reset(new MarkovModulatedFrequenciesSet(pFS.release(), rateFreqs));
   }
 
-  return pFS;
+  return pFS.release();
 }
-
-/******************************************************************************/
-
-
-FrequenciesSet* PhylogeneticsApplicationTools::getFrequenciesSetDefaultInstance(
-  const Alphabet* alphabet,
-  const std::string& freqDescription,
-  std::map<std::string, std::string>& unparsedParameterValues) throw (Exception)
-{
-  BppOFrequenciesSetFormat* bIO=new BppOFrequenciesSetFormat();
-  FrequenciesSet* pFS= bIO->read(alphabet, freqDescription, unparsedParameterValues);
-  delete bIO;
-  return pFS;
-}
-
 
 /******************************************************/
 /**** SUBSTITUTION MODEL SET **************************/
@@ -540,6 +386,7 @@ void PhylogeneticsApplicationTools::setSubstitutionModelSet(
   if (verbose)
     ApplicationTools::displayResult("Number of distinct models", TextTools::toString(nbModels));
 
+  BppOSubstitutionModelFormat bIO(BppOSubstitutionModelFormat::ALL, true, true, true, verbose);
 
   // ///////////////////////////////////////////
   // Build a new model set object:
@@ -553,9 +400,9 @@ void PhylogeneticsApplicationTools::setSubstitutionModelSet(
   else
     tmpDesc = ApplicationTools::getStringParameter("model1", params, "JC69", suffix, suffixIsOptional, false);
 
-  map<string, string> tmpUnparsedParameterValues;
+  auto_ptr<SubstitutionModel> tmp(bIO.read(alphabet, tmpDesc, data, false));
+  map<string, string> tmpUnparsedParameterValues(bIO.getUnparsedArguments());
 
-  auto_ptr<SubstitutionModel> tmp(getSubstitutionModelDefaultInstance(alphabet, tmpDesc, tmpUnparsedParameterValues, true, true, true, false));
   if (tmp->getNumberOfStates() != alphabet->getSize())
   {
     // Markov-Modulated Markov Model...
@@ -594,23 +441,23 @@ void PhylogeneticsApplicationTools::setSubstitutionModelSet(
     else
       modelDesc = ApplicationTools::getStringParameter(prefix, params, "JC69", suffix, suffixIsOptional, verbose);
 
-
-    map<string, string> unparsedParameterValues;
-    SubstitutionModel* model = getSubstitutionModelDefaultInstance(alphabet, modelDesc, unparsedParameterValues, true, true, true, verbose);
+    auto_ptr<SubstitutionModel> model(bIO.read(alphabet, modelDesc, data, false));
+    map<string, string> unparsedParameterValues(bIO.getUnparsedArguments());
     prefix += ".";
 
     vector<string> specificParameters, sharedParameters;
-    setSubstitutionModelParametersInitialValues(model,
-                                                unparsedParameterValues, prefix, data,
-                                                existingParameters, specificParameters, sharedParameters,
-                                                verbose);
+    setSubstitutionModelParametersInitialValuesWithAliases(
+      *model,
+      unparsedParameterValues, prefix, data,
+      existingParameters, specificParameters, sharedParameters,
+      verbose);
     vector<int> nodesId = ApplicationTools::getVectorParameter<int>(prefix + "nodes_id", params, ',', ':', TextTools::toString(i), suffix, suffixIsOptional, true);
     if (verbose)
       ApplicationTools::displayResult("Model" + TextTools::toString(i + 1) + " is associated to", TextTools::toString(nodesId.size()) + " node(s).");
     // Add model and specific parameters:
     //DEBUG: cout << "Specific parameters:" << endl;
     //DEBUG: VectorTools::print(specificParameters);
-    modelSet.addModel(model, nodesId, specificParameters);
+    modelSet.addModel(model.get(), nodesId, specificParameters);
     // Now set shared parameters:
     for (unsigned int j = 0; j < sharedParameters.size(); j++)
     {
@@ -631,6 +478,7 @@ void PhylogeneticsApplicationTools::setSubstitutionModelSet(
         throw Exception("Assigning a value to a parameter with a distinct namespace is not (yet) allowed. Consider using parameter aliasing instead.");
       }
     }
+    model.release();
   }
   // Finally check parameter aliasing:
   string aliasDesc = ApplicationTools::getStringParameter("nonhomogeneous.alias", params, "", suffix, suffixIsOptional, verbose);
@@ -742,250 +590,6 @@ void PhylogeneticsApplicationTools::completeMixedSubstitutionModelSet(
 
 /******************************************************************************/
 
-DiscreteDistribution* PhylogeneticsApplicationTools::getRateDistributionDefaultInstance(
-  const string& distDescription,
-  map<string, string>& unparsedParameterValues,
-  bool constDistAllowed,
-  bool verbose) throw (Exception)
-{
-  string distName;
-  DiscreteDistribution* rDist = 0;
-  map<string, string> args;
-  KeyvalTools::parseProcedure(distDescription, distName, args);
-
-  if (distName == "Invariant")
-  {
-    // We have to parse the nested distribution first:
-    string nestedDistDescription = args["dist"];
-    if (TextTools::isEmpty(nestedDistDescription))
-      throw Exception("PhylogeneticsApplicationTools::getRateDistributionDefaultInstance. Missing argument 'dist' for distribution 'Invariant'.");
-    if (verbose)
-      ApplicationTools::displayResult("Invariant Mixed distribution", distName );
-    map<string, string> unparsedParameterValuesNested;
-    DiscreteDistribution* nestedDistribution = getRateDistributionDefaultInstance(nestedDistDescription, unparsedParameterValuesNested, constDistAllowed, verbose);
-
-    // Now we create the Invariant rate distribution:
-    rDist = new InvariantMixedDiscreteDistribution(nestedDistribution, 0.1, 0.000001); // , "Invariant.");
-
-    // Then we update the parameter set:
-    for (map<string, string>::iterator it = unparsedParameterValuesNested.begin(); it != unparsedParameterValuesNested.end(); it++)
-    {
-      unparsedParameterValues["InvariantMixed.dist_" + it->first] = it->second;
-    }
-    if (args.find("p") != args.end())
-      unparsedParameterValues["InvariantMixed.p"] = args["p"];
-  }
-  else if (distName == "Uniform")
-  {
-    if (!constDistAllowed)
-      throw Exception("You can't use a constant distribution here!");
-    rDist = new ConstantDistribution(1., true);
-  }
-  else if (distName == "Gamma")
-  {
-    if (args.find("n") == args.end())
-      throw Exception("Missing argument 'n' (number of classes) in Gamma distribution");
-    unsigned int nbClasses = TextTools::to<unsigned int>(args["n"]);
-    rDist = new GammaDiscreteDistribution(nbClasses, 1., 1.); // , "Gamma.");
-    rDist->aliasParameters("alpha", "beta");
-    if (args.find("alpha") != args.end())
-      unparsedParameterValues["Gamma.alpha"] = args["alpha"];
-  }
-  else
-  {
-    throw Exception("Unknown distribution: " + distName + ".");
-  }
-  if (verbose)
-  {
-    ApplicationTools::displayResult("Rate distribution", distName);
-    ApplicationTools::displayResult("Number of classes", TextTools::toString(rDist->getNumberOfCategories()));
-  }
-
-  return rDist;
-}
-
-/******************************************************************************/
-
-DiscreteDistribution* PhylogeneticsApplicationTools::getDistributionDefaultInstance(
-  const std::string& distDescription,
-  std::map<std::string, std::string>& unparsedParameterValues,
-  bool verbose)
-throw (Exception)
-{
-  string distName;
-  DiscreteDistribution* rDist = 0;
-  map<string, string> args;
-  KeyvalTools::parseProcedure(distDescription, distName, args);
-
-  if (distName == "InvariantMixed")
-  {
-    // We have to parse the nested distribution first:
-    string nestedDistDescription = args["dist"];
-    if (TextTools::isEmpty(nestedDistDescription))
-      throw Exception("PhylogeneticsApplicationTools::getDistributionDefaultInstance. Missing argument 'dist' for distribution 'Invariant'.");
-    if (verbose)
-      ApplicationTools::displayResult("Invariant Mixed distribution", distName );
-    map<string, string> unparsedParameterValuesNested;
-    DiscreteDistribution* nestedDistribution = getDistributionDefaultInstance(nestedDistDescription,
-                                                                              unparsedParameterValuesNested,
-                                                                              verbose);
-
-    // Now we create the Invariant rate distribution:
-    rDist = new InvariantMixedDiscreteDistribution(nestedDistribution, 0.1, 0.000001);
-
-    // Then we update the parameter set:
-    for (map<string, string>::iterator it = unparsedParameterValuesNested.begin();
-         it != unparsedParameterValuesNested.end(); it++)
-    {
-      unparsedParameterValues["InvarianMixed.dist_" + it->first] = it->second;
-    }
-    if (args.find("p") != args.end())
-      unparsedParameterValues["InvariantMixed.p"] = args["p"];
-  }
-  else if (distName == "Constant")
-  {
-    if (args.find("value") == args.end())
-      throw Exception("Missing argument 'value' in Constant distribution");
-    rDist = new ConstantDistribution(TextTools::to<double>(args["value"]));
-    unparsedParameterValues["Constant.value"] = args["value"];
-  }
-  else if (distName == "Simple")
-  {
-    if (args.find("values") == args.end())
-      throw Exception("Missing argument 'values' in Simple distribution");
-    if (args.find("probas") == args.end())
-      throw Exception("Missing argument 'probas' in Simple distribution");
-    vector<double> probas, values;
-
-    string rf = args["values"];
-    StringTokenizer strtok(rf.substr(1, rf.length() - 2), ",");
-    while (strtok.hasMoreToken())
-      values.push_back(TextTools::toDouble(strtok.nextToken()));
-
-    rf = args["probas"];
-    StringTokenizer strtok2(rf.substr(1, rf.length() - 2), ",");
-    while (strtok2.hasMoreToken())
-      probas.push_back(TextTools::toDouble(strtok2.nextToken()));
-
-    rDist = new SimpleDiscreteDistribution(values, probas);
-    vector<string> v = rDist->getParameters().getParameterNames();
-
-    for (unsigned int i = 0; i < v.size(); i++)
-    {
-      unparsedParameterValues[v[i]] = TextTools::toString(rDist->getParameterValue(rDist->getParameterNameWithoutNamespace(v[i])));
-    }
-  }
-  else if (distName == "Mixture")
-  {
-    if (args.find("probas") == args.end())
-      throw Exception("Missing argument 'probas' in Mixture distribution");
-    vector<double> probas;
-    vector<DiscreteDistribution*> v_pdd;
-    DiscreteDistribution* pdd;
-    string rf = args["probas"];
-    StringTokenizer strtok2(rf.substr(1, rf.length() - 2), ",");
-    while (strtok2.hasMoreToken())
-      probas.push_back(TextTools::toDouble(strtok2.nextToken()));
-
-    vector<string> v_nestedDistrDescr;
-
-    unsigned int nbd = 0;
-    while (args.find("distribution" + TextTools::toString(++nbd)) != args.end())
-      v_nestedDistrDescr.push_back(args["distribution" + TextTools::toString(nbd)]);
-
-    if (v_nestedDistrDescr.size() != probas.size())
-      throw Exception("Number of distributions (keyword 'distribution" + TextTools::toString(probas.size()) + "') do not fit the number of probabilities");
-
-    map<string, string> unparsedParameterValuesNested;
-
-    for (unsigned i = 0; i < v_nestedDistrDescr.size(); i++)
-    {
-      unparsedParameterValuesNested.clear();
-      pdd = getDistributionDefaultInstance(v_nestedDistrDescr[i], unparsedParameterValuesNested, false);
-
-      for (map<string, string>::iterator it = unparsedParameterValuesNested.begin(); it != unparsedParameterValuesNested.end(); it++)
-      {
-        unparsedParameterValues[distName + "." + TextTools::toString(i + 1) + "_" + it->first] = it->second;
-      }
-      v_pdd.push_back(pdd);
-    }
-    rDist = new MixtureOfDiscreteDistributions(v_pdd, probas);
-  }
-  else
-  {
-    if (args.find("n") == args.end())
-      throw Exception("Missing argument 'n' (number of classes) in " + distName
-                      + " distribution");
-    unsigned int nbClasses = TextTools::to<unsigned int>(args["n"]);
-
-    if (distName == "Gamma")
-    {
-      rDist = new GammaDiscreteDistribution(nbClasses, 1, 1);
-      if (args.find("alpha") != args.end())
-        unparsedParameterValues["Gamma.alpha"] = args["alpha"];
-      if (args.find("beta") != args.end())
-        unparsedParameterValues["Gamma.beta"] = args["beta"];
-    }
-    else if (distName == "Gaussian")
-    {
-      rDist = new GaussianDiscreteDistribution(nbClasses, 0, 1);
-      if (args.find("mu") != args.end())
-        unparsedParameterValues["Gaussian.mu"] = args["mu"];
-      if (args.find("sigma") != args.end())
-        unparsedParameterValues["Gaussian.sigma"] = args["sigma"];
-    }
-    else if (distName == "Beta")
-    {
-      rDist = new BetaDiscreteDistribution(nbClasses, 1, 1);
-      if (args.find("alpha") != args.end())
-        unparsedParameterValues["Beta.alpha"] = args["alpha"];
-      if (args.find("beta") != args.end())
-        unparsedParameterValues["Beta.beta"] = args["beta"];
-    }
-    else if (distName == "Exponential")
-    {
-      rDist = new ExponentialDiscreteDistribution(nbClasses, 1);
-      if (args.find("lambda") != args.end())
-        unparsedParameterValues["Exponential.lambda"] = args["lambda"];
-      if (args.find("median") != args.end())
-        rDist->setMedian(true);
-    }
-    else if (distName == "TruncExponential")
-    {
-      rDist = new TruncatedExponentialDiscreteDistribution(nbClasses, 1, 0);
-
-      if (args.find("median") != args.end())
-        rDist->setMedian(true);
-      if (args.find("lambda") != args.end())
-        unparsedParameterValues["TruncExponential.lambda"] = args["lambda"];
-      if (args.find("tp") != args.end())
-        unparsedParameterValues["TruncExponential.tp"] = args["tp"];
-    }
-    else if (distName == "Uniform")
-    {
-      if (args.find("begin") == args.end())
-        throw Exception("Missing argument 'begin' in Uniform distribution");
-      if (args.find("end") == args.end())
-        throw Exception("Missing argument 'end' in Uniform distribution");
-      rDist = new UniformDiscreteDistribution(nbClasses, TextTools::to<double>(args["begin"]),
-                                              TextTools::to<double>(args["end"]));
-    }
-    else
-    {
-      throw Exception("Unknown distribution: " + distName + ".");
-    }
-  }
-  if (verbose)
-  {
-    ApplicationTools::displayResult("Distribution", distName);
-    ApplicationTools::displayResult("Number of classes", TextTools::toString(rDist->getNumberOfCategories()));
-  }
-
-  return rDist;
-}
-
-/******************************************************************************/
-
 MultipleDiscreteDistribution* PhylogeneticsApplicationTools::getMultipleDistributionDefaultInstance(
   const std::string& distDescription,
   std::map<std::string, std::string>& unparsedParameterValues,
@@ -1032,52 +636,28 @@ MultipleDiscreteDistribution* PhylogeneticsApplicationTools::getMultipleDistribu
 
 /******************************************************************************/
 
-void PhylogeneticsApplicationTools::setRateDistributionParametersInitialValues(
-  DiscreteDistribution* rDist,
-  map<string, string>& unparsedParameterValues,
-  bool verbose) throw (Exception)
-{
-  ParameterList pl = rDist->getIndependentParameters();
-  for (unsigned int i = 0; i < pl.size(); i++)
-  {
-    AutoParameter ap(pl[i]);
-    ap.setMessageHandler(ApplicationTools::warning);
-    pl.setParameter(i, ap);
-  }
-
-  for (unsigned int i = 0; i < pl.size(); i++)
-  {
-    const string pName = pl[i].getName();
-    double value = ApplicationTools::getDoubleParameter(pName, unparsedParameterValues, pl[i].getValue());
-    pl[i].setValue(value);
-    if (verbose)
-      ApplicationTools::displayResult("Parameter found", pName + "=" + TextTools::toString(pl[i].getValue()));
-  }
-  rDist->matchParametersValues(pl);
-  if (verbose)
-  {
-    for (unsigned int c = 0; c < rDist->getNumberOfCategories(); c++)
-    {
-      ApplicationTools::displayResult("- Category " + TextTools::toString(c)
-                                      + " (Pr = " + TextTools::toString(rDist->getProbability(c)) + ") rate", TextTools::toString(rDist->getCategory(c)));
-    }
-  }
-}
-
-
-/******************************************************************************/
-
 DiscreteDistribution* PhylogeneticsApplicationTools::getRateDistribution(
   map<string, string>& params,
   const string& suffix,
   bool suffixIsOptional,
   bool verbose) throw (Exception)
 {
-  string distDescription = ApplicationTools::getStringParameter("rate_distribution", params, "Uniform()", suffix, suffixIsOptional);
-  map<string, string> unparsedParameterValues;
-  DiscreteDistribution* rDist = getRateDistributionDefaultInstance(distDescription, unparsedParameterValues, verbose);
-  setRateDistributionParametersInitialValues(rDist, unparsedParameterValues, verbose);
-  return rDist;
+  string distDescription = ApplicationTools::getStringParameter("rate_distribution", params, "Constant()", suffix, suffixIsOptional);
+
+  string distName;
+  map<string, string> args;
+  KeyvalTools::parseProcedure(distDescription, distName, args);
+
+  BppORateDistributionFormat bIO(true);
+  auto_ptr<DiscreteDistribution> rDist(bIO.read(distDescription, true));
+
+  if (verbose)
+  {
+    ApplicationTools::displayResult("Rate distribution", distName);
+    ApplicationTools::displayResult("Number of classes", TextTools::toString(rDist->getNumberOfCategories()));
+  }
+  
+  return rDist.release();
 }
 
 
@@ -1109,7 +689,7 @@ throw (Exception)
   OutputStream* messageHandler =
     (mhPath == "none") ? 0 :
     (mhPath == "std") ? ApplicationTools::message :
-    new StlOutputStream(auto_ptr<ostream>(new ofstream(mhPath.c_str(), ios::out)));
+    new StlOutputStream(new ofstream(mhPath.c_str(), ios::out));
   if (verbose)
     ApplicationTools::displayResult("Message handler", mhPath);
 
@@ -1117,7 +697,7 @@ throw (Exception)
   OutputStream* profiler =
     (prPath == "none") ? 0 :
     (prPath == "std") ? ApplicationTools::message :
-    new StlOutputStream(auto_ptr<ostream>(new ofstream(prPath.c_str(), ios::out)));
+    new StlOutputStream(new ofstream(prPath.c_str(), ios::out));
   if (profiler)
     profiler->setPrecision(20);
   if (verbose)
@@ -1145,10 +725,11 @@ throw (Exception)
       ApplicationTools::displayResult("New tree likelihood", -tl->getValue());
   }
 
-  size_t i;
   // Should I ignore some parameters?
   ParameterList parametersToEstimate = parameters;
   string paramListDesc = ApplicationTools::getStringParameter("optimization.ignore_parameter", params, "", suffix, suffixIsOptional, false);
+  if (paramListDesc.length()==0)
+    paramListDesc = ApplicationTools::getStringParameter("optimization.ignore_parameters", params, "", suffix, suffixIsOptional, false);
   StringTokenizer st(paramListDesc, ",");
   while (st.hasMoreToken())
   {
@@ -1175,15 +756,34 @@ throw (Exception)
         if (verbose)
           ApplicationTools::displayResult("Parameter ignored", string("Root frequencies"));
       }
-      else if ((i = param.find("*")) != string::npos)
+      else if (param.find("*") != string::npos)
       {
-        string pref = param.substr(0, i);
         vector<string> vs;
         for (unsigned int j = 0; j < parametersToEstimate.size(); j++)
         {
-          if (parametersToEstimate[j].getName().find(pref) == 0)
-            vs.push_back(parametersToEstimate[j].getName());
+          StringTokenizer stj(param, "*", true, false);
+          size_t pos1, pos2;
+          string parn=parametersToEstimate[j].getName();
+          bool flag(true);
+          string g=stj.nextToken();
+          pos1=parn.find(g);
+          if (pos1!=0)
+            flag=false;
+          pos1+=g.length();
+          while (flag && stj.hasMoreToken()){
+            g=stj.nextToken();
+            pos2=parn.find(g,pos1);
+            if (pos2 == string::npos){
+              flag=false;
+              break;
+            }
+            pos1=pos2+g.length();
+          }
+          if (flag &&
+              ((g.length()==0) || (pos1==parn.length()) || (parn.rfind(g)==parn.length()-g.length())))
+            vs.push_back(parn);
         }
+        
         for (vector<string>::iterator it = vs.begin(); it != vs.end(); it++)
         {
           parametersToEstimate.deleteParameter(*it);
@@ -1429,7 +1029,7 @@ throw (Exception)
   OutputStream* messageHandler =
     (mhPath == "none") ? 0 :
     (mhPath == "std") ? ApplicationTools::message :
-    new StlOutputStream(auto_ptr<ostream>(new ofstream(mhPath.c_str(), ios::out)));
+    new StlOutputStream(new ofstream(mhPath.c_str(), ios::out));
   if (verbose)
     ApplicationTools::displayResult("Message handler", mhPath);
 
@@ -1437,7 +1037,7 @@ throw (Exception)
   OutputStream* profiler =
     (prPath == "none") ? 0 :
     (prPath == "std") ? ApplicationTools::message :
-    new StlOutputStream(auto_ptr<ostream>(new ofstream(prPath.c_str(), ios::out)));
+    new StlOutputStream(new ofstream(prPath.c_str(), ios::out));
   if (profiler)
     profiler->setPrecision(20);
   if (verbose)
@@ -1708,97 +1308,13 @@ void PhylogeneticsApplicationTools::writeTrees(
 
 /******************************************************************************/
 
-void PhylogeneticsApplicationTools::describeParameters_(const ParameterAliasable* parametrizable, OutputStream& out, map<string, string>& globalAliases, const vector<string>& names,  std::vector<std::string>& writtenNames, bool printLocalAliases, bool printComma)
-{
-  ParameterList pl = parametrizable->getIndependentParameters().subList(names);
-  unsigned int p = out.getPrecision();
-  out.setPrecision(12);
-  bool flag(printComma);
-  for (unsigned int i = 0; i < pl.size(); i++)
-  {
-    if (find(writtenNames.begin(),writtenNames.end(),pl[i].getName())==writtenNames.end()){
-      if (flag)
-        out << ",";
-      else
-        flag=true;
-      string pname = parametrizable->getParameterNameWithoutNamespace(pl[i].getName());
-      
-      // Check for global aliases:
-      if (globalAliases.find(pl[i].getName()) == globalAliases.end())
-        {
-          (out << pname << "=").enableScientificNotation(false) << pl[i].getValue();
-        }
-      else
-        out << pname << "=" << globalAliases[pl[i].getName()];
-      
-      // Now check for local aliases:
-      if (printLocalAliases)
-        {
-          vector<string> aliases = parametrizable->getAlias(pname);
-          for (unsigned int j = 0; aliases.size(); j++)
-            {
-              out << ", " << aliases[j] << "=" << pname;
-            }
-        }
-      writtenNames.push_back(pl[i].getName());
-    }
-  }
-  out.setPrecision(p);
-}
-
-/******************************************************************************/
-
-void PhylogeneticsApplicationTools::describeParameters_(const Parametrizable* parametrizable, OutputStream& out, const vector<string>& names,  std::vector<std::string>& writtenNames, bool printComma)
-{
-  ParameterList pl = parametrizable->getParameters();
-  unsigned int p = out.getPrecision();
-  out.setPrecision(12);
-  bool flag(printComma);
-  for (unsigned int i = 0; i < pl.size(); i++)
-    {
-      if (find(writtenNames.begin(),writtenNames.end(),pl[i].getName())==writtenNames.end()){
-        if (flag)
-          out << ",";
-        else
-          flag=true;
-        string pname = parametrizable->getParameterNameWithoutNamespace(pl[i].getName());
-      
-        (out << pname << "=").enableScientificNotation(false) << pl[i].getValue();
-      
-      }
-    }
-  out.setPrecision(p);
-}
-
-/******************************************************************************/
-
-void PhylogeneticsApplicationTools::describeSubstitutionModel_(const SubstitutionModel* model, OutputStream& out, map<string, string>& globalAliases, std::vector<std::string>& writtenNames)
-{
-  const BppOSubstitutionModelFormat* bIO=new BppOSubstitutionModelFormat();
-  
-  bIO->write(*model, out, globalAliases, writtenNames);
-  delete bIO;
-}
-
-/******************************************************************************/
-
-
-void PhylogeneticsApplicationTools::describeFrequenciesSet_(const FrequenciesSet* pfreqset, OutputStream& out, std::vector<std::string>& writtenNames)
-{
-  const BppOFrequenciesSetFormat* bIO=new BppOFrequenciesSetFormat();
-  
-  bIO->write(pfreqset, out, writtenNames);
-  delete bIO;
-}
-
-/******************************************************************************/
-
 void PhylogeneticsApplicationTools::printParameters(const SubstitutionModel* model, OutputStream& out)
 {
-  out << "model = ";
+  out << "model=";
   map<string, string> globalAliases;
   vector<string> writtenNames;
-  describeSubstitutionModel_(model, out, globalAliases, writtenNames);
+  BppOSubstitutionModelFormat bIO(BppOSubstitutionModelFormat::ALL, true, true, true, false);
+  bIO.write(*model, out, globalAliases, writtenNames);
   out.endLine();
 }
 
@@ -1806,10 +1322,8 @@ void PhylogeneticsApplicationTools::printParameters(const SubstitutionModel* mod
 
 void PhylogeneticsApplicationTools::printParameters(const SubstitutionModelSet* modelSet, OutputStream& out)
 {
-  out << "model = ";
-
-  (out << "nonhomogeneous = general").endLine();
-  (out << "nonhomogeneous.number_of_models = " << modelSet->getNumberOfModels()).endLine();
+  (out << "nonhomogeneous=general").endLine();
+  (out << "nonhomogeneous.number_of_models=" << modelSet->getNumberOfModels()).endLine();
 
   // Get the parameter links:
   map< unsigned int, vector<string> > modelLinks; // for each model index, stores the list of global parameters.
@@ -1854,12 +1368,13 @@ void PhylogeneticsApplicationTools::printParameters(const SubstitutionModelSet* 
 
     // Now print it:
     writtenNames.clear();
-    out.endLine() << "model" << (i + 1) << " = ";
-    describeSubstitutionModel_(model, out, globalAliases, writtenNames);
+    out.endLine() << "model" << (i + 1) << "=";
+    BppOSubstitutionModelFormat bIOsm(BppOSubstitutionModelFormat::ALL, true, true, true, false);
+    bIOsm.write(*model, out, globalAliases, writtenNames);
     out.endLine();
     vector<int> ids = modelSet->getNodesWithModel(i);
-    out << "model" << (i + 1) << ".nodes_id = " << ids[0];
-    for (unsigned int j = 1; j < ids.size(); j++)
+    out << "model" << (i + 1) << ".nodes_id=" << ids[0];
+    for (unsigned int j = 1; j < ids.size(); ++j)
     {
       out << "," << ids[j];
     }
@@ -1869,53 +1384,23 @@ void PhylogeneticsApplicationTools::printParameters(const SubstitutionModelSet* 
   // Root frequencies:
   out.endLine();
   (out << "# Root frequencies:").endLine();
-  out << "nonhomogeneous.root_freq = ";
-  describeFrequenciesSet_(modelSet->getRootFrequenciesSet(), out, writtenNames);
+  out << "nonhomogeneous.root_freq=";
+
+  BppOFrequenciesSetFormat bIO(BppOFrequenciesSetFormat::ALL, false);
+  bIO.write(modelSet->getRootFrequenciesSet(), out, writtenNames);
 }
 
 /******************************************************************************/
 
-void PhylogeneticsApplicationTools::describeDiscreteDistribution_(const DiscreteDistribution* rDist, OutputStream& out, map<string, string>& globalAliases, vector<string>& writtenNames)
-{
-  const InvariantMixedDiscreteDistribution* invar = dynamic_cast<const InvariantMixedDiscreteDistribution*>(rDist);
-  const DiscreteDistribution* test = rDist;
-  if (invar)
-  {
-    test = invar->getVariableSubDistribution();
-    out << "Invariant(dist=";
-    describeDiscreteDistribution_(test, out, globalAliases, writtenNames);
-    out << ", ";
-    vector<string> names;
-    names.push_back(invar->getParameter("p").getName());
-    describeParameters_(invar, out, globalAliases, names, writtenNames);
-    out << ")";
-  }
-  else
-  {
-    test = dynamic_cast<const ConstantDistribution*>(rDist);
-    if (test)
-      out << "Uniform()";
-    else
-    {
-      test = dynamic_cast<const GammaDiscreteDistribution*>(rDist);
-      if (test)
-      {
-        out << "Gamma(n=" << rDist->getNumberOfCategories() << ", ";
-        describeParameters_(rDist, out, globalAliases, rDist->getIndependentParameters().getParameterNames(), writtenNames, false);
-        out << ")";
-      }
-      else
-        throw Exception("PhylogeneticsApplicationTools::printParameters(DiscreteDistribution). Unsupported distribution.");
-    }
-  }
-}
-
 void PhylogeneticsApplicationTools::printParameters(const DiscreteDistribution* rDist, OutputStream& out)
 {
-  out << "rate_distribution = ";
+  out << "rate_distribution=";
   map<string, string> globalAliases;
   vector<string> writtenNames;
-  describeDiscreteDistribution_(rDist, out, globalAliases, writtenNames);
+  const BppODiscreteDistributionFormat* bIO=new BppODiscreteDistributionFormat();
+  
+  bIO->write(*rDist, out, globalAliases, writtenNames);
+  delete bIO;
   out.endLine();
 }
 
