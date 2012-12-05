@@ -938,7 +938,7 @@ void BppOSubstitutionModelFormat::write(const SubstitutionModel& model,
 
   if ((dynamic_cast<const MixedSubstitutionModel*>(&model) != NULL) && (dynamic_cast<const AbstractBiblioMixedSubstitutionModel*>(&model) == NULL))
   {
-    write(*dynamic_cast<const MixedSubstitutionModel*>(&model), out, globalAliases, writtenNames);
+    writeMixed_(*dynamic_cast<const MixedSubstitutionModel*>(&model), out, globalAliases, writtenNames);
     return;
   }
 
