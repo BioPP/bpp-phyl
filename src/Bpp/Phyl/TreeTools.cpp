@@ -991,10 +991,10 @@ Tree* TreeTools::MRP(const vector<Tree*>& vecTr)
   VectorSiteContainer* sites = TreeTools::MRPEncode(vecTr);
 
   //starting bioNJ tree
-  const DNA* alphabet= dynamic_cast<const DNA*>(sites->getAlphabet());
+  const DNA* alphabet = dynamic_cast<const DNA*>(sites->getAlphabet());
   JCnuc jc(alphabet);
-  ConstantDistribution constRate(1.);
-  DistanceEstimation distFunc(&jc, &constRate, sites, 0, true);
+  ConstantDistribution* constRate = new ConstantDistribution(1.);
+  DistanceEstimation distFunc(&jc, constRate, sites, 0, true);
   BioNJ bionjTreeBuilder(false, false);
   bionjTreeBuilder.setDistanceMatrix(*(distFunc.getMatrix()));
   bionjTreeBuilder.computeTree();
