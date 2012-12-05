@@ -219,20 +219,13 @@ FrequenciesSet* BppOFrequenciesSetFormat::read(const Alphabet* alphabet, const s
     {
       string sAFS = args["frequency"];
 
-      unsigned int nbfreq = pWA->getLength();
-      string st = "";
-      for (unsigned i = 0; i < nbfreq; i++)
-      {
-        st += TextTools::toString(i + 1);
-      }
-
       BppOFrequenciesSetFormat nestedReader(alphabetCode_, false);
       auto_ptr<FrequenciesSet> pFS2(nestedReader.read(pWA->getNAlphabet(0), sAFS, data, false));
       map<string, string> unparsedParameterValuesNested(nestedReader.getUnparsedArguments());
 
       for (map<string, string>::iterator it = unparsedParameterValuesNested.begin(); it != unparsedParameterValuesNested.end(); it++)
       {
-        unparsedArguments_[st + "_" + it->first] = it->second;
+        unparsedArguments_["123_" + it->first] = it->second;
       }
       pFS.reset(new CodonFromUniqueFrequenciesSet(pWA, pFS2.release(), "Codon"));
     }
@@ -311,6 +304,8 @@ FrequenciesSet* BppOFrequenciesSetFormat::read(const Alphabet* alphabet, const s
   {
     if (!(alphabetCode_ & CODON))
       throw Exception("Codon alphabet not supported.");
+    const CodonAlphabet* pWA = dynamic_cast<const CodonAlphabet*>(alphabet);
+
     short opt = -1;
 
     if (freqName == "F0")
@@ -320,10 +315,54 @@ FrequenciesSet* BppOFrequenciesSetFormat::read(const Alphabet* alphabet, const s
     else if (freqName == "F1X4")
     {
       opt = CodonFrequenciesSet::F1X4;
+      if (args.find("frequency") != args.end())
+        {
+          string sAFS = args["frequency"];
+
+          BppOFrequenciesSetFormat nestedReader(alphabetCode_, false);
+          auto_ptr<FrequenciesSet> pFS2(nestedReader.read(pWA->getNAlphabet(0), sAFS, data, false));
+          if (pFS2->getName()!="Full")
+            throw Exception("BppOFrequenciesSetFormat::read. The frequency option in F1X4 can only be Full");
+            
+          map<string, string> unparsedParameterValuesNested(nestedReader.getUnparsedArguments());
+
+          for (map<string, string>::iterator it = unparsedParameterValuesNested.begin(); it != unparsedParameterValuesNested.end(); it++)
+            {
+              unparsedArguments_["123_" + it->first] = it->second;
+            }
+        }
     }
     else if (freqName == "F3X4")
     {
       opt = CodonFrequenciesSet::F3X4;
+      if (args.find("frequency1") != args.end() ||
+          args.find("frequency2") != args.end() ||
+          args.find("frequency3") != args.end())
+        {
+        vector<string> v_sAFS;
+
+        for (unsigned int nbfreq = 1; nbfreq<=3; nbfreq++)
+          if (args.find("frequency" + TextTools::toString(nbfreq)) != args.end())
+            v_sAFS.push_back(args["frequency" + TextTools::toString(nbfreq++)]);
+          else
+            v_sAFS.push_back("");
+        
+        for (unsigned i = 0; i < v_sAFS.size(); i++)
+          {
+            BppOFrequenciesSetFormat nestedReader(alphabetCode_, false);
+            if (v_sAFS[i]!=""){
+              pFS.reset(nestedReader.read(pWA->getNAlphabet(i), v_sAFS[i], data, false));
+              if (pFS->getName()!="Full")
+                throw Exception("BppOFrequenciesSetFormat::read. The frequency options in F3X4 can only be Full");
+
+              map<string, string> unparsedParameterValuesNested(nestedReader.getUnparsedArguments());
+              for (map<string, string>::iterator it = unparsedParameterValuesNested.begin(); it != unparsedParameterValuesNested.end(); it++)
+                {
+                  unparsedArguments_[TextTools::toString(i + 1) + "_" + it->first] = it->second;
+                }
+            }
+          }
+        }
     }
     else if (freqName == "F61")
     {
@@ -426,21 +465,33 @@ void BppOFrequenciesSetFormat::write(const FrequenciesSet* pfreqset,
         }
         flag = true;
       }
-    }
-    for (unsigned int i = 0; i < pl.size(); i++)
-    {
-      if (find(writtenNames.begin(), writtenNames.end(), pl[i].getName()) == writtenNames.end())
-      {
-        if (flag)
-          out << ",";
-        else
+      const FullPerAACodonFrequenciesSet* pFPA=dynamic_cast<const FullPerAACodonFrequenciesSet*>(pfreqset);
+      if (pFPA != NULL)
+        {
+          const ProteinFrequenciesSet* ppfs=pFPA->getProteinFrequenciesSet();
+          out << "protein_frequencies=";
+          
+          write(ppfs, out, writtenNames);
+      
           flag = true;
-        string pname = pfreqset->getParameterNameWithoutNamespace(pl[i].getName());
-        (out << pname << "=").enableScientificNotation(false) << pl[i].getValue();
-        writtenNames.push_back(pl[i].getName());
-      }
+        }
     }
+
+    for (unsigned int i = 0; i < pl.size(); i++)
+      {
+        if (find(writtenNames.begin(), writtenNames.end(), pl[i].getName()) == writtenNames.end())
+          {
+            if (flag)
+              out << ",";
+            else
+              flag = true;
+            string pname = pfreqset->getParameterNameWithoutNamespace(pl[i].getName());
+            (out << pname << "=").enableScientificNotation(false) << pl[i].getValue();
+            writtenNames.push_back(pl[i].getName());
+          }
+      }
   }
+  
   out << ")";
   out.setPrecision(p);
 }

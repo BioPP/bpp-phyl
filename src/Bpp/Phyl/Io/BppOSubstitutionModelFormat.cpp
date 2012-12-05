@@ -938,7 +938,7 @@ void BppOSubstitutionModelFormat::write(const SubstitutionModel& model,
 
   if ((dynamic_cast<const MixedSubstitutionModel*>(&model) != NULL) && (dynamic_cast<const AbstractBiblioMixedSubstitutionModel*>(&model) == NULL))
   {
-    write(*dynamic_cast<const MixedSubstitutionModel*>(&model), out, globalAliases, writtenNames);
+    writeMixed_(*dynamic_cast<const MixedSubstitutionModel*>(&model), out, globalAliases, writtenNames);
     return;
   }
 
@@ -1053,8 +1053,6 @@ void BppOSubstitutionModelFormat::writeMixed_(const MixedSubstitutionModel& mode
                                         std::map<std::string, std::string>& globalAliases,
                                         std::vector<std::string>& writtenNames) const
 {
-  bool flag(false);
-
   if (dynamic_cast<const MixtureOfSubstitutionModels*>(&model) != NULL)
   {
     const MixtureOfSubstitutionModels* pMS = dynamic_cast<const MixtureOfSubstitutionModels*>(&model);
@@ -1089,34 +1087,28 @@ void BppOSubstitutionModelFormat::writeMixed_(const MixedSubstitutionModel& mode
     ParameterList pl = eM->getIndependentParameters();
     vector<string> vpl = pl.getParameterNames();
 
-    out << eM->getName() << "(";
     for (unsigned j = 0; j < vpl.size(); j++)
     {
       if (find(writtenNames.begin(), writtenNames.end(), vpl[j]) == writtenNames.end())
       {
-        if (eM->getParameterNameWithoutNamespace(vpl[j]) != "rate")
-        {
-          if (flag)
-            out << ",";
-          else
-            flag = true;
-
-          out << eM->getParameterNameWithoutNamespace(vpl[j]) << "=";
+        if (eM->getParameterNameWithoutNamespace(vpl[j]) == "rate")
+          writtenNames.push_back(vpl[j]);
+        else {
           const DiscreteDistribution* pDD = pMS->getDistribution(vpl[j]);
           if (pDD && dynamic_cast<const ConstantDistribution*>(pDD) == NULL)
-          {
-            const BppODiscreteDistributionFormat* bIO = new BppODiscreteDistributionFormat();
-
-            bIO->write(*pDD, out, globalAliases, writtenNames);
-            delete bIO;
-          }
-          else
-            out << pl[j].getValue();
+            {
+              const BppODiscreteDistributionFormat* bIO = new BppODiscreteDistributionFormat();    
+              StdStr sout;
+              bIO->write(*pDD, sout, globalAliases, writtenNames);
+              globalAliases[vpl[j]]=sout.str();
+              delete bIO;
+            }
         }
-        writtenNames.push_back(vpl[j]);
       }
     }
-    out << ")";
+    
+    write(*eM,out,globalAliases,writtenNames);
+
     if (pMS->from() != -1)
       out << ",from=" << model.getAlphabet()->intToChar(pMS->from()) << ",to=" << model.getAlphabet()->intToChar(pMS->to());
   }

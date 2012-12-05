@@ -240,6 +240,11 @@ namespace bpp
 
     void setNamespace(const std::string& prefix);
 
+    const ProteinFrequenciesSet* getProteinFrequenciesSet() const
+    {
+      return ppfs_;
+    }
+    
   protected:
     void fireParameterChanged(const ParameterList& parameters);
   };

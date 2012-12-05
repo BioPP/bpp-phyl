@@ -1398,7 +1398,7 @@ void PhylogeneticsApplicationTools::printParameters(const DiscreteDistribution* 
   out << "rate_distribution=";
   map<string, string> globalAliases;
   vector<string> writtenNames;
-  const BppODiscreteDistributionFormat* bIO=new BppODiscreteDistributionFormat();
+  const BppORateDistributionFormat* bIO=new BppORateDistributionFormat(true);
   
   bIO->write(*rDist, out, globalAliases, writtenNames);
   delete bIO;
