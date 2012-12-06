@@ -220,12 +220,13 @@ Nhx::Element Nhx::getElement(const string& elt) const throw (IOException)
   if (beginAnno != string::npos) {
     size_t endAnno = elt.find("]", beginAnno + 7);
     element.annotation = elt.substr(beginAnno + 7, endAnno - beginAnno - 7);
-    elementWithoutAnnotation = elt.substr(0, beginAnno + 1);
+    elementWithoutAnnotation = elt.substr(0, beginAnno);
   } else {
     element.annotation = "";
     elementWithoutAnnotation = elt;
   } 
   //cout << "ANNO=" << element.annotation << endl;
+  //cout << "ELT =" << elementWithoutAnnotation << endl;
 
   unsigned int colonIndex;
   bool hasColon = false;
@@ -243,7 +244,7 @@ Nhx::Element Nhx::getElement(const string& elt) const throw (IOException)
     {
       //this is an element with length:
       elt2 = elementWithoutAnnotation.substr(0, colonIndex + 1);
-      element.length = elt.substr(colonIndex + 1);
+      element.length = elementWithoutAnnotation.substr(colonIndex + 2);
     }
     else
     {
@@ -286,6 +287,7 @@ Node* Nhx::parenthesisToNode(const string& description) const
 {
   //cout << "NODE: " << description << endl;
   Element elt = getElement(description);
+  
   //New node:
   Node* node = new Node();
   if (!TextTools::isEmpty(elt.length))
