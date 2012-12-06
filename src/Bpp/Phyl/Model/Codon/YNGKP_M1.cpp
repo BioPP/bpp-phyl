@@ -91,7 +91,7 @@ YNGKP_M1::YNGKP_M1(const GeneticCode* gc, FrequenciesSet* codonFreqs) :
   for (map<string, string>::iterator it = mapParNamesFromPmodel_.begin(); it != mapParNamesFromPmodel_.end(); it++)
   {
     st = pmixmodel_->getParameterNameWithoutNamespace(it->first);
-    if (st != "YN98.omega_Simple.V1")
+    if (st != "omega_Simple.V1")
     {
       addParameter_(new Parameter("YNGKP_M1." + it->second, pmixmodel_->getParameterValue(st),
                               pmixmodel_->getParameter(st).hasConstraint() ? pmixmodel_->getParameter(st).getConstraint()->clone() : 0, true));
