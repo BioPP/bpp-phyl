@@ -1,0 +1,300 @@
+if (getName()=="C1"){
+	rate_ = 1.;
+	proportion_ = 0.0169698865;
+}
+
+if (getName()=="C2"){
+	rate_ = 1.;
+	proportion_ = 0.0211683374;
+}
+
+if (getName()=="C3"){
+	rate_ = 1.;
+	proportion_ = 0.0276589079;
+}
+
+if (getName()=="C4"){
+	rate_ = 1.;
+	proportion_ = 0.0065675964;
+}
+
+if (getName()=="C5"){
+	rate_ = 1.;
+	proportion_ = 0.0141221416;
+}
+
+if (getName()=="C6"){
+	rate_ = 1.;
+	proportion_ = 0.0068774834;
+}
+
+if (getName()=="C7"){
+	rate_ = 1.;
+	proportion_ = 0.0146909701;
+}
+
+if (getName()=="C8"){
+	rate_ = 1.;
+	proportion_ = 0.0067225777;
+}
+
+if (getName()=="C9"){
+	rate_ = 1.;
+	proportion_ = 0.001839666;
+}
+
+if (getName()=="C10"){
+	rate_ = 1.;
+	proportion_ = 0.0102547197;
+}
+
+if (getName()=="C11"){
+	rate_ = 1.;
+	proportion_ = 0.0230896163;
+}
+
+if (getName()=="C12"){
+	rate_ = 1.;
+	proportion_ = 0.0057941033;
+}
+
+if (getName()=="C13"){
+	rate_ = 1.;
+	proportion_ = 0.0125394534;
+}
+
+if (getName()=="C14"){
+	rate_ = 1.;
+	proportion_ = 0.0204526478;
+}
+
+if (getName()=="C15"){
+	rate_ = 1.;
+	proportion_ = 0.0070629602;
+}
+
+if (getName()=="C16"){
+	rate_ = 1.;
+	proportion_ = 0.0117982741;
+}
+
+if (getName()=="C17"){
+	rate_ = 1.;
+	proportion_ = 0.0068334668;
+}
+
+if (getName()=="C18"){
+	rate_ = 1.;
+	proportion_ = 0.0433775839;
+}
+
+if (getName()=="C19"){
+	rate_ = 1.;
+	proportion_ = 0.0318278731;
+}
+
+if (getName()=="C20"){
+	rate_ = 1.;
+	proportion_ = 0.0222546108;
+}
+
+if (getName()=="C21"){
+	rate_ = 1.;
+	proportion_ = 0.0102264969;
+}
+
+if (getName()=="C22"){
+	rate_ = 1.;
+	proportion_ = 0.0150545891;
+}
+
+if (getName()=="C23"){
+	rate_ = 1.;
+	proportion_ = 0.0134159878;
+}
+
+if (getName()=="C24"){
+	rate_ = 1.;
+	proportion_ = 0.0148552065;
+}
+
+if (getName()=="C25"){
+	rate_ = 1.;
+	proportion_ = 0.0239111516;
+}
+
+if (getName()=="C26"){
+	rate_ = 1.;
+	proportion_ = 0.0128776278;
+}
+
+if (getName()=="C27"){
+	rate_ = 1.;
+	proportion_ = 0.0222318842;
+}
+
+if (getName()=="C28"){
+	rate_ = 1.;
+	proportion_ = 0.0247444742;
+}
+
+if (getName()=="C29"){
+	rate_ = 1.;
+	proportion_ = 0.021427481;
+}
+
+if (getName()=="C30"){
+	rate_ = 1.;
+	proportion_ = 0.0115001882;
+}
+
+if (getName()=="C31"){
+	rate_ = 1.;
+	proportion_ = 0.0076017389;
+}
+
+if (getName()=="C32"){
+	rate_ = 1.;
+	proportion_ = 0.0130258568;
+}
+
+if (getName()=="C33"){
+	rate_ = 1.;
+	proportion_ = 0.0093701965;
+}
+
+if (getName()=="C34"){
+	rate_ = 1.;
+	proportion_ = 0.0467194264;
+}
+
+if (getName()=="C35"){
+	rate_ = 1.;
+	proportion_ = 0.0441940314;
+}
+
+if (getName()=="C36"){
+	rate_ = 1.;
+	proportion_ = 0.0322263154;
+}
+
+if (getName()=="C37"){
+	rate_ = 1.;
+	proportion_ = 0.0402999891;
+}
+
+if (getName()=="C38"){
+	rate_ = 1.;
+	proportion_ = 0.0150234227;
+}
+
+if (getName()=="C39"){
+	rate_ = 1.;
+	proportion_ = 0.0104589903;
+}
+
+if (getName()=="C40"){
+	rate_ = 1.;
+	proportion_ = 0.0214742395;
+}
+
+if (getName()=="C41"){
+	rate_ = 1.;
+	proportion_ = 0.0154957836;
+}
+
+if (getName()=="C42"){
+	rate_ = 1.;
+	proportion_ = 0.0101789953;
+}
+
+if (getName()=="C43"){
+	rate_ = 1.;
+	proportion_ = 0.0227980379;
+}
+
+if (getName()=="C44"){
+	rate_ = 1.;
+	proportion_ = 0.0123204539;
+}
+
+if (getName()=="C45"){
+	rate_ = 1.;
+	proportion_ = 0.0066777583;
+}
+
+if (getName()=="C46"){
+	rate_ = 1.;
+	proportion_ = 0.0004150083;
+}
+
+if (getName()=="C47"){
+	rate_ = 1.;
+	proportion_ = 0.034438513;
+}
+
+if (getName()=="C48"){
+	rate_ = 1.;
+	proportion_ = 0.0113663379;
+}
+
+if (getName()=="C49"){
+	rate_ = 1.;
+	proportion_ = 0.0127143049;
+}
+
+if (getName()=="C50"){
+	rate_ = 1.;
+	proportion_ = 0.0124323741;
+}
+
+if (getName()=="C51"){
+	rate_ = 1.;
+	proportion_ = 0.0262124415;
+}
+
+if (getName()=="C52"){
+	rate_ = 1.;
+	proportion_ = 0.0064994957;
+}
+
+if (getName()=="C53"){
+	rate_ = 1.;
+	proportion_ = 0.0103203293;
+}
+
+if (getName()=="C54"){
+	rate_ = 1.;
+	proportion_ = 0.0142463512;
+}
+
+if (getName()=="C55"){
+	rate_ = 1.;
+	proportion_ = 0.0215600067;
+}
+
+if (getName()=="C56"){
+	rate_ = 1.;
+	proportion_ = 0.01991507;
+}
+
+if (getName()=="C57"){
+	rate_ = 1.;
+	proportion_ = 0.00389642;
+}
+
+if (getName()=="C58"){
+	rate_ = 1.;
+	proportion_ = 0.0113448855;
+}
+
+if (getName()=="C59"){
+	rate_ = 1.;
+	proportion_ = 0.0128595846;
+}
+
+if (getName()=="C60"){
+	rate_ = 1.;
+	proportion_ = 0.0117656776;
+}
+

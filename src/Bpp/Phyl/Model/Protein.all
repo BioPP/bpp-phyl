@@ -10,3 +10,4 @@
 #include "Protein/ProteinSubstitutionModel.h"
 #include "Protein/UserProteinSubstitutionModel.h"
 #include "Protein/WAG01.h"
+#include "Protein/LGL08_CAT.h"

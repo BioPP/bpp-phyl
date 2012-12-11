@@ -1,0 +1,50 @@
+if (getName()=="C1"){
+	rate_ = 1.;
+	proportion_ = 0.1191344178;
+}
+
+if (getName()=="C2"){
+	rate_ = 1.;
+	proportion_ = 0.0874372456;
+}
+
+if (getName()=="C3"){
+	rate_ = 1.;
+	proportion_ = 0.103710507;
+}
+
+if (getName()=="C4"){
+	rate_ = 1.;
+	proportion_ = 0.0922584809;
+}
+
+if (getName()=="C5"){
+	rate_ = 1.;
+	proportion_ = 0.1070492801;
+}
+
+if (getName()=="C6"){
+	rate_ = 1.;
+	proportion_ = 0.1329945166;
+}
+
+if (getName()=="C7"){
+	rate_ = 1.;
+	proportion_ = 0.0538028458;
+}
+
+if (getName()=="C8"){
+	rate_ = 1.;
+	proportion_ = 0.0691986212;
+}
+
+if (getName()=="C9"){
+	rate_ = 1.;
+	proportion_ = 0.1319937434;
+}
+
+if (getName()=="C10"){
+	rate_ = 1.;
+	proportion_ = 0.1024203429;
+}
+

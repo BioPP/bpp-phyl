@@ -497,6 +497,11 @@ SubstitutionModel* BppOSubstitutionModelFormat::read(const Alphabet* alphabet,
         model.reset(new LLG08_UL2(alpha));
       else if (modelName == "LLG08_UL3")
         model.reset(new LLG08_UL3(alpha));
+      else if (modelName == "LGL08_CAT")
+        {
+          unsigned int nbCat = TextTools::toInt(args["nbCat"]);
+          model.reset(new LGL08_CAT(alpha, nbCat));
+        }
       else if (modelName == "Empirical")
       {
         string prefix = args["name"];

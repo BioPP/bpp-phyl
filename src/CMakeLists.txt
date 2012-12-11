@@ -102,6 +102,7 @@ set(CPP_FILES
   Bpp/Phyl/Model/Protein/LLG08_EX3.cpp
   Bpp/Phyl/Model/Protein/LLG08_UL2.cpp
   Bpp/Phyl/Model/Protein/LLG08_UL3.cpp
+  Bpp/Phyl/Model/Protein/LGL08_CAT.cpp
   Bpp/Phyl/Model/Codon/GY94.cpp
   Bpp/Phyl/Model/Codon/MG94.cpp
   Bpp/Phyl/Model/Codon/TripletSubstitutionModel.cpp
@@ -264,6 +265,7 @@ set(H_FILES
   Bpp/Phyl/Model/Protein/LLG08_EX3.h
   Bpp/Phyl/Model/Protein/LLG08_UL2.h
   Bpp/Phyl/Model/Protein/LLG08_UL3.h
+  Bpp/Phyl/Model/Protein/LGL08_CAT.h
   Bpp/Phyl/Model/Codon/GY94.h
   Bpp/Phyl/Model/Codon/MG94.h
   Bpp/Phyl/Model/Codon/CodonSubstitutionModel.h
