@@ -55,37 +55,29 @@ using namespace std;
 /******************************************************************************/
 
 RTreeLikelihood::RTreeLikelihood(
-  const Tree& tree,
   SubstitutionProcess* process,
   bool verbose,
-  bool usePatterns,
-  bool reparametrizeRoot)
+  bool usePatterns)
 throw (Exception) :
-  AbstractTreeLikelihood(new ParametrizableTree(tree, reparametrizeRoot), 0, process),
+  AbstractTreeLikelihood(0, process),
   likelihoodData_(0),
   minusLogLik_(-1.)
 {
-  if (!process->isCompatibleWith(tree))
-    throw Exception("RTreeLikelihood(constructor). Substitution process set is not compatible with the given tree.");
   init_(usePatterns);
 }
 
 /******************************************************************************/
 
 RTreeLikelihood::RTreeLikelihood(
-  const Tree& tree,
   const SiteContainer& data,
   SubstitutionProcess* process,
   bool verbose,
-  bool usePatterns,
-  bool reparametrizeRoot)
+  bool usePatterns)
 throw (Exception) :
-  AbstractTreeLikelihood(new ParametrizableTree(tree, reparametrizeRoot), data.clone(), process),
+  AbstractTreeLikelihood(data.clone(), process),
   likelihoodData_(0),
   minusLogLik_(-1.)
 {
-  if (!process->isCompatibleWith(tree))
-    throw Exception("RTreeLikelihood(constructor). Substitution process set is not compatible with the given tree.");
   init_(usePatterns);
   setData(data);
 }

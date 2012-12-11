@@ -104,15 +104,12 @@ namespace newlik
      * If true, any rooted tree will be unrooted before likelihood computation.
      * @param verbose Should I display some info?
      * @param usePatterns Tell if recursive site compression should be performed.
-     * @param reparametrizeRoot Should we reparametrize the branch lengths at root?
      * @throw Exception in an error occured.
      */
     RTreeLikelihood(
-        const Tree& tree,
         SubstitutionProcess* process,
         bool verbose = true,
-        bool usePatterns = true,
-        bool reparametrizeRoot = false)
+        bool usePatterns = true)
       throw (Exception);
 	
     /**
@@ -120,22 +117,18 @@ namespace newlik
      *
      * This constructor initializes all parameters, data, and likelihood arrays.
      *
-     * @param tree The tree to use.
      * @param data Sequences to use.
      * @param modelSet The set of substitution models to use.
      * @param rDist The rate across sites distribution to use.
      * @param verbose Should I display some info?
      * @param usePatterns Tell if recursive site compression should be performed.
-     * @param reparametrizeRoot Should we reparametrize the branch lengths at root?
      * @throw Exception in an error occured.
      */
     RTreeLikelihood(
-        const Tree& tree,
         const SiteContainer& data,
         SubstitutionProcess* process,
         bool verbose = true,
-        bool usePatterns = true,
-        bool reparametrizeRoot = false)
+        bool usePatterns = true)
       throw (Exception);
 
     RTreeLikelihood(const RTreeLikelihood& lik);

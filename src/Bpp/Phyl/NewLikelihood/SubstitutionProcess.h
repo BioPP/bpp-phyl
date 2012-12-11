@@ -83,11 +83,13 @@ public:
   virtual SubstitutionProcess* clone() const = 0;
 
 public:
-  virtual void registerWithTree(ParametrizableTree* pTree) = 0;
-  virtual void registerWithSitePartition(SitePartition* sitePartition) = 0;
-  virtual bool isRegistered() const = 0;
-  virtual bool isCompatibleWith(const Tree& tree) const = 0;
   virtual bool isCompatibleWith(const SiteContainer& data) const = 0;
+
+  virtual const Tree& getTree() const = 0;
+  
+  virtual const ParametrizableTree& getParametrizableTree() const = 0;
+  
+  virtual ParameterList getTransitionProbabilitiesParameters() const = 0;
 
   virtual unsigned int getNumberOfClasses() const = 0;
   
@@ -160,9 +162,9 @@ public:
 
   /**
    * @brief Tell if the transition probabilities have changed after the last call to setParameters().
-   * @return True if trnasition probabilities have changed.
+   * @return True if transition probabilities have changed.
    */
-  virtual bool transitionProbabilitiesHaveChanged() const = 0;
+  //virtual bool transitionProbabilitiesHaveChanged() const = 0; Not sure we need that anymore...
 };
 
 
@@ -170,177 +172,35 @@ class AbstractSubstitutionProcess :
   public virtual SubstitutionProcess
 {
 protected:
-  ParametrizableTree* pTree_;
-  SitePartition* sitePartition_;
+  std::auto_ptr<ParametrizableTree> pTree_;
+  std::auto_ptr<SitePartition> sitePartition_;
 
 protected:
-  AbstractSubstitutionProcess() : pTree_(0), sitePartition_(0) {}
+  AbstractSubstitutionProcess(ParametrizableTree* tree, SitePartition* partition) :
+    pTree_(tree), sitePartition_(partition)
+  {
+    if (!tree)
+      throw Exception("AbstractSubstitutionProcess. A tree instance must be provided.");
+    if (!partition)
+      throw Exception("AbstractSubstitutionProcess. A site partition instance must be provided.");
+  }
 
-  /**
-   * When a process is copied, it becomes unregistered,
-   * instead of being registered with the same tree and site partition. This will avoid some hidden
-   * bugs...
-   */
   AbstractSubstitutionProcess(const AbstractSubstitutionProcess& asp) :
-    pTree_(0), sitePartition_(0) {}
+    pTree_(pTree_->clone()), sitePartition_(sitePartition_->clone()) {}
 
   AbstractSubstitutionProcess& operator=(const AbstractSubstitutionProcess& asp)
   {
-    pTree_ = 0;
-    sitePartition_ = 0;
+    pTree_.reset(pTree_->clone());
+    sitePartition_.reset(sitePartition_->clone());
     return *this;
   }
 
 public:
-  void registerWithTree(ParametrizableTree* pTree) { pTree_ = pTree; }
-  void registerWithSitePartition(SitePartition* sitePartition) { sitePartition_ = sitePartition; }
-  bool isRegistered() const { return pTree_ != 0 && sitePartition_ != 0;}
-};
 
-
-/**
- * @brief Homogeneous substitution process, without mixture.
- *
- * The process works with any partition scheme.
- */
-class SimpleSubstitutionProcess :
-  public AbstractSubstitutionProcess,
-  public AbstractParameterAliasable
-{
-protected:
-  std::auto_ptr<SubstitutionModel> model_;
-  /**
-   * @brief All transition probabilities, per node and per site.
-   */
-  std::vector< std::vector< RowMatrix<double> > >probabilities_;
-  std::vector<bool> computeProbability_;
-  /**
-   * @brief The hash table is used to index probability matrices and node ids.
-   */
-  std::map<int, size_t> nodeIndex_;
-
-public:
-  SimpleSubstitutionProcess(SubstitutionModel* model) :
-    AbstractParameterAliasable(model->getNamespace()),
-    model_(model),
-    probabilities_(),
-    computeProbability_(),
-    nodeIndex_()
-  {
-    if (!model) throw Exception("SimpleSubstitutionProcess. A model instance must be provided.");
-    // Add parameters:
-    addParameters_(model->getParameters());
-  }
-
-  SimpleSubstitutionProcess(const SimpleSubstitutionProcess& ssp) :
-    AbstractParameterAliasable(ssp),
-    model_(ssp.model_->clone())
-  {}
-
-  SimpleSubstitutionProcess& operator=(const SimpleSubstitutionProcess& ssp)
-  {
-    AbstractParameterAliasable::operator=(ssp),
-    model_.reset(ssp.model_->clone());
-    return *this;
-  }
-
-public:
-  SimpleSubstitutionProcess* clone() const { return new SimpleSubstitutionProcess(*this); }
-
-  unsigned int getNumberOfClasses() const { return 1; }
+  const Tree& getTree() const { return pTree_->getTree(); }
   
-  unsigned int getNumberOfStates() const { return model_->getNumberOfStates(); }
+  const ParametrizableTree& getParametrizableTree() const { return *pTree_; }
 
-  /**
-   * @return True. A simple subsitution process is compatible with any tree.
-   */
-  bool isCompatibleWith(const Tree& tree) const { return true;}
-  bool isCompatibleWith(const SiteContainer& data) const {
-    return data.getAlphabet()->getAlphabetType() == model_->getAlphabet()->getAlphabetType();
-  }
-  
-  const Matrix<double>& getTransitionProbabilities(int nodeId, unsigned int siteIndex, unsigned int classIndex) const {
-    //double l = pTree_->getBranchLengthParameter(nodeId).getValue();
-    //return model_->getPij_t(l);
-  }
-
-  const Matrix<double>& getGenerator(int nodeId, unsigned int siteIndex, unsigned int classIndex) const {
-    return model_->getGenerator();
-  }
-
-  const std::vector<double>& getRootFrequencies(unsigned int siteIndex) const {
-    return model_->getFrequencies();
-  }
-  
-  double getInitValue(unsigned int i, int state) const throw (BadIntException) {
-    return model_->getInitValue(i, state);
-  }
-  
-  double getProbabilityForModel(unsigned int classIndex) const {
-    if (classIndex != 0)
-      throw IndexOutOfBoundsException("SimpleSubstitutionProcess::getProbabilityForModel.", classIndex, 0, 1);
-    return 1;
-  }
-
-  ConstBranchModelIterator* getNewBranchModelIterator(int nodeId) const {
-    return new ConstNoPartitionBranchModelIterator(model_.get(), sitePartition_->getNumberOfPatternsForPartition(0));
-  }
-
-  ConstSiteModelIterator* getNewSiteModelIterator(unsigned int siteIndex) const {
-    return new ConstHomogeneousSiteModelIterator(*pTree_, model_.get());
-  }
-
-  bool transitionProbabilitiesHaveChanged() const { return true; }
-};
-
-class RateAcrossSitesSubstitutionProcess :
-  public SimpleSubstitutionProcess
-{
-private:
-  std::auto_ptr<DiscreteDistribution> rDist_;
-
-public:
-  RateAcrossSitesSubstitutionProcess(SubstitutionModel* model, DiscreteDistribution* rdist) :
-    SimpleSubstitutionProcess(model),
-    rDist_(rdist)
-  {
-    if (!rdist) throw Exception("RateAcrossSitesSubstitutionProcess. A rate distribution instance must be provided.");
-    // Add parameters:
-    addParameters_(rdist->getParameters());
-  }
-
-  RateAcrossSitesSubstitutionProcess(const RateAcrossSitesSubstitutionProcess& rassp) :
-    SimpleSubstitutionProcess(rassp),
-    rDist_(rassp.rDist_->clone())
-  {}
-
-  RateAcrossSitesSubstitutionProcess& operator=(const RateAcrossSitesSubstitutionProcess& rassp)
-  {
-    SimpleSubstitutionProcess::operator=(rassp),
-    rDist_.reset(rassp.rDist_->clone());
-    return *this;
-  }
-
-public:
-  RateAcrossSitesSubstitutionProcess* clone() const { return new RateAcrossSitesSubstitutionProcess(*this); }
-
-  unsigned int getNumberOfClasses() const { return rDist_->getNumberOfCategories(); }
-
-  const Matrix<double>& getTransitionProbabilities(int nodeId, unsigned int siteIndex, unsigned int classIndex) const
-  {
-    double l = pTree_->getBranchLengthParameter(nodeId).getValue();
-    double r = rDist_->getCategory(classIndex);
-    return model_->getPij_t(l * r);
-  }
-
-  double getProbabilityForModel(unsigned int classIndex) const {
-    if (classIndex >= rDist_->getNumberOfCategories())
-      throw IndexOutOfBoundsException("RateAcrossSitesSubstitutionProcess::getProbabilityForModel.", classIndex, 0, rDist_->getNumberOfCategories());
-    return rDist_->getProbability(classIndex);
-  }
-
-  // TODO: it actually depend on the distribution used, how it is parameterized. If classes are fixed and parameters after probabilities only, this should return false to save computational time!
-  bool transitionProbabilitiesHaveChanged() const { return true; }
 };
 
 } // end namespace bpp

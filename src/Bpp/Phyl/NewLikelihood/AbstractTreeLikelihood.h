@@ -75,7 +75,6 @@ class AbstractTreeLikelihood :
 {
 	protected:
     std::auto_ptr<const SiteContainer> data_;
-    std::auto_ptr<ParametrizableTree> tree_;
     std::auto_ptr<SubstitutionProcess> process_;
 		bool computeFirstOrderDerivatives_;
 		bool computeSecondOrderDerivatives_;
@@ -91,7 +90,6 @@ class AbstractTreeLikelihood :
 		AbstractTreeLikelihood():
       AbstractParametrizable(""),
       data_(0),
-      tree_(0),
       process_(0),
       computeFirstOrderDerivatives_(true),
       computeSecondOrderDerivatives_(true),
@@ -104,13 +102,11 @@ class AbstractTreeLikelihood :
     {}
 
     AbstractTreeLikelihood(
-        ParametrizableTree* tree,
         const SiteContainer* data,
         SubstitutionProcess* process,
         bool verbose = true):
       AbstractParametrizable(""),
       data_(data),
-      tree_(tree),
       process_(process),
       computeFirstOrderDerivatives_(true),
       computeSecondOrderDerivatives_(true),
@@ -125,7 +121,6 @@ class AbstractTreeLikelihood :
     AbstractTreeLikelihood(const AbstractTreeLikelihood& lik):
       AbstractParametrizable(lik),
       data_(0),
-      tree_(0),
       process_(0),
       computeFirstOrderDerivatives_(lik.computeFirstOrderDerivatives_),
       computeSecondOrderDerivatives_(lik.computeSecondOrderDerivatives_),
@@ -137,7 +132,6 @@ class AbstractTreeLikelihood :
       nbClasses_(lik.nbClasses_)
     {
       if (lik.data_.get()) data_.reset(lik.data_->clone());
-      if (lik.tree_.get()) tree_.reset(lik.tree_->clone());
       if (lik.process_.get()) process_.reset(lik.process_->clone());
     }
 
@@ -146,8 +140,6 @@ class AbstractTreeLikelihood :
       AbstractParametrizable::operator=(lik);
       if (lik.data_.get())    data_.reset(lik.data_->clone());
       else                    data_.reset();
-      if (lik.tree_.get())    tree_.reset(lik.tree_->clone());
-      else                    tree_.reset();
       if (lik.process_.get()) process_.reset(lik.process_->clone());
       else                    process_.reset();
       computeFirstOrderDerivatives_  = lik.computeFirstOrderDerivatives_;
@@ -192,7 +184,7 @@ class AbstractTreeLikelihood :
     VVdouble getPosteriorProbabilitiesOfEachClass() const;
     std::vector<unsigned int> getClassWithMaxPostProbOfEachSite() const;
     
-		const Tree& getTree() const { return tree_->getTree(); }
+		const Tree& getTree() const { return process_->getTree(); }
 		void enableDerivatives(bool yn) { computeFirstOrderDerivatives_ = computeSecondOrderDerivatives_ = yn; }
 		void enableFirstOrderDerivatives(bool yn) { computeFirstOrderDerivatives_ = yn; }
 		void enableSecondOrderDerivatives(bool yn) { computeFirstOrderDerivatives_ = computeSecondOrderDerivatives_ = yn; }
@@ -201,11 +193,12 @@ class AbstractTreeLikelihood :
     bool isInitialized() const { return initialized_; }
     void initialize() throw (Exception) { initialized_ = true; }
 		
-    ParameterList getBranchLengthsParameters() const { return tree_->getParameters(); }
     ParameterList getSubstitutionProcessParameters() const { return process_->getParameters(); }
+    ParameterList getBranchLengthsParameters() const { return process_->getParametrizableTree().getParameters(); }
+    ParameterList getTransitionProbabilitiesParameters() const { return process_->getTransitionProbabilitiesParameters(); }
     //TODO: this has to be modified to deal with special cases...
-    ParameterList getDerivableParameters() const { return tree_->getParameters(); }
-    ParameterList getNonDerivableParameters() const { return process_->getParameters(); }
+    ParameterList getDerivableParameters() const { return getBranchLengthsParameters(); }
+    ParameterList getNonDerivableParameters() const { return getSubstitutionProcessParameters(); }
     
 		/** @} */
 
