@@ -85,7 +85,7 @@ public:
 public:
   virtual bool isCompatibleWith(const SiteContainer& data) const = 0;
 
-  virtual const Tree& getTree() const = 0;
+  virtual const TreeTemplate<Node>& getTree() const = 0;
   
   virtual const ParametrizableTree& getParametrizableTree() const = 0;
   
@@ -197,7 +197,7 @@ protected:
 
 public:
 
-  const Tree& getTree() const { return pTree_->getTree(); }
+  const TreeTemplate<Node>& getTree() const { return pTree_->getTree(); }
   
   const ParametrizableTree& getParametrizableTree() const { return *pTree_; }
 

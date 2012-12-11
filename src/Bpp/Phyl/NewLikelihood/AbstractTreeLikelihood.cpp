@@ -44,11 +44,11 @@ using namespace newlik;
 
 /******************************************************************************/
 
-Vdouble AbstractTreeLikelihood::getLogLikelihoodForEachSite() const
+Vdouble AbstractTreeLikelihood::getLikelihoodForEachSite() const
 {
 	Vdouble l(getNumberOfSites());
 	for (unsigned int i = 0; i < l.size(); ++i)
-    l[i] = getLogLikelihoodForASite(i);
+    l[i] = getLikelihoodForASite(i);
 	return l;
 }
 

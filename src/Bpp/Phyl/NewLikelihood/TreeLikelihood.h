@@ -166,12 +166,12 @@ class TreeLikelihood:
     virtual double getLogLikelihood() const = 0;
  
     /**
-     * @brief Get the logarithm of the likelihood for a site.
+     * @brief Get the likelihood for a site.
      *
      * @param site The site index to analyse.
-     * @return The logarithm of the likelihood for site <i>site</i>.
+     * @return The likelihood for site <i>site</i>.
      */
-    virtual double getLogLikelihoodForASite(unsigned int site) const = 0;
+    virtual double getLikelihoodForASite(unsigned int site) const = 0;
  
     /**
      * @brief Get the likelihood for a site and for a state.
@@ -202,11 +202,11 @@ class TreeLikelihood:
 		virtual double getLikelihoodForASiteForAClassForAState(unsigned int site, unsigned int modelClass, int state) const = 0;
  
     /**
-     * @brief Get the logarithm of the likelihood for each site.
+     * @brief Get the likelihood for each site.
      *
-     * @return A vector with all log likelihoods for each site.
+     * @return A vector with all likelihoods for each site.
      */
-    virtual Vdouble getLogLikelihoodForEachSite() const = 0;
+    virtual Vdouble getLikelihoodForEachSite() const = 0;
 
     /**
      * @brief Get the likelihood for each site and for each state.

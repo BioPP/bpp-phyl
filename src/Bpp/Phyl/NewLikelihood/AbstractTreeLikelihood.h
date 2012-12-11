@@ -176,7 +176,7 @@ class AbstractTreeLikelihood :
 		unsigned int getNumberOfStates() const { return nbStates_; }
 		unsigned int getNumberOfClasses() const { return nbClasses_; }
 
-    Vdouble getLogLikelihoodForEachSite() const;
+    Vdouble getLikelihoodForEachSite() const;
 		VVdouble getLikelihoodForEachSiteForEachState() const;
 		VVdouble getLikelihoodForEachSiteForEachClass() const;
 		VVVdouble getLikelihoodForEachSiteForEachClassForEachState() const;

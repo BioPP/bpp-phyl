@@ -90,6 +90,8 @@ namespace newlik
 
     mutable std::auto_ptr<RTreeLikelihoodData> likelihoodData_;
     double minusLogLik_;
+    int root1_, root2_; //Needed only in case of reparametrization of branch length at root node.
+    //TODO: have to be initialized properly! We do not care of that for now. jdutheil on 11/12/12.
 
   public:
     /**
@@ -159,7 +161,7 @@ namespace newlik
     unsigned int getSiteIndex(unsigned int site) const throw (IndexOutOfBoundsException) { return likelihoodData_->getRootArrayPosition(site); }
 		
     double getLogLikelihood() const;
-    double getLogLikelihoodForASite(unsigned int site) const;
+    double getLikelihoodForASite(unsigned int site) const;
     double getLikelihoodForASiteForAClass(unsigned int site, unsigned int modelClass) const;
     double getLikelihoodForASiteForAState(unsigned int site, int state) const;
     double getLikelihoodForASiteForAClassForAState(unsigned int site, unsigned int modelClass, int state) const;
@@ -209,16 +211,12 @@ namespace newlik
     virtual double getDLikelihoodForASite(unsigned int site) const;
     virtual double getDLogLikelihoodForASite(unsigned int site) const;
     virtual double getDLogLikelihood() const;
-    
-    virtual void computeTreeDLikelihood(const std::string& variable);
 
     virtual double getD2LikelihoodForASiteForARateClass(unsigned int site, unsigned int rateClass) const;
     virtual double getD2LikelihoodForASite(unsigned int site) const;
     virtual double getD2LogLikelihoodForASite(unsigned int site) const;
     virtual double getD2LogLikelihood() const;
 		
-    virtual void computeTreeD2Likelihood(const std::string& variable);
-
 	
   protected:
 			
@@ -227,10 +225,13 @@ namespace newlik
      *
      * @param node The root of the subtree.
      */
-    virtual void computeSubtreeLikelihood(const Node * node); //Recursive method.			
-    virtual void computeDownSubtreeDLikelihood(const Node *);
-    virtual void computeDownSubtreeD2Likelihood(const Node *);
+    virtual void computeSubtreeLikelihood_(const Node * node); //Recursive method.			
+    virtual void computeDownSubtreeDLikelihood_(const Node *);
+    virtual void computeDownSubtreeD2Likelihood_(const Node *);
 	
+    virtual void computeTreeDLikelihood_(const std::string& variable) const;
+    virtual void computeTreeD2Likelihood_(const std::string& variable) const;
+
     void fireParameterChanged(const ParameterList & params);
 	
     /**

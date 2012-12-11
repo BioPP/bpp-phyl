@@ -77,16 +77,16 @@ class RTreeLikelihoodNodeData :
     mutable VVVdouble nodeLikelihoods_;
     mutable VVVdouble nodeDLikelihoods_;
     mutable VVVdouble nodeD2Likelihoods_;
-    const Node* node_;
+    int nodeId_;
 
   public:
-    RTreeLikelihoodNodeData() : nodeLikelihoods_(), nodeDLikelihoods_(), nodeD2Likelihoods_(), node_(0) {}
+    RTreeLikelihoodNodeData() : nodeLikelihoods_(), nodeDLikelihoods_(), nodeD2Likelihoods_(), nodeId_(-1) {}
     
     RTreeLikelihoodNodeData(const RTreeLikelihoodNodeData& data) :
       nodeLikelihoods_(data.nodeLikelihoods_),
       nodeDLikelihoods_(data.nodeDLikelihoods_),
       nodeD2Likelihoods_(data.nodeD2Likelihoods_),
-      node_(data.node_)
+      nodeId_(data.nodeId_)
     {}
     
     RTreeLikelihoodNodeData& operator=(const RTreeLikelihoodNodeData& data)
@@ -94,7 +94,7 @@ class RTreeLikelihoodNodeData :
       nodeLikelihoods_   = data.nodeLikelihoods_;
       nodeDLikelihoods_  = data.nodeDLikelihoods_;
       nodeD2Likelihoods_ = data.nodeD2Likelihoods_;
-      node_              = data.node_;
+      nodeId_            = data.nodeId_;
       return *this;
     }
  
@@ -109,8 +109,8 @@ class RTreeLikelihoodNodeData :
     }
 
   public:
-    const Node* getNode() const { return node_; }
-    void setNode(const Node* node) { node_ = node; }
+    int getNodeId() const { return nodeId_; }
+    void setNodeId(int nodeId) { nodeId_ = nodeId; }
 
     VVVdouble& getLikelihoodArray() { return nodeLikelihoods_; }
     const VVVdouble& getLikelihoodArray() const { return nodeLikelihoods_; }
@@ -123,7 +123,7 @@ class RTreeLikelihoodNodeData :
 };
 
 /**
- * @brief discrete Rate Across Sites, (simple) Recursive likelihood data structure.
+ * @brief Likelihood data structure suporting simple recursion.
  */
 class RTreeLikelihoodData :
   public virtual AbstractTreeLikelihoodData
@@ -156,8 +156,8 @@ class RTreeLikelihoodData :
     bool usePatterns_;
 
   public:
-    RTreeLikelihoodData(const TreeTemplate<Node>* tree, unsigned int nbClasses, bool usePatterns = true) :
-      AbstractTreeLikelihoodData(tree),
+    RTreeLikelihoodData(unsigned int nbClasses, bool usePatterns = true) :
+      AbstractTreeLikelihoodData(),
       nodeData_(), patternLinks_(), shrunkData_(0), nbSites_(0), nbStates_(0),
       nbClasses_(nbClasses), nbDistinctSites_(0), usePatterns_(usePatterns)
     {}
@@ -172,7 +172,7 @@ class RTreeLikelihoodData :
       usePatterns_(data.usePatterns_)
     {
       if (data.shrunkData_)
-        shrunkData_      = dynamic_cast<SiteContainer *>(data.shrunkData_->clone());
+        shrunkData_ = dynamic_cast<SiteContainer *>(data.shrunkData_->clone());
     }
 
     RTreeLikelihoodData& operator=(const RTreeLikelihoodData & data)
@@ -198,25 +198,6 @@ class RTreeLikelihoodData :
     RTreeLikelihoodData* clone() const { return new RTreeLikelihoodData(*this); }
 
   public:
-    /**
-     * @brief Set the tree associated to the data.
-     *
-     * All node data will be actualized accordingly by calling the setNode() method on the corresponding nodes.
-     * @warning: the old tree and the new tree must be two clones! And particularly, they have to share the
-     * same topology and nodes id.
-     *
-     * @param tree The tree to be associated to this data.
-     */
-    void setTree(const TreeTemplate<Node>* tree)
-    { 
-      tree_ = tree;
-      for (std::map<int, RTreeLikelihoodNodeData>::iterator it = nodeData_.begin(); it != nodeData_.end(); it++)
-      {
-        int id = it->second.getNode()->getId();
-        it->second.setNode(tree_->getNode(id));
-      }
-    }
- 
     RTreeLikelihoodNodeData& getNodeData(int nodeId)
     { 
       return nodeData_[nodeId];

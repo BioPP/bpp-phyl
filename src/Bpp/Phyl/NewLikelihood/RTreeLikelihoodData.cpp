@@ -69,7 +69,7 @@ throw (Exception)
   auto_ptr<SitePatterns> patterns;
   if (usePatterns_)
   {
-    patterns.reset(initLikelihoodsWithPatterns_(tree_->getRootNode(), sites, process));
+    patterns.reset(initLikelihoodsWithPatterns_(process.getTree().getRootNode(), sites, process));
     shrunkData_       = patterns->getSites();
     rootWeights_      = patterns->getWeights();
     rootPatternLinks_ = patterns->getIndices();
@@ -82,7 +82,7 @@ throw (Exception)
     rootWeights_      = patterns->getWeights();
     rootPatternLinks_ = patterns->getIndices();
     nbDistinctSites_  = shrunkData_->getNumberOfSites();
-    initLikelihoodsWithoutPatterns_(tree_->getRootNode(), *shrunkData_, process);
+    initLikelihoodsWithoutPatterns_(process.getTree().getRootNode(), *shrunkData_, process);
   }
 }
 
@@ -92,7 +92,7 @@ void RTreeLikelihoodData::initLikelihoodsWithoutPatterns_(const Node* node, cons
 {
   // Initialize likelihood vector:
   RTreeLikelihoodNodeData* nodeData = &nodeData_[node->getId()];
-  nodeData->setNode(node);
+  nodeData->setNodeId(node->getId());
   VVVdouble* likelihoods_node = &nodeData->getLikelihoodArray();
   VVVdouble* dLikelihoods_node = &nodeData->getDLikelihoodArray();
   VVVdouble* d2Likelihoods_node = &nodeData->getD2LikelihoodArray();
@@ -194,7 +194,7 @@ SitePatterns* RTreeLikelihoodData::initLikelihoodsWithPatterns_(const Node* node
 
   // Initialize likelihood vector:
   RTreeLikelihoodNodeData* nodeData = &nodeData_[node->getId()];
-  nodeData->setNode(node);
+  nodeData->setNodeId(node->getId());
   VVVdouble* likelihoods_node = &nodeData->getLikelihoodArray();
   VVVdouble* dLikelihoods_node = &nodeData->getDLikelihoodArray();
   VVVdouble* d2Likelihoods_node = &nodeData->getD2LikelihoodArray();

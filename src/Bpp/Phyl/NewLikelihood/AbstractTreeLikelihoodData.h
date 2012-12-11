@@ -90,18 +90,15 @@ class AbstractTreeLikelihoodData :
 		 */
     std::vector<unsigned int> rootWeights_;
 
-		const TreeTemplate<Node>* tree_;
-
 		const Alphabet* alphabet_;
 
   public:
-		AbstractTreeLikelihoodData(const TreeTemplate<Node>* tree):
-      rootPatternLinks_(), rootWeights_(), tree_(tree), alphabet_(0) {}
+		AbstractTreeLikelihoodData():
+      rootPatternLinks_(), rootWeights_(), alphabet_(0) {}
 
 		AbstractTreeLikelihoodData(const AbstractTreeLikelihoodData& atd) :
       rootPatternLinks_(atd.rootPatternLinks_),
       rootWeights_(atd.rootWeights_),
-      tree_(atd.tree_),
       alphabet_(atd.alphabet_)
     {}
 
@@ -109,7 +106,6 @@ class AbstractTreeLikelihoodData :
     {
       rootPatternLinks_ = atd.rootPatternLinks_;
       rootWeights_      = atd.rootWeights_;
-      tree_             = atd.tree_;
       alphabet_         = atd.alphabet_;
       return *this;
     }
@@ -134,8 +130,6 @@ class AbstractTreeLikelihoodData :
 		}
 
 		const Alphabet* getAlphabet() const { return alphabet_; }
-
-		const TreeTemplate<Node>* getTree() const { return tree_; }  
 
 };
 

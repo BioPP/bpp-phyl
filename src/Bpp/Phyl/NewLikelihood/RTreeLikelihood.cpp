@@ -61,7 +61,8 @@ RTreeLikelihood::RTreeLikelihood(
 throw (Exception) :
   AbstractTreeLikelihood(0, process),
   likelihoodData_(0),
-  minusLogLik_(-1.)
+  minusLogLik_(-1.),
+  root1_(-1), root2_(-1)
 {
   init_(usePatterns);
 }
@@ -76,7 +77,8 @@ RTreeLikelihood::RTreeLikelihood(
 throw (Exception) :
   AbstractTreeLikelihood(data.clone(), process),
   likelihoodData_(0),
-  minusLogLik_(-1.)
+  minusLogLik_(-1.),
+  root1_(-1), root2_(-1)
 {
   init_(usePatterns);
   setData(data);
@@ -87,7 +89,6 @@ throw (Exception) :
 void RTreeLikelihood::init_(bool usePatterns) throw (Exception)
 {
   likelihoodData_.reset(new RTreeLikelihoodData(
-    &tree_->getTree(),
     process_->getNumberOfClasses(),
     usePatterns));
 }
@@ -98,10 +99,10 @@ RTreeLikelihood::RTreeLikelihood(
   const RTreeLikelihood& lik) :
   AbstractTreeLikelihood(lik),
   likelihoodData_(0),
-  minusLogLik_(lik.minusLogLik_)
+  minusLogLik_(lik.minusLogLik_),
+  root1_(lik.root1_), root2_(lik.root2_)
 {
   likelihoodData_.reset(lik.likelihoodData_->clone());
-  likelihoodData_->setTree(&tree_->getTree());
 }
 
 /******************************************************************************/
@@ -111,8 +112,9 @@ RTreeLikelihood& RTreeLikelihood::operator=(
 {
   AbstractTreeLikelihood::operator=(lik);
   likelihoodData_.reset(lik.likelihoodData_->clone());
-  likelihoodData_->setTree(&tree_->getTree());
   minusLogLik_ = lik.minusLogLik_;
+  root1_ = lik.root1_;
+  root2_ = lik.root2_;
   return *this;
 }
 
@@ -120,7 +122,12 @@ RTreeLikelihood& RTreeLikelihood::operator=(
 
 void RTreeLikelihood::setData(const SiteContainer& sites) throw (Exception)
 {
-  data_.reset(PatternTools::getSequenceSubset(sites, *tree_->getTree().getRootNode()));
+  try {
+    const TreeTemplate<Node>& tt = dynamic_cast<const TreeTemplate<Node>&>(process_->getTree());
+    data_.reset(PatternTools::getSequenceSubset(sites, *tt.getRootNode()));
+  } catch (exception& e) {
+    throw Exception("DEBUG. RTreeLikelihood::setData. The SubstitutionProcess does not use a TreeTemplate object.");
+  }
   if (verbose_)
     ApplicationTools::displayTask("Initializing data structure");
   likelihoodData_->initLikelihoods(*data_, *process_); //We assume here that all models have the same number of states, and that they have the same 'init' method,
@@ -141,13 +148,13 @@ void RTreeLikelihood::setData(const SiteContainer& sites) throw (Exception)
 
 double RTreeLikelihood::getLogLikelihood() const
 {
-  double ll = 0;
   vector<double> la(nbSites_);
-  for (unsigned int i = 0; i < nbSites_; i++)
+  for (unsigned int i = 0; i < nbSites_; ++i)
   {
-    la[i] = getLogLikelihoodForASite(i);
+    la[i] = log(getLikelihoodForASite(i));
   }
   sort(la.begin(), la.end());
+  double ll = 0;
   for (unsigned int i = nbSites_; i > 0; i--)
   {
     ll += la[i - 1];
@@ -157,7 +164,7 @@ double RTreeLikelihood::getLogLikelihood() const
 
 /******************************************************************************/
 
-double RTreeLikelihood::getLogLikelihoodForASite(unsigned int site) const
+double RTreeLikelihood::getLikelihoodForASite(unsigned int site) const
 {
   double l = 0;
   for (unsigned int i = 0; i < nbClasses_; ++i)
@@ -166,7 +173,7 @@ double RTreeLikelihood::getLogLikelihoodForASite(unsigned int site) const
   }
   //if(l <= 0.) cerr << "WARNING!!! Negative likelihood." << endl;
   if (l < 0) l = 0; //May happen because of numerical errors.
-  return log(l);
+  return l;
 }
 
 /******************************************************************************/
@@ -175,7 +182,7 @@ double RTreeLikelihood::getLikelihoodForASiteForAClass(unsigned int site, unsign
 {
   double l = 0;
   Vdouble* la = &likelihoodData_->getLikelihoodArray(
-      tree_->getTree().getRootNode()->getId())[likelihoodData_->getRootArrayPosition(site)][classIndex];
+      process_->getTree().getRootNode()->getId())[likelihoodData_->getRootArrayPosition(site)][classIndex];
   for (unsigned int i = 0; i < nbStates_; ++i)
   {
     l += (*la)[i] * process_->getRootFrequencies(site)[i];
@@ -188,7 +195,7 @@ double RTreeLikelihood::getLikelihoodForASiteForAClass(unsigned int site, unsign
 double RTreeLikelihood::getLikelihoodForASiteForAClassForAState(unsigned int site, unsigned int classIndex, int state) const
 {
   return likelihoodData_->getLikelihoodArray(
-      tree_->getTree().getRootNode()->getId())[likelihoodData_->getRootArrayPosition(site)][classIndex][state];
+      process_->getTree().getRootNode()->getId())[likelihoodData_->getRootArrayPosition(site)][classIndex][state];
 }
 
 /******************************************************************************/
@@ -206,61 +213,18 @@ void RTreeLikelihood::fireParameterChanged(const ParameterList& params)
   //TODO: check if that is still needed (jdutheil 03/12/12)
   //applyParameters();
 
-  //Here we need to know which transition matrix should be recomputed. TODO
-  if (params.getCommonParametersWith(process_->getIndependentParameters()).size() > 0)
-  {
-    computeAllTransitionProbabilities();
+  if (params.size() > 0) {
+    computeTreeLikelihood();
+    minusLogLik_ = -getLogLikelihood();
   }
-  else
-  {
-    vector<int> ids;
-    vector<string> tmp = params.getCommonParametersWith(modelSet_->getNodeParameters()).getParameterNames();
-    for (unsigned int i = 0; i < tmp.size(); ++i)
-    {
-      vector<int> tmpv = modelSet_->getNodesWithParameter(tmp[i]);
-      ids = VectorTools::vectorUnion(ids, tmpv);
-    }
-    tmp = params.getCommonParametersWith(brLenParameters_).getParameterNames();
-    vector<const Node*> nodes;
-    for (unsigned int i = 0; i < ids.size(); i++)
-    {
-      nodes.push_back(idToNode_[ids[i]]);
-    }
-    vector<const Node*> tmpv;
-    bool test = false;
-    for (unsigned int i = 0; i < tmp.size(); i++)
-    {
-      if (tmp[i] == "BrLenRoot" || tmp[i] == "RootPosition")
-      {
-        if (!test)
-        {
-          tmpv.push_back(tree_->getRootNode()->getSon(0));
-          tmpv.push_back(tree_->getRootNode()->getSon(1));
-          test = true; //Add only once.
-        }
-      }
-      else
-        tmpv.push_back(nodes_[TextTools::to < unsigned int > (tmp[i].substr(5))]);
-    }
-    nodes = VectorTools::vectorUnion(nodes, tmpv);
-
-    for (unsigned int i = 0; i < nodes.size(); i++)
-    {
-      computeTransitionProbabilitiesForNode(nodes[i]);
-    }
-    rootFreqs_ = modelSet_->getRootFrequencies();
-  }
-  computeTreeLikelihood();
-
-  minusLogLik_ = -getLogLikelihood();
 }
 
 /******************************************************************************/
 
-double RNonHomogeneousTreeLikelihood::getValue() const
+double RTreeLikelihood::getValue() const
 throw (Exception)
 {
-  if (!isInitialized()) throw Exception("RNonHomogeneousTreeLikelihood::getValue(). Instance is not initialized.");
+  if (!isInitialized()) throw Exception("RTreeLikelihood::getValue(). Instance is not initialized.");
   return minusLogLik_;
 }
 
@@ -268,35 +232,36 @@ throw (Exception)
 *                           First Order Derivatives                          *
 ******************************************************************************/
 
-double RNonHomogeneousTreeLikelihood::getDLikelihoodForASiteForARateClass(
+double RTreeLikelihood::getDLikelihoodForASiteForARateClass(
   unsigned int site,
   unsigned int rateClass) const
 {
+  vector<double> rootFreqs = process_->getRootFrequencies(site);
   double dl = 0;
-  Vdouble* dla = &likelihoodData_->getDLikelihoodArray(tree_->getRootNode()->getId())[likelihoodData_->getRootArrayPosition(site)][rateClass];
-  for (unsigned int i = 0; i < nbStates_; i++)
+  Vdouble* dla = &likelihoodData_->getDLikelihoodArray(process_->getTree().getRootNode()->getId())[likelihoodData_->getRootArrayPosition(site)][rateClass];
+  for (unsigned int i = 0; i < nbStates_; ++i)
   {
-    dl += (*dla)[i] * rootFreqs_[i];
+    dl += (*dla)[i] * rootFreqs[i];
   }
   return dl;
 }
 
 /******************************************************************************/
 
-double RNonHomogeneousTreeLikelihood::getDLikelihoodForASite(unsigned int site) const
+double RTreeLikelihood::getDLikelihoodForASite(unsigned int site) const
 {
   // Derivative of the sum is the sum of derivatives:
   double dl = 0;
-  for (unsigned int i = 0; i < nbClasses_; i++)
+  for (unsigned int i = 0; i < nbClasses_; ++i)
   {
-    dl += getDLikelihoodForASiteForARateClass(site, i) * rateDistribution_->getProbability(i);
+    dl += getDLikelihoodForASiteForARateClass(site, i) * process_->getProbabilityForModel(i);
   }
   return dl;
 }
 
 /******************************************************************************/
 
-double RNonHomogeneousTreeLikelihood::getDLogLikelihoodForASite(unsigned int site) const
+double RTreeLikelihood::getDLogLikelihoodForASite(unsigned int site) const
 {
   // d(f(g(x)))/dx = dg(x)/dx . df(g(x))/dg :
   return getDLikelihoodForASite(site) / getLikelihoodForASite(site);
@@ -304,44 +269,46 @@ double RNonHomogeneousTreeLikelihood::getDLogLikelihoodForASite(unsigned int sit
 
 /******************************************************************************/
 
-double RNonHomogeneousTreeLikelihood::getDLogLikelihood() const
+double RTreeLikelihood::getDLogLikelihood() const
 {
   // Derivative of the sum is the sum of derivatives:
-  double dl = 0;
-  for (unsigned int i = 0; i < nbSites_; i++)
+  vector<double> dla(nbSites_);
+  for (unsigned int i = 0; i < nbSites_; ++i)
   {
-    dl += getDLogLikelihoodForASite(i);
+    dla[i] = getDLogLikelihoodForASite(i);
+  }
+  sort(dla.begin(), dla.end());
+  double dl = 0;
+  for (unsigned int i = nbSites_; i > 0; i--)
+  {
+    dl += dla[i - 1];
   }
   return dl;
 }
 
 /******************************************************************************/
 
-double RNonHomogeneousTreeLikelihood::getFirstOrderDerivative(const string& variable) const
+double RTreeLikelihood::getFirstOrderDerivative(const string& variable) const
 throw (Exception)
 {
   if (!hasParameter(variable))
-    throw ParameterNotFoundException("RNonHomogeneousTreeLikelihood::getFirstOrderDerivative().", variable);
-  if (getRateDistributionParameters().hasParameter(variable))
+    throw ParameterNotFoundException("RTreeLikelihood::getFirstOrderDerivative().", variable);
+  if (process_->getTransitionProbabilitiesParameters().hasParameter(variable))
   {
-    throw Exception("Derivatives respective to rate distribution parameter are not implemented.");
-  }
-  if (getSubstitutionModelParameters().hasParameter(variable))
-  {
-    throw Exception("Derivatives respective to substitution model parameters are not implemented.");
+    throw Exception("Derivatives are only implemented for branch length parameters.");
   }
 
-  const_cast<RNonHomogeneousTreeLikelihood*>(this)->computeTreeDLikelihood(variable);
+  computeTreeDLikelihood_(variable);
   return -getDLogLikelihood();
 }
 
 /******************************************************************************/
 
-void RNonHomogeneousTreeLikelihood::computeTreeDLikelihood(const string& variable)
+void RTreeLikelihood::computeTreeDLikelihood_(const string& variable) const
 {
   if (variable == "BrLenRoot")
   {
-    const Node* father = tree_->getRootNode();
+    const Node* father = process_->getTree().getRootNode();
 
     // Compute dLikelihoods array for the father node.
     // Fist initialize to 1:
