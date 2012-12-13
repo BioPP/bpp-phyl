@@ -164,16 +164,16 @@ void FullFrequenciesSet::fireParameterChanged(const ParameterList& parameters)
 // / FixedFrequenciesSet
 
 FixedFrequenciesSet::FixedFrequenciesSet(const Alphabet* alphabet, const vector<double>& initFreqs, const string& name) :
-  AbstractFrequenciesSet(alphabet->getSize(), alphabet, "Fixed.", name)
+  AbstractFrequenciesSet(initFreqs.size(), alphabet, "Fixed.", name)
 {
   setFrequencies(initFreqs);
 }
 
-FixedFrequenciesSet::FixedFrequenciesSet(const Alphabet* alphabet, const string& name) :
-  AbstractFrequenciesSet(alphabet->getSize(), alphabet, "Fixed.", name)
+FixedFrequenciesSet::FixedFrequenciesSet(const Alphabet* alphabet, unsigned int nFreqs, const string& name) :
+  AbstractFrequenciesSet(nFreqs, alphabet, "Fixed.", name)
 {
-  unsigned int size = alphabet->getSize();
-  for (unsigned int i = 0; i < alphabet->getSize(); i++)
+  unsigned int size = nFreqs;
+  for (unsigned int i = 0; i < nFreqs; ++i)
   {
     getFreq_(i) = 1. / size;
   }
@@ -181,7 +181,8 @@ FixedFrequenciesSet::FixedFrequenciesSet(const Alphabet* alphabet, const string&
 
 void FixedFrequenciesSet::setFrequencies(const vector<double>& frequencies) 
 {
-  if (frequencies.size() != getAlphabet()->getSize()) throw DimensionException("FixedFrequenciesSet::setFrequencies", frequencies.size(), getAlphabet()->getSize());
+  if (frequencies.size() != getNumberOfFrequencies())
+    throw DimensionException("FixedFrequenciesSet::setFrequencies", frequencies.size(), getNumberOfFrequencies());
   double sum = 0.0;
   for (unsigned int i = 0; i < frequencies.size(); i++)
   {

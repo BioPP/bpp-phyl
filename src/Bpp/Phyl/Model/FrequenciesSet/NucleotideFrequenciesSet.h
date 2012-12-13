@@ -176,7 +176,7 @@ public:
    * the alphabet.
    */
   FixedNucleotideFrequenciesSet(const NucleicAlphabet* alphabet, const std::string& name = "Fixed") :
-    FixedFrequenciesSet(alphabet, name) {}
+    FixedFrequenciesSet(alphabet, alphabet->getSize(), name) {}
 
 #ifndef NO_VIRTUAL_COV
   FixedNucleotideFrequenciesSet*

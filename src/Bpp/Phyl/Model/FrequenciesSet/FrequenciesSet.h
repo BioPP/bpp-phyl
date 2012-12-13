@@ -261,21 +261,21 @@ public:
    * @brief Construction with uniform frequencies on the letters of
    * the alphabet.
    *
-   * @param alphabet The alphabet for wich this frequencies set should be build. Will determine the number of frequencies.
-   * @param initFreqs The frequencies to use.
+   * @param alphabet The alphabet for wich this frequencies set should be build.
+   * @param initFreqs The frequencies to use. The vector will determine the number of frequencies.
    * @param name The name of the set.
    */
-
   FixedFrequenciesSet(const Alphabet* alphabet, const std::vector<double>& initFreqs, const std::string& name = "Fixed");
 
   /**
    * @brief Construction with uniform frequencies on the letters of
    * the alphabet.
    *
-   * @param alphabet The alphabet for wich this frequencies set should be build. Will determine the number of frequencies.
+   * @param alphabet The alphabet for wich this frequencies set should be build.
+   * @param nFreqs The number of frequencies.
    * @param name The name of the set.
    */
-  FixedFrequenciesSet(const Alphabet* alphabet, const std::string& name = "Fixed");
+  FixedFrequenciesSet(const Alphabet* alphabet, unsigned int nFreqs, const std::string& name = "Fixed");
 
   FixedFrequenciesSet* clone() const { return new FixedFrequenciesSet(*this); }
 

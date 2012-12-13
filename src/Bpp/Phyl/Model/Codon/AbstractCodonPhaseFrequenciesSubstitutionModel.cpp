@@ -58,16 +58,18 @@ AbstractCodonPhaseFrequenciesSubstitutionModel::AbstractCodonPhaseFrequenciesSub
   if (pCFS == NULL)
     throw Exception("Bad type for equilibrium frequencies " + pfreq->getName());
 
-  if ((dynamic_cast<CodonFromUniqueFrequenciesSet*>(pCFS) != NULL)
+  if ((dynamic_cast<CodonFromUniqueFrequenciesSet*>(pCFS))
       || (dynamic_cast<CodonFromIndependentFrequenciesSet*>(pCFS) != NULL))
     posfreqset_ = dynamic_cast<WordFrequenciesSet*>(pfreq)->clone();
   else
   {
     vector<FrequenciesSet*> vFS;
-    if (dynamic_cast<FixedCodonFrequenciesSet*>(pCFS) != NULL)
+    if (dynamic_cast<FixedCodonFrequenciesSet*>(pCFS))
       for (unsigned int i = 0; i < 3; i++)
       {
-        vFS.push_back(new FixedFrequenciesSet(pCFS->getAlphabet()->getNucleicAlphabet()));
+        vFS.push_back(new FixedFrequenciesSet(
+              pCFS->getAlphabet()->getNucleicAlphabet(),
+              pCFS->getAlphabet()->getNucleicAlphabet()->getSize()));
       }
     else
       for (unsigned int i = 0; i < 3; i++)

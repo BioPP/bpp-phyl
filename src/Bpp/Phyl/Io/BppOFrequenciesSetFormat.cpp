@@ -101,7 +101,7 @@ FrequenciesSet* BppOFrequenciesSetFormat::read(const Alphabet* alphabet, const s
     }
     else
     {
-      pFS.reset(new FixedFrequenciesSet(alphabet));
+      pFS.reset(new FixedFrequenciesSet(alphabet, alphabet->getSize()));
     }
   }
   else if (freqName == "Full")
