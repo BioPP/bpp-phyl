@@ -809,7 +809,7 @@ SubstitutionModel* BppOSubstitutionModelFormat::readWord_(const Alphabet* alphab
           pFS.release(),
           pai2.release()));
     }
-    else if (modelName == "CodonDistFitFreq")
+    else if (modelName == "CodonDistFitPhasFreq")
       {
         if (args.find("fitness") == args.end())
           throw Exception("Missing fitness in model " + modelName + ".");
@@ -822,14 +822,14 @@ SubstitutionModel* BppOSubstitutionModelFormat::readWord_(const Alphabet* alphab
           unparsedArguments_[modelName + ".fit." + it->first] = it->second;
         
         if (v_nestedModelDescription.size() != 3){
-          model.reset(new CodonFitnessSubstitutionModel(pgc.release(),
-                                                        dynamic_cast<NucleotideSubstitutionModel*>(v_pSM[0]),
-                                                        pFit.release(),
-                                                        pFS.release(),
-                                                        pai2.release())); 
+          model.reset(new CodonDistanceFitnessPhaseFrequenciesSubstitutionModel(pgc.release(),
+                                                                                dynamic_cast<NucleotideSubstitutionModel*>(v_pSM[0]),
+                                                                                pFit.release(),
+                                                                                pFS.release(),
+                                                                                pai2.release())); 
         }
         else
-          model.reset(new CodonFitnessSubstitutionModel(
+          model.reset(new CodonDistanceFitnessPhaseFrequenciesSubstitutionModel(
                                                         pgc.release(),
                                                         dynamic_cast<NucleotideSubstitutionModel*>(v_pSM[0]),
                                                         dynamic_cast<NucleotideSubstitutionModel*>(v_pSM[1]),
@@ -1073,7 +1073,7 @@ void BppOSubstitutionModelFormat::write(const SubstitutionModel& model,
 
   // Specific case of CodonFitnessSubstitutionModel
 
-  const CodonFitnessSubstitutionModel* pCF=dynamic_cast<const CodonFitnessSubstitutionModel*>(&model);
+  const CodonDistanceFitnessPhaseFrequenciesSubstitutionModel* pCF=dynamic_cast<const CodonDistanceFitnessPhaseFrequenciesSubstitutionModel*>(&model);
   if (pCF){
     if (comma)
       out << ",";

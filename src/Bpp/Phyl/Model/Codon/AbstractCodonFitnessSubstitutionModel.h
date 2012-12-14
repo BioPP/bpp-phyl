@@ -43,6 +43,25 @@
 #include "../FrequenciesSet/CodonFrequenciesSet.h"
 namespace bpp
 {
+  /**
+   * @brief Abstract class for modelling of ratios of substitution
+   * rates between codons, whatever they are synonymous or not.
+   *
+   * @author Fanny Pouyet, Laurent Guéguen
+   *
+   * The fitness of a codon is a value between 0 and 1 defining the
+   * relative advantage of a codon, compared to others. If a codon
+   * @f$i@f$ has a fitness @f$\phi_i@f$ and another one (@f$j@f$) has
+   * a fitness @f$\phi_j@f$, the substitution rate from codon @f$i@f$
+   * to codon @f$j@f$ is multiplied by
+   * \f[-\frac{\log(\frac{\phi_i}{\phi_j})}{1-\frac{\phi_i}{\phi_j}}\f]
+   *
+   * The set of fitnesses is implemented through a Codon
+   * FrequenciesSet object. The parameters are named \c
+   * "fit_NameOfTheParameterInTheFrequenciesSet".
+   */
+
+
   class AbstractCodonFitnessSubstitutionModel :
     virtual public CodonSubstitutionModel,
     virtual public AbstractParameterAliasable

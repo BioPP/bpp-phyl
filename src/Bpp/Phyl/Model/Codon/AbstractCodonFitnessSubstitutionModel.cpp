@@ -41,7 +41,8 @@ using namespace bpp;
 using namespace std;
 /****************************************************************************************/
 AbstractCodonFitnessSubstitutionModel::AbstractCodonFitnessSubstitutionModel(FrequenciesSet* pfitset, const string& prefix):
-  CodonSubstitutionModel(), AbstractParameterAliasable(prefix), pfitset_(pfitset), fitName_(""){
+  CodonSubstitutionModel(), AbstractParameterAliasable(prefix), pfitset_(pfitset), fitName_("")
+{
   if (dynamic_cast<CodonFrequenciesSet*>(pfitset) == NULL)
     throw Exception ("Bad type for fitness parameters"+ pfitset ->getName() );
   fitName_="fit_"+ pfitset_->getNamespace();
@@ -49,20 +50,24 @@ AbstractCodonFitnessSubstitutionModel::AbstractCodonFitnessSubstitutionModel(Fre
   addParameters_(pfitset_->getParameters() );
 }
 
-AbstractCodonFitnessSubstitutionModel::~AbstractCodonFitnessSubstitutionModel(){
+AbstractCodonFitnessSubstitutionModel::~AbstractCodonFitnessSubstitutionModel()
+{
   if (pfitset_) delete pfitset_;
 }
 
-void AbstractCodonFitnessSubstitutionModel::fireParameterChanged (const ParameterList& parameters){
+void AbstractCodonFitnessSubstitutionModel::fireParameterChanged (const ParameterList& parameters)
+{
   pfitset_->matchParametersValues(parameters);
 }
 
-void AbstractCodonFitnessSubstitutionModel::setFreq(map<int, double>& frequencies){
+void AbstractCodonFitnessSubstitutionModel::setFreq(map<int, double>& frequencies)
+{
   pfitset_->setFrequenciesFromMap(frequencies);
   matchParametersValues(pfitset_->getParameters() );
 }
 
-double AbstractCodonFitnessSubstitutionModel::getCodonsMulRate( unsigned int i , unsigned int j ) const {
+double AbstractCodonFitnessSubstitutionModel::getCodonsMulRate( unsigned int i , unsigned int j ) const
+{
   double mu;
   double phi_j= pfitset_->getFrequencies() [j];
   double phi_i= pfitset_->getFrequencies() [i];
