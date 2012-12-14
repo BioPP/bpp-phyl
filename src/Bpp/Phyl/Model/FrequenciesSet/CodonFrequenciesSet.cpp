@@ -181,7 +181,7 @@ FullPerAACodonFrequenciesSet::FullPerAACodonFrequenciesSet(const GeneticCode* ge
       vS_.push_back(Simplex(vc.size(),1, ""));
 
       Simplex& si=vS_[i];
-      si.setNamespace("FullPerAA."+ppa->intToChar(i)+"_");
+      si.setNamespace("FullPerAA."+ppa->getAbbr(i)+"_");
       addParameters_(si.getParameters());
     }
 
@@ -206,7 +206,7 @@ FullPerAACodonFrequenciesSet::FullPerAACodonFrequenciesSet(const GeneticCode* ge
       vS_.push_back(Simplex(vc.size(),1, ""));
 
       Simplex& si=vS_[i];
-      si.setNamespace("FullPerAA."+ppa->intToChar(i)+"_");
+      si.setNamespace("FullPerAA."+ppa->getAbbr(i)+"_");
       addParameters_(si.getParameters());
     }
 
@@ -301,7 +301,7 @@ void FullPerAACodonFrequenciesSet::setNamespace(const std::string& prefix)
   AbstractFrequenciesSet::setNamespace(prefix);
   ppfs_->setNamespace(prefix);
   for (unsigned int i=0;i<vS_.size();i++)
-    vS_[i].setNamespace(prefix+ppa->intToChar(i)+"_");
+    vS_[i].setNamespace(prefix+ppa->getAbbr(i)+"_");
 }
 
 
