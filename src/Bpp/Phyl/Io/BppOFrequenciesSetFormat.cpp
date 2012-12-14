@@ -296,10 +296,12 @@ FrequenciesSet* BppOFrequenciesSetFormat::read(const Alphabet* alphabet, const s
       }
       pFS.reset(new FullPerAACodonFrequenciesSet(pgc, pPFS.release()));
     }
-
     else
       pFS.reset(new FullPerAACodonFrequenciesSet(pgc));
   }
+
+  // codeml frequencies syntax
+  
   else if (AlphabetTools::isCodonAlphabet(alphabet))
   {
     if (!(alphabetCode_ & CODON))

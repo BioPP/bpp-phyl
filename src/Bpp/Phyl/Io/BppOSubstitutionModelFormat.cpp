@@ -814,8 +814,38 @@ SubstitutionModel* BppOSubstitutionModelFormat::readWord_(const Alphabet* alphab
           pFS.release(),
           pai2.release()));
     }
+    else if (modelName == "CodonDistFitPhasFreq")
+      {
+        if (args.find("fitness") == args.end())
+          throw Exception("Missing fitness in model " + modelName + ".");
+        
+        BppOFrequenciesSetFormat bIOFreq(alphabetCode_, verbose_);
+        auto_ptr<FrequenciesSet> pFit(bIOFreq.read(pCA, args["fitness"], data, false));
+        map<string, string> unparsedParameterValuesNested(bIOFreq.getUnparsedArguments());
+        
+        for (map<string, string>::iterator it = unparsedParameterValuesNested.begin(); it != unparsedParameterValuesNested.end(); it++)
+          unparsedArguments_[modelName + ".fit." + it->first] = it->second;
+        
+        if (v_nestedModelDescription.size() != 3){
+          model.reset(new CodonDistanceFitnessPhaseFrequenciesSubstitutionModel(pgc.release(),
+                                                                                dynamic_cast<NucleotideSubstitutionModel*>(v_pSM[0]),
+                                                                                pFit.release(),
+                                                                                pFS.release(),
+                                                                                pai2.release())); 
+        }
+        else
+          model.reset(new CodonDistanceFitnessPhaseFrequenciesSubstitutionModel(
+                                                        pgc.release(),
+                                                        dynamic_cast<NucleotideSubstitutionModel*>(v_pSM[0]),
+                                                        dynamic_cast<NucleotideSubstitutionModel*>(v_pSM[1]),
+                                                        dynamic_cast<NucleotideSubstitutionModel*>(v_pSM[2]),
+                                                        pFit.release(),
+                                                        pFS.release(),
+                                                        pai2.release()));
+      }
   }
   return model.release();
+  
 }
 
 
@@ -1046,9 +1076,23 @@ void BppOSubstitutionModelFormat::write(const SubstitutionModel& model,
     comma = true;
   }
 
+  // Specific case of CodonFitnessSubstitutionModel
+
+  const CodonDistanceFitnessPhaseFrequenciesSubstitutionModel* pCF=dynamic_cast<const CodonDistanceFitnessPhaseFrequenciesSubstitutionModel*>(&model);
+  if (pCF){
+    if (comma)
+      out << ",";
+    out << "fitness=";
+
+    BppOFrequenciesSetFormat bIOFreq(alphabetCode_, false);
+    bIOFreq.write(pCF->getFitness(), out, writtenNames);
+    comma=true;
+  }
+
+  // and the other parameters
+  
   BppOParametrizableFormat bIO;
   bIO.write(&model, out, globalAliases, model.getIndependentParameters().getParameterNames(), writtenNames, true, comma);
-
   out << ")";
 }
 

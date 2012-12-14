@@ -60,11 +60,11 @@ namespace bpp
  * between non-synonymous and synonymous substitutions rates is, if
  * the coded amino-acids are @f$x@f$ and @f$y@f$,
  * @f$\beta*\exp(-\alpha.d(x,y))@f$ with non-negative parameter
- * @f$\alpha@f$ and positive parameter @f$\beta@f$.
+ * \c "alpha" and positive parameter \c "beta".
  *
  * If such a distance is not defined, the ratio between non-synonymous
  * and synonymous substitutions rates is @f$\beta@f$ with positive
- * parameter @f$\beta@f$ (ie @f$d=0@f$).
+ * parameter \c "beta" (ie @f$d=0@f$).
  */
 
 class AbstractCodonDistanceSubstitutionModel :

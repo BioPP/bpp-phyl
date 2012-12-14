@@ -68,11 +68,11 @@ namespace bpp
  * If a distance @f$d@f$ between amino-acids is defined, the ratio between
  * non-synonymous and synonymous substitutions rates is, if the codied
  * amino-acids are @f$x@f$ and @f$y@f$, @f$\beta*\exp(-\alpha.d(x,y))@f$ with
- * non-negative parameter @f$\alpha@f$ and positive parameter @f$\beta@f$.
+ * non-negative parameter \c "alpha" and positive parameter \c "beta".
  *
  * If such a distance is not defined, the ratio between non-synonymous
  * and synonymous substitutions rates is @f$\beta@f$ with positive
- * parameter @f$\beta@f$.
+ * parameter \c "beta".
  */
 
 class CodonDistancePhaseFrequenciesSubstitutionModel :
