@@ -824,7 +824,7 @@ SubstitutionModel* BppOSubstitutionModelFormat::readWord_(const Alphabet* alphab
         map<string, string> unparsedParameterValuesNested(bIOFreq.getUnparsedArguments());
         
         for (map<string, string>::iterator it = unparsedParameterValuesNested.begin(); it != unparsedParameterValuesNested.end(); it++)
-          unparsedArguments_[modelName + ".fit." + it->first] = it->second;
+          unparsedArguments_[modelName + ".fit_" + it->first] = it->second;
         
         if (v_nestedModelDescription.size() != 3){
           model.reset(new CodonDistanceFitnessPhaseFrequenciesSubstitutionModel(pgc.release(),
