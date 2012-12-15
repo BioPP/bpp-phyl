@@ -78,7 +78,7 @@ CodonDistanceFitnessPhaseFrequenciesSubstitutionModel::CodonDistanceFitnessPhase
 
 string CodonDistanceFitnessPhaseFrequenciesSubstitutionModel::getName() const
 {
-  return ("CodonDistFitPhasFreq.");
+  return ("CodonDistFitPhasFreq");
 }
 
 void CodonDistanceFitnessPhaseFrequenciesSubstitutionModel::fireParameterChanged(const ParameterList& parameters)
