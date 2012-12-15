@@ -185,10 +185,9 @@ FullPerAACodonFrequenciesSet::FullPerAACodonFrequenciesSet(const GeneticCode* ge
       addParameters_(si.getParameters());
     }
 
-  ppfs_->setNamespace("FullPerAA.");
-
+  ppfs_->setNamespace("FullPerAA."+ppfs_->getName()+".");
   addParameters_(ppfs_->getParameters());
-
+  
   updateFrequencies();
 }
 
@@ -299,7 +298,7 @@ void FullPerAACodonFrequenciesSet::setNamespace(const std::string& prefix)
   const ProteicAlphabet* ppa = dynamic_cast<const ProteicAlphabet*>(pgc_->getTargetAlphabet());
 
   AbstractFrequenciesSet::setNamespace(prefix);
-  ppfs_->setNamespace(prefix);
+  ppfs_->setNamespace(prefix+ppfs_->getName()+".");
   for (unsigned int i=0;i<vS_.size();i++)
     vS_[i].setNamespace(prefix+ppa->getAbbr(i)+"_");
 }
