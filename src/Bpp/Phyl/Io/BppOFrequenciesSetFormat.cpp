@@ -345,7 +345,7 @@ FrequenciesSet* BppOFrequenciesSetFormat::read(const Alphabet* alphabet, const s
 
         for (unsigned int nbfreq = 1; nbfreq<=3; nbfreq++)
           if (args.find("frequency" + TextTools::toString(nbfreq)) != args.end())
-            v_sAFS.push_back(args["frequency" + TextTools::toString(nbfreq++)]);
+            v_sAFS.push_back(args["frequency" + TextTools::toString(nbfreq)]);
           else
             v_sAFS.push_back("");
         
