@@ -47,12 +47,13 @@ using namespace std;
 CodonDistanceFrequenciesSubstitutionModel::CodonDistanceFrequenciesSubstitutionModel(const GeneticCode* palph,
                                                                                      NucleotideSubstitutionModel* pmod,
                                                                                      FrequenciesSet* pfreq,
-                                                                                     const AlphabetIndex2<double>* pdist) :
+                                                                                     const AlphabetIndex2<double>* pdist,
+                                                                                     bool paramSynRate) :
   AbstractParameterAliasable("CodonDistFreq."),
   AbstractSubstitutionModel(dynamic_cast<const CodonAlphabet*>(palph->getSourceAlphabet()), "CodonDistFreq."),
   AbstractWordSubstitutionModel(dynamic_cast<const CodonAlphabet*>(palph->getSourceAlphabet()), "CodonDistFreq."),
   AbstractCodonSubstitutionModel(dynamic_cast<const CodonAlphabet*>(palph->getSourceAlphabet()), pmod, "CodonDistFreq."),
-  AbstractCodonDistanceSubstitutionModel(palph, pdist, "CodonDistFreq."),
+  AbstractCodonDistanceSubstitutionModel(palph, pdist, "CodonDistFreq.", paramSynRate),
   AbstractCodonFrequenciesSubstitutionModel(pfreq, "CodonDistFreq.")
 {
   updateMatrices();
@@ -63,12 +64,13 @@ CodonDistanceFrequenciesSubstitutionModel::CodonDistanceFrequenciesSubstitutionM
                                                                                      NucleotideSubstitutionModel* pmod2,
                                                                                      NucleotideSubstitutionModel* pmod3,
                                                                                      FrequenciesSet* pfreq,
-                                                                                     const AlphabetIndex2<double>* pdist) :
+                                                                                     const AlphabetIndex2<double>* pdist,
+                                                                                     bool paramSynRate) :
   AbstractParameterAliasable("CodonDistFreq."),
   AbstractSubstitutionModel(dynamic_cast<const CodonAlphabet*>(palph->getSourceAlphabet()), "CodonDistFreq."),
   AbstractWordSubstitutionModel(dynamic_cast<const CodonAlphabet*>(palph->getSourceAlphabet()), "CodonDistFreq."),
   AbstractCodonSubstitutionModel(dynamic_cast<const CodonAlphabet*>(palph->getSourceAlphabet()), pmod1, pmod2, pmod3, "CodonDistFreq."),
-  AbstractCodonDistanceSubstitutionModel(palph, pdist, "CodonDistFreq."),
+  AbstractCodonDistanceSubstitutionModel(palph, pdist, "CodonDistFreq.", paramSynRate),
   AbstractCodonFrequenciesSubstitutionModel(pfreq, "CodonDistFreq.")
 {
   updateMatrices();

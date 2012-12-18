@@ -61,14 +61,22 @@ namespace bpp
  *
  * Only substitutions with one letter changed are accepted. </p>
  *
- * The additional parameter to CodonFrequenciesSubstitutionModel is
- * the ratio of nonsynonymous over synonymous substitutions.
+ * The additional parameters to CodonFrequenciesSubstitutionModel are
+ * the rates of nonsynonymous over synonymous substitutions.
  *
- * If a distance @f$d@f$ between amino-acids is defined, the ratio
- * between non-synonymous and synonymous substitutions rates is, if
- * the coded amino-acids are @f$x@f$ and @f$y@f$,
- * @f$\beta*\exp(-\alpha.d(x,y))@f$ with non-negative parameter \c
- * "alpha" and positive parameter \c "beta".
+ * If a distance @f$d@f$ between amino-acids is defined, the
+ *  non-synonymous rate is multiplied with, if the coded amino-acids
+ *  are @f$x@f$ and @f$y@f$, @f$\beta*\exp(-\alpha.d(x,y))@f$ with
+ *  non-negative parameter \c "alpha" and positive parameter \c
+ *  "beta".
+ *
+ * If such a distance is not defined, the non-synonymous substitution
+ *  rate is multiplied with @f$\beta@f$ with positive parameter \c
+ *  "beta" (ie @f$d=0@f$).
+ *
+ * If paramSynRate is true, the synonymous substitution rate is
+ *  multiplied with @f$\gamma@f$ (with optional positive parameter \c
+ *  "gamma"), else it is multiplied with 1.
  *
  * If such a distance is not defined, the ratio between non-synonymous
  * and synonymous substitutions rates is @f$\beta@f$ with positive
@@ -90,12 +98,16 @@ public:
    * @param pmod pointer to the NucleotideSubstitutionModel to use in
    *        the three positions. It is owned by the instance.
    * @param pfreq pointer to the FrequenciesSet* equilibrium frequencies
-   * @param pdist optional pointer to the AlphabetIndex2<double> amino-acids distance object.
+   * @param pdist optional pointer to the AlphabetIndex2<double> amino-acids
+   *        distance object.
+   * @param paramSynRate is true iff synonymous rate is parametrised
+   *        (default=false).
    */
   CodonDistanceFrequenciesSubstitutionModel(const GeneticCode* palph,
                                             NucleotideSubstitutionModel* pmod,
                                             FrequenciesSet* pfreq,
-                                            const AlphabetIndex2<double>* pdist = 0);
+                                            const AlphabetIndex2<double>* pdist = 0,
+                                            bool paramSynRate = false);
 
   /**
    * @brief Build a new CodonDistanceFrequenciesSubstitutionModel object
@@ -108,14 +120,19 @@ public:
    *   All the models must be different objects to avoid redundant
    *   parameters.  They are owned by the instance.
    * @param pfreq pointer to the FrequenciesSet* equilibrium frequencies
-   * @param pdist optional pointer to the AlphabetIndex2<double> amino-acids distance object.
+   * @param pdist optional pointer to the AlphabetIndex2<double> amino-acids
+   *   distance object.
+   * @param paramSynRate is true iff synonymous rate is parametrised
+   *   (default=false).
    */
   CodonDistanceFrequenciesSubstitutionModel(const GeneticCode* palph,
                                             NucleotideSubstitutionModel* pmod1,
                                             NucleotideSubstitutionModel* pmod2,
                                             NucleotideSubstitutionModel* pmod3,
                                             FrequenciesSet* pfreq,
-                                            const AlphabetIndex2<double>* pdist = 0);
+                                            const AlphabetIndex2<double>* pdist = 0,
+                                            bool paramSynRate = false);
+
 
   CodonDistanceFrequenciesSubstitutionModel(
     const CodonDistanceFrequenciesSubstitutionModel& model) :
