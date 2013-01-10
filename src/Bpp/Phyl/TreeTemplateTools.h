@@ -1143,6 +1143,50 @@ class TreeTemplateTools
     }
     /** @} */
 
+    /**
+     * @brief Midroot the tree by minimizing a given criterion ("variance" or "sum of squares")
+     *
+     * @detailed
+     * For each branch, the best root position, according to the given criterion, is computed analytically.
+     *
+     * For the 'variance' criterion :
+     * \f[
+     *  (n_1+n_2)^2 V(x)
+     *   = (n_1+n_2) \left[ \sum_{F_1} (d_i + x \delta )^2 + \sum_{F_2} (d_i + (1-x) \delta )^2 \right]
+     *     - \left[ \sum_{F_1} (d_i + x \delta) + \sum_{F_2} (d_i + (1-x) \delta) \right]^2
+     *   = A x^2 + B x + C
+     * \f]
+     * With
+     * \f[ \begin{array}{rcl}
+     * A &=& 4 n_1 n_2 \delta^2 \\
+     * B &=& 4 \delta ( n_2 S_1 - n_1 S_2 - n_1 n_2 \delta ) \\
+     * C &=& (n_1+n_2) (C_1+C_2) + n_1 n_2 \delta^2 + 2 n_1 S_2 \delta - 2 n_2 S_1 \delta - (S_1+S_2)^2 \\
+     * \end{array} \f]
+     *
+     * Where \f$F_1\f$ and \f$F_2\f$ are the sets of leaves on either side of
+     * the root branch,
+     * \f$d_i\f$ is the distance of leaf \f$i\f$ to the nearest end of the root branch,
+     * \f$\delta\f$ is the length of the root branch, and \f$S_k\f$ and \f$C_k\f$ are respectively
+     * \f$\sum_{F_k} d_i\f$ and \f$\sum_{F_k} d_i^2\f$
+     *
+     * ~
+     *
+     * @param tree
+     * @param criterion The criterion upon which to reroot. Legal values : "variance"
+     *   to minimize root-leaf distance variance (molecular clock assumption) or
+     *   "sum of squares" to minimize the sum of root-leaf distance squares.
+     *
+     * @author Nicolas Rochette
+     */
+    static void midRoot (bpp::TreeTemplate<bpp::Node>& tree, const std::string& criterion);
+
+    /**
+     * @brief Get the caracteristic radius of a tree (average distance to the root minimizing the sum of squared distances).
+     *
+     * @param tree The tree (which is rerooted in the process).
+     */
+    static double getRadius (bpp::TreeTemplate<bpp::Node>& tree);
+
   private:
     struct OrderTreeData_ {
       unsigned int size;
@@ -1151,6 +1195,49 @@ class TreeTemplateTools
     };
 
     static OrderTreeData_ orderTree_(Node& node, bool downward, bool orderLeaves);
+
+    /**
+     * @brief
+     * A <i>structure</i> recording, for a subtree, the sum of root-leaf distances, the sum of their squares,
+     * and the number of elements in these sums (ie. the number of leaves).
+     *
+     * @details
+     * The branch at the base of the subtree should never be included,
+     * as the subtree of the root does not have one.
+     *
+     */
+    struct Moments_
+    {
+      double sum;
+      double squaresSum;
+      int numberOfLeaves;
+    };
+
+    /**
+     * @brief
+     * Computes the moment of a subtree
+     *
+     * @param node The root of the subtree
+     * @return A Moments_ structure
+     */
+    static Moments_ getSubtreeMoments (const Node* node);
+
+    /**
+     * @brief Find, in the branches of a subtree, the root that minimizes a criterion over the tree.
+     *
+     * @details
+     * The branches are explored recursively. For each branch leaving the input node, the method
+     * computes the best root position, possibly updates the bestRoot parameter, then recurses.
+     *
+     * @param tree The tree to which the subtree belongs. (The root is moved.)
+     * @param criterion The criterion to minimize. Legal values are "variance" and "sum of squares".
+     * @param node The root of the subtree.
+     * @param bestRoot The object storing the best root found, if it is better than the initial one, or otherwise left unchanged.
+     *
+     * @author Nicolas Rochette, Manolo Gouy
+     */
+    static void getBestRootInSubtree (bpp::TreeTemplate<bpp::Node>& tree, const std::string& criterion,  bpp::Node* node, std::pair<bpp::Node*, std::map<std::string, double> >& bestRoot);
+
 };
 
 } //end of namespace bpp.

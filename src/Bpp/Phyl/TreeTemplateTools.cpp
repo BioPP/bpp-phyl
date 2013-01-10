@@ -54,6 +54,7 @@ using namespace bpp;
 // From the STL:
 #include <iostream>
 #include <sstream>
+#include <limits>
 
 using namespace std;
 
@@ -1007,3 +1008,180 @@ TreeTemplateTools::OrderTreeData_ TreeTemplateTools::orderTree_(Node& node, bool
 
 /******************************************************************************/
 
+void TreeTemplateTools::midRoot (TreeTemplate<Node>& tree, const string& criterion)
+{
+  if(not (criterion == "variance" || "sum of squares"))
+    throw Exception("TreeTemplateTools::reRoot Illegal criterion value '" + criterion + "'");
+
+  if(tree.isRooted())
+    tree.unroot();
+  Node* ref_root = tree.getRootNode();
+   /*
+   * The bestRoot object records :
+   * -- the current best branch : .first
+   * -- the current best value of the criterion : .second["value"]
+   * -- the best position of the root on the branch : .second["position"]
+   *      0 is toward the original root, 1 is away from it
+   */
+  pair<Node*, map<string, double> > best_root_branch;
+  best_root_branch.first = ref_root; // nota: the root does not correspond to a branch as it has no father
+  best_root_branch.second ["position"] = -1;
+  best_root_branch.second ["score"] = numeric_limits<double>::max();
+
+  // find the best root
+  TreeTemplateTools::getBestRootInSubtree(tree, criterion, ref_root, best_root_branch);
+  tree.rootAt(ref_root); // back to the original root
+
+  // reroot
+  const double pos = best_root_branch.second["position"];
+  if(pos<1e-6 or pos>1-1e-6)
+    // The best root position is on a node (this is often the case with the sum of squares criterion)
+    tree.rootAt(pos<1e-6 ? best_root_branch.first->getFather() : best_root_branch.first);
+  else
+    // The best root position is somewhere on a branch (a new Node is created)
+    {
+    Node* new_root = new Node();
+    new_root->setId( TreeTools::getMPNUId(tree, tree.getRootId()) );
+
+    double root_branch_length = best_root_branch.first->getDistanceToFather();
+    Node* best_root_father = best_root_branch.first->getFather();
+
+    best_root_father->removeSon(best_root_branch.first);
+    best_root_father->addSon(new_root);
+    new_root->addSon(best_root_branch.first);
+
+    new_root->setDistanceToFather(max(pos * root_branch_length, 1e-6));
+    best_root_branch.first->setDistanceToFather(max((1-pos) * root_branch_length, 1e-6));
+
+    // The two branches leaving the root must have the same branch properties
+    const vector<string> branch_properties = best_root_branch.first->getBranchPropertyNames();
+    for(vector<string>::const_iterator p = branch_properties.begin(); p!=branch_properties.end(); ++p)
+      new_root->setBranchProperty(*p, *best_root_branch.first->getBranchProperty(*p));
+
+    tree.rootAt(new_root);
+    }
+}
+
+/******************************************************************************/
+
+double TreeTemplateTools::getRadius (TreeTemplate<Node>& tree)
+{
+  TreeTemplateTools::midRoot(tree, "sum of squares");
+  Moments_ moments = getSubtreeMoments(tree.getRootNode());
+  double radius = moments.sum / moments.numberOfLeaves;
+  return radius;
+}
+
+/******************************************************************************/
+
+void TreeTemplateTools::getBestRootInSubtree (TreeTemplate<Node>& tree, const string& criterion, Node* node, pair<Node*, map<string, double> >& bestRoot)
+{
+  const vector<Node*> sons = node->getSons(); // copy
+  tree.rootAt(node);
+
+  // Try to place the root on each branch downward node
+  for(vector<Node*>::const_iterator son=sons.begin(); son!=sons.end(); ++son)
+    {
+    // Compute the moment of the subtree on son's side
+    Moments_ son_moment = getSubtreeMoments(*son);
+
+    // Compute the moment of the subtree on node's side
+    tree.rootAt(*son);
+    Moments_ node_moment = getSubtreeMoments(node);
+    tree.rootAt(node);
+
+    /*
+     * Get the position of the root on this branch that
+     * minimizes the root-to-leaves distances variance.
+     *
+     * This variance can be written in the form A x^2 + B x + C
+     */
+    double min_criterion_value;
+    double best_position; // 0 is toward the root, 1 is away from it
+
+    const TreeTemplateTools::Moments_& m1 = node_moment;
+    const TreeTemplateTools::Moments_& m2 = son_moment;
+    const double d = (**son).getDistanceToFather();
+    const double n1 = m1.numberOfLeaves;
+    const double n2 = m2.numberOfLeaves;
+
+    double A=0, B=0, C=0;
+    if(criterion == "sum of squares")
+      {
+      A = (n1 + n2) * d * d;
+      B = 2 * d * (m1.sum - m2.sum) - 2 * n2 * d * d;
+      C = m1.squaresSum + m2.squaresSum
+          + 2 * m2.sum * d
+          + n2 * d * d;
+      }
+    else if(criterion == "variance")
+      {
+      A = 4 * n1 * n2 * d*d;
+      B = 4 * d * ( n2 * m1.sum - n1 * m2.sum - d * n1 * n2);
+      C = (n1 + n2) * (m1.squaresSum + m2.squaresSum) + n1 * d * n2 * d
+          + 2 * n1 * d * m2.sum - 2 * n2 * d * m1.sum
+          - (m1.sum + m2.sum) * (m1.sum + m2.sum);
+      }
+
+    if(A < 1e-20)
+      {
+      min_criterion_value = numeric_limits<double>::max();
+      best_position = 0.5;
+      }
+    else
+      {
+      min_criterion_value = C - B*B / (4*A);
+      best_position = - B / (2*A);
+      if(best_position < 0)
+        {
+        best_position = 0;
+        min_criterion_value = C;
+        }
+      else if(best_position > 1)
+        {
+        best_position = 1;
+        min_criterion_value = A+B+C;
+        }
+      }
+
+    // Is this branch is the best seen, update 'bestRoot'
+    if(min_criterion_value < bestRoot.second["score"])
+      {
+      bestRoot.first = *son;
+      bestRoot.second["position"] = best_position;
+      bestRoot.second["score"] = min_criterion_value;
+      }
+
+    // Recurse
+    TreeTemplateTools::getBestRootInSubtree(tree, criterion, *son, bestRoot);
+    }
+}
+
+/******************************************************************************/
+
+TreeTemplateTools::Moments_ TreeTemplateTools::getSubtreeMoments (const Node* node)
+{
+  TreeTemplateTools::Moments_ moments = {0,0,0};
+
+  if(node->isLeaf())
+    {
+    moments.numberOfLeaves = 1;
+    }
+  else
+    {
+    const size_t nsons = node->getNumberOfSons();
+    for(size_t i=0; i<nsons; ++i)
+      {
+      const Node* son = node->getSon(i);
+      const TreeTemplateTools::Moments_ son_moments = TreeTemplateTools::getSubtreeMoments(son);
+      const double d = son->getDistanceToFather();
+      moments.numberOfLeaves += son_moments.numberOfLeaves;
+      moments.sum += son_moments.sum + d * son_moments.numberOfLeaves;
+      moments.squaresSum += son_moments.squaresSum + 2 * d * son_moments.sum + son_moments.numberOfLeaves * d*d;
+      }
+    }
+
+  return moments;
+}
+
+/******************************************************************************/
