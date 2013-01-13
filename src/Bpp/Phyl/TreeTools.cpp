@@ -1206,7 +1206,7 @@ void TreeTools::constrainedMidPointRooting(Tree& tree)
 double TreeTools::bestRootPosition_(Tree& tree, int nodeId1, int nodeId2, double length)
 {
   double x;
-  Moments m1, m2;
+  Moments_ m1, m2;
   double A, B; // C;
   // The variance is expressed as a degree 2 polynomial : variance(x) = A * x * x + B * x + C
   // The fraction x is then obtained by differentiating this equation.
@@ -1232,12 +1232,12 @@ double TreeTools::bestRootPosition_(Tree& tree, int nodeId1, int nodeId2, double
 
 /******************************************************************************/
 
-TreeTools::Moments TreeTools::statFromNode_(Tree& tree, int rootId)
+TreeTools::Moments_ TreeTools::statFromNode_(Tree& tree, int rootId)
 {
   // This function recursively calculates both the sum of the branch lengths and the sum of the squared branch lengths down the node whose ID is rootId.
   // If below a particular node there are N leaves, the branch between this node and its father is taken into account N times in the calculation.
-  Moments m;
-  static Moments mtmp;
+  Moments_ m;
+  static Moments_ mtmp;
 
   if (tree.isLeaf(rootId))
   {

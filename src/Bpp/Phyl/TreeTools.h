@@ -695,13 +695,13 @@ class TreeTools
     static const std::string BOOTSTRAP;
 
   private:
-	  struct Moments {
+	  struct Moments_ {
 	    unsigned int N;
 	    double sum, squaredSum;
-	    Moments(): N(0), sum(0), squaredSum(0) {}
+	    Moments_(): N(0), sum(0), squaredSum(0) {}
 	  };	  
 
-	  static Moments statFromNode_(Tree& tree, int rootId);
+	  static Moments_ statFromNode_(Tree& tree, int rootId);
 	  static double bestRootPosition_(Tree& tree, int nodeId1, int nodeId2, double length);
 
 
