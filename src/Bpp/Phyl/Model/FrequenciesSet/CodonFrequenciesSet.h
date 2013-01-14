@@ -263,6 +263,11 @@ namespace bpp
     public virtual CodonFrequenciesSet,
     public WordFromIndependentFrequenciesSet
   {
+  private:
+
+    // a map associating stop codons numbers with numbers of neighbour non-stop codons
+    std::map<int, Vint> mStopNeigh_;
+
   public:
     /**
      * @brief Constructor from a CodonAlphabet* and a vector of different FrequenciesSet*.
@@ -279,16 +284,17 @@ namespace bpp
     CodonFromIndependentFrequenciesSet* clone() const { return new CodonFromIndependentFrequenciesSet(*this); }
 
     const CodonAlphabet* getAlphabet() const;
-  public:
-    void updateFrequencies();
   
-    /**
-     *@ brief Independent letter frequencies from given word frequencies.
-     * The frequencies of a letter at a position is the sum of the
-     *    frequencies of the words that have this letter at this
-     *    position.
+    /*
+     *@ brief Update the frequencies given the parameters.
+     *
+     * The frequency of each stop codon is distributed to the non-stop
+     * neighbour codons (ie those that are one mutation distant), in
+     * proportion to the square of each target codon frequency.
+     *
      */
-    void setFrequencies(const std::vector<double>& frequencies);
+
+    void updateFrequencies();
   };
 
 
@@ -304,6 +310,11 @@ namespace bpp
     public virtual CodonFrequenciesSet,
     public WordFromUniqueFrequenciesSet
   {
+  private:
+
+    // a map associating stop codons numbers with numbers of neighbour non-stop codons
+    std::map<int, Vint> mStopNeigh_;
+
   public:
     /**
      * @brief Constructor from a CodonAlphabet* and a FrequenciesSet*
@@ -320,19 +331,18 @@ namespace bpp
   
     CodonFromUniqueFrequenciesSet* clone() const { return new CodonFromUniqueFrequenciesSet(*this); }
   
-  public:
     const CodonAlphabet* getAlphabet() const;
 
-    void updateFrequencies();
-  
-    /**
-     *@ brief letter frequencies from given word frequencies. The
-     * frequencies of a letter at a position is the sum of the
-     * frequencies of the words that have this letter at this position.
-     * The frequencies of each letter is the average of the frequencies
-     * of that letter at all positions.
+    /*
+     *@ brief Update the frequencies given the parameters.
+     *
+     * The frequency of each stop codon is distributed to the non-stop
+     * neighbour codons (ie those that are one mutation distant), in
+     * proportion to the square of each target codon frequency.
+     *
      */
-    void setFrequencies(const std::vector<double>& frequencies);
+
+    void updateFrequencies();
   };
 
 
