@@ -71,7 +71,7 @@ protected:
   bool init_;
   unsigned int nbrOfAxes_;
   string exch_;
-  RowMatrix<double>* P_;
+  RowMatrix<double> P_;
   RowMatrix<double> R_;
   vector<double> colWeights_;
   map<string, string> paramValues_;
@@ -79,20 +79,16 @@ protected:
 public:
   CoalaCore(unsigned int nbAxes = 0, const string& exch = "LG08");
 
-  CoalaCore(const CoalaCore& coalaCore);
-
-  CoalaCore& operator=(const CoalaCore& coalaCore);
-
   virtual ~CoalaCore() {}
 
   CoalaCore* clone() const { return new CoalaCore(*this); }
 
 public:
   unsigned int getNbrOfAxes() const { return nbrOfAxes_; }
-  RowMatrix<double> getTppalAxesMatrix() const { return *P_; }
-  RowMatrix<double> getRowCoordinates() const { return R_; }
-  vector<double> getColumnWeights() const { return colWeights_; }
-  void setParamValues(map<string, string>& valuesSettings) { paramValues_ = valuesSettings; }
+  const RowMatrix<double>& getTppalAxesMatrix() const { return P_; }
+  const RowMatrix<double>& getRowCoordinates() const { return R_; }
+  const vector<double>& getColumnWeights() const { return colWeights_; }
+  void setParamValues(const map<string, string>& valuesSettings) { paramValues_ = valuesSettings; }
 
 protected:
   ParameterList computeCOA(const SequenceContainer& data, bool param = true);

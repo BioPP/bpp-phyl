@@ -66,47 +66,11 @@ CoalaCore::CoalaCore(unsigned int nbAxes, const string& exch) :
   init_(true),
   nbrOfAxes_(nbAxes),
   exch_(exch),
-  P_(0),
+  P_(),
   R_(),
   colWeights_(),
   paramValues_()
 {}
-
-/******************************************************************************/
-
-CoalaCore::CoalaCore(const CoalaCore& coalaCore) :
-  init_(true),
-  nbrOfAxes_(0),
-  exch_(""),
-  P_(0),
-  R_(),
-  colWeights_(),
-  paramValues_()
-{
-  init_ = coalaCore.init_;
-  nbrOfAxes_ = coalaCore.nbrOfAxes_;
-  exch_ = coalaCore.exch_;
-  P_ = coalaCore.P_->clone();
-  R_ = coalaCore.R_;
-  colWeights_ = coalaCore.colWeights_;
-  paramValues_ = coalaCore.paramValues_;
-}
-
-/******************************************************************************/
-
-CoalaCore& CoalaCore::operator=(const CoalaCore& coalaCore)
-{
-  init_ = coalaCore.init_;
-  nbrOfAxes_ = coalaCore.nbrOfAxes_;
-  exch_ = coalaCore.exch_;
-  if (P_)
-    delete P_;
-  P_ = coalaCore.P_->clone();
-  R_ = coalaCore.R_;
-  colWeights_ = coalaCore.colWeights_;
-  paramValues_ = coalaCore.paramValues_;
-  return *this;
-}
 
 /******************************************************************************/
 
@@ -173,8 +137,7 @@ ParameterList CoalaCore::computeCOA(const SequenceContainer& data, bool param)
   // Matrix of principal axes:
   RowMatrix<double> ppalAxes = coa->getPrincipalAxes();
   // The transpose of the matrix of principal axes is computed:
-  P_ = new RowMatrix<double>;
-  MatrixTools::transpose(ppalAxes, *P_);
+  MatrixTools::transpose(ppalAxes, P_);
   // The matrix of row coordinates is stored:
   R_ = coa->getRowCoordinates();
   // The column weights are retrieved:

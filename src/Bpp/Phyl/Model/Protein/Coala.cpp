@@ -120,39 +120,6 @@ Coala::Coala(
 
 /******************************************************************************/
 
-Coala::Coala(const Coala& coala) :
-  AbstractParameterAliasable(coala),
-  AbstractSubstitutionModel(coala),
-  ProteinSubstitutionModel(coala),
-  AbstractReversibleSubstitutionModel(coala),
-  CoalaCore(coala),
-  init_(true),
-  nbrOfAxes_(0),
-  exch_(""),
-  file_("")
-{
-  init_ = coala.init_;
-  exch_ = coala.exch_;
-  file_ = coala.file_;
-  nbrOfAxes_ = coala.nbrOfAxes_;
-}
-
-/******************************************************************************/
-
-Coala& Coala::operator=(const Coala& coala)
-{
-  ProteinSubstitutionModel::operator=(coala);
-  AbstractReversibleSubstitutionModel::operator=(coala);
-  CoalaCore::operator=(coala);
-  init_ = coala.init_;
-  nbrOfAxes_ = coala.nbrOfAxes_;
-  exch_ = coala.exch_;
-  file_ = coala.file_;
-  return *this;
-}
-
-/******************************************************************************/
-
 void Coala::readFromFile(string& file)
 {
   ifstream in(file.c_str(), ios::in);
@@ -202,7 +169,7 @@ void Coala::computeEquilibriumFrequencies()
 
     // Now, frequencies are computed from the vector of coordinates and the transpose of the principal axes matrix (P_):
     vector<double> tmpFreqs;
-    tmpFreqs = prodMatrixVector(*P_, coord);
+    tmpFreqs = prodMatrixVector(P_, coord);
     for (unsigned int i = 0; i < tmpFreqs.size(); i++)
     {
       tmpFreqs[i] = (tmpFreqs[i] + 1) * colWeights_[i];

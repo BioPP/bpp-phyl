@@ -375,6 +375,13 @@ FrequenciesSet* BppOFrequenciesSetFormat::read(const Alphabet* alphabet, const s
     else
       throw Exception("Unknown frequency option: " + freqName);
   }
+  
+  //MVAprotein freq set for COaLA model
+  else if (freqName == "MVAprotein")
+  {
+	  pFS.reset(new MvaFrequenciesSet(dynamic_cast<const ProteicAlphabet*>(alphabet)));
+	  dynamic_cast<MvaFrequenciesSet*>(pFS.get())->setParamValues(args);
+  }
   else
     throw Exception("Unknown frequency option: " + freqName);
 
