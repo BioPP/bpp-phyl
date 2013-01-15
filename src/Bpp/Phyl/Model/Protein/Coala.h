@@ -89,10 +89,6 @@ public:
         const string exch = "LG08",
         string file = "");
 
-  Coala(const Coala& coala);
-
-  Coala& operator=(const Coala& coala);
-
   virtual ~Coala() {}
 
 #ifndef NO_VIRTUAL_COV
