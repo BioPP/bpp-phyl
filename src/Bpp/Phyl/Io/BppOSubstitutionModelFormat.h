@@ -82,6 +82,7 @@ public:
    * @param allowCovarions   Tell is a covarion model can be returned.
    * @param allowMixed       Tell is a mixture model can be returned.
    * @param allowGaps        Tell is a gap model can be returned.
+   * @param verbose          Tell if the construction is verbose.
    */
   BppOSubstitutionModelFormat(unsigned char alphabetCode, bool allowCovarions, bool allowMixed, bool allowGaps, bool verbose):
     alphabetCode_(alphabetCode),

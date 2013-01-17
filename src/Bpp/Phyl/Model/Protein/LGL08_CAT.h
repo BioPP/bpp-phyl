@@ -99,6 +99,7 @@ public:
    * @brief Build a CAT model, with original equilibrium frequencies, probabilities and rates.
    *
    * @param alpha A proteic alphabet.
+   * @param nbCat number of profiles
    *
    */
 

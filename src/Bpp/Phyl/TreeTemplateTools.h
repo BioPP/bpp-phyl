@@ -1146,7 +1146,7 @@ class TreeTemplateTools
     /**
      * @brief Midroot the tree by minimizing a given criterion ("variance" or "sum of squares")
      *
-     * @detailed
+     * @details
      * For each branch, the best root position, according to the given criterion, is computed analytically.
      *
      * For the 'variance' criterion :

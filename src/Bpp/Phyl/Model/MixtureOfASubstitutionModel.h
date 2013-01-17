@@ -148,7 +148,7 @@ public:
   /**
    * @brief returns the DiscreteDistribution associated with a given
    * parameter name.
-   * @param the name of the parameter
+   * @param parName name of the parameter
    **/
 
   const DiscreteDistribution* getDistribution(std::string& parName) const;

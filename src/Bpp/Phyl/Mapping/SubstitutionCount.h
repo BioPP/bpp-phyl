@@ -92,7 +92,7 @@ namespace bpp
     virtual SubstitutionRegister* getSubstitutionRegister() = 0;
 
     /**
-     * @param The new SubstitutionRegister object to be associated to this instance.
+     * @param reg The new SubstitutionRegister object to be associated to this instance.
      * The register contains the description of the various substitutions types that are mapped.
      */
     virtual void setSubstitutionRegister(SubstitutionRegister* reg) = 0;
@@ -192,6 +192,13 @@ namespace bpp
 
   public:
     bool hasSubstitutionRegister() const { return (register_ != 0); }
+
+    /*
+     *@brief attribution of a SubstitutionRegister
+     *
+     *@param reg pointer to a SubstitutionRegister
+     *
+     */
     
     void setSubstitutionRegister(SubstitutionRegister* reg) {
       if (register_) delete register_;

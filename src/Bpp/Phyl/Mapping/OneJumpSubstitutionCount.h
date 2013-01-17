@@ -101,7 +101,12 @@ class OneJumpSubstitutionCount:
     }
     
     void setSubstitutionModel(const SubstitutionModel* model) { model_ = model; }
-    
+
+  /*
+   *@param reg pointer to a SubstitutionRegister
+   *
+   */
+        
     void setSubstitutionRegister(SubstitutionRegister* reg) throw (Exception) {
       throw Exception("OneJumpSubstitutionCount::setSubstitutionRegister. This SubstitutionsCount only works with a TotalSubstitutionRegister.");
     }

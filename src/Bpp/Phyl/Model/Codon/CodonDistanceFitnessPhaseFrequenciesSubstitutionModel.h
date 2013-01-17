@@ -47,6 +47,50 @@
 
 namespace bpp
 {
+  /**
+   * @brief Class for asynonymous and synonymous substitution models
+   * on codons with parameterized equilibrium frequencies and
+   * nucleotidic basic models.
+   *
+   * @author Fanny Pouyet, Laurent Guéguen
+   *
+   * This class should be used with models which equilibrium
+   * distribution is fixed, ans does not depend on the parameters.
+   * Otherwise there may be problems of identifiability of the
+   * parameters.
+   *
+   * See description in AbstractCodonDistanceSubstitutionModel
+   * class, AbstractCodonPhaseFrequenciesSubstitutionModel class,
+   * AbstractCodonFitnessSubstitutionModel class.
+   *
+   * Only substitutions with one letter changed are accepted. </p>
+   *
+   * The additional parameter to CodonPhaseFrequenciesSubstitutionModel
+   * is the ratio of nonsynonymous over synonymous substitutions.
+   *
+   * If a distance @f$d@f$ between amino-acids is defined, the ratio between
+   * non-synonymous and synonymous substitutions rates is, if the codied
+   * amino-acids are @f$x@f$ and @f$y@f$, @f$\beta*\exp(-\alpha.d(x,y))@f$ with
+   * non-negative parameter \c "alpha" and positive parameter \c "beta".
+   *
+   * If such a distance is not defined, the ratio between
+   * non-synonymous and synonymous substitutions rates is
+   * @f$\beta@f$ with positive parameter \c "beta".
+   *
+   * The fitness of a codon is a value between 0 and 1 defining the
+   * relative advantage of a codon, compared to others. If a codon
+   * @f$i@f$ has a fitness @f$\phi_i@f$ and another one (@f$j@f$)
+   * has a fitness @f$\phi_j@f$, the substitution rate from codon
+   * @f$i@f$ to codon @f$j@f$ is multiplied by
+   * \f[-\frac{\log(\frac{\phi_i}{\phi_j})}{1-\frac{\phi_i}{\phi_j}}\f]
+   * The set of fitnesses is implemented through a Codon
+   * FrequenciesSet object. The parameters are named \c
+   * "fit_NameOfTheParameterInTheFrequenciesSet".
+   *
+   * Reference:
+   * -  Yang Z. and Nielsen R. (2008), _Molecular Biology and Evolution_ 25(3):568--579.
+   */
+
 
   class CodonDistanceFitnessPhaseFrequenciesSubstitutionModel :
     public AbstractCodonSubstitutionModel,
@@ -55,50 +99,6 @@ namespace bpp
     public AbstractCodonFitnessSubstitutionModel
   {
   public:
-    /**
-     * @brief Class for asynonymous and synonymous substitution models
-     * on codons with parameterized equilibrium frequencies and
-     * nucleotidic basic models.
-     *
-     * @author Fanny Pouyet, Laurent Guéguen
-     *
-     * This class should be used with models which equilibrium
-     * distribution is fixed, ans does not depend on the parameters.
-     * Otherwise there may be problems of identifiability of the
-     * parameters.
-     *
-     * See description in AbstractCodonDistanceSubstitutionModel
-     * class, AbstractCodonPhaseFrequenciesSubstitutionModel class,
-     * AbstractCodonFitnessSubstitutionModel class.
-     *
-     * Only substitutions with one letter changed are accepted. </p>
-     *
-     * The additional parameter to CodonPhaseFrequenciesSubstitutionModel
-     * is the ratio of nonsynonymous over synonymous substitutions.
-     *
-     * If a distance @f$d@f$ between amino-acids is defined, the ratio between
-     * non-synonymous and synonymous substitutions rates is, if the codied
-     * amino-acids are @f$x@f$ and @f$y@f$, @f$\beta*\exp(-\alpha.d(x,y))@f$ with
-     * non-negative parameter \c "alpha" and positive parameter \c "beta".
-     *
-     * If such a distance is not defined, the ratio between
-     * non-synonymous and synonymous substitutions rates is
-     * @f$\beta@f$ with positive parameter \c "beta".
-     *
-     * The fitness of a codon is a value between 0 and 1 defining the
-     * relative advantage of a codon, compared to others. If a codon
-     * @f$i@f$ has a fitness @f$\phi_i@f$ and another one (@f$j@f$)
-     * has a fitness @f$\phi_j@f$, the substitution rate from codon
-     * @f$i@f$ to codon @f$j@f$ is multiplied by
-     * \f[-\frac{\log(\frac{\phi_i}{\phi_j})}{1-\frac{\phi_i}{\phi_j}}\f]
-     * The set of fitnesses is implemented through a Codon
-     * FrequenciesSet object. The parameters are named \c
-     * "fit_NameOfTheParameterInTheFrequenciesSet".
-     *
-     * Reference:
-     * -  Yang Z. and Nielsen R. (2008), _Molecular Biology and Evolution_ 25(3):568--579.
-     */
-
     CodonDistanceFitnessPhaseFrequenciesSubstitutionModel(const GeneticCode* palph,
                                   NucleotideSubstitutionModel* pmod,
                                   FrequenciesSet* pfit,
