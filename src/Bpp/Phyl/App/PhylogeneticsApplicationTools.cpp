@@ -420,6 +420,14 @@ void PhylogeneticsApplicationTools::setSubstitutionModelSet(
   {
     rootFrequencies = getRootFrequenciesSet(alphabet, data, params, rateFreqs, suffix, suffixIsOptional, verbose);
     stationarity = !rootFrequencies;
+    string freqDescription = ApplicationTools::getStringParameter("nonhomogeneous.root_freq", params, "", suffix, suffixIsOptional);
+    if (freqDescription.substr(0, 10) == "MVAprotein")
+    {
+      if (dynamic_cast<Coala*>(tmp.get()))
+        dynamic_cast<MvaFrequenciesSet*>(rootFrequencies)->initSet(dynamic_cast<CoalaCore*>(tmp.get()));
+      else
+        throw Exception("The MVAprotein frequencies set at the root can only be used if a COaLA model is used on branches.");
+    }
   }
   ApplicationTools::displayBooleanResult("Stationarity assumed", stationarity);
 
@@ -456,14 +464,14 @@ void PhylogeneticsApplicationTools::setSubstitutionModelSet(
     if (verbose)
       ApplicationTools::displayResult("Model" + TextTools::toString(i + 1) + " is associated to", TextTools::toString(nodesId.size()) + " node(s).");
     // Add model and specific parameters:
-    //DEBUG: cout << "Specific parameters:" << endl;
-    //DEBUG: VectorTools::print(specificParameters);
+    // DEBUG: cout << "Specific parameters:" << endl;
+    // DEBUG: VectorTools::print(specificParameters);
     modelSet.addModel(model.get(), nodesId, specificParameters);
     // Now set shared parameters:
     for (unsigned int j = 0; j < sharedParameters.size(); j++)
     {
       string pName = sharedParameters[j];
-      //DEBUG: cout << "Shared parameter found: " << pName << endl;
+      // DEBUG: cout << "Shared parameter found: " << pName << endl;
       string::size_type index = pName.find(".");
       if (index == string::npos)
         throw Exception("PhylogeneticsApplicationTools::getSubstitutionModelSet. Bad parameter name: " + pName);
@@ -657,7 +665,7 @@ DiscreteDistribution* PhylogeneticsApplicationTools::getRateDistribution(
     ApplicationTools::displayResult("Rate distribution", distName);
     ApplicationTools::displayResult("Number of classes", TextTools::toString(rDist->getNumberOfCategories()));
   }
-  
+
   return rDist.release();
 }
 
@@ -729,7 +737,7 @@ throw (Exception)
   // Should I ignore some parameters?
   ParameterList parametersToEstimate = parameters;
   string paramListDesc = ApplicationTools::getStringParameter("optimization.ignore_parameter", params, "", suffix, suffixIsOptional, false);
-  if (paramListDesc.length()==0)
+  if (paramListDesc.length() == 0)
     paramListDesc = ApplicationTools::getStringParameter("optimization.ignore_parameters", params, "", suffix, suffixIsOptional, false);
   StringTokenizer st(paramListDesc, ",");
   while (st.hasMoreToken())
@@ -764,27 +772,29 @@ throw (Exception)
         {
           StringTokenizer stj(param, "*", true, false);
           size_t pos1, pos2;
-          string parn=parametersToEstimate[j].getName();
+          string parn = parametersToEstimate[j].getName();
           bool flag(true);
-          string g=stj.nextToken();
-          pos1=parn.find(g);
-          if (pos1!=0)
-            flag=false;
-          pos1+=g.length();
-          while (flag && stj.hasMoreToken()){
-            g=stj.nextToken();
-            pos2=parn.find(g,pos1);
-            if (pos2 == string::npos){
-              flag=false;
+          string g = stj.nextToken();
+          pos1 = parn.find(g);
+          if (pos1 != 0)
+            flag = false;
+          pos1 += g.length();
+          while (flag && stj.hasMoreToken())
+          {
+            g = stj.nextToken();
+            pos2 = parn.find(g, pos1);
+            if (pos2 == string::npos)
+            {
+              flag = false;
               break;
             }
-            pos1=pos2+g.length();
+            pos1 = pos2 + g.length();
           }
           if (flag &&
-              ((g.length()==0) || (pos1==parn.length()) || (parn.rfind(g)==parn.length()-g.length())))
+              ((g.length() == 0) || (pos1 == parn.length()) || (parn.rfind(g) == parn.length() - g.length())))
             vs.push_back(parn);
         }
-        
+
         for (vector<string>::iterator it = vs.begin(); it != vs.end(); it++)
         {
           parametersToEstimate.deleteParameter(*it);
@@ -1398,8 +1408,8 @@ void PhylogeneticsApplicationTools::printParameters(const DiscreteDistribution* 
   out << "rate_distribution=";
   map<string, string> globalAliases;
   vector<string> writtenNames;
-  const BppORateDistributionFormat* bIO=new BppORateDistributionFormat(true);
-  
+  const BppORateDistributionFormat* bIO = new BppORateDistributionFormat(true);
+
   bIO->write(*rDist, out, globalAliases, writtenNames);
   delete bIO;
   out.endLine();

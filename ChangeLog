@@ -1,3 +1,6 @@
+13/01/13 Julien Dutheil
+* Added new COaLA protein substitution model.
+
 18/11/12 Julien Dutheil
 * New RateDistribution classes.
 * Better BppO parser and PhylogeneticsApplicationTools.

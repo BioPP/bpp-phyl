@@ -5,7 +5,7 @@
 //
 
 /*
-   Copyright or © or Copr. CNRS, (November 16, 2004)
+   Copyright or © or Copr. Bio++ Development Team, (November 16, 2004)
 
    This software is a computer program whose purpose is to provide classes
    for phylogenetic data analysis.
@@ -115,11 +115,11 @@ class BinarySubstitutionModel :
   public AbstractReversibleSubstitutionModel
 {
 private:
-  double _kappa;
+  double kappa_;
 
 protected:
-  mutable double _lambda, _exp;
-  mutable RowMatrix<double> _p;
+  mutable double lambda_, exp_;
+  mutable RowMatrix<double> p_;
 
 public:
   BinarySubstitutionModel(const BinaryAlphabet* alpha, double kappa = 1.);

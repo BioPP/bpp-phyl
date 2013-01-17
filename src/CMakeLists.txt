@@ -103,6 +103,8 @@ set(CPP_FILES
   Bpp/Phyl/Model/Protein/LLG08_UL2.cpp
   Bpp/Phyl/Model/Protein/LLG08_UL3.cpp
   Bpp/Phyl/Model/Protein/LGL08_CAT.cpp
+  Bpp/Phyl/Model/Protein/Coala.cpp
+  Bpp/Phyl/Model/Protein/CoalaCore.cpp
   Bpp/Phyl/Model/Codon/GY94.cpp
   Bpp/Phyl/Model/Codon/MG94.cpp
   Bpp/Phyl/Model/Codon/TripletSubstitutionModel.cpp
@@ -125,6 +127,7 @@ set(CPP_FILES
   Bpp/Phyl/Model/Codon/YNGKP_M8.cpp
   Bpp/Phyl/Model/FrequenciesSet/FrequenciesSet.cpp
   Bpp/Phyl/Model/FrequenciesSet/NucleotideFrequenciesSet.cpp
+  Bpp/Phyl/Model/FrequenciesSet/MvaFrequenciesSet.cpp
   Bpp/Phyl/Model/FrequenciesSet/WordFrequenciesSet.cpp
   Bpp/Phyl/Model/FrequenciesSet/CodonFrequenciesSet.cpp
   Bpp/Phyl/NNITopologySearch.cpp
@@ -268,6 +271,8 @@ set(H_FILES
   Bpp/Phyl/Model/Protein/LLG08_UL2.h
   Bpp/Phyl/Model/Protein/LLG08_UL3.h
   Bpp/Phyl/Model/Protein/LGL08_CAT.h
+  Bpp/Phyl/Model/Protein/Coala.h
+  Bpp/Phyl/Model/Protein/CoalaCore.h
   Bpp/Phyl/Model/Codon/GY94.h
   Bpp/Phyl/Model/Codon/MG94.h
   Bpp/Phyl/Model/Codon/CodonSubstitutionModel.h
@@ -296,6 +301,7 @@ set(H_FILES
   Bpp/Phyl/Model/FrequenciesSet/FrequenciesSet.h
   Bpp/Phyl/Model/FrequenciesSet/NucleotideFrequenciesSet.h
   Bpp/Phyl/Model/FrequenciesSet/ProteinFrequenciesSet.h
+  Bpp/Phyl/Model/FrequenciesSet/MvaFrequenciesSet.h
   Bpp/Phyl/Model/FrequenciesSet/WordFrequenciesSet.h
   Bpp/Phyl/Model/FrequenciesSet/CodonFrequenciesSet.h
   Bpp/Phyl/Model/RateDistribution/ConstantRateDistribution.h

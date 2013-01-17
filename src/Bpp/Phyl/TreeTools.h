@@ -672,10 +672,17 @@ class TreeTools
      * @param verbose Tell if a progress bar should be displayed.
      */
     static void computeBootstrapValues(Tree& tree, const std::vector<Tree*>& vecTr, bool verbose = true);
-
-
-
-
+	
+    /**
+     * @brief Determine the mid-point position of the root along the branch that already contains the root. Consequently, the topology of the rooted tree remains identical.
+     * 
+     * This code uses two inner functions to compute the mid-point position: statFromNode_ and bestRootPosition_.
+     * This code is inspired by a code performing a similar calculation in Seaview (Guindon et al., 2010, Mol. Biol. Evol. 27(2):221-4).
+     * 
+     * @param tree The rooted tree for which the root has to be moved to its mid-point position, along the branch where it already stands.
+     */    
+    static void constrainedMidPointRooting(Tree& tree);
+	
     /**
      * @name Some properties.
      *
@@ -685,7 +692,19 @@ class TreeTools
     /**
      * @brief Bootstrap tag.
      */
-    static const std::string BOOTSTRAP;   
+    static const std::string BOOTSTRAP;
+
+  private:
+	  struct Moments_ {
+	    unsigned int N;
+	    double sum, squaredSum;
+	    Moments_(): N(0), sum(0), squaredSum(0) {}
+	  };	  
+
+	  static Moments_ statFromNode_(Tree& tree, int rootId);
+	  static double bestRootPosition_(Tree& tree, int nodeId1, int nodeId2, double length);
+
+
     /** @} */
 
 };
