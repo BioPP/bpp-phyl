@@ -69,7 +69,7 @@ class CoalaCore
 {
 protected:
   bool init_;
-  unsigned int nbrOfAxes_;
+  size_t nbrOfAxes_;
   string exch_;
   RowMatrix<double> P_;
   RowMatrix<double> R_;
@@ -77,14 +77,14 @@ protected:
   map<string, string> paramValues_;
 
 public:
-  CoalaCore(unsigned int nbAxes = 0, const string& exch = "LG08");
+  CoalaCore(size_t nbAxes = 0, const string& exch = "LG08");
 
   virtual ~CoalaCore() {}
 
   CoalaCore* clone() const { return new CoalaCore(*this); }
 
 public:
-  unsigned int getNbrOfAxes() const { return nbrOfAxes_; }
+  size_t getNbrOfAxes() const { return nbrOfAxes_; }
   const RowMatrix<double>& getTppalAxesMatrix() const { return P_; }
   const RowMatrix<double>& getRowCoordinates() const { return R_; }
   const vector<double>& getColumnWeights() const { return colWeights_; }

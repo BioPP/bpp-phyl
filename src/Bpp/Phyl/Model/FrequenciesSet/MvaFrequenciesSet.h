@@ -87,7 +87,7 @@ public:
 protected:
 	RowMatrix<double> tPpalAxes_;
 	RowMatrix<double> rowCoords_;
-	unsigned int nbrOfAxes_;
+	size_t nbrOfAxes_;
 	std::string model_;
 	std::vector<double> columnWeights_;
 	std::map<std::string,std::string> paramValues_;
@@ -97,7 +97,7 @@ public:
 
 	void setTransposeMatrixOfPpalAxes(const RowMatrix<double>& matrix) { tPpalAxes_ = matrix; }
 	void setMatrixOfRowCoords(const RowMatrix<double>& matrix) { rowCoords_ = matrix; }
-	void setNbrOfAxes(const unsigned int& nAxes) { nbrOfAxes_ = nAxes; }
+	void setNbrOfAxes(const size_t& nAxes) { nbrOfAxes_ = nAxes; }
 	void setModelName(const std::string& modelName) { model_ = modelName; }
 	void setVectorOfColumnWeights(const std::vector<double>& cw) { columnWeights_ = cw; }
 	void setParamValues(std::map<std::string, std::string>& valuesSettings) {paramValues_ = valuesSettings;}

@@ -314,7 +314,7 @@ Vint MixtureOfASubstitutionModel::getSubmodelNumbers(string& desc) const
       j = j / it->second->getNumberOfCategories();
     }
     if (nameok && it == distributionMap_.end())
-      submodnb.push_back(i);
+      submodnb.push_back(static_cast<int>(i));
   }
 
   return submodnb;

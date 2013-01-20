@@ -152,7 +152,7 @@ void RNonHomogeneousMixedTreeLikelihood::init(bool usePatterns)
 
   const SiteContainer* pdata=getData();
   
-  const Tree& tree=getTree();
+  const Tree& tree = getTree();
   
   vDesc.push_back(upperNode_); // start of the exploration
 
@@ -224,10 +224,10 @@ void RNonHomogeneousMixedTreeLikelihood::init(bool usePatterns)
         
         for (size_t j = 0; j < nbmodels; j++)
         {
-          if ((hyperNode_.getNode(j).size()>=1) && find(vExpMod.begin(), vExpMod.end(), static_cast<int>(j)) != vExpMod.end())
+          if ((hyperNode_.getNode(j).size() >= 1) && find(vExpMod.begin(), vExpMod.end(), static_cast<int>(j)) != vExpMod.end())
           {
             hn.setModel(j, Vint(1, hyperNode_.getNode(j)[s % mapmodels[static_cast<int>(j)]]));
-            s /= mapmodels[j];
+            s /= mapmodels[static_cast<int>(j)];
           }
         }
         hn.setProbability((dynamic_cast<MixedSubstitutionModelSet*>(modelSet_))->getHyperNodeProbability(hn));
@@ -721,17 +721,17 @@ void RNonHomogeneousMixedTreeLikelihood::computeDownSubtreeD2Likelihood(const No
 void RNonHomogeneousMixedTreeLikelihood::computeTransitionProbabilitiesForNode(const Node* node)
 {
   const SubstitutionModel* model = modelSet_->getModelForNode(node->getId());
-  int modelnum = modelSet_->getModelIndexForNode(node->getId());
+  size_t modelnum = modelSet_->getModelIndexForNode(node->getId());
 
   vector<const SubstitutionModel*> vModel;
   vector<double> vProba;
   
   const MixedSubstitutionModelSet::HyperNode::Node& nd=hyperNode_.getNode(modelnum);
-  if (nd.size()==0){
+  if (nd.size() == 0) {
     vModel.push_back(model);
     vProba.push_back(1);
   }
-  else{
+  else {
     const MixedSubstitutionModel* mmodel = dynamic_cast<const MixedSubstitutionModel*>(model);
     double x=0;
     for (size_t i=0;i<nd.size();i++){
@@ -747,8 +747,7 @@ void RNonHomogeneousMixedTreeLikelihood::computeTransitionProbabilitiesForNode(c
   double l = node->getDistanceToFather();
   // Computes all pxy and pyx once for all:
   VVVdouble* pxy__node = &pxy_[node->getId()];
-  for (size_t c = 0; c < nbClasses_; c++){
-
+  for (size_t c = 0; c < nbClasses_; c++) {
     VVdouble* pxy__node_c = &(*pxy__node)[c];
     for (size_t x = 0; x < nbStates_; x++){
       Vdouble* pxy__node_c_x = &(*pxy__node_c)[x];
@@ -768,7 +767,7 @@ void RNonHomogeneousMixedTreeLikelihood::computeTransitionProbabilitiesForNode(c
     }
   }
   
-  if (computeFirstOrderDerivatives_){
+  if (computeFirstOrderDerivatives_) {
     // Computes all dpxy/dt once for all:
     VVVdouble* dpxy__node = &dpxy_[node->getId()];
 
@@ -795,7 +794,7 @@ void RNonHomogeneousMixedTreeLikelihood::computeTransitionProbabilitiesForNode(c
     }
   }
   
-  if (computeSecondOrderDerivatives_){
+  if (computeSecondOrderDerivatives_) {
     // Computes all d2pxy/dt2 once for all:
     VVVdouble* d2pxy__node = &d2pxy_[node->getId()];
     for (size_t c = 0; c < nbClasses_; c++){

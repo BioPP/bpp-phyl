@@ -366,7 +366,7 @@ void AbstractSubstitutionModel::setFreqFromData(const SequenceContainer& data, d
 {
   map<int, int> counts;
   SequenceContainerTools::getCounts(data, counts);
-  int t = 0;
+  double t = 0;
   map<int, double> freqs;
 
   for (int i = 0; i < static_cast<int>(size_); i++)
@@ -386,7 +386,7 @@ void AbstractSubstitutionModel::setFreqFromData(const SequenceContainer& data, d
 
 void AbstractSubstitutionModel::setFreq(map<int, double>& freqs)
 {
-  for (size_t i = 0; i < size_; i++)
+  for (int i = 0; i < static_cast<int>(size_); i++)
   {
     freq_[i] = freqs[i];
   }

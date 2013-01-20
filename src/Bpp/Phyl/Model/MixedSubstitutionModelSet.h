@@ -127,7 +127,7 @@ namespace bpp
      public: 
        class Node {
 
-         /*
+         /**
           * A vector<int> where all elements are different and in
           * increasing order.
           *
@@ -184,7 +184,7 @@ namespace bpp
        
          bool intersects(const Node&) const;
 
-         int operator[](size_t i) const {return vNumb_[i];}
+         int operator[](size_t i) const { return vNumb_[i]; }
 
        };
 
@@ -220,7 +220,7 @@ namespace bpp
         *@param vnS vector of numbers of the submodel
         */
     
-       void setModel(int nM, const Vint& vnS);
+       void setModel(size_t nM, const Vint& vnS);
 
        /*
         *@brief adds submodel numbers to the nMth mixed model. Checks
@@ -230,7 +230,7 @@ namespace bpp
         *@param vnS vector of numbers of the submodel
         */
     
-       void addToModel(int nM, const Vint& vnS);
+       void addToModel(size_t nM, const Vint& vnS);
        /*
         *@brief Cumulates the Nodes of the given HyperNode into this one.
         *
@@ -274,9 +274,9 @@ namespace bpp
         *
         */
 
-       void setProbability(double x) { proba_=x;}
+       void setProbability(double x) { proba_ = x; }
        
-       const Node& getNode(size_t i) const {return vNumbers_[i];}
+       const Node& getNode(size_t i) const { return vNumbers_[i]; }
 
      };
 
@@ -350,7 +350,7 @@ namespace bpp
      *     the list)
      */
     
-    void addToHyperNode(int nM, const Vint& vnS, int nH=-1);
+    void addToHyperNode(size_t nM, const Vint& vnS, int nH = -1);
 
     size_t getNumberOfHyperNodes() const{ return vpHyperNodes_.size();}
 

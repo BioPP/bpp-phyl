@@ -66,8 +66,8 @@ DRHomogeneousMixedTreeLikelihood::DRHomogeneousMixedTreeLikelihood(
   if ((mixedmodel = dynamic_cast<MixedSubstitutionModel*>(model_)) == NULL)
     throw Exception("Bad model: DRHomogeneousMixedTreeLikelihood needs a MixedSubstitutionModel.");
 
-  unsigned int s = mixedmodel->getNumberOfModels();
-  for (unsigned int i = 0; i < s; i++)
+  size_t s = mixedmodel->getNumberOfModels();
+  for (size_t i = 0; i < s; i++)
   {
     treeLikelihoodsContainer_.push_back(
       new DRHomogeneousTreeLikelihood(tree, mixedmodel->getNModel(i), rDist, checkRooted, false));
@@ -92,9 +92,9 @@ throw (Exception) :
   if ((mixedmodel = dynamic_cast<MixedSubstitutionModel*>(model_)) == NULL)
     throw Exception("Bad model: DRHomogeneousMixedTreeLikelihood needs a MixedSubstitutionModel.");
 
-  int s = mixedmodel->getNumberOfModels();
+  size_t s = mixedmodel->getNumberOfModels();
 
-  for (int i = 0; i < s; i++)
+  for (size_t i = 0; i < s; i++)
   {
     treeLikelihoodsContainer_.push_back(
       new DRHomogeneousTreeLikelihood(tree, mixedmodel->getNModel(i), rDist, checkRooted, false));
@@ -167,10 +167,10 @@ void DRHomogeneousMixedTreeLikelihood::fireParameterChanged(const ParameterList&
 
   MixedSubstitutionModel* mixedmodel = dynamic_cast<MixedSubstitutionModel*>(model_);
 
-  unsigned int s = mixedmodel->getNumberOfModels();
+  size_t s = mixedmodel->getNumberOfModels();
 
   const SubstitutionModel* pm;
-  for (unsigned int i = 0; i < s; i++)
+  for (size_t i = 0; i < s; i++)
   {
     ParameterList pl;
     pm = mixedmodel->getNModel(i);
@@ -249,7 +249,7 @@ double DRHomogeneousMixedTreeLikelihood::getLogLikelihood() const
     la[i] = (*w)[i] * log(x);
   }
   sort(la.begin(), la.end());
-  for (unsigned int i = nbDistinctSites_; i > 0; i--)
+  for (size_t i = nbDistinctSites_; i > 0; i--)
   {
     ll += la[i - 1];
   }

@@ -67,7 +67,7 @@ using namespace std;
 class StringAndInt
 {
 public:
-  size_t ind;
+  int ind;
   string str;
 
 public:
@@ -481,7 +481,7 @@ void BipartitionList::sortElements()
   for (size_t i = 0; i < elements_.size(); i++)
   {
     sai.str = elements_[i];
-    sai.ind = i;
+    sai.ind = static_cast<int>(i);
     relements_.push_back(sai);
   }
 
@@ -508,9 +508,9 @@ void BipartitionList::sortElements()
     for (size_t i = 0; i < elements_.size(); i++)
     {
       if (BipartitionTools::testBit(bitBipartitionList_[j - nbbip], relements_[i].ind))
-        BipartitionTools::bit1(bitBipartitionList_[j], i);
+        BipartitionTools::bit1(bitBipartitionList_[j], static_cast<int>(i));
       else
-        BipartitionTools::bit0(bitBipartitionList_[j], i);
+        BipartitionTools::bit0(bitBipartitionList_[j], static_cast<int>(i));
     }
   }
 
@@ -533,7 +533,7 @@ size_t BipartitionList::getPartitionSize(size_t k) const throw (Exception)
 
   for (size_t i = 0; i < elements_.size(); i++)
   {
-    if (BipartitionTools::testBit(bitBipartitionList_[k], i))
+    if (BipartitionTools::testBit(bitBipartitionList_[k], static_cast<int>(i)))
       size++;
   }
 
@@ -688,7 +688,7 @@ TreeTemplate<Node>* BipartitionList::toTree() const throw (Exception)
     { // terminal
       for (size_t j = 0; j < sortedBipL->getNumberOfElements(); j++)
       {
-        if (BipartitionTools::testBit(sortedBitBipL[i], j))
+        if (BipartitionTools::testBit(sortedBitBipL[i], static_cast<int>(j)))
         {
           vecNd[i] = new Node(elements_[j]);
           break;
@@ -775,9 +775,9 @@ vector<string> BipartitionList::buildBitBipartitions(const Node* nd, vector<int*
   for (size_t i = 0; i < elements.size(); i++)
   {
     if (ones)
-      BipartitionTools::bit0(bitbip[*cpt], i);
+      BipartitionTools::bit0(bitbip[*cpt], static_cast<int>(i));
     else
-      BipartitionTools::bit1(bitbip[*cpt], i);
+      BipartitionTools::bit1(bitbip[*cpt], static_cast<int>(i));
   }
 
   for (size_t i = 0; i < underelements_.size(); i++)
@@ -786,9 +786,9 @@ vector<string> BipartitionList::buildBitBipartitions(const Node* nd, vector<int*
     while (underelements_[i] != elements[taxa_ind])
       taxa_ind++;
     if (ones)
-      BipartitionTools::bit1(bitbip[*cpt], taxa_ind);
+      BipartitionTools::bit1(bitbip[*cpt], static_cast<int>(taxa_ind));
     else
-      BipartitionTools::bit0(bitbip[*cpt], taxa_ind);
+      BipartitionTools::bit0(bitbip[*cpt], static_cast<int>(taxa_ind));
   }
 
   (*cpt)++;

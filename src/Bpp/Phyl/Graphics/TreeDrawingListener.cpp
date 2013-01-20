@@ -235,7 +235,7 @@ void LabelCollapsedNodesTreeDrawingListener::afterDrawNode(const DrawNodeEvent& 
     {
       GraphicDevice* gd = event.getGraphicDevice();
       Cursor cursor     = event.getCursor();
-      unsigned int size = TreeTools::getNumberOfLeaves(*td->getTree(), event.getNodeId());
+      size_t size = TreeTools::getNumberOfLeaves(*td->getTree(), event.getNodeId());
       string text = "";
       if (td->getTree()->hasNodeName(event.getNodeId()))
         text += td->getTree()->getNodeName(event.getNodeId()) + " ";

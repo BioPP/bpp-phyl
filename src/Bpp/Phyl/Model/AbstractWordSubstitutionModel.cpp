@@ -5,7 +5,7 @@
 //
 
 /*
-   Copyright or © or Copr. CNRS, (November 16, 2004)
+   Copyright or © or Copr. Bio++ Development Team, (November 16, 2004)
    This software is a computer program whose purpose is to provide classes
    for phylogenetic data analysis.
 
@@ -99,18 +99,18 @@ AbstractWordSubstitutionModel::AbstractWordSubstitutionModel(
     {
       VSubMod_.push_back(modelVector[i]);
       VnestedPrefix_.push_back(modelVector[i]->getNamespace());
-      VSubMod_[i]->setNamespace(st + TextTools::toString(i+1) + "_" + VnestedPrefix_[i]);
+      VSubMod_[i]->setNamespace(st + TextTools::toString(i + 1) + "_" + VnestedPrefix_[i]);
       addParameters_(VSubMod_[i]->getParameters());
     }
   }
   else
   {
-   string t = "";
+    string t = "";
     for (i = 0; i < n; i++)
     {
       VSubMod_.push_back(modelVector[0]);
       VnestedPrefix_.push_back(modelVector[0]->getNamespace());
-      t += TextTools::toString(i+1);
+      t += TextTools::toString(i + 1);
     }
     VSubMod_[0]->setNamespace(st + t + "_" + VnestedPrefix_[0]);
     addParameters_(VSubMod_[0]->getParameters());
@@ -137,7 +137,7 @@ AbstractWordSubstitutionModel::AbstractWordSubstitutionModel(
 
 AbstractWordSubstitutionModel::AbstractWordSubstitutionModel(
   SubstitutionModel* pmodel,
-  size_t num,
+  unsigned int num,
   const std::string& st) :
   AbstractParameterAliasable(st),
   AbstractSubstitutionModel(new WordAlphabet(pmodel->getAlphabet(), num), st),
@@ -152,10 +152,10 @@ AbstractWordSubstitutionModel::AbstractWordSubstitutionModel(
   string t = "";
   for (i = 0; i < num; i++)
   {
-   VSubMod_.push_back(pmodel);
-   VnestedPrefix_.push_back(pmodel->getNamespace());
+    VSubMod_.push_back(pmodel);
+    VnestedPrefix_.push_back(pmodel->getNamespace());
     Vrate_[i] = 1.0 / num;
-    t += TextTools::toString(i+1);
+    t += TextTools::toString(i + 1);
   }
 
   pmodel->setNamespace(st + t + "_" + VnestedPrefix_[0]);
@@ -171,8 +171,8 @@ AbstractWordSubstitutionModel::AbstractWordSubstitutionModel(
   VnestedPrefix_(wrsm.VnestedPrefix_),
   Vrate_         (wrsm.Vrate_)
 {
-   size_t i;
-   size_t num = wrsm.VSubMod_.size();
+  size_t i;
+  size_t num = wrsm.VSubMod_.size();
 
   if (wrsm.new_alphabet_)
     alphabet_ = new WordAlphabet(*(dynamic_cast<const WordAlphabet*>(wrsm.getAlphabet())));
@@ -183,7 +183,7 @@ AbstractWordSubstitutionModel::AbstractWordSubstitutionModel(
 
   for (i = 0; i < num; i++)
   {
-   VSubMod_.push_back(pSM ? pSM : wrsm.VSubMod_[i]->clone());
+    VSubMod_.push_back(pSM ? pSM : wrsm.VSubMod_[i]->clone());
   }
 }
 
@@ -238,13 +238,13 @@ size_t AbstractWordSubstitutionModel::getNumberOfStates() const
 
 Alphabet* AbstractWordSubstitutionModel::extractAlph(const vector<SubstitutionModel*>& modelVector)
 {
-   size_t i;
+  size_t i;
 
-   vector<const Alphabet*> vAlph;
+  vector<const Alphabet*> vAlph;
 
   for (i = 0; i < modelVector.size(); i++)
   {
-   vAlph.push_back(modelVector[i]->getAlphabet());
+    vAlph.push_back(modelVector[i]->getAlphabet());
   }
 
   return new WordAlphabet(vAlph);
@@ -252,14 +252,14 @@ Alphabet* AbstractWordSubstitutionModel::extractAlph(const vector<SubstitutionMo
 
 void AbstractWordSubstitutionModel::setNamespace(const std::string& prefix)
 {
-   AbstractSubstitutionModel::setNamespace(prefix);
+  AbstractSubstitutionModel::setNamespace(prefix);
 
   if (VSubMod_.size() < 2 || VSubMod_[0] == VSubMod_[1])
   {
-   string t = "";
+    string t = "";
     for (size_t i = 0; i < VSubMod_.size(); i++)
     {
-      t += TextTools::toString(i+1);
+      t += TextTools::toString(i + 1);
     }
     VSubMod_[0]->setNamespace(prefix + t + "_" + VnestedPrefix_[0]);
   }
@@ -267,7 +267,7 @@ void AbstractWordSubstitutionModel::setNamespace(const std::string& prefix)
   {
     for (size_t i = 0; i < VSubMod_.size(); i++)
     {
-      VSubMod_[i]->setNamespace(prefix + TextTools::toString(i+1) + "_" + VnestedPrefix_[i]);
+      VSubMod_[i]->setNamespace(prefix + TextTools::toString(i + 1) + "_" + VnestedPrefix_[i]);
     }
   }
 }
@@ -276,9 +276,9 @@ void AbstractWordSubstitutionModel::setNamespace(const std::string& prefix)
 
 void AbstractWordSubstitutionModel::updateMatrices()
 {
-  //First we update position specific models. This need to be done
-  //here and not in fireParameterChanged, as some parameter aliases
-  //might have been defined and need to be resolved first.
+  // First we update position specific models. This need to be done
+  // here and not in fireParameterChanged, as some parameter aliases
+  // might have been defined and need to be resolved first.
   if (VSubMod_.size() < 2 || VSubMod_[0] == VSubMod_[1])
     VSubMod_[0]->matchParametersValues(getParameters());
   else
@@ -289,9 +289,9 @@ void AbstractWordSubstitutionModel::updateMatrices()
 
   size_t nbmod = VSubMod_.size();
   size_t salph = getNumberOfStates();
-  size_t nbStop=0;
+  size_t nbStop = 0;
   vector<bool> vnull; // vector of the indices of lines with only zeros
-  
+
   // Generator
 
   if (enableEigenDecomposition())
@@ -323,7 +323,7 @@ void AbstractWordSubstitutionModel::updateMatrices()
             { // loop on prefix
               for (l = 0; l < m; l++)
               { // loop on suffix
-                generator_(n + i * m + l, n + j * m + l) = gk(i,j) * Vrate_[k - 1];
+                generator_(n + i * m + l, n + j * m + l) = gk(i, j) * Vrate_[k - 1];
               }
               n += m * vsize[k - 1];
             }
@@ -342,15 +342,15 @@ void AbstractWordSubstitutionModel::updateMatrices()
   double x;
 
   for (i = 0; i < salph; i++)
+  {
+    x = 0;
+    for (j = 0; j < salph; j++)
     {
-      x = 0;
-      for (j = 0; j < salph; j++)
-        {
-          if (j != i)
-            x += generator_(i, j);
-        }
-      generator_(i, i) = -x;
+      if (j != i)
+        x += generator_(i, j);
     }
+    generator_(i, i) = -x;
+  }
 
   // at that point generator_ and freq_ are done for models without
   // enableEigenDecomposition
@@ -359,32 +359,38 @@ void AbstractWordSubstitutionModel::updateMatrices()
 
   if (enableEigenDecomposition())
   {
-    
-    for (i = 0; i < salph; i++){
-      bool flag=true;
+    for (i = 0; i < salph; i++)
+    {
+      bool flag = true;
       for (j = 0; j < salph; j++)
-        if ((i!=j) && abs(generator_(i, j))>NumConstants::TINY){
-          flag=false;
+      {
+        if ((i != j) && abs(generator_(i, j)) > NumConstants::TINY)
+        {
+          flag = false;
           break;
         }
+      }
       if (flag)
         nbStop++;
       vnull.push_back(flag);
     }
-    
-    if (nbStop!=0)
+
+    if (nbStop != 0)
     {
       int gi = 0, gj = 0;
-      
+
       RowMatrix<double> gk;
 
       gk.resize(salph - nbStop, salph - nbStop);
       for (i = 0; i < salph; i++)
       {
-        if (!vnull[i]){
+        if (!vnull[i])
+        {
           gj = 0;
-          for (j = 0; j < salph; j++){
-            if (!vnull[j]) {
+          for (j = 0; j < salph; j++)
+          {
+            if (!vnull[j])
+            {
               gk(i - gi, j - gj) = generator_(i, j);
             }
             else
@@ -394,12 +400,13 @@ void AbstractWordSubstitutionModel::updateMatrices()
         else
           gi++;
       }
-      
+
       EigenValue<double> ev(gk);
       eigenValues_ = ev.getRealEigenValues();
       iEigenValues_ = ev.getImagEigenValues();
 
-      for (i = 0; i < nbStop; i++) {
+      for (i = 0; i < nbStop; i++)
+      {
         eigenValues_.push_back(0);
         iEigenValues_.push_back(0);
       }
@@ -413,17 +420,23 @@ void AbstractWordSubstitutionModel::updateMatrices()
         {
           gi++;
           for (j = 0; j < salph; j++)
-            rightEigenVectors_(i,j) = 0;
+          {
+            rightEigenVectors_(i, j) = 0;
+          }
 
-          rightEigenVectors_(i,salph - nbStop + gi - 1) = 1;
+          rightEigenVectors_(i, salph - nbStop + gi - 1) = 1;
         }
         else
         {
           for (j = 0; j < salph - nbStop; j++)
-            rightEigenVectors_(i, j) = rev(i - gi,j);
+          {
+            rightEigenVectors_(i, j) = rev(i - gi, j);
+          }
 
           for (j = salph - nbStop; j < salph; j++)
-            rightEigenVectors_(i,j) = 0;
+          {
+            rightEigenVectors_(i, j) = 0;
+          }
         }
       }
     }
@@ -436,136 +449,167 @@ void AbstractWordSubstitutionModel::updateMatrices()
       nbStop = 0;
     }
 
-    try {
+    try
+    {
       MatrixTools::inv(rightEigenVectors_, leftEigenVectors_);
 
       // is it diagonalizable ?
-      
-      isDiagonalizable_=true;
-      for (i=0; i<size_ && isDiagonalizable_; i++)
+
+      isDiagonalizable_ = true;
+      for (i = 0; i < size_ && isDiagonalizable_; i++)
+      {
         if (abs(iEigenValues_[i]) > NumConstants::SMALL)
-          isDiagonalizable_=false;
+          isDiagonalizable_ = false;
+      }
 
 
       // is it singular?
-      
+
       // looking for the 0 eigenvector for which the non-stop right
       // eigen vector elements are equal.
       //
       // there is a tolerance for numerical problems
       //
-    
-      size_t nulleigen=0;
+
+      size_t nulleigen = 0;
       double val;
-      double seuil=1;
-    
-      isNonSingular_=false;
-      while (!isNonSingular_){
-        nulleigen=0;
-        while (nulleigen < salph-nbStop) {
-          if ((abs(eigenValues_[nulleigen]) < NumConstants::SMALL) && (abs(iEigenValues_[nulleigen]) < NumConstants::SMALL)){
-            i=0;
+      double seuil = 1;
+
+      isNonSingular_ = false;
+      while (!isNonSingular_)
+      {
+        nulleigen = 0;
+        while (nulleigen < salph - nbStop)
+        {
+          if ((abs(eigenValues_[nulleigen]) < NumConstants::SMALL) && (abs(iEigenValues_[nulleigen]) < NumConstants::SMALL))
+          {
+            i = 0;
             while (vnull[i])
               i++;
-            
-            val=rightEigenVectors_(i,nulleigen);
+
+            val = rightEigenVectors_(i, nulleigen);
             i++;
-            while (i < salph){
-              if (!vnull[i]){
-                if (abs(rightEigenVectors_(i, nulleigen)-val)> seuil*NumConstants::SMALL)
+            while (i < salph)
+            {
+              if (!vnull[i])
+              {
+                if (abs(rightEigenVectors_(i, nulleigen) - val) > seuil * NumConstants::SMALL)
                   break;
               }
               i++;
             }
-            
-            if (i<salph)
+
+            if (i < salph)
               nulleigen++;
-            else {
-              isNonSingular_=true;
+            else
+            {
+              isNonSingular_ = true;
               break;
             }
           }
           else
             nulleigen++;
         }
-        if (seuil> 100){
-          ApplicationTools::displayWarning("!!! Equilibrium frequency of the model " + getName() + " has a precision less than """  + TextTools::toString(seuil*NumConstants::SMALL) + ". There may be some computing issues.");
+        if (seuil > 100)
+        {
+          ApplicationTools::displayWarning("!!! Equilibrium frequency of the model " + getName() + " has a precision less than " ""  + TextTools::toString(seuil * NumConstants::SMALL) + ". There may be some computing issues.");
           ApplicationTools::displayWarning("!!! Taylor series used instead");
           break;
         }
-        else 
-          seuil*=10;
+        else
+          seuil *= 10;
       }
 
-      if (isNonSingular_){
-        eigenValues_[nulleigen]=0; // to avoid approximation errors on long long branches
-        iEigenValues_[nulleigen]=0; // to avoid approximation errors on long long branches
-        
+      if (isNonSingular_)
+      {
+        eigenValues_[nulleigen] = 0; // to avoid approximation errors on long long branches
+        iEigenValues_[nulleigen] = 0; // to avoid approximation errors on long long branches
+
         for (i = 0; i < salph; i++)
+        {
           freq_[i] = leftEigenVectors_(nulleigen, i);
-        
+        }
+
         x = 0;
         for (i = 0; i < salph; i++)
+        {
           x += freq_[i];
-        
+        }
+
         for (i = 0; i < salph; i++)
+        {
           freq_[i] /= x;
+        }
       }
-      else {
+      else
+      {
         ApplicationTools::displayMessage("Unable to find eigenvector for eigenvalue 1. Taylor series used instead.");
-        isDiagonalizable_=false;
+        isDiagonalizable_ = false;
       }
     }
 
     // if rightEigenVectors_ is singular
-    catch (ZeroDivisionException& e){
+    catch (ZeroDivisionException& e)
+    {
       ApplicationTools::displayMessage("Singularity during  diagonalization. Taylor series used instead.");
-      isNonSingular_=false;
-      isDiagonalizable_=false;
+      isNonSingular_ = false;
+      isDiagonalizable_ = false;
     }
 
-    if (!isNonSingular_){
-      double min=generator_(0,0);
+    if (!isNonSingular_)
+    {
+      double min = generator_(0, 0);
       for (i = 1; i < salph; i++)
-        if (min>generator_(i,i))
-          min=generator_(i,i);
-      
-      MatrixTools::scale(generator_,-1/min);
-      
-      if (vPowGen_.size()==0)
+      {
+        if (min > generator_(i, i))
+          min = generator_(i, i);
+      }
+
+      MatrixTools::scale(generator_, -1 / min);
+
+      if (vPowGen_.size() == 0)
         vPowGen_.resize(30);
-      
-      MatrixTools::getId(salph,tmpMat_);    // to compute the equilibrium frequency  (Q+Id)^256
-      MatrixTools::add(tmpMat_,generator_);
-      MatrixTools::pow(tmpMat_,256,vPowGen_[0]);
-      
-      for (i=0;i<salph;i++)
-        freq_[i]=vPowGen_[0](0,i);
-      
-      MatrixTools::getId(salph,vPowGen_[0]);
+
+      MatrixTools::getId(salph, tmpMat_);    // to compute the equilibrium frequency  (Q+Id)^256
+      MatrixTools::add(tmpMat_, generator_);
+      MatrixTools::pow(tmpMat_, 256, vPowGen_[0]);
+
+      for (i = 0; i < salph; i++)
+      {
+        freq_[i] = vPowGen_[0](0, i);
+      }
+
+      MatrixTools::getId(salph, vPowGen_[0]);
     }
-    
+
     // normalization
-  
+
     x = 0;
     for (i = 0; i < salph; i++)
+    {
       x += freq_[i] * generator_(i, i);
-    
-    MatrixTools::scale(generator_, -1. / x);
-    for (i = 0; i < salph; i++){
-      eigenValues_[i] /= -x;
-      iEigenValues_[i]/=-x;
     }
-    
+
+    MatrixTools::scale(generator_, -1. / x);
+    for (i = 0; i < salph; i++)
+    {
+      eigenValues_[i] /= -x;
+      iEigenValues_[i] /= -x;
+    }
+
     if (!isNonSingular_)
-      MatrixTools::Taylor(generator_,30,vPowGen_);
+      MatrixTools::Taylor(generator_, 30, vPowGen_);
   }
-  
+
   // compute the exchangeability_
-  
-  for ( i = 0; i < size_; i++)
-    for ( j = 0; j < size_; j++)
-      exchangeability_(i,j) = generator_(i,j) / freq_[j];
+
+  for (i = 0; i < size_; i++)
+  {
+    for (j = 0; j < size_; j++)
+    {
+      exchangeability_(i, j) = generator_(i, j) / freq_[j];
+    }
+  }
 }
 
 void AbstractWordSubstitutionModel::setFreq(std::map<int, double>& freqs)
@@ -576,37 +620,46 @@ void AbstractWordSubstitutionModel::setFreq(std::map<int, double>& freqs)
   size_t i, j, s, k, d, size;
   d = size = getNumberOfStates();
 
-  if (VSubMod_.size() < 2 || VSubMod_[0] == VSubMod_[1]){
+  if (VSubMod_.size() < 2 || VSubMod_[0] == VSubMod_[1])
+  {
     s = VSubMod_[0]->getAlphabet()->getSize();
     for (j = 0; j < s; j++)
-        tmpFreq[j] = 0;
+    {
+      tmpFreq[static_cast<int>(j)] = 0;
+    }
 
-    for (i = 0; i < nbmod; i++){
+    for (i = 0; i < nbmod; i++)
+    {
       d /= s;
       for (k = 0; k < size; k++)
-        tmpFreq[(k / d) % s] += freqs[k];
+      {
+        tmpFreq[static_cast<int>((k / d) % s)] += freqs[static_cast<int>(k)];
+      }
     }
-    
-    for (k=0;k<s;k++)
-      tmpFreq[k]/=nbmod;
-    
+
+    for (k = 0; k < s; k++)
+    {
+      tmpFreq[static_cast<int>(k)] /= static_cast<double>(nbmod);
+    }
+
     VSubMod_[0]->setFreq(tmpFreq);
     matchParametersValues(VSubMod_[0]->getParameters());
   }
   else
-    for (i = 0; i < nbmod; i++){
-        tmpFreq.clear();
-        s = VSubMod_[i]->getAlphabet()->getSize();
-        d /= s;
-        for (j = 0; j < s; j++)
-          {
-            tmpFreq[j] = 0;
-          }
-        for (k = 0; k < size; k++)
-          {
-            tmpFreq[(k / d) % s] += freqs[k];
-          }
-        VSubMod_[i]->setFreq(tmpFreq);
-        matchParametersValues(VSubMod_[i]->getParameters());
+    for (i = 0; i < nbmod; i++)
+    {
+      tmpFreq.clear();
+      s = VSubMod_[i]->getAlphabet()->getSize();
+      d /= s;
+      for (j = 0; j < s; j++)
+      {
+        tmpFreq[static_cast<int>(j)] = 0;
       }
+      for (k = 0; k < size; k++)
+      {
+        tmpFreq[static_cast<int>((k / d) % s)] += freqs[static_cast<int>(k)];
+      }
+      VSubMod_[i]->setFreq(tmpFreq);
+      matchParametersValues(VSubMod_[i]->getParameters());
+    }
 }

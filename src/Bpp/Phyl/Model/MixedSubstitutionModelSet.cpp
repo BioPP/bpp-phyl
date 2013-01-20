@@ -147,22 +147,22 @@ bool MixedSubstitutionModelSet::complete()
           an.push_back(j);
         j++;
       }
-      addToHyperNode(static_cast<int>(i), an);
+      addToHyperNode(i, an);
     }
   }
 
   return true;
 }
 
-void MixedSubstitutionModelSet::addToHyperNode(int nM, const Vint& vnS, int nH)
+void MixedSubstitutionModelSet::addToHyperNode(size_t nM, const Vint& vnS, int nH)
 {
-  if (nH >= (int)vpHyperNodes_.size())
-    throw BadIntegerException("Bad HyperNode number", nH);
+  if (nH >= static_cast<int>(vpHyperNodes_.size()))
+    throw BadIntegerException("MixedSubstitutionModelSet::addToHyperNode. Bad HyperNode number", nH);
   if (nH < 0)
     nH = static_cast<int>(vpHyperNodes_.size() - 1);
 
-  if (nM < 0 || nM >= (int)getNumberOfModels())
-    throw BadIntegerException("Bad Mixed Model number", nM);
+  if (nM >= getNumberOfModels())
+    throw IndexOutOfBoundsException("MixedSubstitutionModelSet::addToHyperNode. Bad Mixed Model number", nM, 0, getNumberOfModels());
 
   vpHyperNodes_[nH]->addToModel(nM, vnS);
 }
@@ -340,18 +340,18 @@ MixedSubstitutionModelSet::HyperNode& MixedSubstitutionModelSet::HyperNode::oper
   return *this;
 }
 
-void MixedSubstitutionModelSet::HyperNode::addToModel(int nM, const Vint& vnS)
+void MixedSubstitutionModelSet::HyperNode::addToModel(size_t nM, const Vint& vnS)
 {
-  if ((nM < 0) || (nM >= (int)vNumbers_.size()))
-    throw BadIntegerException("Bad Mixed model Number", nM);
+  if (nM >= vNumbers_.size())
+    throw IndexOutOfBoundsException("MixedSubstitutionModelSet::HyperNode::addToModel. Bad Mixed model Number", nM, 0, vNumbers_.size());
 
   vNumbers_[nM].insertN(vnS);
 }
 
-void MixedSubstitutionModelSet::HyperNode::setModel(int nM, const Vint& vnS)
+void MixedSubstitutionModelSet::HyperNode::setModel(size_t nM, const Vint& vnS)
 {
-  if ((nM < 0) || (nM >= (int)vNumbers_.size()))
-    throw BadIntegerException("Bad Mixed model Number", nM);
+  if (nM >= vNumbers_.size())
+    throw IndexOutOfBoundsException("MixedSubstitutionModelSet::HyperNode::setModel. Bad Mixed model Number", nM, 0, vNumbers_.size());
 
   vNumbers_[nM] = vnS;
 }

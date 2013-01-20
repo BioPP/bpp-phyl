@@ -127,7 +127,7 @@ public:
    */
   AbstractWordSubstitutionModel(
     SubstitutionModel* pmodel,
-    size_t num,
+    unsigned int num,
     const std::string& st);
 
   AbstractWordSubstitutionModel(const AbstractWordSubstitutionModel&);

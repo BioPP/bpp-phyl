@@ -95,13 +95,13 @@ DistanceMatrix * PhylipDistanceMatrixFormat::read(istream& in) const throw (Exce
 
 void PhylipDistanceMatrixFormat::write(const DistanceMatrix& dist, ostream& out) const throw (Exception)
 {
-	unsigned int n = dist.size();
+	size_t n = dist.size();
 	out << "   " << n << endl;
-  unsigned int offset = 10;
+  size_t offset = 10;
   if (extended_) {
     offset = 0;
-    for (unsigned int i = 0; i < n; ++i) {
-      unsigned int s = dist.getName(i).size();
+    for (size_t i = 0; i < n; ++i) {
+      size_t s = dist.getName(i).size();
       if (s > offset) offset = s;
     }
   }

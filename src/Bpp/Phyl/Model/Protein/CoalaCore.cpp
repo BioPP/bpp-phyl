@@ -62,7 +62,7 @@ using namespace std;
 
 /******************************************************************************/
 
-CoalaCore::CoalaCore(unsigned int nbAxes, const string& exch) :
+CoalaCore::CoalaCore(size_t nbAxes, const string& exch) :
   init_(true),
   nbrOfAxes_(nbAxes),
   exch_(exch),
@@ -146,7 +146,7 @@ ParameterList CoalaCore::computeCOA(const SequenceContainer& data, bool param)
   if (param)
   {
     // Parameters are defined:
-    unsigned int nbAxesConserved = coa->getNbOfKeptAxes();
+    size_t nbAxesConserved = coa->getNbOfKeptAxes();
     if (nbrOfAxes_ > nbAxesConserved)
     {
       ApplicationTools::displayWarning("The specified number of parameters per branch (" + TextTools::toString(nbrOfAxes_) +
