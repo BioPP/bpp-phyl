@@ -87,7 +87,7 @@ namespace bpp
     NaiveSubstitutionCount* clone() const { return new NaiveSubstitutionCount(*this); }
 
   public:
-    double getNumberOfSubstitutions(unsigned int initialState, unsigned int finalState, double length, unsigned int type = 1) const
+    double getNumberOfSubstitutions(int initialState, int finalState, double length, size_t type = 1) const
     {
       if (initialState == finalState && !allowSelf_)
         return 0;
@@ -95,12 +95,12 @@ namespace bpp
         return (register_->getType(initialState, finalState) == type ? (weights_ ? weights_->getIndex(initialState, finalState) : 1.) : 0.);
     }
 
-    Matrix<double>* getAllNumbersOfSubstitutions(double length, unsigned int type = 1) const;
+    Matrix<double>* getAllNumbersOfSubstitutions(double length, size_t type = 1) const;
     
-    std::vector<double> getNumberOfSubstitutionsForEachType(unsigned int initialState, unsigned int finalState, double length) const
+    std::vector<double> getNumberOfSubstitutionsForEachType(int initialState, int finalState, double length) const
     {
       std::vector<double> v(getNumberOfSubstitutionTypes());
-      for (unsigned int t = 1; t <= getNumberOfSubstitutionTypes(); ++t) {
+      for (size_t t = 1; t <= getNumberOfSubstitutionTypes(); ++t) {
         v[t - 1] = getNumberOfSubstitutions(initialState, finalState, length, t);
       }
       return v;
@@ -135,17 +135,17 @@ namespace bpp
     LabelSubstitutionCount* clone() const { return new LabelSubstitutionCount(*this); }
 			
   public:
-    double getNumberOfSubstitutions(unsigned int initialState, unsigned int finalState, double length, unsigned int type = 1) const
+    double getNumberOfSubstitutions(int initialState, int finalState, double length, size_t type = 1) const
     {
       return label_(initialState, finalState);
     }
 
-    Matrix<double>* getAllNumbersOfSubstitutions(double length, unsigned int type = 1) const
+    Matrix<double>* getAllNumbersOfSubstitutions(double length, size_t type = 1) const
     {
       return dynamic_cast<Matrix<double>*>(label_.clone());
     }
     
-    std::vector<double> getNumberOfSubstitutionsForEachType(unsigned int initialState, unsigned int finalState, double length) const
+    std::vector<double> getNumberOfSubstitutionsForEachType(int initialState, int finalState, double length) const
     {
       std::vector<double> v(1);
       v[0] = label_(initialState, finalState);

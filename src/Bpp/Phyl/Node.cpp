@@ -95,11 +95,11 @@ Node& Node::operator=(const Node & node)
       
 /** Sons: *********************************************************************/
       
-void Node::swap(unsigned int branch1, unsigned int branch2) throw (IndexOutOfBoundsException)
+void Node::swap(size_t branch1, size_t branch2) throw (IndexOutOfBoundsException)
 {
   if (branch1 > branch2)
   {
-    unsigned int tmp = branch1;
+    size_t tmp = branch1;
     branch1 = branch2;
     branch2 = tmp;
   }
@@ -115,7 +115,7 @@ vector<const Node *> Node::getNeighbors() const
 {
   vector<const Node *> neighbors;
   if(hasFather()) neighbors.push_back(father_);
-  for(unsigned int i = 0; i < sons_.size(); i++) neighbors.push_back(sons_[i]);
+  for(size_t i = 0; i < sons_.size(); i++) neighbors.push_back(sons_[i]);
   return neighbors;
 }
     
@@ -123,15 +123,15 @@ vector<Node *> Node::getNeighbors()
 {
   vector<Node *> neighbors;
   if(hasFather()) neighbors.push_back(father_);
-  for(unsigned int i = 0; i < sons_.size(); i++) neighbors.push_back(sons_[i]);
+  for(size_t i = 0; i < sons_.size(); i++) neighbors.push_back(sons_[i]);
   return neighbors;
 }
 
-unsigned int Node::getSonPosition(const Node* son) const throw (NodeNotFoundException, NullPointerException)
+size_t Node::getSonPosition(const Node* son) const throw (NodeNotFoundException, NullPointerException)
 {
   if (!son)
     throw NullPointerException("Node::getSonPosition(). Empty node given as input.");
-  for(unsigned int i = 0; i < sons_.size(); i++)
+  for(size_t i = 0; i < sons_.size(); i++)
   {
     if(sons_[i] == son) return i;
   }

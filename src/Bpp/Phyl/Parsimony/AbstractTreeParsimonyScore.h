@@ -59,7 +59,7 @@ private:
   const SiteContainer* data_;
   const Alphabet* alphabet_;
   const StateMap* statesMap_;
-  unsigned int nbStates_;
+  size_t nbStates_;
 
 public:
   AbstractTreeParsimonyScore(

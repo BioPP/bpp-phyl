@@ -142,10 +142,10 @@ public:
    *
    * @{
    */
-  double getLikelihoodForASiteForARateClass(unsigned int site, unsigned int rateClass) const;
-  double getLogLikelihoodForASiteForARateClass(unsigned int site, unsigned int rateClass) const;
-  double getLikelihoodForASiteForARateClassForAState(unsigned int site, unsigned int rateClass, int state) const;
-  double getLogLikelihoodForASiteForARateClassForAState(unsigned int site, unsigned int rateClass, int state) const;
+  double getLikelihoodForASiteForARateClass(size_t site, size_t rateClass) const;
+  double getLogLikelihoodForASiteForARateClass(size_t site, size_t rateClass) const;
+  double getLikelihoodForASiteForARateClassForAState(size_t site, size_t rateClass, int state) const;
+  double getLogLikelihoodForASiteForARateClassForAState(size_t site, size_t rateClass, int state) const;
   /** @} */
 
 public:
@@ -156,11 +156,11 @@ public:
 
   void computeTreeLikelihood();
 
-  virtual double getDLikelihoodForASiteForARateClass(unsigned int site, unsigned int rateClass) const;
+  virtual double getDLikelihoodForASiteForARateClass(size_t site, size_t rateClass) const;
 
   virtual void computeTreeDLikelihood(const std::string& variable);
 
-  virtual double getD2LikelihoodForASiteForARateClass(unsigned int site, unsigned int rateClass) const;
+  virtual double getD2LikelihoodForASiteForARateClass(size_t site, size_t rateClass) const;
 
   virtual void computeTreeD2Likelihood(const std::string& variable);
 
@@ -196,12 +196,12 @@ protected:
 
   virtual void setMinimumBranchLength(double brlen) throw (Exception) {
     RHomogeneousMixedTreeLikelihood::setMinimumBranchLength(brlen);
-    for (unsigned int i = 0; i < treeLikelihoodsContainer_.size(); ++i)
+    for (size_t i = 0; i < treeLikelihoodsContainer_.size(); ++i)
       treeLikelihoodsContainer_[i]->setMinimumBranchLength(brlen);
   }
   virtual void setMaximumBranchLength(double brlen) throw (Exception) {
     RHomogeneousMixedTreeLikelihood::setMaximumBranchLength(brlen);
-    for (unsigned int i = 0; i < treeLikelihoodsContainer_.size(); ++i)
+    for (size_t i = 0; i < treeLikelihoodsContainer_.size(); ++i)
       treeLikelihoodsContainer_[i]->setMaximumBranchLength(brlen);
   }
 };

@@ -58,7 +58,7 @@ class DRTreeParsimonyScore :
 {
 private:
   DRTreeParsimonyData* parsimonyData_;
-  unsigned int nbDistinctSites_;
+  size_t nbDistinctSites_;
 
 public:
   DRTreeParsimonyScore(
@@ -109,7 +109,7 @@ protected:
 
 public:
   unsigned int getScore() const;
-  unsigned int getScoreForSite(unsigned int site) const;
+  unsigned int getScoreForSite(size_t site) const;
 
   /**
    * @brief Compute bitsets and scores for each site for a node, in postorder.

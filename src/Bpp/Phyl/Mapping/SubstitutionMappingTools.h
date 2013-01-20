@@ -181,7 +181,7 @@ class SubstitutionMappingTools
 		static void writeToStream(
 			const ProbabilisticSubstitutionMapping& substitutions,
 			const SiteContainer& sites,
-      unsigned int type,
+      size_t type,
 			std::ostream& out)
 			throw (IOException);
 	
@@ -193,7 +193,7 @@ class SubstitutionMappingTools
      * @param type          The type of substitutions that are read. Should be in supported by the substittuion count obect assiciated to the mapping, if any.
 		 * @throw IOException If an input error happens.
 		 */
-		static void readFromStream(std::istream& in, ProbabilisticSubstitutionMapping& substitutions, unsigned int type)
+		static void readFromStream(std::istream& in, ProbabilisticSubstitutionMapping& substitutions, size_t type)
 			throw (IOException);
 
     /**
@@ -203,7 +203,7 @@ class SubstitutionMappingTools
      * @param siteIndex The index of the substitution vector for which the counts should be computed.
      * @return A vector will all counts for all types of substitutions summed. 
      */
-    static std::vector<double> computeTotalSubstitutionVectorForSite(const SubstitutionMapping& smap, unsigned int siteIndex);
+    static std::vector<double> computeTotalSubstitutionVectorForSite(const SubstitutionMapping& smap, size_t siteIndex);
 
     /**
      * @brief Compute the norm of a substitution vector for a given position (specified by its index).
@@ -216,7 +216,7 @@ class SubstitutionMappingTools
      * @param siteIndex The index of the substitution vector for which the norm should be computed.
      * @return The norm of the substitution vector.
      */
-    static double computeNormForSite(const SubstitutionMapping& smap, unsigned int siteIndex);
+    static double computeNormForSite(const SubstitutionMapping& smap, size_t siteIndex);
     
     /**
      * @brief Sum all substitutions for each type of a given branch (specified by its index).
@@ -225,7 +225,7 @@ class SubstitutionMappingTools
      * @param branchIndex The index of the substitution vector for which the counts should be computed.
      * @return A vector will all counts summed for each types of substitutions. 
      */
-    static std::vector<double> computeSumForBranch(const SubstitutionMapping& smap, unsigned int branchIndex);
+    static std::vector<double> computeSumForBranch(const SubstitutionMapping& smap, size_t branchIndex);
  
     /**
      * @brief Sum all substitutions for each type of a given site (specified by its index).
@@ -234,7 +234,7 @@ class SubstitutionMappingTools
      * @param siteIndex The index of the substitution vector for which the counts should be computed.
      * @return A vector will all counts summed for each types of substitutions. 
      */
-    static std::vector<double> computeSumForSite(const SubstitutionMapping& smap, unsigned int siteIndex);
+    static std::vector<double> computeSumForSite(const SubstitutionMapping& smap, size_t siteIndex);
  };
 
 } //end of namespace bpp.

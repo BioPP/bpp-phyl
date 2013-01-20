@@ -50,7 +50,7 @@ namespace bpp
 /**
  * @brief Analytical (weighted) substitution count using the uniformization method.
  *
- * The codes is adapted from the original R code by Paula Tataru and Asger Hobolth.
+ * The code is adapted from the original R code by Paula Tataru and Asger Hobolth.
  *
  * @author Julien Dutheil
  */
@@ -60,7 +60,7 @@ class UniformizationSubstitutionCount:
 {
 	private:
 		const SubstitutionModel* model_;
-    unsigned int nbStates_;
+    size_t nbStates_;
     std::vector< RowMatrix<double> > bMatrices_;
     mutable std::vector< RowMatrix<double> > power_;
     mutable std::vector < std::vector< RowMatrix<double> > > s_;
@@ -104,11 +104,11 @@ class UniformizationSubstitutionCount:
     UniformizationSubstitutionCount* clone() const { return new UniformizationSubstitutionCount(*this); }
 
 	public:
-		double getNumberOfSubstitutions(unsigned int initialState, unsigned int finalState, double length, unsigned int type = 1) const;
+		double getNumberOfSubstitutions(int initialState, int finalState, double length, size_t type = 1) const;
 
-    Matrix<double>* getAllNumbersOfSubstitutions(double length, unsigned int type = 1) const;
+    Matrix<double>* getAllNumbersOfSubstitutions(double length, size_t type = 1) const;
     
-    std::vector<double> getNumberOfSubstitutionsForEachType(unsigned int initialState, unsigned int finalState, double length) const;
+    std::vector<double> getNumberOfSubstitutionsForEachType(int initialState, int finalState, double length) const;
    
     void setSubstitutionModel(const SubstitutionModel* model);
 

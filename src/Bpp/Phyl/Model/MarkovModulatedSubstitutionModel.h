@@ -78,8 +78,8 @@ namespace bpp
 
   protected:
     ReversibleSubstitutionModel* model_;
-    unsigned int nbStates_; //Number of states in model
-    unsigned int nbRates_; //Number of rate classes
+    size_t nbStates_; //Number of states in model
+    size_t nbRates_; //Number of rate classes
 
     /**
      * @name Rate generator.
@@ -189,7 +189,7 @@ namespace bpp
 	  
     const Alphabet* getAlphabet() const { return model_->getAlphabet(); }
 
-    unsigned int getNumberOfStates() const { return nbStates_ * nbRates_; }
+    size_t getNumberOfStates() const { return nbStates_ * nbRates_; }
 
     const Vdouble& getFrequencies() const { return freq_; }
     
@@ -208,17 +208,17 @@ namespace bpp
     const Matrix<double>& getRowLeftEigenVectors() const { return leftEigenVectors_; }
     const Matrix<double>& getColumnRightEigenVectors() const { return rightEigenVectors_; }
     
-    double freq(unsigned int i) const { return freq_[i]; }
-    double Sij(unsigned int i, unsigned int j) const { return exchangeability_(i, j); }
-    double Qij(unsigned int i, unsigned int j) const { return generator_(i, j); }
+    double freq(size_t i) const { return freq_[i]; }
+    double Sij(size_t i, size_t j) const { return exchangeability_(i, j); }
+    double Qij(size_t i, size_t j) const { return generator_(i, j); }
     
-    double Pij_t    (unsigned int i, unsigned int j, double t) const { return getPij_t(t)(i, j); }
-    double dPij_dt  (unsigned int i, unsigned int j, double t) const { return getdPij_dt(t)(i, j); }
-    double d2Pij_dt2(unsigned int i, unsigned int j, double t) const { return getd2Pij_dt2(t)(i, j); }
+    double Pij_t    (size_t i, size_t j, double t) const { return getPij_t(t)(i, j); }
+    double dPij_dt  (size_t i, size_t j, double t) const { return getdPij_dt(t)(i, j); }
+    double d2Pij_dt2(size_t i, size_t j, double t) const { return getd2Pij_dt2(t)(i, j); }
     
-    double getInitValue(unsigned int i, int state) const throw (BadIntException);
+    double getInitValue(size_t i, int state) const throw (IndexOutOfBoundsException, BadIntException);
     
-    void setFreqFromData(const SequenceContainer& data, unsigned int pseudoCount = 0)
+    void setFreqFromData(const SequenceContainer& data, double pseudoCount = 0)
     {
       model_->setFreqFromData(data, pseudoCount);
       updateMatrices();
@@ -229,17 +229,17 @@ namespace bpp
       return chars_;
     }
 
-    int getAlphabetChar(unsigned int i) const
+    int getAlphabetChar(size_t i) const
     {
       return chars_[i]; 
     }
    
-    std::vector<unsigned int> getModelStates(int i) const
+    std::vector<size_t> getModelStates(int i) const
     {
-      std::vector<unsigned int> states(nbRates_ * nbStates_);
-      std::vector<unsigned int> nestedStates = model_->getModelStates(i);
-      for(unsigned int j = 0; j < nbRates_; j++)
-        for(unsigned int k = 0; k < nestedStates.size(); k++)
+      std::vector<size_t> states(nbRates_ * nbStates_);
+      std::vector<size_t> nestedStates = model_->getModelStates(i);
+      for(size_t j = 0; j < nbRates_; j++)
+        for(size_t k = 0; k < nestedStates.size(); k++)
           states.push_back(j * nbRates_ + states[k]);
       return states;
     }
@@ -253,7 +253,7 @@ namespace bpp
      * @return The corresponding rate category.
      * @see getState;
      */
-    unsigned int getRate(unsigned int i) const
+    size_t getRate(size_t i) const
     {
       return i / nbStates_; 
     }

@@ -104,8 +104,8 @@ public:
 
 public:
   virtual const TreeTemplate<Node>* getTree() const = 0;
-  virtual unsigned int getArrayPosition(int parentId, int sonId, unsigned int currentPosition) const = 0;
-  virtual unsigned int getRootArrayPosition(const unsigned int site) const = 0;
+  virtual size_t getArrayPosition(int parentId, int sonId, size_t currentPosition) const = 0;
+  virtual size_t getRootArrayPosition(size_t site) const = 0;
   virtual TreeParsimonyNodeData& getNodeData(int nodeId) = 0;
   virtual const TreeParsimonyNodeData& getNodeData(int nodeId) const = 0;
 };

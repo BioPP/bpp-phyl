@@ -5,7 +5,7 @@
 //
 
 /*
-Copyright or © or Copr. CNRS, (November 16, 2004)
+Copyright or © or Copr. Bio++ Development Team, (November 16, 2004)
 
 This software is a computer program whose purpose is to provide classes
 for phylogenetic data analysis.
@@ -75,7 +75,7 @@ class AncestralStateReconstruction
      * @return A vector of states indices.
      * @see getAncestralSequenceForNode
      */ 
-    virtual std::vector<unsigned int> getAncestralStatesForNode(int nodeId) const = 0;
+    virtual std::vector<size_t> getAncestralStatesForNode(int nodeId) const = 0;
 
     /**
      * @brief Get all ancestral states for all nodes.
@@ -85,7 +85,7 @@ class AncestralStateReconstruction
      * @return A map with nodes id as key, and a vector of states indices as value.
      * @see getAncestralSequenceForNode
      */
-    virtual std::map<int, std::vector<unsigned int> > getAllAncestralStates() const = 0;
+    virtual std::map<int, std::vector<size_t> > getAllAncestralStates() const = 0;
 
     /**
      * @brief Get the ancestral sequence for a given node.

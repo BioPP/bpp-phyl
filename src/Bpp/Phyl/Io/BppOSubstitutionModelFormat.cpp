@@ -1050,7 +1050,7 @@ void BppOSubstitutionModelFormat::write(const SubstitutionModel& model,
   const AbstractWordSubstitutionModel* wM = dynamic_cast<const AbstractWordSubstitutionModel*>(&model);
   if (wM)
   {
-    unsigned nmod = wM->getNumberOfModels();
+    size_t nmod = wM->getNumberOfModels();
     const SubstitutionModel* mod0 = wM->getNModel(0);
     if (nmod == 1)
     {
@@ -1229,14 +1229,14 @@ void BppOSubstitutionModelFormat::initialize_(
   }
 
   ParameterList pl = model.getIndependentParameters();
-  for (unsigned int i = 0; i < pl.size(); i++)
+  for (size_t i = 0; i < pl.size(); i++)
   {
     AutoParameter ap(pl[i]);
     ap.setMessageHandler(ApplicationTools::warning);
     pl.setParameter(i, ap);
   }
-  unsigned int posp;
-  for (unsigned int i = 0; i < pl.size(); i++)
+  size_t posp;
+  for (size_t i = 0; i < pl.size(); i++)
   {
     const string pName = pl[i].getName();
     posp = pName.rfind(".");

@@ -201,9 +201,9 @@ private:
   mutable std::vector<Bitset> rootBitsets_;
   mutable std::vector<unsigned int> rootScores_;
   SiteContainer* shrunkData_;
-  unsigned int nbSites_;
-  unsigned int nbStates_;
-  unsigned int nbDistinctSites_;
+  size_t nbSites_;
+  size_t nbStates_;
+  size_t nbDistinctSites_;
 
 public:
   DRTreeParsimonyData(const TreeTemplate<Node>* tree) :
@@ -287,22 +287,22 @@ public:
     return nodeData_[nodeId].getScoresArrayForNeighbor(neighborId);
   }
 
-  unsigned int getArrayPosition(int parentId, int sonId, unsigned int currentPosition) const
+  size_t getArrayPosition(int parentId, int sonId, size_t currentPosition) const
   {
     return currentPosition;
   }
 
   std::vector<Bitset>& getRootBitsets() { return rootBitsets_; }
   const std::vector<Bitset>& getRootBitsets() const { return rootBitsets_; }
-  const Bitset& getRootBitset(unsigned int i) const { return rootBitsets_[i]; }
+  const Bitset& getRootBitset(size_t i) const { return rootBitsets_[i]; }
 
   std::vector<unsigned int>& getRootScores() { return rootScores_; }
   const std::vector<unsigned int>& getRootScores() const { return rootScores_; }
-  unsigned int getRootScore(unsigned int i) const { return rootScores_[i]; }
+  unsigned int getRootScore(size_t i) const { return rootScores_[i]; }
 
-  unsigned int getNumberOfDistinctSites() const { return nbDistinctSites_; }
-  unsigned int getNumberOfSites() const { return nbSites_; }
-  unsigned int getNumberOfStates() const { return nbStates_; }
+  size_t getNumberOfDistinctSites() const { return nbDistinctSites_; }
+  size_t getNumberOfSites() const { return nbSites_; }
+  size_t getNumberOfStates() const { return nbStates_; }
 
   void init(const SiteContainer& sites, const StateMap& stateMap) throw (Exception);
   void reInit() throw (Exception);

@@ -6,7 +6,7 @@
 //
 
 /*
-   Copyright or © or Copr. CNRS, (November 16, 2004)
+   Copyright or © or Copr. Bio++ Development Team, (November 16, 2004)
 
    This software is a computer program whose purpose is to provide classes
    for phylogenetic data analysis.
@@ -67,7 +67,7 @@ class AbstractTreeParsimonyData :
   public TreeParsimonyData
 {
 protected:
-  std::vector<unsigned int> rootPatternLinks_;
+  std::vector<size_t> rootPatternLinks_;
   std::vector<unsigned int> rootWeights_;
   const TreeTemplate<Node>* tree_;
 
@@ -96,12 +96,12 @@ public:
   virtual ~AbstractTreeParsimonyData() {}
 
 public:
-  unsigned int getRootArrayPosition(const unsigned int site) const
+  size_t getRootArrayPosition(size_t site) const
   {
     return rootPatternLinks_[site];
   }
 
-  unsigned int getWeight(unsigned int pos) const
+  unsigned int getWeight(size_t pos) const
   {
     return rootWeights_[pos];
   }

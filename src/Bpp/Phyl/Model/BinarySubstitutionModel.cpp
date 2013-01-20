@@ -115,7 +115,7 @@ void BinarySubstitutionModel::updateMatrices()
 
 /******************************************************************************/
 
-double BinarySubstitutionModel::Pij_t(unsigned int i, unsigned int j, double d) const
+double BinarySubstitutionModel::Pij_t(size_t i, size_t j, double d) const
 {
   exp_ = exp(-lambda_ * d);
 
@@ -141,7 +141,7 @@ double BinarySubstitutionModel::Pij_t(unsigned int i, unsigned int j, double d) 
 
 /******************************************************************************/
 
-double BinarySubstitutionModel::dPij_dt(unsigned int i, unsigned int j, double d) const
+double BinarySubstitutionModel::dPij_dt(size_t i, size_t j, double d) const
 {
   exp_ = exp(-lambda_ * d);
 
@@ -167,7 +167,7 @@ double BinarySubstitutionModel::dPij_dt(unsigned int i, unsigned int j, double d
 
 /******************************************************************************/
 
-double BinarySubstitutionModel::d2Pij_dt2(unsigned int i, unsigned int j, double d) const
+double BinarySubstitutionModel::d2Pij_dt2(size_t i, size_t j, double d) const
 {
   exp_ = exp(-lambda_ * d);
 

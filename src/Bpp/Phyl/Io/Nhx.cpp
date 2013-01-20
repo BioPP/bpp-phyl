@@ -228,7 +228,7 @@ Nhx::Element Nhx::getElement(const string& elt) const throw (IOException)
   //cout << "ANNO=" << element.annotation << endl;
   //cout << "ELT =" << elementWithoutAnnotation << endl;
 
-  unsigned int colonIndex;
+  size_t colonIndex;
   bool hasColon = false;
   for (colonIndex = elementWithoutAnnotation.size() - 1; colonIndex > 0 && elementWithoutAnnotation[colonIndex] != ')' && !hasColon; --colonIndex)
   {

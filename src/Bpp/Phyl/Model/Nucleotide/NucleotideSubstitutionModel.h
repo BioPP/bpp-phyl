@@ -5,7 +5,7 @@
 //
 
 /*
-Copyright or © or Copr. CNRS, (November 16, 2004)
+Copyright or © or Copr. Bio++ Development Team, (November 16, 2004)
 
 This software is a computer program whose purpose is to provide classes
 for phylogenetic data analysis.
@@ -65,7 +65,7 @@ class NucleotideSubstitutionModel :
     clone() const = 0;
 
   public:
-    virtual unsigned int getNumberOfStates() const { return 4; }
+    virtual size_t getNumberOfStates() const { return 4; }
 
 };
 

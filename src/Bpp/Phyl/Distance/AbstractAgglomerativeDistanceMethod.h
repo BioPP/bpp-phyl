@@ -66,7 +66,7 @@ class AbstractAgglomerativeDistanceMethod:
 		DistanceMatrix matrix_;
 		Tree* tree_;
 
-    std::map<unsigned int, Node*> currentNodes_;
+    std::map<size_t, Node*> currentNodes_;
     bool verbose_;
     bool rootTree_;
 	
@@ -164,7 +164,7 @@ class AbstractAgglomerativeDistanceMethod:
      * @return A size 2 vector with the indices of the nodes.
      * @throw Exception If an error occured.
      */
-		virtual std::vector<unsigned int> getBestPair() throw (Exception) = 0;
+		virtual std::vector<size_t> getBestPair() throw (Exception) = 0;
 		
     /**
      * @brief Compute the branch lengths for two nodes to agglomerate.
@@ -179,7 +179,7 @@ class AbstractAgglomerativeDistanceMethod:
      * @param pair The indices of the nodes to be agglomerated.
      * @return A size 2 vector with branch lengths.
      */
-    virtual std::vector<double> computeBranchLengthsForPair(const std::vector<unsigned int> & pair) = 0;
+    virtual std::vector<double> computeBranchLengthsForPair(const std::vector<size_t> & pair) = 0;
 
     /**
      * @brief Actualizes the distance matrix according to a given pair and the corresponding branch lengths.
@@ -189,7 +189,7 @@ class AbstractAgglomerativeDistanceMethod:
      * @param pos The index of the node whose distance ust be updated.
      * @return The distance between the 'pos' node and the agglomerated pair.
      */
-		virtual double computeDistancesFromPair(const std::vector<unsigned int>& pair, const std::vector<double>& branchLengths, unsigned int pos) = 0;
+		virtual double computeDistancesFromPair(const std::vector<size_t>& pair, const std::vector<double>& branchLengths, size_t pos) = 0;
 		
     /**
      * @brief Method called when there ar eonly three remaining node to agglomerate, and creates the root node of the tree.

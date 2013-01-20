@@ -227,7 +227,7 @@ public:
    * @see MarkovModulatedSubstitutionModel
    * @see getStates()
    */
-  virtual int getAlphabetChar(unsigned int i) const = 0;
+  virtual int getAlphabetChar(size_t i) const = 0;
 
   /**
    * @brief Get the state in the model corresponding to a particular char in the alphabet.
@@ -235,40 +235,40 @@ public:
    * @param i The alphabet char to check.
    * @return A vector of indices of model states.
    */
-  virtual std::vector<unsigned int> getModelStates(int i) const = 0;
+  virtual std::vector<size_t> getModelStates(int i) const = 0;
 
   /**
    * @return Equilibrium frequency associated to character i.
    * @see getFrequencies(), getStates()
    */
-  virtual double freq(unsigned int i) const = 0;
+  virtual double freq(size_t i) const = 0;
 
   /**
    * @return The rate in the generator of change from state i to state j.
    *
    * @see getStates();
    */
-  virtual double Qij(unsigned int i, unsigned int j) const = 0;
+  virtual double Qij(size_t i, size_t j) const = 0;
 
   /**
    * @return The probability of change from state i to state j during time t.
    * @see getPij_t(), getStates()
    */
-  virtual double Pij_t(unsigned int i, unsigned int j, double t) const = 0;
+  virtual double Pij_t(size_t i, size_t j, double t) const = 0;
 
   /**
    * @return The first order derivative of the probability of change from state
    * i to state j with respect to time t, at time t.
    * @see getdPij_dt(), getStates()
    */
-  virtual double dPij_dt(unsigned int i, unsigned int j, double t) const = 0;
+  virtual double dPij_dt(size_t i, size_t j, double t) const = 0;
 
   /**
    * @return The second order derivative of the probability of change from state
    * i to state j with respect to time t, at time t.
    * @see getd2Pij_dt2(), getStates()
    */
-  virtual double d2Pij_dt2(unsigned int i, unsigned int j, double t) const = 0;
+  virtual double d2Pij_dt2(size_t i, size_t j, double t) const = 0;
 
   /**
    * @return A vector of all equilibrium frequencies.
@@ -306,7 +306,7 @@ public:
    * By definition Sij(i,j) = Sij(j,i).
    */
   
-  virtual double Sij(unsigned int i, unsigned int j) const = 0;
+  virtual double Sij(size_t i, size_t j) const = 0;
   /**
    * @return All probabilities of change from state i to state j during time t.
    * @see Pij_t()
@@ -378,7 +378,7 @@ public:
    *
    * @return The number of different states in the model.
    */
-  virtual unsigned int getNumberOfStates() const = 0;
+  virtual size_t getNumberOfStates() const = 0;
 
   /**
    * This method is used to initialize likelihoods in reccursions.
@@ -389,10 +389,11 @@ public:
    * @param i the index of the state in the model.
    * @param state An observed state in the sequence/site.
    * @return 1 or 0 depending if the two states are compatible.
+   * @throw IndexOutOfBoundsException if array position is out of range.
    * @throw BadIntException if states are not allowed in the associated alphabet.
    * @see getStates();
    */
-  virtual double getInitValue(unsigned int i, int state) const throw (BadIntException) = 0;
+  virtual double getInitValue(size_t i, int state) const throw (IndexOutOfBoundsException, BadIntException) = 0;
 
   /**
    * @brief Get the rate
@@ -421,7 +422,7 @@ public:
    * \pi_i = \frac{n_i+\psi}{\sum_j (f_j+\psi)}
    * @f]
    */
-  virtual void setFreqFromData(const SequenceContainer& data, unsigned int pseudoCount = 0) = 0;
+  virtual void setFreqFromData(const SequenceContainer& data, double pseudoCount = 0) = 0;
 
   /**
    * @brief Set equilibrium frequencies

@@ -89,24 +89,24 @@ void TreeTools::getLeavesId(const Tree& tree, int nodeId, std::vector<int>& leav
     leaves.push_back(nodeId);
   }
   vector<int> sons = tree.getSonsId(nodeId);
-  for (unsigned int i = 0; i < sons.size(); i++)
+  for (size_t i = 0; i < sons.size(); i++)
   {
     getLeavesId(tree, sons[i], leaves);
   }
 }
 
-unsigned int TreeTools::getNumberOfLeaves(const Tree& tree, int nodeId) throw (NodeNotFoundException)
+size_t TreeTools::getNumberOfLeaves(const Tree& tree, int nodeId) throw (NodeNotFoundException)
 {
   if (!tree.hasNode(nodeId))
     throw NodeNotFoundException("TreeTools::getNumberOfLeaves", nodeId);
 
-  unsigned int n = 0;
+  size_t n = 0;
   if (tree.isLeaf(nodeId))
   {
     ++n;
   }
   vector<int> sons = tree.getSonsId(nodeId);
-  for (unsigned int i = 0; i < sons.size(); ++i)
+  for (size_t i = 0; i < sons.size(); ++i)
   {
     n += getNumberOfLeaves(tree, sons[i]);
   }
@@ -142,7 +142,7 @@ throw (NodeNotFoundException)
     }
   }
   vector<int> sons;
-  for (unsigned int i = 0; i < sons.size(); i++)
+  for (size_t i = 0; i < sons.size(); i++)
   {
     searchLeaf(tree, nodeId, name, id);
   }
@@ -162,7 +162,7 @@ void TreeTools::getNodesId(const Tree& tree, int nodeId, vector<int>& nodes) thr
   if (!tree.hasNode(nodeId))
     throw NodeNotFoundException("TreeTools::getNodesId", nodeId);
   vector<int> sons = tree.getSonsId(nodeId);
-  for (unsigned int i = 0; i < sons.size(); i++)
+  for (size_t i = 0; i < sons.size(); i++)
   {
     getNodesId(tree, sons[i], nodes);
   }
@@ -171,15 +171,15 @@ void TreeTools::getNodesId(const Tree& tree, int nodeId, vector<int>& nodes) thr
 
 /******************************************************************************/
 
-unsigned int TreeTools::getDepth(const Tree& tree, int nodeId) throw (NodeNotFoundException)
+size_t TreeTools::getDepth(const Tree& tree, int nodeId) throw (NodeNotFoundException)
 {
   if (!tree.hasNode(nodeId))
     throw NodeNotFoundException("TreeTools::getDepth", nodeId);
-  unsigned int d = 0;
+  size_t d = 0;
   vector<int> sons = tree.getSonsId(nodeId);
   for (size_t i = 0; i < sons.size(); i++)
   {
-    unsigned int c = getDepth(tree, sons[i]) + 1;
+    size_t c = getDepth(tree, sons[i]) + 1;
     if (c > d)
       d = c;
   }
@@ -188,15 +188,15 @@ unsigned int TreeTools::getDepth(const Tree& tree, int nodeId) throw (NodeNotFou
 
 /******************************************************************************/
 
-unsigned int TreeTools::getDepths(const Tree& tree, int nodeId, map<int, unsigned int>& depths) throw (NodeNotFoundException)
+size_t TreeTools::getDepths(const Tree& tree, int nodeId, map<int, size_t>& depths) throw (NodeNotFoundException)
 {
   if (!tree.hasNode(nodeId))
     throw NodeNotFoundException("TreeTools::getDepth", nodeId);
-  unsigned int d = 0;
+  size_t d = 0;
   vector<int> sons = tree.getSonsId(nodeId);
   for (size_t i = 0; i < sons.size(); i++)
   {
-    unsigned int c = getDepths(tree, sons[i], depths) + 1;
+    size_t c = getDepths(tree, sons[i], depths) + 1;
     if (c > d)
       d = c;
   }
@@ -265,7 +265,7 @@ string TreeTools::nodeToParenthesis(const Tree& tree, int nodeId, bool writeId) 
     s << "(";
     vector<int> sonsId = tree.getSonsId(nodeId);
     s << nodeToParenthesis(tree, sonsId[0], writeId);
-    for (unsigned int i = 1; i < sonsId.size(); i++)
+    for (size_t i = 1; i < sonsId.size(); i++)
     {
       s << "," << nodeToParenthesis(tree, sonsId[i], writeId);
     }
@@ -303,7 +303,7 @@ string TreeTools::nodeToParenthesis(const Tree& tree, int nodeId, bool bootstrap
     s << "(";
     vector<int> sonsId = tree.getSonsId(nodeId);
     s << nodeToParenthesis(tree, sonsId[0], bootstrap, propertyName);
-    for (unsigned int i = 1; i < sonsId.size(); i++)
+    for (size_t i = 1; i < sonsId.size(); i++)
     {
       s << "," << nodeToParenthesis(tree, sonsId[i], bootstrap, propertyName);
     }
@@ -336,7 +336,7 @@ string TreeTools::treeToParenthesis(const Tree& tree, bool writeId)
   if (tree.isLeaf(rootId))
   {
     s << tree.getNodeName(rootId);
-    for (unsigned int i = 0; i < sonsId.size(); i++)
+    for (size_t i = 0; i < sonsId.size(); i++)
     {
       s << "," << nodeToParenthesis(tree, sonsId[i], writeId);
     }
@@ -346,7 +346,7 @@ string TreeTools::treeToParenthesis(const Tree& tree, bool writeId)
     if (sonsId.size() > 0)
     {
       s << nodeToParenthesis(tree, sonsId[0], writeId);
-      for (unsigned int i = 1; i < sonsId.size(); i++)
+      for (size_t i = 1; i < sonsId.size(); i++)
       {
         s << "," << nodeToParenthesis(tree, sonsId[i], writeId);
       }
@@ -368,7 +368,7 @@ string TreeTools::treeToParenthesis(const Tree& tree, bool bootstrap, const stri
   if (tree.isLeaf(rootId))
   {
     s << tree.getNodeName(rootId);
-    for (unsigned int i = 0; i < sonsId.size(); i++)
+    for (size_t i = 0; i < sonsId.size(); i++)
     {
       s << "," << nodeToParenthesis(tree, sonsId[i], bootstrap, propertyName);
     }
@@ -376,7 +376,7 @@ string TreeTools::treeToParenthesis(const Tree& tree, bool bootstrap, const stri
   else
   {
     s << nodeToParenthesis(tree, sonsId[0], bootstrap, propertyName);
-    for (unsigned int i = 1; i < sonsId.size(); i++)
+    for (size_t i = 1; i < sonsId.size(); i++)
     {
       s << "," << nodeToParenthesis(tree, sonsId[i], bootstrap, propertyName);
     }
@@ -426,8 +426,8 @@ throw (NodeNotFoundException)
   pathMatrix2.push_back(nodeUp); // The root.
   // Must check that the two nodes have the same root!!!
 
-  unsigned int tmp1 = pathMatrix1.size();
-  unsigned int tmp2 = pathMatrix2.size();
+  size_t tmp1 = pathMatrix1.size();
+  size_t tmp2 = pathMatrix2.size();
 
   while ((tmp1 > 0) && (tmp2 > 0))
   {
@@ -437,13 +437,13 @@ throw (NodeNotFoundException)
   }
   // (tmp1 - 1) and (tmp2 - 1) now point toward the first non-common nodes
 
-  for (unsigned int y = 0; y < tmp1; ++y)
+  for (size_t y = 0; y < tmp1; ++y)
   {
     path.push_back(pathMatrix1[y]);
   }
   if (includeAncestor)
     path.push_back(pathMatrix1[tmp1]);  // pushing once, the Node that was common to both.
-  for (unsigned int j = tmp2; j > 0; --j)
+  for (size_t j = tmp2; j > 0; --j)
   {
     path.push_back(pathMatrix2[j - 1]);
   }
@@ -460,7 +460,7 @@ double TreeTools::getDistanceBetweenAnyTwoNodes(const Tree& tree, int nodeId1, i
     throw NodeNotFoundException("TreeTools::getDistanceBetweenAnyTwoNodes", nodeId2);
   vector<int> path = getPathBetweenAnyTwoNodes(tree, nodeId1, nodeId2, false);
   double d = 0;
-  for (unsigned int i = 0; i < path.size(); i++)
+  for (size_t i = 0; i < path.size(); i++)
   {
     d += tree.getDistanceToFather(path[i]);
   }
@@ -479,10 +479,10 @@ Vdouble TreeTools::getBranchLengths(const Tree& tree, int nodeId) throw (NodeNot
   else
     throw NodeException("TreeTools::getbranchLengths(). No branch length.", nodeId);
   vector<int> sons = tree.getSonsId(nodeId);
-  for (unsigned int i = 0; i < sons.size(); i++)
+  for (size_t i = 0; i < sons.size(); i++)
   {
     Vdouble sonBrLen = getBranchLengths(tree, sons[i]);
-    for (unsigned int j = 0; j < sonBrLen.size(); j++)
+    for (size_t j = 0; j < sonBrLen.size(); j++)
     {
       brLen.push_back(sonBrLen[j]);
     }
@@ -500,7 +500,7 @@ double TreeTools::getTotalLength(const Tree& tree, int nodeId, bool includeAnces
     throw NodeException("TreeTools::getTotalLength(). No branch length.", nodeId);
   double length = includeAncestor ? tree.getDistanceToFather(nodeId) : 0;
   vector<int> sons = tree.getSonsId(nodeId);
-  for (unsigned int i = 0; i < sons.size(); i++)
+  for (size_t i = 0; i < sons.size(); i++)
   {
     length += getTotalLength(tree, sons[i], true);
   }
@@ -514,7 +514,7 @@ void TreeTools::setBranchLengths(Tree& tree, int nodeId, double brLen) throw (No
   if (!tree.hasNode(nodeId))
     throw NodeNotFoundException("TreeTools::setBranchLengths", nodeId);
   vector<int> nodes = getNodesId(tree, nodeId);
-  for (unsigned int i = 0; i < nodes.size(); i++)
+  for (size_t i = 0; i < nodes.size(); i++)
   {
     tree.setDistanceToFather(nodes[i], brLen);
   }
@@ -527,7 +527,7 @@ void TreeTools::setVoidBranchLengths(Tree& tree, int nodeId, double brLen) throw
   if (!tree.hasNode(nodeId))
     throw NodeNotFoundException("TreeTools::setVoidBranchLengths", nodeId);
   vector<int> nodes = getNodesId(tree, nodeId);
-  for (unsigned int i = 0; i < nodes.size(); i++)
+  for (size_t i = 0; i < nodes.size(); i++)
   {
     if (!tree.hasDistanceToFather(nodes[i]))
       tree.setDistanceToFather(nodes[i], brLen);
@@ -541,7 +541,7 @@ void TreeTools::scaleTree(Tree& tree, int nodeId, double factor) throw (NodeNotF
   if (!tree.hasNode(nodeId))
     throw NodeNotFoundException("TreeTools::scaleTree", nodeId);
   vector<int> nodes = getNodesId(tree, nodeId);
-  for (unsigned int i = 0; i < nodes.size(); i++)
+  for (size_t i = 0; i < nodes.size(); i++)
   {
     if (tree.hasFather(nodes[i]))
     {
@@ -555,18 +555,18 @@ void TreeTools::scaleTree(Tree& tree, int nodeId, double factor) throw (NodeNotF
 
 /******************************************************************************/
 
-unsigned int TreeTools::initBranchLengthsGrafen(Tree& tree, int nodeId) throw (NodeNotFoundException)
+size_t TreeTools::initBranchLengthsGrafen(Tree& tree, int nodeId) throw (NodeNotFoundException)
 {
   if (!tree.hasNode(nodeId))
     throw NodeNotFoundException("TreeTools::initBranchLengthsGrafen", nodeId);
   vector<int> sons = tree.getSonsId(nodeId);
-  vector<unsigned int> h(sons.size());
-  for (unsigned int i = 0; i < sons.size(); i++)
+  vector<size_t> h(sons.size());
+  for (size_t i = 0; i < sons.size(); i++)
   {
     h[i] = initBranchLengthsGrafen(tree, sons[i]);
   }
-  unsigned int thish = sons.size() == 0 ? 0 : VectorTools::sum<unsigned int>(h) + sons.size() - 1;
-  for (unsigned int i = 0; i < sons.size(); i++)
+  size_t thish = sons.size() == 0 ? 0 : VectorTools::sum<size_t>(h) + sons.size() - 1;
+  for (size_t i = 0; i < sons.size(); i++)
   {
     tree.setDistanceToFather(sons[i], (double)(thish - h[i]));
   }
@@ -594,7 +594,7 @@ throw (NodeNotFoundException, NodeException)
   vector<int> sons = tree.getSonsId(nodeId);
   vector<double> hr(sons.size());
   height = 0;
-  for (unsigned int i = 0; i < sons.size(); i++)
+  for (size_t i = 0; i < sons.size(); i++)
   {
     int son = sons[i];
     if (tree.hasDistanceToFather(son))
@@ -609,7 +609,7 @@ throw (NodeNotFoundException, NodeException)
       throw NodeException ("TreeTools::computeBranchLengthsGrafen. Branch length lacking.", son);
   }
   heightRaised = pow(height / total, power) * total;
-  for (unsigned int i = 0; i < sons.size(); i++)
+  for (size_t i = 0; i < sons.size(); i++)
   {
     tree.setDistanceToFather(sons[i], heightRaised - hr[i]);
   }
@@ -640,7 +640,7 @@ double TreeTools::convertToClockTree(Tree& tree, int nodeId, bool noneg)
   // We compute the mean height:
   double l = 0;
   double maxh = -1.;
-  for (unsigned int i = 0; i < sons.size(); i++)
+  for (size_t i = 0; i < sons.size(); i++)
   {
     int son = sons[i];
     if (tree.hasDistanceToFather(son))
@@ -657,7 +657,7 @@ double TreeTools::convertToClockTree(Tree& tree, int nodeId, bool noneg)
     l /= (double)sons.size();
   if (l < maxh)
     l = maxh;
-  for (unsigned int i = 0; i < sons.size(); i++)
+  for (size_t i = 0; i < sons.size(); i++)
   {
     tree.setDistanceToFather(sons[i], l - h[i]);
   }
@@ -675,7 +675,7 @@ double TreeTools::convertToClockTree2(Tree& tree, int nodeId)
   // We compute the mean height:
   double l = 0;
   double maxh = -1.;
-  for (unsigned int i = 0; i < sons.size(); i++)
+  for (size_t i = 0; i < sons.size(); i++)
   {
     int son = sons[i];
     if (tree.hasDistanceToFather(son))
@@ -690,7 +690,7 @@ double TreeTools::convertToClockTree2(Tree& tree, int nodeId)
   }
   if (sons.size() > 0)
     l /= (double)sons.size();
-  for (unsigned int i = 0; i < sons.size(); i++)
+  for (size_t i = 0; i < sons.size(); i++)
   {
     scaleTree(tree, sons[i], h[i] > 0 ? l / h[i] : 0);
   }
@@ -703,10 +703,10 @@ DistanceMatrix* TreeTools::getDistanceMatrix(const Tree& tree)
 {
   vector<string> names = tree.getLeavesNames();
   DistanceMatrix* mat = new DistanceMatrix(names);
-  for (unsigned int i = 0; i < names.size(); i++)
+  for (size_t i = 0; i < names.size(); i++)
   {
     (*mat)(i, i) = 0;
-    for (unsigned int j = 0; j < i; j++)
+    for (size_t j = 0; j < i; j++)
     {
       (*mat)(i, j) = (*mat)(j, i) = getDistanceBetweenAnyTwoNodes(tree, tree.getLeafId(names[i]), tree.getLeafId(names[j]));
     }
@@ -721,7 +721,7 @@ void TreeTools::midpointRooting(Tree& tree)
   if (tree.isRooted())
     tree.unroot();
   DistanceMatrix* dist = getDistanceMatrix(tree);
-  vector<unsigned int> pos = MatrixTools::whichMax(*dist);
+  vector<size_t> pos = MatrixTools::whichMax(*dist);
   double dmid = (*dist)(pos[0], pos[1]) / 2;
   int id1 = tree.getLeafId(dist->getName(pos[0]));
   int id2 = tree.getLeafId(dist->getName(pos[1]));
@@ -752,7 +752,7 @@ int TreeTools::getMaxId(const Tree& tree, int id)
 {
   int maxId = id;
   vector<int> sonsId = tree.getSonsId(id);
-  for (unsigned int i = 0; i < sonsId.size(); i++)
+  for (size_t i = 0; i < sonsId.size(); i++)
   {
     int subMax = getMaxId(tree, sonsId[i]);
     if (subMax > maxId)
@@ -768,7 +768,7 @@ int TreeTools::getMPNUId(const Tree& tree, int id)
   vector<int> ids = getNodesId(tree, id);
   sort(ids.begin(), ids.end());
   // Check if some id is "missing" in the subtree:
-  for (unsigned int i = 0; i < ids.size(); i++)
+  for (size_t i = 0; i < ids.size(); i++)
   {
     if (ids[i] != (int)i)
       return (int)i;
@@ -783,7 +783,7 @@ bool TreeTools::checkIds(const Tree& tree, bool throwException) throw (Exception
 {
   vector<int> ids = tree.getNodesId();
   sort(ids.begin(), ids.end());
-  for (unsigned int i = 1; i < ids.size(); i++)
+  for (size_t i = 1; i < ids.size(); i++)
   {
     if (ids[i] == ids[i - 1])
     {
@@ -800,14 +800,14 @@ bool TreeTools::checkIds(const Tree& tree, bool throwException) throw (Exception
 VectorSiteContainer* TreeTools::MRPEncode(const vector<Tree*>& vecTr)
 {
   vector<BipartitionList*> vecBipL;
-  for (unsigned int i = 0; i < vecTr.size(); i++)
+  for (size_t i = 0; i < vecTr.size(); i++)
   {
     vecBipL.push_back(new BipartitionList(*vecTr[i]));
   }
 
   VectorSiteContainer* cont = BipartitionTools::MRPEncode(vecBipL);
 
-  for (unsigned int i = 0; i < vecTr.size(); i++)
+  for (size_t i = 0; i < vecTr.size(); i++)
   {
     delete vecBipL[i];
   }
@@ -819,7 +819,7 @@ VectorSiteContainer* TreeTools::MRPEncode(const vector<Tree*>& vecTr)
 
 bool TreeTools::haveSameTopology(const Tree& tr1, const Tree& tr2)
 {
-  unsigned int jj, nbbip;
+  size_t jj, nbbip;
   BipartitionList* bipL1, * bipL2;
   vector<int> size1, size2;
 
@@ -843,7 +843,7 @@ bool TreeTools::haveSameTopology(const Tree& tr1, const Tree& tr2)
   nbbip = bipL1->getNumberOfBipartitions();
 
   /* compare partition sizes */
-  for (unsigned int i = 0; i < nbbip; i++)
+  for (size_t i = 0; i < nbbip; i++)
   {
     size1.push_back(bipL1->getPartitionSize(i));
     size2.push_back(bipL1->getPartitionSize(i));
@@ -852,7 +852,7 @@ bool TreeTools::haveSameTopology(const Tree& tr1, const Tree& tr2)
   }
 
   /* compare bipartitions */
-  for (unsigned int i = 0; i < nbbip; i++)
+  for (size_t i = 0; i < nbbip; i++)
   {
     for (jj = 0; jj < nbbip; jj++)
     {
@@ -871,7 +871,7 @@ bool TreeTools::haveSameTopology(const Tree& tr1, const Tree& tr2)
 int TreeTools::robinsonFouldsDistance(const Tree& tr1, const Tree& tr2, bool checkNames, int* missing_in_tr2, int* missing_in_tr1) throw (Exception)
 {
   BipartitionList* bipL1, * bipL2;
-  unsigned int i, j;
+  size_t i, j;
   vector<int> size1, size2;
   vector<bool> bipOK2;
 
@@ -934,20 +934,20 @@ int TreeTools::robinsonFouldsDistance(const Tree& tr1, const Tree& tr2, bool che
 
 /******************************************************************************/
 
-BipartitionList* TreeTools::bipartitionOccurrences(const vector<Tree*>& vecTr, vector<unsigned int>& bipScore)
+BipartitionList* TreeTools::bipartitionOccurrences(const vector<Tree*>& vecTr, vector<size_t>& bipScore)
 {
   vector<BipartitionList*> vecBipL;
   BipartitionList* mergedBipL;
   vector<int> bipSize;
-  unsigned int nbBip;
+  size_t nbBip;
 
   /*  build and merge bipartitions */
-  for (unsigned int i = 0; i < vecTr.size(); i++)
+  for (size_t i = 0; i < vecTr.size(); i++)
   {
     vecBipL.push_back(new BipartitionList(*vecTr[i]));
   }
   mergedBipL = BipartitionTools::mergeBipartitionLists(vecBipL);
-  for (unsigned int i = 0; i < vecTr.size(); i++)
+  for (size_t i = 0; i < vecTr.size(); i++)
   {
     delete vecBipL[i];
   }
@@ -955,18 +955,18 @@ BipartitionList* TreeTools::bipartitionOccurrences(const vector<Tree*>& vecTr, v
   mergedBipL->removeTrivialBipartitions();
   nbBip = mergedBipL->getNumberOfBipartitions();
   bipScore.clear();
-  for (unsigned int i = 0; i < nbBip; i++)
+  for (size_t i = 0; i < nbBip; i++)
   {
     bipSize.push_back(mergedBipL->getPartitionSize(i));
     bipScore.push_back(1);
   }
 
   /* compare bipartitions */
-  for (unsigned int i = nbBip; i > 0; i--)
+  for (size_t i = nbBip; i > 0; i--)
   {
     if (bipScore[i - 1] == 0)
       continue;
-    for (unsigned int j = i - 1; j > 0; j--)
+    for (size_t j = i - 1; j > 0; j--)
     {
       if (bipScore[j - 1] && bipSize[i - 1] == bipSize[j - 1] && mergedBipL->areIdentical(i - 1, j - 1))
       {
@@ -977,7 +977,7 @@ BipartitionList* TreeTools::bipartitionOccurrences(const vector<Tree*>& vecTr, v
   }
 
   /* keep only distinct bipartitions */
-  for (unsigned int i = nbBip; i > 0; i--)
+  for (size_t i = nbBip; i > 0; i--)
   {
     if (bipScore[i - 1] == 0)
     {
@@ -988,7 +988,7 @@ BipartitionList* TreeTools::bipartitionOccurrences(const vector<Tree*>& vecTr, v
 
   /* add terminal branches */
   mergedBipL->addTrivialBipartitions(false);
-  for (unsigned int i = 0; i < mergedBipL->getNumberOfElements(); i++)
+  for (size_t i = 0; i < mergedBipL->getNumberOfElements(); i++)
   {
     bipScore.push_back(vecTr.size());
   }
@@ -1000,7 +1000,7 @@ BipartitionList* TreeTools::bipartitionOccurrences(const vector<Tree*>& vecTr, v
 
 TreeTemplate<Node>* TreeTools::thresholdConsensus(const vector<Tree*>& vecTr, double threshold, bool checkNames) throw (Exception)
 {
-  vector<unsigned int> bipScore;
+  vector<size_t> bipScore;
   vector<string> tr0leaves;
   BipartitionList* bipL;
   double score;
@@ -1012,7 +1012,7 @@ TreeTemplate<Node>* TreeTools::thresholdConsensus(const vector<Tree*>& vecTr, do
   if (checkNames)
   {
     tr0leaves = vecTr[0]->getLeavesNames();
-    for (unsigned int i = 1; i < vecTr.size(); i++)
+    for (size_t i = 1; i < vecTr.size(); i++)
     {
       if (!VectorTools::haveSameElements(vecTr[i]->getLeavesNames(), tr0leaves))
         throw Exception("TreeTools::thresholdConsensus. Distinct leaf sets between trees");
@@ -1021,7 +1021,7 @@ TreeTemplate<Node>* TreeTools::thresholdConsensus(const vector<Tree*>& vecTr, do
 
   bipL = bipartitionOccurrences(vecTr, bipScore);
 
-  for (unsigned int i = bipL->getNumberOfBipartitions(); i > 0; i--)
+  for (size_t i = bipL->getNumberOfBipartitions(); i > 0; i--)
   {
     if (bipL->getPartitionSize(i - 1) == 1)
       continue;
@@ -1033,7 +1033,7 @@ TreeTemplate<Node>* TreeTools::thresholdConsensus(const vector<Tree*>& vecTr, do
     }
     if (score > 0.5)
       continue;
-    for (unsigned int j = bipL->getNumberOfBipartitions(); j > i; j--)
+    for (size_t j = bipL->getNumberOfBipartitions(); j > i; j--)
     {
       if (!bipL->areCompatible(i - 1, j - 1))
       {
@@ -1104,16 +1104,16 @@ void TreeTools::computeBootstrapValues(Tree& tree, const vector<Tree*>& vecTr, b
 {
   vector<int> index;
   BipartitionList bpTree(tree, true, &index);
-  vector<unsigned int> occurences;
+  vector<size_t> occurences;
   BipartitionList* bpList = bipartitionOccurrences(vecTr, occurences);
 
   vector< Number<double> > bootstrapValues(bpTree.getNumberOfBipartitions());
 
-  for (unsigned int i = 0; i < bpTree.getNumberOfBipartitions(); i++)
+  for (size_t i = 0; i < bpTree.getNumberOfBipartitions(); i++)
   {
     if (verbose)
       ApplicationTools::displayGauge(i, bpTree.getNumberOfBipartitions() - 1, '=');
-    for (unsigned int j = 0; j < bpList->getNumberOfBipartitions(); j++)
+    for (size_t j = 0; j < bpList->getNumberOfBipartitions(); j++)
     {
       if (BipartitionTools::areIdentical(bpTree, i, *bpList, j))
       {
@@ -1123,7 +1123,7 @@ void TreeTools::computeBootstrapValues(Tree& tree, const vector<Tree*>& vecTr, b
     }
   }
 
-  for (unsigned int i = 0; i < index.size(); i++)
+  for (size_t i = 0; i < index.size(); i++)
   {
     if (!tree.isLeaf(index[i]))
       tree.setBranchProperty(index[i], BOOTSTRAP, bootstrapValues[i]);
@@ -1153,19 +1153,19 @@ int TreeTools::getLastCommonAncestor(const Tree& tree, const vector<int>& nodeId
   if (nodeIds.size() == 0)
     throw Exception("TreeTools::getLastCommonAncestor(). You must provide at least one node id.");
   vector< vector<int> > ancestors(nodeIds.size());
-  for (unsigned int i = 0; i < nodeIds.size(); i++)
+  for (size_t i = 0; i < nodeIds.size(); i++)
   {
     ancestors[i] = getAncestors(tree, nodeIds[i]);
     ancestors[i].insert(ancestors[i].begin(), nodeIds[i]);
   }
   int lca = tree.getRootId();
-  unsigned int count = 1;
+  size_t count = 1;
   for ( ; ; )
   {
     if (ancestors[0].size() <= count)
       return lca;
     int current = ancestors[0][ancestors[0].size() - count - 1];
-    for (unsigned int i = 1; i < nodeIds.size(); i++)
+    for (size_t i = 1; i < nodeIds.size(); i++)
     {
       if (ancestors[i].size() <= count)
         return lca;
@@ -1248,7 +1248,7 @@ TreeTools::Moments_ TreeTools::statFromNode_(Tree& tree, int rootId)
   else
   {
     vector<int> sonsId = tree.getSonsId(rootId);
-    for (unsigned int i = 0; i < sonsId.size(); i++)
+    for (size_t i = 0; i < sonsId.size(); i++)
     {
       mtmp = statFromNode_(tree, sonsId.at(i));
       double bLength = tree.getDistanceToFather(sonsId.at(i));

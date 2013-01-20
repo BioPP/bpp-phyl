@@ -77,9 +77,10 @@ DecompositionSubstitutionCount::DecompositionSubstitutionCount(const ReversibleS
 
 void DecompositionSubstitutionCount::fillBMatrices_()
 {
-  for (unsigned int j = 0; j < nbStates_; ++j) {
-    for (unsigned int k = 0; k < nbStates_; ++k) {
-      unsigned int i = register_->getType(static_cast<int>(j), static_cast<int>(k));
+  int n = static_cast<int>(nbStates_); //Note jdutheil 20/01/13: shoudl be generalized in case sattes are not 0:n !
+  for (int j = 0; j < n; ++j) {
+    for (int k = 0; k < n; ++k) {
+      size_t i = register_->getType(j, k);
       if (i > 0 && k != j) {
         bMatrices_[i - 1](j, k) = model_->Qij(j, k) * (weights_ ? weights_->getIndex(j, k) : 1);
       }
@@ -96,7 +97,7 @@ void DecompositionSubstitutionCount::computeEigen_()
 
 void DecompositionSubstitutionCount::computeProducts_()
 {
-  for (unsigned int i = 0; i < register_->getNumberOfSubstitutionTypes(); ++i) {
+  for (size_t i = 0; i < register_->getNumberOfSubstitutionTypes(); ++i) {
     //vInv_ %*% bMatrices_[i] %*% v_;
     RowMatrix<double> tmp(nbStates_, nbStates_);
     MatrixTools::mult(vInv_, bMatrices_[i], tmp);
@@ -106,7 +107,7 @@ void DecompositionSubstitutionCount::computeProducts_()
 
 void DecompositionSubstitutionCount::resetBMatrices_()
 {
-  unsigned int nbTypes = register_->getNumberOfSubstitutionTypes();
+  size_t nbTypes = register_->getNumberOfSubstitutionTypes();
   bMatrices_.resize(nbTypes);
   insideProducts_.resize(nbTypes);
   counts_.resize(nbTypes);
@@ -123,7 +124,7 @@ void DecompositionSubstitutionCount::resetStates_()
 void DecompositionSubstitutionCount::initBMatrices_()
 {
   //Re-initialize all B matrices according to substitution register.
-  for (unsigned int i = 0; i < register_->getNumberOfSubstitutionTypes(); ++i) {
+  for (size_t i = 0; i < register_->getNumberOfSubstitutionTypes(); ++i) {
     bMatrices_[i].resize(nbStates_, nbStates_);
     insideProducts_[i].resize(nbStates_, nbStates_);
     counts_[i].resize(nbStates_, nbStates_);
@@ -150,7 +151,7 @@ void DecompositionSubstitutionCount::jFunction_(const std::vector<double>& lambd
 void DecompositionSubstitutionCount::computeCounts_(double length) const
 {
   jFunction_(lambda_, length, jMat_);
-  for (unsigned int i = 0; i < register_->getNumberOfSubstitutionTypes(); ++i) {
+  for (size_t i = 0; i < register_->getNumberOfSubstitutionTypes(); ++i) {
     RowMatrix<double> tmp1(nbStates_, nbStates_), tmp2(nbStates_, nbStates_);
     MatrixTools::hadamardMult(jMat_, insideProducts_[i], tmp1);
     MatrixTools::mult(v_, tmp1, tmp2);
@@ -158,9 +159,9 @@ void DecompositionSubstitutionCount::computeCounts_(double length) const
 	}
   // Now we must divide by pijt:
   RowMatrix<double> P = model_->getPij_t(length);
-  for (unsigned int i = 0; i < register_->getNumberOfSubstitutionTypes(); i++) {
-    for (unsigned int j = 0; j < nbStates_; j++) {
-      for(unsigned int k = 0; k < nbStates_; k++) {
+  for (size_t i = 0; i < register_->getNumberOfSubstitutionTypes(); i++) {
+    for (size_t j = 0; j < nbStates_; j++) {
+      for (size_t k = 0; k < nbStates_; k++) {
         counts_[i](j, k) /= P(j, k);
         if (isnan(counts_[i](j, k)) || counts_[i](j, k) < 0.) {
           counts_[i](j, k) = 0.;
@@ -172,7 +173,7 @@ void DecompositionSubstitutionCount::computeCounts_(double length) const
 
 /******************************************************************************/
 
-Matrix<double>* DecompositionSubstitutionCount::getAllNumbersOfSubstitutions(double length, unsigned int type) const
+Matrix<double>* DecompositionSubstitutionCount::getAllNumbersOfSubstitutions(double length, size_t type) const
 {
   if (length < 0)
     throw Exception("DecompositionSubstitutionCount::getAllNumbersOfSubstitutions. Negative branch length: " + TextTools::toString(length) + ".");
@@ -202,7 +203,7 @@ Matrix<double>* DecompositionSubstitutionCount::getAllNumbersOfSubstitutions(dou
 
 /******************************************************************************/
 
-double DecompositionSubstitutionCount::getNumberOfSubstitutions(unsigned int initialState, unsigned int finalState, double length, unsigned int type) const
+double DecompositionSubstitutionCount::getNumberOfSubstitutions(int initialState, int finalState, double length, size_t type) const
 {
   if (length < 0)
     throw Exception("DecompositionSubstitutionCount::getNumbersOfSubstitutions. Negative branch length: " + TextTools::toString(length) + ".");
@@ -216,7 +217,7 @@ double DecompositionSubstitutionCount::getNumberOfSubstitutions(unsigned int ini
 
 /******************************************************************************/
 
-std::vector<double> DecompositionSubstitutionCount::getNumberOfSubstitutionsForEachType(unsigned int initialState, unsigned int finalState, double length) const
+std::vector<double> DecompositionSubstitutionCount::getNumberOfSubstitutionsForEachType(int initialState, int finalState, double length) const
 {
   if (length < 0)
     throw Exception("DecompositionSubstitutionCount::getNumbersOfSubstitutions. Negative branch length: " + TextTools::toString(length) + ".");

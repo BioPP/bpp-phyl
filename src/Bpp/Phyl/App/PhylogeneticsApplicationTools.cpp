@@ -209,7 +209,7 @@ void PhylogeneticsApplicationTools::setSubstitutionModelParametersInitialValuesW
 
       string rf = initFreqs.substr(6);
       StringTokenizer strtok(rf.substr(1, rf.length() - 2), ",");
-      unsigned int i = 0;
+      int i = 0;
       while (strtok.hasMoreToken())
         frequencies[i++] = TextTools::toDouble(strtok.nextToken());
       model.setFreq(frequencies);
@@ -219,17 +219,17 @@ void PhylogeneticsApplicationTools::setSubstitutionModelParametersInitialValuesW
   }
 
   ParameterList pl = model.getIndependentParameters();
-  for (unsigned int i = 0; i < pl.size(); ++i)
+  for (size_t i = 0; i < pl.size(); ++i)
   {
     AutoParameter ap(pl[i]);
     ap.setMessageHandler(ApplicationTools::warning);
     pl.setParameter(i, ap);
   }
 
-  for (unsigned int i = 0; i < pl.size(); ++i)
+  for (size_t i = 0; i < pl.size(); ++i)
   {
     const string pName = pl[i].getName();
-    unsigned int posp = model.getParameterNameWithoutNamespace(pName).rfind(".");
+    size_t posp = model.getParameterNameWithoutNamespace(pName).rfind(".");
     string value;
     bool test1 = (initFreqs == "");
     bool test2 = (model.getParameterNameWithoutNamespace(pName).substr(posp + 1, 5) != "theta");
@@ -336,12 +336,12 @@ SubstitutionModelSet* PhylogeneticsApplicationTools::getSubstitutionModelSet(
 {
   if (!ApplicationTools::parameterExists("nonhomogeneous.number_of_models", params))
     throw Exception("You must specify this parameter: nonhomogeneous.number_of_models .");
-  unsigned int nbModels = ApplicationTools::getParameter<unsigned int>("nonhomogeneous.number_of_models", params, 1, suffix, suffixIsOptional, false);
+  size_t nbModels = ApplicationTools::getParameter<size_t>("nonhomogeneous.number_of_models", params, 1, suffix, suffixIsOptional, false);
   if (nbModels == 0)
     throw Exception("The number of models can't be 0 !");
 
   bool nomix = true;
-  for (unsigned int i = 0; nomix &(i < nbModels); i++)
+  for (size_t i = 0; nomix &(i < nbModels); i++)
   {
     string prefix = "model" + TextTools::toString(i + 1);
     string modelDesc;
@@ -380,7 +380,7 @@ void PhylogeneticsApplicationTools::setSubstitutionModelSet(
   modelSet.clear();
   if (!ApplicationTools::parameterExists("nonhomogeneous.number_of_models", params))
     throw Exception("You must specify this parameter: nonhomogeneous.number_of_models .");
-  unsigned int nbModels = ApplicationTools::getParameter<unsigned int>("nonhomogeneous.number_of_models", params, 1, suffix, suffixIsOptional, false);
+  size_t nbModels = ApplicationTools::getParameter<size_t>("nonhomogeneous.number_of_models", params, 1, suffix, suffixIsOptional, false);
   if (nbModels == 0)
     throw Exception("The number of models can't be 0 !");
 
@@ -407,7 +407,7 @@ void PhylogeneticsApplicationTools::setSubstitutionModelSet(
   if (tmp->getNumberOfStates() != alphabet->getSize())
   {
     // Markov-Modulated Markov Model...
-    unsigned int n = static_cast<unsigned int>(tmp->getNumberOfStates() / alphabet->getSize());
+    size_t n = static_cast<size_t>(tmp->getNumberOfStates() / alphabet->getSize());
     rateFreqs = vector<double>(n, 1. / static_cast<double>(n)); // Equal rates assumed for now, may be changed later (actually, in the most general case,
   }
 
@@ -439,7 +439,7 @@ void PhylogeneticsApplicationTools::setSubstitutionModelSet(
 
   map<string, double> existingParameters;
 
-  for (unsigned int i = 0; i < nbModels; i++)
+  for (size_t i = 0; i < nbModels; i++)
   {
     string prefix = "model" + TextTools::toString(i + 1);
     string modelDesc;
@@ -468,7 +468,7 @@ void PhylogeneticsApplicationTools::setSubstitutionModelSet(
     // DEBUG: VectorTools::print(specificParameters);
     modelSet.addModel(model.get(), nodesId, specificParameters);
     // Now set shared parameters:
-    for (unsigned int j = 0; j < sharedParameters.size(); j++)
+    for (size_t j = 0; j < sharedParameters.size(); j++)
     {
       string pName = sharedParameters[j];
       // DEBUG: cout << "Shared parameter found: " << pName << endl;
@@ -477,7 +477,7 @@ void PhylogeneticsApplicationTools::setSubstitutionModelSet(
         throw Exception("PhylogeneticsApplicationTools::getSubstitutionModelSet. Bad parameter name: " + pName);
       string name = pName.substr(index + 1) + "_" + pName.substr(5, index - 5);
       // namespace checking:
-      vector<unsigned int> models = modelSet.getModelsWithParameter(name);
+      vector<size_t> models = modelSet.getModelsWithParameter(name);
       if (models.size() == 0)
         throw Exception("PhylogeneticsApplicationTools::getSubstitutionModelSet. Parameter `" + name + "' is not associated to any model.");
       if (model->getNamespace() == modelSet.getModel(models[0])->getNamespace())
@@ -518,11 +518,11 @@ void PhylogeneticsApplicationTools::completeMixedSubstitutionModelSet(
   // /////////////////////////////////////////
   // Looks for the allowed paths
 
-  unsigned int numd;
+  size_t numd;
   if (!ApplicationTools::parameterExists("site.number_of_paths", params))
     numd = 0;
   else
-    numd = ApplicationTools::getParameter<unsigned int>("site.number_of_paths", params, 1, suffix, suffixIsOptional, false);
+    numd = ApplicationTools::getParameter<size_t>("site.number_of_paths", params, 1, suffix, suffixIsOptional, false);
 
   if (verbose)
     ApplicationTools::displayResult("Number of distinct paths", TextTools::toString(numd));
@@ -617,7 +617,7 @@ MultipleDiscreteDistribution* PhylogeneticsApplicationTools::getMultipleDistribu
     if (args.find("alphas") == args.end())
       throw Exception("Missing argument 'alphas' (vector of Dirichlet shape parameters) in Dirichlet distribution");
     vector<double> alphas;
-    vector<unsigned int> classes;
+    vector<size_t> classes;
 
     string rf = args["alphas"];
     StringTokenizer strtok(rf.substr(1, rf.length() - 2), ",");
@@ -632,7 +632,7 @@ MultipleDiscreteDistribution* PhylogeneticsApplicationTools::getMultipleDistribu
     pMDD = new DirichletDiscreteDistribution(classes, alphas);
     vector<string> v = pMDD->getParameters().getParameterNames();
 
-    for (unsigned int i = 0; i < v.size(); i++)
+    for (size_t i = 0; i < v.size(); i++)
     {
       unparsedParameterValues[v[i]] = TextTools::toString(pMDD->getParameterValue(pMDD->getParameterNameWithoutNamespace(v[i])));
     }
@@ -768,7 +768,7 @@ throw (Exception)
       else if (param.find("*") != string::npos)
       {
         vector<string> vs;
-        for (unsigned int j = 0; j < parametersToEstimate.size(); j++)
+        for (size_t j = 0; j < parametersToEstimate.size(); j++)
         {
           StringTokenizer stj(param, "*", true, false);
           size_t pos1, pos2;
@@ -849,7 +849,7 @@ throw (Exception)
           }
           string pname  = stp.nextToken();
           string pvalue = stp.nextToken();
-          unsigned int p = pl.whichParameterHasName(pname);
+          size_t p = pl.whichParameterHasName(pname);
           pl.setParameter(p, AutoParameter(pl[p]));
           pl[p].setValue(TextTools::toDouble(pvalue));
         }
@@ -1148,7 +1148,7 @@ throw (Exception)
           }
           string pname  = stp.nextToken();
           string pvalue = stp.nextToken();
-          unsigned int p = pl.whichParameterHasName(pname);
+          size_t p = pl.whichParameterHasName(pname);
           pl.setParameter(p, AutoParameter(pl[p]));
           pl[p].setValue(TextTools::toDouble(pvalue));
         }
@@ -1161,7 +1161,7 @@ throw (Exception)
     }
   }
 
-  unsigned int n = 0;
+  size_t n = 0;
   if (optName == "D-Brent")
   {
     // Uses Newton-Brent method:
@@ -1240,7 +1240,7 @@ throw (Exception)
 
 void PhylogeneticsApplicationTools::checkEstimatedParameters(const ParameterList& pl)
 {
-  for (unsigned int i = 0; i < pl.size(); ++i)
+  for (size_t i = 0; i < pl.size(); ++i)
   {
     const Constraint* constraint = pl[i].getConstraint();
     if (constraint)
@@ -1337,17 +1337,17 @@ void PhylogeneticsApplicationTools::printParameters(const SubstitutionModelSet* 
   (out << "nonhomogeneous.number_of_models=" << modelSet->getNumberOfModels()).endLine();
 
   // Get the parameter links:
-  map< unsigned int, vector<string> > modelLinks; // for each model index, stores the list of global parameters.
-  map< string, set<unsigned int> > parameterLinks; // for each parameter name, stores the list of model indices, wich should be sorted.
+  map< size_t, vector<string> > modelLinks; // for each model index, stores the list of global parameters.
+  map< string, set<size_t> > parameterLinks; // for each parameter name, stores the list of model indices, wich should be sorted.
   vector<string> writtenNames;
   ParameterList pl = modelSet->getParameters();
   ParameterList plroot = modelSet->getRootFrequenciesParameters();
-  for (unsigned int i = 0; i < pl.size(); i++)
+  for (size_t i = 0; i < pl.size(); i++)
   {
     if (!plroot.hasParameter(pl[i].getName()))
     {
       string name = pl[i].getName();
-      vector<unsigned int> models = modelSet->getModelsWithParameter(name);
+      vector<size_t> models = modelSet->getModelsWithParameter(name);
       for (size_t j = 0; j < models.size(); ++j)
       {
         modelLinks[models[j]].push_back(name);
@@ -1357,14 +1357,14 @@ void PhylogeneticsApplicationTools::printParameters(const SubstitutionModelSet* 
   }
 
   // Loop over all models:
-  for (unsigned int i = 0; i < modelSet->getNumberOfModels(); i++)
+  for (size_t i = 0; i < modelSet->getNumberOfModels(); i++)
   {
     const SubstitutionModel* model = modelSet->getModel(i);
 
     // First get the global aliases for this model:
     map<string, string> globalAliases;
     vector<string> names = modelLinks[i];
-    for (unsigned int j = 0; j < names.size(); j++)
+    for (size_t j = 0; j < names.size(); j++)
     {
       const string name = names[j];
       if (parameterLinks[name].size() > 1)
@@ -1385,7 +1385,7 @@ void PhylogeneticsApplicationTools::printParameters(const SubstitutionModelSet* 
     out.endLine();
     vector<int> ids = modelSet->getNodesWithModel(i);
     out << "model" << (i + 1) << ".nodes_id=" << ids[0];
-    for (unsigned int j = 1; j < ids.size(); ++j)
+    for (size_t j = 1; j < ids.size(); ++j)
     {
       out << "," << ids[j];
     }

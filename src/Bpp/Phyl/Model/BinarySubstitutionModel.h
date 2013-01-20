@@ -130,9 +130,9 @@ public:
 
   
 public:
-  double Pij_t    (unsigned int i, unsigned int j, double d) const;
-  double dPij_dt  (unsigned int i, unsigned int j, double d) const;
-  double d2Pij_dt2(unsigned int i, unsigned int j, double d) const;
+  double Pij_t    (size_t i, size_t j, double d) const;
+  double dPij_dt  (size_t i, size_t j, double d) const;
+  double d2Pij_dt2(size_t i, size_t j, double d) const;
   const Matrix<double>& getPij_t    (double d) const;
   const Matrix<double>& getdPij_dt  (double d) const;
   const Matrix<double>& getd2Pij_dt2(double d) const;
@@ -141,7 +141,7 @@ public:
 
   void setFreq(std::map<int, double>& freqs);
 
-  unsigned int getNumberOfStates() const { return 2; }
+  size_t getNumberOfStates() const { return 2; }
 
 protected:
   void updateMatrices();

@@ -41,13 +41,13 @@ knowledge of the CeCILL license and that you accept its terms.
 
 using namespace bpp;
 
-Matrix<double>* NaiveSubstitutionCount::getAllNumbersOfSubstitutions(double length, unsigned int type) const
+Matrix<double>* NaiveSubstitutionCount::getAllNumbersOfSubstitutions(double length, size_t type) const
 { 
-  unsigned int n = register_->getAlphabet()->getSize();
+  int n = static_cast<int>(register_->getAlphabet()->getSize()); //Note jdutheil 20/01/13: shoudl be generalized in case sattes are not 0:n !
   RowMatrix<double>* mat = new RowMatrix<double>(n, n);
-  for (unsigned int i = 0; i < n; ++i)
+  for (int i = 0; i < n; ++i)
   {
-    for (unsigned int j = 0; j < n; ++j)
+    for (int j = 0; j < n; ++j)
     {
       (*mat)(i, j) = (register_->getType(i, j) == type ? (weights_ ? weights_->getIndex(i, j) : 1.) : 0.);
     }
@@ -58,9 +58,10 @@ Matrix<double>* NaiveSubstitutionCount::getAllNumbersOfSubstitutions(double leng
 LabelSubstitutionCount::LabelSubstitutionCount(const Alphabet* alphabet) :
   AbstractSubstitutionCount(new TotalSubstitutionRegister(alphabet)), label_(alphabet->getSize(), alphabet->getSize())
 {
-  unsigned int count = 0;
-  for (unsigned int i = 0; i < alphabet->getSize(); ++i) {
-    for (unsigned int j = 0; j < alphabet->getSize(); ++j) {
+  int n = static_cast<int>(register_->getAlphabet()->getSize()); //Note jdutheil 20/01/13: shoudl be generalized in case sattes are not 0:n !
+  double count = 0;
+  for (int i = 0; i < n; ++i) {
+    for (int j = 0; j < n; ++j) {
       if (i == j) label_(i, j) = 0;
       else label_(i, j) = ++count;
     }

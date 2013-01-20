@@ -5,7 +5,7 @@
 //
 
 /*
-   Copyright or © or Copr. CNRS, (November 16, 2004)
+   Copyright or © or Copr. Bio++ Development Team, (November 16, 2004)
 
    This software is a computer program whose purpose is to provide classes
    for phylogenetic data analysis.
@@ -79,7 +79,7 @@ public:
    * @param site The corresponding site.
    * @return The minimum total number of changes in the tree for site 'site'.
    */
-  virtual unsigned int getScoreForSite(unsigned int site) const = 0;
+  virtual unsigned int getScoreForSite(size_t site) const = 0;
 
   /**
    * @brief Get the score for each site for the current tree, i.e. the total minimum number of changes in the tree for each site.

@@ -99,7 +99,7 @@ void AbstractTreeParsimonyScore::init_(const SiteContainer& data, bool verbose) 
 std::vector<unsigned int> AbstractTreeParsimonyScore::getScoreForEachSite() const
 {
   vector<unsigned int> scores(data_->getNumberOfSites());
-  for (unsigned int i = 0; i < scores.size(); i++)
+  for (size_t i = 0; i < scores.size(); i++)
   {
     scores[i] = getScoreForSite(i);
   }

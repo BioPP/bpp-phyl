@@ -102,7 +102,7 @@ namespace bpp
      *
      * @return The number of substitution types supported by this instance.
      */
-    virtual unsigned int getNumberOfSubstitutionTypes() const { return getSubstitutionRegister()->getNumberOfSubstitutionTypes(); }
+    virtual size_t getNumberOfSubstitutionTypes() const { return getSubstitutionRegister()->getNumberOfSubstitutionTypes(); }
 
     /**
      * @brief Short cut function, equivalent to getSubstitutionRegister()->getAlphabet().
@@ -116,7 +116,7 @@ namespace bpp
      *
      * @return The number of states in the model/alphabet.
      */
-    virtual unsigned int getNumberOfStates() const { return getSubstitutionRegister()->getAlphabet()->getSize(); }
+    virtual size_t getNumberOfStates() const { return getSubstitutionRegister()->getAlphabet()->getSize(); }
 
 
     /**
@@ -125,11 +125,11 @@ namespace bpp
      * @param initialState The initial state.
      * @param finalState   The final state.
      * @param length       The length of the branch.
-     * @param type         The type of susbstitution to count.
+     * @param type         The type of substitution to count.
      * @return The number of substitutions on a branch of specified length and
      * according to initial and final states.
      */
-    virtual double getNumberOfSubstitutions(unsigned int initialState, unsigned int finalState, double length, unsigned int type) const = 0;
+    virtual double getNumberOfSubstitutions(int initialState, int finalState, double length, size_t type) const = 0;
 		
     /**
      * @brief Get the numbers of susbstitutions on a branch, for each initial and final states, and given the branch length.
@@ -138,7 +138,7 @@ namespace bpp
      * @param type         The type of susbstitution to count.
      * @return A matrix with all numbers of substitutions for each initial and final states.
      */
-    virtual Matrix<double>* getAllNumbersOfSubstitutions(double length, unsigned int type) const = 0;
+    virtual Matrix<double>* getAllNumbersOfSubstitutions(double length, size_t type) const = 0;
 
     /**
      * @brief Get the numbers of susbstitutions on a branch for all types, for an initial and final states, given the branch length.
@@ -148,7 +148,7 @@ namespace bpp
      * @param length       The length of the branch.
      * @return A matrix with all numbers of substitutions for each initial and final states.
      */
-    virtual std::vector<double> getNumberOfSubstitutionsForEachType(unsigned int initialState, unsigned int finalState, double length) const = 0;
+    virtual std::vector<double> getNumberOfSubstitutionsForEachType(int initialState, int finalState, double length) const = 0;
 
     /**
      * @brief Set the substitution model associated with this count, if relevent.

@@ -90,23 +90,23 @@ class SubstitutionMapping:
     /**
      * @return The number of sites mapped.
      */
-    virtual unsigned int getNumberOfSites() const = 0;
+    virtual size_t getNumberOfSites() const = 0;
     
     /**
      * @return The number of branches mapped.
      */
-    virtual unsigned int getNumberOfBranches() const = 0;
+    virtual size_t getNumberOfBranches() const = 0;
     
     /**
      * @return The number of distinct types of substitutions mapped.
      */
-    virtual unsigned int getNumberOfSubstitutionTypes() const = 0;
+    virtual size_t getNumberOfSubstitutionTypes() const = 0;
     
     /**
      * @param index The site index.
      * @return The site position corresponding to the index.
      */
-    virtual int getSitePosition(unsigned int index) const = 0;
+    virtual int getSitePosition(size_t index) const = 0;
     
     /**
      * @return A vector with all tree branch lengths.
@@ -117,7 +117,7 @@ class SubstitutionMapping:
      * @param nodeId An id of the node to look for in the map.
      * @return The mapping index for the specified node id.
      */
-    virtual unsigned int getNodeIndex(int nodeId) const throw (NodeNotFoundException) = 0;
+    virtual size_t getNodeIndex(int nodeId) const throw (NodeNotFoundException) = 0;
 
     /**
      * @brief Set the position of a given site.
@@ -126,10 +126,10 @@ class SubstitutionMapping:
      * @param index The site index.
      * @param position The position of the site.
      */
-    virtual void setSitePosition(unsigned int index, int position) = 0;
+    virtual void setSitePosition(size_t index, int position) = 0;
 
-    virtual double& operator()(unsigned int nodeIndex, unsigned int siteIndex, unsigned int type) = 0;
-    virtual const double& operator()(unsigned int nodeIndex, unsigned int siteIndex, unsigned int type) const = 0;
+    virtual double& operator()(size_t nodeIndex, size_t siteIndex, size_t type) = 0;
+    virtual const double& operator()(size_t nodeIndex, size_t siteIndex, size_t type) const = 0;
 };
 
 
@@ -149,8 +149,8 @@ class AbstractSubstitutionMapping:
     std::auto_ptr<const TreeTemplate<Node> > tree_;
     std::vector<int> sitesPositions_;
     std::vector<const Node *> nodes_;
-    unsigned int nbSites_;
-    unsigned int nbBranches_;
+    size_t nbSites_;
+    size_t nbBranches_;
 
   public:
     AbstractSubstitutionMapping() : tree_(0), sitesPositions_(), nodes_(), nbSites_(0), nbBranches_(0) {}
@@ -204,43 +204,43 @@ class AbstractSubstitutionMapping:
       nbBranches_ = nodes_.size();
     }
  
-    int getSitePosition(unsigned int index) const throw (Exception)
+    int getSitePosition(size_t index) const throw (Exception)
     {
       if (isEmpty()) throw Exception("AbstractSubstitutionMapping::getSitePosition. No tree is assigned to this map yet.");
       return sitesPositions_[index];
     }
     
-    void setSitePosition(unsigned int index, int position) throw (Exception)
+    void setSitePosition(size_t index, int position) throw (Exception)
     {
       if (isEmpty()) throw Exception("AbstractSubstitutionMapping::setSitePosition. No tree is assigned to this map yet.");
       sitesPositions_[index] = position;
     }
 		
-    unsigned int getNumberOfSites() const { return nbSites_; }
+    size_t getNumberOfSites() const { return nbSites_; }
 
-    unsigned int getNumberOfBranches() const { return nbBranches_; }
+    size_t getNumberOfBranches() const { return nbBranches_; }
     
-    virtual const Node* getNode(unsigned int nodeIndex) const { return nodes_[nodeIndex]; }
+    virtual const Node* getNode(size_t nodeIndex) const { return nodes_[nodeIndex]; }
 
-    virtual void setNumberOfSites(unsigned int numberOfSites)
+    virtual void setNumberOfSites(size_t numberOfSites)
     {
       nbSites_ = numberOfSites;
       sitesPositions_.resize(numberOfSites);
-      for (unsigned int i = 0; i < numberOfSites; i++)
-        sitesPositions_[i] = i + 1; //Default: all sizes numbered for 1 to n.
+      for (size_t i = 0; i < numberOfSites; i++)
+        sitesPositions_[i] = static_cast<int>(i + 1); //Default: all sizes numbered for 1 to n.
     }
 
     virtual std::vector<double> getBranchLengths() const
     {
       std::vector<double> brLen(nbBranches_);
-      for (unsigned int i = 0; i < nbBranches_; i++)
+      for (size_t i = 0; i < nbBranches_; i++)
         brLen[i] = nodes_[i]->getDistanceToFather();
       return brLen;
     }
 
-    virtual unsigned int getNodeIndex(int nodeId) const throw (NodeNotFoundException)
+    virtual size_t getNodeIndex(int nodeId) const throw (NodeNotFoundException)
     {
-      for (unsigned int i = 0; i < nbBranches_; i++)
+      for (size_t i = 0; i < nbBranches_; i++)
         if(nodes_[i]->getId() == nodeId) return i;
       throw NodeNotFoundException("ProbabilisticSubstitutionMapping::getNodeIndex(nodeId).", TextTools::toString(nodeId));
     }

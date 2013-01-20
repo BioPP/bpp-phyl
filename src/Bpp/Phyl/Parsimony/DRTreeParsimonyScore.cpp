@@ -164,7 +164,7 @@ void DRTreeParsimonyScore::computeScoresPostorderForNode(const DRTreeParsimonyNo
   const Node* node = pData.getNode();
   const Node* source = node->getFather();
   vector<const Node*> neighbors = node->getNeighbors();
-  unsigned int nbNeighbors = node->degree();
+  size_t nbNeighbors = node->degree();
   vector< const vector<Bitset>*> iBitsets;
   vector< const vector<unsigned int>*> iScores;
   for (unsigned int k = 0; k < nbNeighbors; k++)
@@ -220,7 +220,7 @@ void DRTreeParsimonyScore::computeScoresPreorderForNode(const DRTreeParsimonyNod
   // First initialize the vectors from input:
   const Node* node = pData.getNode();
   vector<const Node*> neighbors = node->getNeighbors();
-  unsigned int nbNeighbors = node->degree();
+  size_t nbNeighbors = node->degree();
   vector< const vector<Bitset>*> iBitsets;
   vector< const vector<unsigned int>*> iScores;
   for (unsigned int k = 0; k < nbNeighbors; k++)
@@ -238,8 +238,8 @@ void DRTreeParsimonyScore::computeScoresPreorderForNode(const DRTreeParsimonyNod
 
 void DRTreeParsimonyScore::computeScoresForNode(const DRTreeParsimonyNodeData& pData, std::vector<Bitset>& rBitsets, std::vector<unsigned int>& rScores)
 {
-  const Node* node   = pData.getNode();
-  unsigned int nbNeighbors = node->degree();
+  const Node* node = pData.getNode();
+  size_t nbNeighbors = node->degree();
   vector<const Node*> neighbors = node->getNeighbors();
   // First initialize the vectors fro input:
   vector< const vector<Bitset>*> iBitsets(nbNeighbors);
@@ -266,7 +266,7 @@ unsigned int DRTreeParsimonyScore::getScore() const
 }
 
 /******************************************************************************/
-unsigned int DRTreeParsimonyScore::getScoreForSite(unsigned int site) const
+unsigned int DRTreeParsimonyScore::getScoreForSite(size_t site) const
 {
   return parsimonyData_->getRootScore(parsimonyData_->getRootArrayPosition(site));
 }
@@ -278,20 +278,20 @@ void DRTreeParsimonyScore::computeScoresFromArrays(
   vector<Bitset>& oBitsets,
   vector<unsigned int>& oScores)
 {
-  unsigned int nbPos  = oBitsets.size();
-  unsigned int nbNodes = iBitsets.size();
+  size_t nbPos  = oBitsets.size();
+  size_t nbNodes = iBitsets.size();
   if (iScores.size() != nbNodes)
     throw Exception("DRTreeParsimonyScore::computeScores(); Error, input arrays must have the same length.");
   if (nbNodes < 1)
     throw Exception("DRTreeParsimonyScore::computeScores(); Error, input arrays must have a size >= 1.");
   const vector<Bitset>* bitsets0 = iBitsets[0];
   const vector<unsigned int>* scores0 = iScores[0];
-  for (unsigned int i = 0; i < nbPos; i++)
+  for (size_t i = 0; i < nbPos; i++)
   {
     oBitsets[i] = (*bitsets0)[i];
     oScores[i]  = (*scores0)[i];
   }
-  for (unsigned int k = 1; k < nbNodes; k++)
+  for (size_t k = 1; k < nbNodes; k++)
   {
     const vector<Bitset>* bitsetsk = iBitsets[k];
     const vector<unsigned int>* scoresk = iScores[k];
@@ -320,7 +320,7 @@ double DRTreeParsimonyScore::testNNI(int nodeId) const throw (NodeException)
   // From here: Bifurcation assumed.
   // In case of multifurcation, an arbitrary uncle is chosen.
   // If we are at root node with a trifurcation, this does not matter, since 2 NNI are possible (see doc of the NNISearchable interface).
-  unsigned int parentPosition = grandFather->getSonPosition(parent);
+  size_t parentPosition = grandFather->getSonPosition(parent);
   const Node* uncle = grandFather->getSon(parentPosition > 1 ? parentPosition - 1 : 1 - parentPosition);
 
   // Retrieving arrays of interest:
@@ -328,7 +328,7 @@ double DRTreeParsimonyScore::testNNI(int nodeId) const throw (NodeException)
   const vector<Bitset>* sonBitsets = &parentData->getBitsetsArrayForNeighbor(son->getId());
   const vector<unsigned int>* sonScores  = &parentData->getScoresArrayForNeighbor(son->getId());
   vector<const Node*> parentNeighbors = TreeTemplateTools::getRemainingNeighbors(parent, grandFather, son);
-  unsigned int nbParentNeighbors = parentNeighbors.size();
+  size_t nbParentNeighbors = parentNeighbors.size();
   vector< const vector<Bitset>*> parentBitsets(nbParentNeighbors);
   vector< const vector<unsigned int>*> parentScores(nbParentNeighbors);
   for (unsigned int k = 0; k < nbParentNeighbors; k++)
@@ -342,7 +342,7 @@ double DRTreeParsimonyScore::testNNI(int nodeId) const throw (NodeException)
   const vector<Bitset>* uncleBitsets = &grandFatherData->getBitsetsArrayForNeighbor(uncle->getId());
   const vector<unsigned int>* uncleScores  = &grandFatherData->getScoresArrayForNeighbor(uncle->getId());
   vector<const Node*> grandFatherNeighbors = TreeTemplateTools::getRemainingNeighbors(grandFather, parent, uncle);
-  unsigned int nbGrandFatherNeighbors = grandFatherNeighbors.size();
+  size_t nbGrandFatherNeighbors = grandFatherNeighbors.size();
   vector< const vector<Bitset>*> grandFatherBitsets(nbGrandFatherNeighbors);
   vector< const vector<unsigned int>*> grandFatherScores(nbGrandFatherNeighbors);
   for (unsigned int k = 0; k < nbGrandFatherNeighbors; k++)
@@ -392,7 +392,7 @@ void DRTreeParsimonyScore::doNNI(int nodeId) throw (NodeException)
   // From here: Bifurcation assumed.
   // In case of multifurcation, an arbitrary uncle is chosen.
   // If we are at root node with a trifurcation, this does not matter, since 2 NNI are possible (see doc of the NNISearchable interface).
-  unsigned int parentPosition = grandFather->getSonPosition(parent);
+  size_t parentPosition = grandFather->getSonPosition(parent);
   Node* uncle = grandFather->getSon(parentPosition > 1 ? parentPosition - 1 : 1 - parentPosition);
   // Swap nodes:
   parent->removeSon(son);

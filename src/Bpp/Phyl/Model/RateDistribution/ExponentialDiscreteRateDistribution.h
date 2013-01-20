@@ -49,7 +49,7 @@ class ExponentialDiscreteRateDistribution:
   public ExponentialDiscreteDistribution
 {
   public:
-    ExponentialDiscreteRateDistribution(unsigned int nbClasses):
+    ExponentialDiscreteRateDistribution(size_t nbClasses):
       AbstractParameterAliasable("Exponential."),
       ExponentialDiscreteDistribution(nbClasses, 1.)
     {

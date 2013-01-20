@@ -102,7 +102,7 @@ void AbstractBiblioSubstitutionModel::setFreq(std::map<int, double>& m)
 }
 
 
-void AbstractBiblioSubstitutionModel::setFreqFromData(const SequenceContainer& data, unsigned int pseudoCount)
+void AbstractBiblioSubstitutionModel::setFreqFromData(const SequenceContainer& data, double pseudoCount)
 {
   getModel()->setFreqFromData(data, pseudoCount);
   map<string,string>::iterator it;

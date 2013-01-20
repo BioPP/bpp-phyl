@@ -5,7 +5,7 @@
 //
 
 /*
-  Copyright or © or Copr. CNRS, (November 16, 2004)
+  Copyright or © or Copr. Bio++ Development Team, (November 16, 2004)
 
   This software is a computer program whose purpose is to provide classes
   for phylogenetic data analysis.
@@ -120,7 +120,7 @@ namespace bpp
      * @brief returns the number of models in the mixture
      */
     
-    virtual unsigned int getNumberOfModels() const
+    virtual size_t getNumberOfModels() const
     {
       return modelsContainer_.size();
     }
@@ -128,12 +128,12 @@ namespace bpp
     /**
      * @brief Returns a specific model from the mixture
      */
-    virtual const SubstitutionModel* getNModel(unsigned int i) const
+    virtual const SubstitutionModel* getNModel(size_t i) const
     {
       return modelsContainer_[i];
     }
     
-    virtual SubstitutionModel* getNModel(unsigned int i)
+    virtual SubstitutionModel* getNModel(size_t i)
     {
       return modelsContainer_[i];
     }
@@ -142,7 +142,7 @@ namespace bpp
      * @brief Returns the rate of a specific model from the mixture
      */
   
-    double getNRate(unsigned int i) const
+    double getNRate(size_t i) const
     {
       return vRates_[i];
     }
@@ -187,7 +187,7 @@ namespace bpp
      * mixture
      */
   
-    virtual double getNProbability(unsigned int i) const
+    virtual double getNProbability(size_t i) const
     {
       return vProbas_[i];
     }
@@ -206,7 +206,7 @@ namespace bpp
      * @brief Sets the  probability of a specific model from the mixture
      */
   
-    virtual void setNProbability(unsigned int i, double prob)
+    virtual void setNProbability(size_t i, double prob)
     {
       if ((prob>=0) && (prob<=1))
         vProbas_[i]=prob;
@@ -217,14 +217,14 @@ namespace bpp
      * to prevent wrong usage.
      */
     
-    double Qij(unsigned int i, unsigned int j) const {return 0;}
+    double Qij(size_t i, size_t j) const {return 0;}
 
     /**
      * @brief From SubstitutionModel interface
      *
      */
 
-    virtual unsigned int getNumberOfStates() const;
+    virtual size_t getNumberOfStates() const;
     
     virtual const Matrix<double>& getPij_t(double t) const;
     virtual const Matrix<double>& getdPij_dt(double t) const;

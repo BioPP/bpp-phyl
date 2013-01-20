@@ -113,30 +113,30 @@ class TreeLikelihoodData:
   public:
     virtual const Alphabet* getAlphabet() const = 0;
     virtual const TreeTemplate<Node>* getTree() const = 0;
-    virtual unsigned int getArrayPosition(int parentId, int sonId, unsigned int currentPosition) const = 0;
-    virtual unsigned int getRootArrayPosition(unsigned int site) const = 0;
+    virtual size_t getArrayPosition(int parentId, int sonId, size_t currentPosition) const = 0;
+    virtual size_t getRootArrayPosition(size_t site) const = 0;
     virtual       TreeLikelihoodNodeData& getNodeData(int nodeId) = 0;
     virtual const TreeLikelihoodNodeData& getNodeData(int nodeId) const = 0;
 
     /**
      * @return The number of non redundant patterns.
      */
-    virtual unsigned int getNumberOfDistinctSites() const = 0;
+    virtual size_t getNumberOfDistinctSites() const = 0;
     
     /**
      * @return The total number of sites.
      */
-    virtual unsigned int getNumberOfSites() const = 0;
+    virtual size_t getNumberOfSites() const = 0;
     
     /**
      * @return Get the number of states used in the model.
      */
-    virtual unsigned int getNumberOfStates() const = 0;
+    virtual size_t getNumberOfStates() const = 0;
 
     /**
      * @return The frequency of a given pattern.
      */
-    virtual unsigned int getWeight(unsigned int pos) const = 0;
+    virtual unsigned int getWeight(size_t pos) const = 0;
     
     /**
      * @return Frequencies for each pattern.

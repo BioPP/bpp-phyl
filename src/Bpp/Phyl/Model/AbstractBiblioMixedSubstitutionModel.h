@@ -76,12 +76,12 @@ public:
      *@brief Returns the submodel from the mixture.
    *
    */
-  const SubstitutionModel* getNModel(unsigned int i) const
+  const SubstitutionModel* getNModel(size_t i) const
   {
     return getMixedModel()->getNModel(i);
   }
 
-  SubstitutionModel* getNModel(unsigned int i)
+  SubstitutionModel* getNModel(size_t i)
   {
     return getMixedModel()->getNModel(i);
   }
@@ -89,7 +89,7 @@ public:
   /**
    * @brief Returns the  probability of a specific model from the mixture
    */
-  double getNProbability(unsigned int i) const
+  double getNProbability(size_t i) const
   {
     return getMixedModel()->getNProbability(i);
   }
@@ -109,7 +109,7 @@ public:
    * @brief Sets the probabilities of the submodels of the mixture.
    *
    */
-  void setNProbability(unsigned int i, double prob)
+  void setNProbability(size_t i, double prob)
   {
     getMixedModel()->setNProbability(i, prob);
   }
@@ -118,7 +118,7 @@ public:
    * @brief Returns the number of submodels
    *
    */
-  unsigned int getNumberOfModels() const
+  size_t getNumberOfModels() const
   {
     return getMixedModel()->getNumberOfModels();
   }
@@ -153,7 +153,7 @@ public:
   /**
    * @brief Returns the rate of a specific model from the mixture
    */
-  double getNRate(unsigned int i) const
+  double getNRate(size_t i) const
   {
     return getMixedModel()->getNRate(i);
   }

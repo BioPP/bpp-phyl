@@ -152,7 +152,7 @@ namespace bpp
 
          void insertN(const Vint& vn);
 
-         unsigned int size() const{
+         size_t size() const{
            return vNumb_.size();
          }
 
@@ -184,7 +184,7 @@ namespace bpp
        
          bool intersects(const Node&) const;
 
-         int operator[](unsigned int i) const {return vNumb_[i];}
+         int operator[](size_t i) const {return vNumb_[i];}
 
        };
 
@@ -276,7 +276,7 @@ namespace bpp
 
        void setProbability(double x) { proba_=x;}
        
-       const Node& getNode(unsigned int i) const {return vNumbers_[i];}
+       const Node& getNode(size_t i) const {return vNumbers_[i];}
 
      };
 
@@ -352,11 +352,11 @@ namespace bpp
     
     void addToHyperNode(int nM, const Vint& vnS, int nH=-1);
 
-    unsigned int getNumberOfHyperNodes() const{ return vpHyperNodes_.size();}
+    size_t getNumberOfHyperNodes() const{ return vpHyperNodes_.size();}
 
-    HyperNode& getHyperNode(unsigned int i) {return *vpHyperNodes_[i];} 
+    HyperNode& getHyperNode(size_t i) {return *vpHyperNodes_[i];} 
 
-    const HyperNode& getHyperNode(unsigned int i) const {return *vpHyperNodes_[i];} 
+    const HyperNode& getHyperNode(size_t i) const {return *vpHyperNodes_[i];} 
 
     /*
      *@brief Checks if all the path (ie hypernodes) are exclusive.

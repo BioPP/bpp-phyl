@@ -104,7 +104,7 @@ class TreeTools
      * @param nodeId The id of node defining the subtree.
      * @throw NodeNotFoundException If the node is not found.
      */
-    static unsigned int getNumberOfLeaves(const Tree& tree, int nodeId) throw (NodeNotFoundException);
+    static size_t getNumberOfLeaves(const Tree& tree, int nodeId) throw (NodeNotFoundException);
  
     /**
      * @brief Get the id of a leaf given its name in a subtree.
@@ -183,7 +183,7 @@ class TreeTools
      * @return The depth of the subtree.
      * @throw NodeNotFoundException If the node is not found.
      */
-    static unsigned int getDepth(const Tree& tree, int nodeId) throw (NodeNotFoundException);
+    static size_t getDepth(const Tree& tree, int nodeId) throw (NodeNotFoundException);
 
     /**
      * @brief Get the depths for all nodes of the subtree defined by node 'node', i.e. the maximum
@@ -207,7 +207,7 @@ class TreeTools
      * @return The depth of the subtree.
      * @throw NodeNotFoundException If the node is not found.
      */
-    static unsigned int getDepths(const Tree& tree, int nodeId, std::map<int, unsigned int>& depths) throw (NodeNotFoundException);
+    static size_t getDepths(const Tree& tree, int nodeId, std::map<int, size_t>& depths) throw (NodeNotFoundException);
 
     /**
      * @brief Get the height of the subtree defined by node 'node', i.e. the maximum
@@ -337,7 +337,7 @@ class TreeTools
     static void computeBranchLengthsGrafen(Tree& tree, double power = 1, bool init = true) throw (NodeException);
    
   private:
-    static unsigned int initBranchLengthsGrafen(Tree& tree, int nodeId) throw (NodeNotFoundException);
+    static size_t initBranchLengthsGrafen(Tree& tree, int nodeId) throw (NodeNotFoundException);
     static void computeBranchLengthsGrafen(Tree& tree, int nodeId, double power, double total, double& height, double& heightRaised) throw (NodeNotFoundException,NodeException);
 
   public:
@@ -598,7 +598,7 @@ class TreeTools
      * @param bipScore Output as the numbers of occurrences of the returned distinct bipartitions
      * @return A BipartitionList object including only distinct bipartitions
      */
-    static BipartitionList* bipartitionOccurrences(const std::vector<Tree*>& vecTr, std::vector<unsigned int>& bipScore);
+    static BipartitionList* bipartitionOccurrences(const std::vector<Tree*>& vecTr, std::vector<size_t>& bipScore);
 
     /**
      * @brief General greedy consensus tree method
@@ -696,7 +696,7 @@ class TreeTools
 
   private:
 	  struct Moments_ {
-	    unsigned int N;
+	    size_t N;
 	    double sum, squaredSum;
 	    Moments_(): N(0), sum(0), squaredSum(0) {}
 	  };	  

@@ -537,8 +537,8 @@ public:
     {
       return lambda_.getParameter(name).getValue();
     }
-    unsigned int getNumberOfParameters() const { return 1; }
-    unsigned int getNumberOfIndependentParameters() const { return 1; }
+    size_t getNumberOfParameters() const { return 1; }
+    size_t getNumberOfIndependentParameters() const { return 1; }
   };
 
 public:

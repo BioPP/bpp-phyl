@@ -149,9 +149,9 @@ class DRNonHomogeneousTreeLikelihood:
     void setData(const SiteContainer& sites) throw (Exception);
     double getLikelihood () const;
     double getLogLikelihood() const;
-    double getLikelihoodForASite (unsigned int site) const;
-    double getLogLikelihoodForASite(unsigned int site) const;      
-    unsigned int getSiteIndex(unsigned int site) const throw (IndexOutOfBoundsException) { return likelihoodData_->getRootArrayPosition(site); }
+    double getLikelihoodForASite (size_t site) const;
+    double getLogLikelihoodForASite(size_t site) const;      
+    size_t getSiteIndex(size_t site) const throw (IndexOutOfBoundsException) { return likelihoodData_->getRootArrayPosition(site); }
     /** @} */
 
     void computeTreeLikelihood();
@@ -162,10 +162,10 @@ class DRNonHomogeneousTreeLikelihood:
      *
      * @{
      */
-    double getLikelihoodForASiteForARateClass(unsigned int site, unsigned int rateClass) const;
-    double getLogLikelihoodForASiteForARateClass(unsigned int site, unsigned int rateClass) const;
-    double getLikelihoodForASiteForARateClassForAState(unsigned int site, unsigned int rateClass, int state) const;
-    double getLogLikelihoodForASiteForARateClassForAState(unsigned int site, unsigned int rateClass, int state) const;
+    double getLikelihoodForASiteForARateClass(size_t site, size_t rateClass) const;
+    double getLogLikelihoodForASiteForARateClass(size_t site, size_t rateClass) const;
+    double getLikelihoodForASiteForARateClassForAState(size_t site, size_t rateClass, int state) const;
+    double getLogLikelihoodForASiteForARateClassForAState(size_t site, size_t rateClass, int state) const;
     /** @} */
   
     /**
@@ -268,10 +268,10 @@ class DRNonHomogeneousTreeLikelihood:
     static void computeLikelihoodFromArrays(
         const std::vector<const VVVdouble*>& iLik,
         const std::vector<const VVVdouble*>& tProb,
-        VVVdouble& oLik, unsigned int nbNodes,
-        unsigned int nbDistinctSites,
-        unsigned int nbClasses,
-        unsigned int nbStates,
+        VVVdouble& oLik, size_t nbNodes,
+        size_t nbDistinctSites,
+        size_t nbClasses,
+        size_t nbStates,
         bool reset = true);
 
     /**
@@ -300,10 +300,10 @@ class DRNonHomogeneousTreeLikelihood:
         const VVVdouble* iLikR,
         const VVVdouble* tProbR,
         VVVdouble& oLik,
-        unsigned int nbNodes,
-        unsigned int nbDistinctSites,
-        unsigned int nbClasses,
-        unsigned int nbStates,
+        size_t nbNodes,
+        size_t nbDistinctSites,
+        size_t nbClasses,
+        size_t nbStates,
         bool reset = true);
 
   friend class DRNonHomogeneousMixedTreeLikelihood;

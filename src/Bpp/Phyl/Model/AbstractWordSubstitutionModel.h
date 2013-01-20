@@ -53,9 +53,9 @@ namespace bpp
  *
  * Objects of this class are built from several substitution models.
  * Each model corresponds to a position in the word. No model is
- * directly accessible. </p>
+ * directly accessible.
  *
- * Only substitutions with one letter changed are accepted. </p>
+ * Only substitutions with one letter changed are accepted.
  *
  * There is one substitution per word per unit of time
  * on the equilibrium frequency, and each position has its specific rate.
@@ -127,7 +127,7 @@ public:
    */
   AbstractWordSubstitutionModel(
     SubstitutionModel* pmodel,
-    unsigned int num,
+    size_t num,
     const std::string& st);
 
   AbstractWordSubstitutionModel(const AbstractWordSubstitutionModel&);
@@ -145,21 +145,21 @@ protected:
   AbstractWordSubstitutionModel(const Alphabet* alph, const std::string&);
 
 public:
-  virtual unsigned int getNumberOfStates() const;
+  virtual size_t getNumberOfStates() const;
 
   /**
    * @brief returns the ith model, or Null if i is not a valid number.
    *
    */
   
-  const SubstitutionModel* getNModel(unsigned int i) const {
+  const SubstitutionModel* getNModel(size_t i) const {
     if (i< VSubMod_.size())
         return dynamic_cast<const SubstitutionModel*>(VSubMod_[i]);
     else
       return NULL;
   }
 
-  unsigned int getNumberOfModels() const {
+  size_t getNumberOfModels() const {
     return VSubMod_.size();
   }
   

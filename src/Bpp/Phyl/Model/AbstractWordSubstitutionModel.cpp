@@ -70,8 +70,8 @@ AbstractWordSubstitutionModel::AbstractWordSubstitutionModel(
   Vrate_         (modelVector.size())
 {
   enableEigenDecomposition(false);
-  unsigned int i, j;
-  unsigned int n = modelVector.size();
+  size_t i, j;
+  size_t n = modelVector.size();
 
   // test whether two models are identical
 
@@ -118,7 +118,7 @@ AbstractWordSubstitutionModel::AbstractWordSubstitutionModel(
 
   for (i = 0; i < n; i++)
   {
-    Vrate_[i] = 1.0 / n;
+    Vrate_[i] = 1.0 / static_cast<double>(n);
   }
 }
 
@@ -137,17 +137,17 @@ AbstractWordSubstitutionModel::AbstractWordSubstitutionModel(
 
 AbstractWordSubstitutionModel::AbstractWordSubstitutionModel(
   SubstitutionModel* pmodel,
-  unsigned int num,
+  size_t num,
   const std::string& st) :
   AbstractParameterAliasable(st),
-  AbstractSubstitutionModel(new WordAlphabet(pmodel->getAlphabet(), num),st),
+  AbstractSubstitutionModel(new WordAlphabet(pmodel->getAlphabet(), num), st),
   new_alphabet_ (true),
   VSubMod_      (),
   VnestedPrefix_(),
   Vrate_         (num)
 {
   enableEigenDecomposition(false);
-  unsigned int i;
+  size_t i;
 
   string t = "";
   for (i = 0; i < num; i++)
@@ -171,8 +171,8 @@ AbstractWordSubstitutionModel::AbstractWordSubstitutionModel(
   VnestedPrefix_(wrsm.VnestedPrefix_),
   Vrate_         (wrsm.Vrate_)
 {
-   unsigned int i;
-   unsigned int num = wrsm.VSubMod_.size();
+   size_t i;
+   size_t num = wrsm.VSubMod_.size();
 
   if (wrsm.new_alphabet_)
     alphabet_ = new WordAlphabet(*(dynamic_cast<const WordAlphabet*>(wrsm.getAlphabet())));
@@ -196,8 +196,8 @@ AbstractWordSubstitutionModel& AbstractWordSubstitutionModel::operator=(
   VnestedPrefix_ = model.VnestedPrefix_;
   Vrate_         = model.Vrate_;
 
-  unsigned int i;
-  unsigned int num = model.VSubMod_.size();
+  size_t i;
+  size_t num = model.VSubMod_.size();
 
   if (model.new_alphabet_)
     alphabet_ = new WordAlphabet(*(dynamic_cast<const WordAlphabet*>(model.getAlphabet())));
@@ -231,14 +231,14 @@ AbstractWordSubstitutionModel::~AbstractWordSubstitutionModel()
     delete alphabet_;
 }
 
-unsigned int AbstractWordSubstitutionModel::getNumberOfStates() const
+size_t AbstractWordSubstitutionModel::getNumberOfStates() const
 {
   return getAlphabet()->getSize();
 }
 
 Alphabet* AbstractWordSubstitutionModel::extractAlph(const vector<SubstitutionModel*>& modelVector)
 {
-   unsigned int i;
+   size_t i;
 
    vector<const Alphabet*> vAlph;
 
@@ -257,7 +257,7 @@ void AbstractWordSubstitutionModel::setNamespace(const std::string& prefix)
   if (VSubMod_.size() < 2 || VSubMod_[0] == VSubMod_[1])
   {
    string t = "";
-    for (unsigned int i = 0; i < VSubMod_.size(); i++)
+    for (size_t i = 0; i < VSubMod_.size(); i++)
     {
       t += TextTools::toString(i+1);
     }
@@ -265,7 +265,7 @@ void AbstractWordSubstitutionModel::setNamespace(const std::string& prefix)
   }
   else
   {
-    for (unsigned int i = 0; i < VSubMod_.size(); i++)
+    for (size_t i = 0; i < VSubMod_.size(); i++)
     {
       VSubMod_[i]->setNamespace(prefix + TextTools::toString(i+1) + "_" + VnestedPrefix_[i]);
     }
@@ -282,23 +282,23 @@ void AbstractWordSubstitutionModel::updateMatrices()
   if (VSubMod_.size() < 2 || VSubMod_[0] == VSubMod_[1])
     VSubMod_[0]->matchParametersValues(getParameters());
   else
-    for (unsigned int i = 0; i < VSubMod_.size(); i++)
+    for (size_t i = 0; i < VSubMod_.size(); i++)
     {
       VSubMod_[i]->matchParametersValues(getParameters());
     }
 
-  unsigned int nbmod = VSubMod_.size();
-  unsigned int salph = getNumberOfStates();
-  unsigned int nbStop=0;
+  size_t nbmod = VSubMod_.size();
+  size_t salph = getNumberOfStates();
+  size_t nbStop=0;
   vector<bool> vnull; // vector of the indices of lines with only zeros
   
   // Generator
 
   if (enableEigenDecomposition())
   {
-    unsigned int i, j, n, l, k, m;
+    size_t i, j, n, l, k, m;
 
-    vector<unsigned int> vsize;
+    vector<size_t> vsize;
 
     for (k = 0; k < nbmod; k++)
     {
@@ -338,7 +338,7 @@ void AbstractWordSubstitutionModel::updateMatrices()
 
   completeMatrices();
 
-  unsigned int i, j;
+  size_t i, j;
   double x;
 
   for (i = 0; i < salph; i++)
@@ -455,7 +455,7 @@ void AbstractWordSubstitutionModel::updateMatrices()
       // there is a tolerance for numerical problems
       //
     
-      unsigned int nulleigen=0;
+      size_t nulleigen=0;
       double val;
       double seuil=1;
     
@@ -571,9 +571,9 @@ void AbstractWordSubstitutionModel::updateMatrices()
 void AbstractWordSubstitutionModel::setFreq(std::map<int, double>& freqs)
 {
   map<int, double> tmpFreq;
-  unsigned int nbmod = VSubMod_.size();
+  size_t nbmod = VSubMod_.size();
 
-  unsigned int i, j, s, k, d, size;
+  size_t i, j, s, k, d, size;
   d = size = getNumberOfStates();
 
   if (VSubMod_.size() < 2 || VSubMod_[0] == VSubMod_[1]){

@@ -152,7 +152,7 @@ void DRTreeParsimonyData::init(const Node* node, const SiteContainer& sites, con
     nodeData->setNode(node);
     nodeData->eraseNeighborArrays();
 
-    int nbSons = node->getNumberOfSons();
+    int nbSons = static_cast<int>(node->getNumberOfSons());
 
     for (int n = (node->hasFather() ? -1 : 0); n < nbSons; n++)
     {
@@ -166,7 +166,7 @@ void DRTreeParsimonyData::init(const Node* node, const SiteContainer& sites, con
   }
 
   // We initialize each son node:
-  unsigned int nbSonNodes = node->getNumberOfSons();
+  size_t nbSonNodes = node->getNumberOfSons();
   for (unsigned int l = 0; l < nbSonNodes; l++)
   {
     // For each son node,
@@ -193,7 +193,7 @@ void DRTreeParsimonyData::reInit(const Node* node) throw (Exception)
     nodeData->setNode(node);
     nodeData->eraseNeighborArrays();
 
-    int nbSons = node->getNumberOfSons();
+    int nbSons = static_cast<int>(node->getNumberOfSons());
 
     for (int n = (node->hasFather() ? -1 : 0); n < nbSons; n++)
     {
@@ -207,7 +207,7 @@ void DRTreeParsimonyData::reInit(const Node* node) throw (Exception)
   }
 
   // We initialize each son node:
-  unsigned int nbSonNodes = node->getNumberOfSons();
+  size_t nbSonNodes = node->getNumberOfSons();
   for (unsigned int l = 0; l < nbSonNodes; l++)
   {
     // For each son node,

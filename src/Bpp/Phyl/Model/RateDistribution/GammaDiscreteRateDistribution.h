@@ -49,7 +49,7 @@ class GammaDiscreteRateDistribution:
   public GammaDiscreteDistribution
 {
   public:
-    GammaDiscreteRateDistribution(unsigned int nbClasses, double alpha = 1.):
+    GammaDiscreteRateDistribution(size_t nbClasses, double alpha = 1.):
       AbstractParameterAliasable("Gamma."),
       GammaDiscreteDistribution(nbClasses, 1., 1.)
     {

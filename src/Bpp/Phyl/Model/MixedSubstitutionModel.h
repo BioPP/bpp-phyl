@@ -71,15 +71,15 @@ namespace bpp
     /**
      * @brief Returns a specific model from the mixture
      */
-    virtual const SubstitutionModel* getNModel(unsigned int i) const = 0;
+    virtual const SubstitutionModel* getNModel(size_t i) const = 0;
 
-    virtual SubstitutionModel* getNModel(unsigned int i) = 0;
+    virtual SubstitutionModel* getNModel(size_t i) = 0;
 
     /**
      * @brief Returns the  probability of a specific model from the mixture
      */
   
-    virtual double getNProbability(unsigned int i) const = 0;
+    virtual double getNProbability(size_t i) const = 0;
 
     virtual const std::vector<double>& getProbabilities() const = 0;
 
@@ -87,9 +87,9 @@ namespace bpp
      * @brief Sets the  probability of a specific model from the mixture
      */
   
-    virtual void setNProbability(unsigned int i, double prob) = 0;
+    virtual void setNProbability(size_t i, double prob) = 0;
 
-    virtual unsigned int getNumberOfModels() const = 0;
+    virtual size_t getNumberOfModels() const = 0;
 
     /**
      * @brief Returns the rates of the submodels.
@@ -101,7 +101,7 @@ namespace bpp
      * @brief Returns the rate of a specific submodel.
      */
 
-    virtual double getNRate(unsigned int i) const = 0;
+    virtual double getNRate(size_t i) const = 0;
 
     /**
      * @brief Sets the rates of the submodels to be proportional to a

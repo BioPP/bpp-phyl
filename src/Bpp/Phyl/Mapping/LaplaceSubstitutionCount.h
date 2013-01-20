@@ -37,8 +37,8 @@
   knowledge of the CeCILL license and that you accept its terms.
 */
 
-#ifndef _ANALYTICALSUBSTITUTIONCOUNT_H_
-#define _ANALYTICALSUBSTITUTIONCOUNT_H_
+#ifndef _LAPLACESUBSTITUTIONCOUNT_H_
+#define _LAPLACESUBSTITUTIONCOUNT_H_
 
 #include "SubstitutionCount.h"
 #include "../Model/SubstitutionModel.h"
@@ -99,9 +99,9 @@ namespace bpp
     LaplaceSubstitutionCount* clone() const { return new LaplaceSubstitutionCount(*this); }
 	
   public:
-    double getNumberOfSubstitutions(unsigned int initialState, unsigned int finalState, double length, unsigned int type = 1) const;
-    Matrix<double>* getAllNumbersOfSubstitutions(double length, unsigned int type = 1) const;
-    std::vector<double> getNumberOfSubstitutionsForEachType(unsigned int initialState, unsigned int finalState, double length) const
+    double getNumberOfSubstitutions(int initialState, int finalState, double length, size_t type = 1) const;
+    Matrix<double>* getAllNumbersOfSubstitutions(double length, size_t type = 1) const;
+    std::vector<double> getNumberOfSubstitutionsForEachType(int initialState, int finalState, double length) const
     {
       std::vector<double> v(0);
       v[0] = getNumberOfSubstitutions(initialState, finalState, length, 0);
@@ -125,5 +125,5 @@ namespace bpp
 
 } //end of namespace bpp.
 
-#endif //_ANALYTICALSUBSTITUTIONCOUNT_H_
+#endif //_LAPLACESUBSTITUTIONCOUNT_H_
 

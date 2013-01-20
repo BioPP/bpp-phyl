@@ -57,19 +57,19 @@ IntervalConstraint FrequenciesSet::FREQUENCE_CONSTRAINT_SMALL(NumConstants::SMAL
 
 void AbstractFrequenciesSet::setFrequenciesFromMap(const map<int, double>& frequencies)
 {
-  unsigned int s = getAlphabet()->getSize();
+  size_t s = getAlphabet()->getSize();
   vector<double> freq(s);
   double x = 0;
-  for (unsigned int i = 0; i < s; i++)
+  for (size_t i = 0; i < s; i++)
   {
-    map<int, double>::const_iterator it = frequencies.find(i);
+    map<int, double>::const_iterator it = frequencies.find(static_cast<int>(i));
     if (it != frequencies.end())
       freq[i] = it->second;
     else
       freq[i] = 0;
     x += freq[i];
   }
-  for (unsigned int i = 0; i < s; i++)
+  for (size_t i = 0; i < s; i++)
   {
     freq[i] /= x;
   }
@@ -82,20 +82,20 @@ void AbstractFrequenciesSet::setFrequenciesFromMap(const map<int, double>& frequ
 FullFrequenciesSet::FullFrequenciesSet(const Alphabet* alphabet, bool allowNullFreqs, const string& name) :
   AbstractFrequenciesSet(alphabet->getSize(), alphabet, "Full.", name)
 {
-  unsigned int size = alphabet->getSize();
+  size_t size = alphabet->getSize();
 
-  for (unsigned int i = 0; i < alphabet->getSize() - 1; i++)
+  for (size_t i = 0; i < alphabet->getSize() - 1; i++)
   {
     addParameter_(new Parameter(
       "Full.theta" + TextTools::toString(i + 1),
-      1. / (size - i),
+      1. / static_cast<double>(size - i),
       allowNullFreqs ?
       &Parameter::PROP_CONSTRAINT_IN :
       &FrequenciesSet::FREQUENCE_CONSTRAINT_SMALL));
-    getFreq_(i) = 1. / size;
+    getFreq_(i) = 1. / static_cast<double>(size);
   }
-  unsigned int i = alphabet->getSize() - 1;
-  getFreq_(i) = 1. / size;
+  size_t i = alphabet->getSize() - 1;
+  getFreq_(i) = 1. / static_cast<double>(size);
 }
 
 FullFrequenciesSet::FullFrequenciesSet(const Alphabet* alphabet, const vector<double>& initFreqs, bool allowNullFreqs, const string& name) :
@@ -110,7 +110,7 @@ FullFrequenciesSet::FullFrequenciesSet(const Alphabet* alphabet, const vector<do
   }
 
   double y = 1;
-  for (unsigned int i = 0; i < alphabet->getSize() - 1; i++)
+  for (size_t i = 0; i < alphabet->getSize() - 1; i++)
   {
     addParameter_(new Parameter(
       "Full.theta" + TextTools::toString(i + 1),
@@ -121,7 +121,7 @@ FullFrequenciesSet::FullFrequenciesSet(const Alphabet* alphabet, const vector<do
     getFreq_(i) = initFreqs[i];
     y -= initFreqs[i];
   }
-  unsigned int i = alphabet->getSize() - 1;
+  size_t i = alphabet->getSize() - 1;
   getFreq_(i) = initFreqs[i];
 }
 
@@ -137,7 +137,7 @@ void FullFrequenciesSet::setFrequencies(const vector<double>& frequencies)
   setFrequencies_(frequencies);
 
   double y = 1;
-  for (unsigned int i = 0; i < alphabet->getSize() - 1; i++)
+  for (size_t i = 0; i < alphabet->getSize() - 1; i++)
   {
     getParameter_("theta" + TextTools::toString(i + 1)).setValue(frequencies[i] / y);
     y -= frequencies[i];
@@ -148,7 +148,7 @@ void FullFrequenciesSet::fireParameterChanged(const ParameterList& parameters)
 {
   const Alphabet* alphabet = getAlphabet();
   double y = 1;
-  unsigned int i;
+  size_t i;
   for (i = 0; i < alphabet->getSize() - 1; i++)
   {
     getFreq_(i) = getParameter_("theta" + TextTools::toString(i + 1)).getValue() * y;
@@ -169,13 +169,13 @@ FixedFrequenciesSet::FixedFrequenciesSet(const Alphabet* alphabet, const vector<
   setFrequencies(initFreqs);
 }
 
-FixedFrequenciesSet::FixedFrequenciesSet(const Alphabet* alphabet, unsigned int nFreqs, const string& name) :
+FixedFrequenciesSet::FixedFrequenciesSet(const Alphabet* alphabet, size_t nFreqs, const string& name) :
   AbstractFrequenciesSet(nFreqs, alphabet, "Fixed.", name)
 {
-  unsigned int size = nFreqs;
-  for (unsigned int i = 0; i < nFreqs; ++i)
+  size_t size = nFreqs;
+  for (size_t i = 0; i < nFreqs; ++i)
   {
-    getFreq_(i) = 1. / size;
+    getFreq_(i) = 1. / static_cast<double>(size);
   }
 }
 
@@ -184,7 +184,7 @@ void FixedFrequenciesSet::setFrequencies(const vector<double>& frequencies)
   if (frequencies.size() != getNumberOfFrequencies())
     throw DimensionException("FixedFrequenciesSet::setFrequencies", frequencies.size(), getNumberOfFrequencies());
   double sum = 0.0;
-  for (unsigned int i = 0; i < frequencies.size(); i++)
+  for (size_t i = 0; i < frequencies.size(); i++)
   {
     sum += frequencies[i];
   }

@@ -105,7 +105,7 @@ AbstractMixedSubstitutionModel::~AbstractMixedSubstitutionModel()
       delete modelsContainer_[i];
 }
 
-unsigned int AbstractMixedSubstitutionModel::getNumberOfStates() const
+size_t AbstractMixedSubstitutionModel::getNumberOfStates() const
 {
   return modelsContainer_[0]->getNumberOfStates();
 }

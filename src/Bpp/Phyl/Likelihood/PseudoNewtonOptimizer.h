@@ -82,11 +82,11 @@ namespace bpp
 
     double previousValue_;
 
-    unsigned int n_; // Number of parameters
+    size_t n_; // Number of parameters
 
     std::vector<std::string> params_; // All parameter names
 
-    double maxCorrection_;
+    unsigned int maxCorrection_;
 
     bool useCJ_;
 

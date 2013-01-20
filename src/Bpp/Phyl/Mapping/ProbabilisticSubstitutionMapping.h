@@ -83,7 +83,7 @@ class ProbabilisticSubstitutionMapping:
      * the mapping will be considered as having only one type of substitution mapped.
      * @param numberOfSites The number of sites to map.
      */
-    ProbabilisticSubstitutionMapping(const Tree& tree, const SubstitutionCount* sc, unsigned int numberOfSites) :
+    ProbabilisticSubstitutionMapping(const Tree& tree, const SubstitutionCount* sc, size_t numberOfSites) :
       AbstractSubstitutionMapping(tree), substitutionCount_(sc), mapping_(0)
     {
       setNumberOfSites(numberOfSites);
@@ -117,18 +117,18 @@ class ProbabilisticSubstitutionMapping:
 
   public:
 
-    unsigned int getNumberOfSubstitutionTypes() const
+    size_t getNumberOfSubstitutionTypes() const
     {
       if (!substitutionCount_) return 1;
       return substitutionCount_->getNumberOfSubstitutionTypes();
     }
      
-    virtual double getNumberOfSubstitutions(int nodeId, unsigned int siteIndex, unsigned int type) const
+    virtual double getNumberOfSubstitutions(int nodeId, size_t siteIndex, size_t type) const
     {
       return mapping_[siteIndex][getNodeIndex(nodeId)][type];
     }
     
-    virtual std::vector<double> getNumberOfSubstitutions(int nodeId, unsigned int siteIndex) const
+    virtual std::vector<double> getNumberOfSubstitutions(int nodeId, size_t siteIndex) const
     {
       return mapping_[siteIndex][getNodeIndex(nodeId)];
     }
@@ -140,14 +140,14 @@ class ProbabilisticSubstitutionMapping:
      */
     virtual void setTree(const Tree& tree);
 
-    virtual void setNumberOfSites(unsigned int numberOfSites);
+    virtual void setNumberOfSites(size_t numberOfSites);
     
     /**
      * @brief Direct access to substitution numbers.
      *
      * @warning No index checking is performed, use with care!
      */
-    virtual double& operator()(unsigned int nodeIndex, unsigned int siteIndex, unsigned int type)
+    virtual double& operator()(size_t nodeIndex, size_t siteIndex, size_t type)
     {
       return mapping_[siteIndex][nodeIndex][type];
     }
@@ -157,7 +157,7 @@ class ProbabilisticSubstitutionMapping:
      *
      * @warning No index checking is performed, use with care!
      */
-    virtual const double& operator()(unsigned int nodeIndex, unsigned int siteIndex, unsigned int type) const
+    virtual const double& operator()(size_t nodeIndex, size_t siteIndex, size_t type) const
     {
       return mapping_[siteIndex][nodeIndex][type];
     }
@@ -167,7 +167,7 @@ class ProbabilisticSubstitutionMapping:
      *
      * @warning No index checking is performed, use with care!
      */
-    std::vector< std::vector<double> >& operator[](unsigned int siteIndex)
+    std::vector< std::vector<double> >& operator[](size_t siteIndex)
     {
       return mapping_[siteIndex];
     }
@@ -177,7 +177,7 @@ class ProbabilisticSubstitutionMapping:
      *
      * @warning No index checking is performed, use with care!
      */
-    const std::vector< std::vector<double> >& operator[](unsigned int siteIndex) const
+    const std::vector< std::vector<double> >& operator[](size_t siteIndex) const
     {
       return mapping_[siteIndex];
     }

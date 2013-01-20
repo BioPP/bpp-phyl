@@ -71,31 +71,31 @@ namespace bpp
       /**
        * @return The number of states supported by the model.
        */
-      virtual unsigned int getNumberOfStates() const = 0;
+      virtual size_t getNumberOfStates() const = 0;
 
       /**
        * @param index The model state.
        * @return The corresponding alphabet character as int code.
        */
-      virtual int stateAsInt(unsigned int index) const = 0;
+      virtual int stateAsInt(size_t index) const = 0;
 
       /**
        * @param index The model state.
        * @return The corresponding alphabet character as character code.
        */
-      virtual std::string stateAsChar(unsigned int index) const = 0;
+      virtual std::string stateAsChar(size_t index) const = 0;
 
       /**
        * @param code The int code of the character to check.
        * @return The corresponding model state, is any.
        */
-      virtual unsigned int whichState(int code) const = 0;
+      virtual size_t whichState(int code) const = 0;
       
       /**
        * @param code The character code of the character to check.
        * @return The corresponding model state, is any.
        */
-      virtual unsigned int whichState(const std::string& code) const = 0;
+      virtual size_t whichState(const std::string& code) const = 0;
   };
 
   /**
@@ -131,14 +131,14 @@ namespace bpp
 
     public:
       virtual const Alphabet* getAlphabet() const { return alphabet_; }
-      virtual unsigned int getNumberOfStates() const { return states_.size(); }
-      virtual int stateAsInt(unsigned int index) const { return states_[index]; }
-      virtual std::string stateAsChar(unsigned int index) const { return alphabet_->intToChar(states_[index]); }
-      virtual unsigned int whichState(int code) const throw (Exception) {
+      virtual size_t getNumberOfStates() const { return states_.size(); }
+      virtual int stateAsInt(size_t index) const { return states_[index]; }
+      virtual std::string stateAsChar(size_t index) const { return alphabet_->intToChar(states_[index]); }
+      virtual size_t whichState(int code) const throw (Exception) {
         try { return VectorTools::which(states_, code); }
         catch (ElementNotFoundException<int>& ex) { throw Exception("AbstractStateMap::whichState. Unsupported alphabet char: " + code); }
       }
-      virtual unsigned int whichState(const std::string& code) const throw (Exception) {
+      virtual size_t whichState(const std::string& code) const throw (Exception) {
         try { return VectorTools::which(states_, alphabet_->charToInt(code)); }
         catch (ElementNotFoundException<int>& ex) { throw Exception("AbstractStateMap::whichState. Unsupported alphabet char: " + code); }
       }

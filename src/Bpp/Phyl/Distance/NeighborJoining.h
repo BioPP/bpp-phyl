@@ -106,9 +106,9 @@ class NeighborJoining :
     virtual void outputPositiveLengths(bool yn) { positiveLengths_ = yn; }
 	
 	protected:
-		std::vector<unsigned int> getBestPair() throw (Exception);
-		std::vector<double> computeBranchLengthsForPair(const std::vector<unsigned int>& pair);
-		double computeDistancesFromPair(const std::vector<unsigned int>& pair, const std::vector<double>& branchLengths, unsigned int pos);
+		std::vector<size_t> getBestPair() throw (Exception);
+		std::vector<double> computeBranchLengthsForPair(const std::vector<size_t>& pair);
+		double computeDistancesFromPair(const std::vector<size_t>& pair, const std::vector<double>& branchLengths, size_t pos);
 		void finalStep(int idRoot);	
 
 };

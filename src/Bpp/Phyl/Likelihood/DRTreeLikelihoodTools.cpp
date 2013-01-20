@@ -48,9 +48,9 @@ VVVdouble DRTreeLikelihoodTools::getPosteriorProbabilitiesForEachStateForEachRat
   const DRTreeLikelihood & drl,
   int nodeId)
 {
-  unsigned int nSites   = drl.getLikelihoodData()->getNumberOfDistinctSites();
-  unsigned int nClasses = drl.getNumberOfClasses();
-  unsigned int nStates  = drl.getNumberOfStates();
+  size_t nSites   = drl.getLikelihoodData()->getNumberOfDistinctSites();
+  size_t nClasses = drl.getNumberOfClasses();
+  size_t nStates  = drl.getNumberOfStates();
   VVVdouble postProb(nSites);
   
   const DiscreteDistribution* rDist = drl.getRateDistribution();
@@ -58,17 +58,17 @@ VVVdouble DRTreeLikelihoodTools::getPosteriorProbabilitiesForEachStateForEachRat
   if(drl.getTree().isLeaf(nodeId))
   {
     VVdouble larray = drl.getLikelihoodData()->getLeafLikelihoods(nodeId);
-    for(unsigned int i = 0; i < nSites; i++)
+    for(size_t i = 0; i < nSites; i++)
     {
       VVdouble * postProb_i = & postProb[i];
       postProb_i->resize(nClasses);
       Vdouble * larray_i = & larray[i];
-      for(unsigned int c = 0; c < nClasses; c++)
+      for(size_t c = 0; c < nClasses; c++)
       {
         Vdouble * postProb_i_c = & (* postProb_i)[c];
         postProb_i_c->resize(nStates);
         double * rcProb = & rcProbs[c];
-        for(unsigned int x = 0; x < nStates; x++)
+        for(size_t x = 0; x < nStates; x++)
         {
           (* postProb_i_c)[x] = (* larray_i)[x] * (* rcProb);
         }
@@ -81,31 +81,31 @@ VVVdouble DRTreeLikelihoodTools::getPosteriorProbabilitiesForEachStateForEachRat
     drl.computeLikelihoodAtNode(nodeId, larray);
     
     Vdouble likelihoods(nSites, 0);
-    for(unsigned int i = 0; i < nSites; i++)
+    for(size_t i = 0; i < nSites; i++)
     {
       VVdouble * larray_i = & larray[i];
-      for(unsigned int c = 0; c < nClasses; c++)
+      for(size_t c = 0; c < nClasses; c++)
       {
         Vdouble * larray_i_c = & (* larray_i)[c];
-        for(unsigned int s = 0; s < nStates; s++)
+        for(size_t s = 0; s < nStates; s++)
         {
           likelihoods[i] += (* larray_i_c)[s];
         }
       }
     }
     
-    for(unsigned int i = 0; i < nSites; i++)
+    for(size_t i = 0; i < nSites; i++)
     {
       VVdouble * postProb_i = & postProb[i];
       postProb_i->resize(nClasses);
       VVdouble * larray_i = & larray[i];
       double likelihood = likelihoods[i];
-      for(unsigned int c = 0; c < nClasses; c++)
+      for(size_t c = 0; c < nClasses; c++)
       {
         Vdouble * postProb_i_c = & (* postProb_i)[c];
         postProb_i_c->resize(nStates);
         Vdouble * larray_i_c = & (* larray_i)[c];
-        for(unsigned int x = 0; x < nStates; x++)
+        for(size_t x = 0; x < nStates; x++)
         {
           (* postProb_i_c)[x] = (* larray_i_c)[x] / likelihood;
         }
@@ -124,19 +124,19 @@ Vdouble DRTreeLikelihoodTools::getPosteriorStateFrequencies(
   VVVdouble probs = getPosteriorProbabilitiesForEachStateForEachRate(drl, nodeId);
   Vdouble freqs(drl.getNumberOfStates());
   double sumw = 0, w;
-  for (unsigned int i = 0; i < probs.size(); i++)
+  for (size_t i = 0; i < probs.size(); i++)
   {
     w = drl.getLikelihoodData()->getWeight(i);
     sumw += w;
-    for (unsigned int j = 0; j < drl.getNumberOfClasses(); j++)
+    for (size_t j = 0; j < drl.getNumberOfClasses(); j++)
     {
-      for (unsigned int k = 0; k < drl.getNumberOfStates(); k++)
+      for (size_t k = 0; k < drl.getNumberOfStates(); k++)
       {
         freqs[k] += probs[i][j][k] * w;
       }
     }
   }
-  for (unsigned int k = 0; k < drl.getNumberOfStates(); k++)
+  for (size_t k = 0; k < drl.getNumberOfStates(); k++)
   {
     freqs[k] /= sumw;
   }

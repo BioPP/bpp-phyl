@@ -85,15 +85,15 @@ class OneJumpSubstitutionCount:
     virtual OneJumpSubstitutionCount* clone() const { return new OneJumpSubstitutionCount(*this); }
 
 	public:
-		double getNumberOfSubstitutions(unsigned int initialState, unsigned int finalState, double length, unsigned int type = 1) const
+		double getNumberOfSubstitutions(int initialState, int finalState, double length, size_t type = 1) const
     {
       if (finalState != initialState) return 1.;
       else return 1. - model_->Pij_t(initialState, finalState, length);
     }
 
-    Matrix<double>* getAllNumbersOfSubstitutions(double length, unsigned int type = 1) const;
+    Matrix<double>* getAllNumbersOfSubstitutions(double length, size_t type = 1) const;
     
-    std::vector<double> getNumberOfSubstitutionsForEachType(unsigned int initialState, unsigned int finalState, double length) const
+    std::vector<double> getNumberOfSubstitutionsForEachType(int initialState, int finalState, double length) const
     {
       std::vector<double> v(0);
       v[0] = getNumberOfSubstitutions(initialState, finalState, length, 0);

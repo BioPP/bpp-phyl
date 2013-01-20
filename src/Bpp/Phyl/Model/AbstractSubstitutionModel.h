@@ -86,7 +86,7 @@ protected:
   /**
    * @brief The size of the generator, i.e. the number of states.
    */
-  unsigned int size_;
+  size_t size_;
 
   /**
    * @brief The rate of the model (default: 1). The generator (and all
@@ -243,9 +243,9 @@ public:
 
   const std::vector<int>& getAlphabetChars() const { return chars_; }
 
-  int getAlphabetChar(unsigned int i) const { return chars_[i]; }
+  int getAlphabetChar(size_t i) const { return chars_[i]; }
 
-  std::vector<unsigned int> getModelStates(int i) const { return VectorTools::whichAll(chars_, i); }
+  std::vector<size_t> getModelStates(int i) const { return VectorTools::whichAll(chars_, i); }
 
   virtual const Vdouble& getFrequencies() const { return freq_; }
 
@@ -253,7 +253,7 @@ public:
 
   const Matrix<double>& getExchangeabilityMatrix() const { return exchangeability_; }
 
-  double Sij(unsigned int i, unsigned int j) const { return exchangeability_(i, j); }
+  double Sij(size_t i, size_t j) const { return exchangeability_(i, j); }
 
   virtual const Matrix<double>& getPij_t(double t) const;
   virtual const Matrix<double>& getdPij_dt(double t) const;
@@ -271,17 +271,17 @@ public:
 
   const Matrix<double>& getColumnRightEigenVectors() const { return rightEigenVectors_; }
 
-  virtual double freq(unsigned int i) const { return freq_[i]; }
+  virtual double freq(size_t i) const { return freq_[i]; }
 
-  virtual double Qij(unsigned int i, unsigned int j) const { return generator_(i, j); }
+  virtual double Qij(size_t i, size_t j) const { return generator_(i, j); }
 
-  virtual double Pij_t    (unsigned int i, unsigned int j, double t) const { return getPij_t(t) (i, j); }
-  virtual double dPij_dt  (unsigned int i, unsigned int j, double t) const { return getdPij_dt(t) (i, j); }
-  virtual double d2Pij_dt2(unsigned int i, unsigned int j, double t) const { return getd2Pij_dt2(t) (i, j); }
+  virtual double Pij_t    (size_t i, size_t j, double t) const { return getPij_t(t) (i, j); }
+  virtual double dPij_dt  (size_t i, size_t j, double t) const { return getdPij_dt(t) (i, j); }
+  virtual double d2Pij_dt2(size_t i, size_t j, double t) const { return getd2Pij_dt2(t) (i, j); }
 
-  double getInitValue(unsigned int i, int state) const throw (BadIntException);
+  double getInitValue(size_t i, int state) const throw (IndexOutOfBoundsException, BadIntException);
 
-  void setFreqFromData(const SequenceContainer& data, unsigned int pseudoCount = 0);
+  void setFreqFromData(const SequenceContainer& data, double pseudoCount = 0);
 
   virtual void setFreq(std::map<int, double>&);
 

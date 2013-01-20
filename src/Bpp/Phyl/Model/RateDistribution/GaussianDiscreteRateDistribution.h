@@ -49,7 +49,7 @@ class GaussianDiscreteRateDistribution:
   public GaussianDiscreteDistribution
 {
   public:
-    GaussianDiscreteRateDistribution(unsigned int nbClasses, double sigma):
+    GaussianDiscreteRateDistribution(size_t nbClasses, double sigma):
       AbstractParameterAliasable("Gaussian."),
       GaussianDiscreteDistribution(nbClasses, 1., sigma)
     {

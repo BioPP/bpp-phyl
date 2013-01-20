@@ -11,7 +11,7 @@ IF(NOT CMAKE_BUILD_TYPE)
       FORCE)
 ENDIF(NOT CMAKE_BUILD_TYPE)
 
-SET(CMAKE_CXX_FLAGS "-Wall -Wshadow -Weffc++")
+SET(CMAKE_CXX_FLAGS "-Wall -Wshadow -Weffc++ -Wconversion")
 IF(NOT NO_VIRTUAL_COV)
   SET(NO_VIRTUAL_COV FALSE CACHE BOOL
       "Disable covariant return type with virtual inheritance, for compilers that do not support it."

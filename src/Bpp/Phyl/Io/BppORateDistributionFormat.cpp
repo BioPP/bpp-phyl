@@ -120,7 +120,7 @@ DiscreteDistribution* BppORateDistributionFormat::read(
     while (strtok2.hasMoreToken())
       probas.push_back(TextTools::toDouble(strtok2.nextToken()));
 
-    std::map<unsigned int, std::vector<double> > ranges;
+    std::map<size_t, std::vector<double> > ranges;
 
     if (args.find("ranges") != args.end())
     {
@@ -128,7 +128,7 @@ DiscreteDistribution* BppORateDistributionFormat::read(
       StringTokenizer strtok3(rr.substr(1, rr.length() - 2), ",");
       string desc;
       double deb, fin;
-      unsigned int num;
+      size_t num;
       size_t po, pf, ppv;
       while (strtok3.hasMoreToken())
       {
@@ -136,7 +136,7 @@ DiscreteDistribution* BppORateDistributionFormat::read(
         po = desc.find("[");
         ppv = desc.find(";");
         pf = desc.find("]");
-        num = (unsigned int)(TextTools::toInt(desc.substr(1, po - 1)));
+        num = (size_t)(TextTools::toInt(desc.substr(1, po - 1)));
         deb = TextTools::toDouble(desc.substr(po + 1, ppv - po - 1));
         fin = TextTools::toDouble(desc.substr(ppv + 1, pf - ppv - 1));
         vector<double> vd;
@@ -152,7 +152,7 @@ DiscreteDistribution* BppORateDistributionFormat::read(
 
     vector<string> v = rDist->getParameters().getParameterNames();
 
-    for (unsigned int i = 0; i < v.size(); i++)
+    for (size_t i = 0; i < v.size(); i++)
     {
       unparsedArguments_[v[i]] = TextTools::toString(rDist->getParameterValue(rDist->getParameterNameWithoutNamespace(v[i])));
     }
@@ -170,7 +170,7 @@ DiscreteDistribution* BppORateDistributionFormat::read(
 
     vector<string> v_nestedDistrDescr;
 
-    unsigned int nbd = 0;
+    size_t nbd = 0;
     while (args.find("dist" + TextTools::toString(++nbd)) != args.end())
       v_nestedDistrDescr.push_back(args["dist" + TextTools::toString(nbd)]);
 
@@ -196,11 +196,11 @@ DiscreteDistribution* BppORateDistributionFormat::read(
     if (args.find("n") == args.end())
       throw Exception("Missing argument 'n' (number of classes) in " + distName
                       + " distribution");
-    unsigned int nbClasses = TextTools::to<unsigned int>(args["n"]);
+    size_t nbClasses = TextTools::to<size_t>(args["n"]);
 
     if (distName == "Gamma")
     {
-      rDist.reset(new GammaDiscreteRateDistribution(nbClasses, 1));
+      rDist.reset(new GammaDiscreteRateDistribution(nbClasses, 1.));
 
       if (args.find("alpha") != args.end())
         unparsedArguments_["Gamma.alpha"] = args["alpha"];
@@ -264,8 +264,8 @@ void BppORateDistributionFormat::write(
     const MixtureOfDiscreteDistributions* mix = dynamic_cast<const MixtureOfDiscreteDistributions*>(&dist);
     if (mix)
     {
-      unsigned int nd = mix->getNumberOfDistributions();
-      for (unsigned int i = 0; i < nd; i++)
+      size_t nd = mix->getNumberOfDistributions();
+      for (size_t i = 0; i < nd; i++)
       {
         if (comma)
           out << ",";
@@ -274,14 +274,14 @@ void BppORateDistributionFormat::write(
         comma = true;
       }
       out << ",probas=(";
-      for (unsigned int i = 0; i < nd; i++)
+      for (size_t i = 0; i < nd; i++)
       {
         out << mix->getNProbability(i);
         if (i != nd - 1)
           out << ",";
       }
       out << ")";
-      for (unsigned int i = 1; i < nd; i++)
+      for (size_t i = 1; i < nd; i++)
       {
         writtenNames.push_back(mix->getNamespace() + "theta" + TextTools::toString(i));
       }
@@ -300,18 +300,18 @@ void BppORateDistributionFormat::write(
   const SimpleDiscreteDistribution* ps = dynamic_cast<const SimpleDiscreteDistribution*>(&dist);
   if (ps)
   {
-    unsigned int nd = ps->getNumberOfCategories();
+    size_t nd = ps->getNumberOfCategories();
     if (comma)
       out << ",";
     out << "values=(";
-    for (unsigned int i = 0; i < nd; i++)
+    for (size_t i = 0; i < nd; i++)
     {
       out << ps->getCategory(i);
       if (i != nd - 1)
         out << ",";
     }
     out << "),probas=(";
-    for (unsigned int i = 0; i < nd; i++)
+    for (size_t i = 0; i < nd; i++)
     {
       out << ps->getProbability(i);
       if (i != nd - 1)
@@ -319,11 +319,11 @@ void BppORateDistributionFormat::write(
     }
     out << ")";
 
-    const std::map<unsigned int, std::vector<double> > range = ps->getRanges();
+    const std::map<size_t, std::vector<double> > range = ps->getRanges();
     if (range.size() != 0)
     {
       out << ", ranges=(";
-      std::map<unsigned int, std::vector<double> >::const_iterator it(range.begin());
+      std::map<size_t, std::vector<double> >::const_iterator it(range.begin());
       while (it != range.end())
       {
         out << "V" << TextTools::toString(it->first);
@@ -336,11 +336,11 @@ void BppORateDistributionFormat::write(
 
     out << ")";
 
-    for (unsigned int i = 1; i < nd; i++)
+    for (size_t i = 1; i < nd; i++)
     {
       writtenNames.push_back(ps->getNamespace() + "theta" + TextTools::toString(i));
     }
-    for (unsigned int i = 1; i < nd + 1; i++)
+    for (size_t i = 1; i < nd + 1; i++)
     {
       writtenNames.push_back(ps->getNamespace() + "V" + TextTools::toString(i));
     }

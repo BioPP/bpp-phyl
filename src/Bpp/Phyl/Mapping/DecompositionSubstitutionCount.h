@@ -61,7 +61,7 @@ class DecompositionSubstitutionCount:
 {
 	private:
 		const ReversibleSubstitutionModel* model_;
-    unsigned int nbStates_;
+    size_t nbStates_;
 		mutable RowMatrix<double> jMat_, v_, vInv_;
     mutable std::vector<double> lambda_;
     std::vector< RowMatrix<double> > bMatrices_, insideProducts_;
@@ -108,11 +108,11 @@ class DecompositionSubstitutionCount:
     DecompositionSubstitutionCount* clone() const { return new DecompositionSubstitutionCount(*this); }
 
 	public:
-		double getNumberOfSubstitutions(unsigned int initialState, unsigned int finalState, double length, unsigned int type = 1) const;
+		double getNumberOfSubstitutions(int initialState, int finalState, double length, size_t type = 1) const;
 
-    Matrix<double>* getAllNumbersOfSubstitutions(double length, unsigned int type = 1) const;
+    Matrix<double>* getAllNumbersOfSubstitutions(double length, size_t type = 1) const;
     
-    std::vector<double> getNumberOfSubstitutionsForEachType(unsigned int initialState, unsigned int finalState, double length) const;
+    std::vector<double> getNumberOfSubstitutionsForEachType(int initialState, int finalState, double length) const;
    
     /**
      * @brief Set the substitution model.
