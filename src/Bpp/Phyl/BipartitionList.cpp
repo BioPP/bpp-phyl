@@ -586,7 +586,7 @@ void BipartitionList::sortByPartitionSize()
   for (size_t i = 0; i < bitBipartitionList_.size(); i++)
   {
     iai.ind = i;
-    iai.val = BipartitionList::getPartitionSize(i);
+    iai.val = static_cast<int>(BipartitionList::getPartitionSize(i));
     iaiVec.push_back(iai);
   }
 
