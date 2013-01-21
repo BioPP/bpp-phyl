@@ -45,12 +45,12 @@ using namespace bpp;
 #include <cmath>
 using namespace std;
 
-unsigned int AbstractWordFrequenciesSet::getSizeFromVector(const std::vector<FrequenciesSet*>& freqVector)
+size_t AbstractWordFrequenciesSet::getSizeFromVector(const std::vector<FrequenciesSet*>& freqVector)
 {
-  unsigned int s = 1;
-  unsigned int l = freqVector.size();
+  size_t s = 1;
+  size_t l = freqVector.size();
 
-  for (unsigned int i = 0; i < l; i++)
+  for (size_t i = 0; i < l; i++)
   {
     s *= freqVector[i]->getAlphabet()->getSize();
   }
@@ -58,11 +58,11 @@ unsigned int AbstractWordFrequenciesSet::getSizeFromVector(const std::vector<Fre
   return s;
 }
 
-AbstractWordFrequenciesSet::AbstractWordFrequenciesSet(unsigned int size, const Alphabet* palph, const string& prefix, const string& name) :
+AbstractWordFrequenciesSet::AbstractWordFrequenciesSet(size_t size, const Alphabet* palph, const string& prefix, const string& name) :
   AbstractFrequenciesSet(size, palph, prefix, name)
 {}
 
-unsigned int AbstractWordFrequenciesSet::getLength() const
+size_t AbstractWordFrequenciesSet::getLength() const
 {
   return dynamic_cast<const WordAlphabet*>(getAlphabet())->getLength();
 }
@@ -82,13 +82,13 @@ WordFromIndependentFrequenciesSet::WordFromIndependentFrequenciesSet(
   vFreq_(),
   vNestedPrefix_()
 {
-  unsigned int sf = getSizeFromVector(freqVector);
+  size_t sf = getSizeFromVector(freqVector);
   if (pWA->getSize() !=  sf)
     throw Exception("WordFromIndependentFrequenciesSet: Size of the frequencies does not match size of the alphabet : " + TextTools::toString(sf) + " vs " + TextTools::toString(pWA->getSize()));
 
-  unsigned int l = freqVector.size();
+  size_t l = freqVector.size();
 
-  for (unsigned int i = 0; i < l; i++)
+  for (size_t i = 0; i < l; i++)
   {
     vFreq_.push_back(freqVector[i]);
     vNestedPrefix_.push_back(freqVector[i]->getNamespace());
@@ -142,10 +142,10 @@ WordFromIndependentFrequenciesSet& WordFromIndependentFrequenciesSet::operator=(
 
 void WordFromIndependentFrequenciesSet::fireParameterChanged(const ParameterList& pl)
 {
-  unsigned int l = vFreq_.size();
+  size_t l = vFreq_.size();
 
   bool f = 0;
-  for (unsigned int i = 0; i < l; i++)
+  for (size_t i = 0; i < l; i++)
   {
     f |= vFreq_[i]->matchParametersValues(pl);
   }
@@ -156,11 +156,11 @@ void WordFromIndependentFrequenciesSet::fireParameterChanged(const ParameterList
 
 void WordFromIndependentFrequenciesSet::updateFrequencies()
 {
-  unsigned int l = vFreq_.size();
-  unsigned int s = getAlphabet()->getSize();
+  size_t l = vFreq_.size();
+  size_t s = getAlphabet()->getSize();
   vector<double> f[l];
 
-  unsigned int i, p, t, i2;
+  size_t i, p, t, i2;
 
   for (i = 0; i < l; i++)
   {
@@ -185,15 +185,15 @@ void WordFromIndependentFrequenciesSet::setFrequencies(const vector<double>& fre
   if (frequencies.size() != getAlphabet()->getSize())
     throw DimensionException("WordFromIndependentFrequenciesSet::setFrequencies", frequencies.size(), getAlphabet()->getSize());
   double sum = 0.0;
-  unsigned int size = frequencies.size();
-  for (unsigned int i = 0; i < size; i++)
+  size_t size = frequencies.size();
+  for (size_t i = 0; i < size; i++)
   {
     sum += frequencies[i];
   }
   if (fabs(1. - sum) > 0.000001)
     throw Exception("WordFromIndependentFrequenciesSet::setFrequencies. Frequencies must equal 1 (sum = " + TextTools::toString(sum) + ").");
 
-  unsigned int d, i, j, s, l = vFreq_.size();
+  size_t d, i, j, s, l = vFreq_.size();
   int k;
   vector<double> freq;
 
@@ -223,7 +223,7 @@ void WordFromIndependentFrequenciesSet::setFrequencies(const vector<double>& fre
 }
 
 
-unsigned int WordFromIndependentFrequenciesSet::getLength() const
+size_t WordFromIndependentFrequenciesSet::getLength() const
 {
   return vFreq_.size();
 }
@@ -231,7 +231,7 @@ unsigned int WordFromIndependentFrequenciesSet::getLength() const
 void WordFromIndependentFrequenciesSet::setNamespace(const std::string& prefix)
 {
   AbstractFrequenciesSet::setNamespace(prefix);
-  for (unsigned int i = 0; i < vFreq_.size(); i++)
+  for (size_t i = 0; i < vFreq_.size(); i++)
   {
     vFreq_[i]->setNamespace(prefix + TextTools::toString(i + 1) + "_" + vNestedPrefix_[i]);
   }
@@ -240,7 +240,7 @@ void WordFromIndependentFrequenciesSet::setNamespace(const std::string& prefix)
 std::string WordFromIndependentFrequenciesSet::getDescription() const
 {
   string s = getName() +" : " + vFreq_[0]->getName();
-  for (unsigned int i = 1; i < vFreq_.size(); i++)
+  for (size_t i = 1; i < vFreq_.size(); i++)
   {
     s += " * " + vFreq_[i]->getName();
   }
@@ -260,7 +260,7 @@ WordFromUniqueFrequenciesSet::WordFromUniqueFrequenciesSet(const WordAlphabet* p
   NestedPrefix_(pabsfreq->getNamespace()),
   length_(pWA->getLength())
 {
-  unsigned int i;
+  size_t i;
 
   string st = "";
   for (i = 0; i < length_; i++)
@@ -311,11 +311,11 @@ void WordFromUniqueFrequenciesSet::fireParameterChanged(const ParameterList& pl)
 
 void WordFromUniqueFrequenciesSet::updateFrequencies()
 {
-  unsigned int s = getAlphabet()->getSize();
+  size_t s = getAlphabet()->getSize();
   vector<double> f;
   int letsi = pFreq_->getAlphabet()->getSize();
 
-  unsigned int i, p, i2;
+  size_t i, p, i2;
 
   f = pFreq_->getFrequencies();
 
@@ -336,19 +336,19 @@ void WordFromUniqueFrequenciesSet::setFrequencies(const vector<double>& frequenc
   if (frequencies.size() != getAlphabet()->getSize())
     throw DimensionException("WordFromUniqueFrequenciesSet::setFrequencies", frequencies.size(), getAlphabet()->getSize());
   double sum = 0.0;
-  unsigned int size = frequencies.size();
-  for (unsigned int i = 0; i < size; i++)
+  size_t size = frequencies.size();
+  for (size_t i = 0; i < size; i++)
   {
     sum += frequencies[i];
   }
   if (fabs(1. - sum) > 0.000001)
     throw Exception("WordFromUniqueFrequenciesSet::setFrequencies. Frequencies must equal 1 (sum = " + TextTools::toString(sum) + ").");
 
-  unsigned int d, i, j;
+  size_t d, i, j;
   int k;
   vector<double> freq;
 
-  unsigned int letsi = pFreq_->getAlphabet()->getSize();
+  size_t letsi = pFreq_->getAlphabet()->getSize();
   freq.resize(letsi);
 
   for (j = 0; j < letsi; j++)
@@ -367,7 +367,7 @@ void WordFromUniqueFrequenciesSet::setFrequencies(const vector<double>& frequenc
   }
   for (j = 0; j < letsi; j++)
   {
-    freq[j] /= length_;
+    freq[j] /= static_cast<double>(length_);
   }
 
   pFreq_->setFrequencies(freq);

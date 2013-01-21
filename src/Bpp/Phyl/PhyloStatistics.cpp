@@ -64,13 +64,13 @@ void PhyloStatistics::setTree(const Tree& tree)
   nodeNumberOfSons_.clear();
   nodeIds_.clear();
   double h;
-  unsigned int d;
+  size_t d;
   computeForSubtree_(ttreeP->getRootNode(), h, d);
 
   if (copy) delete ttreeP;
 }
 
-void PhyloStatistics::computeForSubtree_(const Node* node, double& height, unsigned int& depth)
+void PhyloStatistics::computeForSubtree_(const Node* node, double& height, size_t& depth)
 {
   if (node->isLeaf())
     numberOfLeaves_++;
@@ -81,14 +81,14 @@ void PhyloStatistics::computeForSubtree_(const Node* node, double& height, unsig
   
   height = 0;
   depth = 0;
-  for (unsigned int i = 0; i < node->getNumberOfSons(); i++)
+  for (size_t i = 0; i < node->getNumberOfSons(); i++)
   {
-    const Node* son = (*node)[i];
+    const Node* son = (*node)[static_cast<int>(i)];
     double dist = 0;
     if (son->hasDistanceToFather()) dist = son->getDistanceToFather();
     else dist = 0;
     double subHeight;
-    unsigned int subDepth;
+    size_t subDepth;
     computeForSubtree_(son, subHeight, subDepth);
     subHeight += dist;
     subDepth++;

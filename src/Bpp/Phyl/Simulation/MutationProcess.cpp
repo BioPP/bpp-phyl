@@ -175,12 +175,12 @@ SelfMutationProcess::SelfMutationProcess(int alphabetSize) :
   // Each element contains the probabilities concerning each character in the alphabet.
 
   // We will now initiate each of these probability vector.
-  for (unsigned int i = 0; i < size_; i++)
+  for (size_t i = 0; i < size_; i++)
   {
     repartition_[i] = Vdouble(size_);
-    for (unsigned int j = 0; j < size_; j++)
+    for (size_t j = 0; j < size_; j++)
     {
-      repartition_[i][j] = (j + 1.0) / size_;
+      repartition_[i][j] = static_cast<double>(j + 1) / static_cast<double>(size_);
     }
   }
   // Note that I use cumulative probabilities in repartition_ (hence the name).

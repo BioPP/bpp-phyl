@@ -65,7 +65,7 @@ class WordFrequenciesSet :
 {
 protected:
   
-  virtual unsigned int getSizeFromVector(const std::vector<FrequenciesSet*>& freqVector) = 0;
+  virtual size_t getSizeFromVector(const std::vector<FrequenciesSet*>& freqVector) = 0;
   
 public:
 #ifndef NO_VIRTUAL_COV
@@ -78,13 +78,13 @@ public:
    *@ brief Returns the n-th FrequenciesSet&
    **/
 
-  virtual const FrequenciesSet& getFrequenciesSetForLetter(unsigned int i) const = 0;
+  virtual const FrequenciesSet& getFrequenciesSetForLetter(size_t i) const = 0;
 
   /**
    *@ brief Returns the length of the words
    **/
 
-  virtual unsigned int getLength() const = 0;
+  virtual size_t getLength() const = 0;
 };
 
 
@@ -93,10 +93,10 @@ class AbstractWordFrequenciesSet :
   public AbstractFrequenciesSet
 {
 protected:
-  unsigned int getSizeFromVector(const std::vector<FrequenciesSet*>& freqVector);
+  size_t getSizeFromVector(const std::vector<FrequenciesSet*>& freqVector);
   
 public:
-  AbstractWordFrequenciesSet(unsigned int size, const Alphabet* palph, const std::string& prefix = "", const std::string& name="");
+  AbstractWordFrequenciesSet(size_t size, const Alphabet* palph, const std::string& prefix = "", const std::string& name="");
 
 #ifndef NO_VIRTUAL_COV
   AbstractWordFrequenciesSet*
@@ -127,7 +127,7 @@ public:
    *@ brief Return the length of the words
    **/
   
-  unsigned int getLength() const;
+  size_t getLength() const;
 };
 
 
@@ -174,13 +174,13 @@ public:
   /**
    *@ brief Return the n-th FrequenciesSet&
    **/
-  const FrequenciesSet& getFrequenciesSetForLetter(unsigned int i) const { return *vFreq_[i]; }
+  const FrequenciesSet& getFrequenciesSetForLetter(size_t i) const { return *vFreq_[i]; }
 
   /**
    *@ brief Return the length of the words
    **/
 
-  virtual unsigned int getLength() const;
+  virtual size_t getLength() const;
 
   void setNamespace(const std::string& prefix);
 
@@ -193,7 +193,7 @@ class WordFromUniqueFrequenciesSet :
 protected:
   FrequenciesSet* pFreq_;
   std::string NestedPrefix_;
-  unsigned int length_;
+  size_t length_;
 
 public:
   /**
@@ -227,9 +227,9 @@ public:
   /**
    *@ brief Return the n-th FrequenciesSet&
    **/
-  const FrequenciesSet& getFrequenciesSetForLetter(unsigned int i) const { return *pFreq_; }
+  const FrequenciesSet& getFrequenciesSetForLetter(size_t i) const { return *pFreq_; }
 
-  unsigned int getLength() const { return length_; }
+  size_t getLength() const { return length_; }
 
   void setNamespace(const std::string& prefix);
 

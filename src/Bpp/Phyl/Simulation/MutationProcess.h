@@ -144,7 +144,7 @@ class MutationPath
 		 *
 		 * @return The number of substitution events, i.e. the number of states (without initial state).
 		 */
-		unsigned int getNumberOfEvents() const { return states_.size(); }
+		size_t getNumberOfEvents() const { return states_.size(); }
 
     /**
      * @brief Retrieve the number of substitution events per type of substitution.
@@ -287,7 +287,7 @@ class AbstractMutationProcess :
 		/**
 		 * @brief The number of states allowed for the character to mutate.
 		 */
-    unsigned int size_;
+    size_t size_;
 	
 		/**
 		 * @brief The repartition function for states probabilities.
