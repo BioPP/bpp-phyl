@@ -5,7 +5,7 @@
 //
 
 /*
-Copyright or © or Copr. CNRS, (November 16, 2004)
+Copyright or © or Copr. Bio++ Development Team, (November 16, 2004)
 
 This software is a computer program whose purpose is to provide classes
 for phylogenetic data analysis.
@@ -64,7 +64,7 @@ class SequenceSimulator:
 #endif
   
   public:
-    virtual SiteContainer * simulate(unsigned int numberOfSites) const = 0;
+    virtual SiteContainer * simulate(size_t numberOfSites) const = 0;
     virtual const Alphabet * getAlphabet() const = 0;  
 };
 

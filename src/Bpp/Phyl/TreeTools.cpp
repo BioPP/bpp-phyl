@@ -821,7 +821,7 @@ bool TreeTools::haveSameTopology(const Tree& tr1, const Tree& tr2)
 {
   size_t jj, nbbip;
   BipartitionList* bipL1, * bipL2;
-  vector<int> size1, size2;
+  vector<size_t> size1, size2;
 
   /* compare sets of leaves */
   if (!VectorTools::haveSameElements(tr1.getLeavesNames(), tr2.getLeavesNames()))
@@ -872,7 +872,7 @@ int TreeTools::robinsonFouldsDistance(const Tree& tr1, const Tree& tr2, bool che
 {
   BipartitionList* bipL1, * bipL2;
   size_t i, j;
-  vector<int> size1, size2;
+  vector<size_t> size1, size2;
   vector<bool> bipOK2;
 
 

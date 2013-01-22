@@ -177,7 +177,7 @@ class MutationPath
       int currentState = initialState_;
       for (size_t i = 0; i < states_.size(); ++i) {
         int newState = states_[i];
-        unsigned int type = reg.getType(currentState, newState);
+        size_t type = reg.getType(currentState, newState);
         if (type > 0) counts[type - 1]++;
         currentState = newState;
       }

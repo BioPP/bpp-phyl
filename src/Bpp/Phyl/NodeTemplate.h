@@ -144,15 +144,15 @@ class NodeTemplate :
 				
 		NodeTemplate<NodeInfos>* removeFather() { NodeTemplate<NodeInfos>* f = dynamic_cast<NodeTemplate<NodeInfos> *>(father_); father_ = 0; return f; }
 
-		const NodeTemplate<NodeInfos>* getSon(unsigned int i) const throw (IndexOutOfBoundsException) { return dynamic_cast<NodeTemplate<NodeInfos> *>(sons_[i]); }
+		const NodeTemplate<NodeInfos>* getSon(size_t i) const throw (IndexOutOfBoundsException) { return dynamic_cast<NodeTemplate<NodeInfos> *>(sons_[i]); }
 				
-		NodeTemplate<NodeInfos>* getSon(unsigned int i) throw (IndexOutOfBoundsException) { return dynamic_cast<NodeTemplate<NodeInfos> *>(sons_[i]); }
+		NodeTemplate<NodeInfos>* getSon(size_t i) throw (IndexOutOfBoundsException) { return dynamic_cast<NodeTemplate<NodeInfos> *>(sons_[i]); }
 				
     std::vector<const NodeTemplate<NodeInfos>*> getNeighbors() const
 		{
       std::vector<const Node*> neighbors = Node::getNeighbors();
       std::vector<const NodeTemplate<NodeInfos>*> neighbors2(neighbors.size());
-			for (unsigned int i = 0; i < neighbors.size(); i++)
+			for (size_t i = 0; i < neighbors.size(); i++)
 				neighbors2[i] = dynamic_cast<const NodeTemplate<NodeInfos>*>(neighbors[i]);
 			return neighbors2;
 		}
@@ -161,7 +161,7 @@ class NodeTemplate :
 		{
       std::vector<Node*> neighbors = Node::getNeighbors();
       std::vector<NodeTemplate<NodeInfos>*> neighbors2(neighbors.size());
-			for (unsigned int i = 0; i < neighbors.size(); i++)
+			for (size_t i = 0; i < neighbors.size(); i++)
 				neighbors2[i] = dynamic_cast<NodeTemplate<NodeInfos>*>(neighbors[i]);
 			return neighbors2;
 		}

@@ -101,7 +101,7 @@ class TreeTemplateTools
       {
         leaves.push_back(& node);
       }
-      for(unsigned int i = 0; i < node.getNumberOfSons(); i++)
+      for(size_t i = 0; i < node.getNumberOfSons(); i++)
       {
         getLeaves<N>(* node.getSon(i), leaves);
       }
@@ -131,7 +131,7 @@ class TreeTemplateTools
       if(node.isLeaf()) {
         ids.push_back(node.getId());
       }
-      for(unsigned int i = 0; i < node.getNumberOfSons(); i++) {
+      for(size_t i = 0; i < node.getNumberOfSons(); i++) {
         getLeavesId(* node.getSon(i), ids);
       }
     }
@@ -192,7 +192,7 @@ class TreeTemplateTools
           return;
         }
       }
-      for (unsigned int i = 0; i < node.getNumberOfSons(); i++)
+      for (size_t i = 0; i < node.getNumberOfSons(); i++)
       {
         searchLeaf(* node.getSon(i), name, id);
       }
@@ -242,7 +242,7 @@ class TreeTemplateTools
           {
             brother->setDistanceToFather(brother->getDistanceToFather() + parent->getDistanceToFather());
           }
-          unsigned int pos = gParent->getSonPosition(parent);
+          size_t pos = gParent->getSonPosition(parent);
           gParent->setSon(pos, brother);
           delete parent;
           delete leaf;
@@ -297,7 +297,7 @@ class TreeTemplateTools
           {
             brother->setDistanceToFather(brother->getDistanceToFather() + parent->getDistanceToFather());
           }
-          unsigned int pos = gParent->getSonPosition(parent);
+          size_t pos = gParent->getSonPosition(parent);
           gParent->setSon(pos, brother);
           delete parent;
           deleteSubtree(subtree);
@@ -318,11 +318,11 @@ class TreeTemplateTools
      * @param size The number of leaves in the final sample. If greater or equal to the number of leaf names, the function returns without doing anything.
      */
     template<class N>
-    static void sampleSubtree(TreeTemplate<N>& tree, const std::vector<std::string>& leaves, unsigned int size)
+    static void sampleSubtree(TreeTemplate<N>& tree, const std::vector<std::string>& leaves, size_t size)
     {
       std::vector<std::string> names = leaves;
-      for (unsigned int n = names.size(); n > size; --n) {
-        unsigned int i = RandomTools::giveIntRandomNumberBetweenZeroAndEntry(n);
+      for (size_t n = names.size(); n > size; --n) {
+        size_t i = RandomTools::giveIntRandomNumberBetweenZeroAndEntry(n);
         dropLeaf(tree, names[i]);
         names.erase(names.begin() + i);
       }
@@ -351,7 +351,7 @@ class TreeTemplateTools
     template<class N>
     static void getNodes(N & node, std::vector<N*> & nodes)
     {
-      for(unsigned int i = 0; i < node.getNumberOfSons(); i++)
+      for(size_t i = 0; i < node.getNumberOfSons(); i++)
       {
         getNodes<N>(*node.getSon(i), nodes);
       }
@@ -392,7 +392,7 @@ class TreeTemplateTools
      */
     static void getNodesId(const Node& node, std::vector<int>& ids)
     {
-      for (unsigned int i = 0; i < node.getNumberOfSons(); i++)
+      for (size_t i = 0; i < node.getNumberOfSons(); i++)
       {
         getNodesId(*node.getSon(i), ids);
       }
@@ -407,7 +407,7 @@ class TreeTemplateTools
      */
     static void getBranchesId(const Node& node, std::vector<int>& ids)
     {
-      for (unsigned int i = 0; i < node.getNumberOfSons(); i++)
+      for (size_t i = 0; i < node.getNumberOfSons(); i++)
       {
         getNodesId(*node.getSon(i), ids);
       }
@@ -438,7 +438,7 @@ class TreeTemplateTools
     template<class N>
     static void getInnerNodes(N& node, std::vector<N*>& nodes)
     {
-      for(unsigned int i = 0; i < node.getNumberOfSons(); i++)
+      for(size_t i = 0; i < node.getNumberOfSons(); i++)
       {
         getInnerNodes<N>(* node.getSon(i), nodes);
       }
@@ -469,7 +469,7 @@ class TreeTemplateTools
      */
     static void getInnerNodesId(const Node& node, std::vector<int> & ids)
     {
-      for (unsigned int i = 0; i < node.getNumberOfSons(); i++)
+      for (size_t i = 0; i < node.getNumberOfSons(); i++)
       {
         getInnerNodesId(* node.getSon(i), ids);
       }
@@ -498,7 +498,7 @@ class TreeTemplateTools
     template<class N>
     static void searchNodeWithId(N& node, int id, std::vector<N*>& nodes)
     {
-      for (unsigned int i = 0; i < node.getNumberOfSons(); ++i)
+      for (size_t i = 0; i < node.getNumberOfSons(); ++i)
       {
         searchNodeWithId<N>(*node.getSon(i), id, nodes);
       }
@@ -515,7 +515,7 @@ class TreeTemplateTools
       if (node.getId() == id) 
         return &node;
       else {
-        for (unsigned int i = 0; i < node.getNumberOfSons(); ++i)
+        for (size_t i = 0; i < node.getNumberOfSons(); ++i)
         {
           Node* result = searchFirstNodeWithId(*node.getSon(i), id);
           if (result)
@@ -535,7 +535,7 @@ class TreeTemplateTools
       if (node.getId() == id) 
         return &node;
       else {
-        for (unsigned int i = 0; i < node.getNumberOfSons(); ++i)
+        for (size_t i = 0; i < node.getNumberOfSons(); ++i)
         {
           const Node* result = searchFirstNodeWithId(*node.getSon(i), id);
           if (result)
@@ -553,10 +553,10 @@ class TreeTemplateTools
     template<class N>
     static bool hasNodeWithId(const N& node, int id)
     {
-      if(node.getId() == id) return true;
+      if (node.getId() == id) return true;
       else
       {
-        for(unsigned int i = 0; i < node.getNumberOfSons(); i++)
+        for(size_t i = 0; i < node.getNumberOfSons(); i++)
         {
           if(hasNodeWithId(*node.getSon(i), id)) return true;
         }
@@ -585,7 +585,7 @@ class TreeTemplateTools
     template<class N>
     static void searchNodeWithName(N& node, const std::string& name, std::vector<N*> & nodes)
     {
-      for(unsigned int i = 0; i < node.getNumberOfSons(); i++)
+      for(size_t i = 0; i < node.getNumberOfSons(); i++)
       {
         searchNodeWithName<N>(*node.getSon(i), name, nodes);
       }
@@ -603,7 +603,7 @@ class TreeTemplateTools
       if(node.hasName() & node.getName() == name) return true;
       else
       {
-        for(unsigned int i = 0; i < node.getNumberOfSons(); i++)
+        for(size_t i = 0; i < node.getNumberOfSons(); i++)
         {
           if(hasNodeWithName(*node.getSon(i), name)) return true;
         }
@@ -757,7 +757,7 @@ class TreeTemplateTools
       //clone->removeFather();
 
       //Now we perform a hard copy:
-      for (unsigned int i = 0; i < node.getNumberOfSons(); i++)
+      for (int i = 0; i < static_cast<int>(node.getNumberOfSons()); i++)
       {
         clone->addSon(cloneSubtree<N>(*node[i]));
       }
@@ -772,7 +772,7 @@ class TreeTemplateTools
     template<class N>
     static void deleteSubtree(N* node)
     {
-      for (unsigned int i = 0; i < node->getNumberOfSons(); ++i)
+      for (size_t i = 0; i < node->getNumberOfSons(); ++i)
       {
         N* son = node->getSon(i);
         deleteSubtree(son);
@@ -1189,7 +1189,7 @@ class TreeTemplateTools
 
   private:
     struct OrderTreeData_ {
-      unsigned int size;
+      size_t size;
       std::string firstLeaf;
       OrderTreeData_(): size(0), firstLeaf("") {}
     };

@@ -67,7 +67,7 @@ bool TreeTemplateTools::isMultifurcating(const Node& node)
   else
   {
     bool b = false;
-    for (unsigned int i = 0; i < node.getNumberOfSons(); i++)
+    for (size_t i = 0; i < node.getNumberOfSons(); i++)
     {
       b = b || isMultifurcating(*node.getSon(i));
     }
@@ -84,7 +84,7 @@ unsigned int TreeTemplateTools::getNumberOfLeaves(const Node& node)
   {
     nbLeaves++;
   }
-  for (unsigned int i = 0; i < node.getNumberOfSons(); i++)
+  for (int i = 0; i < static_cast<int>(node.getNumberOfSons()); i++)
   {
     nbLeaves += getNumberOfLeaves(*node[i]);
   }
@@ -96,7 +96,7 @@ unsigned int TreeTemplateTools::getNumberOfLeaves(const Node& node)
 unsigned int TreeTemplateTools::getNumberOfNodes(const Node& node)
 {
   unsigned int nbNodes = 1;
-  for (unsigned int i = 0; i < node.getNumberOfSons(); i++)
+  for (int i = 0; i < static_cast<int>(node.getNumberOfSons()); i++)
   {
     nbNodes += getNumberOfNodes(*node[i]);
   }
@@ -112,10 +112,10 @@ vector<string> TreeTemplateTools::getLeavesNames(const Node& node)
   {
     names.push_back(node.getName());
   }
-  for (unsigned int i = 0; i < node.getNumberOfSons(); i++)
+  for (size_t i = 0; i < node.getNumberOfSons(); i++)
   {
     vector<string> subNames = getLeavesNames(*node.getSon(i));
-    for (unsigned int j = 0; j < subNames.size(); j++)
+    for (size_t j = 0; j < subNames.size(); j++)
     {
       names.push_back(subNames[j]);
     }
@@ -128,7 +128,7 @@ vector<string> TreeTemplateTools::getLeavesNames(const Node& node)
 unsigned int TreeTemplateTools::getDepth(const Node& node)
 {
   unsigned int d = 0;
-  for (unsigned int i = 0; i < node.getNumberOfSons(); i++)
+  for (int i = 0; i < static_cast<int>(node.getNumberOfSons()); i++)
   {
     unsigned int c = getDepth(*node[i]) + 1;
     if (c > d)
@@ -142,7 +142,7 @@ unsigned int TreeTemplateTools::getDepth(const Node& node)
 unsigned int TreeTemplateTools::getDepths(const Node& node, map<const Node*, unsigned int>& depths)
 {
   unsigned int d = 0;
-  for (unsigned int i = 0; i < node.getNumberOfSons(); i++)
+  for (int i = 0; i < static_cast<int>(node.getNumberOfSons()); i++)
   {
     unsigned int c = getDepths(*node[i], depths) + 1;
     if (c > d)
@@ -157,7 +157,7 @@ unsigned int TreeTemplateTools::getDepths(const Node& node, map<const Node*, uns
 double TreeTemplateTools::getHeight(const Node& node)
 {
   double d = 0;
-  for (unsigned int i = 0; i < node.getNumberOfSons(); i++)
+  for (int i = 0; i < static_cast<int>(node.getNumberOfSons()); i++)
   {
     const Node* son = node[i];
     double dist = son->getDistanceToFather();
@@ -173,7 +173,7 @@ double TreeTemplateTools::getHeight(const Node& node)
 double TreeTemplateTools::getHeights(const Node& node, map<const Node*, double>& heights)
 {
   double d = 0;
-  for (unsigned int i = 0; i < node.getNumberOfSons(); i++)
+  for (int i = 0; i < static_cast<int>(node.getNumberOfSons()); i++)
   {
     const Node* son = node[i];
     double dist = son->getDistanceToFather();
@@ -194,7 +194,7 @@ TreeTemplateTools::Element TreeTemplateTools::getElement(const string& elt) thro
   element.bootstrap = ""; // default
   element.isLeaf    = false; // default
 
-  unsigned int colonIndex;
+  size_t colonIndex;
   bool hasColon = false;
   for (colonIndex = elt.size(); colonIndex > 0 && elt[colonIndex] != ')'; colonIndex--)
   {
@@ -317,7 +317,7 @@ Node* TreeTemplateTools::parenthesisToNode(const string& description, bool boots
   else
   {
     // This is a node:
-    for (unsigned int i = 0; i < elements.size(); i++)
+    for (size_t i = 0; i < elements.size(); i++)
     {
       // cout << "NODE: SUBNODE: " << i << ", " << elements[i] << endl;
       Node* son = parenthesisToNode(elements[i], bootstrap, propertyName, withId);
@@ -358,7 +358,7 @@ string TreeTemplateTools::nodeToParenthesis(const Node& node, bool writeId)
   {
     s << "(";
     s << nodeToParenthesis(*node[0], writeId);
-    for (unsigned int i = 1; i < node.getNumberOfSons(); i++)
+    for (int i = 1; i < static_cast<int>(node.getNumberOfSons()); i++)
     {
       s << "," << nodeToParenthesis(*node[i], writeId);
     }
@@ -393,7 +393,7 @@ string TreeTemplateTools::nodeToParenthesis(const Node& node, bool bootstrap, co
   {
     s << "(";
     s << nodeToParenthesis(*node[0], bootstrap, propertyName);
-    for (unsigned int i = 1; i < node.getNumberOfSons(); i++)
+    for (int i = 1; i < static_cast<int>(node.getNumberOfSons()); i++)
     {
       s << "," << nodeToParenthesis(*node[i], bootstrap, propertyName);
     }
@@ -431,7 +431,7 @@ string TreeTemplateTools::treeToParenthesis(const TreeTemplate<Node>& tree, bool
   if (node->isLeaf() && node->hasName()) //In case we have a tree like ((A:1.0)); where the root node is an unamed leaf!
   {
     s << node->getName();
-    for (unsigned int i = 0; i < node->getNumberOfSons(); ++i)
+    for (size_t i = 0; i < node->getNumberOfSons(); ++i)
     {
       s << "," << nodeToParenthesis(*node->getSon(i), writeId);
     }
@@ -439,7 +439,7 @@ string TreeTemplateTools::treeToParenthesis(const TreeTemplate<Node>& tree, bool
   else
   {
     s << nodeToParenthesis(*node->getSon(0), writeId);
-    for (unsigned int i = 1; i < node->getNumberOfSons(); ++i)
+    for (size_t i = 1; i < node->getNumberOfSons(); ++i)
     {
       s << "," << nodeToParenthesis(*node->getSon(i), writeId);
     }
@@ -461,7 +461,7 @@ string TreeTemplateTools::treeToParenthesis(const TreeTemplate<Node>& tree, bool
   if (node->isLeaf())
   {
     s << node->getName();
-    for (unsigned int i = 0; i < node->getNumberOfSons(); i++)
+    for (size_t i = 0; i < node->getNumberOfSons(); i++)
     {
       s << "," << nodeToParenthesis(*node->getSon(i), bootstrap, propertyName);
     }
@@ -469,7 +469,7 @@ string TreeTemplateTools::treeToParenthesis(const TreeTemplate<Node>& tree, bool
   else
   {
     s << nodeToParenthesis(*node->getSon(0), bootstrap, propertyName);
-    for (unsigned int i = 1; i < node->getNumberOfSons(); i++)
+    for (size_t i = 1; i < node->getNumberOfSons(); i++)
     {
       s << "," << nodeToParenthesis(*node->getSon(i), bootstrap, propertyName);
     }
@@ -500,10 +500,10 @@ Vdouble TreeTemplateTools::getBranchLengths(const Node& node) throw (NodePExcept
 {
   Vdouble brLen(1);
   brLen[0] = node.getDistanceToFather();
-  for (unsigned int i = 0; i < node.getNumberOfSons(); i++)
+  for (size_t i = 0; i < node.getNumberOfSons(); i++)
   {
     Vdouble sonBrLen = getBranchLengths(*node.getSon(i));
-    for (unsigned int j = 0; j < sonBrLen.size(); j++)
+    for (size_t j = 0; j < sonBrLen.size(); j++)
     {
       brLen.push_back(sonBrLen[j]);
     }
@@ -518,7 +518,7 @@ double TreeTemplateTools::getTotalLength(const Node& node, bool includeAncestor)
   if (includeAncestor && !node.hasDistanceToFather())
     throw NodePException("TreeTools::getTotalLength(). No branch length.", &node);
   double length = includeAncestor ? node.getDistanceToFather() : 0;
-  for (unsigned int i = 0; i < node.getNumberOfSons(); i++)
+  for (size_t i = 0; i < node.getNumberOfSons(); i++)
   {
     length += getTotalLength(*node.getSon(i), true);
   }
@@ -530,7 +530,7 @@ double TreeTemplateTools::getTotalLength(const Node& node, bool includeAncestor)
 void TreeTemplateTools::setBranchLengths(Node& node, double brLen)
 {
   node.setDistanceToFather(brLen);
-  for (unsigned int i = 0; i < node.getNumberOfSons(); i++)
+  for (size_t i = 0; i < node.getNumberOfSons(); i++)
   {
     setBranchLengths(*node.getSon(i), brLen);
   }
@@ -541,7 +541,7 @@ void TreeTemplateTools::setBranchLengths(Node& node, double brLen)
 void TreeTemplateTools::deleteBranchLengths(Node& node)
 {
   node.deleteDistanceToFather();
-  for (unsigned int i = 0; i < node.getNumberOfSons(); i++)
+  for (size_t i = 0; i < node.getNumberOfSons(); i++)
   {
     deleteBranchLengths(*node.getSon(i));
   }
@@ -553,7 +553,7 @@ void TreeTemplateTools::setVoidBranchLengths(Node& node, double brLen)
 {
   if (!node.hasDistanceToFather())
     node.setDistanceToFather(brLen);
-  for (unsigned int i = 0; i < node.getNumberOfSons(); i++)
+  for (size_t i = 0; i < node.getNumberOfSons(); i++)
   {
     setVoidBranchLengths(*node.getSon(i), brLen);
   }
@@ -567,7 +567,7 @@ void TreeTemplateTools::scaleTree(Node& node, double factor) throw (NodePExcepti
   {
     node.setDistanceToFather(node.getDistanceToFather() * factor);
   }
-  for (unsigned int i = 0; i < node.getNumberOfSons(); i++)
+  for (size_t i = 0; i < node.getNumberOfSons(); i++)
   {
     scaleTree(*node.getSon(i), factor);
   }
@@ -584,7 +584,7 @@ TreeTemplate<Node>* TreeTemplateTools::getRandomTree(vector<string>& leavesNames
   // Att the end, contains only the root node of the tree.
   vector<Node*> nodes(leavesNames.size());
   // Create all leaves nodes:
-  for (unsigned int i = 0; i < leavesNames.size(); ++i)
+  for (size_t i = 0; i < leavesNames.size(); ++i)
   {
     nodes[i] = new Node(leavesNames[i]);
   }
@@ -592,10 +592,10 @@ TreeTemplate<Node>* TreeTemplateTools::getRandomTree(vector<string>& leavesNames
   while (nodes.size() > (rooted ? 2 : 3))
   {
     // Select random nodes:
-    int pos1 = RandomTools::giveIntRandomNumberBetweenZeroAndEntry(nodes.size());
+    int pos1 = RandomTools::giveIntRandomNumberBetweenZeroAndEntry(static_cast<int>(nodes.size()));
     Node* node1 = nodes[pos1];
     nodes.erase(nodes.begin() + pos1);
-    int pos2 = RandomTools::giveIntRandomNumberBetweenZeroAndEntry(nodes.size());
+    int pos2 = RandomTools::giveIntRandomNumberBetweenZeroAndEntry(static_cast<int>(nodes.size()));
     Node* node2 = nodes[pos2];
     nodes.erase(nodes.begin() + pos2);
     // Add new node:
@@ -640,8 +640,8 @@ vector<Node*> TreeTemplateTools::getPathBetweenAnyTwoNodes(Node& node1, Node& no
   pathMatrix2.push_back(nodeUp); // The root.
   // Must check that the two nodes have the same root!!!
 
-  int tmp1 = pathMatrix1.size() - 1;
-  int tmp2 = pathMatrix2.size() - 1;
+  size_t tmp1 = pathMatrix1.size() - 1;
+  size_t tmp2 = pathMatrix2.size() - 1;
 
   while ((tmp1 >= 0) && (tmp2 >= 0))
   {
@@ -650,15 +650,15 @@ vector<Node*> TreeTemplateTools::getPathBetweenAnyTwoNodes(Node& node1, Node& no
     tmp1--; tmp2--;
   }
 
-  for (int y = 0; y <= tmp1; ++y)
+  for (size_t y = 0; y <= tmp1; ++y)
   {
     path.push_back(pathMatrix1[y]);
   }
   if (includeAncestor)
     path.push_back(pathMatrix1[tmp1 + 1]);  // pushing once, the Node that was common to both.
-  for (int j = tmp2; j >= 0; --j)
+  for (size_t j = tmp2 + 1; j > 0; --j)
   {
-    path.push_back(pathMatrix2[j]);
+    path.push_back(pathMatrix2[j - 1]);
   }
   return path;
 }
@@ -688,8 +688,8 @@ vector<const Node*> TreeTemplateTools::getPathBetweenAnyTwoNodes(const Node& nod
   pathMatrix2.push_back(nodeUp); // The root.
   // Must check that the two nodes have the same root!!!
 
-  int tmp1 = pathMatrix1.size() - 1;
-  int tmp2 = pathMatrix2.size() - 1;
+  size_t tmp1 = pathMatrix1.size() - 1;
+  size_t tmp2 = pathMatrix2.size() - 1;
 
   while ((tmp1 >= 0) && (tmp2 >= 0))
   {
@@ -698,15 +698,15 @@ vector<const Node*> TreeTemplateTools::getPathBetweenAnyTwoNodes(const Node& nod
     tmp1--; tmp2--;
   }
 
-  for (int y = 0; y <= tmp1; ++y)
+  for (size_t y = 0; y <= tmp1; ++y)
   {
     path.push_back(pathMatrix1[y]);
   }
   if (includeAncestor)
     path.push_back(pathMatrix1[tmp1 + 1]);  // pushing once, the Node that was common to both.
-  for (int j = tmp2; j >= 0; --j)
+  for (size_t j = tmp2 + 1; j > 0; --j)
   {
-    path.push_back(pathMatrix2[j]);
+    path.push_back(pathMatrix2[j - 1]);
   }
   return path;
 }
@@ -717,7 +717,7 @@ double TreeTemplateTools::getDistanceBetweenAnyTwoNodes(const Node& node1, const
 {
   vector<const Node*> path = getPathBetweenAnyTwoNodes(node1, node2, false);
   double d = 0;
-  for (unsigned int i = 0; i < path.size(); i++)
+  for (size_t i = 0; i < path.size(); i++)
   {
     d += path[i]->getDistanceToFather();
   }
@@ -740,7 +740,7 @@ void TreeTemplateTools::processDistsInSubtree_(const Node* node, DistanceMatrix&
   // For all leaves in node's subtree, get leaf-to-node distances.
   // Leaves are classified upon node's sons.
   map<const Node*, vector< pair<string, double> > > leavesDists;
-  for (unsigned int i = 0; i < node->getNumberOfSons(); ++i)
+  for (size_t i = 0; i < node->getNumberOfSons(); ++i)
   {
     const Node* son = node->getSon(i);
     processDistsInSubtree_(son, matrix, leavesDists[son]); // recursivity
@@ -748,9 +748,9 @@ void TreeTemplateTools::processDistsInSubtree_(const Node* node, DistanceMatrix&
   // Write leaf-leaf distances to the distance matrix.
   // Only pairs in which the two leaves belong to different
   // sons are considered.
-  for (unsigned int son1_loc = 0; son1_loc < node->getNumberOfSons(); ++son1_loc)
+  for (size_t son1_loc = 0; son1_loc < node->getNumberOfSons(); ++son1_loc)
   {
-    for (unsigned int son2_loc = 0; son2_loc < son1_loc; ++son2_loc)
+    for (size_t son2_loc = 0; son2_loc < son1_loc; ++son2_loc)
     {
       const Node* son1 = node->getSon(son1_loc);
       const Node* son2 = node->getSon(son2_loc);
@@ -815,7 +815,7 @@ std::vector<const Node*> TreeTemplateTools::getRemainingNeighbors(const Node* no
 {
   vector<const Node*> neighbors = node1->getNeighbors();
   vector<const Node*> neighbors2;
-  for (unsigned int k = 0; k < neighbors.size(); k++)
+  for (size_t k = 0; k < neighbors.size(); k++)
   {
     const Node* n = neighbors[k];
     if (n != node2 && n != node3)
@@ -829,7 +829,7 @@ std::vector<const Node*> TreeTemplateTools::getRemainingNeighbors(const Node* no
 void TreeTemplateTools::incrementAllIds(Node* node, int increment)
 {
   node->setId(node->getId() + increment);
-  for (unsigned int i = 0; i < node->getNumberOfSons(); i++)
+  for (size_t i = 0; i < node->getNumberOfSons(); i++)
   {
     incrementAllIds(node->getSon(i), increment);
   }
@@ -840,7 +840,7 @@ void TreeTemplateTools::incrementAllIds(Node* node, int increment)
 void TreeTemplateTools::getNodePropertyNames(const Node& node, vector<string>& propertyNames)
 {
   VectorTools::extend(propertyNames, node.getNodePropertyNames());
-  for (unsigned int i = 0; i < node.getNumberOfSons(); i++)
+  for (size_t i = 0; i < node.getNumberOfSons(); i++)
   {
     getNodePropertyNames(*node.getSon(i), propertyNames);
   }
@@ -850,7 +850,7 @@ void TreeTemplateTools::getNodeProperties(const Node& node, const string& proper
 {
   if (node.hasNodeProperty(propertyName))
     properties[node.getId()] = node.getNodeProperty(propertyName);
-  for (unsigned int i = 0; i < node.getNumberOfSons(); i++)
+  for (size_t i = 0; i < node.getNumberOfSons(); i++)
   {
     getNodeProperties(*node.getSon(i), propertyName, properties);
   }
@@ -860,7 +860,7 @@ void TreeTemplateTools::getNodeProperties(Node& node, const string& propertyName
 {
   if (node.hasNodeProperty(propertyName))
     properties[node.getId()] = node.getNodeProperty(propertyName);
-  for (unsigned int i = 0; i < node.getNumberOfSons(); i++)
+  for (size_t i = 0; i < node.getNumberOfSons(); i++)
   {
     getNodeProperties(*node.getSon(i), propertyName, properties);
   }
@@ -871,7 +871,7 @@ void TreeTemplateTools::getNodeProperties(Node& node, const string& propertyName
 void TreeTemplateTools::getBranchPropertyNames(const Node& node, vector<string>& propertyNames)
 {
   VectorTools::extend(propertyNames, node.getBranchPropertyNames());
-  for (unsigned int i = 0; i < node.getNumberOfSons(); i++)
+  for (size_t i = 0; i < node.getNumberOfSons(); i++)
   {
     getBranchPropertyNames(*node.getSon(i), propertyNames);
   }
@@ -881,7 +881,7 @@ void TreeTemplateTools::getBranchProperties(const Node& node, const string& prop
 {
   if (node.hasBranchProperty(propertyName))
     properties[node.getId()] = node.getBranchProperty(propertyName);
-  for (unsigned int i = 0; i < node.getNumberOfSons(); i++)
+  for (size_t i = 0; i < node.getNumberOfSons(); i++)
   {
     getBranchProperties(*node.getSon(i), propertyName, properties);
   }
@@ -891,7 +891,7 @@ void TreeTemplateTools::getBranchProperties(Node& node, const string& propertyNa
 {
   if (node.hasBranchProperty(propertyName))
     properties[node.getId()] = node.getBranchProperty(propertyName);
-  for (unsigned int i = 0; i < node.getNumberOfSons(); i++)
+  for (size_t i = 0; i < node.getNumberOfSons(); i++)
   {
     getBranchProperties(*node.getSon(i), propertyName, properties);
   }
@@ -903,13 +903,13 @@ bool TreeTemplateTools::haveSameOrderedTopology(const Node& n1, const Node& n2)
 {
   if (n1.isLeaf() && n2.isLeaf() && n1.getName() != n2.getName())
     return false;
-  unsigned int nl1 = n1.getNumberOfSons();
-  unsigned int nl2 = n2.getNumberOfSons();
+  size_t nl1 = n1.getNumberOfSons();
+  size_t nl2 = n2.getNumberOfSons();
   if (nl1 != nl2)
     return false;
 
   bool test = true;
-  for (unsigned int i = 0; test && i < n1.getNumberOfSons(); ++i)
+  for (size_t i = 0; test && i < n1.getNumberOfSons(); ++i)
   {
     test &= haveSameOrderedTopology(*n1.getSon(i), *n2.getSon(i));
   }
@@ -929,9 +929,9 @@ TreeTemplateTools::OrderTreeData_ TreeTemplateTools::orderTree_(Node& node, bool
   }
   else
   {
-    vector<unsigned int> nbSons;
+    vector<size_t> nbSons;
     vector<string> firstLeaves;
-    for (unsigned int i = 0; i < node.getNumberOfSons(); i++)
+    for (size_t i = 0; i < node.getNumberOfSons(); i++)
     {
       OrderTreeData_ otdsub = orderTree_(*node.getSon(i), downward, orderLeaves);
       if (i == 0)

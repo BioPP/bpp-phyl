@@ -61,8 +61,8 @@ namespace bpp
 class SiteSimulationResult
 {
   private:
-    mutable std::map<int, unsigned int> indexes_;
-    unsigned int currentIndex_;
+    mutable std::map<int, size_t> indexes_;
+    size_t currentIndex_;
     std::vector<MutationPath> paths_;
     std::vector<int> ancestralStates_;
     const Tree* tree_;
@@ -122,21 +122,21 @@ class SiteSimulationResult
       ancestralStates_.push_back(path.getFinalState());
     }
 
-    virtual int getAncestralState(unsigned int i)    const { return ancestralStates_[i]; }
+    virtual int getAncestralState(size_t i)    const { return ancestralStates_[i]; }
 
     virtual int getAncestralState(int nodeId) const { return ancestralStates_[1 + indexes_[nodeId]]; }
 
-    virtual const MutationPath& getMutationPath(unsigned int i) const { return paths_[i]; }
+    virtual const MutationPath& getMutationPath(size_t i) const { return paths_[i]; }
 
     virtual const MutationPath& getMutationPath(int nodeId) const { return paths_[indexes_[nodeId]]; }
 
-    virtual unsigned int getSubstitutionCount(unsigned int i) const { return paths_[i].getNumberOfEvents(); }
+    virtual size_t getSubstitutionCount(size_t i) const { return paths_[i].getNumberOfEvents(); }
     
-    virtual void getSubstitutionCount(unsigned int i, const SubstitutionRegister& reg, std::vector<double>& counts) const {
+    virtual void getSubstitutionCount(size_t i, const SubstitutionRegister& reg, std::vector<double>& counts) const {
       paths_[i].getEventCounts(counts, reg);
     }
     
-    virtual unsigned int getSubstitutionCount(int nodeId) const { return paths_[indexes_[nodeId]].getNumberOfEvents(); }
+    virtual size_t getSubstitutionCount(int nodeId) const { return paths_[indexes_[nodeId]].getNumberOfEvents(); }
     
     virtual void getSubstitutionCount(int nodeId, const SubstitutionRegister& reg, std::vector<double>& counts) const {
       paths_[indexes_[nodeId]].getEventCounts(counts, reg);
@@ -144,9 +144,9 @@ class SiteSimulationResult
     
     virtual VVdouble getSubstitutionVector(const SubstitutionRegister& reg) const
     {
-      unsigned int n = paths_.size();
+      size_t n = paths_.size();
       VVdouble counts(n);
-      for (unsigned int i = 0; i < n; ++i) {
+      for (size_t i = 0; i < n; ++i) {
         counts[i].resize(reg.getNumberOfSubstitutionTypes());
         paths_[i].getEventCounts(counts[i], reg);
       }
@@ -158,9 +158,9 @@ class SiteSimulationResult
      */
     virtual std::vector<int> getFinalStates() const
     {
-      unsigned int n = leavesId_.size(); 
+      size_t n = leavesId_.size(); 
       std::vector<int> states(n);
-      for (unsigned int i = 0; i < n; i++)
+      for (size_t i = 0; i < n; i++)
       {
         states[i] = ancestralStates_[1 + indexes_[leavesId_[i]]];
       }
@@ -177,9 +177,9 @@ class SiteSimulationResult
      */
     virtual std::vector<std::string> getLeaveNames() const
     {
-      unsigned int n = leavesId_.size(); 
+      size_t n = leavesId_.size(); 
       std::vector<std::string> names(n);
-      for(unsigned int i = 0; i < n; i++)
+      for (size_t i = 0; i < n; i++)
       {
         names[i] = tree_->getNodeName(leavesId_[i]);
       }
