@@ -79,7 +79,7 @@ AbstractCodonSubstitutionModel::AbstractCodonSubstitutionModel(
     // relative rates
     for (i = 0; i < 2; i++)
     {
-      addParameter_(new Parameter(st + "relrate" + TextTools::toString(i + 1), 1.0 / (3 - i), &Parameter::PROP_CONSTRAINT_EX));
+      addParameter_(new Parameter(st + "relrate" + TextTools::toString(i + 1), 1.0 / static_cast<double>(3 - i), &Parameter::PROP_CONSTRAINT_EX));
     }
   }
 }
@@ -150,12 +150,13 @@ AbstractCodonSubstitutionModel::AbstractCodonSubstitutionModel(
 
 void AbstractCodonSubstitutionModel::updateMatrices()
 {
+  cout << (hasParametrizedRates_ ? "yes" : "no") << endl;
   if (hasParametrizedRates_)
   {
     size_t i, nbmod = VSubMod_.size();
     double x;
     size_t k;
-    for (k = nbmod - 1; k >= 0; k--)
+    for (k = nbmod - 1; k > 0; k--)
     {
       x = 1.0;
       for (i = 0; i < k; i++)

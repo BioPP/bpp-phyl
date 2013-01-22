@@ -696,7 +696,7 @@ class TreeTools
 
   private:
 	  struct Moments_ {
-	    size_t N;
+	    double N;
 	    double sum, squaredSum;
 	    Moments_(): N(0), sum(0), squaredSum(0) {}
 	  };	  

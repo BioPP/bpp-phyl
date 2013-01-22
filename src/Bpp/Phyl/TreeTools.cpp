@@ -923,7 +923,7 @@ int TreeTools::robinsonFouldsDistance(const Tree& tr1, const Tree& tr2, bool che
       missing2++;
   }
 
-  missing1 = bipL2->getNumberOfBipartitions() - bipL1->getNumberOfBipartitions() + missing2;
+  missing1 = static_cast<int>(bipL2->getNumberOfBipartitions()) - static_cast<int>(bipL1->getNumberOfBipartitions()) + missing2;
 
   if (missing_in_tr1)
     *missing_in_tr1 = missing1;
@@ -938,7 +938,7 @@ BipartitionList* TreeTools::bipartitionOccurrences(const vector<Tree*>& vecTr, v
 {
   vector<BipartitionList*> vecBipL;
   BipartitionList* mergedBipL;
-  vector<int> bipSize;
+  vector<size_t> bipSize;
   size_t nbBip;
 
   /*  build and merge bipartitions */
@@ -1025,7 +1025,7 @@ TreeTemplate<Node>* TreeTools::thresholdConsensus(const vector<Tree*>& vecTr, do
   {
     if (bipL->getPartitionSize(i - 1) == 1)
       continue;
-    score = (double)bipScore[i - 1] / vecTr.size();
+    score = static_cast<int>(bipScore[i - 1]) / static_cast<double>(vecTr.size());
     if (score <= threshold && score != 1.)
     {
       bipL->deleteBipartition(i - 1);

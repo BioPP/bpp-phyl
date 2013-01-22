@@ -85,7 +85,7 @@ int main() {
     realMapTotal[i].resize(ids.size());
     realMapDnDs[i].resize(ids.size());
     for (size_t j = 0; j < ids.size(); ++j) {
-      realMap[i][j] = result->getSubstitutionCount(ids[j]);
+      realMap[i][j] = static_cast<double>(result->getSubstitutionCount(ids[j]));
       realMapTotal[i][j].resize(totReg->getNumberOfSubstitutionTypes());
       realMapDnDs[i][j].resize(dndsReg->getNumberOfSubstitutionTypes());
       result->getSubstitutionCount(ids[j], *totReg, realMapTotal[i][j]);

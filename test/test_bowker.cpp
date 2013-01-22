@@ -50,7 +50,7 @@ knowledge of the CeCILL license and that you accept its terms.
 using namespace bpp;
 using namespace std;
 
-double testBowker(const NonHomogeneousSequenceSimulator& sim, unsigned int seqlen) {
+double testBowker(const NonHomogeneousSequenceSimulator& sim, size_t seqlen) {
   auto_ptr<SiteContainer> sites(sim.simulate(seqlen));
   auto_ptr<BowkerTest> bTest(SequenceTools::bowkerTest(sites->getSequence(0), sites->getSequence(1)));
   return bTest->getPValue();

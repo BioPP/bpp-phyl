@@ -5,7 +5,7 @@
 //
 
 /*
-   Copyright or © or Copr. CNRS, (November 16, 2004)
+   Copyright or © or Copr. Bio++ Development Team, (November 16, 2004)
    This software is a computer program whose purpose is to provide classes
    for phylogenetic data analysis.
 
@@ -77,7 +77,7 @@ void CodonRateSubstitutionModel::fireParameterChanged(const ParameterList& param
   AbstractCodonSubstitutionModel::fireParameterChanged(parameters);
 }
 
-double CodonRateSubstitutionModel::getCodonsMulRate(unsigned int i, unsigned int j) const
+double CodonRateSubstitutionModel::getCodonsMulRate(size_t i, size_t j) const
 {
   return AbstractCodonSubstitutionModel::getCodonsMulRate(i,j);
 }

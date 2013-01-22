@@ -85,14 +85,14 @@ int main() {
   DiscreteDistribution* rdist = new GammaDiscreteDistribution(4, 1.0);
   rdist->aliasParameters("alpha", "beta");
 
-  unsigned int nsites = 1000;
+  size_t nsites = 1000;
   unsigned int nrep = 20;
-  unsigned int nmodels = modelSet->getNumberOfModels();
+  size_t nmodels = modelSet->getNumberOfModels();
   vector<double> thetas(nmodels);
   vector<double> thetasEst1(nmodels);
   vector<double> thetasEst2(nmodels);
 
-  for (unsigned int i = 0; i < nmodels; ++i) {
+  for (size_t i = 0; i < nmodels; ++i) {
     double theta = RandomTools::giveRandomNumberBetweenZeroAndEntry(0.99) + 0.005;
     cout << "Theta" << i << " set to " << theta << endl; 
     modelSet->setParameterValue("T92.theta_" + TextTools::toString(i + 1), theta);
@@ -125,7 +125,7 @@ int main() {
 
     cout << c1 << ": " << tl.getValue() << "\t" << c2 << ": " << tl2.getValue() << endl;
       
-    for (unsigned int i = 0; i < nmodels; ++i) {
+    for (size_t i = 0; i < nmodels; ++i) {
       cout << modelSet2->getModel(i)->getParameter("theta").getValue() << "\t" << modelSet3->getModel(i)->getParameter("theta").getValue() << endl;
       //if (abs(modelSet2->getModel(i)->getParameter("theta").getValue() - modelSet3->getModel(i)->getParameter("theta").getValue()) > 0.1)
       //  return 1;

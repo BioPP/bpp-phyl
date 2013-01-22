@@ -63,7 +63,7 @@ int main() {
     nodes[i]->setNodeProperty("GN", BppString("Gene" + TextTools::toString(i)));
     nodes[i]->setNodeProperty("AC", BppString("XXXXXX"));
     nodes[i]->setBranchProperty("B", Number<double>(floor(RandomTools::giveRandomNumberBetweenZeroAndEntry(100.) + 0.5)));
-    nodes[i]->setBranchProperty("W", Number<int>(floor(RandomTools::giveRandomNumberBetweenZeroAndEntry(5.) + 0.5)));
+    nodes[i]->setBranchProperty("W", Number<int>(static_cast<int>(floor(RandomTools::giveRandomNumberBetweenZeroAndEntry(5.) + 0.5))));
   }
   
   //Convert tree to string and read it again:

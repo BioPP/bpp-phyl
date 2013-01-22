@@ -156,7 +156,7 @@ public:
     if (i< VSubMod_.size())
         return dynamic_cast<const SubstitutionModel*>(VSubMod_[i]);
     else
-      return NULL;
+      return 0;
   }
 
   size_t getNumberOfModels() const {
