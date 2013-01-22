@@ -150,7 +150,6 @@ AbstractCodonSubstitutionModel::AbstractCodonSubstitutionModel(
 
 void AbstractCodonSubstitutionModel::updateMatrices()
 {
-  cout << (hasParametrizedRates_ ? "yes" : "no") << endl;
   if (hasParametrizedRates_)
   {
     size_t i, nbmod = VSubMod_.size();
