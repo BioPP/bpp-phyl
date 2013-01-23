@@ -40,23 +40,84 @@ knowledge of the CeCILL license and that you accept its terms.
 #include <Bpp/Phyl/Model.all>
 #include <Bpp/Seq/Alphabet.all>
 #include <Bpp/Seq/GeneticCode.all>
+#include <Bpp/Numeric/Function.all>
+#include <Bpp/Numeric/ParameterList.h>
+#include <Bpp/Numeric/AbstractParametrizable.h>
 #include <iostream>
 
 using namespace bpp;
 using namespace std;
 
+class DummyFunction:
+  public virtual Function,
+  public AbstractParametrizable
+{
+  public:
+    DummyFunction(const SubstitutionModel& model):
+      AbstractParametrizable("")
+    {
+      addParameters_(model.getParameters());
+    }
+
+    DummyFunction* clone() const { return new DummyFunction(*this); }
+
+    void setParameters(const ParameterList& pl) throw (bpp::ParameterNotFoundException
+, bpp::ConstraintException, bpp::Exception) {
+      matchParametersValues(pl);
+    }
+
+    double getValue() const throw (Exception) { return 0; }
+
+    void fireParameterChanged(const bpp::ParameterList&) {}
+
+};
+
+bool testModel(SubstitutionModel& model) {
+  ParameterList pl = model.getParameters();
+  DummyFunction df(model);
+  ReparametrizationFunctionWrapper redf(&df, pl, false);
+
+  //Try to modify randomly each parameter and check that the new parameter apply correctly:
+  for (unsigned int i = 0; i < 10; ++i) {
+    //Get random parameters (unconstrained):
+    ParameterList pl2 = redf.getParameters();
+    for (size_t j = 0; j < pl.size(); ++j) {
+      double value = (RandomTools::flipCoin() ? 1. : -1) * RandomTools::giveRandomNumberBetweenZeroAndEntry(1);
+      pl2[j].setValue(value);
+    }
+    //Apply unconstrained parameters:
+    redf.setParameters(pl2);
+    //Retrieve transformed parameters:
+    pl2 = df.getParameters();
+    //pl2.printParameters(cout);
+    //Now apply the new parameters and retrieve them again:
+    model.matchParametersValues(pl2);
+    ParameterList pl3 = model.getParameters();
+    //Compare the two lists:
+    for (size_t j = 0; j < pl.size(); ++j) {
+      if (abs(pl2[j].getValue() - pl3[j].getValue()) > 0.0000001) {
+        cerr << "ERROR for parameter " << pl2[j].getName() << ": " << pl2[j].getValue() << "<>" << pl3[j].getValue() << endl;
+        return false;
+      }
+    }
+  }
+
+  return true;
+}
+
 int main() {
+  //Nucleotide models:
+  GTR gtr(&AlphabetTools::DNA_ALPHABET);
+  if (!testModel(gtr)) return 1;
+
+  //Codon models:
+  StandardGeneticCode gc(&AlphabetTools::DNA_ALPHABET);
   const CodonAlphabet* codonAlphabet = new StandardCodonAlphabet(&AlphabetTools::DNA_ALPHABET);
-  GeneticCode* gc = new StandardGeneticCode(&AlphabetTools::DNA_ALPHABET);
   FrequenciesSet* fset = CodonFrequenciesSet::getFrequenciesSetForCodons(CodonFrequenciesSet::F3X4, *codonAlphabet);
-  SubstitutionModel* model = new YN98(gc, fset);
-  MatrixTools::print(model->getPij_t(1.0));
-  model->getParameters().printParameters(cout);
-  model->setParameterValue("omega", 0.1);
-  MatrixTools::print(model->getPij_t(1.0));
-  model->getParameters().printParameters(cout);
-  delete model;
-  delete gc;
+  YN98 yn98(&gc, fset);
+  if (!testModel(yn98)) return 1;
+
+  delete codonAlphabet;
 
   return 0;
 }
