@@ -4,7 +4,7 @@
 //
 
 /*
-   Copyright or © or Copr. CNRS, (November 16, 2004)
+   Copyright or © or Copr. Bio++ Development Team, (November 16, 2004)
 
    This software is a computer program whose purpose is to provide classes
    for phylogenetic data analysis.
@@ -121,7 +121,7 @@ public:
     posfreqset_->setNamespace(prefix + freqName_);
   }
 
-  double getCodonsMulRate(unsigned int, unsigned int) const;
+  double getCodonsMulRate(size_t, size_t) const;
 };
 } // end of namespace bpp.
 

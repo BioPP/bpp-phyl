@@ -73,11 +73,11 @@ TARGET_LINK_LIBRARIES(test_bowker ${LIBS})
 ADD_TEST(test_bowker "test_bowker")
 
 IF(UNIX)
-  SET_PROPERTY(TEST test_detailed_simulations test_simulations test_parsimony test_likelihood test_likelihood_nh test_likelihood_clock test_tree test_mapping test_mapping_codon test_nhx test_bowker PROPERTY ENVIRONMENT "LD_LIBRARY_PATH=$ENV{LD_LIBRARY_PATH}:../src")
+  SET_PROPERTY(TEST test_detailed_simulations test_simulations test_parsimony test_models test_likelihood test_likelihood_nh test_likelihood_clock test_tree test_mapping test_mapping_codon test_nhx test_bowker PROPERTY ENVIRONMENT "LD_LIBRARY_PATH=$ENV{LD_LIBRARY_PATH}:../src")
 ENDIF()
 
 IF(APPLE)
-  SET_PROPERTY(TEST test_detailed_simulations test_simulations test_parsimony test_likelihood test_likelihood_nh test_likelihood_clock test_tree test_mapping test_mapping_codon test_nhx test_bowker PROPERTY ENVIRONMENT "DYLD_LIBRARY_PATH=$ENV{DYLD_LIBRARY_PATH}:../src")
+  SET_PROPERTY(TEST test_detailed_simulations test_simulations test_parsimony test_models test_likelihood test_likelihood_nh test_likelihood_clock test_tree test_mapping test_mapping_codon test_nhx test_bowker PROPERTY ENVIRONMENT "DYLD_LIBRARY_PATH=$ENV{DYLD_LIBRARY_PATH}:../src")
 ENDIF()
 
 IF(WIN32)

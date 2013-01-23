@@ -89,7 +89,7 @@ void CodonDistanceSubstitutionModel::fireParameterChanged(const ParameterList& p
   AbstractCodonSubstitutionModel::fireParameterChanged(parameters);
 }
 
-double CodonDistanceSubstitutionModel::getCodonsMulRate(unsigned int i, unsigned int j) const
+double CodonDistanceSubstitutionModel::getCodonsMulRate(size_t i, size_t j) const
 {
   return AbstractCodonDistanceSubstitutionModel::getCodonsMulRate(i,j)
     * AbstractCodonSubstitutionModel::getCodonsMulRate(i,j);

@@ -140,7 +140,7 @@ public:
   const GeneticCode* getGeneticCode() const { return geneticCode_; }
 
 public:
-  double getCodonsMulRate(unsigned int, unsigned int) const;
+  double getCodonsMulRate(size_t i, size_t j) const;
 };
 } // end of namespace bpp.
 

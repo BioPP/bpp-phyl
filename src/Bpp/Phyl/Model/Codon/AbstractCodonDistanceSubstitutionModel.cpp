@@ -77,9 +77,11 @@ void AbstractCodonDistanceSubstitutionModel::fireParameterChanged(const Paramete
   beta_ = getParameterValue("beta");
 }
 
-double AbstractCodonDistanceSubstitutionModel::getCodonsMulRate(unsigned int i, unsigned int j) const
+double AbstractCodonDistanceSubstitutionModel::getCodonsMulRate(size_t i, size_t j) const
 {
-  return geneticCode_->areSynonymous(i, j) ? gamma_ :
-         beta_ * (pdistance_ ? exp(-pdistance_->getIndex(geneticCode_->translate(i), geneticCode_->translate(j)) / alpha_) : 1);
+  return geneticCode_->areSynonymous(static_cast<int>(i), static_cast<int>(j)) ? gamma_ :
+         beta_ * (pdistance_ ? exp(-pdistance_->getIndex(
+                 geneticCode_->translate(static_cast<int>(i)),
+                 geneticCode_->translate(static_cast<int>(j))) / alpha_) : 1);
 }
 

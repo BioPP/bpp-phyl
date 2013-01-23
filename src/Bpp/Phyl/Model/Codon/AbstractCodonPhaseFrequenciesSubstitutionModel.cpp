@@ -107,12 +107,12 @@ void AbstractCodonPhaseFrequenciesSubstitutionModel::setFreq(map<int, double>& f
   matchParametersValues(posfreqset_->getParameters());
 }
 
-double AbstractCodonPhaseFrequenciesSubstitutionModel::getCodonsMulRate(unsigned int i, unsigned int j) const
+double AbstractCodonPhaseFrequenciesSubstitutionModel::getCodonsMulRate(size_t i, size_t j) const
 {
-  unsigned int i2(i), j2(j);
+  size_t i2(i), j2(j);
 
   double x = 1.;
-  for (unsigned int k = 0; k < 3; k++)
+  for (size_t k = 0; k < 3; k++)
   {
     if ((i2 % 4) != (j2 % 4))
       x *= posfreqset_->getFrequenciesSetForLetter(2 - k).getFrequencies()[j2 % 4];

@@ -147,7 +147,7 @@ namespace bpp
 
     std::string getName() const;
 
-    double getCodonsMulRate(unsigned int, unsigned int) const;
+    double getCodonsMulRate(size_t i, size_t j) const;
 
     void setNamespace(const std::string&);
 

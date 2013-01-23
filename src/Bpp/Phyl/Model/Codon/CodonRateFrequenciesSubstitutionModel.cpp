@@ -83,7 +83,7 @@ void CodonRateFrequenciesSubstitutionModel::fireParameterChanged(const Parameter
   AbstractCodonSubstitutionModel::fireParameterChanged(parameters);
 }
 
-double CodonRateFrequenciesSubstitutionModel::getCodonsMulRate(unsigned int i, unsigned int j) const
+double CodonRateFrequenciesSubstitutionModel::getCodonsMulRate(size_t i, size_t j) const
 {
   return AbstractCodonSubstitutionModel::getCodonsMulRate(i,j)
     * AbstractCodonFrequenciesSubstitutionModel::getCodonsMulRate(i,j);

@@ -5,7 +5,7 @@
 //
 
 /*
-  Copyright or © or Copr. CNRS, (November 16, 2004)
+  Copyright or © or Copr. Bio++ Development Team, (November 16, 2004)
   This software is a computer program whose purpose is to provide classes
   for phylogenetic data analysis.
  
@@ -76,6 +76,7 @@ namespace bpp
       pfitset_(model.pfitset_->clone()),
       fitName_(model.fitName_)
     {}
+
     AbstractCodonFitnessSubstitutionModel& operator=(const AbstractCodonFitnessSubstitutionModel& model){
       AbstractParameterAliasable::operator=(model);
       if (pfitset_) delete pfitset_;
@@ -83,6 +84,7 @@ namespace bpp
       fitName_ = model.fitName_ ;
       return *this;
     }
+
     virtual ~AbstractCodonFitnessSubstitutionModel();
 
     void fireParameterChanged (const ParameterList& parameters);
@@ -93,7 +95,7 @@ namespace bpp
     }
 
   public:
-    double getCodonsMulRate( unsigned int i , unsigned int j) const;
+    double getCodonsMulRate(size_t i, size_t j) const;
 
     const FrequenciesSet* getFitness() const { return pfitset_;}
 

@@ -78,7 +78,7 @@ CodonDistanceFrequenciesSubstitutionModel::CodonDistanceFrequenciesSubstitutionM
 
 std::string CodonDistanceFrequenciesSubstitutionModel::getName() const
 {
-  return ("CodonDistFreq");
+  return "CodonDistFreq";
 }
 
 void CodonDistanceFrequenciesSubstitutionModel::fireParameterChanged(const ParameterList& parameters)
@@ -90,7 +90,7 @@ void CodonDistanceFrequenciesSubstitutionModel::fireParameterChanged(const Param
   AbstractCodonSubstitutionModel::fireParameterChanged(parameters);
 }
 
-double CodonDistanceFrequenciesSubstitutionModel::getCodonsMulRate(unsigned int i, unsigned int j) const
+double CodonDistanceFrequenciesSubstitutionModel::getCodonsMulRate(size_t i, size_t j) const
 {
   return AbstractCodonDistanceSubstitutionModel::getCodonsMulRate(i,j)
     * AbstractCodonSubstitutionModel::getCodonsMulRate(i,j)

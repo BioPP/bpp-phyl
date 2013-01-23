@@ -38,6 +38,8 @@ knowledge of the CeCILL license and that you accept its terms.
 */
 
 #include <Bpp/Phyl/Model.all>
+#include <Bpp/Seq/Alphabet.all>
+#include <Bpp/Seq/GeneticCode.all>
 #include <iostream>
 
 using namespace bpp;
@@ -45,9 +47,16 @@ using namespace std;
 
 int main() {
   const CodonAlphabet* codonAlphabet = new StandardCodonAlphabet(&AlphabetTools::DNA_ALPHABET);
-  SubstitutionModel* model = new YN98(codonAlphabet, 1.0, 1.0);
-
+  GeneticCode* gc = new StandardGeneticCode(&AlphabetTools::DNA_ALPHABET);
+  FrequenciesSet* fset = CodonFrequenciesSet::getFrequenciesSetForCodons(CodonFrequenciesSet::F3X4, *codonAlphabet);
+  SubstitutionModel* model = new YN98(gc, fset);
+  MatrixTools::print(model->getPij_t(1.0));
+  model->getParameters().printParameters(cout);
+  model->setParameterValue("omega", 0.1);
+  MatrixTools::print(model->getPij_t(1.0));
+  model->getParameters().printParameters(cout);
   delete model;
+  delete gc;
 
   return 0;
 }

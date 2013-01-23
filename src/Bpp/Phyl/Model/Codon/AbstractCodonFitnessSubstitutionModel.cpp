@@ -66,7 +66,7 @@ void AbstractCodonFitnessSubstitutionModel::setFreq(map<int, double>& frequencie
   matchParametersValues(pfitset_->getParameters() );
 }
 
-double AbstractCodonFitnessSubstitutionModel::getCodonsMulRate( unsigned int i , unsigned int j ) const
+double AbstractCodonFitnessSubstitutionModel::getCodonsMulRate(size_t i, size_t j) const
 {
   double mu;
   double phi_j= pfitset_->getFrequencies() [j];

@@ -109,7 +109,7 @@ public:
     pfreqset_->setNamespace(prefix + freqName_);
   }
 
-  double getCodonsMulRate(unsigned int, unsigned int) const;
+  double getCodonsMulRate(size_t, size_t) const;
 };
 } // end of namespace bpp.
 

@@ -71,8 +71,9 @@ void AbstractBiblioSubstitutionModel::updateMatrices()
 {
   for (size_t i = 0; i < lParPmodel_.size(); i++)
   {
-    if (mapParNamesFromPmodel_.find(lParPmodel_[i].getName()) != mapParNamesFromPmodel_.end())
+    if (mapParNamesFromPmodel_.find(lParPmodel_[i].getName()) != mapParNamesFromPmodel_.end()) {
       lParPmodel_[i].setValue(getParameter(getParameterNameWithoutNamespace(mapParNamesFromPmodel_[lParPmodel_[i].getName()])).getValue());
+    }
   }
 
   getModel().matchParametersValues(lParPmodel_);
