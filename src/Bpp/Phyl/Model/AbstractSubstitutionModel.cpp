@@ -395,20 +395,29 @@ void AbstractSubstitutionModel::setFreq(map<int, double>& freqs)
 }
 
 /******************************************************************************/
+
 double AbstractSubstitutionModel::getScale() const
 {
-  vector<double> _v;
-  MatrixTools::diag(generator_, _v);
-  return -VectorTools::scalar<double, double>(_v, freq_);
+  vector<double> v;
+  MatrixTools::diag(generator_, v);
+  return -VectorTools::scalar<double, double>(v, freq_);
 }
 
 /******************************************************************************/
+
+void AbstractSubstitutionModel::setScale(double scale) {
+  MatrixTools::scale(generator_, scale);
+}
+
+/******************************************************************************/
+
 double AbstractSubstitutionModel::getRate() const
 {
   return rate_;
 }
 
 /******************************************************************************/
+
 void AbstractSubstitutionModel::setRate(double rate)
 {
   if (rate <= 0)

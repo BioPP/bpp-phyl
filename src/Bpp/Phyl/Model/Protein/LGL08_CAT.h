@@ -92,7 +92,7 @@ public:
   };
 
 private:
-  MixtureOfSubstitutionModels* pmixmodel_;
+  std::auto_ptr<MixtureOfSubstitutionModels> pmixmodel_;
 
 public:
   /**
@@ -102,7 +102,6 @@ public:
    * @param nbCat number of profiles
    *
    */
-
   LGL08_CAT(const ProteicAlphabet* alpha, unsigned int nbCat = 10);
 
   ~LGL08_CAT();
@@ -113,27 +112,17 @@ public:
 
   LGL08_CAT& operator=(const LGL08_CAT&);
 
-  const AbstractSubstitutionModel* getModel() const
-  {
-    return pmixmodel_;
-  }
+  const SubstitutionModel& getModel() const { return *pmixmodel_.get(); }
 
-  AbstractSubstitutionModel* getModel()
-  {
-    return pmixmodel_;
-  }
-
-  const MixedSubstitutionModel* getMixedModel() const
-  {
-    return pmixmodel_;
-  }
-
-  MixedSubstitutionModel* getMixedModel()
-  {
-    return pmixmodel_;
-  }
+  const MixedSubstitutionModel& getMixedModel() const { return *pmixmodel_.get(); }
 
   std::string getName() const { return "LGL08_CAT"; }
+  
+private:
+  SubstitutionModel& getModel() { return *pmixmodel_.get(); }
+
+  MixedSubstitutionModel& getMixedModel() { return *pmixmodel_.get(); }
+
 };
 } // end of namespace bpp.
 

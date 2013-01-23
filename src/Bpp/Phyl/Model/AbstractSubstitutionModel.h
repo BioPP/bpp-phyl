@@ -263,9 +263,9 @@ public:
 
   const Vdouble& getIEigenValues() const { return iEigenValues_; }
 
-  bool isDiagonalizable() const { return isDiagonalizable_;}
+  bool isDiagonalizable() const { return isDiagonalizable_; }
   
-  bool isNonSingular() const { return isNonSingular_;}
+  bool isNonSingular() const { return isNonSingular_; }
 
   const Matrix<double>& getRowLeftEigenVectors() const { return leftEigenVectors_; }
 
@@ -323,38 +323,12 @@ protected:
   virtual void updateMatrices();
 
 public:
-  /**
-   * @brief Get the scalar product of diagonal elements of the generator
-   * and the frequencies vector.
-   * If the generator is normalized, then scale=1. Otherwise each element
-   * must be multiplied by 1/scale.
-   *
-   * @return Minus the scalar product of diagonal elements and the frequencies vector.
-   */
   double getScale() const;
 
-  /**
-   * @brief Set the rate of the generator, defined as the scalar
-   * product of diagonal elements of the generator and the frequencies
-   * vector.
-   *
-   * When the generator is normalized, scale=1. Otherwise each element
-   * is multiplied such that the correct scale is set.
-   *
-   */
   void setScale(double scale);
 
-  /**
-   * @brief Get the rate of the model
-   */
-  
   virtual double getRate() const;
 
-  /**
-   * @brief Set the rate of the model (must be positive).
-   * @param rate must be positive.
-   */
-  
   virtual void setRate(double rate);
 
 
@@ -396,8 +370,8 @@ public:
     AbstractParameterAliasable(prefix),
     AbstractSubstitutionModel(alpha, prefix)
   {
-    isDiagonalizable_=true;
-    isNonSingular_=true;
+    isDiagonalizable_ = true;
+    isNonSingular_    = true;
   }
 
   virtual ~AbstractReversibleSubstitutionModel() {}

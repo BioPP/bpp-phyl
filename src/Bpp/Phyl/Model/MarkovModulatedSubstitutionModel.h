@@ -43,6 +43,7 @@
 #include "SubstitutionModel.h"
 
 #include <Bpp/Numeric/AbstractParameterAliasable.h>
+#include <Bpp/Numeric/Matrix/MatrixTools.h>
 
 namespace bpp
 {
@@ -203,7 +204,9 @@ namespace bpp
     
     const Vdouble& getEigenValues() const { return eigenValues_; }
     const Vdouble& getIEigenValues() const { return iEigenValues_; }
-    bool isDiagonalizable() const { return true;}
+
+    bool isDiagonalizable() const { return true; }
+    bool isNonSingular() const { return true; }
 
     const Matrix<double>& getRowLeftEigenVectors() const { return leftEigenVectors_; }
     const Matrix<double>& getColumnRightEigenVectors() const { return rightEigenVectors_; }
@@ -257,6 +260,22 @@ namespace bpp
     {
       return i / nbStates_; 
     }
+
+    double getRate() const { return model_->getRate(); }
+
+    void setRate(double rate) { model_->setRate(rate); }
+
+    double getScale() const
+    {
+      std::vector<double> v;
+      MatrixTools::diag(generator_, v);
+      return -VectorTools::scalar<double, double>(v, freq_);
+    }
+
+    void setScale(double scale) {
+      model_->setScale(scale);
+      updateMatrices();
+    } 
 
     void enableEigenDecomposition(bool yn) { eigenDecompose_ = yn; }
 

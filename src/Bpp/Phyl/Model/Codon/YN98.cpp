@@ -79,12 +79,8 @@ YN98::YN98(const YN98& yn98) : AbstractBiblioSubstitutionModel(yn98),
 YN98& YN98::operator=(const YN98& yn98)
 {
   AbstractBiblioSubstitutionModel::operator=(yn98);
-  pmodel_ = new CodonDistanceFrequenciesSubstitutionModel(*yn98.pmodel_);
+  pmodel_.reset(new CodonDistanceFrequenciesSubstitutionModel(*yn98.pmodel_));
   return *this;
 }
 
-YN98::~YN98()
-{
-  if (pmodel_)
-    delete pmodel_;
-}
+YN98::~YN98() {}

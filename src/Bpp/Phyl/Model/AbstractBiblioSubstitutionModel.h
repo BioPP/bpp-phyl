@@ -83,10 +83,7 @@ public:
 #endif
 
 public:
-  virtual const AbstractSubstitutionModel* getModel() const = 0;
-
-  virtual AbstractSubstitutionModel* getModel() = 0;
-
+  virtual const SubstitutionModel& getModel() const = 0;
 
   /*
      *@ brief Methods to supersede SubstitutionModel methods.
@@ -94,52 +91,52 @@ public:
    * @{
    */
 
-  const std::vector<int>& getAlphabetChars() const { return getModel()->getAlphabetChars(); }
+  const std::vector<int>& getAlphabetChars() const { return getModel().getAlphabetChars(); }
 
-  int getAlphabetChar(size_t i) const { return getModel()->getAlphabetChar(i); }
+  int getAlphabetChar(size_t i) const { return getModel().getAlphabetChar(i); }
 
-  std::vector<size_t> getModelStates(int i) const { return getModel()->getModelStates(i); }
+  std::vector<size_t> getModelStates(int i) const { return getModel().getModelStates(i); }
 
-  virtual double freq(size_t i) const { return getModel()->freq(i); }
+  virtual double freq(size_t i) const { return getModel().freq(i); }
 
-  virtual double Qij(size_t i, size_t j) const { return getModel()->Qij(i, j); }
+  virtual double Qij(size_t i, size_t j) const { return getModel().Qij(i, j); }
 
-  virtual double Pij_t    (size_t i, size_t j, double t) const { return getModel()->Pij_t(i, j, t); }
-  virtual double dPij_dt  (size_t i, size_t j, double t) const { return getModel()->dPij_dt (i, j, t); }
-  virtual double d2Pij_dt2(size_t i, size_t j, double t) const { return getModel()->d2Pij_dt2(i, j, t); }
+  virtual double Pij_t    (size_t i, size_t j, double t) const { return getModel().Pij_t(i, j, t); }
+  virtual double dPij_dt  (size_t i, size_t j, double t) const { return getModel().dPij_dt (i, j, t); }
+  virtual double d2Pij_dt2(size_t i, size_t j, double t) const { return getModel().d2Pij_dt2(i, j, t); }
 
-  virtual const Vdouble& getFrequencies() const { return getModel()->getFrequencies(); }
+  virtual const Vdouble& getFrequencies() const { return getModel().getFrequencies(); }
 
-  const Matrix<double>& getGenerator() const { return getModel()->getGenerator(); }
+  const Matrix<double>& getGenerator() const { return getModel().getGenerator(); }
 
-  const Matrix<double>& getExchangeabilityMatrix() const { return getModel()->getExchangeabilityMatrix(); }
+  const Matrix<double>& getExchangeabilityMatrix() const { return getModel().getExchangeabilityMatrix(); }
 
-  double Sij(size_t i, size_t j) const { return getModel()->Sij(i, j); }
+  double Sij(size_t i, size_t j) const { return getModel().Sij(i, j); }
 
-  const Matrix<double>& getPij_t(double t) const { return getModel()->getPij_t(t); }
+  const Matrix<double>& getPij_t(double t) const { return getModel().getPij_t(t); }
 
-  const Matrix<double>& getdPij_dt(double t) const { return getModel()->getdPij_dt(t); }
+  const Matrix<double>& getdPij_dt(double t) const { return getModel().getdPij_dt(t); }
 
-  const Matrix<double>& getd2Pij_dt2(double t) const { return getModel()->getd2Pij_dt2(t); }
+  const Matrix<double>& getd2Pij_dt2(double t) const { return getModel().getd2Pij_dt2(t); }
 
-  void enableEigenDecomposition(bool yn) { getModel()->enableEigenDecomposition(yn); }
+  void enableEigenDecomposition(bool yn) { getModel().enableEigenDecomposition(yn); }
 
-  bool enableEigenDecomposition() { return getModel()->enableEigenDecomposition(); }
+  bool enableEigenDecomposition() { return getModel().enableEigenDecomposition(); }
 
-  bool isDiagonalizable() const { return getModel()->isDiagonalizable(); }
+  bool isDiagonalizable() const { return getModel().isDiagonalizable(); }
 
-  bool isNonSingular() const { return getModel()->isNonSingular(); }
+  bool isNonSingular() const { return getModel().isNonSingular(); }
 
-  const Vdouble& getEigenValues() const { return getModel()->getEigenValues(); }
+  const Vdouble& getEigenValues() const { return getModel().getEigenValues(); }
 
-  const Vdouble& getIEigenValues() const { return getModel()->getIEigenValues(); }
+  const Vdouble& getIEigenValues() const { return getModel().getIEigenValues(); }
 
-  const Matrix<double>& getRowLeftEigenVectors() const { return getModel()->getRowLeftEigenVectors(); }
-  const Matrix<double>& getColumnRightEigenVectors() const { return getModel()->getColumnRightEigenVectors(); }
+  const Matrix<double>& getRowLeftEigenVectors() const { return getModel().getRowLeftEigenVectors(); }
+  const Matrix<double>& getColumnRightEigenVectors() const { return getModel().getColumnRightEigenVectors(); }
 
-  double getRate() const { return getModel()->getRate(); }
+  double getRate() const { return getModel().getRate(); }
 
-  void setRate(double rate) { return getModel()->setRate(rate); }
+  void setRate(double rate) { return getModel().setRate(rate); }
 
   void addRateParameter();
 
@@ -147,13 +144,13 @@ public:
 
   void setFreq(std::map<int, double>& frequ);
 
-  const Alphabet* getAlphabet() const { return getModel()->getAlphabet(); }
+  const Alphabet* getAlphabet() const { return getModel().getAlphabet(); }
 
-  size_t getNumberOfStates() const { return getModel()->getNumberOfStates(); }
+  size_t getNumberOfStates() const { return getModel().getNumberOfStates(); }
 
-  double getInitValue(size_t i, int state) const throw (BadIntException) { return getModel()->getInitValue(i, state); }
+  double getInitValue(size_t i, int state) const throw (BadIntException) { return getModel().getInitValue(i, state); }
 
-  const FrequenciesSet* getFrequenciesSet() const {return getModel()->getFrequenciesSet(); }
+  const FrequenciesSet* getFrequenciesSet() const {return getModel().getFrequenciesSet(); }
 
   /*
    * @}
@@ -180,14 +177,15 @@ public:
 
 protected:
   virtual void updateMatrices();
+  virtual SubstitutionModel& getModel() = 0;
 
 public:
-  double getScale() const { return getModel()->getScale(); }
+  double getScale() const { return getModel().getScale(); }
 
-  void setScale(double scale) { getModel()->setScale(scale); }
+  void setScale(double scale) { getModel().setScale(scale); }
 
   /*
-     *@}
+   * @}
    */
 };
 } // end of namespace bpp.

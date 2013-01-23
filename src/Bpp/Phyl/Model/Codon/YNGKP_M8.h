@@ -75,7 +75,7 @@ class YNGKP_M8:
     virtual public ReversibleSubstitutionModel
 {
 private:
-  MixtureOfASubstitutionModel* pmixmodel_;
+  std::auto_ptr<MixtureOfASubstitutionModel> pmixmodel_;
 
   /*
    *@brief indexes of 2 codons between which the substitution is
@@ -106,24 +106,16 @@ protected:
   void updateMatrices();
 
 public:
-  const AbstractSubstitutionModel* getModel() const {
-    return pmixmodel_;
-  }
+  const SubstitutionModel& getModel() const { return *pmixmodel_.get(); }
 
-  AbstractSubstitutionModel* getModel() {
-    return pmixmodel_;
-  }
-
-
-  const MixedSubstitutionModel* getMixedModel() const {
-    return pmixmodel_;
-  }
-
-  MixedSubstitutionModel* getMixedModel() {
-    return pmixmodel_;
-  }
+  const MixedSubstitutionModel& getMixedModel() const { return *pmixmodel_.get(); }
 
   std::string getName() const { return "YNGKP_M8"; }
+
+private:
+  SubstitutionModel& getModel() { return *pmixmodel_.get(); }
+
+  MixedSubstitutionModel& getMixedModel() { return *pmixmodel_.get(); }
 
 };
 

@@ -97,7 +97,7 @@ public:
   };
 
 private:
-  MixtureOfSubstitutionModels* pmixmodel_;
+  std::auto_ptr<MixtureOfSubstitutionModels> pmixmodel_;
 
 public:
   /**
@@ -117,27 +117,17 @@ public:
 
   LLG08_EX3& operator=(const LLG08_EX3&);
 
-  const AbstractSubstitutionModel* getModel() const
-  {
-    return pmixmodel_;
-  }
+  const SubstitutionModel& getModel() const { return *pmixmodel_.get(); }
 
-  AbstractSubstitutionModel* getModel()
-  {
-    return pmixmodel_;
-  }
-
-  const MixedSubstitutionModel* getMixedModel() const
-  {
-    return pmixmodel_;
-  }
-
-  MixedSubstitutionModel* getMixedModel()
-  {
-    return pmixmodel_;
-  }
+  const MixedSubstitutionModel& getMixedModel() const { return *pmixmodel_.get(); }
 
   std::string getName() const { return "LLG08_EX3"; }
+  
+private:
+  SubstitutionModel& getModel() { return *pmixmodel_.get(); }
+
+  MixedSubstitutionModel& getMixedModel() { return *pmixmodel_.get(); }
+
 };
 } // end of namespace bpp.
 

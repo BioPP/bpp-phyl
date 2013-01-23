@@ -54,18 +54,18 @@ LGL08_CAT::LGL08_CAT(const ProteicAlphabet* alpha, unsigned int nbCat) :
   // build the submodel
 
   vector<SubstitutionModel*> vpSM;
-  for(unsigned int i = 1; i < nbCat+1; i++)
-	vpSM.push_back(new LGL08_CAT::EmbeddedModel(alpha, "C"+TextTools::toString(i), nbCat));
+  for(unsigned int i = 1; i < nbCat + 1; i++)
+	vpSM.push_back(new LGL08_CAT::EmbeddedModel(alpha, "C" + TextTools::toString(i), nbCat));
 
   Vdouble vrate, vproba;
 
-  for (unsigned int i = 0; i < vpSM.size(); i++)
+  for (size_t i = 0; i < vpSM.size(); i++)
   {
     vproba.push_back((dynamic_cast<LGL08_CAT::EmbeddedModel*>(vpSM[i]))->getProportion());
     vrate.push_back(vpSM[i]->getRate());
   }
 
-  pmixmodel_ = new MixtureOfSubstitutionModels(alpha, vpSM, vproba, vrate);
+  pmixmodel_.reset(new MixtureOfSubstitutionModels(alpha, vpSM, vproba, vrate));
 
   string name, st;
   ParameterList pl = pmixmodel_->getParameters();
@@ -91,18 +91,12 @@ LGL08_CAT& LGL08_CAT::operator=(const LGL08_CAT& mod2)
 {
   AbstractBiblioMixedSubstitutionModel::operator=(mod2);
 
-  if (pmixmodel_)
-    delete pmixmodel_;
-  pmixmodel_ = new MixtureOfSubstitutionModels(*mod2.pmixmodel_);
+  pmixmodel_.reset(new MixtureOfSubstitutionModels(*mod2.pmixmodel_));
 
   return *this;
 }
 
-LGL08_CAT::~LGL08_CAT()
-{
-  if (pmixmodel_)
-    delete pmixmodel_;
-}
+LGL08_CAT::~LGL08_CAT() {}
 
 /**************** sub model classes */ // ////////
 

@@ -86,7 +86,7 @@ class GY94:
 private:
 
   GranthamAAChemicalDistance gacd_;
-  CodonDistanceFrequenciesSubstitutionModel* pmodel_;
+  std::auto_ptr<CodonDistanceFrequenciesSubstitutionModel> pmodel_;
 
 public:
   GY94(const GeneticCode* gc, FrequenciesSet* codonFreqs);
@@ -108,9 +108,10 @@ public:
 
   std::string getName() const { return "GY94"; }
 	
-  const AbstractSubstitutionModel* getModel() const { return pmodel_;}
+  const SubstitutionModel& getModel() const { return *pmodel_.get(); }
 
-  AbstractSubstitutionModel* getModel() { return pmodel_;}
+private:
+  SubstitutionModel& getModel() { return *pmodel_.get(); }
 
 };
 

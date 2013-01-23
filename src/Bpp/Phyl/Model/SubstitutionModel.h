@@ -345,14 +345,17 @@ public:
   /**
    * @return A vector with all imaginary parts of the eigen values of the generator of this model;
    */
-  
   virtual const Vdouble& getIEigenValues() const = 0;
 
   /**
-   * @return if the model is diagonalizable in R.
+   * @return True if the model is diagonalizable in R.
    */
-
   virtual bool isDiagonalizable() const = 0;
+  
+  /**
+   * @return True is the model is non-singular.
+   */
+  virtual bool isNonSingular() const = 0;
 
   /**
    * @return A matrix with left eigen vectors.
@@ -396,9 +399,29 @@ public:
   virtual double getInitValue(size_t i, int state) const throw (IndexOutOfBoundsException, BadIntException) = 0;
 
   /**
+   * @brief Get the scalar product of diagonal elements of the generator
+   * and the frequencies vector.
+   * If the generator is normalized, then scale=1. Otherwise each element
+   * must be multiplied by 1/scale.
+   *
+   * @return Minus the scalar product of diagonal elements and the frequencies vector.
+   */
+  virtual double getScale() const = 0;
+
+  /**
+   * @brief Set the rate of the generator, defined as the scalar
+   * product of diagonal elements of the generator and the frequencies
+   * vector.
+   *
+   * When the generator is normalized, scale=1. Otherwise each element
+   * is multiplied such that the correct scale is set.
+   *
+   */
+  virtual void setScale(double scale) = 0;
+
+  /**
    * @brief Get the rate
    */
-  
   virtual double getRate() const = 0;
 
   /**

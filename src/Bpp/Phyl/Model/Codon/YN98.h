@@ -87,10 +87,10 @@ namespace bpp
  */
 class YN98 :
     public AbstractBiblioSubstitutionModel,
-    virtual public ReversibleSubstitutionModel
+    public virtual ReversibleSubstitutionModel
 {
 private:
-  CodonDistanceFrequenciesSubstitutionModel* pmodel_;
+  std::auto_ptr<CodonDistanceFrequenciesSubstitutionModel> pmodel_;
 
 public:
   YN98(const GeneticCode* gc, FrequenciesSet* codonFreqs);
@@ -106,9 +106,10 @@ public:
 public:
   std::string getName() const { return "YN98"; }
 
-  const AbstractSubstitutionModel* getModel() const { return pmodel_; }
+  const SubstitutionModel& getModel() const { return *pmodel_.get(); }
 
-  AbstractSubstitutionModel* getModel() { return pmodel_; }
+private:
+  SubstitutionModel& getModel() { return *pmodel_.get(); }
 
 };
 

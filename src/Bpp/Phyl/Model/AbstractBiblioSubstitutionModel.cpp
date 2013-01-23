@@ -42,16 +42,18 @@
 using namespace bpp;
 using namespace std;
 
-AbstractBiblioSubstitutionModel::AbstractBiblioSubstitutionModel(const std::string& prefix) : AbstractParameterAliasable(prefix), mapParNamesFromPmodel_(), lParPmodel_()
-  {};
+AbstractBiblioSubstitutionModel::AbstractBiblioSubstitutionModel(const std::string& prefix) : AbstractParameterAliasable(prefix),
+  mapParNamesFromPmodel_(),
+  lParPmodel_()
+{}
 
 /******************************************************************************/
 
 AbstractBiblioSubstitutionModel::AbstractBiblioSubstitutionModel(const AbstractBiblioSubstitutionModel& model) :
-  AbstractParameterAliasable(model), 
+  AbstractParameterAliasable(model),
   mapParNamesFromPmodel_(model.mapParNamesFromPmodel_),
   lParPmodel_(model.lParPmodel_)
-{}    
+{}
 
 /******************************************************************************/
 
@@ -67,50 +69,53 @@ AbstractBiblioSubstitutionModel& AbstractBiblioSubstitutionModel::operator=(cons
 
 void AbstractBiblioSubstitutionModel::updateMatrices()
 {
-  for (unsigned int i = 0; i < lParPmodel_.size(); i++) {
+  for (size_t i = 0; i < lParPmodel_.size(); i++)
+  {
     if (mapParNamesFromPmodel_.find(lParPmodel_[i].getName()) != mapParNamesFromPmodel_.end())
       lParPmodel_[i].setValue(getParameter(getParameterNameWithoutNamespace(mapParNamesFromPmodel_[lParPmodel_[i].getName()])).getValue());
   }
 
-  getModel()->matchParametersValues(lParPmodel_);
+  getModel().matchParametersValues(lParPmodel_);
 }
 
 /******************************************************************************/
 
 void AbstractBiblioSubstitutionModel::addRateParameter()
 {
-  getModel()->addRateParameter();
-  addParameter_(new Parameter(getNamespace()+"rate", getModel()->getRate(), &Parameter::R_PLUS_STAR));
-  mapParNamesFromPmodel_[getNamespace()+"rate"]="rate";
+  getModel().addRateParameter();
+  addParameter_(new Parameter(getNamespace() + "rate", getModel().getRate(), &Parameter::R_PLUS_STAR));
+  mapParNamesFromPmodel_[getNamespace() + "rate"] = "rate";
   lParPmodel_.reset();
-  lParPmodel_.addParameters(getModel()->getParameters());
+  lParPmodel_.addParameters(getModel().getParameters());
 }
 
 /******************************************************************************/
 
 void AbstractBiblioSubstitutionModel::setFreq(std::map<int, double>& m)
 {
-  getModel()->setFreq(m);
+  getModel().setFreq(m);
 
-  map<string,string>::iterator it;
+  map<string, string>::iterator it;
   ParameterList pl;
-  for (it=mapParNamesFromPmodel_.begin();it!=mapParNamesFromPmodel_.end();it++){
-    pl.addParameter(Parameter(getNamespace()+it->second,getModel()->getParameterValue(getModel()->getParameterNameWithoutNamespace(it->first))));
+  for (it = mapParNamesFromPmodel_.begin(); it != mapParNamesFromPmodel_.end(); it++)
+  {
+    pl.addParameter(Parameter(getNamespace() + it->second, getModel().getParameterValue(getModel().getParameterNameWithoutNamespace(it->first))));
   }
-  
+
   matchParametersValues(pl);
 }
 
 
 void AbstractBiblioSubstitutionModel::setFreqFromData(const SequenceContainer& data, double pseudoCount)
 {
-  getModel()->setFreqFromData(data, pseudoCount);
-  map<string,string>::iterator it;
+  getModel().setFreqFromData(data, pseudoCount);
+  map<string, string>::iterator it;
   ParameterList pl;
-  for (it=mapParNamesFromPmodel_.begin();it!=mapParNamesFromPmodel_.end();it++){
-    pl.addParameter(Parameter(getNamespace()+it->second,getModel()->getParameterValue(getModel()->getParameterNameWithoutNamespace(it->first))));
+  for (it = mapParNamesFromPmodel_.begin(); it != mapParNamesFromPmodel_.end(); it++)
+  {
+    pl.addParameter(Parameter(getNamespace() + it->second, getModel().getParameterValue(getModel().getParameterNameWithoutNamespace(it->first))));
   }
-  
+
   matchParametersValues(pl);
 }
 

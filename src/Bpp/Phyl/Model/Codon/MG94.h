@@ -81,7 +81,7 @@ class MG94 :
     virtual public ReversibleSubstitutionModel
 {
 private:
-  CodonDistancePhaseFrequenciesSubstitutionModel* pmodel_;
+  std::auto_ptr<CodonDistancePhaseFrequenciesSubstitutionModel> pmodel_;
 
 public:
   MG94(const GeneticCode* gc, FrequenciesSet* codonFreqs);
@@ -102,9 +102,10 @@ public:
 public:
   std::string getName() const { return "MG94"; }
 
-  const AbstractSubstitutionModel* getModel() const { return pmodel_;}
+  const SubstitutionModel& getModel() const { return *pmodel_.get(); }
 
-  AbstractSubstitutionModel* getModel() { return pmodel_;}
+private:
+  SubstitutionModel& getModel() { return *pmodel_.get(); }
 
 };
 
