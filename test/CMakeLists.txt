@@ -28,6 +28,10 @@ ADD_EXECUTABLE(test_tree test_tree.cpp)
 TARGET_LINK_LIBRARIES(test_tree ${LIBS})
 ADD_TEST(test_tree "test_tree")
 
+ADD_EXECUTABLE(test_models test_models.cpp)
+TARGET_LINK_LIBRARIES(test_models ${LIBS})
+ADD_TEST(test_models "test_models")
+
 ADD_EXECUTABLE(test_detailed_simulations test_detailed_simulations.cpp)
 TARGET_LINK_LIBRARIES(test_detailed_simulations ${LIBS})
 ADD_TEST(test_detailed_simulations "test_detailed_simulations")
