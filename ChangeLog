@@ -1,3 +1,9 @@
+24/01/13 Julien Dutheil
+* Bug fixed in NHX parser: node ids are now properly set.
+
+20/01/13 Julien Dutheil
+* bpp-phyl now compiles with -Wconversion.
+
 13/01/13 Julien Dutheil
 * Added new COaLA protein substitution model.
 

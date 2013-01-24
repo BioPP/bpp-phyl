@@ -59,7 +59,8 @@ using namespace std;
 
 Nhx::Nhx(bool useTagsAsPptNames):
   supportedProperties_(),
-  useTagsAsPropertyNames_(useTagsAsPptNames)
+  useTagsAsPropertyNames_(useTagsAsPptNames),
+  hasIds_(false)
 {
   registerProperty(Property("Gene name", "GN", false, 0));
   registerProperty(Property("Sequence accession", "AC", false, 0));
@@ -296,7 +297,11 @@ Node* Nhx::parenthesisToNode(const string& description) const
   }
   if (!TextTools::isEmpty(elt.annotation))
   {
-    setNodeProperties(*node, elt.annotation);
+    bool hasId = setNodeProperties(*node, elt.annotation);
+    if (!hasIds_ && hasId)
+      hasIds_ = true;
+    if (hasIds_ && !hasId)
+      throw Exception("Nhx::parenthesisToNode. At least one one is missing an id (ND tag).");
   }
  
   NestedStringTokenizer nt(elt.content, "(", ")", ",");
@@ -328,7 +333,7 @@ Node* Nhx::parenthesisToNode(const string& description) const
 
 TreeTemplate<Node>* Nhx::parenthesisToTree(const string& description) const throw (Exception) 
 {
-  bool hasId = false;
+  hasIds_ = false;
   string::size_type semi = description.rfind(';');
   if (semi == string::npos)
     throw Exception("Nhx::parenthesisToTree(). Bad format: no semi-colon found.");
@@ -336,7 +341,7 @@ TreeTemplate<Node>* Nhx::parenthesisToTree(const string& description) const thro
   Node* node = parenthesisToNode(content);
   TreeTemplate<Node>* tree = new TreeTemplate<Node>();
   tree->setRootNode(node);
-  if (!hasId)
+  if (!hasIds_)
   {
     tree->resetNodesId();
   }
@@ -436,9 +441,9 @@ string Nhx::nodeToParenthesis(const Node& node) const
   {
     s << "(";
     s << nodeToParenthesis(* node[0]);
-    for (unsigned int i = 1; i < node.getNumberOfSons(); i++)
+    for (int i = 1; i < static_cast<int>(node.getNumberOfSons()); i++)
     {
-      s << "," << nodeToParenthesis(* node[i]);
+      s << "," << nodeToParenthesis(*node[i]);
     }
     s << ")";
   }
@@ -459,7 +464,7 @@ string Nhx::treeToParenthesis(const TreeTemplate<Node>& tree) const
   if (node->isLeaf())
   {
     s << node->getName();
-    for (unsigned int i = 0; i < node->getNumberOfSons(); ++i)
+    for (size_t i = 0; i < node->getNumberOfSons(); ++i)
     {
       s << "," << nodeToParenthesis(*node->getSon(i));
     }
@@ -467,7 +472,7 @@ string Nhx::treeToParenthesis(const TreeTemplate<Node>& tree) const
   else
   {
     s << nodeToParenthesis(* node->getSon(0));
-    for(unsigned int i = 1; i < node->getNumberOfSons(); ++i)
+    for (size_t i = 1; i < node->getNumberOfSons(); ++i)
     {
       s << "," << nodeToParenthesis(*node->getSon(i));
     }
@@ -515,8 +520,8 @@ bool Nhx::setNodeProperties(Node& node, const string properties) const
   if (props.find("ND") != props.end()) {
     string prop = props["ND"];
     if (TextTools::isDecimalNumber(prop))
-    {          
-      node.setId(TextTools::toInt(prop));          
+    {
+      node.setId(TextTools::toInt(prop));
       hasId = true;   
     }
   }

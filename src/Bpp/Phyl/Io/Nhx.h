@@ -37,8 +37,8 @@ The fact that you are presently reading this means that you have had
 knowledge of the CeCILL license and that you accept its terms.
 */
 
-#ifndef _Nhx_H_
-#define _Nhx_H_
+#ifndef _NHX_H_
+#define _NHX_H_
 
 #include "IoTree.h"
 #include "../TreeTemplate.h"
@@ -137,6 +137,7 @@ class Nhx:
   private:
     std::set<Property> supportedProperties_;
     bool useTagsAsPropertyNames_;
+    mutable bool hasIds_;
 
   public:
     
@@ -277,5 +278,5 @@ class Nhx:
 
 } //end of namespace bpp.
 
-#endif  //_Nhx_H_
+#endif  //_NHX_H_
 
