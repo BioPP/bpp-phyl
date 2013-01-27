@@ -76,7 +76,7 @@ DiscreteDistribution* BppORateDistributionFormat::read(
       throw Exception("BppORateDistributionFormat::read. Missing argument 'dist' for distribution 'Invariant'.");
     if (verbose_)
       ApplicationTools::displayResult("Invariant Mixed distribution", distName );
-    BppODiscreteDistributionFormat nestedReader(false);
+    BppORateDistributionFormat nestedReader(false);
     DiscreteDistribution* nestedDistribution = nestedReader.read(nestedDistDescription, false);
     map<string, string> unparsedArgumentsNested(nestedReader.getUnparsedArguments());
 
@@ -179,7 +179,7 @@ DiscreteDistribution* BppORateDistributionFormat::read(
 
     for (unsigned i = 0; i < v_nestedDistrDescr.size(); i++)
     {
-      BppODiscreteDistributionFormat nestedReader(false);
+      BppORateDistributionFormat nestedReader(false);
       auto_ptr<DiscreteDistribution> pdd(nestedReader.read(v_nestedDistrDescr[i], false));
       map<string, string> unparsedArgumentsNested(nestedReader.getUnparsedArguments());
 
