@@ -63,8 +63,8 @@ namespace bpp
 
 
   class AbstractCodonFitnessSubstitutionModel :
-    virtual public CodonSubstitutionModel,
-    virtual public AbstractParameterAliasable
+    public virtual CodonSubstitutionModel,
+    public virtual AbstractParameterAliasable
   {
   private:
     FrequenciesSet* pfitset_;

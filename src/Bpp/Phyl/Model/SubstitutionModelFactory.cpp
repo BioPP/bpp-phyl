@@ -6,7 +6,7 @@
 //
 
 /*
-Copyright or © or Copr. CNRS, (November 16, 2004, 2005, 2006)
+Copyright or © or Copr. Bio++ Development Team, (November 16, 2004, 2005, 2006)
 
 This software is a computer program whose purpose is to provide classes
 for phylogenetic data analysis.
@@ -40,8 +40,21 @@ knowledge of the CeCILL license and that you accept its terms.
 
 #include "SubstitutionModelFactory.h"
 #include "SubstitutionModelSetTools.h"
+#include "Protein/JCprot.h"
+#include "Nucleotide/K80.h"
+#include "Nucleotide/T92.h"
+#include "Nucleotide/L95.h"
+#include "Nucleotide/F84.h"
+#include "Nucleotide/TN93.h"
+#include "Nucleotide/HKY85.h"
+#include "Nucleotide/GTR.h"
+#include "Nucleotide/SSR.h"
+#include "Protein/JTT92.h"
+#include "Protein/DSO78.h"
+#include "Protein/WAG01.h"
+#include "Protein/LG08.h"
 
-// From SeqLib:
+// From bpp-seq:
 #include <Bpp/Seq/Alphabet/AlphabetTools.h>
 
 using namespace bpp;
@@ -51,15 +64,19 @@ using namespace bpp;
 
 using namespace std;
 
-const string SubstitutionModelFactory::JUKES_CANTOR            = "JC69";
-const string SubstitutionModelFactory::KIMURA_2P               = "K80";
-const string SubstitutionModelFactory::HASEGAWA_KISHINO_YANO   = "HKY85";
-const string SubstitutionModelFactory::TAMURA_NEI              = "TN93";
-const string SubstitutionModelFactory::GENERAL_TIME_REVERSIBLE = "HKY85";
-const string SubstitutionModelFactory::TAMURA                  = "T92";
-const string SubstitutionModelFactory::FELSENSTEIN84           = "F84";
-const string SubstitutionModelFactory::JOHN_TAYLOR_THORNTON    = "JTT92";
-const string SubstitutionModelFactory::DAYHOFF_SCHWARTZ_ORCUTT = "DSO78";
+const string SubstitutionModelFactory::JUKES_CANTOR                = "JC69";
+const string SubstitutionModelFactory::KIMURA_2P                   = "K80";
+const string SubstitutionModelFactory::HASEGAWA_KISHINO_YANO       = "HKY85";
+const string SubstitutionModelFactory::TAMURA_NEI                  = "TN93";
+const string SubstitutionModelFactory::GENERAL_TIME_REVERSIBLE     = "HKY85";
+const string SubstitutionModelFactory::STRAND_SYMMETRIC_REVERSIBLE = "SSR";
+const string SubstitutionModelFactory::TAMURA                      = "T92";
+const string SubstitutionModelFactory::LOBRY                       = "L95";
+const string SubstitutionModelFactory::FELSENSTEIN                 = "F84";
+const string SubstitutionModelFactory::JOHN_TAYLOR_THORNTON        = "JTT92";
+const string SubstitutionModelFactory::DAYHOFF_SCHWARTZ_ORCUTT     = "DSO78";
+const string SubstitutionModelFactory::WHELAN_AND_GOLDMAN          = "WAG";
+const string SubstitutionModelFactory::LE_GASCUEL                  = "LG08";
 
 SubstitutionModel* SubstitutionModelFactory::createModel(const string& modelName) const throw (AlphabetException, Exception)
 {
@@ -86,7 +103,15 @@ SubstitutionModel* SubstitutionModelFactory::createModel(const string& modelName
       throw AlphabetException("SubstitutionModelFactory::createInstanceOf(). T92 model requires a nucleotide alphabet.", alphabet_);
     }
   }
-  else if(modelName == FELSENSTEIN84)
+  else if(modelName == LOBRY)
+  {
+    try { 
+      return new L95(dynamic_cast<const NucleicAlphabet *>(alphabet_));
+    } catch(Exception & e) {
+      throw AlphabetException("SubstitutionModelFactory::createInstanceOf(). L95 model requires a nucleotide alphabet.", alphabet_);
+    }
+  }
+  else if(modelName == FELSENSTEIN)
   {
     try { 
       return new F84(dynamic_cast<const NucleicAlphabet *>(alphabet_));
@@ -118,6 +143,14 @@ SubstitutionModel* SubstitutionModelFactory::createModel(const string& modelName
       throw AlphabetException("SubstitutionModelFactory::createInstanceOf(). GTR model requires a nucleotide alphabet.", alphabet_);
     }
   }
+  else if(modelName == STRAND_SYMMETRIC_REVERSIBLE)
+  {
+    try { 
+      return new SSR(dynamic_cast<const NucleicAlphabet *>(alphabet_));
+    } catch(Exception & e) {
+      throw AlphabetException("SubstitutionModelFactory::createInstanceOf(). SSR model requires a nucleotide alphabet.", alphabet_);
+    }
+  }
   else if(modelName == JOHN_TAYLOR_THORNTON)
   {
     try { 
@@ -132,6 +165,22 @@ SubstitutionModel* SubstitutionModelFactory::createModel(const string& modelName
       return new DSO78(dynamic_cast<const ProteicAlphabet *>(alphabet_));
     } catch(Exception & e) {
       throw AlphabetException("SubstitutionModelFactory::createInstanceOf(). DSO78 model requires a protein alphabet.", alphabet_);
+    }
+  }
+  else if(modelName == WHELAN_AND_GOLDMAN)
+  {
+    try { 
+      return new WAG01(dynamic_cast<const ProteicAlphabet *>(alphabet_));
+    } catch(Exception & e) {
+      throw AlphabetException("SubstitutionModelFactory::createInstanceOf(). WAG01 model requires a protein alphabet.", alphabet_);
+    }
+  }
+  else if(modelName == LE_GASCUEL)
+  {
+    try { 
+      return new LG08(dynamic_cast<const ProteicAlphabet *>(alphabet_));
+    } catch(Exception & e) {
+      throw AlphabetException("SubstitutionModelFactory::createInstanceOf(). LE08 model requires a protein alphabet.", alphabet_);
     }
   }
   else throw Exception("SubstitutionModelFactory::createModel(). Unknown model: " + modelName);

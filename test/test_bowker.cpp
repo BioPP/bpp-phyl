@@ -37,14 +37,15 @@ The fact that you are presently reading this means that you have had
 knowledge of the CeCILL license and that you accept its terms.
 */
 
-#include <Bpp/Seq/Alphabet.all>
+#include <Bpp/Seq/Alphabet/DNA.h>
 #include <Bpp/Seq/SequenceTools.h>
 #include <Bpp/Phyl/TreeTemplate.h>
-#include <Bpp/Phyl/Model.all>
+#include <Bpp/Phyl/Model/Nucleotide/T92.h>
 #include <Bpp/Phyl/Model/FrequenciesSet/NucleotideFrequenciesSet.h>
 #include <Bpp/Phyl/Model/FrequenciesSet/FrequenciesSet.h>
 #include <Bpp/Phyl/Model/RateDistribution/ConstantRateDistribution.h>
-#include <Bpp/Phyl/Simulation.all>
+#include <Bpp/Phyl/Model/SubstitutionModelSetTools.h>
+#include <Bpp/Phyl/Simulation/HomogeneousSequenceSimulator.h>
 #include <iostream>
 
 using namespace bpp;

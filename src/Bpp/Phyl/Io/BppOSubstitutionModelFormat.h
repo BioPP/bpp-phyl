@@ -41,6 +41,7 @@
 #define _BPPOSUBSTITUTIONMODELFORMAT_H_
 
 #include "IoSubstitutionModelFactory.h"
+#include "../Model/MixedSubstitutionModel.h"
 
 namespace bpp
 {

@@ -40,7 +40,10 @@
 #include "BppOFrequenciesSetFormat.h"
 
 
-#include "../Model/FrequenciesSet.all"
+#include "../Model/FrequenciesSet/NucleotideFrequenciesSet.h"
+#include "../Model/FrequenciesSet/ProteinFrequenciesSet.h"
+#include "../Model/FrequenciesSet/CodonFrequenciesSet.h"
+#include "../Model/FrequenciesSet/MvaFrequenciesSet.h"
 
 //From bpp-core:
 #include <Bpp/Io/FileTools.h>
@@ -51,6 +54,7 @@
 #include <Bpp/Numeric/AutoParameter.h>
 
 //From bpp-seq:
+#include <Bpp/Seq/Alphabet/AlphabetTools.h>
 #include <Bpp/Seq/App/SequenceApplicationTools.h>
 #include <Bpp/Seq/Container/SequenceContainerTools.h>
 

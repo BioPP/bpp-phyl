@@ -45,7 +45,55 @@
 #include <Bpp/Text/StringTokenizer.h>
 #include <Bpp/Text/KeyvalTools.h>
 
-#include "../Model.all"
+#include "../Model/Codon/MG94.h"
+#include "../Model/Codon/GY94.h"
+#include "../Model/Codon/YNGKP_M1.h"
+#include "../Model/Codon/YNGKP_M2.h"
+#include "../Model/Codon/YNGKP_M3.h"
+#include "../Model/Codon/YNGKP_M7.h"
+#include "../Model/Codon/YNGKP_M8.h"
+#include "../Model/Codon/YN98.h"
+#include "../Model/Codon/TripletSubstitutionModel.h"
+#include "../Model/Codon/CodonRateSubstitutionModel.h"
+#include "../Model/Codon/CodonDistanceSubstitutionModel.h"
+#include "../Model/Codon/CodonRateFrequenciesSubstitutionModel.h"
+#include "../Model/Codon/CodonDistanceFrequenciesSubstitutionModel.h"
+#include "../Model/Codon/CodonDistancePhaseFrequenciesSubstitutionModel.h"
+#include "../Model/Codon/CodonDistanceFitnessPhaseFrequenciesSubstitutionModel.h"
+#include "../Model/RE08.h"
+#include "../Model/TS98.h"
+#include "../Model/G2001.h"
+#include "../Model/Nucleotide/F84.h"
+#include "../Model/Nucleotide/NucleotideSubstitutionModel.h"
+#include "../Model/Nucleotide/gBGC.h"
+#include "../Model/Nucleotide/RN95.h"
+#include "../Model/Nucleotide/GTR.h"
+#include "../Model/Nucleotide/RN95s.h"
+#include "../Model/Nucleotide/HKY85.h"
+#include "../Model/Nucleotide/SSR.h"
+#include "../Model/Nucleotide/JCnuc.h"
+#include "../Model/Nucleotide/T92.h"
+#include "../Model/Nucleotide/K80.h"
+#include "../Model/Nucleotide/TN93.h"
+#include "../Model/Nucleotide/L95.h"
+#include "../Model/Nucleotide/YpR.h"
+#include "../Model/Protein/CoalaCore.h"
+#include "../Model/Protein/LLG08_EX2.h"
+#include "../Model/Protein/Coala.h"
+#include "../Model/Protein/LLG08_EX3.h"
+#include "../Model/Protein/DSO78.h"
+#include "../Model/Protein/LLG08_UL2.h"
+#include "../Model/Protein/JCprot.h"
+#include "../Model/Protein/LLG08_UL3.h"
+#include "../Model/Protein/JTT92.h"
+#include "../Model/Protein/ProteinSubstitutionModel.h"
+#include "../Model/Protein/LG08.h" 
+#include "../Model/Protein/UserProteinSubstitutionModel.h"
+#include "../Model/Protein/LGL08_CAT.h"
+#include "../Model/Protein/WAG01.h"
+#include "../Model/Protein/LLG08_EHO.h"
+#include "../Model/BinarySubstitutionModel.h"
+
 #include "../App/PhylogeneticsApplicationTools.h"
 
 #include "BppOFrequenciesSetFormat.h"
@@ -545,7 +593,7 @@ SubstitutionModel* BppOSubstitutionModelFormat::read(const Alphabet* alphabet,
 
   string pref = model->getNamespace();
 
-  for (unsigned int i = 0; i < pnames.size(); i++)
+  for (size_t i = 0; i < pnames.size(); i++)
   {
     string name = model->getParameterNameWithoutNamespace(pnames[i]);
     if (args.find(name) != args.end())
@@ -555,7 +603,7 @@ SubstitutionModel* BppOSubstitutionModelFormat::read(const Alphabet* alphabet,
   // Now look if some parameters are aliased:
   ParameterList pl = model->getIndependentParameters();
   string pname, pval, pname2;
-  for (unsigned int i = 0; i < pl.size(); i++)
+  for (size_t i = 0; i < pl.size(); i++)
   {
     pname = model->getParameterNameWithoutNamespace(pl[i].getName());
 

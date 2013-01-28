@@ -39,8 +39,10 @@
  */
 
 #include "PhylogeneticsApplicationTools.h"
-#include "../Model.all"
-#include "../Likelihood.all"
+#include "../Model/SubstitutionModel.h"
+#include "../Model/Protein/Coala.h"
+#include "../Model/FrequenciesSet/MvaFrequenciesSet.h"
+#include "../Likelihood/TreeLikelihood.h"
 #include "../OptimizationTools.h"
 #include "../Tree.h"
 #include "../Io/Newick.h"

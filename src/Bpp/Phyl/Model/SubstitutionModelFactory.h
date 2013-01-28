@@ -41,12 +41,13 @@ knowledge of the CeCILL license and that you accept its terms.
 #ifndef _SUBSTITUTIOMODELFACTORY_H_
 #define _SUBSTITUTIOMODELFACTORY_H_
 
-#include "../Model.all"
+#include "../Model/Nucleotide/JCnuc.h"
 #include "../Tree.h"
 
 // From SeqLib:
 #include <Bpp/Seq/Alphabet/Alphabet.h>
 #include <Bpp/Seq/Alphabet/AlphabetExceptions.h>
+#include <Bpp/Seq/GeneticCode/GeneticCode.h>
 
 // From the STL:
 #include <string>
@@ -65,17 +66,25 @@ class SubstitutionModelFactory
     static const std::string HASEGAWA_KISHINO_YANO;
     static const std::string TAMURA_NEI;
     static const std::string GENERAL_TIME_REVERSIBLE;
+    static const std::string STRAND_SYMMETRIC_REVERSIBLE;
     static const std::string TAMURA;
-    static const std::string FELSENSTEIN84;
+    static const std::string LOBRY;
+    static const std::string FELSENSTEIN;
     static const std::string JOHN_TAYLOR_THORNTON;
     static const std::string DAYHOFF_SCHWARTZ_ORCUTT;
+    static const std::string WHELAN_AND_GOLDMAN;
+    static const std::string LE_GASCUEL;
   
   private:
     const Alphabet* alphabet_;
+    const GeneticCode* geneticCode_;
   
   public:
     /**
      * @brief Creates a new factory object with the given alphabet.
+     *
+     * This factory only provides ways to instanciate simple substitution models,
+     * for nucleotides and proteins.
      *
      * @param alphabet The alphabet for wich models must be instanciated.
      *
@@ -87,13 +96,16 @@ class SubstitutionModelFactory
      * // model can be used in any object dealing with a nucleotide substitution models.
      * @endcode
      */
-    SubstitutionModelFactory(const Alphabet* alphabet): alphabet_(alphabet) {}
+    SubstitutionModelFactory(const Alphabet* alphabet, const GeneticCode* geneticCode):
+      alphabet_(alphabet), geneticCode_(geneticCode) {}
     
-    SubstitutionModelFactory(const SubstitutionModelFactory& smf) : alphabet_(smf.alphabet_) {}
+    SubstitutionModelFactory(const SubstitutionModelFactory& smf) :
+      alphabet_(smf.alphabet_), geneticCode_(smf.geneticCode_) {}
     
     SubstitutionModelFactory& operator=(const SubstitutionModelFactory& smf)
     {
-      alphabet_ = smf.alphabet_;
+      alphabet_    = smf.alphabet_;
+      geneticCode_ = smf.geneticCode_;
       return *this;
     }
     

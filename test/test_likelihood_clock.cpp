@@ -37,13 +37,14 @@ The fact that you are presently reading this means that you have had
 knowledge of the CeCILL license and that you accept its terms.
 */
 
-#include <Bpp/Numeric/Prob.all>
-#include <Bpp/Numeric/Matrix.all>
-#include <Bpp/Seq/Alphabet.all>
+#include <Bpp/Numeric/Prob/GammaDiscreteDistribution.h>
+#include <Bpp/Numeric/Matrix/MatrixTools.h>
+#include <Bpp/Seq/Alphabet/AlphabetTools.h>
 #include <Bpp/Phyl/TreeTemplate.h>
-#include <Bpp/Phyl/Model.all>
-#include <Bpp/Phyl/Simulation.all>
-#include <Bpp/Phyl/Likelihood.all>
+#include <Bpp/Phyl/Model/Nucleotide/T92.h>
+#include <Bpp/Phyl/Simulation/HomogeneousSequenceSimulator.h>
+#include <Bpp/Phyl/Likelihood/RHomogeneousTreeLikelihood.h>
+#include <Bpp/Phyl/Likelihood/RHomogeneousClockTreeLikelihood.h>
 #include <Bpp/Phyl/OptimizationTools.h>
 #include <iostream>
 

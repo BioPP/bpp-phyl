@@ -187,7 +187,7 @@ void AbstractCodonSubstitutionModel::completeMatrices()
         generator_(i, j) = 0;
       }
       else
-        generator_(i, j) *= getCodonsMulRate(static_cast<int>(i), static_cast<int>(j));
+        generator_(i, j) *= getCodonsMulRate(i, j);
     }
   }
 }

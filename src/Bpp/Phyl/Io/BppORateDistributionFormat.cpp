@@ -38,7 +38,10 @@
  */
 
 #include "BppORateDistributionFormat.h"
-#include "../Model/RateDistribution.all"
+#include "../Model/RateDistribution/ConstantRateDistribution.h"
+#include "../Model/RateDistribution/GammaDiscreteRateDistribution.h"
+#include "../Model/RateDistribution/GaussianDiscreteRateDistribution.h"
+#include "../Model/RateDistribution/ExponentialDiscreteRateDistribution.h"
 
 //From bpp-core:
 #include <Bpp/Text/KeyvalTools.h>

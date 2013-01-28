@@ -40,7 +40,7 @@ knowledge of the CeCILL license and that you accept its terms.
 #ifndef _IOSUBSTITUTIONMODELFACTORY_H_
 #define _IOSUBSTITUTIONMODELFACTORY_H_
 
-#include "../Model.all"
+#include "../Model/SubstitutionModel.h"
 #include "IoSubstitutionModel.h"
 #include <Bpp/Exceptions.h>
 

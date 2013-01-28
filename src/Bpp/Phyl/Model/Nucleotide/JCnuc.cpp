@@ -79,13 +79,13 @@ void JCnuc::updateMatrices()
   eigenValues_[1] = eigenValues_[2] = eigenValues_[3] = -4. / 3.;
 
   // Eigen vectors:
-  for (unsigned int i = 0; i < 4; i++)
+  for (size_t i = 0; i < 4; i++)
   {
     leftEigenVectors_(0, i) = 1. / 4.;
   }
-  for (unsigned int i = 1; i < 4; i++)
+  for (size_t i = 1; i < 4; i++)
   {
-    for (unsigned int j = 0; j < 4; j++)
+    for (size_t j = 0; j < 4; j++)
     {
       leftEigenVectors_(i, j) = -1. / 4.;
     }
@@ -94,17 +94,17 @@ void JCnuc::updateMatrices()
   leftEigenVectors_(2, 1) = 3. / 4.;
   leftEigenVectors_(3, 0) = 3. / 4.;
 
-  for (unsigned int i = 0; i < 4; i++)
+  for (size_t i = 0; i < 4; i++)
   {
     rightEigenVectors_(i, 0) = 1.;
   }
-  for (unsigned int i = 1; i < 4; i++)
+  for (size_t i = 1; i < 4; i++)
   {
     rightEigenVectors_(3, i) = -1.;
   }
-  for (unsigned int i = 0; i < 3; i++)
+  for (size_t i = 0; i < 3; i++)
   {
-    for (unsigned int j = 1; j < 4; j++)
+    for (size_t j = 1; j < 4; j++)
     {
       rightEigenVectors_(i, j) = 0.;
     }
@@ -116,7 +116,7 @@ void JCnuc::updateMatrices()
 
 /******************************************************************************/
 
-double JCnuc::Pij_t(unsigned int i, unsigned int j, double d) const
+double JCnuc::Pij_t(size_t i, size_t j, double d) const
 {
   if (i == j)
     return 1. / 4. + 3. / 4. * exp(-rate_ * 4. / 3. * d);
@@ -126,7 +126,7 @@ double JCnuc::Pij_t(unsigned int i, unsigned int j, double d) const
 
 /******************************************************************************/
 
-double JCnuc::dPij_dt(unsigned int i, unsigned int j, double d) const
+double JCnuc::dPij_dt(size_t i, size_t j, double d) const
 {
   if (i == j)
     return -exp(-rate_ * 4. / 3. * d) * rate_;
@@ -136,7 +136,7 @@ double JCnuc::dPij_dt(unsigned int i, unsigned int j, double d) const
 
 /******************************************************************************/
 
-double JCnuc::d2Pij_dt2(unsigned int i, unsigned int j, double d) const
+double JCnuc::d2Pij_dt2(size_t i, size_t j, double d) const
 {
   if (i == j)
     return 4. / 3. * exp(-rate_ * 4. / 3. * d) * rate_ * rate_;
@@ -149,9 +149,9 @@ double JCnuc::d2Pij_dt2(unsigned int i, unsigned int j, double d) const
 const Matrix<double>& JCnuc::getPij_t(double d) const
 {
   exp_ = exp(-4. / 3. * d * rate_);
-  for (unsigned int i = 0; i < size_; i++)
+  for (size_t i = 0; i < size_; i++)
   {
-    for (unsigned int j = 0; j < size_; j++)
+    for (size_t j = 0; j < size_; j++)
     {
       p_(i, j) = (i == j) ? 1. / 4. + 3. / 4. * exp_ : 1. / 4. - 1. / 4. * exp_;
     }
@@ -162,9 +162,9 @@ const Matrix<double>& JCnuc::getPij_t(double d) const
 const Matrix<double>& JCnuc::getdPij_dt(double d) const
 {
   exp_ = exp(-4. / 3. * d * rate_);
-  for (unsigned int i = 0; i < size_; i++)
+  for (size_t i = 0; i < size_; i++)
   {
-    for (unsigned int j = 0; j < size_; j++)
+    for (size_t j = 0; j < size_; j++)
     {
       p_(i, j) = rate_ * ((i == j) ? -exp_ : 1. / 3. * exp_);
     }
@@ -175,9 +175,9 @@ const Matrix<double>& JCnuc::getdPij_dt(double d) const
 const Matrix<double>& JCnuc::getd2Pij_dt2(double d) const
 {
   exp_ = exp(-4. / 3. * d * rate_);
-  for (unsigned int i = 0; i < size_; i++)
+  for (size_t i = 0; i < size_; i++)
   {
-    for (unsigned int j = 0; j < size_; j++)
+    for (size_t j = 0; j < size_; j++)
     {
       p_(i, j) = rate_ * rate_ * ((i == j) ? 4. / 3. * exp_ : -4. / 9. * exp_);
     }

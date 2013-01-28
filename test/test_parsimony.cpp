@@ -37,11 +37,11 @@ The fact that you are presently reading this means that you have had
 knowledge of the CeCILL license and that you accept its terms.
 */
 
-#include <Bpp/Seq/Alphabet.all>
+#include <Bpp/Seq/Alphabet/AlphabetTools.h>
 #include <Bpp/Seq/Io/Phylip.h>
 #include <Bpp/Phyl/Tree.h>
 #include <Bpp/Phyl/Io/Newick.h>
-#include <Bpp/Phyl/Parsimony.all>
+#include <Bpp/Phyl/Parsimony/DRTreeParsimonyScore.h>
 #include <iostream>
 
 using namespace bpp;

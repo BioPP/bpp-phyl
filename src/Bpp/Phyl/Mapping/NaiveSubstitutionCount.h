@@ -1,5 +1,5 @@
 //
-// File: SimpleSubstitutionCount.h
+// File: NaiveSubstitutionCount.h
 // Created by: Julien Dutheil
 // Created on: Wed Apr 5 11:08 2006
 //
@@ -37,8 +37,8 @@
   knowledge of the CeCILL license and that you accept its terms.
 */
 
-#ifndef _SIMPLESUBSTITUTIONCOUNT_H_
-#define _SIMPLESUBSTITUTIONCOUNT_H_
+#ifndef _NAIVESUBSTITUTIONCOUNT_H_
+#define _NAIVESUBSTITUTIONCOUNT_H_
 
 #include "WeightedSubstitutionCount.h"
 

@@ -56,7 +56,7 @@ SET(CPP_FILES
   Bpp/Phyl/Mapping/LaplaceSubstitutionCount.cpp
   Bpp/Phyl/Mapping/OneJumpSubstitutionCount.cpp
   Bpp/Phyl/Mapping/ProbabilisticSubstitutionMapping.cpp
-  Bpp/Phyl/Mapping/SimpleSubstitutionCount.cpp
+  Bpp/Phyl/Mapping/NaiveSubstitutionCount.cpp
   Bpp/Phyl/Mapping/DecompositionSubstitutionCount.cpp
   Bpp/Phyl/Mapping/UniformizationSubstitutionCount.cpp
   Bpp/Phyl/Mapping/WeightedSubstitutionCount.cpp
@@ -216,7 +216,7 @@ SET(H_FILES
   Bpp/Phyl/Mapping/WeightedSubstitutionCount.h
   Bpp/Phyl/Mapping/OneJumpSubstitutionCount.h
   Bpp/Phyl/Mapping/ProbabilisticSubstitutionMapping.h
-  Bpp/Phyl/Mapping/SimpleSubstitutionCount.h
+  Bpp/Phyl/Mapping/NaiveSubstitutionCount.h
   Bpp/Phyl/Mapping/DecompositionSubstitutionCount.h
   Bpp/Phyl/Mapping/UniformizationSubstitutionCount.h
   Bpp/Phyl/Mapping/SubstitutionRegister.h
@@ -347,7 +347,7 @@ TARGET_LINK_LIBRARIES(bppphyl-static ${LIBS})
 
 # Build the shared lib
 ADD_LIBRARY(bppphyl-shared SHARED ${CPP_FILES})
-SEt_TARGET_LIBRARY(bppphyl-shared
+SET_TARGET_PROPERTIES(bppphyl-shared
   PROPERTIES OUTPUT_NAME bpp-phyl
   CLEAN_DIRECT_OUTPUT 1
   VERSION ${BPPPHYL_VERSION}

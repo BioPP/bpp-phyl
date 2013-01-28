@@ -37,12 +37,17 @@ The fact that you are presently reading this means that you have had
 knowledge of the CeCILL license and that you accept its terms.
 */
 
-#include <Bpp/Phyl/Model.all>
-#include <Bpp/Seq/Alphabet.all>
-#include <Bpp/Seq/GeneticCode.all>
-#include <Bpp/Numeric/Function.all>
+#include <Bpp/Phyl/Model/Nucleotide/GTR.h>
+#include <Bpp/Phyl/Model/Codon/YN98.h>
+#include <Bpp/Phyl/Model/FrequenciesSet/CodonFrequenciesSet.h>
+#include <Bpp/Seq/Alphabet/AlphabetTools.h>
+#include <Bpp/Seq/Alphabet/StandardCodonAlphabet.h>
+#include <Bpp/Seq/GeneticCode/StandardGeneticCode.h>
+#include <Bpp/Numeric/Function/Functions.h>
+#include <Bpp/Numeric/Function/ReparametrizationFunctionWrapper.h>
 #include <Bpp/Numeric/ParameterList.h>
 #include <Bpp/Numeric/AbstractParametrizable.h>
+#include <Bpp/Numeric/Random/RandomTools.h>
 #include <iostream>
 
 using namespace bpp;

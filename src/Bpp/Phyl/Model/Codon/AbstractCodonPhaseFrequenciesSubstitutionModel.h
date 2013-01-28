@@ -67,8 +67,8 @@ namespace bpp
  */
 
 class AbstractCodonPhaseFrequenciesSubstitutionModel :
-  virtual public CodonSubstitutionModel,
-  virtual public AbstractParameterAliasable
+  public virtual CodonSubstitutionModel,
+  public virtual AbstractParameterAliasable
 {
 private:
   /*
