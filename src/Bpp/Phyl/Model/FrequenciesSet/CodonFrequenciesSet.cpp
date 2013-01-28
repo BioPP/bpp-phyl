@@ -49,12 +49,12 @@ using namespace std;
 FullCodonFrequenciesSet::FullCodonFrequenciesSet(const CodonAlphabet* alphabet, bool allowNullFreqs, const string& name) :
   AbstractFrequenciesSet(alphabet->getSize(), alphabet, "Full.", name)
 {
-  unsigned int size = alphabet->getSize() - alphabet->numberOfStopCodons();
-  unsigned int j = 0;
+  size_t size = alphabet->getSize() - alphabet->numberOfStopCodons();
+  size_t j = 0;
 
-  for (unsigned int i = 0; i < alphabet->getSize() - 1; i++)
+  for (size_t i = 0; i < alphabet->getSize() - 1; i++)
   {
-    if (alphabet->isStop(i))
+    if (alphabet->isStop(static_cast<int>(i)))
     {
       getFreq_(i) = 0;
     }
@@ -62,16 +62,16 @@ FullCodonFrequenciesSet::FullCodonFrequenciesSet(const CodonAlphabet* alphabet, 
     {
       addParameter_(new Parameter(
                       "Full.theta" + TextTools::toString(i + 1),
-                      1. / (size - j),
+                      1. / static_cast<double>(size - j),
                       allowNullFreqs ?
                       &Parameter::PROP_CONSTRAINT_IN :
                       &FrequenciesSet::FREQUENCE_CONSTRAINT_MILLI));
-      getFreq_(i) = 1. / size;
+      getFreq_(i) = 1. / static_cast<double>(size);
       j++;
     }
   }
-  unsigned int i = alphabet->getSize() - 1;
-  getFreq_(i) = (alphabet->isStop(i)) ? 0 : 1. / size;
+  size_t i = alphabet->getSize() - 1;
+  getFreq_(i) = (alphabet->isStop(static_cast<int>(i))) ? 0 : 1. / static_cast<double>(size);
 }
 
 
@@ -482,12 +482,12 @@ void CodonFromUniqueFrequenciesSet::updateFrequencies()
 {
   WordFromUniqueFrequenciesSet::updateFrequencies();
 
-  unsigned int s = getAlphabet()->getSize();
+  size_t s = getAlphabet()->getSize();
 
   // The frequencies of the stop codons are distributed to all
   // neighbour non-stop codons
   double f[64];
-  for (unsigned int i = 0; i < s; i++)
+  for (size_t i = 0; i < s; i++)
   {
     f[i] = 0;
   }
@@ -498,13 +498,13 @@ void CodonFromUniqueFrequenciesSet::updateFrequencies()
     int stNb = mStopNeigh_it->first;
     Vint vneigh = mStopNeigh_it->second;
     double sneifreq = 0;
-    unsigned int puis = 2;
-    for (unsigned int vn = 0; vn < vneigh.size(); vn++)
+    double puis = 2;
+    for (size_t vn = 0; vn < vneigh.size(); vn++)
     {
       sneifreq += pow(getFreq_(vneigh[vn]), puis);
     }
     double x = getFreq_(stNb) / sneifreq;
-    for (unsigned int vn = 0; vn < vneigh.size(); vn++)
+    for (size_t vn = 0; vn < vneigh.size(); vn++)
     {
       f[vneigh[vn]] += pow(getFreq_(vneigh[vn]), puis) * x;
     }
@@ -512,7 +512,7 @@ void CodonFromUniqueFrequenciesSet::updateFrequencies()
     mStopNeigh_it++;
   }
 
-  for (unsigned int i = 0; i < s; i++)
+  for (size_t i = 0; i < s; i++)
   {
     getFreq_(i) += f[i];
   }
