@@ -3,7 +3,7 @@
 # Created: 20/08/2009
 
 # File list
-set(CPP_FILES
+SET(CPP_FILES
   Bpp/Phyl/App/PhylogeneticsApplicationTools.cpp
   Bpp/Phyl/BipartitionList.cpp
   Bpp/Phyl/BipartitionTools.cpp
@@ -146,7 +146,7 @@ set(CPP_FILES
   Bpp/Phyl/TreeTemplateTools.cpp
   Bpp/Phyl/TreeTools.cpp  
   )
-set(H_FILES
+SET(H_FILES
   Bpp/Phyl/AncestralStateReconstruction.h
   Bpp/Phyl/App/PhylogeneticsApplicationTools.h
   Bpp/Phyl/BipartitionList.h
@@ -338,25 +338,29 @@ set(H_FILES
   )
 
 # Build the static lib
-add_library(bppphyl-static STATIC ${CPP_FILES})
-set_target_properties(bppphyl-static
+ADD_LIBRARY(bppphyl-static STATIC ${CPP_FILES})
+SET_TARGET_PROPERTIES(bppphyl-static
   PROPERTIES OUTPUT_NAME bpp-phyl
   CLEAN_DIRECT_OUTPUT 1
   )
-target_link_libraries(bppphyl-static ${LIBS})
+TARGET_LINK_LIBRARIES(bppphyl-static ${LIBS})
 
 # Build the shared lib
-add_library(bppphyl-shared SHARED ${CPP_FILES})
-set_target_properties(bppphyl-shared
+ADD_LIBRARY(bppphyl-shared SHARED ${CPP_FILES})
+SEt_TARGET_LIBRARY(bppphyl-shared
   PROPERTIES OUTPUT_NAME bpp-phyl
   CLEAN_DIRECT_OUTPUT 1
   VERSION ${BPPPHYL_VERSION}
   SOVERSION ${BPPPHYL_VERSION_MAJOR}
   )
-target_link_libraries(bppphyl-shared ${LIBS})
+TARGET_LINK_LIBRARIES(bppphyl-shared ${LIBS})
 
 # Install libs
-install(TARGETS bppphyl-static bppphyl-shared DESTINATION lib${LIB_SUFFIX})
+INSTALL(TARGETS bppphyl-static bppphyl-shared DESTINATION lib${LIB_SUFFIX})
 
 # Install headers
-install(DIRECTORY Bpp/ DESTINATION include/Bpp FILES_MATCHING PATTERN ".svn" EXCLUDE PATTERN "*.h" PATTERN "*.all")
+INSTALL(DIRECTORY Bpp/ DESTINATION include/Bpp FILES_MATCHING PATTERN "*.h")
+
+# Generate generic include files (.all)
+INSTALL(CODE "EXECUTE_PROCESS(COMMAND python ${CMAKE_SOURCE_DIR}/genIncludes.py ${CMAKE_PREFIX_PATH}/include/Bpp)")
+
