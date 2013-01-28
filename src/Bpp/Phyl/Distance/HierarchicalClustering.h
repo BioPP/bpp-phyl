@@ -94,6 +94,8 @@ public:
 
   virtual ~HierarchicalClustering() {}
 
+  HierarchicalClustering* clone() const { return new HierarchicalClustering(*this); }
+
 public:
   std::string getName() const { return "Hierarchical clustering: " + method_; }
 

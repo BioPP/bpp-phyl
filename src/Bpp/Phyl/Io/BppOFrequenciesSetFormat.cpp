@@ -52,6 +52,7 @@
 
 //From bpp-seq:
 #include <Bpp/Seq/App/SequenceApplicationTools.h>
+#include <Bpp/Seq/Container/SequenceContainerTools.h>
 
 using namespace bpp;
 
