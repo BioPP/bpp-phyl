@@ -128,6 +128,7 @@ double PseudoNewtonOptimizer::doStep() throw (Exception)
     //Correct the movement in case of constraint (this is used in case of Felsenstein-Churchill correction:
     movements[i] = getParameters()[i].getValue() - newPoint[i].getValue(); 
   }
+newPoint.printParameters(cout);
   newValue = getFunction()->f(newPoint);
 
   // Check newValue:

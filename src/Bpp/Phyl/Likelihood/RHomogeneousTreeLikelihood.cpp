@@ -5,7 +5,7 @@
 //
 
 /*
-   Copyright or © or Copr. CNRS, (November 16, 2004)
+   Copyright or © or Copr. Bio++ Development Team, (November 16, 2004)
 
    This software is a computer program whose purpose is to provide classes
    for phylogenetic data analysis.
@@ -196,10 +196,9 @@ double RHomogeneousTreeLikelihood::getLogLikelihoodForASite(size_t site) const
   double l = 0;
   for (size_t i = 0; i < nbClasses_; i++)
   {
-    l += getLikelihoodForASiteForARateClass(site, i) * rateDistribution_->getProbability(i);
+    double li = getLikelihoodForASiteForARateClass(site, i) * rateDistribution_->getProbability(i);
+    if (li > 0) l+= li; //Corrects for numerical instabilities leading to slightly negative likelihoods
   }
-  //if(l <= 0.) cerr << "WARNING!!! Negative likelihood." << endl;
-  if (l < 0) l = 0; //May happen because of numerical errors.
   return log(l);
 }
 
@@ -211,7 +210,9 @@ double RHomogeneousTreeLikelihood::getLikelihoodForASiteForARateClass(size_t sit
   Vdouble* la = &likelihoodData_->getLikelihoodArray(tree_->getRootNode()->getId())[likelihoodData_->getRootArrayPosition(site)][rateClass];
   for (size_t i = 0; i < nbStates_; i++)
   {
-    l += (*la)[i] * rootFreqs_[i];
+    //cout << (*la)[i] << "\t" << rootFreqs_[i] << endl;
+    double li = (*la)[i] * rootFreqs_[i];
+    if (li > 0) l+= li; //Corrects for numerical instabilities leading to slightly negative likelihoods
   }
   return l;
 }
