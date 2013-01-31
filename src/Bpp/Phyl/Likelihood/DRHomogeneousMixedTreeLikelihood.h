@@ -64,6 +64,11 @@ private:
   std::vector<DRHomogeneousTreeLikelihood*> treeLikelihoodsContainer_;
   std::vector<double> probas_;
 
+  // true if the root Array should be computed (for ancestral
+  // reconstruction)
+  
+  bool rootArray_;
+  
 public:
   /**
    * @brief Build a new DRHomogeneousMixedTreeLikelihood object without
@@ -86,7 +91,8 @@ public:
     SubstitutionModel* model,
     DiscreteDistribution* rDist,
     bool checkRooted = true,
-    bool verbose = true)
+    bool verbose = true,
+    bool rootArray = false)
   throw (Exception);
 
   /**
@@ -109,7 +115,8 @@ public:
     SubstitutionModel* model,
     DiscreteDistribution* rDist,
     bool checkRooted = true,
-    bool verbose = true)
+    bool verbose = true,
+    bool rootArray = false)
   throw (Exception);
 
   DRHomogeneousMixedTreeLikelihood(const DRHomogeneousMixedTreeLikelihood& lik);

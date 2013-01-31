@@ -56,10 +56,12 @@ DRHomogeneousMixedTreeLikelihood::DRHomogeneousMixedTreeLikelihood(
   SubstitutionModel* model,
   DiscreteDistribution* rDist,
   bool checkRooted,
-  bool verbose)  throw (Exception) :
+  bool verbose,
+  bool rootArray)  throw (Exception) :
   DRHomogeneousTreeLikelihood(tree, model, rDist, checkRooted, verbose),
   treeLikelihoodsContainer_(),
-  probas_()
+  probas_(),
+  rootArray_(rootArray)
 {
   MixedSubstitutionModel* mixedmodel;
 
@@ -81,11 +83,13 @@ DRHomogeneousMixedTreeLikelihood::DRHomogeneousMixedTreeLikelihood(
   SubstitutionModel* model,
   DiscreteDistribution* rDist,
   bool checkRooted,
-  bool verbose)
+  bool verbose,
+  bool rootArray)
 throw (Exception) :
   DRHomogeneousTreeLikelihood(tree, model, rDist, checkRooted, verbose),
   treeLikelihoodsContainer_(),
-  probas_()
+  probas_(),
+  rootArray_(rootArray)
 {
   MixedSubstitutionModel* mixedmodel;
 
@@ -148,6 +152,8 @@ void DRHomogeneousMixedTreeLikelihood::initialize() throw (Exception)
     treeLikelihoodsContainer_[i]->initialize();
   }
   DRHomogeneousTreeLikelihood::initialize();
+  if(rootArray_)
+    computeRootLikelihood();
 }
 
 void DRHomogeneousMixedTreeLikelihood::setData(const SiteContainer& sites) throw (Exception)
@@ -197,6 +203,8 @@ void DRHomogeneousMixedTreeLikelihood::computeTreeLikelihood()
   {
     treeLikelihoodsContainer_[i]->computeTreeLikelihood();
   }
+  if(rootArray_)
+    computeRootLikelihood();
 }
 
 /******************************************************************************
