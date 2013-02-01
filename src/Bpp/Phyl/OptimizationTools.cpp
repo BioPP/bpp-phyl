@@ -46,7 +46,12 @@
 
 #include <Bpp/App/ApplicationTools.h>
 #include <Bpp/Numeric/ParameterList.h>
-#include <Bpp/Numeric/Function.all>
+#include <Bpp/Numeric/Function/BfgsMultiDimensions.h>
+#include <Bpp/Numeric/Function/ReparametrizationFunctionWrapper.h>
+#include <Bpp/Numeric/Function/ThreePointsNumericalDerivative.h>
+#include <Bpp/Numeric/Function/ConjugateGradientMultiDimensions.h>
+#include <Bpp/Numeric/Function/TwoPointsNumericalDerivative.h>
+#include <Bpp/Numeric/Function/DownhillSimplexMethod.h>
 
 // From bpp-seq:
 #include <Bpp/Seq/Io/Fasta.h>
