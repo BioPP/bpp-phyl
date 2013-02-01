@@ -111,7 +111,7 @@ throw (Exception) :
 DRHomogeneousMixedTreeLikelihood& DRHomogeneousMixedTreeLikelihood::operator=(const DRHomogeneousMixedTreeLikelihood& lik)
 {
   DRHomogeneousTreeLikelihood::operator=(lik);
-
+  
   treeLikelihoodsContainer_.clear();
   probas_.clear();
 
@@ -121,13 +121,16 @@ DRHomogeneousMixedTreeLikelihood& DRHomogeneousMixedTreeLikelihood::operator=(co
     probas_.push_back(lik.probas_[i]);
   }
 
+  rootArray_=lik.rootArray_;
+
   return *this;
 }
 
 DRHomogeneousMixedTreeLikelihood::DRHomogeneousMixedTreeLikelihood(const DRHomogeneousMixedTreeLikelihood& lik) :
   DRHomogeneousTreeLikelihood(lik),
   treeLikelihoodsContainer_(lik.treeLikelihoodsContainer_.size()),
-  probas_(lik.probas_.size())
+  probas_(lik.probas_.size()),
+  rootArray_(lik.rootArray_)
 {
   for (unsigned int i = 0; i < treeLikelihoodsContainer_.size(); i++)
   {
