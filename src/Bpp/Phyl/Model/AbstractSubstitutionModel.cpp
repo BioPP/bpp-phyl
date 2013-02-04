@@ -440,7 +440,6 @@ void AbstractSubstitutionModel::addRateParameter()
 
 void AbstractReversibleSubstitutionModel::updateMatrices()
 {
-  cout << "update matrices in abstract rev" << endl;
   RowMatrix<double> Pi;
   MatrixTools::diag(freq_, Pi);
   MatrixTools::mult(exchangeability_, Pi, generator_); // Diagonal elements of the exchangability matrix will be ignored.
