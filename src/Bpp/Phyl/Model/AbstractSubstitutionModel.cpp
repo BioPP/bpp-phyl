@@ -90,7 +90,7 @@ void AbstractSubstitutionModel::updateMatrices()
   // computes the exchangeability_ Matrix (otherwise the generator_
   // has been computed from the exchangeability_)
 
-  if (dynamic_cast<AbstractReversibleSubstitutionModel*>(this) == NULL)
+  if (!dynamic_cast<AbstractReversibleSubstitutionModel*>(this)) {
     for (size_t i = 0; i < size_; i++)
     {
       for (size_t j = 0; j < size_; j++)
@@ -98,6 +98,7 @@ void AbstractSubstitutionModel::updateMatrices()
         exchangeability_(i, j) = generator_(i, j) / freq_[j];
       }
     }
+  }
 
   // Compute eigen values and vectors:
   if (enableEigenDecomposition())
@@ -119,7 +120,7 @@ void AbstractSubstitutionModel::updateMatrices()
     }
     catch (ZeroDivisionException& e)
     {
-      ApplicationTools::displayMessage("Singularity during  diagonalization. Taylor series used instead.");
+      ApplicationTools::displayMessage("Singularity during diagonalization. Taylor series used instead.");
 
       isNonSingular_ = false;
       isDiagonalizable_ = false;
@@ -198,6 +199,7 @@ const Matrix<double>& AbstractSubstitutionModel::getPij_t(double t) const
       m--;
     }
   }
+  //MatrixTools::print(pijt_);
   return pijt_;
 }
 
@@ -438,6 +440,7 @@ void AbstractSubstitutionModel::addRateParameter()
 
 void AbstractReversibleSubstitutionModel::updateMatrices()
 {
+  cout << "update matrices in abstract rev" << endl;
   RowMatrix<double> Pi;
   MatrixTools::diag(freq_, Pi);
   MatrixTools::mult(exchangeability_, Pi, generator_); // Diagonal elements of the exchangability matrix will be ignored.

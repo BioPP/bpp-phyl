@@ -101,7 +101,7 @@ double PseudoNewtonOptimizer::doStep() throw (Exception)
   // Compute derivative at current point:
   std::vector<double> movements(n_);
   ParameterList newPoint = getParameters();
-  for (unsigned int i = 0; i < n_; i++)
+  for (size_t i = 0; i < n_; i++)
   {
     double  firstOrderDerivative = getFunction()->getFirstOrderDerivative(params_[i]);
     double secondOrderDerivative = getFunction()->getSecondOrderDerivative(params_[i]);
@@ -128,7 +128,6 @@ double PseudoNewtonOptimizer::doStep() throw (Exception)
     //Correct the movement in case of constraint (this is used in case of Felsenstein-Churchill correction:
     movements[i] = getParameters()[i].getValue() - newPoint[i].getValue(); 
   }
-newPoint.printParameters(cout);
   newValue = getFunction()->f(newPoint);
 
   // Check newValue:
