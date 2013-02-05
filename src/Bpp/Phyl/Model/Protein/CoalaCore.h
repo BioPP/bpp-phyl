@@ -42,7 +42,8 @@
 #define _COALACORE_H_
 
 // From Core:
-#include <Bpp/Numeric/Matrix.all>
+#include <Bpp/Numeric/Matrix/Matrix.h>
+
 #include <Bpp/Numeric/ParameterList.h>
 // From SeqLib:
 #include <Bpp/Seq/Alphabet/ProteicAlphabet.h>

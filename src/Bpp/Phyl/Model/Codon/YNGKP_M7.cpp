@@ -40,7 +40,7 @@
 #include "YN98.h"
 
 #include <Bpp/Numeric/NumConstants.h>
-#include <Bpp/Numeric/Prob/SimpleDiscreteDistribution.h>
+#include <Bpp/Numeric/Prob/BetaDiscreteDistribution.h>
 
 #include <Bpp/Text/TextTools.h>
 

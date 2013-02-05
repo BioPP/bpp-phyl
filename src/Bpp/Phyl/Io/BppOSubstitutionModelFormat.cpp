@@ -99,10 +99,15 @@
 #include "BppOFrequenciesSetFormat.h"
 
 #include <Bpp/Seq/App/SequenceApplicationTools.h>
+#include <Bpp/Seq/Alphabet/AlphabetTools.h>
+
 #include <Bpp/Io/OutputStream.h>
 #include <Bpp/Io/BppOParametrizableFormat.h>
 #include <Bpp/Io/BppODiscreteDistributionFormat.h>
-#include <Bpp/Numeric/Prob.all>
+
+//From Numeric
+
+#include <Bpp/Numeric/Prob/ConstantDistribution.h>
 #include <Bpp/Numeric/AutoParameter.h>
 
 using namespace bpp;
