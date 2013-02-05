@@ -71,10 +71,10 @@ class FullProteinFrequenciesSet :
   public FullFrequenciesSet
 {
 public:
-  FullProteinFrequenciesSet(const ProteicAlphabet* alphabet, bool allowNullFreqs = false, const std::string& name = "Full") :
-    FullFrequenciesSet(alphabet, allowNullFreqs, name) {}
-  FullProteinFrequenciesSet(const ProteicAlphabet* alphabet, const std::vector<double>& initFreqs, bool allowNullFreqs = false, const std::string& name = "Full") :
-    FullFrequenciesSet(alphabet, initFreqs, allowNullFreqs, name) {}
+  FullProteinFrequenciesSet(const ProteicAlphabet* alphabet, bool allowNullFreqs = false, unsigned short method = 1, const std::string& name = "Full") :
+    FullFrequenciesSet(alphabet, allowNullFreqs, method, name) {}
+  FullProteinFrequenciesSet(const ProteicAlphabet* alphabet, const std::vector<double>& initFreqs, bool allowNullFreqs = false, unsigned short method = 1, const std::string& name = "Full") :
+    FullFrequenciesSet(alphabet, initFreqs, allowNullFreqs, method, name) {}
 
 #ifndef NO_VIRTUAL_COV
   FullProteinFrequenciesSet*
