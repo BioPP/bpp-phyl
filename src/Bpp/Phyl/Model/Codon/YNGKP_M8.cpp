@@ -39,7 +39,9 @@
 #include "YNGKP_M8.h"
 #include "YN98.h"
 
-#include <Bpp/Numeric/Prob.all>
+#include <Bpp/Numeric/Prob/MixtureOfDiscreteDistributions.h>
+#include <Bpp/Numeric/Prob/SimpleDiscreteDistribution.h>
+#include <Bpp/Numeric/Prob/BetaDiscreteDistribution.h>
 #include <Bpp/Text/TextTools.h>
 
 using namespace bpp;

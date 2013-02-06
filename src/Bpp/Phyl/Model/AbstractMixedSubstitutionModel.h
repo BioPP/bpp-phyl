@@ -42,7 +42,7 @@
 
 #include "MixedSubstitutionModel.h"
 #include "AbstractSubstitutionModel.h"
-#include <Bpp/Seq/Alphabet.all>
+// #include <Bpp/Seq/Alphabet.all>
 
 #include <vector>
 #include <string>

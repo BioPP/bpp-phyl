@@ -40,7 +40,7 @@
 #define _MIXEDSUBSTITUTIONMODEL_H_
 
 #include "SubstitutionModel.h"
-#include <Bpp/Seq/Alphabet.all>
+// #include <Bpp/Seq/Alphabet.all>
 
 #include <vector>
 #include <string>

@@ -40,7 +40,8 @@
 #define _MIXTUREOFASUBSTITUTIONMODEL_H_
 
 #include "AbstractMixedSubstitutionModel.h"
-#include <Bpp/Numeric/Prob.all>
+
+#include <Bpp/Numeric/Prob/DiscreteDistribution.h>
 #include <Bpp/Numeric/VectorTools.h>
 
 #include <vector>

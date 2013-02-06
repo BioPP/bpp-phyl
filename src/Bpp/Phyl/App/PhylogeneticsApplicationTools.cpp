@@ -60,8 +60,13 @@
 #include <Bpp/App/ApplicationTools.h>
 #include <Bpp/Text/StringTokenizer.h>
 #include <Bpp/Text/KeyvalTools.h>
-#include <Bpp/Numeric/Prob.all>
-#include <Bpp/Numeric/Function.all>
+
+// From Numeric
+
+#include <Bpp/Numeric/AutoParameter.h>
+#include <Bpp/Numeric/Prob/DirichletDiscreteDistribution.h>
+#include <Bpp/Numeric/Function/DownhillSimplexMethod.h>
+#include <Bpp/Numeric/Function/PowellMultiDimensions.h>
 
 
 // From SeqLib:

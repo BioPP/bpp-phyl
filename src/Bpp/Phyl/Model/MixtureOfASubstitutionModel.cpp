@@ -39,6 +39,9 @@
 #include "MixtureOfASubstitutionModel.h"
 
 #include <Bpp/Numeric/NumConstants.h>
+
+#include <Bpp/Numeric/Prob/ConstantDistribution.h>
+
 #include <Bpp/Exceptions.h>
 
 #include <string>
