@@ -779,7 +779,7 @@ SubstitutionModel* BppOSubstitutionModelFormat::readWord_(const Alphabet* alphab
       if (pgc->getSourceAlphabet()->getAlphabetType() != pCA->getAlphabetType())
         throw Exception("Mismatch between genetic code and codon alphabet");
 
-      pai2.reset((args.find("aadistance") == args.end()) ? 0 : SequenceApplicationTools::getAADistance(args["aadistance"]));
+      pai2.reset((args.find("aadistance") == args.end()) ? 0 : SequenceApplicationTools::getAlphabetDistance(&AlphabetTools::PROTEIN_ALPHABET, args["aadistance"]));
     }
 
 
