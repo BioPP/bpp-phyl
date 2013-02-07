@@ -44,9 +44,9 @@
 #include <Bpp/Numeric/AbstractParameterAliasable.h>
 
 
-// From SeqLib:
+// From bpp-seq:
 #include <Bpp/Seq/GeneticCode/GeneticCode.h>
-#include <Bpp/Seq/StateProperties/AlphabetIndex2.h>
+#include <Bpp/Seq/AlphabetIndex/AlphabetIndex2.h>
 
 namespace bpp
 {
@@ -86,7 +86,7 @@ class AbstractCodonDistanceSubstitutionModel :
 {
 private:
   const GeneticCode* geneticCode_;
-  const AlphabetIndex2<double>* pdistance_;
+  const AlphabetIndex2* pdistance_;
 
   double alpha_, beta_;
 
@@ -105,7 +105,7 @@ public:
 
   AbstractCodonDistanceSubstitutionModel(
     const GeneticCode* palph,
-    const AlphabetIndex2<double>* pdist,
+    const AlphabetIndex2* pdist,
     const std::string& prefix,
     bool paramSynRate = false);
 

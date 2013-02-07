@@ -47,7 +47,7 @@ using namespace std;
 CodonDistanceFrequenciesSubstitutionModel::CodonDistanceFrequenciesSubstitutionModel(const GeneticCode* palph,
                                                                                      NucleotideSubstitutionModel* pmod,
                                                                                      FrequenciesSet* pfreq,
-                                                                                     const AlphabetIndex2<double>* pdist,
+                                                                                     const AlphabetIndex2* pdist,
                                                                                      bool paramSynRate) :
   AbstractParameterAliasable("CodonDistFreq."),
   AbstractSubstitutionModel(dynamic_cast<const CodonAlphabet*>(palph->getSourceAlphabet()), "CodonDistFreq."),
@@ -64,7 +64,7 @@ CodonDistanceFrequenciesSubstitutionModel::CodonDistanceFrequenciesSubstitutionM
                                                                                      NucleotideSubstitutionModel* pmod2,
                                                                                      NucleotideSubstitutionModel* pmod3,
                                                                                      FrequenciesSet* pfreq,
-                                                                                     const AlphabetIndex2<double>* pdist,
+                                                                                     const AlphabetIndex2* pdist,
                                                                                      bool paramSynRate) :
   AbstractParameterAliasable("CodonDistFreq."),
   AbstractSubstitutionModel(dynamic_cast<const CodonAlphabet*>(palph->getSourceAlphabet()), "CodonDistFreq."),

@@ -760,7 +760,7 @@ SubstitutionModel* BppOSubstitutionModelFormat::readWord_(const Alphabet* alphab
     if (pCA == 0)
       throw Exception("Non codon Alphabet fo model" + modelName + " model.");
 
-    auto_ptr< AlphabetIndex2<double> > pai2;
+    auto_ptr< AlphabetIndex2 > pai2;
     auto_ptr<GeneticCode> pgc;
     auto_ptr<FrequenciesSet> pFS;
 
@@ -779,7 +779,7 @@ SubstitutionModel* BppOSubstitutionModelFormat::readWord_(const Alphabet* alphab
       if (pgc->getSourceAlphabet()->getAlphabetType() != pCA->getAlphabetType())
         throw Exception("Mismatch between genetic code and codon alphabet");
 
-      pai2.reset((args.find("aadistance") == args.end()) ? 0 : SequenceApplicationTools::getAlphabetDistance(&AlphabetTools::PROTEIN_ALPHABET, args["aadistance"]));
+      pai2.reset((args.find("aadistance") == args.end()) ? 0 : SequenceApplicationTools::getAlphabetIndex2(&AlphabetTools::PROTEIN_ALPHABET, args["aadistance"]));
     }
 
 

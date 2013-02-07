@@ -95,7 +95,7 @@ public:
   CodonDistancePhaseFrequenciesSubstitutionModel(const GeneticCode* palph,
                                             NucleotideSubstitutionModel* pmod,
                                             FrequenciesSet* pfreq,
-                                            const AlphabetIndex2<double>* pdist = 0);
+                                            const AlphabetIndex2* pdist = 0);
 
   /**
    * @brief Build a new CodonDistancePhaseFrequenciesSubstitutionModel object
@@ -115,7 +115,7 @@ public:
                                             NucleotideSubstitutionModel* pmod2,
                                             NucleotideSubstitutionModel* pmod3,
                                             FrequenciesSet* pfreq,
-                                            const AlphabetIndex2<double>* pdist = 0);
+                                            const AlphabetIndex2* pdist = 0);
 
   CodonDistancePhaseFrequenciesSubstitutionModel(
     const CodonDistancePhaseFrequenciesSubstitutionModel& model) :

@@ -1447,13 +1447,13 @@ SubstitutionCount* PhylogeneticsApplicationTools::getSubstitutionCount(
   else if (nijtOption == "Uniformization")
   {
     string weightOption = ApplicationTools::getStringParameter("weight", nijtParams, "None", "", true, false);
-    AlphabetIndex2<double>* weights = SequenceApplicationTools::getAlphabetDistance(alphabet, weightOption, "Substitution weight scheme:");
+    AlphabetIndex2* weights = SequenceApplicationTools::getAlphabetIndex2(alphabet, weightOption, "Substitution weight scheme:");
     substitutionCount = new UniformizationSubstitutionCount(model, new TotalSubstitutionRegister(alphabet), weights);
   }
   else if (nijtOption == "Decomposition")
   {
     string weightOption = ApplicationTools::getStringParameter("weight", nijtParams, "None", "", true, false);
-    AlphabetIndex2<double>* weights = SequenceApplicationTools::getAlphabetDistance(alphabet, weightOption, "Substitution weight scheme:");
+    AlphabetIndex2* weights = SequenceApplicationTools::getAlphabetIndex2(alphabet, weightOption, "Substitution weight scheme:");
     const ReversibleSubstitutionModel* revModel = dynamic_cast<const ReversibleSubstitutionModel*>(model);
     if (revModel)
       substitutionCount = new DecompositionSubstitutionCount(revModel, new TotalSubstitutionRegister(alphabet), weights);
@@ -1463,7 +1463,7 @@ SubstitutionCount* PhylogeneticsApplicationTools::getSubstitutionCount(
   else if (nijtOption == "Naive")
   {
     string weightOption = ApplicationTools::getStringParameter("weight", nijtParams, "None", "", true, false);
-    AlphabetIndex2<double>* weights = SequenceApplicationTools::getAlphabetDistance(alphabet, weightOption, "Substitution weight scheme:");
+    AlphabetIndex2* weights = SequenceApplicationTools::getAlphabetIndex2(alphabet, weightOption, "Substitution weight scheme:");
     substitutionCount = new NaiveSubstitutionCount(new TotalSubstitutionRegister(alphabet), false, weights);
   }
   else if (nijtOption == "Label")

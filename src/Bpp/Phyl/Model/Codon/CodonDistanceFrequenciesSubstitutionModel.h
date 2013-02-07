@@ -106,7 +106,7 @@ public:
   CodonDistanceFrequenciesSubstitutionModel(const GeneticCode* palph,
                                             NucleotideSubstitutionModel* pmod,
                                             FrequenciesSet* pfreq,
-                                            const AlphabetIndex2<double>* pdist = 0,
+                                            const AlphabetIndex2* pdist = 0,
                                             bool paramSynRate = false);
 
   /**
@@ -130,7 +130,7 @@ public:
                                             NucleotideSubstitutionModel* pmod2,
                                             NucleotideSubstitutionModel* pmod3,
                                             FrequenciesSet* pfreq,
-                                            const AlphabetIndex2<double>* pdist = 0,
+                                            const AlphabetIndex2* pdist = 0,
                                             bool paramSynRate = false);
 
 

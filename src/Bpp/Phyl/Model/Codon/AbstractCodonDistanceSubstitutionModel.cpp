@@ -47,7 +47,7 @@ using namespace std;
 
 AbstractCodonDistanceSubstitutionModel::AbstractCodonDistanceSubstitutionModel(
   const GeneticCode* palph,
-  const AlphabetIndex2<double>* pdist,
+  const AlphabetIndex2* pdist,
   const std::string& prefix,
   bool paramSynRate) :
   CodonSubstitutionModel(),

@@ -47,7 +47,7 @@ using namespace std;
 
 /******************************************************************************/
 
-DecompositionSubstitutionCount::DecompositionSubstitutionCount(const ReversibleSubstitutionModel* model, SubstitutionRegister* reg, const AlphabetIndex2<double>* weights) :
+DecompositionSubstitutionCount::DecompositionSubstitutionCount(const ReversibleSubstitutionModel* model, SubstitutionRegister* reg, const AlphabetIndex2* weights) :
   AbstractSubstitutionCount(reg),
   AbstractWeightedSubstitutionCount(weights, true),
   model_(model),
