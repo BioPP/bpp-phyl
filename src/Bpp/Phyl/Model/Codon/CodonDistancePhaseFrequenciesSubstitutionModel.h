@@ -90,7 +90,7 @@ public:
    * @param pmod pointer to the NucleotideSubstitutionModel to use in
    *        the three positions. It is owned by the instance.
    * @param pfreq pointer to the FrequenciesSet* equilibrium frequencies
-   * @param pdist optional pointer to the AlphabetIndex2<double> amino-acids distance object.
+   * @param pdist optional pointer to the AlphabetIndex2 amino-acids distance object.
    */
   CodonDistancePhaseFrequenciesSubstitutionModel(const GeneticCode* palph,
                                             NucleotideSubstitutionModel* pmod,
@@ -108,7 +108,7 @@ public:
    *   All the models must be different objects to avoid redundant
    *   parameters.  They are owned by the instance.
    * @param pfreq pointer to the FrequenciesSet* equilibrium frequencies
-   * @param pdist optional pointer to the AlphabetIndex2<double> amino-acids distance object.
+   * @param pdist optional pointer to the AlphabetIndex2 amino-acids distance object.
    */
   CodonDistancePhaseFrequenciesSubstitutionModel(const GeneticCode* palph,
                                             NucleotideSubstitutionModel* pmod1,
