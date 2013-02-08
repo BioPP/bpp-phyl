@@ -223,7 +223,7 @@ SubstitutionModel* BppOSubstitutionModelFormat::read(const Alphabet* alphabet,
   else if (modelName == "gBGC")
   {
     if (!(alphabetCode_ & NUCLEOTIDE))
-      throw Exception("BppOSubstitutionModelFormat::read. Nulceotide alphabet not supported.");
+      throw Exception("BppOSubstitutionModelFormat::read. Nucleotide alphabet not supported.");
     // We have to parse the nested model first:
     string nestedModelDescription = args["model"];
     if (TextTools::isEmpty(nestedModelDescription))
@@ -510,25 +510,37 @@ SubstitutionModel* BppOSubstitutionModelFormat::read(const Alphabet* alphabet,
     else
     {
       if (!(alphabetCode_ & PROTEIN))
-        throw Exception("BppOSubstitutionModelFormat::read. Nulceotide alphabet not supported.");
+        throw Exception("BppOSubstitutionModelFormat::read. Protein alphabet not supported.");
       const ProteicAlphabet* alpha = dynamic_cast<const ProteicAlphabet*>(alphabet);
 
-      if (modelName == "JC69+F")
-        model.reset(new JCprot(alpha, new FullProteinFrequenciesSet(alpha), true));
-      else if (modelName == "DSO78+F")
-        model.reset(new DSO78(alpha, new FullProteinFrequenciesSet(alpha), true));
-      else if (modelName == "JTT92+F")
-        model.reset(new JTT92(alpha, new FullProteinFrequenciesSet(alpha), true));
-      else if (modelName == "LG08+F")
-        model.reset(new LG08(alpha, new FullProteinFrequenciesSet(alpha), true));
-      else if (modelName == "WAG01+F")
-        model.reset(new WAG01(alpha, new FullProteinFrequenciesSet(alpha), true));
-      else if (modelName == "Empirical+F")
-      {
-        string prefix = args["name"];
-        if (TextTools::isEmpty(prefix))
-          throw Exception("'name' argument missing for user-defined substitution model.");
-        model.reset(new UserProteinSubstitutionModel(alpha, args["file"], new FullProteinFrequenciesSet(alpha), prefix + "+F.", true));
+      if (modelName.find("+F")!=string::npos){
+        string freqOpt = ApplicationTools::getStringParameter("frequencies", args, "Full", "", true, verbose_);
+        BppOFrequenciesSetFormat freqReader(BppOFrequenciesSetFormat::ALL, verbose_);
+        auto_ptr<FrequenciesSet> protFreq(freqReader.read(alpha, freqOpt, data, true));
+        map<string, string> unparsedParameterValuesNested(freqReader.getUnparsedArguments());
+
+        for (map<string, string>::iterator it = unparsedParameterValuesNested.begin(); it != unparsedParameterValuesNested.end(); it++)
+          {
+            unparsedArguments_[modelName + "." + it->first] = it->second;
+          }
+        
+        if (modelName == "JC69+F")
+          model.reset(new JCprot(alpha, dynamic_cast<ProteinFrequenciesSet*>(protFreq.release()), true));
+        else if (modelName == "DSO78+F")
+          model.reset(new DSO78(alpha, dynamic_cast<ProteinFrequenciesSet*>(protFreq.release()), true));
+        else if (modelName == "JTT92+F")
+          model.reset(new JTT92(alpha, dynamic_cast<ProteinFrequenciesSet*>(protFreq.release()), true));
+        else if (modelName == "LG08+F")
+          model.reset(new LG08(alpha, dynamic_cast<ProteinFrequenciesSet*>(protFreq.release()), true));
+        else if (modelName == "WAG01+F")
+          model.reset(new WAG01(alpha, dynamic_cast<ProteinFrequenciesSet*>(protFreq.release()), true));
+        else if (modelName == "Empirical+F")
+          {
+            string prefix = args["name"];
+            if (TextTools::isEmpty(prefix))
+              throw Exception("'name' argument missing for user-defined substitution model.");
+            model.reset(new UserProteinSubstitutionModel(alpha, args["file"], dynamic_cast<ProteinFrequenciesSet*>(protFreq.release()), prefix + "+F.", true));
+          }
       }
       else if (modelName == "JC69")
         model.reset(new JCprot(alpha));
