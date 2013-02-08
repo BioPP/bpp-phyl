@@ -69,7 +69,7 @@ class UniformizationSubstitutionCount:
     mutable double currentLength_;
 	
 	public:
-		UniformizationSubstitutionCount(const SubstitutionModel* model, SubstitutionRegister* reg, const AlphabetIndex2<double>* weights = NULL);
+		UniformizationSubstitutionCount(const SubstitutionModel* model, SubstitutionRegister* reg, const AlphabetIndex2* weights = 0);
 		
     UniformizationSubstitutionCount(const UniformizationSubstitutionCount& usc) :
       AbstractSubstitutionCount(usc), 

@@ -103,14 +103,14 @@ namespace bpp
                                   NucleotideSubstitutionModel* pmod,
                                   FrequenciesSet* pfit,
                                   FrequenciesSet* pfreq,
-                                  const AlphabetIndex2<double>* pdist = 0);
+                                  const AlphabetIndex2* pdist = 0);
     CodonDistanceFitnessPhaseFrequenciesSubstitutionModel(const GeneticCode* palph,
                                   NucleotideSubstitutionModel* pmod1,
                                   NucleotideSubstitutionModel* pmod2,
                                   NucleotideSubstitutionModel* pmod3,
                                   FrequenciesSet* pfit,
                                   FrequenciesSet* pfreq,
-                                  const AlphabetIndex2<double>* pdist = 0);
+                                  const AlphabetIndex2* pdist = 0);
 
     CodonDistanceFitnessPhaseFrequenciesSubstitutionModel(const CodonDistanceFitnessPhaseFrequenciesSubstitutionModel& model) :
       AbstractParameterAliasable(model),

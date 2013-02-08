@@ -98,7 +98,7 @@ public:
    * @param pmod pointer to the NucleotideSubstitutionModel to use in
    *        the three positions. It is owned by the instance.
    * @param pfreq pointer to the FrequenciesSet* equilibrium frequencies
-   * @param pdist optional pointer to the AlphabetIndex2<double> amino-acids
+   * @param pdist optional pointer to the AlphabetIndex2 amino-acids
    *        distance object.
    * @param paramSynRate is true iff synonymous rate is parametrised
    *        (default=false).
@@ -106,7 +106,7 @@ public:
   CodonDistanceFrequenciesSubstitutionModel(const GeneticCode* palph,
                                             NucleotideSubstitutionModel* pmod,
                                             FrequenciesSet* pfreq,
-                                            const AlphabetIndex2<double>* pdist = 0,
+                                            const AlphabetIndex2* pdist = 0,
                                             bool paramSynRate = false);
 
   /**
@@ -120,7 +120,7 @@ public:
    *   All the models must be different objects to avoid redundant
    *   parameters.  They are owned by the instance.
    * @param pfreq pointer to the FrequenciesSet* equilibrium frequencies
-   * @param pdist optional pointer to the AlphabetIndex2<double> amino-acids
+   * @param pdist optional pointer to the AlphabetIndex2 amino-acids
    *   distance object.
    * @param paramSynRate is true iff synonymous rate is parametrised
    *   (default=false).
@@ -130,7 +130,7 @@ public:
                                             NucleotideSubstitutionModel* pmod2,
                                             NucleotideSubstitutionModel* pmod3,
                                             FrequenciesSet* pfreq,
-                                            const AlphabetIndex2<double>* pdist = 0,
+                                            const AlphabetIndex2* pdist = 0,
                                             bool paramSynRate = false);
 
 

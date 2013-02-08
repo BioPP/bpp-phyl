@@ -5,7 +5,7 @@
 //
 
 /*
-Copyright or © or Copr. CNRS, (November 16, 2004)
+Copyright or © or Copr. Bio++ Development Team, (November 16, 2004)
 
 This software is a computer program whose purpose is to provide classes
 for phylogenetic data analysis.
@@ -42,7 +42,7 @@ knowledge of the CeCILL license and that you accept its terms.
 
 #include "../AbstractBiblioSubstitutionModel.h"
 #include "CodonDistanceFrequenciesSubstitutionModel.h"
-#include <Bpp/Seq/StateProperties/GranthamAAChemicalDistance.h>
+#include <Bpp/Seq/AlphabetIndex/GranthamAAChemicalDistance.h>
 
 namespace bpp
 {

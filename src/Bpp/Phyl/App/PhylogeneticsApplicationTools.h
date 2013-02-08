@@ -48,6 +48,7 @@
 #include "../Model/MarkovModulatedSubstitutionModel.h"
 #include "../Likelihood/HomogeneousTreeLikelihood.h"
 #include "../Likelihood/ClockTreeLikelihood.h"
+#include "../Mapping/SubstitutionCount.h"
 #include <Bpp/Text/TextTools.h>
 #include <Bpp/Text/StringTokenizer.h>
 #include <Bpp/Io/OutputStream.h>
@@ -528,6 +529,20 @@ namespace bpp
      * @param pl A list of parameters. Parameters without constraint will be ignored.
      */
     static void checkEstimatedParameters(const ParameterList& pl);
+
+    /**
+     * @brief Get a SubstitutionCount instance.
+     *
+     * @param alphabet The alphabet to use.
+     * @param model The model to use.
+     * @param suffix Optional suffix for command name.
+     */
+    static SubstitutionCount* getSubstitutionCount(
+        const Alphabet* alphabet,
+        const SubstitutionModel* model,
+        map<string, string>& params,
+        string suffix = "");
+   
     /**
      * @brief Write a tree according to options.
      *

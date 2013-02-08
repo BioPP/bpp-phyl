@@ -211,7 +211,7 @@ TreeTemplateTools::Element TreeTemplateTools::getElement(const string& elt) thro
     {
       // this is an element with length:
       elt2 = elt.substr(0, colonIndex);
-      element.length = elt.substr(colonIndex + 1);
+      element.length = TextTools::removeSurroundingWhiteSpaces(elt.substr(colonIndex + 1));
     }
     else
     {
@@ -232,8 +232,8 @@ TreeTemplateTools::Element TreeTemplateTools::getElement(const string& elt) thro
       // This is a node:
       if (lastP < firstP)
         throw IOException("TreeTemplateTools::getElement(). Invalid format: bad closing parenthesis in " + elt2);
-      element.content = elt2.substr(firstP + 1, lastP - firstP - 1);
-      string bootstrap = elt2.substr(lastP + 1);
+      element.content = TextTools::removeSurroundingWhiteSpaces(elt2.substr(firstP + 1, lastP - firstP - 1));
+      string bootstrap = TextTools::removeSurroundingWhiteSpaces(elt2.substr(lastP + 1));
       // cout << "ELEMENT: BOOTSTRAP: " << bootstrap << endl;
       if (!TextTools::isEmpty(bootstrap))
       {

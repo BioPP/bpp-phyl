@@ -84,7 +84,7 @@ namespace bpp
      */
     CodonDistanceSubstitutionModel(const GeneticCode* palph,
                                    NucleotideSubstitutionModel* pmod,
-                                   const AlphabetIndex2<double>* pdist);
+                                   const AlphabetIndex2* pdist);
 
     /**
      * @brief Build a new CodonDistanceSubstitutionModel object
@@ -96,14 +96,14 @@ namespace bpp
      *   Either all the models are different objects to avoid parameters
      *   redondancy, or only the first model is used in every position.
      *   The used models are owned by the instance.
-     * @param pdist optional pointer to the AlphabetIndex2<double> amino-acids distance object.
+     * @param pdist optional pointer to the AlphabetIndex2 amino-acids distance object.
      */
   
     CodonDistanceSubstitutionModel(const GeneticCode* palph,
                                    NucleotideSubstitutionModel* pmod1,
                                    NucleotideSubstitutionModel* pmod2,
                                    NucleotideSubstitutionModel* pmod3,
-                                   const AlphabetIndex2<double>* pdist);
+                                   const AlphabetIndex2* pdist);
 
     CodonDistanceSubstitutionModel(const CodonDistanceSubstitutionModel& model) :
       AbstractParameterAliasable(model),

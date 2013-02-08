@@ -69,7 +69,7 @@ class DecompositionSubstitutionCount:
     mutable double currentLength_;
 	
 	public:
-		DecompositionSubstitutionCount(const ReversibleSubstitutionModel* model, SubstitutionRegister* reg, const AlphabetIndex2<double>* weights = NULL);
+		DecompositionSubstitutionCount(const ReversibleSubstitutionModel* model, SubstitutionRegister* reg, const AlphabetIndex2* weights = 0);
 		
     DecompositionSubstitutionCount(const DecompositionSubstitutionCount& dsc) :
       AbstractSubstitutionCount(dsc),

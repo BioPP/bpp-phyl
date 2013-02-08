@@ -44,7 +44,7 @@ knowledge of the CeCILL license and that you accept its terms.
 
 // From SeqLib:
 #include <Bpp/Seq/Alphabet/Alphabet.h>
-#include <Bpp/Seq/StateProperties/AlphabetIndex2.h>
+#include <Bpp/Seq/AlphabetIndex/AlphabetIndex2.h>
 
 namespace bpp
 {
@@ -56,9 +56,9 @@ class WeightedSubstitutionCount:
   public virtual SubstitutionCount
 {
   public:
-    virtual void setWeights(const AlphabetIndex2<double>* index, bool ownWeights) = 0;
+    virtual void setWeights(const AlphabetIndex2* index, bool ownWeights) = 0;
     virtual bool hasWeights() const = 0;
-    virtual const AlphabetIndex2<double>* getWeights() const = 0;
+    virtual const AlphabetIndex2* getWeights() const = 0;
 };
 
 /**
@@ -68,11 +68,11 @@ class AbstractWeightedSubstitutionCount:
   public virtual WeightedSubstitutionCount
 {
 	protected:
-		const AlphabetIndex2<double>* weights_;
+		const AlphabetIndex2* weights_;
 		bool ownWeights_;
 	
 	public:
-		AbstractWeightedSubstitutionCount(const AlphabetIndex2<double>* weights, bool ownWeights) :
+		AbstractWeightedSubstitutionCount(const AlphabetIndex2* weights, bool ownWeights) :
       weights_(weights),
       ownWeights_(ownWeights)
     {
@@ -83,13 +83,13 @@ class AbstractWeightedSubstitutionCount:
       ownWeights_(index.ownWeights_)
     {
       if (ownWeights_)
-        weights_ = dynamic_cast<AlphabetIndex2<double>*>(index.weights_->clone());
+        weights_ = dynamic_cast<AlphabetIndex2*>(index.weights_->clone());
     }
 
     AbstractWeightedSubstitutionCount& operator=(const AbstractWeightedSubstitutionCount& index)
     {
       ownWeights_ = index.ownWeights_;
-      if (ownWeights_) weights_ = dynamic_cast<AlphabetIndex2<double>*>(index.weights_->clone());
+      if (ownWeights_) weights_ = dynamic_cast<AlphabetIndex2*>(index.weights_->clone());
       else weights_ = index.weights_;
       
       return *this;
@@ -102,9 +102,9 @@ class AbstractWeightedSubstitutionCount:
 		}
 		
   public:
-    void setWeights(const AlphabetIndex2<double>* weights, bool ownWeights);
+    void setWeights(const AlphabetIndex2* weights, bool ownWeights);
     bool hasWeights() const { return weights_ != 0; }
-    const AlphabetIndex2<double>* getWeights() const { return weights_; }
+    const AlphabetIndex2* getWeights() const { return weights_; }
 
   protected:
     virtual void weightsHaveChanged() = 0;

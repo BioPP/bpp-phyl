@@ -41,7 +41,7 @@ knowledge of the CeCILL license and that you accept its terms.
 
 using namespace bpp;
       
-void AbstractWeightedSubstitutionCount::setWeights(const AlphabetIndex2<double>* weights, bool ownWeights) {
+void AbstractWeightedSubstitutionCount::setWeights(const AlphabetIndex2* weights, bool ownWeights) {
   if (ownWeights_)
     delete weights_;
   weights_ = weights;

@@ -43,6 +43,11 @@
 #include "../Model/Protein/Coala.h"
 #include "../Model/FrequenciesSet/MvaFrequenciesSet.h"
 #include "../Likelihood/TreeLikelihood.h"
+#include "../Mapping/LaplaceSubstitutionCount.h"
+#include "../Mapping/UniformizationSubstitutionCount.h"
+#include "../Mapping/DecompositionSubstitutionCount.h"
+#include "../Mapping/NaiveSubstitutionCount.h"
+#include "../Mapping/OneJumpSubstitutionCount.h"
 #include "../OptimizationTools.h"
 #include "../Tree.h"
 #include "../Io/Newick.h"
@@ -52,24 +57,20 @@
 #include "../Io/BppOFrequenciesSetFormat.h"
 #include "../Io/BppORateDistributionFormat.h"
 
+// From bpp-core
 #include <Bpp/Io/BppODiscreteDistributionFormat.h>
 #include <Bpp/Io/BppOParametrizableFormat.h>
-
 #include <Bpp/Io/FileTools.h>
 #include <Bpp/Text/TextTools.h>
 #include <Bpp/App/ApplicationTools.h>
 #include <Bpp/Text/StringTokenizer.h>
 #include <Bpp/Text/KeyvalTools.h>
-
-// From Numeric
-
 #include <Bpp/Numeric/AutoParameter.h>
 #include <Bpp/Numeric/Prob/DirichletDiscreteDistribution.h>
 #include <Bpp/Numeric/Function/DownhillSimplexMethod.h>
 #include <Bpp/Numeric/Function/PowellMultiDimensions.h>
 
-
-// From SeqLib:
+// From bpp-seq:
 #include <Bpp/Seq/Alphabet/AlphabetTools.h>
 #include <Bpp/Seq/Container/SequenceContainerTools.h>
 #include <Bpp/Seq/App/SequenceApplicationTools.h>
@@ -1420,6 +1421,68 @@ void PhylogeneticsApplicationTools::printParameters(const DiscreteDistribution* 
   bIO->write(*rDist, out, globalAliases, writtenNames);
   delete bIO;
   out.endLine();
+}
+
+/************************
+ * Substitution Mapping *
+ ************************/
+
+SubstitutionCount* PhylogeneticsApplicationTools::getSubstitutionCount(
+  const Alphabet* alphabet,
+  const SubstitutionModel* model,
+  map<string, string>& params,
+  string suffix)
+{
+  SubstitutionCount* substitutionCount = 0;
+  string nijtOption;
+  map<string, string> nijtParams;
+  string nijtText = ApplicationTools::getStringParameter("nijt", params, "Uniformization", suffix, true);
+  KeyvalTools::parseProcedure(nijtText, nijtOption, nijtParams);
+
+  if (nijtOption == "Laplace")
+  {
+    int trunc = ApplicationTools::getIntParameter("trunc", nijtParams, 10, suffix, true);
+    substitutionCount = new LaplaceSubstitutionCount(model, trunc);
+  }
+  else if (nijtOption == "Uniformization")
+  {
+    string weightOption = ApplicationTools::getStringParameter("weight", nijtParams, "None", "", true, false);
+    AlphabetIndex2* weights = SequenceApplicationTools::getAlphabetIndex2(alphabet, weightOption, "Substitution weight scheme:");
+    substitutionCount = new UniformizationSubstitutionCount(model, new TotalSubstitutionRegister(alphabet), weights);
+  }
+  else if (nijtOption == "Decomposition")
+  {
+    string weightOption = ApplicationTools::getStringParameter("weight", nijtParams, "None", "", true, false);
+    AlphabetIndex2* weights = SequenceApplicationTools::getAlphabetIndex2(alphabet, weightOption, "Substitution weight scheme:");
+    const ReversibleSubstitutionModel* revModel = dynamic_cast<const ReversibleSubstitutionModel*>(model);
+    if (revModel)
+      substitutionCount = new DecompositionSubstitutionCount(revModel, new TotalSubstitutionRegister(alphabet), weights);
+    else
+      throw Exception("Decomposition method can only be used with reversible substitution models.");
+  }
+  else if (nijtOption == "Naive")
+  {
+    string weightOption = ApplicationTools::getStringParameter("weight", nijtParams, "None", "", true, false);
+    AlphabetIndex2* weights = SequenceApplicationTools::getAlphabetIndex2(alphabet, weightOption, "Substitution weight scheme:");
+    substitutionCount = new NaiveSubstitutionCount(new TotalSubstitutionRegister(alphabet), false, weights);
+  }
+  else if (nijtOption == "Label")
+  {
+    substitutionCount = reinterpret_cast<SubstitutionCount*>(new LabelSubstitutionCount(alphabet));
+  }
+  else if (nijtOption == "ProbOneJump")
+  {
+    substitutionCount = reinterpret_cast<SubstitutionCount*>(new OneJumpSubstitutionCount(model));
+  }
+  else
+  {
+    ApplicationTools::displayError("Invalid option '" + nijtOption + ", in 'nijt' parameter.");
+    exit(-1);
+  }
+  ApplicationTools::displayResult("Substitution count procedure", nijtOption);
+
+  // Send results:
+  return substitutionCount;
 }
 
 /******************************************************************************/

@@ -48,7 +48,7 @@ using namespace std;
 
 /******************************************************************************/
 
-UniformizationSubstitutionCount::UniformizationSubstitutionCount(const SubstitutionModel* model, SubstitutionRegister* reg, const AlphabetIndex2<double>* weights) :
+UniformizationSubstitutionCount::UniformizationSubstitutionCount(const SubstitutionModel* model, SubstitutionRegister* reg, const AlphabetIndex2* weights) :
   AbstractSubstitutionCount(reg),
   AbstractWeightedSubstitutionCount(weights, true),
   model_(model),

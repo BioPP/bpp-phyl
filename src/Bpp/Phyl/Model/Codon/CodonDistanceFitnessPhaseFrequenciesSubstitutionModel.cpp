@@ -46,7 +46,7 @@ CodonDistanceFitnessPhaseFrequenciesSubstitutionModel::CodonDistanceFitnessPhase
                                                              NucleotideSubstitutionModel* pmod,
                                                              FrequenciesSet* pfit,
                                                              FrequenciesSet* pfreq,
-                                                             const AlphabetIndex2<double>* pdist) :
+                                                             const AlphabetIndex2* pdist) :
   AbstractParameterAliasable("CodonDistFitPhasFreq."),
   AbstractSubstitutionModel(dynamic_cast<const CodonAlphabet*>(palph->getSourceAlphabet()), "CodonDistFitPhasFreq."),
   AbstractWordSubstitutionModel(dynamic_cast<const CodonAlphabet*>(palph->getSourceAlphabet()), "CodonDistFitPhasFreq."),
@@ -64,7 +64,7 @@ CodonDistanceFitnessPhaseFrequenciesSubstitutionModel::CodonDistanceFitnessPhase
                                                              NucleotideSubstitutionModel* pmod3,
                                                              FrequenciesSet* pfit,
                                                              FrequenciesSet* pfreq,
-                                                             const AlphabetIndex2<double>* pdist) :
+                                                             const AlphabetIndex2* pdist) :
   AbstractParameterAliasable("CodonDistFitPhasFreq."),
   AbstractSubstitutionModel(dynamic_cast<const CodonAlphabet*>(palph->getSourceAlphabet()), "CodonDistFitPhasFreq."),
   AbstractWordSubstitutionModel(dynamic_cast<const CodonAlphabet*>(palph->getSourceAlphabet()), "CodonDistFitPhasFreq."),
