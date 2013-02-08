@@ -515,7 +515,7 @@ SubstitutionModel* BppOSubstitutionModelFormat::read(const Alphabet* alphabet,
 
       if (modelName.find("+F")!=string::npos){
         string freqOpt = ApplicationTools::getStringParameter("frequencies", args, "Full", "", true, verbose_);
-        BppOFrequenciesSetFormat freqReader(BppOFrequenciesSetFormat::ALL, verbose_);
+        BppOFrequenciesSetFormat freqReader(BppOFrequenciesSetFormat::ALL, false);
         auto_ptr<FrequenciesSet> protFreq(freqReader.read(alpha, freqOpt, data, true));
         map<string, string> unparsedParameterValuesNested(freqReader.getUnparsedArguments());
 
@@ -1266,7 +1266,7 @@ void BppOSubstitutionModelFormat::initialize_(
 {
   string initFreqs = ApplicationTools::getStringParameter(model.getNamespace() + "initFreqs", unparsedArguments_, "", "", true, false);
   if (verbose_)
-    ApplicationTools::displayResult("Frequencies initialization for model", (initFreqs == "") ? "None" : initFreqs);
+    ApplicationTools::displayResult("External frequencies initialization for model", (initFreqs == "") ? "None" : initFreqs);
 
   if (initFreqs != "")
   {

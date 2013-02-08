@@ -198,7 +198,7 @@ namespace bpp
 
     std::string getName() const 
     { 
-      if (freqSet_->getNamespace() == "JC69+F.")
+      if (freqSet_->getNamespace().find("+F.")!=std::string::npos)
         return "JC69+F"; 
       else 
         return "JC69"; 

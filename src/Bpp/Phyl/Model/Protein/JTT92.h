@@ -117,7 +117,7 @@ class JTT92 :
 	public:
     std::string getName() const 
     { 
-      if (freqSet_->getNamespace() == "JTT92+F.")
+      if (freqSet_->getNamespace().find("JTT92+F.")!=std::string::npos)
         return "JTT92+F"; 
       else 
         return "JTT92"; 
