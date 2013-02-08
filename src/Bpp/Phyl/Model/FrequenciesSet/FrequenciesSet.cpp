@@ -81,12 +81,12 @@ void AbstractFrequenciesSet::setFrequenciesFromMap(const map<int, double>& frequ
 
 FullFrequenciesSet::FullFrequenciesSet(const Alphabet* alphabet, bool allowNullFreqs, unsigned short method, const string& name) :
   AbstractFrequenciesSet(alphabet->getSize(), alphabet, "Full.", name),
-  sFreq_(alphabet->getSize(), method, name)
+  sFreq_(alphabet->getSize(), method, "Full.")
 {
   vector<double> vd;
   double r=1. / static_cast<double>(alphabet->getSize());
 
-  for (size_t i = 0; i < alphabet->getSize() - 1; i++)
+  for (size_t i = 0; i < alphabet->getSize(); i++)
     vd.push_back(r);
 
   sFreq_.setFrequencies(vd);
@@ -96,7 +96,7 @@ FullFrequenciesSet::FullFrequenciesSet(const Alphabet* alphabet, bool allowNullF
 
 FullFrequenciesSet::FullFrequenciesSet(const Alphabet* alphabet, const vector<double>& initFreqs, bool allowNullFreqs, unsigned short method, const string& name) :
   AbstractFrequenciesSet(alphabet->getSize(), alphabet, "Full.", name),
-  sFreq_(alphabet->getSize(), method, name)
+  sFreq_(alphabet->getSize(), method, "Full.")
 {
   sFreq_.setFrequencies(initFreqs);
   addParameters_(sFreq_.getParameters());  
@@ -106,7 +106,15 @@ FullFrequenciesSet::FullFrequenciesSet(const Alphabet* alphabet, const vector<do
 void FullFrequenciesSet::setFrequencies(const vector<double>& frequencies) 
 {
   sFreq_.setFrequencies(frequencies);
+  setParametersValues(sFreq_.getParameters()); 
+
   updateFreq_();
+}
+
+void FullFrequenciesSet::setNamespace(const std::string& nameSpace)
+{
+  sFreq_.setNamespace(nameSpace);
+  AbstractFrequenciesSet::setNamespace(nameSpace);
 }
 
 void FullFrequenciesSet::fireParameterChanged(const ParameterList& parameters)
@@ -117,8 +125,8 @@ void FullFrequenciesSet::fireParameterChanged(const ParameterList& parameters)
 
 void FullFrequenciesSet::updateFreq_()
 {
-  for (size_t i = 0; i < getAlphabet()->getSize() - 1; i++)
-    getFreq_(i)=sFreq_.prob(i);  
+  for (size_t i = 0; i < getAlphabet()->getSize(); i++)
+    getFreq_(i)=sFreq_.prob(i);
 }
 
 // ///////////////////////////////////////////

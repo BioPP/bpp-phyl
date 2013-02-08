@@ -157,6 +157,10 @@ public:
 
   std::string getName() const { return(name_); }
 
+  // virtual void setNamespace(std::string& Namespace) {
+  //   AbstractParametrizable::setNamespace(Namespace);
+  // }
+  
 protected:
   std::vector<double>& getFrequencies_() { return freq_; }
   double& getFreq_(size_t i) { return freq_[i]; }
@@ -185,8 +189,8 @@ public:
    * @brief Construction with uniform frequencies on the letters of
    * the alphabet.
    */
-  FullFrequenciesSet(const Alphabet* alphabet, bool allowNullFreqs = false, unsigned short method = 1, const std::string& name = "Full");
-  FullFrequenciesSet(const Alphabet* alphabet, const std::vector<double>& initFreqs, bool allowNullFreqs = false, unsigned short method = 1, const std::string& name = "Full");
+  FullFrequenciesSet(const Alphabet* alphabet, bool allowNullFreqs = false, unsigned short method = 1, const std::string& name = "Full.");
+  FullFrequenciesSet(const Alphabet* alphabet, const std::vector<double>& initFreqs, bool allowNullFreqs = false, unsigned short method = 1, const std::string& name = "Full.");
 
   FullFrequenciesSet* clone() const { return new FullFrequenciesSet(*this); }
 
@@ -194,6 +198,8 @@ public:
   void setFrequencies(const std::vector<double>& frequencies);
 
   unsigned short getMethod() const { return sFreq_.getMethod();}
+
+  void setNamespace(const std::string& nameSpace);
   
 protected:
   void fireParameterChanged(const ParameterList& parameters);
@@ -251,12 +257,6 @@ public:
   }
 
   const FrequenciesSet& getStatesFrequenciesSet() const { return *freqSet_; }
-
-  void setNamespace(const std::string& prefix)
-  {
-   AbstractFrequenciesSet::setNamespace(prefix);
-   freqSet_->setNamespace(prefix + freqSet_->getNamespace());
-  }
 
 };
 

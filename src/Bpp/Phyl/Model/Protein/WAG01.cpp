@@ -67,9 +67,9 @@ WAG01::WAG01(const ProteicAlphabet* alpha, ProteinFrequenciesSet* freqSet, bool 
 {
   #include "__WAG01ExchangeabilityCode"
   #include "__WAG01FrequenciesCode"
+  freqSet_->setNamespace("WAG01+F."+freqSet_->getNamespace());
   if (initFreqs) freqSet_->setFrequencies(freq_);
   else freq_ = freqSet_->getFrequencies();
-  freqSet_->setNamespace("WAG01+F."+freqSet_->getNamespace());
   addParameters_(freqSet_->getParameters());
   updateMatrices();  
 }

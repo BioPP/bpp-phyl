@@ -67,9 +67,9 @@ JTT92::JTT92(const ProteicAlphabet* alpha, ProteinFrequenciesSet* freqSet, bool 
 {
   #include "__JTT92ExchangeabilityCode"
   #include "__JTT92FrequenciesCode"
+  freqSet_->setNamespace("JTT92+F."+freqSet_->getNamespace());
   if (initFreqs) freqSet_->setFrequencies(freq_);
   else freq_ = freqSet_->getFrequencies();
-  freqSet_->setNamespace("JTT92+F."+freqSet_->getNamespace());
   addParameters_(freqSet_->getParameters());
   updateMatrices();  
 }
