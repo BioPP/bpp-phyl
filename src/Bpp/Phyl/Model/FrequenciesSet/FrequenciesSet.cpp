@@ -105,6 +105,7 @@ FullFrequenciesSet::FullFrequenciesSet(const Alphabet* alphabet, const vector<do
 
 void FullFrequenciesSet::setFrequencies(const vector<double>& frequencies) 
 {
+  
   sFreq_.setFrequencies(frequencies);
   setParametersValues(sFreq_.getParameters()); 
 
@@ -119,7 +120,7 @@ void FullFrequenciesSet::setNamespace(const std::string& nameSpace)
 
 void FullFrequenciesSet::fireParameterChanged(const ParameterList& parameters)
 {
-  sFreq_.fireParameterChanged(parameters);
+  sFreq_.matchParametersValues(parameters);
   updateFreq_();
 }
 
