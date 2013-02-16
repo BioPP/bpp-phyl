@@ -361,10 +361,17 @@ void FixedCodonFrequenciesSet::setFrequencies(const vector<double>& frequencies)
 CodonFromIndependentFrequenciesSet::CodonFromIndependentFrequenciesSet(
   const CodonAlphabet* pCA,
   const std::vector<FrequenciesSet*>& freqvector,
-  const string& name) :
+  const string& name,
+  const string& mgmtStopFreq) :
   WordFromIndependentFrequenciesSet(pCA, freqvector, "", name),
-  mStopNeigh_()
+  mStopNeigh_(),
+  mgmtStopFreq_(2)
 {
+  if (mgmtStopFreq=="uniform")
+    mgmtStopFreq_=0;
+  else if (mgmtStopFreq=="linear")
+    mgmtStopFreq_=1;
+  
   // fill the map of the stop codons
 
   vector<int> vspcod = getAlphabet()->stopCodons();
@@ -395,7 +402,8 @@ const CodonAlphabet* CodonFromIndependentFrequenciesSet::getAlphabet() const
 
 CodonFromIndependentFrequenciesSet::CodonFromIndependentFrequenciesSet(const CodonFromIndependentFrequenciesSet& iwfs) :
   WordFromIndependentFrequenciesSet(iwfs),
-  mStopNeigh_(iwfs.mStopNeigh_)
+  mStopNeigh_(iwfs.mStopNeigh_),
+  mgmtStopFreq_(iwfs.mgmtStopFreq_)
 {
   updateFrequencies();
 }
@@ -404,6 +412,7 @@ CodonFromIndependentFrequenciesSet& CodonFromIndependentFrequenciesSet::operator
 {
   WordFromIndependentFrequenciesSet::operator=(iwfs);
   mStopNeigh_ = iwfs.mStopNeigh_;
+  mgmtStopFreq_ = iwfs.mgmtStopFreq_;
   return *this;
 }
 
@@ -413,48 +422,89 @@ void CodonFromIndependentFrequenciesSet::updateFrequencies()
 
   size_t s = getAlphabet()->getSize();
 
-  // The frequencies of the stop codons are distributed to all
-  // neighbour non-stop codons
-  double f[64];
-  for (size_t i = 0; i < s; i++)
-  {
-    f[i] = 0;
-  }
-
-  std::map<int, Vint>::iterator mStopNeigh_it(mStopNeigh_.begin());
-  while (mStopNeigh_it != mStopNeigh_.end())
-  {
-    int stNb = mStopNeigh_it->first;
-    Vint vneigh = mStopNeigh_it->second;
-    double sneifreq = 0;
-    double puis = 2.;
-    for (size_t vn = 0; vn < vneigh.size(); vn++)
+  if (mgmtStopFreq_!=0)
     {
-      sneifreq += pow(getFreq_(vneigh[vn]), puis);
-    }
-    double x = getFreq_(stNb) / sneifreq;
-    for (size_t vn = 0; vn < vneigh.size(); vn++)
-    {
-      f[vneigh[vn]] += pow(getFreq_(vneigh[vn]), puis) * x;
-    }
-    getFreq_(stNb) = 0;
-    mStopNeigh_it++;
-  }
+      // The frequencies of the stop codons are distributed to all
+      // neighbour non-stop codons
+      double f[64];
+      for (size_t i = 0; i < s; i++)
+        {
+          f[i] = 0;
+        }
 
-  for (size_t i = 0; i < s; i++)
-  {
-    getFreq_(i) += f[i];
-  }
+      std::map<int, Vint>::iterator mStopNeigh_it(mStopNeigh_.begin());
+      while (mStopNeigh_it != mStopNeigh_.end())
+        {
+          int stNb = mStopNeigh_it->first;
+          Vint vneigh = mStopNeigh_it->second;
+          double sneifreq = 0;
+          for (size_t vn = 0; vn < vneigh.size(); vn++)
+            {
+              sneifreq += pow(getFreq_(vneigh[vn]), mgmtStopFreq_);
+            }
+          double x = getFreq_(stNb) / sneifreq;
+          for (size_t vn = 0; vn < vneigh.size(); vn++)
+            {
+              f[vneigh[vn]] += pow(getFreq_(vneigh[vn]), mgmtStopFreq_) * x;
+            }
+          getFreq_(stNb) = 0;
+          mStopNeigh_it++;
+        }
+
+      for (size_t i = 0; i < s; i++)
+        {
+          getFreq_(i) += f[i];
+        }
+    }
+  else
+    {
+      double sum=0.;
+      for (unsigned int i = 0; i < s; i++)
+        if (!getAlphabet()->isStop(i))
+          sum+=getFreq_(i);
+ 
+      for (unsigned int i = 0; i < s; i++)
+        if (getAlphabet()->isStop(i))
+          getFreq_(i)=0;
+        else
+          getFreq_(i)/=sum;
+    }
 }
 
 // ///////////////////////////////////////////////////////////////////
 // // CodonFromUniqueFrequenciesSet
 
 
-CodonFromUniqueFrequenciesSet::CodonFromUniqueFrequenciesSet(const CodonAlphabet* pCA, FrequenciesSet* pfreq, const string& name) :
+CodonFromUniqueFrequenciesSet::CodonFromUniqueFrequenciesSet(const CodonAlphabet* pCA, FrequenciesSet* pfreq, const string& name, const string&  mgmtStopFreq) :
   WordFromUniqueFrequenciesSet(pCA, pfreq, "", name),
-  mStopNeigh_()
+  mStopNeigh_(),
+  mgmtStopFreq_(2)
 {
+  if (mgmtStopFreq=="uniform")
+    mgmtStopFreq_=0;
+  else if (mgmtStopFreq=="linear")
+    mgmtStopFreq_=1;
+  
+  // fill the map of the stop codons
+
+  vector<int> vspcod = getAlphabet()->stopCodons();
+  for (size_t ispcod = 0; ispcod < vspcod.size(); ispcod++)
+    {
+      size_t pow = 1;
+      int nspcod = vspcod[ispcod];
+      for (int ph = 0; ph < 3; ph++)
+        {
+          size_t nspcod0 = nspcod - pow * getAlphabet()->getNPosition(nspcod, 2 - ph);
+          for (size_t dec = 0; dec < 4; dec++)
+            {
+              size_t vois = nspcod0 + pow * dec;
+              if (!getAlphabet()->isStop(static_cast<int>(vois)))
+                mStopNeigh_[nspcod].push_back(static_cast<int>(vois));
+            }
+          pow *= 4;
+        }
+    }
+
   updateFrequencies();
 }
 
@@ -466,7 +516,8 @@ const CodonAlphabet* CodonFromUniqueFrequenciesSet::getAlphabet() const
 
 CodonFromUniqueFrequenciesSet::CodonFromUniqueFrequenciesSet(const CodonFromUniqueFrequenciesSet& iwfs) :
   WordFromUniqueFrequenciesSet(iwfs),
-  mStopNeigh_(iwfs.mStopNeigh_)
+  mStopNeigh_(iwfs.mStopNeigh_),
+  mgmtStopFreq_(iwfs.mgmtStopFreq_)
 {
   updateFrequencies();
 }
@@ -475,6 +526,7 @@ CodonFromUniqueFrequenciesSet& CodonFromUniqueFrequenciesSet::operator=(const Co
 {
   WordFromUniqueFrequenciesSet::operator=(iwfs);
   mStopNeigh_ = iwfs.mStopNeigh_;
+  mgmtStopFreq_ = iwfs.mgmtStopFreq_;
   return *this;
 }
 
@@ -484,57 +536,72 @@ void CodonFromUniqueFrequenciesSet::updateFrequencies()
 
   size_t s = getAlphabet()->getSize();
 
-  // The frequencies of the stop codons are distributed to all
-  // neighbour non-stop codons
-  double f[64];
-  for (size_t i = 0; i < s; i++)
-  {
-    f[i] = 0;
-  }
-
-  std::map<int, Vint>::iterator mStopNeigh_it(mStopNeigh_.begin());
-  while (mStopNeigh_it != mStopNeigh_.end())
-  {
-    int stNb = mStopNeigh_it->first;
-    Vint vneigh = mStopNeigh_it->second;
-    double sneifreq = 0;
-    double puis = 2;
-    for (size_t vn = 0; vn < vneigh.size(); vn++)
+  if (mgmtStopFreq_!=0)
     {
-      sneifreq += pow(getFreq_(vneigh[vn]), puis);
-    }
-    double x = getFreq_(stNb) / sneifreq;
-    for (size_t vn = 0; vn < vneigh.size(); vn++)
-    {
-      f[vneigh[vn]] += pow(getFreq_(vneigh[vn]), puis) * x;
-    }
-    getFreq_(stNb) = 0;
-    mStopNeigh_it++;
-  }
+      // The frequencies of the stop codons are distributed to all
+      // neighbour non-stop codons
+      double f[64];
+      for (size_t i = 0; i < s; i++)
+        {
+          f[i] = 0;
+        }
 
-  for (size_t i = 0; i < s; i++)
-  {
-    getFreq_(i) += f[i];
-  }
+      std::map<int, Vint>::iterator mStopNeigh_it(mStopNeigh_.begin());
+      while (mStopNeigh_it != mStopNeigh_.end())
+        {
+          int stNb = mStopNeigh_it->first;
+          Vint vneigh = mStopNeigh_it->second;
+          double sneifreq = 0;
+          for (size_t vn = 0; vn < vneigh.size(); vn++)
+            {
+              sneifreq += pow(getFreq_(vneigh[vn]), mgmtStopFreq_);
+            }
+          double x = getFreq_(stNb) / sneifreq;
+          for (size_t vn = 0; vn < vneigh.size(); vn++)
+            {
+              f[vneigh[vn]] += pow(getFreq_(vneigh[vn]), mgmtStopFreq_) * x;
+            }
+          getFreq_(stNb) = 0;
+          mStopNeigh_it++;
+        }
+
+      for (size_t i = 0; i < s; i++)
+        {
+          getFreq_(i) += f[i];
+        }
+    }
+  else
+    {
+      double sum=0.;
+      for (unsigned int i = 0; i < s; i++)
+        if (!getAlphabet()->isStop(i))
+          sum+=getFreq_(i);
+ 
+      for (unsigned int i = 0; i < s; i++)
+        if (getAlphabet()->isStop(i))
+          getFreq_(i)=0;
+        else
+          getFreq_(i)/=sum;
+    }
 }
 
 /*********************************************************************/
 
-FrequenciesSet* CodonFrequenciesSet::getFrequenciesSetForCodons(short option, const CodonAlphabet& CA)
+FrequenciesSet* CodonFrequenciesSet::getFrequenciesSetForCodons(short option, const CodonAlphabet& CA, const string& mgmtStopFreq)
 {
   FrequenciesSet* codonFreqs;
 
   if (option == F0)
     codonFreqs = new FixedCodonFrequenciesSet(&CA, "F0");
   else if (option == F1X4)
-    codonFreqs = new CodonFromUniqueFrequenciesSet(&CA, new FullNucleotideFrequenciesSet(CA.getNucleicAlphabet()), "F1X4");
+    codonFreqs = new CodonFromUniqueFrequenciesSet(&CA, new FullNucleotideFrequenciesSet(CA.getNucleicAlphabet()), "F1X4", mgmtStopFreq);
   else if (option == F3X4)
   {
     vector<FrequenciesSet*> v_AFS(3);
     v_AFS[0] = new FullNucleotideFrequenciesSet(CA.getNucleicAlphabet());
     v_AFS[1] = new FullNucleotideFrequenciesSet(CA.getNucleicAlphabet());
     v_AFS[2] = new FullNucleotideFrequenciesSet(CA.getNucleicAlphabet());
-    codonFreqs = new CodonFromIndependentFrequenciesSet(&CA, v_AFS, "F3X4");
+    codonFreqs = new CodonFromIndependentFrequenciesSet(&CA, v_AFS, "F3X4", mgmtStopFreq);
   }
   else if (option == F61)
     codonFreqs = new FullCodonFrequenciesSet(&CA, "F61");

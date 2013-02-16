@@ -71,9 +71,20 @@ namespace bpp
      *
      * @param option A code describing the option, one of F61, F1X4 or F3X4.
      * @param CA the Codon Alphabet to use.
+     * @param mgmtStopFreq the optional way the frequencies assigned
+     * to the stop codons are redistributed to the other codons, with
+     * F1X4 and F3X4 options. The available values are:
+     *  - uniform : each stop frequency is distributed evenly
+     *  - linear : each stop frequency is distributed to the neighbour
+     *     codons (ie 1 substitution away), in proportion to each
+     *     target codon frequency.
+     *  - quadratic (default): each stop frequency is distributed to the
+     *     neighbour codons (ie 1 substitution away), in proportion to
+     *     the square of each target codon frequency.
+     *
      */
     
-    static FrequenciesSet* getFrequenciesSetForCodons(short option, const CodonAlphabet& CA);
+    static FrequenciesSet* getFrequenciesSetForCodons(short option, const CodonAlphabet& CA, const std::string& mgmtStopFreq = "quadratic");
     
     static const short F0;
     static const short F1X4;
@@ -268,12 +279,29 @@ namespace bpp
     // a map associating stop codons numbers with numbers of neighbour non-stop codons
     std::map<int, Vint> mStopNeigh_;
 
+    unsigned short mgmtStopFreq_;
+    
   public:
     /**
      * @brief Constructor from a CodonAlphabet* and a vector of different FrequenciesSet*.
      * Throws an Exception if their lengths do not match.
+     *
+     * @param pCA a pointer to the CodonAlphabet
+     * @param freqvector a vector of pointers to the phase specific FrequenciesSets
+     * @param name the optional name of the FrequenciesSet (default codon)
+     * @param mgmtStopFreq the optional way the frequencies assigned to the
+     * stop codons are redistributed to the other codons. The
+     * available values are:
+     *  - uniform : each stop frequency is distributed evenly
+     *  - linear : each stop frequency is distributed to the neighbour
+     *     codons (ie 1 substitution away), in proportion to each
+     *     target codon frequency.
+     *  - quadratic (default): each stop frequency is distributed to the
+     *     neighbour codons (ie 1 substitution away), in proportion to
+     *     the square of each target codon frequency.
+     *
      */
-    CodonFromIndependentFrequenciesSet(const CodonAlphabet* pCA, const std::vector<FrequenciesSet*>& freqvector, const std::string& name = "Codon");
+    CodonFromIndependentFrequenciesSet(const CodonAlphabet* pCA, const std::vector<FrequenciesSet*>& freqvector, const std::string& name = "Codon", const std::string& mgmtStopFreq = "quadratic");
   
     CodonFromIndependentFrequenciesSet(const CodonFromIndependentFrequenciesSet& iwfs);
 
@@ -287,10 +315,6 @@ namespace bpp
   
     /*
      *@ brief Update the frequencies given the parameters.
-     *
-     * The frequency of each stop codon is distributed to the non-stop
-     * neighbour codons (ie those that are one mutation distant), in
-     * proportion to the square of each target codon frequency.
      *
      */
 
@@ -315,13 +339,30 @@ namespace bpp
     // a map associating stop codons numbers with numbers of neighbour non-stop codons
     std::map<int, Vint> mStopNeigh_;
 
+    unsigned short mgmtStopFreq_;
+    
   public:
     /**
      * @brief Constructor from a CodonAlphabet* and a FrequenciesSet*
      *  repeated three times.
+     *
+     * @param pCA a pointer to the CodonAlphabet
+     * @param pfreq a pointer to the nucleotidic FrequenciesSet
+     * @param name the optional name of the FrequenciesSet (default codon)
+     * @param mgmtStopFreq the optional way the frequencies assigned to the
+     * stop codons are redistributed to the other codons. The
+     * available values are:
+     *  - uniform : each stop frequency is distributed evenly
+     *  - linear : each stop frequency is distributed to the neighbour
+     *      codons (ie 1 substitution away), in proportion to each
+     *      target codon frequency.
+     *  - quadratic (default): each stop frequency is distributed to the
+     *      neighbour codons (ie 1 substitution away), in proportion to
+     *      the square of each target codon frequency.
+     *
      */
 
-    CodonFromUniqueFrequenciesSet(const CodonAlphabet* pCA, FrequenciesSet* pfreq, const std::string& name = "Codon");
+    CodonFromUniqueFrequenciesSet(const CodonAlphabet* pCA, FrequenciesSet* pfreq, const std::string& name = "Codon", const std::string& mgmtStopFreq = "quadratic");
   
     CodonFromUniqueFrequenciesSet(const CodonFromUniqueFrequenciesSet& iwfs);
   
@@ -335,10 +376,6 @@ namespace bpp
 
     /*
      *@ brief Update the frequencies given the parameters.
-     *
-     * The frequency of each stop codon is distributed to the non-stop
-     * neighbour codons (ie those that are one mutation distant), in
-     * proportion to the square of each target codon frequency.
      *
      */
 

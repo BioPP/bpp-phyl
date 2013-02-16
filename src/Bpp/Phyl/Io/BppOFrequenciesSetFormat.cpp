@@ -314,7 +314,8 @@ FrequenciesSet* BppOFrequenciesSetFormat::read(const Alphabet* alphabet, const s
     const CodonAlphabet* pWA = dynamic_cast<const CodonAlphabet*>(alphabet);
 
     short opt = -1;
-
+    string mgmtStopCodon="quadratic";
+    
     if (freqName == "F0")
     {
       opt = CodonFrequenciesSet::F0;
@@ -322,6 +323,11 @@ FrequenciesSet* BppOFrequenciesSetFormat::read(const Alphabet* alphabet, const s
     else if (freqName == "F1X4")
     {
       opt = CodonFrequenciesSet::F1X4;
+      
+      if (args.find("mgmtStopCodon") != args.end()){
+        mgmtStopCodon = args["mgmtStopCodon"];
+        ApplicationTools::displayResult("StopCodon frequencies distribution ", mgmtStopCodon);
+      }
       if (args.find("frequency") != args.end())
         {
           string sAFS = args["frequency"];
@@ -342,6 +348,12 @@ FrequenciesSet* BppOFrequenciesSetFormat::read(const Alphabet* alphabet, const s
     else if (freqName == "F3X4")
     {
       opt = CodonFrequenciesSet::F3X4;
+
+      if (args.find("mgmtStopCodon") != args.end()){
+        mgmtStopCodon = args["mgmtStopCodon"];
+        ApplicationTools::displayResult("StopCodon frequencies distribution ", mgmtStopCodon);
+      }
+
       if (args.find("frequency1") != args.end() ||
           args.find("frequency2") != args.end() ||
           args.find("frequency3") != args.end())
@@ -376,7 +388,7 @@ FrequenciesSet* BppOFrequenciesSetFormat::read(const Alphabet* alphabet, const s
       opt = CodonFrequenciesSet::F61;
     }
     if (opt != -1)
-      pFS.reset(CodonFrequenciesSet::getFrequenciesSetForCodons(opt, *dynamic_cast<const CodonAlphabet*>(alphabet)));
+      pFS.reset(CodonFrequenciesSet::getFrequenciesSetForCodons(opt, *dynamic_cast<const CodonAlphabet*>(alphabet), mgmtStopCodon));
     else
       throw Exception("Unknown frequency option: " + freqName);
   }
