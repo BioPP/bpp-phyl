@@ -173,7 +173,7 @@ void RN95::updateMatrices()
   // Normalization
 
   double x = 0;
-  for (unsigned int i = 0; i < 4; i++)
+  for (size_t i = 0; i < 4; i++)
   {
     x += generator_(i, i) * freq_[i];
   }
@@ -227,9 +227,9 @@ void RN95::updateMatrices()
     MatrixTools::inv(rightEigenVectors_, leftEigenVectors_);
     isNonSingular_ = true;
     isDiagonalizable_ = true;
-    for (unsigned int i = 0; i < size_ && isDiagonalizable_; i++)
+    for (size_t i = 0; i < size_ && isDiagonalizable_; i++)
     {
-      if (abs(iEigenValues_[i]) > NumConstants::TINY)
+      if (abs(iEigenValues_[i]) > NumConstants::TINY())
         isDiagonalizable_ = false;
     }
   }

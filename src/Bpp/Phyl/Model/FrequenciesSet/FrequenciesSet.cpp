@@ -48,8 +48,8 @@ using namespace bpp;
 #include <cmath>
 using namespace std;
 
-IntervalConstraint FrequenciesSet::FREQUENCE_CONSTRAINT_MILLI(NumConstants::MILLI, 1 - NumConstants::MILLI, false, false);
-IntervalConstraint FrequenciesSet::FREQUENCE_CONSTRAINT_SMALL(NumConstants::SMALL, 1 - NumConstants::SMALL, false, false);
+IntervalConstraint FrequenciesSet::FREQUENCE_CONSTRAINT_MILLI(NumConstants::MILLI(), 1 - NumConstants::MILLI(), false, false);
+IntervalConstraint FrequenciesSet::FREQUENCE_CONSTRAINT_SMALL(NumConstants::SMALL(), 1 - NumConstants::SMALL(), false, false);
 
 // ///////////////////////////////////////
 // AbstractFrequenciesSet
@@ -104,7 +104,7 @@ FullFrequenciesSet::FullFrequenciesSet(const Alphabet* alphabet, const vector<do
   if (initFreqs.size() != alphabet->getSize())
     throw Exception("FullFrequenciesSet(constructor). There must be " + TextTools::toString(alphabet->getSize()) + " frequencies.");
   double sum = VectorTools::sum(initFreqs);
-  if (fabs(1. - sum) > NumConstants::SMALL)
+  if (fabs(1. - sum) > NumConstants::SMALL())
   {
     throw Exception("Frequencies must equal 1 (sum = " + TextTools::toString(sum) + ").");
   }
@@ -131,7 +131,7 @@ void FullFrequenciesSet::setFrequencies(const vector<double>& frequencies)
   if (frequencies.size() != getNumberOfFrequencies())
     throw DimensionException("FullFrequenciesSet::setFrequencies. Invalid number of frequencies.", frequencies.size(), getNumberOfFrequencies());
 
-  if (fabs(1. - VectorTools::sum(frequencies)) >= NumConstants::SMALL)
+  if (fabs(1. - VectorTools::sum(frequencies)) >= NumConstants::SMALL())
     throw Exception("FullFrequenciesSet::setFrequencies. Frequencies do not sum to 1 : " + TextTools::toString(VectorTools::sum(frequencies)));
 
   setFrequencies_(frequencies);

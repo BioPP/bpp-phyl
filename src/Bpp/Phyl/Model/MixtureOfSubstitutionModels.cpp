@@ -133,9 +133,9 @@ MixtureOfSubstitutionModels::MixtureOfSubstitutionModels(const Alphabet* alpha,
     y += vproba[i] * vrate[i];
   }
 
-  if (fabs(1. - x) > NumConstants::SMALL)
+  if (fabs(1. - x) > NumConstants::SMALL())
     throw Exception("Probabilities must equal 1 (sum = " + TextTools::toString(x) + ").");
-  if (fabs(1. - y) > NumConstants::SMALL)
+  if (fabs(1. - y) > NumConstants::SMALL())
     throw Exception("Expectation on rates must equal 1 (E =" + TextTools::toString(y) + ").");
 
 
@@ -222,9 +222,9 @@ void MixtureOfSubstitutionModels::updateMatrices()
   for (i = 0; i < nbmod - 1; i++)
   {
     y = getParameterValue("relrate" + TextTools::toString(i + 1));
-    if (vProbas_[i] < NumConstants::SMALL)
+    if (vProbas_[i] < NumConstants::SMALL())
     {
-      vRates_[i] = NumConstants::SMALL;
+      vRates_[i] = NumConstants::SMALL();
       approx = true;
     }
     else
@@ -235,9 +235,9 @@ void MixtureOfSubstitutionModels::updateMatrices()
     x *= 1 - y;
   }
 
-  if (vProbas_[nbmod - 1] < NumConstants::SMALL)
+  if (vProbas_[nbmod - 1] < NumConstants::SMALL())
   {
-    vRates_[nbmod - 1] = NumConstants::SMALL;
+    vRates_[nbmod - 1] = NumConstants::SMALL();
     approx = true;
   }
   else

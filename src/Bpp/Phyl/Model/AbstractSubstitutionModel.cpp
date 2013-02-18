@@ -114,7 +114,7 @@ void AbstractSubstitutionModel::updateMatrices()
       isDiagonalizable_ = true;
       for (size_t i = 0; i < size_ && isDiagonalizable_; i++)
       {
-        if (abs(iEigenValues_[i]) > NumConstants::TINY)
+        if (abs(iEigenValues_[i]) > NumConstants::TINY())
           isDiagonalizable_ = false;
       }
     }

@@ -364,7 +364,7 @@ void AbstractWordSubstitutionModel::updateMatrices()
       bool flag = true;
       for (j = 0; j < salph; j++)
       {
-        if ((i != j) && abs(generator_(i, j)) > NumConstants::TINY)
+        if ((i != j) && abs(generator_(i, j)) > NumConstants::TINY())
         {
           flag = false;
           break;
@@ -458,7 +458,7 @@ void AbstractWordSubstitutionModel::updateMatrices()
       isDiagonalizable_ = true;
       for (i = 0; i < size_ && isDiagonalizable_; i++)
       {
-        if (abs(iEigenValues_[i]) > NumConstants::SMALL)
+        if (abs(iEigenValues_[i]) > NumConstants::SMALL())
           isDiagonalizable_ = false;
       }
 
@@ -481,7 +481,7 @@ void AbstractWordSubstitutionModel::updateMatrices()
         nulleigen = 0;
         while (nulleigen < salph - nbStop)
         {
-          if ((abs(eigenValues_[nulleigen]) < NumConstants::SMALL) && (abs(iEigenValues_[nulleigen]) < NumConstants::SMALL))
+          if ((abs(eigenValues_[nulleigen]) < NumConstants::SMALL()) && (abs(iEigenValues_[nulleigen]) < NumConstants::SMALL()))
           {
             i = 0;
             while (vnull[i])
@@ -493,7 +493,7 @@ void AbstractWordSubstitutionModel::updateMatrices()
             {
               if (!vnull[i])
               {
-                if (abs(rightEigenVectors_(i, nulleigen) - val) > seuil * NumConstants::SMALL)
+                if (abs(rightEigenVectors_(i, nulleigen) - val) > seuil * NumConstants::SMALL())
                   break;
               }
               i++;
@@ -512,7 +512,7 @@ void AbstractWordSubstitutionModel::updateMatrices()
         }
         if (seuil > 100)
         {
-          ApplicationTools::displayWarning("!!! Equilibrium frequency of the model " + getName() + " has a precision less than " ""  + TextTools::toString(seuil * NumConstants::SMALL) + ". There may be some computing issues.");
+          ApplicationTools::displayWarning("!!! Equilibrium frequency of the model " + getName() + " has a precision less than " ""  + TextTools::toString(seuil * NumConstants::SMALL()) + ". There may be some computing issues.");
           ApplicationTools::displayWarning("!!! Taylor series used instead");
           break;
         }

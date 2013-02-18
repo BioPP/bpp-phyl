@@ -110,7 +110,7 @@ void FullNucleotideFrequenciesSet::setFrequencies(const vector<double>& frequenc
   {
     sum += frequencies[i];
   }
-  if (fabs(1. - sum) > NumConstants::SMALL)
+  if (fabs(1. - sum) > NumConstants::SMALL())
     throw Exception("FullNucleotideFrequenciesSet::setFrequencies. Frequencies must equal 1 (sum = " + TextTools::toString(sum) + ").");
   double theta = frequencies[1] + frequencies[2];
   getParameter_(0).setValue(theta);
@@ -142,7 +142,7 @@ void GCFrequenciesSet::setFrequencies(const vector<double>& frequencies)
   {
     sum += frequencies[i];
   }
-  if (fabs(1. - sum) > NumConstants::SMALL)
+  if (fabs(1. - sum) > NumConstants::SMALL())
     throw Exception("GCFrequenciesSet::setFrequencies. Frequencies must equal 1 (sum = " + TextTools::toString(sum) + ").");
   double theta = frequencies[1] + frequencies[2];
   // We set everything in one shot here:

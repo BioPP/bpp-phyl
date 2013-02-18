@@ -150,8 +150,8 @@ void gBGC::updateMatrices()
     eigenValues_[i] /= -x;
   
   isDiagonalizable_=true;
-  for (i=0; i<size_ && isDiagonalizable_; i++)
-    if (abs(iEigenValues_[i])> NumConstants::SMALL){
+  for (i = 0; i < size_ && isDiagonalizable_; i++)
+    if (abs(iEigenValues_[i])> NumConstants::SMALL()){
       isDiagonalizable_=false;
       break;
     }
