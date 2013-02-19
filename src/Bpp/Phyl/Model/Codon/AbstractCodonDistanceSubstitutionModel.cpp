@@ -62,9 +62,9 @@ AbstractCodonDistanceSubstitutionModel::AbstractCodonDistanceSubstitutionModel(
     addParameter_(new Parameter(prefix + "alpha", 10000, &Parameter::R_PLUS_STAR));
 
   if (paramSynRate)
-    addParameter_(new Parameter(prefix + "gamma", 1, new IntervalConstraint(NumConstants::SMALL, 999, true, true), true));
+    addParameter_(new Parameter(prefix + "gamma", 1, new IntervalConstraint(NumConstants::SMALL(), 999, true, true), true));
 
-  addParameter_(new Parameter(prefix + "beta", 1, new IntervalConstraint(NumConstants::SMALL, 999, true, true), true));
+  addParameter_(new Parameter(prefix + "beta", 1, new IntervalConstraint(NumConstants::SMALL(), 999, true, true), true));
 }
 
 void AbstractCodonDistanceSubstitutionModel::fireParameterChanged(const ParameterList& parameters)
