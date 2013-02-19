@@ -643,7 +643,7 @@ vector<Node*> TreeTemplateTools::getPathBetweenAnyTwoNodes(Node& node1, Node& no
   size_t tmp1 = pathMatrix1.size() - 1;
   size_t tmp2 = pathMatrix2.size() - 1;
 
-  while ((tmp1 >= 0) && (tmp2 >= 0))
+  while ((tmp1 > 0) && (tmp2 > 0))
   {
     if (pathMatrix1[tmp1] != pathMatrix2[tmp2])
       break;
