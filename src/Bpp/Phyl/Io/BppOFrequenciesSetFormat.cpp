@@ -344,6 +344,12 @@ FrequenciesSet* BppOFrequenciesSetFormat::read(const Alphabet* alphabet, const s
               unparsedArguments_["123_" + it->first] = it->second;
             }
         }
+      if (args.find("123_theta") != args.end())
+          unparsedArguments_["123_Full.theta"] = args["123_theta"];
+      if (args.find("123_theta1") != args.end())
+        unparsedArguments_["123_Full.theta1"] = args["123_theta1"];
+      if (args.find("123_theta2") != args.end())
+        unparsedArguments_["123_Full.theta2"] = args["123_theta2"];
     }
     else if (freqName == "F3X4")
     {
@@ -382,6 +388,15 @@ FrequenciesSet* BppOFrequenciesSetFormat::read(const Alphabet* alphabet, const s
             }
           }
         }
+      for (unsigned int i = 1 ; i <= 3; i++){
+        
+        if (args.find(TextTools::toString(i)+"_theta") != args.end())
+          unparsedArguments_[TextTools::toString(i)+"_Full.theta"] = args[TextTools::toString(i)+"_theta"];
+        if (args.find(TextTools::toString(i)+"_theta1") != args.end())
+          unparsedArguments_[TextTools::toString(i)+"_Full.theta1"] = args[TextTools::toString(i)+"_theta1"];
+        if (args.find(TextTools::toString(i)+"_theta2") != args.end())
+          unparsedArguments_[TextTools::toString(i)+"_Full.theta2"] = args[TextTools::toString(i)+"_theta2"];
+      }
     }
     else if (freqName == "F61")
     {
