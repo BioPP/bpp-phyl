@@ -535,6 +535,7 @@ namespace bpp
      *
      * @param alphabet The alphabet to use.
      * @param model The model to use.
+     * @param params The attribute map where options may be found.
      * @param suffix Optional suffix for command name.
      */
     static SubstitutionCount* getSubstitutionCount(
