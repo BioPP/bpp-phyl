@@ -4,7 +4,7 @@
 //
 
 /*
-   Copyright or � or Copr. CNRS, (November 16, 2004)
+   Copyright or © or Copr. Bio++ Development Team, (November 16, 2004)
 
    This software is a computer program whose purpose is to provide classes
    for phylogenetic data analysis.
@@ -48,15 +48,15 @@
 
 namespace bpp
 {
+
 /**
- *@ brief A class to compute the average of several
- *DRHomogeneousTreeLikelihood defined from a Mixed Substitution
- *Model.
+ * @brief A class to compute the average of several
+ * DRHomogeneousTreeLikelihood defined from a Mixed Substitution
+ * Model.
  *
- * In all the calculs, the average of the likelihoods, probabilities
+ * In all computations, the average of the likelihoods, probabilities
  * are computed.
  **/
-
 class DRHomogeneousMixedTreeLikelihood :
   public DRHomogeneousTreeLikelihood
 {
