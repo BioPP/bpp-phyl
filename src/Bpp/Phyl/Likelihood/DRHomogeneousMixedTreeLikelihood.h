@@ -84,6 +84,8 @@ public:
    * @param checkRooted Tell if we have to check for the tree to be unrooted.
    * If true, any rooted tree will be unrooted before likelihood computation.
    * @param verbose Should I display some info?
+   * @param rootArray is true if the array of the likelihoods at the root
+   *    should be computed (useful for ancestral reconstruction).
    * @throw Exception in an error occured.
    */
   DRHomogeneousMixedTreeLikelihood(
@@ -107,6 +109,8 @@ public:
    * @param checkRooted Tell if we have to check for the tree to be unrooted.
    * If true, any rooted tree will be unrooted before likelihood computation.
    * @param verbose Should I display some info?
+   * @param rootArray is true if the array of the likelihoods at the root
+   *    should be computed (useful for ancestral reconstruction).
    * @throw Exception in an error occured.
    */
   DRHomogeneousMixedTreeLikelihood(
