@@ -57,8 +57,8 @@ namespace bpp
  * mixture being defined on the selection parameter to allow it to
  * vary among sites, following a Beta distribution.
  *
- * This model includes 3 parameters (@f$\kappa@f$, @f$ \alpha @f$ and
- * @f$\beta@f$) of the Beta distribution. The codon frequencies
+ * This model includes 3 parameters (@f$\kappa@f$, @f$ p @f$ and
+ * @f$q@f$) of the Beta distribution. The codon frequencies
  * @f$\pi_j@f$ are either observed or infered.
  *
  * References:
