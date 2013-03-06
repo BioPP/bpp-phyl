@@ -205,6 +205,8 @@ SubstitutionModel* BppOSubstitutionModelFormat::read(const Alphabet* alphabet,
       if (args.find("n") == args.end())
         throw Exception("Missing argument 'n' (number of classes) in " + modelName + " distribution");
       unsigned int nbClasses = TextTools::to<unsigned int>(args["n"]);
+      if (verbose_)
+        ApplicationTools::displayResult("Number of classes in model", nbClasses);
 
       if (modelName == "YNGKP_M7")
         model.reset(new YNGKP_M7(pgc.release(), codonFreqs.release(), nbClasses));
@@ -986,6 +988,7 @@ MixedSubstitutionModel* BppOSubstitutionModelFormat::readMixed_(const Alphabet* 
     if (args.find("to") != args.end())
       ti = alphabet->charToInt(args["to"]);
 
+    string sModN=pSM->getName();
     model.reset(new MixtureOfASubstitutionModel(alphabet, pSM.release(), mdist, fi, ti));
 
     vector<string> v = model->getParameters().getParameterNames();
@@ -997,7 +1000,10 @@ MixedSubstitutionModel* BppOSubstitutionModelFormat::readMixed_(const Alphabet* 
     }
 
     if (verbose_)
-      ApplicationTools::displayResult("Mixture Of A Substitution Model", nestedModelDescription );
+      {
+        ApplicationTools::displayResult("Mixture Of A Substitution Model", sModN);
+        ApplicationTools::displayResult("Number of classes", model->getNumberOfModels());
+      }
   }
 
 
@@ -1034,7 +1040,7 @@ MixedSubstitutionModel* BppOSubstitutionModelFormat::readMixed_(const Alphabet* 
 
     model.reset(new MixtureOfSubstitutionModels(alphabet, v_pSM));
     if (verbose_)
-      ApplicationTools::displayResult("Mixture Of Substitution Models", modelName );
+        ApplicationTools::displayResult("Mixture Of Substitution Models", modelName );
   }
   else
     throw Exception("Unknown model name for mixture " + modelName);
