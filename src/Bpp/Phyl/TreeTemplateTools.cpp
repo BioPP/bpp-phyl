@@ -643,20 +643,20 @@ vector<Node*> TreeTemplateTools::getPathBetweenAnyTwoNodes(Node& node1, Node& no
   size_t tmp1 = pathMatrix1.size() - 1;
   size_t tmp2 = pathMatrix2.size() - 1;
 
-  while ((tmp1 > 0) && (tmp2 > 0))
+  while (pathMatrix1[tmp1] == pathMatrix2[tmp2]
+         and tmp1 > 0
+         and tmp2 > 0)
   {
-    if (pathMatrix1[tmp1] != pathMatrix2[tmp2])
-      break;
     tmp1--; tmp2--;
   }
 
-  for (size_t y = 0; y <= tmp1; ++y)
+  for (size_t y = 0; y < tmp1; ++y)
   {
     path.push_back(pathMatrix1[y]);
   }
   if (includeAncestor)
-    path.push_back(pathMatrix1[tmp1 + 1]);  // pushing once, the Node that was common to both.
-  for (size_t j = tmp2 + 1; j > 0; --j)
+    path.push_back(pathMatrix1[tmp1]);  // pushing once, the Node that was common to both.
+  for (size_t j = tmp2; j > 0; --j)
   {
     path.push_back(pathMatrix2[j - 1]);
   }
@@ -691,20 +691,20 @@ vector<const Node*> TreeTemplateTools::getPathBetweenAnyTwoNodes(const Node& nod
   size_t tmp1 = pathMatrix1.size() - 1;
   size_t tmp2 = pathMatrix2.size() - 1;
 
-  while ((tmp1 >= 0) && (tmp2 >= 0))
+  while (pathMatrix1[tmp1] == pathMatrix2[tmp2]
+         and tmp1 > 0
+         and tmp2 > 0)
   {
-    if (pathMatrix1[tmp1] != pathMatrix2[tmp2])
-      break;
     tmp1--; tmp2--;
   }
 
-  for (size_t y = 0; y <= tmp1; ++y)
+  for (size_t y = 0; y < tmp1; ++y)
   {
     path.push_back(pathMatrix1[y]);
   }
   if (includeAncestor)
-    path.push_back(pathMatrix1[tmp1 + 1]);  // pushing once, the Node that was common to both.
-  for (size_t j = tmp2 + 1; j > 0; --j)
+    path.push_back(pathMatrix1[tmp1]);  // pushing once, the Node that was common to both.
+  for (size_t j = tmp2; j > 0; --j)
   {
     path.push_back(pathMatrix2[j - 1]);
   }
