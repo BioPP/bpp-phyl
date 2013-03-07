@@ -385,36 +385,6 @@ void DRHomogeneousMixedTreeLikelihood::computeLikelihoodAtNode_(const Node* node
   }
 }
 
-void DRHomogeneousMixedTreeLikelihood::computeLikelihoodFromArrays(
-  const vector<const VVVdouble*>& iLik,
-  const vector<const VVVdouble*>& tProb,
-  VVVdouble& oLik,
-  unsigned int nbNodes,
-  unsigned int nbDistinctSites,
-  unsigned int nbClasses,
-  unsigned int nbStates,
-  bool reset)
-{
-  cerr << "Invalid use of static method DRHomogeneousMixedTreeLikelihood::computeLikelihoodFromArrays" << endl;
-  exit(0);
-}
-
-void DRHomogeneousMixedTreeLikelihood::computeLikelihoodFromArrays(
-  const std::vector<const VVVdouble*>& iLik,
-  const std::vector<const VVVdouble*>& tProb,
-  const VVVdouble* iLikR,
-  const VVVdouble* tProbR,
-  VVVdouble& oLik,
-  unsigned int nbNodes,
-  unsigned int nbDistinctSites,
-  unsigned int nbClasses,
-  unsigned int nbStates,
-  bool reset)
-{
-  cerr << "Invalid use of static method DRHomogeneousMixedTreeLikelihood::computeLikelihoodFromArrays" << endl;
-  exit(0);
-}
-
 /******************************************************************************
 *                           First Order Derivatives                          *
 ******************************************************************************/

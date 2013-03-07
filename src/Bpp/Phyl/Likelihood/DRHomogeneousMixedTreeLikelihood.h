@@ -206,31 +206,6 @@ protected:
   void resetLikelihoodArrays(const Node* node);
 
   /**
-   * Forbidden methods: here to prevent misuse of the class
-   **/
-
-  static void computeLikelihoodFromArrays(
-    const std::vector<const VVVdouble*>& iLik,
-    const std::vector<const VVVdouble*>& tProb,
-    VVVdouble& oLik, unsigned int nbNodes,
-    unsigned int nbDistinctSites,
-    unsigned int nbClasses,
-    unsigned int nbStates,
-    bool reset = true);
-
-  static void computeLikelihoodFromArrays(
-    const std::vector<const VVVdouble*>& iLik,
-    const std::vector<const VVVdouble*>& tProb,
-    const VVVdouble* iLikR,
-    const VVVdouble* tProbR,
-    VVVdouble& oLik,
-    unsigned int nbNodes,
-    unsigned int nbDistinctSites,
-    unsigned int nbClasses,
-    unsigned int nbStates,
-    bool reset = true);
-
-  /**
    * @brief This method is mainly for debugging purpose.
    *
    * @param node The node at which likelihood values must be displayed.
