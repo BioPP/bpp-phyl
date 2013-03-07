@@ -51,7 +51,7 @@
 namespace bpp
 {
 /**
- * @brief The model described by Rhetsky \& Ney, where the only
+ * @brief The model described by Rhetsky \& Nei, where the only
  * hypothesis is that the transversion rates are only dependent of
  * the target nucleotide. This model is not reversible.
  *
@@ -123,7 +123,7 @@ namespace bpp
  * \c "kappaP", \c "gammaP", \c "sigmaP", \c "alphaP".
  *
  * References:
- * - Rhetsky A. \& Ney M. (1995) MBE 12(1) 131-151.
+ * - Rhetsky A. \& Nei M. (1995) MBE 12(1) 131-151.
  * - Schadt, Sinsheimer \& Lange (1998) Genome Research 8 222-233.
  */
 
