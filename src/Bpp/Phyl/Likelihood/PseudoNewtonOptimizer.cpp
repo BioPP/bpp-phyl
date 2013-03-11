@@ -75,7 +75,7 @@ PseudoNewtonOptimizer::PseudoNewtonOptimizer(DerivableSecondOrder* function) :
   n_(0),
   params_(),
   maxCorrection_(10),
-  useCJ_(true)
+  useCG_(true)
 {
   setDefaultStopCondition_(new FunctionStopCondition(this));
   setStopCondition(*getDefaultStopCondition());
@@ -136,10 +136,10 @@ double PseudoNewtonOptimizer::doStep() throw (Exception)
     //Restore previous point (all parameters in case of global constraint):
     if ((count==0) && updateParameters()) getFunction()->setParameters(*bckPoint);
     
-    if (!(useCJ_ && (count==3))){
+    if (!(useCG_ && (count==3))){
       printMessage("!!! Function at new point is greater than at current point: " + TextTools::toString(newValue) + ">" + TextTools::toString(currentValue_) + ". Applying Felsenstein-Churchill correction: " + TextTools::toString(count));
         
-      for (unsigned int i = 0; i < movements.size(); i++) {
+      for (size_t i = 0; i < movements.size(); i++) {
         movements[i] = movements[i] / 2;
         newPoint[i].setValue(getParameters()[i].getValue() - movements[i]);
       }

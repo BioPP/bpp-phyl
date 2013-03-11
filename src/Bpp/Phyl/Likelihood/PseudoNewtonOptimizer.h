@@ -88,7 +88,7 @@ namespace bpp
 
     unsigned int maxCorrection_;
 
-    bool useCJ_;
+    bool useCG_;
 
   public:
 
@@ -121,6 +121,8 @@ namespace bpp
     double doStep() throw (Exception);
 
     void setMaximumNumberOfCorrections(unsigned int mx) { maxCorrection_ = mx; }
+
+    void disableCG() { useCG_ = false; }
 
   protected:
     DerivableSecondOrder* getFunction_()
