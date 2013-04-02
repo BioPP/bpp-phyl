@@ -1,7 +1,7 @@
 //
-// File: SubstitutionMapping.h
-// Created by: Julien Dutheil
-// Created on: Wed Apr 5 09:51 2005
+// File: RewardMapping.h
+// Created by: Laurent Guéguen
+// Created on: vendredi 29 mars 2013, à 11h 32
 //
 
 /*
@@ -37,8 +37,8 @@ The fact that you are presently reading this means that you have had
 knowledge of the CeCILL license and that you accept its terms.
 */
 
-#ifndef _SUBSTITUTIONMAPPING_H_
-#define _SUBSTITUTIONMAPPING_H_
+#ifndef _REWARDMAPPING_H_
+#define _REWARDMAPPING_H_
 
 #include "Mapping.h"
 
@@ -52,72 +52,65 @@ namespace bpp
 {
 
 /**
- * @brief General interface for storing mapping data.
+ * @brief General interface for storing reward mapping data.
  *
- * There are several kinds of mapping:
- * - Exact mapping, storing the positions of each substitution onto each branch,
- * - Probabilistic mapping, storing the number of substitutions onto each branch.
- *
- * Since only probabilistic substitution mapping is implemented for now, the basal 
+ * Since only probabilistic reward mapping is implemented for now, the basal 
  * interface only contains a few methods.
  * More methods are expected to be added later.
  */
-  class SubstitutionMapping:
+  
+  class RewardMapping:
     virtual public Mapping
   {
     
   public:
-    SubstitutionMapping() {}
-    virtual ~SubstitutionMapping() {}
+    RewardMapping() {}
+    virtual ~RewardMapping() {}
 
 #ifndef NO_VIRTUAL_COV
-    SubstitutionMapping* clone() const = 0;
+    RewardMapping* clone() const = 0;
 #endif
 
   public:
-    /**
-     * @return The number of distinct types of substitutions mapped.
-     */
-    virtual size_t getNumberOfSubstitutionTypes() const = 0;
     
-    virtual double& operator()(size_t nodeIndex, size_t siteIndex, size_t type) = 0;
-    virtual const double& operator()(size_t nodeIndex, size_t siteIndex, size_t type) const = 0;
+    virtual double& operator()(size_t nodeIndex, size_t siteIndex) = 0;
+    virtual const double& operator()(size_t nodeIndex, size_t siteIndex) const = 0;
 };
 
 
 
 /**
- * @brief Partial implementation of the substitution mapping interface.
+ * @brief Partial implementation of the reward mapping interface.
  *
  * This implementation copies the input tree in a TreeTemplate<Node> object.
  */
-class AbstractSubstitutionMapping:
-    virtual public SubstitutionMapping,
+class AbstractRewardMapping:
+    virtual public RewardMapping,
     virtual public AbstractMapping
 {
 public:
-  AbstractSubstitutionMapping() : AbstractMapping(){}
+  AbstractRewardMapping() : AbstractMapping(){}
 
-  AbstractSubstitutionMapping(const Tree& tree) : AbstractMapping(tree){}
+  AbstractRewardMapping(const Tree& tree) : AbstractMapping(tree){}
 
-  AbstractSubstitutionMapping(const AbstractSubstitutionMapping& absm):
-    AbstractMapping(absm) {}
+  AbstractRewardMapping(const AbstractRewardMapping& arm):
+    AbstractMapping(arm) {}
 
 #ifndef NO_VIRTUAL_COV
-  AbstractSubstitutionMapping* clone() const = 0;
+  AbstractRewardMapping* clone() const = 0;
 #endif
 
-  AbstractSubstitutionMapping& operator=(const AbstractSubstitutionMapping& absm)
+  AbstractRewardMapping& operator=(const AbstractRewardMapping& arm)
     {
-      AbstractMapping::operator=(absm);
+      AbstractMapping::operator=(arm);
       return *this;
     }
 
-  virtual ~AbstractSubstitutionMapping() {}
+  virtual ~AbstractRewardMapping() {}
 
 };
 
 } //end of namespace bpp.
 
-#endif //_SUBSTITUTIONMAPPING_H_
+#endif //_REWARDMAPPING_H_
 

@@ -61,6 +61,9 @@ SET(CPP_FILES
   Bpp/Phyl/Mapping/UniformizationSubstitutionCount.cpp
   Bpp/Phyl/Mapping/WeightedSubstitutionCount.cpp
   Bpp/Phyl/Mapping/SubstitutionMappingTools.cpp
+  Bpp/Phyl/Mapping/DecompositionReward.cpp
+  Bpp/Phyl/Mapping/ProbabilisticRewardMapping.cpp
+  Bpp/Phyl/Mapping/RewardMappingTools.cpp
   Bpp/Phyl/Model/StateMap.cpp
   Bpp/Phyl/Model/BinarySubstitutionModel.cpp
   Bpp/Phyl/Model/AbstractSubstitutionModel.cpp
@@ -221,8 +224,14 @@ SET(H_FILES
   Bpp/Phyl/Mapping/UniformizationSubstitutionCount.h
   Bpp/Phyl/Mapping/SubstitutionRegister.h
   Bpp/Phyl/Mapping/SubstitutionCount.h
+  Bpp/Phyl/Mapping/Mapping.h
   Bpp/Phyl/Mapping/SubstitutionMapping.h
   Bpp/Phyl/Mapping/SubstitutionMappingTools.h
+  Bpp/Phyl/Mapping/Reward.h
+  Bpp/Phyl/Mapping/DecompositionReward.h
+  Bpp/Phyl/Mapping/RewardMapping.h
+  Bpp/Phyl/Mapping/RewardMappingTools.h
+  Bpp/Phyl/Mapping/ProbabilisticRewardMapping.h
   Bpp/Phyl/Model/StateMap.h
   Bpp/Phyl/Model/AbstractSubstitutionModel.h
   Bpp/Phyl/Model/BinarySubstitutionModel.h
