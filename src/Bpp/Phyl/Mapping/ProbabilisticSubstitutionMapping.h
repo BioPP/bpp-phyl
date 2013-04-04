@@ -84,7 +84,7 @@ class ProbabilisticSubstitutionMapping:
      * @param numberOfSites The number of sites to map.
      */
     ProbabilisticSubstitutionMapping(const Tree& tree, const SubstitutionCount* sc, size_t numberOfSites) :
-      AbstractSubstitutionMapping(tree), substitutionCount_(sc), mapping_(0)
+      AbstractMapping(tree), AbstractSubstitutionMapping(tree), substitutionCount_(sc), mapping_(0)
     {
       setNumberOfSites(numberOfSites);
     }
@@ -95,14 +95,14 @@ class ProbabilisticSubstitutionMapping:
      * @param tree The tree object to use. It will be cloned for internal use.
      */
     ProbabilisticSubstitutionMapping(const Tree& tree) :
-      AbstractSubstitutionMapping(tree), substitutionCount_(0), mapping_(0)
+    AbstractMapping(tree), AbstractSubstitutionMapping(tree), substitutionCount_(0), mapping_(0)
     {}
     
 
     ProbabilisticSubstitutionMapping* clone() const { return new ProbabilisticSubstitutionMapping(*this); }
 
     ProbabilisticSubstitutionMapping(const ProbabilisticSubstitutionMapping& psm):
-      AbstractSubstitutionMapping(psm), substitutionCount_(psm.substitutionCount_), mapping_(psm.mapping_)
+    AbstractMapping(psm), AbstractSubstitutionMapping(psm), substitutionCount_(psm.substitutionCount_), mapping_(psm.mapping_)
     {}
 
     ProbabilisticSubstitutionMapping& operator=(const ProbabilisticSubstitutionMapping& psm)

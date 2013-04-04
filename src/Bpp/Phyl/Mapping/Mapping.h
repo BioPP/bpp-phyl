@@ -138,7 +138,7 @@ namespace bpp
     size_t nbBranches_;
 
   public:
-    AbstractMapping() : tree_(0), sitesPositions_(), nodes_(), nbSites_(0), nbBranches_(0) {}
+    //    AbstractMapping() : tree_(0), sitesPositions_(), nodes_(), nbSites_(0), nbBranches_(0) {}
 
     AbstractMapping(const Tree& tree) : tree_(new TreeTemplate<Node>(tree)), sitesPositions_(), nodes_(), nbSites_(0), nbBranches_(0)
     {
