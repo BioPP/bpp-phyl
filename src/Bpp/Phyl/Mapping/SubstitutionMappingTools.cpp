@@ -255,7 +255,7 @@ ProbabilisticSubstitutionMapping* SubstitutionMappingTools::computeSubstitutionV
     // ('y' is the state at 'node' and 'x' the state at 'father'.)
 
     //Iterate over all site partitions:
-		const VVVdouble* likelihoodsFather_node = &(drtl.getLikelihoodData()->getLikelihoodArray(father->getId(), currentNode->getId()));
+    const VVVdouble* likelihoodsFather_node = &(drtl.getLikelihoodData()->getLikelihoodArray(father->getId(), currentNode->getId()));
     auto_ptr<TreeLikelihood::ConstBranchModelIterator> mit(drtl.getNewBranchModelIterator(currentNode->getId()));
     VVVdouble pxy;
     bool first;
@@ -342,6 +342,7 @@ ProbabilisticSubstitutionMapping* SubstitutionMappingTools::computeSubstitutionV
     if (ApplicationTools::message) *ApplicationTools::message << " ";
     ApplicationTools::displayTaskDone();
   }
+
   return substitutions;
 }
 

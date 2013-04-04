@@ -61,9 +61,9 @@ namespace bpp
  * mapping, where a path (sequence of rewards along the branch) is
  * available for each branch and site.
  */
-class ProbabilisticRewardMapping:
-  public AbstractRewardMapping
-{
+  class ProbabilisticRewardMapping:
+    public AbstractRewardMapping
+  {
   private:
     const Reward* reward_;
     /**
@@ -72,7 +72,7 @@ class ProbabilisticRewardMapping:
      * Rewards are stored by sites.
      */
     std::vector< std::vector<double> > mapping_;
-  
+    
   public:
     
     /**
@@ -83,25 +83,25 @@ class ProbabilisticRewardMapping:
      * @param numberOfSites The number of sites to map.
      */
     ProbabilisticRewardMapping(const Tree& tree, const Reward* reward, size_t numberOfSites) :
-      AbstractRewardMapping(tree), reward_(reward), mapping_(0)
+      AbstractMapping(tree), AbstractRewardMapping(tree), reward_(reward), mapping_(0)
     {
       setNumberOfSites(numberOfSites);
     }
-
+    
     /**
      * @brief Build a new ProbabilisticRewardMapping object.
      *
      * @param tree The tree object to use. It will be cloned for internal use.
      */
     ProbabilisticRewardMapping(const Tree& tree) :
-      AbstractRewardMapping(tree), reward_(0), mapping_(0)
+    AbstractMapping(tree), AbstractRewardMapping(tree), reward_(0), mapping_(0)
     {}
     
 
     ProbabilisticRewardMapping* clone() const { return new ProbabilisticRewardMapping(*this); }
 
     ProbabilisticRewardMapping(const ProbabilisticRewardMapping& prm):
-      AbstractRewardMapping(prm), reward_(prm.reward_), mapping_(prm.mapping_)
+    AbstractMapping(prm), AbstractRewardMapping(prm), reward_(prm.reward_), mapping_(prm.mapping_)
     {}
 
     ProbabilisticRewardMapping& operator=(const ProbabilisticRewardMapping& prm)

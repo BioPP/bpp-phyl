@@ -96,7 +96,7 @@ class AbstractSubstitutionMapping:
     virtual public AbstractMapping
 {
 public:
-  AbstractSubstitutionMapping() : AbstractMapping(){}
+  //  AbstractSubstitutionMapping() : AbstractMapping(){}
 
   AbstractSubstitutionMapping(const Tree& tree) : AbstractMapping(tree){}
 

@@ -89,7 +89,7 @@ class AbstractRewardMapping:
     virtual public AbstractMapping
 {
 public:
-  AbstractRewardMapping() : AbstractMapping(){}
+  //  AbstractRewardMapping() : AbstractMapping(){}
 
   AbstractRewardMapping(const Tree& tree) : AbstractMapping(tree){}
 
