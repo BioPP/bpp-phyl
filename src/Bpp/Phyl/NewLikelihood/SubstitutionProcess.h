@@ -98,46 +98,41 @@ public:
    * @brief Get the substitution model corresponding to a certain branch, site pattern, and model class.
    *
    * @param nodeId The id of the node.
-   * @param siteIndex The site pattern.
    * @param classIndex The model class index.
    */
-  virtual const SubstitutionModel& getSubstitutionModel(int nodeId, size_t siteIndex, size_t classIndex) const = 0;
+  virtual const SubstitutionModel& getSubstitutionModel(int nodeId, size_t classIndex) const = 0;
 
   /**
    * @brief Get the transition probabilities corresponding to a certain branch, site pattern, and model class.
    *
    * @param nodeId The id of the node.
-   * @param siteIndex The site pattern.
    * @param classIndex The model class index.
    */
-  virtual const Matrix<double>& getTransitionProbabilities(int nodeId, size_t siteIndex, size_t classIndex) const = 0;
+  virtual const Matrix<double>& getTransitionProbabilities(int nodeId, size_t classIndex) const = 0;
  
   /**
    * @brief Get the first order derivatives of the transition probabilities according to time, corresponding to a certain branch, site pattern, and model class.
    *
    * @param nodeId The id of the node.
-   * @param siteIndex The site pattern.
    * @param classIndex The model class index.
    */
-  virtual const Matrix<double>& getTransitionProbabilitiesD1(int nodeId, size_t siteIndex, size_t classIndex) const = 0;
+  virtual const Matrix<double>& getTransitionProbabilitiesD1(int nodeId, size_t classIndex) const = 0;
  
   /**
    * @brief Get the second order derivatives of the transition probabilities according to time, corresponding to a certain branch, site pattern, and model class.
    *
    * @param nodeId The id of the node.
-   * @param siteIndex The site pattern.
    * @param classIndex The model class index.
    */
-  virtual const Matrix<double>& getTransitionProbabilitiesD2(int nodeId, size_t siteIndex, size_t classIndex) const = 0;
+  virtual const Matrix<double>& getTransitionProbabilitiesD2(int nodeId, size_t classIndex) const = 0;
  
   /**
    * @brief Get the generator corresponding to a certain branch, site pattern, and model class.
    *
    * @param nodeId The id of the node.
-   * @param siteIndex The site pattern.
    * @param classIndex The model class index.
    */
-  virtual const Matrix<double>& getGenerator(int nodeId, size_t siteIndex, size_t classIndex) const = 0;
+  virtual const Matrix<double>& getGenerator(int nodeId, size_t classIndex) const = 0;
 
   /**
    * @brief Get the values of the frequencies for each state in the alphabet at the root node.

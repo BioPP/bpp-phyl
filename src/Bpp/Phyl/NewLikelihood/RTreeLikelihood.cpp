@@ -266,7 +266,6 @@ void RTreeLikelihood::computeSubtreeLikelihood_(const Node* node)
   for (size_t l = 0; l < nbNodes; l++)
   {
     //For each son node,
-
     const Node* son = node->getSon(l);
 
     computeSubtreeLikelihood_(son); //Recursive method.
@@ -274,6 +273,12 @@ void RTreeLikelihood::computeSubtreeLikelihood_(const Node* node)
     vector<size_t>* patternLinks_node_son = &likelihoodData_->getArrayPositions(node->getId(), son->getId());
     VVVdouble* likelihoods_son = &likelihoodData_->getLikelihoodArray(son->getId());
 
+    //Get all transition probabilities:
+    vector<const Matrix<double>*> pxy_son(nbClasses_);
+    for (size_t c = 0; c < nbClasses_; ++c)
+      pxy_son[c] = &process_->getTransitionProbabilities(son->getId(), c);
+
+    //Loop over sites:
     for (size_t i = 0; i < nbSites; i++)
     {
       //For each site in the sequence,
@@ -284,14 +289,13 @@ void RTreeLikelihood::computeSubtreeLikelihood_(const Node* node)
         //For each rate classe,
         Vdouble* likelihoods_son_i_c = &(*likelihoods_son_i)[c];
         Vdouble* likelihoods_node_i_c = &(*likelihoods_node_i)[c];
-        const Matrix<double>& pxy_son_c = process_->getTransitionProbabilities(son->getId(), i, c);
         for (size_t x = 0; x < nbStates_; x++)
         {
           //For each initial state,
           double likelihood = 0;
           for (size_t y = 0; y < nbStates_; y++)
           {
-            likelihood += pxy_son_c(x, y) * (*likelihoods_son_i_c)[y];
+            likelihood += (*pxy_son[c])(x, y) * (*likelihoods_son_i_c)[y];
           }
           (*likelihoods_node_i_c)[x] *= likelihood;
         }
@@ -630,7 +634,13 @@ void RTreeLikelihood::computeTreeDLikelihood_(const string& variable) const
     VVVdouble* likelihoods_son = &likelihoodData_->getLikelihoodArray(son->getId());
 
     if (son == branch)
-    {
+    { 
+      //Get all derivatives of transition probabilities:
+      vector<const Matrix<double>*> dpxy_son(nbClasses_);
+      for (size_t c = 0; c < nbClasses_; ++c)
+        dpxy_son[c] = &process_->getTransitionProbabilitiesD1(son->getId(), c);
+
+      //Loop over sites:
       for (size_t i = 0; i < nbSites; ++i)
       {
         VVdouble* likelihoods_son_i = &(*likelihoods_son)[(*patternLinks_father_son)[i]];
@@ -639,13 +649,12 @@ void RTreeLikelihood::computeTreeDLikelihood_(const string& variable) const
         {
           Vdouble* likelihoods_son_i_c = &(*likelihoods_son_i)[c];
           Vdouble* dLikelihoods_father_i_c = &(*dLikelihoods_father_i)[c];
-          const Matrix<double>& dpxy_son_c = process_->getTransitionProbabilitiesD1(son->getId(), i, c);
           for (size_t x = 0; x < nbStates_; ++x)
           {
             double dl = 0;
             for (size_t y = 0; y < nbStates_; ++y)
             {
-              dl += dpxy_son_c(x, y) * (*likelihoods_son_i_c)[y];
+              dl += (*dpxy_son[c])(x, y) * (*likelihoods_son_i_c)[y];
             }
             (*dLikelihoods_father_i_c)[x] *= dl;
           }
@@ -654,6 +663,12 @@ void RTreeLikelihood::computeTreeDLikelihood_(const string& variable) const
     }
     else
     {
+      //Get all transition probabilities:
+      vector<const Matrix<double>*> pxy_son(nbClasses_);
+      for (size_t c = 0; c < nbClasses_; ++c)
+        pxy_son[c] = &process_->getTransitionProbabilities(son->getId(), c);
+
+      //Loop over sites:
       for (size_t i = 0; i < nbSites; ++i)
       {
         VVdouble* likelihoods_son_i = &(*likelihoods_son)[(*patternLinks_father_son)[i]];
@@ -662,13 +677,12 @@ void RTreeLikelihood::computeTreeDLikelihood_(const string& variable) const
         {
           Vdouble* likelihoods_son_i_c = &(*likelihoods_son_i)[c];
           Vdouble* dLikelihoods_father_i_c = &(*dLikelihoods_father_i)[c];
-          const Matrix<double>& pxy_son_c = process_->getTransitionProbabilities(son->getId(), i, c);
           for (size_t x = 0; x < nbStates_; ++x)
           {
             double dl = 0;
             for (size_t y = 0; y < nbStates_; ++y)
             {
-              dl += pxy_son_c(x, y) * (*likelihoods_son_i_c)[y];
+              dl += (*pxy_son[c])(x, y) * (*likelihoods_son_i_c)[y];
             }
             (*dLikelihoods_father_i_c)[x] *= dl;
           }
@@ -714,9 +728,16 @@ void RTreeLikelihood::computeDownSubtreeDLikelihood_(const Node* node) const
 
     vector<size_t>* patternLinks_father_son = &likelihoodData_->getArrayPositions(father->getId(), son->getId());
 
+    //Get all transition probabilities:
+    vector<const Matrix<double>*> pxy_son(nbClasses_);
+    for (size_t c = 0; c < nbClasses_; ++c)
+      pxy_son[c] = &process_->getTransitionProbabilities(son->getId(), c);
+
     if (son == node)
     {
       VVVdouble* dLikelihoods_son = &likelihoodData_->getDLikelihoodArray(son->getId());
+
+      //Loop over sites:
       for (size_t i = 0; i < nbSites; ++i)
       {
         VVdouble* dLikelihoods_son_i = &(*dLikelihoods_son)[(*patternLinks_father_son)[i]];
@@ -725,13 +746,12 @@ void RTreeLikelihood::computeDownSubtreeDLikelihood_(const Node* node) const
         {
           Vdouble* dLikelihoods_son_i_c = &(*dLikelihoods_son_i)[c];
           Vdouble* dLikelihoods_father_i_c = &(*dLikelihoods_father_i)[c];
-          const Matrix<double>& pxy_son_c = process_->getTransitionProbabilities(son->getId(), i, c);
           for (size_t x = 0; x < nbStates_; ++x)
           {
             double dl = 0;
             for (size_t y = 0; y < nbStates_; ++y)
             {
-              dl += pxy_son_c(x, y) * (*dLikelihoods_son_i_c)[y];
+              dl += (*pxy_son[c])(x, y) * (*dLikelihoods_son_i_c)[y];
             }
             (*dLikelihoods_father_i_c)[x] *= dl;
           }
@@ -741,6 +761,8 @@ void RTreeLikelihood::computeDownSubtreeDLikelihood_(const Node* node) const
     else
     {
       VVVdouble* likelihoods_son = &likelihoodData_->getLikelihoodArray(son->getId());
+      
+      //Loop over sites:
       for (size_t i = 0; i < nbSites; ++i)
       {
         VVdouble* likelihoods_son_i = &(*likelihoods_son)[(*patternLinks_father_son)[i]];
@@ -749,13 +771,12 @@ void RTreeLikelihood::computeDownSubtreeDLikelihood_(const Node* node) const
         {
           Vdouble* likelihoods_son_i_c = &(*likelihoods_son_i)[c];
           Vdouble* dLikelihoods_father_i_c = &(*dLikelihoods_father_i)[c];
-          const Matrix<double>& pxy_son_c = process_->getTransitionProbabilities(son->getId(), i, c);
           for (size_t x = 0; x < nbStates_; ++x)
           {
             double dl = 0;
             for (size_t y = 0; y < nbStates_; ++y)
             {
-              dl += pxy_son_c(x, y) * (*likelihoods_son_i_c)[y];
+              dl += (*pxy_son[c])(x, y) * (*likelihoods_son_i_c)[y];
             }
             (*dLikelihoods_father_i_c)[x] *= dl;
           }
@@ -1107,6 +1128,12 @@ void RTreeLikelihood::computeTreeD2Likelihood_(const string& variable) const
 
     if (son == branch)
     {
+      //Get all derivatives of transition probabilities:
+      vector<const Matrix<double>*> d2pxy_son(nbClasses_);
+      for (size_t c = 0; c < nbClasses_; ++c)
+        d2pxy_son[c] = &process_->getTransitionProbabilitiesD2(son->getId(), c);
+
+      //Loop over sites:
       for (size_t i = 0; i < nbSites; ++i)
       {
         VVdouble* likelihoods_son_i = &(*likelihoods_son)[(*patternLinks_father_son)[i]];
@@ -1115,13 +1142,12 @@ void RTreeLikelihood::computeTreeD2Likelihood_(const string& variable) const
         {
           Vdouble* likelihoods_son_i_c = &(*likelihoods_son_i)[c];
           Vdouble* d2Likelihoods_father_i_c = &(*d2Likelihoods_father_i)[c];
-          const Matrix<double>& d2pxy_son_c = process_->getTransitionProbabilitiesD2(son->getId(), i, c);
           for (size_t x = 0; x < nbStates_; ++x)
           {
             double d2l = 0;
             for (size_t y = 0; y < nbStates_; ++y)
             {
-              d2l += d2pxy_son_c(x, y) * (*likelihoods_son_i_c)[y];
+              d2l += (*d2pxy_son[c])(x, y) * (*likelihoods_son_i_c)[y];
             }
             (*d2Likelihoods_father_i_c)[x] *= d2l;
           }
@@ -1130,6 +1156,12 @@ void RTreeLikelihood::computeTreeD2Likelihood_(const string& variable) const
     }
     else
     {
+      //Get all transition probabilities:
+      vector<const Matrix<double>*> pxy_son(nbClasses_);
+      for (size_t c = 0; c < nbClasses_; ++c)
+        pxy_son[c] = &process_->getTransitionProbabilities(son->getId(), c);
+
+      //Loop over sites:
       for (size_t i = 0; i < nbSites; ++i)
       {
         VVdouble* likelihoods_son_i = &(*likelihoods_son)[(*patternLinks_father_son)[i]];
@@ -1138,13 +1170,12 @@ void RTreeLikelihood::computeTreeD2Likelihood_(const string& variable) const
         {
           Vdouble* likelihoods_son_i_c = &(*likelihoods_son_i)[c];
           Vdouble* d2Likelihoods_father_i_c = &(*d2Likelihoods_father_i)[c];
-          const Matrix<double>& pxy_son_c = process_->getTransitionProbabilities(son->getId(), i, c);
           for (size_t x = 0; x < nbStates_; ++x)
           {
             double d2l = 0;
             for (size_t y = 0; y < nbStates_; ++y)
             {
-              d2l += pxy_son_c(x, y) * (*likelihoods_son_i_c)[y];
+              d2l += (*pxy_son[c])(x, y) * (*likelihoods_son_i_c)[y];
             }
             (*d2Likelihoods_father_i_c)[x] *= d2l;
           }
@@ -1190,9 +1221,16 @@ void RTreeLikelihood::computeDownSubtreeD2Likelihood_(const Node* node) const
 
     vector<size_t>* patternLinks_father_son = &likelihoodData_->getArrayPositions(father->getId(), son->getId());
 
+    //Get all transition probabilities:
+    vector<const Matrix<double>*> pxy_son(nbClasses_);
+    for (size_t c = 0; c < nbClasses_; ++c)
+      pxy_son[c] = &process_->getTransitionProbabilities(son->getId(), c);
+
     if (son == node)
     {
       VVVdouble* d2Likelihoods_son = &likelihoodData_->getD2LikelihoodArray(son->getId());
+      
+      //Loop over sites:
       for (size_t i = 0; i < nbSites; i++)
       {
         VVdouble* d2Likelihoods_son_i = &(*d2Likelihoods_son)[(*patternLinks_father_son)[i]];
@@ -1201,13 +1239,12 @@ void RTreeLikelihood::computeDownSubtreeD2Likelihood_(const Node* node) const
         {
           Vdouble* d2Likelihoods_son_i_c = &(*d2Likelihoods_son_i)[c];
           Vdouble* d2Likelihoods_father_i_c = &(*d2Likelihoods_father_i)[c];
-          const Matrix<double>& pxy_son_c = process_->getTransitionProbabilities(son->getId(), i, c);
           for (size_t x = 0; x < nbStates_; ++x)
           {
             double d2l = 0;
             for (size_t y = 0; y < nbStates_; ++y)
             {
-              d2l += pxy_son_c(x, y) * (*d2Likelihoods_son_i_c)[y];
+              d2l += (*pxy_son[c])(x, y) * (*d2Likelihoods_son_i_c)[y];
             }
             (*d2Likelihoods_father_i_c)[x] *= d2l;
           }
@@ -1217,6 +1254,8 @@ void RTreeLikelihood::computeDownSubtreeD2Likelihood_(const Node* node) const
     else
     {
       VVVdouble* likelihoods_son = &likelihoodData_->getLikelihoodArray(son->getId());
+      
+      //Loop over sites:
       for (size_t i = 0; i < nbSites; ++i)
       {
         VVdouble* likelihoods_son_i = &(*likelihoods_son)[(*patternLinks_father_son)[i]];
@@ -1225,13 +1264,12 @@ void RTreeLikelihood::computeDownSubtreeD2Likelihood_(const Node* node) const
         {
           Vdouble* likelihoods_son_i_c = &(*likelihoods_son_i)[c];
           Vdouble* d2Likelihoods_father_i_c = &(*d2Likelihoods_father_i)[c];
-          const Matrix<double>& pxy_son_c = process_->getTransitionProbabilities(son->getId(), i, c);
           for (size_t x = 0; x < nbStates_; ++x)
           {
             double dl = 0;
             for (unsigned int y = 0; y < nbStates_; ++y)
             {
-              dl += pxy_son_c(x, y) * (*likelihoods_son_i_c)[y];
+              dl += (*pxy_son[c])(x, y) * (*likelihoods_son_i_c)[y];
             }
             (*d2Likelihoods_father_i_c)[x] *= dl;
           }

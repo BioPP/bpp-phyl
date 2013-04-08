@@ -44,9 +44,9 @@ using namespace bpp;
 void SimpleSubstitutionProcess::fireParameterChanged(const ParameterList& pl)
 {
   //Forward parameters:
-  pTree_.matchParametersValues(pl);
+  pTree_->matchParametersValues(pl);
   //Updates probabilities:
-  model_.matchParametersValues(pl);
+  model_->matchParametersValues(pl);
   //Transistion probabilities have changed and need to be recomputed:
   for (size_t i = 0; i < computeProbability_.size(); ++i) {
     computeProbability_[i] = false;

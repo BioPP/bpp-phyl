@@ -65,12 +65,12 @@ protected:
   /**
    * @brief All transition probabilities, one set per node.
    */
-  std::vector< RowMatrix<double> >probabilities_;
-  std::vector< RowMatrix<double> >probabilitiesD1_;
-  std::vector< RowMatrix<double> >probabilitiesD2_;
-  std::vector<bool> computeProbability_;
-  std::vector<bool> computeProbabilityD1_;
-  std::vector<bool> computeProbabilityD2_;
+  mutable std::vector< RowMatrix<double> >probabilities_;
+  mutable std::vector< RowMatrix<double> >probabilitiesD1_;
+  mutable std::vector< RowMatrix<double> >probabilitiesD2_;
+  mutable std::vector<bool> computeProbability_;
+  mutable std::vector<bool> computeProbabilityD1_;
+  mutable std::vector<bool> computeProbabilityD2_;
   /**
    * @brief The hash table is used to index probability matrices and node ids.
    */
@@ -139,15 +139,15 @@ public:
     return data.getAlphabet()->getAlphabetType() == model_->getAlphabet()->getAlphabetType();
   }
  
-  const SubstitutionModel& getSubstitutionModel(int nodeId, size_t siteIndex, size_t classIndex) const
+  const SubstitutionModel& getSubstitutionModel(int nodeId, size_t classIndex) const
   {
     return *model_;
   }
 
  
-  const Matrix<double>& getTransitionProbabilities(int nodeId, size_t siteIndex, size_t classIndex) const
+  const Matrix<double>& getTransitionProbabilities(int nodeId, size_t classIndex) const
   {
-    size_t i = nodeIndex_[nodeId];
+    size_t i = getNodeIndex(nodeId);
     if (!computeProbability_[i]) {
       computeProbability_[i] = true; //We record that we did this computation.
       //The transition matrix was never computed before. We therefore have to compute it first:
@@ -157,9 +157,9 @@ public:
     return probabilities_[i];
   }
 
-  const Matrix<double>& getTransitionProbabilitiesD1(int nodeId, size_t siteIndex, size_t classIndex) const
+  const Matrix<double>& getTransitionProbabilitiesD1(int nodeId, size_t classIndex) const
   {
-    size_t i = nodeIndex_[nodeId];
+    size_t i = getNodeIndex(nodeId);
     if (!computeProbabilityD1_[i]) {
       computeProbabilityD1_[i] = true; //We record that we did this computation.
       //The transition matrix was never computed before. We therefore have to compute it first:
@@ -169,9 +169,9 @@ public:
     return probabilitiesD1_[i];
   }
 
-  const Matrix<double>& getTransitionProbabilitiesD2(int nodeId, size_t siteIndex, size_t classIndex) const
+  const Matrix<double>& getTransitionProbabilitiesD2(int nodeId, size_t classIndex) const
   {
-    size_t i = nodeIndex_[nodeId];
+    size_t i = getNodeIndex(nodeId);
     if (!computeProbabilityD2_[i]) {
       computeProbabilityD2_[i] = true; //We record that we did this computation.
       //The transition matrix was never computed before. We therefore have to compute it first:
@@ -181,7 +181,7 @@ public:
     return probabilitiesD2_[i];
   }
 
-  const Matrix<double>& getGenerator(int nodeId, size_t siteIndex, size_t classIndex) const {
+  const Matrix<double>& getGenerator(int nodeId, size_t classIndex) const {
     return model_->getGenerator();
   }
 
@@ -197,6 +197,14 @@ public:
     if (classIndex != 0)
       throw IndexOutOfBoundsException("SimpleSubstitutionProcess::getProbabilityForModel.", classIndex, 0, 1);
     return 1;
+  }
+
+  size_t getNodeIndex(int nodeId) const throw (NodeNotFoundException) {
+    std::map<int, size_t>::const_iterator it = nodeIndex_.find(nodeId);
+    if (it != nodeIndex_.end())
+      return it->second;
+    else
+      throw NodeNotFoundException("SimpleSubstitutionProcess::getNodeIndex(int).", nodeId);
   }
 
   //bool transitionProbabilitiesHaveChanged() const { return true; }
