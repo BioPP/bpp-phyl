@@ -159,9 +159,9 @@ class AbstractTreeLikelihood :
 		const SiteContainer* getData() const { return data_.get(); }
 		const Alphabet* getAlphabet() const { return data_->getAlphabet(); }	
 		
-    unsigned int getNumberOfSites() const { return data_->getNumberOfSites(); }
-		unsigned int getNumberOfStates() const { return data_->getAlphabet()->getSize(); }
-		unsigned int getNumberOfClasses() const { return process_->getNumberOfClasses(); }
+    size_t getNumberOfSites() const { return data_->getNumberOfSites(); }
+		size_t getNumberOfStates() const { return data_->getAlphabet()->getSize(); }
+		size_t getNumberOfClasses() const { return process_->getNumberOfClasses(); }
 
     Vdouble getLogLikelihoodForEachSite() const;
 		VVdouble getLogLikelihoodForEachSiteForEachState() const;
@@ -169,7 +169,7 @@ class AbstractTreeLikelihood :
 		VVVdouble getLogLikelihoodForEachSiteForEachClassForEachState() const;
 		
     VVdouble getPosteriorProbabilitiesOfEachClass() const;
-    std::vector<unsigned int> getClassWithMaxPostProbOfEachSite() const;
+    std::vector<size_t> getClassWithMaxPostProbOfEachSite() const;
     
 		const Tree& getTree() const { return tree_->getTree(); }
 		void enableDerivatives(bool yn) { computeFirstOrderDerivatives_ = computeSecondOrderDerivatives_ = yn; }

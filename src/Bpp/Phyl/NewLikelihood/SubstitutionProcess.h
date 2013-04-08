@@ -81,7 +81,9 @@ public:
   virtual bool isCompatibleWith(const Tree& tree) const = 0;
   virtual bool isCompatibleWith(const SiteContainer& data) const = 0;
 
-  virtual unsigned int getNumberOfClasses() const = 0;
+  virtual size_t getNumberOfClasses() const = 0;
+  
+  virtual size_t getNumberOfStates() const = 0;
 
   /**
    * @brief Get the transition probabilities corresponding to a certain branch, site pattern, and model class.
@@ -135,7 +137,7 @@ public:
    * @see getStates();
    * @see SubstitutionModel
    */
-  virtual double getInitValue(unsigned int i, int state) const throw (BadIntException) = 0;
+  virtual double getInitValue(size_t i, int state) const throw (BadIntException) = 0;
 
   virtual ConstBranchModelIterator* getNewBranchModelIterator(int nodeId) const = 0;
   virtual ConstSiteModelIterator* getNewSiteModelIterator(unsigned int siteIndex) const = 0;
@@ -214,7 +216,9 @@ public:
 public:
   virtual SimpleSubstitutionProcess* clone() const { return new SimpleSubstitutionProcess(*this); }
 
-  virtual unsigned int getNumberOfClasses() const { return 1; }
+  virtual size_t getNumberOfClasses() const { return 1; }
+  
+  virtual size_t getNumberOfStates() const { return model_->getNumberOfStates(); }
 
   /**
    * @return True. A simple subsitution process is compatible with any tree.
@@ -237,7 +241,7 @@ public:
     return model_->getFrequencies();
   }
   
-  virtual double getInitValue(unsigned int i, int state) const throw (BadIntException) {
+  virtual double getInitValue(size_t i, int state) const throw (BadIntException) {
     return model_->getInitValue(i, state);
   }
   
@@ -284,7 +288,7 @@ public:
 public:
   virtual RateAcrossSitesSubstitutionProcess* clone() const { return new RateAcrossSitesSubstitutionProcess(*this); }
 
-  virtual unsigned int getNumberOfClasses() const { return rDist_->getNumberOfCategories(); }
+  virtual size_t getNumberOfClasses() const { return rDist_->getNumberOfCategories(); }
 
   virtual const Matrix<double>& getTransitionProbabilities(int nodeId, unsigned int siteIndex, unsigned int classIndex) const
   {

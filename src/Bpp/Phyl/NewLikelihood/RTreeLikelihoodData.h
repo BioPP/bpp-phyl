@@ -147,16 +147,16 @@ class RTreeLikelihoodData :
      * The double map contains the position of the site to use (second dimension)
      * of the likelihoods array.
      */
-    mutable std::map<int, std::map<int, std::vector<unsigned int> > > patternLinks_;
+    mutable std::map<int, std::map<int, std::vector<size_t> > > patternLinks_;
     SiteContainer* shrunkData_;
-    unsigned int nbSites_; 
-    unsigned int nbStates_;
-    unsigned int nbClasses_;
-    unsigned int nbDistinctSites_; 
+    size_t nbSites_; 
+    size_t nbStates_;
+    size_t nbClasses_;
+    size_t nbDistinctSites_; 
     bool usePatterns_;
 
   public:
-    RTreeLikelihoodData(const TreeTemplate<Node>* tree, unsigned int nbClasses, bool usePatterns = true) :
+    RTreeLikelihoodData(const TreeTemplate<Node>* tree, size_t nbClasses, bool usePatterns = true) :
       AbstractTreeLikelihoodData(tree),
       nodeData_(), patternLinks_(), shrunkData_(0), nbSites_(0), nbStates_(0),
       nbClasses_(nbClasses), nbDistinctSites_(0), usePatterns_(usePatterns)
@@ -225,23 +225,23 @@ class RTreeLikelihoodData :
     { 
       return nodeData_[nodeId];
     }
-    unsigned int getArrayPosition(int parentId, int sonId, unsigned int currentPosition) const
+    size_t getArrayPosition(int parentId, int sonId, size_t currentPosition) const
     {
       return patternLinks_[parentId][sonId][currentPosition];
     }
-    unsigned int getRootArrayPosition(unsigned int currentPosition) const
+    size_t getRootArrayPosition(size_t currentPosition) const
     {
       return rootPatternLinks_[currentPosition];
     }
-    const std::vector<unsigned int>& getArrayPositions(int parentId, int sonId) const
+    const std::vector<size_t>& getArrayPositions(int parentId, int sonId) const
     {
       return patternLinks_[parentId][sonId];
     }
-    std::vector<unsigned int>& getArrayPositions(int parentId, int sonId)
+    std::vector<size_t>& getArrayPositions(int parentId, int sonId)
     {
       return patternLinks_[parentId][sonId];
     }
-    unsigned int getArrayPosition(int parentId, int sonId, unsigned int currentPosition)
+    size_t getArrayPosition(int parentId, int sonId, size_t currentPosition)
     {
       return patternLinks_[parentId][sonId][currentPosition];
     }
@@ -261,14 +261,15 @@ class RTreeLikelihoodData :
       return nodeData_[nodeId].getD2LikelihoodArray();
     }
 
-    unsigned int getNumberOfDistinctSites() const { return nbDistinctSites_; }
-    unsigned int getNumberOfSites() const { return nbSites_; }
-    unsigned int getNumberOfStates() const { return nbStates_; }
-    unsigned int getNumberOfClasses() const { return nbClasses_; }
+    size_t getNumberOfDistinctSites() const { return nbDistinctSites_; }
+    size_t getNumberOfSites() const { return nbSites_; }
+    size_t getNumberOfStates() const { return nbStates_; }
+    size_t getNumberOfClasses() const { return nbClasses_; }
     
     void initLikelihoods(const SiteContainer& sites, const SubstitutionProcess& process) throw (Exception);
 
   protected:
+    
     /**
      * @brief This method initializes the leaves according to a sequence file.
      * likelihood is set to 1 for the state corresponding to the sequence site,
@@ -281,9 +282,9 @@ class RTreeLikelihoodData :
      *
      * @param node      The node defining the subtree to analyse.
      * @param sequences The data to be used for initialization.
-     * @param model     The model to use.
+     * @param process   The substitution process to use.
      */
-    virtual void initLikelihoods(const Node* node, const SiteContainer& sequences, const SubstitutionModel& model) throw (Exception);
+    virtual void initLikelihoods(const Node* node, const SiteContainer& sequences, const SubstitutionProcess& process) throw (Exception);
 
     /**
      * @brief This method initializes the leaves according to a sequence file.
@@ -298,10 +299,10 @@ class RTreeLikelihoodData :
      *
      * @param node      The node defining the subtree to analyse.
      * @param sequences The data to be used for initialization.
-     * @param model     The model to use.
+     * @param process   The substitution process to use.
      * @return The shrunk sub-dataset + indices for the subtree defined by <i>node</i>.
      */
-    virtual SitePatterns* initLikelihoodsWithPatterns(const Node* node, const SiteContainer& sequences, const SubstitutionModel& model) throw (Exception);
+    virtual SitePatterns* initLikelihoodsWithPatterns(const Node* node, const SiteContainer& sequences, const SubstitutionProcess& process) throw (Exception);
   
 };
 

@@ -160,27 +160,6 @@ vector<Tree*> PhylogeneticsApplicationTools::getTrees(
 
 /******************************************************************************/
 
-<<<<<<< HEAD
-SubstitutionModel* PhylogeneticsApplicationTools::getSubstitutionModelDefaultInstance(
-  const Alphabet* alphabet,
-  const string& modelDescription,
-  map<string, string>& unparsedParameterValues,
-  bool allowCovarions,
-  bool allowMixed,
-  bool allowGaps,
-  bool verbose) throw (Exception)
-{
-  BppOSubstitutionModelFormat* bIO=new BppOSubstitutionModelFormat();
-  SubstitutionModel* pS= bIO->read(alphabet, modelDescription, unparsedParameterValues, allowCovarions, allowMixed, allowMixed, verbose);
-  delete bIO;
-  return pS;
-  
-}
-
-/******************************************************************************/
-
-=======
->>>>>>> master
 SubstitutionModel* PhylogeneticsApplicationTools::getSubstitutionModel(
   const Alphabet* alphabet,
   const SiteContainer* data,
@@ -337,102 +316,14 @@ FrequenciesSet* PhylogeneticsApplicationTools::getFrequenciesSet(
   bool verbose) throw (Exception)
 {
   map<string, string> unparsedParameterValues;
-<<<<<<< HEAD
-  FrequenciesSet* pFS = getFrequenciesSetDefaultInstance(alphabet, freqDescription, unparsedParameterValues);
-
-  // Now we set the initial frequencies according to options:
-  if (unparsedParameterValues.find("init") != unparsedParameterValues.end())
-  {
-    // Initialization using the "init" option
-    string init = unparsedParameterValues["init"];
-    if (init == "observed")
-    {
-      if (!data)
-        throw Exception("Missing data for observed frequencies");
-      unsigned int psc = 0;
-      if (unparsedParameterValues.find("init.observedPseudoCount") != unparsedParameterValues.end())
-        psc = TextTools::toInt(unparsedParameterValues["init.observedPseudoCount"]);
-
-      map<int, double> freqs;
-      SequenceContainerTools::getFrequencies(*data, freqs, psc);
-
-      pFS->setFrequenciesFromMap(freqs);
-    }
-    else if (init.substr(0, 6) == "values")
-    {
-      // Initialization using the "values" argument
-      vector<double> frequencies;
-      string rf = init.substr(6);
-
-      StringTokenizer strtok(rf.substr(1, rf.length() - 2), ",");
-      while (strtok.hasMoreToken())
-        frequencies.push_back(TextTools::toDouble(strtok.nextToken()));
-      pFS->setFrequencies(frequencies);
-    }
-    else if (init == "balanced")
-    {
-      // Nothing to do here, this is the default instanciation.
-    }
-    else
-      throw Exception("Unknown init argument");
-  }
-  else
-  {
-    // Explicit initialization of each parameter
-    ParameterList pl = pFS->getParameters();
-
-    for (unsigned int i = 0; i < pl.size(); i++)
-    {
-      AutoParameter ap(pl[i]);
-      if (verbose)
-        ap.setMessageHandler(ApplicationTools::warning);
-      pl.setParameter(i, ap);
-    }
-
-    for (unsigned int i = 0; i < pl.size(); i++)
-    {
-      const string pName = pl[i].getName();
-      double value = ApplicationTools::getDoubleParameter(pName, unparsedParameterValues, pl[i].getValue());
-
-      pl[i].setValue(value);
-      if (verbose)
-        ApplicationTools::displayResult("Parameter found", pName + "=" + TextTools::toString(pl[i].getValue()));
-    }
-
-    pFS->matchParametersValues(pl);
-  }
-=======
   BppOFrequenciesSetFormat bIO(BppOFrequenciesSetFormat::ALL, verbose);
   auto_ptr<FrequenciesSet> pFS(bIO.read(alphabet, freqDescription, data, true));
->>>>>>> master
 
   // /////// To be changed for input normalization
   if (rateFreqs.size() > 0)
   {
-<<<<<<< HEAD
-    pFS = new MarkovModulatedFrequenciesSet(pFS, rateFreqs);
-  }
-
-  return pFS;
-}
-
-/******************************************************************************/
-
-
-FrequenciesSet* PhylogeneticsApplicationTools::getFrequenciesSetDefaultInstance(
-  const Alphabet* alphabet,
-  const std::string& freqDescription,
-  std::map<std::string, std::string>& unparsedParameterValues) throw (Exception)
-{
-  BppOFrequenciesSetFormat* bIO=new BppOFrequenciesSetFormat();
-  FrequenciesSet* pFS= bIO->read(alphabet, freqDescription, unparsedParameterValues);
-  delete bIO;
-  return pFS;
-}
-=======
     pFS.reset(new MarkovModulatedFrequenciesSet(pFS.release(), rateFreqs));
   }
->>>>>>> master
 
   return pFS.release();
 }
@@ -1436,105 +1327,13 @@ void PhylogeneticsApplicationTools::writeTrees(
 
 /******************************************************************************/
 
-<<<<<<< HEAD
-void PhylogeneticsApplicationTools::describeParameters_(const ParameterAliasable* parametrizable, OutputStream& out, map<string, string>& globalAliases, const vector<string>& names,  std::vector<std::string>& writtenNames, bool printLocalAliases, bool printComma)
-{
-  ParameterList pl = parametrizable->getIndependentParameters().subList(names);
-  unsigned int p = out.getPrecision();
-  out.setPrecision(12);
-  bool flag(printComma);
-  for (unsigned int i = 0; i < pl.size(); i++)
-  {
-    if (find(writtenNames.begin(),writtenNames.end(),pl[i].getName())==writtenNames.end()){
-      if (flag)
-        out << ",";
-      else
-        flag=true;
-      string pname = parametrizable->getParameterNameWithoutNamespace(pl[i].getName());
-      
-      // Check for global aliases:
-      if (globalAliases.find(pl[i].getName()) == globalAliases.end())
-        {
-          (out << pname << "=").enableScientificNotation(false) << pl[i].getValue();
-        }
-      else
-        out << pname << "=" << globalAliases[pl[i].getName()];
-      
-      // Now check for local aliases:
-      if (printLocalAliases)
-        {
-          vector<string> aliases = parametrizable->getAlias(pname);
-          for (unsigned int j = 0; aliases.size(); j++)
-            {
-              out << ", " << aliases[j] << "=" << pname;
-            }
-        }
-      writtenNames.push_back(pl[i].getName());
-    }
-  }
-  out.setPrecision(p);
-}
-
-/******************************************************************************/
-
-void PhylogeneticsApplicationTools::describeParameters_(const Parametrizable* parametrizable, OutputStream& out, const vector<string>& names,  std::vector<std::string>& writtenNames, bool printComma)
-{
-  ParameterList pl = parametrizable->getParameters();
-  unsigned int p = out.getPrecision();
-  out.setPrecision(12);
-  bool flag(printComma);
-  for (unsigned int i = 0; i < pl.size(); i++)
-    {
-      if (find(writtenNames.begin(),writtenNames.end(),pl[i].getName())==writtenNames.end()){
-        if (flag)
-          out << ",";
-        else
-          flag=true;
-        string pname = parametrizable->getParameterNameWithoutNamespace(pl[i].getName());
-      
-        (out << pname << "=").enableScientificNotation(false) << pl[i].getValue();
-      
-      }
-    }
-  out.setPrecision(p);
-}
-
-/******************************************************************************/
-
-void PhylogeneticsApplicationTools::describeSubstitutionModel_(const SubstitutionModel* model, OutputStream& out, map<string, string>& globalAliases, std::vector<std::string>& writtenNames)
-{
-  const BppOSubstitutionModelFormat* bIO=new BppOSubstitutionModelFormat();
-  
-  bIO->write(*model, out, globalAliases, writtenNames);
-  delete bIO;
-}
-
-/******************************************************************************/
-
-
-void PhylogeneticsApplicationTools::describeFrequenciesSet_(const FrequenciesSet* pfreqset, OutputStream& out, std::vector<std::string>& writtenNames)
-{
-  const BppOFrequenciesSetFormat* bIO=new BppOFrequenciesSetFormat();
-  
-  bIO->write(pfreqset, out, writtenNames);
-  delete bIO;
-}
-
-/******************************************************************************/
-
-=======
->>>>>>> master
 void PhylogeneticsApplicationTools::printParameters(const SubstitutionModel* model, OutputStream& out)
 {
   out << "model=";
   map<string, string> globalAliases;
   vector<string> writtenNames;
-<<<<<<< HEAD
-  describeSubstitutionModel_(model, out, globalAliases, writtenNames);
-=======
   BppOSubstitutionModelFormat bIO(BppOSubstitutionModelFormat::ALL, true, true, true, false);
   bIO.write(*model, out, globalAliases, writtenNames);
->>>>>>> master
   out.endLine();
 }
 
@@ -1542,23 +1341,12 @@ void PhylogeneticsApplicationTools::printParameters(const SubstitutionModel* mod
 
 void PhylogeneticsApplicationTools::printParameters(const SubstitutionModelSet* modelSet, OutputStream& out)
 {
-<<<<<<< HEAD
-  out << "model = ";
-
-  (out << "nonhomogeneous = general").endLine();
-  (out << "nonhomogeneous.number_of_models = " << modelSet->getNumberOfModels()).endLine();
-
-  // Get the parameter links:
-  map< unsigned int, vector<string> > modelLinks; // for each model index, stores the list of global parameters.
-  map< string, set<unsigned int> > parameterLinks; // for each parameter name, stores the list of model indices, wich should be sorted.
-=======
   (out << "nonhomogeneous=general").endLine();
   (out << "nonhomogeneous.number_of_models=" << modelSet->getNumberOfModels()).endLine();
 
   // Get the parameter links:
   map< size_t, vector<string> > modelLinks; // for each model index, stores the list of global parameters.
   map< string, set<size_t> > parameterLinks; // for each parameter name, stores the list of model indices, wich should be sorted.
->>>>>>> master
   vector<string> writtenNames;
   ParameterList pl = modelSet->getParameters();
   ParameterList plroot = modelSet->getRootFrequenciesParameters();
@@ -1599,14 +1387,9 @@ void PhylogeneticsApplicationTools::printParameters(const SubstitutionModelSet* 
 
     // Now print it:
     writtenNames.clear();
-<<<<<<< HEAD
-    out.endLine() << "model" << (i + 1) << " = ";
-    describeSubstitutionModel_(model, out, globalAliases, writtenNames);
-=======
     out.endLine() << "model" << (i + 1) << "=";
     BppOSubstitutionModelFormat bIOsm(BppOSubstitutionModelFormat::ALL, true, true, true, false);
     bIOsm.write(*model, out, globalAliases, writtenNames);
->>>>>>> master
     out.endLine();
     vector<int> ids = modelSet->getNodesWithModel(i);
     out << "model" << (i + 1) << ".nodes_id=" << ids[0];
@@ -1620,22 +1403,14 @@ void PhylogeneticsApplicationTools::printParameters(const SubstitutionModelSet* 
   // Root frequencies:
   out.endLine();
   (out << "# Root frequencies:").endLine();
-<<<<<<< HEAD
-  out << "nonhomogeneous.root_freq = ";
-  describeFrequenciesSet_(modelSet->getRootFrequenciesSet(), out, writtenNames);
-=======
   out << "nonhomogeneous.root_freq=";
 
   BppOFrequenciesSetFormat bIO(BppOFrequenciesSetFormat::ALL, false);
   bIO.write(modelSet->getRootFrequenciesSet(), out, writtenNames);
->>>>>>> master
 }
 
 /******************************************************************************/
 
-<<<<<<< HEAD
-void PhylogeneticsApplicationTools::describeDiscreteDistribution_(const DiscreteDistribution* rDist, OutputStream& out, map<string, string>& globalAliases, vector<string>& writtenNames)
-=======
 void PhylogeneticsApplicationTools::printParameters(const DiscreteDistribution* rDist, OutputStream& out)
 {
   out << "rate_distribution=";
@@ -1657,7 +1432,6 @@ SubstitutionCount* PhylogeneticsApplicationTools::getSubstitutionCount(
   const SubstitutionModel* model,
   map<string, string>& params,
   string suffix)
->>>>>>> master
 {
   SubstitutionCount* substitutionCount = 0;
   string nijtOption;
@@ -1667,19 +1441,8 @@ SubstitutionCount* PhylogeneticsApplicationTools::getSubstitutionCount(
 
   if (nijtOption == "Laplace")
   {
-<<<<<<< HEAD
-    test = invar->getVariableSubDistribution();
-    out << "Invariant(dist=";
-    describeDiscreteDistribution_(test, out, globalAliases, writtenNames);
-    out << ", ";
-    vector<string> names;
-    names.push_back(invar->getParameter("p").getName());
-    describeParameters_(invar, out, globalAliases, names, writtenNames);
-    out << ")";
-=======
     int trunc = ApplicationTools::getIntParameter("trunc", nijtParams, 10, suffix, true);
     substitutionCount = new LaplaceSubstitutionCount(model, trunc);
->>>>>>> master
   }
   else if (nijtOption == "Uniformization")
   {
@@ -1695,21 +1458,7 @@ SubstitutionCount* PhylogeneticsApplicationTools::getSubstitutionCount(
     if (revModel)
       substitutionCount = new DecompositionSubstitutionCount(revModel, new TotalSubstitutionRegister(alphabet), weights);
     else
-<<<<<<< HEAD
-    {
-      test = dynamic_cast<const GammaDiscreteDistribution*>(rDist);
-      if (test)
-      {
-        out << "Gamma(n=" << rDist->getNumberOfCategories() << ", ";
-        describeParameters_(rDist, out, globalAliases, rDist->getIndependentParameters().getParameterNames(), writtenNames, false);
-        out << ")";
-      }
-      else
-        throw Exception("PhylogeneticsApplicationTools::printParameters(DiscreteDistribution). Unsupported distribution.");
-    }
-=======
       throw Exception("Decomposition method can only be used with reversible substitution models.");
->>>>>>> master
   }
   else if (nijtOption == "Naive")
   {
@@ -1732,18 +1481,8 @@ SubstitutionCount* PhylogeneticsApplicationTools::getSubstitutionCount(
   }
   ApplicationTools::displayResult("Substitution count procedure", nijtOption);
 
-<<<<<<< HEAD
-void PhylogeneticsApplicationTools::printParameters(const DiscreteDistribution* rDist, OutputStream& out)
-{
-  out << "rate_distribution = ";
-  map<string, string> globalAliases;
-  vector<string> writtenNames;
-  describeDiscreteDistribution_(rDist, out, globalAliases, writtenNames);
-  out.endLine();
-=======
   // Send results:
   return substitutionCount;
->>>>>>> master
 }
 
 /******************************************************************************/

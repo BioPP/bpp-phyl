@@ -83,7 +83,7 @@ class AbstractTreeLikelihoodData :
 		 * However, if this is not the case, some pointers may point toward the same
 		 * element in the likelihood array.
 		 */
-    std::vector<unsigned int> rootPatternLinks_;
+    std::vector<size_t> rootPatternLinks_;
 
 		/**
 		 * @brief The frequency of each site.
@@ -118,13 +118,13 @@ class AbstractTreeLikelihoodData :
 		virtual ~AbstractTreeLikelihoodData() {}
 
 	public:
-    std::vector<unsigned int>& getRootArrayPositions() { return rootPatternLinks_; }
-		const std::vector<unsigned int>& getRootArrayPositions() const { return rootPatternLinks_; }
-		unsigned int getRootArrayPosition(const unsigned int site) const
+    std::vector<size_t>& getRootArrayPositions() { return rootPatternLinks_; }
+		const std::vector<size_t>& getRootArrayPositions() const { return rootPatternLinks_; }
+		size_t getRootArrayPosition(size_t site) const
 		{
 			return rootPatternLinks_[site];
 		}
-		unsigned int getWeight(unsigned int pos) const
+		unsigned int getWeight(size_t pos) const
 		{
 			return rootWeights_[pos];
 		}

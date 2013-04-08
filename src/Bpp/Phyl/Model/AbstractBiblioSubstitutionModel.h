@@ -152,8 +152,6 @@ public:
 
   const FrequenciesSet* getFrequenciesSet() const {return getModel().getFrequenciesSet(); }
 
-  const FrequenciesSet* getFrequenciesSet() const {return getModel()->getFrequenciesSet(); }
-
   /*
    * @}
    *

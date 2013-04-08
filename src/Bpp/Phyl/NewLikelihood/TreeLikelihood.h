@@ -112,21 +112,21 @@ class TreeLikelihood:
      *
      * @return the number of sites in the dataset.
      */
-    virtual unsigned int getNumberOfSites() const = 0;
+    virtual size_t getNumberOfSites() const = 0;
 
     /**
      * @brief Get the number of states in the alphabet associated to the dataset.
      *
      * @return the number of states in the alphabet associated to the dataset.
      */    
-    virtual unsigned int getNumberOfStates() const = 0;
+    virtual size_t getNumberOfStates() const = 0;
  
     /**
 		 * @brief Get the number of model classes.
 		 *
 		 * @return The Number of model classes.
 		 */
-		virtual unsigned int getNumberOfClasses() const = 0;
+		virtual size_t getNumberOfClasses() const = 0;
 
     /**
      * @brief Get the tree (topology and branch lengths).
@@ -171,7 +171,7 @@ class TreeLikelihood:
      * @param site The site index to analyse.
      * @return The logarithm of the likelihood for site <i>site</i>.
      */
-    virtual double getLogLikelihoodForASite(unsigned int site) const = 0;
+    virtual double getLogLikelihoodForASite(size_t site) const = 0;
  
     /**
      * @brief Get the logarithm of the likelihood for a site and for a state.
@@ -180,7 +180,7 @@ class TreeLikelihood:
      * @param state The state to consider.
      * @return The logarithm of the likelihood for site <i>site</i> and state <i>state</i>.
      */
-    virtual double getLogLikelihoodForASiteForAState(unsigned int site, int state) const = 0;
+    virtual double getLogLikelihoodForASiteForAState(size_t site, int state) const = 0;
 
     /**
 		 * @brief Get the logarithm of the likelihood for a site knowing its model class.
@@ -189,7 +189,7 @@ class TreeLikelihood:
 		 * @param rateClass The model class index.
 		 * @return The logarithm of the likelihood for the specified site and model class.
 		 */
-		virtual double getLogLikelihoodForASiteForAClass(unsigned int site, unsigned int modelClass) const = 0;
+		virtual double getLogLikelihoodForASiteForAClass(size_t site, size_t modelClass) const = 0;
 	
 		/**
 		 * @brief Get the logarithm of the likelihood for a site knowing its model class and its ancestral state.
@@ -199,7 +199,7 @@ class TreeLikelihood:
 		 * @param state     The ancestral state.
 		 * @return The logarithm of the likelihood for the specified site and model class and ancestral state..
 		 */
-		virtual double getLogLikelihoodForASiteForAClassForAState(unsigned int site, unsigned int modelClass, int state) const = 0;
+		virtual double getLogLikelihoodForASiteForAClassForAState(size_t site, size_t modelClass, int state) const = 0;
  
     /**
      * @brief Get the logarithm of the likelihood for each site.
@@ -238,7 +238,7 @@ class TreeLikelihood:
 		 *
 		 * @return A vector with all model classes indexes.
 		 */
-		virtual std::vector<unsigned int> getClassWithMaxPostProbOfEachSite() const = 0;
+		virtual std::vector<size_t> getClassWithMaxPostProbOfEachSite() const = 0;
 
    
     /**
@@ -324,7 +324,7 @@ class TreeLikelihood:
      * @param site An alignment position.
      * @return The site index corresponding to the given input alignment position.
      */
-    virtual unsigned int getSiteIndex(unsigned int site) const throw (IndexOutOfBoundsException) = 0;   
+    virtual size_t getSiteIndex(size_t site) const throw (IndexOutOfBoundsException) = 0;   
     /** @} */
 
     /**

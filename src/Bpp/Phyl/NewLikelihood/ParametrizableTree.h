@@ -56,7 +56,7 @@ namespace bpp
     private:
       TreeTemplate<Node> tree_;
       bool liveIndex_;
-      std::map<int, unsigned int> index_;
+      std::map<int, size_t> index_;
       mutable std::map<std::string, Node*> reverseIndex_; //Watch out when copying!
       mutable bool isSynchronized_; //If no live index is performed, record any parameter change that has been made.
 
@@ -75,7 +75,7 @@ namespace bpp
 
     public:
       const Parameter& getBranchLengthParameter(int nodeId) const throw (NodeNotFoundException) {
-        std::map<int, unsigned int>::const_iterator it = index_.find(nodeId);
+        std::map<int, size_t>::const_iterator it = index_.find(nodeId);
         if (it != index_.end())
           return getParameter_(it->second);
         else
