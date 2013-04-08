@@ -44,6 +44,8 @@ knowledge of the CeCILL license and that you accept its terms.
 #include "../Tree.h"
 #include "../Model/SubstitutionModel.h"
 #include "TreeLikelihoodData.h"
+#include "ModelIterator.h"
+#include "SitePartition.h"
 
 #include <Bpp/Numeric/ParameterList.h>
 #include <Bpp/Numeric/Parametrizable.h>
@@ -166,21 +168,21 @@ class TreeLikelihood:
     virtual double getLogLikelihood() const = 0;
  
     /**
-     * @brief Get the logarithm of the likelihood for a site.
+     * @brief Get the likelihood for a site.
      *
      * @param site The site index to analyse.
-     * @return The logarithm of the likelihood for site <i>site</i>.
+     * @return The likelihood for site <i>site</i>.
      */
-    virtual double getLogLikelihoodForASite(size_t site) const = 0;
+    virtual double getLikelihoodForASite(size_t site) const = 0;
  
     /**
-     * @brief Get the logarithm of the likelihood for a site and for a state.
+     * @brief Get the likelihood for a site and for a state.
      *
      * @param site The site index to analyse.
      * @param state The state to consider.
      * @return The logarithm of the likelihood for site <i>site</i> and state <i>state</i>.
      */
-    virtual double getLogLikelihoodForASiteForAState(size_t site, int state) const = 0;
+    virtual double getLikelihoodForASiteForAState(size_t site, int state) const = 0;
 
     /**
 		 * @brief Get the logarithm of the likelihood for a site knowing its model class.
@@ -189,47 +191,47 @@ class TreeLikelihood:
 		 * @param rateClass The model class index.
 		 * @return The logarithm of the likelihood for the specified site and model class.
 		 */
-		virtual double getLogLikelihoodForASiteForAClass(size_t site, size_t modelClass) const = 0;
+		virtual double getLikelihoodForASiteForAClass(size_t site, size_t modelClass) const = 0;
 	
 		/**
-		 * @brief Get the logarithm of the likelihood for a site knowing its model class and its ancestral state.
+		 * @brief Get the likelihood for a site knowing its model class and its ancestral state.
 		 *
 		 * @param site      The site index.
 		 * @param modelClass The model class index.
 		 * @param state     The ancestral state.
 		 * @return The logarithm of the likelihood for the specified site and model class and ancestral state..
 		 */
-		virtual double getLogLikelihoodForASiteForAClassForAState(size_t site, size_t modelClass, int state) const = 0;
+		virtual double getLikelihoodForASiteForAClassForAState(size_t site, size_t modelClass, int state) const = 0;
  
     /**
-     * @brief Get the logarithm of the likelihood for each site.
+     * @brief Get the likelihood for each site.
      *
-     * @return A vector with all log likelihoods for each site.
+     * @return A vector with all likelihoods for each site.
      */
-    virtual Vdouble getLogLikelihoodForEachSite() const = 0;
+    virtual Vdouble getLikelihoodForEachSite() const = 0;
 
     /**
-     * @brief Get the logarithm of the likelihood for each site and for each state.
+     * @brief Get the likelihood for each site and for each state.
      *
      * @return A 2d vector with all log likelihoods for each site and for each state.
      */
-    virtual VVdouble getLogLikelihoodForEachSiteForEachState() const = 0;
+    virtual VVdouble getLikelihoodForEachSiteForEachState() const = 0;
     
 		/**
-		 * @brief Get the logarithm of the likelihood for each site and each model class.
+		 * @brief Get the likelihood for each site and each model class.
 		 *
 		 * @return A two-dimension vector with all log likelihoods:
 		 * <code>V[i][j] =</code> likelihood of site i and model class j.
 		 */
-		virtual VVdouble getLogLikelihoodForEachSiteForEachClass() const = 0;
+		virtual VVdouble getLikelihoodForEachSiteForEachClass() const = 0;
 	
     /**
-		 * @brief Get the logarithm of the likelihood for each site and each model class and each state.
+		 * @brief Get the likelihood for each site and each model class and each state.
 		 *
 		 * @return A three-dimension vector with all log likelihoods:
 		 * <code>V[i][j][k} =</code> likelihood of site i and model class j and state k.
 		 */
-		virtual VVVdouble getLogLikelihoodForEachSiteForEachClassForEachState() const = 0;
+		virtual VVVdouble getLikelihoodForEachSiteForEachClassForEachState() const = 0;
 	  /** @} */
 
     /**
@@ -336,6 +338,15 @@ class TreeLikelihood:
      */
     virtual void enableDerivatives(bool yn) = 0;
 
+    /**
+     * @name Iterators
+     * @{
+     */
+    //TODO jdutheil on 08.04.13 we drop model iterators for now!
+    //virtual ConstBranchModelIterator* getNewBranchModelIterator(int nodeId) const = 0;
+  
+    //virtual ConstSiteModelIterator* getNewSiteModelIterator(size_t siteIndex) const = 0;
+    /* @} */
 };
 
 } //end of namespace newlik.

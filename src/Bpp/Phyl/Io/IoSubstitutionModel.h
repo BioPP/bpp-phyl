@@ -93,7 +93,7 @@ namespace bpp
 
     virtual SubstitutionModel* read(const Alphabet* alphabet,
                                     const std::string& modelDescription,
-                                   const SiteContainer* data = 0,
+                                    const SiteContainer* data = 0,
                                     bool parseArguments = true) = 0;
 
     /**

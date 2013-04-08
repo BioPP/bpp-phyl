@@ -1,7 +1,7 @@
 //
-// File: SitePartition.h
+// File: SimpleSubstitutionProcess.cpp
 // Created by: Julien Dutheil
-// Created on: Tue Jul 17 17:58 2012
+// Created on: Tue May 15 13:11 2012
 //
 
 /*
@@ -37,52 +37,21 @@
    knowledge of the CeCILL license and that you accept its terms.
  */
 
-#ifndef _SITEPARTITION_H_
-#define _SITEPARTITION_H_
+#include "SimpleSubstitutionProcess.h"
 
-namespace bpp
+using namespace bpp;
+
+void SimpleSubstitutionProcess::fireParameterChanged(const ParameterList& pl)
 {
-
-/**
- * @brief This is the interface for classes describing a site partition,
- * each partition being intended to have its own substitution model.
- *
- * A site partition defines the distinct patterns to be found in the data,
- * A pattern being a unique combination of site * model.
- *
- * @warning This interface is still under construction. Breaks are expected to occur!
- */
-class SitePartition:
-  public virtual Clonable
-{
-  public:
-    SitePartition* clone() const = 0;
-  public:
-    virtual size_t getNumberOfPartitions() const = 0;
-    virtual size_t getNumberOfPatternsForPartition(size_t partitionIndex) const = 0;
-};
-
-/**
- * @brief Trivial site partition: all sites belong to the same, unique partition.
- */
-class TrivialSitePartition:
-  public virtual SitePartition
-{
-  private:
-    size_t nbDistinctSites_;
-
-  public:
-    TrivialSitePartition(size_t nbDistinctSites): nbDistinctSites_(nbDistinctSites) {}
-
-    TrivialSitePartition* clone() const { return new TrivialSitePartition(*this); }
-
-  public:
-    size_t getNumberOfPartitions() const { return 1; }
-    size_t getNumberOfPatternsForPartition(size_t partitionIndex) const { return nbDistinctSites_; }
-};
-
-} // end of namespace bpp
-
-#endif //_SITEPARTITION_H_
-
+  //Forward parameters:
+  pTree_.matchParametersValues(pl);
+  //Updates probabilities:
+  model_.matchParametersValues(pl);
+  //Transistion probabilities have changed and need to be recomputed:
+  for (size_t i = 0; i < computeProbability_.size(); ++i) {
+    computeProbability_[i] = false;
+    computeProbabilityD1_[i] = false;
+    computeProbabilityD2_[i] = false;
+  }
+}
 

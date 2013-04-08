@@ -41,6 +41,7 @@
 #define _MODELITERATOR_H_
 
 #include "../Model/SubstitutionModel.h"
+#include "ParametrizableTree.h"
 
 namespace bpp
 {
@@ -273,28 +274,28 @@ public:
 
 /** @} */
 
-    class ConstHomogeneousSiteModelIterator :
-      public ConstSiteModelIterator
+class ConstHomogeneousSiteModelIterator :
+  public ConstSiteModelIterator
+{
+  private:
+    ConstNoPartitionSiteModelDescription siteModelDescription_;
+    unsigned int index_;
+
+  public:
+    ConstHomogeneousSiteModelIterator(const ParametrizableTree& tree, const SubstitutionModel* model) :
+     siteModelDescription_(model, tree.getBranchesId()), index_(0) {}
+
+  public:
+    ConstSiteModelDescription* next() throw (Exception)
     {
-      private:
-        ConstNoPartitionSiteModelDescription siteModelDescription_;
-        unsigned int index_;
+      if (!hasNext())
+        throw Exception("ConstHomogeneousSiteModelIterator::next(). No more site in the set.");
+      index_++;
+      return &siteModelDescription_;
+    }
 
-      public:
-        ConstHomogeneousSiteModelIterator(const ParametrizableTree& tree, const SubstitutionModel* model) :
-          siteModelDescription_(model, tree.getBranchesId()), index_(0) {}
-
-      public:
-        ConstSiteModelDescription* next() throw (Exception)
-        {
-          if (!hasNext())
-            throw Exception("ConstHomogeneousSiteModelIterator::next(). No more site in the set.");
-          index_++;
-          return &siteModelDescription_;
-        }
-
-        bool hasNext() const { return index_ == 0; }
-    };
+    bool hasNext() const { return index_ == 0; }
+};
 
 
 } // end of namespace bpp.

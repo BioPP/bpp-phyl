@@ -50,8 +50,6 @@
 #include <Bpp/Text/TextTools.h>
 #include <Bpp/Text/StringTokenizer.h>
 #include <Bpp/Text/KeyvalTools.h>
-
-// #include <Bpp/Numeric/Prob.all>
 #include <Bpp/Numeric/AutoParameter.h>
 
 //From bpp-seq:

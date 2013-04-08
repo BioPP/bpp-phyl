@@ -74,20 +74,18 @@ class TreeLikelihoodNodeData:
 
   public:
     /**
-     * @brief Get the node associated to this data structure.
+     * @brief Get the id of the node associated to this data structure.
      *
-     * @return The node associated to this structure.
+     * @return The id of the node associated to this structure.
      */
-    virtual const Node* getNode() const = 0;
+    virtual int getNodeId() const = 0;
 
     /**
-     * @brief Set the node associated to this data
+     * @brief Set the id of the node associated to this data
      *
-     * A pointer toward this node will be created and associated to this data.
-     *
-     * @param node The node to be associated to this data.
+     * @param nodeId The id of the node to be associated to this data.
      */
-    virtual void setNode(const Node* node) = 0;
+    virtual void setNodeId(int nodeId) = 0;
 };
 
 /**
@@ -96,7 +94,11 @@ class TreeLikelihoodNodeData:
  * Stores all the inner computations:
  * - conditionnal likelihoods for each node,
  * - correspondance between sites in the dataset and array indices.
- * 
+ *
+ * The structure is initiated according to a tree topology, and 
+ * data can be retrieved through node ids. The structure does not
+ * store the original tree used for initialization.
+ *
  * @see TreeLikelihoodNodeData
  */
 class TreeLikelihoodData:
@@ -112,7 +114,6 @@ class TreeLikelihoodData:
 
   public:
     virtual const Alphabet* getAlphabet() const = 0;
-    virtual const TreeTemplate<Node>* getTree() const = 0;
     virtual size_t getArrayPosition(int parentId, int sonId, size_t currentPosition) const = 0;
     virtual size_t getRootArrayPosition(size_t site) const = 0;
     virtual       TreeLikelihoodNodeData& getNodeData(int nodeId) = 0;

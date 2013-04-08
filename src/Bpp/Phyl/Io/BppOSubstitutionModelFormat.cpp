@@ -35,7 +35,7 @@
 
    The fact that you are presently reading this means that you have had
    knowledge of the CeCILL license and that you accept its terms.
- */
+*/
 
 #include "BppOSubstitutionModelFormat.h"
 #include "BppORateDistributionFormat.h"
@@ -100,6 +100,7 @@
 
 #include <Bpp/Seq/App/SequenceApplicationTools.h>
 #include <Bpp/Seq/Alphabet/AlphabetTools.h>
+
 
 #include <Bpp/Io/OutputStream.h>
 #include <Bpp/Io/BppOParametrizableFormat.h>

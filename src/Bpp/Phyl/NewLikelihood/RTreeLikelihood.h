@@ -6,7 +6,7 @@
 //
 
 /*
-  Copyright or © or Copr. CNRS, (November 16, 2004)
+  Copyright or © or Copr. Bio++ Development Team, (November 16, 2004)
 
   This software is a computer program whose purpose is to provide classes
   for phylogenetic data analysis.
@@ -90,6 +90,8 @@ namespace newlik
 
     mutable std::auto_ptr<RTreeLikelihoodData> likelihoodData_;
     double minusLogLik_;
+    int root1_, root2_; //Needed only in case of reparametrization of branch length at root node.
+    //TODO: have to be initialized properly! We do not care of that for now. jdutheil on 11/12/12.
 
   public:
     /**
@@ -104,15 +106,12 @@ namespace newlik
      * If true, any rooted tree will be unrooted before likelihood computation.
      * @param verbose Should I display some info?
      * @param usePatterns Tell if recursive site compression should be performed.
-     * @param reparametrizeRoot Should we reparametrize the branch lengths at root?
      * @throw Exception in an error occured.
      */
     RTreeLikelihood(
-        const Tree& tree,
         SubstitutionProcess* process,
         bool verbose = true,
-        bool usePatterns = true,
-        bool reparametrizeRoot = false)
+        bool usePatterns = true)
       throw (Exception);
 	
     /**
@@ -120,22 +119,18 @@ namespace newlik
      *
      * This constructor initializes all parameters, data, and likelihood arrays.
      *
-     * @param tree The tree to use.
      * @param data Sequences to use.
      * @param modelSet The set of substitution models to use.
      * @param rDist The rate across sites distribution to use.
      * @param verbose Should I display some info?
      * @param usePatterns Tell if recursive site compression should be performed.
-     * @param reparametrizeRoot Should we reparametrize the branch lengths at root?
      * @throw Exception in an error occured.
      */
     RTreeLikelihood(
-        const Tree& tree,
         const SiteContainer& data,
         SubstitutionProcess* process,
         bool verbose = true,
-        bool usePatterns = true,
-        bool reparametrizeRoot = false)
+        bool usePatterns = true)
       throw (Exception);
 
     RTreeLikelihood(const RTreeLikelihood& lik);
@@ -166,10 +161,10 @@ namespace newlik
     size_t getSiteIndex(size_t site) const throw (IndexOutOfBoundsException) { return likelihoodData_->getRootArrayPosition(site); }
 		
     double getLogLikelihood() const;
-    double getLogLikelihoodForASite(size_t site) const;
-    double getLogLikelihoodForASiteForAClass(size_t site, size_t modelClass) const;
-    double getLogLikelihoodForASiteForAState(size_t site, int state) const;
-    double getLogLikelihoodForASiteForAClassForAState(size_t site, size_t modelClass, int state) const;
+    double getLikelihoodForASite(size_t site) const;
+    double getLikelihoodForASiteForAClass(size_t site, size_t modelClass) const;
+    double getLikelihoodForASiteForAState(size_t site, int state) const;
+    double getLikelihoodForASiteForAClassForAState(size_t site, size_t modelClass, int state) const;
     /** @} */
 
     /**
@@ -212,20 +207,16 @@ namespace newlik
  
     virtual void computeTreeLikelihood();
 
-    virtual double getDLikelihoodForASiteForARateClass(size_t site, size_t rateClass) const;
+    virtual double getDLikelihoodForASiteForAClass(size_t site, size_t classIndex) const;
     virtual double getDLikelihoodForASite(size_t site) const;
     virtual double getDLogLikelihoodForASite(size_t site) const;
     virtual double getDLogLikelihood() const;
-    
-    virtual void computeTreeDLikelihood(const std::string& variable);
 
-    virtual double getD2LikelihoodForASiteForARateClass(size_t site, size_t rateClass) const;
+    virtual double getD2LikelihoodForASiteForAClass(size_t site, size_t classIndex) const;
     virtual double getD2LikelihoodForASite(size_t site) const;
     virtual double getD2LogLikelihoodForASite(size_t site) const;
     virtual double getD2LogLikelihood() const;
 		
-    virtual void computeTreeD2Likelihood(const std::string& variable);
-
 	
   protected:
 			
@@ -234,10 +225,13 @@ namespace newlik
      *
      * @param node The root of the subtree.
      */
-    virtual void computeSubtreeLikelihood(const Node * node); //Recursive method.			
-    virtual void computeDownSubtreeDLikelihood(const Node *);
-    virtual void computeDownSubtreeD2Likelihood(const Node *);
+    virtual void computeSubtreeLikelihood_(const Node* node); //Recursive method.			
+    virtual void computeDownSubtreeDLikelihood_(const Node* node) const;
+    virtual void computeDownSubtreeD2Likelihood_(const Node* node) const;
 	
+    virtual void computeTreeDLikelihood_(const std::string& variable) const;
+    virtual void computeTreeD2Likelihood_(const std::string& variable) const;
+
     void fireParameterChanged(const ParameterList & params);
 	
     /**

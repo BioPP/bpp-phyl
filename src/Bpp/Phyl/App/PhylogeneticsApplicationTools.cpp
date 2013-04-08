@@ -177,7 +177,6 @@ SubstitutionModel* PhylogeneticsApplicationTools::getSubstitutionModel(
     modelDescription = ApplicationTools::getStringParameter("model", params, "JC69", suffix, suffixIsOptional, verbose);
 
   map<string, string> unparsedParameterValues;
-
   BppOSubstitutionModelFormat bIO(BppOSubstitutionModelFormat::ALL, true, true, true, verbose);
   SubstitutionModel* model = bIO.read(alphabet, modelDescription, data, true);
 
@@ -1417,7 +1416,6 @@ void PhylogeneticsApplicationTools::printParameters(const DiscreteDistribution* 
   map<string, string> globalAliases;
   vector<string> writtenNames;
   const BppORateDistributionFormat* bIO = new BppORateDistributionFormat(true);
-
   bIO->write(*rDist, out, globalAliases, writtenNames);
   delete bIO;
   out.endLine();

@@ -75,52 +75,63 @@ class AbstractTreeLikelihood :
 {
 	protected:
     std::auto_ptr<const SiteContainer> data_;
-    std::auto_ptr<ParametrizableTree> tree_;
     std::auto_ptr<SubstitutionProcess> process_;
 		bool computeFirstOrderDerivatives_;
 		bool computeSecondOrderDerivatives_;
     bool initialized_;
     bool verbose_;
+    size_t nbSites_;
+    size_t nbDistinctSites_; //Cross-check with SitePartition ! TODO
+    size_t nbStates_;
+    size_t nbClasses_;
+
 
 	public:
 		AbstractTreeLikelihood():
       AbstractParametrizable(""),
       data_(0),
-      tree_(0),
       process_(0),
       computeFirstOrderDerivatives_(true),
       computeSecondOrderDerivatives_(true),
       initialized_(false),
-      verbose_(true)
+      verbose_(true),
+      nbSites_(0),
+      nbDistinctSites_(0),
+      nbStates_(0),
+      nbClasses_(0)
     {}
 
     AbstractTreeLikelihood(
-        ParametrizableTree* tree,
         const SiteContainer* data,
         SubstitutionProcess* process,
         bool verbose = true):
       AbstractParametrizable(""),
       data_(data),
-      tree_(tree),
       process_(process),
       computeFirstOrderDerivatives_(true),
       computeSecondOrderDerivatives_(true),
       initialized_(false),
-      verbose_(verbose)
+      verbose_(verbose),
+      nbSites_(data->getNumberOfSites()),
+      nbDistinctSites_(0),
+      nbStates_(process->getNumberOfStates()),
+      nbClasses_(process->getNumberOfClasses())
     {}
 
     AbstractTreeLikelihood(const AbstractTreeLikelihood& lik):
       AbstractParametrizable(lik),
       data_(0),
-      tree_(0),
       process_(0),
       computeFirstOrderDerivatives_(lik.computeFirstOrderDerivatives_),
       computeSecondOrderDerivatives_(lik.computeSecondOrderDerivatives_),
       initialized_(lik.initialized_), 
-      verbose_(lik.verbose_) 
+      verbose_(lik.verbose_),
+      nbSites_(lik.nbSites_),
+      nbDistinctSites_(lik.nbDistinctSites_),
+      nbStates_(lik.nbStates_),
+      nbClasses_(lik.nbClasses_)
     {
       if (lik.data_.get()) data_.reset(lik.data_->clone());
-      if (lik.tree_.get()) tree_.reset(lik.tree_->clone());
       if (lik.process_.get()) process_.reset(lik.process_->clone());
     }
 
@@ -129,14 +140,16 @@ class AbstractTreeLikelihood :
       AbstractParametrizable::operator=(lik);
       if (lik.data_.get())    data_.reset(lik.data_->clone());
       else                    data_.reset();
-      if (lik.tree_.get())    tree_.reset(lik.tree_->clone());
-      else                    tree_.reset();
       if (lik.process_.get()) process_.reset(lik.process_->clone());
       else                    process_.reset();
       computeFirstOrderDerivatives_  = lik.computeFirstOrderDerivatives_;
       computeSecondOrderDerivatives_ = lik.computeSecondOrderDerivatives_;
       initialized_                   = lik.initialized_;
       verbose_                       = lik.verbose_;
+      nbSites_                       = lik.nbSites_;
+      nbDistinctSites_               = lik.nbDistinctSites_;
+      nbStates_                      = lik.nbStates_;
+      nbClasses_                     = lik.nbClasses_;
       return *this;
     }
 
@@ -163,15 +176,15 @@ class AbstractTreeLikelihood :
 		size_t getNumberOfStates() const { return data_->getAlphabet()->getSize(); }
 		size_t getNumberOfClasses() const { return process_->getNumberOfClasses(); }
 
-    Vdouble getLogLikelihoodForEachSite() const;
-		VVdouble getLogLikelihoodForEachSiteForEachState() const;
-		VVdouble getLogLikelihoodForEachSiteForEachClass() const;
-		VVVdouble getLogLikelihoodForEachSiteForEachClassForEachState() const;
+    Vdouble getLikelihoodForEachSite() const;
+		VVdouble getLikelihoodForEachSiteForEachState() const;
+		VVdouble getLikelihoodForEachSiteForEachClass() const;
+		VVVdouble getLikelihoodForEachSiteForEachClassForEachState() const;
 		
     VVdouble getPosteriorProbabilitiesOfEachClass() const;
     std::vector<size_t> getClassWithMaxPostProbOfEachSite() const;
     
-		const Tree& getTree() const { return tree_->getTree(); }
+		const Tree& getTree() const { return process_->getTree(); }
 		void enableDerivatives(bool yn) { computeFirstOrderDerivatives_ = computeSecondOrderDerivatives_ = yn; }
 		void enableFirstOrderDerivatives(bool yn) { computeFirstOrderDerivatives_ = yn; }
 		void enableSecondOrderDerivatives(bool yn) { computeFirstOrderDerivatives_ = computeSecondOrderDerivatives_ = yn; }
@@ -180,13 +193,22 @@ class AbstractTreeLikelihood :
     bool isInitialized() const { return initialized_; }
     void initialize() throw (Exception) { initialized_ = true; }
 		
-    ParameterList getBranchLengthsParameters() const { return tree_->getParameters(); }
     ParameterList getSubstitutionProcessParameters() const { return process_->getParameters(); }
+    ParameterList getBranchLengthsParameters() const { return process_->getParametrizableTree().getParameters(); }
+    ParameterList getTransitionProbabilitiesParameters() const { return process_->getTransitionProbabilitiesParameters(); }
     //TODO: this has to be modified to deal with special cases...
-    ParameterList getDerivableParameters() const { return tree_->getParameters(); }
-    ParameterList getNonDerivableParameters() const { return process_->getParameters(); }
-    
+    ParameterList getDerivableParameters() const { return getBranchLengthsParameters(); }
+    ParameterList getNonDerivableParameters() const { return getSubstitutionProcessParameters(); }    
 		/** @} */
+
+    //TODO jdutheil on 08.04.13 we drop model iterators for now
+    //ConstBranchModelIterator* getNewBranchModelIterator(int nodeId) const {
+    //  return new ConstNoPartitionBranchModelIterator(model_.get(), sitePartition_->getNumberOfPatternsForPartition(0));
+    //}
+
+    //ConstSiteModelIterator* getNewSiteModelIterator(size_t siteIndex) const {
+    //  return new ConstHomogeneousSiteModelIterator(*pTree_, model_.get());
+    //}
 
   protected:
 		/**

@@ -41,13 +41,17 @@
 #include "RTreeLikelihoodData.h"
 #include "../PatternTools.h"
 
-// From SeqLib:
+// From bpp-seq:
 #include <Bpp/Seq/SiteTools.h>
 #include <Bpp/Seq/Container/AlignedSequenceContainer.h>
 #include <Bpp/Seq/Container/SequenceContainerTools.h>
 #include <Bpp/Seq/Container/VectorSiteContainer.h>
 
+// From the STL:
+#include <memory>
+
 using namespace bpp;
+using namespace std;
 
 /******************************************************************************/
 
@@ -62,10 +66,10 @@ throw (Exception)
   nbStates_ = process.getNumberOfStates();
   nbSites_  = sites.getNumberOfSites();
   if (shrunkData_) delete shrunkData_;
-  SitePatterns* patterns;
+  auto_ptr<SitePatterns> patterns;
   if (usePatterns_)
   {
-    patterns          = initLikelihoodsWithPatterns(tree_->getRootNode(), sites, process);
+    patterns.reset(initLikelihoodsWithPatterns_(process.getTree().getRootNode(), sites, process));
     shrunkData_       = patterns->getSites();
     rootWeights_      = patterns->getWeights();
     rootPatternLinks_ = patterns->getIndices();
@@ -73,51 +77,51 @@ throw (Exception)
   }
   else
   {
-    patterns          = new SitePatterns(&sites);
+    patterns.reset(new SitePatterns(&sites));
     shrunkData_       = patterns->getSites();
     rootWeights_      = patterns->getWeights();
     rootPatternLinks_ = patterns->getIndices();
     nbDistinctSites_  = shrunkData_->getNumberOfSites();
-    initLikelihoods(tree_->getRootNode(), *shrunkData_, process);
+    initLikelihoodsWithoutPatterns_(process.getTree().getRootNode(), *shrunkData_, process);
   }
-  delete patterns;
 }
 
 /******************************************************************************/
-void RTreeLikelihoodData::initLikelihoods(const Node* node, const SiteContainer& sequences, const SubstitutionProcess& process) throw (Exception)
+
+void RTreeLikelihoodData::initLikelihoodsWithoutPatterns_(const Node* node, const SiteContainer& sequences, const SubstitutionProcess& process) throw (Exception)
 {
   // Initialize likelihood vector:
   RTreeLikelihoodNodeData* nodeData = &nodeData_[node->getId()];
-  nodeData->setNode(node);
-  VVVdouble* _likelihoods_node = &nodeData->getLikelihoodArray();
-  VVVdouble* _dLikelihoods_node = &nodeData->getDLikelihoodArray();
-  VVVdouble* _d2Likelihoods_node = &nodeData->getD2LikelihoodArray();
+  nodeData->setNodeId(node->getId());
+  VVVdouble* likelihoods_node = &nodeData->getLikelihoodArray();
+  VVVdouble* dLikelihoods_node = &nodeData->getDLikelihoodArray();
+  VVVdouble* d2Likelihoods_node = &nodeData->getD2LikelihoodArray();
 
-  _likelihoods_node->resize(nbDistinctSites_);
-  _dLikelihoods_node->resize(nbDistinctSites_);
-  _d2Likelihoods_node->resize(nbDistinctSites_);
+  likelihoods_node->resize(nbDistinctSites_);
+  dLikelihoods_node->resize(nbDistinctSites_);
+  d2Likelihoods_node->resize(nbDistinctSites_);
 
   for (size_t i = 0; i < nbDistinctSites_; i++)
   {
-    VVdouble* _likelihoods_node_i = &(*_likelihoods_node)[i];
-    VVdouble* _dLikelihoods_node_i = &(*_dLikelihoods_node)[i];
-    VVdouble* _d2Likelihoods_node_i = &(*_d2Likelihoods_node)[i];
-    _likelihoods_node_i->resize(nbClasses_);
-    _dLikelihoods_node_i->resize(nbClasses_);
-    _d2Likelihoods_node_i->resize(nbClasses_);
+    VVdouble* likelihoods_node_i = &(*likelihoods_node)[i];
+    VVdouble* dLikelihoods_node_i = &(*dLikelihoods_node)[i];
+    VVdouble* d2Likelihoods_node_i = &(*d2Likelihoods_node)[i];
+    likelihoods_node_i->resize(nbClasses_);
+    dLikelihoods_node_i->resize(nbClasses_);
+    d2Likelihoods_node_i->resize(nbClasses_);
     for (size_t c = 0; c < nbClasses_; c++)
     {
-      Vdouble* _likelihoods_node_i_c = &(*_likelihoods_node_i)[c];
-      Vdouble* _dLikelihoods_node_i_c = &(*_dLikelihoods_node_i)[c];
-      Vdouble* _d2Likelihoods_node_i_c = &(*_d2Likelihoods_node_i)[c];
-      _likelihoods_node_i_c->resize(nbStates_);
-      _dLikelihoods_node_i_c->resize(nbStates_);
-      _d2Likelihoods_node_i_c->resize(nbStates_);
+      Vdouble* likelihoods_node_i_c = &(*likelihoods_node_i)[c];
+      Vdouble* dLikelihoods_node_i_c = &(*dLikelihoods_node_i)[c];
+      Vdouble* d2Likelihoods_node_i_c = &(*d2Likelihoods_node_i)[c];
+      likelihoods_node_i_c->resize(nbStates_);
+      dLikelihoods_node_i_c->resize(nbStates_);
+      d2Likelihoods_node_i_c->resize(nbStates_);
       for (size_t s = 0; s < nbStates_; s++)
       {
-        (*_likelihoods_node_i_c)[s] = 1; // All likelihoods are initialized to 1.
-        (*_dLikelihoods_node_i_c)[s] = 0; // All dLikelihoods are initialized to 0.
-        (*_d2Likelihoods_node_i_c)[s] = 0; // All d2Likelihoods are initialized to 0.
+        (*likelihoods_node_i_c)[s] = 1; // All likelihoods are initialized to 1.
+        (*dLikelihoods_node_i_c)[s] = 0; // All dLikelihoods are initialized to 0.
+        (*d2Likelihoods_node_i_c)[s] = 0; // All d2Likelihoods are initialized to 0.
       }
     }
   }
@@ -137,19 +141,19 @@ void RTreeLikelihoodData::initLikelihoods(const Node* node, const SiteContainer&
     }
     for (size_t i = 0; i < nbDistinctSites_; i++)
     {
-      VVdouble* _likelihoods_node_i = &(*_likelihoods_node)[i];
+      VVdouble* likelihoods_node_i = &(*likelihoods_node)[i];
       int state = seq->getValue(i);
       for (size_t c = 0; c < nbClasses_; c++)
       {
-        Vdouble* _likelihoods_node_i_c = &(*_likelihoods_node_i)[c];
+        Vdouble* likelihoods_node_i_c = &(*likelihoods_node_i)[c];
         double test = 0.;
         for (size_t s = 0; s < nbStates_; s++)
         {
           // Leaves likelihood are set to 1 if the char correspond to the site in the sequence,
           // otherwise value set to 0:
           // cout << "i=" << i << "\tc=" << c << "\ts=" << s << endl;
-          (*_likelihoods_node_i_c)[s] = process.getInitValue(s, state);
-          test += (*_likelihoods_node_i_c)[s];
+          (*likelihoods_node_i_c)[s] = process.getInitValue(s, state);
+          test += (*likelihoods_node_i_c)[s];
         }
         if (test < 0.000001) std::cerr << "WARNING!!! Likelihood will be 0 for this site." << std::endl;
       }
@@ -158,66 +162,66 @@ void RTreeLikelihoodData::initLikelihoods(const Node* node, const SiteContainer&
   else
   {
     // 'node' is an internal node.
-    std::map<int, std::vector<size_t> >* patternLinks__node = &patternLinks_[node->getId()];
+    std::map<int, std::vector<size_t> >* patternLinks_node = &patternLinks_[node->getId()];
     int nbSonNodes = static_cast<int>(node->getNumberOfSons());
-    for (int l = 0; l < nbSonNodes; l++)
+    for (int l = 0; l < nbSonNodes; ++l)
     {
       // For each son node,
       const Node* son = (*node)[l];
-      initLikelihoods(son, sequences, process);
-      std::vector<size_t>* patternLinks__node_son = &(*patternLinks__node)[son->getId()];
+      initLikelihoodsWithoutPatterns_(son, sequences, process);
+      std::vector<size_t>* patternLinks_node_son = &(*patternLinks_node)[son->getId()];
 
       // Init map:
-      patternLinks__node_son->resize(nbDistinctSites_);
+      patternLinks_node_son->resize(nbDistinctSites_);
 
       for (size_t i = 0; i < nbDistinctSites_; i++)
       {
-        (*patternLinks__node_son)[i] = i;
+        (*patternLinks_node_son)[i] = i;
       }
     }
   }
 }
 
 /******************************************************************************/
-SitePatterns* RTreeLikelihoodData::initLikelihoodsWithPatterns(const Node* node, const SiteContainer& sequences, const SubstitutionProcess& model) throw (Exception)
+SitePatterns* RTreeLikelihoodData::initLikelihoodsWithPatterns_(const Node* node, const SiteContainer& sequences, const SubstitutionProcess& process) throw (Exception)
 {
-  SiteContainer* tmp = PatternTools::getSequenceSubset(sequences, *node);
-  SitePatterns* patterns = new SitePatterns(tmp, true);
-  SiteContainer* subSequences = patterns->getSites();
+  auto_ptr<SiteContainer> tmp(PatternTools::getSequenceSubset(sequences, *node));
+  auto_ptr<SitePatterns> patterns(new SitePatterns(tmp.get(), false));
+  auto_ptr<SiteContainer> subSequences(patterns->getSites());
 
   size_t nbSites = subSequences->getNumberOfSites();
 
   // Initialize likelihood vector:
   RTreeLikelihoodNodeData* nodeData = &nodeData_[node->getId()];
-  nodeData->setNode(node);
-  VVVdouble* _likelihoods_node = &nodeData->getLikelihoodArray();
-  VVVdouble* _dLikelihoods_node = &nodeData->getDLikelihoodArray();
-  VVVdouble* _d2Likelihoods_node = &nodeData->getD2LikelihoodArray();
-  _likelihoods_node->resize(nbSites);
-  _dLikelihoods_node->resize(nbSites);
-  _d2Likelihoods_node->resize(nbSites);
+  nodeData->setNodeId(node->getId());
+  VVVdouble* likelihoods_node = &nodeData->getLikelihoodArray();
+  VVVdouble* dLikelihoods_node = &nodeData->getDLikelihoodArray();
+  VVVdouble* d2Likelihoods_node = &nodeData->getD2LikelihoodArray();
+  likelihoods_node->resize(nbSites);
+  dLikelihoods_node->resize(nbSites);
+  d2Likelihoods_node->resize(nbSites);
 
-  for (unsigned int i = 0; i < nbSites; i++)
+  for (unsigned int i = 0; i < nbSites; ++i)
   {
-    VVdouble* _likelihoods_node_i = &(*_likelihoods_node)[i];
-    VVdouble* _dLikelihoods_node_i = &(*_dLikelihoods_node)[i];
-    VVdouble* _d2Likelihoods_node_i = &(*_d2Likelihoods_node)[i];
-    _likelihoods_node_i->resize(nbClasses_);
-    _dLikelihoods_node_i->resize(nbClasses_);
-    _d2Likelihoods_node_i->resize(nbClasses_);
-    for (unsigned int c = 0; c < nbClasses_; c++)
+    VVdouble* likelihoods_node_i = &(*likelihoods_node)[i];
+    VVdouble* dLikelihoods_node_i = &(*dLikelihoods_node)[i];
+    VVdouble* d2Likelihoods_node_i = &(*d2Likelihoods_node)[i];
+    likelihoods_node_i->resize(nbClasses_);
+    dLikelihoods_node_i->resize(nbClasses_);
+    d2Likelihoods_node_i->resize(nbClasses_);
+    for (unsigned int c = 0; c < nbClasses_; ++c)
     {
-      Vdouble* _likelihoods_node_i_c = &(*_likelihoods_node_i)[c];
-      Vdouble* _dLikelihoods_node_i_c = &(*_dLikelihoods_node_i)[c];
-      Vdouble* _d2Likelihoods_node_i_c = &(*_d2Likelihoods_node_i)[c];
-      _likelihoods_node_i_c->resize(nbStates_);
-      _dLikelihoods_node_i_c->resize(nbStates_);
-      _d2Likelihoods_node_i_c->resize(nbStates_);
-      for (unsigned int s = 0; s < nbStates_; s++)
+      Vdouble* likelihoods_node_i_c = &(*likelihoods_node_i)[c];
+      Vdouble* dLikelihoods_node_i_c = &(*dLikelihoods_node_i)[c];
+      Vdouble* d2Likelihoods_node_i_c = &(*d2Likelihoods_node_i)[c];
+      likelihoods_node_i_c->resize(nbStates_);
+      dLikelihoods_node_i_c->resize(nbStates_);
+      d2Likelihoods_node_i_c->resize(nbStates_);
+      for (unsigned int s = 0; s < nbStates_; ++s)
       {
-        (*_likelihoods_node_i_c)[s] = 1; // All likelihoods are initialized to 1.
-        (*_dLikelihoods_node_i_c)[s] = 0; // All dLikelihoods are initialized to 0.
-        (*_d2Likelihoods_node_i_c)[s] = 0; // All d2Likelihoods are initialized to 0.
+        (*likelihoods_node_i_c)[s] = 1; // All likelihoods are initialized to 1.
+        (*dLikelihoods_node_i_c)[s] = 0; // All dLikelihoods are initialized to 0.
+        (*d2Likelihoods_node_i_c)[s] = 0; // All d2Likelihoods are initialized to 0.
       }
     }
   }
@@ -233,23 +237,23 @@ SitePatterns* RTreeLikelihoodData::initLikelihoodsWithPatterns(const Node* node,
     }
     catch (SequenceNotFoundException snfe)
     {
-      throw SequenceNotFoundException("HomogeneousTreeLikelihood::initTreelikelihoodsWithPatterns. Leaf name in tree not found in site conainer: ", (node->getName()));
+      throw SequenceNotFoundException("RTreeLikelihoodData::initTreelikelihoodsWithPatterns_. Leaf name in tree not found in site conainer: ", (node->getName()));
     }
-    for (unsigned int i = 0; i < nbSites; i++)
+    for (unsigned int i = 0; i < nbSites; ++i)
     {
-      VVdouble* _likelihoods_node_i = &(*_likelihoods_node)[i];
+      VVdouble* likelihoods_node_i = &(*likelihoods_node)[i];
       int state = seq->getValue(i);
-      for (unsigned int c = 0; c < nbClasses_; c++)
+      for (unsigned int c = 0; c < nbClasses_; ++c)
       {
-        Vdouble* _likelihoods_node_i_c = &(*_likelihoods_node_i)[c];
+        Vdouble* likelihoods_node_i_c = &(*likelihoods_node_i)[c];
         double test = 0.;
-        for (unsigned int s = 0; s < nbStates_; s++)
+        for (unsigned int s = 0; s < nbStates_; ++s)
         {
           // Leaves likelihood are set to 1 if the char correspond to the site in the sequence,
           // otherwise value set to 0:
           // cout << "i=" << i << "\tc=" << c << "\ts=" << s << endl;
-          (*_likelihoods_node_i_c)[s] = model.getInitValue(s, state);
-          test += (*_likelihoods_node_i_c)[s];
+          (*likelihoods_node_i_c)[s] = process.getInitValue(s, state);
+          test += (*likelihoods_node_i_c)[s];
         }
         if (test < 0.000001) std::cerr << "WARNING!!! Likelihood will be 0 for this site." << std::endl;
       }
@@ -258,7 +262,7 @@ SitePatterns* RTreeLikelihoodData::initLikelihoodsWithPatterns(const Node* node,
   else
   {
     // 'node' is an internal node.
-    std::map<int, std::vector<size_t> >* patternLinks__node = &patternLinks_[node->getId()];
+    std::map<int, std::vector<size_t> >* patternLinks_node = &patternLinks_[node->getId()];
 
     // Now initialize pattern links:
     int nbSonNodes = static_cast<int>(node->getNumberOfSons());
@@ -267,16 +271,14 @@ SitePatterns* RTreeLikelihoodData::initLikelihoodsWithPatterns(const Node* node,
       // For each son node,
       const Node* son = (*node)[l];
 
-      std::vector<size_t>* patternLinks__node_son = &(*patternLinks__node)[son->getId()];
+      std::vector<size_t>* patternLinks_node_son = &(*patternLinks_node)[son->getId()];
 
       // Initialize subtree 'l' and retrieves corresponding subSequences:
-      SitePatterns* subPatterns = initLikelihoodsWithPatterns(son, *subSequences, model);
-      (*patternLinks__node_son) = subPatterns->getIndices();
-      delete subPatterns;
+      auto_ptr<SitePatterns> subPatterns(initLikelihoodsWithPatterns_(son, *subSequences.get(), process));
+      (*patternLinks_node_son) = subPatterns->getIndices();
     }
   }
-  delete subSequences;
-  return patterns;
+  return patterns.release();
 }
 
 /******************************************************************************/
