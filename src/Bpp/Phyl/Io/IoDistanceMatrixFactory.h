@@ -5,7 +5,7 @@
 //
 
 /*
-Copyright or © or Copr. CNRS, (November 17, 2004)
+Copyright or © or Copr. Bio++ Development Team, (November 17, 2004)
 
 This software is a computer program whose purpose is to provide classes
 for sequences analysis.
@@ -40,7 +40,7 @@ knowledge of the CeCILL license and that you accept its terms.
 #ifndef _IODISTANCEMATRIXFACTORY_H_
 #define _IODISTANCEMATRIXFACTORY_H_
 
-#include "../Distance.all"
+#include "../Distance/DistanceEstimation.h"
 #include "IoDistanceMatrix.h"
 #include <Bpp/Exceptions.h>
 

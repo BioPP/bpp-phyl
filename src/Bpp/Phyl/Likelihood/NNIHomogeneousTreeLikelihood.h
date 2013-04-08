@@ -67,7 +67,7 @@ protected:
   const VVVdouble* array1_, * array2_;
   const SubstitutionModel* model_;
   const DiscreteDistribution* rDist_;
-  unsigned int nbStates_, nbClasses_;
+  size_t nbStates_, nbClasses_;
   VVVdouble pxy_;
   double lnL_;
   std::vector<unsigned int> weights_;

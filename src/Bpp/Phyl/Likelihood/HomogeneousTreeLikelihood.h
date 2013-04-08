@@ -64,12 +64,12 @@ class HomogeneousTreeLikelihood :
 #endif
 
   public:
-    const SubstitutionModel* getSubstitutionModel(int nodeId, unsigned int siteIndex) const throw (NodeNotFoundException)
+    const SubstitutionModel* getSubstitutionModel(int nodeId, size_t siteIndex) const throw (NodeNotFoundException)
     {
       return getSubstitutionModel();
     }
 
-    SubstitutionModel* getSubstitutionModel(int nodeId, unsigned int siteIndex) throw (NodeNotFoundException)
+    SubstitutionModel* getSubstitutionModel(int nodeId, size_t siteIndex) throw (NodeNotFoundException)
     {
       return getSubstitutionModel();
     }

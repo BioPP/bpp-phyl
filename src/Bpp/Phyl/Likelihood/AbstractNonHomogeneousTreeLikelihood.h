@@ -66,14 +66,14 @@ class AbstractNonHomogeneousTreeLikelihood:
     {
       private:
         std::vector<ConstNoPartitionSiteModelDescription> siteModelDescriptions_;
-        unsigned int index_;
-        unsigned int nbModels_;
+        size_t index_;
+        size_t nbModels_;
 
       public:
         ConstNonHomogeneousSiteModelIterator(const SubstitutionModelSet* modelSet) :
           siteModelDescriptions_(), index_(0), nbModels_(modelSet->getNumberOfModels())
         {
-          for (unsigned int i = 0; i < nbModels_; ++i)
+          for (size_t i = 0; i < nbModels_; ++i)
             siteModelDescriptions_.push_back(ConstNoPartitionSiteModelDescription(modelSet->getModel(i), modelSet->getNodesWithModel(i)));        
         }
 
@@ -114,7 +114,7 @@ class AbstractNonHomogeneousTreeLikelihood:
     mutable std::map<int, const Node*> idToNode_;
  
     //some values we'll need:
-    unsigned int nbSites_,         //the number of sites in the container
+    size_t nbSites_,         //the number of sites in the container
                  nbDistinctSites_, //the number of distinct sites
                  nbClasses_,       //the number of rate classes
                  nbStates_,        //the number of states in the alphabet
@@ -195,16 +195,16 @@ class AbstractNonHomogeneousTreeLikelihood:
       return modelSet_->getModelForNode(nodeId);
     }
 
-    const std::vector<double>& getRootFrequencies(unsigned int siteIndex) const { return rootFreqs_; }
+    const std::vector<double>& getRootFrequencies(size_t siteIndex) const { return rootFreqs_; }
     
-    VVVdouble getTransitionProbabilitiesPerRateClass(int nodeId, unsigned int siteIndex) const { return pxy_[nodeId]; }
+    VVVdouble getTransitionProbabilitiesPerRateClass(int nodeId, size_t siteIndex) const { return pxy_[nodeId]; }
 
     ConstBranchModelIterator* getNewBranchModelIterator(int nodeId) const
     {
       return new ConstNoPartitionBranchModelIterator(modelSet_->getModelForNode(nodeId), nbDistinctSites_);
     }
 
-    ConstSiteModelIterator* getNewSiteModelIterator(unsigned int siteIndex) const
+    ConstSiteModelIterator* getNewSiteModelIterator(size_t siteIndex) const
     {
       return new ConstNonHomogeneousSiteModelIterator(modelSet_);
     }

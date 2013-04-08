@@ -37,19 +37,21 @@ The fact that you are presently reading this means that you have had
 knowledge of the CeCILL license and that you accept its terms.
 */
 
-#include <Bpp/Seq/Alphabet.all>
+#include <Bpp/Seq/Alphabet/DNA.h>
 #include <Bpp/Seq/SequenceTools.h>
 #include <Bpp/Phyl/TreeTemplate.h>
-#include <Bpp/Phyl/Model.all>
+#include <Bpp/Phyl/Model/Nucleotide/T92.h>
 #include <Bpp/Phyl/Model/FrequenciesSet/NucleotideFrequenciesSet.h>
 #include <Bpp/Phyl/Model/FrequenciesSet/FrequenciesSet.h>
-#include <Bpp/Phyl/Simulation.all>
+#include <Bpp/Phyl/Model/RateDistribution/ConstantRateDistribution.h>
+#include <Bpp/Phyl/Model/SubstitutionModelSetTools.h>
+#include <Bpp/Phyl/Simulation/HomogeneousSequenceSimulator.h>
 #include <iostream>
 
 using namespace bpp;
 using namespace std;
 
-double testBowker(const NonHomogeneousSequenceSimulator& sim, unsigned int seqlen) {
+double testBowker(const NonHomogeneousSequenceSimulator& sim, size_t seqlen) {
   auto_ptr<SiteContainer> sites(sim.simulate(seqlen));
   auto_ptr<BowkerTest> bTest(SequenceTools::bowkerTest(sites->getSequence(0), sites->getSequence(1)));
   return bTest->getPValue();
@@ -63,7 +65,7 @@ int main() {
   auto_ptr<NucleicAlphabet> alphabet(new DNA());
   SubstitutionModel* model = new T92(alphabet.get(), 3., 0.65);
   FrequenciesSet* rootFreqs = new GCFrequenciesSet(alphabet.get(), 0.65);
-  auto_ptr<DiscreteDistribution> rdist(new ConstantDistribution(1.0, true));
+  auto_ptr<DiscreteDistribution> rdist(new ConstantRateDistribution());
   auto_ptr<SubstitutionModelSet> modelSetH(SubstitutionModelSetTools::createHomogeneousModelSet(model, rootFreqs, tree.get()));
   NonHomogeneousSequenceSimulator simulatorH(modelSetH.get(), rdist.get(), tree.get());
 

@@ -55,6 +55,7 @@ AbstractSubstitutionModel(alpha, prefix),
   for (unsigned int i=0;i<size_;i++){
     for (unsigned int j=0; j<size_;j++){
       generator_(i,j)=0;
+      exchangeability_(i,j)=0;
       leftEigenVectors_(i,j)=0;
       rightEigenVectors_(i,j)=0;
     }
@@ -104,7 +105,7 @@ AbstractMixedSubstitutionModel::~AbstractMixedSubstitutionModel()
       delete modelsContainer_[i];
 }
 
-unsigned int AbstractMixedSubstitutionModel::getNumberOfStates() const
+size_t AbstractMixedSubstitutionModel::getNumberOfStates() const
 {
   return modelsContainer_[0]->getNumberOfStates();
 }

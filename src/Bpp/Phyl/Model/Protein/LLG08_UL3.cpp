@@ -60,17 +60,17 @@ LLG08_UL3::LLG08_UL3(const ProteicAlphabet* alpha) :
 
   Vdouble vrate, vproba;
 
-  for (unsigned int i = 0; i < vpSM.size(); i++)
+  for (size_t i = 0; i < vpSM.size(); i++)
   {
     vproba.push_back((dynamic_cast<LLG08_UL3::EmbeddedModel*>(vpSM[i]))->getProportion());
     vrate.push_back(vpSM[i]->getRate());
   }
 
-  pmixmodel_ = new MixtureOfSubstitutionModels(alpha, vpSM, vproba, vrate);
+  pmixmodel_.reset(new MixtureOfSubstitutionModels(alpha, vpSM, vproba, vrate));
 
   string name, st;
   ParameterList pl = pmixmodel_->getParameters();
-  for (unsigned int i = 0; i < pl.size(); i++)
+  for (size_t i = 0; i < pl.size(); i++)
   {
     name = pl[i].getName();
     lParPmodel_.addParameter(Parameter(pl[i]));
@@ -92,18 +92,12 @@ LLG08_UL3& LLG08_UL3::operator=(const LLG08_UL3& mod2)
 {
   AbstractBiblioMixedSubstitutionModel::operator=(mod2);
 
-  if (pmixmodel_)
-    delete pmixmodel_;
-  pmixmodel_ = new MixtureOfSubstitutionModels(*mod2.pmixmodel_);
+  pmixmodel_.reset(new MixtureOfSubstitutionModels(*mod2.pmixmodel_));
 
   return *this;
 }
 
-LLG08_UL3::~LLG08_UL3()
-{
-  if (pmixmodel_)
-    delete pmixmodel_;
-}
+LLG08_UL3::~LLG08_UL3() {}
 
 /**************** sub model classes */ // ////////
 

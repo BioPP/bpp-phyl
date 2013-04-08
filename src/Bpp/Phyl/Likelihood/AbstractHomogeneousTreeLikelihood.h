@@ -65,7 +65,7 @@ class AbstractHomogeneousTreeLikelihood:
     {
       private:
         ConstNoPartitionSiteModelDescription siteModelDescription_;
-        unsigned int index_;
+        size_t index_;
 
       public:
         ConstHomogeneousSiteModelIterator(const Tree& tree, const SubstitutionModel* model) :
@@ -105,7 +105,7 @@ class AbstractHomogeneousTreeLikelihood:
     std::vector<Node*> nodes_;
 
 		//some values we'll need:
-		unsigned int nbSites_,         //the number of sites in the container
+		size_t nbSites_,         //the number of sites in the container
                  nbDistinctSites_, //the number of distinct sites
 		             nbClasses_,       //the number of rate classes
 		             nbStates_,        //the number of states in the alphabet
@@ -173,16 +173,16 @@ class AbstractHomogeneousTreeLikelihood:
       return AbstractDiscreteRatesAcrossSitesTreeLikelihood::getRateDistributionParameters();
     }
     
-    const std::vector<double>& getRootFrequencies(unsigned int siteIndex) const { return model_->getFrequencies(); }
+    const std::vector<double>& getRootFrequencies(size_t siteIndex) const { return model_->getFrequencies(); }
     
-    VVVdouble getTransitionProbabilitiesPerRateClass(int nodeId, unsigned int siteIndex) const { return pxy_[nodeId]; }
+    VVVdouble getTransitionProbabilitiesPerRateClass(int nodeId, size_t siteIndex) const { return pxy_[nodeId]; }
 
     ConstBranchModelIterator* getNewBranchModelIterator(int nodeId) const
     {
       return new ConstNoPartitionBranchModelIterator(model_, nbDistinctSites_);
     }
 
-    ConstSiteModelIterator* getNewSiteModelIterator(unsigned int siteIndex) const
+    ConstSiteModelIterator* getNewSiteModelIterator(size_t siteIndex) const
     {
       return new ConstHomogeneousSiteModelIterator(*tree_, model_);
     }

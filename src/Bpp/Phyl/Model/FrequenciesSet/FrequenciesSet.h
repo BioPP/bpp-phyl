@@ -94,7 +94,7 @@ public:
    * @return The number of frequencies in the set. In most cases this will correspond to the size of the alphabet,
    * but it needs not be.
    */
-  virtual unsigned int getNumberOfFrequencies() const = 0;
+  virtual size_t getNumberOfFrequencies() const = 0;
 
 public:
   static IntervalConstraint FREQUENCE_CONSTRAINT_SMALL;
@@ -115,7 +115,7 @@ private:
   std::string name_;
 
 public:
-  AbstractFrequenciesSet(unsigned int n, const Alphabet* alphabet, const std::string& prefix, const std::string& name) :
+  AbstractFrequenciesSet(size_t n, const Alphabet* alphabet, const std::string& prefix, const std::string& name) :
     AbstractParametrizable(prefix),
     alphabet_(alphabet),
     freq_(n),
@@ -152,14 +152,14 @@ public:
 
   void setFrequenciesFromMap(const std::map<int, double>& frequencies);
 
-  unsigned int getNumberOfFrequencies() const { return freq_.size(); }
+  size_t getNumberOfFrequencies() const { return freq_.size(); }
 
   std::string getName() const { return(name_); }
 
 protected:
   std::vector<double>& getFrequencies_() { return freq_; }
-  double& getFreq_(unsigned int i) { return freq_[i]; }
-  const double& getFreq_(unsigned int i) const { return freq_[i]; }
+  double& getFreq_(size_t i) { return freq_[i]; }
+  const double& getFreq_(size_t i) const { return freq_[i]; }
   void setFrequencies_(const std::vector<double>& frequencies) { freq_ = frequencies; }
 };
 
@@ -261,21 +261,21 @@ public:
    * @brief Construction with uniform frequencies on the letters of
    * the alphabet.
    *
-   * @param alphabet The alphabet for wich this frequencies set should be build. Will determine the number of frequencies.
-   * @param initFreqs The frequencies to use.
+   * @param alphabet The alphabet for wich this frequencies set should be build.
+   * @param initFreqs The frequencies to use. The vector will determine the number of frequencies.
    * @param name The name of the set.
    */
-
   FixedFrequenciesSet(const Alphabet* alphabet, const std::vector<double>& initFreqs, const std::string& name = "Fixed");
 
   /**
    * @brief Construction with uniform frequencies on the letters of
    * the alphabet.
    *
-   * @param alphabet The alphabet for wich this frequencies set should be build. Will determine the number of frequencies.
+   * @param alphabet The alphabet for wich this frequencies set should be build.
+   * @param nFreqs The number of frequencies.
    * @param name The name of the set.
    */
-  FixedFrequenciesSet(const Alphabet* alphabet, const std::string& name = "Fixed");
+  FixedFrequenciesSet(const Alphabet* alphabet, size_t nFreqs, const std::string& name = "Fixed");
 
   FixedFrequenciesSet* clone() const { return new FixedFrequenciesSet(*this); }
 

@@ -1,14 +1,14 @@
 //
-// File: SimpleSubstitutionCount.h
+// File: test_parsimony.cpp
 // Created by: Julien Dutheil
-// Created on: Wed Apr 5 11:08 2006
+// Created on: Wed 03/10 16:47 2012
 //
 
 /*
-Copyright or © or Copr. Bio++ Development Team, (November 16, 2004, 2005, 2006)
+Copyright or © or Copr. Bio++ Development Team, (November 17, 2004)
 
 This software is a computer program whose purpose is to provide classes
-for phylogenetic data analysis.
+for numerical calculus. This file is part of the Bio++ project.
 
 This software is governed by the CeCILL  license under French law and
 abiding by the rules of distribution of free software.  You can  use, 
@@ -37,33 +37,33 @@ The fact that you are presently reading this means that you have had
 knowledge of the CeCILL license and that you accept its terms.
 */
 
-#include "SimpleSubstitutionCount.h"
+#include <Bpp/Seq/Alphabet/AlphabetTools.h>
+#include <Bpp/Seq/Io/Phylip.h>
+#include <Bpp/Phyl/Tree.h>
+#include <Bpp/Phyl/Io/Newick.h>
+#include <Bpp/Phyl/Parsimony/DRTreeParsimonyScore.h>
+#include <iostream>
 
 using namespace bpp;
+using namespace std;
 
-Matrix<double>* NaiveSubstitutionCount::getAllNumbersOfSubstitutions(double length, unsigned int type) const
-{ 
-  unsigned int n = register_->getAlphabet()->getSize();
-  RowMatrix<double>* mat = new RowMatrix<double>(n, n);
-  for (unsigned int i = 0; i < n; ++i)
-  {
-    for (unsigned int j = 0; j < n; ++j)
-    {
-      (*mat)(i, j) = (register_->getType(i, j) == type ? (weights_ ? weights_->getIndex(i, j) : 1.) : 0.);
-    }
-  }
-  return mat;
+int main() {
+  try {
+    Newick treeReader;
+    auto_ptr<Tree> tree(treeReader.read("example1.mp.dnd"));
+    Phylip alnReader(false, false);
+    auto_ptr<SiteContainer> sites(alnReader.readAlignment("example1.ph", &AlphabetTools::DNA_ALPHABET));
+
+    DRTreeParsimonyScore pars(*tree, *sites, true, true);
+  
+    cout << "Parsimony score: " << pars.getScore() << endl;
+
+    if (pars.getScore() != 9) return 1;
+    
+  } catch (Exception& ex) {
+    cerr << ex.what() << endl;
+    return 1;
+  }  
+
+  return 0;
 }
-
-LabelSubstitutionCount::LabelSubstitutionCount(const Alphabet* alphabet) :
-  AbstractSubstitutionCount(new TotalSubstitutionRegister(alphabet)), label_(alphabet->getSize(), alphabet->getSize())
-{
-  unsigned int count = 0;
-  for (unsigned int i = 0; i < alphabet->getSize(); ++i) {
-    for (unsigned int j = 0; j < alphabet->getSize(); ++j) {
-      if (i == j) label_(i, j) = 0;
-      else label_(i, j) = ++count;
-    }
-  }
-}			
-

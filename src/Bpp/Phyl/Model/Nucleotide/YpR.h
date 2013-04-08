@@ -175,7 +175,7 @@ public:
 
   const SubstitutionModel* getNestedModel() const {return _pmodel;}
   
-  unsigned int getNumberOfStates() const { return 36; }
+  size_t getNumberOfStates() const { return 36; }
 
   virtual void updateMatrices();
 
@@ -183,8 +183,9 @@ public:
 
   void fireParameterChanged(const ParameterList& parameters)
   {
+    AbstractSubstitutionModel::fireParameterChanged(parameters);
    _pmodel->matchParametersValues(parameters);
-    updateMatrices();
+   updateMatrices();
   }
 };
 }

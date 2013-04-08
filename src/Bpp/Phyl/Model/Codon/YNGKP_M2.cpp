@@ -65,9 +65,7 @@ YNGKP_M2::YNGKP_M2(const GeneticCode* gc, FrequenciesSet* codonFreqs) :
   map<string, DiscreteDistribution*> mpdd;
   mpdd["omega"] = psdd;
 
-  pmixmodel_ = new MixtureOfASubstitutionModel(gc->getSourceAlphabet(),
-                                               new YN98(gc, codonFreqs),
-                                               mpdd);
+  pmixmodel_.reset(new MixtureOfASubstitutionModel(gc->getSourceAlphabet(), new YN98(gc, codonFreqs), mpdd));
   delete psdd;
 
   // mapping the parameters
@@ -80,7 +78,7 @@ YNGKP_M2::YNGKP_M2(const GeneticCode* gc, FrequenciesSet* codonFreqs) :
 
   vector<std::string> v = dynamic_cast<YN98*>(pmixmodel_->getNModel(0))->getFrequenciesSet()->getParameters().getParameterNames();
 
-  for (unsigned int i = 0; i < v.size(); i++)
+  for (size_t i = 0; i < v.size(); i++)
   {
     mapParNamesFromPmodel_[v[i]] = getParameterNameWithoutNamespace("YNGKP_M2." + v[i].substr(5));
   }
@@ -102,9 +100,9 @@ YNGKP_M2::YNGKP_M2(const GeneticCode* gc, FrequenciesSet* codonFreqs) :
                               pmixmodel_->getParameter(st).hasConstraint() ? pmixmodel_->getParameter(st).getConstraint()->clone() : 0, true));
   }
 
-  addParameter_(new Parameter("YNGKP_M2.omega0", 0.5, new IntervalConstraint(NumConstants::MILLI, 1, true, false), true));
+  addParameter_(new Parameter("YNGKP_M2.omega0", 0.5, new IntervalConstraint(NumConstants::MILLI(), 1, true, false), true));
 
-  addParameter_(new Parameter("YNGKP_M2.omega2", 2, new IntervalConstraint(1, 999, false, false, NumConstants::MILLI), true));
+  addParameter_(new Parameter("YNGKP_M2.omega2", 2, new IntervalConstraint(1, 999, false, false, NumConstants::MILLI()), true));
 
   // look for synonymous codons
   for (synfrom_ = 1; synfrom_ < (int)gc->getSourceAlphabet()->getSize(); synfrom_++)
@@ -138,20 +136,14 @@ YNGKP_M2& YNGKP_M2::operator=(const YNGKP_M2& mod2)
 {
   AbstractBiblioMixedSubstitutionModel::operator=(mod2);
 
-  if (pmixmodel_)
-    delete pmixmodel_;
-  pmixmodel_ = new MixtureOfASubstitutionModel(*mod2.pmixmodel_);
+  pmixmodel_.reset(new MixtureOfASubstitutionModel(*mod2.pmixmodel_));
   synfrom_ = mod2.synfrom_;
   synto_ = mod2.synto_;
 
   return *this;
 }
 
-YNGKP_M2::~YNGKP_M2()
-{
-  if (pmixmodel_)
-    delete pmixmodel_;
-}
+YNGKP_M2::~YNGKP_M2() {}
 
 void YNGKP_M2::updateMatrices()
 {

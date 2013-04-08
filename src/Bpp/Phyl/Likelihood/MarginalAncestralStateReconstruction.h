@@ -67,11 +67,11 @@ class MarginalAncestralStateReconstruction:
 		const DRTreeLikelihood* likelihood_;
     TreeTemplate<Node> tree_;
 		const Alphabet* alphabet_;
-		unsigned int nbSites_;
-		unsigned int nbDistinctSites_;
-		unsigned int nbClasses_;
-		unsigned int nbStates_;
-    std::vector<unsigned int> rootPatternLinks_;
+		size_t nbSites_;
+		size_t nbDistinctSites_;
+		size_t nbClasses_;
+		size_t nbStates_;
+    std::vector<size_t> rootPatternLinks_;
     std::vector<double> r_;
     std::vector<double> l_;
 		
@@ -144,15 +144,15 @@ class MarginalAncestralStateReconstruction:
 		 * @return A vector of states indices.
 		 * @see getAncestralSequenceForNode
 		 */ 
-    std::vector<unsigned int> getAncestralStatesForNode(int nodeId, VVdouble& probs, bool sample) const;
+    std::vector<size_t> getAncestralStatesForNode(int nodeId, VVdouble& probs, bool sample) const;
 		
-    std::vector<unsigned int> getAncestralStatesForNode(int nodeId) const
+    std::vector<size_t> getAncestralStatesForNode(int nodeId) const
     {
       VVdouble probs(nbSites_);
       return getAncestralStatesForNode(nodeId, probs, false);
     }
 		
-    std::map<int, std::vector<unsigned int> > getAllAncestralStates() const;
+    std::map<int, std::vector<size_t> > getAllAncestralStates() const;
 
 		/**
 		 * @brief Get the ancestral sequence for a given node.
@@ -187,7 +187,7 @@ class MarginalAncestralStateReconstruction:
   private:
 		void recursiveMarginalAncestralStates(
 			const Node* node,
-			std::map<int, std::vector<unsigned int> >& ancestors,
+			std::map<int, std::vector<size_t> >& ancestors,
 			AlignedSequenceContainer& data) const;
 
 		

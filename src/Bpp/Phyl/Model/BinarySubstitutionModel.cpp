@@ -5,7 +5,7 @@
 //
 
 /*
-   Copyright or © or Copr. CNRS, (November 16, 2004)
+   Copyright or © or Copr. Bio++ Development Team, (November 16, 2004)
 
    This software is a computer program whose purpose is to provide classes
    for phylogenetic data analysis.
@@ -53,12 +53,13 @@ using namespace std;
 BinarySubstitutionModel::BinarySubstitutionModel(const BinaryAlphabet* alpha, double kappa) :
   AbstractParameterAliasable("Binary."),
   AbstractSubstitutionModel(alpha, "Binary."),
-  _kappa(kappa),
-  _lambda(0),
-  _exp(0),
-  _p(size_,size_)
+  AbstractReversibleSubstitutionModel(alpha, "Binary."),
+  kappa_(kappa),
+  lambda_(0),
+  exp_(0),
+  p_(size_,size_)
 {
-  addParameter_(new Parameter(getNamespace() + "kappa", _kappa, &Parameter::R_PLUS_STAR));
+  addParameter_(new Parameter(getNamespace() + "kappa", kappa_, &Parameter::R_PLUS_STAR));
   updateMatrices();
 }
 
@@ -66,30 +67,30 @@ BinarySubstitutionModel::BinarySubstitutionModel(const BinaryAlphabet* alpha, do
 
 void BinarySubstitutionModel::updateMatrices()
 {
-  _kappa = getParameterValue("kappa"); // alpha/beta
-  _lambda = (_kappa + 1) * (_kappa + 1) / (2 * _kappa);
+  kappa_ = getParameterValue("kappa"); // alpha/beta
+  lambda_ = (kappa_ + 1) * (kappa_ + 1) / (2 * kappa_);
 
   // Frequences:
-  freq_[0] = 1 / (_kappa + 1);
-  freq_[1] = _kappa / (_kappa + 1);
+  freq_[0] = 1 / (kappa_ + 1);
+  freq_[1] = kappa_ / (kappa_ + 1);
 
   // Generator:
-  generator_(0, 0) = rate_ * -(_kappa + 1) / 2;
-  generator_(0, 1) = rate_ * (_kappa + 1) / 2;
-  generator_(1, 0) = rate_ * (_kappa + 1) / (2 * _kappa);
-  generator_(1, 1) = rate_ * -(_kappa + 1) / (2 * _kappa);
+  generator_(0, 0) = rate_ * -(kappa_ + 1) / 2;
+  generator_(0, 1) = rate_ * (kappa_ + 1) / 2;
+  generator_(1, 0) = rate_ * (kappa_ + 1) / (2 * kappa_);
+  generator_(1, 1) = rate_ * -(kappa_ + 1) / (2 * kappa_);
 
   // Eigen values:
   eigenValues_[0] = 0;
-  eigenValues_[1] = -rate_ * _lambda;
+  eigenValues_[1] = -rate_ * lambda_;
 
   // Eigen vectors:
-  leftEigenVectors_(0,0) = 1 / (_kappa + 1);
-  leftEigenVectors_(0,1) = _kappa / (_kappa + 1);
-  if (_kappa != 1.0)
+  leftEigenVectors_(0,0) = 1 / (kappa_ + 1);
+  leftEigenVectors_(0,1) = kappa_ / (kappa_ + 1);
+  if (kappa_ != 1.0)
   {
-    leftEigenVectors_(1,0) = (_kappa - 1) / (_kappa + 1);
-    leftEigenVectors_(1,1) = -(_kappa - 1) / (_kappa + 1);
+    leftEigenVectors_(1,0) = (kappa_ - 1) / (kappa_ + 1);
+    leftEigenVectors_(1,1) = -(kappa_ - 1) / (kappa_ + 1);
   }
   else
   {
@@ -100,10 +101,10 @@ void BinarySubstitutionModel::updateMatrices()
   rightEigenVectors_(0,0) = 1;
   rightEigenVectors_(1,0) = 1;
 
-  if (_kappa != 1.0)
+  if (kappa_ != 1.0)
   {
-    rightEigenVectors_(0,1) = _kappa / (_kappa - 1);
-    rightEigenVectors_(1,1) = -1 / (_kappa - 1);
+    rightEigenVectors_(0,1) = kappa_ / (kappa_ - 1);
+    rightEigenVectors_(1,1) = -1 / (kappa_ - 1);
   }
   else
   {
@@ -114,24 +115,24 @@ void BinarySubstitutionModel::updateMatrices()
 
 /******************************************************************************/
 
-double BinarySubstitutionModel::Pij_t(unsigned int i, unsigned int j, double d) const
+double BinarySubstitutionModel::Pij_t(size_t i, size_t j, double d) const
 {
-  _exp = exp(-_lambda * d);
+  exp_ = exp(-lambda_ * d);
 
   switch (i)
   {
   case 0: {
     switch (j)
     {
-    case 0: return (1 + _kappa * _exp) / (_kappa + 1);
-    case 1: return _kappa / (_kappa + 1) * (1 - _exp);
+    case 0: return (1 + kappa_ * exp_) / (kappa_ + 1);
+    case 1: return kappa_ / (kappa_ + 1) * (1 - exp_);
     }
   }
   case 1: {
     switch (j)
     {
-    case 0: return (1 - _exp) / (_kappa + 1);
-    case 1: return (_kappa + _exp) / (_kappa + 1);
+    case 0: return (1 - exp_) / (kappa_ + 1);
+    case 1: return (kappa_ + exp_) / (kappa_ + 1);
     }
   }
   }
@@ -140,24 +141,24 @@ double BinarySubstitutionModel::Pij_t(unsigned int i, unsigned int j, double d) 
 
 /******************************************************************************/
 
-double BinarySubstitutionModel::dPij_dt(unsigned int i, unsigned int j, double d) const
+double BinarySubstitutionModel::dPij_dt(size_t i, size_t j, double d) const
 {
-  _exp = exp(-_lambda * d);
+  exp_ = exp(-lambda_ * d);
 
   switch (i)
   {
   case 0: {
     switch (j)
     {
-    case 0: return -(_kappa + 1) / 2 * _exp;
-    case 1: return (_kappa + 1) / 2 * _exp;
+    case 0: return -(kappa_ + 1) / 2 * exp_;
+    case 1: return (kappa_ + 1) / 2 * exp_;
     }
   }
   case 1: {
     switch (j)
     {
-    case 0: return (_kappa + 1) / (2 * _kappa) * _exp;
-    case 1: return -(_kappa + 1) / (2 * _kappa) * _exp;
+    case 0: return (kappa_ + 1) / (2 * kappa_) * exp_;
+    case 1: return -(kappa_ + 1) / (2 * kappa_) * exp_;
     }
   }
   }
@@ -166,24 +167,24 @@ double BinarySubstitutionModel::dPij_dt(unsigned int i, unsigned int j, double d
 
 /******************************************************************************/
 
-double BinarySubstitutionModel::d2Pij_dt2(unsigned int i, unsigned int j, double d) const
+double BinarySubstitutionModel::d2Pij_dt2(size_t i, size_t j, double d) const
 {
-  _exp = exp(-_lambda * d);
+  exp_ = exp(-lambda_ * d);
 
   switch (i)
   {
   case 0: {
     switch (j)
     {
-    case 0: return _lambda * (_kappa + 1) / 2 * _exp;
-    case 1: return -_lambda * (_kappa + 1) / 2 * _exp;
+    case 0: return lambda_ * (kappa_ + 1) / 2 * exp_;
+    case 1: return -lambda_ * (kappa_ + 1) / 2 * exp_;
     }
   }
   case 1: {
     switch (j)
     {
-    case 0: return -_lambda * (_kappa + 1) / (2 * _kappa) * _exp;
-    case 1: return _lambda * (_kappa + 1) / (2 * _kappa) * _exp;
+    case 0: return -lambda_ * (kappa_ + 1) / (2 * kappa_) * exp_;
+    case 1: return lambda_ * (kappa_ + 1) / (2 * kappa_) * exp_;
     }
   }
   }
@@ -194,47 +195,47 @@ double BinarySubstitutionModel::d2Pij_dt2(unsigned int i, unsigned int j, double
 
 const Matrix<double>& BinarySubstitutionModel::getPij_t(double d) const
 {
-  _exp = exp(-_lambda * d);
+  exp_ = exp(-lambda_ * d);
 
-  _p(0,0) = (1 + _kappa * _exp) / (_kappa + 1);
-  _p(0,1) = _kappa / (_kappa + 1) * (1 - _exp);
+  p_(0,0) = (1 + kappa_ * exp_) / (kappa_ + 1);
+  p_(0,1) = kappa_ / (kappa_ + 1) * (1 - exp_);
 
-  _p(1,0) =  (1 - _exp) / (_kappa + 1);
-  _p(1,1) = (_kappa + _exp) / (_kappa + 1);
+  p_(1,0) =  (1 - exp_) / (kappa_ + 1);
+  p_(1,1) = (kappa_ + exp_) / (kappa_ + 1);
 
-  return _p;
+  return p_;
 }
 
 const Matrix<double>& BinarySubstitutionModel::getdPij_dt(double d) const
 {
-  _exp = exp(-_lambda * d);
+  exp_ = exp(-lambda_ * d);
 
-  _p(0,0) = -(_kappa + 1) / 2 * _exp;
-  _p(0,1) = (_kappa + 1) / 2 * _exp;
+  p_(0,0) = -(kappa_ + 1) / 2 * exp_;
+  p_(0,1) = (kappa_ + 1) / 2 * exp_;
 
-  _p(1,0) = (_kappa + 1) / (2 * _kappa) * _exp;
-  _p(1,1) = -(_kappa + 1) / (2 * _kappa) * _exp;
+  p_(1,0) = (kappa_ + 1) / (2 * kappa_) * exp_;
+  p_(1,1) = -(kappa_ + 1) / (2 * kappa_) * exp_;
 
-  return _p;
+  return p_;
 }
 
 const Matrix<double>& BinarySubstitutionModel::getd2Pij_dt2(double d) const
 {
-  _exp = exp(-_lambda * d);
+  exp_ = exp(-lambda_ * d);
 
-  _p(0,0) = _lambda * (_kappa + 1) / 2 * _exp;
-  _p(0,1) = -_lambda * (_kappa + 1) / 2 * _exp;
-  _p(1,0) = -_lambda * (_kappa + 1) / (2 * _kappa) * _exp;
-  _p(1,1) = _lambda * (_kappa + 1) / (2 * _kappa) * _exp;
+  p_(0,0) = lambda_ * (kappa_ + 1) / 2 * exp_;
+  p_(0,1) = -lambda_ * (kappa_ + 1) / 2 * exp_;
+  p_(1,0) = -lambda_ * (kappa_ + 1) / (2 * kappa_) * exp_;
+  p_(1,1) = lambda_ * (kappa_ + 1) / (2 * kappa_) * exp_;
 
-  return _p;
+  return p_;
 }
 
 /******************************************************************************/
 
 void BinarySubstitutionModel::setFreq(std::map<int, double>& freqs)
 {
-  _kappa = freqs[1] / freqs[0];
-  setParameterValue("kappa",_kappa);
+  kappa_ = freqs[1] / freqs[0];
+  setParameterValue("kappa",kappa_);
   updateMatrices();
 }

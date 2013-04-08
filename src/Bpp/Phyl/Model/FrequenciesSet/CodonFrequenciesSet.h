@@ -71,9 +71,20 @@ namespace bpp
      *
      * @param option A code describing the option, one of F61, F1X4 or F3X4.
      * @param CA the Codon Alphabet to use.
+     * @param mgmtStopFreq the optional way the frequencies assigned
+     * to the stop codons are redistributed to the other codons, with
+     * F1X4 and F3X4 options. The available values are:
+     *  - uniform : each stop frequency is distributed evenly
+     *  - linear : each stop frequency is distributed to the neighbour
+     *     codons (ie 1 substitution away), in proportion to each
+     *     target codon frequency.
+     *  - quadratic (default): each stop frequency is distributed to the
+     *     neighbour codons (ie 1 substitution away), in proportion to
+     *     the square of each target codon frequency.
+     *
      */
     
-    static FrequenciesSet* getFrequenciesSetForCodons(short option, const CodonAlphabet& CA);
+    static FrequenciesSet* getFrequenciesSetForCodons(short option, const CodonAlphabet& CA, const std::string& mgmtStopFreq = "quadratic");
     
     static const short F0;
     static const short F1X4;
@@ -240,6 +251,11 @@ namespace bpp
 
     void setNamespace(const std::string& prefix);
 
+    const ProteinFrequenciesSet* getProteinFrequenciesSet() const
+    {
+      return ppfs_;
+    }
+    
   protected:
     void fireParameterChanged(const ParameterList& parameters);
   };
@@ -258,12 +274,34 @@ namespace bpp
     public virtual CodonFrequenciesSet,
     public WordFromIndependentFrequenciesSet
   {
+  private:
+
+    // a map associating stop codons numbers with numbers of neighbour non-stop codons
+    std::map<int, Vint> mStopNeigh_;
+
+    unsigned short mgmtStopFreq_;
+    
   public:
     /**
      * @brief Constructor from a CodonAlphabet* and a vector of different FrequenciesSet*.
      * Throws an Exception if their lengths do not match.
+     *
+     * @param pCA a pointer to the CodonAlphabet
+     * @param freqvector a vector of pointers to the phase specific FrequenciesSets
+     * @param name the optional name of the FrequenciesSet (default codon)
+     * @param mgmtStopFreq the optional way the frequencies assigned to the
+     * stop codons are redistributed to the other codons. The
+     * available values are:
+     *  - uniform : each stop frequency is distributed evenly
+     *  - linear : each stop frequency is distributed to the neighbour
+     *     codons (ie 1 substitution away), in proportion to each
+     *     target codon frequency.
+     *  - quadratic (default): each stop frequency is distributed to the
+     *     neighbour codons (ie 1 substitution away), in proportion to
+     *     the square of each target codon frequency.
+     *
      */
-    CodonFromIndependentFrequenciesSet(const CodonAlphabet* pCA, const std::vector<FrequenciesSet*>& freqvector, const std::string& name = "Codon");
+    CodonFromIndependentFrequenciesSet(const CodonAlphabet* pCA, const std::vector<FrequenciesSet*>& freqvector, const std::string& name = "Codon", const std::string& mgmtStopFreq = "quadratic");
   
     CodonFromIndependentFrequenciesSet(const CodonFromIndependentFrequenciesSet& iwfs);
 
@@ -274,16 +312,13 @@ namespace bpp
     CodonFromIndependentFrequenciesSet* clone() const { return new CodonFromIndependentFrequenciesSet(*this); }
 
     const CodonAlphabet* getAlphabet() const;
-  public:
-    void updateFrequencies();
   
-    /**
-     *@ brief Independent letter frequencies from given word frequencies.
-     * The frequencies of a letter at a position is the sum of the
-     *    frequencies of the words that have this letter at this
-     *    position.
+    /*
+     *@ brief Update the frequencies given the parameters.
+     *
      */
-    void setFrequencies(const std::vector<double>& frequencies);
+
+    void updateFrequencies();
   };
 
 
@@ -299,13 +334,35 @@ namespace bpp
     public virtual CodonFrequenciesSet,
     public WordFromUniqueFrequenciesSet
   {
+  private:
+
+    // a map associating stop codons numbers with numbers of neighbour non-stop codons
+    std::map<int, Vint> mStopNeigh_;
+
+    unsigned short mgmtStopFreq_;
+    
   public:
     /**
      * @brief Constructor from a CodonAlphabet* and a FrequenciesSet*
      *  repeated three times.
+     *
+     * @param pCA a pointer to the CodonAlphabet
+     * @param pfreq a pointer to the nucleotidic FrequenciesSet
+     * @param name the optional name of the FrequenciesSet (default codon)
+     * @param mgmtStopFreq the optional way the frequencies assigned to the
+     * stop codons are redistributed to the other codons. The
+     * available values are:
+     *  - uniform : each stop frequency is distributed evenly
+     *  - linear : each stop frequency is distributed to the neighbour
+     *      codons (ie 1 substitution away), in proportion to each
+     *      target codon frequency.
+     *  - quadratic (default): each stop frequency is distributed to the
+     *      neighbour codons (ie 1 substitution away), in proportion to
+     *      the square of each target codon frequency.
+     *
      */
 
-    CodonFromUniqueFrequenciesSet(const CodonAlphabet* pCA, FrequenciesSet* pfreq, const std::string& name = "Codon");
+    CodonFromUniqueFrequenciesSet(const CodonAlphabet* pCA, FrequenciesSet* pfreq, const std::string& name = "Codon", const std::string& mgmtStopFreq = "quadratic");
   
     CodonFromUniqueFrequenciesSet(const CodonFromUniqueFrequenciesSet& iwfs);
   
@@ -315,19 +372,14 @@ namespace bpp
   
     CodonFromUniqueFrequenciesSet* clone() const { return new CodonFromUniqueFrequenciesSet(*this); }
   
-  public:
     const CodonAlphabet* getAlphabet() const;
 
-    void updateFrequencies();
-  
-    /**
-     *@ brief letter frequencies from given word frequencies. The
-     * frequencies of a letter at a position is the sum of the
-     * frequencies of the words that have this letter at this position.
-     * The frequencies of each letter is the average of the frequencies
-     * of that letter at all positions.
+    /*
+     *@ brief Update the frequencies given the parameters.
+     *
      */
-    void setFrequencies(const std::vector<double>& frequencies);
+
+    void updateFrequencies();
   };
 
 

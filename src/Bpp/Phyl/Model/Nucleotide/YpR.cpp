@@ -246,7 +246,7 @@ void YpR::updateMatrices(double CgT, double cGA,
      isNonSingular_=true;
      isDiagonalizable_=true;
      for (i=0; i<size_; i++)
-       if (abs(iEigenValues_[i])> NumConstants::TINY){
+       if (abs(iEigenValues_[i])> NumConstants::TINY()){
          isDiagonalizable_=false;
        }
 
@@ -255,8 +255,8 @@ void YpR::updateMatrices(double CgT, double cGA,
      x = 0;
      j = 0;
      while (j < 36){
-       if (abs(eigenValues_[j]) < NumConstants::SMALL &&
-           abs(iEigenValues_[j]) < NumConstants::SMALL) {
+       if (abs(eigenValues_[j]) < NumConstants::SMALL() &&
+           abs(iEigenValues_[j]) < NumConstants::SMALL()) {
          eigenValues_[j]=0; //to avoid approximation problems in the future
          for (i = 0; i < 36; i++)
            {
@@ -327,6 +327,12 @@ void YpR::updateMatrices(double CgT, double cGA,
     eigenValues_[i] /= x;
     iEigenValues_[i] /= x;
   }
+
+  // and the exchangeability_
+  for ( i = 0; i < size_; i++)
+    for ( j = 0; j < size_; j++)
+      exchangeability_(i,j) = generator_(i,j) / freq_[j];
+
 }
 
 void YpR::check_model(SubstitutionModel* const pm) const

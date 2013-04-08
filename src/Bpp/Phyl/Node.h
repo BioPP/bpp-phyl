@@ -86,9 +86,9 @@ namespace bpp
  *
  * @see Tree, TreeTemplate
  */
-class Node :
-  public Clonable
+class Node
 {
+
 protected:
   int id_;
   std::string* name_;
@@ -154,6 +154,8 @@ public:
   /**
    * @brief Copy constructor.
    *
+   * @warning This constructor copies all fields, excepted father and son node pointers.
+   *
    * @param node The node to copy.
    */
   Node(const Node& node);
@@ -161,11 +163,16 @@ public:
   /**
    * @brief Assignation operator.
    *
+   * @warning This operator copies all fields, excepted father and son node pointers.
+   *
    * @param node the node to copy.
    * @return A reference toward this node.
    */
   Node& operator=(const Node& node);
 
+  Node* clone() const { return new Node(*this); }
+
+public:
   virtual ~Node()
   {
     if (name_) delete name_;
@@ -179,8 +186,6 @@ public:
       delete i->second;
     }
   }
-
-  Node* clone() const { return new Node(*this); }
 
 public:
   /**
@@ -206,7 +211,7 @@ public:
   virtual std::vector<int> getSonsId() const
   {
     std::vector<int> sonsId(sons_.size());
-    for (unsigned int i = 0; i < sons_.size(); i++)
+    for (size_t i = 0; i < sons_.size(); i++)
     {
       sonsId[i] = sons_[i]->getId();
     }
@@ -379,26 +384,26 @@ public:
    *
    * @{
    */
-  virtual unsigned int getNumberOfSons() const { return sons_.size(); }
+  virtual size_t getNumberOfSons() const { return sons_.size(); }
 
   virtual std::vector<Node*>& getSons()
   {
     return sons_;
   }
 
-  virtual const Node* getSon(unsigned int pos) const throw (IndexOutOfBoundsException)
+  virtual const Node* getSon(size_t pos) const throw (IndexOutOfBoundsException)
   {
     if (pos >= sons_.size()) throw IndexOutOfBoundsException("Node::getSon().", pos, 0, sons_.size() - 1);
     return sons_[pos];
   }
 
-  virtual Node* getSon(unsigned int pos) throw (IndexOutOfBoundsException)
+  virtual Node* getSon(size_t pos) throw (IndexOutOfBoundsException)
   {
     if (pos >= sons_.size()) throw IndexOutOfBoundsException("Node::getSon().", pos, 0, sons_.size() - 1);
     return sons_[pos];
   }
 
-  virtual void addSon(unsigned int pos, Node* node) throw (NullPointerException, NodePException)
+  virtual void addSon(size_t pos, Node* node) throw (NullPointerException, NodePException)
   {
     if (!node)
       throw NullPointerException("Node::addSon(). Empty node given as input.");
@@ -421,7 +426,7 @@ public:
     node->father_ = this;
   }
 
-  virtual void setSon(unsigned int pos, Node* node) throw (IndexOutOfBoundsException, NullPointerException, NodePException)
+  virtual void setSon(size_t pos, Node* node) throw (IndexOutOfBoundsException, NullPointerException, NodePException)
   {
     if (!node)
       throw NullPointerException("Node::setSon(). Empty node given as input.");
@@ -435,7 +440,7 @@ public:
     node->father_ = this;
   }
 
-  virtual Node* removeSon(unsigned int pos) throw (IndexOutOfBoundsException)
+  virtual Node* removeSon(size_t pos) throw (IndexOutOfBoundsException)
   {
     if (pos >= sons_.size())
       throw IndexOutOfBoundsException("Node::removeSon(). Invalid node position.", pos, 0, sons_.size() - 1);
@@ -449,7 +454,7 @@ public:
   {
     if (!node)
       throw NullPointerException("Node::removeSon(). Empty node given as input.");
-    for (unsigned int i = 0; i < sons_.size(); i++)
+    for (size_t i = 0; i < sons_.size(); i++)
     {
       if (sons_[i] == node)
       {
@@ -464,12 +469,12 @@ public:
   virtual void removeSons()
   {
     while (sons_.size() != 0)
-      removeSon(static_cast<unsigned int>(0));
+      removeSon(static_cast<size_t>(0));
   }
 
-  virtual void swap(unsigned int branch1, unsigned int branch2) throw (IndexOutOfBoundsException);
+  virtual void swap(size_t branch1, size_t branch2) throw (IndexOutOfBoundsException);
 
-  virtual unsigned int getSonPosition(const Node* son) const throw (NodeNotFoundException, NullPointerException);
+  virtual size_t getSonPosition(const Node* son) const throw (NodeNotFoundException, NullPointerException);
 
   /** @} */
 
@@ -479,7 +484,7 @@ public:
 
   std::vector<Node*> getNeighbors();
 
-  virtual unsigned int degree() const { return getNumberOfSons() + (hasFather() ? 1 : 0); }
+  virtual size_t degree() const { return getNumberOfSons() + (hasFather() ? 1 : 0); }
 
   /**
    * @name Operators:
@@ -684,6 +689,7 @@ public:
   // Tests:
 
   virtual bool isLeaf() const { return degree() <= 1; }
+
 };
 } // end of namespace bpp.
 

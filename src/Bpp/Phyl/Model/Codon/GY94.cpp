@@ -78,15 +78,9 @@ GY94::GY94(const GY94& gy94) :
 GY94& GY94::operator=(const GY94& gy94)
 {
   AbstractBiblioSubstitutionModel::operator=(gy94);
-  if (pmodel_)
-    delete pmodel_;
-  pmodel_ = new CodonDistanceFrequenciesSubstitutionModel(*gy94.pmodel_);
+  pmodel_.reset(new CodonDistanceFrequenciesSubstitutionModel(*gy94.pmodel_));
   return *this;
 }
 
-GY94::~GY94()
-{
-  if (pmodel_)
-    delete pmodel_;
-}
+GY94::~GY94() {}
 

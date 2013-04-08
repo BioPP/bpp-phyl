@@ -164,7 +164,7 @@ public:
    * Here this methods returns 1;
    *
    **/
-  virtual double getCodonsMulRate(unsigned int, unsigned int) const { return 1.;}
+  virtual double getCodonsMulRate(size_t i, size_t j) const { return 1.; }
 };
 } // end of namespace bpp.
 

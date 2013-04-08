@@ -112,9 +112,9 @@ class NonHomogeneousSequenceSimulator:
 	
     std::vector<std::string> seqNames_;
 
-		unsigned int nbNodes_;
-		unsigned int nbClasses_;
-		unsigned int nbStates_;
+		size_t nbNodes_;
+		size_t nbClasses_;
+		size_t nbStates_;
 
     bool continuousRates_;
 	
@@ -222,7 +222,7 @@ class NonHomogeneousSequenceSimulator:
 		 *
 		 * @{
 		 */
-		SiteContainer* simulate(unsigned int numberOfSites) const;
+		SiteContainer* simulate(size_t numberOfSites) const;
 		/** @} */
     
 		/**
@@ -238,8 +238,8 @@ class NonHomogeneousSequenceSimulator:
      *
      * @{
      */
-		virtual Site* simulate(int ancestralState, unsigned int rateClass) const;
-    virtual	RASiteSimulationResult* dSimulate(int ancestralState, unsigned int rateClass) const;
+		virtual Site* simulate(int ancestralState, size_t rateClass) const;
+    virtual	RASiteSimulationResult* dSimulate(int ancestralState, size_t rateClass) const;
     /** @} */
 	
 		/**
@@ -282,7 +282,7 @@ class NonHomogeneousSequenceSimulator:
 		 * This method is fast since all pijt have been computed in the constructor of the class.
      * This method is used for the implementation of the SiteSimulator interface.
 		 */
-		int evolve(const SNode * node, int initialState, unsigned int rateClass) const;
+		int evolve(const SNode * node, int initialState, size_t rateClass) const;
 		
 		/**
 		 * @brief Evolve from an initial state along a branch, knowing the evolutionary rate.
@@ -297,10 +297,10 @@ class NonHomogeneousSequenceSimulator:
      *
      * This method is used for the implementation of the SequenceSimulator interface.
      */
-		void multipleEvolve(const SNode* node, const Vint& initialState, const std::vector<unsigned int>& rateClasses, Vint& finalStates) const;
-		SiteContainer* multipleEvolve(const Vint& initialStates, const std::vector<unsigned int>& rateClasses) const;
+		void multipleEvolve(const SNode* node, const Vint& initialState, const std::vector<size_t>& rateClasses, Vint& finalStates) const;
+		SiteContainer* multipleEvolve(const Vint& initialStates, const std::vector<size_t>& rateClasses) const;
 		
-    void dEvolve(int initialState, double rate, RASiteSimulationResult & rassr) const;
+    void dEvolve(int initialState, double rate, RASiteSimulationResult& rassr) const;
 		
     /**
      * @name The 'Internal' methods.
@@ -311,7 +311,7 @@ class NonHomogeneousSequenceSimulator:
     /**
      * This method uses the states_ variable for saving ancestral states.
      */
-    void evolveInternal(SNode* node, unsigned int rateClass) const;
+    void evolveInternal(SNode* node, size_t rateClass) const;
     /**
      * This method uses the states_ variable for saving ancestral states.
      */
@@ -319,7 +319,7 @@ class NonHomogeneousSequenceSimulator:
     /**
      * This method uses the multipleStates_ variable for saving ancestral states.
      */
- 		void multipleEvolveInternal(SNode* node, const std::vector<unsigned int>& rateClasses) const;
+ 		void multipleEvolveInternal(SNode* node, const std::vector<size_t>& rateClasses) const;
 
     /**
      * This method uses the states_ variable for saving ancestral states.

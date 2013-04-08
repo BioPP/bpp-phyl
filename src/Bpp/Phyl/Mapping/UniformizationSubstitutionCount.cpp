@@ -48,7 +48,7 @@ using namespace std;
 
 /******************************************************************************/
 
-UniformizationSubstitutionCount::UniformizationSubstitutionCount(const SubstitutionModel* model, SubstitutionRegister* reg, const AlphabetIndex2<double>* weights) :
+UniformizationSubstitutionCount::UniformizationSubstitutionCount(const SubstitutionModel* model, SubstitutionRegister* reg, const AlphabetIndex2* weights) :
   AbstractSubstitutionCount(reg),
   AbstractWeightedSubstitutionCount(weights, true),
   model_(model),
@@ -80,7 +80,7 @@ UniformizationSubstitutionCount::UniformizationSubstitutionCount(const Substitut
 
 void UniformizationSubstitutionCount::resetBMatrices_()
 {
-  unsigned int nbTypes = register_->getNumberOfSubstitutionTypes();
+  size_t nbTypes = register_->getNumberOfSubstitutionTypes();
   bMatrices_.resize(nbTypes);
   counts_.resize(nbTypes);
   s_.resize(nbTypes);
@@ -98,9 +98,10 @@ void UniformizationSubstitutionCount::initBMatrices_()
 
 void UniformizationSubstitutionCount::fillBMatrices_()
 {
-  for (unsigned int j = 0; j < nbStates_; ++j) {
-    for (unsigned int k = 0; k < nbStates_; ++k) {
-      unsigned int i = register_->getType(static_cast<int>(j), static_cast<int>(k));
+  int n = static_cast<int>(nbStates_); //Note jdutheil 20/01/13: shoudl be generalized in case sattes are not 0:n !
+  for (int j = 0; j < n; ++j) {
+    for (int k = 0; k < n; ++k) {
+      size_t i = register_->getType(j, k);
       if (i > 0 && k != j) {
         bMatrices_[i - 1](j, k) = model_->Qij(j, k) * (weights_ ? weights_->getIndex(j, k) : 1);
       }
@@ -123,7 +124,7 @@ void UniformizationSubstitutionCount::computeCounts_(double length) const
 	//compute the stopping point
 	//use the tail of Poisson distribution
 	//can be approximated by 4 + 6 * sqrt(lam) + lam
-	unsigned int nMax = ceil(4 + 6 * sqrt(lam) + lam);
+	size_t nMax = static_cast<size_t>(ceil(4 + 6 * sqrt(lam) + lam));
 
 	//compute the powers of R
 	power_.resize(nMax + 1);
@@ -165,7 +166,7 @@ void UniformizationSubstitutionCount::computeCounts_(double length) const
 
 /******************************************************************************/
 
-Matrix<double>* UniformizationSubstitutionCount::getAllNumbersOfSubstitutions(double length, unsigned int type) const
+Matrix<double>* UniformizationSubstitutionCount::getAllNumbersOfSubstitutions(double length, size_t type) const
 {
   if (length < 0)
     throw Exception("UniformizationSubstitutionCount::getAllNumbersOfSubstitutions. Negative branch length: " + TextTools::toString(length) + ".");
@@ -179,7 +180,7 @@ Matrix<double>* UniformizationSubstitutionCount::getAllNumbersOfSubstitutions(do
 
 /******************************************************************************/
 
-double UniformizationSubstitutionCount::getNumberOfSubstitutions(unsigned int initialState, unsigned int finalState, double length, unsigned int type) const
+double UniformizationSubstitutionCount::getNumberOfSubstitutions(int initialState, int finalState, double length, size_t type) const
 {
   if (length < 0)
     throw Exception("UniformizationSubstitutionCount::getNumbersOfSubstitutions. Negative branch length: " + TextTools::toString(length) + ".");
@@ -193,7 +194,7 @@ double UniformizationSubstitutionCount::getNumberOfSubstitutions(unsigned int in
 
 /******************************************************************************/
 
-std::vector<double> UniformizationSubstitutionCount::getNumberOfSubstitutionsForEachType(unsigned int initialState, unsigned int finalState, double length) const
+std::vector<double> UniformizationSubstitutionCount::getNumberOfSubstitutionsForEachType(int initialState, int finalState, double length) const
 {
   if (length < 0)
     throw Exception("UniformizationSubstitutionCount::getNumbersOfSubstitutions. Negative branch length: " + TextTools::toString(length) + ".");

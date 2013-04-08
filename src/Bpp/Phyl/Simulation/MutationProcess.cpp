@@ -52,7 +52,7 @@ int AbstractMutationProcess::mutate(int state) const
   {
     if (alea < repartition_[state][j]) return j;
   }
-  return size_;
+  throw Exception("AbstractMutationProcess::mutate. Repartition function is incomplete for state " + TextTools::toString(state));
 }
 
 /******************************************************************************/
@@ -137,7 +137,8 @@ SimpleMutationProcess::SimpleMutationProcess(const SubstitutionModel* model) :
         cum += model->Qij(i, j) / sum_Q;
         repartition_[i][j] = cum;
       }
-      else repartition_[i][j] = -1;                                     // Forbiden value: does not correspond to a change.
+      else repartition_[i][j] = -1;
+      // Forbiden value: does not correspond to a change.
     }
   }
   // Note that I use cumulative probabilities in repartition_ (hence the name).
@@ -167,19 +168,19 @@ int SimpleMutationProcess::evolve(int initialState, double time) const
 /******************************************************************************/
 
 SelfMutationProcess::SelfMutationProcess(int alphabetSize) :
-  AbstractMutationProcess(NULL)
+  AbstractMutationProcess(0)
 {
   size_ = alphabetSize;
   repartition_ = VVdouble(size_);
   // Each element contains the probabilities concerning each character in the alphabet.
 
   // We will now initiate each of these probability vector.
-  for (unsigned int i = 0; i < size_; i++)
+  for (size_t i = 0; i < size_; i++)
   {
     repartition_[i] = Vdouble(size_);
-    for (unsigned int j = 0; j < size_; j++)
+    for (size_t j = 0; j < size_; j++)
     {
-      repartition_[i][j] = (j + 1.0) / size_;
+      repartition_[i][j] = static_cast<double>(j + 1) / static_cast<double>(size_);
     }
   }
   // Note that I use cumulative probabilities in repartition_ (hence the name).

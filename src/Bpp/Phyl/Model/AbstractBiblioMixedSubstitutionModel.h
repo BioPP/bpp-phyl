@@ -68,30 +68,28 @@ public:
 #endif
 
 public:
-  virtual const MixedSubstitutionModel* getMixedModel() const = 0;
-
-  virtual MixedSubstitutionModel* getMixedModel() = 0;
+  virtual const MixedSubstitutionModel& getMixedModel() const = 0;
 
   /*
      *@brief Returns the submodel from the mixture.
    *
    */
-  const SubstitutionModel* getNModel(unsigned int i) const
+  const SubstitutionModel* getNModel(size_t i) const
   {
-    return getMixedModel()->getNModel(i);
+    return getMixedModel().getNModel(i);
   }
 
-  SubstitutionModel* getNModel(unsigned int i)
+  SubstitutionModel* getNModel(size_t i)
   {
-    return getMixedModel()->getNModel(i);
+    return getMixedModel().getNModel(i);
   }
 
   /**
    * @brief Returns the  probability of a specific model from the mixture
    */
-  double getNProbability(unsigned int i) const
+  double getNProbability(size_t i) const
   {
-    return getMixedModel()->getNProbability(i);
+    return getMixedModel().getNProbability(i);
   }
 
   /**
@@ -102,25 +100,25 @@ public:
 
   const std::vector<double>& getProbabilities() const
   {
-    return getMixedModel()->getProbabilities();
+    return getMixedModel().getProbabilities();
   }
 
   /**
    * @brief Sets the probabilities of the submodels of the mixture.
    *
    */
-  void setNProbability(unsigned int i, double prob)
+  void setNProbability(size_t i, double prob)
   {
-    getMixedModel()->setNProbability(i, prob);
+    getMixedModel().setNProbability(i, prob);
   }
 
   /**
    * @brief Returns the number of submodels
    *
    */
-  unsigned int getNumberOfModels() const
+  size_t getNumberOfModels() const
   {
-    return getMixedModel()->getNumberOfModels();
+    return getMixedModel().getNumberOfModels();
   }
 
   /**
@@ -129,7 +127,7 @@ public:
    **/
   void setVRates(const Vdouble& vd)
   {
-    getMixedModel()->setVRates(vd);
+    getMixedModel().setVRates(vd);
   }
 
   /**
@@ -138,7 +136,7 @@ public:
    **/
   void normalizeVRates()
   {
-    getMixedModel()->normalizeVRates();
+    getMixedModel().normalizeVRates();
   }
 
   /**
@@ -147,15 +145,15 @@ public:
 
   const std::vector<double>& getVRates() const
   {
-    return getMixedModel()->getVRates();
+    return getMixedModel().getVRates();
   }
 
   /**
    * @brief Returns the rate of a specific model from the mixture
    */
-  double getNRate(unsigned int i) const
+  double getNRate(size_t i) const
   {
-    return getMixedModel()->getNRate(i);
+    return getMixedModel().getNRate(i);
   }
 
   /*
@@ -164,6 +162,10 @@ public:
    *
    */
   Vint getSubmodelNumbers(std::string& desc) const;
+  
+private:
+  virtual MixedSubstitutionModel& getMixedModel() = 0;
+
 };
 } // end of namespace bpp.
 

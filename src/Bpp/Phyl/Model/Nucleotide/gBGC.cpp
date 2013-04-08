@@ -86,6 +86,7 @@ gBGC& gBGC::operator=(const gBGC& gbgc)
 void gBGC::fireParameterChanged(const ParameterList& parameters)
 {
   pmodel_->matchParametersValues(parameters);
+  AbstractSubstitutionModel::matchParametersValues(parameters);
   updateMatrices();
 }
 
@@ -149,11 +150,17 @@ void gBGC::updateMatrices()
     eigenValues_[i] /= -x;
   
   isDiagonalizable_=true;
-  for (i=0; i<size_ && isDiagonalizable_; i++)
-    if (abs(iEigenValues_[i])> NumConstants::SMALL){
+  for (i = 0; i < size_ && isDiagonalizable_; i++)
+    if (abs(iEigenValues_[i])> NumConstants::SMALL()){
       isDiagonalizable_=false;
       break;
     }
+
+  // and the exchangeability_
+  for ( i = 0; i < size_; i++)
+    for ( j = 0; j < size_; j++)
+      exchangeability_(i,j) = generator_(i,j) / freq_[j];
+
 }
 
 void gBGC::setNamespace(const std::string& prefix)

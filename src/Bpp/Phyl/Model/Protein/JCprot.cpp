@@ -68,7 +68,7 @@ JCprot::JCprot(const ProteicAlphabet* alpha, ProteinFrequenciesSet* freqSet, boo
 {
   if (initFreqs) freqSet_->setFrequencies(freq_);
   else freq_ = freqSet_->getFrequencies();
-  freqSet_->setNamespace("JC69+F.");
+  freqSet_->setNamespace("JC69+F."+freqSet_->getNamespace());
   addParameters_(freqSet_->getParameters());
   updateMatrices();  
 }

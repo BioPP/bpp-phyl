@@ -75,7 +75,7 @@ namespace bpp
      *
      **/
   
-    virtual double getCodonsMulRate(unsigned int, unsigned int) const = 0;
+    virtual double getCodonsMulRate(size_t, size_t) const = 0;
   };
   
 } // end of namespace bpp.

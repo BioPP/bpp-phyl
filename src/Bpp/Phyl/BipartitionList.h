@@ -129,23 +129,23 @@ class BipartitionList:
 
   public:
 
-    unsigned int getNumberOfElements() const { return elements_.size(); }
+    size_t getNumberOfElements() const { return elements_.size(); }
 
     const std::vector<std::string>& getElementNames() const { return elements_; }
 
-    unsigned int getNumberOfBipartitions() const { return bitBipartitionList_.size(); }
+    size_t getNumberOfBipartitions() const { return bitBipartitionList_.size(); }
 
     const std::vector<int*> & getBitBipartitionList() const { return bitBipartitionList_; }
 
-    std::map<std::string, bool> getBipartition(unsigned int i) const throw (Exception);
+    std::map<std::string, bool> getBipartition(size_t i) const throw (Exception);
 
-    int* getBitBipartition(unsigned int i) throw (Exception);
+    int* getBitBipartition(size_t i) throw (Exception);
 
     bool haveSameElementsThan(std::map<std::string, bool>& bipart) const;
 
     void addBipartition(std::map<std::string, bool>& bipart, bool checkElements = 1) throw(Exception);
 
-    void deleteBipartition(unsigned int i) throw(Exception);
+    void deleteBipartition(size_t i) throw(Exception);
 
     bool isSorted() const { return sorted_; }
 
@@ -153,7 +153,7 @@ class BipartitionList:
 
     bool containsBipartition(std::map<std::string, bool>& bipart, bool checkElements = 1) const throw(Exception);
 
-    bool areIdentical(unsigned int k1, unsigned int k2) const throw(Exception);
+    bool areIdentical(size_t k1, size_t k2) const throw(Exception);
 
     void removeRedundantBipartitions();
 
@@ -165,7 +165,7 @@ class BipartitionList:
      * and B1 contains A2) or (B1 contains A1 and A2 contains B2) or (B2 contains A1 and A2
      * contains B1). Only compatible bipartitions can belong to the same tree.
      */
-    bool areCompatible(unsigned int k1, unsigned int k2) const throw(Exception);
+    bool areCompatible(size_t k1, size_t k2) const throw(Exception);
 
     /**
      * @brief Tells whether all bipartitions in the list are compatible with each other
@@ -194,12 +194,12 @@ class BipartitionList:
     /**
      * @brief Replaces ones by zeros and zeros by ones in the ith bipartition
      */
-    void flip(unsigned int i) throw(Exception);
+    void flip(size_t i) throw(Exception);
 
     /**
      * @brief Returns the size of the smallest of the two partitions (e.g. 1 for external branches)
      */
-    unsigned int getPartitionSize(unsigned int i) const throw(Exception);
+    size_t getPartitionSize(size_t i) const throw(Exception);
 
     /**
      * @brief Sort bipartitions by partition size
@@ -224,7 +224,7 @@ class BipartitionList:
 
   private:
 
-    std::vector<std::string> buildBitBipartitions(const Node* nd, std::vector<int*>& bitbip, const std::vector<std::string> & elements, unsigned int* cpt, std::vector<int>* index) const;
+    std::vector<std::string> buildBitBipartitions(const Node* nd, std::vector<int*>& bitbip, const std::vector<std::string> & elements, size_t* cpt, std::vector<int>* index) const;
 
 };
 

@@ -6,7 +6,7 @@
 //
 
 /*
-Copyright or © or Copr. CNRS, (November 16, 2004)
+Copyright or © or Copr. Bio++ Development Team, (November 16, 2004)
 
 This software is a computer program whose purpose is to provide classes
 for phylogenetic data analysis.
@@ -46,7 +46,7 @@ knowledge of the CeCILL license and that you accept its terms.
 #include <Bpp/Clonable.h>
 #include <Bpp/Numeric/VectorTools.h>
 
-//From SeqLib:
+//From bpp-seq:
 #include <Bpp/Seq/Site.h>
 #include <Bpp/Seq/Container/SiteContainer.h>
 
@@ -78,7 +78,7 @@ class SitePatterns :
 	    public:
         std::string siteS; 
 		    const Site* siteP;
-		    unsigned int originalPosition;
+		    size_t originalPosition;
 	    
       public:
 		    SortableSite() : siteS(), siteP(0), originalPosition(0) {}
@@ -109,7 +109,7 @@ class SitePatterns :
     std::vector<std::string> names_;
     std::vector<const Site *> sites_;
     std::vector<unsigned int> weights_;
-    std::vector<unsigned int> indices_;
+    std::vector<size_t> indices_;
     const SiteContainer* sequences_;
     const Alphabet* alpha_;
     bool own_;
@@ -172,7 +172,7 @@ class SitePatterns :
     /**
      * @return The position of each unique site.
      */
-		const std::vector<unsigned int>& getIndices() const { return indices_; }
+		const std::vector<size_t>& getIndices() const { return indices_; }
 
     /**
      * @return A new container with each unique site.

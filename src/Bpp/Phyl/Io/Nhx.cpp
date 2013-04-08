@@ -59,7 +59,8 @@ using namespace std;
 
 Nhx::Nhx(bool useTagsAsPptNames):
   supportedProperties_(),
-  useTagsAsPropertyNames_(useTagsAsPptNames)
+  useTagsAsPropertyNames_(useTagsAsPptNames),
+  hasIds_(false)
 {
   registerProperty(Property("Gene name", "GN", false, 0));
   registerProperty(Property("Sequence accession", "AC", false, 0));
@@ -210,24 +211,31 @@ Nhx::Element Nhx::getElement(const string& elt) const throw (IOException)
   element.isLeaf     = false; // default
  
   //cout << "ELT=" << elt << endl;
-  size_t beginAnno = elt.rfind("[&&NHX:");
-  if (beginAnno == string::npos)
-    throw Exception("Nhx::getElement. Node without annotation.");
-  size_t endAnno = elt.find("]", beginAnno + 7);
-  element.annotation = elt.substr(beginAnno + 7, endAnno - beginAnno - 7);
+  size_t lastP = elt.rfind(")"), firstP;
+  size_t beginAnno = string::npos;
+  if (lastP == string::npos)
+    beginAnno = elt.rfind("[&&NHX:");
+  else
+    beginAnno = elt.find("[&&NHX:", lastP + 1);
+  string elementWithoutAnnotation;
+  if (beginAnno != string::npos) {
+    size_t endAnno = elt.find("]", beginAnno + 7);
+    element.annotation = elt.substr(beginAnno + 7, endAnno - beginAnno - 7);
+    elementWithoutAnnotation = elt.substr(0, beginAnno);
+  } else {
+    element.annotation = "";
+    elementWithoutAnnotation = elt;
+  } 
   //cout << "ANNO=" << element.annotation << endl;
+  //cout << "ELT =" << elementWithoutAnnotation << endl;
 
-  unsigned int colonIndex;
+  size_t colonIndex;
   bool hasColon = false;
-  //string::size_type lastAnnot = elt.rfind("[&&NHX");
-  //string elementWithoutAnnotation = elt.substr(0, lastAnnot - 1);
-  string elementWithoutAnnotation = elt.substr(0, beginAnno);
-  for (colonIndex = elementWithoutAnnotation.size(); colonIndex > 0 && elementWithoutAnnotation[colonIndex] != ')'; colonIndex--)
+  for (colonIndex = elementWithoutAnnotation.size() - 1; colonIndex > 0 && elementWithoutAnnotation[colonIndex] != ')' && !hasColon; --colonIndex)
   {
     if (elementWithoutAnnotation[colonIndex] == ':')
     {
       hasColon = true;
-      break;
     }
   }
   try
@@ -236,9 +244,8 @@ Nhx::Element Nhx::getElement(const string& elt) const throw (IOException)
     if (hasColon)
     {
       //this is an element with length:
-      elt2 = elementWithoutAnnotation.substr(0, colonIndex);
-      //  if (st2.numberOfRemainingTokens()>1)
-      element.length = elt.substr(colonIndex + 1);
+      elt2 = elementWithoutAnnotation.substr(0, colonIndex + 1);
+      element.length = elementWithoutAnnotation.substr(colonIndex + 2);
     }
     else
     {
@@ -246,8 +253,8 @@ Nhx::Element Nhx::getElement(const string& elt) const throw (IOException)
       elt2 = elementWithoutAnnotation;
     }
   
-    string::size_type lastP = elt2.rfind(')');
-    string::size_type firstP = elt2.find('(');
+    lastP = elt2.rfind(')');
+    firstP = elt2.find('(');
     if (firstP == string::npos)
     {
       //This is a leaf:
@@ -265,6 +272,12 @@ Nhx::Element Nhx::getElement(const string& elt) const throw (IOException)
   {
     throw IOException("Bad tree description: " + elt);
   }
+  //cout << endl;
+  //cout << "CONTENT:" << endl << element.content << endl;
+  //cout << endl;
+  //cout << "ANNOTATION:" << endl << element.annotation << endl;
+  //cout << endl;
+ 
   return element;
 }  
 
@@ -275,6 +288,7 @@ Node* Nhx::parenthesisToNode(const string& description) const
 {
   //cout << "NODE: " << description << endl;
   Element elt = getElement(description);
+  
   //New node:
   Node* node = new Node();
   if (!TextTools::isEmpty(elt.length))
@@ -283,10 +297,13 @@ Node* Nhx::parenthesisToNode(const string& description) const
   }
   if (!TextTools::isEmpty(elt.annotation))
   {
-    setNodeProperties(*node, elt.annotation);
+    bool hasId = setNodeProperties(*node, elt.annotation);
+    if (!hasIds_ && hasId)
+      hasIds_ = true;
+    if (hasIds_ && !hasId)
+      throw Exception("Nhx::parenthesisToNode. At least one one is missing an id (ND tag).");
   }
  
-  //cout << elt.content << endl;
   NestedStringTokenizer nt(elt.content, "(", ")", ",");
   vector<string> elements;
   while (nt.hasMoreToken())
@@ -316,7 +333,7 @@ Node* Nhx::parenthesisToNode(const string& description) const
 
 TreeTemplate<Node>* Nhx::parenthesisToTree(const string& description) const throw (Exception) 
 {
-  bool hasId = false;
+  hasIds_ = false;
   string::size_type semi = description.rfind(';');
   if (semi == string::npos)
     throw Exception("Nhx::parenthesisToTree(). Bad format: no semi-colon found.");
@@ -324,7 +341,7 @@ TreeTemplate<Node>* Nhx::parenthesisToTree(const string& description) const thro
   Node* node = parenthesisToNode(content);
   TreeTemplate<Node>* tree = new TreeTemplate<Node>();
   tree->setRootNode(node);
-  if (!hasId)
+  if (!hasIds_)
   {
     tree->resetNodesId();
   }
@@ -424,9 +441,9 @@ string Nhx::nodeToParenthesis(const Node& node) const
   {
     s << "(";
     s << nodeToParenthesis(* node[0]);
-    for (unsigned int i = 1; i < node.getNumberOfSons(); i++)
+    for (int i = 1; i < static_cast<int>(node.getNumberOfSons()); i++)
     {
-      s << "," << nodeToParenthesis(* node[i]);
+      s << "," << nodeToParenthesis(*node[i]);
     }
     s << ")";
   }
@@ -447,7 +464,7 @@ string Nhx::treeToParenthesis(const TreeTemplate<Node>& tree) const
   if (node->isLeaf())
   {
     s << node->getName();
-    for (unsigned int i = 0; i < node->getNumberOfSons(); ++i)
+    for (size_t i = 0; i < node->getNumberOfSons(); ++i)
     {
       s << "," << nodeToParenthesis(*node->getSon(i));
     }
@@ -455,7 +472,7 @@ string Nhx::treeToParenthesis(const TreeTemplate<Node>& tree) const
   else
   {
     s << nodeToParenthesis(* node->getSon(0));
-    for(unsigned int i = 1; i < node->getNumberOfSons(); ++i)
+    for (size_t i = 1; i < node->getNumberOfSons(); ++i)
     {
       s << "," << nodeToParenthesis(*node->getSon(i));
     }
@@ -503,8 +520,8 @@ bool Nhx::setNodeProperties(Node& node, const string properties) const
   if (props.find("ND") != props.end()) {
     string prop = props["ND"];
     if (TextTools::isDecimalNumber(prop))
-    {          
-      node.setId(TextTools::toInt(prop));          
+    {
+      node.setId(TextTools::toInt(prop));
       hasId = true;   
     }
   }

@@ -68,11 +68,11 @@ namespace bpp
  * If a distance @f$d@f$ between amino-acids is defined, the ratio between
  * non-synonymous and synonymous substitutions rates is, if the codied
  * amino-acids are @f$x@f$ and @f$y@f$, @f$\beta*\exp(-\alpha.d(x,y))@f$ with
- * non-negative parameter @f$\alpha@f$ and positive parameter @f$\beta@f$.
+ * non-negative parameter \c "alpha" and positive parameter \c "beta".
  *
  * If such a distance is not defined, the ratio between non-synonymous
  * and synonymous substitutions rates is @f$\beta@f$ with positive
- * parameter @f$\beta@f$.
+ * parameter \c "beta".
  */
 
 class CodonDistancePhaseFrequenciesSubstitutionModel :
@@ -90,12 +90,12 @@ public:
    * @param pmod pointer to the NucleotideSubstitutionModel to use in
    *        the three positions. It is owned by the instance.
    * @param pfreq pointer to the FrequenciesSet* equilibrium frequencies
-   * @param pdist optional pointer to the AlphabetIndex2<double> amino-acids distance object.
+   * @param pdist optional pointer to the AlphabetIndex2 amino-acids distance object.
    */
   CodonDistancePhaseFrequenciesSubstitutionModel(const GeneticCode* palph,
                                             NucleotideSubstitutionModel* pmod,
                                             FrequenciesSet* pfreq,
-                                            const AlphabetIndex2<double>* pdist = 0);
+                                            const AlphabetIndex2* pdist = 0);
 
   /**
    * @brief Build a new CodonDistancePhaseFrequenciesSubstitutionModel object
@@ -108,14 +108,14 @@ public:
    *   All the models must be different objects to avoid redundant
    *   parameters.  They are owned by the instance.
    * @param pfreq pointer to the FrequenciesSet* equilibrium frequencies
-   * @param pdist optional pointer to the AlphabetIndex2<double> amino-acids distance object.
+   * @param pdist optional pointer to the AlphabetIndex2 amino-acids distance object.
    */
   CodonDistancePhaseFrequenciesSubstitutionModel(const GeneticCode* palph,
                                             NucleotideSubstitutionModel* pmod1,
                                             NucleotideSubstitutionModel* pmod2,
                                             NucleotideSubstitutionModel* pmod3,
                                             FrequenciesSet* pfreq,
-                                            const AlphabetIndex2<double>* pdist = 0);
+                                            const AlphabetIndex2* pdist = 0);
 
   CodonDistancePhaseFrequenciesSubstitutionModel(
     const CodonDistancePhaseFrequenciesSubstitutionModel& model) :
@@ -151,7 +151,7 @@ public:
 
   std::string getName() const;
 
-  double getCodonsMulRate(unsigned int, unsigned int) const;
+  double getCodonsMulRate(size_t i, size_t j) const;
 
   void setNamespace(const std::string&);
 

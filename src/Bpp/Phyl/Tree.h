@@ -174,9 +174,9 @@ namespace bpp
     virtual void setName(const std::string& name) = 0;
     /** @} */
 		
-    virtual unsigned int getNumberOfLeaves() const = 0;
+    virtual size_t getNumberOfLeaves() const = 0;
 		
-    virtual unsigned int getNumberOfNodes() const = 0;
+    virtual size_t getNumberOfNodes() const = 0;
 
     virtual std::vector<double> getBranchLengths() const = 0;
 
@@ -251,7 +251,7 @@ namespace bpp
      * @throw NodeNotFoundException If the node is not found.
      * @throw IndexOutOfBoundsException If one node index is not valid, or if the node
      */
-    void swapNodes(const Tree& tree, int nodeId, unsigned int i1 = 0, unsigned int i2 = 1) throw (NodeNotFoundException,IndexOutOfBoundsException);
+    void swapNodes(const Tree& tree, int nodeId, size_t i1 = 0, size_t i2 = 1) throw (NodeNotFoundException,IndexOutOfBoundsException);
   
     /** @} */
 

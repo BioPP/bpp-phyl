@@ -45,7 +45,7 @@
 #include "../Tree.h"
 #include "SubstitutionModel.h"
 #include "AbstractSubstitutionModel.h"
-#include "FrequenciesSet.all"
+#include "FrequenciesSet/FrequenciesSet.h"
 
 #include <Bpp/Exceptions.h>
 #include <Bpp/Numeric/Random/RandomTools.h>
@@ -105,7 +105,7 @@ protected:
    */
   const Alphabet* alphabet_;
 
-  unsigned int nbStates_;
+  size_t nbStates_;
 
   /**
    * @brief Contains all models used in this tree.
@@ -121,15 +121,15 @@ private:
   /**
    * @brief Contains for each node in a tree the index of the corresponding model in modelSet_
    */
-  mutable std::map<int, unsigned int> nodeToModel_;
-  mutable std::map<unsigned int, std::vector<int> > modelToNodes_;
+  mutable std::map<int, size_t> nodeToModel_;
+  mutable std::map<size_t, std::vector<int> > modelToNodes_;
 
   /**
    * @brief Contains for each parameter in the list the indexes of the corresponding models in modelSet_ that share this parameter.
    */
-  std::vector< std::vector<unsigned int> > paramToModels_;
+  std::vector< std::vector<size_t> > paramToModels_;
 
-  std::map<std::string, unsigned int> paramNamesCount_;
+  std::map<std::string, size_t> paramNamesCount_;
 
   /**
    * @brief Contains for each parameter in the list the corresponding name in substitution models.
@@ -215,7 +215,7 @@ public:
 
   virtual ~SubstitutionModelSet()
   {
-    for (unsigned int i = 0; i < modelSet_.size(); i++) { delete modelSet_[i]; }
+    for (size_t i = 0; i < modelSet_.size(); i++) { delete modelSet_[i]; }
   }
 
 #ifndef NO_VIRTUAL_COV
@@ -232,7 +232,7 @@ public:
    * @return The number of states.
    * @throw Exception if no model is associated to the set.
    */
-  unsigned int getNumberOfStates() const throw (Exception)
+  size_t getNumberOfStates() const throw (Exception)
   {
     return nbStates_;
   }
@@ -244,9 +244,9 @@ public:
    * @return The position of the parameter in the global parameter list.
    * @throw ParameterNotFoundException If no parameter with this name is found.
    */
-  unsigned int getParameterIndex(const std::string& name) const throw (ParameterNotFoundException)
+  size_t getParameterIndex(const std::string& name) const throw (ParameterNotFoundException)
   {
-    for (unsigned int i = 0; i < getNumberOfParameters(); i++)
+    for (size_t i = 0; i < getNumberOfParameters(); i++)
     {
       if (getParameter_(i).getName() == name) return i;
     }
@@ -263,12 +263,12 @@ public:
    */
   std::string getParameterModelName(const std::string& name) const throw (ParameterNotFoundException, Exception)
   {
-    unsigned int pos = getParameterIndex(name);
+    size_t pos = getParameterIndex(name);
     if (stationarity_)
       return modelParameterNames_[pos];
     else
     {
-      unsigned int rfs = rootFrequencies_->getNumberOfParameters();
+      size_t rfs = rootFrequencies_->getNumberOfParameters();
       if (pos < rfs) throw Exception("SubstitutionModelSet::getParameterModelName(). This parameter as no model name: " + name);
       return modelParameterNames_[pos - rfs];
     }
@@ -284,7 +284,7 @@ public:
   /**
    * @return The current number of distinct substitution models in this set.
    */
-  unsigned int getNumberOfModels() const { return modelSet_.size(); }
+  size_t getNumberOfModels() const { return modelSet_.size(); }
 
   /**
    * @return True iff there is a MixedSubstitutionModel in the SubstitutionModelSet
@@ -298,13 +298,13 @@ public:
    * @param i Index of the model in the set.
    * @return A pointer toward the corresponding model.
    */
-  const SubstitutionModel* getModel(unsigned int i) const throw (IndexOutOfBoundsException)
+  const SubstitutionModel* getModel(size_t i) const throw (IndexOutOfBoundsException)
   {
     if (i > modelSet_.size()) throw IndexOutOfBoundsException("SubstitutionModelSet::getNumberOfModels().", 0, modelSet_.size() - 1, i);
     return modelSet_[i];
   }
 
-  SubstitutionModel* getModel(unsigned int i) throw (IndexOutOfBoundsException)
+  SubstitutionModel* getModel(size_t i) throw (IndexOutOfBoundsException)
   {
     if (i > modelSet_.size()) throw IndexOutOfBoundsException("SubstitutionModelSet::getNumberOfModels().", 0, modelSet_.size() - 1, i);
     return modelSet_[i];
@@ -317,9 +317,9 @@ public:
    * @return The index of the model associated to the given node.
    * @throw Exception If no model is found for this node.
    */
-  unsigned int getModelIndexForNode(int nodeId) const throw (Exception)
+  size_t getModelIndexForNode(int nodeId) const throw (Exception)
   {
-   std::map<int, unsigned int>::iterator i = nodeToModel_.find(nodeId);
+   std::map<int, size_t>::iterator i = nodeToModel_.find(nodeId);
     if (i == nodeToModel_.end())
       throw Exception("SubstitutionModelSet::getModelIndexForNode(). No model associated to node with id " + TextTools::toString(nodeId));
     return i->second;
@@ -334,14 +334,14 @@ public:
    */
   const SubstitutionModel* getModelForNode(int nodeId) const throw (Exception)
   {
-   std::map<int, unsigned int>::const_iterator i = nodeToModel_.find(nodeId);
+   std::map<int, size_t>::const_iterator i = nodeToModel_.find(nodeId);
     if (i == nodeToModel_.end())
       throw Exception("SubstitutionModelSet::getModelForNode(). No model associated to node with id " + TextTools::toString(nodeId));
     return modelSet_[i->second];
   }
   SubstitutionModel* getModelForNode(int nodeId) throw (Exception)
   {
-   std::map<int, unsigned int>::iterator i = nodeToModel_.find(nodeId);
+   std::map<int, size_t>::iterator i = nodeToModel_.find(nodeId);
     if (i == nodeToModel_.end())
       throw Exception("SubstitutionModelSet::getModelForNode(). No model associated to node with id " + TextTools::toString(nodeId));
     return modelSet_[i->second];
@@ -354,7 +354,7 @@ public:
    * @return A vector with the ids of the node associated to this model.
    * @throw IndexOutOfBoundsException If the index is not valid.
    */
-  const std::vector<int>& getNodesWithModel(unsigned int i) const throw (IndexOutOfBoundsException)
+  const std::vector<int>& getNodesWithModel(size_t i) const throw (IndexOutOfBoundsException)
   {
     if (i >= modelSet_.size()) throw IndexOutOfBoundsException("SubstitutionModelSet::getNodesWithModel().", i, 0, modelSet_.size());
     return modelToNodes_[i];
@@ -372,7 +372,7 @@ public:
    * @return The list of model indices containing the specified parameter.
    * @throw ParameterNotFoundException If no parameter with the specified name is found.
    */
-  std::vector<unsigned int> getModelsWithParameter(const std::string& name) const throw (ParameterNotFoundException);
+  std::vector<size_t> getModelsWithParameter(const std::string& name) const throw (ParameterNotFoundException);
 
   /**
    * @brief Add a new model to the set, and set relationships with nodes and params.
@@ -407,7 +407,7 @@ public:
    * Copy the model first if you don't want it to be lost!
    * @param modelIndex The index of the existing model to replace.
    */
-  void setModel(SubstitutionModel* model, unsigned int modelIndex) throw (Exception, IndexOutOfBoundsException);
+  void setModel(SubstitutionModel* model, size_t modelIndex) throw (Exception, IndexOutOfBoundsException);
 
   /**
    * @brief Associate an existing model with a given node.
@@ -418,7 +418,7 @@ public:
    * @param modelIndex The position of the model in the set.
    * @param nodeNumber The id of the corresponding node.
    */
-  void setModelToNode(unsigned int modelIndex, int nodeNumber) throw (IndexOutOfBoundsException)
+  void setModelToNode(size_t modelIndex, int nodeNumber) throw (IndexOutOfBoundsException)
   {
     if (modelIndex >= nodeToModel_.size()) throw IndexOutOfBoundsException("SubstitutionModelSet::setModelToNode.", modelIndex, 0, nodeToModel_.size() - 1);
     nodeToModel_[nodeNumber] = modelIndex;
@@ -431,7 +431,7 @@ public:
    * @param modelIndex     The index of the model in the list.
    * @throw IndexOutOfBoundsException If one of the index is not valid.
    */
-  void setParameterToModel(unsigned int parameterIndex, unsigned int modelIndex) throw (IndexOutOfBoundsException);
+  void setParameterToModel(size_t parameterIndex, size_t modelIndex) throw (IndexOutOfBoundsException);
 
   /**
    * @brief Unset a given parameter to the specified model.
@@ -441,7 +441,7 @@ public:
    * @throw IndexOutOfBoundsException If one of the index is not valid.
    * @throw Exception If the pseicified parameter is not currently associated to the specified model.
    */
-  void unsetParameterToModel(unsigned int parameterIndex, unsigned int modelIndex) throw (IndexOutOfBoundsException, Exception);
+  void unsetParameterToModel(size_t parameterIndex, size_t modelIndex) throw (IndexOutOfBoundsException, Exception);
 
   /**
    * @brief Add a parameter to the list, and link it to specified existing nodes.
@@ -477,7 +477,7 @@ public:
    * @param modelIndex The index of the model in the set.
    * @throw Exception if a parameter becomes orphan because of the removal.
    */
-  void removeModel(unsigned int modelIndex) throw (Exception);
+  void removeModel(size_t modelIndex) throw (Exception);
 
   void listModelNames(std::ostream& out = std::cout) const;
 
@@ -520,7 +520,7 @@ public:
   ParameterList getNodeParameters() const
   {
     ParameterList pl;
-    for (unsigned int i = stationarity_ ? 0 : rootFrequencies_->getNumberOfParameters();
+    for (size_t i = stationarity_ ? 0 : rootFrequencies_->getNumberOfParameters();
         i < getNumberOfParameters(); i++)
     {
       pl.addParameter(getParameter_(i));
@@ -536,7 +536,7 @@ public:
    * @return The parameters attached to the model.
    */
 
-  ParameterList getModelParameters(unsigned int modelIndex) const;
+  ParameterList getModelParameters(size_t modelIndex) const;
 
   const Alphabet* getAlphabet() const { return alphabet_; }
 

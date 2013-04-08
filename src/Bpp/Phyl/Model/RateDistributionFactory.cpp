@@ -6,7 +6,7 @@
 //
 
 /*
-Copyright or © or Copr. CNRS, (November 16, 2004, 2005, 2006)
+Copyright or © or Copr. Bio++ Development Team, (November 16, 2004, 2005, 2006)
 
 This software is a computer program whose purpose is to provide classes
 for phylogenetic data analysis.
@@ -40,16 +40,25 @@ knowledge of the CeCILL license and that you accept its terms.
 
 #include "RateDistributionFactory.h"
 
+#include "RateDistribution/ConstantRateDistribution.h"
+#include "RateDistribution/GammaDiscreteRateDistribution.h"
+#include "RateDistribution/GaussianDiscreteRateDistribution.h"
+#include "RateDistribution/ExponentialDiscreteRateDistribution.h"
+
 using namespace bpp;
 using namespace std;
 
 const string RateDistributionFactory::CONSTANT_DISTRIBUTION = "Constant";
 const string RateDistributionFactory::GAMMA_DISTRIBUTION = "Gamma";
+const string RateDistributionFactory::GAUSSIAN_DISTRIBUTION = "Gaussian";
+const string RateDistributionFactory::EXPONENTIAL_DISTRIBUTION = "Exponential";
 
-DiscreteDistribution * RateDistributionFactory::createDiscreteDistribution(const string& distName, unsigned int nbClasses) throw (Exception)
+DiscreteDistribution* RateDistributionFactory::createDiscreteDistribution(const string& distName, unsigned int nbClasses) throw (Exception)
 {
-       if(distName == GAMMA_DISTRIBUTION) return new GammaDiscreteDistribution(nbClasses);
-  else if(distName == CONSTANT_DISTRIBUTION) return new ConstantDistribution(1.);
+       if (distName == GAMMA_DISTRIBUTION) return new GammaDiscreteRateDistribution(nbClasses);
+  else if (distName == GAUSSIAN_DISTRIBUTION) return new GaussianDiscreteRateDistribution(nbClasses, 1.);
+  else if (distName == EXPONENTIAL_DISTRIBUTION) return new ExponentialDiscreteRateDistribution(nbClasses);
+  else if (distName == CONSTANT_DISTRIBUTION) return new ConstantRateDistribution();
   else throw Exception("RateDistributionFactory::createDistribution(). Unknown rate distribution: " + distName);
 }
 

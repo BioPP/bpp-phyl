@@ -108,17 +108,17 @@ SiteContainer* PatternTools::shrinkSiteSet(const SiteContainer& siteSet) throw (
 
 Vint PatternTools::getIndexes(const SiteContainer& sequences1, const SiteContainer& sequences2)
 {
-	int nbSites = sequences1.getNumberOfSites(); 
+	size_t nbSites = sequences1.getNumberOfSites(); 
 	Vint indexes(nbSites);
-	for (int i = 0; i < nbSites; i++) {
+	for (size_t i = 0; i < nbSites; i++) {
 		//For each site in sequences1,
 		indexes[i] = -1;
 		const Site* site = &sequences1.getSite(i);
-		for (unsigned int j = 0; j < sequences2.getNumberOfSites(); j++)
+		for (size_t j = 0; j < sequences2.getNumberOfSites(); j++)
     {
 			if (SiteTools::areSitesIdentical(*site, sequences2.getSite(j)))
       {
-				indexes[i] = j;
+				indexes[i] = static_cast<int>(j);
 				break;
 			}
 		}

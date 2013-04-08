@@ -85,10 +85,12 @@ namespace bpp
  * Reference:
  * -  Yang Z. and Nielsen R. (1998), _Journal of Molecular Evolution_ 46:409--418.
  */
-class YN98 : public AbstractBiblioSubstitutionModel
+class YN98 :
+    public AbstractBiblioSubstitutionModel,
+    public virtual ReversibleSubstitutionModel
 {
 private:
-  CodonDistanceFrequenciesSubstitutionModel* pmodel_;
+  std::auto_ptr<CodonDistanceFrequenciesSubstitutionModel> pmodel_;
 
 public:
   YN98(const GeneticCode* gc, FrequenciesSet* codonFreqs);
@@ -104,9 +106,10 @@ public:
 public:
   std::string getName() const { return "YN98"; }
 
-  const AbstractSubstitutionModel* getModel() const { return pmodel_; }
+  const SubstitutionModel& getModel() const { return *pmodel_.get(); }
 
-  AbstractSubstitutionModel* getModel() { return pmodel_; }
+private:
+  SubstitutionModel& getModel() { return *pmodel_.get(); }
 
 };
 

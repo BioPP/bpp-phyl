@@ -11,7 +11,7 @@ IF(NOT CMAKE_BUILD_TYPE)
       FORCE)
 ENDIF(NOT CMAKE_BUILD_TYPE)
 
-SET(CMAKE_CXX_FLAGS "-Wall -Wshadow -Weffc++")
+SET(CMAKE_CXX_FLAGS "-Wall -Wshadow -Weffc++ -Wconversion")
 IF(NOT NO_VIRTUAL_COV)
   SET(NO_VIRTUAL_COV FALSE CACHE BOOL
       "Disable covariant return type with virtual inheritance, for compilers that do not support it."
@@ -42,7 +42,7 @@ ELSE(NO_DEP_CHECK)
 # In other words, the library implements all the interface numbers in the
 # range from number current - age to current.
 SET(BPPPHYL_VERSION_CURRENT "10")
-SET(BPPPHYL_VERSION_REVISION "2")
+SET(BPPPHYL_VERSION_REVISION "3")
 SET(BPPPHYL_VERSION_AGE "1")
 
 # Effective version number computation
@@ -87,10 +87,15 @@ ADD_SUBDIRECTORY(src)
 # Doxygen
 FIND_PACKAGE(Doxygen)
 IF (DOXYGEN_FOUND)
-  ADD_CUSTOM_TARGET (apidoc ${DOXYGEN_EXECUTABLE} Doxyfile)
-  ADD_CUSTOM_TARGET (apidoc-stable cp Doxyfile Doxyfile-stable
-    COMMAND echo "HTML_HEADER=header.html" >> Doxyfile-stable
-    COMMAND ${DOXYGEN_EXECUTABLE} Doxyfile-stable )
+  ADD_CUSTOM_TARGET (apidoc cp Doxyfile ${CMAKE_BINARY_DIR}/Doxyfile-build
+    COMMAND echo "OUTPUT_DIRECTORY=${CMAKE_BINARY_DIR}" >> ${CMAKE_BINARY_DIR}/Doxyfile-build
+    COMMAND ${DOXYGEN_EXECUTABLE} ${CMAKE_BINARY_DIR}/Doxyfile-build
+    WORKING_DIRECTORY ${CMAKE_SOURCE_DIR})
+  ADD_CUSTOM_TARGET (apidoc-stable cp Doxyfile ${CMAKE_BINARY_DIR}/Doxyfile-stable
+    COMMAND echo "OUTPUT_DIRECTORY=${CMAKE_BINARY_DIR}" >> ${CMAKE_BINARY_DIR}/Doxyfile-stable
+    COMMAND echo "HTML_HEADER=header.html" >> ${CMAKE_BINARY_DIR}/Doxyfile-stable
+    COMMAND ${DOXYGEN_EXECUTABLE} ${CMAKE_BINARY_DIR}/Doxyfile-stable
+    WORKING_DIRECTORY ${CMAKE_SOURCE_DIR})
 ENDIF (DOXYGEN_FOUND)
 
 ENDIF(NO_DEP_CHECK)
@@ -98,10 +103,10 @@ ENDIF(NO_DEP_CHECK)
 # Packager
 SET(CPACK_PACKAGE_NAME "libbpp-phyl")
 SET(CPACK_PACKAGE_VENDOR "Bio++ Development Team")
-SET(CPACK_PACKAGE_VERSION "2.0.3")
+SET(CPACK_PACKAGE_VERSION "2.1.0")
 SET(CPACK_PACKAGE_VERSION_MAJOR "2")
-SET(CPACK_PACKAGE_VERSION_MINOR "0")
-SET(CPACK_PACKAGE_VERSION_PATCH "3")
+SET(CPACK_PACKAGE_VERSION_MINOR "1")
+SET(CPACK_PACKAGE_VERSION_PATCH "0")
 SET(CPACK_PACKAGE_DESCRIPTION_SUMMARY "The Bio++ Phylogenetics library")
 SET(CPACK_RESOURCE_FILE_LICENSE "${CMAKE_SOURCE_DIR}/COPYING.txt")
 SET(CPACK_RESOURCE_FILE_AUTHORS "${CMAKE_SOURCE_DIR}/AUTHORS.txt")
@@ -135,7 +140,6 @@ SET(CPACK_SOURCE_IGNORE_FILES
  "Phyl.tag"
  "Testing"
  "build-stamp"
- "genIncludes.py"
  "install_manifest.txt"
  "DartConfiguration.tcl"
  ${CPACK_SOURCE_IGNORE_FILES}
@@ -150,6 +154,14 @@ INCLUDE(CPack)
 
 #This adds the 'dist' target
 ADD_CUSTOM_TARGET(dist COMMAND ${CMAKE_MAKE_PROGRAM} package_source)
+# 'clean' is not (yet) a first class target. However, we need to clean the directories before building the sources:
+IF("${CMAKE_GENERATOR}" MATCHES "Make")
+  ADD_CUSTOM_TARGET(make_clean
+  COMMAND ${CMAKE_MAKE_PROGRAM} clean
+  WORKING_DIRECTORY ${CMAKE_CURRENT_DIR}
+  )
+  ADD_DEPENDENCIES(dist make_clean)
+ENDIF()
 
 IF(NOT NO_DEP_CHECK)
 IF (UNIX)
@@ -166,10 +178,13 @@ ADD_DEPENDENCIES(rpm dist)
 ENDIF()
 
 SET(CTEST_UPDATE_TYPE git)
+SET(UPDATE_COMMAND "git")
+SET(UPDATE_OPTIONS "")
+
 ENABLE_TESTING()
 INCLUDE(CTest)
 IF (BUILD_TESTING)
   ADD_SUBDIRECTORY(test)
 ENDIF(BUILD_TESTING)
 
-ENDIF(NOT NO_DEP_CHECK)  
+ENDIF(NOT NO_DEP_CHECK)

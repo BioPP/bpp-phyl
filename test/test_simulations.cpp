@@ -37,14 +37,16 @@ The fact that you are presently reading this means that you have had
 knowledge of the CeCILL license and that you accept its terms.
 */
 
-#include <Bpp/Numeric/Prob.all>
-#include <Bpp/Numeric/Matrix.all>
-#include <Bpp/Seq/Alphabet.all>
+#include <Bpp/Numeric/Matrix/MatrixTools.h>
+#include <Bpp/Seq/Alphabet/AlphabetTools.h>
 #include <Bpp/Phyl/TreeTemplate.h>
-#include <Bpp/Phyl/Model.all>
+#include <Bpp/Phyl/Model/Nucleotide/T92.h>
 #include <Bpp/Phyl/Model/FrequenciesSet/NucleotideFrequenciesSet.h>
-#include <Bpp/Phyl/Simulation.all>
-#include <Bpp/Phyl/Likelihood.all>
+#include <Bpp/Phyl/Model/RateDistribution/ConstantRateDistribution.h>
+#include <Bpp/Phyl/Model/RateDistribution/GammaDiscreteRateDistribution.h>
+#include <Bpp/Phyl/Model/SubstitutionModelSetTools.h>
+#include <Bpp/Phyl/Simulation/HomogeneousSequenceSimulator.h>
+#include <Bpp/Phyl/Likelihood/RNonHomogeneousTreeLikelihood.h>
 #include <Bpp/Phyl/OptimizationTools.h>
 #include <iostream>
 
@@ -63,7 +65,7 @@ int main() {
   std::vector<std::string> globalParameterNames;
   globalParameterNames.push_back("T92.kappa");
   SubstitutionModelSet* modelSet = SubstitutionModelSetTools::createNonHomogeneousModelSet(model, rootFreqs, tree, globalParameterNames);
-  DiscreteDistribution* rdist = new ConstantDistribution(1.0, true);
+  DiscreteDistribution* rdist = new ConstantRateDistribution();
   vector<double> thetas;
   for (unsigned int i = 0; i < modelSet->getNumberOfModels(); ++i) {
     double theta = RandomTools::giveRandomNumberBetweenZeroAndEntry(0.99) + 0.005;
@@ -74,8 +76,8 @@ int main() {
   NonHomogeneousSequenceSimulator simulator(modelSet, rdist, tree);
 
   unsigned int n = 100000;
-  OutputStream* profiler  = new StlOutputStream(auto_ptr<ostream>(new ofstream("profile.txt", ios::out)));
-  OutputStream* messenger = new StlOutputStream(auto_ptr<ostream>(new ofstream("messages.txt", ios::out)));
+  OutputStream* profiler  = new StlOutputStream(new ofstream("profile.txt", ios::out));
+  OutputStream* messenger = new StlOutputStream(new ofstream("messages.txt", ios::out));
 
   //Check fast simulation first:
   

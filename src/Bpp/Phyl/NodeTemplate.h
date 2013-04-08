@@ -70,9 +70,11 @@ namespace bpp
  * @see Node, TreeTemplate
  */
 template<class NodeInfos>
-class NodeTemplate : public Node
+class NodeTemplate :
+  public Node
 {
-	
+  friend class TreeTemplateTools;
+
 	private:
 
 		NodeInfos infos_;
@@ -99,6 +101,7 @@ class NodeTemplate : public Node
 		 */
 		NodeTemplate(int id, const std::string& name) : Node(id, name), infos_() {}
 
+  protected:
 		/**
 		 * @brief Copy constructor.
 		 * 
@@ -106,7 +109,7 @@ class NodeTemplate : public Node
 		 */
 		NodeTemplate(const Node& node) : Node(node), infos_() {}
 
-		/**
+    /**
 		 * @brief Copy constructor.
 		 * 
 		 * @param node The node to copy.
@@ -128,9 +131,10 @@ class NodeTemplate : public Node
 			return *this;
 		}
 
-		virtual ~NodeTemplate() {}
-
     NodeTemplate<NodeInfos>* clone() const { return new NodeTemplate<NodeInfos>(*this); }
+
+  public:
+		virtual ~NodeTemplate() {}
 
   public:
 
@@ -138,17 +142,17 @@ class NodeTemplate : public Node
  
 		NodeTemplate<NodeInfos>* getFather() { return dynamic_cast<NodeTemplate<NodeInfos> *>(father_); }
 				
-		NodeTemplate<NodeInfos>* removeFather() { NodeTemplate<NodeInfos> * f = dynamic_cast<NodeTemplate<NodeInfos> *>(father_); father_ = 0; return f; }
+		NodeTemplate<NodeInfos>* removeFather() { NodeTemplate<NodeInfos>* f = dynamic_cast<NodeTemplate<NodeInfos> *>(father_); father_ = 0; return f; }
 
-		const NodeTemplate<NodeInfos>* getSon(unsigned int i) const throw (IndexOutOfBoundsException) { return dynamic_cast<NodeTemplate<NodeInfos> *>(sons_[i]); }
+		const NodeTemplate<NodeInfos>* getSon(size_t i) const throw (IndexOutOfBoundsException) { return dynamic_cast<NodeTemplate<NodeInfos> *>(sons_[i]); }
 				
-		NodeTemplate<NodeInfos>* getSon(unsigned int i) throw (IndexOutOfBoundsException) { return dynamic_cast<NodeTemplate<NodeInfos> *>(sons_[i]); }
+		NodeTemplate<NodeInfos>* getSon(size_t i) throw (IndexOutOfBoundsException) { return dynamic_cast<NodeTemplate<NodeInfos> *>(sons_[i]); }
 				
     std::vector<const NodeTemplate<NodeInfos>*> getNeighbors() const
 		{
       std::vector<const Node*> neighbors = Node::getNeighbors();
       std::vector<const NodeTemplate<NodeInfos>*> neighbors2(neighbors.size());
-			for (unsigned int i = 0; i < neighbors.size(); i++)
+			for (size_t i = 0; i < neighbors.size(); i++)
 				neighbors2[i] = dynamic_cast<const NodeTemplate<NodeInfos>*>(neighbors[i]);
 			return neighbors2;
 		}
@@ -157,7 +161,7 @@ class NodeTemplate : public Node
 		{
       std::vector<Node*> neighbors = Node::getNeighbors();
       std::vector<NodeTemplate<NodeInfos>*> neighbors2(neighbors.size());
-			for (unsigned int i = 0; i < neighbors.size(); i++)
+			for (size_t i = 0; i < neighbors.size(); i++)
 				neighbors2[i] = dynamic_cast<NodeTemplate<NodeInfos>*>(neighbors[i]);
 			return neighbors2;
 		}

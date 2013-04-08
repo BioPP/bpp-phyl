@@ -166,8 +166,8 @@ namespace bpp
     void setData(const SiteContainer& sites) throw (Exception);
     double getLikelihood() const;
     double getLogLikelihood() const;
-    double getLikelihoodForASite (unsigned int site) const;
-    double getLogLikelihoodForASite(unsigned int site) const;
+    double getLikelihoodForASite (size_t site) const;
+    double getLogLikelihoodForASite(size_t site) const;
     /** @} */
 
 		
@@ -176,10 +176,10 @@ namespace bpp
      *
      * @{
      */
-    double getLikelihoodForASiteForARateClass(unsigned int site, unsigned int rateClass) const;
-    double getLogLikelihoodForASiteForARateClass(unsigned int site, unsigned int rateClass) const;
-    double getLikelihoodForASiteForARateClassForAState(unsigned int site, unsigned int rateClass, int state) const;
-    double getLogLikelihoodForASiteForARateClassForAState(unsigned int site, unsigned int rateClass, int state) const;
+    double getLikelihoodForASiteForARateClass(size_t site, size_t rateClass) const;
+    double getLogLikelihoodForASiteForARateClass(size_t site, size_t rateClass) const;
+    double getLikelihoodForASiteForARateClassForAState(size_t site, size_t rateClass, int state) const;
+    double getLogLikelihoodForASiteForARateClassForAState(size_t site, size_t rateClass, int state) const;
     /** @} */
 
     /**
@@ -198,7 +198,7 @@ namespace bpp
     void setParameters(const ParameterList& parameters) throw (ParameterNotFoundException, ConstraintException);
     double getValue() const throw(Exception);
 		
-    unsigned int getSiteIndex(unsigned int site) const throw (IndexOutOfBoundsException) { return likelihoodData_->getRootArrayPosition(site); }
+    size_t getSiteIndex(size_t site) const throw (IndexOutOfBoundsException) { return likelihoodData_->getRootArrayPosition(site); }
 
     /**
      * @name DerivableFirstOrder interface.
@@ -224,21 +224,21 @@ namespace bpp
 
     void computeTreeLikelihood();
 
-    virtual double getDLikelihoodForASiteForARateClass(unsigned int site, unsigned int rateClass) const;
+    virtual double getDLikelihoodForASiteForARateClass(size_t site, size_t rateClass) const;
 
-    virtual double getDLikelihoodForASite(unsigned int site) const;
+    virtual double getDLikelihoodForASite(size_t site) const;
 
-    virtual double getDLogLikelihoodForASite(unsigned int site) const;
+    virtual double getDLogLikelihoodForASite(size_t site) const;
 		
     virtual double getDLogLikelihood() const;
 		
     virtual void computeTreeDLikelihood(const std::string& variable);
 
-    virtual double getD2LikelihoodForASiteForARateClass(unsigned int site, unsigned int rateClass) const;
+    virtual double getD2LikelihoodForASiteForARateClass(size_t site, size_t rateClass) const;
 
-    virtual double getD2LikelihoodForASite(unsigned int site) const;
+    virtual double getD2LikelihoodForASite(size_t site) const;
 
-    virtual double getD2LogLikelihoodForASite(unsigned int site) const;
+    virtual double getD2LogLikelihoodForASite(size_t site) const;
 		
     virtual double getD2LogLikelihood() const;
 		

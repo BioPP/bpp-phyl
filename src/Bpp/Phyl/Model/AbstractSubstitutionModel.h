@@ -86,7 +86,7 @@ protected:
   /**
    * @brief The size of the generator, i.e. the number of states.
    */
-  unsigned int size_;
+  size_t size_;
 
   /**
    * @brief The rate of the model (default: 1). The generator (and all
@@ -107,10 +107,19 @@ protected:
   RowMatrix<double> generator_;
 
   /**
-   * @brief The vector of equilibrium frequencies.
+   * @brief The vector \f$\pi_e\f$ of equilibrium frequencies.
    */
 
   Vdouble freq_;
+
+  /**
+   * @brief The exchangeability matrix \f$S\f$ of the model, defined
+   * as \f$ S_{ij}=\frac{Q_{ij}}{\pi_j}\f$. When the model is
+   * reversible, this matrix is symetric.
+   *
+   */
+  
+  RowMatrix<double> exchangeability_;
 
   /**
    * @brief These ones are for bookkeeping:
@@ -183,6 +192,7 @@ public:
     chars_(model.chars_),
     generator_(model.generator_),
     freq_(model.freq_),
+    exchangeability_(model.exchangeability_),
     pijt_(model.pijt_),
     dpijt_(model.dpijt_),
     d2pijt_(model.d2pijt_),
@@ -206,6 +216,7 @@ public:
     chars_             = model.chars_;
     generator_         = model.generator_;
     freq_              = model.freq_;
+    exchangeability_   = model.exchangeability_;
     pijt_              = model.pijt_;
     dpijt_             = model.dpijt_;
     d2pijt_            = model.d2pijt_;
@@ -232,13 +243,17 @@ public:
 
   const std::vector<int>& getAlphabetChars() const { return chars_; }
 
-  int getAlphabetChar(unsigned int i) const { return chars_[i]; }
+  int getAlphabetChar(size_t i) const { return chars_[i]; }
 
-  std::vector<unsigned int> getModelStates(int i) const { return VectorTools::whichAll(chars_, i); }
+  std::vector<size_t> getModelStates(int i) const { return VectorTools::whichAll(chars_, i); }
 
   virtual const Vdouble& getFrequencies() const { return freq_; }
 
   const Matrix<double>& getGenerator() const { return generator_; }
+
+  const Matrix<double>& getExchangeabilityMatrix() const { return exchangeability_; }
+
+  double Sij(size_t i, size_t j) const { return exchangeability_(i, j); }
 
   virtual const Matrix<double>& getPij_t(double t) const;
   virtual const Matrix<double>& getdPij_dt(double t) const;
@@ -248,25 +263,25 @@ public:
 
   const Vdouble& getIEigenValues() const { return iEigenValues_; }
 
-  bool isDiagonalizable() const { return isDiagonalizable_;}
+  bool isDiagonalizable() const { return isDiagonalizable_; }
   
-  bool isNonSingular() const { return isNonSingular_;}
+  bool isNonSingular() const { return isNonSingular_; }
 
   const Matrix<double>& getRowLeftEigenVectors() const { return leftEigenVectors_; }
 
   const Matrix<double>& getColumnRightEigenVectors() const { return rightEigenVectors_; }
 
-  virtual double freq(unsigned int i) const { return freq_[i]; }
+  virtual double freq(size_t i) const { return freq_[i]; }
 
-  virtual double Qij(unsigned int i, unsigned int j) const { return generator_(i, j); }
+  virtual double Qij(size_t i, size_t j) const { return generator_(i, j); }
 
-  virtual double Pij_t    (unsigned int i, unsigned int j, double t) const { return getPij_t(t) (i, j); }
-  virtual double dPij_dt  (unsigned int i, unsigned int j, double t) const { return getdPij_dt(t) (i, j); }
-  virtual double d2Pij_dt2(unsigned int i, unsigned int j, double t) const { return getd2Pij_dt2(t) (i, j); }
+  virtual double Pij_t    (size_t i, size_t j, double t) const { return getPij_t(t) (i, j); }
+  virtual double dPij_dt  (size_t i, size_t j, double t) const { return getdPij_dt(t) (i, j); }
+  virtual double d2Pij_dt2(size_t i, size_t j, double t) const { return getd2Pij_dt2(t) (i, j); }
 
-  double getInitValue(unsigned int i, int state) const throw (BadIntException);
+  double getInitValue(size_t i, int state) const throw (IndexOutOfBoundsException, BadIntException);
 
-  void setFreqFromData(const SequenceContainer& data, unsigned int pseudoCount = 0);
+  void setFreqFromData(const SequenceContainer& data, double pseudoCount = 0);
 
   virtual void setFreq(std::map<int, double>&);
 
@@ -304,41 +319,16 @@ protected:
    * The optional rate parameter is not taken into account in this
    * method to prevent unnecessary computation.
    */
+  
   virtual void updateMatrices();
 
 public:
-  /**
-   * @brief Get the scalar product of diagonal elements of the generator
-   * and the frequencies vector.
-   * If the generator is normalized, then scale=1. Otherwise each element
-   * must be multiplied by 1/scale.
-   *
-   * @return Minus the scalar product of diagonal elements and the frequencies vector.
-   */
   double getScale() const;
 
-  /**
-   * @brief Set the rate of the generator, defined as the scalar
-   * product of diagonal elements of the generator and the frequencies
-   * vector.
-   *
-   * When the generator is normalized, scale=1. Otherwise each element
-   * is multiplied such that the correct scale is set.
-   *
-   */
   void setScale(double scale);
 
-  /**
-   * @brief Get the rate of the model
-   */
-  
   virtual double getRate() const;
 
-  /**
-   * @brief Set the rate of the model (must be positive).
-   * @param rate must be positive.
-   */
-  
   virtual void setRate(double rate);
 
 
@@ -350,43 +340,38 @@ public:
 /**
  * @brief Partial implementation of the ReversibleSubstitutionModel interface.
  *
- * This abstract class adds the exchangeability_ fields to the AbstractSubstitutionModel class.
- * Access methods for this field is implemented.
+ * This class overrides the updateMatrices() method, which updates the
+ * generator_ matrix from the exchangeability_ matrix and freq_
+ * vector. It then computes eigen values and vectors and fills the
+ * corresponding vector (eigenValues_) and matrices (leftEigenVectors_
+ * and rightEigenVectors_). Because of reversibility,
+ * isDiagonalizable_ is set to true.
  *
- * This class also overrides the updateMatrices() method, which
- * updates the generator_ matrix from the exchangeability_ matrix and
- * freq_ vector. It then computes eigen values and vectors and fills
- * the corresponding vector (eigenValues_) and matrices
- * (leftEigenVectors_ and rightEigenVectors_). Because of
- * reversibility, isDiagonalizable_ is set to true.
+ * The freq_ vector and exchangeability_ matrices are hence the only
+ * things to provide to create a substitution model. It is also
+ * possible to redefine one of these methods for better efficiency.
+ * The Pij_t, dPij_dt and d2Pij_dt2 are particularly inefficient since
+ * the matrix formula is used to compute all probabilities, and then
+ * the result for the initial and final state of interest is
+ * retrieved.
  *
- * The freq_ vector and exchangeability_ matrices are hence the only things to provide to
- * create a substitution model.
- * It is also possible to redefine one of these methods for better efficiency.
- * The Pij_t, dPij_dt and d2Pij_dt2 are particularly inefficient since the matrix formula
- * is used to compute all probabilities, and then the result for the initial and final state
- * of interest is retrieved.
- *
- * @note This class is dedicated to "simple" substitution models, for which the number of states is equivalent to the number of characters in the alphabet.
- * Consider using the MarkovModulatedSubstitutionModel for more complexe cases.
+ * @note This class is dedicated to "simple" substitution models, for
+ * which the number of states is equivalent to the number of
+ * characters in the alphabet. Consider using the
+ * MarkovModulatedSubstitutionModel for more complexe cases.
  */
+  
 class AbstractReversibleSubstitutionModel :
   public virtual AbstractSubstitutionModel,
   public virtual ReversibleSubstitutionModel
 {
-protected:
-  /**
-   * @brief The exchangeability matrix \f$S\f$ of the model.
-   */
-  RowMatrix<double> exchangeability_;
-
 public:
   AbstractReversibleSubstitutionModel(const Alphabet* alpha, const std::string& prefix) :
     AbstractParameterAliasable(prefix),
-    AbstractSubstitutionModel(alpha, prefix),
-    exchangeability_(size_, size_) {
-    isDiagonalizable_=true;
-    isNonSingular_=true;
+    AbstractSubstitutionModel(alpha, prefix)
+  {
+    isDiagonalizable_ = true;
+    isNonSingular_    = true;
   }
 
   virtual ~AbstractReversibleSubstitutionModel() {}
@@ -395,12 +380,8 @@ public:
   virtual AbstractReversibleSubstitutionModel* clone() const = 0;
 #endif
 
-
-public:
-  const Matrix<double>& getExchangeabilityMatrix() const { return exchangeability_; }
-  double Sij(unsigned int i, unsigned int j) const { return exchangeability_(i, j); }
-
 protected:
+
   /**
    * @brief Compute and diagonalize the \f$Q\f$ matrix, and fill the eigenValues_,
    * leftEigenVectors_ and rightEigenVectors_ matrices.

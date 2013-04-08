@@ -101,7 +101,7 @@ class TreeTemplateTools
       {
         leaves.push_back(& node);
       }
-      for(unsigned int i = 0; i < node.getNumberOfSons(); i++)
+      for(size_t i = 0; i < node.getNumberOfSons(); i++)
       {
         getLeaves<N>(* node.getSon(i), leaves);
       }
@@ -131,7 +131,7 @@ class TreeTemplateTools
       if(node.isLeaf()) {
         ids.push_back(node.getId());
       }
-      for(unsigned int i = 0; i < node.getNumberOfSons(); i++) {
+      for(size_t i = 0; i < node.getNumberOfSons(); i++) {
         getLeavesId(* node.getSon(i), ids);
       }
     }
@@ -145,10 +145,10 @@ class TreeTemplateTools
   static std::vector<int> getAncestorsId(const Node& node)
   {
     std::vector<int> ids;
-    Node n=node;
-    while (n.hasFather()){
-      n=*n.getFather();
-      ids.push_back(n.getId());
+    const Node* n = &node;
+    while (n->hasFather()) {
+      n = n->getFather();
+      ids.push_back(n->getId());
     }
     return ids;
   }
@@ -192,7 +192,7 @@ class TreeTemplateTools
           return;
         }
       }
-      for (unsigned int i = 0; i < node.getNumberOfSons(); i++)
+      for (size_t i = 0; i < node.getNumberOfSons(); i++)
       {
         searchLeaf(* node.getSon(i), name, id);
       }
@@ -230,6 +230,7 @@ class TreeTemplateTools
           {
             brother->setDistanceToFather(brother->getDistanceToFather() + leaf->getDistanceToFather());
           }
+          brother->removeFather();
           tree.setRootNode(brother);
           delete parent;
           delete leaf;
@@ -241,7 +242,7 @@ class TreeTemplateTools
           {
             brother->setDistanceToFather(brother->getDistanceToFather() + parent->getDistanceToFather());
           }
-          unsigned int pos = gParent->getSonPosition(parent);
+          size_t pos = gParent->getSonPosition(parent);
           gParent->setSon(pos, brother);
           delete parent;
           delete leaf;
@@ -296,7 +297,7 @@ class TreeTemplateTools
           {
             brother->setDistanceToFather(brother->getDistanceToFather() + parent->getDistanceToFather());
           }
-          unsigned int pos = gParent->getSonPosition(parent);
+          size_t pos = gParent->getSonPosition(parent);
           gParent->setSon(pos, brother);
           delete parent;
           deleteSubtree(subtree);
@@ -317,11 +318,11 @@ class TreeTemplateTools
      * @param size The number of leaves in the final sample. If greater or equal to the number of leaf names, the function returns without doing anything.
      */
     template<class N>
-    static void sampleSubtree(TreeTemplate<N>& tree, const std::vector<std::string>& leaves, unsigned int size)
+    static void sampleSubtree(TreeTemplate<N>& tree, const std::vector<std::string>& leaves, size_t size)
     {
       std::vector<std::string> names = leaves;
-      for (unsigned int n = names.size(); n > size; --n) {
-        unsigned int i = RandomTools::giveIntRandomNumberBetweenZeroAndEntry(n);
+      for (size_t n = names.size(); n > size; --n) {
+        size_t i = RandomTools::giveIntRandomNumberBetweenZeroAndEntry(n);
         dropLeaf(tree, names[i]);
         names.erase(names.begin() + i);
       }
@@ -350,7 +351,7 @@ class TreeTemplateTools
     template<class N>
     static void getNodes(N & node, std::vector<N*> & nodes)
     {
-      for(unsigned int i = 0; i < node.getNumberOfSons(); i++)
+      for(size_t i = 0; i < node.getNumberOfSons(); i++)
       {
         getNodes<N>(*node.getSon(i), nodes);
       }
@@ -391,7 +392,7 @@ class TreeTemplateTools
      */
     static void getNodesId(const Node& node, std::vector<int>& ids)
     {
-      for (unsigned int i = 0; i < node.getNumberOfSons(); i++)
+      for (size_t i = 0; i < node.getNumberOfSons(); i++)
       {
         getNodesId(*node.getSon(i), ids);
       }
@@ -406,7 +407,7 @@ class TreeTemplateTools
      */
     static void getBranchesId(const Node& node, std::vector<int>& ids)
     {
-      for (unsigned int i = 0; i < node.getNumberOfSons(); i++)
+      for (size_t i = 0; i < node.getNumberOfSons(); i++)
       {
         getNodesId(*node.getSon(i), ids);
       }
@@ -437,7 +438,7 @@ class TreeTemplateTools
     template<class N>
     static void getInnerNodes(N& node, std::vector<N*>& nodes)
     {
-      for(unsigned int i = 0; i < node.getNumberOfSons(); i++)
+      for(size_t i = 0; i < node.getNumberOfSons(); i++)
       {
         getInnerNodes<N>(* node.getSon(i), nodes);
       }
@@ -468,7 +469,7 @@ class TreeTemplateTools
      */
     static void getInnerNodesId(const Node& node, std::vector<int> & ids)
     {
-      for (unsigned int i = 0; i < node.getNumberOfSons(); i++)
+      for (size_t i = 0; i < node.getNumberOfSons(); i++)
       {
         getInnerNodesId(* node.getSon(i), ids);
       }
@@ -497,7 +498,7 @@ class TreeTemplateTools
     template<class N>
     static void searchNodeWithId(N& node, int id, std::vector<N*>& nodes)
     {
-      for (unsigned int i = 0; i < node.getNumberOfSons(); ++i)
+      for (size_t i = 0; i < node.getNumberOfSons(); ++i)
       {
         searchNodeWithId<N>(*node.getSon(i), id, nodes);
       }
@@ -514,7 +515,7 @@ class TreeTemplateTools
       if (node.getId() == id) 
         return &node;
       else {
-        for (unsigned int i = 0; i < node.getNumberOfSons(); ++i)
+        for (size_t i = 0; i < node.getNumberOfSons(); ++i)
         {
           Node* result = searchFirstNodeWithId(*node.getSon(i), id);
           if (result)
@@ -534,7 +535,7 @@ class TreeTemplateTools
       if (node.getId() == id) 
         return &node;
       else {
-        for (unsigned int i = 0; i < node.getNumberOfSons(); ++i)
+        for (size_t i = 0; i < node.getNumberOfSons(); ++i)
         {
           const Node* result = searchFirstNodeWithId(*node.getSon(i), id);
           if (result)
@@ -552,10 +553,10 @@ class TreeTemplateTools
     template<class N>
     static bool hasNodeWithId(const N& node, int id)
     {
-      if(node.getId() == id) return true;
+      if (node.getId() == id) return true;
       else
       {
-        for(unsigned int i = 0; i < node.getNumberOfSons(); i++)
+        for(size_t i = 0; i < node.getNumberOfSons(); i++)
         {
           if(hasNodeWithId(*node.getSon(i), id)) return true;
         }
@@ -584,7 +585,7 @@ class TreeTemplateTools
     template<class N>
     static void searchNodeWithName(N& node, const std::string& name, std::vector<N*> & nodes)
     {
-      for(unsigned int i = 0; i < node.getNumberOfSons(); i++)
+      for(size_t i = 0; i < node.getNumberOfSons(); i++)
       {
         searchNodeWithName<N>(*node.getSon(i), name, nodes);
       }
@@ -602,7 +603,7 @@ class TreeTemplateTools
       if(node.hasName() & node.getName() == name) return true;
       else
       {
-        for(unsigned int i = 0; i < node.getNumberOfSons(); i++)
+        for(size_t i = 0; i < node.getNumberOfSons(); i++)
         {
           if(hasNodeWithName(*node.getSon(i), name)) return true;
         }
@@ -742,7 +743,7 @@ class TreeTemplateTools
      * @brief Recursively clone a subtree structure.
      *
      * This is a template function allowing to specify the class of the copy.
-     * The template class has to have a constructor accepting const Node& as signle argument.
+     * The template class has to have a constructor accepting const Node& as single argument.
      *
      * @param node The basal node of the subtree.
      * @return The basal node of the new copy.
@@ -753,12 +754,12 @@ class TreeTemplateTools
       //First we copy this node using default copy constuctor:
       N* clone = new N(node);
       //We remove the link toward the father:
-      clone->removeFather();
+      //clone->removeFather();
 
       //Now we perform a hard copy:
-      for(unsigned int i = 0; i < node.getNumberOfSons(); i++)
+      for (int i = 0; i < static_cast<int>(node.getNumberOfSons()); i++)
       {
-        clone->setSon(i, cloneSubtree<N>(*node[i]));
+        clone->addSon(cloneSubtree<N>(*node[i]));
       }
       return clone;
     }
@@ -771,7 +772,7 @@ class TreeTemplateTools
     template<class N>
     static void deleteSubtree(N* node)
     {
-      for (unsigned int i = 0; i < node->getNumberOfSons(); ++i)
+      for (size_t i = 0; i < node->getNumberOfSons(); ++i)
       {
         N* son = node->getSon(i);
         deleteSubtree(son);
@@ -1142,14 +1143,101 @@ class TreeTemplateTools
     }
     /** @} */
 
+    /**
+     * @brief Midroot the tree by minimizing a given criterion ("variance" or "sum of squares")
+     *
+     * @details
+     * For each branch, the best root position, according to the given criterion, is computed analytically.
+     *
+     * For the 'variance' criterion :
+     * \f[
+     *  (n_1+n_2)^2 V(x)
+     *   = (n_1+n_2) \left[ \sum_{F_1} (d_i + x \delta )^2 + \sum_{F_2} (d_i + (1-x) \delta )^2 \right]
+     *     - \left[ \sum_{F_1} (d_i + x \delta) + \sum_{F_2} (d_i + (1-x) \delta) \right]^2
+     *   = A x^2 + B x + C
+     * \f]
+     * With
+     * \f[ \begin{array}{rcl}
+     * A &=& 4 n_1 n_2 \delta^2 \\
+     * B &=& 4 \delta ( n_2 S_1 - n_1 S_2 - n_1 n_2 \delta ) \\
+     * C &=& (n_1+n_2) (C_1+C_2) + n_1 n_2 \delta^2 + 2 n_1 S_2 \delta - 2 n_2 S_1 \delta - (S_1+S_2)^2 \\
+     * \end{array} \f]
+     *
+     * Where \f$F_1\f$ and \f$F_2\f$ are the sets of leaves on either side of
+     * the root branch,
+     * \f$d_i\f$ is the distance of leaf \f$i\f$ to the nearest end of the root branch,
+     * \f$\delta\f$ is the length of the root branch, and \f$S_k\f$ and \f$C_k\f$ are respectively
+     * \f$\sum_{F_k} d_i\f$ and \f$\sum_{F_k} d_i^2\f$
+     *
+     * ~
+     *
+     * @param tree
+     * @param criterion The criterion upon which to reroot. Legal values : "variance"
+     *   to minimize root-leaf distance variance (molecular clock assumption) or
+     *   "sum of squares" to minimize the sum of root-leaf distance squares.
+     *
+     * @author Nicolas Rochette
+     */
+    static void midRoot (bpp::TreeTemplate<bpp::Node>& tree, const std::string& criterion);
+
+    /**
+     * @brief Get the caracteristic radius of a tree (average distance to the root minimizing the sum of squared distances).
+     *
+     * @param tree The tree (which is rerooted in the process).
+     */
+    static double getRadius (bpp::TreeTemplate<bpp::Node>& tree);
+
   private:
     struct OrderTreeData_ {
-      unsigned int size;
+      size_t size;
       std::string firstLeaf;
       OrderTreeData_(): size(0), firstLeaf("") {}
     };
 
     static OrderTreeData_ orderTree_(Node& node, bool downward, bool orderLeaves);
+
+    /**
+     * @brief
+     * A <i>structure</i> recording, for a subtree, the sum of root-leaf distances, the sum of their squares,
+     * and the number of elements in these sums (ie. the number of leaves).
+     *
+     * @details
+     * The branch at the base of the subtree should never be included,
+     * as the subtree of the root does not have one.
+     *
+     */
+    struct Moments_
+    {
+      double sum;
+      double squaresSum;
+      int numberOfLeaves;
+    };
+
+    /**
+     * @brief
+     * Computes the moment of a subtree
+     *
+     * @param node The root of the subtree
+     * @return A Moments_ structure
+     */
+    static Moments_ getSubtreeMoments (const Node* node);
+
+    /**
+     * @brief Find, in the branches of a subtree, the root that minimizes a criterion over the tree.
+     *
+     * @details
+     * The branches are explored recursively. For each branch leaving the input node, the method
+     * computes the best root position, possibly updates the bestRoot parameter, then recurses.
+     *
+     * @param tree The tree to which the subtree belongs. (The root is moved.)
+     * @param criterion The criterion to minimize. Legal values are "variance" and "sum of squares".
+     * @param node The root of the subtree.
+     * @param bestRoot The object storing the best root found, if it is better than the initial one, or otherwise left unchanged.
+     *
+     * @author Nicolas Rochette, Manolo Gouy
+     */
+    static void getBestRootInSubtree (bpp::TreeTemplate<bpp::Node>& tree, const std::string& criterion,  bpp::Node* node, std::pair<bpp::Node*, std::map<std::string, double> >& bestRoot);
+
 };
 
 } //end of namespace bpp.

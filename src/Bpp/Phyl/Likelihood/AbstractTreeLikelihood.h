@@ -81,7 +81,7 @@ class AbstractTreeLikelihood :
     {
       private:
         std::vector<int> nodesId_;
-        unsigned int index_;
+        size_t index_;
 
       public:
         SimpleBranchIterator(const std::vector<int>& nodesId) :
@@ -110,16 +110,16 @@ class AbstractTreeLikelihood :
       public SiteIterator
     {
       private:
-        unsigned int maxIndex_;
-        unsigned int index_;
-        unsigned int offset_;
+        size_t maxIndex_;
+        size_t index_;
+        size_t offset_;
 
       public:
-        SimpleSiteIterator(unsigned int nbSites, unsigned int offset = 0) :
+        SimpleSiteIterator(size_t nbSites, size_t offset = 0) :
           maxIndex_(nbSites), index_(0), offset_(offset) {}
 
       public:
-        unsigned int next() throw (Exception)
+        size_t next() throw (Exception)
         {
           if (!hasNext())
             throw Exception("AbstractTreeLikelihood::SimpleSiteIterator::next(). No more site in the set.");
@@ -140,10 +140,10 @@ class AbstractTreeLikelihood :
     {
       private:
         const SubstitutionModel* model_;
-        unsigned int nbSites_;
+        size_t nbSites_;
 
       public:
-        ConstNoPartitionBranchModelDescription(const SubstitutionModel* model, unsigned int nbSites) :
+        ConstNoPartitionBranchModelDescription(const SubstitutionModel* model, size_t nbSites) :
           model_(model), nbSites_(nbSites) {}
 
         ConstNoPartitionBranchModelDescription(const ConstNoPartitionBranchModelDescription& bmd) :
@@ -169,10 +169,10 @@ class AbstractTreeLikelihood :
     {
       private:
         ConstNoPartitionBranchModelDescription branchModelDescription_;
-        unsigned int index_;
+        size_t index_;
 
       public:
-        ConstNoPartitionBranchModelIterator(const SubstitutionModel* model, unsigned int nbSites) :
+        ConstNoPartitionBranchModelIterator(const SubstitutionModel* model, size_t nbSites) :
           branchModelDescription_(model, nbSites), index_(0) {}
 
       public:
@@ -287,8 +287,8 @@ class AbstractTreeLikelihood :
 		Vdouble getLogLikelihoodForEachSite()              const;
 		VVdouble getLikelihoodForEachSiteForEachState()    const;
 		VVdouble getLogLikelihoodForEachSiteForEachState() const;
-		unsigned int getNumberOfSites() const { return data_->getNumberOfSites(); }
-		unsigned int getNumberOfStates() const { return data_->getAlphabet()->getSize(); }
+		size_t getNumberOfSites() const { return data_->getNumberOfSites(); }
+		size_t getNumberOfStates() const { return data_->getAlphabet()->getSize(); }
 		const Tree& getTree() const { return *tree_; }
 		void enableDerivatives(bool yn) { computeFirstOrderDerivatives_ = computeSecondOrderDerivatives_ = yn; }
 		void enableFirstOrderDerivatives(bool yn) { computeFirstOrderDerivatives_ = yn; }

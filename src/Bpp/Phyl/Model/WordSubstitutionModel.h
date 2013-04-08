@@ -76,30 +76,28 @@ class WordSubstitutionModel :
 {
 public:
   /**
-   *@brief Build a new WordSubstitutionModel object from a
-   *Vector of pointers to SubstitutionModels.
+   * @brief Build a new WordSubstitutionModel object from a
+   * Vector of pointers to SubstitutionModels.
    *
-   *@param modelVector the Vector of substitution models to use, in
+   * @param modelVector the Vector of substitution models to use, in
    *   the order of the positions in the words from left to right. All
    *   the models must be different objects to avoid parameters
    *   redundancy, otherwise only the first model is used. The used models
    *   are owned by the instance.
    * @param st the Namespace.
    */
-
   WordSubstitutionModel(const std::vector<SubstitutionModel*>& modelVector, const std::string& st = "");
 
   /**
-   *@brief Build a new WordSubstitutionModel object from a
-   *pointer to an SubstitutionModel and a number of
-   *desired models.
+   * @brief Build a new WordSubstitutionModel object from a
+   * pointer to an SubstitutionModel and a number of
+   * desired models.
    *
    * @param pmodel pointer to the substitution model to use in all the
    *  positions. It is owned by the instance.
    * @param num The number of models involved.
    * @param st the Namespace.
    */
-
   WordSubstitutionModel(SubstitutionModel* pmodel, unsigned int num, const std::string& st = "");
 
   virtual ~WordSubstitutionModel() {}

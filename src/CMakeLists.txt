@@ -3,7 +3,7 @@
 # Created: 20/08/2009
 
 # File list
-set(CPP_FILES
+SET(CPP_FILES
   Bpp/Phyl/App/PhylogeneticsApplicationTools.cpp
   Bpp/Phyl/BipartitionList.cpp
   Bpp/Phyl/BipartitionTools.cpp
@@ -26,6 +26,11 @@ set(CPP_FILES
   Bpp/Phyl/Io/Nhx.cpp
   Bpp/Phyl/Io/PhylipDistanceMatrixFormat.cpp
   Bpp/Phyl/Io/IoPairedSiteLikelihoods.cpp
+  Bpp/Phyl/Io/IoSubstitutionModelFactory.cpp
+  Bpp/Phyl/Io/BppOSubstitutionModelFormat.cpp
+  Bpp/Phyl/Io/IoFrequenciesSetFactory.cpp
+  Bpp/Phyl/Io/BppOFrequenciesSetFormat.cpp
+  Bpp/Phyl/Io/BppORateDistributionFormat.cpp
   Bpp/Phyl/Likelihood/AbstractDiscreteRatesAcrossSitesTreeLikelihood.cpp
   Bpp/Phyl/Likelihood/AbstractHomogeneousTreeLikelihood.cpp
   Bpp/Phyl/Likelihood/AbstractNonHomogeneousTreeLikelihood.cpp
@@ -55,11 +60,12 @@ set(CPP_FILES
   Bpp/Phyl/Mapping/LaplaceSubstitutionCount.cpp
   Bpp/Phyl/Mapping/OneJumpSubstitutionCount.cpp
   Bpp/Phyl/Mapping/ProbabilisticSubstitutionMapping.cpp
-  Bpp/Phyl/Mapping/SimpleSubstitutionCount.cpp
+  Bpp/Phyl/Mapping/NaiveSubstitutionCount.cpp
   Bpp/Phyl/Mapping/DecompositionSubstitutionCount.cpp
   Bpp/Phyl/Mapping/UniformizationSubstitutionCount.cpp
   Bpp/Phyl/Mapping/WeightedSubstitutionCount.cpp
   Bpp/Phyl/Mapping/SubstitutionMappingTools.cpp
+  Bpp/Phyl/Model/StateMap.cpp
   Bpp/Phyl/Model/BinarySubstitutionModel.cpp
   Bpp/Phyl/Model/AbstractSubstitutionModel.cpp
   Bpp/Phyl/Model/AbstractBiblioSubstitutionModel.cpp
@@ -100,6 +106,9 @@ set(CPP_FILES
   Bpp/Phyl/Model/Protein/LLG08_EX3.cpp
   Bpp/Phyl/Model/Protein/LLG08_UL2.cpp
   Bpp/Phyl/Model/Protein/LLG08_UL3.cpp
+  Bpp/Phyl/Model/Protein/LGL08_CAT.cpp
+  Bpp/Phyl/Model/Protein/Coala.cpp
+  Bpp/Phyl/Model/Protein/CoalaCore.cpp
   Bpp/Phyl/Model/Codon/GY94.cpp
   Bpp/Phyl/Model/Codon/MG94.cpp
   Bpp/Phyl/Model/Codon/TripletSubstitutionModel.cpp
@@ -107,9 +116,11 @@ set(CPP_FILES
   Bpp/Phyl/Model/Codon/AbstractCodonFrequenciesSubstitutionModel.cpp
   Bpp/Phyl/Model/Codon/AbstractCodonPhaseFrequenciesSubstitutionModel.cpp
   Bpp/Phyl/Model/Codon/AbstractCodonDistanceSubstitutionModel.cpp
+  Bpp/Phyl/Model/Codon/AbstractCodonFitnessSubstitutionModel.cpp
   Bpp/Phyl/Model/Codon/CodonDistanceSubstitutionModel.cpp
   Bpp/Phyl/Model/Codon/CodonDistanceFrequenciesSubstitutionModel.cpp
   Bpp/Phyl/Model/Codon/CodonDistancePhaseFrequenciesSubstitutionModel.cpp
+  Bpp/Phyl/Model/Codon/CodonDistanceFitnessPhaseFrequenciesSubstitutionModel.cpp
   Bpp/Phyl/Model/Codon/CodonRateSubstitutionModel.cpp
   Bpp/Phyl/Model/Codon/CodonRateFrequenciesSubstitutionModel.cpp
   Bpp/Phyl/Model/Codon/YN98.cpp
@@ -120,6 +131,7 @@ set(CPP_FILES
   Bpp/Phyl/Model/Codon/YNGKP_M8.cpp
   Bpp/Phyl/Model/FrequenciesSet/FrequenciesSet.cpp
   Bpp/Phyl/Model/FrequenciesSet/NucleotideFrequenciesSet.cpp
+  Bpp/Phyl/Model/FrequenciesSet/MvaFrequenciesSet.cpp
   Bpp/Phyl/Model/FrequenciesSet/WordFrequenciesSet.cpp
   Bpp/Phyl/Model/FrequenciesSet/CodonFrequenciesSet.cpp
   Bpp/Phyl/NNITopologySearch.cpp
@@ -138,13 +150,13 @@ set(CPP_FILES
   Bpp/Phyl/TreeTemplateTools.cpp
   Bpp/Phyl/TreeTools.cpp  
   )
-set(H_FILES
+SET(H_FILES
   Bpp/Phyl/AncestralStateReconstruction.h
   Bpp/Phyl/App/PhylogeneticsApplicationTools.h
   Bpp/Phyl/BipartitionList.h
   Bpp/Phyl/BipartitionTools.h
   Bpp/Phyl/Distance/AbstractAgglomerativeDistanceMethod.h
-  Bpp/Phyl/Distance/AgglomerativeDistanceMethod.h
+  Bpp/Phyl/Distance/DistanceMethod.h
   Bpp/Phyl/Distance/BioNJ.h
   Bpp/Phyl/Distance/DistanceEstimation.h
   Bpp/Phyl/Distance/NeighborJoining.h
@@ -166,6 +178,13 @@ set(H_FILES
   Bpp/Phyl/Io/NexusIoTree.h
   Bpp/Phyl/Io/PhylipDistanceMatrixFormat.h
   Bpp/Phyl/Io/IoPairedSiteLikelihoods.h
+  Bpp/Phyl/Io/IoSubstitutionModel.h
+  Bpp/Phyl/Io/IoSubstitutionModelFactory.h
+  Bpp/Phyl/Io/BppOSubstitutionModelFormat.h
+  Bpp/Phyl/Io/IoFrequenciesSet.h
+  Bpp/Phyl/Io/IoFrequenciesSetFactory.h
+  Bpp/Phyl/Io/BppOFrequenciesSetFormat.h
+  Bpp/Phyl/Io/BppORateDistributionFormat.h
   Bpp/Phyl/Likelihood/AbstractDiscreteRatesAcrossSitesTreeLikelihood.h
   Bpp/Phyl/Likelihood/AbstractHomogeneousTreeLikelihood.h
   Bpp/Phyl/Likelihood/AbstractNonHomogeneousTreeLikelihood.h
@@ -211,13 +230,14 @@ set(H_FILES
   Bpp/Phyl/Mapping/WeightedSubstitutionCount.h
   Bpp/Phyl/Mapping/OneJumpSubstitutionCount.h
   Bpp/Phyl/Mapping/ProbabilisticSubstitutionMapping.h
-  Bpp/Phyl/Mapping/SimpleSubstitutionCount.h
+  Bpp/Phyl/Mapping/NaiveSubstitutionCount.h
   Bpp/Phyl/Mapping/DecompositionSubstitutionCount.h
   Bpp/Phyl/Mapping/UniformizationSubstitutionCount.h
   Bpp/Phyl/Mapping/SubstitutionRegister.h
   Bpp/Phyl/Mapping/SubstitutionCount.h
   Bpp/Phyl/Mapping/SubstitutionMapping.h
   Bpp/Phyl/Mapping/SubstitutionMappingTools.h
+  Bpp/Phyl/Model/StateMap.h
   Bpp/Phyl/Model/AbstractSubstitutionModel.h
   Bpp/Phyl/Model/BinarySubstitutionModel.h
   Bpp/Phyl/Model/G2001.h
@@ -264,6 +284,9 @@ set(H_FILES
   Bpp/Phyl/Model/Protein/LLG08_EX3.h
   Bpp/Phyl/Model/Protein/LLG08_UL2.h
   Bpp/Phyl/Model/Protein/LLG08_UL3.h
+  Bpp/Phyl/Model/Protein/LGL08_CAT.h
+  Bpp/Phyl/Model/Protein/Coala.h
+  Bpp/Phyl/Model/Protein/CoalaCore.h
   Bpp/Phyl/Model/Codon/GY94.h
   Bpp/Phyl/Model/Codon/MG94.h
   Bpp/Phyl/Model/Codon/CodonSubstitutionModel.h
@@ -272,9 +295,11 @@ set(H_FILES
   Bpp/Phyl/Model/Codon/AbstractCodonFrequenciesSubstitutionModel.h
   Bpp/Phyl/Model/Codon/AbstractCodonPhaseFrequenciesSubstitutionModel.h
   Bpp/Phyl/Model/Codon/AbstractCodonDistanceSubstitutionModel.h
+  Bpp/Phyl/Model/Codon/AbstractCodonFitnessSubstitutionModel.h
   Bpp/Phyl/Model/Codon/CodonDistanceSubstitutionModel.h
   Bpp/Phyl/Model/Codon/CodonDistanceFrequenciesSubstitutionModel.h
   Bpp/Phyl/Model/Codon/CodonDistancePhaseFrequenciesSubstitutionModel.h
+  Bpp/Phyl/Model/Codon/CodonDistanceFitnessPhaseFrequenciesSubstitutionModel.h
   Bpp/Phyl/Model/Codon/CodonRateSubstitutionModel.h
   Bpp/Phyl/Model/Codon/CodonRateFrequenciesSubstitutionModel.h
   Bpp/Phyl/Model/Codon/YN98.h
@@ -290,8 +315,13 @@ set(H_FILES
   Bpp/Phyl/Model/FrequenciesSet/FrequenciesSet.h
   Bpp/Phyl/Model/FrequenciesSet/NucleotideFrequenciesSet.h
   Bpp/Phyl/Model/FrequenciesSet/ProteinFrequenciesSet.h
+  Bpp/Phyl/Model/FrequenciesSet/MvaFrequenciesSet.h
   Bpp/Phyl/Model/FrequenciesSet/WordFrequenciesSet.h
   Bpp/Phyl/Model/FrequenciesSet/CodonFrequenciesSet.h
+  Bpp/Phyl/Model/RateDistribution/ConstantRateDistribution.h
+  Bpp/Phyl/Model/RateDistribution/GammaDiscreteRateDistribution.h
+  Bpp/Phyl/Model/RateDistribution/GaussianDiscreteRateDistribution.h
+  Bpp/Phyl/Model/RateDistribution/ExponentialDiscreteRateDistribution.h
   Bpp/Phyl/NNISearchable.h
   Bpp/Phyl/NNITopologySearch.h
   Bpp/Phyl/Node.h
@@ -322,25 +352,29 @@ set(H_FILES
   )
 
 # Build the static lib
-add_library(bppphyl-static STATIC ${CPP_FILES})
-set_target_properties(bppphyl-static
+ADD_LIBRARY(bppphyl-static STATIC ${CPP_FILES})
+SET_TARGET_PROPERTIES(bppphyl-static
   PROPERTIES OUTPUT_NAME bpp-phyl
   CLEAN_DIRECT_OUTPUT 1
   )
-target_link_libraries(bppphyl-static ${LIBS})
+TARGET_LINK_LIBRARIES(bppphyl-static ${LIBS})
 
 # Build the shared lib
-add_library(bppphyl-shared SHARED ${CPP_FILES})
-set_target_properties(bppphyl-shared
+ADD_LIBRARY(bppphyl-shared SHARED ${CPP_FILES})
+SET_TARGET_PROPERTIES(bppphyl-shared
   PROPERTIES OUTPUT_NAME bpp-phyl
   CLEAN_DIRECT_OUTPUT 1
   VERSION ${BPPPHYL_VERSION}
   SOVERSION ${BPPPHYL_VERSION_MAJOR}
   )
-target_link_libraries(bppphyl-shared ${LIBS})
+TARGET_LINK_LIBRARIES(bppphyl-shared ${LIBS})
 
 # Install libs
-install(TARGETS bppphyl-static bppphyl-shared DESTINATION lib${LIB_SUFFIX})
+INSTALL(TARGETS bppphyl-static bppphyl-shared DESTINATION lib${LIB_SUFFIX})
 
 # Install headers
-install(DIRECTORY Bpp/ DESTINATION include/Bpp FILES_MATCHING PATTERN ".svn" EXCLUDE PATTERN "*.h" PATTERN "*.all")
+INSTALL(DIRECTORY Bpp/ DESTINATION include/Bpp FILES_MATCHING PATTERN "*.h")
+
+# Generate generic include files (.all)
+INSTALL(CODE "EXECUTE_PROCESS(COMMAND ${CMAKE_SOURCE_DIR}/genIncludes.sh ${CMAKE_PREFIX_PATH}/include/Bpp)")
+

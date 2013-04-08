@@ -5,7 +5,7 @@
 //
 
 /*
-Copyright or © or Copr. CNRS, (November 16, 2004)
+Copyright or © or Copr. Bio++ Development Team, (November 16, 2004)
 
 This software is a computer program whose purpose is to provide classes
 for phylogenetic data analysis.
@@ -83,7 +83,7 @@ class DiscreteRatesAcrossSitesTreeLikelihood:
 		 * @param rateClass The rate class index.
 		 * @return The likelihood for the specified site and rate class.
 		 */
-		virtual double getLikelihoodForASiteForARateClass(unsigned int site, unsigned int rateClass) const = 0;
+		virtual double getLikelihoodForASiteForARateClass(size_t site, size_t rateClass) const = 0;
 		
 		/**
 		 * @brief Get the logarithm of the likelihood for a site knowing its rate class.
@@ -92,7 +92,7 @@ class DiscreteRatesAcrossSitesTreeLikelihood:
 		 * @param rateClass The rate class index.
 		 * @return The logarithm of the likelihood for the specified site and rate class.
 		 */
-		virtual double getLogLikelihoodForASiteForARateClass(unsigned int site, unsigned int rateClass) const = 0;
+		virtual double getLogLikelihoodForASiteForARateClass(size_t site, size_t rateClass) const = 0;
 	
 		/**
 		 * @brief Get the likelihood for a site knowing its rate class and its ancestral state.
@@ -102,7 +102,7 @@ class DiscreteRatesAcrossSitesTreeLikelihood:
 		 * @param state     The ancestral state.
 		 * @return The likelihood for the specified site and rate class and ancestral state.
 		 */
-		virtual double getLikelihoodForASiteForARateClassForAState(unsigned int site, unsigned int rateClass, int state) const = 0;
+		virtual double getLikelihoodForASiteForARateClassForAState(size_t site, size_t rateClass, int state) const = 0;
 		
 		/**
 		 * @brief Get the logarithm of the likelihood for a site knowing its rate class and its ancestral state.
@@ -112,7 +112,7 @@ class DiscreteRatesAcrossSitesTreeLikelihood:
 		 * @param state     The ancestral state.
 		 * @return The logarithm of the likelihood for the specified site and rate class and ancestral state..
 		 */
-		virtual double getLogLikelihoodForASiteForARateClassForAState(unsigned int site, unsigned int rateClass, int state) const = 0;
+		virtual double getLogLikelihoodForASiteForARateClassForAState(size_t site, size_t rateClass, int state) const = 0;
 
 		/**
 		 * @brief Get the likelihood for each site and each rate class.
@@ -159,7 +159,7 @@ class DiscreteRatesAcrossSitesTreeLikelihood:
 		 *
 		 * @return A vector with all rate classes indexes.
 		 */
-		virtual std::vector<unsigned int> getRateClassWithMaxPostProbOfEachSite() const = 0;
+		virtual std::vector<size_t> getRateClassWithMaxPostProbOfEachSite() const = 0;
 
 		/**
 		 * @brief Get the posterior rate (the one with maximum posterior
@@ -189,7 +189,7 @@ class DiscreteRatesAcrossSitesTreeLikelihood:
 		 *
 		 * @return The Number of classes.
 		 */
-		virtual unsigned int getNumberOfClasses() const = 0;
+		virtual size_t getNumberOfClasses() const = 0;
 
     /**
      * @brief Retrieves all Pij(t) for a particular branch, defined by the upper node.
@@ -200,7 +200,7 @@ class DiscreteRatesAcrossSitesTreeLikelihood:
      * @param siteIndex The position in the alignment.
      * @return An array of dimension 3, where a[c][x][y] is the probability of substituting from x to y while being in rate class c.
      */
-    virtual VVVdouble getTransitionProbabilitiesPerRateClass(int nodeId, unsigned int siteIndex) const = 0;
+    virtual VVVdouble getTransitionProbabilitiesPerRateClass(int nodeId, size_t siteIndex) const = 0;
 		
 };
 

@@ -37,13 +37,14 @@ The fact that you are presently reading this means that you have had
 knowledge of the CeCILL license and that you accept its terms.
 */
 
-#include <Bpp/Numeric/Prob.all>
-#include <Bpp/Numeric/Matrix.all>
-#include <Bpp/Seq/Alphabet.all>
+#include <Bpp/Numeric/Prob/GammaDiscreteDistribution.h>
+#include <Bpp/Numeric/Matrix/MatrixTools.h>
+#include <Bpp/Seq/Alphabet/AlphabetTools.h>
 #include <Bpp/Phyl/TreeTemplate.h>
-#include <Bpp/Phyl/Model.all>
-#include <Bpp/Phyl/Simulation.all>
-#include <Bpp/Phyl/Likelihood.all>
+#include <Bpp/Phyl/Model/Nucleotide/T92.h>
+#include <Bpp/Phyl/Simulation/HomogeneousSequenceSimulator.h>
+#include <Bpp/Phyl/Likelihood/RHomogeneousTreeLikelihood.h>
+#include <Bpp/Phyl/Likelihood/RHomogeneousClockTreeLikelihood.h>
 #include <Bpp/Phyl/OptimizationTools.h>
 #include <iostream>
 
@@ -61,8 +62,8 @@ void fitModelH(SubstitutionModel* model, DiscreteDistribution* rdist, const Tree
   ApplicationTools::displayResult("* initial likelihood", tl.getValue());
   if (abs(tl.getValue() - initialValue) > 0.0001)
     throw Exception("Incorrect initial value.");
-  auto_ptr<OutputStream> messenger(new StlOutputStream(auto_ptr<ostream>(new ofstream("messages.txt", ios::out))));
-  auto_ptr<OutputStream> profiler(new StlOutputStream(auto_ptr<ostream>(new ofstream("profile.txt", ios::out))));
+  auto_ptr<OutputStream> messenger(new StlOutputStream(new ofstream("messages.txt", ios::out)));
+  auto_ptr<OutputStream> profiler(new StlOutputStream(new ofstream("profile.txt", ios::out)));
   profiler->setPrecision(20);
   OptimizationTools::optimizeNumericalParameters2(&tl, tl.getParameters(), 0, 0.000001, 10000, messenger.get(), profiler.get(), false, true, 2, OptimizationTools::OPTIMIZATION_NEWTON);
   cout << setprecision(20) << tl.getValue() << endl;
@@ -83,8 +84,8 @@ void fitModelHClock(SubstitutionModel* model, DiscreteDistribution* rdist, const
   ApplicationTools::displayResult("* initial likelihood", tl.getValue());
   if (abs(tl.getValue() - initialValue) > 0.001)
     throw Exception("Incorrect initial value.");
-  auto_ptr<OutputStream> messenger(new StlOutputStream(auto_ptr<ostream>(new ofstream("messages.txt", ios::out))));
-  auto_ptr<OutputStream> profiler(new StlOutputStream(auto_ptr<ostream>(new ofstream("profile.txt", ios::out))));
+  auto_ptr<OutputStream> messenger(new StlOutputStream(new ofstream("messages.txt", ios::out)));
+  auto_ptr<OutputStream> profiler(new StlOutputStream(new ofstream("profile.txt", ios::out)));
   profiler->setPrecision(20);
   OptimizationTools::optimizeNumericalParametersWithGlobalClock2(&tl, tl.getParameters(), 0, 0.000001, 10000, messenger.get(), profiler.get());
   cout << setprecision(20) << tl.getValue() << endl;
@@ -93,9 +94,10 @@ void fitModelHClock(SubstitutionModel* model, DiscreteDistribution* rdist, const
   if (abs(tl.getValue() - finalValue) > 0.001)
     throw Exception("Incorrect final value.");
 }
+
 int main() {
   TreeTemplate<Node>* tree = TreeTemplateTools::parenthesisToTree("(((A:0.01, B:0.01):0.02,C:0.03):0.01,D:0.04);");
-  vector<string> seqNames= tree->getLeavesNames();
+  vector<string> seqNames = tree->getLeavesNames();
   vector<int> ids = tree->getNodesId();
   //-------------
 

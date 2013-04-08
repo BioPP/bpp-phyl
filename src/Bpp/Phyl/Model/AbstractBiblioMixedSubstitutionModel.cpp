@@ -72,5 +72,5 @@ Vint AbstractBiblioMixedSubstitutionModel::getSubmodelNumbers(std::string& desc)
       desc2 += ",";
   }
 
-  return getMixedModel()->getSubmodelNumbers(desc2);
+  return getMixedModel().getSubmodelNumbers(desc2);
 }

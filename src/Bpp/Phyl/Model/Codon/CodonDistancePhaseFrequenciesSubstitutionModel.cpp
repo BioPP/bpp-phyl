@@ -47,7 +47,7 @@ using namespace std;
 CodonDistancePhaseFrequenciesSubstitutionModel::CodonDistancePhaseFrequenciesSubstitutionModel(const GeneticCode* palph,
                                                                                      NucleotideSubstitutionModel* pmod,
                                                                                      FrequenciesSet* pfreq,
-                                                                                     const AlphabetIndex2<double>* pdist) :
+                                                                                     const AlphabetIndex2* pdist) :
   AbstractParameterAliasable("CodonDistPhasFreq."),
   AbstractSubstitutionModel(dynamic_cast<const CodonAlphabet*>(palph->getSourceAlphabet()), "CodonDistPhasFreq."),
   AbstractWordSubstitutionModel(dynamic_cast<const CodonAlphabet*>(palph->getSourceAlphabet()), "CodonDistPhasFreq."),
@@ -63,7 +63,7 @@ CodonDistancePhaseFrequenciesSubstitutionModel::CodonDistancePhaseFrequenciesSub
                                                                                      NucleotideSubstitutionModel* pmod2,
                                                                                      NucleotideSubstitutionModel* pmod3,
                                                                                      FrequenciesSet* pfreq,
-                                                                                     const AlphabetIndex2<double>* pdist) :
+                                                                                     const AlphabetIndex2* pdist) :
   AbstractParameterAliasable("CodonDistPhasFreq."),
   AbstractSubstitutionModel(dynamic_cast<const CodonAlphabet*>(palph->getSourceAlphabet()), "CodonDistPhasFreq."),
   AbstractWordSubstitutionModel(dynamic_cast<const CodonAlphabet*>(palph->getSourceAlphabet()), "CodonDistPhasFreq."),
@@ -88,7 +88,7 @@ void CodonDistancePhaseFrequenciesSubstitutionModel::fireParameterChanged(const 
   AbstractCodonSubstitutionModel::fireParameterChanged(parameters);
 }
 
-double CodonDistancePhaseFrequenciesSubstitutionModel::getCodonsMulRate(unsigned int i, unsigned int j) const
+double CodonDistancePhaseFrequenciesSubstitutionModel::getCodonsMulRate(size_t i, size_t j) const
 {
   return AbstractCodonDistanceSubstitutionModel::getCodonsMulRate(i,j)
     * AbstractCodonSubstitutionModel::getCodonsMulRate(i,j)

@@ -58,16 +58,18 @@ AbstractCodonPhaseFrequenciesSubstitutionModel::AbstractCodonPhaseFrequenciesSub
   if (pCFS == NULL)
     throw Exception("Bad type for equilibrium frequencies " + pfreq->getName());
 
-  if ((dynamic_cast<CodonFromUniqueFrequenciesSet*>(pCFS) != NULL)
+  if ((dynamic_cast<CodonFromUniqueFrequenciesSet*>(pCFS))
       || (dynamic_cast<CodonFromIndependentFrequenciesSet*>(pCFS) != NULL))
     posfreqset_ = dynamic_cast<WordFrequenciesSet*>(pfreq)->clone();
   else
   {
     vector<FrequenciesSet*> vFS;
-    if (dynamic_cast<FixedCodonFrequenciesSet*>(pCFS) != NULL)
+    if (dynamic_cast<FixedCodonFrequenciesSet*>(pCFS))
       for (unsigned int i = 0; i < 3; i++)
       {
-        vFS.push_back(new FixedFrequenciesSet(pCFS->getAlphabet()->getNucleicAlphabet()));
+        vFS.push_back(new FixedFrequenciesSet(
+              pCFS->getAlphabet()->getNucleicAlphabet(),
+              pCFS->getAlphabet()->getNucleicAlphabet()->getSize()));
       }
     else
       for (unsigned int i = 0; i < 3; i++)
@@ -105,12 +107,12 @@ void AbstractCodonPhaseFrequenciesSubstitutionModel::setFreq(map<int, double>& f
   matchParametersValues(posfreqset_->getParameters());
 }
 
-double AbstractCodonPhaseFrequenciesSubstitutionModel::getCodonsMulRate(unsigned int i, unsigned int j) const
+double AbstractCodonPhaseFrequenciesSubstitutionModel::getCodonsMulRate(size_t i, size_t j) const
 {
-  unsigned int i2(i), j2(j);
+  size_t i2(i), j2(j);
 
   double x = 1.;
-  for (unsigned int k = 0; k < 3; k++)
+  for (size_t k = 0; k < 3; k++)
   {
     if ((i2 % 4) != (j2 % 4))
       x *= posfreqset_->getFrequenciesSetForLetter(2 - k).getFrequencies()[j2 % 4];

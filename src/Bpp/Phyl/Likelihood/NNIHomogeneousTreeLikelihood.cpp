@@ -58,10 +58,10 @@ void BranchLikelihood::initModel(const SubstitutionModel* model, const DiscreteD
   nbStates_ = model->getNumberOfStates();
   nbClasses_  = rDist->getNumberOfCategories();
   pxy_.resize(nbClasses_);
-  for (unsigned int i = 0; i < nbClasses_; i++)
+  for (size_t i = 0; i < nbClasses_; i++)
   {
     pxy_[i].resize(nbStates_);
-    for (unsigned int j = 0; j < nbStates_; j++)
+    for (size_t j = 0; j < nbStates_; j++)
     {
       pxy_[i][j].resize(nbStates_);
     }
@@ -74,14 +74,14 @@ void BranchLikelihood::computeAllTransitionProbabilities()
   double l = getParameterValue("BrLen");
 
   // Computes all pxy once for all:
-  for (unsigned int c = 0; c < nbClasses_; c++)
+  for (size_t c = 0; c < nbClasses_; c++)
   {
     VVdouble* pxy__c = &pxy_[c];
     RowMatrix<double> Q = model_->getPij_t(l * rDist_->getCategory(c));
-    for (unsigned int x = 0; x < nbStates_; x++)
+    for (size_t x = 0; x < nbStates_; x++)
     {
       Vdouble* pxy__c_x = &(*pxy__c)[x];
-      for (unsigned int y = 0; y < nbStates_; y++)
+      for (size_t y = 0; y < nbStates_; y++)
       {
         (*pxy__c_x)[y] = Q(x, y);
       }
@@ -95,15 +95,15 @@ void BranchLikelihood::computeLogLikelihood()
   lnL_ = 0;
 
   vector<double> la(array1_->size());
-  for (unsigned int i = 0; i < array1_->size(); i++)
+  for (size_t i = 0; i < array1_->size(); i++)
   {
     double Li = 0;
-    for (unsigned int c = 0; c < nbClasses_; c++)
+    for (size_t c = 0; c < nbClasses_; c++)
     {
       double rc = rDist_->getProbability(c);
-      for (unsigned int x = 0; x < nbStates_; x++)
+      for (size_t x = 0; x < nbStates_; x++)
       {
-        for (unsigned int y = 0; y < nbStates_; y++)
+        for (size_t y = 0; y < nbStates_; y++)
         {
           Li += rc * (*array1_)[i][c][x] * pxy_[c][x][y] * (*array2_)[i][c][y];
         }
@@ -113,7 +113,7 @@ void BranchLikelihood::computeLogLikelihood()
   }
 
   sort(la.begin(), la.end());
-  for (unsigned int i = array1_->size(); i > 0; i--)
+  for (size_t i = array1_->size(); i > 0; i--)
   {
     lnL_ -= la[i - 1];
   }
@@ -214,7 +214,7 @@ double NNIHomogeneousTreeLikelihood::testNNI(int nodeId) const throw (NodeExcept
   // From here: Bifurcation assumed.
   // In case of multifurcation, an arbitrary uncle is chosen.
   // If we are at root node with a trifurcation, this does not matter, since 2 NNI are possible (see doc of the NNISearchable interface).
-  unsigned int parentPosition = grandFather->getSonPosition(parent);
+  size_t parentPosition = grandFather->getSonPosition(parent);
   // const Node * uncle = grandFather->getSon(parentPosition > 1 ? parentPosition - 1 : 1 - parentPosition);
   const Node* uncle = grandFather->getSon(parentPosition > 1 ? 0 : 1 - parentPosition);
 
@@ -222,10 +222,10 @@ double NNIHomogeneousTreeLikelihood::testNNI(int nodeId) const throw (NodeExcept
   const DRASDRTreeLikelihoodNodeData* parentData = &getLikelihoodData()->getNodeData(parent->getId());
   const VVVdouble* sonArray   = &parentData->getLikelihoodArrayForNeighbor(son->getId());
   vector<const Node*> parentNeighbors = TreeTemplateTools::getRemainingNeighbors(parent, grandFather, son);
-  unsigned int nbParentNeighbors = parentNeighbors.size();
+  size_t nbParentNeighbors = parentNeighbors.size();
   vector<const VVVdouble*> parentArrays(nbParentNeighbors);
   vector<const VVVdouble*> parentTProbs(nbParentNeighbors);
-  for (unsigned int k = 0; k < nbParentNeighbors; k++)
+  for (size_t k = 0; k < nbParentNeighbors; k++)
   {
     const Node* n = parentNeighbors[k]; // This neighbor
     parentArrays[k] = &parentData->getLikelihoodArrayForNeighbor(n->getId());
@@ -237,10 +237,10 @@ double NNIHomogeneousTreeLikelihood::testNNI(int nodeId) const throw (NodeExcept
   const DRASDRTreeLikelihoodNodeData* grandFatherData = &getLikelihoodData()->getNodeData(grandFather->getId());
   const VVVdouble* uncleArray      = &grandFatherData->getLikelihoodArrayForNeighbor(uncle->getId());
   vector<const Node*> grandFatherNeighbors = TreeTemplateTools::getRemainingNeighbors(grandFather, parent, uncle);
-  unsigned int nbGrandFatherNeighbors = grandFatherNeighbors.size();
+  size_t nbGrandFatherNeighbors = grandFatherNeighbors.size();
   vector<const VVVdouble*> grandFatherArrays;
   vector<const VVVdouble*> grandFatherTProbs;
-  for (unsigned int k = 0; k < nbGrandFatherNeighbors; k++)
+  for (size_t k = 0; k < nbGrandFatherNeighbors; k++)
   {
     const Node* n = grandFatherNeighbors[k]; // This neighbor
     if (grandFather->getFather() == NULL || n != grandFather->getFather())
@@ -264,11 +264,11 @@ double NNIHomogeneousTreeLikelihood::testNNI(int nodeId) const throw (NodeExcept
     computeLikelihoodFromArrays(grandFatherArrays, grandFatherTProbs, array1, nbGrandFatherNeighbors + 1, nbDistinctSites_, nbClasses_, nbStates_, false);
 
     // This is the root node, we have to account for the ancestral frequencies:
-    for (unsigned int i = 0; i < nbDistinctSites_; i++)
+    for (size_t i = 0; i < nbDistinctSites_; i++)
     {
-      for (unsigned int j = 0; j < nbClasses_; j++)
+      for (size_t j = 0; j < nbClasses_; j++)
       {
-        for (unsigned int x = 0; x < nbStates_; x++)
+        for (size_t x = 0; x < nbStates_; x++)
         {
           array1[i][j][x] *= rootFreqs_[x];
         }
@@ -287,7 +287,7 @@ double NNIHomogeneousTreeLikelihood::testNNI(int nodeId) const throw (NodeExcept
   brLikFunction_->initModel(model_, rateDistribution_);
   brLikFunction_->initLikelihoods(&array1, &array2);
   ParameterList parameters;
-  unsigned int pos = 0;
+  size_t pos = 0;
   while (pos < nodes_.size() && nodes_[pos]->getId() != parent->getId()) pos++;
   if (pos == nodes_.size()) throw Exception("NNIHomogeneousTreeLikelihood::testNNI. Unvalid node id.");
   Parameter brLen = getParameter("BrLen" + TextTools::toString(pos));
@@ -322,14 +322,14 @@ void NNIHomogeneousTreeLikelihood::doNNI(int nodeId) throw (NodeException)
   // From here: Bifurcation assumed.
   // In case of multifurcation, an arbitrary uncle is chosen.
   // If we are at root node with a trifurcation, this does not matter, since 2 NNI are possible (see doc of the NNISearchable interface).
-  unsigned int parentPosition = grandFather->getSonPosition(parent);
+  size_t parentPosition = grandFather->getSonPosition(parent);
   Node* uncle = grandFather->getSon(parentPosition > 1 ? 0 : 1 - parentPosition);
   // Swap nodes:
   parent->removeSon(son);
   grandFather->removeSon(uncle);
   parent->addSon(uncle);
   grandFather->addSon(son);
-  unsigned int pos = 0;
+  size_t pos = 0;
   while (pos < nodes_.size() && nodes_[pos]->getId() != parent->getId()) pos++;
   if (pos == nodes_.size()) throw Exception("NNIHomogeneousTreeLikelihood::doNNI. Unvalid node id.");
 

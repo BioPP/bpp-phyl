@@ -100,7 +100,7 @@ class TreeLikelihood:
         /**
          * @return The position of the next site in the set.
          */
-        virtual unsigned int next() throw (Exception) = 0;
+        virtual size_t next() throw (Exception) = 0;
         /**
          * @return True is there is at least another site in the set.
          */
@@ -214,7 +214,7 @@ class TreeLikelihood:
      * @param site The site index to analyse.
      * @return The likelihood for site <i>site</i>.
      */
-    virtual double getLikelihoodForASite(unsigned int site) const = 0;
+    virtual double getLikelihoodForASite(size_t site) const = 0;
 
     /**
      * @brief Get the logarithm of the likelihood for a site.
@@ -222,7 +222,7 @@ class TreeLikelihood:
      * @param site The site index to analyse.
      * @return The logarithm of the likelihood for site <i>site</i>.
      */
-    virtual double getLogLikelihoodForASite(unsigned int site) const = 0;
+    virtual double getLogLikelihoodForASite(size_t site) const = 0;
 
     /**
      * @brief Get the likelihood for a site and for a state.
@@ -231,7 +231,7 @@ class TreeLikelihood:
      * @param state The state to consider.
      * @return The likelihood for site <i>site</i> and state <i>state</i>.
      */
-    virtual double getLikelihoodForASiteForAState(unsigned int site, int state) const = 0;
+    virtual double getLikelihoodForASiteForAState(size_t site, int state) const = 0;
 
     /**
      * @brief Get the logarithm of the likelihood for a site and for a state.
@@ -240,7 +240,7 @@ class TreeLikelihood:
      * @param state The state to consider.
      * @return The logarithm of the likelihood for site <i>site</i> and state <i>state</i>.
      */
-    virtual double getLogLikelihoodForASiteForAState(unsigned int site, int state) const = 0;
+    virtual double getLogLikelihoodForASiteForAState(size_t site, int state) const = 0;
 
     /**
      * @brief Get the likelihood for each site.
@@ -296,14 +296,14 @@ class TreeLikelihood:
      *
      * @return the number of sites in the dataset.
      */
-    virtual unsigned int getNumberOfSites() const = 0;
+    virtual size_t getNumberOfSites() const = 0;
 
     /**
      * @brief Get the number of states in the alphabet associated to the dataset.
      *
      * @return the number of states in the alphabet associated to the dataset.
      */    
-    virtual unsigned int getNumberOfStates() const = 0;
+    virtual size_t getNumberOfStates() const = 0;
     
     /**
      * @brief Get the alphabet associated to the dataset.
@@ -341,7 +341,7 @@ class TreeLikelihood:
      * @return A pointer toward the corresponding model.
      * @throw NodeNotFoundException This exception may be thrown if the node is not found (depending on the implementation).
      */
-    virtual const SubstitutionModel* getSubstitutionModel(int nodeId, unsigned int siteIndex) const throw (NodeNotFoundException) = 0;
+    virtual const SubstitutionModel* getSubstitutionModel(int nodeId, size_t siteIndex) const throw (NodeNotFoundException) = 0;
 
     /**
      * @brief Get the substitution model associated to a given node and alignment column.
@@ -352,7 +352,7 @@ class TreeLikelihood:
      * @return A pointer toward the corresponding model.
      * @throw NodeNotFoundException This exception may be thrown if the node is not found (depending on the implementation).
      */
-    virtual SubstitutionModel* getSubstitutionModel(int nodeId, unsigned int siteIndex) throw (NodeNotFoundException) = 0;
+    virtual SubstitutionModel* getSubstitutionModel(int nodeId, size_t siteIndex) throw (NodeNotFoundException) = 0;
 
     /**
      * @brief Retrieves all Pij(t) for a particular branch, defined by the upper node and site.
@@ -364,11 +364,11 @@ class TreeLikelihood:
      * @see getSiteIndex
      * @return An array of dimension 2, where a[x][y] is the probability of substituting from x to y.
      */
-    virtual VVdouble getTransitionProbabilities(int nodeId, unsigned int siteIndex) const = 0;
+    virtual VVdouble getTransitionProbabilities(int nodeId, size_t siteIndex) const = 0;
 
     virtual ConstBranchModelIterator* getNewBranchModelIterator(int nodeId) const = 0;
 
-    virtual ConstSiteModelIterator* getNewSiteModelIterator(unsigned int siteIndex) const = 0;
+    virtual ConstSiteModelIterator* getNewSiteModelIterator(size_t siteIndex) const = 0;
 
     /**
      * @brief Get the index (used for inner computations) of a given site (original alignment column).
@@ -376,7 +376,7 @@ class TreeLikelihood:
      * @param site An alignment position.
      * @return The site index corresponding to the given input alignment position.
      */
-    virtual unsigned int getSiteIndex(unsigned int site) const throw (IndexOutOfBoundsException) = 0;
+    virtual size_t getSiteIndex(size_t site) const throw (IndexOutOfBoundsException) = 0;
 
     /**
      * @brief Get the values of the frequencies for each state in the alphabet at the root node.
@@ -391,7 +391,7 @@ class TreeLikelihood:
      * @see getSiteIndex
      * @return A vector with ancestral frequencies for each state in the alphabet;
      */
-    virtual const std::vector<double>& getRootFrequencies(unsigned int siteIndex) const = 0;
+    virtual const std::vector<double>& getRootFrequencies(size_t siteIndex) const = 0;
     
     /** @} */
 

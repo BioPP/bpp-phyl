@@ -4,7 +4,7 @@
 //
 
 /*
-   Copyright or © or Copr. CNRS, (November 16, 2004)
+   Copyright or © or Copr. Bio++ Development Team, (November 16, 2004)
 
    This software is a computer program whose purpose is to provide classes
    for phylogenetic data analysis.
@@ -40,7 +40,8 @@
 #define _MIXTUREOFASUBSTITUTIONMODEL_H_
 
 #include "AbstractMixedSubstitutionModel.h"
-#include <Bpp/Numeric/Prob.all>
+
+#include <Bpp/Numeric/Prob/DiscreteDistribution.h>
 #include <Bpp/Numeric/VectorTools.h>
 
 #include <vector>
@@ -148,7 +149,7 @@ public:
   /**
    * @brief returns the DiscreteDistribution associated with a given
    * parameter name.
-   * @param the name of the parameter
+   * @param parName name of the parameter
    **/
 
   const DiscreteDistribution* getDistribution(std::string& parName) const;

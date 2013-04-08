@@ -37,14 +37,16 @@ The fact that you are presently reading this means that you have had
 knowledge of the CeCILL license and that you accept its terms.
 */
 
-#include <Bpp/Numeric/Prob.all>
-#include <Bpp/Numeric/Matrix.all>
-#include <Bpp/Seq/Alphabet.all>
+#include <Bpp/Numeric/Prob/GammaDiscreteDistribution.h>
+#include <Bpp/Numeric/Matrix/MatrixTools.h>
+#include <Bpp/Seq/Alphabet/AlphabetTools.h>
 #include <Bpp/Phyl/TreeTemplate.h>
-#include <Bpp/Phyl/Model.all>
+#include <Bpp/Phyl/Model/Nucleotide/T92.h>
 #include <Bpp/Phyl/Model/FrequenciesSet/NucleotideFrequenciesSet.h>
-#include <Bpp/Phyl/Simulation.all>
-#include <Bpp/Phyl/Likelihood.all>
+#include <Bpp/Phyl/Model/SubstitutionModelSetTools.h>
+#include <Bpp/Phyl/Simulation/NonHomogeneousSequenceSimulator.h>
+#include <Bpp/Phyl/Likelihood/RNonHomogeneousTreeLikelihood.h>
+#include <Bpp/Phyl/Likelihood/DRNonHomogeneousTreeLikelihood.h>
 #include <Bpp/Phyl/OptimizationTools.h>
 #include <iostream>
 
@@ -85,14 +87,14 @@ int main() {
   DiscreteDistribution* rdist = new GammaDiscreteDistribution(4, 1.0);
   rdist->aliasParameters("alpha", "beta");
 
-  unsigned int nsites = 1000;
+  size_t nsites = 1000;
   unsigned int nrep = 20;
-  unsigned int nmodels = modelSet->getNumberOfModels();
+  size_t nmodels = modelSet->getNumberOfModels();
   vector<double> thetas(nmodels);
   vector<double> thetasEst1(nmodels);
   vector<double> thetasEst2(nmodels);
 
-  for (unsigned int i = 0; i < nmodels; ++i) {
+  for (size_t i = 0; i < nmodels; ++i) {
     double theta = RandomTools::giveRandomNumberBetweenZeroAndEntry(0.99) + 0.005;
     cout << "Theta" << i << " set to " << theta << endl; 
     modelSet->setParameterValue("T92.theta_" + TextTools::toString(i + 1), theta);
@@ -102,8 +104,8 @@ int main() {
  
   for (unsigned int j = 0; j < nrep; j++) {
 
-    OutputStream* profiler  = new StlOutputStream(auto_ptr<ostream>(new ofstream("profile.txt", ios::out)));
-    OutputStream* messenger = new StlOutputStream(auto_ptr<ostream>(new ofstream("messages.txt", ios::out)));
+    OutputStream* profiler  = new StlOutputStream(new ofstream("profile.txt", ios::out));
+    OutputStream* messenger = new StlOutputStream(new ofstream("messages.txt", ios::out));
 
     //Simulate data:
     auto_ptr<SiteContainer> sites(simulator.simulate(nsites));
@@ -125,7 +127,7 @@ int main() {
 
     cout << c1 << ": " << tl.getValue() << "\t" << c2 << ": " << tl2.getValue() << endl;
       
-    for (unsigned int i = 0; i < nmodels; ++i) {
+    for (size_t i = 0; i < nmodels; ++i) {
       cout << modelSet2->getModel(i)->getParameter("theta").getValue() << "\t" << modelSet3->getModel(i)->getParameter("theta").getValue() << endl;
       //if (abs(modelSet2->getModel(i)->getParameter("theta").getValue() - modelSet3->getModel(i)->getParameter("theta").getValue()) > 0.1)
       //  return 1;

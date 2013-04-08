@@ -6,7 +6,7 @@
 //
 
 /*
-Copyright or © or Copr. CNRS, (November 16, 2004)
+Copyright or © or Copr. Bio++ Development Team, (November 16, 2004)
 
 This software is a computer program whose purpose is to provide classes
 for phylogenetic data analysis.
@@ -53,25 +53,26 @@ using namespace std;
 void AbstractAgglomerativeDistanceMethod::setDistanceMatrix(const DistanceMatrix& matrix)
 {
   matrix_ = matrix;
+  currentNodes_.clear();
   if (tree_) delete tree_;
 }
     
-void AbstractAgglomerativeDistanceMethod::computeTree(bool rooted) throw (Exception)
+void AbstractAgglomerativeDistanceMethod::computeTree() throw (Exception)
 {
   // Initialization:
-  for (unsigned int i = 0; i < matrix_.size(); i++)
+  for (size_t i = 0; i < matrix_.size(); ++i)
   {
-    currentNodes_[i] = getLeafNode(i, matrix_.getName(i));
+    currentNodes_[i] = getLeafNode(static_cast<int>(i), matrix_.getName(i));
   }
-  int idNextNode = (int)matrix_.size();
+  int idNextNode = static_cast<int>(matrix_.size());
   vector<double> newDist(matrix_.size());
   
   // Build tree:
-  while (currentNodes_.size() > (rooted ? 2 : 3))
+  while (currentNodes_.size() > (rootTree_ ? 2 : 3))
   {
     if (verbose_)
-      ApplicationTools::displayGauge(matrix_.size() - currentNodes_.size(), matrix_.size() - (rooted ? 2 : 3) - 1);
-    vector<unsigned int> bestPair = getBestPair();
+      ApplicationTools::displayGauge(matrix_.size() - currentNodes_.size(), matrix_.size() - (rootTree_ ? 2 : 3) - 1);
+    vector<size_t> bestPair = getBestPair();
     vector<double> distances = computeBranchLengthsForPair(bestPair);
     Node* best1 = currentNodes_[bestPair[0]];
     Node* best2 = currentNodes_[bestPair[1]];
@@ -80,11 +81,12 @@ void AbstractAgglomerativeDistanceMethod::computeTree(bool rooted) throw (Except
     best2->setDistanceToFather(distances[1]);
     Node* parent = getParentNode(idNextNode, best1, best2);
     idNextNode++;
-    for (map<unsigned int, Node *>::iterator i = currentNodes_.begin(); i != currentNodes_.end(); i++)
+    for (map<size_t, Node *>::iterator i = currentNodes_.begin(); i != currentNodes_.end(); i++)
     {
-      unsigned int id = i->first;
-      if(id != bestPair[0] && id != bestPair[1])
+      size_t id = i->first;
+      if (id != bestPair[0] && id != bestPair[1])
       {
+        assert (id < newDist.size()); //DEBUG
         newDist[id] = computeDistancesFromPair(bestPair, distances, id);
       }
       else
@@ -95,9 +97,9 @@ void AbstractAgglomerativeDistanceMethod::computeTree(bool rooted) throw (Except
     // Actualize currentNodes_:
     currentNodes_[bestPair[0]] = parent;
     currentNodes_.erase(bestPair[1]);
-    for (map<unsigned int, Node *>::iterator i = currentNodes_.begin(); i != currentNodes_.end(); i++)
+    for (map<size_t, Node *>::iterator i = currentNodes_.begin(); i != currentNodes_.end(); i++)
     {
-      unsigned int id = i->first;
+      size_t id = i->first;
       matrix_(bestPair[0], id) = matrix_(id, bestPair[0]) = newDist[id];
     }  
   }

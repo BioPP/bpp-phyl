@@ -44,21 +44,21 @@ using namespace bpp;
 void ProbabilisticSubstitutionMapping::setTree(const Tree& tree)
 {
   AbstractSubstitutionMapping::setTree(tree);
-  for (unsigned int i = 0; i < getNumberOfSites(); i++) {
+  for (size_t i = 0; i < getNumberOfSites(); i++) {
     mapping_[i].resize(getNumberOfBranches());
-    for (unsigned int j = 0; j < getNumberOfBranches(); j++) {
+    for (size_t j = 0; j < getNumberOfBranches(); j++) {
       mapping_[i][j].resize(1);
     }
   }
 }
 
-void ProbabilisticSubstitutionMapping::setNumberOfSites(unsigned int numberOfSites)
+void ProbabilisticSubstitutionMapping::setNumberOfSites(size_t numberOfSites)
 {
   AbstractSubstitutionMapping::setNumberOfSites(numberOfSites);
   mapping_.resize(numberOfSites);
-  for (unsigned int i = 0; i < numberOfSites; i++) {
+  for (size_t i = 0; i < numberOfSites; i++) {
     mapping_[i].resize(getNumberOfBranches());
-    for (unsigned int j = 0; j < getNumberOfBranches(); j++) {
+    for (size_t j = 0; j < getNumberOfBranches(); j++) {
       mapping_[i][j].resize(getNumberOfSubstitutionTypes());
     }
   }

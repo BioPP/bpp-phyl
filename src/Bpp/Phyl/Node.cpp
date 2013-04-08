@@ -5,7 +5,7 @@
 //
 
 /*
-Copyright or © or Copr. Julien Dutheil, (November 16, 2004)
+Copyright or © or Copr. Bio++ Development Team, (November 16, 2004)
 
 This software is a computer program whose purpose is to provide classes
 for phylogenetic data analysis.
@@ -54,7 +54,9 @@ using namespace std;
 /** Copy constructor: *********************************************************/
   
 Node::Node(const Node& node):
-  id_(node.id_), name_(0), sons_(node.sons_), father_(node.father_),
+  id_(node.id_), name_(0),
+  sons_(), father_(0),
+  //, sons_(node.sons_), father_(node.father_),
   distanceToFather_(0), nodeProperties_(), branchProperties_()
 {
   name_             = node.hasName() ? new string(* node.name_) : 0;
@@ -72,10 +74,10 @@ Node& Node::operator=(const Node & node)
   id_               = node.id_;
   if(name_) delete name_;
   name_             = node.hasName() ? new string(* node.name_) : 0;
-  father_           = node.father_;
+  //father_           = node.father_;
   if(distanceToFather_) delete distanceToFather_;
   distanceToFather_ = node.hasDistanceToFather() ? new double(* node.distanceToFather_) : 0;
-  sons_             = node.sons_;
+  //sons_             = node.sons_;
   for(map<string, Clonable *>::iterator i = node.nodeProperties_.begin(); i != node.nodeProperties_.end(); i++)
   {
     Clonable * p = nodeProperties_[i->first];
@@ -93,11 +95,11 @@ Node& Node::operator=(const Node & node)
       
 /** Sons: *********************************************************************/
       
-void Node::swap(unsigned int branch1, unsigned int branch2) throw (IndexOutOfBoundsException)
+void Node::swap(size_t branch1, size_t branch2) throw (IndexOutOfBoundsException)
 {
   if (branch1 > branch2)
   {
-    unsigned int tmp = branch1;
+    size_t tmp = branch1;
     branch1 = branch2;
     branch2 = tmp;
   }
@@ -113,7 +115,7 @@ vector<const Node *> Node::getNeighbors() const
 {
   vector<const Node *> neighbors;
   if(hasFather()) neighbors.push_back(father_);
-  for(unsigned int i = 0; i < sons_.size(); i++) neighbors.push_back(sons_[i]);
+  for(size_t i = 0; i < sons_.size(); i++) neighbors.push_back(sons_[i]);
   return neighbors;
 }
     
@@ -121,15 +123,15 @@ vector<Node *> Node::getNeighbors()
 {
   vector<Node *> neighbors;
   if(hasFather()) neighbors.push_back(father_);
-  for(unsigned int i = 0; i < sons_.size(); i++) neighbors.push_back(sons_[i]);
+  for(size_t i = 0; i < sons_.size(); i++) neighbors.push_back(sons_[i]);
   return neighbors;
 }
 
-unsigned int Node::getSonPosition(const Node* son) const throw (NodeNotFoundException, NullPointerException)
+size_t Node::getSonPosition(const Node* son) const throw (NodeNotFoundException, NullPointerException)
 {
   if (!son)
     throw NullPointerException("Node::getSonPosition(). Empty node given as input.");
-  for(unsigned int i = 0; i < sons_.size(); i++)
+  for(size_t i = 0; i < sons_.size(); i++)
   {
     if(sons_[i] == son) return i;
   }

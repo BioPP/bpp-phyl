@@ -38,6 +38,9 @@ knowledge of the CeCILL license and that you accept its terms.
 */
 
 #include "IoTreeFactory.h"
+#include "Newick.h"
+#include "NexusIoTree.h"
+#include "Nhx.h"
 
 using namespace bpp;
 

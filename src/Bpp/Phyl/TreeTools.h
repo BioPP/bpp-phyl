@@ -104,7 +104,7 @@ class TreeTools
      * @param nodeId The id of node defining the subtree.
      * @throw NodeNotFoundException If the node is not found.
      */
-    static unsigned int getNumberOfLeaves(const Tree& tree, int nodeId) throw (NodeNotFoundException);
+    static size_t getNumberOfLeaves(const Tree& tree, int nodeId) throw (NodeNotFoundException);
  
     /**
      * @brief Get the id of a leaf given its name in a subtree.
@@ -183,7 +183,7 @@ class TreeTools
      * @return The depth of the subtree.
      * @throw NodeNotFoundException If the node is not found.
      */
-    static unsigned int getDepth(const Tree& tree, int nodeId) throw (NodeNotFoundException);
+    static size_t getDepth(const Tree& tree, int nodeId) throw (NodeNotFoundException);
 
     /**
      * @brief Get the depths for all nodes of the subtree defined by node 'node', i.e. the maximum
@@ -207,7 +207,7 @@ class TreeTools
      * @return The depth of the subtree.
      * @throw NodeNotFoundException If the node is not found.
      */
-    static unsigned int getDepths(const Tree& tree, int nodeId, std::map<int, unsigned int>& depths) throw (NodeNotFoundException);
+    static size_t getDepths(const Tree& tree, int nodeId, std::map<int, size_t>& depths) throw (NodeNotFoundException);
 
     /**
      * @brief Get the height of the subtree defined by node 'node', i.e. the maximum
@@ -337,7 +337,7 @@ class TreeTools
     static void computeBranchLengthsGrafen(Tree& tree, double power = 1, bool init = true) throw (NodeException);
    
   private:
-    static unsigned int initBranchLengthsGrafen(Tree& tree, int nodeId) throw (NodeNotFoundException);
+    static size_t initBranchLengthsGrafen(Tree& tree, int nodeId) throw (NodeNotFoundException);
     static void computeBranchLengthsGrafen(Tree& tree, int nodeId, double power, double total, double& height, double& heightRaised) throw (NodeNotFoundException,NodeException);
 
   public:
@@ -598,7 +598,7 @@ class TreeTools
      * @param bipScore Output as the numbers of occurrences of the returned distinct bipartitions
      * @return A BipartitionList object including only distinct bipartitions
      */
-    static BipartitionList* bipartitionOccurrences(const std::vector<Tree*>& vecTr, std::vector<unsigned int>& bipScore);
+    static BipartitionList* bipartitionOccurrences(const std::vector<Tree*>& vecTr, std::vector<size_t>& bipScore);
 
     /**
      * @brief General greedy consensus tree method
@@ -672,10 +672,17 @@ class TreeTools
      * @param verbose Tell if a progress bar should be displayed.
      */
     static void computeBootstrapValues(Tree& tree, const std::vector<Tree*>& vecTr, bool verbose = true);
-
-
-
-
+	
+    /**
+     * @brief Determine the mid-point position of the root along the branch that already contains the root. Consequently, the topology of the rooted tree remains identical.
+     * 
+     * This code uses two inner functions to compute the mid-point position: statFromNode_ and bestRootPosition_.
+     * This code is inspired by a code performing a similar calculation in Seaview (Guindon et al., 2010, Mol. Biol. Evol. 27(2):221-4).
+     * 
+     * @param tree The rooted tree for which the root has to be moved to its mid-point position, along the branch where it already stands.
+     */    
+    static void constrainedMidPointRooting(Tree& tree);
+	
     /**
      * @name Some properties.
      *
@@ -685,7 +692,19 @@ class TreeTools
     /**
      * @brief Bootstrap tag.
      */
-    static const std::string BOOTSTRAP;   
+    static const std::string BOOTSTRAP;
+
+  private:
+	  struct Moments_ {
+	    double N;
+	    double sum, squaredSum;
+	    Moments_(): N(0), sum(0), squaredSum(0) {}
+	  };	  
+
+	  static Moments_ statFromNode_(Tree& tree, int rootId);
+	  static double bestRootPosition_(Tree& tree, int nodeId1, int nodeId2, double length);
+
+
     /** @} */
 
 };

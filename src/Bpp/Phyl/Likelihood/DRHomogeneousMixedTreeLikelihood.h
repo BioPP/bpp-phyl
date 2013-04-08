@@ -4,7 +4,7 @@
 //
 
 /*
-   Copyright or � or Copr. CNRS, (November 16, 2004)
+   Copyright or © or Copr. Bio++ Development Team, (November 16, 2004)
 
    This software is a computer program whose purpose is to provide classes
    for phylogenetic data analysis.
@@ -48,15 +48,15 @@
 
 namespace bpp
 {
+
 /**
- *@ brief A class to compute the average of several
- *DRHomogeneousTreeLikelihood defined from a Mixed Substitution
- *Model.
+ * @brief A class to compute the average of several
+ * DRHomogeneousTreeLikelihood defined from a Mixed Substitution
+ * Model.
  *
- * In all the calculs, the average of the likelihoods, probabilities
+ * In all computations, the average of the likelihoods, probabilities
  * are computed.
  **/
-
 class DRHomogeneousMixedTreeLikelihood :
   public DRHomogeneousTreeLikelihood
 {
@@ -64,6 +64,11 @@ private:
   std::vector<DRHomogeneousTreeLikelihood*> treeLikelihoodsContainer_;
   std::vector<double> probas_;
 
+  // true if the root Array should be computed (for ancestral
+  // reconstruction)
+  
+  bool rootArray_;
+  
 public:
   /**
    * @brief Build a new DRHomogeneousMixedTreeLikelihood object without
@@ -79,6 +84,8 @@ public:
    * @param checkRooted Tell if we have to check for the tree to be unrooted.
    * If true, any rooted tree will be unrooted before likelihood computation.
    * @param verbose Should I display some info?
+   * @param rootArray is true if the array of the likelihoods at the root
+   *    should be computed (useful for ancestral reconstruction).
    * @throw Exception in an error occured.
    */
   DRHomogeneousMixedTreeLikelihood(
@@ -86,7 +93,8 @@ public:
     SubstitutionModel* model,
     DiscreteDistribution* rDist,
     bool checkRooted = true,
-    bool verbose = true)
+    bool verbose = true,
+    bool rootArray = false)
   throw (Exception);
 
   /**
@@ -101,6 +109,8 @@ public:
    * @param checkRooted Tell if we have to check for the tree to be unrooted.
    * If true, any rooted tree will be unrooted before likelihood computation.
    * @param verbose Should I display some info?
+   * @param rootArray is true if the array of the likelihoods at the root
+   *    should be computed (useful for ancestral reconstruction).
    * @throw Exception in an error occured.
    */
   DRHomogeneousMixedTreeLikelihood(
@@ -109,7 +119,8 @@ public:
     SubstitutionModel* model,
     DiscreteDistribution* rDist,
     bool checkRooted = true,
-    bool verbose = true)
+    bool verbose = true,
+    bool rootArray = false)
   throw (Exception);
 
   DRHomogeneousMixedTreeLikelihood(const DRHomogeneousMixedTreeLikelihood& lik);
@@ -193,31 +204,6 @@ protected:
   virtual void computeTreeD2Likelihoods();
 
   void resetLikelihoodArrays(const Node* node);
-
-  /**
-   * Forbidden methods: here to prevent misuse of the class
-   **/
-
-  static void computeLikelihoodFromArrays(
-    const std::vector<const VVVdouble*>& iLik,
-    const std::vector<const VVVdouble*>& tProb,
-    VVVdouble& oLik, unsigned int nbNodes,
-    unsigned int nbDistinctSites,
-    unsigned int nbClasses,
-    unsigned int nbStates,
-    bool reset = true);
-
-  static void computeLikelihoodFromArrays(
-    const std::vector<const VVVdouble*>& iLik,
-    const std::vector<const VVVdouble*>& tProb,
-    const VVVdouble* iLikR,
-    const VVVdouble* tProbR,
-    VVVdouble& oLik,
-    unsigned int nbNodes,
-    unsigned int nbDistinctSites,
-    unsigned int nbClasses,
-    unsigned int nbStates,
-    bool reset = true);
 
   /**
    * @brief This method is mainly for debugging purpose.

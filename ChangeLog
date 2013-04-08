@@ -1,3 +1,27 @@
+07/03/13 -*- Version 2.1.0 -*-
+
+06/03/13 Nicolas Rochette
+* Bug #71 fixed.
+
+24/01/13 Julien Dutheil
+* Bug fixed in NHX parser: node ids are now properly set.
+
+20/01/13 Julien Dutheil
+* bpp-phyl now compiles with -Wconversion.
+
+13/01/13 Julien Dutheil
+* Added new COaLA protein substitution model.
+
+18/11/12 Julien Dutheil
+* New RateDistribution classes.
+* Better BppO parser and PhylogeneticsApplicationTools.
+
+26/08/12 Julien Dutheil
+* Bug #57 fixed in distance methods
+  
+13/06/12 Julien Dutheil
+* Added new class StateMap, and enable support for gaps in parsimony calculation.
+
 09/02/12 -*- Version 2.0.3 -*-
 
 08/02/12 L. Guéguen

@@ -46,7 +46,7 @@ using namespace std;
 
 CodonDistanceSubstitutionModel::CodonDistanceSubstitutionModel(const GeneticCode* palph,
                                                                NucleotideSubstitutionModel* pmod,
-                                                               const AlphabetIndex2<double>* pdist) :
+                                                               const AlphabetIndex2* pdist) :
   AbstractParameterAliasable("CodonDist."),
   AbstractSubstitutionModel(dynamic_cast<const CodonAlphabet*>(palph->getSourceAlphabet()),
       "CodonDist."),
@@ -63,7 +63,7 @@ CodonDistanceSubstitutionModel::CodonDistanceSubstitutionModel(const GeneticCode
                                                                NucleotideSubstitutionModel* pmod1,
                                                                NucleotideSubstitutionModel* pmod2,
                                                                NucleotideSubstitutionModel* pmod3,
-                                                               const AlphabetIndex2<double>* pdist) :
+                                                               const AlphabetIndex2* pdist) :
   AbstractParameterAliasable("CodonDist."),
   AbstractSubstitutionModel(dynamic_cast<const CodonAlphabet*>(palph->getSourceAlphabet()),
       "CodonDist."),
@@ -89,7 +89,7 @@ void CodonDistanceSubstitutionModel::fireParameterChanged(const ParameterList& p
   AbstractCodonSubstitutionModel::fireParameterChanged(parameters);
 }
 
-double CodonDistanceSubstitutionModel::getCodonsMulRate(unsigned int i, unsigned int j) const
+double CodonDistanceSubstitutionModel::getCodonsMulRate(size_t i, size_t j) const
 {
   return AbstractCodonDistanceSubstitutionModel::getCodonsMulRate(i,j)
     * AbstractCodonSubstitutionModel::getCodonsMulRate(i,j);

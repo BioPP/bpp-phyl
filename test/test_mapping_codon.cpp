@@ -38,17 +38,25 @@ knowledge of the CeCILL license and that you accept its terms.
 */
 
 #include <Bpp/App/ApplicationTools.h>
-#include <Bpp/Numeric/Prob.all>
-#include <Bpp/Numeric/Matrix.all>
-#include <Bpp/Seq/Alphabet.all>
+#include <Bpp/Numeric/Prob/ConstantDistribution.h>
+#include <Bpp/Numeric/Matrix/MatrixTools.h>
+#include <Bpp/Seq/Alphabet/AlphabetTools.h>
+#include <Bpp/Seq/Alphabet/StandardCodonAlphabet.h>
 #include <Bpp/Seq/Io/Fasta.h>
-#include <Bpp/Seq/GeneticCode.all>
+#include <Bpp/Seq/GeneticCode/StandardGeneticCode.h>
 #include <Bpp/Phyl/TreeTemplate.h>
-#include <Bpp/Phyl/Model.all>
+#include <Bpp/Phyl/Model/Nucleotide/JCnuc.h>
+#include <Bpp/Phyl/Model/Codon/CodonRateSubstitutionModel.h>
 #include <Bpp/Phyl/Model/FrequenciesSet/CodonFrequenciesSet.h>
-#include <Bpp/Phyl/Simulation.all>
-#include <Bpp/Phyl/Likelihood.all>
-#include <Bpp/Phyl/Mapping.all>
+#include <Bpp/Phyl/Simulation/HomogeneousSequenceSimulator.h>
+#include <Bpp/Phyl/Likelihood/DRHomogeneousTreeLikelihood.h>
+#include <Bpp/Phyl/Mapping/SubstitutionRegister.h>
+#include <Bpp/Phyl/Mapping/NaiveSubstitutionCount.h>
+#include <Bpp/Phyl/Mapping/LaplaceSubstitutionCount.h>
+#include <Bpp/Phyl/Mapping/UniformizationSubstitutionCount.h>
+#include <Bpp/Phyl/Mapping/DecompositionSubstitutionCount.h>
+#include <Bpp/Phyl/Mapping/ProbabilisticSubstitutionMapping.h>
+#include <Bpp/Phyl/Mapping/SubstitutionMappingTools.h>
 #include <iostream>
 
 using namespace bpp;
@@ -63,7 +71,7 @@ int main() {
 
   CodonAlphabet* alphabet = new StandardCodonAlphabet(&AlphabetTools::DNA_ALPHABET);
   GeneticCode* gc = new StandardGeneticCode(&AlphabetTools::DNA_ALPHABET);
-  //ReversibleSubstitutionModel* model = new YN98(gc, CodonFrequenciesSet::getFrequenciesSetForCodons(FrequenciesSet::F0, *alphabet));
+  //SubstitutionModel* model = new YN98(gc, CodonFrequenciesSet::getFrequenciesSetForCodons(CodonFrequenciesSet::F0, *alphabet));
   SubstitutionModel* model = new CodonRateSubstitutionModel(
         dynamic_cast<const CodonAlphabet*>(gc->getSourceAlphabet()),
         new JCnuc(dynamic_cast<CodonAlphabet*>(alphabet)->getNucleicAlphabet()));
@@ -85,7 +93,7 @@ int main() {
     realMapTotal[i].resize(ids.size());
     realMapDnDs[i].resize(ids.size());
     for (size_t j = 0; j < ids.size(); ++j) {
-      realMap[i][j] = result->getSubstitutionCount(ids[j]);
+      realMap[i][j] = static_cast<double>(result->getSubstitutionCount(ids[j]));
       realMapTotal[i][j].resize(totReg->getNumberOfSubstitutionTypes());
       realMapDnDs[i][j].resize(dndsReg->getNumberOfSubstitutionTypes());
       result->getSubstitutionCount(ids[j], *totReg, realMapTotal[i][j]);

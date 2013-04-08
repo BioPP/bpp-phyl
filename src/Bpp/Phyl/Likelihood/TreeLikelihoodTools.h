@@ -5,7 +5,7 @@
 //
 
 /*
-Copyright or © or Copr. CNRS, (November 16, 2004)
+Copyright or © or Copr. Bio++ Development Team, (November 16, 2004)
 
 This software is a computer program whose purpose is to provide classes
 for phylogenetic data analysis.
@@ -75,7 +75,7 @@ class TreeLikelihoodTools
      */
     static void getAncestralFrequencies(
         const TreeLikelihood& tl,
-        unsigned int site,
+        size_t site,
         std::map<int, std::vector<double> >& frequencies,
         bool alsoForLeaves = false) throw (Exception);
 
@@ -105,7 +105,7 @@ class TreeLikelihoodTools
      */
     static void getAncestralFrequencies_(
         const TreeLikelihood& tl,
-        unsigned int siteIndex,
+        size_t siteIndex,
         int parentId,
         const std::vector<double>& ancestralFrequencies,
         std::map<int, std::vector<double> >& frequencies,

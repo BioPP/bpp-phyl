@@ -161,9 +161,9 @@ public:
 
   int getRootId() const { return root_->getId(); }
 
-  unsigned int getNumberOfLeaves() const { return TreeTemplateTools::getNumberOfLeaves(*root_); }
+  size_t getNumberOfLeaves() const { return TreeTemplateTools::getNumberOfLeaves(*root_); }
 
-  unsigned int getNumberOfNodes() const { return TreeTemplateTools::getNumberOfNodes(*root_); }
+  size_t getNumberOfNodes() const { return TreeTemplateTools::getNumberOfNodes(*root_); }
 
   int getLeafId(const std::string& name) const throw (NodeNotFoundException) { return TreeTemplateTools::getLeafId(*root_, name); }
 
@@ -284,16 +284,16 @@ public:
   void resetNodesId()
   {
     std::vector<N*> nodes = getNodes();
-    for (unsigned int i = 0; i < nodes.size(); i++)
+    for (size_t i = 0; i < nodes.size(); i++)
     {
-      nodes[i]->setId(i);
+      nodes[i]->setId(static_cast<int>(i));
     }
   }
 
   bool isMultifurcating() const
   {
     if (root_->getNumberOfSons() > 3) return true;
-    for (unsigned int i = 0; i < root_->getNumberOfSons(); i++)
+    for (size_t i = 0; i < root_->getNumberOfSons(); i++)
       if (TreeTemplateTools::isMultifurcating(*root_->getSon(i)))
         return true;
     return false;
@@ -343,10 +343,10 @@ public:
   std::vector<double> getBranchLengths() throw (NodeException)
   {
     Vdouble brLen(1);
-    for (unsigned int i = 0; i < root_->getNumberOfSons(); i++)
+    for (size_t i = 0; i < root_->getNumberOfSons(); i++)
     {
       Vdouble sonBrLen = TreeTemplateTools::getBranchLengths(*root_->getSon(i));
-      for (unsigned int j = 0; j < sonBrLen.size(); j++) { brLen.push_back(sonBrLen[j]); }
+      for (size_t j = 0; j < sonBrLen.size(); j++) { brLen.push_back(sonBrLen[j]); }
     }
     return brLen;
   }
@@ -358,7 +358,7 @@ public:
 
   void setBranchLengths(double brLen)
   {
-    for (unsigned int i = 0; i < root_->getNumberOfSons(); i++)
+    for (size_t i = 0; i < root_->getNumberOfSons(); i++)
     {
       TreeTemplateTools::setBranchLengths(*root_->getSon(i), brLen);
     }
@@ -366,7 +366,7 @@ public:
 
   void setVoidBranchLengths(double brLen)
   {
-    for (unsigned int i = 0; i < root_->getNumberOfSons(); i++)
+    for (size_t i = 0; i < root_->getNumberOfSons(); i++)
     {
       TreeTemplateTools::setVoidBranchLengths(*root_->getSon(i), brLen);
     }
@@ -374,7 +374,7 @@ public:
 
   void scaleTree(double factor) throw (NodeException)
   {
-    for (unsigned int i = 0; i < root_->getNumberOfSons(); i++)
+    for (size_t i = 0; i < root_->getNumberOfSons(); i++)
     {
       TreeTemplateTools::scaleTree(*root_->getSon(i), factor);
     }
@@ -385,11 +385,11 @@ public:
     return TreeTools::getMPNUId(*this, root_->getId());
   }
 
-  void swapNodes(int parentId, unsigned int i1, unsigned int i2) throw (NodeNotFoundException, IndexOutOfBoundsException)
+  void swapNodes(int parentId, size_t i1, size_t i2) throw (NodeNotFoundException, IndexOutOfBoundsException)
   {
     std::vector<N*> nodes = TreeTemplateTools::searchNodeWithId<N>(*root_, parentId);
     if (nodes.size() == 0) throw NodeNotFoundException("TreeTemplate:swapNodes(): Node with id not found.", "" + parentId);
-    for (unsigned int i = 0; i < nodes.size(); i++) { nodes[i]->swap(i1, i2); }
+    for (size_t i = 0; i < nodes.size(); i++) { nodes[i]->swap(i1, i2); }
   }
 
 
@@ -474,7 +474,7 @@ public:
     if (isRooted()) unroot();
     std::vector<Node*> path = TreeTemplateTools::getPathBetweenAnyTwoNodes(*root_, *newRoot);
 
-    for (unsigned int i = 0; i < path.size() - 1; i++)
+    for (size_t i = 0; i < path.size() - 1; i++)
     {
       // pathMatrix[i] -> _father = pathMatrix[i + 1];
       // pathMatrix[i] -> setDistanceToFather(pathMatrix[i + 1] -> getDistanceToFather());
@@ -489,7 +489,7 @@ public:
       path[i + 1]->addSon(path[i]);
 
       std::vector<std::string> names = path[i + 1]->getBranchPropertyNames();
-      for (unsigned int j = 0; j < names.size(); j++)
+      for (size_t j = 0; j < names.size(); j++)
       {
         path[i]->setBranchProperty(names[j], *path[i + 1]->getBranchProperty(names[j]));
       }
@@ -506,7 +506,7 @@ public:
     int rootId;
     if (isRooted())
     {
-      for (unsigned int i = 0; i < root_->getNumberOfSons(); i++)
+      for (size_t i = 0; i < root_->getNumberOfSons(); i++)
       {
         if (root_->getSon(i) == outGroup) return;  // This tree is already rooted appropriately.
       }

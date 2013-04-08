@@ -5,7 +5,7 @@
 //
 
 /*
-  Copyright or © or Copr. CNRS, (November 16, 2004)
+  Copyright or © or Copr. Bio++ Development Team, (November 16, 2004)
 
   This software is a computer program whose purpose is to provide classes
   for phylogenetic data analysis.
@@ -59,7 +59,7 @@ namespace bpp
    * Eigen values and vectors are obtained numerically.
    * 
    * Reference:
-   * - LE, Si Q. and Gascuel, O. (2008), _Molecular Biology And Evolution_ 25, 1307--1320. 
+   * - Le, Si Q. and Gascuel, O. (2008), _Molecular Biology And Evolution_ 25, 1307--1320. 
    */
   class LG08 :
     public virtual ProteinSubstitutionModel,
@@ -115,7 +115,7 @@ namespace bpp
   public:
     std::string getName() const 
     { 
-      if (freqSet_->getNamespace() == "LG08+F.")
+      if (freqSet_->getNamespace().find("LG08+F.")!=std::string::npos)
         return "LG08+F"; 
       else 
         return "LG08"; 

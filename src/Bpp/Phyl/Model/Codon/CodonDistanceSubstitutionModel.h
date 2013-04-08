@@ -5,7 +5,7 @@
 //
 
 /*
-  Copyright or © or Copr. CNRS, (November 16, 2004)
+  Copyright or © or Copr. Bio++ Development Team, (November 16, 2004)
 
   This software is a computer program whose purpose is to provide classes
   for phylogenetic data analysis.
@@ -60,11 +60,11 @@ namespace bpp
    * If a distance @f$d@f$ between amino-acids is defined, the ratio between
    * non-synonymous and synonymous substitutions rates is, if the codied
    * amino-acids are @f$x@f$ and @f$y@f$, @f$\beta*\exp(-\alpha.d(x,y))@f$ with
-   * non-negative parameter @f$\alpha@f$ and positive parameter @f$\beta@f$.
+   * non-negative parameter \c "alpha" and positive parameter \c "beta".
    *
    * If such a distance is not defined, the ratio between non-synonymous
    * and synonymous substitutions rates is @f$\beta@f$ with positive
-   * parameter @f$\beta@f$.
+   * parameter \c "beta".
    *
    */
 
@@ -84,7 +84,7 @@ namespace bpp
      */
     CodonDistanceSubstitutionModel(const GeneticCode* palph,
                                    NucleotideSubstitutionModel* pmod,
-                                   const AlphabetIndex2<double>* pdist);
+                                   const AlphabetIndex2* pdist);
 
     /**
      * @brief Build a new CodonDistanceSubstitutionModel object
@@ -96,14 +96,14 @@ namespace bpp
      *   Either all the models are different objects to avoid parameters
      *   redondancy, or only the first model is used in every position.
      *   The used models are owned by the instance.
-     * @param pdist optional pointer to the AlphabetIndex2<double> amino-acids distance object.
+     * @param pdist optional pointer to the AlphabetIndex2 amino-acids distance object.
      */
   
     CodonDistanceSubstitutionModel(const GeneticCode* palph,
                                    NucleotideSubstitutionModel* pmod1,
                                    NucleotideSubstitutionModel* pmod2,
                                    NucleotideSubstitutionModel* pmod3,
-                                   const AlphabetIndex2<double>* pdist);
+                                   const AlphabetIndex2* pdist);
 
     CodonDistanceSubstitutionModel(const CodonDistanceSubstitutionModel& model) :
       AbstractParameterAliasable(model),
@@ -135,7 +135,7 @@ namespace bpp
   
     std::string getName() const;
 
-    double getCodonsMulRate(unsigned int, unsigned int) const;
+    double getCodonsMulRate(size_t i, size_t j) const;
   };
 } // end of namespace bpp.
 

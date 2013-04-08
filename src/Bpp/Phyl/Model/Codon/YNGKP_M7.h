@@ -57,8 +57,8 @@ namespace bpp
  * mixture being defined on the selection parameter to allow it to
  * vary among sites, following a Beta distribution.
  *
- * This model includes 3 parameters (@f$\kappa@f$, @f$ \alpha @f$ and
- * @f$\beta@f$) of the Beta distribution. The codon frequencies
+ * This model includes 3 parameters (@f$\kappa@f$, @f$ p @f$ and
+ * @f$q@f$) of the Beta distribution. The codon frequencies
  * @f$\pi_j@f$ are either observed or infered.
  *
  * References:
@@ -68,10 +68,11 @@ namespace bpp
  * 
  */
 class YNGKP_M7:
-  public AbstractBiblioMixedSubstitutionModel
+    public AbstractBiblioMixedSubstitutionModel,
+    virtual public ReversibleSubstitutionModel
 {
 private:
-  MixtureOfASubstitutionModel* pmixmodel_;
+  std::auto_ptr<MixtureOfASubstitutionModel> pmixmodel_;
 
   /*
    *@brief indexes of 2 codons between which the substitution is
@@ -102,24 +103,16 @@ protected:
   void updateMatrices();
 
 public:
-  const AbstractSubstitutionModel* getModel() const {
-    return pmixmodel_;
-  }
+  const SubstitutionModel& getModel() const { return *pmixmodel_.get(); }
 
-  AbstractSubstitutionModel* getModel() {
-    return pmixmodel_;
-  }
-
-
-  const MixedSubstitutionModel* getMixedModel() const {
-    return pmixmodel_;
-  }
-
-  MixedSubstitutionModel* getMixedModel() {
-    return pmixmodel_;
-  }
+  const MixedSubstitutionModel& getMixedModel() const { return *pmixmodel_.get(); }
 
   std::string getName() const { return "YNGKP_M7"; }
+
+private:
+  SubstitutionModel& getModel() { return *pmixmodel_.get(); }
+
+  MixedSubstitutionModel& getMixedModel() { return *pmixmodel_.get(); }
 
 };
 

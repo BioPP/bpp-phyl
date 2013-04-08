@@ -38,15 +38,23 @@ knowledge of the CeCILL license and that you accept its terms.
 */
 
 #include <Bpp/App/ApplicationTools.h>
-#include <Bpp/Numeric/Prob.all>
-#include <Bpp/Numeric/Matrix.all>
-#include <Bpp/Seq/Alphabet.all>
+#include <Bpp/Numeric/Prob/GammaDiscreteDistribution.h>
+#include <Bpp/Numeric/Prob/ConstantDistribution.h>
+#include <Bpp/Numeric/Matrix/MatrixTools.h>
+#include <Bpp/Seq/Alphabet/DNA.h>
 #include <Bpp/Seq/Io/Fasta.h>
 #include <Bpp/Phyl/TreeTemplate.h>
-#include <Bpp/Phyl/Model.all>
-#include <Bpp/Phyl/Simulation.all>
-#include <Bpp/Phyl/Likelihood.all>
-#include <Bpp/Phyl/Mapping.all>
+#include <Bpp/Phyl/Model/Nucleotide/GTR.h>
+#include <Bpp/Phyl/Simulation/HomogeneousSequenceSimulator.h>
+#include <Bpp/Phyl/Likelihood/DRHomogeneousTreeLikelihood.h>
+#include <Bpp/Phyl/Mapping/SubstitutionRegister.h>
+#include <Bpp/Phyl/Mapping/SubstitutionCount.h>
+#include <Bpp/Phyl/Mapping/LaplaceSubstitutionCount.h>
+#include <Bpp/Phyl/Mapping/DecompositionSubstitutionCount.h>
+#include <Bpp/Phyl/Mapping/UniformizationSubstitutionCount.h>
+#include <Bpp/Phyl/Mapping/NaiveSubstitutionCount.h>
+#include <Bpp/Phyl/Mapping/ProbabilisticSubstitutionMapping.h>
+#include <Bpp/Phyl/Mapping/SubstitutionMappingTools.h>
 #include <iostream>
 
 using namespace bpp;
@@ -80,7 +88,7 @@ int main() {
     realMapTotal[i].resize(ids.size());
     realMapDetailed[i].resize(ids.size());
     for (size_t j = 0; j < ids.size(); ++j) {
-      realMap[i][j] = result->getSubstitutionCount(ids[j]);
+      realMap[i][j] = static_cast<double>(result->getSubstitutionCount(ids[j]));
       realMapTotal[i][j].resize(totReg->getNumberOfSubstitutionTypes());
       realMapDetailed[i][j].resize(detReg->getNumberOfSubstitutionTypes());
       result->getSubstitutionCount(ids[j], *totReg, realMapTotal[i][j]);

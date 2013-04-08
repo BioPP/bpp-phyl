@@ -110,7 +110,7 @@ public:
    * the alphabet.
    */
   FixedProteinFrequenciesSet(const ProteicAlphabet* alphabet, const std::string& name = "Fixed") :
-    FixedFrequenciesSet(alphabet, name) {}
+    FixedFrequenciesSet(alphabet, alphabet->getSize(), name) {}
 
 #ifndef NO_VIRTUAL_COV
   FixedProteinFrequenciesSet*

@@ -43,10 +43,11 @@
 #include "../PatternTools.h"
 #include "../SitePatterns.h"
 
+// From bpp-core:
 #include <Bpp/App/ApplicationTools.h>
 #include <Bpp/Numeric/AutoParameter.h>
 
-// From SeqLib:
+// From bpp-seq:
 #include <Bpp/Seq/SiteTools.h>
 #include <Bpp/Seq/Sequence.h>
 #include <Bpp/Seq/Container/AlignedSequenceContainer.h>
@@ -145,7 +146,7 @@ TwoTreeLikelihood::TwoTreeLikelihood(const TwoTreeLikelihood& lik) :
 
 /******************************************************************************/
 
-TwoTreeLikelihood & TwoTreeLikelihood::operator=(const TwoTreeLikelihood& lik)
+TwoTreeLikelihood& TwoTreeLikelihood::operator=(const TwoTreeLikelihood& lik)
 {
   AbstractDiscreteRatesAcrossSitesTreeLikelihood::operator=(lik);
   shrunkData_        = dynamic_cast<SiteContainer*>(lik.shrunkData_->clone());
@@ -212,7 +213,7 @@ ParameterList TwoTreeLikelihood::getSubstitutionModelParameters() const
 double TwoTreeLikelihood::getLikelihood() const
 {
   double l = 1.;
-  for (unsigned int i = 0; i < nbDistinctSites_; i++)
+  for (size_t i = 0; i < nbDistinctSites_; i++)
   {
     l *= std::pow(rootLikelihoodsSR_[i], (int)rootWeights_[i]);
   }
@@ -224,7 +225,7 @@ double TwoTreeLikelihood::getLikelihood() const
 double TwoTreeLikelihood::getLogLikelihood() const
 {
   double ll = 0;
-  for (unsigned int i = 0; i < nbDistinctSites_; i++)
+  for (size_t i = 0; i < nbDistinctSites_; i++)
   {
     ll += rootWeights_[i] * log(rootLikelihoodsSR_[i]);
   }
@@ -233,42 +234,42 @@ double TwoTreeLikelihood::getLogLikelihood() const
 
 /******************************************************************************/
 
-double TwoTreeLikelihood::getLikelihoodForASite(unsigned int site) const
+double TwoTreeLikelihood::getLikelihoodForASite(size_t site) const
 {
   return rootLikelihoodsSR_[rootPatternLinks_[site]];
 }
 
 /******************************************************************************/
 
-double TwoTreeLikelihood::getLogLikelihoodForASite(unsigned int site) const
+double TwoTreeLikelihood::getLogLikelihoodForASite(size_t site) const
 {
   return log(rootLikelihoodsSR_[rootPatternLinks_[site]]);
 }
 
 /******************************************************************************/
 
-double TwoTreeLikelihood::getLikelihoodForASiteForARateClass(unsigned int site, unsigned int rateClass) const
+double TwoTreeLikelihood::getLikelihoodForASiteForARateClass(size_t site, size_t rateClass) const
 {
   return rootLikelihoodsS_[rootPatternLinks_[site]][rateClass];
 }
 
 /******************************************************************************/
 
-double TwoTreeLikelihood::getLogLikelihoodForASiteForARateClass(unsigned int site, unsigned int rateClass) const
+double TwoTreeLikelihood::getLogLikelihoodForASiteForARateClass(size_t site, size_t rateClass) const
 {
   return log(rootLikelihoodsS_[rootPatternLinks_[site]][rateClass]);
 }
 
 /******************************************************************************/
 
-double TwoTreeLikelihood::getLikelihoodForASiteForARateClassForAState(unsigned int site, unsigned int rateClass, int state) const
+double TwoTreeLikelihood::getLikelihoodForASiteForARateClassForAState(size_t site, size_t rateClass, int state) const
 {
   return rootLikelihoods_[rootPatternLinks_[site]][rateClass][state];
 }
 
 /******************************************************************************/
 
-double TwoTreeLikelihood::getLogLikelihoodForASiteForARateClassForAState(unsigned int site, unsigned int rateClass, int state) const
+double TwoTreeLikelihood::getLogLikelihoodForASiteForARateClassForAState(size_t site, size_t rateClass, int state) const
 {
   return log(rootLikelihoods_[rootPatternLinks_[site]][rateClass][state]);
 }
@@ -334,16 +335,16 @@ void TwoTreeLikelihood::fireParameterChanged(const ParameterList& params)
 
   // Computes all pxy and pyx once for all:
   pxy_.resize(nbClasses_);
-  for (unsigned int c = 0; c < nbClasses_; c++)
+  for (size_t c = 0; c < nbClasses_; c++)
   {
     VVdouble* pxy_c = &pxy_[c];
     pxy_c->resize(nbStates_);
     RowMatrix<double> Q = model_->getPij_t(brLen_ * rateDistribution_->getCategory(c));
-    for (unsigned int x = 0; x < nbStates_; x++)
+    for (size_t x = 0; x < nbStates_; x++)
     {
       Vdouble* pxy_c_x = &(*pxy_c)[x];
       pxy_c_x->resize(nbStates_);
-      for (unsigned int y = 0; y < nbStates_; y++)
+      for (size_t y = 0; y < nbStates_; y++)
       {
         (*pxy_c_x)[y] = Q(x, y);
       }
@@ -354,17 +355,17 @@ void TwoTreeLikelihood::fireParameterChanged(const ParameterList& params)
   {
     // Computes all dpxy/dt once for all:
     dpxy_.resize(nbClasses_);
-    for (unsigned int c = 0; c < nbClasses_; c++)
+    for (size_t c = 0; c < nbClasses_; c++)
     {
       VVdouble* dpxy_c = &dpxy_[c];
       dpxy_c->resize(nbStates_);
       double rc = rateDistribution_->getCategory(c);
       RowMatrix<double> dQ = model_->getdPij_dt(brLen_ * rc);
-      for (unsigned int x = 0; x < nbStates_; x++)
+      for (size_t x = 0; x < nbStates_; x++)
       {
         Vdouble* dpxy_c_x = &(*dpxy_c)[x];
         dpxy_c_x->resize(nbStates_);
-        for (unsigned int y = 0; y < nbStates_; y++)
+        for (size_t y = 0; y < nbStates_; y++)
         {
           (*dpxy_c_x)[y] = rc * dQ(x, y);
         }
@@ -376,17 +377,17 @@ void TwoTreeLikelihood::fireParameterChanged(const ParameterList& params)
   {
     // Computes all d2pxy/dt2 once for all:
     d2pxy_.resize(nbClasses_);
-    for (unsigned int c = 0; c < nbClasses_; c++)
+    for (size_t c = 0; c < nbClasses_; c++)
     {
       VVdouble* d2pxy_c = &d2pxy_[c];
       d2pxy_c->resize(nbStates_);
       double rc = rateDistribution_->getCategory(c);
       RowMatrix<double> d2Q = model_->getd2Pij_dt2(brLen_ * rc);
-      for (unsigned int x = 0; x < nbStates_; x++)
+      for (size_t x = 0; x < nbStates_; x++)
       {
         Vdouble* d2pxy_c_x = &(*d2pxy_c)[x];
         d2pxy_c_x->resize(nbStates_);
-        for (unsigned int y = 0; y < nbStates_; y++)
+        for (size_t y = 0; y < nbStates_; y++)
         {
           (*d2pxy_c_x)[y] = rc * rc * d2Q(x, y);
         }
@@ -421,7 +422,7 @@ void TwoTreeLikelihood::initTreeLikelihoods(const SequenceContainer& sequences) 
   const Sequence* seq2 = &sequences.getSequence(seqnames_[1]);
   leafLikelihoods1_.resize(nbDistinctSites_);
   leafLikelihoods2_.resize(nbDistinctSites_);
-  for (unsigned int i = 0; i < nbDistinctSites_; i++)
+  for (size_t i = 0; i < nbDistinctSites_; i++)
   {
    Vdouble* leafLikelihoods1_i = &leafLikelihoods1_[i];
    Vdouble* leafLikelihoods2_i = &leafLikelihoods2_[i];
@@ -429,7 +430,7 @@ void TwoTreeLikelihood::initTreeLikelihoods(const SequenceContainer& sequences) 
    leafLikelihoods2_i->resize(nbStates_);
    int state1 = seq1->getValue(i);
    int state2 = seq2->getValue(i);
-    for (unsigned int s = 0; s < nbStates_; s++)
+    for (size_t s = 0; s < nbStates_; s++)
     {
       // Leaves likelihood are set to 1 if the char correspond to the site in the sequence,
       // otherwise value set to 0:
@@ -449,17 +450,17 @@ void TwoTreeLikelihood::initTreeLikelihoods(const SequenceContainer& sequences) 
   rootLikelihoods_.resize(nbDistinctSites_);
   rootLikelihoodsS_.resize(nbDistinctSites_);
   rootLikelihoodsSR_.resize(nbDistinctSites_);
-  for (unsigned int i = 0; i < nbDistinctSites_; i++)
+  for (size_t i = 0; i < nbDistinctSites_; i++)
   {
     VVdouble* rootLikelihoods_i = &rootLikelihoods_[i];
     Vdouble* rootLikelihoodsS_i = &rootLikelihoodsS_[i];
     rootLikelihoods_i->resize(nbClasses_);
     rootLikelihoodsS_i->resize(nbClasses_);
-    for (unsigned int c = 0; c < nbClasses_; c++)
+    for (size_t c = 0; c < nbClasses_; c++)
     {
       Vdouble* rootLikelihoods_i_c = &(*rootLikelihoods_i)[c];
       rootLikelihoods_i_c->resize(nbStates_);
-      for (unsigned int s = 0; s < nbStates_; s++)
+      for (size_t s = 0; s < nbStates_; s++)
       {
         (*rootLikelihoods_i_c)[s] = 1.; // All likelihoods are initialized to 1.
       }
@@ -475,21 +476,21 @@ void TwoTreeLikelihood::initTreeLikelihoods(const SequenceContainer& sequences) 
 
 void TwoTreeLikelihood::computeTreeLikelihood()
 {
-  for (unsigned int i = 0; i < nbDistinctSites_; i++)
+  for (size_t i = 0; i < nbDistinctSites_; i++)
   {
     VVdouble* rootLikelihoods_i = &rootLikelihoods_[i];
     Vdouble* leafLikelihoods1_i = &leafLikelihoods1_[i];
     Vdouble* leafLikelihoods2_i = &leafLikelihoods2_[i];
-    for (unsigned int c = 0; c < nbClasses_; c++)
+    for (size_t c = 0; c < nbClasses_; c++)
     {
       Vdouble* rootLikelihoods_i_c = &(*rootLikelihoods_i)[c];
       VVdouble* pxy_c = &pxy_[c];
-      for (unsigned int x = 0; x < nbStates_; x++)
+      for (size_t x = 0; x < nbStates_; x++)
       {
         Vdouble* pxy_c_x = &(*pxy_c)[x];
         double l = 0;
         double l1 = (*leafLikelihoods1_i)[x];
-        for (unsigned int y = 0; y < nbStates_; y++)
+        for (size_t y = 0; y < nbStates_; y++)
         {
           double l2 = (*leafLikelihoods2_i)[y];
           l += l1 * l2 * (*pxy_c_x)[y];
@@ -501,18 +502,18 @@ void TwoTreeLikelihood::computeTreeLikelihood()
 
   Vdouble fr = model_->getFrequencies();
   Vdouble p = rateDistribution_->getProbabilities();
-  for (unsigned int i = 0; i < nbDistinctSites_; i++)
+  for (size_t i = 0; i < nbDistinctSites_; i++)
   {
     // For each site in the sequence,
     VVdouble* rootLikelihoods_i = &rootLikelihoods_[i];
     Vdouble* rootLikelihoodsS_i = &rootLikelihoodsS_[i];
     rootLikelihoodsSR_[i] = 0;
-    for (unsigned int c = 0; c < nbClasses_; c++)
+    for (size_t c = 0; c < nbClasses_; c++)
     {
       (*rootLikelihoodsS_i)[c] = 0;
       // For each rate classe,
       Vdouble* rootLikelihoods_i_c = &(*rootLikelihoods_i)[c];
-      for (unsigned int x = 0; x < nbStates_; x++)
+      for (size_t x = 0; x < nbStates_; x++)
       {
         // For each initial state,
         (*rootLikelihoodsS_i)[c] += fr[x] * (*rootLikelihoods_i_c)[x];
@@ -526,21 +527,21 @@ void TwoTreeLikelihood::computeTreeLikelihood()
 
 void TwoTreeLikelihood::computeTreeDLikelihood()
 {
-  for (unsigned int i = 0; i < nbDistinctSites_; i++)
+  for (size_t i = 0; i < nbDistinctSites_; i++)
   {
     Vdouble* leafLikelihoods1_i = &leafLikelihoods1_[i];
     Vdouble* leafLikelihoods2_i = &leafLikelihoods2_[i];
     double dli = 0;
-    for (unsigned int c = 0; c < nbClasses_; c++)
+    for (size_t c = 0; c < nbClasses_; c++)
     {
       VVdouble* dpxy_c = &dpxy_[c];
       double dlic = 0;
-      for (unsigned int x = 0; x < nbStates_; x++)
+      for (size_t x = 0; x < nbStates_; x++)
       {
         Vdouble* dpxy_c_x = &(*dpxy_c)[x];
         double l1 = (*leafLikelihoods1_i)[x];
         double dlicx = 0;
-        for (unsigned int y = 0; y < nbStates_; y++)
+        for (size_t y = 0; y < nbStates_; y++)
         {
           double l2 = (*leafLikelihoods2_i)[y];
           dlicx += l1 * l2 * (*dpxy_c_x)[y];
@@ -557,21 +558,21 @@ void TwoTreeLikelihood::computeTreeDLikelihood()
 
 void TwoTreeLikelihood::computeTreeD2Likelihood()
 {
-  for (unsigned int i = 0; i < nbDistinctSites_; i++)
+  for (size_t i = 0; i < nbDistinctSites_; i++)
   {
     Vdouble* leafLikelihoods1_i = &leafLikelihoods1_[i];
     Vdouble* leafLikelihoods2_i = &leafLikelihoods2_[i];
     double d2li = 0;
-    for (unsigned int c = 0; c < nbClasses_; c++)
+    for (size_t c = 0; c < nbClasses_; c++)
     {
       VVdouble* d2pxy_c = &d2pxy_[c];
       double d2lic = 0;
-      for (unsigned int x = 0; x < nbStates_; x++)
+      for (size_t x = 0; x < nbStates_; x++)
       {
         Vdouble* d2pxy_c_x = &(*d2pxy_c)[x];
         double l1 = (*leafLikelihoods1_i)[x];
         double d2licx = 0;
-        for (unsigned int y = 0; y < nbStates_; y++)
+        for (size_t y = 0; y < nbStates_; y++)
         {
           double l2 = (*leafLikelihoods2_i)[y];
           d2licx += l1 * l2 * (*d2pxy_c_x)[y];
@@ -608,7 +609,7 @@ throw (Exception)
 
   // Get the node with the branch whose length must be derivated:
   double d = 0;
-  for (unsigned int i = 0; i < nbDistinctSites_; i++)
+  for (size_t i = 0; i < nbDistinctSites_; i++)
   {
     d += rootWeights_[i] * dLikelihoods_[i];
   }
@@ -639,7 +640,7 @@ throw (Exception)
 
   // Get the node with the branch whose length must be derivated:
   double d2 = 0;
-  for (unsigned int i = 0; i < nbDistinctSites_; i++)
+  for (size_t i = 0; i < nbDistinctSites_; i++)
   {
     d2 += rootWeights_[i] * (d2Likelihoods_[i] - pow(dLikelihoods_[i], 2));
   }
@@ -650,31 +651,31 @@ throw (Exception)
 
 void DistanceEstimation::computeMatrix() throw (NullPointerException)
 {
-  unsigned int n = sites_->getNumberOfSequences();
+  size_t n = sites_->getNumberOfSequences();
   vector<string> names = sites_->getSequencesNames();
   if (dist_ != 0) delete dist_;
   dist_ = new DistanceMatrix(names);
-  optimizer_->setVerbose(static_cast<unsigned int>(max(static_cast<int>(verbose_) - 2, 0)));
-  for (unsigned int i = 0; i < n; i++)
+  optimizer_->setVerbose(static_cast<size_t>(max(static_cast<int>(verbose_) - 2, 0)));
+  for (size_t i = 0; i < n; i++)
   {
     (*dist_)(i, i) = 0;
     if (verbose_ == 1)
     {
       ApplicationTools::displayGauge(i, n - 1, '=');
     }
-    for (unsigned int j = i + 1; j < n; j++)
+    for (size_t j = i + 1; j < n; j++)
     {
       if (verbose_ > 1)
       {
         ApplicationTools::displayGauge(j - i - 1, n - i - 2, '=');
       }
       TwoTreeLikelihood* lik =
-        new TwoTreeLikelihood(names[i], names[j], *sites_, model_, rateDist_, verbose_ > 3);
+        new TwoTreeLikelihood(names[i], names[j], *sites_, model_.get(), rateDist_.get(), verbose_ > 3);
       lik->initialize();
       lik->enableDerivatives(true);
-      unsigned int d = SymbolListTools::getNumberOfDistinctPositions(sites_->getSequence(i), sites_->getSequence(j));
-      unsigned int g = SymbolListTools::getNumberOfPositionsWithoutGap(sites_->getSequence(i), sites_->getSequence(j));
-      lik->setParameterValue("BrLen", g == 0 ? lik->getMinimumBranchLength() : std::max(lik->getMinimumBranchLength(),(double)d / (double)g));
+      size_t d = SymbolListTools::getNumberOfDistinctPositions(sites_->getSequence(i), sites_->getSequence(j));
+      size_t g = SymbolListTools::getNumberOfPositionsWithoutGap(sites_->getSequence(i), sites_->getSequence(j));
+      lik->setParameterValue("BrLen", g == 0 ? lik->getMinimumBranchLength() : std::max(lik->getMinimumBranchLength(), static_cast<double>(d) / static_cast<double>(g)));
       // Optimization:
       optimizer_->setFunction(lik);
       optimizer_->setConstraintPolicy(AutoParameter::CONSTRAINTS_AUTO);

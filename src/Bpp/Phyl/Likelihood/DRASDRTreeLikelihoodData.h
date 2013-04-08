@@ -238,13 +238,13 @@ class DRASDRTreeLikelihoodData :
     mutable Vdouble   rootLikelihoodsSR_;
 
     SiteContainer* shrunkData_;
-    unsigned int nbSites_; 
-    unsigned int nbStates_;
-    unsigned int nbClasses_;
-    unsigned int nbDistinctSites_; 
+    size_t nbSites_; 
+    size_t nbStates_;
+    size_t nbClasses_;
+    size_t nbDistinctSites_; 
 
   public:
-    DRASDRTreeLikelihoodData(const TreeTemplate<Node>* tree, unsigned int nbClasses) :
+    DRASDRTreeLikelihoodData(const TreeTemplate<Node>* tree, size_t nbClasses) :
       AbstractTreeLikelihoodData(tree),
       nodeData_(), leafData_(), rootLikelihoods_(), rootLikelihoodsS_(), rootLikelihoodsSR_(),
       shrunkData_(0), nbSites_(0), nbStates_(0), nbClasses_(nbClasses), nbDistinctSites_(0)
@@ -333,7 +333,7 @@ class DRASDRTreeLikelihoodData :
       return leafData_[nodeId];
     }
     
-    unsigned int getArrayPosition(int parentId, int sonId, unsigned int currentPosition) const
+    size_t getArrayPosition(int parentId, int sonId, size_t currentPosition) const
     {
       return currentPosition;
     }
@@ -397,13 +397,13 @@ class DRASDRTreeLikelihoodData :
     Vdouble& getRootRateSiteLikelihoodArray() { return rootLikelihoodsSR_; }
     const Vdouble& getRootRateSiteLikelihoodArray() const { return rootLikelihoodsSR_; }
 
-    unsigned int getNumberOfDistinctSites() const { return nbDistinctSites_; }
+    size_t getNumberOfDistinctSites() const { return nbDistinctSites_; }
     
-    unsigned int getNumberOfSites() const { return nbSites_; }
+    size_t getNumberOfSites() const { return nbSites_; }
     
-    unsigned int getNumberOfStates() const { return nbStates_; }
+    size_t getNumberOfStates() const { return nbStates_; }
     
-    unsigned int getNumberOfClasses() const { return nbClasses_; }
+    size_t getNumberOfClasses() const { return nbClasses_; }
 
     const SiteContainer* getShrunkData() const { return shrunkData_; }
     

@@ -66,7 +66,7 @@ void CladogramPlot::setTree(const Tree* tree)
 {
   AbstractDendrogramPlot::setTree(tree);
   if (hasTree())
-    totalDepth_ = TreeTemplateTools::getDepth(*getTree_()->getRootNode());
+    totalDepth_ = static_cast<double>(TreeTemplateTools::getDepth(*getTree_()->getRootNode()));
 }
 
 void CladogramPlot::drawDendrogram_(GraphicDevice& gDevice) const throw (Exception)

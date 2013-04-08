@@ -1,0 +1,100 @@
+if (getName()=="C1"){
+	rate_ = 1.;
+	proportion_ = 0.05599106;
+}
+
+if (getName()=="C2"){
+	rate_ = 1.;
+	proportion_ = 0.051482487;
+}
+
+if (getName()=="C3"){
+	rate_ = 1.;
+	proportion_ = 0.0812922124;
+}
+
+if (getName()=="C4"){
+	rate_ = 1.;
+	proportion_ = 0.0721976867;
+}
+
+if (getName()=="C5"){
+	rate_ = 1.;
+	proportion_ = 0.0556718858;
+}
+
+if (getName()=="C6"){
+	rate_ = 1.;
+	proportion_ = 0.033100308;
+}
+
+if (getName()=="C7"){
+	rate_ = 1.;
+	proportion_ = 0.0589501763;
+}
+
+if (getName()=="C8"){
+	rate_ = 1.;
+	proportion_ = 0.0263756889;
+}
+
+if (getName()=="C9"){
+	rate_ = 1.;
+	proportion_ = 0.030758422;
+}
+
+if (getName()=="C10"){
+	rate_ = 1.;
+	proportion_ = 0.0376701125;
+}
+
+if (getName()=="C11"){
+	rate_ = 1.;
+	proportion_ = 0.030305829;
+}
+
+if (getName()=="C12"){
+	rate_ = 1.;
+	proportion_ = 0.0808775576;
+}
+
+if (getName()=="C13"){
+	rate_ = 1.;
+	proportion_ = 0.0263349134;
+}
+
+if (getName()=="C14"){
+	rate_ = 1.;
+	proportion_ = 0.0579101455;
+}
+
+if (getName()=="C15"){
+	rate_ = 1.;
+	proportion_ = 0.0371248064;
+}
+
+if (getName()=="C16"){
+	rate_ = 1.;
+	proportion_ = 0.0586867766;
+}
+
+if (getName()=="C17"){
+	rate_ = 1.;
+	proportion_ = 0.0561479138;
+}
+
+if (getName()=="C18"){
+	rate_ = 1.;
+	proportion_ = 0.0349810886;
+}
+
+if (getName()=="C19"){
+	rate_ = 1.;
+	proportion_ = 0.0544937394;
+}
+
+if (getName()=="C20"){
+	rate_ = 1.;
+	proportion_ = 0.0596471901;
+}
+

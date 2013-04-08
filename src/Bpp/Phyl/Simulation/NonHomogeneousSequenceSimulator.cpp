@@ -105,7 +105,7 @@ NonHomogeneousSequenceSimulator::NonHomogeneousSequenceSimulator(
 void NonHomogeneousSequenceSimulator::init()
 {
   seqNames_.resize(leaves_.size());
-  for (unsigned int i = 0; i < seqNames_.size(); i++)
+  for (size_t i = 0; i < seqNames_.size(); i++)
   {
     seqNames_[i] = leaves_[i]->getName();
   }
@@ -114,24 +114,24 @@ void NonHomogeneousSequenceSimulator::init()
   nodes.pop_back(); // remove root
   nbNodes_ = nodes.size();
 
-  for (unsigned int i = 0; i < nodes.size(); i++)
+  for (size_t i = 0; i < nodes.size(); i++)
   {
     SNode* node = nodes[i];
     node->getInfos().model = modelSet_->getModelForNode(node->getId());
     double d = node->getDistanceToFather();
     VVVdouble* cumpxy_node_ = &node->getInfos().cumpxy;
     cumpxy_node_->resize(nbClasses_);
-    for (unsigned int c = 0; c < nbClasses_; c++)
+    for (size_t c = 0; c < nbClasses_; c++)
     {
       VVdouble* cumpxy_node_c_ = &(*cumpxy_node_)[c];
       cumpxy_node_c_->resize(nbStates_);
       RowMatrix<double> P = node->getInfos().model->getPij_t(d * rate_->getCategory(c));
-      for (unsigned int x = 0; x < nbStates_; x++)
+      for (size_t x = 0; x < nbStates_; x++)
       {
         Vdouble* cumpxy_node_c_x_ = &(*cumpxy_node_c_)[x];
         cumpxy_node_c_x_->resize(nbStates_);
         (*cumpxy_node_c_x_)[0] = P(x, 0);
-        for (unsigned int y = 1; y < nbStates_; y++)
+        for (size_t y = 1; y < nbStates_; y++)
         {
           (*cumpxy_node_c_x_)[y] = (*cumpxy_node_c_x_)[y - 1] + P(x, y);
         }
@@ -148,12 +148,12 @@ Site* NonHomogeneousSequenceSimulator::simulate() const
   double r = RandomTools::giveRandomNumberBetweenZeroAndEntry(1.);
   double cumprob = 0;
   vector<double> freqs = modelSet_->getRootFrequencies();
-  for (unsigned int i = 0; i < nbStates_; i++)
+  for (size_t i = 0; i < nbStates_; i++)
   {
     cumprob += freqs[i];
     if (r <= cumprob)
     {
-      initialState = (int)i;
+      initialState = static_cast<int>(i);
       break;
     }
   }
@@ -173,25 +173,25 @@ Site* NonHomogeneousSequenceSimulator::simulate(int initialState) const
   else
   {
     // Draw a random rate:
-    unsigned int rateClass = static_cast<unsigned int>(RandomTools::giveIntRandomNumberBetweenZeroAndEntry(rate_->getNumberOfCategories()));
+    size_t rateClass = static_cast<size_t>(RandomTools::giveIntRandomNumberBetweenZeroAndEntry(static_cast<int>(rate_->getNumberOfCategories())));
     // Make this state evolve:
     return simulate(initialState, rateClass);
   }
 }
 
 /******************************************************************************/
-Site* NonHomogeneousSequenceSimulator::simulate(int initialState, unsigned int rateClass) const
+Site* NonHomogeneousSequenceSimulator::simulate(int initialState, size_t rateClass) const
 {
   // Launch recursion:
   SNode* root = tree_.getRootNode();
   root->getInfos().state = initialState;
-  for (unsigned int i = 0; i < root->getNumberOfSons(); i++)
+  for (size_t i = 0; i < root->getNumberOfSons(); i++)
   {
     evolveInternal(root->getSon(i), rateClass);
   }
   // Now create a Site object:
   Vint site(leaves_.size());
-  for (unsigned int i = 0; i < leaves_.size(); i++)
+  for (size_t i = 0; i < leaves_.size(); i++)
   {
     site[i] = leaves_[i]->getInfos().model->getAlphabetChar(leaves_[i]->getInfos().state);
   }
@@ -204,13 +204,13 @@ Site* NonHomogeneousSequenceSimulator::simulate(int initialState, double rate) c
   // Launch recursion:
   SNode* root = tree_.getRootNode();
   root->getInfos().state = initialState;
-  for (unsigned int i = 0; i < root->getNumberOfSons(); i++)
+  for (size_t i = 0; i < root->getNumberOfSons(); i++)
   {
     evolveInternal(root->getSon(i), rate);
   }
   // Now create a Site object:
   Vint site(leaves_.size());
-  for (unsigned int i = 0; i < leaves_.size(); i++)
+  for (size_t i = 0; i < leaves_.size(); i++)
   {
     site[i] = leaves_[i]->getInfos().model->getAlphabetChar(leaves_[i]->getInfos().state);
   }
@@ -225,7 +225,7 @@ Site* NonHomogeneousSequenceSimulator::simulate(double rate) const
   double r = RandomTools::giveRandomNumberBetweenZeroAndEntry(1.);
   double cumprob = 0;
   vector<double> freqs = modelSet_->getRootFrequencies();
-  for (unsigned int i = 0; i < nbStates_; i++)
+  for (size_t i = 0; i < nbStates_; i++)
   {
     cumprob += freqs[i];
     if (r <= cumprob)
@@ -239,15 +239,15 @@ Site* NonHomogeneousSequenceSimulator::simulate(double rate) const
 }
 
 /******************************************************************************/
-SiteContainer* NonHomogeneousSequenceSimulator::simulate(unsigned int numberOfSites) const
+SiteContainer* NonHomogeneousSequenceSimulator::simulate(size_t numberOfSites) const
 {
   Vint initialStates(numberOfSites, 0);
-  for (unsigned int j = 0; j < numberOfSites; j++)
+  for (size_t j = 0; j < numberOfSites; j++)
   {
     double r = RandomTools::giveRandomNumberBetweenZeroAndEntry(1.);
     double cumprob = 0;
     vector<double> freqs = modelSet_->getRootFrequencies();
-    for (unsigned int i = 0; i < nbStates_; i++)
+    for (size_t i = 0; i < nbStates_; i++)
     {
       cumprob += freqs[i];
       if (r <= cumprob)
@@ -261,10 +261,10 @@ SiteContainer* NonHomogeneousSequenceSimulator::simulate(unsigned int numberOfSi
   {
     VectorSiteContainer* sites = new VectorSiteContainer(seqNames_.size(), alphabet_);
     sites->setSequencesNames(seqNames_);
-    for (unsigned int j = 0; j < numberOfSites; j++)
+    for (size_t j = 0; j < numberOfSites; j++)
     {
       Site* site = simulate();
-      site->setPosition(j);
+      site->setPosition(static_cast<int>(j));
       sites->addSite(*site);
       delete site;
     }
@@ -274,11 +274,11 @@ SiteContainer* NonHomogeneousSequenceSimulator::simulate(unsigned int numberOfSi
   {
     // More efficient to do site this way:
     // Draw random rates:
-    vector<unsigned int> rateClasses(numberOfSites);
-    unsigned int nCat = rate_->getNumberOfCategories();
-    for (unsigned int j = 0; j < numberOfSites; j++)
+    vector<size_t> rateClasses(numberOfSites);
+    size_t nCat = rate_->getNumberOfCategories();
+    for (size_t j = 0; j < numberOfSites; j++)
     {
-      rateClasses[j] = static_cast<unsigned int>(RandomTools::giveIntRandomNumberBetweenZeroAndEntry(nCat));
+      rateClasses[j] = static_cast<size_t>(RandomTools::giveIntRandomNumberBetweenZeroAndEntry(static_cast<int>(nCat)));
     }
     // Make these states evolve:
     SiteContainer* sites = multipleEvolve(initialStates, rateClasses);
@@ -294,12 +294,12 @@ RASiteSimulationResult* NonHomogeneousSequenceSimulator::dSimulate() const
   double r = RandomTools::giveRandomNumberBetweenZeroAndEntry(1.);
   double cumprob = 0;
   vector<double> freqs = modelSet_->getRootFrequencies();
-  for (unsigned int i = 0; i < nbStates_; i++)
+  for (size_t i = 0; i < nbStates_; i++)
   {
     cumprob += freqs[i];
     if (r <= cumprob)
     {
-      initialState = i;
+      initialState = static_cast<int>(i);
       break;
     }
   }
@@ -318,7 +318,7 @@ RASiteSimulationResult* NonHomogeneousSequenceSimulator::dSimulate(int initialSt
   }
   else
   {
-    unsigned int rateClass = static_cast<unsigned int>(RandomTools::giveIntRandomNumberBetweenZeroAndEntry(rate_->getNumberOfCategories()));
+    size_t rateClass = static_cast<size_t>(RandomTools::giveIntRandomNumberBetweenZeroAndEntry(static_cast<int>(rate_->getNumberOfCategories())));
     return dSimulate(initialState, rateClass);
     // NB: this is more efficient than dSimulate(initialState, rDist_->rand())
   }
@@ -334,7 +334,7 @@ RASiteSimulationResult* NonHomogeneousSequenceSimulator::dSimulate(int initialSt
 }
 
 /******************************************************************************/
-RASiteSimulationResult* NonHomogeneousSequenceSimulator::dSimulate(int initialState, unsigned int rateClass) const
+RASiteSimulationResult* NonHomogeneousSequenceSimulator::dSimulate(int initialState, size_t rateClass) const
 {
   return dSimulate(initialState, rate_->getCategory(rateClass));
 }
@@ -347,12 +347,12 @@ RASiteSimulationResult* NonHomogeneousSequenceSimulator::dSimulate(double rate) 
   double r = RandomTools::giveRandomNumberBetweenZeroAndEntry(1.);
   double cumprob = 0;
   vector<double> freqs = modelSet_->getRootFrequencies();
-  for (unsigned int i = 0; i < nbStates_; i++)
+  for (size_t i = 0; i < nbStates_; i++)
   {
     cumprob += freqs[i];
     if (r <= cumprob)
     {
-      initialState = i;
+      initialState = static_cast<int>(i);
       break;
     }
   }
@@ -360,7 +360,7 @@ RASiteSimulationResult* NonHomogeneousSequenceSimulator::dSimulate(double rate) 
 }
 
 /******************************************************************************/
-int NonHomogeneousSequenceSimulator::evolve(const SNode* node, int initialState, unsigned int rateClass) const
+int NonHomogeneousSequenceSimulator::evolve(const SNode* node, int initialState, size_t rateClass) const
 {
   const Vdouble* cumpxy_node_c_x_ = &node->getInfos().cumpxy[rateClass][initialState];
   double rand = RandomTools::giveRandomNumberBetweenZeroAndEntry(1.);
@@ -393,14 +393,14 @@ int NonHomogeneousSequenceSimulator::evolve(const SNode* node, int initialState,
 }
 
 /******************************************************************************/
-void NonHomogeneousSequenceSimulator::multipleEvolve(const SNode* node, const Vint& initialStates, const vector<unsigned int>& rateClasses, Vint& finalStates) const
+void NonHomogeneousSequenceSimulator::multipleEvolve(const SNode* node, const Vint& initialStates, const vector<size_t>& rateClasses, Vint& finalStates) const
 {
   const VVVdouble* cumpxy_node_ = &node->getInfos().cumpxy;
-  for (unsigned int i = 0; i < initialStates.size(); i++)
+  for (size_t i = 0; i < initialStates.size(); i++)
   {
     const Vdouble* cumpxy_node_c_x_ = &(*cumpxy_node_)[rateClasses[i]][initialStates[i]];
     double rand = RandomTools::giveRandomNumberBetweenZeroAndEntry(1.);
-    for (unsigned int y = 0; y < nbStates_; y++)
+    for (size_t y = 0; y < nbStates_; y++)
     {
       if (rand < (*cumpxy_node_c_x_)[y])
       {
@@ -412,7 +412,7 @@ void NonHomogeneousSequenceSimulator::multipleEvolve(const SNode* node, const Vi
 }
 
 /******************************************************************************/
-void NonHomogeneousSequenceSimulator::evolveInternal(SNode* node, unsigned int rateClass) const
+void NonHomogeneousSequenceSimulator::evolveInternal(SNode* node, size_t rateClass) const
 {
   if (!node->hasFather())
   {
@@ -420,7 +420,7 @@ void NonHomogeneousSequenceSimulator::evolveInternal(SNode* node, unsigned int r
     return;
   }
   node->getInfos().state = evolve(node, node->getFather()->getInfos().state, rateClass);
-  for (unsigned int i = 0; i < node->getNumberOfSons(); i++)
+  for (size_t i = 0; i < node->getNumberOfSons(); i++)
   {
     evolveInternal(node->getSon(i), rateClass);
   }
@@ -435,14 +435,14 @@ void NonHomogeneousSequenceSimulator::evolveInternal(SNode* node, double rate) c
     return;
   }
   node->getInfos().state = evolve(node, node->getFather()->getInfos().state, rate);
-  for (unsigned int i = 0; i < node->getNumberOfSons(); i++)
+  for (size_t i = 0; i < node->getNumberOfSons(); i++)
   {
     evolveInternal(node->getSon(i), rate);
   }
 }
 
 /******************************************************************************/
-void NonHomogeneousSequenceSimulator::multipleEvolveInternal(SNode* node, const vector<unsigned int>& rateClasses) const
+void NonHomogeneousSequenceSimulator::multipleEvolveInternal(SNode* node, const vector<size_t>& rateClasses) const
 {
   if (!node->hasFather())
   {
@@ -450,36 +450,36 @@ void NonHomogeneousSequenceSimulator::multipleEvolveInternal(SNode* node, const 
     return;
   }
   const vector<int>* initialStates = &node->getFather()->getInfos().states;
-  unsigned int n = initialStates->size();
+  size_t n = initialStates->size();
   node->getInfos().states.resize(n); // allocation.
   multipleEvolve(node, node->getFather()->getInfos().states, rateClasses, node->getInfos().states);
-  for (unsigned int i = 0; i < node->getNumberOfSons(); i++)
+  for (size_t i = 0; i < node->getNumberOfSons(); i++)
   {
     multipleEvolveInternal(node->getSon(i), rateClasses);
   }
 }
 
 /******************************************************************************/
-SiteContainer* NonHomogeneousSequenceSimulator::multipleEvolve(const Vint& initialStates, const vector<unsigned int>& rateClasses) const
+SiteContainer* NonHomogeneousSequenceSimulator::multipleEvolve(const Vint& initialStates, const vector<size_t>& rateClasses) const
 {
   // Launch recursion:
   SNode* root = tree_.getRootNode();
   root->getInfos().states = initialStates;
-  for (unsigned int i = 0; i < root->getNumberOfSons(); i++)
+  for (size_t i = 0; i < root->getNumberOfSons(); i++)
   {
     multipleEvolveInternal(root->getSon(i), rateClasses);
   }
   // Now create a SiteContainer object:
   AlignedSequenceContainer* sites = new AlignedSequenceContainer(alphabet_);
-  unsigned int n = leaves_.size();
-  unsigned int nbSites = initialStates.size();
+  size_t n = leaves_.size();
+  size_t nbSites = initialStates.size();
   const SubstitutionModel* model = 0;
-  for (unsigned int i = 0; i < n; i++)
+  for (size_t i = 0; i < n; i++)
   {
     vector<int> content(nbSites);
     vector<int>* states = &leaves_[i]->getInfos().states;
     model = leaves_[i]->getInfos().model;
-    for (unsigned int j = 0; j < nbSites; j++)
+    for (size_t j = 0; j < nbSites; j++)
     {
       content[j] = model->getAlphabetChar((*states)[j]);
     }
@@ -494,7 +494,7 @@ void NonHomogeneousSequenceSimulator::dEvolve(int initialState, double rate, RAS
   // Launch recursion:
   SNode* root = tree_.getRootNode();
   root->getInfos().state = initialState;
-  for (unsigned int i = 0; i < root->getNumberOfSons(); i++)
+  for (size_t i = 0; i < root->getNumberOfSons(); i++)
   {
     dEvolveInternal(root->getSon(i), rate, rassr);
   }
@@ -516,7 +516,7 @@ void NonHomogeneousSequenceSimulator::dEvolveInternal(SNode* node, double rate, 
   rassr.addNode(node->getId(), mp);
 
   // Now jump to son nodes:
-  for (unsigned int i = 0; i < node->getNumberOfSons(); i++)
+  for (size_t i = 0; i < node->getNumberOfSons(); i++)
   {
     dEvolveInternal(node->getSon(i), rate, rassr);
   }

@@ -74,16 +74,10 @@ MG94::MG94(const MG94& mg94) :
 MG94& MG94::operator=(const MG94& mg94)
 {
   AbstractBiblioSubstitutionModel::operator=(mg94);
-  if (pmodel_)
-    delete pmodel_;
-  pmodel_ = new CodonDistancePhaseFrequenciesSubstitutionModel(*mg94.pmodel_);
+  pmodel_.reset(new CodonDistancePhaseFrequenciesSubstitutionModel(*mg94.pmodel_));
   return *this;
 }
 
-MG94::~MG94()
-{
-  if (pmodel_)
-    delete pmodel_;
-}
+MG94::~MG94() {}
 
 

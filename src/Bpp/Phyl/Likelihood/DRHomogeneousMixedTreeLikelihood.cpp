@@ -56,18 +56,20 @@ DRHomogeneousMixedTreeLikelihood::DRHomogeneousMixedTreeLikelihood(
   SubstitutionModel* model,
   DiscreteDistribution* rDist,
   bool checkRooted,
-  bool verbose)  throw (Exception) :
+  bool verbose,
+  bool rootArray)  throw (Exception) :
   DRHomogeneousTreeLikelihood(tree, model, rDist, checkRooted, verbose),
   treeLikelihoodsContainer_(),
-  probas_()
+  probas_(),
+  rootArray_(rootArray)
 {
   MixedSubstitutionModel* mixedmodel;
 
   if ((mixedmodel = dynamic_cast<MixedSubstitutionModel*>(model_)) == NULL)
     throw Exception("Bad model: DRHomogeneousMixedTreeLikelihood needs a MixedSubstitutionModel.");
 
-  unsigned int s = mixedmodel->getNumberOfModels();
-  for (unsigned int i = 0; i < s; i++)
+  size_t s = mixedmodel->getNumberOfModels();
+  for (size_t i = 0; i < s; i++)
   {
     treeLikelihoodsContainer_.push_back(
       new DRHomogeneousTreeLikelihood(tree, mixedmodel->getNModel(i), rDist, checkRooted, false));
@@ -81,20 +83,22 @@ DRHomogeneousMixedTreeLikelihood::DRHomogeneousMixedTreeLikelihood(
   SubstitutionModel* model,
   DiscreteDistribution* rDist,
   bool checkRooted,
-  bool verbose)
+  bool verbose,
+  bool rootArray)
 throw (Exception) :
   DRHomogeneousTreeLikelihood(tree, model, rDist, checkRooted, verbose),
   treeLikelihoodsContainer_(),
-  probas_()
+  probas_(),
+  rootArray_(rootArray)
 {
   MixedSubstitutionModel* mixedmodel;
 
   if ((mixedmodel = dynamic_cast<MixedSubstitutionModel*>(model_)) == NULL)
     throw Exception("Bad model: DRHomogeneousMixedTreeLikelihood needs a MixedSubstitutionModel.");
 
-  int s = mixedmodel->getNumberOfModels();
+  size_t s = mixedmodel->getNumberOfModels();
 
-  for (int i = 0; i < s; i++)
+  for (size_t i = 0; i < s; i++)
   {
     treeLikelihoodsContainer_.push_back(
       new DRHomogeneousTreeLikelihood(tree, mixedmodel->getNModel(i), rDist, checkRooted, false));
@@ -107,7 +111,7 @@ throw (Exception) :
 DRHomogeneousMixedTreeLikelihood& DRHomogeneousMixedTreeLikelihood::operator=(const DRHomogeneousMixedTreeLikelihood& lik)
 {
   DRHomogeneousTreeLikelihood::operator=(lik);
-
+  
   treeLikelihoodsContainer_.clear();
   probas_.clear();
 
@@ -117,13 +121,16 @@ DRHomogeneousMixedTreeLikelihood& DRHomogeneousMixedTreeLikelihood::operator=(co
     probas_.push_back(lik.probas_[i]);
   }
 
+  rootArray_=lik.rootArray_;
+
   return *this;
 }
 
 DRHomogeneousMixedTreeLikelihood::DRHomogeneousMixedTreeLikelihood(const DRHomogeneousMixedTreeLikelihood& lik) :
   DRHomogeneousTreeLikelihood(lik),
   treeLikelihoodsContainer_(lik.treeLikelihoodsContainer_.size()),
-  probas_(lik.probas_.size())
+  probas_(lik.probas_.size()),
+  rootArray_(lik.rootArray_)
 {
   for (unsigned int i = 0; i < treeLikelihoodsContainer_.size(); i++)
   {
@@ -148,6 +155,8 @@ void DRHomogeneousMixedTreeLikelihood::initialize() throw (Exception)
     treeLikelihoodsContainer_[i]->initialize();
   }
   DRHomogeneousTreeLikelihood::initialize();
+  if(rootArray_)
+    computeRootLikelihood();
 }
 
 void DRHomogeneousMixedTreeLikelihood::setData(const SiteContainer& sites) throw (Exception)
@@ -167,10 +176,10 @@ void DRHomogeneousMixedTreeLikelihood::fireParameterChanged(const ParameterList&
 
   MixedSubstitutionModel* mixedmodel = dynamic_cast<MixedSubstitutionModel*>(model_);
 
-  unsigned int s = mixedmodel->getNumberOfModels();
+  size_t s = mixedmodel->getNumberOfModels();
 
   const SubstitutionModel* pm;
-  for (unsigned int i = 0; i < s; i++)
+  for (size_t i = 0; i < s; i++)
   {
     ParameterList pl;
     pm = mixedmodel->getNModel(i);
@@ -197,6 +206,8 @@ void DRHomogeneousMixedTreeLikelihood::computeTreeLikelihood()
   {
     treeLikelihoodsContainer_[i]->computeTreeLikelihood();
   }
+  if(rootArray_)
+    computeRootLikelihood();
 }
 
 /******************************************************************************
@@ -249,7 +260,7 @@ double DRHomogeneousMixedTreeLikelihood::getLogLikelihood() const
     la[i] = (*w)[i] * log(x);
   }
   sort(la.begin(), la.end());
-  for (unsigned int i = nbDistinctSites_; i > 0; i--)
+  for (size_t i = nbDistinctSites_; i > 0; i--)
   {
     ll += la[i - 1];
   }
@@ -340,40 +351,38 @@ void DRHomogeneousMixedTreeLikelihood::computeRootLikelihood()
 
 void DRHomogeneousMixedTreeLikelihood::computeLikelihoodAtNode_(const Node* node, VVVdouble& likelihoodArray) const
 {
-  for (unsigned int i = 0; i < treeLikelihoodsContainer_.size(); i++)
-  {
-    treeLikelihoodsContainer_[i]->computeLikelihoodAtNode_(node, likelihoodArray);
+  likelihoodArray.resize(nbDistinctSites_);
+  for (unsigned int i = 0; i < nbDistinctSites_; i++){
+    VVdouble* likelihoodArray_i = &likelihoodArray[i];
+    likelihoodArray_i->resize(nbClasses_);
+    for (unsigned int c = 0; c < nbClasses_; c++) {
+      Vdouble* likelihoodArray_i_c = &(*likelihoodArray_i)[c];
+      likelihoodArray_i_c->resize(nbStates_);
+      for (unsigned int x = 0; x < nbStates_; x++)
+        (*likelihoodArray_i_c)[x] = 0;
+    }
   }
-}
 
-void DRHomogeneousMixedTreeLikelihood::computeLikelihoodFromArrays(
-  const vector<const VVVdouble*>& iLik,
-  const vector<const VVVdouble*>& tProb,
-  VVVdouble& oLik,
-  unsigned int nbNodes,
-  unsigned int nbDistinctSites,
-  unsigned int nbClasses,
-  unsigned int nbStates,
-  bool reset)
-{
-  cerr << "Invalid use of static method DRHomogeneousMixedTreeLikelihood::computeLikelihoodFromArrays" << endl;
-  exit(0);
-}
-
-void DRHomogeneousMixedTreeLikelihood::computeLikelihoodFromArrays(
-  const std::vector<const VVVdouble*>& iLik,
-  const std::vector<const VVVdouble*>& tProb,
-  const VVVdouble* iLikR,
-  const VVVdouble* tProbR,
-  VVVdouble& oLik,
-  unsigned int nbNodes,
-  unsigned int nbDistinctSites,
-  unsigned int nbClasses,
-  unsigned int nbStates,
-  bool reset)
-{
-  cerr << "Invalid use of static method DRHomogeneousMixedTreeLikelihood::computeLikelihoodFromArrays" << endl;
-  exit(0);
+  VVVdouble lArray;
+  for (unsigned int nm = 0; nm < treeLikelihoodsContainer_.size(); nm++)
+  {
+    treeLikelihoodsContainer_[nm]->computeLikelihoodAtNode_(node, lArray);
+    
+    for (unsigned int i = 0; i < nbDistinctSites_; i++)
+      {
+        VVdouble* likelihoodArray_i = &likelihoodArray[i];
+        VVdouble* lArray_i = &lArray[i];
+        
+        for (unsigned int c = 0; c < nbClasses_; c++)
+          {
+            Vdouble* likelihoodArray_i_c = &(*likelihoodArray_i)[c];
+            Vdouble* lArray_i_c = &(*lArray_i)[c];
+            for (unsigned int x = 0; x < nbStates_; x++)
+              (*likelihoodArray_i_c)[x] += (*lArray_i_c)[x] * probas_[nm];
+         }
+      }
+    
+  }
 }
 
 /******************************************************************************

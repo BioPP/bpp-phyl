@@ -39,6 +39,9 @@
 #include "MixtureOfASubstitutionModel.h"
 
 #include <Bpp/Numeric/NumConstants.h>
+
+#include <Bpp/Numeric/Prob/ConstantDistribution.h>
+
 #include <Bpp/Exceptions.h>
 
 #include <string>
@@ -53,8 +56,8 @@ MixtureOfASubstitutionModel::MixtureOfASubstitutionModel(
   std::map<std::string, DiscreteDistribution*> parametersDistributionsList,
   int ffrom,
   int tto) throw (Exception) :
-  AbstractParameterAliasable(""),
-  AbstractMixedSubstitutionModel(alpha, ""),
+  AbstractParameterAliasable(model->getNamespace()),
+  AbstractMixedSubstitutionModel(alpha, model->getNamespace()),
   distributionMap_(),
   from_(ffrom),
   to_(tto)
@@ -64,7 +67,7 @@ MixtureOfASubstitutionModel::MixtureOfASubstitutionModel(
   if (from_ >= int(alpha->getSize()))
     throw BadIntegerException("Bad state in alphabet", from_);
 
-  unsigned int c, i;
+  size_t c, i;
   string s1, s2, t;
   map<string, DiscreteDistribution*>::iterator it;
 
@@ -104,7 +107,7 @@ MixtureOfASubstitutionModel::MixtureOfASubstitutionModel(
     modelsContainer_[i]->addRateParameter();
     modelsContainer_[i]->setNamespace(model->getNamespace());
 
-    vProbas_.push_back(1.0 / c);
+    vProbas_.push_back(1.0 / static_cast<double>(c));
     vRates_.push_back(1.0);
   }
 
@@ -191,7 +194,7 @@ const DiscreteDistribution* MixtureOfASubstitutionModel::getDistribution(std::st
 void MixtureOfASubstitutionModel::updateMatrices()
 {
   string s, t;
-  unsigned int i, j, l;
+  size_t i, j, l;
   double d;
   ParameterList pl;
   map<string, DiscreteDistribution*>::iterator it;
@@ -278,7 +281,7 @@ void MixtureOfASubstitutionModel::setFreq(std::map<int, double>& m)
 Vint MixtureOfASubstitutionModel::getSubmodelNumbers(string& desc) const
 {
   vector<string> parnames = modelsContainer_[0]->getParameters().getParameterNames();
-  std::map<std::string, unsigned int> msubn;
+  std::map<std::string, size_t> msubn;
   map<string, DiscreteDistribution*>::const_iterator it;
 
   StringTokenizer st(desc, ",");
@@ -292,9 +295,11 @@ Vint MixtureOfASubstitutionModel::getSubmodelNumbers(string& desc) const
   }
 
   Vint submodnb;
-  unsigned int i, j, l;
+  size_t i, j, l;
   string s;
 
+  bool nameok=false;
+  
   for (i = 0; i < modelsContainer_.size(); i++)
   {
     j = i;
@@ -303,13 +308,16 @@ Vint MixtureOfASubstitutionModel::getSubmodelNumbers(string& desc) const
       s = it->first;
       l = j % it->second->getNumberOfCategories();
 
-      if ((msubn.find(s) != msubn.end()) && (msubn[s] != l))
-        break;
-
+      if (msubn.find(s) != msubn.end()){
+        nameok = true;
+        if (msubn[s] != l)
+          break;
+      }
+      
       j = j / it->second->getNumberOfCategories();
     }
-    if (it == distributionMap_.end())
-      submodnb.push_back(i);
+    if (nameok && it == distributionMap_.end())
+      submodnb.push_back(static_cast<int>(i));
   }
 
   return submodnb;

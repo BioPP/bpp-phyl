@@ -5,7 +5,7 @@
 //
 
 /*
-   Copyright or © or Copr. CNRS, (November 16, 2004)
+   Copyright or © or Copr. Bio++ Development Team, (November 16, 2004)
 
    This software is a computer program whose purpose is to provide classes
    for phylogenetic data analysis.
@@ -44,38 +44,53 @@
 #include <Bpp/Numeric/AbstractParameterAliasable.h>
 
 
-// From SeqLib:
+// From bpp-seq:
 #include <Bpp/Seq/GeneticCode/GeneticCode.h>
-#include <Bpp/Seq/StateProperties/AlphabetIndex2.h>
+#include <Bpp/Seq/AlphabetIndex/AlphabetIndex2.h>
 
 namespace bpp
 {
 /**
- * @brief Abstract class for modelling of non-synonymous/synonymous
- * ratios of substitution rates in codon models.
+ * @brief Abstract class for modelling of non-synonymous abd
+ *  synonymous substitution rates in codon models.
  *
  * @author Laurent Guéguen
  *
- * If a distance @f$d@f$ between amino-acids is defined, the ratio
- * between non-synonymous and synonymous substitutions rates is, if
- * the coded amino-acids are @f$x@f$ and @f$y@f$,
- * @f$\beta*\exp(-\alpha.d(x,y))@f$ with non-negative parameter
- * @f$\alpha@f$ and positive parameter @f$\beta@f$.
+ * If a distance @f$d@f$ between amino-acids is defined, the
+ *  non-synonymous rate is multiplied with, if the coded amino-acids
+ *  are @f$x@f$ and @f$y@f$, @f$\beta*\exp(-\alpha.d(x,y))@f$ with
+ *  non-negative parameter \c "alpha" and positive parameter \c
+ *  "beta".
  *
- * If such a distance is not defined, the ratio between non-synonymous
- * and synonymous substitutions rates is @f$\beta@f$ with positive
- * parameter @f$\beta@f$ (ie @f$d=0@f$).
+ * If such a distance is not defined, the non-synonymous substitution
+ *  rate is multiplied with @f$\beta@f$ with positive parameter \c
+ *  "beta" (ie @f$d=0@f$).
+ *
+ * If paramSynRate is true, the synonymous substitution rate is
+ *  multiplied with @f$\gamma@f$ (with optional positive parameter \c
+ *  "gamma"), else it is multiplied with 1.
+ *
+ * 
+ * References:
+ * - Goldman N. and Yang Z. (1994), _Molecular Biology And Evolution_ 11(5) 725--736. 
+ * _ Kosakovsky Pond, S. and Muse, S.V. (2005), _Molecular Biology And Evolution_,
+ *   22(12), 2375--2385.
+ * - Mayrose, I. and Doron-Faigenboim, A. and Bacharach, E. and Pupko T.
+ *   (2007), Bioinformatics, 23, i319--i327.
+ *
  */
 
 class AbstractCodonDistanceSubstitutionModel :
-  virtual public CodonSubstitutionModel,
-  virtual public AbstractParameterAliasable
+  public virtual CodonSubstitutionModel,
+  public virtual AbstractParameterAliasable
 {
 private:
   const GeneticCode* geneticCode_;
-  const AlphabetIndex2<double>* pdistance_;
+  const AlphabetIndex2* pdistance_;
 
   double alpha_, beta_;
+
+  double gamma_;
 
 public:
   /**
@@ -85,12 +100,15 @@ public:
    *@param palph pointer to a GeneticCode
    *@param pdist optional pointer to a distance between amino-acids
    *@param prefix the Namespace
+   *@param paramSynRate is true iff synonymous rate is parametrised
+   *       (default=false).
    */
 
   AbstractCodonDistanceSubstitutionModel(
     const GeneticCode* palph,
-    const AlphabetIndex2<double>* pdist,
-    const std::string& prefix);
+    const AlphabetIndex2* pdist,
+    const std::string& prefix,
+    bool paramSynRate = false);
 
 
   AbstractCodonDistanceSubstitutionModel(
@@ -99,7 +117,8 @@ public:
     geneticCode_(model.geneticCode_),
     pdistance_(model.pdistance_),
     alpha_(model.alpha_),
-    beta_(model.beta_)
+    beta_(model.beta_),
+    gamma_(model.gamma_)
   {}
 
   AbstractCodonDistanceSubstitutionModel& operator=(
@@ -110,6 +129,7 @@ public:
     pdistance_ = model.pdistance_;
     alpha_ = model.alpha_;
     beta_ = model.beta_;
+    gamma_ = model.gamma_;
     return *this;
   }
 
@@ -121,7 +141,7 @@ public:
   const GeneticCode* getGeneticCode() const { return geneticCode_; }
 
 public:
-  double getCodonsMulRate(unsigned int, unsigned int) const;
+  double getCodonsMulRate(size_t i, size_t j) const;
 };
 } // end of namespace bpp.
 

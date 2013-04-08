@@ -5,7 +5,7 @@
 //
 
 /*
-Copyright or © or Copr. CNRS, (November 16, 2004)
+Copyright or © or Copr. Bio++ Development Team, (November 16, 2004)
 
 This software is a computer program whose purpose is to provide classes
 for phylogenetic data analysis.
@@ -42,7 +42,7 @@ knowledge of the CeCILL license and that you accept its terms.
 
 #include "../AbstractBiblioSubstitutionModel.h"
 #include "CodonDistanceFrequenciesSubstitutionModel.h"
-#include <Bpp/Seq/StateProperties/GranthamAAChemicalDistance.h>
+#include <Bpp/Seq/AlphabetIndex/GranthamAAChemicalDistance.h>
 
 namespace bpp
 {
@@ -80,12 +80,13 @@ namespace bpp
  * - Goldman N. and Yang Z. (1994), _Molecular Biology And Evolution_ 11(5) 725--736. 
  */
 class GY94:
-  public AbstractBiblioSubstitutionModel
+    public AbstractBiblioSubstitutionModel,
+    virtual public ReversibleSubstitutionModel
 {
 private:
 
   GranthamAAChemicalDistance gacd_;
-  CodonDistanceFrequenciesSubstitutionModel* pmodel_;
+  std::auto_ptr<CodonDistanceFrequenciesSubstitutionModel> pmodel_;
 
 public:
   GY94(const GeneticCode* gc, FrequenciesSet* codonFreqs);
@@ -107,9 +108,10 @@ public:
 
   std::string getName() const { return "GY94"; }
 	
-  const AbstractSubstitutionModel* getModel() const { return pmodel_;}
+  const SubstitutionModel& getModel() const { return *pmodel_.get(); }
 
-  AbstractSubstitutionModel* getModel() { return pmodel_;}
+private:
+  SubstitutionModel& getModel() { return *pmodel_.get(); }
 
 };
 

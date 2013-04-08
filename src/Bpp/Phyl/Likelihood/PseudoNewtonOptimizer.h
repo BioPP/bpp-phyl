@@ -82,13 +82,13 @@ namespace bpp
 
     double previousValue_;
 
-    unsigned int n_; // Number of parameters
+    size_t n_; // Number of parameters
 
     std::vector<std::string> params_; // All parameter names
 
-    double maxCorrection_;
+    unsigned int maxCorrection_;
 
-    bool useCJ_;
+    bool useCG_;
 
   public:
 
@@ -121,6 +121,8 @@ namespace bpp
     double doStep() throw (Exception);
 
     void setMaximumNumberOfCorrections(unsigned int mx) { maxCorrection_ = mx; }
+
+    void disableCG() { useCG_ = false; }
 
   protected:
     DerivableSecondOrder* getFunction_()

@@ -80,7 +80,7 @@ void AbstractCodonFrequenciesSubstitutionModel::setFreq(map<int, double>& freque
   matchParametersValues(pfreqset_->getParameters());
 }
 
-double AbstractCodonFrequenciesSubstitutionModel::getCodonsMulRate(unsigned int i, unsigned int j) const
+double AbstractCodonFrequenciesSubstitutionModel::getCodonsMulRate(size_t i, size_t j) const
 {
   return pfreqset_->getFrequencies()[j];
 }

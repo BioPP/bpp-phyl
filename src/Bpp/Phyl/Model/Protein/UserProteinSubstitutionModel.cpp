@@ -85,7 +85,7 @@ UserProteinSubstitutionModel::UserProteinSubstitutionModel(
   readFromFile();
   if (initFreqs) freqSet->setFrequencies(freq_);
   else freq_ = freqSet_->getFrequencies();
-  freqSet_->setNamespace(prefix);
+  freqSet_->setNamespace(prefix+freqSet_->getNamespace());
   addParameters_(freqSet_->getParameters());
   updateMatrices();  
 }
@@ -95,9 +95,9 @@ UserProteinSubstitutionModel::UserProteinSubstitutionModel(
 std::string UserProteinSubstitutionModel::getName() const
 {
   if (TextTools::hasSubstring(freqSet_->getNamespace(), "+F.") )
-    return "User model from file '" + path_ + "'+F"; 
+    return "Empirical+F"; 
   else  
-    return "User model from file '" + path_ + "'";
+    return "Empirical";
 }
 
 /******************************************************************************/

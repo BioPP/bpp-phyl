@@ -61,7 +61,7 @@ SubstitutionModelSet::SubstitutionModelSet(const SubstitutionModelSet& set) :
   stationarity_         (set.stationarity_)
 {
   // Duplicate all model objects:
-  for (unsigned int i = 0; i < set.modelSet_.size(); i++)
+  for (size_t i = 0; i < set.modelSet_.size(); i++)
     {
       modelSet_[i] = dynamic_cast<SubstitutionModel*>(set.modelSet_[i]->clone());
     }
@@ -86,7 +86,7 @@ SubstitutionModelSet& SubstitutionModelSet::operator=(const SubstitutionModelSet
 
   // Duplicate all model objects:
   modelSet_.resize(set.modelSet_.size());
-  for (unsigned int i = 0; i < set.modelSet_.size(); i++)
+  for (size_t i = 0; i < set.modelSet_.size(); i++)
     {
       modelSet_[i] = dynamic_cast<SubstitutionModel*>(set.modelSet_[i]->clone());
     }
@@ -97,7 +97,7 @@ void SubstitutionModelSet::clear()
 {
   resetParameters_();
   nbStates_=0;
-  for (unsigned int i = 0; i < modelSet_.size(); i++)
+  for (size_t i = 0; i < modelSet_.size(); i++)
     {
       delete modelSet_[i];
     }
@@ -125,12 +125,12 @@ std::vector<int> SubstitutionModelSet::getNodesWithParameter(const std::string& 
   throw (ParameterNotFoundException)
 {
   vector<int> ids;
-  unsigned int offset = stationarity_ ? 0 : rootFrequencies_->getNumberOfParameters();
-  for (unsigned int i = 0; i < paramToModels_.size(); i++)
+  size_t offset = stationarity_ ? 0 : rootFrequencies_->getNumberOfParameters();
+  for (size_t i = 0; i < paramToModels_.size(); i++)
     {
       if (getParameter_(offset + i).getName() == name)
         {
-          for (unsigned int j = 0; j < paramToModels_[i].size(); j++)
+          for (size_t j = 0; j < paramToModels_[i].size(); j++)
             {
               vector<int> v = modelToNodes_[paramToModels_[i][j]];
               VectorTools::append(ids, v);
@@ -141,12 +141,12 @@ std::vector<int> SubstitutionModelSet::getNodesWithParameter(const std::string& 
   throw ParameterNotFoundException("SubstitutionModelSet::getNodesWithParameter.", name);
 }
 
-vector<unsigned int> SubstitutionModelSet::getModelsWithParameter(const std::string& name) const
+vector<size_t> SubstitutionModelSet::getModelsWithParameter(const std::string& name) const
   throw (ParameterNotFoundException)
 {
-  vector<unsigned int> indices;
-  unsigned int offset = stationarity_ ? 0 : rootFrequencies_->getNumberOfParameters();
-  for (unsigned int i = 0; i < paramToModels_.size(); i++)
+  vector<size_t> indices;
+  size_t offset = stationarity_ ? 0 : rootFrequencies_->getNumberOfParameters();
+  for (size_t i = 0; i < paramToModels_.size(); i++)
     {
       if (getParameter_(offset + i).getName() == name)
         return paramToModels_[i];
@@ -163,10 +163,10 @@ void SubstitutionModelSet::addModel(SubstitutionModel* model, const std::vector<
   if (modelSet_.size() == 0)
     nbStates_ = model->getNumberOfStates();
   modelSet_.push_back(model);
-  unsigned int thisModelIndex = modelSet_.size() - 1;
+  size_t thisModelIndex = modelSet_.size() - 1;
 
   // Associate this model to specified nodes:
-  for (unsigned int i = 0; i < nodesId.size(); i++)
+  for (size_t i = 0; i < nodesId.size(); i++)
     {
       nodeToModel_[nodesId[i]] = thisModelIndex;
       modelToNodes_[thisModelIndex].push_back(nodesId[i]);
@@ -175,11 +175,11 @@ void SubstitutionModelSet::addModel(SubstitutionModel* model, const std::vector<
   // Associate parameters:
   string pname;
   modelParameters_.push_back(ParameterList());
-  for (unsigned int i  = 0; i < newParams.size(); i++)
+  for (size_t i  = 0; i < newParams.size(); i++)
     {
       pname = newParams[i];
       modelParameterNames_.push_back(pname);
-      vector<unsigned int> modelsIndex(1, thisModelIndex);
+      vector<size_t> modelsIndex(1, thisModelIndex);
       paramToModels_.push_back(modelsIndex);
       Parameter* p = new Parameter(model->getParameters().getParameter(pname)); // We work with namespaces here, so model->getParameter(pname) does not work.
       modelParameters_[thisModelIndex].addParameter(p->clone());
@@ -188,7 +188,7 @@ void SubstitutionModelSet::addModel(SubstitutionModel* model, const std::vector<
     }
 }
 
-void SubstitutionModelSet::setModel(SubstitutionModel* model, unsigned int modelIndex) throw (Exception, IndexOutOfBoundsException)
+void SubstitutionModelSet::setModel(SubstitutionModel* model, size_t modelIndex) throw (Exception, IndexOutOfBoundsException)
 {
   if (model->getAlphabet()->getAlphabetType() != alphabet_->getAlphabetType())
     throw Exception("SubstitutionModelSet::setModel. A Substitution Model cannot be added to a Model Set if it does not have the same alphabet");
@@ -198,13 +198,13 @@ void SubstitutionModelSet::setModel(SubstitutionModel* model, unsigned int model
   modelSet_[modelIndex] = model;
 }
 
-void SubstitutionModelSet::removeModel(unsigned int modelIndex) throw (Exception)
+void SubstitutionModelSet::removeModel(size_t modelIndex) throw (Exception)
 {
   modelSet_.erase(modelSet_.begin() + modelIndex);
   // Erase all parameter references to this model and translate other indices...
-  for (unsigned int i = 0; i < paramToModels_.size(); i++)
+  for (size_t i = 0; i < paramToModels_.size(); i++)
     {
-      for (unsigned int j = paramToModels_[i].size(); j > 0; j--)
+      for (size_t j = paramToModels_[i].size(); j > 0; j--)
         {
           if (paramToModels_[i][j - 1] == modelIndex)
             {
@@ -217,15 +217,15 @@ void SubstitutionModelSet::removeModel(unsigned int modelIndex) throw (Exception
   checkOrphanParameters(true);
 }
 
-ParameterList SubstitutionModelSet::getModelParameters(unsigned int modelIndex) const
+ParameterList SubstitutionModelSet::getModelParameters(size_t modelIndex) const
 {
   ParameterList pl;
-  unsigned int offset = stationarity_ ? 0 : rootFrequencies_->getNumberOfParameters(); // Root frequencies are the first parameters! We should ignore them here.
-  for (unsigned int i = 0; i < modelParameterNames_.size(); i++)
+  size_t offset = stationarity_ ? 0 : rootFrequencies_->getNumberOfParameters(); // Root frequencies are the first parameters! We should ignore them here.
+  for (size_t i = 0; i < modelParameterNames_.size(); i++)
     {
       // Check associations:
-      const vector<unsigned int>* modelIndexes = &paramToModels_[i];
-      for (unsigned int j = 0; j < modelIndexes->size(); j++)
+      const vector<size_t>* modelIndexes = &paramToModels_[i];
+      for (size_t j = 0; j < modelIndexes->size(); j++)
         {
           if ((*modelIndexes)[j] == modelIndex)
             {
@@ -239,10 +239,10 @@ ParameterList SubstitutionModelSet::getModelParameters(unsigned int modelIndex) 
 
 void SubstitutionModelSet::listModelNames(std::ostream& out) const
 {
-  for (unsigned int i = 0; i < modelSet_.size(); i++)
+  for (size_t i = 0; i < modelSet_.size(); i++)
     {
       out << "Model " << i + 1 << ": " << modelSet_[i]->getName() << "\t attached to nodes ";
-      for (unsigned int j = 0; j < modelToNodes_[i].size(); j++)
+      for (size_t j = 0; j < modelToNodes_[i].size(); j++)
         {
           out << modelToNodes_[i][j];
         }
@@ -250,9 +250,9 @@ void SubstitutionModelSet::listModelNames(std::ostream& out) const
     }
 }
 
-void SubstitutionModelSet::setParameterToModel(unsigned int parameterIndex, unsigned int modelIndex) throw (IndexOutOfBoundsException)
+void SubstitutionModelSet::setParameterToModel(size_t parameterIndex, size_t modelIndex) throw (IndexOutOfBoundsException)
 {
-  unsigned int offset = stationarity_ ? 0 : rootFrequencies_->getNumberOfParameters();
+  size_t offset = stationarity_ ? 0 : rootFrequencies_->getNumberOfParameters();
   if (parameterIndex < offset)
     throw IndexOutOfBoundsException("SubstitutionModelSet::setParameterToModel. Can't assign a root frequency parameter to a branch model.", parameterIndex, offset - 1, paramToModels_.size() + offset - 1);
   if (parameterIndex >= paramToModels_.size() + offset)
@@ -268,9 +268,9 @@ void SubstitutionModelSet::setParameterToModel(unsigned int parameterIndex, unsi
   modelSet_[modelIndex]->matchParametersValues(getParameters().subList(parameterIndex - offset));
 }
 
-void SubstitutionModelSet::unsetParameterToModel(unsigned int parameterIndex, unsigned int modelIndex) throw (IndexOutOfBoundsException, Exception)
+void SubstitutionModelSet::unsetParameterToModel(size_t parameterIndex, size_t modelIndex) throw (IndexOutOfBoundsException, Exception)
 {
-  unsigned int offset = stationarity_ ? 0 : rootFrequencies_->getNumberOfParameters();
+  size_t offset = stationarity_ ? 0 : rootFrequencies_->getNumberOfParameters();
   if (parameterIndex < offset)
     throw IndexOutOfBoundsException("SubstitutionModelSet::unsetParameterToModel. Can't unset a root frequency parameter.", parameterIndex, offset - 1, paramToModels_.size() + offset - 1);
   if (parameterIndex >= paramToModels_.size() + offset)
@@ -292,12 +292,12 @@ void SubstitutionModelSet::addParameter(const Parameter& parameter, const vector
   p->setName(p->getName() + "_" + TextTools::toString(++paramNamesCount_[p->getName()]));
   addParameter_(p);
   // Build model indexes:
-  vector<unsigned int> modelIndexes(nodesId.size());
+  vector<size_t> modelIndexes(nodesId.size());
   for (size_t i = 0; i < nodesId.size(); ++i)
   {
     if (nodeToModel_.find(nodesId[i]) == nodeToModel_.end())
       throw Exception("SubstitutionModelSet::addParameter. This node has no associated model: " + TextTools::toString(nodesId[i]));
-    unsigned int pos = nodeToModel_[nodesId[i]];
+    size_t pos = nodeToModel_[nodesId[i]];
     modelParameters_[pos].addParameter(parameter);
     modelIndexes[i] = pos;
   }
@@ -308,30 +308,30 @@ void SubstitutionModelSet::addParameter(const Parameter& parameter, const vector
 
 void SubstitutionModelSet::addParameters(const ParameterList& parameters, const vector<int>& nodesId) throw (Exception)
 {
-  for (unsigned int i = 0; i < parameters.size(); i++)
+  for (size_t i = 0; i < parameters.size(); i++)
     {
       modelParameterNames_.push_back(parameters[i].getName());
     }
   ParameterList pl(parameters);
-  for (unsigned int i = 0; i < pl.size(); i++)
+  for (size_t i = 0; i < pl.size(); i++)
     {
       pl[i].setName(pl[i].getName() + "_" + TextTools::toString(++paramNamesCount_[pl[i].getName()]));
     }
   addParameters_(pl);
   // Build model indexes:
-  vector<unsigned int> modelIndexes(nodesId.size());
-  map<unsigned int, unsigned int> counts; //Check is a model is affected to several nodes.
+  vector<size_t> modelIndexes(nodesId.size());
+  map<size_t, size_t> counts; //Check is a model is affected to several nodes.
   for (size_t i = 0; i < nodesId.size(); i++)
     {
       if (nodeToModel_.find(nodesId[i]) == nodeToModel_.end())
         throw Exception("SubstitutionModelSet::addParameters. This node has no associated model: " + TextTools::toString(nodesId[i]));
-      unsigned int pos = nodeToModel_[nodesId[i]];
-      unsigned int count = counts[pos]++;
+      size_t pos = nodeToModel_[nodesId[i]];
+      size_t count = counts[pos]++;
       if (count == 0)
         modelParameters_[pos].addParameters(parameters);
       modelIndexes[i] = pos;
     }
-  for (unsigned int i = 0; i < pl.size(); i++)
+  for (size_t i = 0; i < pl.size(); i++)
     {
       paramToModels_.push_back(modelIndexes);
     }
@@ -341,15 +341,15 @@ void SubstitutionModelSet::addParameters(const ParameterList& parameters, const 
 
 void SubstitutionModelSet::removeParameter(const string& name) throw (ParameterNotFoundException)
 {
-  unsigned int offset = stationarity_ ? 0 : rootFrequencies_->getNumberOfParameters();
-  for (unsigned int i = 0; i < modelParameterNames_.size(); i++)
+  size_t offset = stationarity_ ? 0 : rootFrequencies_->getNumberOfParameters();
+  for (size_t i = 0; i < modelParameterNames_.size(); i++)
     {
       if (getParameter_(offset + i).getName() == name)
         {
           vector<int> nodesId = getNodesWithParameter(name);
-          for (unsigned int j = 0; j < nodesId.size(); j++)
+          for (size_t j = 0; j < nodesId.size(); j++)
             {
-              unsigned int pos = nodeToModel_[nodesId[j]];
+              size_t pos = nodeToModel_[nodesId[j]];
               string tmp = modelParameterNames_[i];
               if (modelParameters_[pos].hasParameter(tmp))
                 modelParameters_[pos].deleteParameter(tmp);
@@ -370,12 +370,12 @@ void SubstitutionModelSet::fireParameterChanged(const ParameterList& parameters)
   updateRootFrequencies();
 
   // First we actualize the modelParameters_ array:
-  unsigned int offset = stationarity_ ? 0 : rootFrequencies_->getNumberOfParameters(); // Root frequencies are the first parameters! We should ignore them here.
-  for (unsigned int i = 0; i < modelParameterNames_.size(); i++)
+  size_t offset = stationarity_ ? 0 : rootFrequencies_->getNumberOfParameters(); // Root frequencies are the first parameters! We should ignore them here.
+  for (size_t i = 0; i < modelParameterNames_.size(); i++)
     {
       // Check associations:
-      vector<unsigned int>* modelIndexes = &paramToModels_[i];
-      for (unsigned int j = 0; j < modelIndexes->size(); j++)
+      vector<size_t>* modelIndexes = &paramToModels_[i];
+      for (size_t j = 0; j < modelIndexes->size(); j++)
         {
           if (!modelParameters_[(*modelIndexes)[j]].hasParameter(modelParameterNames_[i]))
             {
@@ -387,7 +387,7 @@ void SubstitutionModelSet::fireParameterChanged(const ParameterList& parameters)
     }
 
   // Then we update all models in the set:
-  for (unsigned int i = 0; i < modelParameters_.size(); i++)
+  for (size_t i = 0; i < modelParameters_.size(); i++)
     {
       modelSet_[i]->matchParametersValues(modelParameters_[i]);
     }
@@ -396,8 +396,8 @@ void SubstitutionModelSet::fireParameterChanged(const ParameterList& parameters)
 bool SubstitutionModelSet::checkOrphanModels(bool throwEx) const
   throw (Exception)
 {
-  vector<unsigned int> index = MapTools::getValues(nodeToModel_);
-  for (unsigned int i = 0; i < modelSet_.size(); i++)
+  vector<size_t> index = MapTools::getValues(nodeToModel_);
+  for (size_t i = 0; i < modelSet_.size(); i++)
     {
       if (!VectorTools::contains(index, i))
         {
@@ -411,7 +411,7 @@ bool SubstitutionModelSet::checkOrphanModels(bool throwEx) const
 bool SubstitutionModelSet::checkOrphanParameters(bool throwEx) const
   throw (Exception)
 {
-  for (unsigned int i = 0; i < paramToModels_.size(); i++)
+  for (size_t i = 0; i < paramToModels_.size(); i++)
     {
       if (paramToModels_[i].size() == 0)
         {
@@ -427,7 +427,7 @@ bool SubstitutionModelSet::checkOrphanNodes(const Tree& tree, bool throwEx) cons
 {
   vector<int> ids = tree.getNodesId();
   int rootId = tree.getRootId();
-  for (unsigned int i = 0; i < ids.size(); i++)
+  for (size_t i = 0; i < ids.size(); i++)
     {
       if (ids[i] != rootId && nodeToModel_.find(ids[i]) == nodeToModel_.end())
         {
@@ -444,9 +444,9 @@ bool SubstitutionModelSet::checkUnknownNodes(const Tree& tree, bool throwEx) con
   vector<int> ids = tree.getNodesId();
   int id;
   int rootId = tree.getRootId();
-  for (unsigned int i = 0; i < modelToNodes_.size(); i++)
+  for (size_t i = 0; i < modelToNodes_.size(); i++)
     {
-      for (unsigned int j = 0; j < modelToNodes_[i].size(); j++)
+      for (size_t j = 0; j < modelToNodes_[i].size(); j++)
         {
           id = modelToNodes_[i][j];
           if (id == rootId || !VectorTools::contains(ids, id))
@@ -461,7 +461,7 @@ bool SubstitutionModelSet::checkUnknownNodes(const Tree& tree, bool throwEx) con
 
 bool SubstitutionModelSet::hasMixedSubstitutionModel() const
 {
-  for (unsigned int i = 0; i < getNumberOfModels(); i++)
+  for (size_t i = 0; i < getNumberOfModels(); i++)
     {
       if (dynamic_cast<const MixedSubstitutionModel*>(getModel(i)) != NULL)
         return true;

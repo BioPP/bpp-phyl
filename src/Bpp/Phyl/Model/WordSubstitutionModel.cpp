@@ -60,15 +60,17 @@ WordSubstitutionModel::WordSubstitutionModel(
   const std::vector<SubstitutionModel*>& modelVector,
   const std::string& st) :
   AbstractParameterAliasable((st == "") ? "Word." : st),
-  AbstractSubstitutionModel(AbstractWordSubstitutionModel::extractAlph(modelVector), (st == "") ? "Word." : st),
-  AbstractWordSubstitutionModel(modelVector, (st == "") ? "Word." : st)
+  AbstractSubstitutionModel(AbstractWordSubstitutionModel::extractAlph(modelVector),
+                            (st == "") ? "Word." : st),
+  AbstractWordSubstitutionModel(modelVector,
+                                (st == "") ? "Word." : st)
 {
-   unsigned int i, nbmod = VSubMod_.size();
+  size_t i, nbmod = VSubMod_.size();
 
   // relative rates
   for (i = 0; i < nbmod - 1; i++)
   {
-    addParameter_(new Parameter("Word.relrate" + TextTools::toString(i+1), 1.0 / (nbmod - i), &Parameter::PROP_CONSTRAINT_EX));
+    addParameter_(new Parameter("Word.relrate" + TextTools::toString(i + 1), 1.0 / static_cast<int>(nbmod - i), &Parameter::PROP_CONSTRAINT_EX));
   }
 
   WordSubstitutionModel::updateMatrices();
@@ -77,9 +79,11 @@ WordSubstitutionModel::WordSubstitutionModel(
 WordSubstitutionModel::WordSubstitutionModel(
   const Alphabet* alph,
   const std::string& st) :
-  AbstractParameterAliasable((st == "") ? "Word." : st),  
-  AbstractSubstitutionModel(alph, (st == "") ? "Word." : st),
-  AbstractWordSubstitutionModel(alph, (st == "") ? "Word." : st)
+  AbstractParameterAliasable((st == "") ? "Word." : st),
+  AbstractSubstitutionModel(alph,
+                            (st == "") ? "Word." : st),
+  AbstractWordSubstitutionModel(alph,
+                                (st == "") ? "Word." : st)
 {}
 
 WordSubstitutionModel::WordSubstitutionModel(
@@ -87,15 +91,18 @@ WordSubstitutionModel::WordSubstitutionModel(
   unsigned int num,
   const std::string& st) :
   AbstractParameterAliasable((st == "") ? "Word." : st),
-  AbstractSubstitutionModel(pmodel->getAlphabet(),  (st == "") ? "Word." : st),
-  AbstractWordSubstitutionModel(pmodel, num,  (st == "") ? "Word." : st)
+  AbstractSubstitutionModel(pmodel->getAlphabet(),
+                            (st == "") ? "Word." : st),
+  AbstractWordSubstitutionModel(pmodel,
+                                num,
+                                (st == "") ? "Word." : st)
 {
-   unsigned int i;
+  size_t i;
 
   // relative rates
   for (i = 0; i < num - 1; i++)
   {
-    addParameter_(new Parameter("Word.relrate" + TextTools::toString(i+1), 1.0 / (num - i ), &Parameter::PROP_CONSTRAINT_EX));
+    addParameter_(new Parameter("Word.relrate" + TextTools::toString(i + 1), 1.0 / static_cast<int>(num - i ), &Parameter::PROP_CONSTRAINT_EX));
   }
 
   WordSubstitutionModel::updateMatrices();
@@ -103,25 +110,26 @@ WordSubstitutionModel::WordSubstitutionModel(
 
 void WordSubstitutionModel::updateMatrices()
 {
-   unsigned int i, nbmod = VSubMod_.size();
-   double x,y;
-   x = 1.0;
+  size_t i, nbmod = VSubMod_.size();
+  double x, y;
+  x = 1.0;
 
-   for (i = 0; i < nbmod-1; i++){
-     y =getParameterValue("relrate" + TextTools::toString(i+1));
-     Vrate_[i] = x*y;
-     x *= 1 - y;      
-   }
-   Vrate_[nbmod-1]=x;
+  for (i = 0; i < nbmod - 1; i++)
+  {
+    y = getParameterValue("relrate" + TextTools::toString(i + 1));
+    Vrate_[i] = x * y;
+    x *= 1 - y;
+  }
+  Vrate_[nbmod - 1] = x;
 
-   AbstractWordSubstitutionModel::updateMatrices();
+  AbstractWordSubstitutionModel::updateMatrices();
 }
 
 void WordSubstitutionModel::completeMatrices()
 {
-   int nbmod = VSubMod_.size();
-   int i,p,j,m;
-   int salph = getAlphabet()->getSize();
+  size_t nbmod = VSubMod_.size();
+  size_t i, p, j, m;
+  size_t salph = getAlphabet()->getSize();
 
   // freq_ for this generator
 
@@ -141,73 +149,83 @@ void WordSubstitutionModel::completeMatrices()
 const RowMatrix<double>& WordSubstitutionModel::getPij_t(double d) const
 {
   vector<const Matrix<double>*> vM;
-  unsigned int nbmod = VSubMod_.size();
-  unsigned int i, j;
+  size_t nbmod = VSubMod_.size();
+  size_t i, j;
 
-  for ( i=0;i<nbmod;i++)
+  for (i = 0; i < nbmod; i++)
+  {
     vM.push_back(&VSubMod_[i]->getPij_t(d * Vrate_[i] * rate_));
+  }
 
-  unsigned int t;
+  size_t t;
   double x;
-  unsigned int i2, j2;
-  unsigned int nbStates = getNumberOfStates();
-  int p;
+  size_t i2, j2;
+  size_t nbStates = getNumberOfStates();
+  size_t p;
 
   for (i = 0; i < nbStates; i++)
-    for (j = 0; j < nbStates; j++){
-      x=1.;
-      i2=i;
-      j2=j;
-      for (p = nbmod - 1; p >= 0; p--) {
-        t = VSubMod_[p]->getNumberOfStates();
-        x *= (*vM[p])(i2 % t, j2 % t);
+  {
+    for (j = 0; j < nbStates; j++)
+    {
+      x = 1.;
+      i2 = i;
+      j2 = j;
+      for (p = nbmod; p > 0; p--)
+      {
+        t = VSubMod_[p - 1]->getNumberOfStates();
+        x *= (*vM[p - 1])(i2 % t, j2 % t);
         i2 /= t;
         j2 /= t;
       }
-      pijt_(i,j)=x;
+      pijt_(i, j) = x;
     }
+  }
   return pijt_;
 }
 
 const RowMatrix<double>& WordSubstitutionModel::getdPij_dt(double d) const
 {
   vector<const Matrix<double>*> vM, vdM;
-  unsigned int nbmod = VSubMod_.size();
-  unsigned int i, j;
+  size_t nbmod = VSubMod_.size();
+  size_t i, j;
 
-  for ( i=0;i<nbmod;i++){
+  for (i = 0; i < nbmod; i++)
+  {
     vM.push_back(&VSubMod_[i]->getPij_t(d * Vrate_[i] * rate_));
     vdM.push_back(&VSubMod_[i]->getdPij_dt(d * Vrate_[i] * rate_));
   }
 
-  unsigned int t;
-  double x,r;
-  unsigned int i2, j2;
-  unsigned int nbStates = getNumberOfStates();
-  int p,q;
+  size_t t;
+  double x, r;
+  size_t i2, j2;
+  size_t nbStates = getNumberOfStates();
+  size_t p, q;
 
   for (i = 0; i < nbStates; i++)
-    for (j = 0; j < nbStates; j++){
+  {
+    for (j = 0; j < nbStates; j++)
+    {
       r = 0;
-      for (q = 0; q < (int)nbmod; q++)
+      for (q = 0; q < nbmod; q++)
+      {
+        i2 = i;
+        j2 = j;
+        x = 1;
+        for (p = nbmod; p > 0; p--)
         {
-          i2 = i;
-          j2 = j;
-          x = 1;
-          for (p = nbmod - 1; p >= 0; p--)
-            {
-              t = VSubMod_[p]->getNumberOfStates();
-              if (q != p)
-                x *= (*vM[p])(i2 % t,j2 % t);
-              else
-                x *= rate_ * Vrate_[p] * (*vdM[p])(i2 % t,j2 % t);
-              i2 /= t;
-              j2 /= t;
-            }
-          r += x;
+          t = VSubMod_[p - 1]->getNumberOfStates();
+          if (q != p - 1)
+            x *= (*vM[p - 1])(i2 % t, j2 % t);
+          else
+            x *= rate_ * Vrate_[p - 1] * (*vdM[p - 1])(i2 % t, j2 % t);
+          i2 /= t;
+          j2 /= t;
         }
-      dpijt_(i,j)=r;
+        r += x;
+      }
+      dpijt_(i, j) = r;
     }
+  }
   return dpijt_;
 }
 
@@ -215,77 +233,82 @@ const RowMatrix<double>& WordSubstitutionModel::getd2Pij_dt2(double d) const
 
 {
   vector<const Matrix<double>*> vM, vdM, vd2M;
-  unsigned int nbmod = VSubMod_.size();
-  unsigned int i, j;
+  size_t nbmod = VSubMod_.size();
+  size_t i, j;
 
-  for ( i=0;i<nbmod;i++){
+  for (i = 0; i < nbmod; i++)
+  {
     vM.push_back(&VSubMod_[i]->getPij_t(d * Vrate_[i] * rate_));
     vdM.push_back(&VSubMod_[i]->getdPij_dt(d * Vrate_[i] * rate_));
     vd2M.push_back(&VSubMod_[i]->getd2Pij_dt2(d * Vrate_[i] * rate_));
   }
 
-  
+
   double r, x;
-  int p, b, q, t;
-  
-  unsigned int i2, j2;
-  unsigned int nbStates = getNumberOfStates();
+  size_t p, b, q, t;
+
+  size_t i2, j2;
+  size_t nbStates = getNumberOfStates();
 
 
   for (i = 0; i < nbStates; i++)
-    for (j = 0; j < nbStates; j++){
-      r=0;
-      for (q = 1; q < (int)nbmod; q++){
+  {
+    for (j = 0; j < nbStates; j++)
+    {
+      r = 0;
+      for (q = 1; q < nbmod; q++)
+      {
         for (b = 0; b < q; b++)
-          {
-            x = 1;
-            i2 = i;
-            j2 = j;
-            for (p = nbmod - 1; p >= 0; p--)
-              {
-                t = VSubMod_[p]->getNumberOfStates();
-                if ((p == q) || (p == b))
-                  x *= rate_ * Vrate_[p] * (*vdM[p])(i2 % t, j2 % t);
-                else
-                  x *= (*vM[p])(i2 % t, j2 % t);
-                
-                i2 /= t;
-                j2 /= t;
-              }
-            r += x;
-          }
-      }
-      
-      r *= 2;
-
-      for (q = 0; q < (int)nbmod; q++)
         {
           x = 1;
           i2 = i;
           j2 = j;
-          for (p = nbmod - 1; p >= 0; p--)
-            {
-              t = VSubMod_[p]->getNumberOfStates();
-              if (q != p)
-                x *= (*vM[p])(i2 % t, j2 % t);
-              else
-                x *= rate_ * rate_* Vrate_[p] * Vrate_[p] * (*vd2M[p])(i2 % t, j2 % t);
-              
-              i2 /= t;
-              j2 /= t;
-            }
+          for (p = nbmod; p > 0; p--)
+          {
+            t = VSubMod_[p - 1]->getNumberOfStates();
+            if ((p - 1 == q) || (p - 1 == b))
+              x *= rate_ * Vrate_[p - 1] * (*vdM[p - 1])(i2 % t, j2 % t);
+            else
+              x *= (*vM[p - 1])(i2 % t, j2 % t);
+
+            i2 /= t;
+            j2 /= t;
+          }
           r += x;
         }
-      d2pijt_(i,j)=r;
+      }
+
+      r *= 2;
+
+      for (q = 0; q < nbmod; q++)
+      {
+        x = 1;
+        i2 = i;
+        j2 = j;
+        for (p = nbmod; p > 0; p--)
+        {
+          t = VSubMod_[p - 1]->getNumberOfStates();
+          if (q != p - 1)
+            x *= (*vM[p - 1])(i2 % t, j2 % t);
+          else
+            x *= rate_ * rate_ * Vrate_[p - 1] * Vrate_[p - 1] * (*vd2M[p - 1])(i2 % t, j2 % t);
+
+          i2 /= t;
+          j2 /= t;
+        }
+        r += x;
+      }
+      d2pijt_(i, j) = r;
     }
+  }
   return d2pijt_;
 }
 
 string WordSubstitutionModel::getName() const
 {
-   unsigned int nbmod = VSubMod_.size();
-   string s = "WordSubstitutionModel model: " + VSubMod_[0]->getName();
-  for (unsigned int i = 1; i < nbmod - 1; i++)
+  size_t nbmod = VSubMod_.size();
+  string s = "WordSubstitutionModel model: " + VSubMod_[0]->getName();
+  for (size_t i = 1; i < nbmod - 1; i++)
   {
     s += " " + VSubMod_[i]->getName();
   }

@@ -48,6 +48,7 @@
 #include "../Model/MarkovModulatedSubstitutionModel.h"
 #include "../Likelihood/HomogeneousTreeLikelihood.h"
 #include "../Likelihood/ClockTreeLikelihood.h"
+#include "../Mapping/SubstitutionCount.h"
 #include <Bpp/Text/TextTools.h>
 #include <Bpp/Text/StringTokenizer.h>
 #include <Bpp/Io/OutputStream.h>
@@ -130,35 +131,6 @@ namespace bpp
                                        bool verbose = true) throw (Exception);
   
     /**
-     * @brief Build a SubstitutionModel object with default parameter values according to a keyval description.
-     *
-     * Check the Bio++ Program Suite documentation for a description of the syntax.
-     * This function will resolve parameter aliasing, but will not assign initial values, with the
-     *     exception of FrequenciesSet instances that will be initialized.
-     * It is mainly for internal usage, you're probably looking for the getSubstitutionModel or getSubstitutionModelSet function.
-     *
-     * @param alphabet         The alpabet to use in the model.
-     * @param modelDescription A string describing the model in the keyval syntax.
-     * @param allowCovarions   Tell is a covarion model can be returned.
-     * @param allowMixed       Tell is a mixture model can be returned.
-     * @param allowGaps        Tell is a gap model can be returned.
-     * @param unparsedParameterValues [out] a map that will contain all the model parameters
-     *                                names and their corresponding unparsed value, if they were found.
-     * @param verbose Print some info to the 'message' output stream.
-     * @return A new SubstitutionModel object according to options specified.
-     * @throw Exception if an error occured.
-     */
-    static SubstitutionModel* getSubstitutionModelDefaultInstance(
-        const Alphabet* alphabet,
-        const std::string& modelDescription,
-        std::map<std::string, std::string>& unparsedParameterValues,
-        bool allowCovarions,
-        bool allowMixed,
-        bool allowGaps,
-        bool verbose) throw (Exception);
-
-
-    /**
      * @brief Build a SubstitutionModel object according to options.
      *
      * Creates a new substitution model object according to model description syntax
@@ -184,28 +156,6 @@ namespace bpp
                                                    bool suffixIsOptional = true,
                                                    bool verbose = true) throw (Exception);
   
-    /**
-     * @brief Set parameter initial values of a given model according to options.
-     *
-     * Parameters actually depends on the model passed as argument.
-     * See getSubstitutionModel for more information.
-     *
-     * This function is mainly for internal usage, you're probably looking for the getSubstitutionModel or getSubstitutionModelSet function.
-     *
-     * @param model                   The model to set.
-     * @param unparsedParameterValues A map that contains all the model parameters
-     *                                names and their corresponding unparsed value, if they were found.
-     * @param data   A pointer toward the SiteContainer for which the substitution model is designed.
-     *               The alphabet associated to the data must be of the same type as the one specified for the model.
-     *               May be equal to NULL, but in this case use_observed_freq option will be unavailable.
-     * @param verbose Print some info to the 'message' output stream.
-     * @throw Exception if an error occured.
-     */
-    static void setSubstitutionModelParametersInitialValues(
-        SubstitutionModel* model,
-        std::map<std::string, std::string>& unparsedParameterValues,
-        const SiteContainer* data,
-        bool verbose) throw (Exception);
 
     /**
      * @brief Set parameter initial values of a given model in a set according to options.
@@ -229,15 +179,15 @@ namespace bpp
      * @param verbose Print some info to the 'message' output stream.
      * @throw Exception if an error occured.
      */
-    static void setSubstitutionModelParametersInitialValues(
-                                                            SubstitutionModel* model,
-                                                            std::map<std::string, std::string>& unparsedParameterValues,
-                                                            const std::string& modelPrefix,
-                                                            const SiteContainer* data,
-                                                            std::map<std::string, double>& existingParams,
-                                                            std::vector<std::string>& specificParams,
-                                                            std::vector<std::string>& sharedParams,
-                                                            bool verbose) throw (Exception);
+    static void setSubstitutionModelParametersInitialValuesWithAliases(
+        SubstitutionModel& model,
+        std::map<std::string, std::string>& unparsedParameterValues,
+        const std::string& modelPrefix,
+        const SiteContainer* data,
+        std::map<std::string, double>& existingParams,
+        std::vector<std::string>& specificParams,
+        std::vector<std::string>& sharedParams,
+        bool verbose) throw (Exception);
 
     /**
      * @brief Get A FrequenciesSet object for root frequencies (NH models) according to options.
@@ -288,31 +238,11 @@ namespace bpp
       throw (Exception);
 
     /**
-     * @brief Get An AbstractFrequenciesSet object according to a
-     *              description following keyval syntax.
-     *
-     * @param alphabet The alpabet to use.
-     * @param freqDescription  The description of the Frequencies set. See the Bio++ Program Suite
-     * Manual for a detailed list of supported options.
-     * @param unparsedParameterValues map<string,string>& keyval description of the parameters
-     *     of the FrequenciesSet
-     * @return A new FrequenciesSet object according to options specified.
-     * @throw Exception if an error occured.
-     */
-    static FrequenciesSet* getFrequenciesSetDefaultInstance(
-        const Alphabet* alphabet,
-        const std::string& freqDescription,
-        std::map<std::string, std::string>& unparsedParameterValues)
-      throw (Exception);
-    
-
-    /**
      * @brief Gets a SubstitutionModelSet object according to options.
      *
      * See setSubstitutionModelSet and setMixedSubstitutionModelSet
      * methods.
      */
-
      static SubstitutionModelSet* getSubstitutionModelSet(
                                         const Alphabet* alphabet,
                                         const SiteContainer* data, 
@@ -320,7 +250,8 @@ namespace bpp
                                         const std::string& suffix = "",
                                         bool suffixIsOptional = true,
                                         bool verbose = true);    
-    /**
+
+     /**
      * @brief Sets a SubstitutionModelSet object according to options.
      *
      * This model set is meant to be used with non-homogeneous substitution models of sequence evolution.
@@ -451,48 +382,6 @@ namespace bpp
                                              const std::string& suffix = "",
                                              bool suffixIsOptional = true,
                                              bool verbose = true);
-    /**
-     * @brief Build a rate distribution as a DiscreteDistribution object with default parameter values according to a keyval description.
-     *
-     * Any kind of discrete distribution with a mean of 1 can be used as a rate distribution.
-     * Check the Bio++ Program Suite documentation for a description of the syntax.
-     * This function will resolve parameter aliasing, but will not assign initial values.
-     * It is mainly for internal usage, you're probably looking for the getRateDistribution function.
-     *
-     * @param distDescription         A string describing the model in the keyval syntax.
-     * @param constDistAllowed        Tell if the constant distribution is allowed as a choice.
-     * @param unparsedParameterValues [out] a map that will contain all the distribution parameters
-     *                                names and their corresponding unparsed value, if they were found.
-     * @param verbose                 Print some info to the 'message' output stream.
-     * @return A new DiscreteDistribution object according to options specified.
-     * @throw Exception if an error occured.
-     */
-    static DiscreteDistribution* getRateDistributionDefaultInstance(
-        const std::string& distDescription,
-        std::map<std::string, std::string>& unparsedParameterValues,
-        bool constDistAllowed = true,
-        bool verbose = true)
-      throw (Exception);
-
-    /**
-     * @brief Build a distribution as a DiscreteDistribution object with default parameter values according to a keyval description.
-     *
-     * Check the Bio++ Program Suite documentation for a description of the syntax.
-     * It is mainly for internal usage, you're probably looking for the getRateDistribution function.
-     *
-     * @param distDescription         A string describing the model in the keyval syntax.
-     * @param unparsedParameterValues [out] a map that will contain all the distribution parameters
-     *                                names and their corresponding unparsed value, if they were found.
-     * @param verbose                 Print some info to the 'message' output stream.
-     * @return A new DiscreteDistribution object according to options specified.
-     * @throw Exception if an error occured.
-     */
-    
-    static DiscreteDistribution* getDistributionDefaultInstance(
-        const std::string& distDescription,
-        std::map<std::string, std::string>& unparsedParameterValues,
-        bool verbose = true)
-      throw (Exception);
 
     /**
      * @brief Build a multi-dimension distribution as a
@@ -516,26 +405,6 @@ namespace bpp
                                                                         bool verbose = true);
 
     /**
-     * @brief Set parameter initial values of a given rate distribution according to options.
-     *
-     * Parameters actually depends on the rate distribution passed as argument.
-     * See getRateDistribution for more information.
-     *
-     * This function is mainly for internal usage, you're probably looking for the getRateDistribution function.
-     *
-     * @param rDist                   The distribution to set.
-     * @param unparsedParameterValues a map that contains all the distribution parameters
-     *                                names and their corresponding unparsed value, if they were found.
-     * @param verbose                 Print some info to the 'message' output stream.
-     * @throw Exception if an error occured.
-     */
-    static void setRateDistributionParametersInitialValues(
-        DiscreteDistribution* rDist,
-        std::map<std::string, std::string>& unparsedParameterValues,
-        bool verbose = true)
-      throw (Exception);
-
-    /**
      * @brief Build a DiscreteDistribution object according to options.
      *
      * Creates a new rate distribution object according to distribution description syntax
@@ -550,7 +419,7 @@ namespace bpp
      * @throw Exception if an error occured.
      */
     static DiscreteDistribution* getRateDistribution(
-        std::map<std::string, std::string> & params,
+        std::map<std::string, std::string>& params,
         const std::string& suffix = "",
         bool suffixIsOptional = true,
         bool verbose = true)
@@ -660,6 +529,21 @@ namespace bpp
      * @param pl A list of parameters. Parameters without constraint will be ignored.
      */
     static void checkEstimatedParameters(const ParameterList& pl);
+
+    /**
+     * @brief Get a SubstitutionCount instance.
+     *
+     * @param alphabet The alphabet to use.
+     * @param model The model to use.
+     * @param params The attribute map where options may be found.
+     * @param suffix Optional suffix for command name.
+     */
+    static SubstitutionCount* getSubstitutionCount(
+        const Alphabet* alphabet,
+        const SubstitutionModel* model,
+        map<string, string>& params,
+        string suffix = "");
+   
     /**
      * @brief Write a tree according to options.
      *
@@ -738,14 +622,6 @@ namespace bpp
      */
     static void printParameters(const DiscreteDistribution* rDist, OutputStream& out);
 
-  private:
-    static void describeParameters_(const ParameterAliasable* parametrizable, OutputStream& out, std::map<std::string, std::string>& globalAliases, const std::vector<std::string>& names,  std::vector<std::string>& writtenNames, bool printLocalAliases = true, bool printComma=false);
-    static void describeParameters_(const Parametrizable* parametrizable, OutputStream& out, const std::vector<std::string>& names,  std::vector<std::string>& writtenNames, bool printComma=false);
-    static void describeSubstitutionModel_(const SubstitutionModel* model, OutputStream& out, std::map<std::string, std::string>& globalAliases,  std::vector<std::string>& writtenNames);
-    static void describeFrequenciesSet_(const FrequenciesSet* pfreqset, OutputStream& out, std::vector<std::string>& writtenNames);
-    static void describeDiscreteDistribution_(const DiscreteDistribution* rDist, OutputStream& out, std::map<std::string,std:: string>& globalAliases, std::vector<std::string>& writtenNames);
-
-    friend class BppOSubstitutionModelFormat;
   };
 
 } //end of namespace bpp.

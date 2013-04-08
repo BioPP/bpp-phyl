@@ -5,7 +5,7 @@
 //
 
 /*
-   Copyright or © or Copr. CNRS, (November 16, 2004)
+   Copyright or © or Copr. Bio++ Development Team, (November 16, 2004)
 
    This software is a computer program whose purpose is to provide classes
    for phylogenetic data analysis.
@@ -112,14 +112,14 @@ namespace bpp
  */
 
 class BinarySubstitutionModel :
-  public AbstractSubstitutionModel
+  public AbstractReversibleSubstitutionModel
 {
 private:
-  double _kappa;
+  double kappa_;
 
 protected:
-  mutable double _lambda, _exp;
-  mutable RowMatrix<double> _p;
+  mutable double lambda_, exp_;
+  mutable RowMatrix<double> p_;
 
 public:
   BinarySubstitutionModel(const BinaryAlphabet* alpha, double kappa = 1.);
@@ -130,9 +130,9 @@ public:
 
   
 public:
-  double Pij_t    (unsigned int i, unsigned int j, double d) const;
-  double dPij_dt  (unsigned int i, unsigned int j, double d) const;
-  double d2Pij_dt2(unsigned int i, unsigned int j, double d) const;
+  double Pij_t    (size_t i, size_t j, double d) const;
+  double dPij_dt  (size_t i, size_t j, double d) const;
+  double d2Pij_dt2(size_t i, size_t j, double d) const;
   const Matrix<double>& getPij_t    (double d) const;
   const Matrix<double>& getdPij_dt  (double d) const;
   const Matrix<double>& getd2Pij_dt2(double d) const;
@@ -141,7 +141,7 @@ public:
 
   void setFreq(std::map<int, double>& freqs);
 
-  unsigned int getNumberOfStates() const { return 2; }
+  size_t getNumberOfStates() const { return 2; }
 
 protected:
   void updateMatrices();

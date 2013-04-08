@@ -40,7 +40,7 @@ knowledge of the CeCILL license and that you accept its terms.
 #ifndef _IOFREQUENCIESSETFACTORY_H_
 #define _IOFREQUENCIESSETFACTORY_H_
 
-#include "../Model.all"
+#include "../Model/SubstitutionModel.h"
 #include "IoFrequenciesSet.h"
 #include <Bpp/Exceptions.h>
 

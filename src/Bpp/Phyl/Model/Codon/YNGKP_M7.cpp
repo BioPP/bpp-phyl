@@ -40,7 +40,7 @@
 #include "YN98.h"
 
 #include <Bpp/Numeric/NumConstants.h>
-#include <Bpp/Numeric/Prob/SimpleDiscreteDistribution.h>
+#include <Bpp/Numeric/Prob/BetaDiscreteDistribution.h>
 
 #include <Bpp/Text/TextTools.h>
 
@@ -66,22 +66,20 @@ YNGKP_M7::YNGKP_M7(const GeneticCode* gc, FrequenciesSet* codonFreqs, unsigned i
   map<string, DiscreteDistribution*> mpdd;
   mpdd["omega"] = pbdd;
 
-  pmixmodel_ = new MixtureOfASubstitutionModel(gc->getSourceAlphabet(),
-                                               new YN98(gc, codonFreqs),
-                                               mpdd);
+  pmixmodel_.reset(new MixtureOfASubstitutionModel(gc->getSourceAlphabet(), new YN98(gc, codonFreqs), mpdd));
   delete pbdd;
 
   // mapping the parameters
 
   ParameterList pl = pmixmodel_->getParameters();
-  for (unsigned int i = 0; i < pl.size(); i++)
+  for (size_t i = 0; i < pl.size(); i++)
   {
     lParPmodel_.addParameter(Parameter(pl[i]));
   }
 
   vector<std::string> v = dynamic_cast<YN98*>(pmixmodel_->getNModel(0))->getFrequenciesSet()->getParameters().getParameterNames();
 
-  for (unsigned int i = 0; i < v.size(); i++)
+  for (size_t i = 0; i < v.size(); i++)
   {
     mapParNamesFromPmodel_[v[i]] = getParameterNameWithoutNamespace("YNGKP_M7." + v[i].substr(5));
   }
@@ -132,20 +130,14 @@ YNGKP_M7& YNGKP_M7::operator=(const YNGKP_M7& mod2)
 {
   AbstractBiblioMixedSubstitutionModel::operator=(mod2);
 
-  if (pmixmodel_)
-    delete pmixmodel_;
-  pmixmodel_ = new MixtureOfASubstitutionModel(*mod2.pmixmodel_);
+  pmixmodel_.reset(new MixtureOfASubstitutionModel(*mod2.pmixmodel_));
   synfrom_ = mod2.synfrom_;
   synto_ = mod2.synto_;
 
   return *this;
 }
 
-YNGKP_M7::~YNGKP_M7()
-{
-  if (pmixmodel_)
-    delete pmixmodel_;
-}
+YNGKP_M7::~YNGKP_M7() {}
 
 void YNGKP_M7::updateMatrices()
 {

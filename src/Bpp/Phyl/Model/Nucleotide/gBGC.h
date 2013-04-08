@@ -116,7 +116,7 @@ public:
 public:
   std::string getName() const;
 
-  unsigned int getNumberOfStates() const { return pmodel_->getNumberOfStates(); }
+  size_t getNumberOfStates() const { return pmodel_->getNumberOfStates(); }
 
   void fireParameterChanged(const ParameterList&);
 

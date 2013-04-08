@@ -77,10 +77,11 @@ namespace bpp
  * Genetics 168:1041--1051.
  */
 class YNGKP_M1:
-    public AbstractBiblioMixedSubstitutionModel
+    public AbstractBiblioMixedSubstitutionModel,
+    virtual public ReversibleSubstitutionModel
 {
 private:
-  MixtureOfASubstitutionModel* pmixmodel_;
+  std::auto_ptr<MixtureOfASubstitutionModel> pmixmodel_;
 
 
   /*
@@ -106,25 +107,16 @@ protected:
   void updateMatrices();
 
 public:
-  const AbstractSubstitutionModel* getModel() const {
-    return pmixmodel_;
-  }
+  const SubstitutionModel& getModel() const { return *pmixmodel_.get(); }
 
-  AbstractSubstitutionModel* getModel() {
-    return pmixmodel_;
-  }
-
-
-  const MixedSubstitutionModel* getMixedModel() const {
-    return pmixmodel_;
-  }
-
-  MixedSubstitutionModel* getMixedModel() {
-    return pmixmodel_;
-  }
+  const MixedSubstitutionModel& getMixedModel() const { return *pmixmodel_.get(); }
 
   std::string getName() const { return "YNGKP_M1"; }
 
+private:
+  SubstitutionModel& getModel() { return *pmixmodel_.get(); }
+  
+  MixedSubstitutionModel& getMixedModel() { return *pmixmodel_.get(); }
 };
 
 } //end of namespace bpp.

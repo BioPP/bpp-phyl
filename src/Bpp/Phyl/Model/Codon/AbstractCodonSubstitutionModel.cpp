@@ -79,7 +79,7 @@ AbstractCodonSubstitutionModel::AbstractCodonSubstitutionModel(
     // relative rates
     for (i = 0; i < 2; i++)
     {
-      addParameter_(new Parameter(st + "relrate" + TextTools::toString(i + 1), 1.0 / (3 - i), &Parameter::PROP_CONSTRAINT_EX));
+      addParameter_(new Parameter(st + "relrate" + TextTools::toString(i + 1), 1.0 / static_cast<double>(3 - i), &Parameter::PROP_CONSTRAINT_EX));
     }
   }
 }
@@ -152,10 +152,10 @@ void AbstractCodonSubstitutionModel::updateMatrices()
 {
   if (hasParametrizedRates_)
   {
-    int i, nbmod = VSubMod_.size();
+    size_t i, nbmod = VSubMod_.size();
     double x;
-    int k;
-    for (k = nbmod - 1; k >= 0; k--)
+    size_t k;
+    for (k = nbmod - 1; k > 0; k--)
     {
       x = 1.0;
       for (i = 0; i < k; i++)
@@ -173,8 +173,8 @@ void AbstractCodonSubstitutionModel::updateMatrices()
 
 void AbstractCodonSubstitutionModel::completeMatrices()
 {
-  unsigned int i, j;
-  unsigned int salph = getNumberOfStates();
+  size_t i, j;
+  size_t salph = getNumberOfStates();
 
   const CodonAlphabet* ca = dynamic_cast<const CodonAlphabet*>(alphabet_);
 
@@ -182,7 +182,7 @@ void AbstractCodonSubstitutionModel::completeMatrices()
   {
     for (j = 0; j < salph; j++)
     {
-      if (ca->isStop(i) || ca->isStop(j))
+      if (ca->isStop(static_cast<int>(i)) || ca->isStop(static_cast<int>(j)))
       {
         generator_(i, j) = 0;
       }

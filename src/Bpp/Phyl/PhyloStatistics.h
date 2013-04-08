@@ -5,7 +5,7 @@
 //
 
 /*
-Copyright or © or Copr. CNRS, (November 16, 2004)
+Copyright or © or Copr. Bio++ Development Team, (November 16, 2004)
 
 This software is a computer program whose purpose is to provide classes
 for phylogenetic data analysis.
@@ -61,12 +61,12 @@ namespace bpp
     public virtual Clonable
   {
     private:
-      unsigned int numberOfLeaves_;
-      unsigned int numberOfAncestors_;
+      size_t numberOfLeaves_;
+      size_t numberOfAncestors_;
       std::vector<double> branchLengths_;
       std::vector<double> nodeHeights_;
-      std::vector<unsigned int> nodeDepths_;
-      std::vector<unsigned int> nodeNumberOfSons_;
+      std::vector<size_t> nodeDepths_;
+      std::vector<size_t> nodeNumberOfSons_;
       std::vector<int> nodeIds_;
 
     public:
@@ -90,16 +90,16 @@ namespace bpp
        */
       void setTree(const Tree& tree);
 
-      unsigned int getNumberOfLeaves() const { return numberOfLeaves_; }
-      unsigned int getNumberOfAncestors() const { return numberOfAncestors_; }
+      size_t getNumberOfLeaves() const { return numberOfLeaves_; }
+      size_t getNumberOfAncestors() const { return numberOfAncestors_; }
       const std::vector<double>& getBranchLengths() const { return branchLengths_; }
       const std::vector<double>& getNodeHeights() const { return nodeHeights_; }
-      const std::vector<unsigned int>& getNodeDepths() const { return nodeDepths_; }
-      const std::vector<unsigned int>& getNodeNumberOfSons() const { return nodeNumberOfSons_; }
+      const std::vector<size_t>& getNodeDepths() const { return nodeDepths_; }
+      const std::vector<size_t>& getNodeNumberOfSons() const { return nodeNumberOfSons_; }
       const std::vector<int>& getNodeIds() const { return nodeIds_; }
 
     private:
-      void computeForSubtree_(const Node* node, double& height, unsigned int& depth);
+      void computeForSubtree_(const Node* node, double& height, size_t& depth);
 
   };
 

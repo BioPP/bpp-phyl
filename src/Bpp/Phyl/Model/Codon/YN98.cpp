@@ -52,7 +52,7 @@ YN98::YN98(const GeneticCode* gc, FrequenciesSet* codonFreqs) :
   pmodel_(new CodonDistanceFrequenciesSubstitutionModel(gc, new K80(dynamic_cast<const CodonAlphabet*>(gc->getSourceAlphabet())->getNucleicAlphabet()), codonFreqs))
 {
   addParameter_(new Parameter("YN98.kappa", 1, &Parameter::R_PLUS_STAR));
-  addParameter_(new Parameter("YN98.omega", 1, new IntervalConstraint(NumConstants::MILLI, 999, true, true), true));
+  addParameter_(new Parameter("YN98.omega", 1, new IntervalConstraint(NumConstants::MILLI(), 999, true, true), true));
 
   pmodel_->setNamespace("YN98.");
   addParameters_(codonFreqs->getParameters());
@@ -79,12 +79,8 @@ YN98::YN98(const YN98& yn98) : AbstractBiblioSubstitutionModel(yn98),
 YN98& YN98::operator=(const YN98& yn98)
 {
   AbstractBiblioSubstitutionModel::operator=(yn98);
-  pmodel_ = new CodonDistanceFrequenciesSubstitutionModel(*yn98.pmodel_);
+  pmodel_.reset(new CodonDistanceFrequenciesSubstitutionModel(*yn98.pmodel_));
   return *this;
 }
 
-YN98::~YN98()
-{
-  if (pmodel_)
-    delete pmodel_;
-}
+YN98::~YN98() {}

@@ -6,7 +6,7 @@
 //
 
 /*
-Copyright or © or Copr. CNRS, (November 16, 2004)
+Copyright or © or Copr. Bio++ Development Team, (November 16, 2004)
 
 This software is a computer program whose purpose is to provide classes
 for phylogenetic data analysis.
@@ -41,7 +41,7 @@ knowledge of the CeCILL license and that you accept its terms.
 #ifndef _ABSTRACTAGGLOMERATIVEDISTANCEMETHOD_H_
 #define _ABSTRACTAGGLOMERATIVEDISTANCEMETHOD_H_
 
-#include "AgglomerativeDistanceMethod.h"
+#include "DistanceMethod.h"
 #include "../Node.h"
 #include "../TreeTemplate.h"
 
@@ -66,29 +66,31 @@ class AbstractAgglomerativeDistanceMethod:
 		DistanceMatrix matrix_;
 		Tree* tree_;
 
-    std::map<unsigned int, Node*> currentNodes_;
+    std::map<size_t, Node*> currentNodes_;
     bool verbose_;
+    bool rootTree_;
 	
 	public:
-		AbstractAgglomerativeDistanceMethod() :
-      matrix_(0), tree_(0), currentNodes_(), verbose_(true) {}
+		//AbstractAgglomerativeDistanceMethod() :
+    //  matrix_(0), tree_(0), currentNodes_(), verbose_(true), rootTree_(false) {}
 
-		AbstractAgglomerativeDistanceMethod(bool verbose) :
-      matrix_(0), tree_(0), currentNodes_(), verbose_(verbose) {}
+		AbstractAgglomerativeDistanceMethod(bool verbose = true, bool rootTree = false) :
+      matrix_(0), tree_(0), currentNodes_(), verbose_(verbose), rootTree_(rootTree) {}
 		
-    AbstractAgglomerativeDistanceMethod(const DistanceMatrix & matrix, bool verbose = true) :
-      matrix_(0), tree_(0), currentNodes_(), verbose_(verbose)
+    AbstractAgglomerativeDistanceMethod(const DistanceMatrix& matrix, bool verbose = true, bool rootTree = false) :
+      matrix_(0), tree_(0), currentNodes_(), verbose_(verbose), rootTree_(rootTree)
     {
       setDistanceMatrix(matrix);
     }
 
 		virtual ~AbstractAgglomerativeDistanceMethod()
     {
-      delete tree_;
+      if (tree_)
+        delete tree_;
     }
     
     AbstractAgglomerativeDistanceMethod(const AbstractAgglomerativeDistanceMethod& a) :
-      matrix_(a.matrix_), tree_(0), currentNodes_(), verbose_(a.verbose_)
+      matrix_(a.matrix_), tree_(0), currentNodes_(), verbose_(a.verbose_), rootTree_(a.rootTree_)
     {
       // Hard copy of inner tree:
       if (a.tree_)
@@ -102,6 +104,9 @@ class AbstractAgglomerativeDistanceMethod:
       if (a.tree_)
         tree_ = new TreeTemplate<Node>(* a.tree_);
       else tree_ = 0;
+      currentNodes_.clear();
+      verbose_ = a.verbose_;
+      rootTree_ = a.rootTree_;
       return *this;
     }
 
@@ -137,10 +142,8 @@ class AbstractAgglomerativeDistanceMethod:
      * 5) For each remaining node, update distances from the pair (computeDistancesFromPair method)
      * 6) Return to step 2 while there are more than 3 remaining nodes.
      * 7) Perform the final step, and send a rooted or unrooted tree.
-     * 
-     * @param rooted Tell if the final tree must be rooted or not.
      */
-		virtual void computeTree(bool rooted) throw (Exception);
+		virtual void computeTree() throw (Exception);
 
     void setVerbose(bool yn) { verbose_ = yn; }
     bool isVerbose() const { return verbose_; }
@@ -161,7 +164,7 @@ class AbstractAgglomerativeDistanceMethod:
      * @return A size 2 vector with the indices of the nodes.
      * @throw Exception If an error occured.
      */
-		virtual std::vector<unsigned int> getBestPair() throw (Exception) = 0;
+		virtual std::vector<size_t> getBestPair() throw (Exception) = 0;
 		
     /**
      * @brief Compute the branch lengths for two nodes to agglomerate.
@@ -176,7 +179,7 @@ class AbstractAgglomerativeDistanceMethod:
      * @param pair The indices of the nodes to be agglomerated.
      * @return A size 2 vector with branch lengths.
      */
-    virtual std::vector<double> computeBranchLengthsForPair(const std::vector<unsigned int> & pair) = 0;
+    virtual std::vector<double> computeBranchLengthsForPair(const std::vector<size_t> & pair) = 0;
 
     /**
      * @brief Actualizes the distance matrix according to a given pair and the corresponding branch lengths.
@@ -186,7 +189,7 @@ class AbstractAgglomerativeDistanceMethod:
      * @param pos The index of the node whose distance ust be updated.
      * @return The distance between the 'pos' node and the agglomerated pair.
      */
-		virtual double computeDistancesFromPair(const std::vector<unsigned int>& pair, const std::vector<double>& branchLengths, unsigned int pos) = 0;
+		virtual double computeDistancesFromPair(const std::vector<size_t>& pair, const std::vector<double>& branchLengths, size_t pos) = 0;
 		
     /**
      * @brief Method called when there ar eonly three remaining node to agglomerate, and creates the root node of the tree.

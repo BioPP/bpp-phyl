@@ -179,9 +179,9 @@ std::vector<int> PairedSiteLikelihoods::bootstrap(std::size_t length, double sca
 {
   vector<int> v(length, 0);
 
-  for (size_t i = 0; i < static_cast<size_t>(length * scaling + 0.5); ++i)
+  for (size_t i = 0; i < static_cast<size_t>(static_cast<double>(length) * scaling + 0.5); ++i)
   {
-    ++v.at(RandomTools::giveIntRandomNumberBetweenZeroAndEntry(length));
+    ++v.at(RandomTools::giveIntRandomNumberBetweenZeroAndEntry(static_cast<int>(length)));
   }
 
   return v;
