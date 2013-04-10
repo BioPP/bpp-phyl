@@ -51,6 +51,7 @@
 #include <memory>
 
 using namespace bpp;
+using namespace newlik;
 using namespace std;
 
 /******************************************************************************/

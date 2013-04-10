@@ -38,8 +38,8 @@ The fact that you are presently reading this means that you have had
 knowledge of the CeCILL license and that you accept its terms.
 */
 
-#ifndef _RTREELIKELIHOODDATA_H_
-#define _RTREELIKELIHOODDATA_H_
+#ifndef _NEWLIK_RTREELIKELIHOODDATA_H_
+#define _NEWLIK_RTREELIKELIHOODDATA_H_
 
 #include "AbstractTreeLikelihoodData.h"
 #include "SubstitutionProcess.h"
@@ -51,6 +51,8 @@ knowledge of the CeCILL license and that you accept its terms.
 #include <map>
 
 namespace bpp
+{
+namespace newlik
 {
 
 /**
@@ -126,7 +128,7 @@ class RTreeLikelihoodNodeData :
  * @brief Likelihood data structure suporting simple recursion.
  */
 class RTreeLikelihoodData :
-  public virtual AbstractTreeLikelihoodData
+  public virtual newlik::AbstractTreeLikelihoodData
 {
   private:
     /**
@@ -287,6 +289,7 @@ class RTreeLikelihoodData :
   
 };
 
+} //end of namespace newlik.
 } //end of namespace bpp.
 
 #endif //_RTREELIKELIHOODDATA_H_

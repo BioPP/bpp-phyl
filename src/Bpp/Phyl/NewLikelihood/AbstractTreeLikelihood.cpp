@@ -39,6 +39,7 @@ knowledge of the CeCILL license and that you accept its terms.
 
 #include "AbstractTreeLikelihood.h"
 
+using namespace std;
 using namespace bpp;
 using namespace newlik;
 
@@ -110,3 +111,78 @@ VVVdouble AbstractTreeLikelihood::getLikelihoodForEachSiteForEachClassForEachSta
 }
 
 /******************************************************************************/
+
+VVdouble AbstractTreeLikelihood::getPosteriorProbabilitiesOfEachClass() const
+{
+  size_t nbSites   = getNumberOfSites();
+  size_t nbClasses = getNumberOfClasses();
+  VVdouble pb = getLikelihoodForEachSiteForEachClass();
+  Vdouble l = getLikelihoodForEachSite();
+  for (size_t i = 0; i < nbSites; ++i)
+  {
+    for (size_t j = 0; j < nbClasses; ++j)
+    {
+      pb[i][j] = pb[i][j] * process_->getProbabilityForModel(j) / l[i];
+    }
+  }
+  return pb;
+}
+
+/******************************************************************************/
+
+vector<size_t> AbstractTreeLikelihood::getClassWithMaxPostProbOfEachSite() const
+{
+  size_t nbSites = getNumberOfSites();
+  VVdouble l = getLikelihoodForEachSiteForEachClass();
+  vector<size_t> classes(nbSites);
+  for (size_t i = 0; i < nbSites; ++i)
+  {
+    classes[i] = VectorTools::whichMax<double>(l[i]);
+  }
+  return classes;
+}
+
+/******************************************************************************/
+
+void AbstractTreeLikelihood::resetLikelihoodArray(VVVdouble& likelihoodArray)
+{
+  size_t nbSites   = likelihoodArray.size();
+  size_t nbClasses = likelihoodArray[0].size();
+  size_t nbStates  = likelihoodArray[0][0].size();
+  for (size_t i = 0; i < nbSites; ++i)
+  {
+    for (size_t c = 0; c < nbClasses; ++c)
+    {
+      for (size_t s = 0; s < nbStates; ++s)
+      {
+        likelihoodArray[i][c][s] = 1.;
+      }
+    }
+  }
+}
+
+/******************************************************************************/
+
+void AbstractTreeLikelihood::displayLikelihoodArray(const VVVdouble& likelihoodArray)
+{
+  size_t nbSites   = likelihoodArray.size();
+  size_t nbClasses = likelihoodArray[0].size();
+  size_t nbStates  = likelihoodArray[0][0].size();
+  for (size_t i = 0; i < nbSites; ++i)
+  {
+    cout << "Site " << i << ":" << endl;
+    for (size_t c = 0; c < nbClasses; ++c)
+    {
+      cout << "Rate class " << c;
+      for (size_t s = 0; s < nbStates; ++s)
+      {
+        cout << "\t" << likelihoodArray[i][c][s];
+      }
+      cout << endl;
+    }
+    cout << endl;
+  }
+}
+
+/******************************************************************************/
+

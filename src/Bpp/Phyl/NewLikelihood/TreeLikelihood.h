@@ -37,8 +37,8 @@ The fact that you are presently reading this means that you have had
 knowledge of the CeCILL license and that you accept its terms.
 */
 
-#ifndef _TREELIKELIHOOD_H_
-#define _TREELIKELIHOOD_H_
+#ifndef _NEWLIK_TREELIKELIHOOD_H_
+#define _NEWLIK_TREELIKELIHOOD_H_
 
 #include "../Node.h"
 #include "../Tree.h"

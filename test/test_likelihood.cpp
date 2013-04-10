@@ -45,9 +45,13 @@ knowledge of the CeCILL license and that you accept its terms.
 #include <Bpp/Phyl/Simulation/HomogeneousSequenceSimulator.h>
 #include <Bpp/Phyl/Likelihood/RHomogeneousTreeLikelihood.h>
 #include <Bpp/Phyl/OptimizationTools.h>
+#include <Bpp/Phyl/NewLikelihood/ParametrizableTree.h>
+#include <Bpp/Phyl/NewLikelihood/SimpleSubstitutionProcess.h>
+#include <Bpp/Phyl/NewLikelihood/RTreeLikelihood.h>
 #include <iostream>
 
 using namespace bpp;
+using namespace newlik;
 using namespace std;
 
 void fitModelH(SubstitutionModel* model, DiscreteDistribution* rdist, const Tree& tree, const SiteContainer& sites,
@@ -59,6 +63,11 @@ void fitModelH(SubstitutionModel* model, DiscreteDistribution* rdist, const Tree
   ApplicationTools::displayResult("* initial likelihood", tl.getValue());
   if (abs(tl.getValue() - initialValue) > 0.001)
     throw Exception("Incorrect initial value.");
+
+  ParametrizableTree* pTree = new ParametrizableTree(tree);
+  SubstitutionProcess* process = new SimpleSubstitutionProcess(model->clone(), pTree);
+  RTreeLikelihood newTl(process, true, true);
+
   OptimizationTools::optimizeTreeScale(&tl);
   ApplicationTools::displayResult("* likelihood after tree scale", tl.getValue());
   OptimizationTools::optimizeNumericalParameters2(&tl, tl.getParameters(), 0, 0.000001, 10000, 0, 0);

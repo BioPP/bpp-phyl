@@ -38,8 +38,8 @@
   knowledge of the CeCILL license and that you accept its terms.
 */
 
-#ifndef _RTREELIKELIHOOD_H_
-#define _RTREELIKELIHOOD_H_
+#ifndef _NEWLIK_RTREELIKELIHOOD_H_
+#define _NEWLIK_RTREELIKELIHOOD_H_
 
 #include "AbstractTreeLikelihood.h"
 #include "SubstitutionProcess.h"

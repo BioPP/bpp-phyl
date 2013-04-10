@@ -38,8 +38,8 @@ The fact that you are presently reading this means that you have had
 knowledge of the CeCILL license and that you accept its terms.
 */
 
-#ifndef _TREELIKELIHOODDATA_H_
-#define _TREELIKELIHOODDATA_H_
+#ifndef _NEWLIK_TREELIKELIHOODDATA_H_
+#define _NEWLIK_TREELIKELIHOODDATA_H_
 
 #include "../Node.h"
 #include "../TreeTemplate.h"
@@ -49,6 +49,8 @@ knowledge of the CeCILL license and that you accept its terms.
 #include <Bpp/Seq/Container/SiteContainer.h>
 
 namespace bpp
+{
+namespace newlik
 {
 
 /**
@@ -151,6 +153,7 @@ class TreeLikelihoodData:
 
 };
 
+} //end of namespace newlik.
 } //end of namespace bpp.
 
 #endif //_TREELIKELIHOODDATA_H_

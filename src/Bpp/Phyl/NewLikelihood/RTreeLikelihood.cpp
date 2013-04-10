@@ -191,6 +191,20 @@ double RTreeLikelihood::getLikelihoodForASiteForAClass(size_t site, size_t class
 
 /******************************************************************************/
 
+double RTreeLikelihood::getLikelihoodForASiteForAState(size_t site, int state) const
+{
+  double l = 0;
+  VVdouble* la = &likelihoodData_->getLikelihoodArray(
+      process_->getTree().getRootNode()->getId())[likelihoodData_->getRootArrayPosition(site)];
+  for (size_t c = 0; c < nbClasses_; ++c)
+  {
+    l += (*la)[c][state] * process_->getProbabilityForModel(c);
+  }
+  return l;
+}
+
+/******************************************************************************/
+
 double RTreeLikelihood::getLikelihoodForASiteForAClassForAState(size_t site, size_t classIndex, int state) const
 {
   return likelihoodData_->getLikelihoodArray(

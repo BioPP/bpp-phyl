@@ -38,8 +38,8 @@ The fact that you are presently reading this means that you have had
 knowledge of the CeCILL license and that you accept its terms.
 */
 
-#ifndef _ABSTRACTTREELIKELIHOODDATA_H_
-#define _ABSTRACTTREELIKELIHOODDATA_H_
+#ifndef _NEWLIK_ABSTRACTTREELIKELIHOODDATA_H_
+#define _NEWLIK_ABSTRACTTREELIKELIHOODDATA_H_
 
 #include "TreeLikelihoodData.h"
 
@@ -48,6 +48,8 @@ knowledge of the CeCILL license and that you accept its terms.
 #include <map>
 
 namespace bpp
+{
+namespace newlik
 {
 
 /**
@@ -69,7 +71,7 @@ namespace bpp
  * weighted by the corresponding number of sites.
  */
 class AbstractTreeLikelihoodData :
-	public TreeLikelihoodData
+  public TreeLikelihoodData
 {
 	protected:
 		/**
@@ -133,6 +135,7 @@ class AbstractTreeLikelihoodData :
 
 };
 
+} //end of namespace newlik.
 } //end of namespace bpp.
 
 #endif //_ABSTRACTTREELIKELIHOODDATA_H_
