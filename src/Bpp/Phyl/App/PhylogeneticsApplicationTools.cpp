@@ -176,7 +176,7 @@ SubstitutionModel* PhylogeneticsApplicationTools::getSubstitutionModel(
   else
     modelDescription = ApplicationTools::getStringParameter("model", params, "JC69", suffix, suffixIsOptional, verbose);
 
-  map<string, string> unparsedParameterValues;
+  //  map<string, string> unparsedParameterValues;
 
   BppOSubstitutionModelFormat bIO(BppOSubstitutionModelFormat::ALL, true, true, true, verbose);
   SubstitutionModel* model = bIO.read(alphabet, modelDescription, data, true);
@@ -410,7 +410,7 @@ void PhylogeneticsApplicationTools::setSubstitutionModelSet(
     tmpDesc = ApplicationTools::getStringParameter("model1", params, "JC69", suffix, suffixIsOptional, false);
 
   auto_ptr<SubstitutionModel> tmp(bIO.read(alphabet, tmpDesc, data, false));
-  map<string, string> tmpUnparsedParameterValues(bIO.getUnparsedArguments());
+  //  map<string, string> tmpUnparsedParameterValues(bIO.getUnparsedArguments());
 
   if (tmp->getNumberOfStates() != alphabet->getSize())
   {
