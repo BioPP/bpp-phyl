@@ -127,17 +127,18 @@ namespace bpp
     virtual double getReward(int initialState, int finalState, double length) const = 0;
 		
     /**
-     * @brief Get the numbers of susbstitutions on a branch, for each initial and final states, and given the branch length.
+     * @brief Get the rewards on a branch, for each initial and final
+     * states, and given the branch length.
      *
      * @param length       The length of the branch.
-     * @return A matrix with all numbers of substitutions for each initial and final states.
+     * @return A matrix with all rewards for each initial and final states.
      */
     virtual Matrix<double>* getAllRewards(double length) const = 0;
 
     /**
-     * @brief Set the substitution model associated with this reward, if relevent.
+     * @brief Set the substitution model associated with this reward, if relevant.
      *
-     * @param model The substitution model to use with this count.
+     * @param model The substitution model to use with this reward.
      */
     virtual void setSubstitutionModel(const SubstitutionModel* model) = 0;
   };
