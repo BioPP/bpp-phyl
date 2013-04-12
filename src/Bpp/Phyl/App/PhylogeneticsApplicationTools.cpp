@@ -773,6 +773,13 @@ throw (Exception)
         if (verbose)
           ApplicationTools::displayResult("Parameter ignored", string("Root frequencies"));
       }
+      else if (param == "Model")
+        {
+          vector<string> vs = tl->getSubstitutionModelParameters().getParameterNames();
+          parametersToEstimate.deleteParameters(vs);
+          if (verbose)
+            ApplicationTools::displayResult("Parameter ignored", string("Model"));          
+        }
       else if (param.find("*") != string::npos)
       {
         vector<string> vs;
