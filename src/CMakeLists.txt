@@ -53,6 +53,7 @@ SET(CPP_FILES
   Bpp/Phyl/Likelihood/TreeLikelihoodTools.cpp
   Bpp/Phyl/Likelihood/PairedSiteLikelihoods.cpp
   Bpp/Phyl/Likelihood/GlobalClockTreeLikelihoodFunctionWrapper.cpp
+  Bpp/Phyl/Mapping/SubstitutionRegister.cpp
   Bpp/Phyl/Mapping/LaplaceSubstitutionCount.cpp
   Bpp/Phyl/Mapping/OneJumpSubstitutionCount.cpp
   Bpp/Phyl/Mapping/ProbabilisticSubstitutionMapping.cpp
@@ -64,6 +65,7 @@ SET(CPP_FILES
   Bpp/Phyl/Mapping/DecompositionReward.cpp
   Bpp/Phyl/Mapping/ProbabilisticRewardMapping.cpp
   Bpp/Phyl/Mapping/RewardMappingTools.cpp
+  Bpp/Phyl/Mapping/MappingTools.cpp
   Bpp/Phyl/Model/StateMap.cpp
   Bpp/Phyl/Model/BinarySubstitutionModel.cpp
   Bpp/Phyl/Model/AbstractSubstitutionModel.cpp
@@ -232,6 +234,7 @@ SET(H_FILES
   Bpp/Phyl/Mapping/RewardMapping.h
   Bpp/Phyl/Mapping/RewardMappingTools.h
   Bpp/Phyl/Mapping/ProbabilisticRewardMapping.h
+  Bpp/Phyl/Mapping/MappingTools.h
   Bpp/Phyl/Model/StateMap.h
   Bpp/Phyl/Model/AbstractSubstitutionModel.h
   Bpp/Phyl/Model/BinarySubstitutionModel.h
