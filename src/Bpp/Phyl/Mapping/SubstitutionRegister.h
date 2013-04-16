@@ -42,6 +42,7 @@
 
 // From bpp-core:
 #include <Bpp/Clonable.h>
+#include <Bpp/Numeric/Matrix/Matrix.h>
 
 // From bpp-seq:
 #include <Bpp/Seq/Alphabet/Alphabet.h>
@@ -361,6 +362,105 @@ public:
   ComprehensiveSubstitutionRegister* clone() const { return new ComprehensiveSubstitutionRegister(*this); }
 };
 
+/**@brief Sets a Register based on a matrix of integers. If M is the
+ *  matrix, M[i,j] is the number of the substitution type from i to j,
+ *  or 0 if there is no substitution type from i to j.
+ *
+ * @author Laurent Guéguen
+ **/
+
+class GeneralSubstitutionRegister :
+  public AbstractSubstitutionRegister
+{
+protected:
+  /**
+   * @brief The size of the matrix, i.e. the number of states.
+   */
+  size_t size_;
+
+  /**
+   * @brief The matrix of the substitution register.
+   */
+  
+  RowMatrix<size_t> matrix_;
+
+  /**
+   * @brief The map from substitution types to the map of from states
+   * to the vector of target states.
+   *
+   * This is the reverse information of matrix_
+   *
+   */
+  
+  std::map<size_t, std::map<size_t, std::vector<size_t> > > types_;
+  
+public:
+  GeneralSubstitutionRegister(const Alphabet* alphabet) :
+    AbstractSubstitutionRegister(alphabet),
+    size_(alphabet->getSize()),
+    matrix_(size_,size_),
+    types_()
+  {}
+
+  GeneralSubstitutionRegister(const Alphabet* alphabet, const RowMatrix<size_t>& matrix) :
+    AbstractSubstitutionRegister(alphabet),
+    size_(alphabet->getSize()),
+    matrix_(matrix),
+    types_()
+  {
+    if (matrix_.getNumberOfRows()!=size_)
+      throw DimensionException("GeneralSubstitutionRegister", size_, matrix_.getNumberOfRows());
+    if (matrix_.getNumberOfColumns()!=size_)
+        throw DimensionException("GeneralSubstitutionRegister", size_, matrix_.getNumberOfColumns());
+    updateTypes_();
+  }
+
+  GeneralSubstitutionRegister(const GeneralSubstitutionRegister& gsr) :
+    AbstractSubstitutionRegister(gsr),
+    size_(gsr.size_),
+    matrix_(gsr.matrix_),
+    types_(gsr.types_)
+  {}
+
+  GeneralSubstitutionRegister& operator=(const GeneralSubstitutionRegister& gsr)
+  {
+    AbstractSubstitutionRegister::operator=(gsr);
+    size_=gsr.size_;
+    matrix_=gsr.matrix_;
+    types_=gsr.types_;
+    return *this;
+  }
+  
+  virtual ~GeneralSubstitutionRegister() {}
+
+  size_t getType(size_t i,size_t j) const
+  {
+    return matrix_(i,j);
+  }
+
+  size_t getNumberOfSubstitutionTypes() const
+  {
+    return types_.size();
+  }
+
+  
+  /**
+   *@brief names of the types are their number.
+   *
+   */
+  
+  std::string getTypeName(size_t type) const
+  {
+    if (types_.find(type)!=types_.end())
+      return TextTools::toString(type);
+
+    throw Exception("Bad type number " + TextTools::toString(type) + " in GeneralSubstitutionRegister::getTypeName.");
+  }
+
+private:
+  void updateTypes_();
+};
+  
 /**
  * @brief Distinguishes AT<->GC from GC<->AT.
  *
