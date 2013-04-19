@@ -430,10 +430,12 @@ public:
     types_=gsr.types_;
     return *this;
   }
-  
+
+  GeneralSubstitutionRegister* clone() const { return new GeneralSubstitutionRegister(*this); }
+
   virtual ~GeneralSubstitutionRegister() {}
 
-  size_t getType(size_t i,size_t j) const
+  size_t getType(int i,int j) const
   {
     return matrix_(i,j);
   }
