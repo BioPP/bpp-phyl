@@ -83,6 +83,7 @@ SET(CPP_FILES
   Bpp/Phyl/Model/SubstitutionModelSetTools.cpp
   Bpp/Phyl/Model/AbstractWordSubstitutionModel.cpp
   Bpp/Phyl/Model/WordSubstitutionModel.cpp
+  Bpp/Phyl/Model/Parameters/Kappa.cpp
   Bpp/Phyl/Model/Nucleotide/F84.cpp
   Bpp/Phyl/Model/Nucleotide/HKY85.cpp
   Bpp/Phyl/Model/Nucleotide/JCnuc.cpp
@@ -256,6 +257,8 @@ SET(H_FILES
   Bpp/Phyl/Model/TS98.h
   Bpp/Phyl/Model/AbstractWordSubstitutionModel.h
   Bpp/Phyl/Model/WordSubstitutionModel.h
+  Bpp/Phyl/Model/Parameters/RegisteredParameter.h
+  Bpp/Phyl/Model/Parameters/Kappa.h
   Bpp/Phyl/Model/Nucleotide/NucleotideSubstitutionModel.h
   Bpp/Phyl/Model/Nucleotide/F84.h
   Bpp/Phyl/Model/Nucleotide/HKY85.h

@@ -45,6 +45,7 @@ knowledge of the CeCILL license and that you accept its terms.
 using namespace bpp;
 
 #include <Bpp/Numeric/Matrix/MatrixTools.h>
+#include "../Parameters/Kappa.h"
 
 using namespace std;
 
@@ -56,8 +57,8 @@ K80::K80(const NucleicAlphabet* alpha, double kappa) :
   AbstractReversibleSubstitutionModel(alpha, "K80."),
   kappa_(kappa), r_(), l_(), k_(), exp1_(), exp2_(), p_(size_, size_)
 {
-	addParameter_(new Parameter(getNamespace() + "kappa", kappa, &Parameter::R_PLUS_STAR));
-	updateMatrices();
+  addParameter_(new Kappa(alpha, getNamespace() + "kappa", kappa));
+  updateMatrices();
 }
 
 /******************************************************************************/
