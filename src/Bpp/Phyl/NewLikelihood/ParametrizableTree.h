@@ -110,6 +110,8 @@ namespace bpp
     virtual double getMaximumBranchLength() const { return maximumBrLen_; }
 
     std::vector<int> getBranchesId() const { return tree_.getBranchesId(); }
+    
+    size_t getNumberOfBranches() const { return tree_.getNumberOfBranches(); }
 
     private:
       void buildIndex_(Node& node);

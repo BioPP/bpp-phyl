@@ -58,13 +58,13 @@ using namespace std;
 
 SiteContainer* PatternTools::getSequenceSubset(const SiteContainer& sequenceSet, const Node& node) throw (Exception)
 {
-	VectorSiteContainer * sequenceSubset = new VectorSiteContainer(sequenceSet.getAlphabet());
+	VectorSiteContainer* sequenceSubset = new VectorSiteContainer(sequenceSet.getAlphabet());
 	vector<const Node *> leaves = TreeTemplateTools::getLeaves(node);
 	for (vector<const Node *>::iterator i = leaves.begin(); i < leaves.end(); i++)
   {
-		const Sequence* newSeq = &sequenceSet.getSequence((* i)->getName());
-		if (newSeq == NULL) throw SequenceNotFoundException("PatternToolsERROR: leaf name not found in sequence file: ", (* i) -> getName());
-		sequenceSubset -> addSequence(* newSeq);
+		const Sequence* newSeq = &sequenceSet.getSequence((*i)->getName());
+		if (!newSeq) throw SequenceNotFoundException("PatternTools::getSequenceSubset(). Leaf name not found in sequence file: ", (*i)->getName());
+		sequenceSubset->addSequence(*newSeq);
 	}
 	return sequenceSubset;
 }

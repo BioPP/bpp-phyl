@@ -626,7 +626,7 @@ class TreeTemplateTools
      * @param node The node defining the subtree to check.
      * @return The number of leaves.
      */
-    static unsigned int getNumberOfLeaves(const Node& node);
+    static size_t getNumberOfLeaves(const Node& node);
 
     /**
      * @brief Get the number of nodes of a subtree defined by a particular node.
@@ -634,7 +634,15 @@ class TreeTemplateTools
      * @param node The node defining the subtree to check.
      * @return The number of nodes.
      */
-    static unsigned int getNumberOfNodes(const Node& node);
+    static size_t getNumberOfNodes(const Node& node);
+    
+    /**
+     * @brief Get the number of branches of a subtree defined by a particular node.
+     *
+     * @param node The node defining the subtree to check.
+     * @return The number of branches.
+     */
+    static size_t getNumberOfBranches(const Node& node);
 
     /**
      * @brief Get the leaves names of a subtree defined by a particular node.

@@ -164,6 +164,8 @@ public:
   size_t getNumberOfLeaves() const { return TreeTemplateTools::getNumberOfLeaves(*root_); }
 
   size_t getNumberOfNodes() const { return TreeTemplateTools::getNumberOfNodes(*root_); }
+  
+  size_t getNumberOfBranches() const { return TreeTemplateTools::getNumberOfBranches(*root_); }
 
   int getLeafId(const std::string& name) const throw (NodeNotFoundException) { return TreeTemplateTools::getLeafId(*root_, name); }
 

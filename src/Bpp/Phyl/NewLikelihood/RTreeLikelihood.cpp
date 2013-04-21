@@ -59,7 +59,7 @@ RTreeLikelihood::RTreeLikelihood(
   bool verbose,
   bool usePatterns)
 throw (Exception) :
-  AbstractTreeLikelihood(0, process),
+  AbstractTreeLikelihood(process),
   likelihoodData_(0),
   minusLogLik_(-1.),
   root1_(-1), root2_(-1)
@@ -75,7 +75,7 @@ RTreeLikelihood::RTreeLikelihood(
   bool verbose,
   bool usePatterns)
 throw (Exception) :
-  AbstractTreeLikelihood(data.clone(), process),
+  AbstractTreeLikelihood(process),
   likelihoodData_(0),
   minusLogLik_(-1.),
   root1_(-1), root2_(-1)
@@ -131,7 +131,7 @@ void RTreeLikelihood::setData(const SiteContainer& sites) throw (Exception)
   if (verbose_)
     ApplicationTools::displayTask("Initializing data structure");
   likelihoodData_->initLikelihoods(*data_, *process_); //We assume here that all models have the same number of states, and that they have the same 'init' method,
-                                                                     //Which is a reasonable assumption as long as they share the same alphabet.
+                                                       //Which is a reasonable assumption as long as they share the same alphabet.
   if (verbose_)
     ApplicationTools::displayTaskDone();
 
@@ -140,7 +140,12 @@ void RTreeLikelihood::setData(const SiteContainer& sites) throw (Exception)
   nbStates_        = likelihoodData_->getNumberOfStates();
 
   if (verbose_) ApplicationTools::displayResult("Number of distinct sites", TextTools::toString(nbDistinctSites_));
-  initialized_ = false;
+  
+  initialized_ = true;
+
+  //Recompute likelihood:
+  computeTreeLikelihood();
+  minusLogLik_ = -getLogLikelihood();
 }
 
 /******************************************************************************/
@@ -401,7 +406,7 @@ void RTreeLikelihood::computeTreeDLikelihood_(const string& variable) const
     const Node* father = process_->getTree().getRootNode();
 
     // Compute dLikelihoods array for the father node.
-    // Fist initialize to 1:
+    // First initialize to 1:
     VVVdouble* dLikelihoods_father = &likelihoodData_->getDLikelihoodArray(father->getId());
     size_t nbSites = dLikelihoods_father->size();
     for (size_t i = 0; i < nbSites; i++)
@@ -511,7 +516,7 @@ void RTreeLikelihood::computeTreeDLikelihood_(const string& variable) const
     const Node* father = tree_->getRootNode();
 
     // Compute dLikelihoods array for the father node.
-    // Fist initialize to 1:
+    // First initialize to 1:
     VVVdouble* _dLikelihoods_father = &likelihoodData_->getDLikelihoodArray(father->getId());
     size_t nbSites  = _dLikelihoods_father->size();
     for (size_t i = 0; i < nbSites; i++)
@@ -623,7 +628,7 @@ void RTreeLikelihood::computeTreeDLikelihood_(const string& variable) const
   const Node* father = branch->getFather();
 
   // Compute dLikelihoods array for the father node.
-  // Fist initialize to 1:
+  // First initialize to 1:
   VVVdouble* dLikelihoods_father = &likelihoodData_->getDLikelihoodArray(father->getId());
   size_t nbSites = dLikelihoods_father->size();
   for (size_t i = 0; i < nbSites; ++i)
@@ -719,7 +724,7 @@ void RTreeLikelihood::computeDownSubtreeDLikelihood_(const Node* node) const
   if (father == 0) return; // We reached the root!
 
   // Compute dLikelihoods array for the father node.
-  // Fist initialize to 1:
+  // First initialize to 1:
   VVVdouble* dLikelihoods_father = &likelihoodData_->getDLikelihoodArray(father->getId());
   size_t nbSites = dLikelihoods_father->size();
   for (size_t i = 0; i < nbSites; ++i)
@@ -878,7 +883,7 @@ void RTreeLikelihood::computeTreeD2Likelihood_(const string& variable) const
     const Node* father = tree_->getRootNode();
 
     // Compute dLikelihoods array for the father node.
-    // Fist initialize to 1:
+    // First initialize to 1:
     VVVdouble* _d2Likelihoods_father = &likelihoodData_->getD2LikelihoodArray(father->getId());
     unsigned int nbSites  = _d2Likelihoods_father->size();
     for (unsigned int i = 0; i < nbSites; i++)
@@ -996,7 +1001,7 @@ void RTreeLikelihood::computeTreeD2Likelihood_(const string& variable) const
     const Node* father = tree_->getRootNode();
 
     // Compute dLikelihoods array for the father node.
-    // Fist initialize to 1:
+    // First initialize to 1:
     VVVdouble* _d2Likelihoods_father = &likelihoodData_->getD2LikelihoodArray(father->getId());
     unsigned int nbSites  = _d2Likelihoods_father->size();
     for (unsigned int i = 0; i < nbSites; i++)
@@ -1116,7 +1121,7 @@ void RTreeLikelihood::computeTreeD2Likelihood_(const string& variable) const
   const Node* father = branch->getFather();
 
   // Compute dLikelihoods array for the father node.
-  // Fist initialize to 1:
+  // First initialize to 1:
   VVVdouble* d2Likelihoods_father = &likelihoodData_->getD2LikelihoodArray(father->getId());
   size_t nbSites  = d2Likelihoods_father->size();
   for (size_t i = 0; i < nbSites; ++i)
@@ -1212,7 +1217,7 @@ void RTreeLikelihood::computeDownSubtreeD2Likelihood_(const Node* node) const
   if (father == 0) return; // We reached the root!
 
   // Compute dLikelihoods array for the father node.
-  // Fist initialize to 1:
+  // First initialize to 1:
   VVVdouble* d2Likelihoods_father = &likelihoodData_->getD2LikelihoodArray(father->getId());
   size_t nbSites  = d2Likelihoods_father->size();
   for (size_t i = 0; i < nbSites; ++i)

@@ -95,16 +95,6 @@ class TreeLikelihood:
     virtual const SiteContainer* getData() const = 0;
 
     /**
-     * @brief Init the likelihood object.
-     *
-     * This method is used to initialize all parameters.
-     * It is typically called after the constructor and the setData method.
-     * It contains virtual methods that can't be called in the constructor.
-     * @throw Exception if something bad happened, for instance if no data are associated to the likelihood function.
-     */
-    virtual void initialize() throw (Exception) = 0;
-
-    /**
      * @return 'true' is the likelihood function has been initialized.
      */
     virtual bool isInitialized() const = 0;
@@ -284,43 +274,6 @@ class TreeLikelihood:
     /** @} */
 
     /**
-     * @brief Get the substitution model associated to a given node and alignment column.
-     *
-     * @param nodeId The id of the request node.
-     * @param siteIndex The index of the alignment position.
-     * @see getSiteIndex
-     * @return A pointer toward the corresponding model.
-     * @throw NodeNotFoundException This exception may be thrown if the node is not found (depending on the implementation).
-     */
-    //virtual const SubstitutionModel* getSubstitutionModel(int nodeId, unsigned int siteIndex) const throw (NodeNotFoundException) = 0;
-
-    /**
-     * DEPRECATED. Use iterators instead.
-     * @brief Get the substitution model associated to a given node and alignment column.
-     *
-     * @param nodeId The id of the request node.
-     * @param siteIndex The index of the alignment position.
-     * @see getSiteIndex
-     * @return A pointer toward the corresponding model.
-     * @throw NodeNotFoundException This exception may be thrown if the node is not found (depending on the implementation).
-     */
-    //virtual SubstitutionModel* getSubstitutionModel(int nodeId, unsigned int siteIndex) throw (NodeNotFoundException) = 0;
-
-    /**
-     * DEPRECATED. Use iterators instead.
-     * @brief Retrieves all Pij(t) for a particular branch, defined by the upper node and site.
-     *
-     * These intermediate results may be used by other methods.
-     *
-     * @param nodeId The node defining the branch of interest.
-     * @param siteIndex The index of the alignment position.
-     * @param modelClass The class of the model.
-     * @see getSiteIndex
-     * @return An array of dimension 2, where a[x][y] is the probability of substituting from x to y.
-     */
-    //virtual VVdouble getTransitionProbabilities(int nodeId, unsigned int siteIndex, unsigned int modelClass) const = 0;
-
-    /**
      * @brief Get the index (used for inner computations) of a given site (original alignment column).
      *
      * @param site An alignment position.
@@ -342,11 +295,14 @@ class TreeLikelihood:
      * @name Iterators
      * @{
      */
-    //TODO jdutheil on 08.04.13 we drop model iterators for now!
+    //TODO jdutheil on 21/04/13: need to account for model classes!
     //virtual ConstBranchModelIterator* getNewBranchModelIterator(int nodeId) const = 0;
   
+    //jdutheil on 21/04/13: I think we will drop this type of iterator, which were never used before and are difficult to implement in the new framework...
     //virtual ConstSiteModelIterator* getNewSiteModelIterator(size_t siteIndex) const = 0;
     /* @} */
+
+
 };
 
 } //end of namespace newlik.

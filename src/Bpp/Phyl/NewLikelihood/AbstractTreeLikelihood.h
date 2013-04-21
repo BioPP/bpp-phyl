@@ -81,13 +81,13 @@ class AbstractTreeLikelihood :
     bool initialized_;
     bool verbose_;
     size_t nbSites_;
-    size_t nbDistinctSites_; //Cross-check with SitePartition ! TODO
+    size_t nbDistinctSites_;
     size_t nbStates_;
     size_t nbClasses_;
 
 
 	public:
-		AbstractTreeLikelihood():
+/*		AbstractTreeLikelihood():
       AbstractParametrizable(""),
       data_(0),
       process_(0),
@@ -99,24 +99,11 @@ class AbstractTreeLikelihood :
       nbDistinctSites_(0),
       nbStates_(0),
       nbClasses_(0)
-    {}
+    {}*/
 
     AbstractTreeLikelihood(
-        const SiteContainer* data,
         SubstitutionProcess* process,
-        bool verbose = true):
-      AbstractParametrizable(""),
-      data_(data),
-      process_(process),
-      computeFirstOrderDerivatives_(true),
-      computeSecondOrderDerivatives_(true),
-      initialized_(false),
-      verbose_(verbose),
-      nbSites_(data->getNumberOfSites()),
-      nbDistinctSites_(0),
-      nbStates_(process->getNumberOfStates()),
-      nbClasses_(process->getNumberOfClasses())
-    {}
+        bool verbose = true);
 
     AbstractTreeLikelihood(const AbstractTreeLikelihood& lik):
       AbstractParametrizable(lik),
@@ -191,7 +178,6 @@ class AbstractTreeLikelihood :
 		bool enableFirstOrderDerivatives() const { return computeFirstOrderDerivatives_; }
 		bool enableSecondOrderDerivatives() const { return computeSecondOrderDerivatives_; }
     bool isInitialized() const { return initialized_; }
-    void initialize() throw (Exception) { initialized_ = true; }
 		
     ParameterList getSubstitutionProcessParameters() const { return process_->getParameters(); }
     ParameterList getBranchLengthsParameters() const { return process_->getParametrizableTree().getParameters(); }

@@ -158,6 +158,7 @@ namespace newlik
      * @{
      */
     void setData(const SiteContainer& sites) throw (Exception);
+    
     size_t getSiteIndex(size_t site) const throw (IndexOutOfBoundsException) { return likelihoodData_->getRootArrayPosition(site); }
 		
     double getLogLikelihood() const;
@@ -199,7 +200,13 @@ namespace newlik
     double getSecondOrderDerivative(const std::string& variable) const throw (Exception);
     double getSecondOrderDerivative(const std::string& variable1, const std::string& variable2) const throw (Exception) { return 0; } // Not implemented for now.
     /** @} */
-	
+
+    //TODO: need to acount for model classes
+    //ConstBranchModelIterator* getNewBranchModelIterator(int nodeId) const
+    //{
+    //  return new ConstNoPartitionBranchModelIterator(modelSet_->getModelForNode(nodeId), nbDistinctSites_);
+    //}
+    
   public:	// Specific methods:
 	
     RTreeLikelihoodData* getLikelihoodData() { return likelihoodData_.get(); }

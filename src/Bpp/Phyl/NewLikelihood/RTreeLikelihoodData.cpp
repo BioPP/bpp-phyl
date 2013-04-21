@@ -59,19 +59,18 @@ using namespace std;
 void RTreeLikelihoodData::initLikelihoods(const SiteContainer& sites, const SubstitutionProcess& process)
 throw (Exception)
 {
-  if (sites.getNumberOfSequences() == 1) throw Exception("Error, only 1 sequence!");
-  if (sites.getNumberOfSequences() == 0) throw Exception("Error, no sequence!");
+  if (sites.getNumberOfSequences() == 1) throw Exception("RTreeLikelihoodData::initLikelihoods. Only 1 sequence in data set.");
+  if (sites.getNumberOfSequences() == 0) throw Exception("RTreeLikelihoodData::initLikelihoods. No sequence in data set.");
   if (!process.isCompatibleWith(sites))
     throw Exception("RTreeLikelihoodData::initLikelihoods. Data and model are not compatible.");
   alphabet_ = sites.getAlphabet();
   nbStates_ = process.getNumberOfStates();
   nbSites_  = sites.getNumberOfSites();
-  if (shrunkData_) delete shrunkData_;
   auto_ptr<SitePatterns> patterns;
   if (usePatterns_)
   {
     patterns.reset(initLikelihoodsWithPatterns_(process.getTree().getRootNode(), sites, process));
-    shrunkData_       = patterns->getSites();
+    shrunkData_.reset(patterns->getSites());
     rootWeights_      = patterns->getWeights();
     rootPatternLinks_ = patterns->getIndices();
     nbDistinctSites_  = shrunkData_->getNumberOfSites();
@@ -79,7 +78,7 @@ throw (Exception)
   else
   {
     patterns.reset(new SitePatterns(&sites));
-    shrunkData_       = patterns->getSites();
+    shrunkData_.reset(patterns->getSites());
     rootWeights_      = patterns->getWeights();
     rootPatternLinks_ = patterns->getIndices();
     nbDistinctSites_  = shrunkData_->getNumberOfSites();
@@ -184,10 +183,11 @@ void RTreeLikelihoodData::initLikelihoodsWithoutPatterns_(const Node* node, cons
 }
 
 /******************************************************************************/
+
 SitePatterns* RTreeLikelihoodData::initLikelihoodsWithPatterns_(const Node* node, const SiteContainer& sequences, const SubstitutionProcess& process) throw (Exception)
 {
-  auto_ptr<SiteContainer> tmp(PatternTools::getSequenceSubset(sequences, *node));
-  auto_ptr<SitePatterns> patterns(new SitePatterns(tmp.get(), false));
+  SiteContainer* tmp = PatternTools::getSequenceSubset(sequences, *node);
+  auto_ptr<SitePatterns> patterns(new SitePatterns(tmp, true)); //Important: patterns own tmp, otherwise sizes will not be accessible outside this function.
   auto_ptr<SiteContainer> subSequences(patterns->getSites());
 
   size_t nbSites = subSequences->getNumberOfSites();
@@ -202,7 +202,7 @@ SitePatterns* RTreeLikelihoodData::initLikelihoodsWithPatterns_(const Node* node
   dLikelihoods_node->resize(nbSites);
   d2Likelihoods_node->resize(nbSites);
 
-  for (unsigned int i = 0; i < nbSites; ++i)
+  for (size_t i = 0; i < nbSites; ++i)
   {
     VVdouble* likelihoods_node_i = &(*likelihoods_node)[i];
     VVdouble* dLikelihoods_node_i = &(*dLikelihoods_node)[i];
@@ -210,7 +210,7 @@ SitePatterns* RTreeLikelihoodData::initLikelihoodsWithPatterns_(const Node* node
     likelihoods_node_i->resize(nbClasses_);
     dLikelihoods_node_i->resize(nbClasses_);
     d2Likelihoods_node_i->resize(nbClasses_);
-    for (unsigned int c = 0; c < nbClasses_; ++c)
+    for (size_t c = 0; c < nbClasses_; ++c)
     {
       Vdouble* likelihoods_node_i_c = &(*likelihoods_node_i)[c];
       Vdouble* dLikelihoods_node_i_c = &(*dLikelihoods_node_i)[c];
@@ -218,7 +218,7 @@ SitePatterns* RTreeLikelihoodData::initLikelihoodsWithPatterns_(const Node* node
       likelihoods_node_i_c->resize(nbStates_);
       dLikelihoods_node_i_c->resize(nbStates_);
       d2Likelihoods_node_i_c->resize(nbStates_);
-      for (unsigned int s = 0; s < nbStates_; ++s)
+      for (size_t s = 0; s < nbStates_; ++s)
       {
         (*likelihoods_node_i_c)[s] = 1; // All likelihoods are initialized to 1.
         (*dLikelihoods_node_i_c)[s] = 0; // All dLikelihoods are initialized to 0.
@@ -240,15 +240,15 @@ SitePatterns* RTreeLikelihoodData::initLikelihoodsWithPatterns_(const Node* node
     {
       throw SequenceNotFoundException("RTreeLikelihoodData::initTreelikelihoodsWithPatterns_. Leaf name in tree not found in site conainer: ", (node->getName()));
     }
-    for (unsigned int i = 0; i < nbSites; ++i)
+    for (size_t i = 0; i < nbSites; ++i)
     {
       VVdouble* likelihoods_node_i = &(*likelihoods_node)[i];
       int state = seq->getValue(i);
-      for (unsigned int c = 0; c < nbClasses_; ++c)
+      for (size_t c = 0; c < nbClasses_; ++c)
       {
         Vdouble* likelihoods_node_i_c = &(*likelihoods_node_i)[c];
         double test = 0.;
-        for (unsigned int s = 0; s < nbStates_; ++s)
+        for (size_t s = 0; s < nbStates_; ++s)
         {
           // Leaves likelihood are set to 1 if the char correspond to the site in the sequence,
           // otherwise value set to 0:

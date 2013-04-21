@@ -45,7 +45,6 @@
 //From bpp-core:
 #include <Bpp/Numeric/ParameterAliasable.h>
 #include <Bpp/Numeric/AbstractParameterAliasable.h>
-#include <Bpp/Numeric/Prob/DiscreteDistribution.h>
 
 //From the stl:
 #include <memory>
@@ -71,23 +70,18 @@ protected:
   mutable std::vector<bool> computeProbability_;
   mutable std::vector<bool> computeProbabilityD1_;
   mutable std::vector<bool> computeProbabilityD2_;
-  /**
-   * @brief The hash table is used to index probability matrices and node ids.
-   */
-  std::map<int, size_t> nodeIndex_;
 
 public:
   SimpleSubstitutionProcess(SubstitutionModel* model, ParametrizableTree* tree) :
     AbstractSubstitutionProcess(tree),
     AbstractParameterAliasable(model->getNamespace()),
     model_(model),
-    probabilities_(),
-    probabilitiesD1_(),
-    probabilitiesD2_(),
-    computeProbability_(),
-    computeProbabilityD1_(),
-    computeProbabilityD2_(),
-    nodeIndex_()
+    probabilities_(tree->getNumberOfBranches()),
+    probabilitiesD1_(tree->getNumberOfBranches()),
+    probabilitiesD2_(tree->getNumberOfBranches()),
+    computeProbability_(tree->getNumberOfBranches()),
+    computeProbabilityD1_(tree->getNumberOfBranches()),
+    computeProbabilityD2_(tree->getNumberOfBranches())
   {
     if (!model)
       throw Exception("SimpleSubstitutionProcess. A model instance must be provided.");
@@ -105,8 +99,7 @@ public:
     probabilitiesD2_(ssp.probabilitiesD2_),
     computeProbability_(ssp.computeProbability_),
     computeProbabilityD1_(ssp.computeProbabilityD1_),
-    computeProbabilityD2_(ssp.computeProbabilityD2_),
-    nodeIndex_(ssp.nodeIndex_)
+    computeProbabilityD2_(ssp.computeProbabilityD2_)
   {}
 
   SimpleSubstitutionProcess& operator=(const SimpleSubstitutionProcess& ssp)
@@ -120,7 +113,6 @@ public:
     computeProbability_ = ssp.computeProbability_;
     computeProbabilityD1_ = ssp.computeProbabilityD1_;
     computeProbabilityD2_ = ssp.computeProbabilityD2_;
-    nodeIndex_ = ssp.nodeIndex_;
     return *this;
   }
 
@@ -147,7 +139,7 @@ public:
  
   const Matrix<double>& getTransitionProbabilities(int nodeId, size_t classIndex) const
   {
-    size_t i = getNodeIndex(nodeId);
+    size_t i = getNodeIndex_(nodeId);
     if (!computeProbability_[i]) {
       computeProbability_[i] = true; //We record that we did this computation.
       //The transition matrix was never computed before. We therefore have to compute it first:
@@ -159,7 +151,7 @@ public:
 
   const Matrix<double>& getTransitionProbabilitiesD1(int nodeId, size_t classIndex) const
   {
-    size_t i = getNodeIndex(nodeId);
+    size_t i = getNodeIndex_(nodeId);
     if (!computeProbabilityD1_[i]) {
       computeProbabilityD1_[i] = true; //We record that we did this computation.
       //The transition matrix was never computed before. We therefore have to compute it first:
@@ -171,7 +163,7 @@ public:
 
   const Matrix<double>& getTransitionProbabilitiesD2(int nodeId, size_t classIndex) const
   {
-    size_t i = getNodeIndex(nodeId);
+    size_t i = getNodeIndex_(nodeId);
     if (!computeProbabilityD2_[i]) {
       computeProbabilityD2_[i] = true; //We record that we did this computation.
       //The transition matrix was never computed before. We therefore have to compute it first:
@@ -199,72 +191,10 @@ public:
     return 1;
   }
 
-  size_t getNodeIndex(int nodeId) const throw (NodeNotFoundException) {
-    std::map<int, size_t>::const_iterator it = nodeIndex_.find(nodeId);
-    if (it != nodeIndex_.end())
-      return it->second;
-    else
-      throw NodeNotFoundException("SimpleSubstitutionProcess::getNodeIndex(int).", nodeId);
-  }
-
   //bool transitionProbabilitiesHaveChanged() const { return true; }
   protected:
     void fireParameterChanged(const ParameterList& pl); //Forward parameters and updates probabilities if needed.
 };
-
-//TODO: remove inheritence, has it contains more transition probabilities (nbClases per branch!)
-/*
-class RateAcrossSitesSubstitutionProcess :
-  public SimpleSubstitutionProcess
-{
-private:
-  std::auto_ptr<DiscreteDistribution> rDist_;
-
-public:
-  RateAcrossSitesSubstitutionProcess(SubstitutionModel* model, DiscreteDistribution* rdist, ParametrizableTree* tree) :
-    SimpleSubstitutionProcess(model, tree),
-    rDist_(rdist)
-  {
-    if (!rdist)
-      throw Exception("RateAcrossSitesSubstitutionProcess. A rate distribution instance must be provided.");
-    // Add parameters:
-    addParameters_(rdist->getParameters());
-  }
-
-  RateAcrossSitesSubstitutionProcess(const RateAcrossSitesSubstitutionProcess& rassp) :
-    SimpleSubstitutionProcess(rassp),
-    rDist_(rassp.rDist_->clone())
-  {}
-
-  RateAcrossSitesSubstitutionProcess& operator=(const RateAcrossSitesSubstitutionProcess& rassp)
-  {
-    SimpleSubstitutionProcess::operator=(rassp),
-    rDist_.reset(rassp.rDist_->clone());
-    return *this;
-  }
-
-public:
-  RateAcrossSitesSubstitutionProcess* clone() const { return new RateAcrossSitesSubstitutionProcess(*this); }
-
-  unsigned int getNumberOfClasses() const { return rDist_->getNumberOfCategories(); }
-
-  const Matrix<double>& getTransitionProbabilities(int nodeId, unsigned int siteIndex, unsigned int classIndex) const
-  {
-    double l = pTree_->getBranchLengthParameter(nodeId).getValue();
-    double r = rDist_->getCategory(classIndex);
-    return model_->getPij_t(l * r);
-  }
-
-  double getProbabilityForModel(unsigned int classIndex) const {
-    if (classIndex >= rDist_->getNumberOfCategories())
-      throw IndexOutOfBoundsException("RateAcrossSitesSubstitutionProcess::getProbabilityForModel.", classIndex, 0, rDist_->getNumberOfCategories());
-    return rDist_->getProbability(classIndex);
-  }
-
-  // TODO: it actually depend on the distribution used, how it is parameterized. If classes are fixed and parameters after probabilities only, this should return false to save computational time!
-  bool transitionProbabilitiesHaveChanged() const { return true; }
-};
-*/
 
 } // end namespace bpp
 

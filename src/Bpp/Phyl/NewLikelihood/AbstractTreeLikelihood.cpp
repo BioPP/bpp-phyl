@@ -45,6 +45,27 @@ using namespace newlik;
 
 /******************************************************************************/
 
+AbstractTreeLikelihood::AbstractTreeLikelihood(
+    SubstitutionProcess* process,
+    bool verbose):
+  AbstractParametrizable(""),
+  data_(0),
+  process_(process),
+  computeFirstOrderDerivatives_(true),
+  computeSecondOrderDerivatives_(true),
+  initialized_(false),
+  verbose_(verbose),
+  nbSites_(0),
+  nbDistinctSites_(0),
+  nbStates_(process->getNumberOfStates()),
+  nbClasses_(process->getNumberOfClasses())
+{
+  //initialize parameters:
+  addParameters_(process_->getParameters());
+}
+
+/******************************************************************************/
+
 Vdouble AbstractTreeLikelihood::getLikelihoodForEachSite() const
 {
 	Vdouble l(getNumberOfSites());

@@ -150,7 +150,7 @@ class RTreeLikelihoodData :
      * of the likelihoods array.
      */
     mutable std::map<int, std::map<int, std::vector<size_t> > > patternLinks_;
-    SiteContainer* shrunkData_;
+    std::auto_ptr<SiteContainer> shrunkData_;
     size_t nbSites_; 
     size_t nbStates_;
     size_t nbClasses_;
@@ -173,8 +173,8 @@ class RTreeLikelihoodData :
       nbClasses_(data.nbClasses_), nbDistinctSites_(data.nbDistinctSites_),
       usePatterns_(data.usePatterns_)
     {
-      if (data.shrunkData_)
-        shrunkData_ = dynamic_cast<SiteContainer *>(data.shrunkData_->clone());
+      if (data.shrunkData_.get())
+        shrunkData_.reset(dynamic_cast<SiteContainer*>(data.shrunkData_->clone()));
     }
 
     RTreeLikelihoodData& operator=(const RTreeLikelihoodData & data)
@@ -186,16 +186,15 @@ class RTreeLikelihoodData :
       nbStates_          = data.nbStates_;
       nbClasses_         = data.nbClasses_;
       nbDistinctSites_   = data.nbDistinctSites_;
-      if (shrunkData_) delete shrunkData_;
-      if (data.shrunkData_)
-        shrunkData_      = dynamic_cast<SiteContainer*>(data.shrunkData_->clone());
+      if (data.shrunkData_.get())
+        shrunkData_.reset(dynamic_cast<SiteContainer*>(data.shrunkData_->clone()));
       else
-        shrunkData_      = 0;
+        shrunkData_.reset();
       usePatterns_       = data.usePatterns_;
       return *this;
     }
 
-    virtual ~RTreeLikelihoodData() { delete shrunkData_; }
+    virtual ~RTreeLikelihoodData() {}
 
     RTreeLikelihoodData* clone() const { return new RTreeLikelihoodData(*this); }
 
