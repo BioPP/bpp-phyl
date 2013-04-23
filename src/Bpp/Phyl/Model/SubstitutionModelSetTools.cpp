@@ -73,7 +73,7 @@ SubstitutionModelSet* SubstitutionModelSetTools::createHomogeneousModelSet(
     }
   }
   ids.erase(ids.begin() + pos);
-  modelSet->addModel(model, ids, model->getParameters().getParameterNames());
+  modelSet->addModel(model, ids);
 
   return modelSet;
 }
@@ -181,12 +181,18 @@ SubstitutionModelSet* SubstitutionModelSetTools::createNonHomogeneousModelSet(
   ids.erase(ids.begin() + pos);
   for (i = 0; i < ids.size(); i++)
   {
-    modelSet->addModel(dynamic_cast<SubstitutionModel*>(model->clone()), vector<int>(1, ids[i]), branchParameters.getParameterNames());
+    modelSet->addModel(dynamic_cast<SubstitutionModel*>(model->clone()), vector<int>(1, ids[i]));
   }
 
-  // Now add global parameters to all nodes:
-  modelSet->addParameters(globalParameters, ids);
-
+  // Now alias all global parameters on all nodes:
+  for (i=0; i < globalParameters.size(); i++)
+    {
+      string pname=globalParameters[i].getName();
+      
+      for (size_t nn = 1; nn < ids.size(); nn++)
+        modelSet->aliasParameters(pname+"_"+TextTools::toString(nn+1), pname+"_1");
+    }
+  
   // Defines the hypernodes if mixed
   if (mixed)
   {

@@ -124,17 +124,17 @@ private:
   mutable std::map<int, size_t> nodeToModel_;
   mutable std::map<size_t, std::vector<int> > modelToNodes_;
 
-  /**
-   * @brief Contains for each parameter in the list the indexes of the corresponding models in modelSet_ that share this parameter.
-   */
-  std::vector< std::vector<size_t> > paramToModels_;
+  // /**
+  //  * @brief Contains for each parameter in the list the indexes of the corresponding models in modelSet_ that share this parameter.
+  //  */
+  // std::vector< std::vector<size_t> > paramToModels_;
 
-  std::map<std::string, size_t> paramNamesCount_;
+  // std::map<std::string, size_t> paramNamesCount_;
 
   /**
    * @brief Contains for each parameter in the list the corresponding name in substitution models.
    */
-  std::vector<std::string> modelParameterNames_;
+  //  std::vector<std::string> modelParameterNames_;
 
   /**
    * @brief Parameters for each model in the set.
@@ -162,9 +162,6 @@ public:
     rootFrequencies_(0),
     nodeToModel_(),
     modelToNodes_(),
-    paramToModels_(),
-    paramNamesCount_(),
-    modelParameterNames_(),
     modelParameters_(),
     stationarity_(true)
   {
@@ -185,9 +182,6 @@ public:
     rootFrequencies_(0),
     nodeToModel_(),
     modelToNodes_(),
-    paramToModels_(),
-    paramNamesCount_(),
-    modelParameterNames_(),
     modelParameters_(),
     stationarity_(true)
   {
@@ -244,14 +238,14 @@ public:
    * @return The position of the parameter in the global parameter list.
    * @throw ParameterNotFoundException If no parameter with this name is found.
    */
-  size_t getParameterIndex(const std::string& name) const throw (ParameterNotFoundException)
-  {
-    for (size_t i = 0; i < getNumberOfParameters(); i++)
-    {
-      if (getParameter_(i).getName() == name) return i;
-    }
-    throw ParameterNotFoundException("SubstitutionModelSet::getParameterIndex().", name);
-  }
+  // size_t getParameterIndex(const std::string& name) const throw (ParameterNotFoundException)
+  // {
+  //   for (size_t i = 0; i < getNumberOfParameters(); i++)
+  //   {
+  //     if (getParameter_(i).getName() == name) return i;
+  //   }
+  //   throw ParameterNotFoundException("SubstitutionModelSet::getParameterIndex().", name);
+  // }
 
   /**
    * @brief Get the model name of a given parameter in the list of all parameters.
@@ -261,18 +255,18 @@ public:
    * @throw ParameterNotFoundException If no parameter with this name is found.
    * @throw Exception If the parameter is not a 'model' parameter (that is, it is a root frequency parameter).
    */
-  std::string getParameterModelName(const std::string& name) const throw (ParameterNotFoundException, Exception)
-  {
-    size_t pos = getParameterIndex(name);
-    if (stationarity_)
-      return modelParameterNames_[pos];
-    else
-    {
-      size_t rfs = rootFrequencies_->getNumberOfParameters();
-      if (pos < rfs) throw Exception("SubstitutionModelSet::getParameterModelName(). This parameter as no model name: " + name);
-      return modelParameterNames_[pos - rfs];
-    }
-  }
+  // std::string getParameterModelName(const std::string& name) const throw (ParameterNotFoundException, Exception)
+  // {
+  //   size_t pos = getParameterIndex(name);
+  //   if (stationarity_)
+  //     return modelParameterNames_[pos];
+  //   else
+  //   {
+  //     size_t rfs = rootFrequencies_->getNumberOfParameters();
+  //     if (pos < rfs) throw Exception("SubstitutionModelSet::getParameterModelName(). This parameter as no model name: " + name);
+  //     return modelParameterNames_[pos - rfs];
+  //   }
+  // }
 
   /**
    * To be called when a parameter has changed.
@@ -365,6 +359,7 @@ public:
    * @return The list of nodes with a model containing the specified parameter.
    * @throw ParameterNotFoundException If no parameter with the specified name is found.
    */
+
   std::vector<int> getNodesWithParameter(const std::string& name) const throw (ParameterNotFoundException);
 
   /**
@@ -372,7 +367,7 @@ public:
    * @return The list of model indices containing the specified parameter.
    * @throw ParameterNotFoundException If no parameter with the specified name is found.
    */
-  std::vector<size_t> getModelsWithParameter(const std::string& name) const throw (ParameterNotFoundException);
+  //std::vector<size_t> getModelsWithParameter(const std::string& name) const throw (ParameterNotFoundException);
 
   /**
    * @brief Add a new model to the set, and set relationships with nodes and params.
@@ -395,7 +390,7 @@ public:
    * <li>etc.</li>
    * </ul>
    */
-  void addModel(SubstitutionModel* model, const std::vector<int>& nodesId, const std::vector<std::string>& newParams) throw (Exception);
+  void addModel(SubstitutionModel* model, const std::vector<int>& nodesId);//, const std::vector<std::string>& newParams) throw (Exception);
 
   /**
    * @brief Change a given model.
@@ -407,7 +402,7 @@ public:
    * Copy the model first if you don't want it to be lost!
    * @param modelIndex The index of the existing model to replace.
    */
-  void setModel(SubstitutionModel* model, size_t modelIndex) throw (Exception, IndexOutOfBoundsException);
+  //  void setModel(SubstitutionModel* model, size_t modelIndex) throw (Exception, IndexOutOfBoundsException);
 
   /**
    * @brief Associate an existing model with a given node.
@@ -418,11 +413,11 @@ public:
    * @param modelIndex The position of the model in the set.
    * @param nodeNumber The id of the corresponding node.
    */
-  void setModelToNode(size_t modelIndex, int nodeNumber) throw (IndexOutOfBoundsException)
-  {
-    if (modelIndex >= nodeToModel_.size()) throw IndexOutOfBoundsException("SubstitutionModelSet::setModelToNode.", modelIndex, 0, nodeToModel_.size() - 1);
-    nodeToModel_[nodeNumber] = modelIndex;
-  }
+  // void setModelToNode(size_t modelIndex, int nodeNumber) throw (IndexOutOfBoundsException)
+  // {
+  //   if (modelIndex >= nodeToModel_.size()) throw IndexOutOfBoundsException("SubstitutionModelSet::setModelToNode.", modelIndex, 0, nodeToModel_.size() - 1);
+  //   nodeToModel_[nodeNumber] = modelIndex;
+  // }
 
   /**
    * @brief Assign a parameter to a model.
@@ -431,7 +426,7 @@ public:
    * @param modelIndex     The index of the model in the list.
    * @throw IndexOutOfBoundsException If one of the index is not valid.
    */
-  void setParameterToModel(size_t parameterIndex, size_t modelIndex) throw (IndexOutOfBoundsException);
+  //void setParameterToModel(size_t parameterIndex, size_t modelIndex) throw (IndexOutOfBoundsException);
 
   /**
    * @brief Unset a given parameter to the specified model.
@@ -441,7 +436,7 @@ public:
    * @throw IndexOutOfBoundsException If one of the index is not valid.
    * @throw Exception If the pseicified parameter is not currently associated to the specified model.
    */
-  void unsetParameterToModel(size_t parameterIndex, size_t modelIndex) throw (IndexOutOfBoundsException, Exception);
+  //void unsetParameterToModel(size_t parameterIndex, size_t modelIndex) throw (IndexOutOfBoundsException, Exception);
 
   /**
    * @brief Add a parameter to the list, and link it to specified existing nodes.
@@ -451,7 +446,7 @@ public:
    * Nodes must have a corresponding model in the set.
    * @throw Exception If one of the above requirement is not true.
    */
-  void addParameter(const Parameter& parameter, const std::vector<int>& nodesId) throw (Exception);
+  //void addParameter(const Parameter& parameter, const std::vector<int>& nodesId) throw (Exception);
 
   /**
    * @brief Add several parameters to the list, and link them to specified existing nodes.
@@ -461,7 +456,7 @@ public:
    * Nodes must have a corresponding model in the set.
    * @throw Exception If one of the above requirement is not true.
    */
-  void addParameters(const ParameterList& parameters, const std::vector<int>& nodesId) throw (Exception);
+  //void addParameters(const ParameterList& parameters, const std::vector<int>& nodesId) throw (Exception);
 
   /**
    * @brief Remove a parameter from the list, and unset it to all linked nodes and models.
@@ -469,7 +464,7 @@ public:
    * @param name The name of the parameter to remove.
    * @throw ParameterNotFoundException If no parameter with the given name is found in the list.
    */
-  void removeParameter(const std::string& name) throw (ParameterNotFoundException);
+  //void removeParameter(const std::string& name) throw (ParameterNotFoundException);
 
   /**
    * @brief Remove a model from the set, and all corresponding parameters.
@@ -555,7 +550,7 @@ public:
   bool isFullySetUpFor(const Tree& tree, bool throwEx = true) const throw (Exception)
   {
     return checkOrphanModels(throwEx)
-           && checkOrphanParameters(throwEx)
+      //           && checkOrphanParameters(throwEx)
            && checkOrphanNodes(tree, throwEx)
            && checkUnknownNodes(tree, throwEx);
   }
@@ -577,7 +572,7 @@ protected:
    */
   bool checkOrphanModels(bool throwEx) const throw (Exception);
 
-  bool checkOrphanParameters(bool throwEx) const throw (Exception);
+  //  bool checkOrphanParameters(bool throwEx) const throw (Exception);
 
   bool checkOrphanNodes(const Tree& tree, bool throwEx) const throw (Exception);
 
