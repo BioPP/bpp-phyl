@@ -45,8 +45,6 @@
 
 //From bpp-core:
 #include <Bpp/Numeric/ParameterAliasable.h>
-#include <Bpp/Numeric/AbstractParameterAliasable.h>
-#include <Bpp/Numeric/Prob/DiscreteDistribution.h>
 
 //From the STL:
 #include <memory>
@@ -171,61 +169,6 @@ public:
    * @return True if transition probabilities have changed.
    */
   //virtual bool transitionProbabilitiesHaveChanged() const = 0; Not sure we need that anymore...
-};
-
-
-class AbstractSubstitutionProcess :
-  public virtual SubstitutionProcess
-{
-protected:
-  std::auto_ptr<ParametrizableTree> pTree_;
-  /**
-   * @brief The hash table is used to index probability matrices and node ids.
-   */
-  std::map<int, size_t> nodeIndex_;
-
-protected:
-  AbstractSubstitutionProcess(ParametrizableTree* tree) :
-    pTree_(tree), nodeIndex_()
-  {
-    if (!tree)
-      throw Exception("AbstractSubstitutionProcess. A tree instance must be provided.");
-    
-    //Build node index (NB: if we allow to change the tree, this will have to be recomputed):
-    std::vector<int> ids = pTree_->getBranchesId();
-    for (size_t i = 0; i < ids.size(); ++i) {
-      nodeIndex_[ids[i]] = i;
-    }
-  }
-
-  AbstractSubstitutionProcess(const AbstractSubstitutionProcess& asp) :
-    pTree_(pTree_->clone()),
-    nodeIndex_(asp.nodeIndex_)
-  {}
-
-  AbstractSubstitutionProcess& operator=(const AbstractSubstitutionProcess& asp)
-  {
-    pTree_.reset(pTree_->clone());
-    nodeIndex_ = asp.nodeIndex_;
-    return *this;
-  }
-
-public:
-
-  const TreeTemplate<Node>& getTree() const { return pTree_->getTree(); }
-  
-  const ParametrizableTree& getParametrizableTree() const { return *pTree_; }
-
-protected:
-  size_t getNodeIndex_(int nodeId) const throw (NodeNotFoundException) {
-    std::map<int, size_t>::const_iterator it = nodeIndex_.find(nodeId);
-    if (it != nodeIndex_.end())
-      return it->second;
-    else
-      throw NodeNotFoundException("AbstractSubstitutionProcess::getNodeIndex(int).", nodeId);
-  }
-
-
 };
 
 } // end namespace bpp

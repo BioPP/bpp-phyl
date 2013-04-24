@@ -1,5 +1,5 @@
 //
-// File: SimpleSubstitutionProcess.cpp
+// File: RateAcrossSitesSubstitutionProcess.cpp
 // Created by: Julien Dutheil
 // Created on: Tue May 15 13:11 2012
 //
@@ -37,16 +37,18 @@
    knowledge of the CeCILL license and that you accept its terms.
  */
 
-#include "SimpleSubstitutionProcess.h"
+#include "RateAcrossSitesSubstitutionProcess.h"
 
 using namespace bpp;
 
-void SimpleSubstitutionProcess::fireParameterChanged(const ParameterList& pl)
+void RateAcrossSitesSubstitutionProcess::fireParameterChanged(const ParameterList& pl)
 {
   //Forward parameters:
   pTree_->matchParametersValues(pl);
-  //Updates substitution model:
+  //Update substitution model:
   model_->matchParametersValues(pl);
+  //Update rate distribution:
+  rDist_->matchParametersValues(pl);
   //Transition probabilities have changed and need to be recomputed:
   AbstractSubstitutionProcess::fireParameterChanged(pl);
 }
