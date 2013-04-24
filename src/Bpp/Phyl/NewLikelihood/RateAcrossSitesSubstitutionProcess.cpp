@@ -41,6 +41,39 @@
 
 using namespace bpp;
 
+RateAcrossSitesSubstitutionProcess::RateAcrossSitesSubstitutionProcess(SubstitutionModel* model, DiscreteDistribution* rdist, ParametrizableTree* tree) :
+  AbstractSubstitutionProcess(tree, rdist ? rdist->getNumberOfCategories() : 0),
+  AbstractParameterAliasable(model ? model->getNamespace() : ""),
+  model_(model),
+  rDist_(rdist)
+{
+  if (!model)
+    throw Exception("RateAcrossSitesSubstitutionProcess. A model instance must be provided.");
+  if (!rdist)
+    throw Exception("RateAcrossSitesSubstitutionProcess. A rate distribution instance must be provided.");
+
+  // Add parameters:
+  addParameters_(tree->getParameters());  //Branch lengths
+  addParameters_(model->getParameters()); //Substitution model
+  addParameters_(rdist->getParameters()); //Rate distribution
+}
+    
+RateAcrossSitesSubstitutionProcess::RateAcrossSitesSubstitutionProcess(const RateAcrossSitesSubstitutionProcess& rassp) :
+  AbstractSubstitutionProcess(rassp),
+  AbstractParameterAliasable(rassp),
+  model_(rassp.model_->clone()),
+  rDist_(rassp.rDist_->clone())
+{}
+
+RateAcrossSitesSubstitutionProcess& RateAcrossSitesSubstitutionProcess::operator=(const RateAcrossSitesSubstitutionProcess& rassp)
+{
+  AbstractSubstitutionProcess::operator=(rassp);
+  AbstractParameterAliasable::operator=(rassp);
+  model_.reset(rassp.model_->clone());
+  rDist_.reset(rassp.rDist_->clone());
+  return *this;
+}
+
 void RateAcrossSitesSubstitutionProcess::fireParameterChanged(const ParameterList& pl)
 {
   //Forward parameters:
@@ -52,4 +85,44 @@ void RateAcrossSitesSubstitutionProcess::fireParameterChanged(const ParameterLis
   //Transition probabilities have changed and need to be recomputed:
   AbstractSubstitutionProcess::fireParameterChanged(pl);
 }
+
+const Matrix<double>& RateAcrossSitesSubstitutionProcess::getTransitionProbabilities(int nodeId, size_t classIndex) const
+{
+  size_t i = getModelIndex_(nodeId, classIndex);
+  if (!computeProbability_[i]) {
+    computeProbability_[i] = true; //We record that we did this computation.
+    //The transition matrix was never computed before. We therefore have to compute it first:
+    double l = pTree_->getBranchLengthParameter(nodeId).getValue();
+    double r = rDist_->getCategory(classIndex);
+    probabilities_[i] = model_->getPij_t(l * r);
+  }
+  return probabilities_[i];
+}
+
+const Matrix<double>& RateAcrossSitesSubstitutionProcess::getTransitionProbabilitiesD1(int nodeId, size_t classIndex) const
+{
+  size_t i = getModelIndex_(nodeId, classIndex);
+  if (!computeProbabilityD1_[i]) {
+    computeProbabilityD1_[i] = true; //We record that we did this computation.
+    //The transition matrix was never computed before. We therefore have to compute it first:
+    double l = pTree_->getBranchLengthParameter(nodeId).getValue();
+    double r = rDist_->getCategory(classIndex);
+    probabilitiesD1_[i] = model_->getdPij_dt(l * r);
+  }
+  return probabilitiesD1_[i];
+}
+
+const Matrix<double>& RateAcrossSitesSubstitutionProcess::getTransitionProbabilitiesD2(int nodeId, size_t classIndex) const
+{
+  size_t i = getModelIndex_(nodeId, classIndex);
+  if (!computeProbabilityD2_[i]) {
+    computeProbabilityD2_[i] = true; //We record that we did this computation.
+    //The transition matrix was never computed before. We therefore have to compute it first:
+    double l = pTree_->getBranchLengthParameter(nodeId).getValue();
+    double r = rDist_->getCategory(classIndex);
+    probabilitiesD2_[i] = model_->getd2Pij_dt2(l * r);
+  }
+  return probabilitiesD2_[i];
+}
+
 

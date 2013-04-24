@@ -69,6 +69,11 @@ AbstractSubstitutionProcess::AbstractSubstitutionProcess(ParametrizableTree* tre
   computeProbability_.resize(n);
   computeProbabilityD1_.resize(n);
   computeProbabilityD2_.resize(n);
+  for (size_t i = 0; i < n; ++i) {
+    computeProbability_[i] = false;
+    computeProbabilityD1_[i] = false;
+    computeProbabilityD2_[i] = false;
+  }
 }
  
 AbstractSubstitutionProcess::AbstractSubstitutionProcess(const AbstractSubstitutionProcess& asp) :

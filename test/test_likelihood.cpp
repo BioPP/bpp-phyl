@@ -48,6 +48,7 @@ knowledge of the CeCILL license and that you accept its terms.
 #include <Bpp/Phyl/OptimizationTools.h>
 #include <Bpp/Phyl/NewLikelihood/ParametrizableTree.h>
 #include <Bpp/Phyl/NewLikelihood/SimpleSubstitutionProcess.h>
+#include <Bpp/Phyl/NewLikelihood/RateAcrossSitesSubstitutionProcess.h>
 #include <Bpp/Phyl/NewLikelihood/RTreeLikelihood.h>
 #include <iostream>
 
@@ -62,11 +63,12 @@ void fitModelH(SubstitutionModel* model, DiscreteDistribution* rdist, const Tree
   ApplicationTools::displayResult("Test model", model->getName());
   cout << "OldTL: " << setprecision(20) << tl.getValue() << endl;
   ApplicationTools::displayResult("* initial likelihood", tl.getValue());
-  //if (abs(tl.getValue() - initialValue) > 0.001)
-  //  throw Exception("Incorrect initial value.");
+  if (abs(tl.getValue() - initialValue) > 0.001)
+    throw Exception("Incorrect initial value.");
 
   ParametrizableTree* pTree = new ParametrizableTree(tree);
-  SubstitutionProcess* process = new SimpleSubstitutionProcess(model->clone(), pTree);
+  //SubstitutionProcess* process = new SimpleSubstitutionProcess(model->clone(), pTree);
+  SubstitutionProcess* process = new RateAcrossSitesSubstitutionProcess(model->clone(), rdist->clone(), pTree);
   RTreeLikelihood newTl(sites, process, true, true);
   cout << "NewTL: " << setprecision(20) << newTl.getValue() << endl;
 
@@ -87,9 +89,8 @@ int main() {
 
   const NucleicAlphabet* alphabet = &AlphabetTools::DNA_ALPHABET;
   SubstitutionModel* model = new T92(alphabet, 3.);
-  DiscreteDistribution* rdist = new ConstantRateDistribution();
-  //DiscreteDistribution* rdist = new GammaDiscreteDistribution(1.0, 4);
-  //rdist->aliasParameters("alpha", "beta");
+  //DiscreteDistribution* rdist = new ConstantRateDistribution();
+  DiscreteDistribution* rdist = new GammaDiscreteRateDistribution(4, 1.0);
 
   VectorSiteContainer sites(alphabet);
   sites.addSequence(BasicSequence("A", "AAATGGCTGTGCACGTC", alphabet));
