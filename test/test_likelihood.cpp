@@ -99,7 +99,7 @@ int main() {
   sites.addSequence(BasicSequence("D", "AAATGGCGGTGCGCCTA", alphabet));
 
   try {
-    fitModelH(model, rdist, *tree, sites, 75.031104151696752069, 65.03473753351640596065);
+    fitModelH(model, rdist, *tree, sites, 85.030942031997312824, 65.72293577214308868406);
   } catch (Exception& ex) {
     cerr << ex.what() << endl;
     return 1;
