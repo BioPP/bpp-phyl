@@ -82,7 +82,12 @@ class RTreeLikelihoodNodeData :
     int nodeId_;
 
   public:
-    RTreeLikelihoodNodeData() : nodeLikelihoods_(), nodeDLikelihoods_(), nodeD2Likelihoods_(), nodeId_(-1) {}
+    RTreeLikelihoodNodeData() :
+      nodeLikelihoods_(),
+      nodeDLikelihoods_(),
+      nodeD2Likelihoods_(),
+      nodeId_(-1)
+    {}
     
     RTreeLikelihoodNodeData(const RTreeLikelihoodNodeData& data) :
       nodeLikelihoods_(data.nodeLikelihoods_),
@@ -128,7 +133,7 @@ class RTreeLikelihoodNodeData :
  * @brief Likelihood data structure suporting simple recursion.
  */
 class RTreeLikelihoodData :
-  public virtual newlik::AbstractTreeLikelihoodData
+  public newlik::AbstractTreeLikelihoodData
 {
   private:
     /**
@@ -199,6 +204,7 @@ class RTreeLikelihoodData :
     RTreeLikelihoodData* clone() const { return new RTreeLikelihoodData(*this); }
 
   public:
+
     RTreeLikelihoodNodeData& getNodeData(int nodeId)
     { 
       return nodeData_[nodeId];
