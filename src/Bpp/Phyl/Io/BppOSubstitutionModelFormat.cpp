@@ -630,7 +630,7 @@ SubstitutionModel* BppOSubstitutionModelFormat::read(const Alphabet* alphabet,
       continue;
     pval = args[pname];
 
-    if ((pval.length() >= 5 && pval.substr(0, 5) == "model") ||
+    if (((pval.rfind("_") != string::npos) && (TextTools::isDecimalInteger(pval.substr(pval.rfind("_")+1,string::npos)))) ||
         (pval.find("(") != string::npos))
       continue;
     bool found = false;

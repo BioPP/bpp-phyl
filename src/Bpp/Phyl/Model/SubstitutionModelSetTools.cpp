@@ -188,9 +188,9 @@ SubstitutionModelSet* SubstitutionModelSetTools::createNonHomogeneousModelSet(
   for (i=0; i < globalParameters.size(); i++)
     {
       string pname=globalParameters[i].getName();
-      
+
       for (size_t nn = 1; nn < ids.size(); nn++)
-        modelSet->aliasParameters(pname+"_"+TextTools::toString(nn+1), pname+"_1");
+        modelSet->aliasParameters(pname+"_1",pname+"_"+TextTools::toString(nn+1));
     }
   
   // Defines the hypernodes if mixed

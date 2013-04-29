@@ -265,7 +265,7 @@ void PhylogeneticsApplicationTools::setSubstitutionModelParametersInitialValuesW
     existingParams[pName+"_"+TextTools::toString(modelNumber)] = pl[i].getValue();
 
     if (verbose)
-      ApplicationTools::displayResult("Parameter found", pName + +"_"+TextTools::toString(modelNumber) + "=" + TextTools::toString(pl[i].getValue()));
+      ApplicationTools::displayResult("Parameter found", pName + +"_"+TextTools::toString(modelNumber) + "=" + value);
   }
   
   model.matchParametersValues(pl);
@@ -390,7 +390,7 @@ void PhylogeneticsApplicationTools::setSubstitutionModelSet(
   if (verbose)
     ApplicationTools::displayResult("Number of distinct models", TextTools::toString(nbModels));
 
-  BppOSubstitutionModelFormat bIO(BppOSubstitutionModelFormat::ALL, true, true, true, verbose);
+  BppOSubstitutionModelFormat bIO(BppOSubstitutionModelFormat::ALL, true, true, true, false);
 
   // ///////////////////////////////////////////
   // Build a new model set object:
@@ -440,6 +440,8 @@ void PhylogeneticsApplicationTools::setSubstitutionModelSet(
   // //////////////////////////////////////
   // Now parse all models:
 
+  bIO.setVerbose(true);
+  
   map<string, double> existingParameters;
 
   for (size_t i = 0; i < nbModels; i++)
@@ -462,7 +464,9 @@ void PhylogeneticsApplicationTools::setSubstitutionModelSet(
       unparsedParameterValues, i+1, data,
       existingParameters, sharedParameters,
       verbose);
-    vector<int> nodesId = ApplicationTools::getVectorParameter<int>(prefix + "nodes_id", params, ',', ':', TextTools::toString(i), suffix, suffixIsOptional, true);
+
+    vector<int> nodesId = ApplicationTools::getVectorParameter<int>(prefix + ".nodes_id", params, ',', ':', TextTools::toString(i), suffix, suffixIsOptional, true);
+
     if (verbose)
       ApplicationTools::displayResult("Model" + TextTools::toString(i + 1) + " is associated to", TextTools::toString(nodesId.size()) + " node(s).");
 
@@ -471,7 +475,7 @@ void PhylogeneticsApplicationTools::setSubstitutionModelSet(
     // Now set shared parameters:
     map<string, string>::const_iterator it;
     for (it=sharedParameters.begin(); it!=sharedParameters.end(); it++)
-      modelSet.aliasParameters(it->first, it->second);
+      modelSet.aliasParameters(it->second, it->first);
     
     model.release();
   }
@@ -1334,36 +1338,30 @@ void PhylogeneticsApplicationTools::printParameters(const SubstitutionModelSet* 
   map< size_t, vector<string> > modelLinks; // for each model index, stores the list of global parameters.
   map< string, set<size_t> > parameterLinks; // for each parameter name, stores the list of model indices, wich should be sorted.
   vector<string> writtenNames;
-  ParameterList pl = modelSet->getParameters();
-  ParameterList plroot = modelSet->getRootFrequenciesParameters();
 
   // Loop over all models:
   for (size_t i = 0; i < modelSet->getNumberOfModels(); i++)
   {
     const SubstitutionModel* model = modelSet->getModel(i);
 
-    // // First get the global aliases for this model:
-    map<string, string> globalAliases;
+    // First get the aliases for this model:
+    map<string, string> aliases;
 
-    // vector<string> names = modelLinks[i];
-    // for (size_t j = 0; j < names.size(); j++)
-    // {
-    //   const string name = names[j];
-    //   if (parameterLinks[name].size() > 1)
-    //   {
-    //     // there is a global alias here
-    //     if (*parameterLinks[name].begin() != i) // Otherwise, this is the 'reference' value
-    //     {
-    //       globalAliases[modelSet->getParameterModelName(name)] = "model" + TextTools::toString((*parameterLinks[name].begin()) + 1) + "." + modelSet->getParameterModelName(name);
-    //     }
-    //   }
-    // }
+    ParameterList pl=model->getParameters();
+
+    for (size_t np = 0 ; np< pl.size() ; np++)
+      {
+        string nfrom=modelSet->getFrom(pl[np].getName()+"_"+TextTools::toString(i+1));
+        if (nfrom!="")
+          aliases[pl[np].getName()]=nfrom;
+      }
 
     // Now print it:
     writtenNames.clear();
     out.endLine() << "model" << (i + 1) << "=";
     BppOSubstitutionModelFormat bIOsm(BppOSubstitutionModelFormat::ALL, true, true, true, false);
-    bIOsm.write(*model, out, globalAliases, writtenNames);
+    map<string, string>::iterator it;
+    bIOsm.write(*model, out, aliases, writtenNames);
     out.endLine();
     vector<int> ids = modelSet->getNodesWithModel(i);
     out << "model" << (i + 1) << ".nodes_id=" << ids[0];

@@ -121,6 +121,8 @@ public:
              std::map<std::string, std::string>& globalAliases,
              std::vector<std::string>& writtenNames) const;
 
+  void setVerbose(bool verbose) { verbose_=verbose;}
+  
 private:
   MixedSubstitutionModel* readMixed_(const Alphabet* alphabet, const std::string& modelDescription, const SiteContainer* data);
 

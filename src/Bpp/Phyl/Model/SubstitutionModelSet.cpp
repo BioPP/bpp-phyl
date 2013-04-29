@@ -128,33 +128,18 @@ std::vector<int> SubstitutionModelSet::getNodesWithParameter(const std::string& 
     throw ParameterNotFoundException("SubstitutionModelSet::getNodesWithParameter.", name);
     
   vector<string> nalias=getAlias(name);
-  vector<int> inode;
   size_t p=name.rfind("_");
-  inode.push_back(TextTools::toInt(name.substr(p+1,string::npos)));
+  vector<int> inode= getNodesWithModel(TextTools::toInt(name.substr(p+1,string::npos))-1);
   
   for (size_t i = 0; i < nalias.size(); i++)
     {
       p=nalias[i].rfind("_");
-      int n=TextTools::toInt(nalias[i].substr(p+1,string::npos));
-      if (!(VectorTools::contains(inode, n)))
-        inode.push_back(n);
+      vector<int> ni=getNodesWithModel(TextTools::toInt(nalias[i].substr(p+1,string::npos))-1);
+      inode.insert(inode.end(),ni.begin(),ni.end());
     }
   
   return inode;
 }
-
-// vector<size_t> SubstitutionModelSet::getModelsWithParameter(const std::string& name) const
-//   throw (ParameterNotFoundException)
-// {
-//   vector<size_t> indices;
-//   size_t offset = stationarity_ ? 0 : rootFrequencies_->getNumberOfParameters();
-//   for (size_t i = 0; i < paramToModels_.size(); i++)
-//     {
-//       if (getParameter_(offset + i).getName() == name)
-//         return paramToModels_[i];
-//     }
-//   throw ParameterNotFoundException("SubstitutionModelSet::getModelsWithParameter.", name);
-// }
 
 void SubstitutionModelSet::addModel(SubstitutionModel* model, const std::vector<int>& nodesId)//, const vector<string>& newParams) throw (Exception)
 {
@@ -236,7 +221,6 @@ void SubstitutionModelSet::listModelNames(std::ostream& out) const
 
 void SubstitutionModelSet::fireParameterChanged(const ParameterList& parameters)
 {
-  // For now, we actualize all parameters... we'll optimize later!
   // Update root frequencies:
   updateRootFrequencies();
 
@@ -244,8 +228,9 @@ void SubstitutionModelSet::fireParameterChanged(const ParameterList& parameters)
   for (size_t i = 0; i < modelParameters_.size(); i++)
     {
       for (size_t np = 0 ; np< modelParameters_[i].size() ; np++)
-        modelParameters_[i][np].setValue(getParameterValue(modelParameters_[i][np].getName()+"_"+TextTools::toString(i+1)));
-      
+        {
+          modelParameters_[i][np].setValue(getParameterValue(modelParameters_[i][np].getName()+"_"+TextTools::toString(i+1)));
+        }
       modelSet_[i]->matchParametersValues(modelParameters_[i]);
     }
 }
