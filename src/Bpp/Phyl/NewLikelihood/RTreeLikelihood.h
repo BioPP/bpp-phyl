@@ -100,10 +100,7 @@ namespace newlik
      * This constructor only initialize the parameters.
      * To compute a likelihood, you will need to call the setData() and the computeTreeLikelihood() methods.
      *
-     * @param tree The tree to use.
-     * @param modelSet The set of substitution models to use.
-     * @param rDist The rate across sites distribution to use.
-     * If true, any rooted tree will be unrooted before likelihood computation.
+     * @param process The substitution process to use.
      * @param verbose Should I display some info?
      * @param usePatterns Tell if recursive site compression should be performed.
      * @throw Exception in an error occured.
@@ -120,8 +117,7 @@ namespace newlik
      * This constructor initializes all parameters, data, and likelihood arrays.
      *
      * @param data Sequences to use.
-     * @param modelSet The set of substitution models to use.
-     * @param rDist The rate across sites distribution to use.
+     * @param process The substitution process to use.
      * @param verbose Should I display some info?
      * @param usePatterns Tell if recursive site compression should be performed.
      * @throw Exception in an error occured.
@@ -161,6 +157,9 @@ namespace newlik
     
     size_t getSiteIndex(size_t site) const throw (IndexOutOfBoundsException) { return likelihoodData_->getRootArrayPosition(site); }
 		
+    RTreeLikelihoodData* getLikelihoodData() { return likelihoodData_.get(); }
+    const RTreeLikelihoodData* getLikelihoodData() const { return likelihoodData_.get(); }
+ 
     double getLogLikelihood() const;
     double getLikelihoodForASite(size_t site) const;
     double getLikelihoodForASiteForAClass(size_t site, size_t modelClass) const;
@@ -209,9 +208,6 @@ namespace newlik
     
   public:	// Specific methods:
 	
-    RTreeLikelihoodData* getLikelihoodData() { return likelihoodData_.get(); }
-    const RTreeLikelihoodData* getLikelihoodData() const { return likelihoodData_.get(); }
- 
     virtual void computeTreeLikelihood();
 
     virtual double getDLikelihoodForASiteForAClass(size_t site, size_t classIndex) const;
