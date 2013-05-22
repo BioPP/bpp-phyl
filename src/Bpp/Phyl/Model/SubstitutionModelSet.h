@@ -66,18 +66,23 @@ namespace bpp
 /**
  * @brief Substitution models manager for non-homogeneous / non-reversible models of evolution.
  *
- * This class contains a set of substitution models, and their assigment toward the branches of a phylogenetic tree.
- * Each branch in the tree corresponds to a model in the set, but a susbstitution model may correspond to several branches.
- * The particular case where all branches point toward a unique model is the homogeneous case.
+ * This class contains a set of substitution models, and their
+ * assigment toward the branches of a phylogenetic tree. Each branch
+ * in the tree corresponds to a model in the set, but a susbstitution
+ * model may correspond to several branches. The particular case where
+ * all branches point toward a unique model is the homogeneous case.
  *
  * This class also deals with the parameters associated to the models.
- * In the homogeneous case, the parameter list is the same as the list in susbstitution model.
- * When two models at least are specified, these models may have their own parameters or share some of them.
- * To deal with this issue, the SubstitutionModelSet class contains its own parameter list and an index which tells to which
- * models these parameters apply to.
- * Since parameters in a list must have unique names, duplicated names are numbered according to the order in the list.
- * To track the relationships between names in the list and names in each model, the parameter list is duplicated in modelParameters_.
- * The user only act on parameters_, the fireParameterChanged function, automatically called, will update the modelParameters_ field.
+ * In the homogeneous case, the parameter list is the same as the list
+ * in susbstitution model. When two models at least are specified,
+ * these models may have their own parameters or share some of them.
+ * To deal with this issue, the SubstitutionModelSet class contains
+ * its own parameter list, where parameters are numbered according to
+ * the model they belong to.
+ *
+ * The user only act on parameters_, the fireParameterChanged
+ * function, automatically called, will update the modelParameters_
+ * field.
  *
  * In the non-homogeneous and homogeneous non-reversible cases, the likelihood depends on the position of the root.
  * The states frequencies at the root of the tree are hence distinct parameters.
@@ -123,18 +128,6 @@ private:
    */
   mutable std::map<int, size_t> nodeToModel_;
   mutable std::map<size_t, std::vector<int> > modelToNodes_;
-
-  // /**
-  //  * @brief Contains for each parameter in the list the indexes of the corresponding models in modelSet_ that share this parameter.
-  //  */
-  // std::vector< std::vector<size_t> > paramToModels_;
-
-  // std::map<std::string, size_t> paramNamesCount_;
-
-  /**
-   * @brief Contains for each parameter in the list the corresponding name in substitution models.
-   */
-  //  std::vector<std::string> modelParameterNames_;
 
   /**
    * @brief Parameters for each model in the set.
@@ -232,43 +225,6 @@ public:
   }
 
   /**
-   * @brief Get the index of a given parameter in the list of all parameters.
-   *
-   * @param name The name of the parameter to look for.
-   * @return The position of the parameter in the global parameter list.
-   * @throw ParameterNotFoundException If no parameter with this name is found.
-   */
-  // size_t getParameterIndex(const std::string& name) const throw (ParameterNotFoundException)
-  // {
-  //   for (size_t i = 0; i < getNumberOfParameters(); i++)
-  //   {
-  //     if (getParameter_(i).getName() == name) return i;
-  //   }
-  //   throw ParameterNotFoundException("SubstitutionModelSet::getParameterIndex().", name);
-  // }
-
-  /**
-   * @brief Get the model name of a given parameter in the list of all parameters.
-   *
-   * @param name The name of the parameter to look for.
-   * @return The model name of the parameter in the global parameter list.
-   * @throw ParameterNotFoundException If no parameter with this name is found.
-   * @throw Exception If the parameter is not a 'model' parameter (that is, it is a root frequency parameter).
-   */
-  // std::string getParameterModelName(const std::string& name) const throw (ParameterNotFoundException, Exception)
-  // {
-  //   size_t pos = getParameterIndex(name);
-  //   if (stationarity_)
-  //     return modelParameterNames_[pos];
-  //   else
-  //   {
-  //     size_t rfs = rootFrequencies_->getNumberOfParameters();
-  //     if (pos < rfs) throw Exception("SubstitutionModelSet::getParameterModelName(). This parameter as no model name: " + name);
-  //     return modelParameterNames_[pos - rfs];
-  //   }
-  // }
-
-  /**
    * To be called when a parameter has changed.
    * Depending on parameters, this will actualize the _initialFrequencies vector or the corresponding models in the set.
    * @param parameters The modified parameters.
@@ -363,13 +319,6 @@ public:
   std::vector<int> getNodesWithParameter(const std::string& name) const throw (ParameterNotFoundException);
 
   /**
-   * @param name The name of the parameter to look for.
-   * @return The list of model indices containing the specified parameter.
-   * @throw ParameterNotFoundException If no parameter with the specified name is found.
-   */
-  //std::vector<size_t> getModelsWithParameter(const std::string& name) const throw (ParameterNotFoundException);
-
-  /**
    * @brief Add a new model to the set, and set relationships with nodes and params.
    *
    * @param model A pointer toward a susbstitution model, that will added to the set.
@@ -391,80 +340,6 @@ public:
    * </ul>
    */
   void addModel(SubstitutionModel* model, const std::vector<int>& nodesId);//, const std::vector<std::string>& newParams) throw (Exception);
-
-  /**
-   * @brief Change a given model.
-   *
-   * The new model will be copied and will replace the old one.
-   * All previous associations will be kept the same.
-   * @param model A pointer toward a susbstitution model, that will added to the set.
-   * Warning! The set will now be the owner of the pointer, and will destroy it if needed!
-   * Copy the model first if you don't want it to be lost!
-   * @param modelIndex The index of the existing model to replace.
-   */
-  //  void setModel(SubstitutionModel* model, size_t modelIndex) throw (Exception, IndexOutOfBoundsException);
-
-  /**
-   * @brief Associate an existing model with a given node.
-   *
-   * If the node was was previously associated to a model, the old association is deleted.
-   * If other nodes are associated to this model, the association is conserved.
-   *
-   * @param modelIndex The position of the model in the set.
-   * @param nodeNumber The id of the corresponding node.
-   */
-  // void setModelToNode(size_t modelIndex, int nodeNumber) throw (IndexOutOfBoundsException)
-  // {
-  //   if (modelIndex >= nodeToModel_.size()) throw IndexOutOfBoundsException("SubstitutionModelSet::setModelToNode.", modelIndex, 0, nodeToModel_.size() - 1);
-  //   nodeToModel_[nodeNumber] = modelIndex;
-  // }
-
-  /**
-   * @brief Assign a parameter to a model.
-   *
-   * @param parameterIndex The index of the parameter in the list.
-   * @param modelIndex     The index of the model in the list.
-   * @throw IndexOutOfBoundsException If one of the index is not valid.
-   */
-  //void setParameterToModel(size_t parameterIndex, size_t modelIndex) throw (IndexOutOfBoundsException);
-
-  /**
-   * @brief Unset a given parameter to the specified model.
-   *
-   * @param parameterIndex The index of the parameter in the list.
-   * @param modelIndex     The index of the model in the list.
-   * @throw IndexOutOfBoundsException If one of the index is not valid.
-   * @throw Exception If the pseicified parameter is not currently associated to the specified model.
-   */
-  //void unsetParameterToModel(size_t parameterIndex, size_t modelIndex) throw (IndexOutOfBoundsException, Exception);
-
-  /**
-   * @brief Add a parameter to the list, and link it to specified existing nodes.
-   *
-   * @param parameter The parameter to add. Its name must match model parameter names.
-   * @param nodesId The list of ids of the nodes to link with these parameters.
-   * Nodes must have a corresponding model in the set.
-   * @throw Exception If one of the above requirement is not true.
-   */
-  //void addParameter(const Parameter& parameter, const std::vector<int>& nodesId) throw (Exception);
-
-  /**
-   * @brief Add several parameters to the list, and link them to specified existing nodes.
-   *
-   * @param parameters The list of parameters to add. Its name must match model parameter names.
-   * @param nodesId The list of ids of the nodes to link with these parameters.
-   * Nodes must have a corresponding model in the set.
-   * @throw Exception If one of the above requirement is not true.
-   */
-  //void addParameters(const ParameterList& parameters, const std::vector<int>& nodesId) throw (Exception);
-
-  /**
-   * @brief Remove a parameter from the list, and unset it to all linked nodes and models.
-   *
-   * @param name The name of the parameter to remove.
-   * @throw ParameterNotFoundException If no parameter with the given name is found in the list.
-   */
-  //void removeParameter(const std::string& name) throw (ParameterNotFoundException);
 
   /**
    * @brief Remove a model from the set, and all corresponding parameters.
