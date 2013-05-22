@@ -337,6 +337,85 @@ public:
   }
 };
 
+ /**
+   * @brief Completion of a given substitution register to consider
+   * all substitutions. The new substitutions are considered in an
+   * additional type.
+   *
+   */
+  class CompleteSubstitutionRegister :
+    public AbstractSubstitutionRegister
+  {
+  private:
+    const SubstitutionRegister* preg_;
+
+    bool isRegComplete_;
+    
+  public:
+    CompleteSubstitutionRegister(const SubstitutionRegister& reg) :
+      AbstractSubstitutionRegister(reg.getAlphabet()),
+      preg_(reg.clone()), isRegComplete_(true)
+    {
+      size_t size=reg.getAlphabet()->getSize();
+      for (int i=0; i< (int)size; i++)
+        for (int j=0; j< (int)size; j++)
+          if ((i!=j) && reg.getType(i,j)==0){
+            isRegComplete_=false;
+            return;
+          }
+    }
+
+    CompleteSubstitutionRegister* clone() const { return new CompleteSubstitutionRegister(*this); }
+
+    CompleteSubstitutionRegister(const CompleteSubstitutionRegister& csr) :
+      AbstractSubstitutionRegister(csr),
+      preg_(csr.preg_->clone()),
+      isRegComplete_(csr.isRegComplete_)
+    {}
+
+    CompleteSubstitutionRegister& operator=(const CompleteSubstitutionRegister& csr)
+    {
+      AbstractSubstitutionRegister::operator=(csr);
+      preg_=csr.preg_->clone();
+      isRegComplete_=csr.isRegComplete_;
+      return *this;
+    }
+    
+    ~CompleteSubstitutionRegister() {
+      if (preg_)
+        delete preg_;
+      preg_=0;
+    }
+    
+  public:
+    size_t getNumberOfSubstitutionTypes() const {
+      return preg_->getNumberOfSubstitutionTypes()+(isRegComplete_?0:1);
+    }
+
+    size_t getType(int fromState, int toState) const
+    {
+      size_t t=preg_->getType(fromState,toState);
+      if (t==0)
+        return getNumberOfSubstitutionTypes();
+      else
+        return t;
+    }
+
+    std::string getTypeName(size_t type) const
+    {
+      try {
+        return preg_->getTypeName(type);
+      }
+      catch (Exception& e) {
+        if (type == getNumberOfSubstitutionTypes())
+          return "Completion substitution";
+        else
+          throw Exception("CompleteSubstitutionRegister::getTypeName. Bad substitution type.");
+      }
+    }
+    
+  };
+
 /**
  * @brief Distinguishes all types of substitutions.
  *
