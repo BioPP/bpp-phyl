@@ -241,16 +241,11 @@ vector< vector<double> >  MappingTools::getNormalizedCountsPerBranch(
                                                                      const SubstitutionRegister& reg,
                                                                      double threshold)
 {
-  vector< vector<double> > counts=getCountsPerBranch(drtl, ids, model, reg, threshold);
+  CompleteSubstitutionRegister compreg=CompleteSubstitutionRegister(reg);
 
-  // sets the same rate for nullModel as for model
-  const Vdouble& fM=model->getFrequencies();
-  double x=0;
-  for (size_t i=0; i< nullModel->getNumberOfStates(); i++)
-    x+=fM[i]*nullModel->Qij(i,i);
-  nullModel->setScale(-1/x);
-  
-  vector< vector<double> > factors=getNormalizationsPerBranch(drtl, ids, nullModel, reg);
+  vector< vector<double> > counts=getCountsPerBranch(drtl, ids, model, compreg, threshold);
+
+  vector< vector<double> > factors=getNormalizationsPerBranch(drtl, ids, nullModel, compreg);
 
   size_t nbTypes = counts[0].size();
     
@@ -261,8 +256,17 @@ vector< vector<double> >  MappingTools::getNormalizedCountsPerBranch(
     }
   }
     
-  nullModel->setScale(-x);
+  // Sets the sum of complete counts to 1
+  for (size_t ibr=0; ibr<counts.size(); ibr++){
+    double x=VectorTools::sum(counts[ibr]);
+    if (x!=0)
+      counts[ibr]/=x;
+  }
+
+  // Removes the completion class if needed
+
   return counts;
+
 }
 
 /**************************************************************************************************/
@@ -275,104 +279,33 @@ vector< vector<double> >  MappingTools::getNormalizedCountsPerBranch(
                                                                      const SubstitutionRegister& reg,
                                                                      double threshold)
 {
-  vector< vector<double> > counts=getCountsPerBranch(drtl, ids, modelSet->getModel(0), reg, threshold);
+  CompleteSubstitutionRegister compreg=CompleteSubstitutionRegister(reg);
+
+  vector< vector<double> > counts=getCountsPerBranch(drtl, ids, modelSet->getModel(0), compreg, threshold);
+
   size_t nbTypes = counts[0].size();
-  size_t nbBr = ids.size();
-  
-  vector<int> sdi(nbBr);  //reverse of ids
-  for (size_t i = 0; i < nbBr; ++i) {
-    for (size_t j = 0; j < nbBr; ++j) {
-      if (ids[j] == static_cast<int>(i)) {
-        sdi[i] = static_cast<int>(j);
-        break;
-      }
+  vector< vector<double> > factors=getNormalizationsPerBranch(drtl, ids, nullModelSet, compreg);
+
+  for (size_t k = 0; k < ids.size(); ++k) {
+    for (size_t t = 0; t < nbTypes; ++t) {
+      if (factors[k][t]!=0)
+        counts[k][t] /= factors[k][t];
     }
   }
+    
+  // Sets the sum of complete counts to 1
+  for (size_t ibr=0; ibr<counts.size(); ibr++){
+    double x=VectorTools::sum(counts[ibr]);
+    if (x!=0)
+      counts[ibr]/=x;
+  }
 
-  // For each model of modelSet, normalizes on all the branches where
-  // this model is applied, for reasons of adjustment of the scales of
-  // the models of nullModelSet.
-  
-  size_t nbmod=modelSet->getNumberOfModels();
-  Vint modtodo; // vector of the models still to be done
-  for (unsigned int i=0;i<nbmod;i++)
-    modtodo.push_back(i);
+  // Removes the completion class if needed
 
-  while (modtodo.size()!=0)
-    {
-      Vint vimod; // vector of the models index in use
-      Vint vbr; // vector of the branches considered
-      Vint vbr0; // vector of the branches covered by the null models
-      map<size_t, double> mscale; // map from the null model numbers
-                                  // to their scale
+  if (reg.getNumberOfSubstitutionTypes()!=nbTypes)
+    for (size_t ibr=0; ibr<counts.size(); ibr++)
+      counts[ibr].pop_back();
 
-      // look for a set of compatible models
-      for (size_t imod=0;imod<modtodo.size();imod++)
-        {
-          size_t nmod=modtodo[imod];
-          Vint vbrmod=modelSet->getNodesWithModel(nmod);
-          if (VectorTools::vectorIntersection(vbr0,vbrmod).size()!=0)
-            continue;
-
-          vimod.push_back((int)imod);
-          VectorTools::append(vbr, vbrmod);
-          
-          SubstitutionModel* model=modelSet->getModel(nmod);
-          const Vdouble& fM=model->getFrequencies();
-
-          vector<size_t> vmod0;  // models of null model set that are
-                                 // on the same branches 
-          
-          for (unsigned int i=0;i<vbrmod.size();i++)
-            {
-              size_t n0br=nullModelSet->getModelIndexForNode(vbrmod[i]);    
-              if (find(vmod0.begin(),vmod0.end(), n0br)==vmod0.end()){
-                VectorTools::append(vbr0,nullModelSet->getNodesWithModel(n0br));
-                vmod0.push_back(n0br);
-              }
-            }
-      
-
-          for (size_t k = 0; k < vmod0.size(); ++k) {
-            SubstitutionModel* mod0=nullModelSet->getModel(vmod0[k]);
-
-            double x=0;
-            for (size_t i=0; i< mod0->getNumberOfStates(); i++)
-              x+=fM[i]*mod0->Qij(i,i);
-
-            mscale[vmod0[k]]=-x;
-            mod0->setScale(-1/x);
-          } 
-        }
-
-      // performs the normalization for these branches
-      
-      vector<vector<double> > factors=getNormalizationsPerBranch(drtl, ids, nullModelSet, reg);
-
-      // normalizes for the supporting branches only
-      for (size_t ibr=0; ibr<vbr.size(); ibr++)
-        for (size_t t = 0; t < nbTypes; ++t)
-          if (factors[sdi[vbr[ibr]]][t]!=0)
-            counts[sdi[vbr[ibr]]][t] /= factors[sdi[vbr[ibr]]][t];
-
-      // invert null model scales
-
-      map<size_t, double>::iterator it(mscale.begin());
-
-      while (it!=mscale.end())
-        {
-          nullModelSet->getModel(it->first)->setScale(it->second);
-          it++;
-        }
-
-      // removes the used models from the todo list
-
-      vector<int>::reverse_iterator itv;
-      
-      for (itv=vimod.rbegin(); itv!=vimod.rend(); ++itv)
-        modtodo.erase(modtodo.begin()+(*itv));
-
-    }
   return counts;
 }
 
