@@ -54,4 +54,3 @@ void GeneralSubstitutionRegister::updateTypes_()
       }
 }
 
-

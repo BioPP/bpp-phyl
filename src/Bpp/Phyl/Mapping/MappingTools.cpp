@@ -264,9 +264,11 @@ vector< vector<double> >  MappingTools::getNormalizedCountsPerBranch(
   }
 
   // Removes the completion class if needed
+  if (reg.getNumberOfSubstitutionTypes()!=nbTypes)
+    for (size_t ibr=0; ibr<counts.size(); ibr++)
+      counts[ibr].pop_back();
 
   return counts;
-
 }
 
 /**************************************************************************************************/
