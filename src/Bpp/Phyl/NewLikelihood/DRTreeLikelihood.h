@@ -41,9 +41,8 @@
 #ifndef _NEWLIK_DRTREELIKELIHOOD_H_
 #define _NEWLIK_DRTREELIKELIHOOD_H_
 
-#include "AbstractNonHomogeneousTreeLikelihood.h"
-#include "DRTreeLikelihood.h"
-#include "DRASDRTreeLikelihoodData.h"
+#include "AbstractTreeLikelihood.h"
+#include "DRTreeLikelihoodData.h"
 
 #include <Bpp/Numeric/VectorTools.h>
 #include <Bpp/Numeric/Prob/DiscreteDistribution.h>
