@@ -429,7 +429,7 @@ void PhylogeneticsApplicationTools::setSubstitutionModelSet(
       if (dynamic_cast<Coala*>(tmp.get()))
         dynamic_cast<MvaFrequenciesSet*>(rootFrequencies)->initSet(dynamic_cast<CoalaCore*>(tmp.get()));
       else
-        throw Exception("The MVAprotein frequencies set at the root can only be used if a COaLA model is used on branches.");
+        throw Exception("The MVAprotein frequencies set at the root can only be used if a Coala model is used on branches.");
     }
   }
   ApplicationTools::displayBooleanResult("Stationarity assumed", stationarity);
