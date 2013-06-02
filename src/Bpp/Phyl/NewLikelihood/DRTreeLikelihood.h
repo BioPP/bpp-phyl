@@ -188,12 +188,11 @@ class DRTreeLikelihood:
     
     virtual void computeLikelihoodAtNode(int nodeId, VVVdouble& likelihoodArray) const
     {
-      computeLikelihoodAtNode_(tree_->getNode(nodeId), likelihoodArray);
+      computeLikelihoodAtNode_(process_->getTree().getNode(nodeId), likelihoodArray);
     }
       
   protected:
     virtual void computeLikelihoodAtNode_(const Node* node, VVVdouble& likelihoodArray) const;
-
   
     /**
      * Initialize the arrays corresponding to each son node for the node passed as argument.
