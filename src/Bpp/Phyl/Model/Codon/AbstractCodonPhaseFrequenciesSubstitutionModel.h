@@ -71,25 +71,23 @@ class AbstractCodonPhaseFrequenciesSubstitutionModel :
   public virtual AbstractParameterAliasable
 {
 private:
-  /*
-   *@brief Position dependent version of Codon Frequencies Set
-   *
+  /**
+   * @brief Position dependent version of Codon Frequencies Set
    */
-
   WordFrequenciesSet* posfreqset_;
   std::string freqName_;
 
 public:
   /**
-   *@brief Build a AbstractCodonPhaseFrequenciesSubstitutionModel instance
+   * @brief Build a AbstractCodonPhaseFrequenciesSubstitutionModel instance
    *
-   *@param pfreq pointer to the AbstractFrequenciesSet equilibrium frequencies.
+   * @param pfreq pointer to the AbstractFrequenciesSet equilibrium frequencies.
    *        It is owned by the instance.
-   *@param prefix the Namespace
+   * @param prefix the Namespace
    */
-
-  AbstractCodonPhaseFrequenciesSubstitutionModel(FrequenciesSet* pfreq,
-                                                 const std::string& prefix);
+  AbstractCodonPhaseFrequenciesSubstitutionModel(
+      FrequenciesSet* pfreq,
+      const std::string& prefix);
 
   AbstractCodonPhaseFrequenciesSubstitutionModel(const AbstractCodonPhaseFrequenciesSubstitutionModel& model) :
     AbstractParameterAliasable(model),

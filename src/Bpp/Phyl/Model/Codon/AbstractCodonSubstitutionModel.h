@@ -44,8 +44,11 @@
 #include "../Nucleotide/NucleotideSubstitutionModel.h"
 #include "CodonSubstitutionModel.h"
 
-// From SeqLib:
-#include <Bpp/Seq/Alphabet/CodonAlphabet.h>
+// From bpp-seq:
+#include <Bpp/Seq/GeneticCode/GeneticCode.h>
+
+// From the STL:
+#include <memory>
 
 namespace bpp
 {
@@ -66,7 +69,6 @@ namespace bpp
  * used. Their names have a new prefix, "i_" where i stands for the
  * the phase (1,2 or 3) in the codon.
  */
-
 class AbstractCodonSubstitutionModel :
   public virtual CodonSubstitutionModel,
   public virtual AbstractWordSubstitutionModel
@@ -75,33 +77,36 @@ private:
   /**
    * @brief boolean for the parametrization of the position relative
    * rates. Default : false.
-   *
    */
   bool hasParametrizedRates_;
+  const GeneticCode* gCode_;
 
 public:
+  const GeneticCode* getGeneticCode() const { return gCode_; }
+  
   /**
    * @brief Build a new AbstractCodonSubstitutionModel object from
    * a pointer to a NucleotideSubstitutionModel.
    *
-   * @param palph pointer to a CodonAlphabet
+   * @param gCode a pointer toward a genetic code. The codon alphabet from the genetic code will be used by the model class.
    * @param pmod pointer to the NucleotideSubstitutionModel to use in
    *        the three positions. It is owned by the instance.
    * @param st string of the Namespace
    * @param paramRates boolean concerning the presence of position
    * relative rates (default: false)
    */
-
-  AbstractCodonSubstitutionModel(const CodonAlphabet* palph,
-                                 NucleotideSubstitutionModel* pmod,
-                                 const std::string& st,
-                                 bool paramRates = false);
+  AbstractCodonSubstitutionModel(
+      const GeneticCode* gCode,
+      NucleotideSubstitutionModel* pmod,
+      const std::string& st,
+      bool paramRates = false);
 
   /**
    * @brief Build a new AbstractCodonSubstitutionModel object
    * from three pointers to NucleotideSubstitutionModels.
    *
-   * @param palph pointer to a CodonAlphabet
+   * @param gCode a pointer toward a genetic code. This model instance will own the underlying GeneticCode object and delete it when required.
+   *   The codon alphabet from the genetic code will be used by the model class.
    * @param pmod1, pmod2, pmod3 are pointers to the
    *   NucleotideSubstitutionModel to use in the three positions.
    *   All the models must be different objects to avoid redundant
@@ -110,14 +115,13 @@ public:
    * @param paramRates boolean concerning the presence of position
    * relative rates (default: false)
    */
-
-  AbstractCodonSubstitutionModel(const CodonAlphabet*,
-                                 NucleotideSubstitutionModel* pmod1,
-                                 NucleotideSubstitutionModel* pmod2,
-                                 NucleotideSubstitutionModel* pmod3,
-                                 const std::string& st,
-                                 bool paramRates = false);
-
+  AbstractCodonSubstitutionModel(
+      const GeneticCode* gCode,
+      NucleotideSubstitutionModel* pmod1,
+      NucleotideSubstitutionModel* pmod2,
+      NucleotideSubstitutionModel* pmod3,
+      const std::string& st,
+      bool paramRates = false);
 
   virtual ~AbstractCodonSubstitutionModel() {}
 
@@ -125,7 +129,8 @@ public:
     AbstractParameterAliasable(model),
     AbstractSubstitutionModel(model),
     AbstractWordSubstitutionModel(model),
-    hasParametrizedRates_(model.hasParametrizedRates_)
+    hasParametrizedRates_(model.hasParametrizedRates_),
+    gCode_(model.gCode_)
   {}
 
   AbstractCodonSubstitutionModel& operator=(const AbstractCodonSubstitutionModel& model)
@@ -134,6 +139,7 @@ public:
     AbstractSubstitutionModel::operator=(model);
     AbstractWordSubstitutionModel::operator=(model);
     hasParametrizedRates_ = model.hasParametrizedRates_;
+    gCode_ = model.gCode_;
     return *this;
   }
 
@@ -150,9 +156,7 @@ protected:
    *
    * This method sets the rates to/from stop codons to zero and
    * performs the multiplication by the specific codon-codon rate.
-   *
-   **/
-
+   */
   void completeMatrices();
 
 public:

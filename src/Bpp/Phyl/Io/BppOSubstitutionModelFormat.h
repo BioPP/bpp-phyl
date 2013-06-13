@@ -43,6 +43,9 @@
 #include "IoSubstitutionModelFactory.h"
 #include "../Model/MixedSubstitutionModel.h"
 
+// From bpp-seq
+#include <Bpp/Seq/GeneticCode/GeneticCode.h>
+
 namespace bpp
 {
 /**
@@ -74,6 +77,7 @@ private:
   bool allowGaps_;
   bool verbose_;
   std::map<std::string, std::string> unparsedArguments_;
+  const GeneticCode* geneticCode_;
 
 public:
   /**
@@ -91,8 +95,31 @@ public:
     allowMixed_(allowMixed),
     allowGaps_(allowGaps),
     verbose_(verbose),
-    unparsedArguments_()
+    unparsedArguments_(),
+    geneticCode_(0)
   {}
+
+  BppOSubstitutionModelFormat(const BppOSubstitutionModelFormat& format):
+    alphabetCode_(format.alphabetCode_),
+    allowCovarions_(format.allowCovarions_),
+    allowMixed_(format.allowMixed_),
+    allowGaps_(format.allowGaps_),
+    verbose_(format.verbose_),
+    unparsedArguments_(format.unparsedArguments_),
+    geneticCode_(format.geneticCode_)
+  {}
+
+  BppOSubstitutionModelFormat& operator=(const BppOSubstitutionModelFormat& format)
+  {
+    alphabetCode_      = format.alphabetCode_;
+    allowCovarions_    = format.allowCovarions_;
+    allowMixed_        = format.allowMixed_;
+    allowGaps_         = format.allowGaps_;
+    verbose_           = format.verbose_;
+    unparsedArguments_ = format.unparsedArguments_;
+    geneticCode_       = format.geneticCode_;
+    return *this;
+  }
 
   virtual ~BppOSubstitutionModelFormat() {}
 
@@ -100,6 +127,15 @@ public:
   const std::string getFormatName() const { return "BppO"; }
 
   const std::string getFormatDescription() const { return "Bpp Options format."; }
+
+  /**
+   * @brief Set the genetic code to use in case a codon frequencies set should be built.
+   *
+   * @param gCode The genetic code to use.
+   */
+  void setGeneticCode(const GeneticCode* gCode) {
+    geneticCode_ = gCode;
+  }
 
   SubstitutionModel* read(const Alphabet* alphabet, const std::string& modelDescription, const SiteContainer* data = 0, bool parseArguments = true);
 

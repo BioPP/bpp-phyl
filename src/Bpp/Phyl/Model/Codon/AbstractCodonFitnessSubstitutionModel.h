@@ -87,6 +87,7 @@ namespace bpp
 
     virtual ~AbstractCodonFitnessSubstitutionModel();
 
+  public:
     void fireParameterChanged (const ParameterList& parameters);
     void setFreq(std::map<int, double>& frequencies);
     const FrequenciesSet& getFreq() const { return *pfitset_; }
@@ -94,7 +95,6 @@ namespace bpp
       pfitset_->setNamespace(prefix + fitName_);
     }
 
-  public:
     double getCodonsMulRate(size_t i, size_t j) const;
 
     const FrequenciesSet* getFitness() const { return pfitset_;}

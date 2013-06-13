@@ -42,6 +42,9 @@
 
 #include <Bpp/Numeric/ParameterAliasable.h>
 
+//From bpp-seq:
+#include <Bpp/Seq/GeneticCode/GeneticCode.h>
+
 #include "../WordSubstitutionModel.h"
 
 namespace bpp
@@ -53,7 +56,6 @@ namespace bpp
    * This class aims at defining methods needed for inheriting codon.
    *
    */
-  
   class CodonSubstitutionModel:
     public virtual SubstitutionModel
   {
@@ -67,14 +69,14 @@ namespace bpp
 
   public:
 
+    virtual const GeneticCode* getGeneticCode() const = 0;
+
     /**
      * @brief Returns the multiplicative rate specific to two codons
      * specified by their number. The respective generator rate is this
      * rate multiplied by the rate defined by the model defined on
      * nucleotides.
-     *
-     **/
-  
+     */
     virtual double getCodonsMulRate(size_t, size_t) const = 0;
   };
   

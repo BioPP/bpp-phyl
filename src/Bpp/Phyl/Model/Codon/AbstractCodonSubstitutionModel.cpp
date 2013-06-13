@@ -45,18 +45,19 @@ using namespace std;
 /******************************************************************************/
 
 AbstractCodonSubstitutionModel::AbstractCodonSubstitutionModel(
-  const CodonAlphabet* palph,
+  const GeneticCode* gCode,
   NucleotideSubstitutionModel* pmod,
   const std::string& st,
   bool paramRates) :
   AbstractParameterAliasable(st),
-  AbstractSubstitutionModel(palph, st),
-  AbstractWordSubstitutionModel(palph, st),
-  hasParametrizedRates_(paramRates)
+  AbstractSubstitutionModel(gCode->getSourceAlphabet(), st),
+  AbstractWordSubstitutionModel(gCode->getSourceAlphabet(), st),
+  hasParametrizedRates_(paramRates),
+  gCode_(gCode)
 {
-  enableEigenDecomposition(1);
+  enableEigenDecomposition(true);
 
-  unsigned int i;
+  size_t i;
   for (i = 0; i < 3; i++)
   {
     VSubMod_.push_back(pmod);
@@ -85,18 +86,19 @@ AbstractCodonSubstitutionModel::AbstractCodonSubstitutionModel(
 }
 
 AbstractCodonSubstitutionModel::AbstractCodonSubstitutionModel(
-  const CodonAlphabet* palph,
+  const GeneticCode* gCode,
   NucleotideSubstitutionModel* pmod1,
   NucleotideSubstitutionModel* pmod2,
   NucleotideSubstitutionModel* pmod3,
   const std::string& st,
   bool paramRates) :
   AbstractParameterAliasable(st),
-  AbstractSubstitutionModel(palph, st),
-  AbstractWordSubstitutionModel(palph, st),
-  hasParametrizedRates_(paramRates)
+  AbstractSubstitutionModel(gCode->getSourceAlphabet(), st),
+  AbstractWordSubstitutionModel(gCode->getSourceAlphabet(), st),
+  hasParametrizedRates_(paramRates),
+  gCode_(gCode)
 {
-  unsigned int i;
+  int i;
   enableEigenDecomposition(1);
 
   if ((pmod1 == pmod2) || (pmod2 == pmod3) || (pmod1 == pmod3))
@@ -176,13 +178,11 @@ void AbstractCodonSubstitutionModel::completeMatrices()
   size_t i, j;
   size_t salph = getNumberOfStates();
 
-  const CodonAlphabet* ca = dynamic_cast<const CodonAlphabet*>(alphabet_);
-
   for (i = 0; i < salph; i++)
   {
     for (j = 0; j < salph; j++)
     {
-      if (ca->isStop(static_cast<int>(i)) || ca->isStop(static_cast<int>(j)))
+      if (gCode_->isStop(static_cast<int>(i)) || gCode_->isStop(static_cast<int>(j)))
       {
         generator_(i, j) = 0;
       }

@@ -5,7 +5,7 @@
 //
 
 /*
-  Copyright or © or Copr. CNRS, (November 16, 2004)
+  Copyright or © or Copr. Bio++ Development Team, (November 16, 2004)
   This software is a computer program whose purpose is to provide classes
   for phylogenetic data analysis.
 
@@ -44,33 +44,35 @@ using namespace std;
 
 /******************************************************************************/
 
-CodonDistanceFrequenciesSubstitutionModel::CodonDistanceFrequenciesSubstitutionModel(const GeneticCode* palph,
-                                                                                     NucleotideSubstitutionModel* pmod,
-                                                                                     FrequenciesSet* pfreq,
-                                                                                     const AlphabetIndex2* pdist,
-                                                                                     bool paramSynRate) :
+CodonDistanceFrequenciesSubstitutionModel::CodonDistanceFrequenciesSubstitutionModel(
+    const GeneticCode* gCode,
+    NucleotideSubstitutionModel* pmod,
+    FrequenciesSet* pfreq,
+    const AlphabetIndex2* pdist,
+    bool paramSynRate) :
   AbstractParameterAliasable("CodonDistFreq."),
-  AbstractSubstitutionModel(dynamic_cast<const CodonAlphabet*>(palph->getSourceAlphabet()), "CodonDistFreq."),
-  AbstractWordSubstitutionModel(dynamic_cast<const CodonAlphabet*>(palph->getSourceAlphabet()), "CodonDistFreq."),
-  AbstractCodonSubstitutionModel(dynamic_cast<const CodonAlphabet*>(palph->getSourceAlphabet()), pmod, "CodonDistFreq."),
-  AbstractCodonDistanceSubstitutionModel(palph, pdist, "CodonDistFreq.", paramSynRate),
+  AbstractSubstitutionModel(gCode->getSourceAlphabet(), "CodonDistFreq."),
+  AbstractWordSubstitutionModel(gCode->getSourceAlphabet(), "CodonDistFreq."),
+  AbstractCodonSubstitutionModel(gCode, pmod, "CodonDistFreq."),
+  AbstractCodonDistanceSubstitutionModel(pdist, "CodonDistFreq.", paramSynRate),
   AbstractCodonFrequenciesSubstitutionModel(pfreq, "CodonDistFreq.")
 {
   updateMatrices();
 }
 
-CodonDistanceFrequenciesSubstitutionModel::CodonDistanceFrequenciesSubstitutionModel(const GeneticCode* palph,
-                                                                                     NucleotideSubstitutionModel* pmod1,
-                                                                                     NucleotideSubstitutionModel* pmod2,
-                                                                                     NucleotideSubstitutionModel* pmod3,
-                                                                                     FrequenciesSet* pfreq,
-                                                                                     const AlphabetIndex2* pdist,
-                                                                                     bool paramSynRate) :
+CodonDistanceFrequenciesSubstitutionModel::CodonDistanceFrequenciesSubstitutionModel(
+    const GeneticCode* gCode,
+    NucleotideSubstitutionModel* pmod1,
+    NucleotideSubstitutionModel* pmod2,
+    NucleotideSubstitutionModel* pmod3,
+    FrequenciesSet* pfreq,
+    const AlphabetIndex2* pdist,
+    bool paramSynRate) :
   AbstractParameterAliasable("CodonDistFreq."),
-  AbstractSubstitutionModel(dynamic_cast<const CodonAlphabet*>(palph->getSourceAlphabet()), "CodonDistFreq."),
-  AbstractWordSubstitutionModel(dynamic_cast<const CodonAlphabet*>(palph->getSourceAlphabet()), "CodonDistFreq."),
-  AbstractCodonSubstitutionModel(dynamic_cast<const CodonAlphabet*>(palph->getSourceAlphabet()), pmod1, pmod2, pmod3, "CodonDistFreq."),
-  AbstractCodonDistanceSubstitutionModel(palph, pdist, "CodonDistFreq.", paramSynRate),
+  AbstractSubstitutionModel(gCode->getSourceAlphabet(), "CodonDistFreq."),
+  AbstractWordSubstitutionModel(gCode->getSourceAlphabet(), "CodonDistFreq."),
+  AbstractCodonSubstitutionModel(gCode, pmod1, pmod2, pmod3, "CodonDistFreq."),
+  AbstractCodonDistanceSubstitutionModel(pdist, "CodonDistFreq.", paramSynRate),
   AbstractCodonFrequenciesSubstitutionModel(pfreq, "CodonDistFreq.")
 {
   updateMatrices();
