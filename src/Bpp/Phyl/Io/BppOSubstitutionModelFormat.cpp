@@ -92,6 +92,7 @@
 #include "../Model/Protein/LGL08_CAT.h"
 #include "../Model/Protein/WAG01.h"
 #include "../Model/Protein/LLG08_EHO.h"
+#include "../Model/Protein/LG10_EX_EHO.h"
 #include "../Model/BinarySubstitutionModel.h"
 
 #include "../App/PhylogeneticsApplicationTools.h"
@@ -564,6 +565,8 @@ SubstitutionModel* BppOSubstitutionModelFormat::read(const Alphabet* alphabet,
         model.reset(new LLG08_UL2(alpha));
       else if (modelName == "LLG08_UL3")
         model.reset(new LLG08_UL3(alpha));
+      else if (modelName == "LG10_EX_EHO")
+        model.reset(new LG10_EX_EHO(alpha));	
       else if (modelName == "LGL08_CAT")
       {
         unsigned int nbCat = TextTools::toInt(args["nbCat"]);
