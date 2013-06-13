@@ -581,7 +581,7 @@ SubstitutionModel* BppOSubstitutionModelFormat::read(const Alphabet* alphabet,
           throw Exception("'name' argument missing for user-defined substitution model.");
         model.reset(new UserProteinSubstitutionModel(alpha, args["file"], prefix));
       }
-      else if (modelName == "COaLA")
+      else if (modelName == "Coala")
       {
         string nbrOfParametersPerBranch = args["nbrAxes"];
         if (TextTools::isEmpty(nbrOfParametersPerBranch))
