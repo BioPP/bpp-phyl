@@ -55,11 +55,11 @@ AbstractCodonPhaseFrequenciesSubstitutionModel::AbstractCodonPhaseFrequenciesSub
   freqName_("")
 {
   CodonFrequenciesSet* pCFS = dynamic_cast<CodonFrequenciesSet*>(pfreq);
-  if (pCFS == NULL)
+  if (!pCFS)
     throw Exception("Bad type for equilibrium frequencies " + pfreq->getName());
 
   if ((dynamic_cast<CodonFromUniqueFrequenciesSet*>(pCFS))
-      || (dynamic_cast<CodonFromIndependentFrequenciesSet*>(pCFS) != NULL))
+   || (dynamic_cast<CodonFromIndependentFrequenciesSet*>(pCFS) != NULL))
     posfreqset_ = dynamic_cast<WordFrequenciesSet*>(pfreq)->clone();
   else
   {
@@ -77,8 +77,9 @@ AbstractCodonPhaseFrequenciesSubstitutionModel::AbstractCodonPhaseFrequenciesSub
         vFS.push_back(new FullFrequenciesSet(pCFS->getAlphabet()->getNucleicAlphabet()));
       }
 
-    posfreqset_ = new CodonFromIndependentFrequenciesSet(pCFS->getAlphabet(),
-                                                         vFS, "");
+    posfreqset_ = new CodonFromIndependentFrequenciesSet(
+        pCFS->getGeneticCode(),
+        vFS, "");
 
     posfreqset_->setFrequencies(pfreq->getFrequencies());
   }

@@ -45,31 +45,33 @@ using namespace std;
 
 /******************************************************************************/
 
-CodonRateSubstitutionModel::CodonRateSubstitutionModel(const CodonAlphabet* palph,
-                                                       NucleotideSubstitutionModel* pmod) :
+CodonRateSubstitutionModel::CodonRateSubstitutionModel(
+    const GeneticCode* gCode,
+    NucleotideSubstitutionModel* pmod) :
   AbstractParameterAliasable("CodonRate."),
-  AbstractSubstitutionModel(palph, "CodonRate."),
-  AbstractWordSubstitutionModel(palph, "CodonRate."),
-  AbstractCodonSubstitutionModel(palph, pmod, "CodonRate.", true)
+  AbstractSubstitutionModel(gCode->getSourceAlphabet(), "CodonRate."),
+  AbstractWordSubstitutionModel(gCode->getSourceAlphabet(), "CodonRate."),
+  AbstractCodonSubstitutionModel(gCode, pmod, "CodonRate.", true)
 {
   updateMatrices();
 }
 
-CodonRateSubstitutionModel::CodonRateSubstitutionModel(const CodonAlphabet* palph,
-                                                       NucleotideSubstitutionModel* pmod1,
-                                                       NucleotideSubstitutionModel* pmod2,
-                                                       NucleotideSubstitutionModel* pmod3) :
+CodonRateSubstitutionModel::CodonRateSubstitutionModel(
+    const GeneticCode* gCode,
+    NucleotideSubstitutionModel* pmod1,
+    NucleotideSubstitutionModel* pmod2,
+    NucleotideSubstitutionModel* pmod3) :
   AbstractParameterAliasable("CodonRate."),
-  AbstractSubstitutionModel(palph, "CodonRate."),
-  AbstractWordSubstitutionModel(palph, "CodonRate."),
-  AbstractCodonSubstitutionModel(palph, pmod1, pmod2, pmod3, "CodonRate.", true)
+  AbstractSubstitutionModel(gCode->getSourceAlphabet(), "CodonRate."),
+  AbstractWordSubstitutionModel(gCode->getSourceAlphabet(), "CodonRate."),
+  AbstractCodonSubstitutionModel(gCode, pmod1, pmod2, pmod3, "CodonRate.", true)
 {
   updateMatrices();
 }
 
 std::string CodonRateSubstitutionModel::getName() const
 {
-  return ("CodonRate");
+  return "CodonRate";
 }
 
 void CodonRateSubstitutionModel::fireParameterChanged(const ParameterList& parameters)

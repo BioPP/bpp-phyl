@@ -485,7 +485,7 @@ public:
   size_t getType(int fromState, int toState) const
   {
     const CodonAlphabet* cAlpha = dynamic_cast<const CodonAlphabet*>(alphabet_);
-    if (cAlpha->isStop(fromState) || cAlpha->isStop(toState))
+    if (code_->isStop(fromState) || code_->isStop(toState))
       return 0;
     if (fromState == toState)
       return 0;  // nothing happens
@@ -590,7 +590,7 @@ public:
   size_t getType(int fromState, int toState) const
   {
     const CodonAlphabet* pCA = dynamic_cast<const CodonAlphabet*>(code_->getSourceAlphabet());
-    if (pCA->isStop(fromState) || pCA->isStop(toState) || !code_->areSynonymous(fromState, toState))
+    if (code_->isStop(fromState) || code_->isStop(toState) || !code_->areSynonymous(fromState, toState))
       return 0;
 
     // only substitutions between 3rd positions

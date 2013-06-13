@@ -5,7 +5,7 @@
 //
 
 /*
-  Copyright or © or Copr. CNRS, (November 16, 2004)
+  Copyright or © or Copr. Bio++ Development Team, (November 16, 2004)
   This software is a computer program whose purpose is to provide classes
   for phylogenetic data analysis.
 
@@ -44,31 +44,33 @@ using namespace std;
 
 /******************************************************************************/
 
-CodonDistancePhaseFrequenciesSubstitutionModel::CodonDistancePhaseFrequenciesSubstitutionModel(const GeneticCode* palph,
-                                                                                     NucleotideSubstitutionModel* pmod,
-                                                                                     FrequenciesSet* pfreq,
-                                                                                     const AlphabetIndex2* pdist) :
+CodonDistancePhaseFrequenciesSubstitutionModel::CodonDistancePhaseFrequenciesSubstitutionModel(
+    const GeneticCode* gCode,
+    NucleotideSubstitutionModel* pmod,
+    FrequenciesSet* pfreq,
+    const AlphabetIndex2* pdist) :
   AbstractParameterAliasable("CodonDistPhasFreq."),
-  AbstractSubstitutionModel(dynamic_cast<const CodonAlphabet*>(palph->getSourceAlphabet()), "CodonDistPhasFreq."),
-  AbstractWordSubstitutionModel(dynamic_cast<const CodonAlphabet*>(palph->getSourceAlphabet()), "CodonDistPhasFreq."),
-  AbstractCodonSubstitutionModel(dynamic_cast<const CodonAlphabet*>(palph->getSourceAlphabet()), pmod, "CodonDistPhasFreq."),
-  AbstractCodonDistanceSubstitutionModel(palph, pdist, "CodonDistPhasFreq."),
+  AbstractSubstitutionModel(gCode->getSourceAlphabet(), "CodonDistPhasFreq."),
+  AbstractWordSubstitutionModel(gCode->getSourceAlphabet(), "CodonDistPhasFreq."),
+  AbstractCodonSubstitutionModel(gCode, pmod, "CodonDistPhasFreq."),
+  AbstractCodonDistanceSubstitutionModel(pdist, "CodonDistPhasFreq."),
   AbstractCodonPhaseFrequenciesSubstitutionModel(pfreq, "CodonDistPhasFreq.")
 {
   updateMatrices();
 }
 
-CodonDistancePhaseFrequenciesSubstitutionModel::CodonDistancePhaseFrequenciesSubstitutionModel(const GeneticCode* palph,
-                                                                                     NucleotideSubstitutionModel* pmod1,
-                                                                                     NucleotideSubstitutionModel* pmod2,
-                                                                                     NucleotideSubstitutionModel* pmod3,
-                                                                                     FrequenciesSet* pfreq,
-                                                                                     const AlphabetIndex2* pdist) :
+CodonDistancePhaseFrequenciesSubstitutionModel::CodonDistancePhaseFrequenciesSubstitutionModel(
+    const GeneticCode* gCode,
+    NucleotideSubstitutionModel* pmod1,
+    NucleotideSubstitutionModel* pmod2,
+    NucleotideSubstitutionModel* pmod3,
+    FrequenciesSet* pfreq,
+    const AlphabetIndex2* pdist) :
   AbstractParameterAliasable("CodonDistPhasFreq."),
-  AbstractSubstitutionModel(dynamic_cast<const CodonAlphabet*>(palph->getSourceAlphabet()), "CodonDistPhasFreq."),
-  AbstractWordSubstitutionModel(dynamic_cast<const CodonAlphabet*>(palph->getSourceAlphabet()), "CodonDistPhasFreq."),
-  AbstractCodonSubstitutionModel(dynamic_cast<const CodonAlphabet*>(palph->getSourceAlphabet()), pmod1, pmod2, pmod3, "CodonDistPhasFreq."),
-  AbstractCodonDistanceSubstitutionModel(palph, pdist, "CodonDistPhasFreq."),
+  AbstractSubstitutionModel(gCode->getSourceAlphabet(), "CodonDistPhasFreq."),
+  AbstractWordSubstitutionModel(gCode->getSourceAlphabet(), "CodonDistPhasFreq."),
+  AbstractCodonSubstitutionModel(gCode, pmod1, pmod2, pmod3, "CodonDistPhasFreq."),
+  AbstractCodonDistanceSubstitutionModel(pdist, "CodonDistPhasFreq."),
   AbstractCodonPhaseFrequenciesSubstitutionModel(pfreq, "CodonDistPhasFreq.")
 {
   updateMatrices();

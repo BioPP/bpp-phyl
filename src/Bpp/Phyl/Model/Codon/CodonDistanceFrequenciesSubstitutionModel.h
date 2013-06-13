@@ -82,7 +82,6 @@ namespace bpp
  * and synonymous substitutions rates is @f$\beta@f$ with positive
  * parameter \c "beta".
  */
-
 class CodonDistanceFrequenciesSubstitutionModel :
     public AbstractCodonSubstitutionModel,
     public AbstractCodonDistanceSubstitutionModel,
@@ -94,7 +93,7 @@ public:
    * from three pointers to AbstractSubstitutionModels. NEW
    * AbstractSubstitutionModels are copied from the given ones.
    *
-   * @param palph pointer to a GeneticCode
+   * @param gCode pointer to a GeneticCode
    * @param pmod pointer to the NucleotideSubstitutionModel to use in
    *        the three positions. It is owned by the instance.
    * @param pfreq pointer to the FrequenciesSet* equilibrium frequencies
@@ -103,18 +102,19 @@ public:
    * @param paramSynRate is true iff synonymous rate is parametrised
    *        (default=false).
    */
-  CodonDistanceFrequenciesSubstitutionModel(const GeneticCode* palph,
-                                            NucleotideSubstitutionModel* pmod,
-                                            FrequenciesSet* pfreq,
-                                            const AlphabetIndex2* pdist = 0,
-                                            bool paramSynRate = false);
+  CodonDistanceFrequenciesSubstitutionModel(
+      const GeneticCode* gCode,
+      NucleotideSubstitutionModel* pmod,
+      FrequenciesSet* pfreq,
+      const AlphabetIndex2* pdist = 0,
+      bool paramSynRate = false);
 
   /**
    * @brief Build a new CodonDistanceFrequenciesSubstitutionModel object
    * from three pointers to AbstractSubstitutionModels. NEW
    * AbstractSubstitutionModels are copied from the given ones.
    *
-   * @param palph pointer to a GeneticCode
+   * @param gCode pointer to a GeneticCode
    * @param pmod1, pmod2, pmod3 are pointers to the
    *   NucleotideSubstitutionModel to use in the three positions.
    *   All the models must be different objects to avoid redundant
@@ -125,39 +125,16 @@ public:
    * @param paramSynRate is true iff synonymous rate is parametrised
    *   (default=false).
    */
-  CodonDistanceFrequenciesSubstitutionModel(const GeneticCode* palph,
-                                            NucleotideSubstitutionModel* pmod1,
-                                            NucleotideSubstitutionModel* pmod2,
-                                            NucleotideSubstitutionModel* pmod3,
-                                            FrequenciesSet* pfreq,
-                                            const AlphabetIndex2* pdist = 0,
-                                            bool paramSynRate = false);
-
-
   CodonDistanceFrequenciesSubstitutionModel(
-    const CodonDistanceFrequenciesSubstitutionModel& model) :
-    AbstractParameterAliasable(model),
-    AbstractSubstitutionModel(model),
-    AbstractWordSubstitutionModel(model),
-    AbstractCodonSubstitutionModel(model),
-    AbstractCodonDistanceSubstitutionModel(model),
-    AbstractCodonFrequenciesSubstitutionModel(model)
-  {
-  }
+      const GeneticCode* gCode,
+      NucleotideSubstitutionModel* pmod1,
+      NucleotideSubstitutionModel* pmod2,
+      NucleotideSubstitutionModel* pmod3,
+      FrequenciesSet* pfreq,
+      const AlphabetIndex2* pdist = 0,
+      bool paramSynRate = false);
 
-  CodonDistanceFrequenciesSubstitutionModel& operator=(
-    const CodonDistanceFrequenciesSubstitutionModel& model)
-  {
-    AbstractParameterAliasable::operator=(model);
-    AbstractSubstitutionModel::operator=(model);
-    AbstractWordSubstitutionModel::operator=(model);
-    AbstractCodonSubstitutionModel::operator=(model);
-    AbstractCodonDistanceSubstitutionModel::operator=(model);
-    AbstractCodonFrequenciesSubstitutionModel::operator=(model);
-    return *this;
-  }
-
-  ~CodonDistanceFrequenciesSubstitutionModel() {}
+  virtual ~CodonDistanceFrequenciesSubstitutionModel() {}
 
   CodonDistanceFrequenciesSubstitutionModel* clone() const
   {
