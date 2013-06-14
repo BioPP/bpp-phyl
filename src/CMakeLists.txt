@@ -102,6 +102,7 @@ SET(CPP_FILES
   Bpp/Phyl/Model/Protein/LLG08_EX3.cpp
   Bpp/Phyl/Model/Protein/LLG08_UL2.cpp
   Bpp/Phyl/Model/Protein/LLG08_UL3.cpp
+  Bpp/Phyl/Model/Protein/LG10_EX_EHO.cpp
   Bpp/Phyl/Model/Protein/LGL08_CAT.cpp
   Bpp/Phyl/Model/Protein/Coala.cpp
   Bpp/Phyl/Model/Protein/CoalaCore.cpp
@@ -270,6 +271,7 @@ SET(H_FILES
   Bpp/Phyl/Model/Protein/LLG08_EX3.h
   Bpp/Phyl/Model/Protein/LLG08_UL2.h
   Bpp/Phyl/Model/Protein/LLG08_UL3.h
+  Bpp/Phyl/Model/Protein/LG10_EX_EHO.h
   Bpp/Phyl/Model/Protein/LGL08_CAT.h
   Bpp/Phyl/Model/Protein/Coala.h
   Bpp/Phyl/Model/Protein/CoalaCore.h
