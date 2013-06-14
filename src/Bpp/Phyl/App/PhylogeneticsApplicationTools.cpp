@@ -162,25 +162,28 @@ vector<Tree*> PhylogeneticsApplicationTools::getTrees(
 
 SubstitutionModel* PhylogeneticsApplicationTools::getSubstitutionModel(
   const Alphabet* alphabet,
+  const GeneticCode* gCode,
   const SiteContainer* data,
   std::map<std::string, std::string>& params,
   const string& suffix,
   bool suffixIsOptional,
   bool verbose) throw (Exception)
 {
+  BppOSubstitutionModelFormat bIO(BppOSubstitutionModelFormat::ALL, true, true, true, verbose);
   string modelDescription;
-  if (AlphabetTools::isCodonAlphabet(alphabet))
+  const CodonAlphabet* ca = dynamic_cast<const CodonAlphabet*>(alphabet);
+  if (ca) {
     modelDescription = ApplicationTools::getStringParameter("model", params, "CodonRate(model=JC69)", suffix, suffixIsOptional, verbose);
-  else if (AlphabetTools::isWordAlphabet(alphabet))
+    if (!gCode)
+      throw Exception("PhylogeneticsApplicationTools::getSubstitutionModel(): a GeneticCode instance is required for instanciating a codon model.");
+    bIO.setGeneticCode(gCode);
+  } else if (AlphabetTools::isWordAlphabet(alphabet))
     modelDescription = ApplicationTools::getStringParameter("model", params, "Word(model=JC69)", suffix, suffixIsOptional, verbose);
   else
     modelDescription = ApplicationTools::getStringParameter("model", params, "JC69", suffix, suffixIsOptional, verbose);
 
   map<string, string> unparsedParameterValues;
-
-  BppOSubstitutionModelFormat bIO(BppOSubstitutionModelFormat::ALL, true, true, true, verbose);
   SubstitutionModel* model = bIO.read(alphabet, modelDescription, data, true);
-
   return model;
 }
 

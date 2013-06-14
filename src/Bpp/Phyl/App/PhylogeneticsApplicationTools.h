@@ -138,6 +138,8 @@ namespace bpp
      * function also parses the parameter values and set them accordingly.
      *
      * @param alphabet The alphabet to use in the model.
+     * @param gCode    The genetic code to use (only for codon models, otherwise can be set to 0).
+     *                 If set to NULL and a codon model is requested, an Exception will be thrown.
      * @param data     A pointer toward the SiteContainer for which the substitution model is designed.
      *                 The alphabet associated to the data must be of the same type as the one specified for the model.
      *                 May be equal to NULL, but in this case use_observed_freq option will be unavailable.
@@ -149,12 +151,13 @@ namespace bpp
      * @throw Exception if an error occured.
      */
     static SubstitutionModel* getSubstitutionModel(
-                                                   const Alphabet* alphabet,
-                                                   const SiteContainer* data, 
-                                                   std::map<std::string, std::string>& params,
-                                                   const std::string& suffix = "",
-                                                   bool suffixIsOptional = true,
-                                                   bool verbose = true) throw (Exception);
+        const Alphabet* alphabet,
+        const GeneticCode* gCode,
+        const SiteContainer* data, 
+        std::map<std::string, std::string>& params,
+        const std::string& suffix = "",
+        bool suffixIsOptional = true,
+        bool verbose = true) throw (Exception);
   
 
     /**

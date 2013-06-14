@@ -41,11 +41,12 @@ knowledge of the CeCILL license and that you accept its terms.
 #include <Bpp/Numeric/Prob/ConstantDistribution.h>
 #include <Bpp/Numeric/Matrix/MatrixTools.h>
 #include <Bpp/Seq/Alphabet/AlphabetTools.h>
-#include <Bpp/Seq/Alphabet/StandardCodonAlphabet.h>
+#include <Bpp/Seq/Alphabet/CodonAlphabet.h>
 #include <Bpp/Seq/Io/Fasta.h>
 #include <Bpp/Seq/GeneticCode/StandardGeneticCode.h>
 #include <Bpp/Phyl/TreeTemplate.h>
 #include <Bpp/Phyl/Model/Nucleotide/JCnuc.h>
+#include <Bpp/Phyl/Model/Codon/YN98.h>
 #include <Bpp/Phyl/Model/Codon/CodonRateSubstitutionModel.h>
 #include <Bpp/Phyl/Model/FrequenciesSet/CodonFrequenciesSet.h>
 #include <Bpp/Phyl/Simulation/HomogeneousSequenceSimulator.h>
@@ -69,12 +70,13 @@ int main() {
 
   //-------------
 
-  CodonAlphabet* alphabet = new StandardCodonAlphabet(&AlphabetTools::DNA_ALPHABET);
+  CodonAlphabet* alphabet = new CodonAlphabet(&AlphabetTools::DNA_ALPHABET);
   GeneticCode* gc = new StandardGeneticCode(&AlphabetTools::DNA_ALPHABET);
-  //SubstitutionModel* model = new YN98(gc, CodonFrequenciesSet::getFrequenciesSetForCodons(CodonFrequenciesSet::F0, *alphabet));
-  SubstitutionModel* model = new CodonRateSubstitutionModel(
-        dynamic_cast<const CodonAlphabet*>(gc->getSourceAlphabet()),
-        new JCnuc(dynamic_cast<CodonAlphabet*>(alphabet)->getNucleicAlphabet()));
+  SubstitutionModel* model = new YN98(gc, CodonFrequenciesSet::getFrequenciesSetForCodons(CodonFrequenciesSet::F0, gc));
+  //SubstitutionModel* model = new CodonRateSubstitutionModel(
+  //      gc,
+  //      new JCnuc(dynamic_cast<CodonAlphabet*>(alphabet)->getNucleicAlphabet()));
+  cout << model->getNumberOfStates() << endl;
   MatrixTools::printForR(model->getGenerator(), "g");
   DiscreteDistribution* rdist = new ConstantDistribution(1.0);
   HomogeneousSequenceSimulator simulator(model, rdist, tree);

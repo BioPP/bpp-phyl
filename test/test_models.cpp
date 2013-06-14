@@ -41,7 +41,7 @@ knowledge of the CeCILL license and that you accept its terms.
 #include <Bpp/Phyl/Model/Codon/YN98.h>
 #include <Bpp/Phyl/Model/FrequenciesSet/CodonFrequenciesSet.h>
 #include <Bpp/Seq/Alphabet/AlphabetTools.h>
-#include <Bpp/Seq/Alphabet/StandardCodonAlphabet.h>
+#include <Bpp/Seq/Alphabet/CodonAlphabet.h>
 #include <Bpp/Seq/GeneticCode/StandardGeneticCode.h>
 #include <Bpp/Numeric/Function/Functions.h>
 #include <Bpp/Numeric/Function/ReparametrizationFunctionWrapper.h>
@@ -117,8 +117,8 @@ int main() {
 
   //Codon models:
   StandardGeneticCode gc(&AlphabetTools::DNA_ALPHABET);
-  const CodonAlphabet* codonAlphabet = new StandardCodonAlphabet(&AlphabetTools::DNA_ALPHABET);
-  FrequenciesSet* fset = CodonFrequenciesSet::getFrequenciesSetForCodons(CodonFrequenciesSet::F3X4, *codonAlphabet);
+  const CodonAlphabet* codonAlphabet = new CodonAlphabet(&AlphabetTools::DNA_ALPHABET);
+  FrequenciesSet* fset = CodonFrequenciesSet::getFrequenciesSetForCodons(CodonFrequenciesSet::F3X4, &gc);
   YN98 yn98(&gc, fset);
   if (!testModel(yn98)) return 1;
 

@@ -83,4 +83,3 @@ YN98& YN98::operator=(const YN98& yn98)
   return *this;
 }
 
-YN98::~YN98() {}
