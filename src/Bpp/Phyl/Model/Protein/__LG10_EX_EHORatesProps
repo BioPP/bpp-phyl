@@ -1,0 +1,34 @@
+if (getName()=="BUR_EXT" || getName()=="BUR_EXT+F"){
+	rate_ = 0.6218078;
+	proportion_ = 0.133;
+}
+
+
+if (getName()=="BUR_HEL" || getName()=="BUR_HEL+F"){
+	rate_ = 0.6071195;
+	proportion_ = 0.171;
+}                    
+
+
+if (getName()=="BUR_OTH" || getName()=="BUR_OTH+F"){
+	rate_ = 0.4341231;
+	proportion_ = 0.1445;
+}
+
+
+if (getName()=="EXP_EXT" || getName()=="EXP_EXT+F"){
+	rate_ = 1.276257;
+	proportion_ = 0.075;
+}
+
+
+if (getName()=="EXP_HEL" || getName()=="EXP_HEL+F"){
+	rate_ = 1.684267;
+	proportion_ = 0.19;
+}
+
+
+if (getName()=="EXP_OTH" || getName()=="EXP_OTH+F"){
+	rate_ = 1.169358;
+	proportion_ = 0.2865;
+}
