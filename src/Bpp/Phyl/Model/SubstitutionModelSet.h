@@ -447,8 +447,6 @@ protected:
    */
   bool checkOrphanModels(bool throwEx) const throw (Exception);
 
-  //  bool checkOrphanParameters(bool throwEx) const throw (Exception);
-
   bool checkOrphanNodes(const Tree& tree, bool throwEx) const throw (Exception);
 
   bool checkUnknownNodes(const Tree& tree, bool throwEx) const throw (Exception);

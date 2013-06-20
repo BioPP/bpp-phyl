@@ -45,6 +45,7 @@
 using namespace bpp;
 
 #include <Bpp/Numeric/Matrix/MatrixTools.h>
+#include "../Parameters/Kappa.h"
 
 using namespace std;
 
@@ -56,7 +57,7 @@ AbstractParameterAliasable("K80."),
   AbstractReversibleSubstitutionModel(alpha, "K80."),
   kappa_(kappa), r_(), l_(), k_(), exp1_(), exp2_(), p_(size_, size_)
 {
-  addParameter_(new Parameter(getNamespace() + "kappa", kappa, &Parameter::R_PLUS_STAR));
+  addParameter_(new Kappa(alpha, getNamespace() + "kappa", kappa));
   updateMatrices();
 }
 

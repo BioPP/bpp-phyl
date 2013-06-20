@@ -182,7 +182,6 @@ SubstitutionModel* PhylogeneticsApplicationTools::getSubstitutionModel(
   else
     modelDescription = ApplicationTools::getStringParameter("model", params, "JC69", suffix, suffixIsOptional, verbose);
 
-  map<string, string> unparsedParameterValues;
   SubstitutionModel* model = bIO.read(alphabet, modelDescription, data, true);
   return model;
 }
@@ -408,7 +407,7 @@ void PhylogeneticsApplicationTools::setSubstitutionModelSet(
     tmpDesc = ApplicationTools::getStringParameter("model1", params, "JC69", suffix, suffixIsOptional, false);
 
   auto_ptr<SubstitutionModel> tmp(bIO.read(alphabet, tmpDesc, data, false));
-  map<string, string> tmpUnparsedParameterValues(bIO.getUnparsedArguments());
+  //  map<string, string> tmpUnparsedParameterValues(bIO.getUnparsedArguments());
 
   if (tmp->getNumberOfStates() != alphabet->getSize())
   {
@@ -761,7 +760,16 @@ throw (Exception)
       }
       else if (param == "Model")
         {
-          vector<string> vs = tl->getSubstitutionModelParameters().getParameterNames();
+          vector<string> vs;
+          vector<string> vs1 = tl->getSubstitutionModelParameters().getParameterNames();
+          NonHomogeneousTreeLikelihood* nhtl = dynamic_cast<NonHomogeneousTreeLikelihood*>(tl);
+          if (nhtl!=NULL){
+            vector<string> vs2 = nhtl->getRootFrequenciesParameters().getParameterNames();
+            VectorTools::diff(vs1,vs2,vs);
+            }
+          else
+            vs=vs1;
+
           parametersToEstimate.deleteParameters(vs);
           if (verbose)
             ApplicationTools::displayResult("Parameter ignored", string("Model"));          
