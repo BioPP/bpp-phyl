@@ -60,7 +60,6 @@ namespace bpp
    *
    * @author Laurent Guéguen
    */
-  
   class RewardMappingTools
   {
   public:
@@ -84,7 +83,7 @@ namespace bpp
                                                             Reward& reward,
                                                             bool verbose = true) throw (Exception);
 		
-		
+    
     /**
      * @brief Write the reward vectors to a stream.
      *
@@ -100,6 +99,7 @@ namespace bpp
                               std::ostream& out)
       throw (IOException);
 	
+
     /**
      * @brief Read the reward vectors from a stream.
      *
@@ -110,6 +110,7 @@ namespace bpp
     static void readFromStream(std::istream& in, ProbabilisticRewardMapping& rewards)
       throw (IOException);
 
+
     /**
      * @brief Sum all rewards of a given branch (specified by its index).
      *
@@ -117,9 +118,9 @@ namespace bpp
      * @param branchIndex The index of the reward vector for which the counts should be computed.
      * @return A vector will all rewards summed.
      */
-
     static double computeSumForBranch(const RewardMapping& smap, size_t branchIndex);
  
+
     /**
      * @brief Sum all substitutions for each type of a given site (specified by its index).
      *

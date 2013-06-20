@@ -65,7 +65,6 @@ SET(CPP_FILES
   Bpp/Phyl/Mapping/DecompositionReward.cpp
   Bpp/Phyl/Mapping/ProbabilisticRewardMapping.cpp
   Bpp/Phyl/Mapping/RewardMappingTools.cpp
-  Bpp/Phyl/Mapping/MappingTools.cpp
   Bpp/Phyl/Model/StateMap.cpp
   Bpp/Phyl/Model/BinarySubstitutionModel.cpp
   Bpp/Phyl/Model/AbstractSubstitutionModel.cpp
@@ -236,7 +235,6 @@ SET(H_FILES
   Bpp/Phyl/Mapping/RewardMapping.h
   Bpp/Phyl/Mapping/RewardMappingTools.h
   Bpp/Phyl/Mapping/ProbabilisticRewardMapping.h
-  Bpp/Phyl/Mapping/MappingTools.h
   Bpp/Phyl/Model/StateMap.h
   Bpp/Phyl/Model/AbstractSubstitutionModel.h
   Bpp/Phyl/Model/BinarySubstitutionModel.h
