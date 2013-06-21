@@ -61,8 +61,9 @@ SET(CPP_FILES
   Bpp/Phyl/NewLikelihood/DRTreeLikelihood.cpp
   Bpp/Phyl/NewLikelihood/SimpleSubstitutionProcess.cpp
   Bpp/Phyl/NewLikelihood/AbstractSubstitutionProcess.cpp
-  Bpp/Phyl/NewLikelihood/SimpleSubstitutionProcess.cpp
   Bpp/Phyl/NewLikelihood/RateAcrossSitesSubstitutionProcess.cpp
+  Bpp/Phyl/NewLikelihood/SubstitutionProcessCollection.cpp
+  Bpp/Phyl/NewLikelihood/SubstitutionProcessCollectionMember.cpp
   Bpp/Phyl/Mapping/LaplaceSubstitutionCount.cpp
   Bpp/Phyl/Mapping/OneJumpSubstitutionCount.cpp
   Bpp/Phyl/Mapping/ProbabilisticSubstitutionMapping.cpp
@@ -232,7 +233,8 @@ SET(H_FILES
   Bpp/Phyl/NewLikelihood/AbstractSubstitutionProcess.h
   Bpp/Phyl/NewLikelihood/SimpleSubstitutionProcess.h
   Bpp/Phyl/NewLikelihood/RateAcrossSitesSubstitutionProcess.h
-  Bpp/Phyl/NewLikelihood/SimpleSubstitutionProcess.h
+  Bpp/Phyl/NewLikelihood/SubstitutionProcessCollection.h
+  Bpp/Phyl/NewLikelihood/SubstitutionProcessCollectionMember.h
   Bpp/Phyl/NewLikelihood/ModelIterator.h
   Bpp/Phyl/NewLikelihood/AbstractTreeLikelihood.h
   Bpp/Phyl/NewLikelihood/RTreeLikelihood.h

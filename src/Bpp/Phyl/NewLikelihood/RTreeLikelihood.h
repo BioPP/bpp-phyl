@@ -80,7 +80,7 @@ namespace newlik
    * - Patterns are more likely to occur whith small alphabet (nucleotides).
    *
    * Important note: The input tree will be considered as rooted, since the likelihood of non-stationary models
-   * depends on the position of the root. If the input tree is not rooted, it will be considered as a rotted tree
+   * depends on the position of the root. If the input tree is not rooted, it will be considered as a rooted tree
    * with a root multifurcation.
    */
   class RTreeLikelihood :
