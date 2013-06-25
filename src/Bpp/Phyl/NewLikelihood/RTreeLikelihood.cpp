@@ -95,8 +95,7 @@ void RTreeLikelihood::init_(bool usePatterns) throw (Exception)
 
 /******************************************************************************/
 
-RTreeLikelihood::RTreeLikelihood(
-  const RTreeLikelihood& lik) :
+RTreeLikelihood::RTreeLikelihood(const RTreeLikelihood& lik) :
   AbstractTreeLikelihood(lik),
   likelihoodData_(0),
   minusLogLik_(lik.minusLogLik_),

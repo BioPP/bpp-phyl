@@ -41,9 +41,8 @@
 #ifndef _NEWLIK_DRTREELIKELIHOOD_H_
 #define _NEWLIK_DRTREELIKELIHOOD_H_
 
-#include "AbstractNonHomogeneousTreeLikelihood.h"
-#include "DRTreeLikelihood.h"
-#include "DRASDRTreeLikelihoodData.h"
+#include "AbstractTreeLikelihood.h"
+#include "DRTreeLikelihoodData.h"
 
 #include <Bpp/Numeric/VectorTools.h>
 #include <Bpp/Numeric/Prob/DiscreteDistribution.h>
@@ -189,12 +188,11 @@ class DRTreeLikelihood:
     
     virtual void computeLikelihoodAtNode(int nodeId, VVVdouble& likelihoodArray) const
     {
-      computeLikelihoodAtNode_(tree_->getNode(nodeId), likelihoodArray);
+      computeLikelihoodAtNode_(process_->getTree().getNode(nodeId), likelihoodArray);
     }
       
   protected:
     virtual void computeLikelihoodAtNode_(const Node* node, VVVdouble& likelihoodArray) const;
-
   
     /**
      * Initialize the arrays corresponding to each son node for the node passed as argument.
