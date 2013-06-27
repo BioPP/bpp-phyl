@@ -48,8 +48,8 @@ using namespace bpp;
 using namespace std;
 
 NonHomogeneousSubstitutionProcess::NonHomogeneousSubstitutionProcess(const NonHomogeneousSubstitutionProcess& set) :
-  AbstractSubstitutionProcess(set),
   AbstractParameterAliasable(set),
+  AbstractSubstitutionProcess(set),
   modelSet_(set.modelSet_.size()),
   rootFrequencies_(set.stationarity_ ? 0 : dynamic_cast<FrequenciesSet*>(set.rootFrequencies_->clone())),
   rDist_                (dynamic_cast<DiscreteDistribution*>(set.rDist_->clone())),
@@ -69,8 +69,8 @@ NonHomogeneousSubstitutionProcess& NonHomogeneousSubstitutionProcess::operator=(
 {
   clear();
   
-  AbstractSubstitutionProcess::operator=(set);
   AbstractParameterAliasable::operator=(set);
+  AbstractSubstitutionProcess::operator=(set);
   nodeToModel_         = set.nodeToModel_;
   modelToNodes_        = set.modelToNodes_;
   modelParameters_     = set.modelParameters_;
@@ -106,7 +106,6 @@ void NonHomogeneousSubstitutionProcess::clear()
   nodeToModel_.clear();
   modelParameters_.clear();
   stationarity_=true;
-
 }
 
 void NonHomogeneousSubstitutionProcess::setRootFrequencies(FrequenciesSet* rootFreqs)
@@ -141,7 +140,7 @@ void NonHomogeneousSubstitutionProcess::addModel(SubstitutionModel* model, const
   string pname;
   ParameterList pl=model->getParameters();
   modelParameters_.push_back(pl);
-  
+   
   for (size_t i  = 0; i < pl.size(); i++)
     {
       Parameter* p = pl[i].clone();
@@ -198,6 +197,8 @@ void NonHomogeneousSubstitutionProcess::listModelNames(std::ostream& out) const
 
 void NonHomogeneousSubstitutionProcess::fireParameterChanged(const ParameterList& parameters)
 {
+  AbstractSubstitutionProcess::fireParameterChanged(parameters);
+
   // Update root frequencies:
   updateRootFrequencies();
 
@@ -296,6 +297,7 @@ bool NonHomogeneousSubstitutionProcess::hasTransitionProbabilitiesParameter(cons
 
 const Matrix<double>& NonHomogeneousSubstitutionProcess::getTransitionProbabilities(int nodeId, size_t classIndex) const
 {
+  cerr << "gT" << nodeId << endl;
   const SubstitutionModel& SM=getSubstitutionModel(nodeId, classIndex);
   size_t i = getModelIndex_(nodeId, classIndex);
 
@@ -304,8 +306,11 @@ const Matrix<double>& NonHomogeneousSubstitutionProcess::getTransitionProbabilit
     //The transition matrix was never computed before. We therefore have to compute it first:
     double l = pTree_->getBranchLengthParameter(nodeId).getValue();
     double r = rDist_->getCategory(classIndex);
+    cerr << l << " " << r << endl;
     probabilities_[i] = SM.getPij_t(l * r);
   }
+  cerr << "prob; " << probabilities_[i](0,1) << endl;
+  cerr << "gen: " << SM.Qij(0,1) << endl;
   return probabilities_[i];
 }
 
@@ -336,5 +341,175 @@ const Matrix<double>& NonHomogeneousSubstitutionProcess::getTransitionProbabilit
     probabilitiesD2_[i] = SM.getd2Pij_dt2(l * r);
   }
   return probabilitiesD2_[i];
+}
+
+NonHomogeneousSubstitutionProcess* NonHomogeneousSubstitutionProcess::createHomogeneousSubstitutionProcess(
+                                                                                                                SubstitutionModel* model,
+                                                                                                                DiscreteDistribution* rdist,
+                                                                                                                FrequenciesSet* rootFreqs,
+                                                                                                                ParametrizableTree* tree
+                                                                                                                )
+{
+  // Check alphabet:
+  if  (rootFreqs && model->getAlphabet()->getAlphabetType() != rootFreqs->getAlphabet()->getAlphabetType())
+    throw AlphabetMismatchException("NonHomogeneousSubstitutionProcess::createHomogeneousModelSet()", model->getAlphabet(), rootFreqs->getAlphabet());
+  if (dynamic_cast<MixedSubstitutionModel*>(model) != NULL)
+    throw Exception("createHomogeneousSubstitutionProcess not yet programmed for mixture models.");
+
+  NonHomogeneousSubstitutionProcess*  modelSet = new NonHomogeneousSubstitutionProcess(rdist, tree, rootFreqs);
+
+  // We assign this model to all nodes in the tree (excepted root node), and link all parameters with it.
+  vector<int> ids = tree->getTree().getNodesId();
+  int rootId = tree->getTree().getRootId();
+  unsigned int pos = 0;
+  for (unsigned int i = 0; i < ids.size(); i++)
+    {
+      if (ids[i] == rootId)
+        {
+          pos = i;
+          break;
+        }
+    }
+  ids.erase(ids.begin() + pos);
+  modelSet->addModel(model, ids);
+  return modelSet;
+}
+
+NonHomogeneousSubstitutionProcess* NonHomogeneousSubstitutionProcess::createNonHomogeneousSubstitutionProcess(
+                                                                                                                   SubstitutionModel* model,
+                                                                                                                   DiscreteDistribution* rdist,
+                                                                                                                   FrequenciesSet* rootFreqs,
+                                                                                                                   ParametrizableTree* tree,
+                                                                                                                   const vector<string>& globalParameterNames
+                                                                                                                   )
+{
+  // Check alphabet:
+  if (rootFreqs && model->getAlphabet()->getAlphabetType() != rootFreqs->getAlphabet()->getAlphabetType())
+    throw AlphabetMismatchException("NonHomogeneousSubstitutionProcess::createNonHomogeneousModelSet()", model->getAlphabet(), rootFreqs->getAlphabet());
+  if (dynamic_cast<MixedSubstitutionModel*>(model) != NULL)
+    throw Exception("createNonHomogeneousSubstitutionProcess not yet programmed for mixture models.");
+
+  ParameterList globalParameters, branchParameters;
+  globalParameters = model->getParameters();
+
+  vector<string> globalParameterNames2; // vector of the complete names of global parameters
+
+  // First get correct parameter names
+  size_t i, j;
+
+  for (i = 0; i < globalParameterNames.size(); i++)
+    {
+      if (globalParameterNames[i].find("*") != string::npos)
+        {
+          for (j = 0; j < globalParameters.size(); j++)
+            {
+              StringTokenizer stj(globalParameterNames[i], "*", true, false);
+              size_t pos1, pos2;
+              string parn = globalParameters[j].getName();
+              bool flag(true);
+              string g = stj.nextToken();
+              pos1 = parn.find(g);
+              if (pos1 != 0)
+                flag = false;
+              pos1 += g.length();
+              while (flag && stj.hasMoreToken())
+                {
+                  g = stj.nextToken();
+                  pos2 = parn.find(g, pos1);
+                  if (pos2 == string::npos)
+                    {
+                      flag = false;
+                      break;
+                    }
+                  pos1 = pos2 + g.length();
+                }
+              if (flag &&
+                  ((g.length() == 0) || (pos1 == parn.length()) || (parn.rfind(g) == parn.length() - g.length())))
+                globalParameterNames2.push_back(parn);
+            }
+        }
+      else if (!globalParameters.hasParameter(globalParameterNames[i]))
+        throw Exception("NonHomogeneousSubstitutionProcess::createNonHomogeneousModelSet. Parameter '" + globalParameterNames[i] + "' is not valid.");
+      else
+        globalParameterNames2.push_back(globalParameterNames[i]);
+    }
+
+  // remove non global parameters
+  for (i = globalParameters.size(); i > 0; i--)
+    {
+      if (find(globalParameterNames2.begin(), globalParameterNames2.end(), globalParameters[i - 1].getName()) == globalParameterNames2.end())
+        {
+          // not a global parameter:
+          branchParameters.addParameter(globalParameters[i - 1]);
+          globalParameters.deleteParameter(i - 1);
+        }
+    }
+
+  // bool mixed = (dynamic_cast<MixedSubstitutionModel*>(model) != NULL);
+  NonHomogeneousSubstitutionProcess*  modelSet;
+  // if (mixed)
+  // {
+  //   modelSet = new MixedNonHomogeneousSubstitutionProcess(model->getAlphabet());
+  //   // Remove the "relproba" parameters from the branch parameters and put them in the global parameters, for the hypernodes
+  //   for (i = branchParameters.size(); i > 0; i--)
+  //   {
+  //     if (branchParameters[i - 1].getName().find("relproba") != string::npos)
+  //     {
+  //       globalParameters.addParameter(branchParameters[i - 1]);
+  //       branchParameters.deleteParameter(i - 1);
+  //     }
+  //   }
+  // }
+  // else
+  modelSet = new NonHomogeneousSubstitutionProcess(rdist, tree, rootFreqs);
+
+  // We assign a copy of this model to all nodes in the tree (excepted root node), and link all parameters with it.
+  vector<int> ids = tree->getTree().getNodesId();
+  int rootId = tree->getTree().getRootId();
+  size_t pos = 0;
+  for (i = 0; i < ids.size(); i++)
+    {
+      if (ids[i] == rootId)
+        {
+          pos = i;
+          break;
+        }
+    }
+
+  ids.erase(ids.begin() + pos);
+  for (i = 0; i < ids.size(); i++)
+    {
+      modelSet->addModel(dynamic_cast<SubstitutionModel*>(model->clone()), vector<int>(1, ids[i]));
+    }
+
+  // Now alias all global parameters on all nodes:
+  for (i=0; i < globalParameters.size(); i++)
+    {
+      string pname=globalParameters[i].getName();
+
+      for (size_t nn = 1; nn < ids.size(); nn++)
+        modelSet->aliasParameters(pname+"_1",pname+"_"+TextTools::toString(nn+1));
+    }
+  
+  // Defines the hypernodes if mixed
+  // if (mixed)
+  // {
+  //   MixedNonHomogeneousSubstitutionProcess* pMSMS = dynamic_cast<MixedNonHomogeneousSubstitutionProcess*>(modelSet);
+  //   MixedSubstitutionModel* pMSM = dynamic_cast<MixedSubstitutionModel*>(model);
+
+  //   size_t nbm = pMSM->getNumberOfModels();
+  //   for (i = 0; i < nbm; i++)
+  //   {
+  //     pMSMS->addEmptyHyperNode();
+  //     for (j = 0; j < ids.size(); j++)
+  //     {
+  //       pMSMS->addToHyperNode(j, vector<int>(1, static_cast<int>(i)));
+  //     }
+  //   }
+  //   pMSMS->computeHyperNodesProbabilities();
+  // }
+
+  // delete model; // delete template model.
+  return modelSet;
 }
 

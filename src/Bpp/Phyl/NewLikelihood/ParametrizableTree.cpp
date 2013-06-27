@@ -40,6 +40,7 @@ knowledge of the CeCILL license and that you accept its terms.
 #include "ParametrizableTree.h"
 
 using namespace bpp;
+using namespace std;
 
 ParametrizableTree::ParametrizableTree(const Tree& tree, bool reparametrizeRoot, bool liveIndex, const std::string& prefix): 
   AbstractParametrizable(prefix),
@@ -55,7 +56,7 @@ ParametrizableTree::ParametrizableTree(const Tree& tree, bool reparametrizeRoot,
   //TODO allow root reparametrization
   if (reparametrizeRoot)
     throw Exception("ParametrizableTree::constructor. Reparametrization of root is not implemented yet.");
-  buildIndex_(*tree_.getRootNode()); 
+  buildIndex_(*tree_.getRootNode());
   if (liveIndex_)
     buildReverseIndex_(tree_.getRootNode());
 }
@@ -71,9 +72,9 @@ ParametrizableTree::ParametrizableTree(const ParametrizableTree& pTree):
   maximumBrLen_(pTree.maximumBrLen_),
   brLenConstraint_(new IntervalConstraint(pTree.minimumBrLen_, pTree.maximumBrLen_, true, true))
 {
-  buildIndex_(*tree_.getRootNode()); 
+  buildIndex_(*tree_.getRootNode());
   if (liveIndex_)
-    buildReverseIndex_(tree_.getRootNode()); 
+    buildReverseIndex_(tree_.getRootNode());
 }
 
 ParametrizableTree& ParametrizableTree::operator=(const ParametrizableTree& pTree)
@@ -93,10 +94,12 @@ ParametrizableTree& ParametrizableTree::operator=(const ParametrizableTree& pTre
   return *this;
 }
 
-void ParametrizableTree::buildIndex_(Node& node)
+void ParametrizableTree::buildIndex_(Node& node, size_t nPar)
 {
+  size_t npar=nPar;
+  
   if (node.hasFather()) {
-    index_[node.getId()] = getNumberOfParameters();
+    index_[node.getId()] = npar;
   
     double d = minimumBrLen_;
     if (!node.hasDistanceToFather())
@@ -120,13 +123,15 @@ void ParametrizableTree::buildIndex_(Node& node)
         d = maximumBrLen_;
       }
     }
-    addParameter_(new Parameter("BrLen" + TextTools::toString(node.getId()), d, brLenConstraint_->clone(), true)); // Attach constraint to avoid clonage problems!
+    if (!hasParameter("BrLen" + TextTools::toString(node.getId()))){
+      addParameter_(new Parameter("BrLen" + TextTools::toString(node.getId()), d, brLenConstraint_->clone(), true)); // Attach constraint to avoid clonage problems!
+    }
+    npar++;
   }
-
+    
   //Now apply recursively:
   for (unsigned int i = 0; i < node.getNumberOfSons(); ++i)
-    buildIndex_(*node[i]);
-  
+    buildIndex_(*node[i],npar++);
 }
 
 void ParametrizableTree::buildReverseIndex_(Node* node)

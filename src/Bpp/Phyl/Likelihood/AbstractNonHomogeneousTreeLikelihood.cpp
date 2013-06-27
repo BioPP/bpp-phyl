@@ -271,6 +271,7 @@ void AbstractNonHomogeneousTreeLikelihood::initialize() throw (Exception)
   if (!data_) throw Exception("AbstractBranchNonHomogeneousTreeLikelihood::initialize(). Data are no set.");
   initParameters();
   initialized_ = true;
+
   computeAllTransitionProbabilities();
   fireParameterChanged(getParameters());
 }
@@ -405,7 +406,10 @@ void AbstractNonHomogeneousTreeLikelihood::computeAllTransitionProbabilities()
 
 void AbstractNonHomogeneousTreeLikelihood::computeTransitionProbabilitiesForNode(const Node* node)
 {
+  cerr << "AN:gT" << node->getId() << endl;
   const SubstitutionModel* model = modelSet_->getModelForNode(node->getId());
+  cerr << "SJJSS1 " << modelSet_->getModel(0)->Qij(0,1) << endl;
+  cerr << "&&&AN " << modelSet_ << endl;
   double l = node->getDistanceToFather(); 
 
   //Computes all pxy and pyx once for all:
@@ -413,7 +417,11 @@ void AbstractNonHomogeneousTreeLikelihood::computeTransitionProbabilitiesForNode
   for(unsigned int c = 0; c < nbClasses_; c++)
     {
       VVdouble * pxy__node_c = & (* pxy__node)[c];
+      cerr << l << " " << rateDistribution_->getCategory(c) << endl;
+
       RowMatrix<double> Q = model->getPij_t(l * rateDistribution_->getCategory(c));
+      cerr << "prob: " << Q(0,1) << endl;
+      cerr << "gen: " << model->Qij(0,1) << endl;
       for(unsigned int x = 0; x < nbStates_; x++)
         {
           Vdouble * pxy__node_c_x = & (* pxy__node_c)[x];

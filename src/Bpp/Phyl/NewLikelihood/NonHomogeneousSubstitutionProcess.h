@@ -115,8 +115,7 @@ namespace bpp
 
   
   class NonHomogeneousSubstitutionProcess :
-    public AbstractSubstitutionProcess,
-    public AbstractParameterAliasable
+    public AbstractSubstitutionProcess
   {
   private:
     /**
@@ -160,8 +159,8 @@ namespace bpp
      * @param tree the parametrizable tree
      */
     NonHomogeneousSubstitutionProcess(DiscreteDistribution*  rdist, ParametrizableTree* tree) :
-      AbstractSubstitutionProcess(tree, 0),
       AbstractParameterAliasable(""),
+      AbstractSubstitutionProcess(tree, rdist ? rdist->getNumberOfCategories() : 0),
       modelSet_(),
       rootFrequencies_(0),
       rDist_(rdist),
@@ -181,8 +180,8 @@ namespace bpp
      * @param rootFreqs The frequencies at root node. The underlying object will be owned by this instance.
      */
     NonHomogeneousSubstitutionProcess(DiscreteDistribution*  rdist, ParametrizableTree* tree, FrequenciesSet* rootFreqs):
-      AbstractSubstitutionProcess(tree, 0),
       AbstractParameterAliasable(""),
+      AbstractSubstitutionProcess(tree, rdist ? rdist->getNumberOfCategories() : 0),
       modelSet_(),
       rootFrequencies_(rootFreqs),
       rDist_(rdist),
@@ -598,7 +597,59 @@ namespace bpp
         throw IndexOutOfBoundsException("RateAcrossSitesSubstitutionProcess::getProbabilityForModel.", classIndex, 0, rDist_->getNumberOfCategories());
       return rDist_->getProbability(classIndex);
     }
+
+
+  public:
+
+    /**
+     * Static methods to create "simply" NonHomogeneousSubstitutionProcess.
+     *
+     */
+
+    /**
+     * @brief Create a NonHomogeneousSubstitutionProcess object,
+     * corresponding to the homogeneous case.
+     *
+     * This class is mainly for testing purpose.
+     *
+     * @param model     The model to use.
+     * @param rdist     The rate distribution
+     * @param rootFreqs A FrequenciesSet object to parametrize root frequencies
+     *        (0 if stationary).
+     * 
+     * @param tree      The tree to use for the construction of the set.
+     */
     
+    static NonHomogeneousSubstitutionProcess* createHomogeneousSubstitutionProcess(
+                                                                                   SubstitutionModel* model,
+                                                                                   DiscreteDistribution* rdist,
+                                                                                   FrequenciesSet* rootFreqs,
+                                                                                   ParametrizableTree* tree
+                                                                                   );
+
+    /**
+     * @brief Create a NonHomogeneousSubstitutionProcess object, with one model per branch.
+     *
+     * All branches share the same type of model, but allow one set of parameters per branch.
+     * This is also possible to specify some parameters to be common to all branches.
+     *
+     * @param model                The model to use.
+     * @param rdist     The rate distribution
+     * @param rootFreqs            A FrequenciesSet object to parametrize root frequencies.
+     * @param tree                 The tree to use for the construction of the set.
+     * @param globalParameterNames Common parameters for all branches.
+     * All other parameters will be considered distinct for all branches.
+     */
+    static NonHomogeneousSubstitutionProcess* createNonHomogeneousSubstitutionProcess(
+                                                                                      SubstitutionModel* model,
+                                                                                      DiscreteDistribution* rdist,
+                                                                                      FrequenciesSet* rootFreqs,
+                                                                                      ParametrizableTree* tree,
+                                                                                      const std::vector<std::string>& globalParameterNames
+                                                                                      );
+    
+
+
     /** @} */
   };
 } // end of namespace bpp.

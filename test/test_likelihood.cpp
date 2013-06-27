@@ -37,18 +37,24 @@ The fact that you are presently reading this means that you have had
 knowledge of the CeCILL license and that you accept its terms.
 */
 
-#include <Bpp/Numeric/Prob/GammaDiscreteDistribution.h>
 #include <Bpp/Numeric/Matrix/MatrixTools.h>
 #include <Bpp/Seq/Alphabet/AlphabetTools.h>
 #include <Bpp/Phyl/TreeTemplate.h>
 #include <Bpp/Phyl/Model/Nucleotide/T92.h>
 #include <Bpp/Phyl/Model/RateDistribution/GammaDiscreteRateDistribution.h>
+#include <Bpp/Phyl/Model/RateDistribution/ConstantRateDistribution.h>
+#include <Bpp/Phyl/Model/RateDistribution/GammaDiscreteRateDistribution.h>
 #include <Bpp/Phyl/Simulation/HomogeneousSequenceSimulator.h>
 #include <Bpp/Phyl/Likelihood/RHomogeneousTreeLikelihood.h>
 #include <Bpp/Phyl/OptimizationTools.h>
+#include <Bpp/Phyl/NewLikelihood/ParametrizableTree.h>
+#include <Bpp/Phyl/NewLikelihood/SimpleSubstitutionProcess.h>
+#include <Bpp/Phyl/NewLikelihood/RateAcrossSitesSubstitutionProcess.h>
+#include <Bpp/Phyl/NewLikelihood/RTreeLikelihood.h>
 #include <iostream>
 
 using namespace bpp;
+using namespace newlik;
 using namespace std;
 
 void fitModelH(SubstitutionModel* model, DiscreteDistribution* rdist, const Tree& tree, const SiteContainer& sites,
@@ -56,10 +62,17 @@ void fitModelH(SubstitutionModel* model, DiscreteDistribution* rdist, const Tree
   RHomogeneousTreeLikelihood tl(tree, sites, model, rdist);
   tl.initialize();
   ApplicationTools::displayResult("Test model", model->getName());
-  cout << setprecision(20) << tl.getValue() << endl;
+  cout << "OldTL: " << setprecision(20) << tl.getValue() << endl;
   ApplicationTools::displayResult("* initial likelihood", tl.getValue());
   if (abs(tl.getValue() - initialValue) > 0.001)
     throw Exception("Incorrect initial value.");
+  
+  ParametrizableTree* pTree = new ParametrizableTree(tree);
+  //SubstitutionProcess* process = new SimpleSubstitutionProcess(model->clone(), pTree);
+  SubstitutionProcess* process = new RateAcrossSitesSubstitutionProcess(model->clone(), rdist->clone(), pTree);
+  RTreeLikelihood newTl(sites, process, true, true);
+  cout << "NewTL: " << setprecision(20) << newTl.getValue() << endl;
+  
   OptimizationTools::optimizeTreeScale(&tl);
   ApplicationTools::displayResult("* likelihood after tree scale", tl.getValue());
   OptimizationTools::optimizeNumericalParameters2(&tl, tl.getParameters(), 0, 0.000001, 10000, 0, 0);

@@ -43,14 +43,22 @@ knowledge of the CeCILL license and that you accept its terms.
 #include <Bpp/Phyl/Model/Nucleotide/T92.h>
 #include <Bpp/Phyl/Model/FrequenciesSet/NucleotideFrequenciesSet.h>
 #include <Bpp/Phyl/Model/SubstitutionModelSetTools.h>
-#include <Bpp/Phyl/Model/RateDistribution/GammaDiscreteRateDistribution.h>
+#include <Bpp/Phyl/Model/RateDistribution.all>
 #include <Bpp/Phyl/Simulation/NonHomogeneousSequenceSimulator.h>
 #include <Bpp/Phyl/Likelihood/RNonHomogeneousTreeLikelihood.h>
 #include <Bpp/Phyl/Likelihood/DRNonHomogeneousTreeLikelihood.h>
 #include <Bpp/Phyl/OptimizationTools.h>
+
+#include <Bpp/Phyl/NewLikelihood/ParametrizableTree.h>
+#include <Bpp/Phyl/NewLikelihood/NonHomogeneousSubstitutionProcess.h>
+#include <Bpp/Phyl/NewLikelihood/SimpleSubstitutionProcess.h>
+#include <Bpp/Phyl/NewLikelihood/RateAcrossSitesSubstitutionProcess.h>
+#include <Bpp/Phyl/NewLikelihood/RTreeLikelihood.h>
+
 #include <iostream>
 
 using namespace bpp;
+using namespace newlik;
 using namespace std;
 
 void fitModelNH(SubstitutionModelSet* model, DiscreteDistribution* rdist, const Tree& tree, const SiteContainer& sites,
@@ -71,36 +79,54 @@ void fitModelNH(SubstitutionModelSet* model, DiscreteDistribution* rdist, const 
 }
 
 int main() {
-  TreeTemplate<Node>* tree = TreeTemplateTools::parenthesisToTree("(((A:0.1, B:0.2):0.3,C:0.1):0.2,(D:0.3,(E:0.2,F:0.05):0.1):0.1);");
+  TreeTemplate<Node>* tree = TreeTemplateTools::parenthesisToTree("(A:0.1, B:0.2);");//"(((A:0.1, B:0.2):0.3,C:0.1):0.2,(D:0.3,(E:0.2,F:0.05):0.1):0.1);");
+
   vector<string> seqNames= tree->getLeavesNames();
   vector<int> ids = tree->getNodesId();
   //-------------
 
   const NucleicAlphabet* alphabet = &AlphabetTools::DNA_ALPHABET;
   FrequenciesSet* rootFreqs = new GCFrequenciesSet(alphabet);
-  SubstitutionModel* model = new T92(alphabet, 3.);
+  
+  SubstitutionModel* model = new T92(alphabet, 1.);
   std::vector<std::string> globalParameterNames;
   globalParameterNames.push_back("T92.kappa");
-  SubstitutionModelSet* modelSet = SubstitutionModelSetTools::createNonHomogeneousModelSet(model, rootFreqs, tree, globalParameterNames);
-  //DiscreteDistribution* rdist = new ConstantDistribution(1.0, true);
   //Very difficult to optimize on small datasets:
-  DiscreteDistribution* rdist = new GammaDiscreteRateDistribution(4, 1.0);
+  //  DiscreteDistribution* rdist = new GammaDiscreteRateDistribution(4, 1.0);
+  DiscreteDistribution* rdist = new ConstantRateDistribution();
 
-  size_t nsites = 1000;
-  unsigned int nrep = 20;
+  
+  ParametrizableTree* parTree = new ParametrizableTree(*tree);
+  FrequenciesSet* rootFreqs2 = rootFreqs->clone();
+  DiscreteDistribution* rdist2 = rdist->clone();
+  SubstitutionModel* model2=model->clone();
+
+  SubstitutionModelSet* modelSet = SubstitutionModelSetTools::createHomogeneousModelSet(model, rootFreqs, tree);//, globalParameterNames);
+
+  NonHomogeneousSubstitutionProcess* subPro= NonHomogeneousSubstitutionProcess::createHomogeneousSubstitutionProcess(model2, rdist2, rootFreqs2, parTree);//, globalParameterNames);
+
+  // Simulation
+    
+  size_t nsites = 1;
+  unsigned int nrep = 1;
   size_t nmodels = modelSet->getNumberOfModels();
   vector<double> thetas(nmodels);
   vector<double> thetasEst1(nmodels);
   vector<double> thetasEst2(nmodels);
 
-  for (size_t i = 0; i < nmodels; ++i) {
-    double theta = RandomTools::giveRandomNumberBetweenZeroAndEntry(0.99) + 0.005;
-    cout << "Theta" << i << " set to " << theta << endl; 
+  for (size_t i = 0; i < 1; ++i){//nmodels; ++i) {
+    double theta = 0.3;//RandomTools::giveRandomNumberBetweenZeroAndEntry(0.99) + 0.005;
+    //    cout << "Theta" << i << " set to " << theta << endl; 
     modelSet->setParameterValue("T92.theta_" + TextTools::toString(i + 1), theta);
+    subPro->setParameterValue("T92.theta_" + TextTools::toString(i + 1), theta);
     thetas[i] = theta;
   }
+
   NonHomogeneousSequenceSimulator simulator(modelSet, rdist, tree);
- 
+
+  auto_ptr<NonHomogeneousSubstitutionProcess> subPro2(subPro->clone());
+  auto_ptr<NonHomogeneousSubstitutionProcess> subPro3(subPro->clone());
+
   for (unsigned int j = 0; j < nrep; j++) {
 
     OutputStream* profiler  = new StlOutputStream(new ofstream("profile.txt", ios::out));
@@ -111,39 +137,57 @@ int main() {
     //Now fit model:
     auto_ptr<SubstitutionModelSet> modelSet2(modelSet->clone());
     auto_ptr<SubstitutionModelSet> modelSet3(modelSet->clone());
+
+    ParameterList pl=subPro->getParameters();
+    for (size_t i=0; i<pl.size();i++)
+      cerr << ":" << pl[i].getName() << " " << pl[i].getValue() << endl;
+    ParameterList pl2=subPro->getIndependentParameters();
+    for (size_t i=0; i<pl2.size();i++)
+      cerr << "_ " << pl2[i].getName() << " " << pl2[i].getValue() << endl;
+
+
     RNonHomogeneousTreeLikelihood tl(*tree, *sites.get(), modelSet2.get(), rdist, true, true, false);
     tl.initialize();
-    RNonHomogeneousTreeLikelihood tl2(*tree, *sites.get(), modelSet3.get(), rdist, true, true, true);
-    tl2.initialize();
-   
+
+    // RNonHomogeneousTreeLikelihood tl2(*tree, *sites.get(), modelSet3.get(), rdist, true, true, true);
+    // tl2.initialize();
+
+    RTreeLikelihood ntl(*sites.get(), subPro, true, false);
+
+    //    RTreeLikelihood ntl2(*sites.get(), subPro2.get(), true, true);
+
+    cout << "OldTL init:"  << tl.getValue() << endl;//"\t" << tl2.getValue() << endl;
+    cout << "NewTL init:"  << ntl.getValue() << endl;//"\t" << ntl2.getValue() << endl;
+
+    break;
     unsigned int c1 = OptimizationTools::optimizeNumericalParameters2(
         &tl, tl.getParameters(), 0,
         0.0001, 10000, messenger, profiler, false, false, 1, OptimizationTools::OPTIMIZATION_NEWTON);
 
-    unsigned int c2 = OptimizationTools::optimizeNumericalParameters2(
-        &tl2, tl2.getParameters(), 0,
-        0.0001, 10000, messenger, profiler, false, false, 1, OptimizationTools::OPTIMIZATION_NEWTON);
+    // unsigned int c2 = OptimizationTools::optimizeNumericalParameters2(
+    //     &tl2, tl2.getParameters(), 0,
+    //     0.0001, 10000, messenger, profiler, false, false, 1, OptimizationTools::OPTIMIZATION_NEWTON);
 
-    cout << c1 << ": " << tl.getValue() << "\t" << c2 << ": " << tl2.getValue() << endl;
-      
-    for (size_t i = 0; i < nmodels; ++i) {
-      cout << modelSet2->getModel(i)->getParameter("theta").getValue() << "\t" << modelSet3->getModel(i)->getParameter("theta").getValue() << endl;
-      //if (abs(modelSet2->getModel(i)->getParameter("theta").getValue() - modelSet3->getModel(i)->getParameter("theta").getValue()) > 0.1)
-      //  return 1;
-      thetasEst1[i] +=  modelSet2->getModel(i)->getParameter("theta").getValue();
-      thetasEst2[i] +=  modelSet3->getModel(i)->getParameter("theta").getValue();
-    }
-  }
-  thetasEst1 /= static_cast<double>(nrep);
-  thetasEst2 /= static_cast<double>(nrep);
+    // cout << "OldTL: " << c1 << ": " << tl.getValue() << "\t" << c2 << ": " << tl2.getValue() << endl;
+                        
+  //   for (size_t i = 0; i < nmodels; ++i) {
+  //     cout << modelSet2->getModel(i)->getParameter("theta").getValue() << "\t" << modelSet3->getModel(i)->getParameter("theta").getValue() << endl;
+  //     //if (abs(modelSet2->getModel(i)->getParameter("theta").getValue() - modelSet3->getModel(i)->getParameter("theta").getValue()) > 0.1)
+  //     //  return 1;
+  //     thetasEst1[i] +=  modelSet2->getModel(i)->getParameter("theta").getValue();
+  //     thetasEst2[i] +=  modelSet3->getModel(i)->getParameter("theta").getValue();
+  //   }
+  // }
+  // thetasEst1 /= static_cast<double>(nrep);
+  // thetasEst2 /= static_cast<double>(nrep);
 
-  //Now compare estimated values to real ones:
-  for (size_t i = 0; i < thetas.size(); ++i) {
-     cout << thetas[i] << "\t" << thetasEst1[i] << "\t" << thetasEst2[i] << endl;
-     double diff1 = abs(thetas[i] - thetasEst1[i]);
-     double diff2 = abs(thetas[i] - thetasEst2[i]);
-     if (diff1 > 0.2 || diff2 > 0.2)
-        return 1;
+  // //Now compare estimated values to real ones:
+  // for (size_t i = 0; i < thetas.size(); ++i) {
+  //    cout << thetas[i] << "\t" << thetasEst1[i] << "\t" << thetasEst2[i] << endl;
+  //    double diff1 = abs(thetas[i] - thetasEst1[i]);
+  //    double diff2 = abs(thetas[i] - thetasEst2[i]);
+  //    if (diff1 > 0.2 || diff2 > 0.2)
+  //       return 1;
   }
 
   //-------------

@@ -76,6 +76,7 @@ namespace bpp
     public:
       const Parameter& getBranchLengthParameter(int nodeId) const throw (NodeNotFoundException) {
         std::map<int, size_t>::const_iterator it = index_.find(nodeId);
+        
         if (it != index_.end())
           return getParameter_(it->second);
         else
@@ -114,8 +115,8 @@ namespace bpp
     size_t getNumberOfBranches() const { return tree_.getNumberOfBranches(); }
 
     private:
-      void buildIndex_(Node& node);
-      void buildReverseIndex_(Node* node);
+    void buildIndex_(Node& node, size_t nPar=0);
+    void buildReverseIndex_(Node* node);
       void updateTreeFromParameters_() const;
       void fireParameterChanged (const ParameterList& parameters);
   };

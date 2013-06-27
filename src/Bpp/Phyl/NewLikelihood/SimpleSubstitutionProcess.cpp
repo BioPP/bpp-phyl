@@ -42,8 +42,8 @@
 using namespace bpp;
 
 SimpleSubstitutionProcess::SimpleSubstitutionProcess(SubstitutionModel* model, ParametrizableTree* tree) :
-  AbstractSubstitutionProcess(tree, 1),
   AbstractParameterAliasable(model ? model->getNamespace() : ""),
+  AbstractSubstitutionProcess(tree, 1),
   model_(model)
 {
   if (!model)
@@ -52,18 +52,19 @@ SimpleSubstitutionProcess::SimpleSubstitutionProcess(SubstitutionModel* model, P
   // Add parameters:
   addParameters_(tree->getParameters());  //Branch lengths
   addParameters_(model->getParameters()); //Substitution model
+  addParameter_(new Parameter("T92.beta", 1));//beta, new IntervalConstraint(1, minimumBeta, true), true));
 }
 
 SimpleSubstitutionProcess::SimpleSubstitutionProcess(const SimpleSubstitutionProcess& ssp) :
-  AbstractSubstitutionProcess(ssp),
   AbstractParameterAliasable(ssp),
+  AbstractSubstitutionProcess(ssp),
   model_(ssp.model_->clone())
 {}
 
 SimpleSubstitutionProcess& SimpleSubstitutionProcess::operator=(const SimpleSubstitutionProcess& ssp)
 {
-  AbstractSubstitutionProcess::operator=(ssp);
   AbstractParameterAliasable::operator=(ssp);
+  AbstractSubstitutionProcess::operator=(ssp);
   model_.reset(ssp.model_->clone());
   return *this;
 }

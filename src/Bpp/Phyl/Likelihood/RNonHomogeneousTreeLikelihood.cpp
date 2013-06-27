@@ -1291,6 +1291,7 @@ void RNonHomogeneousTreeLikelihood::computeTreeLikelihood()
 
 void RNonHomogeneousTreeLikelihood::computeSubtreeLikelihood(const Node* node)
 {
+  cerr << node->getId() << endl;
   if (node->isLeaf()) return;
 
   size_t nbSites  = likelihoodData_->getLikelihoodArray(node->getId()).size();
@@ -1345,6 +1346,7 @@ void RNonHomogeneousTreeLikelihood::computeSubtreeLikelihood(const Node* node)
           for (size_t y = 0; y < nbStates_; y++)
           {
             likelihood += (*pxy__son_c_x)[y] * (*_likelihoods_son_i_c)[y];
+            cerr << (*pxy__son_c_x)[y] << " " << (*_likelihoods_son_i_c)[y] << endl;
           }
           (*_likelihoods_node_i_c)[x] *= likelihood;
         }

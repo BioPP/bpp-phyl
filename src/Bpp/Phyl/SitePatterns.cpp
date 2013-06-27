@@ -83,8 +83,8 @@ SitePatterns::SitePatterns(const SiteContainer* sequences, bool own) :
     sites_.push_back(previousSite);
     weights_.push_back(1);
 
-    unsigned int currentPos = 0;
-    for (unsigned int i = 1; i < nbSites; i++)
+    size_t currentPos = 0;
+    for (size_t i = 1; i < nbSites; i++)
     {
       SortableSite* ssi = &ss[i];
       const Site* currentSite = ssi->siteP;

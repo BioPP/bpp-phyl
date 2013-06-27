@@ -258,6 +258,7 @@ void RTreeLikelihood::computeTreeLikelihood()
 
 void RTreeLikelihood::computeSubtreeLikelihood_(const Node* node)
 {
+  cerr << node->getId() << endl;
   if (node->isLeaf()) return;
 
   size_t nbSites  = likelihoodData_->getLikelihoodArray(node->getId()).size();
@@ -293,9 +294,10 @@ void RTreeLikelihood::computeSubtreeLikelihood_(const Node* node)
 
     //Get all transition probabilities:
     vector<const Matrix<double>*> pxy_son(nbClasses_);
-    for (size_t c = 0; c < nbClasses_; ++c)
+    for (size_t c = 0; c < nbClasses_; ++c){
       pxy_son[c] = &process_->getTransitionProbabilities(son->getId(), c);
-
+    }
+    
     //Loop over sites:
     for (size_t i = 0; i < nbSites; i++)
     {
@@ -313,13 +315,15 @@ void RTreeLikelihood::computeSubtreeLikelihood_(const Node* node)
           double likelihood = 0;
           for (size_t y = 0; y < nbStates_; y++)
           {
-            likelihood += (*pxy_son[c])(x, y) * (*likelihoods_son_i_c)[y];
+            likelihood += (*pxy_son[c])(x, y) * (*likelihoods_son_i_c)[y];    
+            cerr << (*pxy_son[c])(x, y) << " " << (*likelihoods_son_i_c)[y] << endl;
           }
           (*likelihoods_node_i_c)[x] *= likelihood;
         }
       }
     }
   }
+
 }
 
 
@@ -387,7 +391,7 @@ throw (Exception)
 {
   if (!hasParameter(variable))
     throw ParameterNotFoundException("RTreeLikelihood::getFirstOrderDerivative().", variable);
-  if (process_->getTransitionProbabilitiesParameters().hasParameter(variable))
+  if (process_->hasTransitionProbabilitiesParameter(variable))
   {
     throw Exception("Derivatives are only implemented for branch length parameters.");
   }
@@ -864,7 +868,7 @@ throw (Exception)
 {
   if (!hasParameter(variable))
     throw ParameterNotFoundException("RTreeLikelihood::getSecondOrderDerivative().", variable);
-  if (process_->getTransitionProbabilitiesParameters().hasParameter(variable))
+  if (process_->hasTransitionProbabilitiesParameter(variable))
   {
     throw Exception("Derivatives are only implemented for branch length parameters.");
   }

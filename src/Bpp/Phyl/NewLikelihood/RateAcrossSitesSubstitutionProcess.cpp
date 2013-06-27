@@ -42,8 +42,8 @@
 using namespace bpp;
 
 RateAcrossSitesSubstitutionProcess::RateAcrossSitesSubstitutionProcess(SubstitutionModel* model, DiscreteDistribution* rdist, ParametrizableTree* tree) :
-  AbstractSubstitutionProcess(tree, rdist ? rdist->getNumberOfCategories() : 0),
   AbstractParameterAliasable(model ? model->getNamespace() : ""),
+  AbstractSubstitutionProcess(tree, rdist ? rdist->getNumberOfCategories() : 0),
   model_(model),
   rDist_(rdist)
 {
@@ -59,16 +59,16 @@ RateAcrossSitesSubstitutionProcess::RateAcrossSitesSubstitutionProcess(Substitut
 }
     
 RateAcrossSitesSubstitutionProcess::RateAcrossSitesSubstitutionProcess(const RateAcrossSitesSubstitutionProcess& rassp) :
-  AbstractSubstitutionProcess(rassp),
   AbstractParameterAliasable(rassp),
+  AbstractSubstitutionProcess(rassp),
   model_(rassp.model_->clone()),
   rDist_(rassp.rDist_->clone())
 {}
 
 RateAcrossSitesSubstitutionProcess& RateAcrossSitesSubstitutionProcess::operator=(const RateAcrossSitesSubstitutionProcess& rassp)
 {
-  AbstractSubstitutionProcess::operator=(rassp);
   AbstractParameterAliasable::operator=(rassp);
+  AbstractSubstitutionProcess::operator=(rassp);
   model_.reset(rassp.model_->clone());
   rDist_.reset(rassp.rDist_->clone());
   return *this;

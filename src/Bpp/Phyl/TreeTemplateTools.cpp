@@ -77,9 +77,9 @@ bool TreeTemplateTools::isMultifurcating(const Node& node)
 
 /******************************************************************************/
 
-unsigned int TreeTemplateTools::getNumberOfLeaves(const Node& node)
+size_t TreeTemplateTools::getNumberOfLeaves(const Node& node)
 {
-  unsigned int nbLeaves = 0;
+  size_t nbLeaves = 0;
   if (node.isLeaf())
   {
     nbLeaves++;
@@ -93,15 +93,28 @@ unsigned int TreeTemplateTools::getNumberOfLeaves(const Node& node)
 
 /******************************************************************************/
 
-unsigned int TreeTemplateTools::getNumberOfNodes(const Node& node)
+size_t TreeTemplateTools::getNumberOfNodes(const Node& node)
 {
-  unsigned int nbNodes = 1;
+  size_t nbNodes = 1;
   for (int i = 0; i < static_cast<int>(node.getNumberOfSons()); i++)
   {
     nbNodes += getNumberOfNodes(*node[i]);
   }
   return nbNodes;
 }
+
+/******************************************************************************/
+
+size_t TreeTemplateTools::getNumberOfBranches(const Node& node)
+{
+  size_t nbBranches = 0; //Basal node has no branch
+  for (int i = 0; i < static_cast<int>(node.getNumberOfSons()); i++)
+  {
+    nbBranches += getNumberOfNodes(*node[i]); //All son nodes define one branch each
+  }
+  return nbBranches;
+}
+
 
 /******************************************************************************/
 
