@@ -138,6 +138,8 @@ namespace bpp
      * function also parses the parameter values and set them accordingly.
      *
      * @param alphabet The alphabet to use in the model.
+     * @param gCode    The genetic code to use (only for codon models, otherwise can be set to 0).
+     *                 If set to NULL and a codon model is requested, an Exception will be thrown.
      * @param data     A pointer toward the SiteContainer for which the substitution model is designed.
      *                 The alphabet associated to the data must be of the same type as the one specified for the model.
      *                 May be equal to NULL, but in this case use_observed_freq option will be unavailable.
@@ -149,12 +151,13 @@ namespace bpp
      * @throw Exception if an error occured.
      */
     static SubstitutionModel* getSubstitutionModel(
-                                                   const Alphabet* alphabet,
-                                                   const SiteContainer* data, 
-                                                   std::map<std::string, std::string>& params,
-                                                   const std::string& suffix = "",
-                                                   bool suffixIsOptional = true,
-                                                   bool verbose = true) throw (Exception);
+        const Alphabet* alphabet,
+        const GeneticCode* gCode,
+        const SiteContainer* data, 
+        std::map<std::string, std::string>& params,
+        const std::string& suffix = "",
+        bool suffixIsOptional = true,
+        bool verbose = true) throw (Exception);
   
 
     /**
@@ -168,26 +171,24 @@ namespace bpp
      * @param model                   The model to set.
      * @param unparsedParameterValues A map that contains all the model parameters
      *                                names and their corresponding unparsed value, if they were found.
-     * @param modelPrefix The prefix to use to record prameters from this model.
+     * @param modelNumber The number of this model in the SubstitutionModelSet.
      * @param data   A pointer toward the SiteContainer for which the substitution model is designed.
      *               The alphabet associated to the data must be of the same type as the one specified for the model.
      *               May be equal to NULL, but in this case use_observed_freq option will be unavailable.
      * @param existingParams (in/out) A map with already existing value that have been found in previous calls, and may be recalled here.
      *                       New parameters found here will be added.
-     * @param specificParams (out) Parameters specific to this model will be recorded here.
      * @param sharedParams (out) remote parameters will be recorded here.
      * @param verbose Print some info to the 'message' output stream.
      * @throw Exception if an error occured.
      */
     static void setSubstitutionModelParametersInitialValuesWithAliases(
-        SubstitutionModel& model,
-        std::map<std::string, std::string>& unparsedParameterValues,
-        const std::string& modelPrefix,
-        const SiteContainer* data,
-        std::map<std::string, double>& existingParams,
-        std::vector<std::string>& specificParams,
-        std::vector<std::string>& sharedParams,
-        bool verbose) throw (Exception);
+                                                                       SubstitutionModel& model,
+                                                                       std::map<std::string, std::string>& unparsedParameterValues,
+                                                                       size_t modelNumber,
+                                                                       const SiteContainer* data,
+                                                                       std::map<std::string, double>& existingParams,
+                                                                       std::map<std::string, std::string>& sharedParams,
+                                                                       bool verbose) throw (Exception);
 
     /**
      * @brief Get A FrequenciesSet object for root frequencies (NH models) according to options.

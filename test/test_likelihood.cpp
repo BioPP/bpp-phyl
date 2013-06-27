@@ -89,7 +89,6 @@ int main() {
 
   const NucleicAlphabet* alphabet = &AlphabetTools::DNA_ALPHABET;
   SubstitutionModel* model = new T92(alphabet, 3.);
-  //DiscreteDistribution* rdist = new ConstantRateDistribution();
   DiscreteDistribution* rdist = new GammaDiscreteRateDistribution(4, 1.0);
 
   VectorSiteContainer sites(alphabet);

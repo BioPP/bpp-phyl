@@ -42,14 +42,16 @@
 
 #include "IoFrequenciesSetFactory.h"
 
+//From bpp-seq:
+#include <Bpp/Seq/GeneticCode/GeneticCode.h>
+
 namespace bpp
 {
 /**
- * @brief Substitution model I/O in BppO format.
+ * @brief Frequencies set I/O in BppO format.
  *
- * Creates a new substitution model object according to model description syntax
+ * Allow to create a new frequencies set object according to model description syntax
  * (see the Bio++ Progam Suite manual for a detailed description of this syntax).
- *
  */
 class BppOFrequenciesSetFormat :
   public virtual IFrequenciesSet,
@@ -68,10 +70,32 @@ private:
   unsigned char alphabetCode_;
   bool verbose_;
   std::map<std::string, std::string> unparsedArguments_;
+  const GeneticCode* geneticCode_;
 
 public:
   BppOFrequenciesSetFormat(unsigned char alphabetCode, bool verbose):
-    alphabetCode_(alphabetCode), verbose_(verbose), unparsedArguments_() {}
+    alphabetCode_(alphabetCode),
+    verbose_(verbose),
+    unparsedArguments_(),
+    geneticCode_(0)
+  {}
+
+  BppOFrequenciesSetFormat(const BppOFrequenciesSetFormat& format):
+    alphabetCode_(format.alphabetCode_),
+    verbose_(format.verbose_),
+    unparsedArguments_(format.unparsedArguments_),
+    geneticCode_(format.geneticCode_)
+  {}
+
+  BppOFrequenciesSetFormat& operator=(const BppOFrequenciesSetFormat& format)
+  {
+    alphabetCode_      = format.alphabetCode_;
+    verbose_           = format.verbose_;
+    unparsedArguments_ = format.unparsedArguments_;
+    geneticCode_       = format.geneticCode_;
+    return *this;
+  }
+
   virtual ~BppOFrequenciesSetFormat() {}
 
 public:
@@ -79,16 +103,27 @@ public:
 
   const std::string getFormatDescription() const { return "Bpp Options format."; }
 
-  FrequenciesSet* read(const Alphabet* alphabet,
-                       const std::string& freqDescription,
-                       const SiteContainer* data,
-                       bool parseArguments = true);
+  /**
+   * @brief Set the genetic code to use in case a codon frequencies set should be built.
+   *
+   * @param gCode The genetic code to use.
+   */
+  void setGeneticCode(const GeneticCode* gCode) {
+    geneticCode_ = gCode;
+  }
+
+  FrequenciesSet* read(
+      const Alphabet* alphabet,
+      const std::string& freqDescription,
+      const SiteContainer* data,
+      bool parseArguments = true);
 
   const std::map<std::string, std::string>& getUnparsedArguments() const { return unparsedArguments_; }
 
-  void write(const FrequenciesSet* pfreqset,
-             OutputStream& out,
-             std::vector<std::string>& writtenNames) const;
+  void write(
+      const FrequenciesSet* pfreqset,
+      OutputStream& out,
+      std::vector<std::string>& writtenNames) const;
 
 private:
   void initialize_(FrequenciesSet& freqSet, const SiteContainer* data);

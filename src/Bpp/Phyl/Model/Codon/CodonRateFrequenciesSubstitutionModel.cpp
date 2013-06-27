@@ -44,27 +44,29 @@ using namespace std;
 
 /******************************************************************************/
 
-CodonRateFrequenciesSubstitutionModel::CodonRateFrequenciesSubstitutionModel(const CodonAlphabet* palph,
-                                                                             NucleotideSubstitutionModel* pmod,
-                                                                             FrequenciesSet* pfreq) :
+CodonRateFrequenciesSubstitutionModel::CodonRateFrequenciesSubstitutionModel(
+    const GeneticCode* gCode,
+    NucleotideSubstitutionModel* pmod,
+    FrequenciesSet* pfreq) :
   AbstractParameterAliasable("CodonRateFreq."),
-  AbstractSubstitutionModel(palph, "CodonRateFreq."),
-  AbstractWordSubstitutionModel(palph, "CodonRateFreq."),
-  AbstractCodonSubstitutionModel(palph, pmod, "CodonRateFreq.", true),
+  AbstractSubstitutionModel(gCode->getSourceAlphabet(), "CodonRateFreq."),
+  AbstractWordSubstitutionModel(gCode->getSourceAlphabet(), "CodonRateFreq."),
+  AbstractCodonSubstitutionModel(gCode, pmod, "CodonRateFreq.", true),
   AbstractCodonFrequenciesSubstitutionModel(pfreq, "CodonRateFreq.")
 {
   updateMatrices();
 }
 
-CodonRateFrequenciesSubstitutionModel::CodonRateFrequenciesSubstitutionModel(const CodonAlphabet* palph,
-                                                                             NucleotideSubstitutionModel* pmod1,
-                                                                             NucleotideSubstitutionModel* pmod2,
-                                                                             NucleotideSubstitutionModel* pmod3,
-                                                                             FrequenciesSet* pfreq) :
+CodonRateFrequenciesSubstitutionModel::CodonRateFrequenciesSubstitutionModel(
+    const GeneticCode* gCode,
+    NucleotideSubstitutionModel* pmod1,
+    NucleotideSubstitutionModel* pmod2,
+    NucleotideSubstitutionModel* pmod3,
+    FrequenciesSet* pfreq) :
   AbstractParameterAliasable("CodonRateFreq."),
-  AbstractSubstitutionModel(palph, "CodonRateFreq."),
-  AbstractWordSubstitutionModel(palph, "CodonRateFreq."),
-  AbstractCodonSubstitutionModel(palph, pmod1, pmod2, pmod3, "CodonRateFreq.", true),
+  AbstractSubstitutionModel(gCode->getSourceAlphabet(), "CodonRateFreq."),
+  AbstractWordSubstitutionModel(gCode->getSourceAlphabet(), "CodonRateFreq."),
+  AbstractCodonSubstitutionModel(gCode, pmod1, pmod2, pmod3, "CodonRateFreq.", true),
   AbstractCodonFrequenciesSubstitutionModel(pfreq, "CodonRateFreq.")
 {
   updateMatrices();
@@ -72,7 +74,7 @@ CodonRateFrequenciesSubstitutionModel::CodonRateFrequenciesSubstitutionModel(con
 
 std::string CodonRateFrequenciesSubstitutionModel::getName() const
 {
-  return ("CodonRateFreq");
+  return "CodonRateFreq";
 }
 
 void CodonRateFrequenciesSubstitutionModel::fireParameterChanged(const ParameterList& parameters)

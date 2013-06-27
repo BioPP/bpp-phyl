@@ -52,44 +52,42 @@ namespace bpp
  * @author Laurent Guéguen
  *
  * See description in AbstractCodonRateSubstitutionModel class.
- *
  */
-
 class CodonRateSubstitutionModel :
   public AbstractCodonSubstitutionModel
 {
 public:
   /**
-   *@brief Build a new CodonRateSubstitutionModel object from
-   *a pointer to NucleotideSubstitutionModels.
+   * @brief Build a new CodonRateSubstitutionModel object from
+   * a pointer to NucleotideSubstitutionModels.
    * @author Laurent Guéguen
    *
-   *@param palph pointer to a CodonAlphabet
-   *@param pmod pointer to the NucleotideSubstitutionModel to use in the
+   * @param gCode pointer to a genetic code, which will be owned by this instance.
+   * @param pmod pointer to the NucleotideSubstitutionModel to use in the
    *       three positions. It is owned by the instabce.
    */
-
-  CodonRateSubstitutionModel(const CodonAlphabet* palph,
-                             NucleotideSubstitutionModel* pmod);
+  CodonRateSubstitutionModel(
+      const GeneticCode* gCode,
+      NucleotideSubstitutionModel* pmod);
 
   /**
-   *@brief Build a new CodonRateSubstitutionModel object
-   *from three pointers to NucleotideSubstitutionModels.
+   * @brief Build a new CodonRateSubstitutionModel object
+   * from three pointers to NucleotideSubstitutionModels.
    *
-   *@param palph pointer to a CodonAlphabet
-   *@param pmod1, pmod2, pmod3 pointers to the
+   * @param gCode pointer to a genetic code, which will be owned by this instance.
+   * @param pmod1, pmod2, pmod3 pointers to the
    *   NucleotideSubstitutionModel to use in the three positions.
    *   All the models must be different objects to avoid parameters
    *   redondancy, otherwise only the first model is used. The used models
    *   are owned by the instance.
    */
+  CodonRateSubstitutionModel(
+      const GeneticCode* gCode,
+      NucleotideSubstitutionModel* pmod1,
+      NucleotideSubstitutionModel* pmod2,
+      NucleotideSubstitutionModel* pmod3);
 
-  CodonRateSubstitutionModel(const CodonAlphabet* palph,
-                             NucleotideSubstitutionModel* pmod1,
-                             NucleotideSubstitutionModel* pmod2,
-                             NucleotideSubstitutionModel* pmod3);
-
-  ~CodonRateSubstitutionModel(){}
+  virtual ~CodonRateSubstitutionModel() {}
 
 #ifndef NO_VIRTUAL_COV
   CodonRateSubstitutionModel*
@@ -105,6 +103,7 @@ public:
 
   double getCodonsMulRate(size_t i, size_t j) const;
 };
+
 } // end of namespace bpp.
 
 #endif

@@ -98,10 +98,13 @@ FrequenciesSet* BppOFrequenciesSetFormat::read(const Alphabet* alphabet, const s
     }
     else if (AlphabetTools::isCodonAlphabet(alphabet))
     {
-      if (alphabetCode_ & CODON)
-        pFS.reset(new FixedCodonFrequenciesSet(dynamic_cast<const CodonAlphabet*>(alphabet)));
-      else
+      if (alphabetCode_ & CODON) {
+        if (!geneticCode_)
+          throw Exception("BppOFrequenciesSetFormat::read(). No genetic code specified! Consider using 'setGeneticCode'.");
+        pFS.reset(new FixedCodonFrequenciesSet(geneticCode_));
+      } else {
         throw Exception("Codon alphabet not supported.");
+      }
     }
     else
     {
@@ -126,10 +129,13 @@ FrequenciesSet* BppOFrequenciesSetFormat::read(const Alphabet* alphabet, const s
     }
     else if (AlphabetTools::isCodonAlphabet(alphabet))
     {
-      if (alphabetCode_ & CODON)
-        pFS.reset(new FullCodonFrequenciesSet(dynamic_cast<const CodonAlphabet*>(alphabet)));
-      else
+      if (alphabetCode_ & CODON) {
+        if (!geneticCode_)
+          throw Exception("BppOFrequenciesSetFormat::read(). No genetic code specified! Consider using 'setGeneticCode'.");
+        pFS.reset(new FullCodonFrequenciesSet(geneticCode_));
+      } else {
         throw Exception("Codon alphabet not supported.");
+      }
     }
     else
     {
@@ -149,7 +155,7 @@ FrequenciesSet* BppOFrequenciesSetFormat::read(const Alphabet* alphabet, const s
   // INDEPENDENTWORD
   else if (freqName == "Word")
   {
-    if (!(alphabetCode_ & WORD))
+    if (!(alphabetCode_& WORD))
       throw Exception("Word alphabet not supported.");
     if (!AlphabetTools::isWordAlphabet(alphabet))
       throw Exception("BppOFrequenciesSetFormat::read(...).\n\t Bad alphabet type "
@@ -216,6 +222,8 @@ FrequenciesSet* BppOFrequenciesSetFormat::read(const Alphabet* alphabet, const s
     if (!AlphabetTools::isCodonAlphabet(alphabet))
       throw Exception("BppOFrequenciesSetFormat::read.\n\t Bad alphabet type "
                       + alphabet->getAlphabetType() + " for frequenciesset " + freqName + ".");
+    if (!geneticCode_)
+      throw Exception("BppOFrequenciesSetFormat::read(). No genetic code specified! Consider using 'setGeneticCode'.");
 
     const CodonAlphabet* pWA = dynamic_cast<const CodonAlphabet*>(alphabet);
 
@@ -231,7 +239,8 @@ FrequenciesSet* BppOFrequenciesSetFormat::read(const Alphabet* alphabet, const s
       {
         unparsedArguments_["123_" + it->first] = it->second;
       }
-      pFS.reset(new CodonFromUniqueFrequenciesSet(pWA, pFS2.release(), "Codon"));
+      
+      pFS.reset(new CodonFromUniqueFrequenciesSet(geneticCode_, pFS2.release(), "Codon"));
     }
     else
     {
@@ -249,7 +258,7 @@ FrequenciesSet* BppOFrequenciesSetFormat::read(const Alphabet* alphabet, const s
       if (v_sAFS.size() != 3)
         throw Exception("BppOFrequenciesSetFormat::read. Number of frequencies (" + TextTools::toString(v_sAFS.size()) + ") is not three");
 
-      for (unsigned i = 0; i < v_sAFS.size(); i++)
+      for (size_t i = 0; i < v_sAFS.size(); i++)
       {
         BppOFrequenciesSetFormat nestedReader(alphabetCode_, false);
         pFS.reset(nestedReader.read(pWA->getNAlphabet(i), v_sAFS[i], data, false));
@@ -261,7 +270,9 @@ FrequenciesSet* BppOFrequenciesSetFormat::read(const Alphabet* alphabet, const s
         v_AFS.push_back(pFS.release());
       }
 
-      pFS.reset(new CodonFromIndependentFrequenciesSet(pWA, v_AFS, "Codon"));
+      if (!geneticCode_)
+        throw Exception("BppOFrequenciesSetFormat::read(). No genetic code specified! Consider using 'setGeneticCode'.");
+      pFS.reset(new CodonFromIndependentFrequenciesSet(geneticCode_, v_AFS, "Codon"));
     }
   }
 
@@ -274,34 +285,26 @@ FrequenciesSet* BppOFrequenciesSetFormat::read(const Alphabet* alphabet, const s
       throw Exception("BppOFrequenciesSetFormat::read.\n\t Bad alphabet type "
                       + alphabet->getAlphabetType() + " for frequenciesset " + freqName + ".");
 
-    const CodonAlphabet* pWA = dynamic_cast<const CodonAlphabet*>(alphabet);
-
-    if (args.find("genetic_code") == args.end())
-      args["genetic_code"] = pWA->getAlphabetType();
-
-    GeneticCode* pgc = SequenceApplicationTools::getGeneticCode(dynamic_cast<const NucleicAlphabet*>(pWA->getNAlphabet(0)), args["genetic_code"]);
-    if (pgc->getSourceAlphabet()->getAlphabetType() != pWA->getAlphabetType())
-      throw Exception("Mismatch between genetic code and codon alphabet");
-
-    const ProteicAlphabet* pPA = dynamic_cast<const ProteicAlphabet*>(pgc->getTargetAlphabet());
-
-    auto_ptr<ProteinFrequenciesSet> pPFS;
+    if (!geneticCode_)
+      throw Exception("BppOFrequenciesSetFormat::read(). No genetic code specified! Consider using 'setGeneticCode'.");
+    
+    const ProteicAlphabet* pPA = dynamic_cast<const ProteicAlphabet*>(geneticCode_->getTargetAlphabet());
 
     if (args.find("protein_frequencies") != args.end())
     {
       string sPFS = args["protein_frequencies"];
       BppOFrequenciesSetFormat nestedReader(alphabetCode_, false);
-      pPFS.reset(dynamic_cast<ProteinFrequenciesSet*>(nestedReader.read(pPA, sPFS, data, false)));
+      auto_ptr<ProteinFrequenciesSet> pPFS(dynamic_cast<ProteinFrequenciesSet*>(nestedReader.read(pPA, sPFS, data, false)));
       map<string, string> unparsedParameterValuesNested(nestedReader.getUnparsedArguments());
 
       for (map<string, string>::iterator it = unparsedParameterValuesNested.begin(); it != unparsedParameterValuesNested.end(); it++)
       {
         unparsedArguments_["FullPerAA." + it->first] = it->second;
       }
-      pFS.reset(new FullPerAACodonFrequenciesSet(pgc, pPFS.release()));
+      pFS.reset(new FullPerAACodonFrequenciesSet(geneticCode_, pPFS.release()));
     }
     else
-      pFS.reset(new FullPerAACodonFrequenciesSet(pgc));
+      pFS.reset(new FullPerAACodonFrequenciesSet(geneticCode_));
   }
 
   // codeml frequencies syntax
@@ -310,8 +313,15 @@ FrequenciesSet* BppOFrequenciesSetFormat::read(const Alphabet* alphabet, const s
   {
     if (!(alphabetCode_ & CODON))
       throw Exception("Codon alphabet not supported.");
+    if (!geneticCode_)
+      throw Exception("BppOFrequenciesSetFormat::read(). No genetic code specified! Consider using 'setGeneticCode'.");
+    
     const CodonAlphabet* pWA = dynamic_cast<const CodonAlphabet*>(alphabet);
 
+    if (args.find("genetic_code") != args.end()) {
+      ApplicationTools::displayWarning("'genetic_code' argument is no longer supported inside model description, and has been supersided by a global 'genetic_code' option.");
+      throw Exception("BppOFrequenciesSetFormat::read. Deprecated 'genetic_code' argument.");
+    }
     short opt = -1;
     string mgmtStopCodon="quadratic";
     
@@ -402,7 +412,7 @@ FrequenciesSet* BppOFrequenciesSetFormat::read(const Alphabet* alphabet, const s
       opt = CodonFrequenciesSet::F61;
     }
     if (opt != -1)
-      pFS.reset(CodonFrequenciesSet::getFrequenciesSetForCodons(opt, *dynamic_cast<const CodonAlphabet*>(alphabet), mgmtStopCodon));
+      pFS.reset(CodonFrequenciesSet::getFrequenciesSetForCodons(opt, geneticCode_, mgmtStopCodon));
     else
       throw Exception("Unknown frequency option: " + freqName);
   }
@@ -419,7 +429,7 @@ FrequenciesSet* BppOFrequenciesSetFormat::read(const Alphabet* alphabet, const s
   vector<string> pnames = pFS->getParameters().getParameterNames();
 
   string pref = pFS->getNamespace();
-  for (unsigned int i = 0; i < pnames.size(); i++)
+  for (size_t i = 0; i < pnames.size(); i++)
   {
     string name = pFS->getParameterNameWithoutNamespace(pnames[i]);
     if (args.find(name) != args.end())
@@ -469,7 +479,7 @@ void BppOFrequenciesSetFormat::write(const FrequenciesSet* pfreqset,
   {
     vector<double> vf = pfreqset->getFrequencies();
     out << "values=(";
-    for (unsigned int i = 0; i < vf.size(); i++)
+    for (size_t i = 0; i < vf.size(); i++)
     {
       if (i != 0)
         out << ", ";
@@ -482,9 +492,9 @@ void BppOFrequenciesSetFormat::write(const FrequenciesSet* pfreqset,
     if (name != "F1X4" && name != "F3X4" && name != "F61")
     {
       const WordFromIndependentFrequenciesSet* pWFI = dynamic_cast<const WordFromIndependentFrequenciesSet*>(pfreqset);
-      if (pWFI != NULL)
+      if (pWFI)
       {
-        for (unsigned int i = 0; i < pWFI->getLength(); i++)
+        for (size_t i = 0; i < pWFI->getLength(); i++)
         {
           if (i != 0)
             out << ", ";
@@ -494,7 +504,7 @@ void BppOFrequenciesSetFormat::write(const FrequenciesSet* pfreqset,
         flag = true;
       }
       const WordFromUniqueFrequenciesSet* pWFU = dynamic_cast<const WordFromUniqueFrequenciesSet*>(pfreqset);
-      if (pWFU != NULL)
+      if (pWFU)
       {
         for (unsigned int i = 0; i < pWFU->getLength(); i++)
         {
@@ -506,30 +516,30 @@ void BppOFrequenciesSetFormat::write(const FrequenciesSet* pfreqset,
         flag = true;
       }
       const FullPerAACodonFrequenciesSet* pFPA=dynamic_cast<const FullPerAACodonFrequenciesSet*>(pfreqset);
-      if (pFPA != NULL)
-        {
-          const ProteinFrequenciesSet* ppfs=pFPA->getProteinFrequenciesSet();
-          out << "protein_frequencies=";
+      if (pFPA)
+      {
+        const ProteinFrequenciesSet* ppfs=pFPA->getProteinFrequenciesSet();
+        out << "protein_frequencies=";
           
-          write(ppfs, out, writtenNames);
+        write(ppfs, out, writtenNames);
       
-          flag = true;
-        }
+        flag = true;
+      }
     }
 
-    for (unsigned int i = 0; i < pl.size(); i++)
+    for (size_t i = 0; i < pl.size(); i++)
+    {
+      if (find(writtenNames.begin(), writtenNames.end(), pl[i].getName()) == writtenNames.end())
       {
-        if (find(writtenNames.begin(), writtenNames.end(), pl[i].getName()) == writtenNames.end())
-          {
-            if (flag)
-              out << ",";
-            else
-              flag = true;
-            string pname = pfreqset->getParameterNameWithoutNamespace(pl[i].getName());
-            (out << pname << "=").enableScientificNotation(false) << pl[i].getValue();
-            writtenNames.push_back(pl[i].getName());
-          }
+        if (flag)
+          out << ",";
+        else
+          flag = true;
+        string pname = pfreqset->getParameterNameWithoutNamespace(pl[i].getName());
+        (out << pname << "=").enableScientificNotation(false) << pl[i].getValue();
+        writtenNames.push_back(pl[i].getName());
       }
+    }
   }
   
   out << ")";

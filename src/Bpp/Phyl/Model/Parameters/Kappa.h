@@ -1,11 +1,12 @@
 //
-// File: CodonSubstitutionModel.h
-// Created by: Laurent Gueguen
-// Created on: Tue Dec 24 11:03:53 2003
+// File: Kappa.h
+// Created by: Laurent Guéguen
+// Created on: mardi 16 avril 2013, à 18h 20
 //
 
 /*
-  Copyright or © or Copr. Bio++ Development Team, (November 16, 2004)
+  Copyright or © or Copr. Bio++ Development Team, (November 16, 2004,
+  2005, 2006).
 
   This software is a computer program whose purpose is to provide classes
   for phylogenetic data analysis.
@@ -37,50 +38,49 @@
   knowledge of the CeCILL license and that you accept its terms.
 */
 
-#ifndef _CODONSUBSTITUTIONMODEL_H_
-#define _CODONSUBSTITUTIONMODEL_H_
+#ifndef _KAPPA_H_
+#define _KAPPA_H_
 
-#include <Bpp/Numeric/ParameterAliasable.h>
+#include <Bpp/Numeric/Parameter.h>
+#include "RegisteredParameter.h"
 
-//From bpp-seq:
-#include <Bpp/Seq/GeneticCode/GeneticCode.h>
-
-#include "../WordSubstitutionModel.h"
+//From the STL:
 
 namespace bpp
 {
+
   /**
-   * @brief Abstract class for codon models
-   * @author Laurent Guéguen
+   * @brief Parameter Kappa for the ratio between transition
+   *  substitution rate and transversion substitution rate.
    *
-   * This class aims at defining methods needed for inheriting codon.
-   *
+   * this
+   *  virtual class defines all that is necessary for it.
    */
-  class CodonSubstitutionModel:
-    public virtual SubstitutionModel
+  
+  class Kappa:
+    public RegisteredParameter
   {
   public:
-    CodonSubstitutionModel() {}
-    virtual ~CodonSubstitutionModel() {}
+    Kappa(const Alphabet* alph,
+          const std::string& name,
+          double kappa = 1);
+    
+    Kappa(const Kappa& kappa): RegisteredParameter(kappa){}
 
-#ifndef NO_VIRTUAL_COV
-    virtual CodonSubstitutionModel* clone() const = 0;
-#endif
+    Kappa& operator=(const Kappa& kappa)
+    {
+      RegisteredParameter::operator=(kappa);
+      return *this;
+    }
 
-  public:
-
-    virtual const GeneticCode* getGeneticCode() const = 0;
-
-    /**
-     * @brief Returns the multiplicative rate specific to two codons
-     * specified by their number. The respective generator rate is this
-     * rate multiplied by the rate defined by the model defined on
-     * nucleotides.
-     */
-    virtual double getCodonsMulRate(size_t, size_t) const = 0;
+    ~Kappa() {};
+    
+    Kappa* clone() const { return new Kappa(*this); }
+    
+    double computeEstimate(std::vector<double> values) const;
   };
-  
-} // end of namespace bpp.
 
-#endif
+}// end of namespace bpp
+
+#endif //_KAPPA_H_
 

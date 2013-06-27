@@ -1,11 +1,12 @@
 //
-// File: CodonSubstitutionModel.cpp
-// Created by:  Laurent Gueguen
-// Created on: Feb 2009
+// File: SubstitutionRegister.cpp
+// Created by: Laurent Guéguen
+// Created on: lundi 15 avril 2013, à 14h 05
 //
 
 /*
-   Copyright or © or Copr. Bio++ Development Team, (November 16, 2004)
+   Copyright or © or Copr. Bio++ Development Team, (November 16, 2004, 2005, 2006)
+
    This software is a computer program whose purpose is to provide classes
    for phylogenetic data analysis.
 
@@ -36,51 +37,20 @@
    knowledge of the CeCILL license and that you accept its terms.
  */
 
-#include "CodonRateSubstitutionModel.h"
-
+#include "SubstitutionRegister.h"
 
 using namespace bpp;
-
 using namespace std;
 
-/******************************************************************************/
-
-CodonRateSubstitutionModel::CodonRateSubstitutionModel(
-    const GeneticCode* gCode,
-    NucleotideSubstitutionModel* pmod) :
-  AbstractParameterAliasable("CodonRate."),
-  AbstractSubstitutionModel(gCode->getSourceAlphabet(), "CodonRate."),
-  AbstractWordSubstitutionModel(gCode->getSourceAlphabet(), "CodonRate."),
-  AbstractCodonSubstitutionModel(gCode, pmod, "CodonRate.", true)
+void GeneralSubstitutionRegister::updateTypes_()
 {
-  updateMatrices();
-}
-
-CodonRateSubstitutionModel::CodonRateSubstitutionModel(
-    const GeneticCode* gCode,
-    NucleotideSubstitutionModel* pmod1,
-    NucleotideSubstitutionModel* pmod2,
-    NucleotideSubstitutionModel* pmod3) :
-  AbstractParameterAliasable("CodonRate."),
-  AbstractSubstitutionModel(gCode->getSourceAlphabet(), "CodonRate."),
-  AbstractWordSubstitutionModel(gCode->getSourceAlphabet(), "CodonRate."),
-  AbstractCodonSubstitutionModel(gCode, pmod1, pmod2, pmod3, "CodonRate.", true)
-{
-  updateMatrices();
-}
-
-std::string CodonRateSubstitutionModel::getName() const
-{
-  return "CodonRate";
-}
-
-void CodonRateSubstitutionModel::fireParameterChanged(const ParameterList& parameters)
-{
-  AbstractCodonSubstitutionModel::fireParameterChanged(parameters);
-}
-
-double CodonRateSubstitutionModel::getCodonsMulRate(size_t i, size_t j) const
-{
-  return AbstractCodonSubstitutionModel::getCodonsMulRate(i,j);
+  types_.clear();
+  for (size_t i=0;i<size_;i++)
+    for (size_t j=0;j<size_;j++)
+      {
+        size_t type=matrix_(i,j);
+        map<size_t, vector<size_t> > reg=types_[type];
+        reg[i].push_back(j);
+      }
 }
 

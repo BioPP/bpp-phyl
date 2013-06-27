@@ -1,11 +1,12 @@
 //
-// File: YN98.cpp
-// Created by:  Laurent Gueguen
-// Created on: July 2009
+// File: Kappa.cpp
+// Created by: Laurent Guéguen
+// Created on: mardi 16 avril 2013, à 22h 18
 //
 
 /*
    Copyright or © or Copr. Bio++ Development Team, (November 16, 2004)
+
    This software is a computer program whose purpose is to provide classes
    for phylogenetic data analysis.
 
@@ -36,12 +37,12 @@
    knowledge of the CeCILL license and that you accept its terms.
  */
 
-#include "YN98.h"
-#include "../Nucleotide/K80.h"
-#include "../Parameters/Kappa.h"
+#include "Kappa.h"
 
-#include "../FrequenciesSet/CodonFrequenciesSet.h"
-#include <Bpp/Numeric/NumConstants.h>
+#include "../../Mapping/SubstitutionRegister.h"
+
+#include <Bpp/Numeric/Matrix/Matrix.h>
+
 
 using namespace bpp;
 
@@ -49,39 +50,76 @@ using namespace std;
 
 /******************************************************************************/
 
-YN98::YN98(const GeneticCode* gc, FrequenciesSet* codonFreqs) :
-  AbstractBiblioSubstitutionModel("YN98."),
-  pmodel_(new CodonDistanceFrequenciesSubstitutionModel(gc, new K80(dynamic_cast<const CodonAlphabet*>(gc->getSourceAlphabet())->getNucleicAlphabet()), codonFreqs))
+Kappa::Kappa(const Alphabet* alpha, const string& name, double kappa) :
+  RegisteredParameter(alpha, name, kappa, &Parameter::R_PLUS)
 {
-  addParameter_(new Kappa(gc->getSourceAlphabet(), "YN98.kappa", 1));
-  addParameter_(new Parameter("YN98.omega", 1, new IntervalConstraint(NumConstants::MILLI(), 999, true, true), true));
-
-  pmodel_->setNamespace("YN98.");
-  addParameters_(codonFreqs->getParameters());
-
-  lParPmodel_.addParameters(pmodel_->getParameters());
-
-  vector<std::string> v = pmodel_->getFrequenciesSet()->getParameters().getParameterNames();
-
-  for (size_t i = 0; i < v.size(); i++)
+  RowMatrix<size_t> mat(getAlphabet()->getSize(), getAlphabet()->getSize());
+  if (dynamic_cast<const NucleicAlphabet*>(alpha))
   {
-    mapParNamesFromPmodel_[v[i]] = getParameterNameWithoutNamespace(v[i]);
+    for (size_t i = 0; i < 4; i++)
+    {
+      for (size_t j = 0; j < 4; j++)
+      {
+        switch (i - j)
+        {
+        case 0:
+          mat(i, j) = 0;
+          break;
+        case 2:
+        case -2:
+          mat(i, j) = 1;
+          break;
+        default:
+          mat(i, j) = 2;
+        }
+      }
+    }
   }
-  mapParNamesFromPmodel_["YN98.123_K80.kappa"] = "kappa";
-  mapParNamesFromPmodel_["YN98.beta"] = "omega";
+  else if (dynamic_cast<const CodonAlphabet*>(alpha))
+  {
+    for (size_t i = 0; i < 64; i++)
+    {
+      for (size_t j = 0; j < 64; j++)
+      {
+        if (i == j)
+        {
+          mat(i, j) = 0;
+          continue;
+        }
+        bool flag = false;
+        size_t i2 = i;
+        size_t j2 = j;
+        unsigned int ph;
+        for (ph = 0; ph < 3; ph++)
+        {
+          if (i2 % 4 != j2 % 4)
+          {
+            if (flag)
+              break;
+            else
+            {
+              flag = true;
+            }
+          }
+          i2 /= 4;
+          j2 /= 4;
+        }
+        if (ph == 3)
+          mat(i, j) = (abs(static_cast<int>(i) - static_cast<int>(j)) == 2 ? 1 : 2);
+      }
+    }
+  }
+  else
+    throw Exception("Bad alphabet for Kappa parameter: " + alpha->getAlphabetType());
 
-  updateMatrices();
+  setSubstitutionRegister(new GeneralSubstitutionRegister(alpha, mat));
 }
 
-
-YN98::YN98(const YN98& yn98) : AbstractBiblioSubstitutionModel(yn98),
-  pmodel_(new CodonDistanceFrequenciesSubstitutionModel(*yn98.pmodel_))
-{}
-
-YN98& YN98::operator=(const YN98& yn98)
+double Kappa::computeEstimate(std::vector<double> values) const
 {
-  AbstractBiblioSubstitutionModel::operator=(yn98);
-  pmodel_.reset(new CodonDistanceFrequenciesSubstitutionModel(*yn98.pmodel_));
-  return *this;
+  if (values[1] == 0.)
+    return 0.;
+  else
+    return values[0] / values[1];
 }
 

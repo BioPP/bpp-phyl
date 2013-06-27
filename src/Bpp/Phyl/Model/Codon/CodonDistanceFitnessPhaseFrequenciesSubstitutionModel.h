@@ -90,8 +90,6 @@ namespace bpp
    * Reference:
    * -  Yang Z. and Nielsen R. (2008), _Molecular Biology and Evolution_ 25(3):568--579.
    */
-
-
   class CodonDistanceFitnessPhaseFrequenciesSubstitutionModel :
     public AbstractCodonSubstitutionModel,
     public AbstractCodonDistanceSubstitutionModel,
@@ -99,43 +97,22 @@ namespace bpp
     public AbstractCodonFitnessSubstitutionModel
   {
   public:
-    CodonDistanceFitnessPhaseFrequenciesSubstitutionModel(const GeneticCode* palph,
-                                  NucleotideSubstitutionModel* pmod,
-                                  FrequenciesSet* pfit,
-                                  FrequenciesSet* pfreq,
-                                  const AlphabetIndex2* pdist = 0);
-    CodonDistanceFitnessPhaseFrequenciesSubstitutionModel(const GeneticCode* palph,
-                                  NucleotideSubstitutionModel* pmod1,
-                                  NucleotideSubstitutionModel* pmod2,
-                                  NucleotideSubstitutionModel* pmod3,
-                                  FrequenciesSet* pfit,
-                                  FrequenciesSet* pfreq,
-                                  const AlphabetIndex2* pdist = 0);
+    CodonDistanceFitnessPhaseFrequenciesSubstitutionModel(
+        const GeneticCode* gCode,
+        NucleotideSubstitutionModel* pmod,
+        FrequenciesSet* pfit,
+        FrequenciesSet* pfreq,
+        const AlphabetIndex2* pdist = 0);
+    CodonDistanceFitnessPhaseFrequenciesSubstitutionModel(
+        const GeneticCode* gCode,
+        NucleotideSubstitutionModel* pmod1,
+        NucleotideSubstitutionModel* pmod2,
+        NucleotideSubstitutionModel* pmod3,
+        FrequenciesSet* pfit,
+        FrequenciesSet* pfreq,
+        const AlphabetIndex2* pdist = 0);
 
-    CodonDistanceFitnessPhaseFrequenciesSubstitutionModel(const CodonDistanceFitnessPhaseFrequenciesSubstitutionModel& model) :
-      AbstractParameterAliasable(model),
-      AbstractSubstitutionModel(model),
-      AbstractWordSubstitutionModel(model),
-      AbstractCodonSubstitutionModel(model),
-      AbstractCodonDistanceSubstitutionModel(model),
-      AbstractCodonPhaseFrequenciesSubstitutionModel(model),
-      AbstractCodonFitnessSubstitutionModel(model)
-    {}
-
-    CodonDistanceFitnessPhaseFrequenciesSubstitutionModel& operator=(
-                                                                     const CodonDistanceFitnessPhaseFrequenciesSubstitutionModel& model)
-    {
-      AbstractParameterAliasable::operator=(model);
-      AbstractSubstitutionModel::operator=(model);
-      AbstractWordSubstitutionModel::operator=(model);
-      AbstractCodonSubstitutionModel::operator=(model);
-      AbstractCodonDistanceSubstitutionModel::operator=(model);
-      AbstractCodonPhaseFrequenciesSubstitutionModel::operator=(model);
-      AbstractCodonFitnessSubstitutionModel::operator=(model);
-      return *this;
-    }
-
-    ~CodonDistanceFitnessPhaseFrequenciesSubstitutionModel() {}
+    virtual ~CodonDistanceFitnessPhaseFrequenciesSubstitutionModel() {}
 
     CodonDistanceFitnessPhaseFrequenciesSubstitutionModel* clone() const
     {

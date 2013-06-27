@@ -64,6 +64,7 @@ SET(CPP_FILES
   Bpp/Phyl/NewLikelihood/RateAcrossSitesSubstitutionProcess.cpp
   Bpp/Phyl/NewLikelihood/SubstitutionProcessCollection.cpp
   Bpp/Phyl/NewLikelihood/SubstitutionProcessCollectionMember.cpp
+  Bpp/Phyl/Mapping/SubstitutionRegister.cpp
   Bpp/Phyl/Mapping/LaplaceSubstitutionCount.cpp
   Bpp/Phyl/Mapping/OneJumpSubstitutionCount.cpp
   Bpp/Phyl/Mapping/ProbabilisticSubstitutionMapping.cpp
@@ -72,6 +73,9 @@ SET(CPP_FILES
   Bpp/Phyl/Mapping/UniformizationSubstitutionCount.cpp
   Bpp/Phyl/Mapping/WeightedSubstitutionCount.cpp
   Bpp/Phyl/Mapping/SubstitutionMappingTools.cpp
+  Bpp/Phyl/Mapping/DecompositionReward.cpp
+  Bpp/Phyl/Mapping/ProbabilisticRewardMapping.cpp
+  Bpp/Phyl/Mapping/RewardMappingTools.cpp
   Bpp/Phyl/Model/StateMap.cpp
   Bpp/Phyl/Model/BinarySubstitutionModel.cpp
   Bpp/Phyl/Model/AbstractSubstitutionModel.cpp
@@ -89,6 +93,7 @@ SET(CPP_FILES
   Bpp/Phyl/Model/SubstitutionModelSetTools.cpp
   Bpp/Phyl/Model/AbstractWordSubstitutionModel.cpp
   Bpp/Phyl/Model/WordSubstitutionModel.cpp
+  Bpp/Phyl/Model/Parameters/Kappa.cpp
   Bpp/Phyl/Model/Nucleotide/F84.cpp
   Bpp/Phyl/Model/Nucleotide/HKY85.cpp
   Bpp/Phyl/Model/Nucleotide/JCnuc.cpp
@@ -113,6 +118,7 @@ SET(CPP_FILES
   Bpp/Phyl/Model/Protein/LLG08_EX3.cpp
   Bpp/Phyl/Model/Protein/LLG08_UL2.cpp
   Bpp/Phyl/Model/Protein/LLG08_UL3.cpp
+  Bpp/Phyl/Model/Protein/LG10_EX_EHO.cpp
   Bpp/Phyl/Model/Protein/LGL08_CAT.cpp
   Bpp/Phyl/Model/Protein/Coala.cpp
   Bpp/Phyl/Model/Protein/CoalaCore.cpp
@@ -249,8 +255,14 @@ SET(H_FILES
   Bpp/Phyl/Mapping/UniformizationSubstitutionCount.h
   Bpp/Phyl/Mapping/SubstitutionRegister.h
   Bpp/Phyl/Mapping/SubstitutionCount.h
+  Bpp/Phyl/Mapping/Mapping.h
   Bpp/Phyl/Mapping/SubstitutionMapping.h
   Bpp/Phyl/Mapping/SubstitutionMappingTools.h
+  Bpp/Phyl/Mapping/Reward.h
+  Bpp/Phyl/Mapping/DecompositionReward.h
+  Bpp/Phyl/Mapping/RewardMapping.h
+  Bpp/Phyl/Mapping/RewardMappingTools.h
+  Bpp/Phyl/Mapping/ProbabilisticRewardMapping.h
   Bpp/Phyl/Model/StateMap.h
   Bpp/Phyl/Model/AbstractSubstitutionModel.h
   Bpp/Phyl/Model/BinarySubstitutionModel.h
@@ -272,6 +284,8 @@ SET(H_FILES
   Bpp/Phyl/Model/TS98.h
   Bpp/Phyl/Model/AbstractWordSubstitutionModel.h
   Bpp/Phyl/Model/WordSubstitutionModel.h
+  Bpp/Phyl/Model/Parameters/RegisteredParameter.h
+  Bpp/Phyl/Model/Parameters/Kappa.h
   Bpp/Phyl/Model/Nucleotide/NucleotideSubstitutionModel.h
   Bpp/Phyl/Model/Nucleotide/F84.h
   Bpp/Phyl/Model/Nucleotide/HKY85.h
@@ -298,6 +312,7 @@ SET(H_FILES
   Bpp/Phyl/Model/Protein/LLG08_EX3.h
   Bpp/Phyl/Model/Protein/LLG08_UL2.h
   Bpp/Phyl/Model/Protein/LLG08_UL3.h
+  Bpp/Phyl/Model/Protein/LG10_EX_EHO.h
   Bpp/Phyl/Model/Protein/LGL08_CAT.h
   Bpp/Phyl/Model/Protein/Coala.h
   Bpp/Phyl/Model/Protein/CoalaCore.h

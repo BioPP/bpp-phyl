@@ -58,6 +58,7 @@ namespace bpp
     public virtual FrequenciesSet
   {
   public:
+
 #ifndef NO_VIRTUAL_COV
     CodonFrequenciesSet* clone() const = 0;
     
@@ -66,11 +67,16 @@ namespace bpp
     
   public:
     /**
+     * @return The associated genetic code.
+     */
+    virtual const GeneticCode* getGeneticCode() const = 0;
+
+    /**
      * @brief A helper function that provide frequencies set for codon models
      * according to PAML option.
      *
      * @param option A code describing the option, one of F61, F1X4 or F3X4.
-     * @param CA the Codon Alphabet to use.
+     * @param gCode The genetic code to use. The underlying codon alphabet object will be passed to the FrequenciesSet instance.
      * @param mgmtStopFreq the optional way the frequencies assigned
      * to the stop codons are redistributed to the other codons, with
      * F1X4 and F3X4 options. The available values are:
@@ -83,14 +89,12 @@ namespace bpp
      *     the square of each target codon frequency.
      *
      */
-    
-    static FrequenciesSet* getFrequenciesSetForCodons(short option, const CodonAlphabet& CA, const std::string& mgmtStopFreq = "quadratic");
+    static FrequenciesSet* getFrequenciesSetForCodons(short option, const GeneticCode* gCode, const std::string& mgmtStopFreq = "quadratic");
     
     static const short F0;
     static const short F1X4;
     static const short F3X4;
     static const short F61;
-    
     
   };
 
@@ -105,13 +109,20 @@ namespace bpp
     public virtual CodonFrequenciesSet,
     public AbstractFrequenciesSet
   {
+  protected:
+    const GeneticCode* pgc_;
+
   public:
+
     /**
      * @brief Construction with uniform frequencies on the letters of
      * the alphabet. The stop codon frequencies are null.
      */
-    FullCodonFrequenciesSet(const CodonAlphabet* alphabet, bool allowNullFreqs = false, const std::string& name = "Full");
-    FullCodonFrequenciesSet(const CodonAlphabet* alphabet, const std::vector<double>& initFreqs, bool allowNullFreqs = false, const std::string& name = "Full");
+    FullCodonFrequenciesSet(const GeneticCode* gCode, bool allowNullFreqs = false, const std::string& name = "Full");
+    FullCodonFrequenciesSet(const GeneticCode* gCode, const std::vector<double>& initFreqs, bool allowNullFreqs = false, const std::string& name = "Full");
+    
+    FullCodonFrequenciesSet(const FullCodonFrequenciesSet& fcfs);
+    FullCodonFrequenciesSet& operator=(const FullCodonFrequenciesSet& fcfs);
 
 #ifndef NO_VIRTUAL_COV
     FullCodonFrequenciesSet*
@@ -121,8 +132,10 @@ namespace bpp
     clone() const { return new FullCodonFrequenciesSet(*this); }
 
   public:
+    const GeneticCode* getGeneticCode() const { return pgc_; }
+
     /**
-     * @brief the given frequencies are normalized such thaat the sum of
+     * @brief the given frequencies are normalized such that the sum of
      * the frequencies on the non-stop codons equals 1.
      *
      */
@@ -149,14 +162,29 @@ namespace bpp
     public virtual CodonFrequenciesSet,
     public AbstractFrequenciesSet
   {
+  protected:
+    const GeneticCode* pgc_;
+
   public:
-    FixedCodonFrequenciesSet(const CodonAlphabet* alphabet, const std::vector<double>& initFreqs, const std::string& name = "Fixed");
+    FixedCodonFrequenciesSet(const GeneticCode* gCode, const std::vector<double>& initFreqs, const std::string& name = "Fixed");
 
     /**
      * @brief Construction with uniform frequencies on the letters of
      * the alphabet. The stop codon frequencies are null.
      */
-    FixedCodonFrequenciesSet(const CodonAlphabet* alphabet, const std::string& name = "Fixed");
+    FixedCodonFrequenciesSet(const GeneticCode* gCode, const std::string& name = "Fixed");
+
+    FixedCodonFrequenciesSet(const FixedCodonFrequenciesSet& fcfs):
+      AbstractFrequenciesSet(fcfs),
+      pgc_(fcfs.pgc_)
+    {}
+
+    FixedCodonFrequenciesSet& operator=(const FixedCodonFrequenciesSet& fcfs)
+    {
+      AbstractFrequenciesSet::operator=(fcfs);
+      pgc_ = fcfs.pgc_;
+      return *this;
+    }
 
 #ifndef NO_VIRTUAL_COV
     FixedCodonFrequenciesSet*
@@ -166,6 +194,8 @@ namespace bpp
     clone() const { return new FixedCodonFrequenciesSet(*this); }
 
   public:
+    const GeneticCode* getGeneticCode() const { return pgc_; }
+
 #ifndef NO_VIRTUAL_COV
     const CodonAlphabet* getAlphabet() const
     {
@@ -200,7 +230,7 @@ namespace bpp
   
   private:
     const GeneticCode* pgc_;
-    ProteinFrequenciesSet* ppfs_;
+    std::auto_ptr<ProteinFrequenciesSet> ppfs_;
 
     /*
      *@ brief vector of the simplexes, one for each AA
@@ -213,20 +243,25 @@ namespace bpp
   
   public:
   
-    FullPerAACodonFrequenciesSet(const GeneticCode* gencode, const ProteinFrequenciesSet* ppfs);
+    /**
+     * @brief Create a new FullPerAACodonFrequenciesSet object.
+     *
+     * @param gencode The genetic code to use.
+     * @param ppfs The protein frequencies to use. The codon frequencies set will own the instance of the protein frequencies set.
+     */
+    FullPerAACodonFrequenciesSet(const GeneticCode* gencode, ProteinFrequenciesSet* ppfs);
 
     /**
      * @brief Construction with fixed uniform frequencies on the amino acids.
      * The stop codon frequencies are null.
      */
-  
     FullPerAACodonFrequenciesSet(const GeneticCode* gencode);
 
-    FullPerAACodonFrequenciesSet(const FullPerAACodonFrequenciesSet&);
+    FullPerAACodonFrequenciesSet(const FullPerAACodonFrequenciesSet& ffs);
 
-    FullPerAACodonFrequenciesSet& operator=(const FullPerAACodonFrequenciesSet&);
+    FullPerAACodonFrequenciesSet& operator=(const FullPerAACodonFrequenciesSet& ffs);
 
-    ~FullPerAACodonFrequenciesSet();
+    virtual ~FullPerAACodonFrequenciesSet() {}
  
 #ifndef NO_VIRTUAL_COV
     FullPerAACodonFrequenciesSet*
@@ -242,6 +277,9 @@ namespace bpp
       return dynamic_cast<const CodonAlphabet*>(AbstractFrequenciesSet::getAlphabet());
     }
 #endif
+    
+    const GeneticCode* getGeneticCode() const { return pgc_; }
+    
     /**
      * @brief the given frequencies are normalized such thaat the sum of
      * the frequencies on the non-stop codons equals 1.
@@ -253,7 +291,7 @@ namespace bpp
 
     const ProteinFrequenciesSet* getProteinFrequenciesSet() const
     {
-      return ppfs_;
+      return ppfs_.get();
     }
     
   protected:
@@ -266,10 +304,8 @@ namespace bpp
    * Frequencies in letters with the frequencies of stop codons set to
    * zero.
    *
-   *
    * @author Laurent Guéguen
    */
-
   class CodonFromIndependentFrequenciesSet :
     public virtual CodonFrequenciesSet,
     public WordFromIndependentFrequenciesSet
@@ -280,13 +316,15 @@ namespace bpp
     std::map<int, Vint> mStopNeigh_;
 
     unsigned short mgmtStopFreq_;
+
+    const GeneticCode* pgc_;
     
   public:
     /**
      * @brief Constructor from a CodonAlphabet* and a vector of different FrequenciesSet*.
      * Throws an Exception if their lengths do not match.
      *
-     * @param pCA a pointer to the CodonAlphabet
+     * @param gCode a pointer to the genetic code to use.
      * @param freqvector a vector of pointers to the phase specific FrequenciesSets
      * @param name the optional name of the FrequenciesSet (default codon)
      * @param mgmtStopFreq the optional way the frequencies assigned to the
@@ -301,23 +339,23 @@ namespace bpp
      *     the square of each target codon frequency.
      *
      */
-    CodonFromIndependentFrequenciesSet(const CodonAlphabet* pCA, const std::vector<FrequenciesSet*>& freqvector, const std::string& name = "Codon", const std::string& mgmtStopFreq = "quadratic");
+    CodonFromIndependentFrequenciesSet(const GeneticCode* gCode, const std::vector<FrequenciesSet*>& freqvector, const std::string& name = "Codon", const std::string& mgmtStopFreq = "quadratic");
   
     CodonFromIndependentFrequenciesSet(const CodonFromIndependentFrequenciesSet& iwfs);
 
-    ~CodonFromIndependentFrequenciesSet(){};
+    virtual ~CodonFromIndependentFrequenciesSet(){};
   
     CodonFromIndependentFrequenciesSet& operator=(const CodonFromIndependentFrequenciesSet& iwfs);
   
     CodonFromIndependentFrequenciesSet* clone() const { return new CodonFromIndependentFrequenciesSet(*this); }
 
     const CodonAlphabet* getAlphabet() const;
+    
+    const GeneticCode* getGeneticCode() const { return pgc_; }
   
-    /*
-     *@ brief Update the frequencies given the parameters.
-     *
+    /**
+     * @ brief Update the frequencies given the parameters.
      */
-
     void updateFrequencies();
   };
 
@@ -340,13 +378,15 @@ namespace bpp
     std::map<int, Vint> mStopNeigh_;
 
     unsigned short mgmtStopFreq_;
-    
+   
+    const GeneticCode* pgc_;
+
   public:
     /**
      * @brief Constructor from a CodonAlphabet* and a FrequenciesSet*
      *  repeated three times.
      *
-     * @param pCA a pointer to the CodonAlphabet
+     * @param gCode a pointer to a genetic code.
      * @param pfreq a pointer to the nucleotidic FrequenciesSet
      * @param name the optional name of the FrequenciesSet (default codon)
      * @param mgmtStopFreq the optional way the frequencies assigned to the
@@ -359,14 +399,16 @@ namespace bpp
      *  - quadratic (default): each stop frequency is distributed to the
      *      neighbour codons (ie 1 substitution away), in proportion to
      *      the square of each target codon frequency.
-     *
      */
-
-    CodonFromUniqueFrequenciesSet(const CodonAlphabet* pCA, FrequenciesSet* pfreq, const std::string& name = "Codon", const std::string& mgmtStopFreq = "quadratic");
+    CodonFromUniqueFrequenciesSet(
+        const GeneticCode* gCode,
+        FrequenciesSet* pfreq,
+        const std::string& name = "Codon",
+        const std::string& mgmtStopFreq = "quadratic");
   
     CodonFromUniqueFrequenciesSet(const CodonFromUniqueFrequenciesSet& iwfs);
   
-    ~CodonFromUniqueFrequenciesSet(){};
+    virtual ~CodonFromUniqueFrequenciesSet() {};
   
     CodonFromUniqueFrequenciesSet& operator=(const CodonFromUniqueFrequenciesSet& iwfs);
   
@@ -374,11 +416,12 @@ namespace bpp
   
     const CodonAlphabet* getAlphabet() const;
 
-    /*
-     *@ brief Update the frequencies given the parameters.
+    const GeneticCode* getGeneticCode() const { return pgc_; }
+    
+    /**
+     * @brief Update the frequencies given the parameters.
      *
      */
-
     void updateFrequencies();
   };
 

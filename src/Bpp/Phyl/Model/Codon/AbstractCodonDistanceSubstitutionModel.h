@@ -70,14 +70,12 @@ namespace bpp
  *  multiplied with @f$\gamma@f$ (with optional positive parameter \c
  *  "gamma"), else it is multiplied with 1.
  *
- * 
  * References:
  * - Goldman N. and Yang Z. (1994), _Molecular Biology And Evolution_ 11(5) 725--736. 
- * _ Kosakovsky Pond, S. and Muse, S.V. (2005), _Molecular Biology And Evolution_,
+ * - Kosakovsky Pond, S. and Muse, S.V. (2005), _Molecular Biology And Evolution_,
  *   22(12), 2375--2385.
  * - Mayrose, I. and Doron-Faigenboim, A. and Bacharach, E. and Pupko T.
  *   (2007), Bioinformatics, 23, i319--i327.
- *
  */
 
 class AbstractCodonDistanceSubstitutionModel :
@@ -85,7 +83,6 @@ class AbstractCodonDistanceSubstitutionModel :
   public virtual AbstractParameterAliasable
 {
 private:
-  const GeneticCode* geneticCode_;
   const AlphabetIndex2* pdistance_;
 
   double alpha_, beta_;
@@ -94,27 +91,21 @@ private:
 
 public:
   /**
-   *@brief Build a new AbstractCodonDistanceSubstitutionModel object from
-   * a pointer to NucleotideSubstitutionModel.
+   * @brief Build a new AbstractCodonDistanceSubstitutionModel object from
+   *  a pointer to NucleotideSubstitutionModel.
    *
-   *@param palph pointer to a GeneticCode
-   *@param pdist optional pointer to a distance between amino-acids
-   *@param prefix the Namespace
-   *@param paramSynRate is true iff synonymous rate is parametrised
+   * @param pdist optional pointer to a distance between amino-acids
+   * @param prefix the Namespace
+   * @param paramSynRate is true iff synonymous rate is parametrised
    *       (default=false).
    */
-
   AbstractCodonDistanceSubstitutionModel(
-    const GeneticCode* palph,
     const AlphabetIndex2* pdist,
     const std::string& prefix,
     bool paramSynRate = false);
 
-
-  AbstractCodonDistanceSubstitutionModel(
-    const AbstractCodonDistanceSubstitutionModel& model) :
+  AbstractCodonDistanceSubstitutionModel(const AbstractCodonDistanceSubstitutionModel& model) :
     AbstractParameterAliasable(model),
-    geneticCode_(model.geneticCode_),
     pdistance_(model.pdistance_),
     alpha_(model.alpha_),
     beta_(model.beta_),
@@ -125,7 +116,6 @@ public:
     const AbstractCodonDistanceSubstitutionModel& model)
   {
     AbstractParameterAliasable::operator=(model);
-    geneticCode_ = model.geneticCode_;
     pdistance_ = model.pdistance_;
     alpha_ = model.alpha_;
     beta_ = model.beta_;
@@ -133,16 +123,15 @@ public:
     return *this;
   }
 
-  ~AbstractCodonDistanceSubstitutionModel() {}
+  virtual ~AbstractCodonDistanceSubstitutionModel() {}
 
 public:
   void fireParameterChanged(const ParameterList& parameters);
 
-  const GeneticCode* getGeneticCode() const { return geneticCode_; }
-
 public:
   double getCodonsMulRate(size_t i, size_t j) const;
 };
+
 } // end of namespace bpp.
 
 #endif

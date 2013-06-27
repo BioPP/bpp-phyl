@@ -42,34 +42,36 @@
 using namespace bpp;
 using namespace std;
 
-CodonDistanceFitnessPhaseFrequenciesSubstitutionModel::CodonDistanceFitnessPhaseFrequenciesSubstitutionModel(const GeneticCode* palph,
-                                                             NucleotideSubstitutionModel* pmod,
-                                                             FrequenciesSet* pfit,
-                                                             FrequenciesSet* pfreq,
-                                                             const AlphabetIndex2* pdist) :
+CodonDistanceFitnessPhaseFrequenciesSubstitutionModel::CodonDistanceFitnessPhaseFrequenciesSubstitutionModel(
+    const GeneticCode* gCode,
+    NucleotideSubstitutionModel* pmod,
+    FrequenciesSet* pfit,
+    FrequenciesSet* pfreq,
+    const AlphabetIndex2* pdist) :
   AbstractParameterAliasable("CodonDistFitPhasFreq."),
-  AbstractSubstitutionModel(dynamic_cast<const CodonAlphabet*>(palph->getSourceAlphabet()), "CodonDistFitPhasFreq."),
-  AbstractWordSubstitutionModel(dynamic_cast<const CodonAlphabet*>(palph->getSourceAlphabet()), "CodonDistFitPhasFreq."),
-  AbstractCodonSubstitutionModel(dynamic_cast<const CodonAlphabet*>(palph->getSourceAlphabet()), pmod, "CodonDistFitPhasFreq."),
-  AbstractCodonDistanceSubstitutionModel(palph, pdist, "CodonDistFitPhasFreq."),
+  AbstractSubstitutionModel(gCode->getSourceAlphabet(), "CodonDistFitPhasFreq."),
+  AbstractWordSubstitutionModel(gCode->getSourceAlphabet(), "CodonDistFitPhasFreq."),
+  AbstractCodonSubstitutionModel(gCode, pmod, "CodonDistFitPhasFreq."),
+  AbstractCodonDistanceSubstitutionModel(pdist, "CodonDistFitPhasFreq."),
   AbstractCodonPhaseFrequenciesSubstitutionModel(pfreq, "CodonDistFitPhasFreq."),
   AbstractCodonFitnessSubstitutionModel(pfit, "CodonDistFitPhasFreq.")
 {
   updateMatrices();
 }
 
-CodonDistanceFitnessPhaseFrequenciesSubstitutionModel::CodonDistanceFitnessPhaseFrequenciesSubstitutionModel(const GeneticCode* palph,
-                                                             NucleotideSubstitutionModel* pmod1,
-                                                             NucleotideSubstitutionModel* pmod2,
-                                                             NucleotideSubstitutionModel* pmod3,
-                                                             FrequenciesSet* pfit,
-                                                             FrequenciesSet* pfreq,
-                                                             const AlphabetIndex2* pdist) :
+CodonDistanceFitnessPhaseFrequenciesSubstitutionModel::CodonDistanceFitnessPhaseFrequenciesSubstitutionModel(
+    const GeneticCode* gCode,
+    NucleotideSubstitutionModel* pmod1,
+    NucleotideSubstitutionModel* pmod2,
+    NucleotideSubstitutionModel* pmod3,
+    FrequenciesSet* pfit,
+    FrequenciesSet* pfreq,
+    const AlphabetIndex2* pdist) :
   AbstractParameterAliasable("CodonDistFitPhasFreq."),
-  AbstractSubstitutionModel(dynamic_cast<const CodonAlphabet*>(palph->getSourceAlphabet()), "CodonDistFitPhasFreq."),
-  AbstractWordSubstitutionModel(dynamic_cast<const CodonAlphabet*>(palph->getSourceAlphabet()), "CodonDistFitPhasFreq."),
-  AbstractCodonSubstitutionModel(dynamic_cast<const CodonAlphabet*>(palph->getSourceAlphabet()), pmod1, pmod2, pmod3, "CodonDistFitPhasFreq."),
-  AbstractCodonDistanceSubstitutionModel(palph, pdist, "CodonDistFitPhasFreq."),
+  AbstractSubstitutionModel(gCode->getSourceAlphabet(), "CodonDistFitPhasFreq."),
+  AbstractWordSubstitutionModel(gCode->getSourceAlphabet(), "CodonDistFitPhasFreq."),
+  AbstractCodonSubstitutionModel(gCode, pmod1, pmod2, pmod3, "CodonDistFitPhasFreq."),
+  AbstractCodonDistanceSubstitutionModel(pdist, "CodonDistFitPhasFreq."),
   AbstractCodonPhaseFrequenciesSubstitutionModel(pfreq, "CodonDistFitPhasFreq."),
   AbstractCodonFitnessSubstitutionModel(pfit,"CodonDistFitPhasFreq.")
 {
