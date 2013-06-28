@@ -86,7 +86,7 @@ public:
   
   virtual const ParametrizableTree& getParametrizableTree() const = 0;
   
-  virtual ParameterList getTransitionProbabilitiesParameters() const = 0;
+  virtual bool hasTransitionProbabilitiesParameter(const std::string& name) const = 0;
 
   virtual size_t getNumberOfClasses() const = 0;
   

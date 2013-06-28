@@ -67,8 +67,11 @@ void fitModelH(SubstitutionModel* model, DiscreteDistribution* rdist, const Tree
     throw Exception("Incorrect initial value.");
 
   ParametrizableTree* pTree = new ParametrizableTree(tree);
-  //SubstitutionProcess* process = new SimpleSubstitutionProcess(model->clone(), pTree);
-  SubstitutionProcess* process = new RateAcrossSitesSubstitutionProcess(model->clone(), rdist->clone(), pTree);
+  //SimpleSubstitutionProcess* process = new SimpleSubstitutionProcess(model->clone(), pTree);
+  RateAcrossSitesSubstitutionProcess* process = new RateAcrossSitesSubstitutionProcess(model->clone(), rdist->clone(), pTree);
+
+  auto_ptr<RateAcrossSitesSubstitutionProcess> process2(process->clone());
+  
   RTreeLikelihood newTl(sites, process, true, true);
   cout << "NewTL: " << setprecision(20) << newTl.getValue() << endl;
 

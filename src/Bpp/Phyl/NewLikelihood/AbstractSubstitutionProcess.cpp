@@ -40,8 +40,10 @@
 #include "AbstractSubstitutionProcess.h"
 
 using namespace bpp;
+using namespace std;
 
-AbstractSubstitutionProcess::AbstractSubstitutionProcess(ParametrizableTree* tree, size_t nbClasses) :
+AbstractSubstitutionProcess::AbstractSubstitutionProcess(ParametrizableTree* tree, size_t nbClasses, const string& prefix) :
+  AbstractParameterAliasable(prefix),
   pTree_(tree),
   nodeIndex_(),
   nbClasses_(nbClasses),
@@ -77,7 +79,8 @@ AbstractSubstitutionProcess::AbstractSubstitutionProcess(ParametrizableTree* tre
 }
  
 AbstractSubstitutionProcess::AbstractSubstitutionProcess(const AbstractSubstitutionProcess& asp) :
-  pTree_(pTree_->clone()),
+  AbstractParameterAliasable(asp),
+  pTree_(asp.pTree_->clone()),
   nodeIndex_(asp.nodeIndex_),
   nbClasses_(asp.nbClasses_),
   probabilities_(asp.probabilities_),
@@ -90,6 +93,8 @@ AbstractSubstitutionProcess::AbstractSubstitutionProcess(const AbstractSubstitut
 
 AbstractSubstitutionProcess& AbstractSubstitutionProcess::operator=(const AbstractSubstitutionProcess& asp)
 {
+  AbstractParameterAliasable::operator=(*this);
+  
   pTree_.reset(pTree_->clone());
   nodeIndex_ = asp.nodeIndex_;
   nbClasses_ = asp.nbClasses_;
@@ -121,6 +126,8 @@ size_t AbstractSubstitutionProcess::getModelIndex_(int nodeId, size_t modelClass
 
 void AbstractSubstitutionProcess::fireParameterChanged(const ParameterList& pl)
 {
+  AbstractParameterAliasable::fireParameterChanged(pl);
+
   for (size_t i = 0; i < computeProbability_.size(); ++i) {
     computeProbability_[i] = false;
     computeProbabilityD1_[i] = false;

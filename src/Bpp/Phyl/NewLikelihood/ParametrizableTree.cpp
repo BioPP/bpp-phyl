@@ -40,6 +40,7 @@ knowledge of the CeCILL license and that you accept its terms.
 #include "ParametrizableTree.h"
 
 using namespace bpp;
+using namespace std;
 
 ParametrizableTree::ParametrizableTree(const Tree& tree, bool reparametrizeRoot, bool liveIndex, const std::string& prefix): 
   AbstractParametrizable(prefix),
@@ -55,6 +56,7 @@ ParametrizableTree::ParametrizableTree(const Tree& tree, bool reparametrizeRoot,
   //TODO allow root reparametrization
   if (reparametrizeRoot)
     throw Exception("ParametrizableTree::constructor. Reparametrization of root is not implemented yet.");
+
   buildIndex_(*tree_.getRootNode()); 
   if (liveIndex_)
     buildReverseIndex_(tree_.getRootNode());
@@ -93,10 +95,12 @@ ParametrizableTree& ParametrizableTree::operator=(const ParametrizableTree& pTre
   return *this;
 }
 
-void ParametrizableTree::buildIndex_(Node& node)
+size_t ParametrizableTree::buildIndex_(Node& node, size_t nPar)
 {
+  size_t npar=nPar;
+  
   if (node.hasFather()) {
-    index_[node.getId()] = getNumberOfParameters();
+    index_[node.getId()] = npar;
   
     double d = minimumBrLen_;
     if (!node.hasDistanceToFather())
@@ -120,13 +124,17 @@ void ParametrizableTree::buildIndex_(Node& node)
         d = maximumBrLen_;
       }
     }
-    addParameter_(new Parameter("BrLen" + TextTools::toString(node.getId()), d, brLenConstraint_->clone(), true)); // Attach constraint to avoid clonage problems!
+    if (!hasParameter("BrLen" + TextTools::toString(node.getId()))){
+      addParameter_(new Parameter("BrLen" + TextTools::toString(node.getId()), d, brLenConstraint_->clone(), true)); // Attach constraint to avoid clonage problems!
+    }
+    npar++;
   }
-
+    
   //Now apply recursively:
   for (unsigned int i = 0; i < node.getNumberOfSons(); ++i)
-    buildIndex_(*node[i]);
-  
+    npar=buildIndex_(*node[i],npar);
+
+  return npar;
 }
 
 void ParametrizableTree::buildReverseIndex_(Node* node)

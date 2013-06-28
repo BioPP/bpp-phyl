@@ -53,17 +53,18 @@ SET(CPP_FILES
   Bpp/Phyl/Likelihood/TreeLikelihoodTools.cpp
   Bpp/Phyl/Likelihood/PairedSiteLikelihoods.cpp
   Bpp/Phyl/Likelihood/GlobalClockTreeLikelihoodFunctionWrapper.cpp
-  Bpp/Phyl/NewLikelihood/RTreeLikelihoodData.cpp
-  Bpp/Phyl/NewLikelihood/DRTreeLikelihoodData.cpp
-  Bpp/Phyl/NewLikelihood/ParametrizableTree.cpp
-  Bpp/Phyl/NewLikelihood/AbstractTreeLikelihood.cpp
-  Bpp/Phyl/NewLikelihood/RTreeLikelihood.cpp
-  Bpp/Phyl/NewLikelihood/DRTreeLikelihood.cpp
-  Bpp/Phyl/NewLikelihood/SimpleSubstitutionProcess.cpp
   Bpp/Phyl/NewLikelihood/AbstractSubstitutionProcess.cpp
+  Bpp/Phyl/NewLikelihood/AbstractTreeLikelihood.cpp
+  # Bpp/Phyl/NewLikelihood/DRTreeLikelihood.cpp
+  # Bpp/Phyl/NewLikelihood/DRTreeLikelihoodData.cpp
+  Bpp/Phyl/NewLikelihood/NonHomogeneousSubstitutionProcess.cpp
+  Bpp/Phyl/NewLikelihood/ParametrizableTree.cpp
   Bpp/Phyl/NewLikelihood/RateAcrossSitesSubstitutionProcess.cpp
-  Bpp/Phyl/NewLikelihood/SubstitutionProcessCollection.cpp
-  Bpp/Phyl/NewLikelihood/SubstitutionProcessCollectionMember.cpp
+  Bpp/Phyl/NewLikelihood/RTreeLikelihood.cpp
+  Bpp/Phyl/NewLikelihood/RTreeLikelihoodData.cpp
+  Bpp/Phyl/NewLikelihood/SimpleSubstitutionProcess.cpp
+  # Bpp/Phyl/NewLikelihood/SubstitutionProcessCollection.cpp
+  # Bpp/Phyl/NewLikelihood/SubstitutionProcessCollectionMember.cpp
   Bpp/Phyl/Mapping/SubstitutionRegister.cpp
   Bpp/Phyl/Mapping/LaplaceSubstitutionCount.cpp
   Bpp/Phyl/Mapping/OneJumpSubstitutionCount.cpp
@@ -229,23 +230,24 @@ SET(H_FILES
   Bpp/Phyl/Likelihood/TreeLikelihoodTools.h
   Bpp/Phyl/Likelihood/PairedSiteLikelihoods.h
   Bpp/Phyl/Likelihood/GlobalClockTreeLikelihoodFunctionWrapper.h
-  Bpp/Phyl/NewLikelihood/TreeLikelihoodData.h
-  Bpp/Phyl/NewLikelihood/AbstractTreeLikelihoodData.h
-  Bpp/Phyl/NewLikelihood/RTreeLikelihoodData.h
-  Bpp/Phyl/NewLikelihood/DRTreeLikelihoodData.h
-  Bpp/Phyl/NewLikelihood/TreeLikelihood.h
-  Bpp/Phyl/NewLikelihood/ParametrizableTree.h
-  Bpp/Phyl/NewLikelihood/SubstitutionProcess.h
   Bpp/Phyl/NewLikelihood/AbstractSubstitutionProcess.h
-  Bpp/Phyl/NewLikelihood/SimpleSubstitutionProcess.h
-  Bpp/Phyl/NewLikelihood/RateAcrossSitesSubstitutionProcess.h
-  Bpp/Phyl/NewLikelihood/SubstitutionProcessCollection.h
-  Bpp/Phyl/NewLikelihood/SubstitutionProcessCollectionMember.h
-  Bpp/Phyl/NewLikelihood/ModelIterator.h
+  Bpp/Phyl/NewLikelihood/AbstractTreeLikelihoodData.h
   Bpp/Phyl/NewLikelihood/AbstractTreeLikelihood.h
+  # Bpp/Phyl/NewLikelihood/DRTreeLikelihoodData.h
+  # Bpp/Phyl/NewLikelihood/DRTreeLikelihood.h
+  Bpp/Phyl/NewLikelihood/ModelIterator.h
+  Bpp/Phyl/NewLikelihood/NonHomogeneousSubstitutionProcess.h
+  Bpp/Phyl/NewLikelihood/ParametrizableTree.h
+  Bpp/Phyl/NewLikelihood/RateAcrossSitesSubstitutionProcess.h
+  Bpp/Phyl/NewLikelihood/RTreeLikelihoodData.h
   Bpp/Phyl/NewLikelihood/RTreeLikelihood.h
-  Bpp/Phyl/NewLikelihood/DRTreeLikelihood.h
+  Bpp/Phyl/NewLikelihood/SimpleSubstitutionProcess.h
   Bpp/Phyl/NewLikelihood/SitePartition.h
+  # Bpp/Phyl/NewLikelihood/SubstitutionProcessCollection.h
+  # Bpp/Phyl/NewLikelihood/SubstitutionProcessCollectionMember.h
+  Bpp/Phyl/NewLikelihood/SubstitutionProcess.h
+  Bpp/Phyl/NewLikelihood/TreeLikelihoodData.h
+  Bpp/Phyl/NewLikelihood/TreeLikelihood.h
   Bpp/Phyl/Mapping/LaplaceSubstitutionCount.h
   Bpp/Phyl/Mapping/WeightedSubstitutionCount.h
   Bpp/Phyl/Mapping/OneJumpSubstitutionCount.h

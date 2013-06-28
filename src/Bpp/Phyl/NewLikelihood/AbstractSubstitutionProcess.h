@@ -45,6 +45,9 @@
 //From the STL:
 #include <memory>
 
+//From bpp-core:
+#include <Bpp/Numeric/AbstractParameterAliasable.h>
+
 namespace bpp
 {
 
@@ -55,7 +58,8 @@ namespace bpp
  * as convenient arrays for storing previously computed probabilities.
  */
 class AbstractSubstitutionProcess :
-  public virtual SubstitutionProcess
+    public virtual SubstitutionProcess,
+    public virtual AbstractParameterAliasable
 {
 protected:
   std::auto_ptr<ParametrizableTree> pTree_;
@@ -77,7 +81,7 @@ protected:
   mutable std::vector<bool> computeProbabilityD2_;
 
 protected:
-  AbstractSubstitutionProcess(ParametrizableTree* tree, size_t nbClasses);
+  AbstractSubstitutionProcess(ParametrizableTree* tree, size_t nbClasses, const std::string& prefix = "");
 
   AbstractSubstitutionProcess(const AbstractSubstitutionProcess& asp);
 

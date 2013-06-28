@@ -259,7 +259,6 @@ void RTreeLikelihood::computeTreeLikelihood()
 void RTreeLikelihood::computeSubtreeLikelihood_(const Node* node)
 {
   if (node->isLeaf()) return;
-
   size_t nbSites  = likelihoodData_->getLikelihoodArray(node->getId()).size();
   size_t nbNodes  = node->getNumberOfSons();
 
@@ -387,7 +386,7 @@ throw (Exception)
 {
   if (!hasParameter(variable))
     throw ParameterNotFoundException("RTreeLikelihood::getFirstOrderDerivative().", variable);
-  if (process_->getTransitionProbabilitiesParameters().hasParameter(variable))
+  if (process_->hasTransitionProbabilitiesParameter(variable))
   {
     throw Exception("Derivatives are only implemented for branch length parameters.");
   }
@@ -864,7 +863,7 @@ throw (Exception)
 {
   if (!hasParameter(variable))
     throw ParameterNotFoundException("RTreeLikelihood::getSecondOrderDerivative().", variable);
-  if (process_->getTransitionProbabilitiesParameters().hasParameter(variable))
+  if (process_->hasTransitionProbabilitiesParameter(variable))
   {
     throw Exception("Derivatives are only implemented for branch length parameters.");
   }

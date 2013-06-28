@@ -54,8 +54,7 @@ namespace bpp
 {
 
 class RateAcrossSitesSubstitutionProcess :
-  public AbstractSubstitutionProcess,
-  public AbstractParameterAliasable
+  public AbstractSubstitutionProcess
 {
 private:
   std::auto_ptr<SubstitutionModel> model_;
@@ -73,8 +72,8 @@ public:
 
   size_t getNumberOfStates() const { return model_->getNumberOfStates(); }
 
-  ParameterList getTransitionProbabilitiesParameters() const {
-    return model_->getParameters();
+  bool hasTransitionProbabilitiesParameter(const std::string& name) const {
+    return model_->getParameters().hasParameter(name);
   }
   
   ParameterList getRateDistributionParameters() const {

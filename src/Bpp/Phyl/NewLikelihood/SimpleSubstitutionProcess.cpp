@@ -40,10 +40,11 @@
 #include "SimpleSubstitutionProcess.h"
 
 using namespace bpp;
+using namespace std;
 
 SimpleSubstitutionProcess::SimpleSubstitutionProcess(SubstitutionModel* model, ParametrizableTree* tree) :
-  AbstractSubstitutionProcess(tree, 1),
   AbstractParameterAliasable(model ? model->getNamespace() : ""),
+  AbstractSubstitutionProcess(tree, 1, model ? model->getNamespace() : ""),
   model_(model)
 {
   if (!model)
@@ -55,15 +56,15 @@ SimpleSubstitutionProcess::SimpleSubstitutionProcess(SubstitutionModel* model, P
 }
 
 SimpleSubstitutionProcess::SimpleSubstitutionProcess(const SimpleSubstitutionProcess& ssp) :
-  AbstractSubstitutionProcess(ssp),
   AbstractParameterAliasable(ssp),
+  AbstractSubstitutionProcess(ssp),
   model_(ssp.model_->clone())
 {}
 
 SimpleSubstitutionProcess& SimpleSubstitutionProcess::operator=(const SimpleSubstitutionProcess& ssp)
 {
-  AbstractSubstitutionProcess::operator=(ssp);
   AbstractParameterAliasable::operator=(ssp);
+  AbstractSubstitutionProcess::operator=(ssp);
   model_.reset(ssp.model_->clone());
   return *this;
 }

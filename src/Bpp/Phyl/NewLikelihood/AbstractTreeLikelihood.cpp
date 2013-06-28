@@ -68,67 +68,67 @@ AbstractTreeLikelihood::AbstractTreeLikelihood(
 
 Vdouble AbstractTreeLikelihood::getLikelihoodForEachSite() const
 {
-	Vdouble l(getNumberOfSites());
-	for (unsigned int i = 0; i < l.size(); ++i)
+  Vdouble l(getNumberOfSites());
+  for (unsigned int i = 0; i < l.size(); ++i)
     l[i] = getLikelihoodForASite(i);
-	return l;
+  return l;
 }
 
 /******************************************************************************/
 
 VVdouble AbstractTreeLikelihood::getLikelihoodForEachSiteForEachState() const
 {
-	VVdouble l(getNumberOfSites());
-	for (unsigned int i = 0; i < l.size(); ++i)
-  {
-		Vdouble* l_i = &l[i];
-		l_i->resize(getNumberOfStates());
-		for(unsigned int x = 0; x < l_i->size(); ++x)
+  VVdouble l(getNumberOfSites());
+  for (unsigned int i = 0; i < l.size(); ++i)
     {
-			(* l_i)[x] = getLikelihoodForASiteForAState(i, x);
-		}
-	}
-	return l;
+      Vdouble* l_i = &l[i];
+      l_i->resize(getNumberOfStates());
+		for(unsigned int x = 0; x < l_i->size(); ++x)
+                  {
+                    (* l_i)[x] = getLikelihoodForASiteForAState(i, x);
+                  }
+    }
+  return l;
 }
 
 /******************************************************************************/
 
 VVdouble AbstractTreeLikelihood::getLikelihoodForEachSiteForEachClass() const
 {
-	VVdouble l(getNumberOfSites());
-	for (unsigned int i = 0; i < l.size(); ++i)
-  {
-		Vdouble* l_i = &l[i];
-		l_i->resize(getNumberOfClasses());
-		for (unsigned int c = 0; c < l_i->size(); ++c)
+  VVdouble l(getNumberOfSites());
+  for (unsigned int i = 0; i < l.size(); ++i)
     {
-			(* l_i)[c] = getLikelihoodForASiteForAClass(i, c);
-		}
-	}
-	return l;
+      Vdouble* l_i = &l[i];
+      l_i->resize(getNumberOfClasses());
+      for (unsigned int c = 0; c < l_i->size(); ++c)
+        {
+          (* l_i)[c] = getLikelihoodForASiteForAClass(i, c);
+        }
+    }
+  return l;
 }
 
 /******************************************************************************/
 
 VVVdouble AbstractTreeLikelihood::getLikelihoodForEachSiteForEachClassForEachState() const
 {
-	VVVdouble l(getNumberOfSites());
-	for (unsigned int i = 0; i < l.size(); ++i)
-  {
-		VVdouble* l_i = &l[i];
-		l_i->resize(getNumberOfClasses());
-		for (unsigned int c = 0; c < l_i->size(); ++c)
+  VVVdouble l(getNumberOfSites());
+  for (unsigned int i = 0; i < l.size(); ++i)
     {
-		  Vdouble* l_ic = &(*l_i)[c];
-		  l_ic->resize(getNumberOfStates());
-		  for (unsigned int x = 0; x < l_ic->size(); ++x)
-      {
-			  (* l_ic)[x] = getLikelihoodForASiteForAClassForAState(i, c, x);
-      }
-		}
-	}
-	return l;
-
+      VVdouble* l_i = &l[i];
+      l_i->resize(getNumberOfClasses());
+      for (unsigned int c = 0; c < l_i->size(); ++c)
+        {
+          Vdouble* l_ic = &(*l_i)[c];
+          l_ic->resize(getNumberOfStates());
+          for (unsigned int x = 0; x < l_ic->size(); ++x)
+            {
+              (* l_ic)[x] = getLikelihoodForASiteForAClassForAState(i, c, x);
+            }
+        }
+    }
+  return l;
+  
 }
 
 /******************************************************************************/

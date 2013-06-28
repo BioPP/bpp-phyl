@@ -114,9 +114,14 @@ namespace bpp
     size_t getNumberOfBranches() const { return tree_.getNumberOfBranches(); }
 
     private:
-      void buildIndex_(Node& node);
-      void buildReverseIndex_(Node* node);
-      void updateTreeFromParameters_() const;
+    /*
+     * @return the following branch parameter number
+     */
+    
+    size_t buildIndex_(Node& node, size_t nPar=0);
+    void buildReverseIndex_(Node* node);
+
+    void updateTreeFromParameters_() const;
       void fireParameterChanged (const ParameterList& parameters);
   };
 

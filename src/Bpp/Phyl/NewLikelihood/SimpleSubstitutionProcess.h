@@ -42,10 +42,6 @@
 
 #include "AbstractSubstitutionProcess.h"
 
-//From bpp-core:
-#include <Bpp/Numeric/ParameterAliasable.h>
-#include <Bpp/Numeric/AbstractParameterAliasable.h>
-
 //From the stl:
 #include <memory>
 
@@ -56,8 +52,7 @@ namespace bpp
  * @brief Space and time homogeneous substitution process, without mixture.
  */
 class SimpleSubstitutionProcess :
-  public AbstractSubstitutionProcess,
-  public AbstractParameterAliasable
+    public AbstractSubstitutionProcess
 {
 protected:
   std::auto_ptr<SubstitutionModel> model_;
@@ -74,8 +69,8 @@ public:
 
   size_t getNumberOfStates() const { return model_->getNumberOfStates(); }
 
-  ParameterList getTransitionProbabilitiesParameters() const {
-    return model_->getParameters();
+  bool hasTransitionProbabilitiesParameter(const std::string& name) const {
+    return model_->getParameters().hasParameter(name);
   }
   
   bool isCompatibleWith(const SiteContainer& data) const {

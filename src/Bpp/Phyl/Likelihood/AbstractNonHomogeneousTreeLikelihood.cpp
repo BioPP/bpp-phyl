@@ -271,6 +271,7 @@ void AbstractNonHomogeneousTreeLikelihood::initialize() throw (Exception)
   if (!data_) throw Exception("AbstractBranchNonHomogeneousTreeLikelihood::initialize(). Data are no set.");
   initParameters();
   initialized_ = true;
+
   computeAllTransitionProbabilities();
   fireParameterChanged(getParameters());
 }
@@ -413,6 +414,7 @@ void AbstractNonHomogeneousTreeLikelihood::computeTransitionProbabilitiesForNode
   for(unsigned int c = 0; c < nbClasses_; c++)
     {
       VVdouble * pxy__node_c = & (* pxy__node)[c];
+  
       RowMatrix<double> Q = model->getPij_t(l * rateDistribution_->getCategory(c));
       for(unsigned int x = 0; x < nbStates_; x++)
         {
