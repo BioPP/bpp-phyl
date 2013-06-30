@@ -42,14 +42,18 @@
 #define _SUBSTITUTIONPROCESSCOLLECTIONMEMBER_H_
 
 
-#include "SubstitutionProcessCollection.h"
 #include "SubstitutionProcess.h"
+#include "SubstitutionProcessCollection.h"
 
 #include <Bpp/Exceptions.h>
 
 // From Seqlib:
 #include <Bpp/Seq/Alphabet/Alphabet.h>
 
+//From bpp-core
+#include <Bpp/Numeric/Prob/DiscreteDistribution.h>
+
+class SubstitutionProcessCollection;
 
 namespace bpp
 {
@@ -70,7 +74,6 @@ namespace bpp
      */
   
     const SubstitutionProcessCollection* pSubProColl_;
-  
 
   private:
 
@@ -93,7 +96,7 @@ namespace bpp
      *
      */
 
-    unsigned int nRate_;
+    unsigned int nDist_;
 
     /**
      * @brief A boolean if the model is stationary, and the number of
@@ -118,7 +121,7 @@ namespace bpp
     nodeToModel_(),
     modelToNodes_(),
     nTree_(0),
-    nRate_(0),
+    nDist_(0),
     stationarity_(true),
     nRoot_(0)
     {
@@ -145,16 +148,17 @@ namespace bpp
     clone() const { return new SubstitutionProcessCollectionMember(*this); }
 
   public:
-    /**
-     * @return The current number of distinct substitution models in this set.
-     */
-    size_t getNumberOfClasses() const { return modelToNodes_.size(); }
+
+    const Alphabet* getAlphabet() const
+    {
+      return pSubProColl_->getModel(modelToNodes_.begin()->first)->getAlphabet();
+    }
 
     /**
      * @return The current number of distinct substitution models in this set.
      */
-    size_t getNumberOfStates() const { return modelToNodes_.size(); }
-    
+    size_t getNumberOfModels() const { return modelToNodes_.size(); }
+
     /**
      * @return True iff there is a MixedSubstitutionModel in the SubstitutionProcessCollectionMember
      **/
@@ -234,14 +238,6 @@ namespace bpp
       return it->second;
     }
 
-    // /**
-    //  * @param name The name of the parameter to look for.
-    //  * @return The list of nodes with a model containing the specified parameter.
-    //  * @throw ParameterNotFoundException If no parameter with the specified name is found.
-    //  */
-
-    // std::vector<int> getNodesWithParameter(const std::string& name) const;
-
     /**
      * @brief Add a new model to the set, and set relationships with nodes.
      *
@@ -250,7 +246,7 @@ namespace bpp
      * This will override any previous affectation.
      */
 
-    void addModel(unsigned int numModel, const std::vector<int>& nodesId);//, const std::vector<std::string>& newParams) throw (Exception);
+    void addModel(unsigned int numModel, const std::vector<int>& nodesId);
 
     /**
      * @brief Set the tree
@@ -281,36 +277,26 @@ namespace bpp
      *
      **/
 
-    void setRate(unsigned int numRate);
+    void setDistribution(unsigned int numDist);
 
-    DiscreteDistribution* getRate()
+    DiscreteDistribution* getDistribution()
     {
-      return pSubProColl_->getDistribution(nRate_);
+      return pSubProColl_->getDistribution(nDist_);
     }
 
-    const DiscreteDistribution* getRate() const
+    const DiscreteDistribution* getDistribution() const
     {
-      return pSubProColl_->getDistribution(nRate_);
+      return pSubProColl_->getDistribution(nDist_);
     }
   
 
-    // /**
-    //  * @brief Remove a model from the set, and all corresponding parameters.
-    //  *
-    //  * @param modelIndex The index of the model in the collection.
-    //  * @throw Exception if a parameter becomes orphan because of the removal.
-    //  */
-    // void removeModel(size_t modelIndex) throw (Exception);
-
-    //  void listModelNames(std::ostream& out = std::cout) const;
-
     /*
-     * @brief Set the root Frequencies Set
+     * @brief Set the ro Frequencies Set
      * @param freqIndex the index of the frequencies in the collection.
      *
      */
 
-    void addRootFrequencies(unsigned int numFreq);
+    void setRootFrequencies(unsigned int numFreq);
   
     /**
      * @return The set of root frequencies.
@@ -326,6 +312,72 @@ namespace bpp
     }
 
     /**
+     *  @brief void function for backward compatibilities. To be removed afterwards.
+     *
+     */
+   
+    void fireParameterChanged(ParameterList&) {};
+  
+    /**
+     * @brief Check if the model set is fully specified for a given tree.
+     *
+     * This include:
+     * - that each node as a model set up,
+     * - that each model in the set is attributed to a node,
+     * - all nodes ids in the set refer to an existing node in the tree.
+     *
+     * @param tree The tree to check.
+     * @param throwEx Tell if an exception have to be thrown in case of test not passed.
+     */
+
+    bool isFullySetUpFor(const Tree& tree, bool throwEx = true) const
+    {
+      return checkOrphanModels(throwEx)
+        && checkOrphanNodes(tree, throwEx)
+        && checkUnknownNodes(tree, throwEx);
+    }
+
+  protected:
+
+    /**
+     * @name Check function.
+     *
+     * @{
+     */
+    bool checkOrphanModels(bool throwEx) const throw (Exception);
+
+    bool checkOrphanNodes(const Tree& tree, bool throwEx) const throw (Exception);
+
+    bool checkUnknownNodes(const Tree& tree, bool throwEx) const throw (Exception);
+    /** @} */
+
+  pulic:
+    
+    /*
+     * Inheriting from SubstitutionProcess
+     */
+  
+    bool isCompatibleWith(const SiteContainer& data) const;
+
+    bool hasTransitionProbabilitiesParameter(const std::string& name) const;
+
+    /**
+     * @brief Get the number of states associated to this model set.
+     *
+     * @return The number of states, or 0 if no model is associated to
+     * the set.
+     */
+    
+    size_t getNumberOfStates() const
+    {
+      if (modelToNodes_.size()==0)
+        return 0;
+      else 
+        return getModel(modelToNodes_.begin()->first)->getNumberOfStates();
+    }
+
+
+    /**
      * @return The values of the root frequencies.
      */
   
@@ -337,101 +389,79 @@ namespace bpp
         return (pSubProColl_->getFrequencies(nRoot_))->getFrequencies();
     }
 
-    // /**
-    //  * @brief Get the parameters corresponding to the root frequencies.
-    //  *
-    //  * @return The parameters corresponding to the root frequencies.
-    //  */
-    // ParameterList getRootFrequenciesParameters() const
-    // {
-    //   if (stationarity_)
-    //     return ParameterList();
-    //   else
-    //     return rootFrequencies_->getParameters();
-    // }
-
-    // /**
-    //  * @brief Get the parameters corresponding attached to the nodes of the tree.
-    //  *
-    //  * That is, all the parameters without the root frequencies.
-    //  *
-    //  * @return The parameters attached to the nodes of the tree.
-    //  */
-    // ParameterList getNodeParameters() const
-    // {
-    //   ParameterList pl;
-    //   for (size_t i = stationarity_ ? 0 : rootFrequencies_->getNumberOfParameters();
-    //       i < getNumberOfParameters(); i++)
-    //   {
-    //     pl.addParameter(getParameter_(i));
-    //   }
-    //   return pl;
-    // }
 
     /**
-     * @brief Get the parameters attached to a Model.
+     * @brief Get the substitution model corresponding to a certain branch, site pattern, and model class.
      *
-     * @param modelIndex the index of the model in the set
-     *
-     * @return The parameters attached to the model.
+     * @param nodeId The id of the node.
+     * @param classIndex The model class index.
      */
 
-    //  ParameterList getModelParameters(size_t modelIndex) const;
-
-    const Alphabet* getAlphabet() const
+    const SubstitutionModel& getSubstitutionModel(int nodeId, size_t classIndex) const
     {
-      return pSubProColl_->getModel(modelToNodes_.begin()->first)->getAlphabet();
+      return *getModel(nodeToModel_[nodeId]);
     }
 
     /**
-     * @brief Check if the model set is fully specified for a given tree.
+     * @brief Get the transition probabilities corresponding to a certain branch, site pattern, and model class.
      *
-     * This include:
-     * - that each node as a model set up,
-     * - that each model in the set is attributed to a node,
-     * - that each parameter in the set actually correspond to a model.
-     * - all nodes ids in the set refer to an existing node in the tree.
-     *
-     * @param tree The tree to check.
-     * @param throwEx Tell if an exception have to be thrown in case of test not passed.
+     * @param nodeId The id of the node.
+     * @param classIndex The model class index.
      */
-    bool isFullySetUpFor(const Tree& tree, bool throwEx = true) const throw (Exception)
+    const Matrix<double>& getTransitionProbabilities(int nodeId, size_t classIndex) const;
+ 
+    /**
+     * @brief Get the first order derivatives of the transition probabilities according to time, corresponding to a certain branch, site pattern, and model class.
+     *
+     * @param nodeId The id of the node.
+     * @param classIndex The model class index.
+     */
+    const Matrix<double>& getTransitionProbabilitiesD1(int nodeId, size_t classIndex) const;
+ 
+    /**
+     * @brief Get the second order derivatives of the transition probabilities according to time, corresponding to a certain branch, site pattern, and model class.
+     *
+     * @param nodeId The id of the node.
+     * @param classIndex The model class index.
+     */
+    const Matrix<double>& getTransitionProbabilitiesD2(int nodeId, size_t classIndex) const;
+ 
+
+    const Matrix<double>& getGenerator(int nodeId, size_t classIndex) const
     {
-      return checkOrphanModels(throwEx)
-        && checkOrphanNodes(tree, throwEx)
-        && checkUnknownNodes(tree, throwEx);
+      return getSubstitutionModel(nodeId, classIndex).getGenerator();
     }
 
     /**
-     *  @brief void function for backward compatibilities. To be removed afterwards.
+     * This method is used to initialize likelihoods in reccursions.
+     * It typically sends 1 if i = state, 0 otherwise, where
+     * i is one of the possible states of the alphabet allowed in the model
+     * and state is the observed state in the considered sequence/site.
      *
-     */
-   
-    void matchParametersValues(ParameterList&) {}
-  
-  protected:
-    /**
-     //  * Set rootFrequencies_ from parameters.
-     //  */
-    // void updateRootFrequencies()
-    // {
-    //   if (!stationarity_)
-    //     rootFrequencies_->matchParametersValues(getParameters());
-    // }
-
-    /**
-     * @name Check function.
+     * The model used is the first one in the list of the models. 
      *
-     * @{
+     * @param i the index of the state in the model.
+     * @param state An observed state in the sequence/site.
+     * @return 1 or 0 depending if the two states are compatible.
+     * @throw BadIntException if states are not allowed in the associated alphabet.
+     * @see getStates();
+     * @see SubstitutionModel
      */
-    bool checkOrphanModels(bool throwEx) const throw (Exception);
 
-    //  bool checkOrphanParameters(bool throwEx) const throw (Exception);
+    double getInitValue(size_t i, int state) const throw (BadIntException)
+    {
+      if (modelToNodes_.size()==0)
+        throw Exception("SubstitutionProcessCollectionMember::getInitValue : no model associated");
+      else
+        return getModel(modelToNodes_.begin()->first)->getInitValue(i,state);
+    }
+    
+    double getProbabilityForModel(size_t classIndex) const {
+      if (classIndex >= getDistribution()->getNumberOfCategories())
+        throw IndexOutOfBoundsException("NonHomogeneousSubstitutionProcess::getProbabilityForModel.", classIndex, 0, getDistribution()->getNumberOfCategories());
+      return getDistribution()->getProbability(classIndex);
+    }
 
-    bool checkOrphanNodes(const Tree& tree, bool throwEx) const throw (Exception);
-
-    bool checkUnknownNodes(const Tree& tree, bool throwEx) const throw (Exception);
-    /** @} */
   };
 } // end of namespace bpp.
 

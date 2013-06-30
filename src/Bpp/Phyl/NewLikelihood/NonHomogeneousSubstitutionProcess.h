@@ -325,20 +325,6 @@ namespace bpp
     }
 
     /**
-     * @param name The name of the parameter to look for.
-     * @return The list of nodes with a model containing the specified parameter.
-     * @throw ParameterNotFoundException If no parameter with the specified name is found.
-     */
-    std::vector<int> getNodesWithParameter(const std::string& name) const;
-
-    /**
-     * @param name The name of the parameter to look for.
-     * @return The list of model indices containing the specified parameter.
-     * @throw ParameterNotFoundException If no parameter with the specified name is found.
-     */
-    std::vector<size_t> getModelsWithParameter(const std::string& name) const;
-
-    /**
      * @brief Add a new model to the set, and set relationships with nodes and params.
      *
      * @param model A pointer toward a susbstitution model, that will added to the set.
@@ -391,8 +377,6 @@ namespace bpp
      * @param modelIndex The index of the model in the set.
      */
   
-    //  void removeModel(size_t modelIndex);
-
     void listModelNames(std::ostream& out = std::cout) const;
 
     /**
@@ -452,7 +436,6 @@ namespace bpp
      * This include:
      * - that each node as a model set up,
      * - that each model in the set is attributed to a node,
-     * - that each parameter in the set actually correspond to a model.
      * - all nodes ids in the set refer to an existing node in the tree.
      *
      * @param tree The tree to check.
@@ -488,6 +471,7 @@ namespace bpp
     
     bool checkUnknownNodes(const Tree& tree, bool throwEx) const;
 
+  public:
 
     /*
      * Inheriting from SubstitutionProcess
@@ -496,8 +480,6 @@ namespace bpp
     bool isCompatibleWith(const SiteContainer& data) const;
 
     bool hasTransitionProbabilitiesParameter(const std::string& name) const;
-
-    //ParameterList getTransitionProbabilitiesParameters() const;
 
     /**
      * @brief Get the number of states associated to this model set.
@@ -594,7 +576,7 @@ namespace bpp
     
     double getProbabilityForModel(size_t classIndex) const {
       if (classIndex >= rDist_->getNumberOfCategories())
-        throw IndexOutOfBoundsException("RateAcrossSitesSubstitutionProcess::getProbabilityForModel.", classIndex, 0, rDist_->getNumberOfCategories());
+        throw IndexOutOfBoundsException("NonHomogeneousSubstitutionProcess::getProbabilityForModel.", classIndex, 0, rDist_->getNumberOfCategories());
       return rDist_->getProbability(classIndex);
     }
 

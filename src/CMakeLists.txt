@@ -243,8 +243,8 @@ SET(H_FILES
   Bpp/Phyl/NewLikelihood/RTreeLikelihood.h
   Bpp/Phyl/NewLikelihood/SimpleSubstitutionProcess.h
   Bpp/Phyl/NewLikelihood/SitePartition.h
-  # Bpp/Phyl/NewLikelihood/SubstitutionProcessCollection.h
-  # Bpp/Phyl/NewLikelihood/SubstitutionProcessCollectionMember.h
+  Bpp/Phyl/NewLikelihood/SubstitutionProcessCollection.h
+  Bpp/Phyl/NewLikelihood/SubstitutionProcessCollectionMember.h
   Bpp/Phyl/NewLikelihood/SubstitutionProcess.h
   Bpp/Phyl/NewLikelihood/TreeLikelihoodData.h
   Bpp/Phyl/NewLikelihood/TreeLikelihood.h

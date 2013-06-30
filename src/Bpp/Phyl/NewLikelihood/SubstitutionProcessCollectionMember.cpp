@@ -51,7 +51,7 @@ SubstitutionModelSet::SubstitutionModelSet(const SubstitutionModelSet& set) :
   nodeToModel_(set.nodeToModel_),
   modelToNodes_(set.modelToNodes_),
   nTree_(set.nTree_),
-  nRate_(set.nRate_),
+  nDist_(set.nDist_),
   stationarity_(set.stationarity_),
   nRoot_(set.nRoot_)
 {
@@ -63,7 +63,7 @@ SubstitutionModelSet& SubstitutionModelSet::operator=(const SubstitutionModelSet
   nodeToModel_ = set.nodeToModel_;
   modelToNodes_ = set.modelToNodes_;
   nTree_ = set.nTree_;
-  nRate_ = set.nRate_;
+  nDist_ = set.nDist_;
   stationarity_ = set.stationarity_;
   nRoot_ = set.nRoot_;
 
@@ -99,12 +99,12 @@ void SubstitutionModelSet::addModel(unsigned int numModel, const std::vector<int
   // Associate this model to specified nodes:
   for (size_t i = 0; i < nodesId.size(); i++)
     {
-      nodeToModel_[nodesId[i]] = thisModelIndex;
-      modelToNodes_[thisModelIndex].push_back(nodesId[i]);
+      nodeToModel_[nodesId[i]] = numModel;
+      modelToNodes_[numModel].push_back(nodesId[i]);
     }
 }
 
-void SubstitutionModelSet::addRootFrequencies(unsigned int numFreq)
+void SubstitutionModelSet::setRootFrequencies(unsigned int numFreq)
 {
   FrequenciesSet* nfreq=pSubProColl_->getFrequencies(numFreq);
   if (modelToNodes_.size()>0){
@@ -125,59 +125,12 @@ void SubstitutionModelSet::setTree(unsigned int numTree)
   nTree_=numTree;
 }
 
-void SubstitutionModelSet::setRate(unsigned int numRate)
+void SubstitutionModelSet::setDistribution(unsigned int numDist)
 {
-  nRate_=numRate;
+  nDist_=numDist;
 }
 
-
-
-// void SubstitutionModelSet::removeModel(size_t modelIndex) throw (Exception)
-// {
-//   modelSet_.erase(modelSet_.begin() + modelIndex);
-  
-//   // Erase all parameter references to this model and translate other indices...
-
-//   ParameterList pl=getParameters();
-
-//   for (size_t i = pl.size(); i>0; i--)
-//     {
-//       string pn=pl[i-1].getName();
-
-//       size_t pu=pn.rfind("_");
-//       int nm=TextTools::toInt(pn.substr(pu+1,string::npos));
-//       if (nm==(int)modelIndex+1){
-//         vector<string> alpn=getAlias(pn);
-//         for (unsigned j=0; j<alpn.size(); j++)
-//           try {
-//             unaliasParameters(alpn[j],pn);
-//           }
-//           catch (Exception& e)
-//             {
-//               continue;
-//             }
-//         deleteParameter_(i-1);
-//       }
-//     }
-
-//   modelParameters_[modelIndex].reset();
-// }
-
-// void SubstitutionModelSet::listModelNames(std::ostream& out) const
-// {
-//   for (size_t i = 0; i < modelSet_.size(); i++)
-//     {
-//       out << "Model " << i + 1 << ": " << modelSet_[i]->getName() << "\t attached to nodes ";
-//       for (size_t j = 0; j < modelToNodes_[i].size(); j++)
-//         {
-//           out << modelToNodes_[i][j];
-//         }
-//       out << endl;
-//     }
-// }
-
-
-bool SubstitutionModelSet::checkOrphanNodes(const Tree& tree, bool throwEx) const
+bool SubstitutionProcessCollectionMember::checkOrphanNodes(const Tree& tree, bool throwEx) const
   throw (Exception)
 {
   vector<int> ids = tree.getNodesId();
@@ -186,14 +139,14 @@ bool SubstitutionModelSet::checkOrphanNodes(const Tree& tree, bool throwEx) cons
     {
       if (ids[i] != rootId && nodeToModel_.find(ids[i]) == nodeToModel_.end())
         {
-          if (throwEx) throw Exception("SubstitutionModelSet::checkOrphanNodes(). Node '" + TextTools::toString(ids[i]) + "' in tree has no model associated.");
+          if (throwEx) throw Exception("SubstitutionProcessCollectionMember::checkOrphanNodes(). Node '" + TextTools::toString(ids[i]) + "' in tree has no model associated.");
           return false;
         }
     }
   return true;
 }
 
-bool SubstitutionModelSet::checkUnknownNodes(const Tree& tree, bool throwEx) const
+bool SubstitutionProcessCollectionMember::checkUnknownNodes(const Tree& tree, bool throwEx) const
   throw (Exception)
 {
   vector<int> ids = tree.getNodesId();
@@ -206,7 +159,7 @@ bool SubstitutionModelSet::checkUnknownNodes(const Tree& tree, bool throwEx) con
           id = modelToNodes_[i][j];
           if (id == rootId || !VectorTools::contains(ids, id))
             {
-              if (throwEx) throw Exception("SubstitutionModelSet::checkUnknownNodes(). Node '" + TextTools::toString(id) + "' is not found in tree or is the root node.");
+              if (throwEx) throw Exception("SubstitutionProcessCollectionMember::checkUnknownNodes(). Node '" + TextTools::toString(id) + "' is not found in tree or is the root node.");
               return false;
             }
         }
@@ -214,7 +167,7 @@ bool SubstitutionModelSet::checkUnknownNodes(const Tree& tree, bool throwEx) con
   return true;
 }
 
-bool SubstitutionModelSet::hasMixedSubstitutionModel() const
+bool SubstitutionProcessCollectionMember::hasMixedSubstitutionModel() const
 {
   std::map<size_t, std::vector<int> >::const_iterator it;
   for (it= modelToNodes_.begin(); it != modelToNodes_.end() ; it++)
@@ -225,3 +178,81 @@ bool SubstitutionModelSet::hasMixedSubstitutionModel() const
   return false;
 }
 
+/*
+ * Inheriting from SubstitutionProcess
+ */
+  
+bool SubstitutionProcessCollectionMember::isCompatibleWith(const SiteContainer& data) const
+{
+  if (modelToNodes_.size() > 0) 
+    return data.getAlphabet()->getAlphabetType() == getModel(modelToNodes_.begin()->first)->getAlphabet()->getAlphabetType();
+  else
+    return true;
+}
+
+
+bool SubstitutionProcessCollectionMember::hasTransitionProbabilitiesParameter(const std::string& name) const
+{
+  size_t pos=name.rfind("_");
+  string pref=name.substr(0,pos);
+  if (pos==string::npos)
+    return false;
+  unsigned int vpos;
+  try {
+    vpos=TextTools::toInt(name.substr(pos));
+  }
+  catch (Exception& e)
+    return false;
+  
+  if (vpos <= modelSet_.size() && vpos>0)
+    {
+      modelParameters_[vpos-1].modelSet_[vpos-1]->getParameters().hasParameter(name):
+    }
+  else
+    return false;
+    
+}
+
+const Matrix<double>& SubstitutionProcessCollectionMember::getTransitionProbabilities(int nodeId, size_t classIndex) const
+{
+  const SubstitutionModel& SM=getSubstitutionModel(nodeId, classIndex);
+  size_t i = getModelIndex_(nodeId, classIndex);
+
+  if (!computeProbability_[i]) {
+    computeProbability_[i] = true; //We record that we did this computation.
+    //The transition matrix was never computed before. We therefore have to compute it first:
+    double l = pTree_->getBranchLengthParameter(nodeId).getValue();
+    double r = rDist_->getCategory(classIndex);
+    probabilities_[i] = SM.getPij_t(l * r);
+  }
+  return probabilities_[i];
+}
+
+const Matrix<double>& SubstitutionProcessCollectionMember::getTransitionProbabilitiesD1(int nodeId, size_t classIndex) const
+{
+  const SubstitutionModel& SM=getSubstitutionModel(nodeId, classIndex);
+  size_t i = getModelIndex_(nodeId, classIndex);
+
+  if (!computeProbabilityD1_[i]) {
+    computeProbabilityD1_[i] = true; //We record that we did this computation.
+    //The transition matrix was never computed before. We therefore have to compute it first:
+    double l = pTree_->getBranchLengthParameter(nodeId).getValue();
+    double r = rDist_->getCategory(classIndex);
+    probabilitiesD1_[i] = SM.getdPij_dt(l * r);
+  }
+  return probabilitiesD1_[i];
+}
+
+const Matrix<double>& SubstitutionProcessCollectionMember::getTransitionProbabilitiesD2(int nodeId, size_t classIndex) const
+{
+  const SubstitutionModel& SM=getSubstitutionModel(nodeId, classIndex);
+  size_t i = getModelIndex_(nodeId, classIndex);
+  if (!computeProbabilityD2_[i]) {
+    computeProbabilityD2_[i] = true; //We record that we did this computation.
+    //The transition matrix was never computed before. We therefore have to compute it first:
+    double l = pTree_->getBranchLengthParameter(nodeId).getValue();
+    double r = rDist_->getCategory(classIndex);
+    probabilitiesD2_[i] = SM.getd2Pij_dt2(l * r);
+  }
+  return probabilitiesD2_[i];
+}
