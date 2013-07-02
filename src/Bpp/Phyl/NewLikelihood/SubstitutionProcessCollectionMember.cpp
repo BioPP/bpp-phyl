@@ -1,8 +1,7 @@
 //
-// File: SubstitutionModelSet.cpp
-// Created by: Bastien Boussau
-//             Julien Dutheil
-// Created on: Tue Aug 21 2007
+// File: SubstitutionProcessCollectionMember.cpp
+// Created by: Laurent Guéguen
+// Created on: lundi 1 juillet 2013, à 14h 51
 //
 
 /*
@@ -38,7 +37,7 @@
   knowledge of the CeCILL license and that you accept its terms.
 */
 
-#include "SubstitutionModelSet.h"
+#include "SubstitutionProcessCollectionMember.h"
 #include "MixedSubstitutionModel.h"
 
 #include <Bpp/Utils/MapTools.h>
@@ -46,8 +45,8 @@
 using namespace bpp;
 using namespace std;
 
-SubstitutionModelSet::SubstitutionModelSet(const SubstitutionModelSet& set) :
-  pSubProColl_(set.pSubProColl),
+SubstitutionProcessCollectionMember::SubstitutionProcessCollectionMember(const SubstitutionProcessCollectionMember& set) :
+  pSubProColl_(set.pSubProColl_),
   nodeToModel_(set.nodeToModel_),
   modelToNodes_(set.modelToNodes_),
   nTree_(set.nTree_),
@@ -57,9 +56,9 @@ SubstitutionModelSet::SubstitutionModelSet(const SubstitutionModelSet& set) :
 {
 }
 
-SubstitutionModelSet& SubstitutionModelSet::operator=(const SubstitutionModelSet& set)
+SubstitutionProcessCollectionMember& SubstitutionProcessCollectionMember::operator=(const SubstitutionProcessCollectionMember& set)
 {
-  pSubProColl_ = set.pSubProColl;
+  pSubProColl_ = set.pSubProColl_;
   nodeToModel_ = set.nodeToModel_;
   modelToNodes_ = set.modelToNodes_;
   nTree_ = set.nTree_;
@@ -70,30 +69,30 @@ SubstitutionModelSet& SubstitutionModelSet::operator=(const SubstitutionModelSet
   return *this;
 }
 
-void SubstitutionModelSet::clear()
+void SubstitutionProcessCollectionMember::clear()
 {
   nodeToModel_.clear();
   modelToNodes_.clear();
   stationarity_=true;
 }
 
-void SubstitutionModelSet::addModel(unsigned int numModel, const std::vector<int>& nodesId)
+void SubstitutionProcessCollectionMember::addModel(unsigned int numModel, const std::vector<int>& nodesId)
 {
   SubstitutionModel* nmod=pSubProColl_->getModel(numModel);
 
   if (modelToNodes_.size()>0){
     SubstitutionModel* pmodi=pSubProColl_->getModel(modelToNodes_.begin()->first);
     if (nmod->getAlphabet()->getAlphabetType() !=  pmodi->getAlphabet()->getAlphabetType())
-      throw Exception("SubstitutionModelSet::addModel. A Substitution Model cannot be added to a Model Set if it does not have the same alphabet.");
+      throw Exception("SubstitutionProcessCollectionMember::addModel. A Substitution Model cannot be added to a Model Set if it does not have the same alphabet.");
     if (nmod->getNumberOfStates() != pmodi->getNumberOfStates())
-      throw Exception("SubstitutionModelSet::addModel. A Substitution Model cannot be added to a Model Set if it does not have the same number of states.");
+      throw Exception("SubstitutionProcessCollectionMember::addModel. A Substitution Model cannot be added to a Model Set if it does not have the same number of states.");
   }
   else if (!stationarity_) {
     FrequenciesSet* pfreq=pSubProColl_->getFrequencies(nRoot_);
     if (pfreq->getAlphabet()->getAlphabetType() != nmod->getAlphabet()->getAlphabetType())
-      throw Exception("SubstitutionModelSet::addModel. A Substitution Model cannot be added to a Model Set if it does not have the same alphabet as the root frequencies.");
+      throw Exception("SubstitutionProcessCollectionMember::addModel. A Substitution Model cannot be added to a Model Set if it does not have the same alphabet as the root frequencies.");
     if (pfreq->getFrequencies->size() != nmod->getNumberOfStates())
-      throw Exception("SubstitutionModelSet::addModel. A Substitution Model cannot be added to a Model Set if it does not have the same number of states as the root frequencies.");
+      throw Exception("SubstitutionProcessCollectionMember::addModel. A Substitution Model cannot be added to a Model Set if it does not have the same number of states as the root frequencies.");
   }
   
   // Associate this model to specified nodes:
@@ -104,28 +103,28 @@ void SubstitutionModelSet::addModel(unsigned int numModel, const std::vector<int
     }
 }
 
-void SubstitutionModelSet::setRootFrequencies(unsigned int numFreq)
+void SubstitutionProcessCollectionMember::setRootFrequencies(unsigned int numFreq)
 {
   FrequenciesSet* nfreq=pSubProColl_->getFrequencies(numFreq);
   if (modelToNodes_.size()>0){
     SubstitutionModel* pmodi=pSubProColl_->getModel(modelToNodes_.begin()->first);
 
     if (pfreq->getAlphabet()->getAlphabetType() != pmodi->getAlphabet()->getAlphabetType())
-      throw Exception("SubstitutionModelSet::addRootFrequencies. A Frequencies Set cannot be added to a Model Set if it does not have the same alphabet as the models.");
+      throw Exception("SubstitutionProcessCollectionMember::addRootFrequencies. A Frequencies Set cannot be added to a Model Set if it does not have the same alphabet as the models.");
     if (pfreq->getFrequencies->size() != pmodi->getNumberOfStates())
-      throw Exception("SubstitutionModelSet::addRootFrequencies. A Frequencies Set cannot be added to a Model Set if it does not have the same number of states as the models.");
+      throw Exception("SubstitutionProcessCollectionMember::addRootFrequencies. A Frequencies Set cannot be added to a Model Set if it does not have the same number of states as the models.");
   }
   
   stationarity_=false;
   nRoot_=numFreq;
 }
 
-void SubstitutionModelSet::setTree(unsigned int numTree)
+void SubstitutionProcessCollectionMember::setTree(unsigned int numTree)
 {
   nTree_=numTree;
 }
 
-void SubstitutionModelSet::setDistribution(unsigned int numDist)
+void SubstitutionProcessCollectionMember::setDistribution(unsigned int numDist)
 {
   nDist_=numDist;
 }
@@ -194,7 +193,6 @@ bool SubstitutionProcessCollectionMember::isCompatibleWith(const SiteContainer& 
 bool SubstitutionProcessCollectionMember::hasTransitionProbabilitiesParameter(const std::string& name) const
 {
   size_t pos=name.rfind("_");
-  string pref=name.substr(0,pos);
   if (pos==string::npos)
     return false;
   unsigned int vpos;
@@ -203,14 +201,13 @@ bool SubstitutionProcessCollectionMember::hasTransitionProbabilitiesParameter(co
   }
   catch (Exception& e)
     return false;
-  
-  if (vpos <= modelSet_.size() && vpos>0)
-    {
-      modelParameters_[vpos-1].modelSet_[vpos-1]->getParameters().hasParameter(name):
-    }
-  else
+
+  if (modelToNodes_.find(vpos) == modelToNodes_.end())
     return false;
-    
+
+  string pref=name.substr(0,pos);
+  
+  return pSubProColl_->getModel(vpos)->getParameters().hasParameter(pref);
 }
 
 const Matrix<double>& SubstitutionProcessCollectionMember::getTransitionProbabilities(int nodeId, size_t classIndex) const

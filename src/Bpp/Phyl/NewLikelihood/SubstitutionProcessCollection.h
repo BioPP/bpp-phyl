@@ -113,6 +113,13 @@ private:
    */
 
   std::vector<std::auto_ptr<SubstitutionProcessCollectionMember > > vSubProcess_;
+
+private:
+  
+  /*
+   *
+   *
+   */
   
 public:
   /**
