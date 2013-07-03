@@ -333,6 +333,7 @@ FrequenciesSet* PhylogeneticsApplicationTools::getFrequenciesSet(
 
 SubstitutionModelSet* PhylogeneticsApplicationTools::getSubstitutionModelSet(
   const Alphabet* alphabet,
+  const GeneticCode* gCode,
   const SiteContainer* data,
   std::map<std::string, std::string>& params,
   const std::string& suffix,
@@ -358,7 +359,7 @@ SubstitutionModelSet* PhylogeneticsApplicationTools::getSubstitutionModelSet(
 
   SubstitutionModelSet* modelSet, * modelSet1 = 0;
   modelSet1 = new SubstitutionModelSet(alphabet);
-  setSubstitutionModelSet(*modelSet1, alphabet, data, params, suffix, suffixIsOptional, verbose);
+  setSubstitutionModelSet(*modelSet1, alphabet, gCode, data, params, suffix, suffixIsOptional, verbose);
 
   if (modelSet1->hasMixedSubstitutionModel())
   {
@@ -376,6 +377,7 @@ SubstitutionModelSet* PhylogeneticsApplicationTools::getSubstitutionModelSet(
 void PhylogeneticsApplicationTools::setSubstitutionModelSet(
   SubstitutionModelSet& modelSet,
   const Alphabet* alphabet,
+  const GeneticCode* gCode,
   const SiteContainer* data,
   map<string, string>& params,
   const string& suffix,
@@ -399,9 +401,12 @@ void PhylogeneticsApplicationTools::setSubstitutionModelSet(
 
   vector<double> rateFreqs;
   string tmpDesc;
-  if (AlphabetTools::isCodonAlphabet(alphabet))
+  if (AlphabetTools::isCodonAlphabet(alphabet)) {
+    if (!gCode)
+      throw Exception("PhylogeneticsApplicationTools::setSubstitutionModelSet(): a GeneticCode instance is required for instanciating a codon model.");
+    bIO.setGeneticCode(gCode);
     tmpDesc = ApplicationTools::getStringParameter("model1", params, "CodonRate(model=JC69)", suffix, suffixIsOptional, false);
-  else if (AlphabetTools::isWordAlphabet(alphabet))
+  } else if (AlphabetTools::isWordAlphabet(alphabet))
     tmpDesc = ApplicationTools::getStringParameter("model1", params, "Word(model=JC69)", suffix, suffixIsOptional, false);
   else
     tmpDesc = ApplicationTools::getStringParameter("model1", params, "JC69", suffix, suffixIsOptional, false);

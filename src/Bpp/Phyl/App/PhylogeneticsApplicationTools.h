@@ -245,12 +245,13 @@ namespace bpp
      * methods.
      */
      static SubstitutionModelSet* getSubstitutionModelSet(
-                                        const Alphabet* alphabet,
-                                        const SiteContainer* data, 
-                                        std::map<std::string, std::string>& params,
-                                        const std::string& suffix = "",
-                                        bool suffixIsOptional = true,
-                                        bool verbose = true);    
+         const Alphabet* alphabet,
+         const GeneticCode* gcode,
+         const SiteContainer* data, 
+         std::map<std::string, std::string>& params,
+         const std::string& suffix = "",
+         bool suffixIsOptional = true,
+         bool verbose = true);    
 
      /**
      * @brief Sets a SubstitutionModelSet object according to options.
@@ -294,6 +295,8 @@ namespace bpp
      *
      * @param modelSet The modified SubstitutionModelSet object according to options specified.
      * @param alphabet The alpabet to use in all models.
+     * @param gCode    The genetic code to use (only for codon models, otherwise can be set to 0).
+     *                 If set to NULL and a codon model is requested, an Exception will be thrown.
      * @param data     A pointer toward the SiteContainer for which the substitution model is designed.
      *                  The alphabet associated to the data must be of the same type as the one specified for the model.
      *                 May be equal to NULL, but in this cas use_observed_freq option will be unavailable.
@@ -304,13 +307,14 @@ namespace bpp
      * @throw Exception if an error occured.
      */
     static void setSubstitutionModelSet(
-                                        SubstitutionModelSet& modelSet,
-                                        const Alphabet* alphabet,
-                                        const SiteContainer* data, 
-                                        std::map<std::string, std::string>& params,
-                                        const std::string& suffix = "",
-                                        bool suffixIsOptional = true,
-                                        bool verbose = true);
+        SubstitutionModelSet& modelSet,
+        const Alphabet* alphabet,
+        const GeneticCode* gcode,
+        const SiteContainer* data, 
+        std::map<std::string, std::string>& params,
+        const std::string& suffix = "",
+        bool suffixIsOptional = true,
+        bool verbose = true);
     
     /**
      * @brief Complete a MixedSubstitutionModelSet object according to
@@ -374,15 +378,14 @@ namespace bpp
      * @param verbose Print some info to the 'message' output stream.
      * @throw Exception if an error occured.
      */
-    
     static void completeMixedSubstitutionModelSet(
-                                             MixedSubstitutionModelSet& mixedModelSet,
-                                             const Alphabet* alphabet,
-                                             const SiteContainer* data, 
-                                             std::map<std::string, std::string>& params,
-                                             const std::string& suffix = "",
-                                             bool suffixIsOptional = true,
-                                             bool verbose = true);
+        MixedSubstitutionModelSet& mixedModelSet,
+        const Alphabet* alphabet,
+        const SiteContainer* data, 
+        std::map<std::string, std::string>& params,
+        const std::string& suffix = "",
+        bool suffixIsOptional = true,
+        bool verbose = true);
 
     /**
      * @brief Build a multi-dimension distribution as a
@@ -401,9 +404,9 @@ namespace bpp
      */
     
     static MultipleDiscreteDistribution* getMultipleDistributionDefaultInstance(
-                                                                        const std::string& distDescription,
-                                                                        std::map<std::string, std::string>& unparsedParameterValues,
-                                                                        bool verbose = true);
+        const std::string& distDescription,
+        std::map<std::string, std::string>& unparsedParameterValues,
+        bool verbose = true);
 
     /**
      * @brief Build a DiscreteDistribution object according to options.
