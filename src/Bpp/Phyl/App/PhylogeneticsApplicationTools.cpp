@@ -282,6 +282,7 @@ void PhylogeneticsApplicationTools::setSubstitutionModelParametersInitialValuesW
 
 FrequenciesSet* PhylogeneticsApplicationTools::getRootFrequenciesSet(
   const Alphabet* alphabet,
+  const GeneticCode* gCode,
   const SiteContainer* data,
   std::map<std::string, std::string>& params,
   const std::vector<double>& rateFreqs,
@@ -296,7 +297,7 @@ FrequenciesSet* PhylogeneticsApplicationTools::getRootFrequenciesSet(
   }
   else
   {
-    FrequenciesSet* freq = getFrequenciesSet(alphabet, freqDescription, data, rateFreqs, verbose);
+    FrequenciesSet* freq = getFrequenciesSet(alphabet, gCode, freqDescription, data, rateFreqs, verbose);
     if (verbose)
       ApplicationTools::displayResult("Root frequencies ", freq->getName());
     return freq;
@@ -307,6 +308,7 @@ FrequenciesSet* PhylogeneticsApplicationTools::getRootFrequenciesSet(
 
 FrequenciesSet* PhylogeneticsApplicationTools::getFrequenciesSet(
   const Alphabet* alphabet,
+  const GeneticCode* gCode,
   const std::string& freqDescription,
   const SiteContainer* data,
   const std::vector<double>& rateFreqs,
@@ -314,8 +316,13 @@ FrequenciesSet* PhylogeneticsApplicationTools::getFrequenciesSet(
 {
   map<string, string> unparsedParameterValues;
   BppOFrequenciesSetFormat bIO(BppOFrequenciesSetFormat::ALL, verbose);
+  if (AlphabetTools::isCodonAlphabet(alphabet)) {
+    if (!gCode)
+      throw Exception("PhylogeneticsApplicationTools::getFrequenciesSet(): a GeneticCode instance is required for instanciating a codon frequencies set.");
+    bIO.setGeneticCode(gCode);
+  }
   auto_ptr<FrequenciesSet> pFS(bIO.read(alphabet, freqDescription, data, true));
-
+  
   // /////// To be changed for input normalization
   if (rateFreqs.size() > 0)
   {
@@ -428,7 +435,7 @@ void PhylogeneticsApplicationTools::setSubstitutionModelSet(
   FrequenciesSet* rootFrequencies = 0;
   if (!stationarity)
   {
-    rootFrequencies = getRootFrequenciesSet(alphabet, data, params, rateFreqs, suffix, suffixIsOptional, verbose);
+    rootFrequencies = getRootFrequenciesSet(alphabet, gCode, data, params, rateFreqs, suffix, suffixIsOptional, verbose);
     stationarity = !rootFrequencies;
     string freqDescription = ApplicationTools::getStringParameter("nonhomogeneous.root_freq", params, "", suffix, suffixIsOptional);
     if (freqDescription.substr(0, 10) == "MVAprotein")

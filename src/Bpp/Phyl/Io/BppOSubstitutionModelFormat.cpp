@@ -780,10 +780,9 @@ SubstitutionModel* BppOSubstitutionModelFormat::readWord_(const Alphabet* alphab
   {
     const CodonAlphabet* pCA = dynamic_cast<const CodonAlphabet*>(pWA);
     if (pCA == 0)
-      throw Exception("Non codon Alphabet fo model" + modelName + " model.");
+      throw Exception("Non codon Alphabet for model" + modelName + ".");
 
     auto_ptr< AlphabetIndex2 > pai2;
-    auto_ptr<GeneticCode> pgc;
     auto_ptr<FrequenciesSet> pFS;
 
     if ((dynamic_cast<NucleotideSubstitutionModel*>(v_pSM[0]) == 0) ||
@@ -791,19 +790,18 @@ SubstitutionModel* BppOSubstitutionModelFormat::readWord_(const Alphabet* alphab
          (dynamic_cast<NucleotideSubstitutionModel*>(v_pSM[1]) == 0 || dynamic_cast<NucleotideSubstitutionModel*>(v_pSM[2]) == 0)))
       throw Exception("Non simple NucleotideSubstitutionModel imbedded in " + modelName + " model.");
 
-
-    if (modelName.find("Dist") != string::npos)
-    {
-      if (args.find("genetic_code") == args.end())
-        args["genetic_code"] = pCA->getAlphabetType();
-
-      pgc.reset(SequenceApplicationTools::getGeneticCode(dynamic_cast<const NucleicAlphabet*>(pCA->getNAlphabet(0)), args["genetic_code"]));
-      if (pgc->getSourceAlphabet()->getAlphabetType() != pCA->getAlphabetType())
-        throw Exception("Mismatch between genetic code and codon alphabet");
-
-      pai2.reset((args.find("aadistance") == args.end()) ? 0 : SequenceApplicationTools::getAlphabetIndex2(&AlphabetTools::PROTEIN_ALPHABET, args["aadistance"]));
+    if (args.find("genetic_code") != args.end()) {
+      ApplicationTools::displayWarning("'genetic_code' argument is no longer supported inside model description, and has been supersided by a global 'genetic_code' option.");
+      throw Exception("BppOSubstitutionModelFormat::read. Deprecated 'genetic_code' argument.");
     }
 
+    if (!geneticCode_)
+      throw Exception("BppOSubstitutionModelFormat::readWord_(). No genetic code specified! Consider using 'setGeneticCode'.");
+
+    
+    if (modelName.find("Dist") != string::npos)
+      pai2.reset((args.find("aadistance") == args.end()) ? 0 : SequenceApplicationTools::getAlphabetIndex2(&AlphabetTools::PROTEIN_ALPHABET, args["aadistance"]));
+    
 
     if (modelName.find("Freq") != string::npos)
     {
@@ -811,6 +809,7 @@ SubstitutionModel* BppOSubstitutionModelFormat::readWord_(const Alphabet* alphab
         throw Exception("Missing equilibrium frequencies.");
 
       BppOFrequenciesSetFormat bIOFreq(alphabetCode_, verbose_);
+      bIOFreq.setGeneticCode(geneticCode_); //This uses the same instance as the one that will be used by the model
       pFS.reset(bIOFreq.read(pCA, args["frequencies"], data, false));
       map<string, string> unparsedParameterValuesNested(bIOFreq.getUnparsedArguments());
 
@@ -837,10 +836,10 @@ SubstitutionModel* BppOSubstitutionModelFormat::readWord_(const Alphabet* alphab
     else if (modelName == "CodonRate")
       model.reset((v_nestedModelDescription.size() != 3)
                   ? new CodonRateSubstitutionModel(
-                    pgc.release(),
+                    geneticCode_,
                     dynamic_cast<NucleotideSubstitutionModel*>(v_pSM[0]))
                   : new CodonRateSubstitutionModel(
-                    pgc.release(),
+                    geneticCode_,
                     dynamic_cast<NucleotideSubstitutionModel*>(v_pSM[0]),
                     dynamic_cast<NucleotideSubstitutionModel*>(v_pSM[1]),
                     dynamic_cast<NucleotideSubstitutionModel*>(v_pSM[2])));
@@ -849,10 +848,10 @@ SubstitutionModel* BppOSubstitutionModelFormat::readWord_(const Alphabet* alphab
     else if (modelName == "CodonDist")
     {
       if (v_nestedModelDescription.size() != 3)
-        model.reset(new CodonDistanceSubstitutionModel(pgc.release(), dynamic_cast<NucleotideSubstitutionModel*>(v_pSM[0]), pai2.release()));
+        model.reset(new CodonDistanceSubstitutionModel(geneticCode_, dynamic_cast<NucleotideSubstitutionModel*>(v_pSM[0]), pai2.release()));
       else
         model.reset(new CodonDistanceSubstitutionModel(
-                      pgc.release(),
+                      geneticCode_,
                       dynamic_cast<NucleotideSubstitutionModel*>(v_pSM[0]),
                       dynamic_cast<NucleotideSubstitutionModel*>(v_pSM[1]),
                       dynamic_cast<NucleotideSubstitutionModel*>(v_pSM[2]), pai2.release()));
@@ -863,13 +862,13 @@ SubstitutionModel* BppOSubstitutionModelFormat::readWord_(const Alphabet* alphab
       if (v_nestedModelDescription.size() != 3)
         model.reset(
             new CodonRateFrequenciesSubstitutionModel(
-              pgc.release(),
+              geneticCode_,
               dynamic_cast<NucleotideSubstitutionModel*>(v_pSM[0]),
               pFS.release()));
       else
         model.reset(
             new CodonRateFrequenciesSubstitutionModel(
-              pgc.release(),
+              geneticCode_,
               dynamic_cast<NucleotideSubstitutionModel*>(v_pSM[0]),
               dynamic_cast<NucleotideSubstitutionModel*>(v_pSM[1]),
               dynamic_cast<NucleotideSubstitutionModel*>(v_pSM[2]),
@@ -879,13 +878,13 @@ SubstitutionModel* BppOSubstitutionModelFormat::readWord_(const Alphabet* alphab
     else if (modelName == "CodonDistFreq")
     {
       if (v_nestedModelDescription.size() != 3)
-        model.reset(new CodonDistanceFrequenciesSubstitutionModel(pgc.release(),
+        model.reset(new CodonDistanceFrequenciesSubstitutionModel(geneticCode_,
                                                                   dynamic_cast<NucleotideSubstitutionModel*>(v_pSM[0]),
                                                                   pFS.release(),
                                                                   pai2.release()));
       else
         model.reset(new CodonDistanceFrequenciesSubstitutionModel(
-                      pgc.release(),
+                      geneticCode_,
                       dynamic_cast<NucleotideSubstitutionModel*>(v_pSM[0]),
                       dynamic_cast<NucleotideSubstitutionModel*>(v_pSM[1]),
                       dynamic_cast<NucleotideSubstitutionModel*>(v_pSM[2]),
@@ -896,13 +895,13 @@ SubstitutionModel* BppOSubstitutionModelFormat::readWord_(const Alphabet* alphab
     else if (modelName == "CodonDistPhasFreq")
     {
       if (v_nestedModelDescription.size() != 3)
-        model.reset(new CodonDistancePhaseFrequenciesSubstitutionModel(pgc.release(),
+        model.reset(new CodonDistancePhaseFrequenciesSubstitutionModel(geneticCode_,
                                                                        dynamic_cast<NucleotideSubstitutionModel*>(v_pSM[0]),
                                                                        pFS.release(),
                                                                        pai2.release()));
       else
         model.reset(new CodonDistancePhaseFrequenciesSubstitutionModel(
-                      pgc.release(),
+                      geneticCode_,
                       dynamic_cast<NucleotideSubstitutionModel*>(v_pSM[0]),
                       dynamic_cast<NucleotideSubstitutionModel*>(v_pSM[1]),
                       dynamic_cast<NucleotideSubstitutionModel*>(v_pSM[2]),
@@ -925,7 +924,7 @@ SubstitutionModel* BppOSubstitutionModelFormat::readWord_(const Alphabet* alphab
 
       if (v_nestedModelDescription.size() != 3)
       {
-        model.reset(new CodonDistanceFitnessPhaseFrequenciesSubstitutionModel(pgc.release(),
+        model.reset(new CodonDistanceFitnessPhaseFrequenciesSubstitutionModel(geneticCode_,
                                                                               dynamic_cast<NucleotideSubstitutionModel*>(v_pSM[0]),
                                                                               pFit.release(),
                                                                               pFS.release(),
@@ -933,7 +932,7 @@ SubstitutionModel* BppOSubstitutionModelFormat::readWord_(const Alphabet* alphab
       }
       else
         model.reset(new CodonDistanceFitnessPhaseFrequenciesSubstitutionModel(
-                      pgc.release(),
+                      geneticCode_,
                       dynamic_cast<NucleotideSubstitutionModel*>(v_pSM[0]),
                       dynamic_cast<NucleotideSubstitutionModel*>(v_pSM[1]),
                       dynamic_cast<NucleotideSubstitutionModel*>(v_pSM[2]),

@@ -194,6 +194,8 @@ namespace bpp
      * @brief Get A FrequenciesSet object for root frequencies (NH models) according to options.
      *
      * @param alphabet The alpabet to use.
+     * @param gCode    The genetic code to use (only for codon alphabets, otherwise can be set to 0).
+     *                 If set to NULL and a codon frequencies set is requested, an Exception will be thrown.
      * @param data      A pointer toward the SiteContainer for which the substitution model is designed.
      *                  The alphabet associated to the data must be of the same type as the one specified for the model.
      *                  May be equal to NULL, but in this cas use_observed_freq option will be unavailable.
@@ -208,6 +210,7 @@ namespace bpp
      */
     static FrequenciesSet* getRootFrequenciesSet(
         const Alphabet* alphabet,
+        const GeneticCode* gCode,
         const SiteContainer* data, 
         std::map<std::string, std::string>& params,
         const std::vector<double>& rateFreqs,
@@ -219,6 +222,8 @@ namespace bpp
      * @brief Get A FrequenciesSet object according to options.
      *
      * @param alphabet The alpabet to use.
+     * @param gCode    The genetic code to use (only for codon alphabets, otherwise can be set to 0).
+     *                 If set to NULL and a codon frequencies set is requested, an Exception will be thrown.
      * @param freqDescription A string in the keyval syntaxe describing the frequency set to use.:if expand("%") == ""|browse confirm w|else|confirm w|endif
      * 
      * @param data      A pointer toward the SiteContainer for which the substitution model is designed.
@@ -232,6 +237,7 @@ namespace bpp
      */
     static FrequenciesSet* getFrequenciesSet(
         const Alphabet* alphabet,
+        const GeneticCode* gCode,
         const std::string& freqDescription,
         const SiteContainer* data, 
         const std::vector<double>& rateFreqs,
