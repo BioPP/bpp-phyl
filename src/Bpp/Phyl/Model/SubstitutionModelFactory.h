@@ -6,7 +6,7 @@
 //
 
 /*
-Copyright or © or Copr. CNRS, (November 16, 2004, 2005, 2006)
+Copyright or © or Copr. Bio++ Development Team, (November 16, 2004, 2005, 2006)
 
 This software is a computer program whose purpose is to provide classes
 for phylogenetic data analysis.
@@ -87,11 +87,12 @@ class SubstitutionModelFactory
      * for nucleotides and proteins.
      *
      * @param alphabet The alphabet for wich models must be instanciated.
+     * @param geneticCode Genetic code to use for codon model.
      *
      * Example:
      * @code
-     * const Alphabet * alphabet = new DNA();
-     * SubstitutionModel * model = SubstitutionModelFactory(alphabet)
+     * const Alphabet* alphabet = new DNA();
+     * SubstitutionModel* model = SubstitutionModelFactory(alphabet)
      *     .createModel(SubstitutionModelFactory::TAMURA);
      * // model can be used in any object dealing with a nucleotide substitution models.
      * @endcode

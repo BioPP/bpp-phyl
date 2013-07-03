@@ -42,6 +42,7 @@ knowledge of the CeCILL license and that you accept its terms.
 #include <Bpp/Seq/Alphabet/AlphabetTools.h>
 #include <Bpp/Phyl/TreeTemplate.h>
 #include <Bpp/Phyl/Model/Nucleotide/T92.h>
+#include <Bpp/Phyl/Model/RateDistribution/GammaDiscreteRateDistribution.h>
 #include <Bpp/Phyl/Simulation/HomogeneousSequenceSimulator.h>
 #include <Bpp/Phyl/Likelihood/RHomogeneousTreeLikelihood.h>
 #include <Bpp/Phyl/OptimizationTools.h>
@@ -76,8 +77,7 @@ int main() {
 
   const NucleicAlphabet* alphabet = &AlphabetTools::DNA_ALPHABET;
   SubstitutionModel* model = new T92(alphabet, 3.);
-  DiscreteDistribution* rdist = new GammaDiscreteDistribution(1.0, 4);
-  rdist->aliasParameters("alpha", "beta");
+  DiscreteDistribution* rdist = new GammaDiscreteRateDistribution(4, 1.0);
 
   VectorSiteContainer sites(alphabet);
   sites.addSequence(BasicSequence("A", "AAATGGCTGTGCACGTC", alphabet));
@@ -86,7 +86,7 @@ int main() {
   sites.addSequence(BasicSequence("D", "AAATGGCGGTGCGCCTA", alphabet));
 
   try {
-    fitModelH(model, rdist, *tree, sites, 75.031104151696752069, 65.03473753351640596065);
+    fitModelH(model, rdist, *tree, sites, 85.030942031997312824, 65.72293577214308868406);
   } catch (Exception& ex) {
     cerr << ex.what() << endl;
     return 1;

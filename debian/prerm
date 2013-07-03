@@ -1,0 +1,27 @@
+#! /bin/bash
+
+# Abort if any command returns an error value
+set -e
+
+removeGeneric() {
+  if [ -f $1.all ]
+  then
+    echo "-- Remove generic include file: $1.all"
+    rm $1.all
+  fi
+  for file in "$1"/*
+  do
+    if [ -d "$file" ]
+    then
+      # Recursion:
+      removeGeneric $file
+    fi
+  done
+}
+
+if [ "$1" = "remove" ]; then
+  # Actualize .all files
+  removeGeneric /usr/include/Bpp
+fi
+
+exit 0

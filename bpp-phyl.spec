@@ -1,5 +1,5 @@
 %define _basename bpp-phyl
-%define _version 2.0.3
+%define _version 2.1.0
 %define _release 1
 %define _prefix /usr
 
@@ -73,7 +73,99 @@ rm -rf $RPM_BUILD_ROOT
 
 %post -n libbpp-phyl9 -p /sbin/ldconfig
 
+%post -n libbpp-phyl-devel
+createGeneric() {
+  echo "-- Creating generic include file: $1.all"
+  #Make sure we run into subdirectories first:
+  dirs=()
+  for file in "$1"/*
+  do
+    if [ -d "$file" ]
+    then
+      # Recursion:
+      dirs+=( "$file" )
+    fi
+  done
+  for dir in ${dirs[@]}
+  do
+    createGeneric $dir
+  done
+  #Now list all files, including newly created .all files:
+  if [ -f $1.all ]
+  then
+    rm $1.all
+  fi
+  dir=`basename $1`
+  for file in "$1"/*
+  do
+    if [ -f "$file" ] && ( [ "${file##*.}" == "h" ] || [ "${file##*.}" == "all" ] )
+    then
+      file=`basename $file`
+      echo "#include \"$dir/$file\"" >> $1.all
+    fi
+  done;
+}
+# Actualize .all files
+createGeneric %{_prefix}/include/Bpp
+exit 0
+
+%preun -n libbpp-phyl-devel
+removeGeneric() {
+  if [ -f $1.all ]
+  then
+    echo "-- Remove generic include file: $1.all"
+    rm $1.all
+  fi
+  for file in "$1"/*
+  do
+    if [ -d "$file" ]
+    then
+      # Recursion:
+      removeGeneric $file
+    fi
+  done
+}
+# Actualize .all files
+removeGeneric %{_prefix}/include/Bpp
+exit 0
+
 %postun -n libbpp-phyl9 -p /sbin/ldconfig
+
+%postun -n libbpp-phyl-devel
+createGeneric() {
+  echo "-- Creating generic include file: $1.all"
+  #Make sure we run into subdirectories first:
+  dirs=()
+  for file in "$1"/*
+  do
+    if [ -d "$file" ]
+    then
+      # Recursion:
+      dirs+=( "$file" )
+    fi
+  done
+  for dir in ${dirs[@]}
+  do
+    createGeneric $dir
+  done
+  #Now list all files, including newly created .all files:
+  if [ -f $1.all ]
+  then
+    rm $1.all
+  fi
+  dir=`basename $1`
+  for file in "$1"/*
+  do
+    if [ -f "$file" ] && ( [ "${file##*.}" == "h" ] || [ "${file##*.}" == "all" ] )
+    then
+      file=`basename $file`
+      echo "#include \"$dir/$file\"" >> $1.all
+    fi
+  done;
+}
+# Actualize .all files
+createGeneric %{_prefix}/include/Bpp
+exit 0
 
 %files -n libbpp-phyl9
 %defattr(-,root,root)
@@ -88,8 +180,16 @@ rm -rf $RPM_BUILD_ROOT
 %{_prefix}/include/*
 
 %changelog
+* Thu Mar 07 2013 Julien Dutheil <julien.dutheil@univ-montp2.fr> 2.1.0-1
+- New RateDistribution classes
+- New models for protein sequences (COaLA)
+- Support for gaps in parsimony score
+- Improved and extended support for BppO
+- Several bugs fixed and warnings removed
 * Thu Feb 09 2012 Julien Dutheil <julien.dutheil@univ-montp2.fr> 2.0.3-1
-- New substitution model hierarchy, new pairwise models + lot of bugs fixed!
+- Reorganized model hierarchy
+- New pairwise models
+- Several bugs fixed
 * Thu Jun 09 2011 Julien Dutheil <julien.dutheil@univ-montp2.fr> 2.0.2-1
 - New substitution models, new substitution mapping tools.
 * Mon Feb 28 2011 Julien Dutheil <julien.dutheil@univ-montp2.fr> 2.0.1-1

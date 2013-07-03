@@ -99,7 +99,7 @@ public:
 
   YN98& operator=(const YN98&);
 
-  ~YN98();
+  virtual ~YN98() {}
 
   YN98* clone() const { return new YN98(*this); }
 

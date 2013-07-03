@@ -44,41 +44,37 @@ using namespace std;
 
 /******************************************************************************/
 
-CodonDistanceSubstitutionModel::CodonDistanceSubstitutionModel(const GeneticCode* palph,
-                                                               NucleotideSubstitutionModel* pmod,
-                                                               const AlphabetIndex2* pdist) :
+CodonDistanceSubstitutionModel::CodonDistanceSubstitutionModel(
+    const GeneticCode* gCode,
+    NucleotideSubstitutionModel* pmod,
+    const AlphabetIndex2* pdist) :
   AbstractParameterAliasable("CodonDist."),
-  AbstractSubstitutionModel(dynamic_cast<const CodonAlphabet*>(palph->getSourceAlphabet()),
-      "CodonDist."),
-  AbstractWordSubstitutionModel(dynamic_cast<const CodonAlphabet*>(palph->getSourceAlphabet()),
-      "CodonDist."),
-  AbstractCodonSubstitutionModel(dynamic_cast<const CodonAlphabet*>(palph->getSourceAlphabet()),
-      pmod, "CodonDist."),
-  AbstractCodonDistanceSubstitutionModel(palph, pdist, "CodonDist.")
+  AbstractSubstitutionModel(gCode->getSourceAlphabet(), "CodonDist."),
+  AbstractWordSubstitutionModel(gCode->getSourceAlphabet(), "CodonDist."),
+  AbstractCodonSubstitutionModel(gCode, pmod, "CodonDist."),
+  AbstractCodonDistanceSubstitutionModel(pdist, "CodonDist.")
 {
   updateMatrices();
 }
 
-CodonDistanceSubstitutionModel::CodonDistanceSubstitutionModel(const GeneticCode* palph,
-                                                               NucleotideSubstitutionModel* pmod1,
-                                                               NucleotideSubstitutionModel* pmod2,
-                                                               NucleotideSubstitutionModel* pmod3,
-                                                               const AlphabetIndex2* pdist) :
+CodonDistanceSubstitutionModel::CodonDistanceSubstitutionModel(
+    const GeneticCode* gCode,
+    NucleotideSubstitutionModel* pmod1,
+    NucleotideSubstitutionModel* pmod2,
+    NucleotideSubstitutionModel* pmod3,
+    const AlphabetIndex2* pdist) :
   AbstractParameterAliasable("CodonDist."),
-  AbstractSubstitutionModel(dynamic_cast<const CodonAlphabet*>(palph->getSourceAlphabet()),
-      "CodonDist."),
-  AbstractWordSubstitutionModel(dynamic_cast<const CodonAlphabet*>(palph->getSourceAlphabet()),
-      "CodonDist."),
-  AbstractCodonSubstitutionModel(dynamic_cast<const CodonAlphabet*>(palph->getSourceAlphabet()),
-      pmod1, pmod2, pmod3, "CodonDist."),
-  AbstractCodonDistanceSubstitutionModel(palph, pdist, "CodonDist.")
+  AbstractSubstitutionModel(gCode->getSourceAlphabet(), "CodonDist."),
+  AbstractWordSubstitutionModel(gCode->getSourceAlphabet(), "CodonDist."),
+  AbstractCodonSubstitutionModel(gCode, pmod1, pmod2, pmod3, "CodonDist."),
+  AbstractCodonDistanceSubstitutionModel(pdist, "CodonDist.")
 {
   updateMatrices();
 }
 
 std::string CodonDistanceSubstitutionModel::getName() const
 {
-  return ("CodonDist");
+  return "CodonDist";
 }
 
 void CodonDistanceSubstitutionModel::fireParameterChanged(const ParameterList& parameters)

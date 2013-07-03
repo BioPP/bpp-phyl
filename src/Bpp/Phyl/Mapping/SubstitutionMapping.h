@@ -40,8 +40,7 @@ knowledge of the CeCILL license and that you accept its terms.
 #ifndef _SUBSTITUTIONMAPPING_H_
 #define _SUBSTITUTIONMAPPING_H_
 
-#include "../Tree.h"
-#include "../TreeTemplate.h"
+#include "Mapping.h"
 
 #include <Bpp/Clonable.h>
 
@@ -63,10 +62,10 @@ namespace bpp
  * interface only contains a few methods.
  * More methods are expected to be added later.
  */
-class SubstitutionMapping:
-  public virtual Clonable
-{
-
+  class SubstitutionMapping:
+    virtual public Mapping
+  {
+    
   public:
     SubstitutionMapping() {}
     virtual ~SubstitutionMapping() {}
@@ -76,64 +75,14 @@ class SubstitutionMapping:
 #endif
 
   public:
-    
-    /**
-     * @return Get the phylogenetic tree associated to this mapping.
-     */
-    virtual const Tree& getTree() const = 0;
-    
-    /**
-     * @return True is the map is empty, that is, if no tree is associated to the map yet.
-     */
-    virtual bool isEmpty() const = 0;
-
-    /**
-     * @return The number of sites mapped.
-     */
-    virtual size_t getNumberOfSites() const = 0;
-    
-    /**
-     * @return The number of branches mapped.
-     */
-    virtual size_t getNumberOfBranches() const = 0;
-    
     /**
      * @return The number of distinct types of substitutions mapped.
      */
     virtual size_t getNumberOfSubstitutionTypes() const = 0;
     
-    /**
-     * @param index The site index.
-     * @return The site position corresponding to the index.
-     */
-    virtual int getSitePosition(size_t index) const = 0;
-    
-    /**
-     * @return A vector with all tree branch lengths.
-     */
-    virtual std::vector<double> getBranchLengths() const = 0;
-    
-    /**
-     * @param nodeId An id of the node to look for in the map.
-     * @return The mapping index for the specified node id.
-     */
-    virtual size_t getNodeIndex(int nodeId) const throw (NodeNotFoundException) = 0;
-
-    /**
-     * @brief Set the position of a given site.
-     *
-     * @warning No index checking is performed, use with care!
-     * @param index The site index.
-     * @param position The position of the site.
-     */
-    virtual void setSitePosition(size_t index, int position) = 0;
-
     virtual double& operator()(size_t nodeIndex, size_t siteIndex, size_t type) = 0;
     virtual const double& operator()(size_t nodeIndex, size_t siteIndex, size_t type) const = 0;
 };
-
-
-
 
 
 
@@ -143,108 +92,28 @@ class SubstitutionMapping:
  * This implementation copies the input tree in a TreeTemplate<Node> object.
  */
 class AbstractSubstitutionMapping:
-  public SubstitutionMapping
+    virtual public SubstitutionMapping,
+    virtual public AbstractMapping
 {
-  private:
-    std::auto_ptr<const TreeTemplate<Node> > tree_;
-    std::vector<int> sitesPositions_;
-    std::vector<const Node *> nodes_;
-    size_t nbSites_;
-    size_t nbBranches_;
+public:
+  //  AbstractSubstitutionMapping() : AbstractMapping(){}
 
-  public:
-    AbstractSubstitutionMapping() : tree_(0), sitesPositions_(), nodes_(), nbSites_(0), nbBranches_(0) {}
+  AbstractSubstitutionMapping(const Tree& tree) : AbstractMapping(tree){}
 
-    AbstractSubstitutionMapping(const Tree& tree) : tree_(new TreeTemplate<Node>(tree)), sitesPositions_(), nodes_(), nbSites_(0), nbBranches_(0)
+  AbstractSubstitutionMapping(const AbstractSubstitutionMapping& absm):
+    AbstractMapping(absm) {}
+
+#ifndef NO_VIRTUAL_COV
+  AbstractSubstitutionMapping* clone() const = 0;
+#endif
+
+  AbstractSubstitutionMapping& operator=(const AbstractSubstitutionMapping& absm)
     {
-      nodes_ = tree_->getNodes();
-      nodes_.pop_back(); // remove root node.
-      nbBranches_ = nodes_.size();
-    }
-
-    AbstractSubstitutionMapping(const AbstractSubstitutionMapping& absm):
-      tree_(dynamic_cast<const TreeTemplate<Node>*>(absm.tree_->clone())),
-      sitesPositions_(absm.sitesPositions_),
-      nodes_(),
-      nbSites_(absm.nbSites_),
-      nbBranches_(absm.nbBranches_)
-    {
-      nodes_ = tree_->getNodes();
-      nodes_.pop_back(); // remove root node.
-    }
-
-    AbstractSubstitutionMapping& operator=(const AbstractSubstitutionMapping& absm)
-    {
-      tree_.reset(dynamic_cast<const TreeTemplate<Node>*>(absm.tree_->clone()));
-      sitesPositions_ = absm.sitesPositions_;
-      nbSites_        = absm.nbSites_;
-      nbBranches_     = absm.nbBranches_;
-      nodes_          = tree_->getNodes();
-      nodes_.pop_back(); // remove root node.
+      AbstractMapping::operator=(absm);
       return *this;
     }
 
-    virtual ~AbstractSubstitutionMapping() {}
-
-  public:
-
-    bool isEmpty() const { return tree_.get() == 0; }
-
-		const	TreeTemplate<Node>& getTree() const throw (Exception)
-    {
-      if (isEmpty()) throw Exception("AbstractSubstitutionMapping::getSitePosition. No tree is assigned to this map yet.");
-      return *tree_.get();
-    }
-
-    void setTree(const Tree& tree)
-    {
-      tree_.reset(new TreeTemplate<Node>(tree));
-      nodes_ = tree_->getNodes();
-      nodes_.pop_back(); // remove root node.
-      nbBranches_ = nodes_.size();
-    }
- 
-    int getSitePosition(size_t index) const throw (Exception)
-    {
-      if (isEmpty()) throw Exception("AbstractSubstitutionMapping::getSitePosition. No tree is assigned to this map yet.");
-      return sitesPositions_[index];
-    }
-    
-    void setSitePosition(size_t index, int position) throw (Exception)
-    {
-      if (isEmpty()) throw Exception("AbstractSubstitutionMapping::setSitePosition. No tree is assigned to this map yet.");
-      sitesPositions_[index] = position;
-    }
-		
-    size_t getNumberOfSites() const { return nbSites_; }
-
-    size_t getNumberOfBranches() const { return nbBranches_; }
-    
-    virtual const Node* getNode(size_t nodeIndex) const { return nodes_[nodeIndex]; }
-
-    virtual void setNumberOfSites(size_t numberOfSites)
-    {
-      nbSites_ = numberOfSites;
-      sitesPositions_.resize(numberOfSites);
-      for (size_t i = 0; i < numberOfSites; i++)
-        sitesPositions_[i] = static_cast<int>(i + 1); //Default: all sizes numbered for 1 to n.
-    }
-
-    virtual std::vector<double> getBranchLengths() const
-    {
-      std::vector<double> brLen(nbBranches_);
-      for (size_t i = 0; i < nbBranches_; i++)
-        brLen[i] = nodes_[i]->getDistanceToFather();
-      return brLen;
-    }
-
-    virtual size_t getNodeIndex(int nodeId) const throw (NodeNotFoundException)
-    {
-      for (size_t i = 0; i < nbBranches_; i++)
-        if(nodes_[i]->getId() == nodeId) return i;
-      throw NodeNotFoundException("ProbabilisticSubstitutionMapping::getNodeIndex(nodeId).", TextTools::toString(nodeId));
-    }
-
+  virtual ~AbstractSubstitutionMapping() {}
 
 };
 

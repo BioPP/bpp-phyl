@@ -74,7 +74,6 @@ namespace bpp
  * and synonymous substitutions rates is @f$\beta@f$ with positive
  * parameter \c "beta".
  */
-
 class CodonDistancePhaseFrequenciesSubstitutionModel :
     public AbstractCodonSubstitutionModel,
     public AbstractCodonDistanceSubstitutionModel,
@@ -86,16 +85,17 @@ public:
    * from three pointers to AbstractSubstitutionModels. NEW
    * AbstractSubstitutionModels are copied from the given ones.
    *
-   * @param palph pointer to a GeneticCode
+   * @param gCode pointer to a GeneticCode
    * @param pmod pointer to the NucleotideSubstitutionModel to use in
    *        the three positions. It is owned by the instance.
    * @param pfreq pointer to the FrequenciesSet* equilibrium frequencies
    * @param pdist optional pointer to the AlphabetIndex2 amino-acids distance object.
    */
-  CodonDistancePhaseFrequenciesSubstitutionModel(const GeneticCode* palph,
-                                            NucleotideSubstitutionModel* pmod,
-                                            FrequenciesSet* pfreq,
-                                            const AlphabetIndex2* pdist = 0);
+  CodonDistancePhaseFrequenciesSubstitutionModel(
+      const GeneticCode* gCode,
+      NucleotideSubstitutionModel* pmod,
+      FrequenciesSet* pfreq,
+      const AlphabetIndex2* pdist = 0);
 
   /**
    * @brief Build a new CodonDistancePhaseFrequenciesSubstitutionModel object
@@ -110,36 +110,15 @@ public:
    * @param pfreq pointer to the FrequenciesSet* equilibrium frequencies
    * @param pdist optional pointer to the AlphabetIndex2 amino-acids distance object.
    */
-  CodonDistancePhaseFrequenciesSubstitutionModel(const GeneticCode* palph,
-                                            NucleotideSubstitutionModel* pmod1,
-                                            NucleotideSubstitutionModel* pmod2,
-                                            NucleotideSubstitutionModel* pmod3,
-                                            FrequenciesSet* pfreq,
-                                            const AlphabetIndex2* pdist = 0);
-
   CodonDistancePhaseFrequenciesSubstitutionModel(
-    const CodonDistancePhaseFrequenciesSubstitutionModel& model) :
-    AbstractParameterAliasable(model),
-    AbstractSubstitutionModel(model),
-    AbstractWordSubstitutionModel(model),
-    AbstractCodonSubstitutionModel(model),
-    AbstractCodonDistanceSubstitutionModel(model),
-    AbstractCodonPhaseFrequenciesSubstitutionModel(model)
-  {}
+      const GeneticCode* gCode,
+      NucleotideSubstitutionModel* pmod1,
+      NucleotideSubstitutionModel* pmod2,
+      NucleotideSubstitutionModel* pmod3,
+      FrequenciesSet* pfreq,
+      const AlphabetIndex2* pdist = 0);
 
-  CodonDistancePhaseFrequenciesSubstitutionModel& operator=(
-    const CodonDistancePhaseFrequenciesSubstitutionModel& model)
-  {
-    AbstractParameterAliasable::operator=(model);
-    AbstractSubstitutionModel::operator=(model);
-    AbstractWordSubstitutionModel::operator=(model);
-    AbstractCodonSubstitutionModel::operator=(model);
-    AbstractCodonDistanceSubstitutionModel::operator=(model);
-    AbstractCodonPhaseFrequenciesSubstitutionModel::operator=(model);
-    return *this;
-  }
-
-  ~CodonDistancePhaseFrequenciesSubstitutionModel() {}
+  virtual ~CodonDistancePhaseFrequenciesSubstitutionModel() {}
 
   CodonDistancePhaseFrequenciesSubstitutionModel* clone() const
   {

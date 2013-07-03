@@ -37,11 +37,11 @@ The fact that you are presently reading this means that you have had
 knowledge of the CeCILL license and that you accept its terms.
 */
 
-#include <Bpp/Numeric/Prob/GammaDiscreteDistribution.h>
 #include <Bpp/Numeric/Matrix/MatrixTools.h>
 #include <Bpp/Seq/Alphabet/AlphabetTools.h>
 #include <Bpp/Phyl/TreeTemplate.h>
 #include <Bpp/Phyl/Model/Nucleotide/T92.h>
+#include <Bpp/Phyl/Model/RateDistribution/GammaDiscreteRateDistribution.h>
 #include <Bpp/Phyl/Simulation/HomogeneousSequenceSimulator.h>
 #include <Bpp/Phyl/Likelihood/RHomogeneousTreeLikelihood.h>
 #include <Bpp/Phyl/Likelihood/RHomogeneousClockTreeLikelihood.h>
@@ -103,8 +103,7 @@ int main() {
 
   const NucleicAlphabet* alphabet = &AlphabetTools::DNA_ALPHABET;
   SubstitutionModel* model = new T92(alphabet, 3.);
-  DiscreteDistribution* rdist = new GammaDiscreteDistribution(4, 1.0);
-  rdist->aliasParameters("alpha", "beta");
+  DiscreteDistribution* rdist = new GammaDiscreteRateDistribution(4, 1.0);
 
   VectorSiteContainer sites(alphabet);
   sites.addSequence(BasicSequence("A", "AAATGGCTGTGCACGTC", alphabet));

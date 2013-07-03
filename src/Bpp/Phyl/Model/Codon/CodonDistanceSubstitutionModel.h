@@ -77,20 +77,21 @@ namespace bpp
      * @brief Build a new CodonDistanceSubstitutionModel object from
      * a pointer to NucleotideSubstitutionModel.
      *
-     * @param palph pointer to a GeneticCode
+     * @param gCode pointer to a GeneticCode
      * @param pmod  pointer to the NucleotideSubstitutionModel to use in the three positions.
      * The instance will then own this substitution model.
      * @param pdist optional pointer to a distance between amino-acids
      */
-    CodonDistanceSubstitutionModel(const GeneticCode* palph,
-                                   NucleotideSubstitutionModel* pmod,
-                                   const AlphabetIndex2* pdist);
+    CodonDistanceSubstitutionModel(
+        const GeneticCode* gCode,
+        NucleotideSubstitutionModel* pmod,
+        const AlphabetIndex2* pdist);
 
     /**
      * @brief Build a new CodonDistanceSubstitutionModel object
      * from three pointers to NucleotideSubstitutionModels.
      *
-     * @param palph pointer to a GeneticCode
+     * @param gCode pointer to a GeneticCode
      * @param pmod1, pmod2, pmod3 pointers to the
      *   NucleotideSubstitutionModels to use in the three positions.
      *   Either all the models are different objects to avoid parameters
@@ -98,32 +99,14 @@ namespace bpp
      *   The used models are owned by the instance.
      * @param pdist optional pointer to the AlphabetIndex2 amino-acids distance object.
      */
-  
-    CodonDistanceSubstitutionModel(const GeneticCode* palph,
-                                   NucleotideSubstitutionModel* pmod1,
-                                   NucleotideSubstitutionModel* pmod2,
-                                   NucleotideSubstitutionModel* pmod3,
-                                   const AlphabetIndex2* pdist);
+    CodonDistanceSubstitutionModel(
+        const GeneticCode* gCode,
+        NucleotideSubstitutionModel* pmod1,
+        NucleotideSubstitutionModel* pmod2,
+        NucleotideSubstitutionModel* pmod3,
+        const AlphabetIndex2* pdist);
 
-    CodonDistanceSubstitutionModel(const CodonDistanceSubstitutionModel& model) :
-      AbstractParameterAliasable(model),
-      AbstractSubstitutionModel(model),
-      AbstractWordSubstitutionModel(model),
-      AbstractCodonSubstitutionModel(model),
-      AbstractCodonDistanceSubstitutionModel(model)
-    {}
-
-    CodonDistanceSubstitutionModel & operator=(const CodonDistanceSubstitutionModel& model)
-    {
-      AbstractParameterAliasable::operator=(model);
-      AbstractSubstitutionModel::operator=(model);
-      AbstractWordSubstitutionModel::operator=(model);
-      AbstractCodonSubstitutionModel::operator=(model);
-      AbstractCodonDistanceSubstitutionModel::operator=(model);
-      return *this;
-    }
-
-    ~CodonDistanceSubstitutionModel() {}
+    virtual ~CodonDistanceSubstitutionModel() {}
 
     CodonDistanceSubstitutionModel* clone() const
     {
@@ -139,5 +122,5 @@ namespace bpp
   };
 } // end of namespace bpp.
 
-#endif
+#endif //_CODONDISTANCESUBSTITUTIONMODEL_H_
 

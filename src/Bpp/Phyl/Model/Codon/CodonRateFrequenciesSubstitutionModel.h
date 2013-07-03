@@ -61,47 +61,48 @@ namespace bpp
  * AbstractCodonFrequenciesSubstitutionModel class.
  *
  */
-
 class CodonRateFrequenciesSubstitutionModel :
     public AbstractCodonSubstitutionModel,
     public AbstractCodonFrequenciesSubstitutionModel
 {
 public:
+  
   /**
-   *@brief Build a new CodonRateSubstitutionModel object from
-   *a pointer to NucleotideSubstitutionModels.
+   * @brief Build a new CodonRateSubstitutionModel object from
+   *  a pointer to NucleotideSubstitutionModels.
    * @author Laurent Guéguen
    *
-   *@param palph pointer to a CodonAlphabet
-   *@param pmod pointer to the NucleotideSubstitutionModel to use in the
+   * @param gCode pointer to a genetic code, which will be owned by this instance.
+   * @param pmod pointer to the NucleotideSubstitutionModel to use in the
    *       three positions. It is owned by the instabce.
-   *@param pfreq pointer to the FrequenciesSet* equilibrium frequencies
+   * @param pfreq pointer to the FrequenciesSet* equilibrium frequencies
    */
-
-  CodonRateFrequenciesSubstitutionModel(const CodonAlphabet* palph,
-                                        NucleotideSubstitutionModel* pmod,
-                                        FrequenciesSet* pfreq);
+  CodonRateFrequenciesSubstitutionModel(
+      const GeneticCode* gCode,
+      NucleotideSubstitutionModel* pmod,
+      FrequenciesSet* pfreq);
 
   /**
-   *@brief Build a new CodonRateSubstitutionModel object
-   *from three pointers to NucleotideSubstitutionModels.
+   * @brief Build a new CodonRateSubstitutionModel object
+   *  from three pointers to NucleotideSubstitutionModels.
    *
-   *@param palph pointer to a CodonAlphabet
-   *@param pmod1, pmod2, pmod3 pointers to the
+   * @param gCode pointer to a genetic code, which will be owned by this instance.
+   * @param pmod1, pmod2, pmod3 pointers to the
    *   NucleotideSubstitutionModel to use in the three positions.
    *   All the models must be different objects to avoid parameters
    *   redondancy, otherwise only the first model is used. The used models
    *   are owned by the instance.
-   *@param pfreq pointer to the FrequenciesSet* equilibrium frequencies
+   * @param pfreq pointer to the FrequenciesSet* equilibrium frequencies
    */
 
-  CodonRateFrequenciesSubstitutionModel(const CodonAlphabet* palph,
-                                        NucleotideSubstitutionModel* pmod1,
-                                        NucleotideSubstitutionModel* pmod2,
-                                        NucleotideSubstitutionModel* pmod3,
-                                        FrequenciesSet* pfreq);
+  CodonRateFrequenciesSubstitutionModel(
+      const GeneticCode* gCode,
+      NucleotideSubstitutionModel* pmod1,
+      NucleotideSubstitutionModel* pmod2,
+      NucleotideSubstitutionModel* pmod3,
+      FrequenciesSet* pfreq);
 
-  ~CodonRateFrequenciesSubstitutionModel(){}
+  virtual ~CodonRateFrequenciesSubstitutionModel(){}
 
 #ifndef NO_VIRTUAL_COV
   CodonRateFrequenciesSubstitutionModel*
@@ -121,6 +122,7 @@ public:
 
   void setFreq(std::map<int,double>& frequencies);
 };
+
 } // end of namespace bpp.
 
 #endif
