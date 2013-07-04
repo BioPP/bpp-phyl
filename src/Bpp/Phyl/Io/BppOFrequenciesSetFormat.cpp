@@ -495,7 +495,6 @@ void BppOFrequenciesSetFormat::write(const FrequenciesSet* pfreqset,
   }
   else
     {
-<<<<<<< HEAD
       if (dynamic_cast<const FullProteinFrequenciesSet*>(pfreqset))
         {
           if (dynamic_cast<const FullProteinFrequenciesSet*>(pfreqset)->getMethod()==2){
