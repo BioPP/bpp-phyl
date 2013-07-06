@@ -265,9 +265,9 @@ void PhylogeneticsApplicationTools::setSubstitutionModelParametersInitialValuesW
     }
 
     existingParams[pName+"_"+TextTools::toString(modelNumber)] = pl[i].getValue();
-
+    
     if (verbose)
-      ApplicationTools::displayResult("Parameter found", pName + +"_"+TextTools::toString(modelNumber) + "=" + value);
+      ApplicationTools::displayResult("Parameter found", pName + +"_"+TextTools::toString(modelNumber) + "=" + TextTools::toString(pl[i].getValue()));
   }
   
   model.matchParametersValues(pl);
