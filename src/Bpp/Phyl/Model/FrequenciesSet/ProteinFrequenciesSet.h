@@ -66,15 +66,16 @@ public:
  * The parameters are called @f$ \theta_{i \in 1..19} @f$, and are initialized so that all frequencies are equal to  0.005, that is
  * @f[ \theta_i = \frac{0.05}{0.956{i-1}},\quad i = 1..19 @f] or according to a user-specified vector of initial values.
  */
+  
 class FullProteinFrequenciesSet :
   public virtual ProteinFrequenciesSet,
   public FullFrequenciesSet
 {
 public:
-  FullProteinFrequenciesSet(const ProteicAlphabet* alphabet, bool allowNullFreqs = false, const std::string& name = "Full") :
-    FullFrequenciesSet(alphabet, allowNullFreqs, name) {}
-  FullProteinFrequenciesSet(const ProteicAlphabet* alphabet, const std::vector<double>& initFreqs, bool allowNullFreqs = false, const std::string& name = "Full") :
-    FullFrequenciesSet(alphabet, initFreqs, allowNullFreqs, name) {}
+  FullProteinFrequenciesSet(const ProteicAlphabet* alphabet, bool allowNullFreqs = false, unsigned short method = 1, const std::string& name = "Full") :
+    FullFrequenciesSet(alphabet, allowNullFreqs, method, name) {}
+  FullProteinFrequenciesSet(const ProteicAlphabet* alphabet, const std::vector<double>& initFreqs, bool allowNullFreqs = false, unsigned short method = 1, const std::string& name = "Full") :
+    FullFrequenciesSet(alphabet, initFreqs, allowNullFreqs, method, name) {}
 
 #ifndef NO_VIRTUAL_COV
   FullProteinFrequenciesSet*
