@@ -114,6 +114,15 @@ FrequenciesSet* BppOFrequenciesSetFormat::read(const Alphabet* alphabet, const s
   }
   else if (freqName == "Full")
   {
+    unsigned short method=1;
+    if (args.find("method") != args.end()){
+      if (args["method"]=="local")
+        method=2;
+      else
+        if (args["method"]=="binary")
+          method=3;
+    }
+      
     if (AlphabetTools::isNucleicAlphabet(alphabet))
     {
       if (alphabetCode_ & NUCLEOTIDE)
@@ -123,11 +132,6 @@ FrequenciesSet* BppOFrequenciesSetFormat::read(const Alphabet* alphabet, const s
     }
     else if (AlphabetTools::isProteicAlphabet(alphabet))
     {
-      unsigned short method=1;
-
-      if (args.find("method") != args.end() && args["method"]=="local")
-          method=2;
-
       if (alphabetCode_ & PROTEIN)
         pFS.reset(new FullProteinFrequenciesSet(dynamic_cast<const ProteicAlphabet*>(alphabet), false, method));
       else
@@ -145,7 +149,7 @@ FrequenciesSet* BppOFrequenciesSetFormat::read(const Alphabet* alphabet, const s
     }
     else
     {
-      pFS.reset(new FullFrequenciesSet(alphabet));
+      pFS.reset(new FullFrequenciesSet(alphabet, false, method));
     }
   }
   else if (freqName == "GC")
@@ -497,10 +501,11 @@ void BppOFrequenciesSetFormat::write(const FrequenciesSet* pfreqset,
     {
       if (dynamic_cast<const FullProteinFrequenciesSet*>(pfreqset))
         {
-          if (dynamic_cast<const FullProteinFrequenciesSet*>(pfreqset)->getMethod()==2){
+          size_t meth=dynamic_cast<const FullProteinFrequenciesSet*>(pfreqset)->getMethod();
+          if (meth>1){
             if (flag)
               out << ",";
-            out << "method=local";
+            out << "method=" << ((meth==2)?"local":"binary");
             flag=true;
           }
         }
