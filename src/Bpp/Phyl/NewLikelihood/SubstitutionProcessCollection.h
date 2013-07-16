@@ -45,6 +45,10 @@
 #include "../Model/FrequenciesSet/FrequenciesSet.h"
 
 #include "SubstitutionProcessCollectionMember.h"
+#include "SubstitutionProcess.h"
+
+
+#include "ParametrizableTree.h"
 
 #include <Bpp/Numeric/ParametrizableCollection.h>
 #include <Bpp/Numeric/Prob/DiscreteDistribution.h>
@@ -56,6 +60,7 @@
 // From Seqlib:
 #include <Bpp/Seq/Alphabet/Alphabet.h>
 #include <Bpp/Seq/Alphabet/NucleicAlphabet.h>
+
 
 namespace bpp
 {
@@ -86,7 +91,6 @@ private:
   /**
    * A collection of Substitution Models
    */
-  
   ParametrizableCollection<SubstitutionModel> modelColl_;
 
   /*
@@ -112,15 +116,8 @@ private:
    * A vector of SubstitutionProcessCollectionMember
    */
 
-  std::vector<std::auto_ptr<SubstitutionProcessCollectionMember > > vSubProcess_;
+  std::vector<SubstitutionProcessCollectionMember*> vSubProcess_;
 
-private:
-  
-  /*
-   *
-   *
-   */
-  
 public:
   /**
    * @brief Create empty collections.
@@ -180,29 +177,34 @@ public:
    * 
    */
 
-  void addParametrizable(Parametrizable* parametrizable, unsigned int parametrizableIndex);
+  void addParametrizable(Parametrizable* parametrizable, size_t parametrizableIndex);
 
   /*
    * @brief specific methods to add specific objects.
    *
    */
+
+
+  /**
+   * ? operator[] ?
+   */
   
-  void addModel(SubstitutionModel* model, unsigned int modelIndex)
+  void addModel(SubstitutionModel* model, size_t modelIndex)
   {
     addParametrizable(model, modelIndex);
   }
 
-  void addFrequencies(FrequenciesSet* frequencies, unsigned int frequenciesIndex)
+  void addFrequencies(FrequenciesSet* frequencies, size_t frequenciesIndex)
   {
     addParametrizable(frequencies, frequenciesIndex);
   }
 
-  void addDistribution(DiscreteDistribution* distribution, unsigned int distributionIndex)
+  void addDistribution(DiscreteDistribution* distribution, size_t distributionIndex)
   {
     addParametrizable(distribution, distributionIndex);
   }
   
-  void addTree(ParametrizableTree* tree, unsigned int treeIndex)
+  void addTree(ParametrizableTree* tree, size_t treeIndex)
   {
     addParametrizable(tree , treeIndex);
   }
@@ -214,14 +216,14 @@ public:
    * @return the got SubstitutionModel*. 
    */
   
-  SubstitutionModel* getModel(unsigned int modelIndex)
+  SubstitutionModel* getModel(int modelIndex)
   {
     return (dynamic_cast<SubstitutionModel*>(modelColl_.getObject(modelIndex)));
   }
 
-  const SubstitutionModel* getModel(unsigned int modelIndex) const
+  const SubstitutionModel* getModel(size_t modelIndex) const
   {
-    return (dynamic_cast<const SubstitutionModel*>(modelColl_.getObject(modelIndex)));
+    return (dynamic_cast<const SubstitutionModel*>(modelColl_.getObject(int(modelIndex))));
   }
 
   /**
@@ -231,12 +233,12 @@ public:
    * @return the got FrequenciesSet*. 
    */
   
-  FrequenciesSet* getFrequencies(unsigned int frequenciesIndex)
+  FrequenciesSet* getFrequencies(size_t frequenciesIndex)
   {
     return (dynamic_cast<FrequenciesSet*>(freqColl_.getObject(frequenciesIndex)));
   }
 
-  const FrequenciesSet* getFrequencies(unsigned int frequenciesIndex) const
+  const FrequenciesSet* getFrequencies(size_t frequenciesIndex) const
   {
     return (dynamic_cast<const FrequenciesSet*>(freqColl_.getObject(frequenciesIndex)));
   }
@@ -248,12 +250,12 @@ public:
    * @return the got DiscreteDistribution*. 
    */
   
-  DiscreteDistribution* getDistribution(unsigned int distributionIndex)
+  DiscreteDistribution* getDistribution(size_t distributionIndex)
   {
     return (dynamic_cast<DiscreteDistribution*>(distColl_.getObject(distributionIndex)));
   }
 
-  const DiscreteDistribution* getDistribution(unsigned int distributionIndex) const 
+  const DiscreteDistribution* getDistribution(size_t distributionIndex) const 
   {
     return (dynamic_cast<const DiscreteDistribution*>(distColl_.getObject(distributionIndex)));
   }
@@ -265,14 +267,14 @@ public:
    * @return the got ParametrizableTree*. 
    */
   
-  ParametrizableTree* getTree(unsigned int treeIndex)
+  ParametrizableTree* getTree(size_t treeIndex)
   {
     return (dynamic_cast<ParametrizableTree*>(treeColl_.getObject(treeIndex)));
   }
   
-  const ParametrizableTree* getTree(unsigned int treeIndex) const 
+  const ParametrizableTree* getTree(size_t treeIndex) const 
   {
-    return (dynamic_cast<ParametrizableTree*>(treeColl_.getObject(treeIndex)));
+    return (dynamic_cast<const ParametrizableTree*>(treeColl_.getObject(treeIndex)));
   }
   
 
@@ -281,27 +283,36 @@ public:
    *
    */
   
-  std::vector<unsigned int> getModelNumbers() const
+  std::vector<size_t> getModelNumbers() const
   {
     return modelColl_.keys();
   }
 
-  std::vector<unsigned int> getFrequenciesNumbers() const
+  std::vector<size_t> getFrequenciesNumbers() const
   {
     return freqColl_.keys();
   }
 
-  std::vector<unsigned int> getDistributionNumbers() const 
+  std::vector<size_t> getDistributionNumbers() const 
   {
     return distColl_.keys();
   }
 
-  std::vector<unsigned int> getTreeNumbers() const
+  std::vector<size_t> getTreeNumbers() const
   {
     return treeColl_.keys();
   }
 
 
+  /**
+   * @brief Methods to remove objects. Beware! The
+   * SubstitutionProcessCollectionMembers of the vector may be
+   * non-functional after this.
+   *
+   * 
+   * @{
+   */
+   
   /**
    * @brief Remove a SubstitutionModel from the collection.
    *
@@ -309,7 +320,7 @@ public:
    * @return the removed SubstitutionModel*. 
    */
   
-  SubstitutionModel* removeModel(unsigned int modelIndex)
+  SubstitutionModel* removeModel(size_t modelIndex)
   {
     return (dynamic_cast<SubstitutionModel*>(modelColl_.removeObject(modelIndex)));
   }
@@ -321,7 +332,7 @@ public:
    * @return the removed FrequenciesSet*. 
    */
   
-  FrequenciesSet* removeFrequencies(unsigned int frequenciesIndex)
+  FrequenciesSet* removeFrequencies(size_t frequenciesIndex)
   {
     return (dynamic_cast<FrequenciesSet*>(freqColl_.removeObject(frequenciesIndex)));
   }
@@ -333,7 +344,7 @@ public:
    * @return the removed DiscreteDistribution*. 
    */
   
-  DiscreteDistribution* removeDistribution(unsigned int distributionIndex)
+  DiscreteDistribution* removeDistribution(size_t distributionIndex)
   {
     return (dynamic_cast<DiscreteDistribution*>(distColl_.removeObject(distributionIndex)));
   }
@@ -345,7 +356,7 @@ public:
    * @return the removed Tree*. 
    */
   
-  ParametrizableTree* removeTree(unsigned int treeIndex)
+  ParametrizableTree* removeTree(size_t treeIndex)
   {
     return (dynamic_cast<ParametrizableTree*>(treeColl_.removeObject(treeIndex)));
   }
@@ -358,33 +369,38 @@ public:
    * @return the replaced Parametrizable*. 
    */
   
-  Parametrizable* replaceParametrizable(Parametrizable* parametrizable, unsigned int parametrizableIndex);
+  Parametrizable* replaceParametrizable(Parametrizable* parametrizable, size_t parametrizableIndex);
 
   /*
    * @brief specific methods to replace specific objects.
    *
    */
   
-  SubstitutionModel* replaceModel(SubstitutionModel* model, unsigned int modelIndex)
+  SubstitutionModel* replaceModel(SubstitutionModel* model, size_t modelIndex)
   {
     return dynamic_cast<SubstitutionModel*>(replaceParametrizable(model, modelIndex));
   }
 
-  FrequenciesSet* replaceFrequencies(FrequenciesSet* frequencies, unsigned int frequenciesIndex)
+  FrequenciesSet* replaceFrequencies(FrequenciesSet* frequencies, size_t frequenciesIndex)
   {
     return dynamic_cast<FrequenciesSet*>(replaceParametrizable(frequencies, frequenciesIndex));
   }
 
-  DiscreteDistribution* replaceDistribution(DiscreteDistribution* distribution, unsigned int distributionIndex)
+  DiscreteDistribution* replaceDistribution(DiscreteDistribution* distribution, size_t distributionIndex)
   {
     return dynamic_cast<DiscreteDistribution*>(replaceParametrizable(distribution, distributionIndex));
   }
   
-  ParametrizableTree* replaceTree(ParametrizableTree* tree, unsigned int treeIndex)
+  ParametrizableTree* replaceTree(ParametrizableTree* tree, size_t treeIndex)
   {
     return dynamic_cast<ParametrizableTree*>(replaceParametrizable(tree, treeIndex));
   }
 
+  /*
+   * @}
+   *
+   */
+  
   /**
    * @brief To be called when a parameter has changed. This will call
    * fireParameterChanged on the collections.
@@ -407,7 +423,7 @@ public:
    *
    */
 
-  void addSubstitutionProcess(std::map<std::vector<unsigned int> > mModBr, unsigned int nTree, unsigned int nRate, unsigned int nFreq);
+  void addSubstitutionProcess(std::map<size_t, std::vector<int> > mModBr, size_t nTree, size_t nRate, size_t nFreq);
 
   /*
    * Method to build a stationary SubstitutionModelSet.
@@ -420,9 +436,42 @@ public:
    *
    */
 
-  void addSubstitutionProcess(std::map<std::vector<unsigned int> > mModBr, unsigned int nTree, unsigned int nRate);
+  void addSubstitutionProcess(std::map<size_t, std::vector<int> > mModBr, size_t nTree, size_t nRate);
 
+
+  /*
+   * @brief Methods to retrieve Substitution Process
+   *
+   */
+
+  size_t getNumberOfSubstitutionProcess() const { return vSubProcess_.size(); }
+
+  SubstitutionProcess* getSubstitutionProcess(size_t  i);
+    
+  /*
+   * @brief Methods to retrieve parameters
+   *
+   */
+
+  /*
+   * @brief Get the branch lengths parameters.
+   *
+   * @return A ParameterList with all branch lengths.
+   */
   
+  ParameterList getBranchLengthsParameters() const;
+
+  bool hasBranchLengthsParameter(const std::string& name) const;
+  
+  /**
+   * @brief Get the parameters associated to substitution model(s).
+   *
+   * @return A ParameterList.
+   */
+  
+  ParameterList getSubstitutionProcessParameters() const;
+
+
 };
 } // end of namespace bpp.
 

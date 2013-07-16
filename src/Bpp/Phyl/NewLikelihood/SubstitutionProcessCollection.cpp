@@ -38,6 +38,11 @@
 */
 
 #include "SubstitutionProcessCollection.h"
+
+#include "SubstitutionProcessCollectionMember.h"
+
+#include "../TreeTemplateTools.h"
+
 //#include "AbstractSubstitutionModel.h"
 
 using namespace bpp;
@@ -49,8 +54,10 @@ SubstitutionProcessCollection::SubstitutionProcessCollection(const SubstitutionP
   freqColl_(set.freqColl_),
   distColl_(set.distColl_),
   treeColl_(set.treeColl_),
-  vSubProcess_(set.vSubProcess_)
+  vSubProcess_()
 {
+  for (size_t i=0;i<set.vSubProcess_.size(); i++)
+    vSubProcess_.push_back(dynamic_cast<SubstitutionProcessCollectionMember*>(set.vSubProcess_[i]->clone()));
 }
 
 SubstitutionProcessCollection& SubstitutionProcessCollection::operator=(const SubstitutionProcessCollection& set)
@@ -62,7 +69,8 @@ SubstitutionProcessCollection& SubstitutionProcessCollection::operator=(const Su
   freqColl_=set.freqColl_;
   distColl_=set.distColl_;
   treeColl_=set.treeColl_;
-  vSubProcess_=set.vSubProcess_;
+  for (size_t i=0;i<set.vSubProcess_.size(); i++)
+    vSubProcess_.push_back(dynamic_cast<SubstitutionProcessCollectionMember*>(set.vSubProcess_[i]->clone()));
 
   return *this;
 }
@@ -75,11 +83,13 @@ void SubstitutionProcessCollection::clear()
   freqColl_.clear();
   distColl_.clear();
   treeColl_.clear();
-  vSubProcess_.reset();
-  
+  for (size_t i=0;i<vSubProcess_.size(); i++)
+    delete vSubProcess_[i];
+
+  vSubProcess_.clear();
 }
 
-void SubstitutionProcessCollection::addParametrizable(Parametrizable* parametrizable, unsigned int parametrizableIndex)
+void SubstitutionProcessCollection::addParametrizable(Parametrizable* parametrizable, size_t parametrizableIndex)
 {
   ParameterList pl;
   if (dynamic_cast<SubstitutionModel*>(parametrizable)){
@@ -94,12 +104,12 @@ void SubstitutionProcessCollection::addParametrizable(Parametrizable* parametriz
     else
       if (dynamic_cast<DiscreteDistribution*>(parametrizable)){
         distColl_.addObject(dynamic_cast<DiscreteDistribution*>(parametrizable), parametrizableIndex);
-        pl=distColl_.addObjectParameters(parametrizableIndex);
+        pl=distColl_.getObjectParameters(parametrizableIndex);
       }
       else
         if (dynamic_cast<ParametrizableTree*>(parametrizable)){
           treeColl_.addObject(dynamic_cast<ParametrizableTree*>(parametrizable), parametrizableIndex);
-          pl=treeColl_.addObjectParameters(parametrizableIndex);
+          pl=treeColl_.getObjectParameters(parametrizableIndex);
         }
 
         else
@@ -111,9 +121,9 @@ void SubstitutionProcessCollection::addParametrizable(Parametrizable* parametriz
   addParameters_(pl);
 }
 
-Parametrizable* SubstitutionProcessCollection::replaceParametrizable(Parametrizable* parametrizable, unsigned int parametrizableIndex)
+Parametrizable* SubstitutionProcessCollection::replaceParametrizable(Parametrizable* parametrizable, size_t parametrizableIndex)
 {
-  Parametrizable* pp; 
+  Parametrizable* pp=0; 
   ParameterList pl;
   if (dynamic_cast<SubstitutionModel*>(parametrizable)){
     pp = modelColl_.replaceObject(dynamic_cast<SubstitutionModel*>(parametrizable), parametrizableIndex);
@@ -132,7 +142,7 @@ Parametrizable* SubstitutionProcessCollection::replaceParametrizable(Parametriza
       else
         if (dynamic_cast<ParametrizableTree*>(parametrizable)){
           treeColl_.replaceObject(dynamic_cast<ParametrizableTree*>(parametrizable), parametrizableIndex);
-          pl=treeColl_.addObjectParameters(parametrizableIndex);
+          pl=treeColl_.getObjectParameters(parametrizableIndex);
         }
         else
           throw Exception("Unknown parametrizable object in SubstitutionProcessCollection::replaceParametrizable.");
@@ -163,29 +173,51 @@ void SubstitutionProcessCollection::fireParameterChanged(const ParameterList& pa
 }
 
 
-void SubstitutionProcessCollection::addSubstitutionProcess(std::map<std::vector<unsigned int> > mModBr, unsigned int nTree, unsigned int nRate, unsigned int nFreq)
+void SubstitutionProcessCollection::addSubstitutionProcess(std::map<size_t, std::vector<int> > mModBr, size_t nTree, size_t nRate, size_t nFreq)
 {
-  SubstitutionProcessCollectionMember* nSMS=new SubstitutionProcessCollectionMember(this);
-  nSMS->addRootFrequencies(nFreq);
-  nSMS->addTree(nTree);
-  nSMS->addRate(nRate);
-  
-  std::map<std::vector<unsigned int> >::iterator it;
+  SubstitutionProcessCollectionMember* nSMS=new SubstitutionProcessCollectionMember(this, nTree, nRate);
+  nSMS->setRootFrequencies(nFreq);
+
+  std::map<size_t, std::vector<int> >::iterator it;
   for (it=mModBr.begin(); it!=mModBr.end(); it++)
     nSMS->addModel(it->first, it->second);
   
   vSubProcess_.push_back(nSMS);
 }
 
-void SubstitutionProcessCollection::addSubstitutionProcess(std::map<std::vector<unsigned int> > mModBr, unsigned int nTree, unsigned int nRate)
+void SubstitutionProcessCollection::addSubstitutionProcess(std::map<size_t, std::vector<int> > mModBr, size_t nTree, size_t nRate)
 {
-  SubstitutionProcessCollectionMember* nSMS=new SubstitutionProcessCollectionMember(this);
-  nSMS->addTree(nTree);
-  nSMS->addRate(nRate);
+  SubstitutionProcessCollectionMember* nSMS=new SubstitutionProcessCollectionMember(this, nTree, nRate);
 
-  std::map<std::vector<unsigned int> >::iterator it;
+  std::map<size_t, std::vector<int> >::iterator it;
   for (it=mModBr.begin(); it!=mModBr.end(); it++)
     nSMS->addModel(it->first, it->second);
   
   vSubProcess_.push_back(nSMS);
+
+}
+
+ParameterList SubstitutionProcessCollection::getBranchLengthsParameters() const
+{
+  return treeColl_.getParameters();
+}
+
+bool SubstitutionProcessCollection::hasBranchLengthsParameter(const std::string& name) const
+{
+  return treeColl_.hasParameter(name);
+}
+
+ParameterList SubstitutionProcessCollection::getSubstitutionProcessParameters() const
+{
+  ParameterList pl=modelColl_.getParameters();
+
+  pl.addParameters(freqColl_.getParameters());
+  pl.addParameters(distColl_.getParameters());
+
+  return pl;
+}
+
+SubstitutionProcess* SubstitutionProcessCollection::getSubstitutionProcess(size_t  i)
+{
+  return dynamic_cast<SubstitutionProcess*>(vSubProcess_[i]);
 }

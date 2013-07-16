@@ -103,7 +103,7 @@ class TreeTemplateTools
       }
       for(size_t i = 0; i < node.getNumberOfSons(); i++)
       {
-        getLeaves<N>(* node.getSon(i), leaves);
+        getLeaves<N>(*dynamic_cast<N*>(node.getSon(i)), leaves);
       }
     }
 
@@ -124,7 +124,7 @@ class TreeTemplateTools
      * @brief Retrieve all leaves ids from a subtree.
      *
      * @param node The node that defines the subtree.
-     * @param ids A vector of ids.
+g     * @param ids A vector of ids.
      */
     static void getLeavesId(const Node& node, std::vector<int>& ids)
     {
@@ -353,7 +353,7 @@ class TreeTemplateTools
     {
       for(size_t i = 0; i < node.getNumberOfSons(); i++)
       {
-        getNodes<N>(*node.getSon(i), nodes);
+        getNodes<N>(*dynamic_cast<N*>(node.getSon(i)), nodes);
       }
       nodes.push_back(& node);
     }
@@ -440,7 +440,7 @@ class TreeTemplateTools
     {
       for(size_t i = 0; i < node.getNumberOfSons(); i++)
       {
-        getInnerNodes<N>(* node.getSon(i), nodes);
+        getInnerNodes<N>(* dynamic_cast<N*>(node.getSon(i)), nodes);
       }
       if (!node.isLeaf()) 
         nodes.push_back(&node); //Do not add leaves!
@@ -500,7 +500,7 @@ class TreeTemplateTools
     {
       for (size_t i = 0; i < node.getNumberOfSons(); ++i)
       {
-        searchNodeWithId<N>(*node.getSon(i), id, nodes);
+        searchNodeWithId<N>(*dynamic_cast<N*>(node.getSon(i)), id, nodes);
       }
       if (node.getId() == id) nodes.push_back(&node);
     }
@@ -587,7 +587,7 @@ class TreeTemplateTools
     {
       for(size_t i = 0; i < node.getNumberOfSons(); i++)
       {
-        searchNodeWithName<N>(*node.getSon(i), name, nodes);
+        searchNodeWithName<N>(*dynamic_cast<N*>(node.getSon(i)), name, nodes);
       }
       if(node.hasName() && node.getName() == name) nodes.push_back(&node);
     }
@@ -605,7 +605,7 @@ class TreeTemplateTools
       {
         for(size_t i = 0; i < node.getNumberOfSons(); i++)
         {
-          if(hasNodeWithName(*node.getSon(i), name)) return true;
+          if(hasNodeWithName(*dynamic_cast<N*>(node.getSon(i)), name)) return true;
         }
         return false;
       }
@@ -772,6 +772,22 @@ class TreeTemplateTools
       return clone;
     }
 
+  template<class N>
+  static N* cloneSubtree(const N& nodeN) 
+  {
+    //First we copy this node using default copy constuctor:
+    N* clone = new N(nodeN);
+    //We remove the link toward the father:
+    //clone->removeFather();
+
+    //Now we perform a hard copy:
+    for (int i = 0; i < static_cast<int>(nodeN.getNumberOfSons()); i++)
+      {
+        clone->addSon(cloneSubtree<N>(*dynamic_cast<const N*>(nodeN[i])));
+      }
+    return clone;
+  }
+
     /**
      * @brief Recursively delete a subtree structure.
      *
@@ -782,7 +798,7 @@ class TreeTemplateTools
     {
       for (size_t i = 0; i < node->getNumberOfSons(); ++i)
       {
-        N* son = node->getSon(i);
+        N* son = dynamic_cast<N*>(node->getSon(i));
         deleteSubtree(son);
         delete son;
       }

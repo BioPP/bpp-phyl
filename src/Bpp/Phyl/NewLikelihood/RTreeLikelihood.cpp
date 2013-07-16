@@ -174,6 +174,7 @@ double RTreeLikelihood::getLikelihoodForASite(size_t site) const
   {
     l += getLikelihoodForASiteForAClass(site, i) * process_->getProbabilityForModel(i);
   }
+  cerr << "r " << site << " = " << l << endl;
   //if(l <= 0.) cerr << "WARNING!!! Negative likelihood." << endl;
   if (l < 0) l = 0; //May happen because of numerical errors.
   return l;
@@ -291,6 +292,7 @@ void RTreeLikelihood::computeSubtreeLikelihood_(const Node* node)
     VVVdouble* likelihoods_son = &likelihoodData_->getLikelihoodArray(son->getId());
 
     //Get all transition probabilities:
+
     vector<const Matrix<double>*> pxy_son(nbClasses_);
     for (size_t c = 0; c < nbClasses_; ++c)
       pxy_son[c] = &process_->getTransitionProbabilities(son->getId(), c);
@@ -391,13 +393,13 @@ throw (Exception)
     throw Exception("Derivatives are only implemented for branch length parameters.");
   }
 
-  computeTreeDLikelihood_(variable);
+  computeDLikelihood_(variable);
   return -getDLogLikelihood();
 }
 
 /******************************************************************************/
 
-void RTreeLikelihood::computeTreeDLikelihood_(const string& variable) const
+void RTreeLikelihood::computeDLikelihood_(const string& variable) const
 {
 /*  if (variable == "BrLenRoot")
   {
@@ -868,13 +870,13 @@ throw (Exception)
     throw Exception("Derivatives are only implemented for branch length parameters.");
   }
 
-  computeTreeD2Likelihood_(variable);
+  computeD2Likelihood_(variable);
   return -getD2LogLikelihood();
 }
 
 /******************************************************************************/
 
-void RTreeLikelihood::computeTreeD2Likelihood_(const string& variable) const
+void RTreeLikelihood::computeD2Likelihood_(const string& variable) const
 {
   /*if (variable == "BrLenRoot")
   {

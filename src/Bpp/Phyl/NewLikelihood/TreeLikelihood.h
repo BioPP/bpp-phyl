@@ -56,6 +56,8 @@
 #include <Bpp/Seq/Alphabet/Alphabet.h>
 #include <Bpp/Seq/Container/SiteContainer.h>
 
+#include "Likelihood.h"
+
 namespace bpp
 {
   namespace newlik
@@ -68,7 +70,7 @@ namespace bpp
      * of a phylogenetic tree, given a dataset.
      */ 
     class TreeLikelihood:
-      public virtual DerivableSecondOrder
+      public Likelihood
     {
     public:
       TreeLikelihood() {}
@@ -79,32 +81,6 @@ namespace bpp
 #endif
 
     public:
-
-      /**
-       * @brief Set the dataset for which the likelihood must be evaluated.
-       *
-       * @param sites The data set to use.
-       */
-      virtual void setData(const SiteContainer& sites) = 0;
-    
-      /**
-       * @brief Get the dataset for which the likelihood must be evaluated.
-       *
-       * @return A pointer toward the site container where the sequences are stored.
-       */
-      virtual const SiteContainer* getData() const = 0;
-
-      /**
-       * @return 'true' is the likelihood function has been initialized.
-       */
-      virtual bool isInitialized() const = 0;
-
-      /**
-       * @brief Get the number of sites in the dataset.
-       *
-       * @return the number of sites in the dataset.
-       */
-      virtual size_t getNumberOfSites() const = 0;
 
       /**
        * @brief Get the number of states in the alphabet associated to the dataset.
@@ -127,14 +103,15 @@ namespace bpp
        */
       virtual const Tree& getTree() const = 0;
    
-      /**
-       * @brief Get the alphabet associated to the dataset.
-       *
-       * @return the alphabet associated to the dataset.
-       */    
-      virtual const Alphabet* getAlphabet() const = 0;
- 
-    
+      virtual void computeTreeLikelihood() = 0;
+
+    protected:
+      
+      virtual void computeDLikelihood_(const std::string& variable) const = 0;
+
+      virtual void computeD2Likelihood_(const std::string& variable) const = 0;
+
+    public:
       /**
        * @return The underlying likelihood data structure.
        */
@@ -150,21 +127,6 @@ namespace bpp
        *
        * @{
        */
-      /**
-       * @brief Get the logarithm of the likelihood for the whole dataset.
-       *
-       * @return The logarithm of the likelihood of the dataset.
-       */
-      virtual double getLogLikelihood() const = 0;
- 
-      /**
-       * @brief Get the likelihood for a site.
-       *
-       * @param site The site index to analyse.
-       * @return The likelihood for site <i>site</i>.
-       */
-      virtual double getLikelihoodForASite(size_t site) const = 0;
- 
       /**
        * @brief Get the likelihood for a site and for a state.
        *
@@ -193,13 +155,6 @@ namespace bpp
        */
       virtual double getLikelihoodForASiteForAClassForAState(size_t site, size_t modelClass, int state) const = 0;
  
-      /**
-       * @brief Get the likelihood for each site.
-       *
-       * @return A vector with all likelihoods for each site.
-       */
-      virtual Vdouble getLikelihoodForEachSite() const = 0;
-
       /**
        * @brief Get the likelihood for each site and for each state.
        *
@@ -232,47 +187,6 @@ namespace bpp
        */
       virtual std::vector<size_t> getClassWithMaxPostProbOfEachSite() const = 0;
 
-   
-      /**
-       * @name Retrieve some particular parameters subsets.
-       *
-       * @{
-       */
-    
-      /**
-       * @brief Get the branch lengths parameters.
-       *
-       * @return A ParameterList with all branch lengths.
-       */
-      virtual ParameterList getBranchLengthsParameters() const = 0;
-    
-      /**
-       * @brief Get the parameters associated to substitution model(s).
-       *
-       * @return A ParameterList.
-       */
-      virtual ParameterList getSubstitutionProcessParameters() const = 0;
-
-      /**
-       * @brief All derivable parameters.
-       *
-       * Usually, this contains all branch lengths parameters.
-       *
-       * @return A ParameterList.
-       */
-      virtual ParameterList getDerivableParameters() const = 0;
-
-      /**
-       * @brief All non derivable parameters.
-       *
-       * Usually, this contains all substitution model parameters and rate distribution.
-       *
-       * @return A ParameterList.
-       */
-      virtual ParameterList getNonDerivableParameters() const = 0;
-
-      /** @} */
-
       /**
        * @brief Get the index (used for inner computations) of a given site (original alignment column).
        *
@@ -280,16 +194,6 @@ namespace bpp
        * @return The site index corresponding to the given input alignment position.
        */
       virtual size_t getSiteIndex(size_t site) const throw (IndexOutOfBoundsException) = 0;   
-      /** @} */
-
-      /**
-       * @brief Tell if derivatives must be computed.
-       *
-       * This methods calls the enableFirstOrderDerivatives and enableSecondOrderDerivatives.
-       *
-       * @param yn Yes or no.
-       */
-      virtual void enableDerivatives(bool yn) = 0;
 
       /**
        * @name Iterators
@@ -302,6 +206,7 @@ namespace bpp
       //virtual ConstSiteModelIterator* getNewSiteModelIterator(size_t siteIndex) const = 0;
       /* @} */
 
+      friend class LikelihoodCollection;
 
     };
 

@@ -74,7 +74,7 @@ namespace bpp
  * These are achieved through calls to the corresponding SubstitutionProcess class.
  */
 class SubstitutionProcess :
-  public virtual ParameterAliasable
+    public virtual ParameterAliasable
 {
 public:
   virtual SubstitutionProcess* clone() const = 0;

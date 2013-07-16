@@ -38,26 +38,46 @@
 */
 
 #include "SubstitutionProcessCollectionMember.h"
-#include "MixedSubstitutionModel.h"
+
+#include "SubstitutionProcessCollection.h"
+#include "../Model/MixedSubstitutionModel.h"
 
 #include <Bpp/Utils/MapTools.h>
 
 using namespace bpp;
 using namespace std;
 
+SubstitutionProcessCollectionMember::SubstitutionProcessCollectionMember(const SubstitutionProcessCollection* pSubProColl, size_t nTree, size_t nDist) :
+  AbstractParameterAliasable(""),
+  pSubProColl_(pSubProColl),
+  nodeToModel_(),
+  modelToNodes_(),
+  nTree_(nTree),
+  nDist_(nDist),
+  stationarity_(true),
+  nRoot_(0),
+  computingTree_(pSubProColl_->getTree(nTree_)->getTree(),*pSubProColl_->getDistribution(nDist_))
+{
+  addParameters_(pSubProColl_->getTree(nTree_)->getParameters());
+  addParameters_(pSubProColl_->getDistribution(nDist_)->getParameters());
+}
+
 SubstitutionProcessCollectionMember::SubstitutionProcessCollectionMember(const SubstitutionProcessCollectionMember& set) :
+  AbstractParameterAliasable(set),
   pSubProColl_(set.pSubProColl_),
   nodeToModel_(set.nodeToModel_),
   modelToNodes_(set.modelToNodes_),
   nTree_(set.nTree_),
   nDist_(set.nDist_),
   stationarity_(set.stationarity_),
-  nRoot_(set.nRoot_)
+  nRoot_(set.nRoot_),
+  computingTree_(set.computingTree_)
 {
 }
 
 SubstitutionProcessCollectionMember& SubstitutionProcessCollectionMember::operator=(const SubstitutionProcessCollectionMember& set)
 {
+  AbstractParameterAliasable::operator=(set);
   pSubProColl_ = set.pSubProColl_;
   nodeToModel_ = set.nodeToModel_;
   modelToNodes_ = set.modelToNodes_;
@@ -65,6 +85,7 @@ SubstitutionProcessCollectionMember& SubstitutionProcessCollectionMember::operat
   nDist_ = set.nDist_;
   stationarity_ = set.stationarity_;
   nRoot_ = set.nRoot_;
+  computingTree_ = set.computingTree_;
 
   return *this;
 }
@@ -73,25 +94,75 @@ void SubstitutionProcessCollectionMember::clear()
 {
   nodeToModel_.clear();
   modelToNodes_.clear();
+
   stationarity_=true;
 }
 
-void SubstitutionProcessCollectionMember::addModel(unsigned int numModel, const std::vector<int>& nodesId)
-{
-  SubstitutionModel* nmod=pSubProColl_->getModel(numModel);
 
+const Alphabet* SubstitutionProcessCollectionMember::getAlphabet() const
+{
+  return pSubProColl_->getModel(modelToNodes_.begin()->first)->getAlphabet();
+}
+
+const SubstitutionModel* SubstitutionProcessCollectionMember::getModel(size_t i) const
+{
+  return pSubProColl_->getModel(i);
+}
+
+
+const DiscreteDistribution* SubstitutionProcessCollectionMember::getDistribution() const
+{
+  return pSubProColl_->getDistribution(nDist_);
+}
+
+const FrequenciesSet* SubstitutionProcessCollectionMember::getRootFrequenciesSet() const
+{
+  if (stationarity_)
+    return 0;
+  else
+    return pSubProColl_->getFrequencies(nRoot_);
+}
+
+const std::vector<double>& SubstitutionProcessCollectionMember::getRootFrequencies() const
+{
+  if (stationarity_)
+    return (pSubProColl_->getModel(modelToNodes_.begin()->first))->getFrequencies();
+  else
+    return (pSubProColl_->getFrequencies(nRoot_))->getFrequencies();
+}
+
+const TreeTemplate<Node>& SubstitutionProcessCollectionMember::getTree() const
+{
+  return pSubProColl_->getTree(nTree_)->getTree();
+}
+
+const ParametrizableTree& SubstitutionProcessCollectionMember::getParametrizableTree() const
+{
+  return *pSubProColl_->getTree(nTree_);
+}
+
+size_t SubstitutionProcessCollectionMember::getNumberOfClasses() const
+{
+  return pSubProColl_->getDistribution(nDist_)->getNumberOfCategories();
+}
+
+
+void SubstitutionProcessCollectionMember::addModel(size_t numModel, const std::vector<int>& nodesId)
+{
+  const SubstitutionModel* nmod=pSubProColl_->getModel(numModel);
+  
   if (modelToNodes_.size()>0){
-    SubstitutionModel* pmodi=pSubProColl_->getModel(modelToNodes_.begin()->first);
+    const SubstitutionModel* pmodi=pSubProColl_->getModel(modelToNodes_.begin()->first);
     if (nmod->getAlphabet()->getAlphabetType() !=  pmodi->getAlphabet()->getAlphabetType())
       throw Exception("SubstitutionProcessCollectionMember::addModel. A Substitution Model cannot be added to a Model Set if it does not have the same alphabet.");
     if (nmod->getNumberOfStates() != pmodi->getNumberOfStates())
       throw Exception("SubstitutionProcessCollectionMember::addModel. A Substitution Model cannot be added to a Model Set if it does not have the same number of states.");
   }
   else if (!stationarity_) {
-    FrequenciesSet* pfreq=pSubProColl_->getFrequencies(nRoot_);
+    const FrequenciesSet* pfreq=pSubProColl_->getFrequencies(nRoot_);
     if (pfreq->getAlphabet()->getAlphabetType() != nmod->getAlphabet()->getAlphabetType())
       throw Exception("SubstitutionProcessCollectionMember::addModel. A Substitution Model cannot be added to a Model Set if it does not have the same alphabet as the root frequencies.");
-    if (pfreq->getFrequencies->size() != nmod->getNumberOfStates())
+    if (pfreq->getFrequencies().size() != nmod->getNumberOfStates())
       throw Exception("SubstitutionProcessCollectionMember::addModel. A Substitution Model cannot be added to a Model Set if it does not have the same number of states as the root frequencies.");
   }
   
@@ -101,17 +172,20 @@ void SubstitutionProcessCollectionMember::addModel(unsigned int numModel, const 
       nodeToModel_[nodesId[i]] = numModel;
       modelToNodes_[numModel].push_back(nodesId[i]);
     }
+
+
+  computingTree_.addModel(nmod, nodesId);
 }
 
-void SubstitutionProcessCollectionMember::setRootFrequencies(unsigned int numFreq)
+void SubstitutionProcessCollectionMember::setRootFrequencies(size_t numFreq)
 {
-  FrequenciesSet* nfreq=pSubProColl_->getFrequencies(numFreq);
+  const FrequenciesSet* pfreq=pSubProColl_->getFrequencies(numFreq);
   if (modelToNodes_.size()>0){
-    SubstitutionModel* pmodi=pSubProColl_->getModel(modelToNodes_.begin()->first);
+    const SubstitutionModel* pmodi=pSubProColl_->getModel(modelToNodes_.begin()->first);
 
     if (pfreq->getAlphabet()->getAlphabetType() != pmodi->getAlphabet()->getAlphabetType())
       throw Exception("SubstitutionProcessCollectionMember::addRootFrequencies. A Frequencies Set cannot be added to a Model Set if it does not have the same alphabet as the models.");
-    if (pfreq->getFrequencies->size() != pmodi->getNumberOfStates())
+    if (pfreq->getFrequencies().size() != pmodi->getNumberOfStates())
       throw Exception("SubstitutionProcessCollectionMember::addRootFrequencies. A Frequencies Set cannot be added to a Model Set if it does not have the same number of states as the models.");
   }
   
@@ -119,21 +193,11 @@ void SubstitutionProcessCollectionMember::setRootFrequencies(unsigned int numFre
   nRoot_=numFreq;
 }
 
-void SubstitutionProcessCollectionMember::setTree(unsigned int numTree)
-{
-  nTree_=numTree;
-}
-
-void SubstitutionProcessCollectionMember::setDistribution(unsigned int numDist)
-{
-  nDist_=numDist;
-}
-
-bool SubstitutionProcessCollectionMember::checkOrphanNodes(const Tree& tree, bool throwEx) const
+bool SubstitutionProcessCollectionMember::checkOrphanNodes(bool throwEx) const
   throw (Exception)
 {
-  vector<int> ids = tree.getNodesId();
-  int rootId = tree.getRootId();
+  vector<int> ids = getTree().getNodesId();
+  int rootId = getTree().getRootId();
   for (size_t i = 0; i < ids.size(); i++)
     {
       if (ids[i] != rootId && nodeToModel_.find(ids[i]) == nodeToModel_.end())
@@ -145,17 +209,17 @@ bool SubstitutionProcessCollectionMember::checkOrphanNodes(const Tree& tree, boo
   return true;
 }
 
-bool SubstitutionProcessCollectionMember::checkUnknownNodes(const Tree& tree, bool throwEx) const
+bool SubstitutionProcessCollectionMember::checkUnknownNodes(bool throwEx) const
   throw (Exception)
 {
-  vector<int> ids = tree.getNodesId();
+  vector<int> ids = getTree().getNodesId();
   int id;
-  int rootId = tree.getRootId();
+  int rootId = getTree().getRootId();
   for (size_t i = 0; i < modelToNodes_.size(); i++)
     {
-      for (size_t j = 0; j < modelToNodes_[i].size(); j++)
+      for (size_t j = 0; j < modelToNodes_.at(i).size(); j++)
         {
-          id = modelToNodes_[i][j];
+          id = modelToNodes_.at(i)[j];
           if (id == rootId || !VectorTools::contains(ids, id))
             {
               if (throwEx) throw Exception("SubstitutionProcessCollectionMember::checkUnknownNodes(). Node '" + TextTools::toString(id) + "' is not found in tree or is the root node.");
@@ -184,7 +248,7 @@ bool SubstitutionProcessCollectionMember::hasMixedSubstitutionModel() const
 bool SubstitutionProcessCollectionMember::isCompatibleWith(const SiteContainer& data) const
 {
   if (modelToNodes_.size() > 0) 
-    return data.getAlphabet()->getAlphabetType() == getModel(modelToNodes_.begin()->first)->getAlphabet()->getAlphabetType();
+    return data.getAlphabet()->getAlphabetType() == pSubProColl_->getModel(modelToNodes_.begin()->first)->getAlphabet()->getAlphabetType();
   else
     return true;
 }
@@ -192,64 +256,41 @@ bool SubstitutionProcessCollectionMember::isCompatibleWith(const SiteContainer& 
 
 bool SubstitutionProcessCollectionMember::hasTransitionProbabilitiesParameter(const std::string& name) const
 {
-  size_t pos=name.rfind("_");
-  if (pos==string::npos)
-    return false;
-  unsigned int vpos;
-  try {
-    vpos=TextTools::toInt(name.substr(pos));
-  }
-  catch (Exception& e)
-    return false;
-
-  if (modelToNodes_.find(vpos) == modelToNodes_.end())
-    return false;
-
-  string pref=name.substr(0,pos);
-  
-  return pSubProColl_->getModel(vpos)->getParameters().hasParameter(pref);
+  return false;
 }
 
-const Matrix<double>& SubstitutionProcessCollectionMember::getTransitionProbabilities(int nodeId, size_t classIndex) const
+const SubstitutionModel* SubstitutionProcessCollectionMember::getModelForNode(int nodeId) const throw (Exception)
 {
-  const SubstitutionModel& SM=getSubstitutionModel(nodeId, classIndex);
-  size_t i = getModelIndex_(nodeId, classIndex);
-
-  if (!computeProbability_[i]) {
-    computeProbability_[i] = true; //We record that we did this computation.
-    //The transition matrix was never computed before. We therefore have to compute it first:
-    double l = pTree_->getBranchLengthParameter(nodeId).getValue();
-    double r = rDist_->getCategory(classIndex);
-    probabilities_[i] = SM.getPij_t(l * r);
-  }
-  return probabilities_[i];
+  std::map<int, size_t>::const_iterator i = nodeToModel_.find(nodeId);
+  if (i == nodeToModel_.end())
+    throw Exception("SubstitutionProcessCollectionMember::getModelForNode(). No model associated to node with id " + TextTools::toString(nodeId));
+  return getModel(i->second);
 }
 
-const Matrix<double>& SubstitutionProcessCollectionMember::getTransitionProbabilitiesD1(int nodeId, size_t classIndex) const
+size_t SubstitutionProcessCollectionMember::getNumberOfStates() const
 {
-  const SubstitutionModel& SM=getSubstitutionModel(nodeId, classIndex);
-  size_t i = getModelIndex_(nodeId, classIndex);
-
-  if (!computeProbabilityD1_[i]) {
-    computeProbabilityD1_[i] = true; //We record that we did this computation.
-    //The transition matrix was never computed before. We therefore have to compute it first:
-    double l = pTree_->getBranchLengthParameter(nodeId).getValue();
-    double r = rDist_->getCategory(classIndex);
-    probabilitiesD1_[i] = SM.getdPij_dt(l * r);
-  }
-  return probabilitiesD1_[i];
+  if (modelToNodes_.size()==0)
+    return 0;
+  else 
+    return getModel(modelToNodes_.begin()->first)->getNumberOfStates();
 }
 
-const Matrix<double>& SubstitutionProcessCollectionMember::getTransitionProbabilitiesD2(int nodeId, size_t classIndex) const
+const SubstitutionModel& SubstitutionProcessCollectionMember::getSubstitutionModel(int nodeId, size_t classIndex) const
 {
-  const SubstitutionModel& SM=getSubstitutionModel(nodeId, classIndex);
-  size_t i = getModelIndex_(nodeId, classIndex);
-  if (!computeProbabilityD2_[i]) {
-    computeProbabilityD2_[i] = true; //We record that we did this computation.
-    //The transition matrix was never computed before. We therefore have to compute it first:
-    double l = pTree_->getBranchLengthParameter(nodeId).getValue();
-    double r = rDist_->getCategory(classIndex);
-    probabilitiesD2_[i] = SM.getd2Pij_dt2(l * r);
-  }
-  return probabilitiesD2_[i];
+  return *getModel(nodeToModel_.at(nodeId));
 }
+
+double SubstitutionProcessCollectionMember::getInitValue(size_t i, int state) const throw (BadIntException)
+{
+  if (modelToNodes_.size()==0)
+    throw Exception("SubstitutionProcessCollectionMember::getInitValue : no model associated");
+  else
+    return getModel(modelToNodes_.begin()->first)->getInitValue(i,state);
+}
+
+double SubstitutionProcessCollectionMember::getProbabilityForModel(size_t classIndex) const {
+  if (classIndex >= getDistribution()->getNumberOfCategories())
+    throw IndexOutOfBoundsException("NonHomogeneousSubstitutionProcess::getProbabilityForModel.", classIndex, 0, getDistribution()->getNumberOfCategories());
+  return getDistribution()->getProbability(classIndex);
+}
+

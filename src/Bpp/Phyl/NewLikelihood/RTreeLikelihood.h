@@ -149,7 +149,7 @@ namespace newlik
     /**
      * @name The TreeLikelihood interface.
      *
-     * Other methods are implemented in the AbstractHomogeneousTreeLikelihood class.
+     * Other methods are implemented in the AbstractTreeLikelihood class.
      *
      * @{
      */
@@ -223,6 +223,10 @@ namespace newlik
 	
   protected:
 			
+    void computeDLikelihood_(const std::string& variable) const;
+
+    void computeD2Likelihood_(const std::string& variable) const;
+
     /**
      * @brief Compute the likelihood for a subtree defined by the Tree::Node <i>node</i>.
      *
@@ -232,9 +236,6 @@ namespace newlik
     virtual void computeDownSubtreeDLikelihood_(const Node* node) const;
     virtual void computeDownSubtreeD2Likelihood_(const Node* node) const;
 	
-    virtual void computeTreeDLikelihood_(const std::string& variable) const;
-    virtual void computeTreeD2Likelihood_(const std::string& variable) const;
-
     void fireParameterChanged(const ParameterList & params);
 	
     /**

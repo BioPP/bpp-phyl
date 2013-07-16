@@ -43,7 +43,8 @@
 
 
 #include "SubstitutionProcess.h"
-#include "SubstitutionProcessCollection.h"
+#include "ComputingNode.h"
+#include "ComputingTree.h"
 
 #include <Bpp/Exceptions.h>
 
@@ -52,8 +53,8 @@
 
 //From bpp-core
 #include <Bpp/Numeric/Prob/DiscreteDistribution.h>
+#include <Bpp/Numeric/AbstractParameterAliasable.h>
 
-class SubstitutionProcessCollection;
 
 namespace bpp
 {
@@ -61,14 +62,17 @@ namespace bpp
    * @brief A substitution process which objects belong to a SubstitutionProcessCollection.
    *
    */
+
+  class SubstitutionProcessCollection;
   
   class SubstitutionProcessCollectionMember :
-    public SubstitutionProcess
+    public virtual SubstitutionProcess,
+    public virtual AbstractParameterAliasable
   {
   private:
 
     /**
-     * @brief A pointer towards the collection de SubstitutionProcessCollectionMember
+     * @brief A pointer towards the collection the SubstitutionProcessCollectionMember
      * belongs to.
      *
      */
@@ -89,14 +93,14 @@ namespace bpp
      *
      */
 
-    unsigned int nTree_;
+    size_t nTree_;
 
     /**
      *@brief The number of the rate distribution
      *
      */
 
-    unsigned int nDist_;
+    size_t nDist_;
 
     /**
      * @brief A boolean if the model is stationary, and the number of
@@ -106,26 +110,30 @@ namespace bpp
 
     bool stationarity_;
 
-    unsigned int nRoot_;
+    size_t nRoot_;
 
-  public:
+    /**
+     * @brief The related Computing Tree
+     *
+     */
+
+    mutable ComputingTree  computingTree_;
+    
+  private:
+    /*
+     * @brief Constructors are only accessible through a SubstitutionProcessCollection.
+     */
+    
     /**
      * @brief Create a model set belonging to the specified SubstitutionProcessCollection.
      * Stationarity is assumed.
      *
      * @param pSubProColl the SubstitutionProcessCollection.
+     * @param nTree Number of the tree
+     * @param nDist Number of the Discrete Distribution
      */
   
-    SubstitutionProcessCollectionMember(const SubstitutionProcessCollection* pSubProColl) :
-    pSubProColl_(pSubProColl),
-    nodeToModel_(),
-    modelToNodes_(),
-    nTree_(0),
-    nDist_(0),
-    stationarity_(true),
-    nRoot_(0)
-    {
-    }
+    SubstitutionProcessCollectionMember(const SubstitutionProcessCollection* pSubProColl, size_t nTree, size_t nDist);
 
     /**
      * @brief Resets all the information contained in this object.
@@ -149,10 +157,7 @@ namespace bpp
 
   public:
 
-    const Alphabet* getAlphabet() const
-    {
-      return pSubProColl_->getModel(modelToNodes_.begin()->first)->getAlphabet();
-    }
+    inline const Alphabet* getAlphabet() const;
 
     /**
      * @return The current number of distinct substitution models in this set.
@@ -172,16 +177,8 @@ namespace bpp
      * @return A pointer toward the corresponding model.
      */
   
-    const SubstitutionModel* getModel(size_t i) const
-    {
-      return pSubProColl_->getModel(i);
-    }
-
-    SubstitutionModel* getModel(size_t i) 
-    {
-      return pSubProColl_->getModel(i);
-    }
-
+    inline const SubstitutionModel* getModel(size_t i) const;
+    
     /**
      * @brief Get the index in the set of the model associated to a particular node id.
      *
@@ -192,7 +189,7 @@ namespace bpp
 
     size_t getModelIndexForNode(int nodeId) const throw (Exception)
     {
-      std::map<int, size_t>::iterator i = nodeToModel_.find(nodeId);
+      std::map<int, size_t>::const_iterator i = nodeToModel_.find(nodeId);
       if (i == nodeToModel_.end())
         throw Exception("SubstitutionProcessCollectionMember::getModelIndexForNode(). No model associated to node with id " + TextTools::toString(nodeId));
       return i->second;
@@ -205,22 +202,9 @@ namespace bpp
      * @return A pointer toward the corresponding model.
      * @throw Exception If no model is found for this node.
      */
-    const SubstitutionModel* getModelForNode(int nodeId) const throw (Exception)
-    {
-      std::map<int, size_t>::const_iterator i = nodeToModel_.find(nodeId);
-      if (i == nodeToModel_.end())
-        throw Exception("SubstitutionProcessCollectionMember::getModelForNode(). No model associated to node with id " + TextTools::toString(nodeId));
-      return getModel(i->second);
-    }
-  
-    SubstitutionModel* getModelForNode(int nodeId) 
-    {
-      std::map<int, size_t>::iterator i = nodeToModel_.find(nodeId);
-      if (i == nodeToModel_.end())
-        throw Exception("SubstitutionProcessCollectionMember::getModelForNode(). No model associated to node with id " + TextTools::toString(nodeId));
-      return getModel(i->second);
-    }
 
+    inline const SubstitutionModel* getModelForNode(int nodeId) const throw (Exception);
+  
     /**
      * @brief Get a list of nodes id for which the given model is associated.
      *
@@ -232,7 +216,7 @@ namespace bpp
     const std::vector<int>& getNodesWithModel(size_t i) const 
     {
       std::map<size_t, std::vector<int> >::const_iterator it = modelToNodes_.find(i);
-      if (it == modelParameters_.end())
+      if (it == modelToNodes_.end())
         throw Exception("SubstitutionProcessCollectionMember::getNodesWithModel(). No nodes associated with model " + TextTools::toString(i));
     
       return it->second;
@@ -246,30 +230,7 @@ namespace bpp
      * This will override any previous affectation.
      */
 
-    void addModel(unsigned int numModel, const std::vector<int>& nodesId);
-
-    /**
-     * @brief Set the tree
-     * @param numTree the number of  the tree in the collection.
-     *
-     **/
-
-    void setTree(unsigned int numTree);
-
-    /**
-     * @brief Get the tree
-     *
-     **/
-
-    Tree* getTree()
-    {
-      return pSubProColl_->getTree(nTree_);
-    }
-
-    const Tree* getTree() const
-    {
-      return pSubProColl_->getTree(nTree_);
-    }
+    void addModel(size_t numModel, const std::vector<int>& nodesId);
 
     /**
      * @brief Set the rate distribution
@@ -277,39 +238,22 @@ namespace bpp
      *
      **/
 
-    void setDistribution(unsigned int numDist);
-
-    DiscreteDistribution* getDistribution()
-    {
-      return pSubProColl_->getDistribution(nDist_);
-    }
-
-    const DiscreteDistribution* getDistribution() const
-    {
-      return pSubProColl_->getDistribution(nDist_);
-    }
+    inline const DiscreteDistribution* getDistribution() const;
   
-
     /*
      * @brief Set the ro Frequencies Set
      * @param freqIndex the index of the frequencies in the collection.
      *
      */
 
-    void setRootFrequencies(unsigned int numFreq);
+    void setRootFrequencies(size_t numFreq);
   
     /**
      * @return The set of root frequencies.
      *
      */
   
-    const FrequenciesSet* getRootFrequenciesSet() const
-    {
-      if (stationarity_)
-        return 0;
-      else
-        return pSubProColl_->getFrequencies(nRoot_);
-    }
+    inline const FrequenciesSet* getRootFrequenciesSet() const;
 
     /**
      *  @brief void function for backward compatibilities. To be removed afterwards.
@@ -330,11 +274,11 @@ namespace bpp
      * @param throwEx Tell if an exception have to be thrown in case of test not passed.
      */
 
-    bool isFullySetUpFor(const Tree& tree, bool throwEx = true) const
+    bool isFullySetUp(bool throwEx = true) const
     {
       return checkOrphanModels(throwEx)
-        && checkOrphanNodes(tree, throwEx)
-        && checkUnknownNodes(tree, throwEx);
+        && checkOrphanNodes(throwEx)
+        && checkUnknownNodes(throwEx);
     }
 
   protected:
@@ -346,12 +290,12 @@ namespace bpp
      */
     bool checkOrphanModels(bool throwEx) const throw (Exception);
 
-    bool checkOrphanNodes(const Tree& tree, bool throwEx) const throw (Exception);
+    bool checkOrphanNodes(bool throwEx) const throw (Exception);
 
-    bool checkUnknownNodes(const Tree& tree, bool throwEx) const throw (Exception);
+    bool checkUnknownNodes(bool throwEx) const throw (Exception);
     /** @} */
 
-  pulic:
+  public:
     
     /*
      * Inheriting from SubstitutionProcess
@@ -359,7 +303,7 @@ namespace bpp
   
     bool isCompatibleWith(const SiteContainer& data) const;
 
-    bool hasTransitionProbabilitiesParameter(const std::string& name) const;
+    inline bool hasTransitionProbabilitiesParameter(const std::string& name) const;
 
     /**
      * @brief Get the number of states associated to this model set.
@@ -368,28 +312,20 @@ namespace bpp
      * the set.
      */
     
-    size_t getNumberOfStates() const
-    {
-      if (modelToNodes_.size()==0)
-        return 0;
-      else 
-        return getModel(modelToNodes_.begin()->first)->getNumberOfStates();
-    }
-
+    inline size_t getNumberOfStates() const;
 
     /**
      * @return The values of the root frequencies.
      */
   
-    std::vector<double> getRootFrequencies() const
-    {
-      if (stationarity_)
-        return (pSubProColl_->getModel(modelToNodes_.begin()->first))->getFrequencies();
-      else
-        return (pSubProColl_->getFrequencies(nRoot_))->getFrequencies();
-    }
+    inline const std::vector<double>& getRootFrequencies() const;
 
+    inline const TreeTemplate<Node>& getTree() const;
+    
+    inline const ParametrizableTree& getParametrizableTree() const;
 
+    inline size_t getNumberOfClasses() const;
+    
     /**
      * @brief Get the substitution model corresponding to a certain branch, site pattern, and model class.
      *
@@ -397,10 +333,7 @@ namespace bpp
      * @param classIndex The model class index.
      */
 
-    const SubstitutionModel& getSubstitutionModel(int nodeId, size_t classIndex) const
-    {
-      return *getModel(nodeToModel_[nodeId]);
-    }
+    const SubstitutionModel& getSubstitutionModel(int nodeId, size_t classIndex) const;
 
     /**
      * @brief Get the transition probabilities corresponding to a certain branch, site pattern, and model class.
@@ -408,7 +341,10 @@ namespace bpp
      * @param nodeId The id of the node.
      * @param classIndex The model class index.
      */
-    const Matrix<double>& getTransitionProbabilities(int nodeId, size_t classIndex) const;
+    const Matrix<double>& getTransitionProbabilities(int nodeId, size_t classIndex) const
+    {
+      return computingTree_[classIndex]->getNode(nodeId)->getTransitionProbabilities();
+    }
  
     /**
      * @brief Get the first order derivatives of the transition probabilities according to time, corresponding to a certain branch, site pattern, and model class.
@@ -416,7 +352,10 @@ namespace bpp
      * @param nodeId The id of the node.
      * @param classIndex The model class index.
      */
-    const Matrix<double>& getTransitionProbabilitiesD1(int nodeId, size_t classIndex) const;
+    const Matrix<double>& getTransitionProbabilitiesD1(int nodeId, size_t classIndex) const
+    {
+      return computingTree_[classIndex]->getNode(nodeId)->getTransitionProbabilitiesD1();
+    }
  
     /**
      * @brief Get the second order derivatives of the transition probabilities according to time, corresponding to a certain branch, site pattern, and model class.
@@ -424,7 +363,11 @@ namespace bpp
      * @param nodeId The id of the node.
      * @param classIndex The model class index.
      */
-    const Matrix<double>& getTransitionProbabilitiesD2(int nodeId, size_t classIndex) const;
+    const Matrix<double>& getTransitionProbabilitiesD2(int nodeId, size_t classIndex) const
+    {
+      return computingTree_[classIndex]->getNode(nodeId)->getTransitionProbabilitiesD2();
+    }
+
  
 
     const Matrix<double>& getGenerator(int nodeId, size_t classIndex) const
@@ -448,20 +391,12 @@ namespace bpp
      * @see SubstitutionModel
      */
 
-    double getInitValue(size_t i, int state) const throw (BadIntException)
-    {
-      if (modelToNodes_.size()==0)
-        throw Exception("SubstitutionProcessCollectionMember::getInitValue : no model associated");
-      else
-        return getModel(modelToNodes_.begin()->first)->getInitValue(i,state);
-    }
+    inline double getInitValue(size_t i, int state) const throw (BadIntException);
     
-    double getProbabilityForModel(size_t classIndex) const {
-      if (classIndex >= getDistribution()->getNumberOfCategories())
-        throw IndexOutOfBoundsException("NonHomogeneousSubstitutionProcess::getProbabilityForModel.", classIndex, 0, getDistribution()->getNumberOfCategories());
-      return getDistribution()->getProbability(classIndex);
-    }
+    double getProbabilityForModel(size_t classIndex) const;
 
+    friend class SubstitutionProcessCollection;
+    
   };
 } // end of namespace bpp.
 

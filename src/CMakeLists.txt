@@ -55,6 +55,8 @@ SET(CPP_FILES
   Bpp/Phyl/Likelihood/GlobalClockTreeLikelihoodFunctionWrapper.cpp
   Bpp/Phyl/NewLikelihood/AbstractSubstitutionProcess.cpp
   Bpp/Phyl/NewLikelihood/AbstractTreeLikelihood.cpp
+  Bpp/Phyl/NewLikelihood/LikelihoodCollection.cpp
+  Bpp/Phyl/NewLikelihood/MixtureLikelihoodCollection.cpp
   # Bpp/Phyl/NewLikelihood/DRTreeLikelihood.cpp
   # Bpp/Phyl/NewLikelihood/DRTreeLikelihoodData.cpp
   Bpp/Phyl/NewLikelihood/NonHomogeneousSubstitutionProcess.cpp
@@ -63,8 +65,10 @@ SET(CPP_FILES
   Bpp/Phyl/NewLikelihood/RTreeLikelihood.cpp
   Bpp/Phyl/NewLikelihood/RTreeLikelihoodData.cpp
   Bpp/Phyl/NewLikelihood/SimpleSubstitutionProcess.cpp
-  # Bpp/Phyl/NewLikelihood/SubstitutionProcessCollection.cpp
-  # Bpp/Phyl/NewLikelihood/SubstitutionProcessCollectionMember.cpp
+  Bpp/Phyl/NewLikelihood/ComputingNode.cpp
+  Bpp/Phyl/NewLikelihood/ComputingTree.cpp
+  Bpp/Phyl/NewLikelihood/SubstitutionProcessCollection.cpp
+  Bpp/Phyl/NewLikelihood/SubstitutionProcessCollectionMember.cpp
   Bpp/Phyl/Mapping/SubstitutionRegister.cpp
   Bpp/Phyl/Mapping/LaplaceSubstitutionCount.cpp
   Bpp/Phyl/Mapping/OneJumpSubstitutionCount.cpp
@@ -243,11 +247,16 @@ SET(H_FILES
   Bpp/Phyl/NewLikelihood/RTreeLikelihood.h
   Bpp/Phyl/NewLikelihood/SimpleSubstitutionProcess.h
   Bpp/Phyl/NewLikelihood/SitePartition.h
-  Bpp/Phyl/NewLikelihood/SubstitutionProcessCollection.h
-  Bpp/Phyl/NewLikelihood/SubstitutionProcessCollectionMember.h
+  Bpp/Phyl/NewLikelihood/ComputingNode.cpp
+  Bpp/Phyl/NewLikelihood/ComputingTree.cpp
+  Bpp/Phyl/NewLikelihood/SubstitutionProcessCollection.cpp
+  Bpp/Phyl/NewLikelihood/SubstitutionProcessCollectionMember.cpp
   Bpp/Phyl/NewLikelihood/SubstitutionProcess.h
   Bpp/Phyl/NewLikelihood/TreeLikelihoodData.h
   Bpp/Phyl/NewLikelihood/TreeLikelihood.h
+  Bpp/Phyl/NewLikelihood/Likelihood.h
+  Bpp/Phyl/NewLikelihood/LikelihoodCollection.h
+  Bpp/Phyl/NewLikelihood/MixtureLikelihoodCollection.h
   Bpp/Phyl/Mapping/LaplaceSubstitutionCount.h
   Bpp/Phyl/Mapping/WeightedSubstitutionCount.h
   Bpp/Phyl/Mapping/OneJumpSubstitutionCount.h

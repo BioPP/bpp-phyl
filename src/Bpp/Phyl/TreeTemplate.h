@@ -246,16 +246,16 @@ public:
     if (!isRooted()) throw UnrootedTreeException("Tree::unroot", this);
     else
     {
-      N* son1 = root_->getSon(0);
-      N* son2 = root_->getSon(1);
+      N* son1 = dynamic_cast<N*>(root_->getSon(0));
+      N* son2 = dynamic_cast<N*>(root_->getSon(1));
       if (son1->isLeaf() && son2->isLeaf()) return false;  // We can't unroot a single branch!
 
       // We manage to have a subtree in position 0:
       if (son1->isLeaf())
       {
         root_->swap(0, 1);
-        son1 = root_->getSon(0);
-        son2 = root_->getSon(1);
+        son1 = dynamic_cast<N*>(root_->getSon(0));
+        son2 = dynamic_cast<N*>(root_->getSon(1));
       }
 
       // Take care of branch lengths:
@@ -519,7 +519,7 @@ public:
     {
       rootId = getNextId();
     }
-    rootAt(outGroup->getFather());
+    rootAt(dynamic_cast<N*>(outGroup->getFather()));
     N* oldRoot = root_;
     oldRoot->removeSon(outGroup);
     root_ = new N();
