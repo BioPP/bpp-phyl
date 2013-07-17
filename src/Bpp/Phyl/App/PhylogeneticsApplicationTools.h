@@ -56,6 +56,8 @@
 #include <Bpp/Numeric/Prob/MultipleDiscreteDistribution.h>
 #include <Bpp/Numeric/Function/Optimizer.h>
 
+#include "../NewLikelihood/SubstitutionProcess.h"
+
 // From SeqLib:
 #include <Bpp/Seq/Container/SiteContainer.h>
 #include <Bpp/Seq/Container/VectorSiteContainer.h>
@@ -313,6 +315,77 @@ namespace bpp
                                         bool verbose = true);
     
     /**
+     * @brief Sets a SubstitutionProcess object according to options.
+     *
+     * Recognized options are:
+     * - number_of_models: the number of distinct SubstitutionModel to use.
+     *
+     * Then, for each of the models, the following information must be provided:
+     * - model1='model name(parameters'='value',...)
+     * Model names and parameters follow the same syntaxe as for the getSubstitutionModel method.
+     * - model1.nodes='list of nodes id, separated by comas'.
+     * And then
+     * - model2=...
+     * etc.
+     *
+     * All models must be fully specified, and at the end of the
+     * description, all nodes must be attributed to a model, otherwise
+     * an exception is thrown.
+     * 
+     * Finally, this is also allowed for models to share one or
+     * several parameters. for instance:
+     * @code
+     * model1=T92(kappa=2.0, theta=0.5)
+     * model2=T92(kappa=model1.kappa, theta=0.5)
+     * @endcode
+     *
+     * In this case model1 and model2 with have their own and
+     * independent theta parameter, but only one kappa parameter will
+     * be used for both models.
+     *
+     * Note that
+     * @code
+     * model1=T92(kappa=2.0, theta=0.5)
+     * model1.nodes=1,2,3
+     * model2=T92(kappa= model1.kappa, theta=model1.theta)
+     * model2.nodes=4,5,6
+     * @endcode
+     * is equivalent to
+     * @code
+     * model1=T92(kappa=2.0, theta=0.5)
+     * model1.nodes=1,2,3,4,5,6
+     * @endcode
+     *
+     * but will require more memory and use more CPU, since some
+     * calculations will be performed twice.
+     *
+     * @param subProcess The modified SubstitutionProcess object
+     *                   according to options specified.
+     * @param alphabet The alpabet to use in all models.
+     * @param data A pointer toward the SiteContainer for which the
+     *             substitution process is designed.
+     *
+     *             The alphabet associated to the data must be of the
+     *             same type as the one specified for the model. May
+     *             be equal to NULL, but in this cas use_observed_freq
+     *             option will be unavailable.
+     *
+     * @param params   The attribute map where options may be found.
+     * @param suffix   A suffix to be applied to each attribute name.
+     * @param suffixIsOptional Tell if the suffix is absolutely required.
+     * @param verbose Print some info to the 'message' output stream.
+     * @throw Exception if an error occured.
+     */
+    
+    static SubstitutionProcess* setSubstitutionProcess(
+                                       const Alphabet* alphabet,
+                                       const SiteContainer* data, 
+                                       std::map<std::string, std::string>& params,
+                                       const std::string& suffix = "",
+                                       bool suffixIsOptional = true,
+                                       bool verbose = true);
+    
+    /**
      * @brief Complete a MixedSubstitutionModelSet object according to
      * options, given this model has already been filled through
      * setSubstitutionModelSet method.
@@ -351,7 +424,7 @@ namespace bpp
      * site.allowedpaths= model1[kappa_1] & model2[kappa_3,theta_2]
      * @endcode
      *
-     * With additional combination saying that a site can follow
+     * With additional co()mbination saying that a site can follow
      * submodels model1[kappa_2] and any submodel of model2[kappa_3]
      * is denoted:
      *

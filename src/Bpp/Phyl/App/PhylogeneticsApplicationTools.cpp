@@ -57,6 +57,11 @@
 #include "../Io/BppOFrequenciesSetFormat.h"
 #include "../Io/BppORateDistributionFormat.h"
 
+#include "../NewLikelihood/ParametrizableTree.h"
+#include "../NewLikelihood/NonHomogeneousSubstitutionProcess.h"
+#include "../NewLikelihood/SimpleSubstitutionProcess.h"
+#include "../NewLikelihood/RateAcrossSitesSubstitutionProcess.h"
+
 // From bpp-core
 #include <Bpp/Io/BppODiscreteDistributionFormat.h>
 #include <Bpp/Io/BppOParametrizableFormat.h>
@@ -326,18 +331,189 @@ FrequenciesSet* PhylogeneticsApplicationTools::getFrequenciesSet(
 }
 
 /******************************************************/
+/**** SUBSTITUTION PROCESS   **************************/
+/******************************************************/
+
+/******************************************************************************/
+
+
+SubstitutionProcess* PhylogeneticsApplicationTools::setSubstitutionProcess(
+  const Alphabet* alphabet,
+  const SiteContainer* data,
+  map<string, string>& params,
+  const string& suffix,
+  bool suffixIsOptional,
+  bool verbose)
+{
+  string nhOpt = ApplicationTools::getStringParameter("nonhomogeneous", params, "no", "", true, false);
+  ApplicationTools::displayResult("Heterogeneous model", nhOpt);
+
+  auto_ptr<Tree> tmpt(getTree(params));
+  
+  auto_ptr<ParametrizableTree>  pTree(new ParametrizableTree(*(tmpt.get())));
+
+  
+  auto_ptr<DiscreteDistribution> rDist(getRateDistribution(params));
+
+  
+  BppOSubstitutionModelFormat bIO(BppOSubstitutionModelFormat::ALL, true, true, true, false);
+
+  string tmpDesc;
+
+  if (nhOpt=="no")
+  {
+    // Homogeneous & stationary models
+  
+    tmpDesc = ApplicationTools::getStringParameter("model", params, "", suffix, suffixIsOptional, false);
+    auto_ptr<SubstitutionModel> tmp(bIO.read(alphabet, tmpDesc, data, false));
+
+    if (rDist->getName()=="Constant")
+      return new SimpleSubstitutionProcess(tmp.release(), pTree.release());
+    else
+      return new RateAcrossSitesSubstitutionProcess(tmp.release(), rDist.release(), pTree.release());
+  }
+
+  // Non-homogeneous models
+
+  string fName=(nhOpt=="one_per_branch"?"model":"model1");
+    
+  tmpDesc = ApplicationTools::getStringParameter(fName, params, "", suffix, suffixIsOptional, false);
+  auto_ptr<SubstitutionModel> tmp(bIO.read(alphabet, tmpDesc, data, false));
+
+
+
+  // ////////////////////////////////////
+  // Root frequencies
+
+  bool stationarity = ApplicationTools::getBooleanParameter("nonhomogeneous.stationarity", params, false, "", false, false);
+  
+  auto_ptr<FrequenciesSet> rootFrequencies(0);
+  
+  if (!stationarity)
+  {
+    // Markov Modulated  models
+    vector<double> rateFreqs;
+    if (tmp->getNumberOfStates() != alphabet->getSize())
+    {
+      // Markov-Modulated Markov Model...
+      size_t n = static_cast<size_t>(tmp->getNumberOfStates() / alphabet->getSize());
+      rateFreqs = vector<double>(n, 1. / static_cast<double>(n)); // Equal rates assumed for now, may be changed later (actually, in the most general case,
+    }
+
+    // MVA models
+    
+    string freqDescription = ApplicationTools::getStringParameter("nonhomogeneous.root_freq", params, "", suffix, suffixIsOptional);
+    if (freqDescription.substr(0, 10) == "MVAprotein")
+    {
+      if (dynamic_cast<Coala*>(tmp.get()))
+        dynamic_cast<MvaFrequenciesSet*>(rootFrequencies.get())->initSet(dynamic_cast<CoalaCore*>(tmp.get()));
+      else
+        throw Exception("The MVAprotein frequencies set at the root can only be used if a Coala model is used on branches.");
+    }
+    else
+      rootFrequencies.reset(getRootFrequenciesSet(alphabet, data, params, rateFreqs, suffix, suffixIsOptional, verbose));
+    
+    stationarity = !rootFrequencies.get();
+  }
+
+  ApplicationTools::displayBooleanResult("Stationarity assumed", stationarity);
+
+  // One_per_branch
+
+  if (nhOpt=="one_per_branch"){
+    vector<string> globalParameters = ApplicationTools::getVectorParameter<string>("nonhomogeneous_one_per_branch.shared_parameters", params, ',', "");
+
+    for (unsigned int i = 0; i < globalParameters.size(); i++)
+      ApplicationTools::displayResult("Global parameter", globalParameters[i]);
+
+    return NonHomogeneousSubstitutionProcess::createNonHomogeneousSubstitutionProcess(
+                            tmp.release(),
+                            rDist.release(),
+                            rootFrequencies.release(),
+                            pTree.release(),
+                            globalParameters);
+  }
+
+  // General
+
+  size_t nbModels = ApplicationTools::getParameter<size_t>("nonhomogeneous.number_of_models", params, 1, suffix, suffixIsOptional, false);
+
+  if (nbModels == 0)
+    throw Exception("The number of models can't be 0 !");
+
+  if (verbose)
+    ApplicationTools::displayResult("Number of distinct models", TextTools::toString(nbModels));
+
+  // //////////////////////////////////////
+  // Now parse all models:
+
+  bIO.setVerbose(true);
+
+  auto_ptr<NonHomogeneousSubstitutionProcess> nhSP(new NonHomogeneousSubstitutionProcess(rDist.release(), pTree.release()));
+                                                   
+  map<string, double> existingParameters;
+  
+  for (size_t i = 0; i < nbModels; i++)
+  {
+    string prefix = "model" + TextTools::toString(i + 1);
+    string modelDesc;
+    modelDesc = ApplicationTools::getStringParameter(prefix, params, "", suffix, suffixIsOptional, verbose);
+    
+    auto_ptr<SubstitutionModel> model(bIO.read(alphabet, modelDesc, data, false));
+    map<string, string> unparsedParameterValues(bIO.getUnparsedArguments());
+
+    map<string, string> sharedParameters;
+    setSubstitutionModelParametersInitialValuesWithAliases(
+      *model,
+      unparsedParameterValues, i+1, data,
+      existingParameters, sharedParameters,
+      verbose);
+
+    vector<int> nodesId = ApplicationTools::getVectorParameter<int>(prefix + ".nodes_id", params, ',', ':', TextTools::toString(i), suffix, suffixIsOptional, true);
+
+    if (verbose)
+      ApplicationTools::displayResult("Model" + TextTools::toString(i + 1) + " is associated to", TextTools::toString(nodesId.size()) + " node(s).");
+
+    nhSP->addModel(model.release(), nodesId);
+
+    // Now set shared parameters:
+    map<string, string>::const_iterator it;
+    for (it=sharedParameters.begin(); it!=sharedParameters.end(); it++)
+      nhSP->aliasParameters(it->second, it->first);
+  }
+                                                   
+  
+  // Finally check parameter aliasing:
+  string aliasDesc = ApplicationTools::getStringParameter("nonhomogeneous.alias", params, "", suffix, suffixIsOptional, verbose);
+  StringTokenizer st(aliasDesc, ",");
+  while (st.hasMoreToken())
+  {
+    string alias = st.nextToken();
+    string::size_type index = alias.find("->");
+    if (index == string::npos)
+      throw Exception("PhylogeneticsApplicationTools::getSubstitutionModelSet. Bad alias syntax, should contain `->' symbol: " + alias);
+    string p1 = alias.substr(0, index);
+    string p2 = alias.substr(index + 2);
+    ApplicationTools::displayResult("Parameter alias found", p1 + "->" + p2);
+    nhSP->aliasParameters(p1, p2);
+  }
+
+  return nhSP;
+}
+
+/******************************************************/
 /**** SUBSTITUTION MODEL SET **************************/
 /******************************************************/
 
 /******************************************************************************/
 
 SubstitutionModelSet* PhylogeneticsApplicationTools::getSubstitutionModelSet(
-  const Alphabet* alphabet,
-  const SiteContainer* data,
-  std::map<std::string, std::string>& params,
-  const std::string& suffix,
-  bool suffixIsOptional,
-  bool verbose)
+                                                                             const Alphabet* alphabet,
+                                                                             const SiteContainer* data,
+                                                                             std::map<std::string, std::string>& params,
+                                                                             const std::string& suffix,
+                                                                             bool suffixIsOptional,
+                                                                             bool verbose)
 {
   if (!ApplicationTools::parameterExists("nonhomogeneous.number_of_models", params))
     throw Exception("You must specify this parameter: nonhomogeneous.number_of_models .");
@@ -347,24 +523,24 @@ SubstitutionModelSet* PhylogeneticsApplicationTools::getSubstitutionModelSet(
 
   bool nomix = true;
   for (size_t i = 0; nomix &(i < nbModels); i++)
-  {
-    string prefix = "model" + TextTools::toString(i + 1);
-    string modelDesc;
-    modelDesc = ApplicationTools::getStringParameter(prefix, params, "", suffix, suffixIsOptional, verbose);
+    {
+      string prefix = "model" + TextTools::toString(i + 1);
+      string modelDesc;
+      modelDesc = ApplicationTools::getStringParameter(prefix, params, "", suffix, suffixIsOptional, verbose);
 
-    if (modelDesc.find("Mixed") != string::npos)
-      nomix = false;
-  }
+      if (modelDesc.find("Mixed") != string::npos)
+        nomix = false;
+    }
 
   SubstitutionModelSet* modelSet, * modelSet1 = 0;
   modelSet1 = new SubstitutionModelSet(alphabet);
   setSubstitutionModelSet(*modelSet1, alphabet, data, params, suffix, suffixIsOptional, verbose);
 
   if (modelSet1->hasMixedSubstitutionModel())
-  {
-    modelSet = new MixedSubstitutionModelSet(*modelSet1);
-    completeMixedSubstitutionModelSet(*dynamic_cast<MixedSubstitutionModelSet*>(modelSet), alphabet, data, params, suffix, suffixIsOptional, verbose);
-  }
+    {
+      modelSet = new MixedSubstitutionModelSet(*modelSet1);
+      completeMixedSubstitutionModelSet(*dynamic_cast<MixedSubstitutionModelSet*>(modelSet), alphabet, data, params, suffix, suffixIsOptional, verbose);
+    }
   else
     modelSet = modelSet1;
 
@@ -374,13 +550,13 @@ SubstitutionModelSet* PhylogeneticsApplicationTools::getSubstitutionModelSet(
 /******************************************************************************/
 
 void PhylogeneticsApplicationTools::setSubstitutionModelSet(
-  SubstitutionModelSet& modelSet,
-  const Alphabet* alphabet,
-  const SiteContainer* data,
-  map<string, string>& params,
-  const string& suffix,
-  bool suffixIsOptional,
-  bool verbose)
+                                                            SubstitutionModelSet& modelSet,
+                                                            const Alphabet* alphabet,
+                                                            const SiteContainer* data,
+                                                            map<string, string>& params,
+                                                            const string& suffix,
+                                                            bool suffixIsOptional,
+                                                            bool verbose)
 {
   modelSet.clear();
   if (!ApplicationTools::parameterExists("nonhomogeneous.number_of_models", params))
@@ -410,11 +586,11 @@ void PhylogeneticsApplicationTools::setSubstitutionModelSet(
   //  map<string, string> tmpUnparsedParameterValues(bIO.getUnparsedArguments());
 
   if (tmp->getNumberOfStates() != alphabet->getSize())
-  {
-    // Markov-Modulated Markov Model...
-    size_t n = static_cast<size_t>(tmp->getNumberOfStates() / alphabet->getSize());
-    rateFreqs = vector<double>(n, 1. / static_cast<double>(n)); // Equal rates assumed for now, may be changed later (actually, in the most general case,
-  }
+    {
+      // Markov-Modulated Markov Model...
+      size_t n = static_cast<size_t>(tmp->getNumberOfStates() / alphabet->getSize());
+      rateFreqs = vector<double>(n, 1. / static_cast<double>(n)); // Equal rates assumed for now, may be changed later (actually, in the most general case,
+    }
 
   // ////////////////////////////////////
   // Deal with root frequencies
@@ -422,18 +598,18 @@ void PhylogeneticsApplicationTools::setSubstitutionModelSet(
   bool stationarity = ApplicationTools::getBooleanParameter("nonhomogeneous.stationarity", params, false, "", false, false);
   FrequenciesSet* rootFrequencies = 0;
   if (!stationarity)
-  {
-    rootFrequencies = getRootFrequenciesSet(alphabet, data, params, rateFreqs, suffix, suffixIsOptional, verbose);
-    stationarity = !rootFrequencies;
-    string freqDescription = ApplicationTools::getStringParameter("nonhomogeneous.root_freq", params, "", suffix, suffixIsOptional);
-    if (freqDescription.substr(0, 10) == "MVAprotein")
     {
-      if (dynamic_cast<Coala*>(tmp.get()))
-        dynamic_cast<MvaFrequenciesSet*>(rootFrequencies)->initSet(dynamic_cast<CoalaCore*>(tmp.get()));
-      else
-        throw Exception("The MVAprotein frequencies set at the root can only be used if a Coala model is used on branches.");
+      rootFrequencies = getRootFrequenciesSet(alphabet, data, params, rateFreqs, suffix, suffixIsOptional, verbose);
+      stationarity = !rootFrequencies;
+      string freqDescription = ApplicationTools::getStringParameter("nonhomogeneous.root_freq", params, "", suffix, suffixIsOptional);
+      if (freqDescription.substr(0, 10) == "MVAprotein")
+        {
+          if (dynamic_cast<Coala*>(tmp.get()))
+            dynamic_cast<MvaFrequenciesSet*>(rootFrequencies)->initSet(dynamic_cast<CoalaCore*>(tmp.get()));
+          else
+            throw Exception("The MVAprotein frequencies set at the root can only be used if a Coala model is used on branches.");
+        }
     }
-  }
   ApplicationTools::displayBooleanResult("Stationarity assumed", stationarity);
 
   if (!stationarity)
@@ -447,57 +623,56 @@ void PhylogeneticsApplicationTools::setSubstitutionModelSet(
   map<string, double> existingParameters;
 
   for (size_t i = 0; i < nbModels; i++)
-  {
-    string prefix = "model" + TextTools::toString(i + 1);
-    string modelDesc;
-    if (AlphabetTools::isCodonAlphabet(alphabet))
-      modelDesc = ApplicationTools::getStringParameter(prefix, params, "CodonRate(model=JC69)", suffix, suffixIsOptional, verbose);
-    else if (AlphabetTools::isWordAlphabet(alphabet))
-      modelDesc = ApplicationTools::getStringParameter(prefix, params, "Word(model=JC69)", suffix, suffixIsOptional, verbose);
-    else
-      modelDesc = ApplicationTools::getStringParameter(prefix, params, "JC69", suffix, suffixIsOptional, verbose);
+    {
+      string prefix = "model" + TextTools::toString(i + 1);
+      string modelDesc;
+      if (AlphabetTools::isCodonAlphabet(alphabet))
+        modelDesc = ApplicationTools::getStringParameter(prefix, params, "CodonRate(model=JC69)", suffix, suffixIsOptional, verbose);
+      else if (AlphabetTools::isWordAlphabet(alphabet))
+        modelDesc = ApplicationTools::getStringParameter(prefix, params, "Word(model=JC69)", suffix, suffixIsOptional, verbose);
+      else
+        modelDesc = ApplicationTools::getStringParameter(prefix, params, "JC69", suffix, suffixIsOptional, verbose);
 
-    auto_ptr<SubstitutionModel> model(bIO.read(alphabet, modelDesc, data, false));
-    map<string, string> unparsedParameterValues(bIO.getUnparsedArguments());
+      auto_ptr<SubstitutionModel> model(bIO.read(alphabet, modelDesc, data, false));
+      map<string, string> unparsedParameterValues(bIO.getUnparsedArguments());
 
-    map<string, string> sharedParameters;
-    setSubstitutionModelParametersInitialValuesWithAliases(
-      *model,
-      unparsedParameterValues, i+1, data,
-      existingParameters, sharedParameters,
-      verbose);
+      map<string, string> sharedParameters;
+      setSubstitutionModelParametersInitialValuesWithAliases(
+                                                             *model,
+                                                             unparsedParameterValues, i+1, data,
+                                                             existingParameters, sharedParameters,
+                                                             verbose);
 
-    vector<int> nodesId = ApplicationTools::getVectorParameter<int>(prefix + ".nodes_id", params, ',', ':', TextTools::toString(i), suffix, suffixIsOptional, true);
+      vector<int> nodesId = ApplicationTools::getVectorParameter<int>(prefix + ".nodes_id", params, ',', ':', TextTools::toString(i), suffix, suffixIsOptional, true);
 
-    if (verbose)
-      ApplicationTools::displayResult("Model" + TextTools::toString(i + 1) + " is associated to", TextTools::toString(nodesId.size()) + " node(s).");
+      if (verbose)
+        ApplicationTools::displayResult("Model" + TextTools::toString(i + 1) + " is associated to", TextTools::toString(nodesId.size()) + " node(s).");
 
-    modelSet.addModel(model.get(), nodesId);
+      modelSet.addModel(model.get(), nodesId);
 
-    // Now set shared parameters:
-    map<string, string>::const_iterator it;
-    for (it=sharedParameters.begin(); it!=sharedParameters.end(); it++)
-      modelSet.aliasParameters(it->second, it->first);
+      // Now set shared parameters:
+      map<string, string>::const_iterator it;
+      for (it=sharedParameters.begin(); it!=sharedParameters.end(); it++)
+        modelSet.aliasParameters(it->second, it->first);
     
-    model.release();
-  }
+      model.release();
+    }
   
   // Finally check parameter aliasing:
   string aliasDesc = ApplicationTools::getStringParameter("nonhomogeneous.alias", params, "", suffix, suffixIsOptional, verbose);
   StringTokenizer st(aliasDesc, ",");
   while (st.hasMoreToken())
-  {
-    string alias = st.nextToken();
-    string::size_type index = alias.find("->");
-    if (index == string::npos)
-      throw Exception("PhylogeneticsApplicationTools::getSubstitutionModelSet. Bad alias syntax, should contain `->' symbol: " + alias);
-    string p1 = alias.substr(0, index);
-    string p2 = alias.substr(index + 2);
-    ApplicationTools::displayResult("Parameter alias found", p1 + "->" + p2);
-    modelSet.aliasParameters(p1, p2);
-  }
+    {
+      string alias = st.nextToken();
+      string::size_type index = alias.find("->");
+      if (index == string::npos)
+        throw Exception("PhylogeneticsApplicationTools::getSubstitutionModelSet. Bad alias syntax, should contain `->' symbol: " + alias);
+      string p1 = alias.substr(0, index);
+      string p2 = alias.substr(index + 2);
+      ApplicationTools::displayResult("Parameter alias found", p1 + "->" + p2);
+      modelSet.aliasParameters(p1, p2);
+    }
 }
-
 /******************************************************************************/
 void PhylogeneticsApplicationTools::completeMixedSubstitutionModelSet(
   MixedSubstitutionModelSet& mixedModelSet,

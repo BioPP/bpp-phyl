@@ -1,0 +1,139 @@
+//
+// File: ComputingTree.h
+// Created by: Laurent Guéguen
+// Created on: Sat Dec 30 12:48 2006
+// From file AbstractTreeLikelihood.h
+//
+
+/*
+Copyright or © or Copr. Bio++ Development Team, (November 16, 2004)
+
+This software is a computer program whose purpose is to provide classes
+for phylogenetic data analysis.
+
+This software is governed by the CeCILL  license under French law and
+abiding by the rules of distribution of free software.  You can  use, 
+modify and/ or redistribute the software under the terms of the CeCILL
+license as circulated by CEA, CNRS and INRIA at the following URL
+"http://www.cecill.info". 
+
+As a counterpart to the access to the source code and  rights to copy,
+modify and redistribute granted by the license, users are provided only
+with a limited warranty  and the software's author,  the holder of the
+economic rights,  and the successive licensors  have only  limited
+liability. 
+
+In this respect, the user's attention is drawn to the risks associated
+with loading,  using,  modifying and/or developing or reproducing the
+software by the user in light of its specific status of free software,
+that may mean  that it is complicated to manipulate,  and  that  also
+therefore means  that it is reserved for developers  and  experienced
+professionals having in-depth computer knowledge. Users are therefore
+encouraged to load and test the software's suitability as regards their
+requirements in conditions enabling the security of their systems and/or 
+data to be ensured and,  more generally, to use and operate it in the 
+same conditions as regards security. 
+
+The fact that you are presently reading this means that you have had
+knowledge of the CeCILL license and that you accept its terms.
+*/
+
+#ifndef _COMPUTINGTREE_H_
+#define _COMPUTINGTREE_H_
+
+#include <Bpp/Numeric/Prob/DiscreteDistribution.h>
+
+#include "../Node.h"
+#include "../TreeTemplate.h"
+
+#include "ComputingNode.h"
+#include "ParametrizableTree.h"
+
+// //From SeqLib:
+// #include <Bpp/Seq/Alphabet/Alphabet.h>
+// #include <Bpp/Seq/Container/SiteContainer.h>
+
+namespace bpp
+{
+
+/**
+ * @brief Tree Organization of Computing Nodes
+ *
+ * Stores computation tools for all nodes, for all classes.
+ *
+ */
+
+  class ComputingTree:
+    public AbstractParametrizable
+  {
+  private:
+    /*
+     * A pointer towards a Parametrizable Tree
+     *
+     */
+
+    const ParametrizableTree* parTree_;
+
+    /*
+     * A pointer towards a Discrete Distribution
+     *
+     */
+
+    const DiscreteDistribution* pDist_;
+
+    /*
+     * a vector of trees of computing nodes
+     *
+     */
+    
+    std::vector<TreeTemplate<ComputingNode>* > vTree_;
+
+    /*
+     * a vector of vectors of branch numbers that share the same
+     * model. To fasten fireParameterChanged.
+     *
+     */
+
+    std::vector<std::vector<int> > vvBrMod_;
+    
+  public:
+    /*
+     * @brief construction of an empty ComputingTree.
+     *
+     * @param tree The tree.
+     * @param dist the rate distribution.
+     *
+     */
+     
+    ComputingTree(const ParametrizableTree& ptree, const DiscreteDistribution& dist);
+
+    ComputingTree(const ComputingTree& tree);
+ 
+    ComputingTree& operator=(const ComputingTree& tree);
+
+    ComputingTree* clone() const { return new ComputingTree(*this);}
+      
+    ~ComputingTree();
+
+    /*
+     * @brief construction of a complete ComputingTree.
+     *
+     * @param pSubMod a  pointer of SubstitutionModel.
+     * @param vBr a vector of attribution of the model on the
+     * branches of the tree.
+     *
+     */
+     
+    void addModel(const SubstitutionModel* pSubMod, std::vector<int> vBr);
+
+    size_t getNumberOfClasses() const { return vTree_.size();}
+
+    TreeTemplate<ComputingNode>* operator[](size_t ntree) { return vTree_[ntree];}
+
+    void fireParameterChanged(const ParameterList& pl);
+  };
+  
+} //end of namespace bpp.
+
+#endif //_COMPUTINGTREE_H_
+

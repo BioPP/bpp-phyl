@@ -616,7 +616,7 @@ namespace bpp
      * This is also possible to specify some parameters to be common to all branches.
      *
      * @param model                The model to use.
-     * @param rdist     The rate distribution
+     * @param rdist                The rate distribution
      * @param rootFreqs            A FrequenciesSet object to parametrize root frequencies.
      * @param tree                 The tree to use for the construction of the set.
      * @param globalParameterNames Common parameters for all branches.
