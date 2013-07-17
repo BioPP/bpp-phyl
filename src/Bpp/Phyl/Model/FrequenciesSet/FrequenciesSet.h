@@ -45,6 +45,7 @@
 #include <Bpp/Numeric/AbstractParametrizable.h>
 #include <Bpp/Seq/Alphabet/Alphabet.h>
 #include <Bpp/Numeric/VectorTools.h>
+#include <Bpp/Numeric/Prob/Simplex.h>
 
 namespace bpp
 {
@@ -156,6 +157,10 @@ public:
 
   std::string getName() const { return(name_); }
 
+  // virtual void setNamespace(std::string& Namespace) {
+  //   AbstractParametrizable::setNamespace(Namespace);
+  // }
+  
 protected:
   std::vector<double>& getFrequencies_() { return freq_; }
   double& getFreq_(size_t i) { return freq_[i]; }
@@ -171,21 +176,36 @@ protected:
 class FullFrequenciesSet :
   public AbstractFrequenciesSet
 {
+private:
+  /**
+   * @brief Simplex to handle the probabilities and the parameters.
+   *
+   */
+  
+  Simplex sFreq_;
+  
 public:
   /**
    * @brief Construction with uniform frequencies on the letters of
    * the alphabet.
    */
-  FullFrequenciesSet(const Alphabet* alphabet, bool allowNullFreqs = false, const std::string& name = "Full");
-  FullFrequenciesSet(const Alphabet* alphabet, const std::vector<double>& initFreqs, bool allowNullFreqs = false, const std::string& name = "Full");
+  FullFrequenciesSet(const Alphabet* alphabet, bool allowNullFreqs = false, unsigned short method = 1, const std::string& name = "Full.");
+  FullFrequenciesSet(const Alphabet* alphabet, const std::vector<double>& initFreqs, bool allowNullFreqs = false, unsigned short method = 1, const std::string& name = "Full.");
 
   FullFrequenciesSet* clone() const { return new FullFrequenciesSet(*this); }
 
 public:
   void setFrequencies(const std::vector<double>& frequencies);
 
+  unsigned short getMethod() const { return sFreq_.getMethod();}
+
+  void setNamespace(const std::string& nameSpace);
+  
 protected:
   void fireParameterChanged(const ParameterList& parameters);
+
+private:
+  void updateFreq_();
 };
 
 /**
@@ -237,12 +257,6 @@ public:
   }
 
   const FrequenciesSet& getStatesFrequenciesSet() const { return *freqSet_; }
-
-  void setNamespace(const std::string& prefix)
-  {
-   AbstractFrequenciesSet::setNamespace(prefix);
-   freqSet_->setNamespace(prefix + freqSet_->getNamespace());
-  }
 
 };
 

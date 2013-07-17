@@ -459,18 +459,54 @@ public:
    * @return A ParameterList with all branch lengths.
    */
   
-  ParameterList getBranchLengthsParameters() const;
+  ParameterList getBranchLengthsParameters() const
+  {
+    return treeColl_.getParameters();
+  }
 
   bool hasBranchLengthsParameter(const std::string& name) const;
   
   /**
-   * @brief Get the parameters associated to substitution model(s).
+   * @brief Get the parameters associated to substitution process(es).
    *
    * @return A ParameterList.
    */
   
   ParameterList getSubstitutionProcessParameters() const;
 
+  /**
+   * @brief Get the parameters associated to substitution model(s).
+   *
+   * @return A ParameterList.
+   */
+  
+  ParameterList getSubstitutionModelParameters() const
+  {
+    return modelColl_.getParameters();
+  }
+
+  /**
+   * @brief Get the parameters associated to the rate distribution(s).
+   *
+   * @return A ParameterList.
+   */
+  
+  ParameterList getRateDistributionParameters() const
+  {
+    return distColl_.getParameters();
+  }
+  
+  /**
+   * @brief Get the parameters associated to the root frequencies(s).
+   *
+   * @return A ParameterList.
+   */
+  
+  ParameterList getRootFrequenciesParameters() const
+  {
+    return freqColl_.getParameters();
+  }
+      
 
 };
 } // end of namespace bpp.

@@ -57,6 +57,7 @@
 #include <Bpp/Numeric/Function/Optimizer.h>
 
 #include "../NewLikelihood/SubstitutionProcess.h"
+#include "../NewLikelihood/Likelihood.h"
 
 // From SeqLib:
 #include <Bpp/Seq/Container/SiteContainer.h>
@@ -196,6 +197,8 @@ namespace bpp
      * @brief Get A FrequenciesSet object for root frequencies (NH models) according to options.
      *
      * @param alphabet The alpabet to use.
+     * @param gCode    The genetic code to use (only for codon alphabets, otherwise can be set to 0).
+     *                 If set to NULL and a codon frequencies set is requested, an Exception will be thrown.
      * @param data      A pointer toward the SiteContainer for which the substitution model is designed.
      *                  The alphabet associated to the data must be of the same type as the one specified for the model.
      *                  May be equal to NULL, but in this cas use_observed_freq option will be unavailable.
@@ -210,6 +213,7 @@ namespace bpp
      */
     static FrequenciesSet* getRootFrequenciesSet(
         const Alphabet* alphabet,
+        const GeneticCode* gCode,
         const SiteContainer* data, 
         std::map<std::string, std::string>& params,
         const std::vector<double>& rateFreqs,
@@ -221,6 +225,8 @@ namespace bpp
      * @brief Get A FrequenciesSet object according to options.
      *
      * @param alphabet The alpabet to use.
+     * @param gCode    The genetic code to use (only for codon alphabets, otherwise can be set to 0).
+     *                 If set to NULL and a codon frequencies set is requested, an Exception will be thrown.
      * @param freqDescription A string in the keyval syntaxe describing the frequency set to use.:if expand("%") == ""|browse confirm w|else|confirm w|endif
      * 
      * @param data      A pointer toward the SiteContainer for which the substitution model is designed.
@@ -234,6 +240,7 @@ namespace bpp
      */
     static FrequenciesSet* getFrequenciesSet(
         const Alphabet* alphabet,
+        const GeneticCode* gCode,
         const std::string& freqDescription,
         const SiteContainer* data, 
         const std::vector<double>& rateFreqs,
@@ -247,12 +254,13 @@ namespace bpp
      * methods.
      */
      static SubstitutionModelSet* getSubstitutionModelSet(
-                                        const Alphabet* alphabet,
-                                        const SiteContainer* data, 
-                                        std::map<std::string, std::string>& params,
-                                        const std::string& suffix = "",
-                                        bool suffixIsOptional = true,
-                                        bool verbose = true);    
+         const Alphabet* alphabet,
+         const GeneticCode* gcode,
+         const SiteContainer* data, 
+         std::map<std::string, std::string>& params,
+         const std::string& suffix = "",
+         bool suffixIsOptional = true,
+         bool verbose = true);    
 
      /**
      * @brief Sets a SubstitutionModelSet object according to options.
@@ -296,6 +304,8 @@ namespace bpp
      *
      * @param modelSet The modified SubstitutionModelSet object according to options specified.
      * @param alphabet The alpabet to use in all models.
+     * @param gCode    The genetic code to use (only for codon models, otherwise can be set to 0).
+     *                 If set to NULL and a codon model is requested, an Exception will be thrown.
      * @param data     A pointer toward the SiteContainer for which the substitution model is designed.
      *                  The alphabet associated to the data must be of the same type as the one specified for the model.
      *                 May be equal to NULL, but in this cas use_observed_freq option will be unavailable.
@@ -306,13 +316,14 @@ namespace bpp
      * @throw Exception if an error occured.
      */
     static void setSubstitutionModelSet(
-                                        SubstitutionModelSet& modelSet,
-                                        const Alphabet* alphabet,
-                                        const SiteContainer* data, 
-                                        std::map<std::string, std::string>& params,
-                                        const std::string& suffix = "",
-                                        bool suffixIsOptional = true,
-                                        bool verbose = true);
+        SubstitutionModelSet& modelSet,
+        const Alphabet* alphabet,
+        const GeneticCode* gcode,
+        const SiteContainer* data, 
+        std::map<std::string, std::string>& params,
+        const std::string& suffix = "",
+        bool suffixIsOptional = true,
+        bool verbose = true);
     
     /**
      * @brief Sets a SubstitutionProcess object according to options.
@@ -379,6 +390,7 @@ namespace bpp
     
     static SubstitutionProcess* setSubstitutionProcess(
                                        const Alphabet* alphabet,
+                                       const GeneticCode* gCode,
                                        const SiteContainer* data, 
                                        std::map<std::string, std::string>& params,
                                        const std::string& suffix = "",
@@ -447,15 +459,14 @@ namespace bpp
      * @param verbose Print some info to the 'message' output stream.
      * @throw Exception if an error occured.
      */
-    
     static void completeMixedSubstitutionModelSet(
-                                             MixedSubstitutionModelSet& mixedModelSet,
-                                             const Alphabet* alphabet,
-                                             const SiteContainer* data, 
-                                             std::map<std::string, std::string>& params,
-                                             const std::string& suffix = "",
-                                             bool suffixIsOptional = true,
-                                             bool verbose = true);
+        MixedSubstitutionModelSet& mixedModelSet,
+        const Alphabet* alphabet,
+        const SiteContainer* data, 
+        std::map<std::string, std::string>& params,
+        const std::string& suffix = "",
+        bool suffixIsOptional = true,
+        bool verbose = true);
 
     /**
      * @brief Build a multi-dimension distribution as a
@@ -474,9 +485,9 @@ namespace bpp
      */
     
     static MultipleDiscreteDistribution* getMultipleDistributionDefaultInstance(
-                                                                        const std::string& distDescription,
-                                                                        std::map<std::string, std::string>& unparsedParameterValues,
-                                                                        bool verbose = true);
+        const std::string& distDescription,
+        std::map<std::string, std::string>& unparsedParameterValues,
+        bool verbose = true);
 
     /**
      * @brief Build a DiscreteDistribution object according to options.
@@ -555,6 +566,15 @@ namespace bpp
         const std::string& suffix = "",
         bool suffixIsOptional = true,
         bool verbose = true)
+      throw (Exception);
+    
+    static newlik::Likelihood* optimizeParameters(
+                                                  newlik::Likelihood* lik,
+                                                  const ParameterList& parameters,
+                                                  std::map<std::string, std::string>& params,
+                                                  const std::string& suffix = "",
+                                                  bool suffixIsOptional = true,
+                                                  bool verbose = true)
       throw (Exception);
     
     /**

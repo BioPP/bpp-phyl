@@ -411,6 +411,24 @@ namespace bpp
         return rootFrequencies_->getParameters();
     }
 
+
+    /**
+     * @brief Get the parameters attached to the rate distribution.
+     *
+     */
+     
+    ParameterList getRateDistributionParameters() const
+    {
+      return (rDist_.get()?rDist_->getParameters():ParameterList());
+    }
+  
+    /**
+     * @brief Get the parameters corresponding to the models.
+     *
+     */
+
+    ParameterList getSubstitutionModelParameters() const;
+    
     /**
      * @brief Get the parameters attached to the nodes of the tree.
      *

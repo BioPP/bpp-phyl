@@ -85,7 +85,7 @@ public:
   virtual const TreeTemplate<Node>& getTree() const = 0;
   
   virtual const ParametrizableTree& getParametrizableTree() const = 0;
-  
+
   virtual bool hasTransitionProbabilitiesParameter(const std::string& name) const = 0;
 
   virtual size_t getNumberOfClasses() const = 0;
@@ -100,6 +100,11 @@ public:
    */
   virtual const SubstitutionModel& getSubstitutionModel(int nodeId, size_t classIndex) const = 0;
 
+  virtual ParameterList getSubstitutionModelParameters() const = 0;
+
+  virtual ParameterList getRateDistributionParameters() const = 0;
+
+  
   /**
    * @brief Get the transition probabilities corresponding to a certain branch, site pattern, and model class.
    *
@@ -141,7 +146,9 @@ public:
    * @return A vector with ancestral frequencies for each state in the alphabet;
    */
   virtual const std::vector<double>& getRootFrequencies() const = 0;
- 
+
+  virtual const FrequenciesSet* getRootFrequenciesSet() const = 0;
+
   /**
    * This method is used to initialize likelihoods in reccursions.
    * It typically sends 1 if i = state, 0 otherwise, where

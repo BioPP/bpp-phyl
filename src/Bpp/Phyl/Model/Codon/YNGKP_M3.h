@@ -112,6 +112,9 @@ private:
   SubstitutionModel& getModel() { return *pmixmodel_.get(); }
   
   MixedSubstitutionModel& getMixedModel() { return *pmixmodel_.get(); }
+  
+  const FrequenciesSet* getFrequenciesSet() const {return pmixmodel_->getNModel(1)->getFrequenciesSet();}
+
 };
 
 } //end of namespace bpp.

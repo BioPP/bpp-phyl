@@ -138,7 +138,20 @@ namespace bpp
        * @return The likelihood for site <i>site</i>.
        */
       virtual double getLikelihoodForASite(size_t site) const = 0;
- 
+
+      /**
+       * @brief Get the log likelihood for a site.
+       *
+       * @param site The site index to analyse.
+       * @return The log likelihood for site <i>site</i>.
+       */
+      
+      virtual double getLogLikelihoodForASite(size_t site) const
+      {
+        return log(getLikelihoodForASite(site));
+      }
+
+
       /**
        * @brief Get the likelihood for each site.
        *
@@ -173,12 +186,36 @@ namespace bpp
       virtual ParameterList getBranchLengthsParameters() const = 0;
     
       /**
-       * @brief Get the parameters associated to substitution model(s).
+       * @brief Get the parameters associated to substitution process(s).
        *
        * @return A ParameterList.
        */
 
       virtual ParameterList getSubstitutionProcessParameters() const = 0;
+
+      /**
+       * @brief Get the parameters associated to substitution model(s).
+       *
+       * @return A ParameterList.
+       */
+
+      virtual ParameterList getSubstitutionModelParameters() const = 0;
+
+      /**
+       * @brief Get the parameters associated to the rate distribution(s).
+       *
+       * @return A ParameterList.
+       */
+
+      virtual ParameterList getRateDistributionParameters() const = 0;
+
+      /**
+       * @brief Get the parameters associated to the root frequencies(s).
+       *
+       * @return A ParameterList.
+       */
+
+      virtual ParameterList getRootFrequenciesParameters() const = 0;
 
       /**
        * @brief All derivable parameters.

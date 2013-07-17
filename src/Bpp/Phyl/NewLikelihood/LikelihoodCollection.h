@@ -244,6 +244,12 @@ namespace bpp
 		
       ParameterList getSubstitutionProcessParameters() const { return processColl_->getSubstitutionProcessParameters(); }
 
+      ParameterList getSubstitutionModelParameters() const { return processColl_->getSubstitutionModelParameters(); }
+
+      ParameterList getRateDistributionParameters() const { return processColl_->getRateDistributionParameters(); }
+
+      ParameterList getRootFrequenciesParameters() const { return processColl_->getRootFrequenciesParameters(); }
+
       ParameterList getBranchLengthsParameters() const { return processColl_->getBranchLengthsParameters(); }
       
       //    ParameterList getTransitionProbabilitiesParameters() const { return process_->getTransitionProbabilitiesParameters(); }

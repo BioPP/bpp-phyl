@@ -183,6 +183,19 @@ namespace bpp
       const SubstitutionProcess& getSubstitutionProcess() const { return *process_; }
 
       ParameterList getBranchLengthsParameters() const { return process_->getParametrizableTree().getParameters(); }
+
+      ParameterList getRootFrequenciesParameters() const {
+        return (process_->getRootFrequenciesSet()?process_->getRootFrequenciesSet()->getParameters():ParameterList());
+      }
+
+      ParameterList getRateDistributionParameters() const {
+        return process_->getRateDistributionParameters();
+      }
+      
+      ParameterList getSubstitutionModelParameters() const {
+        return process_->getSubstitutionModelParameters();
+      }
+
       //    ParameterList getTransitionProbabilitiesParameters() const { return process_->getTransitionProbabilitiesParameters(); }
       //TODO: this has to be modified to deal with special cases...
       ParameterList getDerivableParameters() const { return getBranchLengthsParameters(); }

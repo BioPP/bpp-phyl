@@ -336,6 +336,20 @@ namespace bpp
     const SubstitutionModel& getSubstitutionModel(int nodeId, size_t classIndex) const;
 
     /**
+     * @brief Get the parameters of the substitution models.
+     *
+     **/
+     
+    ParameterList getSubstitutionModelParameters() const;
+    
+    /**
+     * @brief Get the parameters of the rate distribution.
+     *
+     **/
+
+    ParameterList getRateDistributionParameters() const;
+
+    /**
      * @brief Get the transition probabilities corresponding to a certain branch, site pattern, and model class.
      *
      * @param nodeId The id of the node.

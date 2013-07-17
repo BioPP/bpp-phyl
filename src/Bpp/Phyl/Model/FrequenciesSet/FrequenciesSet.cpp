@@ -79,86 +79,56 @@ void AbstractFrequenciesSet::setFrequenciesFromMap(const map<int, double>& frequ
 // ////////////////////////////
 // FullFrequenciesSet
 
-FullFrequenciesSet::FullFrequenciesSet(const Alphabet* alphabet, bool allowNullFreqs, const string& name) :
-  AbstractFrequenciesSet(alphabet->getSize(), alphabet, "Full.", name)
+FullFrequenciesSet::FullFrequenciesSet(const Alphabet* alphabet, bool allowNullFreqs, unsigned short method, const string& name) :
+  AbstractFrequenciesSet(alphabet->getSize(), alphabet, "Full.", name),
+  sFreq_(alphabet->getSize(), method, false, "Full.")
 {
-  size_t size = alphabet->getSize();
+  vector<double> vd;
+  double r=1. / static_cast<double>(alphabet->getSize());
 
-  for (size_t i = 0; i < alphabet->getSize() - 1; i++)
-  {
-    addParameter_(new Parameter(
-      "Full.theta" + TextTools::toString(i + 1),
-      1. / static_cast<double>(size - i),
-      allowNullFreqs ?
-      &Parameter::PROP_CONSTRAINT_IN :
-      &FrequenciesSet::FREQUENCE_CONSTRAINT_SMALL));
-    getFreq_(i) = 1. / static_cast<double>(size);
-  }
-  size_t i = alphabet->getSize() - 1;
-  getFreq_(i) = 1. / static_cast<double>(size);
+  for (size_t i = 0; i < alphabet->getSize(); i++)
+    vd.push_back(r);
+
+  sFreq_.setFrequencies(vd);
+  addParameters_(sFreq_.getParameters());
+  updateFreq_();
 }
 
-FullFrequenciesSet::FullFrequenciesSet(const Alphabet* alphabet, const vector<double>& initFreqs, bool allowNullFreqs, const string& name) :
-  AbstractFrequenciesSet(alphabet->getSize(), alphabet, "Full.", name)
+FullFrequenciesSet::FullFrequenciesSet(const Alphabet* alphabet, const vector<double>& initFreqs, bool allowNullFreqs, unsigned short method, const string& name) :
+  AbstractFrequenciesSet(alphabet->getSize(), alphabet, "Full.", name),
+  sFreq_(alphabet->getSize(), method, false, "Full.")
 {
-  if (initFreqs.size() != alphabet->getSize())
-    throw Exception("FullFrequenciesSet(constructor). There must be " + TextTools::toString(alphabet->getSize()) + " frequencies.");
-  double sum = VectorTools::sum(initFreqs);
-  if (fabs(1. - sum) > NumConstants::SMALL())
-  {
-    throw Exception("Frequencies must equal 1 (sum = " + TextTools::toString(sum) + ").");
-  }
-
-  double y = 1;
-  for (size_t i = 0; i < alphabet->getSize() - 1; i++)
-  {
-    addParameter_(new Parameter(
-      "Full.theta" + TextTools::toString(i + 1),
-      initFreqs[i] / y,
-      allowNullFreqs ?
-      &Parameter::PROP_CONSTRAINT_IN :
-      &FrequenciesSet::FREQUENCE_CONSTRAINT_SMALL));
-    getFreq_(i) = initFreqs[i];
-    y -= initFreqs[i];
-  }
-  size_t i = alphabet->getSize() - 1;
-  getFreq_(i) = initFreqs[i];
+  sFreq_.setFrequencies(initFreqs);
+  addParameters_(sFreq_.getParameters());
+  updateFreq_();
 }
 
 void FullFrequenciesSet::setFrequencies(const vector<double>& frequencies) 
 {
-  const Alphabet* alphabet = getAlphabet();
-  if (frequencies.size() != getNumberOfFrequencies())
-    throw DimensionException("FullFrequenciesSet::setFrequencies. Invalid number of frequencies.", frequencies.size(), getNumberOfFrequencies());
+  
+  sFreq_.setFrequencies(frequencies);
+  setParametersValues(sFreq_.getParameters()); 
 
-  if (fabs(1. - VectorTools::sum(frequencies)) >= NumConstants::SMALL())
-    throw Exception("FullFrequenciesSet::setFrequencies. Frequencies do not sum to 1 : " + TextTools::toString(VectorTools::sum(frequencies)));
+  updateFreq_();
+}
 
-  setFrequencies_(frequencies);
-
-  double y = 1;
-  for (size_t i = 0; i < alphabet->getSize() - 1; i++)
-  {
-    getParameter_("theta" + TextTools::toString(i + 1)).setValue(frequencies[i] / y);
-    y -= frequencies[i];
-  }
+void FullFrequenciesSet::setNamespace(const std::string& nameSpace)
+{
+  sFreq_.setNamespace(nameSpace);
+  AbstractFrequenciesSet::setNamespace(nameSpace);
 }
 
 void FullFrequenciesSet::fireParameterChanged(const ParameterList& parameters)
 {
-  const Alphabet* alphabet = getAlphabet();
-  double y = 1;
-  size_t i;
-  for (i = 0; i < alphabet->getSize() - 1; i++)
-  {
-    getFreq_(i) = getParameter_("theta" + TextTools::toString(i + 1)).getValue() * y;
-    y *= 1 - getParameter_("theta" + TextTools::toString(i + 1)).getValue();
-  }
-
-  i = alphabet->getSize() - 1;
-  getFreq_(i) = y;
+  sFreq_.matchParametersValues(parameters);
+  updateFreq_();
 }
 
+void FullFrequenciesSet::updateFreq_()
+{
+  for (size_t i = 0; i < getAlphabet()->getSize(); i++)
+    getFreq_(i)=sFreq_.prob(i);
+}
 
 // ///////////////////////////////////////////
 // / FixedFrequenciesSet

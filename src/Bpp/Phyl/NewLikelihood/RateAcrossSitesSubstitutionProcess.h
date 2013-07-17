@@ -99,6 +99,15 @@ public:
     return model_->getGenerator();
   }
 
+  ParameterList getSubstitutionModelParameters() const {
+    return model_->getParameters();
+  }
+
+  const FrequenciesSet* getRootFrequenciesSet() const
+  {
+    return 0;
+  }
+  
   const std::vector<double>& getRootFrequencies() const {
     return model_->getFrequencies();
   }

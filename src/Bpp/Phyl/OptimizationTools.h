@@ -49,13 +49,14 @@
 #include "Distance/DistanceEstimation.h"
 #include "Distance/DistanceMethod.h"
 
+#include "NewLikelihood/Likelihood.h"
+
 #include <Bpp/Io/OutputStream.h>
 #include <Bpp/App/ApplicationTools.h>
 #include <Bpp/Numeric/Function/SimpleNewtonMultiDimensions.h>
 
 namespace bpp
 {
-
 /**
  * @brief A listener which capture NaN function values and throw an exception in case this happens.
  */
@@ -350,6 +351,21 @@ public:
     const std::string& optMethodModel = OPTIMIZATION_BRENT)
   throw (Exception);
 
+  static unsigned int optimizeNumericalParameters(
+                                                  newlik::Likelihood* lik,
+                                                  const ParameterList& parameters,
+                                                  OptimizationListener* listener    = 0,
+                                                  unsigned int nstep                = 1,
+                                                  double tolerance                  = 0.000001,
+                                                  unsigned int tlEvalMax            = 1000000,
+                                                  OutputStream* messageHandler      = ApplicationTools::message,
+                                                  OutputStream* profiler            = ApplicationTools::message,
+                                                  bool reparametrization            = false,
+                                                  unsigned int verbose              = 1,
+                                                  const std::string& optMethodDeriv = OPTIMIZATION_NEWTON,
+                                                  const std::string& optMethodModel = OPTIMIZATION_BRENT)
+    throw (Exception);
+  
   /**
    * @brief Optimize numerical parameters (branch length, substitution model & rate distribution) of a TreeLikelihood function.
    *
@@ -385,6 +401,20 @@ public:
     unsigned int verbose               = 1,
     const std::string& optMethodDeriv  = OPTIMIZATION_NEWTON)
   throw (Exception);
+
+  static unsigned int optimizeNumericalParameters2(
+                                                   newlik::Likelihood* lik,
+                                                   const ParameterList& parameters,
+                                                   OptimizationListener* listener     = 0,
+                                                   double tolerance                   = 0.000001,
+                                                   unsigned int tlEvalMax             = 1000000,
+                                                   OutputStream* messageHandler       = ApplicationTools::message,
+                                                   OutputStream* profiler             = ApplicationTools::message,
+                                                   bool reparametrization             = false,
+                                                   bool useClock                      = false,
+                                                   unsigned int verbose               = 1,
+                                                   const std::string& optMethodDeriv  = OPTIMIZATION_NEWTON)
+    throw (Exception);
 
   /**
    * @brief Optimize branch lengths parameters of a TreeLikelihood function.
@@ -764,6 +794,7 @@ public:
   static std::string DISTANCEMETHOD_PAIRWISE;
   static std::string DISTANCEMETHOD_ITERATIONS;
 };
+
 } // end of namespace bpp.
 
 #endif  // _OPTIMIZATIONTOOLS_H_

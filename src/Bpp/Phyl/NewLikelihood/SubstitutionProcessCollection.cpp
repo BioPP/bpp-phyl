@@ -197,11 +197,6 @@ void SubstitutionProcessCollection::addSubstitutionProcess(std::map<size_t, std:
 
 }
 
-ParameterList SubstitutionProcessCollection::getBranchLengthsParameters() const
-{
-  return treeColl_.getParameters();
-}
-
 bool SubstitutionProcessCollection::hasBranchLengthsParameter(const std::string& name) const
 {
   return treeColl_.hasParameter(name);

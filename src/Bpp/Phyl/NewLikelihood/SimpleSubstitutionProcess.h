@@ -92,6 +92,19 @@ public:
     return model_->getGenerator();
   }
 
+  const FrequenciesSet* getRootFrequenciesSet() const
+  {
+    return 0;
+  }
+  
+  ParameterList getSubstitutionModelParameters() const {
+    return model_->getParameters();
+  }
+
+  ParameterList getRateDistributionParameters() const {
+    return ParameterList();
+  }
+
   const std::vector<double>& getRootFrequencies() const {
     return model_->getFrequencies();
   }

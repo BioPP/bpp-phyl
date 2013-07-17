@@ -85,21 +85,12 @@ ParameterList MixtureLikelihoodCollection::getNonDerivableParameters() const
   return pl;
 }
 
-/**
- * @brief Get the likelihood for a site.
- *
- * @param site The site index to analyse.
- * @return The likelihood for site <i>site</i>.
- */
 double MixtureLikelihoodCollection::getLikelihoodForASite(size_t site) const
 {
   double x=0;
-  cerr << "s " << site << ": ";
-  for (size_t i=0; i<vpTreelik_.size();i++){
+  for (size_t i=0; i<vpTreelik_.size();i++)
     x+=vpTreelik_[i]->getLikelihoodForASite(site) * simplex_.prob(i);
-    cerr << " * " << simplex_.prob(i) << " + ";
-  }
-  cerr << endl;
+
   return x;
 }
 

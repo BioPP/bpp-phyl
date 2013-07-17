@@ -62,6 +62,7 @@ SubstitutionProcessCollectionMember::SubstitutionProcessCollectionMember(const S
   addParameters_(pSubProColl_->getDistribution(nDist_)->getParameters());
 }
 
+
 SubstitutionProcessCollectionMember::SubstitutionProcessCollectionMember(const SubstitutionProcessCollectionMember& set) :
   AbstractParameterAliasable(set),
   pSubProColl_(set.pSubProColl_),
@@ -114,6 +115,35 @@ const DiscreteDistribution* SubstitutionProcessCollectionMember::getDistribution
 {
   return pSubProColl_->getDistribution(nDist_);
 }
+
+ParameterList SubstitutionProcessCollectionMember::getRateDistributionParameters() const
+{
+  return pSubProColl_->getDistribution(nDist_)->getParameters();
+}
+
+
+ParameterList SubstitutionProcessCollectionMember::getSubstitutionModelParameters() const
+{
+  ParameterList pl;
+  
+  // Then we update all models in the set:
+  std::map<size_t, std::vector<int> >::const_iterator it;
+  for (it= modelToNodes_.begin(); it != modelToNodes_.end() ; it++)
+  {
+    const SubstitutionModel* model=pSubProColl_->getModel(it->first);
+    ParameterList plm=model->getParameters();
+    
+    for (size_t np = 0 ; np < plm.size() ; np++)
+        {
+          Parameter p(plm[np]);
+          p.setName(p.getName()+"_"+TextTools::toString(it->first));
+          pl.addParameter(p);
+        }
+    }
+
+  return pl;
+}
+
 
 const FrequenciesSet* SubstitutionProcessCollectionMember::getRootFrequenciesSet() const
 {

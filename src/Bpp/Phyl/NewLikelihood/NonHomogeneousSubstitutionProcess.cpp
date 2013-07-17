@@ -213,6 +213,24 @@ void NonHomogeneousSubstitutionProcess::fireParameterChanged(const ParameterList
     }
 }
 
+ParameterList NonHomogeneousSubstitutionProcess::getSubstitutionModelParameters() const
+{
+  ParameterList pl;
+  
+  // Then we update all models in the set:
+  for (size_t i = 0; i < modelParameters_.size(); i++)
+    {
+      for (size_t np = 0 ; np< modelParameters_[i].size() ; np++)
+        {
+          Parameter p(modelParameters_[i][np]);
+          p.setName(p.getName()+"_"+TextTools::toString(i+1));
+          pl.addParameter(p);
+        }
+    }
+
+  return pl;
+}
+
 bool NonHomogeneousSubstitutionProcess::checkOrphanModels(bool throwEx) const
 {
   vector<size_t> index = MapTools::getValues(nodeToModel_);

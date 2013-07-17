@@ -66,9 +66,9 @@ JCprot::JCprot(const ProteicAlphabet* alpha, ProteinFrequenciesSet* freqSet, boo
   AbstractReversibleSubstitutionModel(alpha, "JC69+F."),
   exp_(), p_(size_, size_), freqSet_(freqSet)
 {
+  freqSet_->setNamespace("JC69+F."+freqSet_->getNamespace());
   if (initFreqs) freqSet_->setFrequencies(freq_);
   else freq_ = freqSet_->getFrequencies();
-  freqSet_->setNamespace("JC69+F."+freqSet_->getNamespace());
   addParameters_(freqSet_->getParameters());
   updateMatrices();  
 }
