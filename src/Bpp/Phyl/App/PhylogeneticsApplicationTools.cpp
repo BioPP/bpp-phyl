@@ -57,7 +57,7 @@
 #include "../Io/BppOFrequenciesSetFormat.h"
 #include "../Io/BppORateDistributionFormat.h"
 
-#include "../NewLikelihood/TreeLikelihood.h"
+#include "../NewLikelihood/SinglePhyloLikelihood.h"
 #include "../NewLikelihood/ParametrizableTree.h"
 #include "../NewLikelihood/NonHomogeneousSubstitutionProcess.h"
 #include "../NewLikelihood/SimpleSubstitutionProcess.h"

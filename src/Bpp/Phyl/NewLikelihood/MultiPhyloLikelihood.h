@@ -1,5 +1,5 @@
 //
-// File: LikelihoodCollection.h
+// File: MultiPhyloLikelihood.h
 // Created by: Laurent Guéguen
 // Created on: jeudi 11 juillet 2013, à 21h 51
 //
@@ -37,14 +37,14 @@
   knowledge of the CeCILL license and that you accept its terms.
 */
 
-#ifndef _LIKELIHOODCOLLECTION_H_
-#define _LIKELIHOODCOLLECTION_H_
+#ifndef _MULTIPHYLOLIKELIHOOD_H_
+#define _MULTIPHYLOLIKELIHOOD_H_
 
-#include "Likelihood.h"
+#include "PhyloLikelihood.h"
+#include "SinglePhyloLikelihood.h"
 #include "SubstitutionProcessCollection.h"
 #include "../Tree.h"
 #include "../TreeTemplate.h"
-#include "TreeLikelihood.h"
 
 #include <Bpp/Numeric/AbstractParametrizable.h>
 
@@ -286,5 +286,5 @@ namespace bpp
   }
 } //end of namespace bpp.
 
-#endif	//_LIKELIHOODCOLLECTION_H_
+#endif	//_MULTIPHYLOLIKELIHOOD_H_
 

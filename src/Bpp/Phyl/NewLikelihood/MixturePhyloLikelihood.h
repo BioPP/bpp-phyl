@@ -1,5 +1,5 @@
 //
-// File: MixtureLikelihoodCollection.h
+// File: MixturePhyloLikelihood.h
 // Created by: Laurent Guéguen
 // Created on: jeudi 11 juillet 2013, à 14h 05
 //
@@ -37,11 +37,11 @@
   knowledge of the CeCILL license and that you accept its terms.
 */
 
-#ifndef _MIXTURELIKELIHOODCOLLECTION_H_
-#define _MIXTURELIKELIHOODCOLLECTION_H_
+#ifndef _MIXTUREPHYLOLIKELIHOOD_H_
+#define _MIXTUREPHYLOLIKELIHOOD_H_
 
 
-#include "LikelihoodCollection.h"
+#include "MultiPhyloLikelihood.h"
 
 #include <Bpp/Numeric/Prob/Simplex.h>
 
@@ -128,5 +128,5 @@ namespace bpp
   } //end of namespace newlik.
 } //end of namespace bpp.
 
-#endif  //_MIXTURELIKELIHOODCOLLECTION_H_
+#endif  //_MIXTUREPHYLOLIKELIHOOD_H_
 

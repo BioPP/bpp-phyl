@@ -1,5 +1,5 @@
 //
-// File: TreeLikelihood.h
+// File: TSinglePhyloLikelihood.h
 // Created by: Julien Dutheil
 // Created on: Fri Oct 17 17:36:44 2003
 //
@@ -37,8 +37,8 @@
   knowledge of the CeCILL license and that you accept its terms.
 */
 
-#ifndef _NEWLIK_TREELIKELIHOOD_H_
-#define _NEWLIK_TREELIKELIHOOD_H_
+#ifndef _SINGLEPHYLOLIKELIHOOD_H_
+#define _SINGLEPHYLOLIKELIHOOD_H_
 
 #include "../Node.h"
 #include "../Tree.h"
@@ -56,7 +56,7 @@
 #include <Bpp/Seq/Alphabet/Alphabet.h>
 #include <Bpp/Seq/Container/SiteContainer.h>
 
-#include "Likelihood.h"
+#include "PhyloLikelihood.h"
 
 namespace bpp
 {
@@ -213,5 +213,5 @@ namespace bpp
   } //end of namespace newlik.
 } //end of namespace bpp.
 
-#endif  //_TREELIKELIHOOD_H_
+#endif  //_SINGLEPHYLOLIKELIHOOD_H_
 

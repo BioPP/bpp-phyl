@@ -1,5 +1,5 @@
 //
-// File: Likelihood.h
+// File: PhyloLikelihood.h
 // Created by: Laurent Guéguen
 // Created on: jeudi 11 juillet 2013, à 14h 05
 //
@@ -37,8 +37,8 @@
   knowledge of the CeCILL license and that you accept its terms.
 */
 
-#ifndef _LIKELIHOOD_H_
-#define _LIKELIHOOD_H_
+#ifndef _PHYLOLIKELIHOOD_H_
+#define _PHYLOLIKELIHOOD_H_
 
 #include <Bpp/Numeric/ParameterList.h>
 #include <Bpp/Numeric/Parametrizable.h>
@@ -253,5 +253,5 @@ namespace bpp
   } //end of namespace newlik.
 } //end of namespace bpp.
 
-#endif  //_LIKELIHOOD_H_
+#endif  //_PHYLOLIKELIHOOD_H_
 

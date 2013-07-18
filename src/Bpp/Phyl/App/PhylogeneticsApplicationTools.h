@@ -57,7 +57,7 @@
 #include <Bpp/Numeric/Function/Optimizer.h>
 
 #include "../NewLikelihood/SubstitutionProcess.h"
-#include "../NewLikelihood/Likelihood.h"
+#include "../NewLikelihood/PhyloLikelihood.h"
 
 // From SeqLib:
 #include <Bpp/Seq/Container/SiteContainer.h>

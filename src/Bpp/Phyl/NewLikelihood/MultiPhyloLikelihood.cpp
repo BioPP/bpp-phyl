@@ -1,5 +1,5 @@
 //
-// File: LikelihoodCollection.cpp
+// File: MultiPhyloLikelihood.cpp
 // Created by: Laurent Guéguen
 // Created on: vendredi 12 juillet 2013, à 00h 32
 //
@@ -37,7 +37,7 @@ The fact that you are presently reading this means that you have had
 knowledge of the CeCILL license and that you accept its terms.
 */
 
-#include "LikelihoodCollection.h"
+#include "MultiPhyloLikelihood.h"
 
 #include "RTreeLikelihood.h"
 

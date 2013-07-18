@@ -40,7 +40,7 @@
 #ifndef _NEWLIK_ABSTRACTTREELIKELIHOOD_H_
 #define _NEWLIK_ABSTRACTTREELIKELIHOOD_H_
 
-#include "TreeLikelihood.h"
+#include "SinglePhyloLikelihood.h"
 #include "SubstitutionProcess.h"
 #include "../Tree.h"
 #include "../TreeTemplate.h"
