@@ -1,5 +1,5 @@
 //
-// File: RTreeLikelihoodData.cpp
+// File: SingleRecursiveTreeLikelihoodData.cpp
 // Created by: Julien Dutheil
 // Created on: Sat Dec 30 14:20 2006
 // From file HomogeneousTreeLikelihood.cpp
@@ -38,7 +38,7 @@
    knowledge of the CeCILL license and that you accept its terms.
  */
 
-#include "RTreeLikelihoodData.h"
+#include "SingleRecursiveTreeLikelihoodData.h"
 #include "../PatternTools.h"
 
 // From bpp-seq:
@@ -56,13 +56,13 @@ using namespace std;
 
 /******************************************************************************/
 
-void RTreeLikelihoodData::initLikelihoods(const SiteContainer& sites, const SubstitutionProcess& process)
+void SingleRecursiveTreeLikelihoodData::initLikelihoods(const SiteContainer& sites, const SubstitutionProcess& process)
 throw (Exception)
 {
-  if (sites.getNumberOfSequences() == 1) throw Exception("RTreeLikelihoodData::initLikelihoods. Only 1 sequence in data set.");
-  if (sites.getNumberOfSequences() == 0) throw Exception("RTreeLikelihoodData::initLikelihoods. No sequence in data set.");
+  if (sites.getNumberOfSequences() == 1) throw Exception("SingleRecursiveTreeLikelihoodData::initLikelihoods. Only 1 sequence in data set.");
+  if (sites.getNumberOfSequences() == 0) throw Exception("SingleRecursiveTreeLikelihoodData::initLikelihoods. No sequence in data set.");
   if (!process.isCompatibleWith(sites))
-    throw Exception("RTreeLikelihoodData::initLikelihoods. Data and model are not compatible.");
+    throw Exception("SingleRecursiveTreeLikelihoodData::initLikelihoods. Data and model are not compatible.");
   alphabet_ = sites.getAlphabet();
   nbStates_ = process.getNumberOfStates();
   nbSites_  = sites.getNumberOfSites();
@@ -88,10 +88,10 @@ throw (Exception)
 
 /******************************************************************************/
 
-void RTreeLikelihoodData::initLikelihoodsWithoutPatterns_(const Node* node, const SiteContainer& sequences, const SubstitutionProcess& process) throw (Exception)
+void SingleRecursiveTreeLikelihoodData::initLikelihoodsWithoutPatterns_(const Node* node, const SiteContainer& sequences, const SubstitutionProcess& process) throw (Exception)
 {
   // Initialize likelihood vector:
-  RTreeLikelihoodNodeData* nodeData = &nodeData_[node->getId()];
+  SingleRecursiveTreeLikelihoodNodeData* nodeData = &nodeData_[node->getId()];
   nodeData->setNodeId(node->getId());
   VVVdouble* likelihoods_node = &nodeData->getLikelihoodArray();
   VVVdouble* dLikelihoods_node = &nodeData->getDLikelihoodArray();
@@ -137,7 +137,7 @@ void RTreeLikelihoodData::initLikelihoodsWithoutPatterns_(const Node* node, cons
     }
     catch (SequenceNotFoundException snfe)
     {
-      throw SequenceNotFoundException("RTreeLikelihoodData::initTreelikelihoods. Leaf name in tree not found in site conainer: ", (node->getName()));
+      throw SequenceNotFoundException("SingleRecursiveTreeLikelihoodData::initTreelikelihoods. Leaf name in tree not found in site conainer: ", (node->getName()));
     }
     for (size_t i = 0; i < nbDistinctSites_; i++)
     {
@@ -184,7 +184,7 @@ void RTreeLikelihoodData::initLikelihoodsWithoutPatterns_(const Node* node, cons
 
 /******************************************************************************/
 
-SitePatterns* RTreeLikelihoodData::initLikelihoodsWithPatterns_(const Node* node, const SiteContainer& sequences, const SubstitutionProcess& process) throw (Exception)
+SitePatterns* SingleRecursiveTreeLikelihoodData::initLikelihoodsWithPatterns_(const Node* node, const SiteContainer& sequences, const SubstitutionProcess& process) throw (Exception)
 {
   SiteContainer* tmp = PatternTools::getSequenceSubset(sequences, *node);
   auto_ptr<SitePatterns> patterns(new SitePatterns(tmp, true)); //Important: patterns own tmp, otherwise sizes will not be accessible outside this function.
@@ -193,7 +193,7 @@ SitePatterns* RTreeLikelihoodData::initLikelihoodsWithPatterns_(const Node* node
   size_t nbSites = subSequences->getNumberOfSites();
 
   // Initialize likelihood vector:
-  RTreeLikelihoodNodeData* nodeData = &nodeData_[node->getId()];
+  SingleRecursiveTreeLikelihoodNodeData* nodeData = &nodeData_[node->getId()];
   nodeData->setNodeId(node->getId());
   VVVdouble* likelihoods_node = &nodeData->getLikelihoodArray();
   VVVdouble* dLikelihoods_node = &nodeData->getDLikelihoodArray();
@@ -238,7 +238,7 @@ SitePatterns* RTreeLikelihoodData::initLikelihoodsWithPatterns_(const Node* node
     }
     catch (SequenceNotFoundException snfe)
     {
-      throw SequenceNotFoundException("RTreeLikelihoodData::initTreelikelihoodsWithPatterns_. Leaf name in tree not found in site conainer: ", (node->getName()));
+      throw SequenceNotFoundException("SingleRecursiveTreeLikelihoodData::initTreelikelihoodsWithPatterns_. Leaf name in tree not found in site conainer: ", (node->getName()));
     }
     for (size_t i = 0; i < nbSites; ++i)
     {

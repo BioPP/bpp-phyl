@@ -1,5 +1,5 @@
 //
-// File: RTreeLikelihoodData.h
+// File: SingleRecursiveTreeLikelihoodData.h
 // Created by: Julien Dutheil
 // Created on: Sat Dec 30 14:20 2006
 // From file HomogeneousTreeLikelihood.h
@@ -38,8 +38,8 @@ The fact that you are presently reading this means that you have had
 knowledge of the CeCILL license and that you accept its terms.
 */
 
-#ifndef _NEWLIK_RTREELIKELIHOODDATA_H_
-#define _NEWLIK_RTREELIKELIHOODDATA_H_
+#ifndef _SINGLERECURSIVETREELIKELIHOODDATA_H_
+#define _SINGLERECURSIVETREELIKELIHOODDATA_H_
 
 #include "AbstractTreeLikelihoodData.h"
 #include "SubstitutionProcess.h"
@@ -58,7 +58,7 @@ namespace newlik
 /**
  * @brief Likelihood data structure for a node.
  * 
- * This class is for use with the RTreeLikelihoodData class.
+ * This class is for use with the SingleRecursiveTreeLikelihoodData class.
  * 
  * Store all conditionnal likelihoods:
  * <pre>
@@ -70,9 +70,9 @@ namespace newlik
  * We call this the <i>likelihood array</i> for each node.
  * In the same way, we store first and second order derivatives.
  *
- * @see RTreeLikelihoodData
+ * @see SingleRecursiveTreeLikelihoodData
  */
-class RTreeLikelihoodNodeData :
+class SingleRecursiveTreeLikelihoodNodeData :
   public virtual TreeLikelihoodNodeData
 {
   private:
@@ -82,21 +82,21 @@ class RTreeLikelihoodNodeData :
     int nodeId_;
 
   public:
-    RTreeLikelihoodNodeData() :
+    SingleRecursiveTreeLikelihoodNodeData() :
       nodeLikelihoods_(),
       nodeDLikelihoods_(),
       nodeD2Likelihoods_(),
       nodeId_(-1)
     {}
     
-    RTreeLikelihoodNodeData(const RTreeLikelihoodNodeData& data) :
+    SingleRecursiveTreeLikelihoodNodeData(const SingleRecursiveTreeLikelihoodNodeData& data) :
       nodeLikelihoods_(data.nodeLikelihoods_),
       nodeDLikelihoods_(data.nodeDLikelihoods_),
       nodeD2Likelihoods_(data.nodeD2Likelihoods_),
       nodeId_(data.nodeId_)
     {}
     
-    RTreeLikelihoodNodeData& operator=(const RTreeLikelihoodNodeData& data)
+    SingleRecursiveTreeLikelihoodNodeData& operator=(const SingleRecursiveTreeLikelihoodNodeData& data)
     {
       nodeLikelihoods_   = data.nodeLikelihoods_;
       nodeDLikelihoods_  = data.nodeDLikelihoods_;
@@ -106,13 +106,13 @@ class RTreeLikelihoodNodeData :
     }
  
 #ifndef NO_VIRTUAL_COV
-    RTreeLikelihoodNodeData*
+    SingleRecursiveTreeLikelihoodNodeData*
 #else
     Clonable*
 #endif
     clone() const
     {
-      return new RTreeLikelihoodNodeData(*this);
+      return new SingleRecursiveTreeLikelihoodNodeData(*this);
     }
 
   public:
@@ -132,7 +132,7 @@ class RTreeLikelihoodNodeData :
 /**
  * @brief Likelihood data structure suporting simple recursion.
  */
-class RTreeLikelihoodData :
+class SingleRecursiveTreeLikelihoodData :
   public newlik::AbstractTreeLikelihoodData
 {
   private:
@@ -140,7 +140,7 @@ class RTreeLikelihoodData :
      * @brief This contains all likelihood values used for computation.
      *
      */
-    mutable std::map<int, RTreeLikelihoodNodeData> nodeData_;
+    mutable std::map<int, SingleRecursiveTreeLikelihoodNodeData> nodeData_;
       
     /**
      * @brief This map defines the pattern network.
@@ -163,13 +163,13 @@ class RTreeLikelihoodData :
     bool usePatterns_;
 
   public:
-    RTreeLikelihoodData(size_t nbClasses, bool usePatterns = true) :
+    SingleRecursiveTreeLikelihoodData(size_t nbClasses, bool usePatterns = true) :
       AbstractTreeLikelihoodData(),
       nodeData_(), patternLinks_(), shrunkData_(0), nbSites_(0), nbStates_(0),
       nbClasses_(nbClasses), nbDistinctSites_(0), usePatterns_(usePatterns)
     {}
 
-    RTreeLikelihoodData(const RTreeLikelihoodData& data):
+    SingleRecursiveTreeLikelihoodData(const SingleRecursiveTreeLikelihoodData& data):
       AbstractTreeLikelihoodData(data),
       nodeData_(data.nodeData_),
       patternLinks_(data.patternLinks_),
@@ -182,7 +182,7 @@ class RTreeLikelihoodData :
         shrunkData_.reset(dynamic_cast<SiteContainer*>(data.shrunkData_->clone()));
     }
 
-    RTreeLikelihoodData& operator=(const RTreeLikelihoodData & data)
+    SingleRecursiveTreeLikelihoodData& operator=(const SingleRecursiveTreeLikelihoodData & data)
     {
       AbstractTreeLikelihoodData::operator=(data);
       nodeData_          = data.nodeData_;
@@ -199,17 +199,17 @@ class RTreeLikelihoodData :
       return *this;
     }
 
-    virtual ~RTreeLikelihoodData() {}
+    virtual ~SingleRecursiveTreeLikelihoodData() {}
 
-    RTreeLikelihoodData* clone() const { return new RTreeLikelihoodData(*this); }
+    SingleRecursiveTreeLikelihoodData* clone() const { return new SingleRecursiveTreeLikelihoodData(*this); }
 
   public:
 
-    RTreeLikelihoodNodeData& getNodeData(int nodeId)
+    SingleRecursiveTreeLikelihoodNodeData& getNodeData(int nodeId)
     { 
       return nodeData_[nodeId];
     }
-    const RTreeLikelihoodNodeData& getNodeData(int nodeId) const
+    const SingleRecursiveTreeLikelihoodNodeData& getNodeData(int nodeId) const
     { 
       return nodeData_[nodeId];
     }
@@ -297,5 +297,5 @@ class RTreeLikelihoodData :
 } //end of namespace newlik.
 } //end of namespace bpp.
 
-#endif //_RTREELIKELIHOODDATA_H_
+#endif //_SINGLERECURSIVETREELIKELIHOODDATA_H_
 

@@ -568,13 +568,13 @@ namespace bpp
         bool verbose = true)
       throw (Exception);
     
-    static newlik::Likelihood* optimizeParameters(
-                                                  newlik::Likelihood* lik,
-                                                  const ParameterList& parameters,
-                                                  std::map<std::string, std::string>& params,
-                                                  const std::string& suffix = "",
-                                                  bool suffixIsOptional = true,
-                                                  bool verbose = true)
+    static newlik::PhyloLikelihood* optimizeParameters(
+        newlik::PhyloLikelihood* lik,
+        const ParameterList& parameters,
+        std::map<std::string, std::string>& params,
+        const std::string& suffix = "",
+        bool suffixIsOptional = true,
+        bool verbose = true)
       throw (Exception);
     
     /**

@@ -70,7 +70,7 @@ namespace bpp
      * It also adds an abstract method for recursive computations.
      */
     class AbstractTreeLikelihood :
-      public virtual TreeLikelihood,
+      public virtual SinglePhyloLikelihood,
       public AbstractParametrizable
     {
     protected:

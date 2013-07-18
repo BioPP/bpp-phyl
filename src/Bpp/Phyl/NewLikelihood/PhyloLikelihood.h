@@ -55,22 +55,19 @@ namespace bpp
   {
 
     /**
-     * @brief The Likelihood interface.
+     * @brief The PhyloLikelihood interface, for phylogenetic likelihood.
      *
-     * This interface defines the methods needed to get a likelihood,
-     * given a dataset.
+     * This interface defines the common methods needed to compute a likelihood
+     * from a sequence alignement, usually involving one or more phylogenetic trees.
      */
-    
-    class Likelihood:
+    class PhyloLikelihood:
       public virtual DerivableSecondOrder
     {
     public:
-      Likelihood() {}
-      virtual ~Likelihood() {}
+      PhyloLikelihood() {}
+      virtual ~PhyloLikelihood() {}
 
-#ifndef NO_VIRTUAL_COV
-      Likelihood* clone() const = 0;
-#endif
+      PhyloLikelihood* clone() const = 0;
 
     public:
 
