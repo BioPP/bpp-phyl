@@ -53,6 +53,7 @@ SimpleSubstitutionProcess::SimpleSubstitutionProcess(SubstitutionModel* model, P
   // Add parameters:
   addParameters_(tree->getParameters());  //Branch lengths
   addParameters_(model->getParameters()); //Substitution model
+
 }
 
 SimpleSubstitutionProcess::SimpleSubstitutionProcess(const SimpleSubstitutionProcess& ssp) :

@@ -75,6 +75,7 @@ namespace bpp
     public:
 
       /**
+       *
        * @name The data functions
        *
        * @{

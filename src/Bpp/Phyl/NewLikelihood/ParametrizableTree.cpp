@@ -149,7 +149,7 @@ void ParametrizableTree::buildReverseIndex_(Node* node)
 
 const TreeTemplate<Node>& ParametrizableTree::getTree() const
 {
-  if (!liveIndex_ && !isSynchronized_)
+  if (liveIndex_ && !isSynchronized_)
     updateTreeFromParameters_();
   return tree_;
 }
@@ -169,7 +169,8 @@ void ParametrizableTree::fireParameterChanged(const ParameterList& parameters)
   if (liveIndex_) {
     for (unsigned int i = 0; i < parameters.size(); ++i) {
       const Parameter& param = parameters[i];
-      reverseIndex_[param.getName()]->setDistanceToFather(param.getValue());
+      if (reverseIndex_.find(param.getName())!=reverseIndex_.end())
+        reverseIndex_[param.getName()]->setDistanceToFather(param.getValue());
     }
     isSynchronized_ = true;
   }

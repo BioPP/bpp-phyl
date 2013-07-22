@@ -360,10 +360,15 @@ SubstitutionProcess* PhylogeneticsApplicationTools::setSubstitutionProcess(
 
   auto_ptr<Tree> tmpt(getTree(params));
   
-  auto_ptr<ParametrizableTree>  pTree(new ParametrizableTree(*(tmpt.get())));
+  auto_ptr<ParametrizableTree>  pTree(new ParametrizableTree(*(tmpt.get()),false,true));
 
   
   auto_ptr<DiscreteDistribution> rDist(getRateDistribution(params));
+
+  ParameterList pl=rDist->getParameters();
+  for (size_t i=0; i<pl.size(); i++)
+    cerr << pl[i].getName() << ' ' << pl[i].getValue() << endl;
+
 
   
   BppOSubstitutionModelFormat bIO(BppOSubstitutionModelFormat::ALL, true, true, true, false);
@@ -374,8 +379,7 @@ SubstitutionProcess* PhylogeneticsApplicationTools::setSubstitutionProcess(
   {
     // Homogeneous & stationary models
   
-    tmpDesc = ApplicationTools::getStringParameter("model", params, "", suffix, suffixIsOptional, false);
-    auto_ptr<SubstitutionModel> tmp(bIO.read(alphabet, tmpDesc, data, false));
+    auto_ptr<SubstitutionModel> tmp(getSubstitutionModel(alphabet, gCode, data, params));
 
     if (tmp->getNumberOfStates() >= 2 * tmp->getAlphabet()->getSize() || (rDist->getName()=="Constant"))// first test is for Markov-modulated Markov model!
       return new SimpleSubstitutionProcess(tmp.release(), pTree.release());
@@ -1227,6 +1231,7 @@ Likelihood* PhylogeneticsApplicationTools::optimizeParameters(
                                                               bool verbose)
   throw (Exception)
 {
+  cerr << "opt" << endl;
   string optimization = ApplicationTools::getStringParameter("optimization", params, "FullD(derivatives=Newton)", suffix, suffixIsOptional, false);
   if (optimization == "None")
     return lik;
@@ -1358,6 +1363,7 @@ Likelihood* PhylogeneticsApplicationTools::optimizeParameters(
           ApplicationTools::displayWarning("Parameter '" + pnfe.getParameter() + "' not found, and so can't be ignored!");
         }
     }
+
 
   unsigned int nbEvalMax = ApplicationTools::getParameter<unsigned int>("optimization.max_number_f_eval", params, 1000000, suffix, suffixIsOptional);
   if (verbose)

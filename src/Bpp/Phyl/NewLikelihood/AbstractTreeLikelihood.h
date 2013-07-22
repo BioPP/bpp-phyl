@@ -178,7 +178,12 @@ namespace bpp
       bool enableFirstOrderDerivatives() const { return computeFirstOrderDerivatives_; }
       bool enableSecondOrderDerivatives() const { return computeSecondOrderDerivatives_; }
       bool isInitialized() const { return initialized_; }
-		
+
+      virtual void fireParameterChanged(const ParameterList& parameters)
+      {
+        process_->matchParametersValues(parameters);
+      }
+      
       ParameterList getSubstitutionProcessParameters() const { return process_->getParameters(); }
       const SubstitutionProcess& getSubstitutionProcess() const { return *process_; }
 

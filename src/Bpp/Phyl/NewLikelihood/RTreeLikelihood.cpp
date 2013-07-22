@@ -174,7 +174,6 @@ double RTreeLikelihood::getLikelihoodForASite(size_t site) const
   {
     l += getLikelihoodForASiteForAClass(site, i) * process_->getProbabilityForModel(i);
   }
-  cerr << "r " << site << " = " << l << endl;
   //if(l <= 0.) cerr << "WARNING!!! Negative likelihood." << endl;
   if (l < 0) l = 0; //May happen because of numerical errors.
   return l;
@@ -228,8 +227,7 @@ throw (ParameterNotFoundException, ConstraintException)
 
 void RTreeLikelihood::fireParameterChanged(const ParameterList& params)
 {
-  //TODO: check if that is still needed (jdutheil 03/12/12)
-  //applyParameters();
+  AbstractTreeLikelihood::fireParameterChanged(params);
 
   if (params.size() > 0) {
     computeTreeLikelihood();

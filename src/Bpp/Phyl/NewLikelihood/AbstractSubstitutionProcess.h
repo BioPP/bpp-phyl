@@ -89,7 +89,7 @@ protected:
 
 public:
 
-  const TreeTemplate<Node>& getTree() const { return pTree_->getTree(); }
+  const TreeTemplate<Node>& getTree() const {return pTree_->getTree(); }
   
   const ParametrizableTree& getParametrizableTree() const { return *pTree_; }
 
