@@ -252,19 +252,19 @@ throw (Exception)
 }
 
 unsigned int OptimizationTools::optimizeNumericalParameters(
-                                                            Likelihood* lik,
-                                                            const ParameterList& parameters,
-                                                            OptimizationListener* listener,
-                                                            unsigned int nstep,
-                                                            double tolerance,
-                                                            unsigned int tlEvalMax,
-                                                            OutputStream* messageHandler,
-                                                            OutputStream* profiler,
-                                                            bool reparametrization,
-                                                            unsigned int verbose,
-                                                            const std::string& optMethodDeriv,
-                                                            const std::string& optMethodModel)
-  throw (Exception)
+  PhyloLikelihood* lik,
+  const ParameterList& parameters,
+  OptimizationListener* listener,
+  unsigned int nstep,
+  double tolerance,
+  unsigned int tlEvalMax,
+  OutputStream* messageHandler,
+  OutputStream* profiler,
+  bool reparametrization,
+  unsigned int verbose,
+  const std::string& optMethodDeriv,
+  const std::string& optMethodModel)
+throw (Exception)
 {
   DerivableSecondOrder* f = lik;
   ParameterList pl = parameters;
@@ -272,13 +272,13 @@ unsigned int OptimizationTools::optimizeNumericalParameters(
   // Shall we reparametrize the function to remove constraints?
   auto_ptr<DerivableSecondOrder> frep;
   if (reparametrization)
-    {
-      frep.reset(new ReparametrizationDerivableSecondOrderWrapper(f, parameters));
-      f = frep.get();
+  {
+    frep.reset(new ReparametrizationDerivableSecondOrderWrapper(f, parameters));
+    f = frep.get();
 
-      // Reset parameters to remove constraints:
-      pl = f->getParameters().subList(parameters.getParameterNames());
-    }
+    // Reset parameters to remove constraints:
+    pl = f->getParameters().subList(parameters.getParameterNames());
+  }
 
   // ///////////////
   // Build optimizer:
@@ -301,32 +301,32 @@ unsigned int OptimizationTools::optimizeNumericalParameters(
   // Other parameters
 
   if (optMethodModel == OPTIMIZATION_BRENT)
-    {
-      ParameterList plsm = parameters.getCommonParametersWith(lik->getSubstitutionModelParameters());
-      desc->addOptimizer("Substitution model parameter", new SimpleMultiDimensions(f), plsm.getParameterNames(), 0, MetaOptimizerInfos::IT_TYPE_STEP);
+  {
+    ParameterList plsm = parameters.getCommonParametersWith(lik->getSubstitutionModelParameters());
+    desc->addOptimizer("Substitution model parameter", new SimpleMultiDimensions(f), plsm.getParameterNames(), 0, MetaOptimizerInfos::IT_TYPE_STEP);
 
 
-      ParameterList plrd = parameters.getCommonParametersWith(lik->getRateDistributionParameters());
-      desc->addOptimizer("Rate distribution parameter", new SimpleMultiDimensions(f), plrd.getParameterNames(), 0, MetaOptimizerInfos::IT_TYPE_STEP);
-      poptimizer = new MetaOptimizer(f, desc, nstep);
-    }
+    ParameterList plrd = parameters.getCommonParametersWith(lik->getRateDistributionParameters());
+    desc->addOptimizer("Rate distribution parameter", new SimpleMultiDimensions(f), plrd.getParameterNames(), 0, MetaOptimizerInfos::IT_TYPE_STEP);
+    poptimizer = new MetaOptimizer(f, desc, nstep);
+  }
   else if (optMethodModel == OPTIMIZATION_BFGS)
-    {
-      vector<string> vNameDer;
+  {
+    vector<string> vNameDer;
 
-      ParameterList plsm = parameters.getCommonParametersWith(lik->getSubstitutionModelParameters());
-      vNameDer = plsm.getParameterNames();
+    ParameterList plsm = parameters.getCommonParametersWith(lik->getSubstitutionModelParameters());
+    vNameDer = plsm.getParameterNames();
 
-      ParameterList plrd = parameters.getCommonParametersWith(lik->getRateDistributionParameters());
+    ParameterList plrd = parameters.getCommonParametersWith(lik->getRateDistributionParameters());
 
-      vector<string> vNameDer2 = plrd.getParameterNames();
+    vector<string> vNameDer2 = plrd.getParameterNames();
 
-      vNameDer.insert(vNameDer.begin(), vNameDer2.begin(), vNameDer2.end());
-      fnum->setParametersToDerivate(vNameDer);
+    vNameDer.insert(vNameDer.begin(), vNameDer2.begin(), vNameDer2.end());
+    fnum->setParametersToDerivate(vNameDer);
 
-      desc->addOptimizer("Rate & model distribution parameters", new BfgsMultiDimensions(fnum), vNameDer, 1, MetaOptimizerInfos::IT_TYPE_FULL);
-      poptimizer = new MetaOptimizer(fnum, desc, nstep);
-    }
+    desc->addOptimizer("Rate & model distribution parameters", new BfgsMultiDimensions(fnum), vNameDer, 1, MetaOptimizerInfos::IT_TYPE_FULL);
+    poptimizer = new MetaOptimizer(fnum, desc, nstep);
+  }
   else
     throw Exception("OptimizationTools::optimizeNumericalParameters. Unknown optimization method: " + optMethodModel);
 
@@ -379,8 +379,8 @@ throw (Exception)
     fclock.reset(new GlobalClockTreeLikelihoodFunctionWrapper(tl));
     f = fclock.get();
     if (verbose > 0)
-      ApplicationTools::displayResult("Log-likelihood after adding clock", -tl->getLogLikelihood()); 
-    
+      ApplicationTools::displayResult("Log-likelihood after adding clock", -tl->getLogLikelihood());
+
     // Reset parameters to use new branch lengths. WARNING! 'old' branch parameters do not exist anymore and have been replaced by heights
     pl = fclock->getParameters().getCommonParametersWith(parameters);
     pl.addParameters(fclock->getHeightParameters());
@@ -421,7 +421,7 @@ throw (Exception)
     throw Exception("OptimizationTools::optimizeNumericalParameters2. Unknown optimization method: " + optMethodDeriv);
 
   // Numerical derivatives:
-  ParameterList tmp = tl->getNonDerivableParameters(); 
+  ParameterList tmp = tl->getNonDerivableParameters();
   if (useClock)
     tmp.addParameters(fclock->getHeightParameters());
   fnum->setParametersToDerivate(tmp.getParameterNames());
@@ -450,18 +450,18 @@ throw (Exception)
 /************************************************************/
 
 unsigned int OptimizationTools::optimizeNumericalParameters2(
-                                                             Likelihood* lik,
-                                                             const ParameterList& parameters,
-                                                             OptimizationListener* listener,
-                                                             double tolerance,
-                                                             unsigned int tlEvalMax,
-                                                             OutputStream* messageHandler,
-                                                             OutputStream* profiler,
-                                                             bool reparametrization,
-                                                             bool useClock,
-                                                             unsigned int verbose,
-                                                             const std::string& optMethodDeriv)
-  throw (Exception)
+  PhyloLikelihood* lik,
+  const ParameterList& parameters,
+  OptimizationListener* listener,
+  double tolerance,
+  unsigned int tlEvalMax,
+  OutputStream* messageHandler,
+  OutputStream* profiler,
+  bool reparametrization,
+  bool useClock,
+  unsigned int verbose,
+  const std::string& optMethodDeriv)
+throw (Exception)
 {
   DerivableSecondOrder* f = lik;
   ParameterList pl = parameters;
@@ -472,8 +472,8 @@ unsigned int OptimizationTools::optimizeNumericalParameters2(
   //     fclock.reset(new GlobalClockTreeLikelihoodFunctionWrapper(lik));
   //     f = fclock.get();
   //     if (verbose > 0)
-  //       ApplicationTools::displayResult("Log-likelihood after adding clock", -lik->getLogLikelihood()); 
-    
+  //       ApplicationTools::displayResult("Log-likelihood after adding clock", -lik->getLogLikelihood());
+
   //     // Reset parameters to use new branch lengths. WARNING! 'old' branch parameters do not exist anymore and have been replaced by heights
   //     pl = fclock->getParameters().getCommonParametersWith(parameters);
   //     pl.addParameters(fclock->getHeightParameters());
@@ -481,40 +481,40 @@ unsigned int OptimizationTools::optimizeNumericalParameters2(
   // Shall we reparametrize the function to remove constraints?
   auto_ptr<DerivableSecondOrder> frep;
   if (reparametrization)
-    {
-      frep.reset(new ReparametrizationDerivableSecondOrderWrapper(f, pl));
-      f = frep.get();
+  {
+    frep.reset(new ReparametrizationDerivableSecondOrderWrapper(f, pl));
+    f = frep.get();
 
-      // Reset parameters to remove constraints:
-      pl = f->getParameters().subList(pl.getParameterNames());
-    }
+    // Reset parameters to remove constraints:
+    pl = f->getParameters().subList(pl.getParameterNames());
+  }
 
   auto_ptr<AbstractNumericalDerivative> fnum;
   // Build optimizer:
   auto_ptr<Optimizer> optimizer;
   if (optMethodDeriv == OPTIMIZATION_GRADIENT)
-    {
-      fnum.reset(new TwoPointsNumericalDerivative(f));
-      fnum->setInterval(0.0000001);
-      optimizer.reset(new ConjugateGradientMultiDimensions(reinterpret_cast<DerivableFirstOrder*>(fnum.get()))); // Removes strict-aliasing warning with gcc 4.4
-    }
+  {
+    fnum.reset(new TwoPointsNumericalDerivative(f));
+    fnum->setInterval(0.0000001);
+    optimizer.reset(new ConjugateGradientMultiDimensions(reinterpret_cast<DerivableFirstOrder*>(fnum.get()))); // Removes strict-aliasing warning with gcc 4.4
+  }
   else if (optMethodDeriv == OPTIMIZATION_NEWTON)
-    {
-      fnum.reset(new ThreePointsNumericalDerivative(f));
-      fnum->setInterval(0.0001);
-      optimizer.reset(new PseudoNewtonOptimizer(fnum.get()));
-    }
+  {
+    fnum.reset(new ThreePointsNumericalDerivative(f));
+    fnum->setInterval(0.0001);
+    optimizer.reset(new PseudoNewtonOptimizer(fnum.get()));
+  }
   else if (optMethodDeriv == OPTIMIZATION_BFGS)
-    {
-      fnum.reset(new TwoPointsNumericalDerivative(f));
-      fnum->setInterval(0.0001);
-      optimizer.reset(new BfgsMultiDimensions(fnum.get()));
-    }
+  {
+    fnum.reset(new TwoPointsNumericalDerivative(f));
+    fnum->setInterval(0.0001);
+    optimizer.reset(new BfgsMultiDimensions(fnum.get()));
+  }
   else
     throw Exception("OptimizationTools::optimizeNumericalParameters2. Unknown optimization method: " + optMethodDeriv);
 
   // Numerical derivatives:
-  ParameterList tmp = lik->getNonDerivableParameters(); 
+  ParameterList tmp = lik->getNonDerivableParameters();
   // if (useClock)
   //   tmp.addParameters(fclock->getHeightParameters());
   fnum->setParametersToDerivate(tmp.getParameterNames());
@@ -924,16 +924,16 @@ TreeTemplate<Node>* OptimizationTools::buildDistanceTree(
       delete previousTree;
     }
     if (param != DISTANCEMETHOD_ITERATIONS)
-      break;  // Ends here.
+      break;                // Ends here.
 
     // Now, re-estimate parameters:
     auto_ptr<SubstitutionModel> model(estimationMethod.getSubstitutionModel().clone());
     auto_ptr<DiscreteDistribution> rdist(estimationMethod.getRateDistribution().clone());
     DRHomogeneousTreeLikelihood tl(*tree,
-        *estimationMethod.getData(),
-        model.get(),
-        rdist.get(),
-        true, verbose > 1);
+                                   *estimationMethod.getData(),
+                                   model.get(),
+                                   rdist.get(),
+                                   true, verbose > 1);
     tl.initialize();
     ParameterList parameters = tl.getParameters();
     if (!optimizeBrLen)

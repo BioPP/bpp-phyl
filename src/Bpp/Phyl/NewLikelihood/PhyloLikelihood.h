@@ -1,5 +1,5 @@
 //
-// File: Likelihood.h
+// File: PhyloLikelihood.h
 // Created by: Laurent Guéguen
 // Created on: jeudi 11 juillet 2013, à 14h 05
 //
@@ -37,8 +37,8 @@
   knowledge of the CeCILL license and that you accept its terms.
 */
 
-#ifndef _LIKELIHOOD_H_
-#define _LIKELIHOOD_H_
+#ifndef _PHYLOLIKELIHOOD_H_
+#define _PHYLOLIKELIHOOD_H_
 
 #include <Bpp/Numeric/ParameterList.h>
 #include <Bpp/Numeric/Parametrizable.h>
@@ -55,22 +55,19 @@ namespace bpp
   {
 
     /**
-     * @brief The Likelihood interface.
+     * @brief The PhyloLikelihood interface, for phylogenetic likelihood.
      *
-     * This interface defines the methods needed to get a likelihood,
-     * given a dataset.
+     * This interface defines the common methods needed to compute a likelihood
+     * from a sequence alignement, usually involving one or more phylogenetic trees.
      */
-    
-    class Likelihood:
+    class PhyloLikelihood:
       public virtual DerivableSecondOrder
     {
     public:
-      Likelihood() {}
-      virtual ~Likelihood() {}
+      PhyloLikelihood() {}
+      virtual ~PhyloLikelihood() {}
 
-#ifndef NO_VIRTUAL_COV
-      Likelihood* clone() const = 0;
-#endif
+      PhyloLikelihood* clone() const = 0;
 
     public:
 
@@ -254,5 +251,5 @@ namespace bpp
   } //end of namespace newlik.
 } //end of namespace bpp.
 
-#endif  //_LIKELIHOOD_H_
+#endif  //_PHYLOLIKELIHOOD_H_
 

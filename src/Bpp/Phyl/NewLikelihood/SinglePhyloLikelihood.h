@@ -1,5 +1,5 @@
 //
-// File: TreeLikelihood.h
+// File: TSinglePhyloLikelihood.h
 // Created by: Julien Dutheil
 // Created on: Fri Oct 17 17:36:44 2003
 //
@@ -37,8 +37,8 @@
   knowledge of the CeCILL license and that you accept its terms.
 */
 
-#ifndef _NEWLIK_TREELIKELIHOOD_H_
-#define _NEWLIK_TREELIKELIHOOD_H_
+#ifndef _SINGLEPHYLOLIKELIHOOD_H_
+#define _SINGLEPHYLOLIKELIHOOD_H_
 
 #include "../Node.h"
 #include "../Tree.h"
@@ -56,7 +56,7 @@
 #include <Bpp/Seq/Alphabet/Alphabet.h>
 #include <Bpp/Seq/Container/SiteContainer.h>
 
-#include "Likelihood.h"
+#include "PhyloLikelihood.h"
 
 namespace bpp
 {
@@ -64,21 +64,18 @@ namespace bpp
   {
 
     /**
-     * @brief The TreeLikelihood interface.
+     * @brief The SinglePhyloLikelihood class: phylogenetic likelihood computation with a single process.
      *
-     * This interface defines the methods needed for computing the likelihood
-     * of a phylogenetic tree, given a dataset.
+     * This class implements likelihood calculation with a single process/tree.
      */ 
-    class TreeLikelihood:
-      public Likelihood
+    class SinglePhyloLikelihood:
+      public virtual PhyloLikelihood
     {
     public:
-      TreeLikelihood() {}
-      virtual ~TreeLikelihood() {}
+      SinglePhyloLikelihood() {}
+      virtual ~SinglePhyloLikelihood() {}
 
-#ifndef NO_VIRTUAL_COV
-      TreeLikelihood* clone() const = 0;
-#endif
+      SinglePhyloLikelihood* clone() const = 0;
 
     public:
 
@@ -206,12 +203,12 @@ namespace bpp
       //virtual ConstSiteModelIterator* getNewSiteModelIterator(size_t siteIndex) const = 0;
       /* @} */
 
-      friend class LikelihoodCollection;
+      friend class MultiPhyloLikelihood;
 
     };
 
   } //end of namespace newlik.
 } //end of namespace bpp.
 
-#endif  //_TREELIKELIHOOD_H_
+#endif  //_SINGLEPHYLOLIKELIHOOD_H_
 

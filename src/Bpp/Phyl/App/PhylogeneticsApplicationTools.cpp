@@ -57,7 +57,7 @@
 #include "../Io/BppOFrequenciesSetFormat.h"
 #include "../Io/BppORateDistributionFormat.h"
 
-#include "../NewLikelihood/TreeLikelihood.h"
+#include "../NewLikelihood/SinglePhyloLikelihood.h"
 #include "../NewLikelihood/ParametrizableTree.h"
 #include "../NewLikelihood/NonHomogeneousSubstitutionProcess.h"
 #include "../NewLikelihood/SimpleSubstitutionProcess.h"
@@ -1222,13 +1222,13 @@ throw (Exception)
 /******************************************************************************/
 
 
-Likelihood* PhylogeneticsApplicationTools::optimizeParameters(
-                                                              Likelihood* lik,
-                                                              const ParameterList& parameters,
-                                                              std::map<std::string, std::string>& params,
-                                                              const std::string& suffix,
-                                                              bool suffixIsOptional,
-                                                              bool verbose)
+PhyloLikelihood* PhylogeneticsApplicationTools::optimizeParameters(
+    PhyloLikelihood* lik,
+    const ParameterList& parameters,
+    std::map<std::string, std::string>& params,
+    const std::string& suffix,
+    bool suffixIsOptional,
+    bool verbose)
   throw (Exception)
 {
   cerr << "opt" << endl;

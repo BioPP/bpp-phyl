@@ -49,7 +49,7 @@
 #include "Distance/DistanceEstimation.h"
 #include "Distance/DistanceMethod.h"
 
-#include "NewLikelihood/Likelihood.h"
+#include "NewLikelihood/PhyloLikelihood.h"
 
 #include <Bpp/Io/OutputStream.h>
 #include <Bpp/App/ApplicationTools.h>
@@ -352,18 +352,18 @@ public:
   throw (Exception);
 
   static unsigned int optimizeNumericalParameters(
-                                                  newlik::Likelihood* lik,
-                                                  const ParameterList& parameters,
-                                                  OptimizationListener* listener    = 0,
-                                                  unsigned int nstep                = 1,
-                                                  double tolerance                  = 0.000001,
-                                                  unsigned int tlEvalMax            = 1000000,
-                                                  OutputStream* messageHandler      = ApplicationTools::message,
-                                                  OutputStream* profiler            = ApplicationTools::message,
-                                                  bool reparametrization            = false,
-                                                  unsigned int verbose              = 1,
-                                                  const std::string& optMethodDeriv = OPTIMIZATION_NEWTON,
-                                                  const std::string& optMethodModel = OPTIMIZATION_BRENT)
+      newlik::PhyloLikelihood* lik,
+      const ParameterList& parameters,
+      OptimizationListener* listener    = 0,
+      unsigned int nstep                = 1,
+      double tolerance                  = 0.000001,
+      unsigned int tlEvalMax            = 1000000,
+      OutputStream* messageHandler      = ApplicationTools::message,
+      OutputStream* profiler            = ApplicationTools::message,
+      bool reparametrization            = false,
+      unsigned int verbose              = 1,
+      const std::string& optMethodDeriv = OPTIMIZATION_NEWTON,
+      const std::string& optMethodModel = OPTIMIZATION_BRENT)
     throw (Exception);
   
   /**
@@ -403,17 +403,17 @@ public:
   throw (Exception);
 
   static unsigned int optimizeNumericalParameters2(
-                                                   newlik::Likelihood* lik,
-                                                   const ParameterList& parameters,
-                                                   OptimizationListener* listener     = 0,
-                                                   double tolerance                   = 0.000001,
-                                                   unsigned int tlEvalMax             = 1000000,
-                                                   OutputStream* messageHandler       = ApplicationTools::message,
-                                                   OutputStream* profiler             = ApplicationTools::message,
-                                                   bool reparametrization             = false,
-                                                   bool useClock                      = false,
-                                                   unsigned int verbose               = 1,
-                                                   const std::string& optMethodDeriv  = OPTIMIZATION_NEWTON)
+      newlik::PhyloLikelihood* lik,
+      const ParameterList& parameters,
+      OptimizationListener* listener     = 0,
+      double tolerance                   = 0.000001,
+      unsigned int tlEvalMax             = 1000000,
+      OutputStream* messageHandler       = ApplicationTools::message,
+      OutputStream* profiler             = ApplicationTools::message,
+      bool reparametrization             = false,
+      bool useClock                      = false,
+      unsigned int verbose               = 1,
+      const std::string& optMethodDeriv  = OPTIMIZATION_NEWTON)
     throw (Exception);
 
   /**

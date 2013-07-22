@@ -55,15 +55,15 @@ SET(CPP_FILES
   Bpp/Phyl/Likelihood/GlobalClockTreeLikelihoodFunctionWrapper.cpp
   Bpp/Phyl/NewLikelihood/AbstractSubstitutionProcess.cpp
   Bpp/Phyl/NewLikelihood/AbstractTreeLikelihood.cpp
-  Bpp/Phyl/NewLikelihood/LikelihoodCollection.cpp
-  Bpp/Phyl/NewLikelihood/MixtureLikelihoodCollection.cpp
+  Bpp/Phyl/NewLikelihood/MultiPhyloLikelihood.cpp
+  Bpp/Phyl/NewLikelihood/MixturePhyloLikelihood.cpp
   # Bpp/Phyl/NewLikelihood/DRTreeLikelihood.cpp
   # Bpp/Phyl/NewLikelihood/DRTreeLikelihoodData.cpp
   Bpp/Phyl/NewLikelihood/NonHomogeneousSubstitutionProcess.cpp
   Bpp/Phyl/NewLikelihood/ParametrizableTree.cpp
   Bpp/Phyl/NewLikelihood/RateAcrossSitesSubstitutionProcess.cpp
-  Bpp/Phyl/NewLikelihood/RTreeLikelihood.cpp
-  Bpp/Phyl/NewLikelihood/RTreeLikelihoodData.cpp
+  Bpp/Phyl/NewLikelihood/SingleRecursiveTreeLikelihoodCalculation.cpp
+  Bpp/Phyl/NewLikelihood/SingleRecursiveTreeLikelihoodData.cpp
   Bpp/Phyl/NewLikelihood/SimpleSubstitutionProcess.cpp
   Bpp/Phyl/NewLikelihood/ComputingNode.cpp
   Bpp/Phyl/NewLikelihood/ComputingTree.cpp
@@ -243,8 +243,8 @@ SET(H_FILES
   Bpp/Phyl/NewLikelihood/NonHomogeneousSubstitutionProcess.h
   Bpp/Phyl/NewLikelihood/ParametrizableTree.h
   Bpp/Phyl/NewLikelihood/RateAcrossSitesSubstitutionProcess.h
-  Bpp/Phyl/NewLikelihood/RTreeLikelihoodData.h
-  Bpp/Phyl/NewLikelihood/RTreeLikelihood.h
+  Bpp/Phyl/NewLikelihood/SingleRecursiveTreeLikelihoodData.h
+  Bpp/Phyl/NewLikelihood/SingleRecursiveTreeLikelihoodCalculation.h
   Bpp/Phyl/NewLikelihood/SimpleSubstitutionProcess.h
   Bpp/Phyl/NewLikelihood/SitePartition.h
   Bpp/Phyl/NewLikelihood/ComputingNode.cpp
@@ -253,10 +253,10 @@ SET(H_FILES
   Bpp/Phyl/NewLikelihood/SubstitutionProcessCollectionMember.cpp
   Bpp/Phyl/NewLikelihood/SubstitutionProcess.h
   Bpp/Phyl/NewLikelihood/TreeLikelihoodData.h
-  Bpp/Phyl/NewLikelihood/TreeLikelihood.h
-  Bpp/Phyl/NewLikelihood/Likelihood.h
-  Bpp/Phyl/NewLikelihood/LikelihoodCollection.h
-  Bpp/Phyl/NewLikelihood/MixtureLikelihoodCollection.h
+  Bpp/Phyl/NewLikelihood/SinglePhyloLikelihood.h
+  Bpp/Phyl/NewLikelihood/PhyloLikelihood.h
+  Bpp/Phyl/NewLikelihood/MultiPhyloLikelihood.h
+  Bpp/Phyl/NewLikelihood/MixturePhyloLikelihood.h
   Bpp/Phyl/Mapping/LaplaceSubstitutionCount.h
   Bpp/Phyl/Mapping/WeightedSubstitutionCount.h
   Bpp/Phyl/Mapping/OneJumpSubstitutionCount.h

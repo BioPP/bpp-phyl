@@ -40,7 +40,7 @@
 #ifndef _NEWLIK_ABSTRACTTREELIKELIHOOD_H_
 #define _NEWLIK_ABSTRACTTREELIKELIHOOD_H_
 
-#include "TreeLikelihood.h"
+#include "SinglePhyloLikelihood.h"
 #include "SubstitutionProcess.h"
 #include "../Tree.h"
 #include "../TreeTemplate.h"
@@ -70,7 +70,7 @@ namespace bpp
      * It also adds an abstract method for recursive computations.
      */
     class AbstractTreeLikelihood :
-      public virtual TreeLikelihood,
+      public virtual SinglePhyloLikelihood,
       public AbstractParametrizable
     {
     protected:
