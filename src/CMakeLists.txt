@@ -256,6 +256,7 @@ SET(H_FILES
   Bpp/Phyl/NewLikelihood/SubstitutionProcess.h
   Bpp/Phyl/NewLikelihood/TreeLikelihoodData.h
   Bpp/Phyl/NewLikelihood/SinglePhyloLikelihood.h
+  Bpp/Phyl/NewLikelihood/SingleRecursivePhyloLikelihood.h
   Bpp/Phyl/NewLikelihood/PhyloLikelihood.h
   Bpp/Phyl/NewLikelihood/MultiPhyloLikelihood.h
   Bpp/Phyl/NewLikelihood/MixturePhyloLikelihood.h

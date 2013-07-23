@@ -186,6 +186,22 @@ public:
   virtual double getD2LogLikelihood() const = 0;
 
   /**
+   * @brief Get the derivative of the likelihood for a site.
+   *
+   * @param site The site index to analyse.
+   * @return The derivative of likelihood for site <i>site</i>.
+   */
+  virtual double getDLikelihoodForASite(size_t site) const = 0;
+  
+  /**
+   * @brief Get the second-order derivative of the likelihood for a site.
+   *
+   * @param site The site index to analyse.
+   * @return The second-order derivative of likelihood for site <i>site</i>.
+   */
+  virtual double getD2LikelihoodForASite(size_t site) const = 0;  
+
+  /**
    * @brief Initiate a likelihood computation.
    */
   virtual void computeTreeLikelihood() = 0;

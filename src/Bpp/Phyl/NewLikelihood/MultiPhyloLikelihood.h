@@ -91,7 +91,7 @@ protected:
    * vector of pointers towards Treelikelihoods, used for the
    * global likelihood.
    */
-  std::vector<SingleRecursiveTreeLikelihoodCalculation*> vpTreelik_;
+  std::vector<TreeLikelihoodCalculation*> vpTreelik_;
 
 public:
   MultiPhyloLikelihood(SubstitutionProcessCollection* processColl,

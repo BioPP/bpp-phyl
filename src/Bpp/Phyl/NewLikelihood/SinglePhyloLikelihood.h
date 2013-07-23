@@ -1,5 +1,5 @@
 //
-// File: TSinglePhyloLikelihood.h
+// File: SinglePhyloLikelihood.h
 // Created by: Julien Dutheil
 // Created on: Fri Oct 17 17:36:44 2003
 //
