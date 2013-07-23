@@ -1,5 +1,5 @@
 //
-// File: AbstractTreeLikelihood.cpp
+// File: SinglePhyloLikelihood.cpp
 // Created by: Julien Dutheil
 // Created on: Fri Oct 17 17:57:21 2003
 //
@@ -37,7 +37,7 @@ The fact that you are presently reading this means that you have had
 knowledge of the CeCILL license and that you accept its terms.
 */
 
-#include "AbstractTreeLikelihood.h"
+#include "SinglePhyloLikelihood.h"
 
 using namespace std;
 using namespace bpp;
@@ -45,7 +45,7 @@ using namespace newlik;
 
 /******************************************************************************/
 
-AbstractTreeLikelihood::AbstractTreeLikelihood(
+SinglePhyloLikelihood::SinglePhyloLikelihood(
     SubstitutionProcess* process,
     bool verbose):
   AbstractParametrizable(""),
@@ -66,7 +66,7 @@ AbstractTreeLikelihood::AbstractTreeLikelihood(
 
 /******************************************************************************/
 
-Vdouble AbstractTreeLikelihood::getLikelihoodForEachSite() const
+Vdouble SinglePhyloLikelihood::getLikelihoodForEachSite() const
 {
   Vdouble l(getNumberOfSites());
   for (unsigned int i = 0; i < l.size(); ++i)
@@ -76,7 +76,7 @@ Vdouble AbstractTreeLikelihood::getLikelihoodForEachSite() const
 
 /******************************************************************************/
 
-VVdouble AbstractTreeLikelihood::getLikelihoodForEachSiteForEachState() const
+VVdouble SinglePhyloLikelihood::getLikelihoodForEachSiteForEachState() const
 {
   VVdouble l(getNumberOfSites());
   for (unsigned int i = 0; i < l.size(); ++i)
@@ -93,7 +93,7 @@ VVdouble AbstractTreeLikelihood::getLikelihoodForEachSiteForEachState() const
 
 /******************************************************************************/
 
-VVdouble AbstractTreeLikelihood::getLikelihoodForEachSiteForEachClass() const
+VVdouble SinglePhyloLikelihood::getLikelihoodForEachSiteForEachClass() const
 {
   VVdouble l(getNumberOfSites());
   for (unsigned int i = 0; i < l.size(); ++i)
@@ -110,7 +110,7 @@ VVdouble AbstractTreeLikelihood::getLikelihoodForEachSiteForEachClass() const
 
 /******************************************************************************/
 
-VVVdouble AbstractTreeLikelihood::getLikelihoodForEachSiteForEachClassForEachState() const
+VVVdouble SinglePhyloLikelihood::getLikelihoodForEachSiteForEachClassForEachState() const
 {
   VVVdouble l(getNumberOfSites());
   for (unsigned int i = 0; i < l.size(); ++i)
@@ -133,7 +133,7 @@ VVVdouble AbstractTreeLikelihood::getLikelihoodForEachSiteForEachClassForEachSta
 
 /******************************************************************************/
 
-VVdouble AbstractTreeLikelihood::getPosteriorProbabilitiesOfEachClass() const
+VVdouble SinglePhyloLikelihood::getPosteriorProbabilitiesOfEachClass() const
 {
   size_t nbSites   = getNumberOfSites();
   size_t nbClasses = getNumberOfClasses();
@@ -151,7 +151,7 @@ VVdouble AbstractTreeLikelihood::getPosteriorProbabilitiesOfEachClass() const
 
 /******************************************************************************/
 
-vector<size_t> AbstractTreeLikelihood::getClassWithMaxPostProbOfEachSite() const
+vector<size_t> SinglePhyloLikelihood::getClassWithMaxPostProbOfEachSite() const
 {
   size_t nbSites = getNumberOfSites();
   VVdouble l = getLikelihoodForEachSiteForEachClass();
@@ -165,7 +165,7 @@ vector<size_t> AbstractTreeLikelihood::getClassWithMaxPostProbOfEachSite() const
 
 /******************************************************************************/
 
-void AbstractTreeLikelihood::resetLikelihoodArray(VVVdouble& likelihoodArray)
+void SinglePhyloLikelihood::resetLikelihoodArray(VVVdouble& likelihoodArray)
 {
   size_t nbSites   = likelihoodArray.size();
   size_t nbClasses = likelihoodArray[0].size();
@@ -184,7 +184,7 @@ void AbstractTreeLikelihood::resetLikelihoodArray(VVVdouble& likelihoodArray)
 
 /******************************************************************************/
 
-void AbstractTreeLikelihood::displayLikelihoodArray(const VVVdouble& likelihoodArray)
+void SinglePhyloLikelihood::displayLikelihoodArray(const VVVdouble& likelihoodArray)
 {
   size_t nbSites   = likelihoodArray.size();
   size_t nbClasses = likelihoodArray[0].size();

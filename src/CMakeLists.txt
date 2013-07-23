@@ -54,7 +54,6 @@ SET(CPP_FILES
   Bpp/Phyl/Likelihood/PairedSiteLikelihoods.cpp
   Bpp/Phyl/Likelihood/GlobalClockTreeLikelihoodFunctionWrapper.cpp
   Bpp/Phyl/NewLikelihood/AbstractSubstitutionProcess.cpp
-  Bpp/Phyl/NewLikelihood/AbstractTreeLikelihood.cpp
   Bpp/Phyl/NewLikelihood/MultiPhyloLikelihood.cpp
   Bpp/Phyl/NewLikelihood/MixturePhyloLikelihood.cpp
   # Bpp/Phyl/NewLikelihood/DRTreeLikelihood.cpp
@@ -236,7 +235,6 @@ SET(H_FILES
   Bpp/Phyl/Likelihood/GlobalClockTreeLikelihoodFunctionWrapper.h
   Bpp/Phyl/NewLikelihood/AbstractSubstitutionProcess.h
   Bpp/Phyl/NewLikelihood/AbstractTreeLikelihoodData.h
-  Bpp/Phyl/NewLikelihood/AbstractTreeLikelihood.h
   # Bpp/Phyl/NewLikelihood/DRTreeLikelihoodData.h
   # Bpp/Phyl/NewLikelihood/DRTreeLikelihood.h
   Bpp/Phyl/NewLikelihood/ModelIterator.h

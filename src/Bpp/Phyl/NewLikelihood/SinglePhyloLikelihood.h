@@ -69,37 +69,136 @@ namespace bpp
      * This class implements likelihood calculation with a single process/tree.
      */ 
     class SinglePhyloLikelihood:
-      public virtual PhyloLikelihood
+      public virtual PhyloLikelihood,
+      public AbstractParametrizable
     {
+ 
+    protected:
+      std::auto_ptr<const SiteContainer> data_;
+      std::auto_ptr<SubstitutionProcess> process_;
+      bool computeFirstOrderDerivatives_;
+      bool computeSecondOrderDerivatives_;
+      bool initialized_;
+      bool verbose_;
+      size_t nbSites_;
+      size_t nbDistinctSites_;
+      size_t nbStates_;
+      size_t nbClasses_;
+     
     public:
-      SinglePhyloLikelihood() {}
+      SinglePhyloLikelihood(SubstitutionProcess* process, bool verbose = true);
+
+      SinglePhyloLikelihood(const SinglePhyloLikelihood& lik):
+        AbstractParametrizable(lik),
+        data_(0),
+        process_(0),
+        computeFirstOrderDerivatives_(lik.computeFirstOrderDerivatives_),
+        computeSecondOrderDerivatives_(lik.computeSecondOrderDerivatives_),
+        initialized_(lik.initialized_), 
+        verbose_(lik.verbose_),
+        nbSites_(lik.nbSites_),
+        nbDistinctSites_(lik.nbDistinctSites_),
+        nbStates_(lik.nbStates_),
+        nbClasses_(lik.nbClasses_)
+      {
+        if (lik.data_.get()) data_.reset(lik.data_->clone());
+        if (lik.process_.get()) process_.reset(lik.process_->clone());
+      }
+
+      SinglePhyloLikelihood& operator=(const SinglePhyloLikelihood& lik)
+      {
+        AbstractParametrizable::operator=(lik);
+        if (lik.data_.get())    data_.reset(lik.data_->clone());
+        else                    data_.reset();
+        if (lik.process_.get()) process_.reset(lik.process_->clone());
+        else                    process_.reset();
+        computeFirstOrderDerivatives_  = lik.computeFirstOrderDerivatives_;
+        computeSecondOrderDerivatives_ = lik.computeSecondOrderDerivatives_;
+        initialized_                   = lik.initialized_;
+        verbose_                       = lik.verbose_;
+        nbSites_                       = lik.nbSites_;
+        nbDistinctSites_               = lik.nbDistinctSites_;
+        nbStates_                      = lik.nbStates_;
+        nbClasses_                     = lik.nbClasses_;
+        return *this;
+      }
+
+
       virtual ~SinglePhyloLikelihood() {}
 
-      SinglePhyloLikelihood* clone() const = 0;
+      //TODO: implement all methods!
+      //SinglePhyloLikelihood* clone() const { return new SinglePhyloLikelihood(*this); }
 
     public:
+
+      /**
+       * @name Handling of data
+       *
+       * @{
+       */
+      const SiteContainer* getData() const { return data_.get(); }
+
+      const Alphabet* getAlphabet() const { return data_->getAlphabet(); }	
+		
+      size_t getNumberOfSites() const { return data_->getNumberOfSites(); }
+      
+      /** @} */
+      
+
+
+
+
+      /**
+       * @name Handling of substitution process
+       *
+       * @{
+       */
 
       /**
        * @brief Get the number of states in the alphabet associated to the dataset.
        *
        * @return the number of states in the alphabet associated to the dataset.
        */    
-      virtual size_t getNumberOfStates() const = 0;
+      size_t getNumberOfStates() const { return data_->getAlphabet()->getSize(); }
  
       /**
        * @brief Get the number of model classes.
        *
        * @return The Number of model classes.
        */
-      virtual size_t getNumberOfClasses() const = 0;
+      size_t getNumberOfClasses() const { return process_->getNumberOfClasses(); }
 
       /**
        * @brief Get the tree (topology and branch lengths).
        *
-       * @return The tree of this TreeLikelihood object.
+       * @return The tree of this SinglePhyloLikelihood object.
        */
-      virtual const Tree& getTree() const = 0;
+      const Tree& getTree() const { return process_->getTree(); }
    
+      ParameterList getSubstitutionProcessParameters() const { return process_->getParameters(); }
+ 
+      const SubstitutionProcess& getSubstitutionProcess() const { return *process_; }
+
+      ParameterList getBranchLengthsParameters() const { return process_->getParametrizableTree().getParameters(); }
+
+      ParameterList getRootFrequenciesParameters() const {
+        return (process_->getRootFrequenciesSet()?process_->getRootFrequenciesSet()->getParameters():ParameterList());
+      }
+
+      ParameterList getRateDistributionParameters() const {
+        return process_->getRateDistributionParameters();
+      }
+      
+      ParameterList getSubstitutionModelParameters() const {
+        return process_->getSubstitutionModelParameters();
+      }
+
+     /** @} */
+
+
+
+
+
       virtual void computeTreeLikelihood() = 0;
 
     protected:
@@ -107,6 +206,21 @@ namespace bpp
       virtual void computeDLikelihood_(const std::string& variable) const = 0;
 
       virtual void computeD2Likelihood_(const std::string& variable) const = 0;
+
+      /**
+       * @brief Set all conditional likelihoods to 1.
+       *
+       * @param likelihoodArray the likelihood array.
+       */
+      static void resetLikelihoodArray(VVVdouble& likelihoodArray);
+
+      /**
+       * @brief Print the likelihood array to terminal (debugging tool).
+       * 
+       * @param likelihoodArray the likelihood array.
+       */
+      static void displayLikelihoodArray(const VVVdouble& likelihoodArray);
+
 
     public:
       /**
@@ -119,6 +233,23 @@ namespace bpp
        */
       virtual const TreeLikelihoodData* getLikelihoodData() const = 0;
 
+      void enableDerivatives(bool yn) { computeFirstOrderDerivatives_ = computeSecondOrderDerivatives_ = yn; }
+      void enableFirstOrderDerivatives(bool yn) { computeFirstOrderDerivatives_ = yn; }
+      void enableSecondOrderDerivatives(bool yn) { computeFirstOrderDerivatives_ = computeSecondOrderDerivatives_ = yn; }
+      bool enableFirstOrderDerivatives() const { return computeFirstOrderDerivatives_; }
+      bool enableSecondOrderDerivatives() const { return computeSecondOrderDerivatives_; }
+      bool isInitialized() const { return initialized_; }
+		
+      //    ParameterList getTransitionProbabilitiesParameters() const { return process_->getTransitionProbabilitiesParameters(); }
+      //TODO: this has to be modified to deal with special cases...
+      ParameterList getDerivableParameters() const { return getBranchLengthsParameters(); }
+      ParameterList getNonDerivableParameters() const { return getSubstitutionProcessParameters(); }    
+  
+
+
+
+
+      
       /**
        * @name The likelihood functions.
        *
@@ -152,12 +283,14 @@ namespace bpp
        */
       virtual double getLikelihoodForASiteForAClassForAState(size_t site, size_t modelClass, int state) const = 0;
  
+      virtual Vdouble getLikelihoodForEachSite() const;
+      
       /**
        * @brief Get the likelihood for each site and for each state.
        *
        * @return A 2d vector with all log likelihoods for each site and for each state.
        */
-      virtual VVdouble getLikelihoodForEachSiteForEachState() const = 0;
+      virtual VVdouble getLikelihoodForEachSiteForEachState() const;
     
       /**
        * @brief Get the likelihood for each site and each model class.
@@ -165,7 +298,7 @@ namespace bpp
        * @return A two-dimension vector with all log likelihoods:
        * <code>V[i][j] =</code> likelihood of site i and model class j.
        */
-      virtual VVdouble getLikelihoodForEachSiteForEachClass() const = 0;
+      virtual VVdouble getLikelihoodForEachSiteForEachClass() const;
 	
       /**
        * @brief Get the likelihood for each site and each model class and each state.
@@ -173,7 +306,8 @@ namespace bpp
        * @return A three-dimension vector with all log likelihoods:
        * <code>V[i][j][k} =</code> likelihood of site i and model class j and state k.
        */
-      virtual VVVdouble getLikelihoodForEachSiteForEachClassForEachState() const = 0;
+      virtual VVVdouble getLikelihoodForEachSiteForEachClassForEachState() const;
+
       /** @} */
 
       /**
@@ -182,8 +316,10 @@ namespace bpp
        *
        * @return A vector with all model classes indexes.
        */
-      virtual std::vector<size_t> getClassWithMaxPostProbOfEachSite() const = 0;
+      virtual std::vector<size_t> getClassWithMaxPostProbOfEachSite() const;
 
+      virtual VVdouble getPosteriorProbabilitiesOfEachClass() const;
+      
       /**
        * @brief Get the index (used for inner computations) of a given site (original alignment column).
        *
@@ -201,6 +337,19 @@ namespace bpp
   
       //jdutheil on 21/04/13: I think we will drop this type of iterator, which were never used before and are difficult to implement in the new framework...
       //virtual ConstSiteModelIterator* getNewSiteModelIterator(size_t siteIndex) const = 0;
+ 
+      // 19/07/13 jdutheil: copied for AbstractTreeLikelihood:
+
+      //TODO jdutheil on 08.04.13 we drop model iterators for now
+      //ConstBranchModelIterator* getNewBranchModelIterator(int nodeId) const {
+      //  return new ConstNoPartitionBranchModelIterator(model_.get(), sitePartition_->getNumberOfPatternsForPartition(0));
+      //}
+
+      //ConstSiteModelIterator* getNewSiteModelIterator(size_t siteIndex) const {
+      //  return new ConstHomogeneousSiteModelIterator(*pTree_, model_.get());
+      //}
+
+      
       /* @} */
 
       friend class MultiPhyloLikelihood;
