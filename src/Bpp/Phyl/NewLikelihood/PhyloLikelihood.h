@@ -156,17 +156,7 @@ namespace bpp
        */
       virtual Vdouble getLikelihoodForEachSite() const = 0;
 
-      virtual double getDLikelihoodForASite(size_t site) const = 0;
-      virtual double getDLogLikelihoodForASite(size_t site) const = 0;
-      virtual double getDLogLikelihood() const = 0;
-
-      virtual double getD2LikelihoodForASite(size_t site) const = 0;
-      virtual double getD2LogLikelihoodForASite(size_t site) const = 0;
-      virtual double getD2LogLikelihood() const = 0;
-
-      /*
-       * @}
-       */
+      /** @} */
 
       /**
        * @name Retrieve some particular parameters subsets.

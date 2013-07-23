@@ -60,13 +60,9 @@ namespace newlik
 /**
  * @brief Partial implementation of the Likelihood interface for multiple processes.
  *
- * This class implements a few methods useful for most of
- * likelihood computation methods.
- *
- * It includes a data_ pointer.
- *
- * This object is owned by the class, and hence hard copied when
- * cloning, and destroyed by the destructor.
+ * This class uses several TreeLikelihoodCalculation instances to compute a the global
+ * likelihood of the data set, as well as a collection of SubstitutionProcess.
+ * It implements the Function interface and manages the parameters of all substitution processes.
  */
 class MultiPhyloLikelihood :
   public virtual PhyloLikelihood,
@@ -95,7 +91,7 @@ protected:
    * vector of pointers towards Treelikelihoods, used for the
    * global likelihood.
    */
-  std::vector<SinglePhyloLikelihood*> vpTreelik_;
+  std::vector<SingleRecursiveTreeLikelihoodCalculation*> vpTreelik_;
 
 public:
   MultiPhyloLikelihood(SubstitutionProcessCollection* processColl,

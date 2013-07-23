@@ -53,7 +53,7 @@ knowledge of the CeCILL license and that you accept its terms.
 #include <Bpp/Phyl/NewLikelihood/NonHomogeneousSubstitutionProcess.h>
 #include <Bpp/Phyl/NewLikelihood/SimpleSubstitutionProcess.h>
 #include <Bpp/Phyl/NewLikelihood/RateAcrossSitesSubstitutionProcess.h>
-#include <Bpp/Phyl/NewLikelihood/RTreeLikelihood.h>
+#include <Bpp/Phyl/NewLikelihood/SinglePhyloLikelihood.h>
 
 #include <iostream>
 
@@ -122,7 +122,7 @@ int main() {
 
   NonHomogeneousSequenceSimulator simulator(modelSet, rdist, tree);
 
-  auto_ptr<NonHomogeneousSubstitutionProcess> subPro2(subPro->clone());
+  NonHomogeneousSubstitutionProcess* subPro2 = subPro->clone();
 
   for (unsigned int j = 0; j < nrep; j++) {
 
@@ -141,9 +141,11 @@ int main() {
     RNonHomogeneousTreeLikelihood tl2(*tree, *sites.get(), modelSet2.release(), rdist, true, true, true);
     tl2.initialize();
 
-    RTreeLikelihood ntl(*sites.get(), subPro, true, false);
+    SingleRecursiveTreeLikelihoodCalculation* tlComp = new SingleRecursiveTreeLikelihoodCalculation(*sites.get(), subPro, true, false);
+    SinglePhyloLikelihood ntl(subPro, tlComp, true);
 
-    RTreeLikelihood ntl2(*sites.get(), subPro2.release(), true, true);
+    SingleRecursiveTreeLikelihoodCalculation* tlComp2 = new SingleRecursiveTreeLikelihoodCalculation(*sites.get(), subPro2, true);
+    SinglePhyloLikelihood ntl2(subPro2, tlComp2, true);
 
     for (size_t i = 0; i < nmodels; ++i) {
       ntl.setParameterValue("T92.theta_" + TextTools::toString(i + 1), thetas[i]);

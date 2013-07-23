@@ -50,8 +50,8 @@ knowledge of the CeCILL license and that you accept its terms.
 
 #include <Bpp/Phyl/NewLikelihood/NonHomogeneousSubstitutionProcess.h>
 #include <Bpp/Phyl/NewLikelihood/SubstitutionProcessCollection.h>
-#include <Bpp/Phyl/NewLikelihood/RTreeLikelihood.h>
-#include <Bpp/Phyl/NewLikelihood/MixtureLikelihoodCollection.h>
+#include <Bpp/Phyl/NewLikelihood/MixturePhyloLikelihood.h>
+#include <Bpp/Phyl/NewLikelihood/MixturePhyloLikelihood.h>
 
 #include <iostream>
 
@@ -147,9 +147,11 @@ int main() {
 
   // Likelihoods
   
-  RTreeLikelihood rtl1(*sites.clone(), subPro1, true, false);
+  //Commented by jdutheil on 23/07/13
+  //RTreeLikelihood rtl1(*sites.clone(), subPro1, true, false);
 
-  RTreeLikelihood rtl2(*sites.clone(), subPro2, true, true);
+  //Commented by jdutheil on 23/07/13
+  //RTreeLikelihood rtl2(*sites.clone(), subPro2, true, true);
 
   
   //   for (size_t i = 0; i < nmodels; ++i) {
@@ -157,10 +159,11 @@ int main() {
   //     ntl2.setParameterValue("T92.theta_" + TextTools::toString(i + 1), thetas[i]);
   //   }
 
-   cout << setprecision(10) << "TL1:"  << rtl1.getValue() << "\tTL2:" << rtl2.getValue() << endl;
+  //Commented by jdutheil on 23/07/13
+  // cout << setprecision(10) << "TL1:"  << rtl1.getValue() << "\tTL2:" << rtl2.getValue() << endl;
 
   //  cerr << modelColl.numberOfSubstitutionProcess() << endl;
-  MixtureLikelihoodCollection mlc(*sites.clone(),modelColl);
+  MixtureLikelihoodCollection mlc(*sites.clone(), modelColl);
 
   cout << "Mlc: " << mlc.getValue() << endl;
   

@@ -49,7 +49,7 @@ knowledge of the CeCILL license and that you accept its terms.
 #include <Bpp/Phyl/NewLikelihood/ParametrizableTree.h>
 #include <Bpp/Phyl/NewLikelihood/SimpleSubstitutionProcess.h>
 #include <Bpp/Phyl/NewLikelihood/RateAcrossSitesSubstitutionProcess.h>
-#include <Bpp/Phyl/NewLikelihood/RTreeLikelihood.h>
+#include <Bpp/Phyl/NewLikelihood/SinglePhyloLikelihood.h>
 #include <iostream>
 
 using namespace bpp;
@@ -71,8 +71,9 @@ void fitModelH(SubstitutionModel* model, DiscreteDistribution* rdist, const Tree
   RateAcrossSitesSubstitutionProcess* process = new RateAcrossSitesSubstitutionProcess(model->clone(), rdist->clone(), pTree);
 
   auto_ptr<RateAcrossSitesSubstitutionProcess> process2(process->clone());
-  
-  RTreeLikelihood newTl(sites, process, true, true);
+ 
+  SingleRecursiveTreeLikelihoodCalculation* tlComp = new SingleRecursiveTreeLikelihoodCalculation(sites, process, true, true);
+  SinglePhyloLikelihood newTl(process, tlComp, true);
   cout << "NewTL: " << setprecision(20) << newTl.getValue() << endl;
 
   OptimizationTools::optimizeTreeScale(&tl);
