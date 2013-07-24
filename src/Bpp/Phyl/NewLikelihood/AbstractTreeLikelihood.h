@@ -184,7 +184,7 @@ namespace bpp
         process_->matchParametersValues(parameters);
       }
       
-      ParameterList getSubstitutionProcessParameters() const { return process_->getParameters(); }
+      ParameterList getSubstitutionProcessParameters() const { return process_->getIndependentParameters(); }
       const SubstitutionProcess& getSubstitutionProcess() const { return *process_; }
 
       ParameterList getBranchLengthsParameters() const { return process_->getParametrizableTree().getParameters(); }
@@ -204,7 +204,7 @@ namespace bpp
       //    ParameterList getTransitionProbabilitiesParameters() const { return process_->getTransitionProbabilitiesParameters(); }
       //TODO: this has to be modified to deal with special cases...
       ParameterList getDerivableParameters() const { return getBranchLengthsParameters(); }
-      ParameterList getNonDerivableParameters() const { return getSubstitutionProcessParameters(); }    
+      ParameterList getNonDerivableParameters() const;
       /** @} */
 
       //TODO jdutheil on 08.04.13 we drop model iterators for now

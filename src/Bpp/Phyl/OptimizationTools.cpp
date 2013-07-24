@@ -515,6 +515,7 @@ throw (Exception)
 
   // Numerical derivatives:
   ParameterList tmp = lik->getNonDerivableParameters();
+  
   // if (useClock)
   //   tmp.addParameters(fclock->getHeightParameters());
   fnum->setParametersToDerivate(tmp.getParameterNames());

@@ -342,6 +342,7 @@ double RHomogeneousTreeLikelihood::getDLogLikelihood() const
   {
     dl += getDLogLikelihoodForASite(i);
   }
+
   return dl;
 }
 

@@ -59,7 +59,7 @@ SubstitutionProcessCollectionMember::SubstitutionProcessCollectionMember(const S
   computingTree_(pSubProColl_->getTree(nTree_)->getTree(),*pSubProColl_->getDistribution(nDist_))
 {
   addParameters_(pSubProColl_->getTree(nTree_)->getParameters());
-  addParameters_(pSubProColl_->getDistribution(nDist_)->getParameters());
+  addParameters_(pSubProColl_->getDistribution(nDist_)->getIndependentParameters());
 }
 
 
@@ -118,7 +118,7 @@ const DiscreteDistribution* SubstitutionProcessCollectionMember::getDistribution
 
 ParameterList SubstitutionProcessCollectionMember::getRateDistributionParameters() const
 {
-  return pSubProColl_->getDistribution(nDist_)->getParameters();
+  return pSubProColl_->getDistribution(nDist_)->getIndependentParameters();
 }
 
 
@@ -131,7 +131,7 @@ ParameterList SubstitutionProcessCollectionMember::getSubstitutionModelParameter
   for (it= modelToNodes_.begin(); it != modelToNodes_.end() ; it++)
   {
     const SubstitutionModel* model=pSubProColl_->getModel(it->first);
-    ParameterList plm=model->getParameters();
+    ParameterList plm=model->getIndependentParameters();
     
     for (size_t np = 0 ; np < plm.size() ; np++)
         {

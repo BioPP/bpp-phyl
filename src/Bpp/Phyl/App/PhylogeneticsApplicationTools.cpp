@@ -61,6 +61,7 @@
 #include "../NewLikelihood/ParametrizableTree.h"
 #include "../NewLikelihood/NonHomogeneousSubstitutionProcess.h"
 #include "../NewLikelihood/SimpleSubstitutionProcess.h"
+#include "../NewLikelihood/SubstitutionProcessCollection.h"
 #include "../NewLikelihood/RateAcrossSitesSubstitutionProcess.h"
 
 // From bpp-core
@@ -75,6 +76,7 @@
 #include <Bpp/Numeric/Prob/DirichletDiscreteDistribution.h>
 #include <Bpp/Numeric/Function/DownhillSimplexMethod.h>
 #include <Bpp/Numeric/Function/PowellMultiDimensions.h>
+#include <Bpp/Utils/AttributesTools.h>
 
 // From bpp-seq:
 #include <Bpp/Seq/Alphabet/AlphabetTools.h>
@@ -158,6 +160,146 @@ vector<Tree*> PhylogeneticsApplicationTools::getTrees(
     ApplicationTools::displayResult("Number of trees in file", trees.size());
   }
   return trees;
+}
+
+/******************************************************************************/
+
+map<size_t, DiscreteDistribution*> PhylogeneticsApplicationTools::getRateDistributions(
+      map<string, string>& params,
+      const string& suffix,
+      bool suffixIsOptional,
+      bool verbose) throw (Exception)
+{
+  string DistFilePath = ApplicationTools::getAFilePath("rate_distribution.file", params, true, true, suffix, suffixIsOptional);
+
+  map<string, string> paramDist=AttributesTools::getAttributesMapFromFile(DistFilePath,"=");
+
+  vector<string> vratesName=ApplicationTools::matchingParameters("rate_distribution*", paramDist);
+
+  vector<size_t> vratesNum;
+  for (size_t i=0; i< vratesName.size(); i++)
+  {
+    size_t poseq=vratesName[i].find("=");
+    vratesNum.push_back((size_t)TextTools::toInt(vratesName[i].substr(17,poseq-17)));
+  }
+
+  BppORateDistributionFormat bIO(true);
+
+  map<size_t, DiscreteDistribution*> mDist;
+  
+  for (size_t i=0; i<vratesNum.size(); i++)
+  {
+    string distDescription = ApplicationTools::getStringParameter("rate_distribution"+TextTools::toString(vratesNum[i]), paramDist, "", suffix, suffixIsOptional);
+
+    auto_ptr<DiscreteDistribution> rDist(bIO.read(distDescription, true));
+    
+    if (verbose)
+      {
+        ApplicationTools::displayResult("Rate distribution " + TextTools::toString(vratesNum[i]), rDist->getName());
+        ApplicationTools::displayResult("Number of classes", TextTools::toString(rDist->getNumberOfCategories()));
+      }
+    
+    mDist[vratesNum[i]]=rDist.release();    
+  }
+  
+  return mDist;
+}
+
+std::map<size_t, FrequenciesSet*> PhylogeneticsApplicationTools::getRootFrequenciesSets(
+        const Alphabet* alphabet,
+        const GeneticCode* gCode,
+        const SiteContainer* data,
+        std::map<std::string, std::string>& params,
+        const std::vector<double>& rateFreqs,
+        const std::string& suffix,
+        bool suffixIsOptional,
+        bool verbose) throw (Exception)
+{
+  if (dynamic_cast<const CodonAlphabet*>(alphabet) && !gCode)
+    throw Exception("PhylogeneticsApplicationTools::getRootFrequenciesSets(): a GeneticCode instance is required for instanciating codon frequencies sets.");
+
+  string RootFilePath = ApplicationTools::getAFilePath("root_freq.file", params, true, true, suffix, suffixIsOptional);
+
+  map<string, string> paramRF=AttributesTools::getAttributesMapFromFile(RootFilePath,"=");
+
+  vector<string> vrfName=ApplicationTools::matchingParameters("root_freq*", paramRF);
+
+  vector<size_t> rfNum;
+  for (size_t i=0; i< vrfName.size(); i++)
+    {
+      size_t poseq=vrfName[i].find("=");
+      rfNum.push_back((size_t)TextTools::toInt(vrfName[i].substr(9,poseq-9)));
+    }
+
+  BppOFrequenciesSetFormat bIO(BppOFrequenciesSetFormat::ALL, verbose);
+
+  map<size_t, FrequenciesSet*> mFS;
+
+  for (size_t i=0; i<rfNum.size(); i++)
+  {
+    string freqDescription = ApplicationTools::getStringParameter("root_freq"+TextTools::toString(rfNum[i]), paramRF, "", suffix, suffixIsOptional);
+
+    auto_ptr<FrequenciesSet> rFS(bIO.read(alphabet, freqDescription, data, true));
+
+    if (verbose)
+    {
+      ApplicationTools::displayResult("Root Frequencies Set " + TextTools::toString(rfNum[i]), rFS->getName());
+    }
+    
+    mFS[rfNum[i]]=rFS.release();
+  }
+
+  return mFS;
+}
+
+/******************************************************************************/
+
+map<size_t, SubstitutionModel*> PhylogeneticsApplicationTools::getSubstitutionModels(
+     const Alphabet* alphabet,
+     const GeneticCode* gCode,
+     const SiteContainer* data,
+     map<string, string>& params,
+     const string& suffix,
+     bool suffixIsOptional,
+     bool verbose) throw (Exception)
+{
+  if (dynamic_cast<const CodonAlphabet*>(alphabet) && !gCode)
+    throw Exception("PhylogeneticsApplicationTools::getSubstitutionModels(): a GeneticCode instance is required for instanciating codon models.");
+
+  string ModelFilePath = ApplicationTools::getAFilePath("models.file", params, true, true, suffix, suffixIsOptional);
+
+  map<string, string> paramModel=AttributesTools::getAttributesMapFromFile(ModelFilePath,"=");
+
+  vector<string> modelsName=ApplicationTools::matchingParameters("model*", paramModel);
+
+  vector<size_t> modelsNum;
+  for (size_t i=0; i< modelsName.size(); i++)
+    {
+      size_t poseq=modelsName[i].find("=");
+      modelsNum.push_back((size_t)TextTools::toInt(modelsName[i].substr(5,poseq-5)));
+    }
+
+  map<size_t, SubstitutionModel*> mModel;
+
+  BppOSubstitutionModelFormat bIO(BppOSubstitutionModelFormat::ALL, true, true, true, verbose);
+  bIO.setGeneticCode(gCode);
+  
+  for (size_t i=0; i<modelsNum.size(); i++)
+    {
+      string modelDescription = ApplicationTools::getStringParameter("model"+TextTools::toString(modelsNum[i]), paramModel, "", suffix, suffixIsOptional);
+
+      auto_ptr<SubstitutionModel> model(bIO.read(alphabet, modelDescription, data, true));
+
+      if (verbose)
+        {
+          ApplicationTools::displayResult("Substitution Model " + TextTools::toString(modelsNum[i]), model->getName());
+        }
+    
+      mModel[modelsNum[i]]=model.release();
+    
+    }
+  
+  return mModel;
 }
 
 
@@ -358,19 +500,17 @@ SubstitutionProcess* PhylogeneticsApplicationTools::setSubstitutionProcess(
   string nhOpt = ApplicationTools::getStringParameter("nonhomogeneous", params, "no", "", true, false);
   ApplicationTools::displayResult("Heterogeneous model", nhOpt);
 
-  auto_ptr<Tree> tmpt(getTree(params));
+  /////////////////////////
+  // Tree
   
-  auto_ptr<ParametrizableTree>  pTree(new ParametrizableTree(*(tmpt.get()),false,true));
+  auto_ptr<ParametrizableTree> pTree(new ParametrizableTree(*getTree(params)));
+  
 
+  //////////////////////////
+  // Rates
   
   auto_ptr<DiscreteDistribution> rDist(getRateDistribution(params));
 
-  ParameterList pl=rDist->getParameters();
-  for (size_t i=0; i<pl.size(); i++)
-    cerr << pl[i].getName() << ' ' << pl[i].getValue() << endl;
-
-
-  
   BppOSubstitutionModelFormat bIO(BppOSubstitutionModelFormat::ALL, true, true, true, false);
 
   string tmpDesc;
@@ -511,6 +651,192 @@ SubstitutionProcess* PhylogeneticsApplicationTools::setSubstitutionProcess(
     ApplicationTools::displayResult("Parameter alias found", p1 + "->" + p2);
     nhSP->aliasParameters(p1, p2);
   }
+
+  return nhSP.release();
+}
+
+
+/******************************************************************************/
+
+
+/*SubstitutionProcessCollection* PhylogeneticsApplicationTools::setSubstitutionProcessCollection(
+       const Alphabet* alphabet,
+       const GeneticCode* gCode,
+       const SiteContainer* data,
+       map<string, string>& params,
+       const string& suffix,
+       bool suffixIsOptional,
+       bool verbose)
+{
+  size_t nbProcess = ApplicationTools::getParameter<size_t>("number_of_process", params, 0, suffix, suffixIsOptional, false);
+
+  if (nbProcess == 0)
+    throw Exception("The number of process can't be 0 !");
+  
+  /////////////////////////
+  // Trees
+  
+  vector<Tree*> vtmp=getTrees(params);
+
+  vector<ParametrizableTree*> vpTree;
+  
+  for (size_t i=0; i<vtmp.size(); i++)
+    vpTree.push_back(new ParametrizableTree(*(vtmp[i]),false,true));
+
+  //////////////////////////
+  // Rates
+  
+  vector<DiscreteDistribution*> vrDist=getRateDistributions(params);
+
+  BppOSubstitutionModelFormat bIO(BppOSubstitutionModelFormat::ALL, true, true, true, false);
+
+  string tmpDesc;
+
+  //////////////////////////
+  // Models
+
+
+  /////////////////////////////
+  // Root Frequencies
+  
+  if (nhOpt=="no")
+    {
+      // Homogeneous & stationary models
+  
+      auto_ptr<SubstitutionModel> tmp(getSubstitutionModel(alphabet, gCode, data, params));
+
+      auto_ptr<DiscreteDistribution> rDist(vrDist[0]);
+    
+      if (tmp->getNumberOfStates() >= 2 * tmp->getAlphabet()->getSize() || (rDist->getName()=="Constant"))// first test is for Markov-modulated Markov model!
+        return new SimpleSubstitutionProcess(tmp.release(), pTree.release());
+      else
+        return new RateAcrossSitesSubstitutionProcess(tmp.release(), rDist.release(), pTree.release());
+    }
+
+  // Non-homogeneous models
+
+  string fName=(nhOpt=="one_per_branch"?"model":"model1");
+    
+  tmpDesc = ApplicationTools::getStringParameter(fName, params, "", suffix, suffixIsOptional, false);
+  auto_ptr<SubstitutionModel> tmp(bIO.read(alphabet, tmpDesc, data, false));
+
+
+
+  // ////////////////////////////////////
+  // Root frequencies
+
+  bool stationarity = ApplicationTools::getBooleanParameter("nonhomogeneous.stationarity", params, false, "", false, false);
+  
+  auto_ptr<FrequenciesSet> rootFrequencies(0);
+  
+  if (!stationarity)
+    {
+      // Markov Modulated  models
+      vector<double> rateFreqs;
+      if (tmp->getNumberOfStates() != alphabet->getSize())
+        {
+          // Markov-Modulated Markov Model...
+          size_t n = static_cast<size_t>(tmp->getNumberOfStates() / alphabet->getSize());
+          rateFreqs = vector<double>(n, 1. / static_cast<double>(n)); // Equal rates assumed for now, may be changed later (actually, in the most general case,
+        }
+
+      // MVA models
+    
+      string freqDescription = ApplicationTools::getStringParameter("nonhomogeneous.root_freq", params, "", suffix, suffixIsOptional);
+      if (freqDescription.substr(0, 10) == "MVAprotein")
+        {
+          if (dynamic_cast<Coala*>(tmp.get()))
+            dynamic_cast<MvaFrequenciesSet*>(rootFrequencies.get())->initSet(dynamic_cast<CoalaCore*>(tmp.get()));
+          else
+            throw Exception("The MVAprotein frequencies set at the root can only be used if a Coala model is used on branches.");
+        }
+      else
+        rootFrequencies.reset(getRootFrequenciesSet(alphabet, gCode, data, params, rateFreqs, suffix, suffixIsOptional, verbose));
+    
+      stationarity = !rootFrequencies.get();
+    }
+
+  ApplicationTools::displayBooleanResult("Stationarity assumed", stationarity);
+
+  // One_per_branch
+
+  if (nhOpt=="one_per_branch"){
+    vector<string> globalParameters = ApplicationTools::getVectorParameter<string>("nonhomogeneous_one_per_branch.shared_parameters", params, ',', "");
+
+    for (unsigned int i = 0; i < globalParameters.size(); i++)
+      ApplicationTools::displayResult("Global parameter", globalParameters[i]);
+
+    return NonHomogeneousSubstitutionProcess::createNonHomogeneousSubstitutionProcess(
+                                                                                      tmp.release(),
+                                                                                      rDist.release(),
+                                                                                      rootFrequencies.release(),
+                                                                                      pTree.release(),
+                                                                                      globalParameters);
+  }
+
+  // General
+
+  size_t nbModels = ApplicationTools::getParameter<size_t>("nonhomogeneous.number_of_models", params, 1, suffix, suffixIsOptional, false);
+
+  if (nbModels == 0)
+    throw Exception("The number of models can't be 0 !");
+
+  if (verbose)
+    ApplicationTools::displayResult("Number of distinct models", TextTools::toString(nbModels));
+
+  // //////////////////////////////////////
+  // Now parse all models:
+
+  bIO.setVerbose(true);
+
+  auto_ptr<NonHomogeneousSubstitutionProcess> nhSP(new NonHomogeneousSubstitutionProcess(rDist.release(), pTree.release()));
+                                                   
+  map<string, double> existingParameters;
+  
+  for (size_t i = 0; i < nbModels; i++)
+    {
+      string prefix = "model" + TextTools::toString(i + 1);
+      string modelDesc;
+      modelDesc = ApplicationTools::getStringParameter(prefix, params, "", suffix, suffixIsOptional, verbose);
+    
+      auto_ptr<SubstitutionModel> model(bIO.read(alphabet, modelDesc, data, false));
+      map<string, string> unparsedParameterValues(bIO.getUnparsedArguments());
+
+      map<string, string> sharedParameters;
+      setSubstitutionModelParametersInitialValuesWithAliases(
+                                                             *model,
+                                                             unparsedParameterValues, i+1, data,
+                                                             existingParameters, sharedParameters,
+                                                             verbose);
+
+      vector<int> nodesId = ApplicationTools::getVectorParameter<int>(prefix + ".nodes_id", params, ',', ':', TextTools::toString(i), suffix, suffixIsOptional, true);
+
+      if (verbose)
+        ApplicationTools::displayResult("Model" + TextTools::toString(i + 1) + " is associated to", TextTools::toString(nodesId.size()) + " node(s).");
+
+      nhSP->addModel(model.release(), nodesId);
+
+      // Now set shared parameters:
+      map<string, string>::const_iterator it;
+      for (it=sharedParameters.begin(); it!=sharedParameters.end(); it++)
+        nhSP->aliasParameters(it->second, it->first);
+    }
+                                                   
+  
+  // Finally check parameter aliasing:
+  string aliasDesc = ApplicationTools::getStringParameter("nonhomogeneous.alias", params, "", suffix, suffixIsOptional, verbose);
+  StringTokenizer st(aliasDesc, ",");
+  while (st.hasMoreToken())
+    {
+      string alias = st.nextToken();
+      string::size_type index = alias.find("->");
+      if (index == string::npos)
+        throw Exception("PhylogeneticsApplicationTools::getSubstitutionModelSet. Bad alias syntax, should contain `->' symbol: " + alias);
+      string p1 = alias.substr(0, index);
+      string p2 = alias.substr(index + 2);
+      ApplicationTools::displayResult("Parameter alias found", p1 + "->" + p2);
+      nhSP->aliasParameters(p1, p2);
+    }
 
   return nhSP.release();
 }
@@ -864,7 +1190,7 @@ DiscreteDistribution* PhylogeneticsApplicationTools::getRateDistribution(
 /******************************************************************************/
 
 bpp::TreeLikelihood* PhylogeneticsApplicationTools::optimizeParameters(
-                                                                       bpp::TreeLikelihood* tl,
+  bpp::TreeLikelihood* tl,
   const ParameterList& parameters,
   std::map<std::string, std::string>& params,
   const std::string& suffix,

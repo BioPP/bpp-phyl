@@ -65,7 +65,7 @@ MultiPhyloLikelihood::MultiPhyloLikelihood(
   vpTreelik_()
 {
   // initialize parameters:
-  addParameters_(processColl_->getParameters());
+  addParameters_(processColl_->getIndependentParameters());
 
   if (recursivity_ != 'S')
     throw Exception("MultiPhyloLikelihood::MultiPhyloLikelihood : Non simple recursivity not implemented yet!");
@@ -101,7 +101,7 @@ MultiPhyloLikelihood::MultiPhyloLikelihood(
   vpTreelik_()
 {
   // initialize parameters:
-  addParameters_(processColl_->getParameters());
+  addParameters_(processColl_->getIndependentParameters());
 
   if (recursivity_ != 'S')
     throw Exception("MultiPhyloLikelihood::MultiPhyloLikelihood : Non simple recursivity not implemented yet!");

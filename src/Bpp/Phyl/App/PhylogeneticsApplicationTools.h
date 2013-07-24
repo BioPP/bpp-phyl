@@ -58,6 +58,7 @@
 
 #include "../NewLikelihood/SubstitutionProcess.h"
 #include "../NewLikelihood/PhyloLikelihood.h"
+#include "../NewLikelihood/SubstitutionProcessCollection.h"
 
 // From SeqLib:
 #include <Bpp/Seq/Container/SiteContainer.h>
@@ -163,6 +164,21 @@ namespace bpp
         bool verbose = true) throw (Exception);
   
 
+    /*
+     * @brief The same as before, btu with several models.
+     *
+     */
+    
+    static std::map<size_t, SubstitutionModel*> getSubstitutionModels(
+        const Alphabet* alphabet,
+        const GeneticCode* gCode,
+        const SiteContainer* data, 
+        std::map<std::string, std::string>& params,
+        const std::string& suffix = "",
+        bool suffixIsOptional = true,
+        bool verbose = true) throw (Exception);
+  
+
     /**
      * @brief Set parameter initial values of a given model in a set according to options.
      *
@@ -220,6 +236,22 @@ namespace bpp
         const std::string& suffix = "",
         bool suffixIsOptional = true,
         bool verbose = true) throw (Exception);
+
+
+    /*
+     * @brief The same, but with several FrequenciesSet.
+     *
+     */
+
+    static std::map<size_t, FrequenciesSet*> getRootFrequenciesSets(
+                                                 const Alphabet* alphabet,
+                                                 const GeneticCode* gCode,
+                                                 const SiteContainer* data, 
+                                                 std::map<std::string, std::string>& params,
+                                                 const std::vector<double>& rateFreqs,
+                                                 const std::string& suffix = "",
+                                                 bool suffixIsOptional = true,
+                                                 bool verbose = true) throw (Exception);
 
     /**
      * @brief Get A FrequenciesSet object according to options.
@@ -509,7 +541,19 @@ namespace bpp
         bool suffixIsOptional = true,
         bool verbose = true)
       throw (Exception);
-      
+
+    /**
+     * brief Same as before, but using several distributions.
+     *
+     */
+    
+    static std::map<size_t, DiscreteDistribution*> getRateDistributions(
+          map<string, string>& params,
+          const string& suffix,
+          bool suffixIsOptional,
+          bool verbose)
+      throw (Exception);
+
     /**
      * @brief Optimize parameters according to options.
      *

@@ -50,7 +50,7 @@ knowledge of the CeCILL license and that you accept its terms.
 
 #include <Bpp/Phyl/NewLikelihood/NonHomogeneousSubstitutionProcess.h>
 #include <Bpp/Phyl/NewLikelihood/SubstitutionProcessCollection.h>
-#include <Bpp/Phyl/NewLikelihood/RTreeLikelihood.h>
+#include <Bpp/Phyl/NewLikelihood/SingleRecursiveTreeLikelihoodCalculation.h>
 #include <Bpp/Phyl/NewLikelihood/MixtureLikelihoodCollection.h>
 
 #include <iostream>
@@ -147,9 +147,10 @@ int main() {
 
   // Likelihoods
   
-  RTreeLikelihood rtl1(*sites.clone(), subPro1, true, false);
+  SingleRecursiveTreeLikelihoodCalculation rtl1(*sites.clone(), subPro1, true, false);
 
-  RTreeLikelihood rtl2(*sites.clone(), subPro2, true, true);
+  
+  SingleRecursiveTreeLikelihoodCalculation rtl2(*sites.clone(), subPro2, true, true);
 
   
   //   for (size_t i = 0; i < nmodels; ++i) {
@@ -162,7 +163,7 @@ int main() {
   //  cerr << modelColl.numberOfSubstitutionProcess() << endl;
   MixtureLikelihoodCollection mlc(*sites.clone(),modelColl);
 
-  cout << "Mlc: " << mlc.getValue() << endl;
+  //  cout << "Mlc: " << mlc.getValue() << endl;
   
   //   break;
     // unsigned int c1 = OptimizationTools::optimizeNumericalParameters2(

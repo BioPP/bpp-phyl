@@ -49,7 +49,8 @@ knowledge of the CeCILL license and that you accept its terms.
 #include <Bpp/Phyl/NewLikelihood/ParametrizableTree.h>
 #include <Bpp/Phyl/NewLikelihood/SimpleSubstitutionProcess.h>
 #include <Bpp/Phyl/NewLikelihood/RateAcrossSitesSubstitutionProcess.h>
-#include <Bpp/Phyl/NewLikelihood/RTreeLikelihood.h>
+#include <Bpp/Phyl/NewLikelihood/SingleRecursiveTreeLikelihoodCalculation.h>
+
 #include <iostream>
 
 using namespace bpp;
@@ -67,17 +68,23 @@ void fitModelH(SubstitutionModel* model, DiscreteDistribution* rdist, const Tree
     throw Exception("Incorrect initial value.");
 
   ParametrizableTree* pTree = new ParametrizableTree(tree);
-  //SimpleSubstitutionProcess* process = new SimpleSubstitutionProcess(model->clone(), pTree);
+
   RateAcrossSitesSubstitutionProcess* process = new RateAcrossSitesSubstitutionProcess(model->clone(), rdist->clone(), pTree);
 
   auto_ptr<RateAcrossSitesSubstitutionProcess> process2(process->clone());
   
-  RTreeLikelihood newTl(sites, process, true, true);
+  SingleRecursiveTreeLikelihoodCalculation newTl(sites, process, true, true);
   cout << "NewTL: " << setprecision(20) << newTl.getValue() << endl;
 
-  OptimizationTools::optimizeTreeScale(&tl);
-  ApplicationTools::displayResult("* likelihood after tree scale", tl.getValue());
+  // OptimizationTools::optimizeTreeScale(&tl);
+  // ApplicationTools::displayResult("* likelihood after tree scale", tl.getValue());
   OptimizationTools::optimizeNumericalParameters2(&tl, tl.getParameters(), 0, 0.000001, 10000, 0, 0);
+  cout << setprecision(20) << tl.getValue() << endl;
+  ApplicationTools::displayResult("* likelihood after full optimization", tl.getValue());
+  if (abs(tl.getValue() - finalValue) > 0.001)
+    throw Exception("Incorrect final value.");
+
+  OptimizationTools::optimizeNumericalParameters2(&newTl, newTl.getParameters(), 0, 0.000001, 10000, 0, 0);
   cout << setprecision(20) << tl.getValue() << endl;
   ApplicationTools::displayResult("* likelihood after full optimization", tl.getValue());
   if (abs(tl.getValue() - finalValue) > 0.001)

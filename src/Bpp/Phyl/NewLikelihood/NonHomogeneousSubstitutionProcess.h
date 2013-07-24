@@ -419,7 +419,7 @@ namespace bpp
      
     ParameterList getRateDistributionParameters() const
     {
-      return (rDist_.get()?rDist_->getParameters():ParameterList());
+      return (rDist_.get()?rDist_->getIndependentParameters():ParameterList());
     }
   
     /**

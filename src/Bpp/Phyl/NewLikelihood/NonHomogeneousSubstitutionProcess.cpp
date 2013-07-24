@@ -138,7 +138,7 @@ void NonHomogeneousSubstitutionProcess::addModel(SubstitutionModel* model, const
 
   // Associate parameters:
   string pname;
-  ParameterList pl=model->getParameters();
+  ParameterList pl=model->getIndependentParameters();
   modelParameters_.push_back(pl);
    
   for (size_t i  = 0; i < pl.size(); i++)
@@ -171,7 +171,7 @@ void NonHomogeneousSubstitutionProcess::setModel(SubstitutionModel* model, size_
     deleteParameter_(pn);
   }
   string pname;
-  ParameterList pl=model->getParameters();
+  ParameterList pl=model->getIndependentParameters();
   modelParameters_[modelIndex]=pl;
   
   for (size_t i  = 0; i < pl.size(); i++)
@@ -404,7 +404,7 @@ NonHomogeneousSubstitutionProcess* NonHomogeneousSubstitutionProcess::createNonH
     throw Exception("createNonHomogeneousSubstitutionProcess not yet programmed for mixture models.");
 
   ParameterList globalParameters, branchParameters;
-  globalParameters = model->getParameters();
+  globalParameters = model->getIndependentParameters();
 
   vector<string> globalParameterNames2; // vector of the complete names of global parameters
 

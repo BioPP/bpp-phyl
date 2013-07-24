@@ -100,7 +100,7 @@ ComputingTree::ComputingTree(const ParametrizableTree& ptree, const DiscreteDist
   delete pTC;
 
   addParameters_(ptree.getParameters());
-  addParameters_(dist.getParameters());
+  addParameters_(dist.getIndependentParameters());
 }
 
 void ComputingTree::addModel(const SubstitutionModel* pSubMod, std::vector<int>  vBr)
@@ -112,7 +112,7 @@ void ComputingTree::addModel(const SubstitutionModel* pSubMod, std::vector<int> 
 
   vvBrMod_.push_back(vBr);
   
-  addParameters_(pSubMod->getParameters());
+  addParameters_(pSubMod->getIndependentParameters());
 }
 
 

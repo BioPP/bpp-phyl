@@ -73,11 +73,11 @@ public:
   size_t getNumberOfStates() const { return model_->getNumberOfStates(); }
 
   bool hasTransitionProbabilitiesParameter(const std::string& name) const {
-    return model_->getParameters().hasParameter(name);
+    return model_->getIndependentParameters().hasParameter(name);
   }
   
   ParameterList getRateDistributionParameters() const {
-    return rDist_->getParameters();
+    return rDist_->getIndependentParameters();
   }
   
   bool isCompatibleWith(const SiteContainer& data) const {
@@ -100,7 +100,7 @@ public:
   }
 
   ParameterList getSubstitutionModelParameters() const {
-    return model_->getParameters();
+    return model_->getIndependentParameters();
   }
 
   const FrequenciesSet* getRootFrequenciesSet() const

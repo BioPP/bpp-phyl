@@ -163,6 +163,16 @@ Parametrizable* SubstitutionProcessCollection::replaceParametrizable(Parametriza
 }
 
 
+ParameterList SubstitutionProcessCollection::getNonDerivableParameters() const
+{
+  ParameterList pl=distColl_.getParameters();
+  pl.addParameters(modelColl_.getParameters());
+  pl.addParameters(distColl_.getParameters());
+
+  return pl;
+}
+  
+
 
 void SubstitutionProcessCollection::fireParameterChanged(const ParameterList& parameters)
 {

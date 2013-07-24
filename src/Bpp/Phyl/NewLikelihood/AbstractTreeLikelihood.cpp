@@ -61,8 +61,19 @@ AbstractTreeLikelihood::AbstractTreeLikelihood(
   nbClasses_(process->getNumberOfClasses())
 {
   //initialize parameters:
-  addParameters_(process_->getParameters());
+  addParameters_(process_->getIndependentParameters());
 }
+
+/******************************************************************************/
+
+ParameterList AbstractTreeLikelihood::getNonDerivableParameters() const
+{
+  ParameterList pl = getSubstitutionModelParameters();
+  pl.addParameters(getRootFrequenciesParameters());
+  pl.addParameters(getRateDistributionParameters());
+  return pl;
+}
+
 
 /******************************************************************************/
 

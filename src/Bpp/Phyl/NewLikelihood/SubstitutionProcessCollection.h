@@ -486,6 +486,14 @@ public:
   }
 
   /**
+   * @brief Get the Non-derivable parameters
+   *
+   * @return A ParameterList.
+   */
+  
+  ParameterList getNonDerivableParameters() const;
+  
+  /**
    * @brief Get the parameters associated to the rate distribution(s).
    *
    * @return A ParameterList.

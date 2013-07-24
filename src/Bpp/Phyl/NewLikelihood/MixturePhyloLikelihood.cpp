@@ -53,7 +53,7 @@ MixtureLikelihoodCollection::MixtureLikelihoodCollection(
   simplex_(processColl_->getNumberOfSubstitutionProcess(), 1)
 {
   // initialize parameters:
-  addParameters_(simplex_.getParameters());
+  addParameters_(simplex_.getIndependentParameters());
 }
 
 MixtureLikelihoodCollection::MixtureLikelihoodCollection(
@@ -65,7 +65,7 @@ MixtureLikelihoodCollection::MixtureLikelihoodCollection(
   simplex_(processColl_->getNumberOfSubstitutionProcess(), 1)
 {
   // initialize parameters:
-  addParameters_(simplex_.getParameters());
+  addParameters_(simplex_.getIndependentParameters());
   minusLogLik_ = -getLogLikelihood();
 }
 
@@ -79,7 +79,7 @@ void MixtureLikelihoodCollection::fireParameterChanged(const ParameterList& pl)
 
 ParameterList MixtureLikelihoodCollection::getNonDerivableParameters() const
 {
-  ParameterList pl = getSubstitutionProcessParameters();
+  ParameterList pl = processColl_->getNonDerivableParameters();
   pl.addParameters(simplex_.getParameters());
   return pl;
 }

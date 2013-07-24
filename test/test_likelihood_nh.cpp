@@ -53,7 +53,7 @@ knowledge of the CeCILL license and that you accept its terms.
 #include <Bpp/Phyl/NewLikelihood/NonHomogeneousSubstitutionProcess.h>
 #include <Bpp/Phyl/NewLikelihood/SimpleSubstitutionProcess.h>
 #include <Bpp/Phyl/NewLikelihood/RateAcrossSitesSubstitutionProcess.h>
-#include <Bpp/Phyl/NewLikelihood/RTreeLikelihood.h>
+#include <Bpp/Phyl/NewLikelihood/SingleRecursiveTreeLikelihoodCalculation.h>
 
 #include <iostream>
 
@@ -141,9 +141,9 @@ int main() {
     RNonHomogeneousTreeLikelihood tl2(*tree, *sites.get(), modelSet2.release(), rdist, true, true, true);
     tl2.initialize();
 
-    RTreeLikelihood ntl(*sites.get(), subPro, true, false);
+    SingleRecursiveTreeLikelihoodCalculation ntl(*sites.get(), subPro, true, false);
 
-    RTreeLikelihood ntl2(*sites.get(), subPro2.release(), true, true);
+    SingleRecursiveTreeLikelihoodCalculation ntl2(*sites.get(), subPro2.release(), true, true);
 
     for (size_t i = 0; i < nmodels; ++i) {
       ntl.setParameterValue("T92.theta_" + TextTools::toString(i + 1), thetas[i]);

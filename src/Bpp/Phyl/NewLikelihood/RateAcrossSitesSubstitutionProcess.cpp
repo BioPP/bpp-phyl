@@ -54,8 +54,8 @@ RateAcrossSitesSubstitutionProcess::RateAcrossSitesSubstitutionProcess(Substitut
 
   // Add parameters:
   addParameters_(tree->getParameters());  //Branch lengths
-  addParameters_(model->getParameters()); //Substitution model
-  addParameters_(rdist->getParameters()); //Rate distribution
+  addParameters_(model->getIndependentParameters()); //Substitution model
+  addParameters_(rdist->getIndependentParameters()); //Rate distribution
 }
     
 RateAcrossSitesSubstitutionProcess::RateAcrossSitesSubstitutionProcess(const RateAcrossSitesSubstitutionProcess& rassp) :

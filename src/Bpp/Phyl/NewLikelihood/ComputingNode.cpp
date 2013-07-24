@@ -131,7 +131,7 @@ void ComputingNode::setSubstitutionModel(const SubstitutionModel* pSM)
   computeProbabilitiesD1_=true;
   computeProbabilitiesD2_=true;
 
-  addParameters_(pSM->getParameters());
+  addParameters_(pSM->getIndependentParameters());
 }
 
 void ComputingNode::fireParameterChanged(const ParameterList& pl)
