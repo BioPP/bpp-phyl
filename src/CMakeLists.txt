@@ -54,7 +54,7 @@ SET(CPP_FILES
   Bpp/Phyl/Likelihood/PairedSiteLikelihoods.cpp
   Bpp/Phyl/Likelihood/GlobalClockTreeLikelihoodFunctionWrapper.cpp
   Bpp/Phyl/NewLikelihood/AbstractSubstitutionProcess.cpp
-  Bpp/Phyl/NewLikelihood/AbstractTreeLikelihood.cpp
+  Bpp/Phyl/NewLikelihood/SinglePhyloLikelihood.cpp
   Bpp/Phyl/NewLikelihood/MultiPhyloLikelihood.cpp
   Bpp/Phyl/NewLikelihood/MixturePhyloLikelihood.cpp
   # Bpp/Phyl/NewLikelihood/DRTreeLikelihood.cpp
@@ -62,6 +62,7 @@ SET(CPP_FILES
   Bpp/Phyl/NewLikelihood/NonHomogeneousSubstitutionProcess.cpp
   Bpp/Phyl/NewLikelihood/ParametrizableTree.cpp
   Bpp/Phyl/NewLikelihood/RateAcrossSitesSubstitutionProcess.cpp
+  Bpp/Phyl/NewLikelihood/AbstractTreeLikelihoodCalculation.cpp
   Bpp/Phyl/NewLikelihood/SingleRecursiveTreeLikelihoodCalculation.cpp
   Bpp/Phyl/NewLikelihood/SingleRecursiveTreeLikelihoodData.cpp
   Bpp/Phyl/NewLikelihood/SimpleSubstitutionProcess.cpp
@@ -236,7 +237,6 @@ SET(H_FILES
   Bpp/Phyl/Likelihood/GlobalClockTreeLikelihoodFunctionWrapper.h
   Bpp/Phyl/NewLikelihood/AbstractSubstitutionProcess.h
   Bpp/Phyl/NewLikelihood/AbstractTreeLikelihoodData.h
-  Bpp/Phyl/NewLikelihood/AbstractTreeLikelihood.h
   # Bpp/Phyl/NewLikelihood/DRTreeLikelihoodData.h
   # Bpp/Phyl/NewLikelihood/DRTreeLikelihood.h
   Bpp/Phyl/NewLikelihood/ModelIterator.h
@@ -244,6 +244,8 @@ SET(H_FILES
   Bpp/Phyl/NewLikelihood/ParametrizableTree.h
   Bpp/Phyl/NewLikelihood/RateAcrossSitesSubstitutionProcess.h
   Bpp/Phyl/NewLikelihood/SingleRecursiveTreeLikelihoodData.h
+  Bpp/Phyl/NewLikelihood/TreeLikelihoodCalculation.h
+  Bpp/Phyl/NewLikelihood/AbstractTreeLikelihoodCalculation.h
   Bpp/Phyl/NewLikelihood/SingleRecursiveTreeLikelihoodCalculation.h
   Bpp/Phyl/NewLikelihood/SimpleSubstitutionProcess.h
   Bpp/Phyl/NewLikelihood/SitePartition.h
@@ -254,6 +256,7 @@ SET(H_FILES
   Bpp/Phyl/NewLikelihood/SubstitutionProcess.h
   Bpp/Phyl/NewLikelihood/TreeLikelihoodData.h
   Bpp/Phyl/NewLikelihood/SinglePhyloLikelihood.h
+  Bpp/Phyl/NewLikelihood/SingleRecursivePhyloLikelihood.h
   Bpp/Phyl/NewLikelihood/PhyloLikelihood.h
   Bpp/Phyl/NewLikelihood/MultiPhyloLikelihood.h
   Bpp/Phyl/NewLikelihood/MixturePhyloLikelihood.h

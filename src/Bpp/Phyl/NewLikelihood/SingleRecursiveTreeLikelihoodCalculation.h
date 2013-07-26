@@ -41,12 +41,11 @@
 #ifndef _SINGLERECURSIVETREELIKELIHOODCALCULATION_H_
 #define _SINGLERECURSIVETREELIKELIHOODCALCULATION_H_
 
-#include "AbstractTreeLikelihood.h"
-#include "SubstitutionProcess.h"
+#include "AbstractTreeLikelihoodCalculation.h"
 #include "SingleRecursiveTreeLikelihoodData.h"
 
 #include <Bpp/Numeric/VectorTools.h>
-#include <Bpp/Numeric/Prob/DiscreteDistribution.h>
+//#include <Bpp/Numeric/Prob/DiscreteDistribution.h>
 
 namespace bpp
 {
@@ -82,12 +81,11 @@ namespace newlik
  * depends on the position of the root. If the input tree is not rooted, it will be considered as a rooted tree
  * with a root multifurcation.
  */
-class SingleRecursiveTreeLikelihoodCalculation :
-  public AbstractTreeLikelihood
+class SingleRecursiveTreeLikelihoodCalculation:
+  public AbstractTreeLikelihoodCalculation
 {
 private:
   mutable std::auto_ptr<SingleRecursiveTreeLikelihoodData> likelihoodData_;
-  double minusLogLik_;
   int root1_, root2_; // Needed only in case of reparametrization of branch length at root node.
   // TODO: have to be initialized properly! We do not care of that for now. jdutheil on 11/12/12.
 
@@ -142,102 +140,86 @@ private:
   void init_(bool usePatterns) throw (Exception);
 
 public:
-  /**
-   * @name The TreeLikelihood interface.
-   *
-   * Other methods are implemented in the AbstractTreeLikelihood class.
-   *
-   * @{
-   */
-  void setData(const SiteContainer& sites) throw (Exception);
 
-  size_t getSiteIndex(size_t site) const throw (IndexOutOfBoundsException) { return likelihoodData_->getRootArrayPosition(site); }
+  const Alphabet* getAlphabet() const throw (TreeLikelihoodCalculationNotInitializedException)
+  {
+    if (!initialized_)
+      throw new TreeLikelihoodCalculationNotInitializedException("SingleRecursiveTreeLikelihoodCalculation::getAlphabet().");
+    return data_->getAlphabet();
+  }
+
+  size_t getNumberOfSites() const throw (TreeLikelihoodCalculationNotInitializedException) {
+    if (!initialized_)
+      throw new TreeLikelihoodCalculationNotInitializedException("SingleRecursiveTreeLikelihoodCalculation::getNumberOfSites().");
+    return data_->getNumberOfSites();
+  }
+
+  bool isInitialized() const { return initialized_; }
+
+  void setData(const SiteContainer& sites) throw (Exception);
+  
+  const SiteContainer* getData() const throw (TreeLikelihoodCalculationNotInitializedException) {
+    if (!initialized_)
+      throw new TreeLikelihoodCalculationNotInitializedException("SingleRecursiveTreeLikelihoodCalculation::getData().");
+    return data_.get();
+  }
+  
+  size_t getSiteIndex(size_t site) const throw (TreeLikelihoodCalculationNotInitializedException, IndexOutOfBoundsException) {
+    if (!initialized_)
+      throw new TreeLikelihoodCalculationNotInitializedException("SingleRecursiveTreeLikelihoodCalculation::getSiteIndex().");
+    return likelihoodData_->getRootArrayPosition(site);
+  }
 
   SingleRecursiveTreeLikelihoodData* getLikelihoodData() { return likelihoodData_.get(); }
   const SingleRecursiveTreeLikelihoodData* getLikelihoodData() const { return likelihoodData_.get(); }
 
-  double getLogLikelihood() const;
   double getLikelihoodForASite(size_t site) const;
-  double getLikelihoodForASiteForAClass(size_t site, size_t modelClass) const;
+  
   double getLikelihoodForASiteForAState(size_t site, int state) const;
-  double getLikelihoodForASiteForAClassForAState(size_t site, size_t modelClass, int state) const;
-  /** @} */
 
-  /**
-   * @brief Implements the Function interface.
-   *
-   * Update the parameter list and call the applyParameters() method.
-   * Then compute the likelihoods at each node (computeLikelihood() method)
-   * and call the getLogLikelihood() method.
-   *
-   * If a subset of the whole parameter list is passed to the function,
-   * only these parameters are updated and the other remain constant (i.e.
-   * equal to their last value).
-   *
-   * @param parameters The parameter list to pass to the function.
-   */
-  void setParameters(const ParameterList& parameters) throw (ParameterNotFoundException, ConstraintException);
-  double getValue() const throw (Exception);
+  double getLikelihoodForASiteForAClass(size_t site, size_t classIndex) const;
 
-  /**
-   * @name DerivableFirstOrder interface.
-   *
-   * @{
-   */
-  double getFirstOrderDerivative(const std::string& variable) const throw (Exception);
-  /** @} */
+  double getLikelihoodForASiteForAClassForAState(size_t site, size_t classIndex, int state) const;
 
-  /**
-   * @name DerivableSecondOrder interface.
-   *
-   * @{
-   */
-  double getSecondOrderDerivative(const std::string& variable) const throw (Exception);
-  double getSecondOrderDerivative(const std::string& variable1, const std::string& variable2) const throw (Exception) { return 0; } // Not implemented for now.
-  /** @} */
-
-  // TODO: need to acount for model classes
-  // ConstBranchModelIterator* getNewBranchModelIterator(int nodeId) const
-  // {
-  //  return new ConstNoPartitionBranchModelIterator(modelSet_->getModelForNode(nodeId), nbDistinctSites_);
-  // }
-
+  double getDLogLikelihood() const;
+  
+  double getD2LogLikelihood() const;
+ 
+  double getDLikelihoodForASite(size_t site) const;
+  
+  double getD2LikelihoodForASite(size_t site) const;
+  
+  void computeTreeLikelihood();
+  void computeTreeDLikelihood(const std::string& variable);
+  void computeTreeD2Likelihood(const std::string& variable);
+ 
 public:
   // Specific methods:
-  virtual void computeTreeLikelihood();
+  double getDLogLikelihoodForASite(size_t site) const;
+  double getDLikelihoodForASiteForAClass(size_t site, size_t classIndex) const;
+  double getDLikelihoodForASiteForAClassForAState(size_t site, size_t classIndex, int state) const;
 
-  virtual double getDLikelihoodForASiteForAClass(size_t site, size_t classIndex) const;
-  virtual double getDLikelihoodForASite(size_t site) const;
-  virtual double getDLogLikelihoodForASite(size_t site) const;
-  virtual double getDLogLikelihood() const;
-
-  virtual double getD2LikelihoodForASiteForAClass(size_t site, size_t classIndex) const;
-  virtual double getD2LikelihoodForASite(size_t site) const;
-  virtual double getD2LogLikelihoodForASite(size_t site) const;
-  virtual double getD2LogLikelihood() const;
+  double getD2LogLikelihoodForASite(size_t site) const;
+  double getD2LikelihoodForASiteForAClass(size_t site, size_t classIndex) const;
+  double getD2LikelihoodForASiteForAClassForAState(size_t site, size_t classIndex, int state) const;
 
 protected:
-  void computeDLikelihood_(const std::string& variable) const;
-
-  void computeD2Likelihood_(const std::string& variable) const;
 
   /**
    * @brief Compute the likelihood for a subtree defined by the Tree::Node <i>node</i>.
    *
    * @param node The root of the subtree.
    */
-  virtual void computeSubtreeLikelihood_(const Node* node); // Recursive method.
-  virtual void computeDownSubtreeDLikelihood_(const Node* node) const;
-  virtual void computeDownSubtreeD2Likelihood_(const Node* node) const;
-
-  void fireParameterChanged(const ParameterList& params);
+  void computeSubtreeLikelihood_(const Node* node); // Recursive method.
+  void computeDownSubtreeDLikelihood_(const Node* node);
+  void computeDownSubtreeD2Likelihood_(const Node* node);
 
   /**
    * @brief This method is mainly for debugging purpose.
    *
    * @param node The node at which likelihood values must be displayed.
    */
-  virtual void displayLikelihood(const Node* node);
+  void displayLikelihood(const Node* node);
 };
 } // end of namespace newlik.
 } // end of namespace bpp.

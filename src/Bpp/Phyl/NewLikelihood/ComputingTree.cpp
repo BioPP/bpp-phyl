@@ -44,13 +44,36 @@ knowledge of the CeCILL license and that you accept its terms.
 using namespace bpp;
 using namespace std;
 
+ComputingTree::ComputingTree(const ParametrizableTree& ptree, const DiscreteDistribution& dist) :
+  AbstractParametrizable(""),  
+  parTree_(&ptree),
+  pDist_(&dist),
+  vTree_()
+{
+  TreeTemplate<Node> tree=ptree.getTree();
+  
+  ComputingNode* rCN= TreeTemplateTools::cloneSubtree<ComputingNode>(*tree.getRootNode());
+  TreeTemplate<ComputingNode>* pTC=new TreeTemplate<ComputingNode>(rCN);
+
+  size_t nbCl=dist.getNumberOfCategories();
+  
+  for (size_t i=0; i<nbCl; i++){
+    TreeTemplate<ComputingNode>* pTC2=pTC->clone();
+    std::vector<ComputingNode*> vCN=pTC2->getNodes();
+    for (size_t j=0; j<vCN.size(); j++)
+      vCN[j]->setParameterValue("scale",dist.getCategory(i));
+    vTree_.push_back(pTC2);
+  }
+  delete pTC;
+}
+
 ComputingTree::ComputingTree(const ComputingTree& tree) :
   AbstractParametrizable(tree),
   parTree_(tree.parTree_),
   pDist_(tree.pDist_),
-  vTree_(),
-  vvBrMod_(tree.vvBrMod_)
+  vTree_()
 {
+  
   for (size_t i=0; i<tree.vTree_.size(); i++)
     vTree_.push_back(tree.vTree_[i]->clone());
 }
@@ -64,8 +87,7 @@ ComputingTree& ComputingTree::operator=(const ComputingTree& tree)
   for (size_t i=0; i<tree.vTree_.size(); i++)
     vTree_.push_back(tree.vTree_[i]->clone());
 
-  vvBrMod_=tree.vvBrMod_;
-  
+
   return *this;
 }
 
@@ -77,31 +99,6 @@ ComputingTree::~ComputingTree()
   vTree_.clear();
 }
 
-ComputingTree::ComputingTree(const ParametrizableTree& ptree, const DiscreteDistribution& dist) :
-  AbstractParametrizable(""),
-  parTree_(&ptree),
-  pDist_(&dist),
-  vTree_(),
-  vvBrMod_()
-{
-  TreeTemplate<Node> tree=ptree.getTree();
-  
-  ComputingNode* rCN= TreeTemplateTools::cloneSubtree<ComputingNode>(*tree.getRootNode());
-  TreeTemplate<ComputingNode>* pTC=new TreeTemplate<ComputingNode>(rCN);
-
-  size_t nbCl=dist.getNumberOfCategories();
-  
-  for (size_t i=0; i<nbCl; i++){
-    TreeTemplate<ComputingNode>* pTC2=pTC->clone();
-    pTC2->scaleTree(dist.getCategory(i));
-    vTree_.push_back(pTC2);
-  }
-  
-  delete pTC;
-
-  addParameters_(ptree.getParameters());
-  addParameters_(dist.getIndependentParameters());
-}
 
 void ComputingTree::addModel(const SubstitutionModel* pSubMod, std::vector<int>  vBr)
 {
@@ -110,27 +107,42 @@ void ComputingTree::addModel(const SubstitutionModel* pSubMod, std::vector<int> 
       vTree_[i]->getNode(vBr[j])->setSubstitutionModel(pSubMod);
     }
 
-  vvBrMod_.push_back(vBr);
-  
-  addParameters_(pSubMod->getIndependentParameters());
 }
-
 
 void ComputingTree::fireParameterChanged(const ParameterList& pl)
 {
-  if (vTree_.size()==0)
-    return;
-
-  // In this case, all trees have the same models on the nodes
+  bool chDist=false;
   
-  for (size_t i=0; i<vvBrMod_.size(); i++){
-    if (vTree_[0]->getNode(vvBrMod_[i][0])->getParameters().testParametersValues(pl)){
-      for (size_t j=0; j<vvBrMod_[i].size(); j++)
-        for (size_t k=0; k<vTree_.size(); k++)
-          vTree_[k]->getNode(vvBrMod_[i][j])->fireParameterChanged(pl);
+  for (size_t i=0; i<pl.size(); i++)
+  {
+    string n=pl[i].getName();
+    if (n.substr(0,5)!="BrLen"){
+      chDist=true;
+      continue;
     }
+    size_t pt=n.find("_");
+    int nBr=atoi(n.substr(5,pt-5).c_str());
+    for (size_t i2=0; i2<vTree_.size(); i2++)
+      vTree_[i2]->getNode(nBr)->setDistanceToFather(pl[i].getValue());
   }
 
-  // test the 
+  if (chDist)
+  {
+    size_t nbCl=pDist_->getNumberOfCategories();
+  
+    for (size_t i=0; i<nbCl; i++){
+      std::vector<ComputingNode*> vCN=vTree_[i]->getNodes();
+      for (size_t j=0; j<vCN.size(); j++)
+        vCN[j]->setParameterValue("scale",pDist_->getCategory(i));
+    }
+  }
+}
+
+
+void ComputingTree::update(vector<int>& vId)
+{
+  for (size_t i=0; i<vTree_.size(); i++)
+      for (size_t j=0; j<vId.size(); j++)
+        vTree_[i]->getNode(vId[j])->update();
 }
 

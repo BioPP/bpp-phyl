@@ -93,18 +93,42 @@ private:
    */
   ParametrizableCollection<SubstitutionModel> modelColl_;
 
+  /**
+   * A map from each SubstitutionModel number to the SubProcess
+   * members that are linked to it.
+   *
+   */
+  
+  std::map<size_t, std::vector<size_t> > mModelToSubPro_;
+  
   /*
    * A collection of Frequencies Sets
    */
   
   ParametrizableCollection<FrequenciesSet> freqColl_;
 
+  /**
+   * A map from each FrequenciesSet number to the SubProcess members
+   * that are linked to it.
+   *
+   */
+  
+  std::map<size_t, std::vector<size_t> > mFreqToSubPro_;
+  
   /*
    * A collection of DiscreteDistributions
    */
   
   ParametrizableCollection<DiscreteDistribution> distColl_;
 
+  /**
+   * A map from each DiscreteDistribution number to the SubProcess
+   * members that are linked to it.
+   *
+   */
+  
+  std::map<size_t, std::vector<size_t> > mDistToSubPro_;
+  
   /*
    * A collection of trees
    *
@@ -112,6 +136,14 @@ private:
 
   ParametrizableCollection<ParametrizableTree> treeColl_;
 
+  /**
+   * A map from each Tree number to the SubProcess members that are
+   * linked to it.
+   *
+   */
+  
+  std::map<size_t, std::vector<size_t> > mTreeToSubPro_;
+  
   /*
    * A vector of SubstitutionProcessCollectionMember
    */
@@ -128,9 +160,13 @@ public:
   SubstitutionProcessCollection():
     AbstractParameterAliasable(""),
     modelColl_(),
+    mModelToSubPro_(),
     freqColl_(),
+    mFreqToSubPro_(),
     distColl_(),
+    mDistToSubPro_(),
     treeColl_(),
+    mTreeToSubPro_(),
     vSubProcess_()
   {
   }
@@ -218,12 +254,12 @@ public:
   
   SubstitutionModel* getModel(int modelIndex)
   {
-    return (dynamic_cast<SubstitutionModel*>(modelColl_.getObject(modelIndex)));
+    return (dynamic_cast<SubstitutionModel*>(modelColl_[modelIndex]));
   }
 
   const SubstitutionModel* getModel(size_t modelIndex) const
   {
-    return (dynamic_cast<const SubstitutionModel*>(modelColl_.getObject(int(modelIndex))));
+    return (dynamic_cast<const SubstitutionModel*>(modelColl_[modelIndex]));
   }
 
   /**
@@ -235,12 +271,12 @@ public:
   
   FrequenciesSet* getFrequencies(size_t frequenciesIndex)
   {
-    return (dynamic_cast<FrequenciesSet*>(freqColl_.getObject(frequenciesIndex)));
+    return (dynamic_cast<FrequenciesSet*>(freqColl_[frequenciesIndex]));
   }
 
   const FrequenciesSet* getFrequencies(size_t frequenciesIndex) const
   {
-    return (dynamic_cast<const FrequenciesSet*>(freqColl_.getObject(frequenciesIndex)));
+    return (dynamic_cast<const FrequenciesSet*>(freqColl_[frequenciesIndex]));
   }
 
   /**
@@ -252,12 +288,12 @@ public:
   
   DiscreteDistribution* getDistribution(size_t distributionIndex)
   {
-    return (dynamic_cast<DiscreteDistribution*>(distColl_.getObject(distributionIndex)));
+    return (dynamic_cast<DiscreteDistribution*>(distColl_[distributionIndex]));
   }
 
   const DiscreteDistribution* getDistribution(size_t distributionIndex) const 
   {
-    return (dynamic_cast<const DiscreteDistribution*>(distColl_.getObject(distributionIndex)));
+    return (dynamic_cast<const DiscreteDistribution*>(distColl_[distributionIndex]));
   }
 
   /**
@@ -269,12 +305,12 @@ public:
   
   ParametrizableTree* getTree(size_t treeIndex)
   {
-    return (dynamic_cast<ParametrizableTree*>(treeColl_.getObject(treeIndex)));
+    return (dynamic_cast<ParametrizableTree*>(treeColl_[treeIndex]));
   }
   
   const ParametrizableTree* getTree(size_t treeIndex) const 
   {
-    return (dynamic_cast<const ParametrizableTree*>(treeColl_.getObject(treeIndex)));
+    return (dynamic_cast<const ParametrizableTree*>(treeColl_[treeIndex]));
   }
   
 
@@ -305,103 +341,6 @@ public:
 
 
   /**
-   * @brief Methods to remove objects. Beware! The
-   * SubstitutionProcessCollectionMembers of the vector may be
-   * non-functional after this.
-   *
-   * 
-   * @{
-   */
-   
-  /**
-   * @brief Remove a SubstitutionModel from the collection.
-   *
-   * @param modelIndex The index of the model in the collection.
-   * @return the removed SubstitutionModel*. 
-   */
-  
-  SubstitutionModel* removeModel(size_t modelIndex)
-  {
-    return (dynamic_cast<SubstitutionModel*>(modelColl_.removeObject(modelIndex)));
-  }
-
-  /**
-   * @brief Remove a FrequenciesSet from the collection.
-   *
-   * @param frequenciesIndex The index of the frequencies set in the collection.
-   * @return the removed FrequenciesSet*. 
-   */
-  
-  FrequenciesSet* removeFrequencies(size_t frequenciesIndex)
-  {
-    return (dynamic_cast<FrequenciesSet*>(freqColl_.removeObject(frequenciesIndex)));
-  }
-
-  /**
-   * @brief Remove a DiscreteDistribution from the collection.
-   *
-   * @param distributionIndex The index of the distribution in the collection.
-   * @return the removed DiscreteDistribution*. 
-   */
-  
-  DiscreteDistribution* removeDistribution(size_t distributionIndex)
-  {
-    return (dynamic_cast<DiscreteDistribution*>(distColl_.removeObject(distributionIndex)));
-  }
-
-  /**
-   * @brief Remove a tree from the set.
-   *
-   * @param treeIndex The index of the model in the set.
-   * @return the removed Tree*. 
-   */
-  
-  ParametrizableTree* removeTree(size_t treeIndex)
-  {
-    return (dynamic_cast<ParametrizableTree*>(treeColl_.removeObject(treeIndex)));
-  }
-  
-  /**
-   * @brief Replace a parametrizable in the set, and returns the replaced one.
-   *
-   * @param parametrizableIndex The index of the model to be replaced in the set.
-   * @param parametrizable the replacing Parametrizable
-   * @return the replaced Parametrizable*. 
-   */
-  
-  Parametrizable* replaceParametrizable(Parametrizable* parametrizable, size_t parametrizableIndex);
-
-  /*
-   * @brief specific methods to replace specific objects.
-   *
-   */
-  
-  SubstitutionModel* replaceModel(SubstitutionModel* model, size_t modelIndex)
-  {
-    return dynamic_cast<SubstitutionModel*>(replaceParametrizable(model, modelIndex));
-  }
-
-  FrequenciesSet* replaceFrequencies(FrequenciesSet* frequencies, size_t frequenciesIndex)
-  {
-    return dynamic_cast<FrequenciesSet*>(replaceParametrizable(frequencies, frequenciesIndex));
-  }
-
-  DiscreteDistribution* replaceDistribution(DiscreteDistribution* distribution, size_t distributionIndex)
-  {
-    return dynamic_cast<DiscreteDistribution*>(replaceParametrizable(distribution, distributionIndex));
-  }
-  
-  ParametrizableTree* replaceTree(ParametrizableTree* tree, size_t treeIndex)
-  {
-    return dynamic_cast<ParametrizableTree*>(replaceParametrizable(tree, treeIndex));
-  }
-
-  /*
-   * @}
-   *
-   */
-  
-  /**
    * @brief To be called when a parameter has changed. This will call
    * fireParameterChanged on the collections.
    *
@@ -409,7 +348,6 @@ public:
    */
   
   void fireParameterChanged(const ParameterList& parameters);
-
 
   /*
    * Method to build a SubstitutionModelSet.

@@ -49,8 +49,7 @@ knowledge of the CeCILL license and that you accept its terms.
 #include <Bpp/Phyl/NewLikelihood/ParametrizableTree.h>
 #include <Bpp/Phyl/NewLikelihood/SimpleSubstitutionProcess.h>
 #include <Bpp/Phyl/NewLikelihood/RateAcrossSitesSubstitutionProcess.h>
-#include <Bpp/Phyl/NewLikelihood/SingleRecursiveTreeLikelihoodCalculation.h>
-
+#include <Bpp/Phyl/NewLikelihood/SinglePhyloLikelihood.h>
 #include <iostream>
 
 using namespace bpp;
@@ -64,48 +63,55 @@ void fitModelH(SubstitutionModel* model, DiscreteDistribution* rdist, const Tree
   ApplicationTools::displayResult("Test model", model->getName());
   cout << "OldTL: " << setprecision(20) << tl.getValue() << endl;
   ApplicationTools::displayResult("* initial likelihood", tl.getValue());
-  if (abs(tl.getValue() - initialValue) > 0.001)
-    throw Exception("Incorrect initial value.");
+  // if (abs(tl.getValue() - initialValue) > 0.001)
+  //   throw Exception("Incorrect initial value.");
+  cout << endl;
 
-  ParametrizableTree* pTree = new ParametrizableTree(tree);
-
-  RateAcrossSitesSubstitutionProcess* process = new RateAcrossSitesSubstitutionProcess(model->clone(), rdist->clone(), pTree);
-
-  auto_ptr<RateAcrossSitesSubstitutionProcess> process2(process->clone());
   
-  SingleRecursiveTreeLikelihoodCalculation newTl(sites, process, true, true);
+  ParametrizableTree* pTree = new ParametrizableTree(tree);
+  RateAcrossSitesSubstitutionProcess* process = new RateAcrossSitesSubstitutionProcess(model->clone(), rdist->clone(), pTree);
+  
+  auto_ptr<SingleRecursiveTreeLikelihoodCalculation> tmComp(new SingleRecursiveTreeLikelihoodCalculation(sites, process, true, true));
+  SinglePhyloLikelihood newTl(process, tmComp.release(), true);
+
+  newTl.computeTreeLikelihood();
+  
   cout << "NewTL: " << setprecision(20) << newTl.getValue() << endl;
 
-  // OptimizationTools::optimizeTreeScale(&tl);
-  // ApplicationTools::displayResult("* likelihood after tree scale", tl.getValue());
+
+  cout << "Optimization : " << endl;
+  
   OptimizationTools::optimizeNumericalParameters2(&tl, tl.getParameters(), 0, 0.000001, 10000, 0, 0);
   cout << setprecision(20) << tl.getValue() << endl;
   ApplicationTools::displayResult("* likelihood after full optimization", tl.getValue());
-  if (abs(tl.getValue() - finalValue) > 0.001)
-    throw Exception("Incorrect final value.");
+  // if (abs(tl.getValue() - finalValue) > 0.001)
+  //   throw Exception("Incorrect final value.");
 
+  tl.getParameters().printParameters(cout);
+  
   OptimizationTools::optimizeNumericalParameters2(&newTl, newTl.getParameters(), 0, 0.000001, 10000, 0, 0);
-  cout << setprecision(20) << tl.getValue() << endl;
-  ApplicationTools::displayResult("* likelihood after full optimization", tl.getValue());
-  if (abs(tl.getValue() - finalValue) > 0.001)
-    throw Exception("Incorrect final value.");
+  cout << setprecision(20) << newTl.getValue() << endl;
+  ApplicationTools::displayResult("* likelihood after full optimization", newTl.getValue());
+  // if (abs(newTl.getValue() - finalValue) > 0.001)
+  //   throw Exception("Incorrect final value.");
+  newTl.getParameters().printParameters(cout);
 }
 
 int main() {
-  TreeTemplate<Node>* tree = TreeTemplateTools::parenthesisToTree("((A:0.01, B:0.02):0.03,C:0.01,D:0.1);");
+  TreeTemplate<Node>* tree = TreeTemplateTools::parenthesisToTree("(A:0.5,((B:0.8,C:0.4):1.2,D:0.01):0.2);");
   vector<string> seqNames= tree->getLeavesNames();
   vector<int> ids = tree->getNodesId();
   //-------------
 
   const NucleicAlphabet* alphabet = &AlphabetTools::DNA_ALPHABET;
   SubstitutionModel* model = new T92(alphabet, 3.);
-  DiscreteDistribution* rdist = new GammaDiscreteRateDistribution(4, 1.0);
+  DiscreteDistribution* rdist = new GammaDiscreteRateDistribution(2, 0.1);
 
   VectorSiteContainer sites(alphabet);
-  sites.addSequence(BasicSequence("A", "AAATGGCTGTGCACGTC", alphabet));
-  sites.addSequence(BasicSequence("B", "GACTGGATCTGCACGTC", alphabet));
-  sites.addSequence(BasicSequence("C", "CTCTGGATGTGCACGTG", alphabet));
-  sites.addSequence(BasicSequence("D", "AAATGGCGGTGCGCCTA", alphabet));
+  sites.addSequence(BasicSequence("A", "GAACACGAAAGCATGAATGTTCAGTGAGTAGATCAAATATGTCATTTCTGAATTATTATA", alphabet));
+  sites.addSequence(BasicSequence("B", "TTTGAACTGTTTGAATATAAGAAAGTTAAATATCTTATAACCAAGTAATATGTTTTAAGA", alphabet));
+  sites.addSequence(BasicSequence("C", "GTAATACTTTATAAATACTGATCAATTCAGATAATTTTCAGAACTAACATATATATTATG", alphabet));
+  sites.addSequence(BasicSequence("D", "TCGATCGAAAGCCAGGATCAACAATCTTTAACTTATATCGAAAATCATTTATGTGAAGGC", alphabet));
 
   try {
     fitModelH(model, rdist, *tree, sites, 85.030942031997312824, 65.72293577214308868406);
@@ -121,3 +127,5 @@ int main() {
 
   return 0;
 }
+
+

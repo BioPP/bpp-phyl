@@ -59,9 +59,8 @@ SingleRecursiveTreeLikelihoodCalculation::SingleRecursiveTreeLikelihoodCalculati
   bool verbose,
   bool usePatterns)
 throw (Exception) :
-  AbstractTreeLikelihood(process),
+  AbstractTreeLikelihoodCalculation(process),
   likelihoodData_(0),
-  minusLogLik_(-1.),
   root1_(-1),
   root2_(-1)
 {
@@ -76,9 +75,8 @@ SingleRecursiveTreeLikelihoodCalculation::SingleRecursiveTreeLikelihoodCalculati
   bool verbose,
   bool usePatterns)
 throw (Exception) :
-  AbstractTreeLikelihood(process),
+  AbstractTreeLikelihoodCalculation(process),
   likelihoodData_(0),
-  minusLogLik_(-1.),
   root1_(-1),
   root2_(-1)
 {
@@ -97,26 +95,24 @@ void SingleRecursiveTreeLikelihoodCalculation::init_(bool usePatterns) throw (Ex
 
 /******************************************************************************/
 
-SingleRecursiveTreeLikelihoodCalculation::SingleRecursiveTreeLikelihoodCalculation(const SingleRecursiveTreeLikelihoodCalculation& lik) :
-  AbstractTreeLikelihood(lik),
+SingleRecursiveTreeLikelihoodCalculation::SingleRecursiveTreeLikelihoodCalculation(const SingleRecursiveTreeLikelihoodCalculation& tlc) :
+  AbstractTreeLikelihoodCalculation(tlc),
   likelihoodData_(0),
-  minusLogLik_(lik.minusLogLik_),
-  root1_(lik.root1_),
-  root2_(lik.root2_)
+  root1_(tlc.root1_),
+  root2_(tlc.root2_)
 {
-  likelihoodData_.reset(lik.likelihoodData_->clone());
+  likelihoodData_.reset(tlc.likelihoodData_->clone());
 }
 
 /******************************************************************************/
 
 SingleRecursiveTreeLikelihoodCalculation& SingleRecursiveTreeLikelihoodCalculation::operator=(
-  const SingleRecursiveTreeLikelihoodCalculation& lik)
+  const SingleRecursiveTreeLikelihoodCalculation& tlc)
 {
-  AbstractTreeLikelihood::operator=(lik);
-  likelihoodData_.reset(lik.likelihoodData_->clone());
-  minusLogLik_ = lik.minusLogLik_;
-  root1_ = lik.root1_;
-  root2_ = lik.root2_;
+  AbstractTreeLikelihoodCalculation::operator=(tlc);
+  likelihoodData_.reset(tlc.likelihoodData_->clone());
+  root1_ = tlc.root1_;
+  root2_ = tlc.root2_;
   return *this;
 }
 
@@ -151,25 +147,6 @@ void SingleRecursiveTreeLikelihoodCalculation::setData(const SiteContainer& site
 
   // Recompute likelihood:
   computeTreeLikelihood();
-  minusLogLik_ = -getLogLikelihood();
-}
-
-/******************************************************************************/
-
-double SingleRecursiveTreeLikelihoodCalculation::getLogLikelihood() const
-{
-  vector<double> la(nbSites_);
-  for (size_t i = 0; i < nbSites_; ++i)
-  {
-    la[i] = log(getLikelihoodForASite(i));
-  }
-  sort(la.begin(), la.end());
-  double ll = 0;
-  for (size_t i = nbSites_; i > 0; i--)
-  {
-    ll += la[i - 1];
-  }
-  return ll;
 }
 
 /******************************************************************************/
@@ -177,9 +154,14 @@ double SingleRecursiveTreeLikelihoodCalculation::getLogLikelihood() const
 double SingleRecursiveTreeLikelihoodCalculation::getLikelihoodForASite(size_t site) const
 {
   double l = 0;
+  VVdouble* la = &likelihoodData_->getLikelihoodArray(
+    process_->getTree().getRootNode()->getId())[likelihoodData_->getRootArrayPosition(site)];
   for (size_t i = 0; i < nbClasses_; ++i)
   {
-    l += getLikelihoodForASiteForAClass(site, i) * process_->getProbabilityForModel(i);
+    for (size_t j = 0; j < nbStates_; ++j)
+    {
+      l += (*la)[i][j] * process_->getProbabilityForModel(i) * process_->getRootFrequencies()[j];
+    }
   }
   if (l < 0) l = 0; //May happen because of numerical errors.
   return l;
@@ -221,42 +203,27 @@ double SingleRecursiveTreeLikelihoodCalculation::getLikelihoodForASiteForAClassF
            process_->getTree().getRootNode()->getId())[likelihoodData_->getRootArrayPosition(site)][classIndex][state];
 }
 
+
 /******************************************************************************/
 
-void SingleRecursiveTreeLikelihoodCalculation::setParameters(const ParameterList& parameters)
-throw (ParameterNotFoundException, ConstraintException)
+double SingleRecursiveTreeLikelihoodCalculation::getDLikelihoodForASiteForAClassForAState(size_t site, size_t classIndex, int state) const
 {
-  setParametersValues(parameters);
+  return likelihoodData_->getDLikelihoodArray(
+           process_->getTree().getRootNode()->getId())[likelihoodData_->getRootArrayPosition(site)][classIndex][state];
 }
 
 /******************************************************************************/
 
-void SingleRecursiveTreeLikelihoodCalculation::fireParameterChanged(const ParameterList& params)
+double SingleRecursiveTreeLikelihoodCalculation::getD2LikelihoodForASiteForAClassForAState(size_t site, size_t classIndex, int state) const
 {
-  // To be checked
-  
-  AbstractTreeLikelihood::fireParameterChanged(params);
-
-  if (params.size() > 0)
-  {
-    computeTreeLikelihood();
-    minusLogLik_ = -getLogLikelihood();
-  }
-}
-
-/******************************************************************************/
-
-double SingleRecursiveTreeLikelihoodCalculation::getValue() const
-throw (Exception)
-{
-  if (!isInitialized())
-    throw Exception("SingleRecursiveTreeLikelihoodCalculation::getValue(). Instance is not initialized.");
-  return minusLogLik_;
+  return likelihoodData_->getD2LikelihoodArray(
+           process_->getTree().getRootNode()->getId())[likelihoodData_->getRootArrayPosition(site)][classIndex][state];
 }
 
 /******************************************************************************
-*                           Likelihood computation                           *
-******************************************************************************/
+ *                           Likelihood computation                           *
+ ******************************************************************************/
+
 void SingleRecursiveTreeLikelihoodCalculation::computeTreeLikelihood()
 {
   computeSubtreeLikelihood_(process_->getTree().getRootNode());
@@ -335,79 +302,10 @@ void SingleRecursiveTreeLikelihoodCalculation::computeSubtreeLikelihood_(const N
 
 
 /******************************************************************************
-*                           First Order Derivatives                          *
-******************************************************************************/
-double SingleRecursiveTreeLikelihoodCalculation::getDLikelihoodForASiteForAClass(size_t site, size_t classIndex) const
-{
-  vector<double> rootFreqs = process_->getRootFrequencies();
-  double dl = 0;
-  Vdouble* dla = &likelihoodData_->getDLikelihoodArray(process_->getTree().getRootNode()->getId())[likelihoodData_->getRootArrayPosition(site)][classIndex];
-  for (size_t i = 0; i < nbStates_; ++i)
-  {
-    dl += (*dla)[i] * rootFreqs[i];
-  }
-  return dl;
-}
+ *                           First Order Derivatives                          *
+ ******************************************************************************/
 
-/******************************************************************************/
-
-double SingleRecursiveTreeLikelihoodCalculation::getDLikelihoodForASite(size_t site) const
-{
-  // Derivative of the sum is the sum of derivatives:
-  double dl = 0;
-  for (size_t i = 0; i < nbClasses_; ++i)
-  {
-    dl += getDLikelihoodForASiteForAClass(site, i) * process_->getProbabilityForModel(i);
-  }
-  return dl;
-}
-
-/******************************************************************************/
-
-double SingleRecursiveTreeLikelihoodCalculation::getDLogLikelihoodForASite(size_t site) const
-{
-  // d(f(g(x)))/dx = dg(x)/dx . df(g(x))/dg :
-  return getDLikelihoodForASite(site) / getLikelihoodForASite(site);
-}
-
-/******************************************************************************/
-
-double SingleRecursiveTreeLikelihoodCalculation::getDLogLikelihood() const
-{
-  // Derivative of the sum is the sum of derivatives:
-  vector<double> dla(nbSites_);
-  for (size_t i = 0; i < nbSites_; ++i)
-  {
-    dla[i] = getDLogLikelihoodForASite(i);
-  }
-  sort(dla.begin(), dla.end());
-  double dl = 0;
-  for (size_t i = nbSites_; i > 0; i--)
-  {
-    dl += dla[i - 1];
-  }
-  return dl;
-}
-
-/******************************************************************************/
-
-double SingleRecursiveTreeLikelihoodCalculation::getFirstOrderDerivative(const string& variable) const
-throw (Exception)
-{
-  if (!hasParameter(variable))
-    throw ParameterNotFoundException("SingleRecursiveTreeLikelihoodCalculation::getFirstOrderDerivative().", variable);
-  if (process_->hasTransitionProbabilitiesParameter(variable))
-  {
-    throw Exception("Derivatives are only implemented for branch length parameters.");
-  }
-
-  computeDLikelihood_(variable);
-  return -getDLogLikelihood();
-}
-
-/******************************************************************************/
-
-void SingleRecursiveTreeLikelihoodCalculation::computeDLikelihood_(const string& variable) const
+void SingleRecursiveTreeLikelihoodCalculation::computeTreeDLikelihood(const string& variable)
 {
 /*  if (variable == "BrLenRoot")
    {
@@ -631,7 +529,7 @@ void SingleRecursiveTreeLikelihoodCalculation::computeDLikelihood_(const string&
    }*/
 
   // Get the node with the branch whose length must be derivated:
-  int brId = TextTools::toInt(variable.substr(5));
+  int brId = atoi(variable.substr(5).c_str());
   const Node* branch = process_->getTree().getNode(brId);
   const Node* father = branch->getFather();
 
@@ -728,7 +626,7 @@ void SingleRecursiveTreeLikelihoodCalculation::computeDLikelihood_(const string&
 
 /******************************************************************************/
 
-void SingleRecursiveTreeLikelihoodCalculation::computeDownSubtreeDLikelihood_(const Node* node) const
+void SingleRecursiveTreeLikelihoodCalculation::computeDownSubtreeDLikelihood_(const Node* node)
 {
   const Node* father = node->getFather();
   // We assume that the _dLikelihoods array has been filled for the current node 'node'.
@@ -823,74 +721,72 @@ void SingleRecursiveTreeLikelihoodCalculation::computeDownSubtreeDLikelihood_(co
   computeDownSubtreeDLikelihood_(father);
 }
 
-/******************************************************************************
-*                           Second Order Derivatives                         *
-******************************************************************************/
-double SingleRecursiveTreeLikelihoodCalculation::getD2LikelihoodForASiteForAClass(size_t site, size_t classIndex) const
+/******************************************************************************/
+
+double SingleRecursiveTreeLikelihoodCalculation::getDLikelihoodForASiteForAClass(size_t site, size_t classIndex) const
 {
   vector<double> rootFreqs = process_->getRootFrequencies();
-  double d2l = 0;
-  Vdouble* d2la = &likelihoodData_->getD2LikelihoodArray(process_->getTree().getRootNode()->getId())[likelihoodData_->getRootArrayPosition(site)][classIndex];
-  for (size_t i = 0; i < nbStates_; ++i)
-  {
-    d2l += (*d2la)[i] * rootFreqs[i];
-  }
-  return d2l;
-}
-
-/******************************************************************************/
-
-double SingleRecursiveTreeLikelihoodCalculation::getD2LikelihoodForASite(size_t site) const
-{
-  // Derivative of the sum is the sum of derivatives:
-  double d2l = 0;
-  for (size_t i = 0; i < nbClasses_; ++i)
-  {
-    d2l += getD2LikelihoodForASiteForAClass(site, i) * process_->getProbabilityForModel(i);
-  }
-  return d2l;
-}
-
-/******************************************************************************/
-
-double SingleRecursiveTreeLikelihoodCalculation::getD2LogLikelihoodForASite(size_t site) const
-{
-  return getD2LikelihoodForASite(site) / getLikelihoodForASite(site)
-         - pow( getDLikelihoodForASite(site) / getLikelihoodForASite(site), 2);
-}
-
-/******************************************************************************/
-
-double SingleRecursiveTreeLikelihoodCalculation::getD2LogLikelihood() const
-{
-  // Derivative of the sum is the sum of derivatives:
+  Vdouble* dla = &likelihoodData_->getDLikelihoodArray(
+           process_->getTree().getRootNode()->getId())[likelihoodData_->getRootArrayPosition(site)][classIndex];
   double dl = 0;
-  for (size_t i = 0; i < nbSites_; ++i)
+  for (int i = 0; i < static_cast<int>(nbStates_); ++i)
   {
-    dl += getD2LogLikelihoodForASite(i);
+    dl += (*dla)[i] * rootFreqs[i];
   }
   return dl;
 }
 
 /******************************************************************************/
 
-double SingleRecursiveTreeLikelihoodCalculation::getSecondOrderDerivative(const string& variable) const
-throw (Exception)
+double SingleRecursiveTreeLikelihoodCalculation::getDLikelihoodForASite(size_t site) const
 {
-  if (!hasParameter(variable))
-    throw ParameterNotFoundException("SingleRecursiveTreeLikelihoodCalculation::getSecondOrderDerivative().", variable);
-  if (process_->hasTransitionProbabilitiesParameter(variable))
+  vector<double> rootFreqs = process_->getRootFrequencies();
+  VVdouble* dla = &likelihoodData_->getDLikelihoodArray(
+           process_->getTree().getRootNode()->getId())[likelihoodData_->getRootArrayPosition(site)];
+  // Derivative of the sum is the sum of derivatives:
+  double dl = 0;
+  for (size_t i = 0; i < nbClasses_; ++i)
   {
-    throw Exception("Derivatives are only implemented for branch length parameters.");
+    for (size_t j = 0; j < nbStates_; ++j)
+    {
+      dl += (*dla)[i][j] * process_->getProbabilityForModel(i) * rootFreqs[i];
+    }
   }
-
-  computeD2Likelihood_(variable);
-  return -getD2LogLikelihood();
+  return dl;
 }
 
 /******************************************************************************/
 
-void SingleRecursiveTreeLikelihoodCalculation::computeD2Likelihood_(const string& variable) const
+double SingleRecursiveTreeLikelihoodCalculation::getDLogLikelihoodForASite(size_t site) const
+{
+  // d(f(g(x)))/dx = dg(x)/dx . df(g(x))/dg :
+  return getDLikelihoodForASite(site) / getLikelihoodForASite(site);
+}
+
+/******************************************************************************/
+
+double SingleRecursiveTreeLikelihoodCalculation::getDLogLikelihood() const
+{
+  // Derivative of the sum is the sum of derivatives:
+  vector<double> dla(nbSites_);
+  for (size_t i = 0; i < nbSites_; ++i)
+  {
+    dla[i] = getDLogLikelihoodForASite(i);
+  }
+  sort(dla.begin(), dla.end());
+  double dl = 0;
+  for (size_t i = nbSites_; i > 0; i--)
+  {
+    dl += dla[i - 1];
+  }
+  return dl;
+}
+
+/******************************************************************************
+ *                           Second Order Derivatives                         *
+ ******************************************************************************/
+
+void SingleRecursiveTreeLikelihoodCalculation::computeTreeD2Likelihood(const string& variable)
 {
   /*if (variable == "BrLenRoot")
      {
@@ -1130,7 +1026,7 @@ void SingleRecursiveTreeLikelihoodCalculation::computeD2Likelihood_(const string
      }*/
 
   // Get the node with the branch whose length must be derivated:
-  int brId = TextTools::toInt(variable.substr(5));
+  int brId = atoi(variable.substr(5).c_str());
   const Node* branch = process_->getTree().getNode(brId);
   const Node* father = branch->getFather();
 
@@ -1227,7 +1123,7 @@ void SingleRecursiveTreeLikelihoodCalculation::computeD2Likelihood_(const string
 
 /******************************************************************************/
 
-void SingleRecursiveTreeLikelihoodCalculation::computeDownSubtreeD2Likelihood_(const Node* node) const
+void SingleRecursiveTreeLikelihoodCalculation::computeDownSubtreeD2Likelihood_(const Node* node)
 {
   const Node* father = node->getFather();
   // We assume that the dLikelihoods_ array has been filled for the current node 'node'.
@@ -1324,10 +1220,68 @@ void SingleRecursiveTreeLikelihoodCalculation::computeDownSubtreeD2Likelihood_(c
 
 /******************************************************************************/
 
+double SingleRecursiveTreeLikelihoodCalculation::getD2LikelihoodForASiteForAClass(size_t site, size_t classIndex) const
+{
+  vector<double> rootFreqs = process_->getRootFrequencies();
+  Vdouble* d2la = &likelihoodData_->getD2LikelihoodArray(
+           process_->getTree().getRootNode()->getId())[likelihoodData_->getRootArrayPosition(site)][classIndex];
+  double d2l = 0;
+  for (int i = 0; i < static_cast<int>(nbStates_); ++i)
+  {
+    d2l += (*d2la)[i] * rootFreqs[i];
+  }
+  return d2l;
+}
+
+/******************************************************************************/
+
+double SingleRecursiveTreeLikelihoodCalculation::getD2LikelihoodForASite(size_t site) const
+{
+  vector<double> rootFreqs = process_->getRootFrequencies();
+  VVdouble* d2la = &likelihoodData_->getD2LikelihoodArray(
+           process_->getTree().getRootNode()->getId())[likelihoodData_->getRootArrayPosition(site)];
+  // Derivative of the sum is the sum of derivatives:
+  double d2l = 0;
+  for (size_t i = 0; i < nbClasses_; ++i)
+  {
+    for (size_t j = 0; j < nbStates_; ++j)
+    {
+      d2l += (*d2la)[i][j] * process_->getProbabilityForModel(i) * rootFreqs[j];
+    }
+  }
+  return d2l;
+}
+
+/******************************************************************************/
+
+double SingleRecursiveTreeLikelihoodCalculation::getD2LogLikelihoodForASite(size_t site) const
+{
+  return getD2LikelihoodForASite(site) / getLikelihoodForASite(site)
+         - pow( getDLikelihoodForASite(site) / getLikelihoodForASite(site), 2);
+}
+
+/******************************************************************************/
+
+double SingleRecursiveTreeLikelihoodCalculation::getD2LogLikelihood() const
+{
+  // Derivative of the sum is the sum of derivatives:
+  double dl = 0;
+  for (size_t i = 0; i < nbSites_; ++i)
+  {
+    dl += getD2LogLikelihoodForASite(i);
+  }
+  return dl;
+}
+
+/******************************************************************************/
+
+
 void SingleRecursiveTreeLikelihoodCalculation::displayLikelihood(const Node* node)
 {
   cout << "Likelihoods at node " << node->getName() << ": " << endl;
   displayLikelihoodArray(likelihoodData_->getLikelihoodArray(node->getId()));
   cout << "                                         ***" << endl;
 }
+
+/******************************************************************************/
 

@@ -201,12 +201,7 @@ namespace bpp
       clear();
     }
 
-#ifndef NO_VIRTUAL_COV
-    NonHomogeneousSubstitutionProcess*
-#else
-    Clonable*
-#endif
-    clone() const { return new NonHomogeneousSubstitutionProcess(*this); }
+    NonHomogeneousSubstitutionProcess* clone() const { return new NonHomogeneousSubstitutionProcess(*this); }
 
     /**
      * @brief Resets all the information contained in this object.

@@ -49,10 +49,6 @@ knowledge of the CeCILL license and that you accept its terms.
 #include "ComputingNode.h"
 #include "ParametrizableTree.h"
 
-// //From SeqLib:
-// #include <Bpp/Seq/Alphabet/Alphabet.h>
-// #include <Bpp/Seq/Container/SiteContainer.h>
-
 namespace bpp
 {
 
@@ -63,7 +59,7 @@ namespace bpp
  *
  */
 
-  class ComputingTree:
+  class ComputingTree :
     public AbstractParametrizable
   {
   private:
@@ -88,14 +84,6 @@ namespace bpp
     
     std::vector<TreeTemplate<ComputingNode>* > vTree_;
 
-    /*
-     * a vector of vectors of branch numbers that share the same
-     * model. To fasten fireParameterChanged.
-     *
-     */
-
-    std::vector<std::vector<int> > vvBrMod_;
-    
   public:
     /*
      * @brief construction of an empty ComputingTree.
@@ -130,7 +118,20 @@ namespace bpp
 
     TreeTemplate<ComputingNode>* operator[](size_t ntree) { return vTree_[ntree];}
 
+    /*
+     *@brief update Distribution parameters.
+     *
+     */
+    
     void fireParameterChanged(const ParameterList& pl);
+        
+    /*
+     * @brief Says to specific nodes to be ready for update
+     *
+     */
+
+    void update(std::vector<int>& vId);
+
   };
   
 } //end of namespace bpp.

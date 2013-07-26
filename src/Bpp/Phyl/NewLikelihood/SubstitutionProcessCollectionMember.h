@@ -155,6 +155,18 @@ namespace bpp
 #endif
     clone() const { return new SubstitutionProcessCollectionMember(*this); }
 
+  private:
+
+    /**
+     * @brief Methods to inform changes in models, frequencies, ...
+     *
+     */
+
+    void changedModel(size_t m)
+    {
+      computingTree_.update(modelToNodes_[m]);
+    }
+    
   public:
 
     inline const Alphabet* getAlphabet() const;
@@ -260,8 +272,11 @@ namespace bpp
      *
      */
    
-    void fireParameterChanged(ParameterList&) {};
-  
+    void fireParameterChanged(const ParameterList& pl)
+    {
+      computingTree_.fireParameterChanged(pl);
+    }
+    
     /**
      * @brief Check if the model set is fully specified for a given tree.
      *

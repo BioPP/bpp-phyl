@@ -61,38 +61,38 @@ namespace newlik
  * (through a Simplex).
  *
  */
-class MixtureLikelihoodCollection :
+class MixturePhyloLikelihood :
   public MultiPhyloLikelihood
 {
 private:
   Simplex simplex_;
 
 public:
-  MixtureLikelihoodCollection(
+  MixturePhyloLikelihood(
     SubstitutionProcessCollection* processColl,
     bool verbose = true,
     bool patterns = true);
 
-  MixtureLikelihoodCollection(
+  MixturePhyloLikelihood(
     const SiteContainer& data,
     SubstitutionProcessCollection* processColl,
     bool verbose = true,
     bool patterns = true);
 
-  MixtureLikelihoodCollection(const MixtureLikelihoodCollection& mlc) :
+  MixturePhyloLikelihood(const MixturePhyloLikelihood& mlc) :
     MultiPhyloLikelihood(mlc),
     simplex_(mlc.simplex_) {}
 
-  MixtureLikelihoodCollection& operator=(const MixtureLikelihoodCollection& mlc)
+  MixturePhyloLikelihood& operator=(const MixturePhyloLikelihood& mlc)
   {
     MultiPhyloLikelihood::operator=(mlc);
     simplex_ = mlc.simplex_;
     return *this;
   }
 
-  virtual ~MixtureLikelihoodCollection() {}
+  virtual ~MixturePhyloLikelihood() {}
 
-  MixtureLikelihoodCollection* clone() const { return new MixtureLikelihoodCollection(*this); }
+  MixturePhyloLikelihood* clone() const { return new MixturePhyloLikelihood(*this); }
 
 public:
   void fireParameterChanged(const ParameterList& parameters);
@@ -100,6 +100,12 @@ public:
   ParameterList getDerivableParameters() const { return getBranchLengthsParameters(); }
 
   ParameterList getNonDerivableParameters() const;
+
+  double getSubProcessProb(size_t i) const
+  {
+    return simplex_.prob(i);
+  }
+  
 
   /**
    * @name The likelihood functions.
@@ -119,7 +125,6 @@ public:
 
   double getD2LikelihoodForASite(size_t site) const;
 
-
   /*
    * @}
    */
@@ -127,5 +132,5 @@ public:
 } // end of namespace newlik.
 } // end of namespace bpp.
 
-#endif  // _MIXTUREPHYLOLIKELIHOOD_H_
+#endif  // _MIXTURELIKELIHOODCOLLECTION_H_
 

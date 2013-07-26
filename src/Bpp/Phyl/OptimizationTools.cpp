@@ -492,6 +492,7 @@ throw (Exception)
   auto_ptr<AbstractNumericalDerivative> fnum;
   // Build optimizer:
   auto_ptr<Optimizer> optimizer;
+
   if (optMethodDeriv == OPTIMIZATION_GRADIENT)
   {
     fnum.reset(new TwoPointsNumericalDerivative(f));
@@ -515,7 +516,7 @@ throw (Exception)
 
   // Numerical derivatives:
   ParameterList tmp = lik->getNonDerivableParameters();
-  
+
   // if (useClock)
   //   tmp.addParameters(fclock->getHeightParameters());
   fnum->setParametersToDerivate(tmp.getParameterNames());

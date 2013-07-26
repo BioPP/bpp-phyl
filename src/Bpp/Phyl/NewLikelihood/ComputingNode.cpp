@@ -1,8 +1,8 @@
-//
-// File: ComputingNode.cpp
-// Created by: Laurent Guéguen
-// Created on: mercredi 3 juillet 2013, à 00h 10
-//
+
+ // File: ComputingNode.cpp
+ // Created by: Laurent Guéguen
+ // Created on: mercredi 3 juillet 2013, à 00h 10
+
 
 /*
    Copyright or © or Copr. Bio++ Development Team, (November 16, 2004)
@@ -35,7 +35,7 @@
 
    The fact that you are presently reading this means that you have had
    knowledge of the CeCILL license and that you accept its terms.
- */
+*/
 
 #include "ComputingNode.h"
 #include <Bpp/Numeric/Constraints.h>
@@ -47,6 +47,7 @@ ComputingNode::ComputingNode(const SubstitutionModel* model) :
   Node(),
   AbstractParametrizable(""),
   model_(model),
+  scale_(1),
   probabilities_(),
   probabilitiesD1_(),
   probabilitiesD2_(),
@@ -54,12 +55,14 @@ ComputingNode::ComputingNode(const SubstitutionModel* model) :
   computeProbabilitiesD1_(true),
   computeProbabilitiesD2_(true)
 {
+  addParameter_(new Parameter("scale", 1, &Parameter::R_PLUS_STAR));
 }
 
 ComputingNode::ComputingNode(int num, string st):
   Node(num, st),
   AbstractParametrizable(""),
   model_(0),
+  scale_(1),
   probabilities_(),
   probabilitiesD1_(),
   probabilitiesD2_(),
@@ -67,12 +70,14 @@ ComputingNode::ComputingNode(int num, string st):
   computeProbabilitiesD1_(true),
   computeProbabilitiesD2_(true)
 {
+  addParameter_(new Parameter("scale", 1, &Parameter::R_PLUS_STAR));
 }
 
 ComputingNode::ComputingNode():
   Node(),
   AbstractParametrizable(""),
   model_(0),
+  scale_(1),
   probabilities_(),
   probabilitiesD1_(),
   probabilitiesD2_(),
@@ -80,12 +85,14 @@ ComputingNode::ComputingNode():
   computeProbabilitiesD1_(true),
   computeProbabilitiesD2_(true)
 {
+  addParameter_(new Parameter("scale", 1, &Parameter::R_PLUS_STAR));
 }
 
 ComputingNode::ComputingNode(const Node& cn) :
   Node(cn),
   AbstractParametrizable(""),
   model_(0),
+  scale_(1),
   probabilities_(),
   probabilitiesD1_(),
   probabilitiesD2_(),
@@ -93,12 +100,14 @@ ComputingNode::ComputingNode(const Node& cn) :
   computeProbabilitiesD1_(true),
   computeProbabilitiesD2_(true)
 {
+  addParameter_(new Parameter("scale", 1, &Parameter::R_PLUS_STAR));
 }
 
 ComputingNode::ComputingNode(const ComputingNode& cn) :
   Node(cn),
   AbstractParametrizable(cn),
   model_(cn.model_),
+  scale_(cn.scale_),
   probabilities_(cn.probabilities_),
   probabilitiesD1_(cn.probabilitiesD1_),
   probabilitiesD2_(cn.probabilitiesD2_),
@@ -114,6 +123,7 @@ ComputingNode& ComputingNode::operator=(const ComputingNode& cn)
   AbstractParametrizable::operator=(cn);
 
   model_=cn.model_;
+  scale_=cn.scale_;
   probabilities_=cn.probabilities_;
   probabilitiesD1_=cn.probabilitiesD1_;
   probabilitiesD2_=cn.probabilitiesD2_;
@@ -130,22 +140,29 @@ void ComputingNode::setSubstitutionModel(const SubstitutionModel* pSM)
   computeProbabilities_=true;
   computeProbabilitiesD1_=true;
   computeProbabilitiesD2_=true;
-
-  addParameters_(pSM->getIndependentParameters());
 }
 
 void ComputingNode::fireParameterChanged(const ParameterList& pl)
 {
+  scale_=getParameterValue("scale");
+  
   computeProbabilities_=true;
   computeProbabilitiesD1_=true;
   computeProbabilitiesD2_=true;
 }  
 
+void ComputingNode::update()
+{
+  computeProbabilities_=true;
+  computeProbabilitiesD1_=true;
+  computeProbabilitiesD2_=true;
+}  
+  
 void ComputingNode::computeTransitionProbabilities() const
 {
   if (computeProbabilities_) {
     computeProbabilities_ = false; //We record that we did this computation.
-    probabilities_ = model_->getPij_t(getDistanceToFather());
+    probabilities_ = model_->getPij_t(scale_*getDistanceToFather());
   }
 }
 
@@ -154,7 +171,7 @@ void ComputingNode::computeTransitionProbabilitiesD1() const
   if (computeProbabilitiesD1_) {
     computeProbabilitiesD1_ = false; //We record that we did this computation.
     //The transition matrix was never computed before. We therefore have to compute it first:
-    probabilitiesD1_ = model_->getdPij_dt(getDistanceToFather());
+    probabilitiesD1_ = model_->getdPij_dt(scale_*getDistanceToFather());
   }
 }
 
@@ -163,7 +180,7 @@ void ComputingNode::computeTransitionProbabilitiesD2() const
   if (computeProbabilitiesD2_) {
     computeProbabilitiesD2_ = false; //We record that we did this computation.
     //The transition matrix was never computed before. We therefore have to compute it first:
-    probabilitiesD2_ = model_->getd2Pij_dt2(getDistanceToFather());
+    probabilitiesD2_ = model_->getd2Pij_dt2(scale_*getDistanceToFather());
   }
 }
 

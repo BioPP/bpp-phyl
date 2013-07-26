@@ -1557,7 +1557,6 @@ PhyloLikelihood* PhylogeneticsApplicationTools::optimizeParameters(
     bool verbose)
   throw (Exception)
 {
-  cerr << "opt" << endl;
   string optimization = ApplicationTools::getStringParameter("optimization", params, "FullD(derivatives=Newton)", suffix, suffixIsOptional, false);
   if (optimization == "None")
     return lik;

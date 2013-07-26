@@ -45,7 +45,7 @@ using namespace newlik;
 
 /******************************************************************************/
 
-MixtureLikelihoodCollection::MixtureLikelihoodCollection(
+MixturePhyloLikelihood::MixturePhyloLikelihood(
   SubstitutionProcessCollection* processColl,
   bool verbose,
   bool patterns) :
@@ -56,7 +56,7 @@ MixtureLikelihoodCollection::MixtureLikelihoodCollection(
   addParameters_(simplex_.getIndependentParameters());
 }
 
-MixtureLikelihoodCollection::MixtureLikelihoodCollection(
+MixturePhyloLikelihood::MixturePhyloLikelihood(
   const SiteContainer& data,
   SubstitutionProcessCollection* processColl,
   bool verbose,
@@ -69,22 +69,22 @@ MixtureLikelihoodCollection::MixtureLikelihoodCollection(
   minusLogLik_ = -getLogLikelihood();
 }
 
-void MixtureLikelihoodCollection::fireParameterChanged(const ParameterList& pl)
+void MixturePhyloLikelihood::fireParameterChanged(const ParameterList& parameters)
 {
-  MultiPhyloLikelihood::matchParametersValues(pl);
-  simplex_.matchParametersValues(pl);
+  MultiPhyloLikelihood::fireParameterChanged(parameters);
+  simplex_.matchParametersValues(parameters);
 
   minusLogLik_ = -getLogLikelihood();
 }
 
-ParameterList MixtureLikelihoodCollection::getNonDerivableParameters() const
+ParameterList MixturePhyloLikelihood::getNonDerivableParameters() const
 {
   ParameterList pl = processColl_->getNonDerivableParameters();
   pl.addParameters(simplex_.getParameters());
   return pl;
 }
 
-double MixtureLikelihoodCollection::getLikelihoodForASite(size_t site) const
+double MixturePhyloLikelihood::getLikelihoodForASite(size_t site) const
 {
   double x = 0;
   for (size_t i = 0; i < vpTreelik_.size(); i++)
@@ -95,7 +95,7 @@ double MixtureLikelihoodCollection::getLikelihoodForASite(size_t site) const
   return x;
 }
 
-double MixtureLikelihoodCollection::getDLikelihoodForASite(size_t site) const
+double MixturePhyloLikelihood::getDLikelihoodForASite(size_t site) const
 {
   double x = 0;
   for (size_t i = 0; i < vpTreelik_.size(); i++)
@@ -106,7 +106,7 @@ double MixtureLikelihoodCollection::getDLikelihoodForASite(size_t site) const
   return x;
 }
 
-double MixtureLikelihoodCollection::getD2LikelihoodForASite(size_t site) const
+double MixturePhyloLikelihood::getD2LikelihoodForASite(size_t site) const
 {
   double x = 0;
   for (size_t i = 0; i < vpTreelik_.size(); i++)

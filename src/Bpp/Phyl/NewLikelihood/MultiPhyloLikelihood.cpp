@@ -75,7 +75,7 @@ MultiPhyloLikelihood::MultiPhyloLikelihood(
   for (size_t i = 0; i < nbP; i++)
   {
     SingleRecursiveTreeLikelihoodCalculation* rt = new SingleRecursiveTreeLikelihoodCalculation(
-        processColl_->getSubstitutionProcess(i)->clone(), patterns, i == 0);
+        processColl_->getSubstitutionProcess(i), patterns, i == 0);
     vpTreelik_.push_back(rt);
   }
 }
@@ -111,7 +111,7 @@ MultiPhyloLikelihood::MultiPhyloLikelihood(
   for (size_t i = 0; i < nbP; i++)
   {
     SingleRecursiveTreeLikelihoodCalculation* rt = new SingleRecursiveTreeLikelihoodCalculation(*data_->clone(),
-        processColl_->getSubstitutionProcess(i)->clone(), patterns, i == 0);
+        processColl_->getSubstitutionProcess(i), patterns, i == 0);
     vpTreelik_.push_back(rt);
   }
 
@@ -276,7 +276,7 @@ void MultiPhyloLikelihood::computeD2Likelihood_(const std::string& variable) con
 {
   for (size_t i = 0; i < vpTreelik_.size(); i++)
   {
-    vpTreelik_[i]->computeD2Likelihood_(variable);
+    vpTreelik_[i]->computeTreeD2Likelihood(variable);
   }
 }
 
@@ -286,7 +286,7 @@ void MultiPhyloLikelihood::computeDLikelihood_(const std::string& variable) cons
 {
   for (size_t i = 0; i < vpTreelik_.size(); i++)
   {
-    vpTreelik_[i]->computeDLikelihood_(variable);
+    vpTreelik_[i]->computeTreeDLikelihood(variable);
   }
 }
 

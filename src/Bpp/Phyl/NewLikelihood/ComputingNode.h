@@ -69,6 +69,12 @@ namespace bpp
     const SubstitutionModel* model_;
 
     /**
+     * @brief the scale on the branch
+     */
+
+    double scale_;
+    
+    /**
      * @brief All transition probabilities on the node.
      */
 
@@ -99,6 +105,12 @@ namespace bpp
 
     void setSubstitutionModel(const SubstitutionModel* pSM);
 
+    void setDistanceToFather(double x)
+    {
+      Node::setDistanceToFather(x);
+      update();
+    }
+    
     void computeTransitionProbabilities() const;
 
     void computeTransitionProbabilitiesD1() const;
@@ -155,6 +167,7 @@ namespace bpp
 
     void fireParameterChanged(const ParameterList& pl);
 
+    void update();
     /*
      *@brief from Node
      */

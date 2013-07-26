@@ -58,8 +58,6 @@ SubstitutionProcessCollectionMember::SubstitutionProcessCollectionMember(const S
   nRoot_(0),
   computingTree_(pSubProColl_->getTree(nTree_)->getTree(),*pSubProColl_->getDistribution(nDist_))
 {
-  addParameters_(pSubProColl_->getTree(nTree_)->getParameters());
-  addParameters_(pSubProColl_->getDistribution(nDist_)->getIndependentParameters());
 }
 
 
@@ -203,9 +201,9 @@ void SubstitutionProcessCollectionMember::addModel(size_t numModel, const std::v
       modelToNodes_[numModel].push_back(nodesId[i]);
     }
 
-
   computingTree_.addModel(nmod, nodesId);
 }
+
 
 void SubstitutionProcessCollectionMember::setRootFrequencies(size_t numFreq)
 {

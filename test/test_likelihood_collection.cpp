@@ -43,15 +43,14 @@ knowledge of the CeCILL license and that you accept its terms.
 #include <Bpp/Phyl/TreeTemplate.h>
 #include <Bpp/Phyl/Model/Nucleotide/T92.h>
 #include <Bpp/Phyl/Model/FrequenciesSet/NucleotideFrequenciesSet.h>
-#include <Bpp/Phyl/Model/RateDistribution.all>
+#include <Bpp/Phyl/Model/RateDistribution/GammaDiscreteRateDistribution.h>
 #include <Bpp/Phyl/OptimizationTools.h>
 
 #include <Bpp/Phyl/NewLikelihood/ParametrizableTree.h>
 
 #include <Bpp/Phyl/NewLikelihood/NonHomogeneousSubstitutionProcess.h>
 #include <Bpp/Phyl/NewLikelihood/SubstitutionProcessCollection.h>
-#include <Bpp/Phyl/NewLikelihood/SingleRecursiveTreeLikelihoodCalculation.h>
-#include <Bpp/Phyl/NewLikelihood/MixtureLikelihoodCollection.h>
+#include <Bpp/Phyl/NewLikelihood/MixturePhyloLikelihood.h>
 
 #include <iostream>
 
@@ -60,8 +59,8 @@ using namespace newlik;
 using namespace std;
 
 int main() {
-  TreeTemplate<Node>* tree1 = TreeTemplateTools::parenthesisToTree("(((A:0.1, B:0.2):0.3,C:0.1):0.2,(D:0.3,(E:0.2,F:0.05):0.1):0.1);");
-  TreeTemplate<Node>* tree2 = TreeTemplateTools::parenthesisToTree("(((A:0.1, C:0.2):0.4,E:0.5):0.2,(D:0.1,(B:0.2,F:0.15):0.1):0.1);");
+  TreeTemplate<Node>* tree1 = TreeTemplateTools::parenthesisToTree("(((A:0.1, B:0.2):0.3,C:0.1):0.2,D:0.3);");
+  TreeTemplate<Node>* tree2 = TreeTemplateTools::parenthesisToTree("((A:0.1, C:0.2):0.2,(D:0.1,B:0.2):0.1);");
 
   vector<string> seqNames= tree1->getLeavesNames();
   vector<int> ids = tree1->getNodesId();
@@ -84,22 +83,20 @@ int main() {
 
   NonHomogeneousSubstitutionProcess* subPro1=new NonHomogeneousSubstitutionProcess(rdist1->clone(), parTree1->clone());
 
-  int P1m1[] = {0,1,2,3,4,5};
-  Vint vP1m1(&P1m1[0], &P1m1[6]);
-  int P1m2[] = {6,7,8,9};
-  Vint vP1m2(&P1m2[0], &P1m2[4]);
+  int P1[] = {0,3,4,5,1,2};
+  Vint vP1m1(&P1[0], &P1[4]);
+  Vint vP1m2(&P1[4], &P1[sizeof(P1)/sizeof(P1[0])]);
 
   subPro1->addModel(model1->clone(),vP1m1);
   subPro1->addModel(model2->clone(),vP1m2);
   
   // Second Process
 
-  NonHomogeneousSubstitutionProcess* subPro2= new NonHomogeneousSubstitutionProcess(rdist2->clone(), parTree2->clone());
+  NonHomogeneousSubstitutionProcess* subPro2= new NonHomogeneousSubstitutionProcess(rdist2->clone(), parTree2->clone(), rootFreqs->clone());
 
-  int P2m1[] = {0,1,2,3,4};
-  Vint vP2m1(&P2m1[0], &P2m1[5]);
-  int P2m2[] = {5,6,7,8,9};
-  Vint vP2m2(&P2m2[0], &P2m2[5]);
+  int P2[] = {0,1,2,3,4,5};
+  Vint vP2m1(&P2[0], &P2[5]);
+  Vint vP2m2(&P2[5], &P2[sizeof(P2)/sizeof(P2[0])]);
 
   subPro2->addModel(model1->clone(),vP2m1);
   subPro2->addModel(model3->clone(),vP2m2);
@@ -118,10 +115,6 @@ int main() {
   modelColl->addTree(parTree1, 1);
   modelColl->addTree(parTree2, 2);
 
-  ParameterList pl=modelColl->getParameters();
-  for (size_t i=0; i<pl.size(); i++)
-    cout << pl[i].getName() << " " << pl[i].getValue() << endl;
-
   map<size_t, Vint> mModBr1;
   mModBr1[1]=vP1m1;
   mModBr1[2]=vP1m2;
@@ -132,51 +125,66 @@ int main() {
   mModBr2[1]=vP2m1;
   mModBr2[3]=vP2m2;
 
-  modelColl->addSubstitutionProcess(mModBr2, 2, 2);
+  modelColl->addSubstitutionProcess(mModBr2, 2, 2, 1);
 
   // Data
 
   VectorSiteContainer sites(alphabet);
-  sites.addSequence(BasicSequence("A", "AAATG", alphabet));
-  sites.addSequence(BasicSequence("B", "GACTG", alphabet));
-  sites.addSequence(BasicSequence("C", "CTCTG", alphabet));
-  sites.addSequence(BasicSequence("D", "AGATG", alphabet));
-  sites.addSequence(BasicSequence("E", "ACGTG", alphabet));
-  sites.addSequence(BasicSequence("F", "CAGTT", alphabet));
-
+  sites.addSequence(BasicSequence("A", "GAACACGAAAGCATGAATGTTCAGTGAGTAGATCAAATATGTCATTTCTGAATTATTATA", alphabet));
+  sites.addSequence(BasicSequence("B", "TTTGAACTGTTTGAATATAAGAAAGTTAAATATCTTATAACCAAGTAATATGTTTTAAGA", alphabet));
+  sites.addSequence(BasicSequence("C", "GTAATACTTTATAAATACTGATCAATTCAGATAATTTTCAGAACTAACATATATATTATG", alphabet));
+  sites.addSequence(BasicSequence("D", "TCGATCGAAAGCCAGGATCAACAATCTTTAACTTATATCGAAAATCATTTATGTGAAGGC", alphabet));
 
   // Likelihoods
+
+  SubstitutionProcess* sP1c=subPro1->clone();
+  SubstitutionProcess* sP2c=subPro2->clone();
+
+  SingleRecursiveTreeLikelihoodCalculation* rtl1=new SingleRecursiveTreeLikelihoodCalculation(*sites.clone(), sP1c, true, true);
+  SinglePhyloLikelihood spl1(sP1c, rtl1, true);
+  spl1.computeTreeLikelihood();
   
-  SingleRecursiveTreeLikelihoodCalculation rtl1(*sites.clone(), subPro1, true, false);
+  SingleRecursiveTreeLikelihoodCalculation* rtl2=new SingleRecursiveTreeLikelihoodCalculation(*sites.clone(), sP2c, true, true);
+  SinglePhyloLikelihood spl2(sP2c, rtl2, true);
+  spl2.computeTreeLikelihood();
+  
+  cerr << setprecision(10) << "TL1:"  << spl1.getValue() << "\tTL2:" << spl2.getValue() << endl;
+
+  MixturePhyloLikelihood mlc(*sites.clone(), modelColl);
+
+  cerr << "Mlc: " << mlc.getValue() << endl;
+
+  for (size_t pos=0; pos < sites.getNumberOfSites(); pos++){
+    double x=spl1.getLikelihoodForASite(pos) * mlc.getSubProcessProb(0) + spl2.getLikelihoodForASite(pos) * mlc.getSubProcessProb(1);
+    if (abs(x-mlc.getLikelihoodForASite(pos))>0.001)
+      cerr << "Problem on site " << x << endl;
+  }
+
+  OutputStream* profiler  = new StlOutputStream(new ofstream("profile.txt", ios::out));
+  OutputStream* messenger = new StlOutputStream(new ofstream("messages.txt", ios::out));
+
+  unsigned int c1 = OptimizationTools::optimizeNumericalParameters2(
+   &spl1, spl1.getParameters(), 0,
+   0.0001, 10000, messenger, profiler, false, false, 1, OptimizationTools::OPTIMIZATION_NEWTON);
+
+  cerr << "Opt 1: " << c1 << endl;
+  unsigned int c2 = OptimizationTools::optimizeNumericalParameters2(
+         &spl2, spl2.getParameters(), 0,
+         0.0001, 10000, messenger, profiler, false, false, 1, OptimizationTools::OPTIMIZATION_NEWTON);
+
+  cerr << "Opt 2: " << c2 << endl;
+  unsigned int cM = OptimizationTools::optimizeNumericalParameters2(
+                                                                    &mlc, mlc.getParameters(), 0,
+                                                                    0.0001, 10000, messenger, profiler, false, false, 1, OptimizationTools::OPTIMIZATION_NEWTON);
 
   
-  SingleRecursiveTreeLikelihoodCalculation rtl2(*sites.clone(), subPro2, true, true);
+  cerr << setprecision(10) << "TL1:"  << spl1.getValue() << "\tTL2:" << spl2.getValue() << endl;
+  cerr << "Opt M: " << cM << endl;
 
+  cerr << "Mlc: " << mlc.getValue() << endl;
+
+  mlc.getParameters().printParameters(std::cout);
   
-  //   for (size_t i = 0; i < nmodels; ++i) {
-  //     ntl.setParameterValue("T92.theta_" + TextTools::toString(i + 1), thetas[i]);
-  //     ntl2.setParameterValue("T92.theta_" + TextTools::toString(i + 1), thetas[i]);
-  //   }
-
-   cout << setprecision(10) << "TL1:"  << rtl1.getValue() << "\tTL2:" << rtl2.getValue() << endl;
-
-  //  cerr << modelColl.numberOfSubstitutionProcess() << endl;
-  MixtureLikelihoodCollection mlc(*sites.clone(),modelColl);
-
-  //  cout << "Mlc: " << mlc.getValue() << endl;
-  
-  //   break;
-    // unsigned int c1 = OptimizationTools::optimizeNumericalParameters2(
-    //     &tl, tl.getParameters(), 0,
-    //     0.0001, 10000, messenger, profiler, false, false, 1, OptimizationTools::OPTIMIZATION_NEWTON)
-      ;
-
-    // unsigned int c2 = OptimizationTools::optimizeNumericalParameters2(
-    //     &tl2, tl2.getParameters(), 0,
-    //     0.0001, 10000, messenger, profiler, false, false, 1, OptimizationTools::OPTIMIZATION_NEWTON);
-
-    // cout << "OldTL: " << c1 << ": " << tl.getValue() << "\t" << c2 << ": " << tl2.getValue() << endl;
-                        
   //   for (size_t i = 0; i < nmodels; ++i) {
   //     cout << modelSet2->getModel(i)->getParameter("theta").getValue() << "\t" << modelSet3->getModel(i)->getParameter("theta").getValue() << endl;
   //     //if (abs(modelSet2->getModel(i)->getParameter("theta").getValue() - modelSet3->getModel(i)->getParameter("theta").getValue()) > 0.1)
