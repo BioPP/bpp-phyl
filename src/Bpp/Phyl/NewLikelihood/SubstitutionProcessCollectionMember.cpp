@@ -98,18 +98,27 @@ void SubstitutionProcessCollectionMember::clear()
 }
 
 
-const Alphabet* SubstitutionProcessCollectionMember::getAlphabet() const
+inline const Alphabet* SubstitutionProcessCollectionMember::getAlphabet() const
 {
   return pSubProColl_->getModel(modelToNodes_.begin()->first)->getAlphabet();
 }
 
-const SubstitutionModel* SubstitutionProcessCollectionMember::getModel(size_t i) const
+inline const SubstitutionModel* SubstitutionProcessCollectionMember::getModel(size_t i) const
 {
   return pSubProColl_->getModel(i);
 }
 
+std::vector<size_t> SubstitutionProcessCollectionMember::getModelNumbers() const
+{
+  vector<size_t> vMN;
+  std::map<size_t, std::vector<int> >::const_iterator it;
+  for (it= modelToNodes_.begin(); it != modelToNodes_.end() ; it++)
+    vMN.push_back(it->first);
 
-const DiscreteDistribution* SubstitutionProcessCollectionMember::getDistribution() const
+  return vMN;
+}
+
+inline const DiscreteDistribution* SubstitutionProcessCollectionMember::getDistribution() const
 {
   return pSubProColl_->getDistribution(nDist_);
 }
@@ -143,7 +152,7 @@ ParameterList SubstitutionProcessCollectionMember::getSubstitutionModelParameter
 }
 
 
-const FrequenciesSet* SubstitutionProcessCollectionMember::getRootFrequenciesSet() const
+inline const FrequenciesSet* SubstitutionProcessCollectionMember::getRootFrequenciesSet() const
 {
   if (stationarity_)
     return 0;
@@ -151,7 +160,7 @@ const FrequenciesSet* SubstitutionProcessCollectionMember::getRootFrequenciesSet
     return pSubProColl_->getFrequencies(nRoot_);
 }
 
-const std::vector<double>& SubstitutionProcessCollectionMember::getRootFrequencies() const
+inline const std::vector<double>& SubstitutionProcessCollectionMember::getRootFrequencies() const
 {
   if (stationarity_)
     return (pSubProColl_->getModel(modelToNodes_.begin()->first))->getFrequencies();
@@ -159,17 +168,17 @@ const std::vector<double>& SubstitutionProcessCollectionMember::getRootFrequenci
     return (pSubProColl_->getFrequencies(nRoot_))->getFrequencies();
 }
 
-const TreeTemplate<Node>& SubstitutionProcessCollectionMember::getTree() const
+inline const TreeTemplate<Node>& SubstitutionProcessCollectionMember::getTree() const
 {
   return pSubProColl_->getTree(nTree_)->getTree();
 }
 
-const ParametrizableTree& SubstitutionProcessCollectionMember::getParametrizableTree() const
+inline const ParametrizableTree& SubstitutionProcessCollectionMember::getParametrizableTree() const
 {
   return *pSubProColl_->getTree(nTree_);
 }
 
-size_t SubstitutionProcessCollectionMember::getNumberOfClasses() const
+inline size_t SubstitutionProcessCollectionMember::getNumberOfClasses() const
 {
   return pSubProColl_->getDistribution(nDist_)->getNumberOfCategories();
 }
@@ -243,14 +252,17 @@ bool SubstitutionProcessCollectionMember::checkUnknownNodes(bool throwEx) const
   vector<int> ids = getTree().getNodesId();
   int id;
   int rootId = getTree().getRootId();
-  for (size_t i = 0; i < modelToNodes_.size(); i++)
+  std::map<size_t, std::vector<int> >::const_iterator it;
+  
+  for (it=modelToNodes_.begin(); it!=modelToNodes_.end(); it++)
     {
-      for (size_t j = 0; j < modelToNodes_.at(i).size(); j++)
+      for (size_t j = 0; j < it->second.size(); j++)
         {
-          id = modelToNodes_.at(i)[j];
+          id = it->second[j];
           if (id == rootId || !VectorTools::contains(ids, id))
             {
-              if (throwEx) throw Exception("SubstitutionProcessCollectionMember::checkUnknownNodes(). Node '" + TextTools::toString(id) + "' is not found in tree or is the root node.");
+              if (throwEx)
+                throw Exception("SubstitutionProcessCollectionMember::checkUnknownNodes(). Node '" + TextTools::toString(id) + "' is not found in tree or is the root node.");
               return false;
             }
         }
@@ -282,12 +294,7 @@ bool SubstitutionProcessCollectionMember::isCompatibleWith(const SiteContainer& 
 }
 
 
-bool SubstitutionProcessCollectionMember::hasTransitionProbabilitiesParameter(const std::string& name) const
-{
-  return false;
-}
-
-const SubstitutionModel* SubstitutionProcessCollectionMember::getModelForNode(int nodeId) const throw (Exception)
+inline const SubstitutionModel* SubstitutionProcessCollectionMember::getModelForNode(int nodeId) const throw (Exception)
 {
   std::map<int, size_t>::const_iterator i = nodeToModel_.find(nodeId);
   if (i == nodeToModel_.end())
@@ -295,7 +302,7 @@ const SubstitutionModel* SubstitutionProcessCollectionMember::getModelForNode(in
   return getModel(i->second);
 }
 
-size_t SubstitutionProcessCollectionMember::getNumberOfStates() const
+inline size_t SubstitutionProcessCollectionMember::getNumberOfStates() const
 {
   if (modelToNodes_.size()==0)
     return 0;
@@ -303,12 +310,12 @@ size_t SubstitutionProcessCollectionMember::getNumberOfStates() const
     return getModel(modelToNodes_.begin()->first)->getNumberOfStates();
 }
 
-const SubstitutionModel& SubstitutionProcessCollectionMember::getSubstitutionModel(int nodeId, size_t classIndex) const
+inline const SubstitutionModel& SubstitutionProcessCollectionMember::getSubstitutionModel(int nodeId, size_t classIndex) const
 {
   return *getModel(nodeToModel_.at(nodeId));
 }
 
-double SubstitutionProcessCollectionMember::getInitValue(size_t i, int state) const throw (BadIntException)
+inline double SubstitutionProcessCollectionMember::getInitValue(size_t i, int state) const throw (BadIntException)
 {
   if (modelToNodes_.size()==0)
     throw Exception("SubstitutionProcessCollectionMember::getInitValue : no model associated");
@@ -316,7 +323,7 @@ double SubstitutionProcessCollectionMember::getInitValue(size_t i, int state) co
     return getModel(modelToNodes_.begin()->first)->getInitValue(i,state);
 }
 
-double SubstitutionProcessCollectionMember::getProbabilityForModel(size_t classIndex) const {
+inline double SubstitutionProcessCollectionMember::getProbabilityForModel(size_t classIndex) const {
   if (classIndex >= getDistribution()->getNumberOfCategories())
     throw IndexOutOfBoundsException("NonHomogeneousSubstitutionProcess::getProbabilityForModel.", classIndex, 0, getDistribution()->getNumberOfCategories());
   return getDistribution()->getProbability(classIndex);

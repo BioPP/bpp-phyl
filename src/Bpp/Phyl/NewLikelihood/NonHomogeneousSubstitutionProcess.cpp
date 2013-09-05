@@ -231,25 +231,10 @@ ParameterList NonHomogeneousSubstitutionProcess::getSubstitutionModelParameters(
   return pl;
 }
 
-bool NonHomogeneousSubstitutionProcess::checkOrphanModels(bool throwEx) const
+bool NonHomogeneousSubstitutionProcess::checkOrphanNodes(bool throwEx) const
 {
-  vector<size_t> index = MapTools::getValues(nodeToModel_);
-  for (size_t i = 0; i < modelSet_.size(); i++)
-    {
-      if (!VectorTools::contains(index, i))
-        {
-          if (throwEx) throw Exception("NonHomogeneousSubstitutionProcess::checkOrphanModels(). Model '" + TextTools::toString(i + 1) + "' is associated to no node.");
-          return false;
-        }
-    }
-  return true;
-}
-
-
-bool NonHomogeneousSubstitutionProcess::checkOrphanNodes(const Tree& tree, bool throwEx) const
-{
-  vector<int> ids = tree.getNodesId();
-  int rootId = tree.getRootId();
+  vector<int> ids = getTree().getNodesId();
+  int rootId = getTree().getRootId();
   for (size_t i = 0; i < ids.size(); i++)
     {
       if (ids[i] != rootId && nodeToModel_.find(ids[i]) == nodeToModel_.end())
@@ -261,19 +246,22 @@ bool NonHomogeneousSubstitutionProcess::checkOrphanNodes(const Tree& tree, bool 
   return true;
 }
 
-bool NonHomogeneousSubstitutionProcess::checkUnknownNodes(const Tree& tree, bool throwEx) const
+bool NonHomogeneousSubstitutionProcess::checkUnknownNodes(bool throwEx) const
 {
-  vector<int> ids = tree.getNodesId();
+  vector<int> ids = getTree().getNodesId();
   int id;
-  int rootId = tree.getRootId();
-  for (size_t i = 0; i < modelToNodes_.size(); i++)
+  int rootId = getTree().getRootId();
+  std::map<size_t, std::vector<int> >::const_iterator it;
+  
+  for (it=modelToNodes_.begin(); it!=modelToNodes_.end(); it++)
     {
-      for (size_t j = 0; j < modelToNodes_[i].size(); j++)
+      for (size_t j = 0; j < it->second.size(); j++)
         {
-          id = modelToNodes_[i][j];
+          id = it->second[j];
           if (id == rootId || !VectorTools::contains(ids, id))
             {
-              if (throwEx) throw Exception("NonHomogeneousSubstitutionProcess::checkUnknownNodes(). Node '" + TextTools::toString(id) + "' is not found in tree or is the root node.");
+              if (throwEx)
+                throw Exception("NonHomogeneousSubstitutionProcess::checkUnknownNodes(). Node '" + TextTools::toString(id) + "' is not found in tree or is the root node.");
               return false;
             }
         }

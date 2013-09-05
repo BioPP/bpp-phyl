@@ -157,7 +157,7 @@ void Newick::read(istream& in, vector<Tree*>& trees) const throw (Exception)
 
 /******************************************************************************/
 
-void Newick::write_(const vector<Tree*>& trees, ostream& out) const throw (Exception)
+void Newick::write_(const vector<const Tree*>& trees, ostream& out) const throw (Exception)
 {
   // Checking the existence of specified file, and possibility to open it in write mode
   if (! out) { throw IOException ("Newick::write: failed to write to stream"); }

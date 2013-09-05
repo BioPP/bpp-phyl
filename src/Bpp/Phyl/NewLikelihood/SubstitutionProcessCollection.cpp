@@ -187,6 +187,13 @@ void SubstitutionProcessCollection::fireParameterChanged(const ParameterList& pa
 
 void SubstitutionProcessCollection::addSubstitutionProcess(std::map<size_t, std::vector<int> > mModBr, size_t nTree, size_t nRate, size_t nFreq)
 {
+  if (!freqColl_.hasObject(nFreq))
+    throw BadIntegerException("Wrong Root Frequencies Set number",(int)nFreq);
+  if (!treeColl_.hasObject(nTree))
+    throw BadIntegerException("Wrong Tree number",(int)nTree);
+  if (!distColl_.hasObject(nRate))
+    throw BadIntegerException("Wrong Rate distribution number",(int)nRate);
+
   SubstitutionProcessCollectionMember* nSMS=new SubstitutionProcessCollectionMember(this, nTree, nRate);
   nSMS->setRootFrequencies(nFreq);
 
@@ -195,6 +202,9 @@ void SubstitutionProcessCollection::addSubstitutionProcess(std::map<size_t, std:
     nSMS->addModel(it->first, it->second);
     mModelToSubPro_[it->first].push_back(vSubProcess_.size());
   }
+  
+  nSMS->isFullySetUp();
+
   mTreeToSubPro_[nTree].push_back(vSubProcess_.size());
   mDistToSubPro_[nRate].push_back(vSubProcess_.size());
   mFreqToSubPro_[nFreq].push_back(vSubProcess_.size());
@@ -204,6 +214,11 @@ void SubstitutionProcessCollection::addSubstitutionProcess(std::map<size_t, std:
 
 void SubstitutionProcessCollection::addSubstitutionProcess(std::map<size_t, std::vector<int> > mModBr, size_t nTree, size_t nRate)
 {
+  if (!treeColl_.hasObject(nTree))
+    throw BadIntegerException("Wrong Tree number",(int)nTree);
+  if (!distColl_.hasObject(nRate))
+    throw BadIntegerException("Wrong Rate distribution number",(int)nRate);
+
   SubstitutionProcessCollectionMember* nSMS=new SubstitutionProcessCollectionMember(this, nTree, nRate);
 
   std::map<size_t, std::vector<int> >::iterator it;
@@ -211,6 +226,9 @@ void SubstitutionProcessCollection::addSubstitutionProcess(std::map<size_t, std:
     nSMS->addModel(it->first, it->second);
     mModelToSubPro_[it->first].push_back(vSubProcess_.size());
   }
+
+  nSMS->isFullySetUp();
+  
   mTreeToSubPro_[nTree].push_back(vSubProcess_.size());
   mDistToSubPro_[nRate].push_back(vSubProcess_.size());
   
@@ -235,4 +253,9 @@ ParameterList SubstitutionProcessCollection::getSubstitutionProcessParameters() 
 SubstitutionProcess* SubstitutionProcessCollection::getSubstitutionProcess(size_t  i)
 {
   return dynamic_cast<SubstitutionProcess*>(vSubProcess_[i]);
+}
+
+const SubstitutionProcess* SubstitutionProcessCollection::getSubstitutionProcess(size_t  i) const
+{
+  return dynamic_cast<const SubstitutionProcess*>(vSubProcess_[i]);
 }

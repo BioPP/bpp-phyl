@@ -98,7 +98,7 @@ namespace bpp
    * frequencies, the model can be considered as stationary. In such a
    * model, the process is supposed to be at equilibrium all along the
    * trees, including at the root. Whether a model should be considered
-   * as stationary or not is left to the user. If the "asumme
+   * as stationary or not is left to the user. If the "assume
    * stationarity" option is set when building the set, then no
    * FrequenciesSet object is used, but the frequencies are taken to be
    * the same as the one at the first model in the set. Nothing hence
@@ -416,7 +416,12 @@ namespace bpp
     {
       return (rDist_.get()?rDist_->getIndependentParameters():ParameterList());
     }
-  
+
+    const DiscreteDistribution& getRateDistribution() const
+    {
+      return *rDist_;
+    }
+
     /**
      * @brief Get the parameters corresponding to the models.
      *
@@ -425,25 +430,6 @@ namespace bpp
     ParameterList getSubstitutionModelParameters() const;
     
     /**
-     * @brief Get the parameters attached to the nodes of the tree.
-     *
-     * That is, all the parameters without the root frequencies.
-     *
-     * @return The parameters attached to the nodes of the tree.
-     */
-  
-    ParameterList getNodeParameters() const;
-    // {
-    //   ParameterList pl;
-    //   for (size_t i = stationarity_ ? 0 : rootFrequencies_->getNumberOfParameters();
-    //       i < getNumberOfParameters(); i++)
-    //   {
-    //     pl.addParameter(getParameter_(i));
-    //   }
-    //   return pl;
-    // }
-
-    /**
      * @brief Check if the model set is fully specified for a given tree.
      *
      * This include:
@@ -451,15 +437,13 @@ namespace bpp
      * - that each model in the set is attributed to a node,
      * - all nodes ids in the set refer to an existing node in the tree.
      *
-     * @param tree The tree to check.
      * @param throwEx Tell if an exception have to be thrown in case of test not passed.
      */
 
-    bool isFullySetUpFor(const Tree& tree, bool throwEx = true) const
+    bool isFullySetUp(bool throwEx = true) const
     {
-      return checkOrphanModels(throwEx)
-        && checkOrphanNodes(tree, throwEx)
-        && checkUnknownNodes(tree, throwEx);
+      return checkOrphanNodes(throwEx)
+        && checkUnknownNodes(throwEx);
     }
 
   protected:
@@ -478,11 +462,9 @@ namespace bpp
      *
      * @{
      */
-    bool checkOrphanModels(bool throwEx) const;
-
-    bool checkOrphanNodes(const Tree& tree, bool throwEx) const;
+    bool checkOrphanNodes(bool throwEx) const;
     
-    bool checkUnknownNodes(const Tree& tree, bool throwEx) const;
+    bool checkUnknownNodes(bool throwEx) const;
 
   public:
 

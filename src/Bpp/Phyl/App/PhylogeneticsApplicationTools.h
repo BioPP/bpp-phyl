@@ -59,6 +59,7 @@
 #include "../NewLikelihood/SubstitutionProcess.h"
 #include "../NewLikelihood/PhyloLikelihood.h"
 #include "../NewLikelihood/SubstitutionProcessCollection.h"
+#include "../NewLikelihood/SubstitutionProcessCollectionMember.h"
 
 // From SeqLib:
 #include <Bpp/Seq/Container/SiteContainer.h>
@@ -248,7 +249,6 @@ namespace bpp
                                                  const GeneticCode* gCode,
                                                  const SiteContainer* data, 
                                                  std::map<std::string, std::string>& params,
-                                                 const std::vector<double>& rateFreqs,
                                                  const std::string& suffix = "",
                                                  bool suffixIsOptional = true,
                                                  bool verbose = true) throw (Exception);
@@ -421,14 +421,29 @@ namespace bpp
      */
     
     static SubstitutionProcess* setSubstitutionProcess(
-                                       const Alphabet* alphabet,
-                                       const GeneticCode* gCode,
-                                       const SiteContainer* data, 
-                                       std::map<std::string, std::string>& params,
-                                       const std::string& suffix = "",
-                                       bool suffixIsOptional = true,
-                                       bool verbose = true);
+        const Alphabet* alphabet,
+        const GeneticCode* gCode,
+        const SiteContainer* data, 
+        std::map<std::string, std::string>& params,
+        const std::string& suffix = "",
+        bool suffixIsOptional = true,
+        bool verbose = true);
     
+    static SubstitutionProcessCollection* setSubstitutionProcessCollection(
+        const Alphabet* alphabet,
+        const GeneticCode* gCode,
+        const SiteContainer* data,
+        map<string, string>& params,
+        const string& suffix = "",
+        bool suffixIsOptional  = true,
+        bool verbose = true);
+      
+    static void addSubstitutionProcessCollectionMember(
+        SubstitutionProcessCollection* SubProColl, 
+        map<string, string>& params,
+        const string& suffix = "",
+        bool verbose = true);
+
     /**
      * @brief Complete a MixedSubstitutionModelSet object according to
      * options, given this model has already been filled through
@@ -549,9 +564,9 @@ namespace bpp
     
     static std::map<size_t, DiscreteDistribution*> getRateDistributions(
           map<string, string>& params,
-          const string& suffix,
-          bool suffixIsOptional,
-          bool verbose)
+          const string& suffix = "",
+          bool suffixIsOptional = true,
+          bool verbose = true)
       throw (Exception);
 
     /**
@@ -722,7 +737,16 @@ namespace bpp
      * @throw Exception if an error occured.
      */
     static void writeTrees(
-        const std::vector<Tree*>& trees,
+        const std::vector<const Tree*>& trees,
+        std::map<std::string, std::string>& params,
+        const std::string& prefix = "output.",
+        const std::string& suffix = "",
+        bool suffixIsOptional = true,
+        bool verbose = true,
+        bool checkOnly = false) throw (Exception);
+
+    static void writeTrees(
+        const std::vector<const TreeTemplate<Node>* >& trees,
         std::map<std::string, std::string>& params,
         const std::string& prefix = "output.",
         const std::string& suffix = "",
@@ -740,8 +764,6 @@ namespace bpp
      */
     static void printParameters(const SubstitutionModel* model, OutputStream& out);
 
-
-
     /**
      * @brief Output a SubstitutionModelSet description to a file.
      *
@@ -750,7 +772,32 @@ namespace bpp
      */
     static void printParameters(const SubstitutionModelSet* modelSet, OutputStream& out);
 
+    /**
+     * @brief Output a SubstitutionProcess description to a file.
+     *
+     * @param process The process to serialize.
+     * @param out      The stream where to print.
+     */
+    
+    static void printParameters(const SubstitutionProcess* process, OutputStream& out);
 
+    /**
+     * @brief Output a SubstitutionProcessCollection description to a file.
+     *
+     * @param collection The process collection to serialize.
+     * @param out      The stream where to print.
+     */
+
+    static void printParameters(const SubstitutionProcessCollection* collection, OutputStream& out);
+
+    /**
+     * @brief Output a PhyloLikelihood description to a file.
+     *
+     * @param phylolike The PhyloLikelihood collection to serialize.
+     * @param out       The stream where to print.
+     */
+
+    static void printParameters(const newlik::PhyloLikelihood* phylolike, OutputStream& out);
 
     /**
      * @brief Output a DiscreteDistribution description to a file.

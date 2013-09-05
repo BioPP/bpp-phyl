@@ -200,6 +200,13 @@ public:
   virtual double getD2LogLikelihoodForASite(size_t site) const;
 
   /**
+   * @brief The collection
+   *
+   */
+
+  const SubstitutionProcessCollection* getCollection() const { return processColl_.get(); }
+
+  /**
    * @brief To be defined in inheriting classes.
    *
    */
@@ -234,16 +241,18 @@ public:
   bool enableSecondOrderDerivatives() const { return computeSecondOrderDerivatives_; }
   bool isInitialized() const { return initialized_; }
 
-  ParameterList getSubstitutionProcessParameters() const { return processColl_->getSubstitutionProcessParameters(); }
+  ParameterList getSubstitutionProcessParameters() const;
 
-  ParameterList getSubstitutionModelParameters() const { return processColl_->getSubstitutionModelParameters(); }
+  ParameterList getSubstitutionModelParameters() const;
 
-  ParameterList getRateDistributionParameters() const { return processColl_->getRateDistributionParameters(); }
+  ParameterList getRateDistributionParameters() const;
 
-  ParameterList getRootFrequenciesParameters() const { return processColl_->getRootFrequenciesParameters(); }
+  ParameterList getRootFrequenciesParameters() const;
 
-  ParameterList getBranchLengthsParameters() const { return processColl_->getBranchLengthsParameters(); }
+  ParameterList getBranchLengthsParameters() const;
 
+  std::vector<const TreeTemplate<Node>* > getTrees() const;
+    
   //    ParameterList getTransitionProbabilitiesParameters() const { return process_->getTransitionProbabilitiesParameters(); }
   // TODO: this has to be modified to deal with special cases...
 

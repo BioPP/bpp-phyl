@@ -89,6 +89,11 @@ public:
     return *model_;
   }
 
+  const DiscreteDistribution& getRateDistribution() const
+  {
+    return *rDist_;
+  }
+
   const Matrix<double>& getTransitionProbabilities(int nodeId, size_t classIndex) const;
 
   const Matrix<double>& getTransitionProbabilitiesD1(int nodeId, size_t classIndex) const;

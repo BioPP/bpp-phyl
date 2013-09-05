@@ -169,7 +169,7 @@ namespace bpp
     
   public:
 
-    inline const Alphabet* getAlphabet() const;
+    const Alphabet* getAlphabet() const;
 
     /**
      * @return The current number of distinct substitution models in this set.
@@ -189,8 +189,10 @@ namespace bpp
      * @return A pointer toward the corresponding model.
      */
   
-    inline const SubstitutionModel* getModel(size_t i) const;
-    
+    const SubstitutionModel* getModel(size_t i) const;
+
+    std::vector<size_t> getModelNumbers() const;
+
     /**
      * @brief Get the index in the set of the model associated to a particular node id.
      *
@@ -215,7 +217,7 @@ namespace bpp
      * @throw Exception If no model is found for this node.
      */
 
-    inline const SubstitutionModel* getModelForNode(int nodeId) const throw (Exception);
+    const SubstitutionModel* getModelForNode(int nodeId) const throw (Exception);
   
     /**
      * @brief Get a list of nodes id for which the given model is associated.
@@ -250,8 +252,10 @@ namespace bpp
      *
      **/
 
-    inline const DiscreteDistribution* getDistribution() const;
-  
+    const DiscreteDistribution* getDistribution() const;
+
+    const size_t getDistributionNumber() const { return nDist_;}
+    
     /*
      * @brief Set the ro Frequencies Set
      * @param freqIndex the index of the frequencies in the collection.
@@ -259,13 +263,15 @@ namespace bpp
      */
 
     void setRootFrequencies(size_t numFreq);
-  
+
+    const size_t getRootFrequenciesNumber() const { return nRoot_;}
+
     /**
      * @return The set of root frequencies.
      *
      */
   
-    inline const FrequenciesSet* getRootFrequenciesSet() const;
+    const FrequenciesSet* getRootFrequenciesSet() const;
 
     /**
      *  @brief void function for backward compatibilities. To be removed afterwards.
@@ -291,8 +297,7 @@ namespace bpp
 
     bool isFullySetUp(bool throwEx = true) const
     {
-      return checkOrphanModels(throwEx)
-        && checkOrphanNodes(throwEx)
+      return checkOrphanNodes(throwEx)
         && checkUnknownNodes(throwEx);
     }
 
@@ -303,8 +308,6 @@ namespace bpp
      *
      * @{
      */
-    bool checkOrphanModels(bool throwEx) const throw (Exception);
-
     bool checkOrphanNodes(bool throwEx) const throw (Exception);
 
     bool checkUnknownNodes(bool throwEx) const throw (Exception);
@@ -318,7 +321,7 @@ namespace bpp
   
     bool isCompatibleWith(const SiteContainer& data) const;
 
-    inline bool hasTransitionProbabilitiesParameter(const std::string& name) const;
+    bool hasTransitionProbabilitiesParameter(const std::string& name) const { return false;}
 
     /**
      * @brief Get the number of states associated to this model set.
@@ -327,19 +330,25 @@ namespace bpp
      * the set.
      */
     
-    inline size_t getNumberOfStates() const;
+    size_t getNumberOfStates() const;
 
     /**
      * @return The values of the root frequencies.
      */
   
-    inline const std::vector<double>& getRootFrequencies() const;
+    const std::vector<double>& getRootFrequencies() const;
 
-    inline const TreeTemplate<Node>& getTree() const;
+    /**
+     * @return the Tree
+     */
     
-    inline const ParametrizableTree& getParametrizableTree() const;
+    const TreeTemplate<Node>& getTree() const;
+    
+    const ParametrizableTree& getParametrizableTree() const;
 
-    inline size_t getNumberOfClasses() const;
+    size_t getTreeNumber() const { return nTree_;}
+    
+    size_t getNumberOfClasses() const;
     
     /**
      * @brief Get the substitution model corresponding to a certain branch, site pattern, and model class.
@@ -420,7 +429,7 @@ namespace bpp
      * @see SubstitutionModel
      */
 
-    inline double getInitValue(size_t i, int state) const throw (BadIntException);
+    double getInitValue(size_t i, int state) const throw (BadIntException);
     
     double getProbabilityForModel(size_t classIndex) const;
 

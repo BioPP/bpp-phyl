@@ -208,11 +208,11 @@ class Nhx:
      *
      * @{
      */
-    void write(const std::vector<Tree*>& trees, const std::string& path, bool overwrite = true) const throw (Exception)
+    void write(const std::vector<const Tree*>& trees, const std::string& path, bool overwrite = true) const throw (Exception)
     {
       AbstractOMultiTree::write(trees, path, overwrite);
     }
-    void write(const std::vector<Tree*>& trees, std::ostream& out) const throw (Exception)
+    void write(const std::vector<const Tree*>& trees, std::ostream& out) const throw (Exception)
     {
       write_(trees, out);
     }
@@ -257,7 +257,7 @@ class Nhx:
     template<class N>
     void write_(const TreeTemplate<N>& tree, std::ostream& out) const throw (Exception);
     
-    void write_(const std::vector<Tree*>& trees, std::ostream& out) const throw (Exception);
+    void write_(const std::vector<const Tree*>& trees, std::ostream& out) const throw (Exception);
     
     template<class N>
     void write_(const std::vector<TreeTemplate<N>*>& trees, std::ostream& out) const throw (Exception);

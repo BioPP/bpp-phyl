@@ -61,6 +61,7 @@ namespace newlik
  * (through a Simplex).
  *
  */
+
 class MixturePhyloLikelihood :
   public MultiPhyloLikelihood
 {
@@ -105,8 +106,14 @@ public:
   {
     return simplex_.prob(i);
   }
-  
 
+  /**
+   * @brief Set the probabilities of the subprocess
+   *
+   */
+  
+  void setSubProcessProb(const Simplex& si);
+  
   /**
    * @name The likelihood functions.
    *

@@ -65,6 +65,7 @@ MultiPhyloLikelihood::MultiPhyloLikelihood(
   vpTreelik_()
 {
   // initialize parameters:
+  
   addParameters_(processColl_->getIndependentParameters());
 
   if (recursivity_ != 'S')
@@ -162,6 +163,42 @@ double MultiPhyloLikelihood::getLogLikelihood() const
     ll += la[i - 1];
   }
   return ll;
+}
+
+ParameterList MultiPhyloLikelihood::getSubstitutionProcessParameters() const
+{
+  return processColl_->getSubstitutionProcessParameters();
+}
+
+ParameterList MultiPhyloLikelihood::getSubstitutionModelParameters() const
+{
+  return processColl_->getSubstitutionModelParameters();
+}
+
+ParameterList MultiPhyloLikelihood::getRateDistributionParameters() const
+{
+  return processColl_->getRateDistributionParameters();
+}
+
+ParameterList MultiPhyloLikelihood::getRootFrequenciesParameters() const
+{
+  return processColl_->getRootFrequenciesParameters();
+}
+
+ParameterList MultiPhyloLikelihood::getBranchLengthsParameters() const
+{
+  return processColl_->getBranchLengthsParameters();
+}
+
+std::vector<const TreeTemplate<Node>* > MultiPhyloLikelihood::getTrees() const
+{
+  std::vector<const TreeTemplate<Node>* > vT;
+  size_t i=1;
+  while (processColl_->hasTreeNumber(i)){
+    vT.push_back(&(processColl_->getTree(i)->getTree()));
+    i++;
+  }
+  return vT;
 }
 
 /******************************************************************************/

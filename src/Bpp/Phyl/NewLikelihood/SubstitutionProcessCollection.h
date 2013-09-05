@@ -339,6 +339,26 @@ public:
     return treeColl_.keys();
   }
 
+  bool hasModelNumber(size_t n) const
+  {
+    return modelColl_.hasObject(n);
+  }
+
+  bool hasFrequenciesNumber(size_t n) const
+  {
+    return freqColl_.hasObject(n);
+  }
+
+  bool hasDistributionNumber(size_t n) const 
+  {
+    return distColl_.hasObject(n);
+  }
+
+  bool hasTreeNumber(size_t n) const
+  {
+    return treeColl_.hasObject(n);
+  }
+
 
   /**
    * @brief To be called when a parameter has changed. This will call
@@ -385,7 +405,9 @@ public:
   size_t getNumberOfSubstitutionProcess() const { return vSubProcess_.size(); }
 
   SubstitutionProcess* getSubstitutionProcess(size_t  i);
-    
+
+  const SubstitutionProcess* getSubstitutionProcess(size_t  i) const;
+
   /*
    * @brief Methods to retrieve parameters
    *

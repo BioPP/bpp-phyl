@@ -65,15 +65,21 @@ MixturePhyloLikelihood::MixturePhyloLikelihood(
   simplex_(processColl_->getNumberOfSubstitutionProcess(), 1)
 {
   // initialize parameters:
-  addParameters_(simplex_.getIndependentParameters());
+  addParameters_(simplex_.getParameters());
   minusLogLik_ = -getLogLikelihood();
+}
+
+void MixturePhyloLikelihood::setSubProcessProb(const Simplex& si)
+{
+  simplex_.setFrequencies(si.getFrequencies());
+  matchParametersValues(simplex_.getParameters());
 }
 
 void MixturePhyloLikelihood::fireParameterChanged(const ParameterList& parameters)
 {
   MultiPhyloLikelihood::fireParameterChanged(parameters);
   simplex_.matchParametersValues(parameters);
-
+  
   minusLogLik_ = -getLogLikelihood();
 }
 
