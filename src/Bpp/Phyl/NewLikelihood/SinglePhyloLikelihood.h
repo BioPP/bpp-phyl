@@ -264,7 +264,7 @@ public:
   //    ParameterList getTransitionProbabilitiesParameters() const { return process_->getTransitionProbabilitiesParameters(); }
   // TODO: this has to be modified to deal with special cases...
   ParameterList getDerivableParameters() const { return getBranchLengthsParameters(); }
-  ParameterList getNonDerivableParameters() const { return getSubstitutionProcessParameters(); }
+  ParameterList getNonDerivableParameters() const;
 
 
   double getLogLikelihood() const {

@@ -62,6 +62,9 @@ SinglePhyloLikelihood::SinglePhyloLikelihood(
   
   // initialize parameters:
   addParameters_(process_->getIndependentParameters());
+
+  tlComp_->computeTreeLikelihood();
+  minusLogLik_ = - tlComp_->getLogLikelihood();
 }
 
 /******************************************************************************/
@@ -151,6 +154,17 @@ VVVdouble SinglePhyloLikelihood::getLikelihoodForEachSiteForEachClassForEachStat
     }
   }
   return l;
+}
+
+/******************************************************************************/
+
+ParameterList SinglePhyloLikelihood::getNonDerivableParameters() const
+{
+  ParameterList pl=getSubstitutionModelParameters();
+  pl.addParameters(getRootFrequenciesParameters());
+  pl.addParameters(getRateDistributionParameters());
+
+  return pl;
 }
 
 /******************************************************************************/

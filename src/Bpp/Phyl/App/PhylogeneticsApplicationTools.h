@@ -155,6 +155,7 @@ namespace bpp
      * @return A new SubstitutionModel object according to options specified.
      * @throw Exception if an error occured.
      */
+    
     static SubstitutionModel* getSubstitutionModel(
         const Alphabet* alphabet,
         const GeneticCode* gCode,
@@ -285,6 +286,7 @@ namespace bpp
      * See setSubstitutionModelSet and setMixedSubstitutionModelSet
      * methods.
      */
+    
      static SubstitutionModelSet* getSubstitutionModelSet(
          const Alphabet* alphabet,
          const GeneticCode* gcode,
@@ -420,7 +422,7 @@ namespace bpp
      * @throw Exception if an error occured.
      */
     
-    static SubstitutionProcess* setSubstitutionProcess(
+    static SubstitutionProcess* getSubstitutionProcess(
         const Alphabet* alphabet,
         const GeneticCode* gCode,
         const SiteContainer* data, 
@@ -429,7 +431,7 @@ namespace bpp
         bool suffixIsOptional = true,
         bool verbose = true);
     
-    static SubstitutionProcessCollection* setSubstitutionProcessCollection(
+    static SubstitutionProcessCollection* getSubstitutionProcessCollection(
         const Alphabet* alphabet,
         const GeneticCode* gCode,
         const SiteContainer* data,

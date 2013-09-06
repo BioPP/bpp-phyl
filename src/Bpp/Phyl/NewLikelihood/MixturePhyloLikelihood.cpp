@@ -87,6 +87,7 @@ ParameterList MixturePhyloLikelihood::getNonDerivableParameters() const
 {
   ParameterList pl = processColl_->getNonDerivableParameters();
   pl.addParameters(simplex_.getParameters());
+  
   return pl;
 }
 

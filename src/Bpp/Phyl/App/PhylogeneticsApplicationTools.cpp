@@ -139,8 +139,8 @@ vector<Tree*> PhylogeneticsApplicationTools::getTrees(
   bool suffixIsOptional,
   bool verbose) throw (Exception)
 {
-  string format = ApplicationTools::getStringParameter(prefix + "trees.format", params, "Newick", suffix, suffixIsOptional, true);
-  string treeFilePath = ApplicationTools::getAFilePath(prefix + "trees.file", params, true, true, suffix, suffixIsOptional);
+  string format = ApplicationTools::getStringParameter(prefix + "tree.format", params, "Newick", suffix, suffixIsOptional, true);
+  string treeFilePath = ApplicationTools::getAFilePath(prefix + "tree.file", params, true, true, suffix, suffixIsOptional);
 
   IMultiTree* treeReader;
   if (format == "Newick")
@@ -505,7 +505,7 @@ FrequenciesSet* PhylogeneticsApplicationTools::getFrequenciesSet(
 /******************************************************************************/
 
 
-SubstitutionProcess* PhylogeneticsApplicationTools::setSubstitutionProcess(
+SubstitutionProcess* PhylogeneticsApplicationTools::getSubstitutionProcess(
   const Alphabet* alphabet,
   const GeneticCode* gCode,
   const SiteContainer* data,
@@ -521,7 +521,6 @@ SubstitutionProcess* PhylogeneticsApplicationTools::setSubstitutionProcess(
   // Tree
   
   auto_ptr<ParametrizableTree> pTree(new ParametrizableTree(*getTree(params)));
-  
 
   //////////////////////////
   // Rates
@@ -529,7 +528,8 @@ SubstitutionProcess* PhylogeneticsApplicationTools::setSubstitutionProcess(
   auto_ptr<DiscreteDistribution> rDist(getRateDistribution(params));
 
   BppOSubstitutionModelFormat bIO(BppOSubstitutionModelFormat::ALL, true, true, true, false);
-
+  bIO.setGeneticCode(gCode);
+  
   string tmpDesc;
 
   if (nhOpt=="no")
@@ -620,8 +620,8 @@ SubstitutionProcess* PhylogeneticsApplicationTools::setSubstitutionProcess(
 
   bIO.setVerbose(true);
 
-  auto_ptr<NonHomogeneousSubstitutionProcess> nhSP(new NonHomogeneousSubstitutionProcess(rDist.release(), pTree.release()));
-                                                   
+  auto_ptr<NonHomogeneousSubstitutionProcess> nhSP(new NonHomogeneousSubstitutionProcess(rDist.release(), pTree.release(),rootFrequencies.release()));
+
   map<string, double> existingParameters;
   
   for (size_t i = 0; i < nbModels; i++)
@@ -653,7 +653,6 @@ SubstitutionProcess* PhylogeneticsApplicationTools::setSubstitutionProcess(
       nhSP->aliasParameters(it->second, it->first);
   }
 
-  
   nhSP->isFullySetUp();
                                                    
   
@@ -810,7 +809,7 @@ void PhylogeneticsApplicationTools::addSubstitutionProcessCollectionMember(
 /******************************************************************************/
 
 
-SubstitutionProcessCollection* PhylogeneticsApplicationTools::setSubstitutionProcessCollection(
+SubstitutionProcessCollection* PhylogeneticsApplicationTools::getSubstitutionProcessCollection(
        const Alphabet* alphabet,
        const GeneticCode* gCode,
        const SiteContainer* data,
@@ -1638,9 +1637,13 @@ PhyloLikelihood* PhylogeneticsApplicationTools::optimizeParameters(
   if (verbose)
     ApplicationTools::displayResult("Profiler", prPath);
 
-  // bool scaleFirst = ApplicationTools::getBooleanParameter("optimization.scale_first", params, false, suffix, suffixIsOptional, false);
-  // if (scaleFirst)
-  //   {
+  bool scaleFirst = ApplicationTools::getBooleanParameter("optimization.scale_first", params, false, suffix, suffixIsOptional, false);
+  if (scaleFirst)
+    {
+      ApplicationTools::displayError("Sorry, optimization.scale_first not implemented yet for process.");
+      exit(-1);
+    }
+   
   //     // We scale the tree before optimizing each branch length separately:
   //     if (verbose)
   //       ApplicationTools::displayMessage("Scaling the tree before optimizing each branch length separately.");
@@ -1743,7 +1746,7 @@ PhyloLikelihood* PhylogeneticsApplicationTools::optimizeParameters(
         }
     }
 
-
+ 
   unsigned int nbEvalMax = ApplicationTools::getParameter<unsigned int>("optimization.max_number_f_eval", params, 1000000, suffix, suffixIsOptional);
   if (verbose)
     ApplicationTools::displayResult("Max # ML evaluations", TextTools::toString(nbEvalMax));
@@ -2231,8 +2234,8 @@ void PhylogeneticsApplicationTools::writeTrees(
   bool verbose,
   bool checkOnly) throw (Exception)
 {
-  string format = ApplicationTools::getStringParameter(prefix + "trees.format", params, "Newick", suffix, suffixIsOptional, false);
-  string file = ApplicationTools::getAFilePath(prefix + "trees.file", params, true, false, suffix, suffixIsOptional);
+  string format = ApplicationTools::getStringParameter(prefix + "tree.format", params, "Newick", suffix, suffixIsOptional, false);
+  string file = ApplicationTools::getAFilePath(prefix + "tree.file", params, true, false, suffix, suffixIsOptional);
   OMultiTree* treeWriter;
   if (format == "Newick")
     treeWriter = new Newick();
@@ -2260,8 +2263,8 @@ void PhylogeneticsApplicationTools::writeTrees(
    bool verbose,
    bool checkOnly) throw (Exception)
 {
-  string format = ApplicationTools::getStringParameter(prefix + "trees.format", params, "Newick", suffix, suffixIsOptional, false);
-  string file = ApplicationTools::getAFilePath(prefix + "trees.file", params, true, false, suffix, suffixIsOptional);
+  string format = ApplicationTools::getStringParameter(prefix + "tree.format", params, "Newick", suffix, suffixIsOptional, false);
+  string file = ApplicationTools::getAFilePath(prefix + "tree.file", params, true, false, suffix, suffixIsOptional);
   OMultiTree* treeWriter;
   if (format == "Newick")
     treeWriter = new Newick();

@@ -66,7 +66,7 @@ protected:
   bool verbose_;
     
 public:
-  AbstractTreeLikelihoodCalculation(const SubstitutionProcess* process, bool verbose = true):
+  AbstractTreeLikelihoodCalculation(SubstitutionProcess* process, bool verbose = true):
     process_(process),
     data_(0),
     nbSites_(0),

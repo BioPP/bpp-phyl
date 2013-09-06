@@ -297,7 +297,7 @@ bool NonHomogeneousSubstitutionProcess::hasTransitionProbabilitiesParameter(cons
   size_t pos=name.rfind("_");
   if (pos==string::npos)
     return false;
-  unsigned int vpos=atoi(name.substr(pos).c_str());
+  unsigned int vpos=atoi(name.substr(pos+1).c_str());
   return (vpos <= modelSet_.size() && vpos>0);
 }
 

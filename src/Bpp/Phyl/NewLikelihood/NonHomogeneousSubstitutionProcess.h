@@ -169,6 +169,9 @@ namespace bpp
       modelParameters_(),
       stationarity_(true)
     {
+      // Add parameters:
+      addParameters_(tree->getParameters());  //Branch lengths
+      addParameters_(rdist->getParameters());  
     }
 
     /**
@@ -190,6 +193,8 @@ namespace bpp
       modelParameters_(),
       stationarity_(false)
     {
+      addParameters_(tree->getParameters());  //Branch lengths
+      addParameters_(rdist->getParameters());  
       setRootFrequencies(rootFreqs);
     }
 
