@@ -426,6 +426,7 @@ namespace bpp
         const Alphabet* alphabet,
         const GeneticCode* gCode,
         const SiteContainer* data, 
+        const vector<Tree*> vTree, 
         std::map<std::string, std::string>& params,
         const std::string& suffix = "",
         bool suffixIsOptional = true,
@@ -435,6 +436,7 @@ namespace bpp
         const Alphabet* alphabet,
         const GeneticCode* gCode,
         const SiteContainer* data,
+        const vector<Tree*> vTree, 
         map<string, string>& params,
         const string& suffix = "",
         bool suffixIsOptional  = true,
@@ -782,6 +784,15 @@ namespace bpp
      */
     
     static void printParameters(const SubstitutionProcess* process, OutputStream& out);
+
+    /**
+     * @brief Output information on the computation to a file.
+     *
+     * @param process The process to serialize.
+     * @param out      The stream where to print.
+     */
+    
+    static void printAnalysisInformation(const newlik::PhyloLikelihood* phylolike, OutputStream& out);
 
     /**
      * @brief Output a SubstitutionProcessCollection description to a file.

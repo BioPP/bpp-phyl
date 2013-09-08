@@ -125,3 +125,23 @@ double MixturePhyloLikelihood::getD2LikelihoodForASite(size_t site) const
 }
 
 
+/******************************************************************************/
+
+VVdouble MixturePhyloLikelihood::getPosteriorProbabilitiesOfEachProcess() const
+{
+  size_t nbSites   = getNumberOfSites();
+  size_t nbProcess = getNumberOfSubstitutionProcess();
+
+  VVdouble pb = getLikelihoodForEachSiteForEachProcess();
+  Vdouble l = getLikelihoodForEachSite();
+
+  for (size_t i = 0; i < nbSites; ++i)
+  {
+    for (size_t j = 0; j < nbProcess; ++j)
+    {
+      pb[i][j] = pb[i][j] * getSubProcessProb(j) / l[i];
+    }
+  }
+  return pb;
+}
+

@@ -128,6 +128,8 @@ void AbstractSubstitutionProcess::fireParameterChanged(const ParameterList& pl)
 {
   AbstractParameterAliasable::fireParameterChanged(pl);
 
+  pTree_->matchParametersValues(pl);
+  
   for (size_t i = 0; i < computeProbability_.size(); ++i) {
     computeProbability_[i] = false;
     computeProbabilityD1_[i] = false;

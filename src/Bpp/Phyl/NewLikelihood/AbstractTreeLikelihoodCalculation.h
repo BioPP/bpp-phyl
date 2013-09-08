@@ -110,7 +110,7 @@ public:
 
   bool isInitialized() const { return initialized_; }
   
-  const SubstitutionProcess* getProcess() const { return process_;}
+  const SubstitutionProcess* getSubstitutionProcess() const { return process_;}
 
   double getLogLikelihood() const;
   

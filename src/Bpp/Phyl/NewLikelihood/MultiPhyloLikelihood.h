@@ -223,7 +223,12 @@ public:
 
   virtual double getD2LikelihoodForASite(size_t site) const = 0;
 
+  double getLikelihoodForASiteForAProcess(size_t i, size_t p) const {return vpTreelik_[p]->getLikelihoodForASite(i);}
 
+  VVdouble getLikelihoodForEachSiteForEachProcess() const;
+
+  virtual VVdouble getPosteriorProbabilitiesOfEachProcess() const = 0;
+  
   /**
    * @brief Set the dataset for which the likelihood must be evaluated.
    *
@@ -233,6 +238,8 @@ public:
 
   size_t getNumberOfSites() const { return data_->getNumberOfSites(); }
   size_t getNumberOfStates() const { return data_->getAlphabet()->getSize(); }
+
+  size_t getNumberOfSubstitutionProcess() const { return getCollection()->getNumberOfSubstitutionProcess();}
 
   void enableDerivatives(bool yn) { computeFirstOrderDerivatives_ = computeSecondOrderDerivatives_ = yn; }
   void enableFirstOrderDerivatives(bool yn) { computeFirstOrderDerivatives_ = yn; }

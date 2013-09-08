@@ -76,8 +76,6 @@ RateAcrossSitesSubstitutionProcess& RateAcrossSitesSubstitutionProcess::operator
 
 void RateAcrossSitesSubstitutionProcess::fireParameterChanged(const ParameterList& pl)
 {
-  //Forward parameters:
-  pTree_->matchParametersValues(pl);
   //Update substitution model:
   model_->matchParametersValues(pl);
   //Update rate distribution:

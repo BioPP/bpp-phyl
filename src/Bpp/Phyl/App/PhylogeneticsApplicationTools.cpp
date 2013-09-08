@@ -74,6 +74,7 @@
 #include <Bpp/Text/StringTokenizer.h>
 #include <Bpp/Text/KeyvalTools.h>
 #include <Bpp/Numeric/AutoParameter.h>
+#include <Bpp/Numeric/DataTable.h>
 #include <Bpp/Numeric/Prob/DirichletDiscreteDistribution.h>
 #include <Bpp/Numeric/Function/DownhillSimplexMethod.h>
 #include <Bpp/Numeric/Function/PowellMultiDimensions.h>
@@ -83,6 +84,7 @@
 #include <Bpp/Seq/Alphabet/AlphabetTools.h>
 #include <Bpp/Seq/Container/SequenceContainerTools.h>
 #include <Bpp/Seq/App/SequenceApplicationTools.h>
+#include <Bpp/Seq/SiteTools.h>
 
 using namespace bpp;
 
@@ -509,6 +511,7 @@ SubstitutionProcess* PhylogeneticsApplicationTools::getSubstitutionProcess(
   const Alphabet* alphabet,
   const GeneticCode* gCode,
   const SiteContainer* data,
+  const vector<Tree*> vTree, 
   map<string, string>& params,
   const string& suffix,
   bool suffixIsOptional,
@@ -520,7 +523,7 @@ SubstitutionProcess* PhylogeneticsApplicationTools::getSubstitutionProcess(
   /////////////////////////
   // Tree
   
-  auto_ptr<ParametrizableTree> pTree(new ParametrizableTree(*getTree(params)));
+  auto_ptr<ParametrizableTree> pTree(new ParametrizableTree(*vTree[0]));
 
   //////////////////////////
   // Rates
@@ -813,6 +816,7 @@ SubstitutionProcessCollection* PhylogeneticsApplicationTools::getSubstitutionPro
        const Alphabet* alphabet,
        const GeneticCode* gCode,
        const SiteContainer* data,
+       const vector<Tree*> vTree, 
        map<string, string>& params,
        const string& suffix,
        bool suffixIsOptional,
@@ -824,12 +828,10 @@ SubstitutionProcessCollection* PhylogeneticsApplicationTools::getSubstitutionPro
   /////////////////////////
   // Trees
   
-  vector<Tree*> vtmp=getTrees(params);
-
   vector<ParametrizableTree*> vpTree;
   
-  for (size_t i=0; i<vtmp.size(); i++)
-    vpTree.push_back(new ParametrizableTree(*(vtmp[i]),false,true));
+  for (size_t i=0; i<vTree.size(); i++)
+    vpTree.push_back(new ParametrizableTree(*(vTree[i])));
 
   if (vpTree.size()==0)
     throw Exception("Missing tree in construction of SubstitutionProcessCollection.");
@@ -2582,6 +2584,124 @@ void PhylogeneticsApplicationTools::printParameters(const PhyloLikelihood* phylo
     
     PhylogeneticsApplicationTools::printParameters(&pS->getSubstitutionProcess(), out);
   }
+}
+
+void PhylogeneticsApplicationTools::printAnalysisInformation(const PhyloLikelihood* phylolike, OutputStream& out)
+{
+  if (dynamic_cast<const SinglePhyloLikelihood*>(phylolike) != NULL)
+  {
+    const SinglePhyloLikelihood* pSPL = dynamic_cast<const SinglePhyloLikelihood*>(phylolike);
+    const SubstitutionProcess* pSP = &pSPL->getSubstitutionProcess();
+
+    vector<string> colNames;
+    colNames.push_back("Sites");
+    colNames.push_back("is.complete");
+    colNames.push_back("is.constant");
+    colNames.push_back("lnL");
+
+    const DiscreteDistribution* pDD = 0;
+    size_t nbR = 0;
+    
+    if (dynamic_cast<const RateAcrossSitesSubstitutionProcess*>(pSP) != NULL)
+      pDD = &dynamic_cast<const RateAcrossSitesSubstitutionProcess*>(pSP)->getRateDistribution();
+    else if (dynamic_cast<const NonHomogeneousSubstitutionProcess*>(pSP) != NULL)
+      pDD = &dynamic_cast<const NonHomogeneousSubstitutionProcess*>(pSP)->getRateDistribution();
+
+    if (pDD != NULL) {
+      nbR = pDD->getNumberOfCategories();
+      
+      pDD->print(out);
+
+      out.endLine();
+      out.endLine();
+
+      for (size_t i = 0; i < nbR; i++)
+        colNames.push_back("prob"+ TextTools::toString(i+1));
+    }
+    
+    const SiteContainer* sites = phylolike -> getData();
+
+    vector<string> row(4+(nbR>1?nbR:0));
+    DataTable* infos = new DataTable(colNames);
+
+    VVdouble vvPP = pSPL->getPosteriorProbabilitiesOfEachClass();
+    
+    for (size_t i = 0; i < sites->getNumberOfSites(); i++)
+    {
+      double lnL = phylolike->getLogLikelihoodForASite(i);
+      const Site* currentSite = &sites->getSite(i);
+      int currentSitePosition = currentSite->getPosition();
+      string isCompl = "NA";
+      string isConst = "NA";
+      try { isCompl = (SiteTools::isComplete(*currentSite) ? "1" : "0"); }
+      catch(EmptySiteException& ex) {}
+      try { isConst = (SiteTools::isConstant(*currentSite) ? "1" : "0"); }
+      catch(EmptySiteException& ex) {}
+      row[0] = (string("[" + TextTools::toString(currentSitePosition) + "]"));
+      row[1] = isCompl;
+      row[2] = isConst;
+      row[3] = TextTools::toString(lnL);
+
+      if (nbR>1)
+        for (size_t j=0; j<nbR; j++)
+          row[4+j] = TextTools::toString(vvPP[i][j]);
+      
+      infos->addRow(row);
+    }
+          
+    DataTable::write(*infos, out, "\t");
+    delete infos;
+  }
+  else if (dynamic_cast<const MixturePhyloLikelihood*>(phylolike) != NULL)
+    {
+      const MixturePhyloLikelihood* pMPL = dynamic_cast<const MixturePhyloLikelihood*>(phylolike);
+
+      vector<string> colNames;
+      colNames.push_back("Sites");
+      colNames.push_back("is.complete");
+      colNames.push_back("is.constant");
+      colNames.push_back("lnL");
+
+      size_t nbP = pMPL->getNumberOfSubstitutionProcess();
+
+      if (nbP>1)
+        for (size_t i = 0; i < nbP; i++)
+          colNames.push_back("prob"+ TextTools::toString(i+1));
+
+      const SiteContainer* sites = phylolike -> getData();
+
+      vector<string> row(4+(nbP>1?nbP:0));
+      DataTable* infos = new DataTable(colNames);
+
+      VVdouble vvPP = pMPL->getPosteriorProbabilitiesOfEachProcess();
+    
+      for (size_t i = 0; i < sites->getNumberOfSites(); i++)
+        {
+          double lnL = phylolike->getLogLikelihoodForASite(i);
+          const Site* currentSite = &sites->getSite(i);
+          int currentSitePosition = currentSite->getPosition();
+          string isCompl = "NA";
+          string isConst = "NA";
+          try { isCompl = (SiteTools::isComplete(*currentSite) ? "1" : "0"); }
+          catch(EmptySiteException& ex) {}
+          try { isConst = (SiteTools::isConstant(*currentSite) ? "1" : "0"); }
+          catch(EmptySiteException& ex) {}
+          row[0] = (string("[" + TextTools::toString(currentSitePosition) + "]"));
+          row[1] = isCompl;
+          row[2] = isConst;
+          row[3] = TextTools::toString(lnL);
+
+          if (nbP>1)
+            for (size_t j=0; j<nbP; j++)
+              row[4+j] = TextTools::toString(vvPP[i][j]);
+
+          infos->addRow(row);
+        }
+          
+      DataTable::write(*infos, out, "\t");
+      delete infos;
+    }
+  
 }
 
 /******************************************************************************/

@@ -197,10 +197,11 @@ void NonHomogeneousSubstitutionProcess::listModelNames(std::ostream& out) const
 
 void NonHomogeneousSubstitutionProcess::fireParameterChanged(const ParameterList& parameters)
 {
-  AbstractSubstitutionProcess::fireParameterChanged(parameters);
-
   // Update root frequencies:
   updateRootFrequencies();
+
+  //Update rate distribution:
+  rDist_->matchParametersValues(parameters);
 
   // Then we update all models in the set:
   for (size_t i = 0; i < modelParameters_.size(); i++)
@@ -211,6 +212,8 @@ void NonHomogeneousSubstitutionProcess::fireParameterChanged(const ParameterList
         }
       modelSet_[i]->matchParametersValues(modelParameters_[i]);
     }
+
+  AbstractSubstitutionProcess::fireParameterChanged(parameters);
 }
 
 ParameterList NonHomogeneousSubstitutionProcess::getSubstitutionModelParameters() const

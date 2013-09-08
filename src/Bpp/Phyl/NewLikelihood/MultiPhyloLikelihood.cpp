@@ -215,6 +215,24 @@ Vdouble MultiPhyloLikelihood::getLikelihoodForEachSite() const
 
 /******************************************************************************/
 
+VVdouble MultiPhyloLikelihood::getLikelihoodForEachSiteForEachProcess() const
+{
+  VVdouble l(getNumberOfSites());
+  for (size_t i = 0; i < l.size(); ++i)
+    {
+      Vdouble* l_i = &l[i];
+      l_i->resize(getNumberOfSubstitutionProcess());
+      for (size_t c = 0; c < l_i->size(); ++c)
+        {
+          (*l_i)[c] = getLikelihoodForASiteForAProcess(i, c);
+        }
+    }
+  return l;
+}
+
+
+/******************************************************************************/
+
 double MultiPhyloLikelihood::getDLogLikelihood() const
 {
   vector<double> la(nbSites_);

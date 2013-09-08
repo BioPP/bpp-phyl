@@ -72,8 +72,6 @@ SimpleSubstitutionProcess& SimpleSubstitutionProcess::operator=(const SimpleSubs
 
 void SimpleSubstitutionProcess::fireParameterChanged(const ParameterList& pl)
 {
-  //Forward parameters:
-  pTree_->matchParametersValues(pl);
   //Updates substitution model:
   model_->matchParametersValues(pl);
   //Transition probabilities have changed and need to be recomputed:

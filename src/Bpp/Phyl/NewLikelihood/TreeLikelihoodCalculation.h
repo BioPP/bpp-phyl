@@ -89,7 +89,7 @@ public:
    *
    */
 
-  virtual const SubstitutionProcess* getProcess() const = 0;
+  virtual const SubstitutionProcess* getSubstitutionProcess() const = 0;
 
   /**
    * @return The size of the data set for which this object is initialized.

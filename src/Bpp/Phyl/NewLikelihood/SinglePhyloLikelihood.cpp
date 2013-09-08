@@ -57,7 +57,7 @@ SinglePhyloLikelihood::SinglePhyloLikelihood(
   minusLogLik_(1),
   verbose_(verbose)
 {
-  if (tlComp->getProcess() != process_.get())
+  if (tlComp->getSubstitutionProcess() != process_.get())
     throw Exception("SinglePhyloLikelihood::SinglePhyloLikelihood Error :  given process must be the same as the one of TreeLikelihoodCalculation");
   
   // initialize parameters:

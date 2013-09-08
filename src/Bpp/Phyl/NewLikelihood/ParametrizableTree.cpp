@@ -172,7 +172,6 @@ void ParametrizableTree::fireParameterChanged(const ParameterList& parameters)
       if (reverseIndex_.find(param.getName())!=reverseIndex_.end())
         reverseIndex_[param.getName()]->setDistanceToFather(param.getValue());
     }
-    isSynchronized_ = true;
   }
 }
 

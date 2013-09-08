@@ -132,6 +132,8 @@ public:
 
   double getD2LikelihoodForASite(size_t site) const;
 
+  VVdouble getPosteriorProbabilitiesOfEachProcess() const;
+
   /*
    * @}
    */
