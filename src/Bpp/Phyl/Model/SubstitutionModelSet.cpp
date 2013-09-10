@@ -172,13 +172,14 @@ void SubstitutionModelSet::removeModel(size_t modelIndex) throw (Exception)
   
   // Erase all parameter references to this model and translate other indices...
 
-  ParameterList pl=getParameters();
+  ParameterList pl=getNodeParameters();
 
   for (size_t i = pl.size(); i>0; i--)
     {
       string pn=pl[i-1].getName();
 
       size_t pu=pn.rfind("_");
+
       int nm=TextTools::toInt(pn.substr(pu+1,string::npos));
       if (nm==(int)modelIndex+1){
         vector<string> alpn=getAlias(pn);
