@@ -157,6 +157,14 @@ public:
 
   std::string getName() const { return(name_); }
 
+  void normalize()
+  {
+    double x;
+    for (size_t i = 0; i < freq_.size(); i++)
+      x+=freq_[i];
+    freq_/=x;
+  }
+  
   // virtual void setNamespace(std::string& Namespace) {
   //   AbstractParametrizable::setNamespace(Namespace);
   // }
