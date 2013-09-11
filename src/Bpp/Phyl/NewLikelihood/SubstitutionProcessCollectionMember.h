@@ -321,7 +321,7 @@ namespace bpp
   
     bool isCompatibleWith(const SiteContainer& data) const;
 
-    bool hasTransitionProbabilitiesParameter(const std::string& name) const { return false;}
+    bool hasDerivableParameter(const std::string& name) const { return false;}
 
     /**
      * @brief Get the number of states associated to this model set.

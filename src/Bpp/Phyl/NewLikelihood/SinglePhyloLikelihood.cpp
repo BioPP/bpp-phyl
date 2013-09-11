@@ -218,9 +218,9 @@ throw (Exception)
 {
   if (!hasParameter(variable))
     throw ParameterNotFoundException("SinglePhyloLikelihood::getFirstOrderDerivative().", variable);
-  if (process_->hasTransitionProbabilitiesParameter(variable))
+  if (!process_->hasDerivableParameter(variable))
   {
-    throw Exception("Derivatives are only implemented for branch length parameters.");
+    throw Exception("Non derivable parameter: " + variable);
   }
 
   tlComp_->computeTreeDLikelihood(variable);
@@ -236,9 +236,9 @@ throw (Exception)
 {
   if (!hasParameter(variable))
     throw ParameterNotFoundException("SinglePhyloLikelihood::getSecondOrderDerivative().", variable);
-  if (process_->hasTransitionProbabilitiesParameter(variable))
+  if (!process_->hasDerivableParameter(variable))
   {
-    throw Exception("Derivatives are only implemented for branch length parameters.");
+    throw Exception("Non derivable parameter: " + variable);
   }
 
   tlComp_->computeTreeD2Likelihood(variable);

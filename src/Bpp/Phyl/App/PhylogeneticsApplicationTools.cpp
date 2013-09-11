@@ -720,14 +720,14 @@ void PhylogeneticsApplicationTools::addSubstitutionProcessCollectionMember(
   //////////
   // root freq number
 
-  bool stationarity=(args.find("root_frequencies")==args.end());
+  bool stationarity=(args.find("root_freq")==args.end());
   size_t numFreq=0;
   
   if (stationarity)
     ApplicationTools::displayMessage("Stationarity assumed.");
   else
   {
-    numFreq=(size_t)ApplicationTools::getIntParameter("root_frequencies", args, 1, "", true, verbose);
+    numFreq=(size_t)ApplicationTools::getIntParameter("root_freq", args, 1, "", true, verbose);
     if (! SubProColl->hasFrequenciesNumber(numFreq))
       throw BadIntegerException("PhylogeneticsApplicationTools::addSubstitutionProcessCollectionMember : unknown root frequencies number", (int)numFreq);
   }
@@ -2615,8 +2615,9 @@ void PhylogeneticsApplicationTools::printAnalysisInformation(const PhyloLikeliho
       out.endLine();
       out.endLine();
 
-      for (size_t i = 0; i < nbR; i++)
-        colNames.push_back("prob"+ TextTools::toString(i+1));
+      if (nbR>1)
+        for (size_t i = 0; i < nbR; i++)
+          colNames.push_back("prob"+ TextTools::toString(i+1));
     }
     
     const SiteContainer* sites = phylolike -> getData();

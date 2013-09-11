@@ -295,13 +295,10 @@ bool NonHomogeneousSubstitutionProcess::isCompatibleWith(const SiteContainer& da
 }
 
 
-bool NonHomogeneousSubstitutionProcess::hasTransitionProbabilitiesParameter(const std::string& name) const
+bool NonHomogeneousSubstitutionProcess::hasDerivableParameter(const std::string& name) const
 {
-  size_t pos=name.rfind("_");
-  if (pos==string::npos)
-    return false;
-  unsigned int vpos=atoi(name.substr(pos+1).c_str());
-  return (vpos <= modelSet_.size() && vpos>0);
+  // Up to now (!), only branch length parameters are derivable
+  return (name.substr(0,5)=="BrLen");
 }
 
 const Matrix<double>& NonHomogeneousSubstitutionProcess::getTransitionProbabilities(int nodeId, size_t classIndex) const
