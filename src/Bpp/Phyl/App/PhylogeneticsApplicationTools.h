@@ -149,6 +149,7 @@ namespace bpp
      *                 The alphabet associated to the data must be of the same type as the one specified for the model.
      *                 May be equal to NULL, but in this case use_observed_freq option will be unavailable.
      * @param params   The attribute map where options may be found.
+     * @param unparsedparams  The map of the unparsed parameters (for alias) (in/out)
      * @param suffix   A suffix to be applied to each attribute name.
      * @param suffixIsOptional Tell if the suffix is absolutely required.
      * @param verbose Print some info to the 'message' output stream.
@@ -161,6 +162,7 @@ namespace bpp
         const GeneticCode* gCode,
         const SiteContainer* data, 
         std::map<std::string, std::string>& params,
+        std::map<std::string, std::string>& unparsedparams,
         const std::string& suffix = "",
         bool suffixIsOptional = true,
         bool verbose = true) throw (Exception);
@@ -176,6 +178,7 @@ namespace bpp
         const GeneticCode* gCode,
         const SiteContainer* data, 
         std::map<std::string, std::string>& params,
+        std::map<std::string, std::string>& unparsedparams,
         const std::string& suffix = "",
         bool suffixIsOptional = true,
         bool verbose = true) throw (Exception);

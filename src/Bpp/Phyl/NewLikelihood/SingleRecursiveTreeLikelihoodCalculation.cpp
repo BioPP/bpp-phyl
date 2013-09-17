@@ -120,15 +120,15 @@ SingleRecursiveTreeLikelihoodCalculation& SingleRecursiveTreeLikelihoodCalculati
 
 void SingleRecursiveTreeLikelihoodCalculation::setData(const SiteContainer& sites) throw (Exception)
 {
-  try
-  {
+  // try
+  // {
     const TreeTemplate<Node>& tt = dynamic_cast<const TreeTemplate<Node>&>(process_->getTree());
     data_.reset(PatternTools::getSequenceSubset(sites, *tt.getRootNode()));
-  }
-  catch (exception& e)
-  {
-    throw Exception("DEBUG. SingleRecursiveTreeLikelihoodCalculation::setData. The SubstitutionProcess does not use a TreeTemplate object.");
-  }
+  // }
+  //     catch (std::bad_cast)
+  // {
+  //   throw Exception("DEBUG. SingleRecursiveTreeLikelihoodCalculation::setData. The SubstitutionProcess does not use a TreeTemplate object.");
+  // }
   if (verbose_)
     ApplicationTools::displayTask("Initializing data structure");
   likelihoodData_->initLikelihoods(*data_, *process_); // We assume here that all models have the same number of states, and that they have the same 'init' method,

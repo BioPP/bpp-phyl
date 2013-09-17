@@ -171,7 +171,7 @@ namespace bpp
     {
       // Add parameters:
       addParameters_(tree->getParameters());  //Branch lengths
-      addParameters_(rdist->getParameters());  
+      addParameters_(rdist->getIndependentParameters());  
     }
 
     /**
@@ -194,7 +194,7 @@ namespace bpp
       stationarity_(false)
     {
       addParameters_(tree->getParameters());  //Branch lengths
-      addParameters_(rdist->getParameters());  
+      addParameters_(rdist->getIndependentParameters());  
       setRootFrequencies(rootFreqs);
     }
 
