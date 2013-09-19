@@ -419,7 +419,7 @@ public:
 /**
  * @brief Distinguishes all types of substitutions.
  *
- * This register has only n * (n-1) substitution type, where n is the size of the alphabet, mapped as:
+ * This register has all n * (n-1) substitution type, where n is the size of the alphabet, mapped as:
  * - 0 not a substitution
  * - x in [1, n(n-1)] a substitution
  */
@@ -441,13 +441,13 @@ public:
   ComprehensiveSubstitutionRegister* clone() const { return new ComprehensiveSubstitutionRegister(*this); }
 };
 
-/**@brief Sets a Register based on a matrix of integers. If M is the
+/**
+ * @brief Sets a Register based on a matrix of integers. If M is the
  *  matrix, M[i,j] is the number of the substitution type from i to j,
  *  or 0 if there is no substitution type from i to j.
  *
  * @author Laurent Guéguen
- **/
-
+ */
 class GeneralSubstitutionRegister :
   public AbstractSubstitutionRegister
 {
