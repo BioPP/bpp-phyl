@@ -278,7 +278,7 @@ const Matrix<double>& AbstractSubstitutionModel::getd2Pij_dt2(double t) const
   {
     if (isDiagonalizable_)
     {
-      MatrixTools::mult(rightEigenVectors_, NumTools::sqr(rate_ * eigenValues_) * VectorTools::exp(eigenValues_ * (rate_ * t)), leftEigenVectors_, d2pijt_);
+      MatrixTools::mult(rightEigenVectors_, VectorTools::sqr(rate_ * eigenValues_) * VectorTools::exp(eigenValues_ * (rate_ * t)), leftEigenVectors_, d2pijt_);
     }
     else
     {
@@ -388,9 +388,9 @@ void AbstractSubstitutionModel::setFreqFromData(const SequenceContainer& data, d
 
 void AbstractSubstitutionModel::setFreq(map<int, double>& freqs)
 {
-  for (int i = 0; i < static_cast<int>(size_); i++)
+  for (size_t i = 0; i < size_; ++i)
   {
-    freq_[i] = freqs[i];
+    freq_[i] = freqs[static_cast<int>(i)];
   }
   // Re-compute generator and eigen values:
   updateMatrices();
