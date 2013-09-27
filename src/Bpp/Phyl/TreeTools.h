@@ -413,6 +413,7 @@ class TreeTools
      * The root is then set on the branch located at half this distance.
      *
      * @param tree The tree to (re)root.
+     * @deprecated Use TreeTemplateTools::midRoot instead!
      */
     static void midpointRooting(Tree& tree);
     /** @} */
