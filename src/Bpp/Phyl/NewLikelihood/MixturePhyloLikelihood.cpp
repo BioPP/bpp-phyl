@@ -91,6 +91,63 @@ ParameterList MixturePhyloLikelihood::getNonDerivableParameters() const
   return pl;
 }
 
+/******************************************************************************/
+
+double MixturePhyloLikelihood::getLogLikelihood() const
+{
+  vector<double> la(nbSites_);
+  for (size_t i = 0; i < nbSites_; ++i)
+    {
+      la[i] = log(getLikelihoodForASite(i));
+    }
+  sort(la.begin(), la.end());
+  double ll = 0;
+  for (size_t i = nbSites_; i > 0; i--)
+    {
+      ll += la[i - 1];
+    }
+  return ll;
+}
+
+/******************************************************************************/
+
+double MixturePhyloLikelihood::getDLogLikelihood() const
+{
+  vector<double> la(nbSites_);
+  for (size_t i = 0; i < nbSites_; ++i)
+  {
+    la[i] = getDLogLikelihoodForASite(i);
+  }
+  sort(la.begin(), la.end());
+  double ll = 0;
+  for (size_t i = nbSites_; i > 0; i--)
+  {
+    ll += la[i - 1];
+  }
+  return ll;
+}
+
+/******************************************************************************/
+
+double MixturePhyloLikelihood::getD2LogLikelihood() const
+{
+  // Derivative of the sum is the sum of derivatives:
+  vector<double> la(nbSites_);
+  for (size_t i = 0; i < nbSites_; ++i)
+    {
+      la[i] = getD2LogLikelihoodForASite(i);
+    }
+  sort(la.begin(), la.end());
+  double ll = 0;
+  for (size_t i = nbSites_; i > 0; i--)
+    {
+      ll += la[i - 1];
+    }
+  return ll;
+}
+
+/******************************************************************************/
+
 double MixturePhyloLikelihood::getLikelihoodForASite(size_t site) const
 {
   double x = 0;
@@ -102,6 +159,8 @@ double MixturePhyloLikelihood::getLikelihoodForASite(size_t site) const
   return x;
 }
 
+/******************************************************************************/
+
 double MixturePhyloLikelihood::getDLikelihoodForASite(size_t site) const
 {
   double x = 0;
@@ -112,6 +171,8 @@ double MixturePhyloLikelihood::getDLikelihoodForASite(size_t site) const
 
   return x;
 }
+
+/******************************************************************************/
 
 double MixturePhyloLikelihood::getD2LikelihoodForASite(size_t site) const
 {
@@ -127,7 +188,7 @@ double MixturePhyloLikelihood::getD2LikelihoodForASite(size_t site) const
 
 /******************************************************************************/
 
-VVdouble MixturePhyloLikelihood::getPosteriorProbabilitiesOfEachProcess() const
+VVdouble MixturePhyloLikelihood::getPosteriorProbabilitiesForEachSiteForEachProcess() const
 {
   size_t nbSites   = getNumberOfSites();
   size_t nbProcess = getNumberOfSubstitutionProcess();
@@ -145,3 +206,25 @@ VVdouble MixturePhyloLikelihood::getPosteriorProbabilitiesOfEachProcess() const
   return pb;
 }
 
+
+/******************************************************************************/
+
+void MixturePhyloLikelihood::computeD2Likelihood_(const std::string& variable) const
+{
+  for (size_t i = 0; i < vpTreelik_.size(); i++)
+    {
+      vpTreelik_[i]->computeTreeD2Likelihood(variable);
+    }
+}
+
+/******************************************************************************/
+
+void MixturePhyloLikelihood::computeDLikelihood_(const std::string& variable) const
+{
+  for (size_t i = 0; i < vpTreelik_.size(); i++)
+    {
+      vpTreelik_[i]->computeTreeDLikelihood(variable);
+    }
+}
+
+/******************************************************************************/

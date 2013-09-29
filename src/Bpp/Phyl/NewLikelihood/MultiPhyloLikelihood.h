@@ -187,18 +187,26 @@ public:
    * @{
    */
   const SiteContainer* getData() const { return data_.get(); }
+
   const Alphabet* getAlphabet() const { return data_->getAlphabet(); }
 
-  virtual double getLogLikelihood() const;
+  virtual double getLogLikelihood() const = 0;
 
   virtual Vdouble getLikelihoodForEachSite() const;
 
-  virtual double getDLogLikelihood() const;
+  virtual double getDLogLikelihood() const = 0;
+
   virtual double getDLogLikelihoodForASite(size_t site) const;
 
-  virtual double getD2LogLikelihood() const;
+  virtual double getD2LogLikelihood() const = 0;
+  
   virtual double getD2LogLikelihoodForASite(size_t site) const;
 
+  /*
+   * @}
+   */
+
+  
   /**
    * @brief The collection
    *
@@ -206,28 +214,70 @@ public:
 
   const SubstitutionProcessCollection* getCollection() const { return processColl_.get(); }
 
+protected:
+  virtual void computeDLikelihood_(const std::string& variable) const = 0;
+
+  virtual void computeD2Likelihood_(const std::string& variable) const = 0;
+
+public:
   /**
    * @brief To be defined in inheriting classes.
    *
    */
 
-protected:
-  virtual void computeDLikelihood_(const std::string& variable) const;
+  /**
+   * @brief Get the likelihood for a site.
+   *
+   * @param site The site index to analyse.
+   * @return The likelihood for site <i>site</i>.
+   */
 
-  virtual void computeD2Likelihood_(const std::string& variable) const;
-
-public:
   virtual double getLikelihoodForASite(size_t site) const = 0;
+
+  /**
+   * @brief Get the first order derivate of the likelihood for a site. 
+   *
+   * This derivate should have been first computed through
+   * getFirstOrderDerivative function.
+   *
+   * @param site The site index to analyse.
+   * @return The first order derivate likelihood for site <i>site</i>.
+   */
 
   virtual double getDLikelihoodForASite(size_t site) const = 0;
 
+  /**
+   * @brief Get the second order derivate of the likelihood for a site. 
+   *
+   * This derivate should have been first computed through
+   * getSecondOrderDerivative function.
+   *
+   * @param site The site index to analyse.
+   * @return The second order derivate likelihood for site <i>site</i>.
+   */
+
   virtual double getD2LikelihoodForASite(size_t site) const = 0;
 
-  double getLikelihoodForASiteForAProcess(size_t i, size_t p) const {return vpTreelik_[p]->getLikelihoodForASite(i);}
+  
+  double getLikelihoodForASiteForAProcess(size_t i, size_t p) const
+  {
+    return vpTreelik_[p]->getLikelihoodForASite(i);
+  }
+
+  double getDLikelihoodForASiteForAProcess(size_t i, size_t p) const
+  {
+    return vpTreelik_[p]->getDLikelihoodForASite(i);
+  }
+
+  double getD2LikelihoodForASiteForAProcess(size_t i, size_t p) const
+  {
+    return vpTreelik_[p]->getD2LikelihoodForASite(i);
+  }
 
   VVdouble getLikelihoodForEachSiteForEachProcess() const;
 
-  virtual VVdouble getPosteriorProbabilitiesOfEachProcess() const = 0;
+  virtual VVdouble getPosteriorProbabilitiesForEachSiteForEachProcess() const = 0;
+
   
   /**
    * @brief Set the dataset for which the likelihood must be evaluated.
@@ -246,6 +296,7 @@ public:
   void enableSecondOrderDerivatives(bool yn) { computeFirstOrderDerivatives_ = computeSecondOrderDerivatives_ = yn; }
   bool enableFirstOrderDerivatives() const { return computeFirstOrderDerivatives_; }
   bool enableSecondOrderDerivatives() const { return computeSecondOrderDerivatives_; }
+
   bool isInitialized() const { return initialized_; }
 
   ParameterList getSubstitutionProcessParameters() const;

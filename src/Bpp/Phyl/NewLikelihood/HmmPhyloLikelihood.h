@@ -1,7 +1,7 @@
 //
-// File: MixturePhyloLikelihood.h
+// File: HmmPhyloLikelihood.h
 // Created by: Laurent Guéguen
-// Created on: jeudi 11 juillet 2013, à 14h 05
+// Created on: lundi 23 septembre 2013, à 22h 56
 //
 
 /*
@@ -37,16 +37,20 @@
    knowledge of the CeCILL license and that you accept its terms.
  */
 
-#ifndef _MIXTUREPHYLOLIKELIHOOD_H_
-#define _MIXTUREPHYLOLIKELIHOOD_H_
+#ifndef _HMMPHYLOLIKELIHOOD_H_
+#define _HMMPHYLOLIKELIHOOD_H_
 
 
 #include "MultiPhyloLikelihood.h"
 
-#include <Bpp/Numeric/Prob/Simplex.h>
+#include "HmmPhyloTransitionMatrix.h"
 
 // From SeqLib:
 #include <Bpp/Seq/Container/SiteContainer.h>
+
+// From Numeric
+#include <Bpp/Numeric/Hmm/HmmLikelihood.h>
+#include <Bpp/Numeric/Hmm/LogsumHmmLikelihood.h>
 
 
 namespace bpp
@@ -54,47 +58,48 @@ namespace bpp
 namespace newlik
 {
 /**
- * @brief Likelihood framework based on a mixture of simple likelihoods
+ * @brief Likelihood framework based on a hmm of simple likelihoods
  *
- * The resulting likelihood is the mean value of
- * the SinglePhyloLikelihoods, ponderated with parametrized probabilities
- * (through a Simplex).
+ * The resulting likelihood is the likelihood of the given Hmm with
+ * the site emission probabilities proportional to the computed
+ * likelihoods of the process.
  *
- * @see MultiPhyloLikelihood
+ *
  */
 
-class MixturePhyloLikelihood :
-  public MultiPhyloLikelihood
+  
+class HmmPhyloLikelihood :
+    public MultiPhyloLikelihood
 {
 private:
-  Simplex simplex_;
-
+  std::auto_ptr<LogsumHmmLikelihood> Hmm_;
+  
 public:
-  MixturePhyloLikelihood(
+  HmmPhyloLikelihood(
     SubstitutionProcessCollection* processColl,
     bool verbose = true,
     bool patterns = true);
 
-  MixturePhyloLikelihood(
+  HmmPhyloLikelihood(
     const SiteContainer& data,
     SubstitutionProcessCollection* processColl,
     bool verbose = true,
     bool patterns = true);
 
-  MixturePhyloLikelihood(const MixturePhyloLikelihood& mlc) :
+  HmmPhyloLikelihood(const HmmPhyloLikelihood& mlc) :
     MultiPhyloLikelihood(mlc),
-    simplex_(mlc.simplex_) {}
+    Hmm_(std::auto_ptr<LogsumHmmLikelihood>(mlc.Hmm_->clone())) {}
 
-  MixturePhyloLikelihood& operator=(const MixturePhyloLikelihood& mlc)
+  HmmPhyloLikelihood& operator=(const HmmPhyloLikelihood& mlc)
   {
     MultiPhyloLikelihood::operator=(mlc);
-    simplex_ = mlc.simplex_;
+    Hmm_ = std::auto_ptr<LogsumHmmLikelihood>(mlc.Hmm_->clone());
     return *this;
   }
 
-  virtual ~MixturePhyloLikelihood() {}
+  virtual ~HmmPhyloLikelihood() {}
 
-  MixturePhyloLikelihood* clone() const { return new MixturePhyloLikelihood(*this); }
+  HmmPhyloLikelihood* clone() const { return new HmmPhyloLikelihood(*this); }
 
 public:
   void fireParameterChanged(const ParameterList& parameters);
@@ -103,48 +108,80 @@ public:
 
   ParameterList getNonDerivableParameters() const;
 
-  double getSubProcessProb(size_t i) const
-  {
-    return simplex_.prob(i);
-  }
-
-  /**
-   * @brief Set the probabilities of the subprocess
-   *
-   */
-  
-  void setSubProcessProb(const Simplex& si);
-  
   /**
    * @name The likelihood functions.
    *
    * @{
    */
 
-  
-  double getLogLikelihood() const;
+  double getLogLikelihood() const
+  {
+    return Hmm_->getLogLikelihood();  
+  }
 
-  double getDLogLikelihood() const;
-  
-  double getD2LogLikelihood() const;
+  double getDLogLikelihood() const
+  {
+    return Hmm_->getDLogLikelihood();
+  }
 
-  double getLikelihoodForASite(size_t site) const;
-  
-  double getDLikelihoodForASite(size_t site) const;
+  double getD2LogLikelihood() const
+  {
+    return Hmm_->getD2LogLikelihood();  
+  }
 
-  double getD2LikelihoodForASite(size_t site) const;
+  /**
+   * @brief Get the likelihood for a site.
+   *
+   * @param site The site index to analyse.
+   * @return The likelihood for site <i>site</i>.
+   */
 
-  VVdouble getPosteriorProbabilitiesForEachSiteForEachProcess() const;
+  double getLikelihoodForASite(size_t site) const
+  {
+    return Hmm_->getLikelihoodForASite(site);
+  }
+
+  double getDLikelihoodForASite(size_t site) const
+  {
+    throw (NotImplementedException("HmmPhyloLikelihood::getDLikelihoodForASite should not be called"));
+  }
+
+  double getD2LikelihoodForASite(size_t site) const
+  {
+    throw (NotImplementedException("HmmPhyloLikelihood::getD2LikelihoodForASite should not be called"));
+  }
+
+  Vdouble getLikelihoodForEachSite() const
+  {
+    return Hmm_->getLikelihoodForEachSite();
+  }
+
+  VVdouble getPosteriorProbabilitiesForEachSiteForEachProcess() const
+  {
+    VVdouble pp;
+    Hmm_->getHiddenStatesPosteriorProbabilities(pp, false);
+    return pp;
+  }
 
 protected:
-  
-  void computeDLikelihood_(const std::string& variable) const;
+  void computeDLikelihood_(const std::string& variable) const
+  {
+    Hmm_->getFirstOrderDerivative(variable);
+  }
 
-  void computeD2Likelihood_(const std::string& variable) const;
+
+  void computeD2Likelihood_(const std::string& variable) const
+  {
+    Hmm_->getSecondOrderDerivative(variable);
+  }
+
 
   /*
    * @}
    */
+
+
+
 };
 } // end of namespace newlik.
 } // end of namespace bpp.

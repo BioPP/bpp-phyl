@@ -149,22 +149,6 @@ void MultiPhyloLikelihood::fireParameterChanged(const ParameterList& parameters)
 
 /******************************************************************************/
 
-double MultiPhyloLikelihood::getLogLikelihood() const
-{
-  vector<double> la(nbSites_);
-  for (size_t i = 0; i < nbSites_; ++i)
-  {
-    la[i] = log(getLikelihoodForASite(i));
-  }
-  sort(la.begin(), la.end());
-  double ll = 0;
-  for (size_t i = nbSites_; i > 0; i--)
-  {
-    ll += la[i - 1];
-  }
-  return ll;
-}
-
 ParameterList MultiPhyloLikelihood::getSubstitutionProcessParameters() const
 {
   return processColl_->getSubstitutionProcessParameters();
@@ -230,25 +214,6 @@ VVdouble MultiPhyloLikelihood::getLikelihoodForEachSiteForEachProcess() const
   return l;
 }
 
-
-/******************************************************************************/
-
-double MultiPhyloLikelihood::getDLogLikelihood() const
-{
-  vector<double> la(nbSites_);
-  for (size_t i = 0; i < nbSites_; ++i)
-  {
-    la[i] = getDLogLikelihoodForASite(i);
-  }
-  sort(la.begin(), la.end());
-  double ll = 0;
-  for (size_t i = nbSites_; i > 0; i--)
-  {
-    ll += la[i - 1];
-  }
-  return ll;
-}
-
 /******************************************************************************/
 
 double MultiPhyloLikelihood::getDLogLikelihoodForASite(size_t site) const
@@ -266,18 +231,6 @@ double MultiPhyloLikelihood::getD2LogLikelihoodForASite(size_t site) const
 
 /******************************************************************************/
 
-double MultiPhyloLikelihood::getD2LogLikelihood() const
-{
-  // Derivative of the sum is the sum of derivatives:
-  double dl = 0;
-  for (size_t i = 0; i < nbSites_; ++i)
-  {
-    dl += getD2LogLikelihoodForASite(i);
-  }
-  return dl;
-}
-
-/******************************************************************************/
 
 void MultiPhyloLikelihood::setParameters(const ParameterList& parameters)
 throw (ParameterNotFoundException, ConstraintException)
@@ -301,7 +254,7 @@ double MultiPhyloLikelihood::getFirstOrderDerivative(const string& variable) con
 throw (Exception)
 {
   if (!hasParameter(variable))
-    throw ParameterNotFoundException("SingleRecursiveTreeLikelihoodCalculation::getFirstOrderDerivative().", variable);
+    throw ParameterNotFoundException("MultiPhyloLikelihood::getFirstOrderDerivative().", variable);
   if (!processColl_->hasBranchLengthsParameter(variable))
   {
     throw Exception("Derivatives are only implemented for branch length parameters.");
@@ -316,7 +269,7 @@ double MultiPhyloLikelihood::getSecondOrderDerivative(const string& variable) co
 throw (Exception)
 {
   if (!hasParameter(variable))
-    throw ParameterNotFoundException("SingleRecursiveTreeLikelihoodCalculation::getSecondOrderDerivative().", variable);
+    throw ParameterNotFoundException("MultiPhyloLikelihood::getSecondOrderDerivative().", variable);
   if (!processColl_->hasBranchLengthsParameter(variable))
   {
     throw Exception("Derivatives are only implemented for branch length parameters.");
@@ -325,25 +278,4 @@ throw (Exception)
   return -getD2LogLikelihood();
 }
 
-/******************************************************************************/
-
-void MultiPhyloLikelihood::computeD2Likelihood_(const std::string& variable) const
-{
-  for (size_t i = 0; i < vpTreelik_.size(); i++)
-  {
-    vpTreelik_[i]->computeTreeD2Likelihood(variable);
-  }
-}
-
-/******************************************************************************/
-
-void MultiPhyloLikelihood::computeDLikelihood_(const std::string& variable) const
-{
-  for (size_t i = 0; i < vpTreelik_.size(); i++)
-  {
-    vpTreelik_[i]->computeTreeDLikelihood(variable);
-  }
-}
-
-/******************************************************************************/
 

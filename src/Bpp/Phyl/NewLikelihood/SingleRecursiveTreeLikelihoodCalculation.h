@@ -174,7 +174,7 @@ public:
   const SingleRecursiveTreeLikelihoodData* getLikelihoodData() const { return likelihoodData_.get(); }
 
   double getLikelihoodForASite(size_t site) const;
-  
+
   double getLikelihoodForASiteForAState(size_t site, int state) const;
 
   double getLikelihoodForASiteForAClass(size_t site, size_t classIndex) const;

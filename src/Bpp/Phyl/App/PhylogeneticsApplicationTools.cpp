@@ -2795,16 +2795,20 @@ void PhylogeneticsApplicationTools::printAnalysisInformation(const PhyloLikeliho
 
       size_t nbP = pMPL->getNumberOfSubstitutionProcess();
 
-      if (nbP>1)
+      if (nbP>1){
+        for (size_t i = 0; i < nbP; i++)
+          colNames.push_back("lnL"+ TextTools::toString(i+1));
         for (size_t i = 0; i < nbP; i++)
           colNames.push_back("prob"+ TextTools::toString(i+1));
-
+      }
+      
       const SiteContainer* sites = phylolike -> getData();
 
-      vector<string> row(4+(nbP>1?nbP:0));
+      vector<string> row(4+(nbP>1?2*nbP:0));
       DataTable* infos = new DataTable(colNames);
 
-      VVdouble vvPP = pMPL->getPosteriorProbabilitiesOfEachProcess();
+      VVdouble vvPP = pMPL->getPosteriorProbabilitiesForEachSiteForEachProcess();
+      VVdouble vvL = pMPL->getLikelihoodForEachSiteForEachProcess();
     
       for (size_t i = 0; i < sites->getNumberOfSites(); i++)
         {
@@ -2822,10 +2826,12 @@ void PhylogeneticsApplicationTools::printAnalysisInformation(const PhyloLikeliho
           row[2] = isConst;
           row[3] = TextTools::toString(lnL);
 
-          if (nbP>1)
+          if (nbP>1){
             for (size_t j=0; j<nbP; j++)
-              row[4+j] = TextTools::toString(vvPP[i][j]);
-
+              row[4+j] = TextTools::toString(log(vvL[i][j]));
+            for (size_t j=0; j<nbP; j++)
+              row[4+nbP+j] = TextTools::toString(vvPP[i][j]);
+          }
           infos->addRow(row);
         }
           

@@ -144,7 +144,7 @@ public:
    * @return The likelihood for site <i>site</i>.
    */
   virtual double getLikelihoodForASite(size_t site) const = 0;
-  
+
   /**
    * @brief Get the likelihood for a site and for a state.
    *

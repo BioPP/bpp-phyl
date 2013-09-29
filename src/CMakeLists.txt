@@ -70,6 +70,9 @@ SET(CPP_FILES
   Bpp/Phyl/NewLikelihood/ComputingTree.cpp
   Bpp/Phyl/NewLikelihood/SubstitutionProcessCollection.cpp
   Bpp/Phyl/NewLikelihood/SubstitutionProcessCollectionMember.cpp
+  Bpp/Phyl/NewLikelihood/HmmPhyloTransitionMatrix.cpp
+  Bpp/Phyl/NewLikelihood/HmmPhyloEmissionProbabilities.cpp
+  Bpp/Phyl/NewLikelihood/HmmPhyloLikelihood.cpp
   Bpp/Phyl/Mapping/SubstitutionRegister.cpp
   Bpp/Phyl/Mapping/LaplaceSubstitutionCount.cpp
   Bpp/Phyl/Mapping/OneJumpSubstitutionCount.cpp
@@ -260,6 +263,10 @@ SET(H_FILES
   Bpp/Phyl/NewLikelihood/PhyloLikelihood.h
   Bpp/Phyl/NewLikelihood/MultiPhyloLikelihood.h
   Bpp/Phyl/NewLikelihood/MixturePhyloLikelihood.h
+  Bpp/Phyl/NewLikelihood/HmmPhyloEmissionProbabilities.h
+  Bpp/Phyl/NewLikelihood/HmmPhyloLikelihood.h
+  Bpp/Phyl/NewLikelihood/HmmPhyloTransitionMatrix.h
+  Bpp/Phyl/NewLikelihood/HmmProcessAlphabet.h
   Bpp/Phyl/Mapping/LaplaceSubstitutionCount.h
   Bpp/Phyl/Mapping/WeightedSubstitutionCount.h
   Bpp/Phyl/Mapping/OneJumpSubstitutionCount.h
