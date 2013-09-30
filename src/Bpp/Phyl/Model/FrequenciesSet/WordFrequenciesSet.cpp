@@ -158,7 +158,7 @@ void WordFromIndependentFrequenciesSet::updateFrequencies()
 {
   size_t l = vFreq_.size();
   size_t s = getAlphabet()->getSize();
-  vector<double> f[l];
+  vector< vector<double> >f(l);
 
   size_t i, p, t, i2;
 
