@@ -97,7 +97,7 @@ ParametrizableTree& ParametrizableTree::operator=(const ParametrizableTree& pTre
 
 size_t ParametrizableTree::buildIndex_(Node& node, size_t nPar)
 {
-  size_t npar=nPar;
+  size_t npar = nPar;
   
   if (node.hasFather()) {
     index_[node.getId()] = npar;
@@ -124,15 +124,15 @@ size_t ParametrizableTree::buildIndex_(Node& node, size_t nPar)
         d = maximumBrLen_;
       }
     }
-    if (!hasParameter("BrLen" + TextTools::toString(node.getId()))){
-      addParameter_(new Parameter("BrLen" + TextTools::toString(node.getId()), d, brLenConstraint_->clone(), true)); // Attach constraint to avoid clonage problems!
-    }
+    //if (!hasParameter("BrLen" + TextTools::toString(node.getId()))){
+    addParameter_(new Parameter("BrLen" + TextTools::toString(node.getId()), d, brLenConstraint_->clone(), true)); // Attach constraint to avoid clonage problems!
+    //}
     npar++;
   }
     
   //Now apply recursively:
   for (unsigned int i = 0; i < node.getNumberOfSons(); ++i)
-    npar=buildIndex_(*node[i],npar);
+    npar = buildIndex_(*node[i], npar);
 
   return npar;
 }
@@ -165,13 +165,15 @@ void ParametrizableTree::updateTreeFromParameters_() const
 
 void ParametrizableTree::fireParameterChanged(const ParameterList& parameters)
 {
-  isSynchronized_ = false;
   if (liveIndex_) {
-    for (unsigned int i = 0; i < parameters.size(); ++i) {
+    for (size_t i = 0; i < parameters.size(); ++i) {
       const Parameter& param = parameters[i];
-      if (reverseIndex_.find(param.getName())!=reverseIndex_.end())
+      if (reverseIndex_.find(param.getName()) != reverseIndex_.end())
         reverseIndex_[param.getName()]->setDistanceToFather(param.getValue());
     }
+    isSynchronized_ = true;
+  } else {
+    isSynchronized_ = false;
   }
 }
 

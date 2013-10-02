@@ -126,7 +126,7 @@ int main() {
   cout << "Newick I/O ok." << endl;
 
   //Multiple trees:
-  vector<Tree *> trees;
+  vector<const Tree *> trees;
   for (unsigned int i = 0; i < 100; ++i) {
     trees.push_back(TreeTemplateTools::getRandomTree(leaves, true));
   }

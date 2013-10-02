@@ -215,23 +215,29 @@ namespace bpp
    
     void clear();
   
+protected:
+    
+
+  /**
+   * To be called when a parameter has changed.
+   * Depending on parameters, this will actualize the rootFrequencies_
+   * vector or the corresponding models in the set.
+   *
+   * @param parameters The modified parameters.
+   */
+  void fireParameterChanged(const ParameterList& parameters);
+
+  bool modelChangesWithParameter_(size_t i, const ParameterList& pl) const {
+    //TODO: make special cases to save computation time!
+    return true;
+  }
+
   public:
-
-    /**
-     * To be called when a parameter has changed.
-     * Depending on parameters, this will actualize the rootFrequencies_
-     * vector or the corresponding models in the set.
-     *
-     * @param parameters The modified parameters.
-     */
-    void fireParameterChanged(const ParameterList& parameters);
-
     /**
      * @brief Get the alphabet
      * @throw Exception if no model is associated to the set.
      *
      */
-
     const Alphabet* getAlphabet() const
     {
       if (modelSet_.size()==0)

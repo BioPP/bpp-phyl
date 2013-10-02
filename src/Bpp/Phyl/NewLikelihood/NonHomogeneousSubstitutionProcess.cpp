@@ -309,7 +309,7 @@ const Matrix<double>& NonHomogeneousSubstitutionProcess::getTransitionProbabilit
   if (!computeProbability_[i]) {
     computeProbability_[i] = true; //We record that we did this computation.
     //The transition matrix was never computed before. We therefore have to compute it first:
-    double l = pTree_->getBranchLengthParameter(nodeId).getValue();
+    double l = pTree_->getBranchLength(nodeId);
     double r = rDist_->getCategory(classIndex);
     probabilities_[i] = SM.getPij_t(l * r);
   }
@@ -324,7 +324,7 @@ const Matrix<double>& NonHomogeneousSubstitutionProcess::getTransitionProbabilit
   if (!computeProbabilityD1_[i]) {
     computeProbabilityD1_[i] = true; //We record that we did this computation.
     //The transition matrix was never computed before. We therefore have to compute it first:
-    double l = pTree_->getBranchLengthParameter(nodeId).getValue();
+    double l = pTree_->getBranchLength(nodeId);
     double r = rDist_->getCategory(classIndex);
     probabilitiesD1_[i] = SM.getdPij_dt(l * r);
   }
@@ -338,7 +338,7 @@ const Matrix<double>& NonHomogeneousSubstitutionProcess::getTransitionProbabilit
   if (!computeProbabilityD2_[i]) {
     computeProbabilityD2_[i] = true; //We record that we did this computation.
     //The transition matrix was never computed before. We therefore have to compute it first:
-    double l = pTree_->getBranchLengthParameter(nodeId).getValue();
+    double l = pTree_->getBranchLength(nodeId);
     double r = rDist_->getCategory(classIndex);
     probabilitiesD2_[i] = SM.getd2Pij_dt2(l * r);
   }

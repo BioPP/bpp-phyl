@@ -74,12 +74,44 @@ namespace bpp
       ParametrizableTree* clone() const { return new ParametrizableTree(*this); }
 
     public:
-      const Parameter& getBranchLengthParameter(int nodeId) const throw (NodeNotFoundException) {
+      //NB: has to be changed in case of root reparametrization!
+      const ParameterList getBranchLengthParameters(size_t nodeIndex) const throw (IndexOutOfBoundsException) {
+        return getParameters().subList(nodeIndex);
+      }
+
+      //NB: has to be changed in case of root reparametrization!
+      const ParameterList getBranchLengthParameters(int nodeId) const throw (NodeNotFoundException) {
         std::map<int, size_t>::const_iterator it = index_.find(nodeId);
         if (it != index_.end())
-          return getParameter_(it->second);
+          return getParameters().subList(it->second);
         else
           throw NodeNotFoundException("ParametrizableTree::getBranchLengthParameter.", nodeId);
+      }
+
+      double getBranchLength(int nodeId) const throw (NodeNotFoundException) {
+        std::map<int, size_t>::const_iterator it = index_.find(nodeId);
+        if (it != index_.end())
+          return getParameter_(it->second).getValue(); //Works because one parameter per branch, needs to be updated in case of root reparametrization.
+        else
+          throw NodeNotFoundException("ParametrizableTree::getBranchLength.", nodeId);
+      }
+
+      size_t getNodeIndex(int nodeId) const throw (NodeNotFoundException) {
+        std::map<int, size_t>::const_iterator it = index_.find(nodeId);
+        if (it != index_.end())
+          return it->second;
+        else
+          throw NodeNotFoundException("ParametrizableTree::getNodeIndex.", nodeId);
+      }
+
+      //NB: has to be changed in case of root reparametrization!
+      std::vector<int> getNodesIdForParameter(const std::string& brlenParam) const throw (ParameterNotFoundException) {
+        std::map<std::string, Node*>::const_iterator it = reverseIndex_.find(brlenParam);
+        if (it == reverseIndex_.end())
+          throw ParameterNotFoundException("ParametrizableTree::getNodeIdForParameter(). Not a ParametrizableTree parameter: " + brlenParam + ".");
+        std::vector<int> v;
+        v.push_back(it->second->getId());
+        return(v);
       }
 
       const TreeTemplate<Node>& getTree() const;
@@ -112,6 +144,8 @@ namespace bpp
     std::vector<int> getBranchesId() const { return tree_.getBranchesId(); }
     
     size_t getNumberOfBranches() const { return tree_.getNumberOfBranches(); }
+
+    bool isRooted() const { return tree_.isRooted(); }
 
     private:
     /*

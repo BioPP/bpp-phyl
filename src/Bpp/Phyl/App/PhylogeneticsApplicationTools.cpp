@@ -561,7 +561,7 @@ SubstitutionProcess* PhylogeneticsApplicationTools::getSubstitutionProcess(
     auto_ptr<SubstitutionModel> tmp(getSubstitutionModel(alphabet, gCode, data, params, unparsedparams));
 
     if (tmp->getNumberOfStates() >= 2 * tmp->getAlphabet()->getSize() || (rDist->getName()=="Constant"))// first test is for Markov-modulated Markov model!
-      SP = new SimpleSubstitutionProcess(tmp.release(), pTree.release());
+      SP = new SimpleSubstitutionProcess(tmp.release(), pTree.release(), true);
     else
       SP = new RateAcrossSitesSubstitutionProcess(tmp.release(), rDist.release(), pTree.release());
   }

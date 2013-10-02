@@ -45,7 +45,6 @@ using namespace std;
 AbstractSubstitutionProcess::AbstractSubstitutionProcess(ParametrizableTree* tree, size_t nbClasses, const string& prefix) :
   AbstractParameterAliasable(prefix),
   pTree_(tree),
-  nodeIndex_(),
   nbClasses_(nbClasses),
   probabilities_(),
   probabilitiesD1_(),
@@ -57,12 +56,6 @@ AbstractSubstitutionProcess::AbstractSubstitutionProcess(ParametrizableTree* tre
   if (!tree)
     throw Exception("AbstractSubstitutionProcess. A tree instance must be provided.");
     
-  //Build node index (NB: if we allow to change the tree, this will have to be recomputed):
-  std::vector<int> ids = pTree_->getBranchesId();
-  for (size_t i = 0; i < ids.size(); ++i) {
-    nodeIndex_[ids[i]] = i;
-  }
-
   // Set array sizes:
   size_t n = tree->getNumberOfBranches() * nbClasses;
   probabilities_.resize(n);
@@ -81,7 +74,6 @@ AbstractSubstitutionProcess::AbstractSubstitutionProcess(ParametrizableTree* tre
 AbstractSubstitutionProcess::AbstractSubstitutionProcess(const AbstractSubstitutionProcess& asp) :
   AbstractParameterAliasable(asp),
   pTree_(asp.pTree_->clone()),
-  nodeIndex_(asp.nodeIndex_),
   nbClasses_(asp.nbClasses_),
   probabilities_(asp.probabilities_),
   probabilitiesD1_(asp.probabilitiesD1_),
@@ -96,7 +88,6 @@ AbstractSubstitutionProcess& AbstractSubstitutionProcess::operator=(const Abstra
   AbstractParameterAliasable::operator=(*this);
   
   pTree_.reset(pTree_->clone());
-  nodeIndex_ = asp.nodeIndex_;
   nbClasses_ = asp.nbClasses_;
   probabilities_ = asp.probabilities_;
   probabilitiesD1_ = asp.probabilitiesD1_;
@@ -107,18 +98,9 @@ AbstractSubstitutionProcess& AbstractSubstitutionProcess::operator=(const Abstra
   return *this;
 }
 
-size_t AbstractSubstitutionProcess::getNodeIndex_(int nodeId) const throw (NodeNotFoundException)
-{
-  std::map<int, size_t>::const_iterator it = nodeIndex_.find(nodeId);
-  if (it != nodeIndex_.end())
-    return it->second;
-  else
-    throw NodeNotFoundException("AbstractSubstitutionProcess::getNodeIndex(int).", nodeId);
-}
-
 size_t AbstractSubstitutionProcess::getModelIndex_(int nodeId, size_t modelClass) const throw (NodeNotFoundException, IndexOutOfBoundsException)
 {
-  size_t i = getNodeIndex_(nodeId);
+  size_t i = pTree_->getNodeIndex(nodeId);
   if (modelClass >= nbClasses_)
     throw IndexOutOfBoundsException("AbstractSubstitutionProcess::getModelIndex_().", modelClass, 0, nbClasses_);
   return i * nbClasses_ + modelClass;
@@ -131,9 +113,11 @@ void AbstractSubstitutionProcess::fireParameterChanged(const ParameterList& pl)
   pTree_->matchParametersValues(pl);
   
   for (size_t i = 0; i < computeProbability_.size(); ++i) {
-    computeProbability_[i] = false;
-    computeProbabilityD1_[i] = false;
-    computeProbabilityD2_[i] = false;
+    if (modelChangesWithParameter_(i, pl)) {
+      computeProbability_[i] = false;
+      computeProbabilityD1_[i] = false;
+      computeProbabilityD2_[i] = false;
+    }
   }
 }
 

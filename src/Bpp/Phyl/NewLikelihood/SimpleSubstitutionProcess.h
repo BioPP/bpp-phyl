@@ -58,7 +58,7 @@ protected:
   std::auto_ptr<SubstitutionModel> model_;
 
 public:
-  SimpleSubstitutionProcess(SubstitutionModel* model, ParametrizableTree* tree);
+  SimpleSubstitutionProcess(SubstitutionModel* model, ParametrizableTree* tree, bool checkRooted);
 
   SimpleSubstitutionProcess(const SimpleSubstitutionProcess& ssp);
 
@@ -92,8 +92,7 @@ public:
     return model_->getGenerator();
   }
 
-  const FrequenciesSet* getRootFrequenciesSet() const
-  {
+  const FrequenciesSet* getRootFrequenciesSet() const {
     return 0;
   }
   
@@ -120,8 +119,18 @@ public:
   }
 
   //bool transitionProbabilitiesHaveChanged() const { return true; }
-  protected:
-    void fireParameterChanged(const ParameterList& pl); //Forward parameters and updates probabilities if needed.
+protected:
+  void fireParameterChanged(const ParameterList& pl); //Forward parameters and updates probabilities if needed.
+
+  bool modelChangesWithParameter_(size_t i, const ParameterList& pl) const {
+    if (pl.getCommonParametersWith(model_->getParameters()).size() > 0)
+      return true; 
+    ParameterList plbl = pTree_->getBranchLengthParameters(i);
+    if (plbl.getCommonParametersWith(pl).size() > 0)
+      return true;
+    return false;
+  }
+
 };
 
 } // end namespace bpp
