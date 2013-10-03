@@ -42,6 +42,7 @@
 #include "../PatternTools.h"
 
 #include <Bpp/Text/TextTools.h>
+#include <Bpp/Numeric/Matrix/MatrixTools.h>
 #include <Bpp/App/ApplicationTools.h>
 
 using namespace bpp;
@@ -729,7 +730,7 @@ double SingleRecursiveTreeLikelihoodCalculation::getDLikelihoodForASiteForAClass
   Vdouble* dla = &likelihoodData_->getDLikelihoodArray(
            process_->getTree().getRootNode()->getId())[likelihoodData_->getRootArrayPosition(site)][classIndex];
   double dl = 0;
-  for (int i = 0; i < static_cast<int>(nbStates_); ++i)
+  for (size_t i = 0; i < nbStates_; ++i)
   {
     dl += (*dla)[i] * rootFreqs[i];
   }
@@ -740,19 +741,27 @@ double SingleRecursiveTreeLikelihoodCalculation::getDLikelihoodForASiteForAClass
 
 double SingleRecursiveTreeLikelihoodCalculation::getDLikelihoodForASite(size_t site) const
 {
-  vector<double> rootFreqs = process_->getRootFrequencies();
-  VVdouble* dla = &likelihoodData_->getDLikelihoodArray(
-           process_->getTree().getRootNode()->getId())[likelihoodData_->getRootArrayPosition(site)];
   // Derivative of the sum is the sum of derivatives:
   double dl = 0;
-  for (size_t i = 0; i < nbClasses_; ++i)
+  for (size_t i = 0; i < nbClasses_; i++)
   {
-    for (size_t j = 0; j < nbStates_; ++j)
-    {
-      dl += (*dla)[i][j] * process_->getProbabilityForModel(i) * rootFreqs[i];
-    }
+    dl += getDLikelihoodForASiteForAClass(site, i) * process_->getProbabilityForModel(i);
   }
   return dl;
+//  vector<double> rootFreqs = process_->getRootFrequencies();
+//  VVdouble* dla = &likelihoodData_->getDLikelihoodArray(
+//           process_->getTree().getRootNode()->getId())[likelihoodData_->getRootArrayPosition(site)];
+//  // Derivative of the sum is the sum of derivatives:
+//  double dl = 0;
+//  for (size_t i = 0; i < nbClasses_; ++i)
+//  {
+//    for (size_t j = 0; j < nbStates_; ++j)
+//    {
+//      dl += (*dla)[i][j] * process_->getProbabilityForModel(i) * rootFreqs[j];
+//    }
+//  }
+//  cout << site << "\t" << dl << endl;
+//  return dl;
 }
 
 /******************************************************************************/
@@ -775,7 +784,7 @@ double SingleRecursiveTreeLikelihoodCalculation::getDLogLikelihood() const
   }
   sort(dla.begin(), dla.end());
   double dl = 0;
-  for (size_t i = nbSites_; i > 0; i--)
+  for (size_t i = nbSites_; i > 0; --i)
   {
     dl += dla[i - 1];
   }
@@ -1226,7 +1235,7 @@ double SingleRecursiveTreeLikelihoodCalculation::getD2LikelihoodForASiteForAClas
   Vdouble* d2la = &likelihoodData_->getD2LikelihoodArray(
            process_->getTree().getRootNode()->getId())[likelihoodData_->getRootArrayPosition(site)][classIndex];
   double d2l = 0;
-  for (int i = 0; i < static_cast<int>(nbStates_); ++i)
+  for (size_t i = 0; i < nbStates_; ++i)
   {
     d2l += (*d2la)[i] * rootFreqs[i];
   }

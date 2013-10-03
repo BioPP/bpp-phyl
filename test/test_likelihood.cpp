@@ -38,8 +38,10 @@ knowledge of the CeCILL license and that you accept its terms.
 */
 
 #include <Bpp/Numeric/Matrix/MatrixTools.h>
+#include <Bpp/Numeric/AutoParameter.h>
 #include <Bpp/Seq/Alphabet/AlphabetTools.h>
 #include <Bpp/Phyl/TreeTemplate.h>
+#include <Bpp/Phyl/Model/Nucleotide/JCnuc.h>
 #include <Bpp/Phyl/Model/Nucleotide/T92.h>
 #include <Bpp/Phyl/Model/RateDistribution/GammaDiscreteRateDistribution.h>
 #include <Bpp/Phyl/Model/RateDistribution/ConstantRateDistribution.h>
@@ -58,40 +60,44 @@ using namespace std;
 
 void fitModelH(SubstitutionModel* model, DiscreteDistribution* rdist, const Tree& tree, const SiteContainer& sites,
     double initialValue, double finalValue) {
-  RHomogeneousTreeLikelihood tl(tree, sites, model, rdist);
+  RHomogeneousTreeLikelihood tl(tree, sites, model->clone(), rdist->clone());
   tl.initialize();
   ApplicationTools::displayResult("Test model", model->getName());
   cout << "OldTL: " << setprecision(20) << tl.getValue() << endl;
-  ApplicationTools::displayResult("* initial likelihood", tl.getValue());
+  cout << "OldTL D1: " << setprecision(20) << tl.getFirstOrderDerivative("BrLen0") << endl;
+  cout << "OldTL D2: " << setprecision(20) << tl.getSecondOrderDerivative("BrLen0") << endl;
+  //ApplicationTools::displayResult("* initial likelihood", tl.getValue());
   // if (abs(tl.getValue() - initialValue) > 0.001)
   //   throw Exception("Incorrect initial value.");
   cout << endl;
 
-  
   ParametrizableTree* pTree = new ParametrizableTree(tree);
   RateAcrossSitesSubstitutionProcess* process = new RateAcrossSitesSubstitutionProcess(model->clone(), rdist->clone(), pTree);
+  //SimpleSubstitutionProcess* process = new SimpleSubstitutionProcess(model->clone(), pTree, true);
   
   auto_ptr<SingleRecursiveTreeLikelihoodCalculation> tmComp(new SingleRecursiveTreeLikelihoodCalculation(sites, process, true, true));
   SinglePhyloLikelihood newTl(process, tmComp.release(), true);
 
-  newTl.computeTreeLikelihood();
+  //newTl.computeTreeLikelihood();
   
   cout << "NewTL: " << setprecision(20) << newTl.getValue() << endl;
+  cout << "NewTL D1: " << setprecision(20) << newTl.getFirstOrderDerivative("BrLen1") << endl;
+  cout << "NewTL D2: " << setprecision(20) << newTl.getSecondOrderDerivative("BrLen1") << endl;
+  newTl.getParameters().printParameters(cout);
 
 
   cout << "Optimization : " << endl;
   
   OptimizationTools::optimizeNumericalParameters2(&tl, tl.getParameters(), 0, 0.000001, 10000, 0, 0);
   cout << setprecision(20) << tl.getValue() << endl;
-  ApplicationTools::displayResult("* likelihood after full optimization", tl.getValue());
+  ApplicationTools::displayResult("* lnL after full optimization (old)", tl.getValue());
   // if (abs(tl.getValue() - finalValue) > 0.001)
   //   throw Exception("Incorrect final value.");
-
   tl.getParameters().printParameters(cout);
   
   OptimizationTools::optimizeNumericalParameters2(&newTl, newTl.getParameters(), 0, 0.000001, 10000, 0, 0);
   cout << setprecision(20) << newTl.getValue() << endl;
-  ApplicationTools::displayResult("* likelihood after full optimization", newTl.getValue());
+  ApplicationTools::displayResult("* lnL after full optimization (new)", newTl.getValue());
   // if (abs(newTl.getValue() - finalValue) > 0.001)
   //   throw Exception("Incorrect final value.");
   newTl.getParameters().printParameters(cout);
@@ -99,13 +105,16 @@ void fitModelH(SubstitutionModel* model, DiscreteDistribution* rdist, const Tree
 
 int main() {
   TreeTemplate<Node>* tree = TreeTemplateTools::parenthesisToTree("(A:0.5,((B:0.8,C:0.4):1.2,D:0.01):0.2);");
+  tree->unroot();
   vector<string> seqNames= tree->getLeavesNames();
   vector<int> ids = tree->getNodesId();
   //-------------
 
   const NucleicAlphabet* alphabet = &AlphabetTools::DNA_ALPHABET;
-  SubstitutionModel* model = new T92(alphabet, 3.);
+  SubstitutionModel* model = new JCnuc(alphabet);
+  //SubstitutionModel* model = new T92(alphabet, 3.);
   DiscreteDistribution* rdist = new GammaDiscreteRateDistribution(2, 0.1);
+  //DiscreteDistribution* rdist = new ConstantRateDistribution();
 
   VectorSiteContainer sites(alphabet);
   sites.addSequence(BasicSequence("A", "GAACACGAAAGCATGAATGTTCAGTGAGTAGATCAAATATGTCATTTCTGAATTATTATA", alphabet));

@@ -160,10 +160,9 @@ VVVdouble SinglePhyloLikelihood::getLikelihoodForEachSiteForEachClassForEachStat
 
 ParameterList SinglePhyloLikelihood::getNonDerivableParameters() const
 {
-  ParameterList pl=getSubstitutionModelParameters();
+  ParameterList pl = getSubstitutionModelParameters();
   pl.addParameters(getRootFrequenciesParameters());
   pl.addParameters(getRateDistributionParameters());
-
   return pl;
 }
 

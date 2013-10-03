@@ -42,14 +42,18 @@
 using namespace bpp;
 using namespace std;
 
-SimpleSubstitutionProcess::SimpleSubstitutionProcess(SubstitutionModel* model, ParametrizableTree* tree) :
+SimpleSubstitutionProcess::SimpleSubstitutionProcess(SubstitutionModel* model, ParametrizableTree* tree, bool checkRooted) :
   AbstractParameterAliasable(model ? model->getNamespace() : ""),
   AbstractSubstitutionProcess(tree, 1, model ? model->getNamespace() : ""),
   model_(model)
 {
   if (!model)
     throw Exception("SimpleSubstitutionProcess. A model instance must be provided.");
-    
+  if (checkRooted && pTree_->isRooted())
+  {
+    throw Exception("SimpleSubstitutionProcess (constructor). Tree is rooted.");
+  }
+
   // Add parameters:
   addParameters_(tree->getParameters());  //Branch lengths
   addParameters_(model->getIndependentParameters()); //Substitution model
@@ -80,11 +84,11 @@ void SimpleSubstitutionProcess::fireParameterChanged(const ParameterList& pl)
 
 const Matrix<double>& SimpleSubstitutionProcess::getTransitionProbabilities(int nodeId, size_t classIndex) const
 {
-  size_t i = getNodeIndex_(nodeId);
+  size_t i = pTree_->getNodeIndex(nodeId);
   if (!computeProbability_[i]) {
     computeProbability_[i] = true; //We record that we did this computation.
     //The transition matrix was never computed before. We therefore have to compute it first:
-    double l = pTree_->getBranchLengthParameter(nodeId).getValue();
+    double l = pTree_->getBranchLength(nodeId);
     probabilities_[i] = model_->getPij_t(l);
   }
   return probabilities_[i];
@@ -92,11 +96,11 @@ const Matrix<double>& SimpleSubstitutionProcess::getTransitionProbabilities(int 
 
 const Matrix<double>& SimpleSubstitutionProcess::getTransitionProbabilitiesD1(int nodeId, size_t classIndex) const
 {
-  size_t i = getNodeIndex_(nodeId);
+  size_t i = pTree_->getNodeIndex(nodeId);
   if (!computeProbabilityD1_[i]) {
     computeProbabilityD1_[i] = true; //We record that we did this computation.
     //The transition matrix was never computed before. We therefore have to compute it first:
-    double l = pTree_->getBranchLengthParameter(nodeId).getValue();
+    double l = pTree_->getBranchLength(nodeId);
     probabilitiesD1_[i] = model_->getdPij_dt(l);
   }
   return probabilitiesD1_[i];
@@ -104,11 +108,11 @@ const Matrix<double>& SimpleSubstitutionProcess::getTransitionProbabilitiesD1(in
 
 const Matrix<double>& SimpleSubstitutionProcess::getTransitionProbabilitiesD2(int nodeId, size_t classIndex) const
 {
-  size_t i = getNodeIndex_(nodeId);
+  size_t i = pTree_->getNodeIndex(nodeId);
   if (!computeProbabilityD2_[i]) {
     computeProbabilityD2_[i] = true; //We record that we did this computation.
     //The transition matrix was never computed before. We therefore have to compute it first:
-    double l = pTree_->getBranchLengthParameter(nodeId).getValue();
+    double l = pTree_->getBranchLength(nodeId);
     probabilitiesD2_[i] = model_->getd2Pij_dt2(l);
   }
   return probabilitiesD2_[i];

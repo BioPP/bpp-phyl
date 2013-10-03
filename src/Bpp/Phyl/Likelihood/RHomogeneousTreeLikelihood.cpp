@@ -403,6 +403,7 @@ void RHomogeneousTreeLikelihood::computeTreeDLikelihood(const string& variable)
     if (son == branch)
     {
       VVVdouble* dpxy__son = &dpxy_[son->getId()];
+
       for (size_t i = 0; i < nbSites; i++)
       {
         VVdouble* _likelihoods_son_i = &(*_likelihoods_son)[(*_patternLinks_father_son)[i]];
@@ -486,8 +487,8 @@ void RHomogeneousTreeLikelihood::computeDownSubtreeDLikelihood(const Node* node)
   for (size_t l = 0; l < nbNodes; l++)
   {
     const Node* son = father->getSon(l);
-
     VVVdouble* pxy__son = &pxy_[son->getId()];
+    
     vector<size_t> * _patternLinks_father_son = &likelihoodData_->getArrayPositions(father->getId(), son->getId());
 
     if (son == node)
