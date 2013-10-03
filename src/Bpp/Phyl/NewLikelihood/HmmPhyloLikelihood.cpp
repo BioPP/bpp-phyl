@@ -63,8 +63,7 @@ HmmPhyloLikelihood::HmmPhyloLikelihood(
   HmmPhyloEmissionProbabilities* hpep=new HmmPhyloEmissionProbabilities(hpa, this);
     
   Hmm_ = auto_ptr<LogsumHmmLikelihood>(new LogsumHmmLikelihood(hpa, hptm, hpep, ""));
-  //Hmm_ = auto_ptr<RescaledHmmLikelihood>(new RescaledHmmLikelihood(hpa, hptm, hpep, ""));
-  
+    
   // initialize parameters:
   addParameters_(Hmm_->getParameters());
 }
@@ -82,12 +81,13 @@ HmmPhyloLikelihood::HmmPhyloLikelihood(
   HmmPhyloTransitionMatrix* hptm=new HmmPhyloTransitionMatrix(hpa);
 
   HmmPhyloEmissionProbabilities* hpep=new HmmPhyloEmissionProbabilities(hpa, this);
-    
-  //Hmm_ = auto_ptr<RescaledHmmLikelihood>(new RescaledHmmLikelihood(hpa, hptm, hpep, ""));
+
   Hmm_ = auto_ptr<LogsumHmmLikelihood>(new LogsumHmmLikelihood(hpa, hptm, hpep, ""));
   // initialize parameters:
-  addParameters_(Hmm_->getParameters());
-  
+
+  addParameters_(Hmm_->getHmmTransitionMatrix().getParameters());
+  addParameters_(Hmm_->getHmmStateAlphabet().getParameters());
+
   minusLogLik_ = -getLogLikelihood();
 }
 
@@ -103,7 +103,8 @@ void HmmPhyloLikelihood::fireParameterChanged(const ParameterList& parameters)
 ParameterList HmmPhyloLikelihood::getNonDerivableParameters() const
 {
   ParameterList pl = processColl_->getNonDerivableParameters();
-  pl.addParameters(Hmm_->getParameters());
+  pl.addParameters(Hmm_->getHmmTransitionMatrix().getParameters());
+  pl.addParameters(Hmm_->getHmmStateAlphabet().getParameters());
   
   return pl;
 }

@@ -142,9 +142,7 @@ void MultiPhyloLikelihood::fireParameterChanged(const ParameterList& parameters)
 
   if (parameters.size() > 0)
     for (size_t i = 0; i < vpTreelik_.size(); i++)
-    {
       vpTreelik_[i]->computeTreeLikelihood();
-    }
 }
 
 /******************************************************************************/

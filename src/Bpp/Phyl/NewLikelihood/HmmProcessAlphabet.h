@@ -66,7 +66,9 @@ namespace bpp {
   public:
     HmmProcessAlphabet(const SubstitutionProcessCollection* pSub) :
       AbstractParametrizable(""),
-      processColl_(pSub) {};
+      processColl_(pSub)
+    {
+    }
 
     HmmProcessAlphabet(const HmmProcessAlphabet& hpa) :
       AbstractParametrizable(hpa),

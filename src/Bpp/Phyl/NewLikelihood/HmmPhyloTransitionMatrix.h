@@ -109,6 +109,13 @@ public:
   }
 
   /**
+   * @brief Set the matrix of the transition probabilities.
+   *
+   */
+  
+  void setTransitionProbabilities(const Matrix<double>& mat);
+  
+  /**
    * @brief Get the transition probability between two states.
    *
    * @param i initial state.

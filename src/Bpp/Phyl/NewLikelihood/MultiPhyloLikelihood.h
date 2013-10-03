@@ -91,6 +91,7 @@ protected:
    * vector of pointers towards Treelikelihoods, used for the
    * global likelihood.
    */
+  
   std::vector<TreeLikelihoodCalculation*> vpTreelik_;
 
 public:
@@ -262,6 +263,16 @@ public:
   double getLikelihoodForASiteForAProcess(size_t i, size_t p) const
   {
     return vpTreelik_[p]->getLikelihoodForASite(i);
+  }
+
+  void computeDLikelihoodForAProcess(std::string& variable, size_t p) const
+  {
+    vpTreelik_[p]->computeTreeDLikelihood(variable);
+  }
+
+  void computeD2LikelihoodForAProcess(std::string& variable, size_t p) const
+  {
+    vpTreelik_[p]->computeTreeD2Likelihood(variable);
   }
 
   double getDLikelihoodForASiteForAProcess(size_t i, size_t p) const

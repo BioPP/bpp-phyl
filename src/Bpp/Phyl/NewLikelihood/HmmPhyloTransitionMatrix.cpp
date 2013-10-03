@@ -79,7 +79,7 @@ HmmPhyloTransitionMatrix::HmmPhyloTransitionMatrix(const HmmProcessAlphabet* pro
   upToDate_(false)
 {
   size_t size=(size_t)procalph->getNumberOfStates();
-  
+
   for (size_t i=0; i<size; i++)
     {
       vSimplex_.push_back(Simplex(size,1));
@@ -127,6 +127,29 @@ void HmmPhyloTransitionMatrix::setHmmStateAlphabet(const HmmStateAlphabet* state
   procAlph_=dynamic_cast<const HmmProcessAlphabet*>(stateAlphabet);
 }
 
+void HmmPhyloTransitionMatrix::setTransitionProbabilities(const Matrix<double>& mat)
+{
+  if (mat.getNumberOfRows()!=vSimplex_.size())
+    throw BadSizeException("HmmPhyloTransitionMatrix::setTransitionProbabilities: Wrong number of rows in given Matrix", mat.getNumberOfRows(), vSimplex_.size());
+  
+  ParameterList pl;
+  
+  for (size_t i=0; i<mat.getNumberOfRows();i++)
+  {
+    vSimplex_[i].setFrequencies(mat.row(i));
+    ParameterList pls=vSimplex_[i].getParameters();
+    for (size_t j=0; j<pls.size(); j++)
+    {
+      Parameter* p=pls[j].clone();
+      p->setName(TextTools::toString(i+1)+"."+p->getName());
+      pl.addParameter(p);
+    }
+  }
+  
+  matchParametersValues(pl);
+}
+
+
 const Matrix<double>& HmmPhyloTransitionMatrix::getPij() const
  {
    if (!upToDate_){
@@ -143,7 +166,7 @@ const std::vector<double>& HmmPhyloTransitionMatrix::getEquilibriumFrequencies()
 {
   size_t salph=getNumberOfStates();
   
-  if (upToDate_){
+  if (!upToDate_){
     pij_=getPij();
 
     MatrixTools::pow(pij_, 256, tmpmat_);

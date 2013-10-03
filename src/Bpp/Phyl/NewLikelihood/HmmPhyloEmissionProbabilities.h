@@ -169,7 +169,6 @@ namespace bpp
     {
       if (!upToDate_)
         updateEmissionProbabilities_();
-      
       return emProb_[pos];
     }
     

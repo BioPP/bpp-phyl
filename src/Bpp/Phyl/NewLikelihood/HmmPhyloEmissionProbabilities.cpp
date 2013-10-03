@@ -54,7 +54,9 @@ HmmPhyloEmissionProbabilities::HmmPhyloEmissionProbabilities(const HmmProcessAlp
   upToDate_(false)
 {
   for (size_t i=0;i<emProb_.size();i++)
-    emProb_[i].resize(multiPL_->getNumberOfStates());
+    emProb_[i].resize(multiPL_->getNumberOfSubstitutionProcess());
+
+  addParameters_(multiPL_->getSubstitutionProcessParameters());
 }
 
 
@@ -74,19 +76,20 @@ void HmmPhyloEmissionProbabilities::updateEmissionProbabilities_() const
   for (size_t i=0;i<emProb_.size();i++)
     for (size_t j=0;j<emProb_[j].size();j++)
       emProb_[i][j]= multiPL_->getLikelihoodForASiteForAProcess(i, j);
-
+  
   upToDate_=true;
 }
 
 void HmmPhyloEmissionProbabilities::computeDEmissionProbabilities(std::string& variable) const
 {
-  multiPL_->getFirstOrderDerivative(variable);
+  for (size_t i=0;i<multiPL_->getNumberOfSubstitutionProcess();i++)
+    multiPL_->computeDLikelihoodForAProcess(variable,i);
 
   if (dEmProb_.size()!=multiPL_->getNumberOfSites())
   {
     dEmProb_.resize(multiPL_->getNumberOfSites());
     for (size_t i=0; i<multiPL_->getNumberOfSites();i++)
-      dEmProb_[i].resize(multiPL_->getNumberOfStates());
+      dEmProb_[i].resize(multiPL_->getNumberOfSubstitutionProcess());
   }
 
   for (size_t i=0;i<dEmProb_.size();i++)
@@ -96,13 +99,14 @@ void HmmPhyloEmissionProbabilities::computeDEmissionProbabilities(std::string& v
   
 void HmmPhyloEmissionProbabilities::computeD2EmissionProbabilities(std::string& variable) const
 {
-  multiPL_->getSecondOrderDerivative(variable);
+  for (size_t i=0;i<multiPL_->getNumberOfSubstitutionProcess();i++)
+    multiPL_->computeD2LikelihoodForAProcess(variable,i);
 
   if (d2EmProb_.size()!=multiPL_->getNumberOfSites())
   {
     d2EmProb_.resize(multiPL_->getNumberOfSites());
     for (size_t i=0; i<multiPL_->getNumberOfSites();i++)
-      d2EmProb_[i].resize(multiPL_->getNumberOfStates());
+      d2EmProb_[i].resize(multiPL_->getNumberOfSubstitutionProcess());
   }
 
   for (size_t i=0;i<d2EmProb_.size();i++)

@@ -59,6 +59,7 @@
 
 #include "../NewLikelihood/SinglePhyloLikelihood.h"
 #include "../NewLikelihood/MixturePhyloLikelihood.h"
+#include "../NewLikelihood/HmmPhyloLikelihood.h"
 #include "../NewLikelihood/ParametrizableTree.h"
 #include "../NewLikelihood/NonHomogeneousSubstitutionProcess.h"
 #include "../NewLikelihood/SimpleSubstitutionProcess.h"
@@ -79,6 +80,7 @@
 #include <Bpp/Numeric/Function/DownhillSimplexMethod.h>
 #include <Bpp/Numeric/Function/PowellMultiDimensions.h>
 #include <Bpp/Utils/AttributesTools.h>
+#include <Bpp/Numeric/Matrix/MatrixTools.h>
 
 // From bpp-seq:
 #include <Bpp/Seq/Alphabet/AlphabetTools.h>
@@ -2692,21 +2694,34 @@ void PhylogeneticsApplicationTools::printParameters(const PhyloLikelihood* phylo
 
   if (dynamic_cast<const MultiPhyloLikelihood*>(phylolike)!=NULL)
   {
-    if (dynamic_cast<const MixturePhyloLikelihood*>(phylolike)==NULL)
-      throw Exception("Only collection mixture is available now.");
+    if (dynamic_cast<const MixturePhyloLikelihood*>(phylolike)!=NULL)
+    {
+      const MixturePhyloLikelihood* pM=dynamic_cast<const MixturePhyloLikelihood*>(phylolike);
     
-    const MixturePhyloLikelihood* pM=dynamic_cast<const MixturePhyloLikelihood*>(phylolike);
+      PhylogeneticsApplicationTools::printParameters(pM->getCollection(), out);
     
-    PhylogeneticsApplicationTools::printParameters(pM->getCollection(), out);
+      out.endLine();
+      out << "collection=Mixture(probas=(" << pM->getSubProcessProb(0);
     
-    out.endLine();
-    out << "collection=Mixture(probas=(" << pM->getSubProcessProb(0);
+      for (size_t i=1; i< pM->getCollection()->getNumberOfSubstitutionProcess(); i++)
+        out << "," << pM->getSubProcessProb(i);
     
-    for (size_t i=1; i< pM->getCollection()->getNumberOfSubstitutionProcess(); i++)
-      out << "," << pM->getSubProcessProb(i);
-    
-    out << "))";
-    out.endLine();
+      out << "))";
+      out.endLine();
+    }
+    else if (dynamic_cast<const HmmPhyloLikelihood*>(phylolike)!=NULL)
+    {
+      const HmmPhyloLikelihood* pM=dynamic_cast<const HmmPhyloLikelihood*>(phylolike);
+      
+      PhylogeneticsApplicationTools::printParameters(pM->getCollection(), out);
+      out.endLine();
+      out << "collection=HMM(probas=";
+
+      const Matrix<double>& tMt = pM->getHmmTransitionMatrix().getPij();
+      MatrixTools::print(tMt, out);
+
+      out.endLine();
+    }
   }
   else
   {
@@ -2783,61 +2798,61 @@ void PhylogeneticsApplicationTools::printAnalysisInformation(const PhyloLikeliho
     DataTable::write(*infos, out, "\t");
     delete infos;
   }
-  else if (dynamic_cast<const MixturePhyloLikelihood*>(phylolike) != NULL)
-    {
-      const MixturePhyloLikelihood* pMPL = dynamic_cast<const MixturePhyloLikelihood*>(phylolike);
+  else if (dynamic_cast<const MultiPhyloLikelihood*>(phylolike) != NULL)
+  {
+    const MultiPhyloLikelihood* pMPL = dynamic_cast<const MultiPhyloLikelihood*>(phylolike);
 
-      vector<string> colNames;
-      colNames.push_back("Sites");
-      colNames.push_back("is.complete");
-      colNames.push_back("is.constant");
-      colNames.push_back("lnL");
-
-      size_t nbP = pMPL->getNumberOfSubstitutionProcess();
-
-      if (nbP>1){
-        for (size_t i = 0; i < nbP; i++)
-          colNames.push_back("lnL"+ TextTools::toString(i+1));
-        for (size_t i = 0; i < nbP; i++)
-          colNames.push_back("prob"+ TextTools::toString(i+1));
-      }
-      
-      const SiteContainer* sites = phylolike -> getData();
-
-      vector<string> row(4+(nbP>1?2*nbP:0));
-      DataTable* infos = new DataTable(colNames);
-
-      VVdouble vvPP = pMPL->getPosteriorProbabilitiesForEachSiteForEachProcess();
-      VVdouble vvL = pMPL->getLikelihoodForEachSiteForEachProcess();
+    vector<string> colNames;
+    colNames.push_back("Sites");
+    colNames.push_back("is.complete");
+    colNames.push_back("is.constant");
+    colNames.push_back("lnL");
     
-      for (size_t i = 0; i < sites->getNumberOfSites(); i++)
-        {
-          double lnL = phylolike->getLogLikelihoodForASite(i);
-          const Site* currentSite = &sites->getSite(i);
-          int currentSitePosition = currentSite->getPosition();
-          string isCompl = "NA";
-          string isConst = "NA";
-          try { isCompl = (SiteTools::isComplete(*currentSite) ? "1" : "0"); }
-          catch(EmptySiteException& ex) {}
-          try { isConst = (SiteTools::isConstant(*currentSite) ? "1" : "0"); }
-          catch(EmptySiteException& ex) {}
-          row[0] = (string("[" + TextTools::toString(currentSitePosition) + "]"));
-          row[1] = isCompl;
-          row[2] = isConst;
-          row[3] = TextTools::toString(lnL);
-
-          if (nbP>1){
-            for (size_t j=0; j<nbP; j++)
-              row[4+j] = TextTools::toString(log(vvL[i][j]));
-            for (size_t j=0; j<nbP; j++)
-              row[4+nbP+j] = TextTools::toString(vvPP[i][j]);
-          }
-          infos->addRow(row);
-        }
-          
-      DataTable::write(*infos, out, "\t");
-      delete infos;
+    size_t nbP = pMPL->getNumberOfSubstitutionProcess();
+      
+    if (nbP>1){
+      for (size_t i = 0; i < nbP; i++)
+        colNames.push_back("lnL"+ TextTools::toString(i+1));
+      for (size_t i = 0; i < nbP; i++)
+        colNames.push_back("prob"+ TextTools::toString(i+1));
     }
+      
+    const SiteContainer* sites = phylolike -> getData();
+
+    vector<string> row(4+(nbP>1?2*nbP:0));
+    DataTable* infos = new DataTable(colNames);
+
+    VVdouble vvPP = pMPL->getPosteriorProbabilitiesForEachSiteForEachProcess();
+    VVdouble vvL = pMPL->getLikelihoodForEachSiteForEachProcess();
+    
+    for (size_t i = 0; i < sites->getNumberOfSites(); i++)
+    {
+      double lnL = phylolike->getLogLikelihoodForASite(i);
+      const Site* currentSite = &sites->getSite(i);
+      int currentSitePosition = currentSite->getPosition();
+      string isCompl = "NA";
+      string isConst = "NA";
+      try { isCompl = (SiteTools::isComplete(*currentSite) ? "1" : "0"); }
+      catch(EmptySiteException& ex) {}
+      try { isConst = (SiteTools::isConstant(*currentSite) ? "1" : "0"); }
+      catch(EmptySiteException& ex) {}
+      row[0] = (string("[" + TextTools::toString(currentSitePosition) + "]"));
+      row[1] = isCompl;
+      row[2] = isConst;
+      row[3] = TextTools::toString(lnL);
+      
+      if (nbP>1){
+        for (size_t j=0; j<nbP; j++)
+          row[4+j] = TextTools::toString(log(vvL[i][j]));
+        for (size_t j=0; j<nbP; j++)
+          row[4+nbP+j] = TextTools::toString(vvPP[i][j]);
+      }
+      infos->addRow(row);
+    }
+    
+    DataTable::write(*infos, out, "\t");
+    delete infos;
+  }
   
 }
 

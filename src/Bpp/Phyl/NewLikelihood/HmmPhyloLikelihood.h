@@ -163,6 +163,17 @@ public:
     return pp;
   }
 
+  void setTransitionProbabilities(const Matrix<double>& mat)
+  {
+    Hmm_->getHmmTransitionMatrix().setTransitionProbabilities(mat);
+  }
+  
+
+  const HmmTransitionMatrix& getHmmTransitionMatrix() const
+  {
+    return Hmm_->getHmmTransitionMatrix();
+  }
+  
 protected:
   void computeDLikelihood_(const std::string& variable) const
   {
