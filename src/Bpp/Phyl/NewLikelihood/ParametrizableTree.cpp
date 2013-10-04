@@ -65,7 +65,7 @@ ParametrizableTree::ParametrizableTree(const Tree& tree, bool reparametrizeRoot,
 ParametrizableTree::ParametrizableTree(const ParametrizableTree& pTree): 
   AbstractParametrizable(pTree),
   tree_(pTree.tree_),
-  liveIndex_(pTree.liveIndex_),
+  liveIndex_(),
   index_(pTree.index_),
   reverseIndex_(),
   isSynchronized_(true),
@@ -73,7 +73,6 @@ ParametrizableTree::ParametrizableTree(const ParametrizableTree& pTree):
   maximumBrLen_(pTree.maximumBrLen_),
   brLenConstraint_(new IntervalConstraint(pTree.minimumBrLen_, pTree.maximumBrLen_, true, true))
 {
-  buildIndex_(*tree_.getRootNode()); 
   if (liveIndex_)
     buildReverseIndex_(tree_.getRootNode()); 
 }
@@ -84,8 +83,8 @@ ParametrizableTree& ParametrizableTree::operator=(const ParametrizableTree& pTre
   tree_ = pTree.tree_;
   liveIndex_ = pTree.liveIndex_;
   index_ = pTree.index_;
+  reverseIndex_.clear();
   if (liveIndex_) {
-    reverseIndex_.clear();
     buildReverseIndex_(tree_.getRootNode());
   }
   isSynchronized_ = true;

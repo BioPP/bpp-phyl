@@ -156,7 +156,7 @@ namespace bpp
     void buildReverseIndex_(Node* node);
 
     void updateTreeFromParameters_() const;
-      void fireParameterChanged (const ParameterList& parameters);
+    void fireParameterChanged (const ParameterList& parameters);
   };
 
 } //end of namespace bpp
