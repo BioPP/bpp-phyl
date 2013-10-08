@@ -46,7 +46,7 @@ knowledge of the CeCILL license and that you accept its terms.
 #include <Bpp/Graphics/Font/Font.h>
 
 // From PhylLib:
-#include "../Tree.h"
+#include "../Tree/Tree.h"
 
 namespace bpp
 {

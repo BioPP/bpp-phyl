@@ -5,8 +5,6 @@
 # File list
 SET(CPP_FILES
   Bpp/Phyl/App/PhylogeneticsApplicationTools.cpp
-  Bpp/Phyl/BipartitionList.cpp
-  Bpp/Phyl/BipartitionTools.cpp
   Bpp/Phyl/Distance/AbstractAgglomerativeDistanceMethod.cpp
   Bpp/Phyl/Distance/BioNJ.cpp
   Bpp/Phyl/Distance/DistanceEstimation.cpp
@@ -156,8 +154,6 @@ SET(CPP_FILES
   Bpp/Phyl/Model/FrequenciesSet/MvaFrequenciesSet.cpp
   Bpp/Phyl/Model/FrequenciesSet/WordFrequenciesSet.cpp
   Bpp/Phyl/Model/FrequenciesSet/CodonFrequenciesSet.cpp
-  Bpp/Phyl/NNITopologySearch.cpp
-  Bpp/Phyl/Node.cpp
   Bpp/Phyl/OptimizationTools.cpp
   Bpp/Phyl/Parsimony/AbstractTreeParsimonyScore.cpp
   Bpp/Phyl/Parsimony/DRTreeParsimonyData.cpp
@@ -168,15 +164,17 @@ SET(CPP_FILES
   Bpp/Phyl/Simulation/NonHomogeneousSequenceSimulator.cpp
   Bpp/Phyl/Simulation/SequenceSimulationTools.cpp
   Bpp/Phyl/SitePatterns.cpp
-  Bpp/Phyl/TreeExceptions.cpp
-  Bpp/Phyl/TreeTemplateTools.cpp
-  Bpp/Phyl/TreeTools.cpp  
+  Bpp/Phyl/Tree/BipartitionList.cpp
+  Bpp/Phyl/Tree/BipartitionTools.cpp
+  Bpp/Phyl/Tree/NNITopologySearch.cpp
+  Bpp/Phyl/Tree/Node.cpp
+  Bpp/Phyl/Tree/TreeExceptions.cpp
+  Bpp/Phyl/Tree/TreeTemplateTools.cpp
+  Bpp/Phyl/Tree/TreeTools.cpp  
   )
 SET(H_FILES
   Bpp/Phyl/AncestralStateReconstruction.h
   Bpp/Phyl/App/PhylogeneticsApplicationTools.h
-  Bpp/Phyl/BipartitionList.h
-  Bpp/Phyl/BipartitionTools.h
   Bpp/Phyl/Distance/AbstractAgglomerativeDistanceMethod.h
   Bpp/Phyl/Distance/DistanceMethod.h
   Bpp/Phyl/Distance/BioNJ.h
@@ -372,10 +370,6 @@ SET(H_FILES
   Bpp/Phyl/Model/RateDistribution/GammaDiscreteRateDistribution.h
   Bpp/Phyl/Model/RateDistribution/GaussianDiscreteRateDistribution.h
   Bpp/Phyl/Model/RateDistribution/ExponentialDiscreteRateDistribution.h
-  Bpp/Phyl/NNISearchable.h
-  Bpp/Phyl/NNITopologySearch.h
-  Bpp/Phyl/Node.h
-  Bpp/Phyl/NodeTemplate.h
   Bpp/Phyl/OptimizationTools.h
   Bpp/Phyl/Parsimony/AbstractTreeParsimonyData.h
   Bpp/Phyl/Parsimony/AbstractTreeParsimonyScore.h
@@ -393,12 +387,18 @@ SET(H_FILES
   Bpp/Phyl/Simulation/SequenceSimulator.h
   Bpp/Phyl/Simulation/SiteSimulator.h
   Bpp/Phyl/SitePatterns.h
-  Bpp/Phyl/TopologySearch.h
-  Bpp/Phyl/TreeExceptions.h
-  Bpp/Phyl/Tree.h
-  Bpp/Phyl/TreeTemplate.h
-  Bpp/Phyl/TreeTemplateTools.h
-  Bpp/Phyl/TreeTools.h
+  Bpp/Phyl/Tree/TopologySearch.h
+  Bpp/Phyl/Tree/NNISearchable.h
+  Bpp/Phyl/Tree/NNITopologySearch.h
+  Bpp/Phyl/Tree/BipartitionList.h
+  Bpp/Phyl/Tree/BipartitionTools.h
+  Bpp/Phyl/Tree/Node.h
+  Bpp/Phyl/Tree/NodeTemplate.h
+  Bpp/Phyl/Tree/TreeExceptions.h
+  Bpp/Phyl/Tree/Tree.h
+  Bpp/Phyl/Tree/TreeTemplate.h
+  Bpp/Phyl/Tree/TreeTemplateTools.h
+  Bpp/Phyl/Tree/TreeTools.h
   )
 
 # Build the static lib

@@ -42,7 +42,7 @@
 #define _SUBSTITUTIONMODELSET_H_
 
 
-#include "../Tree.h"
+#include "../Tree/Tree.h"
 #include "SubstitutionModel.h"
 #include "AbstractSubstitutionModel.h"
 #include "FrequenciesSet/FrequenciesSet.h"

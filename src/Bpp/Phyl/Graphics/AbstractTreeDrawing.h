@@ -40,8 +40,8 @@ knowledge of the CeCILL license and that you accept its terms.
 #ifndef _ABSTRACTTREEDRAWING_H_
 #define _ABSTRACTTREEDRAWING_H_
 
-#include "../TreeTemplate.h"
-#include "../NodeTemplate.h"
+#include "../Tree/TreeTemplate.h"
+#include "../Tree/NodeTemplate.h"
 #include "TreeDrawing.h"
 #include "TreeDrawingListener.h"
 

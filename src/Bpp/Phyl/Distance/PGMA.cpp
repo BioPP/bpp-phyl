@@ -38,10 +38,10 @@
  */
 
 #include "PGMA.h"
-#include "../NodeTemplate.h"
-#include "../Tree.h"
-#include "../TreeTemplate.h"
-#include "../TreeTemplateTools.h"
+#include "../Tree/NodeTemplate.h"
+#include "../Tree/Tree.h"
+#include "../Tree/TreeTemplate.h"
+#include "../Tree/TreeTemplateTools.h"
 
 using namespace bpp;
 

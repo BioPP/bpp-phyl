@@ -41,8 +41,8 @@ knowledge of the CeCILL license and that you accept its terms.
 #ifndef _TREELIKELIHOODDATA_H_
 #define _TREELIKELIHOODDATA_H_
 
-#include "../Node.h"
-#include "../TreeTemplate.h"
+#include "../Tree/Node.h"
+#include "../Tree/TreeTemplate.h"
 
 //From SeqLib:
 #include <Bpp/Seq/Alphabet/Alphabet.h>

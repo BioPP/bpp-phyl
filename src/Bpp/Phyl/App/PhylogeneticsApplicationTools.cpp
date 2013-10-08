@@ -49,7 +49,7 @@
 #include "../Mapping/NaiveSubstitutionCount.h"
 #include "../Mapping/OneJumpSubstitutionCount.h"
 #include "../OptimizationTools.h"
-#include "../Tree.h"
+#include "../Tree/Tree.h"
 #include "../Io/Newick.h"
 #include "../Io/NexusIoTree.h"
 #include "../Io/Nhx.h"
@@ -280,7 +280,7 @@ map<size_t, SubstitutionModel*> PhylogeneticsApplicationTools::getSubstitutionMo
      const GeneticCode* gCode,
      const SiteContainer* data,
      map<string, string>& params,
-     map<string, string>& unparsedparams,
+     map<string, string>& unparsedParams,
      const string& suffix,
      bool suffixIsOptional,
      bool verbose) throw (Exception)
@@ -320,7 +320,7 @@ map<size_t, SubstitutionModel*> PhylogeneticsApplicationTools::getSubstitutionMo
       
       map<string, string>::iterator it;
       for (it=tmpUnparsedParameterValues.begin(); it != tmpUnparsedParameterValues.end(); it++)
-        unparsedparams[it->first+"_"+TextTools::toString(modelsNum[i])]=it->second;
+        unparsedParams[it->first+"_"+TextTools::toString(modelsNum[i])]=it->second;
 
       if (verbose)
         {
@@ -340,7 +340,7 @@ SubstitutionModel* PhylogeneticsApplicationTools::getSubstitutionModel(
   const GeneticCode* gCode,
   const SiteContainer* data,
   std::map<std::string, std::string>& params,
-  map<string, string>& unparsedparams,
+  map<string, string>& unparsedParams,
   const string& suffix,
   bool suffixIsOptional,
   bool verbose) throw (Exception)
@@ -363,7 +363,7 @@ SubstitutionModel* PhylogeneticsApplicationTools::getSubstitutionModel(
       
   map<string, string>::iterator it;
   for (it=tmpUnparsedParameterValues.begin(); it != tmpUnparsedParameterValues.end(); it++)
-    unparsedparams[it->first]=it->second;
+    unparsedParams[it->first]=it->second;
 
   return model;
 }
@@ -532,7 +532,7 @@ SubstitutionProcess* PhylogeneticsApplicationTools::getSubstitutionProcess(
 {
   SubstitutionProcess* SP=0;
 
-  map<string, string> unparsedparams;
+  map<string, string> unparsedParams;
 
   string nhOpt = ApplicationTools::getStringParameter("nonhomogeneous", params, "no", "", true, false);
   ApplicationTools::displayResult("Heterogeneous process", nhOpt);
@@ -560,7 +560,7 @@ SubstitutionProcess* PhylogeneticsApplicationTools::getSubstitutionProcess(
   {
     // Homogeneous & stationary models
   
-    auto_ptr<SubstitutionModel> tmp(getSubstitutionModel(alphabet, gCode, data, params, unparsedparams));
+    auto_ptr<SubstitutionModel> tmp(getSubstitutionModel(alphabet, gCode, data, params, unparsedParams));
 
     if (tmp->getNumberOfStates() >= 2 * tmp->getAlphabet()->getSize() || (rDist->getName()=="Constant"))// first test is for Markov-modulated Markov model!
       SP = new SimpleSubstitutionProcess(tmp.release(), pTree.release(), true);
@@ -666,7 +666,7 @@ SubstitutionProcess* PhylogeneticsApplicationTools::getSubstitutionProcess(
 
         map<string, string>::iterator it;
         for (it=tmpUnparsedParameterValues.begin(); it != tmpUnparsedParameterValues.end(); it++)
-          unparsedparams[it->first+"_"+TextTools::toString(i+1)]=it->second;
+          unparsedParams[it->first+"_"+TextTools::toString(i+1)]=it->second;
 
         vector<int> nodesId = ApplicationTools::getVectorParameter<int>(prefix + ".nodes_id", params, ',', ':', TextTools::toString(i), suffix, suffixIsOptional, true);
         
@@ -682,64 +682,24 @@ SubstitutionProcess* PhylogeneticsApplicationTools::getSubstitutionProcess(
   }
 
 
-  ///////////////////////////
-  // Now set shared parameters:
-
   //////// Aliasing
   // Finally check parameter aliasing:
+
   string aliasDesc = ApplicationTools::getStringParameter("nonhomogeneous.alias", params, "", suffix, suffixIsOptional, false);
+
   StringTokenizer st(aliasDesc, ",");
   while (st.hasMoreToken())
-    {
-      string alias = st.nextToken();
-      string::size_type index = alias.find("->");
-      if (index == string::npos)
-        throw Exception("PhylogeneticsApplicationTools::getSubstitutionProcess. Bad alias syntax, should contain `->' symbol: " + alias);
-      string p1 = alias.substr(0, index);
-      string p2 = alias.substr(index + 2);
-      unparsedparams[p1]=p2;
-    }
-
-  ParameterList plpars, pl=SP->getParameters();
-  
-  for (size_t i=0; i< pl.size(); i++)
   {
-    if (unparsedparams.find(pl[i].getName())==unparsedparams.end())
-      plpars.addParameter(*pl[i].clone());
+    string alias = st.nextToken();
+    string::size_type index = alias.find("->");
+    if (index == string::npos)
+      throw Exception("PhylogeneticsApplicationTools::getSubstitutionProcess. Bad alias syntax, should contain `->' symbol: " + alias);
+    string p1 = alias.substr(0, index);
+    string p2 = alias.substr(index + 2);
+    unparsedParams[p1]=p2;
   }
 
-  size_t unp_s=unparsedparams.size();  
-  while (unp_s!=0)
-  {
-    map<string, string>::iterator it;
-    for (it=unparsedparams.begin(); it!=unparsedparams.end(); it++)
-    {
-      Parameter* pp=0;
-      try {
-        pp=&plpars.getParameter(it->second);
-      }
-      catch (ParameterNotFoundException& e){
-        if (!pl.hasParameter(it->second))
-          throw ParameterNotFoundException("Unknown aliasing parameter", it->second);
-        continue;
-      }
-      auto_ptr<Parameter> p2(pp->clone());
-      p2->setName(it->first);
-      plpars.addParameter(p2.release());
-      plpars.getParameter(it->first);
-      SP->aliasParameters(it->second, it->first);
-      if (verbose)
-        ApplicationTools::displayResult("Parameter alias found", it->first + " -> " + it->second + " = " + TextTools::toString(pp->getValue()));
-      unparsedparams.erase(it);
-    }
-
-    if (unparsedparams.size()==unp_s)
-      throw Exception("Error, there is a cycle in aliasing");
-    else
-      unp_s=unparsedparams.size();
-  }
-
-  SP->matchParametersValues(plpars);
+  SP->aliasParameters(unparsedParams, verbose);
   
   return SP;
 }
@@ -923,9 +883,9 @@ SubstitutionProcessCollection* PhylogeneticsApplicationTools::getSubstitutionPro
   //////////////////////////
   // Models
 
-  map<string, string> unparsedparams;
+  map<string, string> unparsedParams;
 
-  map<size_t, SubstitutionModel*> mModel=getSubstitutionModels(alphabet, gCode, data, params, unparsedparams, suffix, suffixIsOptional);
+  map<size_t, SubstitutionModel*> mModel=getSubstitutionModels(alphabet, gCode, data, params, unparsedParams, suffix, suffixIsOptional);
 
   if (mModel.size()==0)
     throw Exception("Missing model in construction of SubstitutionProcessCollection.");
@@ -968,64 +928,25 @@ SubstitutionProcessCollection* PhylogeneticsApplicationTools::getSubstitutionPro
 
   //////// Aliasing
   // Finally check parameter aliasing:
+
   string aliasDesc = ApplicationTools::getStringParameter("collection.alias", params, "", suffix, suffixIsOptional, verbose);
+
   StringTokenizer st(aliasDesc, ",");
   while (st.hasMoreToken())
-    {
-      string alias = st.nextToken();
-      string::size_type index = alias.find("->");
-      if (index == string::npos)
-        throw Exception("PhylogeneticsApplicationTools::getSubstitutionCollection. Bad alias syntax, should contain `->' symbol: " + alias);
-      string p1 = alias.substr(0, index);
-      string p2 = alias.substr(index + 2);
-      unparsedparams[p1]=p2;
-    }
-
-  
-  ParameterList plpars, pl=SPC->getParameters();
-
-  for (size_t i=0; i< pl.size(); i++)
-    {
-      if (unparsedparams.find(pl[i].getName())==unparsedparams.end())
-        plpars.addParameter(*pl[i].clone());
-    }
-  
-  size_t unp_s=unparsedparams.size();  
-  while (unp_s!=0)
   {
-    map<string, string>::iterator it;
-    for (it=unparsedparams.begin(); it!=unparsedparams.end(); it++)
-    {
-      Parameter* pp=0;
-      try {
-        pp=&plpars.getParameter(it->second);
-      }
-      catch (ParameterNotFoundException& e){
-        if (!pl.hasParameter(it->second))
-          throw ParameterNotFoundException("Unknown aliasing parameter", it->second);
-        continue;
-      }
-      auto_ptr<Parameter> p2(pp->clone());
-      p2->setName(it->first);
-      plpars.addParameter(p2.release());
-      plpars.getParameter(it->first);
-      SPC->aliasParameters(it->second, it->first);
-      if (verbose)
-        ApplicationTools::displayResult("Parameter alias found", it->first + " -> " + it->second + " = " + TextTools::toString(pp->getValue()));
-      unparsedparams.erase(it);
-    }
-
-    if (unparsedparams.size()==unp_s)
-      throw Exception("Error, there is a cycle in aliasing");
-    else
-      unp_s=unparsedparams.size();
+    string alias = st.nextToken();
+    string::size_type index = alias.find("->");
+    if (index == string::npos)
+      throw Exception("PhylogeneticsApplicationTools::getSubstitutionProcessCollection. Bad alias syntax, should contain `->' symbol: " + alias);
+    string p1 = alias.substr(0, index);
+    string p2 = alias.substr(index + 2);
+    unparsedParams[p1]=p2;
   }
-  
-  SPC->matchParametersValues(plpars);
+
+  SPC->aliasParameters(unparsedParams, verbose);
   
   return SPC;
 }
-
 
 
 /******************************************************/
@@ -2534,11 +2455,11 @@ void PhylogeneticsApplicationTools::printParameters(const SubstitutionProcess* p
     
     ParameterList pl=pdd->getParameters();
     for (size_t np = 0 ; np< pl.size() ; np++)
-      {
-        string nfrom=pNH->getFrom(pl[np].getName());
-        if (nfrom!="")
-          aliases[pl[np].getName()]=nfrom;
-      }
+    {
+      string nfrom=pNH->getFrom(pl[np].getName());
+      if (nfrom!="")
+        aliases[pl[np].getName()]=nfrom;
+    }
     out.endLine();
     out << "rate_distribution=";
     const BppORateDistributionFormat* bIO = new BppORateDistributionFormat(true);

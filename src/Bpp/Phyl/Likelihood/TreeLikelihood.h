@@ -40,8 +40,8 @@ knowledge of the CeCILL license and that you accept its terms.
 #ifndef _TREELIKELIHOOD_H_
 #define _TREELIKELIHOOD_H_
 
-#include "../Node.h"
-#include "../Tree.h"
+#include "../Tree/Node.h"
+#include "../Tree/Tree.h"
 #include "../Model/SubstitutionModel.h"
 #include "TreeLikelihoodData.h"
 

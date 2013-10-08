@@ -40,7 +40,7 @@ knowledge of the CeCILL license and that you accept its terms.
 #ifndef _PATTERNTOOLS_H_
 #define _PATTERNTOOLS_H_
 
-#include "Tree.h"
+#include "Tree/Tree.h"
 
 #include <Bpp/Numeric/VectorTools.h>
 

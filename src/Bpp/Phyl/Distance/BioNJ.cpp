@@ -38,7 +38,7 @@
  */
 
 #include "BioNJ.h"
-#include "../Tree.h"
+#include "../Tree/Tree.h"
 
 #include <Bpp/App/ApplicationTools.h>
 

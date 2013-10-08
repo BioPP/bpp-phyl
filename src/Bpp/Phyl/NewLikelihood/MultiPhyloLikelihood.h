@@ -43,8 +43,8 @@
 #include "PhyloLikelihood.h"
 #include "SinglePhyloLikelihood.h"
 #include "SubstitutionProcessCollection.h"
-#include "../Tree.h"
-#include "../TreeTemplate.h"
+#include "../Tree/Tree.h"
+#include "../Tree/TreeTemplate.h"
 
 #include <Bpp/Numeric/AbstractParametrizable.h>
 
@@ -265,15 +265,9 @@ public:
     return vpTreelik_[p]->getLikelihoodForASite(i);
   }
 
-  void computeDLikelihoodForAProcess(std::string& variable, size_t p) const
-  {
-    vpTreelik_[p]->computeTreeDLikelihood(variable);
-  }
+  void computeDLikelihoodForAProcess(std::string& variable, size_t p) const;
 
-  void computeD2LikelihoodForAProcess(std::string& variable, size_t p) const
-  {
-    vpTreelik_[p]->computeTreeD2Likelihood(variable);
-  }
+  void computeD2LikelihoodForAProcess(std::string& variable, size_t p) const;
 
   double getDLikelihoodForASiteForAProcess(size_t i, size_t p) const
   {

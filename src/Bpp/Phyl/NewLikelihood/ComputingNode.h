@@ -46,7 +46,7 @@
 //From bpp-core:
 #include <Bpp/Numeric/Matrix/Matrix.h>
 
-#include "../Node.h"
+#include "../Tree/Node.h"
 #include "../Model/SubstitutionModel.h"
 
 namespace bpp

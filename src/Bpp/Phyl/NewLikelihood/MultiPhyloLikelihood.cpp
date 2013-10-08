@@ -277,3 +277,69 @@ throw (Exception)
 }
 
 
+void MultiPhyloLikelihood::computeDLikelihoodForAProcess(std::string& variable, size_t p) const
+{
+  size_t i=0;
+  
+  try {
+    i=(size_t)atoi(variable.substr(variable.rfind('_')+1).c_str());
+    if (p+1==i){
+      vpTreelik_[p]->computeTreeDLikelihood(variable);
+      return;
+    }
+  }
+  catch (exception& e){}
+  
+  vector<string> valias= processColl_->getAlias(variable);
+  
+  for (size_t v=0; v<valias.size();v++)
+  {
+    try {
+      i=(size_t)atoi(valias[v].substr(valias[v].rfind('_')+1).c_str());
+      if (p+1==i){
+        vpTreelik_[p]->computeTreeDLikelihood(valias[v]);
+        return;
+      }
+    }
+    catch (exception& e){
+      continue;
+    }
+  }
+  
+  vpTreelik_[p]->computeTreeDLikelihood("");
+
+}
+
+
+void MultiPhyloLikelihood::computeD2LikelihoodForAProcess(std::string& variable, size_t p) const
+{
+  size_t i=0;
+  
+  try {
+    i=(size_t)atoi(variable.substr(variable.rfind('_')+1).c_str());
+    if (p+1==i){
+      vpTreelik_[p]->computeTreeD2Likelihood(variable);
+      return;
+    }
+  }
+  catch (exception& e){}
+  
+  vector<string> valias= processColl_->getAlias(variable);
+  
+  for (size_t v=0; v<valias.size();v++)
+  {
+    try {
+      i=(size_t)atoi(valias[v].substr(valias[v].rfind('_')+1).c_str());
+      if (p+1==i){
+        vpTreelik_[p]->computeTreeD2Likelihood(valias[v]);
+        return;
+      }
+    }
+    catch (exception& e){
+      continue;
+    }
+  }
+  
+  vpTreelik_[p]->computeTreeD2Likelihood("");
+
+}

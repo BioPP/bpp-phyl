@@ -42,7 +42,7 @@ knowledge of the CeCILL license and that you accept its terms.
 #define _SUBSTITUTIOMODELFACTORY_H_
 
 #include "../Model/Nucleotide/JCnuc.h"
-#include "../Tree.h"
+#include "../Tree/Tree.h"
 
 // From SeqLib:
 #include <Bpp/Seq/Alphabet/Alphabet.h>

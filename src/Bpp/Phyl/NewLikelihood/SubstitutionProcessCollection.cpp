@@ -41,7 +41,7 @@
 
 #include "SubstitutionProcessCollectionMember.h"
 
-#include "../TreeTemplateTools.h"
+#include "../Tree/TreeTemplateTools.h"
 
 //#include "AbstractSubstitutionModel.h"
 
@@ -139,6 +139,7 @@ ParameterList SubstitutionProcessCollection::getNonDerivableParameters() const
   pl.addParameters(modelColl_.getIndependentParameters());
   pl.addParameters(freqColl_.getIndependentParameters());
 
+  
   return pl;
 }
   
@@ -146,7 +147,9 @@ ParameterList SubstitutionProcessCollection::getNonDerivableParameters() const
 
 void SubstitutionProcessCollection::fireParameterChanged(const ParameterList& parameters)
 {
-  modelColl_.matchParametersValues(parameters);
+  AbstractParameterAliasable::fireParameterChanged(parameters);
+
+  modelColl_.matchParametersValues(getParameters());
   const vector<size_t>& vM=modelColl_.hasChanged();
   for (size_t i=0; i<vM.size(); i++)
   {
@@ -155,11 +158,11 @@ void SubstitutionProcessCollection::fireParameterChanged(const ParameterList& pa
       vSubProcess_[vs[j]]->changedModel(vM[i]);
   }
   
-  freqColl_.matchParametersValues(parameters);
+  freqColl_.matchParametersValues(getParameters());
   
   vector<bool> toFire(vSubProcess_.size(), false);
 
-  distColl_.matchParametersValues(parameters);
+  distColl_.matchParametersValues(getParameters());
   
   const vector<size_t>& vD=distColl_.hasChanged();
   for (size_t i=0; i<vD.size(); i++)
@@ -169,7 +172,7 @@ void SubstitutionProcessCollection::fireParameterChanged(const ParameterList& pa
       toFire[vs[j]]=true;
   }
 
-  treeColl_.matchParametersValues(parameters);
+  treeColl_.matchParametersValues(getParameters());
   const vector<size_t>& vT=treeColl_.hasChanged();
   for (size_t i=0; i<vT.size(); i++)
   {
@@ -180,8 +183,7 @@ void SubstitutionProcessCollection::fireParameterChanged(const ParameterList& pa
 
   for (size_t j=0; j<toFire.size();j++)
     if (toFire[j])
-      vSubProcess_[j]->fireParameterChanged(parameters);
-
+      vSubProcess_[j]->fireParameterChanged(getParameters());
 }
 
 

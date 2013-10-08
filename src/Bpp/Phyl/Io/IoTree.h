@@ -40,7 +40,7 @@
 #ifndef _IOTREE_H_
 #define _IOTREE_H_
 
-#include "../Tree.h"
+#include "../Tree/Tree.h"
 
 // From the STL:
 #include <string>

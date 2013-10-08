@@ -42,8 +42,8 @@
 
 #include <Bpp/Clonable.h>
 
-#include "../Tree.h"
-#include "../TreeTemplate.h"
+#include "../Tree/Tree.h"
+#include "../Tree/TreeTemplate.h"
 
 //From the STL:
 #include <vector>

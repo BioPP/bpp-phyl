@@ -41,7 +41,7 @@ knowledge of the CeCILL license and that you accept its terms.
 #define _NHX_H_
 
 #include "IoTree.h"
-#include "../TreeTemplate.h"
+#include "../Tree/TreeTemplate.h"
 
 //From the STL:
 #include <set>
@@ -68,7 +68,7 @@ namespace bpp
  * Code example:
  * @code
  * #include <Phyl/Nhx.h>
- * #include <Phyl/Tree.h>
+ * #include <Phyl/Tree/Tree.h>
  * 
  * Nhx * NhxReader = new Nhx();
  * try {

@@ -41,8 +41,8 @@
 #ifndef _TREEPARSIMONYDATA_H_
 #define _TREEPARSIMONYDATA_H_
 
-#include "../Node.h"
-#include "../TreeTemplate.h"
+#include "../Tree/Node.h"
+#include "../Tree/TreeTemplate.h"
 
 #include <Bpp/Clonable.h>
 

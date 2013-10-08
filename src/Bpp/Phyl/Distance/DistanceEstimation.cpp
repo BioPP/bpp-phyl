@@ -39,7 +39,7 @@
  */
 
 #include "DistanceEstimation.h"
-#include "../Tree.h"
+#include "../Tree/Tree.h"
 #include "../PatternTools.h"
 #include "../SitePatterns.h"
 

@@ -40,7 +40,7 @@ knowledge of the CeCILL license and that you accept its terms.
 #ifndef _PARAMETRIZABLETREE_H_
 #define _PARAMETRIZABLETREE_H_
 
-#include "../TreeTemplate.h"
+#include "../Tree/TreeTemplate.h"
 
 #include <Bpp/Numeric/AbstractParametrizable.h>
 

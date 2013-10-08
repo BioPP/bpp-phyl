@@ -39,7 +39,7 @@
 
 #include "DRTreeParsimonyScore.h"
 #include "../PatternTools.h"
-#include "../TreeTemplateTools.h" // Needed for NNIs
+#include "../Tree/TreeTemplateTools.h" // Needed for NNIs
 
 #include <Bpp/App/ApplicationTools.h>
 #include <Bpp/Numeric/VectorTools.h>

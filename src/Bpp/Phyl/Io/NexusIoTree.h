@@ -41,7 +41,7 @@
 #define _NEXUSIOTREE_H_
 
 #include "IoTree.h"
-#include "../TreeTemplate.h"
+#include "../Tree/TreeTemplate.h"
 
 namespace bpp
 {

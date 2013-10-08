@@ -39,7 +39,7 @@
  */
 
 #include "HierarchicalClustering.h"
-#include "../NodeTemplate.h"
+#include "../Tree/NodeTemplate.h"
 
 using namespace bpp;
 using namespace std;

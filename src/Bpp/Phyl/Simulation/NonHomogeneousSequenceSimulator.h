@@ -43,8 +43,8 @@ knowledge of the CeCILL license and that you accept its terms.
 
 #include "DetailedSiteSimulator.h"
 #include "SequenceSimulator.h"
-#include "../TreeTemplate.h"
-#include "../NodeTemplate.h"
+#include "../Tree/TreeTemplate.h"
+#include "../Tree/NodeTemplate.h"
 #include "../Model/SubstitutionModel.h"
 
 #include <Bpp/Numeric/Random/RandomTools.h>

@@ -39,7 +39,7 @@
  */
 
 #include "NeighborJoining.h"
-#include "../Tree.h"
+#include "../Tree/Tree.h"
 
 using namespace bpp;
 

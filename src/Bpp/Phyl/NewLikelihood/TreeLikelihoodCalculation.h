@@ -217,15 +217,21 @@ public:
   /**
    * @brief Initiate a derivative likelihood computation.
    *
-   * @param variable The name of a parameter according to which derivatives can been computed.
+   * @param variable The name of a parameter according to which
+   * derivatives can been computed. If variable is not valid, the
+   * derivatives set to 0.
+   *
    */
   virtual void computeTreeDLikelihood(const std::string& variable) = 0;
 
   /**
    * @brief Initiate a second-order derivative likelihood computation.
    *
-   * @param variable The name of a parameter according to which second-order derivatives can been computed.
+   * @param variable The name of a parameter according to which
+   * second-order derivatives can been computed. If variable is not
+   * valid, the derivatives set to 0.
    */
+  
   virtual void computeTreeD2Likelihood(const std::string& variable) = 0;
 
 };

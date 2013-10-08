@@ -64,7 +64,7 @@ protected:
   size_t nbClasses_;
   bool initialized_;
   bool verbose_;
-    
+
 public:
   AbstractTreeLikelihoodCalculation(SubstitutionProcess* process, bool verbose = true):
     process_(process),

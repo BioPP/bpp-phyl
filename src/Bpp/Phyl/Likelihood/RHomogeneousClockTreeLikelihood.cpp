@@ -39,7 +39,7 @@ knowledge of the CeCILL license and that you accept its terms.
 */
 
 #include "RHomogeneousClockTreeLikelihood.h"
-#include "../TreeTemplateTools.h"
+#include "../Tree/TreeTemplateTools.h"
 
 #include <iostream>
 

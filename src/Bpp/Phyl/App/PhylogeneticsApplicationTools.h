@@ -41,7 +41,7 @@
 #ifndef _PHYLOGENETICSAPPLICATIONTOOLS_H_
 #define _PHYLOGENETICSAPPLICATIONTOOLS_H_
 
-#include "../Tree.h"
+#include "../Tree/Tree.h"
 #include "../Model/SubstitutionModel.h"
 #include "../Model/SubstitutionModelSet.h"
 #include "../Model/MixedSubstitutionModelSet.h"

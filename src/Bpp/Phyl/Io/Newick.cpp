@@ -38,9 +38,9 @@ knowledge of the CeCILL license and that you accept its terms.
 */
 
 #include "Newick.h"
-#include "../Tree.h"
-#include "../TreeTemplate.h"
-#include "../TreeTemplateTools.h"
+#include "../Tree/Tree.h"
+#include "../Tree/TreeTemplate.h"
+#include "../Tree/TreeTemplateTools.h"
 
 #include <Bpp/Text/TextTools.h>
 

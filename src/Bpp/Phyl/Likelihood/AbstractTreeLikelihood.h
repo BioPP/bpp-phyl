@@ -41,8 +41,8 @@ knowledge of the CeCILL license and that you accept its terms.
 #define _ABSTRACTTREELIKELIHOOD_H_
 
 #include "TreeLikelihood.h"
-#include "../Tree.h"
-#include "../TreeTemplate.h"
+#include "../Tree/Tree.h"
+#include "../Tree/TreeTemplate.h"
 
 #include <Bpp/Numeric/AbstractParametrizable.h>
 

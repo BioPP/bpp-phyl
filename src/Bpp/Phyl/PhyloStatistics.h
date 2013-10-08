@@ -40,7 +40,7 @@ knowledge of the CeCILL license and that you accept its terms.
 #ifndef _PHYLOSTATISTICS_H_
 #define _PHYLOSTATISTICS_H_
 
-#include "Tree.h"
+#include "Tree/Tree.h"
 
 #include <Bpp/Clonable.h>
 

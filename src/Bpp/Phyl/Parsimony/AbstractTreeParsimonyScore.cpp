@@ -39,7 +39,7 @@
 
 #include "AbstractTreeParsimonyScore.h"
 #include "../PatternTools.h"
-#include "../TreeTemplateTools.h"
+#include "../Tree/TreeTemplateTools.h"
 
 #include <Bpp/App/ApplicationTools.h>
 

@@ -41,7 +41,7 @@ knowledge of the CeCILL license and that you accept its terms.
 #ifndef _SITEPATTERNS_H_
 #define _SITEPATTERNS_H_
 
-#include "Tree.h"
+#include "Tree/Tree.h"
 
 #include <Bpp/Clonable.h>
 #include <Bpp/Numeric/VectorTools.h>

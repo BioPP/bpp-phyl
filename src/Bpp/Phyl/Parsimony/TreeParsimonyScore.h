@@ -40,7 +40,7 @@
 #ifndef _TREEPARSIMONYSCORE_H_
 #define _TREEPARSIMONYSCORE_H_
 
-#include "../TreeTemplate.h"
+#include "../Tree/TreeTemplate.h"
 
 #include <Bpp/Clonable.h>
 

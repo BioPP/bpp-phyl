@@ -39,7 +39,7 @@ knowledge of the CeCILL license and that you accept its terms.
 
 #include "PatternTools.h"
 
-#include "TreeTemplateTools.h"
+#include "Tree/TreeTemplateTools.h"
 
 // From SeqLib:
 #include <Bpp/Seq/Container/VectorSiteContainer.h>

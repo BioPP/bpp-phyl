@@ -38,8 +38,8 @@ knowledge of the CeCILL license and that you accept its terms.
 */
 
 #include "PhyloStatistics.h"
-#include "TreeTemplate.h"
-#include "Node.h"
+#include "Tree/TreeTemplate.h"
+#include "Tree/Node.h"
 
 using namespace bpp;
 using namespace std;

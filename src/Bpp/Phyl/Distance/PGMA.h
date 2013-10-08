@@ -41,8 +41,8 @@
 #define _PGMA_H_
 
 #include "AbstractAgglomerativeDistanceMethod.h"
-#include "../Tree.h"
-#include "../TreeTemplate.h"
+#include "../Tree/Tree.h"
+#include "../Tree/TreeTemplate.h"
 
 namespace bpp
 {

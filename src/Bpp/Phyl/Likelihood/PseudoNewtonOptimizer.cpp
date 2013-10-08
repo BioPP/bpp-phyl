@@ -39,7 +39,7 @@ knowledge of the CeCILL license and that you accept its terms.
 
 /**************************************************************************/
 
-#include "../TreeTemplateTools.h"
+#include "../Tree/TreeTemplateTools.h"
 #include "PseudoNewtonOptimizer.h"
 #include "DRHomogeneousTreeLikelihood.h"
 

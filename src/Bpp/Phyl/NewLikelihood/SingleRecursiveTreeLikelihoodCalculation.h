@@ -89,6 +89,11 @@ private:
   int root1_, root2_; // Needed only in case of reparametrization of branch length at root node.
   // TODO: have to be initialized properly! We do not care of that for now. jdutheil on 11/12/12.
 
+  // booleans to say if the Dlikelihoods are null
+  
+  bool nullDLikelihood_;
+  bool nullD2Likelihood_;
+  
 public:
   /**
    * @brief Build a new Simple Recursive Tree Likelihood object without data.

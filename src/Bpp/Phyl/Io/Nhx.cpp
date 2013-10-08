@@ -38,8 +38,8 @@ knowledge of the CeCILL license and that you accept its terms.
 */
 
 #include "Nhx.h"
-#include "../Tree.h"
-#include "../TreeTemplate.h"
+#include "../Tree/Tree.h"
+#include "../Tree/TreeTemplate.h"
 
 //From bpp-core:
 #include <Bpp/Text/TextTools.h>
@@ -298,10 +298,9 @@ Node* Nhx::parenthesisToNode(const string& description) const
   if (!TextTools::isEmpty(elt.annotation))
   {
     bool hasId = setNodeProperties(*node, elt.annotation);
-    if (!hasIds_ && hasId)
-      hasIds_ = true;
+    hasIds_ |= hasId;
     if (hasIds_ && !hasId)
-      throw Exception("Nhx::parenthesisToNode. At least one one is missing an id (ND tag).");
+      throw Exception("Nhx::parenthesisToNode. At least one node is missing an id (ND tag).");
   }
  
   NestedStringTokenizer nt(elt.content, "(", ")", ",");
@@ -517,6 +516,7 @@ bool Nhx::setNodeProperties(Node& node, const string properties) const
      
   //If the ND tag is present and is decimal, we use it has the node id:
   bool hasId = false;
+  
   if (props.find("ND") != props.end()) {
     string prop = props["ND"];
     if (TextTools::isDecimalNumber(prop))

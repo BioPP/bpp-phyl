@@ -41,7 +41,7 @@
 #define _NEWICK_H_
 
 #include "IoTree.h"
-#include "../TreeTemplate.h"
+#include "../Tree/TreeTemplate.h"
 
 namespace bpp
 {
@@ -59,7 +59,7 @@ namespace bpp
    * Code example:
    * @code
    * #include <Phyl/Newick.h>
-   * #include <Phyl/Tree.h>
+   * #include <Phyl/Tree/Tree.h>
    * 
    * Newick * newickReader = new Newick(false); //No comment allowed!
    * try {

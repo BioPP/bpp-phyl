@@ -65,7 +65,8 @@ HmmPhyloLikelihood::HmmPhyloLikelihood(
   Hmm_ = auto_ptr<LogsumHmmLikelihood>(new LogsumHmmLikelihood(hpa, hptm, hpep, ""));
     
   // initialize parameters:
-  addParameters_(Hmm_->getParameters());
+  addParameters_(Hmm_->getHmmTransitionMatrix().getParameters());
+  addParameters_(Hmm_->getHmmStateAlphabet().getParameters());
 }
 
 HmmPhyloLikelihood::HmmPhyloLikelihood(
@@ -105,7 +106,7 @@ ParameterList HmmPhyloLikelihood::getNonDerivableParameters() const
   ParameterList pl = processColl_->getNonDerivableParameters();
   pl.addParameters(Hmm_->getHmmTransitionMatrix().getParameters());
   pl.addParameters(Hmm_->getHmmStateAlphabet().getParameters());
-  
+
   return pl;
 }
 

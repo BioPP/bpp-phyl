@@ -40,7 +40,7 @@
 #include "RNonHomogeneousMixedTreeLikelihood.h"
 #include "../PatternTools.h"
 #include "../Model/MixedSubstitutionModel.h"
-#include "../TreeTools.h"
+#include "../Tree/TreeTools.h"
 
 #include <Bpp/Numeric/NumConstants.h>
 #include <Bpp/Text/TextTools.h>

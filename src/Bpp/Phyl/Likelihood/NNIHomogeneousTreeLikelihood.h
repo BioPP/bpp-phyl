@@ -41,7 +41,7 @@
 #define _NNIHOMOGENEOUSTREELIKELIHOOD_H_
 
 #include "DRHomogeneousTreeLikelihood.h"
-#include "../NNISearchable.h"
+#include "../Tree/NNISearchable.h"
 
 #include <Bpp/Numeric/VectorTools.h>
 #include <Bpp/Numeric/Parametrizable.h>

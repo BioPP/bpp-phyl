@@ -40,8 +40,8 @@
 #include "OptimizationTools.h"
 #include "Likelihood/PseudoNewtonOptimizer.h"
 #include "Likelihood/GlobalClockTreeLikelihoodFunctionWrapper.h"
-#include "NNISearchable.h"
-#include "NNITopologySearch.h"
+#include "Tree/NNISearchable.h"
+#include "Tree/NNITopologySearch.h"
 #include "Io/Newick.h"
 
 #include <Bpp/App/ApplicationTools.h>

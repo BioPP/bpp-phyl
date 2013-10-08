@@ -43,9 +43,9 @@
 #include "Likelihood/ClockTreeLikelihood.h"
 #include "Likelihood/NNIHomogeneousTreeLikelihood.h"
 #include "Likelihood/ClockTreeLikelihood.h"
-#include "NNITopologySearch.h"
+#include "Tree/NNITopologySearch.h"
 #include "Parsimony/DRTreeParsimonyScore.h"
-#include "TreeTemplate.h"
+#include "Tree/TreeTemplate.h"
 #include "Distance/DistanceEstimation.h"
 #include "Distance/DistanceMethod.h"
 

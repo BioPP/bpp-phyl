@@ -42,8 +42,8 @@
 
 #include "AbstractTreeParsimonyScore.h"
 #include "DRTreeParsimonyData.h"
-#include "../NNISearchable.h"
-#include "../TreeTools.h"
+#include "../Tree/NNISearchable.h"
+#include "../Tree/TreeTools.h"
 
 namespace bpp
 {

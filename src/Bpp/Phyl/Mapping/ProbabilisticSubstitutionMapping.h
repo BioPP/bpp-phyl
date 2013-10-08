@@ -42,7 +42,7 @@ knowledge of the CeCILL license and that you accept its terms.
 
 #include "SubstitutionMapping.h"
 #include "SubstitutionCount.h"
-#include "../TreeExceptions.h"
+#include "../Tree/TreeExceptions.h"
 
 #include <Bpp/Text/TextTools.h>
 

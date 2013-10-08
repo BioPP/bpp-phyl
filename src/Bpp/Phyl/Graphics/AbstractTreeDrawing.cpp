@@ -38,8 +38,8 @@ knowledge of the CeCILL license and that you accept its terms.
 */
 
 #include "AbstractTreeDrawing.h"
-#include "../TreeTemplateTools.h"
-#include "../TreeTools.h"
+#include "../Tree/TreeTemplateTools.h"
+#include "../Tree/TreeTools.h"
 
 #include <Bpp/Text/TextTools.h>
 #include <Bpp/Numeric/Number.h>
