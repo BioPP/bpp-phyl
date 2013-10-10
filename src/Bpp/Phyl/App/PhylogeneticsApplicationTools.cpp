@@ -796,7 +796,7 @@ void PhylogeneticsApplicationTools::addSubstitutionProcessCollectionMember(
       SubProColl->addSubstitutionProcess(mModBr, numTree, numRate, numFreq);
   }
   
-  else if (procName=="Nonhomogeneous")
+  else if ((procName=="Nonhomogeneous") ||  (procName=="Nonhomogeneous"))
   {
     size_t indModel=1;
     map<size_t, vector<int> > mModBr;
@@ -808,8 +808,7 @@ void PhylogeneticsApplicationTools::addSubstitutionProcessCollectionMember(
       if (mModBr.find(numModel)!=mModBr.end())
         throw BadIntegerException("PhylogeneticsApplicationTools::addSubstitutionProcessCollectionMember : model number seen twice.", (int)numModel);
 
-      vector<int> nodesId = ApplicationTools::getVectorParameter<int>("model"+TextTools::toString(indModel)  + ".nodes_id", params, ',', ':', "0");
-
+      vector<int> nodesId = ApplicationTools::getVectorParameter<int>("model"+TextTools::toString(indModel)  + ".nodes_id", args, ',', ':', "0");
       
       mModBr[numModel]=nodesId;
       

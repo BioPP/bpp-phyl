@@ -52,10 +52,15 @@ knowledge of the CeCILL license and that you accept its terms.
 namespace bpp
 {
 
+  class SubstitutionProcessCollection;
+
 /**
  * @brief Tree Organization of Computing Nodes
  *
  * Stores computation tools for all nodes, for all classes.
+ *
+ * This object has the parameters of the Tree and the rates
+ * distribution, since it manages the ComputingNodes.
  *
  */
 
@@ -85,6 +90,18 @@ namespace bpp
     std::vector<TreeTemplate<ComputingNode>* > vTree_;
 
   public:
+    /*
+     * @brief construction of an empty ComputingTree from a tree and a
+     * discretedistribution belonging to a collection
+     *
+     * @param pSubProColl the SubstitutionProcessCollection
+     * @param nTree The number of the tree.
+     * @param nDist the number of the rate distribution.
+     *
+     */
+     
+    ComputingTree(const SubstitutionProcessCollection* pSubProColl, size_t nTree, size_t nDist);
+  
     /*
      * @brief construction of an empty ComputingTree.
      *
@@ -119,7 +136,9 @@ namespace bpp
     TreeTemplate<ComputingNode>* operator[](size_t ntree) { return vTree_[ntree];}
 
     /*
-     *@brief update Distribution parameters.
+     *@brief update Distribution parameters and says to the
+     * ComputingNodes to be ready to update if the Branch lengths are
+     * changed.
      *
      */
     

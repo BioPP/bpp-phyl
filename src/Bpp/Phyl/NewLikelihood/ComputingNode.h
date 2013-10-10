@@ -58,6 +58,9 @@ namespace bpp
    * These classes handle convenient arrays for storing previously
    * computed probabilities.
    *
+   * The only parameter they have is "scale", and stands for the
+   * scaling to be done of the branch length.
+   *
    */
   
   class ComputingNode:

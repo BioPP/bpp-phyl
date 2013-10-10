@@ -39,6 +39,9 @@ knowledge of the CeCILL license and that you accept its terms.
 
 #include "ComputingTree.h"
 
+#include "SubstitutionProcessCollection.h"
+
+
 #include <Bpp/Exceptions.h>
 
 using namespace bpp;
@@ -65,7 +68,48 @@ ComputingTree::ComputingTree(const ParametrizableTree& ptree, const DiscreteDist
     vTree_.push_back(pTC2);
   }
   delete pTC;
+
+  addParameters_(ptree.getParameters());
+  addParameters_(dist.getIndependentParameters());
 }
+
+ComputingTree::ComputingTree(const SubstitutionProcessCollection* pSubProColl, size_t nTree, size_t nDist) :
+  AbstractParametrizable(""),  
+  parTree_(pSubProColl->getTree(nTree)),
+  pDist_(pSubProColl->getDistribution(nDist)),
+  vTree_()
+{
+  TreeTemplate<Node> tree=parTree_->getTree();
+  
+  ComputingNode* rCN= TreeTemplateTools::cloneSubtree<ComputingNode>(*tree.getRootNode());
+  TreeTemplate<ComputingNode>* pTC=new TreeTemplate<ComputingNode>(rCN);
+
+  size_t nbCl=pDist_->getNumberOfCategories();
+  
+  for (size_t i=0; i<nbCl; i++){
+    TreeTemplate<ComputingNode>* pTC2=pTC->clone();
+    std::vector<ComputingNode*> vCN=pTC2->getNodes();
+    for (size_t j=0; j<vCN.size(); j++)
+      vCN[j]->setParameterValue("scale",pDist_->getCategory(i));
+    vTree_.push_back(pTC2);
+  }
+  delete pTC;
+
+  ParameterList pl=pSubProColl->getTree(nTree)->getParameters();
+
+  for (size_t i=0; i<pl.size(); i++)
+    pl[i].setName(pl[i].getName()+"_"+TextTools::toString(nTree));
+
+  addParameters_(pl);
+  
+  pl=pSubProColl->getDistribution(nDist)->getParameters();
+
+  for (size_t i=0; i<pl.size(); i++)
+    pl[i].setName(pl[i].getName()+"_"+TextTools::toString(nDist));
+
+  addParameters_(pl);
+}
+
 
 ComputingTree::ComputingTree(const ComputingTree& tree) :
   AbstractParametrizable(tree),
@@ -73,7 +117,6 @@ ComputingTree::ComputingTree(const ComputingTree& tree) :
   pDist_(tree.pDist_),
   vTree_()
 {
-  
   for (size_t i=0; i<tree.vTree_.size(); i++)
     vTree_.push_back(tree.vTree_[i]->clone());
 }
@@ -112,24 +155,27 @@ void ComputingTree::addModel(const SubstitutionModel* pSubMod, std::vector<int> 
 void ComputingTree::fireParameterChanged(const ParameterList& pl)
 {
   bool chDist=false;
-  
+
   for (size_t i=0; i<pl.size(); i++)
   {
-    string n=pl[i].getName();
-    if (n.substr(0,5)!="BrLen"){
-      chDist=true;
-      continue;
+    if (hasParameter(pl[i].getName()))
+    {
+      string n=pl[i].getName();
+      if (n.substr(0,5)!="BrLen"){
+        chDist=true;
+        continue;
+      }
+      size_t pt=n.find("_");
+      int nBr=atoi(n.substr(5,pt-5).c_str());
+      for (size_t i2=0; i2<vTree_.size(); i2++)
+        vTree_[i2]->getNode(nBr)->setDistanceToFather(pl[i].getValue());
     }
-    size_t pt=n.find("_");
-    int nBr=atoi(n.substr(5,pt-5).c_str());
-    for (size_t i2=0; i2<vTree_.size(); i2++)
-      vTree_[i2]->getNode(nBr)->setDistanceToFather(pl[i].getValue());
   }
 
   if (chDist)
   {
     size_t nbCl=pDist_->getNumberOfCategories();
-  
+    
     for (size_t i=0; i<nbCl; i++){
       std::vector<ComputingNode*> vCN=vTree_[i]->getNodes();
       for (size_t j=0; j<vCN.size(); j++)

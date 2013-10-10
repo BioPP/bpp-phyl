@@ -56,7 +56,7 @@ SubstitutionProcessCollectionMember::SubstitutionProcessCollectionMember(const S
   nDist_(nDist),
   stationarity_(true),
   nRoot_(0),
-  computingTree_(pSubProColl_->getTree(nTree_)->getTree(),*pSubProColl_->getDistribution(nDist_))
+  computingTree_(pSubProColl_, nTree_, nDist_)
 {
 }
 

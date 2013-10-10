@@ -44,6 +44,7 @@
 
 #include "SubstitutionProcess.h"
 #include "ComputingNode.h"
+
 #include "ComputingTree.h"
 
 #include <Bpp/Exceptions.h>
@@ -60,6 +61,9 @@ namespace bpp
 {
   /**
    * @brief A substitution process which objects belong to a SubstitutionProcessCollection.
+   *
+   * This object is a link between SubstitutionProcessCollection and
+   * ComputingTree, and does not have any specific Parameter.
    *
    */
 
@@ -158,7 +162,7 @@ namespace bpp
   private:
 
     /**
-     * @brief Methods to inform changes in models, frequencies, ...
+     * @brief Method to inform changes in models.
      *
      */
 
@@ -278,9 +282,10 @@ namespace bpp
      *
      */
    
-    void fireParameterChanged(const ParameterList& pl)
+    void fireParameterChanged(const ParameterList& parameters)
     {
-      computingTree_.fireParameterChanged(pl);
+//      ParameterList pl=computingTree_.getParameters().getCommonParametersWith(parameters);
+      computingTree_.matchParametersValues(parameters);
     }
     
     /**

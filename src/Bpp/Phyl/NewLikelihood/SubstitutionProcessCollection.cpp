@@ -149,7 +149,11 @@ void SubstitutionProcessCollection::fireParameterChanged(const ParameterList& pa
 {
   AbstractParameterAliasable::fireParameterChanged(parameters);
 
-  modelColl_.matchParametersValues(getParameters());
+  ParameterList gAP=getAliasedParameters(parameters);
+
+  gAP.addParameters(parameters);
+
+  modelColl_.matchParametersValues(gAP);
   const vector<size_t>& vM=modelColl_.hasChanged();
   for (size_t i=0; i<vM.size(); i++)
   {
@@ -158,11 +162,11 @@ void SubstitutionProcessCollection::fireParameterChanged(const ParameterList& pa
       vSubProcess_[vs[j]]->changedModel(vM[i]);
   }
   
-  freqColl_.matchParametersValues(getParameters());
+  freqColl_.matchParametersValues(gAP);
   
   vector<bool> toFire(vSubProcess_.size(), false);
 
-  distColl_.matchParametersValues(getParameters());
+  distColl_.matchParametersValues(gAP);
   
   const vector<size_t>& vD=distColl_.hasChanged();
   for (size_t i=0; i<vD.size(); i++)
@@ -171,8 +175,9 @@ void SubstitutionProcessCollection::fireParameterChanged(const ParameterList& pa
     for (size_t j=0; j<vs.size(); j++)
       toFire[vs[j]]=true;
   }
-
-  treeColl_.matchParametersValues(getParameters());
+ 
+  treeColl_.matchParametersValues(gAP);
+  
   const vector<size_t>& vT=treeColl_.hasChanged();
   for (size_t i=0; i<vT.size(); i++)
   {
@@ -180,10 +185,10 @@ void SubstitutionProcessCollection::fireParameterChanged(const ParameterList& pa
     for (size_t j=0; j<vs.size(); j++)
       toFire[vs[j]]=true;
   }
-
+  
   for (size_t j=0; j<toFire.size();j++)
     if (toFire[j])
-      vSubProcess_[j]->fireParameterChanged(getParameters());
+      vSubProcess_[j]->fireParameterChanged(gAP);
 }
 
 
