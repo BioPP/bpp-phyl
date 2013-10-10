@@ -60,7 +60,7 @@ SingleRecursiveTreeLikelihoodCalculation::SingleRecursiveTreeLikelihoodCalculati
   bool verbose,
   bool usePatterns)
 throw (Exception) :
-  AbstractTreeLikelihoodCalculation(process),
+  AbstractTreeLikelihoodCalculation(process, verbose),
   likelihoodData_(0),
   root1_(-1),
   root2_(-1),
@@ -78,7 +78,7 @@ SingleRecursiveTreeLikelihoodCalculation::SingleRecursiveTreeLikelihoodCalculati
   bool verbose,
   bool usePatterns)
 throw (Exception) :
-  AbstractTreeLikelihoodCalculation(process),
+  AbstractTreeLikelihoodCalculation(process, verbose),
   likelihoodData_(0),
   root1_(-1),
   root2_(-1),
