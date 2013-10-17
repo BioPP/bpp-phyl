@@ -166,6 +166,7 @@ public:
   void setTransitionProbabilities(const Matrix<double>& mat)
   {
     Hmm_->getHmmTransitionMatrix().setTransitionProbabilities(mat);
+    matchParametersValues(Hmm_->getHmmTransitionMatrix().getParameters());
   }
   
 

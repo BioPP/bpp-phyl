@@ -184,7 +184,6 @@ void ComputingTree::fireParameterChanged(const ParameterList& pl)
   }
 }
 
-
 void ComputingTree::update(vector<int>& vId)
 {
   for (size_t i=0; i<vTree_.size(); i++)

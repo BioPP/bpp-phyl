@@ -97,8 +97,8 @@ void RateAcrossSitesSubstitutionProcess::fireParameterChanged(const ParameterLis
 const Matrix<double>& RateAcrossSitesSubstitutionProcess::getTransitionProbabilities(int nodeId, size_t classIndex) const
 {
   size_t i = getModelIndex_(nodeId, classIndex);
-  if (!computeProbability_[i]) {
-    computeProbability_[i] = true; //We record that we did this computation.
+  if (!computeProbabilities_[i]) {
+    computeProbabilities_[i] = false; //We record that we did this computation.
     //The transition matrix was never computed before. We therefore have to compute it first:
     double l = pTree_->getBranchLength(nodeId);
     double r = rDist_->getCategory(classIndex);
@@ -110,8 +110,8 @@ const Matrix<double>& RateAcrossSitesSubstitutionProcess::getTransitionProbabili
 const Matrix<double>& RateAcrossSitesSubstitutionProcess::getTransitionProbabilitiesD1(int nodeId, size_t classIndex) const
 {
   size_t i = getModelIndex_(nodeId, classIndex);
-  if (!computeProbabilityD1_[i]) {
-    computeProbabilityD1_[i] = true; //We record that we did this computation.
+  if (!computeProbabilitiesD1_[i]) {
+    computeProbabilitiesD1_[i] = false; //We record that we did this computation.
     //The transition matrix was never computed before. We therefore have to compute it first:
     double l = pTree_->getBranchLength(nodeId);
     double r = rDist_->getCategory(classIndex);
@@ -124,8 +124,8 @@ const Matrix<double>& RateAcrossSitesSubstitutionProcess::getTransitionProbabili
 const Matrix<double>& RateAcrossSitesSubstitutionProcess::getTransitionProbabilitiesD2(int nodeId, size_t classIndex) const
 {
   size_t i = getModelIndex_(nodeId, classIndex);
-  if (!computeProbabilityD2_[i]) {
-    computeProbabilityD2_[i] = true; //We record that we did this computation.
+  if (!computeProbabilitiesD2_[i]) {
+    computeProbabilitiesD2_[i] = false; //We record that we did this computation.
     //The transition matrix was never computed before. We therefore have to compute it first:
     double l = pTree_->getBranchLength(nodeId);
     double r = rDist_->getCategory(classIndex);

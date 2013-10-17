@@ -72,9 +72,9 @@ protected:
   mutable std::vector< RowMatrix<double> >probabilities_;
   mutable std::vector< RowMatrix<double> >probabilitiesD1_;
   mutable std::vector< RowMatrix<double> >probabilitiesD2_;
-  mutable std::vector<bool> computeProbability_;
-  mutable std::vector<bool> computeProbabilityD1_;
-  mutable std::vector<bool> computeProbabilityD2_;
+  mutable std::vector<bool> computeProbabilities_;
+  mutable std::vector<bool> computeProbabilitiesD1_;
+  mutable std::vector<bool> computeProbabilitiesD2_;
 
 protected:
   AbstractSubstitutionProcess(ParametrizableTree* tree, size_t nbClasses, const std::string& prefix = "");

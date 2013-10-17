@@ -185,10 +185,11 @@ void SubstitutionProcessCollection::fireParameterChanged(const ParameterList& pa
     for (size_t j=0; j<vs.size(); j++)
       toFire[vs[j]]=true;
   }
-  
+
   for (size_t j=0; j<toFire.size();j++)
-    if (toFire[j])
+    if (toFire[j]){
       vSubProcess_[j]->fireParameterChanged(gAP);
+    }
 }
 
 

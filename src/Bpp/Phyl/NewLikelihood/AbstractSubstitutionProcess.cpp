@@ -49,9 +49,9 @@ AbstractSubstitutionProcess::AbstractSubstitutionProcess(ParametrizableTree* tre
   probabilities_(),
   probabilitiesD1_(),
   probabilitiesD2_(),
-  computeProbability_(),
-  computeProbabilityD1_(),
-  computeProbabilityD2_()
+  computeProbabilities_(),
+  computeProbabilitiesD1_(),
+  computeProbabilitiesD2_()
 {
   if (!tree)
     throw Exception("AbstractSubstitutionProcess. A tree instance must be provided.");
@@ -61,13 +61,13 @@ AbstractSubstitutionProcess::AbstractSubstitutionProcess(ParametrizableTree* tre
   probabilities_.resize(n);
   probabilitiesD1_.resize(n);
   probabilitiesD2_.resize(n);
-  computeProbability_.resize(n);
-  computeProbabilityD1_.resize(n);
-  computeProbabilityD2_.resize(n);
+  computeProbabilities_.resize(n);
+  computeProbabilitiesD1_.resize(n);
+  computeProbabilitiesD2_.resize(n);
   for (size_t i = 0; i < n; ++i) {
-    computeProbability_[i] = false;
-    computeProbabilityD1_[i] = false;
-    computeProbabilityD2_[i] = false;
+    computeProbabilities_[i] = true;
+    computeProbabilitiesD1_[i] = true;
+    computeProbabilitiesD2_[i] = true;
   }
 }
  
@@ -78,9 +78,9 @@ AbstractSubstitutionProcess::AbstractSubstitutionProcess(const AbstractSubstitut
   probabilities_(asp.probabilities_),
   probabilitiesD1_(asp.probabilitiesD1_),
   probabilitiesD2_(asp.probabilitiesD2_),
-  computeProbability_(asp.computeProbability_),
-  computeProbabilityD1_(asp.computeProbabilityD1_),
-  computeProbabilityD2_(asp.computeProbabilityD2_)
+  computeProbabilities_(asp.computeProbabilities_),
+  computeProbabilitiesD1_(asp.computeProbabilitiesD1_),
+  computeProbabilitiesD2_(asp.computeProbabilitiesD2_)
 {}
 
 AbstractSubstitutionProcess& AbstractSubstitutionProcess::operator=(const AbstractSubstitutionProcess& asp)
@@ -92,9 +92,9 @@ AbstractSubstitutionProcess& AbstractSubstitutionProcess::operator=(const Abstra
   probabilities_ = asp.probabilities_;
   probabilitiesD1_ = asp.probabilitiesD1_;
   probabilitiesD2_ = asp.probabilitiesD2_;
-  computeProbability_ = asp.computeProbability_;
-  computeProbabilityD1_ = asp.computeProbabilityD1_;
-  computeProbabilityD2_ = asp.computeProbabilityD2_;
+  computeProbabilities_ = asp.computeProbabilities_;
+  computeProbabilitiesD1_ = asp.computeProbabilitiesD1_;
+  computeProbabilitiesD2_ = asp.computeProbabilitiesD2_;
   return *this;
 }
 
@@ -112,11 +112,11 @@ void AbstractSubstitutionProcess::fireParameterChanged(const ParameterList& pl)
 
   pTree_->matchParametersValues(pl);
   
-  for (size_t i = 0; i < computeProbability_.size(); ++i) {
+  for (size_t i = 0; i < computeProbabilities_.size(); ++i) {
     if (modelChangesWithParameter_(i, pl)) {
-      computeProbability_[i] = false;
-      computeProbabilityD1_[i] = false;
-      computeProbabilityD2_[i] = false;
+      computeProbabilities_[i] = true;
+      computeProbabilitiesD1_[i] = true;
+      computeProbabilitiesD2_[i] = true;
     }
   }
 }

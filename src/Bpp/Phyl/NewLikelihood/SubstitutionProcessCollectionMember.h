@@ -284,7 +284,6 @@ namespace bpp
    
     void fireParameterChanged(const ParameterList& parameters)
     {
-//      ParameterList pl=computingTree_.getParameters().getCommonParametersWith(parameters);
       computingTree_.matchParametersValues(parameters);
     }
     
