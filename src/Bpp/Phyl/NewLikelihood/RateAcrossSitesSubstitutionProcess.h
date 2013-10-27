@@ -60,6 +60,14 @@ private:
   std::auto_ptr<SubstitutionModel> model_;
   std::auto_ptr<DiscreteDistribution> rDist_;
 
+  /**
+   * @brief The related Computing Tree
+   *
+   */
+
+  mutable std::auto_ptr<ComputingTree> computingTree_;
+
+
 public:
   RateAcrossSitesSubstitutionProcess(
       SubstitutionModel* model,
@@ -99,12 +107,6 @@ public:
     return *rDist_;
   }
 
-  const Matrix<double>& getTransitionProbabilities(int nodeId, size_t classIndex) const;
-
-  const Matrix<double>& getTransitionProbabilitiesD1(int nodeId, size_t classIndex) const;
-
-  const Matrix<double>& getTransitionProbabilitiesD2(int nodeId, size_t classIndex) const;
-
   const Matrix<double>& getGenerator(int nodeId, size_t classIndex) const {
     return model_->getGenerator();
   }
@@ -132,22 +134,18 @@ public:
     return rDist_->getProbability(classIndex);
   }
 
- 
-  //bool transitionProbabilitiesHaveChanged() const { return true; }
-  // TODO: it actually depend on the distribution used, how it is parameterized. If classes are fixed and parameters after probabilities only, this should return false to save computational time!
-  protected:
-    void fireParameterChanged(const ParameterList& pl); //Forward parameters and updates probabilities if needed.
-
-  bool modelChangesWithParameter_(size_t i, const ParameterList& pl) const {
-    if (pl.getCommonParametersWith(model_->getParameters()).size() > 0)
-      return true; 
-    if (pl.getCommonParametersWith(rDist_->getParameters()).size() > 0)
-      return true; 
-    ParameterList plbl = pTree_->getBranchLengthParameters(i / nbClasses_);
-    if (plbl.getCommonParametersWith(pl).size() > 0)
-      return true;
-    return false;
+  const ComputingTree& getComputingTree() const
+  {
+    return *computingTree_.get();
   }
+  
+  ComputingTree& getComputingTree()
+  {
+    return *computingTree_.get();
+  }
+
+protected:
+    void fireParameterChanged(const ParameterList& pl); //Forward parameters and updates probabilities if needed.
 
 };
 

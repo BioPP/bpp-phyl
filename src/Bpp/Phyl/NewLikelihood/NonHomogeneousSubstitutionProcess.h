@@ -151,6 +151,14 @@ namespace bpp
 
     bool stationarity_;
 
+    /**
+     * @brief The related Computing Tree
+     *
+     */
+
+    mutable std::auto_ptr<ComputingTree> computingTree_;
+
+
   public:
     /**
      * @brief Create an empty model set with stationarity assumed.
@@ -167,11 +175,14 @@ namespace bpp
       nodeToModel_(),
       modelToNodes_(),
       modelParameters_(),
-      stationarity_(true)
+      stationarity_(true),
+      computingTree_()
     {
       // Add parameters:
       addParameters_(tree->getParameters());  //Branch lengths
-      addParameters_(rdist->getIndependentParameters());  
+      addParameters_(rdist->getIndependentParameters());
+
+      computingTree_.reset(new ComputingTree(*pTree_.get(), *rDist_.get()));
     }
 
     /**
@@ -191,11 +202,14 @@ namespace bpp
       nodeToModel_(),
       modelToNodes_(),
       modelParameters_(),
-      stationarity_(false)
+      stationarity_(false),
+      computingTree_()
     {
       addParameters_(tree->getParameters());  //Branch lengths
       addParameters_(rdist->getIndependentParameters());  
       setRootFrequencies(rootFreqs);
+      
+      computingTree_.reset(new ComputingTree(*pTree_.get(), *rDist_.get()));
     }
 
     NonHomogeneousSubstitutionProcess(const NonHomogeneousSubstitutionProcess& set);
@@ -215,29 +229,21 @@ namespace bpp
    
     void clear();
   
-protected:
-    
+    /**
+     * To be called when a parameter has changed.
+     * Depending on parameters, this will actualize the rootFrequencies_
+     * vector or the corresponding models in the set.
+     *
+     * @param parameters The modified parameters.
+     */
+    void fireParameterChanged(const ParameterList& parameters);
 
-  /**
-   * To be called when a parameter has changed.
-   * Depending on parameters, this will actualize the rootFrequencies_
-   * vector or the corresponding models in the set.
-   *
-   * @param parameters The modified parameters.
-   */
-  void fireParameterChanged(const ParameterList& parameters);
-
-  bool modelChangesWithParameter_(size_t i, const ParameterList& pl) const {
-    //TODO: make special cases to save computation time!
-    return true;
-  }
-
-  public:
     /**
      * @brief Get the alphabet
      * @throw Exception if no model is associated to the set.
      *
      */
+
     const Alphabet* getAlphabet() const
     {
       if (modelSet_.size()==0)
@@ -249,6 +255,7 @@ protected:
     /**
      * @return The current number of distinct substitution models in this set.
      */
+
     size_t getNumberOfModels() const { return modelSet_.size(); }
 
     /**
@@ -371,12 +378,8 @@ protected:
      * @param nodeNumber The id of the corresponding node.
      */
 
-    void setModelToNode(size_t modelIndex, int nodeNumber)
-    {
-      if (modelIndex >= nodeToModel_.size()) throw IndexOutOfBoundsException("NonHomogeneousSubstitutionProcess::setModelToNode.", modelIndex, 0, nodeToModel_.size() - 1);
-      nodeToModel_[nodeNumber] = modelIndex;
-    }
-
+    void setModelToNode(size_t modelIndex, int nodeNumber);
+ 
     /**
      * @brief Remove a model from the set, and all corresponding parameters.
      *
@@ -525,32 +528,7 @@ protected:
     {
       return *modelSet_[nodeToModel_[nodeId]];
     }
-
-    /**
-     * @brief Get the transition probabilities corresponding to a certain branch, site pattern, and model class.
-     *
-     * @param nodeId The id of the node.
-     * @param classIndex The model class index.
-     */
-    const Matrix<double>& getTransitionProbabilities(int nodeId, size_t classIndex) const;
- 
-    /**
-     * @brief Get the first order derivatives of the transition probabilities according to time, corresponding to a certain branch, site pattern, and model class.
-     *
-     * @param nodeId The id of the node.
-     * @param classIndex The model class index.
-     */
-    const Matrix<double>& getTransitionProbabilitiesD1(int nodeId, size_t classIndex) const;
- 
-    /**
-     * @brief Get the second order derivatives of the transition probabilities according to time, corresponding to a certain branch, site pattern, and model class.
-     *
-     * @param nodeId The id of the node.
-     * @param classIndex The model class index.
-     */
-    const Matrix<double>& getTransitionProbabilitiesD2(int nodeId, size_t classIndex) const;
- 
-
+    
     const Matrix<double>& getGenerator(int nodeId, size_t classIndex) const
     {
       return getSubstitutionModel(nodeId, classIndex).getGenerator();
@@ -580,14 +558,22 @@ protected:
         return modelSet_[0]->getInitValue(i,state);
     }
     
-    double getProbabilityForModel(size_t classIndex) const {
+    double getProbabilityForModel(size_t classIndex) const
+    {
       if (classIndex >= rDist_->getNumberOfCategories())
         throw IndexOutOfBoundsException("NonHomogeneousSubstitutionProcess::getProbabilityForModel.", classIndex, 0, rDist_->getNumberOfCategories());
       return rDist_->getProbability(classIndex);
     }
 
-
-  public:
+    const ComputingTree& getComputingTree() const
+    {
+      return *computingTree_.get();
+    }
+  
+    ComputingTree& getComputingTree()
+    {
+      return *computingTree_.get();
+    }
 
     /**
      * Static methods to create "simply" NonHomogeneousSubstitutionProcess.
@@ -609,11 +595,11 @@ protected:
      */
     
     static NonHomogeneousSubstitutionProcess* createHomogeneousSubstitutionProcess(
-                                                                                   SubstitutionModel* model,
-                                                                                   DiscreteDistribution* rdist,
-                                                                                   FrequenciesSet* rootFreqs,
-                                                                                   ParametrizableTree* tree
-                                                                                   );
+      SubstitutionModel* model,
+      DiscreteDistribution* rdist,
+      FrequenciesSet* rootFreqs,
+      ParametrizableTree* tree
+      );
 
     /**
      * @brief Create a NonHomogeneousSubstitutionProcess object, with one model per branch.
@@ -629,12 +615,12 @@ protected:
      * All other parameters will be considered distinct for all branches.
      */
     static NonHomogeneousSubstitutionProcess* createNonHomogeneousSubstitutionProcess(
-                                                                                      SubstitutionModel* model,
-                                                                                      DiscreteDistribution* rdist,
-                                                                                      FrequenciesSet* rootFreqs,
-                                                                                      ParametrizableTree* tree,
-                                                                                      const std::vector<std::string>& globalParameterNames
-                                                                                      );
+      SubstitutionModel* model,
+      DiscreteDistribution* rdist,
+      FrequenciesSet* rootFreqs,
+      ParametrizableTree* tree,
+      const std::vector<std::string>& globalParameterNames
+      );
     
 
 

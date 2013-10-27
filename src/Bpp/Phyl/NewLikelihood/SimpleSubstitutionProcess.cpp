@@ -45,7 +45,8 @@ using namespace std;
 SimpleSubstitutionProcess::SimpleSubstitutionProcess(SubstitutionModel* model, ParametrizableTree* tree, bool checkRooted) :
   AbstractParameterAliasable(model ? model->getNamespace() : ""),
   AbstractSubstitutionProcess(tree, 1, model ? model->getNamespace() : ""),
-  model_(model)
+  model_(model),
+  computingTree_()
 {
   if (!model)
     throw Exception("SimpleSubstitutionProcess. A model instance must be provided.");
@@ -54,68 +55,47 @@ SimpleSubstitutionProcess::SimpleSubstitutionProcess(SubstitutionModel* model, P
     throw Exception("SimpleSubstitutionProcess (constructor). Tree is rooted.");
   }
 
+  computingTree_.reset(new ComputingTree(*pTree_.get()));
+  computingTree_->addModel(model_.get());
+  computingTree_->checkModelOnEachNode();  
+  
   // Add parameters:
   addParameters_(tree->getParameters());  //Branch lengths
   addParameters_(model->getIndependentParameters()); //Substitution model
-
 }
 
 SimpleSubstitutionProcess::SimpleSubstitutionProcess(const SimpleSubstitutionProcess& ssp) :
   AbstractParameterAliasable(ssp),
   AbstractSubstitutionProcess(ssp),
-  model_(ssp.model_->clone())
-{}
+  model_(ssp.model_->clone()),
+  computingTree_()
+{
+  computingTree_.reset(new ComputingTree(*pTree_.get()));
+  computingTree_->addModel(model_.get());
+  computingTree_->checkModelOnEachNode();  
+}
 
 SimpleSubstitutionProcess& SimpleSubstitutionProcess::operator=(const SimpleSubstitutionProcess& ssp)
 {
   AbstractParameterAliasable::operator=(ssp);
   AbstractSubstitutionProcess::operator=(ssp);
   model_.reset(ssp.model_->clone());
+
+  computingTree_.reset(new ComputingTree(*pTree_.get())); 
+  computingTree_->addModel(model_.get());
+  computingTree_->checkModelOnEachNode();  
+
   return *this;
 }
 
 void SimpleSubstitutionProcess::fireParameterChanged(const ParameterList& pl)
 {
   //Updates substitution model:
-  model_->matchParametersValues(pl);
+  if (model_->matchParametersValues(pl))
+    computingTree_->updateAll();
+  
   //Transition probabilities have changed and need to be recomputed:
   AbstractSubstitutionProcess::fireParameterChanged(pl);
-}
-
-const Matrix<double>& SimpleSubstitutionProcess::getTransitionProbabilities(int nodeId, size_t classIndex) const
-{
-  size_t i = pTree_->getNodeIndex(nodeId);
-  if (!computeProbabilities_[i]) {
-    computeProbabilities_[i] = false; //We record that we did this computation.
-    //The transition matrix was never computed before. We therefore have to compute it first:
-    double l = pTree_->getBranchLength(nodeId);
-    probabilities_[i] = model_->getPij_t(l);
-  }
-  return probabilities_[i];
-}
-
-const Matrix<double>& SimpleSubstitutionProcess::getTransitionProbabilitiesD1(int nodeId, size_t classIndex) const
-{
-  size_t i = pTree_->getNodeIndex(nodeId);
-  if (!computeProbabilitiesD1_[i]) {
-    computeProbabilitiesD1_[i] = false; //We record that we did this computation.
-    //The transition matrix was never computed before. We therefore have to compute it first:
-    double l = pTree_->getBranchLength(nodeId);
-    probabilitiesD1_[i] = model_->getdPij_dt(l);
-  }
-  return probabilitiesD1_[i];
-}
-
-const Matrix<double>& SimpleSubstitutionProcess::getTransitionProbabilitiesD2(int nodeId, size_t classIndex) const
-{
-  size_t i = pTree_->getNodeIndex(nodeId);
-  if (!computeProbabilitiesD2_[i]) {
-    computeProbabilitiesD2_[i] = false; //We record that we did this computation.
-    //The transition matrix was never computed before. We therefore have to compute it first:
-    double l = pTree_->getBranchLength(nodeId);
-    probabilitiesD2_[i] = model_->getd2Pij_dt2(l);
-  }
-  return probabilitiesD2_[i];
 }
 
 

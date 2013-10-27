@@ -100,6 +100,7 @@ int main() {
   SubstitutionModel* model2=model->clone();
 
   SubstitutionModelSet* modelSet = SubstitutionModelSetTools::createNonHomogeneousModelSet(model, rootFreqs, tree, globalParameterNames);
+  auto_ptr<SubstitutionModelSet> modelSetSim(modelSet->clone());
 
   NonHomogeneousSubstitutionProcess* subPro= NonHomogeneousSubstitutionProcess::createNonHomogeneousSubstitutionProcess(model2, rdist2, rootFreqs2, parTree, globalParameterNames);
 
@@ -117,12 +118,12 @@ int main() {
   for (size_t i = 0; i < nmodels; ++i) {
     double theta = RandomTools::giveRandomNumberBetweenZeroAndEntry(0.99) + 0.005;
     cout << "Theta" << i << " set to " << theta << endl; 
-    modelSet->setParameterValue("T92.theta_" + TextTools::toString(i + 1), theta);
-    subPro->setParameterValue("T92.theta_" + TextTools::toString(i + 1), theta);
+    modelSetSim->setParameterValue("T92.theta_" + TextTools::toString(i + 1), theta);
+    //subPro->setParameterValue("T92.theta_" + TextTools::toString(i + 1), theta);
     thetas[i] = theta;
   }
 
-  NonHomogeneousSequenceSimulator simulator(modelSet, rdist, tree);
+  NonHomogeneousSequenceSimulator simulator(modelSetSim.get(), rdist, tree);
 
   NonHomogeneousSubstitutionProcess* subPro2 = subPro->clone();
 
@@ -161,22 +162,21 @@ int main() {
     cout << setprecision(10) << "NewTL init: "  << ntl.getValue() << "\t" << ntl2.getValue() << endl;
 
     unsigned int c1 = OptimizationTools::optimizeNumericalParameters2(
-                                                                      &tl, tl.getParameters(), 0,
-                                                                      0.0001, 10000, messenger, profiler, false, false, 1, OptimizationTools::OPTIMIZATION_NEWTON)
-      ;
-
+      &tl, tl.getParameters(), 0,
+      0.0001, 10000, messenger, profiler, false, false, 1, OptimizationTools::OPTIMIZATION_NEWTON);
+    
+    
     unsigned int c2 = OptimizationTools::optimizeNumericalParameters2(
-                                                                      &tl2, tl2.getParameters(), 0,
-                                                                      0.0001, 10000, messenger, profiler, false, false, 1, OptimizationTools::OPTIMIZATION_NEWTON);
+      &tl2, tl2.getParameters(), 0,
+      0.0001, 10000, messenger, profiler, false, false, 1, OptimizationTools::OPTIMIZATION_NEWTON);
 
     unsigned int nc1 = OptimizationTools::optimizeNumericalParameters2(
-                                                                      &ntl, ntl.getParameters(), 0,
-                                                                      0.0001, 10000, messenger, profiler, false, false, 1, OptimizationTools::OPTIMIZATION_NEWTON)
-      ;
+      &ntl, ntl.getParameters(), 0,
+      0.0001, 10000, messenger, profiler, false, false, 1, OptimizationTools::OPTIMIZATION_NEWTON);
 
     unsigned int nc2 = OptimizationTools::optimizeNumericalParameters2(
-                                                                      &ntl2, ntl2.getParameters(), 0,
-                                                                      0.0001, 10000, messenger, profiler, false, false, 1, OptimizationTools::OPTIMIZATION_NEWTON);
+      &ntl2, ntl2.getParameters(), 0,
+      0.0001, 10000, messenger, profiler, false, false, 1, OptimizationTools::OPTIMIZATION_NEWTON);
 
     cout << "OldTL: " << c1 << ": " << tl.getValue() << "\t" << c2 << ": " << tl2.getValue() << endl;
     cout << "NewTL: " << nc1 << ": " << ntl.getValue() << "\t" << nc2 << ": " << ntl2.getValue() << endl;
@@ -184,15 +184,15 @@ int main() {
     cout << "Thetas : " << endl;
 
     for (size_t i = 0; i < nmodels; ++i) {
-      cerr << modelSet->getModel(i)->getParameter("theta").getValue() << "\t" << modelSet2->getModel(i)->getParameter("theta").getValue();
+      //    cerr << modelSet->getModel(i)->getParameter("theta").getValue() << "\t" << modelSet2->getModel(i)->getParameter("theta").getValue();
       
-      cerr << "\t"  << subPro->getModel(i)->getParameter("theta").getValue() << "\t" << subPro2->getModel(i)->getParameter("theta").getValue() << endl;
-      //if (abs(modelSet2->getModel(i)->getParameter("theta").getValue() - modelSet3->getModel(i)->getParameter("theta").getValue()) > 0.1)
-      //  return 1;
+      //      cerr << "\t"  << subPro->getModel(i)->getParameter("theta").getValue() << "\t" << subPro2->getModel(i)->getParameter("theta").getValue() << endl;
+      // if (abs(modelSet2->getModel(i)->getParameter("theta").getValue() - modelSet3->getModel(i)->getParameter("theta").getValue()) > 0.1)
+      //   return 1;
       thetasEst1[i] +=  modelSet->getModel(i)->getParameter("theta").getValue();
       thetasEst2[i] +=  modelSet2->getModel(i)->getParameter("theta").getValue();
-      thetasEst1n[i] +=  subPro->getModel(i)->getParameter("theta").getValue();
-      thetasEst2n[i] +=  subPro2->getModel(i)->getParameter("theta").getValue();
+      thetasEst1n[i] +=  dynamic_cast< NonHomogeneousSubstitutionProcess*>(nsubPro)->getModel(i)->getParameter("theta").getValue();
+      thetasEst2n[i] +=  dynamic_cast< NonHomogeneousSubstitutionProcess*>(nsubPro2)->getModel(i)->getParameter("theta").getValue();
     }
   }
   thetasEst1 /= static_cast<double>(nrep);
@@ -201,6 +201,8 @@ int main() {
   thetasEst2n /= static_cast<double>(nrep);
 
   //Now compare estimated values to real ones:
+  cout << "Real" << "\t" << "Est_Old1" << "\t" << "Est_Old2" << "\t";
+  cout << "Est_New1" << "\t" << "Est_New2" << endl;
   for (size_t i = 0; i < thetas.size(); ++i) {
     cout << thetas[i] << "\t" << thetasEst1[i] << "\t" << thetasEst2[i] << "\t";
     cout << thetasEst1n[i] << "\t" << thetasEst2n[i] << endl;

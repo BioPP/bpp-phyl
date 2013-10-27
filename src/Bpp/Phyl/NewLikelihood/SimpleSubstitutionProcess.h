@@ -57,6 +57,14 @@ class SimpleSubstitutionProcess :
 protected:
   std::auto_ptr<SubstitutionModel> model_;
 
+private:
+  /**
+   * @brief The related Computing Tree
+   *
+   */
+
+  mutable std::auto_ptr<ComputingTree> computingTree_;
+
 public:
   SimpleSubstitutionProcess(SubstitutionModel* model, ParametrizableTree* tree, bool checkRooted);
 
@@ -82,12 +90,6 @@ public:
     return *model_;
   }
  
-  const Matrix<double>& getTransitionProbabilities(int nodeId, size_t classIndex) const;
-
-  const Matrix<double>& getTransitionProbabilitiesD1(int nodeId, size_t classIndex) const;
-
-  const Matrix<double>& getTransitionProbabilitiesD2(int nodeId, size_t classIndex) const;
-
   const Matrix<double>& getGenerator(int nodeId, size_t classIndex) const {
     return model_->getGenerator();
   }
@@ -116,6 +118,16 @@ public:
     if (classIndex != 0)
       throw IndexOutOfBoundsException("SimpleSubstitutionProcess::getProbabilityForModel.", classIndex, 0, 1);
     return 1;
+  }
+
+  const ComputingTree& getComputingTree() const
+  {
+    return *computingTree_.get();
+  }
+
+  ComputingTree& getComputingTree()
+  {
+    return *computingTree_.get();
   }
 
   //bool transitionProbabilitiesHaveChanged() const { return true; }

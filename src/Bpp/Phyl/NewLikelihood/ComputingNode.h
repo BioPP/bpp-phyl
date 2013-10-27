@@ -113,6 +113,11 @@ namespace bpp
       Node::setDistanceToFather(x);
       update();
     }
+
+    const SubstitutionModel* getSubstitutiotnModel() const
+    {
+      return model_;      
+    }
     
     void computeTransitionProbabilities() const;
 
@@ -171,15 +176,44 @@ namespace bpp
     void fireParameterChanged(const ParameterList& pl);
 
     void update();
+
+    void updateAll()
+    {
+      update();
+      for (size_t i=0; i<getNumberOfSons();i++)
+        getSon(i)->updateAll();
+    }
+    
+    void clearAllModels()
+    {
+      model_=0;
+      for (size_t i=0; i<getNumberOfSons();i++)
+        getSon(i)->clearAllModels();
+    }
+
+    bool hasModelOnEachNode() const
+    {
+      for (size_t i=0; i<getNumberOfSons();i++)
+        if (! getSon(i)->hasModelOnEachNode())
+          return false;
+      
+      return true;
+    }
+
     /*
      *@brief from Node
      */
 
-    // ComputingNode* getSon(size_t pos) throw (IndexOutOfBoundsException)
-    // {
-    //   return dynamic_cast<ComputingNode*>(Node::getSon(pos));
-    // }
-    
+    ComputingNode* getSon(size_t pos) throw (IndexOutOfBoundsException)
+    {
+      return dynamic_cast<ComputingNode*>(Node::getSon(pos));
+    }
+
+    const ComputingNode* getSon(size_t pos) const throw (IndexOutOfBoundsException)
+    {
+      return dynamic_cast<const ComputingNode*>(Node::getSon(pos));
+    }
+
   };
 
  } // end namespace bpp

@@ -56,13 +56,19 @@ NonHomogeneousSubstitutionProcess::NonHomogeneousSubstitutionProcess(const NonHo
   nodeToModel_          (set.nodeToModel_),
   modelToNodes_         (set.modelToNodes_),
   modelParameters_      (set.modelParameters_),
-  stationarity_         (set.stationarity_)
+  stationarity_         (set.stationarity_),
+  computingTree_()
 {
+  computingTree_.reset(new ComputingTree(*pTree_.get(), *rDist_.get()));
+
   // Duplicate all model objects:
   for (size_t i = 0; i < set.modelSet_.size(); i++)
     {
       modelSet_[i]=dynamic_cast<SubstitutionModel*>(set.modelSet_[i]->clone());
+      computingTree_->addModel(modelSet_[i],set.modelToNodes_[i]);
     }
+
+  computingTree_->checkModelOnEachNode();
 }
 
 NonHomogeneousSubstitutionProcess& NonHomogeneousSubstitutionProcess::operator=(const NonHomogeneousSubstitutionProcess& set)
@@ -83,12 +89,20 @@ NonHomogeneousSubstitutionProcess& NonHomogeneousSubstitutionProcess::operator=(
 
   rDist_.reset(dynamic_cast<DiscreteDistribution*>(set.rDist_->clone()));
   
-  // Duplicate all model objects:
-  
-  modelSet_.resize(set.modelSet_.size());
-  for (size_t i = 0; i < set.modelSet_.size(); i++)
-      modelSet_[i]=dynamic_cast<SubstitutionModel*>(set.modelSet_[i]->clone());
+  computingTree_.reset(new ComputingTree(*pTree_.get(), *rDist_.get()));
 
+  // Duplicate all model objects:
+
+  modelSet_.resize(set.modelSet_.size());
+
+  for (size_t i = 0; i < set.modelSet_.size(); i++)
+  {
+    modelSet_[i]=dynamic_cast<SubstitutionModel*>(set.modelSet_[i]->clone());
+    computingTree_->addModel(modelSet_[i],set.modelToNodes_[i]);
+  }
+
+  computingTree_->checkModelOnEachNode();
+  
   return *this;
 }
 
@@ -105,6 +119,8 @@ void NonHomogeneousSubstitutionProcess::clear()
   rDist_.reset();
   nodeToModel_.clear();
   modelParameters_.clear();
+  computingTree_.release();
+  
   stationarity_=true;
 }
 
@@ -118,6 +134,18 @@ void NonHomogeneousSubstitutionProcess::setRootFrequencies(FrequenciesSet* rootF
 }
 
 
+void NonHomogeneousSubstitutionProcess::setModelToNode(size_t modelIndex, int nodeNumber)
+{
+  if (modelIndex >= nodeToModel_.size()) throw IndexOutOfBoundsException("NonHomogeneousSubstitutionProcess::setModelToNode.", modelIndex, 0, nodeToModel_.size() - 1);
+  nodeToModel_[nodeNumber] = modelIndex;
+  
+  vector<int> vNod;
+  vNod.push_back(nodeNumber);
+
+  computingTree_->addModel(modelSet_[modelIndex], vNod);
+}
+
+ 
 void NonHomogeneousSubstitutionProcess::addModel(SubstitutionModel* model, const std::vector<int>& nodesId)
 {
   if (modelSet_.size() > 0 && model->getAlphabet()->getAlphabetType() != modelSet_[0]->getAlphabet()->getAlphabetType())
@@ -147,6 +175,9 @@ void NonHomogeneousSubstitutionProcess::addModel(SubstitutionModel* model, const
       p->setName(p->getName() + "_" + TextTools::toString(modelParameters_.size()));
       addParameter_(p);
     }
+
+  computingTree_->addModel(model, nodesId);
+  computingTree_->checkModelOnEachNode();
 }
 
 
@@ -180,6 +211,9 @@ void NonHomogeneousSubstitutionProcess::setModel(SubstitutionModel* model, size_
       p->setName(p->getName() + "_" + TextTools::toString(modelIndex+1));
       addParameter_(p);
     }
+
+  computingTree_->addModel(model, modelToNodes_[modelIndex]);
+  computingTree_->checkModelOnEachNode();
 }
 
 void NonHomogeneousSubstitutionProcess::listModelNames(std::ostream& out) const
@@ -203,6 +237,7 @@ void NonHomogeneousSubstitutionProcess::fireParameterChanged(const ParameterList
   //Update rate distribution:
   rDist_->matchParametersValues(parameters);
 
+
   // Then we update all models in the set:
   for (size_t i = 0; i < modelParameters_.size(); i++)
     {
@@ -210,11 +245,13 @@ void NonHomogeneousSubstitutionProcess::fireParameterChanged(const ParameterList
         {
           modelParameters_[i][np].setValue(getParameterValue(modelParameters_[i][np].getName()+"_"+TextTools::toString(i+1)));
         }
-      modelSet_[i]->matchParametersValues(modelParameters_[i]);
+      if (modelSet_[i]->matchParametersValues(modelParameters_[i]))
+        computingTree_->update(modelToNodes_[i]);
     }
 
   AbstractSubstitutionProcess::fireParameterChanged(parameters);
 }
+
 
 ParameterList NonHomogeneousSubstitutionProcess::getSubstitutionModelParameters() const
 {
@@ -299,50 +336,6 @@ bool NonHomogeneousSubstitutionProcess::hasDerivableParameter(const std::string&
 {
   // Up to now (!), only branch length parameters are derivable
   return (name.substr(0,5)=="BrLen");
-}
-
-const Matrix<double>& NonHomogeneousSubstitutionProcess::getTransitionProbabilities(int nodeId, size_t classIndex) const
-{
-  const SubstitutionModel& SM=getSubstitutionModel(nodeId, classIndex);
-  size_t i = getModelIndex_(nodeId, classIndex);
-
-  if (!computeProbabilities_[i]) {
-    computeProbabilities_[i] = false; //We record that we did this computation.
-    //The transition matrix was never computed before. We therefore have to compute it first:
-    double l = pTree_->getBranchLength(nodeId);
-    double r = rDist_->getCategory(classIndex);
-    probabilities_[i] = SM.getPij_t(l * r);
-  }
-  return probabilities_[i];
-}
-
-const Matrix<double>& NonHomogeneousSubstitutionProcess::getTransitionProbabilitiesD1(int nodeId, size_t classIndex) const
-{
-  const SubstitutionModel& SM=getSubstitutionModel(nodeId, classIndex);
-  size_t i = getModelIndex_(nodeId, classIndex);
-
-  if (!computeProbabilitiesD1_[i]) {
-    computeProbabilitiesD1_[i] = false; //We record that we did this computation.
-    //The transition matrix was never computed before. We therefore have to compute it first:
-    double l = pTree_->getBranchLength(nodeId);
-    double r = rDist_->getCategory(classIndex);
-    probabilitiesD1_[i] = SM.getdPij_dt(l * r);
-  }
-  return probabilitiesD1_[i];
-}
-
-const Matrix<double>& NonHomogeneousSubstitutionProcess::getTransitionProbabilitiesD2(int nodeId, size_t classIndex) const
-{
-  const SubstitutionModel& SM=getSubstitutionModel(nodeId, classIndex);
-  size_t i = getModelIndex_(nodeId, classIndex);
-  if (!computeProbabilitiesD2_[i]) {
-    computeProbabilitiesD2_[i] = false; //We record that we did this computation.
-    //The transition matrix was never computed before. We therefore have to compute it first:
-    double l = pTree_->getBranchLength(nodeId);
-    double r = rDist_->getCategory(classIndex);
-    probabilitiesD2_[i] = SM.getd2Pij_dt2(l * r);
-  }
-  return probabilitiesD2_[i];
 }
 
 NonHomogeneousSubstitutionProcess* NonHomogeneousSubstitutionProcess::createHomogeneousSubstitutionProcess(

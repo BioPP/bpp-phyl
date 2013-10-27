@@ -45,43 +45,18 @@ using namespace std;
 AbstractSubstitutionProcess::AbstractSubstitutionProcess(ParametrizableTree* tree, size_t nbClasses, const string& prefix) :
   AbstractParameterAliasable(prefix),
   pTree_(tree),
-  nbClasses_(nbClasses),
-  probabilities_(),
-  probabilitiesD1_(),
-  probabilitiesD2_(),
-  computeProbabilities_(),
-  computeProbabilitiesD1_(),
-  computeProbabilitiesD2_()
+  nbClasses_(nbClasses)
 {
   if (!tree)
     throw Exception("AbstractSubstitutionProcess. A tree instance must be provided.");
-    
-  // Set array sizes:
-  size_t n = tree->getNumberOfBranches() * nbClasses;
-  probabilities_.resize(n);
-  probabilitiesD1_.resize(n);
-  probabilitiesD2_.resize(n);
-  computeProbabilities_.resize(n);
-  computeProbabilitiesD1_.resize(n);
-  computeProbabilitiesD2_.resize(n);
-  for (size_t i = 0; i < n; ++i) {
-    computeProbabilities_[i] = true;
-    computeProbabilitiesD1_[i] = true;
-    computeProbabilitiesD2_[i] = true;
-  }
 }
  
 AbstractSubstitutionProcess::AbstractSubstitutionProcess(const AbstractSubstitutionProcess& asp) :
   AbstractParameterAliasable(asp),
   pTree_(asp.pTree_->clone()),
-  nbClasses_(asp.nbClasses_),
-  probabilities_(asp.probabilities_),
-  probabilitiesD1_(asp.probabilitiesD1_),
-  probabilitiesD2_(asp.probabilitiesD2_),
-  computeProbabilities_(asp.computeProbabilities_),
-  computeProbabilitiesD1_(asp.computeProbabilitiesD1_),
-  computeProbabilitiesD2_(asp.computeProbabilitiesD2_)
-{}
+  nbClasses_(asp.nbClasses_)
+{
+}
 
 AbstractSubstitutionProcess& AbstractSubstitutionProcess::operator=(const AbstractSubstitutionProcess& asp)
 {
@@ -89,12 +64,7 @@ AbstractSubstitutionProcess& AbstractSubstitutionProcess::operator=(const Abstra
   
   pTree_.reset(pTree_->clone());
   nbClasses_ = asp.nbClasses_;
-  probabilities_ = asp.probabilities_;
-  probabilitiesD1_ = asp.probabilitiesD1_;
-  probabilitiesD2_ = asp.probabilitiesD2_;
-  computeProbabilities_ = asp.computeProbabilities_;
-  computeProbabilitiesD1_ = asp.computeProbabilitiesD1_;
-  computeProbabilitiesD2_ = asp.computeProbabilitiesD2_;
+
   return *this;
 }
 
@@ -110,14 +80,10 @@ void AbstractSubstitutionProcess::fireParameterChanged(const ParameterList& pl)
 {
   AbstractParameterAliasable::fireParameterChanged(pl);
 
-  pTree_->matchParametersValues(pl);
-  
-  for (size_t i = 0; i < computeProbabilities_.size(); ++i) {
-    if (modelChangesWithParameter_(i, pl)) {
-      computeProbabilities_[i] = true;
-      computeProbabilitiesD1_[i] = true;
-      computeProbabilitiesD2_[i] = true;
-    }
-  }
+  ParameterList gAP=getAliasedParameters(pl);
+  gAP.addParameters(pl);
+
+  pTree_->matchParametersValues(gAP);
+  getComputingTree().matchParametersValues(gAP);
 }
 

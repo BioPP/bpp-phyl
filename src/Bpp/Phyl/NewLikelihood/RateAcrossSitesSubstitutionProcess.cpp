@@ -42,6 +42,7 @@
 #include <Bpp/Numeric/Matrix/MatrixTools.h>
 
 using namespace bpp;
+using namespace std;
 
 RateAcrossSitesSubstitutionProcess::RateAcrossSitesSubstitutionProcess(
     SubstitutionModel* model,
@@ -51,16 +52,19 @@ RateAcrossSitesSubstitutionProcess::RateAcrossSitesSubstitutionProcess(
   AbstractParameterAliasable(model ? model->getNamespace() : ""),
   AbstractSubstitutionProcess(tree, rdist ? rdist->getNumberOfCategories() : 0, model ? model->getNamespace() : ""),
   model_(model),
-  rDist_(rdist)
+  rDist_(rdist),
+  computingTree_()
 {
   if (!model)
     throw Exception("RateAcrossSitesSubstitutionProcess. A model instance must be provided.");
   if (!rdist)
     throw Exception("RateAcrossSitesSubstitutionProcess. A rate distribution instance must be provided.");
   if (checkRooted && pTree_->isRooted())
-  {
     throw Exception("RateAcrossSitesSubstitutionProcess (constructor). Tree is rooted.");
-  }
+
+  computingTree_.reset(new ComputingTree(*pTree_.get(), *rDist_.get()));
+  computingTree_->addModel(model_.get());
+  computingTree_->checkModelOnEachNode();  
 
   // Add parameters:
   addParameters_(tree->getParameters());  //Branch lengths
@@ -72,8 +76,14 @@ RateAcrossSitesSubstitutionProcess::RateAcrossSitesSubstitutionProcess(const Rat
   AbstractParameterAliasable(rassp),
   AbstractSubstitutionProcess(rassp),
   model_(rassp.model_->clone()),
-  rDist_(rassp.rDist_->clone())
-{}
+  rDist_(rassp.rDist_->clone()),
+  computingTree_()
+{
+  computingTree_.reset(new ComputingTree(*pTree_.get(), *rDist_.get()));
+  computingTree_->addModel(model_.get());
+  computingTree_->checkModelOnEachNode();  
+}
+
 
 RateAcrossSitesSubstitutionProcess& RateAcrossSitesSubstitutionProcess::operator=(const RateAcrossSitesSubstitutionProcess& rassp)
 {
@@ -81,58 +91,24 @@ RateAcrossSitesSubstitutionProcess& RateAcrossSitesSubstitutionProcess::operator
   AbstractSubstitutionProcess::operator=(rassp);
   model_.reset(rassp.model_->clone());
   rDist_.reset(rassp.rDist_->clone());
+
+  computingTree_.reset(new ComputingTree(*pTree_.get(), *rDist_.get()));
+  computingTree_->addModel(model_.get());
+  computingTree_->checkModelOnEachNode();  
+  
   return *this;
 }
 
 void RateAcrossSitesSubstitutionProcess::fireParameterChanged(const ParameterList& pl)
 {
   //Update substitution model:
-  model_->matchParametersValues(pl);
+  if (model_->matchParametersValues(pl))
+    computingTree_->updateAll();
+  
   //Update rate distribution:
-  rDist_->matchParametersValues(pl);
+  rDist_->matchParametersValues(pl);  
+
   //Transition probabilities have changed and need to be recomputed:
   AbstractSubstitutionProcess::fireParameterChanged(pl);
 }
-
-const Matrix<double>& RateAcrossSitesSubstitutionProcess::getTransitionProbabilities(int nodeId, size_t classIndex) const
-{
-  size_t i = getModelIndex_(nodeId, classIndex);
-  if (!computeProbabilities_[i]) {
-    computeProbabilities_[i] = false; //We record that we did this computation.
-    //The transition matrix was never computed before. We therefore have to compute it first:
-    double l = pTree_->getBranchLength(nodeId);
-    double r = rDist_->getCategory(classIndex);
-    probabilities_[i] = model_->getPij_t(l * r);
-  }
-  return probabilities_[i];
-}
-
-const Matrix<double>& RateAcrossSitesSubstitutionProcess::getTransitionProbabilitiesD1(int nodeId, size_t classIndex) const
-{
-  size_t i = getModelIndex_(nodeId, classIndex);
-  if (!computeProbabilitiesD1_[i]) {
-    computeProbabilitiesD1_[i] = false; //We record that we did this computation.
-    //The transition matrix was never computed before. We therefore have to compute it first:
-    double l = pTree_->getBranchLength(nodeId);
-    double r = rDist_->getCategory(classIndex);
-    probabilitiesD1_[i] = model_->getdPij_dt(l * r);
-    MatrixTools::scale(probabilitiesD1_[i], r);
-  }
-  return probabilitiesD1_[i];
-}
-
-const Matrix<double>& RateAcrossSitesSubstitutionProcess::getTransitionProbabilitiesD2(int nodeId, size_t classIndex) const
-{
-  size_t i = getModelIndex_(nodeId, classIndex);
-  if (!computeProbabilitiesD2_[i]) {
-    computeProbabilitiesD2_[i] = false; //We record that we did this computation.
-    //The transition matrix was never computed before. We therefore have to compute it first:
-    double l = pTree_->getBranchLength(nodeId);
-    double r = rDist_->getCategory(classIndex);
-    probabilitiesD2_[i] = model_->getd2Pij_dt2(l * r);
-    MatrixTools::scale(probabilitiesD2_[i], r * r);
-  }
-  return probabilitiesD2_[i];
-}
-
 

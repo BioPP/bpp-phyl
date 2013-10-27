@@ -89,6 +89,14 @@ namespace bpp
     
     std::vector<TreeTemplate<ComputingNode>* > vTree_;
 
+    /*
+     * boolean to say if the ComputingTree can be used for
+     * computation, ie if every ComputingNode has a Model.
+     *
+     */
+
+    bool isReadyToCompute_;
+    
   public:
     /*
      * @brief construction of an empty ComputingTree from a tree and a
@@ -103,7 +111,20 @@ namespace bpp
     ComputingTree(const SubstitutionProcessCollection* pSubProColl, size_t nTree, size_t nDist);
   
     /*
+     * @brief construction of an empty ComputingTree with Constant Distribution
+     *
+     * @param tree The tree.
+     *
+     */
+     
+    ComputingTree(const ParametrizableTree& ptree);
+
+    /*
      * @brief construction of an empty ComputingTree.
+     *
+     * Warning : the links towards the models do not follow the copy,
+     *    so the computing tree has to be filled with models before
+     *    computation performs.
      *
      * @param tree The tree.
      * @param dist the rate distribution.
@@ -131,9 +152,38 @@ namespace bpp
      
     void addModel(const SubstitutionModel* pSubMod, std::vector<int> vBr);
 
+    /*
+     * @brief construction of an homogeneous ComputingTree.
+     *
+     * @param pSubMod a  pointer of SubstitutionModel.
+     *
+     */
+     
+    void addModel(const SubstitutionModel* pSubMod);
+    
     size_t getNumberOfClasses() const { return vTree_.size();}
 
+  private:
+    
+    void clearAllModels_();
+
+  public:
+
+    /*
+     * @brief Checks if every ComputingNode has a Model
+     *
+     */
+    
+    void checkModelOnEachNode();
+
+    /*
+     * @brief operator to get numbered TreeTemplate<ComputingNode>*
+     *
+     */
+    
     TreeTemplate<ComputingNode>* operator[](size_t ntree) { return vTree_[ntree];}
+
+    const TreeTemplate<ComputingNode>* operator[](size_t ntree) const { return vTree_[ntree];}
 
     /*
      *@brief update Distribution parameters and says to the
@@ -151,6 +201,12 @@ namespace bpp
 
     void update(std::vector<int>& vId);
 
+    /*
+     * @brief Says to all nodes to be ready for update
+     *
+     */
+    
+    void updateAll();
   };
   
 } //end of namespace bpp.

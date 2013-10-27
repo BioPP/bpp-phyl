@@ -121,7 +121,7 @@ namespace bpp
      *
      */
 
-    mutable ComputingTree  computingTree_;
+    mutable std::auto_ptr<ComputingTree> computingTree_;
     
   private:
     /*
@@ -168,7 +168,10 @@ namespace bpp
 
     void changedModel(size_t m)
     {
-      computingTree_.update(modelToNodes_[m]);
+      if (modelToNodes_.size()==1)
+        computingTree_->updateAll(); // faster
+      else
+        computingTree_->update(modelToNodes_[m]);
     }
     
   public:
@@ -284,7 +287,7 @@ namespace bpp
    
     void fireParameterChanged(const ParameterList& parameters)
     {
-      computingTree_.matchParametersValues(parameters);
+      computingTree_->matchParametersValues(parameters);
     }
     
     /**
@@ -385,7 +388,7 @@ namespace bpp
      */
     const Matrix<double>& getTransitionProbabilities(int nodeId, size_t classIndex) const
     {
-      return computingTree_[classIndex]->getNode(nodeId)->getTransitionProbabilities();
+      return (*computingTree_)[classIndex]->getNode(nodeId)->getTransitionProbabilities();
     }
  
     /**
@@ -396,7 +399,7 @@ namespace bpp
      */
     const Matrix<double>& getTransitionProbabilitiesD1(int nodeId, size_t classIndex) const
     {
-      return computingTree_[classIndex]->getNode(nodeId)->getTransitionProbabilitiesD1();
+      return (*computingTree_)[classIndex]->getNode(nodeId)->getTransitionProbabilitiesD1();
     }
  
     /**
@@ -407,7 +410,7 @@ namespace bpp
      */
     const Matrix<double>& getTransitionProbabilitiesD2(int nodeId, size_t classIndex) const
     {
-      return computingTree_[classIndex]->getNode(nodeId)->getTransitionProbabilitiesD2();
+      return (*computingTree_)[classIndex]->getNode(nodeId)->getTransitionProbabilitiesD2();
     }
 
  

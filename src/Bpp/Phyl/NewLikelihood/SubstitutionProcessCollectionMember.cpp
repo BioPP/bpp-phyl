@@ -56,7 +56,7 @@ SubstitutionProcessCollectionMember::SubstitutionProcessCollectionMember(const S
   nDist_(nDist),
   stationarity_(true),
   nRoot_(0),
-  computingTree_(pSubProColl_, nTree_, nDist_)
+  computingTree_(new ComputingTree(pSubProColl_, nTree_, nDist_))
 {
 }
 
@@ -70,7 +70,7 @@ SubstitutionProcessCollectionMember::SubstitutionProcessCollectionMember(const S
   nDist_(set.nDist_),
   stationarity_(set.stationarity_),
   nRoot_(set.nRoot_),
-  computingTree_(set.computingTree_)
+  computingTree_(new ComputingTree(pSubProColl_, nTree_, nDist_))
 {
 }
 
@@ -84,7 +84,10 @@ SubstitutionProcessCollectionMember& SubstitutionProcessCollectionMember::operat
   nDist_ = set.nDist_;
   stationarity_ = set.stationarity_;
   nRoot_ = set.nRoot_;
-  computingTree_ = set.computingTree_;
+  
+  computingTree_.release();
+
+  computingTree_=auto_ptr<ComputingTree>(new ComputingTree(pSubProColl_, nTree_, nDist_));
 
   return *this;
 }
@@ -210,7 +213,7 @@ void SubstitutionProcessCollectionMember::addModel(size_t numModel, const std::v
       modelToNodes_[numModel].push_back(nodesId[i]);
     }
 
-  computingTree_.addModel(nmod, nodesId);
+  computingTree_->addModel(nmod, nodesId);
 }
 
 
