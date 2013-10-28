@@ -61,44 +61,42 @@ using namespace std;
 void fitModelH(SubstitutionModel* model, DiscreteDistribution* rdist, const Tree& tree, const SiteContainer& sites,
     double initialValue, double finalValue) {
   ApplicationTools::startTimer();
-  unsigned int n = 10000;
+  unsigned int n = 50000;
   for (unsigned int i = 0; i < n; ++i) {
     ApplicationTools::displayGauge(i, n-1);
     RHomogeneousTreeLikelihood tl(tree, sites, model->clone(), rdist->clone(), false, false);
     tl.initialize();
-    tl.getFirstOrderDerivative("BrLen0");
-    tl.getFirstOrderDerivative("BrLen1");
-    tl.getFirstOrderDerivative("BrLen2");
-    tl.getFirstOrderDerivative("BrLen3");
-    tl.getFirstOrderDerivative("BrLen4");
-    // ApplicationTools::displayResult("Test model", model->getName());
-    // cout << "OldTL: " << setprecision(20) << tl.getValue() << endl;
-    // cout << "OldTL D1: " << setprecision(20) << tl.getFirstOrderDerivative("BrLen0") << endl;
-    // cout << "OldTL D2: " << setprecision(20) << tl.getSecondOrderDerivative("BrLen0") << endl;
-    // ApplicationTools::displayResult("* initial likelihood", tl.getValue());
-    // // if (abs(tl.getValue() - initialValue) > 0.001)
-    // //   throw Exception("Incorrect initial value.");
-    // cout << endl;
+    // tl.getFirstOrderDerivative("BrLen0");
+    // tl.getFirstOrderDerivative("BrLen1");
+    // tl.getFirstOrderDerivative("BrLen2");
+    // tl.getFirstOrderDerivative("BrLen3");
+    // tl.getFirstOrderDerivative("BrLen4");
+     // ApplicationTools::displayResult("Test model", model->getName());
+     // cout << "OldTL: " << setprecision(20) << tl.getValue() << endl;
+     // cout << "OldTL D1: " << setprecision(20) << tl.getFirstOrderDerivative("BrLen0") << endl;
+     // cout << "OldTL D2: " << setprecision(20) << tl.getSecondOrderDerivative("BrLen0") << endl;
+     // ApplicationTools::displayResult("* initial likelihood", tl.getValue());
+     // if (abs(tl.getValue() - initialValue) > 0.001)
+     //   throw Exception("Incorrect initial value.");
+     // cout << endl;
   }
   ApplicationTools::displayTime("Old Likelihood");
 
   cout << endl << "New" << endl;
   ParametrizableTree* pTree = new ParametrizableTree(tree);
-  //SimpleSubstitutionProcess* process = new SimpleSubstitutionProcess(model->clone(), pTree, true);
   
   ApplicationTools::startTimer();
   for (unsigned int i = 0; i < n; ++i) {
     ApplicationTools::displayGauge(i, n-1);
-    //SimpleSubstitutionProcess* process = new SimpleSubstitutionProcess(model->clone(), pTree->clone(), false);
     RateAcrossSitesSubstitutionProcess* process = new RateAcrossSitesSubstitutionProcess(model->clone(), rdist->clone(), pTree->clone());
     auto_ptr<SingleRecursiveTreeLikelihoodCalculation> tmComp(new SingleRecursiveTreeLikelihoodCalculation(sites, process, false, true));
     SinglePhyloLikelihood newTl(process, tmComp.release(), false);
-    newTl.getFirstOrderDerivative("BrLen0");
-    newTl.getFirstOrderDerivative("BrLen1");
-    newTl.getFirstOrderDerivative("BrLen2");
-    newTl.getFirstOrderDerivative("BrLen3");
-    newTl.getFirstOrderDerivative("BrLen4");
     newTl.computeTreeLikelihood();
+    // newTl.getFirstOrderDerivative("BrLen0");
+    // newTl.getFirstOrderDerivative("BrLen1");
+    // newTl.getFirstOrderDerivative("BrLen2");
+    // newTl.getFirstOrderDerivative("BrLen3");
+    // newTl.getFirstOrderDerivative("BrLen4");
   
   // cout << "NewTL: " << setprecision(20) << newTl.getValue() << endl;
   // cout << "NewTL D1: " << setprecision(20) << newTl.getFirstOrderDerivative("BrLen1") << endl;
@@ -119,8 +117,8 @@ void fitModelH(SubstitutionModel* model, DiscreteDistribution* rdist, const Tree
   //   throw Exception("Incorrect final value.");
   tl.getParameters().printParameters(cout);
   
-//  SimpleSubstitutionProcess* process = new SimpleSubstitutionProcess(model->clone(), pTree->clone(), false);
-  RateAcrossSitesSubstitutionProcess* process = new RateAcrossSitesSubstitutionProcess(model->clone(), rdist->clone(), pTree->clone());
+  SimpleSubstitutionProcess* process = new SimpleSubstitutionProcess(model->clone(), pTree->clone(), false);
+//  RateAcrossSitesSubstitutionProcess* process = new RateAcrossSitesSubstitutionProcess(model->clone(), rdist->clone(), pTree->clone());
   auto_ptr<SingleRecursiveTreeLikelihoodCalculation> tmComp(new SingleRecursiveTreeLikelihoodCalculation(sites, process, false, true));
   SinglePhyloLikelihood newTl(process, tmComp.release(), false);
   OptimizationTools::optimizeNumericalParameters2(&newTl, newTl.getParameters(), 0, 0.000001, 10000, 0, 0);
@@ -140,17 +138,16 @@ int main() {
 
   const NucleicAlphabet* alphabet = &AlphabetTools::DNA_ALPHABET;
   SubstitutionModel* model = new T92(alphabet, 3.);
-  DiscreteDistribution* rdist = new GammaDiscreteRateDistribution(4, 0.1);
-  //DiscreteDistribution* rdist = new ConstantRateDistribution();
+  DiscreteDistribution* rdist = new GammaDiscreteRateDistribution(3, 0.1);
 
   VectorSiteContainer sites(alphabet);
-  sites.addSequence(BasicSequence("A", "GAACACGAAAGCATGAATGTTCAGTGAGTAGATCAAATATGTCATTTCTGAATTATTATA", alphabet));
-  sites.addSequence(BasicSequence("B", "TTTGAACTGTTTGAATATAAGAAAGTTAAATATCTTATAACCAAGTAATATGTTTTAAGA", alphabet));
-  sites.addSequence(BasicSequence("C", "GTAATACTTTATAAATACTGATCAATTCAGATAATTTTCAGAACTAACATATATATTATG", alphabet));
-  sites.addSequence(BasicSequence("D", "TCGATCGAAAGCCAGGATCAACAATCTTTAACTTATATCGAAAATCATTTATGTGAAGGC", alphabet));
+  sites.addSequence(BasicSequence("A", "CTCCAGACATGCCGGGACTTTGCAGAGAAGGAGTTGTTTCCCATTGCAGCCCAGGTGGATAAGGAACAGC", alphabet));
+  sites.addSequence(BasicSequence("B", "CGTCAGACATGCCGTGACTTTGCCGAGAAGGAGTTGGTCCCCATTGCGGCCCAGCTGGACAGGGAGCATC", alphabet));
+  sites.addSequence(BasicSequence("C", "CGTCAGACATGCCGGGAATTTGCTGAAAAGGAGCTGGTTCCCATTGCAGCCCAGGTAGACAAGGAGCATC", alphabet));
+  sites.addSequence(BasicSequence("D", "CTCCAGACATGCCGGGACTTTACCGAGAAGGAGTTGTTTTCCATTGCAGCCCAGGTGGATAAGGAACATC", alphabet));
 
   try {
-    fitModelH(model, rdist, *tree, sites, 85.030942031997312824, 65.72293577214308868406);
+    fitModelH(model, rdist, *tree, sites, 205.77281110217668925, 185.37205627448278733027);
   } catch (Exception& ex) {
     cerr << ex.what() << endl;
     return 1;
