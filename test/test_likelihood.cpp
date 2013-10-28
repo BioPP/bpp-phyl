@@ -66,11 +66,11 @@ void fitModelH(SubstitutionModel* model, DiscreteDistribution* rdist, const Tree
     ApplicationTools::displayGauge(i, n-1);
     RHomogeneousTreeLikelihood tl(tree, sites, model->clone(), rdist->clone(), false, false);
     tl.initialize();
-    // tl.getFirstOrderDerivative("BrLen0");
-    // tl.getFirstOrderDerivative("BrLen1");
-    // tl.getFirstOrderDerivative("BrLen2");
-    // tl.getFirstOrderDerivative("BrLen3");
-    // tl.getFirstOrderDerivative("BrLen4");
+    tl.getFirstOrderDerivative("BrLen0");
+    tl.getFirstOrderDerivative("BrLen1");
+    tl.getFirstOrderDerivative("BrLen2");
+    tl.getFirstOrderDerivative("BrLen3");
+    tl.getFirstOrderDerivative("BrLen4");
      // ApplicationTools::displayResult("Test model", model->getName());
      // cout << "OldTL: " << setprecision(20) << tl.getValue() << endl;
      // cout << "OldTL D1: " << setprecision(20) << tl.getFirstOrderDerivative("BrLen0") << endl;
@@ -92,11 +92,11 @@ void fitModelH(SubstitutionModel* model, DiscreteDistribution* rdist, const Tree
     auto_ptr<SingleRecursiveTreeLikelihoodCalculation> tmComp(new SingleRecursiveTreeLikelihoodCalculation(sites, process, false, true));
     SinglePhyloLikelihood newTl(process, tmComp.release(), false);
     newTl.computeTreeLikelihood();
-    // newTl.getFirstOrderDerivative("BrLen0");
-    // newTl.getFirstOrderDerivative("BrLen1");
-    // newTl.getFirstOrderDerivative("BrLen2");
-    // newTl.getFirstOrderDerivative("BrLen3");
-    // newTl.getFirstOrderDerivative("BrLen4");
+    newTl.getFirstOrderDerivative("BrLen0");
+    newTl.getFirstOrderDerivative("BrLen1");
+    newTl.getFirstOrderDerivative("BrLen2");
+    newTl.getFirstOrderDerivative("BrLen3");
+    newTl.getFirstOrderDerivative("BrLen4");
   
   // cout << "NewTL: " << setprecision(20) << newTl.getValue() << endl;
   // cout << "NewTL D1: " << setprecision(20) << newTl.getFirstOrderDerivative("BrLen1") << endl;
