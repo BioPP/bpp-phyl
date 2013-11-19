@@ -928,7 +928,7 @@ SubstitutionProcessCollection* PhylogeneticsApplicationTools::getSubstitutionPro
   //////// Aliasing
   // Finally check parameter aliasing:
 
-  string aliasDesc = ApplicationTools::getStringParameter("collection.alias", params, "", suffix, suffixIsOptional, verbose);
+  string aliasDesc = ApplicationTools::getStringParameter("collection.alias", params, "", suffix, suffixIsOptional, false);
 
   StringTokenizer st(aliasDesc, ",");
   while (st.hasMoreToken())

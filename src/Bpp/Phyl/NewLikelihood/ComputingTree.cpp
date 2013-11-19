@@ -199,6 +199,8 @@ void ComputingTree::addModel(const SubstitutionModel* pSubMod, std::vector<int> 
   for (size_t i=0; i< getNumberOfClasses(); i++)
     for (size_t j=0; j<vBr.size(); j++)
       vTree_[i]->getNode(vBr[j])->setSubstitutionModel(pSubMod);
+
+  checkModelOnEachNode();
 }
 
 void ComputingTree::addModel(const SubstitutionModel* pSubMod)
@@ -262,7 +264,7 @@ void ComputingTree::update(vector<int>& vId)
 void ComputingTree::updateAll()
 {
   if (!isReadyToCompute_)
-    return;
+    throw Exception("ComputingTree::update : some nodes do not have a model.");
 
   for (size_t i=0; i<vTree_.size(); i++)
     vTree_[i]->getRootNode()->updateAll();
