@@ -360,6 +360,7 @@ void AbstractHomogeneousTreeLikelihood::computeTransitionProbabilitiesForNode(co
   {
     VVdouble* pxy__node_c = &(*pxy__node)[c];
     RowMatrix<double> Q = model_->getPij_t(l * rateDistribution_->getCategory(c));
+
     for (unsigned int x = 0; x < nbStates_; x++)
     {
       Vdouble* pxy__node_c_x = &(*pxy__node_c)[x];
@@ -369,7 +370,7 @@ void AbstractHomogeneousTreeLikelihood::computeTransitionProbabilitiesForNode(co
       }
     }
   }
-
+  
   if (computeFirstOrderDerivatives_)
   {
     // Computes all dpxy/dt once for all:

@@ -5,36 +5,36 @@
 //
 
 /*
-   Copyright or © or Copr. CNRS, (November 16, 2004)
-   This software is a computer program whose purpose is to provide
-   classes for phylogenetic data analysis.
+  Copyright or © or Copr. CNRS, (November 16, 2004)
+  This software is a computer program whose purpose is to provide
+  classes for phylogenetic data analysis.
 
-   This software is governed by the CeCILL license under French law and
-   abiding by the rules of distribution of free software. You can use,
-   modify and/ or redistribute the software under the terms of the CeCILL
-   license as circulated by CEA, CNRS and INRIA at the following URL
-   "http://www.cecill.info".
+  This software is governed by the CeCILL license under French law and
+  abiding by the rules of distribution of free software. You can use,
+  modify and/ or redistribute the software under the terms of the CeCILL
+  license as circulated by CEA, CNRS and INRIA at the following URL
+  "http://www.cecill.info".
 
-   As a counterpart to the access to the source code and rights to copy,
-   modify and redistribute granted by the license, users are provided
-   only with a limited warranty and the software's author, the holder of
-   the economic rights, and the successive licensors have only limited
-   liability.
+  As a counterpart to the access to the source code and rights to copy,
+  modify and redistribute granted by the license, users are provided
+  only with a limited warranty and the software's author, the holder of
+  the economic rights, and the successive licensors have only limited
+  liability.
 
-   In this respect, the user's attention is drawn to the risks associated
-   with loading, using, modifying and/or developing or reproducing the
-   software by the user in light of its specific status of free software,
-   that may mean that it is complicated to manipulate, and that also
-   therefore means that it is reserved for developers and experienced
-   professionals having in-depth computer knowledge. Users are therefore
-   encouraged to load and test the software's suitability as regards
-   their requirements in conditions enabling the security of their
-   systems and/or data to be ensured and, more generally, to use and
-   operate it in the same conditions as regards security.
+  In this respect, the user's attention is drawn to the risks associated
+  with loading, using, modifying and/or developing or reproducing the
+  software by the user in light of its specific status of free software,
+  that may mean that it is complicated to manipulate, and that also
+  therefore means that it is reserved for developers and experienced
+  professionals having in-depth computer knowledge. Users are therefore
+  encouraged to load and test the software's suitability as regards
+  their requirements in conditions enabling the security of their
+  systems and/or data to be ensured and, more generally, to use and
+  operate it in the same conditions as regards security.
 
-   The fact that you are presently reading this means that you have had
-   knowledge of the CeCILL license and that you accept its terms.
- */
+  The fact that you are presently reading this means that you have had
+  knowledge of the CeCILL license and that you accept its terms.
+*/
 
 #include "gBGC.h"
 
@@ -52,13 +52,13 @@ using namespace bpp;
 gBGC::gBGC(const NucleicAlphabet* alph, NucleotideSubstitutionModel* const pm, double gamma) :
   AbstractParameterAliasable("gBGC."),
   AbstractSubstitutionModel(alph,"gBGC."),
-  pmodel_(pm->clone()),
+  model_(pm),
   nestedPrefix_(pm->getNamespace()),
   gamma_(gamma)
 {
-  pmodel_->setNamespace("gBGC."+nestedPrefix_);
-  pmodel_->enableEigenDecomposition(0);
-  addParameters_(pmodel_->getParameters());
+  model_->setNamespace("gBGC."+nestedPrefix_);
+  model_->enableEigenDecomposition(0);
+  addParameters_(model_->getParameters());
   addParameter_(new Parameter("gBGC.gamma", gamma_,new IntervalConstraint(-999, 10, true, true), true));
 
   updateMatrices();
@@ -67,7 +67,7 @@ gBGC::gBGC(const NucleicAlphabet* alph, NucleotideSubstitutionModel* const pm, d
 gBGC::gBGC(const gBGC& gbgc) :
   AbstractParameterAliasable(gbgc),
   AbstractSubstitutionModel(gbgc),
-  pmodel_(gbgc.pmodel_->clone()),
+  model_(gbgc.model_->clone()),
   nestedPrefix_(gbgc.nestedPrefix_),
   gamma_(gbgc.gamma_)
 {
@@ -77,7 +77,7 @@ gBGC& gBGC::operator=(const gBGC& gbgc)
 {
   AbstractParameterAliasable::operator=(gbgc);
   AbstractSubstitutionModel::operator=(gbgc);
-  pmodel_ = gbgc.pmodel_->clone();
+  model_ = auto_ptr<NucleotideSubstitutionModel>(gbgc.model_.get());
   nestedPrefix_ = gbgc.nestedPrefix_;
   gamma_=gbgc.gamma_;
   return *this;
@@ -85,7 +85,7 @@ gBGC& gBGC::operator=(const gBGC& gbgc)
 
 void gBGC::fireParameterChanged(const ParameterList& parameters)
 {
-  pmodel_->matchParametersValues(parameters);
+  model_->matchParametersValues(parameters);
   AbstractSubstitutionModel::matchParametersValues(parameters);
   updateMatrices();
 }
@@ -96,9 +96,10 @@ void gBGC::updateMatrices()
   unsigned int i,j;
   // Generator:
   double eg=exp(gamma_);
+  
   for ( i = 0; i < 4; i++)
     for ( j = 0; j < 4; j++)
-      generator_(i,j)=pmodel_->Qij(i,j);
+      generator_(i,j)=model_->Qij(i,j);
 
   generator_(0,1) *= eg;
   generator_(0,2) *= eg;
@@ -108,58 +109,128 @@ void gBGC::updateMatrices()
   generator_(0,0) -= (generator_(0,1)+generator_(0,2))*(1-1/eg);
   generator_(3,3) -= (generator_(3,1)+generator_(3,2))*(1-1/eg);
 
-  // calcul spectral
+  if (enableEigenDecomposition())
+  {
+    // calcul spectral
 
-  EigenValue<double> ev(generator_);
-  eigenValues_ = ev.getRealEigenValues();
+    EigenValue<double> ev(generator_);
+    eigenValues_ = ev.getRealEigenValues();
+    iEigenValues_ = ev.getImagEigenValues();
   
-  rightEigenVectors_ = ev.getV();
-  MatrixTools::inv(rightEigenVectors_,leftEigenVectors_);
+    rightEigenVectors_ = ev.getV();
+    try
+    {
+      MatrixTools::inv(rightEigenVectors_, leftEigenVectors_);
+      isNonSingular_ = true;
+      isDiagonalizable_ = true;
+      
+      for (i = 0; i < 4 && isDiagonalizable_; i++)
+      {
+        if (abs(iEigenValues_[i]) > NumConstants::TINY())
+          isDiagonalizable_ = false;
+      }
 
-  iEigenValues_ = ev.getImagEigenValues();
+      // frequence stationnaire
 
-  // frequence stationnaire
-  double x = 0;
-  j = 0;
-  while (j < 4){
-    if (abs(eigenValues_[j]) < 0.000001 && abs(iEigenValues_[j]) < 0.000001) {
-      eigenValues_[j]=0; //to avoid approximation problems in the future
-      iEigenValues_[j]=0; //to avoid approximation problems in the future
-      for (i = 0; i < 4; i++)
-        {
-          freq_[i] = leftEigenVectors_(j,i);
-          x += freq_[i];
+      if (isDiagonalizable_)
+      {
+        size_t nulleigen = 0;
+        double val;
+        isNonSingular_ = false;
+        
+        while (nulleigen < 4){
+          if (abs(eigenValues_[nulleigen]) < 0.000001 && abs(iEigenValues_[nulleigen]) < 0.000001) {
+            val = rightEigenVectors_(0, nulleigen);
+            i=1;
+            while (i < 4)
+            {
+              if (abs(rightEigenVectors_(i, nulleigen) - val) > NumConstants::SMALL())
+                break;
+              i++;
+            }
+            
+            if (i < 4)
+              nulleigen++;
+            else
+            {
+              isNonSingular_ = true;
+              break;
+            }
+          }
+          else
+            nulleigen++;
         }
-      break;
+
+        if (isNonSingular_)
+        {
+          eigenValues_[nulleigen] = 0; // to avoid approximation errors on long long branches
+          iEigenValues_[nulleigen] = 0; // to avoid approximation errors on long long branches
+          
+          for (i = 0; i < 4; i++)
+            freq_[i] = leftEigenVectors_(nulleigen, i);
+          
+          val = 0;
+          for (i = 0; i < 4; i++)
+            val += freq_[i];
+          
+          for (i = 0; i < 4; i++)
+            freq_[i] /= val;
+        }
+        else
+        {
+          ApplicationTools::displayMessage("Unable to find eigenvector for eigenvalue 1 in gBGC. Taylor series used instead.");
+          isDiagonalizable_ = false;
+        }
+      }
     }
-    j++;
+    catch (ZeroDivisionException& e)
+    {
+      ApplicationTools::displayMessage("Singularity during diagonalization of gBGC in gBGC. Taylor series used instead.");
+      isNonSingular_ = false;
+      isDiagonalizable_ = false;
+    }
+
+    if (!isNonSingular_)
+    {
+      double min = generator_(0, 0);
+      for (i = 1; i < 4; i++)
+      {
+        if (min > generator_(i, i))
+          min = generator_(i, i);
+      }
+
+      MatrixTools::scale(generator_, -1 / min);
+
+      if (vPowGen_.size() == 0)
+        vPowGen_.resize(30);
+
+      MatrixTools::getId(4, tmpMat_);    // to compute the equilibrium frequency  (Q+Id)^256
+      MatrixTools::add(tmpMat_, generator_);
+      MatrixTools::pow(tmpMat_, 4, vPowGen_[0]);
+
+      for (i = 0; i < 4; i++)
+        freq_[i] = vPowGen_[0](0, i);
+
+      MatrixTools::getId(4, vPowGen_[0]);
+    }
+
+    // mise a l'echelle
+
+    double x = 0;
+    for (i = 0; i < 4; i++)
+      x += freq_[i] * generator_(i,i);
+
+    MatrixTools::scale(generator_,-1 / x);
+    for (i = 0; i < 4; i++)
+    {
+      eigenValues_[i] /= -x;
+      iEigenValues_[i] /= -x;
+    }
+
+    if (!isNonSingular_)
+      MatrixTools::Taylor(generator_, 30, vPowGen_);
+
   }
-
-  for (i = 0; i < 4; i++)
-    freq_[i] /= x;
-
-  // mise a l'echelle
-
-  x = 0;
-  for (i = 0; i < 4; i++)
-    x += freq_[i] * generator_(i,i);
-
-  MatrixTools::scale(generator_,-1 / x);
-
-  for (i = 0; i < 4; i++)
-    eigenValues_[i] /= -x;
-  
-  isDiagonalizable_=true;
-  for (i = 0; i < size_ && isDiagonalizable_; i++)
-    if (abs(iEigenValues_[i])> NumConstants::SMALL()){
-      isDiagonalizable_=false;
-      break;
-    }
-
-  // and the exchangeability_
-  for ( i = 0; i < size_; i++)
-    for ( j = 0; j < size_; j++)
-      exchangeability_(i,j) = generator_(i,j) / freq_[j];
 
 }
 
@@ -167,12 +238,12 @@ void gBGC::setNamespace(const std::string& prefix)
 {
   AbstractSubstitutionModel::setNamespace(prefix);
   // We also need to update the namespace of the nested model:
-  pmodel_->setNamespace(prefix + nestedPrefix_);
+  model_->setNamespace(prefix + nestedPrefix_);
 }
 
 
 std::string gBGC::getName() const
 {
-  return "gBGC(model=" + pmodel_->getName()+")";
+  return "gBGC(model=" + model_->getName()+")";
 }
 
