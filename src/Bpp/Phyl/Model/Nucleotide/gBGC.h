@@ -115,6 +115,8 @@ namespace bpp
 
     void fireParameterChanged(const ParameterList&);
 
+    const SubstitutionModel* getNestedModel() const {return model_.get();}
+    
     void updateMatrices();
 
     void setNamespace(const std::string&);

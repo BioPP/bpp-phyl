@@ -1130,6 +1130,16 @@ void BppOSubstitutionModelFormat::write(const SubstitutionModel& model,
     comma = true;
   }
 
+  // Is it a gBGC model?
+  const gBGC* gbgcModel = dynamic_cast<const gBGC*>(&model);
+  if (gbgcModel)
+  {
+    out << "model=";
+    const SubstitutionModel* nestedModel = gbgcModel->getNestedModel();
+    write(*nestedModel, out, globalAliases, writtenNames);
+    comma = true;
+  }
+
   // Is it a word model?
 
   const AbstractWordSubstitutionModel* wM = dynamic_cast<const AbstractWordSubstitutionModel*>(&model);
@@ -1202,6 +1212,7 @@ void BppOSubstitutionModelFormat::write(const SubstitutionModel& model,
   // and the other parameters
 
   BppOParametrizableFormat bIO;
+  
   bIO.write(&model, out, globalAliases, model.getIndependentParameters().getParameterNames(), writtenNames, true, comma);
   out << ")";
 }

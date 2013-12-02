@@ -59,7 +59,7 @@ gBGC::gBGC(const NucleicAlphabet* alph, NucleotideSubstitutionModel* const pm, d
   model_->setNamespace("gBGC."+nestedPrefix_);
   model_->enableEigenDecomposition(0);
   addParameters_(model_->getParameters());
-  addParameter_(new Parameter("gBGC.gamma", gamma_,new IntervalConstraint(-999, 10, true, true), true));
+  addParameter_(new Parameter("gBGC.gamma", gamma_, new IntervalConstraint(-999, 10, true, true), true));
 
   updateMatrices();
 }
@@ -85,8 +85,8 @@ gBGC& gBGC::operator=(const gBGC& gbgc)
 
 void gBGC::fireParameterChanged(const ParameterList& parameters)
 {
+  AbstractSubstitutionModel::fireParameterChanged(parameters);
   model_->matchParametersValues(parameters);
-  AbstractSubstitutionModel::matchParametersValues(parameters);
   updateMatrices();
 }
 
@@ -244,6 +244,6 @@ void gBGC::setNamespace(const std::string& prefix)
 
 std::string gBGC::getName() const
 {
-  return "gBGC(model=" + model_->getName()+")";
+  return "gBGC";
 }
 
