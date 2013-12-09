@@ -105,6 +105,10 @@ void gBGC::updateMatrices()
   generator_(0,2) *= eg;
   generator_(3,1) *= eg;
   generator_(3,2) *= eg;
+  generator_(1,0) /= eg;
+  generator_(2,0) /= eg;
+  generator_(1,3) /= eg;
+  generator_(2,3) /= eg;
 
   generator_(0,0) -= (generator_(0,1)+generator_(0,2))*(1-1/eg);
   generator_(3,3) -= (generator_(3,1)+generator_(3,2))*(1-1/eg);
