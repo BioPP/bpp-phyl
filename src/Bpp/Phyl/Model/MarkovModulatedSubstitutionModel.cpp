@@ -195,7 +195,7 @@ const Matrix<double>& MarkovModulatedSubstitutionModel::getdPij_dt(double t) con
 
 const Matrix<double>& MarkovModulatedSubstitutionModel::getd2Pij_dt2(double t) const
 {
-  MatrixTools::mult(rightEigenVectors_, NumTools::sqr(eigenValues_) * VectorTools::exp(eigenValues_ * t), leftEigenVectors_, d2pijt_);
+  MatrixTools::mult(rightEigenVectors_, VectorTools::sqr(eigenValues_) * VectorTools::exp(eigenValues_ * t), leftEigenVectors_, d2pijt_);
   return d2pijt_;
 }
 

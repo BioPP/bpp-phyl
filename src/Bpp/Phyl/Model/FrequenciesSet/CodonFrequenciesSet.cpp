@@ -269,16 +269,17 @@ void FullPerAACodonFrequenciesSet::fireParameterChanged(const ParameterList& par
 
 void FullPerAACodonFrequenciesSet::updateFrequencies()
 {
-  const ProteicAlphabet* ppa = dynamic_cast<const ProteicAlphabet*>(pgc_->getTargetAlphabet());
+  size_t size = pgc_->getTargetAlphabet()->getSize();
 
-  for (size_t i = 0; i < ppa->getSize(); i++)
+  for (size_t i = 0; i < size; i++)
   {
     std::vector<int> vc = pgc_->getSynonymous(static_cast<int>(i));
     for (size_t j = 0; j < vc.size(); j++)
     {
-      getFreq_(vc[j]) = (ppfs_->getFrequencies())[i] * vS_[i].prob(j);
+      getFreq_(vc[j]) = double(vc.size()) * (ppfs_->getFrequencies())[i] * vS_[i].prob(j);
     }
   }
+  normalize();
 }
 
 void FullPerAACodonFrequenciesSet::setFrequencies(const vector<double>& frequencies)
@@ -286,11 +287,11 @@ void FullPerAACodonFrequenciesSet::setFrequencies(const vector<double>& frequenc
   if (frequencies.size() != getAlphabet()->getSize())
     throw DimensionException("FullParAAFrequenciesSet::setFrequencies", frequencies.size(), getAlphabet()->getSize());
 
-  const ProteicAlphabet* ppa = dynamic_cast<const ProteicAlphabet*>(pgc_->getTargetAlphabet());
+  size_t size = pgc_->getTargetAlphabet()->getSize();
 
   vector<double> vaa;
   double S = 0;
-  for (size_t i = 0; i < ppa->getSize(); i++)
+  for (size_t i = 0; i < size; i++)
   {
     vector<double> vp;
     double s = 0;
@@ -300,11 +301,12 @@ void FullPerAACodonFrequenciesSet::setFrequencies(const vector<double>& frequenc
       vp.push_back(frequencies[vc[j]]);
       s += frequencies[vc[j]];
     }
-    S += s;
-    vaa.push_back(s);
     vp /= s;
     vS_[i].setFrequencies(vp);
     matchParametersValues(vS_[i].getParameters());
+
+    S += s/double(vc.size());
+    vaa.push_back(s/double(vc.size()));
   }
 
   vaa /= S; // to avoid counting of stop codons

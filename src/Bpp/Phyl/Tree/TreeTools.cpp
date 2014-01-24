@@ -718,6 +718,7 @@ DistanceMatrix* TreeTools::getDistanceMatrix(const Tree& tree)
 
 void TreeTools::midpointRooting(Tree& tree)
 {
+  throw Exception("TreeTools::midpointRooting(Tree). This function is deprecated, use TreeTemplateTools::midRoot instead!");
   if (tree.isRooted())
     tree.unroot();
   DistanceMatrix* dist = getDistanceMatrix(tree);

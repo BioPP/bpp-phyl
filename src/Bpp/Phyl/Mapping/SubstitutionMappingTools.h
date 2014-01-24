@@ -308,16 +308,18 @@ namespace bpp
      * @param model             The model on which the SubstitutionCount is built
      * @param nullModel         The model on which the SubstitutionCount is built
      * @param reg               the Substitution Register
-     * @param threshold         value above which counts are considered saturated
-     *                                        (default: -1 means no threshold).
+     * @param complete          boolean to say if the counts have to
+     *                          be normalized such that the sum of all possible substitution
+     *                          counts = branch length.
      */
+    
     static std::vector< std::vector<double> >  getNormalizedCountsPerBranch(
         DRTreeLikelihood& drtl,
         const std::vector<int>& ids,
         SubstitutionModel* model,
         SubstitutionModel* nullModel,
         const SubstitutionRegister& reg,
-        double threshold = -1);
+        bool complete = false);
 
 
     /**
@@ -328,16 +330,18 @@ namespace bpp
      * @param model             The model on which the SubstitutionCount is built
      * @param nullModelSet      The model on which the SubstitutionCount is built
      * @param reg               the Substitution Register
-     * @param threshold         value above which counts are considered saturated
-     *                                        (default: -1 means no threshold).
+     * @param complete          boolean to say if the counts have to
+     *                          be normalized such that the sum of all possible substitution
+     *                          counts = branch length.
      */
+    
     static std::vector< std::vector<double> > getNormalizedCountsPerBranch(
         DRTreeLikelihood& drtl,
         const std::vector<int>& ids,
         SubstitutionModelSet* modelSet,
         SubstitutionModelSet* nullModelSet,
         const SubstitutionRegister& reg,
-        double threshold = -1);
+        bool complete = false);
 
     /**
      * @brief Returns the counts relative to the frequency of the

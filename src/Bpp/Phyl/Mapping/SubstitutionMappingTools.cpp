@@ -1193,39 +1193,63 @@ vector< vector<double> > SubstitutionMappingTools::getNormalizationsPerBranch(
 /**************************************************************************************************/
 
 vector< vector<double> > SubstitutionMappingTools::getNormalizedCountsPerBranch(
-                                                                     DRTreeLikelihood& drtl,
-                                                                     const vector<int>& ids,
-                                                                     SubstitutionModel* model,
-                                                                     SubstitutionModel* nullModel,
-                                                                     const SubstitutionRegister& reg,
-                                                                     double threshold)
+  DRTreeLikelihood& drtl,
+  const vector<int>& ids,
+  SubstitutionModel* model,
+  SubstitutionModel* nullModel,
+  const SubstitutionRegister& reg,
+  bool complete)
 {
-  CompleteSubstitutionRegister compreg=CompleteSubstitutionRegister(reg);
+  vector< vector<double> > counts;
+  vector< vector<double> > factors;
 
-  vector< vector<double> > counts=getCountsPerBranch(drtl, ids, model, compreg, threshold);
-
-  vector< vector<double> > factors=getNormalizationsPerBranch(drtl, ids, nullModel, compreg);
+  if (complete)
+  {
+    CompleteSubstitutionRegister compreg=CompleteSubstitutionRegister(reg);
+    counts=getCountsPerBranch(drtl, ids, model, compreg, -1);
+    factors=getNormalizationsPerBranch(drtl, ids, nullModel, compreg);
+  }
+  else
+  {
+    counts=getCountsPerBranch(drtl, ids, model, reg, -1);
+    factors=getNormalizationsPerBranch(drtl, ids, nullModel, reg);
+  }
 
   size_t nbTypes = counts[0].size();
-    
+
   for (size_t k = 0; k < ids.size(); ++k) {
     for (size_t t = 0; t < nbTypes; ++t) {
       if (factors[k][t]!=0)
         counts[k][t] /= factors[k][t];
     }
   }
-    
+
   // Sets the sum of complete counts to 1
-  for (size_t ibr=0; ibr<counts.size(); ibr++){
-    double x=VectorTools::sum(counts[ibr]);
-    if (x!=0)
-      counts[ibr]/=x;
+  if (complete)
+  {
+    for (size_t ibr=0; ibr<counts.size(); ibr++){
+      double x=VectorTools::sum(counts[ibr]);
+      if (x!=0)
+        counts[ibr]/=x;
+    }
+
+    // Removes the completion class if needed
+    if (reg.getNumberOfSubstitutionTypes()!=nbTypes)
+      for (size_t ibr=0; ibr<counts.size(); ibr++)
+        counts[ibr].pop_back();
   }
 
-  // Removes the completion class if needed
-  if (reg.getNumberOfSubstitutionTypes()!=nbTypes)
-    for (size_t ibr=0; ibr<counts.size(); ibr++)
-      counts[ibr].pop_back();
+  // Multiply by the lengths of the branches of the input tree and the
+  // number of sites
+
+  const TreeTemplate<Node> tree(drtl.getTree());
+  
+  for (size_t k = 0; k < ids.size(); ++k) {
+    double l=tree.getNode(ids[k])->getDistanceToFather();
+    for (size_t t = 0; t < nbTypes; ++t) {
+      counts[k][t] *= l;
+    }
+  }
 
   return counts;
 }
@@ -1233,19 +1257,29 @@ vector< vector<double> > SubstitutionMappingTools::getNormalizedCountsPerBranch(
 /**************************************************************************************************/
 
 vector< vector<double> > SubstitutionMappingTools::getNormalizedCountsPerBranch(
-                                                                     DRTreeLikelihood& drtl,
-                                                                     const vector<int>& ids,
-                                                                     SubstitutionModelSet* modelSet,
-                                                                     SubstitutionModelSet* nullModelSet,
-                                                                     const SubstitutionRegister& reg,
-                                                                     double threshold)
+  DRTreeLikelihood& drtl,
+  const vector<int>& ids,
+  SubstitutionModelSet* modelSet,
+  SubstitutionModelSet* nullModelSet,
+  const SubstitutionRegister& reg,
+  bool complete)
 {
-  CompleteSubstitutionRegister compreg=CompleteSubstitutionRegister(reg);
+  vector< vector<double> > counts;
+  vector< vector<double> > factors;
 
-  vector< vector<double> > counts=getCountsPerBranch(drtl, ids, modelSet->getModel(0), compreg, threshold);
+  if (complete)
+  {
+    CompleteSubstitutionRegister compreg=CompleteSubstitutionRegister(reg);
+    counts=getCountsPerBranch(drtl, ids, modelSet->getModel(0), compreg, -1);
+    factors=getNormalizationsPerBranch(drtl, ids, nullModelSet, compreg);
+  }
+  else
+  {
+    counts=getCountsPerBranch(drtl, ids, modelSet->getModel(0), reg, -1);
+    factors=getNormalizationsPerBranch(drtl, ids, nullModelSet, reg);
+  }
 
   size_t nbTypes = counts[0].size();
-  vector< vector<double> > factors=getNormalizationsPerBranch(drtl, ids, nullModelSet, compreg);
 
   for (size_t k = 0; k < ids.size(); ++k) {
     for (size_t t = 0; t < nbTypes; ++t) {
@@ -1253,19 +1287,33 @@ vector< vector<double> > SubstitutionMappingTools::getNormalizedCountsPerBranch(
         counts[k][t] /= factors[k][t];
     }
   }
-    
+
   // Sets the sum of complete counts to 1
-  for (size_t ibr=0; ibr<counts.size(); ibr++){
-    double x=VectorTools::sum(counts[ibr]);
-    if (x!=0)
-      counts[ibr]/=x;
+  if (complete)
+  {
+    for (size_t ibr=0; ibr<counts.size(); ibr++){
+      double x=VectorTools::sum(counts[ibr]);
+      if (x!=0)
+        counts[ibr]/=x;
+    }
+
+    // Removes the completion class if needed
+    if (reg.getNumberOfSubstitutionTypes()!=nbTypes)
+      for (size_t ibr=0; ibr<counts.size(); ibr++)
+        counts[ibr].pop_back();
   }
 
-  // Removes the completion class if needed
+  // Multiply by the lengths of the branches of the input tree and the
+  // number of sites
 
-  if (reg.getNumberOfSubstitutionTypes()!=nbTypes)
-    for (size_t ibr=0; ibr<counts.size(); ibr++)
-      counts[ibr].pop_back();
+  const TreeTemplate<Node> tree(drtl.getTree());
+  
+  for (size_t k = 0; k < ids.size(); ++k) {
+    double l=tree.getNode(ids[k])->getDistanceToFather();
+    for (size_t t = 0; t < nbTypes; ++t) {
+      counts[k][t] *= l;
+    }
+  }
 
   return counts;
 }

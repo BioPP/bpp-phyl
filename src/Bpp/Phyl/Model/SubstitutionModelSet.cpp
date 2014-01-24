@@ -166,13 +166,15 @@ void SubstitutionModelSet::addModel(SubstitutionModel* model, const std::vector<
     }
 }
 
-void SubstitutionModelSet::removeModel(size_t modelIndex) throw (Exception)
+void SubstitutionModelSet::replaceModel(size_t modelIndex, SubstitutionModel* model) throw (Exception)
 {
-  modelSet_.erase(modelSet_.begin() + modelIndex);
+  delete modelSet_[modelIndex];
+  modelSet_[modelIndex]=model;
   
-  // Erase all parameter references to this model and translate other indices...
+  
+  // Erase all parameter references to this model
 
-  ParameterList pl=getParameters();
+  ParameterList pl=getNodeParameters();
 
   for (size_t i = pl.size(); i>0; i--)
     {
@@ -194,7 +196,23 @@ void SubstitutionModelSet::removeModel(size_t modelIndex) throw (Exception)
       }
     }
 
+  // Associate new parameters
+  string pname;
+
+  vector<string> nplm=model->getParameters().getParameterNames();
+  
+  for (size_t i  = 0; i < nplm.size(); i++)
+  {
+    pname = nplm[i];
+    Parameter* p = new Parameter(model->getParameters().getParameter(pname)); // We work with namespaces here, so model->getParameter(pname) does not work.
+    p->setName(pname + "_" + TextTools::toString(modelIndex+1));
+    addParameter_(p);
+  }
+
+  // update modelParameters_
+
   modelParameters_[modelIndex].reset();
+  modelParameters_[modelIndex]=*model->getParameters().clone();
 }
 
 void SubstitutionModelSet::listModelNames(std::ostream& out) const

@@ -1,3 +1,7 @@
+25/07/13 Julien Dutheil
+* Added method in TreeTemplateTools to unresolve all nodes below a certain confidence threshold.
+* TreeTools::midpointRooting is deprecated in favour of TreeTemplateTools::midRoot.
+
 07/03/13 -*- Version 2.1.0 -*-
 
 06/03/13 Nicolas Rochette

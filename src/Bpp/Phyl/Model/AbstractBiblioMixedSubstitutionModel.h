@@ -71,9 +71,10 @@ public:
   virtual const MixedSubstitutionModel& getMixedModel() const = 0;
 
   /*
-     *@brief Returns the submodel from the mixture.
+   *@brief Returns the submodel from the mixture.
    *
    */
+  
   const SubstitutionModel* getNModel(size_t i) const
   {
     return getMixedModel().getNModel(i);
