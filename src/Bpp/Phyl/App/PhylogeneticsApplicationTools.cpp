@@ -249,6 +249,7 @@ std::map<size_t, FrequenciesSet*> PhylogeneticsApplicationTools::getRootFrequenc
     }
 
   BppOFrequenciesSetFormat bIO(BppOFrequenciesSetFormat::ALL, verbose);
+  bIO.setGeneticCode(gCode);
 
   map<size_t, FrequenciesSet*> mFS;
 

@@ -159,7 +159,7 @@ public:
 
   void normalize()
   {
-    double x;
+    double x=0;
     for (size_t i = 0; i < freq_.size(); i++)
       x+=freq_[i];
     freq_/=x;
