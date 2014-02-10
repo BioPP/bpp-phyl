@@ -1,5 +1,5 @@
 //
-// File: HmmPhyloLikelihood.cpp
+// File: AutoCorrelationPhyloLikelihood.cpp
 // Created by: Laurent Guéguen
 // Created on: lundi 23 septembre 2013, à 22h 56
 //
@@ -37,12 +37,12 @@
    knowledge of the CeCILL license and that you accept its terms.
  */
 
-#include "HmmPhyloLikelihood.h"
+#include "AutoCorrelationPhyloLikelihood.h"
 
 #include "HmmPhyloEmissionProbabilities.h"
 
 #include <Bpp/Numeric/Hmm/LogsumHmmLikelihood.h>
-#include <Bpp/Numeric/Hmm/FullHmmTransitionMatrix.h>
+#include <Bpp/Numeric/Hmm/AutoCorrelationTransitionMatrix.h>
 
 using namespace std;
 using namespace bpp;
@@ -50,7 +50,7 @@ using namespace newlik;
 
 /******************************************************************************/
 
-HmmPhyloLikelihood::HmmPhyloLikelihood(
+AutoCorrelationPhyloLikelihood::AutoCorrelationPhyloLikelihood(
   SubstitutionProcessCollection* processColl,
   bool verbose,
   bool patterns) :
@@ -59,7 +59,7 @@ HmmPhyloLikelihood::HmmPhyloLikelihood(
 {
   HmmProcessAlphabet* hpa=new HmmProcessAlphabet(processColl_.get());
 
-  HmmTransitionMatrix* hptm=new FullHmmTransitionMatrix(hpa);
+  HmmTransitionMatrix* hptm=new AutoCorrelationTransitionMatrix(hpa);
 
   HmmPhyloEmissionProbabilities* hpep=new HmmPhyloEmissionProbabilities(hpa, this);
     
@@ -70,7 +70,7 @@ HmmPhyloLikelihood::HmmPhyloLikelihood(
   addParameters_(Hmm_->getHmmStateAlphabet().getParameters());
 }
 
-HmmPhyloLikelihood::HmmPhyloLikelihood(
+AutoCorrelationPhyloLikelihood::AutoCorrelationPhyloLikelihood(
   const SiteContainer& data,
   SubstitutionProcessCollection* processColl,
   bool verbose,
@@ -80,7 +80,7 @@ HmmPhyloLikelihood::HmmPhyloLikelihood(
 {
   HmmProcessAlphabet* hpa=new HmmProcessAlphabet(processColl_.get());
 
-  HmmTransitionMatrix* hptm=new FullHmmTransitionMatrix(hpa);
+  HmmTransitionMatrix* hptm=new AutoCorrelationTransitionMatrix(hpa);
 
   HmmPhyloEmissionProbabilities* hpep=new HmmPhyloEmissionProbabilities(hpa, this);
 
@@ -93,7 +93,7 @@ HmmPhyloLikelihood::HmmPhyloLikelihood(
   minusLogLik_ = -getLogLikelihood();
 }
 
-void HmmPhyloLikelihood::fireParameterChanged(const ParameterList& parameters)
+void AutoCorrelationPhyloLikelihood::fireParameterChanged(const ParameterList& parameters)
 {
   MultiPhyloLikelihood::fireParameterChanged(parameters);
 
@@ -102,7 +102,7 @@ void HmmPhyloLikelihood::fireParameterChanged(const ParameterList& parameters)
   minusLogLik_ = -Hmm_->getLogLikelihood();
 }
 
-ParameterList HmmPhyloLikelihood::getNonDerivableParameters() const
+ParameterList AutoCorrelationPhyloLikelihood::getNonDerivableParameters() const
 {
   ParameterList pl = processColl_->getNonDerivableParameters();
   pl.addParameters(Hmm_->getHmmTransitionMatrix().getParameters());

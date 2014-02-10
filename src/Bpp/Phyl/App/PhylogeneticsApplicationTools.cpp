@@ -59,6 +59,7 @@
 
 #include "../NewLikelihood/SinglePhyloLikelihood.h"
 #include "../NewLikelihood/MixturePhyloLikelihood.h"
+#include "../NewLikelihood/AutoCorrelationPhyloLikelihood.h"
 #include "../NewLikelihood/HmmPhyloLikelihood.h"
 #include "../NewLikelihood/ParametrizableTree.h"
 #include "../NewLikelihood/NonHomogeneousSubstitutionProcess.h"
@@ -304,7 +305,8 @@ map<size_t, SubstitutionModel*> PhylogeneticsApplicationTools::getSubstitutionMo
   for (size_t i=0; i< modelsName.size(); i++)
     {
       size_t poseq=modelsName[i].find("=");
-      modelsNum.push_back((size_t)TextTools::toInt(modelsName[i].substr(5,poseq-5)));
+      if (modelsName[i].find("nodes_id")==string::npos)
+        modelsNum.push_back((size_t)TextTools::toInt(modelsName[i].substr(5,poseq-5)));
     }
 
   map<size_t, SubstitutionModel*> mModel;
@@ -797,7 +799,7 @@ void PhylogeneticsApplicationTools::addSubstitutionProcessCollectionMember(
       SubProColl->addSubstitutionProcess(mModBr, numTree, numRate, numFreq);
   }
   
-  else if ((procName=="Nonhomogeneous") ||  (procName=="Nonhomogeneous"))
+  else if ((procName=="Nonhomogeneous") ||  (procName=="NonHomogeneous"))
   {
     size_t indModel=1;
     map<size_t, vector<int> > mModBr;
@@ -944,7 +946,7 @@ SubstitutionProcessCollection* PhylogeneticsApplicationTools::getSubstitutionPro
   }
 
   SPC->aliasParameters(unparsedParams, verbose);
-  
+
   return SPC;
 }
 
@@ -2580,7 +2582,12 @@ void PhylogeneticsApplicationTools::printParameters(const SubstitutionProcessCol
       vector<size_t> vMN=spcm->getModelNumbers();
       for (size_t j=0;j<vMN.size();j++)
       {
+        if (j!=0)
+          out << ",";
+
         out << "model" << (j+1) << "=" << vMN[j];
+        out << ",";
+        
         vector<int> ids = spcm->getNodesWithModel(vMN[j]);
         out << "model" << (j+1) << ".nodes_id=(" << ids[0];
         for (size_t k = 1; k < ids.size(); ++k)
@@ -2641,6 +2648,24 @@ void PhylogeneticsApplicationTools::printParameters(const PhyloLikelihood* phylo
       const Matrix<double>& tMt = pM->getHmmTransitionMatrix().getPij();
       MatrixTools::print(tMt, out);
 
+      out << ")";
+      out.endLine();
+    }
+    else if (dynamic_cast<const AutoCorrelationPhyloLikelihood*>(phylolike)!=NULL)
+    {
+      const AutoCorrelationPhyloLikelihood* pM=dynamic_cast<const AutoCorrelationPhyloLikelihood*>(phylolike);
+      
+      PhylogeneticsApplicationTools::printParameters(pM->getCollection(), out);
+      out.endLine();
+      out << "collection=AutoCorr(probas=(";
+
+      Vdouble vP;
+      for (unsigned int i=0;i<pM->getCollection()->getNumberOfSubstitutionProcess();i++)
+        vP.push_back(pM->getHmmTransitionMatrix().Pij(i,i));
+
+      out << VectorTools::paste(vP, ",");
+
+      out << "))";
       out.endLine();
     }
   }

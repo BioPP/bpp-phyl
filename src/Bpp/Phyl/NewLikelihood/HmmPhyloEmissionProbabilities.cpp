@@ -63,9 +63,9 @@ HmmPhyloEmissionProbabilities::HmmPhyloEmissionProbabilities(const HmmProcessAlp
 void HmmPhyloEmissionProbabilities::setHmmStateAlphabet(const HmmStateAlphabet* stateAlphabet) throw (HmmUnvalidAlphabetException)
 {
   if (stateAlphabet==NULL)
-    throw HmmUnvalidAlphabetException("Null alphabet in HmmPhyloTransitionMatrix::setHmmStateAlphabet");
+    throw HmmUnvalidAlphabetException("Null alphabet in HmmPhyloEmissionProbabilities::setHmmStateAlphabet");
   if (dynamic_cast<const HmmProcessAlphabet*>(stateAlphabet)==NULL)
-    throw HmmUnvalidAlphabetException("Non Process alphabet in HmmPhyloTransitionMatrix::setHmmStateAlphabet");
+    throw HmmUnvalidAlphabetException("Non Process alphabet in HmmPhyloEmissionProbabilities::setHmmStateAlphabet");
   
   procAlph_=dynamic_cast<const HmmProcessAlphabet*>(stateAlphabet);
 }

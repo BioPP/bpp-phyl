@@ -22,7 +22,7 @@ MACRO(TEST_FIND_LIBRARY OUTPUT_LIBS lib_name include_to_find)
 ENDMACRO(TEST_FIND_LIBRARY)
 
 #Find the bpp-phyl library library:
-TEST_FIND_LIBRARY(LIBS bpp-phyl Bpp/Phyl/Tree.h)
+TEST_FIND_LIBRARY(LIBS bpp-phyl Bpp/Phyl/Tree/Tree.h)
 
 ADD_EXECUTABLE(test_tree test_tree.cpp)
 TARGET_LINK_LIBRARIES(test_tree ${LIBS})
