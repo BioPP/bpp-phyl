@@ -44,15 +44,15 @@ using namespace bpp;
 
 const std::string IODistanceMatrixFactory::PHYLIP_FORMAT = "Phylip"; 
 
-IDistanceMatrix* IODistanceMatrixFactory::createReader(const std::string& format) throw (Exception)
+IDistanceMatrix* IODistanceMatrixFactory::createReader(const std::string& format, bool extended) throw (Exception)
 {
-  if(format == PHYLIP_FORMAT) return new PhylipDistanceMatrixFormat();
+  if(format == PHYLIP_FORMAT) return new PhylipDistanceMatrixFormat(extended);
   else throw Exception("Format " + format + " is not supported for input.");
 }
   
-ODistanceMatrix* IODistanceMatrixFactory::createWriter(const std::string& format) throw (Exception)
+ODistanceMatrix* IODistanceMatrixFactory::createWriter(const std::string& format, bool extended) throw (Exception)
 {
-  if(format == PHYLIP_FORMAT) return new PhylipDistanceMatrixFormat();
+  if(format == PHYLIP_FORMAT) return new PhylipDistanceMatrixFormat(extended);
   else throw Exception("Format " + format + " is not supported for output.");
 }
 
