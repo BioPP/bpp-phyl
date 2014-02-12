@@ -91,6 +91,7 @@ namespace bpp
    * -  Yang Z. and Nielsen R. (2008), _Molecular Biology and Evolution_ 25(3):568--579.
    */
   class CodonDistanceFitnessPhaseFrequenciesSubstitutionModel :
+    public virtual ReversibleSubstitutionModel,
     public AbstractCodonSubstitutionModel,
     public AbstractCodonDistanceSubstitutionModel,
     public AbstractCodonPhaseFrequenciesSubstitutionModel,
