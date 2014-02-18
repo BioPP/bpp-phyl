@@ -79,20 +79,20 @@ public:
   /**
    * @brief Get a new dynamically created IDistanceMatrix object.
    *
-   * @param format The input file format.
+   * @param format The input file format, and whether names should be only less than 10 characters, or not (false=10 characters max).
    * @return A pointer toward a new IDistanceMatrix object.
    * @throw Exception If the format name do not match any available format.
    */
-  virtual IDistanceMatrix* createReader(const std::string& format) throw (Exception);
+  virtual IDistanceMatrix* createReader(const std::string& format, bool extended=false) throw (Exception);
   
   /**
    * @brief Get a new dynamically created ODistanceMatrix object.
    *
-   * @param format The output file format.
+   * @param format The output file format, and whether names should be only less than 10 characters, or not (false=10 characters max).
    * @return A pointer toward a new ODistanceMatrix object.
    * @throw Exception If the format name do not match any available format.
    */
-  virtual ODistanceMatrix * createWriter(const std::string& format) throw (Exception);
+  virtual ODistanceMatrix * createWriter(const std::string& format, bool extended=false) throw (Exception);
 };
 
 } //end of namespace bpp.
