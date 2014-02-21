@@ -44,7 +44,7 @@ using namespace std;
 
 ParametrizableTree::ParametrizableTree(const Tree& tree, bool reparametrizeRoot, bool liveIndex, const std::string& prefix): 
   AbstractParametrizable(prefix),
-  tree_(tree),
+  tree_(),
   liveIndex_(liveIndex),
   index_(),
   reverseIndex_(),
@@ -53,6 +53,11 @@ ParametrizableTree::ParametrizableTree(const Tree& tree, bool reparametrizeRoot,
   maximumBrLen_(10000),
   brLenConstraint_(new IntervalConstraint(minimumBrLen_, maximumBrLen_, true, true))
 {
+  if (!dynamic_cast<const TreeTemplate<Node>*>(&tree))
+      throw Exception("ParametrizableTree::constructor. Input tree should be TreeTemplate<Node>.");
+
+  tree_=*(dynamic_cast<const TreeTemplate<Node>*>(&tree));
+  
   //TODO allow root reparametrization
   if (reparametrizeRoot)
     throw Exception("ParametrizableTree::constructor. Reparametrization of root is not implemented yet.");

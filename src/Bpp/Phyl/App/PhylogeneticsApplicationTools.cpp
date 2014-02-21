@@ -1782,85 +1782,125 @@ PhyloLikelihood* PhylogeneticsApplicationTools::optimizeParameters(
 
   // Should I ignore some parameters?
   ParameterList parametersToEstimate = parameters;
+  vector<string> parNames=parametersToEstimate.getParameterNames();
+  
   string paramListDesc = ApplicationTools::getStringParameter("optimization.ignore_parameter", params, "", suffix, suffixIsOptional, false);
   if (paramListDesc.length() == 0)
     paramListDesc = ApplicationTools::getStringParameter("optimization.ignore_parameters", params, "", suffix, suffixIsOptional, false);
   StringTokenizer st(paramListDesc, ",");
   while (st.hasMoreToken())
+  {
+    try
     {
-      try
+      string param = st.nextToken();
+      if (param == "BrLen")
+      {
+        vector<string> vs = lik->getBranchLengthsParameters().getParameterNames();
+        parametersToEstimate.deleteParameters(vs);
+        if (verbose)
+          ApplicationTools::displayResult("Parameter ignored", string("Branch lengths"));
+      }
+      else if (param == "Ancient")
+      {
+        vector<string> vs = lik->getRootFrequenciesParameters().getParameterNames();
+        parametersToEstimate.deleteParameters(vs);
+        if (verbose)
+          ApplicationTools::displayResult("Parameter ignored", string("Root frequencies"));
+      }
+      else if (param == "Model")
+      {
+        vector<string> vs= lik->getSubstitutionModelParameters().getParameterNames();
+        parametersToEstimate.deleteParameters(vs);
+        if (verbose)
+          ApplicationTools::displayResult("Parameter ignored", string("Model"));          
+      }
+      else if (param.find("*") != string::npos)
+      {
+        vector<string> vs=ApplicationTools::matchingParameters(param,parNames);
+        
+        for (vector<string>::iterator it = vs.begin(); it != vs.end(); it++)
         {
-          string param = st.nextToken();
-          if (param == "BrLen")
-            {
-              vector<string> vs = lik->getBranchLengthsParameters().getParameterNames();
-              parametersToEstimate.deleteParameters(vs);
-              if (verbose)
-                ApplicationTools::displayResult("Parameter ignored", string("Branch lengths"));
-            }
-          else if (param == "Ancient")
-            {
-              vector<string> vs = lik->getRootFrequenciesParameters().getParameterNames();
-              parametersToEstimate.deleteParameters(vs);
-              if (verbose)
-                ApplicationTools::displayResult("Parameter ignored", string("Root frequencies"));
-            }
-          else if (param == "Model")
-            {
-              vector<string> vs= lik->getSubstitutionModelParameters().getParameterNames();
-              parametersToEstimate.deleteParameters(vs);
-              if (verbose)
-                ApplicationTools::displayResult("Parameter ignored", string("Model"));          
-            }
-          else if (param.find("*") != string::npos)
-            {
-              vector<string> vs;
-              for (size_t j = 0; j < parametersToEstimate.size(); j++)
-                {
-                  StringTokenizer stj(param, "*", true, false);
-                  size_t pos1, pos2;
-                  string parn = parametersToEstimate[j].getName();
-                  bool flag(true);
-                  string g = stj.nextToken();
-                  pos1 = parn.find(g);
-                  if (pos1 != 0)
-                    flag = false;
-                  pos1 += g.length();
-                  while (flag && stj.hasMoreToken())
-                    {
-                      g = stj.nextToken();
-                      pos2 = parn.find(g, pos1);
-                      if (pos2 == string::npos)
-                        {
-                          flag = false;
-                          break;
-                        }
-                      pos1 = pos2 + g.length();
-                    }
-                  if (flag &&
-                      ((g.length() == 0) || (pos1 == parn.length()) || (parn.rfind(g) == parn.length() - g.length())))
-                    vs.push_back(parn);
-                }
-
-              for (vector<string>::iterator it = vs.begin(); it != vs.end(); it++)
-                {
-                  parametersToEstimate.deleteParameter(*it);
-                  if (verbose)
-                    ApplicationTools::displayResult("Parameter ignored", *it);
-                }
-            }
-          else
-            {
-              parametersToEstimate.deleteParameter(param);
-              if (verbose)
-                ApplicationTools::displayResult("Parameter ignored", param);
-            }
+          parametersToEstimate.deleteParameter(*it);
+          if (verbose)
+            ApplicationTools::displayResult("Parameter ignored", *it);
         }
-      catch (ParameterNotFoundException& pnfe)
-        {
-          ApplicationTools::displayWarning("Parameter '" + pnfe.getParameter() + "' not found, and so can't be ignored!");
-        }
+      }
+      else
+      {
+        parametersToEstimate.deleteParameter(param);
+        if (verbose)
+          ApplicationTools::displayResult("Parameter ignored", param);
+      }
     }
+    catch (ParameterNotFoundException& pnfe)
+    {
+      ApplicationTools::displayWarning("Parameter '" + pnfe.getParameter() + "' not found, and so can't be ignored!");
+    }
+  }
+
+  // Should I constrain some parameters?
+  vector<string> parToEstNames=parametersToEstimate.getParameterNames();
+  
+  paramListDesc = ApplicationTools::getStringParameter("optimization.constrain_parameter", params, "", suffix, suffixIsOptional, false);
+  if (paramListDesc.length() == 0)
+    paramListDesc = ApplicationTools::getStringParameter("optimization.constrain_parameters", params, "", suffix, suffixIsOptional, false);
+
+  string constraint="";
+  string pc, param="";
+  
+  StringTokenizer st2(paramListDesc, ",");
+  while (st2.hasMoreToken())
+  {
+    try
+    {
+      pc = st2.nextToken();
+      string::size_type index = pc.find("=");
+      if (index == string::npos)
+        throw Exception("PhylogeneticsApplicationTools::optimizeParamaters. Bad constrain syntax, should contain `=' symbol: " + pc);
+      param = pc.substr(0, index);
+      constraint = pc.substr(index + 1);
+      IntervalConstraint ic(constraint);
+      
+      vector<string> parNames2;
+      
+      if (param == "BrLen")
+        parNames2  = lik->getBranchLengthsParameters().getParameterNames();
+      else if (param == "Ancient")
+        parNames2 = lik->getRootFrequenciesParameters().getParameterNames();
+      else if (param == "Model")
+      {
+        vector<string> vs= lik->getSubstitutionModelParameters().getParameterNames();
+      }
+      else if (param.find("*") != string::npos)
+        parNames2=ApplicationTools::matchingParameters(param,parToEstNames);
+      else
+        parNames2.push_back(param);
+
+      
+      for (size_t i=0; i<parNames2.size(); i++)
+      {
+        Parameter& par=parametersToEstimate.getParameter(parNames2[i]);
+        if (par.hasConstraint()){
+          par.setConstraint(ic & (*par.getConstraint()), true);
+          if (par.getConstraint()->isEmpty())
+            throw Exception("Empty interval for parameter " + parNames[i] + par.getConstraint()->getDescription());
+        }
+        else
+          par.setConstraint(ic.clone(), true);
+
+        if (verbose)
+          ApplicationTools::displayResult("Parameter constrained " + par.getName(), par.getConstraint()->getDescription());
+      }
+    }
+    catch (ParameterNotFoundException& pnfe)
+    {
+      ApplicationTools::displayWarning("Parameter '" + pnfe.getParameter() + "' not found, and so can't be constrained!");
+    }
+    catch (ConstraintException& pnfe)
+    {
+      throw Exception("Parameter '" + param + "' does not fit the constraint " + constraint);
+    }
+  }
 
  
   unsigned int nbEvalMax = ApplicationTools::getParameter<unsigned int>("optimization.max_number_f_eval", params, 1000000, suffix, suffixIsOptional);

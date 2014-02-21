@@ -184,7 +184,8 @@ void Nhx::write_(const vector<const Tree*>& trees, ostream& out) const throw (Ex
   if (! out) { throw IOException ("Nhx::write: failed to write to stream"); }
   for(unsigned int i = 0; i < trees.size(); i++)
   {
-      out << treeToParenthesis(*trees[i]);
+    if (dynamic_cast<const TreeTemplate<Node>* >(trees[i]))
+      out << treeToParenthesis(*dynamic_cast<const TreeTemplate<Node>* >(trees[i]));
   }
 }
 
@@ -193,11 +194,12 @@ void Nhx::write_(const vector<const Tree*>& trees, ostream& out) const throw (Ex
 template<class N>
 void Nhx::write_(const vector<TreeTemplate<N>*>& trees, ostream& out) const throw (Exception)
 {
-  // Checking the existence of specified file, and possibility to open it in write mode
+  // Checking the existence of specified file, and possibility to open
+  // it in write mode
   if (! out) { throw IOException ("Nhx::write: failed to write to stream"); }
   for(unsigned int i = 0; i < trees.size(); i++)
   {
-      out << treeToParenthesis(*trees[i]);
+    out << treeToParenthesis(*trees[i]);
   }
 }
 
