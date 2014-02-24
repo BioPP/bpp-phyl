@@ -82,6 +82,7 @@
 #include <Bpp/Numeric/Function/PowellMultiDimensions.h>
 #include <Bpp/Utils/AttributesTools.h>
 #include <Bpp/Numeric/Matrix/MatrixTools.h>
+#include <Bpp/Numeric/Prob/ConstantDistribution.h>
 
 // From bpp-seq:
 #include <Bpp/Seq/Alphabet/AlphabetTools.h>
@@ -719,7 +720,7 @@ void PhylogeneticsApplicationTools::addSubstitutionProcessCollectionMember(
   string procName = "";
   map<string, string> args;
 
-  string procDesc = ApplicationTools::getStringParameter("process", params, "Hxomogeneous", suffix, false);
+  string procDesc = ApplicationTools::getStringParameter("process", params, "Homogeneous", suffix, false);
 
   KeyvalTools::parseProcedure(procDesc, procName, args);
 
@@ -735,17 +736,30 @@ void PhylogeneticsApplicationTools::addSubstitutionProcessCollectionMember(
   if (! SubProColl->hasTreeNumber(numTree))
     throw BadIntegerException("PhylogeneticsApplicationTools::addSubstitutionProcessCollectionMember : unknown tree number", (int)numTree);
 
+
   ///////
   // rate number
       
   if (args.find("rate")==args.end())
     throw Exception("PhylogeneticsApplicationTools::addSubstitutionProcessCollectionMember. A rate number is compulsory.");
 
-  size_t numRate=(size_t)ApplicationTools::getIntParameter("rate", args, 1, "", true, verbose);
+  size_t numRate;
 
+  string sRate=ApplicationTools::getStringParameter("rate", args, "1", "", true, verbose);
+
+  size_t pp=sRate.find(".");
+  
+  numRate=TextTools::toInt(sRate.substr(0,pp));
   if (! SubProColl->hasDistributionNumber(numRate))
     throw BadIntegerException("PhylogeneticsApplicationTools::addSubstitutionProcessCollectionMember : unknown rate number", (int)numRate);
 
+  if (pp!=string::npos){
+    size_t numSRate=TextTools::toInt(sRate.substr(pp+1));
+    SubProColl->addDistribution(new ConstantDistribution(SubProColl->getDistribution(numRate)->getCategory(numSRate), false),10000*(numRate+1)+numSRate);
+
+    numRate=10000*(numRate+1)+numSRate;
+  }
+  
 
   //////////
   // root freq number
@@ -2599,7 +2613,15 @@ void PhylogeneticsApplicationTools::printParameters(const SubstitutionProcessCol
     }
 
     out << ", tree=" << spcm->getTreeNumber();
-    out << ", rate=" << spcm->getDistributionNumber();
+    
+    out << ", rate=";
+    size_t dN=spcm->getDistributionNumber();
+
+    if (dN<10000)
+      out<< dN;
+    else
+      out<< size_t(dN/10000-1) << "." << dN%10000;
+      
     if (spcm->getRootFrequenciesSet())
       out << ", root_freq=" << spcm->getRootFrequenciesNumber();
     out << ")";
