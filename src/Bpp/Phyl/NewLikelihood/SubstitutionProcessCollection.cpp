@@ -43,7 +43,8 @@
 
 #include "../Tree/TreeTemplateTools.h"
 
-//#include "AbstractSubstitutionModel.h"
+#include <Bpp/Numeric/Prob/ConstantDistribution.h>
+
 
 using namespace bpp;
 using namespace std;
@@ -55,6 +56,7 @@ SubstitutionProcessCollection::SubstitutionProcessCollection(const SubstitutionP
   freqColl_(set.freqColl_),
   mFreqToSubPro_(set.mFreqToSubPro_),
   distColl_(set.distColl_),
+  mVConstDist_(set.mVConstDist_),
   mDistToSubPro_(set.mDistToSubPro_),
   treeColl_(set.treeColl_),
   mTreeToSubPro_(set.mTreeToSubPro_),
@@ -75,6 +77,7 @@ SubstitutionProcessCollection& SubstitutionProcessCollection::operator=(const Su
   mFreqToSubPro_=set.mFreqToSubPro_;
   distColl_=set.distColl_;
   mDistToSubPro_=set.mDistToSubPro_;
+  mVConstDist_=set.mVConstDist_;
   treeColl_=set.treeColl_;
   mTreeToSubPro_=set.mTreeToSubPro_;
   for (size_t i=0;i<set.vSubProcess_.size(); i++)
@@ -93,6 +96,7 @@ void SubstitutionProcessCollection::clear()
   mFreqToSubPro_.clear();
   distColl_.clear();
   mDistToSubPro_.clear();
+  mVConstDist_.clear();
   treeColl_.clear();
   mTreeToSubPro_.clear();
   for (size_t i=0;i<vSubProcess_.size(); i++)
@@ -138,13 +142,10 @@ ParameterList SubstitutionProcessCollection::getNonDerivableParameters() const
   ParameterList pl=distColl_.getIndependentParameters();
   pl.addParameters(modelColl_.getIndependentParameters());
   pl.addParameters(freqColl_.getIndependentParameters());
-
   
   return pl;
 }
   
-
-
 void SubstitutionProcessCollection::fireParameterChanged(const ParameterList& parameters)
 {
   AbstractParameterAliasable::fireParameterChanged(parameters);
@@ -167,14 +168,25 @@ void SubstitutionProcessCollection::fireParameterChanged(const ParameterList& pa
   vector<bool> toFire(vSubProcess_.size(), false);
 
   distColl_.matchParametersValues(gAP);
-  
   const vector<size_t>& vD=distColl_.hasChanged();
+  
   for (size_t i=0; i<vD.size(); i++)
   {
     const vector<size_t>& vs=mDistToSubPro_[vD[i]];
     for (size_t j=0; j<vs.size(); j++)
       toFire[vs[j]]=true;
+
+    if (mVConstDist_.find(vD[i])!=mVConstDist_.end()){
+      const DiscreteDistribution* pDD=getDistribution(vD[i]);
+      vector<size_t>& vv=mVConstDist_[vD[i]];
+      
+      for (size_t j=0;j<vv.size();j++){
+        dynamic_cast<ConstantDistribution*>(getDistribution(10000*(vD[i]+1)+vv[j]))->setValue(pDD->getCategory(j));
+        toFire[10000*(vD[i]+1)+vv[j]]=true;
+      }
+    }
   }
+
  
   treeColl_.matchParametersValues(gAP);
   
@@ -186,6 +198,9 @@ void SubstitutionProcessCollection::fireParameterChanged(const ParameterList& pa
       toFire[vs[j]]=true;
   }
 
+
+  // send the message to subprocesses
+  
   for (size_t j=0; j<toFire.size();j++)
     if (toFire[j]){
       vSubProcess_[j]->fireParameterChanged(gAP);

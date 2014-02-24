@@ -122,6 +122,17 @@ private:
   ParametrizableCollection<DiscreteDistribution> distColl_;
 
   /**
+   * A map from the DiscreteDistribution numbers to the numbers of
+   * categories that are used independently as ConstantDistributions.
+   *
+   * These ConstantDistributions are stored in distColl_ with numbers
+   * 10000*(numberOfDiscreteDistribution+1) + numberOfTheCategory.
+   */
+
+  std::map<size_t, std::vector<size_t> > mVConstDist_;
+  
+   
+  /**
    * A map from each DiscreteDistribution number to the SubProcess
    * members that are linked to it.
    *
@@ -164,6 +175,7 @@ public:
     freqColl_(),
     mFreqToSubPro_(),
     distColl_(),
+    mVConstDist_(),
     mDistToSubPro_(),
     treeColl_(),
     mTreeToSubPro_(),
@@ -238,6 +250,8 @@ public:
   void addDistribution(DiscreteDistribution* distribution, size_t distributionIndex)
   {
     addParametrizable(distribution, distributionIndex);
+    if (distributionIndex>=10000)
+      mVConstDist_[distributionIndex/10000-1].push_back(distributionIndex%10000);
   }
   
   void addTree(ParametrizableTree* tree, size_t treeIndex)
