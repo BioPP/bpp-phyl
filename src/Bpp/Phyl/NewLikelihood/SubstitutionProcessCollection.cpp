@@ -105,7 +105,7 @@ void SubstitutionProcessCollection::clear()
   vSubProcess_.clear();
 }
 
-void SubstitutionProcessCollection::addParametrizable(Parametrizable* parametrizable, size_t parametrizableIndex)
+void SubstitutionProcessCollection::addParametrizable(Parametrizable* parametrizable, size_t parametrizableIndex, bool withParameters)
 {
   ParameterList pl;
   if (dynamic_cast<SubstitutionModel*>(parametrizable)){
@@ -131,10 +131,12 @@ void SubstitutionProcessCollection::addParametrizable(Parametrizable* parametriz
         else
           throw Exception("Unknown parametrizable object in SubstitutionProcessCollection::addParametrizable.");
 
-  for (size_t i=0; i<pl.size();i++)
-    pl[i].setName(pl[i].getName()+"_"+TextTools::toString(parametrizableIndex));
+  if (withParameters){
+    for (size_t i=0; i<pl.size();i++)
+      pl[i].setName(pl[i].getName()+"_"+TextTools::toString(parametrizableIndex));
   
-  addParameters_(pl);
+    addParameters_(pl);
+  }
 }
 
 ParameterList SubstitutionProcessCollection::getNonDerivableParameters() const
@@ -162,11 +164,14 @@ void SubstitutionProcessCollection::fireParameterChanged(const ParameterList& pa
     for (size_t j=0; j<vs.size(); j++)
       vSubProcess_[vs[j]]->changedModel(vM[i]);
   }
-  
+
   freqColl_.matchParametersValues(gAP);
   
+
   vector<bool> toFire(vSubProcess_.size(), false);
 
+  
+  distColl_.clearChanged();
   distColl_.matchParametersValues(gAP);
   const vector<size_t>& vD=distColl_.hasChanged();
   
@@ -181,13 +186,17 @@ void SubstitutionProcessCollection::fireParameterChanged(const ParameterList& pa
       vector<size_t>& vv=mVConstDist_[vD[i]];
       
       for (size_t j=0;j<vv.size();j++){
-        dynamic_cast<ConstantDistribution*>(getDistribution(10000*(vD[i]+1)+vv[j]))->setValue(pDD->getCategory(j));
-        toFire[10000*(vD[i]+1)+vv[j]]=true;
+        gAP.addParameter(new Parameter("Constant.value_"+TextTools::toString(10000*(vD[i]+1)+vv[j]),pDD->getCategory(j)));
+        dynamic_cast<ConstantDistribution*>(distColl_[10000*(vD[i]+1)+vv[j]])->setParameterValue("value",pDD->getCategory(j));
+        const vector<size_t>&  vs2=mDistToSubPro_[10000*(vD[i]+1)+vv[j]];
+        for (size_t k=0; k<vs2.size(); k++)
+          toFire[vs2[k]]=true;
       }
     }
   }
 
- 
+  
+  treeColl_.clearChanged();
   treeColl_.matchParametersValues(gAP);
   
   const vector<size_t>& vT=treeColl_.hasChanged();
@@ -200,11 +209,10 @@ void SubstitutionProcessCollection::fireParameterChanged(const ParameterList& pa
 
 
   // send the message to subprocesses
-  
+
   for (size_t j=0; j<toFire.size();j++)
-    if (toFire[j]){
-      vSubProcess_[j]->fireParameterChanged(gAP);
-    }
+    vSubProcess_[j]->fireParameterChanged(gAP);
+  
 }
 
 

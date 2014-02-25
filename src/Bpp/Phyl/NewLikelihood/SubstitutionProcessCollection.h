@@ -221,11 +221,14 @@ public:
    * WARNING! The collection will now be the owner of the pointer, and will destroy it if needed!
    * Copy the parametrizable first if you don't want it to be lost!
    
-   * @param parametrizableIndex The number of the parametrizable in the Collection
+   * @param parametrizableIndex The number of the parametrizable in
+   * the Collection
+   * @param withParameters boolean if the parameters of the object
+   *         should be added (default: true)
    * 
    */
 
-  void addParametrizable(Parametrizable* parametrizable, size_t parametrizableIndex);
+  void addParametrizable(Parametrizable* parametrizable, size_t parametrizableIndex, bool withParameters = true);
 
   /*
    * @brief specific methods to add specific objects.
@@ -249,7 +252,8 @@ public:
 
   void addDistribution(DiscreteDistribution* distribution, size_t distributionIndex)
   {
-    addParametrizable(distribution, distributionIndex);
+    addParametrizable(distribution, distributionIndex, (distributionIndex<10000));
+
     if (distributionIndex>=10000)
       mVConstDist_[distributionIndex/10000-1].push_back(distributionIndex%10000);
   }

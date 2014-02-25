@@ -755,7 +755,7 @@ void PhylogeneticsApplicationTools::addSubstitutionProcessCollectionMember(
 
   if (pp!=string::npos){
     size_t numSRate=TextTools::toInt(sRate.substr(pp+1));
-    SubProColl->addDistribution(new ConstantDistribution(SubProColl->getDistribution(numRate)->getCategory(numSRate), false),10000*(numRate+1)+numSRate);
+    SubProColl->addDistribution(new ConstantDistribution(SubProColl->getDistribution(numRate)->getCategory(numSRate)),10000*(numRate+1)+numSRate);
 
     numRate=10000*(numRate+1)+numSRate;
   }
@@ -802,7 +802,11 @@ void PhylogeneticsApplicationTools::addSubstitutionProcessCollectionMember(
       ApplicationTools::displayMessage("Homogeneous process : ");
       ApplicationTools::displayResult (" Model number",TextTools::toString(numModel));
       ApplicationTools::displayResult (" Tree number",TextTools::toString(numTree));
-      ApplicationTools::displayResult (" Rate number",TextTools::toString(numRate));
+      if (numRate<10000)
+        ApplicationTools::displayResult (" Rate number",TextTools::toString(numRate));
+      else
+        ApplicationTools::displayResult (" Rate number",TextTools::toString(numRate/10000-1)+"."+TextTools::toString(numRate%10000));
+
       if (!stationarity)
         ApplicationTools::displayResult (" Root frequencies number",TextTools::toString(numFreq));
     }
