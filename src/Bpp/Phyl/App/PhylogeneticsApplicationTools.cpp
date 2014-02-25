@@ -2618,13 +2618,6 @@ void PhylogeneticsApplicationTools::printParameters(const SubstitutionProcessCol
     map<string, string>::iterator it;
     bIOsm.write(*model, out, aliases, writtenNames);
     out.endLine();
-    // vector<int> ids = pNH->getNodesWithModel(i);
-    // out << "model" << (i + 1) << ".nodes_id=" << ids[0];
-    // for (size_t j = 1; j < ids.size(); ++j)
-    //   {
-    //     out << "," << ids[j];
-    //   }
-    // out.endLine();
   }
 
   // Root frequencies:
@@ -2641,44 +2634,40 @@ void PhylogeneticsApplicationTools::printParameters(const SubstitutionProcessCol
       map<string, string>::iterator it;
       bIOf.write(rootFreq, out, writtenNames);
       out.endLine();
-      // vector<int> ids = pNH->getNodesWithModel(i);
-      // out << "model" << (i + 1) << ".nodes_id=" << ids[0];
-      // for (size_t j = 1; j < ids.size(); ++j)
-      //   {
-      //     out << "," << ids[j];
-      //   }
-      // out.endLine();
     }
 
   // Rate distribution
 
-  out.endLine();
   vector<size_t> distN=collection->getDistributionNumbers();
 
   for (size_t i = 0; i < distN.size(); i++)
   {
-    const DiscreteDistribution* dist =collection->getDistribution(distN[i]);
-
-    // First get the aliases for this model:
-    map<string, string> aliases;
-    
-    ParameterList pl=dist->getParameters();
-    
-    for (size_t np = 0 ; np< pl.size() ; np++)
+    if (distN[i]<10000)
     {
-      string nfrom=collection->getFrom(pl[np].getName()+"_"+TextTools::toString(distN[i]));
-      if (nfrom!="")
-        aliases[pl[np].getName()]=nfrom;
-    }
+      const DiscreteDistribution* dist =collection->getDistribution(distN[i]);
 
-    // Now print it:
-    writtenNames.clear();
-    out.endLine() << "rate_distribution" << modN[i] << "=";
-    BppORateDistributionFormat bIOd(true);
-    map<string, string>::iterator it;
-    bIOd.write(*dist, out, aliases, writtenNames);
-    out.endLine();
+      // First get the aliases for this model:
+      map<string, string> aliases;
+    
+      ParameterList pl=dist->getParameters();
+    
+      for (size_t np = 0 ; np< pl.size() ; np++)
+      {
+        string nfrom=collection->getFrom(pl[np].getName()+"_"+TextTools::toString(distN[i]));
+        if (nfrom!="")
+          aliases[pl[np].getName()]=nfrom;
+      }
+      
+      // Now print it:
+      writtenNames.clear();
+      out.endLine() << "rate_distribution" << modN[i] << "=";
+      BppORateDistributionFormat bIOd(true);
+      map<string, string>::iterator it;
+      bIOd.write(*dist, out, aliases, writtenNames);
+      out.endLine();
+    }
   }
+  
 
   // processes
   out.endLine();
