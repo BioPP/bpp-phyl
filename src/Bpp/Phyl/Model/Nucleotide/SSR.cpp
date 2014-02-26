@@ -61,7 +61,7 @@ SSR::SSR(
   AbstractParameterAliasable("SSR."),
   AbstractSubstitutionModel(alpha, "SSR."),
   AbstractReversibleSubstitutionModel(alpha, "SSR."),
-  beta_(beta), gamma_(gamma), delta_(delta_), theta_(theta),
+  beta_(beta), gamma_(gamma), delta_(delta), theta_(theta),
   piA_((1. - theta) / 2.), piC_(theta / 2.), piG_(theta / 2.), piT_((1. - theta) / 2.)
 {
 	addParameter_(new Parameter("SSR.beta" , beta , &Parameter::R_PLUS_STAR));
