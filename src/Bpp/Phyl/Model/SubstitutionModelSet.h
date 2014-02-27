@@ -342,12 +342,16 @@ public:
   void addModel(SubstitutionModel* model, const std::vector<int>& nodesId);//, const std::vector<std::string>& newParams) throw (Exception);
 
   /**
-   * @brief Remove a model from the set, and all corresponding parameters.
+   * @brief Replace a model in the set, and all corresponding
+   * parameters. The replaced model deleted.
    *
    * @param modelIndex The index of the model in the set.
+   * @param model the new model. This model will be owned by the Set.
+   *
    * @throw Exception if a parameter becomes orphan because of the removal.
    */
-  void removeModel(size_t modelIndex) throw (Exception);
+
+  void replaceModel(size_t modelIndex, SubstitutionModel* model) throw (Exception);
 
   void listModelNames(std::ostream& out = std::cout) const;
 

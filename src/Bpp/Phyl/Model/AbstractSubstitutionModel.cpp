@@ -199,7 +199,7 @@ const Matrix<double>& AbstractSubstitutionModel::getPij_t(double t) const
       m--;
     }
   }
-  //MatrixTools::print(pijt_);
+//  MatrixTools::print(pijt_);
   return pijt_;
 }
 
