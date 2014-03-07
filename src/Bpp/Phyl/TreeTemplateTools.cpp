@@ -1009,7 +1009,7 @@ TreeTemplateTools::OrderTreeData_ TreeTemplateTools::orderTree_(Node& node, bool
 
 /******************************************************************************/
 
-void TreeTemplateTools::midRoot(TreeTemplate<Node>& tree, const string& criterion)
+void TreeTemplateTools::midRoot(TreeTemplate<Node>& tree, const string& criterion, const bool force_branch_root)
 {
   if (not (criterion == "variance" || "sum of squares"))
     throw Exception("TreeTemplateTools::midRoot Illegal criterion value '" + criterion + "'");
@@ -1063,13 +1063,39 @@ void TreeTemplateTools::midRoot(TreeTemplate<Node>& tree, const string& criterio
 
     tree.rootAt(new_root);
   }
+
+  if(force_branch_root) // if we want the root to be on a branch, not on a node
+   {
+   Node* orig_root = tree.getRootNode();
+   vector<Node*> root_sons = orig_root->getSons();
+   if(root_sons.size() >2)
+     {
+     Node* nearest = root_sons.at(0);
+     for(vector<Node*>::iterator n = root_sons.begin(); n !=
+root_sons.end(); ++n)
+       if((**n).getDistanceToFather() < nearest->getDistanceToFather())
+         nearest = *n;
+     const double d = nearest->getDistanceToFather();
+     Node* new_root = new Node();
+     new_root->setId( TreeTools::getMPNUId(tree, tree.getRootId()) );
+     orig_root->removeSon(nearest);
+     orig_root->addSon(new_root);
+     new_root->addSon(nearest);
+     new_root->setDistanceToFather(d/2.);
+     nearest->setDistanceToFather(d/2.);
+     const vector<string> branch_properties = nearest->getBranchPropertyNames();
+     for(vector<string>::const_iterator p = branch_properties.begin(); p!=branch_properties.end(); ++p)
+       new_root->setBranchProperty(*p, *nearest->getBranchProperty(*p));
+     tree.rootAt(new_root);
+     }
+   }
 }
 
 /******************************************************************************/
 
 double TreeTemplateTools::getRadius(TreeTemplate<Node>& tree)
 {
-  TreeTemplateTools::midRoot(tree, "sum of squares");
+  TreeTemplateTools::midRoot(tree, "sum of squares", false);
   Moments_ moments = getSubtreeMoments(tree.getRootNode());
   double radius = moments.sum / moments.numberOfLeaves;
   return radius;

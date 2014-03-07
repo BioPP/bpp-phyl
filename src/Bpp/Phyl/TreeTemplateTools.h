@@ -1179,14 +1179,20 @@ public:
    *
    * ~
    *
+   * If force_branch_root==true, then the function will always root the tree on a branch.
+   * To do so, in cases where the root is placed on a node, a new node new_root is created between the root and its nearest child.
+   * If force_branch_root==false, it may be placed on a node.
+   *
+   *
    * @param tree
    * @param criterion The criterion upon which to reroot. Legal values : "variance"
    *   to minimize root-leaf distance variance (molecular clock assumption) or
    *   "sum of squares" to minimize the sum of root-leaf distance squares.
+   * @param force_branch_root If true, the root must be placed on a branch, otherwise it may also be placed on a node. 
    *
    * @author Nicolas Rochette
    */
-  static void midRoot(TreeTemplate<Node>& tree, const std::string& criterion);
+  static void midRoot(TreeTemplate<Node>& tree, const std::string& criterion, const bool force_branch_root);
 
   /**
    * @brief Get the caracteristic radius of a tree (average distance to the root minimizing the sum of squared distances).
