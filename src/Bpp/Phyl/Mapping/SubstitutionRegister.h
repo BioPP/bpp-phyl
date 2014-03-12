@@ -51,6 +51,8 @@
 
 // From the STL:
 #include <vector>
+#include <string>
+#include <algorithm>
 
 namespace bpp
 {
@@ -521,9 +523,15 @@ public:
 
   size_t getNumberOfSubstitutionTypes() const
   {
-    return types_.size();
+    if(types_.find(0)==types_.end())
+    {
+    	return types_.size();
+    }
+    else
+    {
+        return (types_.size()-1);
+    }
   }
-
   
   /**
    *@brief names of the types are their number.
@@ -538,9 +546,106 @@ public:
     throw Exception("Bad type number " + TextTools::toString(type) + " in GeneralSubstitutionRegister::getTypeName.");
   }
 
-private:
+protected:
   void updateTypes_();
 };
+
+/** Class inheriting from GeneralSubstitutionRegister, this one uses a special constructor which
+ *  allows it to build a substitution matrix from string input specifying a desired substitutions.
+ *
+ *
+ */
+
+class SelectedSubstitutionRegister :
+  public GeneralSubstitutionRegister
+{
+public : 
+  SelectedSubstitutionRegister (const Alphabet* alphabet, std::string selectedSubstitutions) : GeneralSubstitutionRegister(alphabet)
+    {
+    selectedSubstitutions.erase(std::remove(selectedSubstitutions.begin(), selectedSubstitutions.end(), ' '), selectedSubstitutions.end());
+/** This constructor creates an empty square matrix (nrow = ncol = length of alphabet) and takes a string with specific syntax
+ *  to mark a substitutions with a certain index depending on the string entered. Each substitution is denoted with symbols of
+ *  alphabet connected by "->" symbols (though only ">" is really necessary) and substitutions in same parenthesis (obligatorily 
+ *  separated by a ";") are denoted by same index. Groups are indexed in ascending order (first parenthesis as 1, and so on).
+ *
+ */
+
+    int type_subs=0;
+    int coord1=0;
+    int coord2=0;
+    std::string codon1="";
+    std::string codon2="";
+    for(int i=0; i<static_cast<int>(selectedSubstitutions.length()); i++)
+    {
+      if(selectedSubstitutions[i]=='(')
+      {
+	type_subs++;
+	codon1=selectedSubstitutions.substr(i+1, 3);
+	i+=2;
+      }
+      else if(selectedSubstitutions[i]=='>')
+      {
+	codon2=selectedSubstitutions.substr(i+1, 3);
+	i+=2;
+      }
+      else if(selectedSubstitutions[i]==';')
+      {
+	coord1=this->alphabet_->charToInt(codon1);
+	coord2=this->alphabet_->charToInt(codon2);
+	this->matrix_(coord1, coord2)=type_subs;
+	codon1=selectedSubstitutions.substr(i+1, 3);
+	i+=2;
+      }
+      else if(selectedSubstitutions[i]==')')
+      {
+	coord1=this->alphabet_->charToInt(codon1);
+	coord2=this->alphabet_->charToInt(codon2);
+	this->matrix_(coord1, coord2)=type_subs;
+      }
+    }
+    updateTypes_();
+  }
+
+  SelectedSubstitutionRegister* clone() const { return new SelectedSubstitutionRegister(*this); }
+
+  ~SelectedSubstitutionRegister() {}
+};
+
+
+class AAInteriorSubstitutionRegister :
+  public GeneralSubstitutionRegister{
+
+public :
+  AAInteriorSubstitutionRegister (const Alphabet* alphabet, const GeneticCode * CodAA) : GeneralSubstitutionRegister(alphabet)
+  {
+    for(int i=0; i<static_cast<int>(alphabet->getSize()); i++)	
+    {
+      for(int j=i; j<static_cast<int>(alphabet->getSize()); j++)
+      {
+	try
+        {
+	  if(CodAA->translate(i)==CodAA->translate(j))
+	  {
+	    this->matrix_(i,j)=CodAA->translate(j)+1;
+	    this->matrix_(j,i)=CodAA->translate(j)+1;
+	  }
+	}
+	catch(StopCodonException e)
+	{
+	  this->matrix_(i,j) = 0;
+	  this->matrix_(j,i) = 0;
+	}
+      }
+    }
+    updateTypes_();
+  }
+
+  AAInteriorSubstitutionRegister* clone() const { return new AAInteriorSubstitutionRegister(*this); }
+
+  ~AAInteriorSubstitutionRegister() {} 
+};	
+
+
   
 /**
  * @brief Distinguishes AT<->GC from GC<->AT.
