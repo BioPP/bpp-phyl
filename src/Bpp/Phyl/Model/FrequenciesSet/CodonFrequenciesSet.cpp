@@ -190,7 +190,8 @@ void FullCodonFrequenciesSet::fireParameterChanged(const ParameterList& paramete
 
 FullPerAACodonFrequenciesSet::FullPerAACodonFrequenciesSet(
     const GeneticCode* gencode,
-    ProteinFrequenciesSet* ppfs) :
+    ProteinFrequenciesSet* ppfs,
+    unsigned short method) :
   AbstractFrequenciesSet(gencode->getSourceAlphabet()->getSize(), gencode->getSourceAlphabet(), "FullPerAA.", "FullPerAA"),
   pgc_(gencode),
   ppfs_(ppfs),
@@ -201,7 +202,7 @@ FullPerAACodonFrequenciesSet::FullPerAACodonFrequenciesSet(
   for (size_t i = 0; i < ppa->getSize(); i++)
   {
     vector<int> vc = pgc_->getSynonymous(static_cast<int>(i));
-    vS_.push_back(Simplex(vc.size(), 1, ""));
+    vS_.push_back(Simplex(vc.size(), method, ""));
 
     Simplex& si = vS_[i];
     si.setNamespace("FullPerAA." + ppa->getAbbr(static_cast<int>(i)) + "_");
@@ -214,7 +215,7 @@ FullPerAACodonFrequenciesSet::FullPerAACodonFrequenciesSet(
   updateFrequencies();
 }
 
-FullPerAACodonFrequenciesSet::FullPerAACodonFrequenciesSet(const GeneticCode* gencode) :
+FullPerAACodonFrequenciesSet::FullPerAACodonFrequenciesSet(const GeneticCode* gencode, unsigned short method) :
   AbstractFrequenciesSet(gencode->getSourceAlphabet()->getSize(), gencode->getSourceAlphabet(), "FullPerAA.", "FullPerAA"),
   pgc_(gencode),
   ppfs_(new FixedProteinFrequenciesSet(dynamic_cast<const ProteicAlphabet*>(gencode->getTargetAlphabet()), "FullPerAA.")),
@@ -225,7 +226,7 @@ FullPerAACodonFrequenciesSet::FullPerAACodonFrequenciesSet(const GeneticCode* ge
   for (size_t i = 0; i < ppa->getSize(); i++)
   {
     vector<int> vc = pgc_->getSynonymous(static_cast<int>(i));
-    vS_.push_back(Simplex(vc.size(), 1, ""));
+    vS_.push_back(Simplex(vc.size(), method, ""));
 
     Simplex& si = vS_[i];
     si.setNamespace("FullPerAA." + ppa->getAbbr(static_cast<int>(i)) + "_");

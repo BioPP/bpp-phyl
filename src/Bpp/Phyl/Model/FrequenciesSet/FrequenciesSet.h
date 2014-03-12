@@ -179,8 +179,13 @@ protected:
 /**
  * @brief A generic FrequenciesSet allowing for the estimation of all frequencies.
  *
- * The FrequenciesSet has hence n-1 parameters, where n is the size of the input alphabet.
+ * The FrequenciesSet has hence n-1 parameters, where n is the size of
+ * the input alphabet.
+ *
+ * The parametrization depends on the method used (@see{Simplex}).
+ * Default method is 1 (ie global ratio).
  */
+
 class FullFrequenciesSet :
   public AbstractFrequenciesSet
 {
