@@ -182,8 +182,10 @@ protected:
  * The FrequenciesSet has hence n-1 parameters, where n is the size of
  * the input alphabet.
  *
- * The parametrization depends on the method used (@see{Simplex}).
+ * The parametrization depends on the method used.
  * Default method is 1 (ie global ratio).
+ *
+ * @see Simplex
  */
 
 class FullFrequenciesSet :

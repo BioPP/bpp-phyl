@@ -289,15 +289,6 @@ FrequenciesSet* BppOFrequenciesSetFormat::read(const Alphabet* alphabet, const s
   // CODON PER AA Frequencies
   else if (freqName == "FullPerAA")
   {
-    unsigned short method=1;
-    if (args.find("method") != args.end()){
-      if (args["method"]=="local")
-        method=2;
-      else
-        if (args["method"]=="binary")
-          method=3;
-    }
-
     if (!(alphabetCode_ & CODON))
       throw Exception("Codon alphabet not supported.");
     if (!AlphabetTools::isCodonAlphabet(alphabet))
@@ -308,6 +299,15 @@ FrequenciesSet* BppOFrequenciesSetFormat::read(const Alphabet* alphabet, const s
       throw Exception("BppOFrequenciesSetFormat::read(). No genetic code specified! Consider using 'setGeneticCode'.");
     
     const ProteicAlphabet* pPA = dynamic_cast<const ProteicAlphabet*>(geneticCode_->getTargetAlphabet());
+
+    unsigned short method=1;
+    if (args.find("method") != args.end()){
+      if (args["method"]=="local")
+        method=2;
+      else
+        if (args["method"]=="binary")
+          method=3;
+    }
 
     if (args.find("protein_frequencies") != args.end())
     {

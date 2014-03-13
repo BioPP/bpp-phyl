@@ -306,7 +306,7 @@ namespace bpp
      * @param drtl              A DRTreeLikelihood object.
      * @param ids               The numbers of the nodes of the tree
      * @param model             The model on which the SubstitutionCount is built
-     * @param nullModel         The model on which the SubstitutionCount is built
+     * @param nullModel         The null model used for normalization.
      * @param reg               the Substitution Register
      * @param complete          boolean to say if the counts have to
      *                          be normalized such that the sum of all possible substitution
@@ -327,8 +327,8 @@ namespace bpp
      *
      * @param drtl              A DRTreeLikelihood object.
      * @param ids               The numbers of the nodes of the tree
-     * @param model             The model on which the SubstitutionCount is built
-     * @param nullModelSet      The model on which the SubstitutionCount is built
+     * @param modelSet          The model set on which the SubstitutionCount is built
+     * @param nullModelSet      The null model set used for normalization.
      * @param reg               the Substitution Register
      * @param complete          boolean to say if the counts have to
      *                          be normalized such that the sum of all possible substitution

@@ -205,6 +205,8 @@ FullPerAACodonFrequenciesSet::FullPerAACodonFrequenciesSet(
     vS_.push_back(Simplex(vc.size(), method, ""));
 
     Simplex& si = vS_[i];
+    vS_[i].getParameters().printParameters(cerr);
+    
     si.setNamespace("FullPerAA." + ppa->getAbbr(static_cast<int>(i)) + "_");
     addParameters_(si.getParameters());
   }

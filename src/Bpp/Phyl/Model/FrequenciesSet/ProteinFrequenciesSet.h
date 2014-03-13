@@ -66,8 +66,10 @@ public:
  *
  * The parameters are called @f$ \theta_{i \in 1..19} @f$, and are
  * initialized so that all frequencies are equal to 0.005. The
- * parametrization depends on the method used (@see{Simplex}). Default
+ * parametrization depends on the method used. Default
  * method is 1 (ie global ratio).
+ *
+ * @see Simplex
  *
  **/
   
