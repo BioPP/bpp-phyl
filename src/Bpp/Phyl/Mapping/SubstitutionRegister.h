@@ -47,10 +47,13 @@
 // From bpp-seq:
 #include <Bpp/Seq/Alphabet/Alphabet.h>
 #include <Bpp/Seq/Alphabet/NucleicAlphabet.h>
+#include <Bpp/Seq/Alphabet/CodonAlphabet.h>
 #include <Bpp/Seq/GeneticCode/GeneticCode.h>
 
 // From the STL:
 #include <vector>
+#include <string>
+#include <algorithm>
 
 namespace bpp
 {
@@ -472,7 +475,7 @@ protected:
    */
   
   std::map<size_t, std::map<size_t, std::vector<size_t> > > types_;
-  
+
 public:
   GeneralSubstitutionRegister(const Alphabet* alphabet) :
     AbstractSubstitutionRegister(alphabet),
@@ -521,9 +524,8 @@ public:
 
   size_t getNumberOfSubstitutionTypes() const
   {
-    return types_.size();
+		return (types_.find(0)==types_.end() ? types_.size() : types_.size()-1) ;
   }
-
   
   /**
    *@brief names of the types are their number.
@@ -538,9 +540,155 @@ public:
     throw Exception("Bad type number " + TextTools::toString(type) + " in GeneralSubstitutionRegister::getTypeName.");
   }
 
-private:
+protected:
   void updateTypes_();
 };
+
+/** @brief Class inheriting from GeneralSubstitutionRegister, this one uses a special constructor which
+ *  allows it to build a substitution matrix from string input specifying a desired substitutions.
+ *
+ *  @author Juraj Michalik
+ */
+
+class SelectedSubstitutionRegister :
+  public GeneralSubstitutionRegister
+{
+  
+  std::map<size_t, std::string> categoryNames_;
+
+public : 
+  SelectedSubstitutionRegister (const Alphabet* alphabet, std::string selectedSubstitutions) : 
+  	GeneralSubstitutionRegister(alphabet),
+		categoryNames_()
+ 		{
+
+			selectedSubstitutions.erase(std::remove(selectedSubstitutions.begin(), selectedSubstitutions.end(), ' '), selectedSubstitutions.end());
+	/** This constructor creates an empty square matrix (nrow = ncol = length of alphabet) and takes a string with specific syntax
+	 *  to mark a substitutions with a certain index depending on the string entered. Each substitution is denoted with symbols of
+	 *  alphabet connected by "->" symbols (though only ">" is really necessary) and substitutions in same parenthesis (obligatorily 
+	 *  separated by a ";") are denoted by same index. Groups are indexed in ascending order (first parenthesis as 1, and so on).
+	 *
+	 */
+
+			size_t type_subs=0;
+			int coord1=0;
+			int coord2=0;
+			std::string codon1="";
+			std::string codon2="";
+			for(int i=0; i<static_cast<int>(selectedSubstitutions.length()); i++)
+			{
+				if(selectedSubstitutions[i]=='(')
+				{
+					type_subs++;
+					codon1=selectedSubstitutions.substr(i+1, 3);
+					i+=2;
+				}
+				else if(selectedSubstitutions[i]=='>')
+				{
+					codon2=selectedSubstitutions.substr(i+1, 3);
+					i+=2;
+				}
+				else if(selectedSubstitutions[i]==';')
+				{
+					coord1=this->alphabet_->charToInt(codon1);
+					coord2=this->alphabet_->charToInt(codon2);
+					this->matrix_(coord1, coord2)=type_subs;
+					codon1=selectedSubstitutions.substr(i+1, 3);
+					i+=2;
+				}
+				else if(selectedSubstitutions[i]==')')
+				{
+					coord1=this->alphabet_->charToInt(codon1);
+					coord2=this->alphabet_->charToInt(codon2);
+					this->matrix_(coord1, coord2)=type_subs;	
+				}
+				else if(selectedSubstitutions[i]==':')
+				{
+					std::string name="";
+					int j=1;
+					while(selectedSubstitutions[i+j]!=','){
+						name+=selectedSubstitutions[i+j];
+						j++;
+					}	
+					categoryNames_[type_subs]=name;
+				}
+			}
+			updateTypes_();
+		}
+
+	SelectedSubstitutionRegister* clone() const { return new SelectedSubstitutionRegister(*this); }
+
+	~SelectedSubstitutionRegister() {}
+
+	std::string getTypeName(size_t type) const
+	{
+		if (types_.find(type)!=types_.end())
+			return TextTools::toString(categoryNames_.find(type)->second);
+
+		throw Exception("Bad type number " + TextTools::toString(type) + " in GeneralSubstitutionRegister::getTypeName.");
+	}
+};
+
+/** @brief Indexes only intra amino-acid substitutions. Every group represents a substitutions for the same amino acid. 
+ * Met and Trp are not taken into account due their non-degenerescence.
+ *
+ * @author Juraj Michalik
+ */
+
+class AAInteriorSubstitutionRegister :
+	public GeneralSubstitutionRegister{
+
+		std::map<std::string, size_t> categoryCorrespondance_;
+
+public :
+	AAInteriorSubstitutionRegister (const Alphabet* alphabet, const GeneticCode* CodAA) : 
+		GeneralSubstitutionRegister(alphabet),
+		categoryCorrespondance_()
+		{
+			size_t categoryIndex = 1;
+			for (int i=0; i<static_cast<int>(alphabet->getSize()); i++)	
+			{
+				for (int j=i+1; j<static_cast<int>(alphabet->getSize()); j++)
+				{
+					if (!(CodAA->isStop(i))&&!(CodAA->isStop(j)))
+					{	
+						if (CodAA->translate(i) == CodAA->translate(j))
+						{
+							std::string aminoAcid=CodAA->getTargetAlphabet()->intToChar(CodAA->translate(i));
+							if (categoryCorrespondance_.find(aminoAcid) == categoryCorrespondance_.end())
+							{
+								categoryCorrespondance_[aminoAcid]=categoryIndex; 
+								categoryIndex++; 	
+							}
+							this->matrix_(i,j) = categoryCorrespondance_[aminoAcid];
+							this->matrix_(j,i) = categoryCorrespondance_[aminoAcid];
+						}
+					}
+				}
+			}
+			updateTypes_();
+	 	}
+
+
+	AAInteriorSubstitutionRegister* clone() const { return new AAInteriorSubstitutionRegister(*this); }
+
+	~AAInteriorSubstitutionRegister() {} 
+
+
+	std::string getTypeName(size_t type) const
+	{
+		if (types_.find(type)!=types_.end()){
+			for(std::map<std::string, size_t>::const_iterator it=categoryCorrespondance_.begin(); it!=categoryCorrespondance_.end(); it++)
+			{
+				if(it->second==type) 
+					return TextTools::toString(it->first);
+			}	
+		}	
+		throw Exception("Bad type number " + TextTools::toString(type) + " in GeneralSubstitutionRegister::getTypeName.");
+	}
+};	
+
+
   
 /**
  * @brief Distinguishes AT<->GC from GC<->AT.
