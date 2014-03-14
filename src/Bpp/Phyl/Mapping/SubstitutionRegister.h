@@ -43,6 +43,7 @@
 // From bpp-core:
 #include <Bpp/Clonable.h>
 #include <Bpp/Numeric/Matrix/Matrix.h>
+#include <Bpp/Text/StringTokenizer.h>
 
 // From bpp-seq:
 #include <Bpp/Seq/Alphabet/Alphabet.h>
@@ -570,63 +571,42 @@ public :
 	 *
 	 */
 
-			size_t type_subs=0;
+			size_t typeSubs=0;
 			int coord1=0;
 			int coord2=0;
 			std::string codon1="";
 			std::string codon2="";
-			for(int i=0; i<static_cast<int>(selectedSubstitutions.length()); i++)
-			{
-				if(selectedSubstitutions[i]=='(')
+			StringTokenizer subsGroup(selectedSubstitutions, "()");
+			while(subsGroup.hasMoreToken())
 				{
-					type_subs++;
-					codon1=selectedSubstitutions.substr(i+1, 3);
-					i+=2;
-				}
-				else if(selectedSubstitutions[i]=='>')
+				typeSubs++;
+				StringTokenizer namesSubs(subsGroup.nextToken(), ";");
+				categoryNames_[typeSubs]=namesSubs.nextToken();
+				StringTokenizer substitutions(namesSubs.nextToken(), ",");
+				while(substitutions.hasMoreToken())
 				{
-					codon2=selectedSubstitutions.substr(i+1, 3);
-					i+=2;
-				}
-				else if(selectedSubstitutions[i]==';')
-				{
+					StringTokenizer coordinates(substitutions.nextToken(), "->");
+					codon1=coordinates.nextToken();
+					codon2=coordinates.nextToken();
 					coord1=this->alphabet_->charToInt(codon1);
 					coord2=this->alphabet_->charToInt(codon2);
-					this->matrix_(coord1, coord2)=type_subs;
-					codon1=selectedSubstitutions.substr(i+1, 3);
-					i+=2;
-				}
-				else if(selectedSubstitutions[i]==')')
-				{
-					coord1=this->alphabet_->charToInt(codon1);
-					coord2=this->alphabet_->charToInt(codon2);
-					this->matrix_(coord1, coord2)=type_subs;	
-				}
-				else if(selectedSubstitutions[i]==':')
-				{
-					std::string name="";
-					int j=1;
-					while(selectedSubstitutions[i+j]!=','){
-						name+=selectedSubstitutions[i+j];
-						j++;
-					}	
-					categoryNames_[type_subs]=name;
+					this->matrix_(coord1, coord2)=typeSubs;
 				}
 			}
 			updateTypes_();
 		}
 
-	SelectedSubstitutionRegister* clone() const { return new SelectedSubstitutionRegister(*this); }
+		SelectedSubstitutionRegister* clone() const { return new SelectedSubstitutionRegister(*this); }
 
-	~SelectedSubstitutionRegister() {}
+		~SelectedSubstitutionRegister() {}
 
-	std::string getTypeName(size_t type) const
-	{
-		if (types_.find(type)!=types_.end())
-			return TextTools::toString(categoryNames_.find(type)->second);
+		std::string getTypeName(size_t type) const
+		{
+			if (types_.find(type)!=types_.end())
+				return TextTools::toString(categoryNames_.find(type)->second);
 
-		throw Exception("Bad type number " + TextTools::toString(type) + " in GeneralSubstitutionRegister::getTypeName.");
-	}
+			throw Exception("Bad type number " + TextTools::toString(type) + " in GeneralSubstitutionRegister::getTypeName.");
+		}
 };
 
 /** @brief Indexes only intra amino-acid substitutions. Every group represents a substitutions for the same amino acid. 
@@ -668,7 +648,6 @@ public :
 			}
 			updateTypes_();
 	 	}
-
 
 	AAInteriorSubstitutionRegister* clone() const { return new AAInteriorSubstitutionRegister(*this); }
 
