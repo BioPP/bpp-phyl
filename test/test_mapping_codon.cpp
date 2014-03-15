@@ -130,7 +130,7 @@ int main() {
   MatrixTools::print(*m);
   delete m;
   ProbabilisticSubstitutionMapping* probMapAna = 
-    SubstitutionMappingTools::computeSubstitutionVectors(drhtl, *sCountAna);
+    SubstitutionMappingTools::computeSubstitutionVectors(drhtl, ids, *sCountAna);
 
   SubstitutionCount* sCountTot = new NaiveSubstitutionCount(totReg);
   m = sCountTot->getAllNumbersOfSubstitutions(0.001,1);
@@ -138,7 +138,7 @@ int main() {
   MatrixTools::print(*m);
   delete m;
   ProbabilisticSubstitutionMapping* probMapTot = 
-    SubstitutionMappingTools::computeSubstitutionVectors(drhtl, *sCountTot);
+    SubstitutionMappingTools::computeSubstitutionVectors(drhtl, ids, *sCountTot);
 
   SubstitutionCount* sCountDnDs = new NaiveSubstitutionCount(dndsReg);
   m = sCountDnDs->getAllNumbersOfSubstitutions(0.001,1);
@@ -146,7 +146,7 @@ int main() {
   MatrixTools::print(*m);
   delete m;
   ProbabilisticSubstitutionMapping* probMapDnDs = 
-    SubstitutionMappingTools::computeSubstitutionVectors(drhtl, *sCountDnDs);
+    SubstitutionMappingTools::computeSubstitutionVectors(drhtl, ids, *sCountDnDs);
 
   SubstitutionCount* sCountUniTot = new UniformizationSubstitutionCount(model, totReg);
   m = sCountUniTot->getAllNumbersOfSubstitutions(0.001,1);
@@ -154,7 +154,7 @@ int main() {
   MatrixTools::print(*m);
   delete m;
   ProbabilisticSubstitutionMapping* probMapUniTot = 
-    SubstitutionMappingTools::computeSubstitutionVectors(drhtl, *sCountUniTot);
+    SubstitutionMappingTools::computeSubstitutionVectors(drhtl, ids, *sCountUniTot);
 
   SubstitutionCount* sCountUniDnDs = new UniformizationSubstitutionCount(model, dndsReg);
   m = sCountUniDnDs->getAllNumbersOfSubstitutions(0.001,2);
@@ -162,7 +162,7 @@ int main() {
   MatrixTools::print(*m);
   delete m;
   ProbabilisticSubstitutionMapping* probMapUniDnDs = 
-    SubstitutionMappingTools::computeSubstitutionVectors(drhtl, *sCountUniDnDs);
+    SubstitutionMappingTools::computeSubstitutionVectors(drhtl, ids, *sCountUniDnDs);
 
   //Check per branch:
   
