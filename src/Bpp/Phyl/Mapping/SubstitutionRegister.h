@@ -545,7 +545,9 @@ protected:
   void updateTypes_();
 };
 
-/** @brief Class inheriting from GeneralSubstitutionRegister, this one uses a special constructor which
+
+/** 
+ *  @brief Class inheriting from GeneralSubstitutionRegister, this one uses a special constructor which
  *  allows it to build a substitution matrix from string input specifying a desired substitutions.
  *
  *  @author Juraj Michalik
@@ -564,7 +566,8 @@ public :
  		{
 
 			selectedSubstitutions.erase(std::remove(selectedSubstitutions.begin(), selectedSubstitutions.end(), ' '), selectedSubstitutions.end());
-	/** This constructor creates an empty square matrix (nrow = ncol = length of alphabet) and takes a string with specific syntax
+	/** 
+   *  This constructor creates an empty square matrix (nrow = ncol = length of alphabet) and takes a string with specific syntax
 	 *  to mark a substitutions with a certain index depending on the string entered. Each substitution is denoted with symbols of
 	 *  alphabet connected by "->" symbols (though only ">" is really necessary) and substitutions in same parenthesis (obligatorily 
 	 *  separated by a ";") are denoted by same index. Groups are indexed in ascending order (first parenthesis as 1, and so on).
@@ -581,7 +584,11 @@ public :
 				{
 				typeSubs++;
 				StringTokenizer namesSubs(subsGroup.nextToken(), ";");
-				categoryNames_[typeSubs]=namesSubs.nextToken();
+				if(namesSubs.numberOfRemainingTokens()==2){
+					categoryNames_[typeSubs]=namesSubs.nextToken();
+				}else if(namesSubs.numberOfRemainingTokens()==1){
+					categoryNames_[typeSubs]=TextTools::toString(typeSubs);
+				}
 				StringTokenizer substitutions(namesSubs.nextToken(), ",");
 				while(substitutions.hasMoreToken())
 				{
@@ -609,7 +616,8 @@ public :
 		}
 };
 
-/** @brief Indexes only intra amino-acid substitutions. Every group represents a substitutions for the same amino acid. 
+/**
+ * @brief Indexes only intra amino-acid substitutions. Every group represents a substitutions for the same amino acid. 
  * Met and Trp are not taken into account due their non-degenerescence.
  *
  * @author Juraj Michalik
@@ -666,8 +674,6 @@ public :
 		throw Exception("Bad type number " + TextTools::toString(type) + " in GeneralSubstitutionRegister::getTypeName.");
 	}
 };	
-
-
   
 /**
  * @brief Distinguishes AT<->GC from GC<->AT.
