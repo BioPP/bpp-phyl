@@ -202,11 +202,10 @@ FullPerAACodonFrequenciesSet::FullPerAACodonFrequenciesSet(
   for (size_t i = 0; i < ppa->getSize(); i++)
   {
     vector<int> vc = pgc_->getSynonymous(static_cast<int>(i));
-    vS_.push_back(Simplex(vc.size(), method, ""));
+    vS_.push_back(Simplex(vc.size(), method, 0, ""));
 
     Simplex& si = vS_[i];
-    vS_[i].getParameters().printParameters(cerr);
-    
+
     si.setNamespace("FullPerAA." + ppa->getAbbr(static_cast<int>(i)) + "_");
     addParameters_(si.getParameters());
   }
@@ -228,7 +227,7 @@ FullPerAACodonFrequenciesSet::FullPerAACodonFrequenciesSet(const GeneticCode* ge
   for (size_t i = 0; i < ppa->getSize(); i++)
   {
     vector<int> vc = pgc_->getSynonymous(static_cast<int>(i));
-    vS_.push_back(Simplex(vc.size(), method, ""));
+    vS_.push_back(Simplex(vc.size(), method, 0, ""));
 
     Simplex& si = vS_[i];
     si.setNamespace("FullPerAA." + ppa->getAbbr(static_cast<int>(i)) + "_");
