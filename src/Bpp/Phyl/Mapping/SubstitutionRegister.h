@@ -1010,7 +1010,6 @@ public:
 /**
  * @brief Classes substitions in codons by transitions/transversion at third position of codon.
  *
- * @author Juraj Michalik
  */
 
 class TsTvSynonymousSubstitutionRegister :
@@ -1034,8 +1033,14 @@ public :
 
 					int position3In = CodAA->getSourceAlphabet()->getThirdPosition(i);
 					int position3Out = CodAA->getSourceAlphabet()->getThirdPosition(j);
+
+					bool isSyno=false;
+					if(!CodAA->isStop(i) && !CodAA->isStop(j))
+					{
+						isSyno=CodAA->areSynonymous(i,j);
+					}
 					
-					if(position1In!=position1Out || position2In!=position2Out)
+					if(position1In!=position1Out || position2In!=position2Out || !isSyno)
 					{
 						matrix_(i,j)=0;
 						matrix_(j,i)=0;
