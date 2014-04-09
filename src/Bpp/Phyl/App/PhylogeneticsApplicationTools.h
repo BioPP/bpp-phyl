@@ -301,7 +301,7 @@ namespace bpp
      *
      * @param modelSet The modified SubstitutionModelSet object according to options specified.
      * @param alphabet The alpabet to use in all models.
-     * @param gCode    The genetic code to use (only for codon models, otherwise can be set to 0).
+     * @param gcode    The genetic code to use (only for codon models, otherwise can be set to 0).
      *                 If set to NULL and a codon model is requested, an Exception will be thrown.
      * @param data     A pointer toward the SiteContainer for which the substitution model is designed.
      *                  The alphabet associated to the data must be of the same type as the one specified for the model.

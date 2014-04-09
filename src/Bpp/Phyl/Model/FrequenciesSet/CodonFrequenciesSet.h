@@ -220,6 +220,10 @@ namespace bpp
    * there are 61-20=41 parameters in addition of the parameters of the
    * ProteinFrequenciesSet.
    *
+   * The parametrization depends on the method used.
+   * Default method is 1 (ie global ratio).
+   *
+   * @see Simplex
    *
    */
 
@@ -247,15 +251,21 @@ namespace bpp
      * @brief Create a new FullPerAACodonFrequenciesSet object.
      *
      * @param gencode The genetic code to use.
-     * @param ppfs The protein frequencies to use. The codon frequencies set will own the instance of the protein frequencies set.
+     * @param ppfs The protein frequencies to use. The codon
+     * frequencies set will own the instance of the protein
+     * frequencies set.
+     * @param method the method used for parametrization.
      */
-    FullPerAACodonFrequenciesSet(const GeneticCode* gencode, ProteinFrequenciesSet* ppfs);
+    FullPerAACodonFrequenciesSet(const GeneticCode* gencode, ProteinFrequenciesSet* ppfs, unsigned short method = 1);
 
     /**
      * @brief Construction with fixed uniform frequencies on the amino acids.
      * The stop codon frequencies are null.
+     * @param gencode The genetic code to use.
+     * @param method the method used for parametrization.
      */
-    FullPerAACodonFrequenciesSet(const GeneticCode* gencode);
+
+    FullPerAACodonFrequenciesSet(const GeneticCode* gencode, unsigned short method = 1);
 
     FullPerAACodonFrequenciesSet(const FullPerAACodonFrequenciesSet& ffs);
 
@@ -292,6 +302,11 @@ namespace bpp
     const ProteinFrequenciesSet* getProteinFrequenciesSet() const
     {
       return ppfs_.get();
+    }
+
+    unsigned short getMethod() const
+    {
+      return (vS_.size()?vS_[0].getMethod():1);
     }
     
   protected:

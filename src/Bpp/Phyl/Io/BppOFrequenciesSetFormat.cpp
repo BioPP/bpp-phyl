@@ -300,6 +300,15 @@ FrequenciesSet* BppOFrequenciesSetFormat::read(const Alphabet* alphabet, const s
     
     const ProteicAlphabet* pPA = dynamic_cast<const ProteicAlphabet*>(geneticCode_->getTargetAlphabet());
 
+    unsigned short method=1;
+    if (args.find("method") != args.end()){
+      if (args["method"]=="local")
+        method=2;
+      else
+        if (args["method"]=="binary")
+          method=3;
+    }
+
     if (args.find("protein_frequencies") != args.end())
     {
       string sPFS = args["protein_frequencies"];
@@ -311,10 +320,10 @@ FrequenciesSet* BppOFrequenciesSetFormat::read(const Alphabet* alphabet, const s
       {
         unparsedArguments_["FullPerAA." + it->first] = it->second;
       }
-      pFS.reset(new FullPerAACodonFrequenciesSet(geneticCode_, pPFS.release()));
+      pFS.reset(new FullPerAACodonFrequenciesSet(geneticCode_, pPFS.release(), method));
     }
     else
-      pFS.reset(new FullPerAACodonFrequenciesSet(geneticCode_));
+      pFS.reset(new FullPerAACodonFrequenciesSet(geneticCode_, method));
   }
 
   // codeml frequencies syntax
@@ -498,10 +507,56 @@ void BppOFrequenciesSetFormat::write(const FrequenciesSet* pfreqset,
     out << ")";
   }
   else
+  {
+    if (dynamic_cast<const FullProteinFrequenciesSet*>(pfreqset))
     {
-      if (dynamic_cast<const FullProteinFrequenciesSet*>(pfreqset))
+      size_t meth=dynamic_cast<const FullProteinFrequenciesSet*>(pfreqset)->getMethod();
+      if (meth>1){
+        if (flag)
+          out << ",";
+        out << "method=" << ((meth==2)?"local":"binary");
+        flag=true;
+      }
+    }
+    else
+    {
+      if (name != "F1X4" && name != "F3X4" && name != "F61")
+      {
+        const WordFromIndependentFrequenciesSet* pWFI = dynamic_cast<const WordFromIndependentFrequenciesSet*>(pfreqset);
+        if (pWFI != NULL)
         {
-          size_t meth=dynamic_cast<const FullProteinFrequenciesSet*>(pfreqset)->getMethod();
+          for (size_t i = 0; i < pWFI->getLength(); i++)
+          {
+            if (i != 0)
+              out << ", ";
+            out << "frequency" << i + 1 << "=";
+            write(&pWFI->getFrequenciesSetForLetter(i), out, writtenNames);
+          }
+          flag = true;
+        }
+        const WordFromUniqueFrequenciesSet* pWFU = dynamic_cast<const WordFromUniqueFrequenciesSet*>(pfreqset);
+        if (pWFU != NULL)
+        {
+          for (size_t i = 0; i < pWFU->getLength(); i++)
+          {
+            if (i != 0)
+              out << ", ";
+            out << "frequency=";
+            write(&pWFU->getFrequenciesSetForLetter(i), out, writtenNames);
+          }
+          flag = true;
+        }
+        const FullPerAACodonFrequenciesSet* pFPA=dynamic_cast<const FullPerAACodonFrequenciesSet*>(pfreqset);
+        if (pFPA != NULL)
+        {
+          const ProteinFrequenciesSet* ppfs=pFPA->getProteinFrequenciesSet();
+          out << "protein_frequencies=";
+          
+          write(ppfs, out, writtenNames);
+      
+          flag = true;
+              
+          unsigned short meth=pFPA->getMethod();
           if (meth>1){
             if (flag)
               out << ",";
@@ -509,61 +564,23 @@ void BppOFrequenciesSetFormat::write(const FrequenciesSet* pfreqset,
             flag=true;
           }
         }
-      else
-        {
-          if (name != "F1X4" && name != "F3X4" && name != "F61")
-            {
-              const WordFromIndependentFrequenciesSet* pWFI = dynamic_cast<const WordFromIndependentFrequenciesSet*>(pfreqset);
-              if (pWFI != NULL)
-                {
-                  for (size_t i = 0; i < pWFI->getLength(); i++)
-                    {
-                      if (i != 0)
-                        out << ", ";
-                      out << "frequency" << i + 1 << "=";
-                      write(&pWFI->getFrequenciesSetForLetter(i), out, writtenNames);
-                    }
-                  flag = true;
-                }
-              const WordFromUniqueFrequenciesSet* pWFU = dynamic_cast<const WordFromUniqueFrequenciesSet*>(pfreqset);
-              if (pWFU != NULL)
-                {
-                  for (size_t i = 0; i < pWFU->getLength(); i++)
-                    {
-                      if (i != 0)
-                        out << ", ";
-                      out << "frequency=";
-                      write(&pWFU->getFrequenciesSetForLetter(i), out, writtenNames);
-                    }
-                  flag = true;
-                }
-              const FullPerAACodonFrequenciesSet* pFPA=dynamic_cast<const FullPerAACodonFrequenciesSet*>(pfreqset);
-              if (pFPA != NULL)
-                {
-                  const ProteinFrequenciesSet* ppfs=pFPA->getProteinFrequenciesSet();
-                  out << "protein_frequencies=";
-          
-                  write(ppfs, out, writtenNames);
-      
-                  flag = true;
-                }
-            }
-        }
-      
-      for (size_t i = 0; i < pl.size(); i++)
-        {
-          if (find(writtenNames.begin(), writtenNames.end(), pl[i].getName()) == writtenNames.end())
-            {
-              if (flag)
-                out << ",";
-              else
-                flag = true;
-              string pname = pfreqset->getParameterNameWithoutNamespace(pl[i].getName());
-              (out << pname << "=").enableScientificNotation(false) << pl[i].getValue();
-              writtenNames.push_back(pl[i].getName());
-            }
-        }
+      }
     }
+      
+    for (size_t i = 0; i < pl.size(); i++)
+    {
+      if (find(writtenNames.begin(), writtenNames.end(), pl[i].getName()) == writtenNames.end())
+      {
+        if (flag)
+          out << ",";
+        else
+          flag = true;
+        string pname = pfreqset->getParameterNameWithoutNamespace(pl[i].getName());
+        (out << pname << "=").enableScientificNotation(false) << pl[i].getValue();
+        writtenNames.push_back(pl[i].getName());
+      }
+    }
+  }
   
   out << ")";
   out.setPrecision(p);

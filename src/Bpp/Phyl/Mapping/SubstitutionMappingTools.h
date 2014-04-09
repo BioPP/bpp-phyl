@@ -73,6 +73,8 @@ namespace bpp
      * double-recursive likelihood computation.
      *
      * @param drtl              A DRTreeLikelihood object.
+     * @param ids               The Ids of the nodes the substitutions
+     *                                are counted on.
      * @param substitutionCount The SubstitutionCount to use.
      * @param verbose           Print info to screen.
      * @return A vector of substitutions vectors (one for each site).
@@ -80,6 +82,7 @@ namespace bpp
      */
     static ProbabilisticSubstitutionMapping* computeSubstitutionVectors(
         const DRTreeLikelihood& drtl,
+        const std::vector<int>& ids,
         SubstitutionCount& substitutionCount,
         bool verbose = true) throw (Exception);
 		
@@ -166,7 +169,7 @@ namespace bpp
                                                                               bool verbose = true) throw (Exception)
     {
       OneJumpSubstitutionCount ojsm(0);
-      return computeSubstitutionVectors(drtl, ojsm, 0);
+      return computeSubstitutionVectors(drtl, drtl.getTree().getNodesId(), ojsm, 0);
     }
 
 
@@ -261,7 +264,8 @@ namespace bpp
         const std::vector<int>& ids,
         SubstitutionModel* model,
         const SubstitutionRegister& reg,
-        double threshold = -1);
+        double threshold = -1,
+        bool verbose = true);
 
 
     /**
@@ -279,7 +283,8 @@ namespace bpp
         DRTreeLikelihood& drtl,
         const std::vector<int>& ids,
         const SubstitutionModel* nullModel,
-        const SubstitutionRegister& reg);
+        const SubstitutionRegister& reg,
+        bool verbose = true);
 
 
     /**
@@ -297,7 +302,8 @@ namespace bpp
         DRTreeLikelihood& drtl,
         const std::vector<int>& ids,
         const SubstitutionModelSet* nullModelSet,
-        const SubstitutionRegister& reg);
+        const SubstitutionRegister& reg,
+        bool verbose = true);
 
     
     /**
@@ -306,11 +312,11 @@ namespace bpp
      * @param drtl              A DRTreeLikelihood object.
      * @param ids               The numbers of the nodes of the tree
      * @param model             The model on which the SubstitutionCount is built
-     * @param nullModel         The model on which the SubstitutionCount is built
+     * @param nullModel         The null model used for normalization.
      * @param reg               the Substitution Register
-     * @param complete          boolean to say if the counts have to
-     *                          be normalized such that the sum of all possible substitution
-     *                          counts = branch length.
+     * @param complete          boolean if the counts should be
+     *                              completed to sum 1.
+     *
      */
     
     static std::vector< std::vector<double> >  getNormalizedCountsPerBranch(
@@ -319,20 +325,20 @@ namespace bpp
         SubstitutionModel* model,
         SubstitutionModel* nullModel,
         const SubstitutionRegister& reg,
-        bool complete = false);
-
+        bool complete = true,
+        bool verbose = true);
 
     /**
      * @brief Returns the counts normalized by a null model set
      *
      * @param drtl              A DRTreeLikelihood object.
      * @param ids               The numbers of the nodes of the tree
-     * @param model             The model on which the SubstitutionCount is built
-     * @param nullModelSet      The model on which the SubstitutionCount is built
+     * @param modelSet          The model set on which the SubstitutionCount is built
+     * @param nullModelSet      The null model set used for normalization.
      * @param reg               the Substitution Register
-     * @param complete          boolean to say if the counts have to
-     *                          be normalized such that the sum of all possible substitution
-     *                          counts = branch length.
+     * @param complete          boolean if the counts should be
+     *                              completed to sum 1.
+     *
      */
     
     static std::vector< std::vector<double> > getNormalizedCountsPerBranch(
@@ -341,7 +347,8 @@ namespace bpp
         SubstitutionModelSet* modelSet,
         SubstitutionModelSet* nullModelSet,
         const SubstitutionRegister& reg,
-        bool complete = false);
+        bool complete = true,
+        bool verbose = true);
 
     /**
      * @brief Returns the counts relative to the frequency of the
