@@ -545,7 +545,9 @@ protected:
   void updateTypes_();
 };
 
-/** @brief Class inheriting from GeneralSubstitutionRegister, this one uses a special constructor which
+
+/** 
+ *  @brief Class inheriting from GeneralSubstitutionRegister, this one uses a special constructor which
  *  allows it to build a substitution matrix from string input specifying a desired substitutions.
  *
  *  @author Juraj Michalik
@@ -563,10 +565,10 @@ public :
  		{
 
 			selectedSubstitutions.erase(std::remove(selectedSubstitutions.begin(), selectedSubstitutions.end(), ' '), selectedSubstitutions.end());
-	/** This constructor creates an empty square matrix (nrow = ncol = length of alphabet) and takes a string with specific syntax
-	 *  to mark a substitutions with a certain index depending on the string entered. Each substitution is denoted with symbols of
-	 *  alphabet connected by "->" symbols (though only ">" is really necessary) and substitutions in same parenthesis (obligatorily 
-	 *  separated by a ";") are denoted by same index. Groups are indexed in ascending order (first parenthesis as 1, and so on).
+	/** 
+   *  This constructor creates an empty square matrix (nrow = ncol = length of alphabet) and takes a string with specific syntax
+	 *  to mark a substitutions with a certain index depending on the string entered. The same group of substitution is delimited by 
+	 *  parentheses. The name, if entered, is entered at the start of a string and followed by ";". Substitutions are delimited by ",".    
 	 *
 	 */
 
@@ -580,7 +582,11 @@ public :
 				{
 				typeSubs++;
 				StringTokenizer namesSubs(subsGroup.nextToken(), ";");
-				categoryNames_[typeSubs]=namesSubs.nextToken();
+				if(namesSubs.numberOfRemainingTokens()==2){
+					categoryNames_[typeSubs]=namesSubs.nextToken();
+				}else if(namesSubs.numberOfRemainingTokens()==1){
+					categoryNames_[typeSubs]=TextTools::toString(typeSubs);
+				}
 				StringTokenizer substitutions(namesSubs.nextToken(), ",");
 				while(substitutions.hasMoreToken())
 				{
@@ -608,7 +614,8 @@ public :
 		}
 };
 
-/** @brief Indexes only intra amino-acid substitutions. Every group represents a substitutions for the same amino acid. 
+/**
+ * @brief Indexes only intra amino-acid substitutions. Every group represents a substitutions for the same amino acid. 
  * Met and Trp are not taken into account due their non-degenerescence.
  *
  * @author Juraj Michalik
@@ -666,7 +673,70 @@ public :
 	}
 };	
 
+/**
+ * @brief Indexes only substitutions between amino-acids. Groups are distinguished by their direction.
+ * 
+ * @author Juraj Michalik
+ */
 
+class AAExteriorSubstitutionRegister :
+	public GeneralSubstitutionRegister{
+
+		std::map<std::string, size_t> categoryCorrespondance_;
+
+public :
+	AAExteriorSubstitutionRegister (const Alphabet* alphabet, const GeneticCode* CodAA) : 
+		GeneralSubstitutionRegister(alphabet),
+		categoryCorrespondance_()
+		{
+			size_t categoryIndex = 1;
+			for (int i=0; i<static_cast<int>(alphabet->getSize()); i++)	
+			{
+				for (int j=i+1; j<static_cast<int>(alphabet->getSize()); j++)
+				{
+					if (!(CodAA->isStop(i))&&!(CodAA->isStop(j)))
+					{	
+						if (CodAA->translate(i) != CodAA->translate(j))
+						{
+							std::string aminoAcid1=CodAA->getTargetAlphabet()->intToChar(CodAA->translate(i));
+							std::string aminoAcid2=CodAA->getTargetAlphabet()->intToChar(CodAA->translate(j));
+							bool AA1IsNotInGroup=((categoryCorrespondance_.find(aminoAcid1+"->"+aminoAcid2) == categoryCorrespondance_.end()));
+							bool AA2IsNotInGroup=((categoryCorrespondance_.find(aminoAcid2+"->"+aminoAcid1) == categoryCorrespondance_.end()));
+							if (AA1IsNotInGroup)
+							{
+								categoryCorrespondance_[aminoAcid1+"->"+aminoAcid2]=categoryIndex; 
+								categoryIndex++; 	
+							}
+							this->matrix_(i,j) = categoryCorrespondance_[aminoAcid1+"->"+aminoAcid2];
+							if (AA2IsNotInGroup)
+							{
+								categoryCorrespondance_[aminoAcid2+"->"+aminoAcid1]=categoryIndex; 
+								categoryIndex++; 	
+							}
+							this->matrix_(j,i) = categoryCorrespondance_[aminoAcid2+"->"+aminoAcid1];
+						}
+					}
+				}
+			}
+			updateTypes_();	
+	 	}
+
+	AAExteriorSubstitutionRegister* clone() const { return new AAExteriorSubstitutionRegister(*this); }
+
+	~AAExteriorSubstitutionRegister() {} 
+
+	std::string getTypeName(size_t type) const
+	{
+		if (types_.find(type)!=types_.end()){
+			for(std::map<std::string, size_t>::const_iterator it=categoryCorrespondance_.begin(); it!=categoryCorrespondance_.end(); it++)
+			{
+				if(it->second==type) 
+					return TextTools::toString(it->first);
+			}	
+		}	
+		throw Exception("Bad type number " + TextTools::toString(type) + " in GeneralSubstitutionRegister::getTypeName.");
+	}
+};	
   
 /**
  * @brief Distinguishes AT<->GC from GC<->AT.
@@ -935,6 +1005,73 @@ public:
     }
   }
 };
+
+/**
+ * @brief Classes substitions in codons by transitions/transversion at third position of codon.
+ *
+ */
+
+class TsTvSynonymousSubstitutionRegister :
+	public GeneralSubstitutionRegister
+		{
+
+public :
+	TsTvSynonymousSubstitutionRegister (const Alphabet* alphabet, const GeneticCode* CodAA) : 
+		GeneralSubstitutionRegister(alphabet)
+		{
+			std::cout<<"here"<<std::endl;
+			for (int i=0; i<static_cast<int>(alphabet->getSize()); i++)	
+			{
+				for (int j=i+1; j<static_cast<int>(alphabet->getSize()); j++)
+				{
+					int position1In = CodAA->getSourceAlphabet()->getFirstPosition(i);
+					int position1Out = CodAA->getSourceAlphabet()->getFirstPosition(j);
+
+					int position2In = CodAA->getSourceAlphabet()->getSecondPosition(i);
+					int position2Out = CodAA->getSourceAlphabet()->getSecondPosition(j);
+
+					int position3In = CodAA->getSourceAlphabet()->getThirdPosition(i);
+					int position3Out = CodAA->getSourceAlphabet()->getThirdPosition(j);
+
+					bool isSyno=false;
+					if(!CodAA->isStop(i) && !CodAA->isStop(j))
+					{
+						isSyno=CodAA->areSynonymous(i,j);
+					}
+					
+					if(position1In!=position1Out || position2In!=position2Out || !isSyno)
+					{
+						matrix_(i,j)=0;
+						matrix_(j,i)=0;
+					}
+					else if((position3In==0 && position3Out==2)||(position3In==2 && position3Out==0)||(position3In==1 && position3Out==3)||(position3In==3 && position3Out==1))
+					{
+						matrix_(i,j)=1;
+						matrix_(j,i)=1;
+					}
+					else
+					{
+						matrix_(i,j)=2;
+						matrix_(j,i)=2;
+					}
+				}
+			}
+			updateTypes_();
+	 	}
+
+	TsTvSynonymousSubstitutionRegister* clone() const { return new TsTvSynonymousSubstitutionRegister(*this); }
+
+	~TsTvSynonymousSubstitutionRegister() {} 
+
+	std::string getTypeName(size_t type) const
+	{
+		if (types_.find(type)!=types_.end() and type==1)
+			return "synonymous transitions";
+		if (types_.find(type)!=types_.end() and type==2)
+			return "synonymous transversions";
+		throw Exception("Bad type number " + TextTools::toString(type) + " in GeneralSubstitutionRegister::getTypeName.");
+	}
+};	
 } // end of namespace bpp.
 
 #endif // _SUBSTITUTIONREGISTER_H_
