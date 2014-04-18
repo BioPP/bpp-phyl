@@ -114,7 +114,7 @@ namespace bpp
       update();
     }
 
-    const SubstitutionModel* getSubstitutiotnModel() const
+    const SubstitutionModel* getSubstitutionModel() const
     {
       return model_;      
     }
