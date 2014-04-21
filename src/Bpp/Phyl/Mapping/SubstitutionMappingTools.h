@@ -67,14 +67,12 @@ namespace bpp
     virtual ~SubstitutionMappingTools() {}
     
   public:
-		
+ 
     /**
      * @brief Compute the substitutions vectors for a particular dataset using the
      * double-recursive likelihood computation.
      *
      * @param drtl              A DRTreeLikelihood object.
-     * @param ids               The Ids of the nodes the substitutions
-     *                                are counted on.
      * @param substitutionCount The SubstitutionCount to use.
      * @param verbose           Print info to screen.
      * @return A vector of substitutions vectors (one for each site).
@@ -82,10 +80,32 @@ namespace bpp
      */
     static ProbabilisticSubstitutionMapping* computeSubstitutionVectors(
         const DRTreeLikelihood& drtl,
-        const std::vector<int>& ids,
+        SubstitutionCount& substitutionCount,
+        bool verbose = true) throw (Exception)
+    {
+      std::vector<int> nodeIds;
+      return computeSubstitutionVectors(drtl, nodeIds, substitutionCount, verbose);
+    }
+  
+    /**
+     * @brief Compute the substitutions vectors for a particular dataset using the
+     * double-recursive likelihood computation.
+     *
+     * @param drtl              A DRTreeLikelihood object.
+     * @param nodeIds           The Ids of the nodes the substitutions
+     *                          are counted on. If empty, count substitutions
+     *                          on all nodes.
+     * @param substitutionCount The SubstitutionCount to use.
+     * @param verbose           Print info to screen.
+     * @return A vector of substitutions vectors (one for each site).
+     * @throw Exception If the likelihood object is not initialized.
+     */
+    static ProbabilisticSubstitutionMapping* computeSubstitutionVectors(
+        const DRTreeLikelihood& drtl,
+        const std::vector<int>& nodeIds,
         SubstitutionCount& substitutionCount,
         bool verbose = true) throw (Exception);
-		
+  
     /**
      * @brief Compute the substitutions vectors for a particular dataset using the
      * double-recursive likelihood computation.
@@ -111,7 +131,7 @@ namespace bpp
         SubstitutionCount& substitutionCount,
         bool verbose = true) throw (Exception);
 
-		
+  
     /**
      * @brief Compute the substitutions vectors for a particular dataset using the
      * double-recursive likelihood computation.
@@ -135,7 +155,7 @@ namespace bpp
         SubstitutionCount& substitutionCount,
         bool verbose = true) throw (Exception);
 
-		
+  
     /**
      * @brief Compute the substitutions vectors for a particular dataset using the
      * double-recursive likelihood computation.
@@ -155,7 +175,7 @@ namespace bpp
         const DRTreeLikelihood& drtl,
         SubstitutionCount& substitutionCount,
         bool verbose = true) throw (Exception);
-	
+ 
 
     /**
      * @brief This method computes for each site and for each branch the probability that
@@ -190,7 +210,7 @@ namespace bpp
                               size_t type,
                               std::ostream& out)
       throw (IOException);
-	
+ 
 
     /**
      * @brief Read the substitutions vectors from a stream.
