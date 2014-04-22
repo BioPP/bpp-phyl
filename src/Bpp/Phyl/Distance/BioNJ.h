@@ -98,7 +98,7 @@ public:
 public:
   std::string getName() const { return "BioNJ"; }
 
-  void setDistanceMatrix(const DistanceMatrix& matrix)
+  void setDistanceMatrix(const DistanceMatrix& matrix) throw (Exception)
   {
     NeighborJoining::setDistanceMatrix(matrix);
     variance_ = matrix;
