@@ -175,7 +175,13 @@ public:
    * @brief Tell if the transition probabilities have changed after the last call to setParameters().
    * @return True if transition probabilities have changed.
    */
+
   //virtual bool transitionProbabilitiesHaveChanged() const = 0; Not sure we need that anymore...
+
+  virtual void multiplyPartialXLikelihoodsAtASite(VVdouble* likelihoods_node, VVdouble* likelihoods_son, size_t sonId, unsigned char DX) const = 0;
+
+  // virtual void computePartialXLikelihoodsAtASite(VVdouble* likelihoods_node, std::vector<VVdouble*>& vLikelihoods_sons, std::vector<std::vector<size_t>* >& vPatterns, unsigned char DX) const = 0;
+
 };
 
 } // end namespace bpp

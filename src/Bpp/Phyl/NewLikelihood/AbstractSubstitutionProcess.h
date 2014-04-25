@@ -134,7 +134,20 @@ public:
     return getComputingTree()[classIndex]->getNode(nodeId)->getTransitionProbabilitiesD2();
   }
 
+
+  void multiplyPartialXLikelihoodsAtASite(VVdouble* likelihoods_node, VVdouble* likelihoods_son, size_t sonId, unsigned char DX) const
+  {
+    getComputingTree().multiplyPartialXLikelihoodsAtASite(likelihoods_node,likelihoods_son, sonId, DX);
+  }
+
+  // void computePartialXLikelihoodsAtASite(VVdouble* likelihoods_node, std::vector<VVdouble*>& vLikelihoods_sons, std::vector<std::vector<size_t>* >& vPatterns, unsigned char DX) const
+  // {
+  //   getComputingTree().computePartialXLikelihoodsAtASite(likelihoods_node, vLikelihoods_sons, vPatterns, DX) ;
+  // }
+
+
 };
+  
 
 } // end namespace bpp
 

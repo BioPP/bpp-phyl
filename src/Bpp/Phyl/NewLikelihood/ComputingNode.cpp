@@ -43,10 +43,15 @@
 using namespace bpp;
 using namespace std;
 
+unsigned char ComputingNode::D0=0;
+unsigned char ComputingNode::D1=1;
+unsigned char ComputingNode::D2=2;
+
 ComputingNode::ComputingNode(const SubstitutionModel* model) :
   Node(),
   AbstractParametrizable(""),
   model_(model),
+  nbStates_(model->getNumberOfStates()),
   scale_(1),
   probabilities_(),
   probabilitiesD1_(),
@@ -62,6 +67,7 @@ ComputingNode::ComputingNode(int num, string st):
   Node(num, st),
   AbstractParametrizable(""),
   model_(0),
+  nbStates_(0),
   scale_(1),
   probabilities_(),
   probabilitiesD1_(),
@@ -77,6 +83,7 @@ ComputingNode::ComputingNode():
   Node(),
   AbstractParametrizable(""),
   model_(0),
+  nbStates_(0),
   scale_(1),
   probabilities_(),
   probabilitiesD1_(),
@@ -92,6 +99,7 @@ ComputingNode::ComputingNode(const Node& cn) :
   Node(cn),
   AbstractParametrizable(""),
   model_(0),
+  nbStates_(0),
   scale_(1),
   probabilities_(),
   probabilitiesD1_(),
@@ -107,6 +115,7 @@ ComputingNode::ComputingNode(const ComputingNode& cn) :
   Node(cn),
   AbstractParametrizable(cn),
   model_(cn.model_),
+  nbStates_(cn.nbStates_),
   scale_(cn.scale_),
   probabilities_(cn.probabilities_),
   probabilitiesD1_(cn.probabilitiesD1_),
@@ -123,6 +132,8 @@ ComputingNode& ComputingNode::operator=(const ComputingNode& cn)
   AbstractParametrizable::operator=(cn);
 
   model_=cn.model_;
+  nbStates_=cn.nbStates_;
+  
   scale_=cn.scale_;
   probabilities_=cn.probabilities_;
   probabilitiesD1_=cn.probabilitiesD1_;

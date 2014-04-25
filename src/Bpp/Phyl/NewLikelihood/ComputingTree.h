@@ -207,8 +207,27 @@ namespace bpp
      */
     
     void updateAll();
+
+    /*
+     * @brief Call the computing of  the partial likelihoods by ComputingNodes
+     *
+     */
+
+    void multiplyPartialXLikelihoodsAtASite(VVdouble* likelihoods_node, VVdouble* likelihoods_son, size_t sonId, unsigned char DX) const
+    {
+      for (size_t c = 0; c < vTree_.size(); ++c)
+        vTree_[c]->getNode((int)sonId)->multiplyPartialXLikelihoodsAtASite(&(*likelihoods_node)[c],&(*likelihoods_son)[c],DX);
+    }
+
+    // computePartialXLikelihoodsAtASite(VVdouble* likelihoods_node, std::vector<VVdouble*>& vLikelihoods_sons, std::vector<std::vector<size_t>* >& vPatterns, unsigned char DX) 
+    // {
+    //   for (size_t c = 0; c < vTree_.size(); ++c)
+    //     vTree_[c]->getNode((int)sonId)->multiplyPartialXLikelihoodsAtASite(&(*likelihoods_node)[c],&(*likelihoods_son)[c],DX);
+    // }
+
   };
   
+    
 } //end of namespace bpp.
 
 #endif //_COMPUTINGTREE_H_

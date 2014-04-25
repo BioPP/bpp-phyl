@@ -440,6 +440,11 @@ namespace bpp
     
     double getProbabilityForModel(size_t classIndex) const;
 
+    void multiplyPartialXLikelihoodsAtASite(VVdouble* likelihoods_node, VVdouble* likelihoods_son, size_t sonId, unsigned char DX) const
+    {
+      computingTree_->multiplyPartialXLikelihoodsAtASite(likelihoods_node,likelihoods_son, sonId, DX);
+    }
+
     friend class SubstitutionProcessCollection;
     
   };

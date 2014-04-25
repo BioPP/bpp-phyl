@@ -39,7 +39,7 @@ knowledge of the CeCILL license and that you accept its terms.
 
 #include <Bpp/Seq/Alphabet/AlphabetTools.h>
 #include <Bpp/Seq/Io/Phylip.h>
-#include <Bpp/Phyl/Tree.h>
+#include <Bpp/Phyl/Tree/Tree.h>
 #include <Bpp/Phyl/Io/Newick.h>
 #include <Bpp/Phyl/Parsimony/DRTreeParsimonyScore.h>
 #include <iostream>

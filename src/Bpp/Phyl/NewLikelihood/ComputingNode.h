@@ -67,10 +67,16 @@ namespace bpp
     virtual public Node,
     public AbstractParametrizable
   {
+  public:
+    static unsigned char D0;
+    static unsigned char D1;
+    static unsigned char D2;
   private:
   
     const SubstitutionModel* model_;
 
+    size_t nbStates_;
+    
     /**
      * @brief the scale on the branch
      */
@@ -213,6 +219,39 @@ namespace bpp
     {
       return dynamic_cast<const ComputingNode*>(Node::getSon(pos));
     }
+
+    /*
+     *@brief compute partial likelihood
+     */
+
+    void multiplyPartialXLikelihoodsAtASite(Vdouble* likelihoods_node, Vdouble* likelihoods_son, unsigned char DX)
+    {
+      double (ComputingNode::*gtP)(size_t,size_t) const = NULL;
+
+      if (DX==D0)
+        gtP=&ComputingNode::getTransitionProbability;
+      else
+        if (DX==D1)
+            gtP=&ComputingNode::getTransitionProbabilityD1;
+        else
+          if (DX==D2)
+            gtP=&ComputingNode::getTransitionProbabilityD2;
+          else
+            throw Exception("ComputingNode::multiplyPartialXLikelihoodsAtASite: unknown function modifier " + TextTools::toString(DX));
+        
+      for (size_t x = 0; x < nbStates_; x++)
+      {
+        // For each initial state,
+        double likelihood = 0;
+        for (size_t y = 0; y < nbStates_; y++)
+        {
+          likelihood += (*this.*gtP)(x, y) * (*likelihoods_son)[y];
+        }
+        (*likelihoods_node)[x] *= likelihood;
+      }
+    }
+
+    // computePartialXLikelihoodsAtASite(VVdouble* likelihoods_node, std::vector<VVdouble*>& vLikelihoods_sons, std::vector<std::vector<size_t>* >& vPatterns, unsigned char DX) 
 
   };
 
