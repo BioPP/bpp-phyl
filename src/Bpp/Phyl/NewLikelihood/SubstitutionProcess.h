@@ -178,10 +178,16 @@ public:
 
   //virtual bool transitionProbabilitiesHaveChanged() const = 0; Not sure we need that anymore...
 
-  virtual void multiplyPartialXLikelihoodsAtASite(VVdouble* likelihoods_node, VVdouble* likelihoods_son, size_t sonId, unsigned char DX) const = 0;
-
-  // virtual void computePartialXLikelihoodsAtASite(VVdouble* likelihoods_node, std::vector<VVdouble*>& vLikelihoods_sons, std::vector<std::vector<size_t>* >& vPatterns, unsigned char DX) const = 0;
-
+  virtual void computePartialLikelihoods(VVVdouble* likelihoods_node, std::vector<VVVdouble*>& vLikelihoods_sons, std::vector<int>& vSonId, std::vector<std::vector<size_t>* >& vPatterns) const = 0;
+  
+  virtual void computePartialDLikelihoods(int brId, VVVdouble* dLikelihoods_node, std::vector<VVVdouble*>& vLikelihoods_sons, std::vector<int>& vSonId, std::vector<std::vector<size_t>* >& vPatterns) const = 0;
+  
+  virtual void forwardPartialDLikelihoods(int brId, VVVdouble* dLikelihoods_br, VVVdouble* likelihoods_node, std::vector<VVVdouble*>& vLikelihoods_sons, std::vector<int>& vSonId, std::vector<std::vector<size_t>* >& vPatterns) const = 0;
+  
+  virtual void computePartialD2Likelihoods(int brId, VVVdouble* d2Likelihoods_node, std::vector<VVVdouble*>& vLikelihoods_sons, std::vector<int>& vSonId, std::vector<std::vector<size_t>* >& vPatterns) const = 0;
+  
+  virtual void forwardPartialD2Likelihoods(int brId, VVVdouble* d2Likelihoods_br, VVVdouble* d2Likelihoods_node, std::vector<VVVdouble*>& vLikelihoods_sons, std::vector<int>& vSonId, std::vector<std::vector<size_t>* >& vPatterns) const = 0;
+  
 };
 
 } // end namespace bpp

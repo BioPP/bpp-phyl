@@ -165,13 +165,15 @@ void SingleRecursiveTreeLikelihoodCalculation::setData(const SiteContainer& site
 double SingleRecursiveTreeLikelihoodCalculation::getLikelihoodForASite(size_t site) const
 {
   double l = 0;
-  VVdouble* la = &likelihoodData_->getLikelihoodArray(
-    process_->getTree().getRootNode()->getId())[likelihoodData_->getRootArrayPosition(site)];
-  for (size_t i = 0; i < nbClasses_; ++i)
+  VVVdouble* lla = &likelihoodData_->getLikelihoodArray(process_->getTree().getRootNode()->getId());
+  size_t posR=likelihoodData_->getRootArrayPosition(site);
+
+  
+  for (size_t c = 0; c < nbClasses_; ++c)
   {
     for (size_t j = 0; j < nbStates_; ++j)
     {
-      l += (*la)[i][j] * process_->getProbabilityForModel(i) * process_->getRootFrequencies()[j];
+      l += (*lla)[c][posR][j] * process_->getProbabilityForModel(c) * process_->getRootFrequencies()[j];
     }
   }
   if (l < 0) l = 0; //May happen because of numerical errors.
@@ -182,9 +184,10 @@ double SingleRecursiveTreeLikelihoodCalculation::getLikelihoodForASite(size_t si
 
 double SingleRecursiveTreeLikelihoodCalculation::getLikelihoodForASiteForAClass(size_t site, size_t classIndex) const
 {
-  double l = 0;
   Vdouble* la = &likelihoodData_->getLikelihoodArray(
-    process_->getTree().getRootNode()->getId())[likelihoodData_->getRootArrayPosition(site)][classIndex];
+    process_->getTree().getRootNode()->getId())[classIndex][likelihoodData_->getRootArrayPosition(site)];
+
+  double l = 0;
   for (size_t i = 0; i < nbStates_; ++i)
   {
     l += (*la)[i] * process_->getRootFrequencies()[i];
@@ -197,11 +200,11 @@ double SingleRecursiveTreeLikelihoodCalculation::getLikelihoodForASiteForAClass(
 double SingleRecursiveTreeLikelihoodCalculation::getLikelihoodForASiteForAState(size_t site, int state) const
 {
   double l = 0;
-  VVdouble* la = &likelihoodData_->getLikelihoodArray(
-    process_->getTree().getRootNode()->getId())[likelihoodData_->getRootArrayPosition(site)];
+  VVVdouble* lla = &likelihoodData_->getLikelihoodArray(process_->getTree().getRootNode()->getId());
+  size_t posR=likelihoodData_->getRootArrayPosition(site);
   for (size_t c = 0; c < nbClasses_; ++c)
   {
-    l += (*la)[c][state] * process_->getProbabilityForModel(c);
+    l += (*lla)[c][posR][state] * process_->getProbabilityForModel(c);
   }
   return l;
 }
@@ -211,7 +214,7 @@ double SingleRecursiveTreeLikelihoodCalculation::getLikelihoodForASiteForAState(
 double SingleRecursiveTreeLikelihoodCalculation::getLikelihoodForASiteForAClassForAState(size_t site, size_t classIndex, int state) const
 {
   return likelihoodData_->getLikelihoodArray(
-           process_->getTree().getRootNode()->getId())[likelihoodData_->getRootArrayPosition(site)][classIndex][state];
+    process_->getTree().getRootNode()->getId())[classIndex][likelihoodData_->getRootArrayPosition(site)][state];
 }
 
 
@@ -223,7 +226,7 @@ double SingleRecursiveTreeLikelihoodCalculation::getDLikelihoodForASiteForAClass
     return 0;
   else
     return likelihoodData_->getDLikelihoodArray(
-           process_->getTree().getRootNode()->getId())[likelihoodData_->getRootArrayPosition(site)][classIndex][state];
+      process_->getTree().getRootNode()->getId())[classIndex][likelihoodData_->getRootArrayPosition(site)][state];
 }
 
 /******************************************************************************/
@@ -234,7 +237,7 @@ double SingleRecursiveTreeLikelihoodCalculation::getD2LikelihoodForASiteForAClas
     return 0;
   else
     return likelihoodData_->getD2LikelihoodArray(
-           process_->getTree().getRootNode()->getId())[likelihoodData_->getRootArrayPosition(site)][classIndex][state];
+      process_->getTree().getRootNode()->getId())[classIndex][likelihoodData_->getRootArrayPosition(site)][state];
 }
 
 /******************************************************************************
@@ -252,29 +255,30 @@ void SingleRecursiveTreeLikelihoodCalculation::computeSubtreeLikelihood_(const N
 {
   if (node->isLeaf())
     return;
-  size_t nbSites  = likelihoodData_->getLikelihoodArray(node->getId()).size();
+  size_t nbSites  = likelihoodData_->getLikelihoodArray(node->getId())[0].size();
   size_t nbNodes  = node->getNumberOfSons();
 
   // Must reset the likelihood array first (i.e. set all of them to 1):
   VVVdouble* likelihoods_node = &likelihoodData_->getLikelihoodArray(node->getId());
-  for (size_t i = 0; i < nbSites; i++)
+  for (size_t c = 0; c < nbClasses_; c++)
   {
-    // For each site in the sequence,
-    VVdouble* likelihoods_node_i = &(*likelihoods_node)[i];
-    for (size_t c = 0; c < nbClasses_; c++)
+    // For each rate classe,
+    VVdouble* likelihoods_node_c = &(*likelihoods_node)[c];
+    for (size_t i = 0; i < nbSites; i++)
     {
-      // For each rate classe,
-      Vdouble* likelihoods_node_i_c = &(*likelihoods_node_i)[c];
+      // For each site in the sequence,
+      Vdouble* likelihoods_node_c_i = &(*likelihoods_node_c)[i];
       for (size_t x = 0; x < nbStates_; x++)
       {
         // For each initial state,
-        (*likelihoods_node_i_c)[x] = 1.;
+        (*likelihoods_node_c_i)[x] = 1.;
       }
     }
   }
 
   vector<vector<size_t>* > vPatt;
   vector<VVVdouble*> vLikArr;
+  vector<int> vId;
   
   for (size_t l = 0; l < nbNodes; l++){
     const Node* son = node->getSon(l);
@@ -282,23 +286,10 @@ void SingleRecursiveTreeLikelihoodCalculation::computeSubtreeLikelihood_(const N
     computeSubtreeLikelihood_(son);
     vPatt.push_back(&likelihoodData_->getArrayPositions(node->getId(), son->getId()));
     vLikArr.push_back(&likelihoodData_->getLikelihoodArray(son->getId()));
+    vId.push_back(son->getId());
   }
 
-  for (size_t i = 0; i < nbSites; i++)
-  {
-    VVdouble* likelihoods_node_i = &(*likelihoods_node)[i];
-
-//    process_->computePartialXLikelihoodsAtASite(likelihoods_node_i, vLikArr, vPatt, ComputingNode::D0);
-    
-    for (size_t l = 0; l < nbNodes; l++)
-    {
-      const Node* son = node->getSon(l);
-      VVdouble* likelihoods_son_i = &(*vLikArr[l])[(*vPatt[l])[i]];
-
-      process_->multiplyPartialXLikelihoodsAtASite(likelihoods_node_i, likelihoods_son_i, son->getId(), ComputingNode::D0);
-    }
-    
-  }
+  process_->computePartialLikelihoods(likelihoods_node, vLikArr, vId, vPatt);
 }
 
 
@@ -548,15 +539,15 @@ void SingleRecursiveTreeLikelihoodCalculation::computeTreeDLikelihood(const stri
   // First initialize to 1:
   VVVdouble* dLikelihoods_father = &likelihoodData_->getDLikelihoodArray(father->getId());
   size_t nbSites = dLikelihoods_father->size();
-  for (size_t i = 0; i < nbSites; ++i)
+  for (size_t c = 0; c < nbClasses_; ++c)
   {
-    VVdouble* dLikelihoods_father_i = &(*dLikelihoods_father)[i];
-    for (size_t c = 0; c < nbClasses_; ++c)
+    VVdouble* dLikelihoods_father_c = &(*dLikelihoods_father)[c];
+    for (size_t i = 0; i < nbSites; ++i)
     {
-      Vdouble* dLikelihoods_father_i_c = &(*dLikelihoods_father_i)[c];
+      Vdouble* dLikelihoods_father_c_i = &(*dLikelihoods_father_c)[i];
       for (size_t s = 0; s < nbStates_; ++s)
       {
-        (*dLikelihoods_father_i_c)[s] = 1.;
+        (*dLikelihoods_father_c_i)[s] = 1.;
       }
     }
   }
@@ -564,32 +555,19 @@ void SingleRecursiveTreeLikelihoodCalculation::computeTreeDLikelihood(const stri
   size_t nbNodes = father->getNumberOfSons();
   vector<vector<size_t>* > vPatt;
   vector<VVVdouble*> vLikArr;
-
+  vector<int> vId;
+  
   for (size_t l = 0; l < nbNodes; ++l)
   {
-    const Node* son = father->getSon(l);
-
-    vPatt.push_back(&likelihoodData_->getArrayPositions(father->getId(), son->getId()));
-    vLikArr.push_back(&likelihoodData_->getLikelihoodArray(son->getId()));
+    int Sid=father->getSon(l)->getId();
+    
+    vPatt.push_back(&likelihoodData_->getArrayPositions(father->getId(), Sid));
+    vLikArr.push_back(&likelihoodData_->getLikelihoodArray(Sid));
+    vId.push_back(Sid);
   }
 
+  process_->computePartialDLikelihoods(brId, dLikelihoods_father, vLikArr, vId, vPatt);
   
-  for (size_t i = 0; i < nbSites; ++i)
-  {
-    VVdouble* dLikelihoods_father_i = &(*dLikelihoods_father)[i];
-    for (size_t l = 0; l < nbNodes; ++l)
-    {
-      const Node* son = father->getSon(l);
-      VVdouble* likelihoods_son_i = &(*vLikArr[l])[(*vPatt[l])[i]];
-
-      if (son == branch)
-        process_->multiplyPartialXLikelihoodsAtASite(dLikelihoods_father_i, likelihoods_son_i, son->getId(), ComputingNode::D1);
-      else
-        process_->multiplyPartialXLikelihoodsAtASite(dLikelihoods_father_i, likelihoods_son_i, son->getId(), ComputingNode::D0);
-    }
-  }
-  
-
   // Now we go down the tree toward the root node:
   computeDownSubtreeDLikelihood_(father);
 }
@@ -621,58 +599,29 @@ void SingleRecursiveTreeLikelihoodCalculation::computeDownSubtreeDLikelihood_(co
     }
   }
 
+  int brId=node->getId();
+
   size_t nbNodes = father->getNumberOfSons();
 
   vector<vector<size_t>* > vPatt;
   vector<VVVdouble*> vLikArr;
+  vector<int> vId;
 
   for (size_t l = 0; l < nbNodes; ++l)
   {
-    const Node* son = father->getSon(l);
+    int Sid=father->getSon(l)->getId();
     
-    vPatt.push_back(&likelihoodData_->getArrayPositions(father->getId(), son->getId()));
-    vLikArr.push_back(&likelihoodData_->getLikelihoodArray(son->getId()));
+    vPatt.push_back(&likelihoodData_->getArrayPositions(father->getId(), Sid));
+    vLikArr.push_back(&likelihoodData_->getLikelihoodArray(Sid));
+    vId.push_back(Sid);
   }
 
   VVVdouble* dLikBrArr=&likelihoodData_->getDLikelihoodArray(node->getId());
 
-  for (size_t i = 0; i < nbSites; ++i)
-  {
-    VVdouble* dLikelihoods_father_i = &(*dLikelihoods_father)[i];
-    for (size_t l = 0; l < nbNodes; ++l)
-    {
-      const Node* son = father->getSon(l); 
-      if (son == node){
-        VVdouble* dLikelihoods_son_i =  &(*dLikBrArr)[(*vPatt[l])[i]];
-        process_->multiplyPartialXLikelihoodsAtASite(dLikelihoods_father_i, dLikelihoods_son_i, son->getId(), ComputingNode::D0);
-      }
-      else{
-        VVdouble* likelihoods_son_i =  &(*vLikArr[l])[(*vPatt[l])[i]];
-        process_->multiplyPartialXLikelihoodsAtASite(dLikelihoods_father_i, likelihoods_son_i, son->getId(), ComputingNode::D0);
-      }
-    }      
-  }
-
+  process_->forwardPartialDLikelihoods(brId, dLikBrArr, dLikelihoods_father, vLikArr, vId, vPatt);
+  
   // Next step: move toward grand father...
   computeDownSubtreeDLikelihood_(father);
-}
-
-/******************************************************************************/
-
-double SingleRecursiveTreeLikelihoodCalculation::getDLikelihoodForASiteForAClass(size_t site, size_t classIndex) const
-{
-  if (nullDLikelihood_)
-    return 0;
-  
-  vector<double> rootFreqs = process_->getRootFrequencies();
-  Vdouble* dla = &likelihoodData_->getDLikelihoodArray(
-           process_->getTree().getRootNode()->getId())[likelihoodData_->getRootArrayPosition(site)][classIndex];
-  double dl = 0;
-  for (size_t i = 0; i < nbStates_; ++i)
-  {
-    dl += (*dla)[i] * rootFreqs[i];
-  }
-  return dl;
 }
 
 /******************************************************************************/
@@ -684,25 +633,35 @@ double SingleRecursiveTreeLikelihoodCalculation::getDLikelihoodForASite(size_t s
   
   // Derivative of the sum is the sum of derivatives:
   double dl = 0;
-  for (size_t i = 0; i < nbClasses_; i++)
+  VVVdouble* ldla = &likelihoodData_->getDLikelihoodArray(process_->getTree().getRootNode()->getId());
+  size_t posR=likelihoodData_->getRootArrayPosition(site);
+
+  for (size_t c = 0; c < nbClasses_; c++)
   {
-    dl += getDLikelihoodForASiteForAClass(site, i) * process_->getProbabilityForModel(i);
+    for (size_t j = 0; j < nbStates_; ++j)
+    {
+      dl += (*ldla)[c][posR][j] * process_->getProbabilityForModel(c) * process_->getRootFrequencies()[j];
+    }
   }
   return dl;
-//  vector<double> rootFreqs = process_->getRootFrequencies();
-//  VVdouble* dla = &likelihoodData_->getDLikelihoodArray(
-//           process_->getTree().getRootNode()->getId())[likelihoodData_->getRootArrayPosition(site)];
-//  // Derivative of the sum is the sum of derivatives:
-//  double dl = 0;
-//  for (size_t i = 0; i < nbClasses_; ++i)
-//  {
-//    for (size_t j = 0; j < nbStates_; ++j)
-//    {
-//      dl += (*dla)[i][j] * process_->getProbabilityForModel(i) * rootFreqs[j];
-//    }
-//  }
-//  cout << site << "\t" << dl << endl;
-//  return dl;
+}
+
+/******************************************************************************/
+
+double SingleRecursiveTreeLikelihoodCalculation::getDLikelihoodForASiteForAClass(size_t site, size_t classIndex) const
+{
+  if (nullDLikelihood_)
+    return 0;
+  
+  Vdouble* dla = &likelihoodData_->getDLikelihoodArray(
+    process_->getTree().getRootNode()->getId())[classIndex][likelihoodData_->getRootArrayPosition(site)];
+ 
+  double dl = 0;
+  for (size_t i = 0; i < nbStates_; ++i)
+  {
+    dl += (*dla)[i] * process_->getRootFrequencies()[i];
+  }
+  return dl;
 }
 
 /******************************************************************************/
@@ -996,15 +955,15 @@ void SingleRecursiveTreeLikelihoodCalculation::computeTreeD2Likelihood(const str
   // First initialize to 1:
   VVVdouble* d2Likelihoods_father = &likelihoodData_->getD2LikelihoodArray(father->getId());
   size_t nbSites  = d2Likelihoods_father->size();
-  for (size_t i = 0; i < nbSites; ++i)
+  for (size_t c = 0; c < nbClasses_; ++c)
   {
-    VVdouble* d2Likelihoods_father_i = &(*d2Likelihoods_father)[i];
-    for (size_t c = 0; c < nbClasses_; ++c)
+    VVdouble* d2Likelihoods_father_c = &(*d2Likelihoods_father)[c];
+    for (size_t i = 0; i < nbSites; ++i)
     {
-      Vdouble* d2Likelihoods_father_i_c = &(*d2Likelihoods_father_i)[c];
+      Vdouble* d2Likelihoods_father_c_i = &(*d2Likelihoods_father_c)[i];
       for (size_t s = 0; s < nbStates_; ++s)
       {
-        (*d2Likelihoods_father_i_c)[s] = 1.;
+        (*d2Likelihoods_father_c_i)[s] = 1.;
       }
     }
   }
@@ -1012,31 +971,19 @@ void SingleRecursiveTreeLikelihoodCalculation::computeTreeD2Likelihood(const str
   size_t nbNodes = father->getNumberOfSons();
   vector<vector<size_t>* > vPatt;
   vector<VVVdouble*> vLikArr;
+  vector<int> vId;
  
   for (size_t l = 0; l < nbNodes; ++l)
   {
-    const Node* son = father->getSon(l);
+    int Sid=father->getSon(l)->getId();
 
-    vPatt.push_back(&likelihoodData_->getArrayPositions(father->getId(), son->getId()));
-    vLikArr.push_back(&likelihoodData_->getLikelihoodArray(son->getId()));
+    vPatt.push_back(&likelihoodData_->getArrayPositions(father->getId(), Sid));
+    vLikArr.push_back(&likelihoodData_->getLikelihoodArray(Sid));
+    vId.push_back(Sid);
   }
 
-  // Loop over sites:
-  for (size_t i = 0; i < nbSites; ++i)
-  {
-    VVdouble* d2Likelihoods_father_i = &(*d2Likelihoods_father)[i];
-    for (size_t l = 0; l < nbNodes; ++l)
-    {
-      const Node* son = father->getSon(l);
-      VVdouble* likelihoods_son_i = &(*vLikArr[l])[(*vPatt[l])[i]];
-
-      if (son == branch)        
-        process_->multiplyPartialXLikelihoodsAtASite(d2Likelihoods_father_i, likelihoods_son_i, son->getId(), ComputingNode::D2);
-      else
-        process_->multiplyPartialXLikelihoodsAtASite(d2Likelihoods_father_i, likelihoods_son_i, son->getId(), ComputingNode::D0);
-    }
-  }
-
+  process_->computePartialD2Likelihoods(brId, d2Likelihoods_father, vLikArr, vId, vPatt);
+  
   // Now we go down the tree toward the root node:
   computeDownSubtreeD2Likelihood_(father);
 }
@@ -1051,19 +998,21 @@ void SingleRecursiveTreeLikelihoodCalculation::computeDownSubtreeD2Likelihood_(c
   if (father == 0)
     return;  // We reached the root!
 
+  int brId=node->getId();
+
   // Compute dLikelihoods array for the father node.
   // First initialize to 1:
   VVVdouble* d2Likelihoods_father = &likelihoodData_->getD2LikelihoodArray(father->getId());
   size_t nbSites  = d2Likelihoods_father->size();
-  for (size_t i = 0; i < nbSites; ++i)
+  for (size_t c = 0; c < nbClasses_; ++c)
   {
-    VVdouble* d2Likelihoods_father_i = &(*d2Likelihoods_father)[i];
-    for (size_t c = 0; c < nbClasses_; ++c)
+    VVdouble* d2Likelihoods_father_c = &(*d2Likelihoods_father)[c];
+    for (size_t i = 0; i < nbSites; ++i)
     {
-      Vdouble* d2Likelihoods_father_i_c = &(*d2Likelihoods_father_i)[c];
+      Vdouble* d2Likelihoods_father_c_i = &(*d2Likelihoods_father_c)[i];
       for (size_t s = 0; s < nbStates_; ++s)
       {
-        (*d2Likelihoods_father_i_c)[s] = 1.;
+        (*d2Likelihoods_father_c_i)[s] = 1.;
       }
     }
   }
@@ -1071,58 +1020,23 @@ void SingleRecursiveTreeLikelihoodCalculation::computeDownSubtreeD2Likelihood_(c
   size_t nbNodes = father->getNumberOfSons();
   vector<vector<size_t>* > vPatt;
   vector<VVVdouble*> vLikArr;
-
+  vector<int> vId;
+  
   for (size_t l = 0; l < nbNodes; ++l)
   {
-    const Node* son = father->getSon(l);
+    int Sid=father->getSon(l)->getId();
 
-    vPatt.push_back(&likelihoodData_->getArrayPositions(father->getId(), son->getId()));
-    vLikArr.push_back(&likelihoodData_->getLikelihoodArray(son->getId()));
+    vPatt.push_back(&likelihoodData_->getArrayPositions(father->getId(), Sid));
+    vLikArr.push_back(&likelihoodData_->getLikelihoodArray(Sid));
+    vId.push_back(Sid);
   }
 
   VVVdouble* d2LikBrArr=&likelihoodData_->getD2LikelihoodArray(node->getId());
 
-
-  // Loop over sites:
-  for (size_t i = 0; i < nbSites; i++)
-  {
-    VVdouble* d2Likelihoods_father_i = &(*d2Likelihoods_father)[i];
-    for (size_t l = 0; l < nbNodes; l++)
-    {
-      const Node* son = father->getSon(l);
-
-      if (son == node){
-        VVdouble* d2Likelihoods_son_i = &(*d2LikBrArr)[(*vPatt[l])[i]];
-        process_->multiplyPartialXLikelihoodsAtASite(d2Likelihoods_father_i, d2Likelihoods_son_i, son->getId(), ComputingNode::D0);
-      }
-      else{
-        VVdouble* likelihoods_son_i = &(*vLikArr[l])[(*vPatt[l])[i]];
-        process_->multiplyPartialXLikelihoodsAtASite(d2Likelihoods_father_i, likelihoods_son_i, son->getId(), ComputingNode::D0);
-      }
-    }
-    
-  }
+  process_->forwardPartialD2Likelihoods(brId, d2LikBrArr, d2Likelihoods_father, vLikArr, vId, vPatt);
 
   // Next step: move toward grand father...
   computeDownSubtreeD2Likelihood_(father);
-}
-
-/******************************************************************************/
-
-double SingleRecursiveTreeLikelihoodCalculation::getD2LikelihoodForASiteForAClass(size_t site, size_t classIndex) const
-{
-  if (nullD2Likelihood_)
-    return 0;
-  
-  vector<double> rootFreqs = process_->getRootFrequencies();
-  Vdouble* d2la = &likelihoodData_->getD2LikelihoodArray(
-           process_->getTree().getRootNode()->getId())[likelihoodData_->getRootArrayPosition(site)][classIndex];
-  double d2l = 0;
-  for (size_t i = 0; i < nbStates_; ++i)
-  {
-    d2l += (*d2la)[i] * rootFreqs[i];
-  }
-  return d2l;
 }
 
 /******************************************************************************/
@@ -1132,17 +1046,34 @@ double SingleRecursiveTreeLikelihoodCalculation::getD2LikelihoodForASite(size_t 
   if (nullD2Likelihood_)
     return 0;
 
-  vector<double> rootFreqs = process_->getRootFrequencies();
-  VVdouble* d2la = &likelihoodData_->getD2LikelihoodArray(
-           process_->getTree().getRootNode()->getId())[likelihoodData_->getRootArrayPosition(site)];
+  VVVdouble* d2la = &likelihoodData_->getD2LikelihoodArray(process_->getTree().getRootNode()->getId());
+  size_t posR=likelihoodData_->getRootArrayPosition(site);
+
   // Derivative of the sum is the sum of derivatives:
   double d2l = 0;
-  for (size_t i = 0; i < nbClasses_; ++i)
+  for (size_t c = 0; c < nbClasses_; c++)
   {
     for (size_t j = 0; j < nbStates_; ++j)
     {
-      d2l += (*d2la)[i][j] * process_->getProbabilityForModel(i) * rootFreqs[j];
+      d2l += (*d2la)[c][posR][j] * process_->getProbabilityForModel(c) * process_->getRootFrequencies()[j];
     }
+  }
+  return d2l;
+}
+
+/******************************************************************************/
+
+double SingleRecursiveTreeLikelihoodCalculation::getD2LikelihoodForASiteForAClass(size_t site, size_t classIndex) const
+{
+  if (nullD2Likelihood_)
+    return 0;
+  
+  Vdouble* d2la = &likelihoodData_->getD2LikelihoodArray(
+    process_->getTree().getRootNode()->getId())[classIndex][likelihoodData_->getRootArrayPosition(site)];
+  double d2l = 0;
+  for (size_t i = 0; i < nbStates_; ++i)
+  {
+    d2l += (*d2la)[i] * process_->getRootFrequencies()[i];
   }
   return d2l;
 }

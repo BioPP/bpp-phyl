@@ -440,11 +440,31 @@ namespace bpp
     
     double getProbabilityForModel(size_t classIndex) const;
 
-    void multiplyPartialXLikelihoodsAtASite(VVdouble* likelihoods_node, VVdouble* likelihoods_son, size_t sonId, unsigned char DX) const
+    void computePartialLikelihoods(VVVdouble* likelihoods_node, std::vector<VVVdouble*>& vLikelihoods_sons, std::vector<int>& vSonId, std::vector<std::vector<size_t>* >& vPatterns) const
     {
-      computingTree_->multiplyPartialXLikelihoodsAtASite(likelihoods_node,likelihoods_son, sonId, DX);
+      computingTree_->computePartialLikelihoods(likelihoods_node, vLikelihoods_sons, vSonId, vPatterns);
     }
 
+    void computePartialDLikelihoods(int brId, VVVdouble* dLikelihoods_node, std::vector<VVVdouble*>& vLikelihoods_sons, std::vector<int>& vSonId, std::vector<std::vector<size_t>* >& vPatterns) const
+    {
+      computingTree_->computePartialDLikelihoods(brId, dLikelihoods_node, vLikelihoods_sons, vSonId, vPatterns);
+    }
+    
+    void forwardPartialDLikelihoods(int brId, VVVdouble* dLikelihoods_br, VVVdouble* dLikelihoods_node, std::vector<VVVdouble*>& vLikelihoods_sons, std::vector<int>& vSonId, std::vector<std::vector<size_t>* >& vPatterns) const
+    {
+      computingTree_->forwardPartialDLikelihoods(brId, dLikelihoods_br, dLikelihoods_node, vLikelihoods_sons, vSonId, vPatterns);
+    }
+
+    void computePartialD2Likelihoods(int brId, VVVdouble* d2Likelihoods_node, std::vector<VVVdouble*>& vLikelihoods_sons, std::vector<int>& vSonId, std::vector<std::vector<size_t>* >& vPatterns) const
+    {
+      computingTree_->computePartialD2Likelihoods(brId, d2Likelihoods_node, vLikelihoods_sons, vSonId, vPatterns);
+    }
+    
+    void forwardPartialD2Likelihoods(int brId, VVVdouble* d2Likelihoods_br, VVVdouble* d2Likelihoods_node, std::vector<VVVdouble*>& vLikelihoods_sons, std::vector<int>& vSonId, std::vector<std::vector<size_t>* >& vPatterns) const
+    {
+      computingTree_->forwardPartialD2Likelihoods(brId, d2Likelihoods_br, d2Likelihoods_node, vLikelihoods_sons, vSonId, vPatterns);
+    }
+    
     friend class SubstitutionProcessCollection;
     
   };

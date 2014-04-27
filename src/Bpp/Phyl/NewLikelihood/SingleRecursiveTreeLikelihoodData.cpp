@@ -97,31 +97,31 @@ void SingleRecursiveTreeLikelihoodData::initLikelihoodsWithoutPatterns_(const No
   VVVdouble* dLikelihoods_node = &nodeData->getDLikelihoodArray();
   VVVdouble* d2Likelihoods_node = &nodeData->getD2LikelihoodArray();
 
-  likelihoods_node->resize(nbDistinctSites_);
-  dLikelihoods_node->resize(nbDistinctSites_);
-  d2Likelihoods_node->resize(nbDistinctSites_);
+  likelihoods_node->resize(nbClasses_);
+  dLikelihoods_node->resize(nbClasses_);
+  d2Likelihoods_node->resize(nbClasses_);
 
-  for (size_t i = 0; i < nbDistinctSites_; i++)
+  for (size_t c = 0; c < nbClasses_; c++)
   {
-    VVdouble* likelihoods_node_i = &(*likelihoods_node)[i];
-    VVdouble* dLikelihoods_node_i = &(*dLikelihoods_node)[i];
-    VVdouble* d2Likelihoods_node_i = &(*d2Likelihoods_node)[i];
-    likelihoods_node_i->resize(nbClasses_);
-    dLikelihoods_node_i->resize(nbClasses_);
-    d2Likelihoods_node_i->resize(nbClasses_);
-    for (size_t c = 0; c < nbClasses_; c++)
+    VVdouble* likelihoods_node_c = &(*likelihoods_node)[c];
+    VVdouble* dLikelihoods_node_c = &(*dLikelihoods_node)[c];
+    VVdouble* d2Likelihoods_node_c = &(*d2Likelihoods_node)[c];
+    likelihoods_node_c->resize(nbDistinctSites_);
+    dLikelihoods_node_c->resize(nbDistinctSites_);
+    d2Likelihoods_node_c->resize(nbDistinctSites_);
+    for (size_t i = 0; i < nbDistinctSites_; i++)
     {
-      Vdouble* likelihoods_node_i_c = &(*likelihoods_node_i)[c];
-      Vdouble* dLikelihoods_node_i_c = &(*dLikelihoods_node_i)[c];
-      Vdouble* d2Likelihoods_node_i_c = &(*d2Likelihoods_node_i)[c];
-      likelihoods_node_i_c->resize(nbStates_);
-      dLikelihoods_node_i_c->resize(nbStates_);
-      d2Likelihoods_node_i_c->resize(nbStates_);
+      Vdouble* likelihoods_node_c_i = &(*likelihoods_node_c)[i];
+      Vdouble* dLikelihoods_node_c_i = &(*dLikelihoods_node_c)[i];
+      Vdouble* d2Likelihoods_node_c_i = &(*d2Likelihoods_node_c)[i];
+      likelihoods_node_c_i->resize(nbStates_);
+      dLikelihoods_node_c_i->resize(nbStates_);
+      d2Likelihoods_node_c_i->resize(nbStates_);
       for (size_t s = 0; s < nbStates_; s++)
       {
-        (*likelihoods_node_i_c)[s] = 1; // All likelihoods are initialized to 1.
-        (*dLikelihoods_node_i_c)[s] = 0; // All dLikelihoods are initialized to 0.
-        (*d2Likelihoods_node_i_c)[s] = 0; // All d2Likelihoods are initialized to 0.
+        (*likelihoods_node_c_i)[s] = 1; // All likelihoods are initialized to 1.
+        (*dLikelihoods_node_c_i)[s] = 0; // All dLikelihoods are initialized to 0.
+        (*d2Likelihoods_node_c_i)[s] = 0; // All d2Likelihoods are initialized to 0.
       }
     }
   }
@@ -139,21 +139,21 @@ void SingleRecursiveTreeLikelihoodData::initLikelihoodsWithoutPatterns_(const No
     {
       throw SequenceNotFoundException("SingleRecursiveTreeLikelihoodData::initTreelikelihoods. Leaf name in tree not found in site conainer: ", (node->getName()));
     }
-    for (size_t i = 0; i < nbDistinctSites_; i++)
+    for (size_t c = 0; c < nbClasses_; c++)
     {
-      VVdouble* likelihoods_node_i = &(*likelihoods_node)[i];
-      int state = seq->getValue(i);
-      for (size_t c = 0; c < nbClasses_; c++)
+      VVdouble* likelihoods_node_c = &(*likelihoods_node)[c];
+      for (size_t i = 0; i < nbDistinctSites_; i++)
       {
-        Vdouble* likelihoods_node_i_c = &(*likelihoods_node_i)[c];
+        int state = seq->getValue(i);
+        Vdouble* likelihoods_node_c_i = &(*likelihoods_node_c)[i];
         double test = 0.;
         for (size_t s = 0; s < nbStates_; s++)
         {
           // Leaves likelihood are set to 1 if the char correspond to the site in the sequence,
           // otherwise value set to 0:
           // cout << "i=" << i << "\tc=" << c << "\ts=" << s << endl;
-          (*likelihoods_node_i_c)[s] = process.getInitValue(s, state);
-          test += (*likelihoods_node_i_c)[s];
+          (*likelihoods_node_c_i)[s] = process.getInitValue(s, state);
+          test += (*likelihoods_node_c_i)[s];
         }
         if (test < 0.000001) std::cerr << "WARNING!!! Likelihood will be 0 for this site." << std::endl;
       }
@@ -198,31 +198,31 @@ SitePatterns* SingleRecursiveTreeLikelihoodData::initLikelihoodsWithPatterns_(co
   VVVdouble* likelihoods_node = &nodeData->getLikelihoodArray();
   VVVdouble* dLikelihoods_node = &nodeData->getDLikelihoodArray();
   VVVdouble* d2Likelihoods_node = &nodeData->getD2LikelihoodArray();
-  likelihoods_node->resize(nbSites);
-  dLikelihoods_node->resize(nbSites);
-  d2Likelihoods_node->resize(nbSites);
+  likelihoods_node->resize(nbClasses_);
+  dLikelihoods_node->resize(nbClasses_);
+  d2Likelihoods_node->resize(nbClasses_);
 
-  for (size_t i = 0; i < nbSites; ++i)
+  for (size_t c = 0; c < nbClasses_; ++c)
   {
-    VVdouble* likelihoods_node_i = &(*likelihoods_node)[i];
-    VVdouble* dLikelihoods_node_i = &(*dLikelihoods_node)[i];
-    VVdouble* d2Likelihoods_node_i = &(*d2Likelihoods_node)[i];
-    likelihoods_node_i->resize(nbClasses_);
-    dLikelihoods_node_i->resize(nbClasses_);
-    d2Likelihoods_node_i->resize(nbClasses_);
-    for (size_t c = 0; c < nbClasses_; ++c)
+    VVdouble* likelihoods_node_c = &(*likelihoods_node)[c];
+    VVdouble* dLikelihoods_node_c = &(*dLikelihoods_node)[c];
+    VVdouble* d2Likelihoods_node_c = &(*d2Likelihoods_node)[c];
+    likelihoods_node_c->resize(nbSites);
+    dLikelihoods_node_c->resize(nbSites);
+    d2Likelihoods_node_c->resize(nbSites);
+    for (size_t i = 0; i < nbSites; ++i)
     {
-      Vdouble* likelihoods_node_i_c = &(*likelihoods_node_i)[c];
-      Vdouble* dLikelihoods_node_i_c = &(*dLikelihoods_node_i)[c];
-      Vdouble* d2Likelihoods_node_i_c = &(*d2Likelihoods_node_i)[c];
-      likelihoods_node_i_c->resize(nbStates_);
-      dLikelihoods_node_i_c->resize(nbStates_);
-      d2Likelihoods_node_i_c->resize(nbStates_);
+      Vdouble* likelihoods_node_c_i = &(*likelihoods_node_c)[i];
+      Vdouble* dLikelihoods_node_c_i = &(*dLikelihoods_node_c)[i];
+      Vdouble* d2Likelihoods_node_c_i = &(*d2Likelihoods_node_c)[i];
+      likelihoods_node_c_i->resize(nbStates_);
+      dLikelihoods_node_c_i->resize(nbStates_);
+      d2Likelihoods_node_c_i->resize(nbStates_);
       for (size_t s = 0; s < nbStates_; ++s)
       {
-        (*likelihoods_node_i_c)[s] = 1; // All likelihoods are initialized to 1.
-        (*dLikelihoods_node_i_c)[s] = 0; // All dLikelihoods are initialized to 0.
-        (*d2Likelihoods_node_i_c)[s] = 0; // All d2Likelihoods are initialized to 0.
+        (*likelihoods_node_c_i)[s] = 1; // All likelihoods are initialized to 1.
+        (*dLikelihoods_node_c_i)[s] = 0; // All dLikelihoods are initialized to 0.
+        (*d2Likelihoods_node_c_i)[s] = 0; // All d2Likelihoods are initialized to 0.
       }
     }
   }
@@ -240,21 +240,21 @@ SitePatterns* SingleRecursiveTreeLikelihoodData::initLikelihoodsWithPatterns_(co
     {
       throw SequenceNotFoundException("SingleRecursiveTreeLikelihoodData::initTreelikelihoodsWithPatterns_. Leaf name in tree not found in site conainer: ", (node->getName()));
     }
-    for (size_t i = 0; i < nbSites; ++i)
+    for (size_t c = 0; c < nbClasses_; ++c)
     {
-      VVdouble* likelihoods_node_i = &(*likelihoods_node)[i];
-      int state = seq->getValue(i);
-      for (size_t c = 0; c < nbClasses_; ++c)
+      VVdouble* likelihoods_node_c = &(*likelihoods_node)[c];
+      for (size_t i = 0; i < nbSites; ++i)
       {
-        Vdouble* likelihoods_node_i_c = &(*likelihoods_node_i)[c];
+        int state = seq->getValue(i);
+        Vdouble* likelihoods_node_c_i = &(*likelihoods_node_c)[i];
         double test = 0.;
         for (size_t s = 0; s < nbStates_; ++s)
         {
           // Leaves likelihood are set to 1 if the char correspond to the site in the sequence,
           // otherwise value set to 0:
           // cout << "i=" << i << "\tc=" << c << "\ts=" << s << endl;
-          (*likelihoods_node_i_c)[s] = process.getInitValue(s, state);
-          test += (*likelihoods_node_i_c)[s];
+          (*likelihoods_node_c_i)[s] = process.getInitValue(s, state);
+          test += (*likelihoods_node_c_i)[s];
         }
         if (test < 0.000001) std::cerr << "WARNING!!! Likelihood will be 0 for this site." << std::endl;
       }

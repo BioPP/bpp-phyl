@@ -79,6 +79,7 @@ void fitModelNH(SubstitutionModelSet* model, DiscreteDistribution* rdist, const 
 }
 
 int main() {
+
   TreeTemplate<Node>* tree = TreeTemplateTools::parenthesisToTree("(((A:0.1, B:0.2):0.3,C:0.1):0.2,(D:0.3,(E:0.2,F:0.05):0.1):0.1);");
 
   vector<string> seqNames= tree->getLeavesNames();
