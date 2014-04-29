@@ -39,6 +39,7 @@
 
 #include "ComputingNode.h"
 #include <Bpp/Numeric/Constraints.h>
+#include <Bpp/Numeric/Matrix/MatrixTools.h>
 
 using namespace bpp;
 using namespace std;
@@ -148,6 +149,10 @@ ComputingNode& ComputingNode::operator=(const ComputingNode& cn)
 void ComputingNode::setSubstitutionModel(const SubstitutionModel* pSM)
 {
   model_=pSM;
+
+  if (model_)
+    nbStates_=model_->getNumberOfStates();
+  
   computeProbabilities_=true;
   computeProbabilitiesD1_=true;
   computeProbabilitiesD2_=true;
@@ -183,6 +188,7 @@ void ComputingNode::computeTransitionProbabilitiesD1() const
     computeProbabilitiesD1_ = false; //We record that we did this computation.
     //The transition matrix was never computed before. We therefore have to compute it first:
     probabilitiesD1_ = model_->getdPij_dt(scale_*getDistanceToFather());
+    MatrixTools::scale(probabilitiesD1_,scale_);
   }
 }
 
@@ -192,6 +198,7 @@ void ComputingNode::computeTransitionProbabilitiesD2() const
     computeProbabilitiesD2_ = false; //We record that we did this computation.
     //The transition matrix was never computed before. We therefore have to compute it first:
     probabilitiesD2_ = model_->getd2Pij_dt2(scale_*getDistanceToFather());
+    MatrixTools::scale(probabilitiesD2_,scale_*scale_);
   }
 }
 
