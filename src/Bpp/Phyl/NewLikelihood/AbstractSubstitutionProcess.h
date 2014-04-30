@@ -135,31 +135,16 @@ public:
   }
 
 
-  void computePartialLikelihoods(VVVdouble* likelihoods_node, std::vector<VVVdouble*>& vLikelihoods_sons, std::vector<int>& vSonId, std::vector<std::vector<size_t>* >& vPatterns) const
+  void computePartialLikelihoods(VVVdouble* likelihoods_node, std::vector<VVVdouble*>& vLikelihoods_sons, int nodeId, std::vector<std::vector<size_t>* >& vPatterns) const
   {
-    getComputingTree().computePartialLikelihoods(likelihoods_node, vLikelihoods_sons, vSonId, vPatterns);
+    getComputingTree().computePartialLikelihoods(likelihoods_node, vLikelihoods_sons, nodeId, vPatterns);
   }
 
-  void computePartialDLikelihoods(int brId, VVVdouble* dLikelihoods_node, std::vector<VVVdouble*>& vLikelihoods_sons, std::vector<int>& vSonId, std::vector<std::vector<size_t>* >& vPatterns) const
+  void computePartialDXLikelihoods(int brId, VVVdouble* dXLikelihoods_node, std::vector<VVVdouble*>& vLikelihoods_sons, int nodeId, std::vector<std::vector<size_t>* >& vPatterns, unsigned char DX) const
   {
-    getComputingTree().computePartialDLikelihoods(brId, dLikelihoods_node, vLikelihoods_sons, vSonId, vPatterns);
+    getComputingTree().computePartialDXLikelihoods(brId, dXLikelihoods_node, vLikelihoods_sons, nodeId, vPatterns, DX);
   }
   
-  void forwardPartialDLikelihoods(int brId, VVVdouble* dLikelihoods_br, VVVdouble* dLikelihoods_node, std::vector<VVVdouble*>& vLikelihoods_sons, std::vector<int>& vSonId, std::vector<std::vector<size_t>* >& vPatterns) const
-  {
-    getComputingTree().forwardPartialDLikelihoods(brId, dLikelihoods_br, dLikelihoods_node, vLikelihoods_sons, vSonId, vPatterns);
-  }
-
-  void computePartialD2Likelihoods(int brId, VVVdouble* d2Likelihoods_node, std::vector<VVVdouble*>& vLikelihoods_sons, std::vector<int>& vSonId, std::vector<std::vector<size_t>* >& vPatterns) const
-  {
-    getComputingTree().computePartialD2Likelihoods(brId, d2Likelihoods_node, vLikelihoods_sons, vSonId, vPatterns);
-  }
-  
-  void forwardPartialD2Likelihoods(int brId, VVVdouble* d2Likelihoods_br, VVVdouble* d2Likelihoods_node, std::vector<VVVdouble*>& vLikelihoods_sons, std::vector<int>& vSonId, std::vector<std::vector<size_t>* >& vPatterns) const
-  {
-    getComputingTree().forwardPartialD2Likelihoods(brId, d2Likelihoods_br, d2Likelihoods_node, vLikelihoods_sons, vSonId, vPatterns);
-  }
-
 };
   
 

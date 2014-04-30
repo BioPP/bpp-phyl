@@ -213,146 +213,35 @@ namespace bpp
      *
      */
 
-    void computePartialLikelihoods(VVVdouble* likelihoods_node, std::vector<VVVdouble*>& vLikelihoods_sons, std::vector<int>& vSonId, std::vector<std::vector<size_t>* >& vPatterns) const
+    void computePartialLikelihoods(VVVdouble* likelihoods_node, std::vector<VVVdouble*>& vLikelihoods_sons, int nodeId, std::vector<std::vector<size_t>* >& vPatterns) const
     {
       size_t nbSons=vLikelihoods_sons.size();
-      size_t nbSites=(*likelihoods_node)[0].size();
-      
       for (size_t c = 0; c < vTree_.size(); ++c)
       {
         VVdouble* likelihoods_node_c = &(*likelihoods_node)[c];
+
+        std::vector<VVdouble*> vLikelihoods_sons_c;
+        for (size_t i=0;i<nbSons;i++)
+          vLikelihoods_sons_c.push_back(&(*vLikelihoods_sons[i])[c]);
+
+        vTree_[c]->getNode(nodeId)->computePartialLikelihoods(likelihoods_node_c, vLikelihoods_sons_c, vPatterns);
+      }
+    }
+
+    void computePartialDXLikelihoods(int brId, VVVdouble* dXLikelihoods_node, std::vector<VVVdouble*>& vLikelihoods_sons, int nodeId, std::vector<std::vector<size_t>* >& vPatterns, unsigned char DX) const
+    {
+      size_t nbSons=vLikelihoods_sons.size();
+      
+      for (size_t c = 0; c < vTree_.size(); ++c)
+      {
+        VVdouble* dXLikelihoods_node_c = &(*dXLikelihoods_node)[c];
+        std::vector<VVdouble*> vLikelihoods_sons_c;
+        for (size_t i=0;i<nbSons;i++)
+          vLikelihoods_sons_c.push_back(&(*vLikelihoods_sons[i])[c]);
         
-        for (size_t i = 0; i < nbSites; i++)
-        {
-          Vdouble* likelihoods_node_c_i = &(*likelihoods_node_c)[i];
-
-          for (size_t l = 0; l < nbSons; l++)
-          {
-            Vdouble* likelihoods_son_c_i = &(*vLikelihoods_sons[l])[c][(*vPatterns[l])[i]];
-            vTree_[c]->getNode(vSonId[l])->multiplyPartialXLikelihoodsAtASite(likelihoods_node_c_i,likelihoods_son_c_i,ComputingNode::D0);
-          }
-        }
+        vTree_[c]->getNode(nodeId)->computePartialDXLikelihoods(brId, dXLikelihoods_node_c, vLikelihoods_sons_c, vPatterns, DX);
       }
     }
-
-    void computePartialDLikelihoods(int brId, VVVdouble* dLikelihoods_node, std::vector<VVVdouble*>& vLikelihoods_sons, std::vector<int>& vSonId, std::vector<std::vector<size_t>* >& vPatterns) const
-    {
-      size_t nbSons=vLikelihoods_sons.size();
-      size_t nbSites=(*dLikelihoods_node)[0].size();
-
-      for (size_t c = 0; c < vTree_.size(); ++c)
-      {
-        VVdouble* dLikelihoods_node_c = &(*dLikelihoods_node)[c];
-
-        for (size_t i = 0; i < nbSites; i++)
-        {
-          Vdouble* dLikelihoods_node_c_i = &(*dLikelihoods_node_c)[i];
-
-          for (size_t l = 0; l < nbSons; ++l)
-          {
-            Vdouble* likelihoods_son_c_i = &(*vLikelihoods_sons[l])[c][(*vPatterns[l])[i]];
-            if (vSonId[l] == brId)
-              vTree_[c]->getNode(brId)->multiplyPartialXLikelihoodsAtASite(dLikelihoods_node_c_i, likelihoods_son_c_i, ComputingNode::D1);
-            else
-              vTree_[c]->getNode(vSonId[l])->multiplyPartialXLikelihoodsAtASite(dLikelihoods_node_c_i, likelihoods_son_c_i, ComputingNode::D0);
-          }
-        }
-      }
-    }
-    
-  
-    void forwardPartialDLikelihoods(int brId, VVVdouble* dLikelihoods_br, VVVdouble* dLikelihoods_node, std::vector<VVVdouble*>& vLikelihoods_sons, std::vector<int>& vSonId, std::vector<std::vector<size_t>* >& vPatterns) const
-    {
-      size_t nbSons=vLikelihoods_sons.size();
-      size_t nbSites=(*dLikelihoods_node)[0].size();
-
-      for (size_t c = 0; c < vTree_.size(); ++c)
-      {
-        VVdouble* dLikelihoods_node_c = &(*dLikelihoods_node)[c];
-        VVdouble* dLikelihoods_br_c = &(*dLikelihoods_br)[c];
-
-        for (size_t i = 0; i < nbSites; ++i)
-        {
-          Vdouble* dLikelihoods_node_c_i = &(*dLikelihoods_node_c)[i];
-
-          for (size_t l = 0; l < nbSons; ++l)
-          {
-            if (vSonId[l] == brId)
-            {
-              Vdouble* dLikelihoods_br_c_i =  &(*dLikelihoods_br_c)[(*vPatterns[l])[i]];
-              vTree_[c]->getNode(brId)->multiplyPartialXLikelihoodsAtASite(dLikelihoods_node_c_i, dLikelihoods_br_c_i, ComputingNode::D0);
-            }
-            else{
-              Vdouble* likelihoods_son_c_i =  &(*vLikelihoods_sons[l])[c][(*vPatterns[l])[i]];
-              vTree_[c]->getNode(vSonId[l])->multiplyPartialXLikelihoodsAtASite(dLikelihoods_node_c_i, likelihoods_son_c_i, ComputingNode::D0);
-            }
-          }
-        }      
-      }
-    }
-
-    void computePartialD2Likelihoods(int brId, VVVdouble* d2Likelihoods_node, std::vector<VVVdouble*>& vLikelihoods_sons, std::vector<int>& vSonId, std::vector<std::vector<size_t>* >& vPatterns) const
-    {
-      size_t nbSons=vLikelihoods_sons.size();
-      size_t nbSites=(*d2Likelihoods_node)[0].size();
-
-      for (size_t c = 0; c < vTree_.size(); ++c)
-      {
-        VVdouble* d2Likelihoods_node_c = &(*d2Likelihoods_node)[c];
-
-        for (size_t i = 0; i < nbSites; i++)
-        {
-          Vdouble* d2Likelihoods_node_c_i = &(*d2Likelihoods_node_c)[i];
-
-          for (size_t l = 0; l < nbSons; ++l)
-          {
-            Vdouble* likelihoods_son_c_i = &(*vLikelihoods_sons[l])[c][(*vPatterns[l])[i]];
-            if (vSonId[l] == brId)
-              vTree_[c]->getNode(brId)->multiplyPartialXLikelihoodsAtASite(d2Likelihoods_node_c_i, likelihoods_son_c_i, ComputingNode::D2);
-            else
-              vTree_[c]->getNode(vSonId[l])->multiplyPartialXLikelihoodsAtASite(d2Likelihoods_node_c_i, likelihoods_son_c_i, ComputingNode::D0);
-          }
-        }
-      }
-    }
-  
-    void forwardPartialD2Likelihoods(int brId, VVVdouble* d2Likelihoods_br, VVVdouble* d2Likelihoods_node, std::vector<VVVdouble*>& vLikelihoods_sons, std::vector<int>& vSonId, std::vector<std::vector<size_t>* >& vPatterns) const
-    {
-      size_t nbSons=vLikelihoods_sons.size();
-      size_t nbSites=(*d2Likelihoods_node)[0].size();
-
-      for (size_t c = 0; c < vTree_.size(); ++c)
-      {
-        VVdouble* d2Likelihoods_node_c = &(*d2Likelihoods_node)[c];
-        VVdouble* d2Likelihoods_br_c = &(*d2Likelihoods_br)[c];
-
-        for (size_t i = 0; i < nbSites; ++i)
-        {
-          Vdouble* d2Likelihoods_node_c_i = &(*d2Likelihoods_node_c)[i];
-
-          for (size_t l = 0; l < nbSons; ++l)
-          {
-            if (vSonId[l] == brId)
-            {
-              Vdouble* d2Likelihoods_br_c_i =  &(*d2Likelihoods_br_c)[(*vPatterns[l])[i]];
-              vTree_[c]->getNode(brId)->multiplyPartialXLikelihoodsAtASite(d2Likelihoods_node_c_i, d2Likelihoods_br_c_i, ComputingNode::D0);
-            }
-            else{
-              Vdouble* likelihoods_son_c_i =  &(*vLikelihoods_sons[l])[c][(*vPatterns[l])[i]];
-              vTree_[c]->getNode(vSonId[l])->multiplyPartialXLikelihoodsAtASite(d2Likelihoods_node_c_i, likelihoods_son_c_i, ComputingNode::D0);
-            }
-          }
-        }      
-      }
-    }
-
-
-    void multiplyPartialXLikelihoodsAtASite(VVdouble* likelihoods_node, VVdouble* likelihoods_son, size_t sonId, unsigned char DX) const
-    {
-      for (size_t c = 0; c < vTree_.size(); ++c)
-        vTree_[c]->getNode((int)sonId)->multiplyPartialXLikelihoodsAtASite(&(*likelihoods_node)[c],&(*likelihoods_son)[c],DX);
-    }
-
 
   };
   

@@ -37,11 +37,11 @@
   knowledge of the CeCILL license and that you accept its terms.
 */
 
-#ifndef _COMPUTINGUNIT_H_
-#define _COMPUTINGUNIT_H_
+#ifndef _COMPUTINGNODE_H_
+#define _COMPUTINGNODE_H_
 
 //From the STL:
-#include <memory>
+//#include <memory>
 
 //From bpp-core:
 #include <Bpp/Numeric/Matrix/Matrix.h>
@@ -53,7 +53,8 @@ namespace bpp
 {
 
   /**
-   * @brief An implementation of the Transition Probabilities at a node.
+   * @brief An implementation of the Transition Probabilities and
+   * method of computing the partial likelihoods at a node.
    *
    * These classes handle convenient arrays for storing previously
    * computed probabilities.
@@ -131,6 +132,11 @@ namespace bpp
 
     void computeTransitionProbabilitiesD2() const;
 
+    /**
+     * @brief Return the transition probability between two states.
+     *
+     */
+    
     double getTransitionProbability(size_t i, size_t j) const
     {
       if (computeProbabilities_) 
@@ -139,6 +145,12 @@ namespace bpp
       return probabilities_(i,j);
     }
   
+    /**
+     * @brief Return the first order derivate of the transition
+     * probability between two states.
+     *
+     */
+    
     double getTransitionProbabilityD1(size_t i, size_t j) const
     {
       if (computeProbabilitiesD1_) 
@@ -147,6 +159,12 @@ namespace bpp
       return probabilitiesD1_(i,j);
     }
   
+    /**
+     * @brief Return the second order derivate of the transition
+     * probability between two states.
+     *
+     */
+
     double getTransitionProbabilityD2(size_t i, size_t j) const
     {
       if (computeProbabilitiesD2_) 
@@ -154,6 +172,11 @@ namespace bpp
 
       return probabilitiesD2_(i,j);
     }
+
+    /**
+     * @brief Return the transition matrix.
+     *
+     */
 
     const Matrix<double>& getTransitionProbabilities() const
     {
@@ -163,6 +186,12 @@ namespace bpp
       return probabilities_;
     }
 
+    /**
+     * @brief Return the first order derivate of the transition
+     * matrix.
+     *
+     */
+    
     const Matrix<double>& getTransitionProbabilitiesD1() const
     {
       if (computeProbabilitiesD1_) 
@@ -171,6 +200,12 @@ namespace bpp
       return probabilitiesD1_;
     }
 
+    /**
+     * @brief Return the second order derivate of the transition
+     * matrix.
+     *
+     */
+    
     const Matrix<double>& getTransitionProbabilitiesD2() const
     {
       if (computeProbabilitiesD2_) 
@@ -181,7 +216,18 @@ namespace bpp
 
     void fireParameterChanged(const ParameterList& pl);
 
+    /**
+     * @brief Sets the computeProbabilities to true on this node.
+     *
+     */
+    
     void update();
+
+    /**
+     * @brief Sets the computeProbabilities to true on this node and
+     * all subtree below.
+     *
+     */
 
     void updateAll()
     {
@@ -224,7 +270,21 @@ namespace bpp
      *@brief compute partial likelihood
      */
 
-    void multiplyPartialXLikelihoodsAtASite(Vdouble* likelihoods_node, Vdouble* likelihoods_son, unsigned char DX)
+    /**
+     *@brief multiplies the partial (D)likelihood of the father node
+     * with this partial (D)likelihood multiplied with the
+     * (D)transition probabilities.
+     *
+     * @param likelihoods_father a pointer to the partial (D)likelihood
+     * of the father node [in, out].
+     * @param likelihoods_node a pointer to the partial (D)likelihood
+     * of this node [in].
+     * @param DX tells which matrix should be used as used for
+     * transition factors, either D0 for transition probabilities, D1
+     * for their first derivate, D2 for their second.
+     **/
+    
+    void multiplyPartialXLikelihoodsAtASite(Vdouble* likelihoods_father, Vdouble* likelihoods_node, unsigned char DX)
     {
       double (ComputingNode::*gtP)(size_t,size_t) const = NULL;
 
@@ -232,7 +292,7 @@ namespace bpp
         gtP=&ComputingNode::getTransitionProbability;
       else
         if (DX==D1)
-            gtP=&ComputingNode::getTransitionProbabilityD1;
+          gtP=&ComputingNode::getTransitionProbabilityD1;
         else
           if (DX==D2)
             gtP=&ComputingNode::getTransitionProbabilityD2;
@@ -245,17 +305,83 @@ namespace bpp
         double likelihood = 0;
         for (size_t y = 0; y < nbStates_; y++)
         {
-          likelihood += (*this.*gtP)(x, y) * (*likelihoods_son)[y];
+          likelihood += (*this.*gtP)(x, y) * (*likelihoods_node)[y];
         }
-        (*likelihoods_node)[x] *= likelihood;
+        (*likelihoods_father)[x] *= likelihood;
       }
     }
 
-    // computePartialXLikelihoodsAtASite(VVdouble* likelihoods_node, std::vector<VVdouble*>& vLikelihoods_sons, std::vector<std::vector<size_t>* >& vPatterns, unsigned char DX) 
+    /**
+     *@brief computes its partial likelihood using the partial
+     * likelihoods of the sons.
+     *
+     * @param likelihoods_node a pointer to the partial likelihood
+     * of this node [in, out].
+     * @param vLikelihoods_sons a vector of the partial likelihoods of
+     * the sons.
+     * @param vPatterns a vector of the corresponding positions
+     * from this node to the sons.
+     **/
 
+    void computePartialLikelihoods(VVdouble* likelihoods_node, std::vector<VVdouble*>& vLikelihoods_sons, std::vector<std::vector<size_t>* >& vPatterns)
+    {
+      size_t nbSites=likelihoods_node->size();
+        
+      for (size_t i = 0; i < nbSites; i++)
+      {
+        Vdouble* likelihoods_node_i = &(*likelihoods_node)[i];
+      
+        for (size_t l = 0; l < getNumberOfSons(); l++)
+        {
+          ComputingNode* son_l=dynamic_cast<ComputingNode*>(getSon(l));
+                    
+          Vdouble* likelihoods_son_l_i = &(*vLikelihoods_sons[l])[(*vPatterns[l])[i]];
+          son_l->multiplyPartialXLikelihoodsAtASite(likelihoods_node_i,likelihoods_son_l_i,D0);
+        }
+      }
+    }
+
+    /**
+     *@brief computes the derivate of its partial likelihood using the
+     * partial likelihoods of the sons.
+     *
+     * @param brId is the Id of the branch on which the derivate is
+     * computed.
+     * @param dXLikelihoods_node a pointer to the derivate of the
+     * partial likelihood of this node [in, out].
+     * @param vLikelihoods_sons a vector of the partial likelihoods of
+     * the sons.
+     * @param vPatterns a vector of the corresponding positions
+     * from this node to the sons.
+     * @param DX tells which matrix should be used as used for
+     * transition factors, either D0 for transition probabilities, D1
+     * for their first derivate, D2 for their second.
+     **/
+
+    void computePartialDXLikelihoods(int brId, VVdouble* dXLikelihoods_node, std::vector<VVdouble*>& vLikelihoods_sons, std::vector<std::vector<size_t>* >& vPatterns, unsigned char DX)
+    {
+      size_t nbSites=dXLikelihoods_node->size();
+  
+      for (size_t i = 0; i < nbSites; i++)
+      {
+        Vdouble* dXLikelihoods_node_i = &(*dXLikelihoods_node)[i];
+      
+        for (size_t l = 0; l < getNumberOfSons(); l++)
+        {
+          ComputingNode* son_l=dynamic_cast<ComputingNode*>(getSon(l));
+                    
+          Vdouble* likelihoods_son_l_i = &(*vLikelihoods_sons[l])[(*vPatterns[l])[i]];
+          if (son_l->getId() == brId)
+            son_l->multiplyPartialXLikelihoodsAtASite(dXLikelihoods_node_i, likelihoods_son_l_i, DX);
+          else
+            son_l->multiplyPartialXLikelihoodsAtASite(dXLikelihoods_node_i, likelihoods_son_l_i, D0);
+        }
+      }
+    }
+    
   };
 
- } // end namespace bpp
+} // end namespace bpp
 
-#endif // _COMPUTINGUNIT_H_
+#endif // _COMPUTINGNODE_H_
 
