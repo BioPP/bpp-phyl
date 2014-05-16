@@ -62,7 +62,7 @@ using namespace std;
 
 ProbabilisticSubstitutionMapping* SubstitutionMappingTools::computeSubstitutionVectors(
   const DRTreeLikelihood& drtl,
-  const vector<int>& ids,
+  const vector<int>& nodeIds,
   SubstitutionCount& substitutionCount,
   bool verbose) throw (Exception)
 {
@@ -111,17 +111,18 @@ ProbabilisticSubstitutionMapping* SubstitutionMappingTools::computeSubstitutionV
 
   // Compute the number of substitutions for each class and each branch in the tree:
   if (verbose) ApplicationTools::displayTask("Compute joint node-pairs likelihood", true);
-  
-  for (size_t l = 0; l < ids.size(); l++)
+ 
+  for (size_t l = 0; l < nbNodes; ++l)
   {
-    //For each node,
-    const Node* currentNode = nodes[ids[l]];
+    // For each node,
+    const Node* currentNode = nodes[l];
+    if (nodeIds.size() > 0 && !VectorTools::contains(nodeIds, currentNode->getId())) continue;
 
     const Node* father = currentNode->getFather();
 
     double d = currentNode->getDistanceToFather();
  
-    if (verbose) ApplicationTools::displayGauge(ids[l], nbNodes-1, '>');
+    if (verbose) ApplicationTools::displayGauge(l, nbNodes - 1);
     VVdouble substitutionsForCurrentNode(nbDistinctSites);
     for (size_t i = 0; i < nbDistinctSites; ++i)
       substitutionsForCurrentNode[i].resize(nbTypes);
@@ -341,7 +342,7 @@ ProbabilisticSubstitutionMapping* SubstitutionMappingTools::computeSubstitutionV
     //Now we just have to copy the substitutions into the result vector:
     for (size_t i = 0; i < nbSites; ++i)
       for (size_t t = 0; t < nbTypes; ++t)
-        (*substitutions)(ids[l], i, t) = substitutionsForCurrentNode[(* rootPatternLinks)[i]][t] / Lr[(* rootPatternLinks)[i]];
+        (*substitutions)(l, i, t) = substitutionsForCurrentNode[(* rootPatternLinks)[i]][t] / Lr[(* rootPatternLinks)[i]];
   }
   if (verbose)
   {
@@ -395,7 +396,7 @@ ProbabilisticSubstitutionMapping* SubstitutionMappingTools::computeSubstitutionV
 
     double d = currentNode->getDistanceToFather();
     
-    if (verbose) ApplicationTools::displayGauge(l, nbNodes-1, '>');
+    if (verbose) ApplicationTools::displayGauge(l, nbNodes - 1);
     VVdouble substitutionsForCurrentNode(nbDistinctSites);
     for (size_t i = 0; i < nbDistinctSites; ++i)
       substitutionsForCurrentNode[i].resize(nbTypes);
@@ -690,7 +691,7 @@ ProbabilisticSubstitutionMapping* SubstitutionMappingTools::computeSubstitutionV
     vector<size_t> fatherStates = ancestors[father->getId()];
     
     //For each node,
-    if (verbose) ApplicationTools::displayGauge(l, nbNodes-1, '>');
+    if (verbose) ApplicationTools::displayGauge(l, nbNodes - 1);
     VVdouble substitutionsForCurrentNode(nbDistinctSites);
     for (size_t i = 0; i < nbDistinctSites; ++i)
       substitutionsForCurrentNode[i].resize(nbTypes);
@@ -795,7 +796,7 @@ ProbabilisticSubstitutionMapping* SubstitutionMappingTools::computeSubstitutionV
     double d = currentNode->getDistanceToFather();
     
     //For each node,
-    if (verbose) ApplicationTools::displayGauge(l, nbNodes-1, '>');
+    if (verbose) ApplicationTools::displayGauge(l, nbNodes - 1);
     VVdouble substitutionsForCurrentNode(nbDistinctSites);
     for (size_t i = 0; i < nbDistinctSites; ++i)
       substitutionsForCurrentNode[i].resize(nbTypes);
