@@ -93,14 +93,14 @@ namespace bpp {
      * @see getNumberOfStates
      */
 
-    const Clonable& getState(unsigned int stateIndex) const throw (HmmBadStateException)
+    const Clonable& getState(size_t stateIndex) const throw (HmmBadStateException)
     {
       return *processColl_->getSubstitutionProcess(stateIndex);
     }
       
-    unsigned int getNumberOfStates() const
+    size_t getNumberOfStates() const
     {
-      return (unsigned int)processColl_->getNumberOfSubstitutionProcess();
+      return processColl_->getNumberOfSubstitutionProcess();
     }
 
     /**
