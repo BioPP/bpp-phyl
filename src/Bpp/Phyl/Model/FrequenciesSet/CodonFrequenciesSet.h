@@ -306,7 +306,7 @@ namespace bpp
 
     unsigned short getMethod() const
     {
-      return (vS_.size()?vS_[0].getMethod():1);
+      return (vS_.size() > 0 ? vS_[0].getMethod() : static_cast<unsigned short>(1));
     }
     
   protected:
