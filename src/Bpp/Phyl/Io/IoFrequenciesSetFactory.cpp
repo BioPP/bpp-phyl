@@ -45,13 +45,13 @@ const std::string IOFrequenciesSetFactory::BPPO_FORMAT = "Bpp0";
 
 IFrequenciesSet* IOFrequenciesSetFactory::createReader(const std::string& format) throw (Exception)
 {
-  if(format == BPPO_FORMAT) return new BppOFrequenciesSetFormat(BppOFrequenciesSetFormat::ALL, true);
+  if(format == BPPO_FORMAT) return new BppOFrequenciesSetFormat(BppOFrequenciesSetFormat::ALL, true, 1);
   else throw Exception("Format " + format + " is not supported for input.");
 }
   
 OFrequenciesSet* IOFrequenciesSetFactory::createWriter(const std::string& format) throw (Exception)
 {
-  if(format == BPPO_FORMAT) return new BppOFrequenciesSetFormat(BppOFrequenciesSetFormat::ALL, true);
+  if(format == BPPO_FORMAT) return new BppOFrequenciesSetFormat(BppOFrequenciesSetFormat::ALL, true, 1);
   else throw Exception("Format " + format + " is not supported for output.");
 }
 
