@@ -102,7 +102,7 @@ Tree* PhylogeneticsApplicationTools::getTree(
   int warn) throw (Exception)
 {
   string format = ApplicationTools::getStringParameter(prefix + "tree.format", params, "Newick", suffix, suffixIsOptional, warn);
-  string treeFilePath = ApplicationTools::getAFilePath(prefix + "tree.file", params, true, true, suffix, suffixIsOptional, warn);
+  string treeFilePath = ApplicationTools::getAFilePath(prefix + "tree.file", params, true, true, suffix, suffixIsOptional, "none", warn);
 
   ITree* treeReader;
   if (format == "Newick")
@@ -132,7 +132,7 @@ vector<Tree*> PhylogeneticsApplicationTools::getTrees(
   int warn) throw (Exception)
 {
   string format = ApplicationTools::getStringParameter(prefix + "trees.format", params, "Newick", suffix, suffixIsOptional, warn);
-  string treeFilePath = ApplicationTools::getAFilePath(prefix + "trees.file", params, true, true, suffix, suffixIsOptional, warn);
+  string treeFilePath = ApplicationTools::getAFilePath(prefix + "trees.file", params, true, true, suffix, suffixIsOptional, "none", warn);
 
   IMultiTree* treeReader;
   if (format == "Newick")
@@ -708,7 +708,7 @@ throw (Exception)
 
   unsigned int optVerbose = ApplicationTools::getParameter<unsigned int>("optimization.verbose", params, 2, suffix, suffixIsOptional, warn + 1);
 
-  string mhPath = ApplicationTools::getAFilePath("optimization.message_handler", params, false, false, suffix, suffixIsOptional, warn + 1);
+  string mhPath = ApplicationTools::getAFilePath("optimization.message_handler", params, false, false, suffix, suffixIsOptional, "none", warn + 1);
   OutputStream* messageHandler =
     (mhPath == "none") ? 0 :
     (mhPath == "std") ? ApplicationTools::message :
@@ -716,7 +716,7 @@ throw (Exception)
   if (verbose)
     ApplicationTools::displayResult("Message handler", mhPath);
 
-  string prPath = ApplicationTools::getAFilePath("optimization.profiler", params, false, false, suffix, suffixIsOptional, warn + 1);
+  string prPath = ApplicationTools::getAFilePath("optimization.profiler", params, false, false, suffix, suffixIsOptional, "none", warn + 1);
   OutputStream* profiler =
     (prPath == "none") ? 0 :
     (prPath == "std") ? ApplicationTools::message :
@@ -914,7 +914,7 @@ throw (Exception)
 
   // Backing up or restoring?
   auto_ptr<BackupListener> backupListener;
-  string backupFile = ApplicationTools::getAFilePath("optimization.backup.file", params, false, false, suffix, suffixIsOptional, warn + 1);
+  string backupFile = ApplicationTools::getAFilePath("optimization.backup.file", params, false, false, suffix, suffixIsOptional, "none", warn + 1);
   if (backupFile != "none")
   {
     ApplicationTools::displayResult("Parameters will be backup to", backupFile);
@@ -1126,7 +1126,7 @@ throw (Exception)
 
   unsigned int optVerbose = ApplicationTools::getParameter<unsigned int>("optimization.verbose", params, 2, suffix, suffixIsOptional, warn + 1);
 
-  string mhPath = ApplicationTools::getAFilePath("optimization.message_handler", params, false, false, suffix, suffixIsOptional, warn + 1);
+  string mhPath = ApplicationTools::getAFilePath("optimization.message_handler", params, false, false, suffix, suffixIsOptional, "none", warn + 1);
   OutputStream* messageHandler =
     (mhPath == "none") ? 0 :
     (mhPath == "std") ? ApplicationTools::message :
@@ -1134,7 +1134,7 @@ throw (Exception)
   if (verbose)
     ApplicationTools::displayResult("Message handler", mhPath);
 
-  string prPath = ApplicationTools::getAFilePath("optimization.profiler", params, false, false, suffix, suffixIsOptional, warn + 1);
+  string prPath = ApplicationTools::getAFilePath("optimization.profiler", params, false, false, suffix, suffixIsOptional, "none", warn + 1);
   OutputStream* profiler =
     (prPath == "none") ? 0 :
     (prPath == "std") ? ApplicationTools::message :
@@ -1216,7 +1216,7 @@ throw (Exception)
 
   // Backing up or restoring?
   auto_ptr<BackupListener> backupListener;
-  string backupFile = ApplicationTools::getAFilePath("optimization.backup.file", params, false, false, suffix, suffixIsOptional, warn + 1);
+  string backupFile = ApplicationTools::getAFilePath("optimization.backup.file", params, false, false, suffix, suffixIsOptional, "none", warn + 1);
   if (backupFile != "none")
   {
     ApplicationTools::displayResult("Parameters will be backup to", backupFile);
@@ -1359,7 +1359,7 @@ void PhylogeneticsApplicationTools::writeTree(
   int warn) throw (Exception)
 {
   string format = ApplicationTools::getStringParameter(prefix + "tree.format", params, "Newick", suffix, suffixIsOptional, warn);
-  string file = ApplicationTools::getAFilePath(prefix + "tree.file", params, true, false, suffix, suffixIsOptional, warn);
+  string file = ApplicationTools::getAFilePath(prefix + "tree.file", params, true, false, suffix, suffixIsOptional, "none", warn);
   OTree* treeWriter;
   if (format == "Newick")
     treeWriter = new Newick();
@@ -1389,7 +1389,7 @@ void PhylogeneticsApplicationTools::writeTrees(
   int warn) throw (Exception)
 {
   string format = ApplicationTools::getStringParameter(prefix + "trees.format", params, "Newick", suffix, suffixIsOptional, warn);
-  string file = ApplicationTools::getAFilePath(prefix + "trees.file", params, true, false, suffix, suffixIsOptional, warn);
+  string file = ApplicationTools::getAFilePath(prefix + "trees.file", params, true, false, suffix, suffixIsOptional, "none", warn);
   OMultiTree* treeWriter;
   if (format == "Newick")
     treeWriter = new Newick();
