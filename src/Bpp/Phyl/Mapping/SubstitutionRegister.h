@@ -514,9 +514,9 @@ public:
 
   virtual ~GeneralSubstitutionRegister() {}
 
-  size_t getType(int i,int j) const
+  size_t getType(int i, int j) const
   {
-    return matrix_(i,j);
+    return matrix_(static_cast<size_t>(i), static_cast<size_t>(j));
   }
 
   size_t getNumberOfSubstitutionTypes() const

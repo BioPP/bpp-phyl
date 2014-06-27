@@ -324,9 +324,9 @@ public:
     std::vector<std::string> names = leaves;
     for (size_t n = names.size(); n > size; --n)
     {
-      size_t i = RandomTools::giveIntRandomNumberBetweenZeroAndEntry(n);
+      size_t i = static_cast<size_t>(RandomTools::giveIntRandomNumberBetweenZeroAndEntry(n));
       dropLeaf(tree, names[i]);
-      names.erase(names.begin() + i);
+      names.erase(names.begin() + static_cast<ptrdiff_t>(i));
     }
   }
 
