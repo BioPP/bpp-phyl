@@ -434,7 +434,7 @@ public:
     if (pos >= sons_.size())
       throw IndexOutOfBoundsException("Node::setSon(). Invalid node position.", pos, 0, sons_.size() - 1);
     std::vector<Node*>::iterator search = find(sons_.begin(), sons_.end(), node);
-    if (search == sons_.end() || search == sons_.begin() + pos)
+    if (search == sons_.end() || search == sons_.begin() + static_cast<ptrdiff_t>(pos))
       sons_[pos] = node;
     else
       throw NodePException("Node::setSon. Trying to set a node which is already present.");
