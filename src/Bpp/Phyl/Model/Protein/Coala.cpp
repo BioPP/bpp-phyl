@@ -212,6 +212,13 @@ void Coala::updateMatrices()
 
 /******************************************************************************/
 
+void setFreqFromData(const SequenceContainer& data, double pseudoCount = 0)
+{
+}
+
+
+/******************************************************************************/
+
 void Coala::setFreqFromData(const SequenceContainer& data, bool param)
 {
   // Compute the COA from the observed frequencies, add the axis position parameters and update the Markov matrix
