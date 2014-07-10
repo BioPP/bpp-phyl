@@ -597,7 +597,6 @@ SubstitutionModel* BppOSubstitutionModelFormat::read(
         if (exchangeability == "Empirical" && TextTools::isEmpty(file))
           throw Exception("'file' argument missing to specify the exchangeabilities of the user-defined empirical model.");
         model.reset(new Coala(alpha, TextTools::toInt(nbrOfParametersPerBranch), exchangeability, file));
-        //dynamic_cast<Coala*>(model.get())->setFreqFromData(*data);
         model.get()->setFreqFromData(*data);
       }
 
