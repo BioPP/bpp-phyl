@@ -1435,3 +1435,46 @@ void SubstitutionMappingTools::outputTotalCountsPerBranchPerSite(
 
 /**************************************************************************************************/
 
+void SubstitutionMappingTools::outputIndividualCountsPerBranchPerSite(
+    const string& filenamePrefix,
+    DRTreeLikelihood& drtl,
+    const vector<int>& ids,
+    SubstitutionModel* model,
+    const SubstitutionRegister& reg) {
+  auto_ptr<SubstitutionCount> count;
+
+  count.reset(new UniformizationSubstitutionCount(model, reg.clone()));
+
+  auto_ptr<ProbabilisticSubstitutionMapping> smap(SubstitutionMappingTools::computeSubstitutionVectors(drtl, ids, *count, false));
+
+
+  ofstream file;
+
+
+  size_t nbSites = smap->getNumberOfSites();
+  size_t nbBr = ids.size();
+
+  for (size_t i = 0; i < reg.getNumberOfSubstitutionTypes(); ++i)
+  {
+    string path = filenamePrefix + TextTools::toString(i + 1) + string(".count");
+    ApplicationTools::displayResult(string("Output counts of type ") + TextTools::toString(i + 1) + string(" to file"), path);
+    file.open(path.c_str());
+
+    file << "sites";
+    for (size_t k = 0; k < nbBr; ++k)
+      file << "\t" << k ;
+    file << endl;
+  
+    for (size_t j = 0; j < nbSites; ++j) {
+      file << j;
+      for (size_t k = 0; k < nbBr; ++k) {
+        file << "\t" << (*smap)(ids[k], j, i);
+      }
+      file << endl;
+    }
+    file.close();
+  }
+}
+
+/**************************************************************************************************/
+
