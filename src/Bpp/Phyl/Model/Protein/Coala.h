@@ -102,8 +102,8 @@ public:
   string getName() const {return "Coala"; }
   string getExch() const {return exch_; }
   void setFreqFromData(const SequenceContainer& data, double pseudoCount = 0);
-  void setFreqFromData(const SequenceContainer& data, bool param = true);
-  string getEmpiricalMatrixFile() const {return file_; }
+  void setFreqFromData(const SequenceContainer& data, bool param);
+  string getEmpiricalMatrixFile() const { return file_; }
 
 protected:
   void readFromFile(string& file);

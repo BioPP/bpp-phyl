@@ -212,7 +212,7 @@ void Coala::updateMatrices()
 
 /******************************************************************************/
 
-void setFreqFromData(const SequenceContainer& data, double pseudoCount = 0)
+void Coala::setFreqFromData(const SequenceContainer& data, double pseudoCount)
 {
 }
 
