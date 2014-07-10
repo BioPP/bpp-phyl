@@ -1440,16 +1440,12 @@ void SubstitutionMappingTools::outputIndividualCountsPerBranchPerSite(
     DRTreeLikelihood& drtl,
     const vector<int>& ids,
     SubstitutionModel* model,
-    const SubstitutionRegister& reg) {
-  auto_ptr<SubstitutionCount> count;
-
-  count.reset(new UniformizationSubstitutionCount(model, reg.clone()));
-
+    const SubstitutionRegister& reg)
+{
+  auto_ptr<SubstitutionCount> count(new UniformizationSubstitutionCount(model, reg.clone()));
   auto_ptr<ProbabilisticSubstitutionMapping> smap(SubstitutionMappingTools::computeSubstitutionVectors(drtl, ids, *count, false));
 
-
   ofstream file;
-
 
   size_t nbSites = smap->getNumberOfSites();
   size_t nbBr = ids.size();
