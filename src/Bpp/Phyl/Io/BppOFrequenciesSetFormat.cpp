@@ -378,6 +378,12 @@ FrequenciesSet* BppOFrequenciesSetFormat::read(const Alphabet* alphabet, const s
         unparsedArguments_["123_Full.theta1"] = args["123_theta1"];
       if (args.find("123_theta2") != args.end())
         unparsedArguments_["123_Full.theta2"] = args["123_theta2"];
+      if (args.find("theta") != args.end())
+        unparsedArguments_["123_Full.theta"] = args["123_theta"];
+      if (args.find("theta1") != args.end())
+        unparsedArguments_["123_Full.theta1"] = args["123_theta1"];
+      if (args.find("theta2") != args.end())
+        unparsedArguments_["123_Full.theta2"] = args["123_theta2"];
     }
     else if (freqName == "F3X4")
     {

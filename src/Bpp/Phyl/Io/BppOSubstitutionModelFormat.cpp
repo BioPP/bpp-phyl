@@ -660,8 +660,8 @@ SubstitutionModel* BppOSubstitutionModelFormat::read(
         found = true;
       }
     }
-    if (!TextTools::isDecimalNumber(pval) && !found)
-      throw Exception("Incorrect parameter syntax: parameter " + pval + " was not found and can't be used as a value for parameter " + pname + ".");
+    // if (!TextTools::isDecimalNumber(pval) && !found)
+    //   throw Exception("Incorrect parameter syntax: parameter " + pval + " was not found and can't be used as a value for parameter " + pname + ".");
   }
 
   // 2 following tests be removed in a later version
@@ -1340,16 +1340,25 @@ void BppOSubstitutionModelFormat::initialize_(
     bool test1 = (initFreqs == "");
     bool test2 = (model.getParameterNameWithoutNamespace(pName).size() < posp + 6) || (model.getParameterNameWithoutNamespace(pName).substr(posp + 1, 5) != "theta");
     bool test3 = (unparsedArguments_.find(pName) != unparsedArguments_.end());
-    if (test1 || test2 || test3)
-    {
-      if (!test1 && !test2 && test3)
-        ApplicationTools::displayWarning("Warning, initFreqs argument is set and a value is set for parameter " + pName);
-      double value = ApplicationTools::getDoubleParameter(pName, unparsedArguments_, pl[i].getValue(), "", true, warningLevel_);
-      pl[i].setValue(value);
+    try {
+      if (test1 || test2 || test3)
+      {
+        if (!test1 && !test2 && test3)
+          ApplicationTools::displayWarning("Warning, initFreqs argument is set and a value is set for parameter " + pName);
+
+        double value = ApplicationTools::getDoubleParameter(pName, unparsedArguments_, pl[i].getValue(), "", true, warningLevel_);
+        pl[i].setValue(value);
+        
+        if (unparsedArguments_.find(pName) != unparsedArguments_.end())
+          unparsedArguments_.erase(unparsedArguments_.find(pName));
+      }
+      if (verbose_)
+        ApplicationTools::displayResult("Parameter found", pName + "=" + TextTools::toString(pl[i].getValue()));
     }
-    if (verbose_)
-      ApplicationTools::displayResult("Parameter found", pName + "=" + TextTools::toString(pl[i].getValue()));
+  
+    catch (Exception& e) {}
   }
+  
 
   model.matchParametersValues(pl);
 }
