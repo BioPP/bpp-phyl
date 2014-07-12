@@ -412,7 +412,23 @@ namespace bpp
 
    
 
-  };
+    /**
+     * @brief Output individual counts par branch per site, in files.
+     *
+     * @param filenamePrefix    The filename prefix
+     * @param drtl              A DRTreeLikelihood object.
+     * @param ids               The numbers of the nodes of the tree
+     * @param model             The model on which the SubstitutionCount is built
+     * @param reg               the Substitution Register
+     * @author Iakov Davydov
+     */
+    static void outputIndividualCountsPerBranchPerSite(
+        const std::string& filenamePrefix,
+        DRTreeLikelihood& drtl,
+        const std::vector<int>& ids,
+        SubstitutionModel* model,
+        const SubstitutionRegister& reg);
+     };
 
 } //end of namespace bpp.
 
