@@ -325,6 +325,13 @@ protected:
 public:
   double getScale() const;
 
+  /*
+   * @brief Multiplies the current generator by the given scale.
+   *
+   * @param scale the scale by which the generator is multiplied.
+   *
+   */
+  
   void setScale(double scale);
 
   virtual double getRate() const;

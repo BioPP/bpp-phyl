@@ -94,7 +94,7 @@ public:
 public:
   std::string getName() const { return std::string(weighted_ ? "W" : "U") + "PGMA"; }
 
-  void setDistanceMatrix(const DistanceMatrix& matrix)
+  void setDistanceMatrix(const DistanceMatrix& matrix) throw (Exception)
   {
     AbstractAgglomerativeDistanceMethod::setDistanceMatrix(matrix);
   }

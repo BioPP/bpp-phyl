@@ -7,8 +7,8 @@
 //
 
 /*
-   Copyright or � or Copr. CNRS, (November 16, 2004)
-   PCA
+   Copyright or © or Copr. Bio++ Development Team, (November 16, 2004)
+
    This software is a computer program whose purpose is to provide classes
    for phylogenetic data analysis.
 
@@ -82,12 +82,14 @@ protected:
   unsigned int nbrOfAxes_;
   string exch_;
   string file_;
+  bool param_;
 
 public:
   Coala(const ProteicAlphabet* alpha,
         unsigned int nbAxes = 0,
         const string exch = "LG08",
-        string file = "");
+        string file = "",
+        bool param = true);
 
   virtual ~Coala() {}
 
@@ -101,8 +103,8 @@ public:
 public:
   string getName() const {return "Coala"; }
   string getExch() const {return exch_; }
-  void setFreqFromData(const SequenceContainer& data, bool param = true);
-  string getEmpiricalMatrixFile() const {return file_; }
+  void setFreqFromData(const SequenceContainer& data, double pseudoCount = 0);
+  string getEmpiricalMatrixFile() const { return file_; }
 
 protected:
   void readFromFile(string& file);

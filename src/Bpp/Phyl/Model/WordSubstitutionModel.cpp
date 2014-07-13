@@ -137,10 +137,10 @@ void WordSubstitutionModel::completeMatrices()
   {
     freq_[i] = 1;
     j = i;
-    for (p = nbmod - 1; p >= 0; p--)
+    for (p = nbmod; p > 0; p--)
     {
-      m = VSubMod_[p]->getNumberOfStates();
-      freq_[i] *= VSubMod_[p]->getFrequencies()[j % m];
+      m = VSubMod_[p-1]->getNumberOfStates();
+      freq_[i] *= VSubMod_[p-1]->getFrequencies()[j % m];
       j /= m;
     }
   }

@@ -71,20 +71,23 @@ private:
   bool verbose_;
   std::map<std::string, std::string> unparsedArguments_;
   const GeneticCode* geneticCode_;
+  int warningLevel_;
 
 public:
-  BppOFrequenciesSetFormat(unsigned char alphabetCode, bool verbose):
+  BppOFrequenciesSetFormat(unsigned char alphabetCode, bool verbose, int warn):
     alphabetCode_(alphabetCode),
     verbose_(verbose),
     unparsedArguments_(),
-    geneticCode_(0)
+    geneticCode_(0),
+    warningLevel_(warn)
   {}
 
   BppOFrequenciesSetFormat(const BppOFrequenciesSetFormat& format):
     alphabetCode_(format.alphabetCode_),
     verbose_(format.verbose_),
     unparsedArguments_(format.unparsedArguments_),
-    geneticCode_(format.geneticCode_)
+    geneticCode_(format.geneticCode_),
+    warningLevel_(format.warningLevel_)
   {}
 
   BppOFrequenciesSetFormat& operator=(const BppOFrequenciesSetFormat& format)
@@ -93,6 +96,7 @@ public:
     verbose_           = format.verbose_;
     unparsedArguments_ = format.unparsedArguments_;
     geneticCode_       = format.geneticCode_;
+    warningLevel_      = format.warningLevel_;
     return *this;
   }
 

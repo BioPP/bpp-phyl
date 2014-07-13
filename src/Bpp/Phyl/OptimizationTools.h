@@ -85,7 +85,7 @@ class NaNListener: public OptimizationListener
     void optimizationInitializationPerformed(const OptimizationEvent &event) {}
     void optimizationStepPerformed(const OptimizationEvent &event) throw (Exception)
     {
-      if (isnan(optimizer_->getFunction()->getValue()))
+      if (std::isnan(optimizer_->getFunction()->getValue()))
       {
          cerr << "Oups... something abnormal happened!" << endl;
          function_->getParameters().printParameters(cerr);

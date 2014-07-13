@@ -1200,7 +1200,8 @@ namespace bpp
      *
      * @author Nicolas Rochette
      */
-    static void midRoot(TreeTemplate<Node>& tree, const std::string& criterion);
+
+    static void midRoot(TreeTemplate<Node>& tree, short criterion, bool forceBranchRoot);
 
     /**
      * @brief Get the caracteristic radius of a tree (average distance to the root minimizing the sum of squared distances).
@@ -1247,38 +1248,42 @@ namespace bpp
      * as the subtree of the root does not have one.
      *
      */
-    struct Moments_
-    {
-      double sum;
-      double squaresSum;
-      int numberOfLeaves;
-    };
-
-    /**
-     * @brief
-     * Computes the moment of a subtree
-     *
-     * @param node The root of the subtree
-     * @return A Moments_ structure
-     */
-    static Moments_ getSubtreeMoments (const Node* node);
-
-    /**
-     * @brief Find, in the branches of a subtree, the root that minimizes a criterion over the tree.
-     *
-     * @details
-     * The branches are explored recursively. For each branch leaving the input node, the method
-     * computes the best root position, possibly updates the bestRoot parameter, then recurses.
-     *
-     * @param tree The tree to which the subtree belongs. (The root is moved.)
-     * @param criterion The criterion to minimize. Legal values are "variance" and "sum of squares".
-     * @param node The root of the subtree.
-     * @param bestRoot The object storing the best root found, if it is better than the initial one, or otherwise left unchanged.
-     *
-     * @author Nicolas Rochette, Manolo Gouy
-     */
-    static void getBestRootInSubtree (bpp::TreeTemplate<bpp::Node>& tree, const std::string& criterion,  bpp::Node* node, std::pair<bpp::Node*, std::map<std::string, double> >& bestRoot);
+  struct Moments_
+  {
+    double sum;
+    double squaresSum;
+    int numberOfLeaves;
   };
+
+  /**
+   * @brief
+   * Computes the moment of a subtree
+   *
+   * @param node The root of the subtree
+   * @return A Moments_ structure
+   */
+  static Moments_ getSubtreeMoments_(const Node* node);
+
+  /**
+   * @brief Find, in the branches of a subtree, the root that minimizes a criterion over the tree.
+   *
+   * @details
+   * The branches are explored recursively. For each branch leaving the input node, the method
+   * computes the best root position, possibly updates the bestRoot parameter, then recurses.
+   *
+   * @param tree The tree to which the subtree belongs. (The root is moved.)
+   * @param criterion The criterion to minimize. Legal values are TreeTemplateTools::MIDROOT_VARIANCE and TreeTemplateTools::MIDROOT_SUM_OF_SQUARES.
+   * @param node The root of the subtree.
+   * @param bestRoot The object storing the best root found, if it is better than the initial one, or otherwise left unchanged.
+   *
+   * @author Nicolas Rochette, Manolo Gouy
+   */
+  static void getBestRootInSubtree_(bpp::TreeTemplate<bpp::Node>& tree, short criterion,  bpp::Node* node, std::pair<bpp::Node*, std::map<std::string, double> >& bestRoot);
+
+public:
+  static const short MIDROOT_VARIANCE;
+  static const short MIDROOT_SUM_OF_SQUARES;
+};
 } // end of namespace bpp.
 
 #endif // _TREETEMPLATETOOLS_H_

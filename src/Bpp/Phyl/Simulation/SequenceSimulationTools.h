@@ -5,7 +5,7 @@
 //
 
 /*
-Copyright or © or Copr. CNRS, (November 16, 2004)
+Copyright or © or Copr. Bio++ Development Team, (November 16, 2004)
 
 This software is a computer program whose purpose is to provide classes
 for phylogenetic data analysis.
@@ -76,7 +76,7 @@ class SequenceSimulationTools
 		 * @param rates     the rates to use, one for each site to simulate.
 		 * @return          A container with all simulated sites.
 		 */
-		static SiteContainer * simulateSites(const SiteSimulator & simulator, const std::vector<double> & rates);
+		static SiteContainer* simulateSites(const SiteSimulator& simulator, const std::vector<double>& rates);
 
 		/**
 		 * @brief Simulate a set of sites knowing their rate and ancestral state.
@@ -93,8 +93,20 @@ class SequenceSimulationTools
 		 * @param states    the ancestral states to use, one for each site to simulate.
 		 * @return          A container with all simulated sites.
 		 */
-		static SiteContainer * simulateSites(const SiteSimulator & simulator, const std::vector<double> & rates, const std::vector<int> & states)
+		static SiteContainer* simulateSites(const SiteSimulator& simulator, const std::vector<double>& rates, const std::vector<int>& states)
 			throw (Exception);
+
+    /**
+		 * @brief Simulate a set of sites knowing ancestral state.
+		 *
+		 * @see SequenceSimulator
+		 * @param simulator A SiteSimulator object to use to simulate sites.
+		 * @param states    the ancestral states to use, one for each site to simulate.
+		 * @return          A container with all simulated sites.
+		 */
+		static SiteContainer* simulateSites(const SiteSimulator& simulator, const std::vector<int>& states)
+			throw (Exception);
+
 };
 
 } //end of namespace bpp.

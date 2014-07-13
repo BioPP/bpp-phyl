@@ -79,7 +79,9 @@ public:
   /**
    * @brief Get a new dynamically created IDistanceMatrix object.
    *
-   * @param format The input file format, and whether names should be only less than 10 characters, or not (false=10 characters max).
+   * @param format The input file format, and whether names should be
+   *      only less than 10 characters, or not (false=10 characters max).
+   * @param extended format (default false).
    * @return A pointer toward a new IDistanceMatrix object.
    * @throw Exception If the format name do not match any available format.
    */
@@ -88,7 +90,9 @@ public:
   /**
    * @brief Get a new dynamically created ODistanceMatrix object.
    *
-   * @param format The output file format, and whether names should be only less than 10 characters, or not (false=10 characters max).
+   * @param format The output file format, and whether names should be
+   *        only less than 10 characters, or not (false=10 characters max).
+   * @param extended format (default false).
    * @return A pointer toward a new ODistanceMatrix object.
    * @throw Exception If the format name do not match any available format.
    */

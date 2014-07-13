@@ -5,7 +5,7 @@
 //
 
 /*
-   Copyright or © or Copr. CNRS, (November 16, 2004)
+   Copyright or © or Copr. Bio++ Development Team, (November 16, 2004)
 
    This software is a computer program whose purpose is to provide classes
    for phylogenetic data analysis.
@@ -722,7 +722,7 @@ void TreeTools::midpointRooting(Tree& tree)
   if (tree.isRooted())
     tree.unroot();
   DistanceMatrix* dist = getDistanceMatrix(tree);
-  vector<size_t> pos = MatrixTools::whichMax(*dist);
+  vector<size_t> pos = MatrixTools::whichMax(dist->asMatrix());
   double dmid = (*dist)(pos[0], pos[1]) / 2;
   int id1 = tree.getLeafId(dist->getName(pos[0]));
   int id2 = tree.getLeafId(dist->getName(pos[1]));

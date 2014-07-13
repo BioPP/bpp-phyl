@@ -390,7 +390,7 @@ public:
   void swapNodes(int parentId, size_t i1, size_t i2) throw (NodeNotFoundException, IndexOutOfBoundsException)
   {
     std::vector<N*> nodes = TreeTemplateTools::searchNodeWithId<N>(*root_, parentId);
-    if (nodes.size() == 0) throw NodeNotFoundException("TreeTemplate:swapNodes(): Node with id not found.", "" + parentId);
+    if (nodes.size() == 0) throw NodeNotFoundException("TreeTemplate:swapNodes(): Node with id not found.", TextTools::toString(parentId));
     for (size_t i = 0; i < nodes.size(); i++) { nodes[i]->swap(i1, i2); }
   }
 

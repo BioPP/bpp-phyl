@@ -5,7 +5,7 @@
 //
 
 /*
-   Copyright or � or Copr. Bio++ Development Team, (November 16, 2004)
+   Copyright or © or Copr. Bio++ Development Team, (November 16, 2004)
 
    This software is a computer program whose purpose is to provide classes
    for phylogenetic data analysis.
@@ -66,7 +66,8 @@ Coala::Coala(
   const ProteicAlphabet* alpha,
   unsigned int nbAxes,
   string exch,
-  string file) :
+  string file,
+  bool param) :
   AbstractParameterAliasable("Coala."),
   AbstractSubstitutionModel(alpha, "Coala."),
   ProteinSubstitutionModel(),
@@ -75,7 +76,8 @@ Coala::Coala(
   init_(true),
   nbrOfAxes_(nbAxes),
   exch_(exch),
-  file_(file)
+  file_(file),
+  param_(param)
 {
   setNamespace(getName() + ".");
 
@@ -212,10 +214,10 @@ void Coala::updateMatrices()
 
 /******************************************************************************/
 
-void Coala::setFreqFromData(const SequenceContainer& data, bool param)
+void Coala::setFreqFromData(const SequenceContainer& data, double pseudoCount)
 {
   // Compute the COA from the observed frequencies, add the axis position parameters and update the Markov matrix
-  ParameterList pList = computeCOA(data, param);
+  ParameterList pList = computeCOA(data, param_);
   addParameters_(pList);
   updateMatrices();
 }

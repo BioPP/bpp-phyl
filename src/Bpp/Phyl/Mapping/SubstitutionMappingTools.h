@@ -67,7 +67,7 @@ namespace bpp
     virtual ~SubstitutionMappingTools() {}
     
   public:
-		
+ 
     /**
      * @brief Compute the substitutions vectors for a particular dataset using the
      * double-recursive likelihood computation.
@@ -81,8 +81,31 @@ namespace bpp
     static ProbabilisticSubstitutionMapping* computeSubstitutionVectors(
         const DRTreeLikelihood& drtl,
         SubstitutionCount& substitutionCount,
+        bool verbose = true) throw (Exception)
+    {
+      std::vector<int> nodeIds;
+      return computeSubstitutionVectors(drtl, nodeIds, substitutionCount, verbose);
+    }
+  
+    /**
+     * @brief Compute the substitutions vectors for a particular dataset using the
+     * double-recursive likelihood computation.
+     *
+     * @param drtl              A DRTreeLikelihood object.
+     * @param nodeIds           The Ids of the nodes the substitutions
+     *                          are counted on. If empty, count substitutions
+     *                          on all nodes.
+     * @param substitutionCount The SubstitutionCount to use.
+     * @param verbose           Print info to screen.
+     * @return A vector of substitutions vectors (one for each site).
+     * @throw Exception If the likelihood object is not initialized.
+     */
+    static ProbabilisticSubstitutionMapping* computeSubstitutionVectors(
+        const DRTreeLikelihood& drtl,
+        const std::vector<int>& nodeIds,
+        SubstitutionCount& substitutionCount,
         bool verbose = true) throw (Exception);
-		
+  
     /**
      * @brief Compute the substitutions vectors for a particular dataset using the
      * double-recursive likelihood computation.
@@ -108,7 +131,7 @@ namespace bpp
         SubstitutionCount& substitutionCount,
         bool verbose = true) throw (Exception);
 
-		
+  
     /**
      * @brief Compute the substitutions vectors for a particular dataset using the
      * double-recursive likelihood computation.
@@ -132,7 +155,7 @@ namespace bpp
         SubstitutionCount& substitutionCount,
         bool verbose = true) throw (Exception);
 
-		
+  
     /**
      * @brief Compute the substitutions vectors for a particular dataset using the
      * double-recursive likelihood computation.
@@ -152,7 +175,7 @@ namespace bpp
         const DRTreeLikelihood& drtl,
         SubstitutionCount& substitutionCount,
         bool verbose = true) throw (Exception);
-	
+ 
 
     /**
      * @brief This method computes for each site and for each branch the probability that
@@ -166,7 +189,7 @@ namespace bpp
                                                                               bool verbose = true) throw (Exception)
     {
       OneJumpSubstitutionCount ojsm(0);
-      return computeSubstitutionVectors(drtl, ojsm, 0);
+      return computeSubstitutionVectors(drtl, drtl.getTree().getNodesId(), ojsm, 0);
     }
 
 
@@ -187,7 +210,7 @@ namespace bpp
                               size_t type,
                               std::ostream& out)
       throw (IOException);
-	
+ 
 
     /**
      * @brief Read the substitutions vectors from a stream.
@@ -261,7 +284,8 @@ namespace bpp
         const std::vector<int>& ids,
         SubstitutionModel* model,
         const SubstitutionRegister& reg,
-        double threshold = -1);
+        double threshold = -1,
+        bool verbose = true);
 
 
     /**
@@ -279,7 +303,8 @@ namespace bpp
         DRTreeLikelihood& drtl,
         const std::vector<int>& ids,
         const SubstitutionModel* nullModel,
-        const SubstitutionRegister& reg);
+        const SubstitutionRegister& reg,
+        bool verbose = true);
 
 
     /**
@@ -297,7 +322,8 @@ namespace bpp
         DRTreeLikelihood& drtl,
         const std::vector<int>& ids,
         const SubstitutionModelSet* nullModelSet,
-        const SubstitutionRegister& reg);
+        const SubstitutionRegister& reg,
+        bool verbose = true);
 
     
     /**
@@ -306,11 +332,11 @@ namespace bpp
      * @param drtl              A DRTreeLikelihood object.
      * @param ids               The numbers of the nodes of the tree
      * @param model             The model on which the SubstitutionCount is built
-     * @param nullModel         The model on which the SubstitutionCount is built
+     * @param nullModel         The null model used for normalization.
      * @param reg               the Substitution Register
-     * @param complete          boolean to say if the counts have to
-     *                          be normalized such that the sum of all possible substitution
-     *                          counts = branch length.
+     * @param complete          boolean if the counts should be
+     *                              completed to sum 1.
+     *
      */
     
     static std::vector< std::vector<double> >  getNormalizedCountsPerBranch(
@@ -319,20 +345,20 @@ namespace bpp
         SubstitutionModel* model,
         SubstitutionModel* nullModel,
         const SubstitutionRegister& reg,
-        bool complete = false);
-
+        bool complete = true,
+        bool verbose = true);
 
     /**
      * @brief Returns the counts normalized by a null model set
      *
      * @param drtl              A DRTreeLikelihood object.
      * @param ids               The numbers of the nodes of the tree
-     * @param model             The model on which the SubstitutionCount is built
-     * @param nullModelSet      The model on which the SubstitutionCount is built
+     * @param modelSet          The model set on which the SubstitutionCount is built
+     * @param nullModelSet      The null model set used for normalization.
      * @param reg               the Substitution Register
-     * @param complete          boolean to say if the counts have to
-     *                          be normalized such that the sum of all possible substitution
-     *                          counts = branch length.
+     * @param complete          boolean if the counts should be
+     *                              completed to sum 1.
+     *
      */
     
     static std::vector< std::vector<double> > getNormalizedCountsPerBranch(
@@ -341,7 +367,8 @@ namespace bpp
         SubstitutionModelSet* modelSet,
         SubstitutionModelSet* nullModelSet,
         const SubstitutionRegister& reg,
-        bool complete = false);
+        bool complete = true,
+        bool verbose = true);
 
     /**
      * @brief Returns the counts relative to the frequency of the
@@ -385,7 +412,23 @@ namespace bpp
 
    
 
-  };
+    /**
+     * @brief Output individual counts par branch per site, in files.
+     *
+     * @param filenamePrefix    The filename prefix
+     * @param drtl              A DRTreeLikelihood object.
+     * @param ids               The numbers of the nodes of the tree
+     * @param model             The model on which the SubstitutionCount is built
+     * @param reg               the Substitution Register
+     * @author Iakov Davydov
+     */
+    static void outputIndividualCountsPerBranchPerSite(
+        const std::string& filenamePrefix,
+        DRTreeLikelihood& drtl,
+        const std::vector<int>& ids,
+        SubstitutionModel* model,
+        const SubstitutionRegister& reg);
+     };
 
 } //end of namespace bpp.
 

@@ -62,6 +62,7 @@ using namespace std;
 
 ProbabilisticSubstitutionMapping* SubstitutionMappingTools::computeSubstitutionVectors(
   const DRTreeLikelihood& drtl,
+  const vector<int>& nodeIds,
   SubstitutionCount& substitutionCount,
   bool verbose) throw (Exception)
 {
@@ -110,17 +111,18 @@ ProbabilisticSubstitutionMapping* SubstitutionMappingTools::computeSubstitutionV
 
   // Compute the number of substitutions for each class and each branch in the tree:
   if (verbose) ApplicationTools::displayTask("Compute joint node-pairs likelihood", true);
-  
-  for (size_t l = 0; l < nbNodes; l++)
+ 
+  for (size_t l = 0; l < nbNodes; ++l)
   {
-    //For each node,
+    // For each node,
     const Node* currentNode = nodes[l];
+    if (nodeIds.size() > 0 && !VectorTools::contains(nodeIds, currentNode->getId())) continue;
 
     const Node* father = currentNode->getFather();
 
     double d = currentNode->getDistanceToFather();
  
-    if (verbose) ApplicationTools::displayGauge(l, nbNodes-1, '>');
+    if (verbose) ApplicationTools::displayGauge(l, nbNodes - 1);
     VVdouble substitutionsForCurrentNode(nbDistinctSites);
     for (size_t i = 0; i < nbDistinctSites; ++i)
       substitutionsForCurrentNode[i].resize(nbTypes);
@@ -394,7 +396,7 @@ ProbabilisticSubstitutionMapping* SubstitutionMappingTools::computeSubstitutionV
 
     double d = currentNode->getDistanceToFather();
     
-    if (verbose) ApplicationTools::displayGauge(l, nbNodes-1, '>');
+    if (verbose) ApplicationTools::displayGauge(l, nbNodes - 1);
     VVdouble substitutionsForCurrentNode(nbDistinctSites);
     for (size_t i = 0; i < nbDistinctSites; ++i)
       substitutionsForCurrentNode[i].resize(nbTypes);
@@ -689,7 +691,7 @@ ProbabilisticSubstitutionMapping* SubstitutionMappingTools::computeSubstitutionV
     vector<size_t> fatherStates = ancestors[father->getId()];
     
     //For each node,
-    if (verbose) ApplicationTools::displayGauge(l, nbNodes-1, '>');
+    if (verbose) ApplicationTools::displayGauge(l, nbNodes - 1);
     VVdouble substitutionsForCurrentNode(nbDistinctSites);
     for (size_t i = 0; i < nbDistinctSites; ++i)
       substitutionsForCurrentNode[i].resize(nbTypes);
@@ -794,7 +796,7 @@ ProbabilisticSubstitutionMapping* SubstitutionMappingTools::computeSubstitutionV
     double d = currentNode->getDistanceToFather();
     
     //For each node,
-    if (verbose) ApplicationTools::displayGauge(l, nbNodes-1, '>');
+    if (verbose) ApplicationTools::displayGauge(l, nbNodes - 1);
     VVdouble substitutionsForCurrentNode(nbDistinctSites);
     for (size_t i = 0; i < nbDistinctSites; ++i)
       substitutionsForCurrentNode[i].resize(nbTypes);
@@ -1019,15 +1021,19 @@ vector< vector<double> > SubstitutionMappingTools::getCountsPerBranch(
                                                           const vector<int>& ids,
                                                           SubstitutionModel* model,
                                                           const SubstitutionRegister& reg,
-                                                          double threshold)
+                                                          double threshold,
+                                                          bool verbose)
 {
-  auto_ptr<SubstitutionCount> count(new UniformizationSubstitutionCount(model, reg.clone()));
+  SubstitutionRegister* reg2=reg.clone();
 
-  auto_ptr<ProbabilisticSubstitutionMapping> mapping(SubstitutionMappingTools::computeSubstitutionVectors(drtl, *count, false));
+  auto_ptr<SubstitutionCount> count(new UniformizationSubstitutionCount(model, reg2));
+
+  auto_ptr<ProbabilisticSubstitutionMapping> mapping(SubstitutionMappingTools::computeSubstitutionVectors(drtl, ids, *count, false));
 
   vector< vector<double> > counts(ids.size());
   size_t nbSites = mapping->getNumberOfSites();
   size_t nbTypes = mapping->getNumberOfSubstitutionTypes();
+  
   for (size_t k = 0; k < ids.size(); ++k) {
     vector<double> countsf(nbTypes, 0);
     vector<double> tmp(nbTypes, 0);
@@ -1036,7 +1042,7 @@ vector< vector<double> > SubstitutionMappingTools::getCountsPerBranch(
     for (size_t i = 0; !error && i < nbSites; ++i) {
       double s = 0;
       for (size_t t = 0; t < nbTypes; ++t) {
-        tmp[t] = (*mapping)(k, i, t);
+        tmp[t] = (*mapping)(ids[k], i, t);
         error = isnan(tmp[t]);
         if (error)
           goto ERROR;
@@ -1056,20 +1062,23 @@ vector< vector<double> > SubstitutionMappingTools::getCountsPerBranch(
   ERROR:
     if (error) {
       //We do nothing. This happens for small branches.
-      ApplicationTools::displayWarning("On branch " + TextTools::toString(ids[k]) + ", counts could not be computed.");
+      if (verbose)
+        ApplicationTools::displayWarning("On branch " + TextTools::toString(ids[k]) + ", counts could not be computed.");
       for (size_t t = 0; t < nbTypes; ++t)
         countsf[t] = 0;
     } else {
       if (nbIgnored > 0) {
-        ApplicationTools::displayWarning("On branch " + TextTools::toString(ids[k]) + ", " + TextTools::toString(nbIgnored) + " sites (" + TextTools::toString(ceil(static_cast<double>(nbIgnored * 100) / static_cast<double>(nbSites))) + "%) have been ignored because they are presumably saturated.");
+        if (verbose)
+          ApplicationTools::displayWarning("On branch " + TextTools::toString(ids[k]) + ", " + TextTools::toString(nbIgnored) + " sites (" + TextTools::toString(ceil(static_cast<double>(nbIgnored * 100) / static_cast<double>(nbSites))) + "%) have been ignored because they are presumably saturated.");
       }
     }
-    
+
     counts[k].resize(countsf.size());
     for (size_t j = 0; j < countsf.size(); ++j) {
       counts[k][j] = countsf[j]; 
     }
   }
+
   return counts;
 }
 
@@ -1079,7 +1088,8 @@ vector< vector<double> > SubstitutionMappingTools::getNormalizationsPerBranch(
                                                                   DRTreeLikelihood& drtl,
                                                                   const vector<int>& ids,
                                                                   const SubstitutionModel* nullModel,
-                                                                  const SubstitutionRegister& reg)
+                                                                  const SubstitutionRegister& reg,
+                                                                  bool verbose)
 {
   size_t nbTypes = reg.getNumberOfSubstitutionTypes();
   size_t nbStates = nullModel->getAlphabet()->getSize();
@@ -1091,51 +1101,54 @@ vector< vector<double> > SubstitutionMappingTools::getNormalizationsPerBranch(
   for (size_t i=0; i<nbStates; i++)
     for (size_t j=0; j<nbStates; j++)
       if (i!=j)
-        {
-          size_t nbt=reg.getType((int)i,(int)j);
-          if (nbt!=0)
-            usai[nbt-1].setIndex((int)i,usai[nbt-1].getIndex((int)i)+nullModel->Qij((int)i,(int)j)); 
-        }
+      {
+        size_t nbt=reg.getType((int)i,(int)j);
+        if (nbt!=0)
+          usai[nbt-1].setIndex((int)i,usai[nbt-1].getIndex((int)i)+nullModel->Qij((int)i,(int)j)); 
+      }
   
   // compute the normalization for each substitutionType
   vector< vector<double> > rewards(ids.size());
-
+  
   for (size_t k = 0; k < ids.size(); ++k)
     rewards[k].resize(nbTypes);
 
   for (size_t nbt=0; nbt< nbTypes; nbt++)
-    {
-      auto_ptr<Reward> reward(new DecompositionReward(nullModel, &usai[nbt]));
-
-      auto_ptr<ProbabilisticRewardMapping> mapping(RewardMappingTools::computeRewardVectors(drtl, *reward, false));
-      
-      for (size_t k = 0; k < ids.size(); ++k) {
-        double s = 0;
-        for (size_t i = 0; i < nbSites; ++i) {
-          double tmp = (*mapping)(k, i);
-          if (isnan(tmp))
-            {
-              ApplicationTools::displayWarning("On branch " + TextTools::toString(ids[k]) + ", reward for type " + reg.getTypeName(nbt) + " could not be computed.");
-              s=0;
-              break;
-            }
-          s += tmp;
+  {
+    auto_ptr<Reward> reward(new DecompositionReward(nullModel, &usai[nbt]));
+    
+    auto_ptr<ProbabilisticRewardMapping> mapping(RewardMappingTools::computeRewardVectors(drtl, ids, *reward, false));
+//    auto_ptr<ProbabilisticRewardMapping> mapping(RewardMappingTools::computeRewardVectors(drtl, *reward, false));
+    
+    for (size_t k = 0; k < ids.size(); ++k) {
+      double s = 0;
+      for (size_t i = 0; i < nbSites; ++i) {
+        double tmp = (*mapping)(k, i);
+        if (isnan(tmp))
+        {
+          if (verbose)
+            ApplicationTools::displayWarning("On branch " + TextTools::toString(ids[k]) + ", reward for type " + reg.getTypeName(nbt+1) + " could not be computed.");
+          s=0;
+          break;
         }
-        rewards[k][nbt]=s;
+        s += tmp;
       }
-      reward.release();
-      mapping.release();
+      rewards[k][nbt]=s;
     }
+    reward.release();
+    mapping.release();
+  }
   return rewards;
 }
 
 /**************************************************************************************************/
 
 vector< vector<double> > SubstitutionMappingTools::getNormalizationsPerBranch(
-                                                                  DRTreeLikelihood& drtl,
-                                                                  const vector<int>& ids,
-                                                                  const SubstitutionModelSet* nullModelSet,
-                                                                  const SubstitutionRegister& reg)
+  DRTreeLikelihood& drtl,
+  const vector<int>& ids,
+  const SubstitutionModelSet* nullModelSet,
+  const SubstitutionRegister& reg,
+  bool verbose)
 {
   size_t nbTypes = reg.getNumberOfSubstitutionTypes();
   size_t nbStates = nullModelSet->getAlphabet()->getSize();
@@ -1146,59 +1159,71 @@ vector< vector<double> > SubstitutionMappingTools::getNormalizationsPerBranch(
   vector<vector<UserAlphabetIndex1 > > usai(nbModels, vector<UserAlphabetIndex1>(nbTypes, UserAlphabetIndex1(nullModelSet->getAlphabet())));
 
   for (size_t nbm=0; nbm<nbModels; nbm++)
-    {
-      const SubstitutionModel* modn=nullModelSet->getModel(nbm);
-      for (size_t i=0; i<nbStates; i++)
-        for (size_t j=0; j<nbStates; j++)
-          if (i!=j)
-            {
-              size_t nbt=reg.getType((int)i,(int)j);
-              if (nbt!=0)
-                usai[nbm][nbt-1].setIndex((int)i,usai[nbm][nbt-1].getIndex((int)i)+modn->Qij((int)i,(int)j)); 
-            }
-    }
+  {
+    const SubstitutionModel* modn=nullModelSet->getModel(nbm);
+    
+    for (size_t i=0; i<nbStates; i++)
+      for (size_t j=0; j<nbStates; j++)
+        if (i!=j)
+        {
+          size_t nbt=reg.getType((int)i,(int)j);
+          if (nbt!=0)
+            usai[nbm][nbt-1].setIndex((int)i,usai[nbm][nbt-1].getIndex((int)i)+modn->Qij((int)i,(int)j)); 
+        }
+  }
 
-  
   // compute the normalization for each substitutionType
   vector< vector<double> > rewards(ids.size());
 
   for (size_t k = 0; k < ids.size(); ++k)
     rewards[k].resize(nbTypes);
 
-  for (size_t nbt=0; nbt< nbTypes; nbt++)
+  for (size_t nbt=0; nbt < nbTypes; nbt++)
+  {
+    for (size_t nbm=0; nbm < nbModels; nbm++)
     {
+      vector<int> mids=VectorTools::vectorIntersection(ids,nullModelSet->getNodesWithModel(nbm));
       
-      for (size_t k = 0; k < ids.size(); ++k) {
-        auto_ptr<Reward> reward(new DecompositionReward(nullModelSet->getModelForNode(ids[k]), &usai[nullModelSet->getModelIndexForNode(ids[k])][nbt]));
-        auto_ptr<ProbabilisticRewardMapping> mapping(RewardMappingTools::computeRewardVectors(drtl, *reward, false));
+      auto_ptr<Reward> reward(new DecompositionReward(nullModelSet->getModel(nbm), &usai[nbm][nbt]));
+      
+      auto_ptr<ProbabilisticRewardMapping> mapping(RewardMappingTools::computeRewardVectors(drtl, mids, *reward, false));
+
+      for (size_t k=0;k<mids.size();k++)
+      {
         double s = 0;
         for (size_t i = 0; i < nbSites; ++i) {
-          double tmp = (*mapping)(k, i);
+          double tmp = (*mapping)(mids[k],i);
           if (isnan(tmp))
-            {
-              ApplicationTools::displayWarning("On branch " + TextTools::toString(ids[k]) + ", reward for type " + reg.getTypeName(nbt) + " could not be computed.");
-              s=0;
-              break;
-            }
-          s += tmp;
+          {
+            if (verbose)
+              ApplicationTools::displayWarning("On branch " + TextTools::toString(mids[k]) + ", reward for type " + reg.getTypeName(nbt+1) + " could not be computed.");
+            s=0;
+            break;
+          }
+          else
+            s += tmp;
         }
-        rewards[k][nbt]=s;
-        reward.release();
-        mapping.release();
+
+        rewards[VectorTools::which(ids,mids[k])][nbt]=s;
       }
+      reward.release();
+      mapping.release();
     }
+  }
+
   return rewards;
 }
 
 /**************************************************************************************************/
 
 vector< vector<double> > SubstitutionMappingTools::getNormalizedCountsPerBranch(
-  DRTreeLikelihood& drtl,
-  const vector<int>& ids,
-  SubstitutionModel* model,
-  SubstitutionModel* nullModel,
-  const SubstitutionRegister& reg,
-  bool complete)
+                                                                     DRTreeLikelihood& drtl,
+                                                                     const vector<int>& ids,
+                                                                     SubstitutionModel* model,
+                                                                     SubstitutionModel* nullModel,
+                                                                     const SubstitutionRegister& reg,
+                                                                     bool complete,
+                                                                     bool verbose)
 {
   vector< vector<double> > counts;
   vector< vector<double> > factors;
@@ -1206,13 +1231,13 @@ vector< vector<double> > SubstitutionMappingTools::getNormalizedCountsPerBranch(
   if (complete)
   {
     CompleteSubstitutionRegister compreg=CompleteSubstitutionRegister(reg);
-    counts=getCountsPerBranch(drtl, ids, model, compreg, -1);
-    factors=getNormalizationsPerBranch(drtl, ids, nullModel, compreg);
+    counts=getCountsPerBranch(drtl, ids, model, compreg, -1, verbose);
+    factors=getNormalizationsPerBranch(drtl, ids, nullModel, compreg, verbose);
   }
   else
   {
-    counts=getCountsPerBranch(drtl, ids, model, reg, -1);
-    factors=getNormalizationsPerBranch(drtl, ids, nullModel, reg);
+    counts=getCountsPerBranch(drtl, ids, model, reg, -1, verbose);
+    factors=getNormalizationsPerBranch(drtl, ids, nullModel, reg, verbose);
   }
 
   size_t nbTypes = counts[0].size();
@@ -1257,12 +1282,13 @@ vector< vector<double> > SubstitutionMappingTools::getNormalizedCountsPerBranch(
 /**************************************************************************************************/
 
 vector< vector<double> > SubstitutionMappingTools::getNormalizedCountsPerBranch(
-  DRTreeLikelihood& drtl,
-  const vector<int>& ids,
-  SubstitutionModelSet* modelSet,
-  SubstitutionModelSet* nullModelSet,
-  const SubstitutionRegister& reg,
-  bool complete)
+                                                                     DRTreeLikelihood& drtl,
+                                                                     const vector<int>& ids,
+                                                                     SubstitutionModelSet* modelSet,
+                                                                     SubstitutionModelSet* nullModelSet,
+                                                                     const SubstitutionRegister& reg,
+                                                                     bool complete,
+                                                                     bool verbose)
 {
   vector< vector<double> > counts;
   vector< vector<double> > factors;
@@ -1270,13 +1296,13 @@ vector< vector<double> > SubstitutionMappingTools::getNormalizedCountsPerBranch(
   if (complete)
   {
     CompleteSubstitutionRegister compreg=CompleteSubstitutionRegister(reg);
-    counts=getCountsPerBranch(drtl, ids, modelSet->getModel(0), compreg, -1);
-    factors=getNormalizationsPerBranch(drtl, ids, nullModelSet, compreg);
+    counts=getCountsPerBranch(drtl, ids, modelSet->getModel(0), compreg, -1, verbose);
+    factors=getNormalizationsPerBranch(drtl, ids, nullModelSet, compreg, verbose);
   }
   else
   {
-    counts=getCountsPerBranch(drtl, ids, modelSet->getModel(0), reg, -1);
-    factors=getNormalizationsPerBranch(drtl, ids, nullModelSet, reg);
+    counts=getCountsPerBranch(drtl, ids, modelSet->getModel(0), reg, -1, verbose);
+    factors=getNormalizationsPerBranch(drtl, ids, nullModelSet, reg, verbose);
   }
 
   size_t nbTypes = counts[0].size();
@@ -1374,7 +1400,7 @@ void SubstitutionMappingTools::outputTotalCountsPerBranchPerSite(
                                                      const SubstitutionRegister& reg)
 {
   auto_ptr<SubstitutionCount> count(new UniformizationSubstitutionCount(model, reg.clone()));
-  auto_ptr<ProbabilisticSubstitutionMapping> smap(SubstitutionMappingTools::computeSubstitutionVectors(drtl, *count, false));
+  auto_ptr<ProbabilisticSubstitutionMapping> smap(SubstitutionMappingTools::computeSubstitutionVectors(drtl, ids, *count, false));
 
   ofstream file;
   file.open(filename.c_str());
@@ -1405,6 +1431,45 @@ void SubstitutionMappingTools::outputTotalCountsPerBranchPerSite(
     file << endl;
   }
   file.close();
+}
+
+/**************************************************************************************************/
+
+void SubstitutionMappingTools::outputIndividualCountsPerBranchPerSite(
+    const string& filenamePrefix,
+    DRTreeLikelihood& drtl,
+    const vector<int>& ids,
+    SubstitutionModel* model,
+    const SubstitutionRegister& reg)
+{
+  auto_ptr<SubstitutionCount> count(new UniformizationSubstitutionCount(model, reg.clone()));
+  auto_ptr<ProbabilisticSubstitutionMapping> smap(SubstitutionMappingTools::computeSubstitutionVectors(drtl, ids, *count, false));
+
+  ofstream file;
+
+  size_t nbSites = smap->getNumberOfSites();
+  size_t nbBr = ids.size();
+
+  for (size_t i = 0; i < reg.getNumberOfSubstitutionTypes(); ++i)
+  {
+    string path = filenamePrefix + TextTools::toString(i + 1) + string(".count");
+    ApplicationTools::displayResult(string("Output counts of type ") + TextTools::toString(i + 1) + string(" to file"), path);
+    file.open(path.c_str());
+
+    file << "sites";
+    for (size_t k = 0; k < nbBr; ++k)
+      file << "\t" << k ;
+    file << endl;
+  
+    for (size_t j = 0; j < nbSites; ++j) {
+      file << j;
+      for (size_t k = 0; k < nbBr; ++k) {
+        file << "\t" << (*smap)(ids[k], j, i);
+      }
+      file << endl;
+    }
+    file.close();
+  }
 }
 
 /**************************************************************************************************/

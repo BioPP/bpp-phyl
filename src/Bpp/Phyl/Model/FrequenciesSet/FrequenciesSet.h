@@ -159,10 +159,10 @@ public:
 
   void normalize()
   {
-    double x=0;
+    double x = 0;
     for (size_t i = 0; i < freq_.size(); i++)
-      x+=freq_[i];
-    freq_/=x;
+      x += freq_[i];
+    freq_ /= x;
   }
   
   // virtual void setNamespace(std::string& Namespace) {
@@ -179,8 +179,15 @@ protected:
 /**
  * @brief A generic FrequenciesSet allowing for the estimation of all frequencies.
  *
- * The FrequenciesSet has hence n-1 parameters, where n is the size of the input alphabet.
+ * The FrequenciesSet has hence n-1 parameters, where n is the size of
+ * the input alphabet.
+ *
+ * The parametrization depends on the method used.
+ * Default method is 1 (ie global ratio).
+ *
+ * @see Simplex
  */
+
 class FullFrequenciesSet :
   public AbstractFrequenciesSet
 {
