@@ -594,12 +594,12 @@ SubstitutionModel* BppOSubstitutionModelFormat::read(
         if (exchangeability == "Empirical" && TextTools::isEmpty(prefix))
           throw Exception("'name' argument missing to specify the exchangeabilities of the user-defined empirical model.");  
         BppOSubstitutionModelFormat nestedReader(PROTEIN, false, allowMixed_, allowGaps_, verbose_, warningLevel_);
-        auto_ptr<ReversibleSubstitutionModel> nestedModel(dynamic_cast<ReversibleSubstitutionModel*>(nestedReader.read(alphabet, exchangeability, data, false)));
+        auto_ptr<ProteinSubstitutionModel> nestedModel(dynamic_cast<ProteinSubstitutionModel*>(nestedReader.read(alphabet, exchangeability, data, false)));
         string nbrOfParametersPerBranch = args["nbrAxes"];
         if (TextTools::isEmpty(nbrOfParametersPerBranch))
           throw Exception("'nbrAxes' argument missing to define the number of axis of the Correspondence Analysis.");
         //Now we create the Coala model:
-        model.reset(new Coala(alpha, nestedModel.release(), TextTools::toInt(nbrOfParametersPerBranch)));
+        model.reset(new Coala(alpha, *nestedModel, TextTools::toInt(nbrOfParametersPerBranch)));
         model->setFreqFromData(*data);
       }
 
