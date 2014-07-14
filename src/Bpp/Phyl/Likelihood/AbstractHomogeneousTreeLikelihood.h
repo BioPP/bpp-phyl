@@ -197,8 +197,10 @@ class AbstractHomogeneousTreeLikelihood:
 		 * @{
 		 */
 		const SubstitutionModel* getSubstitutionModel() const { return model_; }
+		const SubstitutionModel* getSubstitutionModel(int nodeId, size_t siteIndex) const throw (NodeNotFoundException) { return model_; }
 		
 		SubstitutionModel* getSubstitutionModel() { return model_; }
+		SubstitutionModel* getSubstitutionModel(int nodeId, size_t siteIndex) throw (NodeNotFoundException) { return model_; }
 		
     void setSubstitutionModel(SubstitutionModel* model) throw (Exception);
     /** @} */

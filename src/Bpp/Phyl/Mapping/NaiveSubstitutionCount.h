@@ -137,7 +137,7 @@ namespace bpp
   public:
     double getNumberOfSubstitutions(int initialState, int finalState, double length, size_t type = 1) const
     {
-      return label_(initialState, finalState);
+      return label_(static_cast<size_t>(initialState), static_cast<size_t>(finalState));
     }
 
     Matrix<double>* getAllNumbersOfSubstitutions(double length, size_t type = 1) const
@@ -148,7 +148,7 @@ namespace bpp
     std::vector<double> getNumberOfSubstitutionsForEachType(int initialState, int finalState, double length) const
     {
       std::vector<double> v(1);
-      v[0] = label_(initialState, finalState);
+      v[0] = label_(static_cast<size_t>(initialState), static_cast<size_t>(finalState));
       return v;
     }
 
