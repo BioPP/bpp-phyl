@@ -86,9 +86,8 @@ protected:
 
 public:
   Coala(const ProteicAlphabet* alpha,
+        const ProteinSubstitutionModel& model,
         unsigned int nbAxes = 0,
-        const string exch = "LG08",
-        string file = "",
         bool param = true);
 
   virtual ~Coala() {}
