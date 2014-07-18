@@ -47,11 +47,8 @@
 #include "../AbstractSubstitutionModel.h"
 #include "CoalaCore.h"
 
-// From SeqLib:
+// From bpp-seq:
 #include <Bpp/Seq/Alphabet/ProteicAlphabet.h>
-
-using namespace std;
-
 
 namespace bpp
 {
@@ -80,15 +77,14 @@ class Coala :
 protected:
   bool init_;
   unsigned int nbrOfAxes_;
-  string exch_;
-  string file_;
+  std::string exch_;
+  std::string file_;
   bool param_;
 
 public:
   Coala(const ProteicAlphabet* alpha,
+        const ProteinSubstitutionModel& model,
         unsigned int nbAxes = 0,
-        const string exch = "LG08",
-        string file = "",
         bool param = true);
 
   virtual ~Coala() {}

@@ -64,59 +64,24 @@ using namespace std;
 
 Coala::Coala(
   const ProteicAlphabet* alpha,
+  const ProteinSubstitutionModel& model,  
   unsigned int nbAxes,
-  string exch,
-  string file,
   bool param) :
   AbstractParameterAliasable("Coala."),
   AbstractSubstitutionModel(alpha, "Coala."),
   ProteinSubstitutionModel(),
   AbstractReversibleSubstitutionModel(alpha, "Coala."),
-  CoalaCore(nbAxes, exch),
+  CoalaCore(nbAxes, model.getName()),
   init_(true),
   nbrOfAxes_(nbAxes),
-  exch_(exch),
-  file_(file),
+  exch_(model.getName()),
+  file_(),
   param_(param)
 {
   setNamespace(getName() + ".");
 
   // Setting the exchangeability matrix
-  if (exch == "JC69")
-  {
-    for (unsigned int i = 0; i < 20; i++)
-    {
-      for (unsigned int j = 0; j < 20; j++)
-      {
-        generator_(i, j) = (i == j) ? -1. : 1. / 19.;
-        exchangeability_(i, j) = generator_(i, j) * 20.;
-      }
-    }
-  }
-  else if (exch == "DSO78")
-  {
-#include "__DSO78ExchangeabilityCode"
-  }
-  else if (exch == "JTT92")
-  {
-#include "__JTT92ExchangeabilityCode"
-  }
-  else if (exch == "WAG01")
-  {
-#include "__WAG01ExchangeabilityCode"
-  }
-  else if (exch == "LG08")
-  {
-#include "__LG08ExchangeabilityCode"
-  }
-  else if (exch == "Empirical")
-  {
-    readFromFile(file_);
-  }
-  else
-  {
-    throw Exception("Model '" + exch + "' unknown.");
-  }
+  exchangeability_ = model.getExchangeabilityMatrix();
   updateMatrices();
 }
 
