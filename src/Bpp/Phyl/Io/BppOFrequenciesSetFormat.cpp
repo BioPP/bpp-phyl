@@ -487,7 +487,7 @@ void BppOFrequenciesSetFormat::write(const FrequenciesSet* pfreqset,
     return;
   }
   ParameterList pl = pfreqset->getParameters();
-  unsigned int p = out.getPrecision();
+  int p = out.getPrecision();
   out.setPrecision(12);
   bool flag(false);
   string name = pfreqset->getName();
@@ -598,7 +598,7 @@ void BppOFrequenciesSetFormat::initialize_(FrequenciesSet& freqSet, const SiteCo
         throw Exception("Missing data for observed frequencies");
       unsigned int psc = 0;
       if (unparsedArguments_.find("observedPseudoCount") != unparsedArguments_.end())
-        psc = TextTools::toInt(unparsedArguments_["observedPseudoCount"]);
+        psc = TextTools::to<unsigned int>(unparsedArguments_["observedPseudoCount"]);
 
       map<int, double> freqs;
       SequenceContainerTools::getFrequencies(*data, freqs, psc);
