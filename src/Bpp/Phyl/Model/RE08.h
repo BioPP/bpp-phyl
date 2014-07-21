@@ -97,7 +97,7 @@ class RE08:
   public AbstractReversibleSubstitutionModel
 {
   private:
-    ReversibleSubstitutionModel* simpleModel_;
+    std::auto_ptr<ReversibleSubstitutionModel> simpleModel_;
     RowMatrix<double> simpleGenerator_;
     RowMatrix<double> simpleExchangeabilities_;
     mutable double exp_;
@@ -139,7 +139,7 @@ class RE08:
       AbstractParameterAliasable::operator=(model);
       AbstractSubstitutionModel::operator=(model);
       AbstractReversibleSubstitutionModel::operator=(model);
-      simpleModel_             = dynamic_cast<ReversibleSubstitutionModel*>(model.simpleModel_->clone());
+      simpleModel_.reset(dynamic_cast<ReversibleSubstitutionModel*>(model.simpleModel_->clone()));
       simpleGenerator_         = model.simpleGenerator_;
       simpleExchangeabilities_ = model.simpleExchangeabilities_;
       exp_                     = model.exp_;
@@ -150,7 +150,7 @@ class RE08:
       return *this;
     }
 
-		virtual ~RE08() { delete simpleModel_; }
+		virtual ~RE08() {}
 
     RE08* clone() const { return new RE08(*this); }
 
@@ -170,7 +170,10 @@ class RE08:
      *
      * @param data The data to be passed to the simple model (gaps will be ignored).
      */
-    void setFreqFromData(const SequenceContainer& data) {}
+    void setFreqFromData(const SequenceContainer& data, double pseudoCount = 0)
+    {
+      simpleModel_->setFreqFromData(data, pseudoCount);
+    }
 	
     void fireParameterChanged(const ParameterList& parameters)
     {
@@ -187,7 +190,7 @@ class RE08:
   
     void setNamespace(const std::string& prefix);
 
-    const SubstitutionModel* getNestedModel() const { return simpleModel_; }
+    const SubstitutionModel* getNestedModel() const { return simpleModel_.get(); }
 
   protected:
 

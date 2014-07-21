@@ -208,7 +208,7 @@ void RN95s::updateMatrices()
 }
 
 /******************************************************************************/
-double RN95s::Pij_t(int i, int j, double d) const
+double RN95s::Pij_t(size_t i, size_t j, double d) const
 {
   l_ = rate_ * r_ * d;
   exp1_ = exp(-l_);
@@ -263,7 +263,7 @@ double RN95s::Pij_t(int i, int j, double d) const
 }
 
 /******************************************************************************/
-double RN95s::dPij_dt(int i, int j, double d) const
+double RN95s::dPij_dt(size_t i, size_t j, double d) const
 {
   l_ = rate_ * r_ * d;
   exp1_ = -1.* rate_* r_* exp(-1. * l_);
@@ -318,7 +318,7 @@ double RN95s::dPij_dt(int i, int j, double d) const
 }
 
 /******************************************************************************/
-double RN95s::d2Pij_dt2(int i, int j, double d) const
+double RN95s::d2Pij_dt2(size_t i, size_t j, double d) const
 {
   l_ = rate_ * r_ * d;
   exp1_ = 1. * rate_ * r_ * 1.* rate_* r_* exp(-1. * l_);

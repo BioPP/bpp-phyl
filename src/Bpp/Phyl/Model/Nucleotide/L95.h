@@ -5,7 +5,7 @@
 //
 
 /*
-Copyright or © or Copr. CNRS, (November 16, 2004)
+Copyright or © or Copr. Bio++ Development Team, (November 16, 2004)
 
 This software is a computer program whose purpose is to provide classes
 for phylogenetic data analysis.
@@ -45,7 +45,7 @@ knowledge of the CeCILL license and that you accept its terms.
 
 #include <Bpp/Numeric/Constraints.h>
 
-// From SeqLib:
+// From bpp-seq:
 #include <Bpp/Seq/Alphabet/NucleicAlphabet.h>
 
 namespace bpp

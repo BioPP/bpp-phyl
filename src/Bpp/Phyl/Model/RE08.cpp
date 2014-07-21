@@ -212,7 +212,7 @@ double RE08::d2Pij_dt2(size_t i, size_t j, double d) const
 
 /******************************************************************************/
 
-const Matrix<double> & RE08::getPij_t(double d) const
+const Matrix<double>& RE08::getPij_t(double d) const
 {
   RowMatrix<double> simpleP = simpleModel_->getPij_t(d);
   double f = (lambda_ == 0 && mu_ == 0) ? 1. : lambda_ / (lambda_ + mu_);
@@ -238,7 +238,7 @@ const Matrix<double> & RE08::getPij_t(double d) const
 
 /******************************************************************************/
 
-const Matrix<double> & RE08::getdPij_dt(double d) const
+const Matrix<double>& RE08::getdPij_dt(double d) const
 {
   RowMatrix<double> simpleP = simpleModel_->getPij_t(d);
   RowMatrix<double> simpleDP = simpleModel_->getdPij_dt(d);
@@ -266,7 +266,7 @@ const Matrix<double> & RE08::getdPij_dt(double d) const
 
 /******************************************************************************/
 
-const Matrix<double> & RE08::getd2Pij_dt2(double d) const
+const Matrix<double>& RE08::getd2Pij_dt2(double d) const
 {
   RowMatrix<double> simpleP = simpleModel_->getPij_t(d);
   RowMatrix<double> simpleDP = simpleModel_->getdPij_dt(d);

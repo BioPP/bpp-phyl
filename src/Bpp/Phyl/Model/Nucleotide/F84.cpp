@@ -192,7 +192,7 @@ void F84::updateMatrices()
   
 /******************************************************************************/
 
-double F84::Pij_t(int i, int j, double d) const
+double F84::Pij_t(size_t i, size_t j, double d) const
 {
   l_ = rate_ * r_ * d;
   exp1_ = exp(-k1_*l_);
@@ -241,7 +241,7 @@ double F84::Pij_t(int i, int j, double d) const
 
 /******************************************************************************/
 
-double F84::dPij_dt(int i, int j, double d) const
+double F84::dPij_dt(size_t i, size_t j, double d) const
 {
   l_ = rate_ * r_ * d;
   exp1_ = exp(-k1_*l_);
@@ -290,7 +290,7 @@ double F84::dPij_dt(int i, int j, double d) const
 
 /******************************************************************************/
 
-double F84::d2Pij_dt2(int i, int j, double d) const
+double F84::d2Pij_dt2(size_t i, size_t j, double d) const
 {
   double r_2 = rate_ * rate_ * r_ * r_;
   l_ = rate_ * r_ * d;

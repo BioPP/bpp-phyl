@@ -140,7 +140,7 @@ PairedSiteLikelihoods IOTreepuzzlePairedSiteLikelihoods::read(const std::string&
  */
 void IOTreepuzzlePairedSiteLikelihoods::write(const bpp::PairedSiteLikelihoods& psl, ostream& os, const string& delim)
 {
-  if (!psl.getLikelihoods().size() > 0)
+  if (psl.getLikelihoods().size() == 0)
     throw Exception("Writing an empty PairedSiteLikelihoods object to file.");
 
   // Header line
