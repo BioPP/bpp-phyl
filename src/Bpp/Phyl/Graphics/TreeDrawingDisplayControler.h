@@ -164,10 +164,10 @@ class BasicTreeDrawingDisplayControler :
     {
       if (!settings)
         throw NullPointerException("BasicTreeDrawingDisplayControler::constructor. Trying to use NULL settings.");
-      addListener(PROPERTY_NODE_IDS        , reinterpret_cast<TreeDrawingListener*>(new NodesIdTreeDrawingListener        (settings_, true)));
-      addListener(PROPERTY_LEAF_NAMES      , reinterpret_cast<TreeDrawingListener*>(new LeafNamesTreeDrawingListener      (settings_, true)));
-      addListener(PROPERTY_BRANCH_LENGTHS  , reinterpret_cast<TreeDrawingListener*>(new BranchLengthsTreeDrawingListener  (settings_, true)));
-      addListener(PROPERTY_BOOTSTRAP_VALUES, reinterpret_cast<TreeDrawingListener*>(new BootstrapValuesTreeDrawingListener(settings_, true)));
+      addListener(PROPERTY_NODE_IDS        , new NodesIdTreeDrawingListener        (settings_, true));
+      addListener(PROPERTY_LEAF_NAMES      , new LeafNamesTreeDrawingListener      (settings_, true));
+      addListener(PROPERTY_BRANCH_LENGTHS  , new BranchLengthsTreeDrawingListener  (settings_, true));
+      addListener(PROPERTY_BOOTSTRAP_VALUES, new BootstrapValuesTreeDrawingListener(settings_, true));
     }
 
   private:
