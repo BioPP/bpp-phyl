@@ -569,12 +569,12 @@ void PhylogeneticsApplicationTools::completeMixedSubstitutionModelSet(
       string::size_type indexf = submodel.find("]");
       if ((indexo == string::npos) | (indexf == string::npos))
         throw Exception("PhylogeneticsApplicationTools::setMixedSubstitutionModelSet. Bad path syntax, should contain `[]' symbols: " + submodel);
-      int num = TextTools::toInt(submodel.substr(5, indexo - 5));
+      size_t num = TextTools::to<size_t>(submodel.substr(5, indexo - 5));
       string p2 = submodel.substr(indexo + 1, indexf - indexo - 1);
 
       const MixedSubstitutionModel* pSM = dynamic_cast<const MixedSubstitutionModel*>(mixedModelSet.getModel(num - 1));
-      if (pSM == NULL)
-        throw BadIntegerException("PhylogeneticsApplicationTools::setMixedSubstitutionModelSet: Wron gmodel for number", num - 1);
+      if (!pSM)
+        throw BadIntegerException("PhylogeneticsApplicationTools::setMixedSubstitutionModelSet: Wrong model for number", static_cast<int>(num - 1));
       Vint submodnb = pSM->getSubmodelNumbers(p2);
 
       mixedModelSet.addToHyperNode(num - 1, submodnb);
@@ -640,7 +640,7 @@ MultipleDiscreteDistribution* PhylogeneticsApplicationTools::getMultipleDistribu
     rf = args["classes"];
     StringTokenizer strtok2(rf.substr(1, rf.length() - 2), ",");
     while (strtok2.hasMoreToken())
-      classes.push_back(TextTools::toInt(strtok2.nextToken()));
+      classes.push_back(TextTools::to<size_t>(strtok2.nextToken()));
 
     pMDD = new DirichletDiscreteDistribution(classes, alphas);
     vector<string> v = pMDD->getParameters().getParameterNames();
@@ -1533,11 +1533,11 @@ SubstitutionCount* PhylogeneticsApplicationTools::getSubstitutionCount(
   }
   else if (nijtOption == "Label")
   {
-    substitutionCount = reinterpret_cast<SubstitutionCount*>(new LabelSubstitutionCount(alphabet));
+    substitutionCount = new LabelSubstitutionCount(alphabet);
   }
   else if (nijtOption == "ProbOneJump")
   {
-    substitutionCount = reinterpret_cast<SubstitutionCount*>(new OneJumpSubstitutionCount(model));
+    substitutionCount = new OneJumpSubstitutionCount(model);
   }
   else
   {

@@ -60,7 +60,7 @@ using namespace std;
 
 /******************************************************************************/
 
-size_t BipartitionTools::LWORD = CHAR_BIT * sizeof(int);
+int BipartitionTools::LWORD = static_cast<int>(CHAR_BIT * sizeof(int));
 
 /******************************************************************************/
 
