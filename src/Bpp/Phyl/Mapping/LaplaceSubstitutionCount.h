@@ -63,7 +63,7 @@ namespace bpp
   {
   private:
     const SubstitutionModel* model_;
-    int cutOff_;
+    size_t cutOff_;
     mutable double currentLength_;
     mutable RowMatrix<double> m_;
 	
