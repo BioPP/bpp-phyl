@@ -40,6 +40,7 @@
 #include "MultiPhyloLikelihood.h"
 
 #include "SingleRecursiveTreeLikelihoodCalculation.h"
+#include "DoubleRecursiveTreeLikelihoodCalculation.h"
 
 using namespace std;
 using namespace bpp;
@@ -49,6 +50,7 @@ using namespace newlik;
 
 MultiPhyloLikelihood::MultiPhyloLikelihood(
   SubstitutionProcessCollection* processColl,
+  char recursivity,
   bool verbose,
   bool patterns) :
   AbstractParametrizable(""),
@@ -68,17 +70,24 @@ MultiPhyloLikelihood::MultiPhyloLikelihood(
   
   addParameters_(processColl_->getIndependentParameters());
 
-  if (recursivity_ != 'S')
-    throw Exception("MultiPhyloLikelihood::MultiPhyloLikelihood : Non simple recursivity not implemented yet!");
-
   size_t nbP = processColl_->getNumberOfSubstitutionProcess();
 
-  for (size_t i = 0; i < nbP; i++)
-  {
-    SingleRecursiveTreeLikelihoodCalculation* rt = new SingleRecursiveTreeLikelihoodCalculation(
+  if (recursivity_=='S')
+    for (size_t i = 0; i < nbP; i++)
+    {
+      SingleRecursiveTreeLikelihoodCalculation* rt = new SingleRecursiveTreeLikelihoodCalculation(
         processColl_->getSubstitutionProcess(i), patterns, i == 0);
-    vpTreelik_.push_back(rt);
-  }
+      vpTreelik_.push_back(rt);
+    }
+  else if (recursivity_=='D')
+    for (size_t i = 0; i < nbP; i++)
+    {
+      DoubleRecursiveTreeLikelihoodCalculation* rt = new DoubleRecursiveTreeLikelihoodCalculation(
+        processColl_->getSubstitutionProcess(i), i == 0);
+      vpTreelik_.push_back(rt);
+    }
+  else throw(Exception("MultiPhyloLikelihood::MultiPhyloLikelihood: unknown recursivity : " + recursivity_));
+  
 }
 
 /******************************************************************************/
@@ -86,6 +95,7 @@ MultiPhyloLikelihood::MultiPhyloLikelihood(
 MultiPhyloLikelihood::MultiPhyloLikelihood(
   const SiteContainer& data,
   SubstitutionProcessCollection* processColl,
+  char recursivity,
   bool verbose,
   bool patterns) :
   AbstractParametrizable(""),
@@ -104,18 +114,24 @@ MultiPhyloLikelihood::MultiPhyloLikelihood(
   // initialize parameters:
   addParameters_(processColl_->getIndependentParameters());
 
-  if (recursivity_ != 'S')
-    throw Exception("MultiPhyloLikelihood::MultiPhyloLikelihood : Non simple recursivity not implemented yet!");
-
   size_t nbP = processColl_->getNumberOfSubstitutionProcess();
 
-  for (size_t i = 0; i < nbP; i++)
-  {
-    SingleRecursiveTreeLikelihoodCalculation* rt = new SingleRecursiveTreeLikelihoodCalculation(*data_->clone(),
+  if (recursivity_=='S')
+    for (size_t i = 0; i < nbP; i++)
+    {
+      SingleRecursiveTreeLikelihoodCalculation* rt = new SingleRecursiveTreeLikelihoodCalculation(*data_->clone(),
         processColl_->getSubstitutionProcess(i), patterns, i == 0);
-    vpTreelik_.push_back(rt);
-  }
-
+      vpTreelik_.push_back(rt);
+    }
+  else if (recursivity_=='D')
+    for (size_t i = 0; i < nbP; i++)
+    {
+      DoubleRecursiveTreeLikelihoodCalculation* rt = new DoubleRecursiveTreeLikelihoodCalculation(*data_->clone(),
+        processColl_->getSubstitutionProcess(i), i == 0);
+      vpTreelik_.push_back(rt);
+    }
+  else throw(Exception("MultiPhyloLikelihood::MultiPhyloLikelihood: unknown recursivity : " + recursivity_));
+  
   setData(data);
 }
 

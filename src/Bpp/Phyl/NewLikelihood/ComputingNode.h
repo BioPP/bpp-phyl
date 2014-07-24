@@ -284,7 +284,7 @@ namespace bpp
      * for their first derivate, D2 for their second.
      **/
     
-    void multiplyPartialXLikelihoodsAtASite(Vdouble* likelihoods_father, Vdouble* likelihoods_node, unsigned char DX)
+    void multiplyDXLikelihoodsAtASite(Vdouble* likelihoods_father, const Vdouble* likelihoods_node, unsigned char DX) const
     {
       double (ComputingNode::*gtP)(size_t,size_t) const = NULL;
 
@@ -297,7 +297,7 @@ namespace bpp
           if (DX==D2)
             gtP=&ComputingNode::getTransitionProbabilityD2;
           else
-            throw Exception("ComputingNode::multiplyPartialXLikelihoodsAtASite: unknown function modifier " + TextTools::toString(DX));
+            throw Exception("ComputingNode::multiplyDXLikelihoodsAtASite: unknown function modifier " + TextTools::toString(DX));
         
       for (size_t x = 0; x < nbStates_; x++)
       {
@@ -312,7 +312,7 @@ namespace bpp
     }
 
     /**
-     *@brief computes its partial likelihood using the partial
+     *@brief multiplies its partial likelihood using the partial
      * likelihoods of the sons.
      *
      * @param likelihoods_node a pointer to the partial likelihood
@@ -323,7 +323,7 @@ namespace bpp
      * from this node to the sons.
      **/
 
-    void computePartialLikelihoods(VVdouble* likelihoods_node, std::vector<VVdouble*>& vLikelihoods_sons, std::vector<std::vector<size_t>* >& vPatterns)
+    void multiplyPartialLikelihoods(VVdouble* likelihoods_node, const std::vector<const VVdouble*>& vLikelihoods_sons, const std::vector<const std::vector<size_t>* >& vPatterns)
     {
       size_t nbSites=likelihoods_node->size();
         
@@ -333,16 +333,65 @@ namespace bpp
       
         for (size_t l = 0; l < getNumberOfSons(); l++)
         {
-          ComputingNode* son_l=dynamic_cast<ComputingNode*>(getSon(l));
+          const ComputingNode* son_l=dynamic_cast<const ComputingNode*>(getSon(l));
                     
-          Vdouble* likelihoods_son_l_i = &(*vLikelihoods_sons[l])[(*vPatterns[l])[i]];
-          son_l->multiplyPartialXLikelihoodsAtASite(likelihoods_node_i,likelihoods_son_l_i,D0);
+          const Vdouble* likelihoods_son_l_i = &(*vLikelihoods_sons[l])[(*vPatterns[l])[i]];
+          son_l->multiplyDXLikelihoodsAtASite(likelihoods_node_i,likelihoods_son_l_i,D0);
         }
       }
     }
 
+
     /**
-     *@brief computes the derivate of its partial likelihood using the
+     *@brief multiplies its partial likelihood using the partial
+     * likelihoods of the sons.
+     *
+     * @param likelihoods_node a pointer to the partial likelihood
+     * of this node [in, out].
+     * @param vLikelihoods_sons a vector of the partial likelihoods of
+     * the sons.
+     **/
+
+    void multiplyPartialLikelihoods(VVdouble* likelihoods_node, const std::vector<const VVdouble*>& vLikelihoods_sons)
+    {
+      size_t nbSites=likelihoods_node->size();
+        
+      for (size_t l = 0; l < getNumberOfSons(); l++)
+      {
+        if (vLikelihoods_sons[l]==0)
+          continue;
+
+        const ComputingNode* son_l=static_cast<const ComputingNode*>(getSon(l));
+        const VVdouble* likelihoods_son_l = vLikelihoods_sons[l];
+
+        for (size_t i = 0; i < nbSites; i++)
+          son_l->multiplyDXLikelihoodsAtASite(&(*likelihoods_node)[i],&(*likelihoods_son_l)[i],D0);
+        
+      }
+    }
+
+    
+    /**
+     *@brief multiplies the partial likelihood using the partial
+     * likelihoods of a son.
+     *
+     * @param likelihoods_node a pointer to the partial likelihood
+     * of this node [in, out].
+     * @param likelihoods_son  the partial likelihood of
+     * the used son.
+     * @param son the used Computing son.
+     **/
+
+    void multiplyPartialLikelihoods(VVdouble* likelihoods_node, const VVdouble* likelihoods_son, const ComputingNode* son)
+    {
+      size_t nbSites=likelihoods_node->size();
+        
+      for (size_t i = 0; i < nbSites; i++)
+        son->multiplyDXLikelihoodsAtASite(&(*likelihoods_node)[i], &(*likelihoods_son)[i],D0);
+    }
+
+    /**
+     *@brief multiplies the derivate of its partial likelihood using the
      * partial likelihoods of the sons.
      *
      * @param brId is the Id of the branch on which the derivate is
@@ -358,7 +407,7 @@ namespace bpp
      * for their first derivate, D2 for their second.
      **/
 
-    void computePartialDXLikelihoods(int brId, VVdouble* dXLikelihoods_node, std::vector<VVdouble*>& vLikelihoods_sons, std::vector<std::vector<size_t>* >& vPatterns, unsigned char DX)
+    void multiplyPartialDXLikelihoods(int brId, VVdouble* dXLikelihoods_node, const std::vector<const VVdouble*>& vLikelihoods_sons, const std::vector<const std::vector<size_t>* >& vPatterns, unsigned char DX)
     {
       size_t nbSites=dXLikelihoods_node->size();
   
@@ -368,17 +417,62 @@ namespace bpp
       
         for (size_t l = 0; l < getNumberOfSons(); l++)
         {
-          ComputingNode* son_l=dynamic_cast<ComputingNode*>(getSon(l));
+          const ComputingNode* son_l=static_cast<const ComputingNode*>(getSon(l));
                     
-          Vdouble* likelihoods_son_l_i = &(*vLikelihoods_sons[l])[(*vPatterns[l])[i]];
+          const Vdouble* likelihoods_son_l_i = &(*vLikelihoods_sons[l])[(*vPatterns[l])[i]];
           if (son_l->getId() == brId)
-            son_l->multiplyPartialXLikelihoodsAtASite(dXLikelihoods_node_i, likelihoods_son_l_i, DX);
+            son_l->multiplyDXLikelihoodsAtASite(dXLikelihoods_node_i, likelihoods_son_l_i, DX);
           else
-            son_l->multiplyPartialXLikelihoodsAtASite(dXLikelihoods_node_i, likelihoods_son_l_i, D0);
+            son_l->multiplyDXLikelihoodsAtASite(dXLikelihoods_node_i, likelihoods_son_l_i, D0);
         }
       }
     }
+
+    /**
+     *@brief computes the derivate of the likelihood by the length of
+     * a branch, using the conditional likelihoods of the father of
+     * this node (in case of double recursive calculation).
+     *
+     * @param dXlikelihoods_node a pointer to the derivate of the
+     * likelihood of this node [in, out].
+     * @param likelihoods_father_node a pointer to the conditional
+     * father-node likelihood.
+     * @param vLikelihoods_sons a vector of the likelihoods of the
+     * sons.
+     * @param DX tells which matrix should be used as used for
+     * transition factors, either D0 for transition probabilities, D1
+     * for their first derivate, D2 for their second.
+     **/
+
+    void computeDXLikelihoods(Vdouble* dXLikelihoods_node, const VVdouble* likelihoods_father_node, const VVdouble* likelihoods_father, unsigned char DX) const
+    {
+      size_t nbSites=dXLikelihoods_node->size();
+
+      Vdouble numer(nbStates_), denom(nbStates_);
+      
+      for (size_t i = 0; i < nbSites; i++)
+      {
+        double* dXLikelihoods_node_i = &(*dXLikelihoods_node)[i];
+        const Vdouble* likelihoods_father_node_i = &(*likelihoods_father_node)[i];
+        const Vdouble* likelihoods_father_i = &(*likelihoods_father)[i];
+
+        for (size_t s=0; s< nbStates_; s++)
+        {
+          numer[s]=1;
+          denom[s]=1;
+        }
+
+        this->multiplyDXLikelihoodsAtASite(&numer, likelihoods_father_node_i, DX);
+        this->multiplyDXLikelihoodsAtASite(&denom, likelihoods_father_node_i, D0);
+        (*dXLikelihoods_node_i)=0;
+        
+        for (size_t s=0; s< nbStates_; s++)
+          (*dXLikelihoods_node_i) += (denom[s]==0.)?0.: (*likelihoods_father_i)[s] * numer[s]/denom[s];
+      }
+
+    }
     
+
   };
 
 } // end namespace bpp

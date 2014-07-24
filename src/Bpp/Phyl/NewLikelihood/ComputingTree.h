@@ -208,41 +208,160 @@ namespace bpp
     
     void updateAll();
 
-    /*
-     * @brief Call the computing of  the partial likelihoods by ComputingNodes
+    /**
+     * @brief Methods for computing of the partial likelihoods.
      *
      */
 
-    void computePartialLikelihoods(VVVdouble* likelihoods_node, std::vector<VVVdouble*>& vLikelihoods_sons, int nodeId, std::vector<std::vector<size_t>* >& vPatterns) const
+    /**
+     *@brief multiplies a partial likelihood using the partial
+     * likelihoods of the sons.
+     *
+     * @param likelihoods_node a pointer to the partial likelihood
+     * of this node [in, out].
+     * @param vLikelihoods_sons a vector of the partial likelihoods of
+     * the sons.
+     * @param nodeId the Id of the node which partial likelihood is
+     * computed.
+     * @param vPatterns a vector of the corresponding positions
+     * from this node to the sons.
+     **/
+    
+    
+    void multiplyPartialLikelihoods(VVVdouble* likelihoods_node, const std::vector<const VVVdouble*>& vLikelihoods_sons, int nodeId, const std::vector<const std::vector<size_t>* >& vPatterns) const
     {
       size_t nbSons=vLikelihoods_sons.size();
       for (size_t c = 0; c < vTree_.size(); ++c)
       {
         VVdouble* likelihoods_node_c = &(*likelihoods_node)[c];
 
-        std::vector<VVdouble*> vLikelihoods_sons_c;
+        std::vector<const VVdouble*> vLikelihoods_sons_c;
         for (size_t i=0;i<nbSons;i++)
           vLikelihoods_sons_c.push_back(&(*vLikelihoods_sons[i])[c]);
 
-        vTree_[c]->getNode(nodeId)->computePartialLikelihoods(likelihoods_node_c, vLikelihoods_sons_c, vPatterns);
+        vTree_[c]->getNode(nodeId)->multiplyPartialLikelihoods(likelihoods_node_c, vLikelihoods_sons_c, vPatterns);
       }
     }
 
-    void computePartialDXLikelihoods(int brId, VVVdouble* dXLikelihoods_node, std::vector<VVVdouble*>& vLikelihoods_sons, int nodeId, std::vector<std::vector<size_t>* >& vPatterns, unsigned char DX) const
+    
+    /**
+     *@brief multiplies a partial likelihood using the partial
+     * likelihoods of the sons.
+     *
+     * @param likelihoods_node a pointer to the partial likelihood
+     * of this node [in, out].
+     * @param vLikelihoods_sons a vector of the partial likelihoods of
+     * the sons.
+     * @param nodeId the Id of the node which partial likelihood is
+     * computed.
+     **/
+
+    
+    void multiplyPartialLikelihoods(VVVdouble* likelihoods_node, const std::vector<const VVVdouble*>& vLikelihoods_sons, int nodeId) const
+    {
+      size_t nbSons=vLikelihoods_sons.size();
+      for (size_t c = 0; c < vTree_.size(); ++c)
+      {
+        VVdouble* likelihoods_node_c = &(*likelihoods_node)[c];
+
+        std::vector<const VVdouble*> vLikelihoods_sons_c;
+        for (size_t i=0;i<nbSons;i++)
+          vLikelihoods_sons_c.push_back((vLikelihoods_sons[i]!=0)?&(*vLikelihoods_sons[i])[c]:0);
+
+        vTree_[c]->getNode(nodeId)->multiplyPartialLikelihoods(likelihoods_node_c, vLikelihoods_sons_c);
+      }
+    }
+
+    /**
+     *@brief multiplies the partial likelihood using the partial
+     * likelihoods of a son.
+     *
+     * @param likelihoods_node a pointer to the partial likelihood
+     * of this node [in, out].
+     * @param likelihoods_son  the partial likelihood of
+     * the used son.
+     * @param nodeId the Id of the node which partial likelihood is
+     * computed.
+     * @param sonId the used Computing son Id.
+     **/
+
+    void multiplyPartialLikelihoods(VVVdouble* likelihoods_node, const VVVdouble* likelihoods_son, int nodeId, int sonId) const
+    {
+      for (size_t c = 0; c < vTree_.size(); ++c)
+      {
+        VVdouble* likelihoods_node_c = &(*likelihoods_node)[c];
+
+        const VVdouble* likelihoods_sons_c = &(*likelihoods_son)[c];
+
+        vTree_[c]->getNode(nodeId)->multiplyPartialLikelihoods(likelihoods_node_c, likelihoods_sons_c, vTree_[c]->getNode(sonId));
+      }
+    }
+
+
+    /**
+     *@brief multiplies the derivate of the partial likelihood using
+     * the partial likelihoods of the sons of a given node.
+     *
+     * @param brId is the Id of the branch on which the derivate is
+     * computed.
+     * @param dXLikelihoods_node a pointer to the derivate of the
+     * partial likelihood of this node [in, out].
+     * @param vLikelihoods_sons a vector of the partial likelihoods of
+     * the sons.
+     * @param nodeId the Id of the node which the partial likelihood
+     * is computed.
+     * @param vPatterns a vector of the corresponding positions
+     * from this node to the sons.
+     * @param DX tells which matrix should be used as used for
+     * transition factors, either D0 for transition probabilities, D1
+     * for their first derivate, D2 for their second.
+     **/
+
+    void multiplyPartialDXLikelihoods(int brId, VVVdouble* dXLikelihoods_node, const std::vector<const VVVdouble*>& vLikelihoods_sons, int nodeId, const std::vector<const std::vector<size_t>* >& vPatterns, unsigned char DX) const
     {
       size_t nbSons=vLikelihoods_sons.size();
       
       for (size_t c = 0; c < vTree_.size(); ++c)
       {
         VVdouble* dXLikelihoods_node_c = &(*dXLikelihoods_node)[c];
-        std::vector<VVdouble*> vLikelihoods_sons_c;
+        std::vector<const VVdouble*> vLikelihoods_sons_c;
         for (size_t i=0;i<nbSons;i++)
           vLikelihoods_sons_c.push_back(&(*vLikelihoods_sons[i])[c]);
         
-        vTree_[c]->getNode(nodeId)->computePartialDXLikelihoods(brId, dXLikelihoods_node_c, vLikelihoods_sons_c, vPatterns, DX);
+        vTree_[c]->getNode(nodeId)->multiplyPartialDXLikelihoods(brId, dXLikelihoods_node_c, vLikelihoods_sons_c, vPatterns, DX);
       }
     }
 
+    /**
+     *@brief computes the derivate of the likelihood by the length of
+     * a branch, using the conditional likelihoods of the father of
+     * this node (in case of double recursive calculation).
+     *
+     * @param dXlikelihoods_node a pointer to the derivate of the
+     * likelihood of this node [in, out].
+     * @param likelihoods_father_node a pointer to the conditional
+     * father-node likelihood.
+     * @param vLikelihoods_sons a vector of the likelihoods of the
+     * sons.
+     * @param nodeId the Id of the node which the derivate is
+     * computed.
+     * @param DX tells which matrix should be used as used for
+     * transition factors, either D0 for transition probabilities, D1
+     * for their first derivate, D2 for their second.
+     **/
+
+    void computeDXLikelihoods(VVdouble* dXLikelihoods_node, const VVVdouble* likelihoods_father_node, const VVVdouble* likelihoods_father, int nodeId, unsigned char DX) const
+    {
+      for (size_t c = 0; c < vTree_.size(); ++c)
+      {
+        Vdouble* dXLikelihoods_node_c = &(*dXLikelihoods_node)[c];
+        const VVdouble* likelihoods_father_node_c = &(*likelihoods_father_node)[c];
+        const VVdouble* likelihoods_father_c = &(*likelihoods_father)[c];
+        
+        vTree_[c]->getNode(nodeId)->computeDXLikelihoods(dXLikelihoods_node_c, likelihoods_father_node_c, likelihoods_father_c, DX);
+      }
+    }
+    
   };
   
     

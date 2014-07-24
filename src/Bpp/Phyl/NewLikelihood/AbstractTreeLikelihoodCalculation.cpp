@@ -63,39 +63,69 @@ double AbstractTreeLikelihoodCalculation::getLogLikelihood() const
 
 /******************************************************************************/
 
-void AbstractTreeLikelihoodCalculation::resetLikelihoodArray(VVVdouble& likelihoodArray)
+double AbstractTreeLikelihoodCalculation::getDLogLikelihoodForASite(size_t site) const
 {
-  size_t nbSites   = likelihoodArray.size();
-  size_t nbClasses = likelihoodArray[0].size();
-  size_t nbStates  = likelihoodArray[0][0].size();
-  for (size_t i = 0; i < nbSites; ++i)
-  {
-    for (size_t c = 0; c < nbClasses; ++c)
-    {
-      for (size_t s = 0; s < nbStates; ++s)
-      {
-        likelihoodArray[i][c][s] = 1.;
-      }
-    }
-  }
+  // d(f(g(x)))/dx = dg(x)/dx . df(g(x))/dg :
+  return getDLikelihoodForASite(site) / getLikelihoodForASite(site);
 }
+
+/******************************************************************************/
+
+double AbstractTreeLikelihoodCalculation::getDLogLikelihood() const
+{
+  // Derivative of the sum is the sum of derivatives:
+  vector<double> dla(nbSites_);
+  for (size_t i = 0; i < nbSites_; ++i)
+  {
+    dla[i] = getDLogLikelihoodForASite(i);
+  }
+  sort(dla.begin(), dla.end());
+  double dl = 0;
+  for (size_t i = nbSites_; i > 0; --i)
+  {
+    dl += dla[i - 1];
+  }
+  return dl;
+}
+
+/******************************************************************************/
+
+double AbstractTreeLikelihoodCalculation::getD2LogLikelihoodForASite(size_t site) const
+{
+  return getD2LikelihoodForASite(site) / getLikelihoodForASite(site)
+    - pow( getDLikelihoodForASite(site) / getLikelihoodForASite(site), 2);
+}
+
+/******************************************************************************/
+
+double AbstractTreeLikelihoodCalculation::getD2LogLikelihood() const
+{
+  // Derivative of the sum is the sum of derivatives:
+  double dl = 0;
+  for (size_t i = 0; i < nbSites_; ++i)
+  {
+    dl += getD2LogLikelihoodForASite(i);
+  }
+  return dl;
+}
+
 
 /******************************************************************************/
 
 void AbstractTreeLikelihoodCalculation::displayLikelihoodArray(const VVVdouble& likelihoodArray)
 {
-  size_t nbSites   = likelihoodArray.size();
-  size_t nbClasses = likelihoodArray[0].size();
+  size_t nbClasses = likelihoodArray.size();
+  size_t nbSites    = likelihoodArray[0].size();
   size_t nbStates  = likelihoodArray[0][0].size();
-  for (size_t i = 0; i < nbSites; ++i)
+  for (size_t c = 0; c < nbClasses; ++c)
   {
-    cout << "Site " << i << ":" << endl;
-    for (size_t c = 0; c < nbClasses; ++c)
+    cout << "Model class " << c;
+    for (size_t i = 0; i < nbSites; ++i)
     {
-      cout << "Rate class " << c;
+      cout << "Site " << i << ":" << endl;
       for (size_t s = 0; s < nbStates; ++s)
       {
-        cout << "\t" << likelihoodArray[i][c][s];
+        cout << "\t" << likelihoodArray[c][i][s];
       }
       cout << endl;
     }

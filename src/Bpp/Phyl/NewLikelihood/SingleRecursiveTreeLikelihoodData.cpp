@@ -54,6 +54,9 @@ using namespace bpp;
 using namespace newlik;
 using namespace std;
 
+
+/******************************************************************************/
+/*  SingleRecursiveTreeLikelihoodData                                         */
 /******************************************************************************/
 
 void SingleRecursiveTreeLikelihoodData::initLikelihoods(const SiteContainer& sites, const SubstitutionProcess& process)
@@ -281,6 +284,3 @@ SitePatterns* SingleRecursiveTreeLikelihoodData::initLikelihoodsWithPatterns_(co
   }
   return patterns.release();
 }
-
-/******************************************************************************/
-

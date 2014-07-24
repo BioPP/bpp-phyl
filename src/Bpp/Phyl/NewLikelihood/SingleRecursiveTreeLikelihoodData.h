@@ -127,7 +127,6 @@ namespace bpp
 
       VVVdouble& getD2LikelihoodArray() { return nodeD2Likelihoods_; }
       const VVVdouble& getD2LikelihoodArray() const { return nodeD2Likelihoods_; }
-
     };
 
 /**

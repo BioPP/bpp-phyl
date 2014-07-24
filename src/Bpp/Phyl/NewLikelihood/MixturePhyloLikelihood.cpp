@@ -47,9 +47,10 @@ using namespace newlik;
 
 MixturePhyloLikelihood::MixturePhyloLikelihood(
   SubstitutionProcessCollection* processColl,
+  char recursivity,
   bool verbose,
   bool patterns) :
-  MultiPhyloLikelihood(processColl, verbose, patterns),
+  MultiPhyloLikelihood(processColl, recursivity, verbose, patterns),
   simplex_(processColl_->getNumberOfSubstitutionProcess(), 1)
 {
   // initialize parameters:
@@ -59,9 +60,10 @@ MixturePhyloLikelihood::MixturePhyloLikelihood(
 MixturePhyloLikelihood::MixturePhyloLikelihood(
   const SiteContainer& data,
   SubstitutionProcessCollection* processColl,
+  char recursivity,
   bool verbose,
   bool patterns) :
-  MultiPhyloLikelihood(data, processColl, verbose, patterns),
+  MultiPhyloLikelihood(data, processColl, recursivity, verbose, patterns),
   simplex_(processColl_->getNumberOfSubstitutionProcess(), 1)
 {
   // initialize parameters:

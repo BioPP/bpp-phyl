@@ -178,10 +178,22 @@ public:
 
   //virtual bool transitionProbabilitiesHaveChanged() const = 0; Not sure we need that anymore...
 
-  virtual void computePartialLikelihoods(VVVdouble* likelihoods_node, std::vector<VVVdouble*>& vLikelihoods_sons, int nodeId, std::vector<std::vector<size_t>* >& vPatterns) const = 0;
-   
-  virtual void computePartialDXLikelihoods(int brId, VVVdouble* dXLikelihoods_node, std::vector<VVVdouble*>& vLikelihoods_sons, int nodeId, std::vector<std::vector<size_t>* >& vPatterns, unsigned char DX) const = 0;
+  /**
+   * @brief Methods for computing partial likelihoods. See
+   * class ComputingTree for details.
+   *
+   **/
   
+  virtual void multiplyPartialLikelihoods(VVVdouble* likelihoods_node, const std::vector<const VVVdouble*>& vLikelihoods_sons, int nodeId, const std::vector<const std::vector<size_t>* >& vPatterns) const = 0;
+
+  virtual void multiplyPartialLikelihoods(VVVdouble* likelihoods_node, const std::vector<const VVVdouble*>& vLikelihoods_sons, int nodeId) const = 0;
+
+  virtual void multiplyPartialLikelihoods(VVVdouble* likelihoods_node, const VVVdouble* likelihoods_son, int nodeId, int sonId) const = 0;
+
+  virtual void multiplyPartialDXLikelihoods(int brId, VVVdouble* dXLikelihoods_node, const std::vector<const VVVdouble*>& vLikelihoods_sons, int nodeId, const std::vector<const std::vector<size_t>* >& vPatterns, unsigned char DX) const = 0;
+
+  virtual void computeDXLikelihoods(VVdouble* dXLikelihoods_node, const VVVdouble* likelihoods_father_node, const VVVdouble* likelihoods_father, int nodeId, unsigned char DX) const = 0;
+
 };
 
 } // end namespace bpp

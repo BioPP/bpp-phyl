@@ -113,19 +113,21 @@ public:
   const SubstitutionProcess* getSubstitutionProcess() const { return process_;}
 
   double getLogLikelihood() const;
+
+  double getDLogLikelihoodForASite(size_t site) const;
+
+  double getDLogLikelihood() const;
   
-  /**
-   * @brief Set all conditional likelihoods to 1.
-   *
-   * @param likelihoodArray the likelihood array.
-   */
-  static void resetLikelihoodArray(VVVdouble& likelihoodArray);
+  double getD2LogLikelihoodForASite(size_t site) const;
+
+  double getD2LogLikelihood() const;
 
   /**
    * @brief Print the likelihood array to terminal (debugging tool).
    *
    * @param likelihoodArray the likelihood array.
    */
+
   static void displayLikelihoodArray(const VVVdouble& likelihoodArray);
 
 };

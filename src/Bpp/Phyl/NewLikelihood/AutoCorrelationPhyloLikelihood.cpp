@@ -52,9 +52,10 @@ using namespace newlik;
 
 AutoCorrelationPhyloLikelihood::AutoCorrelationPhyloLikelihood(
   SubstitutionProcessCollection* processColl,
+  char recursivity,
   bool verbose,
   bool patterns) :
-  MultiPhyloLikelihood(processColl, verbose, patterns),
+  MultiPhyloLikelihood(processColl, recursivity, verbose, patterns),
   Hmm_(0)
 {
   HmmProcessAlphabet* hpa=new HmmProcessAlphabet(processColl_.get());
@@ -73,9 +74,10 @@ AutoCorrelationPhyloLikelihood::AutoCorrelationPhyloLikelihood(
 AutoCorrelationPhyloLikelihood::AutoCorrelationPhyloLikelihood(
   const SiteContainer& data,
   SubstitutionProcessCollection* processColl,
+  char recursivity,
   bool verbose,
   bool patterns) :
-  MultiPhyloLikelihood(data, processColl, verbose, patterns),
+  MultiPhyloLikelihood(data, processColl, recursivity, verbose, patterns),
   Hmm_(0)
 {
   HmmProcessAlphabet* hpa=new HmmProcessAlphabet(processColl_.get());

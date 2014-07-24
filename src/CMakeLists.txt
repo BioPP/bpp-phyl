@@ -60,9 +60,11 @@ SET(CPP_FILES
   Bpp/Phyl/NewLikelihood/NonHomogeneousSubstitutionProcess.cpp
   Bpp/Phyl/NewLikelihood/ParametrizableTree.cpp
   Bpp/Phyl/NewLikelihood/RateAcrossSitesSubstitutionProcess.cpp
+  Bpp/Phyl/NewLikelihood/SingleRecursiveTreeLikelihoodData.cpp
+  Bpp/Phyl/NewLikelihood/DoubleRecursiveTreeLikelihoodData.cpp
   Bpp/Phyl/NewLikelihood/AbstractTreeLikelihoodCalculation.cpp
   Bpp/Phyl/NewLikelihood/SingleRecursiveTreeLikelihoodCalculation.cpp
-  Bpp/Phyl/NewLikelihood/SingleRecursiveTreeLikelihoodData.cpp
+  Bpp/Phyl/NewLikelihood/DoubleRecursiveTreeLikelihoodCalculation.cpp
   Bpp/Phyl/NewLikelihood/SimpleSubstitutionProcess.cpp
   Bpp/Phyl/NewLikelihood/ComputingNode.cpp
   Bpp/Phyl/NewLikelihood/ComputingTree.cpp
@@ -244,9 +246,11 @@ SET(H_FILES
   Bpp/Phyl/NewLikelihood/ParametrizableTree.h
   Bpp/Phyl/NewLikelihood/RateAcrossSitesSubstitutionProcess.h
   Bpp/Phyl/NewLikelihood/SingleRecursiveTreeLikelihoodData.h
+  Bpp/Phyl/NewLikelihood/DoubleRecursiveTreeLikelihoodData.h 
   Bpp/Phyl/NewLikelihood/TreeLikelihoodCalculation.h
   Bpp/Phyl/NewLikelihood/AbstractTreeLikelihoodCalculation.h
   Bpp/Phyl/NewLikelihood/SingleRecursiveTreeLikelihoodCalculation.h
+  Bpp/Phyl/NewLikelihood/DoubleRecursiveTreeLikelihoodCalculation.h
   Bpp/Phyl/NewLikelihood/SimpleSubstitutionProcess.h
   Bpp/Phyl/NewLikelihood/SitePartition.h
   Bpp/Phyl/NewLikelihood/ComputingNode.cpp

@@ -79,12 +79,14 @@ private:
 public:
   HmmPhyloLikelihood(
     SubstitutionProcessCollection* processColl,
+    char recursivity,
     bool verbose = true,
     bool patterns = true);
 
   HmmPhyloLikelihood(
     const SiteContainer& data,
     SubstitutionProcessCollection* processColl,
+    char recursivity,
     bool verbose = true,
     bool patterns = true);
 

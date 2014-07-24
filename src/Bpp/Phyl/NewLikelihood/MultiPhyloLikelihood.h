@@ -96,12 +96,14 @@ protected:
 
 public:
   MultiPhyloLikelihood(SubstitutionProcessCollection* processColl,
+                       char recursivity,
                        bool verbose = true,
                        bool patterns = true);
 
   MultiPhyloLikelihood(
     const SiteContainer& data,
     SubstitutionProcessCollection* processColl,
+    char recursivity,
     bool verbose = true,
     bool patterns = true);
 
@@ -109,7 +111,7 @@ public:
     AbstractParametrizable(lik),
     data_(0),
     processColl_(0),
-    recursivity_('S'),
+    recursivity_(lik.recursivity_),
     computeFirstOrderDerivatives_(lik.computeFirstOrderDerivatives_),
     computeSecondOrderDerivatives_(lik.computeSecondOrderDerivatives_),
     initialized_(lik.initialized_),
@@ -141,7 +143,7 @@ public:
     else
       processColl_.reset();
 
-    recursivity_ = 'S';
+    recursivity_ = lik.recursivity_;
     computeFirstOrderDerivatives_  = lik.computeFirstOrderDerivatives_;
     computeSecondOrderDerivatives_ = lik.computeSecondOrderDerivatives_;
     initialized_                   = lik.initialized_;

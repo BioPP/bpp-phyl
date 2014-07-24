@@ -72,12 +72,14 @@ private:
 public:
   MixturePhyloLikelihood(
     SubstitutionProcessCollection* processColl,
+    char recursivity,
     bool verbose = true,
     bool patterns = true);
 
   MixturePhyloLikelihood(
     const SiteContainer& data,
     SubstitutionProcessCollection* processColl,
+    char recursivity,
     bool verbose = true,
     bool patterns = true);
 

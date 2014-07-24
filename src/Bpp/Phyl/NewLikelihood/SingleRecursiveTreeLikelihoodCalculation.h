@@ -130,6 +130,9 @@ public:
     bool usePatterns = true)
   throw (Exception);
 
+  /**
+   * @brief Copy constructor.
+   */ 
   SingleRecursiveTreeLikelihoodCalculation(const SingleRecursiveTreeLikelihoodCalculation& lik);
 
   SingleRecursiveTreeLikelihoodCalculation& operator=(const SingleRecursiveTreeLikelihoodCalculation& lik);
@@ -176,6 +179,7 @@ public:
   }
 
   SingleRecursiveTreeLikelihoodData* getLikelihoodData() { return likelihoodData_.get(); }
+
   const SingleRecursiveTreeLikelihoodData* getLikelihoodData() const { return likelihoodData_.get(); }
 
   double getLikelihoodForASite(size_t site) const;
@@ -186,28 +190,16 @@ public:
 
   double getLikelihoodForASiteForAClassForAState(size_t site, size_t classIndex, int state) const;
 
-  double getDLogLikelihood() const;
-  
-  double getD2LogLikelihood() const;
- 
   double getDLikelihoodForASite(size_t site) const;
-  
+
   double getD2LikelihoodForASite(size_t site) const;
   
   void computeTreeLikelihood();
+
   void computeTreeDLikelihood(const std::string& variable);
+
   void computeTreeD2Likelihood(const std::string& variable);
  
-public:
-  // Specific methods:
-  double getDLogLikelihoodForASite(size_t site) const;
-  double getDLikelihoodForASiteForAClass(size_t site, size_t classIndex) const;
-  double getDLikelihoodForASiteForAClassForAState(size_t site, size_t classIndex, int state) const;
-
-  double getD2LogLikelihoodForASite(size_t site) const;
-  double getD2LikelihoodForASiteForAClass(size_t site, size_t classIndex) const;
-  double getD2LikelihoodForASiteForAClassForAState(size_t site, size_t classIndex, int state) const;
-
 protected:
 
   /**

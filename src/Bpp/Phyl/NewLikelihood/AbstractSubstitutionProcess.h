@@ -135,14 +135,36 @@ public:
   }
 
 
-  void computePartialLikelihoods(VVVdouble* likelihoods_node, std::vector<VVVdouble*>& vLikelihoods_sons, int nodeId, std::vector<std::vector<size_t>* >& vPatterns) const
+  /**
+   * @brief Methods for computing partial likelihoods. See
+   * class ComputingTree for details.
+   *
+   **/
+
+  void multiplyPartialLikelihoods(VVVdouble* likelihoods_node, const std::vector<const VVVdouble*>& vLikelihoods_sons, int nodeId, const std::vector<const std::vector<size_t>* >& vPatterns) const
   {
-    getComputingTree().computePartialLikelihoods(likelihoods_node, vLikelihoods_sons, nodeId, vPatterns);
+    getComputingTree().multiplyPartialLikelihoods(likelihoods_node, vLikelihoods_sons, nodeId, vPatterns);
   }
 
-  void computePartialDXLikelihoods(int brId, VVVdouble* dXLikelihoods_node, std::vector<VVVdouble*>& vLikelihoods_sons, int nodeId, std::vector<std::vector<size_t>* >& vPatterns, unsigned char DX) const
+  void multiplyPartialLikelihoods(VVVdouble* likelihoods_node, const std::vector<const VVVdouble*>& vLikelihoods_sons, int nodeId) const
   {
-    getComputingTree().computePartialDXLikelihoods(brId, dXLikelihoods_node, vLikelihoods_sons, nodeId, vPatterns, DX);
+    getComputingTree().multiplyPartialLikelihoods(likelihoods_node, vLikelihoods_sons, nodeId);
+  }
+
+  void multiplyPartialLikelihoods(VVVdouble* likelihoods_node, const VVVdouble* likelihoods_son, int nodeId, int sonId) const
+  {
+    getComputingTree().multiplyPartialLikelihoods(likelihoods_node, likelihoods_son, nodeId, sonId);
+  }
+
+
+  void multiplyPartialDXLikelihoods(int brId, VVVdouble* dXLikelihoods_node, const std::vector<const VVVdouble*>& vLikelihoods_sons, int nodeId, const std::vector<const std::vector<size_t>* >& vPatterns, unsigned char DX) const
+  {
+    getComputingTree().multiplyPartialDXLikelihoods(brId, dXLikelihoods_node, vLikelihoods_sons, nodeId, vPatterns, DX);
+  }
+
+  void computeDXLikelihoods(VVdouble* dXLikelihoods_node, const VVVdouble* likelihoods_father_node, const VVVdouble* likelihoods_father, int nodeId, unsigned char DX) const
+  {
+    getComputingTree().computeDXLikelihoods(dXLikelihoods_node, likelihoods_father_node, likelihoods_father, nodeId, DX);
   }
   
 };

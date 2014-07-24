@@ -440,14 +440,35 @@ namespace bpp
     
     double getProbabilityForModel(size_t classIndex) const;
 
-    void computePartialLikelihoods(VVVdouble* likelihoods_node, std::vector<VVVdouble*>& vLikelihoods_sons, int nodeId, std::vector<std::vector<size_t>* >& vPatterns) const
+    /**
+     * @brief Methods for computing partial likelihoods. See
+     * class ComputingTree for details.
+     *
+     **/
+
+    void multiplyPartialLikelihoods(VVVdouble* likelihoods_node, const std::vector<const VVVdouble*>& vLikelihoods_sons, int nodeId, const std::vector<const std::vector<size_t>* >& vPatterns) const
     {
-      computingTree_->computePartialLikelihoods(likelihoods_node, vLikelihoods_sons, nodeId, vPatterns);
+      computingTree_->multiplyPartialLikelihoods(likelihoods_node, vLikelihoods_sons, nodeId, vPatterns);
     }
     
-    void computePartialDXLikelihoods(int brId, VVVdouble* dXLikelihoods_node, std::vector<VVVdouble*>& vLikelihoods_sons, int nodeId, std::vector<std::vector<size_t>* >& vPatterns, unsigned char DX) const
+    void multiplyPartialLikelihoods(VVVdouble* likelihoods_node, const std::vector<const VVVdouble*>& vLikelihoods_sons, int nodeId) const
     {
-      computingTree_->computePartialDXLikelihoods(brId, dXLikelihoods_node, vLikelihoods_sons, nodeId, vPatterns, DX);
+      computingTree_->multiplyPartialLikelihoods(likelihoods_node, vLikelihoods_sons, nodeId);
+    }
+
+    void multiplyPartialLikelihoods(VVVdouble* likelihoods_node, const VVVdouble* likelihoods_son, int nodeId, int sonId) const
+    {
+      computingTree_->multiplyPartialLikelihoods(likelihoods_node, likelihoods_son, nodeId, sonId);
+    }
+
+    void multiplyPartialDXLikelihoods(int brId, VVVdouble* dXLikelihoods_node, const std::vector<const VVVdouble*>& vLikelihoods_sons, int nodeId, const std::vector<const std::vector<size_t>* >& vPatterns, unsigned char DX) const
+    {
+      computingTree_->multiplyPartialDXLikelihoods(brId, dXLikelihoods_node, vLikelihoods_sons, nodeId, vPatterns, DX);
+    }
+
+    void computeDXLikelihoods(VVdouble* dXLikelihoods_node, const VVVdouble* likelihoods_father_node, const VVVdouble* likelihoods_father, int nodeId, unsigned char DX) const
+    {
+      computingTree_->computeDXLikelihoods(dXLikelihoods_node, likelihoods_father_node, likelihoods_father, nodeId, DX);
     }
 
     friend class SubstitutionProcessCollection;

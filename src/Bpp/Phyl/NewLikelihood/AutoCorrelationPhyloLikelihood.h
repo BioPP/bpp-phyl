@@ -77,12 +77,14 @@ private:
 public:
   AutoCorrelationPhyloLikelihood(
     SubstitutionProcessCollection* processColl,
+    char recursivity,
     bool verbose = true,
     bool patterns = true);
 
   AutoCorrelationPhyloLikelihood(
     const SiteContainer& data,
     SubstitutionProcessCollection* processColl,
+    char recursivity,
     bool verbose = true,
     bool patterns = true);
 
