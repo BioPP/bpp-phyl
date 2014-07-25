@@ -77,12 +77,14 @@ DecompositionSubstitutionCount::DecompositionSubstitutionCount(const ReversibleS
 
 void DecompositionSubstitutionCount::fillBMatrices_()
 {
-  int n = static_cast<int>(nbStates_); //Note jdutheil 20/01/13: shoudl be generalized in case sattes are not 0:n !
-  for (int j = 0; j < n; ++j) {
-    for (int k = 0; k < n; ++k) {
-      size_t i = register_->getType(j, k);
+  vector<int> supportedStates = model_->getAlphabetChars();
+  for (size_t j = 0; j < nbStates_; ++j) {
+    int fromState = supportedStates[j];
+    for (size_t k = 0; k < nbStates_; ++k) {
+      int toState = supportedStates[k];
+      size_t i = register_->getType(fromState, toState);
       if (i > 0 && k != j) {
-        bMatrices_[i - 1](j, k) = model_->Qij(j, k) * (weights_ ? weights_->getIndex(j, k) : 1);
+        bMatrices_[i - 1](j, k) = model_->Qij(j, k) * (weights_ ? weights_->getIndex(fromState, toState) : 1);
       }
     }
   }

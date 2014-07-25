@@ -43,22 +43,25 @@ using namespace bpp;
 
 Matrix<double>* NaiveSubstitutionCount::getAllNumbersOfSubstitutions(double length, size_t type) const
 { 
-  size_t n = register_->getAlphabet()->getSize();
+  size_t n = supportedChars_.size();
   RowMatrix<double>* mat = new RowMatrix<double>(n, n);
   for (size_t i = 0; i < n; ++i)
   {
     for (size_t j = 0; j < n; ++j)
     {
-      (*mat)(i, j) = (register_->getType(i, j) == type ? (weights_ ? weights_->getIndex(i, j) : 1.) : 0.);
+      (*mat)(i, j) = (register_->getType(supportedChars_[i], supportedChars_[j]) == type ? (weights_ ? weights_->getIndex(supportedChars_[i], supportedChars_[j]) : 1.) : 0.);
     }
   }
   return mat;
 }
 
-LabelSubstitutionCount::LabelSubstitutionCount(const Alphabet* alphabet) :
-  AbstractSubstitutionCount(new TotalSubstitutionRegister(alphabet)), label_(alphabet->getSize(), alphabet->getSize())
+LabelSubstitutionCount::LabelSubstitutionCount(const SubstitutionModel* model) :
+  AbstractSubstitutionCount(
+      new TotalSubstitutionRegister(model->getAlphabet())),
+  label_(model->getNumberOfStates(), model->getNumberOfStates()),
+  supportedChars_(model->getAlphabetChars())
 {
-  size_t n = register_->getAlphabet()->getSize();
+  size_t n = supportedChars_.size();
   double count = 0;
   for (size_t i = 0; i < n; ++i) {
     for (size_t j = 0; j < n; ++j) {

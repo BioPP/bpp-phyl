@@ -413,7 +413,6 @@ CodonFromIndependentFrequenciesSet::CodonFromIndependentFrequenciesSet(
       pow *= 4;
     }
   }
-
   updateFrequencies();
 }
 

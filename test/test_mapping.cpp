@@ -125,7 +125,7 @@ int main() {
     SubstitutionMappingTools::computeSubstitutionVectors(drhtl, ids, *sCountAna);
 
   //Simple:
-  SubstitutionCount* sCountTot = new NaiveSubstitutionCount(totReg);
+  SubstitutionCount* sCountTot = new NaiveSubstitutionCount(model, totReg);
   m = sCountTot->getAllNumbersOfSubstitutions(0.001,1);
   cout << "Simple total count:" << endl;
   MatrixTools::print(*m);
@@ -133,7 +133,7 @@ int main() {
   ProbabilisticSubstitutionMapping* probMapTot = 
     SubstitutionMappingTools::computeSubstitutionVectors(drhtl, ids, *sCountTot);
 
-  SubstitutionCount* sCountDet = new NaiveSubstitutionCount(detReg);
+  SubstitutionCount* sCountDet = new NaiveSubstitutionCount(model, detReg);
   m = sCountDet->getAllNumbersOfSubstitutions(0.001,1);
   cout << "Detailed count, type 1:" << endl;
   MatrixTools::print(*m);

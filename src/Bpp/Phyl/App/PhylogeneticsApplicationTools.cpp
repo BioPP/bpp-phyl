@@ -1529,11 +1529,11 @@ SubstitutionCount* PhylogeneticsApplicationTools::getSubstitutionCount(
   {
     string weightOption = ApplicationTools::getStringParameter("weight", nijtParams, "None", "", true, warn + 1);
     AlphabetIndex2* weights = SequenceApplicationTools::getAlphabetIndex2(alphabet, weightOption, "Substitution weight scheme:");
-    substitutionCount = new NaiveSubstitutionCount(new TotalSubstitutionRegister(alphabet), false, weights);
+    substitutionCount = new NaiveSubstitutionCount(model, new TotalSubstitutionRegister(alphabet), false, weights);
   }
   else if (nijtOption == "Label")
   {
-    substitutionCount = new LabelSubstitutionCount(alphabet);
+    substitutionCount = new LabelSubstitutionCount(model);
   }
   else if (nijtOption == "ProbOneJump")
   {

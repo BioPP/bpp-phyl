@@ -216,14 +216,14 @@ BipartitionList* BipartitionTools::mergeBipartitionLists(
 
   if (checkElements)
   {
-    for (size_t i = 1; i < vecBipartL.size(); i++)
+    for (size_t i = 1; i < vecBipartL.size(); ++i)
     {
       if (!VectorTools::haveSameElements(vecBipartL[0]->getElementNames(), vecBipartL[0]->getElementNames()))
         throw Exception("BipartitionTools::mergeBipartitionLists. Distinct bipartition element sets");
     }
   }
 
-  size_t lword  = BipartitionTools::LWORD;
+  size_t lword  = static_cast<size_t>(BipartitionTools::LWORD);
   size_t nbword = (vecBipartL[0]->getElementNames().size() + lword - 1) / lword;
   size_t nbint  = nbword * lword / (CHAR_BIT * sizeof(int));
 
