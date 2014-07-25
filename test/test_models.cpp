@@ -118,13 +118,9 @@ int main() {
   //Codon models:
   StandardGeneticCode gc(&AlphabetTools::DNA_ALPHABET);
   const CodonAlphabet* codonAlphabet = new CodonAlphabet(&AlphabetTools::DNA_ALPHABET);
-  cout << "ok0" << endl;
   FrequenciesSet* fset = CodonFrequenciesSet::getFrequenciesSetForCodons(CodonFrequenciesSet::F3X4, &gc);
-  cout << "ok1" << endl;
   YN98 yn98(&gc, fset);
-  cout << "ok" << endl;
   if (!testModel(yn98)) return 1;
-  cout << "ok" << endl;
 
   delete codonAlphabet;
 
