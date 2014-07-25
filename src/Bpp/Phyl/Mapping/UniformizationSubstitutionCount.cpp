@@ -105,7 +105,9 @@ void UniformizationSubstitutionCount::fillBMatrices_()
       int toState = supportedStates[k];
       size_t i = register_->getType(fromState, toState);
       if (i > 0 && k != j) {
-        bMatrices_[i - 1](j, k) = model_->Qij(j, k) * (weights_ ? weights_->getIndex(fromState, toState) : 1);
+        //jdutheil on 25/07/14: I think this is incorrect, weights should only come at the end.
+        //bMatrices_[i - 1](j, k) = model_->Qij(j, k) * (weights_ ? weights_->getIndex(fromState, toState) : 1);
+        bMatrices_[i - 1](j, k) = model_->Qij(j, k);
       }
     }
   }
@@ -153,7 +155,8 @@ void UniformizationSubstitutionCount::computeCounts_(double length) const
     }
   }
 
-  // Now we must divide by pijt:
+  // Now we must divide by pijt and account for putative weights:
+  vector<int> supportedStates = model_->getAlphabetChars();
   RowMatrix<double> P = model_->getPij_t(length);
   for (size_t i = 0; i < register_->getNumberOfSubstitutionTypes(); i++) {
     for (size_t j = 0; j < nbStates_; j++) {
@@ -161,6 +164,9 @@ void UniformizationSubstitutionCount::computeCounts_(double length) const
         counts_[i](j, k) /= P(j, k);
         if (isnan(counts_[i](j, k)) || counts_[i](j, k) < 0.)
           counts_[i](j, k) = 0;
+        //Weights:
+        if (weights_)
+          counts_[i](j, k) *= weights_->getIndex(supportedStates[j], supportedStates[k]);
       }
     }
   }
@@ -264,7 +270,8 @@ void UniformizationSubstitutionCount::weightsHaveChanged() throw (Exception)
   if (weights_->getAlphabet()->getAlphabetType() != register_->getAlphabet()->getAlphabetType())
     throw Exception("UniformizationSubstitutionCount::weightsHaveChanged. Incorrect alphabet type.");
 
-  fillBMatrices_();
+  //jdutheil on 25/07/14: not necessary if weights are only accounted for in the end.
+  //fillBMatrices_();
   
   //Recompute counts:
   if (currentLength_ > 0)
