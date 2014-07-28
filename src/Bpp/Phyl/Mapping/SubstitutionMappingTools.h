@@ -105,7 +105,14 @@ namespace bpp
         const std::vector<int>& nodeIds,
         SubstitutionCount& substitutionCount,
         bool verbose = true) throw (Exception);
-  
+
+    static ProbabilisticSubstitutionMapping* computeSubstitutionVectors(
+      const DRTreeLikelihood& drtl,
+      const SubstitutionModelSet& modelSet,
+      const std::vector<int>& nodeIds,
+      SubstitutionCount& substitutionCount,
+      bool verbose = true) throw (Exception);
+
     /**
      * @brief Compute the substitutions vectors for a particular dataset using the
      * double-recursive likelihood computation.
@@ -287,6 +294,14 @@ namespace bpp
         double threshold = -1,
         bool verbose = true);
 
+    static std::vector< std::vector<double> > getCountsPerBranch(
+      DRTreeLikelihood& drtl,
+      const std::vector<int>& ids,
+      const SubstitutionModelSet& modelSet,
+      const SubstitutionRegister& reg,
+      double threshold = -1,
+      bool verbose = true);
+
 
     /**
      * @brief Returns the normalization factors due to the null model
@@ -334,8 +349,6 @@ namespace bpp
      * @param model             The model on which the SubstitutionCount is built
      * @param nullModel         The null model used for normalization.
      * @param reg               the Substitution Register
-     * @param complete          boolean if the counts should be
-     *                              completed to sum 1.
      *
      */
     
@@ -345,7 +358,6 @@ namespace bpp
         SubstitutionModel* model,
         SubstitutionModel* nullModel,
         const SubstitutionRegister& reg,
-        bool complete = true,
         bool verbose = true);
 
     /**
@@ -356,8 +368,6 @@ namespace bpp
      * @param modelSet          The model set on which the SubstitutionCount is built
      * @param nullModelSet      The null model set used for normalization.
      * @param reg               the Substitution Register
-     * @param complete          boolean if the counts should be
-     *                              completed to sum 1.
      *
      */
     
@@ -367,7 +377,6 @@ namespace bpp
         SubstitutionModelSet* modelSet,
         SubstitutionModelSet* nullModelSet,
         const SubstitutionRegister& reg,
-        bool complete = true,
         bool verbose = true);
 
     /**
@@ -384,6 +393,7 @@ namespace bpp
      *                                        (default: -1 means no threshold).
      *
      */
+
     static std::vector< std::vector<double> >  getRelativeCountsPerBranch(
         DRTreeLikelihood& drtl,
         const std::vector<int>& ids,
