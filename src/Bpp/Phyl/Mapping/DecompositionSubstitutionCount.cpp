@@ -94,9 +94,9 @@ void DecompositionSubstitutionCount::fillBMatrices_()
 
 void DecompositionSubstitutionCount::computeEigen_()
 {
-	v_      = model_->getColumnRightEigenVectors();
+  v_      = model_->getColumnRightEigenVectors();
   vInv_   = model_->getRowLeftEigenVectors();
-	lambda_ = model_->getEigenValues();
+  lambda_ = model_->getEigenValues();
 }
 
 void DecompositionSubstitutionCount::computeProducts_()
