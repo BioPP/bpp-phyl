@@ -5,7 +5,7 @@
 //
 
 /*
-   Copyright or © or Copr. CNRS, (November 16, 2004)
+   Copyright or © or Copr. Bio++ Development Team, (November 16, 2004)
 
    This software is a computer program whose purpose is to provide classes
    for phylogenetic data analysis.
@@ -218,14 +218,14 @@ double DRHomogeneousTreeLikelihood::getLogLikelihoodForASiteForARateClass(size_t
 
 double DRHomogeneousTreeLikelihood::getLikelihoodForASiteForARateClassForAState(size_t site, size_t rateClass, int state) const
 {
-  return likelihoodData_->getRootLikelihoodArray()[likelihoodData_->getRootArrayPosition(site)][rateClass][state];
+  return likelihoodData_->getRootLikelihoodArray()[likelihoodData_->getRootArrayPosition(site)][rateClass][static_cast<size_t>(state)];
 }
 
 /******************************************************************************/
 
 double DRHomogeneousTreeLikelihood::getLogLikelihoodForASiteForARateClassForAState(size_t site, size_t rateClass, int state) const
 {
-  return log(likelihoodData_->getRootLikelihoodArray()[likelihoodData_->getRootArrayPosition(site)][rateClass][state]);
+  return log(likelihoodData_->getRootLikelihoodArray()[likelihoodData_->getRootArrayPosition(site)][rateClass][static_cast<size_t>(state)]);
 }
 
 /******************************************************************************/

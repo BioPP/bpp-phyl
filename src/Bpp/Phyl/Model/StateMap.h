@@ -136,11 +136,11 @@ namespace bpp
       virtual std::string stateAsChar(size_t index) const { return alphabet_->intToChar(states_[index]); }
       virtual size_t whichState(int code) const throw (Exception) {
         try { return VectorTools::which(states_, code); }
-        catch (ElementNotFoundException<int>& ex) { throw Exception("AbstractStateMap::whichState. Unsupported alphabet char: " + code); }
+        catch (ElementNotFoundException<int>& ex) { throw Exception("AbstractStateMap::whichState. Unsupported alphabet char: " + TextTools::toString(code)); }
       }
       virtual size_t whichState(const std::string& code) const throw (Exception) {
         try { return VectorTools::which(states_, alphabet_->charToInt(code)); }
-        catch (ElementNotFoundException<int>& ex) { throw Exception("AbstractStateMap::whichState. Unsupported alphabet char: " + code); }
+        catch (ElementNotFoundException<int>& ex) { throw Exception("AbstractStateMap::whichState. Unsupported alphabet char: " + TextTools::toString(code)); }
       }
 
   };

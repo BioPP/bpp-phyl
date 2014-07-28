@@ -143,8 +143,8 @@ public:
   double getLogLikelihood() const;
   
   void setData(const SiteContainer& sites) throw (Exception);
-  double getLikelihoodForASite (unsigned int site) const;
-  double getLogLikelihoodForASite(unsigned int site) const;
+  double getLikelihoodForASite (size_t site) const;
+  double getLogLikelihoodForASite(size_t site) const;
   /** @} */
 
 
@@ -153,10 +153,10 @@ public:
    *
    * @{
    */
-  double getLikelihoodForASiteForARateClass(unsigned int site, unsigned int rateClass) const;
-  double getLogLikelihoodForASiteForARateClass(unsigned int site, unsigned int rateClass) const;
-  double getLikelihoodForASiteForARateClassForAState(unsigned int site, unsigned int rateClass, int state) const;
-  double getLogLikelihoodForASiteForARateClassForAState(unsigned int site, unsigned int rateClass, int state) const;
+  double getLikelihoodForASiteForARateClass(size_t site, size_t rateClass) const;
+  double getLogLikelihoodForASiteForARateClass(size_t site, size_t rateClass) const;
+  double getLikelihoodForASiteForARateClassForAState(size_t site, size_t rateClass, int state) const;
+  double getLogLikelihoodForASiteForARateClassForAState(size_t site, size_t rateClass, int state) const;
   /** @} */
 
   /**

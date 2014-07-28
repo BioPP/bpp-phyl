@@ -269,7 +269,7 @@ double DRHomogeneousMixedTreeLikelihood::getLogLikelihood() const
 }
 
 
-double DRHomogeneousMixedTreeLikelihood::getLikelihoodForASite(unsigned int site) const
+double DRHomogeneousMixedTreeLikelihood::getLikelihoodForASite(size_t site) const
 {
   double res = 0;
   for (unsigned int i = 0; i < treeLikelihoodsContainer_.size(); i++)
@@ -280,14 +280,14 @@ double DRHomogeneousMixedTreeLikelihood::getLikelihoodForASite(unsigned int site
   return res;
 }
 
-double DRHomogeneousMixedTreeLikelihood::getLogLikelihoodForASite(unsigned int site) const
+double DRHomogeneousMixedTreeLikelihood::getLogLikelihoodForASite(size_t site) const
 {
   double x = getLikelihoodForASite(site);
   if (x < 0) x = 0;
   return log(x);
 }
 
-double DRHomogeneousMixedTreeLikelihood::getLikelihoodForASiteForARateClass(unsigned int site, unsigned int rateClass) const
+double DRHomogeneousMixedTreeLikelihood::getLikelihoodForASiteForARateClass(size_t site, size_t rateClass) const
 {
   double res = 0;
   for (unsigned int i = 0; i < treeLikelihoodsContainer_.size(); i++)
@@ -298,14 +298,14 @@ double DRHomogeneousMixedTreeLikelihood::getLikelihoodForASiteForARateClass(unsi
   return res;
 }
 
-double DRHomogeneousMixedTreeLikelihood::getLogLikelihoodForASiteForARateClass(unsigned int site, unsigned int rateClass) const
+double DRHomogeneousMixedTreeLikelihood::getLogLikelihoodForASiteForARateClass(size_t site, size_t rateClass) const
 {
   double x = getLikelihoodForASiteForARateClass(site, rateClass);
   if (x < 0) x = 0;
   return log(x);
 }
 
-double DRHomogeneousMixedTreeLikelihood::getLikelihoodForASiteForARateClassForAState(unsigned int site, unsigned int rateClass, int state) const
+double DRHomogeneousMixedTreeLikelihood::getLikelihoodForASiteForARateClassForAState(size_t site, size_t rateClass, int state) const
 {
   double res = 0;
 
@@ -317,7 +317,7 @@ double DRHomogeneousMixedTreeLikelihood::getLikelihoodForASiteForARateClassForAS
   return res;
 }
 
-double DRHomogeneousMixedTreeLikelihood::getLogLikelihoodForASiteForARateClassForAState(unsigned int site, unsigned int rateClass, int state) const
+double DRHomogeneousMixedTreeLikelihood::getLogLikelihoodForASiteForARateClassForAState(size_t site, size_t rateClass, int state) const
 {
   double x = getLikelihoodForASiteForARateClassForAState(site, rateClass, state);
   if (x < 0) x = 0;

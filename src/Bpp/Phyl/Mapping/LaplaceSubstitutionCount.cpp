@@ -64,10 +64,10 @@ void LaplaceSubstitutionCount::computeCounts(double length) const
   RowMatrix<double> M3(s, s);
   RowMatrix<double> M4(s, s);
   RowMatrix<double> M5(s, s);
-  for (int n = 1; n < cutOff_; n++)
+  for (size_t n = 1; n < cutOff_; ++n)
   {
     MatrixTools::fill(M2, 0.);
-    for (int p = 0; p < n; p++)
+    for (size_t p = 0; p < n; ++p)
     {
       MatrixTools::pow(Q, p, M3);         // Q^p -> M5
       MatrixTools::mult(M3, QL, M4);      // Q^p . QL -> M4
@@ -75,7 +75,7 @@ void LaplaceSubstitutionCount::computeCounts(double length) const
       MatrixTools::mult(M4, M3, M5);      // Q^p . QL . Q^(n-p-1) -> M5
       MatrixTools::add(M2, M5);
     }
-    MatrixTools::scale(M2, pow(length, n) / NumTools::fact(n));
+    MatrixTools::scale(M2, pow(length, static_cast<double>(n)) / static_cast<double>(NumTools::fact(n)));
     MatrixTools::add(m_, M2);
   }
 
@@ -95,14 +95,14 @@ void LaplaceSubstitutionCount::computeCounts(double length) const
 double LaplaceSubstitutionCount::getNumberOfSubstitutions(int initialState, int finalState, double length, size_t type) const
 {
   if (length == currentLength_)
-    return m_(initialState, finalState);
+    return m_(static_cast<size_t>(initialState), static_cast<size_t>(finalState));
   if (length < 0.000001)
     return initialState == finalState ? 0. : 1.;  // Limit case!
   // Else we need to recompute M:
   computeCounts(length);
 
   currentLength_ = length;
-  return m_(initialState, finalState);
+  return m_(static_cast<size_t>(initialState), static_cast<size_t>(finalState));
 }
 
 /******************************************************************************/

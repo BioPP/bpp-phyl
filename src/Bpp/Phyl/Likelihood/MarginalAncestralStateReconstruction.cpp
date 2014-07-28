@@ -58,7 +58,7 @@ vector<size_t> MarginalAncestralStateReconstruction::getAncestralStatesForNode(i
       Vdouble* probs_i = &probs[i];
       probs_i->resize(nbStates_);
       size_t j = VectorTools::whichMax(larray[i]);
-      ancestors[i] = (int)j;
+      ancestors[i] = static_cast<int>(j);
       (*probs_i)[j] = 1.;
     }
   }
@@ -89,7 +89,7 @@ vector<size_t> MarginalAncestralStateReconstruction::getAncestralStatesForNode(i
           cumProb += (*probs_i)[j];
           if (r <= cumProb)
           {
-            ancestors[i] = (int)j;
+            ancestors[i] = static_cast<int>(j);
             break;
           }
         }
