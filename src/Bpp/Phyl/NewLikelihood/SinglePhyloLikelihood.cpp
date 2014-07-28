@@ -222,7 +222,7 @@ throw (Exception)
     throw Exception("Non derivable parameter: " + variable);
   }
 
-  tlComp_->computeTreeDLikelihood(variable);
+  tlComp_->computeTreeDLogLikelihood(variable);
   return - tlComp_->getDLogLikelihood();
 }
 
@@ -240,7 +240,7 @@ throw (Exception)
     throw Exception("Non derivable parameter: " + variable);
   }
 
-  tlComp_->computeTreeD2Likelihood(variable);
+  tlComp_->computeTreeD2LogLikelihood(variable);
   return - tlComp_->getD2LogLikelihood();
 }
 

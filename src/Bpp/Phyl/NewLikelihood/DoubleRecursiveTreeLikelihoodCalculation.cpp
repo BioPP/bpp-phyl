@@ -55,8 +55,8 @@ throw (Exception) :
   likelihoodData_(0),
   root1_(-1),
   root2_(-1),
-  nullDLikelihood_(true),
-  nullD2Likelihood_(true),
+  nullDLogLikelihood_(true),
+  nullD2LogLikelihood_(true),
   compNId_(-1)
 {
   init_();
@@ -73,8 +73,8 @@ throw (Exception) :
   likelihoodData_(0),
   root1_(-1),
   root2_(-1),
-  nullDLikelihood_(true),
-  nullD2Likelihood_(true),
+  nullDLogLikelihood_(true),
+  nullD2LogLikelihood_(true),
   compNId_(-1)
 {
   init_();
@@ -96,8 +96,8 @@ DoubleRecursiveTreeLikelihoodCalculation::DoubleRecursiveTreeLikelihoodCalculati
   likelihoodData_(0),
   root1_(lik.root1_),
   root2_(lik.root2_),
-  nullDLikelihood_(lik.nullDLikelihood_),
-  nullD2Likelihood_(lik.nullD2Likelihood_),
+  nullDLogLikelihood_(lik.nullDLogLikelihood_),
+  nullD2LogLikelihood_(lik.nullD2LogLikelihood_),
   compNId_(lik.compNId_)
 {
   likelihoodData_.reset(lik.likelihoodData_->clone());
@@ -112,8 +112,8 @@ DoubleRecursiveTreeLikelihoodCalculation& DoubleRecursiveTreeLikelihoodCalculati
   root1_=lik.root1_;
   root2_=lik.root2_;
   
-  nullDLikelihood_=lik.nullDLikelihood_;
-  nullD2Likelihood_=lik.nullD2Likelihood_;
+  nullDLogLikelihood_=lik.nullDLogLikelihood_;
+  nullD2LogLikelihood_=lik.nullD2LogLikelihood_;
   compNId_=lik.compNId_;
   
   return *this;
@@ -144,7 +144,8 @@ void DoubleRecursiveTreeLikelihoodCalculation::setData(const SiteContainer& site
     ApplicationTools::displayResult("Number of distinct sites", TextTools::toString(nbDistinctSites_));
 
   initialized_ = true;
-
+  compNId_ = -1;
+  
   //Recompute likelihood:
   computeTreeLikelihood();
 }
@@ -157,6 +158,7 @@ double DoubleRecursiveTreeLikelihoodCalculation::getLikelihoodForASite(size_t si
   VVVdouble* lla = &likelihoodData_->getRootLikelihoodArray();
   size_t posR=likelihoodData_->getRootArrayPosition(site);
 
+  
   for (size_t c = 0; c < nbClasses_; ++c)
   {
     for (size_t j = 0; j < nbStates_; ++j)
@@ -553,12 +555,12 @@ void DoubleRecursiveTreeLikelihoodCalculation::computeLikelihoodAtNode_(const No
  *                           First Order Derivatives                          *
  ******************************************************************************/
 
-void DoubleRecursiveTreeLikelihoodCalculation::computeTreeDLikelihoodAtNode(const Node* node)
+void DoubleRecursiveTreeLikelihoodCalculation::computeTreeDLogLikelihoodAtNode(const Node* node)
 {
   const Node* father = node->getFather();
   VVVdouble* likelihoods_father_node = &likelihoodData_->getLikelihoodArray(father->getId(), node->getId());
   
-  VVdouble* dLikelihoods_node = &likelihoodData_->getDLikelihoodArray(node->getId());
+  VVdouble* dLogLikelihoods_node = &likelihoodData_->getDLogLikelihoodArray(node->getId());
   // VVVdouble*  pxy__node = &pxy_[node->getId()];
   // VVVdouble* dpxy__node = &dpxy_[node->getId()];
 
@@ -568,30 +570,20 @@ void DoubleRecursiveTreeLikelihoodCalculation::computeTreeDLikelihoodAtNode(cons
   
   VVdouble* rootLikelihoodsS = &likelihoodData_->getRootStateLikelihoodArray();
 
-  process_->computeDXLikelihoods(dLikelihoods_node, likelihoods_father_node, &larray, node->getId(), ComputingNode::D1);
+  process_->computeDXLogLikelihoods(dLogLikelihoods_node, likelihoods_father_node, &larray, node->getId(), ComputingNode::D1);
 
   for (size_t c = 0; c < nbClasses_; c++){
     Vdouble* rootLikelihoodsS_c=&(*rootLikelihoodsS)[c];
-    Vdouble* dLikelihoods_node_c=&(*dLikelihoods_node)[c];
+    Vdouble* dLogLikelihoods_node_c=&(*dLogLikelihoods_node)[c];
     
     for (size_t i = 0; i < nbDistinctSites_; i++)
-      (*dLikelihoods_node_c)[i] /= (*rootLikelihoodsS_c)[i];
+      (*dLogLikelihoods_node_c)[i] /= (*rootLikelihoodsS_c)[i];
   }
 }
 
 /******************************************************************************/
 
-// void DoubleRecursiveTreeLikelihoodCalculation::computeTreeDLikelihoods()
-// {
-//   for (size_t k = 0; k < nbNodes_; k++)
-//   {
-//     computeTreeDLikelihoodAtNode(nodes_[k]);
-//   }
-// }
-
-/******************************************************************************/
-
-void DoubleRecursiveTreeLikelihoodCalculation::computeTreeDLikelihood(const std::string& variable)
+void DoubleRecursiveTreeLikelihoodCalculation::computeTreeDLogLikelihood(const std::string& variable)
 {
   int brId;
   try {
@@ -599,58 +591,45 @@ void DoubleRecursiveTreeLikelihoodCalculation::computeTreeDLikelihood(const std:
   }
   catch (std::exception const& e)
   {
-    nullDLikelihood_=true;
+    nullDLogLikelihood_=true;
     return;
   }
 
   compNId_=brId;
 
-  nullDLikelihood_=false;
+  nullDLogLikelihood_=false;
   const Node* branch = process_->getTree().getNode(brId);
 
-  computeTreeDLikelihoodAtNode(branch);
-  
-  // VVdouble* dLikelihood = &likelihoodData_->getDLikelihoodArray(branch);
-  
-  // double d = 0;
-  // for (size_t c = 0; c < nbClasses_; c++){
-  //   dc=0;
-  //   Vdouble* dLikelihoods_node_c=&(*dLikelihoods_node)[c];
-  //   for (size_t i = 0; i < nbSites_; i++)
-  //     dc += (*dLikelihoods_node_c)[i];
-    
-  //   d += dc * process_->getProbabilityForModel(c);
-  // }
-  
-  // return d;  /// ??? was -d ?????
+  computeTreeDLogLikelihoodAtNode(branch);
 }
 
-double DoubleRecursiveTreeLikelihoodCalculation::getDLikelihoodForASite(size_t site) const
+double DoubleRecursiveTreeLikelihoodCalculation::getDLogLikelihoodForASite(size_t site) const
 {
-  if ((nullDLikelihood_) || (compNId_==-1))
+  if ((nullDLogLikelihood_) || (compNId_==-1))
     return 0;
   
   // Derivative of the sum is the sum of derivatives:
   double dl = 0;
-  VVdouble* ldla = &likelihoodData_->getDLikelihoodArray(compNId_);
+  VVdouble* ldla = &likelihoodData_->getDLogLikelihoodArray(compNId_);
   size_t posR=likelihoodData_->getRootArrayPosition(site);
 
   for (size_t c = 0; c < nbClasses_; c++)
   {
     dl += (*ldla)[c][posR] * process_->getProbabilityForModel(c);
   }
-  return dl;
+  return dl;   // ???  was -dl ?????
+
 }
 
 /******************************************************************************
  *                           Second Order Derivatives                         *
  ******************************************************************************/
-void DoubleRecursiveTreeLikelihoodCalculation::computeTreeD2LikelihoodAtNode(const Node* node)
+void DoubleRecursiveTreeLikelihoodCalculation::computeTreeD2LogLikelihoodAtNode(const Node* node)
 {
   const Node* father = node->getFather();
   VVVdouble* likelihoods_father_node = &likelihoodData_->getLikelihoodArray(father->getId(), node->getId());
   
-  VVdouble* d2Likelihoods_node = &likelihoodData_->getD2LikelihoodArray(node->getId());
+  VVdouble* d2LogLikelihoods_node = &likelihoodData_->getD2LogLikelihoodArray(node->getId());
   // VVVdouble*  pxy__node = &pxy_[node->getId()];
   // VVVdouble* dpxy__node = &dpxy_[node->getId()];
 
@@ -660,30 +639,20 @@ void DoubleRecursiveTreeLikelihoodCalculation::computeTreeD2LikelihoodAtNode(con
   
   VVdouble* rootLikelihoodsS = &likelihoodData_->getRootStateLikelihoodArray();
 
-  process_->computeDXLikelihoods(d2Likelihoods_node, likelihoods_father_node, &larray, node->getId(), ComputingNode::D2);
+  process_->computeDXLogLikelihoods(d2LogLikelihoods_node, likelihoods_father_node, &larray, node->getId(), ComputingNode::D2);
 
   for (size_t c = 0; c < nbClasses_; c++){
     Vdouble* rootLikelihoodsS_c=&(*rootLikelihoodsS)[c];
-    Vdouble* d2Likelihoods_node_c=&(*d2Likelihoods_node)[c];
+    Vdouble* d2LogLikelihoods_node_c=&(*d2LogLikelihoods_node)[c];
     
     for (size_t i = 0; i < nbDistinctSites_; i++)
-      (*d2Likelihoods_node_c)[i] /= (*rootLikelihoodsS_c)[i];
+      (*d2LogLikelihoods_node_c)[i] /= (*rootLikelihoodsS_c)[i];
   }
 }
 
 /******************************************************************************/
 
-// void DoubleRecursiveTreeLikelihoodCalculation::computeTreeDLikelihoods()
-// {
-//   for (size_t k = 0; k < nbNodes_; k++)
-//   {
-//     computeTreeDLikelihoodAtNode(nodes_[k]);
-//   }
-// }
-
-/******************************************************************************/
-
-void DoubleRecursiveTreeLikelihoodCalculation::computeTreeD2Likelihood(const std::string& variable)
+void DoubleRecursiveTreeLikelihoodCalculation::computeTreeD2LogLikelihood(const std::string& variable)
 {
   int brId;
   try {
@@ -691,64 +660,33 @@ void DoubleRecursiveTreeLikelihoodCalculation::computeTreeD2Likelihood(const std
   }
   catch (std::exception const& e)
   {
-    nullD2Likelihood_=true;
+    nullD2LogLikelihood_=true;
     return;
   }
 
   compNId_=brId;
-  nullD2Likelihood_=false;
+  nullD2LogLikelihood_=false;
   const Node* branch = process_->getTree().getNode(brId);
 
-  computeTreeD2LikelihoodAtNode(branch);
-  
-  // VVdouble* d2Likelihood = &likelihoodData_->getD2LikelihoodArray(branch);
-  
-  // double d = 0;
-  // for (size_t c = 0; c < nbClasses_; c++){
-  //   dc=0;
-  //   Vdouble* d2Likelihoods_node_c=&(*d2Likelihoods_node)[c];
-  //   for (size_t i = 0; i < nbSites_; i++)
-  //     dc += (*d2Likelihoods_node_c)[i];
-    
-  //   d += dc * process_->getProbabilityForModel(c);
-  // }
-  
-  // return d;  /// ??? was -d ?????
+  computeTreeD2LogLikelihoodAtNode(branch);
 }
 
-double DoubleRecursiveTreeLikelihoodCalculation::getD2LikelihoodForASite(size_t site) const
+double DoubleRecursiveTreeLikelihoodCalculation::getD2LogLikelihoodForASite(size_t site) const
 {
-  if ((nullDLikelihood_) || (compNId_==-1))
+  if ((nullDLogLikelihood_) || (compNId_==-1))
     return 0;
   
   // Derivative of the sum is the sum of derivatives:
   double d2l = 0;
-  VVdouble* ldla = &likelihoodData_->getD2LikelihoodArray(compNId_);
+  VVdouble* ldla = &likelihoodData_->getD2LogLikelihoodArray(compNId_);
   size_t posR=likelihoodData_->getRootArrayPosition(site);
 
   for (size_t c = 0; c < nbClasses_; c++)
   {
     d2l += (*ldla)[c][posR] * process_->getProbabilityForModel(c);
   }
-  return d2l;
+  return d2l; //  ??? was -d2l ???
 }
-
-/******************************************************************************/
-
-// void DoubleRecursiveTreeLikelihoodCalculation::resetLikelihoodArrays(const Node* node)
-// {
-//   for (size_t n = 0; n < node->getNumberOfSons(); n++)
-//   {
-//     const Node* subNode = node->getSon(n);
-//     likelihoodData_->getNodeData(node->getId()).resetLikelihoodArrayForNeighbor(subNode->getId());
-//   }
-//   if (node->hasFather())
-//   {
-//     const Node* father = node->getFather();
-//     likelihoodData_->getNodeData(node->getId()).resetLikelihoodArrayForNeighbor(father->getId());
-//   }
-// }
-
 
 /******************************************************************************/
 

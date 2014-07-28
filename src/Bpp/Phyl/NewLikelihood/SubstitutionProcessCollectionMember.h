@@ -466,9 +466,9 @@ namespace bpp
       computingTree_->multiplyPartialDXLikelihoods(brId, dXLikelihoods_node, vLikelihoods_sons, nodeId, vPatterns, DX);
     }
 
-    void computeDXLikelihoods(VVdouble* dXLikelihoods_node, const VVVdouble* likelihoods_father_node, const VVVdouble* likelihoods_father, int nodeId, unsigned char DX) const
+    void computeDXLogLikelihoods(VVdouble* dXLogLikelihoods_node, const VVVdouble* likelihoods_father_node, const VVVdouble* likelihoods_father, int nodeId, unsigned char DX) const
     {
-      computingTree_->computeDXLikelihoods(dXLikelihoods_node, likelihoods_father_node, likelihoods_father, nodeId, DX);
+      computingTree_->computeDXLogLikelihoods(dXLogLikelihoods_node, likelihoods_father_node, likelihoods_father, nodeId, DX);
     }
 
     friend class SubstitutionProcessCollection;

@@ -143,16 +143,6 @@ public:
     return Hmm_->getLikelihoodForASite(site);
   }
 
-  double getDLikelihoodForASite(size_t site) const
-  {
-    throw (NotImplementedException("AutoCorrelationPhyloLikelihood::getDLikelihoodForASite should not be called"));
-  }
-
-  double getD2LikelihoodForASite(size_t site) const
-  {
-    throw (NotImplementedException("AutoCorrelationPhyloLikelihood::getD2LikelihoodForASite should not be called"));
-  }
-
   Vdouble getLikelihoodForEachSite() const
   {
     return Hmm_->getLikelihoodForEachSite();
@@ -171,13 +161,13 @@ public:
   }
   
 protected:
-  void computeDLikelihood_(const std::string& variable) const
+  void computeDLogLikelihood_(const std::string& variable) const
   {
     Hmm_->getFirstOrderDerivative(variable);
   }
 
 
-  void computeD2Likelihood_(const std::string& variable) const
+  void computeD2LogLikelihood_(const std::string& variable) const
   {
     Hmm_->getSecondOrderDerivative(variable);
   }

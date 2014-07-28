@@ -429,12 +429,12 @@ namespace bpp
     }
 
     /**
-     *@brief computes the derivate of the likelihood by the length of
-     * a branch, using the conditional likelihoods of the father of
+     *@brief computes the derivate of the log likelihood by the length
+     * of a branch, using the conditional likelihoods of the father of
      * this node (in case of double recursive calculation).
      *
-     * @param dXlikelihoods_node a pointer to the derivate of the
-     * likelihood of this node [in, out].
+     * @param dXLogLikelihoods_node a pointer to the derivate of the
+     * log likelihood of this node [in, out].
      * @param likelihoods_father_node a pointer to the conditional
      * father-node likelihood.
      * @param vLikelihoods_sons a vector of the likelihoods of the
@@ -444,15 +444,15 @@ namespace bpp
      * for their first derivate, D2 for their second.
      **/
 
-    void computeDXLikelihoods(Vdouble* dXLikelihoods_node, const VVdouble* likelihoods_father_node, const VVdouble* likelihoods_father, unsigned char DX) const
+    void computeDXLogLikelihoods(Vdouble* dXLogLikelihoods_node, const VVdouble* likelihoods_father_node, const VVdouble* likelihoods_father, unsigned char DX) const
     {
-      size_t nbSites=dXLikelihoods_node->size();
+      size_t nbSites=dXLogLikelihoods_node->size();
 
       Vdouble numer(nbStates_), denom(nbStates_);
       
       for (size_t i = 0; i < nbSites; i++)
       {
-        double* dXLikelihoods_node_i = &(*dXLikelihoods_node)[i];
+        double* dXLogLikelihoods_node_i = &(*dXLogLikelihoods_node)[i];
         const Vdouble* likelihoods_father_node_i = &(*likelihoods_father_node)[i];
         const Vdouble* likelihoods_father_i = &(*likelihoods_father)[i];
 
@@ -464,10 +464,10 @@ namespace bpp
 
         this->multiplyDXLikelihoodsAtASite(&numer, likelihoods_father_node_i, DX);
         this->multiplyDXLikelihoodsAtASite(&denom, likelihoods_father_node_i, D0);
-        (*dXLikelihoods_node_i)=0;
+        (*dXLogLikelihoods_node_i)=0;
         
         for (size_t s=0; s< nbStates_; s++)
-          (*dXLikelihoods_node_i) += (denom[s]==0.)?0.: (*likelihoods_father_i)[s] * numer[s]/denom[s];
+          (*dXLogLikelihoods_node_i) += (denom[s]==0.)?0.: (*likelihoods_father_i)[s] * numer[s]/denom[s];
       }
 
     }

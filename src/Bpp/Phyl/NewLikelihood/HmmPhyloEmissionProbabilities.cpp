@@ -83,7 +83,7 @@ void HmmPhyloEmissionProbabilities::updateEmissionProbabilities_() const
 void HmmPhyloEmissionProbabilities::computeDEmissionProbabilities(std::string& variable) const
 {
   for (size_t i=0;i<multiPL_->getNumberOfSubstitutionProcess();i++)
-    multiPL_->computeDLikelihoodForAProcess(variable,i);
+    multiPL_->computeDLogLikelihoodForAProcess(variable,i);
 
   if (dEmProb_.size()!=multiPL_->getNumberOfSites())
   {
@@ -94,13 +94,13 @@ void HmmPhyloEmissionProbabilities::computeDEmissionProbabilities(std::string& v
 
   for (size_t i=0;i<dEmProb_.size();i++)
     for (size_t j=0;j<dEmProb_[j].size();j++)
-      dEmProb_[i][j]= multiPL_->getDLikelihoodForASiteForAProcess(i, j);
+      dEmProb_[i][j]= multiPL_->getDLogLikelihoodForASiteForAProcess(i, j) * multiPL_->getLikelihoodForASiteForAProcess(i, j);
 }
   
 void HmmPhyloEmissionProbabilities::computeD2EmissionProbabilities(std::string& variable) const
 {
   for (size_t i=0;i<multiPL_->getNumberOfSubstitutionProcess();i++)
-    multiPL_->computeD2LikelihoodForAProcess(variable,i);
+    multiPL_->computeD2LogLikelihoodForAProcess(variable,i);
 
   if (d2EmProb_.size()!=multiPL_->getNumberOfSites())
   {
@@ -110,8 +110,11 @@ void HmmPhyloEmissionProbabilities::computeD2EmissionProbabilities(std::string& 
   }
 
   for (size_t i=0;i<d2EmProb_.size();i++)
-    for (size_t j=0;j<d2EmProb_[j].size();j++)
-      d2EmProb_[i][j]= multiPL_->getD2LikelihoodForASiteForAProcess(i, j);
+    for (size_t j=0;j<d2EmProb_[j].size();j++){
+      double x= multiPL_->getDLogLikelihoodForASiteForAProcess(i, j);
+      d2EmProb_[i][j]= (multiPL_->getD2LogLikelihoodForASiteForAProcess(i, j) + x*x)*multiPL_->getLikelihoodForASiteForAProcess(i, j);
+    }
 }
+
   
 

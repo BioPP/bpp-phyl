@@ -350,15 +350,15 @@ namespace bpp
      * for their first derivate, D2 for their second.
      **/
 
-    void computeDXLikelihoods(VVdouble* dXLikelihoods_node, const VVVdouble* likelihoods_father_node, const VVVdouble* likelihoods_father, int nodeId, unsigned char DX) const
+    void computeDXLogLikelihoods(VVdouble* dXLogLikelihoods_node, const VVVdouble* likelihoods_father_node, const VVVdouble* likelihoods_father, int nodeId, unsigned char DX) const
     {
       for (size_t c = 0; c < vTree_.size(); ++c)
       {
-        Vdouble* dXLikelihoods_node_c = &(*dXLikelihoods_node)[c];
+        Vdouble* dXLogLikelihoods_node_c = &(*dXLogLikelihoods_node)[c];
         const VVdouble* likelihoods_father_node_c = &(*likelihoods_father_node)[c];
         const VVdouble* likelihoods_father_c = &(*likelihoods_father)[c];
         
-        vTree_[c]->getNode(nodeId)->computeDXLikelihoods(dXLikelihoods_node_c, likelihoods_father_node_c, likelihoods_father_c, DX);
+        vTree_[c]->getNode(nodeId)->computeDXLogLikelihoods(dXLogLikelihoods_node_c, likelihoods_father_node_c, likelihoods_father_c, DX);
       }
     }
     

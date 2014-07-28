@@ -101,7 +101,8 @@ public:
 public:
   void fireParameterChanged(const ParameterList& parameters);
 
-  ParameterList getDerivableParameters() const { return getBranchLengthsParameters(); }
+  ParameterList getDerivableParameters() const { return getBranchLengthsParameters();
+  }
 
   ParameterList getNonDerivableParameters() const;
 
@@ -130,19 +131,19 @@ public:
   
   double getD2LogLikelihood() const;
 
+  double getDLogLikelihoodForASite(size_t site) const;
+  
+  double getD2LogLikelihoodForASite(size_t site) const;
+  
   double getLikelihoodForASite(size_t site) const;
   
-  double getDLikelihoodForASite(size_t site) const;
-
-  double getD2LikelihoodForASite(size_t site) const;
-
   VVdouble getPosteriorProbabilitiesForEachSiteForEachProcess() const;
 
 protected:
   
-  void computeDLikelihood_(const std::string& variable) const;
+  void computeDLogLikelihood_(const std::string& variable) const;
 
-  void computeD2Likelihood_(const std::string& variable) const;
+  void computeD2LogLikelihood_(const std::string& variable) const;
 
   /*
    * @}

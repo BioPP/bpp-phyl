@@ -144,7 +144,7 @@ class DRTreeLikelihoodNodeData :
      * </pre> 
      * We call this the <i>dLikelihood array</i> for each node.
      */
-    mutable Vdouble nodeDLikelihoods_;
+    mutable Vdouble nodeDLogLikelihoods_;
   
     /**
      * @brief This contains all likelihood second order derivatives values used for computation.
@@ -162,15 +162,15 @@ class DRTreeLikelihoodNodeData :
   public:
     DRTreeLikelihoodNodeData() :
       nodeLikelihoods_(),
-      nodeDLikelihoods_(),
-      nodeD2Likelihoods_(),
+      nodeDLogLikelihoods_(),
+      nodeD2LogLikelihoods_(),
       nodeId_(-1)
     {}
     
     DRTreeLikelihoodNodeData(const DRTreeLikelihoodNodeData& data) :
       nodeLikelihoods_(data.nodeLikelihoods_),
-      nodeDLikelihoods_(data.nodeDLikelihoods_),
-      nodeD2Likelihoods_(data.nodeD2Likelihoods_),
+      nodeDLogLikelihoods_(data.nodeDLogLikelihoods_),
+      nodeD2LogLikelihoods_(data.nodeD2LogLikelihoods_),
       nodeId_(data.nodeId_)
     {}
     
@@ -213,13 +213,13 @@ class DRTreeLikelihoodNodeData :
       return nodeLikelihoods_[neighborId];
     }
     
-    Vdouble& getDLikelihoodArray() { return nodeDLikelihoods_;  }
+    Vdouble& getDLogLikelihoodArray() { return nodeDLogLikelihoods_;  }
     
-    const Vdouble& getDLikelihoodArray() const { return nodeDLikelihoods_;  }
+    const Vdouble& getDLogLikelihoodArray() const { return nodeDLogLikelihoods_;  }
     
-    Vdouble& getD2LikelihoodArray() { return nodeD2Likelihoods_; }
+    Vdouble& getD2LogLikelihoodArray() { return nodeD2LogLikelihoods_; }
     
-    const Vdouble& getD2LikelihoodArrayForNeighbor() const { return nodeD2Likelihoods_; }
+    const Vdouble& getD2LogLikelihoodArrayForNeighbor() const { return nodeD2LogLikelihoods_; }
 
     bool isNeighbor(int neighborId) const
     {
@@ -229,8 +229,8 @@ class DRTreeLikelihoodNodeData :
     void eraseNeighborArrays()
     {
       nodeLikelihoods_.erase(nodeLikelihoods_.begin(), nodeLikelihoods_.end());
-      nodeDLikelihoods_.erase(nodeDLikelihoods_.begin(), nodeDLikelihoods_.end());
-      nodeD2Likelihoods_.erase(nodeD2Likelihoods_.begin(), nodeD2Likelihoods_.end());
+      nodeDLogLikelihoods_.erase(nodeDLogLikelihoods_.begin(), nodeDLogLikelihoods_.end());
+      nodeD2LogLikelihoods_.erase(nodeD2LogLikelihoods_.begin(), nodeD2LogLikelihoods_.end());
     }
 };
 
@@ -345,24 +345,24 @@ class DRTreeLikelihoodData :
       return nodeData_[parentId].getLikelihoodArrayForNeighbor(neighborId);
     }
     
-    Vdouble& getDLikelihoodArray(int nodeId)
+    Vdouble& getDLogLikelihoodArray(int nodeId)
     {
-      return nodeData_[nodeId].getDLikelihoodArray();
+      return nodeData_[nodeId].getDLogLikelihoodArray();
     }
     
-    const Vdouble& getDLikelihoodArray(int nodeId) const
+    const Vdouble& getDLogLikelihoodArray(int nodeId) const
     {
-      return nodeData_[nodeId].getDLikelihoodArray();
+      return nodeData_[nodeId].getDLogLikelihoodArray();
     }
     
-    Vdouble& getD2LikelihoodArray(int nodeId)
+    Vdouble& getD2LogLikelihoodArray(int nodeId)
     {
-      return nodeData_[nodeId].getD2LikelihoodArray();
+      return nodeData_[nodeId].getD2LogLikelihoodArray();
     }
 
-    const Vdouble& getD2LikelihoodArray(int nodeId) const
+    const Vdouble& getD2LogLikelihoodArray(int nodeId) const
     {
-      return nodeData_[nodeId].getD2LikelihoodArray();
+      return nodeData_[nodeId].getD2LogLikelihoodArray();
     }
 
     VVdouble& getLeafLikelihoods(int nodeId)

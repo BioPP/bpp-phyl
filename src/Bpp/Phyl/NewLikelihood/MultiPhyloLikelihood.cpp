@@ -230,21 +230,6 @@ VVdouble MultiPhyloLikelihood::getLikelihoodForEachSiteForEachProcess() const
 
 /******************************************************************************/
 
-double MultiPhyloLikelihood::getDLogLikelihoodForASite(size_t site) const
-{
-  return getDLikelihoodForASite(site) / getLikelihoodForASite(site);
-}
-
-/******************************************************************************/
-
-double MultiPhyloLikelihood::getD2LogLikelihoodForASite(size_t site) const
-{
-  return getD2LikelihoodForASite(site) / getLikelihoodForASite(site)
-         - pow( getDLikelihoodForASite(site) / getLikelihoodForASite(site), 2);
-}
-
-/******************************************************************************/
-
 
 void MultiPhyloLikelihood::setParameters(const ParameterList& parameters)
 throw (ParameterNotFoundException, ConstraintException)
@@ -273,7 +258,7 @@ throw (Exception)
   {
     throw Exception("Derivatives are only implemented for branch length parameters.");
   }
-  computeDLikelihood_(variable);
+  computeDLogLikelihood_(variable);
   return -getDLogLikelihood();
 }
 
@@ -288,19 +273,20 @@ throw (Exception)
   {
     throw Exception("Derivatives are only implemented for branch length parameters.");
   }
-  computeD2Likelihood_(variable);
+  computeD2LogLikelihood_(variable);
   return -getD2LogLikelihood();
 }
 
+/******************************************************************************/
 
-void MultiPhyloLikelihood::computeDLikelihoodForAProcess(std::string& variable, size_t p) const
+void MultiPhyloLikelihood::computeDLogLikelihoodForAProcess(std::string& variable, size_t p) const
 {
   size_t i=0;
   
   try {
     i=(size_t)atoi(variable.substr(variable.rfind('_')+1).c_str());
     if (p+1==i){
-      vpTreelik_[p]->computeTreeDLikelihood(variable);
+      vpTreelik_[p]->computeTreeDLogLikelihood(variable);
       return;
     }
   }
@@ -313,7 +299,7 @@ void MultiPhyloLikelihood::computeDLikelihoodForAProcess(std::string& variable, 
     try {
       i=(size_t)atoi(valias[v].substr(valias[v].rfind('_')+1).c_str());
       if (p+1==i){
-        vpTreelik_[p]->computeTreeDLikelihood(valias[v]);
+        vpTreelik_[p]->computeTreeDLogLikelihood(valias[v]);
         return;
       }
     }
@@ -322,19 +308,21 @@ void MultiPhyloLikelihood::computeDLikelihoodForAProcess(std::string& variable, 
     }
   }
   
-  vpTreelik_[p]->computeTreeDLikelihood("");
+  vpTreelik_[p]->computeTreeDLogLikelihood("");
 
 }
 
 
-void MultiPhyloLikelihood::computeD2LikelihoodForAProcess(std::string& variable, size_t p) const
+/************************************************************/
+
+void MultiPhyloLikelihood::computeD2LogLikelihoodForAProcess(std::string& variable, size_t p) const
 {
   size_t i=0;
   
   try {
     i=(size_t)atoi(variable.substr(variable.rfind('_')+1).c_str());
     if (p+1==i){
-      vpTreelik_[p]->computeTreeD2Likelihood(variable);
+      vpTreelik_[p]->computeTreeD2LogLikelihood(variable);
       return;
     }
   }
@@ -347,7 +335,7 @@ void MultiPhyloLikelihood::computeD2LikelihoodForAProcess(std::string& variable,
     try {
       i=(size_t)atoi(valias[v].substr(valias[v].rfind('_')+1).c_str());
       if (p+1==i){
-        vpTreelik_[p]->computeTreeD2Likelihood(valias[v]);
+        vpTreelik_[p]->computeTreeD2LogLikelihood(valias[v]);
         return;
       }
     }
@@ -356,6 +344,6 @@ void MultiPhyloLikelihood::computeD2LikelihoodForAProcess(std::string& variable,
     }
   }
   
-  vpTreelik_[p]->computeTreeD2Likelihood("");
+  vpTreelik_[p]->computeTreeD2LogLikelihood("");
 
 }

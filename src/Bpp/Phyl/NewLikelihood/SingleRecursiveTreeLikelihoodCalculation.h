@@ -190,15 +190,19 @@ public:
 
   double getLikelihoodForASiteForAClassForAState(size_t site, size_t classIndex, int state) const;
 
+  double getDLogLikelihoodForASite(size_t site) const;
+
+  double getD2LogLikelihoodForASite(size_t site) const;
+
   double getDLikelihoodForASite(size_t site) const;
 
   double getD2LikelihoodForASite(size_t site) const;
   
   void computeTreeLikelihood();
 
-  void computeTreeDLikelihood(const std::string& variable);
+  void computeTreeDLogLikelihood(const std::string& variable);
 
-  void computeTreeD2Likelihood(const std::string& variable);
+  void computeTreeD2LogLikelihood(const std::string& variable);
  
 protected:
 

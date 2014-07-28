@@ -197,13 +197,9 @@ public:
 
   virtual Vdouble getLikelihoodForEachSite() const;
 
-  virtual double getDLogLikelihood() const = 0;
+//  virtual double getDLogLikelihoodForASite(size_t site) const;
 
-  virtual double getDLogLikelihoodForASite(size_t site) const;
-
-  virtual double getD2LogLikelihood() const = 0;
-  
-  virtual double getD2LogLikelihoodForASite(size_t site) const;
+//  virtual double getD2LogLikelihoodForASite(size_t site) const;
 
   /*
    * @}
@@ -218,9 +214,9 @@ public:
   const SubstitutionProcessCollection* getCollection() const { return processColl_.get(); }
 
 protected:
-  virtual void computeDLikelihood_(const std::string& variable) const = 0;
+  virtual void computeDLogLikelihood_(const std::string& variable) const = 0;
 
-  virtual void computeD2Likelihood_(const std::string& variable) const = 0;
+  virtual void computeD2LogLikelihood_(const std::string& variable) const = 0;
 
 public:
   /**
@@ -247,7 +243,7 @@ public:
    * @return The first order derivate likelihood for site <i>site</i>.
    */
 
-  virtual double getDLikelihoodForASite(size_t site) const = 0;
+//  virtual double getDLogLikelihoodForASite(size_t site) const = 0;
 
   /**
    * @brief Get the second order derivate of the likelihood for a site. 
@@ -259,7 +255,7 @@ public:
    * @return The second order derivate likelihood for site <i>site</i>.
    */
 
-  virtual double getD2LikelihoodForASite(size_t site) const = 0;
+  //virtual double getD2LogLikelihoodForASite(size_t site) const = 0;
 
   
   double getLikelihoodForASiteForAProcess(size_t i, size_t p) const
@@ -267,18 +263,18 @@ public:
     return vpTreelik_[p]->getLikelihoodForASite(i);
   }
 
-  void computeDLikelihoodForAProcess(std::string& variable, size_t p) const;
+  void computeDLogLikelihoodForAProcess(std::string& variable, size_t p) const;
 
-  void computeD2LikelihoodForAProcess(std::string& variable, size_t p) const;
+  void computeD2LogLikelihoodForAProcess(std::string& variable, size_t p) const;
 
-  double getDLikelihoodForASiteForAProcess(size_t i, size_t p) const
+  double getDLogLikelihoodForASiteForAProcess(size_t i, size_t p) const
   {
-    return vpTreelik_[p]->getDLikelihoodForASite(i);
+    return vpTreelik_[p]->getDLogLikelihoodForASite(i);
   }
 
-  double getD2LikelihoodForASiteForAProcess(size_t i, size_t p) const
+  double getD2LogLikelihoodForASiteForAProcess(size_t i, size_t p) const
   {
-    return vpTreelik_[p]->getD2LikelihoodForASite(i);
+    return vpTreelik_[p]->getD2LogLikelihoodForASite(i);
   }
 
   VVdouble getLikelihoodForEachSiteForEachProcess() const;

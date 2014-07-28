@@ -63,14 +63,6 @@ double AbstractTreeLikelihoodCalculation::getLogLikelihood() const
 
 /******************************************************************************/
 
-double AbstractTreeLikelihoodCalculation::getDLogLikelihoodForASite(size_t site) const
-{
-  // d(f(g(x)))/dx = dg(x)/dx . df(g(x))/dg :
-  return getDLikelihoodForASite(site) / getLikelihoodForASite(site);
-}
-
-/******************************************************************************/
-
 double AbstractTreeLikelihoodCalculation::getDLogLikelihood() const
 {
   // Derivative of the sum is the sum of derivatives:
@@ -86,14 +78,6 @@ double AbstractTreeLikelihoodCalculation::getDLogLikelihood() const
     dl += dla[i - 1];
   }
   return dl;
-}
-
-/******************************************************************************/
-
-double AbstractTreeLikelihoodCalculation::getD2LogLikelihoodForASite(size_t site) const
-{
-  return getD2LikelihoodForASite(site) / getLikelihoodForASite(site)
-    - pow( getDLikelihoodForASite(site) / getLikelihoodForASite(site), 2);
 }
 
 /******************************************************************************/

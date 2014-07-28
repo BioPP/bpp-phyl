@@ -149,7 +149,15 @@ namespace bpp
         return log(getLikelihoodForASite(site));
       }
 
+      /**
+       * @brief Get the derivates of the LogLikelihood.
+       *
+       */
 
+      virtual double getDLogLikelihood() const = 0;
+
+      virtual double getD2LogLikelihood() const = 0;
+  
       /**
        * @brief Get the likelihood for each site.
        *

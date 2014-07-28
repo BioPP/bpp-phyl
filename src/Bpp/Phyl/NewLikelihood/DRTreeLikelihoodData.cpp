@@ -195,10 +195,10 @@ void DRTreeLikelihoodData::initLikelihoods(const Node* node, const SiteContainer
   }
 
   // Initialize d and d2 likelihoods:
-  Vdouble* dLikelihoods_node_ = &nodeData->getDLikelihoodArray();
-  Vdouble* d2Likelihoods_node_ = &nodeData->getD2LikelihoodArray();
-  dLikelihoods_node_->resize(nbDistinctSites_);
-  d2Likelihoods_node_->resize(nbDistinctSites_);
+  Vdouble* dLogLikelihoods_node_ = &nodeData->getDLogLikelihoodArray();
+  Vdouble* d2LogLikelihoods_node_ = &nodeData->getD2LogLikelihoodArray();
+  dLogLikelihoods_node_->resize(nbDistinctSites_);
+  d2LogLikelihoods_node_->resize(nbDistinctSites_);
 }
 
 /******************************************************************************/
@@ -245,8 +245,8 @@ void DRTreeLikelihoodData::reInit(const Node* node) throw (Exception)
     reInit(node->getSon(l));
   }
 
-  nodeData->getDLikelihoodArray().resize(nbDistinctSites_);
-  nodeData->getD2LikelihoodArray().resize(nbDistinctSites_);
+  nodeData->getDLogLikelihoodArray().resize(nbDistinctSites_);
+  nodeData->getD2LogLikelihoodArray().resize(nbDistinctSites_);
 }
 
 /******************************************************************************/

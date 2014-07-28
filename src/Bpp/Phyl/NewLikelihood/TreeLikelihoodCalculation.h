@@ -177,37 +177,40 @@ public:
    * @brief Get the derivate of log-likelihood for the data set.
    *
    * Derivation is performed according to a given branch length,
-   * which was specified by the last call to computeDLikelihood.
+   * which was specified by the last call to computeTreeDLogLikelihood.
    *
    * @return The derivate of log-likelihood for the data set.
    */
+  
   virtual double getDLogLikelihood() const = 0;
   
   /**
    * @brief Get the second order derivate of log-likelihood for the data set.
    *
    * Derivation is performed according to a given branch length,
-   * which was specified by the last call to computeD2Likelihood.
+   * which was specified by the last call to computeTreeD2LogLikelihood.
    *
    * @return The second order derivate of log-likelihood for the data set.
    */
   virtual double getD2LogLikelihood() const = 0;
 
   /**
-   * @brief Get the derivative of the likelihood for a site.
+   * @brief Get the derivative of the loglikelihood for a site.
    *
    * @param site The site index to analyse.
    * @return The derivative of likelihood for site <i>site</i>.
    */
-  virtual double getDLikelihoodForASite(size_t site) const = 0;
+
+  virtual double getDLogLikelihoodForASite(size_t site) const = 0;
   
   /**
-   * @brief Get the second-order derivative of the likelihood for a site.
+   * @brief Get the second-order derivative of the loglikelihood for a site.
    *
    * @param site The site index to analyse.
    * @return The second-order derivative of likelihood for site <i>site</i>.
    */
-  virtual double getD2LikelihoodForASite(size_t site) const = 0;  
+
+  virtual double getD2LogLikelihoodForASite(size_t site) const = 0;  
 
   /**
    * @brief Initiate a likelihood computation.
@@ -215,24 +218,26 @@ public:
   virtual void computeTreeLikelihood() = 0;
   
   /**
-   * @brief Initiate a derivative likelihood computation.
+   * @brief Initiate a derivative log-likelihood computation.
    *
    * @param variable The name of a parameter according to which
    * derivatives can been computed. If variable is not valid, the
    * derivatives set to 0.
    *
    */
-  virtual void computeTreeDLikelihood(const std::string& variable) = 0;
+  
+  virtual void computeTreeDLogLikelihood(const std::string& variable) = 0;
 
   /**
-   * @brief Initiate a second-order derivative likelihood computation.
+   * @brief Initiate a second-order derivative log-likelihood
+   * computation.
    *
    * @param variable The name of a parameter according to which
    * second-order derivatives can been computed. If variable is not
    * valid, the derivatives set to 0.
    */
   
-  virtual void computeTreeD2Likelihood(const std::string& variable) = 0;
+  virtual void computeTreeD2LogLikelihood(const std::string& variable) = 0;
 
 };
 

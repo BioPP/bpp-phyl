@@ -39,6 +39,8 @@
 
 #include "MixturePhyloLikelihood.h"
 
+#include <Bpp/Numeric/VectorTools.h>
+
 using namespace std;
 using namespace bpp;
 using namespace newlik;
@@ -113,6 +115,31 @@ double MixturePhyloLikelihood::getLogLikelihood() const
 
 /******************************************************************************/
 
+double MixturePhyloLikelihood::getDLogLikelihoodForASite(size_t site) const
+{
+  Vdouble vD;
+  
+  for (size_t i = 0; i < vpTreelik_.size(); i++)
+    vD.push_back(vpTreelik_[i]->getDLogLikelihoodForASite(site));
+  
+  return VectorTools::logSumExp(vD,simplex_.getFrequencies());
+}
+
+/******************************************************************************/
+
+double MixturePhyloLikelihood::getD2LogLikelihoodForASite(size_t site) const
+{
+  Vdouble vD2;
+  
+  for (size_t i = 0; i < vpTreelik_.size(); i++)
+    vD2.push_back(vpTreelik_[i]->getD2LogLikelihoodForASite(site));
+  
+  return VectorTools::logSumExp(vD2,simplex_.getFrequencies());
+}
+
+
+/******************************************************************************/
+
 double MixturePhyloLikelihood::getDLogLikelihood() const
 {
   vector<double> la(nbSites_);
@@ -161,32 +188,6 @@ double MixturePhyloLikelihood::getLikelihoodForASite(size_t site) const
   return x;
 }
 
-/******************************************************************************/
-
-double MixturePhyloLikelihood::getDLikelihoodForASite(size_t site) const
-{
-  double x = 0;
-  for (size_t i = 0; i < vpTreelik_.size(); i++)
-  {
-    x += vpTreelik_[i]->getDLikelihoodForASite(site) * simplex_.prob(i);
-  }
-
-  return x;
-}
-
-/******************************************************************************/
-
-double MixturePhyloLikelihood::getD2LikelihoodForASite(size_t site) const
-{
-  double x = 0;
-  for (size_t i = 0; i < vpTreelik_.size(); i++)
-  {
-    x += vpTreelik_[i]->getD2LikelihoodForASite(site) * simplex_.prob(i);
-  }
-
-  return x;
-}
-
 
 /******************************************************************************/
 
@@ -211,21 +212,21 @@ VVdouble MixturePhyloLikelihood::getPosteriorProbabilitiesForEachSiteForEachProc
 
 /******************************************************************************/
 
-void MixturePhyloLikelihood::computeD2Likelihood_(const std::string& variable) const
+void MixturePhyloLikelihood::computeD2LogLikelihood_(const std::string& variable) const
 {
   for (size_t i = 0; i < vpTreelik_.size(); i++)
     {
-      vpTreelik_[i]->computeTreeD2Likelihood(variable);
+      vpTreelik_[i]->computeTreeD2LogLikelihood(variable);
     }
 }
 
 /******************************************************************************/
 
-void MixturePhyloLikelihood::computeDLikelihood_(const std::string& variable) const
+void MixturePhyloLikelihood::computeDLogLikelihood_(const std::string& variable) const
 {
   for (size_t i = 0; i < vpTreelik_.size(); i++)
     {
-      vpTreelik_[i]->computeTreeDLikelihood(variable);
+      vpTreelik_[i]->computeTreeDLogLikelihood(variable);
     }
 }
 

@@ -114,13 +114,10 @@ public:
 
   double getLogLikelihood() const;
 
-  double getDLogLikelihoodForASite(size_t site) const;
-
   double getDLogLikelihood() const;
   
-  double getD2LogLikelihoodForASite(size_t site) const;
-
   double getD2LogLikelihood() const;
+  
 
   /**
    * @brief Print the likelihood array to terminal (debugging tool).

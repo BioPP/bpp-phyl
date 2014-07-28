@@ -218,28 +218,6 @@ double SingleRecursiveTreeLikelihoodCalculation::getLikelihoodForASiteForAClassF
 }
 
 
-/******************************************************************************/
-
-// double SingleRecursiveTreeLikelihoodCalculation::getDLikelihoodForASiteForAClassForAState(size_t site, size_t classIndex, int state) const
-// {
-//   if (nullDLikelihood_)
-//     return 0;
-//   else
-//     return likelihoodData_->getDLikelihoodArray(
-//       process_->getTree().getRootNode()->getId())[classIndex][likelihoodData_->getRootArrayPosition(site)][state];
-// }
-
-/******************************************************************************/
-
-// double SingleRecursiveTreeLikelihoodCalculation::getD2LikelihoodForASiteForAClassForAState(size_t site, size_t classIndex, int state) const
-// {
-//   if (nullD2Likelihood_)
-//     return 0;
-//   else
-//     return likelihoodData_->getD2LikelihoodArray(
-//       process_->getTree().getRootNode()->getId())[classIndex][likelihoodData_->getRootArrayPosition(site)][state];
-// }
-
 /******************************************************************************
  *                           Likelihood computation                           *
  ******************************************************************************/
@@ -282,7 +260,7 @@ void SingleRecursiveTreeLikelihoodCalculation::computeSubtreeLikelihood_(const N
  *                           First Order Derivatives                          *
  ******************************************************************************/
 
-void SingleRecursiveTreeLikelihoodCalculation::computeTreeDLikelihood(const string& variable)
+void SingleRecursiveTreeLikelihoodCalculation::computeTreeDLogLikelihood(const string& variable)
 {
 /*  if (variable == "BrLenRoot")
    {
@@ -609,6 +587,15 @@ double SingleRecursiveTreeLikelihoodCalculation::getDLikelihoodForASite(size_t s
 
 /******************************************************************************/
 
+double SingleRecursiveTreeLikelihoodCalculation::getDLogLikelihoodForASite(size_t site) const
+{
+  // d(f(g(x)))/dx = dg(x)/dx . df(g(x))/dg :
+  return getDLikelihoodForASite(site) / getLikelihoodForASite(site);
+}
+
+
+/******************************************************************************/
+
 // double SingleRecursiveTreeLikelihoodCalculation::getDLikelihoodForASiteForAClass(size_t site, size_t classIndex) const
 // {
 //   if (nullDLikelihood_)
@@ -630,7 +617,7 @@ double SingleRecursiveTreeLikelihoodCalculation::getDLikelihoodForASite(size_t s
  *                           Second Order Derivatives                         *
  ******************************************************************************/
 
-void SingleRecursiveTreeLikelihoodCalculation::computeTreeD2Likelihood(const string& variable)
+void SingleRecursiveTreeLikelihoodCalculation::computeTreeD2LogLikelihood(const string& variable)
 {
   /*if (variable == "BrLenRoot")
      {
@@ -971,6 +958,15 @@ double SingleRecursiveTreeLikelihoodCalculation::getD2LikelihoodForASite(size_t 
   }
   return d2l;
 }
+
+/******************************************************************************/
+
+double SingleRecursiveTreeLikelihoodCalculation::getD2LogLikelihoodForASite(size_t site) const
+{
+  return getD2LikelihoodForASite(site) / getLikelihoodForASite(site)
+    - pow( getDLikelihoodForASite(site) / getLikelihoodForASite(site), 2);
+}
+
 
 /******************************************************************************/
 

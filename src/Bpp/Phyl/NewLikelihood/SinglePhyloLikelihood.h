@@ -239,9 +239,9 @@ public:
 protected:
   void fireParameterChanged(const ParameterList& params);
   
-  void computeDLikelihood_(const std::string& variable) const;
+  void computeDLogLikelihood_(const std::string& variable) const;
 
-  void computeD2Likelihood_(const std::string& variable) const;
+  void computeD2LogLikelihood_(const std::string& variable) const;
 
 public:
   /**
@@ -269,6 +269,14 @@ public:
 
   double getLogLikelihood() const {
     return tlComp_->getLogLikelihood();
+  }
+
+  double getDLogLikelihood() const {
+    return tlComp_->getDLogLikelihood();
+  }
+
+  double getD2LogLikelihood() const {
+    return tlComp_->getD2LogLikelihood();
   }
 
   double getLikelihoodForASite(size_t siteIndex) const {
