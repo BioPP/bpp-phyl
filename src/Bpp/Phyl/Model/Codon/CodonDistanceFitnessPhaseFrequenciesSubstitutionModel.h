@@ -129,6 +129,18 @@ namespace bpp
 
     void setNamespace(const std::string&);
 
+    /*
+     * @brief set the phasefrequencies and fitness of the model from
+     * given frequencies, such that the equilibrium frequencies of the
+     * model matches at best the given ones.
+     * 
+     * Matching is done in two steps : first, phase frequencies are
+     * matched at best, then the resulting discrepancy (in terms of
+     * ratios between the given one and the one computed by the pahse
+     * frequencies) is given for matching to the fitness.
+     *
+     * @ param frequencies  the frequencies to match on.
+     */
     void setFreq(std::map<int,double>& frequencies);
 
   };
