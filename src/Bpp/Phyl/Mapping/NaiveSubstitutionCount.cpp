@@ -43,25 +43,28 @@ using namespace bpp;
 
 Matrix<double>* NaiveSubstitutionCount::getAllNumbersOfSubstitutions(double length, size_t type) const
 { 
-  int n = static_cast<int>(register_->getAlphabet()->getSize()); //Note jdutheil 20/01/13: shoudl be generalized in case sattes are not 0:n !
+  size_t n = supportedChars_.size();
   RowMatrix<double>* mat = new RowMatrix<double>(n, n);
-  for (int i = 0; i < n; ++i)
+  for (size_t i = 0; i < n; ++i)
   {
-    for (int j = 0; j < n; ++j)
+    for (size_t j = 0; j < n; ++j)
     {
-      (*mat)(i, j) = (register_->getType(i, j) == type ? (weights_ ? weights_->getIndex(i, j) : 1.) : 0.);
+      (*mat)(i, j) = (register_->getType(supportedChars_[i], supportedChars_[j]) == type ? (weights_ ? weights_->getIndex(supportedChars_[i], supportedChars_[j]) : 1.) : 0.);
     }
   }
   return mat;
 }
 
-LabelSubstitutionCount::LabelSubstitutionCount(const Alphabet* alphabet) :
-  AbstractSubstitutionCount(new TotalSubstitutionRegister(alphabet)), label_(alphabet->getSize(), alphabet->getSize())
+LabelSubstitutionCount::LabelSubstitutionCount(const SubstitutionModel* model) :
+  AbstractSubstitutionCount(
+      new TotalSubstitutionRegister(model->getAlphabet())),
+  label_(model->getNumberOfStates(), model->getNumberOfStates()),
+  supportedChars_(model->getAlphabetChars())
 {
-  int n = static_cast<int>(register_->getAlphabet()->getSize()); //Note jdutheil 20/01/13: shoudl be generalized in case sattes are not 0:n !
+  size_t n = supportedChars_.size();
   double count = 0;
-  for (int i = 0; i < n; ++i) {
-    for (int j = 0; j < n; ++j) {
+  for (size_t i = 0; i < n; ++i) {
+    for (size_t j = 0; j < n; ++j) {
       if (i == j) label_(i, j) = 0;
       else label_(i, j) = ++count;
     }

@@ -39,7 +39,7 @@
 
 #include "SequenceSimulationTools.h"
 
-// From SeqLib:
+// From bpp-seq:
 #include <Bpp/Seq/Container/VectorSiteContainer.h>
 
 using namespace bpp;
@@ -52,7 +52,7 @@ SiteContainer* SequenceSimulationTools::simulateSites(const SiteSimulator& simul
   for (size_t i = 0; i < numberOfSites; i++)
   {
     Site* s = simulator.simulate(rates[i]);
-    s->setPosition((int)i);
+    s->setPosition(static_cast<int>(i));
     vs[i] = s;
   }
   SiteContainer* sites = new VectorSiteContainer(vs, simulator.getAlphabet());
@@ -76,7 +76,29 @@ throw (Exception)
   for (size_t i = 0; i < numberOfSites; i++)
   {
     Site* s = simulator.simulate(states[i], rates[i]);
-    s->setPosition((int)i);
+    s->setPosition(static_cast<int>(i));
+    vs[i] = s;
+  }
+  SiteContainer* sites = new VectorSiteContainer(vs, simulator.getAlphabet());
+  sites->setSequencesNames(simulator.getSequencesNames(), false);
+  // Freeing memory:
+  for (size_t i = 0; i < numberOfSites; i++)
+  {
+    delete vs[i];
+  }
+
+  return sites;
+}
+
+SiteContainer* SequenceSimulationTools::simulateSites(const SiteSimulator& simulator, const vector<int>& states)
+throw (Exception)
+{
+  size_t numberOfSites = states.size();
+  vector<const Site*> vs(numberOfSites);
+  for (size_t i = 0; i < numberOfSites; i++)
+  {
+    Site* s = simulator.simulate(states[i]);
+    s->setPosition(static_cast<int>(i));
     vs[i] = s;
   }
   SiteContainer* sites = new VectorSiteContainer(vs, simulator.getAlphabet());

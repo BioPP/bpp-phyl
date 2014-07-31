@@ -145,7 +145,7 @@ namespace bpp
 
     const FrequenciesSet* getFrequenciesSet() const { return freqSet_; }
 
-    void setFreqFromData(const SequenceContainer& data);
+    void setFreqFromData(const SequenceContainer& data, double pseudoCount = 0);
 
   };
 

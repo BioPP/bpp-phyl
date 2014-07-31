@@ -39,10 +39,14 @@ knowledge of the CeCILL license and that you accept its terms.
 
 #include "DSO78.h"
 
-//From SeqLib:
+//From bpp-seq:
 #include <Bpp/Seq/Container/SequenceContainerTools.h>
 
 using namespace bpp;
+
+#include <map>
+
+using namespace std;
 
 /******************************************************************************/
 
@@ -75,13 +79,16 @@ DSO78::DSO78(const ProteicAlphabet* alpha, ProteinFrequenciesSet* freqSet, bool 
 
 /******************************************************************************/
 
-void DSO78::setFreqFromData(const SequenceContainer& data)
+void DSO78::setFreqFromData(const SequenceContainer& data, double pseudoCount)
 {
-  std::map<int, double> freqs;
-  SequenceContainerTools::getFrequencies(data, freqs);
+  map<int, int> counts;
+  SequenceContainerTools::getCounts(data, counts);
   double t = 0;
-  for (size_t i = 0; i < size_; i++) t += freqs[static_cast<int>(i)];
-  for (size_t i = 0; i < size_; i++) freq_[i] = freqs[static_cast<int>(i)] / t;
+  for (int i = 0; i < static_cast<int>(size_); i++)
+  {
+    t += (counts[i] + pseudoCount);
+  }
+  for (size_t i = 0; i < size_; ++i) freq_[i] = (static_cast<double>(counts[static_cast<int>(i)]) + pseudoCount) / t;
   freqSet_->setFrequencies(freq_);
   //Update parameters and re-compute generator and eigen values:
   matchParametersValues(freqSet_->getParameters());

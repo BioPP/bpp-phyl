@@ -378,6 +378,7 @@ public:
    * @brief Get the number of states.
    *
    * For most models, this equals the size of the alphabet.
+   * @see getAlphabetChars for the list of supported states.
    *
    * @return The number of different states in the model.
    */

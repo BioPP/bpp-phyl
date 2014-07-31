@@ -115,31 +115,31 @@ int main() {
   DRHomogeneousTreeLikelihood drhtl(*tree, sites, model, rdist);
   drhtl.initialize();
   cout << drhtl.getValue() << endl;
- 
+
   SubstitutionCount* sCountAna = new LaplaceSubstitutionCount(model, 10);
   Matrix<double>* m = sCountAna->getAllNumbersOfSubstitutions(0.001, 1);
   cout << "Analytical total count:" << endl;
   MatrixTools::print(*m);
   delete m;
   ProbabilisticSubstitutionMapping* probMapAna = 
-    SubstitutionMappingTools::computeSubstitutionVectors(drhtl, *sCountAna);
+    SubstitutionMappingTools::computeSubstitutionVectors(drhtl, ids, *sCountAna);
 
   //Simple:
-  SubstitutionCount* sCountTot = new NaiveSubstitutionCount(totReg);
+  SubstitutionCount* sCountTot = new NaiveSubstitutionCount(model, totReg);
   m = sCountTot->getAllNumbersOfSubstitutions(0.001,1);
   cout << "Simple total count:" << endl;
   MatrixTools::print(*m);
   delete m;
   ProbabilisticSubstitutionMapping* probMapTot = 
-    SubstitutionMappingTools::computeSubstitutionVectors(drhtl, *sCountTot);
+    SubstitutionMappingTools::computeSubstitutionVectors(drhtl, ids, *sCountTot);
 
-  SubstitutionCount* sCountDet = new NaiveSubstitutionCount(detReg);
+  SubstitutionCount* sCountDet = new NaiveSubstitutionCount(model, detReg);
   m = sCountDet->getAllNumbersOfSubstitutions(0.001,1);
   cout << "Detailed count, type 1:" << endl;
   MatrixTools::print(*m);
   delete m;
   ProbabilisticSubstitutionMapping* probMapDet = 
-    SubstitutionMappingTools::computeSubstitutionVectors(drhtl, *sCountDet);
+    SubstitutionMappingTools::computeSubstitutionVectors(drhtl, ids, *sCountDet);
 
   //Decomposition:
   SubstitutionCount* sCountDecTot = new DecompositionSubstitutionCount(model, totReg);
@@ -148,7 +148,7 @@ int main() {
   MatrixTools::print(*m);
   delete m;
   ProbabilisticSubstitutionMapping* probMapDecTot = 
-    SubstitutionMappingTools::computeSubstitutionVectors(drhtl, *sCountDecTot);
+    SubstitutionMappingTools::computeSubstitutionVectors(drhtl, ids, *sCountDecTot);
 
   SubstitutionCount* sCountDecDet = new DecompositionSubstitutionCount(model, detReg);
   m = sCountDecDet->getAllNumbersOfSubstitutions(0.001,1);
@@ -156,7 +156,7 @@ int main() {
   MatrixTools::print(*m);
   delete m;
   ProbabilisticSubstitutionMapping* probMapDecDet = 
-    SubstitutionMappingTools::computeSubstitutionVectors(drhtl, *sCountDecDet);
+    SubstitutionMappingTools::computeSubstitutionVectors(drhtl, ids, *sCountDecDet);
 
   //Uniformization
   SubstitutionCount* sCountUniTot = new UniformizationSubstitutionCount(model, totReg);
@@ -165,7 +165,7 @@ int main() {
   MatrixTools::print(*m);
   delete m;
   ProbabilisticSubstitutionMapping* probMapUniTot = 
-    SubstitutionMappingTools::computeSubstitutionVectors(drhtl, *sCountUniTot);  
+    SubstitutionMappingTools::computeSubstitutionVectors(drhtl, ids, *sCountUniTot);  
 
   SubstitutionCount* sCountUniDet = new UniformizationSubstitutionCount(model, detReg);
   m = sCountUniDet->getAllNumbersOfSubstitutions(0.001,1);
@@ -173,7 +173,7 @@ int main() {
   MatrixTools::print(*m);
   delete m;
   ProbabilisticSubstitutionMapping* probMapUniDet = 
-    SubstitutionMappingTools::computeSubstitutionVectors(drhtl, *sCountUniDet);
+    SubstitutionMappingTools::computeSubstitutionVectors(drhtl, ids, *sCountUniDet);
 
   //Check saturation:
   cout << "checking saturation..." << endl;

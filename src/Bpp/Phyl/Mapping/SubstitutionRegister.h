@@ -98,6 +98,18 @@ public:
   virtual size_t getType(int fromState, int toState) const = 0;
 
   /**
+   * @brief Get the substitution type far a given pair of states.
+   *
+   * @param from Index of the initial state
+   * @param to   Index of the final state
+   * @return The index of the corresponding substitution type, ranging from 0 to 'getNumberOfSubstitutionTypes' + 1,
+   * as non-substitution (that is when fromState == toState) will always return 0.
+   */
+  virtual size_t getType(size_t from, size_t to) const {
+    return getType(static_cast<int>(from), static_cast<int>(to)); //jdutheil on 22/07/14: we should use StateMap instead!
+  }
+
+  /**
    * @brief Get the name of a given substitution type.
    *
    * This method is only used for user-friendlyness purposes, not computational goal.
@@ -518,9 +530,9 @@ public:
 
   virtual ~GeneralSubstitutionRegister() {}
 
-  size_t getType(int i,int j) const
+  size_t getType(int i, int j) const
   {
-    return matrix_(i,j);
+    return matrix_(static_cast<size_t>(i), static_cast<size_t>(j));
   }
 
   size_t getNumberOfSubstitutionTypes() const

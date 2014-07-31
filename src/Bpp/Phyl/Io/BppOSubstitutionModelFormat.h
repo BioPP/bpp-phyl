@@ -78,6 +78,7 @@ private:
   bool verbose_;
   std::map<std::string, std::string> unparsedArguments_;
   const GeneticCode* geneticCode_;
+  int warningLevel_;
 
 public:
   /**
@@ -88,15 +89,17 @@ public:
    * @param allowMixed       Tell is a mixture model can be returned.
    * @param allowGaps        Tell is a gap model can be returned.
    * @param verbose          Tell if the construction is verbose.
+   * @param warn             Set the warning level (0: always display warnings, >0 display warnings on demand).
    */
-  BppOSubstitutionModelFormat(unsigned char alphabetCode, bool allowCovarions, bool allowMixed, bool allowGaps, bool verbose):
+  BppOSubstitutionModelFormat(unsigned char alphabetCode, bool allowCovarions, bool allowMixed, bool allowGaps, bool verbose, int warn):
     alphabetCode_(alphabetCode),
     allowCovarions_(allowCovarions),
     allowMixed_(allowMixed),
     allowGaps_(allowGaps),
     verbose_(verbose),
     unparsedArguments_(),
-    geneticCode_(0)
+    geneticCode_(0),
+    warningLevel_(warn)
   {}
 
   BppOSubstitutionModelFormat(const BppOSubstitutionModelFormat& format):
@@ -106,7 +109,8 @@ public:
     allowGaps_(format.allowGaps_),
     verbose_(format.verbose_),
     unparsedArguments_(format.unparsedArguments_),
-    geneticCode_(format.geneticCode_)
+    geneticCode_(format.geneticCode_),
+    warningLevel_(format.warningLevel_)
   {}
 
   BppOSubstitutionModelFormat& operator=(const BppOSubstitutionModelFormat& format)
@@ -118,6 +122,7 @@ public:
     verbose_           = format.verbose_;
     unparsedArguments_ = format.unparsedArguments_;
     geneticCode_       = format.geneticCode_;
+    warningLevel_      = format.warningLevel_;
     return *this;
   }
 

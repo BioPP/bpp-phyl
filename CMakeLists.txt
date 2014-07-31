@@ -64,13 +64,13 @@ MACRO(IMPROVED_FIND_LIBRARY OUTPUT_LIBS lib_name include_to_find)
   SET(${lib_name}_NAMES ${lib_name} ${lib_name}lib ${lib_name}dll)
   FIND_LIBRARY(${lib_name}_LIBRARY NAMES ${${lib_name}_NAMES} PATH_SUFFIXES lib${LIB_SUFFIX})
 
-  IF(${lib_name}_LIBRARY)
+  IF(${${lib_name}_INCLUDE_DIR} MATCHES ${lib_name}_INCLUDE_DIR-NOTFOUND)
+    MESSAGE(FATAL_ERROR "${lib_name} required but not found.")
+  ELSE(${${lib_name}_INCLUDE_DIR} MATCHES ${lib_name}_INCLUDE_DIR-NOTFOUND)
     MESSAGE("-- Library ${lib_name} found here:")
     MESSAGE("   includes : ${${lib_name}_INCLUDE_DIR}")
     MESSAGE("   libraries: ${${lib_name}_LIBRARY}")
-  ELSE(${lib_name}_LIBRARY)
-    MESSAGE(FATAL_ERROR "${lib_name} required but not found.")
-  ENDIF(${lib_name}_LIBRARY)
+  ENDIF(${${lib_name}_INCLUDE_DIR} MATCHES ${lib_name}_INCLUDE_DIR-NOTFOUND)
   
   #add the dependency:
   INCLUDE_DIRECTORIES(${${lib_name}_INCLUDE_DIR})

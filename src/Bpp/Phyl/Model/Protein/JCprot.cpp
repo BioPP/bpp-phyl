@@ -39,12 +39,13 @@ knowledge of the CeCILL license and that you accept its terms.
 
 #include "JCprot.h"
 
-//From SeqLib:
+//From bpp-seq:
 #include <Bpp/Seq/Container/SequenceContainerTools.h>
 
 using namespace bpp;
 
 #include <cmath>
+#include <map>
 
 using namespace std;
 
@@ -113,7 +114,7 @@ void JCprot::updateMatrices()
 	
 /******************************************************************************/
 
-double JCprot::Pij_t(int i, int j, double d) const
+double JCprot::Pij_t(size_t i, size_t j, double d) const
 {
   if(i == j) return 1./20. + 19./20. * exp(-  rate_ * 20./19. * d);
   else       return 1./20. -  1./20. * exp(-  rate_ * 20./19. * d);
@@ -121,7 +122,7 @@ double JCprot::Pij_t(int i, int j, double d) const
 
 /******************************************************************************/
 
-double JCprot::dPij_dt(int i, int j, double d) const
+double JCprot::dPij_dt(size_t i, size_t j, double d) const
 {
   if(i == j) return -  rate_ *        exp(-  rate_ * 20./19. * d);
   else       return  rate_ * 1./19. * exp(-  rate_ * 20./19. * d);
@@ -129,7 +130,7 @@ double JCprot::dPij_dt(int i, int j, double d) const
 
 /******************************************************************************/
 
-double JCprot::d2Pij_dt2(int i, int j, double d) const
+double JCprot::d2Pij_dt2(size_t i, size_t j, double d) const
 {
   if(i == j) return    rate_ *  rate_ * 20./19.  * exp(-  rate_ * 20./19. * d);
   else       return -  rate_ *  rate_ * 20./361. * exp(-  rate_ * 20./19. * d);
@@ -178,13 +179,16 @@ const Matrix<double>& JCprot::getd2Pij_dt2(double d) const
 
 /******************************************************************************/
 
-void JCprot::setFreqFromData(const SequenceContainer& data)
+void JCprot::setFreqFromData(const SequenceContainer& data, double pseudoCount)
 {
-  std::map<int, double> freqs;
-  SequenceContainerTools::getFrequencies(data, freqs);
+  map<int, int> counts;
+  SequenceContainerTools::getCounts(data, counts);
   double t = 0;
-  for (unsigned int i = 0; i < size_; i++) t += freqs[i];
-  for (unsigned int i = 0; i < size_; i++) freq_[i] = freqs[i] / t;
+  for (int i = 0; i < static_cast<int>(size_); i++)
+  {
+    t += (counts[i] + pseudoCount);
+  }
+  for (size_t i = 0; i < size_; ++i) freq_[i] = (static_cast<double>(counts[static_cast<int>(i)]) + pseudoCount) / t;
   freqSet_->setFrequencies(freq_);
   //Update parameters and re-compute generator and eigen values:
   matchParametersValues(freqSet_->getParameters());

@@ -7,8 +7,8 @@
 //
 
 /*
-   Copyright or � or Copr. CNRS, (November 16, 2004)
-   PCA
+   Copyright or © or Copr. Bio++ Development Team, (November 16, 2004)
+
    This software is a computer program whose purpose is to provide classes
    for phylogenetic data analysis.
 
@@ -47,11 +47,8 @@
 #include "../AbstractSubstitutionModel.h"
 #include "CoalaCore.h"
 
-// From SeqLib:
+// From bpp-seq:
 #include <Bpp/Seq/Alphabet/ProteicAlphabet.h>
-
-using namespace std;
-
 
 namespace bpp
 {
@@ -80,14 +77,15 @@ class Coala :
 protected:
   bool init_;
   unsigned int nbrOfAxes_;
-  string exch_;
-  string file_;
+  std::string exch_;
+  std::string file_;
+  bool param_;
 
 public:
   Coala(const ProteicAlphabet* alpha,
+        const ProteinSubstitutionModel& model,
         unsigned int nbAxes = 0,
-        const string exch = "LG08",
-        string file = "");
+        bool param = true);
 
   virtual ~Coala() {}
 
@@ -101,8 +99,8 @@ public:
 public:
   string getName() const {return "Coala"; }
   string getExch() const {return exch_; }
-  void setFreqFromData(const SequenceContainer& data, bool param = true);
-  string getEmpiricalMatrixFile() const {return file_; }
+  void setFreqFromData(const SequenceContainer& data, double pseudoCount = 0);
+  string getEmpiricalMatrixFile() const { return file_; }
 
 protected:
   void readFromFile(string& file);

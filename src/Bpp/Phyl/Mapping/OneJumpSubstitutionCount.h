@@ -88,7 +88,7 @@ class OneJumpSubstitutionCount:
 		double getNumberOfSubstitutions(int initialState, int finalState, double length, size_t type = 1) const
     {
       if (finalState != initialState) return 1.;
-      else return 1. - model_->Pij_t(initialState, finalState, length);
+      else return 1. - model_->Pij_t(static_cast<size_t>(initialState), static_cast<size_t>(finalState), length);
     }
 
     Matrix<double>* getAllNumbersOfSubstitutions(double length, size_t type = 1) const;

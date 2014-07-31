@@ -97,7 +97,7 @@ class NeighborJoining :
 	public:
     std::string getName() const { return "NJ"; }
 
-		virtual void setDistanceMatrix(const DistanceMatrix& matrix)
+		virtual void setDistanceMatrix(const DistanceMatrix& matrix) throw (Exception)
 		{ 
 			AbstractAgglomerativeDistanceMethod::setDistanceMatrix(matrix);
 			sumDist_.resize(matrix.size());

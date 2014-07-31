@@ -63,12 +63,12 @@ namespace bpp
   {
   private:
     const SubstitutionModel* model_;
-    int cutOff_;
+    size_t cutOff_;
     mutable double currentLength_;
     mutable RowMatrix<double> m_;
 	
   public:
-    LaplaceSubstitutionCount(const SubstitutionModel* model, int cutOff) :
+    LaplaceSubstitutionCount(const SubstitutionModel* model, size_t cutOff) :
       AbstractSubstitutionCount(new TotalSubstitutionRegister(model->getAlphabet())),
       model_        (model),
       cutOff_       (cutOff),

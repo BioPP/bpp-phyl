@@ -114,12 +114,12 @@ FrequenciesSet* BppOFrequenciesSetFormat::read(const Alphabet* alphabet, const s
   }
   else if (freqName == "Full")
   {
-    unsigned short method=1;
+    unsigned short method = 1;
     if (args.find("method") != args.end()){
-      if (args["method"]=="local")
+      if (args["method"] == "local")
         method=2;
       else
-        if (args["method"]=="binary")
+        if (args["method"] == "binary")
           method=3;
     }
       
@@ -184,7 +184,7 @@ FrequenciesSet* BppOFrequenciesSetFormat::read(const Alphabet* alphabet, const s
         st += TextTools::toString(i + 1);
       }
 
-      BppOFrequenciesSetFormat nestedReader(alphabetCode_, false);
+      BppOFrequenciesSetFormat nestedReader(alphabetCode_, false, warningLevel_);
       auto_ptr<FrequenciesSet> pFS2(nestedReader.read(pWA->getNAlphabet(0), sAFS, data, false));
       map<string, string> unparsedParameterValuesNested(nestedReader.getUnparsedArguments());
       for (map<string, string>::iterator it = unparsedParameterValuesNested.begin(); it != unparsedParameterValuesNested.end(); it++)
@@ -209,9 +209,9 @@ FrequenciesSet* BppOFrequenciesSetFormat::read(const Alphabet* alphabet, const s
       if (v_sAFS.size() != pWA->getLength())
         throw Exception("BppOFrequenciesSetFormat::read. Number of frequencies (" + TextTools::toString(v_sAFS.size()) + ") does not match length of the words (" + TextTools::toString(pWA->getLength()) + ")");
 
-      for (unsigned i = 0; i < v_sAFS.size(); i++)
+      for (size_t i = 0; i < v_sAFS.size(); ++i)
       {
-        BppOFrequenciesSetFormat nestedReader(alphabetCode_, false);
+        BppOFrequenciesSetFormat nestedReader(alphabetCode_, false, warningLevel_);
         pFS.reset(nestedReader.read(pWA->getNAlphabet(i), v_sAFS[i], data, false));
         map<string, string> unparsedParameterValuesNested(nestedReader.getUnparsedArguments());
         for (map<string, string>::iterator it = unparsedParameterValuesNested.begin(); it != unparsedParameterValuesNested.end(); it++)
@@ -241,7 +241,7 @@ FrequenciesSet* BppOFrequenciesSetFormat::read(const Alphabet* alphabet, const s
     {
       string sAFS = args["frequency"];
 
-      BppOFrequenciesSetFormat nestedReader(alphabetCode_, false);
+      BppOFrequenciesSetFormat nestedReader(alphabetCode_, false, warningLevel_);
       auto_ptr<FrequenciesSet> pFS2(nestedReader.read(pWA->getNAlphabet(0), sAFS, data, false));
       map<string, string> unparsedParameterValuesNested(nestedReader.getUnparsedArguments());
 
@@ -268,9 +268,9 @@ FrequenciesSet* BppOFrequenciesSetFormat::read(const Alphabet* alphabet, const s
       if (v_sAFS.size() != 3)
         throw Exception("BppOFrequenciesSetFormat::read. Number of frequencies (" + TextTools::toString(v_sAFS.size()) + ") is not three");
 
-      for (size_t i = 0; i < v_sAFS.size(); i++)
+      for (size_t i = 0; i < v_sAFS.size(); ++i)
       {
-        BppOFrequenciesSetFormat nestedReader(alphabetCode_, false);
+        BppOFrequenciesSetFormat nestedReader(alphabetCode_, false, warningLevel_);
         pFS.reset(nestedReader.read(pWA->getNAlphabet(i), v_sAFS[i], data, false));
         map<string, string> unparsedParameterValuesNested(nestedReader.getUnparsedArguments());
         for (map<string, string>::iterator it = unparsedParameterValuesNested.begin(); it != unparsedParameterValuesNested.end(); it++)
@@ -312,7 +312,7 @@ FrequenciesSet* BppOFrequenciesSetFormat::read(const Alphabet* alphabet, const s
     if (args.find("protein_frequencies") != args.end())
     {
       string sPFS = args["protein_frequencies"];
-      BppOFrequenciesSetFormat nestedReader(alphabetCode_, false);
+      BppOFrequenciesSetFormat nestedReader(alphabetCode_, false, warningLevel_);
       auto_ptr<ProteinFrequenciesSet> pPFS(dynamic_cast<ProteinFrequenciesSet*>(nestedReader.read(pPA, sPFS, data, false)));
       map<string, string> unparsedParameterValuesNested(nestedReader.getUnparsedArguments());
 
@@ -342,7 +342,7 @@ FrequenciesSet* BppOFrequenciesSetFormat::read(const Alphabet* alphabet, const s
       throw Exception("BppOFrequenciesSetFormat::read. Deprecated 'genetic_code' argument.");
     }
     short opt = -1;
-    string mgmtStopCodon="quadratic";
+    string mgmtStopCodon = "quadratic";
     
     if (freqName == "F0")
     {
@@ -360,7 +360,7 @@ FrequenciesSet* BppOFrequenciesSetFormat::read(const Alphabet* alphabet, const s
         {
           string sAFS = args["frequency"];
 
-          BppOFrequenciesSetFormat nestedReader(alphabetCode_, false);
+          BppOFrequenciesSetFormat nestedReader(alphabetCode_, false, warningLevel_);
           auto_ptr<FrequenciesSet> pFS2(nestedReader.read(pWA->getNAlphabet(0), sAFS, data, false));
           if (pFS2->getName()!="Full")
             throw Exception("BppOFrequenciesSetFormat::read. The frequency option in F1X4 can only be Full");
@@ -377,6 +377,12 @@ FrequenciesSet* BppOFrequenciesSetFormat::read(const Alphabet* alphabet, const s
       if (args.find("123_theta1") != args.end())
         unparsedArguments_["123_Full.theta1"] = args["123_theta1"];
       if (args.find("123_theta2") != args.end())
+        unparsedArguments_["123_Full.theta2"] = args["123_theta2"];
+      if (args.find("theta") != args.end())
+        unparsedArguments_["123_Full.theta"] = args["123_theta"];
+      if (args.find("theta1") != args.end())
+        unparsedArguments_["123_Full.theta1"] = args["123_theta1"];
+      if (args.find("theta2") != args.end())
         unparsedArguments_["123_Full.theta2"] = args["123_theta2"];
     }
     else if (freqName == "F3X4")
@@ -402,7 +408,7 @@ FrequenciesSet* BppOFrequenciesSetFormat::read(const Alphabet* alphabet, const s
         
         for (unsigned i = 0; i < v_sAFS.size(); i++)
           {
-            BppOFrequenciesSetFormat nestedReader(alphabetCode_, false);
+            BppOFrequenciesSetFormat nestedReader(alphabetCode_, false, warningLevel_);
             if (v_sAFS[i]!=""){
               pFS.reset(nestedReader.read(pWA->getNAlphabet(i), v_sAFS[i], data, false));
               if (pFS->getName()!="Full")
@@ -487,7 +493,7 @@ void BppOFrequenciesSetFormat::write(const FrequenciesSet* pfreqset,
     return;
   }
   ParameterList pl = pfreqset->getParameters();
-  unsigned int p = out.getPrecision();
+  int p = out.getPrecision();
   out.setPrecision(12);
   bool flag(false);
   string name = pfreqset->getName();
@@ -598,7 +604,7 @@ void BppOFrequenciesSetFormat::initialize_(FrequenciesSet& freqSet, const SiteCo
         throw Exception("Missing data for observed frequencies");
       unsigned int psc = 0;
       if (unparsedArguments_.find("observedPseudoCount") != unparsedArguments_.end())
-        psc = TextTools::toInt(unparsedArguments_["observedPseudoCount"]);
+        psc = TextTools::to<unsigned int>(unparsedArguments_["observedPseudoCount"]);
 
       map<int, double> freqs;
       SequenceContainerTools::getFrequencies(*data, freqs, psc);
@@ -628,7 +634,7 @@ void BppOFrequenciesSetFormat::initialize_(FrequenciesSet& freqSet, const SiteCo
     // Explicit initialization of each parameter
     ParameterList pl = freqSet.getParameters();
 
-    for (unsigned int i = 0; i < pl.size(); i++)
+    for (size_t i = 0; i < pl.size(); ++i)
     {
       AutoParameter ap(pl[i]);
       if (verbose_)
@@ -636,10 +642,10 @@ void BppOFrequenciesSetFormat::initialize_(FrequenciesSet& freqSet, const SiteCo
       pl.setParameter(i, ap);
     }
 
-    for (unsigned int i = 0; i < pl.size(); i++)
+    for (size_t i = 0; i < pl.size(); ++i)
     {
       const string pName = pl[i].getName();
-      double value = ApplicationTools::getDoubleParameter(pName, unparsedArguments_, pl[i].getValue());
+      double value = ApplicationTools::getDoubleParameter(pName, unparsedArguments_, pl[i].getValue(), "", true, warningLevel_);
 
       pl[i].setValue(value);
       if (verbose_)

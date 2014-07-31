@@ -53,6 +53,7 @@
 #include <map>
 #include <iostream>
 #include <algorithm>
+#include <cstddef>
 
 namespace bpp
 {
@@ -408,7 +409,7 @@ public:
     if (!node)
       throw NullPointerException("Node::addSon(). Empty node given as input.");
     if (find(sons_.begin(), sons_.end(), node) == sons_.end())
-      sons_.insert(sons_.begin() + pos, node);
+      sons_.insert(sons_.begin() + static_cast<ptrdiff_t>(pos), node);
     else // Otherwise node is already present.
       std::cerr << "DEVEL warning: Node::addSon. Son node already registered! No pb here, but could be a bug in your implementation..." << std::endl;
 
@@ -433,7 +434,7 @@ public:
     if (pos >= sons_.size())
       throw IndexOutOfBoundsException("Node::setSon(). Invalid node position.", pos, 0, sons_.size() - 1);
     std::vector<Node*>::iterator search = find(sons_.begin(), sons_.end(), node);
-    if (search == sons_.end() || search == sons_.begin() + pos)
+    if (search == sons_.end() || search == sons_.begin() + static_cast<ptrdiff_t>(pos))
       sons_[pos] = node;
     else
       throw NodePException("Node::setSon. Trying to set a node which is already present.");
@@ -445,7 +446,7 @@ public:
     if (pos >= sons_.size())
       throw IndexOutOfBoundsException("Node::removeSon(). Invalid node position.", pos, 0, sons_.size() - 1);
     Node* node = sons_[pos];
-    sons_.erase(sons_.begin() + pos);
+    sons_.erase(sons_.begin() + static_cast<ptrdiff_t>(pos));
     node->removeFather();
     return node;
   }
@@ -458,7 +459,7 @@ public:
     {
       if (sons_[i] == node)
       {
-        sons_.erase(sons_.begin() + i);
+        sons_.erase(sons_.begin() + static_cast<ptrdiff_t>(i));
         node->removeFather();
         return;
       }
@@ -494,9 +495,9 @@ public:
    *
    * @{
    */
-  Node* operator[](int i) { return (i < 0) ? father_ : sons_[i]; }
+  Node* operator[](int i) { return (i < 0) ? father_ : sons_[static_cast<size_t>(i)]; }
 
-  const Node* operator[](int i) const { return (i < 0) ? father_ : sons_[i]; }
+  const Node* operator[](int i) const { return (i < 0) ? father_ : sons_[static_cast<size_t>(i)]; }
 
   /** @} */
 

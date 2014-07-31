@@ -76,13 +76,16 @@ WAG01::WAG01(const ProteicAlphabet* alpha, ProteinFrequenciesSet* freqSet, bool 
 
 /******************************************************************************/
 
-void WAG01::setFreqFromData(const SequenceContainer& data)
+void WAG01::setFreqFromData(const SequenceContainer& data, double pseudoCount)
 {
-  std::map<int, double> freqs;
-  SequenceContainerTools::getFrequencies(data, freqs);
+  map<int, int> counts;
+  SequenceContainerTools::getCounts(data, counts);
   double t = 0;
-  for (size_t i = 0; i < size_; i++) t += freqs[static_cast<int>(i)];
-  for (size_t i = 0; i < size_; i++) freq_[i] = freqs[static_cast<int>(i)] / t;
+  for (int i = 0; i < static_cast<int>(size_); i++)
+  {
+    t += (counts[i] + pseudoCount);
+  }
+  for (size_t i = 0; i < size_; ++i) freq_[i] = (static_cast<double>(counts[static_cast<int>(i)]) + pseudoCount) / t;
   freqSet_->setFrequencies(freq_);
   //Update parameters and re-compute generator and eigen values:
   matchParametersValues(freqSet_->getParameters());
