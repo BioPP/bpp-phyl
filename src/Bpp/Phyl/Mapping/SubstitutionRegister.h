@@ -582,10 +582,12 @@ namespace bpp
        *  This constructor creates an empty square matrix (nrow = ncol
        *  = length of alphabet) and takes a string with specific
        *  syntax to mark a substitutions with a certain index
-       *  depending on the string entered. The same group of
-       *  substitution is delimited by parentheses. The name, if
-       *  entered, is entered at the start of a string and followed by
-       *  ";". Substitutions are delimited by ",".
+       *  depending on the string entered.
+       *
+       *  The same group of substitution is delimited by parentheses.
+       *  The name, if entered, is entered at the start of a string
+       *  and followed by ";". Substitutions are delimited by ",", and
+       *  each substitution is defined with a "->" symbol.
        *
        */
 
@@ -598,7 +600,7 @@ namespace bpp
       while(subsGroup.hasMoreToken())
       {
         typeSubs++;
-        StringTokenizer namesSubs(subsGroup.nextToken(), ";");
+        StringTokenizer namesSubs(subsGroup.nextToken(), ":");
         if(namesSubs.numberOfRemainingTokens()==2){
           categoryNames_[typeSubs]=namesSubs.nextToken();
         }else if(namesSubs.numberOfRemainingTokens()==1){
